@@ -6,8 +6,8 @@
 #
 ########################################################################
 
-export_dir = $(HOME)/export
-version = 1.3
+export_dir = $(HOME)/sfdist
+version = 1.4
 ct = $(export_dir)/cantera-$(version)
 build_ck = @BUILD_CK@
 build_clib = @BUILD_CLIB@
