@@ -3,6 +3,8 @@
 # $Author$
 # $Date$
 #
+build_ck=@BUILD_CK@
+
 all: apps
 
 install: templates-install apps-install man-install
@@ -13,7 +15,9 @@ apps:
 
 apps-install:
 	@INSTALL@ -d @ct_bindir@
+ifeq ($(build_ck),1)
 	@INSTALL@ ../bin/ck2cti @ct_bindir@
+endif
 	@INSTALL@ ../bin/cti2ctml @ct_bindir@
 
 man-install:
