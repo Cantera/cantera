@@ -196,7 +196,23 @@ namespace Cantera {
             } 
         }
 
-	/// set the concentrations to the specified values
+	/**
+	 * Set the concentrations to the specified values within the
+	 * phase. This is the MAIN function for internally setting
+	 * the composition of a phase. It sets all of the internal
+	 * parameters within the state object. These are:
+	 *    m_dens = density of state
+	 *    m_ym[k] = mole fraction of species k / MolecWeight species k
+	 *    m_y[k] = Mass fractions of species k
+	 *    m_mmw = mean molecular weight of mixture
+	 *
+	 * @param The input vector to this routine is in dimensional
+	 *        units. For volumetric phases c[k] is the
+	 *        concentration of the kth species in kmol/m3.
+	 *        For surface phases, c[k] is the concentration
+	 *        in kmol/m2. The length of the vector is the number
+	 *        of species in the phase.
+	 */
 	void setConcentrations(const doublereal* c);
 
 	/**
