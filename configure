@@ -59,6 +59,11 @@ USE_VISUAL_STUDIO=${USE_VISUAL_STUDIO:="y"}
 # build the Matlab interface. 
 FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
 
+#
+# If you are using Visual Studio, set this variable to indicates 
+# whether you want to use DLL's. Note you need this for MSVCv7.0
+# but this is turned off for MSVCv6.0
+# USE_DLL=yes
 
 #----------------------------------------------------------------------
 #         Language Interfaces

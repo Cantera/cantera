@@ -19,6 +19,7 @@ os_is_win = @OS_IS_WIN@
 incl_user_code = @INCL_USER_CODE@
 do_ranlib = @DO_RANLIB@
 compact_install = @COMPACT_INSTALL@
+use_dll = @USE_CLIB_DLL@
 
 prefix=@prefix@
 
@@ -98,8 +99,10 @@ win-kernel-install:
 	@INSTALL@ -d @ct_libdir@
 	rm -f @ct_libdir@/*
 	@INSTALL@ -m 644 @buildlib@/*.lib @ct_libdir@
+ifeq ($(use_dll),1)
 	@INSTALL@ -m 644 @buildlib@/*.dll @ct_libdir@
 	@INSTALL@ -m 644 @buildlib@/*.exp @ct_libdir@
+endif
 
 data-install:
 	@INSTALL@ -d @ct_datadir@
