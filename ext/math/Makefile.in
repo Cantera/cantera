@@ -7,8 +7,8 @@
 
 LIB = @buildlib@/libctmath.a
 
-SUFFIXES=
-SUFFIXES= .f .d .o
+.SUFFIXES :
+.SUFFIXES : .f .d .o .cpp
 
 F_FLAGS = @FFLAGS@ @F77FLAGS@
 
@@ -35,7 +35,7 @@ xersve.o \
 xgetua.o 
 
 SRCS = $(OBJS:.o=.cpp)
-
+all = $(LIB)
 
 $(LIB):  $(OBJS)
 	@ARCHIVE@ $(LIB) $(OBJS) > /dev/null
