@@ -17,9 +17,9 @@
 #ifndef CT_DENSEMATRIX_H
 #define CT_DENSEMATRIX_H
 
-#include <iostream>
-#include <vector>
-using namespace std;
+//#include <iostream>
+//#include <vector>
+//using namespace std;
 
 #include "ct_defs.h"
 #include "Array.h"

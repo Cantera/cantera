@@ -12,10 +12,10 @@
 #ifndef CT_REACTION_DATA_H
 #define CT_REACTION_DATA_H
 
-#include <vector>
-#include <map>
-#include <numeric>
-using namespace std;
+//#include <vector>
+//#include <map>
+//#include <numeric>
+//using namespace std;
 
 #include "reaction_defs.h"
 

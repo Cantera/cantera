@@ -23,12 +23,12 @@ using namespace std;
 
 namespace Cantera {
 
-    class ElementsFrozen : public CanteraError {
-    public:
-        ElementsFrozen(string func) 
-            : CanteraError(func,
-                "elements cannot be added after species.") {}
-    };
+    //class ElementsFrozen : public CanteraError {
+    //public:
+    //    ElementsFrozen(string func) 
+    //        : CanteraError(func,
+    //            "elements cannot be added after species.") {}
+    //};
 
     /********************************************************************
      *

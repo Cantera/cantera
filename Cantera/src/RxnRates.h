@@ -15,6 +15,7 @@
 #define CT_RXNRATES_H
 
 #include "reaction_defs.h"
+#include "ctexceptions.h"
 
 namespace Cantera {
     

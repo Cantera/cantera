@@ -8,7 +8,6 @@
 
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_SPECIESTHERMO_MGR_H
 #define CT_SPECIESTHERMO_MGR_H
 
@@ -111,14 +110,14 @@ namespace Cantera {
 	SpeciesThermoDuo() {}
         virtual ~SpeciesThermoDuo(){}
                 
-	virtual void install(int sp, int type, const doublereal* c,
+	virtual void install(string name, int sp, int type, const doublereal* c,
             doublereal minTemp, doublereal maxTemp, doublereal refPressure) {
             m_p0 = refPressure;
             if (type == m_thermo1.ID) {
-                m_thermo1.install(sp, 0, c, minTemp, maxTemp, refPressure);
+                m_thermo1.install(name, sp, 0, c, minTemp, maxTemp, refPressure);
 		speciesToType[sp] = m_thermo1.ID;
             } else if (type == m_thermo2.ID) {
-                m_thermo2.install(sp, 0, c, minTemp, maxTemp, refPressure);
+                m_thermo2.install(name, sp, 0, c, minTemp, maxTemp, refPressure);
 		speciesToType[sp] = m_thermo2.ID;
             } else {
                 throw UnknownSpeciesThermo("SpeciesThermoDuo:install",type);
@@ -181,6 +180,8 @@ namespace Cantera {
 	map<int, int> speciesToType;
     };
 
+#define REMOVE_FOR_V155
+#ifndef REMOVE_FOR_V155
 
     /**
      *  This species thermo manager requires that all species have the
@@ -194,7 +195,7 @@ namespace Cantera {
 	SpeciesThermo1() : m_pref(0.0) {}
         virtual ~SpeciesThermo1(){}
                 
-	virtual void install(int sp, int type, const vector_fp& c) {
+	virtual void install(string name, int sp, int type, const vector_fp& c) {
 	    m_thermo.push_back(T(sp, c));
 	    if (m_pref) {
 		if (m_thermo.begin()->refPressure() != m_pref) {
@@ -245,6 +246,8 @@ namespace Cantera {
         vector<T> m_thermo;
         doublereal m_pref;
     };
+#endif
+
 }
 
 #endif

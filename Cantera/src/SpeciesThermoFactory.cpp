@@ -28,6 +28,7 @@
 
 #include "xml.h"
 #include "ctml.h"
+
 using namespace ctml;
 
 namespace Cantera {
@@ -126,7 +127,7 @@ namespace Cantera {
 
     /// Check the continuity of properties at the midpoint
     /// temperature.
-    void NasaThermo::checkContinuity(double tmid, const doublereal* clow,
+    void NasaThermo::checkContinuity(string name, double tmid, const doublereal* clow,
         doublereal* chigh) {
 
         // heat capacity
@@ -134,7 +135,8 @@ namespace Cantera {
         doublereal cphigh = poly4(tmid, chigh+2);
         doublereal delta = cplow - cphigh;
         if (fabs(delta/cplow) > 0.001) {
-            writelog("\n**** WARNING ****\nDiscontinuity in cp/R detected at Tmid = "
+            writelog("\n**** WARNING ****\nFor species "+name+
+                ", discontinuity in cp/R detected at Tmid = "
                 +fp2str(tmid)+"\n");
             writelog("\tValue computed using low-temperature polynomial:  "+fp2str(cplow)+".\n");
             writelog("\tValue computed using high-temperature polynomial: "+fp2str(cphigh)+".\n");
@@ -145,7 +147,7 @@ namespace Cantera {
         doublereal hrthigh = enthalpy_RT(tmid, chigh);
         delta = hrtlow - hrthigh;
         if (fabs(delta/hrtlow) > 0.001) {
-            writelog("\n**** WARNING ****\nDiscontinuity in h/RT detected at Tmid = "
+            writelog("\n**** WARNING ****\nFor species "+name+", discontinuity in h/RT detected at Tmid = "
                 +fp2str(tmid)+"\n");
             writelog("\tValue computed using low-temperature polynomial:  "+fp2str(hrtlow)+".\n");
             writelog("\tValue computed using high-temperature polynomial: "+fp2str(hrthigh)+".\n");
@@ -156,7 +158,7 @@ namespace Cantera {
         doublereal srhigh = entropy_R(tmid, chigh);
         delta = srlow - srhigh;
         if (fabs(delta/srlow) > 0.001) {
-            writelog("\n**** WARNING ****\nDiscontinuity in s/R detected at Tmid = "
+            writelog("\n**** WARNING ****\nFor species "+name+", discontinuity in s/R detected at Tmid = "
                 +fp2str(tmid)+"\n");
             writelog("\tValue computed using low-temperature polynomial:  "+fp2str(srlow)+".\n");
             writelog("\tValue computed using high-temperature polynomial: "+fp2str(srhigh)+".\n");
@@ -168,7 +170,8 @@ namespace Cantera {
      * Install a NASA polynomial thermodynamic property
      * parameterization for species k into a SpeciesThermo instance.
      */
-    static void installNasaThermoFromXML(SpeciesThermo& sp, int k, 
+    static void installNasaThermoFromXML(string speciesName,
+        SpeciesThermo& sp, int k, 
         const XML_Node* f0ptr, const XML_Node* f1ptr) {
         doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
 
@@ -215,7 +218,7 @@ namespace Cantera {
         c[8] = c1[5];
         c[9] = c1[6];
         copy(c1.begin(), c1.begin()+5, c.begin() + 10);
-        sp.install(k, NASA, c.begin(), tmin, tmax, p0);
+        sp.install(speciesName, k, NASA, c.begin(), tmin, tmax, p0);
     }
 
 
@@ -223,7 +226,8 @@ namespace Cantera {
      * Install a NASA polynomial thermodynamic property
      * parameterization for species k.
      */
-    static void installShomateThermoFromXML(SpeciesThermo& sp, int k, 
+    static void installShomateThermoFromXML(string speciesName, 
+        SpeciesThermo& sp, int k, 
         const XML_Node* f0ptr, const XML_Node* f1ptr) {
         doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
 
@@ -266,7 +270,7 @@ namespace Cantera {
         doublereal p0 = OneAtm;
         copy(c0.begin(), c0.begin()+7, c.begin() + 1);
         copy(c1.begin(), c1.begin()+7, c.begin() + 8);
-        sp.install(k, SHOMATE, c.begin(), tmin, tmax, p0);
+        sp.install(speciesName, k, SHOMATE, c.begin(), tmin, tmax, p0);
     }
 
 
@@ -275,7 +279,8 @@ namespace Cantera {
      * Install a constant-cp thermodynamic property
      * parameterization for species k.
      */
-    static void installSimpleThermoFromXML(SpeciesThermo& sp, int k, 
+    static void installSimpleThermoFromXML(string speciesName, 
+        SpeciesThermo& sp, int k, 
         const XML_Node& f) {
         doublereal tmin, tmax;
         tmin = fpValue(f["Tmin"]);
@@ -288,9 +293,8 @@ namespace Cantera {
         c[2] = getFloat(f, "s0", "-");
         c[3] = getFloat(f, "cp0", "-");
         doublereal p0 = OneAtm;
-        sp.install(k, SIMPLE, c.begin(), tmin, tmax, p0);
+        sp.install(speciesName, k, SIMPLE, c.begin(), tmin, tmax, p0);
     }
-
 
     /**
      * Install a species thermodynamic property parameterization
@@ -316,13 +320,13 @@ namespace Cantera {
 	if (nc == 1) {
             const XML_Node* f = tp[0];
             if (f->name() == "Shomate") {
-                installShomateThermoFromXML(spthermo, k, f, 0);
+                installShomateThermoFromXML(s["name"], spthermo, k, f, 0);
             }
             else if (f->name() == "const_cp") {
-                installSimpleThermoFromXML(spthermo, k, *f);
+                installSimpleThermoFromXML(s["name"], spthermo, k, *f);
             }
             else if (f->name() == "NASA") {
-                installNasaThermoFromXML(spthermo, k, f, 0);
+                installNasaThermoFromXML(s["name"], spthermo, k, f, 0);
             }
             else {
                 throw UnknownSpeciesThermoModel("installSpecies", 
@@ -333,10 +337,10 @@ namespace Cantera {
             const XML_Node* f0 = tp[0];
             const XML_Node* f1 = tp[1];
             if (f0->name() == "NASA" && f1->name() == "NASA") {
-                installNasaThermoFromXML(spthermo, k, f0, f1);
+                installNasaThermoFromXML(s["name"], spthermo, k, f0, f1);
             } 
             else if (f0->name() == "Shomate" && f1->name() == "Shomate") {
-                installShomateThermoFromXML(spthermo, k, f0, f1);
+                installShomateThermoFromXML(s["name"], spthermo, k, f0, f1);
             } 
             else {
                 throw UnknownSpeciesThermoModel("installSpecies", s["name"], 

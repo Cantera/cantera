@@ -54,7 +54,7 @@ namespace Cantera {
          * in the same units as used in the NIST Chemistry WebBook.
          *
          */
-        virtual void install(int index, int type, const doublereal* c,
+        virtual void install(string name, int index, int type, const doublereal* c,
             doublereal minTemp, doublereal maxTemp, doublereal refPressure) {
             int imid = int(c[0]);       // midpoint temp converted to integer
             int igrp = m_index[imid];   // has this value been seen before?

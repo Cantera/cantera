@@ -18,6 +18,7 @@
 
 #include "mix_defs.h"
 #include "ThermoPhase.h"
+#include "SurfPhase.h"
 
 namespace Cantera {
 

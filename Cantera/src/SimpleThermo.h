@@ -27,7 +27,7 @@ namespace Cantera {
 
         virtual ~SimpleThermo() {}
 
-        virtual void install(int index, int type, const doublereal* c,
+        virtual void install(string name, int index, int type, const doublereal* c,
             doublereal minTemp, doublereal maxTemp, doublereal refPressure) {
             m_logt0.push_back(log(c[0]));
             m_t0.push_back(c[0]);

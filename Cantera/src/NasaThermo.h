@@ -11,6 +11,7 @@
 
 #ifndef CT_NASATHERMO_H
 #define CT_NASATHERMO_H
+#include <string>
 
 #include "SpeciesThermoMgr.h"
 #include "NasaPoly1.h"
@@ -64,7 +65,7 @@ namespace Cantera {
          * - c[1] - c[7]   coefficients for low T range
          * - c[8] - c[14]  coefficients for high T range
          */
-        virtual void install(int index, int type, const doublereal* c, 
+        virtual void install(string name, int index, int type, const doublereal* c, 
 			     doublereal minTemp, doublereal maxTemp,
 			     doublereal refPressure) { 
 
@@ -91,7 +92,7 @@ namespace Cantera {
             vector_fp chigh(7);
             copy(c + 8, c + 15, chigh.begin());
 
-            checkContinuity(tmid, clow, chigh.begin());
+            checkContinuity(name, tmid, clow, chigh.begin());
 
             m_high[igrp-1].push_back(NasaPoly1(index, tmid, thigh, 
                                          pref, chigh.begin()));
@@ -263,7 +264,7 @@ namespace Cantera {
     private:
 
         // see SpeciesThermoFactory.cpp for the definition
-        void checkContinuity(double tmid, const doublereal* clow,
+        void checkContinuity(string name, double tmid, const doublereal* clow,
             doublereal* chigh);
 
         /// for internal use by checkContinuity

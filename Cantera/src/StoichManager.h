@@ -12,9 +12,9 @@
 #ifndef CT_STOICH_MGR_H
 #define CT_STOICH_MGR_H
 
-#include <vector>
-#include <map>
-using namespace std;
+//#include <vector>
+//#include <map>
+//using namespace std;
 
 #include "stringUtils.h"
 

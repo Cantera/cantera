@@ -9,7 +9,7 @@
 ###############################################################
 
 SUFFIXES=
-SUFFIXES= .cpp .d .o .dh
+SUFFIXES= .cpp .d .o .dh .h .h.gch
 
 OBJDIR = .
 
@@ -54,28 +54,23 @@ FLOW1D     =  $(KINETICS) $(SOLVERS)
 EVERYTHING = $(KINETICS) $(HETEROKIN) $(ELECTROCHEM) $(EQUIL) $(CK) \
              $(TRANSPORT) $(REACTOR) $(RPATH) $(SOLVERS) $(FLOW1D)
 
+PCH = all.h
+#config.h ct_defs.h utilities.h ThermoPhase.h Kinetics.h ReactionData.h RateCoeffMgr.h ReactionStoichMgr.h
 
-PCH = ct_defs.h.gch utilities.h.gch ThermoPhase.h.gch Kinetics.h.gch
-PCHSRC = ($PCH:.h.gch=.h)
+PCHGCH = $(PCH:.h=.h.gch)
 
-all:  config.h $(PCH) @KERNEL@ lib
+all:  config.h $(PCHGCH) @KERNEL@ lib
 
 config.h: ../../config.h
 	cp -f ../../config.h ./config.h
 
-#	@(if test "x`diff -bB --brief config.h ../../config.h`" != "x"; then (cp -f ../../config.h ./config.h; echo 'copied ../../config.h'); fi)
-
-%.h.gch:
+%.h.gch : %.h
 ifeq (@precompile_headers@,yes)
 	@CXX@ $*.h $(CXX_FLAGS) 
 else
 	@echo 'skipping precompiling header file $*.h'
 endif
 
-ct_defs.h.gch: ct_defs.h
-utilities.h.gch: utilities.h
-ThermoPhase.h.gch: ThermoPhase.h
-Kinetics.h.gch: Kinetics.h
 
 base: $(BASE)
 
@@ -110,14 +105,11 @@ CXX_LIBS = @LIBS@
 CXX_INCLUDES = -I.
 CANTERA_LIB = @buildlib@/libcantera.a
 
-DEPENDS = $(EVERYTHING:.o=.d) $(PCH:.h.gch=.dh)
-SRCS = $(EVERYTHING:.o=.cpp) $(PCH:.gch=)
+DEPENDS = $(EVERYTHING:.o=.d)
+SRCS = $(EVERYTHING:.o=.cpp)
 
 .cpp.d:
 	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
-
-.h.dh:
-	g++ -MM $(CXX_INCLUDES) $*.h > $*.dh
 
 .cpp.o:
 	@CXX@ -c $< $(CXX_FLAGS) 

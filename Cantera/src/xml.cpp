@@ -74,12 +74,17 @@ namespace Cantera {
     //////////////////// XML_Reader methods ///////////////////////
 
 
-    
+    /// Get a single character from the input stream. If the character
+    /// is a new-line character, then increment the line count.
     void XML_Reader::getchr(char& ch) {
         m_s.get(ch);
         if (ch == '\n') m_line++;
     }
 
+
+    /// Returns string 'aline' stripped of leading and trailing white
+    /// space.
+    /// @todo why is this a class method?
     string XML_Reader::strip(const string& aline) {
         int len = static_cast<int>(aline.size());
         int i, j;
@@ -90,6 +95,11 @@ namespace Cantera {
         return aline.substr(j, i - j + 1);
     }
 
+
+    /// Looks for a substring within 'aline' enclosed in double
+    /// quotes, and returns this substring (without the quotes) if
+    /// found.  If not, an empty string is returned.
+    /// @todo why is this a class method?
     string XML_Reader::inquotes(const string& aline) {
         int len = static_cast<int>(aline.size());
         int i, j;
@@ -189,13 +199,11 @@ namespace Cantera {
             // get attributes
             while (1) {
                 iloc = s.find('=');
-                if (iloc == string::npos) break;
+                if (iloc == string::npos) break; 
                 attr = strip(s.substr(0,iloc));
                 if (attr == "") break;
                 s = strip(s.substr(iloc+1,s.size()));
-                //iloc = s.find(' ');
-                //if (iloc < 0) iloc = s.size();
-                iloc = findQuotedString(s, val);
+                       iloc = findQuotedString(s, val);
                 attribs[attr] = val;
 		if (iloc != string::npos) {
 		  if (iloc < s.size()) 
@@ -706,77 +714,6 @@ namespace Cantera {
         throw CanteraError("XML_Node::require",msg);
     }
 
-
-// #ifdef FIND_XML
-//     /*
-//      * Find a particular XML element by a fairly complicated hierarchal
-//      * search objective.
-//      *
-//      * HKM -Note: Right now this routine contains a memory leak.
-//      *            A "new" operation is conditionally carried out and
-//      *            the pointer may or may not be returned to the calling
-//      *            program. Therefore, it can't be deleted in the 
-//      *            calling program. This
-//      *            eventually needs to be fixed by extracting the xml
-//      *            malloc and build operation from the search operation.
-//      */
-//     XML_Node* find_XML(string src, XML_Node* root, string id, string loc, 
-//         string name) {
-//         string file, id2;
-//         split(src, file, id2);
-//         src = file;
-//         if (id2 != "") id = id2;
-
-//         XML_Node *doc = 0, *r = 0;
-//         if (src != "") {
-//             doc = new XML_Node("doc");
-//             string spath = findInputFile(src);
-//             ifstream fin(spath.c_str());
-//             if (!fin)
-//                 throw CanteraError("find_XML","could not open file "+src+
-//                     " for input.");
-//             doc->build(fin);
-//             root = 0;
-//         }
-//         else if (root) { 
-//             doc = root;
-//         }
-//         else {
-//             throw CanteraError("find_XML",
-//                 "either root or src must be specified.");
-//         }
-
-//         try {
-//             if (id != "") 
-//                 r = doc->findID(id);
-//             else if (loc != "")
-//                 r = &doc->child(loc);
-//             else if (name != "") 
-//                 r = doc->findByName(name);
-//             if (!r) {
-//                 string opt = " src="+src+", loc="+loc+", id="
-//                              +id+", name="+name;
-//                 throw CanteraError("find_XML", "XML element with "+opt+
-//                     " not found.");
-//             }
-//             return r;
-//         }
-//         catch (CanteraError) {
-            
-//             // root was used, but element was not found. Try src.
-//             if (root && src != "") {
-//                 return find_XML(src, 0, id, loc, name);
-//             }
-//             else {
-//                 string opt = " src="+src+", loc="+loc+", id="
-//                              +id+", name="+name;
-//                 throw CanteraError("find_XML", "XML element with "+opt+
-//                     " not found.");
-//                 return 0;
-//             }
-//         }
-//     }
-// #endif
 
         
     XML_Node * findXMLPhase(XML_Node *root, 
