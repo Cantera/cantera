@@ -104,13 +104,16 @@ namespace Cantera {
             if (!root) throw CanteraError("get_XML_Node",
                 "no file name given. file_ID = "+file_ID);
             db = root->findID(idstr, 3);
-        } else {
-	  doc = get_XML_File(fname);
-	  if (!doc) throw CanteraError("get_XML_Node", 
-              "get_XML_File failed trying to open "+fname);
-	  db = doc->findID(idstr, 3);
-          if (!db) throw CanteraError("get_XML_Node", 
-              "id tag "+idstr+" not found.");
+        } 
+        else {
+            doc = get_XML_File(fname);
+            if (!doc) throw CanteraError("get_XML_Node", 
+                "get_XML_File failed trying to open "+fname);
+            db = doc->findID(idstr, 3);
+        }
+        if (!db) {
+            throw CanteraError("get_XML_Node", 
+                "id tag '"+idstr+"' not found.");
         }
         return db;
     }
@@ -664,44 +667,6 @@ namespace Cantera {
             return 0;
     }
 
-//     /**
-//      * Set the thermodynamic state.
-//      */
-//     static void setState(const XML_Node& phase, ThermoPhase* th) {
-//         if (!phase.hasChild("state")) return;
-//         const XML_Node state = phase.child("state");
-//         doublereal t, p, rho;
-//         string comp = getString(state,"moleFractions");
-//         if (comp != "") 
-//             th->setMoleFractionsByName(comp);
-//         else {
-//             comp = getString(state,"massFractions");
-//             if (comp != "") 
-//                 th->setMassFractionsByName(comp);
-//         }
-//         if (state.hasChild("temperature")) {
-//             t = getFloat(state, "temperature", "temperature");
-//             th->setTemperature(t);
-//         }
-//         if (state.hasChild("pressure")) {
-//             p = getFloat(state, "pressure", "pressure");
-//             th->setPressure(p);
-//         }
-//         if (state.hasChild("density")) {
-//             rho = getFloat(state, "density", "density");
-//             th->setDensity(rho);
-//         }
-//         if (th->eosType() == cSurf && state.hasChild("coverages")) {
-//             comp = getString(state,"coverages");
-//             SurfPhase* s = (SurfPhase*)th;
-//             s->setCoveragesByName(comp);
-//         }
-//         if (th->eosType() == cEdge && state.hasChild("coverages")) {
-//             comp = getString(state,"coverages");
-//             EdgePhase* s = (EdgePhase*)th;
-//             s->setCoveragesByName(comp);
-//         }
-//     }
         
     /**
      * Import a phase specification.
@@ -1374,35 +1339,40 @@ next:
      }
 
     /**
-     * Build a single-phase  ThermoPhase object with associated kinetics
+     * Build a single-phase ThermoPhase object with associated kinetics
      * mechanism.
      */
     bool buildSolutionFromXML(XML_Node& root, string id, string nm, 
         ThermoPhase* th, Kinetics* k) {
         XML_Node* x;
-        x = get_XML_Node(string("#")+id, &root); 
-        //x = find_XML("", &root, id, "", nm);
-        if (!x) return false;
-	/*
-	 * Fill in the ThermoPhase object by querying the
-	 * const XML_Node tree located at x.
-	 */
-        importPhase(*x, th);
-	/*
-	 * Create a vector of ThermoPhase pointers of length 1
-	 * having the current th ThermoPhase as the entry.
-	 */
-        vector<ThermoPhase*> phases(1);
-        phases[0] = th;
-	/*
-	 * Fill in the kinetics object k, by querying the
-	 * const XML_Node tree located by x. The source terms and
-	 * eventually the source term vector will be constructed
-	 * from the list of ThermoPhases in the vector, phases.
-	 */
-        importKinetics(*x, phases, k);
+        try {
+            x = get_XML_Node(string("#")+id, &root); 
 
-        return true;
+            /*
+             * Fill in the ThermoPhase object by querying the
+             * const XML_Node tree located at x.
+             */
+            importPhase(*x, th);
+            /*
+             * Create a vector of ThermoPhase pointers of length 1
+             * having the current th ThermoPhase as the entry.
+             */
+            vector<ThermoPhase*> phases(1);
+            phases[0] = th;
+            /*
+             * Fill in the kinetics object k, by querying the
+             * const XML_Node tree located by x. The source terms and
+             * eventually the source term vector will be constructed
+             * from the list of ThermoPhases in the vector, phases.
+             */
+            importKinetics(*x, phases, k);
+
+            return true;
+        }
+        catch (CanteraError) {
+            throw CanteraError("buildSolutionFromXML","error encountered");
+            return false;
+        }
     }
 }    
  
