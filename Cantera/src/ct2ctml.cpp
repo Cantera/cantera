@@ -45,7 +45,7 @@ namespace ctml {
         string path = tmpDir() + "/.check.py";
         ofstream f(path.c_str());
         if (!f) {
-            throw CanteraError("checkPython","cannot open "+path+" for writing);
+            throw CanteraError("checkPython","cannot open "+path+" for writing");
         }
         f << "from Cantera import *\n";
         f.close();

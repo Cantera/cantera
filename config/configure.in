@@ -22,12 +22,20 @@ ac_sys_release=`uname -r`
 SHARED_CTLIB=0
 OS_IS_DARWIN=0
 OS_IS_WIN=0
+OS_IS_CYGWIN=0
+
 mex_ext=mexglx
 
 case $ac_sys_system in
   Darwin*)  OS_IS_DARWIN=1; mex_ext=mexmac;;
-  CYGWIN*) OS_IS_WIN=1; mex_ext=dll;;
+  CYGWIN*) OS_IS_CYGWIN=1; mex_ext=dll;;
 esac
+
+if test "x${OS_IS_CYGWIN}" = "x1"; then
+if test "${USE_VISUAL_STUDIO}" = "y"; then
+OS_IS_WIN=1;
+fi
+fi
 
 #AC_PREFIX_DEFAULT([/usr/local])
 
@@ -121,21 +129,19 @@ AC_SUBST(CANTERA_EXAMPLES_DIR)
 AC_SUBST(CANTERA_DATADIR)
 
 
+AC_CANONICAL_SYSTEM()
+
 ctroot=`(cd ..;pwd)`
+builddir=$target
 if test "x${OS_IS_WIN}" = "x1"; then
   ctroot=`cygpath -a -w "${ctroot}" | sed 's/\\\/\\//g'`
   builddir="i686-pc-win32"
-else
-  builddir=$target
 fi
 
 if test -z "$username"; then username=$USER; fi
 AC_SUBST(username)
  
 AC_SUBST(ctroot)
-
-
-AC_CANONICAL_SYSTEM()
 
 buildinc=$ctroot/build/include
 AC_SUBST(buildinc)
@@ -443,6 +449,7 @@ AC_SUBST(CXX_DEPENDS)
 AC_SUBST(FLIBS)
 AC_SUBST(OS_IS_DARWIN)
 AC_SUBST(OS_IS_WIN)
+AC_SUBST(OS_IS_CYGWIN)
 AC_SUBST(SHARED_CTLIB)
 AC_SUBST(mex_ext)
 

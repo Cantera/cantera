@@ -719,26 +719,6 @@ namespace Cantera {
             } 
             break;
 
-//         case c_Multi_Transport:
-//             for (m = j0; m < j1; m++) {
-//                 wtm = m_wtm[m];
-//                 rho = density(m);
-//                 dz = z(m+1) - z(m);
-//                 fluxsum = 0.0;
-//                 for (k = 0; k < m_nsp; k++) {
-//                     sum = 0.0;
-//                     for (j = 0; j < m_nsp; j++) {
-//                         if (j != k) {
-//                             s = m_wt[j]*m_diff[mindex(k,j,m)];
-//                             s *= (X(x,j,m+1) - X(x,j,m))/dz;
-//                             sum += s;
-//                         }
-//                     }
-//                     m_flux(k,m) = sum*rho*m_wt[k]/(wtm*wtm);
-//                     fluxsum -= m_flux(k,m);
-//                 }
-//             } 
-//             break;
         default:
             throw CanteraError("updateDiffFluxes","unknown transport model");
         }
@@ -795,7 +775,7 @@ namespace Cantera {
         int nd = d.size();
 
         vector_fp x;
-        int n, np, j, ks, k;
+        int n, np = 0, j, ks, k;
         string nm;
         bool readgrid = false, wrote_header = false;
         for (n = 0; n < nd; n++) {

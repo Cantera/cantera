@@ -42,7 +42,7 @@ _build: $(SRCS) $(LIB_DEPS)
 	echo 'ok' > _build
 
 
-_winbuild: $(SRCS)
+_winbuild: $(SRCS) $(LIB_DEPS)
 	touch src/pycantera.cpp 
 	(@PYTHON_CMD@ setup.py build)
 	echo 'ok' > _winbuild
