@@ -435,7 +435,21 @@ namespace Cantera {
         while (!f.eof()) {
             attribs.clear();
             nm = r.readTag(attribs);
+#ifdef DEBUG_HKM
+	    //if (nm == "EOF") {
+	    // cout << "*** at XMLNode ";
+	    //  if (!node) cout << "NULL";
+	    // cout << " : read " << nm << endl;
+	    //} else {
+	    // cout << "*** at XMLNode " << node->name()
+	    //	   << " : read " << nm << endl;
+	    //}
+#endif
             if (nm == "EOF") break;
+	    if (nm == "--" && m_name == "--" && m_root == this) {
+	      //cout << "*********special top condition " << endl;
+	      continue;
+	    }
             int lnum = r.m_line;
             if (nm[nm.size() - 1] == '/') {
                 nm2 = nm.substr(0,nm.size()-1);
@@ -520,6 +534,19 @@ namespace Cantera {
 	  node_dest->addAttribute(b->first, b->second);
 	}
 	vector<XML_Node*> &vsc = node_dest->children();
+#ifdef DEBUG_HKM
+        //cout << "***  dest: " << node_dest->name() 
+	//    << ", value = \"" << node_dest->value();
+        //cout << "\" *** src: " << m_name 
+	//     << ", value = \"" << m_value << "\"" << endl;
+	//cout << " ***** src: " << m_name 
+	//     << " has " << m_nchildren <<" children:";
+	//for (int n = 0; n < m_nchildren; n++) {
+	//  sc = m_children[n];
+	//  cout << " " << sc->name();
+	//}
+	//cout << endl;
+#endif
 	for (int n = 0; n < m_nchildren; n++) {
 	  sc = m_children[n];
 	  ndc = node_dest->nChildren();
