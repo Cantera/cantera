@@ -23,9 +23,21 @@ class CTI_Error:
 
 
 
-indent = ['',' ','  ','   ','    ','     ',
-          '      ','       ','        ',
-          '          ','           ']
+indent = ['',
+          ' ',
+          '  ',
+          '   ',
+          '    ',
+          '     ',
+          '      ',
+          '       ',
+          '        ',
+          '         ',
+          '          ',
+          '           ',
+          '            ',
+          '             ',
+          '              ']
 
 #-----------------------------------------------------
 
@@ -1495,7 +1507,10 @@ validate()
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.1  2004-06-02 04:39:09  dggoodwin
+# Revision 1.2  2004-06-04 06:05:31  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.1  2004/06/02 04:39:09  dggoodwin
 # moved ctml_writer.py out of Cantera package
 #
 # Revision 1.34  2004/05/30 04:02:55  dggoodwin

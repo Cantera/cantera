@@ -605,7 +605,7 @@ class Valve(FlowDevice):
         FlowDevice.__init__(self,3,name,verbose)
         if upstream and downstream:
             self.install(upstream, downstream)
-        self.setValveCoeff(Kv, mdot0)
+        self.setValveCoeff(Kv)
 
 
     def setValveCoeff(self, Kv = -1.0):

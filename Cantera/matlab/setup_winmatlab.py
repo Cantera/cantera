@@ -1,9 +1,9 @@
 
 import sys
 
-bindir = '/usr/local/bin'
-libdir = '/Users/dgg/dv/sf/cantera/build/lib/powerpc-apple-darwin7.4.0'
-incdir = '/Users/dgg/dv/sf/cantera/build/include'
+bindir = '/home/goodwin/ct154/bin'
+libdir = '/home/goodwin/dv/sf/cantera/build/lib/i686-pc-linux-gnu'
+incdir = '/home/goodwin/dv/sf/cantera/build/include'
 dflibdir = ''
 
 libs = ['clib', 'oneD', 'zeroD', 'transport', 'cantera', 'recipes',
