@@ -11,7 +11,17 @@ temp_success="1"
 CANTERA_DATA=${CANTERA_DATA:=../../data/inputs}; export CANTERA_DATA
 
 CANTERA_BIN=${CANTERA_BIN:=../../bin}
-PYTHON_CMD=$1
+
+#
+# Try to create a default python executable location if no
+# argument to runtest is supplied.
+#
+if test -z $PYTHONHOME ; then
+  PYTHON_CMDA=python
+else
+  PYTHON_CMDA=$PYTHONHOME/bin/python
+fi
+PYTHON_CMD=${PYTHON_CMDA:=$1}
 
 $PYTHON_CMD ../../Cantera/python/examples/flame1.py > flame1.out
 retnStat=$?
