@@ -147,7 +147,7 @@ namespace ckr {
                                       falloffType(r.falloffType), 
                                       falloffParameters(r.falloffParameters),
                                       otherAuxData(r.otherAuxData),
-                                      lines(r.lines) {}
+                                      lines(r.lines), comment(r.comment) {}
 
         /// Destructor
         virtual ~Reaction() {}
@@ -227,6 +227,11 @@ namespace ckr {
          * input file lines
          */ 
         vector<string> lines;
+
+        /**
+         * comments
+         */
+        vector<string> comment;
 
         // methods
 

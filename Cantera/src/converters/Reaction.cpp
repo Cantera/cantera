@@ -59,6 +59,7 @@ namespace ckr {
         isDuplicate = b.isDuplicate;
         lines = b.lines;
         number = b.number;
+        comment = b.comment;
         return *this;
     }
 

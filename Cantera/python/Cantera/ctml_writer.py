@@ -1,3 +1,4 @@
+
 #
 # Cantera input file processor
 #
@@ -55,9 +56,10 @@ def get_atomic_wts():
     edata = edb.child('ctml/elementData')
     e = edata.children()
     for el in e:
-        _atw[el['name']] = el['atomicWt']
-    if el['atomicWt'] == '':
-        print 'no wt for ',el['name']
+        if el['name'] <> 'dummy':
+            _atw[el['name']] = el['atomicWt']
+            if el['atomicWt'] == '':
+                print 'no atomic weight for ',el['name']
     
 def units(length = '', quantity = '', mass = '', time = '', act_energy = ''):
     global _ulen, _umol, _ue
@@ -383,17 +385,12 @@ class sticking_prob(writer):
 class reaction(writer):
     def __init__(self,
                  equation = '',
-                 rate_coeff = None,
-                 k_0 = None,
-                 k_inf = None, 
-                 efficiencies = '',
-                 falloff = None,
-                 id = ''
+                 kf = None,
+                 id = '',                 
                  ):
 
         self._id = id
         self._e = equation
-        self._falloff = falloff
         global _reactions
         self._num = len(_reactions)+1
         r = ''
@@ -406,12 +403,8 @@ class reaction(writer):
                 break
         self._r = getReactionSpecies(r)
         self._p = getReactionSpecies(p)
-        self._kf = rate_coeff
-        self._kf0 = k_0
-        self._kfinf = k_inf
+        self._kf = kf
         self._type = ''
-        self._effm = -1.0
-        self._eff = efficiencies
         _reactions.append(self)
 
         
@@ -419,7 +412,15 @@ class reaction(writer):
         if self._id:
             id = self._id
         else:
-            id = 'reaction_'+`self._num`
+            if self._num < 10:
+                nstr = '000'+`self._num`
+            elif self._num < 100:
+                nstr = '00'+`self._num`
+            elif self._num < 1000:
+                nstr = '0'+`self._num`                
+            else:
+                nstr = `self._num`
+            id = 'reaction_'+nstr
         p.addComment("   reaction "+id+"    ")                
         r = p.addChild('reaction')
         r['id'] = id
@@ -436,47 +437,23 @@ class reaction(writer):
         ldim = 0
         str = ''
 
-        if self._r.has_key('(+'):
-            self._type = 'falloff'
-            if not self._falloff:
-                self._falloff = Lindemann()
-            if self._r.has_key('M)'):
-                self._effm = 1.0
-                del self._r['M)']
-                del self._p['M)']                
-            else:
-                for f in self._r.keys():
-                    if f[-1] == ')' and f.find('(') < 0:
-                        self._effm = 0.0
-                        self._eff = f[:-1]+':1.0'
-                        del self._r[f]
-                        del self._p[f]                        
-                        
-            del self._r['(+']
-            del self._p['(+']
-            
         for s in self._r.keys():
             ns = self._r[s]
             nm = -999
             nl = -999
-            if s == 'M' or s == 'm':
-                self._type = 'threeBody'
-                mdim += 1
-                ldim -= 3
-                self._effm = 1.0
-            else:
-                str += s+':'+`ns`+' '
+
+            str += s+':'+`ns`+' '
             
-                for ph in _phases:
-                    if ph.has_species(s):
-                        nm, nl = ph.conc_dim()
-                        break
-                if nm < 0:
-                    print self._r
-                    raise 'undeclared species '+s
-                else:
-                    mdim += nm*ns
-                    ldim += nl*ns
+            for ph in _phases:
+                if ph.has_species(s):
+                    nm, nl = ph.conc_dim()
+                    break
+            if nm < 0:
+                print self._r
+                raise 'undeclared species '+s
+            else:
+                mdim += nm*ns
+                ldim += nl*ns
 
         # adjust the moles and length powers based on the dimensions of
         # the rate of progress (moles/length^2 or moles/length^3)
@@ -487,11 +464,7 @@ class reaction(writer):
             mdim += -1
             ldim += 3
 
-        if self._type == 'falloff':
-            self._kf = (self._kfinf, self._kf0)
-        else:
-            self._kf = (self._kf,)
-            
+
         # add the reaction type as an attribute if it has been specified.
         if self._type:
             r['type'] = self._type
@@ -502,96 +475,124 @@ class reaction(writer):
         # otherwise, just use the supplied instance.
         nm = ''
         kfnode = r.addChild('rateCoeff')
-        
+        if self._type == '':
+            self._kf = [self._kf]
+        elif self._type == 'threeBody':
+            self._kf = [self._kf]
+            mdim += 1
+            ldim -= 3
+            
         for kf in self._kf:
             
             # compute the pre-exponential units string, and if it begins with a
             # dash, remove it.
             ku = ufmt(_ulen,-ldim) + ufmt(_umol,-mdim) + ufmt('s',-1)
             if ku[0] == '-': ku = ku[1:]
-            mdim += 1
-            ldim -= 3
-            
+
             if type(kf) == types.InstanceType:
                 k = kf
             else:
                 k = Arrhenius(A = kf[0], n = kf[1], E = kf[2])
             k.build(kfnode, units = ku, name = nm)
+
+            # set values for low-pressure rate coeff if falloff rxn
+            mdim += 1
+            ldim -= 3
             nm = 'k0'
 
-        if self._eff and self._effm >= 0.0:
-            eff = kfnode.addChild('efficiencies',self._eff)
-            eff['default'] = `self._effm`
-        
         str = str[:-1]
         r.addChild('reactants',str)
         str = ''
         for s in self._p.keys():
             ns = self._p[s]
-            if s == 'M' or s == 'm':
-                pass
-            else:
-                str += s+':'+`ns`+' '
+            str += s+':'+`ns`+' '
         str = str[:-1]
         r.addChild('products',str)
-
-        if self._falloff:
-            self._falloff.build(kfnode)
-
-
+        return r
 
 #-------------------
 
-
-class falloff_reaction(writer):
+class three_body_reaction(reaction):
     def __init__(self,
                  equation = '',
-                 k_0 = None,
-                 k_inf = None, 
+                 kf = None,
+                 efficiencies = '',
+                 id = '',                 
+                 ):
+
+        reaction.__init__(self, equation, kf, id)
+        self._type = 'threeBody'
+        self._effm = 1.0
+        self._eff = efficiencies
+
+        # clean up reactant and product lists
+        for r in self._r.keys():
+            if r == 'M' or r == 'm':
+                del self._r[r]
+        for p in self._p.keys():
+            if p == 'M' or p == 'm':
+                del self._p[p]
+                
+
+        
+    def build(self, p):
+        r = reaction.build(self, p)
+        kfnode = r.child('rateCoeff')
+        
+        if self._eff:
+            eff = kfnode.addChild('efficiencies',self._eff)
+            eff['default'] = `self._effm`
+        
+
+#---------------
+
+
+class falloff_reaction(reaction):
+    def __init__(self,
+                 equation = '',
+                 kf0 = None,
+                 kf = None, 
                  efficiencies = '',
                  falloff = None,
                  id = ''
                  ):
 
-        if self._falloff:
-            self._falloff = falloff
-        else:
-            self._falloff = Lindemann()        
-        self._num = len(_reactions)+1
+        kf2 = (kf, kf0)        
+        reaction.__init__(self, equation, kf2, id)
         self._type = 'falloff'
+        # use a Lindemann falloff function by default
+        self._falloff = falloff
+        if self._falloff == None:
+            self._falloff = Lindemann()
+        
         self._effm = 1.0
-        self._eff = efficiencies
-        kf = (kfinf, kf0)        
-        reaction.__init__(self, equation, kf, id)
+        self._eff = efficiencies        
 
+        # clean up reactant and product lists
+        del self._r['(+']
+        del self._p['(+']
+        if self._r.has_key('M)'):
+            del self._r['M)']
+            del self._p['M)']
+        if self._r.has_key('m)'):
+            del self._r['m)']
+            del self._p['m)']
+        else:
+            for r in self._r.keys():
+                if r[-1] == ')' and r.find('(') < 0:
+                    if self._eff:
+                        raise '(+ '+mspecies+') and '+self._eff+' cannot both be specified'
+                    self._eff = r[-1]+':1.0'
+                    self._effm = 0.0
+                    
+                    del self._r[r]
+                    del self._p[r]
 
         
     def build(self, p):
         r = reaction.build(self, p)
-        if self._r.has_key('M)'):
-            self._effm = 1.0
-            del self._r['M)']
-            del self._p['M)']                
-        else:
-            for f in self._r.keys():
-                if f[-1] == ')' and f.find('(') < 0:
-                    self._effm = 0.0
-                    self._eff = f[:-1]+':1.0'
-                    del self._r[f]
-                    del self._p[f]                        
-                        
-        del self._r['(+']
-        del self._p['(+']
-            
-            
-        r['type'] = 'falloff'
 
-        # The default rate coefficient type is Arrhenius. If the rate
-        # coefficient has been specified as a sequence of three
-        # numbers, then create a new Arrhenius instance for it;
-        # otherwise, just use the supplied instance.
-        nm = ''
-        kfnode = r.addChild('rateCoeff')
+        kfnode = r.child('rateCoeff')
         
         if self._eff and self._effm >= 0.0:
             eff = kfnode.addChild('efficiencies',self._eff)

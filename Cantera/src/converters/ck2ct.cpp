@@ -238,15 +238,25 @@ namespace pip {
         const ckr::ReactionUnits& runits, doublereal version) {
 
         cout << "\n#  Reaction " << i+1 << endl;
+        int nc = rxn.comment.size();
+        for (int nn = 0; nn < nc; nn++) 
+            if (rxn.comment[nn] != "") cout << "# " << rxn.comment[nn] << endl;
         string eqn = ckr::reactionEquation(rxn);
-        cout << "reaction( \"" << eqn << "\", ";
+
+        if (rxn.isThreeBodyRxn) 
+            cout << "three_body_reaction( \"" << eqn << "\", ";
+        else if (rxn.isFalloffRxn)
+            cout << "falloff_reaction( \"" << eqn << "\", ";
+        else
+            cout << "reaction( \"" << eqn << "\", ";
 
         if (rxn.isFalloffRxn) {
+
             if (rxn.kf.type == ckr::Arrhenius) {
-                printf("\n         k_inf = [%10.5E, %g, %g]", rxn.kf.A, rxn.kf.n, rxn.kf.E);
+                printf("\n         kf = [%10.5E, %g, %g]", rxn.kf.A, rxn.kf.n, rxn.kf.E);
             }
             if (rxn.kf_aux.type == ckr::Arrhenius) {
-                printf(",\n         k_0   = [%10.5E, %g, %g]", rxn.kf_aux.A, rxn.kf_aux.n, rxn.kf_aux.E);
+                printf(",\n         kf0   = [%10.5E, %g, %g]", rxn.kf_aux.A, rxn.kf_aux.n, rxn.kf_aux.E);
             }
             if (rxn.falloffType == ckr::Lindemann)
                 addFalloff("Lindemann",rxn.falloffParameters);
@@ -299,7 +309,6 @@ namespace pip {
 
         popError();
         doublereal version = 1.0;
-        cout << "from ctmm import *" << endl;
 
         cout << "dataset(\"" << idtag << "\")" << endl;
 
@@ -448,7 +457,6 @@ namespace pip {
                 getTransportData(trfile);
             }
             ck2ct(idtag, r);
-            cout << "write()" << endl;
         }
         catch (CanteraError) {
             return -1;

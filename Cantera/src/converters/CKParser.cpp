@@ -6,8 +6,11 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.1  2003-04-14 17:57:52  dggoodwin
-// Initial revision
+// Revision 1.2  2003-07-30 20:56:57  dggoodwin
+// *** empty log message ***
+//
+// Revision 1.1.1.1  2003/04/14 17:57:52  dggoodwin
+// Initial import.
 //
 // Revision 1.1  2003/03/05 00:28:16  dgg
 // *** empty log message ***
@@ -833,6 +836,7 @@ next:
         }
     
         Reaction rxn;
+        vector<string> cm;
         bool ok = true;
  
         while (1 > 0) {
@@ -840,6 +844,7 @@ next:
             // skip blank or comment lines
             do {
                 getCKLine(s, comment);
+                cm.push_back(comment);
             }
             while (s == "" && comment[0] != '%');
 
@@ -849,6 +854,7 @@ next:
                 if (nRxns > 0) {
                     rxn.number = nRxns;
                     reactions.push_back(rxn);
+                    //rxn.comment.clear();
                 }
                 if (nRxns > 0) return ok;
                 return false;
@@ -916,6 +922,8 @@ next:
                 }
                 nRxns++;
                 rxn = Reaction();
+                rxn.comment = cm;
+                cm.clear();
             }
             else auxDataLine = true;
             if (comment != "") rxn.lines.push_back(s+'!'+comment);
