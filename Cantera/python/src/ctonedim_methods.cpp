@@ -722,6 +722,18 @@ py_sim1D_setRefineCriteria(PyObject *self, PyObject *args)
 
 
 static PyObject *
+py_sim1D_getInitialSoln(PyObject *self, PyObject *args)
+{
+    int i, iok;
+    if (!PyArg_ParseTuple(args, "i:sim1D_getInitialSoln", &i)) 
+        return NULL;
+        
+    iok = sim1D_getInitialSoln(i); 
+    if (iok == -1) return reportCanteraError();
+    return Py_BuildValue("i",iok);
+}
+
+static PyObject *
 py_sim1D_save(PyObject *self, PyObject *args)
 {
     int _val;

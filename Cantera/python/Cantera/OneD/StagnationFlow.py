@@ -17,8 +17,7 @@ class StagnationFlow(Stack):
         self.setRefineCriteria()
         self._initialized = 0
 
-
-    def init(self):
+    def init(self, products = 'inlet'):
         """Set the initial guess for the solution."""
         self.getInitialSoln()        
         gas = self.gas
@@ -36,13 +35,24 @@ class StagnationFlow(Stack):
         zz = self.flow.grid()
         dz = zz[-1] - zz[0]
         
-
-        locs = Numeric.array([0.0, 1.0],'d')
+        if products == 'equil':
+            gas.equilibrate('HP')
+            teq = gas.temperature()
+            yeq = gas.massFractions()
+            locs = Numeric.array([0.0, 0.3, 0.7, 1.0],'d')
+            self.setProfile('T', locs, [t0, teq, teq, tsurf])
+            for n in range(nsp):
+                self.setProfile(gas.speciesName(n), locs, [yin[n], yeq[n], yeq[n], yeq[n]])
+        else:        
+            locs = Numeric.array([0.0, 1.0],'d')
+            self.setProfile('T', locs, [t0, tsurf])
+            for n in range(nsp):
+                self.setProfile(gas.speciesName(n), locs, [yin[n], yin[n]])
+                
+        locs = Numeric.array([0.0, 1.0],'d')                
         self.setProfile('u', locs, [u0, 0.0])
         self.setProfile('V', locs, [V0, V0])        
-        self.setProfile('T', locs, [t0, tsurf])
-        for n in range(nsp):
-            self.setProfile(gas.speciesName(n), locs, [yin[n], yin[n]])
+
         self._initialized = 1
 
 

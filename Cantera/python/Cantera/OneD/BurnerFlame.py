@@ -25,6 +25,7 @@ class BurnerFlame(Stack):
 
     def init(self):
         """Set the initial guess for the solution."""
+        self.getInitialSoln()                
         gas = self.gas
         nsp = gas.nSpecies()
         yin = Numeric.zeros(nsp, 'd')

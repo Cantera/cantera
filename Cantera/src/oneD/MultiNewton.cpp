@@ -121,9 +121,9 @@ namespace Cantera {
             step[n] = -step[n];
         }
         //try {
-            jac.solve(sz, step, step);
-            //}
-            //catch (CanteraError) {
+        jac.solve(sz, step, step);
+        //}
+        //catch (CanteraError) {
 #undef DEBUG_STEP
 #ifdef DEBUG_STEP
         bool ok = false;
@@ -141,7 +141,7 @@ namespace Cantera {
         }
 #endif
         //throw CanteraError("step","step error");
-        //}
+        //        }
 
     }
 
@@ -272,7 +272,6 @@ namespace Cantera {
     int MultiNewton::solve(doublereal* x0, doublereal* x1, 
         OneDim& r, MultiJac& jac, int loglevel) {
         clock_t t0 = clock();
-
         int m = 0;
         bool forceNewJac = false;
         doublereal s1=1.e30;
@@ -308,7 +307,6 @@ namespace Cantera {
 
             // increment the Jacobian age
             jac.incrementAge();
-	    //cout << jac.age() << endl;
 
             // damp the Newton step
             m = dampStep(x, stp, x1, stp1, s1, r, jac, loglevel-1, frst);

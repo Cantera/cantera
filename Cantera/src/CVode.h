@@ -23,11 +23,6 @@
 #include "ctexceptions.h"
 #include "ct_defs.h"
 
-// cvode includes
-//#include "cvode/nvector.h"
-//#include "cvode/cvode.h"
-
-
 namespace Cantera {
 
     /**
@@ -74,8 +69,7 @@ namespace Cantera {
 	int m_neq;
         void* m_cvode_mem;
         double m_t0;
-        void *m_y, *m_abstol; //N_Vector m_y;
-        //N_Vector m_abstol;
+        void *m_y, *m_abstol;
         int m_type;
         int m_itol;
         int m_method;
@@ -87,9 +81,7 @@ namespace Cantera {
         double m_hmax;
 
         vector_fp m_ropt;
-        //vector_int m_iopt;
-        long int* m_iopt; //[OPT_SIZE];
-        //N_Vector m_yprime;
+        long int* m_iopt;
         void* m_data;
     };
 

@@ -90,6 +90,7 @@ namespace Cantera {
             doublereal slope = 0.8, doublereal curve = 0.8, doublereal prune = -0.1);
 
         void restore(string fname, string id);
+        void getInitialSoln();
 
     protected:
 

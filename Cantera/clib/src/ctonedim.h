@@ -58,6 +58,7 @@ extern "C" {
     int DLL_IMPORT sim1D_setFlatProfile(int i, int dom, int comp, double v);
     int DLL_IMPORT sim1D_showSolution(int i, char* fname);
     int DLL_IMPORT sim1D_setTimeStep(int i, double stepsize, int ns, int* nsteps);
+    int DLL_IMPORT sim1D_getInitialSoln(int i);
     int DLL_IMPORT sim1D_solve(int i, int loglevel, int refine_grid);
     int DLL_IMPORT sim1D_refine(int i, int loglevel);
     int DLL_IMPORT sim1D_setRefineCriteria(int i, int dom, double ratio,

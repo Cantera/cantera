@@ -169,6 +169,7 @@ static PyMethodDef ct_methods[] = {
     {"sim1D_setFlatProfile", py_sim1D_setFlatProfile, METH_VARARGS},
     {"sim1D_showSolution", py_sim1D_showSolution, METH_VARARGS},
     {"sim1D_setTimeStep", py_sim1D_setTimeStep, METH_VARARGS},
+    {"sim1D_getInitialSoln", py_sim1D_getInitialSoln, METH_VARARGS},
     {"sim1D_solve", py_sim1D_solve, METH_VARARGS},
     {"sim1D_refine", py_sim1D_refine, METH_VARARGS},
     {"sim1D_setRefineCriteria", py_sim1D_setRefineCriteria, METH_VARARGS},

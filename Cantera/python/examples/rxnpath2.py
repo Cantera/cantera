@@ -60,8 +60,8 @@ fmt = 'svg'
 print 'writing dot file',output_file+'...'
 #rxnpath.write(gas, element, join(output_dir, output_file), d)
 rxnpath.write(gas, element, output_file, d)
-os.system('scp '+output_file+' blue:/var/www/html')
-print 'generating browser view...'
-rxnpath.view(url, fmt)
+#os.system('scp '+output_file+' blue:/var/www/html')
+#print 'generating browser view...'
+#rxnpath.view(url, fmt)
 
 

@@ -354,7 +354,7 @@ namespace Cantera {
 
         virtual void showSolution(const doublereal* x) {
             char buf[80];
-            sprintf(buf, "    Temperature: %10.4g K \n", m_temp);
+            sprintf(buf, "    Temperature: %10.4g K \n", x[0]);
             writelog(buf);
             writelog("    Coverages: \n");
             for (int k = 0; k < m_nsp; k++) {

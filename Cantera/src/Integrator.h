@@ -62,6 +62,8 @@ namespace Cantera {
 
     public:
 
+        virtual ~Integrator() {}
+
         /** Set or reset the number of equations. */ 
         //virtual void resize(int n)=0;
 

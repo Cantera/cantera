@@ -146,7 +146,6 @@ namespace Cantera {
         void setMaxTimeStep(doublereal tmax) { m_tmax = tmax; }
         void setTimeStepFactor(doublereal tfactor) { m_tfactor = tfactor; }
         void setJacAge(int ss_age, int ts_age=-1) {
-	  cout << "setting jac age " << ss_age << "   " << ts_age << endl;
             m_ss_jac_age = ss_age;
             if (ts_age > 0) 
                 m_ts_jac_age = ts_age;

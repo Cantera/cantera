@@ -26,9 +26,7 @@ namespace Cantera {
         m_x.resize(size(), 0.0);
         m_xnew.resize(size(), 0.0);
         for (int n = 0; n < m_nd; n++) {
-	  //    writelog("calling domain "+int2str(n)+" _getInitialSoln\n");
             domain(n)._getInitialSoln(m_x.begin() + start(n));
-	    // writelog("ret\n");
         }
 
         // set some defaults
@@ -178,6 +176,11 @@ namespace Cantera {
         }
     }
 
+    void Sim1D::getInitialSoln() {
+        for (int n = 0; n < m_nd; n++) {
+            domain(n)._getInitialSoln(m_x.begin() + start(n));
+        }
+    }
 
     void Sim1D::finalize() {
         for (int n = 0; n < m_nd; n++) {

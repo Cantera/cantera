@@ -447,6 +447,14 @@ extern "C" {
         catch (CanteraError) { return -1; }
     }
 
+    int DLL_EXPORT sim1D_getInitialSoln(int i) {
+        try {
+            _sim1D(i)->getInitialSoln();
+            return 0;
+        }
+        catch (CanteraError) { return -1; }
+    }
+
     int DLL_EXPORT sim1D_solve(int i, int loglevel, int refine_grid) {
         try {
             bool r = (refine_grid == 0 ? false : true);

@@ -57,7 +57,7 @@ namespace ctml {
                       "The Cantera Python interface is required in order to process\n"
                       "Cantera input files, but it does not seem to be correctly installed.\n\n"
                       "Check that you can invoke the Python interpreter with \n"
-                      "the command \"python\", and that typing \"from Cantera import *\"\n"
+                      "the command \"python\", and that typing \"from Cantera import *\"  \n"
                       "at the Python prompt does not produce an error. If Python on your system\n"
                       "is invoked with some other command, set environment variable PYTHON_CMD\n"
                       "to the full path to the Python interpreter. \n\n"
