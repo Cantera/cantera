@@ -86,7 +86,10 @@ namespace Cantera {
         thermo_t& phase() { return *m_thermo; }
         kinetics_t& kinetics() { return *m_kin; }
 
-        /**
+        virtual void init(){
+		}
+		
+		/**
          * Set the thermo manager. Note that the flow equations assume
          * the ideal gas equation.
          */
@@ -169,6 +172,9 @@ namespace Cantera {
 
 
         virtual string componentName(int n) const;
+	    
+        //added by Karl Meredith
+        int componentIndex(string name) const;
 
 
         virtual void showSolution(const doublereal* x);
@@ -235,6 +241,14 @@ namespace Cantera {
         void setJac(MultiJac* jac);
         void setGas(const doublereal* x,int j);
         void setGasAtMidpoint(const doublereal* x,int j);
+
+        //Karl Meredith
+        //        doublereal density_unprotected(int j) const {
+        //    return m_rho[j];
+        // }
+        doublereal density(int j) const {
+            return m_rho[j];
+        }
 
 
     protected:
@@ -327,10 +341,6 @@ namespace Cantera {
 
         doublereal X(const doublereal* x,int k, int j) const {
             return m_wtm[j]*Y(x,k,j)/m_wt[k];
-        }
-
-        doublereal density(int j) const {
-            return m_rho[j];
         }
 
         doublereal flux(int k, int j) const {
@@ -446,6 +456,7 @@ namespace Cantera {
         //        vector<FlowBdry::Boundary*>  m_boundary;
 
         doublereal m_efctr;
+
 
     private:
 

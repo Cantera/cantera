@@ -241,7 +241,15 @@ namespace Cantera {
     }        
         
 
+/*	void StFlow::init() {
+	
 
+		cout << m_do_energy.begin()<< endl;
+	//	this->_getInitialSoln();
+		cout << "Initializing StFlow\n";
+	}
+
+*/
     void StFlow::setupGrid(int n, const doublereal* z) {        
         resize(n);
         int j;
@@ -466,6 +474,7 @@ namespace Cantera {
                 }
                 rsd[index(4,j)] = 1.0 - sum;
                 diag[index(4,j)] = 0;
+
             }
 
 
@@ -487,9 +496,36 @@ namespace Cantera {
                 //    d(\rho u)/dz + 2\rho V = 0
                 //
                 //------------------------------------------------
-                rsd[index(c_offset_U,j)] = 
-                    -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
-                    -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
+
+                //added by Karl Meredith
+                if(!m_adiabatic){
+                    rsd[index(c_offset_U,j)] = 
+                        -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
+                        -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
+                }
+                else{
+                    //we want mdot to propagate outward from fixed T point.
+                    if(grid(j)>m_zfixed){
+                        rsd[index(c_offset_U,j)] = 
+                            -(rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1]
+                            -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
+                        //algebraic constraint    
+                        diag[index(c_offset_U, j)] = 0;
+                    }
+                    else if(grid(j)==m_zfixed){
+                        rsd[index(c_offset_U,j)] = 0.001*(T(x,j)-m_tfixed);
+                        //algebraic constraint    
+                        diag[index(c_offset_U, j)] = 0;    
+                    }
+                    else if(grid(j)<m_zfixed){
+                        rsd[index(c_offset_U,j)] = 
+                            -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
+                            -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
+                        //algebraic constraint    
+                        diag[index(c_offset_U, j)] = 0;
+                    }
+                }
+                //end of 'added by Karl Meredith'
 
 
                 //------------------------------------------------             
@@ -747,6 +783,26 @@ namespace Cantera {
             else 
                 return "<unknown>";
         }
+    }
+
+
+	//added by Karl Meredith
+    int StFlow::componentIndex(string name) const {
+        
+
+        if(name=="u") {return 0;}
+        else if (name=="V") {return 1;}
+        else if (name=="T") {return 2;}
+        else if (name=="lambda") {return 3;}
+        else {
+            for (int n=4;n<m_nsp+4;n++){
+                if(componentName(n)==name){
+                    return n;
+                }	
+            }
+        }
+
+        return -1;
     }
 
 

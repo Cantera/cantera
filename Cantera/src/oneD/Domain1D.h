@@ -90,7 +90,7 @@ namespace Cantera {
          * Initialize. Base class method does nothing, but may be
          * overloaded. 
          */
-        virtual void init(){}
+        virtual void init(){  }
 
         virtual void setInitialState(doublereal* xlocal = 0){}
         virtual void setState(int point, const doublereal* state, doublereal* x) {}
@@ -186,6 +186,34 @@ namespace Cantera {
             }
         }
 
+        //added by Karl Meredith
+        void setTolerances(doublereal rtol, doublereal atol,int ts=0) {
+            for (int n=0;n<m_nv;n++){
+                if(ts>=0) {
+                    m_rtol_ss[n] = rtol;
+                    m_atol_ss[n] = atol;
+                }
+                if (ts <= 0) {
+                    m_rtol_ts[n] = rtol;
+                    m_atol_ts[n] = atol;
+                }
+            }
+        }
+        //added by Karl Meredith
+        void setTolerancesTS(doublereal rtol, doublereal atol) {
+            for (int n=0;n<m_nv;n++){
+                m_rtol_ts[n] = rtol;
+                m_atol_ts[n] = atol;
+            }
+        }
+        //added by Karl Meredith
+        void setTolerancesSS(doublereal rtol, doublereal atol) {
+            for (int n=0;n<m_nv;n++){
+                m_rtol_ss[n] = rtol;
+                m_atol_ss[n] = atol;
+            }
+        }
+				
         /// Relative tolerance of the nth component.
         doublereal rtol(int n) { return (m_rdt == 0.0 ? m_rtol_ss[n] : m_rtol_ts[n]); }
 
@@ -426,7 +454,11 @@ namespace Cantera {
         //      "base class method _finalize called!");
         //}
 
+		//added by Karl Meredith
+		doublereal m_zfixed;
+		doublereal m_tfixed;
 
+		bool m_adiabatic;
     protected:
 
         doublereal m_rdt;
@@ -447,6 +479,8 @@ namespace Cantera {
         Domain1D *m_left, *m_right;
         string m_id, m_desc;
         Refiner* m_refiner;
+
+
 
     private:
 

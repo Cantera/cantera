@@ -171,7 +171,22 @@ namespace Cantera {
         doublereal *xb, *rb;
 
         // residual equations for the two local variables
-        r[0] = m_mdot - x[0];
+
+        //added by Karl Meredith
+        if (m_adiabatic) 
+            // For the adiabatic case, the mass  flow rate is not known. For
+            // this case, set mdot (x[0]) to match rho*u in the flow domain
+            // dgg: I think this formulation will only work if the adiabatic
+            // inlet is on the left, i.e., the flow is left-to-right.
+            
+            r[0] = m_flow->density(0)*x[2] - x[0];
+        else
+            // Specified mass flow rate
+            r[0] = m_mdot    - x[0];
+
+        // The inlet temperature is always specified. For the adiabatic 
+        // case, this is the temperature of the gas far upstream of the 
+        // flame.
         r[1] = m_temp - x[1];
 
         // both are algebraic constraints
@@ -189,11 +204,18 @@ namespace Cantera {
             // spreading rate. Flow domain sets this to V(0),
             // so for finite spreading rate subtract m_V0.
             rb[1] -= m_V0;
-
-            rb[3] += x[0];       // lambda
+			
+			//added by Karl Meredith
+			if(m_adiabatic){
+				rb[3]=xb[3]; //zeroo lambda  (Avoids last species on last node being singular ???)
+			}
+			else{
+				rb[3] += x[0];       // lambda
+			}
             for (k = 1; k < m_nsp; k++) {
                 if (m_flow->doSpecies(k)) {
                     rb[4+k] += x[0]*m_yin[k];
+					//writelog("Left "+int2str(k)+" "+fp2str(m_yin[k])+"\n");
                 }
             }
         }
@@ -210,6 +232,7 @@ namespace Cantera {
                 if (m_flow->doSpecies(k)) {
                     //                    rb[4+k] += x[0]*(-xb[4+k] + m_yin[k]);
                     rb[4+k] += x[0]*(m_yin[k]);
+					//writelog("Right "+int2str(k)+" "+fp2str(m_yin[k])+"\n");
                 }
             }
         }                
@@ -438,7 +461,15 @@ namespace Cantera {
             db = diag - nc;
 
             // zero Lambda
-            rb[0] = xb[3];               // zero Lambda
+
+            //added by Karl Meredith
+            if (m_adiabatic) {
+                rb[0] = xb[0] - xb[0-nc];	//zero U gradient  
+                //(This makes it so that U at last node is not undefined)
+            }
+            else{
+                rb[0] = xb[3];          // zero Lambda
+            }
             rb[2] = xb[2] - xb[2 - nc];  // zero T gradient
             for (k = 5; k < nc; k++) {
                 rb[k] = xb[k] - xb[k - nc]; // zero mass fraction gradient

@@ -38,8 +38,7 @@ namespace Cantera {
         Sim1D(vector<Domain1D*>& domains);
 
         /// Destructor. Does nothing.
-        virtual ~Sim1D(){}
-
+        virtual ~Sim1D() {}
 
         /**
          * @name Setting initial values
@@ -48,6 +47,10 @@ namespace Cantera {
          * solution components.
          */
         //@{
+
+        /// Set initial guess based on equilibrium
+        //added by Karl Meredith
+        void setInitialGuess(string component, vector_fp& locs, vector_fp& vals);
 
         /// Set one entry in the solution vector.
         void setValue(int dom, int comp, int localPoint,  doublereal value);
@@ -86,6 +89,11 @@ namespace Cantera {
 
         /// Refine the grid in all domains.
         int refine(int loglevel=0);
+
+        //added by Karl Meredith
+        int setFixedTemperature(doublereal t);
+        //added by Karl Meredith
+        void setAdiabaticFlame(void);
 
         /// Set the criteria for grid refinement.
         void setRefineCriteria(int dom = -1, doublereal ratio = 10.0,

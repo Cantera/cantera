@@ -33,6 +33,7 @@ namespace Cantera {
         m_xnew.resize(size(), 0.0);
         for (int n = 0; n < m_nd; n++) {
             domain(n)._getInitialSoln(m_x.begin() + start(n));
+			domain(n).m_adiabatic=false;
         }
 
         // set some defaults
@@ -43,6 +44,21 @@ namespace Cantera {
         m_steps.push_back(5);
         m_steps.push_back(10);
 
+    }
+
+	
+    // added by Karl Meredith
+    void Sim1D::setInitialGuess(string component, vector_fp& locs, vector_fp& vals){
+        
+        for (int dom=0;dom<m_nd;dom++){
+            Domain1D& d = domain(dom);
+            int ncomp=d.nComponents();
+            for (int comp=0;comp<ncomp;comp++){
+                if(d.componentName(comp)==component){
+                    setProfile(dom,comp,locs,vals);
+                }
+            }
+        }
     }
 
 
@@ -395,6 +411,126 @@ namespace Cantera {
         return np;
     }
 
+
+    /**
+     * Add node for fixed temperature point of freely propagating flame
+     */
+	//added by Karl Meredith
+    int Sim1D::setFixedTemperature(doublereal t) {
+        int np = 0;
+        vector_fp znew, xnew;
+        doublereal xmid;
+        doublereal zfixed,interp_factor;
+        doublereal z1,z2,t1,t2;
+        int strt, n, m, i;
+        int m1,m2;
+        vector_int dsize;
+        bool addnewpt=false;
+
+
+        for (n = 0; n < m_nd; n++) {
+            strt = znew.size();
+            Domain1D& d = domain(n);
+            
+            int comp = d.nComponents();
+            
+            // loop over points in the current grid to determine where new point is needed.
+            int npnow = d.nPoints();
+            int nstart = znew.size();
+            for (m = 0; m < npnow-1; m++) {
+                cout << "T["<<m<<"]="<<value(n,2,m)<<endl;
+                if(value(n,2,m)==t){
+                    zfixed=d.grid(m);
+                    //set d.zfixed, d.ztemp
+                    d.m_zfixed=zfixed;
+                    d.m_tfixed=t;
+                    cout << "T already fixed at "<<d.grid(m)<<endl;
+                    addnewpt=false;
+                    break;
+                }
+                else if((value(n,2,m)<t) && (value(n,2,m+1)>t)){
+                    cout << "T in between "<<value(n,2,m)<<" and "<<value(n,2,m+1)<<endl;
+                    z1=d.grid(m);
+                    m1=m;
+                    m2=m+1;
+                    z2=d.grid(m+1);
+                    t1=value(n,2,m);
+                    t2=value(n,2,m+1);
+                    
+                    zfixed=(z1-z2)/(t1-t2)*(t-t2)+z2;
+                    cout << zfixed<<endl;
+                    //set d.zfixed, d.ztemp;
+                    d.m_zfixed=zfixed;
+                    d.m_tfixed=t;
+                    addnewpt=true;
+                    break;
+                    //copy solution domain and push back values
+                }
+            }
+            
+            
+            for (m = 0; m < npnow; m++) {
+                // add the current grid point to the new grid
+                znew.push_back(d.grid(m));
+		
+                // do the same for the solution at this point
+                for (i = 0; i < comp; i++) {
+                    xnew.push_back(value(n, i, m));
+                }
+                if(m==m1&&addnewpt){
+                    //add new point at zfixed
+                    znew.push_back(zfixed);
+                    np++;
+                    interp_factor=(zfixed-z2)/(z1-z2);
+                    // for each component, linearly interpolate
+                    // the solution to this point
+                    for (i = 0; i < comp; i++) {
+                        xmid = interp_factor*(value(n, i, m) - value(n, i, m+1))+value(n,i,m+1);
+                        xnew.push_back(xmid);
+                    }
+                }
+		
+		
+            }	
+            dsize.push_back(znew.size() - nstart);
+        }
+        
+        // At this point, the new grid znew and the new solution
+        // vector xnew have been constructed, but the domains
+        // themselves have not yet been modified.  Now update each
+        // domain with the new grid.
+        
+        int gridstart = 0, gridsize;
+        for (n = 0; n < m_nd; n++) {
+            Domain1D& d = domain(n);
+            //            Refiner& r = d.refiner();
+            gridsize = dsize[n]; // d.nPoints() + r.nNewPoints();
+            d.setupGrid(gridsize, znew.begin() + gridstart);
+            gridstart += gridsize;
+        }
+        
+        // Replace the current solution vector with the new one
+        m_x.resize(xnew.size());
+        copy(xnew.begin(), xnew.end(), m_x.begin());
+
+        // resize the work array
+        m_xnew.resize(xnew.size());
+
+        copy(xnew.begin(), xnew.end(), m_xnew.begin());
+
+        resize();
+        finalize();
+        return np;
+    }
+
+    //added by Karl Meredith
+    void Sim1D::setAdiabaticFlame(void){
+        int n;
+        for (n = 0; n < m_nd; n++) {
+            Domain1D& d = domain(n);
+            d.m_adiabatic=true;
+        }
+    }
 
     /**
      * Set grid refinement criteria. If dom >= 0, then the settings
