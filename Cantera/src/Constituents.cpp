@@ -7,18 +7,7 @@
  *  $Date$
  *  $Revision$
  *
- *  $Log$
- *  Revision 1.2  2003-06-27 14:19:16  dggoodwin
- *  *** empty log message ***
- *
- *  Revision 1.1.1.1  2003/04/14 17:57:51  dggoodwin
- *  Initial import.
- *
- *  Revision 1.21  2002/12/19 15:21:54  dgg
- *  Changed sense of ptr_Element in constructor. Now default is to create
- *  independent element set. See comments below.
- *
- *
+
  */
 
 //  Copyright 2001  California Institute of Technology
@@ -501,6 +490,21 @@ namespace Cantera {
       if (k < 0 || k >= nSpecies())
           throw SpeciesRangeError("Constituents::nAtoms",k,nSpecies());
       return m_speciesComp[m_mm * k + m];
+    }
+
+    /*********************************************************************
+     *
+     * getAtoms()
+     *
+     * Get a vector containing the atomic composition 
+     * of species k
+     */
+    void Constituents::getAtoms(int k, double *atomArray) const 
+    {
+	const int m_mm = m_Elements->nElements();
+	for (int m = 0; m < m_mm; m++) {
+	  atomArray[m] = (double) m_speciesComp[m_mm * k + m];
+	}
     }
 
 }

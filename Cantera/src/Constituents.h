@@ -7,7 +7,10 @@
  *  $Revision$
  *
  *  $Log$
- *  Revision 1.3  2003-07-21 16:02:53  hkmoffa
+ *  Revision 1.4  2003-09-03 18:15:50  hkmoffa
+ *  Added a vector get for the atoms in a species.
+ *
+ *  Revision 1.3  2003/07/21 16:02:53  hkmoffa
  *  Took out a double nested @name that gave a warning to doxygen
  *
  *  Revision 1.2  2003/06/27 14:19:16  dggoodwin
@@ -219,6 +222,12 @@ namespace Cantera {
 
         /// Number of atoms of element m in species k.
         doublereal nAtoms(int k, int m) const;
+
+	/**
+	 * Get a vector containing the atomic composition 
+	 * of species k
+	 */
+	void getAtoms(int k, double *atomArray) const;
 
 	/// Copy constructor and assignment operator
         Constituents::Constituents(const Constituents& right);
