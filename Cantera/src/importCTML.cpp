@@ -26,6 +26,7 @@ using namespace std;
 //   Cantera includes
 #include "speciesThermoTypes.h"
 #include "ThermoPhase.h"
+#include "SurfPhase.h"
 #include "ThermoFactory.h"
 #include "SpeciesThermoFactory.h"
 #include "KineticsFactory.h"
@@ -54,27 +55,6 @@ namespace Cantera {
     }
 
     const doublereal DefaultPref = 1.01325e5;   // one atm
-
-    /**
-     * Get an XML tree from a file. If successful, a pointer to the
-     * document root is returned. If not, a null pointer is returned.
-     */
-    XML_Node* get_XML(string file) {
-        string inname = findInputFile(file);
-        if (inname == "") return 0;
-        ifstream fin(inname.c_str());
-
-        XML_Node* rootPtr = new XML_Node;
-        try {
-            rootPtr->build(fin);
-        }
-        catch (...) {
-            return 0;
-        }
-        fin.close();
-        return rootPtr;
-    }        
-
 
     /** 
      * Install a NASA polynomial thermodynamic property
@@ -325,7 +305,7 @@ namespace Cantera {
         
         A = getFloat(node, "A", "-");
         b = getFloat(node, "b");
-        E = getFloat(node, "E", "-");
+        E = getFloat(node, "E", "actEnergy");
         E /= GasConstant;
     }                
 
@@ -351,7 +331,7 @@ namespace Cantera {
         doublereal cbar = sqrt(8.0*GasConstant/(Pi*mw));
         A = 0.25 * getFloat(node, "A", "-") * cbar * f;
         b = getFloat(node, "b") + 0.5;
-        E = getFloat(node, "E", "-");
+        E = getFloat(node, "E", "actEnergy");
         E /= GasConstant;
     }                
 
@@ -498,6 +478,11 @@ namespace Cantera {
             rho = getFloat(state, "density", "density");
             th->setDensity(rho);
         }
+        if (th->eosType() == cSurf && state.hasChild("coverages")) {
+            comp = getString(state,"coverages");
+            SurfPhase* s = (SurfPhase*)th;
+            s->setCoveragesByName(comp);
+        }
     }
         
     /**
@@ -550,9 +535,10 @@ namespace Cantera {
             }
             else if (eos["model"] == "Surface") {
                 if (th->eosType() == cSurf) {
-                    //map<string, doublereal> d;
-                    //getFloats(eos, d);
                     doublereal n = getFloat(eos, "site_density", "-");
+                    if (n <= 0.0) 
+                        throw CanteraError("importCTML",
+                            "missing or negative site density");
                     th->setParameters(1, &n);
                 }
                 else {
@@ -726,7 +712,6 @@ namespace Cantera {
         ok = ok && getReagents(r, kin, -1, default_phase, rdata.products, 
             rdata.pstoich, dummy, rule);
         if (!ok) {
-            //cout << "skipping " << eqn << endl;
             return false;
         }
 
@@ -746,6 +731,9 @@ namespace Cantera {
         }
         else if (typ == "threeBody") {
             rdata.reactionType = THREE_BODY_RXN;
+        }
+        else if (typ == "surface") {
+            rdata.reactionType = SURFACE_RXN;
         }
         else if (typ != "")
             throw CanteraError("installReaction",

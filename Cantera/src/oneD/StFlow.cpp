@@ -1114,7 +1114,6 @@ namespace Cantera {
                     }
                 }
                 else {
-                    //cout << "error..." << endl;
                     goto error;
                 }
             }

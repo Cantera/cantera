@@ -310,7 +310,7 @@ namespace pip {
         popError();
         doublereal version = 1.0;
 
-        cout << "dataset(\"" << idtag << "\")" << endl;
+        //cout << "dataset(\"" << idtag << "\")" << endl;
 
         cout << "\n\n";
         writeline();

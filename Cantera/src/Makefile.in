@@ -22,7 +22,7 @@ EXT        = ../../ext
 #----------------------
 
 # basic components always needed
-BASE       = State.o Elements.o Constituents.o stringUtils.o misc.o importCTML.o plots.o \
+BASE       = State.o Elements.o Constituents.o stringUtils.o misc.o importCTML.o ct2ctml.o plots.o \
              xml.o Phase.o DenseMatrix.o ctml.o funcs.o ctvector.o phasereport.o
 
 # thermodynamic properties

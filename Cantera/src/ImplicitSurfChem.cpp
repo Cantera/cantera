@@ -27,7 +27,9 @@ namespace Cantera {
     {
         m_integ = new CVodeInt;
         m_surfindex = kin.surfacePhaseIndex();
-        m_surf = (SurfPhase*)&kin.thermo(m_surfindex);
+        if (m_surfindex < 0) 
+            throw CanteraError("ImplicitSurfChem","kinetics manager contains no surface phase");
+        m_surf = (SurfPhase*)&kin.thermo(m_surfindex);;
 
         // use backward differencing, with a full Jacobian computed
         // numerically, and use a Newton linear iterator

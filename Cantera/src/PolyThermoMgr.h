@@ -39,7 +39,6 @@ namespace Cantera {
                     +int2str(coeffs.size()));
             th.setCoefficients(coeffs);
             if (m_nsp > 0 && refPressure != m_p0) {
-                cout << refPressure << "   " << m_p0 << endl;
                 throw CanteraError("PolyThermoMgr::install",
                     "reference pressure mismatch");
             }

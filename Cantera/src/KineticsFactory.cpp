@@ -26,9 +26,9 @@ namespace Cantera {
 
     KineticsFactory* KineticsFactory::__factory = 0;
 
-    static int ntypes = 3;
-    static string _types[] = {"GasKinetics", "GRI30", "Interface"};
-    static int _itypes[]   = {cGasKinetics, cGRI30, cInterfaceKinetics};
+    static int ntypes = 4;
+    static string _types[] = {"none", "GasKinetics", "GRI30", "Interface"};
+    static int _itypes[]   = {0, cGasKinetics, cGRI30, cInterfaceKinetics};
 
     /**
      * Return a new kinetics manager that "implements" a reaction
@@ -52,6 +52,7 @@ namespace Cantera {
      * ---------
      *  Pointer to the new kinetics manager. 
      */
+
     Kinetics* KineticsFactory::
     newKinetics(XML_Node& phaseData, vector<ThermoPhase*> th) {
 	/*
@@ -78,6 +79,10 @@ namespace Cantera {
 	 */
         Kinetics* k=0;
         switch (ikin) {
+            
+        case 0:
+            k = new Kinetics;
+            break;
 
         case cGasKinetics:
             k = new GasKinetics;

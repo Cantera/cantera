@@ -89,6 +89,9 @@ namespace ctml {
         string& type);
 
     string getString(XML_Node& parent, string name);
+
+    void get_CTML_Tree(XML_Node*, string file);
+    void ct2ctml(const char* file);
 }
 
 #endif

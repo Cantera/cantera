@@ -1,3 +1,4 @@
+deprecated
 /**
  *
  *  @file Resid1D.h

@@ -88,7 +88,6 @@ namespace Cantera {
 //         }
 
         for (int i = 0; i < m_nv; i++) {
-            cout << i << "   " << m_nv << "  " << m_active[i] << endl;
             if (m_active[i]) {
                 name = m_domain->componentName(i);
             
@@ -158,9 +157,6 @@ namespace Cantera {
                         if (r >= -1.0) {
                             m_keep[j+1] = 1;
                         }
-                        //cout << "at point " << j << " slope r = "
-                        //     << r << " for " << name << endl
-                        //     << "    threshold = " << m_thresh << endl;
                     }
                 }
 

@@ -46,6 +46,9 @@ namespace Cantera {
 
     string canteraRoot();
 
+    void setTmpDir(string tmp);
+    string tmpDir();
+
     /**
      * Write a diagnostic message to an internal buffer.
      */
@@ -56,6 +59,7 @@ namespace Cantera {
     void getlog(string& s);
     void clearlog();
     doublereal toSI(string unit);
+    doublereal actEnergyToSI(string unit);
     //
 }
 

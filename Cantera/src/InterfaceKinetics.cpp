@@ -138,6 +138,24 @@ namespace Cantera {
     }
 
     void SurfPhase::
+    setCoveragesByName(string cov) {
+        int kk = nSpecies();
+        compositionMap cc;
+        for (int k = 0; k < kk; k++) { 
+            cc[speciesName(k)] = -1.0;
+        }
+        parseCompString(cov, cc);
+        doublereal c;
+        vector_fp cv(kk);
+        for (int k = 0; k < kk; k++) { 
+            c = cc[speciesName(k)];
+            if (c > 0.0) cv[k] = c;
+        }
+        setCoverages(cv.begin());
+    }
+
+
+    void SurfPhase::
     _updateThermo(bool force) const {
         doublereal tnow = temperature();
         if (m_tlast != tnow || force) {
@@ -417,6 +435,8 @@ namespace Cantera {
     addReaction(const ReactionData& r) {
 
         if (r.reactionType == ELEMENTARY_RXN)      
+            addElementaryReaction(r);
+        if (r.reactionType == SURFACE_RXN)      
             addElementaryReaction(r);
         else if (r.reactionType == GLOBAL_RXN)     
             addGlobalReaction(r);

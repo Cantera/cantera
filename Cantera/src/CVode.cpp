@@ -170,13 +170,13 @@ namespace Cantera {
         m_neq = func.neq();
         m_t0  = t0;
 
-        if (m_y) N_VFree(nv(m_y));    // free solution vector if already allocated
+        if (m_y) {
+            N_VFree(nv(m_y));    // free solution vector if already allocated
+        }
         m_y = reinterpret_cast<void*>(N_VNew(m_neq, 0));   // allocate solution vector
-
         // check abs tolerance array size
         if (m_itol == 1 && m_nabs < m_neq) 
             throw CVodeErr("not enough absolute tolerance values specified.");
-
         func.getInitialConditions(m_t0, m_neq, N_VDATA(nv(m_y)));
 
         // set options

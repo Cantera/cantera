@@ -72,15 +72,10 @@ namespace Cantera {
             m_pp[k] = -grt[k];
             for (int m = 0; m < m_mm; m++) {
                 m_pp[k] += nAtoms(k,m)*lambda_RT[m];
-                //cout << "m = " << m << "  k = " << k << "  " << 
-                //    nAtoms(k,m) << "  " << lambda_RT[m] << endl;
             } 
-            //cout << "m_pp = " << m_pp[k] << endl;
             m_pp[k] = m_p0 * exp(m_pp[k]);
-            //cout << "after exp, m_pp[k] = " << m_pp[k] << endl;
             pres += m_pp[k];
         }
-        //cout << "pres = " << pres << endl;
         // set state
         setState_PX(pres, m_pp.begin());
     }

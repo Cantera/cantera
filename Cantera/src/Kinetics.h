@@ -17,6 +17,7 @@
 
 #include "ctexceptions.h"
 #include "ThermoPhase.h"
+#include "mix_defs.h"
 
 namespace Cantera {
 
@@ -51,6 +52,7 @@ namespace Cantera {
             : m_ii(0), m_index(-1), m_surfphase(-1) {
             if (thermo) {
                 m_start.push_back(0);
+                if (thermo->eosType() == cSurf) m_surfphase = nPhases();
                 m_thermo.push_back(thermo);
 		m_phaseindex[m_thermo.back()->id()] = nPhases();
             }
@@ -368,6 +370,7 @@ namespace Cantera {
             else {
                 m_start.push_back(0);
             }
+            if (thermo.eosType() == cSurf) m_surfphase = nPhases();
             m_thermo.push_back(&thermo);
             m_phaseindex[m_thermo.back()->id()] = nPhases();
         }
@@ -474,14 +477,14 @@ namespace Cantera {
 	 * must be called after instantiation of the class, but before
 	 * any reactions are actually added to the mechanism.
          */
-        virtual void init() {err("init");}
+        virtual void init() {}
 
         /**
 	 * Finish adding reactions and prepare for use. This function
 	 * must be called after all reactions are entered into the mechanism
 	 * and before the mechanism is used to calculate reaction rates. 
 	 */
-        virtual void finalize() {err("finalize");}
+        virtual void finalize() {}
 
         virtual void addReaction(const ReactionData& r) {err("addReaction");}
 
@@ -525,7 +528,6 @@ namespace Cantera {
 	 *
 	 */
         virtual bool ready() const {
-	    err("ready()");
 	    return false;
 	}
 

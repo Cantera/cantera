@@ -243,7 +243,9 @@ namespace ctml {
                     +vmax+".\n");
             }
         }
-        if (type != "" && units != "")
+        if (type == "actEnergy" && units != "") 
+            fctr = actEnergyToSI(units);
+        else if (type != "" && units != "")
             fctr = toSI(units);
         return fctr*x;
     }

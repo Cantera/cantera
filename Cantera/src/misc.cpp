@@ -33,7 +33,7 @@ namespace Cantera {
     class Application {
     public:
         Application() : linelen(0), stop_on_error(false), 
-                        write_log_to_cout(true), matlab(false) {}
+                        write_log_to_cout(true), matlab(false), tmp_dir("/tmp") {}
         virtual ~Application(){}
         vector<string> inputDirs;
         vector<string> errorMessage;
@@ -45,12 +45,12 @@ namespace Cantera {
         bool write_log_to_cout;
         bool matlab;
         map<string, string>     options;
+        string tmp_dir;
     };
 
 
     /// Returns a pointer to the one and only instance of Application
     Application* app();
-
 
     void setDefaultDirectories();
 
@@ -69,6 +69,9 @@ namespace Cantera {
         return __app;
     }
 
+    void setTmpDir(string tmp) { appinit();  __app->tmp_dir = tmp; }
+    string tmpDir() { appinit(); return __app->tmp_dir; }
+
     int nErrors() {return __app->errorMessage.size();}
 
     void popError() {
@@ -82,7 +85,7 @@ namespace Cantera {
     string lastErrorMessage() {
         appinit();
         if (nErrors() > 0)
-            return __app->errorMessage.back();
+            return "\nProcedure: "+__app->errorRoutine.back()+"\nError:   "+__app->errorMessage.back();
         else
             return "<no Cantera error>";
     }
@@ -100,7 +103,7 @@ namespace Cantera {
             f << endl;
             f << "Procedure: " << __app->errorRoutine[j] << endl;
             f << "Error:     " << __app->errorMessage[j] << endl;
-        }
+        } 
         f << endl << endl;
         __app->errorMessage.clear();
         __app->errorRoutine.clear();
@@ -269,8 +272,15 @@ namespace Cantera {
     void clearlog() {
         __app->msglog = "";
     }
+
     doublereal toSI(string unit) {
         doublereal f = Unit::units()->toSI(unit);
+        if (f) return f;
+        else return 1.0;
+    }
+
+    doublereal actEnergyToSI(string unit) {
+        doublereal f = Unit::units()->actEnergyToSI(unit);
         if (f) return f;
         else return 1.0;
     }

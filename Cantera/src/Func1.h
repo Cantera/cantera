@@ -34,7 +34,7 @@ namespace Cantera {
     class Func1 {
     public:
         Func1() {}
-        virtual ~Func1() {cout << "Func1 destructor"  << endl;}
+        virtual ~Func1() {}
         doublereal operator()(doublereal t) { return eval(t); }
         virtual doublereal eval(doublereal t) { return 0.0; }
     protected:

@@ -52,6 +52,7 @@ namespace Cantera {
         void setSiteDensity(doublereal n0);
         void setElectricPotential(doublereal V);
         void setCoverages(const doublereal* theta);
+        void setCoveragesByName(string cov);
         void getCoverages(doublereal* theta) const;
 
     protected:

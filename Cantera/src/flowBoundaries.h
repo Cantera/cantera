@@ -194,15 +194,11 @@ namespace FlowBdry {
             int k;
             for (k = 0; k < m_nsp; k++) {
                 r[4+k] = rtau*(m_y[k] - x0[k+4] - flux[k]/m_mdot);
-                //                cout << k << "  " << m_y[k] << "  " << flux[k]
-                //     << "  " << density << "  " << x0[0] << "  " 
-                //     << x0[k+4] << "   " << m_mdot << endl;
             }
             r[0] = -rtau*(density*x0[0] - m_lr*m_mdot);
             r[1] = -rtau*(x0[1] - V());
             r[2] = -rtau*(x0[2] - T());     // specified T
             r[3] = -rtau*x0[3];
-            //cout << "inlet: r[2], x0[2] = " << r[2] << "   " << x0[2] << endl;
         }
     };
 

@@ -102,12 +102,8 @@ namespace Cantera {
             f = norm_square(x + r.start(n), step + r.start(n),
                 r.domain(n));
             sum += f;
-            //            cout << "n = " << n << "   f = " << f << endl;
         }
-        //cout << "sum = " << sum << endl;
-        //cout << "r.size() = " << r.size() << endl;
         sum /= r.size();
-        //cout << "sum = " << sum << "   " << sqrt(sum) << endl;        
         return sqrt(sum);
     }
 

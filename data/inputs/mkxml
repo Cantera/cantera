@@ -5,4 +5,5 @@
 ../../bin/ck2ctml -i h2o2.inp -o h2o2.xml -id ohmech -tr ../transport/gri30_tran.dat > h2o2.in
 ../../bin/ck2ctml -i silane.inp -o silane.xml -id silane > silane.in
 ../../bin/ck2ctml -i argon.inp -o argon.xml -id argon -t gri30.inp -tr ../transport/gri30_tran.dat > argon.in
-
+rm *.xml
+python ./makexml.py

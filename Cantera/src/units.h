@@ -18,6 +18,15 @@ namespace Cantera {
             __u = 0;
         }
 
+        doublereal actEnergyToSI(string units) {
+            if (m_act_u.find(units) != m_act_u.end()) {
+                return m_act_u[units];
+            }
+            else {
+                return toSI(units);
+            }
+        }
+
         doublereal toSI(string units) {
             if (units == "") return 1.0;
             doublereal f = 1.0, fctr;
@@ -80,6 +89,8 @@ namespace Cantera {
 
         static Unit* __u;
         map<string, doublereal> m_u;
+        map<string, doublereal> m_act_u;
+
         Unit(){
 
             // length
@@ -95,6 +106,7 @@ namespace Cantera {
             m_u["kJ"]       = 1.0e3;
             m_u["cal"]      = 4.184;
             m_u["kcal"]     = 4184.0;
+            m_u["eV"]       = 1.602e-19;
 
             // quantity
             m_u["mol"]      = 1.0e-3;
@@ -120,6 +132,9 @@ namespace Cantera {
             m_u["min"]      = 60.0;
             m_u["hr"]       = 3600.0;
             m_u["ms"]       = 0.001;
+
+            m_act_u["eV"] = m_u["eV"]/m_u["molec"];
+            m_act_u["K"] =  GasConstant;
         }
     };
 }

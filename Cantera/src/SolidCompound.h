@@ -135,8 +135,6 @@ namespace Cantera {
 
         virtual void getStandardChemPotentials(doublereal* mu0) const {
             mu0[0] = gibbs_mole();
-            //cout << m_h0_RT[0] << "   " << m_s0_R[0] << endl;
-            //cout << "std chem pot = " << mu0[0] << endl;
         }
 
         /**
