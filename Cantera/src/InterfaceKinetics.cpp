@@ -194,6 +194,7 @@ namespace Cantera {
         m_redo_rates(false),
         m_nirrev(0), 
         m_nrev(0),
+        m_surf(0),
         m_integrator(0),
         m_finalized(false)
     {
@@ -218,10 +219,10 @@ namespace Cantera {
     void InterfaceKinetics::
     _update_rates_T() {
         _update_rates_phi();
-        doublereal T = thermo().temperature();
+        doublereal T = thermo(surfacePhaseIndex()).temperature();
         if (T != m_kdata->m_temp || m_redo_rates) {
-            doublereal logT = log(T);
-            m_rates.update(T, logT, m_kdata->m_rfn.begin());
+            m_kdata->m_logtemp = log(T);
+            m_rates.update(T, m_kdata->m_logtemp, m_kdata->m_rfn.begin());
             applyButlerVolmerCorrection(m_kdata->m_rfn.begin());
             m_kdata->m_temp = T;
             updateKc();
@@ -252,6 +253,16 @@ namespace Cantera {
     void InterfaceKinetics::
     _update_rates_C() {
         int n;
+
+        /**
+         * First evaluate the coverage-dependent terms in the reaction 
+         * rates.
+         */
+        m_surf->getCoverages(m_conc.begin());
+        m_rates.update_C(m_conc.begin());
+        m_rates.update(m_kdata->m_temp, 
+            m_kdata->m_logtemp, m_kdata->m_rfn.begin());
+
         int np = nPhases();
         for (n = 0; n < np; n++) {
 	  /*
@@ -452,12 +463,24 @@ namespace Cantera {
     void InterfaceKinetics::
     addReaction(const ReactionData& r) {
 
-        if (r.reactionType == ELEMENTARY_RXN)      
-            addElementaryReaction(r);
-        if (r.reactionType == SURFACE_RXN)      
-            addElementaryReaction(r);
-        else if (r.reactionType == GLOBAL_RXN)     
+        int nr = r.reactants.size();
+        bool isglobal = false;
+        for (int n = 0; n < nr; n++) {
+            if (r.rstoich[n] != int(r.order[n])) {
+                isglobal = true; break;
+            }
+        }
+        if (isglobal)
             addGlobalReaction(r);
+        else
+            addElementaryReaction(r);
+
+//         if (r.reactionType == ELEMENTARY_RXN)      
+//             addElementaryReaction(r);
+//         if (r.reactionType == SURFACE_RXN)      
+//             addElementaryReaction(r);
+//         else if (r.reactionType == GLOBAL_RXN)     
+//             addGlobalReaction(r);
 
         // operations common to all reaction types
         installReagents( r );
@@ -471,9 +494,12 @@ namespace Cantera {
     addElementaryReaction(const ReactionData& r) {
         int iloc;
         // install rate coeff calculator
+        vector_fp rp = r.rateCoeffParameters;
+        int ncov = r.cov.size();
+        for (int m = 0; m < ncov; m++) rp.push_back(r.cov[m]);
         iloc = m_rates.install( reactionNumber(),
-            r.rateCoeffType, r.rateCoeffParameters.size(), 
-            r.rateCoeffParameters.begin() );
+            r.rateCoeffType, rp.size(), 
+            rp.begin() );
         // store activation energy
         m_E.push_back(r.rateCoeffParameters[2]);
         // add constant term to rate coeff value vector
@@ -487,9 +513,12 @@ namespace Cantera {
             
         int iloc;
         // install rate coeff calculator
+        vector_fp rp = r.rateCoeffParameters;
+        int ncov = r.cov.size();
+        for (int m = 0; m < ncov; m++) rp.push_back(r.cov[m]);
         iloc = m_rates.install( reactionNumber(),
-            r.rateCoeffType, r.rateCoeffParameters.size(),
-            r.rateCoeffParameters.begin() );
+            r.rateCoeffType, rp.size(),
+            rp.begin() );
 
         // add constant term to rate coeff value vector
         m_kdata->m_rfn.push_back(r.rateCoeffParameters[0]);
@@ -597,6 +626,10 @@ namespace Cantera {
      */
     void InterfaceKinetics::finalize() {
         m_rwork.resize(nReactions());
+        int ks = surfacePhaseIndex();
+        if (ks < 0) throw CanteraError("InterfaceKinetics::finalize",
+             "no surface phase is present.");
+        m_surf = (SurfPhase*)&thermo(ks);
         m_finalized = true;
     }
 

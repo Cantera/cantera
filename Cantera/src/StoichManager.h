@@ -20,8 +20,11 @@ using namespace std;
 
 namespace Cantera {
 
-    /**
+    /** 
      * @defgroup Stoichiometry Stoichiometry
+     *
+     * Note: these classes are designed for internal use in class ReactionStoichManager. 
+     * 
      * Operations on reactions that require knowing the reaction
      * stoichiometry.  This module consists of class StoichManager, and
      * classes C1, C2, and C3.  Classes C1, C2, and C3 handle operations

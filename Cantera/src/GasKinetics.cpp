@@ -68,7 +68,7 @@ namespace Cantera {
     _update_rates_T() {
         doublereal T = thermo().temperature();
         m_kdata->m_logc0 = log(thermo().standardConcentration()); 
-        if (fabs(T - m_kdata->m_temp) > m_dt_threshold) {
+        if (fabs(T - m_kdata->m_temp) > 0.0) { // m_dt_threshold) {
             doublereal logT = log(T);
             //m_kdata->m_logp0 - logT;
             m_rates.update(T, logT, m_kdata->m_rfn.begin());
@@ -79,20 +79,20 @@ namespace Cantera {
             updateKc();
             m_kdata->m_ROP_ok = false;
         }
-        else {
-            doublereal logT = log(T);
-            doublereal dT = T - m_kdata->m_temp;
-            //m_kdata->m_logc0 = m_kdata->m_logp0 - logT;
-            m_rates.update_dT(T, logT, dT, m_kdata->m_rfn.begin());
-            m_falloff_low_rates.update_dT(T, logT, dT, 
-                m_kdata->m_rfn_low.begin()); 
-            m_falloff_high_rates.update_dT(T, logT, dT, 
-                m_kdata->m_rfn_high.begin());
-            m_falloffn.updateTemp(T, m_kdata->falloff_work.begin());
-            m_kdata->m_temp = T;
-            updateKc();
-            m_kdata->m_ROP_ok = false;
-        }
+//         else {
+//             doublereal logT = log(T);
+//             doublereal dT = T - m_kdata->m_temp;
+//             //m_kdata->m_logc0 = m_kdata->m_logp0 - logT;
+//             m_rates.update_dT(T, logT, dT, m_kdata->m_rfn.begin());
+//             m_falloff_low_rates.update_dT(T, logT, dT, 
+//                 m_kdata->m_rfn_low.begin()); 
+//             m_falloff_high_rates.update_dT(T, logT, dT, 
+//                 m_kdata->m_rfn_high.begin());
+//             m_falloffn.updateTemp(T, m_kdata->falloff_work.begin());
+//             m_kdata->m_temp = T;
+//             updateKc();
+//             m_kdata->m_ROP_ok = false;
+//         }
     };
 
 

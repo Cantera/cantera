@@ -14,15 +14,21 @@
 #define CT_IMPORTCTML_H
 
 #include <string>
+using namespace std;
 
-#include "Kinetics.h"
-#include "transport/TransportBase.h"
+#include "ThermoPhase.h"
+//#include "Kinetics.h"
+//#include "transport/TransportBase.h"
 
 namespace Cantera {
 
+    class Kinetics;
+    //class ThermoPhase;
+    class XML_Node;
+
     bool isCTMLFile(string infile);
-    bool importPhase(XML_Node& phase, thermophase_t* th);
-    bool importKinetics(XML_Node& phase, vector<thermophase_t*> th, 
+    bool importPhase(XML_Node& phase, ThermoPhase* th);
+    bool importKinetics(XML_Node& phase, vector<ThermoPhase*> th, 
         Kinetics* kin);
     bool installReactionArrays(XML_Node& parent, Kinetics& kin, 
         string default_phase, bool check_for_duplicates = false);

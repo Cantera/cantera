@@ -11,11 +11,6 @@
 /* $Author$
  * $Revision$
  * $Date$
- * $Log$
- * Revision 1.14  2003-08-17 18:56:16  dggoodwin
- * Added support for coverage-dependent reaction rates and sticking coefficients,
- * and reactions with specified  reaction order.
- *
  */
 
 // Copyright 2002  California Institute of Technology

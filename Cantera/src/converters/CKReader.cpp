@@ -216,7 +216,7 @@ bool CKReader::read(const string& inputFile, const string& thermoDatabase,
         }
     }
 
-    if (!validateSpecies(log)) {
+    if (validate && !validateSpecies(log)) {
       //Cantera::setError("read","error in species");
         return false;
     }

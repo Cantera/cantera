@@ -31,6 +31,7 @@ namespace Cantera {
     class ReactionData;
     class InterfaceKineticsData;
     class ThermoPhase;
+    class SurfPhase;
     class ImplicitSurfChem;
 
     /**
@@ -40,7 +41,7 @@ namespace Cantera {
     public:
         InterfaceKineticsData() :
             m_ROP_ok(false), 
-            m_temp(0.0)
+            m_temp(0.0), m_logtemp(0.0)
             {}
         virtual ~InterfaceKineticsData(){}
 
@@ -49,7 +50,7 @@ namespace Cantera {
         array_fp m_rfn_low, m_rfn_high;
         bool m_ROP_ok;
 
-        doublereal m_temp;
+        doublereal m_temp, m_logtemp;
         vector_fp m_rfn;
         vector_fp m_rkcn;
     };
@@ -171,7 +172,8 @@ namespace Cantera {
 
         int                                 m_kk;
 
-        Rate1<Arrhenius>                    m_rates;        
+        Rate1<SurfaceArrhenius>                    m_rates;        
+        //Rate1<Arrhenius>                    m_rates;        
         bool                                m_redo_rates;
 
         mutable map<int, pair<int, int> >   m_index;
@@ -221,6 +223,7 @@ namespace Cantera {
         vector_fp m_rwork;
         vector_fp m_E;
 
+        SurfPhase*                             m_surf;
         ImplicitSurfChem*                      m_integrator;
 
     private:

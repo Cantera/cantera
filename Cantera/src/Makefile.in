@@ -29,7 +29,7 @@ BASE       = State.o Elements.o Constituents.o stringUtils.o misc.o importCTML.o
 THERMO     = $(BASE) ThermoPhase.o IdealGasPhase.o ConstDensityThermo.o SolidCompound.o SpeciesThermoFactory.o ThermoFactory.o
 
 # homogeneous kinetics
-KINETICS   = GRI_30_Kinetics.o KineticsFactory.o GasKinetics.o FalloffFactory.o GasKineticsWriter.o \
+KINETICS   = GRI_30_Kinetics.o KineticsFactory.o GasKinetics.o FalloffFactory.o \
              ReactionStoichMgr.o $(THERMO)
 
 # heterogeneous kinetics

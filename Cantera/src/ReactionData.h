@@ -55,6 +55,7 @@ namespace Cantera {
         int error;
         string equation;
         doublereal default_3b_eff;
+        vector_fp cov;
     };
 }
 

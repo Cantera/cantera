@@ -407,7 +407,7 @@ namespace pip {
 
             // Otherwise, just add the whole reaction, which may or may
             // not be reversible.
-            else {
+            else { 
                 addReaction(idktag, irxn, r.reactions[i], 
                     r.units, version);
                 irxn++;
@@ -423,7 +423,7 @@ namespace pip {
         const char* tr_file, const char* id_tag) {
         ckr::CKReader r;
 
-        r.validate = true;
+        r.validate = false;
         //int i=1;
 
         string infile = string(in_file);

@@ -64,7 +64,8 @@ namespace Cantera {
     const int  ARRHENIUS = 1;
     const int  LANDAUTELLER = 2;
     const int  TSTRATE = 3;
-    
+    const int  SURF_ARRHENIUS = 4;
+
     //@}
 
     /** @name Falloff Function Types

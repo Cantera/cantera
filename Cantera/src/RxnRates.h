@@ -1,7 +1,9 @@
 /**
  *  @file RxnRates.h
  *
- * $Author$
+ */
+
+/* $Author$
  * $Revision$
  * $Date$
  */
@@ -22,7 +24,7 @@ namespace Cantera {
     public:
         static int type(){ return ARRHENIUS; }        
         Arrhenius() : m_b (0.0), m_E (0.0) {}
-        Arrhenius( const doublereal* c )
+        Arrhenius( int csize, const doublereal* c )
             : m_b (c[1]), m_E (c[2]) { m_logA = log(c[0]);}
 
         void update_C(const doublereal* c) {}
@@ -46,9 +48,87 @@ namespace Cantera {
             return m_E;
         }
 
+        static bool alwaysComputeRate() { return false;}
+
     protected:
         doublereal m_logA, m_b, m_E;
     };
+
+
+
+    /**
+     * An Arrhenius rate with coverage-dependent terms.
+     */
+    class SurfaceArrhenius {
+
+    public:
+        static int type(){ return ARRHENIUS; }        
+        SurfaceArrhenius() : m_b (0.0), m_E (0.0),
+                             m_acov(0.0), m_ecov(0.0), 
+                             m_mcov(0.0), m_ncov(0), m_nmcov(0)
+            {}
+        SurfaceArrhenius( int csize, const doublereal* c )
+            : m_b (c[1]), m_E (c[2]), 
+              m_acov(0.0), m_ecov(0.0), m_mcov(0.0), m_ncov(0), m_nmcov(0) 
+            { m_logA = log(c[0]);
+              if (csize >= 7) {
+                  for (int n = 3; n < csize-3; n += 4) {
+                      addCoverageDependence(int(c[n]), 
+                          c[n+1], c[n+2], c[n+3]);
+                  }
+              }
+            }
+
+        void addCoverageDependence(int k, doublereal a, 
+            doublereal m, doublereal e) {
+            m_ncov++;
+            m_sp.push_back(k);
+            m_ac.push_back(a);
+            m_ec.push_back(e);
+            if (m != 0.0) {
+                m_msp.push_back(k);
+                m_mc.push_back(m);
+                m_nmcov++;
+            }
+        }
+            
+        void update_C(const doublereal* theta) {
+            m_acov = 0.0;
+            m_ecov = 0.0;
+            m_mcov = 0.0;
+            int n, k;
+            doublereal th;
+            for (n = 0; n < m_ncov; n++) {
+                k = m_sp[n];
+                m_acov += m_ac[n] * theta[k];
+                m_ecov += m_ec[n] * theta[k];
+            }
+            for (n = 0; n < m_nmcov; n++) {
+                k = m_msp[n];
+                th = fmax(theta[n], Tiny);
+                m_mcov += m_mc[n]*log(th);
+            }
+        }
+        
+        doublereal update(doublereal logT, doublereal recipT) const {
+            return m_logA + m_acov + m_b*logT 
+                - (m_E + m_ecov)*recipT + m_mcov;
+        }
+
+        doublereal activationEnergy_R() const {
+            return m_E + m_ecov;
+        }
+
+        static bool alwaysComputeRate() { return true;}
+
+    protected:
+        doublereal m_logA, m_b, m_E;
+        doublereal m_acov, m_ecov, m_mcov;
+        vector_int m_sp, m_msp;
+        vector_fp m_ac, m_ec, m_mc;
+        int m_ncov, m_nmcov; 
+    };
+
 
 #ifdef INCL_TST
 
