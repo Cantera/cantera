@@ -23,22 +23,25 @@ else:
 #    f.write('date = '+`time.time()`)
 #    f.close()
 
-setup(name="Cantera",
-      version="1.4",
-      description="The Cantera Python Interface",
-      long_description="""
-      """,
-      author="Prof. D. G. Goodwin, Caltech",
-      author_email="dgoodwin@caltech.edu",
-      url="http://www.cantera.org",
-      package_dir = {'MixMaster':'../../apps/MixMaster'},
-      packages = ["","Cantera","MixMaster","MixMaster.Units"],
-      ext_modules=[
-          Extension("Cantera._cantera",
-                    ["src/pycantera.cpp"],
-                    include_dirs=["../../build/include",
-                                  "src", "../clib/src"],
-                    library_dirs = ["@buildlib@"], libraries = libs)
-          ],
-     )
+try:
+    setup(name="Cantera",
+          version="1.4",
+          description="The Cantera Python Interface",
+          long_description="""
+          """,
+          author="Prof. D. G. Goodwin, Caltech",
+          author_email="dgoodwin@caltech.edu",
+          url="http://www.cantera.org",
+          package_dir = {'MixMaster':'../../apps/MixMaster'},
+          packages = ["","Cantera","MixMaster","MixMaster.Units"],
+          ext_modules=[
+              Extension("Cantera._cantera",
+                        ["src/pycantera.cpp"],
+                        include_dirs=["../../build/include",
+                                      "src", "../clib/src"],
+                        library_dirs = ["@buildlib@"], libraries = libs)
+              ],
+          )
+except:
+    print 'setup.py failed'
 

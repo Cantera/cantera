@@ -30,14 +30,14 @@ all: _build
 
 _build: $(SRCS) $(LIB_DEPS)
 	touch src/pycantera.cpp 
-	@PYTHON_CMD@ setup.py build
+	(@PYTHON_CMD@ setup.py build)
 	echo 'ok' > _build
 
 install:
 ifeq (@local_inst@,1)
-	@PYTHON_CMD@ setup.py install --prefix=@prefix@
+	(@PYTHON_CMD@ setup.py install --prefix=@prefix@)
 else
-	@PYTHON_CMD@ setup.py install
+	(@PYTHON_CMD@ setup.py install)
 endif
 
 clean:
