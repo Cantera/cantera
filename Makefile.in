@@ -82,7 +82,7 @@ hdr-install:
 	@INSTALL@ -d @ct_incdir@
 	cp -r -f build/include/cantera @ct_incroot@
 
-# collect scattered header files abd build the include directory
+# collect scattered header files and build the include directory
 hdr-collect:
 	@INSTALL@ -d build/include/cantera
 	rm -r -f build/include/cantera/*
@@ -151,7 +151,9 @@ finish-install:
 	@INSTALL@ -d @ct_demodir@/cxx
 	@INSTALL@ Cantera/cxx/demos/*.cpp @ct_demodir@/cxx
 	@INSTALL@ Cantera/cxx/demos/*.h @ct_demodir@/cxx
-	@INSTALL@ Cantera/cxx/demos/Makefile @ct_demodir@/cxx
+	@INSTALL@ Cantera/cxx/demos/*.csv @ct_demodir@/cxx
+	@INSTALL@ Cantera/cxx/demos/*.dat @ct_demodir@/cxx
+	@INSTALL@ Cantera/cxx/demos/Makefile.install @ct_demodir@/cxx/Makefile
 	chown -R @username@ @ct_demodir@/cxx
 
 	@INSTALL@ -d @ct_demodir@/f77
@@ -162,10 +164,10 @@ finish-install:
 	chown -R @username@ @ct_demodir@/f77
 
 ifeq ($(os_is_win),0)
-	rm -f @prefix@/cantera/demos
-	rm -f @prefix@/cantera/data
-	rm -f @prefix@/cantera/templates
-	rm -f @prefix@/cantera/tutorials
+	rm -fR @prefix@/cantera/demos
+	rm -fR @prefix@/cantera/data
+	rm -fR @prefix@/cantera/templates
+	rm -fR @prefix@/cantera/tutorials
 	ln -s @ct_demodir@ @prefix@/cantera/demos
 	ln -s @ct_datadir@ @prefix@/cantera/data
 	ln -s @ct_templdir@ @prefix@/cantera/templates
@@ -187,6 +189,7 @@ endif
 
 example_codes:
 	(cd examples/cxx; @MAKE@)
+	(cd Cantera/cxx; @MAKE@)
 
 test: example_codes datafiles
 	cd test_problems; @MAKE@ all
