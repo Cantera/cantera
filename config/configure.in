@@ -32,7 +32,7 @@ case $ac_sys_system in
 esac
 
 if test "x${OS_IS_CYGWIN}" = "x1"; then
-if test "${USE_VISUAL_STUDIO}" = "y"; then
+if test "${WINDOWS_BUILD}" = "y"; then
 OS_IS_WIN=1;
 fi
 fi
