@@ -101,6 +101,14 @@ namespace Cantera {
             ifstream s(ff.c_str());
             XML_Node* x = new XML_Node("doc");
             x->build(s);
+	    /*
+	     * Add the built XML Tree to the map, xmlfiles.
+	     * It stores the pointer to the tree, with the
+	     * key being the name of the file.
+	     *
+	     * HKM Note: shouldn't the key be the full pathname of
+	     *           the file, i.e., ff?
+	     */
             __app->xmlfiles[file] = x;
         }
         return __app->xmlfiles[file];
