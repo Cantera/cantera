@@ -98,7 +98,6 @@ namespace Cantera {
                     ff = string("./")+path.substr(islash+1,idot-islash - 1) + ".xml";
                 else
                     ff = string("./")+path.substr(0,idot) + ".xml";
-                writelog("ff = "+ff+"\n");
             }
             else {
                 ff = path;
@@ -301,15 +300,11 @@ namespace Cantera {
             inname = "";
             for (i = 0; i < nd; i++) {
                 inname = dirs[i] + "/" + name;
-                writelog("looking for file "+inname+"\n");
                 ifstream fin(inname.c_str());
                 if (fin) {
-                    writelog("found it\n");
                     fin.close();
                     return inname;
                 }
-                else
-                    writelog("not found.\n");
             }
             string msg;
             msg = "\nInput file " + name 

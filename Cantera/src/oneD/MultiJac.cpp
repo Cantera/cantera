@@ -24,11 +24,6 @@ using namespace std;
 
 #include "MultiJac.h"
 
-static int isnan(double x) {
-    if (x > 1.0e300) return 1;
-    return 0;
-}
-
 namespace Cantera {
 
     MultiJac::MultiJac(OneDim& r) 
@@ -97,10 +92,6 @@ namespace Cantera {
                         for (m = 0; m < mv; m++) {
                             value(m+iloc,ipt) = (m_r1[m+iloc] 
                                 - resid0[m+iloc])*rdx;
-                            //if (isnan(value(m+iloc,ipt))) {
-                            //    throw CanteraError("eval","isnan: "+fp2str(m_r1[m+iloc])
-                            //        +" "+fp2str(resid0[m+iloc])+" "+fp2str(rdx));
-                            //}
                         }
                     }
                 }

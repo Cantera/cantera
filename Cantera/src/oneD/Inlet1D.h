@@ -112,7 +112,6 @@ namespace Cantera {
         Inlet1D() : Bdry1D(), m_V0(0.0), m_nsp(0), m_flow(0) {
             m_type = cInletType;
             m_xstr = "";
-                writelog("Inlet1D constructor\n");
         }
         virtual ~Inlet1D(){}
 
@@ -270,7 +269,6 @@ namespace Cantera {
 
         Surf1D() : Bdry1D() {
             m_type = cSurfType; 
-                writelog("Surf1D constructor\n");
         }
         virtual ~Surf1D(){}
 
