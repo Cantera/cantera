@@ -50,7 +50,7 @@ typedef  int          ftnlen;           // Fortran hidden string length type
 // The configure script defines this if the operatiing system is Mac
 // OS X, This used to add some Mac-specific directories to the default
 // data file search path.
-#define DARWIN 1
+#define DARWIN 0
 
 
 //--------- Fonts for reaction path diagrams ----------------------
@@ -60,13 +60,13 @@ typedef  int          ftnlen;           // Fortran hidden string length type
 //--------------------- Python ------------------------------------
 
 // used to run Python to process .cti files
-#define PYTHON_EXE "/usr/bin/python"
+#define PYTHON_EXE "/home/goodwin/bin/python"
 
 
 //--------------------- Cantera -----------------------------------
 
 // used to find data files
-#define CANTERA_ROOT "/usr/local/cantera"
+#define CANTERA_ROOT "/home/goodwin/cantera"
 
 
 

@@ -63,19 +63,11 @@ config.h: ../../config.h
 	cp -f ../../config.h ./config.h
 
 
-ct_defs.h.gch: ct_defs.h
-ifeq (@precompile_headers@,yes)
-	@CXX@ ct_defs.h $(CXX_FLAGS) 
-endif
-
-utilities.h.gch: utilities.h
-ifeq (@precompile_headers@,yes)
-	@CXX@ utilities.h $(CXX_FLAGS) 
-endif
-
 %.h.gch:
 ifeq (@precompile_headers@,yes)
 	@CXX@ $*.h $(CXX_FLAGS) 
+else
+	@echo 'skipping precompiling header file $*.h'
 endif
 
 base: $(BASE)
