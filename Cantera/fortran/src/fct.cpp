@@ -111,7 +111,7 @@ extern "C" {
 
     integer DLL_EXPORT phase_getmassfractions_(integer* n, doublereal* y) {
         ThermoPhase* p = _fph(n);
-        p->getMassFractions(p->nSpecies(), y);
+        p->getMassFractions(y);
         return 0;
     } 
 
