@@ -48,4 +48,93 @@ namespace Cantera {
                 "missing or negative substance flag");
     }
 
+    doublereal PureFluid::
+    enthalpy_mole() const {
+        setTPXState();
+        doublereal h = m_sub->h() * m_mw;
+        check(h);
+        return h;            
+    }
+        
+    doublereal PureFluid::
+    intEnergy_mole() const {
+        setTPXState();
+        doublereal u = m_sub->u() * m_mw;
+        check(u);
+        return u;            
+    }
+
+    doublereal PureFluid::
+    entropy_mole() const {
+        setTPXState();
+        doublereal s = m_sub->s() * m_mw;
+        check(s);
+        return s;            
+    }
+
+    doublereal PureFluid::
+    gibbs_mole() const {
+        setTPXState();
+        doublereal g = m_sub->g() * m_mw;
+        check(g);
+        return g;            
+    }
+
+    doublereal PureFluid::
+    cp_mole() const {
+        setTPXState();
+        doublereal cp = m_sub->cp() * m_mw;
+        check(cp);
+        return cp;            
+    }
+
+    doublereal PureFluid::
+    cv_mole() const {
+        setTPXState();
+        doublereal cv = m_sub->cv() * m_mw;
+        check(cv);
+        return cv;
+    }
+        
+    doublereal PureFluid::
+    pressure() const {
+        setTPXState();
+        doublereal p = m_sub->P();
+        check(p);
+        return p;
+    }
+        
+    void PureFluid::
+    setPressure(doublereal p) {
+        Set(tpx::TP, temperature(), p);
+        setDensity(1.0/m_sub->v());
+        check();
+    }
+
+    void PureFluid::Set(int n, double x, double y) const {
+        try { 
+            m_sub->Set(n, x, y); 
+        }
+        catch(tpx::TPX_Error) {
+            reportTPXError();
+        }
+    }
+            
+    void PureFluid::setTPXState() const {
+        Set(tpx::TV, temperature(), 1.0/density());
+    }
+        
+    void PureFluid::check(doublereal v) const {
+        if (m_sub->Error() || v == tpx::Undef) {
+            throw CanteraError("PureFluidPhase",string(tpx::errorMsg(
+                                                           m_sub->Error())));
+        }
+    }
+
+    void PureFluid::reportTPXError() const {
+        string msg = tpx::TPX_Error::ErrorMessage;
+        string proc = "tpx::"+tpx::TPX_Error::ErrorProcedure;
+        throw CanteraError(proc,msg);
+    }
+
 }
