@@ -26,6 +26,7 @@
 
 CANTERA_VERSION=${CANTERA_VERSION:="1.5.3"}
 
+
 #----------------------------------------------------------------------
 #         Language Interfaces
 #----------------------------------------------------------------------
@@ -34,13 +35,6 @@ CANTERA_VERSION=${CANTERA_VERSION:="1.5.3"}
 # Cantera provides interfaces for several languages.  Set to 'y' to
 # build the specified interface. If you only plan to use Cantera from
 # C++, you do not need to build any of these.  
-
-
-#------------ Fortran 90 --------------------------------------------
-
-# Build the Fortran 90 interface.
-
-BUILD_FORTRAN_90_INTERFACE='n'       # Fortran is temporarily not working
 
 
 #------------ Python -------------------------------------------------

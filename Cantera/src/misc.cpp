@@ -227,7 +227,6 @@ namespace Cantera {
         f << endl << endl;
         __app->errorMessage.clear();
         __app->errorRoutine.clear();
-        //if (__app->stop_on_error) exit(-1);
     }
 
     void setError(string r, string msg) {
@@ -377,23 +376,7 @@ namespace Cantera {
         }
     }
 
-    //void setMatlabMode(bool m) { 
-    //    appinit();
-    //    __app->matlab = m; 
-    //}
-
-    //void write(const string& msg) {cout << msg;}
-    //void write(const char* msg) {cout << msg;}
-
     void writelog(const char* msg) {writelog(string(msg));}
-    //void getlog(string& s) {
-    //    appinit();
-    //    s = __app->msglog;
-    //    //__app->msglog = "";
-    //}
-    //void clearlog() {
-    //    __app->msglog = "";
-    //}
 
     doublereal toSI(string unit) {
         doublereal f = Unit::units()->toSI(unit);

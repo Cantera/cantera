@@ -8,7 +8,7 @@ using namespace std;
 // definitions
 #include "kernel/ct_defs.h"
 
-// the Application class and associated functions
+// some useful functions
 #include "kernel/global.h"
 
 // the CanteraError exception class

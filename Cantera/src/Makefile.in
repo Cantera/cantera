@@ -142,7 +142,7 @@ lib:
 	cd ../.. ; @MAKE@ hdr-collect
 
 clean:
-	$(RM) *.o *~ $(CANTERA_LIB)
+	$(RM) *.o *.gch *~ $(CANTERA_LIB)
 	cd zeroD; @MAKE@ clean
 	cd oneD;  @MAKE@ clean
 	cd converters; @MAKE@ clean
