@@ -1,79 +1,85 @@
-########################################################
 #
-#   A burner-stabilized hydrogen/oxygen flame
+# FLAME1 - A burner-stabilized flat flame
 #
-########################################################
+#    This script simulates a burner-stablized lean hydrogen-oxygen flame
+#    at low pressure.
+#
+from Cantera import *
+from Cantera.OneD import *
 
-# note that SI units (m, kg, J, kmol) are used, not cgs units.
-import os
-from Cantera import units
-from Cantera.flame import *
+################################################################
+#
+# parameter values
+#
+p          =   0.05*OneAtm          # pressure
+tburner    =   373.0                # burner temperature
+mdot       =   0.06                 # kg/m^2/s
 
-gas = IdealGasMix(src = 'h2o2.cti')
+rxnmech    =  'h2o2.cti'            # reaction mechanism file
+comp       =  'H2:1.8, O2:1, AR:7'  # premixed gas composition
 
-# create a burner-stabilized flame in the domain z = 0 to z = 20 cm,
-# define the fuel to be pure hydrogen, and the oxidizer to be
-# oxygen diluted in argon.
+# The solution domain is chosen to be 50 cm, and a point very near the
+# downstream boundary is added to help with the zero-gradient boundary
+# condition at this boundary.
+initial_grid = [0.0, 0.02, 0.04, 0.06, 0.08, 0.1,
+                0.15, 0.2, 0.4, 0.49, 0.5]  # m
 
-flame = BurnerFlame(
-    domain = (0, 0.4),   
-    fuel = 'H2:1',
-    oxidizer = 'O2:1, AR:7',
-    gas = gas,
-    grid = [0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.15, 0.2, 0.49, 0.5]
-    )
+tol_ss    = [1.0e-5, 1.0e-13]        # [rtol atol] for steady-state
+                                    # problem
+tol_ts    = [1.0e-4, 1.0e-9]        # [rtol atol] for time stepping
 
-# Set some parameters.
-#     mdot     --    mass flow rate in kg/m^2/s
-#     T0       --    burner temperature
-#     pressure --    P in pascals
-#     tol      --    (relative, absolute)
-#     timesteps --   ( [sequence of number of steps], initial step size )
-#     refine   --    (max size ratio between adj cells, slope parameter,
-#                     curvature parameter)
-#     jac_age  --    (steady age, transient age)
-
-flame.set(mdot            = 0.04,
-          equiv_ratio     = 0.9,
-          T_burner        = 373.0,
-          pressure        = 0.05 * units.atm,
-          tol             = (1.e-5, 1.e-12),
-          timesteps       = ([1,2,5,10,20], 1.e-5),
-          refine          = (2.0, 0.8, 0.9),
-          jac_age         = (20, 10),
-          )
+loglevel  = 1                       # amount of diagnostic output (0
+                                    # to 5)
+				    
+refine_grid = 1                     # 1 to enable refinement, 0 to
+                                    # disable 				   
 
 
-# if you want to start from a previously saved solution, uncomment
-# this line and modify as necessary
-#flame.restore(src = 'h2o2_flame1.xml', solution = 'energy_1')
+################ create the gas object ########################
+#
+# This object will be used to evaluate all thermodynamic, kinetic,
+# and transport properties
+#
+gas = IdealGasMix(rxnmech)
+
+# set its state to that of the unburned gas at the burner
+gas.setState_TPX(tburner, p, comp)
+
+f = BurnerFlame(gas = gas, grid = initial_grid)
+
+# set the properties at the burner
+f.burner.set(massflux = mdot, mole_fractions = comp, temperature = tburner)
+
+f.set(tol = tol_ss, tol_time = tol_ts)
+f.setMaxJacAge(5, 10)
+f.set(energy = 'off')
+f.init()
+f.showSolution()
+
+f.solve(loglevel, refine_grid)
+
+f.setRefineCriteria(ratio = 200.0, slope = 0.05, curve = 0.1)
+f.set(energy = 'on')
+f.solve(loglevel,refine_grid)
+
+f.save('flame1.xml')
+f.showSolution()
 
 
-# turn the energy equation off (default)
-flame.set(energy = 'off')
+# write the velocity, temperature, and mole fractions to a CSV file
+z = f.flame.grid()
+T = f.T()
+u = f.u()
+V = f.V()
+fcsv = open('flame1.csv','w')
+writeCSV(fcsv, ['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)']
+         + list(gas.speciesNames()))
+for n in range(f.flame.nPoints()):
+    f.setGasState(n)
+    writeCSV(fcsv, [z[n], u[n], V[n], T[n]]+list(gas.moleFractions()))
+fcsv.close()
 
-# solve the flame, with output level 1
-flame.solve(1)
+print 'solution saved to flame1.csv'
 
-# save the solution
-flame.save('no_energy','solution with the energy equation disabled',
-           'h2o2_flame1.xml')
+f.showStats()
 
-# turn the energy equation on, and change the grid refinement parameters
-flame.set(energy = 'on', refine = (2.0, 0.05, 0.1))
-
-# solve it again
-flame.solve(1)
-
-# save it to the same file, but with a different solution id.
-flame.save('energy','solution with the energy equation enabled',
-           'h2o2_flame1.xml')
-
-# write plot files
-flame.plot(plotfile = 'flame1.dat', title = 'H2/O2 flame', fmt = 'TECPLOT')
-flame.plot(plotfile = 'flame1.csv', title = 'H2/O2 flame', fmt = 'EXCEL')
-print '  TECPLOT file flame1.dat and Excel CSV file flame1.csv written'
-print '  Directory: '+os.getcwd()
-
-# show statistics -- number of Jacobians, etc.
-flame.showStatistics()

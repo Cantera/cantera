@@ -1,89 +1,116 @@
-"""
+#
+# STFLAME1 - A detached flat flame stabilized at a stagnation point
+#
 
-A hydrogen/oxygen flame stabilized in an axisymmetric stagnation
-flow.
+#    This script simulates a lean hydrogen-oxygen flame stabilized in
+#    a strained flowfield at an axisymmetric stagnation point on a
+#    non-reacting surface. The solution begins with a flame attached
+#    to the inlet (burner), and the mass flow rate is progressively
+#    increased, causing the flame to detach and move closer to the
+#    surface. This example illustrates use of the new 'prune' grid
+#    refinement parameter, which allows grid points to be removed if
+#    they are no longer required to resolve the solution. This is
+#    important here, since the flamefront moves as the mass flowrate
+#    is increased. Without using 'prune', a large number of grid
+#    points would be concentrated upsteam of the flame, where the
+#    flamefront had been previously. (To see this, try setting prune
+#    to zero.)
 
-"""
+from Cantera import *
+from Cantera.OneD import *
 
-from Cantera import units
-from Cantera.flame import *
+################################################################
+#
+# parameter values
+#
+p          =   0.05*OneAtm          # pressure
+tburner    =   373.0                # burner temperature
+tsurf      =   600.0
 
-# Import the hydrogen/oxygen reaction mechanism
-# The input file is in directory 'data/inputs'.
+# each mdot value will be solved to convergence, with grid refinement,
+# and then that solution will be used for the next mdot
+mdot       =   [0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]                  # kg/m^2/s
 
-gas = IdealGasMix('h2o2.cti')
+rxnmech    =  'h2o2.cti'            # reaction mechanism file
+comp       =  'H2:1.8, O2:1, AR:7'  # premixed gas composition
 
+# The solution domain is chosen to be 50 cm, and a point very near the
+# downstream boundary is added to help with the zero-gradient boundary
+# condition at this boundary.
+initial_grid = [0.0, 0.02, 0.04, 0.06, 0.08, 0.1,
+                0.15, 0.2]  # m
 
-# Create a stagnation-point flame in the domain z = 0 (the inlet) to z
-# = 20 cm (the surface).  The fuel stream will be pure hydrogen,
-# and the oxidizer stream oxygen diluted in argon.
+tol_ss    = [1.0e-5, 1.0e-13]        # [rtol atol] for steady-state
+                                    # problem
+tol_ts    = [1.0e-4, 1.0e-9]        # [rtol atol] for time stepping
 
-flame = StagnationFlame(
-    domain      = (0, 0.2),   
-    fuel        = 'H2:1',
-    oxidizer    = 'O2:1, AR:7',
-    gas         = gas,
-    grid        = [0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.15, 0.2] # initial grid
-    )
-
-
-# Set some parameters.
-#     mdot      --    mass flow rate in kg/m^2/s
-#     T_burner  --    burner temperature
-#     T_surface --    surface temperature
-#     pressure  --    P in pascals
-#     tol       --    (relative, absolute)
-#     timesteps --    ( [sequence of number of steps], initial step size )
-#     refine    --    (max size ratio between adj cells, slope parameter,
-#                       curvature parameter)
-#     jac_age   --    (steady age, transient age)
-
-flame.set(mdot            = 0.1,
-          equiv_ratio     = 1.2,
-          T_burner        = 373.0,
-          T_surface       = 600.0,          
-          pressure        = 0.05 * units.atm,
-          tol             = (1.e-7, 1.e-9),
-          timesteps       = ([1,2,5,10], 1.e-5),
-          refine          = (2.0, 0.5, 0.5),
-          jac_age         = (20, 10),
-          )
+loglevel  = 1                       # amount of diagnostic output (0
+                                    # to 5)
+				    
+refine_grid = 1                     # 1 to enable refinement, 0 to
+                                    # disable
+ratio = 5.0
+slope = 0.1
+curve = 0.2
+prune = 0.05
 
 
-# if you want to start from a previously saved solution, uncomment
-# this line and modify as necessary
-# flame.restore(src = 'h2o2_flame1.xml', solution = 'energy_1')
 
-# turn the energy equation off (default)
-flame.set(energy = 'off')
-flame.show()
+################ create the gas object ########################
+#
+# This object will be used to evaluate all thermodynamic, kinetic,
+# and transport properties
+#
+gas = IdealGasMix(rxnmech)
 
-# solve the flame, with output level 1
-flame.solve(1)
-flame.show()
+# set its state to that of the unburned gas at the burner
+gas.setState_TPX(tburner, p, comp)
 
-# save the solution
-flame.save('no_energy','solution with the energy equation disabled',
-           'h2o2_stflame1.xml')
+# Create the stagnation flow object with a non-reactive surface.  (To
+# make the surface reactive, supply a surface reaction mechanism.  see
+# example catcomb.py for how to do this.)
+f = StagnationFlow(gas = gas, grid = initial_grid)
 
-# turn the energy equation on, and change the grid refinement parameters
-flame.set(energy = 'on', refine = (2.0, 0.1, 0.2))
+# set the properties at the inlet
+f.inlet.set(massflux = mdot[0], mole_fractions = comp, temperature = tburner)
 
-# solve it again
-flame.solve(1)
+# set the surface state
+f.surface.setTemperature(tsurf)
 
-# save it to the same file, but with a different solution id.
-flame.save('energy','solution with the energy equation enabled',
-           'h2o2_stflame1.xml')
+f.set(tol = tol_ss, tol_time = tol_ts)
+f.setMaxJacAge(5, 10)
+f.set(energy = 'off')
+f.init(products = 'equil') # assume adiabatic equilibrium products
+f.showSolution()
 
-# write a TECPLOT plot file
-flame.plot(plotfile = 'stflame1.dat', title = 'H2/O2 flame', fmt = 'TECPLOT')
+f.solve(loglevel, refine_grid)
 
-# write an Excel CSV file
-flame.plot(plotfile = 'stflame1.csv', title = 'H2/O2 flame', fmt = 'EXCEL')
+f.setRefineCriteria(ratio = ratio, slope = slope,
+                    curve = curve, prune = prune)
+f.set(energy = 'on')
 
-print 'TECPLOT file stflame1.dat and Excel CSV file stflame1.csv written'
+m = 0
+for md in mdot:
+    f.inlet.set(mdot = md)
+    f.solve(loglevel,refine_grid)
+    m = m + 1
+    f.save('stflame1.xml','mdot'+`m`,'mdot = '+`md`+' kg/m2/s')
 
-# show statistics -- number of Jacobians, etc.
-flame.showStatistics()
+
+    # write the velocity, temperature, and mole fractions to a CSV file
+    z = f.flow.grid()
+    T = f.T()
+    u = f.u()
+    V = f.V()
+    fcsv = open('stflame1_'+`m`+'.csv','w')
+    writeCSV(fcsv, ['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)']
+             + list(gas.speciesNames()))
+    for n in range(f.flow.nPoints()):
+        f.setGasState(n)
+        writeCSV(fcsv, [z[n], u[n], V[n], T[n]]+list(gas.moleFractions()))
+    fcsv.close()
+
+    print 'solution saved to flame1.csv'
+
+f.showStats()
 
