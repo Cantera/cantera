@@ -108,7 +108,17 @@ PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"}
 
 BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="n"}
 
+                                                                                               
+#----------- Fortran 77 -----------------------------------------------------
 
+# Set this to "y" if you want to build Cantera using the f2c source instead
+# of with .f sources in the ext directory.
+# The default is not to do this on all platforms except vc++.
+# Set this to "n" to never do this on any platform.
+# Note, if set to "y", Cantera does not need a fortran compiler, and 
+# all fortran compiler parameters are irrelevant.
+
+BUILD_WITH_F2C=${BUILD_WITH_F2C:="default"}
 
 #----------- Fortran 90/95 --------------------------------------------------
 
@@ -323,6 +333,7 @@ export ARCHIVE
 export RANLIB
 export BLAS_LAPACK_LIBS
 export BLAS_LAPACK_DIR
+export BUILD_WITH_F2C
 export BUILD_F90
 export BUILD_F90_INTERFACE
 export PYTHON_PACKAGE

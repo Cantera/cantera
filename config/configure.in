@@ -5,13 +5,13 @@ AC_INIT(Cantera.README)
 AC_CONFIG_HEADER(../config.h)
 AC_CONFIG_AUX_DIR(.)
 
-echo
+echo " "
 echo "--------------------------------------------------------------"
-echo 
+echo " " 
 echo "           Cantera Configuration Script "
-echo 
+echo " " 
 echo "--------------------------------------------------------------"
-echo
+echo " "
 
 AC_DEFINE(NDEBUG)
 
@@ -270,6 +270,7 @@ NEED_LAPACK=
 NEED_RECIPES=
 NEED_MATH=
 NEED_TPX=
+NEED_F2C=
 NEED_CVODE=
 NEED_TRANSPORT=
 NEED_ZEROD=
@@ -357,7 +358,42 @@ AC_SUBST(build_blas)
 
 AC_SUBST(BLAS_LAPACK_LIBS)
 AC_SUBST(BLAS_LAPACK_DIR)
+#
+# Stubout section for f2c versions of lapack:
+#    Define these variables, but turn them off in main version of code
+# 
+build_with_f2c=0
+if test -n $BUILD_WITH_F2C ; then
+  if test $BUILD_WITH_F2C = "y" -o $BUILD_WITH_F2C = "Y" ; then
+    build_with_f2c=1
+  elif test $BUILD_WITH_F2C = "y" -o $BUILD_WITH_F2C = "Y" ; then
+    build_with_f2c=0
+  elif test $BUILD_WITH_F2C = "default" ; then
+    if test x$OS_IS_WIN = "x1" ; then
+       build_with_f2c=1
+    else
+       build_with_f2c=0
+    fi
+  fi
+fi
+#
+# Determine if you need the f2c library at link time
+# -> Note, Linux systems already have the g2c library
+#          added in, which is the same thing as our
+#          f2c library.
+if test x"$build_with_f2c" = "x1" ; then
+  NEED_F2C=1
+  case $ac_sys_system in
+    Linux)    NEED_F2C= ;;
+    Darwin*)  NEED_F2C= ;;
+  esac
+fi
+AC_SUBST(build_with_f2c)
 
+# LOCAL_LIBS:
+# Build a string of Cantera libraries necessary to link
+# Cantera applications
+#
 LOCAL_LIBS= 
 
 if test -n "$INCL_USER_CODE"
@@ -398,6 +434,10 @@ if test -n "$NEED_TPX"
 then LOCAL_LIBS=$LOCAL_LIBS' '-ltpx
 fi
 
+if test -n "$NEED_F2C"
+then LOCAL_LIBS=$LOCAL_LIBS' '-lctf2c
+fi
+
 LOCAL_LIB_DIRS=
 if test -n "$BLAS_LAPACK_DIR"
 then LOCAL_LIB_DIRS=$LOCAL_LIB_DIRS' -L'$BLAS_LAPACK_DIR
@@ -413,7 +453,7 @@ AC_SUBST(LOCAL_LIBS)
 BUILD_PARTICLES=
 
 if test "$ENABLE_PARTICLES" = "y"
-then
+then 
 BUILD_PARTICLES=1
 NEED_PARTICLES=1
 if test -z "$CANTERA_PARTICLES_DIR"
@@ -430,7 +470,6 @@ CXXFLAGS="$CXXFLAGS -DHAVE_PARTICLES -I$CANTERA_PARTICLES_DIR/src"
 fi
 
 AC_SUBST(BUILD_PARTICLES)
-
 #-------------------------------------------------
 #      Language Interfaces
 #-------------------------------------------------
@@ -697,6 +736,11 @@ AC_OUTPUT(../Cantera/Makefile \
 	  ../ext/tpx/Makefile \
 	  ../ext/Makefile \
           ../ext/recipes/Makefile \
+          ../ext/f2c_libs/Makefile \
+          ../ext/f2c_blas/Makefile \
+          ../ext/f2c_lapack/Makefile \
+          ../ext/f2c_math/Makefile \
+          ../ext/f2c_recipes/Makefile \
 	  ../examples/Makefile \
           ../examples/cxx/Makefile \
           ../Makefile \
@@ -715,10 +759,10 @@ AC_OUTPUT(../Cantera/Makefile \
           ../test_problems/silane_equil/Makefile \
           ../test_problems/surfkin/Makefile \
           ../test_problems/diamondSurf/Makefile \
-          ../test_problems/ck2cti_test/runtest \
           ../test_problems/ck2cti_test/Makefile \
+          ../test_problems/ck2cti_test/runtest \
           ../test_problems/python/Makefile \
-            ) 
+          )
 #	)
 if test "x${OS_IS_WIN}" = "x1"; then
 cp -f ../config.h ../Cantera/src
