@@ -323,7 +323,11 @@ namespace Cantera {
 	string datadir = string(CANTERA_DATA);
 	dirs.push_back(datadir);
 #endif
-
+#ifdef DEBUG_HKM
+	for (int i = 0; i < static_cast<int>(dirs.size()); i++) {
+	   cout << "default dir " << i << " = " << dirs[i] << endl;
+	}
+#endif
     }
 
 
@@ -368,7 +372,7 @@ namespace Cantera {
         if (dirs.size() == 0) setDefaultDirectories();
 
         int nd;
-        if (islash < 0 && ibslash < 0) {
+		if (islash == string::npos && ibslash == string::npos) {
             nd = static_cast<int>(dirs.size());
             int i;
             inname = "";
