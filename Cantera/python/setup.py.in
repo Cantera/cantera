@@ -1,9 +1,12 @@
 #!/usr/bin/python2
-
-from distutils.core import setup, Extension
-
-libs = []
 import sys
+try:
+    from distutils.core import setup, Extension
+except:
+    print 'could not import distutils. Skipping Python interface.'
+    sys.exit(0)
+    
+libs = []
 platform = sys.platform
 
 if platform == "win32":
@@ -35,7 +38,7 @@ setup(name="Cantera",
                     ["src/pycantera.cpp"],
                     include_dirs=["../../build/include",
                                   "src", "../clib/src"],
-                    library_dirs = ["../../build/lib"], libraries = libs)
+                    library_dirs = ["@buildlib@"], libraries = libs)
           ],
      )
 

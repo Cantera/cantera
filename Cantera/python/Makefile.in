@@ -29,12 +29,16 @@ SRCS = src/ctphase_methods.cpp \
 all: _build
 
 _build: $(SRCS) $(LIB_DEPS)
-	touch src/pycantera.cpp
+	touch src/pycantera.cpp 
 	@PYTHON_CMD@ setup.py build
 	echo 'ok' > _build
 
 install:
+ifeq (@local_inst@,1)
+	@PYTHON_CMD@ setup.py install --prefix=@prefix@
+else
 	@PYTHON_CMD@ setup.py install
+endif
 
 clean:
 	@PYTHON_CMD@ setup.py clean
