@@ -106,7 +106,7 @@ PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"}
 # Matlab script. If this is set to "y" but Matlab is not found, the
 # Matlab toolbox will not be built.
 
-BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="n"}
+BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
 
                                                                                                
 #----------- Fortran 77 -----------------------------------------------------
@@ -118,7 +118,7 @@ BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="n"}
 # Note, if set to "y", Cantera does not need a fortran compiler, and 
 # all fortran compiler parameters are irrelevant.
 
-BUILD_WITH_F2C=${BUILD_WITH_F2C:="default"}
+BUILD_WITH_F2C=${BUILD_WITH_F2C:="y"}
 
 #----------- Fortran 90/95 --------------------------------------------------
 

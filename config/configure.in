@@ -366,7 +366,7 @@ build_with_f2c=0
 if test -n $BUILD_WITH_F2C ; then
   if test $BUILD_WITH_F2C = "y" -o $BUILD_WITH_F2C = "Y" ; then
     build_with_f2c=1
-  elif test $BUILD_WITH_F2C = "y" -o $BUILD_WITH_F2C = "Y" ; then
+  elif test $BUILD_WITH_F2C = "n" -o $BUILD_WITH_F2C = "N" ; then
     build_with_f2c=0
   elif test $BUILD_WITH_F2C = "default" ; then
     if test x$OS_IS_WIN = "x1" ; then
@@ -485,8 +485,8 @@ BUILD_F90=0
 if test "x$BUILD_F90_INTERFACE" = "xy"; then
   BUILD_F90=1
   AC_CHECK_PROG(foundF90, $F90, yes, no)
-  if test x$foundF90 != "x1" ; then
-    echo 'Did not find the fortran90 compiler, '$F90 
+  if test x$foundF90 = "xno" ; then
+    echo 'Did not find the Fortran 90 compiler, '$F90 
     echo "     -> Turning off F90 interface even though it was requested" 
     BUILD_F90=0
   fi

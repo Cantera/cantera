@@ -44,10 +44,17 @@ namespace Cantera {
     public:
         Application() : linelen(0), stop_on_error(false),
 #ifdef WIN32
-                        tmp_dir(".") {}
+                        tmp_dir(".") {
 #else
-                        tmp_dir(".") {}
+                        tmp_dir("/tmp") {
 #endif
+                            char* tmpdir = getenv("TMP");
+                            if (tmpdir == 0) 
+                                tmpdir = getenv("TEMP");
+                            if (tmpdir != 0)
+                                tmp_dir = string(tmpdir);
+                        }
+
         virtual ~Application() {
 	    map<string, XML_Node*>::iterator pos;
 	    for (pos = xmlfiles.begin(); pos != xmlfiles.end(); ++pos) {
