@@ -351,7 +351,7 @@ namespace Cantera {
         virtual void showSolution(ostream& s, const doublereal* x) {}
         virtual void showSolution(const doublereal* x) {}
 
-        virtual void restore(XML_Node& dom, doublereal* soln) {}
+        virtual void restore(const XML_Node& dom, doublereal* soln) {}
 
         doublereal z(int jlocal) const {
             return m_z[jlocal];

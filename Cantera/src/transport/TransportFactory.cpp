@@ -285,7 +285,7 @@ namespace Cantera {
      * collision integrals.
      */
     void TransportFactory::setupMM(ostream& flog, 
-        XML_Node* transport_database, 
+        const XML_Node* transport_database, 
         thermo_t* thermo, int mode, int log_level, TransportParams& tr) {
         
         // constant mixture attributes
@@ -404,7 +404,7 @@ namespace Cantera {
     void TransportFactory::initTransport(Transport* tran, 
         thermo_t* thermo, int mode, int log_level) { 
 
-        XML_Node* transport_database = thermo->speciesData();
+        const XML_Node* transport_database = thermo->speciesData();
         
         TransportParams tr;
         ofstream flog("transport_log.xml");
@@ -660,7 +660,7 @@ namespace Cantera {
      * instance of TransportParams containing the transport data for
      * these species read from the file.
      */
-    void TransportFactory::getTransportData(XML_Node* transport_database,  
+    void TransportFactory::getTransportData(const XML_Node* transport_database,  
         XML_Node& log, const vector<string>& names, TransportParams& tr)
     {
         string name;
@@ -685,7 +685,7 @@ namespace Cantera {
         int linenum = 0;
         int i;
         for (i = 0; i < nsp; i++) {
-            XML_Node& sp = *xspecies[i];
+            const XML_Node& sp = *xspecies[i];
             name = sp["name"];
             XML_Node& tr = sp.child("transport");
             getString(tr, "geometry", val, type);

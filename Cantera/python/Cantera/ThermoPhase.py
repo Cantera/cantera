@@ -24,7 +24,7 @@ class ThermoPhase(Phase):
         """Create a new object representing a phase of matter, or wrap
         an existing kernel instance."""
         
-        Phase.__init__(self)
+        #Phase.__init__(self)
         self._phase_id = 0
         self._owner = 0
         self.idtag = ""

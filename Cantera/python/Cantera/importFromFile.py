@@ -27,18 +27,18 @@ def importPhases(file = '', names = []):
     the preprocessor and CTML parser only need to run once.
     """
     s = []
-    root = XML.XML_Node(name = 'doc', src = file, preprocess = 1)
+    #root = XML.XML_Node(name = 'doc', src = file, preprocess = 1)
     for nm in names:
-        src = '#'+nm
-        s.append(solution.Solution(src, root = root))
+        src = file+'#'+nm
+        s.append(solution.Solution(src))
     return s
 
 def importInterface(file = '', name = '', phases = []):
     #file = preprocess(file)
-    root = XML.XML_Node(name = 'doc', src = file, preprocess = 1)
+    #root = XML.XML_Node(name = 'doc', src = file, preprocess = 1)
     if name:
         src = file+'#'+name
     else:
         src = file
-    return Interface.Interface(src = src, root = root, phases = phases)    
+    return Interface.Interface(src = src, phases = phases)    
     

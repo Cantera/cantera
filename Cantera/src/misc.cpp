@@ -20,8 +20,6 @@
 #include <fstream>
 using namespace std;
 
-//int writeToMatlab(const char* buf);
-
 namespace Cantera {
 
     /**

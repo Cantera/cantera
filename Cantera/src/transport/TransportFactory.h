@@ -125,7 +125,7 @@ namespace Cantera {
         //    const vector<string>& names, 
         //    TransportParams& tr);
 
-        void getTransportData(XML_Node* db,  
+        void getTransportData(const XML_Node* db,  
             XML_Node& log, const vector<string>& names, 
             TransportParams& tr);
 
@@ -139,7 +139,7 @@ namespace Cantera {
 
         MMCollisionInt* m_integrals;
 
-        void setupMM(ostream& flog,  XML_Node* transport_database, 
+        void setupMM(ostream& flog,  const XML_Node* transport_database, 
             thermo_t* thermo, int mode, int log_level, 
             TransportParams& tr);
 

@@ -61,18 +61,45 @@ namespace Cantera {
      * First we define a coule of typedef's which will
      * be used throught this file
      */
-    typedef vector<XML_Node*>    nodeset_t;
+    typedef const vector<XML_Node*>    nodeset_t;
     typedef XML_Node             node_t;
 
     const doublereal DefaultPref = 1.01325e5;   // one atm
 
 
+    static void split(const string& src, string& file, string& id) { 
+        int ipound = src.find('#');
+
+        if (ipound >= 0) {
+            id = src.substr(ipound+1,src.size());
+            file = src.substr(0,ipound);
+        }            
+        else {
+            id = "";
+            file = src;
+        }
+    }
+
+    XML_Node* get_XML_Node(const string& src, XML_Node* root) {
+        string fname, idstr;
+        XML_Node *db, *doc;
+        split(src,fname,idstr);
+        if (fname == "") {
+            db = root->findID(idstr,3);
+        }
+        else {
+            doc = get_XML_File(fname);
+            db = doc->findID(idstr,3);
+        }
+        return db;
+    }
+
     /** 
      * Install a NASA polynomial thermodynamic property
      * parameterization for species k.
      */
-    static void installNasaThermo(SpeciesThermo& sp, int k, XML_Node& f0, 
-			   XML_Node& f1) {
+    static void installNasaThermo(SpeciesThermo& sp, int k, const XML_Node& f0, 
+			   const XML_Node& f1) {
         doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
 
         tmin0 = fpValue(f0["Tmin"]);
@@ -116,7 +143,7 @@ namespace Cantera {
      * Install a Shomate polynomial thermodynamic property
      * parameterization for species k.
      */
-    static void installShomateThermo(SpeciesThermo& sp, int k, XML_Node& f) {
+    static void installShomateThermo(SpeciesThermo& sp, int k, const XML_Node& f) {
         doublereal tmin, tmid, tmax;
         tmin = fpValue(f["Tmin"]);
         tmid = fpValue(f["Tmid"]);
@@ -146,7 +173,7 @@ namespace Cantera {
      * Install a constant-cp thermodynamic property
      * parameterization for species k.
      */
-    static void installSimpleThermo(SpeciesThermo& sp, int k, XML_Node& f) {
+    static void installSimpleThermo(SpeciesThermo& sp, int k, const XML_Node& f) {
         doublereal tmin, tmax;
         tmin = fpValue(f["Tmin"]);
         tmax = fpValue(f["Tmax"]);
@@ -166,11 +193,11 @@ namespace Cantera {
      * Install a species into a ThermoPhase object, which defines
      * the phase thermodynamics and speciation
      */
-    static bool installSpecies(int k, XML_Node& s, thermo_t& p, 
+    static bool installSpecies(int k, const XML_Node& s, thermo_t& p, 
 			SpeciesThermo& spthermo, int rule) {
 
 	// get the composition of the species
-	XML_Node& a = s.child("atomArray");
+	const XML_Node& a = s.child("atomArray");
 	map<string,string> comp;
 	getMap(a, comp);
 
@@ -209,11 +236,11 @@ namespace Cantera {
 
 	// get thermo.  We currently only support single-range Shomate
         // and const_cp, and dual-range NASA
-	XML_Node& thermo = s.child("thermo");
-	vector<XML_Node*> tp = thermo.children();
+	const XML_Node& thermo = s.child("thermo");
+	const vector<XML_Node*>& tp = thermo.children();
 	int nc = tp.size();
 	if (nc == 1) {
-	  XML_Node& f = *tp[0];
+	  const XML_Node& f = *tp[0];
 	  if (f.name() == "Shomate") {
 	    installShomateThermo(spthermo, k, f);
 	  }
@@ -226,8 +253,8 @@ namespace Cantera {
 				 " for species "+s["name"]+": "+f.name());
 	}
 	else if (nc == 2) {
-	  XML_Node& f0 = *tp[0];
-	  XML_Node& f1 = *tp[1];
+	  const XML_Node& f0 = *tp[0];
+	  const XML_Node& f1 = *tp[1];
 	  if (f0.name() == "NASA" && f1.name() == "NASA") {
 	    installNasaThermo(spthermo, k, f0, f1);
 	  }
@@ -270,7 +297,7 @@ namespace Cantera {
      *         allowing the calling routine to skip this reaction
      *         and continue.
      */
-    static bool getReagents(XML_Node& rxn, kinetics_t& kin, int rp,
+    static bool getReagents(const XML_Node& rxn, kinetics_t& kin, int rp,
         string default_phase, 
         vector_int& spnum, vector_int& stoich, vector_fp& order,
         int rule) {
@@ -285,7 +312,7 @@ namespace Cantera {
 	 */
         if (rp == 1) rptype = "reactants";
         else rptype = "products";
-        XML_Node& rg = rxn.child(rptype);
+        const XML_Node& rg = rxn.child(rptype);
 
 	/*
 	 * The species and stoichiometric coefficient for the species
@@ -351,7 +378,7 @@ namespace Cantera {
             int loc;
             doublereal forder;
             for (int nn = 0; nn < norder; nn++) {
-                XML_Node& oo = *ord[nn];
+                const XML_Node& oo = *ord[nn];
                 string sp = oo["species"];
                 loc = speciesMap[sp];
                 if (loc == 0) 
@@ -378,7 +405,7 @@ namespace Cantera {
      * The Arrhenius expression is
      * \f[        k =  A T^(b) exp (-E_a / RT). \f]
      */
-    static void getArrhenius(XML_Node& node, int& highlow, 
+    static void getArrhenius(const XML_Node& node, int& highlow, 
         doublereal& A, doublereal& b, doublereal& E) {
         
         if (node["name"] == "k0") 
@@ -397,7 +424,7 @@ namespace Cantera {
      * getStick() processes the element called Stick that specifies
      * sticking coefficients.
      */
-    static void getStick(XML_Node& node, Kinetics& kin,
+    static void getStick(const XML_Node& node, Kinetics& kin,
         ReactionData& r, doublereal& A, doublereal& b, doublereal& E) {
         int nr = r.reactants.size();
         int k, klocal, not_surf = 0;
@@ -447,7 +474,7 @@ namespace Cantera {
         E /= GasConstant;
     }                
 
-    static void getCoverageDependence(node_t& node, 
+    static void getCoverageDependence(const node_t& node, 
         thermo_t& surfphase, ReactionData& rdata) {
         vector<XML_Node*> cov;
         node.getChildren("coverage", cov);
@@ -456,7 +483,7 @@ namespace Cantera {
         string spname;
         if (nc > 0) {
             for (int n = 0; n < nc; n++) {
-                XML_Node& cnode = *cov[n];
+                const XML_Node& cnode = *cov[n];
                 spname = cnode["species"];
                 k = surfphase.speciesIndex(spname);
                 rdata.cov.push_back(doublereal(k));
@@ -471,7 +498,7 @@ namespace Cantera {
     /**
      * Get falloff parameters for a reaction.
      */
-    static void getFalloff(node_t& f, ReactionData& rdata) {
+    static void getFalloff(const node_t& f, ReactionData& rdata) {
         string type = f["type"];
         vector<string> p;
         getStringArray(f,p);
@@ -496,7 +523,7 @@ namespace Cantera {
      * reaction mechanism is homogeneous, so that all species belong
      * to phase(0) of 'kin'.
      */
-    static void getEfficiencies(node_t& eff, kinetics_t& kin, ReactionData& rdata) {
+    static void getEfficiencies(const node_t& eff, kinetics_t& kin, ReactionData& rdata) {
 
         // set the default collision efficiency
         rdata.default_3b_eff = fpValue(eff["default"]);
@@ -521,15 +548,15 @@ namespace Cantera {
      * This function will fill in more fields in the ReactionData object.
      * 
      */
-    static void getRateCoefficient(node_t& kf, kinetics_t& kin, 
+    static void getRateCoefficient(const node_t& kf, kinetics_t& kin, 
         ReactionData& rdata, int negA) {
 
         int nc = kf.nChildren();
-        const nodeset_t& kf_children = kf.children();
+        nodeset_t& kf_children = kf.children();
         vector_fp clow(3,0.0), chigh(3,0.0);
         //        int nr = nReacMolecules(rdata);
         for (int m = 0; m < nc; m++) {
-            node_t& c = *kf_children[m];
+            const node_t& c = *kf_children[m];
             string nm = c.name();
             int highlow=0;
 
@@ -591,7 +618,7 @@ namespace Cantera {
      * parameters from the XML tree.
      */
     ThermoPhase* newPhase(XML_Node& xmlphase) {
-        XML_Node& th = xmlphase.child("thermo");
+        const XML_Node& th = xmlphase.child("thermo");
         string model = th["model"];
         ThermoPhase* t = newThermoPhase(model);
         importPhase(xmlphase, t);
@@ -602,9 +629,9 @@ namespace Cantera {
     /**
      * Set the thermodynamic state.
      */
-    static void setState(XML_Node& phase, ThermoPhase* th) {
+    static void setState(const XML_Node& phase, ThermoPhase* th) {
         if (!phase.hasChild("state")) return;
-        XML_Node state = phase.child("state");
+        const XML_Node state = phase.child("state");
         doublereal t, p, rho;
         string comp = getString(state,"moleFractions");
         if (comp != "") 
@@ -662,7 +689,7 @@ namespace Cantera {
 
         if (phase.name() != "phase") 
             throw CanteraError("importPhase",
-                "Current XML_Node is not a phase element.");
+                "Current const XML_Node is not a phase element.");
 
         th->setID(phase.id());                // set the phase id
 
@@ -684,7 +711,7 @@ namespace Cantera {
 	 * error condition.
 	 */
         if (phase.hasChild("thermo")) {
-            XML_Node& eos = phase.child("thermo");
+            const XML_Node& eos = phase.child("thermo");
             if (eos["model"] == "Incompressible") {
                 if (th->eosType() == cIncompressible) {
                     //map<string, doublereal> d;
@@ -734,17 +761,17 @@ namespace Cantera {
         getStringArray(elements, enames);
         
         // // element database defaults to elements.xml
-        string element_database; // = "elements.xml";
+        string element_database = "elements.xml";
         if (elements.hasAttrib("datasrc")) 
             element_database = elements["datasrc"];
-        XML_Node* db = find_XML(element_database,&phase.root(),"","",
-            "elementData");
+        XML_Node* doc = get_XML_File(element_database);
+        XML_Node* dbe = &doc->child("ctml/elementData");
 
         int nel = enames.size();
         int i;
         string enm;
         for (i = 0; i < nel; i++) {
-            XML_Node* e = db->findByAttr("name",enames[i]);
+            XML_Node* e = dbe->findByAttr("name",enames[i]);
             if (e) {
                 th->addUniqueElement(*e);
             }
@@ -753,8 +780,8 @@ namespace Cantera {
                     +enames[i]);
             }
         }
-        delete db;
-        db = 0;
+    //delete db;
+        //db = 0;
 
 
         /***************************************************************
@@ -762,6 +789,7 @@ namespace Cantera {
          * the species database.
          ***************************************************************/
 
+        XML_Node* db = 0;
         vector<XML_Node*> sparrays;
         phase.getChildren("speciesArray", sparrays);
         int jsp, nspa = sparrays.size();
@@ -770,17 +798,20 @@ namespace Cantera {
 
         for (jsp = 0; jsp < nspa; jsp++) {
 
-            XML_Node& species = *sparrays[jsp]; // phase.child("speciesArray");
+            const XML_Node& species = *sparrays[jsp];
 
             if (species.hasChild("skip")) {
-                XML_Node& sk = species.child("skip");
+                const XML_Node& sk = species.child("skip");
                 string eskip = sk["element"];
                 if (eskip == "undeclared") {
                     sprule[jsp] = 1;
                 }
             }
-            db = find_XML(species["datasrc"], &phase.root(), species["idRef"],
-                "","speciesData");
+            string fname, idstr;
+            
+            db = get_XML_Node(species["datasrc"], &phase.root());
+            //db = find_XML(species["datasrc"], &phase.root(), species["idRef"],
+            //     "","speciesData");
             dbases.push_back(db);
         }
 
@@ -802,7 +833,7 @@ namespace Cantera {
         int k = 0;
         for (jsp = 0; jsp < nspa; jsp++) {
 
-            XML_Node& species = *sparrays[jsp]; 
+            const XML_Node& species = *sparrays[jsp]; 
             db = dbases[jsp];
 
             /*
@@ -906,7 +937,7 @@ next:
      *  rule = Provides a rule for specifying how to handle reactions
      *         which involve missing species.
      */
-    static bool installReaction(int i, XML_Node& r, Kinetics* k, 
+    static bool installReaction(int i, const XML_Node& r, Kinetics* k, 
         string default_phase, int rule, bool check_for_duplicates) {
 
         Kinetics& kin = *k;
@@ -1089,7 +1120,7 @@ next:
      *  On return, if reaction instantiation goes correctly, return true.
      *  If there is a problem, return false.
      */
-    bool installReactionArrays(XML_Node& p, Kinetics& kin, 
+    bool installReactionArrays(const XML_Node& p, Kinetics& kin, 
         string default_phase, bool check_for_duplicates) {
 
         _eqn.clear();
@@ -1117,7 +1148,7 @@ next:
 	   * Go get a reference to the current xml element, 
 	   * reactionArray. We will process this element now.
 	   */
-	  XML_Node& rxns = *rarrays[n];
+	  const XML_Node& rxns = *rarrays[n];
 	  /*
 	   * The reactionArray element has an attribute called,
 	   * datasrc. The value of the attribute is the xml
@@ -1126,8 +1157,9 @@ next:
 	   * Find this datasrc element starting with the root
 	   * of the current xml node.
 	   */
-	  XML_Node* rdata = find_XML(rxns["datasrc"],&rxns.root(),
-				     "","","reactionData");
+          const XML_Node* rdata = get_XML_Node(rxns["datasrc"], &rxns.root());
+	  //const XML_Node* rdata = find_XML(rxns["datasrc"],&rxns.root(),
+          //			     "","","reactionData");
 	  /*
 	   * If the reactionArray element has a child element named
 	   * "skip", and if the attribute of skip called "species" has
@@ -1139,7 +1171,7 @@ next:
 	   */
 	  int rxnrule = 0;
 	  if (rxns.hasChild("skip")) {
-	    XML_Node& sk = rxns.child("skip");
+	    const XML_Node& sk = rxns.child("skip");
 	    string sskip = sk["species"];
 	    if (sskip == "undeclared") {
 	      rxnrule = 1;
@@ -1161,7 +1193,7 @@ next:
 	  // if no 'include' directive, then include all reactions
 	  if (ninc == 0) {
 	    for (i = 0; i < nrxns; i++) {
-	      XML_Node* r = allrxns[i];
+	      const XML_Node* r = allrxns[i];
 	      if (r) {
 		if (installReaction(itot, *r, &kin, 
                         default_phase, rxnrule, check_for_duplicates)) ++itot;
@@ -1170,11 +1202,11 @@ next:
 	  }
 	  else {
 	    for (int nii = 0; nii < ninc; nii++) {
-	      XML_Node& ii = *incl[nii];
+	      const XML_Node& ii = *incl[nii];
 	      string imin = ii["min"];
 	      string imax = ii["max"];
 	      for (i = 0; i < nrxns; i++) {
-		XML_Node* r = allrxns[i];
+		const XML_Node* r = allrxns[i];
 		string rxid;
 		if (r) {
 		  rxid = (*r)["id"];
@@ -1211,7 +1243,7 @@ next:
     /**
      * Import a reaction mechanism for a phase or an interface.
      */
-    bool importKinetics(XML_Node& phase, vector<ThermoPhase*> th, 
+    bool importKinetics(const XML_Node& phase, vector<ThermoPhase*> th, 
         Kinetics* k) {
 
         Kinetics& kin = *k;
@@ -1221,7 +1253,7 @@ next:
 
         bool check_for_duplicates = false;
         if (phase.parent()->hasChild("validate")) {
-            XML_Node& d = phase.parent()->child("validate");
+            const XML_Node& d = phase.parent()->child("validate");
             if (d["reactions"] == "yes") check_for_duplicates = true;
         }
 
@@ -1232,7 +1264,7 @@ next:
 
         vector<string> phase_ids;
         if (phase.hasChild("phaseArray")) {
-            XML_Node& pa = phase.child("phaseArray");
+            const XML_Node& pa = phase.child("phaseArray");
             getStringArray(pa, phase_ids);
         }
         phase_ids.push_back(default_phase);
@@ -1286,11 +1318,12 @@ next:
     bool buildSolutionFromXML(XML_Node& root, string id, string nm, 
         ThermoPhase* th, Kinetics* k) {
         XML_Node* x;
-        x = find_XML("", &root, id, "", nm);
+        x = get_XML_Node(string("#")+id, &root); 
+        //x = find_XML("", &root, id, "", nm);
         if (!x) return false;
 	/*
 	 * Fill in the ThermoPhase object by querying the
-	 * XML_Node tree located at x.
+	 * const XML_Node tree located at x.
 	 */
         importPhase(*x, th);
 	/*
@@ -1301,7 +1334,7 @@ next:
         phases[0] = th;
 	/*
 	 * Fill in the kinetics object k, by querying the
-	 * XML_Node tree located by x. The source terms and
+	 * const XML_Node tree located by x. The source terms and
 	 * eventually the source term vector will be constructed
 	 * from the list of ThermoPhases in the vector, phases.
 	 */

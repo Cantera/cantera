@@ -17,18 +17,6 @@ using namespace std;
 namespace Cantera {
 
 
-    static void split(const string& src, string& file, string& id) { 
-        int ipound = src.find('#');
-
-        if (ipound >= 0) {
-            id = src.substr(ipound+1,src.size());
-            file = src.substr(0,ipound);
-        }            
-        else {
-            id = "";
-            file = src;
-        }
-    }
 
 
     ////////////////////// exceptions ////////////////////////////
@@ -353,7 +341,8 @@ namespace Cantera {
         return 0;
     }
 
-    XML_Node* XML_Node::findByAttr(const string& attr, const string& val) {
+    XML_Node* XML_Node::findByAttr(const string& attr, 
+        const string& val) {
         if (hasAttrib(attr)) {
             if (attrib(attr) == val) {
                 return this;
@@ -491,7 +480,7 @@ namespace Cantera {
 	    node_dest->addAttribute(b->first, b->second);
 	  }
 	}
-	vector<XML_Node*> &vsc = node_dest->children();
+	const vector<XML_Node*> &vsc = node_dest->children();
 	for (int n = 0; n < m_nchildren; n++) {
 	  sc = m_children[n];
 	  ndc = node_dest->nChildren();
@@ -533,7 +522,7 @@ namespace Cantera {
         for (; b != m_attribs.end(); ++b) {
 	  node_dest->addAttribute(b->first, b->second);
 	}
-	vector<XML_Node*> &vsc = node_dest->children();
+	const vector<XML_Node*> &vsc = node_dest->children();
 #ifdef DEBUG_HKM
         //cout << "***  dest: " << node_dest->name() 
 	//    << ", value = \"" << node_dest->value();
@@ -681,12 +670,13 @@ namespace Cantera {
 	s << endl;
     }
 
-    XML_Node* XML_Node::getRef() {
-        if (!hasAttrib("idRef")) return this;
-        XML_Node& node = *this;
-        return find_XML(node["src"], &root(), node["idRef"]);
-    }
+    //const XML_Node* XML_Node::getRef() const {
+    //    if (!hasAttrib("idRef")) return this;
+    //    XML_Node& node = *this;
+    //    return find_XML(node["src"], &root(), node["idRef"]);
+    //}
 
+#ifdef FIND_XML
     /*
      * Find a particular XML element by a fairly complicated hierarchal
      * search objective.
@@ -761,9 +751,11 @@ namespace Cantera {
             }
         }
     }
+#endif
 
-    XML_Node* findXMLPhase(XML_Node *root, string idtarget) {
-	XML_Node *scResult = 0;
+        
+    const XML_Node* findXMLPhase(XML_Node *root, string idtarget) {
+	const XML_Node *scResult = 0;
 	XML_Node *sc;
 	if (!root) return 0;
 	string idattrib;
@@ -775,7 +767,7 @@ namespace Cantera {
 	  else return               0;
 	}
 
-	vector<XML_Node*> &vsc = root->children();
+	const vector<XML_Node*> &vsc = root->children();
 	for (int n = 0; n < root->nChildren(); n++) {
 	  sc = vsc[n];
 	  if (sc->name() == "phase") {

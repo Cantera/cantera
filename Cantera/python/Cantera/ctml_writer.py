@@ -557,7 +557,6 @@ class reaction(writer):
 
             mdim += nm*ns
             ldim += nl*ns
-            print s, ns, nm, nl, mdim, ldim
 
         p.addComment("   reaction "+id+"    ")                
         r = p.addChild('reaction')
@@ -590,12 +589,9 @@ class reaction(writer):
         if self._type == 'surface':
             mdim += -1
             ldim += 2
-            print 'surf: mdim, ldim: ',mdim, ldim
         else:
             mdim += -1
             ldim += 3
-            print 'not surf: mdim, ldim: ',mdim, ldim
-
 
         # add the reaction type as an attribute if it has been specified.
         if self._type:
@@ -620,7 +616,6 @@ class reaction(writer):
 
             unit_fctr = (math.pow(_length[_ulen], -ldim) *
                          math.pow(_moles[_umol], -mdim) / _time[_utime])
-            print 'unit_fctr = ',unit_fctr
             
             # compute the pre-exponential units string, and if it begins with a
             # dash, remove it.
@@ -1200,7 +1195,10 @@ if __name__ == "__main__":
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.16  2003-08-19 22:02:01  hkmoffa
+# Revision 1.17  2003-08-20 15:35:32  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.16  2003/08/19 22:02:01  hkmoffa
 # Fixed an error in an argument list
 #
 # Revision 1.15  2003/08/18 05:05:02  dggoodwin

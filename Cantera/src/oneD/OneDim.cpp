@@ -413,7 +413,7 @@ namespace Cantera {
         XML_Node* ct;
         if (fin) {
             root.build(fin);
-            XML_Node* same_ID = root.findID(id);
+            const XML_Node* same_ID = root.findID(id);
             int jid = 1;
             string idnew = id;
             while (same_ID != 0) {

@@ -96,10 +96,10 @@ namespace Cantera {
         }
 
         map<string,string>& attribs() { return m_attribs; }
-        XML_Node* parent() { return m_parent; }
+        XML_Node* parent() const { return m_parent; }
         XML_Node* setParent(XML_Node* p) { m_parent = p; return p; }
 
-        bool hasChild(string ch) {
+        bool hasChild(string ch) const {
             return (m_childindex.find(ch) != m_childindex.end());
             //return (m_childindex[ch] != 0);
         }
@@ -113,15 +113,17 @@ namespace Cantera {
         }
 
 
-        string name() { return m_name; }
-        string id() {
+        string name() const { return m_name; }
+        string id() const {
             if (hasAttrib("id")) return attrib("id");
             else return "";
         }
-        int number() { return m_n; }
+        int number() const { return m_n; }
 
         XML_Node& child(int n) const { return *m_children[n]; }
-        vector<XML_Node*> &children() { return m_children; }
+        //const XML_Node& child(int n) const { return *m_children[n]; }
+        vector<XML_Node*>& children()  { return m_children; }
+        const vector<XML_Node*>& children() const { return m_children; }
         int nChildren() const { return m_nchildren; }
 
         void build(istream& f);
@@ -132,8 +134,8 @@ namespace Cantera {
         void getChildren(string name, vector<XML_Node*>& children) const;
         XML_Node& child(string loc) const;
         void write(ostream& s, int level = 0);
-        XML_Node* getRef();
-        XML_Node& root() { return *m_root; }
+        //const XML_Node* getRef() const;
+        XML_Node& root() const { return *m_root; }
         void setRoot(XML_Node& root) { m_root = &root; }
         void copyUnion(XML_Node *node_dest);
         void copy(XML_Node *node_dest);
@@ -249,10 +251,10 @@ namespace Cantera {
     };
 
     
-    XML_Node* find_XML(string src, XML_Node* root=0, 
-		       string id="", string loc="", string name="");
+    //XML_Node* find_XML(string src, XML_Node* root=0, 
+    //		       string id="", string loc="", string name="");
 
-    XML_Node* findXMLPhase(XML_Node* root, string id);        
+    const XML_Node* findXMLPhase(XML_Node* root, string id);        
 }
 
 #endif

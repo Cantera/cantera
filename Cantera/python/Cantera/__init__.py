@@ -55,3 +55,6 @@ def getCanteraError():
     import _cantera
     return _cantera.get_Cantera_Error() 
 
+def refCount(a):
+#    import _cantera
+    return _cantera.ct_refcnt(a)

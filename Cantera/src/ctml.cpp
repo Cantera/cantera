@@ -120,7 +120,7 @@ namespace ctml {
         else return 0;
     }
         
-    string getString(XML_Node& parent, string name) {
+    string getString(const XML_Node& parent, string name) {
         if (!parent.hasChild(name)) return "";
         return parent(name);
     }
@@ -138,14 +138,14 @@ namespace ctml {
             }
     }
 
-    void getIntegers(XML_Node& node, map<string,int>& v) {
+    void getIntegers(const XML_Node& node, map<string,int>& v) {
         vector<XML_Node*> f;
         node.getChildren("integer",f);
         int n = f.size();
         integer x, x0, x1;
         string typ, title, vmin, vmax;
         for (int i = 0; i < n; i++) {
-            XML_Node& fi = *(f[i]);
+            const XML_Node& fi = *(f[i]);
             x = atoi(fi().c_str());
             title = fi["title"];
             vmin = fi["min"];
@@ -159,27 +159,27 @@ namespace ctml {
     }
 
 
-    void getStrings(XML_Node& node, map<string,string>& v) {
+    void getStrings(const XML_Node& node, map<string,string>& v) {
         vector<XML_Node*> f;
         node.getChildren("string",f);
         int n = f.size();
         string typ, title;
         for (int i = 0; i < n; i++) {
-            XML_Node& fi = *(f[i]);
+            const XML_Node& fi = *(f[i]);
             title = fi["title"];
             v[title] = fi();
         }
     }
 
 
-    void getFloats(XML_Node& node, map<string,double>& v, bool convert) {
+    void getFloats(const XML_Node& node, map<string,double>& v, bool convert) {
         vector<XML_Node*> f;
         node.getChildren("float",f);
         int n = f.size();
         doublereal x, x0, x1, fctr;
         string typ, title, units, vmin, vmax;
         for (int i = 0; i < n; i++) {
-            XML_Node& fi = *(f[i]);
+            const XML_Node& fi = *(f[i]);
             x = atof(fi().c_str());
             x0 = Undef;
             x1 = Undef;
@@ -215,12 +215,12 @@ namespace ctml {
      * conversion to SI will be done if the child element has an attribute
      * 'units'.
      */
-    doublereal getFloat(XML_Node& parent, string name, string type) {
+    doublereal getFloat(const XML_Node& parent, string name, string type) {
         if (!parent.hasChild(name)) 
             throw CanteraError("getFloat (called from XML Node \"" +
 			       parent.name() + "\"): ",
 			       "no child XML element named " + name);
-        XML_Node& node = parent.child(name);
+        const XML_Node& node = parent.child(name);
         doublereal x, x0, x1, fctr = 1.0;
         string units, vmin, vmax;
         x = atof(node().c_str());
@@ -251,7 +251,7 @@ namespace ctml {
     }
 
 
-    void getFloatArray(XML_Node& node, vector_fp& v, bool convert) {
+    void getFloatArray(const XML_Node& node, vector_fp& v, bool convert) {
         int icom;
         string numstr;
         if (node.name() != "floatArray") 
@@ -300,7 +300,7 @@ namespace ctml {
         }
     }
 
-    void getMap(XML_Node& node, map<string, string>& m) {
+    void getMap(const XML_Node& node, map<string, string>& m) {
         vector<string> v;
         getStringArray(node, v);
         string key, val;
@@ -318,7 +318,7 @@ namespace ctml {
         }
     }
 
-    void getPairs(XML_Node& node, vector<string>& key, vector<string>& val) {
+    void getPairs(const XML_Node& node, vector<string>& key, vector<string>& val) {
         vector<string> v;
         getStringArray(node, v);
         int n = v.size();
@@ -334,7 +334,7 @@ namespace ctml {
         }
     }
 
-    void getStringArray(XML_Node& node, vector<string>& v) {
+    void getStringArray(const XML_Node& node, vector<string>& v) {
         int ibegin, iend;
 
         v.clear();
@@ -359,9 +359,9 @@ namespace ctml {
         }
     }
 
-    void getFunction(XML_Node& node, string& type, doublereal& xmin,
+    void getFunction(const XML_Node& node, string& type, doublereal& xmin,
         doublereal& xmax, vector_fp& coeffs) {
-        XML_Node& c = node.child("floatArray");
+        const XML_Node& c = node.child("floatArray");
         coeffs.clear();
         getFloatArray(c,coeffs);
         xmin = Undef;
