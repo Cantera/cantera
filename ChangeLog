@@ -1,3 +1,23 @@
+2004-10-19 03:47  dggoodwin
+
+	* Cantera/src/xml.h: added 'const' to 'write'
+
+2004-10-19 03:44  dggoodwin
+
+	* Cantera/src/xml.cpp: changed exception XML_NoChild to print
+	  offending XML_Node.
+
+2004-10-19 03:43  dggoodwin
+
+	* Cantera/src/transport/TransportFactory.cpp: changed reading of
+	  transport data from XML tree so that species with no transport
+	  data (e.g. surface species) do not cause an exception to be
+	  thrown because the have no 'transport' child element.
+
+2004-10-18 12:52  hkmoffa
+
+	* bin/install_tsc.in: Check for destination directory existing.
+
 2004-10-16 03:12  dggoodwin
 
 	* Cantera/python/winsetup.py: initial import
