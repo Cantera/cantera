@@ -7,6 +7,8 @@
  *   pointers are passed to or from the calling application.
  */
 
+/* $Id$  */
+
 // turn off warnings under Windows
 #ifdef WIN32
 #pragma warning(disable:4786)
@@ -987,6 +989,7 @@ extern "C" {
     int DLL_EXPORT setLogWriter(void* logger) {
         Logger* logwriter = (Logger*)logger;
         setLogger(logwriter);
+        return 0;
     }
 
     int DLL_EXPORT readlog(int n, char* buf) {
