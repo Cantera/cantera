@@ -37,7 +37,7 @@ for n in range(100):
     data[n,1] = r.moleFraction('OH') 
     data[n,2] = r.moleFraction('H')
     data[n,3] = r.moleFraction('H2')    
-    print '%10.3e %10.3f %10.3f %14.6e' % (r.time(), r.temperature(), 
+    print '%10.3e %10.3f %10.3f %14.6e' % (sim.time(), r.temperature(), 
                                            r.pressure(), r.intEnergy_mass())
 
 
