@@ -13,12 +13,16 @@ OBJS = ck2ctml.o
 
 DEPENDS = $(OBJS:.o=.d)
 
+CONVLIB_DEP = @buildlib@/libconverters.a
+CANTERALIB_DEP = @buildlib@/libcantera.a \
+	         @buildlib@/libctcxx.a
+
 .cpp.o:
 	@CXX@ -c $< @DEFS@  $(INCDIR) @CXXFLAGS@ $(CXX_FLAGS) 
 
 all: $(BINDIR)/ck2ctml
 
-$(BINDIR)/ck2ctml: ck2ctml.o
+$(BINDIR)/ck2ctml: ck2ctml.o $(CONVLIB_DEP) $(CANTERALIB_DEP)
 	@CXX@ -o $(BINDIR)/ck2ctml ck2ctml.o $(LCXX_FLAGS) -lconverters $(LOCAL_LIBS) \
                $(LCXX_END_LIBS)
 clean:
