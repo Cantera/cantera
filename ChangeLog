@@ -1,3 +1,105 @@
+2005-01-14 05:41  dggoodwin
+
+	* configure, Cantera/python/Cantera/liquidvapor.py,
+	  Cantera/src/phasereport.cpp, bin/mixmaster.py,
+	  data/inputs/liquidvapor.cti, ext/f2c_libs/arith.h,
+	  ext/tpx/HFC134a.cpp, ext/tpx/HFC134a.h, ext/tpx/Makefile.in,
+	  ext/tpx/subs.h, ext/tpx/utils.cpp: added HFC134a
+
+2005-01-13 10:02  hkmoffa
+
+	* Cantera/src/StoichSubstance.h: Added a "get" in front of some
+	  void functions.
+
+2005-01-13 06:02  dggoodwin
+
+	* Cantera/src/: ChemEquil.h, ThermoPhase.h, config.h,
+	  oneD/Domain1D.h, oneD/StFlow.cpp: changed code related to
+	  adiabatic flame
+
+2005-01-13 05:58  dggoodwin
+
+	* Cantera/matlab/cantera/: @ThermoPhase/equilibrate.m,
+	  private/thermomethods.cpp: added option to select equil solver
+
+2005-01-13 05:58  dggoodwin
+
+	* Cantera/matlab/cantera/examples/: catcomb.m, flame1.m,
+	  prandtl1.m, test_examples.m: added script to test selected
+	  examples without pausing
+
+2005-01-12 16:33  hkmoffa
+
+	* Cantera/src/ThermoPhase.h: Forgot to add to functions to
+	  ThermoPhase.h:    getActivityCoefficents()
+	  getStandardVolumes()
+
+2005-01-12 15:09  hkmoffa
+
+	* Cantera/src/: ConstDensityThermo.cpp, ConstDensityThermo.h,
+	  GRI_30_Kinetics.cpp, GasKinetics.cpp, GasKinetics.h,
+	  IdealGasPhase.cpp, IdealGasPhase.h, StoichSubstance.cpp,
+	  StoichSubstance.h, ThermoPhase.h, config.h, oneD/StFlow.cpp,
+	  transport/MultiTransport.cpp, transport/TransportFactory.cpp:
+	  This delta contains the suggested changes to the ThermoPhase API.
+	   It clears up the distinction between the quantities calculated
+	  from the standard state and quantitities that are calculated
+	  based on the "reference state".  The reference state is at a
+	  fixed pressure, while the standard state is at the T and P of the
+	  solution.
+
+	  The delta also contains changes to the implementation of the
+	  Ideal Gas Law. The standard concentration is now defined to be
+	  equal to p/RT instead of the previous value of p_ref/RT.  Also,
+	  as a consequence the returned values of the activities will be
+	  equal to the solution mole fractions. Numerically, equilibrium
+	  constants and reaction rates are the same up to numerical
+	  round-off error.
+
+2005-01-12 08:03  hkmoffa
+
+	* Cantera/clib/src/Makefile.in: Fixed an error in this Makefile.
+	  libclib.a was being installed in the lib directory itself with
+	  the name "cantera". Now it is being installed in
+	  ctversion/libclib.a
+
+2005-01-11 18:22  hkmoffa
+
+	* .cvsignore, Makefile.in, Cantera/clib/src/Makefile.in,
+	  Cantera/cxx/Makefile.in, Cantera/cxx/demos/Makefile.in,
+	  Cantera/src/Kinetics.cpp, Cantera/src/Kinetics.h,
+	  Cantera/src/KineticsFactory.cpp, Cantera/src/Makefile.in,
+	  Cantera/src/config.h, Cantera/src/ctvector.cpp,
+	  Cantera/src/converters/Makefile.in, Cantera/src/oneD/Makefile.in,
+	  Cantera/src/transport/Makefile.in, Cantera/src/zeroD/Makefile.in,
+	  config/configure, config/configure.in, ext/blas/Makefile.in,
+	  ext/cvode/Makefile.in, ext/f2c_blas/Makefile.in,
+	  ext/f2c_lapack/Makefile.in, ext/f2c_libs/Makefile.in,
+	  ext/f2c_math/Makefile.in, ext/f2c_recipes/Makefile.in,
+	  ext/lapack/Makefile.in, ext/math/Makefile.in,
+	  ext/recipes/Makefile.in, ext/tpx/Makefile.in,
+	  tools/src/Makefile.in, tools/templates/cxx/demo.mak.in: Revision
+	  of the Makefiles to eliminate extra work in recompiles.  No
+	  linking or compilation will be done if not necessary
+
+	  .h files are sent to build/include tree in the lower level
+	  makefiles, as a consequence.
+
+	  Kinetics.cpp new file was created by taking routines in
+	  KineticsFactory.cpp and placing them in the new file.
+
+	  demo.mak.in now has a CXX_END_LIBS capability. My linux system
+	  needs this for some reason.
+
+2005-01-11 18:19  hkmoffa
+
+	* configure: Changed the default for NEED_NUMERIC from 'n' to 'y'
+	  to help with backwards compatibility with previous releases.
+
+2005-01-10 06:57  dggoodwin
+
+	* tools/doc/python/mkmkdoc.py: initial import
+
 2005-01-09 12:29  dggoodwin
 
 	* config.h, configure, Cantera/clib/src/ct.cpp,
@@ -41,12 +143,7 @@
 
 2005-01-07 17:10  dggoodwin
 
-	* win32/vc7/: cantera/cantera.vcproj, config_h/config_h.vcproj:
-	  added a file to project cantera
-
-2005-01-07 16:59  dggoodwin
-
-	* win32/vc7/config_h/config_h.vcproj: added project config_h
+	* win32/vc7/cantera/cantera.vcproj: added a file to project cantera
 
 2005-01-07 16:29  dggoodwin
 
