@@ -32,7 +32,7 @@ bool match(const string& s1, const string& s2)
 /// remove all white space from string s.
 void removeWhiteSpace(string& s) {
     string r;
-    int ssize = s.size();
+    int ssize = static_cast<int>(s.size());
     for (int n = 0; n < ssize; n++) if (s[n] != ' ' 
         && s[n] != '\t' && s[n] != '\n') r += s[n];
     s = r;
@@ -76,7 +76,7 @@ void getTokens(string& s, int n, vector<string>& toks, char delim) {
     }
 
     toks.clear();
-    int nt = tokk.size();
+    int nt = static_cast<int>(tokk.size());
     string t = "";
     for (int i = 0; i < nt; i++) {
         if (tokk[i][0] == '/') t += tokk[i];
@@ -97,25 +97,25 @@ void getTokens(string& s, int n, vector<string>& toks, char delim) {
  * false otherwise.
  */
 bool extractSlashData(string& s, string& name, string& data) {
-    int slen = s.size();
-    int n = s.find_first_of("/");
-    if (n >= 0 &&  n < slen) {
-	int m;
-        for (m = n+1; m < slen; m++) if (s[m] == '/') break;
-	if (m < slen) {
+    int slen = static_cast<int>(s.size());
+	string::size_type n = s.find_first_of("/");
+	if (n != string::npos && (static_cast<int>(n) < slen)) {
+	  int m;
+      for (m = static_cast<int>(n)+1; m < slen; m++) if (s[m] == '/') break;
+	  if (m < slen) {
 	    data = s.substr(n+1,m-n-1);
 	    name = s.substr(0,n);
 	    removeWhiteSpace(name);
 	    s = s.substr(m+1,1000);
 	    return true;
-	}
-	else {
+	  }
+	  else {
 	    name = s;
 	    removeWhiteSpace(name);
 	    data = "";
 	    s = "";
 	    return false;
-	}
+	  }
     }
     else {
 	name = s;
@@ -133,7 +133,7 @@ bool extractSlashData(string& s, string& name, string& data) {
  */
 string capitalize(const string& word) {
     string cap = word;
-    int n = word.size();
+    int n = static_cast<int>(word.size());
     if (n > 0) {
         cap[0] = toupper(word[0]);
         for (int m = 1; m < n; m++) {

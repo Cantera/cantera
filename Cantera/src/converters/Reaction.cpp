@@ -64,7 +64,7 @@ namespace ckr {
     }
 
     void Reaction::write(ostream& s) const {
-        int nl = lines.size();
+        int nl = static_cast<int>(lines.size());
         for (int nn = 0; nn < nl; nn++) {
             s << lines[nn] << endl;
         }
@@ -111,10 +111,10 @@ namespace ckr {
 
 double Reaction::stoichCoefficient(const string& s) const {
     int k;
-    int nr = reactants.size();
+    int nr = static_cast<int>(reactants.size());
     for (k = 0; k < nr; k++) 
         if (reactants[k].name == s) return -reactants[k].number;
-    int np = products.size();
+    int np = static_cast<int>(products.size());
     for (k = 0; k < np; k++) 
         if (products[k].name == s) return products[k].number;
     return 0.0;
@@ -125,8 +125,8 @@ double Reaction::stoichCoefficient(const string& s) const {
  *  @todo could be made faster
  */
 bool Reaction::operator==(const Reaction& r) const {
-    int nr = reactants.size();
-    int np = products.size();
+    int nr = static_cast<int>(reactants.size());
+    int np = static_cast<int>(products.size());
     if (int(r.reactants.size()) != nr || 
         int(r.products.size()) != np || r.thirdBody != thirdBody) return false;
         
@@ -148,7 +148,7 @@ bool Reaction::operator==(const Reaction& r) const {
         if (coeffs[nm] == 0.0) return false;
         coeffs[nm] /= products[jp].number;
     }
-    int nc = coeffs.size();
+    int nc = static_cast<int>(coeffs.size());
     vector<double> ratios;
     getMapValues(coeffs, ratios);
     

@@ -50,7 +50,9 @@ namespace ckr {
                     << ", " << c[2] << ", " << c[3] << ")" << endl;
             }
             else {
-                for (size_t n = 0; n < c.size(); n++) log << c[n] << ", "; log << endl;
+				for (ct::ctvector_fp::size_t n = 0; n < c.size(); n++) {
+					log << c[n] << ", "; log << endl;
+				}
                 log << "###### ERROR #####   incorrect number of parameters" << endl;
                 return false;
             }
@@ -68,7 +70,9 @@ namespace ckr {
                     << ")" << endl;
             }
             else {
-                for (size_t n = 0; n < c.size(); n++) log << c[n] << ", "; log << endl;
+				for (ct::ctvector_fp::size_t n = 0; n < c.size(); n++) {
+					log << c[n] << ", "; log << endl;
+				}
                 log << "##### ERROR #####  incorrect number of parameters" << endl;
                 return false;
             }
@@ -150,8 +154,8 @@ namespace ckr {
      */
     string reactionEquation(const Reaction& r) {
         string s = "";
-        int nr = r.reactants.size();
-        int np = r.products.size();
+        int nr = static_cast<int>(r.reactants.size());
+        int np = static_cast<int>(r.products.size());
         int k;
         double m;
         char buf[20];

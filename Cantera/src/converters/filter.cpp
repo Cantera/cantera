@@ -67,7 +67,7 @@ namespace ckr {
             cerr << "could not open " << outfile << endl;
             return false;
         }
-        int nel = ck.elements.size();
+        int nel = static_cast<int>(ck.elements.size());
         int n;
 
         // write header information
@@ -83,7 +83,7 @@ namespace ckr {
         for (n = 0; n < nel; n++) fout << ck.elements[n];
         fout << "END" << endl;
 
-        int nsp = species.size();
+        int nsp = static_cast<int>(species.size());
         fout << "SPECIES" << endl;
         for (n = 0; n < nsp; n++) {
             fout << ck.species[ species[n] ].name << " ";
@@ -91,10 +91,10 @@ namespace ckr {
         }
         fout << "END" << endl;
         fout << "REACTIONS" << endl;
-        int nrxns = reactions.size();
+        int nrxns = static_cast<int>(reactions.size());
         for (n = 0; n < nrxns; n++) {
             vector<string>& lines = ck.reactions[reactions[n]].lines;
-            int nl = lines.size();
+            int nl = static_cast<int>(lines.size());
             for (int j = 0; j < nl; j++) fout << lines[j] << endl;
         }
         fout.close();
