@@ -71,12 +71,11 @@ namespace Cantera {
         return s;
     }
 
-    std::ostream& 
-    operator<<(std::ostream& s, const Cantera::Group& g) {
-	    if (g.valid()) {
-           s << g.m_comp;
-	    } else {
-           s << "<none>";
+    std::ostream& operator<<(std::ostream& s, const Cantera::Group& g) {
+        if (g.valid()) {
+ 	   s << g.m_comp;
+	} else {
+	   s << "<none>";
         }
         return s;
     }
