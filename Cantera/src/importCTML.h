@@ -17,8 +17,6 @@
 using namespace std;
 
 #include "ThermoPhase.h"
-//#include "Kinetics.h"
-//#include "transport/TransportBase.h"
 
 namespace Cantera {
 

@@ -24,12 +24,6 @@
 #include "mix_defs.h"
 #include <time.h>
 
-//   STL includes
-#include <map>
-#include <string>
-#include <vector>
-using namespace std;
-
 //   Cantera includes
 #include "speciesThermoTypes.h"
 #include "ThermoPhase.h"
@@ -44,9 +38,10 @@ using namespace std;
 
 #include "xml.h"
 #include "ctml.h"
+
 using namespace ctml;
 
-#include <stdio.h>
+//#include <stdio.h>
 
 // these are all used to check for duplicate reactions
 vector< map<int, doublereal> > _reactiondata;
@@ -62,7 +57,7 @@ namespace Cantera {
      * be used throught this file
      */
     typedef const vector<XML_Node*>    nodeset_t;
-    typedef XML_Node             node_t;
+    typedef XML_Node                   node_t;
 
     const doublereal DefaultPref = 1.01325e5;   // one atm
 

@@ -34,92 +34,116 @@ function a = set(a,varargin)
 %
 
 property_argin = varargin;
+tval = -999;
 pval = -999;
 hval = -999; 
 uval = -999;
 sval = -999;
 vval = -999;
 np = 0;
+nt = 0;
+nv = 0;
+nx = 0;
+ny = 0;
+ns = 0;
+nh = 0;
+nu = 0;
+
 while length(property_argin) >= 2,
-   prop = property_argin{1};
-   val = property_argin{2};
-   property_argin = property_argin(3:end);
-   switch prop
-     case 'Temperature'
-       setTemperature(a,val);
-     case 'T'
-       setTemperature(a,val);       
-     case 'Density'
-       setDensity(a,val);
-       vval = 1.0/val;
-     case 'Rho'
-       setDensity(a,val);
-       vval = 1.0/val;
-     case 'V'
-       setDensity(a,1.0/val);
-       vval = val;
-     case 'MoleFractions'
-       setMoleFractions(a,val);
-     case 'X'
-       setMoleFractions(a,val);       
-     case 'MassFractions'
-       setMassFractions(a,val);       
-     case 'Y'
-       setMassFractions(a,val);              
-     case 'Pressure'
-       pval = val;
-       np = np + 1;
-     case 'P'
-       pval = val; 
-       np = np + 1;       
-     case 'Enthalpy'
-       hval = val;
-       np = np + 1;       
-     case 'H'
-       hval = val; 
-       np = np + 1;       
-     case 'IntEnergy'
-       uval = val;
-       np = np + 1;       
-     case 'U'
-       uval = val; 
-       np = np + 1;       
-     case 'Entropy'
-       sval = val;
-       np = np + 1;       
-     case 'S'
-       sval = val; 
-       np = np + 1;       
-     otherwise
-       error(['unknown property ' char(prop)])
-   end
+  prop = property_argin{1};
+  val = property_argin{2};
+  property_argin = property_argin(3:end);
+  switch prop
+   case 'Temperature'
+    nt = nt + 1;
+    tval = val;
+   case 'T'
+    nt = nt + 1;
+    tval = val;       
+   case 'Density'
+    nv = nv + 1;
+    vval = 1.0/val;
+   case 'Rho'
+    nv = nv + 1;
+    vval = 1.0/val;
+   case 'V'
+    nv = nv + 1;
+    vval = val;
+   case 'MoleFractions'
+    nx = nx + 1;
+    setMoleFractions(a,val);
+   case 'X'
+    nx = nx + 1;
+    setMoleFractions(a,val);       
+   case 'MassFractions'
+    ny = ny + 1;
+    setMassFractions(a,val);       
+   case 'Y'
+    ny = ny + 1;
+    setMassFractions(a,val);              
+   case 'Pressure'
+    pval = val;
+    np = np + 1;
+   case 'P'
+    pval = val; 
+    np = np + 1;       
+   case 'Enthalpy'
+    hval = val;
+    nh = nh + 1;       
+   case 'H'
+    hval = val; 
+    nh = nh + 1;       
+   case 'IntEnergy'
+    uval = val;
+    nu = nu + 1;       
+   case 'U'
+    uval = val; 
+    nu = nu + 1;       
+   case 'Entropy'
+    sval = val;
+    ns = ns + 1;       
+   case 'S'
+    sval = val; 
+    ns = ns + 1;       
+   otherwise
+    error(['unknown property ' char(prop)])
+  end
 end
 
-if np == 1
-   if notnull(pval)
-      setPressure(a,pval);
-   end
+if nx + ny > 1
+  error('composition specified multiple times');
 end
 
-if (np >= 2) 
-   if notnull(pval) & notnull(hval)
-      setState_HP(a,[hval,pval]);
-   elseif notnull(uval) & notnull(vval)
-      setState_UV(a,[uval,vval]);
-   elseif notnull(sval) & notnull(pval)
-      setState_SP(a,[sval,pval]);   
-   elseif notnull(sval) & notnull(vval)
-      setState_SV(a,[sval,vval]);      
-   else
-      error('unimplemented property pair');
-   end
-end
+ntot = nt + np + nv + ns + nh + nu;
 
-
-function b = notnull(v)
-if v == -999 
-   b = 0;
+if ntot == 1
+  %
+  % set T, v, or P individually
+  %
+  if nt == 1
+    setTemperature(a,tval);   % density held fixed
+  elseif nv == 1
+    setDensity(a,1.0/vval);   % temperature held fixed
+  elseif np == 1
+    setPressure(1, pval);     % temperature held fixed
+  else
+    error('pressure, volume, or density must also be specified');
+  end
+elseif ntot == 2 
+  %
+  % set property pairs
+  %
+  if np == 1 & nh == 1
+    setState_HP(a,[hval,pval]);
+  elseif nu == 1 & nv == 1
+    setState_UV(a,[uval,vval]);
+  elseif ns == 1 & np == 1
+    setState_SP(a,[sval,pval]);   
+  elseif ns == 1 & nv == 1
+    setState_SV(a,[sval,vval]);      
+  else
+    error('unimplemented property pair');
+  end
 else
-   b = 1;
+  error('too many properties specified');
 end
-

@@ -18,11 +18,11 @@ incl_user_code = @INCL_USER_CODE@
 
 prefix=@prefix@
 
-all: kernel user cxxlib hdr-collect clib python matlab utils
+all: kernel user cxxlib hdr-collect clib python matlab utils datafiles
 
 # use this target on a Windows machine to build the Python and
 # MATLAB interfaces after building the project in Visual C++
-win: python matlab
+win: python matlab 
 
 
 install: hdr-install kernel-install data-install python-install matlab-install tools-install finish-install
@@ -70,6 +70,7 @@ win-kernel-install:
 data-install:
 	@INSTALL@ -d @ct_datadir@
 	@INSTALL@ -m 644 data/inputs/elements.xml @ct_datadir@
+	@INSTALL@ -m 644 data/inputs/gri30.xml @ct_datadir@
 	@INSTALL@ -m 644 data/inputs/*.cti @ct_datadir@
 
 tools-install:
@@ -179,9 +180,12 @@ finish-install:
 example_codes:
 	(cd examples/cxx; @MAKE@)
 
-test: example_codes
+test: example_codes datafiles
 	cd test_problems; @MAKE@ all
 	cd test_problems; @MAKE@ test
+
+datafiles:
+	cd data/inputs; @MAKE@
 
 uninstall:
 	rm -r -f @ct_incdir@

@@ -271,7 +271,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_unique_file="Cantera.README"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS local_inst ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir CANTERA_LIBDIR CANTERA_INCDIR CT_TOOLS_BIN CANTERA_BINDIR CANTERA_EXAMPLES_DIR CANTERA_DATADIR username ctroot build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os buildlib MAKE ARCHIVE SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR LAPACK_LIBRARY build_lapack BLAS_LIBRARY build_blas LOCAL_LIBS CT_SHARED_LIB BUILD_F90 PYTHON_CMD BUILD_PYTHON MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX_DEPENDS F77 FFLAGS ac_ct_F77 FLIBS OS_IS_DARWIN OS_IS_WIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS local_inst ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir CANTERA_LIBDIR CANTERA_INCDIR CT_TOOLS_BIN CANTERA_BINDIR CANTERA_EXAMPLES_DIR CANTERA_DATADIR username ctroot build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os buildinc buildlib MAKE ARCHIVE SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR LAPACK_LIBRARY build_lapack BLAS_LIBRARY build_blas LOCAL_LIBS CT_SHARED_LIB BUILD_F90 PYTHON_CMD BUILD_PYTHON MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA precompile_headers CXX_DEPENDS F77 FFLAGS ac_ct_F77 FLIBS OS_IS_DARWIN OS_IS_WIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1445,6 +1445,9 @@ test -n "$target_alias" &&
   test "$program_prefix$program_suffix$program_transform_name" = \
     NONENONEs,x,x, &&
   program_prefix=${target_alias}-
+
+buildinc=$ctroot/build/include
+
 
 buildlib=$ctroot/build/lib/$target
 
@@ -3045,6 +3048,19 @@ test -z "$INSTALL_SCRIPT" && INSTALL_SCRIPT='${INSTALL}'
 test -z "$INSTALL_DATA" && INSTALL_DATA='${INSTALL} -m 644'
 
 
+echo "$as_me:$LINENO: checking for ability to precompile headers" >&5
+echo $ECHO_N "checking for ability to precompile headers... $ECHO_C" >&6
+precompile_headers=no
+if test -n "$GCC"; then
+ msg=`rm -f *h.gch; $CXX testpch.h &> /dev/null`
+ if test -f testpch.h.gch; then
+  precompile_headers=yes
+ fi
+fi
+echo "$as_me:$LINENO: result: ${precompile_headers}" >&5
+echo "${ECHO_T}${precompile_headers}" >&6
+
+
 
 
 #---------------------------------
@@ -3143,7 +3159,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3146:" \
+echo "$as_me:3162:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3320,7 +3336,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3323: \"$ac_link\") >&5
+(eval echo $as_me:3339: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3400,7 +3416,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3403: \"$ac_link\") >&5
+(eval echo $as_me:3419: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4292,6 +4308,7 @@ s,@target@,$target,;t t
 s,@target_cpu@,$target_cpu,;t t
 s,@target_vendor@,$target_vendor,;t t
 s,@target_os@,$target_os,;t t
+s,@buildinc@,$buildinc,;t t
 s,@buildlib@,$buildlib,;t t
 s,@MAKE@,$MAKE,;t t
 s,@ARCHIVE@,$ARCHIVE,;t t
@@ -4331,6 +4348,7 @@ s,@ac_ct_CC@,$ac_ct_CC,;t t
 s,@INSTALL_PROGRAM@,$INSTALL_PROGRAM,;t t
 s,@INSTALL_SCRIPT@,$INSTALL_SCRIPT,;t t
 s,@INSTALL_DATA@,$INSTALL_DATA,;t t
+s,@precompile_headers@,$precompile_headers,;t t
 s,@CXX_DEPENDS@,$CXX_DEPENDS,;t t
 s,@F77@,$F77,;t t
 s,@FFLAGS@,$FFLAGS,;t t

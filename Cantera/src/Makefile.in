@@ -55,10 +55,28 @@ EVERYTHING = $(KINETICS) $(HETEROKIN) $(ELECTROCHEM) $(EQUIL) $(CK) \
              $(TRANSPORT) $(REACTOR) $(RPATH) $(SOLVERS) $(FLOW1D)
 
 
-all:  config.h @KERNEL@ lib
+PCH = ct_defs.h.gch utilities.h.gch ThermoPhase.h.gch
+
+all:  config.h $(PCH) @KERNEL@ lib
 
 config.h: ../../config.h
 	cp -f ../../config.h ./config.h
+
+
+ct_defs.h.gch: ct_defs.h
+ifeq (@precompile_headers@,yes)
+	@CXX@ ct_defs.h $(CXX_FLAGS) 
+endif
+
+utilities.h.gch: utilities.h
+ifeq (@precompile_headers@,yes)
+	@CXX@ utilities.h $(CXX_FLAGS) 
+endif
+
+%.h.gch:
+ifeq (@precompile_headers@,yes)
+	@CXX@ $*.h $(CXX_FLAGS) 
+endif
 
 base: $(BASE)
 

@@ -12,8 +12,8 @@
 #endif
 
 
-#include <iostream>
-#include <vector>
+//#include <iostream>
+//#include <vector>
 using namespace std;
 
 #include "BandMatrix.h"

@@ -496,36 +496,36 @@ extern "C" {
     //-------------- pure fluids ---------------//
 
     double DLL_EXPORT th_critTemperature(int n) {
-        return th(n)->critTemperature();
+        return purefluid(n)->critTemperature();
     }
 
     double DLL_EXPORT th_critPressure(int n) {
-        return th(n)->critPressure();
+        return purefluid(n)->critPressure();
     }
 
     double DLL_EXPORT th_critDensity(int n) {
-        return th(n)->critDensity();
+        return purefluid(n)->critDensity();
     }
 
     double DLL_EXPORT th_vaporFraction(int n) {
-        return th(n)->vaporFraction();
+        return purefluid(n)->vaporFraction();
     }
 
     double DLL_EXPORT th_satTemperature(int n, double p) {
-        return th(n)->satTemperature(p);
+        return purefluid(n)->satTemperature(p);
     }
 
     double DLL_EXPORT th_satPressure(int n, double t) {
-        return th(n)->satPressure(t);
+        return purefluid(n)->satPressure(t);
     }
 
     int DLL_EXPORT th_setState_satLiquid(int n) {
-        th(n)->setState_satLiquid();
+        purefluid(n)->setState_satLiquid();
         return 0;
     }
 
     int DLL_EXPORT th_setState_satVapor(int n) {
-        th(n)->setState_satVapor();
+        purefluid(n)->setState_satVapor();
         return 0;
     }
 

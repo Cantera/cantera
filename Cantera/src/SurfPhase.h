@@ -16,11 +16,11 @@
 #ifndef CT_SURFPHASE_H
 #define CT_SURFPHASE_H
 
-#include "ct_defs.h"
+//#include "ct_defs.h"
 #include "mix_defs.h"
 #include "ThermoPhase.h"
-#include "ctvector.h"
-#include <iostream>
+//#include "ctvector.h"
+//#include <iostream>
 
 namespace Cantera {
 

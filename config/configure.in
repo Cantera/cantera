@@ -121,6 +121,9 @@ AC_SUBST(ctroot)
 
 AC_CANONICAL_SYSTEM()
 
+buildinc=$ctroot/build/include
+AC_SUBST(buildinc)
+
 buildlib=$ctroot/build/lib/$target
 AC_SUBST(buildlib)
 
@@ -363,6 +366,17 @@ dnl Checks for programs.
 AC_PROG_CXX()
 AC_PROG_CC()
 AC_PROG_INSTALL
+
+AC_MSG_CHECKING(for ability to precompile headers)
+precompile_headers=no
+if test -n "$GCC"; then
+ msg=`rm -f *h.gch; $CXX testpch.h &> /dev/null`
+ if test -f testpch.h.gch; then 
+  precompile_headers=yes
+ fi
+fi
+AC_MSG_RESULT(${precompile_headers})
+AC_SUBST(precompile_headers)
 
 AC_SUBST(CXX_DEPENDS)
 

@@ -8,7 +8,7 @@ if icyg == 0:
     prefix = prefix[10]+':'+prefix[11:]
 
 bindir = '/usr/local/bin'
-libdir = '/usr/local/lib/cantera-1.5.3' 
+libdir = '/usr/local/lib/cantera/1.5.3' 
 hdrdir = '/usr/local/include/cantera'
 demodir = '/usr/local/cantera/1.5.3/demos'
 datadir = '/usr/local/cantera/1.5.3/data'

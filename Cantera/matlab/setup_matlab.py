@@ -1,14 +1,11 @@
 
 import sys
 
-if len(sys.argv) >= 4:
-    bindir = sys.argv[1]
-    libdir = sys.argv[2]
-    libs = '-l'+sys.argv[3]+' '+sys.argv[4]
-else:
-    print 'usage: python setup_matlab.py <bindir> <libdir> <lib>'
-    sys.exit(0)
-    
+bindir = '/usr/local/bin'
+libdir = '/Users/dgg/dv/sf/cantera/build/lib/powerpc-apple-darwin7.0.0'
+incdir = '/Users/dgg/dv/sf/cantera/build/include'
+libs   = ' -loneD -lzeroD -ltransport -lcantera -lrecipes -lcvode -lctlapack -lctmath -lctblas -ltpx  -lg2c -lgcc'
+
 f = open('setup.m','w')
 f.write('cd cantera\nbuildux\nexit\n')
 f.close()
@@ -22,7 +19,7 @@ mex private/ctmethods.cpp private/ctfunctions.cpp ...
     private/transportmethods.cpp private/reactormethods.cpp ...
     private/wallmethods.cpp private/flowdevicemethods.cpp ...
     private/onedimmethods.cpp private/surfmethods.cpp private/write.cpp ...
-"""+'     -L'+libdir+' '+libs+'\n'+"""disp('done.');
+"""+'-I'+incdir+'     -L'+libdir+' '+libs+'\n'+"""disp('done.');
 """)
 fb.close()
 

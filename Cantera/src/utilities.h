@@ -241,22 +241,22 @@ namespace Cantera {
      *  _scatter_update(x.begin(), x.end(), output.begin(), index.begin());
      *  \endcode
      */ 
-    template<class _InputIter, class _OutputIter, 
-        class _IndexIter, class _Params>
-    inline void _scatter_update(_InputIter __begin, _InputIter __end, 
-        _OutputIter __result, _IndexIter __index, const _Params& __params) {
-        for (; __begin != __end; ++__begin, ++__index) {
-            *(__result + *__index) = (*__begin).update(__params);
-        }
-    }
+//     template<class _InputIter, class _OutputIter, 
+//         class _IndexIter, class _Params>
+//     inline void _scatter_update(_InputIter __begin, _InputIter __end, 
+//         _OutputIter __result, _IndexIter __index, const _Params& __params) {
+//         for (; __begin != __end; ++__begin, ++__index) {
+//             *(__result + *__index) = (*__begin).update(__params);
+//         }
+//     }
 
-    template<class _InputIter, class _OutputIter, class _Params>
-    inline void _update(_InputIter __begin, _InputIter __end, 
-        _OutputIter __result, const _Params& __params) {
-        for (; __begin != __end; ++__begin, ++__result) {
-            *__result = (*__begin).update(__params);
-        }
-    }
+//     template<class _InputIter, class _OutputIter, class _Params>
+//     inline void _update(_InputIter __begin, _InputIter __end, 
+//         _OutputIter __result, const _Params& __params) {
+//         for (; __begin != __end; ++__begin, ++__result) {
+//             *__result = (*__begin).update(__params);
+//         }
+//     }
 
 }
 

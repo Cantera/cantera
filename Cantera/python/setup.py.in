@@ -1,4 +1,3 @@
-#!/usr/bin/python2
 import sys
 try:
     from distutils.core import setup, Extension
@@ -17,33 +16,24 @@ else:
             "ctblas", "ctmath", "cvode", "tpx", "stdc++", "g2c", "m"]
 
 
-#if sys.argv[1] == 'install':
-#    import time
-#    f = open('_pydate.py','w')
-#    f.write('date = '+`time.time()`)
-#    f.close()
+setup(name="Cantera",
+      version="@ctversion@",
+      description="The Cantera Python Interface",
+      long_description="""
+      """,
+      author="Prof. D. G. Goodwin, Caltech",
+      author_email="dgoodwin@caltech.edu",
+      url="http://www.cantera.org",
+      package_dir = {'MixMaster':'../../apps/MixMaster'},
+      packages = ["","Cantera","Cantera.OneD",
+                  "MixMaster","MixMaster.Units"],
+      ext_modules=[
+    Extension("Cantera._cantera",
+              ["src/pycantera.cpp", "src/writelog.cpp"],
+              include_dirs=["../../build/include",
+                            "src", "../clib/src"],
+              library_dirs = ["@buildlib@"], libraries = libs)
+    ],
+      )
 
-#try:
-    setup(name="Cantera",
-          version="1.5",
-          description="The Cantera Python Interface",
-          long_description="""
-          """,
-          author="Prof. D. G. Goodwin, Caltech",
-          author_email="dgoodwin@caltech.edu",
-          url="http://www.cantera.org",
-          package_dir = {'MixMaster':'../../apps/MixMaster'},
-          packages = ["","Cantera","Cantera.OneD",
-                      "MixMaster","MixMaster.Units"],
-          ext_modules=[
-              Extension("Cantera._cantera",
-                        ["src/pycantera.cpp", "src/writelog.cpp"],
-                        include_dirs=["../../build/include",
-                                      "src", "../clib/src"],
-                        library_dirs = ["@buildlib@"], libraries = libs)
-              ],
-          )
-#except:
-#    print '***************************************'
-#    print '   Error:  setup.py failed'
 

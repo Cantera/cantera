@@ -24,7 +24,7 @@ preface 'make install' by 'sudo' ('sudo make install').
 Cantera applications will be put in /usr/local/bin, libraries will be
 installed in a version-specific subdirectory of
 /usr/local/lib/cantera, unix man pages will be installed under
-/usr/local/man, C++ header files will be installed in
+/usr/share/man, C++ header files will be installed in
 /usr/local/include/cantera, and various demos and data files will be
 installed in subdirectories of /usr/local/cantera.
 
@@ -42,8 +42,8 @@ the installation directory. For example, to install in your home directory:
 make
 make install
 
-In this case, subdirectories bin, lib, include, cantera will be
-created within your home directory if they don't exist already, and
+In this case, subdirectories bin, lib, include, man, and cantera will
+be created within your home directory if they don't exist already, and
 cantera will be installed into these directories.
 
 

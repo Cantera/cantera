@@ -6,10 +6,8 @@ SUFFIXES= .inp .log .dat
 # list all mechanism files here
 MECHS = 
 
+all: gri30.xml
 
-#LOGS = $(MECHS:.inp=.log)
+gri30.xml: gri30.cti
+	../../bin/cti2ctml gri30.cti
 
-#all: $(LOGS)
-
-#gri30.log: gri30.inp
-#	@CANTERA_BINDIR@/ck2ctml $<
