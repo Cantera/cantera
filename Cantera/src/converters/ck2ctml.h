@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "ctml.h"
+#include "../ctml.h"
 
 namespace ckr{
   class CKReader;
