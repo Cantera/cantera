@@ -24,6 +24,7 @@ namespace Cantera {
     const int PolyFuncType = 2;
     const int ArrheniusFuncType = 3;
     const int SumFuncType = 20;
+    const int DiffFuncType = 25;
     const int ProdFuncType = 30;
     const int RatioFuncType = 40;
  
@@ -64,6 +65,23 @@ namespace Cantera {
             }
             return r;
         }
+
+//         virtual string show(doublereal t) {
+//             int n;
+//             string s = "";
+//             doublereal r = m_c[m_n-1];
+//             for (n = m_n-1; n >= 0; n--) {
+//                 s += fp2str(m_c[n]);
+//                 if (n > 0) s += "*x";
+//                 if (n > 1) s += "^"+int2str(n);
+//                 if (n > 0) {
+//                     if (m_c[n] < 0.0) s += " - ";
+//                     else 
+//                 r *= t;
+//                 r += m_c[m_n - n - 1];
+//             }
+//             return r;
+//         }            
 
     protected:
         int m_n;
@@ -159,6 +177,26 @@ namespace Cantera {
     private:
     };
 
+
+    /**
+     * Difference of two functions.
+     */
+    class Func1Diff : public Func1 {
+    public:
+        Func1Diff(Func1& f1, Func1& f2) {
+            m_f1 = &f1;
+            m_f2 = &f2;
+        }
+        virtual ~Func1Diff() {}
+        virtual doublereal eval(doublereal t) {
+            return m_f1->eval(t) - m_f2->eval(t);
+        }
+    protected:
+        Func1 *m_f1, *m_f2;
+    private:
+    };
+
+
     /**
      * Product of two functions.
      */
@@ -176,6 +214,7 @@ namespace Cantera {
         Func1 *m_f1, *m_f2;
     private:
     };
+
 
     /**
      * Ratio of two functions.

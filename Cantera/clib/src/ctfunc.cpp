@@ -56,6 +56,9 @@ extern "C" {
             else if (type == SumFuncType) {
                 r = new Func1Sum(*_func(n), *_func(m));
             }
+            else if (type == DiffFuncType) {
+                r = new Func1Diff(*_func(n), *_func(m));
+            }
             else if (type == ProdFuncType) {
                 r = new Func1Product(*_func(n), *_func(m));
             }
