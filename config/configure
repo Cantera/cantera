@@ -2006,6 +2006,13 @@ _ACEOF
 
 fi
 
+if test "$USE_NUMERIC" = "y"; then
+cat >>confdefs.h <<\_ACEOF
+#define HAS_NUMERIC 1
+_ACEOF
+
+fi
+
 #
 #     Matlab Interface
 #
@@ -3483,7 +3490,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3486:" \
+echo "$as_me:3493:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3660,7 +3667,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3663: \"$ac_link\") >&5
+(eval echo $as_me:3670: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3740,7 +3747,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3743: \"$ac_link\") >&5
+(eval echo $as_me:3750: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4073,7 +4080,7 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ac_config_files="$ac_config_files ../Cantera/Makefile ../Cantera/src/Makefile ../Cantera/src/zeroD/Makefile ../Cantera/src/oneD/Makefile ../Cantera/src/converters/Makefile ../Cantera/src/transport/Makefile ../Cantera/clib/src/Makefile ../Cantera/fortran/src/Makefile ../Cantera/fortran/f77demos/f77demos.mak ../Cantera/fortran/f77demos/isentropic.dsp ../Cantera/matlab/Makefile ../Cantera/matlab/setup_matlab.py ../Cantera/matlab/setup_winmatlab.py ../Cantera/python/Makefile ../Cantera/python/setup.py ../Cantera/cxx/Makefile ../Cantera/cxx/src/Makefile ../Cantera/cxx/demos/Makefile ../Cantera/user/Makefile ../Cantera/python/src/Makefile ../ext/lapack/Makefile ../ext/blas/Makefile ../ext/cvode/Makefile ../ext/math/Makefile ../ext/tpx/Makefile ../ext/Makefile ../ext/recipes/Makefile ../ext/f2c_libs/Makefile ../ext/f2c_blas/Makefile ../ext/f2c_lapack/Makefile ../ext/f2c_math/Makefile ../ext/f2c_recipes/Makefile ../examples/Makefile ../examples/cxx/Makefile ../Makefile ../tools/Makefile ../tools/src/Makefile ../tools/src/sample.mak ../tools/src/finish_install.py ../tools/src/package4mac ../tools/templates/f77/demo.mak ../tools/templates/f90/demo.mak ../tools/templates/cxx/demo.mak ../tools/testtools/Makefile ../data/inputs/Makefile ../test_problems/Makefile ../test_problems/cxx_ex/Makefile ../test_problems/silane_equil/Makefile ../test_problems/surfkin/Makefile ../test_problems/diamondSurf/Makefile ../test_problems/ck2cti_test/Makefile ../test_problems/ck2cti_test/runtest ../test_problems/python/Makefile ../bin/install_tsc"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ac_config_files="$ac_config_files ../Cantera/Makefile ../Cantera/src/Makefile ../Cantera/src/zeroD/Makefile ../Cantera/src/oneD/Makefile ../Cantera/src/converters/Makefile ../Cantera/src/transport/Makefile ../Cantera/clib/src/Makefile ../Cantera/fortran/src/Makefile ../Cantera/fortran/f77demos/f77demos.mak ../Cantera/fortran/f77demos/isentropic.dsp ../Cantera/matlab/Makefile ../Cantera/matlab/setup_matlab.py ../Cantera/matlab/setup_winmatlab.py ../Cantera/python/Makefile ../Cantera/python/setup.py ../Cantera/cxx/Makefile ../Cantera/cxx/src/Makefile ../Cantera/cxx/demos/Makefile ../Cantera/user/Makefile ../Cantera/cads/Makefile ../Cantera/cads/src/Makefile ../Cantera/cads/pe/Makefile ../Cantera/cads/Cantf77/Makefile ../Cantera/cads/util_src/Makefile ../Cantera/python/src/Makefile ../ext/lapack/Makefile ../ext/blas/Makefile ../ext/cvode/Makefile ../ext/math/Makefile ../ext/tpx/Makefile ../ext/Makefile ../ext/recipes/Makefile ../ext/f2c_libs/Makefile ../ext/f2c_blas/Makefile ../ext/f2c_lapack/Makefile ../ext/f2c_math/Makefile ../ext/f2c_recipes/Makefile ../examples/Makefile ../examples/cxx/Makefile ../Makefile ../tools/Makefile ../tools/src/Makefile ../tools/src/sample.mak ../tools/src/finish_install.py ../tools/src/package4mac ../tools/templates/f77/demo.mak ../tools/templates/f90/demo.mak ../tools/templates/cxx/demo.mak ../tools/testtools/Makefile ../data/inputs/Makefile ../test_problems/Makefile ../test_problems/cxx_ex/Makefile ../test_problems/silane_equil/Makefile ../test_problems/surfkin/Makefile ../test_problems/diamondSurf/Makefile ../test_problems/ck2cti_test/Makefile ../test_problems/ck2cti_test/runtest ../test_problems/python/Makefile ../bin/install_tsc"
 
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
@@ -4564,6 +4571,11 @@ do
   "../Cantera/cxx/src/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/cxx/src/Makefile" ;;
   "../Cantera/cxx/demos/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/cxx/demos/Makefile" ;;
   "../Cantera/user/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/user/Makefile" ;;
+  "../Cantera/cads/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/cads/Makefile" ;;
+  "../Cantera/cads/src/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/cads/src/Makefile" ;;
+  "../Cantera/cads/pe/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/cads/pe/Makefile" ;;
+  "../Cantera/cads/Cantf77/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/cads/Cantf77/Makefile" ;;
+  "../Cantera/cads/util_src/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/cads/util_src/Makefile" ;;
   "../Cantera/python/src/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/python/src/Makefile" ;;
   "../ext/lapack/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../ext/lapack/Makefile" ;;
   "../ext/blas/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../ext/blas/Makefile" ;;

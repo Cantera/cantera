@@ -569,6 +569,10 @@ else
 AC_DEFINE_UNQUOTED(PYTHON_EXE,"$PYTHON_CMD")
 fi
 
+if test "$USE_NUMERIC" = "y"; then
+AC_DEFINE(HAS_NUMERIC)
+fi
+
 #       
 #     Matlab Interface
 #
@@ -820,6 +824,11 @@ AC_OUTPUT(../Cantera/Makefile \
 	  ../Cantera/cxx/src/Makefile \
 	  ../Cantera/cxx/demos/Makefile \
 	  ../Cantera/user/Makefile \
+	  ../Cantera/cads/Makefile \
+	  ../Cantera/cads/src/Makefile \
+	  ../Cantera/cads/pe/Makefile \
+	  ../Cantera/cads/Cantf77/Makefile \
+	  ../Cantera/cads/util_src/Makefile \
 	  ../Cantera/python/src/Makefile \
           ../ext/lapack/Makefile \
 	  ../ext/blas/Makefile \

@@ -105,7 +105,11 @@ PYTHON_PACKAGE=${PYTHON_PACKAGE:="full"}
 # different name, set this to the full path to the Python interpreter.
 PYTHON_CMD=${PYTHON_CMD:="default"}
 
-
+# The Cantera Python interface can be built with either the numarray
+# or Numeric packages. Set this to "y" to use Numeric, or anything
+# else to use numarray.
+USE_NUMERIC=${USE_NUMERIC:="y"}
+ 
 # Set this to 'y' when site packages must be put in system directories
 # but Cantera tutorials must be put in user space.  An alternative to
 # doing this is to put everything in user space by running this script
@@ -421,6 +425,7 @@ export RPFONT
 export USE_VISUAL_STUDIO
 export FORTRAN_LIB_DIR
 export CANTERA_INSTALL_DIR
+export USE_NUMERIC
 
 cd config
 chmod +x ./configure 

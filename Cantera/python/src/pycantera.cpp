@@ -14,7 +14,12 @@
 #include "../../../config.h"
 
 #include "Python.h"
+
+#ifdef HAS_NUMERIC
 #include "Numeric/arrayobject.h"
+#else
+#include "numarray/arrayobject.h"
+#endif
 
 #include "ct.h"
 #include "ctxml.h"
