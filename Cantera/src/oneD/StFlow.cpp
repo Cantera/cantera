@@ -682,7 +682,8 @@ namespace Cantera {
     void StFlow::showSolution(const doublereal* x) {
         int nn = m_nv/5;
         int i, j, n;
-        char* buf = new char[100];
+        //char* buf = new char[100];
+        char buf[100];
 
         // The mean molecular weight is needed to convert
         updateThermo(x, 0, m_points-1);
