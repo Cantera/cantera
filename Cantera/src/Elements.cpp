@@ -22,7 +22,10 @@
 
 #include "Elements.h"
 #include "xml.h"
+#include "ctml.h"
 #include "ctexceptions.h"
+
+using namespace ctml;
 
 #ifdef USE_DGG_CODE
 #include <map>
@@ -506,6 +509,36 @@ namespace Cantera {
        * Return the reference to the current object
        */
       return *this;
+    }
+
+
+    void Elements::addElementsFromXML(const XML_Node& phase) {
+
+        // get the declared element names
+        XML_Node& elements = phase.child("elementArray");
+        vector<string> enames;
+        getStringArray(elements, enames);
+        
+        // // element database defaults to elements.xml
+        string element_database = "elements.xml";
+        if (elements.hasAttrib("datasrc")) 
+            element_database = elements["datasrc"];
+        XML_Node* doc = get_XML_File(element_database);
+        XML_Node* dbe = &doc->child("ctml/elementData");
+
+        int nel = enames.size();
+        int i;
+        string enm;
+        for (i = 0; i < nel; i++) {
+            XML_Node* e = dbe->findByAttr("name",enames[i]);
+            if (e) {
+                addUniqueElement(*e);
+            }
+            else {
+                throw CanteraError("addElementsFromXML","no data for element "
+                    +enames[i]);
+            }
+        }
     }
 
     /***********************************************************************
