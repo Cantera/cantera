@@ -5,8 +5,6 @@
 # $Revision$
 # $Date$
 #
-
-
 #######################################################################
 #
 #           Cantera Configuration File
@@ -33,7 +31,6 @@
 # script as ./configure --prefix=<prefix> you can just run it as
 # ./configure
 CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
-
 
 
 #----------------------------------------------------------------------
@@ -118,7 +115,6 @@ PYTHON_CMD=${PYTHON_CMD:="default"}
 SET_PYTHON_SITE_PACKAGE_TOPDIR=${SET_PYTHON_SITE_PACKAGE_TOPDIR:="n"}
 
 PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"} 
-
 
 
 #----------- MATLAB --------------------------------------------------
@@ -415,7 +411,7 @@ export LIB_DIR
 export FORT_MODULE_DIRECTORY
 export FORT_MODULE_PATH_COMMAND
 export OBJ_EXT
-#export PYTHON_CMD
+export PYTHON_CMD
 export SET_PYTHON_SITE_PACKAGE_DIR
 export PYTHON_SITE_PACKAGE_TOPDIR
 export PIC
