@@ -58,6 +58,9 @@ class ThermoPhase(Phase):
         reference the kernel object."""
         return self._phase_id
 
+    def thermo_hndl(self):
+        return self._phase_id
+    
     def refPressure(self):
         """Reference pressure [Pa].
         All standard-state thermodynamic properties are for this pressure.

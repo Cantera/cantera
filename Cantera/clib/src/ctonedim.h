@@ -11,15 +11,19 @@ extern "C" {
     int DLL_IMPORT domain_index(int i);
     int DLL_IMPORT domain_nComponents(int i);
     int DLL_IMPORT domain_nPoints(int i);
-    int DLL_IMPORT domain_componentName(int i, int n, int sz, char* buf);
+    int DLL_IMPORT domain_componentName(int i, int n, int sz, char* nameout);
     int DLL_IMPORT domain_componentIndex(int i, char* name);
     int DLL_IMPORT domain_setBounds(int i, int nl, double* lower, 
         int nu, double* upper);
+    double DLL_EXPORT domain_lowerBound(int i, int n);
+    double DLL_EXPORT domain_upperBound(int i, int n);
     int DLL_IMPORT domain_setTolerances(int i, int nr, double* rtol, 
         int na, double* atol, int itime);
+    double DLL_IMPORT domain_rtol(int i, int n);
+    double DLL_IMPORT domain_atol(int i, int n);
     int DLL_IMPORT domain_setupGrid(int i, int npts, double* grid);
-    int DLL_IMPORT domain_setID(int, char* id);
-    int DLL_IMPORT domain_setDesc(int, char* desc);
+    int DLL_IMPORT domain_setID(int i, char* id);
+    int DLL_IMPORT domain_setDesc(int i, char* desc);
     double DLL_IMPORT domain_grid(int i, int n);
 
     int DLL_IMPORT bdry_setMdot(int i, double mdot);
@@ -41,7 +45,7 @@ extern "C" {
     int DLL_IMPORT stflow_new(int iph, int ikin, int itr);
     int DLL_IMPORT stflow_setPressure(int i, double p);
     int DLL_IMPORT stflow_setFixedTempProfile(int i, int n, double* pos, 
-        double* temp);
+        int m, double* temp);
     int DLL_IMPORT stflow_solveSpeciesEqs(int i, int flag);
     int DLL_IMPORT stflow_solveEnergyEqn(int i, int flag);
 
@@ -50,7 +54,7 @@ extern "C" {
     int DLL_IMPORT sim1D_del(int i);
     int DLL_IMPORT sim1D_setValue(int i, int dom, int comp, int localPoint, double value);
     int DLL_IMPORT sim1D_setProfile(int i, int dom, int comp, 
-        int np, double* pos, double* v);
+        int np, double* pos, int nv, double* v);
     int DLL_IMPORT sim1D_setFlatProfile(int i, int dom, int comp, double v);
     int DLL_IMPORT sim1D_showSolution(int i, char* fname);
     int DLL_IMPORT sim1D_setTimeStep(int i, double stepsize, int ns, int* nsteps);

@@ -48,16 +48,11 @@ class Kinetics:
         """
         np = len(phases)
         self._np = np
-        #self._ph = {}
         self._sp = []
-        #for p in phases:
-        #    self._ph[p.thermophase()] = p
         self._phnum = {}
         
         self._end = [0]
         p0 = phases[0].thermophase()
-        #self._ph[phases[0]] = phases
-        #self._end.append(phases[0].nSpecies())
         p1 = -1
         p2 = -1
         p3 = -1
@@ -82,9 +77,6 @@ class Kinetics:
                 self._end.append(self._end[-1]+p.nSpecies())
                 for k in range(p.nSpecies()):
                     self._sp.append(p.speciesName(k))
-                
-        #self.phases = phases
-        
 
         
     def __del__(self):
@@ -98,6 +90,9 @@ class Kinetics:
     def kin_index(self):
         return self.ckin
 
+    def kinetics_hndl(self):
+        return self.ckin
+    
     def kineticsType(self):
         """Kinetics manager type."""
         return _cantera.kin_type(self.ckin)

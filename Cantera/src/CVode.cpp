@@ -114,6 +114,7 @@ namespace Cantera {
       if (m_cvode_mem) CVodeFree(m_cvode_mem);
       if (m_y) N_VFree(nv(m_y));
       if (m_abstol) N_VFree(nv(m_abstol));
+      delete[] m_iopt;
     }
     
     double& CVodeInt::solution(int k){ return N_VIth(nv(m_y),k); }

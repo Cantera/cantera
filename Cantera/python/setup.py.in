@@ -23,9 +23,9 @@ else:
 #    f.write('date = '+`time.time()`)
 #    f.close()
 
-try:
+#try:
     setup(name="Cantera",
-          version="1.4",
+          version="1.5",
           description="The Cantera Python Interface",
           long_description="""
           """,
@@ -33,7 +33,8 @@ try:
           author_email="dgoodwin@caltech.edu",
           url="http://www.cantera.org",
           package_dir = {'MixMaster':'../../apps/MixMaster'},
-          packages = ["","Cantera","MixMaster","MixMaster.Units"],
+          packages = ["","Cantera","Cantera.OneD",
+                      "MixMaster","MixMaster.Units"],
           ext_modules=[
               Extension("Cantera._cantera",
                         ["src/pycantera.cpp", "src/writelog.cpp"],
@@ -42,6 +43,7 @@ try:
                         library_dirs = ["@buildlib@"], libraries = libs)
               ],
           )
-except:
-    print 'setup.py failed'
+#except:
+#    print '***************************************'
+#    print '   Error:  setup.py failed'
 

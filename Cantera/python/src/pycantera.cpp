@@ -23,6 +23,7 @@
 #include "ctrpath.h"
 #include "ctreactor.h" 
 #include "ctfunc.h"
+#include "ctonedim.h"
 
 #include <iostream>
 using namespace std;
@@ -45,6 +46,7 @@ static PyObject *ErrorObject;
 #include "ctrpath_methods.cpp"
 #include "ctreactor_methods.cpp"
 #include "ctfunc_methods.cpp"
+#include "ctonedim_methods.cpp"
 
 #include "methods.h"
 

@@ -132,6 +132,20 @@ extern "C" {
         catch (CanteraError) { return -1; }
     }
 
+    double DLL_EXPORT domain_upperBound(int i, int n) {
+        try {
+            return _domain(i)->upperBound(n);
+        }
+        catch (CanteraError) { return -1.0; }
+    }
+
+    double DLL_EXPORT domain_lowerBound(int i, int n) {
+        try {
+            return _domain(i)->lowerBound(n);
+        }
+        catch (CanteraError) { return -1.0; }
+    }
+
     int DLL_EXPORT domain_setTolerances(int i, int nr, double* rtol, 
         int na, double* atol, int itime) {
         try {
@@ -139,6 +153,20 @@ extern "C" {
             return 0;
         }
         catch (CanteraError) { return -1; }
+    }
+
+    double DLL_EXPORT domain_rtol(int i, int n) {
+        try {
+            return _domain(i)->rtol(n);
+        }
+        catch (CanteraError) { return -1.0; }
+    }
+
+    double DLL_EXPORT domain_atol(int i, int n) {
+        try {
+            return _domain(i)->atol(n);
+        }
+        catch (CanteraError) { return -1.0; }
     }
 
     int DLL_EXPORT domain_setupGrid(int i, int npts, double* grid) {
@@ -298,7 +326,7 @@ extern "C" {
     }
 
     int DLL_EXPORT stflow_setFixedTempProfile(int i, int n, double* pos, 
-        double* temp) {
+        int m, double* temp) {
         try {
             int j;
             vector_fp vpos(n), vtemp(n);
@@ -379,7 +407,7 @@ extern "C" {
     }
 
     int DLL_EXPORT sim1D_setProfile(int i, int dom, int comp, 
-        int np, double* pos, double* v) {
+        int np, double* pos, int nv, double* v) {
         try {
             vector_fp vv, pv;
             for (int n = 0; n < np; n++) {

@@ -22,7 +22,7 @@ namespace Cantera {
         // resize the internal solution vector and the wprk array,
         // and perform domain-specific initialization of the
         // solution vector.
-      //writelog("size = "+int2str(size())+"\n");
+
         m_x.resize(size(), 0.0);
         m_xnew.resize(size(), 0.0);
         for (int n = 0; n < m_nd; n++) {
