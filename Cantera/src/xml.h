@@ -1,8 +1,17 @@
 /**
+ * @file xml.h
+ *
  * Classes providing support for XML data files. These classes
  * implement only those aspects of XML required to read, write, and
  * manipulate CTML data files.
  */
+
+/* $Author$
+ * $Revision$
+ * $Date$
+ */
+
+// Copyright 2001  California Institute of Technology
 
 #ifndef CT_XML
 #define CT_XML
