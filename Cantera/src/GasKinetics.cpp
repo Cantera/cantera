@@ -499,9 +499,10 @@ namespace Cantera {
 
         // install high and low rate coeff calculators
 
-        int iloc = m_falloff_high_rates.install( m_nfall,
-            r.rateCoeffType, r.rateCoeffParameters.size(),
-            r.rateCoeffParameters.begin() );     
+        int iloc = m_falloff_high_rates.install(m_nfall,
+						r.rateCoeffType,
+					        r.rateCoeffParameters.size(),
+					        r.rateCoeffParameters.begin() );     
     
         m_falloff_low_rates.install( m_nfall, 
             r.rateCoeffType, r.auxRateCoeffParameters.size(), 
