@@ -4,9 +4,9 @@
 #include <vector>
 using namespace std;
 
-#include "ct_defs.h"
+#include "../ct_defs.h"
 #include "TransportBase.h"
-#include "xml.h"
+#include "../xml.h"
 
 namespace Cantera {
 

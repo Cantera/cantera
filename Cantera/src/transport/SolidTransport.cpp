@@ -20,7 +20,7 @@
 #include "../ThermoPhase.h"
 #include "SolidTransport.h"
 
-#include "utilities.h"
+#include "../utilities.h"
 #include <iostream>
 
 
