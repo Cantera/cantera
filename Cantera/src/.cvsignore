@@ -1,3 +1,4 @@
 Makefile
+pypath.h
 ctdir.h
 .depends
