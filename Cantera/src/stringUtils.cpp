@@ -102,8 +102,10 @@ namespace Cantera {
                         s = "";
                     }
                     nm = stripws(name);
-                    if (x[nm] == 0.0) throw CanteraError("parseCompString",
-                        "unknown species "+nm);
+                    if (x[nm] == 0.0) {
+		       throw CanteraError("parseCompString",
+                                          "unknown species " + nm);
+		    }
                     x[nm] = atof(num.c_str());
                 }
                 else s = "";
