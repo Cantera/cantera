@@ -422,8 +422,8 @@ namespace Cantera {
      * This function will check a specific reaction to see if it the
      * elements balance.
      */
-    static void checkRxnElementBalance(Kinetics& kin, 
-				       const ReactionData &rdata) {
+    void checkRxnElementBalance(Kinetics& kin, 
+				const ReactionData &rdata) {
 	int index, klocal, n, kp, kr, m, nel;
         double kstoich;
         map<string, double> bal, balr, balp;

@@ -93,6 +93,12 @@ namespace Cantera {
     bool installReactionArrays(const XML_Node& parent, Kinetics& kin, 
         string default_phase, bool check_for_duplicates = false);
 
+    /***
+     * This function will check a specific reaction to see if it the
+     * elements balance.
+     */
+    void checkRxnElementBalance(Kinetics& kin, 
+				const ReactionData &rdata);
     /**
      * Extract the rate coefficient for a reaction from the xml node, kf.
      * kf should point to a XML element named "rateCoeff".
