@@ -23,7 +23,7 @@ if pycmd <> 'python':
 ctloc = '-'
 warn = ''
 if localinst:
-    #try:
+    try:
         v = sys.version_info
         ctloc = prefix+'/lib/python'+`v[0]`+'.'+`v[1]`+'/site-packages'
         try:
@@ -43,8 +43,8 @@ if localinst:
             pass
         sys.path.append(ctloc)
         f.write('PYTHONPATH='+ctloc+':$PYTHONPATH\nexport PYTHONPATH\n')
-    #except:
-    #    pass
+    except:
+        pass
 f.close()
 
 f = open(bindir+'/mixmaster.py','w')
