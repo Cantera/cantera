@@ -66,6 +66,7 @@ typedef  int          ftnlen;           // Fortran hidden string length type
 
 // used to find data files 
 #undef CANTERA_ROOT
+#undef CANTERA_DATA
 
 #undef INCL_PURE_FLUIDS
 

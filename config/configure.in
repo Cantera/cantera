@@ -187,6 +187,7 @@ AC_SUBST(buildbin)
 AC_DEFINE_UNQUOTED(DARWIN,$OS_IS_DARWIN)
 AC_DEFINE_UNQUOTED(RXNPATH_FONT,"$RPFONT")
 AC_DEFINE_UNQUOTED(CANTERA_ROOT,"$prefix/cantera")
+AC_DEFINE_UNQUOTED(CANTERA_DATA,"$ct_datadir")
 
 if test -z "$MAKE"; then MAKE='make'; fi
 AC_SUBST(MAKE)
@@ -416,14 +417,18 @@ BUILD_CLIB=1
 #     Python Interface
 #
 BUILD_PYTHON=1
+WIN_PYTHON_CMD=python
 if test -z "$PYTHON_CMD"; then 
     AC_PATH_PROGS(PYTHON_CMD, python2 python, "none")
-fi
-if test "$PYTHON_CMD" != "none"; then
-  if test "x$OS_IS_WIN" = "x1"; then
-    PYTHON_CMD=`cygpath -a -w "$PYTHON_CMD" | sed 's/\\\/\\//g'`
-  fi 
+    if test "x$OS_IS_WIN" = "x1"; then
+      AC_PATH_PROGS(WIN_PYTHON_CMD, pythonw python, "none")
+      WIN_PYTHON_CMD=`cygpath -a -w "$WIN_PYTHON_CMD" | sed 's/\\\/\\//g'`
+      echo "Windows Python command: $WIN_PYTHON_CMD"
+    fi 
 else
+    echo "Python command preset to $PYTHON_CMD"
+fi
+if test "$PYTHON_CMD" = "none"; then
   echo 
   echo "********************************************************************"
   echo "Configuration error. Python is required to build Cantera, but it"
@@ -433,8 +438,11 @@ else
   exit 1
 fi
 AC_SUBST(BUILD_PYTHON)
+if test "x$OS_IS_WIN" = "x1"; then
+AC_DEFINE_UNQUOTED(PYTHON_EXE,"$WIN_PYTHON_CMD")
+else
 AC_DEFINE_UNQUOTED(PYTHON_EXE,"$PYTHON_CMD")
-
+fi
 
 #       
 #     Matlab Interface
@@ -444,6 +452,8 @@ if test "$BUILD_MATLAB_TOOLBOX" != "n"; then
   if test -z "$MATLAB_CMD"; then
     AC_PATH_PROG(MATLAB_CMD, matlab, "none")
     if test "$MATLAB_CMD" != "none"; then BUILD_MATLAB=1; BUILD_CLIB=1; fi
+  else
+    echo "Matlab command preset to $(MATLAB_CMD)$"
   fi
 fi
 if test "x$OS_IS_WIN" = "x1"; then

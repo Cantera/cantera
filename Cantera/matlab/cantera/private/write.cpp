@@ -24,7 +24,7 @@ namespace Cantera {
     }
 
     void error(const std::string& msg) {
-        string err = "error("+msg+");";
+        std::string err = "error("+msg+");";
         mexEvalString(err.c_str());
     }
     
