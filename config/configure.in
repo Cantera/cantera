@@ -6,9 +6,11 @@ AC_CONFIG_HEADER(../config.h)
 AC_CONFIG_AUX_DIR(.)
 
 echo
-echo "**************************************************************"
-echo "   Cantera Configuration Script "
-echo "**************************************************************"
+echo "--------------------------------------------------------------"
+echo 
+echo "           Cantera Configuration Script "
+echo 
+echo "--------------------------------------------------------------"
 echo
 
 AC_DEFINE(NDEBUG)
