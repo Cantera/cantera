@@ -156,7 +156,8 @@ depends:
 export:
 	@INSTALL@ -d $(export_dir)
 	if (test -d $(ct)); then rm -r -f $(ct); fi
-	cd $(export_dir); cvs export  -D 1/01/2010 cantera-export-$(version)
+	cd $(export_dir); cvs export  -D 1/01/2010 cantera
+	cd $(export-dir); mv cantera $(ct)
 	cd $(ct); rm -r -f Cantera/matlab/cantera/@Thermo
 
 pack: export

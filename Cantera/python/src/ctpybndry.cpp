@@ -69,6 +69,28 @@ py_bndry_settemperature(PyObject *self, PyObject *args)
 }
 
 static PyObject*
+py_bndry_spreadrate(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:bndry_spreadrate", &n))
+        return NULL;
+    double v = bndry_spreadrate(n);
+    return Py_BuildValue("d",v);
+}
+
+static PyObject*
+py_bndry_setspreadrate(PyObject *self, PyObject *args)
+{
+    int n;
+    double v;
+    if (!PyArg_ParseTuple(args, "id:bndry_setspreadrate", &n, &v))
+        return NULL;
+    int iok = bndry_setspreadrate(n, v);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
 py_bndry_mdot(PyObject *self, PyObject *args)
 {
     int n;
@@ -124,6 +146,8 @@ static PyMethodDef ct_methods[] = {
     {"bndry_setxin", py_bndry_setxin, METH_VARARGS},
     {"bndry_setxinbyname", py_bndry_setxinbyname, METH_VARARGS},
     {"bndry_settemperature", py_bndry_settemperature, METH_VARARGS},
+    {"bndry_setspreadrate", py_bndry_setspreadrate, METH_VARARGS},
+    {"bndry_spreadrate", py_bndry_spreadrate, METH_VARARGS},
     {"bndry_new", py_bndry_new, METH_VARARGS},
     {"bndry_del", py_bndry_del, METH_VARARGS},
     {"bndry_mdot", py_bndry_mdot, METH_VARARGS},

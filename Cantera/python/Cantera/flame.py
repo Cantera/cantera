@@ -17,6 +17,19 @@ class BurnerFlame:
 
     flame = BurnerFlame(gas, domain, fuel, oxidizer, inert, grid, pressure)
 
+    arguments:
+
+    gas       ---  an object representing the gas mixture
+    domain    ---  [zmin, zmax]
+    fuel      ---  a string specifying the fuel stream composition
+    oxidizer  ---  a string specifying the oxidizer stream composition
+    inert     ---  a string specifying the composition of an inert
+                   stream (optional)
+    grid      ---  a sequence defining the initial grid. The first point
+                   should be zmin, and the last one zmax. If omitted,
+                   a default grid will be used.
+    pressure  --- the pressure, which is treated as constant.
+    
     example:
        flame = BurnerFlame(gas = GRI30(),
                            domain = [0.0, 10.0*units.cm],
@@ -31,6 +44,7 @@ class BurnerFlame:
                  fuel = '', oxidizer = '', inert = '',
                  grid = None, pressure = -1.0):
 
+        # check that all required inputs have been specified
         if not gas or not domain or not fuel or not oxidizer or not pressure:
             raise self.__doc__
         
@@ -38,18 +52,26 @@ class BurnerFlame:
         self.p = pressure
 
         dx = (domain[1] - domain[0])
+
+        # if no grid specified, use this one that concentrates points
+        # near the burner
         if grid == None:
             grid = dx * array([0.0, 0.01, 0.03, 0.1, 0.3, 0.6, 1.0])
-        
+
         self.__flow = Flow1D(flow_type = 'OneDim', gas = gas,
                              grid = grid, pressure = self.p)
 
 
+        #------ these methods are deprecated, but still needed for now.
         self.inlet = Inlet(gas)
         self.outlet = Outlet(gas)
                            
         self.__flow.setBoundaries(left = self.inlet, right = self.outlet)
-        
+        #----------------------------------------------------------------
+
+        # The container contains only the Flow1D object. Should be
+        # modified at some point to contain an Inlet1D and an Outlet1D
+        # object.
         self.__container = OneDim([self.__flow])
         self.start = 0
 
@@ -57,7 +79,6 @@ class BurnerFlame:
         # get the compositions of the fuel and oxidizer streams, and
         # calculate the fuel/oxidizer ratio for stoichiometric
         # combustion
-        
         gas.setMoleFractions(fuel)
         self._xfuel = gas.moleFractions()
 
@@ -73,18 +94,28 @@ class BurnerFlame:
         self._stoich_FO = stoich.stoich_fuel_to_oxidizer(gas, fuel, oxidizer)
 
         
-
+    # TODO: accout for inert stream
     def setEquivRatio(self, phi):
         """Set the equivalence ratio."""
         f_flow = self._stoich_FO * phi
         comp = f_flow * self._xfuel + self._xox
         self.gas.setState_PX(self.p, comp)
         self.inlet.set(X = self.gas.moleFractions())
+
         
     def setEquilProducts(self):
-        """Set the flame state to chemical equilibrium.
+        """Generate a starting estimate for the flame state.
 
-        This is useful to generate a starting estimate.
+        The following procedure is used:
+        
+        1) At the burner, the composition is the specified inlet
+           composition;
+        2) The last 80% of the domain has constant composition and
+           temperature corresponding to the adiabatic equilibrium
+           solution;
+        3) In the initial 20%, the composition and temperature vary linearly
+           from the inlet values to the equilibrium values.
+
         """
         x0 = self.inlet.X
         self.gas.setState_TPX(self.inlet.T, self.p, x0)
@@ -104,30 +135,84 @@ class BurnerFlame:
             xinit[nm] = x
         self.__flow.setInitialProfiles(xinit)
 
+
     def plot(self, plotfile = '', title = '', fmt = 'TECPLOT',
              zone = 'c0', append = 0):
+        """Plot the current solution."""
         self.__flow.plotter.plot(fname = plotfile, title = title,
                           fmt = fmt, zone = zone, append=append)        
+
         
     def setInitialProfiles(self, **init):
+        """Specify estimates for the initial profiles.
+
+        """
         self.__flow.setInitialProfiles(init)
         self.start = 1
         
     def restore(self, src = '', solution = ''):
+        """Start from a previously-saved solution."""
         self.__container.restore(0, src, solution)
         self.start = 1
 
     def setTolerances(self, V = None, T = None, Y = None):
+        """Set tolerances for convergence for velocity, temperature,
+        and mass fractions."""
         self.__flow.setTolerances( V, V, T, Y)
 
+    def prune(self, loglevel = 2):
+        """Remove unneeded grid points.
+
+        This method attempts to remove each grid point one by one, and
+        calls 'refine' each time to see whether it puts it back. If it does,
+        the point is not removed, otherwise it is.
+        """
+        self.__container.prune(loglevel)
+
+    def refine(self, loglevel = 2):
+        """Refine the grid using the current grid refinement parameters."""
+        self.__container.refine(loglevel)        
+
     def show(self):
+        """Print a summary of the current solution to the screen."""
         self.__flow.show()
 
     def stretch(self, factor):
+        """Stretch the grid by 'factor'"""
         self.__flow.setGrid(factor*self.__flow.z)
         
     def set(self, **opt):
+        """Set options.
 
+        The options that may be set are:
+
+        energy   --- 'on' or 'off'. If 'on', the energy equation is
+        solved; otherwise, the temperature is held to the specified
+        profile.
+
+        pressure      --- the pressure in Pa.
+        
+        mdot          --- the inlet mass flow rate per unit area.
+        
+        equiv_ratio   --- the equivalence ratio
+
+        T_burner      --- the burner surface temperature [K].
+
+        refine        --- a triplet specifying the refinement criteria.
+                          See refine.py for more information.
+
+        tol           --- error tolerances for u, V, T, and Y.
+
+        max_jac_age   --- the maximum number of times to use a Jacobian
+                          before recomputing it.
+
+        timesteps     --- number and duration of time steps to take
+                          when Newton iteration fails. The format is
+                          ( number_sequence, initial_stepsize )
+                          
+        These parameters can be changed as the solution proceeds."""
+
+        # TODO: is this necessary? 
         if self.__container == None:
             self.__container = OneDim([self.__flow,])        
         
@@ -153,23 +238,38 @@ class BurnerFlame:
             elif o == 'timesteps':
                 self.__container.setOptions(nsteps = v[0], timestep = v[1])
 
+
     def solve(self, loglevel = 0):
+        """ Solve the flame equations.
+
+        If no starting estimate has been given, setEquilProducts()
+        is called to generate one.
+
+        """
         if not self.start:
             self.setEquilProducts()
             self.start = 1
         solve(self.__container, loglevel = loglevel, refine_grid = 1)
 
-    def esolve(self, loglevel = 0, efactor = 1.0e4):
-        if not self.start:
-            self.setEquilProducts()
-            self.start = 1
-        esolve(self.__container, efactor = efactor, loglevel = loglevel, refine_grid = 1)        
 
+##     def esolve(self, loglevel = 0, efactor = 1.0e4):
+##         if not self.start:
+##             self.setEquilProducts()
+##             self.start = 1
+##         esolve(self.__container, efactor = efactor, loglevel = loglevel, refine_grid = 1) 
+        
 
     def save(self, soln, desc, file = 'flame.xml'):
+        """Save the current solution.
+
+        soln    --- string to identify this solution in the file.
+        desc    --- descriptive text string.
+        file    --- file name.
+        """
         self.__container.save(file, soln, desc)
 
     def showStatistics(self):
+        """Show numerical statistics."""
         self.__container.showStatistics()
     
     
@@ -312,7 +412,13 @@ class StagnationFlame:
 
     def enableEnergy(self, pt):
         self.__flow.setEnergyEqn('on',loglevel=1,pt=pt)
-        
+
+    def prune(self, loglevel = 2):
+        self.__container.prune(loglevel)
+
+    def refine(self, loglevel = 2):
+        self.__container.refine(loglevel)        
+
     def set(self, **opt):
 
         if self.__container == None:
@@ -331,6 +437,8 @@ class StagnationFlame:
                 self.setEquivRatio(v)
             elif o == 'T_burner':
                 self.__left.set(T = v)
+            elif o == 'spreadingRate':
+                self.__left.set(V = v)                
             elif o == 'T_surface':
                 self.__right.set(T = v)                
             elif o == 'refine':

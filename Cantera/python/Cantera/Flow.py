@@ -557,6 +557,44 @@ class Flow1D:
         return nin
 
         
+    def prune(self, loglevel = 2):
+        """Prune the grid.
+
+        """
+        r = self.refiner
+        r.components = range(4,self.nsp+4)
+        if self.energy:
+            r.components.append(2)        
+
+        znew, xn = r.prune(grid = self.z, solution = self.x)
+        nout = len(self.z) - len(znew)
+        
+        if nout > 0:
+            self.setGrid(znew)
+            self.x = array(xn,'d')
+            self.xnew = zeros(shape(xn),'d') 
+
+            # update the fixed temperature values if the energy
+            # equation is not being solved
+
+            if self.energy == 0:
+                for j in range(self.npts):
+                    zz, tt = self.initial['T']
+                    t = interp.interp(self.z[j],zz,tt)
+                    self.holdTemperature(j,t)
+            else:
+                for j in range(self.npts):
+                    self.holdTemperature(j,self.x[j,2])
+                self.setEnergyEqn('on')  
+
+        if loglevel > 0:
+            print 'Prune: ',
+            print 'removed',nout,'points.'
+            print 'Grid size = ',len(self.z)
+
+        return nout
+
+        
     def save(self, filename, id, desc="", append=0):
         """Save a solution to a file.
 

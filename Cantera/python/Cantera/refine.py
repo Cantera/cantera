@@ -108,7 +108,7 @@ class Refiner:
             np = len(g)
 
             self.direction = 1
-            gnew, snew = self.refine(g, sol, threshold)
+            gnew, gn, snew, ok = self.refine(g, sol, threshold)
             if (len(gnew) > np):
                 g = g0
                 sol = s0
@@ -124,7 +124,7 @@ class Refiner:
         return (g, sol)
     
             
-    def refine(self, grid = None, solution = None, threshold = None):
+    def refine(self, grid = None, solution = None, threshold = None, prune = 1):
 
         self.ok = 0
         # grid parameters

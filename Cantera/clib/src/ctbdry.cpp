@@ -66,6 +66,15 @@ extern "C" {
         return 0;
     }
 
+    double DLL_EXPORT bndry_spreadrate(int i) {
+        return ((Inlet1D*)_bndry(i))->spreadRate();
+    }
+
+    int DLL_EXPORT bndry_setSpreadRate(int i, double v) {
+        ((Inlet1D*)_bndry(i))->setSpreadRate(v);
+        return 0;
+    }
+
     int DLL_EXPORT bndry_setmdot(int i, double mdot) {
         try {
             _bndry(i)->setMdot(mdot);

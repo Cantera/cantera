@@ -34,6 +34,9 @@ class Boundary1D:
             self.T = T
             self.x[0,1] = T
             _cantera.bndry_settemperature(self.__bndry_id, T)
+        if V <> -999.0:
+            self.V = V
+            _cantera.bndry_setspreadrate(self.__bndry_id, V)
         if X:
             self.X = X
             if type(X) == types.StringType:

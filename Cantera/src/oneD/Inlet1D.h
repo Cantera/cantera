@@ -83,6 +83,11 @@ namespace Cantera {
             needJacUpdate();
         }
 
+        /// spreading rate
+        virtual double spreadRate() {
+            return m_V0;
+        }
+
         /// Temperature [K].
         doublereal temperature() {return m_temp;}
 

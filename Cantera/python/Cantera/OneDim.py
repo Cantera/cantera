@@ -321,6 +321,28 @@ class OneDim:
                 self._end.append(self._loc)
         return new_points
 
+    def prune(self, loglevel = 2):
+        """Prune the grid of every flow domain."""
+        rem_points = 0
+        for f in self._flow:
+            rem_points += f.prune(loglevel)
+        if rem_points > 0:
+            self.collect()
+            _cantera.onedim_resize(self.__onedim_id)
+            self._shape = []
+            self._size = []
+            self._start = []
+            self._end = []
+            self._loc = 0
+            for d in self._domain:
+                np, nv = d.shape()
+                self._shape.append((np, nv))
+                self._size.append(np*nv)
+                self._start.append(self._loc)
+                self._loc += np*nv
+                self._end.append(self._loc)
+        return rem_points
+
     def setEnergyFactor(self, e):
         for f in self._flow:
             f.setEnergyFactor(e)
