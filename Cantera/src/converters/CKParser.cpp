@@ -6,7 +6,10 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.7  2004-07-02 17:27:01  hkmoffa
+// Revision 1.8  2004-07-02 17:34:13  hkmoffa
+// Eliminated warnings due to signed and unsigned comparisons.
+//
+// Revision 1.7  2004/07/02 17:27:01  hkmoffa
 // static_casts to eliminate VC++ warnings.
 //
 // Revision 1.6  2004/07/02 16:48:13  hkmoffa
@@ -858,7 +861,7 @@ next:
             }
 
             // rxn line
-			string::size_type eqloc;
+	    string::size_type eqloc;
             string sleft, sright;
             bool auxDataLine, metaDataLine;
 
@@ -875,7 +878,7 @@ next:
             // look for a metadata line
             if (s[0] == '%') {
                 metaDataLine = true;
-                if (eqloc > 0 && eqloc < int(s.size())) {
+                if (eqloc > 0 && eqloc < s.size()) {
                     int ierr, ierp;
                     vector<grouplist_t> rg, pg;
                     s[eqloc] = ' ';
@@ -884,7 +887,7 @@ next:
                     ierp = getGroups(s.begin() + eqloc, s.end(), 
                         elementNames, pg);
                     unsigned int nr = 
-						static_cast<unsigned int>(rxn.reactants.size());
+			static_cast<unsigned int>(rxn.reactants.size());
                     unsigned int nratoms = 0;
                     for (unsigned int ij = 0; ij < nr; ij++) 
                         nratoms += int(rxn.reactants[ij].number);
@@ -897,7 +900,8 @@ next:
                     for (unsigned int ir = 0; ir < nr; ir++) {
                         rxn.reactants[ir].groups = rg[ir];
                     }
-                    unsigned int np = static_cast<unsigned int>(rxn.products.size());
+                    unsigned int np = 
+			static_cast<unsigned int>(rxn.products.size());
                     unsigned int npatoms = 0;
                     for (unsigned int ik = 0; ik < np; ik++) 
                         npatoms += int(rxn.products[ik].number);
@@ -913,7 +917,7 @@ next:
                 }   
             }
 
-            else if (eqloc >= 0 && eqloc < int(s.size())) {
+            else if (eqloc >= 0 && eqloc < s.size()) {
                 if (nRxns > 0) {
                     rxn.number = nRxns;
                     reactions.push_back(rxn);
@@ -982,7 +986,8 @@ next:
 
                 else if ((mloc = sleft.find("+M"), mloc >= 0) ||
                     (mloc = sleft.find("+m"), mloc >= 0)) {
-                    if (mloc == static_cast<int>(sleft.size()) - 2) {
+                    if (static_cast<int>(mloc) ==
+			static_cast<int>(sleft.size()) - 2) {
                         rxn.isThreeBodyRxn = true;
                         rxn.type = ThreeBody;
                         sleft = sleft.substr(0, mloc);
@@ -1055,7 +1060,8 @@ next:
 
                 else if ((mloc = sright.find("+M"), mloc >= 0) ||
                     (mloc = sright.find("+m"), mloc >= 0)) {
-                    if (mloc == static_cast<int>(sright.size()) - 2) {
+                    if (static_cast<int>(mloc) == 
+			static_cast<int>(sright.size()) - 2) {
                         if (rxn.type == Falloff) 
                             throw CK_SyntaxError(*m_log, 
                                 "mismatched +M or (+M)", m_line);
