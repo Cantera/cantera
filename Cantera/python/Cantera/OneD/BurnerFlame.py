@@ -54,8 +54,10 @@ class BurnerFlame(Stack):
         Stack.solve(self, loglevel = loglevel, refine_grid = refine_grid)
 
 
-    def setRefineCriteria(self, ratio = 10.0, slope = 0.8, curve = 0.8, prune = 0.0):
-        Stack.setRefineCriteria(self, domain = self.flame, ratio = ratio, slope = slope, curve = curve,
+    def setRefineCriteria(self, ratio = 10.0, slope = 0.8,
+                          curve = 0.8, prune = 0.0):
+        Stack.setRefineCriteria(self, domain = self.flame,
+                                ratio = ratio, slope = slope, curve = curve,
                                 prune = prune)
 
     def setProfile(self, component, locs, vals):
@@ -89,7 +91,7 @@ class BurnerFlame(Stack):
         for n in range(nsp):
             nm = self.gas.speciesName(n)
             y[n] = self.solution(nm, j)
-        self.gas.setState_TPY(self.T(j), self.flame.pressure(), y)
+        self.gas.setState_TPY(self.T(j), self.pressure, y)
         
                 
 

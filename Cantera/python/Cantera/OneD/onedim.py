@@ -22,7 +22,8 @@ class Domain1D:
         return _cantera.domain_type(self._hndl)
     
     def index(self):
-        """Index of this domain in a stack. Returns -1 if this domain is not part of a stack."""
+        """Index of this domain in a stack. Returns -1 if this domain
+        is not part of a stack."""
         return _cantera.domain_index(self._hndl)
     
     def nComponents(self):
@@ -36,6 +37,12 @@ class Domain1D:
     def componentName(self, n):
         """Name of the nth component."""
         return _cantera.domain_componentName(self._hndl, n)
+
+    def componentNames(self):
+        names = []
+        for n in range(self.nComponents()):
+            names.append(self.componentName(n))
+        return names
     
     def componentIndex(self, name):
         """Index of the component with name 'name'"""
@@ -248,6 +255,7 @@ class Surface(Bdry1D):
         Bdry1D.__init__(self)        
         if surface_mech:
             self._hndl = _cantera.reactingsurf_new()
+            self.setKineticsMgr(surface_mech)
         else:
             self._hndl = _cantera.surf_new()
         if id: self.setID(id)
@@ -256,9 +264,12 @@ class Surface(Bdry1D):
     def setKineticsMgr(self, kin):
         _cantera.reactingsurf_setkineticsmgr(self._hndl,
                                              kin.kinetics_hndl())
-    def enableCoverageEqs(self, onoff=1):
-        _cantera.reactingsurf_enableCoverageEqs(self._hndl, onoff)
-
+        
+    def setCoverageEqs(self, onoff='on'):
+        if onoff == 'on':
+            _cantera.reactingsurf_enableCoverageEqs(self._hndl, 1)
+        else:
+            _cantera.reactingsurf_enableCoverageEqs(self._hndl, 0)
 
         
 class AxisymmetricFlow(Domain1D):
@@ -382,6 +393,9 @@ class Stack:
         _cantera.sim1D_setTimeStep(self._hndl, stepsize,
                                    Numeric.asarray(nsteps))
         
+    def getInitialSoln(self):
+        _cantera.sim1D_getInitialSoln(self._hndl)
+            
     def solve(self, loglevel=1, refine_grid=1):
         return _cantera.sim1D_solve(self._hndl, loglevel, refine_grid)
     
@@ -416,7 +430,7 @@ class Stack:
         for n in range(np):
             x[n] = self.value(domain, component, n)
         return x
-    
+
     def workValue(self, dom, icomp, localPoint):
         idom = dom.index()        
         return _cantera.sim1D_workValue(self._hndl, idom, icomp, localPoint)

@@ -237,8 +237,13 @@ class Kinetics:
     def multiplier(self,i):
         return _cantera.kin_multiplier(self.ckin,i)
 
-    def setMultiplier(self,i,v):
-        return _cantera.kin_setMultiplier(self.ckin,i,v)    
+    def setMultiplier(self, value = 0.0, reaction = -1):
+        if reaction < 0:
+            nr = self.nReactions()
+            for i in range(nr):
+                _cantera.kin_setMultiplier(self.ckin,i,value)
+        else:
+            _cantera.kin_setMultiplier(self.ckin,reaction,value)    
     
     def advanceCoverages(self,dt):
         return _cantera.kin_advanceCoverages(self.ckin,dt)    
