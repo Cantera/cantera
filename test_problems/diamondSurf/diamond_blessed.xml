@@ -17,7 +17,7 @@
 
   <!--    phase diamond     -->
   <phase dim="3" id="diamond">
-    <elementArray datasrc="elements.xml">C</elementArray>
+    <elementArray datasrc="elements.xml">H C</elementArray>
     <speciesArray datasrc="#species_data">C(d)</speciesArray>
     <thermo model="SolidCompound">
       <density units="g/cm3">3.52</density>

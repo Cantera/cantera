@@ -20,7 +20,7 @@ ideal_gas(name = 'gas',
 #------------- bulk diamond -------------------------------------
 
 pure_solid(name = 'diamond',
-                     elements = 'C',
+                     elements = 'H C',
                      density = (3.52, 'g/cm3'),
                      species = 'C(d)')
 
