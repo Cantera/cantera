@@ -7,7 +7,7 @@
         int nrhs, const mxArray *prhs[] )
     {
         double vv;
-        int iok, k, m;
+        int iok=0, k, m;
         int ph  = getInt(prhs[1]);
         int job = getInt(prhs[2]);
             
@@ -34,9 +34,9 @@
 
                 switch (mjob) {
                 case 1:
-                    phase_setTemperature(ph,*ptr); break; 
+                    iok = phase_setTemperature(ph,*ptr); break; 
                 case 2:
-                    phase_setDensity(ph,*ptr); break;
+                    iok = phase_setDensity(ph,*ptr); break;
                 default:
                     ok = false;
                 }
@@ -48,18 +48,18 @@
                     int norm = 1;
                     switch (mjob) {
                     case 20:
-                        phase_setMoleFractions(ph, nsp, ptr, norm);
+                        iok = phase_setMoleFractions(ph, nsp, ptr, norm);
                         break;
                     case 21:
-                        phase_setMassFractions(ph, nsp, ptr, norm);
+                        iok = phase_setMassFractions(ph, nsp, ptr, norm);
                         break;
                     case 22:
                         norm = 0;
-                        phase_setMoleFractions(ph, nsp, ptr, norm);
+                        iok = phase_setMoleFractions(ph, nsp, ptr, norm);
                         break;
                     case 23:
                         norm = 0;
-                        phase_setMassFractions(ph, nsp, ptr, norm);
+                        iok = phase_setMassFractions(ph, nsp, ptr, norm);
                         break;
                     default:
                         ok = false;
@@ -88,10 +88,10 @@
 
                     switch (mjob) {
                     case 30:
-                        phase_setMoleFractionsByName(ph, input_buf);
+                        iok = phase_setMoleFractionsByName(ph, input_buf);
                         break;
                     case 31:
-                        phase_setMassFractionsByName(ph, input_buf);
+                        iok = phase_setMassFractionsByName(ph, input_buf);
                         break;
                     default:
                         mexErrMsgTxt("what?");
@@ -139,6 +139,7 @@
                 ok = false;
             }
             if (ok) {
+                if (vv == DERR) reportError();
                 plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
                 double *h = mxGetPr(plhs[0]);
                 *h = vv;
@@ -236,6 +237,7 @@
             }
             else {
                 mexErrMsgTxt("error or unknown method.");
+                reportError();
                 return;
             }
         }
@@ -243,4 +245,5 @@
             mexErrMsgTxt("unimplemented method.");
             return;
         }
+        if (iok < 0) reportError();
     }

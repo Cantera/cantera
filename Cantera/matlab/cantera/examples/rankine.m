@@ -22,7 +22,7 @@ s3 = entropy_mass(w);
 
 heat_added = h3 - h2;
 
-% expand isentropically to the initial pressure
+% expand adiabatically back to the initial pressure
 work = expand(w, p1, eta_turbine);
 h4 = enthalpy_mass(w);
 x4 = vaporFraction(w);
@@ -33,8 +33,9 @@ efficiency = (work - pump_work)/heat_added;
 
 
 function w = pump(fluid, pfinal, eta)
-% Adiabatically pump a fluid to pressure pfinal, using
-% a pump with isentropic efficiency eta."""
+% PUMP - Adiabatically pump a fluid to pressure pfinal, using a pump
+% with isentropic efficiency eta.
+% 
 h0 = enthalpy_mass(fluid);
 s0 = entropy_mass(fluid);
 set(fluid, 'S', s0, 'P', pfinal);
@@ -47,8 +48,9 @@ w = actual_work;
 
 
 function w = expand(fluid, pfinal, eta)
-% Adiabatically expand a fluid to pressure pfinal, using
-% a turbine with isentropic efficiency eta
+% EXPAND - Adiabatically expand a fluid to pressure pfinal, using a
+% turbine with isentropic efficiency eta.
+%
 h0 = enthalpy_mass(fluid);
 s0 = entropy_mass(fluid);
 set(fluid, 'S', s0, 'P', pfinal);

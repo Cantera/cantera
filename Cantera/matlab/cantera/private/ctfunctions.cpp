@@ -9,7 +9,7 @@
 void reportError() {
     int buflen = 0;
     char* output_buf = 0;
-    buflen = getCanteraError(buflen, output_buf);
+    buflen = getCanteraError(buflen, output_buf) + 1;
     output_buf = (char*)mxCalloc(buflen, sizeof(char));
     getCanteraError(buflen, output_buf);
     mexErrMsgTxt(output_buf);

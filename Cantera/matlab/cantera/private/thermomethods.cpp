@@ -138,6 +138,7 @@ static void thermoget( int nlhs, mxArray *plhs[],
                 ok = false;
             }
             if (ok) {
+                if (vv == DERR) reportError();
                 plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
                 double *h = mxGetPr(plhs[0]);
                 *h = vv;
