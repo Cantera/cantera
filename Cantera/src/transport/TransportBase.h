@@ -153,6 +153,9 @@ namespace Cantera {
             const doublereal* state2, doublereal delta, 
             doublereal* fluxes) { err("getMolarFluxes"); }
 
+        virtual void getMassFluxes(const doublereal* state1,
+            const doublereal* state2, doublereal delta, 
+            doublereal* fluxes) { err("getMassFluxes"); }
 
         /**
          * Thermal diffusion coefficients [kg/m/sec].
