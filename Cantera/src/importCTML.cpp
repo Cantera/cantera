@@ -580,7 +580,15 @@ namespace Cantera {
 
 
     /**
-     * Create a new ThermoPhase object.
+     * Create a new ThermoPhase object and initializes it according
+     * to the XML tree database. 
+     * This routine first looks up the identity of the model for the
+     * solution thermodynamics in the model attribute of the thermo
+     * child of the xml phase node. Then, it does a string lookup on
+     * the model to figure out what ThermoPhase derived class is
+     * assigned. It mallocs a new instance of that class, and then
+     * calls importPhase() to populate that class with the correct
+     * parameters from the XML tree.
      */
     ThermoPhase* newPhase(XML_Node& xmlphase) {
         XML_Node& th = xmlphase.child("thermo");
