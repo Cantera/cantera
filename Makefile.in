@@ -116,7 +116,7 @@ finish-install:
 	@INSTALL@ -d @prefix@/cantera/demos/c++
 	@INSTALL@ examples/cxx/*.cpp @prefix@/cantera/demos/c++
 	@INSTALL@ examples/cxx/*.h @prefix@/cantera/demos/c++
-	@INSTALL@ examples/cxx/@MAKE@file @prefix@/cantera/demos/c++
+	@INSTALL@ examples/cxx/Makefile @prefix@/cantera/demos/c++
 	chown -R @username@ @prefix@/cantera/demos/c++
 	@INSTALL@ -d @prefix@/cantera/demos/f77
 	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
