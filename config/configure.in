@@ -412,7 +412,8 @@ AC_OUTPUT(../Cantera/Makefile \
           ../data/inputs/Makefile  \
           ../test_problems/Makefile \
           ../test_problems/cxx_ex/Makefile \
-          ../test_problems/silane_equil/Makefile) 
+          ../test_problems/silane_equil/Makefile \
+          ../test_problems/surfkin/Makefile) 
 #	)
 
 echo
