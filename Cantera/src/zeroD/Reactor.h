@@ -118,6 +118,7 @@ namespace Cantera {
 
         void setKineticsMgr(Kinetics& kin) {
             m_kin = &kin;
+            if (m_kin->nReactions() == 0) disableChemistry();
         }
 
         /**

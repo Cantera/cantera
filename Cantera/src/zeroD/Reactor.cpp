@@ -244,8 +244,12 @@ namespace Cantera {
         const doublereal* mw = m_mix->molecularWeights().begin();
 
         int n;
-
-        m_kin->getNetProductionRates(ydot+2);   // "omega dot"
+        if (m_chem) {
+            m_kin->getNetProductionRates(ydot+2);   // "omega dot"
+        }
+        else {
+            fill(ydot + 2, ydot + 2 + m_nsp, 0.0);
+        }
         for (n = 0; n < m_nsp; n++) {
             ydot[n+2] *= m_vol;     //           moles/s/m^3 -> moles/s
             ydot[n+2] += m_sdot[n]; 

@@ -300,20 +300,38 @@ class Valve(FlowDevice):
 
 #------------- Wall ---------------------------
 
+_wallcount = 0
+
 class Wall:
     """
     A Wall separates two reactors. Any number of walls may be created
     between any pair of reactors.
     """
-    def __init__(self, left=None, right=None, area=1.0):
+    def __init__(self, left=None, right=None, name = '',
+                 A = 1.0, K = 0.0, U = 0.0,
+                 Q = None, Vdot = None,
+                 kinetics = [None, None]):
         typ = 0
         self.__wall_id = _cantera.wall_new(typ)
+
+        global _wallcount
+        if name == '':
+            _nm = 'Wall_'+`_wallcount`
+        else:
+            _nm = name
+        _wallcount += 1
+        
         if left and right:
             self.install(left, right)
-        self.setArea(area)
-        self.setExpansionRateCoeff(0.0)
-        self.setExpansionRate()        
-        self.setHeatFlux()
+        elif left or right:
+            raise CanteraError('both left and right reactors must be specified.')
+        self.setArea(A)
+        self.setExpansionRateCoeff(K)
+        self.setExpansionRate(Vdot)        
+        self.setHeatTransferCoeff(U)
+        self.setHeatFlux(Q)
+
+        self.setKinetics(kinetics[0],kinetics[1])
 
     def __del__(self):
         """
@@ -370,10 +388,8 @@ class Wall:
         _cantera.wall_setExpansionRate(self.__wall_id, n)
             
     def install(self, left, right):
-        #self.left = left
-        #self.right = right
-        left._addWall(this)
-        right._addWall(this)
+        left._addWall(self)
+        right._addWall(self)
         _cantera.wall_install(self.__wall_id, left.reactor_id(),
                                right.reactor_id())
 
@@ -405,17 +421,70 @@ class Wall:
                 raise 'unknown parameter: ',item
                 
 
+class ReactorNet:
+    
+    """Networks of reactors. ReactorNet objects are used to
+    simultaneously advance the state of a set of coupled reactors.
+
+    Example:
+
+    r1 = Reactor(gas1)
+    r2 = Reactor(gas2)
+    <... install walls, inlets, outlets, etc...>
+
+    reactor_network = ReactorNet([r1, r2])
+    reactor_network.advance(time)
+    
+    """
 
 
+    def __init__(self, reactorlist = None):
+        """
+        Create a new ReactorNet instance. If a list of reactors is supplied,
+        these will be added to the network.
+        """
+        self._reactors = []
+        self.__reactornet_id = _cantera.reactornet_new()
+        if reactorlist:
+            for r in reactorlist:
+                self.add(r)
+
+
+    def __del__(self):
+        """Delete the reactor network instance. The reactors in the
+        network are not deleted."""
+        _cantera.reactornet_del(self.__reactornet_id)
+
+
+    def reactornet_id(self):
+        """ The integer index used to access the
+        kernel reactornet object. For internal use.  """
+        return self.__reactornet_id
+
+    
+    def add(self, reactor):
+        """
+        Add a reactor to the network.
+        """
+        self._reactors.append(reactor)
+        _cantera.reactornet_addreactor(self.__reactornet_id, reactor.reactor_id())
 
         
+    def setInitialTime(self, t0):
+        """Set the initial time. Restarts integration from this time
+        using the current state as the initial condition. Default: 0.0 s"""
+        _cantera.reactornet_setInitialTime(self.__reactornet_id, t0)
 
-    
-    
-    
-        
+    def advance(self, time):
+        """Advance the state of the reactor network in time from the current
+        time to time 'time'."""
+        return _cantera.reactornet_advance(self.__reactornet_id, time)
 
+    def step(self, time):
+        """Take a single internal time step toward time 'time'.
+        The time after taking the step is returned."""
+        return _cantera.reactornet_step(self.__reactornet_id, time)    
+
+    def reactors(self):
+        return self._reactors
     
-    
-    
-        

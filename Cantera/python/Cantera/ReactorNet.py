@@ -35,14 +35,14 @@ class ReactorNet:
 
 
     def __del__(self):
-        """Delete the reactor network instance."""
+        """Delete the reactor network instance. The reactors in the
+        network are not deleted."""
         _cantera.reactornet_del(self.__reactornet_id)
 
 
     def reactornet_id(self):
-        """
-        The integer index used to access the kernel reactornet object. For internal use.
-        """
+        """ The integer index used to access the
+        kernel reactornet object. For internal use.  """
         return self.__reactornet_id
 
     
@@ -68,3 +68,7 @@ class ReactorNet:
         """Take a single internal time step toward time 'time'.
         The time after taking the step is returned."""
         return _cantera.reactornet_step(self.__reactornet_id, time)    
+
+    def reactors(self):
+        return self._reactors
+    
