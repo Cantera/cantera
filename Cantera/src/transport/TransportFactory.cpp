@@ -19,6 +19,8 @@
 #include "MixTransport.h"
 #include "SolidTransport.h"
 #include "DustyGasTransport.h"
+#include "FtnTransport.h"
+
 #include "TransportFactory.h"
 
 #include "polyfit.h"
@@ -29,8 +31,6 @@
 #include "global.h"
 #include "IdealGasPhase.h"
 #include "ctml.h"
-
-#include <iostream>
 
 
 /**
@@ -82,7 +82,7 @@ namespace Cantera {
      * first-order binary diffusion coefficient should be multiplied
      * to produce the value correct to second order. The expressions
      * here are taken from Marerro and Mason,
-     * J. Phys. Chem. Ref. Data, vol. 1, p. 3 (1972). 
+     * J. Phys. Chem. Ref. Data, vol. 1, p. 3 (1972).
      *
      * @param t   Temperature (K)
      * @param tr  Transport parameters
@@ -92,6 +92,8 @@ namespace Cantera {
      * @param xmj mole fraction of species j
      * @param fkj multiplier for d(k,j)
      * @param fjk multiplier for d(j,k) 
+     *
+     * @note This method is not used currently.
      */
     void TransportFactory::getBinDiffCorrection(doublereal t, 
         const TransportParams& tr, int k, int j, doublereal xk, doublereal xj, 
@@ -168,6 +170,7 @@ namespace Cantera {
     void TransportFactory::makePolarCorrections(int i, int j, 
         const TransportParams& tr, doublereal& f_eps, doublereal& f_sigma) {
 
+        // no correction if both are nonpolar, or both are polar
         if (tr.polar[i] == tr.polar[j]) {
             f_eps = 1.0; f_sigma = 1.0; return;
         }
@@ -182,8 +185,7 @@ namespace Cantera {
         d3np = pow(tr.sigma[knp],3);
         d3p  = pow(tr.sigma[kp],3);
         alpha_star = tr.alpha[knp]/d3np;
-        mu_p_star  = tr.dipole(kp,kp)/sqrt(d3p 
-            * tr.eps[kp]);
+        mu_p_star  = tr.dipole(kp,kp)/sqrt(d3p * tr.eps[kp]);
         xi = 1.0 + 0.25 * alpha_star * mu_p_star * mu_p_star * 
              sqrt(tr.eps[kp]/tr.eps[knp]);
         f_sigma = pow(xi, -1.0/6.0);
@@ -191,7 +193,6 @@ namespace Cantera {
     }
 
 
-    // Constructor does nothing
     TransportFactory::TransportFactory() : m_integrals(0) {
         m_models["Mix"] = cMixtureAveraged;
         m_models["Multi"] = cMulticomponent;
@@ -199,6 +200,7 @@ namespace Cantera {
         m_models["DustyGas"] = cDustyGasTransport;
         m_models["CK_Multi"] = CK_Multicomponent;
         m_models["CK_Mix"] = CK_MixtureAveraged;
+        m_models["User"] = cUserTransport;
         m_models["None"] = 0;
     }
 
@@ -206,22 +208,21 @@ namespace Cantera {
      /**
       * Destructor 
       *
-      * We do not delete statically
-      * created single instance of this class here, because it would
-      * create an infinite loop if destructor is called for that
-      * single instance. 
-      *   However, we do have a malloced pointer to m_integrals
-      * that does need to be explicitly deleted.
+      * We do not delete statically created single instance of this
+      * class here, because it would create an infinite loop if
+      * destructor is called for that single instance.  However, we do
+      * have a pointer to m_integrals that does need to be
+      * explicitly deleted.
       */
     TransportFactory::~TransportFactory() {
 	if (m_integrals) {
-	  delete m_integrals;
-	  m_integrals = 0;
+            delete m_integrals;
+            m_integrals = 0;
 	}
     }
 	
      /**
-      * This static function deletes the statically malloced instance.
+      * This static function deletes the statically allocated instance.
       */
     void TransportFactory::deleteTransportFactory() {
 	if (__factory) {
@@ -281,35 +282,6 @@ namespace Cantera {
         return tr;
     }
 
-//     Transport* TransportFactory::
-//     newPowerTransport(const string& transport_database, 
-//         Transport::phase_t* mix) {
-//         doublereal tref, viscref, lambdaref, viscexp, lambdaexp,
-//             diffexp;
-//         ifstream f(transport_database.c_str());
-//         if (!f) {
-//             throw TransportDBError("newPowerTransport: file" + 
-//                 transport_database + " not found.");
-//         }
-//         f >> tref 
-//           >> viscref >> viscexp
-//           >> lambdaref >> lambdaexp
-//           >> diffexp;
-//         int nsp = mix->nSpecies();
-//         int k;
-//         vector_fp dref(nsp);
-//         for (k = 0; k < nsp; k++) {
-//             f >> dref[k];
-//         }
-//         PowerTransport* t = new PowerTransport();
-//         t->init(mix);
-//         t->setExponents(viscexp, lambdaexp, diffexp);
-//         t->setRefValues(tref, viscref, lambdaref, nsp,  dref.begin());
-//         f.close();
-//         return t;
-//     }
-
-
 
     /** 
      * Prepare to build a new kinetic-theory-based transport manager
@@ -321,7 +293,6 @@ namespace Cantera {
         thermo_t* thermo, int mode, int log_level, TransportParams& tr) {
         
         // constant mixture attributes
-        //tr.mix = thermo;
         tr.thermo = thermo;
         tr.nsp = tr.thermo->nSpecies();
         int nsp = tr.nsp;
@@ -348,14 +319,7 @@ namespace Cantera {
         tr.sigma.resize(nsp);
         tr.eps.resize(nsp);
 
-
-        //readTransportDatabase(flog, transport_database, 
-        //     tr.thermo->speciesNames(), tr);
-
         XML_Node root, log;
-        //string infile = findInputFile(transport_database);
-        //ifstream fin(infile.c_str());
-        //root.build(fin);
         getTransportData(transport_database, log,  
             tr.thermo->speciesNames(), tr);
 
@@ -413,10 +377,13 @@ namespace Cantera {
 
         // Chemkin fits the entire T* range in the Monchick and Mason tables,
         // so modify tstar_min and tstar_max if in Chemkin compatibility mode
-        //if (mode == CK_Mode) {
+
+        // NOTE: the 'if' was commented out DGG 11/12/03
+        if (mode == CK_Mode) {  // uncommented
             tstar_min = 0.101; 
             tstar_max = 99.9;
-            //}
+        }                       // uncommented
+
 
         // initialize the collision integral calculator for the desired
         // T* range
@@ -540,152 +507,7 @@ namespace Cantera {
      *
      *********************************************************/
 
- 
-    /** 
-     * Read transport property data from a file for a list of species.
-     * Given the name of a file containing transport property
-     * parameters and a list of species names, this method returns an
-     * instance of TransportParams containing the transport data for
-     * these species read from the file.
-     */
-//     void TransportFactory::readTransportDatabase( 
-//         ostream& logfile, 
-//         const string& database_file,
-//         const vector<string>& names, 
-//         TransportParams& tr)
-//     {
-
-//         string dbase_file = findInputFile(database_file);
-//         ifstream dbase(dbase_file.c_str());        
-
-//         if (!dbase) throw CanteraError("readTransportDatabase",
-//             "cannot open file " + database_file);
-
-//         string name, rest;
-//         int geom, linenum = 0;
-//         map<string, TransportData> datatable;
-//         doublereal welldepth, diam, dipole, polar, rot;
-
-
-        
-//         // read all entries in database into 'datatable' and check for 
-//         // errors. Note that this procedure validates all entries, not 
-//         // only those for the species listed in 'names'.
-
-//         while (!dbase.eof()) {
-//             dbase >> name;
-//             linenum++;
-//             if (name[0] != '!' && !dbase.eof()) {
-//                 dbase >> geom >> welldepth >> diam 
-//                       >> dipole >> polar >> rot;
-
-//                 // get the rest of the line, in case there are comments
-//                 getline(dbase, rest);
-
-//                 TransportData data;
-//                 data.speciesName = name;
-//                 data.geometry = geom;
-//                 data.wellDepth = welldepth;
-//                 data.diameter = diam;
-//                 data.dipoleMoment = dipole;
-//                 data.polarizability = polar;
-//                 data.rotRelaxNumber = rot;
-
-//                 datatable[name] = data;
-
-//                 if (welldepth >= 0.0) data.wellDepth = welldepth;
-//                 else throw TransportDBError(linenum,
-//                     "negative well depth");
-
-//                 if (diam > 0.0) data.diameter = diam;
-//                 else throw TransportDBError(linenum,
-//                     "negative or zero diameter");
-
-//                 if (dipole >= 0.0) data.dipoleMoment = dipole;
-//                 else throw TransportDBError(linenum,
-//                     "negative dipole moment");
-
-//                 if (polar >= 0.0) data.polarizability = polar;
-//                 else throw TransportDBError(linenum,
-//                     "negative polarizability");
-
-//                 if (rot >= 0.0) data.rotRelaxNumber = rot;
-//                 else throw TransportDBError(linenum,
-//                     "negative rotation relaxation number");
-
-//                 datatable[name] = data;
-//             }
-//         }
-//         dbase.close();
-
-//         // look up the entries for the species listed in 'names'.
-//         tr.xml->XML_open(logfile,"database_parameters");
-//         tr.xml->XML_item(logfile,"file_name",database_file);
-//         for (int i = 0; i < tr.nsp; i++) {
-
-//             TransportData& trdat = datatable[names[i]];
-            
-//             // 'datatable' returns a default TransportData object if
-//             // the species name is not one in the transport database.
-//             // This can be detected by examining 'geometry'.
-//             if (trdat.geometry < 0) {
-//                 throw TransportDBError(0,"no transport data found for species " 
-//                     + names[i]);
-//             }
-
-//             // parameters are converted to SI units before storing            
-
-//             // rotational heat capacity / R
-//             switch (trdat.geometry) {
-//             case 0:
-//                 tr.crot[i] = 0.0;     // monatomic
-//                 break;
-//             case 1:
-//                 tr.crot[i] = 1.0;     // linear
-//                 break;
-//             default:
-//                 tr.crot[i] = 1.5;     // nonlinear
-//             }
-
-
-//             tr.dipole(i,i) = 1.e-25 * SqrtTen * trdat.dipoleMoment;
-
-//             if (trdat.dipoleMoment > 0.0) 
-//                 tr.polar[i] = true;
-//             else
-//                 tr.polar[i] = false;
-
-//             // A^3 -> m^3
-//             tr.alpha[i] = 1.e-30 * trdat.polarizability;
-
-//             tr.sigma[i] = 1.e-10 * trdat.diameter;
-
-//             tr.eps[i] = Boltzmann * trdat.wellDepth;
-//             tr.zrot[i]  = fmaxx(1.0, trdat.rotRelaxNumber);
-
-//             // write database parameters to log file
-//             tr.xml->XML_open(logfile, names[i]);
-//             tr.xml->XML_item(logfile, "geom", trdat.geometry);
-//             tr.xml->XML_item(logfile, "epsilon", trdat.wellDepth);
-//             tr.xml->XML_item(logfile, "sigma", trdat.diameter);
-//             tr.xml->XML_item(logfile, "dipole", trdat.dipoleMoment);
-//             tr.xml->XML_item(logfile, "alpha", trdat.polarizability);
-//             tr.xml->XML_item(logfile, "zrot", trdat.rotRelaxNumber);
-//             tr.xml->XML_close(logfile, names[i]);
-//         }
-//         tr.xml->XML_close(logfile,"database_parameters");
-    //    }
-
-
-
-    /*********************************************************
-     *
-     *                Read Transport Database
-     *
-     *********************************************************/
-
- 
-    /** 
+     /** 
      * Read transport property data from a file for a list of species.
      * Given the name of a file containing transport property
      * parameters and a list of species names, this method returns an
@@ -730,14 +552,7 @@ namespace Cantera {
             polar = getFloat(tr, "polarizability");
             rot = getFloat(tr, "rotRelax");
 
-            //getFloats(tr, fv, false);
-            //welldepth = fv["LJ_welldepth"];
-            //diam = fv["LJ_diameter"];
-            //dipole = fv["dipoleMoment"];
-            //polar = fv["polarizability"];
-            //rot = fv["rotRelax"];
-
-            GasTransportData data;
+             GasTransportData data;
             data.speciesName = name;
             data.geometry = geom;
             if (welldepth >= 0.0) data.wellDepth = welldepth;
@@ -763,11 +578,7 @@ namespace Cantera {
             datatable[name] = data;
         }
 
-        // look up the entries for the species listed in 'names'.
-        //tr.xml->XML_open(logfile,"database_parameters");
-        //tr.xml->XML_item(logfile,"file_name",database_file);
-
-        for (i = 0; i < tr.nsp; i++) {
+         for (i = 0; i < tr.nsp; i++) {
 
             GasTransportData& trdat = datatable[names[i]];
             
@@ -809,18 +620,8 @@ namespace Cantera {
             tr.eps[i] = Boltzmann * trdat.wellDepth;
             tr.zrot[i]  = fmaxx(1.0, trdat.rotRelaxNumber);
 
-            // write database parameters to log file
-            //tr.xml->XML_open(logfile, names[i]);
-            //tr.xml->XML_item(logfile, "geom", trdat.geometry);
-            //tr.xml->XML_item(logfile, "epsilon", trdat.wellDepth);
-            //tr.xml->XML_item(logfile, "sigma", trdat.diameter);
-            //tr.xml->XML_item(logfile, "dipole", trdat.dipoleMoment);
-            //tr.xml->XML_item(logfile, "alpha", trdat.polarizability);
-            //tr.xml->XML_item(logfile, "zrot", trdat.rotRelaxNumber);
-            //tr.xml->XML_close(logfile, names[i]);
-        }
-        //tr.xml->XML_close(logfile,"database_parameters");
-    }
+         }
+     }
 
 
     /*********************************************************
@@ -902,7 +703,6 @@ namespace Cantera {
             tr.xml->XML_comment(logfile,s);
         }
 
-        //        const vector_fp& cp_R = tr.mix->cp_R();
 
         doublereal cp_R, cond, w_RT, f_int, A_factor, B_factor,
             c1, cv_rot, cv_int, f_rot, f_trans, om11;
@@ -1072,13 +872,15 @@ namespace Cantera {
                                 pow((Boltzmann * t), 1.5)/ 
                                 (Pi * sigma * sigma * om11);
 
+
                     // 2nd order correction
+                    // NOTE: THIS CORRECTION IS NOT APPLIED
                     doublereal fkj, fjk;
                     getBinDiffCorrection(t, tr, k, j, 1.0, 1.0, fkj, fjk);
                     //diffcoeff *= fkj;
 
-                    if (mode == CK_Mode) {
 
+                    if (mode == CK_Mode) {
                         diff[n] = log(diffcoeff);
                         w[n] = -1.0;
                     }

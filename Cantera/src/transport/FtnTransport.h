@@ -7,14 +7,13 @@
  *  managers in Fortran.
  */
 
-// Copyright 2001  California Institute of Technology
+// Copyright 2003  California Institute of Technology
 
 
 #ifndef CT_FTNTRANSPORT_H
 #define CT_FTNTRANSPORT_H
 
-#include "ct_defs.h"
-#include "DenseMatrix.h"
+#include "TransportBase.h"
 
 
 /**
@@ -31,116 +30,104 @@
 #define __VISC__           visc_
 #define __BULKVISC__       bvisc_
 #define __TCON__           tcon_
-#define __SPVISC__         spvisc_
-#define __SPCOND__         spcond_
-#define __SPFLUXES__       spfluxes_
 #define __TDIFF__          tdiff_
 #define __MULTIDIFF__      multidiff_
 #define __MIXDIFF__        mixdiff_
-#define __UPT__            updatet_
-#define __UPC__            updatec_
-#define __INIT__           init_
+#define __SIGMA__          sigma_
+#define __GETMOBILITIES__  getmobilities_
+
 
 extern "C" {
     doublereal __VISC__(doublereal* t, doublereal* p, doublereal* x);
     doublereal __BULKVISC__(doublereal* t, doublereal* p, doublereal* x);
     doublereal __TCON__(doublereal* t, doublereal* p, doublereal* x);
 
-    void __SPVISC__(doublereal* t, doublereal* p, doublereal* x, doublereal* visc);
-    void __SPCOND__(doublereal* t, doublereal* p, doublereal* x, doublereal* cond);
-    void __SPFLUXES__(doublereal* t, doublereal* p, doublereal* x,
-        integer* ndim, doublereal* gradt, integer* ldx, doublereal* gradx,
-        integer* ldf, doublereal* fluxes);
     void __TDIFF__(doublereal* t, doublereal* p, doublereal* x, doublereal* dt);
     void __MULTIDIFF__(doublereal* t, doublereal* p, doublereal* x, 
         integer* ld, doublereal* d);
     void __MIXDIFF__(doublereal* t, doublereal* p, doublereal* x, doublereal* d);
-    void __BINDIFF__(doublereal* t, doublereal* p, doublereal* x, doublereal* d);
-    void __UPT__(doublereal* t);
-    void __UPC__(doublereal* p, doublereal* x);
-    void __INIT__();
+    void __BINDIFF__(doublereal* t, doublereal* p, doublereal* x, integer* ld, doublereal* d);
+    doublereal __SIGMA__(doublereal* t, doublereal* p, doublereal* x);
+    
+    doublereal __GETMOBILITIES__(doublereal* t, doublereal* p,
+        doublereal* x, doublereal* mobil);    
+    
 }
 
 namespace Cantera {
 
     /**
      * A class that calls external Fortran functions to evaluate 
-     * transport properties. Not currently used - may need updating.
+     * transport properties.
      */
     class FtnTransport : public Transport {
 
     public:
 
-        FtnTransport(int model) { m_model = model; }
+        FtnTransport(int model, thermo_t* thermo) : Transport(thermo) {
+            m_model = model;
+            m_x.resize(m_thermo->nSpecies(), 0.0);
+            updateTPX();
+        }
 
-        virtual int model() { return m_model; }
+        virtual int model() { return cFtnTransport + m_model; }
 
         virtual doublereal viscosity() { 
+            updateTPX();
             return __VISC__(&m_temp, &m_pres, m_x.begin()); 
         }
 
-        virtual void getSpeciesViscosities(doublereal* visc) { 
-            __SPVISC__(&m_temp, &m_pres, m_x.begin(), visc); 
-        } 
-
-        virtual void getSpeciesConductivities(doublereal* cond) { 
-            __SPCOND__(&m_temp, &m_pres, m_x.begin(), cond); 
-        } 
-
-        virtual doublereal bulkViscosity()  
-            { return __BULKVISC__(&m_temp, &m_pres, m_x.begin()); }
-
-        virtual doublereal thermalConductivity()
-            { return __TCON__(&m_temp, &m_pres, m_x.begin()); }
-
-        virtual void getSpeciesFluxes(doublereal p, int ndim, 
-        doublereal* grad_T, int ldx, doublereal* grad_X,
-            int ldf, doublereal* fluxes) {
-            doublereal pp = p;
-            integer ldxx = ldx, ndimm = ndim, ldff = ldf;
-            __SPFLUXES__(&m_temp, &pp, &m_x, &ndimm, grad_T, &ldxx, grad_X,
-                &ldff, fluxes);
+        virtual doublereal bulkViscosity() {
+            updateTPX();
+            return __BULKVISC__(&m_temp, &m_pres, m_x.begin());
         }
 
-        virtual void getThermalDiffCoeffs(doublereal* dt) 
-            { __TDIFF__(&m_temp, &m_pres, m_x.begin(), dt); }
+        virtual doublereal thermalConductivity() {
+            updateTPX();
+            return __TCON__(&m_temp, &m_pres, m_x.begin());
+        }
+        
+        virtual doublereal electricalConductivity() {
+            updateTPX();
+            return __SIGMA__(&m_temp, &m_pres, m_x.begin());
+        }
+        
+        virtual void getMobilities(doublereal* mobil) {
+            updateTPX();
+            __GETMOBILITIES__(&m_temp, &m_pres, m_x.begin(), mobil);
+        }
+        
 
-        virtual void getBinaryDiffCoeffs(doublereal p, int ld, doublereal* d) 
-            { m_pres = p;
-              integer ldd = ld;
-              __BINDIFF__(&m_temp, &m_pres, m_x.begin(), &ldd, d);
-            }
-
-        virtual void getMultiDiffCoeffs(doublereal p, int ld, doublereal* d)
-            { m_pres = p;
-              integer ldd = ld;
-              __MULTIDIFF__(&m_temp, &m_pres, m_x.begin(), &ldd, d);
-            }
-
-        virtual void getMixDiffCoeffs(doublereal p, doublereal* d) 
-            { m_pres = p;
-              integer ldd = ld;
-              __MIXDIFF__(&m_temp, &m_pres, m_x.begin(), d);
-            }            
-
-        virtual void update_T() 
-            { m_temp = m_mix->temperature();
-              __UPT__(m_temp);
-            }
-
-        virtual void update_C()
-            { m_mix->getMoleFractions(m_x.begin());
-              m_pres = m_mix->pressure();
-              __UPC__(m_pres, m_x);
-            }
-
-        virtual bool init(TransportParams& tr) { 
-            m_mix = tr.mix;
-            __INIT__();
+        virtual void getThermalDiffCoeffs(doublereal* dt) {
+            updateTPX();
+            __TDIFF__(&m_temp, &m_pres, m_x.begin(), dt);
         }
 
+        virtual void getBinaryDiffCoeffs(int ld, doublereal* d) {
+            updateTPX();
+            integer ldd = ld;
+            __BINDIFF__(&m_temp, &m_pres, m_x.begin(), &ldd, d);
+        }
+
+        virtual void getMultiDiffCoeffs(int ld, doublereal* d) {
+            updateTPX();
+            integer ldd = ld;
+            __MULTIDIFF__(&m_temp, &m_pres, m_x.begin(), &ldd, d);
+        }
+
+        virtual void getMixDiffCoeffs(doublereal* d) {
+            updateTPX();
+            __MIXDIFF__(&m_temp, &m_pres, m_x.begin(), d);
+        }            
+        
+        
     private:
-
+        
+        void updateTPX() {
+            m_temp = m_thermo->temperature();
+            m_pres = m_thermo->pressure();
+            m_thermo->getMoleFractions(m_x.begin());
+        }
         doublereal m_temp;
         doublereal m_pres;
         vector_fp  m_x;

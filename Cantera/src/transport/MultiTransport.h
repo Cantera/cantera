@@ -24,15 +24,6 @@
 #endif
 
 
-// STL includes
-#include <vector>
-#include <string>
-#include <map>
-#include <numeric>
-#include <algorithm>
-
-using namespace std;
-
 // Cantera includes
 #include "TransportBase.h"
 #include "../DenseMatrix.h"

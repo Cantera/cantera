@@ -49,6 +49,8 @@ namespace Cantera {
     const int CK_MixtureAveraged  = 211;
     const int cSolidTransport = 300;
     const int cDustyGasTransport = 400;
+    const int cUserTransport = 500;
+    const int cFtnTransport = 600;
 
     class XML_Writer;
 
