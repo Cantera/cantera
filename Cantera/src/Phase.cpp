@@ -72,7 +72,7 @@ namespace Cantera {
         void Phase::setMassFractionsByName(compositionMap& yMap) {
             int kk = nSpecies();
             doublereal y;
-            vector_fp mf(kk);
+            vector_fp mf(kk, 0.0);
             for (int k = 0; k < kk; k++) { 
                 y = yMap[speciesName(k)];
                 if (y > 0.0) mf[k] = y;
