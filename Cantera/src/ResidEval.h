@@ -74,7 +74,7 @@ namespace Cantera {
          */
         virtual void applyFilter(const double time, const double deltaT,
                                  const double *ydot, const double *y,
-                                 double *ydot) = 0;
+                                 double *delta_y) = 0;
 
         /**
          *      Write out to a file or to standard output the current solution
