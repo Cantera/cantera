@@ -73,6 +73,10 @@ namespace Cantera {
         virtual SpeciesThermo* newSpeciesThermo(vector<XML_Node*> nodes);
         virtual SpeciesThermo* newSpeciesThermoOpt(vector<XML_Node*> nodes);
 
+
+        virtual void installThermoForSpecies(int k, const XML_Node& s, 
+            SpeciesThermo& spthermo);
+
     private:
         static SpeciesThermoFactory* __factory;
         SpeciesThermoFactory(){}

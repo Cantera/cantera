@@ -102,6 +102,8 @@ namespace Cantera {
 			      doublereal weight = -12345.0);
         void addUniqueElement(const XML_Node& e);
 
+        void addElementsFromXML(const XML_Node& phase);
+
         /**
          * Prohibit addition of more elements, and prepare to add
          * species.

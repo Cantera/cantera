@@ -129,7 +129,7 @@ namespace Cantera {
         int nChildren() const { return m_nchildren; }
 
         void build(istream& f);
-
+        void require(string a, string v) const;
 	/**
 	 * This routine carries out a search for an XML node based
 	 * on both the xml element name and the attribute ID.

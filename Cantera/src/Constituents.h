@@ -8,7 +8,10 @@
  *  $Revision$
  *
  *  $Log$
- *  Revision 1.5  2003-11-12 18:58:17  dggoodwin
+ *  Revision 1.6  2004-06-09 00:59:24  dggoodwin
+ *  moved functions to read XML input files out of importCTML.cpp and into specific classes
+ *
+ *  Revision 1.5  2003/11/12 18:58:17  dggoodwin
  *  *** empty log message ***
  *
  *  Revision 1.4  2003/09/03 18:15:50  hkmoffa
@@ -134,6 +137,7 @@ namespace Cantera {
 
       void addUniqueElement(const XML_Node& e);
 
+      void addElementsFromXML(const XML_Node& phase);
    
       /// Prohibit addition of more elements, and prepare to add
       /// species.

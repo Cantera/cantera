@@ -216,6 +216,10 @@ namespace Cantera {
       m_Elements->addUniqueElement(e);
     }
 
+    void Constituents::addElementsFromXML(const XML_Node& phase) {
+        m_Elements->addElementsFromXML(phase);
+    }
+
     /*******************************************************************
      *
      * freezeElements()

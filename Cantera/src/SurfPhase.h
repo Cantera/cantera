@@ -19,6 +19,7 @@
 #include "mix_defs.h"
 #include "ThermoPhase.h"
 
+
 namespace Cantera {
 
 
@@ -45,7 +46,9 @@ namespace Cantera {
         virtual doublereal standardConcentration(int k = 0) const;
         virtual doublereal logStandardConc(int k=0) const;
         virtual void setParameters(int n, doublereal* c);
+        virtual void setParametersFromXML(const XML_Node& eosdata);
         virtual void initThermo();
+        virtual void setStateFromXML(const XML_Node& state);
         doublereal siteDensity(){ return m_n0; }
         void setPotentialEnergy(int k, doublereal pe);
         doublereal potentialEnergy(int k) {return m_pe[k];}

@@ -111,6 +111,13 @@ namespace Cantera {
             m_tlast = tnow;
         }
     }
+
+    void ConstDensityThermo::setParametersFromXML(const XML_Node& eosdata) {
+        eosdata.require("model","Incompressible");
+        doublereal rho = getFloat(eosdata, "density", "-");
+        setDensity(rho);
+    }
+
 }
 
 

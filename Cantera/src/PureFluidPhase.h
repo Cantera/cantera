@@ -18,6 +18,7 @@
 
 #ifdef INCL_PURE_FLUIDS
 
+#include "mix_defs.h"
 #include "../../ext/tpx/Sub.h"
 #include "../../ext/tpx/utils.h"
 
@@ -28,42 +29,11 @@ namespace Cantera {
 
     public:
 
-        PureFluid() : ThermoPhase(), m_sub(0) {}
+        PureFluid() : ThermoPhase(), m_sub(0), m_subflag(0), 
+                      m_mw(-1.0), m_verbose(true) {}
 
         virtual ~PureFluid() { delete m_sub; }
         
-        virtual void setParameters(int n, doublereal* c) {
-            if (n == 1) {
-                int subflag = int(c[0]);
-                if (m_sub) delete m_sub;
-                m_sub = tpx::GetSub(subflag);
-                if (m_sub == 0) {
-                    throw CanteraError("PureFluid::setParameters",
-                        "could not create new substance object.");
-                }
-                m_subflag = subflag;
-                m_mw = m_sub->MolWt();
-                m_weight[0] = m_mw;
-                setMolecularWeight(0,m_mw);
-                double one = 1.0;
-                setMoleFractions(&one);
-                double cp0_R, h0_RT, s0_R, T0, p;
-                T0 = 298.15;
-                if (T0 < m_sub->Tcrit()) {
-                    m_sub->Set(tpx::TX, T0, 1.0);
-                    p = 0.01*m_sub->P();
-                }
-                else {
-                    p = 0.001*m_sub->Pcrit();
-                }
-                m_sub->Set(tpx::TP, T0, p);
-                
-                m_spthermo->update_one(0, T0, &cp0_R, &h0_RT, &s0_R);
-                double s_R = s0_R - log(p/refPressure());
-                m_sub->setStdState(h0_RT*GasConstant*298.15/m_mw,
-                    s_R*GasConstant/m_mw, T0, p);
-            }
-        }
         
         virtual int eosType() const { return cPureFluid; }
 
@@ -247,6 +217,8 @@ namespace Cantera {
             check();
         }
 
+        virtual void initThermo();
+        virtual void setParametersFromXML(const XML_Node& eosdata);
 
 protected:
         
@@ -265,6 +237,7 @@ private:
         mutable tpx::Substance* m_sub;
         int m_subflag;
         doublereal m_mw;
+        bool m_verbose;
     };
 
 }

@@ -28,7 +28,7 @@ namespace Cantera {
         EdgePhase(doublereal n0 = 0.0);
         virtual ~EdgePhase() {}
         virtual int eosType() const { return cEdge; }
-
+        virtual void setParametersFromXML(const XML_Node& eosdata);
     };
 }
         

@@ -92,6 +92,8 @@ namespace Cantera {
         return m_logn0 - m_logsize[k];
     }
 
+
+    /// The only parameter that can be set is the site density.
     void SurfPhase::
     setParameters(int n, doublereal* c) {
         m_n0 = c[0];
@@ -152,6 +154,7 @@ namespace Cantera {
     //    }
     //    _updateThermo(true);
     //}
+
 
     /**
      * Set the coverage fractions to a specified 
@@ -236,10 +239,46 @@ namespace Cantera {
         }
     }
 
+    void SurfPhase::
+    setParametersFromXML(const XML_Node& eosdata) {
+        eosdata.require("model","Surface");
+        doublereal n = getFloat(eosdata, "site_density", "-");
+        if (n <= 0.0) 
+            throw CanteraError("SurfPhase::setParametersFromXML",
+                "missing or negative site density");
+        m_n0 = n;
+        m_logn0 = log(m_n0);
+    }
+
+
+    void SurfPhase::setStateFromXML(const XML_Node& state) {
+
+        if (state.hasChild("temperature")) {
+            double t = getFloat(state, "temperature", "temperature");
+            setTemperature(t);
+        }
+
+        if (state.hasChild("coverages")) {
+            string comp = getString(state,"coverages");
+            setCoveragesByName(comp);
+        }
+    }
 
 
     EdgePhase::EdgePhase(doublereal n0) : SurfPhase(n0) {
         setNDim(1);
     }
+
+    void EdgePhase::
+    setParametersFromXML(const XML_Node& eosdata) {
+        eosdata.require("model","Edge");
+        doublereal n = getFloat(eosdata, "site_density", "-");
+        if (n <= 0.0) 
+            throw CanteraError("EdgePhase::setParametersFromXML",
+                "missing or negative site density");
+        m_n0 = n;
+        m_logn0 = log(m_n0);
+    }
+
 
 }

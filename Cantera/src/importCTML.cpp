@@ -42,8 +42,6 @@
 
 using namespace ctml;
 
-//#include <stdio.h>  
-
 
 // these are all used to check for duplicate reactions
 vector< map<int, doublereal> > _reactiondata;
@@ -55,7 +53,7 @@ vector<bool> _rev;
 namespace Cantera {
 
     /*
-     * First we define a coule of typedef's which will
+     * First we define a couple of typedefs that will
      * be used throught this file
      */
     typedef const vector<XML_Node*>    nodeset_t;
@@ -64,6 +62,8 @@ namespace Cantera {
     const doublereal DefaultPref = 1.01325e5;   // one atm
 
 
+    /// split a string at a '#' sign. Used to separate a file name
+    /// from an id string.
     static void split(const string& src, string& file, string& id) { 
 	string::size_type ipound = src.find('#');
         if (ipound != string::npos) {
@@ -75,6 +75,7 @@ namespace Cantera {
             file = src;
         }
     }
+
 
     /**
      * This routine will locate an XML node in either the input
@@ -100,13 +101,16 @@ namespace Cantera {
         XML_Node *db, *doc;
         split(file_ID, fname, idstr);
         if (fname == "") {
-            if (!root) throw CanteraError("get_XML_Node","no file name given. file_ID = "+file_ID);
+            if (!root) throw CanteraError("get_XML_Node",
+                "no file name given. file_ID = "+file_ID);
             db = root->findID(idstr, 3);
         } else {
 	  doc = get_XML_File(fname);
-	  if (!doc) throw CanteraError("get_XML_Node", "get_XML_File failed trying to open "+fname);
+	  if (!doc) throw CanteraError("get_XML_Node", 
+              "get_XML_File failed trying to open "+fname);
 	  db = doc->findID(idstr, 3);
-          if (!db) throw CanteraError("get_XML_Node", "id tag "+idstr+" not found.");
+          if (!db) throw CanteraError("get_XML_Node", 
+              "id tag "+idstr+" not found.");
         }
         return db;
     }
@@ -152,161 +156,6 @@ namespace Cantera {
         return db;
     }
 
-    /** 
-     * Install a NASA polynomial thermodynamic property
-     * parameterization for species k.
-     */
-    static void installNasaThermo(SpeciesThermo& sp, int k, const XML_Node* f0ptr, 
-			   const XML_Node* f1ptr) {
-        doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
-
-        const XML_Node& f0 = *f0ptr;
-        bool dualRange = false;
-        if (f1ptr) {dualRange = true;}
-        tmin0 = fpValue(f0["Tmin"]);
-        tmax0 = fpValue(f0["Tmax"]);
-        tmin1 = tmax0;
-        tmax1 = tmin1 + 0.0001;
-        if (dualRange) {
-            tmin1 = fpValue((*f1ptr)["Tmin"]);
-            tmax1 = fpValue((*f1ptr)["Tmax"]);
-        }
-
-        vector_fp c0, c1;
-        if (fabs(tmax0 - tmin1) < 0.01) {
-            tmin = tmin0;
-            tmid = tmax0;
-            tmax = tmax1;
-            getFloatArray(f0.child("floatArray"), c0, false);
-            if (dualRange)
-                getFloatArray(f1ptr->child("floatArray"), c1, false);
-            else
-                c1.resize(7,0.0);
-        }
-        else if (fabs(tmax1 - tmin0) < 0.01) {
-            tmin = tmin1;
-            tmid = tmax1;
-            tmax = tmax0;
-            getFloatArray(f1ptr->child("floatArray"), c0, false);
-            getFloatArray(f0.child("floatArray"), c1, false);
-        }
-        else {
-            throw CanteraError("installNasaThermo",
-			       "non-continuous temperature ranges.");
-        }
-        array_fp c(15);
-        c[0] = tmid;
-        doublereal p0 = OneAtm;
-        c[1] = c0[5];
-        c[2] = c0[6];
-        copy(c0.begin(), c0.begin()+5, c.begin() + 3);
-        c[8] = c1[5];
-        c[9] = c1[6];
-        copy(c1.begin(), c1.begin()+5, c.begin() + 10);
-        sp.install(k, NASA, c.begin(), tmin, tmax, p0);
-    }
-
-
-
-    /** 
-     * Install a NASA polynomial thermodynamic property
-     * parameterization for species k.
-     */
-    static void installShomateThermo(SpeciesThermo& sp, int k, const XML_Node* f0ptr, 
-			   const XML_Node* f1ptr) {
-        doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
-
-        const XML_Node& f0 = *f0ptr;
-        bool dualRange = false;
-        if (f1ptr) {dualRange = true;}
-        tmin0 = fpValue(f0["Tmin"]);
-        tmax0 = fpValue(f0["Tmax"]);
-        tmin1 = tmax0;
-        tmax1 = tmin1 + 0.0001;
-        if (dualRange) {
-            tmin1 = fpValue((*f1ptr)["Tmin"]);
-            tmax1 = fpValue((*f1ptr)["Tmax"]);
-        }
-
-        vector_fp c0, c1;
-        if (fabs(tmax0 - tmin1) < 0.01) {
-            tmin = tmin0;
-            tmid = tmax0;
-            tmax = tmax1;
-            getFloatArray(f0.child("floatArray"), c0, false);
-            if (dualRange)
-                getFloatArray(f1ptr->child("floatArray"), c1, false);
-            else
-                c1.resize(7,0.0);
-        }
-        else if (fabs(tmax1 - tmin0) < 0.01) {
-            tmin = tmin1;
-            tmid = tmax1;
-            tmax = tmax0;
-            getFloatArray(f1ptr->child("floatArray"), c0, false);
-            getFloatArray(f0.child("floatArray"), c1, false);
-        }
-        else {
-            throw CanteraError("installShomateThermo",
-			       "non-continuous temperature ranges.");
-        }
-        array_fp c(15);
-        c[0] = tmid;
-        doublereal p0 = OneAtm;
-        copy(c0.begin(), c0.begin()+7, c.begin() + 1);
-        copy(c1.begin(), c1.begin()+7, c.begin() + 8);
-        sp.install(k, SHOMATE, c.begin(), tmin, tmax, p0);
-    }
-
-
-//     /** 
-//      * Install a Shomate polynomial thermodynamic property
-//      * parameterization for species k.
-//      */
-//     static void installShomateThermo(SpeciesThermo& sp, int k, const XML_Node& f) {
-//         doublereal tmin, tmid, tmax;
-//         tmin = fpValue(f["Tmin"]);
-//         tmid = fpValue(f["Tmid"]);
-//         tmax = fpValue(f["Tmax"]);
-
-//         vector<XML_Node*> fa;
-//         f.getChildren("floatArray",fa);
-//         vector_fp c0, c1;
-//         getFloatArray(*fa[0], c0, false);
-//         getFloatArray(*fa[1], c1, false);
-//         array_fp c(15);
-//         c[0] = tmid;
-//         doublereal p0 = OneAtm;
-//         if ((*fa[0])["title"] == "low") {
-//             copy(c0.begin(), c0.end(), c.begin() + 1);
-//             copy(c1.begin(), c1.end(), c.begin() + 8);
-//         }
-//         else {
-//             copy(c1.begin(), c1.end(), c.begin() + 1);
-//             copy(c0.begin(), c0.end(), c.begin() + 8);
-//         }
-//         sp.install(k, SHOMATE, c.begin(), tmin, tmax, p0);
-//     }
-
-
-    /** 
-     * Install a constant-cp thermodynamic property
-     * parameterization for species k.
-     */
-    static void installSimpleThermo(SpeciesThermo& sp, int k, const XML_Node& f) {
-        doublereal tmin, tmax;
-        tmin = fpValue(f["Tmin"]);
-        tmax = fpValue(f["Tmax"]);
-        if (tmax == 0.0) tmax = 1.0e30;
-
-        vector_fp c(4);
-        c[0] = getFloat(f, "t0", "-");
-        c[1] = getFloat(f, "h0", "-");
-        c[2] = getFloat(f, "s0", "-");
-        c[3] = getFloat(f, "cp0", "-");
-        doublereal p0 = OneAtm;
-        sp.install(k, SIMPLE, c.begin(), tmin, tmax, p0);
-    }
 
     /**
      * Install a species into a ThermoPhase object, which defines
@@ -329,7 +178,7 @@ namespace Cantera {
      *  an "UnknownSpeciesThermoModel" exception being thrown.
      */
     bool installSpecies(int k, const XML_Node& s, thermo_t& p, 
-			SpeciesThermo& spthermo, int rule) {
+        SpeciesThermo& spthermo, int rule, SpeciesThermoFactory* factory) {
 
 	// get the composition of the species
 	const XML_Node& a = s.child("atomArray");
@@ -342,77 +191,46 @@ namespace Cantera {
         // otherwise, throw an exception
 	map<string,string>::const_iterator _b = comp.begin();
 	for (; _b != comp.end(); ++_b) {
-	  if (p.elementIndex(_b->first) < 0) {
-	    if (rule == 0) {
-		throw CanteraError("installSpecies", 
-                    "Species " + s["name"] + 
-                    " contains undeclared element " + _b->first);
-	    }
-	    else
-		return false;
-	  }
+            if (p.elementIndex(_b->first) < 0) {
+                if (rule == 0) {
+                    throw CanteraError("installSpecies", 
+                        "Species " + s["name"] + 
+                        " contains undeclared element " + _b->first);
+                }
+                else
+                    return false;
+            }
 	}
 
+        // construct a vector of atom numbers for each 
+        // element in phase p. Elements not declared in the
+        // species (i.e., not in map comp) will have zero
+        // entries in the vector.
 	int m, nel = p.nElements();
 	vector_fp ecomp(nel, 0.0);            
 	for (m = 0; m < nel; m++) {
-	  ecomp[m] = atoi(comp[p.elementName(m)].c_str());
+            ecomp[m] = atoi(comp[p.elementName(m)].c_str());
 	}
 
-	/*
-	 * Define a map and get all of the floats in the
-	 * current XML species block
-	 */
+
+        // get the species charge, if any. Note that the charge need
+        // not be explicitly specified if special element 'E'
+        // (electron) is one of the elements.
 	doublereal chrg = 0.0;
 	if (s.hasChild("charge")) chrg = getFloat(s, "charge");
+
+        // get the species size, if any. (This is used by surface
+        // phases to represent how many sites a species occupies.)
 	doublereal sz = 1.0;
 	if (s.hasChild("size")) sz = getFloat(s, "size");
 
+        // add the species to phase p.
 	p.addUniqueSpecies(s["name"], ecomp.begin(), chrg, sz);
 
-	// get thermo.  We currently only support single-range Shomate
-        // and const_cp, and dual-range NASA
-	if (!s.hasChild("thermo")) {
-	  throw 
-	    UnknownSpeciesThermoModel("installSpecies", s["name"], "missing");
-	  
-	}
-	const XML_Node& thermo = s.child("thermo");
-	const vector<XML_Node*>& tp = thermo.children();
-	int nc = tp.size();
-	if (nc == 1) {
-	  const XML_Node* f = tp[0];
-	  if (f->name() == "Shomate") {
-              installShomateThermo(spthermo, k, f, 0);
-	  }
-	  else if (f->name() == "const_cp") {
-              installSimpleThermo(spthermo, k, *f);
-	  }
-          else if (f->name() == "NASA") {
-              installNasaThermo(spthermo, k, f, 0);
-          }
-	  else {
-	    UnknownSpeciesThermoModel("installSpecies", s["name"], f->name());
-	  }
-	}
-	else if (nc == 2) {
-	  const XML_Node* f0 = tp[0];
-	  const XML_Node* f1 = tp[1];
-	  if (f0->name() == "NASA" && f1->name() == "NASA") {
-	    installNasaThermo(spthermo, k, f0, f1);
-	  } 
-	  else if (f0->name() == "Shomate" && f1->name() == "Shomate") {
-	    installShomateThermo(spthermo, k, f0, f1);
-	  } 
-          else {
-	    UnknownSpeciesThermoModel("installSpecies", s["name"], 
-				      f0->name() + " and " + f1->name());
-	  }
-	}
-	else {
-	    UnknownSpeciesThermoModel("installSpecies", s["name"], 
-				      "multiple");
-	}
+        // install the thermo parameterization for this species into
+        // the species thermo manager for phase p.
+        factory->installThermoForSpecies(k, s, spthermo);
+        
 	return true;
     }
 
@@ -815,15 +633,15 @@ namespace Cantera {
 
 
     /**
-     * Create a new ThermoPhase object and initializes it according
-     * to the XML tree database. 
-     * This routine first looks up the identity of the model for the
-     * solution thermodynamics in the model attribute of the thermo
-     * child of the xml phase node. Then, it does a string lookup on
-     * the model to figure out what ThermoPhase derived class is
-     * assigned. It mallocs a new instance of that class, and then
-     * calls importPhase() to populate that class with the correct
-     * parameters from the XML tree.
+     * Create a new ThermoPhase object and initializes it according to
+     * the XML tree database.  This routine first looks up the
+     * identity of the model for the solution thermodynamics in the
+     * model attribute of the thermo child of the xml phase
+     * node. Then, it does a string lookup on the model to figure out
+     * what ThermoPhase derived class is assigned. It creates a new
+     * instance of that class, and then calls importPhase() to
+     * populate that class with the correct parameters from the XML
+     * tree.
      */
     ThermoPhase* newPhase(XML_Node& xmlphase) {
         const XML_Node& th = xmlphase.child("thermo");
@@ -843,44 +661,44 @@ namespace Cantera {
             return 0;
     }
 
-    /**
-     * Set the thermodynamic state.
-     */
-    static void setState(const XML_Node& phase, ThermoPhase* th) {
-        if (!phase.hasChild("state")) return;
-        const XML_Node state = phase.child("state");
-        doublereal t, p, rho;
-        string comp = getString(state,"moleFractions");
-        if (comp != "") 
-            th->setMoleFractionsByName(comp);
-        else {
-            comp = getString(state,"massFractions");
-            if (comp != "") 
-                th->setMassFractionsByName(comp);
-        }
-        if (state.hasChild("temperature")) {
-            t = getFloat(state, "temperature", "temperature");
-            th->setTemperature(t);
-        }
-        if (state.hasChild("pressure")) {
-            p = getFloat(state, "pressure", "pressure");
-            th->setPressure(p);
-        }
-        if (state.hasChild("density")) {
-            rho = getFloat(state, "density", "density");
-            th->setDensity(rho);
-        }
-        if (th->eosType() == cSurf && state.hasChild("coverages")) {
-            comp = getString(state,"coverages");
-            SurfPhase* s = (SurfPhase*)th;
-            s->setCoveragesByName(comp);
-        }
-        if (th->eosType() == cEdge && state.hasChild("coverages")) {
-            comp = getString(state,"coverages");
-            EdgePhase* s = (EdgePhase*)th;
-            s->setCoveragesByName(comp);
-        }
-    }
+//     /**
+//      * Set the thermodynamic state.
+//      */
+//     static void setState(const XML_Node& phase, ThermoPhase* th) {
+//         if (!phase.hasChild("state")) return;
+//         const XML_Node state = phase.child("state");
+//         doublereal t, p, rho;
+//         string comp = getString(state,"moleFractions");
+//         if (comp != "") 
+//             th->setMoleFractionsByName(comp);
+//         else {
+//             comp = getString(state,"massFractions");
+//             if (comp != "") 
+//                 th->setMassFractionsByName(comp);
+//         }
+//         if (state.hasChild("temperature")) {
+//             t = getFloat(state, "temperature", "temperature");
+//             th->setTemperature(t);
+//         }
+//         if (state.hasChild("pressure")) {
+//             p = getFloat(state, "pressure", "pressure");
+//             th->setPressure(p);
+//         }
+//         if (state.hasChild("density")) {
+//             rho = getFloat(state, "density", "density");
+//             th->setDensity(rho);
+//         }
+//         if (th->eosType() == cSurf && state.hasChild("coverages")) {
+//             comp = getString(state,"coverages");
+//             SurfPhase* s = (SurfPhase*)th;
+//             s->setCoveragesByName(comp);
+//         }
+//         if (th->eosType() == cEdge && state.hasChild("coverages")) {
+//             comp = getString(state,"coverages");
+//             EdgePhase* s = (EdgePhase*)th;
+//             s->setCoveragesByName(comp);
+//         }
+//     }
         
     /**
      * Import a phase specification.
@@ -907,15 +725,23 @@ namespace Cantera {
      *             here, especially for those objects which are
      *             part of the Cantera Kernel.
      */
-    bool importPhase(XML_Node& phase, ThermoPhase* th) {
+    bool importPhase(XML_Node& phase, ThermoPhase* th, 
+        SpeciesThermoFactory* spfactory) {
 
-        int subflag = -1;
-
+        // Check the the supplied XML node in fact represents a 
+        // phase.
         if (phase.name() != "phase") 
             throw CanteraError("importPhase",
                 "Current const XML_Node is not a phase element.");
 
-        th->setID(phase.id());                // set the phase id
+        // if no species thermo factory was supplied,
+        // use the default one. 
+        if (!spfactory) 
+            spfactory = SpeciesThermoFactory::factory();
+
+        // set the id attribute of the phase to the 'id' attribute 
+        // in the XML tree.
+        th->setID(phase.id());
 
         // Number of spatial dimensions. Defaults to 3 (bulk phase)
         if (phase.hasAttrib("dim")) {
@@ -928,116 +754,30 @@ namespace Cantera {
         else
             th->setNDim(3);     // default
 
-	/**
-	 * Equation of State: We initialize the ThermoPhase objects that
-	 * we know about here, with additional parameters obtained from 
-	 * the xml tree. EOS's that we don't know about don't create an
-	 * error condition.
-	 */
-        bool eoserror = false;
+
+	
+        // set equation of state parameters. The parameters are
+        // specific to each subclass of ThermoPhase, so this is done
+        // by method setParametersFromXML in each subclass.
         if (phase.hasChild("thermo")) {
             const XML_Node& eos = phase.child("thermo");
-            if (eos["model"] == "Incompressible") {
-                if (th->eosType() == cIncompressible) {
-                    doublereal rho = getFloat(eos, "density", "-");
-                    //doublereal rho = d["density"];
-                    th->setParameters(1, &rho);
-                }
-                else {
-                    eoserror = true;
-                }
-            }
-            else if (eos["model"] == "StoichSubstance") {
-                if (th->eosType() == cStoichSubstance) {
-                    doublereal rho = getFloat(eos, "density", "-");
-                    th->setDensity(rho);
-                }
-                else {
-                    eoserror = true;
-                }
-            }
-            else if (eos["model"] == "Surface") {
-                if (th->eosType() == cSurf) {
-                    doublereal n = getFloat(eos, "site_density", "-");
-                    if (n <= 0.0) 
-                        throw CanteraError("importCTML",
-                            "missing or negative site density");
-                    th->setParameters(1, &n);
-                }
-                else {
-                    eoserror = true;
-                }
-            }
-            else if (eos["model"] == "Edge") {
-                if (th->eosType() == cEdge) {
-                    doublereal n = getFloat(eos, "site_density", "-");
-                    if (n <= 0.0) 
-                        throw CanteraError("importCTML",
-                            "missing or negative site density");
-                    th->setParameters(1, &n);
-                }
-                else {
-                    eoserror = true;
-                }
-            }
-#ifdef INCL_PURE_FLUIDS
-            else if (eos["model"] == "PureFluid") {
-                if (th->eosType() == cPureFluid) {
-                    subflag = atoi(eos["fluid_type"].c_str());
-                    if (subflag < 0) 
-                        throw CanteraError("importCTML",
-                            "missing fluid type flag");
-                }
-                else {
-                    eoserror = true;
-                }
-            }
-#endif
-            if (eoserror) {
-                string msg = "Wrong equation of state type for phase "+phase["id"]+"\n";
-                msg += eos["model"]+" is not consistent with eos type "+int2str(th->eosType());
-                throw CanteraError("importCTML",msg);
-            }
-        }
-
-
-        /*************************************************
-         *  Add elements.
-         ************************************************/
-
-
-        // get the declared element names
-        XML_Node& elements = phase.child("elementArray");
-        vector<string> enames;
-        getStringArray(elements, enames);
-        
-        // // element database defaults to elements.xml
-        string element_database = "elements.xml";
-        if (elements.hasAttrib("datasrc")) 
-            element_database = elements["datasrc"];
-        XML_Node* doc = get_XML_File(element_database);
-        XML_Node* dbe = &doc->child("ctml/elementData");
-
-        int nel = enames.size();
-        int i;
-        string enm;
-        for (i = 0; i < nel; i++) {
-            XML_Node* e = dbe->findByAttr("name",enames[i]);
-            if (e) {
-                th->addUniqueElement(*e);
-            }
-            else {
-                throw CanteraError("importPhase","no data for element "
-                    +enames[i]);
-            }
+            th->setParametersFromXML(eos);
         }
 
 
         /***************************************************************
-         * Add the species. First get the speciesArray element, then 
-         * the species database.
+         * Add the elements.
          ***************************************************************/
+        th->addElementsFromXML(phase);
 
+
+        /***************************************************************
+         * Add the species. 
+         *
+         * Species definitions may be imported from multiple
+         * sources. For each one, a speciesArray element must be
+         * present.
+         ***************************************************************/
         XML_Node* db = 0;
         vector<XML_Node*> sparrays;
         phase.getChildren("speciesArray", sparrays);
@@ -1045,10 +785,16 @@ namespace Cantera {
         vector<XML_Node*> dbases;
         vector_int sprule(nspa,0);
 
+        // loop over the speciesArray elements
         for (jsp = 0; jsp < nspa; jsp++) {
 
             const XML_Node& species = *sparrays[jsp];
 
+            // If the speciesArray element has a child element
+            //   <skip element="undeclared"> 
+            // then set sprule[jsp] to 1, so
+            // that any species with an undeclared element will be
+            // quietly skipped when importing species.
             if (species.hasChild("skip")) {
                 const XML_Node& sk = species.child("skip");
                 string eskip = sk["element"];
@@ -1056,42 +802,54 @@ namespace Cantera {
                     sprule[jsp] = 1;
                 }
             }
+
             string fname, idstr;
-            
+
+            // get a pointer to the node containing the species
+            // definitions for the species declared in this 
+            // speciesArray element. This may be in the local file
+            // containing the phase element, or may be in another
+            // file.            
             db = get_XML_Node(species["datasrc"], &phase.root());
-            //db = find_XML(species["datasrc"], &phase.root(), species["idRef"],
-            //     "","speciesData");
+
+            // add this node to the list of species database nodes.
             dbases.push_back(db);
         }
 
 
-        /*******************************************************
-         * Set the species thermo manager.
-         * Function 'newSpeciesThermoMgr' looks at the species
-         * in the database to see what thermodynamic property
-         * parameterizations are used, and selects a class
-         * that can handle the parameterizations found.
-         ******************************************************/
-
+        // if the phase has a species thermo manager already installed,
+        // delete it since we are adding new species.
         delete &th->speciesThermo();
+
+        // create a new species thermo manager.  Function
+        // 'newSpeciesThermoMgr' looks at the species in the database
+        // to see what thermodynamic property parameterizations are
+        // used, and selects a class that can handle the
+        // parameterizations found.
         SpeciesThermo* spth = newSpeciesThermoMgr(dbases);
+
+        // install it in the phase object
         th->setSpeciesThermo(spth);
         SpeciesThermo& spthermo = th->speciesThermo();
 
+        // used to check that each species is declared only once
         map<string,bool> declared;
-        int k = 0;
+
+        int i, k = 0;
+
+        // loop over the species arrays
         for (jsp = 0; jsp < nspa; jsp++) {
 
             const XML_Node& species = *sparrays[jsp]; 
             db = dbases[jsp];
 
-            /*
-             * Get the array of species name strings.
-             */                          
+            // Get the array of species name strings.
             vector<string> spnames;
             getStringArray(species, spnames);
             int nsp = spnames.size();
 
+            // if 'all' is specified, then add all species 
+            // defined in this database to the phase
             if (nsp == 1 && spnames[0] == "all") {
                 vector<XML_Node*> allsp;
                 db->getChildren("species",allsp);
@@ -1113,12 +871,11 @@ namespace Cantera {
                 }
                 declared[name] = true;
 
-                /*
-                 * Find the species in the database by name.
-                 */
+                // Find the species in the database by name.
                 XML_Node* s = db->findByAttr("name",spnames[i]);
                 if (s) {
-                    if (installSpecies(k, *s, *th, spthermo, sprule[jsp])) 
+                    if (installSpecies(k, *s, *th, spthermo, sprule[jsp], 
+                            spfactory)) 
                         ++k;
                 }
                 else {
@@ -1127,19 +884,25 @@ namespace Cantera {
                 }
             }
         }
+
+        // done adding species. 
         th->freezeSpecies();
+
+        // perform any required subclass-specific initialization.
         th->initThermo();
 
         th->saveSpeciesData(db);
 
-        if (th->eosType() == cPureFluid) {
-            doublereal dsub = doublereal(subflag);
-            th->setParameters(1, &dsub);
+        // set the state of the phase from the XML specification
+        if (phase.hasChild("state")) {
+            XML_Node& state = phase.child("state");
+            th->setStateFromXML(state);
         }
-        setState(phase, th);
 
         return true;
     }        
+
+
 
     /**
      * This function returns true if two reactions are duplicates of

@@ -197,6 +197,35 @@ namespace Cantera {
 	}
     }
 
+
+
+    /**
+     * Set the thermodynamic state.
+     */
+    void ThermoPhase::setStateFromXML(const XML_Node& state) {
+
+        string comp = getString(state,"moleFractions");
+        if (comp != "") 
+            setMoleFractionsByName(comp);
+        else {
+            comp = getString(state,"massFractions");
+            if (comp != "") 
+                setMassFractionsByName(comp);
+        }
+        if (state.hasChild("temperature")) {
+            double t = getFloat(state, "temperature", "temperature");
+            setTemperature(t);
+        }
+        if (state.hasChild("pressure")) {
+            double p = getFloat(state, "pressure", "pressure");
+            setPressure(p);
+        }
+        if (state.hasChild("density")) {
+            double rho = getFloat(state, "density", "density");
+            setDensity(rho);
+        }
+    }
+
 }
 
 

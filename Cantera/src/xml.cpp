@@ -696,82 +696,87 @@ namespace Cantera {
 	}
     }
 
-    //const XML_Node* XML_Node::getRef() const {
-    //    if (!hasAttrib("idRef")) return this;
-    //    XML_Node& node = *this;
-    //    return find_XML(node["src"], &root(), node["idRef"]);
-    //}
 
-#ifdef FIND_XML
-    /*
-     * Find a particular XML element by a fairly complicated hierarchal
-     * search objective.
-     *
-     * HKM -Note: Right now this routine contains a memory leak.
-     *            A "new" operation is conditionally carried out and
-     *            the pointer may or may not be returned to the calling
-     *            program. Therefore, it can't be deleted in the 
-     *            calling program. This
-     *            eventually needs to be fixed by extracting the xml
-     *            malloc and build operation from the search operation.
-     */
-    XML_Node* find_XML(string src, XML_Node* root, string id, string loc, 
-        string name) {
-        string file, id2;
-        split(src, file, id2);
-        src = file;
-        if (id2 != "") id = id2;
-
-        XML_Node *doc = 0, *r = 0;
-        if (src != "") {
-            doc = new XML_Node("doc");
-            string spath = findInputFile(src);
-            ifstream fin(spath.c_str());
-            if (!fin)
-                throw CanteraError("find_XML","could not open file "+src+
-                    " for input.");
-            doc->build(fin);
-            root = 0;
+    void XML_Node::require(string a, string v) const {
+        if (hasAttrib(a)) {
+            if (attrib(a) == v) return;
         }
-        else if (root) { 
-            doc = root;
-        }
-        else {
-            throw CanteraError("find_XML",
-                "either root or src must be specified.");
-        }
-
-        try {
-            if (id != "") 
-                r = doc->findID(id);
-            else if (loc != "")
-                r = &doc->child(loc);
-            else if (name != "") 
-                r = doc->findByName(name);
-            if (!r) {
-                string opt = " src="+src+", loc="+loc+", id="
-                             +id+", name="+name;
-                throw CanteraError("find_XML", "XML element with "+opt+
-                    " not found.");
-            }
-            return r;
-        }
-        catch (CanteraError) {
-            
-            // root was used, but element was not found. Try src.
-            if (root && src != "") {
-                return find_XML(src, 0, id, loc, name);
-            }
-            else {
-                string opt = " src="+src+", loc="+loc+", id="
-                             +id+", name="+name;
-                throw CanteraError("find_XML", "XML element with "+opt+
-                    " not found.");
-                return 0;
-            }
-        }
+        string msg="XML_Node "+name()+" is required to have the value "
+                   "\""+v+"\", but instead is \""+attrib(a);
+        throw CanteraError("XML_Node::require",msg);
     }
-#endif
+
+
+// #ifdef FIND_XML
+//     /*
+//      * Find a particular XML element by a fairly complicated hierarchal
+//      * search objective.
+//      *
+//      * HKM -Note: Right now this routine contains a memory leak.
+//      *            A "new" operation is conditionally carried out and
+//      *            the pointer may or may not be returned to the calling
+//      *            program. Therefore, it can't be deleted in the 
+//      *            calling program. This
+//      *            eventually needs to be fixed by extracting the xml
+//      *            malloc and build operation from the search operation.
+//      */
+//     XML_Node* find_XML(string src, XML_Node* root, string id, string loc, 
+//         string name) {
+//         string file, id2;
+//         split(src, file, id2);
+//         src = file;
+//         if (id2 != "") id = id2;
+
+//         XML_Node *doc = 0, *r = 0;
+//         if (src != "") {
+//             doc = new XML_Node("doc");
+//             string spath = findInputFile(src);
+//             ifstream fin(spath.c_str());
+//             if (!fin)
+//                 throw CanteraError("find_XML","could not open file "+src+
+//                     " for input.");
+//             doc->build(fin);
+//             root = 0;
+//         }
+//         else if (root) { 
+//             doc = root;
+//         }
+//         else {
+//             throw CanteraError("find_XML",
+//                 "either root or src must be specified.");
+//         }
+
+//         try {
+//             if (id != "") 
+//                 r = doc->findID(id);
+//             else if (loc != "")
+//                 r = &doc->child(loc);
+//             else if (name != "") 
+//                 r = doc->findByName(name);
+//             if (!r) {
+//                 string opt = " src="+src+", loc="+loc+", id="
+//                              +id+", name="+name;
+//                 throw CanteraError("find_XML", "XML element with "+opt+
+//                     " not found.");
+//             }
+//             return r;
+//         }
+//         catch (CanteraError) {
+            
+//             // root was used, but element was not found. Try src.
+//             if (root && src != "") {
+//                 return find_XML(src, 0, id, loc, name);
+//             }
+//             else {
+//                 string opt = " src="+src+", loc="+loc+", id="
+//                              +id+", name="+name;
+//                 throw CanteraError("find_XML", "XML element with "+opt+
+//                     " not found.");
+//                 return 0;
+//             }
+//         }
+//     }
+// #endif
 
         
     XML_Node * findXMLPhase(XML_Node *root, 

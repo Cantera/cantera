@@ -1,12 +1,15 @@
 /**
- *  @file FlowDevice.h
- *
- *  $Author$
+ *  @file Wall.h
+ *  Header file for class Wall.
+ */
+
+/*  $Author$
  *  $Date$
  *  $Revision$
  */
 
-// Copyright 2001  California Institute of Technology
+// Copyright 2001-2004  California Institute of Technology
+
 
 #ifndef CT_WALL_H
 #define CT_WALL_H
@@ -17,17 +20,21 @@
 #endif
 
 #include "../ct_defs.h"
+#include "../ctexceptions.h"
 #include "../Func1.h"
 
 namespace Cantera {
 
-    class ReactorBase;  // forward reference
+    // forward references
+    class ReactorBase; 
     class Kinetics;
     class Func1;
     class SurfPhase;
 
-    const int Rigid_Type = 1;
-    const int Flexible_Type = 2;
+    //    const int Rigid_Type = 1;
+    //    const int Flexible_Type = 2;
+
+    
 
     class Wall {
 
@@ -36,14 +43,17 @@ namespace Cantera {
         /// Constructor
         Wall();
 
-        /// Destructor 
+        /// Destructor.  Since Wall instances do not allocate memory,
+        /// the destructor does nothing.
         virtual ~Wall() {}
 
-        /**
-         * Rate of volume change (kg/s). Positive value increases
-         * volume of reactor on left, and decreases volume on right.
-         */
+        
+        /// Rate of volume change (kg/s). Positive value increases
+        /// volume of reactor on left, and decreases volume on right.
         virtual doublereal vdot(doublereal t);
+
+        /// Heat flow rate through the wall (W). Positive values
+        /// denote a flux from left to right.
         virtual doublereal Q(doublereal t);
 
         /// Area in m^2.
@@ -51,16 +61,18 @@ namespace Cantera {
 
         /// Set the area [m^2].
         void setArea(doublereal a) { m_area = a; }
-
+ 
         void setThermalResistance(doublereal Rth) { m_rrth = 1.0/Rth; }
 
         /// Set the overall heat transfer coefficient [W/m^2/K].
         void setHeatTransferCoeff(doublereal U) { m_rrth = U; }
 
-        void setEmissivity(doublereal epsilon) { m_emiss = epsilon; }
-
-        //  /** Set the rate of volume change to a specified function.*/
-        //        void setExpansionRate(Func1* f=0) {if (f) m_vf = f;}
+        /// Set the emissivity.
+        void setEmissivity(doublereal epsilon) {
+            if (epsilon > 1.0 || epsilon < 0.0) 
+                throw CanteraError("Wall::setEmissivity", 
+                    "emissivity must be between 0.0 and 1.0");
+            m_emiss = epsilon; }
 
         /** Set the piston velocity to a specified function. */
         void setVelocity(Func1* f=0) {if (f) m_vf = f;}
@@ -70,31 +82,39 @@ namespace Cantera {
          */
         void setExpansionRateCoeff(doublereal k) {m_k = k;}
 
-        /**
-         * Specify the heat flux q(t).
-         */
+        
+        /// Specify the heat flux function \f$ q_0(t) \f$.
         void setHeatFlux(Func1* q) { m_qf = q;}
 
-        bool install(ReactorBase& in, ReactorBase& out);
+        /// Install the wall between two reactors or reservoirs
+        bool install(ReactorBase& leftReactor, ReactorBase& rightReactor);
+
+        /// True if the wall is correctly configured and ready to use.
         virtual bool ready() { return (m_left != 0 && m_right != 0); }
 
-        int type() { return 0; }
+        //        int type() { return 0; }
 
-        /// Return a reference to the left reactor.
+
+        /// Return a reference to the reactor or reservoir to the left
+        /// of the wall.
         ReactorBase& left() const { return *m_left; }
 
-        /// Return a reference to the right-hand reactor.
+        /// Return a reference to the reactor or reservoir to the
+        /// right of the wall.
         const ReactorBase& right() { return *m_right; }
 
-        /// set parameters
-        virtual void setParameters(int n, doublereal* coeffs) {
-            m_coeffs.resize(n);
-            copy(coeffs, coeffs + n, m_coeffs.begin());
-        }
+        // /// Set wall parameters.
+        //virtual void setParameters(int n, doublereal* coeffs) {
+        //    m_coeffs.resize(n);
+        //    copy(coeffs, coeffs + n, m_coeffs.begin());
+        //}
 
-        void setKinetics(Kinetics* left = 0,
-            Kinetics* right = 0);
+        // Specify the heterogeneous reaction mechanisms for each side
+        // of the wall. 
+        void setKinetics(Kinetics* leftMechanism, Kinetics* rightMechanism);
 
+        /// Return a pointer to the surface phase object for the left
+        /// or right wall surface. 
         SurfPhase* surface(int leftright) {
             return m_surf[leftright];
         }
@@ -103,16 +123,22 @@ namespace Cantera {
             return m_chem[leftright];
         }
 
+        /// Set the surface coverages on the left or right surface to
+        /// the values in array 'cov'.
         void setCoverages(int leftright, const doublereal* cov);
 
+        /// Write the coverages of the left or right surface into
+        /// array cov. 
         void getCoverages(int leftright, doublereal* cov);
 
+        /// Set the coverages in the surface phase object to the
+        /// values for this wall surface.
         void syncCoverages(int leftright);
 
 
     protected:
 
-        vector_fp m_coeffs;
+        //vector_fp m_coeffs;
 
         ReactorBase* m_left;
         ReactorBase* m_right;
@@ -127,53 +153,6 @@ namespace Cantera {
 
     private:
 
-    };
-
-
-//     class Piston : public Wall {
-//     public: 
-//         Piston() 
-//             : m_omega(2.0*3.1415926*freq), Wall() {
-//             //m_vdisp = stroke * Pi * bore * bore / 4.0;
-//             //m_vclear = tdc * bore;
-//             //m_ra = 1.0/crankradius;
-//         }
-//         ~Piston() {}
-//         virtual doublereal vdot(double t) {
-//             doublereal theta = m_omega * t;
-//             doublereal sinth = sin(theta);
-//             return 0.0;
-//             //return m_vclear + 0.5*m_vdist*(1.0 + m_ra - m_omega*sin(theta)
-//             //    - sqrt(m_ra * m_ra - sinth*sinth));
-//         }
-//     protected:
-//         doublereal m_tdc, m_bdc, m_stroke, m_bore, m_rodlen,
-//             m_radius, m_omega;
-//     };
-
-
-    class Piston : public Wall {
-    public: 
-        Piston(doublereal freq, 
-            doublereal tdc, doublereal bdc,
-            doublereal stroke, doublereal bore,
-            doublereal rodlen, doublereal crankradius) 
-            : Wall(), m_omega(2.0*3.1415926*freq) {
-            //m_vdisp = stroke * Pi * bore * bore / 4.0;
-            //m_vclear = tdc * bore;
-            //m_ra = 1.0/crankradius;
-        }
-        virtual ~Piston() {}
-        virtual doublereal vdot(double t) {
-            //            doublereal theta = m_omega * t;
-            //doublereal sinth = sin(theta);
-            return 0.0;
-            //return m_vclear + 0.5*m_vdist*(1.0 + m_ra - m_omega*sin(theta)
-            //    - sqrt(m_ra * m_ra - sinth*sinth));
-        }
-    protected:
-        doublereal m_tdc, m_bdc, m_stroke, m_bore, m_rodlen,
-            m_radius, m_omega;
     };
         
 }

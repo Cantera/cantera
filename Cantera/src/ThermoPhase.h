@@ -31,15 +31,15 @@ namespace Cantera {
      */
 
     /**
-     * A phase with thermodynamic properties.
-     * Extends class Phase by adding methods that compute 
-     * thermodynamic properties. 
+     * A phase with thermodynamic properties.  Extends class Phase by
+     * adding methods that compute thermodynamic properties that
+     * require knowledge of the equation of state.
      *
      * Class ThermoPhase is the base class for the family of classes
      * that represent phases of matter with particular equations of
      * state. Instances of subclasses of ThermoPhase should be created
      * using the factory class ThermoFactory, not by calling the
-     * constructor directly.  
+     * constructor directly. 
      * 
      * To implement a new equation of state, derive a class from
      * ThermoPhase and overload the virtual methods in
@@ -69,60 +69,6 @@ namespace Cantera {
          * @{
          */
 
-
-        /**
-         * @internal 
-         * Index number.  This method can be used to identify the
-         * location of a phase object in a list, and is used by the
-         * interface library (clib) routines for this purpose.
-         */
-        int index() { return m_index; }
-
-
-        /**
-         * @internal Set the index number. The Cantera interface
-         * library uses this method to set the index number to the
-         * location of the pointer to this object in the pointer array
-         * it maintains. Using this method for any other purpose will
-         * lead to unpredictable results if used in conjunction with
-         * the interface library.
-        */ 
-        void setIndex(int m) { m_index = m; }
-
-
-        /// used to access data needed to construct transport manager
-        /// later.
-        void saveSpeciesData(const XML_Node* data) {
-            m_speciesData = data;
-        }
-
-        const XML_Node* speciesData() { 
-            if (m_speciesData) 
-                return m_speciesData;
-            else {
-                throw CanteraError("ThermoPhase::speciesData",
-                    "m_speciesData is NULL");
-                return 0;
-            }
-        }
-
-
-        /**
-         * @internal Initialize. This method is provided to allow
-         * subclasses to perform any initialization required after all
-         * species have been added. For example, it might be used to
-         * resize internal work arrays that must have an entry for
-         * each species.  The base class implementation does nothing,
-         * and subclasses that do not require initialization do not
-         * need to overload this method.  When importing a CTML phase
-         * description, this method is called just prior to returning
-         * from function importPhase.
-         *
-         * @see importCTML.cpp
-         */
-        virtual void initThermo() {}
-
-
         /** 
          * Equation of state type flag. The base class returns
          * zero. Subclasses should define this to return a unique
@@ -132,57 +78,43 @@ namespace Cantera {
         virtual int eosType() const { return 0; }
 
 
-
         /**
          * @} 
          * @name  Molar Thermodynamic Properties 
          * @{
          */
 
-
-        /**
-         * Molar enthalpy. Units: J/kmol. 
-         */
+         /// Molar enthalpy. Units: J/kmol. 
         virtual doublereal enthalpy_mole() const {
             return err("enthalpy_mole");
         }
 
 
-        /**
-         * Molar internal energy. Units: J/kmol. 
-         */
+        /// Molar internal energy. Units: J/kmol. 
         virtual doublereal intEnergy_mole() const {
             return err("intEnergy_mole");
         }
 
 
-        /**
-         * Molar entropy. Units: J/kmol/K. 
-         */
+        /// Molar entropy. Units: J/kmol/K. 
         virtual doublereal entropy_mole() const {
             return err("entropy_mole");
         }
 
 
-        /**
-         * Molar Gibbs function. Units: J/kmol. 
-         */
+        /// Molar Gibbs function. Units: J/kmol. 
         virtual doublereal gibbs_mole() const {
             return err("gibbs_mole");
         }
 
 
-        /**
-         * Molar heat capacity at constant pressure. Units: J/kmol/K. 
-         */
+        /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
         virtual doublereal cp_mole() const {
             return err("cp_mole");
         }
 
 
-        /**
-         * Molar heat capacity at constant volume. Units: J/kmol/K. 
-         */
+        /// Molar heat capacity at constant volume. Units: J/kmol/K. 
         virtual doublereal cv_mole() const {
             return err("cv_mole");
         }
@@ -246,11 +178,18 @@ namespace Cantera {
             return err("potentialEnergy");
         }
 
+        /**
+         * Set the electric potential of this phase (V).
+         * This is used by classes InterfaceKinetics and EdgeKinetics to
+         * compute the rates of charge-transfer reactions, and in computing
+         * the electrochemical potentials of the species.
+         */
         void setElectricPotential(doublereal v) {
             m_phi = v;
         }
 
-        doublereal electricPotential() { return m_phi; }
+        /// The electric potential of this phase (V).
+        doublereal electricPotential() const { return m_phi; }
 
 
         /**
@@ -271,8 +210,8 @@ namespace Cantera {
          * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
          * defined below.  These generalized concentrations are used
          * by kinetics manager classes to compute the forward and
-         * reverse rates of elementary reactions.
-	 *
+         * reverse rates of elementary reactions. 
+         *
 	 * @param c Array of generalized concentrations. The 
 	 *           units depend upon the implementation of the
 	 *           reaction rate expressions within the phase.
@@ -298,7 +237,6 @@ namespace Cantera {
          }
 
         /**
-	 *
 	 * Returns the natural logarithm of the standard 
 	 * concentration of the kth species
 	 */
@@ -315,10 +253,10 @@ namespace Cantera {
         }
 
 	/**
-	 * Returns the units of the standard and general concentrations
-	 * Note they have the same units, as their divisor is 
-	 * defined to be equal to the activity of the kth species
-	 * in the solution, which is unitless.
+	 * Returns the units of the standard and generalized
+	 * concentrations Note they have the same units, as their
+	 * ratio is defined to be equal to the activity of the kth
+	 * species in the solution, which is unitless.
 	 *
 	 * This routine is used in print out applications where the
 	 * units are needed. Usually, MKS units are assumed throughout
@@ -348,6 +286,19 @@ namespace Cantera {
          */
         virtual void getChemPotentials(doublereal* mu) const {
             err("getChemPotentials_RT");
+        }
+
+        /**
+         * Get the species electrochemical potentials. Units: J/kmol.
+         * This method adds a term \f$ Fz_k \phi_k$ to the 
+         * to each chemical potential.
+         */
+        void getElectrochemPotentials(doublereal* mu) const {
+            getChemPotentials(mu);
+            double ve = Faraday * electricPotential();
+            for (int k = 0; k < m_kk; k++) {
+                mu[k] += ve*charge(k);
+            }
         }
 
         //@}
@@ -568,7 +519,9 @@ namespace Cantera {
          * @param c array of \i n coefficients
          */
         virtual void setParameters(int n, doublereal* c) {}
-        
+        virtual void setParametersFromXML(const XML_Node& eosdata) {}
+        virtual void setStateFromXML(const XML_Node& state);
+
         virtual doublereal isothermalCompressibility() {
             err("isothermalCompressibility"); return -1.0;
         }
@@ -579,6 +532,7 @@ namespace Cantera {
 
         //---------------------------------------------------------
         /// @name Critical state properties.
+        /// These methods are only implemented by some subclasses.
         
         //@{
         
@@ -599,6 +553,10 @@ namespace Cantera {
         
         //@}
         
+        /// @name Saturation properties.
+        /// These methods are only implemented by subclasses that 
+        /// implement full liquid-vapor equations of state.
+        ///
         virtual doublereal satTemperature(doublereal p) const {
             err("satTemperature"); return -1.0;
         }
@@ -617,6 +575,49 @@ namespace Cantera {
 
         virtual void setState_Psat(doublereal p, doublereal x) {
             err("setState_sat"); 
+        }
+
+        //@}
+
+
+	/**
+	 * Returns the reference pressure in Pa. This function is a wrapper
+	 * that calls the species thermo refPressure function.
+	 */
+        doublereal refPressure() const {
+            return m_spthermo->refPressure();
+        }
+
+        doublereal minTemp(int k = -1) {
+            return m_spthermo->minTemp(k);
+        }
+
+        doublereal maxTemp(int k = -1) {
+            return m_spthermo->maxTemp(k);
+        }
+        
+
+        /// The following methods are used in the process of constructing
+        /// the phase and setting its parameters from a specification in an 
+        /// input file. They are not normally used in application programs.
+        /// To see how they are used, see files importCTML.cpp and 
+        /// ThermoFactory.cpp.
+
+
+        /// used to access data needed to construct transport manager
+        /// later.
+        void saveSpeciesData(const XML_Node* data) {
+            m_speciesData = data;
+        }
+
+        const XML_Node* speciesData() { 
+            if (m_speciesData) 
+                return m_speciesData;
+            else {
+                throw CanteraError("ThermoPhase::speciesData",
+                    "m_speciesData is NULL");
+                return 0;
+            }
         }
 
 
@@ -638,22 +639,48 @@ namespace Cantera {
          */
         SpeciesThermo& speciesThermo() { return *m_spthermo; }
 
-	/**
-	 * Returns the reference pressure in Pa. This function is a wrapper
-	 * that calls the species thermo refPressure function.
-	 */
-        doublereal refPressure() const {
-            return m_spthermo->refPressure();
-        }
 
-        doublereal minTemp(int k = -1) {
-            return m_spthermo->minTemp(k);
-        }
+        /**
+         * @internal Initialize. This method is provided to allow
+         * subclasses to perform any initialization required after all
+         * species have been added. For example, it might be used to
+         * resize internal work arrays that must have an entry for
+         * each species.  The base class implementation does nothing,
+         * and subclasses that do not require initialization do not
+         * need to overload this method.  When importing a CTML phase
+         * description, this method is called just prior to returning
+         * from function importPhase.
+         *
+         * @see importCTML.cpp
+         */
+        virtual void initThermo() {}
 
-        doublereal maxTemp(int k = -1) {
-            return m_spthermo->maxTemp(k);
-        }
-        
+
+
+        // The following methods are used by the clib interface
+        // library, and should not be used by application programs.
+
+        /**
+         * @internal 
+         * Index number.  This method can be used to identify the
+         * location of a phase object in a list, and is used by the
+         * interface library (clib) routines for this purpose.
+         */
+        int index() { return m_index; }
+
+
+        /**
+         * @internal Set the index number. The Cantera interface
+         * library uses this method to set the index number to the
+         * location of the pointer to this object in the pointer array
+         * it maintains. Using this method for any other purpose will
+         * lead to unpredictable results if used in conjunction with
+         * the interface library.
+        */ 
+        void setIndex(int m) { m_index = m; }
+
+
+
             
     protected:
 

@@ -22,6 +22,7 @@ using namespace std;
 namespace Cantera {
 
     class Kinetics;
+    class SpeciesThermoFactory;
     //class ThermoPhase;
     class XML_Node;
 
@@ -72,10 +73,11 @@ namespace Cantera {
     XML_Node* get_XML_NameID(const string& nameTarget,
 			     const string& file_ID, XML_Node* root);
 
-    bool installSpecies(int k, const XML_Node& s, thermo_t& p, 
-		    			SpeciesThermo& spthermo, int rule); 
+    //bool installSpecies(int k, const XML_Node& s, thermo_t& p, 
+    //		    			SpeciesThermo& spthermo, int rule); 
 
-    bool importPhase(XML_Node& phase, ThermoPhase* th);
+    bool importPhase(XML_Node& phase, ThermoPhase* th, 
+        SpeciesThermoFactory* spfactory = 0);
 
     /**
      * This function returns true if two reactions are duplicates of
