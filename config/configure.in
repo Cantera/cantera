@@ -142,10 +142,17 @@ AC_DEFINE_UNQUOTED(CANTERA_ROOT,"$prefix/cantera")
 if test -z "$MAKE"; then MAKE='make'; fi
 AC_SUBST(MAKE)
 
-#if test -z "$ARCHIVE"; then ARCHIVE='ar ruv'; fi
+#----------- ARCHIVE --------------------
+
+if test "x${OS_IS_DARWIN}" = "x1"; then
+ARCHIVE='libtool -static -o'
+fi
+
 AC_SUBST(ARCHIVE)
 
-#if test -z "$SOEXT"; then SOEXT='so'; fi
+#----------------------------------------
+
+
 AC_SUBST(SOEXT)
 
 if test -z "$SHARED"; then SHARED='-shared'; fi
@@ -496,7 +503,7 @@ AC_OUTPUT(../Cantera/Makefile \
           ../Cantera/matlab/setup_matlab.py \
 	  ../Cantera/python/Makefile \
           ../Cantera/python/setup.py \
-	  ../Cantera/cxx/Makefile \
+	  ../Cantera/cxx/src/Makefile \
 	  ../Cantera/user/Makefile \
 	  ../Cantera/python/src/Makefile \
           ../ext/lapack/Makefile \

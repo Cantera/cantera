@@ -32,7 +32,7 @@ win-install: hdr-install win-kernel-install data-install python-install matlab-i
 demos: example_codes
 
 # build the Cantera static libraries
-kernel: info 
+kernel:  
 	@INSTALL@ -d @buildlib@
 	rm -f @buildlib@/*.a
 	rm -f @buildlib@/*.so
@@ -50,7 +50,7 @@ clib:
 	ranlib @buildlib@/*.a
 
 cxxlib: 
-	cd Cantera/cxx; @MAKE@
+	cd Cantera/cxx/src; @MAKE@
 
 utils:
 	cd tools; @MAKE@
@@ -89,7 +89,7 @@ hdr-collect:
 	@INSTALL@ -d build/include/cantera/kernel/zeroD
 	@INSTALL@ -d build/include/cantera/kernel/converters
 	@INSTALL@ -d build/include/cantera/kernel/transport
-	@INSTALL@ include/*.h build/include/cantera
+	@INSTALL@ Cantera/cxx/include/*.h build/include/cantera
 	@INSTALL@ config.h build/include/cantera
 	@INSTALL@ Cantera/src/*.h build/include/cantera/kernel
 	@INSTALL@ Cantera/src/oneD/*.h build/include/cantera/kernel/oneD
@@ -226,8 +226,8 @@ pack: export
           tar cvf cantera-$(version).tar cantera-$(version)/*; \
 	  gzip cantera-$(version).tar)
 
-info:
-	echo '#define CANTERA_ROOT "@prefix@/cantera"' > include/ctdir.h
+#info:
+#	echo '#define CANTERA_ROOT "@prefix@/cantera"' > include/ctdir.h
 
 
 
