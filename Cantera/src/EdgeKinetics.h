@@ -372,6 +372,8 @@ namespace Cantera {
         vector_fp m_pot;
         vector_fp m_rwork;
         vector_fp m_E;
+        vector_fp m_beta;
+        vector_int m_ctrxn;
 
     private:
 
@@ -389,6 +391,7 @@ namespace Cantera {
         }
         void applyButlerVolmerCorrection(doublereal* kf);
         bool m_finalized;
+        bool m_has_electrochem_rxns;
     };
 }
 

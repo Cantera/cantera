@@ -388,10 +388,12 @@ namespace pip {
             // two irreversible reactions.
 
             if (r.reactions[i].krev.A != 0.0) {
-                addReaction(idktag, irxn, 
+                cout << endl << "# [CK Reaction (+" << i+1 << ")]" << endl;  
+                addReaction(idktag, irxn,
                     ckr::forwardReaction(r.reactions[i]), r.units, version);
                 irxn++;
-                addReaction(idktag, irxn, 
+                cout << "# [CK Reaction (-" << (i+1) << ")]" << endl;  
+                addReaction(idktag, irxn,  
                     ckr::reverseReaction(r.reactions[i]), r.units, version);
                 irxn++;
             }
@@ -399,6 +401,8 @@ namespace pip {
             // Otherwise, just add the whole reaction, which may or may
             // not be reversible.
             else { 
+                if (i != irxn) 
+                    cout << endl << "# [CK Reaction (" << (i+1) << ")]" << endl;  
                 addReaction(idktag, irxn, r.reactions[i], 
                     r.units, version);
                 irxn++;

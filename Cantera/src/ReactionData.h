@@ -34,6 +34,7 @@ namespace Cantera {
             equation = "";
             default_3b_eff = 1.0;
             global = false;
+            beta = 0.0;
         }
         ~ReactionData(){}
 
@@ -58,6 +59,7 @@ namespace Cantera {
         doublereal default_3b_eff;
         vector_fp cov;
         bool global;
+        doublereal beta;  // for electrochemical reactions
     };
 }
 

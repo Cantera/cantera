@@ -615,6 +615,9 @@ namespace Cantera {
             else if (nm == "efficiencies") {
                 getEfficiencies(c, kin, rdata);
             }
+            else if (nm == "electrochem") {
+                rdata.beta = fpValue(c["beta"]);
+            }
         }
 	/*
 	 * Store the coefficients in the ReactionData object for return

@@ -42,7 +42,8 @@ namespace Cantera {
         m_redo_rates(false),
         m_nirrev(0), 
         m_nrev(0),
-        m_finalized(false)
+        m_finalized(false),
+        m_has_electrochem_rxns(false)
     {
         m_kdata = new EdgeKineticsData;
         m_kdata->m_temp = 0.0;
@@ -68,7 +69,8 @@ namespace Cantera {
         if (T != m_kdata->m_temp || m_redo_rates) {
             m_kdata->m_logtemp = log(T);
             m_rates.update(T, m_kdata->m_logtemp, m_kdata->m_rfn.begin());
-            applyButlerVolmerCorrection(m_kdata->m_rfn.begin());
+            if (m_has_electrochem_rxns)
+                applyButlerVolmerCorrection(m_kdata->m_rfn.begin());
             m_kdata->m_temp = T;
             updateKc();
             m_kdata->m_ROP_ok = false;
@@ -220,7 +222,8 @@ namespace Cantera {
     /**
      * For reactions that transfer charge across a potential difference,
      * the activation energies are modified by the potential difference.
-     * (see, for example, ...). This method applies this correction.
+     * (see, for example, Baird and Falkner, "Electrochemical Methods"). 
+     * This method applies this correction.
      */
     void EdgeKinetics::applyButlerVolmerCorrection(doublereal* kf) {
         int i;
@@ -252,12 +255,16 @@ namespace Cantera {
         // activation energy below zero.
         doublereal ea, eamod;
 
-        for (i = 0; i < m_ii; i++) {
-            eamod = 0.5*m_rwork[i];
+        int nct = m_beta.size();
+        int irxn;
+        for (i = 0; i < nct; i++) {
+            irxn = m_ctrxn[i];
+            eamod = m_beta[i]*m_rwork[irxn];
+            //cout << "i, beta = " << i << " " << m_beta[i] << endl;
             if (eamod != 0.0 && m_E[i] != 0.0) {
                 ea = GasConstant * m_E[i];
                 if (eamod + ea < 0.0) eamod = -ea;
-                kf[i] *= exp(-eamod*rrt);
+                kf[irxn] *= exp(-eamod*rrt);
             }
         }
     }
@@ -354,17 +361,28 @@ namespace Cantera {
     void EdgeKinetics::
     addElementaryReaction(const ReactionData& r) {
         int iloc;
+
         // install rate coeff calculator
         vector_fp rp = r.rateCoeffParameters;
+
+        // coverage dependence
         int ncov = r.cov.size();
         for (int m = 0; m < ncov; m++) rp.push_back(r.cov[m]);
-        iloc = m_rates.install( reactionNumber(),
-            r.rateCoeffType, rp.size(), 
+
+        iloc = m_rates.install( reactionNumber(), r.rateCoeffType, rp.size(), 
             rp.begin() );
+
         // store activation energy
-        m_E.push_back(r.rateCoeffParameters[2]);
+        if (r.beta > 0.0) {
+            m_has_electrochem_rxns = true;
+            m_E.push_back(r.rateCoeffParameters[2]);
+            m_beta.push_back(r.beta);
+            m_ctrxn.push_back(reactionNumber());
+        }
+
         // add constant term to rate coeff value vector
-        m_kdata->m_rfn.push_back(r.rateCoeffParameters[0]);                
+        m_kdata->m_rfn.push_back(r.rateCoeffParameters[0]);
+                
         registerReaction( reactionNumber(), ELEMENTARY_RXN, iloc);
     }
 
