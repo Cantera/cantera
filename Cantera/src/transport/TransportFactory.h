@@ -28,6 +28,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <new>
 
 using namespace std;
 
@@ -96,11 +97,21 @@ namespace Cantera {
             return __factory;
         }
 
+	/**
+	 * Deletes the statically malloced instance.
+	 */
+	static void deleteTransportFactory();
+
         /**
-         * Destructor. Deletes the TransportFactory instance pointed
-         * to by __factory, and sets __factory to NULL.
+         * Destructor 
+	 *
+	 * We do not delete statically
+	 * created single instance of this class here, because it would
+	 * create an infinite loop if destructor is called for that
+	 * single instance. 
          */
         virtual ~TransportFactory();
+	
 
         /// Build a new transport manager
         virtual Transport*
@@ -178,7 +189,15 @@ namespace Cantera {
         if (f == 0) {
             f = TransportFactory::factory();
         }
-        return f->newTransport(transportModel, thermo, loglevel);
+        Transport* ptr = f->newTransport(transportModel, thermo, loglevel);
+	/*
+	 * Note: We delete the static __factory instance here, instead of in
+	 *       appdelete() in misc.cpp, to avoid linking problems involving
+	 *       the need for multiple cantera and transport library statements
+	 *       for applications that don't have transport in them.
+	 */
+	TransportFactory::deleteTransportFactory();
+	return ptr;
     }
 
 

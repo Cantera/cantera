@@ -202,11 +202,32 @@ namespace Cantera {
         m_models["None"] = 0;
     }
 
+
+     /**
+      * Destructor 
+      *
+      * We do not delete statically
+      * created single instance of this class here, because it would
+      * create an infinite loop if destructor is called for that
+      * single instance. 
+      *   However, we do have a malloced pointer to m_integrals
+      * that does need to be explicitly deleted.
+      */
     TransportFactory::~TransportFactory() {
-        delete __factory;
-        __factory = 0;
-        delete m_integrals;
-        m_integrals = 0;
+	if (m_integrals) {
+	  delete m_integrals;
+	  m_integrals = 0;
+	}
+    }
+	
+     /**
+      * This static function deletes the statically malloced instance.
+      */
+    void TransportFactory::deleteTransportFactory() {
+	if (__factory) {
+	  delete __factory;
+	  __factory = 0;
+	}
     }
 
     /**
