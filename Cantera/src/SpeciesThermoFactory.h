@@ -29,7 +29,7 @@ namespace Cantera {
     public:
 	UnknownSpeciesThermoModel(string proc, string spName,
 				  string speciesThermoModel) :
-	    CanteraError(proc, "species :" + spName + 
+	    CanteraError(proc, "species " + spName + 
 			 ": Specified speciesThermoPhase model "   
 			 + speciesThermoModel + 
 			 " does not match any known type.") {}

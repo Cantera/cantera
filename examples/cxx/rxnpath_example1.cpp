@@ -129,6 +129,11 @@ int rxnpath_example1(int job) {
         double dt = 1.e-5;    // interval at which output is written
         int nsteps = 100;     // number of intervals
 
+        // create a container object to run the simulation
+        // and add the reactor to it
+        ReactorNet sim;
+        sim.addReactor(&r);
+
         // create a reaction path diagram builder
         ReactionPathBuilder b;
         ofstream rplog("rp1.log");   // log file
@@ -139,7 +144,7 @@ int rxnpath_example1(int job) {
         clock_t t0 = clock();
         for (int i = 1; i <= nsteps; i++) {
             tm = i*dt;
-            r.advance(tm);
+            sim.advance(tm);
             writeRxnPathDiagram(tm, b, gas, rplog, rplot);
         }
         clock_t t1 = clock();

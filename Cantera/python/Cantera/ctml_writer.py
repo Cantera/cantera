@@ -332,6 +332,37 @@ class NASA(thermo):
         u = n.addChild("floatArray", str)
         u["size"] = "7"
         u["name"] = "coeffs"
+
+
+class Shomate(thermo):
+    """Shomate polynomial parameterization."""
+    
+    def __init__(self, range = (0.0, 0.0), 
+                 coeffs = [], p0 = -1.0):
+        self._t = range
+        self._pref = p0
+        if len(coeffs) <> 7:
+            raise 'Shomate coefficient list must have length = 7'
+        self._coeffs = coeffs
+
+        
+    def build(self, t):
+        n = t.addChild("Shomate")
+        n['Tmin'] = `self._t[0]`
+        n['Tmax'] = `self._t[1]`
+        if self._pref <= 0.0:
+            n['P0'] = `_pref`
+        else:
+            n['P0'] = `self._pref`
+        str = ''
+        for i in  range(4):
+            str += '%17.9E, ' % self._coeffs[i]
+        str += '\n'
+        str += '%17.9E, %17.9E, %17.9E' % (self._coeffs[4],
+                                           self._coeffs[5], self._coeffs[6])
+        u = n.addChild("floatArray", str)
+        u["size"] = "7"
+        u["name"] = "coeffs"
     
                  
 class const_cp(thermo):
@@ -1039,7 +1070,7 @@ class stoichiometric_solid(phase):
     def build(self, p):
         ph = phase.build(self, p)
         e = ph.addChild("thermo")
-        e['model'] = 'StoichCompound'
+        e['model'] = 'StoichSubstance'
         addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
         if self._tr:
             t = ph.addChild('transport')
@@ -1358,7 +1389,10 @@ validate()
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.32  2004-04-23 16:35:32  dggoodwin
+# Revision 1.33  2004-04-23 19:03:21  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.32  2004/04/23 16:35:32  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.31  2004/03/12 05:59:59  dggoodwin

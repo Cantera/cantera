@@ -156,14 +156,21 @@ namespace Cantera {
      * Install a NASA polynomial thermodynamic property
      * parameterization for species k.
      */
-    static void installNasaThermo(SpeciesThermo& sp, int k, const XML_Node& f0, 
-			   const XML_Node& f1) {
+    static void installNasaThermo(SpeciesThermo& sp, int k, const XML_Node* f0ptr, 
+			   const XML_Node* f1ptr) {
         doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
 
+        const XML_Node& f0 = *f0ptr;
+        bool dualRange = false;
+        if (f1ptr) {dualRange = true;}
         tmin0 = fpValue(f0["Tmin"]);
         tmax0 = fpValue(f0["Tmax"]);
-        tmin1 = fpValue(f1["Tmin"]);
-        tmax1 = fpValue(f1["Tmax"]);
+        tmin1 = tmax0;
+        tmax1 = tmin1 + 0.0001;
+        if (dualRange) {
+            tmin1 = fpValue((*f1ptr)["Tmin"]);
+            tmax1 = fpValue((*f1ptr)["Tmax"]);
+        }
 
         vector_fp c0, c1;
         if (fabs(tmax0 - tmin1) < 0.01) {
@@ -171,13 +178,16 @@ namespace Cantera {
             tmid = tmax0;
             tmax = tmax1;
             getFloatArray(f0.child("floatArray"), c0, false);
-            getFloatArray(f1.child("floatArray"), c1, false);
+            if (dualRange)
+                getFloatArray(f1ptr->child("floatArray"), c1, false);
+            else
+                c1.resize(7,0.0);
         }
         else if (fabs(tmax1 - tmin0) < 0.01) {
             tmin = tmin1;
             tmid = tmax1;
             tmax = tmax0;
-            getFloatArray(f1.child("floatArray"), c0, false);
+            getFloatArray(f1ptr->child("floatArray"), c0, false);
             getFloatArray(f0.child("floatArray"), c1, false);
         }
         else {
@@ -197,34 +207,86 @@ namespace Cantera {
     }
 
 
+
     /** 
-     * Install a Shomate polynomial thermodynamic property
+     * Install a NASA polynomial thermodynamic property
      * parameterization for species k.
      */
-    static void installShomateThermo(SpeciesThermo& sp, int k, const XML_Node& f) {
-        doublereal tmin, tmid, tmax;
-        tmin = fpValue(f["Tmin"]);
-        tmid = fpValue(f["Tmid"]);
-        tmax = fpValue(f["Tmax"]);
+    static void installShomateThermo(SpeciesThermo& sp, int k, const XML_Node* f0ptr, 
+			   const XML_Node* f1ptr) {
+        doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
 
-        vector<XML_Node*> fa;
-        f.getChildren("floatArray",fa);
+        const XML_Node& f0 = *f0ptr;
+        bool dualRange = false;
+        if (f1ptr) {dualRange = true;}
+        tmin0 = fpValue(f0["Tmin"]);
+        tmax0 = fpValue(f0["Tmax"]);
+        tmin1 = tmax0;
+        tmax1 = tmin1 + 0.0001;
+        if (dualRange) {
+            tmin1 = fpValue((*f1ptr)["Tmin"]);
+            tmax1 = fpValue((*f1ptr)["Tmax"]);
+        }
+
         vector_fp c0, c1;
-        getFloatArray(*fa[0], c0, false);
-        getFloatArray(*fa[1], c1, false);
+        if (fabs(tmax0 - tmin1) < 0.01) {
+            tmin = tmin0;
+            tmid = tmax0;
+            tmax = tmax1;
+            getFloatArray(f0.child("floatArray"), c0, false);
+            if (dualRange)
+                getFloatArray(f1ptr->child("floatArray"), c1, false);
+            else
+                c1.resize(7,0.0);
+        }
+        else if (fabs(tmax1 - tmin0) < 0.01) {
+            tmin = tmin1;
+            tmid = tmax1;
+            tmax = tmax0;
+            getFloatArray(f1ptr->child("floatArray"), c0, false);
+            getFloatArray(f0.child("floatArray"), c1, false);
+        }
+        else {
+            throw CanteraError("installShomateThermo",
+			       "non-continuous temperature ranges.");
+        }
         array_fp c(15);
         c[0] = tmid;
         doublereal p0 = OneAtm;
-        if ((*fa[0])["title"] == "low") {
-            copy(c0.begin(), c0.end(), c.begin() + 1);
-            copy(c1.begin(), c1.end(), c.begin() + 8);
-        }
-        else {
-            copy(c1.begin(), c1.end(), c.begin() + 1);
-            copy(c0.begin(), c0.end(), c.begin() + 8);
-        }
+        copy(c0.begin(), c0.begin()+7, c.begin() + 1);
+        copy(c1.begin(), c1.begin()+7, c.begin() + 8);
         sp.install(k, SHOMATE, c.begin(), tmin, tmax, p0);
     }
+
+
+//     /** 
+//      * Install a Shomate polynomial thermodynamic property
+//      * parameterization for species k.
+//      */
+//     static void installShomateThermo(SpeciesThermo& sp, int k, const XML_Node& f) {
+//         doublereal tmin, tmid, tmax;
+//         tmin = fpValue(f["Tmin"]);
+//         tmid = fpValue(f["Tmid"]);
+//         tmax = fpValue(f["Tmax"]);
+
+//         vector<XML_Node*> fa;
+//         f.getChildren("floatArray",fa);
+//         vector_fp c0, c1;
+//         getFloatArray(*fa[0], c0, false);
+//         getFloatArray(*fa[1], c1, false);
+//         array_fp c(15);
+//         c[0] = tmid;
+//         doublereal p0 = OneAtm;
+//         if ((*fa[0])["title"] == "low") {
+//             copy(c0.begin(), c0.end(), c.begin() + 1);
+//             copy(c1.begin(), c1.end(), c.begin() + 8);
+//         }
+//         else {
+//             copy(c1.begin(), c1.end(), c.begin() + 1);
+//             copy(c0.begin(), c0.end(), c.begin() + 8);
+//         }
+//         sp.install(k, SHOMATE, c.begin(), tmin, tmax, p0);
+//     }
 
 
     /** 
@@ -319,25 +381,32 @@ namespace Cantera {
 	const vector<XML_Node*>& tp = thermo.children();
 	int nc = tp.size();
 	if (nc == 1) {
-	  const XML_Node& f = *tp[0];
-	  if (f.name() == "Shomate") {
-	    installShomateThermo(spthermo, k, f);
+	  const XML_Node* f = tp[0];
+	  if (f->name() == "Shomate") {
+              installShomateThermo(spthermo, k, f, 0);
 	  }
-	  else if (f.name() == "const_cp") {
-	    installSimpleThermo(spthermo, k, f);
+	  else if (f->name() == "const_cp") {
+              installSimpleThermo(spthermo, k, *f);
 	  }
+          else if (f->name() == "NASA") {
+              installNasaThermo(spthermo, k, f, 0);
+          }
 	  else {
-	    UnknownSpeciesThermoModel("installSpecies", s["name"], f.name());
+	    UnknownSpeciesThermoModel("installSpecies", s["name"], f->name());
 	  }
 	}
 	else if (nc == 2) {
-	  const XML_Node& f0 = *tp[0];
-	  const XML_Node& f1 = *tp[1];
-	  if (f0.name() == "NASA" && f1.name() == "NASA") {
+	  const XML_Node* f0 = tp[0];
+	  const XML_Node* f1 = tp[1];
+	  if (f0->name() == "NASA" && f1->name() == "NASA") {
 	    installNasaThermo(spthermo, k, f0, f1);
-	  } else {
+	  } 
+	  else if (f0->name() == "Shomate" && f1->name() == "Shomate") {
+	    installShomateThermo(spthermo, k, f0, f1);
+	  } 
+          else {
 	    UnknownSpeciesThermoModel("installSpecies", s["name"], 
-				      f0.name() + f1.name());
+				      f0->name() + " and " + f1->name());
 	  }
 	}
 	else {
@@ -397,7 +466,7 @@ namespace Cantera {
                        +"           "+ fp2str(balp[b->first]);
             }
         }
-        if (msg != "") {
+        if (!ok) {
             msg = "The following reaction is unbalanced:\n\t"
                   + rdata.equation + "\n" + msg + "\n";
             throw CanteraError("checkRxnElementBalance",msg);

@@ -86,7 +86,7 @@ namespace Cantera {
             vector_fp chigh(7);
             copy(c + 8, c + 15, chigh.begin());
 
-            checkContinuity(tmid, clow, chigh.begin());
+            //checkContinuity(tmid, clow, chigh.begin());
 
             m_high[igrp-1].push_back(NasaPoly1(index, tmid, thigh, 
                                          pref, chigh.begin()));
@@ -241,7 +241,10 @@ namespace Cantera {
 #endif
 
 // $Log$
-// Revision 1.3  2004-04-22 21:44:36  dggoodwin
+// Revision 1.4  2004-04-23 19:03:22  dggoodwin
+// *** empty log message ***
+//
+// Revision 1.3  2004/04/22 21:44:36  dggoodwin
 // *** empty log message ***
 //
 // Revision 1.2  2003/11/01 04:50:35  dggoodwin

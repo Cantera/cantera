@@ -19,7 +19,7 @@
   <phase dim="3" id="diamond">
     <elementArray datasrc="elements.xml">H C</elementArray>
     <speciesArray datasrc="#species_data">C(d)</speciesArray>
-    <thermo model="SolidCompound">
+    <thermo model="StoichSubstance">
       <density units="g/cm3">3.52</density>
     </thermo>
     <transport model="None"/>

@@ -26,6 +26,10 @@
  * Same as kinetics_example1, except that it uses class GRI30 instead
  * of class IdealGasMix.
  */
+
+// Note: although this simulation can be done in C++, as shown here,
+// it is much easier in Python or Matlab!
+
 int kinetics_example2(int job) {
 
     try {
@@ -69,6 +73,11 @@ int kinetics_example2(int job) {
         w.setExpansionRateCoeff(1.e9);
         w.setArea(1.0);
 
+        // create a container object to run the simulation
+        // and add the reactor to it
+        ReactorNet sim;
+        sim.addReactor(&r);
+
         double tm;
         double dt = 1.e-5;    // interval at which output is written
         int nsteps = 100;     // number of intervals
@@ -82,7 +91,7 @@ int kinetics_example2(int job) {
         clock_t t0 = clock();
         for (int i = 1; i <= nsteps; i++) {
             tm = i*dt;
-            r.advance(tm);
+            sim.advance(tm);
             saveSoln(tm, gas, soln);
         }
         clock_t t1 = clock();
@@ -99,8 +108,8 @@ int kinetics_example2(int job) {
         cout << " Tfinal = " << r.temperature() << endl;
         cout << " time = " << tmm << endl;
         cout << " number of residual function evaluations = " 
-             << r.integrator().nEvals() << endl;
-        cout << " time per evaluation = " << tmm/r.integrator().nEvals() 
+             << sim.integrator().nEvals() << endl;
+        cout << " time per evaluation = " << tmm/sim.integrator().nEvals() 
              << endl << endl;
 
         cout << "Output files:" << endl
