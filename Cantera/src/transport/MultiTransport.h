@@ -97,6 +97,11 @@ namespace Cantera {
         virtual void getBinaryDiffCoeffs(int ld, doublereal* d);
         virtual void getMultiDiffCoeffs(int ld, doublereal* d);
 
+        /// Although this class implements a multicomponent diffusion
+        /// model, it is convenient to be able to compute
+        /// mixture-averaged diffusion coefficients too. 
+        virtual void getMixDiffCoeffs(doublereal* d);
+
 
         virtual void getSpeciesFluxes(int ndim, 
         doublereal* grad_T, int ldx, const doublereal* grad_X, 

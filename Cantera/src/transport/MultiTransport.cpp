@@ -550,8 +550,8 @@ namespace Cantera {
         // invert L00,00
         int ierr = invert(m_Lmatrix, m_nsp);
         if (ierr != 0) {
-            cout << " invert returned ierr = " << ierr << endl;
-            exit(1);
+            throw CanteraError("MultiTransport::getMultiDiffCoeffs",
+                string(" invert returned ierr = ")+int2str(ierr));
         }
         m_l0000_ok = false;           // matrix is overwritten by inverse
 
@@ -567,6 +567,39 @@ namespace Cantera {
                               (m_Lmatrix(i,j) - m_Lmatrix(i,i));
             }
         }
+    }
+
+
+    void MultiTransport::getMixDiffCoeffs(doublereal* d) {
+
+        // update the mole fractions
+        updateTransport_C();
+
+        // update the binary diffusion coefficients if necessary
+        updateDiff_T();
+
+        int k, j;
+        doublereal mmw = m_thermo->meanMolecularWeight();
+        doublereal sumxw = 0.0, sum2;
+        doublereal p = pressure_ig();
+	if (m_nsp == 1) {
+	  d[0] = m_bdiff(0,0) / p;
+	} else {
+	  for (k = 0; k < m_nsp; k++) sumxw += m_molefracs[k] * m_mw[k];
+	  for (k = 0; k < m_nsp; k++) {
+            sum2 = 0.0;
+            for (j = 0; j < m_nsp; j++) {
+	      if (j != k) {
+		sum2 += m_molefracs[j] / m_bdiff(j,k);
+	      }
+            }
+	    if (sum2 <= 0.0) {
+	      d[k] = m_bdiff(k,k) / p;
+	    } else {
+	      d[k] = (sumxw - m_molefracs[k] * m_mw[k])/(p * mmw * sum2);
+	    }
+	  }
+	}
     }
 
               
