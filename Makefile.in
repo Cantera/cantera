@@ -151,7 +151,7 @@ finish-install:
 	@INSTALL@ Cantera/cxx/demos/*.cpp @ct_demodir@/cxx
 	@INSTALL@ Cantera/cxx/demos/*.h @ct_demodir@/cxx
 	@INSTALL@ Cantera/cxx/demos/Makefile @ct_demodir@/cxx
-	chown -R @username@ @ct_demodir@/c++
+	chown -R @username@ @ct_demodir@/cxx
 
 	@INSTALL@ -d @ct_demodir@/f77
 	@INSTALL@ Cantera/fortran/f77demos/*.f @ct_demodir@/f77

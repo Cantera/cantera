@@ -16,9 +16,9 @@ apps:
 apps-install:
 	@INSTALL@ -d @ct_bindir@
 ifeq ($(build_ck),1)
-	@INSTALL@ ../bin/ck2cti @ct_bindir@
+	@INSTALL@ @buildbin@/ck2cti @ct_bindir@
 endif
-	@INSTALL@ ../bin/cti2ctml @ct_bindir@
+	@INSTALL@ @buildbin@/cti2ctml @ct_bindir@
 
 man-install:
 	@INSTALL@ -d @ct_mandir@/man1
