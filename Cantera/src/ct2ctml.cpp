@@ -47,7 +47,8 @@ namespace ctml {
     static bool checkPython() {
         time_t aclock;
         time( &aclock );
-        string path = tmpDir() + "/.check"+int2str(aclock)+".pyw";
+        int ia = static_cast<int>(aclock);
+        string path = tmpDir() + "/.check"+int2str(ia)+".pyw";
         ofstream f(path.c_str());
         if (!f) {
             throw CanteraError("checkPython","cannot open "+path+" for writing");
@@ -97,8 +98,8 @@ namespace ctml {
 
         time_t aclock;
         time( &aclock );
-
-        string path = tmpDir()+"/.cttmp"+int2str(aclock)+".pyw";
+        int ia = static_cast<int>(aclock);
+        string path = tmpDir()+"/.cttmp"+int2str(ia)+".pyw";
         ofstream f(path.c_str());
         if (!f) {
             throw CanteraError("ct2ctml","cannot open "+path+" for writing.");
