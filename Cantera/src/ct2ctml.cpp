@@ -152,8 +152,10 @@ namespace ctml {
         else {
 	  ff = inname;
 	}
-        ifstream fin(ff.c_str());
-        rootPtr->build(fin);
-        fin.close();
+        rootPtr = &get_XML_File(ff)->child("ctml");
+        //rootPtr->write(cout);
+        //ifstream fin(ff.c_str());
+        //rootPtr->build(fin);
+        //fin.close();
     }
 }
