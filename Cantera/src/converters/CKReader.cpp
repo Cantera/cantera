@@ -55,6 +55,7 @@ bool CKReader::read(const string& inputFile, const string& thermoDatabase,
     // construct a parser for the input file
     CKParser parser(&ckinfile, inputFile, &log);
     parser.verbose = verbose;
+    parser.debug = debug;
 
     // write header information to the log file
     struct tm *newtime;
@@ -77,6 +78,13 @@ bool CKReader::read(const string& inputFile, const string& thermoDatabase,
         log << endl << "***************  Warning  ***************" << endl
             <<         "     mechanism validation disabled"        << endl
             <<         "*****************************************" << endl;
+
+    if (debug) {
+        log << "*** DEBUG MODE ***" << endl;
+    }
+    else {
+        log << "debugging disabled." << endl;
+    }
 
     //-----------   process ELEMENT section  ----------------------
 
@@ -152,6 +160,7 @@ bool CKReader::read(const string& inputFile, const string& thermoDatabase,
         ifstream thermofile(thermoDatabase.c_str());
         CKParser thermReader(&thermofile, thermoDatabase, &log);
         thermReader.verbose = verbose;
+        thermReader.debug = debug;
         int dbflag = HasTempRange;
         vector<string> dummy;
         thermReader.readThermoSection(dummy, speciesData, temp, dbflag, log);
@@ -208,6 +217,7 @@ bool CKReader::read(const string& inputFile, const string& thermoDatabase,
         ifstream thermofile(thermoDatabase.c_str());
         CKParser thermoReader(&thermofile, thermoDatabase, &log);
         thermoReader.verbose = verbose;
+        thermoReader.debug = debug;
         int dbflag = HasTempRange;
         thermoReader.readThermoSection(undef, speciesData, temp, dbflag, log);
         undefined = 0;
@@ -249,6 +259,7 @@ bool CKReader::read(const string& inputFile, const string& thermoDatabase,
     // construct a new parser for the input file
     CKParser parser2(&ckinfile2, inputFile, &log);
     parser2.verbose = verbose;
+    parser2.debug = debug;
 
     parser2.readReactionSection(speciesSymbols, elementSymbols, reactions, units);
     log << "\nread " << static_cast<int>(reactions.size()) 

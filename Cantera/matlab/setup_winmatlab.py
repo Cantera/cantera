@@ -2,7 +2,7 @@
 import sys
 
 bindir = '/Applications/Cantera/bin'
-libdir = '/Users/dgg/dv/sf/cantera/build/lib/powerpc-apple-darwin7.4.0'
+libdir = '/Users/dgg/dv/sf/cantera/build/lib/powerpc-apple-darwin7.5.0'
 incdir = '/Users/dgg/dv/sf/cantera/build/include'
 dflibdir = ''
 
@@ -10,7 +10,7 @@ bllibstr = "-lctlapack -lctblas"
 bllibs = bllibstr.replace('-l',' ')
 bllist = bllibs.split()
 
-bldir = "/Users/dgg/dv/sf/cantera/build/lib/powerpc-apple-darwin7.4.0"
+bldir = "/Users/dgg/dv/sf/cantera/build/lib/powerpc-apple-darwin7.5.0"
 
 libs = ['clib', 'oneD', 'zeroD', 'transport', 'cantera', 'recipes',
         'cvode', 'ctmath', 'tpx']

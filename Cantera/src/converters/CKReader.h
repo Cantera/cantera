@@ -40,7 +40,7 @@ public:
      * Constructor. Construct a new CKReader instance. By default,
      * validation is enabled, as well as verbose output to the log file.
      */ 
-    CKReader() : verbose(true), validate(true) {}
+    CKReader() : verbose(true), validate(true), debug(false) {}
 
     /// Destructor. Does nothing.
     ~CKReader() {}
@@ -67,6 +67,7 @@ public:
 
     bool verbose;         ///<  print detailed messages to log file
     bool validate;        ///<  validate elements, species, and reaction
+    bool debug;           ///<  enable debugging output
 
 private:
 

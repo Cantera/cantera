@@ -6,7 +6,10 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.13  2004-08-28 16:12:41  dggoodwin
+// Revision 1.14  2004-09-13 11:22:21  dggoodwin
+// *** empty log message ***
+//
+// Revision 1.13  2004/08/28 16:12:41  dggoodwin
 // cleanup
 //
 // Revision 1.12  2004/08/05 14:56:57  dggoodwin
@@ -178,7 +181,7 @@ namespace ckr {
      *  @todo allow non-integral stoichiometric coefficients
      */
     static void getSpecies(string s, 
-        int n, vector<RxnSpecies>& species) 
+        int n, vector<RxnSpecies>& species, bool debug, ostream& log) 
     {
         char* begin = new char[n+1];
         copy(s.begin(), s.end(), begin);
@@ -212,6 +215,9 @@ namespace ckr {
             ss.name = syms[j];
             ss.number = coeffs[j];
             species.push_back(ss);
+            if (debug) {
+                log << ss.number << "  " << ss.name << endl;
+            }
         }
     }
 
@@ -261,7 +267,7 @@ namespace ckr {
      * Constructor. Construct a parser for the specified input file.
      */
     CKParser::CKParser(istream* infile, const string& fname, ostream* log) 
-        : verbose(true), m_line (0) {
+        : verbose(true), m_line (0), debug(false) {
         m_ckfile = infile; 
         m_ckfilename = fname;
         m_log = log;
@@ -329,9 +335,9 @@ namespace ckr {
             if (ch == char13 || (ch == char10 && (m_last_eol != char13)))  {
 #undef DEBUG_EOL
 #ifdef DEBUG_EOL
-                cout << "EOL: found character " << int(ch) << " ending line:" << endl;
-                cout << line << endl;
-                cout << int(m_last_eol) << " " << int('\n') << " " << int(ch) << endl; 
+                *m_log << "EOL: found character " << int(ch) << " ending line:" << endl;
+                *m_log << line << endl;
+                *m_log << int(m_last_eol) << " " << int('\n') << " " << int(ch) << endl; 
 #endif
                 m_last_eol = ch;
                 break;
@@ -868,6 +874,10 @@ next:
         vector<string> cm;
         bool ok = true;
  
+        if (debug) {
+            *m_log << "CKParser::readReactions  ---> DEBUG MODE" << endl;
+        }
+
         while (1 > 0) {
 
             // skip blank or comment lines
@@ -879,7 +889,7 @@ next:
 
 #undef DEBUG_LINE
 #ifdef DEBUG_LINE
-            cout << "Line: " << s << endl;
+            *m_log << "Line: " << s << endl;
 #endif
             // end of REACTION section or EOF
             /// @todo does this handle case of 1 reaction correctly?
@@ -960,6 +970,9 @@ next:
                 rxn = Reaction();
                 rxn.comment = cm;
                 cm.clear();
+                if (debug) {
+                    *m_log << "Parsing reaction " << nRxns << endl;
+                }
             }
             else auxDataLine = true;
             if (comment != "") rxn.lines.push_back(s+'!'+comment);
@@ -990,10 +1003,21 @@ next:
                 else throw CK_SyntaxError(*m_log, 
                     "expected <=>, =>, or =", m_line);
 
+                if (debug) {
+                    *m_log << s << endl;
+                    if (rxn.isReversible) 
+                        *m_log << "Reaction is reversible." << endl;
+                    else
+                        *m_log << "Reaction is irreversible." << endl;
+                }
+
                 string::size_type mloc, mloc2;
 
-                // process reactants	    
+                // process reactants	   
+                if (debug) *m_log << "Processing reactants..." << sleft << endl;
                 removeWhiteSpace(sleft);
+                if (debug) *m_log << "After removing white space: " 
+                                << sleft << endl;
                 rxn.isFalloffRxn = false;
 
                 string sm, mspecies;
@@ -1013,6 +1037,10 @@ next:
                         else {
                             rxn.thirdBody = mspecies;
                         }
+                        if (debug) {
+                            *m_log << "Falloff reaction. Third body = " 
+                                 << rxn.thirdBody << endl;
+                        }
                     }
                     else throw CK_SyntaxError(*m_log, 
                         "missing )", m_line);
@@ -1027,11 +1055,20 @@ next:
                         rxn.type = ThreeBody;
                         sleft = sleft.substr(0, mloc);
                         rxn.thirdBody = "M";
+                        if (debug) {
+                            *m_log << "Three-body reaction." << endl;
+                        }
+                    }
+                    else if (debug) {
+                        *m_log << "Reactant string contains +M or +m, but \n"
+                             << "not last two characters of string: " 
+                             << "\"" << sleft << "\"\n"
+                             << "NOT a three-body reaction." << endl;
                     }
                 }
 
                 getSpecies(sleft.c_str(),static_cast<int>(sleft.size()),
-					rxn.reactants);
+                    rxn.reactants, debug, *m_log);
                 int ir = static_cast<int>(rxn.reactants.size());
                 for (int iir = 0; iir < ir; iir++) {
                     if (find(speciesNames.begin(), speciesNames.end(),
@@ -1059,9 +1096,14 @@ next:
                            << m_line << endl;
                 //throw CK_SyntaxError(*m_log, "negative prefactor", m_line);
 
+                if (debug) *m_log << "Processing products..." << sright << endl;
                 sright = sright.substr(0, sright.find(toks[ntoks - 3]) - 1 );
+                if (debug) *m_log << "After removing Arrhenius parameters, "
+                                << "\nproduct string = " << sright << endl;
 
                 removeWhiteSpace(sright);
+                if (debug) *m_log << "After removing white space: " 
+                                << sright << endl;
                 mloc = sright.find("(+");
                 if (mloc != string::npos) {
                     sm = sright.substr(mloc+2, 1000);
@@ -1075,6 +1117,10 @@ next:
 
                         rxn.isFalloffRxn = true;
                         rxn.type = Falloff;
+                        if (debug) {
+                            *m_log << "Falloff reaction. Third body = " 
+                                 << rxn.thirdBody << endl;
+                        }
                     }
                     else throw CK_SyntaxError(*m_log, 
                         "missing )", m_line);
@@ -1104,10 +1150,19 @@ next:
                         rxn.isThreeBodyRxn = true;
                         rxn.thirdBody = "M";
                         sright = sright.substr(0, mloc);
+                        if (debug) {
+                            *m_log << "Three-body reaction." << endl;
+                        }
+                    }
+                    else if (debug) {
+                        *m_log << "Product string contains +M or +m, but \n"
+                             << "not last two characters of string: " 
+                             << "\"" << sright << "\"\n"
+                             << "NOT a three-body reaction." << endl;
                     }		
                 }
                 getSpecies(sright.c_str(),static_cast<int>(sright.size()),
-					rxn.products);
+                    rxn.products, debug, *m_log);
                 int ip = static_cast<int>(rxn.products.size());
                 for (int iip = 0; iip < ip; iip++) {
                     if (find(speciesNames.begin(), speciesNames.end(),

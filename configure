@@ -48,14 +48,15 @@ CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
 CANTERA_INSTALL_DIR=${CANTERA_INSTALL_DIR:="c:/cantera"}
  
 #  On a PC running MS-Windows, Cantera can be built either using
-#  Microsoft Visual Studio, with the Visual C++ and Visual Fortran
-#  compilers, or using the linux-like cygwin environment with the 
-#  g++ and g77 compilers. Set this to "y" to use Visual Studio.
+#  Microsoft Visual Studio, with the Visual C++ and (optionally)
+#  Visual Fortran compilers, or using the linux-like cygwin
+#  environment with the g++ and g77 compilers. Set this to "y" to use
+#  Visual Studio.
 USE_VISUAL_STUDIO=${USE_VISUAL_STUDIO:="y"}
 
 #  If you are using Visual Studio, set this to the location of the
 # directory containing the Fortran libraries. This is only needed to
-# build the Matlab interface.
+# build the Matlab interface. 
 FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
 
 
@@ -65,11 +66,12 @@ FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
 #
 # Cantera has several programming language interfaces. Select the ones
 # you want to build. The default is to try to build all language
-# interfaces.  The Python interface will be built, the MATLAB
-# interface will too if MATLAB is found, the Fortran 90/95 interface
-# will be built if a Fortran 90/95 compiler is found on your
+# interfaces.  The Python interface will be built by default, the
+# MATLAB interface will too if MATLAB is found, the Fortran 90/95
+# interface will be built if a Fortran 90/95 compiler is found on your
 # system. You can customize these defaults by setting parameters in
 # this section.
+#
 #
 #----------------- Python --------------------------------------------
 # 
@@ -80,12 +82,12 @@ FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
 # http://www.python.org before proceeding with the installation of
 # Cantera.
 #
-# If you plan to write Python scripts yourself to solve problems, or
-# you want to use the graphical MixMaster application, then you need
-# the Cantera Python Package. If, on the other hand, you will only use
-# Cantera from some other language (e.g. MATLAB or Fortran 90/95) and
-# only need Python to process .cti files, then you only need a minimal
-# subset of the package (actually, only one file).
+# If you plan to work in Python, or you want to use the graphical
+# MixMaster application, then you need the Cantera Python Package. If,
+# on the other hand, you will only use Cantera from some other
+# language (e.g. MATLAB or Fortran 90/95) and only need Python to
+# process .cti files, then you only need a minimal subset of the
+# package (actually, only one file).
 
 # Set PYTHON_PACKAGE to one of these two strings:
 #    full      install everything needed to use Cantera from Python
@@ -94,11 +96,11 @@ FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
 PYTHON_PACKAGE=${PYTHON_PACKAGE:="full"}
 
 
-# Cantera needs to know where to find the Python interpreter.  By
-# default, the configuration process will look for it somewhere on
-# your PATH, either as 'python2' or as 'python'.  If it is not on the
-# PATH, or has a different name, set this to the full path to the
-# Python interpreter.
+# Cantera needs to know where to find the Python interpreter.  If
+# PYTHON_CMD is set to "default", then the configuration process will
+# look for the Python Interpreter somewhere on your PATH, either as
+# 'python2' or as 'python'.  If it is not on the PATH, or has a
+# different name, set this to the full path to the Python interpreter.
 PYTHON_CMD=${PYTHON_CMD:="default"}
 
 
@@ -116,34 +118,49 @@ PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"}
 
 #----------- MATLAB --------------------------------------------------
 
-# Set this to "y" if you want to build the MATLAB toolbox. MATLAB must
-# be installed on your system first, since the build process runs a
-# Matlab script. If this is set to "y" but MATLAB is not found, the
-# MATLAB toolbox will not be built. Note that you may need to run 'mex
-# -setup' within MATLAB to configure it for your C++ compiler before
-# building the Cantera MATLAB Toolbox.
+# This variable controls whether the MATLAB toolbox will be built. It
+# should be set to one of these strings:
+#
+#      "default"     the 'configure' script will try to build a simple 
+#                    MATLAB MEX file. If this succeeds, BUILD_MATLAB_TOOLBOX
+#                    will be set to "y", otherwise it will be set to "n".
+#                    
+#      "y"           build the MATLAB toolbox.
+#      "n"           do not build the MATLAB toolbox, even if MATLAB is 
+#                    installed.
+#
+# Note that you may need to run 'mex -setup' within MATLAB to
+# configure it for your C++ compiler before running this script.
 
-BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
+BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="default"}
 
                                                                   
                              
 #----------- Fortran 90/95 --------------------------------------------------
 
-# Set this to "y" if you want to build the Fortran 90/95 interface. 
-# A Fortran 90/95 compiler is required. If none is found, the Fortran 90/95
-# interface will not be built.
+# This variable controls whether the Fortran 90/95 interface will be
+# built. It should be set to one of these strings:
+#
+#      "default"    The 'configure' script will attempt to compile a small
+#                   Fortran 90/05 program; if this succeeds, 
+#                   BUILD_F90_INTERFACE will be set to "y", and otherwise to "n".
+#      "y"          Build the Fortran 90/95 interface.
+#      "n"          Do not build the Fortran 90/95 interface, even if a 
+#                   Fortran 90/95 compiler is installed.
 
 BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="y"}
 
-# The Fortran 90/95 compiler
+
+# The Fortran 90/95 compiler. 
 F90=${F90:=f95}
 
 # Compiler option flags for the Fortran 90/95 compiler. If you are
 # using the Absoft or the NAG compiler, additional options specific to
 # these compilers will be added automatically, and you do not need to
 # specify them here.  Otherwise, add any required compiler-specific
-# flas here.
+# flags here.
 F90FLAGS=${F90FLAGS:='-O2'}
+
 
 
 #----------------------------------------------------------------------
@@ -208,7 +225,7 @@ ENABLE_RXNPATH='y'
 
 # non-ideal pure substance models for a few fluids imported from the
 # 'TPX' package. (http://adam.caltech.edu/software/tpx)
-ENABLE_TPX='y'          
+ENABLE_TPX='y'     
 		
 
     
@@ -224,8 +241,12 @@ ENABLE_TPX='y'
 # libraries, and set BLAS_LAPACK_DIR to the directory where these
 # libraries are located. Otherwise, leave these lines commented out.
 #
+# (The settings shown here are appropriate if you are using the ATLAS
+# libraries.)
+#
 #BLAS_LAPACK_LIBS='-llapack -lf77blas -lcblas -latlas'
 #BLAS_LAPACK_DIR='/usr/lib'
+#
 #
 # The options below do not need to be set if you are using the default
 # libraries.
@@ -258,7 +279,7 @@ CXXFLAGS=${CXXFLAGS:="-O2 -Wall"}
 
 # the C++ flags required for linking. Uncomment if additional flags
 # need to be passed to the linker.
-#LCXX_FLAGS="-framework vecLib"
+#LCXX_FLAGS="-framework vecLib"   
 
 # Ending libraries to tack onto the linking of all C++ programs
 LCXX_END_LIBS=${LCXX_END_LIBS:="-lm"}
@@ -276,7 +297,8 @@ SHARED=${SHARED:="-shared"}
 #-------------------------------------------------------------------
 
 # Cantera uses several external software packages, which are all in
-# the 'ext' directory.. These options control how these packages are built.
+# the 'ext' directory.. These options control how these packages are
+# built.
 
 # For external procedures written in Fortran 77, both the original F77
 # source code and C souce code generated by the 'f2c' program are
@@ -289,7 +311,7 @@ SHARED=${SHARED:="-shared"}
 # Note, if set to "y", Cantera does not need a fortran compiler, and 
 # all fortran compiler parameters below are irrelevant.
 
-BUILD_WITH_F2C=${BUILD_WITH_F2C:="default"}
+BUILD_WITH_F2C=${BUILD_WITH_F2C:="y"}
 
 # if you are building the external Fortran 77 procedures from the Fortran 
 # source code, enter the compiler here. 
@@ -308,8 +330,9 @@ FFLAGS=${FFLAGS:='-O2'}
 #        other programs
 #------------------------------------------------------
 
-# the command to create a static library
-ARCHIVE=${ARCHIVE:="ar ruv"}
+# the command to create a static library.
+ARCHIVE=${ARCHIVE:="ar ruv"}   # linux
+# ARCHIVE=${ARCHIVE:="libtool -static -o"}  # Mac OSX
 
 # the command to run 'ranlib' if it is needed. 
 RANLIB=${RANLIB:="ranlib"}
@@ -319,13 +342,11 @@ RANLIB=${RANLIB:="ranlib"}
 # doesn't work, try GNU make.
 MAKE=${MAKE:=make}
 
-#
+
 # file extensions
 CXX_EXT=${CXX_EXT:=cpp}
 F77_EXT=${F77_EXT:=f}
 F90_EXT=${F90_EXT:=f90}
-#OBJ_EXT=
-#EXE_EXT=
 
 
 CT_SHARED_LIB=${CT_SHARED_LIB:=clib}

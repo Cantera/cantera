@@ -411,10 +411,13 @@ namespace pip {
 
 
     int convert_ck(const char* in_file, const char* db_file,
-        const char* tr_file, const char* id_tag) {
+        const char* tr_file, const char* id_tag, bool debug) {
         ckr::CKReader r;
 
+        cout << "convert_ck: debug = " << debug << endl;
+
         r.validate = true;
+        r.debug = debug;
         //int i=1;
 
         string infile = string(in_file);

@@ -54,7 +54,8 @@ int showHelp() {
     cout << "    -i  <input file> \n"
          << "    -t  <thermo database> \n"
          << "    -tr <transport database> \n"
-         << "    -id  <identifier> \n\n"
+         << "    -id  <identifier> \n"
+         << "    -d  print debugging output \n\n"
          << "The results are written to the standard output.\n";
     return 0;
 }
@@ -62,6 +63,7 @@ int showHelp() {
 int main(int argc, char** argv) {
     string infile="chem.inp", dbfile="", trfile="", logfile;
     string idtag = "gas";
+    bool debug = false;
     int i=1;
     if (argc == 1) return showHelp();
  
@@ -84,6 +86,10 @@ int main(int argc, char** argv) {
                 idtag = argv[i+1];
             }
         }
+        else if (arg == "-d") {
+            debug = true;
+            cout << "### DEBUG MODE ###" << endl;
+        }
         else if (arg == "-h" || argc < 3) {
             return showHelp(); 
         }
@@ -91,7 +97,7 @@ int main(int argc, char** argv) {
     }
 
     int ierr = pip::convert_ck(infile.c_str(), dbfile.c_str(), trfile.c_str(), 
-        idtag.c_str());
+        idtag.c_str(), debug);
 
     if (ierr < 0) {
         showErrors(cerr);

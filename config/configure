@@ -271,7 +271,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_unique_file="Cantera.README"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CVF_LIBDIR local_inst local_python_inst python_prefix ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir COMPACT_INSTALL build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE ARCHIVE DO_RANLIB RANLIB SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR build_with_f2c LOCAL_LIB_DIRS LOCAL_LIBS CANTERA_PARTICLES_DIR BUILD_PARTICLES CT_SHARED_LIB F77FLAGS PYTHON_CMD WIN_PYTHON_CMD BUILD_PYTHON MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC F77 FFLAGS ac_ct_F77 FLIBS BUILD_F90 F90 F90FLAGS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CVF_LIBDIR local_inst local_python_inst python_prefix python_win_prefix ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir COMPACT_INSTALL build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE ARCHIVE DO_RANLIB RANLIB SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR build_with_f2c LOCAL_LIB_DIRS LOCAL_LIBS CANTERA_PARTICLES_DIR BUILD_PARTICLES CT_SHARED_LIB F77FLAGS PYTHON_CMD WIN_PYTHON_CMD BUILD_PYTHON MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC F77 FFLAGS ac_ct_F77 FLIBS BUILD_F90 F90 F90FLAGS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1277,10 +1277,11 @@ esac
 
 CVF_LIBDIR=""
 if test "x${OS_IS_CYGWIN}" = "x1"; then
-if test "${USE_VISUAL_STUDIO}" = "y"; then
-OS_IS_WIN=1;
-CVF_LIBDIR=$FORTRAN_LIB_DIR
-fi
+  if test "${USE_VISUAL_STUDIO}" = "y"; then
+    OS_IS_WIN=1;
+    OS_IS_CYGWIN=0;
+    CVF_LIBDIR=$FORTRAN_LIB_DIR
+  fi
 fi
 
 
@@ -1290,7 +1291,7 @@ if test "x$OS_IS_DARWIN" = "x1"; then prdef="/Applications/Cantera"; fi
 
 local_inst=1
 if test "x${prefix}" = "xNONE"; then
-         if test "x${OS_IS_CYGWIN}" = "x1"; then
+         if test "x${OS_IS_CYGWIN}" = "x1" -o "x${OS_IS_WIN}" = "x1" ; then
            prefix=${CANTERA_INSTALL_DIR}
            # mkdir ${prefix}
          else
@@ -1311,12 +1312,10 @@ if test "x${prefix}" = "xNONE"; then
 fi
 
 if test "x${OS_IS_WIN}" = "x1"; then
-  prefix=`cygpath -a -w "${prefix}" | sed 's/\\\/\\//g'`
+  prefix=`cygpath -a -m "${prefix}" `
 fi
-
-
-
 echo "Cantera will be installed in ${prefix}"
+
 
 
 
@@ -1326,11 +1325,24 @@ echo "Cantera will be installed in ${prefix}"
 local_python_inst=${local_inst}
 if test "x${SET_PYTHON_SITE_PACKAGE_TOPDIR}" = "xy"; then
    python_prefix=${PYTHON_SITE_PACKAGE_TOPDIR}
+   python_win_prefix=$python_prefix
+   if test "x${OS_IS_WIN}" = "x1" ; then
+     python_prefix=`cygpath -a -m "${python_prefix}"`
+     python_win_prefix=`cygpath -a -w "${python_prefix}"`
+   elif  test  "x${OS_IS_CYGWIN}" = "x1" ; then
+     python_prefix=`cygpath -a -u "${python_prefix}"`
+     python_win_prefix=`cygpath -a -w "${python_prefix}"`
+   fi
    local_python_inst=1
    echo "Cantera's Python packages will be installed in ${python_prefix}"
 else
    python_prefix=$prefix
+   python_win_prefix=$python_prefix
+   if test "x${OS_IS_WIN}" = "x1"; then
+     python_win_prefix=`cygpath -a -w "${python_prefix}" `
+   fi
 fi
+
 
 
 
@@ -1505,7 +1517,7 @@ test -n "$target_alias" &&
 ctroot=`(cd ..;pwd)`
 builddir=$target
 if test "x${OS_IS_WIN}" = "x1"; then
-  ctroot=`cygpath -a -w "${ctroot}" | sed 's/\\\/\\//g'`
+  ctroot=`cygpath -a -m "${ctroot}" | sed 's/\\\/\\//g'`
   builddir="i686-pc-win32"
 fi
 
@@ -1529,14 +1541,18 @@ cat >>confdefs.h <<_ACEOF
 #define DARWIN $OS_IS_DARWIN
 _ACEOF
 
-cat >>confdefs.h <<_ACEOF
+if test "x${OS_IS_CYGWIN}" = "x1"; then
+  cat >>confdefs.h <<_ACEOF
 #define CYGWIN $OS_IS_CYGWIN
 _ACEOF
 
-cat >>confdefs.h <<_ACEOF
+fi
+if test "x${OS_IS_WIN}" = "x1"; then
+  cat >>confdefs.h <<_ACEOF
 #define WINMSVC $OS_IS_WIN
 _ACEOF
 
+fi
 cat >>confdefs.h <<_ACEOF
 #define RXNPATH_FONT "$RPFONT"
 _ACEOF
@@ -1935,11 +1951,15 @@ fi
 done
 test -n "$WIN_PYTHON_CMD" || WIN_PYTHON_CMD=""none""
 
-      WIN_PYTHON_CMD=`cygpath -a -w "$WIN_PYTHON_CMD" | sed 's/\\\/\\//g'`
+      WIN_PYTHON_CMD=`cygpath -a -m "$WIN_PYTHON_CMD"`
       echo "Windows Python command: $WIN_PYTHON_CMD"
     fi
   else
     echo "Python command preset to $PYTHON_CMD"
+    if test "x$OS_IS_WIN" = "x1"; then
+      WIN_PYTHON_CMD=`cygpath -a -m "$PYTHON_CMD"`
+      echo "Windows Python Command set to $WIN_PYTHON_CMD"
+    fi
   fi
 
   if test "$PYTHON_CMD" = "none"; then
@@ -2019,10 +2039,15 @@ fi
   else
     echo "Matlab command preset to $(MATLAB_CMD)$"
   fi
-fi
-if test "x$OS_IS_WIN" = "x1"; then
-    MATLAB_CMD=`cygpath -a -w "$MATLAB_CMD" | sed 's/\\\/\\//g'`
+  if test "x$OS_IS_WIN" = "x1"; then
+    MATLAB_CMD=`cygpath -a -m "$MATLAB_CMD" `
     echo "Windows MATLAB command: ${MATLAB_CMD}"
+  fi
+else
+  echo "MATLAB interface will not be installed"
+  if test -z "$MATLAB_CMD"; then
+    MATLAB_CMD="matlab"
+  fi
 fi
 
 
@@ -3440,7 +3465,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3443:" \
+echo "$as_me:3468:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3617,7 +3642,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3620: \"$ac_link\") >&5
+(eval echo $as_me:3645: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3697,7 +3722,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3700: \"$ac_link\") >&5
+(eval echo $as_me:3725: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4638,6 +4663,7 @@ s,@CVF_LIBDIR@,$CVF_LIBDIR,;t t
 s,@local_inst@,$local_inst,;t t
 s,@local_python_inst@,$local_python_inst,;t t
 s,@python_prefix@,$python_prefix,;t t
+s,@python_win_prefix@,$python_win_prefix,;t t
 s,@ctversion@,$ctversion,;t t
 s,@homedir@,$homedir,;t t
 s,@ct_libdir@,$ct_libdir,;t t
@@ -5198,6 +5224,9 @@ fi
 #	)
 if test "x${OS_IS_WIN}" = "x1"; then
 cp -f ../config.h ../Cantera/src
+cd ../ext/f2c_libs
+cp arith.hwin32 arith.h
+cd ../../config
 fi
 if test -f "../test_problems/ck2cti_test/runtest"; then
   chmod +x ../test_problems/ck2cti_test/runtest

@@ -10,15 +10,6 @@
 #define CT_UTILITIES_H
 
 #include "ct_defs.h"
-//#include <math.h>
-
-extern "C" {
-
-#ifdef HAVE_INTEL_MKL
-#include "mkl_vml.h"
-#endif
-
-}
 
 namespace Cantera {
 
@@ -144,11 +135,7 @@ namespace Cantera {
     template<class _InputIter, class _OutputIter>   
     inline void divide_each(_OutputIter x_begin, _OutputIter x_end, 
         _InputIter y_begin) {
-#ifdef HAVE_INTEL_MKL
-        vdDiv(int(x_end - x_begin), x_begin, y_begin, x_begin);
-#else
         for(; x_begin != x_end; ++x_begin, ++y_begin) *x_begin /= *y_begin;
-#endif
     }
 
     /**
@@ -225,38 +212,7 @@ namespace Cantera {
             sum += (*__begin) * log(*_Q_begin + Tiny);
 	}
 	return sum;
-    }    
-
-    
-    /** calls method 'update' for each object in a range, and writes the
-     *  result into indexed positions in sequence 'output'.
-     *
-     *  \code
-     *  vector<Foo> x(3);
-     *  vector<int> index(3);
-     *  index[0] = 9;
-     *  index[1] = 2;
-     *  index[3] = 16;
-     *  vector<double> output(20);
-     *  _scatter_update(x.begin(), x.end(), output.begin(), index.begin());
-     *  \endcode
-     */ 
-//     template<class _InputIter, class _OutputIter, 
-//         class _IndexIter, class _Params>
-//     inline void _scatter_update(_InputIter __begin, _InputIter __end, 
-//         _OutputIter __result, _IndexIter __index, const _Params& __params) {
-//         for (; __begin != __end; ++__begin, ++__index) {
-//             *(__result + *__index) = (*__begin).update(__params);
-//         }
-//     }
-
-//     template<class _InputIter, class _OutputIter, class _Params>
-//     inline void _update(_InputIter __begin, _InputIter __end, 
-//         _OutputIter __result, const _Params& __params) {
-//         for (; __begin != __end; ++__begin, ++__result) {
-//             *__result = (*__begin).update(__params);
-//         }
-//     }
+    }
 
 }
 

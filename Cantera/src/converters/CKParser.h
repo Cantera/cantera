@@ -66,6 +66,7 @@ namespace ckr {
             reactionList& reactions, ReactionUnits& units);
         bool advanceToKeyword(const string& kw, const string& stop);
         bool verbose;
+        bool debug;
     
     private:
 
