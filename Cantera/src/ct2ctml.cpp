@@ -1,10 +1,19 @@
+/**
+ * @file ct2ctml.cpp
+ *
+ * $Author$
+ * $Revision$
+ * $Date$
+ */
+
+// Copyright 2001  California Institute of Technology
+
 #include "ct_defs.h"
 #include "ctexceptions.h"
 #include <fstream>
 #include <string>
 #include <stdlib.h>
 #include "ctml.h"
-#include "../../include/pypath.h"
 
 using namespace Cantera;
 
@@ -85,7 +94,9 @@ namespace ctml {
                 msg += "\nError in Python installation.";
             else
                 msg += "\nCheck error messages above for syntax errors.";
-            throw CanteraError("ct2ctml", "could not convert input file to CTML\n command line was: "+msg);
+            throw CanteraError("ct2ctml", 
+			       "could not convert input file to CTML\n "
+			       "command line was: " + msg);
         }
     }
 
@@ -95,7 +106,7 @@ namespace ctml {
      * first. 
      */
     void get_CTML_Tree(XML_Node* rootPtr, string file) {
-        string ff;
+        string ff, ext = "";
 
         // find the input file on the Cantera search path
         string inname = findInputFile(file);
@@ -106,15 +117,17 @@ namespace ctml {
          * Check whether or not the file is XML. If not, it will be first
          * processed with the preprocessor.
          */
-        int idot = file.find('.');
-        string ext = file.substr(idot,file.size());
+        string::size_type idot = inname.rfind('.');
+	if (idot != string::npos) {
+	  ext = inname.substr(idot, inname.size());
+	}
         if (ext != ".xml" && ext != ".ctml") {
-            ct2ctml(file.c_str());
-            ff = file.substr(0,idot)+".xml";
+	  ct2ctml(inname.c_str());
+	  ff = inname.substr(0,idot) + ".xml";
         }
-        else
-            ff = file;
-
+        else {
+	  ff = inname;
+	}
         ifstream fin(ff.c_str());
         rootPtr->build(fin);
         fin.close();
