@@ -56,7 +56,7 @@ CANTERA_LIBDIR=@CANTERA_LIBDIR@
 CANTERA_LIBS = 
 
 # the directory where Cantera include files may be found.
-CANTERA_INC=-I@ctroot/build/include/cantera
+CANTERA_INC=-I@ctroot@/build/include/cantera
 
 # flags passed to the C++ compiler/linker for the linking step
 LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
