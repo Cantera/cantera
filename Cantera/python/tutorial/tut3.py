@@ -1,7 +1,9 @@
 ######################################################
-#
-#  Getting Help
-#
+print """
+
+  Tutorial 3: Getting Help
+
+"""
 ######################################################
 
 # Python has a built-in help facility. To get help on any class or
