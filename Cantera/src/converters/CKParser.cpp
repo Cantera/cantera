@@ -6,7 +6,10 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.11  2004-07-27 14:22:31  dggoodwin
+// Revision 1.12  2004-08-05 14:56:57  dggoodwin
+// *** empty log message ***
+//
+// Revision 1.11  2004/07/27 14:22:31  dggoodwin
 // *** empty log message ***
 //
 // Revision 1.10  2004/07/23 00:15:15  dggoodwin
@@ -313,7 +316,7 @@ namespace ckr {
         string line;
 
         line = "";
-        char ch;
+        char ch = ' ';
         while (1 > 0) {
             f.get(ch);
             if (!f || f.eof()) break;
