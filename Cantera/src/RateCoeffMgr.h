@@ -15,35 +15,14 @@
 #include "utilities.h"
 #include "RxnRates.h"
 
-#ifdef HAVE_INTEL_MKL
-#include "mkl_vml.h"
-#endif
+//#ifdef HAVE_INTEL_MKL
+//#include "mkl_vml.h"
+//#endif
 
 #include "ct_defs.h"
 #include "ctexceptions.h"
 
 namespace Cantera {
-
-    // exception class
-    class UnknownRateCoefficient : public CanteraError {
-    public:
-        UnknownRateCoefficient() {
-            m_msg += "Unknown rate coefficient type.";
-        }
-    };
-
-    /**
-     * Virtual base class for rate coefficient managers. 
-     */
-//     class RateCoeffMgr {
-//     public:
-//         virtual int install( int rxnNumber,  int rateType, 
-//             const vector_fp& c )=0;
-//         virtual void update(doublereal T, doublereal logT, vector_fp& values)=0;
-//         virtual void writeUpdate(ostream& s, string name) {}
-//     };
-
-
 
     /**
      * This rate coefficient manager supports one parameterization of
@@ -57,6 +36,13 @@ namespace Cantera {
         Rate1(){}
         virtual ~Rate1(){}
 
+        /**
+         * Install a rate coefficient calculator.
+         * @param rxnNumber the reaction number
+         * @param rateType  the rate type
+         * @param m length of coefficient array
+         * @param coefficients
+         */
         int install( int rxnNumber,  int rateType, int m, 
             const doublereal* c ) {
             /*
@@ -65,28 +51,40 @@ namespace Cantera {
 	     * throw an error condition. 
 	     */
             if (rateType != R::type()) 
-                throw UnknownRateCoefficient();
-        
-            //int m = c.size();
+                throw CanteraError("InterfaceKinetics::install",
+                    "incorrect rate coefficient type: "+int2str(rateType));
 
-            // if any coefficient other than the first is non-zero,
-            // install a rate calculator and return the index of the 
-            // calculator.
-
+            // if any coefficient other than the first is non-zero, or
+            // if alwaysComputeRate() is true, install a rate
+            // calculator and return the index of the calculator.
             for (int i = 1; i < m; i++) {
-                if (c[i] != 0.0) {
+                if (c[i] != 0.0 || R::alwaysComputeRate() ) {
                     m_rxn.push_back(rxnNumber);
-                    m_rates.push_back(R(c));
+                    m_rates.push_back(R(m, c));
                     return m_rates.size() - 1;
                 }
             }
             return -1;
         }
-    
-        const R& rateCoeff(int loc) const {
-            return m_rates[loc];
-        }
+  
+        /**
+         * Return a reference to the nth rate coefficient calculator.
+         * Note that this is not the same as the calculator for
+         * reaction n, since reactions with constant rate coefficients
+         * do not have a calculator.
+         */  
+        const R& rateCoeff(int loc) const { return m_rates[loc]; }
 
+        /**
+         * Update the concentration-dependent parts of the rate
+         * coefficient, if any. Used by class SurfaceArrhenius to
+         * compute coverage-dependent * modifications to the Arrhenius
+         * parameters. The array c should contain whatever data the
+         * particular rate coefficient class needs to update its
+         * rates.  Note that this method does not return anything. To
+         * get the updated rates, method update must be called after
+         * the call to update_C.
+         */
         void update_C(const doublereal* c) {
             TYPENAME_KEYWORD vector<R>::iterator b = m_rates.begin();
             TYPENAME_KEYWORD vector<R>::iterator e = m_rates.end();
@@ -96,6 +94,14 @@ namespace Cantera {
             }
         }
 
+        /**
+         * Write the rate coefficients into array values. Each
+         * calculator writes one entry in values, at the location
+         * specified by the reaction number when it was
+         * installed. Note that nothing will be done for reactions
+         * that have constant rates. The array values should be
+         * preloaded with the constant rate coefficients.
+         */
         void update(doublereal T, doublereal logT, doublereal* values) {
             TYPENAME_KEYWORD vector<R>::const_iterator b = m_rates.begin();
             TYPENAME_KEYWORD vector<R>::const_iterator e = m_rates.end();
@@ -106,29 +112,10 @@ namespace Cantera {
             }
         }
 
-        void update_dT(doublereal T, doublereal logT, doublereal dT,  
-            doublereal* values) {
-            TYPENAME_KEYWORD vector<R>::const_iterator b = m_rates.begin();
-            TYPENAME_KEYWORD vector<R>::const_iterator e = m_rates.end();
-            doublereal recipT = 1.0/T;
-            int i = 0;
-            for (; b != e; ++b, ++i) {
-                values[m_rxn[i]] *= (1.0 + dT*b->update_dT(logT, recipT));
-            }
-        }
-
-        virtual void writeUpdate(ostream& s, string name) {
-            int nrates = m_rates.size();
-            for (int i = 0; i < nrates; i++) {
-                s << "    " << name << "[" << m_rxn[i] << "] = ";
-                m_rates[i].writeUpdateRHS(s);
-            }
-        }
-
     protected:
         vector<R>             m_rates;
         vector<int>           m_rxn;
-        array_fp              m_const;
+        array_fp              m_const; // not used
     };
 
 
