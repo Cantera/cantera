@@ -22,7 +22,9 @@
 namespace Cantera {
 
     class ReactorBase;  // forward reference
+    class Kinetics;
     class Func1;
+    class SurfPhase;
 
     const int Rigid_Type = 1;
     const int Flexible_Type = 2;
@@ -81,12 +83,26 @@ namespace Cantera {
             copy(coeffs, coeffs + n, m_coeffs.begin());
         }
 
+        void setKinetics(Kinetics* left = 0,
+            Kinetics* right = 0);
+
+        SurfPhase* surface(int leftright) {
+            return m_surf[leftright];
+        }
+
+        Kinetics* kinetics(int leftright) {
+            return m_chem[leftright];
+        }
+
     protected:
 
         vector_fp m_coeffs;
 
         ReactorBase* m_left;
         ReactorBase* m_right;
+        Kinetics * m_chem[2];
+        SurfPhase* m_surf[2];
+        int m_nsp[2];
         doublereal m_area, m_k, m_rrth;
         Func1 *m_vf;
         Func1 *m_qf;
