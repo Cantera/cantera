@@ -27,9 +27,11 @@ endif
 
 all: $(exes)
 
+ck: $(BINDIR)/ck2cti
+
 $(BINDIR)/ck2cti: ck2cti.o $(CONVLIB_DEP) $(CANTERALIB_DEP)
-	@CXX@ -o $(BINDIR)/ck2cti ck2cti.o $(LCXX_FLAGS) -lconverters $(LOCAL_LIBS) \
-               $(LCXX_END_LIBS)
+	@CXX@ -o $(BINDIR)/ck2cti ck2cti.o $(LCXX_FLAGS) \
+               -lconverters -lcantera -lctcxx $(LCXX_END_LIBS)
 
 $(BINDIR)/cti2ctml: cti2ctml.o $(CANTERALIB_DEP)
 	@CXX@ -o $(BINDIR)/cti2ctml cti2ctml.o $(LCXX_FLAGS) $(LOCAL_LIBS) \
