@@ -22,6 +22,7 @@
 
 #include "utilities.h"
 #include "TransportParams.h"
+#include "TransportFactory.h"
 
 #include <iostream>
 
@@ -58,7 +59,18 @@ namespace Cantera {
         m_visccoeffs = tr.visccoeffs;
         m_condcoeffs = tr.condcoeffs;
         m_diffcoeffs = tr.diffcoeffs;
+
+        m_zrot       = tr.zrot;
+        m_crot       = tr.crot;
+        m_epsilon    = tr.epsilon;
         m_mode       = tr.mode;
+	m_diam       = tr.diam;
+	m_eps        = tr.eps;
+	m_alpha      = tr.alpha;
+	m_dipoleDiag.resize(m_nsp);
+        for (int i = 0; i < m_nsp; i++) {
+	  m_dipoleDiag[i] = tr.dipole(i,i);
+	}
 
         m_phi.resize(m_nsp, m_nsp, 0.0);
 
@@ -442,4 +454,30 @@ namespace Cantera {
         m_viscwt_ok = true;
     }
 
+    /**
+     * This function returns a Transport data object for a given species.
+     *
+     */
+    struct GasTransportData MixTransport::
+	getGasTransportData(int kSpecies) 
+    {
+      struct GasTransportData td;
+      td.speciesName = m_thermo->speciesName(kSpecies);
+
+      td.geometry = 2;
+      if (m_crot[kSpecies] == 0.0) {
+	td.geometry = 0;
+      } else if (m_crot[kSpecies] == 1.0) {
+	td.geometry = 1;
+      }
+      td.wellDepth = m_eps[kSpecies] / Boltzmann;
+      td.dipoleMoment = m_dipoleDiag[kSpecies] * 1.0E25 / SqrtTen;
+      td.diameter = m_diam(kSpecies, kSpecies) * 1.0E10;
+      td.polarizability = m_alpha[kSpecies] * 1.0E30;
+      td.rotRelaxNumber = m_zrot[kSpecies];
+
+      return td;
+    }
+
 }
+

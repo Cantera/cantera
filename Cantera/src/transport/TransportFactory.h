@@ -40,13 +40,13 @@ namespace Cantera {
     /**
      * Struct to hold data read from a transport property database file.
      */
-    struct TransportData {
-        TransportData() : speciesName("-"), 
-                          geometry(-1), wellDepth(-1.0),
-                          diameter(-1.0), 
-                          dipoleMoment(-1.0), 
-                          polarizability(-1.0),
-                          rotRelaxNumber(-1.0) {}
+    struct GasTransportData {
+        GasTransportData() : speciesName("-"), 
+			     geometry(-1), wellDepth(-1.0),
+			     diameter(-1.0), 
+			     dipoleMoment(-1.0), 
+			     polarizability(-1.0),
+			     rotRelaxNumber(-1.0) {}
         
         string speciesName;
         int geometry;

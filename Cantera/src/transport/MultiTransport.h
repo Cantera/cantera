@@ -159,6 +159,15 @@ namespace Cantera {
 
         friend class TransportFactory;
 
+	/**
+	 * Return a structure containing all of the pertinent parameters
+	 * about a species that was used to construct the Transport
+	 * properties in this object.
+	 *
+	 * @param k Species number to obtain the properties from.
+	 */
+	struct GasTransportData getGasTransportData(int);
+
     protected:
 
         /// default constructor
@@ -209,6 +218,8 @@ namespace Cantera {
         vector_fp   m_crot;
         vector_fp   m_cinternal;
         vector_fp   m_eps;
+	vector_fp   m_alpha;
+	vector_fp   m_dipoleDiag;
 
         doublereal m_temp, m_logt, m_kbt, m_t32;
         doublereal m_sqrt_kbt, m_sqrt_t;

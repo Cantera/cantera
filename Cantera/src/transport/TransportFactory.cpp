@@ -665,7 +665,7 @@ namespace Cantera {
     {
         string name;
         int geom;
-        map<string, TransportData> datatable;
+        map<string, GasTransportData> datatable;
         doublereal welldepth, diam, dipole, polar, rot;
 
         //XML_Node* sparray = find_XML("", &root, "", "", "speciesData");
@@ -705,7 +705,7 @@ namespace Cantera {
             //polar = fv["polarizability"];
             //rot = fv["rotRelax"];
 
-            TransportData data;
+            GasTransportData data;
             data.speciesName = name;
             data.geometry = geom;
             if (welldepth >= 0.0) data.wellDepth = welldepth;
@@ -737,7 +737,7 @@ namespace Cantera {
 
         for (i = 0; i < tr.nsp; i++) {
 
-            TransportData& trdat = datatable[names[i]];
+            GasTransportData& trdat = datatable[names[i]];
             
             // 'datatable' returns a default TransportData object if
             // the species name is not one in the transport database.

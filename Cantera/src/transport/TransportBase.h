@@ -80,7 +80,6 @@ namespace Cantera {
          * returns a reference to the object representing the phase
          * itself.
          */        
-        //phase_t& phase() { return *m_phase; }
         thermo_t& thermo() { return *m_thermo; }
 
 
