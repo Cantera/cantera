@@ -58,7 +58,11 @@ then
   echo darwin
   exit 1
 fi
-
+if [ "$us" = "cygwin_nt-5.0" ]
+then
+  echo cygwin
+  exit 1
+fi
     
 echo unknown
 exit 0
