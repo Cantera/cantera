@@ -41,6 +41,18 @@ if test "x${OS_IS_CYGWIN}" = "x1"; then
 fi
 AC_SUBST(CVF_LIBDIR)
 
+#
+# Determine if clib is to be a static or dynamic library
+# -> will test to see if USE_DLL is defined in the cygwmin environment
+#
+USE_CLIB_DLL=0
+if test "x${OS_IS_WIN}" = "x1"; then
+   if test -n ${USE_CLIB_DLL} ; then
+     USE_CLIB_DLL=1
+   fi
+fi
+AC_SUBST(USE_CLIB_DLL)
+
 prdef="/usr/local"
 if test "x$OS_IS_DARWIN" = "x1"; then prdef="/Applications/Cantera"; fi
 #AC_PREFIX_DEFAULT([$prdef])
@@ -170,7 +182,6 @@ AC_SUBST(ct_tutdir)
 AC_SUBST(ct_docdir)
 AC_SUBST(ct_dir)
 AC_SUBST(COMPACT_INSTALL)
-
 
 #
 #    Cantera directory structure
