@@ -31,7 +31,7 @@ class Solution(ThermoPhase, Kinetics, Transport):
     def __init__(self, src="", root=None,
                  transport = "", thermo_db = "",
                  transport_db = "", phases=[]):
-        
+
         self.ckin = 0
         self._owner = 0
         self.verbose = 1
@@ -45,7 +45,7 @@ class Solution(ThermoPhase, Kinetics, Transport):
 
         if src and not root:
             root = XML.XML_Node(name = 'doc', src = fn, preprocess = 1)
-            
+
         if id:
             s = root.child(id = id)
         else:
@@ -61,13 +61,13 @@ class Solution(ThermoPhase, Kinetics, Transport):
         Transport.__init__(self, xml_phase=s, phase=self,
                            model = transport, loglevel=4)
         
+    def __del__(self):
+        Transport.__del__(self)
+        Kinetics.__del__(self)
+        ThermoPhase.__del__(self)
 
     def __repr__(self):
         return _cantera.phase_report(self._phase_id, self.verbose)
 
 
-    def __del__(self):
-        Transport.__del__(self)
-        Kinetics.__del__(self)
-        ThermoPhase.__del__(self)
     
