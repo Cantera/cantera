@@ -63,7 +63,7 @@
                 iok = wall_setExpansionRateCoeff(i, v);
                 break;
             case 10:
-                iok = wall_setExpansionRate(i, int(v));
+                iok = wall_setVelocity(i, int(v));
                 break;
             case 11:
                 iok = wall_ready(i);
@@ -72,6 +72,9 @@
                 n = getInt(prhs[3]);
                 m = getInt(prhs[4]);
                 iok = wall_setkinetics(i, n, m);
+                break;
+            case 13:
+                iok = wall_setEmissivity(i, v);
                 break;
             default:
                 mexErrMsgTxt("unknown job parameter");

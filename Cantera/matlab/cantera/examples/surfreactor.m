@@ -12,6 +12,9 @@ gas = importPhase('ptcombust.cti','gas');
 % set the initial conditions
 set(gas,'T',t,'P',oneatm,'X','CH4:0.01, O2:0.21, N2:0.78');
 
+% The surface reaction mechanism describes catalytic combustion of
+% methane on platinum, and is from Deutschman et al., 26th
+% Symp. (Intl.) on Combustion,1996, pp. 1747-1754
 surf = importInterface('ptcombust.cti','Pt_surf', gas);
 setTemperature(surf, t);
 
@@ -39,22 +42,24 @@ setKinetics(w, surf, 0);
 
 % set the wall area and heat transfer coefficient.
 setArea(w, 1.0e-4);
-setHeatTransferCoeff(w,0.1);
+setHeatTransferCoeff(w,1.0e1);  % W/m2/K
 
-% set expansion parameter. dV/dt = K(P_1 - P_2)
-setExpansionRateCoeff(w, 1.0);
+% set expansion rate parameter. dV/dt = KA(P_1 - P_2)
+setExpansionRateCoeff(w, 1.0e2);
 
+network = ReactorNet({r});
 
 t = 0;
 dt = 0.1;
 t0 = cputime;
-names = {'CH4','O2','CO','CO2','H2O'};
-x = zeros([100 5]);
+names = {'CH4','CO','CO2','H2O'};
+x = zeros([100 4]);
 for n = 1:100
   t = t + dt;
-  advance(r, t);
+  advance(network, t);
   tim(n) = t;
   temp(n) = temperature(r);  
+  pres(n) = pressure(r);
   cov(n,:) = coverages(surf)';
   x(n,:) = moleFraction(gas,names);
 end
@@ -66,11 +71,15 @@ plot(tim,temp);
 xlabel('Time (s)');
 ylabel('Temperature (K)');
 subplot(2,2,2);
+plot(tim,pres);
+xlabel('Time (s)');
+ylabel('Pressure (Pa)');
+subplot(2,2,3);
 semilogy(tim,cov);
 xlabel('Time (s)');
 ylabel('Coverages');
 legend(speciesNames(surf));
-subplot(2,2,3);
+subplot(2,2,4);
 plot(tim,x);
 xlabel('Time (s)');
 ylabel('Mole Fractions');

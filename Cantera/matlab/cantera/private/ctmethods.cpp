@@ -110,7 +110,8 @@ extern "C" {
         case FUNC_CLASS:
             funcmethods(nlhs, plhs, nrhs, prhs); break;
         default:
-            mexErrMsgTxt("unknown class");
+            mexPrintf("iclass = %d",iclass);
+            //mexErrMsgTxt("unknown class");
         }
     }
 }

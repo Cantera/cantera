@@ -51,6 +51,7 @@ disp(['CPU time = ' num2str(cputime - t0)]);
 % plot results
 
 clf;
+%figure(1);
 subplot(2,2,1);
 surf(xo2,t,pr);
 xlabel('Elemental O/(O+H)');

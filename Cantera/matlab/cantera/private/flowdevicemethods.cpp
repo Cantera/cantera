@@ -43,7 +43,7 @@
                 iok = flowdev_install(i, int(v), m);
                 break;
             case 3:
-                iok = flowdev_setSetpoint(i, v);
+                iok = flowdev_setMassFlowRate(i, v);
                 break;
             case 4:
                 iok = flowdev_setParameters(i, 1, &v);
@@ -53,6 +53,9 @@
                 break;
             case 6:
                 iok = flowdev_ready(i);
+                break;
+            case 7:
+                iok = flowdev_setMaster(i, int(v));
                 break;
             default:
                 mexErrMsgTxt("unknown job parameter");
@@ -70,10 +73,7 @@
         else if (job < 40) {
             switch (job) {
             case 21:
-                r = flowdev_massFlowRate(i);
-                break;
-            case 22:
-                r = flowdev_setpoint(i);
+                r = flowdev_massFlowRate(i, v);
                 break;
             default:
                 mexErrMsgTxt("unknown job parameter");

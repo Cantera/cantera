@@ -1,3 +1,5 @@
+const double Undef = -999.123;
+
 void reportError();
 
 void checkNArgs(const int n, const int nrhs);

@@ -1,7 +1,7 @@
 function ignite2(g)
 % IGNITE2 Zero-dimensional kinetics: adiabatic, constant volume.
 % 
-%    This example illustrates how to use function 'reactor' for
+%    This example illustrates how to use function 'reactor_ode' for
 %    zero-dimensional kinetics simulations with arbitrary heat flux
 %    and volume vs. time. Here a constant-volume, adiabatic simulation
 %    is conducted by setting vdot and q to zero.

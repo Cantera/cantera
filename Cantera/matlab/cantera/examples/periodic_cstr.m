@@ -2,26 +2,29 @@ function periodic_cstr
 %
 %  Periodic CSTR
 %
-%  This example illustrates a CSTR with steady inputs but periodic interior state. 
-%  A stoichiometric hydrogen/oxygen mixture is introduced and reacts to produce water.
-%  But since water has a large efficiency as a third body in the chain termination reaction
+%  This example illustrates a CSTR with steady inputs but periodic
+%  interior state.  A stoichiometric hydrogen/oxygen mixture is
+%  introduced and reacts to produce water.  But since water has a
+%  large efficiency as a third body in the chain termination reaction
 %
 %         H + O2 + M = HO2 + M
 %
-% as soon as a significant amount of water is produced the reaction stops. After enough time has 
-% passed that the water is exhausted from the reactor, the mixture explodes again and the 
-% process repeats. This explanation can be verified by decreasing the rate for reaction 7 in
-% file 'h2o2.xml' and re-running the example.
+%  as soon as a significant amount of water is produced the reaction
+%  stops. After enough time has passed that the water is exhausted from
+%  the reactor, the mixture explodes again and the process
+%  repeats. This explanation can be verified by decreasing the rate for
+%  reaction 7 in file 'h2o2.cti' and re-running the example.
 %
-% Acknowledgments: The idea for this example and an estimate of the conditions needed to 
-% see the oscillations came from Bob Kee, Colorado School of Mines
+%  Acknowledgments: The idea for this example and an estimate of the
+%  conditions needed to see the oscillations came from Bob Kee,
+%  Colorado School of Mines
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 help periodic_cstr
 
 % create the gas mixture
-gas = IdealGasMix('h2o2.xml');
+gas = IdealGasMix('h2o2.cti');
 
 % pressure = 60 Torr, T = 770 K
 p = 60.0*133.3;
@@ -86,8 +89,9 @@ downstream = Reservoir(gas);
 v = Valve;
 install(v, cstr, downstream);
 setValveCoeff(v, 1.0e-9);
-% mdot (kg/s) = coeff * (delta P, Pascals)
 
+% create the network
+network = ReactorNet({cstr});
 
 % now integrate in time
 tme = 0.0;
@@ -97,12 +101,13 @@ n = 0;
 while tme < 300.0
     n = n + 1;
     tme = tme + dt;
-    advance(cstr, tme);
+    advance(network, tme);
     tm(n) = tme;
     y(1,n) = massFraction(cstr,'H2');
     y(2,n) = massFraction(cstr,'O2');    
     y(3,n) = massFraction(cstr,'H2O');    
 end
+clf
 figure(1)
 plot(tm,y)
 legend('H2','O2','H2O')

@@ -33,18 +33,21 @@ env = Reservoir(a);
 w = Wall;
 install(w,r,env);
 
-% set expansion parameter. dV/dt = K(P_1 - P_2)
+% set expansion parameter. dV/dt = KA(P_1 - P_2)
 setExpansionRateCoeff(w, 1.0e6);
 
 % set wall area
 setArea(w, 1.0);
 
-t = 0;
+% create a reactor network and insert the reactor:
+network = ReactorNet({r});
+
+t = 0.0;
 dt = 1.0e-5;
 t0 = cputime;
 for n = 1:100
   t = t + dt;
-  advance(r, t);
+  advance(network, t);
   tim(n) = time(r);
   temp(n) = temperature(r);  
   x(n,1:3) = moleFraction(gas,{'OH','H','H2'});

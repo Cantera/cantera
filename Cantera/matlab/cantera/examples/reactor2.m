@@ -22,12 +22,15 @@ set(gas,'T',1001.0,'P',oneatm,'X','H2:2,O2:1,N2:4');
 % create a reactor, and insert the gas
 r = Reactor(gas);
 
+% create a reactor network and insert the reactor
+network = ReactorNet({r});
+
 t = 0;
 dt = 1.0e-5;
 t0 = cputime;
 for n = 1:100
   t = t + dt;
-  advance(r, t);
+  advance(network, t);
   tim(n) = time(r);
   temp(n) = temperature(r);  
   x(n,1:3) = moleFraction(gas,{'OH','H','H2'});

@@ -9,7 +9,7 @@ function t = step(r, tout)
 %
 %    Method 'step' takes one internal time step and returns. This
 %    can be useful when it is desired to resolve a rapidly-changing
-%    solution in the output file.
+%    solution.
 %
 %    This method can be used as follows:
 %
@@ -24,5 +24,5 @@ function t = step(r, tout)
 %
 %    See also: Reactor/advance
 %
-t = reactormethods(21, reactor_hndl(r), tout);
+t = reactornetmethods(21, reactornet_hndl(r), tout);
 
