@@ -1,3 +1,15 @@
+2004-10-09 11:58  dggoodwin
+
+	* ext/tpx/RedlichKwong.h: removed use of pow
+
+2004-10-09 11:55  dggoodwin
+
+	* ext/tpx/RedlichKwong.cpp: eliminated use of pow
+
+2004-10-09 08:45  dggoodwin
+
+	* ext/tpx/: RedlichKwong.cpp, RedlichKwong.h: initial import
+
 2004-10-09 08:27  dggoodwin
 
 	* tools/bin/cvs2cl.pl: initial import
