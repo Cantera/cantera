@@ -7,6 +7,7 @@
 #
 #############################################################################
 
+.SUFFIXES : .d 
 # the name of the executable program to be created
 PROG_NAME = surfdemo
 
@@ -19,6 +20,8 @@ OBJS = surfdemo.o
 LINK_OPTIONS = 
 
 #############################################################################
+
+                                                                                     
 
 # Fortran libraries
 FORT_LIBS = @FLIBS@
@@ -51,6 +54,12 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
 .@CXX_EXT@.@OBJ_EXT@: Interface.h
 	$(CXX) -c $< -I$(CANTERA_INCDIR) $(CXX_FLAGS)
 
+DEPENDS=$(OBJS:.o=.d) 
+
+.cpp.d:
+	g++ -MM -I$(CANTERA_INCDIR) $(CXX_FLAGS) $*.cpp > $*.d
+
+
 PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
 all: $(PROGRAM)
@@ -60,7 +69,13 @@ $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a
                    $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
 
-$(OBJS):
+$(OBJS): 
+
+depends: $(DEPENDS)
+	cat *.d > .depends
+
+.depends: $(DEPENDS)
+	cat *.d > .depends
 
 test:
 	@MAKE@ $(PROGRAM)
