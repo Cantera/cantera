@@ -27,9 +27,10 @@ namespace Cantera {
         XML_Error(int line=0) : m_line(line) {
             m_msg = "Error in XML file";
             if (line > 0) {
-                m_msg += " at line " + line;
+                m_msg += " at line " + int2str(line+1);
             }
             m_msg += ".\n";
+            //setError("XML_Error",m_msg);
         }
         virtual ~XML_Error() {}
     protected:
@@ -49,7 +50,7 @@ namespace Cantera {
 
     class XML_NoChild : public XML_Error {
     public:
-        XML_NoChild(string parent, string child) {
+        XML_NoChild(string parent, string child, int line=0) : XML_Error(line) {
             m_msg += "           The XML Node, \"" + parent + 
 		"\", does not contain a required\n" +
                      "           XML child node named \"" 
@@ -61,7 +62,7 @@ namespace Cantera {
 
     class XML_IllegalUnits : public XML_Error {
     public:
-        XML_IllegalUnits(string name, string units) {
+        XML_IllegalUnits(string name, string units, int line=0) : XML_Error(line) {
             m_msg += "Illegal units (" + units + 
                      ") specified for node " + name + ".\n";
             setError("XML_IllegalUnits",m_msg);
@@ -489,6 +490,7 @@ namespace Cantera {
                 node = &node->addChild(nm2);
                 node->addValue("");
                 node->attribs() = attribs;
+                node->setLineNumber(lnum);
                 node = node->parent();
             }
             else if (nm[0] != '/') {
@@ -497,6 +499,7 @@ namespace Cantera {
                     val = r.readValue();
                     node->addValue(val);
                     node->attribs() = attribs;
+                    node->setLineNumber(lnum);
                 }
                 else if (nm.substr(0,2) == "--") {
                     if (nm.substr(nm.size()-2,2) == "--") {
@@ -600,14 +603,14 @@ namespace Cantera {
                 i = m_childindex.find(cname);
                 //XML_Node* chld = m_childindex[cname];
                 if (i != m_childindex.end()) return i->second->child(loc);
-                else throw XML_NoChild(m_name, cname);
+                else throw XML_NoChild(m_name, cname, lineNumber());
             }
             else {
                 i = m_childindex.find(loc);
                 if (i != m_childindex.end()) return *(i->second);
                 //XML_Node* chld = m_childindex[loc];
                 //if (chld) return *chld;
-                else throw XML_NoChild(m_name, loc);
+                else throw XML_NoChild(m_name, loc, lineNumber());
             }
         }
     }
