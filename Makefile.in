@@ -19,7 +19,11 @@ LIBDIR=@LIB_DIR@
 # removed utils temporarily
 all: kernel cxxlib hdr-collect clib python matlab utils
 
+win: python matlab
+
 install: hdr-install kernel-install data-install python-install matlab-install tools-install finish-install
+
+win-install: hdr-install win-kernel-install data-install python-install matlab-install finish-install
 
 demos: example_codes
 
@@ -51,14 +55,12 @@ win-kernel-install:
 	@INSTALL@ -d @prefix@/lib/cantera
 	rm -f @prefix@/lib/cantera/*
 	@INSTALL@ -m 644 lib/*.lib @prefix@/lib/cantera
-	cd Cantera/clib/src; @MAKE@ win-install
+	@INSTALL@ -m 644 lib/*.obj @prefix@/lib/cantera
 
 data-install:
 	@INSTALL@ -d @prefix@/cantera/data
 	@INSTALL@ -m 644 data/inputs/elements.xml @prefix@/cantera/data
 	@INSTALL@ -m 644 data/inputs/*.cti @prefix@/cantera/data
-
-	#@INSTALL@ -m 644 tools/templates/gaslib.cpp @prefix@/cantera/templates
 
 tools-install:
 	cd tools; @MAKE@ install
@@ -107,6 +109,11 @@ ifeq ($(build_matlab),1)
 	cd Cantera/matlab; @MAKE@
 endif
 
+win-matlab:
+ifeq ($(build_matlab),1)
+	cd Cantera/matlab; @MAKE@ win
+endif
+
 matlab-install:
 ifeq ($(build_matlab),1)
 	cd Cantera/matlab; @MAKE@ install
@@ -120,6 +127,9 @@ endif
 
 finish-install:
 	@INSTALL@ -d @prefix@/bin
+	@INSTALL@ bin/ck2cti* @prefix@/bin
+	@INSTALL@ -d @prefix@/doc
+	@INSTALL@ doc/*.pdf @prefix@/doc
 	@INSTALL@ -d @prefix@/cantera/demos/c++
 	@INSTALL@ examples/cxx/*.cpp @prefix@/cantera/demos/c++
 	@INSTALL@ examples/cxx/*.h @prefix@/cantera/demos/c++
@@ -131,6 +141,9 @@ finish-install:
 	@INSTALL@ Cantera/fortran/f77demos/*.txt @prefix@/cantera/demos/f77
 	@INSTALL@ Cantera/fortran/f77demos/f77demos.mak @prefix@/cantera/demos/f77/Makefile
 	chown -R @username@ @prefix@/cantera/demos/f77
+
+	@INSTALL@ README*.txt @prefix@/cantera
+	@INSTALL@ License.* @prefix@/cantera
 
 	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
 #@INSTALL@ bin/ctmkmf @prefix@/bin/ctnew

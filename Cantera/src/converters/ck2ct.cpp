@@ -29,6 +29,7 @@ using namespace std;
 #include "writelog.h"
 
 #include "ck2ct.h"
+#include <time.h>
 #include "../ct_defs.h"
 #include "ctml.h"
 using namespace Cantera;

@@ -893,7 +893,7 @@ extern "C" {
         kin.init();
         installReactionArrays(*x, kin, x->id());
         t->setState_TP(300.0, OneAtm);
-        if (r) {
+        if (r) { 
             if (&x->root() != &r->root()) delete &x->root();
         }
         else delete &x->root();

@@ -36,7 +36,8 @@ _build: $(SRCS) $(LIB_DEPS)
 ifeq ($(os_is_win),0)
 	(@PYTHON_CMD@ setup.py build)
 else
-	(@PYTHON_CMD@ winsetup.py build)
+	cp -f winsetup.py setup.py
+	(@PYTHON_CMD@ setup.py build)
 endif
 	echo 'ok' > _build
 
@@ -48,17 +49,13 @@ else
 	(@PYTHON_CMD@ setup.py install)
 endif
 else
-	(@PYTHON_CMD@ winsetup.py install)
+	cp -f winsetup.py setup.py
+	(@PYTHON_CMD@ setup.py install)
 endif
 
 clean:
-ifeq ($(os_is_win),0)
 	@PYTHON_CMD@ setup.py clean
 	cd src; rm -f *.o
-else
-	@PYTHON_CMD@ winsetup.py clean
-	cd src; rm -f *.obj
-endif
 
 depends:
 	echo '-'
