@@ -690,11 +690,17 @@ AC_OUTPUT(../Cantera/Makefile \
           ../test_problems/silane_equil/Makefile \
           ../test_problems/surfkin/Makefile \
           ../test_problems/diamondSurf/Makefile \
+          ../test_problems/ck2cti_test/runtest \
+          ../test_problems/ck2cti_test/Makefile \
             ) 
 #	)
 if test "x${OS_IS_WIN}" = "x1"; then
 cp -f ../config.h ../Cantera/src
 fi
+if test -f "../test_problems/ck2cti_test/runtest"; then
+  chmod +x ../test_problems/ck2cti_test/runtest
+fi
+
 echo
 if test "x${OS_IS_WIN}" = "x0"; then
 echo "Now type '${MAKE}' to build Cantera"
