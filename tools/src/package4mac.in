@@ -1,0 +1,28 @@
+#!/bin/sh
+
+INSTALL=@INSTALL@
+
+PKGDIR=$HOME/Packages
+CTDIR=$PKGDIR/Cantera/root_dir/Applications/Cantera
+instdir=@ct_dir@
+
+$INSTALL -d $CTDIR
+$INSTALL -d $PKGDIR/Cantera/resources_dir
+
+$INSTALL -d $CTDIR/Data
+$INSTALL -d $CTDIR/Demos
+$INSTALL -d $CTDIR/Demos/Python
+$INSTALL -d $CTDIR/Demos/Matlab
+#$INSTALL -d $CTDIR/Demos/Fortran77
+#$INSTALL -d $CTDIR/Demos/C++
+#$INSTALL -d $CTDIR/Templates/Fortran77
+#$INSTALL -d $CTDIR/Templates/C++
+
+$INSTALL $instdir/demos/python/*.py $CTDIR/Demos/Python
+$INSTALL $instdir/demos/matlab/*.m $CTDIR/Demos/Matlab
+#$INSTALL $instdir/demos/f77/*.* $CTDIR/Demos/Fortran77
+#$INSTALL $instdir/demos/c++/*.* $CTDIR/Demos/C++
+$INSTALL $instdir/data/*.cti $CTDIR/Data
+#$INSTALL $instdir/templates/f77/*.* $CTDIR/Templates/Fortran77
+#$INSTALL $instdir/templates/cxx/*.* $CTDIR/Templates/C++
+
