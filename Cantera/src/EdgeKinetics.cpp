@@ -16,7 +16,7 @@
 #include "SurfPhase.h"
 
 #include "ReactionData.h"
-#include "StoichManager.h"
+//#include "StoichManager.h"
 #include "RateCoeffMgr.h"
 
 #include <iostream>

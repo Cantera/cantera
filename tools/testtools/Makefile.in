@@ -36,6 +36,9 @@ depends: $(DEPENDS)
 	cat *.d &> .depends
 	$(RM) $(DEPENDS)
 
+TAGS: 
+	etags *.h *.cpp
+
 ifeq ($(wildcard .depends), .depends)
 include .depends
 endif

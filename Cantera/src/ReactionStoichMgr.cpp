@@ -92,7 +92,7 @@ namespace Cantera {
             vector_fp delta_order(nr,0.0);
             for (n = 0; n < nr; n++) {
                 delta_order[n] = r.order[n] - r.rstoich[n];
-                cout << "rxn stoich " << r.reactants[n] << "   " << r.order[n] << "  " << delta_order[n] << endl;
+                //cout << "rxn stoich " << r.reactants[n] << "   " << r.order[n] << "  " << delta_order[n] << endl;
             }
             m_global->add(rxn, r.reactants, delta_order);
         }

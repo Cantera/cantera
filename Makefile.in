@@ -260,9 +260,9 @@ docs:
 depends:
 	cd Cantera; @MAKE@ depends
 	cd tools; @MAKE@ depends
-	ifeq ($(build_particles	,1)
+ifeq ($(build_particles),1)
 		cd Cantera/cads; @MAKE@ depends
-	endif
+endif
 
 changes: 
 	cvs2cl.pl --prune

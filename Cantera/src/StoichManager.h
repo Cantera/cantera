@@ -98,6 +98,12 @@ namespace Cantera {
    * 
    */
 
+    static doublereal ppow(doublereal x, doublereal order) {
+        if (x > 0.0)     
+            return pow(x, order);
+        else 
+            return 0.0;
+    }
 
   /**
    * Handles one species in a reaction.
@@ -121,7 +127,7 @@ namespace Cantera {
       *(output + m_rxn) *= *(input + m_ic0); 
     }
     void power(const doublereal* input, doublereal* output) const { 
-      output[m_rxn] *= pow(input[m_ic0], m_order); 
+      output[m_rxn] *= ppow(input[m_ic0], m_order); 
     }
     void incrementSpecies(const doublereal* input, 
 			  doublereal* output) const { 
@@ -169,8 +175,8 @@ namespace Cantera {
     }
 
     void power(const doublereal* input, doublereal* output) const { 
-      output[m_rxn] *= pow(input[m_ic0],m_order0) * 
-	pow(input[m_ic1],m_order1); 
+      output[m_rxn] *= ppow(input[m_ic0],m_order0) * 
+	ppow(input[m_ic1],m_order1); 
     }
 
     void incrementSpecies(const doublereal* input, 
@@ -238,9 +244,9 @@ namespace Cantera {
 	* (*(input + m_ic2)); 
     }
     void power(const doublereal* input, doublereal* output) const { 
-      output[m_rxn] *= pow(input[m_ic0],m_order0) * 
-	pow(input[m_ic1],m_order1) * 
-	pow(input[m_ic2],m_order2);
+      output[m_rxn] *= ppow(input[m_ic0],m_order0) * 
+	ppow(input[m_ic1],m_order1) * 
+	ppow(input[m_ic2],m_order2);
     }
     void incrementSpecies(const doublereal* input, 
 			  doublereal* output) const {
@@ -300,7 +306,7 @@ namespace Cantera {
 
     void power(const doublereal* input, doublereal* output) const {
       for (int n = 0; n < m_n; n++) output[m_rxn] 
-	*= pow(input[m_ic[n]],m_order[n]); 
+	*= ppow(input[m_ic[n]],m_order[n]); 
     }
 
     void multiply(const doublereal* input, doublereal* output) const {
