@@ -149,6 +149,11 @@ namespace Cantera {
 
         doublereal massFraction(string name) const;
 
+        /**
+         * Charge density [C/m^3].
+         */
+        doublereal chargeDensity() const;
+
         void update_T(int n) const;
 
         void update_C(int n) const;

@@ -7,8 +7,11 @@
  *  $Revision$
  *
  *  $Log$
- *  Revision 1.1  2003-04-14 17:57:51  dggoodwin
- *  Initial revision
+ *  Revision 1.2  2003-06-27 14:19:16  dggoodwin
+ *  *** empty log message ***
+ *
+ *  Revision 1.1.1.1  2003/04/14 17:57:51  dggoodwin
+ *  Initial import.
  *
  *  Revision 1.24  2002/12/19 15:19:32  dgg
  *  added log block, replaced include statement for Elements.h with
@@ -144,7 +147,7 @@ namespace Cantera {
          * Electrical charge of one species k molecule, divided by
          * \f$ e = 1.602 \times 10^{-19}\f$ Coulombs.
          */ 
-        doublereal charge(int k);
+        doublereal charge(int k) const;
 	/**
          * @name Adding Species
          * These methods are used to add new species.

@@ -46,6 +46,7 @@ namespace Cantera {
     const int CK_Multicomponent   = 202;
     const int cMixtureAveraged     = 210;
     const int CK_MixtureAveraged  = 211;
+    const int cSolidTransport = 300;
 
     class XML_Writer;
 
@@ -111,13 +112,6 @@ namespace Cantera {
          */
         virtual doublereal viscosity() 
             { return err("viscosity"); }
-
-
-        //virtual void getSpeciesViscosities(doublereal* visc)
-        //    { err("getSpeciesViscosities"); } 
-
-        //virtual void getSpeciesConductivities(doublereal* cond)
-        //    { err("getSpeciesConductivities"); } 
 
 
         /**
@@ -252,6 +246,9 @@ namespace Cantera {
             return sqrt(8.0 * GasConstant * t /(Pi * mw));
         }
 
+        virtual void setParameters(int type, int k, doublereal* p) 
+            { err("setParameters"); }
+
         virtual ~Transport(){}           ///< Destructor.
 
         friend class TransportFactory;
@@ -285,7 +282,6 @@ namespace Cantera {
         void setThermo(thermo_t& thermo) { 
             if (!ready()) { 
                 m_thermo = &thermo;
-                //m_phase = &m_thermo->phase();
                 m_nmin = m_thermo->nSpecies();
             }
             else 

@@ -196,6 +196,17 @@ namespace Cantera {
             else return 0.0;
         }
 
+    doublereal Phase::chargeDensity() const {
+        int k;
+        int nsp = nSpecies();
+        doublereal cdens = 0.0;
+        for (k = 0; k < nsp; k++) 
+            cdens += charge(k)*State::moleFraction(k);
+        cdens *= Faraday;
+        return cdens;
+    }
+
+
         void Phase::update_T(int n) const {
             m_T_updater.update(n);
         }

@@ -16,8 +16,9 @@
 
 // known transport models
 #include "MultiTransport.h"
-
 #include "MixTransport.h"
+#include "SolidTransport.h"
+
 #include "TransportFactory.h"
 
 #include "polyfit.h"
@@ -194,6 +195,7 @@ namespace Cantera {
     TransportFactory::TransportFactory() : m_integrals(0) {
         m_models["Mix"] = cMixtureAveraged;
         m_models["Multi"] = cMulticomponent;
+        m_models["Solid"] = cSolidTransport;
         m_models["None"] = 0;
     }
 
@@ -235,6 +237,10 @@ namespace Cantera {
         case CK_MixtureAveraged:
             tr = new MixTransport;
             initTransport(tr, phase, CK_Mode, log_level);
+            break;
+        case cSolidTransport:
+            tr = new SolidTransport;
+            tr->setThermo(*phase);
             break;
         default:
             throw CanteraError("newTransport","unknown transport model");

@@ -16,7 +16,8 @@ OBJDIR = .
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
 # stirred reactors
-OBJS    = TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.o 
+OBJS    = TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.o \
+          SolidTransport.o
 
 CXX_INCLUDES = -I..
 LIB = @buildlib@/libtransport.a

@@ -429,7 +429,7 @@ namespace Cantera {
         if (e.hasAttrib("atomicWt")) 
             weight = atof(stripws(e["atomicWt"]).c_str());
         string symbol = e["name"];
-        if (weight)
+        if (weight != 0.0)
             addUniqueElement(symbol, weight);
         else
             addUniqueElement(symbol);

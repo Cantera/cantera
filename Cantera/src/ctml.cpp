@@ -210,7 +210,9 @@ namespace ctml {
      * 'units'.
      */
     doublereal getFloat(XML_Node& parent, string name, string type) {
-        if (!parent.hasChild(name)) return Undef;
+        if (!parent.hasChild(name)) 
+            throw CanteraError("getFloat",
+                "no child element named "+name);
         XML_Node& node = parent.child(name);
         doublereal x, x0, x1, fctr = 1.0;
         string units, vmin, vmax;

@@ -79,6 +79,7 @@ namespace Cantera {
     const doublereal StefanBoltz = 5.67e-8;
     const doublereal ElectronCharge = 1.602e-19;
     const doublereal Faraday = ElectronCharge * Avogadro;
+    const doublereal epsilon_0 = 8.85e-12;  // farads / m
     const doublereal Pi = 3.1415926;
     const doublereal SqrtPi = sqrt(Pi);
 

@@ -372,6 +372,7 @@ namespace Cantera {
         }
     }
 
+
     /**
      * Get the rate coefficient for a reaction.
      */
@@ -448,12 +449,18 @@ namespace Cantera {
             if (comp != "") 
                 th->setMassFractionsByName(comp);
         }
-        t = getFloat(state, "temperature", "temperature");
-        if (t > 0.0) th->setTemperature(t);
-        p = getFloat(state, "pressure", "pressure");
-        if (p > 0.0) th->setPressure(p);
-        rho = getFloat(state, "density", "density");
-        if (rho > 0.0) th->setDensity(rho);
+        if (state.hasChild("temperature")) {
+            t = getFloat(state, "temperature", "temperature");
+            th->setTemperature(t);
+        }
+        if (state.hasChild("pressure")) {
+            p = getFloat(state, "pressure", "pressure");
+            th->setPressure(p);
+        }
+        if (state.hasChild("density")) {
+            rho = getFloat(state, "density", "density");
+            th->setDensity(rho);
+        }
     }
         
     /**
@@ -484,9 +491,9 @@ namespace Cantera {
             XML_Node& eos = phase.child("thermo");
             if (eos["model"] == "Incompressible") {
                 if (th->eosType() == cIncompressible) {
-                    map<string, doublereal> d;
-                    getFloats(eos, d);
-                    doublereal rho = d["density"];
+                    //map<string, doublereal> d;
+                    doublereal rho = getFloat(eos, "density", "-");
+                    //doublereal rho = d["density"];
                     th->setParameters(1, &rho);
                 }
                 else {
