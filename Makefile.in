@@ -7,7 +7,7 @@
 ########################################################################
 
 export_dir = $(HOME)/sfdist
-version = 1.5.1
+version = @ctversion@
 ct = $(export_dir)/cantera-$(version)
 build_ck = @BUILD_CK@
 build_clib = @BUILD_CLIB@
@@ -16,11 +16,14 @@ build_matlab = @BUILD_MATLAB@
 os_is_win = @OS_IS_WIN@
 incl_user_code = @INCL_USER_CODE@
 
-LIBDIR=@LIB_DIR@
+prefix=@prefix@
 
 all: kernel user cxxlib hdr-collect clib python matlab utils
 
+# use this target on a Windows machine to build the Python and
+# MATLAB interfaces after building the project in Visual C++
 win: python matlab
+
 
 install: hdr-install kernel-install data-install python-install matlab-install tools-install finish-install
 
@@ -28,6 +31,7 @@ win-install: hdr-install win-kernel-install data-install python-install matlab-i
 
 demos: example_codes
 
+# build the Cantera static libraries
 kernel: info 
 	@INSTALL@ -d @buildlib@
 	rm -f @buildlib@/*.a
@@ -35,6 +39,7 @@ kernel: info
 	cd ext; @MAKE@
 	cd Cantera/src; @MAKE@
 
+# build the user library
 user:
 ifeq ($(incl_user_code),1)
 	cd Cantera/user; @MAKE@
@@ -51,29 +56,30 @@ utils:
 	cd tools; @MAKE@
 
 kernel-install:
-	@INSTALL@ -d @prefix@/lib/cantera
-	rm -f @prefix@/lib/cantera/*
-	@INSTALL@ -m 644 @buildlib@/*.a @prefix@/lib/cantera
+	@INSTALL@ -d @ct_libdir@
+	rm -f @ct_libdir@/*
+	@INSTALL@ -m 644 @buildlib@/*.a @ct_libdir@
 	cd Cantera/clib/src; @MAKE@ install
-	ranlib @prefix@/lib/cantera/*.a
+	ranlib @ct_libdir@/*.a
 
 win-kernel-install:
-	@INSTALL@ -d @prefix@/lib/cantera
-	rm -f @prefix@/lib/cantera/*
-	@INSTALL@ -m 644 lib/*.lib @prefix@/lib/cantera
+	@INSTALL@ -d @ct_libdir@
+	rm -f @ct_libdir@/*
+	@INSTALL@ -m 644 lib/*.lib @ct_libdir@
 
 data-install:
-	@INSTALL@ -d @prefix@/cantera/data
-	@INSTALL@ -m 644 data/inputs/elements.xml @prefix@/cantera/data
-	@INSTALL@ -m 644 data/inputs/*.cti @prefix@/cantera/data
+	@INSTALL@ -d @ct_datadir@
+	@INSTALL@ -m 644 data/inputs/elements.xml @ct_datadir@
+	@INSTALL@ -m 644 data/inputs/*.cti @ct_datadir@
 
 tools-install:
 	cd tools; @MAKE@ install
 
 hdr-install:
-	@INSTALL@ -d @prefix@/include
-	cp -r -f build/include/cantera @prefix@/include
+	@INSTALL@ -d @ct_incdir@
+	cp -r -f build/include/cantera @ct_incdir@
 
+# collect scattered header files abd build the include directory
 hdr-collect:
 	@INSTALL@ -d build/include/cantera
 	rm -r -f build/include/cantera/*
@@ -104,13 +110,13 @@ endif
 python-install:
 ifeq ($(build_python),1)
 	cd Cantera/python; @MAKE@ install
-	@INSTALL@ -d @prefix@/cantera/demos/python
-	@INSTALL@ Cantera/python/examples/*.py @prefix@/cantera/demos/python
-	@INSTALL@ -d @prefix@/cantera/tutorials/python
+	@INSTALL@ -d @ct_demodir@/python
+	@INSTALL@ Cantera/python/examples/*.py @ct_demodir@/python
+	@INSTALL@ -d @ct_tutdir@/python
 	@INSTALL@ Cantera/python/tutorial/*.py \
-                @prefix@/cantera/tutorials/python
-	chown -R @username@ @prefix@/cantera/demos/python
-	chown -R @username@ @prefix@/cantera/tutorials/python
+                @ct_tutdir@/python
+	chown -R @username@ @ct_demodir@/python
+	chown -R @username@ @ct_tutdir@/python
 endif
 
 matlab:
@@ -126,37 +132,37 @@ endif
 matlab-install:
 ifeq ($(build_matlab),1)
 	cd Cantera/matlab; @MAKE@ install
-	@INSTALL@ -d @prefix@/cantera/demos/matlab
-	@INSTALL@ Cantera/matlab/cantera/examples/*.m @prefix@/cantera/demos/matlab
-	@INSTALL@ -d @prefix@/cantera/tutorials/matlab
-	@INSTALL@ Cantera/matlab/cantera/tutorial/*.m @prefix@/cantera/tutorials/matlab
-	chown -R @username@ @prefix@/cantera/demos/matlab
-	chown -R @username@ @prefix@/cantera/tutorials/matlab
+	@INSTALL@ -d @ct_demodir@/matlab
+	@INSTALL@ Cantera/matlab/cantera/examples/*.m @ct_demodir@/matlab
+	@INSTALL@ -d @ct_tutdir@/matlab
+	@INSTALL@ Cantera/matlab/cantera/tutorial/*.m @ct_tutdir@/matlab
+	chown -R @username@ @ct_demodir@/matlab
+	chown -R @username@ @ct_tutdir@/matlab
 endif
 
 finish-install:
-	@INSTALL@ -d @prefix@/bin
-	@INSTALL@ bin/ck2cti* @prefix@/bin
-	@INSTALL@ -d @prefix@/doc
-	#@INSTALL@ doc/*.pdf @prefix@/doc
-	@INSTALL@ -d @prefix@/cantera/demos/c++
-	@INSTALL@ examples/cxx/*.cpp @prefix@/cantera/demos/c++
-	@INSTALL@ examples/cxx/*.h @prefix@/cantera/demos/c++
-	@INSTALL@ examples/cxx/Makefile @prefix@/cantera/demos/c++
-	chown -R @username@ @prefix@/cantera/demos/c++
-	@INSTALL@ -d @prefix@/cantera/demos/f77
-	@INSTALL@ Cantera/fortran/f77demos/*.f @prefix@/cantera/demos/f77
-	@INSTALL@ tools/templates/f77/demo_ftnlib.cpp @prefix@/cantera/demos/f77
-	@INSTALL@ Cantera/fortran/f77demos/*.txt @prefix@/cantera/demos/f77
-	@INSTALL@ Cantera/fortran/f77demos/f77demos.mak @prefix@/cantera/demos/f77/Makefile
-	chown -R @username@ @prefix@/cantera/demos/f77
+	@INSTALL@ -d @ct_bindir@
+	@INSTALL@ bin/ck2cti* @ct_bindir@
+	@INSTALL@ -d @ct_docdir@
+	#@INSTALL@ doc/*.pdf @ct_docdir@
+	@INSTALL@ -d @ct_demodir@/c++
+	@INSTALL@ examples/cxx/*.cpp @ct_demodir@/c++
+	@INSTALL@ examples/cxx/*.h @ct_demodir@/c++
+	@INSTALL@ examples/cxx/Makefile @ct_demodir@/c++
+	chown -R @username@ @ct_demodir@/c++
+	@INSTALL@ -d @ct_demodir@/f77
+	@INSTALL@ Cantera/fortran/f77demos/*.f @ct_demodir@/f77
+	@INSTALL@ tools/templates/f77/demo_ftnlib.cpp @ct_demodir@/f77
+	@INSTALL@ Cantera/fortran/f77demos/*.txt @ct_demodir@/f77
+	@INSTALL@ Cantera/fortran/f77demos/f77demos.mak @ct_demodir@/f77/Makefile
+	chown -R @username@ @ct_demodir@/f77
 
-	@INSTALL@ README*.txt @prefix@/cantera
-	@INSTALL@ License.* @prefix@/cantera
-
+	@INSTALL@ README*.txt @ct_dir@
+	@INSTALL@ License.* @ct_dir@
+	@INSTALL@ tools/src/finish_install.py tools/bin
 	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
-#@INSTALL@ bin/ctmkmf @prefix@/bin/ctnew
-#@INSTALL@ bin/cxx_examples @prefix@/cantera/demos/c++
+#@INSTALL@ bin/ctmkmf @ct_bindir@/ctnew
+#@INSTALL@ bin/cxx_examples @ct_demodir@/c++
 
 
 
@@ -168,10 +174,15 @@ test: example_codes
 	cd test_problems; @MAKE@ test
 
 uninstall:
-	rm -r -f @prefix@/include/cantera
-	rm -r -f @prefix@/cantera
-	rm -r -f @prefix@/lib/cantera
+	rm -r -f @ct_incdir@
+	rm -r -f @ct_libdir@
+	rm -r -f @ct_datadir@
+	rm -r -f @ct_demodir@
+	rm -r -f @ct_docdir@
+	rm -r -f @ct_tutdir@
 	rm -r -f @prefix@/matlab/toolbox/cantera
+	rm -r -f @ct_doc
+	cd tools; make uninstall
 
 clean:
 	rm -f *.*~ @buildlib@/*.* 

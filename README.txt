@@ -24,11 +24,11 @@ Building Cantera from the source code
 =====================================
 
 
-1) Unix/linux/cygwin build procedure
-------------------------------------
+1) Unix/linux/cygwin/Mac OSX build procedure
+--------------------------------------------
 
 Run the 'configure' script to build the Makefiles. By default, 'make install' 
-will install under '/usr/local.' If you want to install Cantera somewhere else,
+will install under '/usr/local' If you want to install Cantera somewhere else,
 run 'configure' with the 'prefix' option:
 
 configure --prefix=$HOME/my_cantera_dir
@@ -52,7 +52,7 @@ to configure the environment before using Cantera.
 
 The build process requires a 'make' utility compatible with GNU
 'make'.  If this has a different name on your system, define
-environment variable MAKE to the name (e..g. 'gmake') before running
+environment variable MAKE to the name (e.g. 'gmake') before running
 'configure'.
 
 This procedure also builds the Python and MATLAB interfaces if 

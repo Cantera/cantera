@@ -24,6 +24,7 @@
 
 #######################################################################
 
+CANTERA_VERSION=${CANTERA_VERSION:="1.5.3"}
 
 #----------------------------------------------------------------------
 #         Language Interfaces
@@ -52,13 +53,13 @@ BUILD_FORTRAN_90_INTERFACE='n'       # Fortran is temporarily not working
 #
 
 BUILD_PYTHON_INTERFACE=${BUILD_PYTHON_INTERFACE:="y"}
+#PYTHON_CMD=${PYTHON_CMD:="python"}
 
 #----------- Matlab --------------------------------------------------
 
 # Set this to "y" if you want to build the Matlab toolbox. Matlab must
 # be installed on your system first, since the build process runs a
 # Matlab script.
-PYTHON_CMD=${PYTHON_CMD:="python"}
 BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
 
 
@@ -157,7 +158,7 @@ LAPACK_FTN_STRING_LEN_AT_END='y'
 CXX=${CXX:=g++}
 
 # C++ compiler flags
-CXXFLAGS=${CXXFLAGS:="-O2 -g -Wall"}
+CXXFLAGS=${CXXFLAGS:="-O2 -Wall"}
 
 # the C++ flags required for linking
 #LCXX_FLAGS=
@@ -184,14 +185,14 @@ SHARED=${SHARED:="-shared"}
 
 # the Fortran 77 and Fortran 90 compilers. You only need a Fortran 90
 # compiler if you are building the Fortran 90 interface.
-#F77=${F77:=f77}
+F77=${F77:=g77}
 F90=${F90:=f90}
 
 # Fortran compiler flags
-FFLAGS=${FFLAGS:='-O0 -g'}
+FFLAGS=${FFLAGS:='-O2 -Wall'}
 
 # the additional Fortran flags required for linking, if any
-#LFORT_FLAGS =
+#LFORT_FLAGS="-lF77 -lFI77"
 
 # Fortran 90 module directory
 FORT_MODULE_DIRECTORY=${FORT_MODULE_DIRECTORY:=$CANTERA_ROOT/include/fortran}
@@ -228,6 +229,7 @@ CT_SHARED_LIB=${CT_SHARED_LIB:=clib}
 #------------------- don't change anything below!! ---------------------
 #-----------------------------------------------------------------------
 
+export CANTERA_VERSION
 export USER_SRC_DIR
 export ARCHIVE
 export BLAS_LIBRARY
@@ -235,7 +237,7 @@ export BUILD_F90
 export BUILD_FORTRAN_90_INTERFACE
 export BUILD_PYTHON_INTERFACE
 export BUILD_MATLAB_TOOLBOX
-export MATLAB_CMD
+#export MATLAB_CMD
 export CANTERA_ROOT
 export CT_SHARED_LIB
 export CXX
@@ -270,7 +272,7 @@ export FORT_MODULE_DIRECTORY
 export FORT_MODULE_PATH_COMMAND
 export OBJ_EXT
 export PYTHON_INCDIR
-export PYTHON_CMD
+#export PYTHON_CMD
 export PIC
 export SHARED
 export SOEXT
