@@ -291,6 +291,15 @@ export: changes
 	@INSTALL@ -d $(export_dir)
 	if (test -d $(export_dir)/cantera); then rm -r -f $(export_dir)/cantera; fi
 	cd $(export_dir); cvs export  -D 1/01/2010 cantera
+	cd $(export_dir)/cantera; rm -r -f win32
+	cd $(export_dir); mv cantera cantera-$(version)
+
+export-win: changes
+	@INSTALL@ -d $(export_dir)
+	if (test -d $(export_dir)/cantera); then rm -r -f $(export_dir)/cantera; fi
+	cd $(export_dir); cvs export  -D 1/01/2010 cantera
+	cd $(export_dir)/cantera; rm -r -f win32
+	cd $(export_dir)/cantera; cvs export  -D 1/01/2010 win32
 	cd $(export_dir); mv cantera cantera-$(version)
 
 pack: export
