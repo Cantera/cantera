@@ -1,38 +1,24 @@
 #
 # Generated from file air.inp
-# by ck2ct on Fri Aug  8 20:22:22 2003
+# by ck2cti on Mon Aug 25 09:52:58 2003
 #
-
 # Transport data from file ../transport/gri30_tran.dat.
 
-
-#-------------------------------------------------------------------------------
-#
-#  The default units. These will be used for dimensional quantities
-#  with unspecified units.
-#-------------------------------------------------------------------------------
 units(length = "cm", time = "s", quantity = "mol", act_energy = "cal/mol")
 
 
-
-
-#-------------------------------------------------------------------------------
-#
-#  The phase definition. This specifies an ideal gas mixture that
-#  includes all species and reactions defined in this file.
-#
-#-------------------------------------------------------------------------------
 ideal_gas(name = "air",
       elements = " O  N  Ar ",
       species = """ O  O2  N  NO  NO2  N2O  N2  AR """,
-      reactions = "all"    )
+      reactions = "all",
+      transport = "Mix",
+      initial_state = state(temperature = 300.0,
+                        pressure = OneAtm)    )
 
 
 
 #-------------------------------------------------------------------------------
-#
 #  Species data 
-#
 #-------------------------------------------------------------------------------
 
 species(name = "O",
@@ -48,7 +34,8 @@ species(name = "O",
     transport = gas_transport(
                      geom = "atom",
                      diam =     2.75,
-                     well_depth =    80.00)
+                     well_depth =    80.00),
+    note = "L 1/90"
        )
 
 species(name = "O2",
@@ -66,7 +53,8 @@ species(name = "O2",
                      diam =     3.46,
                      well_depth =   107.40,
                      polar =     1.60,
-                     rot_relax =     3.80)
+                     rot_relax =     3.80),
+    note = "TPIS89"
        )
 
 species(name = "N",
@@ -82,7 +70,8 @@ species(name = "N",
     transport = gas_transport(
                      geom = "atom",
                      diam =     3.30,
-                     well_depth =    71.40)
+                     well_depth =    71.40),
+    note = "L 6/88"
        )
 
 species(name = "NO",
@@ -100,7 +89,8 @@ species(name = "NO",
                      diam =     3.62,
                      well_depth =    97.53,
                      polar =     1.76,
-                     rot_relax =     4.00)
+                     rot_relax =     4.00),
+    note = "RUS 78"
        )
 
 species(name = "NO2",
@@ -117,7 +107,8 @@ species(name = "NO2",
                      geom = "nonlinear",
                      diam =     3.50,
                      well_depth =   200.00,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "L 7/88"
        )
 
 species(name = "N2O",
@@ -134,7 +125,8 @@ species(name = "N2O",
                      geom = "linear",
                      diam =     3.83,
                      well_depth =   232.40,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "L 7/88"
        )
 
 species(name = "N2",
@@ -152,7 +144,8 @@ species(name = "N2",
                      diam =     3.62,
                      well_depth =    97.53,
                      polar =     1.76,
-                     rot_relax =     4.00)
+                     rot_relax =     4.00),
+    note = "121286"
        )
 
 species(name = "AR",
@@ -168,15 +161,14 @@ species(name = "AR",
     transport = gas_transport(
                      geom = "atom",
                      diam =     3.33,
-                     well_depth =   136.50)
+                     well_depth =   136.50),
+    note = "120186"
        )
 
 
 
 #-------------------------------------------------------------------------------
-#
 #  Reaction data 
-#
 #-------------------------------------------------------------------------------
 
 #  Reaction 1

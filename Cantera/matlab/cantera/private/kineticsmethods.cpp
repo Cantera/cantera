@@ -146,11 +146,13 @@ void kineticsmethods( int nlhs, mxArray *plhs[],
                 iok = kin_setMultiplier(kin,irxn-1,v); break;
             case 3:
                 iok = delKinetics(kin); break;
+            case 5:
+                iok = kin_advanceCoverages(kin,v); break;
             default:
-                iok = -1;
+                mexErrMsgTxt("unknown job");
             }
         }
     
-        if (iok < 0) mexErrMsgTxt("error in kineticsmethods.");
+        if (iok < 0) reportError();
     }
 }

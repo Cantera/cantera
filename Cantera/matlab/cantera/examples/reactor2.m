@@ -20,8 +20,7 @@ nsp = nSpecies(gas);
 set(gas,'T',1001.0,'P',oneatm,'X','H2:2,O2:1,N2:4');
 
 % create a reactor, and insert the gas
-r = Reactor;
-insert(r, gas);
+r = Reactor(gas);
 
 t = 0;
 dt = 1.0e-5;
@@ -29,8 +28,28 @@ t0 = cputime;
 for n = 1:100
   t = t + dt;
   advance(r, t);
-  disp([time(r) temperature(r)]);  
+  tim(n) = time(r);
+  temp(n) = temperature(r);  
+  x(n,1:3) = moleFraction(gas,{'OH','H','H2'});
 end
 disp(['CPU time = ' num2str(cputime - t0)]);
 
+clf;
+subplot(2,2,1);
+plot(tim,temp);
+xlabel('Time (s)');
+ylabel('Temperature (K)');
+subplot(2,2,2)
+plot(tim,x(:,1));
+xlabel('Time (s)');
+ylabel('OH Mole Fraction (K)');
+subplot(2,2,3)
+plot(tim,x(:,2));
+xlabel('Time (s)');
+ylabel('H Mole Fraction (K)');
+subplot(2,2,4)
+plot(tim,x(:,3));
+xlabel('Time (s)');
+ylabel('H2 Mole Fraction (K)');
 clear all
+cleanup

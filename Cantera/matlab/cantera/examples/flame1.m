@@ -1,8 +1,11 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FLAME1 - A burner-stabilized flat flame
 %
-%  A burner-stabilized flat flame
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    This script simulates a burner-stablized lean hydrogen-oxygen flame
+%    at low pressure. 
+
+help flame1;
+disp('press any key to begin the simulation');
+pause;
 
 t0 = cputime;  % record the starting time
 
@@ -10,16 +13,15 @@ t0 = cputime;  % record the starting time
 % parameter values
 p          =   0.05*oneatm;         % pressure
 tburner    =   373.0;               % burner temperature
-mdot       =   0.04;                % kg/m^2/s
+mdot       =   0.06;                % kg/m^2/s
 
-rxnmech    =  'h2o2.xml';           % reaction mechanism file
-transport  =  'Mix';                % transport model
+rxnmech    =  'h2o2.cti';           % reaction mechanism file
 comp       =  'H2:1.8, O2:1, AR:7'; % premixed gas composition
 
 initial_grid = [0.0 0.02 0.04 0.06 0.08 0.1 ...
-		0.15 0.2 0.49 0.5];  % m
+		0.15 0.2 0.4 0.49 0.5];  % m
 
-tol_ss    = [1.0e-5 1.0e-12];       % [rtol atol] for steady-state
+tol_ss    = [1.0e-5 1.0e-9];       % [rtol atol] for steady-state
                                     % problem
 tol_ts    = [1.0e-3 1.0e-4];        % [rtol atol] for time stepping
 
@@ -35,7 +37,7 @@ refine_grid = 1;                    % 1 to enable refinement, 0 to
 % This object will be used to evaluate all thermodynamic, kinetic,
 % and transport properties
 %
-gas = IdealGasMix(rxnmech, transport);
+gas = IdealGasMix(rxnmech);
 
 % set its state to that of the unburned gas at the burner
 set(gas,'T', tburner, 'P', p, 'X', comp);
@@ -83,8 +85,7 @@ fl = flame(gas, burner, f, s);
 %restore(fl,'h2flame2.xml', 'energy')
 
 
-solve(fl, loglevel, refine_grid);
-
+solve(fl, 1, refine_grid);
 
 
 %%%%%%%%%%%% enable the energy equation %%%%%%%%%%%%%%%%%%%%%
@@ -110,7 +111,7 @@ disp(e);
 
 %%%%%%%%%% make plots %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-figure(1);
+clf;
 subplot(2,2,1);
 plotSolution(fl, 'flow', 'T');
 title('Temperature [K]');

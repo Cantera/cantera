@@ -36,7 +36,7 @@ refine_grid = 1;                    % 1 to enable refinement, 0 to
 % This object will be used to evaluate all thermodynamic, kinetic,
 % and transport properties
 %
-gas = IdealGasMix(rxnmech, transport);
+gas = GRI30('Mix'); %IdealGasMix(rxnmech, transport);
 
 % set its state to that of the  fuel (arbitrary)
 set(gas,'T', tin, 'P', p, 'X', comp2);

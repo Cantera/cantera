@@ -33,15 +33,15 @@ end
 k.owner = 1;
 ixml = hndl(r);
 
-iphase = hndl(ph)
+iphase = thermo_hndl(ph);
 if nargin > 2
-  ineighbor1 = hndl(neighbor1)
+  ineighbor1 = thermo_hndl(neighbor1)
   if nargin > 3
-    ineighbor2 = hndl(neighbor2)
+    ineighbor2 = thermo_hndl(neighbor2)
     if nargin > 4
-      ineighbor3 = hndl(neighbor3)
+      ineighbor3 = thermo_hndl(neighbor3)
       if nargin > 5
-	ineighbor4 = hndl(neighbor4)
+	ineighbor4 = thermo_hndl(neighbor4)
       end
     end
   end

@@ -48,7 +48,7 @@ extern "C" {
     double DLL_IMPORT surface_temperature(int i);
     int DLL_IMPORT surface_settemperature(int i, double t);
     int DLL_IMPORT surface_setcoverages(int i, double* c);
-
+    int DLL_EXPORT surf_setcoveragesbyname(int i, char* c);
 }
 
 #endif

@@ -65,6 +65,11 @@ extern "C" {
         return 0;
     }
 
+    int DLL_EXPORT surf_setcoveragesbyname(int i, char* c) {
+        _surfphase(i)->setCoveragesByName(string(c));
+        return 0;
+    }
+
     int DLL_EXPORT surf_getcoverages(int i, double* c) {
         _surfphase(i)->getCoverages(c);
         return 0;

@@ -1,4 +1,4 @@
-function v = stack_methods(n, job, a, b, c, d, e)
+function v = stack_methods(n, job, a, b, c, d, e, f)
 % STACK_METHODS - converter function for methods of class Stack
 %
 %    All Cantera functions and methods are handled by the single MEX
@@ -17,6 +17,9 @@ elseif nargin == 6
   v = ctmethods(90, n, job, a, b, c, d); 
 elseif nargin == 7
   v = ctmethods(90, n, job, a, b, c, d, e); 
+elseif nargin == 8
+  v = ctmethods(90, n, job, a, b, c, d, e, f); 
 else
-  error('wrong number of arguments');
+  error('too many arguments');
 end
+ 

@@ -68,6 +68,11 @@ const double Undef = -999.123;
             case 11:
                 iok = wall_ready(i);
                 break;
+            case 12:
+                n = getInt(prhs[3]);
+                m = getInt(prhs[4]);
+                iok = wall_setkinetics(i, n, m);
+                break;
             default:
                 mexErrMsgTxt("unknown job parameter");
             }

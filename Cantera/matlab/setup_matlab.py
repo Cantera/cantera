@@ -1,11 +1,12 @@
 
 import sys
 
-if len(sys.argv) >= 3:
-    libdir = sys.argv[1]
-    libs = '-l'+sys.argv[2]+' '+sys.argv[3]
+if len(sys.argv) >= 4:
+    bindir = sys.argv[1]
+    libdir = sys.argv[2]
+    libs = '-l'+sys.argv[3]+' '+sys.argv[4]
 else:
-    print 'usage: python setup_matlab.py <libdir> <lib>'
+    print 'usage: python setup_matlab.py <bindir> <libdir> <lib>'
     sys.exit(0)
     
 f = open('setup.m','w')
@@ -20,7 +21,14 @@ mex private/ctmethods.cpp private/ctfunctions.cpp ...
     private/thermomethods.cpp private/kineticsmethods.cpp ...
     private/transportmethods.cpp private/reactormethods.cpp ...
     private/wallmethods.cpp private/flowdevicemethods.cpp ...
-    private/onedimmethods.cpp private/write.cpp ...
+    private/onedimmethods.cpp private/surfmethods.cpp private/write.cpp ...
 """+'     -L'+libdir+' '+libs+'\n'+"""disp('done.');
 """)
 fb.close()
+
+fp = open('cantera/ctbin.m','w')
+fp.write("""function path = ctbin
+path = '"""+bindir+"""';
+""")
+fp.close()
+

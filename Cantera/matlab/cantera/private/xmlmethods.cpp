@@ -105,7 +105,7 @@ void xmlmethods( int nlhs, mxArray *plhs[],
                 break;
         case 15:
             file = getString(prhs[3]);
-            iok = xml_preprocess_and_build(i, file);
+            iok = xml_get_XML_File(file); // xml_preprocess_and_build(i, file);
             break;
             default:
                 mexErrMsgTxt("unknown job parameter");

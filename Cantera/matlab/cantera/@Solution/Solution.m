@@ -1,4 +1,4 @@
-function s = Solution(x, r)
+function s = Solution(src, id)
 % SOLUTION - class Solution constructor.
 %
 %    Class Solution represents solutions of multiple species. A
@@ -27,30 +27,17 @@ function s = Solution(x, r)
 %
 % See also: ThermoPhase, Kinetics, Transport
 %
+doc = XML_Node('doc',src);
 if nargin == 1
-  trmodel = 'None';
-elseif nargin == 2
-  trmodel = r;
+  node = findByName(doc,'phase');
 else
-   error('wrong number of arguments');
+  node = findByID(doc,id);
 end
-
-if isa(x,'Solution')
-  s = x;
-  return
-elseif isa(x,'XML_Node')
-  xp = x;
-else
-  doc = XML_Node('doc');
-  build(doc, x, 1);
-  write(doc,'xp.out');
-  xp = child(doc,'ctml/phase');
-end
-t = ThermoPhase(xp);
-k = Kinetics(xp,t);
+t = ThermoPhase(node);
+k = Kinetics(node,t);
 s.kin = k;
 s.th = t;
-tr = Transport(trmodel,t,4);
+tr = Transport(node,t,'default',4);
 s.tr = tr;
 s = class(s,'Solution',t,k,tr);
 

@@ -6,16 +6,27 @@ d.dom_id = -1;
 if nargin == 1
   d.dom_id = domain_methods(0, a);
 elseif nargin == 2
+  % a stagnation flow
   if a == 1
     if isa(b,'Solution')
       d.dom_id = domain_methods(0, 1, thermo_hndl(b), kinetics_hndl(b), ...
 				trans_hndl(b));
     else
-      error('Wrong argument type. Expecting instance of class Solution.')
+      error('Wrong argument type. Expecting instance of class Solution.');
     end
+  elseif a == 6
+    if isa(b,'Interface')
+      d.dom_id = domain_methods(0, 6, kinetics_hndl(b));
+    else
+      error('Wrong argument type. Expecting instance of class Interface.');
+    end      
+  else
+    error('wrong object type');
   end
+  
 end
 if d.dom_id < 0
   error(geterr);
 end
+d.domain_type = a;
 d = class(d, 'Domain1D');

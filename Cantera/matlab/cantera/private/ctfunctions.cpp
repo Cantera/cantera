@@ -59,7 +59,7 @@ void ctfunctions( int nlhs, mxArray *plhs[],
     case 4:
         iok = domain_clear();
         iok = sim1D_clear();
-        //iok = xml_clear();
+        iok = xml_clear();
         iok = clearStorage();
         break;
 

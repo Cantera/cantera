@@ -4,7 +4,14 @@
 #include "../../../clib/src/ctonedim.h"
 
 #include <iostream>
+#include <string>
 using namespace std;
+
+
+namespace Cantera {
+    void writelog(const std::string& s);
+}
+using namespace Cantera;
 
 void onedimmethods( int nlhs, mxArray *plhs[],
     int nrhs, const mxArray *prhs[] ) {
@@ -82,7 +89,9 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             for (k = 0; k < sz; k++) {
                 ptrs[k] = int(dom_ids[k]);
             }
+            writelog("calling sim1D_new\n");
             indx = sim1D_new(sz, ptrs);
+            writelog("ret sim1D_new\n");
             delete[] ptrs;
             break;
 
@@ -197,9 +206,10 @@ void onedimmethods( int nlhs, mxArray *plhs[],
         int iok = -1;
         double *lower, *upper, *rtol, *atol, *grid, *pos, *values, 
             mdot, t, p, val, *temp, ratio, slope, curve, tstep, *dts, 
-            rdt;
+            rdt, prune;
         int nlower, nupper, nr, na, npts, np, comp, localPoint, idom,
-            loglevel, refine_grid, n, flag, itime, ns, *nsteps, icount;
+            loglevel, refine_grid, n, flag, itime, ns, *nsteps, icount,
+            onoff, ss_age, ts_age;
         char *xstr, *fname, *id, *desc, *name;
         switch (job) {
         case 51:
@@ -309,12 +319,14 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             iok = sim1D_refine(dom, loglevel);
             break;
         case 106:
-            checkNArgs(7, nrhs);
+            checkNArgs(8, nrhs);
             idom = getInt(prhs[3]) - 1;
             ratio = getDouble(prhs[4]);
             slope = getDouble(prhs[5]);
             curve = getDouble(prhs[6]);
-            iok = sim1D_setRefineCriteria(dom, idom, ratio, slope, curve);
+            prune = getDouble(prhs[7]);
+            iok = sim1D_setRefineCriteria(dom, idom, 
+                ratio, slope, curve, prune);
             break;
         case 107:
             iok = 0;
@@ -362,10 +374,22 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             icount = getInt(prhs[4]);
             iok = sim1D_eval(dom, rdt, icount); 
             break;
+        case 114:
+            checkNArgs(5, nrhs);
+            ss_age = getInt(prhs[3]);
+            ts_age = getInt(prhs[4]);
+            iok = sim1D_setMaxJacAge(dom, ss_age, ts_age);
+            break;
             //case 200:
             //iok = domain1D_clear();
             //iok = sim1D_clear();
             //break;
+
+        case 120:
+            checkNArgs(4, nrhs);
+            onoff = getInt(prhs[3]);
+            iok = reactingsurf_enableCoverageEqs(dom, onoff);
+            break;
 
         default:
             mexPrintf(" job = %d ",job);

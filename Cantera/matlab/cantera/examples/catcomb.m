@@ -209,7 +209,7 @@ disp(e);
 
 %%%%%%%%%% make plots %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-figure(1);
+clf;
 subplot(3,3,1);
 plotSolution(sim1D, 'flow', 'T');
 title('Temperature [K]');

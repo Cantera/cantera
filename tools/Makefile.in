@@ -5,7 +5,7 @@
 #
 all: kernel 
 
-install: templates-install
+install: templates-install apps-install
 
 kernel:
 	cd src; @MAKE@
@@ -13,7 +13,7 @@ kernel:
 
 apps-install:
 	@INSTALL@ -d @prefix@/bin
-	@INSTALL@ ../bin/ck2ctml @prefix@/bin
+	@INSTALL@ ../bin/ck2cti @prefix@/bin
 
 clean:
 	$(RM) *.*~ 

@@ -1,24 +1,19 @@
-function x = XML_Node(name, src, root, wrap)
-%XML_Node Cantera XML_Node class constructor
+function x = XML_Node(name, src, wrap)
+%
+% XML_Node Cantera XML_Node class constructor
 %
 x.id = 0;
-x.root = 0;
-if nargin == 4
+if nargin == 3
    x.id = wrap;
-   x.root = root;
-elseif nargin > 0
-   % create an empty node with name 'name'
-   x.id = ctmethods(10,0,0,name); % newxml(name)
+elseif nargin == 2
+   % read tree from a file
+   x.id = ctmethods(10,15,0,src); % newxml(name)
    if x.id < 0
       error(geterr);
    end
-end
-if nargin > 2
-   x.root = root;
+elseif nargin == 1
+  x.id = ctmethods(10,0,0,name);
 end
 
 x = class(x,'XML_Node');
 
-if nargin > 1 & nargin < 4
-   build(x, src);
-end

@@ -27,6 +27,7 @@ const int REACTOR_CLASS = 60;
 const int WALL_CLASS = 70;
 const int FLOWDEVICE_CLASS = 80;
 const int ONEDIM_CLASS = 90;
+const int SURF_CLASS = 100;
 
 void ctfunctions( int nlhs, mxArray *plhs[], int nrhs, 
     const mxArray *prhs[] );
@@ -38,6 +39,9 @@ void thermomethods( int nlhs, mxArray *plhs[], int nrhs,
     const mxArray *prhs[] );
 
 void phasemethods( int nlhs, mxArray *plhs[], int nrhs, 
+    const mxArray *prhs[] );
+
+void surfmethods( int nlhs, mxArray *plhs[], int nrhs, 
     const mxArray *prhs[] );
 
 void kineticsmethods( int nlhs, mxArray *plhs[], int nrhs, 
@@ -94,6 +98,8 @@ extern "C" {
             flowdevicemethods(nlhs, plhs, nrhs, prhs); break;
         case ONEDIM_CLASS:
             onedimmethods(nlhs, plhs, nrhs, prhs); break;
+        case SURF_CLASS:
+            surfmethods(nlhs, plhs, nrhs, prhs); break;
         default:
             mexErrMsgTxt("unknown class");
         }

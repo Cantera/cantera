@@ -23,12 +23,6 @@ SPECIES_SET = 20
 COLLECTION = 30
 THERMO = 40
 
-# dictionary maps error conditions -> action
-_handle_error = {}
-_handle_error['undeclared_element'] = 'error'
-_handle_error['undeclared_species'] = 'error'
-_handle_error['negative_A'] = 'error'
-
 # default units
 _ulen = 'm' 
 _umol = 'kmol'
@@ -54,7 +48,7 @@ _speciesnames = []
 _phases = []
 _reactions = []
 _atw = {}
-_mw = {}
+#_mw = {}
 
 _valsp = ''
 _valrxn = ''
@@ -88,20 +82,6 @@ def standard_pressure(p0):
     global _pref
     _pref = p0
 
-def on_error(undeclared_element = '',
-             undeclared_species = '',
-             negative_A = ''):
-    """specify an action when an error condition is encountered."""
-    global _handle_error
-    
-    if undeclared_element:
-        _handle_error['undeclared_element'] = undeclared_element
-    if undeclared_species:
-        _handle_error['undeclared_species'] = undeclared_species
-    if negative_A:
-        _handle_error['negative_A'] = negative_A                
-            
-    
 def get_atomic_wts():
     """get the atomic weights from the elements database."""
     global _atw
@@ -250,19 +230,19 @@ class species(writer):
     def __init__(self,
                  name = 'missing name!',
                  atoms = '',
-                 comment = '',
+                 note = '',
                  thermo = None,
                  transport = None,
                  charge = -999):
         self._name = name
         self._atoms = getAtomicComp(atoms)
-        mw = 0.0
-        for a in self._atoms.keys():
-            mw += self._atoms[a]*float(_atw[a])
-        self._mw = mw
-        global _mw
-        _mw[name] = mw
-        self._comment = comment
+        #mw = 0.0
+        #for a in self._atoms.keys():
+        #    mw += self._atoms[a]*float(_atw[a])
+        #self._mw = mw
+        #global _mw
+        #_mw[name] = mw
+        self._comment = note
         
         if thermo:
             self._thermo = thermo
@@ -789,13 +769,15 @@ class phase(writer):
                  elements = '',
                  species = '',
                  reactions = 'none',
-                 initial_state = None):
+                 initial_state = None,
+                 options = []):
         
         self._name = name
         self._dim = dim
         self._el = elements
         self._sp = []
         self._rx = []
+        self._options = options
 
         #--------------------------------
         #        process species
@@ -888,7 +870,7 @@ class phase(writer):
             datasrc = r[0]
             ra = p.addChild('reactionArray')
             ra['datasrc'] = datasrc+'#reaction_data'
-            if _handle_error['undeclared_species'] == 'skip':
+            if 'skip_undeclared_species' in self._options:
                 rk = ra.addChild('skip')
                 rk['species'] = 'undeclared'
             
@@ -921,7 +903,7 @@ class phase(writer):
             sa = ph.addChild('speciesArray',names)
             sa['datasrc'] = datasrc+'#species_data'
 
-            if _handle_error['undeclared_element'] == 'skip':
+            if 'skip_undeclared_elements' in self._options:
                 sk = sa.addChild('skip')
                 sk['element'] = 'undeclared'
             
@@ -943,10 +925,11 @@ class ideal_gas(phase):
                  reactions = 'none',
                  kinetics = 'GasKinetics',
                  transport = 'None',
-                 initial_state = None):
+                 initial_state = None,
+                 options = []):
         
         phase.__init__(self, name, 3, elements, species, reactions,
-                       initial_state)
+                       initial_state, options)
         self._pure = 0
         self._kin = kinetics
         self._tr = transport
@@ -972,10 +955,11 @@ class pure_solid(phase):
                  species = '',
                  density = -1.0,
                  transport = 'None',
-                 initial_state = None):
+                 initial_state = None,
+                 options = []):
         
         phase.__init__(self, name, 3, elements, species, 'none',
-                       initial_state)
+                       initial_state, options)
         self._dens = density
         self._pure = 1
         if self._dens < 0.0:
@@ -1009,11 +993,12 @@ class ideal_interface(phase):
                  phases = [],
                  kinetics = 'Interface',
                  transport = 'None',
-                 initial_state = None):
+                 initial_state = None,
+                 options = []):
 
         self._type = 'surface'
         phase.__init__(self, name, 2, elements, species, reactions,
-                       initial_state)
+                       initial_state, options)
         self._pure = 0
         self._kin = kinetics
         self._tr = transport
@@ -1176,7 +1161,7 @@ class Lindemann:
 ##         tr.addChild('rotRelax',`self._params[4]`)        
 
 
-get_atomic_wts()
+#get_atomic_wts()
 validate()
 
 
@@ -1197,7 +1182,10 @@ if __name__ == "__main__":
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.18  2003-08-21 14:29:53  dggoodwin
+# Revision 1.19  2003-08-26 03:39:02  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.18  2003/08/21 14:29:53  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.17  2003/08/20 15:35:32  dggoodwin

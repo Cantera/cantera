@@ -1,4 +1,4 @@
-function tr = Transport(model, th, loglevel)
+function tr = Transport(xml_phase, th, model, loglevel)
 %TRANSPORT  Transport class constructor.
 %
 %  k = TRANSPORT(model, p, loglevel) creates a transport
@@ -8,14 +8,23 @@ function tr = Transport(model, th, loglevel)
 %  model. The phase object must have already been created.
 %
 tr.id = 0;
-if nargin == 3
+if nargin == 4
   tr.th = th;
-  tr.model = model;
-  tr.id = trans_get(hndl(th), -1, model, loglevel) ;
+  if model == 'default'
+    try
+      node = child(xml_phase,'transport');
+      tr.model = attrib(node,'model');
+    catch
+      tr.model = '';
+    end
+  else
+    tr.model = model;
+  end
+  tr.id = trans_get(hndl(th), -1, tr.model, loglevel) ;
   tr = class(tr,'Transport');
 elseif isa(model,'Transport')
   tr = model;
 else
-  error('syntax error')
+  error('syntax error');
 end
 

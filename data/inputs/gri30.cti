@@ -1,27 +1,12 @@
 #
 # Generated from file gri30.inp
-# by ck2ct on Fri Aug  8 20:22:21 2003
+# by ck2cti on Mon Aug 25 09:52:57 2003
 #
-
 # Transport data from file ../transport/gri30_tran.dat.
 
-
-#-------------------------------------------------------------------------------
-#
-#  The default units. These will be used for dimensional quantities
-#  with unspecified units.
-#-------------------------------------------------------------------------------
 units(length = "cm", time = "s", quantity = "mol", act_energy = "cal/mol")
 
 
-
-
-#-------------------------------------------------------------------------------
-#
-#  The phase definition. This specifies an ideal gas mixture that
-#  includes all species and reactions defined in this file.
-#
-#-------------------------------------------------------------------------------
 ideal_gas(name = "gri30",
       elements = " O  H  C  N  Ar ",
       species = """ H2  H  O  O2  OH  H2O  HO2  H2O2  C  CH 
@@ -30,14 +15,44 @@ ideal_gas(name = "gri30",
                    N  NH  NH2  NH3  NNH  NO  NO2  N2O  HNO  CN 
                    HCN  H2CN  HCNN  HCNO  HOCN  HNCO  NCO  N2  AR  C3H7 
                    C3H8  CH2CHO  CH3CHO """,
-      reactions = "all"    )
+      reactions = "all",
+      kinetics = "GRI30",
+      initial_state = state(temperature = 300.0,
+                        pressure = OneAtm)    )
+
+ideal_gas(name = "gri30_mix",
+      elements = " O  H  C  N  Ar ",
+      species = """ H2  H  O  O2  OH  H2O  HO2  H2O2  C  CH 
+                   CH2  CH2(S)  CH3  CH4  CO  CO2  HCO  CH2O  CH2OH  CH3O 
+                   CH3OH  C2H  C2H2  C2H3  C2H4  C2H5  C2H6  HCCO  CH2CO  HCCOH 
+                   N  NH  NH2  NH3  NNH  NO  NO2  N2O  HNO  CN 
+                   HCN  H2CN  HCNN  HCNO  HOCN  HNCO  NCO  N2  AR  C3H7 
+                   C3H8  CH2CHO  CH3CHO """,
+      reactions = "all",
+      kinetics = "GRI30",
+      transport = "Mix",
+      initial_state = state(temperature = 300.0,
+                        pressure = OneAtm)    )
+
+
+ideal_gas(name = "gri30_multi",
+      elements = " O  H  C  N  Ar ",
+      species = """ H2  H  O  O2  OH  H2O  HO2  H2O2  C  CH 
+                   CH2  CH2(S)  CH3  CH4  CO  CO2  HCO  CH2O  CH2OH  CH3O 
+                   CH3OH  C2H  C2H2  C2H3  C2H4  C2H5  C2H6  HCCO  CH2CO  HCCOH 
+                   N  NH  NH2  NH3  NNH  NO  NO2  N2O  HNO  CN 
+                   HCN  H2CN  HCNN  HCNO  HOCN  HNCO  NCO  N2  AR  C3H7 
+                   C3H8  CH2CHO  CH3CHO """,
+      reactions = "all",
+      kinetics = "GRI30",
+      transport = "Multi",
+      initial_state = state(temperature = 300.0,
+                        pressure = OneAtm)    )
 
 
 
 #-------------------------------------------------------------------------------
-#
 #  Species data 
-#
 #-------------------------------------------------------------------------------
 
 species(name = "H2",
@@ -55,7 +70,8 @@ species(name = "H2",
                      diam =     2.92,
                      well_depth =    38.00,
                      polar =     0.79,
-                     rot_relax =   280.00)
+                     rot_relax =   280.00),
+    note = "TPIS78"
        )
 
 species(name = "H",
@@ -71,7 +87,8 @@ species(name = "H",
     transport = gas_transport(
                      geom = "atom",
                      diam =     2.05,
-                     well_depth =   145.00)
+                     well_depth =   145.00),
+    note = "L 7/88"
        )
 
 species(name = "O",
@@ -87,7 +104,8 @@ species(name = "O",
     transport = gas_transport(
                      geom = "atom",
                      diam =     2.75,
-                     well_depth =    80.00)
+                     well_depth =    80.00),
+    note = "L 1/90"
        )
 
 species(name = "O2",
@@ -105,7 +123,8 @@ species(name = "O2",
                      diam =     3.46,
                      well_depth =   107.40,
                      polar =     1.60,
-                     rot_relax =     3.80)
+                     rot_relax =     3.80),
+    note = "TPIS89"
        )
 
 species(name = "OH",
@@ -121,7 +140,8 @@ species(name = "OH",
     transport = gas_transport(
                      geom = "linear",
                      diam =     2.75,
-                     well_depth =    80.00)
+                     well_depth =    80.00),
+    note = "RUS 78"
        )
 
 species(name = "H2O",
@@ -139,7 +159,8 @@ species(name = "H2O",
                      diam =     2.60,
                      well_depth =   572.40,
                      dipole =     1.84,
-                     rot_relax =     4.00)
+                     rot_relax =     4.00),
+    note = "L 8/89"
        )
 
 species(name = "HO2",
@@ -156,7 +177,8 @@ species(name = "HO2",
                      geom = "nonlinear",
                      diam =     3.46,
                      well_depth =   107.40,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "L 5/89"
        )
 
 species(name = "H2O2",
@@ -173,7 +195,8 @@ species(name = "H2O2",
                      geom = "nonlinear",
                      diam =     3.46,
                      well_depth =   107.40,
-                     rot_relax =     3.80)
+                     rot_relax =     3.80),
+    note = "L 7/88"
        )
 
 species(name = "C",
@@ -189,7 +212,8 @@ species(name = "C",
     transport = gas_transport(
                      geom = "atom",
                      diam =     3.30,
-                     well_depth =    71.40)
+                     well_depth =    71.40),
+    note = "L11/88"
        )
 
 species(name = "CH",
@@ -205,7 +229,8 @@ species(name = "CH",
     transport = gas_transport(
                      geom = "linear",
                      diam =     2.75,
-                     well_depth =    80.00)
+                     well_depth =    80.00),
+    note = "TPIS79"
        )
 
 species(name = "CH2",
@@ -221,7 +246,8 @@ species(name = "CH2",
     transport = gas_transport(
                      geom = "linear",
                      diam =     3.80,
-                     well_depth =   144.00)
+                     well_depth =   144.00),
+    note = "L S/93"
        )
 
 species(name = "CH2(S)",
@@ -237,7 +263,8 @@ species(name = "CH2(S)",
     transport = gas_transport(
                      geom = "linear",
                      diam =     3.80,
-                     well_depth =   144.00)
+                     well_depth =   144.00),
+    note = "L S/93"
        )
 
 species(name = "CH3",
@@ -253,7 +280,8 @@ species(name = "CH3",
     transport = gas_transport(
                      geom = "linear",
                      diam =     3.80,
-                     well_depth =   144.00)
+                     well_depth =   144.00),
+    note = "L11/89"
        )
 
 species(name = "CH4",
@@ -271,7 +299,8 @@ species(name = "CH4",
                      diam =     3.75,
                      well_depth =   141.40,
                      polar =     2.60,
-                     rot_relax =    13.00)
+                     rot_relax =    13.00),
+    note = "L 8/88"
        )
 
 species(name = "CO",
@@ -289,7 +318,8 @@ species(name = "CO",
                      diam =     3.65,
                      well_depth =    98.10,
                      polar =     1.95,
-                     rot_relax =     1.80)
+                     rot_relax =     1.80),
+    note = "TPIS79"
        )
 
 species(name = "CO2",
@@ -307,7 +337,8 @@ species(name = "CO2",
                      diam =     3.76,
                      well_depth =   244.00,
                      polar =     2.65,
-                     rot_relax =     2.10)
+                     rot_relax =     2.10),
+    note = "L 7/88"
        )
 
 species(name = "HCO",
@@ -323,7 +354,8 @@ species(name = "HCO",
     transport = gas_transport(
                      geom = "nonlinear",
                      diam =     3.59,
-                     well_depth =   498.00)
+                     well_depth =   498.00),
+    note = "L12/89"
        )
 
 species(name = "CH2O",
@@ -340,7 +372,8 @@ species(name = "CH2O",
                      geom = "nonlinear",
                      diam =     3.59,
                      well_depth =   498.00,
-                     rot_relax =     2.00)
+                     rot_relax =     2.00),
+    note = "L 8/88"
        )
 
 species(name = "CH2OH",
@@ -358,7 +391,8 @@ species(name = "CH2OH",
                      diam =     3.69,
                      well_depth =   417.00,
                      dipole =     1.70,
-                     rot_relax =     2.00)
+                     rot_relax =     2.00),
+    note = "GUNL93"
        )
 
 species(name = "CH3O",
@@ -376,7 +410,8 @@ species(name = "CH3O",
                      diam =     3.69,
                      well_depth =   417.00,
                      dipole =     1.70,
-                     rot_relax =     2.00)
+                     rot_relax =     2.00),
+    note = "121686"
        )
 
 species(name = "CH3OH",
@@ -393,7 +428,8 @@ species(name = "CH3OH",
                      geom = "nonlinear",
                      diam =     3.63,
                      well_depth =   481.80,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "L 8/88"
        )
 
 species(name = "C2H",
@@ -410,7 +446,8 @@ species(name = "C2H",
                      geom = "linear",
                      diam =     4.10,
                      well_depth =   209.00,
-                     rot_relax =     2.50)
+                     rot_relax =     2.50),
+    note = "L 1/91"
        )
 
 species(name = "C2H2",
@@ -427,7 +464,8 @@ species(name = "C2H2",
                      geom = "linear",
                      diam =     4.10,
                      well_depth =   209.00,
-                     rot_relax =     2.50)
+                     rot_relax =     2.50),
+    note = "L 1/91"
        )
 
 species(name = "C2H3",
@@ -444,7 +482,8 @@ species(name = "C2H3",
                      geom = "nonlinear",
                      diam =     4.10,
                      well_depth =   209.00,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "L 2/92"
        )
 
 species(name = "C2H4",
@@ -461,7 +500,8 @@ species(name = "C2H4",
                      geom = "nonlinear",
                      diam =     3.97,
                      well_depth =   280.80,
-                     rot_relax =     1.50)
+                     rot_relax =     1.50),
+    note = "L 1/91"
        )
 
 species(name = "C2H5",
@@ -478,7 +518,8 @@ species(name = "C2H5",
                      geom = "nonlinear",
                      diam =     4.30,
                      well_depth =   252.30,
-                     rot_relax =     1.50)
+                     rot_relax =     1.50),
+    note = "L12/92"
        )
 
 species(name = "C2H6",
@@ -495,7 +536,8 @@ species(name = "C2H6",
                      geom = "nonlinear",
                      diam =     4.30,
                      well_depth =   252.30,
-                     rot_relax =     1.50)
+                     rot_relax =     1.50),
+    note = "L 8/88"
        )
 
 species(name = "HCCO",
@@ -512,7 +554,8 @@ species(name = "HCCO",
                      geom = "nonlinear",
                      diam =     2.50,
                      well_depth =   150.00,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "SRIC91"
        )
 
 species(name = "CH2CO",
@@ -529,7 +572,8 @@ species(name = "CH2CO",
                      geom = "nonlinear",
                      diam =     3.97,
                      well_depth =   436.00,
-                     rot_relax =     2.00)
+                     rot_relax =     2.00),
+    note = "L 5/90"
        )
 
 species(name = "HCCOH",
@@ -546,7 +590,8 @@ species(name = "HCCOH",
                      geom = "nonlinear",
                      diam =     3.97,
                      well_depth =   436.00,
-                     rot_relax =     2.00)
+                     rot_relax =     2.00),
+    note = "SRI91"
        )
 
 species(name = "N",
@@ -562,7 +607,8 @@ species(name = "N",
     transport = gas_transport(
                      geom = "atom",
                      diam =     3.30,
-                     well_depth =    71.40)
+                     well_depth =    71.40),
+    note = "L 6/88"
        )
 
 species(name = "NH",
@@ -579,7 +625,8 @@ species(name = "NH",
                      geom = "linear",
                      diam =     2.65,
                      well_depth =    80.00,
-                     rot_relax =     4.00)
+                     rot_relax =     4.00),
+    note = "And94"
        )
 
 species(name = "NH2",
@@ -597,7 +644,8 @@ species(name = "NH2",
                      diam =     2.65,
                      well_depth =    80.00,
                      polar =     2.26,
-                     rot_relax =     4.00)
+                     rot_relax =     4.00),
+    note = "And89"
        )
 
 species(name = "NH3",
@@ -615,7 +663,8 @@ species(name = "NH3",
                      diam =     2.92,
                      well_depth =   481.00,
                      dipole =     1.47,
-                     rot_relax =    10.00)
+                     rot_relax =    10.00),
+    note = "J 6/77"
        )
 
 species(name = "NNH",
@@ -632,7 +681,8 @@ species(name = "NNH",
                      geom = "nonlinear",
                      diam =     3.80,
                      well_depth =    71.40,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "T07/93"
        )
 
 species(name = "NO",
@@ -650,7 +700,8 @@ species(name = "NO",
                      diam =     3.62,
                      well_depth =    97.53,
                      polar =     1.76,
-                     rot_relax =     4.00)
+                     rot_relax =     4.00),
+    note = "RUS 78"
        )
 
 species(name = "NO2",
@@ -667,7 +718,8 @@ species(name = "NO2",
                      geom = "nonlinear",
                      diam =     3.50,
                      well_depth =   200.00,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "L 7/88"
        )
 
 species(name = "N2O",
@@ -684,7 +736,8 @@ species(name = "N2O",
                      geom = "linear",
                      diam =     3.83,
                      well_depth =   232.40,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "L 7/88"
        )
 
 species(name = "HNO",
@@ -701,7 +754,8 @@ species(name = "HNO",
                      geom = "nonlinear",
                      diam =     3.49,
                      well_depth =   116.70,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "And93"
        )
 
 species(name = "CN",
@@ -718,7 +772,8 @@ species(name = "CN",
                      geom = "linear",
                      diam =     3.86,
                      well_depth =    75.00,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "HBH92"
        )
 
 species(name = "HCN",
@@ -735,7 +790,8 @@ species(name = "HCN",
                      geom = "linear",
                      diam =     3.63,
                      well_depth =   569.00,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "GRI/98"
        )
 
 species(name = "H2CN",
@@ -752,7 +808,8 @@ species(name = "H2CN",
                      geom = "linear",
                      diam =     3.63,
                      well_depth =   569.00,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "41687"
        )
 
 species(name = "HCNN",
@@ -769,7 +826,8 @@ species(name = "HCNN",
                      geom = "nonlinear",
                      diam =     2.50,
                      well_depth =   150.00,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "SRI/94"
        )
 
 species(name = "HCNO",
@@ -786,7 +844,8 @@ species(name = "HCNO",
                      geom = "nonlinear",
                      diam =     3.83,
                      well_depth =   232.40,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "BDEA94"
        )
 
 species(name = "HOCN",
@@ -803,7 +862,8 @@ species(name = "HOCN",
                      geom = "nonlinear",
                      diam =     3.83,
                      well_depth =   232.40,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "BDEA94"
        )
 
 species(name = "HNCO",
@@ -820,7 +880,8 @@ species(name = "HNCO",
                      geom = "nonlinear",
                      diam =     3.83,
                      well_depth =   232.40,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "BDEA94"
        )
 
 species(name = "NCO",
@@ -837,7 +898,8 @@ species(name = "NCO",
                      geom = "linear",
                      diam =     3.83,
                      well_depth =   232.40,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "EA 93"
        )
 
 species(name = "N2",
@@ -855,7 +917,8 @@ species(name = "N2",
                      diam =     3.62,
                      well_depth =    97.53,
                      polar =     1.76,
-                     rot_relax =     4.00)
+                     rot_relax =     4.00),
+    note = "121286"
        )
 
 species(name = "AR",
@@ -871,7 +934,8 @@ species(name = "AR",
     transport = gas_transport(
                      geom = "atom",
                      diam =     3.33,
-                     well_depth =   136.50)
+                     well_depth =   136.50),
+    note = "120186"
        )
 
 species(name = "C3H7",
@@ -888,7 +952,8 @@ species(name = "C3H7",
                      geom = "nonlinear",
                      diam =     4.98,
                      well_depth =   266.80,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "L 9/84"
        )
 
 species(name = "C3H8",
@@ -905,7 +970,8 @@ species(name = "C3H8",
                      geom = "nonlinear",
                      diam =     4.98,
                      well_depth =   266.80,
-                     rot_relax =     1.00)
+                     rot_relax =     1.00),
+    note = "L 4/85"
        )
 
 species(name = "CH2CHO",
@@ -922,7 +988,8 @@ species(name = "CH2CHO",
                      geom = "nonlinear",
                      diam =     3.97,
                      well_depth =   436.00,
-                     rot_relax =     2.00)
+                     rot_relax =     2.00),
+    note = "SAND86"
        )
 
 species(name = "CH3CHO",
@@ -939,15 +1006,14 @@ species(name = "CH3CHO",
                      geom = "nonlinear",
                      diam =     3.97,
                      well_depth =   436.00,
-                     rot_relax =     2.00)
+                     rot_relax =     2.00),
+    note = "L 8/88"
        )
 
 
 
 #-------------------------------------------------------------------------------
-#
 #  Reaction data 
-#
 #-------------------------------------------------------------------------------
 
 #  Reaction 1
@@ -1273,13 +1339,16 @@ falloff_reaction( "2 OH (+ M) <=> H2O2 (+ M)",
 reaction( "2 OH <=> O + H2O",   [3.57000E+04, 2.4, -2110])
 
 #  Reaction 87
-reaction( "OH + HO2 <=> O2 + H2O",   [1.45000E+13, 0, -500])
+reaction( "OH + HO2 <=> O2 + H2O",   [1.45000E+13, 0, -500],
+         options = 'duplicate')
 
 #  Reaction 88
-reaction( "OH + H2O2 <=> HO2 + H2O",   [2.00000E+12, 0, 427])
+reaction( "OH + H2O2 <=> HO2 + H2O",   [2.00000E+12, 0, 427],
+         options = 'duplicate')
 
 #  Reaction 89
-reaction( "OH + H2O2 <=> HO2 + H2O",   [1.70000E+18, 0, 29410])
+reaction( "OH + H2O2 <=> HO2 + H2O",   [1.70000E+18, 0, 29410],
+         options = 'duplicate')
 
 #  Reaction 90
 reaction( "OH + C <=> H + CO",   [5.00000E+13, 0, 0])
@@ -1361,10 +1430,12 @@ reaction( "OH + C2H6 <=> C2H5 + H2O",   [3.54000E+06, 2.12, 870])
 reaction( "OH + CH2CO <=> HCCO + H2O",   [7.50000E+12, 0, 2000])
 
 #  Reaction 115
-reaction( "2 HO2 <=> O2 + H2O2",   [1.30000E+11, 0, -1630])
+reaction( "2 HO2 <=> O2 + H2O2",   [1.30000E+11, 0, -1630],
+         options = 'duplicate')
 
 #  Reaction 116
-reaction( "2 HO2 <=> O2 + H2O2",   [4.20000E+14, 0, 12000])
+reaction( "2 HO2 <=> O2 + H2O2",   [4.20000E+14, 0, 12000],
+         options = 'duplicate')
 
 #  Reaction 117
 reaction( "HO2 + CH2 <=> OH + CH2O",   [2.00000E+13, 0, 0])
@@ -1914,7 +1985,8 @@ reaction( "O + C2H4 <=> H + CH2CHO",   [6.70000E+06, 1.83, 220])
 reaction( "O + C2H5 <=> H + CH3CHO",   [1.09600E+14, 0, 0])
 
 #  Reaction 287
-reaction( "OH + HO2 <=> O2 + H2O",   [5.00000E+15, 0, 17330])
+reaction( "OH + HO2 <=> O2 + H2O",   [5.00000E+15, 0, 17330],
+         options = 'duplicate')
 
 #  Reaction 288
 reaction( "OH + CH3 => H2 + CH2O",   [8.00000E+09, 0.5, -1755])

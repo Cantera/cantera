@@ -169,8 +169,6 @@ extern "C" {
     }
 
 
-    //------------------ inlet domains ------------------------------
-
     int DLL_EXPORT inlet_new() {
         try {
             Inlet1D* i = new Inlet1D();
@@ -189,10 +187,11 @@ extern "C" {
 
     int DLL_EXPORT reactingsurf_new() {
         try {
-            ReactingSurf1D* i = new ReactingSurf1D();
+            writelog("in reactingsurf_new\n");
+            Domain1D* i = new ReactingSurf1D();
             return Cabinet<Domain1D>::cabinet()->add(i);
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { writelog("error"); return -1; }
     }
 
     int DLL_EXPORT symm_new() {
@@ -263,6 +262,16 @@ extern "C" {
             srf->setKineticsMgr(k);
             return 0;
         }
+        catch (CanteraError) { return -1; }
+    }
+
+    int DLL_EXPORT reactingsurf_enableCoverageEqs(int i, int onoff) {
+        try {
+            ReactingSurf1D* srf = (ReactingSurf1D*)_bdry(i);
+            srf->enableCoverageEquations(onoff);
+            return 0;
+        }
+
         catch (CanteraError) { return -1; }
     }
 
@@ -424,9 +433,9 @@ extern "C" {
     }
 
     int DLL_EXPORT sim1D_setRefineCriteria(int i, int dom, double ratio,
-        double slope, double curve) {
+        double slope, double curve, double prune) {
         try {
-            _sim1D(i)->setRefineCriteria(dom, ratio, slope, curve);
+            _sim1D(i)->setRefineCriteria(dom, ratio, slope, curve, prune);
             return 0;
         }
         catch (CanteraError) { return -1; }
@@ -486,6 +495,33 @@ extern "C" {
     int DLL_EXPORT sim1D_eval(int i, double rdt, int count) {
         try {
             _sim1D(i)->eval(rdt, count);
+            return 0;
+        }
+        catch (CanteraError) { return -1; }
+    }
+
+    int DLL_EXPORT sim1D_setMaxJacAge(int i, int ss_age, int ts_age) {
+        try {
+            _sim1D(i)->setJacAge(ss_age, ts_age);
+            return 0;
+        }
+        catch (CanteraError) { return -1; }
+    }
+
+    int DLL_EXPORT sim1D_timeStepFactor(int i, double tfactor) {
+        try {
+            _sim1D(i)->setTimeStepFactor(tfactor);
+            return 0;
+        }
+        catch (CanteraError) { return -1; }
+    }
+
+    int DLL_EXPORT sim1D_setTimeStepLimits(int i, double tsmin, double tsmax) {
+        try {
+            if (tsmin > 0.0)
+                _sim1D(i)->setMinTimeStep(tsmin);
+            if (tsmax > 0.0)
+                _sim1D(i)->setMaxTimeStep(tsmax);
             return 0;
         }
         catch (CanteraError) { return -1; }

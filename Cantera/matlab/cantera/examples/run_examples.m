@@ -1,44 +1,32 @@
-function run_examples(g)
-if nargin == 0 | ~isa(g,'solution')
-   gas = 0;
-end
 
 % runs all examples
-%adddir([pwd '/../data']);
-equil(gas);
+equil(0);
 disp('press any key to continue');
 pause
-set(1:2,'Visible','off');
-isentropic(gas);
+isentropic(0);
 disp('press any key to continue');
 pause
-set(1:2,'Visible','off');
-reactor1(gas);
+reactor1(0);
 disp('press any key to continue');
 pause
-set(1:2,'Visible','off');
-reactor2(gas);
+reactor2(0);
 disp('press any key to continue');
 pause
-set(1:2,'Visible','off');
-ignite(gas);
+surfreactor;
 disp('press any key to continue');
 pause
-set(1:2,'Visible','off');
-ignite_hp(gas);
+prandtl1(0);
 disp('press any key to continue');
 pause
-set(1:2,'Visible','off');
-ignite2(gas);
+prandtl2(0);
 disp('press any key to continue');
 pause
-set(1:2,'Visible','off');
-ignite_uv(gas);
+flame1
+disp('press any key to continue');
 pause
-set(1:2,'Visible','off');
-prandtl1(gas);
+diffflame
+disp('press any key to continue');
 pause
-set(1:2,'Visible','off');
-prandtl2(gas);
+catcomb
+disp('press any key to continue');
 pause
-set(1:2,'Visible','off');

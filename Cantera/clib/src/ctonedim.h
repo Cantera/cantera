@@ -28,7 +28,9 @@ extern "C" {
     double DLL_IMPORT bdry_temperature(int i);
     double DLL_IMPORT bdry_massFraction(int i, int k);
     double DLL_IMPORT bdry_mdot(int i);
+
     int DLL_IMPORT reactingsurf_setkineticsmgr(int i, int j);
+    int DLL_IMPORT reactingsurf_enableCoverageEqs(int i, int onoff);
 
     int DLL_IMPORT inlet_new();
     int DLL_IMPORT outlet_new();
@@ -55,7 +57,7 @@ extern "C" {
     int DLL_IMPORT sim1D_solve(int i, int loglevel, int refine_grid);
     int DLL_IMPORT sim1D_refine(int i, int loglevel);
     int DLL_IMPORT sim1D_setRefineCriteria(int i, int dom, double ratio,
-        double slope, double curve);
+        double slope, double curve, double prune);
     int DLL_IMPORT sim1D_save(int i, char* fname, char* id, 
         char* desc);
     int DLL_IMPORT sim1D_restore(int i, char* fname, char* id);
@@ -65,6 +67,10 @@ extern "C" {
     double DLL_IMPORT sim1D_workValue(int i, int idom, 
         int icomp, int localPoint);
     int DLL_IMPORT sim1D_eval(int i, double rdt, int count);
+    int DLL_IMPORT sim1D_setMaxJacAge(int i, int ss_age, int ts_age);
+    int DLL_IMPORT sim1D_timeStepFactor(int i, double tfactor);
+    int DLL_IMPORT sim1D_setTimeStepLimits(int i, double tsmin, double tsmax);
+
 }
 
 

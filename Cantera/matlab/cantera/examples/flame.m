@@ -58,6 +58,7 @@ mdot1 = massFlux(right);
 t0 = temperature(left);
 if flametype == 0
   t1 = teq;
+  mdot1 = -mdot0;
 else
   t1 = temperature(right);
 end
@@ -72,7 +73,7 @@ for n = 1:nSpecies(gas)
   nm = speciesName(gas,n);
   if strcmp(nm,'H') | strcmp(nm,'OH') | strcmp(nm,'O') | ...
   	strcmp(nm,'HO2')
-    yint = 3.0*yeq(n);
+    yint = 1.0*yeq(n);
   else
     yint = yeq(n);
   end

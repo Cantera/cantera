@@ -50,7 +50,7 @@ a = a/amin;
 
 % plot results
 
-figure(1);
+clf;
 plot(mach,a);
 ylabel('Area Ratio');
 xlabel('Mach Number');

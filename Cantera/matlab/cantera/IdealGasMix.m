@@ -1,4 +1,4 @@
-function s = IdealGasMix(a,b,c,d)
+function s = IdealGasMix(a,b,c)
 % IDEALGASMIX - Create a Solution instance representing an ideal gas mixture.
 %
 %      gas1 = IdealGasMix('ctml_file'[,'transport_model']) 
@@ -34,13 +34,12 @@ function s = IdealGasMix(a,b,c,d)
 dotloc = findstr(a,'.');
 if dotloc > 1
    ext = a(dotloc:end);
-   if ext == '.xml';
+   if ~strcmp(ext,'.inp')
      if nargin == 1
        s = Solution(a);
      elseif nargin == 2 
        s = Solution(a, b);
      end
-     set(s,'P',oneatm);
      return
    end
 end
@@ -48,13 +47,9 @@ end
 if nargin == 1
   b = '-';
   c = '-';
-  d = 'None';
 elseif nargin == 2
   c = '-';
-  d = 'None';
-elseif nargin == 3
-  d = 'None';
 end
-xml = ck2ctml(a,b,c);
-s = Solution(xml,d);
+xml = ck2cti(a,b,c);
+s = Solution(xml);
 set(s,'P',oneatm);

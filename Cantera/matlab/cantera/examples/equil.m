@@ -34,14 +34,14 @@ for i = 1:50
 end
 
 % make plots
-
-figure(1);
+clf;
+subplot(1,2,1);
 plot(phi,tad);
 xlabel('Equivalence Ratio');
 ylabel('Temperature (K)');
 title('Adiabatic Flame Temperature');
 
-figure(2);
+subplot(1,2,2);
 semilogy(phi,xeq);
 axis([phi(1) phi(50) 1.0e-14 1]);
 %legend(speciesName(gas,1:nsp),1);
