@@ -166,14 +166,15 @@ namespace Cantera {
     void SurfPhase::
     setCoveragesByName(string cov) {
         int kk = nSpecies();
+        int k;
         compositionMap cc;
-        for (int k = 0; k < kk; k++) { 
+        for (k = 0; k < kk; k++) { 
             cc[speciesName(k)] = -1.0;
         }
         parseCompString(cov, cc);
         doublereal c;
         vector_fp cv(kk);
-        for (int k = 0; k < kk; k++) { 
+        for (k = 0; k < kk; k++) { 
             c = cc[speciesName(k)];
             if (c > 0.0) cv[k] = c;
         }

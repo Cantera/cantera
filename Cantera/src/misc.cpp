@@ -40,8 +40,12 @@ namespace Cantera {
      */
     class Application {
     public:
-        Application() : linelen(0), stop_on_error(false), 
+        Application() : linelen(0), stop_on_error(false),
+#ifdef WIN32
+                        tmp_dir(".") {}
+#else
                         tmp_dir("/tmp") {}
+#endif
         virtual ~Application() {
 	    map<string, XML_Node*>::iterator pos;
 	    for (pos = xmlfiles.begin(); pos != xmlfiles.end(); ++pos) {

@@ -14,7 +14,10 @@
 #include <string>
 #include <stdlib.h>
 #include "ctml.h"
+
+#ifndef WIN32
 #include "pypath.h"
+#endif
 
 using namespace Cantera;
 
@@ -41,7 +44,7 @@ namespace ctml {
         f << "from Cantera import *\n";
         f.close();
         int ierr = 0;
-        string cmd = pypath() + " " + path + " &> " + tmpDir() + "/log";
+        string cmd = pypath() + " " + path + " > " + tmpDir() + "/log";
         try {
             ierr = system(cmd.c_str());
             if (ierr != 0) {
@@ -82,7 +85,7 @@ namespace ctml {
           << "execfile(file)\n"
           << "write()\n";
         f.close();
-        string cmd = pypath() + " " + path + " &> ct2ctml.log";
+        string cmd = pypath() + " " + path + " > ct2ctml.log";
         int ierr;
         try {
             ierr = system(cmd.c_str());

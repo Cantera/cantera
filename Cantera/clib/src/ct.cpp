@@ -901,9 +901,9 @@ extern "C" {
     }
 
 
-    int DLL_EXPORT ck_to_cti(char* in_file, char* db_file,
-        char* tr_file, char* id_tag) {
-        return pip::convert_ck(in_file, db_file, tr_file, id_tag);
-    }
+//    int DLL_EXPORT ck_to_cti(char* in_file, char* db_file,
+//        char* tr_file, char* id_tag) {
+//        return pip::convert_ck(in_file, db_file, tr_file, id_tag);
+//    }
 
 }

@@ -57,18 +57,18 @@ ct_readlog(PyObject *self, PyObject *args)
         return Py_BuildValue("s","");
 }
 
-static PyObject *
-ct_ck2cti(PyObject *self, PyObject *args)
-{
-    int iok;
-    char *infile, *thermo, *tran, *idtag;
-    if (!PyArg_ParseTuple(args, "ssss:ck2cti", &infile, 
-            &thermo, &tran, &idtag)) 
-        return NULL;
-    iok = ck_to_cti(infile, thermo, tran, idtag);
-    if (iok == -1) { return reportCanteraError();}
-    return Py_BuildValue("i",iok); 
-}
+// static PyObject *
+// ct_ck2cti(PyObject *self, PyObject *args)
+// {
+//     int iok;
+//     char *infile, *thermo, *tran, *idtag;
+//     if (!PyArg_ParseTuple(args, "ssss:ck2cti", &infile, 
+//             &thermo, &tran, &idtag)) 
+//         return NULL;
+//     iok = ck_to_cti(infile, thermo, tran, idtag);
+//     if (iok == -1) { return reportCanteraError();}
+//     return Py_BuildValue("i",iok); 
+// }
 
 
 

@@ -29,7 +29,7 @@ def isentropic(g = None):
     """
 
     if g == None:
-        gas = IdealGasMix('gri30.xml')
+        gas = GRI30()
         gas.setState_TPX(1200.0,10.0*OneAtm,'H2:1,N2:0.1')
     else:
         gas = g

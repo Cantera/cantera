@@ -163,7 +163,8 @@ namespace Cantera {
         m_eps        = tr.eps;
 	m_alpha      = tr.alpha;
 	m_dipoleDiag.resize(m_nsp);
-        for (int i = 0; i < m_nsp; i++) {
+        int i;
+        for (i = 0; i < m_nsp; i++) {
 	  m_dipoleDiag[i] = tr.dipole(i,i);
 	}
 
@@ -217,7 +218,7 @@ namespace Cantera {
 
         // precompute and store log(epsilon_ij/k_B)
         m_log_eps_k.resize(m_nsp, m_nsp);
-        int i, j;
+        int j;
         for (i = 0; i < m_nsp; i++) {
             for (j = i; j < m_nsp; j++) {
                 m_log_eps_k(i,j) = log(tr.epsilon(i,j)/Boltzmann);

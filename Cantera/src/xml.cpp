@@ -821,7 +821,8 @@ namespace Cantera {
 	}
 
 	const vector<XML_Node*> &vsc = root->children();
-	for (int n = 0; n < root->nChildren(); n++) {
+        int n;
+	for (n = 0; n < root->nChildren(); n++) {
 	  sc = vsc[n];
 	  if (sc->name() == "phase") {
 	    if (idtarget == "") return sc;
@@ -829,7 +830,7 @@ namespace Cantera {
 	    if (idtarget == idattrib) return sc;
 	  }
 	}
-	for (int n = 0; n < root->nChildren(); n++) {
+	for (n = 0; n < root->nChildren(); n++) {
 	  sc = vsc[n];
 	  if  (sc->name() != "phase") {
 	    scResult = findXMLPhase(sc, idtarget);
