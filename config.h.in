@@ -52,20 +52,29 @@ typedef  int          ftnlen;           // Fortran hidden string length type
 #undef DARWIN
 #undef HAS_SSTREAM
 
+// Identify whether the operating system is cygwin's overlay of
+// windows, with gcc being used as the compiler.
+#undef CYGWIN
+
+// Identify whether the operating system is windows based, with
+// microsoft vc++ being used as the compiler
+#undef WINMSVC
+
 //--------- Fonts for reaction path diagrams ----------------------
 #undef RXNPATH_FONT
 
-
 //--------------------- Python ------------------------------------
-
-// used to run Python to process .cti files
+// This path to the python executable is created during
+// Cantera's setup. It identifies the python executable 
+// used to run Python to process .cti files.
 #undef PYTHON_EXE
-
 
 //--------------------- Cantera ----------------------------------- 
 
-// used to find data files 
 #undef CANTERA_ROOT
+// This data pathway is used to locate a directory where datafiles
+// are to be found. Note, the local directory is always searched
+// as well. 
 #undef CANTERA_DATA
 
 #undef INCL_PURE_FLUIDS
