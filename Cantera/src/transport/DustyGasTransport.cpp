@@ -24,6 +24,7 @@
 #pragma warning(disable:4503)
 #endif
 
+#include "../ThermoPhase.h"
 #include "DustyGasTransport.h"
 
 /** 
@@ -87,6 +88,8 @@ namespace Cantera {
         m_d.resize(m_nsp, m_nsp);
         m_dk.resize(m_nsp, 0.0);
         m_x.resize(m_nsp);
+        //m_gradConc.resize(m_nsp);
+        //m_conc.resize(m_nsp);
 
         // set flags all false
         m_knudsen_ok = false;
@@ -94,6 +97,7 @@ namespace Cantera {
 
         // some work space
         m_spwork.resize(m_nsp);
+        m_spwork2.resize(m_nsp);
     }
 
 
@@ -142,13 +146,66 @@ namespace Cantera {
         }
     }
 
-    void DustyGasTransport::getMolarFluxes(const double* grad_conc,
-        double grad_P, double* fluxes) {
+//     void DustyGasTransport::getMolarFluxes(const double* grad_conc,
+//         double grad_P, double* fluxes) {
+//         updateMultiDiffCoeffs();
+//         copy(grad_conc, grad_conc + m_nsp, m_spwork.begin());
+//         multiply(m_multidiff, m_spwork.begin(), fluxes);
+//         m_thermo->getConcentrations(m_spwork.begin());
+//         divide_each(m_spwork.begin(), m_spwork.end(), m_dk.begin());
+
+//         // if no permeability has been specified, use result for 
+//         // close-packed spheres
+//         double b = 0.0;
+//         if (m_perm < 0.0) {
+//             double p = m_porosity;
+//             double d = m_diam;
+//             double t = m_tortuosity;
+//             b = p*p*p*d*d/(72.0*t*(1.0-p)*(1.0-p));
+//         }
+//         else {
+//             b = m_perm;
+//         }
+//         b *= grad_P / m_gastran->viscosity();
+//         scale(m_spwork.begin(), m_spwork.end(), m_spwork.begin(), b);
+//         increment(m_multidiff, m_spwork.begin(), fluxes);
+//         scale(fluxes, fluxes + m_nsp, fluxes, -1.0);
+//     }
+
+
+    void DustyGasTransport::getMolarFluxes(const doublereal* state1,
+        const doublereal* state2, double delta, double* fluxes) {
+        int k;
+        doublereal conc1, conc2;
+        doublereal* cbar = m_spwork.begin();
+        doublereal* gradc = m_spwork2.begin();
+        doublereal t1 = state1[0];
+        doublereal t2 = state2[0];
+        doublereal rho1 = state1[1];
+        doublereal rho2 = state2[1];
+        const doublereal* y1 = state1 + 2;
+        const doublereal* y2 = state2 + 2;
+        doublereal c1sum = 0.0, c2sum = 0.0;
+        for (k = 0; k < m_nsp; k++) {
+            conc1 = rho1*y1[k]/m_mw[k];
+            conc2 = rho2*y2[k]/m_mw[k];
+            cbar[k] = 0.5*(conc1 + conc2);
+            gradc[k] = (conc2 - conc1)/delta;
+            c1sum += conc1;
+            c2sum += conc2;
+        }
+        doublereal p1 = c1sum * GasConstant * state1[0];
+        doublereal p2 = c2sum * GasConstant * state2[0];
+        doublereal pbar = 0.5*(p1 + p2);
+        doublereal gradp = (p2 - p1)/delta;
+        doublereal tbar = 0.5*(t1 + t2);
+
+        m_thermo->setState_TPX(tbar, pbar, cbar);
+
         updateMultiDiffCoeffs();
-        copy(grad_conc, grad_conc + m_nsp, m_spwork.begin());
-        multiply(m_multidiff, m_spwork.begin(), fluxes);
-        m_thermo->getConcentrations(m_spwork.begin());
-        divide_each(m_spwork.begin(), m_spwork.end(), m_dk.begin());
+
+        multiply(m_multidiff, gradc, fluxes);
+        divide_each(cbar, cbar + m_nsp, m_dk.begin());
 
         // if no permeability has been specified, use result for 
         // close-packed spheres
@@ -162,11 +219,12 @@ namespace Cantera {
         else {
             b = m_perm;
         }
-        b *= grad_P / m_gastran->viscosity();
-        scale(m_spwork.begin(), m_spwork.end(), m_spwork.begin(), b);
-        increment(m_multidiff, m_spwork.begin(), fluxes);
+        b *= gradp / m_gastran->viscosity();
+        scale(cbar, cbar + m_nsp, cbar, b);
+        increment(m_multidiff, cbar, fluxes);
         scale(fluxes, fluxes + m_nsp, fluxes, -1.0);
     }
+
 
     void DustyGasTransport::updateMultiDiffCoeffs() {
         // see if temperature has changed

@@ -46,18 +46,12 @@ namespace Cantera {
         
         virtual void getMultiDiffCoeffs(int ld, doublereal* d);
         
-        
+        virtual void getMolarFluxes(const doublereal* state1,
+            const doublereal* state2, doublereal delta, 
+            doublereal* fluxes);
         
         //-----------------------------------------------------------
         // new methods added in this class
-        
-        
-        /// Get the molar gas species fluxes. These fluxes include
-        /// both the ordinary mass diffusion component
-        /// and the Darcy (pressure-driven) commponent.
-        void getMolarFluxes(const double* grad_conc,
-            double grad_P, double* fluxes);
-        
         
         /// Set the porosity (dimensionless)
         void setPorosity(doublereal porosity) {
@@ -139,9 +133,19 @@ namespace Cantera {
 
         // work space
         vector_fp  m_spwork;
+        vector_fp  m_spwork2;
+
+        // concentration gradients
+        //vector_fp  m_gradConc; 
+        //vector_fp  m_conc;
+
+        doublereal m_gradP;   /// pressure gradient
 
         bool m_knudsen_ok;
         bool m_bulk_ok;
+        bool m_conc_set;
+        bool m_gradConc_set;
+        bool m_gradP_set;
 
         doublereal m_porosity;      /// porosity
         doublereal m_tortuosity;    /// tortuosity

@@ -13,6 +13,7 @@
 #pragma warning(disable:4503)
 #endif
 
+#include "../ThermoPhase.h"
 
 // known transport models
 #include "MultiTransport.h"
@@ -60,6 +61,13 @@ namespace Cantera {
     };
 
 
+    class NotImplemented : public CanteraError {
+    public:
+        NotImplemented(string method) : CanteraError("Transport",
+            "\n\n\n**** Method "+method+" not implemented. ****\n"
+            "(Did you forget to specify a transport model?)\n\n\n") {}
+    };
+
 
     /////////////////////////// constants //////////////////////////
 
@@ -68,6 +76,31 @@ namespace Cantera {
     const doublereal FiveThirds      = 5.0/3.0;
 
 
+    //////////////////// class Transport methods /////////////////////
+
+    void Transport::setThermo(thermo_t& thermo) { 
+        if (!ready()) { 
+            m_thermo = &thermo;
+            m_nmin = m_thermo->nSpecies();
+        }
+        else 
+            throw CanteraError("Transport::setThermo",
+                "the phase object cannot be changed after "
+                "the transport manager has been constructed.");
+    }
+
+    void Transport::finalize() {
+        if (!ready()) 
+            m_ready = true;
+        else 
+            throw CanteraError("Transport::finalize",
+                "finalize has already been called.");
+    }
+
+    doublereal Transport::err(string msg) const { 
+        throw NotImplemented(msg);
+        return 0.0;
+    }
 
     //////////////////// class TransportFactory methods //////////////
 

@@ -21,6 +21,8 @@
 #pragma warning(disable:4503)
 #endif
 
+#include "../ThermoPhase.h"
+
 #include "MultiTransport.h"
 #include "ctlapack.h"
 #include "../../ext/math/gmres.h"

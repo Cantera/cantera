@@ -1,6 +1,6 @@
 /**
  *  @file TransportBase.h  
- *  @brief Provides class Transport.
+ *  Provides class Transport.
  */
 
 /*
@@ -9,34 +9,16 @@
  * $Date$
  */
 
-/**
- * @example transport_example.cpp
- * An example that illustrates use of all methods of class Transport.
- */
-
-// Copyright 2001  California Institute of Technology
+// Copyright 2001-2003  California Institute of Technology
 
 
 #ifndef CT_TRANSPORTBASE_H
 #define CT_TRANSPORTBASE_H
 
-#include "../ct_defs.h"
-#include "../ctexceptions.h"
-#include "../Array.h"
-#include "../stringUtils.h"
 #include "../ThermoPhase.h"
 
+
 namespace Cantera {
-
-    // exception class
-
-    class NotImplemented : public CanteraError {
-    public:
-        NotImplemented(string method) : CanteraError("Transport",
-            "\n\n\n**** Method "+method+" not implemented. ****\n"
-            "(Did you forget to specify a transport model?)\n\n\n") {}
-    };
-
 
     class TransportParams;
 
@@ -44,13 +26,13 @@ namespace Cantera {
 
     // types of transport models that can be constructed
     const int cMulticomponent      = 200;
-    const int CK_Multicomponent   = 202;
+    const int CK_Multicomponent    = 202;
     const int cMixtureAveraged     = 210;
-    const int CK_MixtureAveraged  = 211;
-    const int cSolidTransport = 300;
-    const int cDustyGasTransport = 400;
-    const int cUserTransport = 500;
-    const int cFtnTransport = 600;
+    const int CK_MixtureAveraged   = 211;
+    const int cSolidTransport      = 300;
+    const int cDustyGasTransport   = 400;
+    const int cUserTransport       = 500;
+    const int cFtnTransport        = 600;
 
     class XML_Writer;
 
@@ -91,10 +73,15 @@ namespace Cantera {
 
 
         /**
-         * Returns an integer index number. 
+         * Returns an integer index number. This is for internal use
+         * of Cantera, and may be removed in the future.
          */
         int index() { return m_index; }
 
+        /**
+         * Set an integer index number. This is for internal use of
+         * Cantera, and may be removed in the future.
+         */
         void setIndex(int i) { m_index = i; }
 
 
@@ -113,19 +100,10 @@ namespace Cantera {
 
 
         /**
-         * The bulk viscosity in Pa-s. The contribution of the bulk
-         * viscosity to the stress tensor is usually negligible, since
-         * it multiplies \f$ \nabla\cdot{\bf v}.\f$ Therefore, it does
-         * not contribute to the stress in incompressible fluids;
-         * furthermore, kinetic theory shows that it is zero for ideal
-         * gas mixtures under typical conditions. It does influence
-         * certain aspects of sound propagation in liquids, and so it
-         * is included here. Most transport managers are likely to not
-         * implement this method (in which case an exception is thrown
-         * if it is invoked), or else return zero. Nevertheless, for
-         * applications where bulk viscosity is important, it is
-         * possible to create a transport manager that computes it by
-         * overloading this method.
+         * The bulk viscosity in Pa-s. The bulk viscosity is only
+         * non-zero in rare cases. Most transport managers either
+         * overload this method to return zero, or do not implement
+         * it, in which case an exception is thrown if called.
          */
         virtual doublereal bulkViscosity()  
             { return err("bulkViscosity"); }
@@ -144,7 +122,9 @@ namespace Cantera {
             { return err("electricalConductivity"); }
 
         /**
-         * Electrical mobilities. Units: [m^2/V/s].
+         * Electrical mobilities (m^2/V/s). Returns the mobilities of
+         * the species in array \c mobil. The array must be
+         * dimensioned at least as large as the number of species.
          */
         virtual void getMobilities(doublereal* mobil)
             { err("getMobilities"); }
@@ -161,8 +141,21 @@ namespace Cantera {
             int ldf, doublereal* fluxes) { err("getSpeciesFluxes"); }
 
 
+        /** 
+         * Get the molar fluxes [kmol/m^2/s], given the thermodynamic
+         * state at two nearby points.  @param state1 Array of
+         * temperature, density, and mass fractions for state 1.
+         * @param state2 Array of temperature, density, and mass
+         * fractions for state 2.  @param delta Distance from state 1
+         * to state 2 (m).
+         */ 
+        virtual void getMolarFluxes(const doublereal* state1,
+            const doublereal* state2, doublereal delta, 
+            doublereal* fluxes) { err("getMolarFluxes"); }
+
+
         /**
-         * Thermal diffusion coefficients. Units: [kg/m/sec].
+         * Thermal diffusion coefficients [kg/m/sec].
          * The thermal diffusion coefficient \f$ D^T_k \f$ is defined
          * so that the diffusive mass flux of species k induced by the
          * local temperature gradient is \f[ M_k J_k = -D^T_k \nabla
@@ -178,7 +171,7 @@ namespace Cantera {
 
 
         /**
-         * Binary diffusion coefficients. Units: [m^2/s].
+         * Binary diffusion coefficients [m^2/s].
          */
         virtual void getBinaryDiffCoeffs(int ld, doublereal* d) 
             { err("getBinaryDiffCoeffs"); }
@@ -188,28 +181,22 @@ namespace Cantera {
          * Multicomponent diffusion coefficients. Units: [m^2/s].  If
          * the transport manager implements a multicomponent diffusion
          * model, then this method returns the array of multicomponent
-         * diffusion coefficients.
+         * diffusion coefficients. Otherwise it throws an exception.
          */
         virtual void getMultiDiffCoeffs(int ld, doublereal* d) 
             { err("getMultiDiffCoeffs"); }
 
 
         /**
-         * Mixture-averaged diffusion coefficients. Units: [m^2/s].
-         * If the transport manager implements a mixture-averaged
-         * diffusion model, then this method returns the array of
-         * mixture-averaged diffusion coefficients.
+         * Mixture-averaged diffusion coefficients [m^2/s].  If the
+         * transport manager implements a mixture-averaged diffusion
+         * model, then this method returns the array of
+         * mixture-averaged diffusion coefficients. Otherwise it
+         * throws an exception.
          */
         virtual void getMixDiffCoeffs(doublereal* d) 
             { err("getMixDiffCoeffs"); }
 
-#ifdef INCL_CBAR
-        doublereal meanThermalSpeed(int k) const {
-            doublereal t = m_thermo->temperature();
-            doublereal mw = m_thermo->molecularWeight(k);
-            return sqrt(8.0 * GasConstant * t /(Pi * mw));
-        }
-#endif
 
         /**
          * Set transport model parameters. This method may be
@@ -221,7 +208,6 @@ namespace Cantera {
         virtual ~Transport(){}           ///< Destructor.
 
         friend class TransportFactory;
-
 
         /**
          * Constructor. New transport managers should be created using
@@ -241,7 +227,7 @@ namespace Cantera {
          */
 
         /**
-         * called by TransportFactory to set parameters.
+         * Called by TransportFactory to set parameters.
          */
         virtual bool init(TransportParams& tr)
             { err("init"); return false; }
@@ -250,16 +236,8 @@ namespace Cantera {
         /**
          * Set the phase object. 
          */
-        void setThermo(thermo_t& thermo) { 
-            if (!ready()) { 
-                m_thermo = &thermo;
-                m_nmin = m_thermo->nSpecies();
-            }
-            else 
-                throw CanteraError("Transport::setThermo",
-                    "the phase object cannot be changed after "
-                    "the transport manager has been constructed.");
-        }
+        void setThermo(thermo_t& thermo);
+
 
         /** 
          * Enable for use. Once finalize() has been called, the
@@ -267,19 +245,14 @@ namespace Cantera {
          * transport property, and no further modifications to the
          * model parameters should be made.
          */
-        void finalize() {
-            if (!ready()) 
-                m_ready = true;
-            else 
-                throw CanteraError("Transport::finalize",
-                    "finalize has already been called.");
-        }
+        void finalize();
+
         //@}
 
 
         thermo_t*  m_thermo;  ///< pointer to the object representing the phase 
-        bool      m_ready;  ///< true if finalize has been called
-        size_t    m_nmin;   ///< number of species
+        bool      m_ready;    ///< true if finalize has been called
+        size_t    m_nmin;     ///< number of species
         int       m_index;  
 
 
@@ -297,16 +270,14 @@ namespace Cantera {
          * method, the base class method will be called, resulting in
          * an exception being thrown.
          */
-        doublereal err(string msg) const { 
-            throw NotImplemented(msg);
-            return 0.0;
-        }
+        doublereal err(string msg) const;
 
     };
 
     typedef Transport transport_t;
 
 }
+
 #endif
 
 
