@@ -191,7 +191,9 @@ namespace Cantera {
     void setTmpDir(string tmp) { app()->tmp_dir = tmp; }
     string tmpDir() { appinit(); return app()->tmp_dir; }
 
-    int nErrors() {return app()->errorMessage.size();}
+    int nErrors() {
+		return static_cast<int>(app()->errorMessage.size());
+	}
 
     void popError() {
         appinit();
@@ -217,7 +219,7 @@ namespace Cantera {
 
     void showErrors(ostream& f) {
         appinit(); 
-        int i = __app->errorMessage.size();
+        int i = static_cast<int>(__app->errorMessage.size());
         if (i == 0) return;
         f << endl << endl;
         f << "************************************************" << endl;
@@ -236,7 +238,7 @@ namespace Cantera {
 
     void showErrors() {
         appinit(); 
-        int i = __app->errorMessage.size();
+        int i = static_cast<int>(__app->errorMessage.size());
         if (i == 0) return;
         writelog("\n\n");
         writelog("************************************************\n");
@@ -359,15 +361,15 @@ namespace Cantera {
      */
     string findInputFile(string name) {
         appinit();
-        int islash = name.find('/');
-        int ibslash = name.find('\\');
+		string::size_type islash = name.find('/');
+		string::size_type ibslash = name.find('\\');
         string inname;
         vector<string>& dirs = __app->inputDirs;
         if (dirs.size() == 0) setDefaultDirectories();
 
         int nd;
         if (islash < 0 && ibslash < 0) {
-            nd = dirs.size();
+            nd = static_cast<int>(dirs.size());
             int i;
             inname = "";
             for (i = 0; i < nd; i++) {
