@@ -143,6 +143,7 @@ namespace ctml {
         int nel = sp.elements.size();
         int m, num;
         string nm, str="";
+        doublereal charge = 0.0;
         for (m = 0; m < nel; m++) {
 	  /*
 	   * Copy the element name into the string, nm. Lower case the
@@ -161,12 +162,18 @@ namespace ctml {
 	   * Add the name and number to end of the string, str
 	   */
 	  str += " "+nm+":"+int2str(num)+" ";
+
+          /* if the species contains the special element E (electron),
+           * then set the charge.
+           */
+          if (nm == "E") charge = -sp.elements[m].number;
         }
+
 	/*
 	 * Add the child element, atomArray, to the species xml node. 
 	 */
 	spx.addChild("atomArray", str);
-
+        addFloat(spx,"charge",charge);
         XML_Node& cp1 = spx.addChild("thermo");
         addNASA(cp1, sp.lowCoeffs, sp.highCoeffs, 
 		sp.tlow, sp.tmid, sp.thigh); 
@@ -353,10 +360,16 @@ namespace ctml {
 	  }
 #else
 	  trdata t;
-	  s >> t.name >> t.geom >> t.welldepth >> t.diam 
-	    >> t.dipole >> t.polar >> t.rot;
-          if (t.name != "") { 
-	      indx[t.name] = t;
+	  s >> t.name;
+          if (t.name[0] != '!' && !s.eof()) {
+              s >> t.geom >> t.welldepth >> t.diam 
+                >> t.dipole >> t.polar >> t.rot;
+
+              // get the rest of the line, in case there are comments
+              getline(s, rest);
+              if (t.name != "") { 
+                  indx[t.name] = t;
+              }
           }
 #endif
 	}
@@ -527,8 +540,16 @@ namespace ctml {
     
             if (trfile != "") {
                 ifstream ftr(trfile.c_str());
-                XML_Node& sparray = *root.findByName("speciesData");
-                addTransport(ftr, sparray);
+                if (!ftr) {
+                    throw CanteraError("convert_ck",
+                        "could not open transport database.");
+                }
+                XML_Node* sparray = root.findByName("speciesData");
+                if (sparray) {
+                    addTransport(ftr, *sparray);
+                }
+                else
+                    throw CanteraError("convert_ck", "could not find speciesData");
                 ftr.close();
             }
 
