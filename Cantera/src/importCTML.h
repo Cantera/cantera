@@ -73,8 +73,29 @@ namespace Cantera {
     XML_Node* get_XML_NameID(const string& nameTarget,
 			     const string& file_ID, XML_Node* root);
 
-    //bool installSpecies(int k, const XML_Node& s, thermo_t& p, 
-    //		    			SpeciesThermo& spthermo, int rule); 
+    /**
+     * Install a species into a ThermoPhase object, which defines
+     * the phase thermodynamics and speciation.
+     *
+     *  This routine first gathers the information from the Species XML
+     *  tree and calls addUniqueSpecies() to add it to the
+     *  ThermoPhase object, p.
+     *  This information consists of:
+     *         ecomp[] = element composition of species.
+     *         chgr    = electric charge of species
+     *         name    = string name of species
+     *         sz      = size of the species 
+     *                 (option double used a lot in thermo)
+     *
+     *  Then, the routine processes the "thermo" XML element and
+     *  calls underlying utility routines to read the XML elements
+     *  containing the thermodynamic information for the reference
+     *  state of the species. Failures or lack of information trigger
+     *  an "UnknownSpeciesThermoModel" exception being thrown.
+     */
+    bool installSpecies(int k, const XML_Node& s, thermo_t& p, 
+			SpeciesThermo& spthermo, int rule,
+			SpeciesThermoFactory* spfactory);
 
     bool importPhase(XML_Node& phase, ThermoPhase* th, 
         SpeciesThermoFactory* spfactory = 0);
