@@ -28,7 +28,7 @@ LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
 all: cantera/ctmethods.@mex_ext@
 
 cantera/ctmethods.@mex_ext@: $(SRCS) $(LIB_DEPS)
-	@PYTHON_CMD@ setup_matlab.py @ctroot@/build/lib @CT_SHARED_LIB@ '$(LIBS)'
+	@PYTHON_CMD@ setup_matlab.py @buildlib@ @CT_SHARED_LIB@ '$(LIBS)'
 	(@MATLAB_CMD@ -nodesktop -nojvm -nosplash -r setup)
 	rm -f setup.m
 
