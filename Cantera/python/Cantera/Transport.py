@@ -1,13 +1,25 @@
 import _cantera
 
 class Transport:
-    """Transport property manager.
+
+    """Transport property manager. In most cases, this class is used
+    as a base class to provide transport properties, and is not
+    instantiated directly.
 
     A transport property manager is responsible for computing transport
     properties.
     """
     def __init__(self, xml_phase=None,
                  phase=None, model = "", loglevel=0):
+        """Create a transport property manager.
+
+        xml_phase --- XML phase element
+        phase     --- ThermoPhase instance representing phase transport
+                      properties are for
+        model     --- transport model
+        loglevel  --- controls amount of diagnostic output
+        """
+        
         self._phase = phase
         if model == "" or model == "Default":
             try:

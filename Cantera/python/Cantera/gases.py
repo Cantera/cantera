@@ -1,13 +1,29 @@
-"""This module defines classes and functions used to model gas mixtures."""
+"""Gas mixtures.
+
+These functions all return instances of class Solution that represent
+gas mixtures.
+
+"""
+# for pydoc
+import solution, constants, ck2ctml
 
 from constants import *
-from solution import Solution
+from Cantera.solution import Solution
 from ck2ctml import ck2ctml
 #import _cantera
 import os
 
 def IdealGasMix(src="", root=None, transport='None',
                 thermo = "", trandb = ""):
+    """Return a Solution object representing an ideal gas mixture.
+
+    src       --- input file
+    root      --- root of an XML tree containing the phase specification.
+                  Specify src or root but not both.
+    thermo    --- auxiliary thermo database
+    transport --- transport model
+    trandb    --- transport database
+    """
     p = os.path.normpath(os.path.dirname(src))        
     fname = os.path.basename(src)
     ff = os.path.splitext(fname)
@@ -27,12 +43,18 @@ def IdealGasMix(src="", root=None, transport='None',
         return Solution(src=src, root=root, transport=transport)
 
 def GRI30(transport='None'):
+    """Return a Solution instance implementing reaction mechanism
+    GRI-Mech 3.0."""
     return Solution(src="gri30.xml#gri30_hw", transport=transport)
 
 def Air():
+    """Return a Solution instance implementing the O/N/Ar portion of
+    reaction mechanism GRI-Mech 3.0. The initial composition is set to
+    that of air"""    
     return Solution(src="air.xml#air")
 
 def Argon():
+    """Return a Solution instance representing pure argon."""    
     return Solution(src="argon.xml#argon")
 
 ## def H_O_AR(transport=None, chem = 1):
