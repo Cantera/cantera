@@ -8,7 +8,7 @@
 #include "MultiNewton.h"
 #include "OneDim.h"
 
-#include "ctml.h"
+#include "../ctml.h"
 using namespace ctml;
 
 namespace Cantera {
@@ -48,7 +48,7 @@ namespace Cantera {
 
         // create a Newton iterator, and add each domain.
         m_newt = new MultiNewton(1);
-        int nd = domains.size();
+        int nd = static_cast<int>(domains.size());
         int i;
         for (i = 0; i < nd; i++) {
             addDomain(domains[i]);
@@ -73,7 +73,7 @@ namespace Cantera {
 
         // if 'd' is not the first domain, link it to the last domain
         // added (the rightmost one)
-        int n = m_dom.size();
+        int n = static_cast<int>(m_dom.size());
         if (n > 0) m_dom.back()->append(d);
 
         // every other domain is a connector

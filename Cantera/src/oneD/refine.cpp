@@ -194,7 +194,7 @@ namespace Cantera {
 
         //done:
         //m_did_analysis = true;
-        return m_loc.size();
+        return static_cast<int>(m_loc.size());
     }
 
     double Refiner::value(const double* x, int i, int j) {
@@ -202,7 +202,7 @@ namespace Cantera {
     }
 
     void Refiner::show() {
-        int nnew = m_loc.size();
+        int nnew = static_cast<int>(m_loc.size());
         if (nnew > 0) {
             drawline();
             writelog(string("Refining grid in ") + 
@@ -232,7 +232,7 @@ namespace Cantera {
     int Refiner::getNewGrid(int n, const doublereal* z, 
         int nn, doublereal* zn) {
         int j;
-        int nnew = m_loc.size();
+        int nnew = static_cast<int>(m_loc.size());
         if (nnew + n > nn) {
             throw CanteraError("Refine::getNewGrid",
                 "array size too small.");
