@@ -5,6 +5,19 @@ class StagnationFlow(Stack):
     """An axisymmetric flow impinging on a surface at normal incidence."""
     
     def __init__(self, gas = None, surfchem = None, grid = None):
+        """
+        gas      -- object to use to evaluate all gas properties and reaction
+                    rates. Required.
+        surfchem -- object used to evaluate surface reaction rates. If
+                    omitted, surface will be treated as inert.
+        grid     -- array of initial grid points
+
+        A domain of type AxisymmetricFlow named 'flow' will be created to
+        represent the flow, and one of type Surface named 'surface' will
+        be created to represent the surface.
+        The three domains comprising the stack
+        are stored as self.inlet, self.flow, and self.surface.
+        """        
         self.inlet = Inlet('inlet')
         self.gas = gas
         self.surfchem = surfchem
@@ -18,7 +31,10 @@ class StagnationFlow(Stack):
         self._initialized = 0
 
     def init(self, products = 'inlet'):
-        """Set the initial guess for the solution."""
+        """Set the initial guess for the solution. If products = 'equil',
+        then the equilibrium composition at the adiabatic flame temperature
+        will be used to form the initial guess. Otherwise the inlet composition
+        will be used."""
         self.getInitialSoln()        
         gas = self.gas
         nsp = gas.nSpecies()
@@ -57,21 +73,52 @@ class StagnationFlow(Stack):
 
 
     def solve(self, loglevel = 1, refine_grid = 1):
+        """Solve the flame.
+        loglevel -- integer flag controlling the amount of
+                    diagnostic output. Zero suppresses all output, and
+                    5 produces very verbose output. Default: 1
+        refine_grid -- if non-zero, enable grid refinement."""
+        
         if not self._initialized: self.init()
         Stack.solve(self, loglevel = loglevel, refine_grid = refine_grid)
 
 
     def setRefineCriteria(self, ratio = 10.0, slope = 0.8,
                           curve = 0.8, prune = 0.0):
+        """Set the criteria used to refine the flame.
+        ratio --  additional points will be added if the ratio of the spacing
+                  on either side of a grid point exceeds this value
+        slope --  maximum difference in value between two adjacent points,
+                  scaled by the maximum difference in the profile
+                  (0.0 < slope < 1.0). Adds points in regions of high slope.
+        curve --  maximum difference in slope between two adjacent intervals,
+                  scaled by the maximum difference in the profile
+                  (0.0 < curve < 1.0). Adds points in regions of high
+                  curvature.
+        prune --  if the slope or curve criteria are satisfied to the level of
+                  'prune', the grid point is assumed not to be needed and is
+                  removed. Set prune significantly smaller than
+                  'slope' and 'curve'. Set to zero to disable pruning
+                  the grid.
+                  
+        >>> f.setRefineCriteria(ratio = 5.0, slope = 0.2, curve = 0.3,
+        ...                     prune = 0.03)
+        """                
         Stack.setRefineCriteria(self, domain = self.flow,
                                 ratio = ratio, slope = slope, curve = curve,
                                 prune = prune)
 
     def setProfile(self, component, locs, vals):
+        """Set a profile in the flame"""                
         self._initialized = 1
         Stack.setProfile(self, self.flow, component, locs, vals)
 
     def set(self, tol = None, energy = '', tol_time = None):
+        """Set parameters.
+        tol -- (rtol, atol) for steady-state
+        tol_time -- (rtol, atol) for time stepping
+        energy -- 'on' or 'off' to enable or disable the energy equation
+        """                
         if tol:
             self.flow.setTolerances(default = tol)
         if tol_time:
@@ -80,19 +127,27 @@ class StagnationFlow(Stack):
             self.flow.set(energy = energy)
         
     def T(self, point = -1):
+        """The temperature [K]"""        
         return self.solution('T', point)
 
     def u(self, point = -1):
+        """The axial velocity [m/s]"""        
         return self.solution('u', point)        
         
     def V(self, point = -1):
+        """The radial velocity divided by radius [s^-1]"""        
         return self.solution('V', point)                
 
     def solution(self, component = '', point = -1):
+        """The solution for one specified component. If a point number
+        is given, return the value of component 'component' at this
+        point. Otherwise, return the entire profile for this
+        component."""        
         if point >= 0: return self.value(self.flow, component, point)
         else: return self.profile(self.flow, component)
 
     def coverages(self):
+        """The coverages of the surface species."""
         nsurf = self.surfchem.nSpecies()
         cov = Numeric.zeros(nsurf,'d')
         for n in range(nsurf):
@@ -101,6 +156,8 @@ class StagnationFlow(Stack):
         return cov
 
     def setGasState(self, j):
+        """Set the state of the object representing the gas to the
+        current solution at grid point j."""                
         nsp = self.gas.nSpecies()
         y = Numeric.zeros(nsp, 'd')
         for n in range(nsp):

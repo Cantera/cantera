@@ -183,8 +183,8 @@ ENABLE_TPX='y'
 # libraries, and set BLAS_LAPACK_DIR to the directory where these
 # libraries are located. Otherwise, leave these lines commented out.
 
-# BLAS_LAPACK_LIBS='-llapack -lf77blas -lcblas -latlas'
-# BLAS_LAPACK_DIR='/usr/lib/atlas'
+#BLAS_LAPACK_LIBS='-llapack -lf77blas -lcblas -latlas'
+#BLAS_LAPACK_DIR='/usr/lib/atlas'
 
 #
 # The options below do not need to be set if you are using the default
@@ -218,7 +218,7 @@ CC=${CC:=gcc}
 CXXFLAGS=${CXXFLAGS:="-O2 -Wall"}
 
 # the C++ flags required for linking
-LCXX_FLAGS="-L /usr/lib/atlas"
+#LCXX_FLAGS="-L/usr/lib/atlas"
 
 # Ending libraries to tack onto the linking of all C++ programs
 LCXX_END_LIBS=${LCXX_END_LIBS:="-lm"}

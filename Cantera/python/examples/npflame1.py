@@ -92,7 +92,7 @@ f.solve(loglevel, 0)
 # will be removed if the relative slope and curvature for all
 # components fall below the prune level. Set prune < min(slope,
 # curve), or to zero to disable removing grid points.
-f.setRefineCriteria(ratio = 200.0, slope = 0.1, curve = 0.2, prune = 0.0)
+f.setRefineCriteria(ratio = 200.0, slope = 0.1, curve = 0.2, prune = 0.02)
 f.set(energy = 'on')
 f.solve(1)
 

@@ -114,6 +114,8 @@ namespace Cantera {
             return new SpeciesThermoDuo<NasaThermo, ShomateThermo>;
         case NASA + SIMPLE:
             return new SpeciesThermoDuo<NasaThermo, SimpleThermo>;
+        case SHOMATE + SIMPLE:
+            return new SpeciesThermoDuo<ShomateThermo, SimpleThermo>;
         default:
             throw UnknownSpeciesThermo(
                 "SpeciesThermoFactory::newSpeciesThermo",type);

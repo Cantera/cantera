@@ -40,7 +40,9 @@ fi
 fi
 AC_SUBST(CVF_LIBDIR)
 
-#AC_PREFIX_DEFAULT([/usr/local])
+prdef="/usr/local"
+if test "x$OS_IS_DARWIN" = "x1"; then prdef="/Applications/Cantera"; fi
+#AC_PREFIX_DEFAULT([$prdef])
 
 local_inst=1
 if test "x${prefix}" = "xNONE"; then
@@ -48,7 +50,8 @@ if test "x${prefix}" = "xNONE"; then
            prefix=${CANTERA_INSTALL_DIR}
            # mkdir ${prefix}
          else
-           prefix=${ac_default_prefix}
+           prefix=${prdef}
+	   #${ac_default_prefix}
          fi
          local_inst=0
 #	 if test ! -d ${prefix}; then
@@ -119,7 +122,26 @@ ct_dir=${prefix}/cantera/${ctversion}
 ct_mandir=${prefix}/share/man
 fi
 
+# default is unix-like distributed installation (not everything within one directory)
+COMPACT_INSTALL=0
+
 if test "x${OS_IS_WIN}" = "x1"; then
+COMPACT_INSTALL=1
+ct_libdir=${prefix}/lib/${ctversion}
+ct_incdir=${prefix}/include/cantera
+ct_incroot=${prefix}/include
+ct_bindir=${prefix}/bin
+ct_datadir=${prefix}/data
+ct_demodir=${prefix}/demos
+ct_templdir=${prefix}/templates
+ct_tutdir=${prefix}/tutorials
+ct_docdir=${prefix}/doc
+ct_dir=${prefix}
+ct_mandir=${prefix}
+fi
+
+if test "x${OS_IS_DARWIN}" = "x1"; then
+COMPACT_INSTALL=1
 ct_libdir=${prefix}/lib/${ctversion}
 ct_incdir=${prefix}/include/cantera
 ct_incroot=${prefix}/include
@@ -144,6 +166,7 @@ AC_SUBST(ct_mandir)
 AC_SUBST(ct_tutdir)
 AC_SUBST(ct_docdir)
 AC_SUBST(ct_dir)
+AC_SUBST(COMPACT_INSTALL)
 
 CANTERA_DATADIR=$datadir/cantera/data
 

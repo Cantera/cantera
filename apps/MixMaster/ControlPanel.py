@@ -93,8 +93,9 @@ def testevent(event):
 	print 'event ',event.value
 
 def make_menu(name, menubar, list):
-	button=Menubutton(menubar, text=name, padx=3,pady=1) 
-	button.pack(side=LEFT, anchor=W)
+	nc = len(name)
+	button=Menubutton(menubar, text=name, width=nc+4, padx=3,pady=1) 
+	button.pack(side=LEFT)
 	menu = Menu(button,tearoff=FALSE)
 	m = menu
 	i = 0

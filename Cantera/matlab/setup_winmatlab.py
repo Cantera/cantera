@@ -1,13 +1,19 @@
 
 import sys
 
-bindir = '/usr/local/bin'
+bindir = '/Applications/Cantera/bin'
 libdir = '/Users/dgg/dv/sf/cantera/build/lib/powerpc-apple-darwin7.4.0'
 incdir = '/Users/dgg/dv/sf/cantera/build/include'
 dflibdir = ''
 
+bllibstr = "-llapack -lf77blas -lcblas -latlas"
+bllibs = bllibstr.replace('-l',' ')
+bllist = bllibs.split()
+
+bldir = "/usr/lib/atlas"
+
 libs = ['clib', 'oneD', 'zeroD', 'transport', 'cantera', 'recipes',
-        'cvode', 'ctlapack', 'ctmath', 'ctblas', 'tpx']
+        'cvode', 'ctmath', 'tpx']
 
 f = open('setup.m','w')
 f.write('cd cantera\nbuild_cantera\nexit\n')
@@ -32,6 +38,13 @@ fb.write(s)
 fb.write('    "'+dflibdir+'/dformd.lib" ...\n')
 fb.write('    "'+dflibdir+'/dfconsol.lib" ...\n')
 fb.write('    "'+dflibdir+'/dfport.lib" \n')
+
+if bllist:
+    s = ''
+    for lib in bllist:
+        s += '    '+bldir+'/'+lib+'.lib ...\n'
+    fb.write(s)
+
 fb.close()
 
 fp = open('cantera/ctbin.m','w')

@@ -275,7 +275,7 @@ class ReactionPathFrame(Frame):
 		self.b = rxnpath.PathBuilder(self.g)
 
 		self.fmt = StringVar()
-		self.fmt.set('svg')
+		self.fmt.set('gif')
 		i = 1
 		fmtframe = Frame(self)
 		fmtframe.config(relief=GROOVE, bd=4)		
@@ -332,17 +332,18 @@ class ReactionPathFrame(Frame):
 
 		self.b.build(element = el, diagram = self.d,
 			dotfile = 'rxnpath.dot', format = 'dot')
-		self.b.build(element = el, diagram = self.d,
-			dotfile = 'rxnpath.txt', format = 'plain')		
+		#self.b.build(element = el, diagram = self.d,
+		#	dotfile = 'rxnpath.txt', format = 'plain')		
 
 		if self.browser.get() == 1:
 			fmt = self.fmt.get()
 			os.system('dot -T'+fmt+' rxnpath.dot > rxnpath.'+fmt)
-			webbrowser.open('rxnpath.'+fmt)
+			webbrowser.open('file:///'+os.getcwd()+'/rxnpath.'+fmt)
 			try:
 				self.cv.delete(self.image)
 			except:
-				pass			
+				pass
+			self.cv.configure(width=0, height=0)			
 		else:
 			os.system(self.dot.get())
 			self.rp = PhotoImage(file='rxnpath.gif')

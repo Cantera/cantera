@@ -113,6 +113,7 @@ namespace Cantera {
                 
 	virtual void install(int sp, int type, const doublereal* c,
             doublereal minTemp, doublereal maxTemp, doublereal refPressure) {
+            m_p0 = refPressure;
             if (type == m_thermo1.ID) {
                 m_thermo1.install(sp, 0, c, minTemp, maxTemp, refPressure);
 		speciesToType[sp] = m_thermo1.ID;
@@ -143,7 +144,7 @@ namespace Cantera {
         }                        
 
         virtual doublereal refPressure() const {
-            return m_thermo1.refPressure();
+            return m_p0;
         }
 
 	virtual int reportType(int k) const {
@@ -176,6 +177,7 @@ namespace Cantera {
 
         T1 m_thermo1;
         T2 m_thermo2;
+        doublereal m_p0;
 	map<int, int> speciesToType;
     };
 

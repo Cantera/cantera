@@ -6,7 +6,10 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.9  2004-07-14 11:24:13  dggoodwin
+// Revision 1.10  2004-07-23 00:15:15  dggoodwin
+// *** empty log message ***
+//
+// Revision 1.9  2004/07/14 11:24:13  dggoodwin
 // *** empty log message ***
 //
 // Revision 1.8  2004/07/02 17:34:13  hkmoffa
@@ -281,7 +284,7 @@ namespace ckr {
         const char undoCommentChar = '%';
 
         // carriage return
-        //const char char13 = char(13);
+        const char char13 = char(13);
 
         // linefeed
         const char char10 = char(10);

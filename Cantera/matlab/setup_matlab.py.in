@@ -2,7 +2,7 @@
 import sys
 
 bindir = '@ct_bindir@'
-libdir = '-L @buildlib@ @LOCAL_LIB_DIRS@'
+libdir = '-L@buildlib@ @LOCAL_LIB_DIRS@'
 incdir = '@buildinc@'
 libs   = '-lclib @LOCAL_LIBS@ @LIBS@ @FLIBS@'
 
