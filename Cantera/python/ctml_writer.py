@@ -32,12 +32,13 @@ indent = ['',
           '      ',
           '       ',
           '        ',
-          '         ',
           '          ',
           '           ',
           '            ',
           '             ',
-          '              ']
+          '              ',
+          '               ',
+          '                ']
 
 #-----------------------------------------------------
 
@@ -1507,7 +1508,10 @@ validate()
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.2  2004-06-04 06:05:31  dggoodwin
+# Revision 1.3  2004-06-09 01:02:31  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.2  2004/06/04 06:05:31  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.1  2004/06/02 04:39:09  dggoodwin
