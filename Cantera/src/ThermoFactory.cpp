@@ -68,78 +68,9 @@ namespace Cantera {
             break;
 
         default:
-            throw CanteraError("newThermo",
-                "newThermo: unknown equation of state: "+model);
+	    throw UnknownThermoPhaseModel("ThermoFactory::newThermoPhase",
+					  model);
         }
         return th;
     }
-
-//     /**
-//      * Return a thermo manager to handle the parameterizations
-//      * specified in a CTML phase specification.
-//      */
-//     ThermoPhase* ThermoFactory::newThermo(XML_Node& root, string id) {
-
-//         // Find the node with the specified id, check that it is
-//         // a 'phase' node, and set the phase id to 'id'.
-//         XML_Node* ph;
-//         ph = root.findID(id);
-//         if (ph == 0) return 0; // false;   // id not found
-//         XML_Node& node = *ph;
-
-//         if (node.name() != "phase") 
-//             throw CanteraError("newThermo","node with id = "+id
-//                 +" is not a phase object.");
-
-//         //Phase* p = new Phase;
-//         //p->setID(id);                // set the phase id
-
-//         // get equaton of state type
-//         XML_Node& eos = node.child("thermo");
-//         string eostype = eos["model"];
-//         int ieos=-1;
-//         for (int n = 0; n < ntypes; n++) {
-//             if (eostype == _types[n]) ieos = _itypes[n];
-//         }
-
-//         // build species thermo manager
-//         SpeciesThermo* spthermo = newSpeciesThermoMgr(&node);
-
-//         ThermoPhase* th=0;
-//         //        doublereal dens;
-//         map<string, double> d;
-//         switch (ieos) {
-
-//         case cIdealGas:
-//             th = new IdealGasPhase;
-//             break;
-
-//         case cIncompressible:
-//             th = new ConstDensityThermo;
-//             break;
-
-//         case cSurf:
-//             th = new SurfPhase;
-//             break;
-
-//         case cMetal:
-//             th = new MetalPhase;
-//             break;
-
-//         case cSolidCompound:
-//             th = new SolidCompound;
-//             break;
-
-//         default:
-//             throw CanteraError("newThermo",
-//                 "newThermo: unknown equation of state: "+eostype);
-//         }
-//         th->setSpeciesThermo(spthermo);
-
-//         // import the phase specification
-//         importPhase(node, th);
-
-//         return th;
-//     }
-
 }

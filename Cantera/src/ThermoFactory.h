@@ -17,7 +17,18 @@
 #include "ThermoPhase.h"
 #include "xml.h"
 
+
 namespace Cantera {
+
+
+    class UnknownThermoPhaseModel : public CanteraError {
+    public:
+	UnknownThermoPhaseModel(string proc, string thermoModel) :
+	    CanteraError(proc, "Specified ThermoPhase model "   
+			 + thermoModel + 
+			 " does not match any known type.") {}
+	virtual ~UnknownThermoPhaseModel() {}
+    };
 
     /**
      * Factory for thermodynamic property managers.
