@@ -1,7 +1,7 @@
 
 import sys
 
-bindir = '/home/goodwin/ct153d/bin'
+bindir = '/home/goodwin/ctt/bin'
 libdir = '/home/goodwin/dv/sf/cantera/build/lib/i686-pc-linux-gnu'
 incdir = '/home/goodwin/dv/sf/cantera/build/include'
 dflibdir = ''

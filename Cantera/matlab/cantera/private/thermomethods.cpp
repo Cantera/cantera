@@ -27,7 +27,11 @@ static void thermoset( int nlhs, mxArray *plhs[],
         case 10:
             ierr = delThermo(th); break;
         case 1:
-            ierr = th_setPressure(th,*ptr); break; 
+            ierr = th_setPressure(th,*ptr); break;
+        case 2:
+            ierr = th_setState_satLiquid(th); break;
+        case 3:
+            ierr = th_setState_satVapor(th); break;
         default:
             mexErrMsgTxt("unknown attribute.");
         }
@@ -69,7 +73,7 @@ static void thermoset( int nlhs, mxArray *plhs[],
 static void thermoget( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[] )
     {
-        double vv;
+        double vv, psat, tsat;
         int n = getInt(prhs[1]);
         int job = getInt(prhs[2]);
 
@@ -123,11 +127,11 @@ static void thermoget( int nlhs, mxArray *plhs[],
             case 22:
                 vv = th_vaporFraction(n); break;
             case 23:
-                double p = getDouble(prhs[3]); 
-                vv = th_satTemperature(n, p); break;
+                psat = getDouble(prhs[3]); 
+                vv = th_satTemperature(n, psat); break;
             case 24:
-                double t = getDouble(prhs[3]);
-                vv = th_satPressure(n, t); break;
+                tsat = getDouble(prhs[3]);
+                vv = th_satPressure(n, tsat); break;
 #endif
             default:
                 ok = false;

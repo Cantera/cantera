@@ -15,7 +15,7 @@ if nargin == 4
       node = child(xml_phase,'transport');
       tr.model = attrib(node,'model');
     catch
-      tr.model = '';
+      tr.model = 'None';
     end
   else
     tr.model = model;

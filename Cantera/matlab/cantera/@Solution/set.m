@@ -40,6 +40,8 @@ hval = -999;
 uval = -999;
 sval = -999;
 vval = -999;
+qval = -999;
+
 np = 0;
 nt = 0;
 nv = 0;
@@ -48,6 +50,7 @@ ny = 0;
 ns = 0;
 nh = 0;
 nu = 0;
+nq = 0;
 
 while length(property_argin) >= 2,
   prop = property_argin{1};
@@ -105,6 +108,9 @@ while length(property_argin) >= 2,
    case 'S'
     sval = val; 
     ns = ns + 1;       
+   case 'Sat'
+    qval = val;
+    nq = nq + 1;
    otherwise
     error(['unknown property ' char(prop)])
   end
@@ -114,7 +120,7 @@ if nx + ny > 1
   error('composition specified multiple times');
 end
 
-ntot = nt + np + nv + ns + nh + nu;
+ntot = nt + np + nv + ns + nh + nu + nq;
 
 if ntot == 1
   %
@@ -138,7 +144,13 @@ elseif ntot == 2
     if nv == 1
       setDensity(a,1.0/vval);   % temperature held fixed
     elseif np == 1
-      setPressure(a, pval);     % temperature held fixed    
+      setPressure(a, pval);     % temperature held fixed 
+    elseif nq == 1
+      if qval == 'Liquid'
+	setState_satLiquid(a);
+      elseif qval == 'Vapor'
+	setState_satVapor(a);
+      end
     else
       error('unimplemented property pair');  
     end
