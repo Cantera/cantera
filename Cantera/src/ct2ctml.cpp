@@ -48,6 +48,7 @@ namespace ctml {
         return s;
     }
 
+#ifdef NOT_USED
     static bool checkPython() {
         time_t aclock;
         time( &aclock );
@@ -96,7 +97,7 @@ namespace ctml {
 #endif
         return true;
     }
-
+#endif
 
     void ct2ctml(const char* file) {
 
@@ -151,7 +152,7 @@ namespace ctml {
          *        problem as well. There may be more direct ways
          *        to fix this bug; however, I am not aware of them.
          */
-#if defined(CYGWIN) 
+#ifdef CYGWIN 
 #ifdef DEBUG_PATHS
         writelog("sleeping for 3 secs+\n");
 #endif
