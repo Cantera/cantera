@@ -37,6 +37,8 @@ try:
 except:
     pass
 
+from Mixture import Mixture
+
 def writeCSV(f, list):
     """Write list items to file 'f' in comma-separated-value format."""
     for item in list:

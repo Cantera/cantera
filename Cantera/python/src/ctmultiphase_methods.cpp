@@ -52,6 +52,20 @@ py_mix_nElements(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+py_mix_elementIndex(PyObject *self, PyObject *args)
+{
+    int _val;
+    int i;
+    char* name;
+    if (!PyArg_ParseTuple(args, "is:mix_elementIndex", &i, &name)) 
+        return NULL;
+        
+    _val = mix_elementIndex(i,name); 
+    if (int(_val) < -900) return reportCanteraError();
+    return Py_BuildValue("i",_val);
+}
+
+static PyObject *
 py_mix_nSpecies(PyObject *self, PyObject *args)
 {
     int _val;
@@ -64,6 +78,18 @@ py_mix_nSpecies(PyObject *self, PyObject *args)
     return Py_BuildValue("i",_val);
 } 
 
+static PyObject *
+py_mix_speciesIndex(PyObject *self, PyObject *args)
+{
+    int _val;
+    int i, k, p;
+    if (!PyArg_ParseTuple(args, "iii:mix_speciesIndex", &i, &k, &p)) 
+        return NULL;
+        
+    _val = mix_speciesIndex(i,k,p); 
+    if (int(_val) < -900) return reportCanteraError();
+    return Py_BuildValue("i",_val);
+}
 
 static PyObject *
 py_mix_nAtoms(PyObject *self, PyObject *args)
@@ -192,9 +218,44 @@ py_mix_elementMoles(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ii:mix_elementMoles", &i, &m)) 
         return NULL;
         
-    _val = mix_elementMoles(i,m); 
-    //if (int(_val) < -900) return reportCanteraError();
+    _val = mix_elementMoles(i,m);
+    if (int(_val) < -900) return reportCanteraError();
     return Py_BuildValue("d",_val);
+}
+
+
+static PyObject *
+py_mix_setMoles(PyObject *self, PyObject *args)
+{
+    int _val;
+    int i;
+    PyObject* n;
+    if (!PyArg_ParseTuple(args, "iO:mix_setMoles", &i, &n)) 
+        return NULL;
+        
+
+    PyArrayObject* n_array = (PyArrayObject*)n;
+    double* n_data = (double*)n_array->data;
+    int n_len = n_array->dimensions[0];
+
+    _val = mix_setMoles(i,n_len,n_data); 
+    if (int(_val) < -900) return reportCanteraError();
+    return Py_BuildValue("i",_val);
+}
+
+
+static PyObject *
+py_mix_setMolesByName(PyObject *self, PyObject *args)
+{
+    int _val;
+    int i;
+    char* n;
+    if (!PyArg_ParseTuple(args, "is:mix_setMolesByName", &i, &n)) 
+        return NULL;
+        
+    _val = mix_setMolesByName(i,n); 
+    if (int(_val) < -900) return reportCanteraError();
+    return Py_BuildValue("i",_val);
 }
 
 static PyObject *

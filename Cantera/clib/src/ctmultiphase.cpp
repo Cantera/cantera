@@ -96,8 +96,16 @@ extern "C" {
         return _mix(i)->nElements();
     }
 
+    int DLL_EXPORT mix_elementIndex(int i, char* name) {
+        return _mix(i)->elementIndex(string(name));
+    }
+
     int DLL_EXPORT mix_nSpecies(int i) {
         return _mix(i)->nSpecies();
+    }
+
+    int DLL_EXPORT mix_speciesIndex(int i, int k, int p) {
+        return _mix(i)->speciesIndex(k, p);
     }
 
     doublereal DLL_EXPORT mix_nAtoms(int i, int k, int m) {
@@ -117,6 +125,24 @@ extern "C" {
         if (!checkPhase(i, n)) return ERR;
         if (v < 0.0) return -1;
         _mix(i)->setPhaseMoles(n, v);
+        return 0;
+    }
+
+    int DLL_EXPORT mix_setMoles(int i, int nlen, double* n) {
+        try {
+            if (nlen < _mix(i)->nSpecies()) 
+                throw CanteraError("setMoles","array size too small.");
+            _mix(i)->setMoles(n);
+            return 0;
+        }
+        catch (CanteraError) {
+            return ERR;
+        }
+    }
+
+
+    int DLL_EXPORT mix_setMolesByName(int i, char* n) {
+        _mix(i)->setMolesByName(string(n));
         return 0;
     }
 

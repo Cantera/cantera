@@ -64,6 +64,9 @@ class ThermoPhase(Phase):
         if self._owner:
             _cantera.thermo_delete(self._phase_id)
 
+    def name(self):
+        return self.idtag
+    
     def refPressure(self):
         """Reference pressure [Pa].
         All standard-state thermodynamic properties are for this pressure.
