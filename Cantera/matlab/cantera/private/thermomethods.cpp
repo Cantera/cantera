@@ -28,10 +28,6 @@ static void thermoset( int nlhs, mxArray *plhs[],
             ierr = delThermo(th); break;
         case 1:
             ierr = th_setPressure(th,*ptr); break;
-        case 2:
-            ierr = th_setState_Psat(th,ptr[0],ptr[1]); break;
-        case 3:
-            ierr = th_setState_Tsat(th,ptr[0],ptr[1]); break;
         default:
             mexErrMsgTxt("unknown attribute.");
         }
@@ -49,6 +45,10 @@ static void thermoset( int nlhs, mxArray *plhs[],
                 ierr = th_set_SV(th,ptr); break;
             case 23:
                 ierr = th_set_SP(th,ptr); break;  
+            case 24:
+                ierr = th_setState_Psat(th,ptr[0],ptr[1]); break;
+            case 25:
+                ierr = th_setState_Tsat(th,ptr[0],ptr[1]); break;
             default:
                 mexErrMsgTxt("unknown pair attribute.");
             }

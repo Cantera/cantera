@@ -7,5 +7,5 @@ function n = Methane()
 %   equation of state is taken from W. C. Reynolds, "Thermodynamic
 %   Properties in SI."
 %
-n = importPhase('purefluids.cti','methane');
+n = importPhase('liquidvapor.cti','methane');
 

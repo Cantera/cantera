@@ -7,5 +7,5 @@ function n = Oxygen()
 %   equation of state is taken from W. C. Reynolds, "Thermodynamic
 %   Properties in SI."
 %
-n = importPhase('purefluids.cti','oxygen');
+n = importPhase('liquidvapor.cti','oxygen');
 

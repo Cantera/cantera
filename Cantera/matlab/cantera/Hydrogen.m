@@ -10,5 +10,5 @@ function n = Hydrogen()
 %   For more details, see classes Cantera::PureFluid and tpx::hydrogen in the
 %   Cantera C++ source code documentation.
 %
-n = importPhase('purefluids.cti','hydrogen');
+n = importPhase('liquidvapor.cti','hydrogen');
 

@@ -11,6 +11,8 @@ function a = set(a,varargin)
 %   Entropy        (S)
 %   MoleFractions  (X)
 %   MassFractions  (Y)
+%   Vapor Fraction (Vapor)
+%   Liquid Fractio (Liquid)
 % 
 %   Either the full property name or the symbol may be
 %   specified. For the extensive properties (V,H,U,S), the values
@@ -28,6 +30,7 @@ function a = set(a,varargin)
 %      set(gas,'H',0.5*enthalpy_mass(gas),'P',pressure(gas));
 %      set(gas,'S',entropy_mass(gas),'P',0.5*pressure(gas));
 %      set(gas,'X',ones(nSpecies(gas),1));
+%      set(gas,'T',500.0,'Vapor',0.8)
 %
 %  Alternatively, individual methods to set properties may be
 %  called (setTemperature, setMoleFractions, etc.)
@@ -111,6 +114,12 @@ while length(property_argin) >= 2,
    case 'Sat'
     qval = val;
     nq = nq + 1;
+   case 'Vapor'
+    qval = val;
+    nq = nq + 1;
+   case 'Liquid'
+    qval = 1.0 - val;
+    nq = nq + 1;
    otherwise
     error(['unknown property ' char(prop)])
   end
@@ -139,33 +148,26 @@ elseif ntot == 2
   %
   % set property pairs
   %
-  if nt == 1
+  if nt == 1 & nv == 1
     setTemperature(a,tval);
-    if nv == 1
-      setDensity(a,1.0/vval);   % temperature held fixed
-    elseif np == 1
-      setPressure(a, pval);     % temperature held fixed 
-    elseif nq == 1
-      if qval == 'Liquid'
-	setState_satLiquid(a);
-      elseif qval == 'Vapor'
-	setState_satVapor(a);
-      end
-    else
-      error('unimplemented property pair');  
-    end
+    setDensity(a,1.0/vval); 
+  elseif nt == 1 & np == 1
+    setTemperature(a,tval);
+    setPressure(a, pval);
+  elseif nt == 1 & nq == 1
+    setState_Tsat(a, [tval,qval]);
+  elseif np == 1 & nq == 1
+    setState_Psat(a, [pval,qval]);
+  elseif np == 1 & nh == 1
+    setState_HP(a,[hval,pval]);
+  elseif nu == 1 & nv == 1
+    setState_UV(a,[uval,vval]);
+  elseif ns == 1 & np == 1
+    setState_SP(a,[sval,pval]);   
+  elseif ns == 1 & nv == 1
+    setState_SV(a,[sval,vval]);      
   else
-    if np == 1 & nh == 1
-      setState_HP(a,[hval,pval]);
-    elseif nu == 1 & nv == 1
-      setState_UV(a,[uval,vval]);
-    elseif ns == 1 & np == 1
-      setState_SP(a,[sval,pval]);   
-    elseif ns == 1 & nv == 1
-      setState_SV(a,[sval,vval]);      
-    else
-      error('unimplemented property pair');
-    end
+    error('unimplemented property pair');
   end
 else
   error('too many properties specified');

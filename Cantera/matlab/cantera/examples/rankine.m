@@ -1,42 +1,62 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-%
-%  An ideal Rankine cycle.
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+function [work, efficiency] = rankine(t1, p2, eta_pump, ...
+				      eta_turbine)
 
 % create an object representing water
 w = Water;
 
-% start with saturated liquid water at 300 K
-set(w,'T',300.0,'Sat','Liquid');
+% start with saturated liquid water at t1
+set(w,'T',t1,'Liquid',1.0);
 h1 = enthalpy_mass(w);
 s1 = entropy_mass(w);
 p1 = pressure(w);
 
-% pump it isentropically to 10 MPa
-set(w,'S',s1,'P',1.0e7);
+% pump it to p2
+pump_work = pump(w, p2, eta_pump);
 h2 = enthalpy_mass(w);
 p2 = pressure(w);
 
-pump_work = h2 - h1;
-
-
-% heat to 1500 K at constant pressure
-set(w,'T',1500.0,'P',p2);
+% heat to saturated vapor
+set(w,'P',p2,'Vapor',1.0);
 h3 = enthalpy_mass(w);
 s3 = entropy_mass(w);
 
 heat_added = h3 - h2;
 
-
 % expand isentropically to the initial pressure
-set(w,'S',s3,'P',p1);
+work = expand(w, p1, eta_turbine);
 h4 = enthalpy_mass(w);
 x4 = vaporFraction(w);
 
-work_output = h3 - h4;
-
 % compute the efficiency
-efficiency = (work_output - pump_work)/heat_added
+efficiency = (work - pump_work)/heat_added;
+
+
+
+function w = pump(fluid, pfinal, eta)
+% Adiabatically pump a fluid to pressure pfinal, using
+% a pump with isentropic efficiency eta."""
+h0 = enthalpy_mass(fluid);
+s0 = entropy_mass(fluid);
+set(fluid, 'S', s0, 'P', pfinal);
+h1s = enthalpy_mass(fluid);
+isentropic_work = h1s - h0;
+actual_work = isentropic_work / eta;
+h1 = h0 + actual_work;
+set(fluid, 'H',h1, 'P',pfinal);
+w = actual_work;
+
+
+function w = expand(fluid, pfinal, eta)
+% Adiabatically expand a fluid to pressure pfinal, using
+% a turbine with isentropic efficiency eta
+h0 = enthalpy_mass(fluid);
+s0 = entropy_mass(fluid);
+set(fluid, 'S', s0, 'P', pfinal);
+h1s = enthalpy_mass(fluid);
+isentropic_work = h0 - h1s;
+actual_work = isentropic_work * eta;
+h1 = h0 - actual_work;
+set(fluid, 'H',h1, 'P',pfinal);
+w = actual_work;
+
 
