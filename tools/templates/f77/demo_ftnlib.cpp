@@ -52,7 +52,6 @@ extern "C" {
         string fth = string(thermo, lenthermo);
         if (_gas) delete _gas;
         _gas = new IdealGasMix(fin, fth);
-        _init();
     }
  
     ///   integer function nElements() 
@@ -155,7 +154,7 @@ extern "C" {
                 "two-character string required.");
         }
         string optstr = string(opt, 2);
-        equilibrate(*_gas, optstr.c_str(););
+        equilibrate(*_gas, optstr.c_str());
     }
 
 
