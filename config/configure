@@ -2884,7 +2884,7 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-ac_config_files="$ac_config_files ../Cantera/Makefile ../Cantera/src/Makefile ../Cantera/src/zeroD/Makefile ../Cantera/src/oneD/Makefile ../Cantera/src/converters/Makefile ../Cantera/src/transport/Makefile ../Cantera/clib/src/Makefile ../Cantera/matlab/Makefile ../Cantera/python/Makefile ../Cantera/python/src/Makefile ../ext/lapack/Makefile ../ext/blas/Makefile ../ext/cvode/Makefile ../ext/math/Makefile ../ext/tpx/Makefile ../ext/Makefile ../ext/recipes/Makefile ../examples/Makefile ../examples/cxx/Makefile ../Makefile ../tools/Makefile ../tools/src/Makefile ../tools/src/sample.mak ../tools/templates/f77/sample.mak ../tools/testtools/Makefile ../data/inputs/Makefile ../test_problems/Makefile ../test_problems/cxx_ex/Makefile ../test_problems/silane_equil/Makefile"
+ac_config_files="$ac_config_files ../Cantera/Makefile ../Cantera/src/Makefile ../Cantera/src/zeroD/Makefile ../Cantera/src/oneD/Makefile ../Cantera/src/converters/Makefile ../Cantera/src/transport/Makefile ../Cantera/clib/src/Makefile ../Cantera/matlab/Makefile ../Cantera/python/Makefile ../Cantera/python/src/Makefile ../ext/lapack/Makefile ../ext/blas/Makefile ../ext/cvode/Makefile ../ext/math/Makefile ../ext/tpx/Makefile ../ext/Makefile ../ext/recipes/Makefile ../examples/Makefile ../examples/cxx/Makefile ../Makefile ../tools/Makefile ../tools/src/Makefile ../tools/src/sample.mak ../tools/templates/f77/demo.mak ../tools/testtools/Makefile ../data/inputs/Makefile ../test_problems/Makefile ../test_problems/cxx_ex/Makefile ../test_problems/silane_equil/Makefile"
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
 # Let make expand exec_prefix.
@@ -3160,7 +3160,7 @@ do
   "../tools/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../tools/Makefile" ;;
   "../tools/src/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../tools/src/Makefile" ;;
   "../tools/src/sample.mak" ) CONFIG_FILES="$CONFIG_FILES ../tools/src/sample.mak" ;;
-  "../tools/templates/f77/sample.mak" ) CONFIG_FILES="$CONFIG_FILES ../tools/templates/f77/sample.mak" ;;
+  "../tools/templates/f77/demo.mak" ) CONFIG_FILES="$CONFIG_FILES ../tools/templates/f77/demo.mak" ;;
   "../tools/testtools/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../tools/testtools/Makefile" ;;
   "../data/inputs/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../data/inputs/Makefile" ;;
   "../test_problems/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../test_problems/Makefile" ;;
