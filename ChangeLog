@@ -1,3 +1,8 @@
+2004-12-13 10:38  dggoodwin
+
+	* win32/vc7/demos/: CanteraDemos.sln, ReadMe.txt, demo.vcproj:
+	  initial import
+
 2004-12-13 06:58  dggoodwin
 
 	* tools/bin/cvs2cl.pl: updated version
@@ -63,6 +68,25 @@
 	* Cantera/src/importCTML.cpp: changed buildSolutionFromXML to use
 	  get_XML_NameID instead of get_XML_Node
 
+2004-11-15 14:07  hkmoffa
+
+	* win32/vc7/ck2cti/ck2cti.vcproj: use debug libraries on debug
+	  version.
+
+2004-11-15 14:05  hkmoffa
+
+	* win32/vc7/diamondSurf/diamondSurf.vcproj: ignored msvct default
+	  library
+
+2004-11-15 14:03  hkmoffa
+
+	* win32/vc7/cantera/cantera.vcproj: Dos format
+
+2004-11-15 13:41  hkmoffa
+
+	* win32/vc7/clib/clib.vcproj: For the debug dll, you have to
+	  compile with debug libraries.
+
 2004-11-15 12:52  hkmoffa
 
 	* Cantera/clib/src/ct.cpp: Added a static_cast.
@@ -115,6 +139,10 @@
 
 	* bin/install_tsc.in: Check for destination directory existing.
 
+2004-10-16 04:09  dggoodwin
+
+	* win32/vc7/SetupCantera/SetupCantera.vdproj: initial import
+
 2004-10-16 03:12  dggoodwin
 
 	* Cantera/python/winsetup.py: initial import
@@ -131,6 +159,34 @@
 2004-10-13 21:24  dggoodwin
 
 	* tools/src/: package4mac.in, postflight: Mac install script
+
+2004-10-12 06:56  dggoodwin
+
+	* win32/vc7/: cantera.sln, cantera_examples.sln,
+	  cantera/cantera.vcproj, ck2cti/ck2cti.vcproj, clib/clib.vcproj,
+	  converters/converters.vcproj, cti2ctml/cti2ctml.vcproj,
+	  cvode/cvode.vcproj, cxxutils/cxxutils.vcproj,
+	  f2c_blas/f2c_blas.vcproj, f2c_lapack/f2c_lapack.vcproj,
+	  f2c_libs/f2c_libs.vcproj, f2c_math/f2c_math.vcproj,
+	  f2c_recipes/f2c_recipes.vcproj, oneD/oneD.vcproj,
+	  silane_equil/silane_equil.vcproj, tpx/tpx.vcproj,
+	  transport/transport.vcproj, zeroD/zeroD.vcproj: added ctpython,
+	  changed c libs to multithreaded DLL, changed properties for
+	  release version
+
+2004-10-12 06:55  dggoodwin
+
+	* win32/vc7/ctpython/: ctpython.vcproj, runpython.cmd: files to
+	  build the Python interface within Visual Studio
+
+2004-10-11 07:36  dggoodwin
+
+	* win32/vc7/: cantera.sln, cantera/cantera.vcproj,
+	  cvode/cvode.vcproj, f2c_arithchk/f2c_arithchk.vcproj,
+	  f2c_blas/f2c_blas.vcproj, f2c_lapack/f2c_lapack.vcproj,
+	  f2c_libs/f2c_libs.vcproj, f2c_math/f2c_math.vcproj,
+	  f2c_recipes/f2c_recipes.vcproj, tpx/tpx.vcproj,
+	  transport/transport.vcproj: bug fixes
 
 2004-10-10 13:46  dggoodwin
 
@@ -317,6 +373,11 @@
 	  "default", if unspecified. Then, this default is treated in
 	  config/configure with special code.
 
+2004-09-24 13:35  hkmoffa
+
+	* win32/vc7/configure.vc++: Added the USE_DLL environmental
+	  variable.
+
 2004-09-24 13:16  hkmoffa
 
 	* Makefile.in, configure: Added USE_DLL variable and its controls.
@@ -360,6 +421,19 @@
 
 	* tools/src/ck2cti.cpp: Added an id string.
 
+2004-09-16 10:54  hkmoffa
+
+	* win32/vc7/cantera.sln: Added a few more dependencies to sln file.
+
+2004-09-16 10:54  hkmoffa
+
+	* win32/vc7/ck2cti/ck2cti.vcproj: Fixed an error.
+
+2004-09-16 10:53  hkmoffa
+
+	* win32/vc7/cvode/cvode.vcproj: Changed an absolute pathname into a
+	  relative pathname.
+
 2004-09-16 10:52  hkmoffa
 
 	* test_problems/: diamondSurf/Makefile.in,
@@ -386,6 +460,10 @@
 
 	* Cantera/src/converters/ck2ct.cpp: Took out a print statement that
 	  was causing a test to fail.
+
+2004-09-02 13:57  hkmoffa
+
+	* win32/vc7/configure.vc++: Took out HKM comments
 
 2004-09-02 13:48  hkmoffa
 
@@ -421,6 +499,13 @@
 
 	* win32/README: Added detailed instructions for vc7
 
+2004-08-27 13:26  hkmoffa
+
+	* win32/vc7/: .cvsignore, cantera.sln, cantera_examples.sln,
+	  csvdiff/.cvsignore, csvdiff/csvdiff.vcproj,
+	  cxx_examples/.cvsignore, cxx_examples/cxx_examples.vcproj: Second
+	  generation of vc7 port.
+
 2004-08-27 13:21  hkmoffa
 
 	* test_problems/python/runtest: Currently, linux and MSVC are
@@ -440,6 +525,10 @@
 2004-08-27 09:45  hkmoffa
 
 	* config/configure.in: Added a default 0 to BUILD_PARTICLES value
+
+2004-08-27 08:42  hkmoffa
+
+	* win32/vc7/configure.vc++: Initial commit
 
 2004-08-10 13:39  hkmoffa
 
@@ -522,6 +611,29 @@
 2004-08-09 17:20  hkmoffa
 
 	* ext/f2c_lapack/dlamch.c: Added a stdio.h reference.
+
+2004-08-09 17:18  hkmoffa
+
+	* win32/vc7/: .cvsignore, cantera.sln, cantera/.cvsignore,
+	  cantera/cantera.vcproj, ck2cti/.cvsignore, ck2cti/ck2cti.vcproj,
+	  clib/.cvsignore, clib/clib.vcproj, converters/.cvsignore,
+	  converters/converters.vcproj, cti2ctml/.cvsignore,
+	  cti2ctml/cti2ctml.vcproj, cvode/.cvsignore, cvode/cvode.vcproj,
+	  cxxutils/.cvsignore, cxxutils/cxxutils.vcproj,
+	  diamondSurf/.cvsignore, diamondSurf/diamondSurf.vcproj,
+	  f2c_arithchk/.cvsignore, f2c_arithchk/f2c_arithchk.vcproj,
+	  f2c_blas/.cvsignore, f2c_blas/f2c_blas.vcproj,
+	  f2c_lapack/.cvsignore, f2c_lapack/f2c_lapack.vcproj,
+	  f2c_libs/.cvsignore, f2c_libs/f2c_libs.vcproj,
+	  f2c_math/.cvsignore, f2c_math/f2c_math.vcproj,
+	  f2c_recipes/.cvsignore, f2c_recipes/f2c_recipes.vcproj,
+	  oneD/.cvsignore, oneD/oneD.vcproj, pycantera/.cvsignore,
+	  pycantera/pycantera.vcproj, silane_equil/.cvsignore,
+	  silane_equil/silane_equil.vcproj, surfkin/.cvsignore,
+	  surfkin/surfkin.vcproj, tpx/.cvsignore, tpx/tpx.vcproj,
+	  transport/.cvsignore, transport/transport.vcproj,
+	  zeroD/.cvsignore, zeroD/zeroD.vcproj: First commit of vc7 project
+	  files.
 
 2004-08-09 16:58  hkmoffa
 
