@@ -14,7 +14,7 @@
 #include <string>
 #include <stdlib.h>
 #include "ctml.h"
-#include "../../include/pypath.h"
+#include "pypath.h"
 
 using namespace Cantera;
 

@@ -103,6 +103,10 @@ misc.o: misc.cpp
 	echo '#define CANTERA_ROOT "@prefix@/cantera"' > ctdir.h
 	@CXX@ -c misc.cpp $(CXX_FLAGS) 
 
+ct2ctml.o: ct2ctml.cpp
+	echo '#define PYTHON_EXE "@PYTHON_CMD@"' > pypath.h
+	@CXX@ -c ct2ctml.cpp $(CXX_FLAGS) 
+
 .f.o:
 	@F77@ -c $< $(F77_FLAGS) 
 
