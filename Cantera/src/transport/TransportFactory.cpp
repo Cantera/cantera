@@ -18,7 +18,7 @@
 #include "MultiTransport.h"
 #include "MixTransport.h"
 #include "SolidTransport.h"
-
+#include "DustyGasTransport.h"
 #include "TransportFactory.h"
 
 #include "polyfit.h"
@@ -196,6 +196,7 @@ namespace Cantera {
         m_models["Mix"] = cMixtureAveraged;
         m_models["Multi"] = cMulticomponent;
         m_models["Solid"] = cSolidTransport;
+        m_models["DustyGas"] = cDustyGasTransport;
         m_models["None"] = 0;
     }
 
@@ -216,7 +217,8 @@ namespace Cantera {
         if (transportModel == "") return new Transport;
 
         vector_fp state;
-        Transport* tr = 0;
+        Transport *tr = 0, *gastr = 0;
+        DustyGasTransport* dtr = 0;
         phase->saveState(state);
 
         switch(m_models[transportModel]) {
@@ -241,6 +243,12 @@ namespace Cantera {
         case cSolidTransport:
             tr = new SolidTransport;
             tr->setThermo(*phase);
+            break;
+        case cDustyGasTransport:
+            tr = new DustyGasTransport;
+            gastr = new MixTransport;
+            dtr = (DustyGasTransport*)tr;
+            dtr->initialize(phase, gastr);
             break;
         default:
             throw CanteraError("newTransport","unknown transport model");
