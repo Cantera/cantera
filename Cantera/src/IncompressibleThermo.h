@@ -77,7 +77,7 @@ namespace Cantera {
             doublereal vhat_dp = (pressure() - m_s->refPressure())/
                                  m_s->molarDensity();
             for (int k = 0; k < kk; k++) {
-                xx = fmax(Tiny,m_s->moleFraction(k));
+                xx = fmaxx(Tiny,m_s->moleFraction(k));
                 mu[k] = g_RT[k] + log(xx);
             }
         }
