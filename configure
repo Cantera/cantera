@@ -361,7 +361,7 @@ CT_SHARED_LIB=${CT_SHARED_LIB:=clib}
 RPFONT=${RPFONT:="Helvetica"}
 
  
-CANTERA_VERSION=${CANTERA_VERSION:="1.5.4"}
+CANTERA_VERSION=${CANTERA_VERSION:="1.5.5"}
 
 
 #-----------------------------------------------------------------------

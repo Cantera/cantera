@@ -3397,8 +3397,8 @@ echo "${ECHO_T}${has_sstream}" >&6
 #     Fortran
 #---------------------------------
 
-if test -z $build_with_f2c; then
-  ac_ext=f
+# if test -z $build_with_f2c; then
+ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
 ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_f77_compiler_gnu
@@ -3617,7 +3617,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 # to procedures that have an underscore in the name
 if test -n "$G77"; then
   FFLAGS=$FFLAGS' -fno-second-underscore'
-fi
+#fi
 
 
 ac_ext=f

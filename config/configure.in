@@ -647,14 +647,14 @@ AC_MSG_RESULT(${has_sstream})
 #     Fortran
 #---------------------------------
 
-if test -z $build_with_f2c; then
-  AC_PROG_F77()
+# if test -z $build_with_f2c; then
+AC_PROG_F77()
 
 # if G77 is defined, then add a flag to turn off adding a second underscore
 # to procedures that have an underscore in the name
 if test -n "$G77"; then
   FFLAGS=$FFLAGS' -fno-second-underscore'
-fi
+#fi
 
 dnl Checks for libraries.
 AC_F77_LIBRARY_LDFLAGS()
