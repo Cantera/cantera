@@ -1,11 +1,11 @@
 #/bin/sh
 
-LIBDIR = @ctroot@/lib
+LIBDIR = @ctroot@/build/lib
 INCDIR = -I@ctroot@/Cantera/src
 BINDIR = @ctroot@/bin
 build_ck = @BUILD_CK@
 
-LCXX_FLAGS = -L@ctroot@/lib  @CXXFLAGS@
+LCXX_FLAGS = -L$(LIBDIR)  @CXXFLAGS@
 LOCAL_LIBS = -lcantera @math_libs@ @LAPACK_LIBRARY@ @BLAS_LIBRARY@
 
 LCXX_END_LIBS = @LCXX_END_LIBS@

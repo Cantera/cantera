@@ -1,7 +1,7 @@
 #/bin/sh
 
-LIBDIR = @ctroot@/lib
-INCDIR = @prefix@/include/cantera
+LIBDIR = @ctroot@/build/lib
+INCDIR = @ctroot@/build/include/cantera
 BINDIR = @ctroot@/bin
 build_ck = @BUILD_CK@
 

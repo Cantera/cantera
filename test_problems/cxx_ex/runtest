@@ -10,7 +10,7 @@ temp_success="1"
 #################################################################
 
 CANTERA_BIN=${CANTERA_BIN:=../../bin}
-$CANTERA_BIN/cxx_examples > cxx_examples.out
+../../examples/cxx/cxx_examples > cxx_examples.out
 retnStat=$?
 if [ $retnStat != "0" ]
 then

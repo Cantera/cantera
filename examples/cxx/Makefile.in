@@ -50,7 +50,7 @@ LCXX_END_LIBS = @LCXX_END_LIBS@
 
 
 # the directory where the Cantera libraries are located
-CANTERA_LIBDIR=@ctroot@/lib
+CANTERA_LIBDIR=@ctroot@/build/lib
 
 # required Cantera libraries
 CANTERA_LIBS = 

@@ -21,7 +21,7 @@ SRCS = cantera/private/ctmethods.cpp \
        cantera/private/wallmethods.cpp \
        cantera/private/flowdevicemethods.cpp
 
-CANTERA_LIBDIR=../../lib
+CANTERA_LIBDIR=@buildlib@
 LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
            $(CANTERA_LIBDIR)/liboneD.a $(CANTERA_LIBDIR)/libconverters.a
 
