@@ -7,6 +7,11 @@
 #pragma warning(disable:4503)
 #endif
 
+#include "config.h"
+#ifdef HAS_SSTREAM
+#include <sstream>
+#endif
+
 #include <algorithm>
 using namespace std;
 
@@ -48,11 +53,17 @@ namespace Cantera {
 
     class XML_NoChild : public XML_Error {
     public:
-        XML_NoChild(string parent, string child, int line=0) : XML_Error(line) {
-            m_msg += "           The XML Node, \"" + parent + 
+        XML_NoChild(const XML_Node* p, string parent, 
+            string child, int line=0) : XML_Error(line) {
+            m_msg += "           The XML Node \"" + parent + 
 		"\", does not contain a required\n" +
                      "           XML child node named \"" 
                      + child + "\".\n";
+#ifdef HAS_SSTREAM
+            ostringstream ss(ostringstream::out);
+            p->write(ss,1);
+            m_msg += ss.str() + "\n";
+#endif
             setError("XML_NoChild",m_msg);
         }
         virtual ~XML_NoChild() {}
@@ -601,14 +612,18 @@ namespace Cantera {
                 i = m_childindex.find(cname);
                 //XML_Node* chld = m_childindex[cname];
                 if (i != m_childindex.end()) return i->second->child(loc);
-                else throw XML_NoChild(m_name, cname, lineNumber());
+                else {
+                    throw XML_NoChild(this, m_name, cname, lineNumber());
+                }
             }
             else {
                 i = m_childindex.find(loc);
                 if (i != m_childindex.end()) return *(i->second);
                 //XML_Node* chld = m_childindex[loc];
                 //if (chld) return *chld;
-                else throw XML_NoChild(m_name, loc, lineNumber());
+                else {
+                    throw XML_NoChild(this, m_name, loc, lineNumber());
+                }
             }
         }
     }
@@ -693,7 +708,7 @@ namespace Cantera {
      * is skipped and the children are processed. "--" is used
      * to denote the top of the tree.
      */
-    void XML_Node::write(ostream& s, int level) {
+    void XML_Node::write(ostream& s, int level) const {
 	if (m_name == "--" && m_root == this) {
           for (int i = 0; i < m_nchildren; i++) {
             m_children[i]->write_int(s,level);
