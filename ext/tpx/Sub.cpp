@@ -101,7 +101,8 @@ namespace tpx {
 	double tol = 1.e-6*p;
 	Tsave = T;
 	if (T < Tmin()) T = 0.5*(Tcrit() - Tmin());
-	do {
+	if (T >= Tcrit()) T = 0.5*(Tcrit() - Tmin());
+        do {
             if (Err) break;
             if (T > Tcrit()) T = Tcrit() - 0.001;
             if (T < Tmin()) T = Tmin() + 0.001;
@@ -308,12 +309,10 @@ namespace tpx {
             
             double pp = Psat();
             double lps = log(pp);
-            
             // trial value = Psat from correlation
             int i;
             
             for (i = 0; i<20; i++) {
-                
                 Rho = ldens();                // trial value = liquid density
                 set_TPp(T,pp);
                 Rhf = Rho;                    // sat liquid density
@@ -326,10 +325,6 @@ namespace tpx {
                 gv = hp() - T*sp();
                 dg = gv - gf;
                 
-                if (Rhf <= Rhv) {
-                    throw TPX_Error("Substance::update_sat",
-                        "wrong root found for sat. liquid or vapor");
-                }
                 if (fabs(dg) < 0.001) break;
                 dp = dg/(1.0/Rhv - 1.0/Rhf);
                 psold = pp;
@@ -345,12 +340,19 @@ namespace tpx {
                 }
                 if (pp > Pcrit()) {
                     pp = psold + 0.5*(Pcrit() - psold);
+                    lps = log(pp); // added 10/5/04
                 }
                 else if (pp < 0.0) {
                     pp = psold/2.0;
+                    lps = log(pp); // added 10/5/04
                 }
             }	
-            if (i >= 200) {
+            if (Rhf <= Rhv) {
+                throw TPX_Error("Substance::update_sat",
+                    "wrong root found for sat. liquid or vapor at P = "+fp2str(pp));
+            }
+
+            if (i >= 20) {
                 Pst = Undef;
                 Rhv = Undef;
                 Rhf = Undef;
