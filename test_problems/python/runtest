@@ -49,9 +49,17 @@ fi
 #
 /bin/cp flame1_blessed.csv flame1_blessed_tmp.csv
 machType=`../../bin/get_arch`
+#
+# HKM 08/27/04:
+#    Currently, linux and MSVC are producing the same results.
+#
 if test x"$machType" = "xlinux" ; then
   /bin/cp flame1_blessed_linux.csv flame1_blessed_tmp.csv
 fi
+if test x"$machType" = "xcygwin" ; then
+  /bin/cp flame1_blessed_linux.csv flame1_blessed_tmp.csv
+fi
+#
 $CANTERA_BIN/csvdiff flame1.csv flame1_blessed_tmp.csv > flame1_test.out
 retnStat=$?
 if [ $retnStat = "1" ]
