@@ -13,8 +13,9 @@
 // are OK for most systems
 
 typedef  double       doublereal;       // Fortran double precision 
-typedef  int          integer;          // Fortran integer
-typedef  int          ftnlen;           // Fortran hidden string length type
+typedef  int     integer;          // Fortran integer
+typedef  int     ftnlen;           // Fortran hidden string length type
+
 
 
 // Fortran compilers pass character strings in argument lists by

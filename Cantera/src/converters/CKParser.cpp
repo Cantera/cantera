@@ -6,7 +6,10 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.14  2004-09-13 11:22:21  dggoodwin
+// Revision 1.15  2004-10-10 20:46:36  dggoodwin
+// changes to make type integer compatible with f2c
+//
+// Revision 1.14  2004/09/13 11:22:21  dggoodwin
 // *** empty log message ***
 //
 // Revision 1.13  2004/08/28 16:12:41  dggoodwin
@@ -1382,7 +1385,7 @@ next:
         string::const_iterator begin = s.begin();
         string::const_iterator end = s.end();
         vector<string>::iterator e;
-		result.resize(static_cast<ct::ctvector_int::size_t>(esyms.size()),0);
+        result.resize(static_cast<size_t>(esyms.size()),0);
         for (; begin != end; ++begin) {
 
             // new element

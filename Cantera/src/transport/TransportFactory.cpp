@@ -77,6 +77,10 @@ namespace Cantera {
     const doublereal FiveThirds      = 5.0/3.0;
 
 
+    TransportParams::~TransportParams(){
+            delete xml;
+    };
+
     //////////////////// class Transport methods /////////////////////
 
     void Transport::setThermo(thermo_t& thermo) { 

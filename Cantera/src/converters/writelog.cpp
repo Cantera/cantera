@@ -50,7 +50,7 @@ namespace ckr {
                     << ", " << c[2] << ", " << c[3] << ")" << endl;
             }
             else {
-				for (ct::ctvector_fp::size_t n = 0; n < c.size(); n++) {
+				for (size_t n = 0; n < c.size(); n++) {
 					log << c[n] << ", "; log << endl;
 				}
                 log << "###### ERROR #####   incorrect number of parameters" << endl;
@@ -70,7 +70,7 @@ namespace ckr {
                     << ")" << endl;
             }
             else {
-				for (ct::ctvector_fp::size_t n = 0; n < c.size(); n++) {
+				for (size_t n = 0; n < c.size(); n++) {
 					log << c[n] << ", "; log << endl;
 				}
                 log << "##### ERROR #####  incorrect number of parameters" << endl;

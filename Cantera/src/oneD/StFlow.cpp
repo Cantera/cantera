@@ -905,7 +905,7 @@ namespace Cantera {
         addFloat(flow, "pressure", m_press, "Pa", "pressure"); 
         addFloatArray(gv,"z",m_z.size(),m_z.begin(),
             "m","length");
-		vector_fp x(static_cast<ctvector_fp::size_t>(soln.nColumns()));
+		vector_fp x(static_cast<size_t>(soln.nColumns()));
 
         soln.getRow(0,x.begin());
         addFloatArray(gv,"u",x.size(),x.begin(),"m/s","velocity");

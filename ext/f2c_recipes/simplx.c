@@ -14,7 +14,8 @@
 extern "C" {
 #endif
 #include "f2c.h"
-
+#include <stdio.h>
+    
 /* Table of constant values */
 
 static integer c__0 = 0;
@@ -51,6 +52,7 @@ static integer c__1 = 1;
 
     /* Function Body */
     if (*m != *m1 + *m2 + *m3) {
+        printf(" %d %d %d %d ", *m, *m1, *m2, *m3);
 	s_paus("Bad input constraint counts.", (ftnlen)28);
     }
     nl1 = *n;
