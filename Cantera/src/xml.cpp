@@ -81,7 +81,7 @@ namespace Cantera {
     }
 
     string XML_Reader::strip(const string& aline) {
-        int len = aline.size();
+        int len = static_cast<int>(aline.size());
         int i, j;
         for (i = len-1; i >= 0; i--) 
             if (aline[i] != ' ' && aline[i] != '\n') break;
@@ -91,7 +91,7 @@ namespace Cantera {
     }
 
     string XML_Reader::inquotes(const string& aline) {
-        int len = aline.size();
+        int len = static_cast<int>(aline.size());
         int i, j;
         for (i = len-1; i >= 0; i--) 
             if (aline[i] == '"') break;
@@ -166,7 +166,7 @@ namespace Cantera {
 	/*
 	 * Return the first character position past the quotes
 	 */
-	return iloc1+1;	
+	return static_cast<int>(iloc1)+1;	
     }
     
     /**
@@ -288,7 +288,7 @@ namespace Cantera {
         if (m_locked) 
             throw CanteraError("XML_Node::~XML_Node",
                 "attempt to delete locked XML_Node "+name());
-        int n = m_children.size();
+        int n = static_cast<int>(m_children.size());
         for (int i = 0; i < n; i++) {
             if (m_children[i]) {
                 if (m_children[i]->parent() == this) {
@@ -305,17 +305,17 @@ namespace Cantera {
 
     XML_Node& XML_Node::addChild(XML_Node& node) {
         m_children.push_back(&node);
-        m_nchildren = m_children.size();
+        m_nchildren = static_cast<int>(m_children.size());
         m_childindex[node.name()] = m_children.back();
         node.setRoot(root());
         return *m_children.back();
     }
 
     XML_Node& XML_Node::addChild(string name) { 
-        int n = m_children.size();
+        int n = static_cast<int>(m_children.size());
 	XML_Node *xxx = new XML_Node(name, this, n);
         m_children.push_back(xxx);
-        m_nchildren = m_children.size();
+        m_nchildren = static_cast<int>(m_children.size());
         m_childindex[name] = m_children.back();
         m_children.back()->setParent(this);
         return *m_children.back();
@@ -325,7 +325,7 @@ namespace Cantera {
         vector<XML_Node*>::iterator i;
         i = find(m_children.begin(), m_children.end(), node);
         m_children.erase(i);
-        m_nchildren = m_children.size();
+        m_nchildren = static_cast<int>(m_children.size());
         m_childindex.erase(node->name());
     }
 
@@ -580,13 +580,13 @@ namespace Cantera {
     }
     
     XML_Node& XML_Node::child(string loc) const {
-        int iloc;
+        string::size_type iloc;
         string cname;
         map<string,XML_Node*>::const_iterator i;
 
         while (1) {
             iloc = loc.find('/');
-            if (iloc >= 0) {
+            if (iloc != string::npos) {
                 cname = loc.substr(0,iloc);
                 loc = loc.substr(iloc+1, loc.size());
                 i = m_childindex.find(cname);
@@ -625,7 +625,7 @@ namespace Cantera {
 	    s << " ";
 	  }
 	  s << m_value;
-	  int ll = m_value.size() - 1;
+	  int ll = static_cast<int>(m_value.size()) - 1;
 	  if (! isspace(m_value[ll])) {
 	      s << " ";
 	  }
