@@ -308,6 +308,7 @@ namespace Cantera {
 
             // increment the Jacobian age
             jac.incrementAge();
+	    //cout << jac.age() << endl;
 
             // damp the Newton step
             m = dampStep(x, stp, x1, stp1, s1, r, jac, loglevel-1, frst);
@@ -342,8 +343,8 @@ namespace Cantera {
                 if (jac.age() > 1) {
                     forceNewJac = true;
                     if (loglevel > 0)
-                        writelog("Re-evaluating Jacobian, since no damping "
-                            "coefficient\ncould be found with this Jacobian.");
+                        writelog("\nRe-evaluating Jacobian, since no damping "
+                            "coefficient\ncould be found with this Jacobian.\n");
                 }
                 else goto done;
             }

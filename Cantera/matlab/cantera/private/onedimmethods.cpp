@@ -73,7 +73,7 @@ void onedimmethods( int nlhs, mxArray *plhs[],
 
         // construct a new Sim1D instance
         case 8:
-            writelog("case 8\n");
+	  //writelog("case 8\n");
             checkNArgs(5, nrhs);
             nd = getInt(prhs[3]);
             dom_ids = mxGetPr(prhs[4]);
@@ -87,16 +87,16 @@ void onedimmethods( int nlhs, mxArray *plhs[],
                 mexErrMsgTxt("wrong size for domain array");
 
             ptrs = new int[sz];
-            writelog("allocated ptrs\n");
+            //writelog("allocated ptrs\n");
             for (k = 0; k < sz; k++) {
-                writelog("k = ...\n");
+              //  writelog("k = ...\n");
                 ptrs[k] = int(dom_ids[k]);
             }
-            writelog("calling sim1D_new\n");
+            //writelog("calling sim1D_new\n");
             indx = sim1D_new(sz, ptrs);
-            writelog("deleting ptrs\n");
+            //writelog("deleting ptrs\n");
             delete[] ptrs;
-            writelog("done\n");
+            //writelog("done\n");
             break;
 
         default:

@@ -187,7 +187,7 @@ extern "C" {
 
     int DLL_EXPORT reactingsurf_new() {
         try {
-            writelog("in reactingsurf_new\n");
+	  //writelog("in reactingsurf_new\n");
             Domain1D* i = new ReactingSurf1D();
             return Cabinet<Domain1D>::cabinet()->add(i);
         }
@@ -342,12 +342,15 @@ extern "C" {
     int DLL_EXPORT sim1D_new(int nd, int* domains) {
         vector<Domain1D*> d;
         try {
+	  //  cout << "nd = " << nd << endl;
             for (int n = 0; n < nd; n++) {
+	      //writelog("n = "+int2str(n)+"\n");
+	      //writelog("dom = "+int2str(domains[n])+"\n");
                 d.push_back(_domain(domains[n]));
             }
-            writelog("in sim1D_new, calling new Sim1D\n");
+            //writelog("in sim1D_new, calling new Sim1D\n");
             Sim1D* s = new Sim1D(d);
-            writelog("in sim1D_new, ret Sim1D\n");
+            //writelog("in sim1D_new, ret Sim1D\n");
             return Cabinet<Sim1D>::cabinet()->add(s);
         }
         catch (CanteraError) { return -1; }

@@ -13,19 +13,22 @@ namespace Cantera {
         writelog(s.c_str());
     }
 
-    Sim1D::Sim1D() : OneDim() {}
+    Sim1D::Sim1D() : OneDim() { 
+      //writelog("Sim1D default constructor\n"); 
+    }
 
     Sim1D::Sim1D(vector<Domain1D*>& domains) : OneDim(domains) {
 
         // resize the internal solution vector and the wprk array,
         // and perform domain-specific initialization of the
         // solution vector.
+      //writelog("size = "+int2str(size())+"\n");
         m_x.resize(size(), 0.0);
         m_xnew.resize(size(), 0.0);
         for (int n = 0; n < m_nd; n++) {
-            writelog("calling domain "+int2str(n)+" _getInitialSoln\n");
+	  //    writelog("calling domain "+int2str(n)+" _getInitialSoln\n");
             domain(n)._getInitialSoln(m_x.begin() + start(n));
-            writelog("ret\n");
+	    // writelog("ret\n");
         }
 
         // set some defaults

@@ -25,6 +25,7 @@ namespace Cantera {
           m_ss_jac_age(10), m_ts_jac_age(20),
           m_nevals(0), m_evaltime(0.0)
     {
+      //writelog("OneDim default constructor\n");
         m_newt = new MultiNewton(1);
         //m_solve_time = 0.0;
     }
@@ -35,7 +36,7 @@ namespace Cantera {
      * input vector of pointers.
     */ 
     OneDim::OneDim(vector<Domain1D*> domains) :
-        m_tmin(1.0e-16), m_tmax(0.1), m_tfactor(0.5),
+        m_tmin(1.0e-16), m_tmax(10.0), m_tfactor(0.5),
         m_jac(0), m_newt(0), 
 	m_rdt(0.0), m_jac_ok(false),
 	m_nd(0), m_bw(0), m_size(0),
@@ -43,6 +44,7 @@ namespace Cantera {
 	m_ss_jac_age(10), m_ts_jac_age(20),
 	m_nevals(0), m_evaltime(0.0)
     {
+      //writelog("OneDim constructor\n");
 
         // create a Newton iterator, and add each domain.
         m_newt = new MultiNewton(1);
@@ -251,8 +253,6 @@ namespace Cantera {
             clock_t t1 = clock();
             m_evaltime += double(t1 - t0)/CLOCKS_PER_SEC;
             m_nevals++;
-            //string ne = string("evals = ")+int2str(m_nevals)+"\n";
-            //writelog(ne.c_str());
         }
     }
 
