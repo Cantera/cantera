@@ -1,7 +1,7 @@
 import os, math
 from Tkinter import *
 from Cantera import *
-from Cantera.ck2ctml import ck2ctml
+#from Cantera.ck2ctml import ck2ctml
 from tkFileDialog import askopenfilename
 
 class ImportFrame(Frame):
@@ -84,9 +84,13 @@ class ImportFrame(Frame):
 		else: nm = ff
 		outfile = p+os.sep+nm+'.xml'
 		try:
-			ck2ctml(infile = ckfile, thermo = thermdb,
-				transport = trandb, outfile = outfile,
-				id = nm)
+			print 'not supported.'
+			#ck2ctml(infile = ckfile, thermo = thermdb,
+			#	transport = trandb, outfile = outfile,
+			#	id = nm)
+			self.hide()
+			return
+		
 		except:
 			print 'Errors were encountered. See log file ck2ctml.log'
 			self.hide()
