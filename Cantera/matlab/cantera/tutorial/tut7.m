@@ -1,8 +1,6 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Tutorial 7: Thermodynamic Properties
 %
-%        Tutorial 7: Thermodynamic Properties
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+help tut7
 
 % A variety of thermodynamic property methods are provided.
 

@@ -33,6 +33,10 @@ namespace Cantera {
             return (m_keep[j] != -1); // m_keep.find(j) != m_keep.end();
         }
         double value(const double* x, int i, int j);
+        double maxRatio() { return m_ratio; }
+        double maxDelta() { return m_slope; }
+        double maxSlope() { return m_curve; }
+        double prune() { return m_prune; }
 
     protected:
 
