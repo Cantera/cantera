@@ -40,6 +40,14 @@ static void printUsage()
 
 using namespace Cantera;
 
+void printDbl(double val) {
+  if (fabs(val) < 2.0E-17) {
+    cout << " nil";
+  } else {
+    cout << val;
+  }
+}
+
 int main(int argc, char** argv) {
     int i, k;
     string infile = "diamond.cti";
@@ -102,7 +110,7 @@ int main(int argc, char** argv) {
       for (i = 0; i < 20; i++) src[i] = 0.0;
       iKin_ptr->getNetProductionRates(src);
       double sum = 0.0;
-      double naH;
+      double naH = 0.0;
       for (k = 0; k < 13; k++) {
 	if (k < 4) {
 	  naH = gasTP->nAtoms(k, 0);
@@ -113,16 +121,15 @@ int main(int argc, char** argv) {
 	  naH = diamond100TP->nAtoms(itp, 0);
 	}
 	cout << k << "  " << naH << "  " ;
-	if (fabs(src[k]) < 2.0E-17) {
-	  cout << " nil" << endl;
-	} else {
-	  cout << src[k] << endl;
-	}
+	printDbl(src[k]);
+	cout << endl;
 	sum += naH * src[k];
 	
       }
   
-      cout << "sum = " << sum << endl;
+      cout << "sum = ";
+      printDbl(sum);
+      cout << endl; 
       double mwd = diamondTP->molecularWeight(0);
       double dens = diamondTP->density();
       double gr = src[4] * mwd / dens;
