@@ -321,6 +321,7 @@ namespace Cantera {
         m_kk = m_surfphase->nSpecies();
         m_ktot = m_kk + m_kk1 + m_kk2;
         m_conc.resize(m_ktot);
+	Kinetics::init();
     }
 
     void SurfKinetics::save(string fname, string idtag, string comment) {
