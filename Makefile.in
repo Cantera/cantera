@@ -49,7 +49,8 @@ kernel-install:
 
 data-install:
 	@INSTALL@ -d @prefix@/cantera/data
-	@INSTALL@ -m 644 data/inputs/*.xml @prefix@/cantera/data
+	@INSTALL@ -m 644 data/inputs/elements.xml @prefix@/cantera/data
+	@INSTALL@ -m 644 data/inputs/*.cti @prefix@/cantera/data
 
 	#@INSTALL@ -m 644 tools/templates/gaslib.cpp @prefix@/cantera/templates
 
