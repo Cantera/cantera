@@ -6,7 +6,10 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.4  2004-05-13 16:58:33  dggoodwin
+// Revision 1.5  2004-05-13 17:45:05  dggoodwin
+// fixed bug in which a species name beginning with M was interpreted as a third body
+//
+// Revision 1.4  2004/05/13 16:58:33  dggoodwin
 // *** empty log message ***
 //
 //
@@ -974,10 +977,12 @@ next:
 
                 else if ((mloc = sleft.find("+M"), mloc >= 0) ||
                     (mloc = sleft.find("+m"), mloc >= 0)) {
-                    rxn.isThreeBodyRxn = true;
-                    rxn.type = ThreeBody;
-                    sleft = sleft.substr(0, mloc);
-                    rxn.thirdBody = "M";
+                    if (mloc == sleft.size()-2) {
+                        rxn.isThreeBodyRxn = true;
+                        rxn.type = ThreeBody;
+                        sleft = sleft.substr(0, mloc);
+                        rxn.thirdBody = "M";
+                    }
                 }
 
                 getSpecies(sleft.c_str(),sleft.size(),rxn.reactants);
@@ -1044,12 +1049,14 @@ next:
 
                 else if ((mloc = sright.find("+M"), mloc >= 0) ||
                     (mloc = sright.find("+m"), mloc >= 0)) {
-                    if (rxn.type == Falloff) 
-                        throw CK_SyntaxError(*m_log, 
-                            "mismatched +M or (+M)", m_line);
-                    rxn.isThreeBodyRxn = true;
-                    rxn.thirdBody = "M";
-                    sright = sright.substr(0, mloc);		
+                    if (mloc == sright.size()-2) {
+                        if (rxn.type == Falloff) 
+                            throw CK_SyntaxError(*m_log, 
+                                "mismatched +M or (+M)", m_line);
+                        rxn.isThreeBodyRxn = true;
+                        rxn.thirdBody = "M";
+                        sright = sright.substr(0, mloc);
+                    }		
                 }
                 getSpecies(sright.c_str(),sright.size(),rxn.products);
                 int ip = rxn.products.size();
