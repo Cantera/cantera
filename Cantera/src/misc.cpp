@@ -229,6 +229,25 @@ namespace Cantera {
         __app->errorRoutine.clear();
     }
 
+    void showErrors() {
+        appinit(); 
+        int i = __app->errorMessage.size();
+        if (i == 0) return;
+        writelog("\n\n");
+        writelog("************************************************\n");
+        writelog("                Cantera Error!                  \n");
+        writelog("************************************************\n\n");
+        int j;
+        for (j = 0; j < i; j++) {
+            writelog("\n");
+            writelog(string("Procedure: ")+ __app->errorRoutine[j]+"\n");
+            writelog(string("Error:     ")+__app->errorMessage[j]+"\n");
+        } 
+        writelog("\n\n");
+        __app->errorMessage.clear();
+        __app->errorRoutine.clear();
+    }
+
     void setError(string r, string msg) {
         appinit();
         __app->errorMessage.push_back(msg);

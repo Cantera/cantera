@@ -53,7 +53,7 @@ py_xml_attrib(PyObject *self, PyObject *args)
     int iok = xml_attrib(n, key, val);
     if (iok < 0) return reportError(iok);
     PyObject* r = Py_BuildValue("s",val);
-    delete val;
+    delete[] val;
     return r;
 }
 

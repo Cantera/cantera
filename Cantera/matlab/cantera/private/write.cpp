@@ -22,5 +22,10 @@ namespace Cantera {
             ch = s[n];
         }
     }
+
+    void error(const std::string& msg) {
+        string err = "error("+msg+");";
+        mexEvalString(err.c_str());
+    }
     
 }

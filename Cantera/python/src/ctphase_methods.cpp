@@ -193,7 +193,7 @@ phase_getstring(PyObject *self, PyObject *args)
     }
     if (iok >= 0) {
         PyObject* str = Py_BuildValue("s",output_buf);
-        delete output_buf;
+        delete[] output_buf;
         return str;
     }
     delete output_buf;

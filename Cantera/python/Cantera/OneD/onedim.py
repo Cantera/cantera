@@ -323,10 +323,15 @@ class AxisymmetricFlow(Domain1D):
     def pressure(self):
         return self._p
         
-    def setFixedTempProfile(self, temp):
+    def setFixedTempProfile(self, pos, temp):
         """Set the fixed temperature profile.  This profile is used
-        whenever the energy equation is disabled.  """
-        return _cantera.stflow_setFixedTempProfile(self._hndl, temp)
+        whenever the energy equation is disabled.
+        
+        pos - arrray of relative positions from 0 to 1
+        temp - array of temperature values
+
+        """
+        return _cantera.stflow_setFixedTempProfile(self._hndl, pos, temp)
     
     def solveSpeciesEqs(self, flag = 1):
         """Enable or disable solving the species equations. If invoked

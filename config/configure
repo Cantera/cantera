@@ -271,7 +271,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_unique_file="Cantera.README"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CVF_LIBDIR local_inst local_python_inst python_prefix ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir CANTERA_LIBDIR CANTERA_INCDIR CT_TOOLS_BIN CANTERA_BINDIR CANTERA_EXAMPLES_DIR CANTERA_DATADIR build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE ARCHIVE SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR LAPACK_LIBRARY build_lapack BLAS_LIBRARY build_blas LOCAL_LIBS CANTERA_PARTICLES_DIR BUILD_PARTICLES CT_SHARED_LIB BUILD_F90 PYTHON_CMD BUILD_PYTHON MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC F77 FFLAGS ac_ct_F77 FLIBS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CVF_LIBDIR local_inst local_python_inst python_prefix ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir CANTERA_LIBDIR CANTERA_INCDIR CT_TOOLS_BIN CANTERA_BINDIR CANTERA_EXAMPLES_DIR CANTERA_DATADIR build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE ARCHIVE DO_RANLIB RANLIB SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR LAPACK_LIBRARY build_lapack BLAS_LIBRARY build_blas LOCAL_LIBS CANTERA_PARTICLES_DIR BUILD_PARTICLES CT_SHARED_LIB BUILD_F90 PYTHON_CMD BUILD_PYTHON MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC F77 FFLAGS ac_ct_F77 FLIBS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1530,6 +1530,14 @@ if test -z "$MAKE"; then MAKE='make'; fi
 if test "x${OS_IS_DARWIN}" = "x1"; then
 ARCHIVE='libtool -static -o'
 fi
+
+
+
+DO_RANLIB=1
+if test "x${RANLIB}" = "x"; then
+DO_RANLIB=0
+fi
+
 
 
 
@@ -3256,7 +3264,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3259:" \
+echo "$as_me:3267:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3433,7 +3441,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3436: \"$ac_link\") >&5
+(eval echo $as_me:3444: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3513,7 +3521,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3516: \"$ac_link\") >&5
+(eval echo $as_me:3524: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4424,6 +4432,8 @@ s,@buildlib@,$buildlib,;t t
 s,@buildbin@,$buildbin,;t t
 s,@MAKE@,$MAKE,;t t
 s,@ARCHIVE@,$ARCHIVE,;t t
+s,@DO_RANLIB@,$DO_RANLIB,;t t
+s,@RANLIB@,$RANLIB,;t t
 s,@SOEXT@,$SOEXT,;t t
 s,@SHARED@,$SHARED,;t t
 s,@PIC@,$PIC,;t t

@@ -19,9 +19,6 @@
 #
 # Modify the COMPILER and OPTS variables as needed.
 #
-# If the ranlib utility is not available on your system, then remove the call
-# to ranlib from the commands to create libcvode.a.
-
 all: @buildlib@/libcvode.a
    
 COMPILER = @CC@
@@ -35,7 +32,7 @@ OBJS = source/cvode.o source/cvdense.o source/dense.o source/cvband.o \
 
 @buildlib@/libcvode.a: $(OBJS)
 	$(RM) @buildlib@/libcvode.a
-	(ar rcv @buildlib@/libcvode.a $(OBJS); ranlib @buildlib@/libcvode.a)
+	(ar rcv @buildlib@/libcvode.a $(OBJS))
 
 source/cvode.o: source/cvode.c include/cvode.h include/llnltyps.h \
                 include/nvector.h include/llnlmath.h

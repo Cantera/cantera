@@ -577,7 +577,7 @@ class Valve(FlowDevice):
         self.setValveCoeff(Kv, mdot0)
 
 
-    def setValveCoeff(self, Kv, mdot0 = 0.0):
+    def setValveCoeff(self, Kv = -1.0, mdot0 = 0.0):
         """Set or reset the valve coefficient \f$ K_v \f$."""
         vv = zeros(2,'d')
         vv[0] = Kv
@@ -808,12 +808,12 @@ class ReactorNet:
 
     Example:
 
-    r1 = Reactor(gas1)
-    r2 = Reactor(gas2)
-    <... install walls, inlets, outlets, etc...>
+    >>> r1 = Reactor(gas1)
+    >>> r2 = Reactor(gas2)
+    >>> <... install walls, inlets, outlets, etc...>
 
-    reactor_network = ReactorNet([r1, r2])
-    reactor_network.advance(time)
+    >>> reactor_network = ReactorNet([r1, r2])
+    >>> reactor_network.advance(time)
     
     """
 
@@ -847,7 +847,8 @@ class ReactorNet:
         Add a reactor to the network.
         """
         self._reactors.append(reactor)
-        _cantera.reactornet_addreactor(self.__reactornet_id, reactor.reactor_id())
+        _cantera.reactornet_addreactor(self.__reactornet_id,
+                                       reactor.reactor_id())
 
         
     def setInitialTime(self, t0):

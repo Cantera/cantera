@@ -22,4 +22,8 @@ namespace Cantera {
         }
     }
 
+    void error(const std::string& msg) {
+        string err = "raise \""+msg+"\"";
+        PyRun_SimpleString((char *)err.c_str());
+    }
 }

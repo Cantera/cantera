@@ -243,6 +243,9 @@ FORT_MODULE_PATH_CMD=${FORT_MODULE_PATH_CMD:="-I$FORT_MODULE_DIRECTORY"}
 # the command to create a static library
 ARCHIVE=${ARCHIVE:="ar ruv"}
 
+# the command to run 'ranlib' if it is needed. 
+RANLIB=${RANLIB:="ranlib"}
+
 # the command to run the 'make' utility. The Cantera Makefiles are
 # compatible with the GNU make utility, so if your make utility
 # doesn't work, try GNU make.
@@ -273,6 +276,7 @@ RPFONT=${RPFONT:="Helvetica"}
 export CANTERA_VERSION
 export USER_SRC_DIR
 export ARCHIVE
+export RANLIB
 export BLAS_LIBRARY
 export BUILD_F90
 export BUILD_FORTRAN_90_INTERFACE

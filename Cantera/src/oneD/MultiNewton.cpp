@@ -72,7 +72,7 @@ namespace Cantera {
         int n = m_workarrays.size();
         int i;
         for (i = 0; i < n; i++) {
-            delete m_workarrays[i];
+            delete[] m_workarrays[i];
         }
     }
 
@@ -84,7 +84,7 @@ namespace Cantera {
         int n = m_workarrays.size();
         int i;
         for (i = 0; i < n; i++) {
-            delete m_workarrays[i];
+            delete[] m_workarrays[i];
         }
         m_workarrays.clear();
     }

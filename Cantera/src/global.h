@@ -35,6 +35,8 @@ namespace Cantera {
     /// Print the error messages to stream f
     void showErrors(ostream& f);
 
+    void showErrors();
+
     /// Discard the last error message
     void popError();
 
@@ -87,12 +89,16 @@ namespace Cantera {
     void writelog(const string& msg);
     void writelog(const char* msg);
 
-    
-    //void getlog(string& s);
-    //void clearlog();
+    /// write an error message and quit. Like writelog, this is
+    /// specific to each environment. The C++ version calls exit(),
+    /// the Python version throws a Python exception, and the Matlab
+    /// version calls Matlab function error().
+    void error(const string& msg);
+
 
     /**
-     * Return the conversion factor to convert unit string 'unit' to SI units.
+     * Return the conversion factor to convert unit string 'unit' to
+     * SI units.
      */ 
     doublereal toSI(string unit);
     doublereal actEnergyToSI(string unit);

@@ -68,7 +68,6 @@ ifeq ($(shared_ctlib),1)
                 $(EXT_LIBS) @LIBS@ $(FORT_LIBS)
 else
 	@ARCHIVE@ $(CTLIB) $(OBJS) 
-	ranlib $(CTLIB) 
 endif
 
 clean:

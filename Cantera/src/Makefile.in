@@ -104,7 +104,7 @@ CXX_LIBS = @LIBS@
 CXX_INCLUDES = -I.
 CANTERA_LIB = @buildlib@/libcantera.a
 
-DEPENDS = $(EVERYTHING:.o=.d)
+DEPENDS = $(EVERYTHING:.o=.d) $(PCH:.gch=.d)
 
 %.d:
 	g++ -MM $*.cpp > $*.d

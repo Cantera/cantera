@@ -199,6 +199,14 @@ fi
 
 AC_SUBST(ARCHIVE)
 
+DO_RANLIB=1
+if test "x${RANLIB}" = "x"; then
+DO_RANLIB=0
+fi
+
+AC_SUBST(DO_RANLIB)
+AC_SUBST(RANLIB)
+
 #----------------------------------------
 
 

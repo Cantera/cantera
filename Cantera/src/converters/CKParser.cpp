@@ -6,26 +6,9 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.3  2003-08-26 03:25:41  dggoodwin
+// Revision 1.4  2004-05-13 16:58:33  dggoodwin
 // *** empty log message ***
 //
-// Revision 1.2  2003/07/30 20:56:57  dggoodwin
-// *** empty log message ***
-//
-// Revision 1.1.1.1  2003/04/14 17:57:52  dggoodwin
-// Initial import.
-//
-// Revision 1.1  2003/03/05 00:28:16  dgg
-// *** empty log message ***
-//
-// Revision 1.21  2003/03/02 02:15:50  dgg
-// *** empty log message ***
-//
-// Revision 1.20  2003/02/19 14:36:31  dgg
-// *** empty log message ***
-//
-// Revision 1.19  2003/02/13 19:07:19  dgg
-// *** empty log message ***
 //
 
 // turn off warnings about truncating long names under Windows
@@ -43,8 +26,6 @@
 #include "ckr_utils.h"
 #include "writelog.h"
 #include <stdio.h>
-
-//#include "../Cantera/src/ctmap.h"
 
 
 using namespace std;
@@ -99,8 +80,7 @@ namespace ckr {
     };
 
 
-  extern void getDefaultAtomicWeights(map<string,double>& weights);
-  //extern void getDefaultAtomicWeights(ct::ctmap_sd& weights);
+    extern void getDefaultAtomicWeights(map<string,double>& weights);
 
     static double getNumberFromString(string s) {
         bool inexp = false;
@@ -121,8 +101,6 @@ namespace ckr {
             else if (ch != '.' && (ch < '0' || ch > '9')) {
                 return UNDEF;
             }
-            //else if (!inexp && isdigit(ch) && ch != '0') return UNDEF;
-            //else if (!inexp && ) return UNDEF;
         }
         return atof(s.c_str());
     }
@@ -289,8 +267,11 @@ namespace ckr {
         // Cantera anti-comment character
         const char undoCommentChar = '%';
 
-        // unix end of line
+        // carriage return
         const char char13 = char(13);
+
+        // linefeed
+        const char char10 = char(10);
 
         istream& f = *m_ckfile;
 
@@ -316,8 +297,8 @@ namespace ckr {
         while (1 > 0) {
             f.get(ch);
             if (!f || f.eof()) break;
-            if (ch == '\n' || ch == char13) break;
-            line += ch;
+            if (ch == '\n' || ch == char10) break;
+            if (isprint(ch)) line += ch;
         }
         int icom = line.find(commentChar);
 

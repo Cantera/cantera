@@ -4,8 +4,9 @@
 namespace Cantera {
 
     ReactorNet::ReactorNet() : FuncEval(), m_nr(0), m_nreactors(0),
-                               m_integ(0), m_init(false), 
-                               m_nv(0), m_rtol(1.0e-6),
+                               m_integ(0), m_time(0.0), m_init(false), 
+                               m_nv(0), m_rtol(1.0e-6), m_atols(1.0e-15),
+                               m_maxstep(-1.0),
                                m_verbose(false)
     {
         m_integ = new CVodeInt;
@@ -43,7 +44,7 @@ namespace Cantera {
             }
         }
         m_atol.resize(neq());
-        fill(m_atol.begin(), m_atol.end(), 1.e-15);
+        fill(m_atol.begin(), m_atol.end(), m_atols);
         m_integ->setTolerances(m_rtol, neq(), m_atol.begin());
         m_integ->setMaxStep(m_maxstep);
         if (m_verbose) {
@@ -58,7 +59,8 @@ namespace Cantera {
 
     void ReactorNet::advance(doublereal time) {
         if (!m_init) {
-            m_maxstep = time - m_time;
+            if (m_maxstep < 0.0)
+                m_maxstep = time - m_time;
             initialize();
         }
         m_integ->integrate(time);
@@ -68,7 +70,8 @@ namespace Cantera {
 
     double ReactorNet::step(doublereal time) {
         if (!m_init) {
-            m_maxstep = time - m_time;
+            if (m_maxstep < 0.0)
+                m_maxstep = time - m_time;
             initialize();
         }
         m_time = m_integ->step(time);
@@ -79,6 +82,9 @@ namespace Cantera {
     void ReactorNet::eval(doublereal t, doublereal* y, doublereal* ydot) {
         int n;
         int start = 0;
+
+        // use a try... catch block, since exceptions are not passed
+        // through CVODE, since it is C code
         try {
             updateState(y);
             for (n = 0; n < m_nreactors; n++) {
@@ -87,7 +93,8 @@ namespace Cantera {
             }
         }
         catch (CanteraError) {
-            showErrors(cout);
+            showErrors();
+            error("Terminating execution.");
         }
     }
 

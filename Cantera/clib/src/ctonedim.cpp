@@ -126,7 +126,7 @@ extern "C" {
         try {
             return _domain(i)->grid(n);
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { return DERR; }
     }
 
     int DLL_EXPORT domain_setBounds(int i, int n, double lower, double upper) {
@@ -141,14 +141,14 @@ extern "C" {
         try {
             return _domain(i)->upperBound(n);
         }
-        catch (CanteraError) { return -1.0; }
+        catch (CanteraError) { return DERR; }
     }
 
     double DLL_EXPORT domain_lowerBound(int i, int n) {
         try {
             return _domain(i)->lowerBound(n);
         }
-        catch (CanteraError) { return -1.0; }
+        catch (CanteraError) { return DERR; }
     }
 
     int DLL_EXPORT domain_setTolerances(int i, int n, double rtol, 
@@ -164,14 +164,14 @@ extern "C" {
         try {
             return _domain(i)->rtol(n);
         }
-        catch (CanteraError) { return -1.0; }
+        catch (CanteraError) { return DERR; }
     }
 
     double DLL_EXPORT domain_atol(int i, int n) {
         try {
             return _domain(i)->atol(n);
         }
-        catch (CanteraError) { return -1.0; }
+        catch (CanteraError) { return DERR; }
     }
 
     int DLL_EXPORT domain_setupGrid(int i, int npts, double* grid) {
@@ -271,21 +271,21 @@ extern "C" {
         try {
             return _bdry(i)->temperature();
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { return DERR; }
     }
 
     double DLL_EXPORT bdry_massFraction(int i, int k) {
         try {
             return _bdry(i)->massFraction(k);
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { return DERR; }
     }
 
     double DLL_EXPORT bdry_mdot(int i) {
         try {
             return _bdry(i)->mdot();
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { return DERR; }
     }
 
     int DLL_EXPORT reactingsurf_setkineticsmgr(int i, int j) {
@@ -547,14 +547,14 @@ extern "C" {
         try {
             return _sim1D(i)->value(idom, icomp, localPoint);
         }
-        catch (CanteraError) { return -1.0; }
+        catch (CanteraError) { return DERR; }
     }
 
     double DLL_EXPORT sim1D_workValue(int i, int idom, int icomp, int localPoint) {
         try {
             return _sim1D(i)->workValue(idom, icomp, localPoint);
         }
-        catch (CanteraError) { return -1.0; }
+        catch (CanteraError) { return DERR; }
     }
 
     int DLL_EXPORT sim1D_eval(int i, double rdt, int count) {

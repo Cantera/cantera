@@ -37,7 +37,6 @@ namespace Cantera {
         /** @name Methods to set up a simulation. */
         //@{
 
-
         /**
          * Set initial time. Default = 0.0 s. Restarts integration
          * from this time using the current mixture state as the
@@ -48,6 +47,25 @@ namespace Cantera {
             m_init = false;
         }
 
+        /// Set the maximum time step.
+        void setMaxTimeStep(double maxstep) {
+            m_maxstep = maxstep;
+            m_init = false;
+        }
+            
+        void setTolerances(doublereal rtol, doublereal atol) {
+            m_rtol = rtol;
+            m_atols = atol;
+            m_init = false;
+        }
+
+        /// Current value of the simulation time.
+        doublereal time() { return m_time; }
+
+        /// Relative tolerance.
+        doublereal rtol() { return m_rtol; }
+        doublereal atol() { return m_atols; }
+        
         /**
          * Initialize the reactor network. 
          */
@@ -102,6 +120,7 @@ namespace Cantera {
         vector_int m_size;
         vector_fp m_atol;
         doublereal m_rtol;
+        doublereal m_atols;
         doublereal m_maxstep;
         bool m_verbose;
 

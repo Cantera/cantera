@@ -93,7 +93,7 @@ py_domain_componentName(PyObject *self, PyObject *args)
 
     _val = domain_componentName(i,n,nameout_sz,nameout); 
     PyObject* _ret = Py_BuildValue("s",nameout);
-    delete nameout;
+    delete[] nameout;
     if (int(_val) == -1) return reportCanteraError();
     return _ret;
 
@@ -142,7 +142,7 @@ py_domain_lowerBound(PyObject *self, PyObject *args)
         return NULL;
         
     _val = domain_lowerBound(i,n); 
-    if (int(_val) == -1) return reportCanteraError();
+    if (_val == DERR) return reportCanteraError();
     return Py_BuildValue("d",_val);
 }
 
@@ -157,7 +157,7 @@ py_domain_upperBound(PyObject *self, PyObject *args)
         return NULL;
         
     _val = domain_upperBound(i,n); 
-    if (int(_val) == -1) return reportCanteraError();
+    if (_val == DERR) return reportCanteraError();
     return Py_BuildValue("d",_val);
 }
 
@@ -189,7 +189,7 @@ py_domain_rtol(PyObject *self, PyObject *args)
         return NULL;
         
     _val = domain_rtol(i,n); 
-    if (int(_val) == -1) return reportCanteraError();
+    if (_val == DERR) return reportCanteraError();
     return Py_BuildValue("d",_val);
 }
 
@@ -204,7 +204,7 @@ py_domain_atol(PyObject *self, PyObject *args)
         return NULL;
         
     _val = domain_atol(i,n); 
-    if (int(_val) == -1) return reportCanteraError();
+    if (_val == DERR) return reportCanteraError();
     return Py_BuildValue("d",_val);
 }
 
@@ -286,7 +286,7 @@ py_domain_grid(PyObject *self, PyObject *args)
         return NULL;
         
     _val = domain_grid(i,n); 
-    if (int(_val) == -1) return reportCanteraError();
+    if (_val == DERR) return reportCanteraError();
     return Py_BuildValue("d",_val);
 }
 
@@ -345,7 +345,7 @@ py_bdry_temperature(PyObject *self, PyObject *args)
         return NULL;
         
     _val = bdry_temperature(i); 
-    if (int(_val) == -1) return reportCanteraError();
+    if (_val == DERR) return reportCanteraError();
     return Py_BuildValue("d",_val);
 }
 
@@ -360,7 +360,7 @@ py_bdry_massFraction(PyObject *self, PyObject *args)
         return NULL;
         
     _val = bdry_massFraction(i,k); 
-    if (int(_val) == -1) return reportCanteraError();
+    if (_val == DERR) return reportCanteraError();
     return Py_BuildValue("d",_val);
 }
 
@@ -374,7 +374,7 @@ py_bdry_mdot(PyObject *self, PyObject *args)
         return NULL;
         
     _val = bdry_mdot(i); 
-    if (int(_val) == -1) return reportCanteraError();
+    if (_val == DERR) return reportCanteraError();
     return Py_BuildValue("d",_val);
 }
 
@@ -845,11 +845,12 @@ py_sim1D_value(PyObject *self, PyObject *args)
     int idom;
     int icomp;
     int localPoint;
-    if (!PyArg_ParseTuple(args, "iiii:sim1D_value", &i, &idom, &icomp, &localPoint)) 
+    if (!PyArg_ParseTuple(args, "iiii:sim1D_value", &i, &idom, &icomp, 
+            &localPoint)) 
         return NULL;
         
     _val = sim1D_value(i,idom,icomp,localPoint); 
-    if (int(_val) == -1) return reportCanteraError();
+    if (_val == DERR) return reportCanteraError();
     return Py_BuildValue("d",_val);
 }
 
@@ -866,7 +867,7 @@ py_sim1D_workValue(PyObject *self, PyObject *args)
         return NULL;
         
     _val = sim1D_workValue(i,idom,icomp,localPoint); 
-    if (int(_val) == -1) return reportCanteraError();
+    if (_val == DERR) return reportCanteraError();
     return Py_BuildValue("d",_val);
 }
 
