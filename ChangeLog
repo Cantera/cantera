@@ -1,3 +1,20 @@
+2004-10-16 03:12  dggoodwin
+
+	* Cantera/python/winsetup.py: initial import
+
+2004-10-15 16:10  dggoodwin
+
+	* Cantera/: src/ct2ctml.cpp, src/global.h, src/logger.h,
+	  src/misc.cpp, matlab/cantera/private/ctmethods.cpp,
+	  matlab/cantera/private/mllogger.h, python/src/pycantera.cpp,
+	  python/src/pylogger.h, python/src/pyutils.h,
+	  python/src/writelog.cpp: added environment-specific classes to
+	  write log files
+
+2004-10-13 21:24  dggoodwin
+
+	* tools/src/: package4mac.in, postflight: Mac install script
+
 2004-10-10 13:46  dggoodwin
 
 	* config.h.in, Cantera/src/DenseMatrix.cpp,
@@ -4271,8 +4288,8 @@
 	  tools/doc/python/makedoc, tools/src/Makefile.in,
 	  tools/src/ck2cti.cpp, tools/src/ck2ctml.cpp,
 	  tools/src/ck2ctml.dsp, tools/src/finish_install.py.in,
-	  tools/src/package4mac.in, tools/templates/cxx/demo.cpp,
-	  tools/templates/cxx/demo.mak.in,
+	  tools/src/package4mac.in, tools/src/postflight,
+	  tools/templates/cxx/demo.cpp, tools/templates/cxx/demo.mak.in,
 	  tools/templates/f77/README_WIN32.txt,
 	  tools/templates/f77/README_unix.txt, tools/templates/f77/demo.f,
 	  tools/templates/f77/demo.mak, tools/templates/f77/demo.mak.in,
