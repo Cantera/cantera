@@ -4,8 +4,9 @@
 # $Revision$
 # $Date$
 #
-
 LIB = @buildlib@/libctmath.a
+
+all: $(LIB)
 
 .SUFFIXES :
 .SUFFIXES : .f .d .o .cpp
