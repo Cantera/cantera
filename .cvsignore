@@ -4,3 +4,5 @@ configure.linux
 build
 config.h
 win32_old
+configure.vc++
+configure.my_vc++
