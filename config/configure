@@ -271,7 +271,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_unique_file="Cantera.README"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS local_inst ctversion ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir CANTERA_LIBDIR CANTERA_INCDIR CT_TOOLS_BIN CANTERA_BINDIR CANTERA_EXAMPLES_DIR CANTERA_DATADIR username ctroot build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os buildlib MAKE ARCHIVE SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR LAPACK_LIBRARY build_lapack BLAS_LIBRARY build_blas LOCAL_LIBS CT_SHARED_LIB BUILD_F90 PYTHON_CMD BUILD_PYTHON BUILD_MATLAB BUILD_CLIB export_name CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX_DEPENDS F77 FFLAGS ac_ct_F77 FLIBS OS_IS_DARWIN OS_IS_WIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS local_inst ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir CANTERA_LIBDIR CANTERA_INCDIR CT_TOOLS_BIN CANTERA_BINDIR CANTERA_EXAMPLES_DIR CANTERA_DATADIR username ctroot build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os buildlib MAKE ARCHIVE SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR LAPACK_LIBRARY build_lapack BLAS_LIBRARY build_blas LOCAL_LIBS CT_SHARED_LIB BUILD_F90 PYTHON_CMD BUILD_PYTHON BUILD_MATLAB BUILD_CLIB export_name CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX_DEPENDS F77 FFLAGS ac_ct_F77 FLIBS OS_IS_DARWIN OS_IS_WIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1299,6 +1299,9 @@ echo "Cantera will be installed in ${prefix}"
 ctversion=${CANTERA_VERSION}
 
 
+homedir=${HOME}
+
+
 if test -z $local_inst; then
 ct_libdir=${prefix}/lib/cantera-${ctversion}
 ct_incdir=${prefix}/include/cantera
@@ -1452,6 +1455,11 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
 fi
+
+cat >>confdefs.h <<_ACEOF
+#define RXNPATH_FONT "$RPFONT"
+_ACEOF
+
 
 if test -z "$MAKE"; then MAKE='make'; fi
 
@@ -3086,7 +3094,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3089:" \
+echo "$as_me:3097:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3263,7 +3271,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3266: \"$ac_link\") >&5
+(eval echo $as_me:3274: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3343,7 +3351,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3346: \"$ac_link\") >&5
+(eval echo $as_me:3354: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4202,6 +4210,7 @@ s,@ECHO_T@,$ECHO_T,;t t
 s,@LIBS@,$LIBS,;t t
 s,@local_inst@,$local_inst,;t t
 s,@ctversion@,$ctversion,;t t
+s,@homedir@,$homedir,;t t
 s,@ct_libdir@,$ct_libdir,;t t
 s,@ct_incdir@,$ct_incdir,;t t
 s,@ct_incroot@,$ct_incroot,;t t

@@ -73,6 +73,8 @@ BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
 # located.
 USER_SRC_DIR="Cantera/user"
 
+
+
 #----------------------------------------------------------------------
 #         Kernel Configuration
 #----------------------------------------------------------------------
@@ -148,10 +150,10 @@ LAPACK_FTN_TRAILING_UNDERSCORE='y'
 LAPACK_FTN_STRING_LEN_AT_END='y'
 
 
+
 #------------------------------------------------------------------
 #       C++ compiler options
 #------------------------------------------------------------------
-#
 
 # the C++ compiler to use.
 #
@@ -173,6 +175,7 @@ PIC=${PIC:=-fPIC}
 # the compiler option to create a shared library from object files
 SHARED=${SHARED:="-shared"}
  
+
 
 #-------------------------------------------------------------------
 #      Fortran compiler options
@@ -201,6 +204,7 @@ FORT_MODULE_DIRECTORY=${FORT_MODULE_DIRECTORY:=$CANTERA_ROOT/include/fortran}
 FORT_MODULE_PATH_CMD=${FORT_MODULE_PATH_CMD:="-I$FORT_MODULE_DIRECTORY"}
 
 
+
 #------------------------------------------------------
 #        other programs
 #------------------------------------------------------
@@ -223,6 +227,12 @@ F90_EXT=${F90_EXT:=f90}
 
 
 CT_SHARED_LIB=${CT_SHARED_LIB:=clib}
+
+# The font to use in reaction path diagrams. This must be a font name
+# recognized by the 'dot' program. On linux systems, this should be
+# lowercase 'helvetica'.
+RPFONT=${RPFONT:="Helvetica"}
+
 
 
 #-----------------------------------------------------------------------
@@ -277,6 +287,7 @@ export PIC
 export SHARED
 export SOEXT
 export MAKE
+export RPFONT
 
 #checkroot="checking whether CANTERA_ROOT is properly set..."
 #if test "$CANTERA_ROOT_INIT" = "$CANTERA_ROOT"; then 

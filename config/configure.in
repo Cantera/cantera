@@ -55,6 +55,9 @@ AC_SUBST(local_inst)
 ctversion=${CANTERA_VERSION}
 AC_SUBST(ctversion)
 
+homedir=${HOME}
+AC_SUBST(homedir)
+
 if test -z $local_inst; then 
 ct_libdir=${prefix}/lib/cantera-${ctversion}
 ct_incdir=${prefix}/include/cantera
@@ -124,6 +127,8 @@ AC_SUBST(buildlib)
 if test -n "${OS_IS_DARWIN}"; then 
 AC_DEFINE(DARWIN)
 fi
+
+AC_DEFINE_UNQUOTED(RXNPATH_FONT,"$RPFONT")
 
 if test -z "$MAKE"; then MAKE='make'; fi
 AC_SUBST(MAKE)

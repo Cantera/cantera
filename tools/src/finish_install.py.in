@@ -14,8 +14,9 @@ demodir = '@ct_demodir@'
 datadir = '@ct_datadir@'
 templdir = '@ct_templdir@'
 ctdir = '@ct_dir@'
+home = '@homedir@'
 
-f = open(ctdir+'/setup_cantera','w')
+f = open(home+'/setup_cantera','w')
 f.write('#!/bin/sh\n')
 f.write('LD_LIBRARY_PATH='+libdir+':$LD_LIBRARY_PATH\nexport LD_LIBRARY_PATH\n')
 f.write('PATH='+bindir+':$PATH\nexport PATH\n')
@@ -120,12 +121,12 @@ else:
 
 print """
     
-    setup script      """+ctdir+"""/setup_cantera
+    setup script      """+home+"""/setup_cantera
     
     The setup script configures the environment for Cantera. It is
     recommended that you run this script by typing
 
-      source """+ctdir+"""/setup_cantera
+      source """+home+"""/setup_cantera
     
     before using Cantera, or else
     include its contents in your shell login script.

@@ -49,6 +49,10 @@ typedef  int          ftnlen;           // Fortran hidden string length type
 // data file search path.
 #define DARWIN 1
 
+
+//--------- Fonts for reaction path diagrams ----------------------
+#define RXNPATH_FONT "Helvetica"
+
 //--------- Cantera --------------
 
 

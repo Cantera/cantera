@@ -100,7 +100,7 @@ namespace Cantera {
         normal_color = "steelblue";
         dashed_color = "gray";
         dot_options = "center=1;";
-        m_font = "Helvetica";
+        m_font = RXNPATH_FONT;
         bold_min = 0.2;
         dashed_max = 0.0;
         label_min = 0.0;
