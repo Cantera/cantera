@@ -31,6 +31,10 @@ namespace Cantera {
     /// that manage homogeneous chemistry within one phase, or
     /// heterogeneous chemistry at one interface.
     ///
+
+    // Note: Implementations for methods not implemented here may be
+    // found in KineticsFactory.cpp
+ 
     class Kinetics {
 
     public:
@@ -190,15 +194,7 @@ namespace Cantera {
 	 * the kinetics manager.  If k is out of bounds, the string
 	 * "<unknown>" is returned.
 	 */
-        string kineticsSpeciesName(int k) const {
-            int np = m_start.size();
-            for (int n = np-1; n >= 0; n--) {
-                if (k >= m_start[n]) {
-                    return thermo(n).speciesName(k - m_start[n]);
-                }
-            }
-            return "<unknown>";
-        }
+        string kineticsSpeciesName(int k) const;
 
 	/**
 	 * This routine will look up a species number based on
@@ -214,28 +210,7 @@ namespace Cantera {
          *   the value -1 is returned.
 	 *   - If no match is found in any phase, the value -2 is returned.
 	 */
-        int kineticsSpeciesIndex(string nm, string ph = "<any>") const {
-	  int np = static_cast<int>(m_thermo.size());
-	  int k;
-	  string id;
-	  for (int n = 0; n < np; n++) {
-	    id = thermo(n).id();
-	    if (ph == id) {
-	      k = thermo(n).speciesIndex(nm);
-	      if (k < 0) return -1;
-	      return k + m_start[n];
-	    }
-	    else if (ph == "<any>") {
-	      /*
-	       * Call the speciesIndex() member function of the
-	       * ThermoPhase object to find a match.
-	       */
-	      k = thermo(n).speciesIndex(nm);
-	      if (k >= 0) return k + m_start[n];
-	    }                    
-	  }
-	  return -2;
-        }
+        int kineticsSpeciesIndex(string nm, string ph = "<any>") const;
 
 	/**
 	 * This function looks up the string name of a species and
@@ -243,16 +218,7 @@ namespace Cantera {
 	 * phase where the species resides.
 	 * Will throw an error if the species string doesn't match.
 	 */
-        thermo_t& speciesPhase(string nm) {
-            int np = static_cast<int>(m_thermo.size());
-            int k;
-            string id;
-            for (int n = 0; n < np; n++) {
-                k = thermo(n).speciesIndex(nm);
-                if (k >= 0) return thermo(n);
-            }
-            throw CanteraError("speciesPhase", "unknown species "+nm);
-        }
+        thermo_t& speciesPhase(string nm);
 
 	/**
 	 * This function takes as an argument the kineticsSpecies index
@@ -269,16 +235,7 @@ namespace Cantera {
 	 * manager) and returns the index of the phase owning the 
 	 * species.
 	 */
-        int speciesPhaseIndex(int k) {
-            int np = m_start.size();
-            for (int n = np-1; n >= 0; n--) {
-                if (k >= m_start[n]) {
-                    return n;
-                }
-            }
-            throw CanteraError("speciesPhaseIndex", 
-                "illegal species index: "+int2str(k));
-        }
+        int speciesPhaseIndex(int k);
 
 	//@}
 
@@ -561,32 +518,7 @@ namespace Cantera {
 	 *              index of the phase within the kinetics
 	 *              manager object as the value.
          */
-        void addPhase(thermo_t& thermo) {
-
-            // if not the first thermo object, set the start position
-            // to that of the last object added + the number of its species 
-            if (m_thermo.size() > 0) {
-                m_start.push_back(m_start.back() 
-				  + m_thermo.back()->nSpecies());
-            }
-            // otherwise start at 0
-            else {
-                m_start.push_back(0);
-            }
-            // there should only be one surface phase
-            int ptype = -100;
-            if (type() == cEdgeKinetics) ptype = cEdge;
-            else if (type() == cInterfaceKinetics) ptype = cSurf;
-            if (thermo.eosType() == ptype) {
-                if (m_surfphase >= 0) {
-                    throw CanteraError("Kinetics::addPhase",
-                        "cannot add more than one surface phase");
-                }
-                m_surfphase = nPhases();
-            }
-            m_thermo.push_back(&thermo);
-            m_phaseindex[m_thermo.back()->id()] = nPhases();
-        }
+        void addPhase(thermo_t& thermo);
 
         /**
          * Prepare the class for the addition of reactions. This function
@@ -725,11 +657,8 @@ namespace Cantera {
     private:
 
         vector<grouplist_t> m_dummygroups;
-        void err(string m) const {
-            throw CanteraError("Kinetics::" + m, 
-			       "The default Base class method was called, when "
-		               "the inherited class's method should have been called");
-        }
+        void err(string m) const;
+
     };
 
     typedef Kinetics kinetics_t;

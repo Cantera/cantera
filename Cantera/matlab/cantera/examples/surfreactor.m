@@ -60,7 +60,7 @@ for n = 1:100
   tim(n) = t;
   temp(n) = temperature(r);  
   pres(n) = pressure(r);
-  cov(n,:) = coverages(surf)';
+  cov(n,:) = coverages(surf)'; 
   x(n,:) = moleFraction(gas,names);
 end
 disp(['CPU time = ' num2str(cputime - t0)]);

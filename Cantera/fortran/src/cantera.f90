@@ -1,3 +1,8 @@
+! This module is the only 'public' one - i.e., the only one visible in
+! an application program. It's primary purpose is to provide generic
+! procedure names that map to specific procedures depending on the
+! argument types.
+
 MODULE CANTERA
 
   USE cantera_thermo
@@ -347,6 +352,11 @@ MODULE CANTERA
      MODULE PROCEDURE ctthermo_setState_TPX
      MODULE PROCEDURE ctstring_setState_TPX
   END INTERFACE setState_TPX
+
+  INTERFACE setState_TRY
+     MODULE PROCEDURE ctthermo_setState_TRY
+     MODULE PROCEDURE ctstring_setState_TRY
+  END INTERFACE setState_TRY
 
   INTERFACE setState_UV
      MODULE PROCEDURE ctthermo_setState_UV

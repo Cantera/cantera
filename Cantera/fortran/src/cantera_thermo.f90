@@ -342,6 +342,29 @@ contains
       call ctthermo_setPressure(self, p)
     end subroutine ctstring_setState_TPX
 
+    subroutine ctthermo_setState_TRY(self, t, rho, y)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(in) :: t
+      double precision, intent(in) :: rho
+      double precision, intent(in) :: y(*)
+      call ctthermo_setTemperature(self, t)
+      call ctthermo_setMassFractions(self, y)
+      call ctthermo_setDensity(self, rho)
+    end subroutine ctthermo_setState_TRY
+
+    subroutine ctstring_setState_TRY(self, t, rho, y)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(in) :: t
+      double precision, intent(in) :: rho
+      character*(*), intent(in) :: y
+      call ctthermo_setTemperature(self, t)
+      call ctthermo_setMassFractionsByName(self, y)
+      call ctthermo_setDensity(self, rho)
+    end subroutine ctstring_setState_TRY
+
+
     subroutine ctthermo_setState_HP(self, h, p)
       implicit none
       type(phase_t), intent(inout) :: self
