@@ -7,7 +7,10 @@
  *  $Revision$
  *
  *  $Log$
- *  Revision 1.2  2003-06-27 14:19:16  dggoodwin
+ *  Revision 1.3  2003-07-21 16:02:53  hkmoffa
+ *  Took out a double nested @name that gave a warning to doxygen
+ *
+ *  Revision 1.2  2003/06/27 14:19:16  dggoodwin
  *  *** empty log message ***
  *
  *  Revision 1.1.1.1  2003/04/14 17:57:51  dggoodwin
@@ -148,12 +151,7 @@ namespace Cantera {
          * \f$ e = 1.602 \times 10^{-19}\f$ Coulombs.
          */ 
         doublereal charge(int k) const;
-	/**
-         * @name Adding Species
-         * These methods are used to add new species.
-         * They are not usually called by user programs.
-         */ 
-        //@{
+
        /**
          * @name Adding Species
          * These methods are used to add new species.
