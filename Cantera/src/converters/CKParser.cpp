@@ -6,7 +6,10 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.6  2004-07-02 16:48:13  hkmoffa
+// Revision 1.7  2004-07-02 17:27:01  hkmoffa
+// static_casts to eliminate VC++ warnings.
+//
+// Revision 1.6  2004/07/02 16:48:13  hkmoffa
 // Moved CK_SyntaxError definition to the .h file. It's used in more
 // than one .cpp file.
 //
@@ -89,7 +92,7 @@ namespace ckr {
     static double getNumberFromString(string s) {
         bool inexp = false;
         removeWhiteSpace(s);
-        int sz = s.size();
+        int sz = static_cast<int>(s.size());
 
         char ch;
         for (int n = 0; n < sz; n++) {
@@ -304,7 +307,7 @@ namespace ckr {
             if (ch == '\n' || ch == char10) break;
             if (isprint(ch)) line += ch;
         }
-        int icom = line.find(commentChar);
+		string::size_type icom = line.find(commentChar);
 
         // lines that begin with !% are not comments for Cantera
         if (icom == 0 && line[1] == undoCommentChar) {
@@ -312,7 +315,7 @@ namespace ckr {
             line[1] = ' ';
             icom = line.find(commentChar);
         }
-        int len = line.size();
+        int len = static_cast<int>(line.size());
 
         for (int i = 0; i < len; i++) if (!isprint(line[i])) line[i] = ' ';
         if (icom >= 0) {
@@ -390,8 +393,8 @@ next:
                 while (1 > 0) {
                     do {
                         getCKLine(s, comment);
-                        getTokens(s, s.size(), toks);
-                        ntok = toks.size();
+                        getTokens(s, static_cast<int>(s.size()), toks);
+                        ntok = static_cast<int>(toks.size());
                     } while (ntok == 0);
 
                     if (firsttok == 0 && isKeyword(toks[0])) {
@@ -404,7 +407,7 @@ next:
                             Element el;
                             string wtstr;
                             el.comment = comment;
-                            el.index = elements.size();
+                            el.index = static_cast<int>(elements.size());
                             if (extractSlashData(toks[i], el.name, wtstr)) {
                                 el.atomicWeight = atof(wtstr.c_str());
                                 el.weightFromDB = false;
@@ -463,8 +466,8 @@ next:
                 while (1 > 0) {
                     do {
                         getCKLine(s, comment);
-                        getTokens(s, s.size(), toks);
-                        ntok = toks.size();
+                        getTokens(s, static_cast<int>(s.size()), toks);
+                        ntok = static_cast<int>(toks.size());
                     } while (ntok == 0);
 
                     if (firsttok == 0 && isKeyword(toks[0])) {
@@ -527,7 +530,7 @@ next:
             tmax = temp[2];
         }
 
-        int nsp = names.size();
+        int nsp = static_cast<int>(names.size());
 
         string comment;
 
@@ -544,7 +547,7 @@ next:
         while (!match(s,"THER"));
 
         // read the tokens on the THERMO line
-        getTokens(s, s.size(), toks);
+        getTokens(s, static_cast<int>(s.size()), toks);
         m_nasafmt = false;
         if (toks.size() >= 2)
         { 
@@ -568,7 +571,7 @@ next:
 
         if (optionFlag == NoThermoDatabase || optionFlag == HasTempRange) {
             getCKLine(s, comment);
-            getTokens(s, s.size(), toks);
+            getTokens(s, static_cast<int>(s.size()), toks);
             if (toks.size() >= 3) {
                 tmin = atof(toks[0].c_str());
                 tmid = atof(toks[1].c_str());
@@ -642,7 +645,7 @@ next:
                 checkTemps(log, spec.tlow, spec.tmid, spec.thigh);
                 if (getAllSpecies) {
                     names.push_back(spec.name);
-                    nsp = names.size();
+                    nsp = static_cast<int>(names.size());
                 }
                 else
                     nsp--;
@@ -686,7 +689,7 @@ next:
         // extract the species name and the id string (date)
         string nameid = s.substr(0,24);
         vector<string> toks;
-        getTokens(nameid, nameid.size(), toks);
+        getTokens(nameid, static_cast<int>(nameid.size()), toks);
         sp.name = toks[0];
         sp.id = "";
         unsigned int j;
@@ -804,7 +807,7 @@ next:
 
     // look for units specifications
 
-        getTokens(s, s.size(), toks);
+        getTokens(s, static_cast<int>(s.size()), toks);
         string tok;
         units.ActEnergy = Cal_per_Mole;
         units.Quantity = Moles;
@@ -855,7 +858,7 @@ next:
             }
 
             // rxn line
-            int eqloc;
+			string::size_type eqloc;
             string sleft, sright;
             bool auxDataLine, metaDataLine;
 
@@ -880,7 +883,8 @@ next:
                         elementNames, rg);
                     ierp = getGroups(s.begin() + eqloc, s.end(), 
                         elementNames, pg);
-                    unsigned int nr = rxn.reactants.size();
+                    unsigned int nr = 
+						static_cast<unsigned int>(rxn.reactants.size());
                     unsigned int nratoms = 0;
                     for (unsigned int ij = 0; ij < nr; ij++) 
                         nratoms += int(rxn.reactants[ij].number);
@@ -893,7 +897,7 @@ next:
                     for (unsigned int ir = 0; ir < nr; ir++) {
                         rxn.reactants[ir].groups = rg[ir];
                     }
-                    unsigned int np = rxn.products.size();
+                    unsigned int np = static_cast<unsigned int>(rxn.products.size());
                     unsigned int npatoms = 0;
                     for (unsigned int ik = 0; ik < np; ik++) 
                         npatoms += int(rxn.products[ik].number);
@@ -948,7 +952,7 @@ next:
                 else throw CK_SyntaxError(*m_log, 
                     "expected <=>, =>, or =", m_line);
 
-                int mloc, mloc2;
+				string::size_type mloc, mloc2;
 
                 // process reactants	    
                 removeWhiteSpace(sleft);
@@ -986,8 +990,9 @@ next:
                     }
                 }
 
-                getSpecies(sleft.c_str(),sleft.size(),rxn.reactants);
-                int ir = rxn.reactants.size();
+                getSpecies(sleft.c_str(),static_cast<int>(sleft.size()),
+					rxn.reactants);
+                int ir = static_cast<int>(rxn.reactants.size());
                 for (int iir = 0; iir < ir; iir++) {
                     if (find(speciesNames.begin(), speciesNames.end(),
                             rxn.reactants[iir].name) >= speciesNames.end()) 
@@ -998,8 +1003,8 @@ next:
         
 
                 // process Arrhenius coefficients
-                getTokens(sright, sright.size(), toks);
-                int ntoks = toks.size();
+                getTokens(sright, static_cast<int>(sright.size()), toks);
+                int ntoks = static_cast<int>(toks.size());
                 if (ntoks < 3) {
                     throw CK_SyntaxError(*m_log, 
                         "expected 3 Arrhenius parameters", m_line);
@@ -1059,8 +1064,9 @@ next:
                         sright = sright.substr(0, mloc);
                     }		
                 }
-                getSpecies(sright.c_str(),sright.size(),rxn.products);
-                int ip = rxn.products.size();
+                getSpecies(sright.c_str(),static_cast<int>(sright.size()),
+					rxn.products);
+                int ip = static_cast<int>(rxn.products.size());
                 for (int iip = 0; iip < ip; iip++) {
                     if (find(speciesNames.begin(), speciesNames.end(),
                             rxn.products[iip].name) >= speciesNames.end()) 
@@ -1095,7 +1101,7 @@ next:
                         vector<string> klow;
                         rxn.type = Falloff;
                         if (hasAuxData) {
-                            getTokens(data, data.size(), klow);
+                            getTokens(data, static_cast<int>(data.size()), klow);
                             if (klow.size() != 3) {
                                 throw CK_SyntaxError(*m_log, 
                                     "expected 3 low-pressure Arrhenius parameters", m_line);
@@ -1120,8 +1126,8 @@ next:
                         }
 
                         if (hasAuxData) {
-                            getTokens(data, data.size(), falloff);
-                            int nf = falloff.size();
+                            getTokens(data, static_cast<int>(data.size()), falloff);
+                            int nf = static_cast<int>(falloff.size());
                             double ff;
                             rxn.falloffType = Troe;
                             for (int jf = 0; jf < nf; jf++) {
@@ -1140,8 +1146,8 @@ next:
                                 "cannot specify both SRI and TROE", m_line);
                         }
                         if (hasAuxData) {
-                            getTokens(data, data.size(), falloff);
-                            int nf = falloff.size();
+                            getTokens(data, static_cast<int>(data.size()), falloff);
+                            int nf = static_cast<int>(falloff.size());
                             rxn.falloffType = SRI;
                             double ff;
                             for (int jf = 0; jf < nf; jf++) {
@@ -1164,7 +1170,7 @@ next:
                                 "specified for reversible reactions", m_line);
                         }
                         if (hasAuxData) {
-                            getTokens(data, data.size(), krev);
+                            getTokens(data, static_cast<int>(data.size()), krev);
                             if (krev.size() != 3) {
                                 throw CK_SyntaxError(*m_log, 
                                     "expected 3 Arrhenius parameters", m_line);
@@ -1194,7 +1200,7 @@ next:
                         vector<string> bc;
                         rxn.kf.type = LandauTeller;
                         if (hasAuxData) {
-                            getTokens(data, data.size(), bc);
+                            getTokens(data, static_cast<int>(data.size()), bc);
                             rxn.kf.B = atof(bc[0].c_str());
                             rxn.kf.C = atof(bc[1].c_str());
                         }
@@ -1206,7 +1212,7 @@ next:
                         vector<string> bc;
                         rxn.krev.type = LandauTeller;
                         if (hasAuxData) {
-                            getTokens(data, data.size(), bc);
+                            getTokens(data, static_cast<int>(data.size()), bc);
                             rxn.krev.B = atof(bc[0].c_str());
                             rxn.krev.C = atof(bc[1].c_str());
                         }
@@ -1220,7 +1226,7 @@ next:
                         vector<string> khigh;
                         rxn.type = ChemAct;
                         if (hasAuxData) {
-                            getTokens(data, data.size(), khigh);
+                            getTokens(data, static_cast<int>(data.size()), khigh);
                             rxn.kf_aux.A = atof(khigh[0].c_str());
                             rxn.kf_aux.n = atof(khigh[1].c_str());
                             rxn.kf_aux.E = atof(khigh[2].c_str());
@@ -1255,8 +1261,8 @@ next:
                     else {
                         Reaction::auxdata vals;
                         vector<string> toks;
-                        getTokens(data, data.size(), toks);
-                        int ntoks = toks.size();
+                        getTokens(data, static_cast<int>(data.size()), toks);
+                        int ntoks = static_cast<int>(toks.size());
                         for (int itok = 0; itok < ntoks; itok++) {
                             vals.push_back(atof(toks[itok].c_str()));
                         }
@@ -1279,14 +1285,14 @@ next:
         string::const_iterator begin = s.begin();
         string::const_iterator end = s.end();
         vector<string>::iterator e;
-        result.resize(esyms.size(),0);
+		result.resize(static_cast<ct::ctvector_int::size_t>(esyms.size()),0);
         for (; begin != end; ++begin) {
 
             // new element
             if (*begin == '-') {
                 e = find(esyms.begin(), esyms.end(), sym);
                 if (e == esyms.end()) return -1;
-                eindx = e - esyms.begin();
+                eindx = static_cast<int>(e - esyms.begin());
                 if (num != "") 
                     i = atoi(num.c_str());
                 else 
