@@ -15,7 +15,7 @@ delete_file()
 dferrorStatus=0
 for aaa in $*
 do
-  if [ $aaa != "Makefile" ]
+  if [ $aaa != "Makefile" -a $aaa != "runtest" ]
   then
     if [ -f $aaa ]
     then
