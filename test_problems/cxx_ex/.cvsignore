@@ -1,3 +1,4 @@
+*.log
 rp1.dot
 transport_log.xml
 gri30mod.xml
