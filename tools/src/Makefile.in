@@ -9,7 +9,7 @@ LCXX_FLAGS = -L$(LIBDIR)  @CXXFLAGS@
 LOCAL_LIBS = -lcantera @math_libs@ @LAPACK_LIBRARY@ @BLAS_LIBRARY@ -lctcxx 
 
 LCXX_END_LIBS = @LCXX_END_LIBS@
-OBJS = ck2ctml.o
+OBJS = ck2cti.o
 
 DEPENDS = $(OBJS:.o=.d)
 
@@ -20,10 +20,10 @@ CANTERALIB_DEP = @buildlib@/libcantera.a \
 .cpp.o:
 	@CXX@ -c $< @DEFS@  $(INCDIR) @CXXFLAGS@ $(CXX_FLAGS) 
 
-all: $(BINDIR)/ck2ctml
+all: $(BINDIR)/ck2cti
 
-$(BINDIR)/ck2ctml: ck2ctml.o $(CONVLIB_DEP) $(CANTERALIB_DEP)
-	@CXX@ -o $(BINDIR)/ck2ctml ck2ctml.o $(LCXX_FLAGS) -lconverters $(LOCAL_LIBS) \
+$(BINDIR)/ck2cti: ck2cti.o $(CONVLIB_DEP) $(CANTERALIB_DEP)
+	@CXX@ -o $(BINDIR)/ck2cti ck2cti.o $(LCXX_FLAGS) -lconverters $(LOCAL_LIBS) \
                $(LCXX_END_LIBS)
 clean:
 	$(RM) *.o *.*~

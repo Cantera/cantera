@@ -1,7 +1,12 @@
 <ctml>
+  <validate reactions="yes" species="yes"/>
 
-  <!--     phase air      -->
+  <!--    phase air     -->
   <phase dim="3" id="air">
+    <validation>
+      <duplicateReactions>halt</duplicateReactions>
+      <thermo>warn</thermo>
+    </validation>
     <elementArray datasrc="elements.xml"> O  N  Ar </elementArray>
     <speciesArray datasrc="#species_data"> O  O2  N  NO  NO2  N2O  N2  AR </speciesArray>
     <reactionArray datasrc="#reaction_data"/>
@@ -10,10 +15,10 @@
     <transport model="None"/>
   </phase>
 
-  <!--      species definitions      -->
+  <!--     species definitions     -->
   <speciesData id="species_data">
 
-    <!--     species O     -->
+    <!--    species O    -->
     <species name="O">
       <atomArray>O:1 </atomArray>
       <thermo>
@@ -38,7 +43,7 @@
       </transport>
     </species>
 
-    <!--     species O2     -->
+    <!--    species O2    -->
     <species name="O2">
       <atomArray>O:2 </atomArray>
       <thermo>
@@ -63,7 +68,7 @@
       </transport>
     </species>
 
-    <!--     species N     -->
+    <!--    species N    -->
     <species name="N">
       <atomArray>N:1 </atomArray>
       <thermo>
@@ -88,7 +93,7 @@
       </transport>
     </species>
 
-    <!--     species NO     -->
+    <!--    species NO    -->
     <species name="NO">
       <atomArray>O:1 N:1 </atomArray>
       <thermo>
@@ -113,7 +118,7 @@
       </transport>
     </species>
 
-    <!--     species NO2     -->
+    <!--    species NO2    -->
     <species name="NO2">
       <atomArray>O:2 N:1 </atomArray>
       <thermo>
@@ -138,7 +143,7 @@
       </transport>
     </species>
 
-    <!--     species N2O     -->
+    <!--    species N2O    -->
     <species name="N2O">
       <atomArray>O:1 N:2 </atomArray>
       <thermo>
@@ -163,7 +168,7 @@
       </transport>
     </species>
 
-    <!--     species N2     -->
+    <!--    species N2    -->
     <species name="N2">
       <atomArray>N:2 </atomArray>
       <thermo>
@@ -188,7 +193,7 @@
       </transport>
     </species>
 
-    <!--     species AR     -->
+    <!--    species AR    -->
     <species name="AR">
       <atomArray>Ar:1 </atomArray>
       <thermo>
@@ -215,7 +220,7 @@
   </speciesData>
   <reactionData id="reaction_data">
 
-    <!--    reaction 0001     -->
+    <!--   reaction 0001    -->
     <reaction id="0001" reversible="yes" type="threeBody">
       <equation>2 O + M [=] O2 + M</equation>
       <rateCoeff>
@@ -230,7 +235,7 @@
       <products>O2:1</products>
     </reaction>
 
-    <!--    reaction 0002     -->
+    <!--   reaction 0002    -->
     <reaction id="0002" reversible="yes">
       <equation>N + NO [=] N2 + O</equation>
       <rateCoeff>
@@ -244,7 +249,7 @@
       <products>N2:1 O:1</products>
     </reaction>
 
-    <!--    reaction 0003     -->
+    <!--   reaction 0003    -->
     <reaction id="0003" reversible="yes">
       <equation>N + O2 [=] NO + O</equation>
       <rateCoeff>
@@ -258,7 +263,7 @@
       <products>O:1 NO:1</products>
     </reaction>
 
-    <!--    reaction 0004     -->
+    <!--   reaction 0004    -->
     <reaction id="0004" reversible="yes">
       <equation>N2O + O [=] N2 + O2</equation>
       <rateCoeff>
@@ -272,7 +277,7 @@
       <products>N2:1 O2:1</products>
     </reaction>
 
-    <!--    reaction 0005     -->
+    <!--   reaction 0005    -->
     <reaction id="0005" reversible="yes">
       <equation>N2O + O [=] 2 NO</equation>
       <rateCoeff>
@@ -286,7 +291,7 @@
       <products>NO:2</products>
     </reaction>
 
-    <!--    reaction 0006     -->
+    <!--   reaction 0006    -->
     <reaction id="0006" reversible="yes" type="falloff">
       <equation>N2O (+ M) [=] N2 + O (+ M)</equation>
       <rateCoeff>
@@ -307,7 +312,7 @@
       <products>N2:1 O:1</products>
     </reaction>
 
-    <!--    reaction 0007     -->
+    <!--   reaction 0007    -->
     <reaction id="0007" reversible="yes" type="threeBody">
       <equation>NO + O + M [=] NO2 + M</equation>
       <rateCoeff>
@@ -322,7 +327,7 @@
       <products>NO2:1</products>
     </reaction>
 
-    <!--    reaction 0008     -->
+    <!--   reaction 0008    -->
     <reaction id="0008" reversible="yes">
       <equation>NO2 + O [=] NO + O2</equation>
       <rateCoeff>

@@ -1,7 +1,12 @@
 <ctml>
+  <validate reactions="yes" species="yes"/>
 
-  <!--     phase silane      -->
+  <!--    phase silane     -->
   <phase dim="3" id="silane">
+    <validation>
+      <duplicateReactions>halt</duplicateReactions>
+      <thermo>warn</thermo>
+    </validation>
     <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
     <speciesArray datasrc="#species_data">
      H2  H  HE  SIH4  SI  SIH  SIH2  SIH3  H3SISIH  SI2H6 
@@ -12,10 +17,10 @@
     <transport model="None"/>
   </phase>
 
-  <!--      species definitions      -->
+  <!--     species definitions     -->
   <speciesData id="species_data">
 
-    <!--     species H2     -->
+    <!--    species H2    -->
     <species name="H2">
       <atomArray>H:2 </atomArray>
       <thermo>
@@ -32,7 +37,7 @@
       </thermo>
     </species>
 
-    <!--     species H     -->
+    <!--    species H    -->
     <species name="H">
       <atomArray>H:1 </atomArray>
       <thermo>
@@ -49,7 +54,7 @@
       </thermo>
     </species>
 
-    <!--     species HE     -->
+    <!--    species HE    -->
     <species name="HE">
       <atomArray>He:1 </atomArray>
       <thermo>
@@ -66,7 +71,7 @@
       </thermo>
     </species>
 
-    <!--     species SIH4     -->
+    <!--    species SIH4    -->
     <species name="SIH4">
       <atomArray>H:4 Si:1 </atomArray>
       <thermo>
@@ -83,7 +88,7 @@
       </thermo>
     </species>
 
-    <!--     species SI     -->
+    <!--    species SI    -->
     <species name="SI">
       <atomArray>Si:1 </atomArray>
       <thermo>
@@ -100,7 +105,7 @@
       </thermo>
     </species>
 
-    <!--     species SIH     -->
+    <!--    species SIH    -->
     <species name="SIH">
       <atomArray>H:1 Si:1 </atomArray>
       <thermo>
@@ -117,7 +122,7 @@
       </thermo>
     </species>
 
-    <!--     species SIH2     -->
+    <!--    species SIH2    -->
     <species name="SIH2">
       <atomArray>H:2 Si:1 </atomArray>
       <thermo>
@@ -134,7 +139,7 @@
       </thermo>
     </species>
 
-    <!--     species SIH3     -->
+    <!--    species SIH3    -->
     <species name="SIH3">
       <atomArray>H:3 Si:1 </atomArray>
       <thermo>
@@ -151,7 +156,7 @@
       </thermo>
     </species>
 
-    <!--     species H3SISIH     -->
+    <!--    species H3SISIH    -->
     <species name="H3SISIH">
       <atomArray>H:4 Si:2 </atomArray>
       <thermo>
@@ -168,7 +173,7 @@
       </thermo>
     </species>
 
-    <!--     species SI2H6     -->
+    <!--    species SI2H6    -->
     <species name="SI2H6">
       <atomArray>H:6 Si:2 </atomArray>
       <thermo>
@@ -185,7 +190,7 @@
       </thermo>
     </species>
 
-    <!--     species H2SISIH2     -->
+    <!--    species H2SISIH2    -->
     <species name="H2SISIH2">
       <atomArray>H:4 Si:2 </atomArray>
       <thermo>
@@ -202,7 +207,7 @@
       </thermo>
     </species>
 
-    <!--     species SI3H8     -->
+    <!--    species SI3H8    -->
     <species name="SI3H8">
       <atomArray>H:8 Si:3 </atomArray>
       <thermo>
@@ -219,7 +224,7 @@
       </thermo>
     </species>
 
-    <!--     species SI2     -->
+    <!--    species SI2    -->
     <species name="SI2">
       <atomArray>Si:2 </atomArray>
       <thermo>
@@ -236,7 +241,7 @@
       </thermo>
     </species>
 
-    <!--     species SI3     -->
+    <!--    species SI3    -->
     <species name="SI3">
       <atomArray>Si:3 </atomArray>
       <thermo>
@@ -255,7 +260,7 @@
   </speciesData>
   <reactionData id="reaction_data">
 
-    <!--    reaction 0001     -->
+    <!--   reaction 0001    -->
     <reaction id="0001" reversible="yes">
       <equation>SIH4 + H [=] SIH3 + H2</equation>
       <rateCoeff>
@@ -269,7 +274,7 @@
       <products>H2:1 SIH3:1</products>
     </reaction>
 
-    <!--    reaction 0002     -->
+    <!--   reaction 0002    -->
     <reaction id="0002" reversible="yes" type="threeBody">
       <equation>SIH4 + M [=] SIH3 + H + M</equation>
       <rateCoeff>
@@ -283,7 +288,7 @@
       <products>H:1 SIH3:1</products>
     </reaction>
 
-    <!--    reaction 0003     -->
+    <!--   reaction 0003    -->
     <reaction id="0003" reversible="yes">
       <equation>SIH3 + H [=] SIH2 + H2</equation>
       <rateCoeff>
@@ -297,7 +302,7 @@
       <products>H2:1 SIH2:1</products>
     </reaction>
 
-    <!--    reaction 0004     -->
+    <!--   reaction 0004    -->
     <reaction id="0004" reversible="yes" type="threeBody">
       <equation>SI + SI + M [=] SI2 + M</equation>
       <rateCoeff>
@@ -311,7 +316,7 @@
       <products>SI2:1</products>
     </reaction>
 
-    <!--    reaction 0005     -->
+    <!--   reaction 0005    -->
     <reaction id="0005" reversible="yes">
       <equation>SIH4 + SIH2 [=] H3SISIH + H2</equation>
       <rateCoeff>
@@ -325,7 +330,7 @@
       <products>H2:1 H3SISIH:1</products>
     </reaction>
 
-    <!--    reaction 0006     -->
+    <!--   reaction 0006    -->
     <reaction id="0006" reversible="yes">
       <equation>SIH + H2 [=] SIH2 + H</equation>
       <rateCoeff>
@@ -339,7 +344,7 @@
       <products>H:1 SIH2:1</products>
     </reaction>
 
-    <!--    reaction 0007     -->
+    <!--   reaction 0007    -->
     <reaction id="0007" reversible="yes">
       <equation>SIH + SIH4 [=] H3SISIH + H</equation>
       <rateCoeff>
@@ -353,7 +358,7 @@
       <products>H:1 H3SISIH:1</products>
     </reaction>
 
-    <!--    reaction 0008     -->
+    <!--   reaction 0008    -->
     <reaction id="0008" reversible="yes">
       <equation>SI + H2 [=] SIH + H</equation>
       <rateCoeff>
@@ -367,7 +372,7 @@
       <products>H:1 SIH:1</products>
     </reaction>
 
-    <!--    reaction 0009     -->
+    <!--   reaction 0009    -->
     <reaction id="0009" reversible="yes" type="falloff">
       <equation>SIH4 (+ M) [=] SIH2 + H2 (+ M)</equation>
       <rateCoeff>
@@ -388,7 +393,7 @@
       <products>H2:1 SIH2:1</products>
     </reaction>
 
-    <!--    reaction 0010     -->
+    <!--   reaction 0010    -->
     <reaction id="0010" reversible="yes" type="falloff">
       <equation>H3SISIH (+ M) [=] H2SISIH2 (+ M)</equation>
       <rateCoeff>
@@ -409,7 +414,7 @@
       <products>H2SISIH2:1</products>
     </reaction>
 
-    <!--    reaction 0011     -->
+    <!--   reaction 0011    -->
     <reaction id="0011" reversible="yes" type="falloff">
       <equation>SI3H8 (+ M) [=] SIH4 + H3SISIH (+ M)</equation>
       <rateCoeff>
@@ -430,7 +435,7 @@
       <products>SIH4:1 H3SISIH:1</products>
     </reaction>
 
-    <!--    reaction 0012     -->
+    <!--   reaction 0012    -->
     <reaction id="0012" reversible="yes" type="falloff">
       <equation>SI3H8 (+ M) [=] SIH2 + SI2H6 (+ M)</equation>
       <rateCoeff>
@@ -451,7 +456,7 @@
       <products>SI2H6:1 SIH2:1</products>
     </reaction>
 
-    <!--    reaction 0013     -->
+    <!--   reaction 0013    -->
     <reaction id="0013" reversible="yes" type="falloff">
       <equation>SI2H6 (+ M) [=] H2 + H3SISIH (+ M)</equation>
       <rateCoeff>
@@ -472,7 +477,7 @@
       <products>H2:1 H3SISIH:1</products>
     </reaction>
 
-    <!--    reaction 0014     -->
+    <!--   reaction 0014    -->
     <reaction id="0014" reversible="yes" type="falloff">
       <equation>SI2H6 (+ M) [=] SIH4 + SIH2 (+ M)</equation>
       <rateCoeff>

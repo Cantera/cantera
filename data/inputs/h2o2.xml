@@ -1,7 +1,12 @@
 <ctml>
+  <validate reactions="yes" species="yes"/>
 
-  <!--     phase ohmech      -->
+  <!--    phase ohmech     -->
   <phase dim="3" id="ohmech">
+    <validation>
+      <duplicateReactions>halt</duplicateReactions>
+      <thermo>warn</thermo>
+    </validation>
     <elementArray datasrc="elements.xml"> O  H  Ar </elementArray>
     <speciesArray datasrc="#species_data"> H2  H  O  O2  OH  H2O  HO2  H2O2  AR </speciesArray>
     <reactionArray datasrc="#reaction_data"/>
@@ -10,10 +15,10 @@
     <transport model="None"/>
   </phase>
 
-  <!--      species definitions      -->
+  <!--     species definitions     -->
   <speciesData id="species_data">
 
-    <!--     species H2     -->
+    <!--    species H2    -->
     <species name="H2">
       <atomArray>H:2 </atomArray>
       <thermo>
@@ -38,7 +43,7 @@
       </transport>
     </species>
 
-    <!--     species H     -->
+    <!--    species H    -->
     <species name="H">
       <atomArray>H:1 </atomArray>
       <thermo>
@@ -63,7 +68,7 @@
       </transport>
     </species>
 
-    <!--     species O     -->
+    <!--    species O    -->
     <species name="O">
       <atomArray>O:1 </atomArray>
       <thermo>
@@ -88,7 +93,7 @@
       </transport>
     </species>
 
-    <!--     species O2     -->
+    <!--    species O2    -->
     <species name="O2">
       <atomArray>O:2 </atomArray>
       <thermo>
@@ -113,7 +118,7 @@
       </transport>
     </species>
 
-    <!--     species OH     -->
+    <!--    species OH    -->
     <species name="OH">
       <atomArray>H:1 O:1 </atomArray>
       <thermo>
@@ -138,7 +143,7 @@
       </transport>
     </species>
 
-    <!--     species H2O     -->
+    <!--    species H2O    -->
     <species name="H2O">
       <atomArray>H:2 O:1 </atomArray>
       <thermo>
@@ -163,7 +168,7 @@
       </transport>
     </species>
 
-    <!--     species HO2     -->
+    <!--    species HO2    -->
     <species name="HO2">
       <atomArray>H:1 O:2 </atomArray>
       <thermo>
@@ -188,7 +193,7 @@
       </transport>
     </species>
 
-    <!--     species H2O2     -->
+    <!--    species H2O2    -->
     <species name="H2O2">
       <atomArray>H:2 O:2 </atomArray>
       <thermo>
@@ -213,7 +218,7 @@
       </transport>
     </species>
 
-    <!--     species AR     -->
+    <!--    species AR    -->
     <species name="AR">
       <atomArray>Ar:1 </atomArray>
       <thermo>
@@ -240,7 +245,7 @@
   </speciesData>
   <reactionData id="reaction_data">
 
-    <!--    reaction 0001     -->
+    <!--   reaction 0001    -->
     <reaction id="0001" reversible="yes" type="threeBody">
       <equation>2 O + M [=] O2 + M</equation>
       <rateCoeff>
@@ -255,7 +260,7 @@
       <products>O2:1</products>
     </reaction>
 
-    <!--    reaction 0002     -->
+    <!--   reaction 0002    -->
     <reaction id="0002" reversible="yes" type="threeBody">
       <equation>O + H + M [=] OH + M</equation>
       <rateCoeff>
@@ -270,7 +275,7 @@
       <products>OH:1</products>
     </reaction>
 
-    <!--    reaction 0003     -->
+    <!--   reaction 0003    -->
     <reaction id="0003" reversible="yes">
       <equation>O + H2 [=] H + OH</equation>
       <rateCoeff>
@@ -284,7 +289,7 @@
       <products>H:1 OH:1</products>
     </reaction>
 
-    <!--    reaction 0004     -->
+    <!--   reaction 0004    -->
     <reaction id="0004" reversible="yes">
       <equation>O + HO2 [=] OH + O2</equation>
       <rateCoeff>
@@ -298,7 +303,7 @@
       <products>O2:1 OH:1</products>
     </reaction>
 
-    <!--    reaction 0005     -->
+    <!--   reaction 0005    -->
     <reaction id="0005" reversible="yes">
       <equation>O + H2O2 [=] OH + HO2</equation>
       <rateCoeff>
@@ -312,7 +317,7 @@
       <products>HO2:1 OH:1</products>
     </reaction>
 
-    <!--    reaction 0006     -->
+    <!--   reaction 0006    -->
     <reaction id="0006" reversible="yes">
       <equation>H + 2 O2 [=] HO2 + O2</equation>
       <rateCoeff>
@@ -326,7 +331,7 @@
       <products>HO2:1 O2:1</products>
     </reaction>
 
-    <!--    reaction 0007     -->
+    <!--   reaction 0007    -->
     <reaction id="0007" reversible="yes">
       <equation>H + O2 + H2O [=] HO2 + H2O</equation>
       <rateCoeff>
@@ -340,7 +345,7 @@
       <products>H2O:1 HO2:1</products>
     </reaction>
 
-    <!--    reaction 0008     -->
+    <!--   reaction 0008    -->
     <reaction id="0008" reversible="yes">
       <equation>H + O2 + AR [=] HO2 + AR</equation>
       <rateCoeff>
@@ -354,7 +359,7 @@
       <products>AR:1 HO2:1</products>
     </reaction>
 
-    <!--    reaction 0009     -->
+    <!--   reaction 0009    -->
     <reaction id="0009" reversible="yes">
       <equation>H + O2 [=] O + OH</equation>
       <rateCoeff>
@@ -368,7 +373,7 @@
       <products>O:1 OH:1</products>
     </reaction>
 
-    <!--    reaction 0010     -->
+    <!--   reaction 0010    -->
     <reaction id="0010" reversible="yes" type="threeBody">
       <equation>2 H + M [=] H2 + M</equation>
       <rateCoeff>
@@ -383,7 +388,7 @@
       <products>H2:1</products>
     </reaction>
 
-    <!--    reaction 0011     -->
+    <!--   reaction 0011    -->
     <reaction id="0011" reversible="yes">
       <equation>2 H + H2 [=] 2 H2</equation>
       <rateCoeff>
@@ -397,7 +402,7 @@
       <products>H2:2</products>
     </reaction>
 
-    <!--    reaction 0012     -->
+    <!--   reaction 0012    -->
     <reaction id="0012" reversible="yes">
       <equation>2 H + H2O [=] H2 + H2O</equation>
       <rateCoeff>
@@ -411,7 +416,7 @@
       <products>H2:1 H2O:1</products>
     </reaction>
 
-    <!--    reaction 0013     -->
+    <!--   reaction 0013    -->
     <reaction id="0013" reversible="yes" type="threeBody">
       <equation>H + OH + M [=] H2O + M</equation>
       <rateCoeff>
@@ -426,7 +431,7 @@
       <products>H2O:1</products>
     </reaction>
 
-    <!--    reaction 0014     -->
+    <!--   reaction 0014    -->
     <reaction id="0014" reversible="yes">
       <equation>H + HO2 [=] O + H2O</equation>
       <rateCoeff>
@@ -440,7 +445,7 @@
       <products>H2O:1 O:1</products>
     </reaction>
 
-    <!--    reaction 0015     -->
+    <!--   reaction 0015    -->
     <reaction id="0015" reversible="yes">
       <equation>H + HO2 [=] O2 + H2</equation>
       <rateCoeff>
@@ -454,7 +459,7 @@
       <products>H2:1 O2:1</products>
     </reaction>
 
-    <!--    reaction 0016     -->
+    <!--   reaction 0016    -->
     <reaction id="0016" reversible="yes">
       <equation>H + HO2 [=] 2 OH</equation>
       <rateCoeff>
@@ -468,7 +473,7 @@
       <products>OH:2</products>
     </reaction>
 
-    <!--    reaction 0017     -->
+    <!--   reaction 0017    -->
     <reaction id="0017" reversible="yes">
       <equation>H + H2O2 [=] HO2 + H2</equation>
       <rateCoeff>
@@ -482,7 +487,7 @@
       <products>H2:1 HO2:1</products>
     </reaction>
 
-    <!--    reaction 0018     -->
+    <!--   reaction 0018    -->
     <reaction id="0018" reversible="yes">
       <equation>H + H2O2 [=] OH + H2O</equation>
       <rateCoeff>
@@ -496,7 +501,7 @@
       <products>H2O:1 OH:1</products>
     </reaction>
 
-    <!--    reaction 0019     -->
+    <!--   reaction 0019    -->
     <reaction id="0019" reversible="yes">
       <equation>OH + H2 [=] H + H2O</equation>
       <rateCoeff>
@@ -510,7 +515,7 @@
       <products>H:1 H2O:1</products>
     </reaction>
 
-    <!--    reaction 0020     -->
+    <!--   reaction 0020    -->
     <reaction id="0020" reversible="yes" type="falloff">
       <equation>2 OH (+ M) [=] H2O2 (+ M)</equation>
       <rateCoeff>
@@ -531,7 +536,7 @@
       <products>H2O2:1</products>
     </reaction>
 
-    <!--    reaction 0021     -->
+    <!--   reaction 0021    -->
     <reaction id="0021" reversible="yes">
       <equation>2 OH [=] O + H2O</equation>
       <rateCoeff>
@@ -545,8 +550,8 @@
       <products>H2O:1 O:1</products>
     </reaction>
 
-    <!--    reaction 0022     -->
-    <reaction id="0022" reversible="yes">
+    <!--   reaction 0022    -->
+    <reaction duplicate="yes" id="0022" reversible="yes">
       <equation>OH + HO2 [=] O2 + H2O</equation>
       <rateCoeff>
         <Arrhenius>
@@ -559,8 +564,8 @@
       <products>H2O:1 O2:1</products>
     </reaction>
 
-    <!--    reaction 0023     -->
-    <reaction id="0023" reversible="yes">
+    <!--   reaction 0023    -->
+    <reaction duplicate="yes" id="0023" reversible="yes">
       <equation>OH + H2O2 [=] HO2 + H2O</equation>
       <rateCoeff>
         <Arrhenius>
@@ -573,8 +578,8 @@
       <products>H2O:1 HO2:1</products>
     </reaction>
 
-    <!--    reaction 0024     -->
-    <reaction id="0024" reversible="yes">
+    <!--   reaction 0024    -->
+    <reaction duplicate="yes" id="0024" reversible="yes">
       <equation>OH + H2O2 [=] HO2 + H2O</equation>
       <rateCoeff>
         <Arrhenius>
@@ -587,8 +592,8 @@
       <products>H2O:1 HO2:1</products>
     </reaction>
 
-    <!--    reaction 0025     -->
-    <reaction id="0025" reversible="yes">
+    <!--   reaction 0025    -->
+    <reaction duplicate="yes" id="0025" reversible="yes">
       <equation>2 HO2 [=] O2 + H2O2</equation>
       <rateCoeff>
         <Arrhenius>
@@ -601,8 +606,8 @@
       <products>O2:1 H2O2:1</products>
     </reaction>
 
-    <!--    reaction 0026     -->
-    <reaction id="0026" reversible="yes">
+    <!--   reaction 0026    -->
+    <reaction duplicate="yes" id="0026" reversible="yes">
       <equation>2 HO2 [=] O2 + H2O2</equation>
       <rateCoeff>
         <Arrhenius>
@@ -615,8 +620,8 @@
       <products>O2:1 H2O2:1</products>
     </reaction>
 
-    <!--    reaction 0027     -->
-    <reaction id="0027" reversible="yes">
+    <!--   reaction 0027    -->
+    <reaction duplicate="yes" id="0027" reversible="yes">
       <equation>OH + HO2 [=] O2 + H2O</equation>
       <rateCoeff>
         <Arrhenius>

@@ -1,7 +1,7 @@
 /**
- * @file ck2ctml.cpp
+ * @file ck2ct.cpp
  *
- * Convert CK-format reaction mechanism files to CTML format.
+ * Convert CK-format reaction mechanism files to Cantera input format.
  *
  */
 #ifdef WIN32
@@ -11,6 +11,9 @@
 
 #include <iostream>
 #include <string>
+
+#define USE_STRINGSTREAM
+
 #ifdef USE_STRINGSTREAM
 #include <sstream>
 #endif
@@ -28,8 +31,6 @@ using namespace Cantera;
 namespace pip {
 
     struct trdata {
-        //trdata() {name = "-";}
-        //        string name;
         int geom;
         doublereal welldepth, diam, dipole, polar, rot;
     };
@@ -153,19 +154,6 @@ namespace pip {
             printf(",\n                     rot_relax = %8.2f",td.rot);
         printf(")");
     }
-
-
-//     static void addShomate(XML_Node& node, 
-//         const vector_fp& low, const vector_fp& high,  
-//         doublereal minx, doublereal midx, 
-//         doublereal maxx) {
-//         XML_Node& f = node.addChild("Shomate");
-//         if (minx != -999.0) f.addAttribute("Tmin",minx);
-//         if (maxx != -999.0) f.addAttribute("Tmid",midx);
-//         if (maxx != -999.0) f.addAttribute("Tmax",maxx);
-//         addFloatArray(f,"low",low.size(),low.begin());
-//         addFloatArray(f,"high",high.size(),high.begin());
-//     }
 
 
     static void addFalloff(string type, 
@@ -297,6 +285,9 @@ namespace pip {
                 }
                 cout << ",\n         efficiencies = \"" << estr << "\"";
             }
+        }
+        if (rxn.isDuplicate) {
+            cout << ",\n         options = \'duplicate\'";
         }
     cout << ")" << endl;
     }

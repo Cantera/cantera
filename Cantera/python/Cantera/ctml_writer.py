@@ -453,15 +453,15 @@ class reaction(writer):
                  equation = '',
                  kf = None,
                  id = '',
-                 special = []
+                 options = []
                  ):
 
         self._id = id
         self._e = equation
-        if type(special) == types.StringType:
-            self._special = [special]
+        if type(options) == types.StringType:
+            self._options = [options]
         else:
-            self._special = special
+            self._options = options
         global _reactions
         self._num = len(_reactions)+1
         r = ''
@@ -524,9 +524,10 @@ class reaction(writer):
             r['reversible'] = 'yes'
         else:
             r['reversible'] = 'no'
-        nspecial = len(self._special)
-        for nss in range(nspecial):
-            s = self._special[nss]
+                
+        noptions = len(self._options)
+        for nss in range(noptions):
+            s = self._options[nss]
             if s == 'duplicate':
                 r['duplicate'] = 'yes'
             elif s == 'negative_A':
@@ -603,10 +604,10 @@ class three_body_reaction(reaction):
                  kf = None,
                  efficiencies = '',
                  id = '',
-                 special = []
+                 options = []
                  ):
 
-        reaction.__init__(self, equation, kf, id, special)
+        reaction.__init__(self, equation, kf, id, options)
         self._type = 'threeBody'
         self._effm = 1.0
         self._eff = efficiencies
@@ -641,11 +642,11 @@ class falloff_reaction(reaction):
                  efficiencies = '',
                  falloff = None,
                  id = '',
-                 special = []
+                 options = []
                  ):
 
         kf2 = (kf, kf0)        
-        reaction.__init__(self, equation, kf2, id)
+        reaction.__init__(self, equation, kf2, id, options)
         self._type = 'falloff'
         # use a Lindemann falloff function by default
         self._falloff = falloff
@@ -696,11 +697,11 @@ class surface_reaction(reaction):
                  kf = None,
                  stick = None,
                  id = '',
-                 special = []):
+                 options = []):
         if stick:
-            reaction.__init__(self, equation, stick, id)
+            reaction.__init__(self, equation, stick, id, options)
         else:
-            reaction.__init__(self, equation, kf, id)
+            reaction.__init__(self, equation, kf, id, options)
         self._type = 'surface'
 
 #--------------            

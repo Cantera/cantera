@@ -52,7 +52,7 @@ GasKineticsWriter* writer = 0;
 
 vector< map<int, doublereal> > _reactiondata;
 vector<string> _eqn;
-vector_int _dup;
+vector_int _dup, _nr, _typ;
 vector<bool> _rev;
 
 
@@ -773,19 +773,35 @@ namespace Cantera {
      * stoichiometric coefficients have the same ratio for all
      * species.
      */
-    static bool isDuplicateReaction(map<int, doublereal>& r1, map<int, doublereal>& r2) {
+    static doublereal isDuplicateReaction(map<int, doublereal>& r1, map<int, doublereal>& r2) {
         
         map<int, doublereal>::const_iterator b = r1.begin(), e = r1.end();
         int k1 = b->first;
-        doublereal ratio = r2[k1]/r1[k1];
-        if (r1[k1] == 0.0 || r2[k1] == 0.0) return false;
+        doublereal ratio = 0.0;
+        if (r1[k1] == 0.0 || r2[k1] == 0.0) goto next;
+        ratio = r2[k1]/r1[k1];
         ++b;
         for (; b != e; ++b) {
             k1 = b->first;
-            if (r1[k1] == 0.0 || r2[k1] == 0.0) return false;
-            if (fabs(r2[k1]/r1[k1] - ratio) > 1.e-8) return false;
+            if (r1[k1] == 0.0 || r2[k1] == 0.0) goto next;
+            if (fabs(r2[k1]/r1[k1] - ratio) > 1.e-8) 
+                goto next;
         }
-        return true;
+        return ratio;
+next:
+        ratio = 0.0;
+        b = r1.begin();
+        k1 = b->first;
+        if (r1[k1] == 0.0 || r2[-k1] == 0.0) return 0.0;
+        ratio = r2[-k1]/r1[k1];
+        ++b;
+        for (; b != e; ++b) {
+            k1 = b->first;
+            if (r1[k1] == 0.0 || r2[-k1] == 0.0) return 0.0;
+            if (fabs(r2[-k1]/r1[k1] - ratio) > 1.e-8) 
+                return 0.0;
+        }
+        return ratio;
     }
 
 
@@ -855,56 +871,11 @@ namespace Cantera {
             return false;
         }
 
+        rdata.reversible = false;
         string isrev = r["reversible"];
         if (isrev == "yes" || isrev == "true")
             rdata.reversible = true;
 
-        if (check_for_duplicates) {
-            doublereal c = 0.0;
-            map<int, doublereal> rxnstoich;
-            rxnstoich.clear();
-            int nr = rdata.reactants.size();
-            for (nn = 0; nn < nr; nn++) {
-                rxnstoich[rdata.reactants[nn]] -= rdata.rstoich[nn];
-            }
-            int np = rdata.products.size();
-            for (nn = 0; nn < np; nn++) {
-                rxnstoich[rdata.products[nn]] += rdata.pstoich[nn];
-            }
-            int nrxns = _reactiondata.size();
-            for (nn = 0; nn < nrxns; nn++) {
-                c = isDuplicateReaction(rxnstoich, _reactiondata[nn]);
-                if (c > 0.0 
-                    || (c < 0.0 && rdata.reversible)
-                    || (c < 0.0 && _rev[nn])) {
-
-                    if ((!dup || !_dup[nn])) {
-                        string msg = string("Undeclared duplicate reactions detected: \n")
-                                     +"Reaction "+int2str(nn+1)+": "+_eqn[nn]
-                                     +"\nReaction "+int2str(i+1)+": "+eqn+"\n";
-                        _reactiondata.clear();
-                        _eqn.clear();
-                        _rev.clear();
-                        _dup.clear();
-                        throw CanteraError("installReaction",msg);
-                    }
-                }
-            }
-            _dup.push_back(dup);
-            _rev.push_back(rdata.reversible);
-            _eqn.push_back(eqn);
-            _reactiondata.push_back(rxnstoich);
-        }
-        
-        rdata.equation = eqn;
-        rdata.reversible = false;
-        rdata.number = i;
-        rdata.rxn_number = i;
-	/*
-	 * Seaarch the reaction element for the attribute "type".
-	 * If found, then branch on the type, to fill in appropriate
-	 * fields in rdata. 
-	 */
         string typ = r["type"];
         if (typ == "falloff") {
             rdata.reactionType = FALLOFF_RXN;
@@ -923,6 +894,62 @@ namespace Cantera {
         else if (typ != "")
             throw CanteraError("installReaction",
                 "Unknown reaction type: " + typ);
+
+
+        if (check_for_duplicates) {
+            doublereal c = 0.0;
+            
+            map<int, doublereal> rxnstoich;
+            rxnstoich.clear();
+            int nr = rdata.reactants.size();
+            for (nn = 0; nn < nr; nn++) {
+                rxnstoich[-1 - rdata.reactants[nn]] -= rdata.rstoich[nn];
+            }
+            int np = rdata.products.size();
+            for (nn = 0; nn < np; nn++) {
+                rxnstoich[rdata.products[nn]+1] += rdata.pstoich[nn];
+            }
+            int nrxns = _reactiondata.size();
+            for (nn = 0; nn < nrxns; nn++) {
+                if ((int(rdata.reactants.size()) == _nr[nn]) 
+                    && (rdata.reactionType == _typ[nn])) {
+                    c = isDuplicateReaction(rxnstoich, _reactiondata[nn]);
+                    if (c > 0.0 
+                        || (c < 0.0 && rdata.reversible)
+                        || (c < 0.0 && _rev[nn])) {
+                        if ((!dup || !_dup[nn])) {
+                            string msg = string("Undeclared duplicate reactions detected: \n")
+                                         +"Reaction "+int2str(nn+1)+": "+_eqn[nn]
+                                         +"\nReaction "+int2str(i+1)+": "+eqn+"\n";
+                            _reactiondata.clear();
+                            _eqn.clear();
+                            _rev.clear();
+                            _nr.clear();
+                            _typ.clear();
+                            _dup.clear();
+                            throw CanteraError("installReaction",msg);
+                        }
+                        //else 
+                        //     break;
+                    }
+                }
+            }
+            _dup.push_back(dup);
+            _rev.push_back(rdata.reversible);
+            _eqn.push_back(eqn);
+            _nr.push_back(rdata.reactants.size());
+            _typ.push_back(rdata.reactionType);
+            _reactiondata.push_back(rxnstoich);
+        }
+        
+        rdata.equation = eqn;
+        rdata.number = i;
+        rdata.rxn_number = i;
+	/*
+	 * Seaarch the reaction element for the attribute "type".
+	 * If found, then branch on the type, to fill in appropriate
+	 * fields in rdata. 
+	 */
             
         getRateCoefficient(r.child("rateCoeff"), kin, rdata, negA);
 	/*
@@ -953,6 +980,8 @@ namespace Cantera {
 
         _eqn.clear();
         _dup.clear();
+        _nr.clear();
+        _typ.clear();
         _reactiondata.clear();
         _rev.clear();
 
@@ -1058,6 +1087,8 @@ namespace Cantera {
         writer = 0;
         _eqn.clear();
         _dup.clear();
+        _nr.clear();
+        _typ.clear();
         _reactiondata.clear();
         return true;
     }

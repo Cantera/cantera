@@ -1,7 +1,12 @@
 <ctml>
+  <validate reactions="yes" species="yes"/>
 
-  <!--     phase argon      -->
+  <!--    phase argon     -->
   <phase dim="3" id="argon">
+    <validation>
+      <duplicateReactions>halt</duplicateReactions>
+      <thermo>warn</thermo>
+    </validation>
     <elementArray datasrc="elements.xml"> Ar </elementArray>
     <speciesArray datasrc="#species_data"> AR </speciesArray>
     <reactionArray datasrc="#reaction_data"/>
@@ -10,10 +15,10 @@
     <transport model="None"/>
   </phase>
 
-  <!--      species definitions      -->
+  <!--     species definitions     -->
   <speciesData id="species_data">
 
-    <!--     species AR     -->
+    <!--    species AR    -->
     <species name="AR">
       <atomArray>Ar:1 </atomArray>
       <thermo>
