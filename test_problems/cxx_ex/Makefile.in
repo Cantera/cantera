@@ -7,7 +7,7 @@
 all:
 
 test:
-	./runtest
+	(CANTERA_DATA='../../data/inputs'; ./runtest)
 
 clean:
 	../../bin/rm_cvsignore
