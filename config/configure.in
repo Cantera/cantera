@@ -20,6 +20,9 @@ CANTERA_LIBDIR=$prefix/lib/cantera
 CANTERA_INCDIR=$prefix/include/cantera
 
 ctroot=`(cd ..;pwd)`
+if test -z "$username"; then username=$USER; fi
+AC_SUBST(username)
+ 
 AC_SUBST(ctroot)
 
 

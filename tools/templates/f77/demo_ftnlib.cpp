@@ -10,6 +10,8 @@
  properties and kinetic rates for reacting ideal gas mixtures. Only a
  single pointer to an IdealGasMix object is stored, so only one
  reaction mechanism may be used at any one time in the application.
+ Of course, it is a simple modification to store multiple objects if 
+ it is desired to use multiple reaction mechanisms.
 
  The functions defined here are ones commonly needed in application
  programs that simulate gas-phase combustion or similar processes.
@@ -19,24 +21,40 @@
  examples in the demos/f77 subdirectory within the directory where
  Cantera is installed.
 
+ Note that this library is not an "official" Cantera Fortran 77
+ interface, only an example. If you use it with your Fortran 77
+ application and want your application to be portable to other
+ machines running Cantera, include this file along with your source
+ code. 
+
  */
 
 // add any other Cantera header files you need here
 #include "IdealGasMix.h"
 #include "equilibrium.h"
 
-
 // store a pointer to an IdealGasMix object. The object itself will
 // be created by the call to init_.
 static IdealGasMix* _gas = 0;
 
+map<string, int> _equil_opt;
 
+static void _init() {
+    _equil_opt["TP"] = TP;
+    _equil_opt["TV"] = TV;
+    _equil_opt["HP"] = HP;
+    _equil_opt["UV"] = UV;
+    _equil_opt["SP"] = SP;
+    _equil_opt["SV"] = SV;
+}
+
+// extern "C" turns off C++ name-mangling, so that the procedure names
+// in the object file are exactly as shown here.
 
 extern "C" {
 
     /// This is the Fortran main program
     extern int MAIN__();
-
 
     /**
      * Read in a reaction mechanism file and create an IdealGasMix
@@ -45,12 +63,13 @@ extern "C" {
      * second argument. If none is required, enter an empty string as
      * the second argument.
      */
-    void readmechanism_(char* file, char* thermo, 
+    void newidealgasmix_(char* file, char* thermo, 
         ftnlen lenfile, ftnlen lenthermo) {
         string fin = string(file, lenfile);
         string fth = string(thermo, lenthermo);
         if (_gas) delete _gas;
         _gas = new IdealGasMix(fin, fth);
+        _init();
     }
  
     ///   integer function nElements() 
@@ -70,12 +89,15 @@ extern "C" {
         _gas->setState_TPX(*T, *P, X);
     } 
 
-    /// subroutine setState_TPX_AsString(T, P, X)
-    void setstate_tpx_asstring_(doublereal* T, doublereal* P, 
+    /// subroutine setState_TPX_String(T, P, X)
+    void setstate_tpx_string_(doublereal* T, doublereal* P, 
         char* X, ftnlen lenx) {
         _gas->setState_TPX(*T, *P, string(X, lenx));
     } 
 
+    void setstate_try_(doublereal* T, doublereal* rho, doublereal* Y) {
+        _gas->setState_TRY(*T, *rho, Y);
+    } 
 
     //-------------- thermodynamic properties ----------------------
 
@@ -143,11 +165,14 @@ extern "C" {
     doublereal gibbs_mass_() { 
         return _gas->gibbs_mole();
     }
-
     
-    void equilibrate_(integer* opt) {
-        int option = *opt;
-        equilibrate(*_gas, option);
+    void equilibrate_(char* opt, ftnlen lenopt) {
+        if (lenopt != 2) {
+            throw CanteraError("equilibrate",
+                "two-character string required.");
+        }
+        string optstr = string(opt, 2);
+        equilibrate(*_gas, _equil_opt[optstr]);
     }
 
 
@@ -157,7 +182,8 @@ extern "C" {
         int irxn = *i - 1;
         fill(eqn, eqn + n, ' ');
         string e = _gas->reactionString(irxn);
-        unsigned int nmx = (e.size() > n ? n : e.size());
+        int ns = e.size();
+        unsigned int nmx = (ns > n ? n : ns);
         copy(e.begin(), e.begin()+nmx, eqn);
     }
         
@@ -165,9 +191,26 @@ extern "C" {
         _gas->getNetProductionRates(wdot);
     }
 
+    void getcreationrates_(doublereal* cdot) {
+        _gas->getCreationRates(cdot);
+    }
+
+    void getdestructionrates_(doublereal* ddot) {
+        _gas->getDestructionRates(ddot);
+    }
+
     void getnetratesofprogress_(doublereal* q) {
         _gas->getNetRatesOfProgress(q);
     }
+
+    void getfwdratesofprogress_(doublereal* q) {
+        _gas->getFwdRatesOfProgress(q);
+    }
+
+    void getrevratesofprogress_(doublereal* q) {
+        _gas->getRevRatesOfProgress(q);
+    }
+
 }
 
 

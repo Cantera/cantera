@@ -5,6 +5,8 @@
 #
 all: kernel 
 
+install: templates-install
+
 kernel:
 	cd src; @MAKE@
 	cd testtools; @MAKE@
@@ -20,3 +22,11 @@ docs:
 depends:
 	cd src; @MAKE@ depends
 	cd testtools; @MAKE@ depends
+
+templates-install:
+	@INSTALL@ -d @prefix@/cantera/templates
+	@INSTALL@ -d @prefix@/cantera/templates/f77
+	@INSTALL@ -m 644 templates/f77/*.cpp @prefix@/cantera/templates/f77
+	@INSTALL@ -m 644 templates/f77/*.f @prefix@/cantera/templates/f77
+	@INSTALL@ -m 644 templates/f77/*.mak @prefix@/cantera/templates/f77
+	chown -R @username@ @prefix@/cantera/templates

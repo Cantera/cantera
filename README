@@ -1,10 +1,12 @@
         
                              C A N T E R A
 
-                              release 1.3.5
-                                 2/03
+                              release 1.4
 
-      Copyright (c) 2001, 2002 California Institute of Technology
+                               4/12/2003
+
+      Copyright (c) 2001-2003 California Institute of Technology
+
 
 
 License information
@@ -15,18 +17,6 @@ for usage, and a DISCLAIMER OF ALL WARRANTIES.
 
 All trademarks referenced herein are property of their respective
 holders.
-
-
-
-Installing Cantera
-==================
-
-To download and install Cantera, run Python script 'ctupdate.py.'
-It will perform a binary install on Windows, and build everything from
-the source on any other platform.
-
-Alternatively, to manually build Cantera, follow the procedure below.
-
 
 
 
@@ -68,33 +58,34 @@ export LD_LIBRARY_PATH=$HOME/my_cantera_dir/lib
 2) Windows Build Procedure
 --------------------------
 
-Cantera can be built under Windows using Visual C++ and Compaq Visual
-Fortran. In the 'win32' directory, open workspace 'cantera.dsw'. Set
+Cantera can be built under Windows using Visual C++ 6.0 and Compaq Visual
+Fortran 6.0. In the 'win32' directory, open workspace 'cantera.dsw'. Set
 the active project to 'examples', and the active configuration to
 'Win32 - Release'. Build the project, and execute 'examples.exe' from
 the Build menu to verify that it works.
 
 If you plan to build the Python or MATLAB interfaces, you also need to
 build project 'ct'. This creates a DLL file which by default
-is placed in C:\WINDOWS\SYSTEM32. Edit the project settings if you want
+is placed in the Windows system directory. Edit the project settings if you want
 to put it somewhere else. 
-
-Finally, build project 'ctsetup'. This creates a simple utility that
-writes a Visual Studio project file or a unix Makefile and a prototype
-C++ main program that you can use as the starting point to develop
-your own C++ application.
 
 
 
 Configuring Matlab
 ---------------------
 
-Before you can build the Matlab toolbox from the source, Matlab needs
-to be configured for your compiler. In Matlab type:
+The Matlab toolbox uses one compiled MEX program written in C++.
+Before you can build it from the source, Matlab needs to be configured
+for your compiler. In Matlab type:
 
 mex -setup
 
 and enter the number for the compiler you wish to use.
+
+To build the MEX file needed for the Matlab toolbox, within Matlab
+go to to the 'cantera' directory containing the toolbox and type
+'buildux' on unix/linux/Mac OS X, or 'buildwin' on Windows.
+
 
 
 Configuring Python
@@ -105,4 +96,4 @@ have Python 2.0 or greater, you need to be able to write into its
 'Lib/site-packages' directory, and the 'Numeric' package must be
 installed. If any of these are not the case, run the Python script
 'ctupdate.py' found in the 'tools/bin' directory to download and
-install Python and Numeric.
+install Python and Numeric, or install them yourself.

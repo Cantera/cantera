@@ -498,7 +498,7 @@ namespace ctml {
         const char* tr_file, const char* out_file, const char* id_tag) {
         ckr::CKReader r;
         r.validate = true;
-        int i=1;
+        //int i=1;
  
         string infile = string(in_file);
         string dbfile = string(db_file);

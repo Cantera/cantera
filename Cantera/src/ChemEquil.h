@@ -177,7 +177,7 @@ namespace Cantera {
     inline void equilibrate(thermo_t& s, int XY) {
         ChemEquil e;
         //try {
-        int istatus = e.equilibrate(s,XY);
+        e.equilibrate(s,XY);
             //}
             //catch (CanteraError) {
             //throw CanteraError("equilibrate",

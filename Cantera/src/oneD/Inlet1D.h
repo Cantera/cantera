@@ -14,23 +14,44 @@ namespace Cantera {
     const int LeftInlet = 1;
     const int RightInlet = -1;
 
-
-    // A class for surface domains in one-dimensional simulations, The
-    // surface is zero-dimensional, and defined by a set of surface
-    // species coverages.
-
+    /**
+     * The base class for boundaries between one-dimensional spatial
+     * domains. The boundary may have its own internal variables, such
+     * as surface species coverages.
+     *
+     * The boundary types are an inlet, an outlet, a symmetry plane,
+     * and a surface.  
+     *
+     * The public methods are all virtual, and the base class
+     * implementations throw exceptions.
+     */
     class Bdry1D : public Resid1D {
     public:
         Bdry1D() : Resid1D(1, 1, 0.0) {}
         virtual ~Bdry1D() {}
+
+        /// Initialize.
         virtual void init(){err("init");}
+
+        /// Set the temperature.
         virtual void setTemperature(doublereal t){err("setTemperature");}
+
+        /// Temperature [K].
         virtual doublereal temperature() {err("temperature"); return 0.0;}
+
+        /// Set the mole fractions by specifying a string.
         virtual void setMoleFractions(string xin){err("setMoleFractions");}
+
+        /// Set the mole fractions by specifying an array.
         virtual void setMoleFractions(doublereal* xin){err("setMoleFractions");}
+        /// Mass fraction of species k.
         virtual doublereal massFraction(int k) {err("massFraction"); return 0.0;}
+        /// Set the total mass flow rate.
         virtual void setMdot(doublereal mdot){err("setMdot");}
+
+        /// The total mass flow rate [kg/m2/s].
         virtual doublereal mdot() {err("mdot"); return 0.0;}
+
     protected:
     private:
         void err(string method) {
@@ -53,6 +74,12 @@ namespace Cantera {
         /// Set the inlet temperature
         virtual void setTemperature(doublereal t) {
             m_temp = t;
+            needJacUpdate();
+        }
+
+        /// set spreading rate
+        virtual void setSpreadRate(doublereal V0) {
+            m_V0 = V0;
             needJacUpdate();
         }
 
@@ -105,6 +132,8 @@ namespace Cantera {
             vector_fp atol(2, 1.e-5);
             setTolerances(2, rtol.begin(), 2, atol.begin());
 
+            // if a flow domain is present on the left, then this must
+            // be a right inlet
             if (m_index > 0) {
                 Resid1D& r = container().domain(m_index-1);
                 if (r.domainType() == cFlowType) {
@@ -130,6 +159,7 @@ namespace Cantera {
                     throw CanteraError("Inlet1D::init",
                         "An inlet domain must be connected to a flow domain.");
             }
+            // components = u, V, T, lambda, + mass fractions
             m_nsp = m_flow->nComponents() - 4;
             m_yin.resize(m_nsp, 0.0);
             if (m_xstr != "") 
@@ -149,31 +179,44 @@ namespace Cantera {
             doublereal* r = rg + loc();
             integer* diag = diagg + loc();
             doublereal *xb, *rb;
-            //integer *db = diag + loc();
 
+            // residual equations for the two local variables
             r[0] = m_mdot - x[0];
             r[1] = m_temp - x[1];
+
+            // both are algebraic constraints
             diag[0] = 0;
             diag[1] = 0;
 
+            // if it is a left inlet, then the flow solution vector
+            // starts 2 to the right in the global solution vector
             if (m_ilr == LeftInlet) {
                 xb = x + 2;
                 rb = r + 2;
+
+                // If the energy equation is being solved, then
+                // the flow domain set this residual to T(0). 
+                // Subtract the inlet temperature.
                 if (m_flow->doEnergy(0)) {
                     rb[2] -= x[1];   // T
-                    //db[2] = 1;
                 }
-                rb[3] += x[0];   // lambda
+
+                // spreading rate. Flow domain sets this to V(0),
+                // so for finite spreading rate subtract m_V0.
+                rb[1] -= m_V0;
+
+                rb[3] += x[0];       // lambda
                 for (k = 0; k < m_nsp; k++) {
                     rb[4+k] += x[0]*m_yin[k];
-                    //db[4+k] = 1;
                 }
-                //cout << x[1] << "   " << xb[2] << "   " << rb[2] << endl;
             }
+
+            // right inlet.
             else {
                 int boffset = m_flow->nComponents();
                 xb = x - boffset;
                 rb = r - boffset;
+                rb[1] -= m_V0;
                 rb[2] -= x[1]; // T
                 xb[0] += x[0]; // u
                 for (k = 0; k < m_nsp; k++) 
@@ -192,7 +235,7 @@ namespace Cantera {
     protected:
 
         int m_ilr;
-        doublereal m_mdot, m_temp;
+        doublereal m_mdot, m_temp, m_V0;
         StFlow *m_flow;
         int m_nsp;
         vector_fp m_yin;
