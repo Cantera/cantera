@@ -75,7 +75,10 @@ namespace Cantera {
     class GasKinetics : public Kinetics {
 
     public:
-
+	/**
+	 * @name Constructors and General Information about Mechanism
+	 */
+	//@{
         /// Constructor.
         GasKinetics(thermo_t* thermo = 0);
 
@@ -92,21 +95,123 @@ namespace Cantera {
             return m_prxn[k][i];
         }
 
+	//@}
+        /**
+         * @name Reaction Rates Of Progress
+         */
+        //@{
+	/**
+         * Forward rates of progress.
+         * Return the forward rates of progress in array fwdROP, which
+         * must be dimensioned at least as large as the total number
+         * of reactions.
+         */
         virtual void getFwdRatesOfProgress(doublereal* fwdROP) { 
             updateROP(); 
             copy(m_kdata->m_ropf.begin(), m_kdata->m_ropf.end(), fwdROP);
         }
-
+        /**
+         * Reverse rates of progress.
+         * Return the reverse rates of progress in array revROP, which
+         * must be dimensioned at least as large as the total number
+         * of reactions.
+         */
         virtual void getRevRatesOfProgress(doublereal* revROP) { 
             updateROP(); 
             copy(m_kdata->m_ropr.begin(), m_kdata->m_ropr.end(), revROP);
         }
-
+        /**
+         * Net rates of progress.  Return the net (forward - reverse)
+         * rates of progress in array netROP, which must be
+         * dimensioned at least as large as the total number of
+         * reactions.
+         */
         virtual void getNetRatesOfProgress(doublereal* netROP) { 
             updateROP(); 
             copy(m_kdata->m_ropnet.begin(), m_kdata->m_ropnet.end(), netROP);
         }
 
+
+        /**
+         * Equilibrium constants. Return the equilibrium constants of
+         * the reactions in concentration units in array kc, which
+         * must be dimensioned at least as large as the total number
+         * of reactions.
+         */  
+	virtual void getEquilibriumConstants(doublereal* kc);
+
+	/**
+	 * Return the vector of values for the reaction gibbs free energy
+	 * change.
+	 * These values depend upon the concentration
+	 * of the solution.
+	 *
+	 *  units = J kmol-1
+	 */
+	virtual void getDeltaGibbs( doublereal* deltaG);
+
+	/**
+	 * Return the vector of values for the reactions change in
+	 * enthalpy.
+	 * These values depend upon the concentration
+	 * of the solution.
+	 *
+	 *  units = J kmol-1
+	 */
+	virtual void getDeltaEnthalpy( doublereal* deltaH);
+
+	/**
+	 * Return the vector of values for the reactions change in
+	 * entropy.
+	 * These values depend upon the concentration
+	 * of the solution.
+	 *
+	 *  units = J kmol-1 Kelvin-1
+	 */
+	virtual void getDeltaEntropy(doublereal* deltaS);
+
+	/**
+	 * Return the vector of values for the reaction 
+	 * standard state gibbs free energy change.
+	 * These values don't depend upon the concentration
+	 * of the solution.
+	 *
+	 *  units = J kmol-1
+	 */
+	virtual void getDeltaSSGibbs(doublereal* deltaG);
+
+	/**
+	 * Return the vector of values for the change in the
+	 * standard state enthalpies of reaction.
+	 * These values don't depend upon the concentration
+	 * of the solution.
+	 *
+	 *  units = J kmol-1
+	 */
+	virtual void getDeltaSSEnthalpy(doublereal* deltaH);
+
+	/**
+	 * Return the vector of values for the change in the
+	 * standard state entropies for each reaction.
+	 * These values don't depend upon the concentration
+	 * of the solution.
+	 *
+	 *  units = J kmol-1 Kelvin-1
+	 */
+	virtual void getDeltaSSEntropy(doublereal* deltaS);
+
+	//@}
+        /**
+         * @name Species Production Rates
+         */
+        //@{
+
+        /**
+         * Species net production rates [kmol/m^3]. Return the species
+         * net production rates (creation - destruction) in array
+         * wdot, which must be dimensioned at least as large as the
+         * total number of species.
+         */ 
         virtual void getNetProductionRates(doublereal* net) {
             updateROP();
 #ifdef HWMECH
@@ -123,6 +228,13 @@ namespace Cantera {
 #endif
         }
 
+	/**
+         * Species creation rates [kmol/m^3]. Return the species 
+         * creation rates in array cdot, which must be
+         * dimensioned at least as large as the total number of
+         * species.
+         *  
+         */ 
         virtual void getCreationRates(doublereal* cdot) {
             updateROP();
             m_rxnstoich.getCreationRates(m_kk, m_kdata->m_ropf.begin(), 
@@ -136,6 +248,13 @@ namespace Cantera {
             //    m_kdata->m_ropr.begin(), cdot);
         }
 
+	/**
+         * Species destruction rates [kmol/m^3]. Return the species 
+         * destruction rates in array ddot, which must be
+         * dimensioned at least as large as the total number of
+         * species.
+         *  
+         */ 
         virtual void getDestructionRates(doublereal* ddot) {
             updateROP();
             m_rxnstoich.getDestructionRates(m_kk, m_kdata->m_ropf.begin(), 
@@ -147,9 +266,63 @@ namespace Cantera {
             //    m_kdata->m_ropf.begin(), ddot);
         }
 
-        virtual void getEquilibriumConstants(doublereal* kc);
+        //@}
+        /**
+         * @name Reaction Mechanism Informational Query Routines
+         */
+        //@{
 
         /**
+         * Flag specifying the type of reaction. The legal values and
+         * their meaning are specific to the particular kinetics
+         * manager.
+         */
+	virtual int reactionType(int i) const {
+            return m_index[i].first;
+        }
+
+        virtual string reactionString(int i) const {
+            return m_rxneqn[i];
+        }
+
+	/**
+         * True if reaction i has been declared to be reversible. If
+         * isReversible(i) is false, then the reverse rate of progress
+         * for reaction i is always zero.
+         */
+        virtual bool isReversible(int i) {
+            if (find(m_revindex.begin(), m_revindex.end(), i) 
+                < m_revindex.end()) return true;
+            else return false;
+        }
+
+	/**
+	 * Return the forward rate constants
+	 *
+	 * length is the number of reactions. units depends
+	 * on many issues.
+	 */
+	virtual void getFwdRateConstants(doublereal *kfwd);
+
+	/**
+	 * Return the reverse rate constants.
+	 *
+	 * length is the number of reactions. units depends
+	 * on many issues. Note, this routine will return rate constants
+	 * for irreversible reactions if the default for
+	 * doIrreversible is overridden.
+	 */
+	virtual void getRevRateConstants(doublereal *krev, 
+					 bool doIrreversible = false);
+
+        //@}
+        /**
+         * @name Reaction Mechanism Setup Routines
+         */
+        //@{
+
+
+	/**
          * Set delta T threshold for updating temperature-dependent
          * rates.
          */
@@ -170,27 +343,17 @@ namespace Cantera {
 
         void updateROP();
 
-        virtual int reactionType(int i) const {
-            return m_index[i].first;
-        }
-
-        virtual string reactionString(int i) const {
-            return m_rxneqn[i];
-        }
 
         const vector<grouplist_t>& reactantGroups(int i)
             { return m_rgroups[i]; }
         const vector<grouplist_t>& productGroups(int i)
             { return m_pgroups[i]; }
 
-        virtual bool isReversible(int i) {
-            if (find(m_revindex.begin(), m_revindex.end(), i) 
-                < m_revindex.end()) return true;
-            else return false;
-        }
 
         void _update_rates_T();
         void _update_rates_C();
+
+      //@}
 
     protected:
 

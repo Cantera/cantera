@@ -17,7 +17,6 @@
 #include "GasKinetics.h"
 
 #include "ReactionData.h"
-//#include "StoichManager.h"
 #include "Enhanced3BConc.h"
 #include "ThirdBodyMgr.h"
 #include "RateCoeffMgr.h"
@@ -29,10 +28,10 @@ using namespace std;
 #include "mkl_vml.h"
 #endif
 
+#ifdef HWMECH
 void update_kc(const double* grt, double c0, double* rkc);
-void update_rates(double t, double tlog, double* rf);
-void mult_by_conc(const double* c, double* ropf, double* ropr);
 void eval_ropnet(const double* c, const double* rf, const double* rkc, double* r);
+#endif
 
 namespace Cantera {
 
@@ -130,8 +129,6 @@ namespace Cantera {
 
         // compute Delta G^0 for all reversible reactions
         m_rxnstoich.getRevReactionDelta(m_ii, m_grt.begin(), m_rkc.begin());
-            //m_reactantStoich.decrementReactions(m_grt.begin(), m_rkc.begin()); 
-            //m_revProductStoich.incrementReactions(m_grt.begin(), m_rkc.begin());
  
         doublereal logc0 = m_kdata->m_logc0;
         doublereal rrt = 1.0/(GasConstant * thermo().temperature());
@@ -160,12 +157,6 @@ namespace Cantera {
         
         // compute Delta G^0 for all reactions
         m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), rkc.begin());
-
-            //        m_reactantStoich.decrementReactions(m_grt.begin(), rkc.begin()); 
-            //m_revProductStoich.incrementReactions(m_grt.begin(), 
-            //rkc.begin());
-            //m_irrevProductStoich.incrementReactions(m_grt.begin(), 
-            //rkc.begin());
  
         doublereal logc0 = m_kdata->m_logc0;
         doublereal rrt = 1.0/(GasConstant * thermo().temperature());
@@ -174,6 +165,162 @@ namespace Cantera {
         }
     }
 
+    /**
+     *
+     * getDeltaGibbs():
+     *
+     * Return the vector of values for the reaction gibbs free energy
+     * change
+     * These values depend upon the concentration
+     * of the ideal gas.
+     *
+     *  units = J kmol-1
+     */
+    void GasKinetics::getDeltaGibbs(doublereal* deltaG) {
+	/*
+	 * Get the chemical potentials of the species in the 
+	 * ideal gas solution.
+	 */
+	thermo().getChemPotentials(m_grt.begin());
+	/*
+	 * Use the stoichiometric manager to find deltaG for each
+	 * reaction.
+	 */
+	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaG);
+    }
+    
+    /**
+     *
+     * getDeltaEnthalpy():
+     * 
+     * Return the vector of values for the reactions change in
+     * enthalpy.
+     * These values depend upon the concentration
+     * of the solution.
+     *
+     *  units = J kmol-1
+     */
+    void GasKinetics::getDeltaEnthalpy(doublereal* deltaH) {
+	/*
+	 * Get the partial molar enthalpy of all species in the 
+	 * ideal gas.
+	 */
+	thermo().getPartialMolarEnthalpies(m_grt.begin());
+	/*
+	 * Use the stoichiometric manager to find deltaG for each
+	 * reaction.
+	 */
+	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaH);
+    }
+
+    /************************************************************************
+     *
+     * getDeltaEntropy():
+     *
+     * Return the vector of values for the reactions change in
+     * entropy.
+     * These values depend upon the concentration
+     * of the solution.
+     *
+     *  units = J kmol-1 Kelvin-1
+     */
+    void GasKinetics::getDeltaEntropy( doublereal* deltaS) {
+	/*
+	 * Get the partial molar entropy of all species in the
+	 * solid solution.
+	 */
+	thermo().getPartialMolarEntropies(m_grt.begin());
+	/*
+	 * Use the stoichiometric manager to find deltaS for each
+	 * reaction.
+	 */
+	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaS);
+    }
+
+    /**
+     *
+     * getDeltaSSGibbs():
+     *
+     * Return the vector of values for the reaction 
+     * standard state gibbs free energy change.
+     * These values don't depend upon the concentration
+     * of the solution.
+     *
+     *  units = J kmol-1
+     */
+    void GasKinetics::getDeltaSSGibbs(doublereal* deltaG) {
+	/*
+	 *  Get the standard state chemical potentials of the species.
+         *  This is the array of chemical potentials at unit activity 
+	 *  We define these here as the chemical potentials of the pure
+	 *  species at the temperature and pressure of the solution.
+	 */
+        thermo().getStandardChemPotentials(m_grt.begin());
+	/*
+	 * Use the stoichiometric manager to find deltaG for each
+	 * reaction.
+	 */
+	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaG);
+    }
+
+    /**
+     *
+     * getDeltaSSEnthalpy():
+     *
+     * Return the vector of values for the change in the
+     * standard state enthalpies of reaction.
+     * These values don't depend upon the concentration
+     * of the solution.
+     *
+     *  units = J kmol-1
+     */
+    void GasKinetics::getDeltaSSEnthalpy(doublereal* deltaH) {
+	/*
+	 *  Get the standard state enthalpies of the species.
+         *  This is the array of chemical potentials at unit activity 
+	 *  We define these here as the enthalpies of the pure
+	 *  species at the temperature and pressure of the solution.
+	 */
+	thermo().getEnthalpy_RT(m_grt.begin());
+	doublereal RT = thermo().temperature() * GasConstant;
+	for (int k = 0; k < m_kk; k++) {
+	  m_grt[k] *= RT;
+	}
+	/*
+	 * Use the stoichiometric manager to find deltaG for each
+	 * reaction.
+	 */
+	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaH);
+    }
+
+    /*********************************************************************
+     *
+     * getDeltaSSEntropy():
+     *
+     * Return the vector of values for the change in the
+     * standard state entropies for each reaction.
+     * These values don't depend upon the concentration
+     * of the solution.
+     *
+     *  units = J kmol-1 Kelvin-1
+     */
+    void GasKinetics::getDeltaSSEntropy(doublereal* deltaS) {
+	/*
+	 *  Get the standard state entropy of the species.
+	 *  We define these here as the entropies of the pure
+	 *  species at the temperature and pressure of the solution.
+	 */
+	thermo().getEntropy_R(m_grt.begin());
+	doublereal R = GasConstant;
+	for (int k = 0; k < m_kk; k++) {
+	  m_grt[k] *= R;
+	}
+	/*
+	 * Use the stoichiometric manager to find deltaS for each
+	 * reaction.
+	 */
+	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaS);
+    }
 
     void GasKinetics::processFalloffReactions() {
 
@@ -259,6 +406,77 @@ namespace Cantera {
         m_kdata->m_ROP_ok = true;
     }
 
+    /**
+     *
+     * getFwdRateConstants():
+     *
+     * Update the rate of progress for the reactions.
+     * This key routine makes sure that the rate of progress vectors
+     * located in the solid kinetics data class are up to date.
+     */
+    void GasKinetics::
+    getFwdRateConstants(doublereal *kfwd) {
+        _update_rates_T();
+	_update_rates_C();
+
+	// copy rate coefficients into ropf
+	const vector_fp& rf = m_kdata->m_rfn;
+	array_fp& ropf = m_kdata->m_ropf;
+        copy(rf.begin(), rf.end(), ropf.begin());
+
+        // multiply ropf by enhanced 3b conc for all 3b rxns
+        m_3b_concm.multiply(ropf.begin(), m_kdata->concm_3b_values.begin() );
+
+	/*
+	 * This routine is hardcoded to replace some of the values
+	 * of the ropf vector.
+	 */
+        processFalloffReactions();
+
+        // multiply by perturbation factor
+        multiply_each(ropf.begin(), ropf.end(), m_perturb.begin());
+       
+	for (int i = 0; i < m_ii; i++) {
+	  kfwd[i] = ropf[i];
+	}
+    }
+
+    /**
+     *
+     * getRevRateConstants():
+     *
+     * Return a vector of the reverse reaction rate constants
+     *
+     * Length is the number of reactions. units depends
+     * on many issues. Note, this routine will return rate constants
+     * for irreversible reactions if the default for
+     * doIrreversible is overridden.
+     */
+    void GasKinetics::
+    getRevRateConstants(doublereal *krev, bool doIrreversible) {
+	/*
+	 * go get the forward rate constants. -> note, we don't
+	 * really care about speed or redundancy in these
+	 * informational routines.
+	 */
+        getFwdRateConstants(krev);
+
+	if (doIrreversible) {
+	  doublereal *tmpKc = m_kdata->m_ropnet.begin();
+	  getEquilibriumConstants(tmpKc);
+	  for (int i = 0; i < m_ii; i++) {
+	    krev[i] /=  tmpKc[i];
+	  }
+	} else {
+	  /*
+	   * m_rkc[] is zero for irreversibly reactions
+	   */
+	  const vector_fp& m_rkc = m_kdata->m_rkcn;
+	  for (int i = 0; i < m_ii; i++) {
+	    krev[i] *= m_rkc[i];
+	  }
+	}
+    }
 
     void GasKinetics::
     addReaction(const ReactionData& r) {
