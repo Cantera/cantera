@@ -74,7 +74,7 @@ namespace Cantera {
                 m_high.push_back(v);
                 m_low.push_back(v);
                 m_tmid.push_back(c[0]);
-                m_index[imid] = igrp = m_high.size();
+                m_index[imid] = igrp = static_cast<int>(m_high.size());
                 m_ngroups++;
             }
             doublereal tlow  = minTemp;
@@ -216,7 +216,10 @@ namespace Cantera {
 #endif
 
 // $Log$
-// Revision 1.5  2004-04-24 12:53:00  dggoodwin
+// Revision 1.6  2004-07-01 23:47:45  hkmoffa
+// static_cast to eliminate VC++ warnings.
+//
+// Revision 1.5  2004/04/24 12:53:00  dggoodwin
 // *** empty log message ***
 //
 // Revision 1.4  2004/04/23 19:03:22  dggoodwin
