@@ -62,8 +62,9 @@ namespace Cantera {
         virtual void setMaxOrder(int n) { m_maxord = n; }
         virtual void setMethod(MethodType t);
         virtual void setIterator(IterType t);
-        virtual void setMaxStep(double hmax);
-        virtual void setMinStep(double hmin);
+        virtual void setMaxStepSize(double hmax);
+        virtual void setMinStepSize(double hmin);
+        virtual void setMaxSteps(int nmax);
 
     private:
 
@@ -80,6 +81,7 @@ namespace Cantera {
         double m_abstols;
         int m_nabs;
         double m_hmax, m_hmin;
+        int m_maxsteps;
 
         vector_fp m_ropt;
         long int* m_iopt;

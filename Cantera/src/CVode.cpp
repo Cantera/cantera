@@ -100,7 +100,8 @@ namespace Cantera {
                            m_reltol(1.e-9), 
                            m_abstols(1.e-15), 
                            m_nabs(0), 
-                           m_hmax(0.0)
+                           m_hmax(0.0),
+                           m_maxsteps(20000)
     {
         m_ropt.resize(OPT_SIZE,0.0);
         m_iopt = new long[OPT_SIZE];
@@ -152,14 +153,19 @@ namespace Cantera {
             throw CVodeErr("unknown method");
     }
 
-    void CVodeInt::setMaxStep(doublereal hmax) {
+    void CVodeInt::setMaxStepSize(doublereal hmax) {
         m_hmax = hmax;
         m_ropt[HMAX] = hmax;
     }
 
-    void CVodeInt::setMinStep(doublereal hmin) {
+    void CVodeInt::setMinStepSize(doublereal hmin) {
         m_hmin = hmin;
         m_ropt[HMIN] = hmin;
+    }
+
+    void CVodeInt::setMaxSteps(int nmax) {
+        m_maxsteps = nmax;
+        m_iopt[MXSTEP] = m_maxsteps;
     }
 
     void CVodeInt::setIterator(IterType t) {
@@ -186,7 +192,7 @@ namespace Cantera {
         func.getInitialConditions(m_t0, m_neq, N_VDATA(nv(m_y)));
 
         // set options
-        m_iopt[MXSTEP] = 20000;
+        m_iopt[MXSTEP] = m_maxsteps;
         m_iopt[MAXORD] = m_maxord;
         m_ropt[HMAX]   = m_hmax;
 
@@ -235,7 +241,7 @@ namespace Cantera {
         func.getInitialConditions(m_t0, m_neq, N_VDATA(nv(m_y)));
 
         // set options
-        m_iopt[MXSTEP] = 20000;
+        m_iopt[MXSTEP] = m_maxsteps;
         m_iopt[MAXORD] = m_maxord;
         m_ropt[HMAX]   = m_hmax;
 

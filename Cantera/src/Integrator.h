@@ -25,6 +25,7 @@
 #include "FuncEval.h"
 
 #include "ct_defs.h"
+#include "global.h"
 
 #define DIAG  1
 #define DENSE 2
@@ -146,19 +147,22 @@ namespace Cantera {
             { warn("setInterator"); }
 
         /** Set the maximum step size */
-        virtual void setMaxStep(double hmax)
-            { warn("setMaxStep"); }
+        virtual void setMaxStepSize(double hmax)
+            { warn("setMaxStepSize"); }
 
         /** Set the minimum step size */
-        virtual void setMinStep(double hmin)
-            { warn("setMinStep"); }
+        virtual void setMinStepSize(double hmin)
+            { warn("setMinStepSize"); }
+
+        virtual void setMaxSteps(int nmax) 
+            { warn("setMaxStep"); }
 
     private:
 
         doublereal m_dummy;
         void warn(string msg) const {
-            cerr << ">>>> Warning: method " << msg << " of base class "
-                 << "Integrator called. Nothing done." << endl;
+            writelog(">>>> Warning: method "+msg+" of base class "
+                +"Integrator called. Nothing done.\n");
         }
 
     };
