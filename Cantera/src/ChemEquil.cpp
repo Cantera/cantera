@@ -475,13 +475,15 @@ namespace Cantera {
         setInitialMoles(s, elementMol);
 
         for (int ii = 0; ii < m_mm; ii++) x[ii] = -100.0;
-        //try {
-            estimateElementPotentials(s, x);
-            //    }
-            //catch (CanteraError) { writelog("estimateElementPotentials failed, but continuing anyway,...\n"); }
+        estimateElementPotentials(s, x);
 
         x[m_mm] = log(m_phase->temperature());
-    
+        if (m_thermo->temperature() > m_thermo->maxTemp() ||
+            m_thermo->temperature() < m_thermo->minTemp() ) {
+            throw CanteraError("ChemEquil","initial temperature outside "
+                "valid range of "+fp2str(m_thermo->minTemp())+" K to "
+                +fp2str(m_thermo->maxTemp())+" K\n");
+        }
         vector_fp above(nvar);
         vector_fp below(nvar);
 
@@ -491,14 +493,14 @@ namespace Cantera {
             if (elMoles[m] < Cutoff && m != m_eloc) x[m] = -1000.0;
             //if (m == m_eloc) x[m] = -10.0;
         }
-        above[mm] = log(1.e4);
-        below[mm] = log(10.0);
+        above[mm] = log(m_thermo->maxTemp());  //log(1.e4);
+        below[mm] = log(m_thermo->minTemp()); //log(10.0);
 
         vector_fp grad(nvar, 0.0);        // gradient of f = F*F/2
         vector_fp oldx(nvar, 0.0);        // old solution
         vector_fp prevx(nvar, 0.0);       // old solution
         vector_fp oldresid(nvar, 0.0);
-        doublereal f, oldf; 
+        doublereal f, oldf;
 
         int iter = 0;
         int info=0;
@@ -582,7 +584,7 @@ namespace Cantera {
         if (iter > options.maxIterations) {
             throw CanteraError("equilibrate",
                 "no convergence in "+int2str(options.maxIterations)
-                +"iterations.");
+                +" iterations.");
             return -1;
         }
         goto next;
