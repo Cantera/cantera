@@ -41,7 +41,12 @@
 
 2005-01-07 17:10  dggoodwin
 
-	* win32/vc7/cantera/cantera.vcproj: added a file to project cantera
+	* win32/vc7/: cantera/cantera.vcproj, config_h/config_h.vcproj:
+	  added a file to project cantera
+
+2005-01-07 16:59  dggoodwin
+
+	* win32/vc7/config_h/config_h.vcproj: added project config_h
 
 2005-01-07 16:29  dggoodwin
 
