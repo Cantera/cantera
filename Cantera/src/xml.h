@@ -193,7 +193,7 @@ namespace Cantera {
         ostream& output() { return m_s; }
 
         inline string XML_filter(string name) { 
-            int ns = name.size();
+            int ns = static_cast<int>(name.size());
             string nm(name);
             for (int m = 0; m < ns; m++) 
                 if (name[m] == ' ' 
