@@ -199,7 +199,17 @@ namespace Cantera {
 	/// set the concentrations to the specified values
 	void setConcentrations(const doublereal* c);
 
+	/**
+	 * Returns a pointer to the start of the massFraction array
+	 */
         const doublereal* massFractions() const { return m_y.begin(); }
+
+	/**
+	 * Returns a pointer to the start of the moleFraction/MW array.
+	 * This array is the array of mole fractions, each divided by
+	 * the mean molecular weight.
+	 */
+	const doublereal* moleFractdivMMW() const { return m_ym.begin();}
 
         bool ready() const { return (m_kk > 0); }
 
