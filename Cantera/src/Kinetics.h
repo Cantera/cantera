@@ -26,7 +26,8 @@ namespace Cantera {
     /**
      * Public interface for kinetics managers. This class serves as a
      * base class to derive 'kinetics managers', which are classes
-     * that manage homogeneous chemistry within one phase.
+     * that manage homogeneous chemistry within one phase, or
+     * heterogeneous chemistry at one interface.
      */
     class Kinetics {
 
@@ -51,15 +52,16 @@ namespace Cantera {
         Kinetics(thermo_t* thermo) 
             : m_ii(0), m_index(-1), m_surfphase(-1) {
             if (thermo) {
-                m_start.push_back(0);
-                if (thermo->eosType() == cSurf) m_surfphase = nPhases();
-                m_thermo.push_back(thermo);
-		m_phaseindex[m_thermo.back()->id()] = nPhases();
+//                 addPhase(*thermo);
+//                 m_start.push_back(0);
+//                 if (thermo->eosType() == cSurf) m_surfphase = nPhases();
+//                 m_thermo.push_back(thermo);
+// 		m_phaseindex[m_thermo.back()->id()] = nPhases();
             }
         }
 
         /// Destructor. Does nothing.
-        virtual ~Kinetics() {} // delete m_xml; }
+        virtual ~Kinetics() {}
 
         int index(){ return m_index; }
         void setIndex(int index) { m_index = index; }
@@ -75,6 +77,7 @@ namespace Cantera {
         int nReactions() const {return m_ii;}
 
 	//@}
+
         /**
          * @name Information/Lookup Functions about Phases and Species
          */
@@ -102,16 +105,20 @@ namespace Cantera {
         int phaseIndex(string ph) { return m_phaseindex[ph] - 1; }
 
 	/**
-	 * This returns the integer index of the phase 
-	 * which has ThermoPhase type cSurf.
+	 * This returns the integer index of the phase which has
+	 * ThermoPhase type cSurf. For heterogeneous mechanisms, this
+	 * identifies the one surface phase. For homogeneous
+	 * mechanisms, this reurns -1.
 	 */
         int surfacePhaseIndex() { return m_surfphase; }
 
 	/**
 	 * This method returns a reference to the nth ThermoPhase
-	 * defined in this kinetics mechanism.
-	 * It is typically used so that member functions of the the
-	 * ThermoPhase may be called.
+	 * object defined in this kinetics mechanism.  It is typically
+	 * used so that member functions of the ThermoPhase object may
+	 * be called. For homogeneous mechanisms, there is only one
+	 * object, and this method can be called without an argument
+	 * to access it.
 	 */
         thermo_t& thermo(int n=0) { return *m_thermo[n]; }
         const thermo_t& thermo(int n=0) const { return *m_thermo[n]; }
@@ -120,14 +127,16 @@ namespace Cantera {
 	 * This method returns a reference to the nth ThermoPhase
 	 * defined in this kinetics mechanism.
 	 * It is typically used so that member functions of the
-	 * ThermoPhase may be called.
+	 * ThermoPhase may be called. @deprecated This method is redundant.
 	 */
         thermo_t& phase(int n=0) { return *m_thermo[n]; }
         const thermo_t& phase(int n=0) const { return *m_thermo[n]; }
 
         /**
 	 * Returns the total number of species in all phases
-	 * participating in the kinetics mechanism
+	 * participating in the kinetics mechanism. This is useful to
+	 * dimension arrays for use in calls to methods that return
+	 * the species production rates, for example.
 	 */
         int nTotalSpecies() const {
             int n=0, np;
@@ -138,7 +147,8 @@ namespace Cantera {
 
 	/**
 	 * Returns the starting index of the species in the nth phase
-	 * associated with the reaction mechanism
+	 * associated with the reaction mechanism. @deprecated. Can be
+         * replaced by kineticsSpeciesIndex(0).
 	 *
 	 * @param n Return the index of first species in the nth phase
 	 *          associated with the reaction mechanism.
@@ -147,7 +157,7 @@ namespace Cantera {
 
 	/**
 	 * This method returns the index of a species in the source
-	 * term vector for this kinetics object.
+	 * term vector for this kinetics object. 
 	 *
 	 * @param k species index 
 	 * @param n phase index for the species
@@ -158,11 +168,11 @@ namespace Cantera {
 
 	/**
 	 * Return the string name of the kth species in the kinetics
-	 * manager. k can be equal to 0 to the number of species
-	 * in the kinetics manager, which is the sum of the
-	 * number of species in all phases participating in the
-	 * kinetics manager. 
-	 *  If k is out of bounds, the string "<unknown>" is returned.
+	 * manager. k is an integer from 0 to ktot - 1, where ktot is
+	 * the number of species in the kinetics manager, which is the
+	 * sum of the number of species in all phases participating in
+	 * the kinetics manager.  If k is out of bounds, the string
+	 * "<unknown>" is returned.
 	 */
         string kineticsSpeciesName(int k) const {
             int np = m_start.size();
@@ -177,14 +187,16 @@ namespace Cantera {
 	/**
 	 * This routine will look up a species number based on
 	 * the input string nm. The lookup of species will
-	 * occur for all phases listed in the kinetics obect,
+	 * occur for all phases listed in the kinetics object,
 	 * unless the string ph refers to a specific phase of
 	 * the object. 
 	 *
 	 *  return
-	 *   If a match is found, the position in the species list
+	 *   - If a match is found, the position in the species list
 	 *   is returned. 
-	 *   If no match is found, the value -2 is returned.
+         *   - If a specific phase is specified and no match is found,
+         *   the value -1 is returned.
+	 *   - If no match is found in any phase, the value -2 is returned.
 	 */
         int kineticsSpeciesIndex(string nm, string ph = "<any>") const {
 	  int np = m_thermo.size();
@@ -232,14 +244,16 @@ namespace Cantera {
 	 * manager) and returns the species' owning ThermoPhase object.
 	 */
         thermo_t& speciesPhase(int k) {
-            int np = m_start.size();
-            for (int n = np-1; n >= 0; n--) {
-                if (k >= m_start[n]) {
-                    return thermo(n);
-                }
-            }
-            throw CanteraError("speciesPhase", 
-                "illegal species index: "+int2str(k));            
+            return thermo(speciesPhaseIndex(k));
+//             int np = m_start.size();
+//             for (int n = np-1; n >= 0; n--) {
+//                 if (k >= m_start[n]) {
+//                     return thermo(n);
+//                 }
+//             }
+//             throw CanteraError("speciesPhase", 
+//                 "illegal species index: "+int2str(k));          
+                
         }
 
 	/**
@@ -256,30 +270,31 @@ namespace Cantera {
                 }
             }
             throw CanteraError("speciesPhaseIndex", 
-                "illegal species index: "+int2str(k));            
+                "illegal species index: "+int2str(k));
         }
 
 	//@}
+
+
+
         /**
          * @name Reaction Rates Of Progress
          */
         //@{
 
         /**
-         * Forward rates of progress.
-         * Return the forward rates of progress in array fwdROP, which
-         * must be dimensioned at least as large as the total number
-         * of reactions.
+         * Forward rates of progress.  Return the forward rates of
+         * progress in array fwdROP, which must be dimensioned at
+         * least as large as the total number of reactions.
          */
         virtual void getFwdRatesOfProgress(doublereal* fwdROP) {
             err("getFwdRatesOfProgress");
         }
  
         /**
-         * Reverse rates of progress.
-         * Return the reverse rates of progress in array revROP, which
-         * must be dimensioned at least as large as the total number
-         * of reactions.
+         * Reverse rates of progress.  Return the reverse rates of
+         * progress in array revROP, which must be dimensioned at
+         * least as large as the total number of reactions.
          */
         virtual void getRevRatesOfProgress(doublereal* revROP) {
             err("getRevRatesOfProgress");
@@ -300,16 +315,15 @@ namespace Cantera {
          * Equilibrium constants. Return the equilibrium constants of
          * the reactions in concentration units in array kc, which
          * must be dimensioned at least as large as the total number
-         * of reactions.
+         * of reactions. 
          */  
          virtual void getEquilibriumConstants(doublereal* kc) {
              err("getEquilibriumConstants");
          }
 
 	/**
-	 * Return the vector of values for the reaction gibbs free energy
-	 * change.
-	 * These values depend upon the concentration
+	 * Return the vector of values for the reaction gibbs free
+	 * energy change.  These values depend upon the concentration
 	 * of the solution.
 	 *
 	 *  units = J kmol-1
@@ -320,9 +334,8 @@ namespace Cantera {
 
 	/**
 	 * Return the vector of values for the reactions change in
-	 * enthalpy.
-	 * These values depend upon the concentration
-	 * of the solution.
+	 * enthalpy.  These values depend upon the concentration of
+	 * the solution.
 	 *
 	 *  units = J kmol-1
 	 */
@@ -332,9 +345,8 @@ namespace Cantera {
 
 	/**
 	 * Return the vector of values for the reactions change in
-	 * entropy.
-	 * These values depend upon the concentration
-	 * of the solution.
+	 * entropy.  These values depend upon the concentration of the
+	 * solution.
 	 *
 	 *  units = J kmol-1 Kelvin-1
 	 */
@@ -343,10 +355,9 @@ namespace Cantera {
 	}
 
 	/**
-	 * Return the vector of values for the reaction 
-	 * standard state gibbs free energy change.
-	 * These values don't depend upon the concentration
-	 * of the solution.
+	 * Return the vector of values for the reaction standard state
+	 * gibbs free energy change.  These values don't depend upon
+	 * the concentration of the solution.
 	 *
 	 *  units = J kmol-1
 	 */
@@ -355,10 +366,9 @@ namespace Cantera {
 	}
 
 	/**
-	 * Return the vector of values for the change in the
-	 * standard state enthalpies of reaction.
-	 * These values don't depend upon the concentration
-	 * of the solution.
+	 * Return the vector of values for the change in the standard
+	 * state enthalpies of reaction.  These values don't depend
+	 * upon the concentration of the solution.
 	 *
 	 *  units = J kmol-1
 	 */
@@ -367,10 +377,9 @@ namespace Cantera {
 	}
 
 	/**
-	 * Return the vector of values for the change in the
-	 * standard state entropies for each reaction.
-	 * These values don't depend upon the concentration
-	 * of the solution.
+	 * Return the vector of values for the change in the standard
+	 * state entropies for each reaction.  These values don't
+	 * depend upon the concentration of the solution.
 	 *
 	 *  units = J kmol-1 Kelvin-1
 	 */
@@ -386,10 +395,10 @@ namespace Cantera {
         //@{
 
         /**
-         * Species creation rates [kmol/m^3]. Return the species 
-         * creation rates in array cdot, which must be
+         * Species creation rates [kmol/m^3 or kmol/m^2]. Return the
+         * species creation rates in array cdot, which must be
          * dimensioned at least as large as the total number of
-         * species.
+         * species. @see nTotalSpecies.
          *  
          */ 
         virtual void getCreationRates(doublereal* cdot) {
@@ -397,10 +406,10 @@ namespace Cantera {
         }
 
         /**
-         * Species destruction rates [kmol/m^3]. Return the species 
-         * destruction rates in array ddot, which must be
+         * Species destruction rates [kmol/m^3 or kmol/m^2]. Return
+         * the species destruction rates in array ddot, which must be
          * dimensioned at least as large as the total number of
-         * species.
+         * species. @see nTotalSpecies.
          *  
          */ 
         virtual void getDestructionRates(doublereal* ddot) {
@@ -408,16 +417,18 @@ namespace Cantera {
         }
 
         /**
-         * Species net production rates [kmol/m^3]. Return the species
-         * net production rates (creation - destruction) in array
-         * wdot, which must be dimensioned at least as large as the
-         * total number of species.
+         * Species net production rates [kmol/m^3 or kmol/m^2]. Return
+         * the species net production rates (creation - destruction)
+         * in array wdot, which must be dimensioned at least as large
+         * as the total number of species. @see nTotalSpecies.
          */ 
         virtual void getNetProductionRates(doublereal* wdot) {
             err("getNetProductionRates");
         }
 
         //@}
+
+
         /**
          * @name Reaction Mechanism Informational Query Routines
          */
@@ -488,7 +499,8 @@ namespace Cantera {
 	 * Return the forward rate constants
 	 *
 	 * length is the number of reactions. units depends
-	 * on many issues.
+	 * on many issues. @todo DGG: recommend changing name to 
+         * getFwdRateCoefficients.
 	 */
 	virtual void getFwdRateConstants(doublereal *kfwd) {
          err("getFwdRateConstants");
@@ -500,7 +512,8 @@ namespace Cantera {
 	 * length is the number of reactions. units depends
 	 * on many issues. Note, this routine will return rate constants
 	 * for irreversible reactions if the default for
-	 * doIrreversible is overridden.
+	 * doIrreversible is overridden. @todo DGG: recommend changing name to 
+         * getRevRateCoefficients.
 	 */
 	virtual void getRevRateConstants(doublereal *krev, 
 					 bool doIrreversible = false) {
@@ -531,15 +544,26 @@ namespace Cantera {
 	 *              index of the phase within the kinetics
 	 *              manager object as the value.
          */
-        void addPhase(thermo_t& thermo) { 
+        void addPhase(thermo_t& thermo) {
+
+            // if not the first thermo object, set the start position
+            // to that of the last object added + the number of its species 
             if (m_thermo.size() > 0) {
                 m_start.push_back(m_start.back() 
 				  + m_thermo.back()->nSpecies());
             }
+            // otherwise start at 0
             else {
                 m_start.push_back(0);
             }
-            if (thermo.eosType() == cSurf) m_surfphase = nPhases();
+            // there should only be one surface phase
+            if (thermo.eosType() == cSurf) {
+                if (m_surfphase >= 0) {
+                    throw CanteraError("Kinetics::addPhase",
+                        "cannot add more than one surface phase");
+                }
+                m_surfphase = nPhases();
+            }
             m_thermo.push_back(&thermo);
             m_phaseindex[m_thermo.back()->id()] = nPhases();
         }
@@ -592,8 +616,10 @@ namespace Cantera {
         void setMultiplier(int i, doublereal f) {m_perturb[i] = f;}
         
         //@}
+
 	/**
 	 * Increment the number of reactions in the mechanism by one.
+         * @todo Should be protected?
 	 */
         void incrementRxnCount() { m_ii++; m_perturb.push_back(1.0); }
 
@@ -604,6 +630,7 @@ namespace Cantera {
         virtual bool ready() const {
 	    return false;
 	}
+
 
     protected:
 
@@ -619,22 +646,24 @@ namespace Cantera {
         vector_fp m_perturb;
 
 	/**
-	 * This is a vector of vectors containing the reactants for each
-	 * reaction. The outer vector is over the number of reactions, m_ii.
-	 * The inner vector is a list of species indecises. If the stoichiometric
-	 * coefficient for a reactant is greater than one, then the
-	 * reactant is listed contiguously in the vector a number of 
-	 * times equal to its stoichiometric coefficient.
+	 * This is a vector of vectors containing the reactants for
+	 * each reaction. The outer vector is over the number of
+	 * reactions, m_ii.  The inner vector is a list of species
+	 * indicises. If the stoichiometric coefficient for a reactant
+	 * is greater than one, then the reactant is listed
+	 * contiguously in the vector a number of times equal to its
+	 * stoichiometric coefficient.
 	 */
         vector<vector_int> m_reactants;
 
 	/**
-	 * This is a vector of vectors containing the products for each
-	 * reaction. The outer vector is over the number of reactions, m_ii.
-	 * The inner vector is a list of species indecises. If the stoichiometric
-	 * coefficient for a product is greater than one, then the
-	 * reactant is listed contiguously in the vector a number of 
-	 * times equal to its stoichiometric coefficient.
+	 * This is a vector of vectors containing the products for
+	 * each reaction. The outer vector is over the number of
+	 * reactions, m_ii.  The inner vector is a list of species
+	 * indecises. If the stoichiometric coefficient for a product
+	 * is greater than one, then the reactant is listed
+	 * contiguously in the vector a number of times equal to its
+	 * stoichiometric coefficient.
 	 */
         vector<vector_int> m_products;
 
@@ -658,16 +687,18 @@ namespace Cantera {
         vector_int  m_start;
 
         /**
-	 * Mapping of the phase id, i.e., the id attribute in the xml phase
-	 * element to the position of the phase within the kinetics object.
-	 * Positions start with the value of 1. The member function, phaseIndex()
-	 * decrements by one before returning the index value.
+	 * Mapping of the phase id, i.e., the id attribute in the xml
+	 * phase element to the position of the phase within the
+	 * kinetics object.  Positions start with the value of 1. The
+	 * member function, phaseIndex() decrements by one before
+	 * returning the index value, so that missing phases return
+	 * -1.
 	 */
         map<string, int> m_phaseindex;
         int m_index;
 
 	/**
-	 * Index in the list of phases of the last surface phase entered. 
+	 * Index in the list of phases of the one surface phase. 
 	 */
         int m_surfphase;
 
