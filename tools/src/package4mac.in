@@ -32,7 +32,9 @@ cp -R -f $pylibdir/MixMaster/* $PYDIR/MixMaster
 cp -f $pylibdir/ctml_writer.py $PYDIR
 cp -f ~/setup_cantera $CTDIR
 
-cp -f /Users/dgg/dv/sf/cantera/License.txt $RESDIR
+chmod +x @ctroot@/tools/src/postflight
+cp -f @ctroot@/tools/src/postflight $RESDIR
+cp -f @ctroot@/License.rtf $RESDIR
 
 cp -R -f $pylibdir/Numeric/* $NUMPYDIR/Numeric
 cp -f $pylibdir/Numeric.pth $NUMPYDIR
