@@ -32,7 +32,7 @@ os_is_win=@OS_IS_WIN@
 
 all: cantera/ctmethods.@mex_ext@
 
-cantera/ctmethods.@mex_ext@: $(SRCS)
+cantera/ctmethods.@mex_ext@: $(SRCS) $(LIBDEPS) Makefile
 ifeq ($(os_is_win),0)
 	@PYTHON_CMD@ setup_matlab.py @prefix@/bin @buildlib@ @CT_SHARED_LIB@ '$(LIBS)'
 else

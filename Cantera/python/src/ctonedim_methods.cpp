@@ -219,11 +219,13 @@ py_domain_setupGrid(PyObject *self, PyObject *args)
         return NULL;
         
 
-    PyArrayObject* grid_array = (PyArrayObject*)grid;
+    PyArrayObject* grid_array = (PyArrayObject*)
+      PyArray_ContiguousFromObject(grid, PyArray_DOUBLE, 1, 1);
     double* grid_data = (double*)grid_array->data;
     int grid_len = grid_array->dimensions[0];
 
     _val = domain_setupGrid(i,grid_len,grid_data); 
+    Py_DECREF(grid_array);
     if (int(_val) == -1) return reportCanteraError();
     return Py_BuildValue("i",_val);
 }
@@ -484,16 +486,20 @@ py_stflow_setFixedTempProfile(PyObject *self, PyObject *args)
         return NULL;
         
 
-    PyArrayObject* pos_array = (PyArrayObject*)pos;
+    PyArrayObject* pos_array = (PyArrayObject*)
+      PyArray_ContiguousFromObject(pos, PyArray_DOUBLE, 1, 1);
     double* pos_data = (double*)pos_array->data;
     int pos_len = pos_array->dimensions[0];
 
 
-    PyArrayObject* temp_array = (PyArrayObject*)temp;
+    PyArrayObject* temp_array = (PyArrayObject*)
+      PyArray_ContiguousFromObject(temp, PyArray_DOUBLE, 1, 1);
     double* temp_data = (double*)temp_array->data;
     int temp_len = temp_array->dimensions[0];
 
     _val = stflow_setFixedTempProfile(i,pos_len,pos_data,temp_len,temp_data); 
+    Py_DECREF(pos_array);
+    Py_DECREF(temp_array);
     if (int(_val) == -1) return reportCanteraError();
     return Py_BuildValue("i",_val);
 }
@@ -548,11 +554,13 @@ py_sim1D_new(PyObject *self, PyObject *args)
         return NULL;
         
 
-    PyArrayObject* domains_array = (PyArrayObject*)domains;
+    PyArrayObject* domains_array = (PyArrayObject*)
+      PyArray_ContiguousFromObject(domains, PyArray_INT, 1, 1);
     int* domains_data = (int*)domains_array->data;
     int domains_len = domains_array->dimensions[0];
 
-    _val = sim1D_new(domains_len,domains_data); 
+    _val = sim1D_new(domains_len,domains_data);
+    Py_DECREF(domains_array); 
     if (int(_val) == -1) return reportCanteraError();
     return Py_BuildValue("i",_val);
 }
@@ -603,16 +611,20 @@ py_sim1D_setProfile(PyObject *self, PyObject *args)
         return NULL;
         
 
-    PyArrayObject* pos_array = (PyArrayObject*)pos;
+    PyArrayObject* pos_array = (PyArrayObject*)
+      PyArray_ContiguousFromObject(pos, PyArray_DOUBLE, 1, 1);
     double* pos_data = (double*)pos_array->data;
     int pos_len = pos_array->dimensions[0];
 
 
-    PyArrayObject* v_array = (PyArrayObject*)v;
+    PyArrayObject* v_array = (PyArrayObject*)
+      PyArray_ContiguousFromObject(v, PyArray_DOUBLE, 1, 1);
     double* v_data = (double*)v_array->data;
     int v_len = v_array->dimensions[0];
 
-    _val = sim1D_setProfile(i,dom,comp,pos_len,pos_data,v_len,v_data); 
+    _val = sim1D_setProfile(i,dom,comp,pos_len,pos_data,v_len,v_data);
+    Py_DECREF(pos_array);
+    Py_DECREF(v_array); 
     if (int(_val) == -1) return reportCanteraError();
     return Py_BuildValue("i",_val);
 }
@@ -661,11 +673,13 @@ py_sim1D_setTimeStep(PyObject *self, PyObject *args)
         return NULL;
         
 
-    PyArrayObject* nsteps_array = (PyArrayObject*)nsteps;
+    PyArrayObject* nsteps_array = (PyArrayObject*)
+      PyArray_ContiguousFromObject(nsteps, PyArray_INT, 1, 1);
     int* nsteps_data = (int*)nsteps_array->data;
     int nsteps_len = nsteps_array->dimensions[0];
 
-    _val = sim1D_setTimeStep(i,stepsize,nsteps_len,nsteps_data); 
+    _val = sim1D_setTimeStep(i,stepsize,nsteps_len,nsteps_data);
+    Py_DECREF(nsteps_array); 
     if (int(_val) == -1) return reportCanteraError();
     return Py_BuildValue("i",_val);
 }

@@ -114,16 +114,36 @@ namespace Cantera {
      */ 
     void MultiNewton::step(doublereal* x, doublereal* step, 
         OneDim& r, MultiJac& jac, int loglevel) {
-        int n;
+        int n, iok;
         int sz = r.size();
         r.eval(-1, x, step);
         for (n = 0; n < sz; n++) {
             step[n] = -step[n];
         }
-        //try {
-        jac.solve(sz, step, step);
-        //}
-        //catch (CanteraError) {
+        try {
+	  iok = jac.solve(sz, step, step);
+	  if (iok > 0) {
+	    iok--;
+	    int nd = r.nDomains();
+	    for (n = nd-1; n >= 0; n--) 
+	      if (iok >= r.start(n)) { break; }
+	    Domain1D& dom = r.domain(n);
+	    int offset = iok - r.start(n);
+	    int pt = offset/dom.nComponents();
+	    int comp = offset - pt*dom.nComponents();
+	    throw CanteraError("MultiNewton::step",
+			       "Jacobian is singular for domain "+
+			       dom.id() + ", component "
+			       +dom.componentName(comp)+" at point "
+			       +int2str(pt));
+	  }
+	  else if (iok < 0)   
+	    throw CanteraError("MultiNewton::step",
+				 "iok = "+int2str(iok));
+	}
+        catch (CanteraError) {
+	  showErrors(cout);
+	}
 #undef DEBUG_STEP
 #ifdef DEBUG_STEP
         bool ok = false;

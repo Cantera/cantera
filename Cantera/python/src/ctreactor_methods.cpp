@@ -263,8 +263,11 @@ py_flowdev_setParameters(PyObject *self, PyObject *args)
     PyObject* c;
     if (!PyArg_ParseTuple(args, "iiO:flowdev_setParameters", &n, &sz, &c))
         return NULL;
-    double* x = (double*)((PyArrayObject*)c)->data;
+    PyArrayObject* ca = (PyArrayObject*)
+      PyArray_ContiguousFromObject(c, PyArray_DOUBLE, 1, 1);
+    double* x = (double*)ca->data;
     int iok = flowdev_setParameters(n, sz, x);
+    Py_DECREF(ca);
     if (iok < 0) return reportError(iok);
     return Py_BuildValue("i",0);
 }

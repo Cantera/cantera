@@ -124,7 +124,7 @@ namespace Cantera {
      * Perform an LU decomposition. LAPACK routine DGBTRF is used.
      * The factorization is saved in ludata.
      */
-    void BandMatrix::factor() {
+    int BandMatrix::factor() {
         int info=0;
         copy(data.begin(), data.end(), ludata.begin());
         ct_dgbtrf(rows(), columns(), nSubDiagonals(), nSuperDiagonals(), 
@@ -135,13 +135,15 @@ namespace Cantera {
             m_factored = true;
         }
         else {
-            ofstream fout("bandmatrix.csv");
-            fout << *this << endl;
-            fout.close();
-            throw CanteraError("BandMatrix::factor",
-                "DGBTRF returned info = "+int2str(info)+".\n"
-                +"Matrix written to file bandmatrix.csv\n");
+	  m_factored = false;
+	  //ofstream fout("bandmatrix.csv");
+	  //fout << *this << endl;
+	  //fout.close();
+	  //throw CanteraError("BandMatrix::factor",
+	  //    "DGBTRF returned info = "+int2str(info)+".\n"
+	  //    +"Matrix written to file bandmatrix.csv\n");
         }
+	return info;
     }
 
 
@@ -170,29 +172,31 @@ namespace Cantera {
 //                 "DGBTRS returned info = "+int2str(info)+".\n"
 //                 +"Matrix written to file bandmatrix.csv\n");
 //         }
-//     }
+//     }  
 
-    void BandMatrix::solve(int n, const doublereal* b, doublereal* x) {
+    int BandMatrix::solve(int n, const doublereal* b, doublereal* x) {
         copy(b, b+n, x);
-        solve(n, x);
+        return solve(n, x);
     }
 
-    void BandMatrix::solve(int n, doublereal* b) {
+    int BandMatrix::solve(int n, doublereal* b) {
         int info = 0;
-        if (!m_factored) factor();
-        ct_dgbtrs(ctlapack::NoTranspose, columns(), nSubDiagonals(), 
-            nSuperDiagonals(), 1, ludata.begin(), ldim(), ipiv().begin(), 
-            b, columns(), info);
+        if (!m_factored) info = factor();
+	if (info == 0)
+	  ct_dgbtrs(ctlapack::NoTranspose, columns(), nSubDiagonals(), 
+		    nSuperDiagonals(), 1, ludata.begin(), ldim(), 
+		    ipiv().begin(), b, columns(), info);
 
         // error handling
-        if (info != 0) {
-            ofstream fout("bandmatrix.csv");
-            fout << *this << endl;
-            fout.close();
-            throw CanteraError("BandMatrix::solve",
-                "DGBTRS returned info = "+int2str(info)+".\n"
-                +"Matrix written to file bandmatrix.csv\n");
-        }
+        //if (info != 0) {
+        //    ofstream fout("bandmatrix.csv");
+        //    fout << *this << endl;
+        //    fout.close();
+        //    throw CanteraError("BandMatrix::solve",
+        //        "DGBTRS returned info = "+int2str(info)+".\n"
+        //        +"Matrix written to file bandmatrix.csv\n");
+        //}
+	return info;
     }
 
     ostream& operator<<(ostream& s, const BandMatrix& m) {

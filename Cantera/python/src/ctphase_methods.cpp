@@ -244,7 +244,8 @@ phase_setarray(PyObject *self, PyObject *args)
     PyObject* seq;
     if (!PyArg_ParseTuple(args, "iiiO:phase_setarray", &ph, &job, &norm, &seq)) 
         return NULL;
-    PyArrayObject* a = (PyArrayObject*)seq;
+    PyArrayObject* a = (PyArrayObject*)
+      PyArray_ContiguousFromObject(seq, PyArray_DOUBLE, 1, 1);
     double* xd = (double*)a->data;
     int len = a->dimensions[0];
     switch (job) {
@@ -257,6 +258,7 @@ phase_setarray(PyObject *self, PyObject *args)
     default:
         iok = -10;
     }
+    Py_DECREF(a);
     if (iok >= 0)
         return Py_BuildValue("i",iok);
     if (iok == -1) 

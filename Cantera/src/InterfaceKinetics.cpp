@@ -173,7 +173,7 @@ namespace Cantera {
         }
         parseCompString(cov, cc);
         doublereal c;
-        vector_fp cv(kk);
+        vector_fp cv(kk, 0.0);
         for (k = 0; k < kk; k++) { 
             c = cc[speciesName(k)];
             if (c > 0.0) cv[k] = c;

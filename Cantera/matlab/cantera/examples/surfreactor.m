@@ -49,7 +49,7 @@ t = 0;
 dt = 0.1;
 t0 = cputime;
 names = {'CH4','O2','CO','CO2','H2O'};
-x = zeros([100 5])
+x = zeros([100 5]);
 for n = 1:100
   t = t + dt;
   advance(r, t);

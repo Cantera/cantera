@@ -123,12 +123,13 @@ class CounterFlame(Stack):
                     y[j,k] = yeq[k] + (zmix - zst)*(yin_f[k]
                                                     - yeq[k])/(1.0 - zst)
                 t[j] = teq + (t0f - teq)*(zmix - zst)/(1.0 - zst)
-                print teq, t[j], t0f, zmix, zst
             else:
                 for k in range(nsp):
                     y[j,k] = yin_o[k] + zmix*(yeq[k] - yin_o[k])/zst
                 t[j] = t0o + (teq - t0o)*zmix/zst
-
+            
+        t[0] = t0f
+        t[-1] = t0o
         zrel = zz/dz
         self.setProfile('u', [0.0, 1.0], [u0f, -u0o])
         self.setProfile('V', [0.0, x0/dz, 1.0], [0.0, a, 0.0])

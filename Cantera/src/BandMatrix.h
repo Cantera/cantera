@@ -105,12 +105,12 @@ namespace Cantera {
         /// Multiply b*A and write result to prod.
         void leftMult(const double* b, double* prod) const;
 
-        void factor();
+        int factor();
 
         //void solve(const vector_fp& b, vector_fp& x);
 
-        void solve(int n, const doublereal* b, doublereal* x);
-        void solve(int n, doublereal* b);
+        int solve(int n, const doublereal* b, doublereal* x);
+        int solve(int n, doublereal* b);
             
         vector_fp::iterator begin() { 
             m_factored = false;

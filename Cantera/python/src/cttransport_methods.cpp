@@ -37,9 +37,11 @@ py_setParameters(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "iiiO:py_setParameters", 
             &n, &typ, &k, &parray)) return NULL;
 
-    PyArrayObject* a = (PyArrayObject*)parray;
+    PyArrayObject* a = (PyArrayObject*)
+      PyArray_ContiguousFromObject(parray, PyArray_DOUBLE, 1, 1);
     double* xd = (double*)a->data;
     int ok = trans_setParameters(n, typ, k, xd);
+    Py_DECREF(a);
     if (ok < 0) return reportError(ok);
     return Py_BuildValue("i",ok);        
 }

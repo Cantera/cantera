@@ -133,7 +133,7 @@ finish-install:
 	@INSTALL@ -d @prefix@/bin
 	@INSTALL@ bin/ck2cti* @prefix@/bin
 	@INSTALL@ -d @prefix@/doc
-	@INSTALL@ doc/*.pdf @prefix@/doc
+	#@INSTALL@ doc/*.pdf @prefix@/doc
 	@INSTALL@ -d @prefix@/cantera/demos/c++
 	@INSTALL@ examples/cxx/*.cpp @prefix@/cantera/demos/c++
 	@INSTALL@ examples/cxx/*.h @prefix@/cantera/demos/c++
