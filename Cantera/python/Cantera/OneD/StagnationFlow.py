@@ -38,7 +38,7 @@ class StagnationFlow(Stack):
         self.getInitialSoln()        
         gas = self.gas
         nsp = gas.nSpecies()
-        yin = Numeric.zeros(nsp, 'd')
+        yin = zeros(nsp, 'd')
         for k in range(nsp):
             yin[k] = self.inlet.massFraction(k)
         gas.setState_TPY(self.inlet.temperature(), self.pressure, yin)
@@ -55,17 +55,17 @@ class StagnationFlow(Stack):
             gas.equilibrate('HP')
             teq = gas.temperature()
             yeq = gas.massFractions()
-            locs = Numeric.array([0.0, 0.3, 0.7, 1.0],'d')
+            locs = array([0.0, 0.3, 0.7, 1.0],'d')
             self.setProfile('T', locs, [t0, teq, teq, tsurf])
             for n in range(nsp):
                 self.setProfile(gas.speciesName(n), locs, [yin[n], yeq[n], yeq[n], yeq[n]])
         else:        
-            locs = Numeric.array([0.0, 1.0],'d')
+            locs = array([0.0, 1.0],'d')
             self.setProfile('T', locs, [t0, tsurf])
             for n in range(nsp):
                 self.setProfile(gas.speciesName(n), locs, [yin[n], yin[n]])
                 
-        locs = Numeric.array([0.0, 1.0],'d')                
+        locs = array([0.0, 1.0],'d')                
         self.setProfile('u', locs, [u0, 0.0])
         self.setProfile('V', locs, [V0, V0])        
 
@@ -149,7 +149,7 @@ class StagnationFlow(Stack):
     def coverages(self):
         """The coverages of the surface species."""
         nsurf = self.surfchem.nSpecies()
-        cov = Numeric.zeros(nsurf,'d')
+        cov = zeros(nsurf,'d')
         for n in range(nsurf):
             nm = self.surfchem.speciesName(n)
             cov[n] = self.value(self.surface, nm, 0)
@@ -159,7 +159,7 @@ class StagnationFlow(Stack):
         """Set the state of the object representing the gas to the
         current solution at grid point j."""                
         nsp = self.gas.nSpecies()
-        y = Numeric.zeros(nsp, 'd')
+        y = zeros(nsp, 'd')
         for n in range(nsp):
             nm = self.gas.speciesName(n)
             y[n] = self.solution(nm, j)

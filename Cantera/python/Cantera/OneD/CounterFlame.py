@@ -1,7 +1,7 @@
 """A counterflow flame."""
 
 from onedim import *
-from Cantera.num import zeros
+from Cantera.num import zeros 
 import math
 
 def erfc(x):
@@ -87,9 +87,9 @@ class CounterFlame(Stack):
         phi = s*y0f/y0ox
         zst = 1.0/(1.0 + phi)
         
-        yin_f = Numeric.zeros(nsp, 'd')
-        yin_o = Numeric.zeros(nsp, 'd')
-        yst = Numeric.zeros(nsp, 'd')        
+        yin_f = zeros(nsp, 'd')
+        yin_o = zeros(nsp, 'd')
+        yst = zeros(nsp, 'd')        
         for k in range(nsp):
             yin_f[k] = self.fuel_inlet.massFraction(k)
             yin_o[k] = self.oxidizer_inlet.massFraction(k)
@@ -123,8 +123,8 @@ class CounterFlame(Stack):
         x0 = mdotf*dz/(mdotf + mdoto)
         nz = len(zz)
 
-        y = Numeric.zeros([nz,nsp],'d')
-        t = Numeric.zeros(nz,'d')        
+        y = zeros([nz,nsp],'d')
+        t = zeros(nz,'d')        
         for j in range(nz):
             x = zz[j]
             zeta = f*(x - x0)
@@ -229,7 +229,7 @@ class CounterFlame(Stack):
         """Set the state of the object representing the gas to the
         current solution at grid point j."""        
         nsp = self.gas.nSpecies()
-        y = Numeric.zeros(nsp, 'd')
+        y = zeros(nsp, 'd')
         for n in range(nsp):
             nm = self.gas.speciesName(n)
             y[n] = self.solution(nm, j)
