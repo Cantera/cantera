@@ -30,6 +30,8 @@ namespace Cantera {
      * grid of equivalent sites. Surface species may be defined that
      * occupy one or more sites. The surface species are assumed to be
      * independent, and thus the species form an ideal solution.
+     * The definitions of the member functions are located in 
+     * InterfaceKinetics.cpp.
      */
     class SurfPhase : public ThermoPhase  {
 
@@ -51,13 +53,27 @@ namespace Cantera {
         doublereal potentialEnergy(int k) {return m_pe[k];}
         void setSiteDensity(doublereal n0);
         void setElectricPotential(doublereal V);
+        /**
+         * Set the surface site fractions to a specified 
+         * state. This routine converts to concentrations
+         * in kmol/m2, using m_n0, the surface site density,
+         * and size(k), which is defined to be the number of
+         * surface sites occupied by the kth molecule.
+         * It then calls State::setConcentrations to set the
+         * internal concentration in the object.
+	 *
+	 * @param theta[k] This is the surface site fraction
+	 *                 for the kth species in the surface phase.
+	 *                 This is a dimensionless quantity.
+         */
         void setCoverages(const doublereal* theta);
         void setCoveragesByName(string cov);
         void getCoverages(doublereal* theta) const;
 
     protected:
 
-        doublereal m_n0, m_logn0;
+        doublereal m_n0;
+        doublereal m_logn0;
         doublereal m_tmin, m_tmax;
 
         mutable doublereal    m_tlast;
