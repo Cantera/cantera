@@ -20,10 +20,18 @@ CANTERALIB_DEP = @buildlib@/libcantera.a \
 .cpp.o:
 	@CXX@ -c $< @DEFS@  $(INCDIR) @CXXFLAGS@ $(CXX_FLAGS) 
 
-all: $(BINDIR)/ck2cti
+all: $(BINDIR)/ck2ctml $(BINDIR)/cti2ctml $(BINDIR)/ck2cti
+
+$(BINDIR)/ck2ctml: ck2ctml.o $(CONVLIB_DEP) $(CANTERALIB_DEP)
+	@CXX@ -o $(BINDIR)/ck2ctml ck2ctml.o $(LCXX_FLAGS) -lconverters $(LOCAL_LIBS) \
+               $(LCXX_END_LIBS)
 
 $(BINDIR)/ck2cti: ck2cti.o $(CONVLIB_DEP) $(CANTERALIB_DEP)
 	@CXX@ -o $(BINDIR)/ck2cti ck2cti.o $(LCXX_FLAGS) -lconverters $(LOCAL_LIBS) \
+               $(LCXX_END_LIBS)
+
+$(BINDIR)/cti2ctml: cti2ctml.o $(CONVLIB_DEP) $(CANTERALIB_DEP)
+	@CXX@ -o $(BINDIR)/cti2ctml cti2ctml.o $(LCXX_FLAGS) -lconverters $(LOCAL_LIBS) \
                $(LCXX_END_LIBS)
 clean:
 	$(RM) *.o *.*~
