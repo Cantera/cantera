@@ -76,8 +76,8 @@ rpath: $(RPATH)
 
 solvers: $(SOLVERS)
 
-#tpx: 
-#	cd $(EXT)/tpx; @MAKE@
+tpx: 
+	cd $(EXT)/tpx; @MAKE@
 
 flow1D:
 	cd oneD;  @MAKE@
