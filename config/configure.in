@@ -67,10 +67,25 @@ if test "x${OS_IS_WIN}" = "x1"; then
   prefix=`cygpath -a -w "${prefix}" | sed 's/\\\/\\//g'`
 fi
 
-echo "Cantera will be installed in ${prefix}"
 
+
+echo "Cantera will be installed in ${prefix}"
 AC_SUBST(prefix)
 AC_SUBST(local_inst)
+
+#
+# Determination of Python site-package directory location
+#
+local_python_inst=${local_inst}
+if test "x${SET_PYTHON_SITE_PACKAGE_TOPDIR}" = "xy"; then
+   python_prefix=${PYTHON_SITE_PACKAGE_TOPDIR}
+   local_python_inst=1
+else
+   python_prefix=$prefix
+fi
+echo "Cantera's Python packages will be installed in ${python_prefix}"
+AC_SUBST(local_python_inst)
+AC_SUBST(python_prefix)
 
 ctversion=${CANTERA_VERSION}
 AC_SUBST(ctversion)
@@ -351,6 +366,29 @@ fi
 
 AC_SUBST(LOCAL_LIBS)
 
+#--------------------------------------------------
+# Particle Library interface
+#--------------------------------------------------
+BUILD_PARTICLES=
+
+if test "$ENABLE_PARTICLES" = "y"
+then
+BUILD_PARTICLES=1
+NEED_PARTICLES=1
+if test -z "$CANTERA_PARTICLES_DIR"
+then
+  if test -z "$PARTICLES_DIR"
+  then
+    CANTERA_PARTICLES_DIR=$CANTERA_ROOT/Cantera/cads
+  else
+    CANTERA_PARTICLES_DIR=$CANTERA_ROOT/$PARTICLES_DIR
+  fi
+fi
+AC_SUBST(CANTERA_PARTICLES_DIR)
+CXXFLAGS="$CXXFLAGS -DHAVE_PARTICLES -I$CANTERA_PARTICLES_DIR/src"
+fi
+
+AC_SUBST(BUILD_PARTICLES)
 
 #-------------------------------------------------
 #      Language Interfaces
@@ -577,7 +615,8 @@ AC_OUTPUT(../Cantera/Makefile \
           ../test_problems/cxx_ex/Makefile \
           ../test_problems/silane_equil/Makefile \
           ../test_problems/surfkin/Makefile \
-          ../test_problems/diamondSurf/Makefile ) 
+          ../test_problems/diamondSurf/Makefile \
+            ) 
 #	)
 if test "x${OS_IS_WIN}" = "x1"; then
 cp -f ../config.h ../Cantera/src

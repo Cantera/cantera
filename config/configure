@@ -271,7 +271,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_unique_file="Cantera.README"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CVF_LIBDIR local_inst ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir CANTERA_LIBDIR CANTERA_INCDIR CT_TOOLS_BIN CANTERA_BINDIR CANTERA_EXAMPLES_DIR CANTERA_DATADIR build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE ARCHIVE SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR LAPACK_LIBRARY build_lapack BLAS_LIBRARY build_blas LOCAL_LIBS CT_SHARED_LIB BUILD_F90 PYTHON_CMD BUILD_PYTHON MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC F77 FFLAGS ac_ct_F77 FLIBS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CVF_LIBDIR local_inst local_python_inst python_prefix ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir CANTERA_LIBDIR CANTERA_INCDIR CT_TOOLS_BIN CANTERA_BINDIR CANTERA_EXAMPLES_DIR CANTERA_DATADIR build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE ARCHIVE SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR LAPACK_LIBRARY build_lapack BLAS_LIBRARY build_blas LOCAL_LIBS CANTERA_PARTICLES_DIR BUILD_PARTICLES CT_SHARED_LIB BUILD_F90 PYTHON_CMD BUILD_PYTHON MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC F77 FFLAGS ac_ct_F77 FLIBS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1311,8 +1311,23 @@ if test "x${OS_IS_WIN}" = "x1"; then
   prefix=`cygpath -a -w "${prefix}" | sed 's/\\\/\\//g'`
 fi
 
+
+
 echo "Cantera will be installed in ${prefix}"
 
+
+
+#
+# Determination of Python site-package directory location
+#
+local_python_inst=${local_inst}
+if test "x${SET_PYTHON_SITE_PACKAGE_TOPDIR}" = "xy"; then
+   python_prefix=${PYTHON_SITE_PACKAGE_TOPDIR}
+   local_python_inst=1
+else
+   python_prefix=$prefix
+fi
+echo "Cantera's Python packages will be installed in ${python_prefix}"
 
 
 
@@ -1688,6 +1703,29 @@ fi
 
 
 
+#--------------------------------------------------
+# Particle Library interface
+#--------------------------------------------------
+BUILD_PARTICLES=
+
+if test "$ENABLE_PARTICLES" = "y"
+then
+BUILD_PARTICLES=1
+NEED_PARTICLES=1
+if test -z "$CANTERA_PARTICLES_DIR"
+then
+  if test -z "$PARTICLES_DIR"
+  then
+    CANTERA_PARTICLES_DIR=$CANTERA_ROOT/Cantera/cads
+  else
+    CANTERA_PARTICLES_DIR=$CANTERA_ROOT/$PARTICLES_DIR
+  fi
+fi
+
+CXXFLAGS="$CXXFLAGS -DHAVE_PARTICLES -I$CANTERA_PARTICLES_DIR/src"
+fi
+
+
 
 #-------------------------------------------------
 #      Language Interfaces
@@ -1702,11 +1740,11 @@ fi
 
 
 
-BUILD_CLIB=0
+BUILD_CLIB=1
 #
 #     Python Interface
 #
-BUILD_PYTHON=0
+BUILD_PYTHON=1
 if test -z "$PYTHON_CMD"; then
     for ac_prog in python2 python
 do
@@ -1758,9 +1796,6 @@ if test "$PYTHON_CMD" != "none"; then
   if test "x$OS_IS_WIN" = "x1"; then
     PYTHON_CMD=`cygpath -a -w "$PYTHON_CMD" | sed 's/\\\/\\//g'`
   fi
-  if test "$BUILD_PYTHON_INTERFACE" != "n"; then
-    BUILD_PYTHON=1; BUILD_CLIB=1
-  fi
 else
   echo
   echo "********************************************************************"
@@ -1774,6 +1809,7 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define PYTHON_EXE "$PYTHON_CMD"
 _ACEOF
+
 
 
 #
@@ -3220,7 +3256,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3223:" \
+echo "$as_me:3259:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3397,7 +3433,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3400: \"$ac_link\") >&5
+(eval echo $as_me:3436: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3477,7 +3513,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3480: \"$ac_link\") >&5
+(eval echo $as_me:3516: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4348,6 +4384,8 @@ s,@ECHO_T@,$ECHO_T,;t t
 s,@LIBS@,$LIBS,;t t
 s,@CVF_LIBDIR@,$CVF_LIBDIR,;t t
 s,@local_inst@,$local_inst,;t t
+s,@local_python_inst@,$local_python_inst,;t t
+s,@python_prefix@,$python_prefix,;t t
 s,@ctversion@,$ctversion,;t t
 s,@homedir@,$homedir,;t t
 s,@ct_libdir@,$ct_libdir,;t t
@@ -4401,6 +4439,8 @@ s,@build_lapack@,$build_lapack,;t t
 s,@BLAS_LIBRARY@,$BLAS_LIBRARY,;t t
 s,@build_blas@,$build_blas,;t t
 s,@LOCAL_LIBS@,$LOCAL_LIBS,;t t
+s,@CANTERA_PARTICLES_DIR@,$CANTERA_PARTICLES_DIR,;t t
+s,@BUILD_PARTICLES@,$BUILD_PARTICLES,;t t
 s,@CT_SHARED_LIB@,$CT_SHARED_LIB,;t t
 s,@BUILD_F90@,$BUILD_F90,;t t
 s,@PYTHON_CMD@,$PYTHON_CMD,;t t
