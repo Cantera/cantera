@@ -280,10 +280,11 @@ namespace Cantera {
 	map<string,string>::const_iterator _b = comp.begin();
 	for (; _b != comp.end(); ++_b) {
 	  if (p.elementIndex(_b->first) < 0) {
-	    if (rule == 0) 
+	    if (rule == 0) {
 		throw CanteraError("installSpecies", 
                     "Species " + s["name"] + 
                     " contains undeclared element " + _b->first);
+	    }
 	    else
 		return false;
 	  }
