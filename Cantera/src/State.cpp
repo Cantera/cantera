@@ -16,7 +16,6 @@
  */
 
 #include "utilities.h"
-//#include "updaters.h"
 #include "ctexceptions.h"
 #include "State.h"
 
@@ -26,7 +25,6 @@ namespace Cantera {
 
     State::~State() {}
 
-    /// The mole fraction of species k.
     doublereal State::moleFraction(int k) const {
         if (k >= 0 && k < m_kk) {
             return m_ym[k] * m_mmw;
@@ -59,7 +57,6 @@ namespace Cantera {
         }
     }
 
-    /// Mass fraction of species k.
     doublereal State::massFraction(int k) const {
         if (k >= 0 && k < m_kk) {
             return m_y[k];
@@ -82,7 +79,6 @@ namespace Cantera {
             sum += m_ym[k];
         }
         m_mmw = 1.0/sum;
-        ////m_C_updater.need_update();
     }
 
     void State::setMassFractions_NoNorm(const doublereal* y) {
@@ -94,21 +90,16 @@ namespace Cantera {
             sum += m_ym[k];
         }
         m_mmw = 1.0/sum;
-        //copy(y, y + m_kk, m_y.begin());
-        //m_C_updater.need_update();
     }
 
-    /// Evaluate \f$ \sum_k X_k \log X_k \f$.
     doublereal State::sum_xlogx() const {
         return m_mmw*_sum_xlogx(m_ym.begin(), m_ym.end()) + log(m_mmw);
     }
 
-    /// Evaluate \f$ \sum_k X_k \log Q_k \f$.
     doublereal State::sum_xlogQ(doublereal* Q) const {
         return m_mmw * _sum_xlogQ(m_ym.begin(), m_ym.end(), Q);
     }
 
-    /// set the concentrations to the specified values
     void State::setConcentrations(const doublereal* c) {
         int k;
         doublereal sum = 0.0, norm = 0.0;
@@ -123,7 +114,6 @@ namespace Cantera {
             m_ym[k] = c[k] * rsum;
             m_y[k] =  m_ym[k] * m_molwts[k];
         }
-        //m_C_updater.need_update();
     }
 
     void State::init(const array_fp& mw) {
@@ -139,9 +129,10 @@ namespace Cantera {
                     "negative molecular weight for species number "+int2str(k));
                 }
             /*
-             * Some surface phases may define species representing empty sites that
-             * have zero molecular weight. Give them a very small molecular weight to 
-             * avoid dividing by zero.
+             * Some surface phases may define species representing
+             * empty sites that have zero molecular weight. Give them
+             * a very small molecular weight to avoid dividing by
+             * zero.
              */
             if (m_molwts[k] < Tiny) m_molwts[k] = Tiny;
             m_rmolwts[k] = 1.0/m_molwts[k];

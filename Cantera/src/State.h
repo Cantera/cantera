@@ -20,7 +20,6 @@
 #define CT_STATE2_H
 
 #include "utilities.h"
-//#include "updaters.h"
 #include "ctexceptions.h"
 
 namespace Cantera {
@@ -53,9 +52,8 @@ namespace Cantera {
          */
 	virtual ~State();
 
-
         /**
-         * Return a read-only reference to the vector of molecular
+         * Return a read-only reference to the array of molecular
          * weights.
          */
         const array_fp& molecularWeights() const { return m_molwts; }
@@ -87,6 +85,11 @@ namespace Cantera {
          */
 	void setMoleFractions_NoNorm(const doublereal* x);
 
+        /**
+         * Get the species mass fractions. 
+         * @param y On return, y contains the mass fractions. Array y 
+         * must have a length at least as large as the number of species.
+         */
 	void getMassFractions(size_t leny, doublereal* y) const {
             copy(m_y.begin(), m_y.end(), y);
         }
@@ -120,9 +123,10 @@ namespace Cantera {
 	void setMassFractions_NoNorm(const doublereal* y);
 
         /**
-         * Get the species concentrations (kmol/m^3).  @param c On return, c
-         * contains the concentrations. Array \i c must have a length
-         * greater than or equal to the number of species.
+         * Get the species concentrations (kmol/m^3).  
+         * @param c On return, \i c contains the concentrations. 
+         * Array \i c must have a length greater than or equal to 
+         * the number of species.
          */
 	void getConcentrations(doublereal* c) const {
             doublereal f = m_dens;
@@ -200,7 +204,8 @@ namespace Cantera {
 	 * Set the concentrations to the specified values within the
 	 * phase. This is the MAIN function for internally setting
 	 * the composition of a phase. It sets all of the internal
-	 * parameters within the state object. These are:
+	 * parameters within the state object except the temperature. 
+         * These are:
 	 *    m_dens = density of state
 	 *    m_ym[k] = mole fraction of species k / MolecWeight species k
 	 *    m_y[k] = Mass fractions of species k
@@ -231,9 +236,6 @@ namespace Cantera {
 
 
     protected:
-
-        //PropertyUpdater& updater_T() { return m_T_updater; }
-        //PropertyUpdater& updater_C() { return m_C_updater; }
 
         /**
          * @internal 
