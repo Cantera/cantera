@@ -46,5 +46,5 @@ def addDirectory(dir):
     import _cantera
     return _cantera.ct_addDirectory(dir)
 
-if ctdata:
-    addDirectory(ctdata)
+#if ctdata:
+#    addDirectory(ctdata)
