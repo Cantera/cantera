@@ -196,6 +196,7 @@ static PyMethodDef ct_methods[] = {
     {"flowdev_ready", py_flowdev_ready, METH_VARARGS},
     //{"reactor_setInitialTime", py_reactor_setInitialTime, METH_VARARGS},
     {"reactornet_setInitialTime", py_reactornet_setInitialTime, METH_VARARGS},
+    {"reactornet_setTolerances", py_reactornet_setTolerances, METH_VARARGS},
     {"flowdev_new", py_flowdev_new, METH_VARARGS},
     {"flowdev_massFlowRate", py_flowdev_massFlowRate, METH_VARARGS},
     {"flowdev_del", py_flowdev_del, METH_VARARGS},

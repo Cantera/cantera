@@ -776,6 +776,11 @@ class reaction:
             self._kf = [self._kf]
             mdim += 1
             ldim -= 3
+
+        if self._type == 'edge':
+            if self._beta > 0:
+                electro = kfnode.addChild('electrochem')
+                electro['beta'] = `self._beta`
             
         for kf in self._kf:
 
@@ -917,10 +922,12 @@ class edge_reaction(reaction):
                  equation = '',
                  kf = None,
                  id = '',
-                 order = '',                 
+                 order = '',
+                 beta = 0.0,
                  options = []):
         reaction.__init__(self, equation, kf, id, order, options)
         self._type = 'edge'
+        self._beta = beta
 
 
 #--------------     
@@ -1516,7 +1523,10 @@ validate()
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.4  2004-07-14 11:24:13  dggoodwin
+# Revision 1.5  2004-09-20 10:25:02  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.4  2004/07/14 11:24:13  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.3  2004/06/09 01:02:31  dggoodwin

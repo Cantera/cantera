@@ -994,7 +994,12 @@ class ReactorNet:
     def time(self):
         """The current time [s]."""
         return _cantera.reactornet_time(self.__reactornet_id)
-    
+
+    def setTolerances(self, rtol = 1.0e-9, atol = 1.0e-20):
+        """Set the relative and absolute error tolerances used in
+        integrating the reactor equations."""
+        _cantera.reactornet_setTolerances(self.__reactornet_id, rtol, atol)
+        
     def advance(self, time):
         """Advance the state of the reactor network in time from the current
         time to time 'time'."""

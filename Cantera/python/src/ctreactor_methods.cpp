@@ -493,6 +493,18 @@ py_reactornet_del(PyObject *self, PyObject *args)
 }
 
 static PyObject*
+py_reactornet_setTolerances(PyObject *self, PyObject *args)
+{
+    int n;
+    double rtol, atol;
+    if (!PyArg_ParseTuple(args, "idd:reactornet_setTolerances", &n, &rtol, &atol))
+        return NULL;
+    int iok = reactornet_setTolerances(n, rtol, atol);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
 py_reactornet_setInitialTime(PyObject *self, PyObject *args)
 {
     int n;
