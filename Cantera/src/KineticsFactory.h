@@ -19,6 +19,17 @@
 
 namespace Cantera {
 
+
+    class UnknownKineticsModel : public CanteraError {
+    public:
+	UnknownKineticsModel(string proc, string kineticsModel) :
+	    CanteraError(proc, "Specified Kinetics model "   
+			 + kineticsModel + 
+			 " does not match any known type.") {}
+	virtual ~UnknownKineticsModel() {}
+    };
+
+
     /**
      * Factory for kinetics managers.
      */

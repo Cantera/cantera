@@ -20,7 +20,6 @@
 #include "GasKinetics.h"
 #include "GRI_30_Kinetics.h"
 #include "InterfaceKinetics.h"
-
 #include "importCTML.h"
 
 namespace Cantera {
@@ -31,20 +30,52 @@ namespace Cantera {
     static string _types[] = {"GasKinetics", "GRI30", "Interface"};
     static int _itypes[]   = {cGasKinetics, cGRI30, cInterfaceKinetics};
 
-
     /**
-     * Return a new kinetics manager that implements a reaction
-     * mechanism specified in a CTML file.
+     * Return a new kinetics manager that "implements" a reaction
+     * mechanism specified in a CTML file. In other words, the
+     * kinetics manager, given the rate constants and formulation of the
+     * reactions that make up a kinetics mechanism, is responsible for
+     * calculating the rates of progress of the reactions and for
+     * calculating the source terms for species.
+     * 
+     * Input
+     * ------
+     *  phaseData = This is an XML_Node that contains the xml data
+     *              describing the phase. Of particular note to ths
+     *              routine is the child xml element called "kinetics".
+     *              The element has one attribute called "model",
+     *              with a string value. The value of this string
+     *              is used to decide which kinetics manager is used
+     *              to calculate the reacton mechanism. 
+     *
+     * Return
+     * ---------
+     *  Pointer to the new kinetics manager. 
      */
-    Kinetics* KineticsFactory::newKinetics(XML_Node& phase, 
-        vector<ThermoPhase*> th) {
-
-        string kintype = phase.child("kinetics")["model"];
+    Kinetics* KineticsFactory::
+    newKinetics(XML_Node& phaseData, vector<ThermoPhase*> th) {
+	/*
+	 * Look for a child of the xml element phase called
+	 * "kinetics". It has an attribute name "model".
+	 * Store the value of that attribute in the variable kintype
+	 */
+        string kintype = phaseData.child("kinetics")["model"];
+	/*
+	 * look up the string kintype in the list of known
+	 * kinetics managers (list is kept at the top of this file).
+	 * Translate it to an integer value, ikin. 
+	 */
         int ikin=-1;
         int n;
         for (n = 0; n < ntypes; n++) {
-            if (kintype == _types[n]) ikin = _itypes[n];
+	  if (kintype == _types[n]) ikin = _itypes[n];
         }
+	/*
+	 * Assign the kinetics manager based on the value of ikin.
+	 * Kinetics managers are classed derived from the base 
+	 * Kinetics class. Unknown kinetics managers will throw an
+	 * CanteraError here.
+	 */
         Kinetics* k=0;
         switch (ikin) {
 
@@ -61,12 +92,16 @@ namespace Cantera {
             break;
 
         default:
-            throw CanteraError("newKinetics",
-                "unknown kinetics manager: "+kintype);
+	    throw UnknownKineticsModel("KineticsFactory::newKinetics", 
+				       kintype);
         }
 
-        // import the reaction mechanism
-        importKinetics(phase, th, k);
+        // Now, that we have the kinetics manager, we can
+        // import the reaction mechanism into the kinetics manager.
+        importKinetics(phaseData, th, k);
+	/*
+	 * Return the pointer to the kinetics manager
+	 */
         return k;
     }
 
@@ -97,8 +132,8 @@ namespace Cantera {
             break;
 
         default:
-            throw CanteraError("newKinetics",
-                "unknown kinetics manager: "+model);
+	    throw UnknownKineticsModel("KineticsFactory::newKinetics", 
+				       model);
         }
         return k;
     }
