@@ -68,28 +68,88 @@ namespace Cantera {
 
 
     static void split(const string& src, string& file, string& id) { 
-        int ipound = src.find('#');
-
-        if (ipound >= 0) {
+	string::size_type ipound = src.find('#');
+        if (ipound != string::npos) {
             id = src.substr(ipound+1,src.size());
             file = src.substr(0,ipound);
-        }            
+        }
         else {
             id = "";
             file = src;
         }
     }
 
-    XML_Node* get_XML_Node(const string& src, XML_Node* root) {
+    /**
+     * This routine will locate an XML node in either the input
+     * XML tree or in another input file specified by the file
+     * part of the file_ID string. Searches are based on the
+     * ID attribute of the XML element only.
+     *
+     * @param file_ID This is a concatenation of two strings seperated
+     *                by the "#" character. The string before the
+     *                pound character is the file name of an xml
+     *                file to carry out the search. The string after
+     *                the # character is the ID attribute 
+     *                of the xml element to search for. 
+     *                The string is interpreted as a file string if
+     *                no # character is in the string.
+     *
+     * @param root    If the file string is empty, searches for the
+     *                xml element with matching ID attribute are
+     *                carried out from this XML node.
+     */
+    XML_Node* get_XML_Node(const string& file_ID, XML_Node* root) {
         string fname, idstr;
         XML_Node *db, *doc;
-        split(src,fname,idstr);
+        split(file_ID, fname, idstr);
         if (fname == "") {
-            db = root->findID(idstr,3);
+	  if (!root) return 0;
+	  db = root->findID(idstr, 3);
+        } else {
+	  doc = get_XML_File(fname);
+	  if (!doc) return 0;
+	  db = doc->findID(idstr, 3);
         }
-        else {
-            doc = get_XML_File(fname);
-            db = doc->findID(idstr,3);
+        return db;
+    }
+
+   /**
+     * This routine will locate an XML node in either the input
+     * XML tree or in another input file specified by the file
+     * part of the file_ID string. Searches are based on the
+     * XML element name and the ID attribute of the XML element.
+     * An exact match of both is usually required. However, the
+     * ID attribute may be set to "", in which case the first
+     * xml element with the correct element name will be returned.
+     *
+     * @param nameTarget This is the XML element name to look for.
+     *                   
+     * @param file_ID This is a concatenation of two strings seperated
+     *                by the "#" character. The string before the
+     *                pound character is the file name of an xml
+     *                file to carry out the search. The string after
+     *                the # character is the ID attribute 
+     *                of the xml element to search for. 
+     *                The string is interpreted as a file string if
+     *                no # character is in the string.
+     *
+     * @param root    If the file string is empty, searches for the
+     *                xml element with matching ID attribute are
+     *                carried out from this XML node.
+     */
+    XML_Node* get_XML_NameID(const string& nameTarget,
+			     const string& file_ID, 
+			     XML_Node* root) {
+        string fname, idTarget;
+        XML_Node *db, *doc;
+        split(file_ID, fname, idTarget);
+        if (fname == "") {
+	  if (!root) return 0;
+	  db = root->findNameID(nameTarget, idTarget);
+        } else {
+	  doc = get_XML_File(fname);
+	  if (!doc) return 0;
+	  db = doc->findNameID(nameTarget, idTarget);
         }
         return db;
     }
@@ -188,12 +248,27 @@ namespace Cantera {
         sp.install(k, SIMPLE, c.begin(), tmin, tmax, p0);
     }
 
-
     /**
      * Install a species into a ThermoPhase object, which defines
-     * the phase thermodynamics and speciation
+     * the phase thermodynamics and speciation.
+     *
+     *  This routine first gathers the information from the Species XML
+     *  tree and calls addUniqueSpecies() to add it to the
+     *  ThermoPhase object, p.
+     *  This information consists of:
+     *         ecomp[] = element composition of species.
+     *         chgr    = electric charge of species
+     *         name    = string name of species
+     *         sz      = size of the species 
+     *                 (option double used a lot in thermo)
+     *
+     *  Then, the routine processes the "thermo" XML element and
+     *  calls underlying utility routines to read the XML elements
+     *  containing the thermodynamic information for the reference
+     *  state of the species. Failures or lack of information trigger
+     *  an "UnknownSpeciesThermoModel" exception being thrown.
      */
-    static bool installSpecies(int k, const XML_Node& s, thermo_t& p, 
+    bool installSpecies(int k, const XML_Node& s, thermo_t& p, 
 			SpeciesThermo& spthermo, int rule) {
 
 	// get the composition of the species
@@ -236,6 +311,11 @@ namespace Cantera {
 
 	// get thermo.  We currently only support single-range Shomate
         // and const_cp, and dual-range NASA
+	if (!s.hasChild("thermo")) {
+	  throw 
+	    UnknownSpeciesThermoModel("installSpecies", s["name"], "missing");
+	  
+	}
 	const XML_Node& thermo = s.child("thermo");
 	const vector<XML_Node*>& tp = thermo.children();
 	int nc = tp.size();
@@ -247,23 +327,24 @@ namespace Cantera {
 	  else if (f.name() == "const_cp") {
 	    installSimpleThermo(spthermo, k, f);
 	  }
-	  else 
-	      throw CanteraError("importCTML",
-				 "Unsupported species thermo parameterization"
-				 " for species "+s["name"]+": "+f.name());
+	  else {
+	    UnknownSpeciesThermoModel("installSpecies", s["name"], f.name());
+	  }
 	}
 	else if (nc == 2) {
 	  const XML_Node& f0 = *tp[0];
 	  const XML_Node& f1 = *tp[1];
 	  if (f0.name() == "NASA" && f1.name() == "NASA") {
 	    installNasaThermo(spthermo, k, f0, f1);
+	  } else {
+	    UnknownSpeciesThermoModel("installSpecies", s["name"], 
+				      f0.name() + f1.name());
 	  }
 	}
-	else 
-	    throw CanteraError("importCTML",
-			       "Multiple thermo parameterizations given for "
-			       "species "+s["name"]);
-
+	else {
+	    UnknownSpeciesThermoModel("installSpecies", s["name"], 
+				      "multiple");
+	}
 	return true;
     }
 
@@ -780,8 +861,6 @@ namespace Cantera {
                     +enames[i]);
             }
         }
-    //delete db;
-        //db = 0;
 
 
         /***************************************************************
