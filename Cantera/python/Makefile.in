@@ -48,8 +48,8 @@ _winbuild: $(SRCS) $(WIN_LIB_DEPS)
 	echo 'ok' > _winbuild
 
 install:
-ifeq (@local_inst@,1)
-	(@PYTHON_CMD@ setup.py install --prefix=@prefix@)
+ifeq (@local_python_inst@,1)
+	(@PYTHON_CMD@ setup.py install --prefix=@python_prefix@)
 else
 	(@PYTHON_CMD@ setup.py install)
 endif
