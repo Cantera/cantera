@@ -8,8 +8,8 @@
 #
 ###############################################################
 
-SUFFIXES=
-SUFFIXES= .cpp .d .o .dh .h .h.gch
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o .dh .h .h.gch
 
 OBJDIR = .
 
