@@ -36,7 +36,9 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
 LIB_NAME=libctcxx
 CXXLIB=@buildlib@/$(LIB_NAME).a
 
-all: $(OBJS)
+all: $(CXXLIB)
+
+$(CXXLIB): $(OBJS)
 	@ARCHIVE@ $(CXXLIB) $(OBJS) 
 
 clean:
@@ -44,7 +46,6 @@ clean:
 
 install:
 	@INSTALL@ $(CXXLIB) @prefix@/lib/cantera
-
 
 %.d:
 	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d

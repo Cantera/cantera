@@ -1,0 +1,68 @@
+#!/bin/sh
+
+############################################################################
+#
+#  Makefile to compile and link a C++ application to 
+#  Cantera.
+#
+#############################################################################
+
+# the name of the executable program to be created
+PROG_NAME = kinetics1@EXE_EXT@
+
+# the object files to be linked together. List those generated from Fortran
+# and from C/C++ separately
+OBJS = kinetics1.o
+
+# additional flags to be passed to the linker. If your program
+# requires other external libraries, put them here
+LINK_OPTIONS = 
+
+#############################################################################
+
+# Fortran libraries
+FORT_LIBS = @FLIBS@
+
+# the C++ compiler
+CXX = @CXX@
+
+# C++ compile flags
+CXX_FLAGS = @CXXFLAGS@
+
+# external libraries
+EXT_LIBS = @LOCAL_LIBS@ -lctcxx
+
+# Ending C++ linking libraries
+LCXX_END_LIBS = @LCXX_END_LIBS@
+
+# the directory where the Cantera libraries are located
+CANTERA_LIBDIR=@buildlib@
+
+# required Cantera libraries
+CANTERA_LIBS =  
+
+# the directory where Cantera include files may be found.
+CANTERA_INCDIR=@ctroot@/build/include
+
+# flags passed to the C++ compiler/linker for the linking step
+LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
+
+# how to compile C++ source files to object files
+.@CXX_EXT@.@OBJ_EXT@:
+	$(CXX) -c $< -I$(CANTERA_INCDIR) $(CXX_FLAGS)
+
+PROGRAM = $(PROG_NAME)$(EXE_EXT)
+
+all: $(PROGRAM)
+
+$(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a
+	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
+                   $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ $(FORT_LIBS) \
+                  $(LCXX_END_LIBS)
+
+test:
+	@MAKE@ $(PROGRAM)
+	./runtest
+clean:
+	$(RM) $(OBJS) $(PROGRAM)
+	../../bin/rm_cvsignore

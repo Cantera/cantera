@@ -1,0 +1,33 @@
+#/bin/sh
+###############################################################
+#  $Author$
+#  $Date$
+#  $Revision$
+#
+#  Copyright 2001 California Institute of Technology
+#  See file License.txt for licensing information
+#
+###############################################################
+
+build_f90=@BUILD_F90@
+build_python=@BUILD_PYTHON@
+build_particles=@BUILD_PARTICLES@
+
+all:
+	cd src; @MAKE@
+	cd demos; @MAKE@
+
+clean:
+	cd src; @MAKE@ clean
+	cd demos; @MAKE@ clean
+
+depends:
+	cd src; @MAKE@ depends
+	cd demos; @MAKE@ depends
+
+install:
+	cd src; @MAKE@ install
+	cd demos; @MAKE@ install
+
+# end of file
+
