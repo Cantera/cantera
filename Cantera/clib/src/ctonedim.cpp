@@ -345,7 +345,9 @@ extern "C" {
             for (int n = 0; n < nd; n++) {
                 d.push_back(_domain(domains[n]));
             }
+            writelog("in sim1D_new, calling new Sim1D\n");
             Sim1D* s = new Sim1D(d);
+            writelog("in sim1D_new, ret Sim1D\n");
             return Cabinet<Sim1D>::cabinet()->add(s);
         }
         catch (CanteraError) { return -1; }
