@@ -1,3 +1,4 @@
+.ctt*
 *.log
 surfdemo
 Makefile
@@ -6,3 +7,4 @@ diff_test.out
 output.txt
 *.d
 .depends
+gri30.xml
