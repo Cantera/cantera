@@ -67,7 +67,7 @@ if test "x${prefix}" = "xNONE"; then
 fi
 
 if test "x${OS_IS_WIN}" = "x1"; then
-  prefix=`cygpath -a -w "${prefix}" | sed 's/\\\/\\//g'`
+  prefix=`cygpath -a -m "${prefix}" | sed 's/\\\/\\//g'`
 fi
 
 
@@ -180,7 +180,7 @@ AC_CANONICAL_SYSTEM()
 ctroot=`(cd ..;pwd)`
 builddir=$target
 if test "x${OS_IS_WIN}" = "x1"; then
-  ctroot=`cygpath -a -w "${ctroot}" | sed 's/\\\/\\//g'`
+  ctroot=`cygpath -a -m "${ctroot}" | sed 's/\\\/\\//g'`
   builddir="i686-pc-win32"
 fi
 
@@ -504,11 +504,13 @@ if test $BUILD_PYTHON -gt 0; then
     AC_PATH_PROGS(PYTHON_CMD, python2 python, "none")
     if test "x$OS_IS_WIN" = "x1"; then
       AC_PATH_PROGS(WIN_PYTHON_CMD, python, "none")
-      WIN_PYTHON_CMD=`cygpath -a -w "$WIN_PYTHON_CMD" | sed 's/\\\/\\//g'`
+      WIN_PYTHON_CMD=`cygpath -a -m "$WIN_PYTHON_CMD"` 
       echo "Windows Python command: $WIN_PYTHON_CMD"
     fi 
   else
     echo "Python command preset to $PYTHON_CMD"
+    WIN_PYTHON_CMD=`cygpath -a -m "$PYTHON_CMD"`
+    echo "Windows Python Command set to $WIN_PYTHON_CMD"
   fi
 
   if test "$PYTHON_CMD" = "none"; then
@@ -545,7 +547,7 @@ if test "$BUILD_MATLAB_TOOLBOX" != "n"; then
   fi
 fi
 if test "x$OS_IS_WIN" = "x1"; then
-    MATLAB_CMD=`cygpath -a -w "$MATLAB_CMD" | sed 's/\\\/\\//g'`
+    MATLAB_CMD=`cygpath -a -m "$MATLAB_CMD" | sed 's/\\\/\\//g'`
     echo "Windows MATLAB command: ${MATLAB_CMD}"
 fi 
 AC_SUBST(BUILD_MATLAB)
