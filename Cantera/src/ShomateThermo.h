@@ -102,13 +102,15 @@ namespace Cantera {
 
 	    int grp = m_group_map[k];
 	    int pos = m_posInGroup_map[k];
-	    const ShomatePoly *nlow = &(m_low[grp-1].at(pos));
+	    const vector<ShomatePoly> &mlg = m_low[grp-1];
+	    const ShomatePoly *nlow = &(mlg[pos]);
 
             doublereal tmid = nlow->maxTemp();
             if (t < tmid) {
 	      nlow->updateProperties(m_t.begin(), cp_R, h_RT, s_R);
             } else {
-	      const ShomatePoly *nhigh = &(m_high[grp-1].at(pos));
+	      const vector<ShomatePoly> &mhg = m_high[grp-1];
+	      const ShomatePoly *nhigh = &(mhg[pos]);
 	      nhigh->updateProperties(m_t.begin(), cp_R, h_RT, s_R);
 	    }
         }
@@ -175,8 +177,10 @@ namespace Cantera {
 	    if (type == NASA) {
 	      int grp = m_group_map[index];
 	      int pos = m_posInGroup_map[index];
-	      const ShomatePoly *lowPoly  = &(m_low[grp-1].at(pos));
-	      const ShomatePoly *highPoly = &(m_high[grp-1].at(pos));
+	      const vector<ShomatePoly> &mlg = m_low[grp-1];
+	      const vector<ShomatePoly> &mhg = m_high[grp-1];
+	      const ShomatePoly *lowPoly  = &(mlg[pos]);
+	      const ShomatePoly *highPoly = &(mhg[pos]);
 	      doublereal tmid = lowPoly->maxTemp();
 	      c[0] = tmid;
 	      int n;
@@ -212,7 +216,19 @@ namespace Cantera {
         int                        m_ngroups;
         mutable vector_fp          m_t;
 
+	/*
+	 * This map takes as its index, the species index in the phase.
+	 * It returns the group index, where the temperature polynomials
+	 * for that species are storred. group indecises start at 1,
+	 * so a decrement is always performed to access vectors.
+	 */
 	mutable map<int, int>              m_group_map;
+
+	/*
+	 * This map takes as its index, the species index in the phase.
+	 * It returns the position index within the group, where the 
+	 * temperature polynomials for that species are storred.
+	 */
 	mutable map<int, int>              m_posInGroup_map;
     };
 
