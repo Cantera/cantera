@@ -1,10 +1,10 @@
-#ifndef HFC134_H
-#define HFC134_H
+#ifndef TPX_HFC134_H
+#define TPX_HFC134_H
 
-#include "sub.h"
+#include "Sub.h"
 
 namespace tpx {
-    class HFC134a : public Substance{
+    class HFC134a : public Substance {
     public:
 	HFC134a(){}
         ~HFC134a(){}
