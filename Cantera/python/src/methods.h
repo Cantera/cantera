@@ -165,6 +165,7 @@ static PyMethodDef ct_methods[] = {
     {"rdiag_displayOnly", py_rdiag_displayOnly, METH_VARARGS},
     {"rdiag_setThreshold", py_rdiag_setThreshold, METH_VARARGS},
     {"rdiag_setBoldThreshold", py_rdiag_setBoldThreshold, METH_VARARGS},
+    {"rdiag_setFont", py_rdiag_setFont, METH_VARARGS},
     {"rdiag_new", py_rdiag_new, METH_VARARGS},
     {"rdiag_del", py_rdiag_del, METH_VARARGS},
     {"rdiag_detailed", py_rdiag_detailed, METH_VARARGS},

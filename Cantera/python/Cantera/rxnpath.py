@@ -110,6 +110,8 @@ class PathDiagram:
                 _cantera.rdiag_setNormalThreshold(self.__rdiag_id, v)
             elif o == "label_threshold":
                 _cantera.rdiag_setLabelThreshold(self.__rdiag_id, v)
+            elif o == "font":
+                _cantera.rdiag_setFont(self.__rdiag_id, v)                
             elif o == "flow_type":
                 if v == "one_way":
                     _cantera.rdiag_setFlowType(self.__rdiag_id, 0)

@@ -53,6 +53,18 @@ py_rdiag_setThreshold(PyObject *self, PyObject *args)
 }
 
 static PyObject*
+py_rdiag_setFont(PyObject *self, PyObject *args)
+{
+    int n;
+    char* font;
+    if (!PyArg_ParseTuple(args, "is:rdiag_setFont", &n, &font))
+        return NULL;
+    int iok = rdiag_setFont(n, font);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
 py_rdiag_setBoldColor(PyObject *self, PyObject *args)
 {
     int n;
