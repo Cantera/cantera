@@ -101,15 +101,15 @@ py_reactor_setKineticsMgr(PyObject *self, PyObject *args)
 //     return Py_BuildValue("d",reactor_step(n, t));
 // }
 
-static PyObject*
-py_reactor_time(PyObject *self, PyObject *args)
-{
-    int n;
-    if (!PyArg_ParseTuple(args, "i:reactor_time", &n))
-        return NULL;
-    double t = reactor_time(n);
-    return Py_BuildValue("d",t);
-}
+// static PyObject*
+// py_reactor_time(PyObject *self, PyObject *args)
+// {
+//     int n;
+//     if (!PyArg_ParseTuple(args, "i:reactor_time", &n))
+//         return NULL;
+//     double t = reactor_time(n);
+//     return Py_BuildValue("d",t);
+// }
 
 static PyObject*
 py_reactor_mass(PyObject *self, PyObject *args)
@@ -502,6 +502,16 @@ py_reactornet_setInitialTime(PyObject *self, PyObject *args)
     int iok = reactornet_setInitialTime(n, t);
     if (iok < 0) return reportError(iok);
     return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_reactornet_time(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:reactornet_time", &n))
+        return NULL;
+    double t = reactornet_time(n);
+    return Py_BuildValue("d",t);
 }
 
 static PyObject*
