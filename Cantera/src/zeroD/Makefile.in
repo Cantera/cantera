@@ -1,0 +1,53 @@
+#/bin/sh
+###############################################################
+#  $Author$
+#  $Date$
+#  $Revision$
+#
+#  Copyright 2002 California Institute of Technology
+#
+###############################################################
+
+SUFFIXES=
+SUFFIXES= .cpp .d .o
+
+OBJDIR = .
+
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
+
+# stirred reactors
+OBJS    = Reactor.o ReactorBase.o FlowDevice.o Wall.o
+
+CXX_INCLUDES = -I..
+ZEROD_LIB = ./libzeroD.a
+
+DEPENDS = $(OBJS:.o=.d)
+
+%.d:
+	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
+
+.cpp.o:
+	@CXX@ -c $< @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES)
+
+.f.o:
+	@F77@ -c $< $(F77_FLAGS) 
+
+all lib: $(ZEROD_LIB)
+
+$(ZEROD_LIB): $(OBJS)
+	@ARCHIVE@ $(ZEROD_LIB) $(OBJS) > /dev/null
+
+clean:
+	$(RM) *.o *~ $(ZEROD_LIB)
+
+depends: $(DEPENDS)
+	cat *.d > .depends
+	$(RM) $(DEPENDS) 
+
+TAGS: 
+	etags *.h *.cpp
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
+

@@ -1,0 +1,40 @@
+#/bin/sh
+
+LIBDIR = @ctroot@/lib
+INCDIR = -I@ctroot@/Cantera/src
+BINDIR = @ctroot@/bin
+build_ck = @BUILD_CK@
+
+LCXX_FLAGS = -L@ctroot@/lib  @CXXFLAGS@
+LOCAL_LIBS = -lcantera @math_libs@ @LAPACK_LIBRARY@ @BLAS_LIBRARY@
+
+LCXX_END_LIBS = @LCXX_END_LIBS@
+OBJS = ctsetup.o ck2ctml.o
+
+DEPENDS = $(OBJS:.o=.d)
+
+.cpp.o:
+	@CXX@ -c $< @DEFS@  $(INCDIR) @CXXFLAGS@ $(CXX_FLAGS) 
+
+all: $(BINDIR)/ctmkmf $(BINDIR)/ck2ctml
+
+$(BINDIR)/ctmkmf: ctmkmf.o
+	@CXX@ -o $(BINDIR)/ctmkmf ctmkmf.o $(LCXX_FLAGS) $(LOCAL_LIBS) \
+               $(LCXX_END_LIBS)
+
+$(BINDIR)/ck2ctml: ck2ctml.o
+	@CXX@ -o $(BINDIR)/ck2ctml ck2ctml.o $(LCXX_FLAGS) -lconverters $(LOCAL_LIBS) \
+               $(LCXX_END_LIBS)
+clean:
+	$(RM) *.o *.*~
+
+%.d:
+	@CXX@ -MM $(INCDIR) @CXXFLAGS@ $(CXX_FLAGS) $*.cpp > $*.d
+
+depends: $(DEPENDS)
+	cat *.d &> .depends
+	$(RM) $(DEPENDS)
+
+ifeq ((test -e .depends),0)
+include .depends
+endif

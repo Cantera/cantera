@@ -1,0 +1,69 @@
+# $License$
+#
+#/bin/sh
+
+BLASLIB = ./libctblas.a
+
+SUFFIXES=
+SUFFIXES= .f .o
+
+F_FLAGS = @FFLAGS@ $(F77_FLAGS)
+
+OBJS = \
+dasum.o \
+daxpy.o \
+dcabs1.o \
+dcopy.o \
+ddot.o \
+dgbmv.o \
+dgemm.o \
+dgemv.o \
+dger.o \
+dnrm2.o \
+drot.o \
+drotg.o \
+drotm.o \
+drotmg.o \
+dsbmv.o \
+dscal.o \
+dsdot.o \
+dspmv.o \
+dspr.o \
+dspr2.o \
+dswap.o \
+dsymm.o \
+dsymv.o \
+dsyr.o \
+dsyr2.o \
+dsyr2k.o \
+dsyrk.o \
+dtbmv.o \
+dtbsv.o \
+dtpmv.o \
+dtpsv.o \
+dtrmm.o \
+dtrmv.o \
+dtrsm.o \
+dtrsv.o \
+dzasum.o \
+dznrm2.o \
+idamax.o \
+lsame.o \
+xerbla.o 
+
+
+#SRCS = $(OBJS:.o=.cpp)
+
+
+$(BLASLIB):  $(OBJS)
+	@ARCHIVE@ $(BLASLIB) $(OBJS) > /dev/null
+
+.f.o:
+	@F77@ -c $<  $(F77_INCLUDES) $(F_FLAGS) 
+
+clean:
+	$(RM) $(OBJS) $(BLASLIB)
+
+
+
+

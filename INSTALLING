@@ -1,0 +1,51 @@
+
+Cantera should build 'out of the box' on linux, cygwin, and Mac OS
+10.2. It should build on most other variants of unix with some
+tweaking. The build process runs a few Python scripts, so you need to
+have Python present whether or not you plan to install the Cantera
+python interface. Linux and Mac OS 10.2 have python pre-installed.
+
+
+Build Instructions
+==================
+
+To build and install Cantera in /usr/local:
+
+./configure
+make 
+make install
+
+
+To build and install Cantera in a different directory:
+
+./configure --prefix=/installation/dir
+make
+make install
+
+To do 'make install', you may need to be super-user. On a Mac running
+OS X, type 'sudo make install'
+
+
+
+Customizing
+-----------
+
+Before running configure, the following environment variables may be set:
+
+CXX                      C++ compiler
+
+F77                      Fortran 77 compiler
+
+BUILD_PYTHON_MODULE      build the Cantera Python interface  ('y' or 'n')
+
+BUILD_MATLAB_TOOLBOX     build the Matlab toolbox ('y' or 'n')
+
+PYTHON_CMD               Python interpreter to use with Cantera (default: 'python')
+                         You must have write access to the
+                         'site-packages' directory of this Python
+                         interpreter if you are installing the Cantera
+                         Python interface, and it must have the
+                         'Numeric' package installed.
+
+Additional customization can be done by editing the configure script.
+

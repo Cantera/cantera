@@ -1,0 +1,12 @@
+
+// define STORE_MOLE_FRACTIONS if you want Cantera to internally
+// represent the composition of a mixture as mole fractions. Usually
+// the best choice.
+#define STORE_MOLE_FRACTIONS
+
+// define STORE_MASS_FRACTIONS if you want Cantera to internally
+// represent the composition of a mixture as mass fractions. Usually
+// results in slightly worse performance, but may not in all cases.
+//#define STORE_MASS_FRACTIONS
+#undef STORE_MASS_FRACTIONS
+

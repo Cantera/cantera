@@ -1,0 +1,31 @@
+#/bin/sh
+###############################################################
+#  $Author$
+#  $Date$
+#  $Revision$
+#
+#  Copyright 2001 California Institute of Technology
+#  See file License.txt for licensing information
+#
+###############################################################
+
+all: refresh
+	@PYTHON_CMD@ setup.py build
+
+refresh: $(LIB_DEPS)
+	touch src/pycantera.cpp
+
+install:
+	@PYTHON_CMD@ setup.py install
+
+clean:
+	@PYTHON_CMD@ setup.py clean
+	cd src; rm -f *.o
+
+depends:
+	echo '-'
+
+# end of file
+
+
+

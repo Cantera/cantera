@@ -1,0 +1,480 @@
+<?xml version="1.0"?>
+<ctml>
+
+  <!-- generated from silane.inp by ck2ctml. -->
+  <phase id="silane">
+    <state>
+      <temperature units="K">300</temperature>
+      <pressure units="atm">1</pressure>
+      <moleFractions>H2:1.0</moleFractions>
+    </state>
+    <thermo model="IdealGas"/>
+    <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
+    <speciesArray datasrc="#silane_species_data">
+     H2  H  HE  SIH4  SI  SIH  SIH2  SIH3  H3SISIH  SI2H6 
+     H2SISIH2  SI3H8  SI2  SI3 
+    </speciesArray>
+    <reactionArray datasrc="#silane_rxn_data">
+      <include max="14" min="1" prefix="silane_rxn_"/>
+    </reactionArray>
+    <kinetics model="GasKinetics"/>
+  </phase>
+
+  <!-- species data -->
+  <speciesData id="silane_species_data">
+
+    <!-- H2 -->
+    <species id="silane_s_H2" name="H2">
+      <note>TPIS78</note>
+      <atomArray> H:2 </atomArray>
+      <thermo>
+        <NASA Tmax="3500" Tmid="1000" Tmin="200">
+          <floatArray size="7" title="low">
+            2.344331120E+00,   7.980520750E-03,  -1.947815100E-05,
+            2.015720940E-08,  -7.376117610E-12,  -9.179351730E+02,
+            6.830102380E-01
+          </floatArray>
+          <floatArray size="7" title="high">
+            3.337279200E+00,  -4.940247310E-05,   4.994567780E-07,
+           -1.795663940E-10,   2.002553760E-14,  -9.501589220E+02,
+           -3.205023310E+00
+          </floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- H -->
+    <species id="silane_s_H" name="H">
+      <note>L 7/88</note>
+      <atomArray> H:1 </atomArray>
+      <thermo>
+        <NASA Tmax="3500" Tmid="1000" Tmin="200">
+          <floatArray size="7" title="low">
+            2.500000000E+00,   7.053328190E-13,  -1.995919640E-15,
+            2.300816320E-18,  -9.277323320E-22,   2.547365990E+04,
+           -4.466828530E-01
+          </floatArray>
+          <floatArray size="7" title="high">
+            2.500000010E+00,  -2.308429730E-11,   1.615619480E-14,
+           -4.735152350E-18,   4.981973570E-22,   2.547365990E+04,
+           -4.466829140E-01
+          </floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- HE -->
+    <species id="silane_s_HE" name="HE">
+      <note>120186</note>
+      <atomArray> He:1 </atomArray>
+      <thermo>
+        <NASA Tmax="5000" Tmid="1000" Tmin="300">
+          <floatArray size="7" title="low">
+            2.500000000E+00,   0.000000000E+00,   0.000000000E+00,
+            0.000000000E+00,   0.000000000E+00,  -7.453750000E+02,
+            9.153488000E-01
+          </floatArray>
+          <floatArray size="7" title="high">
+            2.500000000E+00,   0.000000000E+00,   0.000000000E+00,
+            0.000000000E+00,   0.000000000E+00,  -7.453750000E+02,
+            9.153489000E-01
+          </floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- SIH4 -->
+    <species id="silane_s_SIH4" name="SIH4">
+      <note>90784</note>
+      <atomArray> Si:1  H:4 </atomArray>
+      <thermo>
+        <NASA Tmax="2000" Tmid="1000" Tmin="300">
+          <floatArray size="7" title="low">
+            1.451640400E+00,   1.398736300E-02,  -4.234563900E-06,
+           -2.360614200E-09,   1.371208900E-12,   3.113410500E+03,
+            1.232185500E+01
+          </floatArray>
+          <floatArray size="7" title="high">
+            7.935938000E-01,   1.767189900E-02,  -1.139800900E-05,
+            3.599260400E-09,  -4.524157100E-13,   3.198212700E+03,
+            1.524225700E+01
+          </floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- SI -->
+    <species id="silane_s_SI" name="SI">
+      <note>J 3/67</note>
+      <atomArray> Si:1 </atomArray>
+      <thermo>
+        <NASA Tmax="5000" Tmid="1000" Tmin="300">
+          <floatArray size="7" title="low">
+            3.179353700E+00,  -2.764699200E-03,   4.478403800E-06,
+           -3.283317700E-09,   9.121363100E-13,   5.333903200E+04,
+            2.727320400E+00
+          </floatArray>
+          <floatArray size="7" title="high">
+            2.650601400E+00,  -3.576385200E-04,   2.959229300E-07,
+           -7.280482900E-11,   5.796332900E-15,   5.343705400E+04,
+            5.220405700E+00
+          </floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- SIH -->
+    <species id="silane_s_SIH" name="SIH">
+      <note>121986</note>
+      <atomArray> Si:1  H:1 </atomArray>
+      <thermo>
+        <NASA Tmax="2000" Tmid="1000" Tmin="300">
+          <floatArray size="7" title="low">
+            3.836010000E+00,  -2.702657000E-03,   6.849070000E-06,
+           -5.424184000E-09,   1.472131000E-12,   4.507593000E+04,
+            9.350778000E-01
+          </floatArray>
+          <floatArray size="7" title="high">
+            3.110430000E+00,   1.094946000E-03,   2.898629000E-08,
+           -2.745104000E-10,   7.051799000E-14,   4.516898000E+04,
+            4.193487000E+00
+          </floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- SIH2 -->
+    <species id="silane_s_SIH2" name="SIH2">
+      <note>42489</note>
+      <atomArray> Si:1  H:2 </atomArray>
+      <thermo>
+        <NASA Tmax="3000" Tmid="1000" Tmin="300">
+          <floatArray size="7" title="low">
+            3.475092000E+00,   2.139338000E-03,   7.672306000E-07,
+            5.217668000E-10,  -9.898824000E-13,   3.147397000E+04,
+            4.436585000E+00
+          </floatArray>
+          <floatArray size="7" title="high">
+            4.142390000E+00,   2.150191000E-03,  -2.190730000E-07,
+           -2.073725000E-10,   4.741018000E-14,   3.110484000E+04,
+            2.930745000E-01
+          </floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- SIH3 -->
+    <species id="silane_s_SIH3" name="SIH3">
+      <note>42489</note>
+      <atomArray> Si:1  H:3 </atomArray>
+      <thermo>
+        <NASA Tmax="3000" Tmid="1000" Tmin="300">
+          <floatArray size="7" title="low">
+            2.946733000E+00,   6.466764000E-03,   5.991653000E-07,
+           -2.218413000E-09,   3.052670000E-13,   2.270173000E+04,
+            7.347948000E+00
+          </floatArray>
+          <floatArray size="7" title="high">
+            5.015906000E+00,   3.732750000E-03,  -3.609053000E-07,
+           -3.729193000E-10,   8.468490000E-14,   2.190233000E+04,
+           -4.291368000E+00
+          </floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- H3SISIH -->
+    <species id="silane_s_H3SISIH" name="H3SISIH">
+      <note>111191</note>
+      <atomArray> H:4  Si:2 </atomArray>
+      <thermo>
+        <NASA Tmax="4000" Tmid="1500" Tmin="300">
+          <floatArray size="7" title="low">
+            3.698707000E+00,   1.870180000E-02,  -1.430704000E-05,
+            6.005836000E-09,  -1.116293000E-12,   3.590825000E+04,
+            8.825191000E+00
+          </floatArray>
+          <floatArray size="7" title="high">
+            1.127202000E+01,   2.538145000E-03,  -2.998472000E-07,
+           -9.465367000E-11,   1.855053000E-14,   3.297169000E+04,
+           -3.264598000E+01
+          </floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- SI2H6 -->
+    <species id="silane_s_SI2H6" name="SI2H6">
+      <note>90784</note>
+      <atomArray> Si:2  H:6 </atomArray>
+      <thermo>
+        <NASA Tmax="2000" Tmid="1000" Tmin="300">
+          <floatArray size="7" title="low">
+            6.734798300E-01,   4.093153100E-02,  -4.484125500E-05,
+            2.995223200E-08,  -8.901085400E-12,   7.932787500E+03,
+            1.862740300E+01
+          </floatArray>
+          <floatArray size="7" title="high">
+            3.407493600E+00,   2.720647900E-02,  -1.771320400E-05,
+            5.639117700E-09,  -7.137868200E-13,   7.532184200E+03,
+            6.132175400E+00
+          </floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- H2SISIH2 -->
+    <species id="silane_s_H2SISIH2" name="H2SISIH2">
+      <note>42489</note>
+      <atomArray> Si:2  H:4 </atomArray>
+      <thermo>
+        <NASA Tmax="3000" Tmid="1000" Tmin="300">
+          <floatArray size="7" title="low">
+            5.133186000E+00,   1.252855000E-02,  -4.620421000E-07,
+           -6.606075000E-09,   2.864345000E-12,   2.956915000E+04,
+            7.605133000E-01
+          </floatArray>
+          <floatArray size="7" title="high">
+            8.986817000E+00,   5.405047000E-03,  -5.214022000E-07,
+           -5.313742000E-10,   1.188727000E-13,   2.832748000E+04,
+           -2.004478000E+01
+          </floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- SI3H8 -->
+    <species id="silane_s_SI3H8" name="SI3H8">
+      <note>90784</note>
+      <atomArray> Si:3  H:8 </atomArray>
+      <thermo>
+        <NASA Tmax="2000" Tmid="1000" Tmin="300">
+          <floatArray size="7" title="low">
+            7.719684600E-01,   6.344274000E-02,  -7.672610900E-05,
+            5.454371500E-08,  -1.661172900E-11,   1.207126300E+04,
+            2.153250700E+01
+          </floatArray>
+          <floatArray size="7" title="high">
+            6.093334100E+00,   3.658011200E-02,  -2.389236100E-05,
+            7.627193200E-09,  -9.676938400E-13,   1.129720500E+04,
+           -2.747565400E+00
+          </floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- SI2 -->
+    <species id="silane_s_SI2" name="SI2">
+      <note>90784</note>
+      <atomArray> Si:2 </atomArray>
+      <thermo>
+        <NASA Tmax="2000" Tmid="1000" Tmin="300">
+          <floatArray size="7" title="low">
+            2.967197600E+00,   6.311955800E-03,  -1.097079000E-05,
+            8.927868000E-09,  -2.787368900E-12,   6.987073800E+04,
+            9.278950300E+00
+          </floatArray>
+          <floatArray size="7" title="high">
+            4.144677900E+00,   6.523467700E-04,  -5.010852000E-07,
+            1.806284300E-10,  -2.516111100E-14,   6.969470700E+04,
+            3.862736600E+00
+          </floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- SI3 -->
+    <species id="silane_s_SI3" name="SI3">
+      <note>J 3/67</note>
+      <atomArray> Si:3 </atomArray>
+      <thermo>
+        <NASA Tmax="5000" Tmid="1000" Tmin="300">
+          <floatArray size="7" title="low">
+            4.597912900E+00,   1.071527400E-02,  -1.610042200E-05,
+            1.096920700E-08,  -2.783287500E-12,   7.476632400E+04,
+            3.442167100E+00
+          </floatArray>
+          <floatArray size="7" title="high">
+            7.421336000E+00,  -1.170994800E-04,   8.982077500E-08,
+            7.193596400E-12,  -2.567083700E-15,   7.414669900E+04,
+           -1.036527400E+01
+          </floatArray>
+        </NASA>
+      </thermo>
+    </species>
+  </speciesData>
+
+  <!-- reaction data -->
+  <reactionData id="silane_rxn_data">
+
+    <!-- silane reaction 1 -->
+    <reaction id="silane_rxn_1" reversible="yes">
+      <equation>SIH4 + H [=] SIH3 + H2</equation>
+      <reactants> SIH4:1  H:1 </reactants>
+      <products> SIH3:1  H2:1 </products>
+      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
+        <Arrhenius order="2">7.8e+14 0 2260</Arrhenius>
+      </rateCoeff>
+    </reaction>
+
+    <!-- silane reaction 2 -->
+    <reaction id="silane_rxn_2" reversible="yes" type="threeBody">
+      <equation>SIH4 + M [=] SIH3 + H + M</equation>
+      <reactants> SIH4:1 </reactants>
+      <products> SIH3:1  H:1 </products>
+      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
+        <Arrhenius order="2">3.91e+15 0 89356</Arrhenius>
+      </rateCoeff>
+    </reaction>
+
+    <!-- silane reaction 3 -->
+    <reaction id="silane_rxn_3" reversible="yes">
+      <equation>SIH3 + H [=] SIH2 + H2</equation>
+      <reactants> SIH3:1  H:1 </reactants>
+      <products> SIH2:1  H2:1 </products>
+      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
+        <Arrhenius order="2">7.8e+14 0 2260</Arrhenius>
+      </rateCoeff>
+    </reaction>
+
+    <!-- silane reaction 4 -->
+    <reaction id="silane_rxn_4" reversible="yes" type="threeBody">
+      <equation>SI + SI + M [=] SI2 + M</equation>
+      <reactants> SI:1  SI:1 </reactants>
+      <products> SI2:1 </products>
+      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
+        <Arrhenius order="3">2.47e+16 0 1178</Arrhenius>
+      </rateCoeff>
+    </reaction>
+
+    <!-- silane reaction 5 -->
+    <reaction id="silane_rxn_5" reversible="yes">
+      <equation>SIH4 + SIH2 [=] H3SISIH + H2</equation>
+      <reactants> SIH4:1  SIH2:1 </reactants>
+      <products> H3SISIH:1  H2:1 </products>
+      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
+        <Arrhenius order="2">1.3e+13 0 0</Arrhenius>
+      </rateCoeff>
+    </reaction>
+
+    <!-- silane reaction 6 -->
+    <reaction id="silane_rxn_6" reversible="yes">
+      <equation>SIH + H2 [=] SIH2 + H</equation>
+      <reactants> SIH:1  H2:1 </reactants>
+      <products> SIH2:1  H:1 </products>
+      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
+        <Arrhenius order="2">4.8e+14 0 23.64</Arrhenius>
+      </rateCoeff>
+    </reaction>
+
+    <!-- silane reaction 7 -->
+    <reaction id="silane_rxn_7" reversible="yes">
+      <equation>SIH + SIH4 [=] H3SISIH + H</equation>
+      <reactants> SIH:1  SIH4:1 </reactants>
+      <products> H3SISIH:1  H:1 </products>
+      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
+        <Arrhenius order="2">1.6e+14 0 0</Arrhenius>
+      </rateCoeff>
+    </reaction>
+
+    <!-- silane reaction 8 -->
+    <reaction id="silane_rxn_8" reversible="yes">
+      <equation>SI + H2 [=] SIH + H</equation>
+      <reactants> SI:1  H2:1 </reactants>
+      <products> SIH:1  H:1 </products>
+      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
+        <Arrhenius order="2">1.5e+15 0 31.8</Arrhenius>
+      </rateCoeff>
+    </reaction>
+
+    <!-- silane reaction 9 -->
+    <reaction id="silane_rxn_9" reversible="yes" type="falloff">
+      <equation>SIH4 (+ M) [=] SIH2 + H2 (+ M)</equation>
+      <reactants> SIH4:1 </reactants>
+      <products> SIH2:1  H2:1 </products>
+      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
+        <Arrhenius order="1">3.119e+09 1.669 54710</Arrhenius>
+        <Arrhenius order="2">5.214e+29 -3.545 57550</Arrhenius>
+        <falloff type="Troe"> -0.4984  888.3  209.4  2760 </falloff>
+        <efficiencies default="1">
+         SI2H6:4  SIH4:4 
+        </efficiencies>
+      </rateCoeff>
+    </reaction>
+
+    <!-- silane reaction 10 -->
+    <reaction id="silane_rxn_10" reversible="yes" type="falloff">
+      <equation>H3SISIH (+ M) [=] H2SISIH2 (+ M)</equation>
+      <reactants> H3SISIH:1 </reactants>
+      <products> H2SISIH2:1 </products>
+      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
+        <Arrhenius order="1">2.54e+13 -0.2239 5381</Arrhenius>
+        <Arrhenius order="2">1.099e+33 -5.765 9152</Arrhenius>
+        <falloff type="Troe"> -0.4202  214.5  103  136.3 </falloff>
+        <efficiencies default="1">
+         SI2H6:4  SIH4:4 
+        </efficiencies>
+      </rateCoeff>
+    </reaction>
+
+    <!-- silane reaction 11 -->
+    <reaction id="silane_rxn_11" reversible="yes" type="falloff">
+      <equation>SI3H8 (+ M) [=] SIH4 + H3SISIH (+ M)</equation>
+      <reactants> SI3H8:1 </reactants>
+      <products> SIH4:1  H3SISIH:1 </products>
+      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
+        <Arrhenius order="1">3.73e+12 0.992 50850</Arrhenius>
+        <Arrhenius order="2">4.36e+76 -17.26 59303</Arrhenius>
+        <falloff type="Troe"> 0.4157  365.3  3102  9.724 </falloff>
+        <efficiencies default="1">
+         SI2H6:4  SIH4:4 
+        </efficiencies>
+      </rateCoeff>
+    </reaction>
+
+    <!-- silane reaction 12 -->
+    <reaction id="silane_rxn_12" reversible="yes" type="falloff">
+      <equation>SI3H8 (+ M) [=] SIH2 + SI2H6 (+ M)</equation>
+      <reactants> SI3H8:1 </reactants>
+      <products> SIH2:1  SI2H6:1 </products>
+      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
+        <Arrhenius order="1">6.97e+12 0.9691 52677</Arrhenius>
+        <Arrhenius order="2">1.73e+69 -15.07 60491</Arrhenius>
+        <falloff type="Troe"> -3.47e-05  442  2412  128.3 </falloff>
+        <efficiencies default="1">
+         SI2H6:4  SIH4:4 
+        </efficiencies>
+      </rateCoeff>
+    </reaction>
+
+    <!-- silane reaction 13 -->
+    <reaction id="silane_rxn_13" reversible="yes" type="falloff">
+      <equation>SI2H6 (+ M) [=] H2 + H3SISIH (+ M)</equation>
+      <reactants> SI2H6:1 </reactants>
+      <products> H2:1  H3SISIH:1 </products>
+      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
+        <Arrhenius order="1">9.086e+09 1.834 54197</Arrhenius>
+        <Arrhenius order="2">1.945e+44 -7.772 59023</Arrhenius>
+        <falloff type="Troe"> -0.1224  793.3  2400  11.39 </falloff>
+        <efficiencies default="1">
+         SI2H6:4  SIH4:4 
+        </efficiencies>
+      </rateCoeff>
+    </reaction>
+
+    <!-- silane reaction 14 -->
+    <reaction id="silane_rxn_14" reversible="yes" type="falloff">
+      <equation>SI2H6 (+ M) [=] SIH4 + SIH2 (+ M)</equation>
+      <reactants> SI2H6:1 </reactants>
+      <products> SIH4:1  SIH2:1 </products>
+      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
+        <Arrhenius order="1">1.81e+10 1.747 50203</Arrhenius>
+        <Arrhenius order="2">5.09e+53 -10.37 56034</Arrhenius>
+        <falloff type="Troe"> 4.375e-05  438.5  2726  438.2 </falloff>
+        <efficiencies default="1">
+         SI2H6:4  SIH4:4 
+        </efficiencies>
+      </rateCoeff>
+    </reaction>
+  </reactionData>
+</ctml>

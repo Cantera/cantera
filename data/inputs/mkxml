@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+../../bin/ck2ctml -i gri30.inp -id gri30 -o gri30.xml -tr ../transport/gri30_tran.dat
+../../bin/ck2ctml -i air.inp -o air.xml -t gri30.inp -id air -tr ../transport/gri30_tran.dat
+../../bin/ck2ctml -i h2o2.inp -o h2o2.xml -id ohmech -tr ../transport/gri30_tran.dat
+../../bin/ck2ctml -i silane.inp -o silane.xml -id silane
+../../bin/ck2ctml -i argon.inp -o argon.xml -id argon -t gri30.inp -tr ../transport/gri30_tran.dat

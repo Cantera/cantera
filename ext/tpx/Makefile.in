@@ -1,0 +1,43 @@
+#/bin/sh
+
+SUFFIXES=
+SUFFIXES= .cpp .d .o
+
+OBJDIR = .
+
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
+
+COBJS = Methane.o Nitrogen.o Oxygen.o Water.o Hydrogen.o Sub.o utils.o
+
+FOBJS = 
+
+CXX_LIBS = @LIBS@
+CXX_INCLUDES = -I../include 
+TPLIB = ./libtpx.a
+
+DEPENDS = $(COBJS:.o=.d)
+
+all:  $(TPLIB)
+
+%.d:
+	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
+
+.cpp.o:
+	@CXX@ -c $< @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES)
+
+.f.o:
+	@F77@ -c $< $(F77_FLAGS) 
+
+$(TPLIB): $(COBJS) $(FOBJS)
+	@ARCHIVE@ $(TPLIB) $(COBJS) $(FOBJS) > /dev/null
+
+clean:
+	$(RM) $(COBJS) $(FOBJS) *~
+
+depends: $(DEPENDS)
+	cat *.d > .depends
+	$(RM) $(DEPENDS)
+
+include .depends
+
+

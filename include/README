@@ -1,0 +1,5 @@
+
+The header files in this directory are for use in C++ application
+programs that use Cantera. The header files for the Cantera kernel are
+in subdirectory kernel, but it should rarely be necessary to include
+these directly in user programs.

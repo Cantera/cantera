@@ -1,0 +1,85 @@
+#/bin/sh
+###############################################################
+#  $Author$
+#  $Date$
+#  $Revision$
+#
+#  Copyright 2001 California Institute of Technology
+#  See file License.txt for licensing information
+#
+###############################################################
+
+LIBS = @LOCAL_LIBS@ @LIBS@ @FLIBS@
+SRCS = cantera/private/ctmethods.cpp \
+       cantera/private/ctfunctions.cpp \
+       cantera/private/xmlmethods.cpp \
+       cantera/private/phasemethods.cpp \
+       cantera/private/thermomethods.cpp \
+       cantera/private/kineticsmethods.cpp \
+       cantera/private/transportmethods.cpp \
+       cantera/private/reactormethods.cpp \
+       cantera/private/wallmethods.cpp \
+       cantera/private/flowdevicemethods.cpp
+
+all: ctmethods.mexmac
+
+ctmethods.mexmac: $(SRCS) 
+	@PYTHON_CMD@ setup_matlab.py @ctroot@/lib @CT_SHARED_LIB@ '$(LIBS)'
+	(@MATLAB_CMD@ -nodesktop -nojvm -nosplash -r setup)
+	rm -f setup.m
+
+install:
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera-demos
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/private
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@ThermoPhase/private
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Kinetics/private
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Transport/private
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Solution
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@XML_Node/private
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Reactor/private
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Wall/private
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@FlowDevice/private
+	cd cantera; @INSTALL@ *.m *.@mex_ext@ @prefix@/matlab/toolbox/cantera/cantera
+	cd cantera/private; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/private
+	cd cantera/examples; @INSTALL@ *.m @prefix@/matlab/toolbox/cantera/cantera-demos
+	cd cantera/@ThermoPhase; @INSTALL@ \
+            *.m @prefix@/matlab/toolbox/cantera/cantera/@ThermoPhase
+	cd cantera/@ThermoPhase/private; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@ThermoPhase/private
+	cd cantera/@Kinetics; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@Kinetics
+	cd cantera/@Kinetics/private; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@Kinetics/private
+	cd cantera/@Solution; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@Solution
+	cd cantera/@Transport; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@Transport
+	cd cantera/@Transport/private; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@Transport/private
+	cd cantera/@XML_Node; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@XML_Node
+	cd cantera/@Reactor; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@Reactor
+	cd cantera/@Reactor/private; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@Reactor/private
+	cd cantera/@Wall; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@Wall
+	cd cantera/@Wall/private; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@Wall/private
+	cd cantera/@FlowDevice; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@FlowDevice
+	cd cantera/@FlowDevice/private; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@FlowDevice/private
+
+clean:
+	echo '-'
+
+depends:
+	echo '-'
+
+# end of file
+
+
+

@@ -1,0 +1,438 @@
+
+static PyObject*
+py_reactor_new(PyObject *self, PyObject *args)
+{
+    int type;
+    if (!PyArg_ParseTuple(args, "i:reactor_new", &type))
+        return NULL;
+    int n = reactor_new(type);
+    return Py_BuildValue("i",n);
+}
+
+static PyObject*
+py_reactor_del(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:reactor_del", &n))
+        return NULL;
+    int iok = reactor_del(n);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_reactor_setInitialVolume(PyObject *self, PyObject *args)
+{
+    int n;
+    double v;
+    if (!PyArg_ParseTuple(args, "id:reactor_setInitialVolume", &n, &v))
+        return NULL;
+    int iok = reactor_setInitialVolume(n,v);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_reactor_setInitialTime(PyObject *self, PyObject *args)
+{
+    int n;
+    double t;
+    if (!PyArg_ParseTuple(args, "id:reactor_setInitialTime", &n, &t))
+        return NULL;
+    int iok = reactor_setInitialTime(n, t);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_reactor_setEnergy(PyObject *self, PyObject *args)
+{
+    int n, eflag;
+    if (!PyArg_ParseTuple(args, "ii:reactor_setEnergy", &n, &eflag))
+        return NULL;
+    int iok = reactor_setEnergy(n, eflag);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_reactor_setThermoMgr(PyObject *self, PyObject *args)
+{
+    int n;
+    int th;
+    if (!PyArg_ParseTuple(args, "ii:reactor_setThermoMgr", &n, &th))
+        return NULL;
+    int iok = reactor_setThermoMgr(n, th);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_reactor_setKineticsMgr(PyObject *self, PyObject *args)
+{
+    int n;
+    int kin;
+    if (!PyArg_ParseTuple(args, "ii:reactor_setKineticsMgr", &n, &kin))
+        return NULL;
+    int iok = reactor_setKineticsMgr(n, kin);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_reactor_advance(PyObject *self, PyObject *args)
+{
+    int n;
+    double t;
+    if (!PyArg_ParseTuple(args, "id:reactor_advance", &n, &t))
+        return NULL;
+    int iok = reactor_advance(n, t);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_reactor_step(PyObject *self, PyObject *args)
+{
+    int n;
+    double t;
+    if (!PyArg_ParseTuple(args, "id:reactor_step", &n, &t))
+        return NULL;
+    return Py_BuildValue("d",reactor_step(n, t));
+}
+
+static PyObject*
+py_reactor_time(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:reactor_time", &n))
+        return NULL;
+    double t = reactor_time(n);
+    return Py_BuildValue("d",t);
+}
+
+static PyObject*
+py_reactor_mass(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:reactor_mass", &n))
+        return NULL;
+    double m = reactor_mass(n);
+    return Py_BuildValue("d",m);
+}
+
+static PyObject*
+py_reactor_volume(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:reactor_volume", &n))
+        return NULL;
+    double v = reactor_volume(n);
+    return Py_BuildValue("d",v);
+}
+
+static PyObject*
+py_reactor_density(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:reactor_density", &n))
+        return NULL;
+    double rho = reactor_density(n);
+    return Py_BuildValue("d",rho);
+}
+
+static PyObject*
+py_reactor_temperature(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:reactor_temperature", &n))
+        return NULL;
+    double t = reactor_temperature(n);
+    return Py_BuildValue("d",t);
+}
+
+static PyObject*
+py_reactor_enthalpy_mass(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:reactor_enthalpy_mass", &n))
+        return NULL;
+    double h = reactor_enthalpy_mass(n);
+    return Py_BuildValue("d",h);
+}
+
+static PyObject*
+py_reactor_intEnergy_mass(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:reactor_intEnergy_mass", &n))
+        return NULL;
+    double u = reactor_intEnergy_mass(n);
+    return Py_BuildValue("d",u);
+}
+
+static PyObject*
+py_reactor_pressure(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:reactor_pressure", &n))
+        return NULL;
+    double p = reactor_pressure(n);
+    return Py_BuildValue("d",p);
+}
+
+static PyObject*
+py_reactor_massFraction(PyObject *self, PyObject *args)
+{
+    int n;
+    int k;
+    if (!PyArg_ParseTuple(args, "ii:reactor_massFraction", &n, &k))
+        return NULL;
+    double y = reactor_massFraction(n, k);
+    return Py_BuildValue("d",y);
+}
+
+static PyObject*
+py_flowdev_new(PyObject *self, PyObject *args)
+{
+    int type;
+    if (!PyArg_ParseTuple(args, "i:flowdev_new", &type))
+        return NULL;
+    int n = flowdev_new(type);
+    return Py_BuildValue("i",n);
+}
+
+static PyObject*
+py_flowdev_del(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:flowdev_del", &n))
+        return NULL;
+    int iok = flowdev_del(n);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_flowdev_install(PyObject *self, PyObject *args)
+{
+    int n, r1, r2;
+    if (!PyArg_ParseTuple(args, "iii:flowdev_install", &n, &r1, &r2))
+        return NULL;
+    int iok = flowdev_install(n, r1, r2);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_flowdev_massFlowRate(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:flowdev_massFlowRate", &n))
+        return NULL;
+    double mdot = flowdev_massFlowRate(n);
+    return Py_BuildValue("d",mdot);
+}
+
+static PyObject*
+py_flowdev_setpoint(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:flowdev_setpoint", &n))
+        return NULL;
+    double v = flowdev_setpoint(n);
+    return Py_BuildValue("d",v);
+}
+
+static PyObject*
+py_flowdev_setSetpoint(PyObject *self, PyObject *args)
+{
+    int n;
+    double v;
+    if (!PyArg_ParseTuple(args, "id:flowdev_setSetpoint", &n, &v))
+        return NULL;
+    int iok = flowdev_setSetpoint(n, v);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_flowdev_setParameters(PyObject *self, PyObject *args)
+{
+    int n, sz;
+    PyObject* c;
+    if (!PyArg_ParseTuple(args, "iiO:flowdev_setParameters", &n, &sz, &c))
+        return NULL;
+    double* x = (double*)((PyArrayObject*)c)->data;
+    int iok = flowdev_setParameters(n, sz, x);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_flowdev_setFunction(PyObject *self, PyObject *args)
+{
+    int n, m;
+    if (!PyArg_ParseTuple(args, "ii:flowdev_setFunction", &n, &m))
+        return NULL;
+    int iok = flowdev_setFunction(n, m);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_flowdev_ready(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:flowdev_ready", &n))
+        return NULL;
+    int iok = flowdev_ready(n);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",iok);
+}
+
+
+static PyObject*
+py_wall_new(PyObject *self, PyObject *args)
+{
+    int type;
+    if (!PyArg_ParseTuple(args, "i:wall_new", &type))
+        return NULL;
+    int n = wall_new(type);
+    return Py_BuildValue("i",n);
+}
+
+static PyObject*
+py_wall_del(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:wall_del", &n))
+        return NULL;
+    int iok = wall_del(n);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_wall_install(PyObject *self, PyObject *args)
+{
+    int n, r1, r2;
+    if (!PyArg_ParseTuple(args, "iii:wall_install", &n, &r1, &r2))
+        return NULL;
+    int iok = wall_install(n, r1, r2);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_wall_vdot(PyObject *self, PyObject *args)
+{
+    int n;
+    double t;
+    if (!PyArg_ParseTuple(args, "id:wall_vdot", &n, &t))
+        return NULL;
+    double vdt = wall_vdot(n,t);
+    return Py_BuildValue("d",vdt);
+}
+
+static PyObject*
+py_wall_Q(PyObject *self, PyObject *args)
+{
+    int n;
+    double t;
+    if (!PyArg_ParseTuple(args, "id:wall_Q", &n, &t))
+        return NULL;
+    return Py_BuildValue("d",wall_Q(n, t));
+}
+
+static PyObject*
+py_wall_area(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:wall_area", &n))
+        return NULL;
+    return Py_BuildValue("d",wall_area(n));
+}
+
+static PyObject*
+py_wall_setArea(PyObject *self, PyObject *args)
+{
+    int n;
+    double area;
+    if (!PyArg_ParseTuple(args, "id:wall_setArea", &n, &area))
+        return NULL;
+    int iok = wall_setArea(n, area);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_wall_setThermalResistance(PyObject *self, PyObject *args)
+{
+    int n;
+    double rth;
+    if (!PyArg_ParseTuple(args, "id:wall_setThermalResistance", &n, &rth))
+        return NULL;
+    int iok = wall_setThermalResistance(n,rth);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_wall_setHeatTransferCoeff(PyObject *self, PyObject *args)
+{
+    int n;
+    double u;
+    if (!PyArg_ParseTuple(args, "id:wall_setHeatTransferCoeff", &n, &u))
+        return NULL;
+    int iok = wall_setHeatTransferCoeff(n,u);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_wall_setExpansionRateCoeff(PyObject *self, PyObject *args)
+{
+    int n;
+    double k;
+    if (!PyArg_ParseTuple(args, "id:wall_setExpansionRateCoeff", &n, &k))
+        return NULL;
+    int iok = wall_setExpansionRateCoeff(n,k);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_wall_setExpansionRate(PyObject *self, PyObject *args)
+{
+    int n, m;
+    if (!PyArg_ParseTuple(args, "ii:wall_setExpansionRate", &n, &m))
+        return NULL;
+    int iok = wall_setExpansionRate(n,m);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_wall_setHeatFlux(PyObject *self, PyObject *args)
+{
+    int n, m;
+    if (!PyArg_ParseTuple(args, "ii:wall_setHeatFlux", &n, &m))
+        return NULL;
+    int iok = wall_setHeatFlux(n,m);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_wall_ready(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:wall_ready", &n))
+        return NULL;
+    int iok = wall_ready(n);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+

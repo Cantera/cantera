@@ -1,0 +1,466 @@
+/**
+ * @file StFlow.h
+ *
+ */
+
+/*
+ * $Author$
+ * $Revision$
+ * $Date$
+ */
+
+// Copyright 2001  California Institute of Technology
+
+#ifndef CT_STFLOW_H
+#define CT_STFLOW_H
+
+#include "../transport/TransportBase.h"
+//#include "IdealGasMix.h"
+#include "Resid1D.h"
+//#include "../ChemEquil.h"
+#include "../Array.h"
+#include "../sort.h"
+//#include "ImplicitChem.h"
+#include "../IdealGasPhase.h"
+#include "../Kinetics.h"
+
+#include "../flowBoundaries.h"
+
+namespace Cantera {
+
+    typedef IdealGasPhase igthermo_t;
+ 
+    class MultiJac;
+
+    //------------------------------------------
+    //   constants
+    //------------------------------------------
+
+    /**
+     * Offsets of solution components in the solution array.
+     */
+    const unsigned int c_offset_U = 0;    // axial velocity
+    const unsigned int c_offset_V = 1;    // strain rate
+    const unsigned int c_offset_T = 2;    // temperature
+    const unsigned int c_offset_L = 3;    // (1/r)dP/dr
+    const unsigned int c_offset_Y = 4;    // mass fractions
+
+    // Transport option flags
+    const int c_Mixav_Transport = 0;
+    const int c_Multi_Transport = 1;
+    const int c_Soret = 2;
+
+
+
+    //-----------------------------------------------------------
+    //  Class StFlow
+    //-----------------------------------------------------------
+
+
+    /**
+     *  A class for one-dimensional reacting stagnation-point
+     *  flows. This class implements the one-dimensional similarity
+     *  solution for a chemically-reacting, axisymmetric,
+     *  stagnation-point flow.
+     */
+    class StFlow : public Resid1D {
+
+    public:
+
+        //--------------------------------
+        // construction and destruction
+        //--------------------------------
+
+        // Constructor.
+        StFlow(igthermo_t* ph = 0, int nsp = 1, int points = 1);
+
+        /// Destructor.
+        virtual ~StFlow(){}
+
+        /**
+         * @name Problem Specification
+         */
+        //@{
+
+        void setupGrid(int n, const doublereal* z);
+
+        //thermo_t& phase() { return *m_phase; }
+        thermo_t& phase() { return *m_thermo; }
+        kinetics_t& kinetics() { return *m_kin; }
+
+        /**
+         * Set the thermo manager. Note that the flow equations
+         * assume the ideal gas equation.
+         */
+        void setThermo(igthermo_t& th) { 
+            m_thermo = &th;
+            //m_phase = &th.phase();
+        }
+
+        /// set the kinetics manager
+        void setKinetics(kinetics_t& kin) { m_kin = &kin; }
+
+        /// set the transport manager
+        void setTransport(Transport& trans, bool withSoret = false);
+
+        /// set the pressure
+        void setPressure(doublereal p) {
+            m_press = p;
+        }
+
+        /// Check that all required parameters have been set.
+        bool ready();
+
+        /**
+         * Set the temperature fixed point at grid point j, and
+         * disable the energy equation so that the solution will be
+         * held to this value.
+         */
+        void setTemperature(int j, doublereal t) {
+            m_fixedtemp[j] = t;
+            m_do_energy[j] = false;
+        }
+
+        /**
+         * Set the mass fraction fixed point for species k at grid
+         * point j, and disable the species equation so that the
+         * solution will be held to this value.
+         */
+        void setMassFraction(int j, int k, doublereal y) {
+            m_fixedy(k,j) = y;
+            m_do_species[k] = false;
+        }
+
+        doublereal T_fixed(int j) const {return m_fixedtemp[j];}
+        doublereal Y_fixed(int k, int j) const {return m_fixedy(k,j);}
+
+        virtual string componentName(int n) const;
+
+        /**
+         * Write a Tecplot zone corresponding to the current solution.
+         * May be called multiple times to generate animation.
+         */
+        void outputTEC(ostream &s, const doublereal* x, 
+            string title, int zone);
+
+        void showSolution(ostream& s, const doublereal* x);
+
+        void save(string fname, string id, string desc, doublereal* soln);
+        virtual void save(XML_Node& o, doublereal* sol);
+
+        void restore(int job, string fname, string id, int& size_z, 
+            doublereal* z, int& size_soln, doublereal* soln);
+
+
+        // overloaded in subclasses
+        virtual string flowType() { return "<none>"; }
+
+        void solveEnergyEqn(int j=-1) {
+            if (j < 0)
+                for (int i = 0; i < m_points; i++)
+                    m_do_energy[i] = true;
+            else
+            m_do_energy[j] = true;
+            requestJacUpdate();
+        }
+
+        void fixTemperature(int j=-1) {
+            if (j < 0)
+                for (int i = 0; i < m_points; i++) {
+                    m_do_energy[i] = false;
+                }
+            else m_do_energy[j] = false;
+            requestJacUpdate();
+        }
+
+        bool doSpecies(int k) { return m_do_species[k]; }
+        bool doEnergy(int j) { return m_do_energy[j]; }
+
+        void solveSpecies(int k=-1) {
+            if (k == -1) {
+                for (int i = 0; i < m_nsp; i++) 
+                    m_do_species[i] = true;
+            }
+            else m_do_species[k] = true;
+            requestJacUpdate();
+        }
+
+        void setEnergyFactor(doublereal efctr);
+
+        void fixSpecies(int k=-1) {
+            if (k == -1) {
+                for (int i = 0; i < m_nsp; i++) 
+                    m_do_species[i] = false;
+            }
+            else m_do_species[k] = false;
+            requestJacUpdate();
+            //m_jac->setAge(10000);
+        }
+
+        void integrateChem(doublereal* x,doublereal dt);
+
+        doublereal z(int j) const {return m_z[j];}
+        doublereal zmin() const { return m_z[0]; }
+        doublereal zmax() const { return m_z[m_points - 1]; }
+
+        void resize(int points);
+        virtual void setFixedPoint(int j0, doublereal t0){}
+
+
+        virtual void setBoundaries(FlowBdry::Boundary* left,
+            FlowBdry::Boundary* right) {
+            if (left) {
+                m_boundary[0] = left;
+                left->faceRight();
+            }
+            if (right) {
+                m_boundary[1] = right;
+                right->faceLeft();
+            }
+        }
+
+        void setJac(MultiJac* jac);
+        void setGas(const doublereal* x,int j);
+        void setGasAtMidpoint(const doublereal* x,int j);
+
+
+    protected:
+
+    // used to write mole fractions to plot files.
+
+        doublereal component(const doublereal* x, int i, int j) const {
+            doublereal xx = x[index(i,j)];
+            //if (i >= 4) {
+            //    return xx*m_wtm[j]/m_wt[i-4];
+            //}
+            //else return xx;
+            return xx;
+        }
+
+        doublereal conc(const doublereal* x,int k,int j) const {
+            return Y(x,k,j)*density(j)/m_wt[k];
+        }
+
+        doublereal cbar(const doublereal* x,int k, int j) const {
+            return sqrt(8.0*GasConstant * T(x,j) / (Pi * m_wt[k]));
+        }
+
+        doublereal wdot(int k, int j) const {return m_wdot(k,j);}
+
+        void getWdot(doublereal* x,int j) { 
+            setGas(x,j);
+            m_kin->getNetProductionRates(&m_wdot(0,j));
+        }
+
+        void updateThermo(const doublereal* x, int j0, int j1) {
+            int j;
+            for (j = j0; j <= j1; j++) {
+                setGas(x,j);
+                m_rho[j] = m_thermo->density();
+                m_wtm[j] = m_thermo->meanMolecularWeight();
+                m_cp[j]  = m_thermo->cp_mass();
+            }
+        }
+
+        //--------------------------------
+        // central-differenced derivatives
+        //--------------------------------
+
+        doublereal cdif2(const doublereal* x, int n, int j, 
+            const doublereal* f) const {
+            doublereal c1 = (f[j] + f[j-1])*(x[index(n,j)] - x[index(n,j-1)]);
+            doublereal c2 = (f[j+1] + f[j])*(x[index(n,j+1)] - x[index(n,j)]);
+            return (c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/(z(j+1) - z(j-1));
+        }
+
+
+        //--------------------------------
+        //      solution components
+        //--------------------------------
+
+
+        doublereal T(const doublereal* x,int j) const {
+            return x[index(c_offset_T, j)];
+        }
+        doublereal& T(doublereal* x,int j) {return x[index(c_offset_T, j)];}
+        doublereal T_prev(int j) const {return prevSoln(c_offset_T, j);} 
+
+        doublereal rho_u(const doublereal* x,int j) const {
+            return m_rho[j]*x[index(c_offset_U, j)];} 
+
+        doublereal u(const doublereal* x,int j) const {
+            return x[index(c_offset_U, j)];} 
+
+        doublereal V(const doublereal* x,int j) const {
+            return x[index(c_offset_V, j)];}
+        doublereal V_prev(int j) const {
+            return prevSoln(c_offset_V, j);} 
+
+        doublereal lambda(const doublereal* x,int j) const {
+            return x[index(c_offset_L, j)];
+        }
+
+        doublereal Y(const doublereal* x,int k, int j) const {
+            return x[index(c_offset_Y + k, j)];
+        }
+
+        doublereal& Y(doublereal* x,int k, int j) {
+            return x[index(c_offset_Y + k, j)];
+        }
+
+        doublereal Y_prev(int k, int j) const {
+            return prevSoln(c_offset_Y + k, j);
+        }
+
+        doublereal X(const doublereal* x,int k, int j) const {
+            return m_wtm[j]*Y(x,k,j)/m_wt[k];
+        }
+
+        doublereal density(int j) const {
+            return m_rho[j];
+        }
+
+        doublereal flux(int k, int j) const {
+            return m_flux(k, j);
+        }
+
+
+        // convective spatial derivatives. These use upwind
+        // differencing, assuming u(z) is negative
+
+        doublereal dVdz(const doublereal* x,int j) const {
+            //return (V(x,j+1) - V(x,j-1))/(m_dz[j] + m_dz[j-1]);
+            return (V(x,j) - V(x,j-1))/m_dz[j-1];
+        } 
+
+        doublereal dYdz(const doublereal* x,int k, int j) const {
+            //return (Y(x,k,j+1) - Y(x,k,j))/m_dz[j]; 
+            return (Y(x,k,j) - Y(x,k,j-1))/m_dz[j-1]; 
+        } 
+
+        doublereal dTdz(const doublereal* x,int j) const {
+            // return (T(x,j+1) - T(x,j))/m_dz[j];
+            return (T(x,j) - T(x,j-1))/m_dz[j-1];
+        }
+        
+        doublereal shear(const doublereal* x,int j) const {
+            doublereal c1 = m_visc[j-1]*(V(x,j) - V(x,j-1));
+            doublereal c2 = m_visc[j]*(V(x,j+1) - V(x,j));
+            return 2.0*(c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/(z(j+1) - z(j-1));
+        }
+
+        doublereal divHeatFlux(const doublereal* x, int j) const {
+            doublereal c1 = m_tcon[j-1]*(T(x,j) - T(x,j-1));
+            doublereal c2 = m_tcon[j]*(T(x,j+1) - T(x,j));
+            return -2.0*(c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/(z(j+1) - z(j-1));
+        }
+
+        void updateDiffFluxes(const doublereal* x, int j0, int j1);
+
+        // inlet
+        doublereal m_inlet_u;
+        doublereal m_inlet_V;
+        doublereal m_inlet_T;
+        doublereal m_rho_inlet;
+        vector_fp m_yin;
+
+        // surface
+        doublereal m_surface_T;
+
+        doublereal m_press;        // pressure
+
+        vector_fp m_dz;
+        vector_fp m_z;
+
+        // mixture thermo properties
+        vector_fp m_rho;
+        vector_fp m_wtm;
+
+        // species thermo properties
+        vector_fp m_wt;
+        vector_fp m_cp;
+        vector_fp m_enth;
+
+        // transport properties
+        vector_fp m_visc;
+        vector_fp m_tcon;
+        Array2D m_diff;
+        Array2D m_flux;
+
+        // production rates
+        Array2D m_wdot;
+        vector_fp m_surfdot;
+
+        int m_nsp;
+
+        //IdealGasMix*    m_fluid;
+        //thermo_t*          m_phase;
+        igthermo_t*         m_thermo;
+        kinetics_t*       m_kin;
+        Transport*      m_trans;
+        //ImplicitChem*   m_integrator;
+
+        MultiJac*          m_jac;
+
+        bool m_ok;
+
+        // flags
+        vector<bool> m_do_energy;
+        bool m_do_soret;
+        vector<bool> m_do_species;
+        int m_transport_option;
+
+        vector_fp m_zest;
+        Array2D   m_yest;
+        Array2D   m_fixedy;
+        vector_fp m_fixedtemp;
+        vector_fp m_zfix;
+        vector_fp m_tfix;
+
+        vector<FlowBdry::Boundary*>  m_boundary;
+        doublereal m_efctr;
+
+    private:
+
+        void requestJacUpdate();
+        vector_fp m_ybar;
+    };
+
+
+    class AxiStagnFlow : public StFlow {
+    public:
+        AxiStagnFlow(igthermo_t* ph = 0, int nsp = 1, int points = 1) :
+            StFlow(ph, nsp, points) {
+        }
+        virtual ~AxiStagnFlow() {}
+        virtual void eval(int j, doublereal* x, doublereal* r, 
+            integer* mask, doublereal rdt);
+        virtual string flowType() { return "Axisymmetric Stagnation"; }
+    private:
+        void updateTransport(doublereal* x,int j0, int j1);
+    };
+
+
+    class OneDFlow : public StFlow {
+    public:
+        OneDFlow(igthermo_t* ph = 0, int nsp = 1, int points = 1) :
+            StFlow(ph, nsp, points) {
+        }
+        virtual ~OneDFlow() {}
+        virtual void eval(int j, doublereal* x, doublereal* r, 
+            integer* mask, doublereal rdt);
+        virtual string flowType() { return "OneDFlow"; }
+        doublereal mdot(doublereal* x, int j) {
+            return x[index(c_offset_L,j)];
+        }
+
+    private:
+        void updateTransport(doublereal* x,int j0, int j1);
+    };
+
+    void importSolution(doublereal* oldSoln, igthermo_t& oldmech,
+        doublereal* newSoln, igthermo_t& newmech);
+
+}
+
+#endif

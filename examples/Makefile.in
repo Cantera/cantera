@@ -1,0 +1,12 @@
+#/bin/sh
+
+all:
+	@echo 'building example programs....'
+	cd cxx; @MAKE@ all
+
+clean:
+	cd cxx; @MAKE@ clean
+
+depends:
+	cd cxx; @MAKE@ depends
+

@@ -1,0 +1,85 @@
+#/bin/sh
+###############################################################
+#  $Author$
+#  $Date$
+#  $Revision$
+#
+#  Copyright 2001 California Institute of Technology
+#
+###############################################################
+
+
+SUFFIXES=
+SUFFIXES= .cpp .d .o
+
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
+
+OBJS = ct.o Storage.o ctstagn.o ctsurf.o ctrpath.o ctbdry.o ctreactor.o ctfunc.o ctxml.o
+
+DEPENDS = $(OBJS:.o=.d)
+
+
+# Fortran libraries
+FORT_LIBS = @FLIBS@
+
+shared_ctlib = @SHARED_CTLIB@
+
+# the C++ compiler
+CXX = @CXX@
+
+# external libraries
+EXT_LIBS = -lzeroD -loneD @LOCAL_LIBS@ 
+
+# the directory where the Cantera libraries are located
+CANTERA_LIBDIR=../../../lib
+LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
+           $(CANTERA_LIBDIR)/liboneD.a $(CANTERA_LIBDIR)/libconverters.a
+
+# the directory where Cantera include files may be found.
+CANTERA_INCDIR=../../src
+
+CXX_INCLUDES = -I$(CANTERA_INCDIR)  
+
+# flags passed to the C++ compiler/linker for the linking step
+LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
+
+# how to compile C++ source files to object files
+.@CXX_EXT@.@OBJ_EXT@:
+	$(CXX) -c $< $(CXX_INCLUDES) $(CXX_FLAGS) @PIC@
+
+LIB_NAME=lib@CT_SHARED_LIB@
+
+ifeq ($(shared_ctlib),1)
+CTLIB = ./$(LIB_NAME)@SO@
+else
+CTLIB = ./$(LIB_NAME).a
+endif
+ 
+lib: $(OBJS) $(LIB_DEPS)
+	$(RM)     $(CTLIB)
+ifeq ($(shared_ctlib),1)
+	$(CXX) -o $(CTLIB) $(OBJS) $(LCXX_FLAGS) @SHARED@ $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ $(FORT_LIBS)
+	cp $(CTLIB) ../../../lib
+else
+	@ARCHIVE@ $(CTLIB) $(OBJS) 
+	cp $(CTLIB) ../../../lib
+	ranlib ../../../lib/$(CTLIB) 
+endif
+
+clean:
+	$(RM) $(OBJS) $(CTLIB)
+
+install:
+	@INSTALL@ $(CTLIB) @prefix@/lib/cantera
+
+
+%.d:
+	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
+
+depends: $(DEPENDS)
+	cat *.d > .depends
+	$(RM) $(DEPENDS) 
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif

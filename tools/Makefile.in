@@ -1,0 +1,22 @@
+#
+# $Revision$
+# $Author$
+# $Date$
+#
+all: kernel 
+
+kernel:
+	cd src; @MAKE@
+	cd testtools; @MAKE@
+
+clean:
+	$(RM) *.*~ 
+	cd src; @MAKE@ clean
+	cd testtools; @MAKE@ clean
+
+docs:
+	cd doxygen/Cantera; doxygen Cantera.cfg
+
+depends:
+	cd src; @MAKE@ depends
+	cd testtools; @MAKE@ depends

@@ -1,0 +1,17 @@
+#!/bin/sh
+
+version = cantera1.1b
+export_dir = $2
+echo $export_dir
+	
+#if (test -d $(export_dir)/$version); then rm -r $(export_dir)/$version; fi
+#cd $(export_dir); cvs export  -D 1/01/10 cantera-1.1
+#	 rm -r $(export_dir)/cantera-1.1/*/tests
+#	 rm -r $(export_dir)/cantera-1.1/*/test
+#	 rm -r $(export_dir)/cantera-1.1/*/doc
+#	mkdir $(export_dir)/cantera-1.1/lib
+
+
+
+
+

@@ -1,0 +1,58 @@
+#
+# $Source$
+# $Author$
+# $Revision$
+# $Date$
+#
+
+LIB = ./libctmath.a
+
+SUFFIXES=
+SUFFIXES= .f .d .o
+
+F_FLAGS = @FFLAGS@ $(F77_FLAGS)
+
+OBJS = \
+mach.o \
+ddaspk.o \
+dgbefa.o \
+dgbsl.o \
+dgefa.o \
+dgesl.o \
+dp1vlu.o \
+dpcoef.o \
+dpolft.o \
+fdump.o \
+j4save.o \
+pcoef.o \
+polfit.o \
+pvalue.o \
+xercnt.o \
+xerhlt.o \
+xermsg.o \
+xerprn.o \
+xersve.o \
+xgetua.o 
+
+SRCS = $(OBJS:.o=.cpp)
+
+
+$(LIB):  $(OBJS)
+	@ARCHIVE@ $(LIB) $(OBJS) > /dev/null
+
+.cpp.o:
+	@CXX@ -c $< @DEFS@  @CXXFLAGS@ $(INCLUDES)
+
+.f.o:
+	@F77@ -c $< $(F_FLAGS)
+
+clean:
+	$(RM) $(OBJS) $(LIB)
+
+depends:
+	echo '...'
+
+ 
+
+
+

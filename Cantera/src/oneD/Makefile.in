@@ -1,0 +1,53 @@
+#/bin/sh
+###############################################################
+#  $Author$
+#  $Date$
+#  $Revision$
+#
+#  Copyright 2002 California Institute of Technology
+#
+###############################################################
+
+SUFFIXES=
+SUFFIXES= .cpp .d .o
+
+OBJDIR = .
+
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
+
+# stirred reactors
+OBJS    = MultiJac.o MultiNewton.o newton_utils.o OneDim.o StFlow.o
+
+CXX_INCLUDES = -I..
+ONED_LIB = ./liboneD.a
+
+DEPENDS = $(OBJS:.o=.d)
+
+%.d:
+	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
+
+.cpp.o:
+	@CXX@ -c $< @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES)
+
+.f.o:
+	@F77@ -c $< $(F77_FLAGS) 
+
+all: $(ONED_LIB)
+
+$(ONED_LIB): $(OBJS)
+	@ARCHIVE@ $(ONED_LIB) $(OBJS) > /dev/null
+
+clean:
+	$(RM) *.o *~ $(ONED_LIB)
+
+depends: $(DEPENDS)
+	cat *.d > .depends
+	$(RM) $(DEPENDS) 
+
+TAGS: 
+	etags *.h *.cpp
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
+

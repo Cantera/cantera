@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<ctml>
+
+  <!-- generated from argon.inp by ck2ctml. -->
+
+  <!-- transport data from ../transport/gri30_tran.dat. -->
+  <phase id="argon">
+    <state>
+      <temperature units="K">300</temperature>
+      <pressure units="atm">1</pressure>
+      <moleFractions>AR:1.0</moleFractions>
+    </state>
+    <thermo model="IdealGas"/>
+    <elementArray datasrc="elements.xml"> Ar </elementArray>
+    <speciesArray datasrc="#argon_species_data">
+     AR 
+    </speciesArray>
+    <reactionArray datasrc="#argon_rxn_data">
+      <include max="0" min="1" prefix="argon_rxn_"/>
+    </reactionArray>
+    <kinetics model="GasKinetics"/>
+  </phase>
+
+  <!-- species data -->
+  <speciesData id="argon_species_data">
+
+    <!-- AR -->
+    <species id="argon_s_AR" name="AR">
+      <note>120186</note>
+      <atomArray> Ar:1 </atomArray>
+      <thermo>
+        <NASA Tmax="5000" Tmid="1000" Tmin="300">
+          <floatArray size="7" title="low">
+           2.500000000E+000,  0.000000000E+000,  0.000000000E+000,
+           0.000000000E+000,  0.000000000E+000, -7.453750000E+002,
+           4.366000000E+000
+          </floatArray>
+          <floatArray size="7" title="high">
+           2.500000000E+000,  0.000000000E+000,  0.000000000E+000,
+           0.000000000E+000,  0.000000000E+000, -7.453750000E+002,
+           4.366000000E+000
+          </floatArray>
+        </NASA>
+      </thermo>
+      <transport>
+        <string title="geometry">atom</string>
+        <float title="LJ_welldepth" units="Kelvin">1.365000000E+002</float>
+        <float title="LJ_diameter" units="A">3.330000000E+000</float>
+      </transport>
+    </species>
+  </speciesData>
+
+  <!-- reaction data -->
+  <reactionData id="argon_rxn_data"/>
+</ctml>

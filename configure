@@ -1,0 +1,293 @@
+#!/bin/sh
+#
+# $Source$
+# $Author$
+# $Revision$
+# $Date$
+#
+
+
+#######################################################################
+#
+#           Unix / Linux / Cygwin / Mac OS X  Configuration File
+#
+#  Edit this file to control how Cantera is built. Parameters can be set
+#  here, or alternatively environment variables may be set before calling
+#  this script.
+#  
+#  NOTE: if you make changes to this file, save it with another name
+#  so that it will not be overwritten if you update the source
+#  distribution. 
+
+#  Any parameters you are unsure of may be commented out, and
+#  'configure' will attempt to find suitable values for your system.
+
+#######################################################################
+
+
+#----------------------------------------------------------------------
+#         Language Interfaces
+#----------------------------------------------------------------------
+#
+
+# Cantera provides interfaces for several languages.  Set to 'y' to
+# build the specified interface. If you only plan to use Cantera from
+# C++, you do not need to build any of these.  
+
+
+#------------ Fortran 90 --------------------------------------------
+
+# Build the Fortran 90 interface.
+
+BUILD_FORTRAN_90_INTERFACE='n'       # Fortran is temporarily not working
+
+
+#------------ Python -------------------------------------------------
+ 
+# Set this if you want to build the Cantera Python interface.  Python
+# must be installed on your system first, since the build process runs
+# a python script.  Python 2.0 or greater is required. Set PYTHON_CMD
+# to the path to the Python interpreter to use, if there is more than
+# one on your system.
+
+BUILD_PYTHON_INTERFACE=${BUILD_PYTHON_INTERFACE:="y"}
+PYTHON_CMD=${PYTHON_CMD:=python}
+
+
+#----------- Matlab --------------------------------------------------
+
+# Set this to "y" if you want to build the Matlab toolbox. Matlab must
+# be installed on your system first, since the build process runs a
+# Matlab script.
+
+BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
+MATLAB_CMD=${MATLAB_CMD:=matlab}
+
+
+
+#----------------------------------------------------------------------
+#         Kernel Configuration
+#----------------------------------------------------------------------
+
+# If you are only planning to use a portion of Cantera, you may only
+# need a stripped-down kernel. Set those features you want enabled to
+# 'y', and set those you want to skip to 'n' (actually anything but
+# 'y') or comment them out. Some features are dependent on others; for
+# example, enabling 'CK' automatically enables KINETICS and THERMO.
+
+# If you only need to use Cantera to evaluate thermodynamic, kinetic,
+# and transport properties, it is sufficient to enable only KINETICS
+# and TRANSPORT.
+
+
+# thermodynamic properties 
+ENABLE_THERMO='y'
+
+# enable importing Chemkin input files
+ENABLE_CK='y'              
+
+# homogeneous and heterogeneous kinetics
+ENABLE_KINETICS='y'
+
+# transport properties
+ENABLE_TRANSPORT='y'  
+
+# chemical equilibrium
+ENABLE_EQUIL='y'      
+     
+# stirred reactor models
+ENABLE_REACTORS='y'     
+
+# One-dimensional flows
+ENABLE_FLOW1D='y'
+
+# ODE integrators and DAE solvers
+ENABLE_SOLVERS='y'
+
+# reaction path analysis
+ENABLE_RXNPATH='y'         
+
+# non-ideal pure substance models for a few fluids imported from the
+# 'TPX' package (http://adam.caltech.edu/software/tpx)
+ENABLE_TPX='n'          
+		
+
+    
+#----------------------------------------------------------------- 
+#         BLAS and LAPACK
+#-----------------------------------------------------------------
+#
+# Cantera comes with Fortran versions of those parts of BLAS and
+# LAPACK it requires. But if you have another version of BLAS and/or
+# LAPACK you'd like to use, uncomment one or both of the following
+# lines, and enter here the string that should be added to the link
+# command to link to it.
+#
+# BLAS_LIBRARY=-lblas
+#
+# LAPACK_LIBRARY=-llapack
+#
+# The options below do not need be set if you are using the default libraries.
+#
+# Set to 'lower' or 'upper', depending on whether the procedure names
+# in the libraries are lowercase or uppercase. If you don't know, run
+# 'nm' on the library file (e.g. 'nm libblas.a') Note that the these options
+# apply to both the BLAS and LAPACK libraries. 
+LAPACK_NAMES='lower'
+LAPACK_FTN_TRAILING_UNDERSCORE='y'
+
+# Currently this must be set to 'y'.
+LAPACK_FTN_STRING_LEN_AT_END='y'
+
+
+#------------------------------------------------------------------
+#       C++ compiler options
+#------------------------------------------------------------------
+#
+
+# the C++ compiler to use.
+#
+CXX=${CXX:=g++}
+
+# C++ compiler flags
+CXXFLAGS=${CXXFLAGS:="-O3 -Wall -Wstrict-prototypes"}
+
+# the C++ flags required for linking
+#LCXX_FLAGS=
+
+# Ending libraries to tack onto the linking of all C++ programs
+LCXX_END_LIBS="-lm"
+
+# the compiler flag to use to compile code that will be inserted into shared 
+# libraries. 
+PIC=${PIC:=-fPIC}
+
+# the compiler option to create a shared library from object files
+SHARED=${SHARED:="-shared"}
+ 
+
+#-------------------------------------------------------------------
+#      Fortran compiler options
+#-------------------------------------------------------------------
+
+# Cantera uses some external procedures written in Fortran 77.
+# In addition, Cantera implements an interface for Fortran 90
+# application programs. The parameters in this section apply
+# to both.
+
+# the Fortran 77 and Fortran 90 compilers. You only need a Fortran 90
+# compiler if you are building the Fortran 90 interface.
+#F77=${F77:=f77}
+F90=${F90:=f90}
+
+# Fortran compiler flags
+FFLAGS=${FFLAGS:='-O3 -Wall'}
+
+# the additional Fortran flags required for linking, if any
+#LFORT_FLAGS =
+
+# Fortran 90 module directory
+FORT_MODULE_DIRECTORY=${FORT_MODULE_DIRECTORY:=$CANTERA_ROOT/include/fortran}
+
+# Fortran 90 module search path command
+FORT_MODULE_PATH_CMD=${FORT_MODULE_PATH_CMD:="-I$FORT_MODULE_DIRECTORY"}
+
+
+#------------------------------------------------------
+#        other programs
+#------------------------------------------------------
+
+# the command to create a static library
+ARCHIVE=${ARCHIVE:="ar ruv"}
+
+# the command to run the 'make' utility. The Cantera Makefiles are
+# compatible with the GNU make utility, so if your make utility
+# doesn't work, try GNU make.
+MAKE=${MAKE:=make}
+
+#
+# file extensions
+CXX_EXT=${CXX_EXT:=cpp}
+F77_EXT=${F77_EXT:=f}
+F90_EXT=${F90_EXT:=f90}
+#OBJ_EXT=
+#EXE_EXT=
+
+
+CT_SHARED_LIB=${CT_SHARED_LIB:=ct14}
+
+
+#-----------------------------------------------------------------------
+#------------------- don't change anything below!! ---------------------
+#-----------------------------------------------------------------------
+
+export ARCHIVE
+export BLAS_LIBRARY
+export BUILD_F90
+export BUILD_FORTRAN_90_INTERFACE
+export BUILD_PYTHON_INTERFACE
+export BUILD_MATLAB_TOOLBOX
+export MATLAB_CMD
+export CANTERA_ROOT
+export CT_SHARED_LIB
+export CXX
+export CXX_EXT
+export CXXFLAGS
+export CXX_INCLUDES
+export ENABLE_THERMO
+export ENABLE_KINETICS
+export ENABLE_TRANSPORT
+export ENABLE_CK
+export ENABLE_EQUIL
+export ENABLE_REACTORS
+export ENABLE_SOLVERS
+export ENABLE_RXNPATH
+export ENABLE_TPX
+export ENABLE_FLOW1D
+export EXE_EXT
+export F77
+export F77_EXT
+export F90
+export F90_EXT
+export FFLAGS
+export LAPACK_LIBRARY
+export LAPACK_NAMES
+export LCXX_FLAGS
+export LCXX_END_LIBS
+export LFORT_FLAGS
+export LAPACK_FTN_STRING_LEN_AT_END
+export LAPACK_FTN_TRAILING_UNDERSCORE
+export LIB_DIR
+export FORT_MODULE_DIRECTORY
+export FORT_MODULE_PATH_COMMAND
+export OBJ_EXT
+export PYTHON_INCDIR
+export PYTHON_CMD
+export PIC
+export SHARED
+export SOEXT
+export MAKE
+
+#checkroot="checking whether CANTERA_ROOT is properly set..."
+#if test "$CANTERA_ROOT_INIT" = "$CANTERA_ROOT"; then 
+#    echo $checkroot' 'yes
+#else
+#    echo $checkroot' 'no
+#    echo '
+####  IMPORTANT!
+####  before using Cantera, set environment variable 
+####  CANTERA_ROOT to '$CANTERA_ROOT
+#    if test -n "$CANTERA_ROOT_INIT"; then
+#        echo '####  (CANTERA_ROOT is currently set to '$CANTERA_ROOT_INIT')
+# '
+#    fi
+#
+#fi
+
+cd config
+chmod +x ./configure 
+chmod +x ./config.guess
+chmod +x ./config.sub
+chmod +x ./install-sh
+./configure $1 $2 $3 $4
+

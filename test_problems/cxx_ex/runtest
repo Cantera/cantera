@@ -1,0 +1,121 @@
+#!/bin/sh
+#
+#
+
+temp_success="1"
+/bin/rm  -f eq1.csv  tr1.csv tr2.csv  kin1.csv  kin2.csv
+
+#################################################################
+#
+#################################################################
+
+CANTERA_BIN=${CANTERA_BIN:=../../bin}
+$CANTERA_BIN/cxx_examples > cxx_examples.out
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "cxx_examples returned with bad status, $retnStat, check output"
+fi
+
+#################################################################
+#
+#################################################################
+
+$CANTERA_BIN/csvdiff eq1.csv eq1_blessed.csv > eq1_test.out
+retnStat=$?
+if [ $retnStat = "1" ]
+then
+  echo "successful csv comparison on eq1 test"
+else
+  echo "unsuccessful csv comparison on eq1 test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+fi
+
+#################################################################
+#
+#################################################################
+
+$CANTERA_BIN/csvdiff tr1.csv tr1_blessed.csv > tr1_test.out
+retnStat=$?
+if [ $retnStat = "1" ]
+then
+  echo "successful csv comparison on tr1 test"
+  if [ $temp_success = "1" ]
+  then
+    echo "PASSED" > csvCode.txt
+  fi
+else
+  echo "unsuccessful csv comparison on tr1 test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+fi
+
+#################################################################
+#
+#################################################################
+
+$CANTERA_BIN/csvdiff tr2.csv tr2_blessed.csv > tr2_test.out
+retnStat=$?
+if [ $retnStat = "1" ]
+then
+  echo "successful csv comparison on tr2 test"
+  if [ $temp_success = "1" ]
+  then
+    echo "PASSED" > csvCode.txt
+  fi
+else
+  echo "unsuccessful csv comparison on tr2 test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+fi
+
+#################################################################
+#
+#################################################################
+
+$CANTERA_BIN/csvdiff kin1.csv kin1_blessed.csv > kin1_test.out
+retnStat=$?
+if [ $retnStat = "1" ]
+then
+  echo "successful csv comparison on kin1 test"
+  if [ $temp_success = "1" ]
+  then
+    echo "PASSED" > csvCode.txt
+  fi
+else
+  echo "unsuccessful csv comparison on kin1 test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+fi
+
+#################################################################
+#
+#################################################################
+
+$CANTERA_BIN/csvdiff kin2.csv kin2_blessed.csv > kin2_test.out
+retnStat=$?
+if [ $retnStat = "1" ]
+then
+  echo "successful csv comparison on kin2 test"
+  if [ $temp_success = "1" ]
+  then
+    echo "PASSED" > csvCode.txt
+  fi
+else
+  echo "unsuccessful csv comparison on kin2 test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+fi
+if [ $temp_success = "1" ]
+then
+  echo 'cxx_examples csv test PASSED!'
+else
+  echo 'cxx_examples csv test FAILED!'
+fi
+
+#################################################################
+#
+#################################################################
+

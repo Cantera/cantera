@@ -1,0 +1,15 @@
+#!/bin/sh
+
+SUFFIXES=
+SUFFIXES= .inp .log .dat
+
+# list all mechanism files here
+MECHS = 
+
+
+#LOGS = $(MECHS:.inp=.log)
+
+#all: $(LOGS)
+
+#gri30.log: gri30.inp
+#	@CANTERA_BINDIR@/ck2ctml $<

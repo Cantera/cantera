@@ -1,0 +1,33 @@
+
+BUILD_LAPACK=@build_lapack@
+BUILD_BLAS=@build_blas@
+
+LIBS = blas/libctblas.a lapack/libctlapack.a math/libctmath.a \
+       recipes/librecipes.a cvode/libcvode.a tpx/libtpx.a
+ 
+all:  
+ifeq ($(BUILD_LAPACK),1)
+	cd lapack; @MAKE@
+else
+	cd lapack; @MAKE@ clean
+endif
+ifeq ($(BUILD_BLAS),1)
+	cd blas; @MAKE@
+else
+	cd blas; @MAKE@ clean
+endif
+	cd recipes; @MAKE@
+	cd cvode; @MAKE@
+	cd math; @MAKE@
+	cd tpx; @MAKE@
+
+clean:
+	cd lapack; @MAKE@ clean
+	cd blas; @MAKE@ clean
+	cd recipes; @MAKE@ clean
+	cd cvode; @MAKE@ clean
+	cd math; @MAKE@ clean
+	cd tpx; @MAKE@ clean
+
+install:
+	@INSTALL@ -m 644 $(LIBS) @prefix@/lib

@@ -1,0 +1,53 @@
+#/bin/sh
+###############################################################
+#  $Author$
+#  $Date$
+#  $Revision$
+#
+#  Copyright 2002 California Institute of Technology
+#
+###############################################################
+
+SUFFIXES=
+SUFFIXES= .cpp .d .o
+
+OBJDIR = .
+
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) 
+
+# Temporarily removed 'filter.o', since it was causing a compile error on Mac OS X.
+OBJS = ck2ctml.o atomicWeightDB.o CKParser.o CKReader.o Reaction.o ckr_utils.o thermoFunctions.o writelog.o
+
+CXX_INCLUDES = -I. -I..
+CONV_LIB = ./libconverters.a
+
+DEPENDS = $(OBJS:.o=.d)
+
+%.d:
+	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
+
+.cpp.o:
+	@CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
+
+all: $(CONV_LIB)
+
+$(CONV_LIB): $(OBJS)
+	@ARCHIVE@ $(CONV_LIB) $(OBJS) 
+
+clean:
+	$(RM) *.o *~ $(CONV_LIB)
+
+CKParser.o: CKParser.cpp
+	@CXX@ -c CKParser.cpp $(CXX_FLAGS) $(CXX_INCLUDES) -O0
+
+depends: $(DEPENDS)
+	cat *.d > .depends
+	$(RM) $(DEPENDS) 
+
+TAGS: 
+	etags *.h *.cpp
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
+

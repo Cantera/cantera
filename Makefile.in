@@ -1,0 +1,165 @@
+#
+#  $RCSfile$
+#  $Author$
+#  $Date$
+#  $Revision$
+#
+########################################################################
+
+export_dir = $(HOME)/export
+version = 1.3
+ct = $(export_dir)/cantera-$(version)
+build_ck = @BUILD_CK@
+build_clib = @BUILD_CLIB@
+build_python = @BUILD_PYTHON@
+build_matlab = @BUILD_MATLAB@
+
+LIBDIR=@LIB_DIR@
+
+# removed utils temporarily
+all: kernel movelibs clib python matlab 
+
+install: hdr-install kernel-install data-install python-install matlab-install finish-install
+
+demos: example_codes
+
+kernel: info 
+	rm -f lib/*.a
+	cd ext; @MAKE@
+	cd Cantera/src; @MAKE@
+
+clib: 
+	cd Cantera/clib/src; @MAKE@
+
+
+movelibs:
+	mv -f Cantera/src/*.a lib
+	mv -f Cantera/src/*/*.a lib
+	mv -f ext/*/*.a lib
+	ranlib lib/*.a
+
+utils:
+	cd tools; @MAKE@
+
+kernel-install:
+	@INSTALL@ -d @prefix@/lib/cantera
+	@INSTALL@ -m 644 lib/*.a @prefix@/lib/cantera
+	cd Cantera/clib/src; make install
+	ranlib @prefix@/lib/cantera/*.a
+
+data-install:
+	@INSTALL@ -d @prefix@/cantera/data
+	@INSTALL@ -d @prefix@/cantera/templates
+	@INSTALL@ -m 644 data/inputs/*.xml @prefix@/cantera/data
+	@INSTALL@ -m 644 tools/src/*.mak @prefix@/cantera/templates
+	#@INSTALL@ -m 644 tools/templates/gaslib.cpp @prefix@/cantera/templates
+
+hdr-install:
+	@INSTALL@ -d @prefix@/include/cantera
+	@INSTALL@ -d @prefix@/include/kernel
+	@INSTALL@ -d @prefix@/include/cantera/kernel/oneD
+	@INSTALL@ -d @prefix@/include/cantera/kernel/zeroD
+	@INSTALL@ -d @prefix@/include/cantera/kernel/converters
+	@INSTALL@ -d @prefix@/include/cantera/kernel/transport
+	rm -r -f @prefix@/include/cantera/*.h
+	@INSTALL@ include/*.h @prefix@/include/cantera
+	@INSTALL@ config.h @prefix@/include/cantera
+	@INSTALL@ Cantera/src/*.h @prefix@/include/cantera/kernel
+	@INSTALL@ Cantera/src/oneD/*.h @prefix@/include/cantera/kernel/oneD
+	@INSTALL@ Cantera/src/zeroD/*.h @prefix@/include/cantera/kernel/zeroD
+	@INSTALL@ Cantera/src/converters/*.h @prefix@/include/cantera/kernel/converters
+	@INSTALL@ Cantera/src/transport/*.h @prefix@/include/cantera/kernel/transport
+
+
+
+python: 
+ifeq ($(build_python),1)
+	cd Cantera/python; @MAKE@
+endif
+
+python-install:
+ifeq ($(build_python),1)
+	cd Cantera/python; @MAKE@ install
+	@INSTALL@ -d @prefix@/cantera/demos/python
+	@INSTALL@ Cantera/python/examples/*.py @prefix@/cantera/demos/python
+	@INSTALL@ -d @prefix@/cantera/tutorials/python
+	@INSTALL@ Cantera/python/tutorial/*.py \
+                @prefix@/cantera/tutorials/python
+endif
+
+matlab:
+ifeq ($(build_matlab),1)
+	cd Cantera/matlab; @MAKE@
+endif
+
+matlab-install:
+ifeq ($(build_matlab),1)
+	cd Cantera/matlab; @MAKE@ install
+	@INSTALL@ -d @prefix@/cantera/demos/matlab
+	@INSTALL@ Cantera/matlab/cantera/examples/*.m @prefix@/cantera/demos/matlab
+	@INSTALL@ -d @prefix@/cantera/tutorials/matlab
+	@INSTALL@ Cantera/matlab/cantera/tutorial/*.m @prefix@/cantera/tutorials/matlab
+endif
+
+finish-install:
+	@INSTALL@ -d @prefix@/bin
+	@INSTALL@ -d @prefix@/cantera/demos/c++
+	@INSTALL@ examples/cxx/*.cpp @prefix@/cantera/demos/c++
+	@PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@
+#@INSTALL@ bin/ctmkmf @prefix@/bin/ctnew
+#@INSTALL@ bin/cxx_examples @prefix@/cantera/demos/c++
+
+
+
+example_codes:
+	cd examples; @MAKE@ all
+
+test: example_codes
+	cd test_problems; @MAKE@ all
+	cd test_problems; @MAKE@ test
+
+uninstall:
+	rm -r -f @prefix@/include/cantera
+	rm -r -f @prefix@/cantera
+	rm -f @prefix@/lib/lib@CT_SHARED_LIB@.a
+
+clean:
+	$(RM) *.*~ lib/Cantera.a lib/libckreader.a lib/*.a lib/*.so bin/ck2ctml bin/ctsetup bin/cxx_examples
+	cd Cantera; @MAKE@ clean
+	cd CKReader; @MAKE@ clean
+	cd tools; @MAKE@ clean
+	cd ext; @MAKE@ clean
+	cd test_problems; @MAKE@ clean
+	cd examples; @MAKE@ clean
+
+docs:
+	cd tools/doxygen/Cantera; doxygen Cantera.cfg
+
+depends:
+	cd CKReader; @MAKE@ depends
+	cd Cantera; @MAKE@ depends
+	cd tools; @MAKE@ depends
+
+export:
+	@INSTALL@ -d $(export_dir)
+	if (test -d $(ct)); then rm -r -f $(ct); fi
+	cd $(export_dir); cvs export  -D 1/01/2010 cantera-export-$(version)
+	cd $(ct); rm -r -f Cantera/matlab/cantera/@Thermo
+
+pack: export
+	(cd $(export_dir); \
+          rm -f cantera-$(version).tar.gz; \
+          tar cvf cantera-$(version).tar cantera-$(version)/*; \
+	  gzip cantera-$(version).tar)
+
+post: pack
+	(cd $(export_dir); \
+	$(HOME)/ctpost cantera-$(version).tar.gz 1.3.5/src)
+
+
+info:
+	echo '#define CANTERA_ROOT "@prefix@/cantera"' > include/ctdir.h
+
+
+
+

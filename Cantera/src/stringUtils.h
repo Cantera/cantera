@@ -1,0 +1,34 @@
+/**
+ *  @file stringUtils.h
+ *
+ */
+
+// Copyright 2001  California Institute of Technology
+
+
+#ifndef CT_STRINGUTILS_H
+#define CT_STRINGUTILS_H
+
+#include "ct_defs.h"
+#include <string>
+
+namespace Cantera {
+
+    class Phase;
+    class ThermoPhase;
+
+    string fp2str(double x, string fmt = "%g");
+    string int2str(int n, string fmt = "%d");
+    string stripws(string s);
+    string stripnonprint(string s);
+    string lowercase(string s);
+    void parseCompString(const string ss, compositionMap& x);
+    int fillArrayFromString(const string& str, doublereal* a, char delim = ' ');
+    string report(const ThermoPhase& th, bool show_thermo = true);
+    //void printSummary(IdealGasMix& mix, ostream& s);
+    string formatCompList(const Phase& mix, int xyc);
+    string logfileName(const string& infile);    
+    string getFileName(const string& path);
+}
+
+#endif
