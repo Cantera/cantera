@@ -141,6 +141,7 @@ extern "C" {
         char* id, int validate, double threshold);
     int DLL_IMPORT getCanteraError(int buflen, char* buf);
     int DLL_IMPORT showCanteraErrors();
+    int DLL_IMPORT setLogWriter(void* logger);
     int DLL_IMPORT addCanteraDirectory(int buflen, char* buf);
     int DLL_IMPORT clearStorage();
     int DLL_IMPORT delPhase(int n);

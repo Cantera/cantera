@@ -71,7 +71,7 @@ extern "C" {
         m = Py_InitModule("_cantera", ct_methods);
         import_array();
         Cantera::Logger* pylog = new Cantera::Py_Logger;
-        setLogger(pylog);
+        setLogWriter(pylog);
  
         /* Add some symbolic constants to the module */
         d = PyModule_GetDict(m);

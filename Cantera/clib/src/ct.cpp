@@ -984,6 +984,11 @@ extern "C" {
         return 0;
     }
 
+    int DLL_EXPORT setLogWriter(void* logger) {
+        Logger* logwriter = (Logger*)logger;
+        setLogger(logwriter);
+    }
+
     int DLL_EXPORT readlog(int n, char* buf) {
         string s;
         writelog("function readlog is deprecated!");
