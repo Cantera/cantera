@@ -137,7 +137,6 @@ hdr-collect:
 	@INSTALL@ Cantera/src/converters/*.h build/include/cantera/kernel/converters
 	@INSTALL@ Cantera/src/transport/*.h build/include/cantera/kernel/transport
 
-
 particles:
 ifeq ($(build_particles),1)
 	cd Cantera/cads; @MAKE@

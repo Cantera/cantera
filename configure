@@ -149,7 +149,7 @@ BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="default"}
 #      "n"          Do not build the Fortran 90/95 interface, even if a 
 #                   Fortran 90/95 compiler is installed.
 
-BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="y"}
+BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="n"}
 
 
 # The Fortran 90/95 compiler. 

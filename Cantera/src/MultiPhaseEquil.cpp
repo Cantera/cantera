@@ -175,13 +175,14 @@ namespace Cantera {
         integer m2 = 0;
         integer m3 = m_nel;
         integer icase=0;
-
+        integer nel = m_nel;
+        integer nsp = m_nsp;
         vector_int iposv(m_nel);
         vector_int izrov(m_nsp);
     
         //  solve the linear programming problem
 
-        simplx_(&aa(0,0), &m_nel, &m_nsp, &mp, &np, &m1, &m2, &m3, 
+        simplx_(&aa(0,0), &nel, &nsp, &mp, &np, &m1, &m2, &m3, 
             &icase, izrov.begin(), iposv.begin());
         
         fill(m_moles.begin(), m_moles.end(), 0.0);
@@ -398,7 +399,7 @@ namespace Cantera {
                 m_moles[k] += omega * deltaN[k];
             }
             else {
-                m_moles[k] = fabs(m_moles[k])*fmin(10.0, exp(-m_deltaG_RT[ik - m_nel]));
+                m_moles[k] = fabs(m_moles[k])*fminn(10.0, exp(-m_deltaG_RT[ik - m_nel]));
             }
         }
         setMoles();
