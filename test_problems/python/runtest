@@ -23,7 +23,10 @@ if test -z $PYTHONHOME ; then
 else
   PYTHON_CMDA=$PYTHONHOME/bin/python
 fi
-PYTHON_CMD=${PYTHON_CMDA:=$1}
+FIRSTARG=$1
+PYTHON_CMD=${FIRSTARG:=PYTHON_CMDA}
+
+#echo $PYTHON_CMD
 
 $PYTHON_CMD ../../Cantera/python/examples/flame1.py > flame1.out
 retnStat=$?
@@ -54,9 +57,6 @@ machType=`../../bin/get_arch`
 #    Currently, linux and MSVC are producing the same results.
 #
 if test x"$machType" = "xlinux" ; then
-  /bin/cp flame1_blessed_linux.csv flame1_blessed_tmp.csv
-fi
-if test x"$machType" = "xcygwin" ; then
   /bin/cp flame1_blessed_linux.csv flame1_blessed_tmp.csv
 fi
 #
