@@ -24,14 +24,6 @@
 #include <iostream>
 using namespace std;
 
-#ifdef HAVE_INTEL_MKL
-#include "mkl_vml.h"
-#endif
-
-#ifdef HWMECH
-void update_kc(const double* grt, double c0, double* rkc);
-void eval_ropnet(const double* c, const double* rf, const double* rkc, double* r);
-#endif
 
 namespace Cantera {
 
@@ -79,20 +71,6 @@ namespace Cantera {
             updateKc();
             m_kdata->m_ROP_ok = false;
         }
-//         else {
-//             doublereal logT = log(T);
-//             doublereal dT = T - m_kdata->m_temp;
-//             //m_kdata->m_logc0 = m_kdata->m_logp0 - logT;
-//             m_rates.update_dT(T, logT, dT, m_kdata->m_rfn.begin());
-//             m_falloff_low_rates.update_dT(T, logT, dT, 
-//                 m_kdata->m_rfn_low.begin()); 
-//             m_falloff_high_rates.update_dT(T, logT, dT, 
-//                 m_kdata->m_rfn_high.begin());
-//             m_falloffn.updateTemp(T, m_kdata->falloff_work.begin());
-//             m_kdata->m_temp = T;
-//             updateKc();
-//             m_kdata->m_ROP_ok = false;
-//         }
     };
 
 
@@ -117,13 +95,6 @@ namespace Cantera {
         int i, irxn;
         vector_fp& m_rkc = m_kdata->m_rkcn;
         
-#ifdef HWMECH
-        const vector_fp& expg0_RT = thermo().expGibbs_RT();
-        doublereal exp_c0 = exp(m_kdata->m_logc0);
-        update_kc(expg0_RT.begin(), exp_c0, m_rkc.begin());
-#else
-
-        //thermo().getGibbs_RT(m_grt.begin());
         thermo().getStandardChemPotentials(m_grt.begin());
         fill(m_rkc.begin(), m_rkc.end(), 0.0);
 
@@ -140,7 +111,6 @@ namespace Cantera {
         for(i = 0; i != m_nirrev; ++i) {
             m_rkc[ m_irrev[i] ] = 0.0;
         }
-#endif
     }
 
     /**
@@ -362,14 +332,6 @@ namespace Cantera {
         array_fp& ropr = m_kdata->m_ropr;
         array_fp& ropnet = m_kdata->m_ropnet;
 
-#ifdef HWMECH
-        copy(rf.begin(), rf.end(), ropf.begin());
-        m_3b_concm.multiply( ropf, m_kdata->concm_3b_values.begin() );
-        processFalloffReactions();
-        multiply_each(ropf.begin(), ropf.end(), m_perturb.begin());
-        eval_ropnet(m_conc.begin(), ropf.begin(), m_rkc.begin(), ropnet.begin());
-#else
-
         // copy rate coefficients into ropf
         copy(rf.begin(), rf.end(), ropf.begin());
 
@@ -402,7 +364,6 @@ namespace Cantera {
             ropnet[j] = ropf[j] - ropr[j];
         }
 
-#endif
         m_kdata->m_ROP_ok = true;
     }
 
@@ -580,8 +541,6 @@ namespace Cantera {
 
         
     void GasKinetics::installReagents(const ReactionData& r) {
-        //const vector_int& r,
-        //const vector_int& p, bool reversible) {
             
         m_kdata->m_ropf.push_back(0.0);     // extend by one for new rxn
         m_kdata->m_ropr.push_back(0.0);
@@ -613,20 +572,17 @@ namespace Cantera {
         m_products.push_back(pk);
 
         m_kdata->m_rkcn.push_back(0.0);
-        //        int nr = r.size();
-        
-        //m_reactantStoich.add( reactionNumber(), rk);
+
+        m_rxnstoich.add(reactionNumber(), r);
 
         if (r.reversible) {
-            m_rxnstoich.add(reactionNumber(), rk, pk, true);
-            //m_revProductStoich.add(reactionNumber(), pk);
+            //            m_rxnstoich.add(reactionNumber(), rk, pk, true);
             m_dn.push_back(pk.size() - rk.size());
             m_revindex.push_back(reactionNumber());
             m_nrev++;
         }
         else {
-            m_rxnstoich.add(reactionNumber(), rk, pk, false);
-            //m_irrevProductStoich.add(reactionNumber(), pk);
+            //m_rxnstoich.add(reactionNumber(), rk, pk, false);
             m_dn.push_back(pk.size() - rk.size());            
             m_irrev.push_back( reactionNumber() );
             m_nirrev++;
