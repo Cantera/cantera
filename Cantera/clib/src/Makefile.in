@@ -34,7 +34,7 @@ EXT_LIBS = -lzeroD -loneD @LOCAL_LIBS@
 CANTERA_LIBDIR=@buildlib@
 # ../../../lib
 LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
-           $(CANTERA_LIBDIR)/liboneD.a $(CANTERA_LIBDIR)/libconverters.a
+           $(CANTERA_LIBDIR)/liboneD.a 
 
 # the directory where Cantera include files may be found.
 CANTERA_INCDIR=../../src

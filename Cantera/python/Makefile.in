@@ -11,7 +11,7 @@
 
 CANTERA_LIBDIR= @buildlib@
 LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
-           $(CANTERA_LIBDIR)/liboneD.a $(CANTERA_LIBDIR)/libconverters.a \
+           $(CANTERA_LIBDIR)/liboneD.a \
            $(CANTERA_LIBDIR)/libtransport.a
 SRCS = src/ctphase_methods.cpp \
       src/ctthermo_methods.cpp \

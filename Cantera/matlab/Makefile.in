@@ -26,7 +26,7 @@ SRCS = cantera/private/ctmethods.cpp \
 CANTERA_LIBDIR=@buildlib@
 ifeq ($(os_is_win),0)
 LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
-           $(CANTERA_LIBDIR)/liboneD.a $(CANTERA_LIBDIR)/libconverters.a \
+           $(CANTERA_LIBDIR)/liboneD.a \
            $(CANTERA_LIBDIR)/libtransport.a 
 else
 LIB_DEPS =
