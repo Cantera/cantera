@@ -7,7 +7,7 @@
 #include <iostream>
 using namespace std;
 
-#define DEBUG_MULTIPHASE_EQUIL
+#undef DEBUG_MULTIPHASE_EQUIL
 
 namespace Cantera {
 
@@ -462,7 +462,7 @@ namespace Cantera {
             // such that all 
             if (m_dsoln[k] == 1) {
 
-                if ((m_moles[k] > MAJOR_THRESHOLD) ) || (ik < m_nel)) {
+                if ((m_moles[k] > MAJOR_THRESHOLD)  || (ik < m_nel)) {
                     omax = m_moles[k]*FCTR/(fabs(m_work[k]) + TINY);
                     if (m_work[k] < 0.0 && omax < omegamax) {
                         omegamax = omax;
@@ -695,4 +695,5 @@ namespace Cantera {
         }
         return maxerr;
     }
+
 }

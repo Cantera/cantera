@@ -643,7 +643,8 @@ AC_MSG_RESULT(${has_sstream})
 #     Fortran
 #---------------------------------
 
-AC_PROG_F77()
+if test -z $build_with_f2c; then
+  AC_PROG_F77()
 
 # if G77 is defined, then add a flag to turn off adding a second underscore
 # to procedures that have an underscore in the name
@@ -662,6 +663,7 @@ if test -n $override_f77_libs; then
   echo The Fortran 77 libraries on this platform are not correctly determined by 
   echo the configuration process. They are being manually set to 
   echo     FLIBS = $FLIBS
+fi
 fi
 
 has_f90=no
