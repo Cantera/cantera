@@ -20,11 +20,13 @@ SRCS = cantera/private/ctmethods.cpp \
        cantera/private/reactormethods.cpp \
        cantera/private/wallmethods.cpp \
        cantera/private/flowdevicemethods.cpp \
-       cantera/private/onedimmethods.cpp
+       cantera/private/onedimmethods.cpp \
+       cantera/private/surfmethods.cpp
 
 CANTERA_LIBDIR=@buildlib@
 LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
-           $(CANTERA_LIBDIR)/liboneD.a $(CANTERA_LIBDIR)/libconverters.a
+           $(CANTERA_LIBDIR)/liboneD.a $(CANTERA_LIBDIR)/libconverters.a \
+           $(CANTERA_LIBDIR)/libtransport.a 
 
 all: cantera/ctmethods.@mex_ext@
 
@@ -40,6 +42,7 @@ install:
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@ThermoPhase/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Kinetics/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Transport/private
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Interface/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Solution
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@XML_Node/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Reactor/private
@@ -66,6 +69,10 @@ install:
             @prefix@/matlab/toolbox/cantera/cantera/@Transport
 	cd cantera/@Transport/private; @INSTALL@ *.m \
             @prefix@/matlab/toolbox/cantera/cantera/@Transport/private
+	cd cantera/@Interface; @INSTALL@ \
+            *.m @prefix@/matlab/toolbox/cantera/cantera/@Interface
+	cd cantera/@Interface/private; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@Interface/private
 	cd cantera/@XML_Node; @INSTALL@ *.m \
             @prefix@/matlab/toolbox/cantera/cantera/@XML_Node
 	cd cantera/@Reactor; @INSTALL@ *.m \
