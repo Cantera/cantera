@@ -75,6 +75,7 @@ namespace Cantera {
 
         int equilibrate(thermo_t& s, int XY = 0);
         int equilibrate(thermo_t& s, int XY, vector_fp& elMoles);
+        const vector_fp& elementPotentials() const { return m_lambda; }
 
         /**
          * Options controlling how the calculation is carried out. 
@@ -163,6 +164,7 @@ namespace Cantera {
     inline void equilibrate(thermo_t& s, const char* XY) {
         ChemEquil e;
         e.equilibrate(s,_equilflag(XY));
+        s.setElementPotentials(e.elementPotentials());
     }
 
 }

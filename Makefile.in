@@ -21,7 +21,7 @@ compact_install = @COMPACT_INSTALL@
 
 prefix=@prefix@
 
-all:    kernel user cxxlib hdr-collect clib python matlab particles \
+all:    kernel user cxxlib hdr-collect clib fortran python matlab particles \
 	utils datafiles
 
 # use this target on a Windows machine to build the Python and
@@ -63,6 +63,9 @@ clib:
 ifeq ($(do_ranlib),1)
 	@RANLIB@ @buildlib@/*.a
 endif
+
+fortran:
+	cd Cantera/fortran/src; @MAKE@
 
 cxxlib: 
 	cd Cantera/cxx/src; @MAKE@

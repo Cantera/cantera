@@ -3,9 +3,9 @@
 
                               release 1.5
 
-                               9/12/2003
+                               7/30/2004
 
-      Copyright (c) 2001-2003 California Institute of Technology
+      Copyright (c) 2001-2004 California Institute of Technology
 
 
 
@@ -19,6 +19,16 @@ All trademarks referenced herein are property of their respective
 holders.
 
 
+Installing a Binary Version of Cantera
+======================================
+
+Binary installers are available for the Windows and Mac platforms. If
+you wish to install from one of these, download the appropriate
+installer from the Cantera Sourceforge site and run it. This is the
+simplest option if you want a standard installation, and plan to
+primarily use Cantera from Python or MATLAB. 
+
+
 
 Building Cantera from the source code
 =====================================
@@ -27,14 +37,18 @@ Building Cantera from the source code
 1) Unix/linux/cygwin/Mac OSX build procedure
 --------------------------------------------
 
-Run the 'configure' script to build the Makefiles. By default, 'make install' 
-will install under '/usr/local' If you want to install Cantera somewhere else,
-run 'configure' with the 'prefix' option:
+Run the 'configure' script to build the Makefiles. 
 
-configure --prefix=$HOME/my_cantera_dir
+By default, 'make install' will install under '/usr/local' on
+linux/unix, and '/Applications/Cantera' on OS X. If you want to
+install Cantera somewhere else, run 'configure' with the 'prefix'
+option. For example, to install in directory 'cantera' within your
+home directory:
+
+configure --prefix=$HOME/cantera
 
 If necessary, edit 'configure' to set options appropriate for your
-system.
+system before running it.
 
 After running 'configure', type:
 
@@ -47,8 +61,13 @@ To test the installation, type
 
 make test
 
-After running 'make install', run script '/usr/local/cantera/setup_cantera'
-to configure the environment before using Cantera.
+After running 'make install', a script 'setup_cantera' will be written
+to your home directory. Run it using 'source'
+to configure the environment before using Cantera. You may want to add the line
+
+source ~/setup_cantera
+
+to your login script.
 
 The build process requires a 'make' utility compatible with GNU
 'make'.  If this has a different name on your system, define
@@ -58,24 +77,34 @@ environment variable MAKE to the name (e.g. 'gmake') before running
 This procedure also builds the Python and MATLAB interfaces if 
 your system is configured to use them. The requirements are:
     -- Python 2.x + NumPy for the Python interface
-    -- MATLAB 6.x for the MATLAB toolbox
+    -- MATLAB 13 or 14 for the MATLAB toolbox.
 If either is missing or an error occurs, the interface is not installed.
+
+Note that your C++ compiler must be compatible with the compiler used
+to compile Python or MATLAB. For MATLAB 14, this means you will need
+to build Cantera with g++ 3.x, while for MATLAB 13, you will need to
+use g++ 2.95.
 
 
 2) Windows Build Procedure
 --------------------------
 
-Cantera can be built under Windows using Visual C++ 6.0 and Compaq Visual
-Fortran 6.0. In the 'win32' directory, open workspace 'cantera.dsw'. Set
-the active project to 'examples', and the active configuration to
-'Win32 - Release'. Build the project, and execute 'examples.exe' from
-the Build menu to verify that it works.
+Cantera can be built under Windows using Visual C++ 6.0 and Compaq
+Visual Fortran 6.0. You need to have cygwin installed, however, so
+that you can use 'make' ot set up the directory structure in the
+install directory. 
 
-If you plan to build the Python or MATLAB interfaces, you also need to
-build project 'ct'. This creates a DLL file which by default is placed
-in the Windows system directory. Edit the project settings if you want
-to put it somewhere else.
+The first step is to run 'configure' from a cygwin shell window. Once
+this finishes, start Visual C++, and go to the 'win32' directory and
+open workspace 'cantera.dsw'. Set the active project to 'all', and the
+active configuration to 'Win32 - Release'. Build the project.
 
+When this completes, return to the cygwin shell, and type 'make win'
+to complete the process. At the end, you should have a working
+installation in C:\Cantera (or wherever you specified to 'configure').
+
+The Windows build procedure is described in more detail in the 
+document **.
 
 
 Configuring Matlab

@@ -19,6 +19,7 @@
 #include <fstream>
 #include <string>
 #include <stdlib.h>
+#include <time.h>
 #include "ctml.h"
 
 using namespace Cantera;
@@ -44,7 +45,7 @@ namespace ctml {
     }
 
     static bool checkPython() {
-        string path = tmpDir() + "/.check.py";
+        string path = tmpDir() + "/.check.pyw";
         ofstream f(path.c_str());
         if (!f) {
             throw CanteraError("checkPython","cannot open "+path+" for writing");
@@ -82,7 +83,15 @@ namespace ctml {
 
 
     void ct2ctml(const char* file) {
-        string path = tmpDir()+"/.cttmp.py";
+
+        int irnd = rand();
+        struct tm *newtime;
+        time_t aclock;
+        time( &aclock );
+        cout << "aclock = " << aclock << endl;
+        cout << rand() << endl;
+
+        string path = tmpDir()+"/.cttmp.pyw";
         ofstream f(path.c_str());
         if (!f) {
             throw CanteraError("ct2ctml","cannot open "+path+" for writing.");

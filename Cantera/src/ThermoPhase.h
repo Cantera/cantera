@@ -506,6 +506,17 @@ namespace Cantera {
         virtual void setToEquilState(const doublereal* lambda_RT) {
             err("setToEquilState");
         }
+
+        // called by function 'equilibrate' in ChemEquil.h to transfer
+        // the element potentials to this object
+        void setElementPotentials(const vector_fp& lambda) {
+            m_lambda = lambda;
+        }
+
+        void getElementPotentials(doublereal* lambda) {
+            copy(m_lambda.begin(), m_lambda.end(), lambda);
+        }
+
         //@}
 
         void getActivities(doublereal* a);
@@ -693,6 +704,7 @@ namespace Cantera {
         /// Index number
         int m_index;
         doublereal m_phi;
+        vector_fp m_lambda;
 
     private:
 

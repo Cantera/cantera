@@ -20,8 +20,6 @@
 #define CT_STATE2_H
 
 #include "ct_defs.h"
-//#include "utilities.h"
-//#include "ctexceptions.h"
 
 namespace Cantera {
 
@@ -65,7 +63,9 @@ namespace Cantera {
          */
 	void getMoleFractions(doublereal* x) const;
 
-        /// The mole fraction of species k.
+
+        /// The mole fraction of species k. If k is ouside the valid
+        /// range, an exception will be thrown.
         doublereal moleFraction(int k) const;
 
 	/**
@@ -79,34 +79,30 @@ namespace Cantera {
 
 	/**
          * Set the mole fractions to the specified values without
-         * normalizing.
+         * normalizing. This is useful when the normalization
+         * condition is being handled by some other means, for example
+         * by a constraint equation as part of a larger set of
+         * equations.
          */
 	void setMoleFractions_NoNorm(const doublereal* x);
 
         /**
-         * Get the species mass fractions. 
-         * @param y On return, y contains the mass fractions. Array y 
-         * must have a length at least as large as the number of species.
-         */
-	//void getMassFractions(size_t leny, doublereal* y) const {
-        //    copy(m_y.begin(), m_y.end(), y);
-        //}
-
-        /**
-         * Get the species mass fractions.  @param y On return, y
+         * Get the species mass fractions.  
+         * @param y On return, y
          * contains the mass fractions. Array \i y must have a length
          * greater than or equal to the number of species.
          */
 	void getMassFractions(doublereal* y) const;
 
-        /// Mass fraction of species k.
+        /// Mass fraction of species k. If k is outside the valid
+        /// range, an exception will be thrown.
         doublereal massFraction(int k) const;
 
 
 	/**
-         * Set the mole fractions to the specified values, and then 
+         * Set the mass fractions to the specified values, and then 
          * normalize them so that they sum to 1.0.
-         * @param x Array of unnormalized mole fraction values (input). 
+         * @param y Array of unnormalized mass fraction values (input). 
          * Must have a length greater than or equal to the number of
          * species.
          */
@@ -168,24 +164,17 @@ namespace Cantera {
 
 	/// Set the density to value rho (kg/m^3).
 	void setDensity(doublereal rho) {
-            //            if (rho != m_dens) {
-                m_dens = rho;
-                //m_C_updater.need_update();
-                //}
+            m_dens = rho;
         }
 
 	/// Set the molar density to value n (kmol/m^3).
 	void setMolarDensity(doublereal n) {
             m_dens = n*meanMolecularWeight();
-            //m_C_updater.need_update();
         }
 
 	/// Set the temperature to value temp (K).
 	void setTemperature(doublereal temp) {
-            //if (temp != m_temp) {
-                m_temp = temp;
-                //m_T_updater.need_update();
-                //} 
+            m_temp = temp;
         }
 
 	/**

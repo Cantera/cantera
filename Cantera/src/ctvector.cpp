@@ -40,13 +40,11 @@ using namespace ct;
 namespace ct {
 
     ctvector_fp::ctvector_fp(size_t n) : _size(0), _alloc(0), _data(0) {
-        //        if (n > 0) 
         resize(n);
     }
 
     ctvector_fp::ctvector_fp(size_t n, value_type v0) 
         : _size(0), _alloc(0), _data(0) {
-            //if (n > 0) 
             resize(n, v0);
     }
 
@@ -128,14 +126,12 @@ namespace ct {
 
 
     ctvector_int::ctvector_int(size_t n) : _size(0), _alloc(0), _data(0) {
-        //        if (n > 0) 
         resize(n);
     }
 
     ctvector_int::ctvector_int(size_t n, value_type v0) 
         : _size(0), _alloc(0), _data(0) {
-            //if (n > 0) 
-            resize(n, v0);
+        resize(n, v0);
     }
 
     ctvector_int::ctvector_int(const ctvector_int& x) {

@@ -14,7 +14,7 @@ SUFFIXES= .cpp .d .o
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
-OBJS = fct.o
+OBJS = fct.o fctxml.o
 
 DEPENDS = $(OBJS:.o=.d)
 
@@ -32,7 +32,7 @@ CANTERA_LIBDIR=@buildlib@
 
 # ../../../lib
 LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a \
-           $(CANTERA_LIBDIR)/libtransport.a $(CANTERA_LIBDIR)/libconverters.a
+           $(CANTERA_LIBDIR)/libtransport.a
 
 # the directory where Cantera include files may be found.
 CANTERA_INCDIR=../../src

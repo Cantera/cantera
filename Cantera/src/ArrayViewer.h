@@ -49,7 +49,7 @@ namespace Cantera {
             data = v;
         }
 
-        /// resize the array
+        /// resize the array viewer
         void resize(int n, int m) {
             m_nrows = n;
             m_ncols = m;

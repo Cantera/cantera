@@ -294,8 +294,9 @@ namespace Cantera {
             }
         }
         if (j < m_mm) 
-            throw CanteraError("estimateElementPotentials",
-                "too few species.");
+            return -1;
+        //throw CanteraError("estimateElementPotentials",
+        //      "too few species (" + int2str(j) + ").");
 
         for (m = 0; m < m_mm; m++) {
             for (n = 0; n < m_mm; n++) {
@@ -309,7 +310,7 @@ namespace Cantera {
             info = solve(aa, b.begin());
         }
         catch (CanteraError) {
-            throw CanteraError("estimateElementPotentials","singular matrix.");
+            return -2; //throw CanteraError("estimateElementPotentials","singular matrix.");
         }
 
         if (info == 0) {
@@ -560,9 +561,15 @@ namespace Cantera {
             && fabs(deltay) < options.relTolerance) {
             options.iterations = iter;
 
+            m_lambda.resize(m_mm);
+            doublereal rt = GasConstant*m_thermo->temperature();
+            for (m = 0; m < m_mm; m++) {
+                m_lambda[m] = x[m]*rt;
+            }
+
             if (m_thermo->temperature() > m_thermo->maxTemp() + 1.0 ||
                 m_thermo->temperature() < m_thermo->minTemp() - 1.0 ) {
-                throw CanteraError("ChemEquil","Temperature ("
+                writelog("Warning: Temperature ("
                     +fp2str(m_thermo->temperature())+" K) outside "
                     "valid range of "+fp2str(m_thermo->minTemp())+" K to "
                     +fp2str(m_thermo->maxTemp())+" K\n");
