@@ -54,7 +54,7 @@ FLOW1D     =  $(KINETICS) $(SOLVERS)
 EVERYTHING = $(KINETICS) $(HETEROKIN) $(ELECTROCHEM) $(EQUIL) $(CK) \
              $(TRANSPORT) $(REACTOR) $(RPATH) $(SOLVERS) $(FLOW1D)
 
-PCH = all.h
+PCH = 
 #config.h ct_defs.h utilities.h ThermoPhase.h Kinetics.h ReactionData.h RateCoeffMgr.h ReactionStoichMgr.h
 
 PCHGCH = $(PCH:.h=.h.gch)
