@@ -36,6 +36,6 @@ int main() {
     catch (CanteraError) {
         showErrors(cout);
     }
-
+    return 0;
 }
       
