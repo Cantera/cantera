@@ -8,9 +8,8 @@
 #
 ###############################################################
 
-
-SUFFIXES=
-SUFFIXES= .cpp .d .o .f90 .mod
+.SUFFIXES :
+.SUFFIXES :  .cpp .d .o .f90 .mod
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 FORT_FLAGS = @F90FLAGS@
@@ -87,7 +86,6 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
 %.mod : %.f90
 	$(F90) -c $< $(FORT_FLAGS)
 
-
 LIB_NAME=libfct.a
 
 FTLIB = @buildlib@/$(LIB_NAME)
@@ -105,7 +103,6 @@ install:
 
 win-install:
 	@INSTALL@ ../../../lib/clib.lib @prefix@/lib/cantera
-
 
 %.d:
 	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
