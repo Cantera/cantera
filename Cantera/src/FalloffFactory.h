@@ -101,6 +101,13 @@ namespace Cantera {
             return __factory;
         }
 
+	static void deleteFalloffFactory() {
+	    if (__factory) {
+	      delete __factory;
+	      __factory = 0;
+	    }
+	}
+
         /**
          * Destructor doesn't do anything. We do not delete statically
 	 * created single instance of this class here, because it would

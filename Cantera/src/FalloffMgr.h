@@ -31,7 +31,7 @@ namespace Cantera {
          * will be used.
          */
         FalloffMgr(FalloffFactory* f = 0) : 
-	    m_factory(0), m_n(0), m_n0(0), m_worksize(0) {
+	    m_n(0), m_n0(0), m_worksize(0) {
              if (f == 0) m_factory = FalloffFactory::factory();
             else m_factory = f;
         }
@@ -44,7 +44,7 @@ namespace Cantera {
             int i;
             for (i = 0; i < m_n; i++) delete m_falloff[i];
 	    if (m_factory) {
-	      delete m_factory;
+	      FalloffFactory::deleteFalloffFactory();
 	      m_factory = 0;
 	    }
         }
@@ -58,7 +58,7 @@ namespace Cantera {
          * @param c vector of coefficients for the falloff function.
          */ 
         void install(int rxn, int type, 
-            const vector_fp& c) {   
+		     const vector_fp& c) {
             if (type != SIMPLE_FALLOFF) {
                 m_rxn.push_back(rxn);
                 Falloff* f = m_factory->newFalloff(type,c);
