@@ -176,7 +176,14 @@ namespace Cantera {
 
     protected:
 
-        int m_kk;
+	/**
+	 * m_kk = Number of species in the phase.
+	 * @internal m_kk is a member of both the State and Constituents classes.
+	 *    Therefore, to avoid multiple inheritance problems, we need to 
+	 *    restate it in here, so that the declarations in the two base classes
+	 *    become hidden.
+	 */
+	int m_kk;
         int m_ndim;
         int m_index;
 
