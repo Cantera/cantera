@@ -21,13 +21,15 @@ class XML_Node:
         self.wrap = wrap
         if wrap > 0:
             self._xml_id = wrap
-            self._root = root
+            self._root = 0 # root
+        elif src:
+            self._xml_id = _cantera.xml_get_XML_File(src)
+            self._root = 0
+            self.wrap = 1
         else:
             self._xml_id = _cantera.xml_new(name)
-            if src:
-                _cantera.xml_build(self._xml_id, src, preprocess)
-            self._root = self
-        
+            self._root = 0
+            
     def __del__(self):
         """Delete the node. Does nothing if this node is only a wrapper."""
         if not self.wrap:
@@ -136,6 +138,10 @@ class XML_Node:
                         id = self["idRef"])
     
 
+def clear_XML():
+    _cantera.xml_clear()
+
+    
 def find_XML(src = "", root = None, id = "", loc = "", name=""):
     doc = None
     r = None
