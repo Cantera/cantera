@@ -34,6 +34,11 @@ namespace Cantera {
         // typedefs
         typedef ThermoPhase thermo_t;
 
+	/**
+	 * @name Constructors and General Information about Mechanism
+	 */
+	//@{
+
         /// Constructors.
         Kinetics() : m_ii(0), m_thermo(0), m_index(-1), m_surfphase(-1) {}
 
@@ -57,17 +62,31 @@ namespace Cantera {
         int index(){ return m_index; }
         void setIndex(int index) { m_index = index; }
 
-        //XML_Node& xml() { return *m_xml; }
-
         /// Identifies subclass.
         virtual int type() { return 0; }
 
+        /**
+         * Return the number of phases defined within the kinetics
+	 * object.
+         */  
+        int nPhases() const { return m_thermo.size(); }
+
+	/**
+	 * Returns the starting index of the species in the nth phase
+	 * associated with the reaction mechanism
+	 *
+	 * @param n Return the index of first species in the nth phase
+	 *          associated with the reaction mechanism.
+	 */
         int start(int n) { return m_start[n]; }
 
-        /// Number of reactions
+        /// Number of reactions in the reaction mechanism
         int nReactions() const {return m_ii;}
 
-        /// Number of species
+        /**
+	 * Returns the total number of species in all phases
+	 * participating in the kinetics mechanism
+	 */
         int nTotalSpecies() const {
             int n=0, np;
             np = nPhases();
@@ -77,46 +96,8 @@ namespace Cantera {
 
         int surfacePhaseIndex() { return m_surfphase; }
 
-        /**
-         * Stoichiometric coefficient of species k as a reactant in
-         * reaction i.  
-         */
-        virtual doublereal reactantStoichCoeff(int k, int i) const { 
-            err("reactantStoichCoeff");
-            return -1.0;
-        }
 
-        /**
-         * Stoichiometric coefficient of species k as a product in
-         * reaction i.  
-         */
-        virtual doublereal productStoichCoeff(int k, int i) const { 
-            err("productStoichCoeff");
-            return -1.0;
-        }
-
-
-        /**
-         * Returns a read-only reference to the vector of reactant
-         * index numbers for reaction i.
-         */ 
-        virtual const vector_int& reactants(int i) const { 
-            return m_reactants[i]; 
-        }
-        virtual const vector_int& products(int i) const { 
-            return m_products[i]; 
-        }
-
-        /**
-         * Flag specifying the type of reaction. The legal values and
-         * their meaning are specific to the particular kinetics
-         * manager.
-         */
-        virtual int reactionType(int i) const { 
-            err("reactionType"); 
-            return -1; 
-        }
-
+	//@}
         /**
          * @name Reaction Rates Of Progress
          */
@@ -152,12 +133,95 @@ namespace Cantera {
             err("getNetRatesOfProgress");
         }
 
+
         /**
-         * True if reaction i has been declared to be reversible. If
-         * isReversible(i) is false, then the reverse rate of progress
-         * for reaction i is always zero.
+         * Equilibrium constants. Return the equilibrium constants of
+         * the reactions in concentration units in array kc, which
+         * must be dimensioned at least as large as the total number
+         * of reactions.
+         */  
+         virtual void getEquilibriumConstants(doublereal* kc) {
+             err("getEquilibriumConstants");
+         }
+
+	/**
+	 * Return the vector of values for the reaction gibbs free energy
+	 * change.
+	 * These values depend upon the concentration
+	 * of the solution.
+	 *
+	 *  units = J kmol-1
+	 */
+	virtual void getDeltaGibbs( doublereal* deltaG) {
+	    err("getDeltaGibbs");
+	}
+
+	/**
+	 * Return the vector of values for the reactions change in
+	 * enthalpy.
+	 * These values depend upon the concentration
+	 * of the solution.
+	 *
+	 *  units = J kmol-1
+	 */
+	virtual void getDeltaEnthalpy( doublereal* deltaH) {
+	    err("getDeltaEnthalpy");
+	}
+
+	/**
+	 * Return the vector of values for the reactions change in
+	 * entropy.
+	 * These values depend upon the concentration
+	 * of the solution.
+	 *
+	 *  units = J kmol-1 Kelvin-1
+	 */
+	virtual void getDeltaEntropy( doublereal* deltaS) {
+	    err("getDeltaEntropy");
+	}
+
+	/**
+	 * Return the vector of values for the reaction 
+	 * standard state gibbs free energy change.
+	 * These values don't depend upon the concentration
+	 * of the solution.
+	 *
+	 *  units = J kmol-1
+	 */
+	virtual void getDeltaSSGibbs( doublereal* deltaG) {
+	    err("getDeltaSSGibbs");
+	}
+
+	/**
+	 * Return the vector of values for the change in the
+	 * standard state enthalpies of reaction.
+	 * These values don't depend upon the concentration
+	 * of the solution.
+	 *
+	 *  units = J kmol-1
+	 */
+	virtual void getDeltaSSEnthalpy( doublereal* deltaH) {
+	    err("getDeltaSSEnthalpy");
+	}
+
+	/**
+	 * Return the vector of values for the change in the
+	 * standard state entropies for each reaction.
+	 * These values don't depend upon the concentration
+	 * of the solution.
+	 *
+	 *  units = J kmol-1 Kelvin-1
+	 */
+	virtual void getDeltaSSEntropy( doublereal* deltaS) {
+	    err("getDeltaSSEntropy");
+	}
+
+
+	//@}
+        /**
+         * @name Species Production Rates
          */
-        virtual bool isReversible(int i){return false;}
+        //@{
 
         /**
          * Species creation rates [kmol/m^3]. Return the species 
@@ -191,29 +255,93 @@ namespace Cantera {
             err("getNetProductionRates");
         }
 
-        /**
-         * Equilibrium constants. Return the equilibrium constants of
-         * the reactions in concentration units in array kc, which
-         * must be dimensioned at least as large as the total number
-         * of reactions.
-         */  
-         virtual void getEquilibriumConstants(doublereal* kc) {
-             err("getEquilibriumConstants");
-         }
         //@}
+        /**
+         * @name Reaction Mechanism Informational Query Routines
+         */
+        //@{
+
+        /**
+         * Stoichiometric coefficient of species k as a reactant in
+         * reaction i.  
+         */
+        virtual doublereal reactantStoichCoeff(int k, int i) const { 
+            err("reactantStoichCoeff");
+            return -1.0;
+        }
+
+        /**
+         * Stoichiometric coefficient of species k as a product in
+         * reaction i.  
+         */
+        virtual doublereal productStoichCoeff(int k, int i) const { 
+            err("productStoichCoeff");
+            return -1.0;
+        }
+
+        /**
+         * Returns a read-only reference to the vector of reactant
+         * index numbers for reaction i.
+         */ 
+        virtual const vector_int& reactants(int i) const { 
+            return m_reactants[i]; 
+        }
+
+        /**
+         * Returns a read-only reference to the vector of product
+         * index numbers for reaction i.
+         */ 
+        virtual const vector_int& products(int i) const { 
+            return m_products[i]; 
+        }
+
+        /**
+         * Flag specifying the type of reaction. The legal values and
+         * their meaning are specific to the particular kinetics
+         * manager.
+         */
+        virtual int reactionType(int i) const { 
+            err("reactionType"); 
+            return -1; 
+        }
+
+	/**
+         * True if reaction i has been declared to be reversible. If
+         * isReversible(i) is false, then the reverse rate of progress
+         * for reaction i is always zero.
+         */
+        virtual bool isReversible(int i){return false;}
+
+	/**
+	 * Return the forward rate constants
+	 *
+	 * length is the number of reactions. units depends
+	 * on many issues.
+	 */
+	virtual void getFwdRateConstants(doublereal *kfwd) {
+         err("getFwdRateConstants");
+	}
+
+	/**
+	 * Return the reverse rate constants.
+	 *
+	 * length is the number of reactions. units depends
+	 * on many issues. Note, this routine will return rate constants
+	 * for irreversible reactions if the default for
+	 * doIrreversible is overridden.
+	 */
+	virtual void getRevRateConstants(doublereal *krev, 
+					 bool doIrreversible = false) {
+	    err("getFwdRateConstants");
+	}
 
 
+	//@}
         /**
          * @name Reaction Mechanism Construction
          */
         //@{
 
-
-        /**
-         * Return the number of phases defined within the kinetics
-	 * object.
-         */  
-        int nPhases() const { return m_thermo.size(); }
 	/**
 	 * Return the phase index of a phase in the list of phases
 	 * defined within the object.
@@ -463,6 +591,9 @@ namespace Cantera {
         map<string, int> m_phaseindex;
         int m_index;
 
+	/**
+	 * ????????
+	 */
         int m_surfphase;
 
     private:
