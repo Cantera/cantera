@@ -19,7 +19,7 @@ CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 OBJS = ck2ctml.o atomicWeightDB.o CKParser.o CKReader.o Reaction.o ckr_utils.o thermoFunctions.o writelog.o
 
 CXX_INCLUDES = -I. -I..
-CONV_LIB = ./libconverters.a
+CONV_LIB = @buildlib@/libconverters.a
 
 DEPENDS = $(OBJS:.o=.d)
 

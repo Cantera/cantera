@@ -28,6 +28,9 @@ AC_SUBST(ctroot)
 
 AC_CANONICAL_SYSTEM()
 
+buildlib=$ctroot/build/lib
+AC_SUBST(buildlib)
+
 #case "$target" in
 #mips-sgi-irix*.*) 
 #  if test -z "$CXX"; then CXX=CC; fi
@@ -239,18 +242,25 @@ AC_SUBST(BUILD_F90)
 #     Python Interface
 #
 BUILD_PYTHON=0
-if test "$BUILD_PYTHON_INTERFACE" = "y"; then BUILD_PYTHON=1; BUILD_CLIB=1; fi
+if test -z "$PYTHON_CMD"; then 
+  AC_PATH_PROGS(PYTHON_CMD, python2 python, "none")
+  if test "$PYTHON_CMD" != "none"; then BUILD_PYTHON=1; BUILD_CLIB=1; fi
+fi
 AC_SUBST(BUILD_PYTHON)
-AC_SUBST(PYTHON_CMD)
+#AC_SUBST(PYTHON_CMD)
 
 
 #       
 #     Matlab Interface
 #
 BUILD_MATLAB=0
-if test "$BUILD_MATLAB_TOOLBOX" = "y"; then BUILD_MATLAB=1; BUILD_CLIB=1; fi
+if test -z "$MATLAB_CMD"; then
+  AC_PATH_PROG(MATLAB_CMD, matlab, "none")
+  if test "$MATLAB_CMD" != "none"; then BUILD_MATLAB=1; BUILD_CLIB=1; fi
+fi
+#if test "$BUILD_MATLAB_TOOLBOX" = "y"; then BUILD_MATLAB=1; BUILD_CLIB=1; fi
 AC_SUBST(BUILD_MATLAB)
-AC_SUBST(MATLAB_CMD)
+# AC_SUBST(MATLAB_CMD)
 
 AC_SUBST(BUILD_CLIB)
 

@@ -5,7 +5,7 @@
 # $Date$
 #
 
-LIB = ./libctmath.a
+LIB = @buildlib@/libctmath.a
 
 SUFFIXES=
 SUFFIXES= .f .d .o

@@ -33,9 +33,9 @@ setup(name="Cantera",
       ext_modules=[
           Extension("Cantera._cantera",
                     ["src/pycantera.cpp"],
-                    include_dirs=["../../include",
+                    include_dirs=["../../build/include",
                                   "src", "../clib/src"],
-                    library_dirs = ["../../lib"], libraries = libs)
+                    library_dirs = ["../../build/lib"], libraries = libs)
           ],
      )
 

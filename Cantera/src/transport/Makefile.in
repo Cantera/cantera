@@ -19,7 +19,7 @@ CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 OBJS    = TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.o 
 
 CXX_INCLUDES = -I..
-LIB = ./libtransport.a
+LIB = @buildlib@/libtransport.a
 
 DEPENDS = $(OBJS:.o=.d)
 

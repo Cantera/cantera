@@ -2,7 +2,7 @@
 #
 #/bin/sh
 
-LAPACKLIB = ./libctlapack.a
+LAPACKLIB = @buildlib@/libctlapack.a
 
 SUFFIXES=
 SUFFIXES= .f .o

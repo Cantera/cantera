@@ -17,29 +17,25 @@ build_matlab = @BUILD_MATLAB@
 LIBDIR=@LIB_DIR@
 
 # removed utils temporarily
-all: kernel movelibs hdr-collect clib python matlab utils
+all: kernel hdr-collect clib python matlab utils
 
 install: hdr-install kernel-install data-install python-install matlab-install tools-install finish-install
 
 demos: example_codes
 
 kernel: info 
-	rm -f lib/*.a
-	rm -f lib/*.so
+	@INSTALL@ -d @buildlib@
+	rm -f @buildlib@/*.a
+	rm -f @buildlib@/*.so
 	cd ext; @MAKE@
 	cd Cantera/src; @MAKE@
 
 clib: 
 	cd Cantera/clib/src; @MAKE@
+	ranlib @buildlib@/*.a
 
 cxxlib: 
 	cd Cantera/cxx; make
-
-movelibs:
-	mv -f Cantera/src/*.a lib
-	mv -f Cantera/src/*/*.a lib
-	mv -f ext/*/*.a lib
-	ranlib lib/*.a
 
 utils:
 	cd tools; @MAKE@
@@ -47,7 +43,7 @@ utils:
 kernel-install:
 	@INSTALL@ -d @prefix@/lib/cantera
 	rm -f @prefix@/lib/cantera/*
-	@INSTALL@ -m 644 lib/*.a @prefix@/lib/cantera
+	@INSTALL@ -m 644 build/lib/*.a @prefix@/lib/cantera
 	cd Cantera/clib/src; make install
 	ranlib @prefix@/lib/cantera/*.a
 

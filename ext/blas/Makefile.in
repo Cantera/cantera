@@ -2,7 +2,7 @@
 #
 #/bin/sh
 
-BLASLIB = ./libctblas.a
+BLASLIB = @buildlib@/libctblas.a
 
 SUFFIXES=
 SUFFIXES= .f .o

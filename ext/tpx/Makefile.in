@@ -13,7 +13,7 @@ FOBJS =
 
 CXX_LIBS = @LIBS@
 CXX_INCLUDES = -I../include 
-TPLIB = ./libtpx.a
+TPLIB = @buildlib@/libtpx.a
 
 DEPENDS = $(COBJS:.o=.d)
 

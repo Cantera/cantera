@@ -2,7 +2,7 @@
 #
 #/bin/sh
 
-LIB = ./librecipes.a
+LIB = @buildlib@/librecipes.a
 
 SUFFIXES=
 SUFFIXES= .f .d .o

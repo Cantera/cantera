@@ -19,7 +19,7 @@ CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 OBJS    = MultiJac.o MultiNewton.o newton_utils.o OneDim.o StFlow.o
 
 CXX_INCLUDES = -I..
-ONED_LIB = ./liboneD.a
+ONED_LIB = @buildlib@/liboneD.a
 
 DEPENDS = $(OBJS:.o=.d)
 

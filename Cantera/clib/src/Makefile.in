@@ -31,7 +31,8 @@ CXX = @CXX@
 EXT_LIBS = -lzeroD -loneD @LOCAL_LIBS@ 
 
 # the directory where the Cantera libraries are located
-CANTERA_LIBDIR=../../../lib
+CANTERA_LIBDIR=@buildlib@
+# ../../../lib
 LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
            $(CANTERA_LIBDIR)/liboneD.a $(CANTERA_LIBDIR)/libconverters.a
 
@@ -50,20 +51,18 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
 LIB_NAME=lib@CT_SHARED_LIB@
 
 ifeq ($(shared_ctlib),1)
-CTLIB = ./$(LIB_NAME)@SO@
+CTLIB = @buildlib@/$(LIB_NAME)@SO@
 else
-CTLIB = ./$(LIB_NAME).a
+CTLIB = @buildlib@/$(LIB_NAME).a
 endif
  
 lib: $(OBJS) $(LIB_DEPS)
 	$(RM)     $(CTLIB)
 ifeq ($(shared_ctlib),1)
 	$(CXX) -o $(CTLIB) $(OBJS) $(LCXX_FLAGS) @SHARED@ $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ $(FORT_LIBS)
-	cp $(CTLIB) ../../../lib
 else
 	@ARCHIVE@ $(CTLIB) $(OBJS) 
-	cp $(CTLIB) ../../../lib
-	ranlib ../../../lib/$(CTLIB) 
+	ranlib $(CTLIB) 
 endif
 
 clean:

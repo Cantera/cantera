@@ -86,7 +86,7 @@ flow1D:
 
 CXX_LIBS = @LIBS@
 CXX_INCLUDES = -I.
-CANTERA_LIB = ./libcantera.a
+CANTERA_LIB = @buildlib@/libcantera.a
 
 DEPENDS = $(EVERYTHING:.o=.d)
 

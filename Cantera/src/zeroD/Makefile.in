@@ -19,7 +19,7 @@ CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 OBJS    = Reactor.o ReactorBase.o FlowDevice.o Wall.o
 
 CXX_INCLUDES = -I..
-ZEROD_LIB = ./libzeroD.a
+ZEROD_LIB = @buildlib@/libzeroD.a
 
 DEPENDS = $(OBJS:.o=.d)
 

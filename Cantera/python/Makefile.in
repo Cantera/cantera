@@ -9,11 +9,29 @@
 #
 ###############################################################
 
-all: refresh
-	@PYTHON_CMD@ setup.py build
+CANTERA_LIBDIR=../../lib
+LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
+           $(CANTERA_LIBDIR)/liboneD.a $(CANTERA_LIBDIR)/libconverters.a
+SRCS = src/ctphase_methods.cpp \
+      src/ctthermo_methods.cpp \
+      src/ctkinetics_methods.cpp \
+      src/cttransport_methods.cpp \
+      src/ctxml_methods.cpp \
+      src/ctflow_methods.cpp \
+      src/ctfuncs.cpp \
+      src/ctsurf_methods.cpp \
+      src/ctbndry_methods.cpp \
+      src/ctrpath_methods.cpp \
+      src/ctreactor_methods.cpp \
+      src/ctfunc_methods.cpp \
+      src/methods.h
 
-refresh: $(LIB_DEPS)
+all: _build
+
+_build: $(SRCS) $(LIB_DEPS)
 	touch src/pycantera.cpp
+	@PYTHON_CMD@ setup.py build
+	echo 'ok' > _build
 
 install:
 	@PYTHON_CMD@ setup.py install
