@@ -6,11 +6,11 @@ libdir = '/Users/dgg/dv/sf/cantera/build/lib/powerpc-apple-darwin7.4.0'
 incdir = '/Users/dgg/dv/sf/cantera/build/include'
 dflibdir = ''
 
-bllibstr = "-llapack -lf77blas -lcblas -latlas"
+bllibstr = "-lctlapack -lctblas"
 bllibs = bllibstr.replace('-l',' ')
 bllist = bllibs.split()
 
-bldir = "/usr/lib/atlas"
+bldir = ""
 
 libs = ['clib', 'oneD', 'zeroD', 'transport', 'cantera', 'recipes',
         'cvode', 'ctmath', 'tpx']
