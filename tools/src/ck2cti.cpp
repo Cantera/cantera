@@ -1,8 +1,34 @@
 /**
  * @file ck2cti.cpp
  *
- * Program to convert CK-format reaction mechanism files to Cantera input format.
+ * Program to convert Chemkin-II-format reaction mechanism files to
+ * Cantera input format. The resulting Cantera input file contains a
+ * definition of one ideal_gas entry that represents an ideal gas
+ * mixture corresponding to the Chemkin-II reaction mechanism.  The
+ * file also contains Cantera-format definitions for each species and
+ * each reaction in the input reaction mechanism file.
  *
+ * Usage: ck2cti -i input -t thermo -tr transport -id idtag
+ *
+ * The Cantera-format text is written to the standard output.
+ *
+ * @param input Chemkin-II reaction mechanism file to be converted. Required.
+ *
+ * @param thermo Thermodynamic property database. If the THERMO section of the 
+ * input file is missing or does not have entries for one or more species,
+ * this file will be searched for the required thermo data. This file may 
+ * be another reaction mechanism file containing a THERMO section, or
+ * a Chemkin-II-compatible thermodynamic database file.
+ *
+ * @param transport Transport property database. If this file name is supplied,
+ * transport property parameters will be taken from this file and 
+ * included in the output Cantera-format file. If this parameter is omitted, 
+ * no transport property parameters will be included in the output.
+ *
+ * @param id idtag. The ideal_gas entry in the Cantera-format output 
+ * has name \i idtag. If this parameter is omitted, it will be set to the
+ * input file name without the extension. Since only one phase definition
+ * is present in the ck2cti output, this parameter is not required.  
  */
 #ifdef WIN32
 #pragma warning(disable:4786)
