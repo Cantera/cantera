@@ -30,13 +30,15 @@ namespace Cantera {
         }
 
         void DenseMatrix::mult(const double* b, double* prod) const {
-            ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, nRows(), 
-                nRows(), 1.0, begin(), nRows(), b, 1, 0.0, prod, 1);
+            ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, 
+				static_cast<int>(nRows()), 
+                static_cast<int>(nRows()), 1.0, begin(),
+				static_cast<int>(nRows()), b, 1, 0.0, prod, 1);
         }
 
         void DenseMatrix::leftMult(const double* b, double* prod) const {
-            int nc = nColumns();
-            int nr = nRows();
+            int nc = static_cast<int>(nColumns());
+            int nr = static_cast<int>(nRows());
             int n, i;
             double sum = 0.0;
             for (n = 0; n < nc; n++) {
@@ -53,13 +55,17 @@ namespace Cantera {
      */
     int solve(DenseMatrix& A, double* b) {
         int info=0;
-        ct_dgetrf(A.nRows(), A.nColumns(), A.begin(), A.nRows(), 
-            A.ipiv().begin(), info);
+        ct_dgetrf(static_cast<int>(A.nRows()), 
+			static_cast<int>(A.nColumns()), A.begin(), 
+			static_cast<int>(A.nRows()), A.ipiv().begin(), info);
         if (info != 0) 
             throw CanteraError("DenseMatrix::solve",
                 "DGETRF returned INFO = "+int2str(info));
-        ct_dgetrs(ctlapack::NoTranspose, A.nRows(), 1, A.begin(), A.nRows(), 
-            A.ipiv().begin(), b, A.nColumns(), info);
+        ct_dgetrs(ctlapack::NoTranspose, 
+			static_cast<int>(A.nRows()), 1, A.begin(), 
+			static_cast<int>(A.nRows()), 
+            A.ipiv().begin(), b, 
+			static_cast<int>(A.nColumns()), info);
         if (info != 0) 
             throw CanteraError("DenseMatrix::solve",
                 "DGETRS returned INFO = "+int2str(info));
@@ -69,14 +75,17 @@ namespace Cantera {
     /**  Solve Ax = b for multiple right-hand-side vectors. */
     int solve(DenseMatrix& A, DenseMatrix& b) {
         int info=0;
-        ct_dgetrf(A.nRows(), A.nColumns(), A.begin(), A.nRows(), 
-            A.ipiv().begin(), info);
+        ct_dgetrf(static_cast<int>(A.nRows()), 
+			static_cast<int>(A.nColumns()), A.begin(), 
+			static_cast<int>(A.nRows()), A.ipiv().begin(), info);
         if (info != 0) 
             throw CanteraError("DenseMatrix::solve",
                 "DGETRF returned INFO = "+int2str(info)); 
-        ct_dgetrs(ctlapack::NoTranspose, A.nRows(), b.nColumns(), 
-            A.begin(), A.nRows(), 
-            A.ipiv().begin(), b.begin(), b.nRows(), info);
+        ct_dgetrs(ctlapack::NoTranspose, static_cast<int>(A.nRows()),
+			static_cast<int>(b.nColumns()), 
+            A.begin(), static_cast<int>(A.nRows()), 
+            A.ipiv().begin(), b.begin(), 
+			static_cast<int>(b.nRows()), info);
         if (info != 0)
             throw CanteraError("DenseMatrix::solve",
                 "DGETRS returned INFO = "+int2str(info));
@@ -92,9 +101,12 @@ namespace Cantera {
         // fix this!
         int lwork = 6000; // 2*(3*min(m,n) + max(2*min(m,n), max(m,n)));
         vector_fp work(lwork);
-        vector_fp s(min(A.nRows(),A.nColumns()));
-        ct_dgelss(A.nRows(), A.nColumns(), 1, A.begin(), 
-            A.nRows(), b, A.nColumns(), s.begin(),
+        vector_fp s(min(static_cast<int>(A.nRows()),
+					    static_cast<int>(A.nColumns())));
+        ct_dgelss(static_cast<int>(A.nRows()), 
+			static_cast<int>(A.nColumns()), 1, A.begin(), 
+            static_cast<int>(A.nRows()), b, 
+			static_cast<int>(A.nColumns()), s.begin(),
             rcond, rank, work.begin(), work.size(), info);
         if (info != 0) 
             throw CanteraError("DenseMatrix::leaseSquares",
@@ -108,15 +120,15 @@ namespace Cantera {
      */
     void multiply(const DenseMatrix& A, const double* b, double* prod) {
         ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, 
-            A.nRows(), A.nRows(), 1.0, 
-            A.begin(), A.nRows(), b, 1, 0.0, prod, 1);
+            static_cast<int>(A.nRows()), static_cast<int>(A.nRows()), 1.0, 
+            A.begin(), static_cast<int>(A.nRows()), b, 1, 0.0, prod, 1);
     }
 
     void increment(const DenseMatrix& A, 
         const double* b, double* prod) {
         ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, 
-            A.nRows(), A.nRows(), 1.0, 
-            A.begin(), A.nRows(), b, 1, 1.0, prod, 1);
+            static_cast<int>(A.nRows()), static_cast<int>(A.nRows()), 1.0, 
+            A.begin(), static_cast<int>(A.nRows()), b, 1, 1.0, prod, 1);
     }
 
 
@@ -124,16 +136,18 @@ namespace Cantera {
      * invert A. A is overwritten with A^-1.
      */
     int invert(DenseMatrix& A, int nn) {
-        integer n = (nn > 0 ? nn : A.nRows());
+        integer n = (nn > 0 ? nn : static_cast<int>(A.nRows()));
         integer info=0;
-        ct_dgetrf(n, n, A.begin(), A.nRows(), A.ipiv().begin(), info);
+        ct_dgetrf(n, n, A.begin(), static_cast<int>(A.nRows()), 
+			A.ipiv().begin(), info);
         if (info != 0) 
             throw CanteraError("invert",
                 "DGETRF returned INFO="+int2str(info));
 
         vector_fp work(n);
-        integer lwork = work.size(); 
-        ct_dgetri(n, A.begin(), A.nRows(), A.ipiv().begin(), 
+        integer lwork = static_cast<int>(work.size()); 
+        ct_dgetri(n, A.begin(), static_cast<int>(A.nRows()),
+			A.ipiv().begin(), 
             work.begin(), lwork, info);
         if (info != 0) 
             throw CanteraError("invert",
