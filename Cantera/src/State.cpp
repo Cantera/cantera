@@ -10,13 +10,14 @@
  *  $Date$
  *  $Revision$
  *
- *  Copyright 2003 California Institute of Technology
+ *  Copyright 2003-2004 California Institute of Technology
  *  See file License.txt for licensing information
  *
  */
 
 #include "utilities.h"
 #include "ctexceptions.h"
+#include "stringUtils.h"
 #include "State.h"
 
 namespace Cantera {

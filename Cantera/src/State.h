@@ -98,7 +98,6 @@ namespace Cantera {
         /// range, an exception will be thrown.
         doublereal massFraction(int k) const;
 
-
 	/**
          * Set the mass fractions to the specified values, and then 
          * normalize them so that they sum to 1.0.
