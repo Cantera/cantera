@@ -172,6 +172,8 @@ finish-install:
 	@INSTALL@ License.* @prefix@/cantera
 	@INSTALL@ tools/src/finish_install.py tools/bin
 	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
+	chmod +x @ct_bindir@/ctnew
+
 #@INSTALL@ bin/ctmkmf @ct_bindir@/ctnew
 #@INSTALL@ bin/cxx_examples @ct_demodir@/c++
 
