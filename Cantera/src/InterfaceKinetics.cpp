@@ -35,7 +35,16 @@ namespace Cantera {
     ///////////////////////////////////////////////////////////
 
     SurfPhase::
-    SurfPhase(doublereal n0): m_n0(n0), m_tlast(0.0) {
+    SurfPhase(doublereal n0):
+	ThermoPhase(),
+	m_n0(n0),
+	m_logn0(0.0),
+	m_tmin(0.0),
+	m_tmax(0.0),
+	m_press(OneAtm),
+	m_tlast(0.0) 
+    {
+	if (n0 > 0.0) m_logn0 = log(n0);
         setNDim(2);
     }
 
@@ -81,6 +90,10 @@ namespace Cantera {
     void SurfPhase::
     setParameters(int n, doublereal* c) {
         m_n0 = c[0];
+	if (m_n0 <= 0.0) {
+	  throw CanteraError("SurfPhase::setParameters",
+			     "Bad value for parameter");
+	}
         m_logn0 = log(m_n0);
     }
 
@@ -121,11 +134,24 @@ namespace Cantera {
     //    _updateThermo(true);
     //}
 
+    /**
+     * Set the coverage fractions to a specified 
+     * state. This routine converts to concentrations
+     * in kmol/m2, using m_n0, the surface site density,
+     * and size(k), which is defined to be the number of
+     * surface sites occupied by the kth molecule.
+     * It then calls State::setConcentrations to set the
+     * internal concentration in the object.
+     */
     void SurfPhase::
     setCoverages(const doublereal* theta) {
         for (int k = 0; k < m_kk; k++) {
             m_work[k] = m_n0*theta[k]/size(k);
         }
+	/*
+	 * Call the State:: class function
+	 * setConcentrations.
+	 */
         setConcentrations(m_work.begin());
     }
 

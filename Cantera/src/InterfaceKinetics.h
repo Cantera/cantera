@@ -60,54 +60,109 @@ namespace Cantera {
 
     public:
 
-        /// Constructor.
+        /**
+	 * Constructor 
+	 *
+	 * @param thermo The optional parameter may be used to initialize
+	 *               the object with one ThermoPhase object.
+	 *               HKM Note -> Since the interface kinetics
+	 *               object will probably require multiple thermophase
+	 *               objects, this is probably not a good idea
+	 *               to have this parameter.
+	 */
         InterfaceKinetics(thermo_t* thermo = 0);
 
         /// Destructor.
         virtual ~InterfaceKinetics();
 
+	/**
+	 * Identifies the subclass of the Kinetics manager type.
+	 * These are listed in mix_defs.h.
+	 */
         virtual int ID() { return cInterfaceKinetics; }
+
+	/**
+	 * Identifies the subclass of the Kinetics manager type.
+	 * These are listed in mix_defs.h.
+	 */
         virtual int type() { return cInterfaceKinetics; }
 
+	/**
+	 * Set the electric potential in the nth phase
+	 *
+	 * @param n phase Index in this kinetics object. 
+	 * @param V Electric potential (volts)
+	 */
         void setElectricPotential(int n, doublereal V) {
             thermo(n).setElectricPotential(V);
             m_redo_rates = true;
-        }
+	}
 
-        virtual doublereal reactantStoichCoeff(int k, int i) const {
-            return m_rrxn[k][i];
-        }
+ 	//@}
+        /**
+         * @name Reaction Rates Of Progress
+         */
+        //@{ 
 
-        virtual doublereal productStoichCoeff(int k, int i) const {
-            return m_prxn[k][i];
-        }
-
+        /**
+         * Forward rates of progress.
+         * Return the forward rates of progress in array fwdROP, which
+         * must be dimensioned at least as large as the total number
+         * of reactions.
+	 *  Units are kmol/m2/s
+         */
         virtual void getFwdRatesOfProgress(doublereal* fwdROP) { 
             updateROP(); 
             copy(m_kdata->m_ropf.begin(), m_kdata->m_ropf.end(), fwdROP);
         }
 
+	/**
+         * Reverse rates of progress.
+         * Return the reverse rates of progress in array revROP, which
+         * must be dimensioned at least as large as the total number
+         * of reactions.
+	 *  Units are kmol/m2/s
+         */
         virtual void getRevRatesOfProgress(doublereal* revROP) { 
             updateROP(); 
             copy(m_kdata->m_ropr.begin(), m_kdata->m_ropr.end(), revROP);
         }
 
+	/**
+         * Net rates of progress.  Return the net (forward - reverse)
+         * rates of progress in array netROP, which must be
+         * dimensioned at least as large as the total number of
+         * reactions.
+	 *  Units are kmol/m2/s
+         */
         virtual void getNetRatesOfProgress(doublereal* netROP) { 
             updateROP(); 
             copy(m_kdata->m_ropnet.begin(), m_kdata->m_ropnet.end(), netROP);
         }
 
-        virtual void getNetProductionRates(doublereal* net) {
-            updateROP();
-            fill(net, net + m_kk, 0.0);
-            m_revProductStoich.incrementSpecies(
-                m_kdata->m_ropnet.begin(), net);
-            m_irrevProductStoich.incrementSpecies(
-                m_kdata->m_ropnet.begin(), net);
-            m_reactantStoich.decrementSpecies(
-                m_kdata->m_ropnet.begin(), net);
-        }
+        /**
+         * Equilibrium constants. Return the equilibrium constants of
+         * the reactions in concentration units in array kc, which
+         * must be dimensioned at least as large as the total number
+         * of reactions.
+         */
+	virtual void getEquilibriumConstants(doublereal* kc);
 
+
+	//@}
+        /**
+         * @name Species Production Rates
+         */
+        //@{
+
+        /**
+         * Species creation rates [kmol/m^2/s]. Return the species 
+         * creation rates in array cdot, which must be
+         * dimensioned at least as large as the total number of
+         * species in all phases of the kinetics
+	 * model
+         *  
+         */ 
         virtual void getCreationRates(doublereal* cdot) {
             updateROP();
             fill(cdot, cdot + m_kk, 0.0);
@@ -119,6 +174,14 @@ namespace Cantera {
                 m_kdata->m_ropr.begin(), cdot);
         }
 
+        /**
+         * Species destruction rates [kmol/m^2/s]. Return the species 
+         * destruction rates in array ddot, which must be
+         * dimensioned at least as large as the total number of
+         * species in all phases of the kinetics
+	 * model
+         *  
+         */ 
         virtual void getDestructionRates(doublereal* ddot) {
             updateROP();
             fill(ddot, ddot + m_kk, 0.0);
@@ -128,39 +191,111 @@ namespace Cantera {
                 m_kdata->m_ropf.begin(), ddot);
         }
 
-        virtual void getEquilibriumConstants(doublereal* kc);
+	/**
+         * Species net production rates [kmol/m^2/s]. Return the species
+         * net production rates (creation - destruction) in array
+         * wdot, which must be dimensioned at least as large as the
+         * total number of species in all phases of the kinetics
+	 * model
+         */ 
+        virtual void getNetProductionRates(doublereal* net) {
+            updateROP();
+            fill(net, net + m_kk, 0.0);
+            m_revProductStoich.incrementSpecies(
+                m_kdata->m_ropnet.begin(), net);
+            m_irrevProductStoich.incrementSpecies(
+                m_kdata->m_ropnet.begin(), net);
+            m_reactantStoich.decrementSpecies(
+                m_kdata->m_ropnet.begin(), net);
+        }
 
-        virtual void init();
+        //@}
+        /**
+         * @name Reaction Mechanism Informational Query Routines
+         */
+        //@{
 
-        ///  Add a reaction to the mechanism. 
-        virtual void addReaction(const ReactionData& r);
+	/**
+	 * Stoichiometric coefficient of species k as a reactant in
+         * reaction i.  
+	 */
+        virtual doublereal reactantStoichCoeff(int k, int i) const {
+            return m_rrxn[k][i];
+        }
 
-        virtual void finalize();
-        virtual bool ready() const;
+        /**
+         * Stoichiometric coefficient of species k as a product in
+         * reaction i.  
+         */
+        virtual doublereal productStoichCoeff(int k, int i) const {
+            return m_prxn[k][i];
+        }
 
-        //virtual void update_T();
-        //virtual void update_C();
-
-        void updateROP();
-
-        virtual int reactionType(int i) const {
+        /**
+         * Flag specifying the type of reaction. The legal values and
+         * their meaning are specific to the particular kinetics
+         * manager.
+         */
+	virtual int reactionType(int i) const {
             return m_index[i].first;
         }
 
-        virtual string reactionString(int i) const {
+	/**
+         * True if reaction i has been declared to be reversible. If
+         * isReversible(i) is false, then the reverse rate of progress
+         * for reaction i is always zero.
+         */
+        virtual bool isReversible(int i) {
+            if (find(m_revindex.begin(), m_revindex.end(), i) 
+                < m_revindex.end()) return true;
+            else return false;
+        }
+
+	/**
+	 * Return a string representing the reaction.
+	 */
+	virtual string reactionString(int i) const {
             return m_rxneqn[i];
         }
+
+	//@}
+        /**
+         * @name Reaction Mechanism Construction
+         */
+        //@{
+
+	/**
+	 * Prepare the class for the addition of reactions. This function
+	 * must be called after instantiation of the class, but before
+	 * any reactions are actually added to the mechanism.
+	 * This function calculates m_kk the number of species in all
+	 * phases participating in the reaction mechanism. We don't know
+	 * m_kk previously, before all phases have been added. 
+         */
+        virtual void init();
+
+        /**
+	 *  Add a single reaction to the mechanism.
+	 */
+        virtual void addReaction(const ReactionData& r);
+
+        /**
+	 * Finish adding reactions and prepare for use. This function
+	 * must be called after all reactions are entered into the mechanism
+	 * and before the mechanism is used to calculate reaction rates. 
+	 */
+        virtual void finalize();
+        virtual bool ready() const;
+
+
+        void updateROP();
+
 
         const vector<grouplist_t>& reactantGroups(int i)
             { return m_rgroups[i]; }
         const vector<grouplist_t>& productGroups(int i)
             { return m_pgroups[i]; }
 
-        virtual bool isReversible(int i) {
-            if (find(m_revindex.begin(), m_revindex.end(), i) 
-                < m_revindex.end()) return true;
-            else return false;
-        }
         void _update_rates_T();
         void _update_rates_phi();
         void _update_rates_C();
@@ -169,13 +304,23 @@ namespace Cantera {
 
 
     protected:
-
+	/**
+	 * m_kk here is the number of species in all of the phases
+	 * that participate in the kinetics mechanism.
+	 */
         int                                 m_kk;
 
         Rate1<SurfaceArrhenius>                    m_rates;        
         //Rate1<Arrhenius>                    m_rates;        
         bool                                m_redo_rates;
 
+	/**
+	 * Vector of information about reactions in the
+	 * mechanism.
+	 * The key is the reaction index (0 < i < m_ii).
+	 * The first pair is the reactionType of the reaction.
+	 * The second pair is ...
+	 */
         mutable map<int, pair<int, int> >   m_index;
 
         vector<int> m_irrev;
@@ -187,6 +332,10 @@ namespace Cantera {
         StoichManagerN                      m_globalReactantStoich;
 
         int m_nirrev;
+
+	/**
+	 * Number of reversible reactions in the mechanism
+	 */
         int m_nrev;
 
         map<int, vector<grouplist_t> >      m_rgroups;
@@ -200,6 +349,10 @@ namespace Cantera {
         vector_int m_revindex;
         vector<string> m_rxneqn;
 
+	/**
+	 * Temporary data storage used in calculating the rates of
+	 * of reactions.
+	 */
         InterfaceKineticsData* m_kdata;
 
 	/**
@@ -211,7 +364,7 @@ namespace Cantera {
          * reverse rates of elementary reactions. The "units" for the
 	 * concentrations of each phase depend  upon the implementation
 	 * of kinetics within that phase.
-	 *  The order of concentrations withins the vector is based on
+	 * The order of the species within the vector is based on
 	 * the order of listed ThermoPhase objects in the class, and the
 	 * order of the species within each ThermoPhase class.
 	 */
