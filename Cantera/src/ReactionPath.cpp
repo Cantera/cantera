@@ -71,7 +71,7 @@ namespace Cantera {
      */
     void Path::writeLabel(ostream& s, doublereal threshold) 
     {
-        int nn = m_label.size();
+        int nn = static_cast<int>(m_label.size());
         if (nn == 0) return;
         doublereal v;
         map<string, doublereal>::const_iterator i = m_label.begin();
@@ -520,8 +520,8 @@ namespace Cantera {
 
             else if (rgroups.size() > 0) {
                 logfile << " ... specified groups." << endl;
-                int nrg = rgroups.size();
-                int npg = pgroups.size();
+                int nrg = static_cast<int>(rgroups.size());
+                int npg = static_cast<int>(pgroups.size());
                 int kr, kp, ngrpr, ngrpp;
                 Group gr, gp;
 
@@ -530,12 +530,12 @@ namespace Cantera {
                 // loop over reactants 
                 for (int igr = 0; igr < nrg; igr++) {
                     kr = r[igr];
-                    ngrpr = rgroups[igr].size();
+                    ngrpr = static_cast<int>(rgroups[igr].size());
 
                     // loop over products
                     for (int igp = 0; igp < npg; igp++) {
                         kp = p[igp];
-                        ngrpp = pgroups[igp].size();
+                        ngrpp = static_cast<int>(pgroups[igp].size());
 
                         // loop over pairs of reactant and product groups
                         for (int kgr = 0; kgr < ngrpr; kgr++) {
@@ -835,8 +835,8 @@ namespace Cantera {
         // species explicitly included or excluded
         vector<string>& in_nodes = r.included();
         vector<string>& out_nodes = r.excluded();
-        int nin = in_nodes.size();
-        int nout = out_nodes.size();
+        int nin = static_cast<int>(in_nodes.size());
+        int nout = static_cast<int>(out_nodes.size());
 
         vector_int status;
 	status.resize(kk,0);
