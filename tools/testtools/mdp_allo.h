@@ -16,6 +16,7 @@
 #ifndef MDP_ALLO_H
 #define MDP_ALLO_H
 
+#include <string.h>
 /*****************************************************************************/
 /*
 *  If we have array_alloc() from another Sandia program, we will not use

@@ -258,7 +258,7 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
      * Strip a trailing comma from the scanline -
      *  -> These are not significant
      */
-    int ccount = strlen(scanLine);
+    int ccount = static_cast<int>(strlen(scanLine));
     if (ccount > 0) {
       if (scanLine[ccount-1] == ',') scanLine[ccount-1] = '\0';
     }
@@ -293,7 +293,7 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
      * Strip a trailing comma from the scanline -
      *  -> These are not significant
      */
-    int ccount = strlen(scanLine);
+    int ccount = static_cast<int>(strlen(scanLine));
     if (ccount > 0) {
       if (scanLine[ccount-1] == ',') scanLine[ccount-1] = '\0';
     }
@@ -347,7 +347,7 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
        * Strip a trailing comma from the scanline -
        *  -> These are not significant
        */
-      int ccount = strlen(scanLine);
+      int ccount = static_cast<int>(strlen(scanLine));
       if (ccount > 0) {
 	if (scanLine[ccount-1] == ',') scanLine[ccount-1] = '\0';
       }
@@ -398,7 +398,7 @@ read_title(FILE *fp, char ***title, int nTitleLines)
 	 * Strip a trailing comma from the scanline -
 	 *  -> These are not significant
 	 */
-	int ccount = strlen(scanLine);
+	int ccount = static_cast<int>(strlen(scanLine));
 	if (ccount > 0) {
 	  if (scanLine[ccount-1] == ',') scanLine[ccount-1] = '\0';
 	}
@@ -427,7 +427,7 @@ read_colTitle(FILE *fp,  char ****ColMLNames_ptr, int  nColTitleLines, int nCol)
        * Strip a trailing comma from the scanline -
        *  -> These are not significant
        */
-       int ccount = strlen(scanLine);
+       int ccount = static_cast<int>(strlen(scanLine));
        if (ccount > 0) {
 	 if (scanLine[ccount-1] == ',') scanLine[ccount-1] = '\0';
        }
@@ -483,7 +483,7 @@ read_values(FILE *fp, double **NVValues, int nCol, int nDataRows)
      * Strip a trailing comma from the scanline -
      *  -> These are not significant
      */
-    int ccount = strlen(scanLine);
+    int ccount = static_cast<int>(strlen(scanLine));
     if (ccount > 0) {
       if (scanLine[ccount-1] == ',') scanLine[ccount-1] = '\0';
     }
