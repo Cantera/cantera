@@ -65,6 +65,12 @@ clean:
 depends:
 	echo '-'
 
+test:
+	cd examples; @PYTHON_CMD@ reactor1.py &> reactor1.out
+	cd examples; @PYTHON_CMD@ flame1.py  &> flame1.out
+	cd examples; @PYTHON_CMD@ diamond.py &> diamond.out
+	cd examples; @PYTHON_CMD@ critProperties.py  &> critProperties.out
+
 # end of file
 
 

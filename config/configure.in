@@ -694,6 +694,7 @@ AC_OUTPUT(../Cantera/Makefile \
           ../test_problems/diamondSurf/Makefile \
           ../test_problems/ck2cti_test/runtest \
           ../test_problems/ck2cti_test/Makefile \
+          ../test_problems/python/Makefile \
             ) 
 #	)
 if test "x${OS_IS_WIN}" = "x1"; then

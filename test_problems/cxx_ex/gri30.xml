@@ -18,8 +18,48 @@
       <pressure units="Pa">101325.0</pressure>
     </state>
     <thermo model="IdealGas"/>
-    <kinetics model="GasKinetics"/>
+    <kinetics model="GRI30"/>
+    <transport model="None"/>
+  </phase>
+
+  <!-- phase gri30_mix     -->
+  <phase dim="3" id="gri30_mix">
+    <elementArray datasrc="elements.xml">O  H  C  N  Ar </elementArray>
+    <speciesArray datasrc="#species_data">
+      H2  H  O  O2  OH  H2O  HO2  H2O2  C  CH 
+      CH2  CH2(S)  CH3  CH4  CO  CO2  HCO  CH2O  CH2OH  CH3O 
+      CH3OH  C2H  C2H2  C2H3  C2H4  C2H5  C2H6  HCCO  CH2CO  HCCOH 
+      N  NH  NH2  NH3  NNH  NO  NO2  N2O  HNO  CN 
+      HCN  H2CN  HCNN  HCNO  HOCN  HNCO  NCO  N2  AR  C3H7 
+      C3H8  CH2CHO  CH3CHO </speciesArray>
+    <reactionArray datasrc="#reaction_data"/>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GRI30"/>
     <transport model="Mix"/>
+  </phase>
+
+  <!-- phase gri30_multi     -->
+  <phase dim="3" id="gri30_multi">
+    <elementArray datasrc="elements.xml">O  H  C  N  Ar </elementArray>
+    <speciesArray datasrc="#species_data">
+      H2  H  O  O2  OH  H2O  HO2  H2O2  C  CH 
+      CH2  CH2(S)  CH3  CH4  CO  CO2  HCO  CH2O  CH2OH  CH3O 
+      CH3OH  C2H  C2H2  C2H3  C2H4  C2H5  C2H6  HCCO  CH2CO  HCCOH 
+      N  NH  NH2  NH3  NNH  NO  NO2  N2O  HNO  CN 
+      HCN  H2CN  HCNN  HCNO  HOCN  HNCO  NCO  N2  AR  C3H7 
+      C3H8  CH2CHO  CH3CHO </speciesArray>
+    <reactionArray datasrc="#reaction_data"/>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GRI30"/>
+    <transport model="Multi"/>
   </phase>
 
   <!-- species definitions     -->
