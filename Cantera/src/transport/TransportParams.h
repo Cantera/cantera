@@ -7,6 +7,7 @@ using namespace std;
 #include "../ct_defs.h"
 #include "TransportBase.h"
 #include "../xml.h"
+#include "../XML_Writer.h"
 
 namespace Cantera {
 
