@@ -39,8 +39,7 @@ class Solution(ThermoPhase, Kinetics, Transport):
         id = ""
         if len(fn) > 1:
             id = fn[1]
-            fn = fn[0]
-            
+        fn = fn[0]
         fname = os.path.basename(fn)
         ff = os.path.splitext(fname)
 

@@ -27,11 +27,13 @@ extern "C" {
     double DLL_IMPORT bdry_temperature(int i);
     double DLL_IMPORT bdry_massFraction(int i, int k);
     double DLL_IMPORT bdry_mdot(int i);
+    int DLL_IMPORT reactingsurf_setkineticsmgr(int i, int j);
 
     int DLL_IMPORT inlet_new();
     int DLL_IMPORT outlet_new();
     int DLL_IMPORT symm_new();
     int DLL_IMPORT surf_new();
+    int DLL_IMPORT reactingsurf_new();
 
     int DLL_IMPORT stflow_new(int iph, int ikin, int itr);
     int DLL_IMPORT stflow_setPressure(int i, double p);

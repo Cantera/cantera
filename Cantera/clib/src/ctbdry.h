@@ -15,5 +15,6 @@ extern "C" {
     double DLL_IMPORT bndry_mdot(int i);
     int DLL_IMPORT bndry_setxin(int i, double* xin);
     int DLL_IMPORT bndry_setxinbyname(int i, char* xin);
+    int DLL_IMPORT bndry_setkinetics(int i, int j);
 }
 #endif

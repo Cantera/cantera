@@ -197,6 +197,7 @@ namespace Cantera {
             if (s[s.size()-1] == '/') {
 	      name += "/";
 	    }
+
             // get attributes
             while (1) {
                 iloc = s.find('=');

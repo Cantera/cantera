@@ -49,6 +49,15 @@ _reactions = []
 _atw = {}
 _mw = {}
 
+_valsp = ''
+_valrxn = ''
+
+def validate(species = 'yes', reactions = 'yes'):
+    global _valsp
+    global _valrxn
+    _valsp = species
+    _valrxn = reactions
+        
 def isnum(a):
     """True if a is an integer or floating-point number."""
     if type(a) == types.IntType or type(a) == types.FloatType:
@@ -119,6 +128,10 @@ def ufmt(base, n):
 def write():
     """write the CTML file."""
     x = XML_Node("ctml")
+    v = x.addChild("validate")
+    v["species"] = _valsp
+    v["reactions"] = _valrxn
+    
     for ph in _phases:
         ph.build(x)
     s = species_set(name = _name, species = _species)
@@ -264,6 +277,8 @@ class species(writer):
         global _species
         _species.append(self)
         global _speciesnames
+        if name in _speciesnames:
+            raise CanteraError('species '+name+' multiply defined.')
         _speciesnames.append(name)
         
 
@@ -437,11 +452,16 @@ class reaction(writer):
     def __init__(self,
                  equation = '',
                  kf = None,
-                 id = '',                 
+                 id = '',
+                 special = []
                  ):
 
         self._id = id
         self._e = equation
+        if type(special) == types.StringType:
+            self._special = [special]
+        else:
+            self._special = special
         global _reactions
         self._num = len(_reactions)+1
         r = ''
@@ -493,36 +513,9 @@ class reaction(writer):
                     if ph.is_ideal_gas():
                         self._igspecies.append(s)
                     break
-##             if nm < 0:
-##                 if _handle_undeclared_species == _WARN:
-##                     print 'Warning... skipping reaction '+self._e
-##                     print 'because species '+s+' is undeclared'
-##                 if _handle_undeclared_species <= _WARN:
-##                     return 0
-##                 else:
-##                     raise CanteraError('undeclared species '+s+' in reaction '+self._e)
 
-##             else:
             mdim += nm*ns
             ldim += nl*ns
-
-##         for s in self._p.keys():
-##             ns = self._p[s]
-##             ok = 0
-##             for ph in _phases:
-##                 if ph.has_species(s):
-##                     ok = 1
-##                     break
-                
-##             if not ok:
-##                 if _handle_undeclared_species == _WARN:
-##                     print 'Warning... skipping reaction '+self._e
-##                     print 'because species '+s+' is undeclared'
-##                 if _handle_undeclared_species <= _WARN:
-##                     return 0
-##                 else:
-##                     raise CanteraError('undeclared species '+s+' in reaction '+self._e)
-
 
         p.addComment("   reaction "+id+"    ")                
         r = p.addChild('reaction')
@@ -531,6 +524,13 @@ class reaction(writer):
             r['reversible'] = 'yes'
         else:
             r['reversible'] = 'no'
+        nspecial = len(self._special)
+        for nss in range(nspecial):
+            s = self._special[nss]
+            if s == 'duplicate':
+                r['duplicate'] = 'yes'
+            elif s == 'negative_A':
+                r['negative_A'] = 'yes'
 
         ee = self._e.replace('<','[')
         ee = ee.replace('>',']')
@@ -596,15 +596,17 @@ class reaction(writer):
 
 #-------------------
 
+
 class three_body_reaction(reaction):
     def __init__(self,
                  equation = '',
                  kf = None,
                  efficiencies = '',
-                 id = '',                 
+                 id = '',
+                 special = []
                  ):
 
-        reaction.__init__(self, equation, kf, id)
+        reaction.__init__(self, equation, kf, id, special)
         self._type = 'threeBody'
         self._effm = 1.0
         self._eff = efficiencies
@@ -615,8 +617,7 @@ class three_body_reaction(reaction):
                 del self._r[r]
         for p in self._p.keys():
             if p == 'M' or p == 'm':
-                del self._p[p]
-                
+                del self._p[p]                
 
         
     def build(self, p):
@@ -639,7 +640,8 @@ class falloff_reaction(reaction):
                  kf = None, 
                  efficiencies = '',
                  falloff = None,
-                 id = ''
+                 id = '',
+                 special = []
                  ):
 
         kf2 = (kf, kf0)        
@@ -693,7 +695,8 @@ class surface_reaction(reaction):
                  equation = '',
                  kf = None,
                  stick = None,
-                 id = ''):
+                 id = '',
+                 special = []):
         if stick:
             reaction.__init__(self, equation, stick, id)
         else:
@@ -775,26 +778,29 @@ class phase(writer):
             sptoks = spnames.replace(',',' ').split()            
             for s in sptoks:
                 if self._spmap.has_key(s):
-                    raise 'multiply-defined species '+s+' in phase '+self._name
+                    raise CanteraError('Multiply-declared species '+s+' in phase '+self._name)
                 self._spmap[s] = self._dim
             
         self._rxns = reactions
 
         # check that species have been declared
         if len(self._spmap) == 0:
-            raise 'No species declared for phase '+self._name
+            raise CanteraError('No species declared for phase '+self._name)
         
         # and that only one species is declared if it is a pure phase
         if self.is_pure() and len(self._spmap) > 1:
-            raise 'Pure phases may only declare one species, but phase '+self._name+' declares '+`len(self._spmap)`+'.'
+            raise CanteraError('Stoichiometric phases must  declare exactly one species, \n'+
+                               'but phase '+self._name+' declares '+`len(self._spmap)`+'.')
 
         self._initial = initial_state
 
         # add this phase to the global phase list
         global _phases
         _phases.append(self)
+        
 
     def is_ideal_gas(self):
+        """True if the entry represents an ideal gas."""
         return 0
     
     def is_pure(self):
@@ -853,6 +859,12 @@ class phase(writer):
         ph = p.addChild('phase')
         ph['id'] = self._name
         ph['dim'] = `self._dim`
+
+        # ------- error tests -------
+        err = ph.addChild('validation')
+        err.addChild('duplicateReactions','halt')
+        err.addChild('thermo','warn')
+        
         e = ph.addChild('elementArray',self._el)
         e['datasrc'] = 'elements.xml'
         for s in self._sp:
@@ -1116,3 +1128,4 @@ class Lindemann:
 
 
 get_atomic_wts()
+validate()

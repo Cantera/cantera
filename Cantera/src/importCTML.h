@@ -25,7 +25,7 @@ namespace Cantera {
     bool importKinetics(XML_Node& phase, vector<thermophase_t*> th, 
         Kinetics* kin);
     bool installReactionArrays(XML_Node& parent, Kinetics& kin, 
-        string default_phase);
+        string default_phase, bool check_for_duplicates = false);
     ThermoPhase* newPhase(XML_Node& phase);
     bool buildSolutionFromXML(XML_Node& root, string id, string nm, 
         ThermoPhase* th, Kinetics* k);

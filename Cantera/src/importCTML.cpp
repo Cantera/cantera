@@ -50,6 +50,12 @@ using namespace ctml;
 
 GasKineticsWriter* writer = 0;
 
+vector< map<int, doublereal> > _reactiondata;
+vector<string> _eqn;
+vector_int _dup;
+vector<bool> _rev;
+
+
 namespace Cantera {
     /*
      * First we define a coule of typedef's which will
@@ -69,7 +75,7 @@ namespace Cantera {
      * Install a NASA polynomial thermodynamic property
      * parameterization for species k.
      */
-    void installNasaThermo(SpeciesThermo& sp, int k, XML_Node& f0, 
+    static void installNasaThermo(SpeciesThermo& sp, int k, XML_Node& f0, 
 			   XML_Node& f1) {
         doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
 
@@ -113,7 +119,7 @@ namespace Cantera {
      * Install a Shomate polynomial thermodynamic property
      * parameterization for species k.
      */
-    void installShomateThermo(SpeciesThermo& sp, int k, XML_Node& f) {
+    static void installShomateThermo(SpeciesThermo& sp, int k, XML_Node& f) {
         doublereal tmin, tmid, tmax;
         tmin = fpValue(f["Tmin"]);
         tmid = fpValue(f["Tmid"]);
@@ -139,17 +145,15 @@ namespace Cantera {
     }
 
     /** 
-     * Install a Shomate polynomial thermodynamic property
+     * Install a constant-cp thermodynamic property
      * parameterization for species k.
      */
-    void installSimpleThermo(SpeciesThermo& sp, int k, XML_Node& f) {
+    static void installSimpleThermo(SpeciesThermo& sp, int k, XML_Node& f) {
         doublereal tmin, tmax;
         tmin = fpValue(f["Tmin"]);
         tmax = fpValue(f["Tmax"]);
         if (tmax == 0.0) tmax = 1.0e30;
 
-        //map<string, doublereal> fp;
-        //getFloats(f, fp);
         vector_fp c(4);
         c[0] = getFloat(f, "t0", "-");
         c[1] = getFloat(f, "h0", "-");
@@ -163,7 +167,7 @@ namespace Cantera {
      * Install a species into a ThermoPhase object, which defines
      * the phase thermodynamics and speciation
      */
-    bool installSpecies(int k, XML_Node& s, thermo_t& p, 
+    static bool installSpecies(int k, XML_Node& s, thermo_t& p, 
 			SpeciesThermo& spthermo, int rule) {
 
 	// get the composition of the species
@@ -179,9 +183,8 @@ namespace Cantera {
 	    if (rule == 0) 
 		throw 
 		    CanteraError("installSpecies", 
-				 "species " + s["name"] + 
-				 " contains undeclared element " + 
-				 _b->first);
+				 "Species " + s["name"] + 
+				 " contains undeclared element " + _b->first);
 	    else
 		return false;
 	  }
@@ -202,8 +205,7 @@ namespace Cantera {
 	doublereal sz = 1.0;
 	if (s.hasChild("size")) sz = getFloat(s, "size");
 
-	p.addUniqueSpecies(s["name"], ecomp.begin(),
-			   chrg, sz);
+	p.addUniqueSpecies(s["name"], ecomp.begin(), chrg, sz);
 
 	// get thermo
 	XML_Node& thermo = s.child("thermo");
@@ -211,9 +213,6 @@ namespace Cantera {
 	int nc = tp.size();
 	if (nc == 1) {
 	  XML_Node& f = *tp[0];
-	  //if (f.name() == "NASA") {
-	  //    installNasaThermo(spthermo, k, f);
-	  //}
 	  if (f.name() == "Shomate") {
 	    installShomateThermo(spthermo, k, f);
 	  }
@@ -268,7 +267,7 @@ namespace Cantera {
      *  rule = If we fail to find a species, we will throw an error
      *         if rule != 1.
      */
-    bool getReagents(XML_Node& rxn, kinetics_t& kin, int rp,
+    static bool getReagents(XML_Node& rxn, kinetics_t& kin, int rp,
         string default_phase, 
         vector_int& spnum, vector_int& stoich, vector_fp& order,
         int rule) {
@@ -312,7 +311,7 @@ namespace Cantera {
                     return false;
                 else {
                     throw CanteraError("getReagents",
-                        "undeclared reactant or product species "+sp);
+                        "Undeclared reactant or product species "+sp);
                     return false;
                 }
             }
@@ -337,7 +336,7 @@ namespace Cantera {
      * Arrhenius expression is
      *         k =  A T^(b) exp (-Ea / RT).
      */
-    void getArrhenius(XML_Node& node, int& highlow, doublereal& A,
+    static void getArrhenius(XML_Node& node, int& highlow, doublereal& A,
 		      doublereal& b,  doublereal& E) {
         
         if (node["name"] == "k0") 
@@ -366,9 +365,7 @@ namespace Cantera {
             const ThermoPhase& p = kin.thermo(np);
             klocal = p.speciesIndex(kin.kineticsSpeciesName(k));
             if (p.eosType() == cSurf) {
-                cout << "f before = " << f << endl;
                 f /= pow(p.standardConcentration(klocal),ns);
-                cout << "f, k, klocal = " << f << "  " << k << "  " << klocal << endl;
             }   
             else 
                 not_surf++;
@@ -383,14 +380,13 @@ namespace Cantera {
         b = getFloat(node, "b") + 0.5;
         E = getFloat(node, "E", "actEnergy");
         E /= GasConstant;
-        cout << "A, cbar, f, b, E: " << A << "  " << cbar << "  " << f << "  " << b << "  " << E << endl;
     }                
 
 
     /**
      * Get falloff parameters for a reaction.
      */
-    void getFalloff(node_t& f, ReactionData& rdata) {
+    static void getFalloff(node_t& f, ReactionData& rdata) {
         string type = f["type"];
         vector<string> p;
         getStringArray(f,p);
@@ -415,7 +411,7 @@ namespace Cantera {
      * reaction mechanism is homogeneous, so that all species belong
      * to phase(0) of 'kin'.
      */
-    void getEfficiencies(node_t& eff, kinetics_t& kin, ReactionData& rdata) {
+    static void getEfficiencies(node_t& eff, kinetics_t& kin, ReactionData& rdata) {
 
         // set the default collision efficiency
         rdata.default_3b_eff = fpValue(eff["default"]);
@@ -440,8 +436,8 @@ namespace Cantera {
      * This function will fill in more fields in the ReactionData object.
      * 
      */
-    void getRateCoefficient(node_t& kf, kinetics_t& kin, 
-			    ReactionData& rdata) {
+    static void getRateCoefficient(node_t& kf, kinetics_t& kin, 
+        ReactionData& rdata, int negA) {
 
         int nc = kf.nChildren();
         const nodeset_t& kf_children = kf.children();
@@ -459,6 +455,10 @@ namespace Cantera {
                     || rdata.reactionType == ELEMENTARY_RXN) 
                     chigh = coeff;
                 else clow = coeff;
+                if (coeff[0] <= 0.0 && negA == 0) {
+                    throw CanteraError("getRateCoefficient", 
+                        "negative or zero A coefficient for reaction "+int2str(rdata.number));
+                }
             }
             else if (nm == "Stick") {
                 vector_fp coeff(3);
@@ -467,6 +467,10 @@ namespace Cantera {
                 int isp = th.speciesIndex(spname);
                 double mw = th.molecularWeights()[isp];
                 getStick(c, mw, kin, rdata, coeff[0], coeff[1], coeff[2]);
+                if (coeff[0] <= 0.0 && negA == 0) {
+                    throw CanteraError("getRateCoefficient", 
+                        "negative or zero A coefficient for reaction "+int2str(rdata.number));
+                }
                 chigh = coeff;
             }
 
@@ -761,6 +765,29 @@ namespace Cantera {
         return true;
     }        
 
+    /**
+     * This function returns true if two reactions are duplicates of
+     * one another, and false otherwise.  The input arguments are two
+     * maps from species number to stoichiometric coefficient, one for
+     * each reaction. The reactions are considered duplicates if their
+     * stoichiometric coefficients have the same ratio for all
+     * species.
+     */
+    static bool isDuplicateReaction(map<int, doublereal>& r1, map<int, doublereal>& r2) {
+        
+        map<int, doublereal>::const_iterator b = r1.begin(), e = r1.end();
+        int k1 = b->first;
+        doublereal ratio = r2[k1]/r1[k1];
+        if (r1[k1] == 0.0 || r2[k1] == 0.0) return false;
+        ++b;
+        for (; b != e; ++b) {
+            k1 = b->first;
+            if (r1[k1] == 0.0 || r2[k1] == 0.0) return false;
+            if (fabs(r2[k1]/r1[k1] - ratio) > 1.e-8) return false;
+        }
+        return true;
+    }
+
 
     /**
      *  Install an individual reaction into the kinetics mechanism
@@ -773,8 +800,8 @@ namespace Cantera {
      *  rule = Provides a rule for specifying how to handle reactions
      *         which involve missing species.
      */
-    bool installReaction(int i, XML_Node& r, Kinetics* k, 
-        string default_phase, int rule) {
+    static bool installReaction(int i, XML_Node& r, Kinetics* k, 
+        string default_phase, int rule, bool check_for_duplicates) {
 
         Kinetics& kin = *k;
 	/*
@@ -790,11 +817,18 @@ namespace Cantera {
         int nn, eqlen;
         vector_fp dummy;
 
+        int dup = 0;
+        if (r.hasAttrib("duplicate")) dup = 1;
+        int negA = 0;
+        if (r.hasAttrib("negative_A")) negA = 1;
+
+
  	/*
 	 * This seemingly simple expression goes and finds the child element,
 	 * "equation". Then it treats all of the contents of the "equation"
 	 * as a string, and returns it the variable eqn. We post process
-	 * the string to get rid of [ and ] characters for some reason.
+	 * the string to convert [ and ] characters into < and >, which cannot be
+         * stored in an XML file.
 	 */
         if (r.hasChild("equation"))
             eqn = r("equation");
@@ -821,6 +855,47 @@ namespace Cantera {
             return false;
         }
 
+        string isrev = r["reversible"];
+        if (isrev == "yes" || isrev == "true")
+            rdata.reversible = true;
+
+        if (check_for_duplicates) {
+            doublereal c = 0.0;
+            map<int, doublereal> rxnstoich;
+            rxnstoich.clear();
+            int nr = rdata.reactants.size();
+            for (nn = 0; nn < nr; nn++) {
+                rxnstoich[rdata.reactants[nn]] -= rdata.rstoich[nn];
+            }
+            int np = rdata.products.size();
+            for (nn = 0; nn < np; nn++) {
+                rxnstoich[rdata.products[nn]] += rdata.pstoich[nn];
+            }
+            int nrxns = _reactiondata.size();
+            for (nn = 0; nn < nrxns; nn++) {
+                c = isDuplicateReaction(rxnstoich, _reactiondata[nn]);
+                if (c > 0.0 
+                    || (c < 0.0 && rdata.reversible)
+                    || (c < 0.0 && _rev[nn])) {
+
+                    if ((!dup || !_dup[nn])) {
+                        string msg = string("Undeclared duplicate reactions detected: \n")
+                                     +"Reaction "+int2str(nn+1)+": "+_eqn[nn]
+                                     +"\nReaction "+int2str(i+1)+": "+eqn+"\n";
+                        _reactiondata.clear();
+                        _eqn.clear();
+                        _rev.clear();
+                        _dup.clear();
+                        throw CanteraError("installReaction",msg);
+                    }
+                }
+            }
+            _dup.push_back(dup);
+            _rev.push_back(rdata.reversible);
+            _eqn.push_back(eqn);
+            _reactiondata.push_back(rxnstoich);
+        }
+        
         rdata.equation = eqn;
         rdata.reversible = false;
         rdata.number = i;
@@ -849,11 +924,7 @@ namespace Cantera {
             throw CanteraError("installReaction",
                 "Unknown reaction type: " + typ);
             
-        string isrev = r["reversible"];
-        if (isrev == "yes" || isrev == "true")
-            rdata.reversible = true;
-
-        getRateCoefficient(r.child("rateCoeff"), kin, rdata);
+        getRateCoefficient(r.child("rateCoeff"), kin, rdata, negA);
 	/*
 	 * Ok we have read everything in about the reaction. Add it
 	 * to the kinetics object by calling the Kinetics member function,
@@ -878,7 +949,13 @@ namespace Cantera {
      *  If there is a problem, return false.
      */
     bool installReactionArrays(XML_Node& p, Kinetics& kin, 
-        string default_phase) {
+        string default_phase, bool check_for_duplicates) {
+
+        _eqn.clear();
+        _dup.clear();
+        _reactiondata.clear();
+        _rev.clear();
+
         vector<XML_Node*> rarrays;
         int itot = 0;
 	/*
@@ -944,17 +1021,13 @@ namespace Cantera {
 	      XML_Node* r = allrxns[i];
 	      if (r) {
 		if (installReaction(itot, *r, &kin, 
-				    default_phase, rxnrule)) ++itot;
+                        default_phase, rxnrule, check_for_duplicates)) ++itot;
 	      }
 	    }
 	  }
 	  else {
 	    for (int nii = 0; nii < ninc; nii++) {
 	      XML_Node& ii = *incl[nii];
-	      //vector<string> rxn_ids;
-	      //string pref = ii["prefix"];
-	      //int imin = atoi(ii["min"].c_str());
-	      //int imax = atoi(ii["max"].c_str());
 	      string imin = ii["min"];
 	      string imax = ii["max"];
 	      for (i = 0; i < nrxns; i++) {
@@ -962,8 +1035,6 @@ namespace Cantera {
 		string rxid;
 		if (r) {
 		  rxid = (*r)["id"];
-		  //cout << rxid << "   " << imin  << "   " << imax << endl;
-		  //cout << (rxid >= imin) << "   " << (rxid <= imax) << endl;
 		  /*
 		   * To decide whether the reaction is included or not
 		   * we do a lexical min max and operation. This 
@@ -971,19 +1042,23 @@ namespace Cantera {
 		   */
 		  if ((rxid >= imin) && (rxid <= imax)) {
 		    if (installReaction(itot, *r, &kin, 
-                                        default_phase, rxnrule)) ++itot;
+                            default_phase, rxnrule, check_for_duplicates)) ++itot;
 		  }
 		}
 	      }
 	    }
 	  }
         }
+
 	/*
 	 * Finalize the installation of the kinetics, now that we know
 	 * the true number of reactions in the mechanism, itot.
 	 */
         kin.finalize();
         writer = 0;
+        _eqn.clear();
+        _dup.clear();
+        _reactiondata.clear();
         return true;
     }
 
@@ -998,6 +1073,12 @@ namespace Cantera {
 
         // This phase will be the default one
         string default_phase = phase["id"];
+
+        bool check_for_duplicates = false;
+        if (phase.parent()->hasChild("validate")) {
+            XML_Node& d = phase.parent()->child("validate");
+            if (d["reactions"] == "yes") check_for_duplicates = true;
+        }
 
         // if other phases are involved in the reaction mechanism,
         // they must be listed in a 'phaseArray' child
@@ -1049,7 +1130,7 @@ namespace Cantera {
         kin.init();
 
         // Install the reactions.
-        return installReactionArrays(phase, kin, default_phase);
+        return installReactionArrays(phase, kin, default_phase, check_for_duplicates);
      }
 
     /**

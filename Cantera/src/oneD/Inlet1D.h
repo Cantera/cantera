@@ -109,7 +109,7 @@ namespace Cantera {
          * without parameters, a left inlet (facing right) is
          * constructed).
          */
-        Inlet1D() : m_V0(0.0), m_nsp(0), m_flow(0) {
+        Inlet1D() : Bdry1D(), m_V0(0.0), m_nsp(0), m_flow(0) {
             m_type = cInletType;
             m_xstr = "";
         }
@@ -200,7 +200,7 @@ namespace Cantera {
 
     public:
 
-        Symm1D() {
+        Symm1D() : Bdry1D() {
             m_type = cSymmType; 
         }
         virtual ~Symm1D(){}
@@ -228,7 +228,7 @@ namespace Cantera {
 
     public:
 
-        Outlet1D() {
+        Outlet1D() : Bdry1D() {
             m_type = cOutletType; 
         }
         virtual ~Outlet1D(){}
@@ -260,7 +260,7 @@ namespace Cantera {
 
     public:
 
-        Surf1D() {
+        Surf1D() : Bdry1D() {
             m_type = cSurfType; 
         }
         virtual ~Surf1D(){}
@@ -297,6 +297,71 @@ namespace Cantera {
 
     protected:
 
+    };
+
+
+    /**
+     * A reacting surface.
+     *
+     */
+    class ReactingSurf1D : public Bdry1D {
+
+    public:
+
+        ReactingSurf1D() : Bdry1D(),  
+                           m_kin(0), m_surfindex(0), m_nsp(0) {
+                m_type = cSurfType;
+            }
+
+        void setKineticsMgr(InterfaceKinetics* kin) {
+            m_surfindex = kin->surfacePhaseIndex();
+            m_sphase = (SurfPhase*)&kin->thermo(m_surfindex);
+            m_nsp = m_sphase->nSpecies();
+            m_enabled = true;
+        }
+
+        virtual ~ReactingSurf1D(){}
+
+        virtual string componentName(int n) const;
+
+        virtual void init();
+
+        virtual void eval(int jg, doublereal* xg, doublereal* rg, 
+            integer* diagg, doublereal rdt);
+
+        virtual void save(XML_Node& o, doublereal* soln);
+        virtual void restore(XML_Node& dom, doublereal* soln);    
+
+        virtual void _getInitialSoln(doublereal* x) {
+            x[0] = m_temp;
+            m_sphase->getCoverages(x+1);
+        }
+
+        virtual void _finalize(const doublereal* x) {
+            ; //m_temp = x[0];
+        }
+
+        virtual void showSolution(const doublereal* x) {
+            char buf[80];
+            sprintf(buf, "    Temperature: %10.4g K \n", x[0]);
+            writelog(buf);
+            writelog("    Coverages: \n");
+            for (int k = 0; k < m_nsp; k++) {
+                sprintf(buf, "    %20s %10.4g \n", m_sphase->speciesName(k).c_str(),
+                    x[k+1]);
+                writelog(buf);
+            }
+            writelog("\n");
+        }
+
+    protected:
+
+        InterfaceKinetics* m_kin;
+        SurfPhase* m_sphase;
+        int m_surfindex, m_nsp;
+        bool m_enabled;
+        vector_fp m_fixed_cov;
+        vector_fp m_work;
     };
 
 }

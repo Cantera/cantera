@@ -469,8 +469,201 @@ namespace Cantera {
         soln[0] = x["temperature"];
         resize(1,1);
     }
-}
 
+
+
+
+    //-----------------------------------------------------------
+    //
+    //  ReactingSurf1D
+    //
+    //-----------------------------------------------------------
+
+
+
+    string ReactingSurf1D::componentName(int n) const { 
+        if (n == 0) return "temperature";
+        else if (n < m_nsp + 1) 
+            return m_sphase->speciesName(n-1);
+        else
+            return "<unknown>";
+    }
+
+    void ReactingSurf1D::
+    init() { 
+        _init(m_nsp+1); 
+        m_fixed_cov.resize(m_nsp, 0.0);
+        m_fixed_cov[0] = 1.0;
+        m_work.resize(m_kin->nTotalSpecies());
+       // set bounds 
+        vector_fp lower(m_nv), upper(m_nv);
+        lower[0] = 200.0;
+        upper[0] = 1.e5;
+        int n;
+        for (n = 0; n < m_nsp; n++) {
+            lower[n] = -1.0e-5;
+            upper[n] = 2.0;
+        }
+        setBounds(m_nv, lower.begin(), m_nv, upper.begin());
+
+        vector_fp rtol(m_nv), atol(m_nv);
+        for (n = 0; n < m_nv; n++) {
+            rtol[n] = 1.0e-5;
+            atol[n] = 1.0e-9;
+        }
+        atol[0] = 1.0e-4;
+        setTolerances(m_nv, rtol.begin(), m_nv, atol.begin());
+    }
+
+
+    void ReactingSurf1D::
+    eval(int jg, doublereal* xg, doublereal* rg, 
+        integer* diagg, doublereal rdt) {
+        if (jg >= 0 && (jg < firstPoint() - 2 || jg > lastPoint() + 2)) return;
+
+        // start of local part of global arrays
+        doublereal* x = xg + loc();
+        doublereal* r = rg + loc();
+        integer* diag = diagg + loc();
+        doublereal *xb, *rb;
+
+        // specified surface temp
+        r[0] = x[0] - m_temp;
+
+        // set the coverages
+        doublereal sum = 0.0;
+        int k;
+        for (k = 0; k < m_nsp; k++) {
+            m_work[k] = x[k];
+            sum += x[k];
+        }
+        m_sphase->setCoverages(m_work.begin());
+
+        // set the left gas state to the adjacent point
+
+        int leftloc = 0, rightloc = 0;
+        int pnt = 0;
+
+        if (m_flow_left) {
+            leftloc = m_flow_left->loc();
+            pnt = m_flow_left->nPoints() - 1;
+            m_flow_left->setGas(xg + leftloc, pnt);
+        }
+
+        if (m_flow_right) {
+            rightloc = m_flow_right->loc();
+            m_flow_right->setGas(xg + rightloc, 0);
+        }
+
+        m_kin->getNetProductionRates(m_work.begin());
+        doublereal rs0 = 1.0/m_sphase->siteDensity();
+            
+        //scale(m_work.begin(), m_work.end(), m_work.begin(), m_mult[0]);
+        
+        bool enabled = true;
+        int ioffset = m_kin->kineticsSpeciesIndex(0, m_surfindex);
+
+        if (m_enabled) {
+            doublereal maxx = -1.0;
+            int imx = -1;
+            for (k = 0; k < m_nsp; k++) {
+                r[k] = m_work[k + ioffset] * m_sphase->size(k) * rs0;
+                r[k] -= rdt*(x[k] - prevSoln(k,0));
+                diag[k] = 1;
+                if (x[k] > maxx) {
+                    maxx = x[k];
+                    imx = k;
+                }
+            }
+            r[imx] = 1.0 - sum;
+            diag[imx] = 0;
+        }
+        else {
+            r[k] = x[k] - m_fixed_cov[k];
+            diag[k] = 0;
+        }
+        
+        // gas-phase residuals
+//         doublereal rho;
+//         if (m_flow_left) {
+//             rho = m_phase_left->density();
+            //            doublereal rdz = 2.0/
+            //                 (m_flow_left->z(m_left_points-1) - 
+            //                     m_flow_left->z(m_left_points - 2));
+
+
+//             for (k = 0; k < m_left_nsp; k++) 
+//                 m_work[k + m_start_left] *= m_molwt_left[k];
+
+//             int ileft = loc() - m_left_nv;
+
+//             // if the energy equation is enabled at this point,
+//             // set the gas temperature to the surface temperature
+//             if (m_flow_left->doEnergy(pnt)) {
+//                 rg[ileft + 2] = xg[ileft + 2] - m_sphase->temperature();
+//             }
+
+//             for (k = 1; k < m_left_nsp; k++) {
+//                 if (enabled && m_flow_left->doSpecies(k)) {
+//                     rg[ileft + 4 + k]  += m_work[k + m_start_left];
+//                     //+= rdz*m_work[k + m_sp_left]/rho;
+                    
+//                 }
+//             }
+//         }
+
+//         if (m_flow_right) {
+//             for (k = 0; k < m_right_nsp; k++) 
+//                 m_work[k + m_start_right] *= m_molwt_right[k];
+            
+//             int iright = loc() + m_nsp;
+//             rg[iright + 2] -= m_sphase->temperature();
+//             //r[iright + 3] = x[iright];
+//             for (k = 0; k < m_right_nsp; k++) {
+//                 rg[iright + 4 + k] -= m_work[k + m_start_right];
+//             }
+//         }
+    
+
+//         diag[0] = 0;
+//         int nc;
+
+//         if (m_flow_right) {
+//             rb = r + 1;
+//             xb = x + 1;
+//             rb[2] = xb[2] - x[0];            // specified T
+//         }
+
+//         if (m_flow_left) {
+//             nc = m_flow_left->nComponents();
+//             rb = r - nc;
+//             xb = x - nc;
+//             rb[2] = xb[2] - x[0];            // specified T
+//         }
+    }
+
+    void ReactingSurf1D::
+    save(XML_Node& o, doublereal* soln) {
+        doublereal* s = soln + loc();
+        //XML_Node& inlt = o.addChild("inlet");
+        XML_Node& inlt = o.addChild("domain");
+        inlt.addAttribute("id",id());
+        inlt.addAttribute("points",1);
+        inlt.addAttribute("type","surface");
+        inlt.addAttribute("components",nComponents());
+        for (int k = 0; k < nComponents(); k++) {
+            ctml::addFloat(inlt, componentName(k), s[k], "", "",0.0, 1.0);
+        }
+    }
+
+    void ReactingSurf1D::
+    restore(XML_Node& dom, doublereal* soln) {
+        map<string, double> x;
+        getFloats(dom, x);
+        soln[0] = x["temperature"];
+        resize(1,1);
+    }
+}
 
 
     /////////////////////////////////////////////////////////////

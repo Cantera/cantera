@@ -179,6 +179,14 @@ extern "C" {
         catch (CanteraError) { return -1; }
     }
 
+    int DLL_EXPORT reactingsurf_new() {
+        try {
+            ReactingSurf1D* i = new ReactingSurf1D();
+            return Cabinet<Domain1D>::cabinet()->add(i);
+        }
+        catch (CanteraError) { return -1; }
+    }
+
     int DLL_EXPORT symm_new() {
         try {
             Symm1D* i = new Symm1D();
@@ -240,6 +248,15 @@ extern "C" {
         catch (CanteraError) { return -1; }
     }
 
+    int DLL_EXPORT reactingsurf_setkineticsmgr(int i, int j) {
+        try {
+            ReactingSurf1D* srf = (ReactingSurf1D*)_bdry(i);
+            InterfaceKinetics* k = (InterfaceKinetics*)_kinetics(j);
+            srf->setKineticsMgr(k);
+            return 0;
+        }
+        catch (CanteraError) { return -1; }
+    }
 
     //------------------ stagnation flow domains --------------------
 

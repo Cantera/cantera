@@ -33,8 +33,8 @@ namespace Cantera {
 
     
     Refiner::Refiner(Domain1D& domain) :
-        m_ratio(10.0), m_slope(0.8), m_curve(0.8), m_min_range(0.001),
-        m_domain(&domain), m_npmax(200)
+        m_ratio(10.0), m_slope(0.8), m_curve(0.8), m_prune(0.1), 
+        m_min_range(0.001), m_domain(&domain), m_npmax(300)
     {
         m_nv = m_domain->nComponents();
         m_active.resize(m_nv, true);
@@ -51,6 +51,7 @@ namespace Cantera {
 
         m_keep[0] = 1;
         m_keep[n-1] = 1;
+        //m_did_analysis = false;
 
 
         if (m_domain->nPoints() <= 1) return 0;
@@ -58,10 +59,13 @@ namespace Cantera {
         m_nv = m_domain->nComponents();
 
         // check consistency
-        if (n != m_domain->nPoints()) throw CanteraError("analyze","inconsistent");
+        if (n != m_domain->nPoints()) 
+            throw CanteraError("analyze","inconsistent");
 
 
-        if (n >= m_npmax) throw CanteraError("analyze","max points");
+        if (n >= m_npmax) {
+            return -2; // throw CanteraError("analyze","max points");
+        }
 
         /**
          * find locations where cell size ratio is too large.
@@ -126,11 +130,15 @@ namespace Cantera {
                         if (r > 1.0) {
                             m_loc[j] = 1;
                             m_c[name] = 1;
-                            if (int(m_loc.size()) + n > m_npmax) goto done;
+                            //if (int(m_loc.size()) + n > m_npmax) goto done;
                         }
-                        if (r >= -1.0) {
+                        if (r >= m_prune) {
                             m_keep[j] = 1;
                             m_keep[j+1] = 1;
+                        }
+                        else {
+                            if (m_keep[j] == 0) m_keep[j] = -1;
+                            if (m_keep[j+1] == 0) m_keep[j+1] = -1;
                         }
                     }
                 }
@@ -152,10 +160,13 @@ namespace Cantera {
                             m_c[name] = 1;
                             m_loc[j] = 1;
                             m_loc[j+1] = 1;
-                            if (int(m_loc.size()) + n > m_npmax) goto done;
+                            //if (int(m_loc.size()) + n > m_npmax) goto done;
                         }
-                        if (r >= -1.0) {
+                        if (r >= m_prune) {
                             m_keep[j+1] = 1;
+                        }
+                        else {
+                            if (m_keep[j+1] == 0) m_keep[j+1] = -1;
                         }
                     }
                 }
@@ -163,6 +174,7 @@ namespace Cantera {
             }
         }
 done:
+        //m_did_analysis = true;
         return m_loc.size();
     }
 

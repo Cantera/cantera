@@ -57,6 +57,13 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             indx = outlet_new();
             break;
 
+            // construct a new ReactingSurf1D instance
+        case 6:
+            checkNArgs(4, nrhs);
+            indx = reactingsurf_new();
+            reactingsurf_setkineticsmgr(indx, getInt(prhs[3]));
+            break;
+
         // construct a new Sim1D instance
         case 8:
             checkNArgs(5, nrhs);

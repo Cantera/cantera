@@ -12,7 +12,7 @@
 // Cantera includes
 #include "oneD/OneDim.h"
 #include "oneD/Inlet1D.h"
-
+#include "InterfaceKinetics.h"
 #include "Cabinet.h"
 #include "Storage.h"
 
@@ -34,6 +34,10 @@ inline ThermoPhase* _thermo(int n) {
     return Storage::__storage->__thtable[n];
 }
 
+inline Kinetics* _kin(int n) {
+    return Storage::__storage->__ktable[n];
+}
+
 extern "C" {  
 
     int DLL_EXPORT bndry_new(int itype) {
@@ -45,6 +49,8 @@ extern "C" {
             s = new Symm1D(); break;
         case 3:
             s = new Surf1D(); break;
+        case 4:
+            s = new ReactingSurf1D(); break;
         default:
             return -2;
         }
@@ -110,6 +116,16 @@ extern "C" {
     int DLL_EXPORT bndry_setxinbyname(int i, char* xin) {
         try {
             _bndry(i)->setMoleFractions(string(xin));
+        }
+        catch (CanteraError) {return -1;}
+        return 0;
+    }
+
+    int DLL_EXPORT surf_setkinetics(int i, int j) {
+        try {
+            ReactingSurf1D* srf = (ReactingSurf1D*)_bndry(i);
+            InterfaceKinetics* k = (InterfaceKinetics*)_kin(j);
+            srf->setKineticsMgr(k);
         }
         catch (CanteraError) {return -1;}
         return 0;

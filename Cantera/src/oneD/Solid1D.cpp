@@ -31,32 +31,23 @@ namespace Cantera {
 
 
     int Solid1D::c_T_loc = 0;
-    int Solid1D::c_phi_loc = 1;
-    int Solid1D::c_Y_loc = 2;
+    int Solid1D::c_C_loc = 1;
 
-
-    Solid1D::Solid1D(ThermoPhase* ph, int nsp, int points) : 
-        Domain1D(nsp+1, points),
-	m_nsp(nsp),
-        m_thermo(0),
+    Solid1D::Solid1D(ThermoPhase* ph, int points) : 
+        Domain1D(1, points),
         m_kin(0),
 	m_trans(0),
         m_jac(0),
-	m_ok(false),
+	m_ok(false)
     {
         m_type = cSolidType;
-
         m_points = points;
         m_thermo = ph;
 
-        if (ph == 0) return; // used to create a dummy object
+        if (ph == 0) { m_nsp = 1; return; }// used to create a dummy object
 
-        int nsp2 = m_thermo->nSpecies();
-        if (nsp2 != m_nsp) {
-            m_nsp = nsp2;
-            Domain1D::resize(m_nsp+1, points);
-        }
-
+        m_nsp = m_thermo->nSpecies();
+        Domain1D::resize(m_nsp+1, points);
 
         // make a local copy of the species molecular weight vector
         m_wt = m_thermo->molecularWeights();
@@ -65,13 +56,12 @@ namespace Cantera {
 
         // turn off the energy equation at all points
         m_do_energy.resize(m_points,false);
-        m_do_gauss.resize(m_points,false);
         m_do_species.resize(m_nsp,false);
 
         m_diff.resize(m_nsp*m_points);
         m_flux.resize(m_nsp,m_points);
         m_wdot.resize(m_nsp,m_points, 0.0);
-        m_ybar.resize(m_nsp);
+        m_cbar.resize(m_nsp);
 
 
         //-------------- default solution bounds --------------------
@@ -82,11 +72,11 @@ namespace Cantera {
         vmin[c_T_loc] = 200.0;
         vmax[c_T_loc]= 1.e9;
 
-        // mass fraction bounds
+        // concentration bounds
         int k;
         for (k = 0; k < m_nsp; k++) {
-            vmin[c_Y_loc + k] = -1.0e-5;
-            vmax[c_Y_loc + k] = 1.0e5;
+            vmin[c_C_loc + k] = -1.0e-5;
+            vmax[c_C_loc + k] = 1.0e5;
         }
         setBounds(vmin.size(), vmin.begin(), vmax.size(), vmax.begin());
 
@@ -117,18 +107,13 @@ namespace Cantera {
         m_wtm.resize(m_points, 0.0);
         m_cp.resize(m_points, 0.0);
         m_tcon.resize(m_points, 0.0);
-        m_cdens.resize(m_points, 0.0);
         m_diff.resize(m_nsp*m_points);
 
         m_flux.resize(m_nsp,m_points);
         m_wdot.resize(m_nsp,m_points, 0.0);
 
         m_do_energy.resize(m_points,false);
-        m_do_gauss.resize(m_points,false);
-        m_do_species.resize(m_nsp,false);
-
         m_fixedtemp.resize(m_points);        
-        m_fixedphi.resize(m_points);
 
         m_dz.resize(m_points-1);
         m_z.resize(m_points);
@@ -164,9 +149,8 @@ namespace Cantera {
      */
     void Solid1D::setThermoState(const doublereal* x,int j) {
         m_thermo->setTemperature(T(x,j));
-        m_thermo->setElectricPotential(phi(x,j));
         const doublereal* yy = x + m_nv*j + 1;
-        m_thermo->setMassFractions_NoNorm(yy);
+        m_thermo->setConcentrations(yy);
     }
 
 
@@ -176,12 +160,11 @@ namespace Cantera {
      */
     void Solid1D::setStateAtMidpoint(const doublereal* x,int j) {
         m_thermo->setTemperature(0.5*(T(x,j)+T(x,j+1)));
-        m_thermo->setElectricPotential(0.5*(phi(x,j)+phi(x,j+1)));
-        const doublereal* yyj = x + m_nv*j + 1;
-        const doublereal* yyjp = x + m_nv*(j+1) + 1;
+        const doublereal* ccj = x + m_nv*j + 1;
+        const doublereal* ccjp = x + m_nv*(j+1) + 1;
         for (int k = 0; k < m_nsp; k++)
-            m_ybar[k] = 0.5*(yyj[k] + yyjp[k]);
-        m_thermo->setMassFractions_NoNorm(m_ybar.begin());
+            m_ybar[k] = 0.5*(ccj[k] + ccjp[k]);
+        m_thermo->setConcentrations(m_cbar.begin());
     }
 
 
@@ -221,7 +204,6 @@ namespace Cantera {
 
         int j, k;
 
-
         //----------------------------------------------------- 
         //              update properties
         //-----------------------------------------------------
@@ -242,7 +224,6 @@ namespace Cantera {
 
         for (j = j0; j <= j1; j++) {
             setThermoState(j);
-            m_cdens[j] = m_thermo->chargeDensity();
         }
 
         //----------------------------------------------------
@@ -259,13 +240,12 @@ namespace Cantera {
 
             if (j == 0) {
                 rsd[index(c_T_loc,0)] = T(x,0);
-                rsd[index(c_phi_loc,0)] = phi(x,0);
 
                  // The default boundary condition for species is zero
                  // flux. However, the boundary object may modify
                  // this.
                  for (k = 0; k < m_nsp; k++) {
-                     rsd[index(c_Y_loc + k, 0)] = - m_flux(k,0);
+                     rsd[index(c_C_loc + k, 0)] = - m_flux(k,0);
                  }
             }
 
@@ -278,14 +258,9 @@ namespace Cantera {
 
             else if (j == m_points - 1) {
                 rsd[index(c_T_loc,j)] = T(x,j);
-                rsd[index(c_phi_loc,j)] = phi(x,j);
-                doublereal sum = 0.0;
                 for (k = 0; k < m_nsp; k++) {
-                    sum += Y(x,k,j);
-                    rsd[index(k+c_Y_loc,j)] = m_flux(k,j-1);
+                    rsd[index(k+c_C_loc,j)] = m_flux(k,j-1);
                 }
-                rsd[index(c_Y_loc,j)] = 1.0 - sum;
-                diag[index(c_Y_loc,j)] = 0;
             }
 
 
@@ -303,15 +278,14 @@ namespace Cantera {
                 //-------------------------------------------------
                 getWdot(x,j);
 
-                doublereal convec, diffus;
+                doublereal diffus;
                 for (k = 0; k < m_nsp; k++) {
                     diffus = 2.0*(m_flux(k,j) - m_flux(k,j-1))
                              /(z(j+1) - z(j-1));
-                    rsd[index(c_Y_loc + k, j)]   
-                        = (m_wt[k]*(wdot(k,j) ) 
-                            - diffus)/m_rho[j]
-                        - rdt*(Y(x,k,j) - Y_prev(k,j));
-                    diag[index(c_Y_loc + k, j)] = 1;
+                    rsd[index(c_C_loc + k, j)]   
+                        = wdot(k,j) - diffus
+                        - rdt*(C(x,k,j) - C_prev(k,j));
+                    diag[index(c_C_loc + k, j)] = 1;
                 }
 
                 //-----------------------------------------------
@@ -326,12 +300,6 @@ namespace Cantera {
                     rsd[index(c_T_loc, j)] -= rdt*(T(x,j) - T_prev(j));
                     diag[index(c_T_loc, j)] = 1;
                 }
-
-                //----------------------------------------------
-                //    Gauss's equation
-                //----------------------------------------------
-                rsd[index(c_phi_loc, j)] = m_cdens[j] - divDisplCurr(x,j);
-
             }
 
             // residual equations if the energy or species equations
@@ -340,10 +308,6 @@ namespace Cantera {
             if (!m_do_energy[j]) {
                 rsd[index(c_T_loc, j)] = T(x,j) - T_fixed(j);
                 diag[index(c_T_loc, j)] = 0;
-            }
-            if (!m_do_gauss[j]) {
-                rsd[index(c_phi_loc, j)] = phi(x,j) - phi_fixed(j);
-                diag[index(c_phi_loc, j)] = 0;
             }
         }
     }
@@ -424,19 +388,14 @@ namespace Cantera {
         doublereal dphidz, a1;
         for (j = j0; j < j1; j++) {
             sum = 0.0;
-            wtm = m_wtm[j];
             rho = density(j);
             dz = z(j+1) - z(j);
-            dphidz = (phi(x,j+1) - phi(x,j))/dz;
-            a1 = rho*Faraday*dphidz/(GasConstant * T(x,j));
             for (k = 0; k < m_nsp; k++) {
-                m_flux(k,j) = m_wt[k]*(rho*m_diff[k+m_nsp*j]/wtm);
-                m_flux(k,j) *= (X(x,k,j) - X(x,k,j+1))/dz;
-                m_flux(k,j) += a1*0.5*(Y(x,k,j) 
-                    + Y(x,k,j+1))*m_diff[k+m_nsp*j]*m_charge[k];
+                m_flux(k,j) = m_diff[k+m_nsp*j] * 
+                              (C(x,k,j) - C(x,k,j+1))/dz;
                 sum -= m_flux(k,j);
             }
-            for (k = 0; k < m_nsp; k++) m_flux(k,j) += Y(x,k,j)*sum;
+            for (k = 0; k < m_nsp; k++) m_flux(k,j) += C(x,k,j)*sum;
         } 
         break;
     }
@@ -448,14 +407,13 @@ namespace Cantera {
         s << "TITLE     = \"" + title + "\"" << endl;
         s << "VARIABLES = \"Z (m)\"" << endl;
         s << "\"T (K)\"" << endl;
-        s << "\"phi (V)\"" << endl;
 
         for (k = 0; k < m_nsp; k++) {
             s << "\"" << m_thermo->speciesName(k) << "\"" << endl;
         }
         s << "ZONE T=\"c" << zone << "\"" << endl;
         s << " I=" << m_points << ",J=1,K=1,F=POINT" << endl;
-        s << "DT=(SINGLE SINGLE";
+        s << "DT=(SINGLE";
         for (k = 0; k < m_nsp; k++) s << " SINGLE";
         s << " )" << endl;
         for (j = 0; j < m_points; j++) {
@@ -471,9 +429,8 @@ namespace Cantera {
     string Solid1D::componentName(int n) const {
         switch(n) {
         case c_T_loc: return "T";
-        case c_phi_loc: return "phi";
         default:
-            if (n >= (int) 1 && n < (int) (c_Y_loc + m_nsp)) {
+            if (n >= (int) 1 && n < (int) (c_C_loc + m_nsp)) {
                     return m_thermo->speciesName(n - 1);
             }
             else 
@@ -548,21 +505,13 @@ namespace Cantera {
                 }
                 else goto error;
             }
-            else if (nm == "phi") {
-                writelog("potential   ");
-                if ((int) x.size() == np) {
-                    for (j = 0; j < np; j++)
-                        soln[index(c_phi_loc,j)] = x[j];
-                }
-                else goto error;
-            }
             else if (m_thermo->speciesIndex(nm) >= 0) {
                 writelog(nm+"   ");
                 if ((int) x.size() == np) {
                     k = m_thermo->speciesIndex(nm);
                     did_species[k] = 1;
                     for (j = 0; j < np; j++) 
-                        soln[index(k+c_Y_loc,j)] = x[j];
+                        soln[index(k+c_C_loc,j)] = x[j];
                 }
             }
             else
@@ -615,13 +564,10 @@ namespace Cantera {
         soln.getRow(c_T_loc,x.begin());
         addFloatArray(gv,"T",x.size(),x.begin(),"K","temperature",0.0);
 
-        soln.getRow(c_phi_loc,x.begin());
-        addFloatArray(gv,"phi",x.size(),x.begin(),"V","potential",0.0);
-
         for (k = 0; k < m_nsp; k++) {
-            soln.getRow(c_Y_loc+k,x.begin());
+            soln.getRow(c_C_loc+k,x.begin());
             addFloatArray(gv,m_thermo->speciesName(k),
-                x.size(),x.begin(),"","massFraction",0.0,1.0);
+                x.size(),x.begin(),"","concentration",0.0,1.0);
         }
     }
 
