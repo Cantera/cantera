@@ -422,7 +422,8 @@ namespace Cantera {
      * This function will check a specific reaction to see if it the
      * elements balance.
      */
-    static void checkRxnElementBalance(Kinetics& kin, const ReactionData &rdata) {
+    static void checkRxnElementBalance(Kinetics& kin, 
+				       const ReactionData &rdata) {
 	int index, klocal, n, kp, kr, m, nel;
         double kstoich;
         map<string, double> bal, balr, balp;
@@ -1148,7 +1149,8 @@ namespace Cantera {
      * stoichiometric coefficients have the same ratio for all
      * species.
      */
-    doublereal isDuplicateReaction(map<int, doublereal>& r1, map<int, doublereal>& r2) {
+    doublereal isDuplicateReaction(map<int, doublereal>& r1, 
+                                   map<int, doublereal>& r2) {
         
         map<int, doublereal>::const_iterator b = r1.begin(), e = r1.end();
         int k1 = b->first;
@@ -1192,7 +1194,8 @@ next:
      *         which involve missing species.
      */
     static bool installReaction(int i, const XML_Node& r, Kinetics* k, 
-        string default_phase, int rule, bool check_for_duplicates) {
+				string default_phase, int rule,
+				bool check_for_duplicates) {
 
         Kinetics& kin = *k;
 	/*
@@ -1218,8 +1221,8 @@ next:
 	 * This seemingly simple expression goes and finds the child element,
 	 * "equation". Then it treats all of the contents of the "equation"
 	 * as a string, and returns it the variable eqn. We post process
-	 * the string to convert [ and ] characters into < and >, which cannot be
-         * stored in an XML file.
+	 * the string to convert [ and ] characters into < and >, which 
+	 * cannot be stored in an XML file.
 	 */
         if (r.hasChild("equation"))
             eqn = r("equation");
@@ -1352,11 +1355,15 @@ next:
             
         getRateCoefficient(r.child("rateCoeff"), kin, rdata, negA);
 	/*
+	 * Check to see that the elements balance in the reaction.
+	 * Throw an error if they don't
+	 */
+        checkRxnElementBalance(kin, rdata);
+	/*
 	 * Ok we have read everything in about the reaction. Add it
 	 * to the kinetics object by calling the Kinetics member function,
 	 * addReaction()
 	 */
-        checkRxnElementBalance(kin, rdata);
         kin.addReaction(rdata);
         return true;
     }
