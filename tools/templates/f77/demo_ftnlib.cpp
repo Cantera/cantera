@@ -129,23 +129,23 @@ extern "C" {
     }
 
     doublereal enthalpy_mass_() { 
-        return _gas->enthalpy_mole();
+        return _gas->enthalpy_mass();
     }
 
     doublereal intenergy_mass_() { 
-        return _gas->intEnergy_mole();
+        return _gas->intEnergy_mass();
     }
     
     doublereal entropy_mass_() { 
-        return _gas->entropy_mole();
+        return _gas->entropy_mass();
     }
 
     doublereal cp_mass_() { 
-        return _gas->cp_mole();
+        return _gas->cp_mass();
     }
 
     doublereal gibbs_mass_() { 
-        return _gas->gibbs_mole();
+        return _gas->gibbs_mass();
     }
     
     void equilibrate_(char* opt, ftnlen lenopt) {
