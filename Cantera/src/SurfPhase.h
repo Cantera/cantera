@@ -53,6 +53,21 @@ namespace Cantera {
         doublereal potentialEnergy(int k) {return m_pe[k];}
         void setSiteDensity(doublereal n0);
         void setElectricPotential(doublereal V);
+
+	/**
+         * Pressure. Units: Pa.
+         */ 
+        virtual doublereal pressure() const {
+            return m_press;
+        }
+	
+        /**
+         * Set the pressure at constant temperature. Units: Pa.
+         */
+        virtual void setPressure(doublereal p) {
+            m_press = p;
+        }
+
         /**
          * Set the surface site fractions to a specified 
          * state. This routine converts to concentrations
@@ -75,6 +90,7 @@ namespace Cantera {
         doublereal m_n0;
         doublereal m_logn0;
         doublereal m_tmin, m_tmax;
+	doublereal m_press;
 
         mutable doublereal    m_tlast;
         mutable array_fp      m_h0;
