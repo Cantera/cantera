@@ -103,7 +103,7 @@ namespace Cantera {
             needJacUpdate();
         }
     }
-
+ 
     string Inlet1D::
     componentName(int n) const { 
         switch (n) {
@@ -203,7 +203,8 @@ namespace Cantera {
             rb[0] += x[0];        // u
             for (k = 1; k < m_nsp; k++) {
                 if (m_flow->doSpecies(k)) {
-                    rb[4+k] += x[0]*(-xb[4+k] + m_yin[k]);
+                    //                    rb[4+k] += x[0]*(-xb[4+k] + m_yin[k]);
+                    rb[4+k] += x[0]*(m_yin[k]);
                 }
             }
         }                
@@ -352,7 +353,7 @@ namespace Cantera {
 
         r[0] = x[0];
         diag[0] = 0;
-        int nc;
+        int nc, k;
 
         if (m_flow_right) {
             nc = m_flow_right->nComponents();
@@ -361,6 +362,11 @@ namespace Cantera {
             db = diag + 1;
             rb[0] = xb[3];      
             rb[2] = xb[2] - xb[2 + nc];
+            for (k = 4; k < nc; k++) {
+                //if (m_flow_right->doSpecies(k-4)) {
+                rb[k] = xb[k] - xb[k + nc];
+                //}
+            }
         }
 
         if (m_flow_left) {
@@ -370,6 +376,11 @@ namespace Cantera {
             db = diag - nc;
             rb[0] = xb[3];      
             rb[2] = xb[2] - xb[2 - nc];
+            for (k = 5; k < nc; k++) {
+                //                if (m_flow_left->doSpecies(k-4)) {
+                rb[k] = xb[k] - xb[k - nc];
+                //}
+            }
         }
     }
 
@@ -490,22 +501,24 @@ namespace Cantera {
     }
 
     void ReactingSurf1D::
-    init() { 
+    init() {
+        m_nv = m_nsp + 1;
         _init(m_nsp+1); 
         m_fixed_cov.resize(m_nsp, 0.0);
         m_fixed_cov[0] = 1.0;
-        m_work.resize(m_kin->nTotalSpecies());
+        int nt = m_kin->nTotalSpecies();
+        m_work.resize(nt, 0.0);
+
        // set bounds 
         vector_fp lower(m_nv), upper(m_nv);
         lower[0] = 200.0;
         upper[0] = 1.e5;
         int n;
         for (n = 0; n < m_nsp; n++) {
-            lower[n] = -1.0e-5;
-            upper[n] = 2.0;
+            lower[n+1] = -1.0e-5;
+            upper[n+1] = 2.0;
         }
         setBounds(m_nv, lower.begin(), m_nv, upper.begin());
-
         vector_fp rtol(m_nv), atol(m_nv);
         for (n = 0; n < m_nv; n++) {
             rtol[n] = 1.0e-5;
@@ -534,10 +547,13 @@ namespace Cantera {
         doublereal sum = 0.0;
         int k;
         for (k = 0; k < m_nsp; k++) {
-            m_work[k] = x[k];
-            sum += x[k];
+            m_work[k] = x[k+1];
+            sum += x[k+1];
         }
+        m_sphase->setTemperature(x[0]);
         m_sphase->setCoverages(m_work.begin());
+        //m_kin->advanceCoverages(1.0);
+        //m_sphase->getCoverages(m_fixed_cov.begin());
 
         // set the left gas state to the adjacent point
 
@@ -567,22 +583,41 @@ namespace Cantera {
             doublereal maxx = -1.0;
             int imx = -1;
             for (k = 0; k < m_nsp; k++) {
-                r[k] = m_work[k + ioffset] * m_sphase->size(k) * rs0;
-                r[k] -= rdt*(x[k] - prevSoln(k,0));
-                diag[k] = 1;
-                if (x[k] > maxx) {
-                    maxx = x[k];
-                    imx = k;
+                r[k+1] = m_work[k + ioffset] * m_sphase->size(k) * rs0;
+                r[k+1] -= rdt*(x[k+1] - prevSoln(k+1,0));
+                diag[k+1] = 1;
+                if (x[k+1] > maxx) {
+                    maxx = x[k+1];
+                    imx = k+1;
                 }
             }
-            r[imx] = 1.0 - sum;
-            diag[imx] = 0;
+            r[1] = 1.0 - sum;
+            diag[1] = 0;
         }
         else {
-            r[k] = x[k] - m_fixed_cov[k];
-            diag[k] = 0;
+            for (k = 0; k < m_nsp; k++) {
+                r[k+1] = x[k+1] - m_fixed_cov[k];
+                diag[k+1] = 0;
+            }
         }
         
+        if (m_flow_right) {
+            rb = r + 1;
+            xb = x + 1;
+            rb[2] = xb[2] - x[0];            // specified T
+        }
+        int nc;
+        if (m_flow_left) {
+            nc = m_flow_left->nComponents();
+            const doublereal* mwleft = m_phase_left->molecularWeights().begin();
+            rb =r - nc;
+            xb = x - nc;
+            rb[2] = xb[2] - x[0];            // specified T
+            for (int nl = 1; nl < m_left_nsp; nl++) {
+                rb[4+nl] += m_work[nl]*mwleft[nl];
+            }
+        }
+
         // gas-phase residuals
 //         doublereal rho;
 //         if (m_flow_left) {

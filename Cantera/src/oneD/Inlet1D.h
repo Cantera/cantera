@@ -72,7 +72,7 @@ namespace Cantera {
         virtual doublereal mdot() {return m_mdot;}
 
         virtual void _getInitialSoln(doublereal* x) {
-            cout << "Bdry1D::_getInitialSoln called!  " << m_index << endl;
+            writelog("Bdry1D::_getInitialSoln called!\n");
         }
 
     protected:
@@ -112,6 +112,7 @@ namespace Cantera {
         Inlet1D() : Bdry1D(), m_V0(0.0), m_nsp(0), m_flow(0) {
             m_type = cInletType;
             m_xstr = "";
+                writelog("Inlet1D constructor\n");
         }
         virtual ~Inlet1D(){}
 
@@ -217,6 +218,10 @@ namespace Cantera {
         virtual void _finalize(const doublereal* x) {
             ; //m_temp = x[0];
         }
+        virtual void _getInitialSoln(doublereal* x) {
+            x[0] = m_temp;
+        }
+
     protected:
 
     };
@@ -245,6 +250,9 @@ namespace Cantera {
         virtual void _finalize(const doublereal* x) {
             ; //m_temp = x[0];
         }
+        virtual void _getInitialSoln(doublereal* x) {
+            x[0] = m_temp;
+        }
     protected:
 
     };
@@ -262,6 +270,7 @@ namespace Cantera {
 
         Surf1D() : Bdry1D() {
             m_type = cSurfType; 
+                writelog("Surf1D constructor\n");
         }
         virtual ~Surf1D(){}
 
@@ -314,12 +323,15 @@ namespace Cantera {
             }
 
         void setKineticsMgr(InterfaceKinetics* kin) {
+            m_kin = kin;
             m_surfindex = kin->surfacePhaseIndex();
             m_sphase = (SurfPhase*)&kin->thermo(m_surfindex);
             m_nsp = m_sphase->nSpecies();
             m_enabled = true;
         }
 
+        void enableCoverageEquations(bool docov) { m_enabled = docov; }
+        
         virtual ~ReactingSurf1D(){}
 
         virtual string componentName(int n) const;
@@ -334,11 +346,12 @@ namespace Cantera {
 
         virtual void _getInitialSoln(doublereal* x) {
             x[0] = m_temp;
+            //m_kin->advanceCoverages(1.0);
             m_sphase->getCoverages(x+1);
         }
 
         virtual void _finalize(const doublereal* x) {
-            ; //m_temp = x[0];
+            copy(x+1,x+1+m_nsp,m_fixed_cov.begin());
         }
 
         virtual void showSolution(const doublereal* x) {
@@ -360,8 +373,9 @@ namespace Cantera {
         SurfPhase* m_sphase;
         int m_surfindex, m_nsp;
         bool m_enabled;
-        vector_fp m_fixed_cov;
         vector_fp m_work;
+        vector_fp m_fixed_cov;
+        int dum;
     };
 
 }

@@ -15,7 +15,7 @@ namespace Cantera {
         void setCriteria(doublereal ratio = 10.0,
             doublereal slope = 0.8, 
             doublereal curve = 0.8,
-            doublereal prune = 0.1) {
+            doublereal prune = -0.1) {
             m_ratio = ratio; m_slope = slope; m_curve = curve;
             m_prune = prune;
         }
@@ -30,7 +30,7 @@ namespace Cantera {
             return m_loc.find(j) != m_loc.end();
         }
         bool keepPoint(int j) { 
-            return m_keep[j] != -1; // m_keep.find(j) != m_keep.end();
+            return (m_keep[j] != -1); // m_keep.find(j) != m_keep.end();
         }
         double value(const double* x, int i, int j);
 

@@ -275,7 +275,6 @@ namespace Cantera {
         void setGas(const doublereal* x,int j);
         void setGasAtMidpoint(const doublereal* x,int j);
 
-
     protected:
 
         // used to write mass fractions to plot files.

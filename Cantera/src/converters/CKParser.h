@@ -53,7 +53,7 @@ namespace ckr {
 
         bool readElementSection(elementList& elements);
         bool readSpeciesSection(speciesList& species);
-        bool readThermoSection(const vector<string>& names, 
+        bool readThermoSection(vector<string>& names, 
             speciesTable& speciesData, vector_fp& temp, 
             int& optionFlag, ostream& log);
         bool readReactionSection(const vector<string>& speciesNames, 

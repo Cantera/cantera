@@ -52,7 +52,8 @@ namespace Cantera {
 
 
     ///  Default Constructor.
-    ChemEquil::ChemEquil() : m_skip(-1), m_p1(0), m_p2(0), m_p0(OneAtm)
+    ChemEquil::ChemEquil() : m_skip(-1), m_p1(0), m_p2(0), m_p0(OneAtm), m_eloc(-1),
+                             m_abscharge(Tiny)
     {}
 
 
@@ -84,18 +85,56 @@ namespace Cantera {
         
         // allocate space in internal work arrays
         m_molefractions.resize(m_kk);
-        m_lambda.resize(m_mm, -10.0);
+        m_lambda.resize(m_mm, -100.0);
         m_elementmolefracs.resize(m_mm);
         m_comp.resize(m_mm * m_kk);
         m_jwork1.resize(m_mm+2);
         m_jwork2.resize(m_mm+2);
         m_startSoln.resize(m_mm+1);
         m_grt.resize(m_kk);
+        m_mu_RT.resize(m_kk);
 
         // set up elemental composition matrix
-        for (int k = 0; k < m_kk; k++)
-            for (int m = 0; m < m_mm; m++)
+        int m, k, mneg = -1;
+        doublereal na, ewt;
+        for (m = 0; m < m_mm; m++) {
+            for (k = 0; k < m_kk; k++) {
+                na = m_phase->nAtoms(k,m);
+                if (na < 0.0) {
+                    if (mneg >= 0 && mneg != m) 
+                        throw CanteraError("ChemEquil::initialize",
+                            "negative atom numbers allowed for only one element"); 
+                    mneg = m;
+                    ewt = m_phase->atomicWeight(m);
+                    if (ewt > 1.0e-3) 
+                        writelog(string("WARNING: species "+m_phase->speciesName(k)
+                                     +" has "+fp2str(m_phase->nAtoms(k,m))+" atoms of element "
+                                     +m_phase->elementName(m)+", but this element is not an electron.\n"));
+                }
+            }
+        }
+        m_eloc = mneg;
+//         nneg = 0.0;
+//         if (nneg > 0) {
+//             for (k = 0; k < m_kk; k++) {
+//                 m_comp[k*m_mm + mneg] = m_phase->nAtoms(k,mneg);
+//                 for (m = 0; m < m_mm; m++) {
+//                     if (m != mneg) {
+//                         m_comp[k*m_mm + m] = m_phase->nAtoms(k,m);
+//                         m_comp[k*m_mm + mneg] += m_phase->nAtoms(k,m)*(nneg + 1);
+//                     }
+//                 }
+//                 cout << m_phase->speciesName(k) << "  ";
+//                 for (m = 0; m  < m_mm; m++) cout << m_comp[k*m_mm + m] << " ";
+//                 cout << endl;
+//             }
+//         }
+//         else {
+        for (k = 0; k < m_kk; k++) {
+            for (m = 0; m < m_mm; m++) {
                 m_comp[k*m_mm + m] = m_phase->nAtoms(k,m);
+            }
+        }
     }
 
 
@@ -111,9 +150,14 @@ namespace Cantera {
     void ChemEquil::setToEquilState(thermo_t& s, 
         const vector_fp& lambda_RT, doublereal t) 
     {
+        fill(m_mu_RT.begin(), m_mu_RT.end(), 0.0);
+        for (int k = 0; k < m_kk; k++)
+            for (int m = 0; m < m_mm; m++) 
+                m_mu_RT[k] += lambda_RT[m]*nAtoms(k,m);
+
         // set the temperature
-        m_phase->setTemperature(t);
-        s.setToEquilState(lambda_RT.begin());
+        s.setTemperature(t);
+        s.setToEquilState(m_mu_RT.begin());
         update(s);
     }
 
@@ -128,22 +172,24 @@ namespace Cantera {
 
         // elemental mole fractions
         doublereal sum = 0.0;
-        int m;
+        int m, k;
         for (m = 0; m < m_mm; m++) {
             m_elementmolefracs[m] = 0.0;
-            for (int k = 0; k < m_kk; k++) {
+            for (k = 0; k < m_kk; k++) {
                 m_elementmolefracs[m] += nAtoms(k,m) * m_molefractions[k];
-                if (nAtoms(k,m) < 0.0) {
-                    throw CanteraError("update","negative nAtoms");
-                }
+                //if (nAtoms(k,m) < 0.0) {
+                //    throw CanteraError("update","negative nAtoms");
+                //}
                 if (m_molefractions[k] < 0.0) {
                     throw CanteraError("update",
                         "negative mole fraction for "+m_phase->speciesName(k)+
                         ": "+fp2str(m_molefractions[k]));
                 }
             }
+            //cout << "update: " << m << "  " << m_elementmolefracs[m] << endl;
             sum += m_elementmolefracs[m];
         }
+
         // normalize the element mole fractions
         for (m = 0; m < m_mm; m++) m_elementmolefracs[m] /= sum;
     }
@@ -173,11 +219,11 @@ namespace Cantera {
         // first column contains fixed element moles
         for (m = 0; m < mm; m++) {
             aa(m+1,0) = elementMoles[m];
-            if (elementMoles[m] < 0.0) {
-                throw CanteraError("setInitialMoles",
-                    "negative element moles for "
-                    +m_phase->elementName(m)+":  "+fp2str(elementMoles[m]));
-            }
+            //if (elementMoles[m] < 0.0) {
+            //    throw CanteraError("setInitialMoles",
+            //        "negative element moles for "
+            //        +m_phase->elementName(m)+":  "+fp2str(elementMoles[m]));
+            // }
         }
         
 
@@ -215,6 +261,7 @@ namespace Cantera {
             for (int k = 0; k < kksp; k++) { 
                 if (ip == ksp) {
                     m_molefractions[k] = aa(n+1, 0);
+                    //cout << "initial " << m_phase->speciesName(k) << "  " << m_molefractions[k] << endl;
                 }
                 ksp++;
             }
@@ -351,15 +398,15 @@ namespace Cantera {
         int nvar = mm + 1;
         
         DenseMatrix jac(nvar, nvar);       // jacobian
-        vector_fp x(nvar, -10.0);          // solution vector
+        vector_fp x(nvar, -100.0);          // solution vector
     
         vector_fp res_trial(nvar);
         vector_fp elementMol(mm, 0.0);
         double perturb;
         for (m = 0; m < mm; m++) {
+            if (m_skip < 0 && elMoles[m] > 0.0 ) m_skip = m;
             perturb = Cutoff*(1.0 + rand());
             elementMol[m] = elMoles[m] + perturb;
-            if (m_skip < 0 && elMoles[m] > 0.0 ) m_skip = m;
         }
 
         update(s);
@@ -427,11 +474,11 @@ namespace Cantera {
 
         setInitialMoles(s, elementMol);
 
-        for (int ii = 0; ii < m_mm; ii++) x[ii] = -10.0;
-        try {
+        for (int ii = 0; ii < m_mm; ii++) x[ii] = -100.0;
+        //try {
             estimateElementPotentials(s, x);
-        }
-        catch (CanteraError) { ; }
+            //}
+            //catch (CanteraError) { ; }
 
         x[m_mm] = log(m_phase->temperature());
     
@@ -441,7 +488,8 @@ namespace Cantera {
         for (m = 0; m < mm; m++) {
             above[m] = 200.0;
             below[m] = -2000.0;
-            if (elMoles[m] < Cutoff) x[m] = -1000.0;
+            if (elMoles[m] < Cutoff && m != m_eloc) x[m] = -1000.0;
+            //if (m == m_eloc) x[m] = -10.0;
         }
         above[mm] = log(1.e4);
         below[mm] = log(10.0);
@@ -457,6 +505,12 @@ namespace Cantera {
         doublereal fctr = 1.0, newval;
     
  next:
+
+        if (m_eloc >= 0) {
+            m_abscharge = 0.0;
+            int k;
+            for (k = 0; k < m_kk; k++) m_abscharge += fabs(m_phase->charge(k)*m_molefractions[k]);
+        }
 
         iter++;
         equilResidual(s, x, elMoles, res_trial, XY, xval, yval);
@@ -515,6 +569,7 @@ namespace Cantera {
         yy = m_p2->value(s);
         deltax = (xx - xval)/xval;
         deltay = (yy - yval)/yval;
+
         if (absmax(res_trial.begin(), res_trial.end()) < options.relTolerance 
             && fabs(deltax) < options.relTolerance 
             && fabs(deltay) < options.relTolerance) {
@@ -639,10 +694,19 @@ namespace Cantera {
         for (n=0; n < m_mm; n++)
         {
             // drive element potential for absent elements to -1000
-            if (elmtotal[n] < Cutoff)
+            if (elmtotal[n] < Cutoff && n != m_eloc)
                 resid[n] = x[n] + 1000.0;
             else
                 resid[n] = log( (1.0 + elmtotal[n]) / (1.0 + elm[n]) );
+        }
+        if (m_eloc >= 0) {
+            doublereal chrg, sumnet = 0.0, sumabs = 0.0;
+            for (int k = 0; k < m_kk; k++) {
+                chrg = m_molefractions[k]*m_phase->charge(k);
+                sumnet += chrg;
+                sumabs += fabs(chrg);
+            }
+            resid[m_eloc] = sumnet/m_abscharge; // log((1.0 + sumnet/sumabs));
         }
         xx = m_p1->value(mix);
         yy = m_p2->value(mix);
@@ -665,7 +729,7 @@ namespace Cantera {
 
         int n, m;
         doublereal rdx, dx, xsave;
-        doublereal atol = 1.e-7;
+        doublereal atol = 1.e-10;
     
         equilResidual(mix, x, elmols, r0, XY, xval, yval);
     

@@ -51,34 +51,24 @@ namespace Cantera {
 
 
     /** 
-     * Set mixture to an equilibrium state consistent with specified 
-     * element potentials and temperature.
-     *
-     * @param lambda_RT vector of non-dimensional element potentials
-     * \f[ \lambda_m/RT \f].
-     * @param t temperature in K.
-     * @param work. Temporary work space. Must be dimensioned at least
-     * as large as the number of species. 
-     *
+     * Set mixture to an equilibrium state consistent with specified
+     * chemical potentials and temperature.
      */
-    void IdealGasPhase::setToEquilState(const doublereal* lambda_RT) 
+    void IdealGasPhase::setToEquilState(const doublereal* mu_RT) 
     {
         const array_fp& grt = gibbs_RT();
 
-        // set the pressure and composition to be consistent with
-        // the temperature, 
         doublereal pres = 0.0;
         for (int k = 0; k < m_kk; k++) {
-            m_pp[k] = -grt[k];
-            for (int m = 0; m < m_mm; m++) {
-                m_pp[k] += nAtoms(k,m)*lambda_RT[m];
-            } 
+            m_pp[k] = -grt[k] + mu_RT[k];
             m_pp[k] = m_p0 * exp(m_pp[k]);
             pres += m_pp[k];
+            //cout <<"setToEquil: " << k << "   "  << grt[k] << "  " << mu_RT[k] << endl;
         }
         // set state
         setState_PX(pres, m_pp.begin());
     }
+
 
     void IdealGasPhase::_updateThermo() const {
         doublereal tnow = temperature();

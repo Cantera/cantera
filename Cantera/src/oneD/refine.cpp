@@ -33,8 +33,8 @@ namespace Cantera {
 
     
     Refiner::Refiner(Domain1D& domain) :
-        m_ratio(10.0), m_slope(0.8), m_curve(0.8), m_prune(0.1), 
-        m_min_range(0.001), m_domain(&domain), m_npmax(300)
+        m_ratio(10.0), m_slope(0.8), m_curve(0.8), m_prune(-0.001), 
+        m_min_range(0.01), m_domain(&domain), m_npmax(300)
     {
         m_nv = m_domain->nComponents();
         m_active.resize(m_nv, true);
@@ -45,16 +45,22 @@ namespace Cantera {
     int Refiner::analyze(int n, const doublereal* z, 
         const doublereal* x) {
 
+        if (n >= m_npmax) {
+            writelog("max number of grid points reached ("+int2str(m_npmax)+".\n");
+            return -2;
+        }
+
+        if (m_domain->nPoints() <= 1) {
+            //writelog("can't refine a domain with 1 point: "+m_domain->id()+"\n");
+            return 0;
+        }
+
         m_loc.clear();
         m_c.clear();
         m_keep.clear();
 
         m_keep[0] = 1;
         m_keep[n-1] = 1;
-        //m_did_analysis = false;
-
-
-        if (m_domain->nPoints() <= 1) return 0;
 
         m_nv = m_domain->nComponents();
 
@@ -62,10 +68,6 @@ namespace Cantera {
         if (n != m_domain->nPoints()) 
             throw CanteraError("analyze","inconsistent");
 
-
-        if (n >= m_npmax) {
-            return -2; // throw CanteraError("analyze","max points");
-        }
 
         /**
          * find locations where cell size ratio is too large.
@@ -77,24 +79,10 @@ namespace Cantera {
         doublereal dmax, r;
         vector_fp v(n), s(n-1);
 
-        dz[0] = z[1] - z[0];
- //        for (j = 1; j < n-1; j++) {
-//             dz[j] = z[j+1] - z[j];
-//             if (dz[j] > m_ratio*dz[j-1]) {
-//                 m_loc[j] = 1;
-//                 m_c["point "+int2str(j)] = 1;
-//             }
-//             if (dz[j] < dz[j-1]/m_ratio) {
-//                 m_loc[j-1] = 1;
-//                 m_c["point "+int2str(j-1)] = 1;                
-//             }
-//             if (m_loc.size() + n > m_npmax) goto done;
-//         }
-
         for (int i = 0; i < m_nv; i++) {
             if (m_active[i]) {
                 name = m_domain->componentName(i);
-            
+                //writelog("refine: examining "+name+"\n");
                 // get component i at all points
                 for (j = 0; j < n; j++) v[j] = value(x, i, j); 
 
@@ -137,8 +125,12 @@ namespace Cantera {
                             m_keep[j+1] = 1;
                         }
                         else {
-                            if (m_keep[j] == 0) m_keep[j] = -1;
-                            if (m_keep[j+1] == 0) m_keep[j+1] = -1;
+                            //writelog(string("r = ")+fp2str(r)+"\n");
+                            if (m_keep[j] == 0) {
+                                //if (m_keep[j-1] > -1 && m_keep[j+1] > -1) 
+                                m_keep[j] = -1;
+                            }
+                            //if (m_keep[j+1] == 0) m_keep[j+1] = -1;
                         }
                     }
                 }
@@ -166,13 +158,34 @@ namespace Cantera {
                             m_keep[j+1] = 1;
                         }
                         else {
-                            if (m_keep[j+1] == 0) m_keep[j+1] = -1;
+                            //writelog(string("r slope = ")+fp2str(r)+"\n");
+                            if (m_keep[j+1] == 0) {
+                                //if (m_keep[j] > -1 && m_keep[j+2] > -1) 
+                                m_keep[j+1] = -1;
+                            }
                         }
                     }
                 }
 
             }
         }
+    
+        dz[0] = z[1] - z[0];
+        for (j = 1; j < n-1; j++) {
+            dz[j] = z[j+1] - z[j];
+            if (dz[j] > m_ratio*dz[j-1]) {
+                m_loc[j] = 1;
+                m_c["point "+int2str(j)] = 1;
+            }
+            if (dz[j] < dz[j-1]/m_ratio) {
+                m_loc[j-1] = 1;
+                m_c["point "+int2str(j-1)] = 1;                
+            }
+            //if (m_loc.size() + n > m_npmax) goto done;
+        }
+
+        
+
 done:
         //m_did_analysis = true;
         return m_loc.size();
@@ -200,6 +213,12 @@ done:
                 writelog(string(bb->first)+" ");
             }
             writelog("\n");
+        }
+        else if (m_domain->nPoints() > 1) {
+            writelog("no new points needed in "+m_domain->id()+"\n");
+            //writelog("curve = "+fp2str(m_curve)+"\n");
+            //writelog("slope = "+fp2str(m_slope)+"\n");
+            //writelog("prune = "+fp2str(m_prune)+"\n");
         }
     }
 

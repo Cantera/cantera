@@ -93,14 +93,26 @@ namespace Cantera {
             }
             if (ext != ".xml" && ext != ".ctml") {
                 ctml::ct2ctml(path.c_str());
-                ff = path.substr(0,idot) + ".xml";
+                string::size_type islash = path.rfind('/');
+                if (islash != string::npos) 
+                    ff = string("./")+path.substr(islash+1,idot-islash - 1) + ".xml";
+                else
+                    ff = string("./")+path.substr(0,idot) + ".xml";
+                writelog("ff = "+ff+"\n");
             }
             else {
                 ff = path;
             }
             ifstream s(ff.c_str());
             XML_Node* x = new XML_Node("doc");
-            x->build(s);
+            if (s) {
+                x->build(s);
+                __app->xmlfiles[file] = x;
+                __app->xmlfiles[ff] = x;
+            }
+            else
+                throw CanteraError("get_XML_File","cannot open "+ff+" for reading.");
+
 	    /*
 	     * Add the built XML Tree to the map, xmlfiles.
 	     * It stores the pointer to the tree, with the
@@ -109,7 +121,6 @@ namespace Cantera {
 	     * HKM Note: shouldn't the key be the full pathname of
 	     *           the file, i.e., ff?
 	     */
-            __app->xmlfiles[file] = x;
         }
         return __app->xmlfiles[file];
     }
@@ -290,11 +301,15 @@ namespace Cantera {
             inname = "";
             for (i = 0; i < nd; i++) {
                 inname = dirs[i] + "/" + name;
+                writelog("looking for file "+inname+"\n");
                 ifstream fin(inname.c_str());
                 if (fin) {
+                    writelog("found it\n");
                     fin.close();
                     return inname;
                 }
+                else
+                    writelog("not found.\n");
             }
             string msg;
             msg = "\nInput file " + name 

@@ -431,7 +431,7 @@ namespace Cantera {
                 doublereal sum = 0.0;
                 for (k = 0; k < m_nsp; k++) {
                     sum += Y(x,k,j);
-                    rsd[index(k+4,j)] = m_flux(k,j-1);
+                    rsd[index(k+4,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
                 }
                 rsd[index(4,j)] = 1.0 - sum;
                 diag[index(4,j)] = 0;

@@ -217,15 +217,13 @@ namespace pip {
           if (nm == "E") charge = -sp.elements[m].number;
         }
 
-	/*
-	 * Add the child element, atomArray, to the species xml node. 
-	 */
         printf("    atoms = \"%s\",\n", str.c_str());
         addNASA(sp.lowCoeffs, sp.highCoeffs, 
             sp.tlow, sp.tmid, sp.thigh);
 
         if (_with_transport)
             addTransportParams(sp.name);
+        if (sp.id != "") printf(",\n    note = \"%s\"", sp.id.c_str());
         printf("\n       )\n");
     }
 
@@ -305,19 +303,11 @@ namespace pip {
      *             mechanism. The node will be filled up with the description
      *             of the mechanism. This is the output to the routine.
      */
-    void ck2ct(string idtag, ckr::CKReader& r) {
+    void ck2ct(string idtag, ckr::CKReader& r, bool hastransport) {
 
         popError();
         doublereal version = 1.0;
 
-        //cout << "dataset(\"" << idtag << "\")" << endl;
-
-        //        cout << "\n\n";
-        //writeline();
-        //cout << "#\n#  The default units. These will be used for dimensional quantities" << endl
-        //     << "#  with unspecified units." << endl;
-        //writeline();
-        
         cout << "units(length = \"cm\", time = \"s\", quantity = \"mol\", ";
         string e_unit;
         int eunit = r.units.ActEnergy;
@@ -334,13 +324,6 @@ namespace pip {
         else if (eunit == ckr::Electron_Volts)
             e_unit = "eV";
         cout << "act_energy = " << "\"" << e_unit << "\")\n\n";
-
-        //cout << "\n\n\n";
-        //writeline();
-        //cout << "#\n#  The phase definition. This specifies an ideal gas mixture that" << endl
-        //    << "#  includes all species and reactions defined in this file."
-        //     << "\n#\n";
-        //writeline();
 
 
         printf("\nideal_gas(name = \"%s\",\n",idtag.c_str());
@@ -367,7 +350,12 @@ namespace pip {
             if ((i+1) % 10 == 0) spnames += "\n                  ";
         }
         printf("      species = \"\"\"%s\"\"\",\n", spnames.c_str());
-        printf("      reactions = \"all\"");
+        printf("      reactions = \"all\",\n");
+        if (hastransport) {
+            printf("      transport = \"Mix\",\n");
+        } 
+        printf("      initial_state = state(temperature = 300.0,\n");
+        printf("                        pressure = OneAtm)");
         cout << "    )" << endl;
 
         cout << "\n\n\n";
@@ -423,7 +411,7 @@ namespace pip {
         const char* tr_file, const char* id_tag) {
         ckr::CKReader r;
 
-        r.validate = false;
+        r.validate = true;
         //int i=1;
 
         string infile = string(in_file);
@@ -456,7 +444,8 @@ namespace pip {
                 cout << "# Transport data from file "+trfile+".\n" << endl;
                 getTransportData(trfile);
             }
-            ck2ct(idtag, r);
+            bool hastransport = (trfile != "");
+            ck2ct(idtag, r, hastransport);
         }
         catch (CanteraError) {
             return -1;

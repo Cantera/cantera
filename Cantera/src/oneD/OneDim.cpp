@@ -17,7 +17,7 @@ namespace Cantera {
      * Default constructor. Create an empty object.
      */
     OneDim::OneDim() 
-        : m_tmin(1.0e-16), m_tmax(0.1), m_tfactor(0.5),
+        : m_tmin(1.0e-16), m_tmax(10.0), m_tfactor(0.5),
           m_jac(0), m_newt(0), 
           m_rdt(0.0), m_jac_ok(false),
           m_nd(0), m_bw(0), m_size(0),

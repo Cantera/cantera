@@ -272,9 +272,11 @@ namespace Cantera {
             if (loglevel > 2) showSolution();
             
             if (refine_grid) {
+                //writelog("calling refine.\n");
                 new_points = refine(loglevel);
             }
             else {
+                writelog("grid refinement disabled.\n");
                 new_points = 0;
             }
         }
@@ -327,6 +329,7 @@ namespace Cantera {
                         zmid = 0.5*(d.grid(m) + d.grid(m+1));
                         znew.push_back(zmid);
                         np++;
+                        //writelog(string("refine: adding point at ")+fp2str(zmid)+"\n");
 
                         // for each component, linearly interpolate
                         // the solution to this point
@@ -337,6 +340,7 @@ namespace Cantera {
                     }
                 }
                 else {
+                    writelog(string("refine: discarding point at ")+fp2str(d.grid(m))+"\n");
                     ; // throw CanteraError("refine","keepPoint is false at m = "+int2str(m));
                 }
             }
@@ -378,15 +382,15 @@ namespace Cantera {
      * are applied to each domain.  @see Refiner::setCriteria.
      */
     void Sim1D::setRefineCriteria(int dom, doublereal ratio,
-        doublereal slope, doublereal curve) {
+        doublereal slope, doublereal curve, doublereal prune) {
         if (dom >= 0) {
             Refiner& r = domain(dom).refiner();
-            r.setCriteria(ratio, slope, curve);
+            r.setCriteria(ratio, slope, curve, prune);
         }
         else {
             for (int n = 0; n < m_nd; n++) {
                 Refiner& r = domain(n).refiner();
-                r.setCriteria(ratio, slope, curve);
+                r.setCriteria(ratio, slope, curve, prune);
             }                    
         }
     }

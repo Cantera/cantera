@@ -160,16 +160,23 @@ bool CKReader::read(const string& inputFile, const string& thermoDatabase,
     
     bool hasthermo = parser.advanceToKeyword("THERM","REAC");
 
-    int optionFlag = 0;
+    int k, optionFlag = 0;
     int undefined = species.size();
     string nm;
     vector<string> undef;
-
+    bool allsp = (speciesSymbols[0] == "<ALL>");
     if (hasthermo && parser.readThermoSection(speciesSymbols,
         speciesData, temp, optionFlag, log)) {
-
+        if (allsp) {
+            nsp = speciesData.size(); 
+            for (k = 0; k < nsp; k++) {
+                Species s;
+                s.name = speciesSymbols[k];
+                species.push_back(s);
+            }
+        }
         undefined = 0;
-        for (int k = 0; k < nsp; k++) {
+        for (k = 0; k < nsp; k++) {
             nm = species[k].name;
             species[k] = speciesData[species[k].name];
             if (species[k].name == "<empty>") {
@@ -204,6 +211,16 @@ bool CKReader::read(const string& inputFile, const string& thermoDatabase,
         int dbflag = HasTempRange;
         thermoReader.readThermoSection(undef, speciesData, temp, dbflag, log);
         undefined = 0;
+        if (allsp) {
+            species.clear();
+            nsp = speciesData.size(); 
+            for (k = 0; k < nsp; k++) {
+                Species s;
+                s.name = undef[k];
+                cout << k << "  " << s.name << endl;
+                species.push_back(s);
+            }
+        }
         for (int k = 0; k < nsp; k++) {
             if (species[k].valid == 0) {
                 nm = species[k].name;

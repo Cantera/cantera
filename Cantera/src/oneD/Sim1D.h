@@ -87,7 +87,7 @@ namespace Cantera {
 
         /// Set the criteria for grid refinement.
         void setRefineCriteria(int dom = -1, doublereal ratio = 10.0,
-            doublereal slope = 0.8, doublereal curve = 0.8);
+            doublereal slope = 0.8, doublereal curve = 0.8, doublereal prune = -0.1);
 
         void restore(string fname, string id);
 

@@ -6,7 +6,10 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.2  2003-07-30 20:56:57  dggoodwin
+// Revision 1.3  2003-08-26 03:25:41  dggoodwin
+// *** empty log message ***
+//
+// Revision 1.2  2003/07/30 20:56:57  dggoodwin
 // *** empty log message ***
 //
 // Revision 1.1.1.1  2003/04/14 17:57:52  dggoodwin
@@ -161,10 +164,10 @@ namespace ckr {
             throw CK_SyntaxError(log, 
                 "error reading Tmin, Tmid, or Tmax");
         }
-        if (tmin > tmid || tmid > tmax) {
-            throw CK_SyntaxError(log, 
-                "condition Tmin <= Tmid <= Tmax violated");
-        }
+        //if (tmin > tmid || tmid > tmax) {
+        //    throw CK_SyntaxError(log, 
+        //        "condition Tmin <= Tmid <= Tmax violated");
+        //}
     }
 
 
@@ -526,7 +529,7 @@ next:
      *
      */
 
-    bool CKParser::readThermoSection(const vector<string>& names, 
+    bool CKParser::readThermoSection(vector<string>& names, 
         speciesTable& species, vector_fp& temp, 
         int& optionFlag, ostream& log) {
         string s;
@@ -603,6 +606,7 @@ next:
         // now read in all species records that have names in list 'names'
 
         bool getAllSpecies = (nsp > 0 && match(names[0],"<ALL>"));
+        if (getAllSpecies) names.clear();
 
         map<string, int> dup; // used to check for duplicate THERMO records
         bool already_read;
@@ -651,7 +655,12 @@ next:
                     writeSpeciesData(log, spec);
                 }
                 checkTemps(log, spec.tlow, spec.tmid, spec.thigh);
-                nsp--;
+                if (getAllSpecies) {
+                    names.push_back(spec.name);
+                    nsp = names.size();
+                }
+                else
+                    nsp--;
             }
         }
         return true;

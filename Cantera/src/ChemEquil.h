@@ -39,7 +39,7 @@ namespace Cantera {
      */
     class EquilOpt {
     public:
-        EquilOpt() : relTolerance(1.e-9), maxIterations(1000), iterations(0), 
+        EquilOpt() : relTolerance(1.e-10), maxIterations(1000), iterations(0), 
             maxStepSize(10.0), propertyPair(TP), contin(false) {}
         
         doublereal relTolerance;      ///< Relative tolerance 
@@ -136,11 +136,14 @@ namespace Cantera {
         vector_fp m_comp;
         doublereal m_temp, m_dens;
         doublereal m_p0;
+        int m_eloc;
+        doublereal m_abscharge;
 
         doublereal m_startTemp, m_startDens;
         vector_fp m_startSoln;
 
         vector_fp m_grt;
+        vector_fp m_mu_RT;
     };
 
 

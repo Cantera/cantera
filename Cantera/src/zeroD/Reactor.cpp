@@ -112,7 +112,7 @@ namespace Cantera {
         m_pressure = m_thermo->pressure();
         m_intEnergy = m_thermo->intEnergy_mass();
 
-        int nt, maxnt = 0;
+        int nt = 0, maxnt = 0;
         for (int m = 0; m < m_nwalls; m++) {
             if (m_wall[m]->kinetics(m_lr[m])) {
                 nt = m_wall[m]->kinetics(m_lr[m])->nTotalSpecies();
