@@ -12,7 +12,7 @@
  *
  *  csvdiff File1.csv File2.csv
  *
- *  Compares the variable values in two Excell formatted
+ *  Compares the variable values in two Excel formatted
  *  comma separated files.
  *  The comparison is done using a weighted norm basis.
  *
@@ -451,12 +451,12 @@ static void print_usage() {
   printf("\t\n");
   printf("  csvdiff [-h] File1.csv File2.csv\n");
   printf("\t\n");
-  printf("\tCompares the variable values in two Excell formatted "
+  printf("\tCompares the variable values in two Excel formatted "
          "comma separated files.\n");
   printf("\tThe comparison is done using a weighted norm basis.\n");
   printf("\t\n");
   printf("\tThe two files should be basically equal. However, File1.csv is\n");
-  printf("\ttaken as the reference file, that has precedence, when there is\n");
+  printf("\ttaken as the reference file that has precedence, when there is\n");
   printf("\tsomething to be decided upon.\n");
   printf("\t\n");
   printf("\t Arguments:\n");

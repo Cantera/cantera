@@ -12,10 +12,10 @@
 
 
 #include "Cantera.h"
-#include "reactors.h"
+#include "zerodim.h"
 #include <time.h>
 #include "example_utils.h"
-#include "ReactionPath.h"
+#include "reactionpaths.h"
 #include "IdealGasMix.h"
 
 // #include <iostream>

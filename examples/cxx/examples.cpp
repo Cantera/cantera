@@ -1,6 +1,6 @@
 
 #include "Cantera.h"
-#include "ctexceptions.h"
+//#include "ctexceptions.h"
 
 #define NUM_EXAMPLES 6
 

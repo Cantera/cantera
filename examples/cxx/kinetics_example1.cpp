@@ -11,7 +11,7 @@
 /////////////////////////////////////////////////////////////
 
 
-#include "reactors.h"
+#include "zerodim.h"
 #include "IdealGasMix.h"
 #include <time.h>
 #include "example_utils.h"

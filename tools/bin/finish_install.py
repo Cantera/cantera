@@ -26,18 +26,31 @@ MixMaster()
 """)
 f.close()
 
+try:
+    import Cantera
+    ctpath = Cantera.__path__[0]
+except:
+    ctpath = "-"
+    
 print """
 
 Cantera has been successfully installed.
 
 File locations:
 
-    applications   """+bindir+"""
-    library files  """+libdir+"""
-    C++ headers    """+hdrdir+"""
-    demos          """+prefix+"""/cantera/demos
-    data files     """+prefix+"""/cantera/data
-
+    applications      """+bindir+"""
+    library files     """+libdir+"""
+    C++ headers       """+hdrdir+"""
+    demos             """+prefix+"""/cantera/demos
+    data files        """+prefix+"""/cantera/data
+    
+    Matlab toolbox    """+prefix+"""/matlab/toolbox/cantera/cantera
+    Matlab demos      """+prefix+"""/matlab/toolbox/cantera/cantera-demos
+    Matlab tutorials  """+prefix+"""/matlab/toolbox/cantera/cantera-tutorials"""
+if ctpath <> "-":
+    print """
+    Python package    """+ctpath
+print """
     A shell script 'cantera_init' has been written that configures the
     environment for Cantera. It may be found in
     """+prefix+"""/cantera. It is recommended that you run this script

@@ -25,7 +25,6 @@ namespace Cantera {
     void parseCompString(const string ss, compositionMap& x);
     int fillArrayFromString(const string& str, doublereal* a, char delim = ' ');
     string report(const ThermoPhase& th, bool show_thermo = true);
-    //void printSummary(IdealGasMix& mix, ostream& s);
     string formatCompList(const Phase& mix, int xyc);
     string logfileName(const string& infile);    
     string getFileName(const string& path);

@@ -10,14 +10,14 @@
 
 //#include "Cantera.h"
 #include "IdealGasMix.h"
-#include "ChemEquil.h"
+#include "equilibrium.h"
 
 int main(int argc, char **argv) {
   try {
     IdealGasMix g("silane.xml");
     g.setState_TPX(2000.0, 100.0, "SIH4:0.01, H2:0.99");
     equilibrate(g, TP);
-    printSummary(g, cout);
+    cout << g;
     return 0;
   }
   catch (CanteraError) {

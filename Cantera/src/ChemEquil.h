@@ -32,7 +32,7 @@ using namespace std;
 
 namespace Cantera {
 
-    static int _equilflag(char* xy);
+    int _equilflag(char* xy);
 
     /**
      *  Chemical equilibrium options. Used internally by class ChemEquil.

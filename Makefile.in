@@ -17,7 +17,7 @@ build_matlab = @BUILD_MATLAB@
 LIBDIR=@LIB_DIR@
 
 # removed utils temporarily
-all: kernel movelibs clib python matlab 
+all: kernel movelibs hdr-collect clib python matlab utils
 
 install: hdr-install kernel-install data-install python-install matlab-install tools-install finish-install
 
@@ -25,12 +25,15 @@ demos: example_codes
 
 kernel: info 
 	rm -f lib/*.a
+	rm -f lib/*.so
 	cd ext; @MAKE@
 	cd Cantera/src; @MAKE@
 
 clib: 
 	cd Cantera/clib/src; @MAKE@
 
+cxxlib: 
+	cd Cantera/cxx; make
 
 movelibs:
 	mv -f Cantera/src/*.a lib
@@ -43,6 +46,7 @@ utils:
 
 kernel-install:
 	@INSTALL@ -d @prefix@/lib/cantera
+	rm -f @prefix@/lib/cantera/*
 	@INSTALL@ -m 644 lib/*.a @prefix@/lib/cantera
 	cd Cantera/clib/src; make install
 	ranlib @prefix@/lib/cantera/*.a
@@ -58,19 +62,23 @@ tools-install:
 
 hdr-install:
 	@INSTALL@ -d @prefix@/include/cantera
-	@INSTALL@ -d @prefix@/include/kernel
-	@INSTALL@ -d @prefix@/include/cantera/kernel/oneD
-	@INSTALL@ -d @prefix@/include/cantera/kernel/zeroD
-	@INSTALL@ -d @prefix@/include/cantera/kernel/converters
-	@INSTALL@ -d @prefix@/include/cantera/kernel/transport
-	rm -r -f @prefix@/include/cantera/*.h
-	@INSTALL@ include/*.h @prefix@/include/cantera
-	@INSTALL@ config.h @prefix@/include/cantera
-	@INSTALL@ Cantera/src/*.h @prefix@/include/cantera/kernel
-	@INSTALL@ Cantera/src/oneD/*.h @prefix@/include/cantera/kernel/oneD
-	@INSTALL@ Cantera/src/zeroD/*.h @prefix@/include/cantera/kernel/zeroD
-	@INSTALL@ Cantera/src/converters/*.h @prefix@/include/cantera/kernel/converters
-	@INSTALL@ Cantera/src/transport/*.h @prefix@/include/cantera/kernel/transport
+	cp -r -f build/include/cantera @prefix@/include/cantera
+
+hdr-collect:
+	@INSTALL@ -d build/include/cantera
+	rm -r -f build/include/cantera/*
+	@INSTALL@ -d build/include/cantera/kernel
+	@INSTALL@ -d build/include/cantera/kernel/oneD
+	@INSTALL@ -d build/include/cantera/kernel/zeroD
+	@INSTALL@ -d build/include/cantera/kernel/converters
+	@INSTALL@ -d build/include/cantera/kernel/transport
+	@INSTALL@ include/*.h build/include/cantera
+	@INSTALL@ config.h build/include/cantera
+	@INSTALL@ Cantera/src/*.h build/include/cantera/kernel
+	@INSTALL@ Cantera/src/oneD/*.h build/include/cantera/kernel/oneD
+	@INSTALL@ Cantera/src/zeroD/*.h build/include/cantera/kernel/zeroD
+	@INSTALL@ Cantera/src/converters/*.h build/include/cantera/kernel/converters
+	@INSTALL@ Cantera/src/transport/*.h build/include/cantera/kernel/transport
 
 
 
@@ -111,6 +119,9 @@ finish-install:
 	@INSTALL@ -d @prefix@/bin
 	@INSTALL@ -d @prefix@/cantera/demos/c++
 	@INSTALL@ examples/cxx/*.cpp @prefix@/cantera/demos/c++
+	@INSTALL@ examples/cxx/*.h @prefix@/cantera/demos/c++
+	@INSTALL@ examples/cxx/Makefile @prefix@/cantera/demos/c++
+	chown -R @username@ @prefix@/cantera/demos/c++
 	@INSTALL@ -d @prefix@/cantera/demos/f77
 	@PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@
 #@INSTALL@ bin/ctmkmf @prefix@/bin/ctnew
@@ -119,7 +130,7 @@ finish-install:
 
 
 example_codes:
-	cd examples; @MAKE@ all
+	(cd examples/cxx; make)
 
 test: example_codes
 	cd test_problems; @MAKE@ all
@@ -128,10 +139,11 @@ test: example_codes
 uninstall:
 	rm -r -f @prefix@/include/cantera
 	rm -r -f @prefix@/cantera
-	rm -f @prefix@/lib/lib@CT_SHARED_LIB@.a
+	rm -r -f @prefix@/lib/cantera
+	rm -r -f @prefix@/matlab/toolbox/cantera
 
 clean:
-	$(RM) *.*~ lib/Cantera.a lib/*.a lib/*.so bin/ck2ctml bin/ctsetup bin/cxx_examples
+	rm -f *.*~ lib/Cantera.a lib/*.a lib/*.so bin/ck2ctml bin/ctsetup bin/cxx_examples
 	cd Cantera; @MAKE@ clean
 	cd tools; @MAKE@ clean
 	cd ext; @MAKE@ clean

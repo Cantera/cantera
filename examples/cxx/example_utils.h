@@ -1,8 +1,8 @@
 #ifndef CT_EXAMPLE_UTILS_H
 #define CT_EXAMPLE_UTILS_H
 
-#include "Array.h"
-#include "plots.h"
+#include "kernel/Array.h"
+#include "kernel/plots.h"
 
 // Save the temperature, density, pressure, and mole fractions at one
 // time

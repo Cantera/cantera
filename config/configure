@@ -2884,7 +2884,7 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-ac_config_files="$ac_config_files ../Cantera/Makefile ../Cantera/src/Makefile ../Cantera/src/zeroD/Makefile ../Cantera/src/oneD/Makefile ../Cantera/src/converters/Makefile ../Cantera/src/transport/Makefile ../Cantera/clib/src/Makefile ../Cantera/matlab/Makefile ../Cantera/python/Makefile ../Cantera/python/src/Makefile ../ext/lapack/Makefile ../ext/blas/Makefile ../ext/cvode/Makefile ../ext/math/Makefile ../ext/tpx/Makefile ../ext/Makefile ../ext/recipes/Makefile ../examples/Makefile ../examples/cxx/Makefile ../Makefile ../tools/Makefile ../tools/src/Makefile ../tools/src/sample.mak ../tools/templates/f77/demo.mak ../tools/testtools/Makefile ../data/inputs/Makefile ../test_problems/Makefile ../test_problems/cxx_ex/Makefile ../test_problems/silane_equil/Makefile"
+ac_config_files="$ac_config_files ../Cantera/Makefile ../Cantera/src/Makefile ../Cantera/src/zeroD/Makefile ../Cantera/src/oneD/Makefile ../Cantera/src/converters/Makefile ../Cantera/src/transport/Makefile ../Cantera/clib/src/Makefile ../Cantera/matlab/Makefile ../Cantera/python/Makefile ../Cantera/cxx/Makefile ../Cantera/python/src/Makefile ../ext/lapack/Makefile ../ext/blas/Makefile ../ext/cvode/Makefile ../ext/math/Makefile ../ext/tpx/Makefile ../ext/Makefile ../ext/recipes/Makefile ../examples/Makefile ../examples/cxx/Makefile ../Makefile ../tools/Makefile ../tools/src/Makefile ../tools/src/sample.mak ../tools/templates/f77/demo.mak ../tools/testtools/Makefile ../data/inputs/Makefile ../test_problems/Makefile ../test_problems/cxx_ex/Makefile ../test_problems/silane_equil/Makefile"
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
 # Let make expand exec_prefix.
@@ -3146,6 +3146,7 @@ do
   "../Cantera/clib/src/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/clib/src/Makefile" ;;
   "../Cantera/matlab/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/matlab/Makefile" ;;
   "../Cantera/python/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/python/Makefile" ;;
+  "../Cantera/cxx/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/cxx/Makefile" ;;
   "../Cantera/python/src/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/python/src/Makefile" ;;
   "../ext/lapack/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../ext/lapack/Makefile" ;;
   "../ext/blas/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../ext/blas/Makefile" ;;
@@ -3167,7 +3168,7 @@ do
   "../test_problems/cxx_ex/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../test_problems/cxx_ex/Makefile" ;;
   "../test_problems/silane_equil/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../test_problems/silane_equil/Makefile" ;;
   "../config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS ../config.h" ;;
-  *) { { echo "$as_me:3170: error: invalid argument: $ac_config_target" >&5
+  *) { { echo "$as_me:3171: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;
   esac
@@ -3437,7 +3438,7 @@ done; }
   esac
 
   if test x"$ac_file" != x-; then
-    { echo "$as_me:3440: creating $ac_file" >&5
+    { echo "$as_me:3441: creating $ac_file" >&5
 echo "$as_me: creating $ac_file" >&6;}
     rm -f "$ac_file"
   fi
@@ -3455,7 +3456,7 @@ echo "$as_me: creating $ac_file" >&6;}
       -) echo $tmp/stdin ;;
       [\\/$]*)
          # Absolute (can't be DOS-style, as IFS=:)
-         test -f "$f" || { { echo "$as_me:3458: error: cannot find input file: $f" >&5
+         test -f "$f" || { { echo "$as_me:3459: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          echo $f;;
@@ -3468,7 +3469,7 @@ echo "$as_me: error: cannot find input file: $f" >&2;}
            echo $srcdir/$f
          else
            # /dev/null tree
-           { { echo "$as_me:3471: error: cannot find input file: $f" >&5
+           { { echo "$as_me:3472: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          fi;;
@@ -3529,7 +3530,7 @@ for ac_file in : $CONFIG_HEADERS; do test "x$ac_file" = x: && continue
   * )   ac_file_in=$ac_file.in ;;
   esac
 
-  test x"$ac_file" != x- && { echo "$as_me:3532: creating $ac_file" >&5
+  test x"$ac_file" != x- && { echo "$as_me:3533: creating $ac_file" >&5
 echo "$as_me: creating $ac_file" >&6;}
 
   # First look for the input files in the build tree, otherwise in the
@@ -3540,7 +3541,7 @@ echo "$as_me: creating $ac_file" >&6;}
       -) echo $tmp/stdin ;;
       [\\/$]*)
          # Absolute (can't be DOS-style, as IFS=:)
-         test -f "$f" || { { echo "$as_me:3543: error: cannot find input file: $f" >&5
+         test -f "$f" || { { echo "$as_me:3544: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          echo $f;;
@@ -3553,7 +3554,7 @@ echo "$as_me: error: cannot find input file: $f" >&2;}
            echo $srcdir/$f
          else
            # /dev/null tree
-           { { echo "$as_me:3556: error: cannot find input file: $f" >&5
+           { { echo "$as_me:3557: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          fi;;
@@ -3670,7 +3671,7 @@ cat >>$CONFIG_STATUS <<\EOF
   rm -f $tmp/in
   if test x"$ac_file" != x-; then
     if cmp -s $ac_file $tmp/config.h 2>/dev/null; then
-      { echo "$as_me:3673: $ac_file is unchanged" >&5
+      { echo "$as_me:3674: $ac_file is unchanged" >&5
 echo "$as_me: $ac_file is unchanged" >&6;}
     else
       ac_dir=`$as_expr X"$ac_file" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \

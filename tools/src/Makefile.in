@@ -9,18 +9,14 @@ LCXX_FLAGS = -L@ctroot@/lib  @CXXFLAGS@
 LOCAL_LIBS = -lcantera @math_libs@ @LAPACK_LIBRARY@ @BLAS_LIBRARY@
 
 LCXX_END_LIBS = @LCXX_END_LIBS@
-OBJS = ctsetup.o ck2ctml.o
+OBJS = ck2ctml.o
 
 DEPENDS = $(OBJS:.o=.d)
 
 .cpp.o:
 	@CXX@ -c $< @DEFS@  $(INCDIR) @CXXFLAGS@ $(CXX_FLAGS) 
 
-all: $(BINDIR)/ctmkmf $(BINDIR)/ck2ctml
-
-$(BINDIR)/ctmkmf: ctmkmf.o
-	@CXX@ -o $(BINDIR)/ctmkmf ctmkmf.o $(LCXX_FLAGS) $(LOCAL_LIBS) \
-               $(LCXX_END_LIBS)
+all: $(BINDIR)/ck2ctml
 
 $(BINDIR)/ck2ctml: ck2ctml.o
 	@CXX@ -o $(BINDIR)/ck2ctml ck2ctml.o $(LCXX_FLAGS) -lconverters $(LOCAL_LIBS) \

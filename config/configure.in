@@ -378,6 +378,7 @@ AC_OUTPUT(../Cantera/Makefile \
 	  ../Cantera/clib/src/Makefile \
 	  ../Cantera/matlab/Makefile \
 	  ../Cantera/python/Makefile \
+	  ../Cantera/cxx/Makefile \
 	  ../Cantera/python/src/Makefile \
           ../ext/lapack/Makefile \
 	  ../ext/blas/Makefile \
