@@ -6,3 +6,6 @@ runDiamond
 ct2ctml.log
 diamond.xml
 xml_diff_test.out
+.depends
+*.d
+.cttmp.py

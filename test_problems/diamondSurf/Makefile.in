@@ -7,6 +7,9 @@
 #
 #############################################################################
 
+# addition to suffixes
+.SUFFIXES : .d
+
 # the name of the executable program to be created
 PROG_NAME = runDiamond
 
@@ -47,26 +50,45 @@ CANTERA_INCDIR=@ctroot@/build/include/cantera
 # flags passed to the C++ compiler/linker for the linking step
 LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
 
-# how to compile C++ source files to object files
+# How to compile C++ source files to object files
 .@CXX_EXT@.@OBJ_EXT@: Interface.h
 	$(CXX) -c $< -I$(CANTERA_INCDIR) $(CXX_FLAGS)
 
+# How to compile the dependency file
+.cpp.d:
+	g++ -MM -I$(CANTERA_INCDIR) $(CXX_FLAGS) $*.cpp > $*.d
+
+# List of dependency files to be created
+DEPENDS=$(OBJS:.o=.d)
+
+# Program Name
 PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
+# all rule makes a single program
 all: $(PROGRAM)
 
+# Rule to make the program
 $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a 
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
                    $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
 
-$(OBJS):
+# depends target
+depends: .depends
+	$(RM) *.d .depends
+	@MAKE@ .depends
 
+.depends: $(DEPENDS)
+	cat *.d > .depends
+
+# test target -> make the program and run the test
 test:
 	@MAKE@ $(PROGRAM)
 	./runtest
+
+# clean target -> clean up
 clean:
-	$(RM) $(OBJS) $(PROGRAM)
+	$(RM) $(OBJS) $(PROGRAM) $(DEPENDS) .depends
 	../../bin/rm_cvsignore
 
 
