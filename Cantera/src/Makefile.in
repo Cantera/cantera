@@ -22,8 +22,8 @@ EXT        = ../../ext
 #----------------------
 
 # basic components always needed
-BASE       = State.o Elements.o Constituents.o stringUtils.o misc.o importCTML.o ct2ctml.o plots.o \
-             xml.o Phase.o DenseMatrix.o ctml.o funcs.o ctvector.o phasereport.o
+BASE       = State.o Elements.o Constituents.o stringUtils.o misc.o importCTML.o plots.o \
+             xml.o Phase.o DenseMatrix.o ctml.o funcs.o ctvector.o phasereport.o ct2ctml.o
 
 # thermodynamic properties
 THERMO     = $(BASE) ThermoPhase.o IdealGasPhase.o ConstDensityThermo.o SolidCompound.o SpeciesThermoFactory.o ThermoFactory.o
@@ -50,7 +50,10 @@ SOLVERS    = CVode.o  BandMatrix.o
 # 1D flow models
 FLOW1D     =  $(KINETICS) $(SOLVERS)
 
-EVERYTHING = $(KINETICS) $(HETEROKIN) $(CK) $(TRANSPORT) $(REACTOR) $(RPATH) $(SOLVERS) $(FLOW1D)
+
+EVERYTHING = $(KINETICS) $(HETEROKIN) $(CK) $(TRANSPORT) $(REACTOR) $(RPATH) \
+             $(SOLVERS) $(FLOW1D)
+
 
 all:  @KERNEL@ lib
 
@@ -83,8 +86,6 @@ tpx:
 flow1D:
 	cd oneD;  @MAKE@
 
-
-
 CXX_LIBS = @LIBS@
 CXX_INCLUDES = -I.
 CANTERA_LIB = @buildlib@/libcantera.a
@@ -109,10 +110,17 @@ misc.o: misc.cpp
 # HKM note: The lib function below removes the library first.
 #           I was having trouble linking applications on linux
 #           without removing the cantera library first.
+# suggest the following change:
+#
+# lib:
+#        @(if [ `ls -1t $(CANTERA_LIB) *.o | head -1` != $(CANTERA_LIB) ] ; then \
+#         $(RM) $(CANTERA_LIB) ; echo 'ar ruv ' $(CANTERA_LIB) '*.o' ; \
+#         ar ruv $(CANTERA_LIB) *.o   ; fi)
 #           
 lib: 
 	$(RM)     $(CANTERA_LIB)
 	@ARCHIVE@ $(CANTERA_LIB) *.o > /dev/null
+	cd ../.. ; @MAKE@ hdr-collect
 
 clean:
 	$(RM) *.o *~ $(CANTERA_LIB)
