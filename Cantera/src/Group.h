@@ -13,7 +13,9 @@
 #define CT_RXNPATH_GROUP
 
 #include "ct_defs.h"
+#include "ctvector.h"
 
+using namespace std;
 namespace Cantera {
 
     /**
@@ -117,16 +119,11 @@ namespace Cantera {
 
         ostream& fmt(ostream& s, const vector<string>& esymbols) const;
 
-        friend ostream& operator<<(ostream& s, const Group& g) {
-            if (g.valid()) 
-                s << g.m_comp;
-            else 
-                s << "<none>";
-            return s;
-        }
+        friend std::ostream& operator<<(std::ostream& s,
+                                        const Group& g);
 
     private:
-        vector_int m_comp;
+		ctvector_int m_comp;
         int m_sign;
     };
 

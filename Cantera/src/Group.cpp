@@ -21,8 +21,6 @@
 #include <algorithm>
 #include "Group.h"
 
-#include "Group.h"
-
 namespace Cantera {
      
     /**
@@ -70,6 +68,16 @@ namespace Cantera {
             }
         }
         s << ")";
+        return s;
+    }
+
+    std::ostream& 
+    operator<<(std::ostream& s, const Cantera::Group& g) {
+	    if (g.valid()) {
+           s << g.m_comp;
+	    } else {
+           s << "<none>";
+        }
         return s;
     }
 
