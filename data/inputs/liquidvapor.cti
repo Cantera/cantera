@@ -1,38 +1,40 @@
-# These phase definitions actually represent multiphase fluids. They
-# use equations of state in the 'TPX' package, which in turn take most
-# of the equations of state from the compilation 'Thermodynamic
-# Properties in SI', by W. C. Reynolds.
+# These phase definitions represent fluids with complete liquid/vapor
+# equations of state. Depending on conditions, they may represent a
+# single-phase fluid, either liquid or vapor, or a saturated
+# liquid/vapor mixture. They use equations of state in the 'TPX'
+# package, which in turn take most of the equations of state from the
+# compilation 'Thermodynamic Properties in SI', by W. C. Reynolds.
 
 
-pure_fluid(name = "water",
+liquid_vapor(name = "water",
            elements = " O  H ",
            species = "H2O",
            substance_flag = 0,
            initial_state = state(temperature = 300.0,
                                  pressure = OneAtm) ) 
 
-pure_fluid(name = "nitrogen",
+liquid_vapor(name = "nitrogen",
            elements = " N ",
            species = "N2",
            substance_flag = 1,
            initial_state = state(temperature = 300.0,
                                  pressure = OneAtm) )
 
-pure_fluid(name = "methane",
+liquid_vapor(name = "methane",
            elements = " C H ",
            species = "CH4",
            substance_flag = 2,
            initial_state = state(temperature = 300.0,
                                  pressure = OneAtm) ) 
 
-pure_fluid(name = "hydrogen",
+liquid_vapor(name = "hydrogen",
            elements = " H ",
            species = "H2",
            substance_flag = 3,
            initial_state = state(temperature = 300.0,
                                  pressure = OneAtm) ) 
 
-pure_fluid(name = "oxygen",
+liquid_vapor(name = "oxygen",
            elements = " O ",
            species = "O2",
            substance_flag = 4,
