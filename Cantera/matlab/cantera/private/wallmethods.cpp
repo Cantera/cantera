@@ -4,7 +4,7 @@
 #include "../../../clib/src/ct.h"
 #include "ctmatutils.h"
 
-const double Undef = -999.123;
+//const double Undef = -999.123;
 
     void wallmethods( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[] )
