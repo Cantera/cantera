@@ -798,8 +798,11 @@ class phase(writer):
         # are imported or defined locally. If imported, the string
         # contains a colon (:) 
         for sp in self._species:
-            if sp.find(':') > 0:
-                datasrc, spnames = sp.split(':')
+            icolon = sp.find(':')
+            if icolon > 0:
+                #datasrc, spnames = sp.split(':')
+                datasrc = sp[:icolon].strip()
+                spnames = sp[icolon+1:]
                 self._sp.append((datasrc+'.xml', spnames))
             else:
                 spnames = sp
@@ -858,9 +861,11 @@ class phase(writer):
         # are imported or defined locally. If imported, the string
         # contains a colon (:) 
         for r in self._rxns:
-            
-            if r.find(':') > 0:
-                datasrc, rnum = r.split(':')
+            icolon = r.find(':')
+            if icolon > 0:
+                #datasrc, rnum = r.split(':')
+                datasrc = r[:icolon].strip()
+                rnum = r[icolon+1:]
                 self._rx.append((datasrc+'.xml', rnum))
             else:
                 rnum = r
@@ -1182,7 +1187,10 @@ if __name__ == "__main__":
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.19  2003-08-26 03:39:02  dggoodwin
+# Revision 1.20  2003-09-22 13:14:34  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.19  2003/08/26 03:39:02  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.18  2003/08/21 14:29:53  dggoodwin

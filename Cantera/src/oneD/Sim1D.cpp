@@ -256,6 +256,7 @@ namespace Cantera {
 
                 catch (CanteraError) {
 
+                    popError();
                     char buf[100];
                     if (loglevel > 0) {
                         writelog("    failure. \n\n");
