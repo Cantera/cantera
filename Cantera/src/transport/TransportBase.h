@@ -24,10 +24,11 @@
 #include "../ctexceptions.h"
 #include "../Array.h"
 #include "../stringUtils.h"
-//#include "Phase.h"
 #include "../ThermoPhase.h"
 
 namespace Cantera {
+
+    // exception class
 
     class NotImplemented : public CanteraError {
     public:
@@ -53,24 +54,21 @@ namespace Cantera {
 
 
     /**
-     * Base class for transport property managers. 
-     * All classes that compute transport properties derive from this
-     * class.  Class Transport is meant to be used as a base class
-     * only. It is possible to instantiate it, but its methods throw
-     * exceptions if called.
-     * @see MultiTransport
-     * @see MixTransport
+     * Base class for transport property managers.  All classes that
+     * compute transport properties derive from this class.  Class
+     * Transport is meant to be used as a base class only. It is
+     * possible to instantiate it, but its methods throw exceptions if
+     * called.
      */
     class Transport {
 
     public:
 
         /**
-         * Transport model. Each transport manager may implement a
-         * different transport model, defined as the set of equations
-         * used to compute the transport properties. This virtual
-         * method returns an integer flag that identifies the
-         * transport model implemented.
+         * Transport model. The transport model is the set of
+         * equations used to compute the transport properties. This
+         * virtual method returns an integer flag that identifies the
+         * transport model implemented. The base class returns 0.
          */
         virtual int model() {return 0;}
 
@@ -86,7 +84,6 @@ namespace Cantera {
 
         /**
          * Returns true if the transport manager is ready for use.
-         * When first created, ready() returns false, since  
          */
         bool ready() { return m_ready; }
 
@@ -107,8 +104,7 @@ namespace Cantera {
          
 
         /**
-         * The mixture viscosity in Pa-s. 
-         * @see \ref viscositySection
+         * The viscosity in Pa-s. 
          */
         virtual doublereal viscosity() 
             { return err("viscosity"); }
@@ -128,7 +124,6 @@ namespace Cantera {
          * applications where bulk viscosity is important, it is
          * possible to create a transport manager that computes it by
          * overloading this method.
-         * @see bulkViscositySection
          */
         virtual doublereal bulkViscosity()  
             { return err("bulkViscosity"); }
@@ -136,13 +131,12 @@ namespace Cantera {
         
         /**
          * The thermal conductivity in W/m/K. 
-         * @see thermalConductivitySection
          */
         virtual doublereal thermalConductivity()
             { return err("thermalConductivity"); }
 
         /**
-         * The electrical conductivity (mho/m).
+         * The electrical conductivity (Siemens/m).
          */
         virtual doublereal electricalConductivity()
             { return err("electricalConductivity"); }
@@ -150,13 +144,9 @@ namespace Cantera {
         /**
          * Electrical mobilities. Units: [m^2/V/s].
          */
-        void getMobilities(vector_fp& mobil) {
-            if (mobil.size() < m_nmin) sizeError(mobil.size(), m_nmin);
-            getMobilities(mobil.begin());
-        }
-
         virtual void getMobilities(doublereal* mobil)
             { err("getMobilities"); }
+
 
         //@}
 
@@ -167,16 +157,6 @@ namespace Cantera {
         virtual void getSpeciesFluxes(int ndim, 
         doublereal* grad_T, int ldx, const doublereal* grad_X,
             int ldf, doublereal* fluxes) { err("getSpeciesFluxes"); }
-
-        /**
-         * Get the species mass fluxes, given the gradients.
-         */
-        void getSpeciesFluxes(int ndim, vector_fp& grad_T, const Array2D& grad_X,
-            Array2D& fluxes) { 
-            getSpeciesFluxes(ndim, grad_T.begin(), grad_X.nRows(), grad_X.begin(),
-                fluxes.nRows(), fluxes.begin());
-        }
-                                  
 
 
         /**
@@ -191,10 +171,6 @@ namespace Cantera {
          * diffusion coefficients.  Dimension dt at least as large as
          * the number of species.
          */
-        void getThermalDiffCoeffs(vector_fp& dt) {
-            if (dt.size() < m_nmin) sizeError(dt.size(),m_nmin);
-            getThermalDiffCoeffs(dt.begin());
-        }
         virtual void getThermalDiffCoeffs(doublereal* dt) 
             { err("getThermalDiffCoeffs"); }
 
@@ -202,11 +178,6 @@ namespace Cantera {
         /**
          * Binary diffusion coefficients. Units: [m^2/s].
          */
-        void getBinaryDiffCoeffs(Array2D& d) {
-            if (d.nRows() < m_nmin || d.nColumns() < m_nmin) 
-                sizeError(d.nRows(), m_nmin, d.nColumns(), m_nmin);
-            getBinaryDiffCoeffs(d.nRows(), d.begin());
-        }
         virtual void getBinaryDiffCoeffs(int ld, doublereal* d) 
             { err("getBinaryDiffCoeffs"); }
 
@@ -217,11 +188,6 @@ namespace Cantera {
          * model, then this method returns the array of multicomponent
          * diffusion coefficients.
          */
-        void getMultiDiffCoeffs(Array2D& d) {
-            if (d.nRows() < m_nmin || d.nColumns() < m_nmin) 
-                sizeError(d.nRows(), m_nmin, d.nColumns(), m_nmin);
-            getMultiDiffCoeffs(d.nRows(), d.begin());
-        }
         virtual void getMultiDiffCoeffs(int ld, doublereal* d) 
             { err("getMultiDiffCoeffs"); }
 
@@ -232,20 +198,21 @@ namespace Cantera {
          * diffusion model, then this method returns the array of
          * mixture-averaged diffusion coefficients.
          */
-        void getMixDiffCoeffs(vector_fp& d) {
-            if (d.size() < m_nmin) 
-                sizeError(d.size(), m_nmin);
-            getMixDiffCoeffs(d.begin());
-        }
         virtual void getMixDiffCoeffs(doublereal* d) 
             { err("getMixDiffCoeffs"); }
 
+#ifdef INCL_CBAR
         doublereal meanThermalSpeed(int k) const {
             doublereal t = m_thermo->temperature();
             doublereal mw = m_thermo->molecularWeight(k);
             return sqrt(8.0 * GasConstant * t /(Pi * mw));
         }
+#endif
 
+        /**
+         * Set transport model parameters. This method may be
+         * overloaded in subclasses to set model-specific parameters.
+         */
         virtual void setParameters(int type, int k, doublereal* p) 
             { err("setParameters"); }
 
@@ -261,6 +228,7 @@ namespace Cantera {
          */
         Transport(thermo_t* thermo=0) 
             : m_thermo(thermo), m_ready(false), m_nmin(0), m_index(-1) {}
+
 
     protected:
 
@@ -286,7 +254,7 @@ namespace Cantera {
                 m_nmin = m_thermo->nSpecies();
             }
             else 
-                throw CanteraError("Transport::setPhase",
+                throw CanteraError("Transport::setThermo",
                     "the phase object cannot be changed after "
                     "the transport manager has been constructed.");
         }
@@ -307,11 +275,11 @@ namespace Cantera {
         //@}
 
 
-        //phase_t*  m_phase;  ///< pointer to the object representing the phase 
         thermo_t*  m_thermo;  ///< pointer to the object representing the phase 
-        bool      m_ready;  ///< false initially, true if ready to use
+        bool      m_ready;  ///< true if finalize has been called
         size_t    m_nmin;   ///< number of species
         int       m_index;  
+
 
     private:
 
@@ -321,25 +289,15 @@ namespace Cantera {
          * is being used that does not implement all virtual methods,
          * and one of those methods was called by the application
          * program. For example, a transport manager that computes the
-         * thermal conductivity of a solid may not overload the
-         * viscosity() method, since the viscosity is meaningless. If the
-         * application invokes the viscosity() method, the base class
-         * method will be called, resulting in an exception being
-         * thrown.
+         * thermal conductivity of a solid may not define the
+         * viscosity() method, since the viscosity is in this case
+         * meaningless. If the application invokes the viscosity()
+         * method, the base class method will be called, resulting in
+         * an exception being thrown.
          */
         doublereal err(string msg) const { 
             throw NotImplemented(msg);
             return 0.0;
-        }
-
-        void sizeError(int nr, int nrmin, int nc=-1, int ncmin=-1) {
-            string msg;
-            msg = "Array size (" + int2str(nr);
-            if (nc > 0) msg += "," + int2str(nc);
-            msg += ") is too small. Dimension at least (" + int2str(nrmin);
-            if (nc > 0) msg += "," + int2str(ncmin);
-            msg += ").";
-            throw CanteraError("Transport", msg);
         }
 
     };

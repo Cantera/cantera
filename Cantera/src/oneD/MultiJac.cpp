@@ -20,6 +20,8 @@
 #endif
 
 #include <vector>
+#include <math.h>
+
 using namespace std;
 
 #include "MultiJac.h"
@@ -93,10 +95,12 @@ namespace Cantera {
                         for (m = 0; m < mv; m++) {
                             value(m+iloc,ipt) = (m_r1[m+iloc] 
                                 - resid0[m+iloc])*rdx;
-                            //if (m == 15) {
-                            //    cout << "perturbed " << n << " " << value(m+iloc,ipt) <<  " " << m_r1[m+iloc]
-                            //         << " " << resid0[m+iloc] << " " << rdx << endl;
-                            //}
+                            if (__isnand(value(m+iloc,ipt))) {
+                                cout << "NaN detected at i, j, n, m: " << i 
+                                     << " " << j << " " << n << " " <<  m << 
+                                    " " << m_r1[m+iloc] << " " << resid0[m+iloc]
+                                     << " " << rdx << endl;
+                            }
                         }
                     }
                 }

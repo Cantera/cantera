@@ -14,10 +14,11 @@ build_clib = @BUILD_CLIB@
 build_python = @BUILD_PYTHON@
 build_matlab = @BUILD_MATLAB@
 os_is_win = @OS_IS_WIN@
+incl_user_code = @INCL_USER_CODE@
 
 LIBDIR=@LIB_DIR@
 
-all: kernel cxxlib hdr-collect clib python matlab utils
+all: kernel user cxxlib hdr-collect clib python matlab utils
 
 win: python matlab
 
@@ -33,6 +34,11 @@ kernel: info
 	rm -f @buildlib@/*.so
 	cd ext; @MAKE@
 	cd Cantera/src; @MAKE@
+
+user:
+ifeq ($(incl_user_code),1)
+	cd Cantera/user; @MAKE@
+endif
 
 clib: 
 	cd Cantera/clib/src; @MAKE@

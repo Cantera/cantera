@@ -33,7 +33,7 @@ KINETICS   = GRI_30_Kinetics.o KineticsFactory.o GasKinetics.o FalloffFactory.o 
              ReactionStoichMgr.o $(THERMO)
 
 # heterogeneous kinetics
-HETEROKIN = InterfaceKinetics.o ImplicitSurfChem.o $(THERMO)
+HETEROKIN = InterfaceKinetics.o ImplicitSurfChem.o SurfPhase.o $(THERMO)
 
 # support for importing from Chemkin-compatible reaction mechanisms
 CK         = $(KINETICS)
@@ -51,8 +51,8 @@ SOLVERS    = CVode.o  BandMatrix.o
 FLOW1D     =  $(KINETICS) $(SOLVERS)
 
 
-EVERYTHING = $(KINETICS) $(HETEROKIN) $(EQUIL) $(CK) $(TRANSPORT) $(REACTOR) $(RPATH) \
-             $(SOLVERS) $(FLOW1D)
+EVERYTHING = $(KINETICS) $(HETEROKIN) $(ELECTROCHEM) $(EQUIL) $(CK) \
+             $(TRANSPORT) $(REACTOR) $(RPATH) $(SOLVERS) $(FLOW1D)
 
 
 all:  @KERNEL@ lib

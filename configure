@@ -61,6 +61,17 @@ BUILD_PYTHON_INTERFACE=${BUILD_PYTHON_INTERFACE:="y"}
 PYTHON_CMD=${PYTHON_CMD:="python"}
 BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
 
+
+#----------------------------------------------------------------------
+#         Customizations / Extensions
+#
+# You can build your own libraries as part of the Cantera build process.
+# This allows you to derive your own classes from those provided by 
+# Cantera and build them automatically along with the rest of Cantera.
+# All you need to do is specify the directory where your source code is
+# located.
+USER_SRC_DIR="Cantera/user"
+
 #----------------------------------------------------------------------
 #         Kernel Configuration
 #----------------------------------------------------------------------
@@ -146,7 +157,7 @@ LAPACK_FTN_STRING_LEN_AT_END='y'
 CXX=${CXX:=g++}
 
 # C++ compiler flags
-CXXFLAGS=${CXXFLAGS:="-O2 -Wall"}
+CXXFLAGS=${CXXFLAGS:="-O2 -g -Wall"}
 
 # the C++ flags required for linking
 #LCXX_FLAGS=
@@ -217,6 +228,7 @@ CT_SHARED_LIB=${CT_SHARED_LIB:=clib}
 #------------------- don't change anything below!! ---------------------
 #-----------------------------------------------------------------------
 
+export USER_SRC_DIR
 export ARCHIVE
 export BLAS_LIBRARY
 export BUILD_F90

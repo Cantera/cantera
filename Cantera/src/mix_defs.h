@@ -35,11 +35,13 @@ namespace Cantera {
     const int cSurf = 3;           //  SurfPhase in SurfPhase.h 
     const int cMetal = 4;          //  MetalPhase in MetalPhase.h
     const int cSolidCompound = 5;  //  SolidCompound in SolidCompound.h
+    const int cEdge = 6;
 
     // kinetic manager types
     const int cGasKinetics = 2;
     const int cGRI30 = 3;
     const int cInterfaceKinetics = 4;
+    const int cLineKinetics = 5;
 }
 
 #endif

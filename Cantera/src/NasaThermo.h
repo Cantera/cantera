@@ -3,9 +3,9 @@
  */
 
 /*
- * $author$
- * $revision$
- * $date$
+ * $Author$
+ * $Revision$
+ * $Date$
  */
 
 
@@ -57,12 +57,12 @@ namespace Cantera {
 
         /**
          * Install parameterization for a species.
-         * @param index  Species index
-         * @param type   ignored, since only NASA type is supported
-         * @param c      coefficients. These are
-         * - c[0] midpoint temperature
-         * - c[1] - c[7] coefficients for low T range
-         * - c[8] - c[14] coefficients for high T range
+         * @param index    Species index
+         * @param type     ignored, since only NASA type is supported
+         * @param c        coefficients. These are
+         * - c[0]          midpoint temperature
+         * - c[1] - c[7]   coefficients for low T range
+         * - c[8] - c[14]  coefficients for high T range
          */
         virtual void install(int index, int type, const doublereal* c, 
             doublereal minTemp, doublereal maxTemp, doublereal refPressure) { 
@@ -105,6 +105,10 @@ namespace Cantera {
             m_low_map[index] = &m_low[igrp-1].back();
         }
 
+
+        /** 
+         * update the properties for only one species.
+         */
         virtual void update_one(int k, doublereal t, doublereal* cp_R, 
             doublereal* h_RT, doublereal* s_R) const {
 
@@ -127,6 +131,7 @@ namespace Cantera {
             doublereal* h_RT, doublereal* s_R) const {
             int i;
 
+            // load functions of temperature into m_t vector
             m_t[0] = t;
             m_t[1] = t*t;
             m_t[2] = m_t[1]*t;
@@ -134,6 +139,7 @@ namespace Cantera {
             m_t[4] = 1.0/t;
             m_t[5] = log(t);
 
+            // iterate over the groups
             vector<NasaPoly1>::const_iterator _begin, _end;
             for (i = 0; i != m_ngroups; i++) {
                 if (t > m_tmid[i]) {
@@ -149,6 +155,13 @@ namespace Cantera {
             }
         }
                 
+        /**
+         * Return the lowest temperature at which the thermodynamic
+         * parameterization is valid.  If no argument is supplied, the
+         * value is the one for which all species parameterizations
+         * are valid. Otherwise, if an integer argument is given, the
+         * value applies only to the species with that index.
+         */
         virtual doublereal minTemp(int k=-1) const {
             if (k < 0)
                 return m_tlow_max;
@@ -187,8 +200,11 @@ namespace Cantera {
 #endif
 
 // $Log$
-// Revision 1.1  2003-04-14 17:57:51  dggoodwin
-// Initial revision
+// Revision 1.2  2003-11-01 04:50:35  dggoodwin
+// *** empty log message ***
+//
+// Revision 1.1.1.1  2003/04/14 17:57:51  dggoodwin
+// Initial import.
 //
 // Revision 1.16  2003/01/13 10:14:32  dgg
 // *** empty log message ***

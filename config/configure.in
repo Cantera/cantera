@@ -76,6 +76,15 @@ AC_SUBST(LCXX_FLAGS)
 AC_SUBST(LCXX_END_LIBS)
 
 #########################################################
+#  User Code
+#########################################################
+USERDIR=""
+INCL_USER_CODE=0
+if test -n "$USER_SRC_DIR"; then USERDIR=$USER_SRC_DIR; INCL_USER_CODE=1; fi
+AC_SUBST(USERDIR)
+AC_SUBST(INCL_USER_CODE)
+
+#########################################################
 #  The Cantera Kernel
 #########################################################
 KERNEL='base'
@@ -407,6 +416,7 @@ AC_OUTPUT(../Cantera/Makefile \
 	  ../Cantera/python/Makefile \
           ../Cantera/python/setup.py \
 	  ../Cantera/cxx/Makefile \
+	  ../Cantera/user/Makefile \
 	  ../Cantera/python/src/Makefile \
           ../ext/lapack/Makefile \
 	  ../ext/blas/Makefile \

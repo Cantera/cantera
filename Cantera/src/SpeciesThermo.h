@@ -34,10 +34,9 @@ namespace Cantera {
     //////////////////////// class SpeciesThermo ////////////////////
 
     /**
-     * Virtual base class for the species thermo
-     * manager classes. This class defines the interface which all
-     * subclasses must implement.
-     * @ingroup spthermo 
+     * Virtual base class for the species thermo manager classes. This
+     * class defines the interface which all subclasses must
+     * implement.  @ingroup spthermo
      */
 
     class SpeciesThermo {

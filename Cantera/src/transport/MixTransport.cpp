@@ -52,7 +52,6 @@ namespace Cantera {
     bool MixTransport::init(TransportParams& tr) {
 
         // constant substance attributes
-        //m_phase = tr.mix;
         m_thermo = tr.thermo;
         m_nsp   = m_thermo->nSpecies();
         m_tmin  = m_thermo->minTemp();

@@ -398,11 +398,12 @@ namespace Cantera {
         virtual void setupGrid(int n, const doublereal* z) {}
 
         /**
-         * Writes some or all initial solution values into array x,
-         * which is the solution vector for this domain. This allows
-         * initial values that have been set prior to installing this
-         * domain into the container to be written to the global
-         * solution vector.
+         * Writes some or all initial solution values into the global
+         * solution array, beginning at the location pointed to by
+         * x. This method is called by the Sim1D constructor, and
+         * allows default values or ones that have been set locally
+         * prior to installing this domain into the container to be
+         * written to the global solution vector.
          */
         virtual void _getInitialSoln(doublereal* x) {
             throw CanteraError("Domain1D::_getInitialSoln",
@@ -410,13 +411,19 @@ namespace Cantera {
         }
 
         /**
-         * Perform any necessary domain-specific initialization using 
-         * local solution vector x.
+         * In some cases, a domain may need to set parameters that
+         * depend on the initial solution estimate. In such cases, the
+         * parameters may be set in method _finalize. This method is
+         * called just before the Newton solver is called, and the x
+         * array is guaranteed to be the local solution vector for
+         * this domain that will be used as the initial guess. If no
+         * such parameters need to be set, then method _finalize does
+         * not need to be overloaded.
          */ 
-        virtual void _finalize(const doublereal* x) {
-            throw CanteraError("Domain1D::_finalize",
-                "base class method _finalize called!");
-        }
+        virtual void _finalize(const doublereal* x) {}
+        //throw CanteraError("Domain1D::_finalize",
+        //      "base class method _finalize called!");
+        //}
 
 
     protected:

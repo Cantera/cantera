@@ -111,7 +111,7 @@ namespace ctml {
         //char line[90];
         //if (ierr != 0) {
         try {
-            char ch;
+            char ch=0;
             string s = "";
             ifstream ferr("ct2ctml.log");
             if (ferr) {

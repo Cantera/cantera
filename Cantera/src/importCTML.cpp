@@ -103,12 +103,13 @@ namespace Cantera {
         XML_Node *db, *doc;
         split(file_ID, fname, idstr);
         if (fname == "") {
-	  if (!root) return 0;
-	  db = root->findID(idstr, 3);
+            if (!root) throw CanteraError("get_XML_Node","no file name given. file_ID = "+file_ID);
+            db = root->findID(idstr, 3);
         } else {
 	  doc = get_XML_File(fname);
-	  if (!doc) return 0;
+	  if (!doc) throw CanteraError("get_XML_Node", "get_XML_File failed trying to open "+fname);
 	  db = doc->findID(idstr, 3);
+          if (!db) throw CanteraError("get_XML_Node", "id tag "+idstr+" not found.");
         }
         return db;
     }
