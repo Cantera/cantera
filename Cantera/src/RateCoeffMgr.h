@@ -59,6 +59,11 @@ namespace Cantera {
 
         int install( int rxnNumber,  int rateType, int m, 
             const doublereal* c ) {
+            /*
+	     * Check to see if the current reaction rate type
+	     * is the same as the type of this class. If not,
+	     * throw an error condition. 
+	     */
             if (rateType != R::type()) 
                 throw UnknownRateCoefficient();
         
