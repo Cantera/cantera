@@ -20,6 +20,7 @@
 #include "xml.h"
 #include "ctml.h"
 #include "SpeciesThermoFactory.h"
+#include "FalloffFactory.h"
 
 #ifndef WIN32
 #include "ctdir.h"
@@ -90,6 +91,7 @@ namespace Cantera {
 	  __app = 0;
 	}
 	SpeciesThermoFactory::deleteFactory();
+	FalloffFactory::deleteFalloffFactory();
 	Unit::deleteUnit();
     }
 
