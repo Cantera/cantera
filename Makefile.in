@@ -43,7 +43,7 @@ utils:
 kernel-install:
 	@INSTALL@ -d @prefix@/lib/cantera
 	rm -f @prefix@/lib/cantera/*
-	@INSTALL@ -m 644 build/lib/*.a @prefix@/lib/cantera
+	@INSTALL@ -m 644 @buildlib@/*.a @prefix@/lib/cantera
 	cd Cantera/clib/src; make install
 	ranlib @prefix@/lib/cantera/*.a
 
@@ -139,7 +139,7 @@ uninstall:
 	rm -r -f @prefix@/matlab/toolbox/cantera
 
 clean:
-	rm -f *.*~ lib/Cantera.a lib/*.a lib/*.so bin/ck2ctml bin/ctsetup bin/cxx_examples
+	rm -f *.*~ @buildlib@/*.* 
 	cd Cantera; @MAKE@ clean
 	cd tools; @MAKE@ clean
 	cd ext; @MAKE@ clean
