@@ -604,8 +604,6 @@ extern "C" {
         string mstr = f2string(model, lenmodel);
         thermo_t* t = _fth(ith);
         try {
-            cout << int(mstr[5]) << endl;
-            cout << "mstr = >" << mstr << "< " << endl;
             Transport* tr = newTransportMgr(mstr, t, *loglevel);
             return Storage::storage()->addTransport(tr);
         }

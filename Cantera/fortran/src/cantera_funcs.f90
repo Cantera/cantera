@@ -30,10 +30,8 @@ module cantera_funcs
       str = ctxml_child(s, 'transport')
       call ctxml_getAttrib(str, 'model', model)
       if (present(loglevel)) then
-         write(*,*) 'tr 1'
          self%tran_id = newTransport(model, self%thermo_id, loglevel)
       else
-         write(*,*) 'tr 2'
          self%tran_id = newTransport(model, self%thermo_id, 0)
       end if
 
