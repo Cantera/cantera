@@ -26,7 +26,7 @@ endif
 
 clean:
 	cd src; @MAKE@ clean
-	cd cxx/src; @MAKE@ clean
+	cd cxx; @MAKE@ clean
 	cd clib/src; @MAKE@ clean
 	cd python; @MAKE@ clean
 ifeq ($(build_f90),1)

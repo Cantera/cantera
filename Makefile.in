@@ -245,7 +245,7 @@ depends:
 	endif
 
 changes: 
-	perl cvs2cl.pl --prune
+	cvs2cl.pl --prune
 
 export: changes
 	@INSTALL@ -d $(export_dir)

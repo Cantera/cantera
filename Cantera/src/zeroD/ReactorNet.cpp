@@ -5,9 +5,9 @@ namespace Cantera {
 
     ReactorNet::ReactorNet() : FuncEval(), m_nr(0), m_nreactors(0),
                                m_integ(0), m_time(0.0), m_init(false), 
-                               m_nv(0), m_rtol(1.0e-6), m_atols(1.0e-15),
+                               m_nv(0), m_rtol(1.0e-9), m_atols(1.0e-15),
                                m_maxstep(-1.0),
-                               m_verbose(false)
+                               m_verbose(true)
     {
         m_integ = new CVodeInt;
 
@@ -50,7 +50,7 @@ namespace Cantera {
         if (m_verbose) {
             sprintf(buf, "Number of equations: %d\n", neq());
             writelog(buf);
-            sprintf(buf, "Maximum time step:   %g14.6\n", m_maxstep);
+            sprintf(buf, "Maximum time step:   %14.6g\n", m_maxstep);
             writelog(buf);
         }
         m_integ->initialize(t0, *this);
@@ -59,8 +59,8 @@ namespace Cantera {
 
     void ReactorNet::advance(doublereal time) {
         if (!m_init) {
-            if (m_maxstep < 0.0)
-                m_maxstep = time - m_time;
+            //if (m_maxstep < 0.0)
+            m_maxstep = time;// - m_time;
             initialize();
         }
         m_integ->integrate(time);
@@ -70,8 +70,8 @@ namespace Cantera {
 
     double ReactorNet::step(doublereal time) {
         if (!m_init) {
-            if (m_maxstep < 0.0)
-                m_maxstep = time - m_time;
+            //if (m_maxstep < 0.0)
+            m_maxstep = time;// - m_time;
             initialize();
         }
         m_time = m_integ->step(time);

@@ -54,8 +54,8 @@ namespace Cantera {
         }
             
         void setTolerances(doublereal rtol, doublereal atol) {
-            m_rtol = rtol;
-            m_atols = atol;
+            if (rtol >= 0.0) m_rtol = rtol;
+            if (atol >= 0.0) m_atols = atol;
             m_init = false;
         }
 

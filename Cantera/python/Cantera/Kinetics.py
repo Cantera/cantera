@@ -100,11 +100,12 @@ class Kinetics:
         return _cantera.kin_speciesIndex(self.ckin, name, phase)
 
     def kineticsStart(self, n):
+        """The starting location of phase n in production rate arrays."""
         return _cantera.kin_start(self.ckin, n)
 
     def phase(self, n):
+        """Return an object representing the nth phase."""
         return ThermoPhase(index = _cantera.kin_phase(self.ckin, n))
-        #return self._ph[_cantera.kin_phase(self.ckin, n)]
     
     def nReactions(self):
         """Number of reactions."""
@@ -121,10 +122,9 @@ class Kinetics:
         """Type of reaction 'i'"""
         return _cantera.kin_rxntype(self.ckin,i)
 
-    #def reactionString(self,i):
-    #    return _cantera.kin_getstring(self.ckin,1,i)
-
     def reactionEqn(self,i):
+        """The equation for the specified reaction. If a list of equation numbers
+        is given, then a list of equation strings is returned."""
         try:
             eqs = []
             for rxn in i:
@@ -134,6 +134,7 @@ class Kinetics:
             return self.reactionString(i)
 
     def reactionString(self, i):
+        """Reaction string for reaction number 'i'"""
         s = ''
         nsp = _cantera.kin_nspecies(self.ckin)
         for k in range(nsp):
@@ -157,9 +158,13 @@ class Kinetics:
         return s
     
     def reactantStoichCoeff(self,k,i):
+        """The stoichiometric coefficient of species k as a reactant in reaction i."""
         return _cantera.kin_rstoichcoeff(self.ckin,k,i)
     
     def reactantStoichCoeffs(self):
+        """The array of reactant stoichiometric coefficients. Element
+        [k,i] of this array is the reactant stoichiometric
+        coefficient of species k in reaction i."""
         nsp = _cantera.kin_nspecies(self.ckin)
         nr = _cantera.kin_nreactions(self.ckin)
         nu = Numeric.zeros((nsp,nr),'d')
@@ -169,9 +174,13 @@ class Kinetics:
         return nu
 
     def productStoichCoeff(self,k,i):
+        """The stoichiometric coefficient of species k as a product in reaction i."""
         return _cantera.kin_pstoichcoeff(self.ckin,k,i)    
 
     def productStoichCoeffs(self):
+        """The array of product stoichiometric coefficients. Element
+        [k,i] of this array is the product stoichiometric
+        coefficient of species k in reaction i."""        
         nsp = _cantera.kin_nspecies(self.ckin)
         nr = _cantera.kin_nreactions(self.ckin)
         nu = Numeric.zeros((nsp,nr),'d')
@@ -181,12 +190,15 @@ class Kinetics:
         return nu
     
     def fwdRatesOfProgress(self):
+        """Forward rates of progress of the reactions."""
         return _cantera.kin_getarray(self.ckin,10)
 
     def revRatesOfProgress(self):
+        """Reverse rates of progress of the reactions."""
         return _cantera.kin_getarray(self.ckin,20)
 
     def netRatesOfProgress(self):
+        """Net rates of progress of the reactions."""
         return _cantera.kin_getarray(self.ckin,30)
 
     def equilibriumConstants(self):
@@ -198,9 +210,11 @@ class Kinetics:
         return _cantera.kin_getarray(self.ckin,32)
 
     def fwdRateConstants(self):
+        """Forward rate constants for all reactions."""
         return _cantera.kin_getarray(self.ckin,34)
 
     def revRateConstants(self, doIrreversible = 0):
+        """Reverse rate constants for all reactions."""
         if doIrreversible:
             return _cantera.kin_getarray(self.ckin,35)
         else:

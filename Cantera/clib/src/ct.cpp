@@ -34,12 +34,17 @@ inline XML_Node* _xml(int i) {
 
 #ifdef INCL_PURE_FLUID
 static PureFluid* purefluid(int n) {
-    ThermoPhase* tp = th(n);
-    if (tp->eosType() == cPureFluid) {
-        return (PureFluid*)tp;
+    try {
+        ThermoPhase* tp = th(n);
+        if (tp->eosType() == cPureFluid) {
+            return (PureFluid*)tp;
+        }
+        else {
+            throw CanteraError("purefluid","object is not a PureFluid object");
+        }
     }
-    else {
-        throw CanteraError("purefluid","object is not a PureFluid object");
+    catch (CanteraError) {
+        return 0;
     }
 }
 #else
@@ -82,8 +87,7 @@ extern "C" {
     }
 
     int DLL_EXPORT phase_setDensity(int n, double rho) {
-        if (rho < 0.0) throw CanteraError("phase_setDensity",
-            "density cannot be negative");
+        if (rho < 0.0) return -1;
         ph(n)->setDensity(rho);
         return 0;
     }

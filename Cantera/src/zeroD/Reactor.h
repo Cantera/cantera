@@ -21,6 +21,8 @@
 #include "../CVode.h"
 #include "../Kinetics.h"
 
+#define INCL_REACTOR_INTEG
+
 namespace Cantera {
 
     /**

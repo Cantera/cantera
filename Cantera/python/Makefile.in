@@ -38,7 +38,7 @@ win: _winbuild
 
 _build: $(SRCS) $(LIB_DEPS)
 	touch src/pycantera.cpp 
-	(@PYTHON_CMD@ setup.py build)
+	(CXX=@CXX@; export CXX; CC=@CC@; export CC; @PYTHON_CMD@ setup.py build)
 	echo 'ok' > _build
 
 

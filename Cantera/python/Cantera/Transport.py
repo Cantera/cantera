@@ -35,11 +35,12 @@ class Transport:
         self._models[self.model] = self.__tr_id
 
     def __del__(self):
-        for m in self._models.keys():
-            try:
-                _cantera.tran_delete(self._models[m])
-            except:
-                pass
+        if hasattr(self,'_models'):
+            for m in self._models.keys():
+                try:
+                    _cantera.tran_delete(self._models[m])
+                except:
+                    pass
 
     def addTransportModel(self, model, loglevel=1):
         new_id = _cantera.Transport(model,

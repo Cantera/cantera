@@ -481,6 +481,21 @@ if test -n "$GCC"; then
 fi
 AC_MSG_RESULT(${precompile_headers})
 
+has_sstream=no
+AC_MSG_CHECKING(for sstream)
+cat >> teststream.cpp << \EOF
+#include <sstream>
+main() {}
+EOF
+ msg=`$CXX -c testsstream &> /dev/null`
+ if test -f testsstream.o; then 
+  has_sstream=yes
+  rm teststream.o
+  AC_DEFINE(HAS_SSTREAM)
+ fi
+rm teststream.cpp
+AC_MSG_RESULT(${has_sstream})
+
 
 #---------------------------------
 #     Fortran

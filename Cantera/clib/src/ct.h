@@ -2,7 +2,7 @@
 #define CTC_CT_H
 
 #include "clib_defs.h"
-#include <cantera/Cantera.h>
+#include "../../../config.h"
 
 extern "C" {
 

@@ -71,7 +71,7 @@ thermo_getfp(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ii:thermo_getfp", &th, &job)) 
         return NULL;
 
-    try {
+    // try {
 
         // floating-point attributes
         switch (job) {
@@ -123,10 +123,10 @@ thermo_getfp(PyObject *self, PyObject *args)
             PyErr_SetString(ErrorObject,"Unknown floating-point attribute");
             return NULL;
         }
-    }
-    catch (CanteraError) {
-        return reportCanteraError();
-    }
+        //}
+        //catch (CanteraError) {
+        // return reportCanteraError();
+        //}
 }
 
 static PyObject*

@@ -94,10 +94,10 @@ extern "C" {
         return 0;
     }
 
-    //int DLL_EXPORT reactor_setInitialTime(int i, double t) {
-    //    _reactor(i)->setInitialTime(t);
-    //    return 0;
-    //}
+    int DLL_EXPORT reactor_setInitialTime(int i, double t) {
+       _reactor(i)->setInitialTime(t);
+       return 0;
+    }
 
     int DLL_EXPORT reactor_setThermoMgr(int i, int n) {
         _reactor(i)->setThermoMgr(*_th(n));
@@ -111,17 +111,17 @@ extern "C" {
         return 0;
     }
 
-    //int DLL_EXPORT reactor_advance(int i, double t) {
-    //    try {
-    //        _reactor(i)->advance(t);
-    //        return 0;
-    //    }
-    //    catch (CanteraError) {return -1;}
-    //}
+    int DLL_EXPORT reactor_advance(int i, double t) {
+       try {
+           _reactor(i)->advance(t);
+           return 0;
+       }
+       catch (CanteraError) {return -1;}
+    }
 
-    //    double DLL_EXPORT reactor_step(int i, double t) {
-    //    return _reactor(i)->step(t);
-    //}
+       double DLL_EXPORT reactor_step(int i, double t) {
+       return _reactor(i)->step(t);
+    }
 
     double DLL_EXPORT reactor_time(int i) {
         return _reactor(i)->time();
@@ -196,9 +196,24 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT reactornet_addreactor(int i, int n) {
-        _reactornet(i)->addReactor(_reactor(n));
+    int DLL_EXPORT reactornet_setMaxTimeStep(int i, double maxstep) {
+        _reactornet(i)->setMaxTimeStep(maxstep);
         return 0;
+    }
+
+    int DLL_EXPORT reactornet_setTolerances(int i, double rtol, double atol) {
+        _reactornet(i)->setTolerances(rtol, atol);
+        return 0;
+    }
+
+    int DLL_EXPORT reactornet_addreactor(int i, int n) {
+        try {
+            _reactornet(i)->addReactor(_reactor(n));
+            return 0;
+        }
+        catch (CanteraError) {
+            return -1;
+        }
     }
 
     int DLL_EXPORT reactornet_advance(int i, double t) {
@@ -217,6 +232,19 @@ extern "C" {
             return DERR;
         }
     }
+
+    double DLL_EXPORT reactornet_time(int i) {
+        return _reactornet(i)->time();
+    }
+
+    double DLL_EXPORT reactornet_rtol(int i) {
+        return _reactornet(i)->rtol();
+    }
+
+    double DLL_EXPORT reactornet_atol(int i) {
+        return _reactornet(i)->atol();
+    }
+
 
 
     // flow devices

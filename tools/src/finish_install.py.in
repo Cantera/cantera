@@ -76,8 +76,8 @@ except:
     ctpath = "-"
 
 fm = open(ctdir+"/ctpath.m","w")
-fm.write("""path(path,'"""+prefix+"""/matlab/toolbox/cantera/cantera')\n""")
-fm.write("""path(path,'"""+prefix+"""/matlab/toolbox/cantera/cantera/1D')\n""")
+fm.write("""path('"""+prefix+"""/matlab/toolbox/cantera/cantera',path)\n""")
+fm.write("""path('"""+prefix+"""/matlab/toolbox/cantera/cantera/1D',path)\n""")
 fm.close()
 
 print """

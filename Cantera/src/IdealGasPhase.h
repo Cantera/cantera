@@ -178,6 +178,7 @@ namespace Cantera {
          */
         virtual void getActivityConcentrations(doublereal* c) const {
             getConcentrations(c);
+            //for (int k = 0; k < m_kk; k++) if (c[k] < 0.0) c[k] = 0.0;
         }
 
         /**

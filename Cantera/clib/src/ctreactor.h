@@ -10,12 +10,12 @@ extern "C" {
     int DLL_IMPORT reactor_copy(int i);
     int DLL_IMPORT reactor_assign(int i, int j);
     int DLL_IMPORT reactor_setInitialVolume(int i, double v);
-    //    int DLL_IMPORT reactor_setInitialTime(int i, double t);
+    int DLL_IMPORT reactor_setInitialTime(int i, double t);
     int DLL_IMPORT reactor_setEnergy(int i, int eflag);
     int DLL_IMPORT reactor_setThermoMgr(int i, int n);
     int DLL_IMPORT reactor_setKineticsMgr(int i, int n);
-    //int DLL_IMPORT reactor_advance(int i, double t);
-    //double DLL_IMPORT reactor_step(int i, double t);
+    int DLL_IMPORT reactor_advance(int i, double t);
+    double DLL_IMPORT reactor_step(int i, double t);
     double DLL_IMPORT reactor_time(int i);
     double DLL_IMPORT reactor_mass(int i);
     double DLL_IMPORT reactor_volume(int i);
@@ -31,9 +31,14 @@ extern "C" {
     int DLL_IMPORT reactornet_copy(int i);
     int DLL_IMPORT reactornet_assign(int i, int j);
     int DLL_IMPORT reactornet_setInitialTime(int i, double t);
+    int DLL_IMPORT reactornet_setMaxTimeStep(int i, double maxstep);
+    int DLL_IMPORT reactornet_setTolerances(int i, double rtol, double atol);
     int DLL_IMPORT reactornet_addreactor(int i, int n);
     int DLL_IMPORT reactornet_advance(int i, double t);
     double DLL_IMPORT reactornet_step(int i, double t);
+    double DLL_IMPORT reactornet_time(int i);
+    double DLL_IMPORT reactornet_rtol(int i);
+    double DLL_IMPORT reactornet_atol(int i);
 
     int DLL_IMPORT flowdev_new(int type);
     int DLL_IMPORT flowdev_del(int i);

@@ -11,6 +11,7 @@
 #pragma warning(disable:4503)
 #endif
 
+#include "../../../config.h"
 
 #include "Python.h"
 #include "Numeric/arrayobject.h"

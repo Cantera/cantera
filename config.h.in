@@ -50,7 +50,7 @@ typedef  int          ftnlen;           // Fortran hidden string length type
 // OS X, This used to add some Mac-specific directories to the default
 // data file search path.
 #undef DARWIN
-
+#undef HAS_SSTREAM
 
 //--------- Fonts for reaction path diagrams ----------------------
 #undef RXNPATH_FONT

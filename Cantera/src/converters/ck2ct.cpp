@@ -12,14 +12,7 @@
 #include <iostream>
 #include <string>
 
-// on cygwin, #include <sstream> doesn't work
-#if defined(__CYGWIN__)
-#undef USE_STRINGSTREAM
-#else
-#define USE_STRINGSTREAM
-#endif
-
-#ifdef USE_STRINGSTREAM
+#ifdef HAS_SSTREAM
 #include <sstream>
 #endif
 using namespace std;
@@ -64,7 +57,7 @@ namespace pip {
 	   * somehow. Should probably default to the USE_STRINGSTREAM
 	   * option.
 	   */
-#ifdef USE_STRINGSTREAM
+#ifdef HAS_SSTREAM
 	  /*
 	   * Read a line from the file
 	   */
