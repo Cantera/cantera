@@ -480,7 +480,7 @@ namespace Cantera {
         x[m_mm] = log(m_phase->temperature());
         if (m_thermo->temperature() > m_thermo->maxTemp() ||
             m_thermo->temperature() < m_thermo->minTemp() ) {
-            throw CanteraError("ChemEquil","initial temperature ("
+            throw CanteraError("ChemEquil","Temperature ("
                 +fp2str(m_thermo->temperature())+" K) outside "
                 "valid range of "+fp2str(m_thermo->minTemp())+" K to "
                 +fp2str(m_thermo->maxTemp())+" K\n");

@@ -80,7 +80,7 @@ int equil_example1(int job) {
         doublereal temp;
         doublereal thigh = gas.maxTemp();
         doublereal tlow = 500.0;
-        doublereal dt = (thigh - tlow)/(ntemps - 1);
+        doublereal dt = (thigh - tlow)/(ntemps);
         doublereal pres = 0.01*OneAtm;
         clock_t t0 = clock();
         for (int i = 0; i < ntemps; i++) {
