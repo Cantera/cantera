@@ -5,11 +5,11 @@ gas mixtures.
 
 """
 # for pydoc
-import solution, constants, ck2ctml
+import solution, constants
 
 from constants import *
 from Cantera.solution import Solution
-from ck2ctml import ck2ctml
+
 #import _cantera
 import os
 

@@ -114,22 +114,27 @@ namespace Cantera {
         if (m_bulk_ok) return;
         int n,m;
         // get the gaseous binary diffusion coefficients
+        //cout << "Gas binary diffusion coefficients: " << endl;
         m_gastran->getBinaryDiffCoeffs(m_nsp, m_d.begin());
         doublereal por2tort = m_porosity / m_tortuosity;
         for (n = 0; n < m_nsp; n++) 
             for (m = 0; m < m_nsp; m++) 
                 m_d(n,m) *= por2tort;
         m_bulk_ok = true;
+        //cout << m_d << endl;
     }
 
     void DustyGasTransport::updateKnudsenDiffCoeffs() {
         if (m_knudsen_ok) return;
         doublereal K_g = m_pore_radius * m_porosity / m_tortuosity;
         const doublereal FourThirds = 4.0/3.0;
+        //cout << "Knudsen diffusion coefficients: " << endl;
         for (int k = 0; k < m_nsp; k++) {
             m_dk[k] = FourThirds * K_g * sqrt((8.0 * GasConstant * m_temp)/
                 (Pi * m_mw[k]));
+            //cout << m_dk[k] << ", "; 
         }
+        //cout << endl;
         m_knudsen_ok = true;
     }
 
@@ -146,8 +151,9 @@ namespace Cantera {
 
             // evaluate diagonal term
             sum = 0.0;
-            for (j = 0; j < m_nsp; j++) sum += m_x[j]/m_d(k,j);
+            for (j = 0; j < m_nsp; j++) if (j != k) sum += m_x[j]/m_d(k,j);
             m_multidiff(k,k) = 1.0/m_dk[k] + sum;
+            //cout << "H matrix = " << endl << m_multidiff << endl;
         }
     }
 
@@ -183,12 +189,14 @@ namespace Cantera {
 
         // update the mole fractions
         updateTransport_C();
-        
-        eval_H_matrix();
-        
-        // invert H
-        int ierr = invert(m_multidiff, m_nsp);
 
+        eval_H_matrix();
+
+        // invert H
+        int ierr = invert(m_multidiff);
+
+        //cout << "Diffusion coeff matrix: " << endl;
+        //cout << m_multidiff << endl;
         if (ierr != 0) {
             throw CanteraError("DustyGasTransport::updateMultiDiffCoeffs",
                 "invert returned ierr = "+int2str(ierr));

@@ -291,7 +291,7 @@ namespace Cantera {
                 new_points = refine(loglevel);
             }
             else {
-                writelog("grid refinement disabled.\n");
+                if (loglevel > 0) writelog("grid refinement disabled.\n");
                 new_points = 0;
             }
         }

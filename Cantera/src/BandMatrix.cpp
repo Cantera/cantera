@@ -136,9 +136,9 @@ namespace Cantera {
         }
         else {
 	  m_factored = false;
-	  //ofstream fout("bandmatrix.csv");
-	  //fout << *this << endl;
-	  //fout.close();
+	  ofstream fout("bandmatrix.csv");
+	  fout << *this << endl;
+	  fout.close();
 	  //throw CanteraError("BandMatrix::factor",
 	  //    "DGBTRF returned info = "+int2str(info)+".\n"
 	  //    +"Matrix written to file bandmatrix.csv\n");
@@ -188,14 +188,14 @@ namespace Cantera {
 		    ipiv().begin(), b, columns(), info);
 
         // error handling
-        //if (info != 0) {
-        //    ofstream fout("bandmatrix.csv");
-        //    fout << *this << endl;
-        //    fout.close();
+        if (info != 0) {
+            ofstream fout("bandmatrix.csv");
+            fout << *this << endl;
+            fout.close();
         //    throw CanteraError("BandMatrix::solve",
         //        "DGBTRS returned info = "+int2str(info)+".\n"
         //        +"Matrix written to file bandmatrix.csv\n");
-        //}
+        }
 	return info;
     }
 

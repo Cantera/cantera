@@ -197,6 +197,8 @@ namespace Cantera {
         m_models["Multi"] = cMulticomponent;
         m_models["Solid"] = cSolidTransport;
         m_models["DustyGas"] = cDustyGasTransport;
+        m_models["CK_Multi"] = CK_Multicomponent;
+        m_models["CK_Mix"] = CK_MixtureAveraged;
         m_models["None"] = 0;
     }
 
@@ -246,7 +248,7 @@ namespace Cantera {
             break;
         case cDustyGasTransport:
             tr = new DustyGasTransport;
-            gastr = new MixTransport;
+            gastr = new MultiTransport;
             initTransport(gastr, phase, 0, log_level);
             dtr = (DustyGasTransport*)tr;
             dtr->initialize(phase, gastr);

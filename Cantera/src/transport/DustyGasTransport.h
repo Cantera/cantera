@@ -46,7 +46,6 @@ namespace Cantera {
 
     public:
 
-
         /// default constructor
       DustyGasTransport(thermo_t* thermo=0);
         virtual ~DustyGasTransport() {}
@@ -108,6 +107,7 @@ namespace Cantera {
             m_perm = B;
         }
 
+        Transport& gasTransport() { return *m_gastran; }
         /**
          * @internal
          */
