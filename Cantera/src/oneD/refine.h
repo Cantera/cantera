@@ -24,7 +24,7 @@ namespace Cantera {
         int analyze(int n, const doublereal* z, const doublereal* x);
         int getNewGrid(int n, const doublereal* z, int nn, doublereal* znew);
         //int getNewSoln(int n, const doublereal* x, doublereal* xnew);
-        int nNewPoints() { return m_loc.size(); }
+        int nNewPoints() { return static_cast<int>(m_loc.size()); }
         void show();
         bool newPointNeeded(int j) { 
             return m_loc.find(j) != m_loc.end();
