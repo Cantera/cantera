@@ -1,8 +1,8 @@
 import os, math, string
 from Tkinter import *
 from Cantera import *
-from Numeric import *
-import Numeric
+from Cantera.num import *
+from Cantera import num
 from tkFileDialog import askopenfilename
 from GraphFrame import Graph
 from DataGraph import DataGraph, plotLimits
@@ -295,7 +295,7 @@ class DataFrame(Frame):
                 if self.ydata[n] <= 0.0:
                     #print n, self.ydata[n]
                     self.ydata[n] = 1.0e-20
-            self.ydata = Numeric.log10(self.ydata)
+            self.ydata = num.log10(self.ydata)
             ylog = 1
 
         self.gdata = []

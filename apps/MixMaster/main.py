@@ -13,10 +13,10 @@ _app_version = '1.0'
 from Tkinter import *
 import tkMessageBox
 import sys, os, string
-from Numeric import zeros
 
 # Cantera imports
 from Cantera import *
+from Cantera.num import zeros
 import utilities
 from Cantera.gases import IdealGasMix
 

@@ -1,5 +1,5 @@
 from Cantera import GasConstant, OneAtm
-from Numeric import zeros
+from Cantera.num import zeros
 
 def spdict(phase, x):
 	nm = phase.speciesNames()
