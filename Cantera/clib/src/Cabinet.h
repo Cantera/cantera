@@ -84,7 +84,7 @@ public:
     int add(M* ptr) {
         //try {
         __table.push_back(ptr);
-        return __table.size() - 1;
+        return static_cast<int>(__table.size()) - 1;
         //}
         //catch (CanteraError) {return -1;}
         //catch (...) {return -999;}
@@ -99,7 +99,7 @@ public:
         try {
             M* old = __table[i];
             __table.push_back(new M(*old));
-            return __table.size() - 1;
+            return static_cast<int>(__table.size()) - 1;
         }
         catch (CanteraError) {return -1;}
         catch (...) {return -999;}
@@ -128,7 +128,7 @@ public:
      */
     int clear() {
         int i, n;
-        n = __table.size();
+        n = static_cast<int>(__table.size());
         for (i = 1; i < n; i++) {del(i);}
         if (_can_delete) delete __table[0];
         __table.clear();
