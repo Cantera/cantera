@@ -25,7 +25,8 @@ def writeCSV(f, list):
             f.write(item+', ')
         else:
             f.write(`item`+', ')
-        f.write('\n')
+            
+    f.write('\n')
 
 
 def table(keys, values):

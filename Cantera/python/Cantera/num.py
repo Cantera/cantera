@@ -28,3 +28,5 @@ asarray = nummodule.asarray
 transpose = nummodule.transpose
 ravel = nummodule.ravel
 shape = nummodule.shape
+ones = nummodule.ones
+log10 = nummodule.log10

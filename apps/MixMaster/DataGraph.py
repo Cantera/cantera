@@ -98,14 +98,15 @@ class DataGraph(Frame):
         for id in ids:
 	    self.canvas.delete(id)
 
+    def 
     def screendata(self):
 	    self.xdata = array(self.data[self.ix,:])
 	    self.ydata = array(self.data[self.iy,:])	    
 	    npts = len(self.ydata)
 	    if self.logscale[0] > 0:
-		    self.xdata = log10(max(1.e-20,self.xdata))
+		    self.xdata = log10(self.xdata)
 	    if self.logscale[1] > 0:
-		    self.ydata = log10(max(1.e-20,self.ydata))
+		    self.ydata = log10(self.ydata)
 	    f = float(self.graph_w)/(self.maxX-self.minX)
 	    self.xdata = (self.xdata - self.minX)*f + self.origin[0]
 	    f = float(self.graph_h)/(self.maxY-self.minY)
@@ -113,9 +114,9 @@ class DataGraph(Frame):
 	    
     def toscreen(self,x,y):
 	    if self.logscale[0] > 0:
-		    x = log10(max(1.e-20,x))
+		    x = log10(x)
 	    if self.logscale[1] > 0:
-		    y = log10(max(1.e-20,y))
+		    y = log10(y)
 	    f = float(self.graph_w)/(self.maxX-self.minX)
 	    xx = (x - self.minX)*f + self.origin[0]
 	    f = float(self.graph_h)/(self.maxY-self.minY)
