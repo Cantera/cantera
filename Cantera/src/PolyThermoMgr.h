@@ -76,6 +76,7 @@ namespace Cantera {
         virtual doublereal minTemp(int k=-1) const {return m_minTemp;}
         virtual doublereal maxTemp(int k=-1) const {return m_maxTemp;}
         virtual doublereal refPressure() const {return m_p0;}
+	virtual int reportType(int index) const { return POLYNOMIAL_4;}
 
     protected:
 

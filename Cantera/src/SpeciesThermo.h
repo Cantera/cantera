@@ -84,7 +84,9 @@ namespace Cantera {
         virtual void update_one(int k, doublereal T, 
             doublereal* cp_R, 
             doublereal* h_RT, 
-            doublereal* s_R) const {}
+            doublereal* s_R) const {
+              update(T, cp_R, h_RT, s_R);
+            }
 
         /**
          * Minimum temperature. If no argument is supplied, this
@@ -109,13 +111,25 @@ namespace Cantera {
          * for the same standard-state pressure.
          */
         virtual doublereal refPressure() const =0;
+
+	/**
+         * This utility function reports the type of parameterization
+         * used for the species, index.
+         */
+        virtual int reportType(int index) const = 0;
+
+	/**
+	 * This utility function reports back the type of 
+	 * parameterization and all of the parameters for the 
+	 * species, index.
+	 */
+	virtual void reportParams(int index, int &type, 
+				  doublereal * const c, 
+				  doublereal &minTemp, 
+				  doublereal &maxTemp, 
+				  doublereal &refPressure)=0;
     };
 }
 
 #endif
-
-
-
-
-
 

@@ -189,7 +189,10 @@ namespace Cantera {
 
         virtual void initThermo();
 
-        virtual void setParametersFromXML(const XML_Node& eosdata);
+        virtual void setParameters(int n, double *c);
+        virtual void getParameters(int &n, double * const c);
+
+	virtual void setParametersFromXML(const XML_Node& eosdata);
 
     protected:
 

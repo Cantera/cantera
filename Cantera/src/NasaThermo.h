@@ -65,7 +65,8 @@ namespace Cantera {
          * - c[8] - c[14]  coefficients for high T range
          */
         virtual void install(int index, int type, const doublereal* c, 
-            doublereal minTemp, doublereal maxTemp, doublereal refPressure) { 
+			     doublereal minTemp, doublereal maxTemp,
+			     doublereal refPressure) { 
 
             int imid = int(c[0]);       // midpoint temp converted to integer
             int igrp = m_index[imid];   // has this value been seen before?
@@ -77,6 +78,10 @@ namespace Cantera {
                 m_index[imid] = igrp = static_cast<int>(m_high.size());
                 m_ngroups++;
             }
+
+	    m_group_map[index] = igrp;
+	    m_posInGroup_map[index] = (int) m_low[igrp-1].size();
+	    
             doublereal tlow  = minTemp;
             doublereal tmid  = c[0];
             doublereal thigh = maxTemp;
@@ -92,13 +97,12 @@ namespace Cantera {
                                          pref, chigh.begin()));
             m_low[igrp-1].push_back(NasaPoly1(index, tlow, tmid, 
                                         pref, clow));
+
             if (tlow > m_tlow_max)    m_tlow_max = tlow;
             if (thigh < m_thigh_min)  m_thigh_min = thigh;
             m_tlow.push_back(tlow);
             m_thigh.push_back(thigh);
             m_p0 = pref;
-            m_high_map[index] = &m_high[igrp-1].back();
-            m_low_map[index] = &m_low[igrp-1].back();
         }
 
         /** 
@@ -114,11 +118,17 @@ namespace Cantera {
             m_t[4] = 1.0/t;
             m_t[5] = log(t);
  
-            doublereal tmid = m_low_map[k]->maxTemp();
-            if (t < tmid)
-                m_low_map[k]->updateProperties(m_t.begin(), cp_R, h_RT, s_R);
-            else
-                m_high_map[k]->updateProperties(m_t.begin(), cp_R, h_RT, s_R);
+	    int grp = m_group_map[k];
+	    int pos = m_posInGroup_map[k];
+	    const NasaPoly1 *nlow = &(m_low[grp-1].at(pos));
+
+            doublereal tmid = nlow->maxTemp();
+            if (t < tmid) {
+	      nlow->updateProperties(m_t.begin(), cp_R, h_RT, s_R);
+	    } else {
+	      const NasaPoly1 *nhigh = &(m_high[grp-1].at(pos));
+	      nhigh->updateProperties(m_t.begin(), cp_R, h_RT, s_R);
+	    }
         }
 
 
@@ -173,10 +183,53 @@ namespace Cantera {
 
         virtual doublereal refPressure() const {return m_p0;}
 
+	/**
+         * This utility function reports the type of parameterization
+         * used for the species, index.
+         */
+        virtual int reportType(int index) const { return NASA; }
+
+	/**
+	 * This utility function reports back the type of 
+	 * parameterization and all of the parameters for the 
+	 * species, index.
+	 *  For the NASA object, there are 15 coefficients.
+	 */
+	virtual void reportParams(int index, int &type, 
+				  doublereal * const c, 
+				  doublereal &minTemp, 
+				  doublereal &maxTemp, 
+				  doublereal &refPressure) {
+	    type = reportType(index);
+	    if (type == NASA) {
+	      int grp = m_group_map[index];
+	      int pos = m_posInGroup_map[index];
+	      const NasaPoly1 *lowPoly  = &(m_low[grp-1].at(pos));
+	      const NasaPoly1 *highPoly = &(m_high[grp-1].at(pos));
+
+	      doublereal tmid = lowPoly->maxTemp();
+	      c[0] = tmid;
+	      int n;
+	      double ttemp;
+	      lowPoly->reportParameters(n, minTemp, ttemp, refPressure,
+					c + 1);
+	      if (n != index) {
+		throw CanteraError("  ", "confused");
+	      }
+	      highPoly->reportParameters(n, ttemp, maxTemp, refPressure,
+					c + 8);
+	      if (n != index) {
+		throw CanteraError("  ", "confused");
+	      }
+	    } else {
+	      throw CanteraError(" ", "confused");
+	    }
+	}
+
  protected:
 
-        mutable map<int, NasaPoly1*>       m_low_map;
-        mutable map<int, NasaPoly1*>       m_high_map;
+	// mutable map<int, NasaPoly1*>       m_low_map;
+        // mutable map<int, NasaPoly1*>       m_high_map;
         vector<vector<NasaPoly1> >         m_high;
         vector<vector<NasaPoly1> >         m_low;
         map<int, int>                      m_index;
@@ -188,6 +241,9 @@ namespace Cantera {
         doublereal                         m_p0;
         int                                m_ngroups;
         mutable vector_fp                  m_t;
+
+	mutable map<int, int>              m_group_map;
+	mutable map<int, int>              m_posInGroup_map;
 
     private:
 
@@ -215,32 +271,3 @@ namespace Cantera {
 
 #endif
 
-// $Log$
-// Revision 1.6  2004-07-01 23:47:45  hkmoffa
-// static_cast to eliminate VC++ warnings.
-//
-// Revision 1.5  2004/04/24 12:53:00  dggoodwin
-// *** empty log message ***
-//
-// Revision 1.4  2004/04/23 19:03:22  dggoodwin
-// *** empty log message ***
-//
-// Revision 1.3  2004/04/22 21:44:36  dggoodwin
-// *** empty log message ***
-//
-// Revision 1.2  2003/11/01 04:50:35  dggoodwin
-// *** empty log message ***
-//
-// Revision 1.1.1.1  2003/04/14 17:57:51  dggoodwin
-// Initial import.
-//
-// Revision 1.16  2003/01/13 10:14:32  dgg
-// *** empty log message ***
-//
-//
-// Revision 1.3  2001/12/19 03:14:27  dgg
-// Added an offset to the high temperature cp constant coefficient so
-// that the high and low cp fits agree precisely at Tmid. This is
-// necessary to avoid spurious errors that can occur when integrators
-// begin at an initial temperature precisely equal to Tmid.
-//

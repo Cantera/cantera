@@ -1,5 +1,5 @@
 /**
- *
+ * $Id$
  */
 
 #ifndef CT_SIMPLETHERMO_H
@@ -57,6 +57,15 @@ namespace Cantera {
             }
         }
 
+        virtual void update_one(int k, doublereal t, doublereal* cp_R, 
+				doublereal* h_RT, doublereal* s_R) const {
+            doublereal logt = log(t);
+            doublereal rt = 1.0/t;
+	    cp_R[k] = m_cp0_R[k];
+	    h_RT[k] = rt*(m_h0_R[k] + (t - m_t0[k]) * m_cp0_R[k]);
+	    s_R[k] = m_s0_R[k] + m_cp0_R[k] * (logt - m_logt0[k]);
+        }
+
         virtual doublereal minTemp(int k=-1) const {
             if (k < 0)
                 return m_tlow_max;
@@ -72,6 +81,32 @@ namespace Cantera {
         }
 
         virtual doublereal refPressure() const {return m_p0;}
+
+	virtual int reportType(int index) const { return SIMPLE; }
+
+	/**
+	 * This utility function reports back the type of 
+	 * parameterization and all of the parameters for the 
+	 * species, index.
+	 *  For the SimpleThermo object, there are 4 coefficients.
+	 */
+	virtual void reportParams(int index, int &type, 
+				  doublereal * const c, 
+				  doublereal &minTemp, 
+				  doublereal &maxTemp, 
+				  doublereal &refPressure) {
+	    type = reportType(index);
+	    if (type == SIMPLE) {
+	      c[0] = m_t0[index];
+	      c[1] = m_h0_R[index] * GasConstant;
+	      c[2] = m_s0_R[index] * GasConstant;
+	      c[3] = m_cp0_R[index] * GasConstant;
+	      minTemp = m_tlow[index];
+	      maxTemp = m_thigh[index];
+	      refPressure = m_p0;
+	    }
+	}
+
 
  protected:
 

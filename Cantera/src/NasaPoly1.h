@@ -59,7 +59,7 @@ namespace Cantera {
             copy(coeffs, coeffs + 7, m_coeff.begin());
         }
 
-        virtual ~NasaPoly1(){}
+        ~NasaPoly1(){}
       
         doublereal minTemp() const     { return m_lowT;}
         doublereal maxTemp() const     { return m_highT;}
@@ -67,9 +67,12 @@ namespace Cantera {
       
         /**
          * Update the properties for this species. This method is called 
-         * with a pointer to an array containing the functions of temperature needed by this 
-         * parameterization, and three pointers to arrays where the computed property values
-         * should be written. This method updates only one value in each array.  
+         * with a pointer to an array containing the functions of
+	 *  temperature needed by this 
+         * parameterization, and three pointers to arrays where the
+	 *  computed property values
+         * should be written. This method updates only one value in 
+	 * each array.  
          */
         void updateProperties(const doublereal* tt, 
             doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const {
@@ -93,6 +96,18 @@ namespace Cantera {
             h_RT[m_index] = h;
             s_R[m_index] = s;
         }
+
+	void reportParameters(int &n, doublereal &tlow, doublereal &thigh,
+			      doublereal &pref,
+			      doublereal* const coeffs) const {
+	    n = m_index;
+	    tlow = m_lowT;
+	    thigh = m_highT;
+	    pref = m_Pref;
+	    for (int i = 0; i < 7; i++) {
+	      coeffs[i] = m_coeff[i];
+	    }
+	}
 
     protected:
         

@@ -519,6 +519,7 @@ namespace Cantera {
          * @param c array of \i n coefficients
          */
         virtual void setParameters(int n, doublereal* c) {}
+	virtual void getParameters(int &n, doublereal * const c) {}
         virtual void setParametersFromXML(const XML_Node& eosdata) {}
         virtual void setStateFromXML(const XML_Node& state);
 

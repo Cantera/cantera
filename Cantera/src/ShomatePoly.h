@@ -50,7 +50,7 @@ namespace Cantera {
             copy(coeffs, coeffs + 7, m_coeff.begin());
         }
 
-        virtual ~ShomatePoly(){}
+        ~ShomatePoly(){}
       
         doublereal minTemp() const { return m_lowT;}
         doublereal maxTemp() const { return m_highT;}
@@ -87,6 +87,18 @@ namespace Cantera {
             s_R[m_index] = 1.e3 * s * tt[5];
         }
 
+
+	void reportParameters(int &n, doublereal &tlow, doublereal &thigh,
+			      doublereal &pref,
+			      doublereal* const coeffs) const {
+	    n = m_index;
+	    tlow = m_lowT;
+	    thigh = m_highT;
+	    pref = m_Pref;
+	    for (int i = 0; i < 7; i++) {
+	      coeffs[i] = m_coeff[i];
+	    }
+	}
     protected:
         
         doublereal m_lowT, m_highT, m_Pref;

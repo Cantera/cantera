@@ -66,6 +66,8 @@ namespace Cantera {
                 m_index[imid] = igrp = static_cast<int>(m_high.size());
                 m_ngroups++;
             }
+	    m_group_map[index] = igrp;
+	    m_posInGroup_map[index] = (int) m_low[igrp-1].size();
             doublereal tlow  = minTemp;
             doublereal tmid  = c[0];
             doublereal thigh = maxTemp;
@@ -83,6 +85,33 @@ namespace Cantera {
             m_p0 = pref;
         }
 
+	/** 
+         * update the properties for only one species.
+         */
+        virtual void update_one(int k, doublereal t, doublereal* cp_R, 
+            doublereal* h_RT, doublereal* s_R) const {
+
+	    doublereal tt = 1.e-3*t;
+            m_t[0] = tt;
+            m_t[1] = tt*tt;
+            m_t[2] = m_t[1]*tt;
+            m_t[3] = 1.0/m_t[1];
+            m_t[4] = log(tt);
+            m_t[5] = 1.0/GasConstant;
+            m_t[6] = 1.0/(GasConstant * t);
+
+	    int grp = m_group_map[k];
+	    int pos = m_posInGroup_map[k];
+	    const ShomatePoly *nlow = &(m_low[grp-1].at(pos));
+
+            doublereal tmid = nlow->maxTemp();
+            if (t < tmid) {
+	      nlow->updateProperties(m_t.begin(), cp_R, h_RT, s_R);
+            } else {
+	      const ShomatePoly *nhigh = &(m_high[grp-1].at(pos));
+	      nhigh->updateProperties(m_t.begin(), cp_R, h_RT, s_R);
+	    }
+        }
 
         virtual void update(doublereal t, doublereal* cp_R, 
             doublereal* h_RT, doublereal* s_R) const {
@@ -129,8 +158,48 @@ namespace Cantera {
 
         virtual doublereal refPressure() const {return m_p0;}
 
+	virtual int reportType(int index) const { return SHOMATE; }
+
+	/**
+	 * This utility function reports back the type of 
+	 * parameterization and all of the parameters for the 
+	 * species, index.
+	 *  For the NASA object, there are 15 coefficients.
+	 */
+	virtual void reportParams(int index, int &type, 
+				  doublereal * const c, 
+				  doublereal &minTemp, 
+				  doublereal &maxTemp, 
+				  doublereal &refPressure) {
+	    type = reportType(index);
+	    if (type == NASA) {
+	      int grp = m_group_map[index];
+	      int pos = m_posInGroup_map[index];
+	      const ShomatePoly *lowPoly  = &(m_low[grp-1].at(pos));
+	      const ShomatePoly *highPoly = &(m_high[grp-1].at(pos));
+	      doublereal tmid = lowPoly->maxTemp();
+	      c[0] = tmid;
+	      int n;
+	      double ttemp;
+	      lowPoly->reportParameters(n, minTemp, ttemp, refPressure,
+					c + 1);
+	      if (n != index) {
+		throw CanteraError("  ", "confused");
+	      }
+	      highPoly->reportParameters(n, ttemp, maxTemp, refPressure,
+					c + 8);
+	      if (n != index) {
+		throw CanteraError("  ", "confused");
+	      }
+	    } else {
+	      throw CanteraError(" ", "confused");
+	    }
+	}
+
  protected:
 
+        //mutable map<int, ShomatePoly*>       m_low_map;
+        //mutable map<int, ShomatePoly*>       m_high_map;
         vector<vector<ShomatePoly> > m_high;
         vector<vector<ShomatePoly> > m_low;
         map<int, int>              m_index;
@@ -142,6 +211,9 @@ namespace Cantera {
         doublereal                 m_p0;
         int                        m_ngroups;
         mutable vector_fp          m_t;
+
+	mutable map<int, int>              m_group_map;
+	mutable map<int, int>              m_posInGroup_map;
     };
 
 }

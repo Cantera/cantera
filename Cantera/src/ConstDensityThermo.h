@@ -170,6 +170,12 @@ namespace Cantera {
             setDensity(c[0]);
         }
 
+        virtual void getParameters(int &n, doublereal * const c) {
+            double d = density();
+            c[0] = d;
+            n = 1;
+        }
+
         virtual void setParametersFromXML(const XML_Node& eosdata);
 
     protected:
