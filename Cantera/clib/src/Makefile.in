@@ -14,7 +14,8 @@ SUFFIXES= .cpp .d .o
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
-OBJS = ct.o Storage.o ctsurf.o ctrpath.o ctbdry.o ctreactor.o ctfunc.o ctxml.o ctonedim.o
+OBJS = ct.o Storage.o ctsurf.o ctrpath.o ctbdry.o \
+       ctreactor.o ctfunc.o ctxml.o ctonedim.o
 
 DEPENDS = $(OBJS:.o=.d)
 
@@ -33,7 +34,8 @@ EXT_LIBS = -lzeroD -loneD @LOCAL_LIBS@
 # the directory where the Cantera libraries are located
 CANTERA_LIBDIR=@buildlib@
 # ../../../lib
-LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
+LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a \
+           $(CANTERA_LIBDIR)/libzeroD.a \
            $(CANTERA_LIBDIR)/liboneD.a 
 
 # the directory where Cantera include files may be found.
@@ -55,11 +57,15 @@ CTLIB = @buildlib@/$(LIB_NAME)@SO@
 else
 CTLIB = @buildlib@/$(LIB_NAME).a
 endif
+
+all: $(CTLIB)
  
-lib: $(OBJS) $(LIB_DEPS)
+$(CTLIB): $(OBJS) $(LIB_DEPS)
 	$(RM)     $(CTLIB)
 ifeq ($(shared_ctlib),1)
-	$(CXX) -o $(CTLIB) $(OBJS) $(LCXX_FLAGS) @SHARED@ $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ $(FORT_LIBS)
+	$(CXX) -o $(CTLIB) $(OBJS) $(LCXX_FLAGS)\
+                @SHARED@ $(LINK_OPTIONS) \
+                $(EXT_LIBS) @LIBS@ $(FORT_LIBS)
 else
 	@ARCHIVE@ $(CTLIB) $(OBJS) 
 	ranlib $(CTLIB) 
