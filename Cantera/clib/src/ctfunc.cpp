@@ -59,6 +59,9 @@ extern "C" {
                         "not enough Arrhenius coefficients");
                 r = new Arrhenius1(n, params);
             }
+            else if (type == PeriodicFuncType) {
+                r = new PeriodicFunc(*_func(n), params[0]);
+            }
             else if (type == SumFuncType) {
                 r = new Func1Sum(*_func(n), *_func(m));
             }

@@ -20,14 +20,23 @@ class ReactorBase:
         2 = Reservoir).
         """
         self.__reactor_id = _cantera.reactor_new(type)
+        self._type = type
         self._inlets = []
         self._outlets = []
         self._walls = []
+        self._reservoirs = []
         self._name = name
         self._verbose = verbose
         self.insert(contents)
         self._setInitialVolume(volume)
         self._setEnergy(energy)
+        if self._verbose:
+            print 'Created '+self._name
+            print '    Volume = ',volume,' m^3'
+            if energy <> 'on':
+                print '    Temperature will be held constant'
+            print '    Initial State:'
+            print contents
 
 
     def __del__(self):
@@ -38,12 +47,14 @@ class ReactorBase:
 
     def __str__(self):
         s = self._name
+        s += ':\n     Volume = '+`self.volume()`
         if self._contents:
-            s += ": \n"+`self._contents`
+            s += "\n"+`self._contents`
         return s
     
     def __repr__(self):
         s = self._name
+        s += ':\n     Volume = '+`self.volume()`        
         if self._contents:
             s += ": \n"+`self._contents`
         return s
@@ -206,27 +217,33 @@ class ReactorBase:
         """
         return self._walls
     
-    def _addInlet(self, inlet):
+    def _addInlet(self, inlet, other):
         """For internal use. Store a reference to 'inlet'
         so that it will not be deleted before this object."""        
         self._inlets.append(inlet)
+        if self._type == 1 and other._type == 2:
+            self._reservoirs.append(other)        
 
-    def _addOutlet(self, outlet):
+    def _addOutlet(self, outlet, other):
         """For internal use. Store a reference to 'outlet'
         so that it will not be deleted before this object."""        
         self._outlets.append(outlet)
+        if self._type == 1 and other._type == 2:
+            self._reservoirs.append(other)        
 
-    def _addWall(self, wall):
+    def _addWall(self, wall, other):
         """For internal use. Store a reference to 'wall'
         so that it will not be deleted before this object."""
         self._walls.append(wall)
+        if self._type == 1 and other._type == 2:
+            self._reservoirs.append(other)
 
     def syncContents(self):
         """Set the state of the object representing the reactor contents
         to the current reactor state.
         >>> r = Reactor(gas)
         >>> (statements that change the state of object 'gas')
-        >>> r.syncContents(self)
+        >>> r.syncContents()
         After this statement, the state of object 'gas' is synchronized
         with the reactor state.
         See 'contents'.
@@ -356,6 +373,7 @@ class Reservoir(ReactorBase):
 
 
 
+
 #------------------ FlowDevice ---------------------------------
 
 class FlowDevice:
@@ -388,21 +406,9 @@ class FlowDevice:
         """
         return _cantera.flowdev_ready(self.__fdev_id)
 
-    def massFlowRate(self):
+    def massFlowRate(self, time = -999.0):
         """Mass flow rate (kg/s). """
-        return _cantera.flowdev_massFlowRate(self.__fdev_id)
-
-    def setSetpoint(self, v):
-        """
-        Deprecated. Set the set point.
-        """
-        _cantera.flowdev_setSetpoint(self.__fdev_id, v)
-
-    def setpoint(self):
-        """
-        Deprecated. The setpoint value.
-        """
-        return _cantera.flowdev_setpoint(self.__fdev_id)
+        return _cantera.flowdev_massFlowRate(self.__fdev_id, time)
 
     def install(self, upstream, downstream):
         """
@@ -413,8 +419,8 @@ class FlowDevice:
         if self._verbose:
             print
             print self._name+': installing between '+upstream.name()+' and '+downstream.name()
-        upstream._addOutlet(self)
-        downstream._addInlet(self)
+        upstream._addOutlet(self, downstream)
+        downstream._addInlet(self, upstream)
         _cantera.flowdev_install(self.__fdev_id, upstream.reactor_id(),
                                   downstream.reactor_id())
     def _setParameters(self, c):
@@ -422,7 +428,12 @@ class FlowDevice:
         n = len(params)
         return _cantera.flowdev_setParameters(self.__fdev_id, n, params)    
 
+    def setFunction(self, f):
+        _cantera.flowdev_setFunction(self.__fdev_id, f.func_id())
 
+    def flowdev_id(self):
+        return self.__fdev_id
+        
 _mfccount = 0
 
 class MassFlowController(FlowDevice):
@@ -487,14 +498,18 @@ class MassFlowController(FlowDevice):
         """
         if self._verbose:
             print self._name+': setting mdot to '+`mdot`+' kg/s'
-        self.setSetpoint(mdot)
+        if type(mdot) == types.InstanceType:
+            self.setFunction(mdot)
+        else:
+            _cantera.flowdev_setMassFlowRate(self.flowdev_id(), mdot)
+
 
     def set(self, mdot = 0.0):
         """Set the mass flow rate [kg/s].
 
         >>> mfc.set(mdot = 0.2)
         """
-        self.setSetpoint(mdot)
+        self._setMassFlowRate(mdot)
 
 
 _valvecount = 0
@@ -535,7 +550,7 @@ class Valve(FlowDevice):
     
     """
     def __init__(self, upstream=None, downstream=None,
-                 name='', Kv = 0.0, verbose=0):
+                 name='', Kv = 0.0, mdot0 = 0.0, verbose=0):
         """
         upstream - upstream reactor or reservoir.
         
@@ -559,19 +574,89 @@ class Valve(FlowDevice):
         FlowDevice.__init__(self,3,name,verbose)
         if upstream and downstream:
             self.install(upstream, downstream)
-        self.setValveCoeff(Kv)
+        self.setValveCoeff(Kv, mdot0)
 
 
-    def setValveCoeff(self, v):
+    def setValveCoeff(self, Kv, mdot0 = 0.0):
         """Set or reset the valve coefficient \f$ K_v \f$."""
-        vv = zeros(1,'d')
-        vv[0] = v
+        vv = zeros(2,'d')
+        vv[0] = Kv
+        vv[1] = mdot0
         if self._verbose:
             print
-            print self._name+': setting valve coefficient to '+`v`+' kg/Pa-s'
+            print self._name+': setting valve coefficient to '+`Kv`+' kg/Pa-s'
         self._setParameters(vv)
 
+    def _setValveCharacteristic(self, f):
+        """Set or reset the valve characteristics.
+        """
+        if type(f) == types.InstanceType:
+            self.setFunction(f)
+        else:
+            raise CanteraError("Wrong type for valve characteristic function.")
 
+    def set(self, Kv = -1.0, mdot = 0.0, F = None):
+        if F:
+            self.setFunction(F)
+        if Kv > 0.0:
+            self.setValveCoeff(Kv, mdot0 = mdot)
+            
+
+
+_pccount = 0
+
+class PressureController(FlowDevice):
+
+    def __init__(self, upstream=None, downstream=None,
+                 name='', master = None, Kv = 0.0, verbose=0):
+        """
+        upstream - upstream reactor or reservoir.
+        
+        downstream - downstream reactor or reservoir.
+        
+        name - name used to identify the valve in output.
+        If no name is specified, it defaults to 'Valve_n', where n is an
+        integer assigned in the order the Valve object
+        was created.
+
+        Kv - the constant in the mass flow rate equation.
+
+        verbose - if set to a positive integer, additional diagnostic
+        information will be printed.
+        
+        """        
+        global _pccount
+        if name == '':
+            name = 'PressureController_'+`_pccount`
+        _pccount += 1
+        FlowDevice.__init__(self,2,name,verbose)
+        if upstream and downstream:
+            self.install(upstream, downstream)
+        self.setPressureCoeff(Kv)
+        self.setMaster(master)
+
+
+    def setPressureCoeff(self, Kv):
+        """Set or reset the pressure coefficient \f$ K_v \f$."""
+        vv = zeros(1,'d')
+        vv[0] = Kv
+        if self._verbose:
+            print
+            print self._name+': setting pressure coefficient to '+`Kv`+' kg/Pa-s'
+        self._setParameters(vv)
+
+    def setMaster(self, master):
+        _cantera.flowdev_setMaster(self.flowdev_id(),
+                                   master.flowdev_id())
+            
+    def set(self, Kv = -1.0, master = None):
+        if master:
+            self.setMaster(master)
+        if Kv > 0.0:
+            self.setPressureCoeff(Kv)
+            
+
+            
 #------------- Wall ---------------------------
 
 _wallcount = 0
@@ -583,7 +668,7 @@ class Wall:
     """
     def __init__(self, left=None, right=None, name = '',
                  A = 1.0, K = 0.0, U = 0.0,
-                 Q = None, Vdot = None,
+                 Q = None, velocity = None,
                  kinetics = [None, None]):
         typ = 0
         self.__wall_id = _cantera.wall_new(typ)
@@ -601,7 +686,7 @@ class Wall:
             raise CanteraError('both left and right reactors must be specified.')
         self.setArea(A)
         self.setExpansionRateCoeff(K)
-        self.setExpansionRate(Vdot)        
+        self.setVelocity(velocity)        
         self.setHeatTransferCoeff(U)
         self.setHeatFlux(Q)
 
@@ -641,6 +726,13 @@ class Wall:
         """
         return _cantera.wall_setHeatTransferCoeff(self.__wall_id, u)
 
+    def setEmissivity(self, epsilon):
+        """
+        Set the emissivity.
+        The radiative heat flux through the wall is computed from
+        \f[ q_r = \epsion \sigma (T_\ell^4 - T_r^4) \f]
+        """
+        
     def setHeatFlux(self, qfunc=None):
         """
         Specify the time-dependent heat flux function [W/m2].
@@ -655,13 +747,13 @@ class Wall:
         resulting from a unit pressure drop."""
         _cantera.wall_setExpansionRateCoeff(self.__wall_id, k)        
         
-    def setExpansionRate(self, vfunc=None):
+    def setVelocity(self, vfunc=None):
         """
-        Specify the volumetric expansion rate function [m^3/s].
+        Specify the velocity function [m/s].
         """
         n = 0
         if vfunc: n = vfunc.func_id()
-        _cantera.wall_setExpansionRate(self.__wall_id, n)
+        _cantera.wall_setVelocity(self.__wall_id, n)
 
     def vdot(self):
         """Rate of volume change [m^3]. A positive value corresponds
@@ -676,8 +768,8 @@ class Wall:
         return _cantera.wall_Q(self.__wall_id)
     
     def install(self, left, right):
-        left._addWall(self)
-        right._addWall(self)
+        left._addWall(self, right)
+        right._addWall(self, left)
         _cantera.wall_install(self.__wall_id, left.reactor_id(),
                                right.reactor_id())
 

@@ -24,7 +24,7 @@ namespace Cantera {
     class Func1;
 
     const int MFC_Type = 1;
-    const int PressureReg_Type = 2;
+    const int PressureController_Type = 2;
     const int Valve_Type = 3;
 
     /**
@@ -43,79 +43,92 @@ namespace Cantera {
     public:
 
         /// Constructor
-        FlowDevice() : m_mdot(0.0), 
+        FlowDevice() : m_mdot(0.0), m_func(0), m_type(0),
                        m_nspin(0), m_nspout(0),
                        m_in(0), m_out(0) {}
 
         /// Destructor (does nothing)
         virtual ~FlowDevice(){}
 
-        /// Copy constructor.
-        FlowDevice(const FlowDevice& a) : m_in(a.m_in), m_out(a.m_out) {}
+ //        /// Copy constructor.
+//         FlowDevice(const FlowDevice& a) : m_in(a.m_in), m_out(a.m_out) {}
 
-        /// Assignment operator
-        FlowDevice& operator=(const FlowDevice& a) {
-            if (this == &a) return *this;
-            m_in = a.m_in;
-            m_out = a.m_out;
-            return *this;
-        }
-            
-        /**
-         * Mass flow rate (kg/s). May be overloaded in derived
-         * classes.
-         */
-        virtual doublereal massFlowRate() {return m_mdot;}
-        
-        doublereal massFlowRate(int k);
-        virtual doublereal enthalpy_mass();
+//         /// Assignment operator
+//         FlowDevice& operator=(const FlowDevice& a) {
+//             if (this == &a) return *this;
+//             m_in = a.m_in;
+//             m_out = a.m_out;
+//             return *this;
+//         }
 
-        /** 
-         * Setpoint. Default = 0.0.
-         */
-        virtual doublereal setpoint() { warn("setpoint"); return 0.0; }
-
-        /* Update the internal state, if necessary. By default this method
-         * does nothing, but may be overloaded for devices that have a
-         * state.
-         */
-        virtual void update() {warn("update");}
-
-        /* Reset the device. By default this method does nothing, but
-         * may be overloaded for devices that have a state that depends on
-         * past history.
-         */
-        virtual void reset() {warn("reset");}
+        int type() { return m_type; }
 
         /**
-         * Set the setpoint. May be changed at any time. By default, 
-         * this does nothing.
+         * Mass flow rate (kg/s).
          */
-        virtual void setSetpoint(doublereal value) {warn("setSetpoint");}
-
-        /**
-         * Set the controller gains. Returns false if the number of
-         * gains is too small, or if an illegal value is specified.
-         */
-        virtual bool setGains(int n, const doublereal* gains) {
-            warn("setGains");
-            return true;
+        doublereal massFlowRate(double time = -999.0) {
+            if (time != -999.0) updateMassFlowRate(time);
+            return m_mdot;
         }
 
-        /** 
-         * Get the controller gains. Returns false if the 'gains'
-         * array is too small.
-         */
-        virtual bool getGains(int n, doublereal* gains) {
-            warn("getGains");
-            return true;
-        }
+        // Update the mass flow rate at time 'time'. This must be 
+        // overloaded in subclassess to update m_mdot.
+        virtual void updateMassFlowRate(doublereal time) {}
 
-        /** 
-         * Maximum difference between input and setpoint since 
-         * last call to 'reset'.
-         */
-        virtual doublereal maxError() {warn("maxError"); return 0.0;}
+        // mass flow rate of outlet species k
+        doublereal outletSpeciesMassFlowRate(int k);
+
+        // specific enthalpy
+        doublereal enthalpy_mass();
+
+//         /** 
+//          * Setpoint. Default = 0.0.
+//          */
+//         virtual doublereal setpoint() { warn("setpoint"); return 0.0; }
+
+
+//         /* Update the internal state, if necessary. By default this method
+//          * does nothing, but may be overloaded for devices that have a
+//          * state.
+//          */
+//         virtual void update() {warn("update");}
+
+
+//         /* Reset the device. By default this method does nothing, but
+//          * may be overloaded for devices that have a state that depends on
+//          * past history.
+//          */
+//         virtual void reset() {warn("reset");}
+
+//         /**
+//          * Set the setpoint. May be changed at any time. By default, 
+//          * this does nothing.
+//          */
+//         virtual void setSetpoint(doublereal value) {warn("setSetpoint");}
+
+//         /**
+//          * Set the controller gains. Returns false if the number of
+//          * gains is too small, or if an illegal value is specified.
+//          */
+//         virtual bool setGains(int n, const doublereal* gains) {
+//             warn("setGains");
+//             return true;
+//         }
+
+//         /** 
+//          * Get the controller gains. Returns false if the 'gains'
+//          * array is too small.
+//          */
+//         virtual bool getGains(int n, doublereal* gains) {
+//             warn("getGains");
+//             return true;
+//         }
+
+//         /** 
+//          * Maximum difference between input and setpoint since 
+//          * last call to 'reset'.
+//          */
+//         virtual doublereal maxError() {warn("maxError"); return 0.0;}
 
         /**
          * Install a flow device between two reactors.
@@ -125,7 +138,6 @@ namespace Cantera {
         bool install(ReactorBase& in, ReactorBase& out);
 
         virtual bool ready() { return (m_in != 0 && m_out != 0); }
-        doublereal m_mdot;
 
         /// Return a reference to the upstream reactor.
         ReactorBase& in() const { return *m_in; }
@@ -139,11 +151,16 @@ namespace Cantera {
             copy(coeffs, coeffs + n, m_coeffs.begin());
         }
 
-        virtual void setFunction(Func1* f);
+        void setFunction(Func1* f);
+        void setMassFlowRate(doublereal mdot) {m_mdot = mdot;}
+
 
     protected:
 
+        doublereal m_mdot;
+        Func1* m_func;
         vector_fp m_coeffs;
+        int m_type;
 
     private:
 

@@ -1,5 +1,6 @@
 #
-# see http://reaflow.iwr.uni-heidelberg.de/~Olaf.Deutschmann/ for more about this mechanism
+# see http://reaflow.iwr.uni-heidelberg.de/~Olaf.Deutschmann/ for 
+# more about this mechanism
 #
 #---------------------------------------------------------------------!
 #***********************************************************************
@@ -28,9 +29,17 @@
 
 units(length = "cm", time = "s", quantity = "mol", act_energy = "J/mol")
 
+
+#
+# Define a gas mixture with species imported from GRI-Mech.
+# Reactions will be imported from GRI-Mech 3.0, as long as they
+# don't involve species not declared here. Transport properties
+# will be computed using a mixture-averaged model.
+# 
 ideal_gas(name = "gas",
          elements = "O H C N Ar",
-         species = """gri30: H2      H       O       O2      OH      H2O     HO2     H2O2 
+         species = """gri30: H2      H       O       O2      OH      
+                             H2O     HO2     H2O2 
          C       CH      CH2     CH2(S)  CH3     CH4     CO      CO2     
          HCO     CH2O    CH2OH   CH3O    CH3OH   C2H     C2H2    C2H3    
          C2H4    C2H5    C2H6    HCCO    CH2CO   HCCOH AR N2""",
@@ -55,12 +64,12 @@ ideal_interface(name = "Pt_surf",
                                       coverages = 'O(S):0.0, PT(S):0.5, H(S):0.5')
                 )
 
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 #  Species data
 #
 # Note that reactions 12-14 are reversible, and therefore require thermo
 # data
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 species(name = "PT(S)",
     atoms = " Pt:1 ",
@@ -202,22 +211,23 @@ species(name = "O(S)",
 
 #  Reaction 1
 surface_reaction("H2 + 2 PT(S) => 2 H(S)", [4.45790E+10, 0.5, 0], 
-		  order = "PT(S):1")
+                 order = "PT(S):1")
 
 #  Reaction 2
 surface_reaction( "2 H(S) => H2 + 2 PT(S)",   
-		  Arrhenius(3.70000E+21, 0, 67400, coverage = ['H(S)', 0.0, 0.0, -6000.0]))
+		  Arrhenius(3.70000E+21, 0, 67400,
+                            coverage = ['H(S)', 0.0, 0.0, -6000.0]))
 
 #  Reaction 3
 surface_reaction( "H + PT(S) => H(S)",   stick(1.00000E+00, 0, 0))
 
 #  Reaction 4
 surface_reaction( "O2 + 2 PT(S) => 2 O(S)",   Arrhenius(1.80000E+21, -0.5, 0),
-         options = 'duplicate')
+                  options = 'duplicate')
 
 #  Reaction 5
 surface_reaction( "O2 + 2 PT(S) => 2 O(S)",   stick(2.30000E-02, 0, 0),
-         options = 'duplicate')
+                  options = 'duplicate')
 
 #  Reaction 6
 surface_reaction( "2 O(S) => O2 + 2 PT(S)",   
@@ -266,7 +276,8 @@ surface_reaction( "CH4 + 2 PT(S) => CH3(S) + H(S)",   [4.63340E+20, 0.5, 0],
 		  order = "PT(S):2.3")
 
 #  Reaction 20
-surface_reaction( "CH3(S) + PT(S) => CH2(S)s + H(S)",   [3.70000E+21, 0, 20000])
+surface_reaction( "CH3(S) + PT(S) => CH2(S)s + H(S)",
+                  [3.70000E+21, 0, 20000])
 
 #  Reaction 21
 surface_reaction( "CH2(S)s + PT(S) => CH(S) + H(S)",   [3.70000E+21, 0, 20000])

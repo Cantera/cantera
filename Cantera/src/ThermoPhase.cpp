@@ -115,13 +115,15 @@ namespace Cantera {
         for (int n = 0; n < 50; n++) {
             dt = (u - intEnergy_mass())/cv_mass();
             if (dt > 100.0) dt = 100.0;
-            else if (dt < -100.0) dt = -100.0; 
+            else if (dt < -100.0) dt = -100.0;
             setTemperature(temperature() + dt);
             if (fabs(dt) < tol) {
                 return;
             }
         }
-        throw CanteraError("setState_UV","no convergence. dt = " + fp2str(dt));
+        throw CanteraError("setState_UV",
+            "no convergence. dt = " + fp2str(dt)+"\n"
+            +"u = "+fp2str(u)+" v = "+fp2str(v)+"\n");
     }
 
     void ThermoPhase::setState_SP(doublereal s, doublereal p, 

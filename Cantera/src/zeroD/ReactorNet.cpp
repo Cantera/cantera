@@ -4,7 +4,8 @@
 namespace Cantera {
 
     ReactorNet::ReactorNet() : FuncEval(), m_nr(0), m_nreactors(0),
-                               m_integ(0), m_init(false), m_nv(0), m_rtol(1.0e-6),
+                               m_integ(0), m_init(false), 
+                               m_nv(0), m_rtol(1.0e-6),
                                m_verbose(false)
     {
         m_integ = new CVodeInt;
@@ -23,6 +24,9 @@ namespace Cantera {
         m_nv = 0;
         m_reactors.clear();
         m_nreactors = 0;
+        if (m_verbose) {
+            writelog("Initializing reactor network.\n");
+        }
         for (n = 0; n < m_nr; n++) {
             if (m_r[n]->type() == ReactorType) {
                 m_r[n]->initialize(t0);
@@ -54,7 +58,7 @@ namespace Cantera {
 
     void ReactorNet::advance(doublereal time) {
         if (!m_init) {
-            m_maxstep = time;
+            m_maxstep = time - m_time;
             initialize();
         }
         m_integ->integrate(time);
@@ -64,7 +68,7 @@ namespace Cantera {
 
     double ReactorNet::step(doublereal time) {
         if (!m_init) {
-            m_maxstep = time;
+            m_maxstep = time - m_time;
             initialize();
         }
         m_time = m_integ->step(time);
@@ -75,10 +79,15 @@ namespace Cantera {
     void ReactorNet::eval(doublereal t, doublereal* y, doublereal* ydot) {
         int n;
         int start = 0;
-        updateState(y);
-        for (n = 0; n < m_nreactors; n++) {
-            m_reactors[n]->evalEqs(t, y + start, ydot + start);
-            start += m_size[n];
+        try {
+            updateState(y);
+            for (n = 0; n < m_nreactors; n++) {
+                m_reactors[n]->evalEqs(t, y + start, ydot + start);
+                start += m_size[n];
+            }
+        }
+        catch (CanteraError) {
+            showErrors(cout);
         }
     }
 

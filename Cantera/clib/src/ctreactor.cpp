@@ -94,10 +94,10 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT reactor_setInitialTime(int i, double t) {
-        _reactor(i)->setInitialTime(t);
-        return 0;
-    }
+    //int DLL_EXPORT reactor_setInitialTime(int i, double t) {
+    //    _reactor(i)->setInitialTime(t);
+    //    return 0;
+    //}
 
     int DLL_EXPORT reactor_setThermoMgr(int i, int n) {
         _reactor(i)->setThermoMgr(*_th(n));
@@ -111,17 +111,17 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT reactor_advance(int i, double t) {
-        try {
-            _reactor(i)->advance(t);
-            return 0;
-        }
-        catch (CanteraError) {return -1;}
-    }
+    //int DLL_EXPORT reactor_advance(int i, double t) {
+    //    try {
+    //        _reactor(i)->advance(t);
+    //        return 0;
+    //    }
+    //    catch (CanteraError) {return -1;}
+    //}
 
-    double DLL_EXPORT reactor_step(int i, double t) {
-        return _reactor(i)->step(t);
-    }
+    //    double DLL_EXPORT reactor_step(int i, double t) {
+    //    return _reactor(i)->step(t);
+    //}
 
     double DLL_EXPORT reactor_time(int i) {
         return _reactor(i)->time();
@@ -165,48 +165,6 @@ extern "C" {
         return 0;
     }
 
-//     int DLL_EXPORT reactor_setArea(int i, double a) {
-//         reactor_t* r = _reactor(i);
-//         if (r->type() == ReactorType) ((Reactor*)r)->setArea(a);
-//         return 0;
-//     }
-
-//     int DLL_EXPORT reactor_setExtTemp(int i, double t) {
-//         reactor_t* r = _reactor(i);
-//         if (r->type() == ReactorType) ((Reactor*)r)->setExtTemp(t);
-//         return 0;
-//     }
-
-//     int DLL_EXPORT reactor_setExtRadTemp(int i, double t) {
-//         reactor_t* r = _reactor(i);
-//         if (r->type() == ReactorType) ((Reactor*)r)->setExtRadTemp(t);
-//         return 0;
-//     }
-
-//     int DLL_EXPORT reactor_setVDotCoeff(int i, double v) {
-//         reactor_t* r = _reactor(i);
-//         if (r->type() == ReactorType) ((Reactor*)r)->setVDotCoeff(v);
-//         return 0;
-//     }
-
-//     int DLL_EXPORT reactor_setHeatTransferCoeff(int i, double h) {
-//         reactor_t* r = _reactor(i);
-//         if (r->type() == ReactorType) ((Reactor*)r)->setHeatTransferCoeff(h);
-//         return 0;
-//     }
-
-//     int DLL_EXPORT reactor_setEmissivity(int i, double eps) {
-//         reactor_t* r = _reactor(i);
-//         if (r->type() == ReactorType) ((Reactor*)r)->setEmissivity(eps);
-//         return 0;
-//     }
-
-//     int DLL_EXPORT reactor_setExtPressure(int i, double p) {
-//         reactor_t* r = _reactor(i);
-//         if (r->type() == ReactorType) ((Reactor*)r)->setExtPressure(p);
-//         return 0;
-//     }
-
 
     // reactor networks
 
@@ -248,11 +206,16 @@ extern "C" {
             _reactornet(i)->advance(t);
             return 0;
         }
-        catch (CanteraError) {return -1;}
+        catch (...) {return -1;}
     }
 
     double DLL_EXPORT reactornet_step(int i, double t) {
-        return _reactornet(i)->step(t);
+        try {
+            return _reactornet(i)->step(t);
+        }
+        catch (...) {
+            return DERR;
+        }
     }
 
 
@@ -263,8 +226,8 @@ extern "C" {
         switch (type) {
         case MFC_Type:
             r = new MassFlowController(); break;
-        case PressureReg_Type:
-            r = new PressureRegulator(); break;
+        case PressureController_Type:
+            r = new PressureController(); break;
         case Valve_Type:
             r = new Valve(); break;
         default:
@@ -278,14 +241,6 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT flowdev_copy(int i) {
-        return Cabinet<flowdev_t>::cabinet()->newCopy(i);
-    }
-
-    int DLL_EXPORT flowdev_assign(int i, int j) {
-        return Cabinet<flowdev_t>::cabinet()->assign(i,j);
-    }
-
     int DLL_EXPORT flowdev_install(int i, int n, int m) {
         try {
             bool ok = _flowdev(i)->install(*_reactor(n), *_reactor(m) );
@@ -297,26 +252,19 @@ extern "C" {
         }
     }
 
-    double DLL_EXPORT flowdev_massFlowRate(int i) {
-        return _flowdev(i)->massFlowRate();
-    }
-
-    double DLL_EXPORT flowdev_setpoint(int i) {
-        return _flowdev(i)->setpoint();
-    }
-
-    int DLL_EXPORT flowdev_setSetpoint(int i, double v) {
-        _flowdev(i)->setSetpoint(v);
+    int DLL_EXPORT flowdev_setMaster(int i, int n) {
+        if (_flowdev(i)->type() == PressureController_Type) {
+            ((PressureController*)_flowdev(i))->setMaster(_flowdev(n));
+        }
         return 0;
     }
 
-    int DLL_EXPORT flowdev_setGains(int i, int n, double* gains) {
-        _flowdev(i)->setGains(n, gains);
-        return 0;
+    double DLL_EXPORT flowdev_massFlowRate(int i, double time) {
+        return _flowdev(i)->massFlowRate(time);
     }
 
-    int DLL_EXPORT flowdev_getGains(int i, int n, double* gains) {
-        _flowdev(i)->getGains(n, gains);
+    int DLL_EXPORT flowdev_setMassFlowRate(int i, double mdot) {
+        _flowdev(i)->setMassFlowRate(mdot);
         return 0;
     }
 
@@ -329,20 +277,6 @@ extern "C" {
         _flowdev(i)->setFunction(_func(n));
         return 0;
     }
-
-    int DLL_EXPORT flowdev_reset(int i) {
-        _flowdev(i)->reset();
-        return 0;
-    }
-
-    int DLL_EXPORT flowdev_update(int i) {
-        _flowdev(i)->update();
-        return 0;
-    }
-
-    double DLL_EXPORT flowdev_maxError(int i) {
-        return _flowdev(i)->maxError();
-    }    
 
     int DLL_EXPORT flowdev_ready(int i) {
         bool ok = _flowdev(i)->ready();
@@ -427,8 +361,13 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT wall_setExpansionRate(int i, int n) {
-        _wall(i)->setExpansionRate(_func(n));
+    int DLL_EXPORT wall_setVelocity(int i, int n) {
+        _wall(i)->setVelocity(_func(n));
+        return 0;
+    }
+
+    int DLL_EXPORT wall_setEmissivity(int i, double epsilon) {
+        _wall(i)->setEmissivity(epsilon);
         return 0;
     }
 

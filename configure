@@ -183,7 +183,7 @@ LAPACK_FTN_STRING_LEN_AT_END='y'
 CXX=${CXX:=g++}
 
 # C++ compiler flags
-CXXFLAGS=${CXXFLAGS:="-O0 -g -Wall"}
+CXXFLAGS=${CXXFLAGS:="-O0 -Wall"}
 
 # the C++ flags required for linking
 #LCXX_FLAGS=

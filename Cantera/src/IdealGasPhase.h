@@ -228,6 +228,14 @@ namespace Cantera {
         }
 
 
+        virtual doublereal isothermalCompressibility() {
+            return -1.0/pressure();
+        }
+
+        virtual doublereal thermalExpansionCoeff() {
+            return 1.0/temperature();
+        }
+
         // new methods defined here
 
         const array_fp& enthalpy_RT() const {

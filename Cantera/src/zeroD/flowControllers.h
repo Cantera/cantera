@@ -21,141 +21,107 @@
 
 #include "FlowDevice.h"
 #include "ReactorBase.h"
-#include "PID_Controller.h"
+//#include "PID_Controller.h"
 #include "../Func1.h"
 
 namespace Cantera {
 
 
-    ///////////////////////////////////////////////////////////////
-
-
-    /** 
-     * A base class for devices that do not use closed-loop control.
-     * This is defined only for convenience, in order to overload
-     * virtual methods of FlowDevice that print warnings with ones
-     * that do nothing.
-     */
-    class NoController : public FlowDevice {
-    public:
-
-        NoController() {}
-        virtual ~NoController() {}
-
-        NoController(const NoController& a) 
-            : FlowDevice(a) {}
-
-        NoController& operator=(const NoController& a) {
-            return *this;
-        }
-
-        // unneeded methods 
-        virtual void update() {}
-        virtual void reset() {}
-        virtual bool setGains(int n, const doublereal* gains) {return true;}
-        virtual bool getGains(int n, doublereal* gains) {return true;}
-        virtual doublereal maxError() { return 0.0; }
-        virtual doublereal setpoint() { return 0.0; }
-        virtual void setSetpoint(doublereal mdot) { }
-        virtual bool ready() {
-            return FlowDevice::ready();
-        }
-
-    protected:
-    private:
-    };
-
-
-    //////////////////////////////////////////////////////////
-
-
     /**
      * A class for mass flow controllers. The mass flow rate is constant,
      * independent of any other parameters.
      */
-    class MassFlowController : public NoController {
+    class MassFlowController : public FlowDevice {
     public:
 
-        MassFlowController() {}
-        virtual ~MassFlowController() {}
-
-        MassFlowController(const MassFlowController& a) 
-            : NoController(a) {}
-
-        MassFlowController& operator=(const MassFlowController& a) {
-            if (this == &a) return *this;
-            m_mdot = a.m_mdot;
-            return *this;
+        MassFlowController() : FlowDevice() {
+            m_type = MFC_Type;
         }
 
-        virtual doublereal setpoint() { return m_mdot; }
-        virtual void setSetpoint(doublereal mdot) { m_mdot = mdot; }
+        virtual ~MassFlowController() {}
+
         virtual bool ready() {
             return FlowDevice::ready() && m_mdot >= 0.0;
         }
 
-    protected:
-    private:
-    };
-
-
-    class UserValve : public NoController {
-    public:
-
-        UserValve() : m_func(0) {}
-        virtual ~UserValve() {}
-
-        UserValve(const UserValve& a) : NoController(a) {}
-
-        UserValve& operator=(const UserValve& a) {
-            if (this == &a) return *this;
-            m_func = a.m_func;
-            return *this;
-        }
-
-        virtual bool ready() {
-            return FlowDevice::ready() && m_func != 0;
-        }
-
-        virtual void setFunction(Func1* f) { m_func = f; }
-
-        virtual doublereal massFlowRate() {
-            return m_func->eval(in().pressure() - out().pressure());
+        /// If a function of time has been specified for
+        /// mdot, then update the stored mass flow rate.
+        /// Otherwise, mdot is a constant, and does not need
+        /// updating.
+        virtual void updateMassFlowRate(doublereal time) {
+            if (m_func) m_mdot = m_func->eval(time);
+            if (m_mdot < 0.0) m_mdot = 0.0;
         }
 
     protected:
-        Func1* m_func;
 
     private:
     };
-
 
     /**
      * A class for mass flow controllers. The mass flow rate is constant,
      * independent of any other parameters.
      */
-    class Valve : public NoController {
+    class PressureController : public FlowDevice {
     public:
 
-        Valve() {}
-        virtual ~Valve() {}
-
-        Valve(const Valve& a) : NoController(a) {}
-
-        Valve& operator=(const Valve& a) {
-            if (this == &a) return *this;
-            m_mdot = a.m_mdot;
-            return *this;
+        PressureController() : FlowDevice(), m_master(0) {
+            m_type = PressureController_Type;
         }
+
+        virtual ~PressureController() {}
+
+        virtual bool ready() {
+            return FlowDevice::ready() && m_master != 0;
+        }
+
+        void setMaster(FlowDevice* master) {
+            m_master = master;
+        }
+
+        virtual void updateMassFlowRate(doublereal time) {
+            doublereal master_mdot = m_master->massFlowRate(time);
+            m_mdot = master_mdot + m_coeffs[0]*(in().pressure() - 
+                out().pressure());
+            if (m_mdot < 0.0) m_mdot = 0.0;
+        }
+
+    protected:
+        FlowDevice* m_master;
+
+    private:
+    };
+
+
+    /// Valve objects supply a mass flow rate that is a function of the
+    /// pressure drop across the valve. The default behavior is a linearly
+    /// proportional to the pressure difference. Note that
+    /// real valves do not have this behavior, so this class
+    /// does not model real, physical valves.
+    class Valve : public FlowDevice {
+    public:
+
+        Valve() : FlowDevice() {
+            m_type = Valve_Type;
+        }
+
+        virtual ~Valve() {}
 
         virtual bool ready() {
             return FlowDevice::ready() && m_coeffs.size() >= 1;
         }
 
-        virtual doublereal massFlowRate() {
-            m_mdot = m_coeffs[0]* (in().pressure() - out().pressure());
+        /// Compute the currrent mass flow rate, based on
+        /// the pressure difference.
+        virtual void updateMassFlowRate(doublereal time) {
+            double delta_P = in().pressure() - out().pressure();
+            if (m_func) {
+                m_mdot = m_func->eval(delta_P);
+            }
+            else {
+                m_mdot = m_coeffs[0]*delta_P;
+            }
             if (m_mdot < 0.0) m_mdot = 0.0;
-            return m_mdot;
         }
 
     protected:
@@ -163,57 +129,6 @@ namespace Cantera {
     private:
     };
 
-
-
-    /**
-     * A PressureRegulator is a device that controls the pressure 
-     * of the upstream reactor by regulating the mass flow rate.
-     */ 
-    class PressureRegulator : public FlowDevice  {
-
-    public:
-
-        PressureRegulator() {}
-        virtual ~PressureRegulator() {}
-        PressureRegulator(const PressureRegulator& p) : m_pid(p.m_pid) {}
-        PressureRegulator& operator=(const PressureRegulator& p) {
-            if (this == &p) return *this;
-            m_pid = p.m_pid;
-            return *this;
-        }
-
-        // overloaded virtual methods
-        virtual void setSetpoint(doublereal p0) { m_pid.setpoint(-p0); }
-        virtual doublereal setpoint() { return -m_pid.setpoint(); }
-        virtual bool ready() { 
-            return FlowDevice::ready() && m_pid.ready(); }
-        virtual void reset() {
-            m_pid.reset(in().time()-1.e-12, -in().pressure());
-        }
-        virtual void update() {
-            m_pid.update(in().time(), -in().pressure());
-        }
-
-        virtual bool setGains(int n, const doublereal* gains) {
-            return m_pid.setGains(n, gains);
-        }
-
-        virtual bool getGains(int n, doublereal* gains) {
-            return m_pid.getGains(n, gains);
-        }
-
-        virtual doublereal maxError() { return m_pid.maxError(); }
-
-        virtual doublereal massFlowRate() {
-            m_mdot =  m_pid.output(-in().pressure());
-            return m_mdot;
-        }
-
-    protected:
-
-    private:
-        PID_Controller m_pid;
-    };
 }
 #endif
 

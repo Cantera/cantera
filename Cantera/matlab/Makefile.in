@@ -18,6 +18,7 @@ SRCS = cantera/private/ctmethods.cpp \
        cantera/private/kineticsmethods.cpp \
        cantera/private/transportmethods.cpp \
        cantera/private/reactormethods.cpp \
+       cantera/private/reactornetmethods.cpp \
        cantera/private/wallmethods.cpp \
        cantera/private/flowdevicemethods.cpp \
        cantera/private/onedimmethods.cpp \
@@ -60,6 +61,7 @@ install:
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Solution
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@XML_Node/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Reactor/private
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@ReactorNet/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Wall/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@FlowDevice/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Func/private
@@ -94,6 +96,10 @@ install:
             @prefix@/matlab/toolbox/cantera/cantera/@Reactor
 	cd cantera/@Reactor/private; @INSTALL@ *.m \
             @prefix@/matlab/toolbox/cantera/cantera/@Reactor/private
+	cd cantera/@ReactorNet; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@ReactorNet
+	cd cantera/@ReactorNet/private; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@ReactorNet/private
 	cd cantera/@Wall; @INSTALL@ *.m \
             @prefix@/matlab/toolbox/cantera/cantera/@Wall
 	cd cantera/@Wall/private; @INSTALL@ *.m \

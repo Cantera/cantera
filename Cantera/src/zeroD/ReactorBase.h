@@ -134,6 +134,8 @@ namespace Cantera {
         doublereal mass() const { return m_vol * density(); }
         const doublereal* massFractions() const { return m_state.begin() + 2; }
         doublereal massFraction(int k) const { return m_state[k+2]; }
+        doublereal compressibility() const { return m_kappa; }
+
         //@}
 
         int error(string msg) const {
@@ -142,7 +144,7 @@ namespace Cantera {
         }
 
     protected:
-
+ 
         int m_nsp;
         thermo_t* m_mix;
         thermo_t*  m_thermo;
@@ -160,7 +162,9 @@ namespace Cantera {
         vector_int m_lr;
         int m_nwalls;
         string m_name;
-        
+        double m_rho0;
+        double m_kappa;
+
     private:
 
         void tilt(string method="") const { 

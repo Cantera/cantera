@@ -86,11 +86,7 @@ namespace Cantera {
             vector_fp chigh(7);
             copy(c + 8, c + 15, chigh.begin());
 
-            // Make cp exactly continuous at tmid by offsetting the
-            // high temp fit.
-            doublereal cplow = poly4(tmid, clow+2);
-            doublereal cphigh = poly4(tmid, chigh.begin()+2);
-            chigh[0] += (cplow - cphigh);
+            checkContinuity(tmid, clow, chigh.begin());
 
             m_high[igrp-1].push_back(NasaPoly1(index, tmid, thigh, 
                                          pref, chigh.begin()));
@@ -104,7 +100,6 @@ namespace Cantera {
             m_high_map[index] = &m_high[igrp-1].back();
             m_low_map[index] = &m_low[igrp-1].back();
         }
-
 
         /** 
          * update the properties for only one species.
@@ -193,6 +188,52 @@ namespace Cantera {
         doublereal                         m_p0;
         int                                m_ngroups;
         mutable vector_fp                  m_t;
+
+    private:
+
+
+        /// Check the continuity of properties at the midpoint
+        /// temperature, and adjust the high-T coefficients to
+        /// make the properties exactly continuous at Tmid.
+        void checkContinuity(double tmid, const doublereal* clow,
+            doublereal* chigh) {
+
+            // heat capacity
+            doublereal cplow = poly4(tmid, clow+2);
+            doublereal cphigh = poly4(tmid, chigh+2);
+            doublereal delta = cplow - cphigh;
+            if (fabs(delta/cplow) > 0.001) {
+                writelog("WARNING: discontinuity in cp/R detected at Tmid = "
+                    +fp2str(tmid)+"\n");
+                writelog("  Adjusting high-temperature coefficient to fix.\n");
+            }
+            chigh[2] += cplow - cphigh;
+
+            // enthalpy
+            doublereal hrtlow = enthalpy_RT(tmid, clow);
+            doublereal hrthigh = enthalpy_RT(tmid, chigh);
+            chigh[0] += tmid*(hrtlow - hrthigh);
+
+            // entropy
+            doublereal srlow = entropy_R(tmid, clow);
+            doublereal srhigh = entropy_R(tmid, chigh);
+            chigh[1] += srlow - srhigh;
+        }
+
+        /// for internal use by checkContinuity
+        doublereal enthalpy_RT(double t, const doublereal* c) {
+            return c[2] + 0.5*c[3]*t + OneThird*c[4]*t*t 
+                + 0.25*c[5]*t*t*t + 0.2*c[6]*t*t*t*t
+                + c[0]/t;
+        }
+
+        /// for internal use by checkContinuity
+        doublereal entropy_R(double t, const doublereal* c) {
+            return c[2]*log(t) + c[3]*t + 0.5*c[4]*t*t 
+                + OneThird*c[5]*t*t*t + 0.25*c[6]*t*t*t*t
+                + c[1];
+        }
+
     };
 
 }
@@ -200,7 +241,10 @@ namespace Cantera {
 #endif
 
 // $Log$
-// Revision 1.2  2003-11-01 04:50:35  dggoodwin
+// Revision 1.3  2004-04-22 21:44:36  dggoodwin
+// *** empty log message ***
+//
+// Revision 1.2  2003/11/01 04:50:35  dggoodwin
 // *** empty log message ***
 //
 // Revision 1.1.1.1  2003/04/14 17:57:51  dggoodwin

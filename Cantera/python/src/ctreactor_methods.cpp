@@ -32,17 +32,17 @@ py_reactor_setInitialVolume(PyObject *self, PyObject *args)
     return Py_BuildValue("i",0);
 }
 
-static PyObject*
-py_reactor_setInitialTime(PyObject *self, PyObject *args)
-{
-    int n;
-    double t;
-    if (!PyArg_ParseTuple(args, "id:reactor_setInitialTime", &n, &t))
-        return NULL;
-    int iok = reactor_setInitialTime(n, t);
-    if (iok < 0) return reportError(iok);
-    return Py_BuildValue("i",0);
-}
+// static PyObject*
+// py_reactor_setInitialTime(PyObject *self, PyObject *args)
+// {
+//     int n;
+//     double t;
+//     if (!PyArg_ParseTuple(args, "id:reactor_setInitialTime", &n, &t))
+//         return NULL;
+//     int iok = reactor_setInitialTime(n, t);
+//     if (iok < 0) return reportError(iok);
+//     return Py_BuildValue("i",0);
+// }
 
 static PyObject*
 py_reactor_setEnergy(PyObject *self, PyObject *args)
@@ -79,27 +79,27 @@ py_reactor_setKineticsMgr(PyObject *self, PyObject *args)
     return Py_BuildValue("i",0);
 }
 
-static PyObject*
-py_reactor_advance(PyObject *self, PyObject *args)
-{
-    int n;
-    double t;
-    if (!PyArg_ParseTuple(args, "id:reactor_advance", &n, &t))
-        return NULL;
-    int iok = reactor_advance(n, t);
-    if (iok < 0) return reportError(iok);
-    return Py_BuildValue("i",0);
-}
+// static PyObject*
+// py_reactor_advance(PyObject *self, PyObject *args)
+// {
+//     int n;
+//     double t;
+//     if (!PyArg_ParseTuple(args, "id:reactor_advance", &n, &t))
+//         return NULL;
+//     int iok = reactor_advance(n, t);
+//     if (iok < 0) return reportError(iok);
+//     return Py_BuildValue("i",0);
+// }
 
-static PyObject*
-py_reactor_step(PyObject *self, PyObject *args)
-{
-    int n;
-    double t;
-    if (!PyArg_ParseTuple(args, "id:reactor_step", &n, &t))
-        return NULL;
-    return Py_BuildValue("d",reactor_step(n, t));
-}
+// static PyObject*
+// py_reactor_step(PyObject *self, PyObject *args)
+// {
+//     int n;
+//     double t;
+//     if (!PyArg_ParseTuple(args, "id:reactor_step", &n, &t))
+//         return NULL;
+//     return Py_BuildValue("d",reactor_step(n, t));
+// }
 
 static PyObject*
 py_reactor_time(PyObject *self, PyObject *args)
@@ -225,33 +225,45 @@ py_flowdev_install(PyObject *self, PyObject *args)
 }
 
 static PyObject*
+py_flowdev_setMaster(PyObject *self, PyObject *args)
+{
+    int n, m;
+    if (!PyArg_ParseTuple(args, "ii:flowdev_setMaster", &n, &m))
+        return NULL;
+    int iok = flowdev_setMaster(n, m);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
 py_flowdev_massFlowRate(PyObject *self, PyObject *args)
 {
     int n;
-    if (!PyArg_ParseTuple(args, "i:flowdev_massFlowRate", &n))
+    double t;
+    if (!PyArg_ParseTuple(args, "id:flowdev_massFlowRate", &n, &t))
         return NULL;
-    double mdot = flowdev_massFlowRate(n);
+    double mdot = flowdev_massFlowRate(n, t);
     return Py_BuildValue("d",mdot);
 }
 
-static PyObject*
-py_flowdev_setpoint(PyObject *self, PyObject *args)
-{
-    int n;
-    if (!PyArg_ParseTuple(args, "i:flowdev_setpoint", &n))
-        return NULL;
-    double v = flowdev_setpoint(n);
-    return Py_BuildValue("d",v);
-}
+// static PyObject*
+// py_flowdev_setpoint(PyObject *self, PyObject *args)
+// {
+//     int n;
+//     if (!PyArg_ParseTuple(args, "i:flowdev_setpoint", &n))
+//         return NULL;
+//     double v = flowdev_setpoint(n);
+//     return Py_BuildValue("d",v);
+// }
 
 static PyObject*
-py_flowdev_setSetpoint(PyObject *self, PyObject *args)
+py_flowdev_setMassFlowRate(PyObject *self, PyObject *args)
 {
     int n;
-    double v;
-    if (!PyArg_ParseTuple(args, "id:flowdev_setSetpoint", &n, &v))
+    double mdot;
+    if (!PyArg_ParseTuple(args, "id:flowdev_setMassFlowRate", &n, &mdot))
         return NULL;
-    int iok = flowdev_setSetpoint(n, v);
+    int iok = flowdev_setMassFlowRate(n, mdot);
     if (iok < 0) return reportError(iok);
     return Py_BuildValue("i",0);
 }
@@ -405,6 +417,18 @@ py_wall_setHeatTransferCoeff(PyObject *self, PyObject *args)
 }
 
 static PyObject*
+py_wall_setEmissivity(PyObject *self, PyObject *args)
+{
+    int n;
+    double epsilon;
+    if (!PyArg_ParseTuple(args, "id:wall_setEmissivity", &n, &epsilon))
+        return NULL;
+    int iok = wall_setEmissivity(n,epsilon);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
 py_wall_setExpansionRateCoeff(PyObject *self, PyObject *args)
 {
     int n;
@@ -417,12 +441,12 @@ py_wall_setExpansionRateCoeff(PyObject *self, PyObject *args)
 }
 
 static PyObject*
-py_wall_setExpansionRate(PyObject *self, PyObject *args)
+py_wall_setVelocity(PyObject *self, PyObject *args)
 {
     int n, m;
-    if (!PyArg_ParseTuple(args, "ii:wall_setExpansionRate", &n, &m))
+    if (!PyArg_ParseTuple(args, "ii:wall_setVelocity", &n, &m))
         return NULL;
-    int iok = wall_setExpansionRate(n,m);
+    int iok = wall_setVelocity(n,m);
     if (iok < 0) return reportError(iok);
     return Py_BuildValue("i",0);
 }

@@ -149,6 +149,13 @@ namespace Cantera {
             mu[0] = gibbs_mole();
         }
 
+        virtual doublereal isothermalCompressibility() {
+            return m_sub->isothermalCompressibility();
+        }
+
+        virtual doublereal thermalExpansionCoeff() {
+            return m_sub->thermalExpansionCoeff();
+        }
 
         tpx::Substance& TPX_Substance() { return *m_sub; }
 

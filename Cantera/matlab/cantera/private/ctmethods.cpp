@@ -24,6 +24,7 @@ const int PHASE_CLASS = 30;
 const int KINETICS_CLASS = 40;
 const int TRANSPORT_CLASS = 50;
 const int REACTOR_CLASS = 60;
+const int REACTORNET_CLASS = 65;
 const int WALL_CLASS = 70;
 const int FLOWDEVICE_CLASS = 80;
 const int ONEDIM_CLASS = 90;
@@ -52,6 +53,9 @@ void transportmethods( int nlhs, mxArray *plhs[], int nrhs,
     const mxArray *prhs[] );
 
 void reactormethods( int nlhs, mxArray *plhs[], int nrhs, 
+    const mxArray *prhs[] );
+
+void reactornetmethods( int nlhs, mxArray *plhs[], int nrhs, 
     const mxArray *prhs[] );
 
 void wallmethods( int nlhs, mxArray *plhs[], int nrhs, 
@@ -93,6 +97,8 @@ extern "C" {
             transportmethods(nlhs, plhs, nrhs, prhs); break;
         case REACTOR_CLASS:
             reactormethods(nlhs, plhs, nrhs, prhs); break;
+        case REACTORNET_CLASS:
+            reactornetmethods(nlhs, plhs, nrhs, prhs); break;
         case WALL_CLASS:
             wallmethods(nlhs, plhs, nrhs, prhs); break;
         case FLOWDEVICE_CLASS:

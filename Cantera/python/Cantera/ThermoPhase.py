@@ -106,48 +106,53 @@ class ThermoPhase(Phase):
         """ The pressure [Pa]."""
         return _cantera.thermo_getfp(self._phase_id,7)        
 
-    def chemPotentials(self):
+    def chemPotentials(self, species = []):
         """Species chemical potentials.
         
         This method returns an array containing the species
         chemical potentials [J/kmol]. The expressions used to
         compute these depend on the model implemented by the
         underlying kernel thermo manager."""
-        return _cantera.thermo_getarray(self._phase_id,20)
+        mu = _cantera.thermo_getarray(self._phase_id,20)
+        return self.selectSpecies(mu, species)
     
-    def enthalpies_RT(self):
+    def enthalpies_RT(self, species = []):
         """Pure species non-dimensional enthalpies.
         
         This method returns an array containing the pure-species
         standard-state enthalpies divided by RT. For gaseous species,
         these values are ideal gas enthalpies."""
-        return _cantera.thermo_getarray(self._phase_id,23)
-
-    def entropies_R(self):
+        hrt = _cantera.thermo_getarray(self._phase_id,23)
+        return self.selectSpecies(hrt, species)
+    
+    def entropies_R(self, species = []):
         """Pure species non-dimensional entropies.
         
         This method returns an array containing the pure-species
         standard-state entropies divided by R. For gaseous species,
         these values are ideal gas entropies."""
-        return _cantera.thermo_getarray(self._phase_id,24)    
+        sr = _cantera.thermo_getarray(self._phase_id,24)
+        return self.selectSpecies(sr, species)
 
-    def gibbs_RT(self):
+    def gibbs_RT(self, species = []):
         """Pure species non-dimensional Gibbs free energies.
         
         This method returns an array containing the pure-species
         standard-state Gibbs free energies divided by R.
         For gaseous species, these are ideal gas values."""        
-        return (_cantera.thermo_getarray(self._phase_id,23)
+        grt = (_cantera.thermo_getarray(self._phase_id,23)
                 - _cantera.thermo_getarray(self._phase_id,24))
+        return self.selectSpecies(grt, species)
     
-    def cp_R(self):
+    def cp_R(self, species = []):
         """Pure species non-dimensional heat capacities
         at constant pressure.
         
         This method returns an array containing the pure-species
         standard-state heat capacities divided by R. For gaseous
         species, these values are ideal gas heat capacities."""
-        return _cantera.thermo_getarray(self._phase_id,25)
+        cpr = _cantera.thermo_getarray(self._phase_id,25)
+        return self.selectSpecies(cpr, species)
     
 
     def setPressure(self, p):

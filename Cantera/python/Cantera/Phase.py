@@ -36,32 +36,29 @@ class Phase:
     def phase_id(self):
         return self._phase_id
     
-##     def addElement(self, symbol, atomicWeight):
-##         """Add an element."""
-##         _cantera.phase_addelement(self._phase_id,symbol,atomicWeight)
-
-##     def addSpecies(self, name, atoms = [],
-##                    thermoType = 'poly',
-##                    thermoCoeffs = []):
-##         _cantera.phase_addSpecies(self._phase_id, name, array(atoms,'d'),
-##                            thermoType, array(thermoCoeffs,'d'),
-##                            minTemp, maxTemp, refPressure)
-    
     def nElements(self):
         """Number of elements."""
         return _cantera.phase_nelements(self._phase_id)
 
-    def atomicWeights(self):
+    def atomicWeights(self, elements = []):
         """Array of element molar masses [kg/kmol]."""
-        return _cantera.phase_getarray(self._phase_id,1)
-
+        atw = _cantera.phase_getarray(self._phase_id,1)
+        if elements:
+            ae = []
+            m = 0
+            for e in elements:
+                m = self.elementIndex(e)
+                ae.append(atw[m])
+            return Numeric.asarray(ae)
+        else:
+            return atw
+        
     def nSpecies(self):
         """Number of species."""
         return _cantera.phase_nspecies(self._phase_id)
 
     def nAtoms(self, species = -1, element = -1):
         """Number of atoms of element 'element' in species 'species'.
-
         The  element and species may be specified by name or by number."""
         try:
             m = self.elementIndex(element)
@@ -97,18 +94,20 @@ class Phase:
         """Mean molar mass [kg/kmol]."""
         return _cantera.phase_meanmolwt(self._phase_id)
 
-    def molecularWeights(self):
+    def molarMasses(self, species = []):
+        """Array of species molar masses [kg/kmol]."""
+        mm  = _cantera.phase_getarray(self._phase_id,22)
+        return self.selectSpecies(mm, species)
+
+    def molecularWeights(self, species = []):
         """Array of species molar masses [kg/kmol].
         DEPRECATED: use molarMasses"""
-        return _cantera.phase_getarray(self._phase_id,22)
+        return self.molarMasses(species)
 
-    def molarMasses(self):
-        """Array of species molar masses [kg/kmol]."""
-        return _cantera.phase_getarray(self._phase_id,22)    
-
-    def moleFractions(self):
+    def moleFractions(self, species = []):
         """Species mole fraction array."""
-        return _cantera.phase_getarray(self._phase_id,20)
+        x = _cantera.phase_getarray(self._phase_id,20)
+        return self.selectSpecies(x, species)
 
     def moleFraction(self, species=-1):
         """Mole fraction of a species, referenced by name or
@@ -119,12 +118,15 @@ class Phase:
         k = self.speciesIndex(species)
         return _cantera.phase_molefraction(self._phase_id,k)    
 
-    def massFractions(self):
+
+    def massFractions(self, species = []):
         """Species mass fraction array."""
-        return _cantera.phase_getarray(self._phase_id,21)
+        y = _cantera.phase_getarray(self._phase_id,21)
+        return self.selectSpecies(y, species)
+
 
     def massFraction(self, species=-1):
-        """Mass fraction of one or more species, referenced by name or
+        """Mass fraction of one species, referenced by name or
         index number.
         >>> ph.massFraction(4)
         >>> ph.massFraction('CH4')
@@ -219,7 +221,7 @@ class Phase:
         if type(x) == types.StringType:
             _cantera.phase_setstring(self._phase_id,2,x)
         else:        
-            _cantera.phase_setarray(self._phase_id,2,norm,x)        
+            _cantera.phase_setarray(self._phase_id,2,norm,Numeric.asarray(x))        
         
     def setState_TRX(self, t, rho, x):
         """Set the temperature, density, and mole fractions."""
@@ -230,7 +232,7 @@ class Phase:
     def setState_TRY(self, t, rho, y):
         """Set the temperature, density, and mass fractions."""        
         self.setTemperature(t)
-        self.setMassFractions(x)
+        self.setMassFractions(y)
         self.setDensity(rho)        
 
     def setState_TR(self, t, rho):
@@ -238,3 +240,14 @@ class Phase:
         self.setTemperature(t)
         self.setDensity(rho)
     
+    def selectSpecies(self, f, sp):
+        if sp:
+            fs = []
+            k = 0
+            for s in sp:
+                k = self.speciesIndex(s)
+                fs.append(f[k])
+            return Numeric.asarray(fs)
+        else:
+            return f
+        

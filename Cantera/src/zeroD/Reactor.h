@@ -69,7 +69,11 @@ namespace Cantera {
         /**
          * Destructor. Deletes the integrator.
          */
-        virtual ~Reactor(){ delete m_integ; }
+        virtual ~Reactor(){ 
+#ifdef INCL_REACTOR_INTEG
+            delete m_integ; 
+#endif
+}
         
         virtual int type() const { return ReactorType; }
 
@@ -84,6 +88,7 @@ namespace Cantera {
          * @param time Final time (s).
          */
         virtual void advance(doublereal time) {
+#ifdef INCL_REACTOR_INTEG
             if (!m_init) {
                 setMaxStep(time);
                 initialize();
@@ -92,9 +97,14 @@ namespace Cantera {
             m_time = time;
             updateState(m_integ->solution());
             m_mix->saveState(m_state);
+#else
+            throw CanteraError("Reactor::advance",
+                "Reactor::advance is deprecated. Use ReactorNet::advance");
+#endif
         }
 
         virtual double step(doublereal time) {
+#ifdef INCL_REACTOR_INTEG
             if (!m_init) {
                 setMaxStep(time);
                 initialize();
@@ -103,6 +113,10 @@ namespace Cantera {
             updateState(m_integ->solution());
             m_mix->saveState(m_state);
             return m_time;
+#else
+            throw CanteraError("Reactor::step",
+                "Reactor::step is deprecated. Use ReactorNet::step");
+#endif
         }
 
         /**
@@ -127,53 +141,6 @@ namespace Cantera {
         void setMaxStep(doublereal maxstep) {
             m_maxstep = maxstep;
         }
-
- //        /**
-//          * Set the reactor surface area [m$^2$]. Can be changed at any time.
-//          */
-//         void setArea(doublereal area) {
-//             m_area = area;
-//         }
-
-//         /**
-//          * Set the external temperature \f$ T_0 \f$ 
-//          * used for heat loss calculations.
-//          * The heat loss rate is calculated from
-//          * \f[
-//          * \dot Q_{out} = h A (T - T_0) + \epsilon A (T^4 - T_{0,R}^4).
-//          * \f]
-//          * @see setArea, setEmissivity, setExtRadTemp
-//          */
-//         void setExtTemp(doublereal ts) {
-//             m_ext_temp = ts;
-//             if (!m_trad_set) m_ext_temp4 = ts*ts*ts*ts;
-//         }
-
-//         /**
-//          * Set the external temperature for radiation. By default, this
-//          * is the same as the temperature set by setExtTemp. But if 
-//          * setExtRadTemp is called, then subsequent of calls to 
-//          * setExtTemp do not modify the value set here.
-//          */
-//         void setExtRadTemp(doublereal tr) {        
-//             m_ext_temp4 = tr*tr*tr*tr;
-//         }
-
-//         void setHeatTransferCoeff(doublereal h) {
-//             m_h = h;
-//         }
-
-//         void setVDotCoeff(doublereal k) {
-//             m_kv = k;
-//         }
-
-//         void setEmissivity(doublereal emis) {
-//             m_emis = emis;
-//         }
-
-//         void setExtPressure(doublereal p0) {
-//             m_p0 = p0;
-//         }
 
         void disableChemistry() { m_chem = false; }
         void enableChemistry() { m_chem = true; }
@@ -209,61 +176,6 @@ namespace Cantera {
 	void evalEqs(doublereal t, doublereal* y, doublereal* ydot);
 
         /**
-         * @name Methods to specify simulation options.
-         * These virtual methods may be overloaded in 
-         * derived classes to implement models for heat gain/loss,
-         * surface chemistry, and compression/expansion.
-         */
-        //@{
-
-        /**
-         * Initialize the boundary conditions, if necessary. This
-         * method does nothing, but may be overloaded in derived classes if
-         * initialization is needed.
-         */
-        //        virtual void initBC() {}
-
-        /**
-         * Evaluate the reactor boundary conditions. This procedure is
-         * called during integration to evaluate the rate of volume
-         * change \f$ dV/dt \f$ [m^3/s], the heat loss rate [W], and
-         * the species production rates due to surface chemistry.
-         *
-         * It may be overloaded in derived classes to implement other
-         * boundary conditions. If not overloaded, this routine 
-         * implements the following boundary conditions.
-         *
-         * The rate of volume change is
-         * \f[
-         * dV/dt = K ( P - P_{ext})
-         * \f]
-         * where K is set in procedure setVDotCoeff.
-         *
-         * 
-         * The heat loss rate is calculated from
-         * \f[
-         * \dot Q_{out} = h A (T - T_0) + \epsilon A (T^4 - T_{0,R}^4).
-         * \f]
-         * @see setArea, setEmissivity, setExtRadTemp
-         */
-
-//         virtual void evalBC(doublereal& vdot, 
-//             doublereal& heatLossRate, doublereal* sdot) {
-//             doublereal t = m_mix->temperature();
-
-//             //m_p0 = m_env->pressure();
-//             vdot = m_kv * (m_thermo->pressure()/m_p0 - 1.0)*m_vol0;
-//             heatLossRate = m_area * (
-//                 m_h * (t - m_ext_temp)
-//                 + m_emis * StefanBoltz * (t*t*t*t - m_ext_temp4)
-//                 );
-//         }
-
-        //@}
-
-        //-----------------------------------------------------
-
-        /**
          * Set the mixture to a state consistent with solution
          * vector y.
          */
@@ -273,21 +185,15 @@ namespace Cantera {
     protected:
         
         Kinetics*   m_kin;
-        //        ReactorBase*     m_env;
-        //        Thermo*     m_thermo;
 
         Integrator* m_integ;         // pointer to integrator
         doublereal m_temp_atol;      // tolerance on T
         doublereal m_maxstep;        // max step size
         doublereal m_vdot, m_Q;
-        //        doublereal m_emis, m_h, m_area;
-        //doublereal m_ext_temp, m_ext_temp4;
-        //doublereal m_kv, m_p0;
         vector_fp m_atol;
         doublereal m_rtol;
         vector_fp m_work;
         vector_fp m_sdot;            // surface production rates
-        //bool m_trad_set;
         bool m_chem;
         bool m_energy;
         int m_nv;

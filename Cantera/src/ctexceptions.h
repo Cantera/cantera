@@ -24,6 +24,7 @@ namespace Cantera {
         CanteraError() {}
         CanteraError(string proc, string msg) {
             setError(proc, msg);
+            writelog("Throwing CanteraError. "+proc+" "+msg+"\n");
             //m_msg = msg;
         }
         virtual ~CanteraError(){}

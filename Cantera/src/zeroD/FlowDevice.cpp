@@ -34,14 +34,16 @@ namespace Cantera {
         return true; 
     }
 
-    void FlowDevice::setFunction(Func1* f) {}
+    void FlowDevice::setFunction(Func1* f) {
+        m_func = f;
+    }
 
 
     /**
      * Mass flow rate of outlet species k.  Returns zero if this
      * species is not present in the upstream mixture.
      */
-    doublereal FlowDevice::massFlowRate(int k) {
+    doublereal FlowDevice::outletSpeciesMassFlowRate(int k) {
         if (k < 0 || k >= m_nspout) return 0.0;
         int ki = m_out2in[k];
         if (ki < 0) return 0.0;

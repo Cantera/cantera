@@ -57,8 +57,13 @@ namespace Cantera {
         /// Set the overall heat transfer coefficient [W/m^2/K].
         void setHeatTransferCoeff(doublereal U) { m_rrth = U; }
 
-        /** Set the rate of volume change to a specified function.*/
-        void setExpansionRate(Func1* f=0) {if (f) m_vf = f;}
+        void setEmissivity(doublereal epsilon) { m_emiss = epsilon; }
+
+        //  /** Set the rate of volume change to a specified function.*/
+        //        void setExpansionRate(Func1* f=0) {if (f) m_vf = f;}
+
+        /** Set the piston velocity to a specified function. */
+        void setVelocity(Func1* f=0) {if (f) m_vf = f;}
 
         /** 
          * Set the expansion rate coefficient.
@@ -98,6 +103,13 @@ namespace Cantera {
             return m_chem[leftright];
         }
 
+        void setCoverages(int leftright, const doublereal* cov);
+
+        void getCoverages(int leftright, doublereal* cov);
+
+        void syncCoverages(int leftright);
+
+
     protected:
 
         vector_fp m_coeffs;
@@ -108,8 +120,10 @@ namespace Cantera {
         SurfPhase* m_surf[2];
         int m_nsp[2];
         doublereal m_area, m_k, m_rrth;
+        doublereal m_emiss;
         Func1 *m_vf;
         Func1 *m_qf;
+        vector_fp m_leftcov, m_rightcov;
 
     private:
 

@@ -569,7 +569,14 @@ namespace Cantera {
          */
         virtual void setParameters(int n, doublereal* c) {}
         
-        
+        virtual doublereal isothermalCompressibility() {
+            err("isothermalCompressibility"); return -1.0;
+        }
+
+        virtual doublereal thermalExpansionCoeff() {
+            err("thermalExpansionCoeff()"); return -1.0;
+        }
+
         //---------------------------------------------------------
         /// @name Critical state properties.
         

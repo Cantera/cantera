@@ -26,7 +26,6 @@ namespace Cantera {
     Reactor::Reactor() : ReactorBase(), 
                          FuncEval(),
                          m_kin(0),
-                         m_integ(0),
                          m_temp_atol(1.e-11), 
                          m_maxstep(0.0),
                          m_vdot(0.0), 
@@ -35,13 +34,15 @@ namespace Cantera {
                          m_chem(true),
                          m_energy(true)
     {
+#ifdef INCL_REACTOR_INTEG
         m_integ = new CVodeInt;
 
         // use backward differencing, with a full Jacobian computed
         // numerically, and use a Newton linear iterator
         m_integ->setMethod(BDF_Method);
         m_integ->setProblemType(DENSE + NOJAC);
-        m_integ->setIterator(Newton_Iter);        
+        m_integ->setIterator(Newton_Iter);
+#endif
     }
 
 
@@ -79,7 +80,8 @@ namespace Cantera {
         for (int m = 0; m < m_nwalls; m++) {
             surf = m_wall[m]->surface(m_lr[m]);
             if (surf) {
-                surf->getCoverages(y+loc);
+                m_wall[m]->getCoverages(m_lr[m], y + loc);
+                //surf->getCoverages(y+loc);
                 loc += surf->nSpecies();
             }
         }
@@ -96,12 +98,13 @@ namespace Cantera {
         for (int w = 0; w < m_nwalls; w++)
             if (m_wall[w]->surface(m_lr[w]))
                 m_nv += m_wall[w]->surface(m_lr[w])->nSpecies();
+#ifdef INCL_REACTOR_INTEG
         m_atol.resize(neq());
         fill(m_atol.begin(), m_atol.end(), 1.e-15);
         m_integ->setTolerances(m_rtol, neq(), m_atol.begin());
         m_integ->setMaxStep(m_maxstep);
         m_integ->initialize(t0, *this);
-
+#endif
         m_enthalpy = m_thermo->enthalpy_mass();
         m_pressure = m_thermo->pressure();
         m_intEnergy = m_thermo->intEnergy_mass();
@@ -140,33 +143,26 @@ namespace Cantera {
         doublereal* mss = y + 2;
         doublereal mass = accumulate(y+2, y+2+m_nsp, 0.0);
         m_mix->setMassFractions(mss);
+
         m_mix->setDensity(mass/m_vol);
 
         doublereal temp = temperature();
         mix.setTemperature(temp);
 
         if (m_energy) {
-            doublereal u_mass = u/mass;       // specific int. energy
-            doublereal delta;
-
-            do {
-                delta = -(m_thermo->intEnergy_mass() 
-                    - u_mass)/m_thermo->cv_mass();
-                temp += delta;
-                mix.setTemperature(temp);
-            }
-            while (fabs(delta) > m_temp_atol);
+            m_thermo->setState_UV(u/mass,m_vol/mass); 
+            temp = mix.temperature(); //mix.setTemperature(temp);
         }
-        mix.setTemperature(temp);
-        m_state[0] = temp;
+        //m_state[0] = temp;
 
         int loc = m_nsp + 2;
         SurfPhase* surf;
         for (int m = 0; m < m_nwalls; m++) {
             surf = m_wall[m]->surface(m_lr[m]);
             if (surf) {
-                surf->setTemperature(temp);
-                surf->setCoverages(y+loc);
+                //                surf->setTemperature(temp);
+                //surf->setCoverages(y+loc);
+                m_wall[m]->setCoverages(m_lr[m], y+loc);
                 loc += surf->nSpecies();
             }
         }
@@ -175,7 +171,7 @@ namespace Cantera {
         m_enthalpy = m_thermo->enthalpy_mass();
         m_pressure = m_thermo->pressure();
         m_intEnergy = m_thermo->intEnergy_mass();
-
+        //m_kappa = m_thermo->isothermalCompressibility();
         m_mix->saveState(m_state);
     }
 
@@ -217,6 +213,8 @@ namespace Cantera {
                 rs0 = 1.0/surf->siteDensity();
                 nk = surf->nSpecies();
                 sum = 0.0;
+                surf->setTemperature(m_state[0]);
+                m_wall[i]->syncCoverages(m_lr[i]);
                 kin->getNetProductionRates(m_work.begin());
                 ns = kin->surfacePhaseIndex();
                 surfloc = kin->kineticsSpeciesIndex(0,ns);
@@ -281,12 +279,16 @@ namespace Cantera {
             int n;
             doublereal mdot_out;
             for (i = 0; i < m_nOutlets; i++) {
-                mdot_out = m_outlet[i]->massFlowRate();
+                mdot_out = m_outlet[i]->massFlowRate(time);
                 for (n = 0; n < m_nsp; n++) {
                     ydot[2+n] -= mdot_out * mf[n];
                 }
-                if (m_energy)
+                if (m_energy) {
+                    //                    cout << "before = " << ydot[0] << endl;
                     ydot[0] -= mdot_out * enthalpy;
+                    //cout << mdot_out << " " << enthalpy << endl;
+                    //cout << "after = " << ydot[0] << endl;
+                }
             }
 
 
@@ -294,12 +296,13 @@ namespace Cantera {
 
             doublereal mdot_in;
             for (i = 0; i < m_nInlets; i++) {
-                mdot_in = m_inlet[i]->massFlowRate();
+                mdot_in = m_inlet[i]->massFlowRate(time);
                 for (n = 0; n < m_nsp; n++) {
-                    ydot[2+n] += m_inlet[i]->massFlowRate(n);
+                    ydot[2+n] += m_inlet[i]->outletSpeciesMassFlowRate(n);
                 }
-                if (m_energy)
+                if (m_energy) {
                     ydot[0] += mdot_in * m_inlet[i]->enthalpy_mass();
+                }
             }
         }
     }

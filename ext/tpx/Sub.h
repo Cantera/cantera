@@ -133,7 +133,7 @@ namespace tpx {
             return T*(s2 - s1)/(2.0*dt);
         }
 
-        virtual double thermExpCoeff() {
+        virtual double thermalExpansionCoeff() {
             double Tsave = T, dt = 1.e-4*T;
             double p0 = P();
             Set(TP, Tsave - dt, p0);
@@ -142,6 +142,16 @@ namespace tpx {
             double v2 = v();
             Set(TP, Tsave, p0);
             return (v2 - v1)/((v2 + v1)*dt);
+        }
+
+        virtual double isothermalCompressibility() {
+            double Psave = P(), dp = 1.e-4*Psave;
+            Set(TP, T, Psave - dp);
+            double v1 = v();
+            Set(TP, T, Psave + dp);
+            double v2 = v();
+            Set(TP, T, Psave);
+            return -(v2 - v1)/((v2 + v1)*dp);
         }
 
 

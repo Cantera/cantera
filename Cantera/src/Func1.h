@@ -28,7 +28,8 @@ namespace Cantera {
     const int DiffFuncType = 25;
     const int ProdFuncType = 30;
     const int RatioFuncType = 40;
- 
+    const int PeriodicFuncType = 50;
+
     /**
      * Base class for 'functor' classes that evaluate a function of
      * one variable.
@@ -47,10 +48,10 @@ namespace Cantera {
 
     class Gaussian : public Func1 {
     public:
-        Gaussian(double A, double t0, double tau) {
+        Gaussian(double A, double t0, double fwhm) {
             m_A = A;
             m_t0 = t0;
-            m_tau = tau;
+            m_tau = fwhm/(2.0*sqrt(log(2.0)));
         }
         virtual ~Gaussian() {}
         virtual doublereal eval(doublereal t) {
@@ -177,6 +178,29 @@ namespace Cantera {
         vector_fp m_A, m_b, m_E;
     };
 
+    /**
+     *  Periodic function. Takes any function and makes it
+     *  periodic with period T.
+     */
+    class PeriodicFunc : public Func1 {
+    public:
+        PeriodicFunc(Func1& f, doublereal T) {
+            m_func = &f;
+            m_period = T;
+        }
+        virtual ~PeriodicFunc() {}
+        virtual doublereal eval(doublereal t) {
+            int np = int(t/m_period);
+            doublereal time = t - np*m_period;
+            return m_func->eval(time);
+        }
+    protected:
+        Func1* m_func;
+        doublereal m_period;
+
+    private:
+    };
+            
 
     /**
      * Sum of two functions.
