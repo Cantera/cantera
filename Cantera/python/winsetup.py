@@ -3,7 +3,7 @@ from distutils.core import setup, Extension
 libdir = ['../../build/lib/i686-pc-win32']
     
 setup(name="Cantera",
-          version="1.5.4",
+          version="1.5.5",
           description="The Cantera Python Interface",
           long_description="""
           """,
