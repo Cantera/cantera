@@ -80,13 +80,11 @@ static void thermoget( int nlhs, mxArray *plhs[],
             case 0:
                 vv = newThermoFromXML(n); break;
             case 2:
-                vv = th_enthalpy_mole(n);
-                break;
+                vv = th_enthalpy_mole(n); break;
             case 3:
                 vv = th_intEnergy_mole(n); break;
             case 4: 
-                vv = th_entropy_mole(n);
-                break;
+                vv = th_entropy_mole(n); break;
             case 5:
                 vv = th_gibbs_mole(n); break;
             case 6:
@@ -115,7 +113,22 @@ static void thermoget( int nlhs, mxArray *plhs[],
                 vv = th_maxTemp(n); break;
             case 18:
                 vv = double(th_eosType(n)); break;
-                
+#ifdef INCL_PURE_FLUIDS
+            case 19:
+                vv  = th_critTemperature(n); break;
+            case 20:
+                vv = th_critPressure(n); break;
+            case 21:
+                vv = th_critDensity(n); break;
+            case 22:
+                vv = th_vaporFraction(n); break;
+            case 23:
+                double p = getDouble(prhs[3]); 
+                vv = th_satTemperature(n, p); break;
+            case 24:
+                double t = getDouble(prhs[3]);
+                vv = th_satPressure(n, t); break;
+#endif
             default:
                 ok = false;
             }

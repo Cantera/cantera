@@ -431,7 +431,6 @@ namespace Cantera {
             //    r.reactants, ordr);
             //}
 
-
 //         if (r.reactionType == ELEMENTARY_RXN)      
 //             addElementaryReaction(r);
 //         if (r.reactionType == SURFACE_RXN)      
