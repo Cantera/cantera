@@ -1,15 +1,19 @@
+convert_ck: debug = 0
 #
 # Generated from file silane.inp
-# by ck2cti on Mon Aug 25 09:52:58 2003
+# by ck2cti on Mon Sep 20 14:24:48 2004
 #
+# Transport data from file misc_tran.dat.
+
 units(length = "cm", time = "s", quantity = "mol", act_energy = "cal/mol")
 
 
-ideal_gas(name = "silane",
+ideal_gas(name = "gas",
       elements = " Si  H  He ",
       species = """ H2  H  HE  SIH4  SI  SIH  SIH2  SIH3  H3SISIH  SI2H6 
                    H2SISIH2  SI3H8  SI2  SI3 """,
       reactions = "all",
+      transport = "Mix",
       initial_state = state(temperature = 300.0,
                         pressure = OneAtm)    )
 
@@ -29,6 +33,12 @@ species(name = "H2",
                 4.994567780E-07,  -1.795663940E-10,   2.002553760E-14,
                -9.501589220E+02,  -3.205023310E+00] )
              ),
+    transport = gas_transport(
+                     geom = "linear",
+                     diam =     2.92,
+                     well_depth =    38.00,
+                     polar =     0.79,
+                     rot_relax =   280.00),
     note = "TPIS78"
        )
 
@@ -42,6 +52,10 @@ species(name = "H",
                 1.615619480E-14,  -4.735152350E-18,   4.981973570E-22,
                 2.547365990E+04,  -4.466829140E-01] )
              ),
+    transport = gas_transport(
+                     geom = "atom",
+                     diam =     2.05,
+                     well_depth =   145.00),
     note = "L 7/88"
        )
 
@@ -55,6 +69,10 @@ species(name = "HE",
                 0.000000000E+00,   0.000000000E+00,   0.000000000E+00,
                -7.453750000E+02,   9.153489000E-01] )
              ),
+    transport = gas_transport(
+                     geom = "atom",
+                     diam =     2.58,
+                     well_depth =    10.20),
     note = "120186"
        )
 
@@ -68,6 +86,11 @@ species(name = "SIH4",
                -1.139800900E-05,   3.599260400E-09,  -4.524157100E-13,
                 3.198212700E+03,   1.524225700E+01] )
              ),
+    transport = gas_transport(
+                     geom = "nonlinear",
+                     diam =     4.08,
+                     well_depth =   207.60,
+                     rot_relax =     1.00),
     note = "90784"
        )
 
@@ -81,6 +104,10 @@ species(name = "SI",
                 2.959229300E-07,  -7.280482900E-11,   5.796332900E-15,
                 5.343705400E+04,   5.220405700E+00] )
              ),
+    transport = gas_transport(
+                     geom = "atom",
+                     diam =     2.91,
+                     well_depth =  3036.00),
     note = "J 3/67"
        )
 
@@ -94,6 +121,11 @@ species(name = "SIH",
                 2.898629000E-08,  -2.745104000E-10,   7.051799000E-14,
                 4.516898000E+04,   4.193487000E+00] )
              ),
+    transport = gas_transport(
+                     geom = "linear",
+                     diam =     3.66,
+                     well_depth =    95.80,
+                     rot_relax =     1.00),
     note = "121986"
        )
 
@@ -107,6 +139,11 @@ species(name = "SIH2",
                -2.190730000E-07,  -2.073725000E-10,   4.741018000E-14,
                 3.110484000E+04,   2.930745000E-01] )
              ),
+    transport = gas_transport(
+                     geom = "nonlinear",
+                     diam =     3.80,
+                     well_depth =   133.10,
+                     rot_relax =     1.00),
     note = "42489"
        )
 
@@ -120,6 +157,11 @@ species(name = "SIH3",
                -3.609053000E-07,  -3.729193000E-10,   8.468490000E-14,
                 2.190233000E+04,  -4.291368000E+00] )
              ),
+    transport = gas_transport(
+                     geom = "nonlinear",
+                     diam =     3.94,
+                     well_depth =   170.30,
+                     rot_relax =     1.00),
     note = "42489"
        )
 
@@ -133,6 +175,11 @@ species(name = "H3SISIH",
                -2.998472000E-07,  -9.465367000E-11,   1.855053000E-14,
                 3.297169000E+04,  -3.264598000E+01] )
              ),
+    transport = gas_transport(
+                     geom = "nonlinear",
+                     diam =     4.60,
+                     well_depth =   312.60,
+                     rot_relax =     1.00),
     note = "111191"
        )
 
@@ -146,6 +193,11 @@ species(name = "SI2H6",
                -1.771320400E-05,   5.639117700E-09,  -7.137868200E-13,
                 7.532184200E+03,   6.132175400E+00] )
              ),
+    transport = gas_transport(
+                     geom = "nonlinear",
+                     diam =     4.83,
+                     well_depth =   301.30,
+                     rot_relax =     1.00),
     note = "90784"
        )
 
@@ -159,6 +211,11 @@ species(name = "H2SISIH2",
                -5.214022000E-07,  -5.313742000E-10,   1.188727000E-13,
                 2.832748000E+04,  -2.004478000E+01] )
              ),
+    transport = gas_transport(
+                     geom = "nonlinear",
+                     diam =     4.60,
+                     well_depth =   312.60,
+                     rot_relax =     1.00),
     note = "42489"
        )
 
@@ -172,6 +229,11 @@ species(name = "SI3H8",
                -2.389236100E-05,   7.627193200E-09,  -9.676938400E-13,
                 1.129720500E+04,  -2.747565400E+00] )
              ),
+    transport = gas_transport(
+                     geom = "nonlinear",
+                     diam =     5.56,
+                     well_depth =   331.20,
+                     rot_relax =     1.00),
     note = "90784"
        )
 
@@ -185,6 +247,11 @@ species(name = "SI2",
                -5.010852000E-07,   1.806284300E-10,  -2.516111100E-14,
                 6.969470700E+04,   3.862736600E+00] )
              ),
+    transport = gas_transport(
+                     geom = "linear",
+                     diam =     3.28,
+                     well_depth =  3036.00,
+                     rot_relax =     1.00),
     note = "90784"
        )
 
@@ -198,6 +265,11 @@ species(name = "SI3",
                 8.982077500E-08,   7.193596400E-12,  -2.567083700E-15,
                 7.414669900E+04,  -1.036527400E+01] )
              ),
+    transport = gas_transport(
+                     geom = "nonlinear",
+                     diam =     3.55,
+                     well_depth =  3036.00,
+                     rot_relax =     1.00),
     note = "J 3/67"
        )
 

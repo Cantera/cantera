@@ -1,6 +1,30 @@
 from exceptions import CanteraError
 
 def setByName(a, options):
+    """Set properties of phase 'a' by specifying keywords. Either the full
+    property name or the short form may be given. The capitalization must
+    be exactly as shown here.
+
+    Note: all extensive property values are specified for a unit mass
+    - i.e., the *specific* (not molar) property value should be
+    specified.
+
+    keyword       short form         property
+    --------------------------------------------
+    Pressure           P             pressure
+    Density            Rho           density
+    Temperature        T             temperature
+    Volume             V             specific volume
+    MoleFractions      X             mole fractions
+    MassFracttions     Y             mass fractions
+    Enthalpy           H             specific enthalpy
+    IntEnergy          U             specific internal energy
+    Entropy            S             specific entropy
+    Vapor              Vap           vapor fraction in a two-phase mixture
+    Liquid             Liq           liquid fraction in a two-phase mixture
+    
+    
+    """
 
     tval = None
     pval = None

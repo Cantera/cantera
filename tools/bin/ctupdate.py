@@ -346,11 +346,16 @@ def get_numeric():
 def get_ct():
     """Download cantera."""
     server = _ctinfo_srv.server
+    server = 'http://prdownloads.sourceforge.net/cantera/'
+    ctfile = 'cantera-1.5.4.tar.gz'
+    mirror = 'easynews'
+    url = server+ctfile+'?use_mirror='+mirror
+    
     _options['cantera'] = _srv['cantera']
     
     if platform == 'win32' and _bininstall == 1:
         path = _ctinfo_srv.WinCanteraPath
-        urllib.urlretrieve(server+path,'Cantera13.msi',report)
+        urllib.urlretrieve(server+path,url,report)
         _install_script.write('Cantera13.msi\n')
         _install_script.write('Cantera13.msi\n')        
         path = _ctinfo_srv.WinCanteraPyPath
@@ -360,7 +365,7 @@ def get_ct():
     elif _bininstall == 0:
         _prefix = get_instdir()
         path = _ctinfo_srv.SrcCanteraPath
-        urllib.urlretrieve(server+path,'cantera.tar.gz',report)
+        print urllib.urlopen(url) #,'get.html',report)
         
         _install_script.write('gunzip cantera.tar.gz\ntar xvf cantera-1.3.tar\n')
         _install_script.write('cd '+_ctinfo_srv.SrcCanteraDir+'\n')

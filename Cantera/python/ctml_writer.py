@@ -1475,47 +1475,10 @@ class Lindemann:
         f = p.addChild('falloff')
         f['type'] = 'Lindemann'
 
-#--------------------------------------------------------------------
-
-## class gas_transport:
-##     def __init__(self, geom = 'nonlin',
-##                  welldepth = 0.0,
-##                  diam = 0.0,
-##                  dipole = 0.0,
-##                  polar = 0.0,
-##                  rot_relax = 0.0):
-##         self._sp = species
-##         self._geom = geom
-##         self._params = (welldepth, diam, dipole, polar, rotrelax)
-
-##         #global _trdata
-##         #_trdata[species] = self
-
-##     def build(self, s):
-##         tr = s.addChild('transport')
-##         g = tr.addChild('string','linear')
-##         g['title'] = 'geometry'
-##         tr.addChild('LJ_welldepth',`self._params[0]`)
-##         tr.addChild('LJ_diameter',`self._params[1]`)
-##         tr.addChild('dipoleMoment',`self._params[2]`)
-##         tr.addChild('polarizability',`self._params[3]`)
-##         tr.addChild('rotRelax',`self._params[4]`)        
-
 
 #get_atomic_wts()
 validate()
 
-
-## if __name__ == "__main__":
-##     from Cantera import *
-##     import sys, os, os.path
-##     file = sys.argv[1]
-##     base = os.path.basename(file)
-##     root, ext = os.path.splitext(base)
-##     dataset(root)
-##     execfile(file)
-##     write()
-    
 
 ##########################################
 #
@@ -1523,7 +1486,10 @@ validate()
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.5  2004-09-20 10:25:02  dggoodwin
+# Revision 1.6  2004-09-29 11:00:39  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.5  2004/09/20 10:25:02  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.4  2004/07/14 11:24:13  dggoodwin

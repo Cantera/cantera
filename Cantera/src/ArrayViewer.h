@@ -1,5 +1,7 @@
 /**
  *  @file ArrayViewer.h
+ *
+ *  Header file for class ArrayViewer
  */
 
 /*  $Author$
@@ -23,8 +25,9 @@ namespace Cantera {
 
 
     /**
-     *  A class for 2D arrays stored in column-major
-     *  (Fortran-compatible) form.
+     *  A viewer for 2D arrays stored in column-major
+     *  (Fortran-compatible) form. This class is simply an interface
+     *  to data stored in an external array.
      */
     class ArrayViewer {
 

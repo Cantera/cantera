@@ -1,4 +1,8 @@
-"""Fluids with complete liquid/vapor equations of state."""
+"""Fluids with complete liquid/vapor equations of state..
+
+These functions are defined for convenience only.  They simply call
+function 'importPhase' to import the phase definition from file
+'liquidvapor.cti' """
 
 from importFromFile import importPhase
 
