@@ -53,7 +53,7 @@ namespace Cantera {
 	     * Find the start of the surface phase data in the xml file
 	     * Store a pointer to the position in the tree.
 	     */
-            XML_Node* x = find_XML("", m_r, id, "", "");
+            XML_Node* x = get_XML_Node("#" + id, m_r);
             if (!x) {
 	      throw CanteraError("Interface","error in find_XML");
 	    }

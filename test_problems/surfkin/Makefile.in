@@ -48,19 +48,19 @@ CANTERA_INCDIR=@ctroot@/build/include/cantera
 LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
 
 # how to compile C++ source files to object files
-.@CXX_EXT@.@OBJ_EXT@:
+.@CXX_EXT@.@OBJ_EXT@: Interface.h
 	$(CXX) -c $< -I$(CANTERA_INCDIR) $(CXX_FLAGS)
 
 PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
 all: $(PROGRAM)
 
-$(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a Interface.h
+$(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a 
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
                    $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
 
-$(OBJS): Interface.h
+$(OBJS):
 
 test:
 	@MAKE@ $(PROGRAM)

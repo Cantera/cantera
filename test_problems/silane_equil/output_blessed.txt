@@ -1,17 +1,17 @@
 
        temperature            2000  K
           pressure             100  Pa
-           density     1.33178e-05  kg/m^3
+           density     1.33171e-05  kg/m^3
   mean mol. weight         2.21449  amu
 
                           1 kg            1 kmol
                        -----------      ------------
-          enthalpy     3.03214e+07        6.715e+07     J
-   internal energy     2.28127e+07        5.052e+07     J
-           entropy          111330        2.465e+05     J/K
-    Gibbs function    -1.92339e+08       -4.259e+08     J
- heat capacity c_p           15110        3.346e+04     J/K
- heat capacity c_v         11355.7        2.515e+04     J/K
+          enthalpy     3.03232e+07        6.715e+07     J
+   internal energy      2.2814e+07        5.052e+07     J
+           entropy          111336        2.466e+05     J/K
+    Gibbs function     -1.9235e+08        -4.26e+08     J
+ heat capacity c_p         15110.9        3.346e+04     J/K
+ heat capacity c_v         11356.3        2.515e+04     J/K
 
                            X                 Y   
                      -------------     ------------

@@ -12,7 +12,7 @@ using namespace Cantera;
 int main() {
 
     try {
-        IdealGasMix gas("gri30.xml");
+        IdealGasMix gas("gri30.xml", "gri30");
         gas.setState_TPX(1200.0, OneAtm, 
             "H2:2, O2:1, OH:0.01, H:0.01, O:0.01");
 
