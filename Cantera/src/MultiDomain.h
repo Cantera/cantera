@@ -18,7 +18,6 @@ deprecated
 
 
 #include "stringUtils.h"
-//#include "Array.h"
 #include "Resid1D.h"
 
 namespace Cantera {
@@ -87,7 +86,7 @@ namespace Cantera {
             eval(-1, x, r, 0.0);
             doublereal ss = 0.0;
             for (int i = 0; i < m_size; i++) 
-                ss = fmax(fabs(r[i]),ss);
+                ss = fmaxx(fabs(r[i]),ss);
             return ss;
         }
             
