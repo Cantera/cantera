@@ -633,7 +633,8 @@ class reaction(writer):
                 k = kf
             else:
                 k = Arrhenius(A = kf[0], n = kf[1], E = kf[2])
-            k.build(kfnode, unit_fctr, gas_species = self._igspecies, name = nm)
+            k.build(kfnode, unit_fctr, gas_species = self._igspecies,
+                    name = nm, rxn_phase = self._rxnphase)
 
             # set values for low-pressure rate coeff if falloff rxn
             mdim += 1
@@ -1309,7 +1310,10 @@ validate()
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.28  2004-02-08 13:09:10  dggoodwin
+# Revision 1.29  2004-02-08 13:22:31  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.28  2004/02/08 13:09:10  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.27  2004/02/03 16:42:54  dggoodwin
