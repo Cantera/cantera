@@ -153,7 +153,7 @@ namespace Cantera {
         XML_Node* findByName(const string& nm);
         void getChildren(string name, vector<XML_Node*>& children) const;
         XML_Node& child(string loc) const;
-        void write(ostream& s, int level = 0);
+        void write(ostream& s, int level = 0) const;
         XML_Node& root() const { return *m_root; }
         void setRoot(XML_Node& root) { m_root = &root; }
         void copyUnion(XML_Node *node_dest);
