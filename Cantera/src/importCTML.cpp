@@ -42,7 +42,8 @@
 
 using namespace ctml;
 
-//#include <stdio.h>
+//#include <stdio.h>  
+
 
 // these are all used to check for duplicate reactions
 vector< map<int, doublereal> > _reactiondata;
@@ -818,8 +819,8 @@ namespace Cantera {
                     eoserror = true;
                 }
             }
-            else if (eos["model"] == "SolidCompound") {
-                if (th->eosType() == cSolidCompound) {
+            else if (eos["model"] == "StoichSubstance") {
+                if (th->eosType() == cStoichSubstance) {
                     doublereal rho = getFloat(eos, "density", "-");
                     th->setDensity(rho);
                 }
@@ -855,16 +856,9 @@ namespace Cantera {
             else if (eos["model"] == "PureFluid") {
                 if (th->eosType() == cPureFluid) {
                     subflag = atoi(eos["fluid_type"].c_str());
-                    //doublereal h0 = getFloat(eos, "h0", "-");
-                    //doublereal s0 = getFloat(eos, "s0", "-");
                     if (subflag < 0) 
                         throw CanteraError("importCTML",
                             "missing fluid type flag");
-                    //doublereal c[3];
-                    //c[0] = doublereal(subflag);
-                    //c[1] = h0;
-                    //c[2] = s0;
-                    //th->setParameters(3, c);
                 }
                 else {
                     eoserror = true;

@@ -83,8 +83,8 @@ extern "C" {
     double DLL_IMPORT th_vaporFraction(int n);
     double DLL_IMPORT th_satTemperature(int n, double p);
     double DLL_IMPORT th_satPressure(int n, double t);
-    int DLL_IMPORT th_setState_satLiquid(int n);
-    int DLL_IMPORT th_setState_satVapor(int n);
+    int DLL_IMPORT th_setState_Psat(int n, double p, double x);
+    int DLL_IMPORT th_setState_Tsat(int n, double t, double x);
 #endif
 
     int DLL_IMPORT newKineticsFromXML(int mxml, int iphase, 

@@ -159,9 +159,9 @@ thermo_setfp(PyObject *self, PyObject *args)
     case 6:
         iok = th_setElectricPotential(th, v[0]); break;
     case 7:
-        iok = th_setState_satLiquid(th); break;
+        iok = th_setState_Tsat(th, v1, v2); break;
     case 8:
-        iok = th_setState_satVapor(th); break;
+        iok = th_setState_Psat(th, v1, v2); break;
     default:
         iok = -10; 
     }

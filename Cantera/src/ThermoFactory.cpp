@@ -24,7 +24,8 @@
 #include "SurfPhase.h"
 #include "EdgePhase.h"
 #include "MetalPhase.h"
-#include "SolidCompound.h"
+//#include "SolidCompound.h"
+#include "StoichSubstance.h"
 #include "importCTML.h"
 
 namespace Cantera {
@@ -33,11 +34,11 @@ namespace Cantera {
 
     static int ntypes = 7;
     static string _types[] = {"IdealGas", "Incompressible", 
-                              "Surface", "Edge", "Metal", "SolidCompound",
+                              "Surface", "Edge", "Metal", "StoichSubstance",
                               "PureFluid"};
 
     static int _itypes[]   = {cIdealGas, cIncompressible, 
-                              cSurf, cEdge, cMetal, cSolidCompound,
+                              cSurf, cEdge, cMetal, cStoichSubstance,
                               cPureFluid};
 
     ThermoPhase* ThermoFactory::newThermoPhase(string model) {
@@ -72,8 +73,8 @@ namespace Cantera {
             th = new MetalPhase;
             break;
 
-        case cSolidCompound:
-            th = new SolidCompound;
+        case cStoichSubstance:
+            th = new StoichSubstance;
             break;
 
 #ifdef INCL_PURE_FLUIDS

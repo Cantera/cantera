@@ -223,6 +223,7 @@ namespace Cantera {
         bool ready() const { return (m_kk > 0); }
 
 
+
     protected:
 
         /**
@@ -239,6 +240,11 @@ namespace Cantera {
 	 * m_kk is the number of species in the mixture
 	 */
         int m_kk;
+
+        void setMolecularWeight(int k, double mw) {
+            m_molwts[k] = mw;
+            m_rmolwts[k] = 1.0/mw;
+        }
 
     private:
 

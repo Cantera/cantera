@@ -9,7 +9,7 @@ function m = MassFlowController(upstream, downstream)
 %    mass flow controller that maintains a constant mass flow rate
 %    independent of upstream or downstream conditions. If two reactor
 %    objects are supplied as arguments, the controller is installed
-%    between the two reactors.
+%    between the two reactors. 
 %
 %    see also: FlowDevice
 %

@@ -1,37 +1,83 @@
 #
-# an ideal Rankine cycle
+# an Rankine cycle
 #
 from Cantera import *
-from Cantera.pureFluids import Water
+from Cantera.liquidvapor import Water
 
+# parameters
+eta_pump = 0.6     # pump isentropic efficiency
+et_turbine = 0.8   # turbine isentropic efficiency
+pmax = 8.0e5       # maximum pressure
+
+########################################################
+#
+# some useful functions
+#
+
+def pump(fluid, pfinal, eta):
+    """Adiabatically pump a fluid to pressure pfinal, using
+    a pump with isentropic efficiency eta."""
+    h0 = fluid.enthalpy_mass()
+    s0 = fluid.entropy_mass()
+    fluid.setState_SP(s0, pfinal)
+    h1s = fluid.enthalpy_mass()
+    isentropic_work = h1s - h0
+    actual_work = isentropic_work / eta
+    h1 = h0 + actual_work
+    fluid.setState_HP(h1, pfinal)
+    return actual_work
+
+def expand(fluid, pfinal, eta):
+    """Adiabatically expand a fluid to pressure pfinal, using
+    a turbine with isentropic efficiency eta."""
+    h0 = fluid.enthalpy_mass()
+    s0 = fluid.entropy_mass()
+    fluid.setState_SP(s0, pfinal)
+    h1s = fluid.enthalpy_mass()
+    isentropic_work = h0 - h1s
+    actual_work = isentropic_work * eta
+    h1 = h0 - actual_work
+    fluid.setState_HP(h1, pfinal)
+    return actual_work
+
+###############################################################
+
+
+# create an object representing water
 w = Water()
 
 # start with saturated liquid water at 300 K
 w.setTemperature(300.0)
-w.setState_satLiquid()
-h1 = w.enthalpy_mass()
-p1 = w.pressure()
+w.setState_Tsat(0.0)
+hf = w.enthalpy_mass()
+print w
+w.setState_Tsat(1.0)
+hv = w.enthalpy_mass()
+print hv - hf
 
-# pump it isentropically to 10 MPa
-w.setState_SP(w.entropy_mass(), 1.0e7)
-h2 = w.enthalpy_mass()
+print w
 
-pump_work = h2 - h1
+# pump it adiabatically to pmax
+pump_work = pump(w, pmax, eta_pump)
+print pump_work
 
-# heat at constant pressure to 1500 K
-w.setState_TP(1500.0, w.pressure())
-h3 = w.enthalpy_mass()
+# heat it at constant pressure until it reaches the
+# saturated vapor state at this pressure
+#w.setState_Psat(1.0)
+#print w
 
-heat_in = h3 - h2
+w.setTemperature(273.16)
+w.setState_Tsat(0.0)
+h0 = w.enthalpy_mass()
+for t in [300.0, 350.0, 400.0, 450.0, 500.0]:
+    w.setTemperature(t)
+    w.setState_Tsat(0.0)
+    hf = w.enthalpy_mass()
+    w.setState_Tsat(1.0)
+    hv = w.enthalpy_mass()
+    print t, 0.001*(hf - h0), 0.001*(hv - h0), 0.001*(hv - hf)
 
-# expand isentropically back to 300 K
-w.setState_SP(w.entropy_mass(), p1)
-h4 = w.enthalpy_mass()
-
-work_out = h3 - h4
-heat_out = h4 - h1
-
-efficiency = (work_out - pump_work)/heat_in
-
-print 'efficiency = ',efficiency
-
+for t in [750.0, 800.0, 850.0, 1150.0]:
+    w.setState_TP(t, 2.0e4)
+    print t, w.enthalpy_mass() - h0
+    

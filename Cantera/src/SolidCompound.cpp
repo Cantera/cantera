@@ -1,6 +1,6 @@
 /**
  *
- *  @file IdealGasPhase.cpp
+ *  @file StoichSubstance.cpp
  *
  */
 
@@ -11,16 +11,16 @@
 
 #include "ct_defs.h"
 #include "mix_defs.h"
-#include "SolidCompound.h"
+#include "StoichSubstance.h"
 #include "SpeciesThermo.h"
 
 namespace Cantera {
 
-    void SolidCompound::initThermo() {
+    void StoichSubstance::initThermo() {
         m_kk = nSpecies();
         if (m_kk > 1) {
             throw CanteraError("initThermo",
-                "solid compounds may only contain one species.");
+                "stoichiometric substances may only contain one species.");
         } 
         doublereal tmin = m_spthermo->minTemp();
         doublereal tmax = m_spthermo->maxTemp();
@@ -35,7 +35,7 @@ namespace Cantera {
     }
 
 
-    void SolidCompound::_updateThermo() const {
+    void StoichSubstance::_updateThermo() const {
         doublereal tnow = temperature();
         if (m_tlast != tnow) {
             m_spthermo->update(tnow, m_cp0_R.begin(), m_h0_RT.begin(), 

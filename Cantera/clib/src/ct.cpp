@@ -539,21 +539,23 @@ extern "C" {
         catch (CanteraError) { return DERR; }
     }
 
-    int DLL_EXPORT th_setState_satLiquid(int n) {
+    int DLL_EXPORT th_setState_Psat(int n, double p, double x) {
         try {
-            purefluid(n)->setState_satLiquid();
+            purefluid(n)->setState_Psat(p, x);
             return 0;
         }
         catch (CanteraError) { return -1; }
     }
 
-    int DLL_EXPORT th_setState_satVapor(int n) {
+    int DLL_EXPORT th_setState_Tsat(int n, double t, double x) {
         try {
-            purefluid(n)->setState_satVapor();
+            purefluid(n)->setState_Tsat(t, x);
             return 0;
         }
         catch (CanteraError) { return -1; }
     }
+
+
     
     //-------------- Kinetics ------------------//
 

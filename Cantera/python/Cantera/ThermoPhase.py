@@ -262,11 +262,11 @@ class ThermoPhase(Phase):
         """Vapor fraction."""
         return _cantera.thermo_getfp(self._phase_id,53)
 
-    def setState_satLiquid(self):
-        _cantera.thermo_setfp(self._phase_id,7,0.0,0.0)
+    def setState_Psat(self, p, vaporFraction):
+        _cantera.thermo_setfp(self._phase_id,8, p, vaporFraction)
 
-    def setState_satVapor(self):
-        _cantera.thermo_setfp(self._phase_id,8,0.0,0.0)        
+    def setState_Tsat(self, t, vaporFraction):
+        _cantera.thermo_setfp(self._phase_id,7, t, vaporFraction)        
         
 
     def thermophase(self):

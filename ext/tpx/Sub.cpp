@@ -108,13 +108,13 @@ namespace tpx {
     
     // absolute tolerances
     
-    double TolAbsH = 0.01;                       // J/kg
-    double TolAbsU = 0.01;
-    double TolAbsS = 1.e-5;
+    double TolAbsH = 0.0001;                       // J/kg
+    double TolAbsU = 0.0001;
+    double TolAbsS = 1.e-6;
     double TolAbsP = 0.000;                      // Pa
     double TolAbsV = 1.e-7;
     double TolAbsT = 1.e-3;
-    double TolRel = 3.e-6;
+    double TolRel = 3.e-7;
     
     void Substance::Set(int XY, double x0, double y0) {
 	double temp;
@@ -324,6 +324,8 @@ namespace tpx {
     }
 
     double Substance::vprop(int ijob) {
+        //cout << "vprop: T, Rho = " << T << " " << Rho << endl; 
+        //cout << "entropy = " << sp() << endl;
 	switch (ijob) {
 	case EvalH: return hp();
 	case EvalS: return sp();
@@ -413,6 +415,9 @@ namespace tpx {
             y_here = prop(ify);
             err_x = fabs(X - x_here);
             err_y = fabs(Y - y_here);
+            //cout << x_here << "  " << y_here << endl;
+            //cout << err_x << "  " << err_y << endl;
+            //cout << X << "  " << Y << endl;
 
             if ((err_x < atx + rtx*Xa) && (err_y < aty + rty*Ya)) break;
             

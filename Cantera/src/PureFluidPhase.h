@@ -38,6 +38,10 @@ namespace Cantera {
                 }
                 m_subflag = subflag;
                 m_mw = m_sub->MolWt();
+                m_weight[0] = m_mw;
+                setMolecularWeight(0,m_mw);
+                double one = 1.0;
+                setMoleFractions(&one);
                 double cp0_R, h0_RT, s0_R, T0, p;
                 T0 = 298.15;
                 if (T0 < m_sub->Tcrit()) {
@@ -197,7 +201,11 @@ namespace Cantera {
         virtual doublereal satPressure(doublereal t) const {
             doublereal tsv = m_sub->Temp();
             doublereal vsv = m_sub->v();
-            m_sub->Set(tpx::TP, t, 0.5*m_sub->Pcrit());
+            if (t < 0.0)
+                m_sub->Set(tpx::TP, temperature(), 0.5*m_sub->Pcrit());
+            else
+                m_sub->Set(tpx::TP, t, 0.5*m_sub->Pcrit());
+
             doublereal ps = m_sub->Ps();
             m_sub->Set(tpx::TV,tsv,vsv);
             check();
@@ -211,19 +219,20 @@ namespace Cantera {
             return x;
         }
         
-        virtual void setState_satLiquid() {
+        virtual void setState_Tsat(doublereal t, doublereal x) {
+            setTemperature(t);
             setTPXState();
-            m_sub->Set(tpx::TX, temperature(), 0.0);
+            m_sub->Set(tpx::TX, t, x);
             setDensity(1.0/m_sub->v());            
-            check();            
         }
-        
-        virtual void setState_satVapor() {        
+
+        virtual void setState_Psat(doublereal p, doublereal x) {
             setTPXState();
-            m_sub->Set(tpx::TX, temperature(), 1.0);
-            setDensity(1.0/m_sub->v());
-            check();
-        }        
+            m_sub->Set(tpx::PX, p, x);
+            setTemperature(m_sub->Temp());
+            setDensity(1.0/m_sub->v());            
+        }
+
 
 protected:
         

@@ -34,7 +34,8 @@ namespace Cantera {
     const int cIncompressible = 2; //  ConstDensityThermo in ConstDensityThermo.h
     const int cSurf = 3;           //  SurfPhase in SurfPhase.h 
     const int cMetal = 4;          //  MetalPhase in MetalPhase.h
-    const int cSolidCompound = 5;  //  SolidCompound in SolidCompound.h
+    //    const int cSolidCompound = 5;  //  SolidCompound in SolidCompound.h
+    const int cStoichSubstance = 5; // StoichSubstance.h
     
     // pure fluids with liquid/vapor eqs of state
     const int cPureFluid = 10;

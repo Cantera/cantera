@@ -1,12 +1,11 @@
-#
-# A CVD example. This example computes the growth rate of a diamond film according to
-# a simplified version of a particular published growth mechanism (see file diamond.cti
-# for details). Only the surface coverage equations are solved here; the gas composition
-# is fixed. (For an example of coupled gas-phase and surface, see catcomb.py.)
-#
-# Atomic hydrogen plays an important role in diamond CVD, and this
-# example computes the growth rate and surface coverages as a function
-# of [H] at the surface for fixed temperature and [CH3].
+# A CVD example. This example computes the growth rate of a diamond
+#film according to a simplified version of a particular published
+#growth mechanism (see file diamond.cti for details). Only the surface
+#coverage equations are solved here; the gas composition is
+#fixed. (For an example of coupled gas-phase and surface, see
+#catcomb.py.)  Atomic hydrogen plays an important role in diamond CVD,
+#and this example computes the growth rate and surface coverages as a
+#function of [H] at the surface for fixed temperature and [CH3].
 
 from Cantera import *
 import math

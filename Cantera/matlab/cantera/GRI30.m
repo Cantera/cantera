@@ -4,12 +4,12 @@ function s = GRI30(tr)
 %
 %     GRI-Mech 3.0 is a widely-used reaction mechanism for natural gas
 %     combustion. It contains 53 species composed of the elements H,
-%     C, O, N, and/or Ar, and contains 325 reactions, most of which
-%     are reversible. GRI-Mech 3.0, like most combustion mechanisms,
-%     is designed for use at pressures where the ideal gas law holds.
+%     C, O, N, and/or Ar, and 325 reactions, most of which are
+%     reversible. GRI-Mech 3.0, like most combustion mechanisms, is
+%     designed for use at pressures where the ideal gas law holds.
 %
 %     Function GRI30 creates the solution according to the
-%     specifications in file gri30.xml. The ideal gas equation of
+%     specifications in file gri30.cti. The ideal gas equation of
 %     state is used. Transport property evaluation is disabled by
 %     default. To enable transport properties, supply the name of
 %     the transport model to use.

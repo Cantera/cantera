@@ -1012,9 +1012,15 @@ class ideal_gas(phase):
 
     def is_ideal_gas(self):
         return 1
-    
-class pure_solid(phase):
-    """A pure solid."""
+
+
+class stoichiometric_solid(phase):
+    """A solid compound or pure element.Stoichiometric solid phases
+    contain exactly one species, which always has unit activity. The
+    solid is assumed to have constant density. Therefore the rates of
+    reactions involving these phases do not contain any concentration
+    terms for the (one) species in the phase, since the concentration
+    is always the same.  """
     def __init__(self,
                  name = '',
                  elements = '',
@@ -1038,13 +1044,57 @@ class pure_solid(phase):
     def build(self, p):
         ph = phase.build(self, p)
         e = ph.addChild("thermo")
-        e['model'] = 'SolidCompound'
+        e['model'] = 'StoichCompound'
         addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
         if self._tr:
             t = ph.addChild('transport')
             t['model'] = self._tr
         k = ph.addChild("kinetics")
         k['model'] = 'none'        
+
+
+class stoichiometric_liquid(stoichiometric_solid):
+    """A stoichiometric liquid. Currently, there is no distinction
+    between stoichiometric liquids and solids."""
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 density = -1.0,
+                 transport = 'None',
+                 initial_state = None,
+                 options = []):
+        
+        stoichiometric_solid.__init__(self, name, 3, elements,
+                                      species, 'none',
+                                      initial_state, options)
+        self._dens = density
+        self._pure = 1
+        if self._dens < 0.0:
+            raise 'density must be specified.' 
+        self._tr = transport
+        
+class pure_solid(stoichiometric_solid):
+    """Deprecated. Use stoichiometric_solid"""
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 density = -1.0,
+                 transport = 'None',
+                 initial_state = None,
+                 options = []):
+        
+        stoichiometric_solid.__init__(self, name, 3, elements,
+                                      species, 'none',
+                                      initial_state, options)
+        self._dens = density
+        self._pure = 1
+        if self._dens < 0.0:
+            raise 'density must be specified.' 
+        self._tr = transport
+        print 'WARNING: entry type pure_solid is deprecated.'
+        print 'Use stoichiometric_solid instead.'
 
 
 class metal(phase):
@@ -1062,8 +1112,6 @@ class metal(phase):
                        initial_state, options)
         self._dens = density
         self._pure = 0
-        #if self._dens < 0.0:
-        #    raise 'density must be specified.'        
         self._tr = transport
 
     def conc_dim(self):
@@ -1115,8 +1163,13 @@ class incompressible_solid(phase):
         k['model'] = 'none'        
 
 
-class pure_fluid(phase):
-    """A pure fluid."""
+class liquid_vapor(phase):
+    """A fluid with a complete liquid/vapor equation of state.
+    This entry type selects one of a set of predefined fluids with
+    built-in liquid/vapor equations of state. The substance_flag
+    parameter selects the fluid. See purefluids.py for the usage
+    of this entry type."""
+    
     def __init__(self,
                  name = '',
                  elements = '',
@@ -1310,7 +1363,10 @@ validate()
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.30  2004-02-08 13:25:21  dggoodwin
+# Revision 1.31  2004-03-12 05:59:59  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.30  2004/02/08 13:25:21  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.29  2004/02/08 13:22:31  dggoodwin

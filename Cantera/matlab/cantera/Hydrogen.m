@@ -7,5 +7,8 @@ function n = Hydrogen()
 %   equation of state is taken from W. C. Reynolds, "Thermodynamic
 %   Properties in SI."
 %
+%   For more details, see classes Cantera::PureFluid and tpx::hydrogen in the
+%   Cantera C++ source code documentation.
+%
 n = importPhase('purefluids.cti','hydrogen');
 

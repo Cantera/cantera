@@ -96,7 +96,7 @@ namespace Cantera {
         doublereal tol) {
         doublereal dt;
         setPressure(p);
-        for (int n = 0; n < 20; n++) {
+        for (int n = 0; n < 50; n++) {
             dt = (h - enthalpy_mass())/cp_mass();
             if (dt > 100.0) dt = 100.0;
             else if (dt < -100.0) dt = -100.0; 
@@ -112,7 +112,7 @@ namespace Cantera {
         doublereal tol) {
         doublereal dt;
         setDensity(1.0/v);
-        for (int n = 0; n < 20; n++) {
+        for (int n = 0; n < 50; n++) {
             dt = (u - intEnergy_mass())/cv_mass();
             if (dt > 100.0) dt = 100.0;
             else if (dt < -100.0) dt = -100.0; 
@@ -128,7 +128,7 @@ namespace Cantera {
         doublereal tol) {
         doublereal dt;
         setPressure(p);
-        for (int n = 0; n < 20; n++) {
+        for (int n = 0; n < 50; n++) {
             dt = (s - entropy_mass())*temperature()/cp_mass();
             if (dt > 100.0) dt = 100.0;
             else if (dt < -100.0) dt = -100.0; 
@@ -144,10 +144,8 @@ namespace Cantera {
         doublereal tol) {
         doublereal dt;
         setDensity(1.0/v);
-        for (int n = 0; n < 20; n++) {
-            cout << "n = " << n << endl;
+        for (int n = 0; n < 50; n++) {
             dt = (s - entropy_mass())*temperature()/cv_mass();
-            cout << "dt = " << dt << endl;
             if (dt > 100.0) dt = 100.0;
             else if (dt < -100.0) dt = -100.0; 
             setTemperature(temperature() + dt);

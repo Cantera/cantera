@@ -7,5 +7,8 @@ function w = Water()
 %   equation of state is taken from W. C. Reynolds, "Thermodynamic
 %   Properties in SI."
 %
+%   For more details, see classes Cantera::PureFluid and tpx::water in the
+%   Cantera C++ source code documentation.
+%
 w = importPhase('purefluids.cti','water');
 

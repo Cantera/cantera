@@ -453,6 +453,9 @@ namespace Cantera {
          * Specific entropy. Units: J/kg/K. 
          */
         doublereal entropy_mass() const {
+            //cout << "entropy_mass. " << endl;
+            //cout << "entropy_mole = " << entropy_mole() << endl;
+            //cout << "meanMolecularWeight = " << meanMolecularWeight() << endl;
             return entropy_mole()/meanMolecularWeight();
         }
 
@@ -601,13 +604,14 @@ namespace Cantera {
             err("vaprFraction"); return -1.0;
         }
         
-        virtual void setState_satLiquid() {
-            err("setState_satLiquid"); 
+        virtual void setState_Tsat(doublereal t, doublereal x) {
+            err("setState_sat"); 
         }
-        
-        virtual void setState_satVapor() {
-            err("setState_satVapor");             
+
+        virtual void setState_Psat(doublereal p, doublereal x) {
+            err("setState_sat"); 
         }
+
 
         /**
          * @internal Install a species thermodynamic property

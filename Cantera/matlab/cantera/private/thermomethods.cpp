@@ -29,9 +29,9 @@ static void thermoset( int nlhs, mxArray *plhs[],
         case 1:
             ierr = th_setPressure(th,*ptr); break;
         case 2:
-            ierr = th_setState_satLiquid(th); break;
+            ierr = th_setState_Psat(th,ptr[0],ptr[1]); break;
         case 3:
-            ierr = th_setState_satVapor(th); break;
+            ierr = th_setState_Tsat(th,ptr[0],ptr[1]); break;
         default:
             mexErrMsgTxt("unknown attribute.");
         }
@@ -62,7 +62,8 @@ static void thermoset( int nlhs, mxArray *plhs[],
     else if (job == 50) {
         int xy = int(*ptr);
         ierr = th_equil(th, xy);
-    } 
+    }
+    if (ierr < 0) reportError();
 
     plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
     double *h = mxGetPr(plhs[0]);
