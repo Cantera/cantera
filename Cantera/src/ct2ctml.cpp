@@ -45,7 +45,9 @@ namespace ctml {
     }
 
     static bool checkPython() {
-        string path = tmpDir() + "/.check.pyw";
+        time_t aclock;
+        time( &aclock );
+        string path = tmpDir() + "/.check"+int2str(aclock)+".pyw";
         ofstream f(path.c_str());
         if (!f) {
             throw CanteraError("checkPython","cannot open "+path+" for writing");
@@ -78,20 +80,25 @@ namespace ctml {
         catch (...) {
             return false;
         }
+#ifdef WIN32
+        cmd = "cmd /C rm " + path;
+#else
+        cmd = "rm -f " + path;
+        try { 
+            system(cmd.c_str());
+        }
+        catch (...) { ; }
+#endif
         return true;
     }
 
 
     void ct2ctml(const char* file) {
 
-        int irnd = rand();
-        struct tm *newtime;
         time_t aclock;
         time( &aclock );
-        cout << "aclock = " << aclock << endl;
-        cout << rand() << endl;
 
-        string path = tmpDir()+"/.cttmp.pyw";
+        string path = tmpDir()+"/.cttmp"+int2str(aclock)+".pyw";
         ofstream f(path.c_str());
         if (!f) {
             throw CanteraError("ct2ctml","cannot open "+path+" for writing.");
@@ -148,6 +155,15 @@ namespace ctml {
 			       "could not convert input file to CTML\n "
 			       "command line was: " + msg);
         }
+#ifdef WIN32
+        cmd = "cmd /C rm " + path;
+#else
+        cmd = "rm -f " + path;
+        try {
+            system(cmd.c_str());
+        }
+        catch (...) { ; }
+#endif
     }
 
 
