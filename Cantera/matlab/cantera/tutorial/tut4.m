@@ -1,8 +1,11 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Tutorial 4:   Chemical Equilibrium
 %
-%   Tutorial 4:   Chemical Equilibrium
+%   Topics:
+%     - the equilibrate method
+%     - specifying fixed TP, HP, UV, SV, or SP
+%     - checking reaction rates of progress
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+help tut4
 
 % To set a gas mixture to a state of chemical equilibrium, use the
 % 'equilibrate' method.
@@ -70,7 +73,8 @@ end
 % Cantera C++ class 'ChemEquil' at http://www.cantera.org. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+clear all
+cleanup
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   end of tutorial 4
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

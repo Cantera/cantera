@@ -1,9 +1,11 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Tutorial 1:  Getting started
+%   
+%  Topics:
+%    - creating a gas mixture
+%    - setting the state
+%    - cleaning up
 %
-%                          Getting started
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+help tut1
 
 % Start MATLAB, and at the prompt type:
 
@@ -173,7 +175,7 @@ set(gas1,'T',900.0,'P',1.e5,'X','CH4:1,O2:2,N2:7.52')
 % extensive properties must be entered *per unit mass*. 
 
 % Setting the enthalpy and pressure:
-set(gas1, 'Enthalpy', 2*enthalpy_mass(gas1), 2*oneatm);
+set(gas1, 'Enthalpy', 2*enthalpy_mass(gas1), 'Pressure', 2*oneatm);
 
 
 % The composition above was specified using a string. The format is a
@@ -194,6 +196,12 @@ set(gas1, 'X', x)
 % To set the mass fractions to equal values:
 set(gas1, 'Y', x)
 
+
+% This clears all Matlab objects created
+clear all
+
+% and this clears all Cantera objects created
+cleanup
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   end of tutorial 1

@@ -38,13 +38,13 @@ ixml = hndl(r);
 % representing the phases participating in the mechanism. 
 iphase = thermo_hndl(ph);
 if nargin > 2
-  ineighbor1 = thermo_hndl(neighbor1)
+  ineighbor1 = thermo_hndl(neighbor1);
   if nargin > 3
-    ineighbor2 = thermo_hndl(neighbor2)
+    ineighbor2 = thermo_hndl(neighbor2);
     if nargin > 4
-      ineighbor3 = thermo_hndl(neighbor3)
+      ineighbor3 = thermo_hndl(neighbor3);
       if nargin > 5
-	ineighbor4 = thermo_hndl(neighbor4)
+	ineighbor4 = thermo_hndl(neighbor4);
       end
     end
   end

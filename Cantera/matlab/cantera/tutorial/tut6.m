@@ -1,7 +1,15 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Tutorial 6:   Transport properties
 %
-%   Tutorial 5:   Transport properties
+%    Topics:
+%       - mixture-averaged and multicomponent models
+%       - viscosity
+%       - thermal conductivity
+%       - binary diffusion coefficients
+%       - mixture-averaged diffusion coefficients
+%       - multicomponent diffusion coefficients
+%       - thermal diffusion coefficients
 %
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Methods are provided to compute transport properties. By
@@ -37,9 +45,11 @@ lambda = [thermalConductivity(g1), thermalConductivity(g2)]
 bdiff1 = binDiffCoeffs(g1)
 bdiff2 = binDiffCoeffs(g2)
 
-% Mixture-averaged diffusion coefficients. These are only
-% implemented if the mixture-averaged model is used.
-dmix = mixDiffCoeffs(g2)
+% Mixture-averaged diffusion coefficients. For convenience, the
+% multicomponent model implements mixture-averaged diffusion
+% coefficients too.
+dmix2 = mixDiffCoeffs(g1)
+dmix1 = mixDiffCoeffs(g2)
 
 % Multicomponent diffusion coefficients. These are only implemented
 % if the multicomponent model is used. 
@@ -59,4 +69,5 @@ dt = thermalDiffCoeffs(g1)
 % fractions for the purpose of computing transport properties. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+clear all
+cleanup

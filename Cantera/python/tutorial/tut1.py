@@ -280,11 +280,11 @@ gas1.set(Enthalpy = 2*gas1.enthalpy_mass(), Pressure = 2*OneAtm)
 # fractions to the same value, do this:
 
 x = ones(53,'d');   # NumPy array of 53 ones
-set(gas1, X = x)
+gas1.set(X = x)
 print gas1
 
 # To set the mass fractions to equal values:
-set(gas1, Y = x)
+gas1.set(Y = x)
 print gas1
 
 

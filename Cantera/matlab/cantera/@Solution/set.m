@@ -169,6 +169,6 @@ elseif ntot == 2
   else
     error('unimplemented property pair');
   end
-else
+elseif ntot > 2
   error('too many properties specified');
 end

@@ -1,84 +1,128 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Tutorial 2: Working with input files
 %
-%    Tutorial 2: Using your own reaction mechanism files
+%   Topics:
+%     - using functions 'importPhase' and 'importInterface'
+%     - input files distributed with Cantera
+%     - the Cantera search path
+%     - CTML files
+%     - converting from CK format
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+help tut2
 
-
-% Function 'IdealGasMix'
-% ----------------------
+t0 = cputime;
 
 % In the last tutorial, we used function GRI30 to create an object
 % that models an ideal gas mixture with the species and reactions of
-% GRI-Mech 3.0. Another way to do this is shown here:
+% GRI-Mech 3.0. Another way to do this is shown here, with statements
+% added to measure how long this takes:
 
-gas = IdealGasMix('gri30.cti')
+gas1 = importPhase('gri30.cti', 'gri30');
+msg = sprintf('time to create gas1: %f', cputime - t0)
 
-% Function 'IdealGasMix' constructs an object representing an ideal
-% gas mixture by reading in attributes of the mixture from a file,
-% which in this case is 'gri30.cti'. This file contains a complete
-% specification of the GRI-Mech 3.0 reaction mechanism, including
-% element data (name, atomic weight), species data (name, elemental
-% composition, coefficients to compute thermodynamic and transport
-% properties), and reaction data (stoichiometry, rate coefficient
-% parameters). The file is written in a format understood by
-% Cantera, which is described in the document "Defining Phases and
-% Interfaces."
-%
+% Function 'importPhase' constructs an object representing a phase of
+% matter by reading in attributes of the phase from a file, which in
+% this case is 'gri30.cti'. This file contains several phase
+% spcifications; the one we want here is 'gri30', which is specified
+% by the second argument.  This file contains a complete specification
+% of the GRI-Mech 3.0 reaction mechanism, including element data
+% (name, atomic weight), species data (name, elemental composition,
+% coefficients to compute thermodynamic and transport properties), and
+% reaction data (stoichiometry, rate coefficient parameters). The file
+% is written in a format understood by Cantera, which is described in
+% the document "Defining Phases and Interfaces."
+
+% On some systems, processing long CTI files like gri30.cti can be a
+% little slow. For example, using a typical laptop computer running
+% Windows 2000, the statement above takes more than 4 s, while on a
+% Mac Powerbook G4 of similar CPU speed it takes only 0.3 s. In any
+% case, running it again takes much less time, because Cantera
+% 'remembers' files it has already processed and doesn't need to read
+% them in again:
+
+t0 = cputime;
+gas1b = importPhase('gri30.cti', 'gri30');
+msg = sprintf('time to create gas1b: %f', cputime - t0)
+
+
+% CTI files distributed with Cantera
+%-----------------------------------
+
 % Several reaction mechanism files in this format are included in the
-% Cantera distribution, including ones that model high-temperature air
-% and a hydrogen/oxygen reaction mechanism.  Under Windows, the
-% installation program puts these files in 'C:\Program
-% File\Common Files\Cantera.'  On a unix/linux machine, they are
-% kept in the 'data' subdirectory within the Cantera
-% installation directory.
-%
-%
-% CK-format files
-% ---------------
-%
-% Cantera also comes with a converter utility for reaction mechanism
-% files written in the format used in the Chemkin-II software package
-% [1], which we will refer to as 'CK format'. Many gas-phase reaction
-% mechanisms are available in this format. (See, for example,
-% http://www.galcit.caltech.edu/EDL/mechanisms/library/library.html)
+% Cantera distribution, including ones that model high-temperature
+% air, a hydrogen/oxygen reaction mechanism, and a few surface
+% reaction mechanisms. Under Windows, these files may be located in
+% 'C:\Program Files\Common Files\Cantera', or in 'C:\cantera\data',
+% depending on how you installed Cantera and the options you
+% specified.  On a unix/linux/Mac OSX machine, they are usually kept
+% in the 'data' subdirectory within the Cantera installation
+% directory.
 
-% To use a CK-format reaction mechanism file, from the command line 
-% type:
-%
-% ck2cti -i mech.ck -t therm.dat -tr tran.dat -id mymechname > mech.cti
-%
-% Here therm.dat is a CK-format file containing species thermo
-% data, and tran.dat is a Chemkin-compatible transport database. If
-% transport properties are not needed, the transport database can
-% be omitted, and if all species thermo data are in the mechanism
-% file, the thermo database can also be omitted.
+% If for some reason Cantera has difficulty finding where these files
+% are on your system, set environment variable CANTERA_DATA to the
+% directory where they are located. Alternatively, you can call function
+% addDirectory to add a directory to the Cantera search path:
+addDirectory('/usr/local/cantera/my_data_files');
 
-% How does Cantera find .cti input files?  Cantera always looks in the
-% local directory first. If it is not there, Cantera looks for it on
-% its search path. It looks for it in the data directory specified
-% when Cantera was built (by default this is /usr/local/cantera/data
-% on unix systems). If you define environment variable
-% CANTERA_DATA_DIR, it will also look there, or else you can call
-% function addDirectory to add a directory to the search path.
+% Cantera input files are plain text files, and can be created with
+% any text editor. See the document 'Defining Phases and Interfaces'
+% for more information.
 
-% Warning: when Cantera reads a .cti input file, wherever it is
+
+% Importing multiple phases or interfaces
+% ---------------------------------------
+
+% A Cantera input file may contain more than one phase specification,
+% or may contain specifications of interfaces (surfaces). Here we
+% import definitions of two bulk phases and the interface between them
+% from file diamond.cti:
+
+gas2 = importPhase('diamond.cti', 'gas');        % a gas
+
+diamond = importPhase('diamond.cti','diamond');  % bulk diamond
+
+diamonnd_surf = importInterface('diamond.cti','diamond_100',...
+                                gas2, diamond);
+
+% Note that the bulk (i.e., 3D) phases that participate in the surface
+% reactions must also be passed as arguments to importInterface.
+
+
+% CTML files
+% ----------
+
+% Note that when Cantera reads a .cti input file, wherever it is
 % located, it always writes a file of the same name but with extension
 % .xml *in the local directory*. If you happen to have some other file
 % by that name, it will be overwritten. Once the XML file is created,
 % you can use it instead of the .cti file, which will result in
 % somewhat faster startup.
 
+gas4 = importPhase('gri30.xml','gri30');
+
+% Interfaces can be imported from XML files too.
+diamonnd_surf2 = importInterface('diamond.xml','diamond_100',...
+                                 gas2, diamond);
 
 
 
-%----------------------------------------------------------------
-% [1] R. J. Kee, F. M. Rupley, and J. A. Miller, Sandia National
-% Laboratories Report SAND89-8009 (1989).
+% Converting CK-format files
+% --------------------------
 
+% Many existing reaction mechanism files are in "CK format," by which
+% we mean the input file format developed for use with the Chemkin-II
+% software package. [See R. J. Kee, F. M. Rupley, and J. A. Miller,
+% Sandia National Laboratories Report SAND89-8009 (1989).]
 
+% Cantera comes with a converter utility program 'ck2cti' (or
+% 'ck2cti.exe') that converts CK format into Cantera format. This
+% program should be run from the command line first to convert any CK
+% files you plan to use into Cantera format. This utility program can
+% also be downloaded from the Cantera User's Group web site.
+%
+% Here's an example of how to use it:
+%
+% ck2cti -i mech.inp -t therm.dat -tr tran.dat -id mymech > mech.cti
+%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   end of tutorial 2
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+clear all
+cleanup

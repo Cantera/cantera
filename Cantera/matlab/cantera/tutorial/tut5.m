@@ -1,8 +1,14 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Tutorial 5:   Reaction information and rates
 %
-%   Tutorial 5:   Reaction information and rates
+%    Topics:
+%       - stoichiometric coefficients
+%       - reaction rates of progress
+%       - species production rates
+%       - reaction equations
+%       - equilibrium constants
+%       - rate multipliers
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+help tut5
 
 g = GRI30;
 set(g,'T',1500,'P',oneatm,'X',ones(nSpecies(g),1));
@@ -101,5 +107,6 @@ for i = 1:nReactions(g)
    m = multiplier(g, i);
 end
 
-
+clear all
+cleanup
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
