@@ -145,7 +145,9 @@ namespace Cantera {
         doublereal dt;
         setDensity(1.0/v);
         for (int n = 0; n < 20; n++) {
+            cout << "n = " << n << endl;
             dt = (s - entropy_mass())*temperature()/cv_mass();
+            cout << "dt = " << dt << endl;
             if (dt > 100.0) dt = 100.0;
             else if (dt < -100.0) dt = -100.0; 
             setTemperature(temperature() + dt);

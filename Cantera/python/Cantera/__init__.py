@@ -1,16 +1,15 @@
-#
-#  Cantera
-#
+"""
+  Cantera provides capabilities for simulating problems involving
+  chemical kinetics and transport processes.
+"""
 
 import types
-ok = 0
+#ok = 0
 from constants import *
 from exceptions import *
 from gases import *
 from set import set
 from importFromFile import *
-
-#from _version import __createdate__
 
 try:
     from Numeric import array, asarray, zeros, ones
@@ -31,11 +30,9 @@ except:
     """
     raise "could not import Numeric"
 
-#
-#  utilities
-#
-# write list items in comma-separated-value format
+
 def writeCSV(f, list):
+    """Write list items to file 'f' in comma-separated-value format."""
     for item in list:
         if type(item) == types.StringType:
             f.write(item+', ')
@@ -45,6 +42,7 @@ def writeCSV(f, list):
 
 
 def table(keys, values):
+    """Create a map with the keys and values specified."""
     x = {}
     pairs = map(None, keys, values)
     for p in pairs:
@@ -53,9 +51,11 @@ def table(keys, values):
     return x
 
 def getCanteraError():
+    """Return the Cantera error message, if any."""
     import _cantera
     return _cantera.get_Cantera_Error() 
 
 def refCount(a):
-#    import _cantera
+    """Return the reference count for an object."""
+    import _cantera
     return _cantera.ct_refcnt(a)

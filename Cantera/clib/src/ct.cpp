@@ -428,10 +428,11 @@ extern "C" {
     }
 
     int DLL_EXPORT th_set_SV(int n, double* vals) {
-        try { th(n)->setState_SV(vals[0],vals[1]);
-        return 0; }
+        try { 
+            th(n)->setState_SV(vals[0],vals[1]);
+            return 0; 
+        }
         catch (CanteraError) {return -1;}
-        catch (...) {return ERR;}
     }
 
     int DLL_EXPORT th_set_SP(int n, double* vals) {
@@ -532,17 +533,26 @@ extern "C" {
     }
 
     double DLL_EXPORT th_satPressure(int n, double t) {
-        return purefluid(n)->satPressure(t);
+        try {
+            return purefluid(n)->satPressure(t);
+        }
+        catch (CanteraError) { return DERR; }
     }
 
     int DLL_EXPORT th_setState_satLiquid(int n) {
-        purefluid(n)->setState_satLiquid();
-        return 0;
+        try {
+            purefluid(n)->setState_satLiquid();
+            return 0;
+        }
+        catch (CanteraError) { return -1; }
     }
 
     int DLL_EXPORT th_setState_satVapor(int n) {
-        purefluid(n)->setState_satVapor();
-        return 0;
+        try {
+            purefluid(n)->setState_satVapor();
+            return 0;
+        }
+        catch (CanteraError) { return -1; }
     }
     
     //-------------- Kinetics ------------------//

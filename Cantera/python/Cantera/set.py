@@ -1,7 +1,7 @@
 from exceptions import CanteraError
 
-def set(a, **options):
-
+def setByName(a, options):
+    
     pval = None
     hval = None
     uval = None
@@ -54,5 +54,7 @@ def set(a, **options):
         else:
             raise CanteraError('unimplemented property pair')
    
+def set(a, **options):
+    setByName(a, options)
 
 

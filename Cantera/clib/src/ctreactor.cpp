@@ -287,8 +287,14 @@ extern "C" {
     }
 
     int DLL_EXPORT flowdev_install(int i, int n, int m) {
-        _flowdev(i)->install(*_reactor(n), *_reactor(m) );
-        return 0;
+        try {
+            bool ok = _flowdev(i)->install(*_reactor(n), *_reactor(m) );
+            if (!ok) throw CanteraError("install","Could not install flow device.");
+            return 0;
+        }
+        catch (CanteraError) {
+            return -1;
+        }
     }
 
     double DLL_EXPORT flowdev_massFlowRate(int i) {

@@ -27,6 +27,7 @@ class ReactorNet:
         Create a new ReactorNet instance. If a list of reactors is supplied,
         these will be added to the network.
         """
+        self._reactors = []
         self.__reactornet_id = _cantera.reactornet_new()
         if reactorlist:
             for r in reactorlist:
@@ -49,6 +50,7 @@ class ReactorNet:
         """
         Add a reactor to the network.
         """
+        self._reactors.append(reactor)
         _cantera.reactornet_addreactor(self.__reactornet_id, reactor.reactor_id())
 
         

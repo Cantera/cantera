@@ -165,6 +165,34 @@ namespace Cantera {
             return ts;
         }
         
+        virtual void setState_HP(doublereal h, doublereal p, 
+            doublereal tol = 1.e-8) {
+            m_sub->Set(tpx::HP, h, p);
+            setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+            check();
+        }
+
+        virtual void setState_UV(doublereal u, doublereal v, 
+            doublereal tol = 1.e-8) {
+            m_sub->Set(tpx::UV, u, v);
+            setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+            check();
+        }
+
+        virtual void setState_SV(doublereal s, doublereal v, 
+            doublereal tol = 1.e-8) {
+            m_sub->Set(tpx::SV, s, v);
+            setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+            check();
+        }
+
+        virtual void setState_SP(doublereal s, doublereal p, 
+            doublereal tol = 1.e-8) {
+            m_sub->Set(tpx::SP, s, p);
+            setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+            check();
+        }
+
         /// saturation pressure
         virtual doublereal satPressure(doublereal t) const {
             doublereal tsv = m_sub->Temp();

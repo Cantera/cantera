@@ -143,7 +143,6 @@ thermo_setfp(PyObject *self, PyObject *args)
     //vector_fp v(2);
     double v[2];
     v[0] = v1; v[1] = v2;
-
     // set floating-point attributes
     switch (job) {
     case 1:
@@ -153,7 +152,8 @@ thermo_setfp(PyObject *self, PyObject *args)
     case 3:
         iok = th_set_UV(th, v); break;
     case 4:
-        iok = th_set_SV(th, v); break;
+        iok = th_set_SV(th, v);
+        break;
     case 5:
         iok = th_set_SP(th, v); break;
     case 6:

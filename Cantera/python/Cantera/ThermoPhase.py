@@ -24,7 +24,6 @@ class ThermoPhase(Phase):
         """Create a new object representing a phase of matter, or wrap
         an existing kernel instance."""
         
-        #Phase.__init__(self)
         self._phase_id = 0
         self._owner = 0
         self.idtag = ""
@@ -50,17 +49,6 @@ class ThermoPhase(Phase):
         if self._owner:
             _cantera.thermo_delete(self._phase_id)
 
-    #def importFromXML(self, xml_root, id):
-    #    _cantera.thermo_import_xml(self._phase_id, xml_root._xml_id, id)
-        
-    def thermophase(self):
-        """Return the integer index that is used to
-        reference the kernel object."""
-        return self._phase_id
-
-    def thermo_hndl(self):
-        return self._phase_id
-    
     def refPressure(self):
         """Reference pressure [Pa].
         All standard-state thermodynamic properties are for this pressure.
@@ -232,7 +220,7 @@ class ThermoPhase(Phase):
 
     def setState_SV(self, s, v):
         """Set the state by specifying the specific entropy
-        and the specific volume."""        
+        and the specific volume."""
         _cantera.thermo_setfp(self._phase_id, 4, s, v)
         
     def setState_SP(self, s, p):
@@ -281,7 +269,16 @@ class ThermoPhase(Phase):
         _cantera.thermo_setfp(self._phase_id,8,0.0,0.0)        
         
 
+    def thermophase(self):
+        """Return the integer index that is used to
+        reference the kernel object. For internal use."""
+        return self._phase_id
 
+    def thermo_hndl(self):
+        """Return the integer index that is used to
+        reference the kernel object. For internal use."""        
+        return self._phase_id
+    
 
 
 

@@ -7,6 +7,7 @@
 
 #include "ThermoPhase.h"
 #include <stdio.h>
+#include "mix_defs.h"
 
 namespace Cantera {
 
@@ -26,6 +27,13 @@ namespace Cantera {
         s += p;
         sprintf(p, "  mean mol. weight    %12.6g  amu\n", th.meanMolecularWeight());
         s += p;
+        if (th.eosType() == cPureFluid) {
+            // if (th.temperature() < th.critTemperature()) {
+                sprintf(p, "    vapor fraction    %12.6g \n", 
+                    th.vaporFraction());
+                s += p;
+                //}
+        }
 
         if (show_thermo) {
         sprintf(p, "\n");

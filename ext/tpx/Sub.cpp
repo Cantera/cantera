@@ -413,6 +413,7 @@ namespace tpx {
             y_here = prop(ify);
             err_x = fabs(X - x_here);
             err_y = fabs(Y - y_here);
+
             if ((err_x < atx + rtx*Xa) && (err_y < aty + rty*Ya)) break;
             
             /* perturb t */

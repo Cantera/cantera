@@ -20,7 +20,7 @@
 
 namespace Cantera {
 
-    ReactorBase::ReactorBase() : m_nsp(0), 
+    ReactorBase::ReactorBase(string name) : m_nsp(0), 
                                  m_mix(0), 
                                  m_time(0.0), 
                                  m_vol(1.0), 
@@ -33,7 +33,9 @@ namespace Cantera {
                                  m_intEnergy(0.0), 
                                  m_pressure(0.0),
                                  m_nwalls(0)
-    {}
+    {
+        m_name = name;
+    }
  
 //     void ReactorBase::resetState() {
 //         m_mix->saveState(m_state);

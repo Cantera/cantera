@@ -64,8 +64,10 @@ namespace Cantera {
         //@}
 
         void addReactor(ReactorBase* r) {
-            m_r.push_back(r);
-            m_nr++;
+            if (r->type() == ReactorType) {
+                m_r.push_back(r);
+                m_nr++;
+            }
         }
 
         ReactorBase& reactor(int n) {
@@ -101,6 +103,7 @@ namespace Cantera {
         vector_fp m_atol;
         doublereal m_rtol;
         doublereal m_maxstep;
+        bool m_verbose;
 
     private:
 

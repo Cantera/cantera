@@ -1007,7 +1007,6 @@ namespace Cantera {
         }
         th->freezeSpecies();
         th->initThermo();
-        setState(phase, th);
 
         th->saveSpeciesData(db);
 
@@ -1015,6 +1014,7 @@ namespace Cantera {
             doublereal dsub = doublereal(subflag);
             th->setParameters(1, &dsub);
         }
+        setState(phase, th);
 
         return true;
     }        

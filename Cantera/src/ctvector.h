@@ -84,8 +84,12 @@ namespace ct {
         ctvector_int operator=(const ctvector_int& x);
         virtual ~ctvector_int();
 
-        value_type operator[](size_t n) const { return _data[n]; }
-        value_type& operator[](size_t n) { return _data[n]; }
+        value_type operator[](size_t n) const { 
+            return _data[n];
+        }
+        value_type& operator[](size_t n) { 
+            return _data[n];
+        }
 
         void resize(size_t n);
         void resize(size_t n, value_type v0);

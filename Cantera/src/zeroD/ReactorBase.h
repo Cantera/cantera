@@ -40,12 +40,13 @@ namespace Cantera {
 
     public:
 
-        ReactorBase();
+        ReactorBase(string name = "(none)");
         virtual ~ReactorBase(){}
 
         //-----------------------------------------------------
 
         virtual int type() const { return 0; }
+        string name() { return m_name; }
 
         /** @name Methods to set up a simulation. */
         //@{
@@ -158,7 +159,7 @@ namespace Cantera {
         vector<Wall*> m_wall;
         vector_int m_lr;
         int m_nwalls;
-
+        string m_name;
         
     private:
 

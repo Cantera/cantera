@@ -154,7 +154,8 @@ namespace Cantera {
 
         virtual doublereal massFlowRate() {
             m_mdot = m_coeffs[0]* (in().pressure() - out().pressure());
-            return (m_mdot > 0.0 ? m_mdot : 0.0);
+            if (m_mdot < 0.0) m_mdot = 0.0;
+            return m_mdot;
         }
 
     protected:

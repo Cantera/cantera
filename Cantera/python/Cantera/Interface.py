@@ -1,5 +1,3 @@
-"""
-"""
 
 import string
 import os
@@ -11,9 +9,10 @@ import XML
 
 class Interface(SurfacePhase, Kinetics):    
     """
-    ...
+    Interface objects represent reacting 2D interfaces between bulk 3D phases. Use function
+    importInterface to build an Interface object from a CTI file definition, rather than
+    calling the Interface constructor directly.
     """
-
     def __init__(self, src="", root=None, phases=[]):
         
         self.ckin = 0
@@ -29,16 +28,13 @@ class Interface(SurfacePhase, Kinetics):
         ff = os.path.splitext(fname)
         
         # get the 'phase' element
-
         if src and not root:
             root = XML.XML_Node(name = 'doc', src = fn, preprocess = 1)
             
         if id:
             s = root.child(id = id)            
-            #s = XML.find_XML(src=src, root=root, id=id)
         else:
             s = root.child(name = "phase")            
-            #s = XML.find_XML(src=src, root=root, name="phase")                
 
         # get the equation of state model
         SurfacePhase.__init__(self, xml_phase=s)

@@ -1,6 +1,6 @@
-#
-#  constants
-#
+"""
+Physical Constants
+"""
 
 OneAtm = 101325.0
 GasConstant = 8314.0

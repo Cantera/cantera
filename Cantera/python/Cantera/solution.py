@@ -8,6 +8,7 @@ from constants import *
 from ThermoPhase import ThermoPhase
 from Kinetics import Kinetics
 from Transport import Transport
+from set import setByName
 import XML
 import _cantera
 
@@ -64,5 +65,6 @@ class Solution(ThermoPhase, Kinetics, Transport):
     def __repr__(self):
         return _cantera.phase_report(self._phase_id, self.verbose)
 
-
+    def set(self, **options):
+        setByName(self, options)
     

@@ -9,9 +9,10 @@
  */
   
 #include <math.h>
-#include "ctvector.h"
 #include <algorithm>
+#include <iostream>
 using namespace std;
+#include "ctvector.h"
 using namespace ct;
 
     ostream& operator<<(ostream& s, const ctvector_int& v) {

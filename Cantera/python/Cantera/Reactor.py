@@ -10,7 +10,9 @@ import types
 class ReactorBase:
     """Base class for reactors.""" 
 
-    def __init__(self, contents = None, type = -1):
+    def __init__(self, name = '', contents = None,
+                 volume = 1.0, energy = 'on',
+                 type = -1, verbose = 0):
         """
         Create a new ReactorBase instance. If 'contents' is specified,
         method 'insert' is invoked. The 'type' parameter determines
@@ -18,13 +20,28 @@ class ReactorBase:
         2 = Reservoir).
         """
         self.__reactor_id = _cantera.reactor_new(type)
+        self._inlets = []
+        self._outlets = []
+        self._walls = []
+        self._name = name
+        self._verbose = verbose
         if contents:
             self.insert(contents)
+        self.setInitialVolume(volume)
+        self.setEnergy(energy)
 
     def __del__(self):
         """Delete the reactor instance."""
+        if self._verbose:
+            print 'Deleting '+self._name
         _cantera.reactor_del(self.__reactor_id)
 
+    def __str__(self):
+        return self._name
+
+    def name(self):
+        return self._name
+    
     def reactor_id(self):
         """The integer index used to access the kernel reactor
         object. For internal use.  """
@@ -38,8 +55,7 @@ class ReactorBase:
         self.contents = contents
         _cantera.reactor_setThermoMgr(self.__reactor_id, contents._phase_id)
         _cantera.reactor_setKineticsMgr(self.__reactor_id, contents.ckin)
-        #self.setThermoMgr(contents)
-        #self.setKineticsMgr(contents)
+
         
     def setInitialTime(self, t0):
         """Set the initial time. Restarts integration from this time
@@ -54,8 +70,13 @@ class ReactorBase:
         """Turn the energy equation on or off. If off, the reactor
         temperature is held constant."""
         ie = 1
-        if e == 'off':
+        if e == 'off' or e == 0:
             ie = 0
+        if self._verbose:
+            if ie:
+                print 'enabling energy equation for reactor',self._name
+            else:
+                print 'disabling energy equation for reactor',self._name                
         _cantera.reactor_setEnergy(self.__reactor_id, ie)
 
     def temperature(self):
@@ -120,18 +141,40 @@ class ReactorBase:
         self.contents.setMassFractions(y)
         return self.contents.moleFractions()
 
+    def inlets(self):
+        return self._inlets
 
+    def outlets(self):
+        return self._outlets
 
+    def walls(self):
+        return self._walls
+    
+    def _addInlet(self, inlet):
+        """For internal use"""
+        self._inlets.append(inlet)
+
+    def _addOutlet(self, outlet):
+        self._outlets.append(outlet)
+
+    def _addWall(self, wall):
+        self._walls.append(wall)
+
+    
 class Reactor(ReactorBase):
     """
     A reactor.
     """
-    def __init__(self, contents = None):
+    def __init__(self, contents = None, name = '<reactor>',
+                 volume = 1.0, energy = 'on',
+                 verbose = 0):
         """
         Create a Reactor instance, and if 'contents' is specified,
         insert it.
         """
-        ReactorBase.__init__(self, contents = contents, type = 1)
+        ReactorBase.__init__(self, contents = contents, name = name,
+                             volume = volume, energy = energy,
+                             verbose = verbose, type = 1)
             
 
 class Reservoir(ReactorBase):
@@ -140,8 +183,9 @@ class Reservoir(ReactorBase):
     derives from class ReactorBase, and overloads method advance to do
     nothing.
     """
-    def __init__(self, contents = None):
-        ReactorBase.__init__(self, contents = contents, type = 2)
+    def __init__(self, contents = None, name = '<reservoir>', verbose = 0):
+        ReactorBase.__init__(self, contents = contents,
+                             name = name, verbose = verbose, type = 2)
             
     def advance(self, time):
         """Do nothing."""
@@ -155,18 +199,25 @@ class FlowDevice:
     """
     Base class for devices that regulate the flow rate in a fluid line.
     """
-    def __init__(self, type):
+    def __init__(self, type, name, verbose):
         """
         Create a new instance of type 'type'
         """
+        self._name = name
+        self._verbose = verbose
         self.__fdev_id = _cantera.flowdev_new(type)
 
     def __del__(self):
         """
         Delete the instance.
         """
+        if self._verbose:
+            print 'deleting '+self._name
         _cantera.flowdev_del(self.__fdev_id)
         
+    def name(self):
+        return self._name
+    
     def ready(self):
         """
         Returns true if the device is ready to use.
@@ -196,6 +247,11 @@ class FlowDevice:
         Install the device between the upstream and downstream
         reactors.
         """
+        if self._verbose:
+            print
+            print self._name+': installing between '+upstream.name()+' and '+downstream.name()
+        upstream._addOutlet(self)
+        downstream._addInlet(self)
         _cantera.flowdev_install(self.__fdev_id, upstream.reactor_id(),
                                   downstream.reactor_id())
     def setParameters(self, c):
@@ -203,28 +259,42 @@ class FlowDevice:
         n = len(params)
         return _cantera.flowdev_setParameters(self.__fdev_id, n, params)    
 
-        
-        
+_mfccount = 0
+
 class MassFlowController(FlowDevice):
-    def __init__(self, upstream=None, downstream=None):
-        FlowDevice.__init__(self,1)
+    def __init__(self, upstream=None, downstream=None, name='', verbose=0):
+        global _mfccount
+        if name == '':
+            name = 'MFC_'+`_mfccount`
+        _mfccount += 1
+        FlowDevice.__init__(self,1,name,verbose)
         if upstream and downstream:
             self.install(upstream, downstream)
 
     def setMassFlowRate(self, mdot):
+        if self._verbose:
+            print self._name+': setting mdot to '+`mdot`+' kg/s'
         self.setSetpoint(mdot)
 
 
+_valvecount = 0
 
 class Valve(FlowDevice):
-    def __init__(self, upstream=None, downstream=None):
-        FlowDevice.__init__(self,3)
+    def __init__(self, upstream=None, downstream=None, name='', verbose=0):
+        global _valvecount
+        if name == '':
+            name = 'Valve_'+`_valvecount`
+        _valvecount += 1
+        FlowDevice.__init__(self,3,name,verbose)
         if upstream and downstream:
             self.install(upstream, downstream)                
 
     def setValveCoeff(self, v):
         vv = zeros(1,'d')
         vv[0] = v
+        if self._verbose:
+            print
+            print self._name+': setting valve coefficient to '+`v`+' kg/Pa-s'
         self.setParameters(vv)
 
 
@@ -300,8 +370,10 @@ class Wall:
         _cantera.wall_setExpansionRate(self.__wall_id, n)
             
     def install(self, left, right):
-        self.left = left
-        self.right = right
+        #self.left = left
+        #self.right = right
+        left._addWall(this)
+        right._addWall(this)
         _cantera.wall_install(self.__wall_id, left.reactor_id(),
                                right.reactor_id())
 

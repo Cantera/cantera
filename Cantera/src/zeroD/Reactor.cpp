@@ -175,6 +175,7 @@ namespace Cantera {
         m_pressure = m_thermo->pressure();
         m_intEnergy = m_thermo->intEnergy_mass();
 
+        m_mix->saveState(m_state);
     }
 
 
@@ -191,6 +192,8 @@ namespace Cantera {
     {
         int i, k, nk;
         m_time = time;
+        m_mix->restoreState(m_state);
+
         //        updateState(y);          // synchronize the reactor state with y
 
         m_vdot = 0.0;
