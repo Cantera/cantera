@@ -188,7 +188,7 @@ SHARED=${SHARED:="-shared"}
 F90=${F90:=f90}
 
 # Fortran compiler flags
-FFLAGS=${FFLAGS:='-O2'}
+FFLAGS=${FFLAGS:='-O0 -g'}
 
 # the additional Fortran flags required for linking, if any
 #LFORT_FLAGS =
