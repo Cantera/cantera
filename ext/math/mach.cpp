@@ -52,5 +52,9 @@ long i1mach_(long *i)
 
 long i1mach(long *i) { return i1mach_(i); }
 
+long _i1mach_(long *i) {
+  return i1mach_(i);
+}
+
 }
 
