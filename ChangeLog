@@ -1,0 +1,2576 @@
+2004-05-13 10:45  dggoodwin
+
+	* Cantera/src/converters/CKParser.cpp: fixed bug in which a species
+	  name beginning with M was interpreted as a third body
+
+2004-04-24 08:44  dggoodwin
+
+	* configure, Cantera/matlab/setup_winmatlab.py,
+	  Cantera/python/Cantera/Func.py,
+	  Cantera/python/Cantera/Reactor.py,
+	  Cantera/python/examples/catcomb.py,
+	  Cantera/python/examples/diamond.py,
+	  Cantera/python/examples/dustygas.py,
+	  Cantera/python/examples/flame1.py,
+	  Cantera/python/examples/isentropic.py,
+	  Cantera/python/examples/mix1.py, Cantera/python/examples/mix2.py,
+	  Cantera/python/examples/reactor1.py,
+	  Cantera/python/examples/reactor2.py, data/inputs/diamond.cti:
+	  updated examples
+
+2004-04-24 05:55  dggoodwin
+
+	* Cantera/matlab/cantera/: @ReactorNet/ReactorNet.m,
+	  @ReactorNet/advance.m, @ReactorNet/reactornet_hndl.m,
+	  @ReactorNet/step.m, @ReactorNet/private/reactornetmethods.m,
+	  private/reactornetmethods.cpp: initial import
+
+2004-04-24 05:50  dggoodwin
+
+	* test_problems/: cxx_ex/kin1_blessed.csv, cxx_ex/kin2_blessed.csv,
+	  silane_equil/output_blessed.txt: updated blessed files due to
+	  slight change in how Nasa polynomial thermo properties computed
+
+2004-04-23 14:02  hkmoffa
+
+	* Cantera/src/surfKinetics.cpp: Call to the baseclass init()
+	  function from init()
+
+2004-04-23 13:37  hkmoffa
+
+	* Cantera/src/GasKinetics.cpp: Cosmetic -> changed args to fall
+	  after (
+
+2004-04-23 13:36  hkmoffa
+
+	* Cantera/src/PureFluidPhase.h: Added a header.
+
+2004-04-23 12:55  hkmoffa
+
+	* Cantera/src/: importCTML.cpp, importCTML.h: Made
+	  checkRxnElementBalance global scoped, so that it could be used in
+	  cads package.
+
+2004-04-23 12:05  hkmoffa
+
+	* Cantera/src/importCTML.cpp: Strictly formatting-   broke up long
+	  lines   added a few comments.
+
+2004-04-23 12:03  hkmoffa
+
+	* Cantera/src/importCTML.h: Added prototypes for 2 functions.
+
+2004-04-23 10:35  hkmoffa
+
+	* Cantera/fortran/src/Makefile.in: Changed libfct.a.a to libfct.a
+
+2004-04-23 10:17  hkmoffa
+
+	* Cantera/fortran/f77demos/.cvsignore: Added 2 generated files.
+
+2004-04-23 10:13  hkmoffa
+
+	* Cantera/fortran/src/fct.cpp: Changed a getMassFractions() call
+	  from 2 args to 1 arg. The old method had been taken out of
+	  State.h. And, this file had not been subsequently updated.
+
+2004-04-23 09:42  hkmoffa
+
+	* Cantera/matlab/.cvsignore: Added setup_matlab.py, this is a
+	  generated file.
+
+2004-04-23 09:41  hkmoffa
+
+	* Cantera/src/.cvsignore: Added config.h
+
+2004-04-23 09:34  dggoodwin
+
+	* Cantera/src/importCTML.cpp: added function
+	  checkRxnElementBalance, and modified importReaction to call it
+	  before adding a reaction to check that it is balanced.
+
+2004-04-22 15:59  hkmoffa
+
+	* config/: configure, configure.in: Added python_prefix capability.
+	  Can now install site-packages into a different directory than the
+	  Cantera install directory.  Added a particles section that
+	  shouldn't be turned on.
+
+2004-04-22 15:54  hkmoffa
+
+	* .cvsignore: Added a file.
+
+2004-04-22 15:43  hkmoffa
+
+	* Makefile.in: Making sure that build_particles=0 turns off going
+	  to cads directory
+
+2004-04-22 15:42  hkmoffa
+
+	* configure: Added a python_prefix capability that allows one to
+	  put python site packages in a different spot than cantera
+	  installation files.
+
+2004-04-22 14:50  hkmoffa
+
+	* tools/src/.cvsignore: Added 2 files.
+
+2004-04-22 14:33  hkmoffa
+
+	* Cantera/python/Makefile.in: Part of separating python prefix from
+	  prefix.
+
+2004-04-22 14:28  hkmoffa
+
+	* Makefile.in: Added installs for a few more files from demo
+	  directory.  -> including Makefile.install -> Makefile
+
+2004-04-22 14:14  hkmoffa
+
+	* Cantera/cxx/: Makefile.in, demos/Makefile.in,
+	  demos/Makefile.install: Ok, think I fixed it. Added a demo
+	  results and added Makefile back into repository so that demo
+	  problems run correctly in both directories (and give the same
+	  result).
+
+2004-04-22 12:49  hkmoffa
+
+	* Cantera/cxx/demos/Makefile.in: Fixed an error in the clean rule.
+
+2004-04-22 12:46  hkmoffa
+
+	* config/configure.in: Fixed a typo.
+
+2004-04-22 12:44  hkmoffa
+
+	* config/: configure, configure.in: Added 2 directories to the list
+	  of Makefiles to be created.
+
+2004-04-22 12:42  hkmoffa
+
+	* Cantera/cxx/: Makefile.in, demos/.cvsignore, demos/Makefile,
+	  demos/Makefile.in, demos/kin1_blessed.csv,
+	  demos/kin1_blessed.dat, src/.cvsignore, src/Makefile.in,
+	  src/cxxutils.cpp, src/writelog.cpp: Added a small demo.  Added
+	  comments.
+
+2004-04-22 12:06  hkmoffa
+
+	* Cantera/matlab/cantera/.cvsignore: Added ctbin.m
+
+2004-03-18 05:26  dggoodwin
+
+	* Cantera/matlab/cantera/@ThermoPhase/: setState_Psat.m,
+	  setState_Tsat.m: initial import
+
+2004-03-12 19:25  dggoodwin
+
+	* Cantera/src/Phase.cpp: bug fixedin setMassFractionsByName
+
+2004-02-22 21:47  dggoodwin
+
+	* Cantera/matlab/cantera/@Func/: char.m, display.m, plus.m,
+	  rdivide.m, subsref.m, times.m, private/funcmethods.m: initial
+	  import
+
+2004-02-02 19:33  dggoodwin
+
+	* Cantera/src/: EdgePhase.h, EdgeKinetics.cpp, EdgeKinetics.h:
+	  initial import
+
+2004-01-30 15:14  hkmoffa
+
+	* Cantera/clib/src/Makefile.in: Added an all: rule. The end effect
+	  is that the library isn't archived when there isn't any need to.
+
+2004-01-30 10:27  hkmoffa
+
+	* configure: Small change to all presetting end libs.
+
+2004-01-14 08:30  hkmoffa
+
+	* test_problems/cxx_ex/: gri30.xml, kin1_blessed.csv,
+	  kin2_blessed.csv: Changed the blessed files. There was a small
+	  change in the actual answer.
+
+2004-01-14 08:03  hkmoffa
+
+	* test_problems/surfkin/surface.xml: Changed the xml file to have
+	  the same element ordering as the gri file's elements.
+
+2004-01-14 08:00  hkmoffa
+
+	* test_problems/diamondSurf/: diamond.cti, diamond_blessed.xml,
+	  tdia_a.py: changed the cti file so that the elements of all
+	  phases were ordered the same.
+
+2004-01-11 04:57  dggoodwin
+
+	* Cantera/cxx/demos/: Makefile, kinetics1.cpp: initial import
+
+2004-01-05 09:01  dggoodwin
+
+	* Cantera/cxx/demos/: example_utils.h, kinetics1.cpp: initial
+	  import
+
+2004-01-04 06:40  dggoodwin
+
+	* Cantera/src/: config.h, ct2ctml.cpp: changed check.py to
+	  .check.py
+
+2004-01-01 17:02  dggoodwin
+
+	* test_problems/: cxx_ex/Makefile.in, cxx_ex/runtest,
+	  diamondSurf/runtest, silane_equil/runtest, surfkin/runtest: added
+	  definition of CANTERA_DATA
+
+2004-01-01 15:41  dggoodwin
+
+	* Cantera/cxx/src/Makefile.in: initial import
+
+2004-01-01 15:39  dggoodwin
+
+	* Makefile.in, config/configure, config/configure.in: cleanup
+
+2004-01-01 15:26  dggoodwin
+
+	* include/: Cantera.h, GRI30.h, IdealGasMix.h, Interface.h, README,
+	  ctml.h, equilibrium.h, integrators.h, kinetics.h, numerics.h,
+	  onedim.h, reactionpaths.h, surface.h, transport.h, zerodim.h:
+	  files moved to Cantera/cxx/include
+
+2004-01-01 15:13  dggoodwin
+
+	* Cantera/cxx/: cxxutils.cpp, writelog.cpp, src/cxxutils.cpp,
+	  src/writelog.cpp: innitial import
+
+2004-01-01 15:11  dggoodwin
+
+	* Cantera/: README.txt, cxx/include/Cantera.h, cxx/include/GRI30.h,
+	  cxx/include/IdealGasMix.h, cxx/include/Interface.h,
+	  cxx/include/equilibrium.h, cxx/include/integrators.h,
+	  cxx/include/kinetics.h, cxx/include/numerics.h,
+	  cxx/include/onedim.h, cxx/include/reactionpaths.h,
+	  cxx/include/surface.h, cxx/include/transport.h,
+	  cxx/include/zerodim.h, src/Makefile.in, src/ct2ctml.cpp: initial
+	  import
+
+2004-01-01 11:56  dggoodwin
+
+	* configure, Cantera/src/MMCollisionInt.cpp,
+	  Cantera/src/Makefile.in, Cantera/src/MixTransport.cpp,
+	  Cantera/src/Newton.h, Cantera/src/PropertyUpdater.h,
+	  Cantera/src/misc.cpp, include/Cantera.h, include/README,
+	  include/config.h, include/ftn_defs.h: cleanup
+
+2003-12-31 00:38  dggoodwin
+
+	* Makefile.in: -
+
+2003-12-31 00:31  dggoodwin
+
+	* Makefile.in: -
+
+2003-12-31 00:27  dggoodwin
+
+	* tools/Makefile.in: added build_ck
+
+2003-12-31 00:14  dggoodwin
+
+	* Cantera/src/ct2ctml.cpp: removed #include pypath.h
+
+2003-12-31 00:04  dggoodwin
+
+	* Makefile.in: -
+
+2003-12-22 08:06  dggoodwin
+
+	* win32/: cantera.dsw, cantera/cantera.dsp, cxxutils/cxxutils.dsp,
+	  cxxutils/cxxutils.mak, tpx/tpx.dsp, tpx/tpx.mak: initial import
+
+2003-12-22 06:41  dggoodwin
+
+	* config/: configure, configure.in, testpch.h: initial import
+
+2003-12-22 06:30  dggoodwin
+
+	* Makefile.in, config.h, Cantera/clib/src/ct.h,
+	  Cantera/clib/src/ctonedim.cpp, Cantera/matlab/setup_matlab.py,
+	  Cantera/matlab/cantera/buildwin.m,
+	  Cantera/matlab/cantera/private/transportmethods.cpp,
+	  Cantera/src/BandMatrix.cpp, Cantera/src/DenseMatrix.cpp,
+	  Cantera/src/config.h, Cantera/src/oneD/boundaries1D.cpp,
+	  config/configure, config/configure.in, win32/cantera.dsw,
+	  win32/transport/transport.dsp: updated Windows build procedure
+
+2003-12-20 10:03  hkmoffa
+
+	* Cantera/src/transport/MixTransport.cpp: Fix to getDiffusion in
+	  order to avoid a NAN result for m_nsp = 1 case and for mixtures
+	  with X_i=1.0.
+
+2003-12-20 09:53  hkmoffa
+
+	* tools/testtools/csvdiff.cpp: Fixed 2 things:	 stripped column
+	  names   checked for zero title lines
+
+2003-12-20 04:12  dggoodwin
+
+	* Cantera/src/ChemEquil.cpp, examples/cxx/equil_example1.cpp,
+	  test_problems/cxx_ex/eq1_blessed.csv,
+	  test_problems/cxx_ex/eq1_blessed.dat: changed problem parameters
+	  to keep T in range
+
+2003-12-20 04:06  dggoodwin
+
+	* test_problems/cxx_ex/eq1_blessed.csv,
+	  test_problems/cxx_ex/eq1_blessed.dat,
+	  test_problems/silane_equil/output_blessed.txt,
+	  test_problems/silane_equil/silane_equil.cpp,
+	  examples/cxx/equil_example1.cpp: changed problem parameters to
+	  keep T in range
+
+2003-12-20 03:43  dggoodwin
+
+	* tools/templates/cxx/demo.cpp: changed example parameters
+
+2003-12-20 03:39  dggoodwin
+
+	* tools/templates/cxx/demo.cpp: changed example parameters
+
+2003-12-20 03:35  dggoodwin
+
+	* Makefile.in, Cantera/src/ChemEquil.cpp: minor cleanup
+
+2003-12-19 21:09  dggoodwin
+
+	* config.h, Cantera/matlab/setup_matlab.py, Cantera/src/config.h,
+	  tools/Makefile.in, tools/src/finish_install.py.in,
+	  tools/templates/cxx/demo.cpp: -
+
+2003-12-19 21:08  dggoodwin
+
+	* Cantera/src/ChemEquil.cpp: fixed temperature limits
+
+2003-12-15 00:54  dggoodwin
+
+	* config.h, Cantera/matlab/setup_matlab.py,
+	  Cantera/src/Makefile.in, Cantera/src/config.h,
+	  tools/bin/finish_install.py: -
+
+2003-12-13 14:58  dggoodwin
+
+	* Cantera/src/misc.cpp: -
+
+2003-12-13 06:35  dggoodwin
+
+	* INSTALLING, Makefile.in, Cantera/clib/src/ct.cpp,
+	  Cantera/matlab/setup_matlab.py,
+	  Cantera/matlab/setup_matlab.py.in,
+	  Cantera/matlab/cantera/@Solution/set.m,
+	  Cantera/python/setup.py.in, Cantera/src/BandMatrix.cpp,
+	  Cantera/src/Makefile.in, Cantera/src/SurfPhase.h,
+	  Cantera/src/importCTML.cpp, Cantera/src/importCTML.h,
+	  Cantera/src/utilities.h, config/configure, config/configure.in,
+	  data/inputs/Makefile.in, data/inputs/gri30.xml,
+	  ext/tpx/Hydrogen.cpp, ext/tpx/Oxygen.cpp,
+	  tools/bin/finish_install.py: cleanup
+
+2003-12-13 06:08  dggoodwin
+
+	* test_problems/cxx_ex/: gri30.xml, kin1_blessed.csv,
+	  kin2_blessed.csv, tr2_blessed.csv: rebaselined
+
+2003-12-12 09:03  dggoodwin
+
+	* Cantera/matlab/setup_matlab.py.in: -
+
+2003-12-12 08:51  dggoodwin
+
+	* Cantera/matlab/cantera/private/: reactormethods.cpp,
+	  flowdevicemethods.cpp, wallmethods.cpp: -
+
+2003-12-12 08:46  dggoodwin
+
+	* config/configure, config/configure.in,
+	  Cantera/matlab/setup_matlab.py.in: -
+
+2003-12-12 08:44  dggoodwin
+
+	* Cantera/matlab/setup_matlab.py.in: initial import
+
+2003-12-12 08:28  dggoodwin
+
+	* config/: configure, configure.in: -
+
+2003-12-12 08:18  dggoodwin
+
+	* Cantera/: matlab/Makefile.in, python/setup.py.in,
+	  python/Makefile.in: removed libconverters dependency
+
+2003-12-12 08:15  dggoodwin
+
+	* Cantera/clib/src/Makefile.in: removed libconverters dependency
+
+2003-12-12 08:11  dggoodwin
+
+	* INSTALLING, License.txt, config.h, config.h.in, configure,
+	  Cantera/src/Makefile.in, Cantera/src/config.h,
+	  Cantera/src/misc.cpp, config/configure, config/configure.in,
+	  tools/src/Makefile.in: isolated Chemkin file support to building
+	  ck2cti
+
+2003-12-11 05:01  dggoodwin
+
+	* Cantera/python/: Cantera/rxnpath.py, src/ctrpath_methods.cpp,
+	  src/methods.h: set font in reaction path diagrams
+
+2003-12-11 04:15  dggoodwin
+
+	* tools/src/package4mac.in: initial import
+
+2003-12-11 04:06  dggoodwin
+
+	* Cantera/src/transport/: DustyGasTransport.cpp,
+	  DustyGasTransport.h, MixTransport.cpp, MultiTransport.cpp,
+	  SolidTransport.cpp, TransportBase.h, TransportFactory.cpp: minor
+	  cleanup
+
+2003-12-05 09:13  dggoodwin
+
+	* Cantera/src/: PureFluidPhase.h, ThermoPhase.cpp, ThermoPhase.h,
+	  transport/DustyGasTransport.cpp, transport/DustyGasTransport.h: -
+
+2003-11-24 08:39  dggoodwin
+
+	* configure, Cantera/clib/src/ct.cpp, Cantera/clib/src/ct.h,
+	  Cantera/python/setup.py.in,
+	  Cantera/python/Cantera/ThermoPhase.py,
+	  Cantera/python/Cantera/ctml_writer.py,
+	  Cantera/python/src/ctthermo_methods.cpp, Cantera/src/State.h,
+	  Cantera/src/ThermoFactory.cpp, Cantera/src/ThermoPhase.h,
+	  Cantera/src/ctml.cpp, Cantera/src/ctml.h,
+	  Cantera/src/importCTML.cpp, Cantera/src/mix_defs.h,
+	  Cantera/src/xml.cpp, Cantera/src/oneD/StFlow.cpp,
+	  Cantera/src/transport/DustyGasTransport.cpp, ext/tpx/utils.cpp: -
+
+2003-11-19 02:50  dggoodwin
+
+	* Makefile.in, config/configure, config/configure.in,
+	  tools/templates/cxx/demo.cpp, tools/templates/cxx/demo.mak.in,
+	  tools/templates/f77/demo.f, tools/templates/f77/demo.mak.in,
+	  tools/templates/f77/demo_ftnlib.cpp: -
+
+2003-11-19 01:37  dggoodwin
+
+	* Makefile.in, config.h, Cantera/src/config.h, config/configure,
+	  config/configure.in, tools/Makefile.in,
+	  tools/bin/finish_install.py, tools/man/mixmaster.1,
+	  tools/src/finish_install.py.in, tools/templates/f77/demo.mak.in:
+	  -
+
+2003-11-17 07:19  dggoodwin
+
+	* config/configure, config/configure.in, config.h,
+	  Cantera/src/config.h, tools/Makefile.in,
+	  tools/bin/finish_install.py, tools/doc/Cantera.cfg: -
+
+2003-11-17 06:10  dggoodwin
+
+	* Makefile.in, README.txt, config.h.in, configure: -
+
+2003-11-17 05:52  dggoodwin
+
+	* tools/: src/ck2cti.cpp, src/finish_install.py.in,
+	  man/mixmaster.1: initial import
+
+2003-11-17 05:51  dggoodwin
+
+	* Cantera/: matlab/Makefile.in, python/Cantera/Transport.py,
+	  python/examples/flame2.py, src/oneD/StFlow.cpp,
+	  src/oneD/StFlow.h: cleanup
+
+2003-11-16 09:14  dggoodwin
+
+	* tools/man/ck2cti.1: initial import
+
+2003-11-13 03:54  dggoodwin
+
+	* Cantera/src/oneD/MultiJac.cpp: removed NaN test
+
+2003-11-12 10:56  dggoodwin
+
+	* Cantera/src/oneD/StFlow.cpp: multicomponent transport working
+
+2003-11-01 02:11  dggoodwin
+
+	* Cantera/user/: Makefile.in, user.cpp: initial import
+
+2003-10-31 20:48  dggoodwin
+
+	* Cantera/python/Cantera/ctml_writer.py: added capability to have
+	  species names with embedded commas
+
+2003-10-24 03:11  dggoodwin
+
+	* tools/doc/html/banner4.jpg: initial import
+
+2003-10-21 17:33  dggoodwin
+
+	* Cantera/src/: State.h, State.cpp: minor cleanup
+
+2003-10-15 09:21  hkmoffa
+
+	* Cantera/src/misc.cpp: Added a call to delete the static instance
+	  of a Falloff factory
+
+2003-10-15 09:20  hkmoffa
+
+	* Cantera/src/transport/: TransportFactory.cpp, TransportFactory.h:
+	  Fixed a bug in the destructor, wherein an infinite loop condition
+	  may occur.
+
+2003-10-14 05:58  dggoodwin
+
+	* Cantera/python/Cantera/DustyGasTransport.py: initial import
+
+2003-09-25 13:37  dggoodwin
+
+	* Cantera/src/transport/: DustyGasTransport.cpp,
+	  DustyGasTransport.h, Makefile.in, TransportBase.h,
+	  TransportFactory.cpp: added DustyGasTransport
+
+2003-09-16 08:58  hkmoffa
+
+	* Cantera/src/ctml.cpp: Fixed a rather hideous error in getMap(),
+	  that was causing element compositions to be read incorrectly when
+	  the species is made up of a large numbers of a single element.
+
+2003-09-08 06:33  dggoodwin
+
+	* Cantera/fortran/f77demos/: README.txt, ctlib.f, f77demos.mak.in,
+	  isentropic.f: initial import
+
+2003-09-05 23:04  dggoodwin
+
+	* tools/templates/f77/: README_WIN32.txt, f77demo.dsp: initial
+	  import
+
+2003-09-05 09:57  hkmoffa
+
+	* test_problems/diamondSurf/runDiamond.cpp: loosened the tolerances
+	  on nil printing
+
+2003-09-05 09:42  hkmoffa
+
+	* Cantera/src/transport/: MixTransport.cpp, MixTransport.h,
+	  MultiTransport.cpp: Fixed several UMR's discovered while using
+	  valgrind.
+
+2003-09-05 09:20  hkmoffa
+
+	* test_problems/diamondSurf/: Makefile.in, runDiamond.cpp,
+	  runDiamond_blessed.out: Fixed the Makefile.in, undated runDiamond
+	  to print out more nulls, and changed the solution back. I had an
+	  error in my Cantera version that created an undocumented changed
+	  in the result.
+
+2003-09-05 07:45  hkmoffa
+
+	* data/transport/misc_tran.dat: Added a III-V database
+
+2003-09-04 16:42  dggoodwin
+
+	* Cantera/python/Cantera/OneD/: __init__.py, flame.py, onedim.py:
+	  initial import
+
+2003-09-03 13:00  hkmoffa
+
+	* test_problems/diamondSurf/: runDiamond.cpp,
+	  runDiamond_blessed.out: Rebaselined due to change in units
+
+2003-09-03 12:59  hkmoffa
+
+	* Cantera/src/: FalloffFactory.h, FalloffMgr.h: Fixed an error that
+	  I had introduced.
+
+2003-09-03 12:59  hkmoffa
+
+	* test_problems/cxx_ex/: kin1_blessed.csv, kin2_blessed.csv:
+	  rebaselined due to change in constants.
+
+2003-09-03 11:49  hkmoffa
+
+	* Cantera/src/converters/Makefile.in: Might as well keep this in
+	  till it breaks.
+
+2003-09-03 11:48  hkmoffa
+
+	* Cantera/src/converters/: ck2ctml.cpp, ck2ctml.h: Added const to
+	  the aguement lists.
+
+2003-09-03 11:45  hkmoffa
+
+	* Cantera/src/: global.h, misc.cpp: Added a function called
+	  appdelete(), which deletes all global data malloced by Cantera.
+	  With this call added to applications, Cantera passes the leak
+	  check from the valgrind application.	(Well there is some
+	  squirrely behavior associated with either valgrind, linux, or the
+	  stl implementation, but it's not Cantera's fault).
+
+	  I also changed get_XML_File to store the absolute pathname in the
+	  map, so that the same XML tree isn't deleted twice.  Lookups are
+	  always done wrt absolute pathnames.
+
+2003-09-03 11:39  hkmoffa
+
+	* Cantera/src/: importCTML.cpp, importCTML.h: Added the function
+	  get_XML_NameID, which does a search on the xml element name and
+	  id attribute.
+
+	  Made importSpecies() a global function. I needed this in order to
+	  read in enhancements to the XML data file for the PartSpecPhase
+	  class.
+
+2003-09-03 11:33  hkmoffa
+
+	* Cantera/src/: InterfaceKinetics.cpp, InterfaceKinetics.h: Added
+	  comments and changed the order of functions to place like
+	  functions in blocks.
+
+2003-09-03 11:31  hkmoffa
+
+	* Cantera/src/ThermoPhase.h: Cleanup of comment sections.
+
+2003-09-03 11:31  hkmoffa
+
+	* Cantera/src/State.cpp: cleanup
+
+2003-09-03 11:29  hkmoffa
+
+	* Cantera/src/: SpeciesThermo.h, SpeciesThermoFactory.cpp,
+	  SpeciesThermoFactory.h: Two main changes:   The routines will now
+	  throw a named error condition when it   can't match the species
+	  thermo or it can't find the species thermo.	 This is used in
+	  PartSpecPhase.cpp to signal that the thermo	 functions should
+	  be created on the fly from the bulk phase    thermo and the bulk
+	  species basis for the particle species.
+
+	    The second one is to eliminate a potential fatal error of
+	    calling a delete for an object in the object's own destructor
+	    function.
+
+2003-09-03 11:22  hkmoffa
+
+	* Cantera/src/: xml.cpp, xml.h: Added the function findNameID,
+	  which does a tree lookup on the name and the id.  Took out
+	  m_level, which seemed to have no purpose.
+
+2003-09-03 11:19  hkmoffa
+
+	* Cantera/src/Phase.h: Added comments.
+
+2003-09-03 11:18  hkmoffa
+
+	* Cantera/src/.cvsignore: Added a file.
+
+2003-09-03 11:17  hkmoffa
+
+	* Cantera/src/units.h: fixed a potentially fatal error of doing a
+	  delete in a destructor on the object containing the destructor.
+
+2003-09-03 11:15  hkmoffa
+
+	* Cantera/src/: Constituents.cpp, Constituents.h: Added a vector
+	  get for the atoms in a species.
+
+2003-09-03 08:35  hkmoffa
+
+	* Cantera/src/: FalloffFactory.h, FalloffMgr.h: Fixed an error with
+	  the destructors. valgrind showed that destructor wasn't being
+	  called for single instance of FalloffFactory.
+
+2003-08-29 07:59  dggoodwin
+
+	* Cantera/clib/src/genpy.py: initial import
+
+2003-08-25 12:50  dggoodwin
+
+	* Cantera/matlab/cantera/examples/catcomb.m: initial import
+
+2003-08-25 11:29  hkmoffa
+
+	* Cantera/src/SurfPhase.h: Added a dummy routine to set and store
+	  the pressure. It doesn't have an effect on anything. However, it
+	  doesn't cause a cantera error.
+
+2003-08-23 10:14  dggoodwin
+
+	* data/inputs/nasa.cti: initial import
+
+2003-08-21 15:39  hkmoffa
+
+	* Cantera/src/IncompressibleThermo.h: Changed fmax to fmaxx.
+
+2003-08-21 15:38  hkmoffa
+
+	* Cantera/src/RateCoeffMgr.h: Added the writeUpdate() function. It
+	  was needed to resolve externals.
+
+2003-08-21 15:37  hkmoffa
+
+	* Cantera/src/MultiDomain.h: changed fmax to fmaxx
+
+2003-08-21 15:36  hkmoffa
+
+	* Cantera/src/RxnRates.h: Changed fmax() to fmaxx() in one call.
+
+2003-08-21 15:35  hkmoffa
+
+	* Cantera/src/importCTML.cpp: Added more comments.
+
+2003-08-21 15:34  hkmoffa
+
+	* Cantera/src/ct2ctml.cpp: Commented out a spurious write operation
+
+2003-08-21 15:33  hkmoffa
+
+	* Cantera/src/ctml.h: Added a name of an argument.
+
+2003-08-21 15:32  hkmoffa
+
+	* Cantera/src/misc.cpp: Added a comment
+
+2003-08-21 15:32  hkmoffa
+
+	* Cantera/src/: xml.cpp, xml.h: Changed findXMLPhase() to return a
+	  non const XML tree. It broke the runDiamond program the other
+	  way, because importPhase() uses a non const XML tree argument.
+	  Also, the change commits a small alteration in the xml write
+	  operation that allows for the top level of an xml file to contain
+	  multiple elements. previously this was not possible.
+
+2003-08-21 15:28  hkmoffa
+
+	* Cantera/src/zeroD/Reactor.cpp: Fixed a UMR in the file.
+
+2003-08-21 15:26  hkmoffa
+
+	* examples/cxx/: equil_example1.cpp, kinetics_example1.cpp,
+	  rxnpath_example1.cpp, transport_example1.cpp,
+	  transport_example2.cpp: The find_xml interface has been
+	  deprecated. Therefore, there were changes needed in these files.
+
+2003-08-21 15:25  hkmoffa
+
+	* test_problems/: Makefile.in, silane_equil/output_blessed.txt,
+	  silane_equil/silane_equil.cpp, surfkin/Interface.h,
+	  surfkin/Makefile.in, surfkin/output_blessed.txt,
+	  surfkin/surfdemo.cpp: Rebaselined the problem. The solution
+	  changed in the 4th sig digit, because, I think, the physical
+	  constants changed in ct_defs.h
+
+2003-08-21 15:23  hkmoffa
+
+	* test_problems/diamondSurf/: runDiamond.cpp,
+	  runDiamond_blessed.out: Rebaselined test, because the answer
+	  changed in the 4th digit. I think it is due to the change in
+	  physical constants in ct_defs.h
+
+2003-08-21 10:48  hkmoffa
+
+	* Cantera/Makefile.in: changed fortran to fortran/src. Added
+	  particle hooks which should all be turned off by default.
+
+2003-08-21 10:39  hkmoffa
+
+	* Cantera/fortran/src/: .cvsignore, fct.cpp: find_XML is no longer
+	  in the Cantera kernel API.  this fixes the problem, replacing it
+	  with calls to get_XML_Node().
+
+2003-08-21 08:35  hkmoffa
+
+	* test_problems/diamondSurf/: diamond.cti, diamond_blessed.xml,
+	  runDiamond_blessed.out: Rebaselined after adding in a reaction
+
+2003-08-21 07:27  dggoodwin
+
+	* Cantera/src/zeroD/Wall.cpp: add support for surface chem
+
+2003-08-21 07:26  dggoodwin
+
+	* Cantera/src/zeroD/Wall.h: added support for surface chemistry on
+	  each side of the wall
+
+2003-08-21 07:26  dggoodwin
+
+	* Cantera/src/zeroD/Reactor.h: added surface chemistry
+
+2003-08-21 07:25  dggoodwin
+
+	* Cantera/src/zeroD/Reactor.cpp: added support for surface
+	  chemistry.
+
+2003-08-20 19:40  dggoodwin
+
+	* Cantera/src/ct2ctml.cpp: fixed get_CTML_Tree
+
+2003-08-20 14:34  hkmoffa
+
+	* Cantera/src/misc.cpp: Added header lines to the file
+
+2003-08-20 13:23  hkmoffa
+
+	* Cantera/src/xml.h: Added a CVS version comment block
+
+2003-08-20 13:00  hkmoffa
+
+	* config/configure.in: Added another test directory
+
+2003-08-20 12:36  hkmoffa
+
+	* test_problems/diamondSurf/: .cvsignore, Makefile.in, diamond.cti,
+	  diamond_blessed.xml, runDiamond.cpp, runDiamond_blessed.out,
+	  run_diamond.py, runtest: Added a new test problem
+
+2003-08-20 08:30  dggoodwin
+
+	* Cantera/src/oneD/StFlow.h: added some 'const's
+
+2003-08-20 08:28  dggoodwin
+
+	* Cantera/src/global.h: added two new functions.
+
+2003-08-20 08:27  dggoodwin
+
+	* Cantera/src/: ctml.h, oneD/Sim1D.cpp, oneD/StFlow.cpp: added some
+	  'const's
+
+2003-08-20 08:27  dggoodwin
+
+	* Cantera/src/ct_defs.h: changed gas constant to 1999 CODATA value,
+	  removed option to not use kmol.
+
+2003-08-20 08:26  dggoodwin
+
+	* Cantera/src/ct2ctml.cpp: get_CTML_Tree is now deprecated. Use
+	  get_XML_File in misc.cpp.
+
+2003-08-20 08:23  dggoodwin
+
+	* Cantera/src/: SpeciesThermoFactory.cpp, ThermoPhase.h: added some
+	  'const's
+
+2003-08-20 08:19  dggoodwin
+
+	* Cantera/src/misc.cpp: added option to clear all entries in
+	  close_XML_File.
+
+2003-08-20 08:18  dggoodwin
+
+	* Cantera/python/Cantera/Transport.py: stopped storing ThermoPhase
+	  object, since this is self-referential in classes like Solution
+	  that derive from Transport and ThermoPhase.
+
+2003-08-20 08:16  dggoodwin
+
+	* Cantera/python/Cantera/Kinetics.py: stopped storing ThermoPhase
+	  objects, since this is self-referential if a class derives from
+	  both Kinetics and ThermoPhase, causing it to never be deleted.
+
+2003-08-20 08:15  dggoodwin
+
+	* Cantera/python/Cantera/solution.py: changed call to XML_Node
+	  constructor
+
+2003-08-20 08:13  dggoodwin
+
+	* Cantera/python/Cantera/XML.py: removed self.root, which was
+	  self-referencing.  'build' replaced by 'get_XML_File' in
+	  constructor.
+
+2003-08-20 08:03  hkmoffa
+
+	* Cantera/src/importCTML.cpp: More comments added
+
+2003-08-19 15:02  hkmoffa
+
+	* Cantera/python/Cantera/ctml_writer.py: Fixed an error in an
+	  argument list
+
+2003-08-19 10:28  hkmoffa
+
+	* tools/src/: Makefile.in, ck2cti.cpp, ck2ctml.cpp, cti2ctml.cpp:
+	  Added some conversion programs.
+
+2003-08-19 07:57  hkmoffa
+
+	* Cantera/src/SurfPhase.h: Added more comments
+
+2003-08-17 22:05  dggoodwin
+
+	* Cantera/python/Cantera/ctml_writer.py: added support for
+	  specified reaction order, sticking coefficients, coverage
+	  dependence of rate coefficients; fixed error where site_density
+	  was not being converted to SI.
+
+2003-08-17 12:14  dggoodwin
+
+	* Cantera/src/RateCoeffMgr.h: added comments
+
+2003-08-17 11:56  dggoodwin
+
+	* Cantera/src/importCTML.cpp: Added support for coverage-dependent
+	  reaction rates and sticking coefficients, and reactions with
+	  specified  reaction order.
+
+2003-08-17 05:47  dggoodwin
+
+	* Cantera/src/Kinetics.h: cleaned up and added more comments
+
+2003-08-16 13:17  dggoodwin
+
+	* Cantera/python/Cantera/ctml_writer.py: changed handling of
+	  reaction pre-exponential units to write converted value to CTML,
+	  rather than pass original value with a units string
+
+2003-08-14 09:06  hkmoffa
+
+	* Cantera/src/Kinetics.h: Organized the functions to list better
+	  under doxygen.  Added more comments.	Didn't change any of the
+	  actual code.
+
+2003-08-13 08:24  hkmoffa
+
+	* Cantera/src/xml.cpp: Fixed an error with build(). Basically it
+	  was having trouble with the tag "--". I think that tag is illegal
+	  anyway.
+
+2003-08-12 17:55  hkmoffa
+
+	* Cantera/src/xml.cpp: Fixed two errors in reading an xml file.
+	  1) empty child xml elements had an extra / character being added
+	  onto	    the end of their name   2) comments with beginning and
+	  ending white space were being copied	    with an extra space
+	  added on to the front and end of the string.
+
+2003-08-11 10:08  hkmoffa
+
+	* Cantera/src/State.h: Added comments.
+
+2003-08-11 09:13  hkmoffa
+
+	* Cantera/src/Kinetics.h: Added more comments.
+
+2003-08-08 12:58  hkmoffa
+
+	* Cantera/src/InterfaceKinetics.cpp: Added more comment.s
+
+2003-08-07 14:49  hkmoffa
+
+	* test_problems/surfkin/surface.xml: Updated the xml data file
+
+2003-08-07 14:42  hkmoffa
+
+	* Cantera/src/Makefile.in: Added a make hdr-collect line.  This is
+	  needed because the .h files in the build directory should be kept
+	  up to date with the .a files in the build directory. Thus, you
+	  need to update. Obviously, a more refined approach could be
+	  envisioned where only out of date .h files are copied.
+
+2003-08-07 08:59  hkmoffa
+
+	* Cantera/src/importCTML.cpp: Added a lot of comments to the
+	  routine.
+
+2003-08-06 17:23  hkmoffa
+
+	* test_problems/Makefile.in: Added the Makefile.in input file
+
+2003-08-06 17:22  hkmoffa
+
+	* test_problems/cxx_ex/: kin1_blessed.csv, tr1_blessed.csv,
+	  tr2_blessed.csv: Rebaselined these three tests. The results had
+	  changed in the 3rd significant digit.
+
+	  The changes, according to Goodwin, were most likely due to the
+	  change in the method of inclusion of the activation energies.
+	  Basically, a non standard kcal/mole conversion method was used to
+	  convert activation energies to temperatures internally.
+
+2003-08-06 17:16  hkmoffa
+
+	* Cantera/src/ct2ctml.cpp: Fixed an error in get_CTML_Tree() where
+	  the program wouldn't use the path where the file was found, but
+	  would assume the file was located in the current directory. This
+	  caused an empty ifstream to be send to build(), which then
+	  created an infinite loop (probably another error in build() that
+	  needs to be fixed).
+
+2003-08-06 16:16  hkmoffa
+
+	* Cantera/src/converters/Makefile.in: Broke a long line in two
+
+2003-08-06 15:43  hkmoffa
+
+	* config/: configure, configure.in: Added the surfkin directory
+
+2003-08-06 11:30  hkmoffa
+
+	* test_problems/cxx_ex/: gri30.xml, silane.xml: Updated xml files
+
+2003-08-06 11:15  hkmoffa
+
+	* include/: GRI30.h, IdealGasMix.h: Fixed GRI30.h. The id was wrong
+	  and caused a test problem to fail.
+
+2003-08-06 11:13  hkmoffa
+
+	* examples/cxx/.cvsignore: Added to cvsignore list
+
+2003-08-06 10:32  hkmoffa
+
+	* test_problems/surfkin/: .cvsignore, Interface.h, Makefile.in,
+	  output_blessed.txt, runtest, surface.xml, surfdemo.cpp: Added a
+	  simple test that calculate a rate of production for a surface
+	  mechanism
+
+2003-08-06 10:14  hkmoffa
+
+	* Cantera/src/ctml.cpp: Added a get_CTML_Tree() function. It was
+	  missing though there was an entry in ctml.h and IdealGasMix.h
+	  used it.
+
+2003-08-06 10:10  hkmoffa
+
+	* test_problems/silane_equil/silane.xml: updated xml file. test
+	  passes.
+
+2003-08-04 16:15  hkmoffa
+
+	* Cantera/src/: GasKinetics.cpp, GasKinetics.h: Added a bunch of
+	  new routines to return delta thermo values and reaction rate
+	  constants.
+
+2003-08-04 16:10  hkmoffa
+
+	* Cantera/src/converters/: ck2ct.cpp, ck2ctml.cpp: Fixed up a
+	  couple of issues with the stringstream block. That block works
+	  for reading transport databases with comments in them. The other
+	  block seems to get hung up.
+
+2003-08-04 07:27  hkmoffa
+
+	* tools/src/Makefile.in: Added a dependency to library files
+
+2003-08-01 17:37  hkmoffa
+
+	* Cantera/src/RateCoeffMgr.h: added a comment.
+
+2003-08-01 17:36  hkmoffa
+
+	* Cantera/src/: ThermoFactory.cpp, ThermoFactory.h: Added a
+	  specific named error condition for when the thermo factory can't
+	  find a match against a known ThermoPhase derivative class.  This
+	  can be (and is in cttables) used to catch thrown errors, so that
+	  the kernel can be made extensible wrt other ThermoPhase
+	  derivative classes it may not know about.
+
+2003-08-01 17:34  hkmoffa
+
+	* Cantera/src/: KineticsFactory.cpp, KineticsFactory.h: Added a
+	  specific named error for not matching against a kinetics model.
+	  This can be (and is in cttables) used to catch a thrown error
+	  condition to make the kernel extensible wrt new kinetics
+	  managers.
+
+2003-08-01 17:29  hkmoffa
+
+	* Cantera/src/InterfaceKinetics.cpp: Added a few comments
+
+2003-08-01 17:28  hkmoffa
+
+	* Cantera/src/InterfaceKinetics.h: Added a comment block
+
+2003-08-01 17:27  hkmoffa
+
+	* Cantera/src/Kinetics.h: Organized the routines into sections.
+	  Added a bunch of routines that report the change in thermo
+	  quantities due to reactions.
+
+2003-08-01 17:25  hkmoffa
+
+	* Cantera/src/xml.cpp: Took out print statements in debug blocks
+
+2003-08-01 17:24  hkmoffa
+
+	* Cantera/src/: ThermoPhase.cpp, ThermoPhase.h: Added a function
+	  getUnitsStandardConc() that will report in a vector form what the
+	  units are (in MKS) for the standard and generalized
+	  concentrations.  This is used to find what the units are for
+	  reaction rate constants and is used by cttables to actually print
+	  out the units for reaction rate constants.
+
+2003-08-01 17:16  hkmoffa
+
+	* Cantera/src/transport/: MixTransport.cpp, MixTransport.h,
+	  MultiTransport.cpp, MultiTransport.h, TransportBase.h,
+	  TransportFactory.cpp, TransportFactory.h: Added a function to
+	  MixTransport and MultiTransport that returns all of the raw
+	  transport data input from the original database.  I am using this
+	  in cttables for the print out to provide closure to the user's
+	  expectations.
+
+2003-08-01 13:50  hkmoffa
+
+	* Cantera/src/State.h: Added one more routine, needed to get at
+	  private data
+
+2003-08-01 13:13  hkmoffa
+
+	* Cantera/src/ctml.cpp: Slight change in comment
+
+2003-08-01 12:44  hkmoffa
+
+	* Cantera/src/ctvector.cpp: Check for null before deleting or
+	  copying. Not strictly necessary, but good form.
+
+2003-08-01 12:43  hkmoffa
+
+	* Cantera/src/mix_defs.h: Added descriptions of the ThermoPhase
+	  classes known to this routine.
+
+2003-08-01 12:42  hkmoffa
+
+	* Cantera/src/ctml.cpp: UPgraded one error condition statement
+
+2003-07-29 15:37  dggoodwin
+
+	* Cantera/src/State.h: moved some methods to State.cpp
+
+2003-07-29 15:32  dggoodwin
+
+	* Cantera/src/State.cpp: initial import
+
+2003-07-25 13:46  hkmoffa
+
+	* Cantera/src/: xml.cpp, xml.h: Fixed several serious errors and
+	  added a couple of routines.	 1) the read operation would hash
+	  any quoted string with a space       character in it.    2)
+	  changed children() to return a reference rather than the
+	  complete object    3) write() would leave off the final endl
+	  character. This has	    been fixed.  Additions:    copy()
+	  copyUnion(): union of two trees; this routine may be problematic
+	  findXMLPhase(): phase lookup.  Notes:  find_XML() still
+	  contains a memory leak.
+
+2003-07-24 08:58  hkmoffa
+
+	* Cantera/src/Kinetics.h: Fixed an error in the Constructor
+	  function. m_indexPhase wasn't being set at all
+
+2003-07-23 14:54  hkmoffa
+
+	* Cantera/src/Kinetics.h: Added a lot of comments to the header
+	  file
+
+2003-07-23 14:53  hkmoffa
+
+	* Cantera/src/ConstDensityThermo.h: Took out an unnecessary
+	  redefinition of m_kk from an inherited class
+
+2003-07-23 14:51  hkmoffa
+
+	* Cantera/src/stringUtils.cpp: Slight formatting change
+
+2003-07-23 08:41  hkmoffa
+
+	* Cantera/src/StoichManager.h: Added comments to the file
+
+2003-07-21 09:28  hkmoffa
+
+	* Cantera/src/Elements.h: Took out a surplus doxygen comment about
+	  the Cantera Namespace. It created an error during doxygen
+	  compilation
+
+2003-07-21 09:26  hkmoffa
+
+	* Cantera/src/ThermoPhase.h: Added more doxygen comments to the
+	  files.  Added a catch/throw block to setstate_TPX().
+
+2003-07-21 09:08  hkmoffa
+
+	* Cantera/src/State.h: Commented the member data.
+
+2003-07-21 09:02  hkmoffa
+
+	* Cantera/src/Constituents.h: Took out a double nested @name that
+	  gave a warning to doxygen
+
+2003-07-18 13:19  hkmoffa
+
+	* Cantera/src/Phase.h: Added comments about m_kk needing to be
+	  restated in this class.
+
+2003-07-07 09:45  hkmoffa
+
+	* Cantera/src/ResidEval.h: Added more functions to the virtual base
+	  class. This will mean that all classes that inherit from this
+	  class will be broken until they too add definitions for these
+	  functions.
+
+2003-07-07 09:39  hkmoffa
+
+	* Cantera/src/converters/ck2ctml.cpp: Commented out several
+	  statically defined functions that were not used in the file.
+
+2003-07-07 08:35  hkmoffa
+
+	* Cantera/src/SolidCompound.h: Fixed a compiler warning. Linux
+	  warns against initialization lists which are not in the same
+	  order as items in the class itself.
+
+2003-07-04 00:35  dggoodwin
+
+	* tools/bin/finish_install.py: added 'source setup_cantera'
+
+2003-07-04 00:18  dggoodwin
+
+	* tools/bin/finish_install.py: added warning if the Python
+	  interface does not install.
+
+2003-07-03 09:23  hkmoffa
+
+	* Cantera/src/Array.h: Added the function ptrColumn(), which
+	  returns a pointer to the top of a column of the matrix.
+
+2003-06-27 07:08  dggoodwin
+
+	* Cantera/src/converters/ck2ctml.cpp: corrected bug in addTransport
+
+2003-06-27 07:07  dggoodwin
+
+	* tools/bin/finish_install.py: added script to set matlab path
+
+2003-06-11 14:33  hkmoffa
+
+	* Cantera/src/.cvsignore: Added another file to this list
+
+2003-06-10 09:39  hkmoffa
+
+	* Cantera/src/misc.cpp: Fixed a typo in a comment
+
+2003-06-10 09:32  hkmoffa
+
+	* test_problems/silane_equil/.cvsignore: Added a file to the ignore
+	  list, created during the test
+
+2003-06-10 08:27  hkmoffa
+
+	* Cantera/src/Makefile.in: Uncommented the tpx rule
+
+2003-06-10 08:26  hkmoffa
+
+	* Cantera/matlab/Makefile.in: Took out the references to the
+	  directories, 1D/@Domain1D/private and 1D/@Stack/private. They
+	  don't currently exist in the present version of the distribution.
+
+2003-06-10 08:07  hkmoffa
+
+	* include/.cvsignore: Added a .cvsignore file
+
+2003-06-10 08:02  hkmoffa
+
+	* tools/templates/: f77/.cvsignore, cxx/.cvsignore: Added a
+	  .cvsignore file
+
+2003-06-09 17:19  hkmoffa
+
+	* Cantera/cxx/.cvsignore: Added this file so that cvs update
+	  doesn't flag Makefile
+
+2003-06-09 15:02  hkmoffa
+
+	* tools/src/.cvsignore: Added a file to the ignore list
+
+2003-06-08 08:18  dggoodwin
+
+	* Cantera/matlab/cantera/@Transport/trans_hndl.m: initial import
+
+2003-06-08 07:52  dggoodwin
+
+	* Cantera/: cxx/writelog.cpp, python/src/writelog.cpp,
+	  matlab/cantera/private/write.cpp: initial import
+
+2003-06-08 07:41  dggoodwin
+
+	* Cantera/src/oneD/boundaries1D.cpp: initial import
+
+2003-05-13 12:43  dggoodwin
+
+	* Cantera/src/: DASPK.h, InterfaceKinetics.cpp, ReactionPath.cpp,
+	  ReactionPath.h, funcs.cpp, importCTML.cpp, misc.cpp,
+	  oneD/Inlet1D.h, oneD/Makefile.in, oneD/MultiNewton.cpp,
+	  oneD/OneDim.cpp, oneD/OneDim.h, oneD/Resid1D.h, oneD/Sim1D.cpp,
+	  oneD/Sim1D.h, oneD/StFlow.cpp, oneD/StFlow.h,
+	  oneD/newton_utils.cpp, oneD/refine.cpp, oneD/refine.h: -
+
+2003-05-06 07:20  dggoodwin
+
+	* tools/templates/cxx/: demo.cpp, demo.mak.in: fixed errors
+
+2003-05-06 06:36  dggoodwin
+
+	* tools/templates/cxx/: demo.cpp, demo.mak.in: initial import
+
+2003-04-24 02:48  dggoodwin
+
+	* Cantera/python/examples/function1.py: initial import
+
+2003-04-21 11:16  dggoodwin
+
+	* tools/doc/: Cantera.cfg, ct.css, footer.html, header.html:
+	  initial import
+
+2003-04-21 02:55  dggoodwin
+
+	* Makefile.in: corrected lib directory
+
+2003-04-20 07:40  dggoodwin
+
+	* Cantera/matlab/Makefile.in: fixed library in Makefile.in
+
+2003-04-20 06:26  dggoodwin
+
+	* Cantera/: matlab/.cvsignore, matlab/cantera/.cvsignore,
+	  python/.cvsignore, src/.cvsignore: added .cvsignore in mattlab
+
+2003-04-20 06:21  dggoodwin
+
+	* config/: configure, configure.in: added target to buildlib
+
+2003-04-20 06:18  dggoodwin
+
+	* Cantera/python/: Makefile.in, setup.py, setup.py.in: perform
+	  configuration of setup.py
+
+2003-04-18 16:19  dggoodwin
+
+	* include/: GRI30.h, onedim.h, reactionpaths.h, transport.h,
+	  zerodim.h: minor cleanup
+
+2003-04-18 04:00  dggoodwin
+
+	* tools/templates/f77/: demo.mak.in, demo_ftnlib.cpp,
+	  sample.mak.in: renamed sample.mak.in to demo.mak.in
+
+2003-04-14 10:57  dggoodwin
+
+	* .cvsignore, INSTALLING, License.rtf, License.txt, Makefile.in,
+	  README, config.h, config.h.in, configure, apps/README.txt,
+	  apps/MixMaster/.cvsignore, apps/MixMaster/CompositionFrame.py,
+	  apps/MixMaster/ControlPanel.py, apps/MixMaster/DataFrame.py,
+	  apps/MixMaster/DataGraph.py, apps/MixMaster/Edit.py,
+	  apps/MixMaster/ElementFrame.py, apps/MixMaster/GraphFrame.py,
+	  apps/MixMaster/__init__.py, apps/MixMaster/config.py,
+	  apps/MixMaster/flowpanel.py, Cantera/.cvsignore,
+	  Cantera/Makefile.in, Cantera/clib/src/.cvsignore,
+	  Cantera/clib/src/Cabinet.h, Cantera/clib/src/Makefile.in,
+	  Cantera/clib/src/Storage.cpp, Cantera/clib/src/Storage.h,
+	  Cantera/clib/src/clib_defs.h, Cantera/clib/src/ct.cpp,
+	  Cantera/clib/src/ct.h, Cantera/clib/src/ctbdry.cpp,
+	  Cantera/clib/src/ctbdry.h, Cantera/clib/src/ctfunc.cpp,
+	  Cantera/clib/src/ctfunc.h, Cantera/clib/src/ctnum.cpp,
+	  Cantera/clib/src/ctnum.h, Cantera/clib/src/ctreactor.cpp,
+	  Cantera/clib/src/ctreactor.h, Cantera/clib/src/ctrpath.cpp,
+	  Cantera/clib/src/ctrpath.h, Cantera/clib/src/ctstagn.cpp,
+	  Cantera/clib/src/ctstagn.h, Cantera/clib/src/ctsurf.cpp,
+	  Cantera/clib/src/ctsurf.h, Cantera/clib/src/ctxml.cpp,
+	  Cantera/clib/src/ctxml.h, Cantera/cxx/README, Cantera/lib/README,
+	  Cantera/matlab/Makefile.in, Cantera/matlab/setup_matlab.py,
+	  Cantera/matlab/cantera/Contents.m,
+	  Cantera/matlab/cantera/GRI30.m,
+	  Cantera/matlab/cantera/IdealGasMix.m,
+	  Cantera/matlab/cantera/MassFlowController.m,
+	  Cantera/matlab/cantera/Reservoir.m,
+	  Cantera/matlab/cantera/Valve.m, Cantera/matlab/cantera/adddir.m,
+	  Cantera/matlab/cantera/air.m, Cantera/matlab/cantera/build.m,
+	  Cantera/matlab/cantera/buildux.m,
+	  Cantera/matlab/cantera/buildwin.m,
+	  Cantera/matlab/cantera/ck2ctml.m, Cantera/matlab/cantera/conhp.m,
+	  Cantera/matlab/cantera/constants.m,
+	  Cantera/matlab/cantera/conuv.m,
+	  Cantera/matlab/cantera/gasconstant.m,
+	  Cantera/matlab/cantera/geterr.m,
+	  Cantera/matlab/cantera/mexopts.sh,
+	  Cantera/matlab/cantera/oneatm.m,
+	  Cantera/matlab/cantera/reactor_ode.m,
+	  Cantera/matlab/cantera/@FlowDevice/FlowDevice.m,
+	  Cantera/matlab/cantera/@FlowDevice/clear.m,
+	  Cantera/matlab/cantera/@FlowDevice/install.m,
+	  Cantera/matlab/cantera/@FlowDevice/massFlowRate.m,
+	  Cantera/matlab/cantera/@FlowDevice/setMassFlowRate.m,
+	  Cantera/matlab/cantera/@FlowDevice/setValveCoeff.m,
+	  Cantera/matlab/cantera/@FlowDevice/private/flowdevicemethods.m,
+	  Cantera/matlab/cantera/@Kinetics/Kinetics.m,
+	  Cantera/matlab/cantera/@Kinetics/clear.m,
+	  Cantera/matlab/cantera/@Kinetics/creationRates.m,
+	  Cantera/matlab/cantera/@Kinetics/destructionRates.m,
+	  Cantera/matlab/cantera/@Kinetics/destruction_rates.m,
+	  Cantera/matlab/cantera/@Kinetics/equil_Kc.m,
+	  Cantera/matlab/cantera/@Kinetics/hndl.m,
+	  Cantera/matlab/cantera/@Kinetics/isReversible.m,
+	  Cantera/matlab/cantera/@Kinetics/kinetics_hndl.m,
+	  Cantera/matlab/cantera/@Kinetics/multiplier.m,
+	  Cantera/matlab/cantera/@Kinetics/nReactions.m,
+	  Cantera/matlab/cantera/@Kinetics/nTotalSpecies.m,
+	  Cantera/matlab/cantera/@Kinetics/netProdRates.m,
+	  Cantera/matlab/cantera/@Kinetics/reactionEqn.m,
+	  Cantera/matlab/cantera/@Kinetics/rop.m,
+	  Cantera/matlab/cantera/@Kinetics/rop_f.m,
+	  Cantera/matlab/cantera/@Kinetics/rop_net.m,
+	  Cantera/matlab/cantera/@Kinetics/rop_r.m,
+	  Cantera/matlab/cantera/@Kinetics/rxnEqs.m,
+	  Cantera/matlab/cantera/@Kinetics/setMultiplier.m,
+	  Cantera/matlab/cantera/@Kinetics/stoich_net.m,
+	  Cantera/matlab/cantera/@Kinetics/stoich_p.m,
+	  Cantera/matlab/cantera/@Kinetics/stoich_r.m,
+	  Cantera/matlab/cantera/@Kinetics/ydot.m,
+	  Cantera/matlab/cantera/@Kinetics/private/delkinetics.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/isrev.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/kin_get.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/kin_set.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/kinetics_get.m,
+	  Cantera/matlab/cantera/@Kinetics/private/kinetics_set.m,
+	  Cantera/matlab/cantera/@Kinetics/private/newkinetics.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/production.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/pstoich.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/rop.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/rstoich.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/rxnstring.cpp,
+	  Cantera/matlab/cantera/@Reactor/Reactor.m,
+	  Cantera/matlab/cantera/@Reactor/advance.m,
+	  Cantera/matlab/cantera/@Reactor/clear.m,
+	  Cantera/matlab/cantera/@Reactor/density.m,
+	  Cantera/matlab/cantera/@Reactor/enthalpy_mass.m,
+	  Cantera/matlab/cantera/@Reactor/hndl.m,
+	  Cantera/matlab/cantera/@Reactor/insert.m,
+	  Cantera/matlab/cantera/@Reactor/intEnergy_mass.m,
+	  Cantera/matlab/cantera/@Reactor/mass.m,
+	  Cantera/matlab/cantera/@Reactor/massFraction.m,
+	  Cantera/matlab/cantera/@Reactor/massFractions.m,
+	  Cantera/matlab/cantera/@Reactor/pressure.m,
+	  Cantera/matlab/cantera/@Reactor/reactor_hndl.m,
+	  Cantera/matlab/cantera/@Reactor/setEnergy.m,
+	  Cantera/matlab/cantera/@Reactor/setInitialTime.m,
+	  Cantera/matlab/cantera/@Reactor/setInitialVolume.m,
+	  Cantera/matlab/cantera/@Reactor/setKineticsMgr.m,
+	  Cantera/matlab/cantera/@Reactor/setThermoMgr.m,
+	  Cantera/matlab/cantera/@Reactor/step.m,
+	  Cantera/matlab/cantera/@Reactor/temperature.m,
+	  Cantera/matlab/cantera/@Reactor/time.m,
+	  Cantera/matlab/cantera/@Reactor/volume.m,
+	  Cantera/matlab/cantera/@Reactor/private/reactormethods.cpp,
+	  Cantera/matlab/cantera/@Reactor/private/reactormethods.m,
+	  Cantera/matlab/cantera/@Solution/Solution.m,
+	  Cantera/matlab/cantera/@Solution/clear.m,
+	  Cantera/matlab/cantera/@Solution/display.m,
+	  Cantera/matlab/cantera/@Solution/set.m,
+	  Cantera/matlab/cantera/@Solution/soundspeed.m,
+	  Cantera/matlab/cantera/@ThermoPhase/ThermoPhase.m,
+	  Cantera/matlab/cantera/@ThermoPhase/atomicMasses.m,
+	  Cantera/matlab/cantera/@ThermoPhase/chemPotentials.m,
+	  Cantera/matlab/cantera/@ThermoPhase/clear.m,
+	  Cantera/matlab/cantera/@ThermoPhase/cp_R.m,
+	  Cantera/matlab/cantera/@ThermoPhase/cp_mass.m,
+	  Cantera/matlab/cantera/@ThermoPhase/cp_mole.m,
+	  Cantera/matlab/cantera/@ThermoPhase/cv_mass.m,
+	  Cantera/matlab/cantera/@ThermoPhase/cv_mole.m,
+	  Cantera/matlab/cantera/@ThermoPhase/density.m,
+	  Cantera/matlab/cantera/@ThermoPhase/elementIndex.m,
+	  Cantera/matlab/cantera/@ThermoPhase/elementName.m,
+	  Cantera/matlab/cantera/@ThermoPhase/enthalpies_RT.m,
+	  Cantera/matlab/cantera/@ThermoPhase/enthalpy_mass.m,
+	  Cantera/matlab/cantera/@ThermoPhase/enthalpy_mole.m,
+	  Cantera/matlab/cantera/@ThermoPhase/entropies_R.m,
+	  Cantera/matlab/cantera/@ThermoPhase/entropy_mass.m,
+	  Cantera/matlab/cantera/@ThermoPhase/entropy_mole.m,
+	  Cantera/matlab/cantera/@ThermoPhase/eosType.m,
+	  Cantera/matlab/cantera/@ThermoPhase/equilibrate.m,
+	  Cantera/matlab/cantera/@ThermoPhase/gibbs_RT.m,
+	  Cantera/matlab/cantera/@ThermoPhase/gibbs_mass.m,
+	  Cantera/matlab/cantera/@ThermoPhase/gibbs_mole.m,
+	  Cantera/matlab/cantera/@ThermoPhase/hndl.m,
+	  Cantera/matlab/cantera/@ThermoPhase/intEnergy_mass.m,
+	  Cantera/matlab/cantera/@ThermoPhase/intEnergy_mole.m,
+	  Cantera/matlab/cantera/@ThermoPhase/isIdealGas.m,
+	  Cantera/matlab/cantera/@ThermoPhase/massFractions.m,
+	  Cantera/matlab/cantera/@ThermoPhase/maxTemp.m,
+	  Cantera/matlab/cantera/@ThermoPhase/meanMolarMass.m,
+	  Cantera/matlab/cantera/@ThermoPhase/meanMolecularWeight.m,
+	  Cantera/matlab/cantera/@ThermoPhase/minTemp.m,
+	  Cantera/matlab/cantera/@ThermoPhase/molarDensity.m,
+	  Cantera/matlab/cantera/@ThermoPhase/molarMasses.m,
+	  Cantera/matlab/cantera/@ThermoPhase/moleFractions.m,
+	  Cantera/matlab/cantera/@ThermoPhase/molecularWeights.m,
+	  Cantera/matlab/cantera/@ThermoPhase/nAtoms.m,
+	  Cantera/matlab/cantera/@ThermoPhase/nElements.m,
+	  Cantera/matlab/cantera/@ThermoPhase/nSpecies.m,
+	  Cantera/matlab/cantera/@ThermoPhase/ph.m,
+	  Cantera/matlab/cantera/@ThermoPhase/pressure.m,
+	  Cantera/matlab/cantera/@ThermoPhase/refPressure.m,
+	  Cantera/matlab/cantera/@ThermoPhase/set.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setDensity.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setMassFractions.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setMoleFractions.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setPressure.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setState.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setState_HP.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setState_SP.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setState_UV.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setTemperature.m,
+	  Cantera/matlab/cantera/@ThermoPhase/speciesIndex.m,
+	  Cantera/matlab/cantera/@ThermoPhase/speciesName.m,
+	  Cantera/matlab/cantera/@ThermoPhase/speciesNames.m,
+	  Cantera/matlab/cantera/@ThermoPhase/temperature.m,
+	  Cantera/matlab/cantera/@ThermoPhase/thermo_hndl.m,
+	  Cantera/matlab/cantera/@ThermoPhase/private/phase_get.m,
+	  Cantera/matlab/cantera/@ThermoPhase/private/phase_set.m,
+	  Cantera/matlab/cantera/@ThermoPhase/private/thermo_get.m,
+	  Cantera/matlab/cantera/@ThermoPhase/private/thermo_set.m,
+	  Cantera/matlab/cantera/@Transport/Transport.m,
+	  Cantera/matlab/cantera/@Transport/binDiffCoeffs.m,
+	  Cantera/matlab/cantera/@Transport/hndl.m,
+	  Cantera/matlab/cantera/@Transport/mixDiffCoeffs.m,
+	  Cantera/matlab/cantera/@Transport/multiDiffCoeffs.m,
+	  Cantera/matlab/cantera/@Transport/thermalConductivity.m,
+	  Cantera/matlab/cantera/@Transport/thermalDiffCoeffs.m,
+	  Cantera/matlab/cantera/@Transport/viscosity.m,
+	  Cantera/matlab/cantera/@Transport/private/newTransport.cpp,
+	  Cantera/matlab/cantera/@Transport/private/trans_get.m,
+	  Cantera/matlab/cantera/@Transport/private/trans_methods.cpp,
+	  Cantera/matlab/cantera/@Wall/Wall.m,
+	  Cantera/matlab/cantera/@Wall/area.m,
+	  Cantera/matlab/cantera/@Wall/install.m,
+	  Cantera/matlab/cantera/@Wall/ready.m,
+	  Cantera/matlab/cantera/@Wall/setArea.m,
+	  Cantera/matlab/cantera/@Wall/setExpansionRateCoeff.m,
+	  Cantera/matlab/cantera/@Wall/setHeatTransferCoeff.m,
+	  Cantera/matlab/cantera/@Wall/setThermalResistance.m,
+	  Cantera/matlab/cantera/@Wall/wall_hndl.m,
+	  Cantera/matlab/cantera/@Wall/private/wallmethods.cpp,
+	  Cantera/matlab/cantera/@Wall/private/wallmethods.m,
+	  Cantera/matlab/cantera/@XML_Node/XML_Node.m,
+	  Cantera/matlab/cantera/@XML_Node/attrib.m,
+	  Cantera/matlab/cantera/@XML_Node/build.m,
+	  Cantera/matlab/cantera/@XML_Node/child.m,
+	  Cantera/matlab/cantera/@XML_Node/hndl.m,
+	  Cantera/matlab/cantera/@XML_Node/value.m,
+	  Cantera/matlab/cantera/@XML_Node/write.m,
+	  Cantera/matlab/cantera/@XML_Node/private/newxml.cpp,
+	  Cantera/matlab/cantera/@XML_Node/private/xmlmethods.cpp,
+	  Cantera/matlab/cantera/examples/equil.m,
+	  Cantera/matlab/cantera/examples/ignite.m,
+	  Cantera/matlab/cantera/examples/ignite2.m,
+	  Cantera/matlab/cantera/examples/ignite3.m,
+	  Cantera/matlab/cantera/examples/ignite_hp.m,
+	  Cantera/matlab/cantera/examples/ignite_uv.m,
+	  Cantera/matlab/cantera/examples/isentropic.m,
+	  Cantera/matlab/cantera/examples/periodic_cstr.m,
+	  Cantera/matlab/cantera/examples/prandtl1.m,
+	  Cantera/matlab/cantera/examples/prandtl2.m,
+	  Cantera/matlab/cantera/examples/reactor1.m,
+	  Cantera/matlab/cantera/examples/reactor2.m,
+	  Cantera/matlab/cantera/examples/run_examples.m,
+	  Cantera/matlab/cantera/examples/transport1.m,
+	  Cantera/matlab/cantera/private/ctfunctions.cpp,
+	  Cantera/matlab/cantera/private/ctmatutils.h,
+	  Cantera/matlab/cantera/private/ctmethods.cpp,
+	  Cantera/matlab/cantera/private/flowdevicemethods.cpp,
+	  Cantera/matlab/cantera/private/importFromFile.m,
+	  Cantera/matlab/cantera/private/kineticsmethods.cpp,
+	  Cantera/matlab/cantera/private/phasemethods.cpp,
+	  Cantera/matlab/cantera/private/reactormethods.cpp,
+	  Cantera/matlab/cantera/private/thermomethods.cpp,
+	  Cantera/matlab/cantera/private/transportmethods.cpp,
+	  Cantera/matlab/cantera/private/wallmethods.cpp,
+	  Cantera/matlab/cantera/private/xmlmethods.cpp,
+	  Cantera/matlab/cantera/tutorial/README,
+	  Cantera/matlab/cantera/tutorial/tut1.m,
+	  Cantera/matlab/cantera/tutorial/tut2.m,
+	  Cantera/matlab/cantera/tutorial/tut3.m,
+	  Cantera/matlab/cantera/tutorial/tut4.m,
+	  Cantera/matlab/cantera/tutorial/tut5.m,
+	  Cantera/matlab/cantera/tutorial/tut6.m,
+	  Cantera/matlab/cantera/tutorial/tut7.m,
+	  Cantera/python/.cvsignore, Cantera/python/Makefile.in,
+	  Cantera/python/setup.py, Cantera/python/Cantera/__init__.py,
+	  Cantera/python/Cantera/boundaries1D.py,
+	  Cantera/python/Cantera/ck2ctml.py,
+	  Cantera/python/Cantera/constants.py,
+	  Cantera/python/Cantera/elements.py,
+	  Cantera/python/Cantera/excel.py,
+	  Cantera/python/Cantera/exceptions.py,
+	  Cantera/python/Cantera/flame.py, apps/MixMaster/ImportFrame.py,
+	  apps/MixMaster/KineticsFrame.py, apps/MixMaster/MechManager.py,
+	  apps/MixMaster/Mix.py, apps/MixMaster/NewFlowFrame.py,
+	  apps/MixMaster/SpeciesFrame.py, apps/MixMaster/SpeciesInfo.py,
+	  apps/MixMaster/ThermoFrame.py, apps/MixMaster/ThermoProp.py,
+	  apps/MixMaster/TransportFrame.py, apps/MixMaster/UnitChooser.py,
+	  apps/MixMaster/gri30.py, apps/MixMaster/main.py,
+	  apps/MixMaster/menu.py, apps/MixMaster/newflow.py,
+	  apps/MixMaster/utilities.py, apps/MixMaster/Units/SI.py,
+	  apps/MixMaster/Units/__init__.py, apps/MixMaster/Units/area.py,
+	  apps/MixMaster/Units/density.py, apps/MixMaster/Units/energy.py,
+	  apps/MixMaster/Units/force.py, apps/MixMaster/Units/length.py,
+	  apps/MixMaster/Units/mass.py, apps/MixMaster/Units/power.py,
+	  apps/MixMaster/Units/pressure.py,
+	  apps/MixMaster/Units/specificEnergy.py,
+	  apps/MixMaster/Units/specificEntropy.py,
+	  apps/MixMaster/Units/speed.py,
+	  apps/MixMaster/Units/temperature.py,
+	  apps/MixMaster/Units/time.py, apps/MixMaster/Units/unit.py,
+	  apps/MixMaster/Units/volume.py, bin/.cvsignore, bin/README,
+	  bin/mixmaster.py, bin/rm_cvsignore,
+	  Cantera/python/Cantera/Flow.py,
+	  Cantera/python/Cantera/FlowBoundary.py,
+	  Cantera/python/Cantera/FlowPlotter.py,
+	  Cantera/python/Cantera/Func.py,
+	  Cantera/python/Cantera/Interface.py,
+	  Cantera/python/Cantera/Kinetics.py,
+	  Cantera/python/Cantera/OneDim.py,
+	  Cantera/python/Cantera/Phase.py,
+	  Cantera/python/Cantera/Reactor.py,
+	  Cantera/python/Cantera/SurfWriter.py,
+	  Cantera/python/Cantera/SurfacePhase.py,
+	  Cantera/python/Cantera/Thermo.py,
+	  Cantera/python/Cantera/ThermoPhase.py,
+	  Cantera/python/Cantera/Transport.py,
+	  Cantera/python/Cantera/XML.py, Cantera/python/Cantera/gases.py,
+	  Cantera/python/Cantera/importFromFile.py,
+	  Cantera/python/Cantera/interp.py,
+	  Cantera/python/Cantera/refine.py,
+	  Cantera/python/Cantera/rxnpath.py,
+	  Cantera/python/Cantera/schem.py, Cantera/python/Cantera/set.py,
+	  Cantera/python/Cantera/solids.py,
+	  Cantera/python/Cantera/solution.py,
+	  Cantera/python/Cantera/solve.py,
+	  Cantera/python/Cantera/stoich.py,
+	  Cantera/python/Cantera/tecplot.py,
+	  Cantera/python/Cantera/units.py,
+	  Cantera/python/examples/flame1.py,
+	  Cantera/python/examples/flame2.py,
+	  Cantera/python/examples/isentropic.py,
+	  Cantera/python/examples/reactor1.py,
+	  Cantera/python/examples/reactor2.py,
+	  Cantera/python/examples/rxnpath1.py,
+	  Cantera/python/examples/rxnpath2.py,
+	  Cantera/python/examples/stflame1.py,
+	  Cantera/python/examples/stflame2.py,
+	  Cantera/python/src/.cvsignore, Cantera/python/src/Makefile.in,
+	  Cantera/python/src/cantera.def,
+	  Cantera/python/src/canteramodule.cpp, Cantera/python/src/ct.def,
+	  Cantera/python/src/ctbndry_methods.cpp,
+	  Cantera/python/src/ctflow.cpp, Cantera/python/src/ctflow.def,
+	  Cantera/python/src/ctflow_methods.cpp,
+	  Cantera/python/src/ctfunc_methods.cpp,
+	  Cantera/python/src/ctfuncs.cpp,
+	  Cantera/python/src/ctkinetics.cpp,
+	  Cantera/python/src/ctkinetics.def,
+	  Cantera/python/src/ctkinetics_methods.cpp,
+	  Cantera/python/src/ctmodule.cpp,
+	  Cantera/python/src/ctnumerics.cpp,
+	  Cantera/python/src/ctnumerics.def,
+	  Cantera/python/src/ctphase.cpp, Cantera/python/src/ctphase.def,
+	  Cantera/python/src/ctphase_methods.cpp,
+	  Cantera/python/src/ctpy.cpp, Cantera/python/src/ctpybndry.cpp,
+	  Cantera/python/src/ctpyfunc.cpp,
+	  Cantera/python/src/ctpyreactor.cpp,
+	  Cantera/python/src/ctpyrpath.cpp,
+	  Cantera/python/src/ctpysurf.cpp, Cantera/python/src/ctpyxml.cpp,
+	  Cantera/python/src/ctreactor_methods.cpp,
+	  Cantera/python/src/ctrpath_methods.cpp,
+	  Cantera/python/src/ctsurf.cpp, Cantera/python/src/ctsurf.def,
+	  Cantera/python/src/ctsurf_methods.cpp,
+	  Cantera/python/src/ctthermo.cpp, Cantera/python/src/ctthermo.def,
+	  Cantera/python/src/ctthermo_methods.cpp,
+	  Cantera/python/src/cttransport.cpp,
+	  Cantera/python/src/cttransport.def,
+	  Cantera/python/src/cttransport_methods.cpp,
+	  Cantera/python/src/ctxml_methods.cpp,
+	  Cantera/python/src/methods.h, Cantera/python/src/pycantera.cpp,
+	  Cantera/python/src/pyutils.h,
+	  Cantera/python/src/reactionpath.cpp,
+	  Cantera/python/tutorial/tut1.py, Cantera/python/tutorial/tut2.py,
+	  Cantera/python/tutorial/tut4.py, Cantera/src/.cvsignore,
+	  Cantera/src/Array.h, Cantera/src/ArrayViewer.h,
+	  Cantera/src/BandMatrix.cpp, Cantera/src/BandMatrix.h,
+	  Cantera/src/ChemEquil.cpp, Cantera/src/ChemEquil.h,
+	  Cantera/src/ConstDensityThermo.cpp,
+	  Cantera/src/ConstDensityThermo.h, Cantera/src/config.h,
+	  Cantera/src/CVode.cpp, Cantera/src/CVode.h,
+	  Cantera/src/Constituents.cpp, Cantera/src/Constituents.h,
+	  Cantera/src/DASPK.cpp, Cantera/src/DASPK.h,
+	  Cantera/src/DenseMatrix.cpp, Cantera/src/DenseMatrix.h,
+	  Cantera/src/EOS_TPX.h, Cantera/src/Elements.cpp,
+	  Cantera/src/Elements.h, Cantera/src/Enhanced3BConc.h,
+	  Cantera/src/FILES, Cantera/src/FalloffFactory.cpp,
+	  Cantera/src/FalloffFactory.h, Cantera/src/FalloffMgr.h,
+	  Cantera/src/Flow1D.h, Cantera/src/FtnODESys.h,
+	  Cantera/src/Func1.h, Cantera/src/FuncEval.h, Cantera/src/GRI30.h,
+	  Cantera/src/GRI_30_Kinetics.cpp, Cantera/src/GRI_30_Kinetics.h,
+	  Cantera/src/GasKinetics.cpp, Cantera/src/GasKinetics.h,
+	  Cantera/src/GasKineticsWriter.cpp,
+	  Cantera/src/GasKineticsWriter.h, Cantera/src/Group.cpp,
+	  Cantera/src/Group.h, Cantera/src/IdealGasPhase.cpp,
+	  Cantera/src/IdealGasPhase.h, Cantera/src/IdealGasThermo.cpp,
+	  Cantera/src/IdealGasThermo.h, Cantera/src/ImplicitChem.cpp,
+	  Cantera/src/ImplicitChem.h, Cantera/src/ImplicitSurfChem.cpp,
+	  Cantera/src/ImplicitSurfChem.h,
+	  Cantera/src/IncompressibleThermo.h, Cantera/src/Integrator.h,
+	  Cantera/src/InterfaceKinetics.cpp,
+	  Cantera/src/InterfaceKinetics.h, Cantera/src/Jac2.h,
+	  Cantera/src/Kinetics.h, Cantera/src/KineticsFactory.cpp,
+	  Cantera/src/KineticsFactory.h, Cantera/src/L_matrix.h,
+	  Cantera/src/MMCollisionInt.cpp, Cantera/src/Makefile.in,
+	  Cantera/src/MixTransport.cpp, Cantera/src/MultiDomain.h,
+	  Cantera/src/NasaPoly1.h, Cantera/src/NasaThermo.h,
+	  Cantera/src/Newton.h, Cantera/src/Phase.cpp,
+	  Cantera/src/ct_defs.h, Cantera/src/ctexceptions.h,
+	  Cantera/src/ctlapack.h, Cantera/src/ctml.cpp, Cantera/src/ctml.h,
+	  Cantera/src/ctvector.cpp, Cantera/src/ctvector.h,
+	  Cantera/src/exceptions.h, Cantera/src/fitPoly.h,
+	  Cantera/src/flowBoundaries.h, Cantera/src/funcs.cpp,
+	  Cantera/src/gases.h, Cantera/src/global.h, Cantera/src/import.h,
+	  Cantera/src/importCTML.cpp, Cantera/src/importCTML.h,
+	  Cantera/src/importSurfChem.cpp, Cantera/src/importXML.h,
+	  Cantera/src/lapack.h, Cantera/src/misc.cpp,
+	  Cantera/src/mix_defs.h, Cantera/src/mix_utils.h,
+	  Cantera/src/newton_utils.cpp, Cantera/src/Phase.h,
+	  Cantera/src/PolyThermo.h, Cantera/src/PolyThermoMgr.h,
+	  Cantera/src/PropertyCalculator.h, Cantera/src/PropertyUpdater.h,
+	  Cantera/src/RateCoeffMgr.h, Cantera/src/ReactionData.h,
+	  Cantera/src/ReactionPath.cpp, Cantera/src/ReactionPath.h,
+	  Cantera/src/Resid.h, Cantera/src/Resid1D.h,
+	  Cantera/src/ResidEval.h, Cantera/src/RxnRates.h,
+	  Cantera/src/ShomatePoly.h, Cantera/src/ShomateThermo.h,
+	  Cantera/src/SimpleThermo.h, Cantera/src/SpeciesThermo.h,
+	  Cantera/src/SpeciesThermoFactory.cpp,
+	  Cantera/src/SpeciesThermoFactory.h,
+	  Cantera/src/SpeciesThermoMgr.h, Cantera/src/State.h,
+	  Cantera/src/StoichManager.h, Cantera/src/Surf1D.h,
+	  Cantera/src/SurfPhase.h, Cantera/src/Thermo.h,
+	  Cantera/src/ThermoFactory.cpp, Cantera/src/ThermoFactory.h,
+	  Cantera/src/ThermoPhase.cpp, Cantera/src/ThermoPhase.h,
+	  Cantera/src/ThirdBodyMgr.h, Cantera/src/TigerPolynomial.h,
+	  Cantera/src/plots.cpp, Cantera/src/plots.h,
+	  Cantera/src/polyfit.h, Cantera/src/pureSubstances.h,
+	  Cantera/src/reaction_defs.h, Cantera/src/recipes.h,
+	  Cantera/src/sort.cpp, Cantera/src/sort.h,
+	  Cantera/src/speciesThermoTypes.h, Cantera/src/stringUtils.cpp,
+	  Cantera/src/stringUtils.h, Cantera/src/surfKinetics.cpp,
+	  Cantera/src/surfKinetics.h, Cantera/src/surfacePhase.h,
+	  Cantera/src/transportModels.h, Cantera/src/units.h,
+	  Cantera/src/updaters.h, Cantera/src/utilities.h,
+	  Cantera/src/vec_functions.h, Cantera/src/xml.cpp,
+	  Cantera/src/xml.h, Cantera/src/converters/.cvsignore,
+	  Cantera/src/converters/CKParser.cpp,
+	  Cantera/src/converters/CKParser.h,
+	  Cantera/src/converters/CKReader.cpp,
+	  Cantera/src/converters/CKReader.h,
+	  Cantera/src/converters/Constituent.h,
+	  Cantera/src/converters/Element.h, Cantera/src/converters/Group.h,
+	  Cantera/src/converters/Makefile.in,
+	  Cantera/src/converters/Reaction.cpp,
+	  Cantera/src/converters/Reaction.h,
+	  Cantera/src/converters/RxnSpecies.h,
+	  Cantera/src/converters/Species.h,
+	  Cantera/src/converters/atomicWeightDB.cpp,
+	  Cantera/src/converters/ck2ctml.cpp,
+	  Cantera/src/converters/ck2ctml.h,
+	  Cantera/src/converters/ckr_defs.h,
+	  Cantera/src/converters/ckr_utils.cpp,
+	  Cantera/src/converters/ckr_utils.h,
+	  Cantera/src/converters/config.h,
+	  Cantera/src/converters/filter.cpp,
+	  Cantera/src/converters/thermoFunctions.cpp,
+	  Cantera/src/converters/thermoFunctions.h,
+	  Cantera/src/converters/writelog.cpp,
+	  Cantera/src/converters/writelog.h, Cantera/src/oneD/.cvsignore,
+	  Cantera/src/oneD/Inlet1D.h, Cantera/src/oneD/Jac1D.h,
+	  Cantera/src/oneD/Makefile.in, Cantera/src/oneD/MultiJac.cpp,
+	  Cantera/src/oneD/MultiJac.h, Cantera/src/oneD/MultiNewton.cpp,
+	  Cantera/src/oneD/MultiNewton.h, Cantera/src/oneD/Newton1D.h,
+	  Cantera/src/oneD/OneDim.cpp, Cantera/src/oneD/OneDim.h,
+	  Cantera/src/oneD/Resid1D.h, Cantera/src/oneD/newton_utils.cpp,
+	  Cantera/src/oneD/StFlow.cpp, Cantera/src/oneD/StFlow.h,
+	  Cantera/src/oneD/Surf1D.h, Cantera/src/transport/.cvsignore,
+	  Cantera/src/transport/FtnTransport.h,
+	  Cantera/src/transport/MMCollisionInt.cpp,
+	  Cantera/src/transport/MMCollisionInt.h,
+	  Cantera/src/transport/Makefile.in,
+	  Cantera/src/transport/MixTransport.cpp,
+	  Cantera/src/transport/MixTransport.h,
+	  Cantera/src/transport/MultiTransport.cpp,
+	  Cantera/src/transport/MultiTransport.h,
+	  Cantera/src/transport/TransportBase.h,
+	  Cantera/src/transport/TransportFactory.cpp,
+	  Cantera/src/transport/TransportFactory.h,
+	  Cantera/src/transport/TransportParams.h,
+	  Cantera/src/zeroD/.cvsignore, Cantera/src/zeroD/FlowDevice.cpp,
+	  Cantera/src/zeroD/FlowDevice.h, Cantera/src/zeroD/Makefile.in,
+	  Cantera/src/zeroD/PID_Controller.h,
+	  Cantera/src/zeroD/Reactor.cpp, Cantera/src/zeroD/Reactor.h,
+	  Cantera/src/zeroD/ReactorBase.cpp,
+	  Cantera/src/zeroD/ReactorBase.h, Cantera/src/zeroD/Reservoir.h,
+	  Cantera/src/zeroD/Wall.cpp, Cantera/src/zeroD/Wall.h,
+	  Cantera/src/zeroD/flowControllers.h, config/.cvsignore,
+	  config/Cantera.README, config/config.guess, config/config.h.in,
+	  config/config.sub, config/configure, config/configure.in,
+	  config/install-sh, data/README, data/inputs/.cvsignore,
+	  data/inputs/air.inp, data/inputs/air.xml, data/inputs/argon.inp,
+	  data/inputs/argon.xml, data/inputs/elements.xml,
+	  data/inputs/gases.xml, data/inputs/Makefile.in,
+	  data/inputs/gri30.inp, data/inputs/gri30.xml,
+	  data/inputs/gri30mod.inp, data/inputs/grinc.inp,
+	  data/inputs/h2o2.inp, data/inputs/h2o2.xml,
+	  data/inputs/h2o2_noch.inp, data/inputs/mkxml,
+	  data/inputs/silane.inp, data/inputs/silane.xml,
+	  data/thermo/nasathermo.dat, data/transport/gri30_tran.dat,
+	  examples/.cvsignore, examples/Makefile.in,
+	  examples/cxx/.cvsignore, examples/cxx/Makefile.in,
+	  examples/cxx/equil_example1.cpp, examples/cxx/example_utils.h,
+	  examples/cxx/examples.cpp, examples/cxx/examples.dsp,
+	  examples/cxx/kinetics_example1.cpp,
+	  examples/cxx/kinetics_example2.cpp,
+	  examples/cxx/rxnpath_example1.cpp,
+	  examples/cxx/transport_example1.cpp,
+	  examples/cxx/transport_example2.cpp, ext/.cvsignore,
+	  ext/Makefile.in, ext/blas/.cvsignore, ext/blas/dasum.f,
+	  ext/blas/daxpy.f, ext/blas/dcabs1.f, ext/blas/dcopy.f,
+	  ext/blas/ddot.f, ext/blas/dgbmv.f, ext/blas/dgemm.f,
+	  ext/blas/dgemv.f, ext/blas/dger.f, ext/blas/dnrm2.f,
+	  ext/blas/drot.f, ext/blas/drotg.f, ext/blas/drotm.f,
+	  ext/blas/drotmg.f, ext/blas/dsbmv.f, ext/blas/dscal.f,
+	  ext/blas/dsdot.f, ext/blas/dspmv.f, ext/blas/dspr.f,
+	  ext/blas/dspr2.f, ext/blas/dswap.f, ext/blas/dsymm.f,
+	  ext/blas/dsymv.f, ext/blas/dsyr.f, ext/blas/dsyr2.f,
+	  ext/blas/dsyr2k.f, ext/blas/dsyrk.f, ext/blas/dtbmv.f,
+	  ext/blas/dtbsv.f, ext/blas/dtpmv.f, ext/blas/dtpsv.f,
+	  ext/blas/dtrmm.f, ext/blas/dtrmv.f, ext/blas/Makefile.in,
+	  ext/blas/dtrsm.f, ext/blas/dtrsv.f, ext/blas/dzasum.f,
+	  ext/blas/dznrm2.f, ext/blas/icamax.f, ext/blas/idamax.f,
+	  ext/blas/isamax.f, ext/blas/izamax.f, ext/blas/lsame.f,
+	  ext/blas/xerbla.f, ext/cvode/.cvsignore, ext/cvode/Makefile.in,
+	  ext/cvode/include/band.h, ext/cvode/include/cvband.h,
+	  ext/cvode/include/cvbandpre.h, ext/cvode/include/cvdense.h,
+	  ext/cvode/include/cvdiag.h, ext/cvode/include/cvode.h,
+	  ext/cvode/include/cvspgmr.h, ext/cvode/include/dense.h,
+	  ext/cvode/include/iterativ.h, ext/cvode/include/llnlmath.h,
+	  ext/cvode/include/llnltyps.h, ext/cvode/include/nvector.h,
+	  ext/cvode/include/spgmr.h, ext/cvode/source/band.c,
+	  ext/cvode/source/cvband.c, ext/cvode/source/cvbandpre.c,
+	  ext/cvode/source/cvdense.c, ext/cvode/source/cvdiag.c,
+	  ext/cvode/source/cvode.c, ext/cvode/source/cvspgmr.c,
+	  ext/cvode/source/dense.c, ext/cvode/source/iterativ.c,
+	  ext/cvode/source/llnlmath.c, ext/cvode/source/nvector.c,
+	  ext/cvode/source/spgmr.c, ext/lapack/.cvsignore,
+	  ext/lapack/Makefile.in, ext/lapack/dbdsqr.f, ext/lapack/dgbsv.f,
+	  ext/lapack/dgbtf2.f, ext/lapack/dgbtrf.f, ext/lapack/dgbtrs.f,
+	  ext/lapack/dgebd2.f, ext/lapack/dgebrd.f, ext/lapack/dgelq2.f,
+	  ext/lapack/dgelqf.f, ext/lapack/dgelss.f, ext/lapack/dgeqr2.f,
+	  ext/lapack/dgeqrf.f, ext/lapack/dgetf2.f, ext/lapack/dgetrf.f,
+	  ext/lapack/dgetri.f, ext/lapack/dgetrs.f, ext/lapack/dlabad.f,
+	  ext/lapack/dlabrd.f, ext/lapack/dlacpy.f, ext/lapack/dlamch.f,
+	  ext/lapack/dlange.f, ext/lapack/dlapy2.f, ext/lapack/dlarf.f,
+	  ext/lapack/dlarfb.f, ext/lapack/dlarfg.f, ext/lapack/dlarft.f,
+	  ext/lapack/dlartg.f, ext/lapack/dlas2.f, ext/lapack/dlascl.f,
+	  ext/lapack/dlaset.f, ext/lapack/dlasq1.f, ext/lapack/dlasq2.f,
+	  ext/lapack/dlasq3.f, ext/lapack/dlasq4.f, ext/lapack/dlasr.f,
+	  ext/lapack/dlasrt.f, ext/lapack/dlassq.f, ext/lapack/dlasv2.f,
+	  ext/lapack/dlaswp.f, ext/lapack/dorg2r.f, ext/lapack/dorgbr.f,
+	  ext/lapack/dorgl2.f, ext/lapack/dorglq.f, ext/lapack/dorgqr.f,
+	  ext/lapack/dorm2r.f, ext/lapack/dormbr.f, ext/lapack/dorml2.f,
+	  ext/lapack/dormlq.f, ext/lapack/dormqr.f, ext/lapack/drscl.f,
+	  ext/lapack/ilaenv.f, ext/lapack/lsame.f, ext/lapack/xerbla.f,
+	  ext/math/.cvsignore, ext/math/cblas.h, ext/math/daux.f,
+	  ext/math/Makefile.in, ext/math/ddaspk.f, ext/math/dgbefa.f,
+	  ext/math/dgbsl.f, ext/math/dgefa.f, ext/math/dgesl.f,
+	  ext/math/dp1vlu.f, ext/math/dpcoef.f, ext/math/dpolft.f,
+	  ext/math/fdump.f, ext/math/gmres.h, ext/math/idamax.f,
+	  ext/math/j4save.f, ext/math/mach.cpp, ext/math/mkl_cblas.h,
+	  ext/math/pcoef.f, ext/math/polfit.f, ext/math/pvalue.f,
+	  ext/math/xercnt.f, ext/math/xerhlt.f, ext/math/xermsg.f,
+	  ext/math/xerprn.f, ext/math/xersve.f, ext/math/xgetua.f,
+	  ext/recipes/.cvsignore, ext/recipes/Makefile.in,
+	  ext/recipes/simp1.f, ext/recipes/simp2.f, ext/recipes/simp3.f,
+	  ext/recipes/simplx.f, ext/recipes/splie2.f, ext/recipes/splin2.f,
+	  ext/recipes/spline.f, ext/recipes/splint.f, ext/tpx/.cvsignore,
+	  ext/tpx/.depends, ext/tpx/CFluid.cpp, ext/tpx/CFluid.h,
+	  ext/tpx/CGas.cpp, ext/tpx/CLK.cpp, ext/tpx/CLK.h,
+	  ext/tpx/HFC134a.cpp, ext/tpx/HFC134a.h, ext/tpx/Hydrogen.cpp,
+	  ext/tpx/Hydrogen.h, ext/tpx/Makefile.in, ext/tpx/Methane.cpp,
+	  ext/tpx/Methane.h, ext/tpx/Nitrogen.cpp, ext/tpx/Nitrogen.h,
+	  ext/tpx/Oxygen.cpp, ext/tpx/Oxygen.h, ext/tpx/ck_gas.cpp,
+	  ext/tpx/ck_gas.h, ext/tpx/ideal.cpp, ext/tpx/lk.cpp,
+	  ext/tpx/lk.h, ext/tpx/lkw.cpp, ext/tpx/lkw.h, ext/tpx/mix.h,
+	  ext/tpx/Sub.cpp, ext/tpx/Sub.h, ext/tpx/Water.cpp,
+	  ext/tpx/Water.h, ext/tpx/subs.h, ext/tpx/utils.cpp,
+	  ext/tpx/utils.h, include/Cantera.h, include/IdealGasMix.h,
+	  include/README, include/config.h, include/core.h, include/ctml.h,
+	  include/equilibrium.h, include/ftn_defs.h, include/integrators.h,
+	  include/kinetics.h, include/numerics.h, include/onedim.h,
+	  include/surface.h, include/transport.h,
+	  include/fortran/ctfdevmod.f, include/fortran/ctkineticsmod.f,
+	  include/fortran/ctmixturemod.f, include/fortran/ctmod.f,
+	  include/fortran/ctreactormod.f, include/fortran/ctthermomod.f,
+	  include/fortran/cttransportmod.f, include/fortran/ctutilsmod.f,
+	  lib/README, test_problems/.cvsignore, test_problems/Makefile.in,
+	  test_problems/cxx_ex/.cvsignore,
+	  test_problems/cxx_ex/eq1_blessed.csv,
+	  test_problems/cxx_ex/eq1_blessed.dat,
+	  test_problems/cxx_ex/gri30.inp, test_problems/cxx_ex/gri30.xml,
+	  test_problems/cxx_ex/gri30_tran.dat,
+	  test_problems/cxx_ex/gri30mod.inp,
+	  test_problems/cxx_ex/Makefile.in,
+	  test_problems/cxx_ex/kin1_blessed.csv,
+	  test_problems/cxx_ex/kin2_blessed.csv,
+	  test_problems/cxx_ex/runtest, test_problems/cxx_ex/silane.inp,
+	  test_problems/cxx_ex/silane.xml,
+	  test_problems/cxx_ex/tr1_blessed.csv,
+	  test_problems/cxx_ex/tr2_blessed.csv,
+	  test_problems/silane_equil/.cvsignore,
+	  test_problems/silane_equil/Makefile.in,
+	  test_problems/silane_equil/output_blessed.txt,
+	  test_problems/silane_equil/runtest,
+	  test_problems/silane_equil/silane.xml,
+	  test_problems/silane_equil/silane_equil.cpp, tools/.cvsignore,
+	  tools/Makefile.in, tools/export, tools/bin/ctupdate.py,
+	  tools/bin/finish_install.py, tools/src/.cvsignore,
+	  tools/src/Makefile.in, tools/src/ck2ctml.cpp,
+	  tools/src/ck2ctml.dsp, tools/src/ctlibsample.mak.in,
+	  tools/src/ctsetup.cpp, tools/src/ctsetup.in, tools/src/ctwin,
+	  tools/src/makedsp.cpp, tools/src/newdsp.cpp, tools/src/proto.dsp,
+	  tools/src/protocvf.dsp, tools/src/protocxx.cpp,
+	  tools/src/protocxx.dsp, tools/src/sample.mak.in,
+	  tools/src/sample_f90.mak.in, tools/src/validate.cpp,
+	  tools/templates/f77/demo.f, tools/templates/f77/demo_ftnlib.cpp,
+	  tools/templates/f77/sample.mak.in, tools/testtools/.cvsignore,
+	  tools/testtools/Makefile.in, tools/testtools/csvdiff.cpp,
+	  tools/testtools/mdp_allo.cpp, tools/testtools/mdp_allo.h,
+	  tools/testtools/tok_input_util.cpp,
+	  tools/testtools/tok_input_util.h, win32/cantera.dsw,
+	  win32/blas/blas.dsp, win32/cantera/cantera.dsp,
+	  win32/cantera_examples/cantera_examples.dsw,
+	  win32/ckreader/ckreader.dsp, win32/converters/converters.dsp,
+	  win32/ct/ct.dsp, win32/ctmath/ctmath.dsp,
+	  win32/ctsetup/ctsetup.dsp, win32/cvode/cvode.dsp,
+	  win32/lapack/lapack.dsp, win32/oneD/oneD.dsp,
+	  win32/recipes/recipes.dsp, win32/transport/transport.dsp,
+	  win32/zeroD/zeroD.dsp: Initial import.
+
+2003-04-14 10:57  dggoodwin
+
+	* .cvsignore, INSTALLING, License.rtf, License.txt, Makefile.in,
+	  README, config.h, config.h.in, configure, apps/README.txt,
+	  apps/MixMaster/.cvsignore, apps/MixMaster/CompositionFrame.py,
+	  apps/MixMaster/ControlPanel.py, apps/MixMaster/DataFrame.py,
+	  apps/MixMaster/DataGraph.py, apps/MixMaster/Edit.py,
+	  apps/MixMaster/ElementFrame.py, apps/MixMaster/GraphFrame.py,
+	  apps/MixMaster/__init__.py, apps/MixMaster/config.py,
+	  apps/MixMaster/flowpanel.py, Cantera/.cvsignore,
+	  Cantera/Makefile.in, Cantera/clib/src/.cvsignore,
+	  Cantera/clib/src/Cabinet.h, Cantera/clib/src/Makefile.in,
+	  Cantera/clib/src/Storage.cpp, Cantera/clib/src/Storage.h,
+	  Cantera/clib/src/clib_defs.h, Cantera/clib/src/ct.cpp,
+	  Cantera/clib/src/ct.h, Cantera/clib/src/ctbdry.cpp,
+	  Cantera/clib/src/ctbdry.h, Cantera/clib/src/ctfunc.cpp,
+	  Cantera/clib/src/ctfunc.h, Cantera/clib/src/ctnum.cpp,
+	  Cantera/clib/src/ctnum.h, Cantera/clib/src/ctreactor.cpp,
+	  Cantera/clib/src/ctreactor.h, Cantera/clib/src/ctrpath.cpp,
+	  Cantera/clib/src/ctrpath.h, Cantera/clib/src/ctstagn.cpp,
+	  Cantera/clib/src/ctstagn.h, Cantera/clib/src/ctsurf.cpp,
+	  Cantera/clib/src/ctsurf.h, Cantera/clib/src/ctxml.cpp,
+	  Cantera/clib/src/ctxml.h, Cantera/cxx/README, Cantera/lib/README,
+	  Cantera/matlab/Makefile.in, Cantera/matlab/setup_matlab.py,
+	  Cantera/matlab/cantera/Contents.m,
+	  Cantera/matlab/cantera/GRI30.m,
+	  Cantera/matlab/cantera/IdealGasMix.m,
+	  Cantera/matlab/cantera/MassFlowController.m,
+	  Cantera/matlab/cantera/Reservoir.m,
+	  Cantera/matlab/cantera/Valve.m, Cantera/matlab/cantera/adddir.m,
+	  Cantera/matlab/cantera/air.m, Cantera/matlab/cantera/build.m,
+	  Cantera/matlab/cantera/buildux.m,
+	  Cantera/matlab/cantera/buildwin.m,
+	  Cantera/matlab/cantera/ck2ctml.m, Cantera/matlab/cantera/conhp.m,
+	  Cantera/matlab/cantera/constants.m,
+	  Cantera/matlab/cantera/conuv.m,
+	  Cantera/matlab/cantera/gasconstant.m,
+	  Cantera/matlab/cantera/geterr.m,
+	  Cantera/matlab/cantera/mexopts.sh,
+	  Cantera/matlab/cantera/oneatm.m,
+	  Cantera/matlab/cantera/reactor_ode.m,
+	  Cantera/matlab/cantera/@FlowDevice/FlowDevice.m,
+	  Cantera/matlab/cantera/@FlowDevice/clear.m,
+	  Cantera/matlab/cantera/@FlowDevice/install.m,
+	  Cantera/matlab/cantera/@FlowDevice/massFlowRate.m,
+	  Cantera/matlab/cantera/@FlowDevice/setMassFlowRate.m,
+	  Cantera/matlab/cantera/@FlowDevice/setValveCoeff.m,
+	  Cantera/matlab/cantera/@FlowDevice/private/flowdevicemethods.m,
+	  Cantera/matlab/cantera/@Kinetics/Kinetics.m,
+	  Cantera/matlab/cantera/@Kinetics/clear.m,
+	  Cantera/matlab/cantera/@Kinetics/creationRates.m,
+	  Cantera/matlab/cantera/@Kinetics/destructionRates.m,
+	  Cantera/matlab/cantera/@Kinetics/destruction_rates.m,
+	  Cantera/matlab/cantera/@Kinetics/equil_Kc.m,
+	  Cantera/matlab/cantera/@Kinetics/hndl.m,
+	  Cantera/matlab/cantera/@Kinetics/isReversible.m,
+	  Cantera/matlab/cantera/@Kinetics/kinetics_hndl.m,
+	  Cantera/matlab/cantera/@Kinetics/multiplier.m,
+	  Cantera/matlab/cantera/@Kinetics/nReactions.m,
+	  Cantera/matlab/cantera/@Kinetics/nTotalSpecies.m,
+	  Cantera/matlab/cantera/@Kinetics/netProdRates.m,
+	  Cantera/matlab/cantera/@Kinetics/reactionEqn.m,
+	  Cantera/matlab/cantera/@Kinetics/rop.m,
+	  Cantera/matlab/cantera/@Kinetics/rop_f.m,
+	  Cantera/matlab/cantera/@Kinetics/rop_net.m,
+	  Cantera/matlab/cantera/@Kinetics/rop_r.m,
+	  Cantera/matlab/cantera/@Kinetics/rxnEqs.m,
+	  Cantera/matlab/cantera/@Kinetics/setMultiplier.m,
+	  Cantera/matlab/cantera/@Kinetics/stoich_net.m,
+	  Cantera/matlab/cantera/@Kinetics/stoich_p.m,
+	  Cantera/matlab/cantera/@Kinetics/stoich_r.m,
+	  Cantera/matlab/cantera/@Kinetics/ydot.m,
+	  Cantera/matlab/cantera/@Kinetics/private/delkinetics.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/isrev.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/kin_get.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/kin_set.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/kinetics_get.m,
+	  Cantera/matlab/cantera/@Kinetics/private/kinetics_set.m,
+	  Cantera/matlab/cantera/@Kinetics/private/newkinetics.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/production.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/pstoich.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/rop.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/rstoich.cpp,
+	  Cantera/matlab/cantera/@Kinetics/private/rxnstring.cpp,
+	  Cantera/matlab/cantera/@Reactor/Reactor.m,
+	  Cantera/matlab/cantera/@Reactor/advance.m,
+	  Cantera/matlab/cantera/@Reactor/clear.m,
+	  Cantera/matlab/cantera/@Reactor/density.m,
+	  Cantera/matlab/cantera/@Reactor/enthalpy_mass.m,
+	  Cantera/matlab/cantera/@Reactor/hndl.m,
+	  Cantera/matlab/cantera/@Reactor/insert.m,
+	  Cantera/matlab/cantera/@Reactor/intEnergy_mass.m,
+	  Cantera/matlab/cantera/@Reactor/mass.m,
+	  Cantera/matlab/cantera/@Reactor/massFraction.m,
+	  Cantera/matlab/cantera/@Reactor/massFractions.m,
+	  Cantera/matlab/cantera/@Reactor/pressure.m,
+	  Cantera/matlab/cantera/@Reactor/reactor_hndl.m,
+	  Cantera/matlab/cantera/@Reactor/setEnergy.m,
+	  Cantera/matlab/cantera/@Reactor/setInitialTime.m,
+	  Cantera/matlab/cantera/@Reactor/setInitialVolume.m,
+	  Cantera/matlab/cantera/@Reactor/setKineticsMgr.m,
+	  Cantera/matlab/cantera/@Reactor/setThermoMgr.m,
+	  Cantera/matlab/cantera/@Reactor/step.m,
+	  Cantera/matlab/cantera/@Reactor/temperature.m,
+	  Cantera/matlab/cantera/@Reactor/time.m,
+	  Cantera/matlab/cantera/@Reactor/volume.m,
+	  Cantera/matlab/cantera/@Reactor/private/reactormethods.cpp,
+	  Cantera/matlab/cantera/@Reactor/private/reactormethods.m,
+	  Cantera/matlab/cantera/@Solution/Solution.m,
+	  Cantera/matlab/cantera/@Solution/clear.m,
+	  Cantera/matlab/cantera/@Solution/display.m,
+	  Cantera/matlab/cantera/@Solution/set.m,
+	  Cantera/matlab/cantera/@Solution/soundspeed.m,
+	  Cantera/matlab/cantera/@ThermoPhase/ThermoPhase.m,
+	  Cantera/matlab/cantera/@ThermoPhase/atomicMasses.m,
+	  Cantera/matlab/cantera/@ThermoPhase/chemPotentials.m,
+	  Cantera/matlab/cantera/@ThermoPhase/clear.m,
+	  Cantera/matlab/cantera/@ThermoPhase/cp_R.m,
+	  Cantera/matlab/cantera/@ThermoPhase/cp_mass.m,
+	  Cantera/matlab/cantera/@ThermoPhase/cp_mole.m,
+	  Cantera/matlab/cantera/@ThermoPhase/cv_mass.m,
+	  Cantera/matlab/cantera/@ThermoPhase/cv_mole.m,
+	  Cantera/matlab/cantera/@ThermoPhase/density.m,
+	  Cantera/matlab/cantera/@ThermoPhase/elementIndex.m,
+	  Cantera/matlab/cantera/@ThermoPhase/elementName.m,
+	  Cantera/matlab/cantera/@ThermoPhase/enthalpies_RT.m,
+	  Cantera/matlab/cantera/@ThermoPhase/enthalpy_mass.m,
+	  Cantera/matlab/cantera/@ThermoPhase/enthalpy_mole.m,
+	  Cantera/matlab/cantera/@ThermoPhase/entropies_R.m,
+	  Cantera/matlab/cantera/@ThermoPhase/entropy_mass.m,
+	  Cantera/matlab/cantera/@ThermoPhase/entropy_mole.m,
+	  Cantera/matlab/cantera/@ThermoPhase/eosType.m,
+	  Cantera/matlab/cantera/@ThermoPhase/equilibrate.m,
+	  Cantera/matlab/cantera/@ThermoPhase/gibbs_RT.m,
+	  Cantera/matlab/cantera/@ThermoPhase/gibbs_mass.m,
+	  Cantera/matlab/cantera/@ThermoPhase/gibbs_mole.m,
+	  Cantera/matlab/cantera/@ThermoPhase/hndl.m,
+	  Cantera/matlab/cantera/@ThermoPhase/intEnergy_mass.m,
+	  Cantera/matlab/cantera/@ThermoPhase/intEnergy_mole.m,
+	  Cantera/matlab/cantera/@ThermoPhase/isIdealGas.m,
+	  Cantera/matlab/cantera/@ThermoPhase/massFractions.m,
+	  Cantera/matlab/cantera/@ThermoPhase/maxTemp.m,
+	  Cantera/matlab/cantera/@ThermoPhase/meanMolarMass.m,
+	  Cantera/matlab/cantera/@ThermoPhase/meanMolecularWeight.m,
+	  Cantera/matlab/cantera/@ThermoPhase/minTemp.m,
+	  Cantera/matlab/cantera/@ThermoPhase/molarDensity.m,
+	  Cantera/matlab/cantera/@ThermoPhase/molarMasses.m,
+	  Cantera/matlab/cantera/@ThermoPhase/moleFractions.m,
+	  Cantera/matlab/cantera/@ThermoPhase/molecularWeights.m,
+	  Cantera/matlab/cantera/@ThermoPhase/nAtoms.m,
+	  Cantera/matlab/cantera/@ThermoPhase/nElements.m,
+	  Cantera/matlab/cantera/@ThermoPhase/nSpecies.m,
+	  Cantera/matlab/cantera/@ThermoPhase/ph.m,
+	  Cantera/matlab/cantera/@ThermoPhase/pressure.m,
+	  Cantera/matlab/cantera/@ThermoPhase/refPressure.m,
+	  Cantera/matlab/cantera/@ThermoPhase/set.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setDensity.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setMassFractions.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setMoleFractions.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setPressure.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setState.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setState_HP.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setState_SP.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setState_UV.m,
+	  Cantera/matlab/cantera/@ThermoPhase/setTemperature.m,
+	  Cantera/matlab/cantera/@ThermoPhase/speciesIndex.m,
+	  Cantera/matlab/cantera/@ThermoPhase/speciesName.m,
+	  Cantera/matlab/cantera/@ThermoPhase/speciesNames.m,
+	  Cantera/matlab/cantera/@ThermoPhase/temperature.m,
+	  Cantera/matlab/cantera/@ThermoPhase/thermo_hndl.m,
+	  Cantera/matlab/cantera/@ThermoPhase/private/phase_get.m,
+	  Cantera/matlab/cantera/@ThermoPhase/private/phase_set.m,
+	  Cantera/matlab/cantera/@ThermoPhase/private/thermo_get.m,
+	  Cantera/matlab/cantera/@ThermoPhase/private/thermo_set.m,
+	  Cantera/matlab/cantera/@Transport/Transport.m,
+	  Cantera/matlab/cantera/@Transport/binDiffCoeffs.m,
+	  Cantera/matlab/cantera/@Transport/hndl.m,
+	  Cantera/matlab/cantera/@Transport/mixDiffCoeffs.m,
+	  Cantera/matlab/cantera/@Transport/multiDiffCoeffs.m,
+	  Cantera/matlab/cantera/@Transport/thermalConductivity.m,
+	  Cantera/matlab/cantera/@Transport/thermalDiffCoeffs.m,
+	  Cantera/matlab/cantera/@Transport/viscosity.m,
+	  Cantera/matlab/cantera/@Transport/private/newTransport.cpp,
+	  Cantera/matlab/cantera/@Transport/private/trans_get.m,
+	  Cantera/matlab/cantera/@Transport/private/trans_methods.cpp,
+	  Cantera/matlab/cantera/@Wall/Wall.m,
+	  Cantera/matlab/cantera/@Wall/area.m,
+	  Cantera/matlab/cantera/@Wall/install.m,
+	  Cantera/matlab/cantera/@Wall/ready.m,
+	  Cantera/matlab/cantera/@Wall/setArea.m,
+	  Cantera/matlab/cantera/@Wall/setExpansionRateCoeff.m,
+	  Cantera/matlab/cantera/@Wall/setHeatTransferCoeff.m,
+	  Cantera/matlab/cantera/@Wall/setThermalResistance.m,
+	  Cantera/matlab/cantera/@Wall/wall_hndl.m,
+	  Cantera/matlab/cantera/@Wall/private/wallmethods.cpp,
+	  Cantera/matlab/cantera/@Wall/private/wallmethods.m,
+	  Cantera/matlab/cantera/@XML_Node/XML_Node.m,
+	  Cantera/matlab/cantera/@XML_Node/attrib.m,
+	  Cantera/matlab/cantera/@XML_Node/build.m,
+	  Cantera/matlab/cantera/@XML_Node/child.m,
+	  Cantera/matlab/cantera/@XML_Node/hndl.m,
+	  Cantera/matlab/cantera/@XML_Node/value.m,
+	  Cantera/matlab/cantera/@XML_Node/write.m,
+	  Cantera/matlab/cantera/@XML_Node/private/newxml.cpp,
+	  Cantera/matlab/cantera/@XML_Node/private/xmlmethods.cpp,
+	  Cantera/matlab/cantera/examples/equil.m,
+	  Cantera/matlab/cantera/examples/ignite.m,
+	  Cantera/matlab/cantera/examples/ignite2.m,
+	  Cantera/matlab/cantera/examples/ignite3.m,
+	  Cantera/matlab/cantera/examples/ignite_hp.m,
+	  Cantera/matlab/cantera/examples/ignite_uv.m,
+	  Cantera/matlab/cantera/examples/isentropic.m,
+	  Cantera/matlab/cantera/examples/periodic_cstr.m,
+	  Cantera/matlab/cantera/examples/prandtl1.m,
+	  Cantera/matlab/cantera/examples/prandtl2.m,
+	  Cantera/matlab/cantera/examples/reactor1.m,
+	  Cantera/matlab/cantera/examples/reactor2.m,
+	  Cantera/matlab/cantera/examples/run_examples.m,
+	  Cantera/matlab/cantera/examples/transport1.m,
+	  Cantera/matlab/cantera/private/ctfunctions.cpp,
+	  Cantera/matlab/cantera/private/ctmatutils.h,
+	  Cantera/matlab/cantera/private/ctmethods.cpp,
+	  Cantera/matlab/cantera/private/flowdevicemethods.cpp,
+	  Cantera/matlab/cantera/private/importFromFile.m,
+	  Cantera/matlab/cantera/private/kineticsmethods.cpp,
+	  Cantera/matlab/cantera/private/phasemethods.cpp,
+	  Cantera/matlab/cantera/private/reactormethods.cpp,
+	  Cantera/matlab/cantera/private/thermomethods.cpp,
+	  Cantera/matlab/cantera/private/transportmethods.cpp,
+	  Cantera/matlab/cantera/private/wallmethods.cpp,
+	  Cantera/matlab/cantera/private/xmlmethods.cpp,
+	  Cantera/matlab/cantera/tutorial/README,
+	  Cantera/matlab/cantera/tutorial/tut1.m,
+	  Cantera/matlab/cantera/tutorial/tut2.m,
+	  Cantera/matlab/cantera/tutorial/tut3.m,
+	  Cantera/matlab/cantera/tutorial/tut4.m,
+	  Cantera/matlab/cantera/tutorial/tut5.m,
+	  Cantera/matlab/cantera/tutorial/tut6.m,
+	  Cantera/matlab/cantera/tutorial/tut7.m,
+	  Cantera/python/.cvsignore, Cantera/python/Makefile.in,
+	  Cantera/python/setup.py, Cantera/python/Cantera/__init__.py,
+	  Cantera/python/Cantera/boundaries1D.py,
+	  Cantera/python/Cantera/ck2ctml.py,
+	  Cantera/python/Cantera/constants.py,
+	  Cantera/python/Cantera/elements.py,
+	  Cantera/python/Cantera/excel.py,
+	  Cantera/python/Cantera/exceptions.py,
+	  Cantera/python/Cantera/flame.py, apps/MixMaster/ImportFrame.py,
+	  apps/MixMaster/KineticsFrame.py, apps/MixMaster/MechManager.py,
+	  apps/MixMaster/Mix.py, apps/MixMaster/NewFlowFrame.py,
+	  apps/MixMaster/SpeciesFrame.py, apps/MixMaster/SpeciesInfo.py,
+	  apps/MixMaster/ThermoFrame.py, apps/MixMaster/ThermoProp.py,
+	  apps/MixMaster/TransportFrame.py, apps/MixMaster/UnitChooser.py,
+	  apps/MixMaster/gri30.py, apps/MixMaster/main.py,
+	  apps/MixMaster/menu.py, apps/MixMaster/newflow.py,
+	  apps/MixMaster/utilities.py, apps/MixMaster/Units/SI.py,
+	  apps/MixMaster/Units/__init__.py, apps/MixMaster/Units/area.py,
+	  apps/MixMaster/Units/density.py, apps/MixMaster/Units/energy.py,
+	  apps/MixMaster/Units/force.py, apps/MixMaster/Units/length.py,
+	  apps/MixMaster/Units/mass.py, apps/MixMaster/Units/power.py,
+	  apps/MixMaster/Units/pressure.py,
+	  apps/MixMaster/Units/specificEnergy.py,
+	  apps/MixMaster/Units/specificEntropy.py,
+	  apps/MixMaster/Units/speed.py,
+	  apps/MixMaster/Units/temperature.py,
+	  apps/MixMaster/Units/time.py, apps/MixMaster/Units/unit.py,
+	  apps/MixMaster/Units/volume.py, bin/.cvsignore, bin/README,
+	  bin/mixmaster.py, bin/rm_cvsignore,
+	  Cantera/python/Cantera/Flow.py,
+	  Cantera/python/Cantera/FlowBoundary.py,
+	  Cantera/python/Cantera/FlowPlotter.py,
+	  Cantera/python/Cantera/Func.py,
+	  Cantera/python/Cantera/Interface.py,
+	  Cantera/python/Cantera/Kinetics.py,
+	  Cantera/python/Cantera/OneDim.py,
+	  Cantera/python/Cantera/Phase.py,
+	  Cantera/python/Cantera/Reactor.py,
+	  Cantera/python/Cantera/SurfWriter.py,
+	  Cantera/python/Cantera/SurfacePhase.py,
+	  Cantera/python/Cantera/Thermo.py,
+	  Cantera/python/Cantera/ThermoPhase.py,
+	  Cantera/python/Cantera/Transport.py,
+	  Cantera/python/Cantera/XML.py, Cantera/python/Cantera/gases.py,
+	  Cantera/python/Cantera/importFromFile.py,
+	  Cantera/python/Cantera/interp.py,
+	  Cantera/python/Cantera/refine.py,
+	  Cantera/python/Cantera/rxnpath.py,
+	  Cantera/python/Cantera/schem.py, Cantera/python/Cantera/set.py,
+	  Cantera/python/Cantera/solids.py,
+	  Cantera/python/Cantera/solution.py,
+	  Cantera/python/Cantera/solve.py,
+	  Cantera/python/Cantera/stoich.py,
+	  Cantera/python/Cantera/tecplot.py,
+	  Cantera/python/Cantera/units.py,
+	  Cantera/python/examples/flame1.py,
+	  Cantera/python/examples/flame2.py,
+	  Cantera/python/examples/isentropic.py,
+	  Cantera/python/examples/reactor1.py,
+	  Cantera/python/examples/reactor2.py,
+	  Cantera/python/examples/rxnpath1.py,
+	  Cantera/python/examples/rxnpath2.py,
+	  Cantera/python/examples/stflame1.py,
+	  Cantera/python/examples/stflame2.py,
+	  Cantera/python/src/.cvsignore, Cantera/python/src/Makefile.in,
+	  Cantera/python/src/cantera.def,
+	  Cantera/python/src/canteramodule.cpp, Cantera/python/src/ct.def,
+	  Cantera/python/src/ctbndry_methods.cpp,
+	  Cantera/python/src/ctflow.cpp, Cantera/python/src/ctflow.def,
+	  Cantera/python/src/ctflow_methods.cpp,
+	  Cantera/python/src/ctfunc_methods.cpp,
+	  Cantera/python/src/ctfuncs.cpp,
+	  Cantera/python/src/ctkinetics.cpp,
+	  Cantera/python/src/ctkinetics.def,
+	  Cantera/python/src/ctkinetics_methods.cpp,
+	  Cantera/python/src/ctmodule.cpp,
+	  Cantera/python/src/ctnumerics.cpp,
+	  Cantera/python/src/ctnumerics.def,
+	  Cantera/python/src/ctphase.cpp, Cantera/python/src/ctphase.def,
+	  Cantera/python/src/ctphase_methods.cpp,
+	  Cantera/python/src/ctpy.cpp, Cantera/python/src/ctpybndry.cpp,
+	  Cantera/python/src/ctpyfunc.cpp,
+	  Cantera/python/src/ctpyreactor.cpp,
+	  Cantera/python/src/ctpyrpath.cpp,
+	  Cantera/python/src/ctpysurf.cpp, Cantera/python/src/ctpyxml.cpp,
+	  Cantera/python/src/ctreactor_methods.cpp,
+	  Cantera/python/src/ctrpath_methods.cpp,
+	  Cantera/python/src/ctsurf.cpp, Cantera/python/src/ctsurf.def,
+	  Cantera/python/src/ctsurf_methods.cpp,
+	  Cantera/python/src/ctthermo.cpp, Cantera/python/src/ctthermo.def,
+	  Cantera/python/src/ctthermo_methods.cpp,
+	  Cantera/python/src/cttransport.cpp,
+	  Cantera/python/src/cttransport.def,
+	  Cantera/python/src/cttransport_methods.cpp,
+	  Cantera/python/src/ctxml_methods.cpp,
+	  Cantera/python/src/methods.h, Cantera/python/src/pycantera.cpp,
+	  Cantera/python/src/pyutils.h,
+	  Cantera/python/src/reactionpath.cpp,
+	  Cantera/python/tutorial/tut1.py, Cantera/python/tutorial/tut2.py,
+	  Cantera/python/tutorial/tut4.py, Cantera/src/.cvsignore,
+	  Cantera/src/Array.h, Cantera/src/ArrayViewer.h,
+	  Cantera/src/BandMatrix.cpp, Cantera/src/BandMatrix.h,
+	  Cantera/src/ChemEquil.cpp, Cantera/src/ChemEquil.h,
+	  Cantera/src/ConstDensityThermo.cpp,
+	  Cantera/src/ConstDensityThermo.h, Cantera/src/config.h,
+	  Cantera/src/CVode.cpp, Cantera/src/CVode.h,
+	  Cantera/src/Constituents.cpp, Cantera/src/Constituents.h,
+	  Cantera/src/DASPK.cpp, Cantera/src/DASPK.h,
+	  Cantera/src/DenseMatrix.cpp, Cantera/src/DenseMatrix.h,
+	  Cantera/src/EOS_TPX.h, Cantera/src/Elements.cpp,
+	  Cantera/src/Elements.h, Cantera/src/Enhanced3BConc.h,
+	  Cantera/src/FILES, Cantera/src/FalloffFactory.cpp,
+	  Cantera/src/FalloffFactory.h, Cantera/src/FalloffMgr.h,
+	  Cantera/src/Flow1D.h, Cantera/src/FtnODESys.h,
+	  Cantera/src/Func1.h, Cantera/src/FuncEval.h, Cantera/src/GRI30.h,
+	  Cantera/src/GRI_30_Kinetics.cpp, Cantera/src/GRI_30_Kinetics.h,
+	  Cantera/src/GasKinetics.cpp, Cantera/src/GasKinetics.h,
+	  Cantera/src/GasKineticsWriter.cpp,
+	  Cantera/src/GasKineticsWriter.h, Cantera/src/Group.cpp,
+	  Cantera/src/Group.h, Cantera/src/IdealGasPhase.cpp,
+	  Cantera/src/IdealGasPhase.h, Cantera/src/IdealGasThermo.cpp,
+	  Cantera/src/IdealGasThermo.h, Cantera/src/ImplicitChem.cpp,
+	  Cantera/src/ImplicitChem.h, Cantera/src/ImplicitSurfChem.cpp,
+	  Cantera/src/ImplicitSurfChem.h,
+	  Cantera/src/IncompressibleThermo.h, Cantera/src/Integrator.h,
+	  Cantera/src/InterfaceKinetics.cpp,
+	  Cantera/src/InterfaceKinetics.h, Cantera/src/Jac2.h,
+	  Cantera/src/Kinetics.h, Cantera/src/KineticsFactory.cpp,
+	  Cantera/src/KineticsFactory.h, Cantera/src/L_matrix.h,
+	  Cantera/src/MMCollisionInt.cpp, Cantera/src/Makefile.in,
+	  Cantera/src/MixTransport.cpp, Cantera/src/MultiDomain.h,
+	  Cantera/src/NasaPoly1.h, Cantera/src/NasaThermo.h,
+	  Cantera/src/Newton.h, Cantera/src/Phase.cpp,
+	  Cantera/src/ct_defs.h, Cantera/src/ctexceptions.h,
+	  Cantera/src/ctlapack.h, Cantera/src/ctml.cpp, Cantera/src/ctml.h,
+	  Cantera/src/ctvector.cpp, Cantera/src/ctvector.h,
+	  Cantera/src/exceptions.h, Cantera/src/fitPoly.h,
+	  Cantera/src/flowBoundaries.h, Cantera/src/funcs.cpp,
+	  Cantera/src/gases.h, Cantera/src/global.h, Cantera/src/import.h,
+	  Cantera/src/importCTML.cpp, Cantera/src/importCTML.h,
+	  Cantera/src/importSurfChem.cpp, Cantera/src/importXML.h,
+	  Cantera/src/lapack.h, Cantera/src/misc.cpp,
+	  Cantera/src/mix_defs.h, Cantera/src/mix_utils.h,
+	  Cantera/src/newton_utils.cpp, Cantera/src/Phase.h,
+	  Cantera/src/PolyThermo.h, Cantera/src/PolyThermoMgr.h,
+	  Cantera/src/PropertyCalculator.h, Cantera/src/PropertyUpdater.h,
+	  Cantera/src/RateCoeffMgr.h, Cantera/src/ReactionData.h,
+	  Cantera/src/ReactionPath.cpp, Cantera/src/ReactionPath.h,
+	  Cantera/src/Resid.h, Cantera/src/Resid1D.h,
+	  Cantera/src/ResidEval.h, Cantera/src/RxnRates.h,
+	  Cantera/src/ShomatePoly.h, Cantera/src/ShomateThermo.h,
+	  Cantera/src/SimpleThermo.h, Cantera/src/SpeciesThermo.h,
+	  Cantera/src/SpeciesThermoFactory.cpp,
+	  Cantera/src/SpeciesThermoFactory.h,
+	  Cantera/src/SpeciesThermoMgr.h, Cantera/src/State.h,
+	  Cantera/src/StoichManager.h, Cantera/src/Surf1D.h,
+	  Cantera/src/SurfPhase.h, Cantera/src/Thermo.h,
+	  Cantera/src/ThermoFactory.cpp, Cantera/src/ThermoFactory.h,
+	  Cantera/src/ThermoPhase.cpp, Cantera/src/ThermoPhase.h,
+	  Cantera/src/ThirdBodyMgr.h, Cantera/src/TigerPolynomial.h,
+	  Cantera/src/plots.cpp, Cantera/src/plots.h,
+	  Cantera/src/polyfit.h, Cantera/src/pureSubstances.h,
+	  Cantera/src/reaction_defs.h, Cantera/src/recipes.h,
+	  Cantera/src/sort.cpp, Cantera/src/sort.h,
+	  Cantera/src/speciesThermoTypes.h, Cantera/src/stringUtils.cpp,
+	  Cantera/src/stringUtils.h, Cantera/src/surfKinetics.cpp,
+	  Cantera/src/surfKinetics.h, Cantera/src/surfacePhase.h,
+	  Cantera/src/transportModels.h, Cantera/src/units.h,
+	  Cantera/src/updaters.h, Cantera/src/utilities.h,
+	  Cantera/src/vec_functions.h, Cantera/src/xml.cpp,
+	  Cantera/src/xml.h, Cantera/src/converters/.cvsignore,
+	  Cantera/src/converters/CKParser.cpp,
+	  Cantera/src/converters/CKParser.h,
+	  Cantera/src/converters/CKReader.cpp,
+	  Cantera/src/converters/CKReader.h,
+	  Cantera/src/converters/Constituent.h,
+	  Cantera/src/converters/Element.h, Cantera/src/converters/Group.h,
+	  Cantera/src/converters/Makefile.in,
+	  Cantera/src/converters/Reaction.cpp,
+	  Cantera/src/converters/Reaction.h,
+	  Cantera/src/converters/RxnSpecies.h,
+	  Cantera/src/converters/Species.h,
+	  Cantera/src/converters/atomicWeightDB.cpp,
+	  Cantera/src/converters/ck2ctml.cpp,
+	  Cantera/src/converters/ck2ctml.h,
+	  Cantera/src/converters/ckr_defs.h,
+	  Cantera/src/converters/ckr_utils.cpp,
+	  Cantera/src/converters/ckr_utils.h,
+	  Cantera/src/converters/config.h,
+	  Cantera/src/converters/filter.cpp,
+	  Cantera/src/converters/thermoFunctions.cpp,
+	  Cantera/src/converters/thermoFunctions.h,
+	  Cantera/src/converters/writelog.cpp,
+	  Cantera/src/converters/writelog.h, Cantera/src/oneD/.cvsignore,
+	  Cantera/src/oneD/Inlet1D.h, Cantera/src/oneD/Jac1D.h,
+	  Cantera/src/oneD/Makefile.in, Cantera/src/oneD/MultiJac.cpp,
+	  Cantera/src/oneD/MultiJac.h, Cantera/src/oneD/MultiNewton.cpp,
+	  Cantera/src/oneD/MultiNewton.h, Cantera/src/oneD/Newton1D.h,
+	  Cantera/src/oneD/OneDim.cpp, Cantera/src/oneD/OneDim.h,
+	  Cantera/src/oneD/Resid1D.h, Cantera/src/oneD/newton_utils.cpp,
+	  Cantera/src/oneD/StFlow.cpp, Cantera/src/oneD/StFlow.h,
+	  Cantera/src/oneD/Surf1D.h, Cantera/src/transport/.cvsignore,
+	  Cantera/src/transport/FtnTransport.h,
+	  Cantera/src/transport/MMCollisionInt.cpp,
+	  Cantera/src/transport/MMCollisionInt.h,
+	  Cantera/src/transport/Makefile.in,
+	  Cantera/src/transport/MixTransport.cpp,
+	  Cantera/src/transport/MixTransport.h,
+	  Cantera/src/transport/MultiTransport.cpp,
+	  Cantera/src/transport/MultiTransport.h,
+	  Cantera/src/transport/TransportBase.h,
+	  Cantera/src/transport/TransportFactory.cpp,
+	  Cantera/src/transport/TransportFactory.h,
+	  Cantera/src/transport/TransportParams.h,
+	  Cantera/src/zeroD/.cvsignore, Cantera/src/zeroD/FlowDevice.cpp,
+	  Cantera/src/zeroD/FlowDevice.h, Cantera/src/zeroD/Makefile.in,
+	  Cantera/src/zeroD/PID_Controller.h,
+	  Cantera/src/zeroD/Reactor.cpp, Cantera/src/zeroD/Reactor.h,
+	  Cantera/src/zeroD/ReactorBase.cpp,
+	  Cantera/src/zeroD/ReactorBase.h, Cantera/src/zeroD/Reservoir.h,
+	  Cantera/src/zeroD/Wall.cpp, Cantera/src/zeroD/Wall.h,
+	  Cantera/src/zeroD/flowControllers.h, config/.cvsignore,
+	  config/Cantera.README, config/config.guess, config/config.h.in,
+	  config/config.sub, config/configure, config/configure.in,
+	  config/install-sh, data/README, data/inputs/.cvsignore,
+	  data/inputs/air.inp, data/inputs/air.xml, data/inputs/argon.inp,
+	  data/inputs/argon.xml, data/inputs/elements.xml,
+	  data/inputs/gases.xml, data/inputs/Makefile.in,
+	  data/inputs/gri30.inp, data/inputs/gri30.xml,
+	  data/inputs/gri30mod.inp, data/inputs/grinc.inp,
+	  data/inputs/h2o2.inp, data/inputs/h2o2.xml,
+	  data/inputs/h2o2_noch.inp, data/inputs/mkxml,
+	  data/inputs/silane.inp, data/inputs/silane.xml,
+	  data/thermo/nasathermo.dat, data/transport/gri30_tran.dat,
+	  examples/.cvsignore, examples/Makefile.in,
+	  examples/cxx/.cvsignore, examples/cxx/Makefile.in,
+	  examples/cxx/equil_example1.cpp, examples/cxx/example_utils.h,
+	  examples/cxx/examples.cpp, examples/cxx/examples.dsp,
+	  examples/cxx/kinetics_example1.cpp,
+	  examples/cxx/kinetics_example2.cpp,
+	  examples/cxx/rxnpath_example1.cpp,
+	  examples/cxx/transport_example1.cpp,
+	  examples/cxx/transport_example2.cpp, ext/.cvsignore,
+	  ext/Makefile.in, ext/blas/.cvsignore, ext/blas/dasum.f,
+	  ext/blas/daxpy.f, ext/blas/dcabs1.f, ext/blas/dcopy.f,
+	  ext/blas/ddot.f, ext/blas/dgbmv.f, ext/blas/dgemm.f,
+	  ext/blas/dgemv.f, ext/blas/dger.f, ext/blas/dnrm2.f,
+	  ext/blas/drot.f, ext/blas/drotg.f, ext/blas/drotm.f,
+	  ext/blas/drotmg.f, ext/blas/dsbmv.f, ext/blas/dscal.f,
+	  ext/blas/dsdot.f, ext/blas/dspmv.f, ext/blas/dspr.f,
+	  ext/blas/dspr2.f, ext/blas/dswap.f, ext/blas/dsymm.f,
+	  ext/blas/dsymv.f, ext/blas/dsyr.f, ext/blas/dsyr2.f,
+	  ext/blas/dsyr2k.f, ext/blas/dsyrk.f, ext/blas/dtbmv.f,
+	  ext/blas/dtbsv.f, ext/blas/dtpmv.f, ext/blas/dtpsv.f,
+	  ext/blas/dtrmm.f, ext/blas/dtrmv.f, ext/blas/Makefile.in,
+	  ext/blas/dtrsm.f, ext/blas/dtrsv.f, ext/blas/dzasum.f,
+	  ext/blas/dznrm2.f, ext/blas/icamax.f, ext/blas/idamax.f,
+	  ext/blas/isamax.f, ext/blas/izamax.f, ext/blas/lsame.f,
+	  ext/blas/xerbla.f, ext/cvode/.cvsignore, ext/cvode/Makefile.in,
+	  ext/cvode/include/band.h, ext/cvode/include/cvband.h,
+	  ext/cvode/include/cvbandpre.h, ext/cvode/include/cvdense.h,
+	  ext/cvode/include/cvdiag.h, ext/cvode/include/cvode.h,
+	  ext/cvode/include/cvspgmr.h, ext/cvode/include/dense.h,
+	  ext/cvode/include/iterativ.h, ext/cvode/include/llnlmath.h,
+	  ext/cvode/include/llnltyps.h, ext/cvode/include/nvector.h,
+	  ext/cvode/include/spgmr.h, ext/cvode/source/band.c,
+	  ext/cvode/source/cvband.c, ext/cvode/source/cvbandpre.c,
+	  ext/cvode/source/cvdense.c, ext/cvode/source/cvdiag.c,
+	  ext/cvode/source/cvode.c, ext/cvode/source/cvspgmr.c,
+	  ext/cvode/source/dense.c, ext/cvode/source/iterativ.c,
+	  ext/cvode/source/llnlmath.c, ext/cvode/source/nvector.c,
+	  ext/cvode/source/spgmr.c, ext/lapack/.cvsignore,
+	  ext/lapack/Makefile.in, ext/lapack/dbdsqr.f, ext/lapack/dgbsv.f,
+	  ext/lapack/dgbtf2.f, ext/lapack/dgbtrf.f, ext/lapack/dgbtrs.f,
+	  ext/lapack/dgebd2.f, ext/lapack/dgebrd.f, ext/lapack/dgelq2.f,
+	  ext/lapack/dgelqf.f, ext/lapack/dgelss.f, ext/lapack/dgeqr2.f,
+	  ext/lapack/dgeqrf.f, ext/lapack/dgetf2.f, ext/lapack/dgetrf.f,
+	  ext/lapack/dgetri.f, ext/lapack/dgetrs.f, ext/lapack/dlabad.f,
+	  ext/lapack/dlabrd.f, ext/lapack/dlacpy.f, ext/lapack/dlamch.f,
+	  ext/lapack/dlange.f, ext/lapack/dlapy2.f, ext/lapack/dlarf.f,
+	  ext/lapack/dlarfb.f, ext/lapack/dlarfg.f, ext/lapack/dlarft.f,
+	  ext/lapack/dlartg.f, ext/lapack/dlas2.f, ext/lapack/dlascl.f,
+	  ext/lapack/dlaset.f, ext/lapack/dlasq1.f, ext/lapack/dlasq2.f,
+	  ext/lapack/dlasq3.f, ext/lapack/dlasq4.f, ext/lapack/dlasr.f,
+	  ext/lapack/dlasrt.f, ext/lapack/dlassq.f, ext/lapack/dlasv2.f,
+	  ext/lapack/dlaswp.f, ext/lapack/dorg2r.f, ext/lapack/dorgbr.f,
+	  ext/lapack/dorgl2.f, ext/lapack/dorglq.f, ext/lapack/dorgqr.f,
+	  ext/lapack/dorm2r.f, ext/lapack/dormbr.f, ext/lapack/dorml2.f,
+	  ext/lapack/dormlq.f, ext/lapack/dormqr.f, ext/lapack/drscl.f,
+	  ext/lapack/ilaenv.f, ext/lapack/lsame.f, ext/lapack/xerbla.f,
+	  ext/math/.cvsignore, ext/math/cblas.h, ext/math/daux.f,
+	  ext/math/Makefile.in, ext/math/ddaspk.f, ext/math/dgbefa.f,
+	  ext/math/dgbsl.f, ext/math/dgefa.f, ext/math/dgesl.f,
+	  ext/math/dp1vlu.f, ext/math/dpcoef.f, ext/math/dpolft.f,
+	  ext/math/fdump.f, ext/math/gmres.h, ext/math/idamax.f,
+	  ext/math/j4save.f, ext/math/mach.cpp, ext/math/mkl_cblas.h,
+	  ext/math/pcoef.f, ext/math/polfit.f, ext/math/pvalue.f,
+	  ext/math/xercnt.f, ext/math/xerhlt.f, ext/math/xermsg.f,
+	  ext/math/xerprn.f, ext/math/xersve.f, ext/math/xgetua.f,
+	  ext/recipes/.cvsignore, ext/recipes/Makefile.in,
+	  ext/recipes/simp1.f, ext/recipes/simp2.f, ext/recipes/simp3.f,
+	  ext/recipes/simplx.f, ext/recipes/splie2.f, ext/recipes/splin2.f,
+	  ext/recipes/spline.f, ext/recipes/splint.f, ext/tpx/.cvsignore,
+	  ext/tpx/.depends, ext/tpx/CFluid.cpp, ext/tpx/CFluid.h,
+	  ext/tpx/CGas.cpp, ext/tpx/CLK.cpp, ext/tpx/CLK.h,
+	  ext/tpx/HFC134a.cpp, ext/tpx/HFC134a.h, ext/tpx/Hydrogen.cpp,
+	  ext/tpx/Hydrogen.h, ext/tpx/Makefile.in, ext/tpx/Methane.cpp,
+	  ext/tpx/Methane.h, ext/tpx/Nitrogen.cpp, ext/tpx/Nitrogen.h,
+	  ext/tpx/Oxygen.cpp, ext/tpx/Oxygen.h, ext/tpx/ck_gas.cpp,
+	  ext/tpx/ck_gas.h, ext/tpx/ideal.cpp, ext/tpx/lk.cpp,
+	  ext/tpx/lk.h, ext/tpx/lkw.cpp, ext/tpx/lkw.h, ext/tpx/mix.h,
+	  ext/tpx/Sub.cpp, ext/tpx/Sub.h, ext/tpx/Water.cpp,
+	  ext/tpx/Water.h, ext/tpx/subs.h, ext/tpx/utils.cpp,
+	  ext/tpx/utils.h, include/Cantera.h, include/IdealGasMix.h,
+	  include/README, include/config.h, include/core.h, include/ctml.h,
+	  include/equilibrium.h, include/ftn_defs.h, include/integrators.h,
+	  include/kinetics.h, include/numerics.h, include/onedim.h,
+	  include/surface.h, include/transport.h,
+	  include/fortran/ctfdevmod.f, include/fortran/ctkineticsmod.f,
+	  include/fortran/ctmixturemod.f, include/fortran/ctmod.f,
+	  include/fortran/ctreactormod.f, include/fortran/ctthermomod.f,
+	  include/fortran/cttransportmod.f, include/fortran/ctutilsmod.f,
+	  lib/README, test_problems/.cvsignore, test_problems/Makefile.in,
+	  test_problems/cxx_ex/.cvsignore,
+	  test_problems/cxx_ex/eq1_blessed.csv,
+	  test_problems/cxx_ex/eq1_blessed.dat,
+	  test_problems/cxx_ex/gri30.inp, test_problems/cxx_ex/gri30.xml,
+	  test_problems/cxx_ex/gri30_tran.dat,
+	  test_problems/cxx_ex/gri30mod.inp,
+	  test_problems/cxx_ex/Makefile.in,
+	  test_problems/cxx_ex/kin1_blessed.csv,
+	  test_problems/cxx_ex/kin2_blessed.csv,
+	  test_problems/cxx_ex/runtest, test_problems/cxx_ex/silane.inp,
+	  test_problems/cxx_ex/silane.xml,
+	  test_problems/cxx_ex/tr1_blessed.csv,
+	  test_problems/cxx_ex/tr2_blessed.csv,
+	  test_problems/silane_equil/.cvsignore,
+	  test_problems/silane_equil/Makefile.in,
+	  test_problems/silane_equil/output_blessed.txt,
+	  test_problems/silane_equil/runtest,
+	  test_problems/silane_equil/silane.xml,
+	  test_problems/silane_equil/silane_equil.cpp, tools/.cvsignore,
+	  tools/Makefile.in, tools/export, tools/bin/ctupdate.py,
+	  tools/bin/finish_install.py, tools/src/.cvsignore,
+	  tools/src/Makefile.in, tools/src/ck2ctml.cpp,
+	  tools/src/ck2ctml.dsp, tools/src/ctlibsample.mak.in,
+	  tools/src/ctsetup.cpp, tools/src/ctsetup.in, tools/src/ctwin,
+	  tools/src/makedsp.cpp, tools/src/newdsp.cpp, tools/src/proto.dsp,
+	  tools/src/protocvf.dsp, tools/src/protocxx.cpp,
+	  tools/src/protocxx.dsp, tools/src/sample.mak.in,
+	  tools/src/sample_f90.mak.in, tools/src/validate.cpp,
+	  tools/templates/f77/demo.f, tools/templates/f77/demo_ftnlib.cpp,
+	  tools/templates/f77/sample.mak.in, tools/testtools/.cvsignore,
+	  tools/testtools/Makefile.in, tools/testtools/csvdiff.cpp,
+	  tools/testtools/mdp_allo.cpp, tools/testtools/mdp_allo.h,
+	  tools/testtools/tok_input_util.cpp,
+	  tools/testtools/tok_input_util.h, win32/cantera.dsw,
+	  win32/blas/blas.dsp, win32/cantera/cantera.dsp,
+	  win32/cantera_examples/cantera_examples.dsw,
+	  win32/ckreader/ckreader.dsp, win32/converters/converters.dsp,
+	  win32/ct/ct.dsp, win32/ctmath/ctmath.dsp,
+	  win32/ctsetup/ctsetup.dsp, win32/cvode/cvode.dsp,
+	  win32/lapack/lapack.dsp, win32/oneD/oneD.dsp,
+	  win32/recipes/recipes.dsp, win32/transport/transport.dsp,
+	  win32/zeroD/zeroD.dsp: Initial revision
+
