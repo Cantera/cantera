@@ -65,4 +65,4 @@ test:
 	./runtest
 clean:
 	$(RM) $(OBJS) $(PROGRAM)
-	../../bin/rm_cvsignore
+	../../../bin/rm_cvsignore
