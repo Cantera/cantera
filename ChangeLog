@@ -1,3 +1,96 @@
+2004-12-13 06:42  dggoodwin
+
+	* configure, Cantera/src/MultiPhase.h, config/configure,
+	  config/configure.in: misc cleanup
+
+2004-12-13 06:36  dggoodwin
+
+	* Makefile.in: added test export-win
+
+2004-12-10 11:36  dggoodwin
+
+	* Cantera/python/Cantera/OneD/: BurnerDiffFlame.py, BurnerFlame.py,
+	  CounterFlame.py, StagnationFlow.py, onedim.py: modified python
+	  files to use either numarray or Numeric
+
+2004-12-10 11:32  dggoodwin
+
+	* Cantera/python/: Cantera/Func.py, Cantera/Kinetics.py,
+	  Cantera/Mixture.py, Cantera/Phase.py, Cantera/Reactor.py,
+	  Cantera/SurfacePhase.py, Cantera/ThermoPhase.py,
+	  Cantera/Transport.py, Cantera/excel.py, Cantera/schem.py,
+	  Cantera/solve.py, Cantera/stoich.py, Cantera/tecplot.py,
+	  examples/isentropic.py: modified python files to use either
+	  numarray or Numeric
+
+2004-12-09 14:10  dggoodwin
+
+	* Cantera/src/: MultiPhase.h, MultiPhaseEquil.cpp,
+	  MultiPhaseEquil.h: fixed convergence problem in MultiPhaseEquil
+
+2004-12-02 08:48  dggoodwin
+
+	* data/inputs/: graphite.cti, silicon.cti, silicon_carbide.cti:
+	  initial import
+
+2004-12-01 15:01  dggoodwin
+
+	* config.h.in, Cantera/clib/src/Makefile.in,
+	  Cantera/clib/src/ctmultiphase.cpp,
+	  Cantera/clib/src/ctmultiphase.h,
+	  Cantera/cxx/include/equilibrium.h,
+	  Cantera/python/Cantera/Mixture.py,
+	  Cantera/python/src/ctmultiphase_methods.cpp,
+	  Cantera/python/src/methods.h, Cantera/python/src/pycantera.cpp,
+	  Cantera/src/DenseMatrix.cpp, Cantera/src/Makefile.in,
+	  Cantera/src/phasereport.cpp: support for multiphase equilibrium
+
+2004-12-01 14:57  dggoodwin
+
+	* Cantera/src/: MultiPhaseEquil.h, MultiPhaseEquil.cpp: support for
+	  multiphase equilibrium
+
+2004-12-01 14:56  dggoodwin
+
+	* Cantera/src/MultiPhase.h: multiphase mixtures
+
+2004-11-23 19:08  dggoodwin
+
+	* Cantera/src/importCTML.cpp: changed buildSolutionFromXML to use
+	  get_XML_NameID instead of get_XML_Node
+
+2004-11-15 12:52  hkmoffa
+
+	* Cantera/clib/src/ct.cpp: Added a static_cast.
+
+2004-11-15 12:51  hkmoffa
+
+	* Cantera/clib/src/ct.cpp: Added a return statement.
+
+2004-11-14 19:17  dggoodwin
+
+	* Cantera/cxx/demos/flamespeed.cpp: initial import
+
+2004-11-14 18:33  dggoodwin
+
+	* Makefile.in, configure, Cantera/cxx/include/equilibrium.h,
+	  Cantera/fortran/src/Makefile.in, Cantera/python/ctml_writer.py,
+	  Cantera/src/ChemEquil.cpp, Cantera/src/ChemEquil.h,
+	  Cantera/src/ct_defs.h, Cantera/src/ctvector.cpp,
+	  Cantera/src/ctvector.h, config/configure, config/configure.in,
+	  ext/tpx/RedlichKwong.cpp: changed f90 mod file handling in
+	  Makefiles
+
+2004-11-12 15:37  dggoodwin
+
+	* Cantera/src/oneD/: Domain1D.h, Sim1D.cpp, Sim1D.h, StFlow.cpp,
+	  StFlow.h, boundaries1D.cpp: changes by Karl Meredith to implement
+	  adiabatic, freely-propagating flames
+
+2004-11-02 02:23  dggoodwin
+
+	* Cantera/src/: ImplicitChem.h, ImplicitChem.cpp: re-added file
+
 2004-10-19 03:47  dggoodwin
 
 	* Cantera/src/xml.h: added 'const' to 'write'
@@ -3908,7 +4001,8 @@
 	  Cantera/clib/src/Makefile.in, Cantera/clib/src/Storage.cpp,
 	  Cantera/clib/src/ct.cpp, Cantera/clib/src/ct.h,
 	  Cantera/clib/src/ctbdry.cpp, Cantera/clib/src/ctbdry.h,
-	  Cantera/clib/src/ctfunc.cpp, Cantera/clib/src/ctonedim.cpp,
+	  Cantera/clib/src/ctfunc.cpp, Cantera/clib/src/ctmultiphase.cpp,
+	  Cantera/clib/src/ctmultiphase.h, Cantera/clib/src/ctonedim.cpp,
 	  Cantera/clib/src/ctonedim.h, Cantera/clib/src/ctreactor.cpp,
 	  Cantera/clib/src/ctreactor.h, Cantera/clib/src/ctstagn.cpp,
 	  Cantera/clib/src/ctsurf.cpp, Cantera/clib/src/ctsurf.h,
@@ -3916,13 +4010,16 @@
 	  Cantera/clib/src/genpy.py, Cantera/cxx/Makefile.in,
 	  Cantera/cxx/cxxutils.cpp, Cantera/cxx/writelog.cpp,
 	  Cantera/cxx/demos/Makefile, Cantera/cxx/demos/Makefile.in,
+	  Cantera/cxx/demos/Makefile.install,
 	  Cantera/cxx/demos/example_utils.h,
 	  Cantera/cxx/demos/kinetics1.cpp, Cantera/cxx/include/Edge.h,
 	  Cantera/cxx/include/IdealGasMix.h,
 	  Cantera/cxx/include/IncompressibleSolid.h,
 	  Cantera/cxx/include/Interface.h, Cantera/cxx/include/Metal.h,
-	  Cantera/cxx/include/kinetics.h, Cantera/cxx/include/zerodim.h,
-	  Cantera/cxx/src/Makefile.in, Cantera/cxx/src/writelog.cpp,
+	  Cantera/cxx/include/equilibrium.h,
+	  Cantera/cxx/include/kinetics.h, Cantera/cxx/include/transport.h,
+	  Cantera/cxx/include/zerodim.h, Cantera/cxx/src/Makefile.in,
+	  Cantera/cxx/src/writelog.cpp,
 	  Cantera/fortran/f77demos/README.txt,
 	  Cantera/fortran/f77demos/isentropic.dsp.in,
 	  Cantera/fortran/src/.cvsignore, Cantera/fortran/src/Makefile.in,
@@ -4103,6 +4200,7 @@
 	  Cantera/python/Cantera/Func.py,
 	  Cantera/python/Cantera/Interface.py,
 	  Cantera/python/Cantera/Kinetics.py,
+	  Cantera/python/Cantera/Mixture.py,
 	  Cantera/python/Cantera/OneDim.py,
 	  Cantera/python/Cantera/Phase.py,
 	  Cantera/python/Cantera/Reactor.py,
@@ -4122,7 +4220,7 @@
 	  Cantera/python/Cantera/flame.py, Cantera/python/Cantera/gases.py,
 	  Cantera/python/Cantera/importFromFile.py,
 	  Cantera/python/Cantera/liquidvapor.py,
-	  Cantera/python/Cantera/pip.py,
+	  Cantera/python/Cantera/num.py, Cantera/python/Cantera/pip.py,
 	  Cantera/python/Cantera/pureFluids.py,
 	  Cantera/python/Cantera/refine.py,
 	  Cantera/python/Cantera/rxnpath.py, Cantera/python/Cantera/set.py,
@@ -4153,6 +4251,7 @@
 	  Cantera/python/src/ctbndry_methods.cpp,
 	  Cantera/python/src/ctfuncs.cpp,
 	  Cantera/python/src/ctkinetics_methods.cpp,
+	  Cantera/python/src/ctmultiphase_methods.cpp,
 	  Cantera/python/src/ctonedim_methods.cpp,
 	  Cantera/python/src/ctphase_methods.cpp,
 	  Cantera/python/src/ctpybndry.cpp,
@@ -4184,14 +4283,14 @@
 	  Cantera/src/Kinetics.h, Cantera/src/KineticsFactory.cpp,
 	  Cantera/src/KineticsFactory.h, Cantera/src/L_matrix.h,
 	  Cantera/src/Makefile.in, Cantera/src/MetalPhase.h,
-	  Cantera/src/MultiDomain.h, Cantera/src/NasaPoly1.h,
-	  Cantera/src/NasaThermo.h, Cantera/src/Phase.cpp,
-	  Cantera/src/Phase.h, Cantera/src/PolyThermo.h,
-	  Cantera/src/PolyThermoMgr.h, Cantera/src/PropertyUpdater.h,
-	  Cantera/src/PureFluidPhase.cpp, Cantera/src/PureFluidPhase.h,
-	  Cantera/src/RateCoeffMgr.h, Cantera/src/ReactionData.h,
-	  Cantera/src/ReactionPath.cpp, Cantera/src/ReactionPath.h,
-	  Cantera/src/ReactionStoichMgr.cpp,
+	  Cantera/src/MultiDomain.h, Cantera/src/MultiPhaseEquil.cpp,
+	  Cantera/src/NasaPoly1.h, Cantera/src/NasaThermo.h,
+	  Cantera/src/Phase.cpp, Cantera/src/Phase.h,
+	  Cantera/src/PolyThermo.h, Cantera/src/PolyThermoMgr.h,
+	  Cantera/src/PropertyUpdater.h, Cantera/src/PureFluidPhase.cpp,
+	  Cantera/src/PureFluidPhase.h, Cantera/src/RateCoeffMgr.h,
+	  Cantera/src/ReactionData.h, Cantera/src/ReactionPath.cpp,
+	  Cantera/src/ReactionPath.h, Cantera/src/ReactionStoichMgr.cpp,
 	  Cantera/src/ReactionStoichMgr.h, Cantera/src/Resid1D.h,
 	  Cantera/src/ResidEval.h, Cantera/src/RxnRates.h,
 	  Cantera/src/SolidCompound.cpp, Cantera/src/SolidCompound.h,
