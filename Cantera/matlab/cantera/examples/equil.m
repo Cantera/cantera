@@ -9,7 +9,7 @@ help equil;
 if nargin == 1 & isa(g,'GasMix')
    gas = g;
 else
-   gas = IdealGasMix('gri30.xml');
+   gas = IdealGasMix('gri30.cti');
 end
 
 nsp = nSpecies(gas);

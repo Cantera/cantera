@@ -90,7 +90,8 @@ namespace ctml {
           << "write()\n";
         f.close();
 #ifdef WIN32
-        string cmd = "cmd /C "+pypath() + " " + path + ">> ct2ctml.log 2>&1";
+        //string cmd = "cmd /C "+pypath() + " " + path + ">> ct2ctml.log 2>&1";
+        string cmd = pypath() + " " + path + ">> ct2ctml.log 2>&1";
 #else
         string cmd = pypath() + " " + path + " &> ct2ctml.log";
 #endif

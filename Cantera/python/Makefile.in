@@ -11,38 +11,54 @@
 
 CANTERA_LIBDIR= @buildlib@
 LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
-           $(CANTERA_LIBDIR)/liboneD.a $(CANTERA_LIBDIR)/libconverters.a
+           $(CANTERA_LIBDIR)/liboneD.a $(CANTERA_LIBDIR)/libconverters.a \
+           $(CANTERA_LIBDIR)/libtransport.a
 SRCS = src/ctphase_methods.cpp \
       src/ctthermo_methods.cpp \
       src/ctkinetics_methods.cpp \
       src/cttransport_methods.cpp \
       src/ctxml_methods.cpp \
-      src/ctflow_methods.cpp \
       src/ctfuncs.cpp \
       src/ctsurf_methods.cpp \
       src/ctbndry_methods.cpp \
       src/ctrpath_methods.cpp \
       src/ctreactor_methods.cpp \
       src/ctfunc_methods.cpp \
+      src/ctonedim_methods.cpp \
       src/methods.h
+
+os_is_win = @OS_IS_WIN@
 
 all: _build
 
 _build: $(SRCS) $(LIB_DEPS)
 	touch src/pycantera.cpp 
+ifeq ($(os_is_win),0)
 	(@PYTHON_CMD@ setup.py build)
+else
+	(@PYTHON_CMD@ winsetup.py build)
+endif
 	echo 'ok' > _build
 
 install:
+ifeq ($(os_is_win),0)
 ifeq (@local_inst@,1)
 	(@PYTHON_CMD@ setup.py install --prefix=@prefix@)
 else
 	(@PYTHON_CMD@ setup.py install)
 endif
+else
+	(@PYTHON_CMD@ winsetup.py install)
+endif
 
 clean:
+ifeq ($(os_is_win),0)
 	@PYTHON_CMD@ setup.py clean
 	cd src; rm -f *.o
+else
+	@PYTHON_CMD@ winsetup.py clean
+	cd src; rm -f *.obj
+endif
 
 depends:
 	echo '-'

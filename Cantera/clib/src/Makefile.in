@@ -14,7 +14,7 @@ SUFFIXES= .cpp .d .o
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
-OBJS = ct.o Storage.o ctstagn.o ctsurf.o ctrpath.o ctbdry.o ctreactor.o ctfunc.o ctxml.o ctonedim.o
+OBJS = ct.o Storage.o ctsurf.o ctrpath.o ctbdry.o ctreactor.o ctfunc.o ctxml.o ctonedim.o
 
 DEPENDS = $(OBJS:.o=.d)
 
@@ -70,6 +70,9 @@ clean:
 
 install:
 	@INSTALL@ $(CTLIB) @prefix@/lib/cantera
+
+win-install:
+	@INSTALL@ ../../../lib/clib.lib @prefix@/lib/cantera
 
 
 %.d:

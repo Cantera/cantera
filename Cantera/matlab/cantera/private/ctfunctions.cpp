@@ -38,7 +38,7 @@ void ctfunctions( int nlhs, mxArray *plhs[],
         trfile = getString(prhs[4]);
         idtag = getString(prhs[5]);
 
-        iok = ck_to_cti(infile, dbfile, trfile, idtag);
+        iok = -1; //ck_to_cti(infile, dbfile, trfile, idtag);
         break;  
 
         // get Cantera error

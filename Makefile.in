@@ -50,8 +50,8 @@ kernel-install:
 win-kernel-install:
 	@INSTALL@ -d @prefix@/lib/cantera
 	rm -f @prefix@/lib/cantera/*
-	@INSTALL@ -m 644 @buildlib@/*.lib @prefix@/lib/cantera
-	cd Cantera/clib/src; @MAKE@ install
+	@INSTALL@ -m 644 lib/*.lib @prefix@/lib/cantera
+	cd Cantera/clib/src; @MAKE@ win-install
 
 data-install:
 	@INSTALL@ -d @prefix@/cantera/data
