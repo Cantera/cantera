@@ -146,10 +146,11 @@ endif
 finish-install:
 	@INSTALL@ -d @ct_docdir@
 	#@INSTALL@ doc/*.pdf @ct_docdir@
-	@INSTALL@ -d @ct_demodir@/c++
-	@INSTALL@ examples/cxx/*.cpp @ct_demodir@/c++
-	@INSTALL@ examples/cxx/*.h @ct_demodir@/c++
-	@INSTALL@ examples/cxx/Makefile @ct_demodir@/c++
+
+	@INSTALL@ -d @ct_demodir@/cxx
+	@INSTALL@ Cantera/cxx/demos/*.cpp @ct_demodir@/cxx
+	@INSTALL@ Cantera/cxx/demos/*.h @ct_demodir@/cxx
+	@INSTALL@ Cantera/cxx/demos/Makefile @ct_demodir@/cxx
 	chown -R @username@ @ct_demodir@/c++
 
 	@INSTALL@ -d @ct_demodir@/f77

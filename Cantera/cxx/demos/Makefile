@@ -1,3 +1,9 @@
+# This Makefile uses script 'ctnew' to create the Makefiles for each
+# demo program. This script is created during the Cantera build
+# process, and is installed by default in /usr/local/bin.
+
+# if script ctnew is not on the PATH, set this to the path to it.
+CTNEW = ctnew
 
 SRCS = kinetics1.cpp
 
@@ -8,11 +14,16 @@ MKS = $(SRCS:.cpp=.mak)
 all: $(EXES)
 
 %.mak:
-	ctnew; sed 's/demo/$*/g' demo.mak > $*.mak
+	$(CTNEW); sed 's/demo/$*/g' demo.mak > $*.mak
 
 %.x:
+	@echo
+	@echo Building program $*.x...
+	@echo
 	make $*.mak; make -f $*.mak; mv $* $*.x
+	@echo
 	@echo type '$*.x' to run the program
+	@echo
 
 clean:
 	rm -f $(OBJS) $(EXES) $(MKS)

@@ -58,7 +58,7 @@ $(PROGRAM): $(OBJS)
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXXFLAGS) $(CANTERA_LIBS) $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ @FLIBS@
 
 %.d:
-	g++ -MM $*.cpp > $*.d
+	g++ -MM -I$(CANTERA_INCDIR) $*.cpp > $*.d
 
 clean:
 	$(RM) $(OBJS) $(PROGRAM)
