@@ -65,7 +65,7 @@ kernel-install:
 win-kernel-install:
 	@INSTALL@ -d @ct_libdir@
 	rm -f @ct_libdir@/*
-	@INSTALL@ -m 644 lib/*.lib @ct_libdir@
+	@INSTALL@ -m 644 @buildlib@/*.lib @ct_libdir@
 
 data-install:
 	@INSTALL@ -d @ct_datadir@
@@ -157,6 +157,7 @@ finish-install:
 	@INSTALL@ Cantera/fortran/f77demos/f77demos.mak @ct_demodir@/f77/Makefile
 	chown -R @username@ @ct_demodir@/f77
 
+ifeq ($(os_is_win),0)
 	rm -f @prefix@/cantera/demos
 	rm -f @prefix@/cantera/data
 	rm -f @prefix@/cantera/templates
@@ -165,13 +166,16 @@ finish-install:
 	ln -s @ct_datadir@ @prefix@/cantera/data
 	ln -s @ct_templdir@ @prefix@/cantera/templates
 	ln -s @ct_tutdir@ @prefix@/cantera/tutorials
-
 	@INSTALL@ README*.txt @prefix@/cantera
 	@INSTALL@ License.* @prefix@/cantera
 	@INSTALL@ tools/src/finish_install.py tools/bin
-ifeq ($(os_is_win),0)
 	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
 	chmod +x @ct_bindir@/ctnew
+else
+	cd Cantera/fortran/f77demos; sed s'/isentropic/ctlib/g' isentropic.dsp > ctlib.dsp
+	@INSTALL@ Cantera/fortran/f77demos/*.dsp @ct_demodir@/f77
+	@INSTALL@ README.txt @ct_dir@
+	@INSTALL@ @buildbin@/* @ct_bindir@
 endif
 
 #@INSTALL@ bin/ctmkmf @ct_bindir@/ctnew

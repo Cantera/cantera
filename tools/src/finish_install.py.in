@@ -3,10 +3,6 @@ prefix = '@prefix@'
 pycmd = '@PYTHON_CMD@' # sys.argv[2]
 localinst = @local_inst@
 
-icyg = prefix.find('/cygdrive/')
-if icyg == 0:
-    prefix = prefix[10]+':'+prefix[11:]
-
 bindir = '@ct_bindir@'
 libdir = '@ct_libdir@' 
 hdrdir = '@ct_incdir@'

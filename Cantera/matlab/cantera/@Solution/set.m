@@ -125,7 +125,7 @@ if ntot == 1
   elseif nv == 1
     setDensity(a,1.0/vval);   % temperature held fixed
   elseif np == 1
-    setPressure(1, pval);     % temperature held fixed
+    setPressure(a, pval);     % temperature held fixed
   else
     error('pressure, volume, or density must also be specified');
   end
@@ -133,16 +133,27 @@ elseif ntot == 2
   %
   % set property pairs
   %
-  if np == 1 & nh == 1
-    setState_HP(a,[hval,pval]);
-  elseif nu == 1 & nv == 1
-    setState_UV(a,[uval,vval]);
-  elseif ns == 1 & np == 1
-    setState_SP(a,[sval,pval]);   
-  elseif ns == 1 & nv == 1
-    setState_SV(a,[sval,vval]);      
+  if nt == 1
+    setTemperature(a,tval)
+    if nv == 1
+      setDensity(a,1.0/vval);   % temperature held fixed
+    elseif np == 1
+      setPressure(a, pval);     % temperature held fixed    
+    else
+      error('unimplemented property pair');  
+    end
   else
-    error('unimplemented property pair');
+    if np == 1 & nh == 1
+      setState_HP(a,[hval,pval]);
+    elseif nu == 1 & nv == 1
+      setState_UV(a,[uval,vval]);
+    elseif ns == 1 & np == 1
+      setState_SP(a,[sval,pval]);   
+    elseif ns == 1 & nv == 1
+      setState_SV(a,[sval,vval]);      
+    else
+      error('unimplemented property pair');
+    end
   end
 else
   error('too many properties specified');

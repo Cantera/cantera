@@ -32,12 +32,12 @@ CANTERA_VERSION=${CANTERA_VERSION:="1.5.3"}
 # 
 #  On a PC running MS-Windows, Cantera can be built either using
 #  Microsoft Visual Studio, with the Visual C++ and Visual Fortran
-#  compilers, or using the cygwin g++ and g77 compilers. If you plan to
-#  build the Python and/or MATLAB interfaces, set this to "y".  On the
-#  other hand, if you plan to compile your own applications using the
-#  cygwin unix-like environment, then set this to "n".
-USE_VISUAL_STUDIO=${USE_VISUAL_STUDIO}:="y"}
+#  compilers, or using the linux-like cygwin environment with the 
+#  g++ and g77 compilers. 
+USE_VISUAL_STUDIO=${USE_VISUAL_STUDIO:="y"}
 
+#  
+FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
 
 #----------------------------------------------------------------------
 #         Language Interfaces
@@ -304,6 +304,8 @@ export SHARED
 export SOEXT
 export MAKE
 export RPFONT
+export USE_VISUAL_STUDIO
+export FORTRAN_LIB_DIR
 
 cd config
 chmod +x ./configure 

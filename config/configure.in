@@ -31,19 +31,22 @@ case $ac_sys_system in
   CYGWIN*) OS_IS_CYGWIN=1; mex_ext=dll;;
 esac
 
+CVF_LIBDIR=""
 if test "x${OS_IS_CYGWIN}" = "x1"; then
-if test "${WINDOWS_BUILD}" = "y"; then
+if test "${USE_VISUAL_STUDIO}" = "y"; then
 OS_IS_WIN=1;
+CVF_LIBDIR=$FORTRAN_LIB_DIR
 fi
 fi
+AC_SUBST(CVF_LIBDIR)
 
 #AC_PREFIX_DEFAULT([/usr/local])
 
 local_inst=1
 if test "x${prefix}" = "xNONE"; then
-         if test "x${OS_IS_WIN}" = "x1"; then
+         if test "x${OS_IS_CYGWIN}" = "x1"; then
            prefix="/cygdrive/c/cantera"
-           mkdir ${prefix}
+           # mkdir ${prefix}
          else
            prefix=${ac_default_prefix}
          fi
@@ -99,6 +102,20 @@ ct_tutdir=${prefix}/cantera/${ctversion}/tutorials
 ct_docdir=${prefix}/cantera/${ctversion}/doc
 ct_dir=${prefix}/cantera/${ctversion}
 ct_mandir=${prefix}/share/man
+fi
+
+if test "x${OS_IS_WIN}" = "x1"; then
+ct_libdir=${prefix}/lib/${ctversion}
+ct_incdir=${prefix}/include/cantera
+ct_incroot=${prefix}/include
+ct_bindir=${prefix}/bin
+ct_datadir=${prefix}/data
+ct_demodir=${prefix}/demos
+ct_templdir=${prefix}/templates
+ct_tutdir=${prefix}/tutorials
+ct_docdir=${prefix}/doc
+ct_dir=${prefix}
+ct_mandir=${prefix}
 fi
 
 AC_SUBST(ct_libdir)
@@ -527,8 +544,10 @@ AC_OUTPUT(../Cantera/Makefile \
 	  ../Cantera/clib/src/Makefile \
 	  ../Cantera/fortran/src/Makefile \
 	  ../Cantera/fortran/f77demos/f77demos.mak \
+	  ../Cantera/fortran/f77demos/isentropic.dsp \
 	  ../Cantera/matlab/Makefile \
           ../Cantera/matlab/setup_matlab.py \
+          ../Cantera/matlab/setup_winmatlab.py \
 	  ../Cantera/python/Makefile \
           ../Cantera/python/setup.py \
 	  ../Cantera/cxx/src/Makefile \
@@ -566,8 +585,8 @@ if test "x${OS_IS_WIN}" = "x0"; then
 echo "Now type '${MAKE}' to build Cantera"
 else
 echo "Now start Visual Studio, open workspace 'win32/cantera.dsw',"
-echo "and build project 'all'. When this finishes, type 'make-win'"
-echo "to build the Python and MATLAB interfaces."
+echo "and build project 'all'. When this finishes, come back here and "
+echo "type 'make win' to make the Python and/or MATLAB interfaces."
 fi 
 echo  
 # $Log: configure.in,v

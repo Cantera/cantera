@@ -30,12 +30,11 @@ class DustyGasTransport(Transport):
         spheres is used."""
         self.setParameters(4, 0, [permeability, 0.0])
 
-    def molarFluxes(self,
-                    conc = None,
-                    gradConc = None,
-                    gradPressure = 0.0):
-        self.setConcentrations(concentrations)
-        self.
+##     def molarFluxes(self,
+##                     conc = None,
+##                     gradConc = None,
+##                     gradPressure = 0.0):
+##         self.setConcentrations(concentrations)
                     
     def set(self, **p):
         """Set model parameters. This is a convenience method that simply
