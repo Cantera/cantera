@@ -44,6 +44,9 @@ namespace Cantera {
     /// Add a directory to the search path
     void addDirectory(string dir);
 
+    /// Delete the application singly defined information
+    void appdelete();
+
     // Write a message (deprecated; use writelog)
     //void write(const string& msg);
 

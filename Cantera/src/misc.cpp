@@ -19,6 +19,7 @@
 #include "units.h"
 #include "xml.h"
 #include "ctml.h"
+#include "SpeciesThermoFactory.h"
 
 #ifndef WIN32
 #include "ctdir.h"
@@ -41,7 +42,13 @@ namespace Cantera {
     public:
         Application() : linelen(0), stop_on_error(false), 
                         tmp_dir("/tmp") {}
-        virtual ~Application(){}
+        virtual ~Application() {
+	    map<string, XML_Node*>::iterator pos;
+	    for (pos = xmlfiles.begin(); pos != xmlfiles.end(); ++pos) {
+	      delete pos->second;
+	      pos->second = 0;
+	    }
+	}
         vector<string> inputDirs;
         vector<string> errorMessage;
         vector<string> warning;
@@ -49,8 +56,6 @@ namespace Cantera {
         string msglog;
         size_t linelen;
         bool stop_on_error;
-        //bool write_log_to_cout;
-        //bool matlab;
         map<string, string>     options;
         string tmp_dir;
         map<string, XML_Node*> xmlfiles;
@@ -69,6 +74,20 @@ namespace Cantera {
         if (__app == 0) __app = new Application;
     }
 
+    /**
+     * This function deletes the global information. It should be called
+     * at the end of the application, especially if leak checking is
+     * to be done.
+     */
+    void appdelete() {
+	if (__app) {
+	  delete __app;
+	  __app = 0;
+	}
+	SpeciesThermoFactory::deleteFactory();
+	Unit::deleteUnit();
+    }
+
     Application* app() {
         if (__app == 0) {
             __app = new Application;
@@ -78,50 +97,69 @@ namespace Cantera {
     }
 
     XML_Node* get_XML_File(string file) {
-        if (app()->xmlfiles.find(file) 
+	string path = findInputFile(file);
+	string ff = path;
+        if (app()->xmlfiles.find(path) 
             == app()->xmlfiles.end()) {
-            string path = findInputFile(file);
-
             /*
              * Check whether or not the file is XML. If not, it will
-             * be first processed with the preprocessor.
+             * be first processed with the preprocessor. We determine
+	     * whether it is an XML file by looking at the file extension.
              */
             string::size_type idot = path.rfind('.');
-            string ext, ff;
+            string ext;
             if (idot != string::npos) {
                 ext = path.substr(idot, path.size());
             }
             if (ext != ".xml" && ext != ".ctml") {
-                ctml::ct2ctml(path.c_str());
-                string::size_type islash = path.rfind('/');
-                if (islash != string::npos) 
-                    ff = string("./")+path.substr(islash+1,idot-islash - 1) + ".xml";
-                else
-                    ff = string("./")+path.substr(0,idot) + ".xml";
+	      /*
+	       * We will assume that we are trying to open a cti file.
+	       * First, determine the name of the xml file, ff, derived from
+	       * the cti file.
+	       */
+	      string::size_type islash = path.rfind('/');
+	      if (islash != string::npos) 
+		  ff = string("./")+path.substr(islash+1,idot-islash - 1) + ".xml";
+	      else
+		  ff = string("./")+path.substr(0,idot) + ".xml";
+	      /*
+	       * Do a search of the existing XML trees to determine if we have
+	       * already processed this file. If we have, return a pointer to
+	       * the processed xml tree.
+	       */
+	      if (app()->xmlfiles.find(ff) != app()->xmlfiles.end()) {
+		return __app->xmlfiles[ff];	  
+	      }
+	      /*
+	       * Ok, we didn't find the processed XML tree. Do the conversion
+	       * to xml, possibly overwriting the file, ff, in the process.
+	       */
+	      ctml::ct2ctml(path.c_str());
             }
             else {
                 ff = path;
             }
+	    /*
+	     * Take the XML file ff, open it, and process it, creating an
+	     * XML tree, and then adding an entry in the map. We will store
+	     * the absolute pathname as the key for this map.
+	     */
             ifstream s(ff.c_str());
             XML_Node* x = new XML_Node("doc");
             if (s) {
-                x->build(s);
-                __app->xmlfiles[file] = x;
-                __app->xmlfiles[ff] = x;
+	      x->build(s);
+	      __app->xmlfiles[ff] = x;
             }
-            else
-                throw CanteraError("get_XML_File","cannot open "+ff+" for reading.");
-
-	    /*
-	     * Add the built XML Tree to the map, xmlfiles.
-	     * It stores the pointer to the tree, with the
-	     * key being the name of the file.
-	     *
-	     * HKM Note: shouldn't the key be the full pathname of
-	     *           the file, i.e., ff?
-	     */
+            else {
+	      throw CanteraError("get_XML_File","cannot open "+ff+" for reading.");
+	    }
         }
-        return __app->xmlfiles[file];
+	/*
+	 * Return the XML node pointer. At this point, we are sure that the
+	 * lookup operation in the return statement will return a valid
+	 * pointer. 
+	 */
+        return __app->xmlfiles[ff];
     }
 
     void close_XML_File(string file) {
@@ -156,7 +194,8 @@ namespace Cantera {
     string lastErrorMessage() {
         appinit();
         if (nErrors() > 0)
-            return "\nProcedure: "+__app->errorRoutine.back()+"\nError:   "+__app->errorMessage.back();
+            return "\nProcedure: "+__app->errorRoutine.back()
+		+"\nError:   "+__app->errorMessage.back();
         else
             return "<no Cantera error>";
     }
