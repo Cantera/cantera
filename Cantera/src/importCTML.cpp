@@ -1,15 +1,21 @@
-/*
+/**
  *  @file importCTML.cpp
- *     This file contains a bunch of routines which are global
- *     routines, i.e., not part of any object. These routine
- *     take as input, ctml pointers to data, and pointers to 
- *     Cantera objects. The purpose of these routines is to 
- *     intialize the Cantera objects with data from the ctml
- *     tree structures.
  *
- * $Author$
+ *     This file contains routines which are global routines, i.e.,
+ *     not part of any object. These routine take as input, ctml
+ *     pointers to data, and pointers to Cantera objects. The purpose
+ *     of these routines is to intialize the Cantera objects with data
+ *     from the ctml tree structures.
+ */
+
+/* $Author$
  * $Revision$
  * $Date$
+ * $Log$
+ * Revision 1.14  2003-08-17 18:56:16  dggoodwin
+ * Added support for coverage-dependent reaction rates and sticking coefficients,
+ * and reactions with specified  reaction order.
+ *
  */
 
 // Copyright 2002  California Institute of Technology
@@ -40,7 +46,6 @@ using namespace std;
 #include "ReactionData.h"
 #include "global.h"
 #include "stringUtils.h"
-#include "GasKineticsWriter.h"
 
 #include "xml.h"
 #include "ctml.h"
@@ -48,8 +53,7 @@ using namespace ctml;
 
 #include <stdio.h>
 
-GasKineticsWriter* writer = 0;
-
+// these are all used to check for duplicate reactions
 vector< map<int, doublereal> > _reactiondata;
 vector<string> _eqn;
 vector_int _dup, _nr, _typ;
@@ -57,19 +61,16 @@ vector<bool> _rev;
 
 
 namespace Cantera {
+
     /*
      * First we define a coule of typedef's which will
      * be used throught this file
      */
-    typedef vector<XML_Node*> nodeset_t;
-    typedef XML_Node node_t;
-
-    /// Number of reactant molecules
-    //static int nReacMolecules(ReactionData& r) {
-    //    return accumulate(r.rstoich.begin(), r.rstoich.end(), 0);
-    //}
+    typedef vector<XML_Node*>    nodeset_t;
+    typedef XML_Node             node_t;
 
     const doublereal DefaultPref = 1.01325e5;   // one atm
+
 
     /** 
      * Install a NASA polynomial thermodynamic property
@@ -115,6 +116,7 @@ namespace Cantera {
         sp.install(k, NASA, c.begin(), tmin, tmax, p0);
     }
 
+
     /** 
      * Install a Shomate polynomial thermodynamic property
      * parameterization for species k.
@@ -144,6 +146,7 @@ namespace Cantera {
         sp.install(k, SHOMATE, c.begin(), tmin, tmax, p0);
     }
 
+
     /** 
      * Install a constant-cp thermodynamic property
      * parameterization for species k.
@@ -163,6 +166,7 @@ namespace Cantera {
         sp.install(k, SIMPLE, c.begin(), tmin, tmax, p0);
     }
 
+
     /**
      * Install a species into a ThermoPhase object, which defines
      * the phase thermodynamics and speciation
@@ -176,15 +180,16 @@ namespace Cantera {
 	getMap(a, comp);
 
 	// check that all elements in the species
-	// exist in 'p'
+	// exist in 'p'. If rule != 0, quietly skip 
+        // this species if some elements are undeclared;
+        // otherwise, throw an exception
 	map<string,string>::const_iterator _b = comp.begin();
 	for (; _b != comp.end(); ++_b) {
 	  if (p.elementIndex(_b->first) < 0) {
 	    if (rule == 0) 
-		throw 
-		    CanteraError("installSpecies", 
-				 "Species " + s["name"] + 
-				 " contains undeclared element " + _b->first);
+		throw CanteraError("installSpecies", 
+                    "Species " + s["name"] + 
+                    " contains undeclared element " + _b->first);
 	    else
 		return false;
 	  }
@@ -207,7 +212,8 @@ namespace Cantera {
 
 	p.addUniqueSpecies(s["name"], ecomp.begin(), chrg, sz);
 
-	// get thermo
+	// get thermo.  We currently only support single-range Shomate
+        // and const_cp, and dual-range NASA
 	XML_Node& thermo = s.child("thermo");
 	vector<XML_Node*> tp = thermo.children();
 	int nc = tp.size();
@@ -265,7 +271,9 @@ namespace Cantera {
      *  order = Order of the reactant and product in the reaction
      *          rate expression
      *  rule = If we fail to find a species, we will throw an error
-     *         if rule != 1.
+     *         if rule != 1. If rule = 1, we simply return false, 
+     *         allowing the calling routine to skip this reaction
+     *         and continue.
      */
     static bool getReagents(XML_Node& rxn, kinetics_t& kin, int rp,
         string default_phase, 
@@ -273,6 +281,7 @@ namespace Cantera {
         int rule) {
 
         string rptype;
+
 	/*
 	 * The id of reactants and products are kept in child elements
 	 * of reaction, named "reactants" and "products". We search
@@ -282,24 +291,27 @@ namespace Cantera {
         if (rp == 1) rptype = "reactants";
         else rptype = "products";
         XML_Node& rg = rxn.child(rptype);
+
 	/*
 	 * The species and stoichiometric coefficient for the species
-	 * are storred as a colon seperated pair. Get all of these 
+	 * are stored as a colon seperated pair. Get all of these 
 	 * pairs in the reactions/products object.
 	 */
         vector<string> key, val;
         getPairs(rg, key, val);
 
         int ns = key.size();
+
 	/*
 	 * Loop over each of the pairs and process them
 	 */
         int stch, isp;
         doublereal ord;
         string ph, sp;
+        map<string, int> speciesMap;
         for (int n = 0; n < ns; n++) {
             sp = key[n]; // sp is the string name for species
-            ph = ""; //snode["phase"];
+            ph = "";
 	    /*
 	     * Search for the species in the kinetics object using the
 	     * member function kineticsSpeciesIndex(). We will search
@@ -315,29 +327,64 @@ namespace Cantera {
                     return false;
                 }
             }
+
 	    /*
-	     * For each reagent, we store the the species number, isp 
-	     * the stoichiometric coefficient, val[n], and the order species
-	     * in the reaction rate expression. We assume mass action
-	     * kinetics here.
+	     * For each reagent, we store the the species number, isp
+	     * the stoichiometric coefficient, val[n], and the order
+	     * species in the reaction rate expression. We assume mass
+	     * action kinetics here, but will modify this below for
+	     * specified species.
 	     */
             spnum.push_back(isp);
             stch = atoi(val[n].c_str());
             stoich.push_back(stch);
             ord = doublereal(stch);
             order.push_back(ord);
+            /*
+             * Needed to process reaction orders below.
+             */
+            speciesMap[sp] = order.size();
+        }
+
+        /*
+         * Check to see if reactant reaction orders have been specified. 
+         */
+        if (rp == 1 && rxn.hasChild("order")) {
+            vector<XML_Node*> ord;
+            rxn.getChildren("order",ord);
+            int norder = ord.size();
+            int loc;
+            doublereal forder;
+            for (int nn = 0; nn < norder; nn++) {
+                XML_Node& oo = *ord[nn];
+                string sp = oo["species"];
+                loc = speciesMap[sp];
+                if (loc == 0) 
+                    throw CanteraError("getReagents",
+                        "reaction order specified for non-reactant: "
+                        +sp);
+                forder = fpValue(oo());
+                if (forder < 0.0) {
+                    throw CanteraError("getReagents",
+                        "reaction order must be non-negative");
+                }
+                // replace the forward stoichiometric coefficient
+                // stored above in 'order' with the specified
+                // reaction order
+                order[loc-1] = forder;
+            }
         }
         return true;
     }
     
 
     /**
-     * getArrhenious() parses the xml element called Arrhenius. 
-     * Arrhenius expression is
-     *         k =  A T^(b) exp (-Ea / RT).
+     * getArrhenius() parses the xml element called Arrhenius. 
+     * The Arrhenius expression is
+     * \f[        k =  A T^(b) exp (-E_a / RT). \f]
      */
-    static void getArrhenius(XML_Node& node, int& highlow, doublereal& A,
-		      doublereal& b,  doublereal& E) {
+    static void getArrhenius(XML_Node& node, int& highlow, 
+        doublereal& A, doublereal& b, doublereal& E) {
         
         if (node["name"] == "k0") 
             highlow = 0;
@@ -351,22 +398,44 @@ namespace Cantera {
         E /= GasConstant;
     }                
 
-    void getStick(XML_Node& node, doublereal mw, Kinetics& kin,
+    /**
+     * getStick() processes the element called Stick that specifies
+     * sticking coefficients.
+     */
+    static void getStick(XML_Node& node, Kinetics& kin,
         ReactionData& r, doublereal& A, doublereal& b, doublereal& E) {
         int nr = r.reactants.size();
-        int k, klocal, ns, not_surf = 0;
+        int k, klocal, not_surf = 0;
         int np = 0;
         doublereal f = 1.0;
+        doublereal order;
+
+        string spname = node["species"];
+        ThermoPhase& th = kin.speciesPhase(spname);
+        int isp = th.speciesIndex(spname);
+        double mw = th.molecularWeights()[isp];
+
+        // loop over the reactants
         for (int n = 0; n < nr; n++) {
             k = r.reactants[n];
-            ns = r.rstoich[n];
-            //const ThermoPhase& p =
-            np = kin.speciesPhaseIndex(k);
-            const ThermoPhase& p = kin.thermo(np);
+            order = r.order[n];    // stoich coeff
+
+            // get the phase species k belongs to
+            np = kin.speciesPhaseIndex(k);  
+            const ThermoPhase& p = kin.thermo(np); 
+
+            // get the local index of species k in this phase
             klocal = p.speciesIndex(kin.kineticsSpeciesName(k));
+
+            // if it is a surface species, divide f by the standard
+            // concentration for this species, in order to convert
+            // from concentration units used in the law of mass action
+            // to coverages used in the sticking probability
+            // expression
             if (p.eosType() == cSurf) {
-                f /= pow(p.standardConcentration(klocal),ns);
+                f /= pow(p.standardConcentration(klocal), order);
             }   
+            // otherwise, increment the counter of bulk species
             else 
                 not_surf++;
         }
@@ -375,6 +444,7 @@ namespace Cantera {
                 "reaction probabilities can only be used in "
                 "reactions with exactly 1 bulk species.");
         }
+
         doublereal cbar = sqrt(8.0*GasConstant/(Pi*mw));
         A = 0.25 * getFloat(node, "A", "-") * cbar * f;
         b = getFloat(node, "b") + 0.5;
@@ -382,6 +452,26 @@ namespace Cantera {
         E /= GasConstant;
     }                
 
+    static void getCoverageDependence(node_t& node, 
+        thermo_t& surfphase, ReactionData& rdata) {
+        vector<XML_Node*> cov;
+        node.getChildren("coverage", cov);
+        int k, nc = cov.size();
+        doublereal e;
+        string spname;
+        if (nc > 0) {
+            for (int n = 0; n < nc; n++) {
+                XML_Node& cnode = *cov[n];
+                spname = cnode["species"];
+                k = surfphase.speciesIndex(spname);
+                rdata.cov.push_back(doublereal(k));
+                rdata.cov.push_back(getFloat(cnode, "a"));
+                rdata.cov.push_back(getFloat(cnode, "m"));
+                e = getFloat(cnode, "e", "actEnergy");
+                rdata.cov.push_back(e/GasConstant);
+            }
+        }
+    }
 
     /**
      * Get falloff parameters for a reaction.
@@ -450,30 +540,27 @@ namespace Cantera {
 
             if (nm == "Arrhenius") {
                 vector_fp coeff(3);
-                getArrhenius(c, highlow, coeff[0], coeff[1], coeff[2]);
-                if (highlow == 1 || rdata.reactionType == THREE_BODY_RXN 
-                    || rdata.reactionType == ELEMENTARY_RXN) 
+                if (c["type"] == "stick") {
+                    getStick(c, kin, rdata, coeff[0], coeff[1], coeff[2]);
                     chigh = coeff;
-                else clow = coeff;
-                if (coeff[0] <= 0.0 && negA == 0) {
-                    throw CanteraError("getRateCoefficient", 
-                        "negative or zero A coefficient for reaction "+int2str(rdata.number));
                 }
-            }
-            else if (nm == "Stick") {
-                vector_fp coeff(3);
-                string spname = c["species"];
-                ThermoPhase& th = kin.speciesPhase(spname);
-                int isp = th.speciesIndex(spname);
-                double mw = th.molecularWeights()[isp];
-                getStick(c, mw, kin, rdata, coeff[0], coeff[1], coeff[2]);
-                if (coeff[0] <= 0.0 && negA == 0) {
-                    throw CanteraError("getRateCoefficient", 
-                        "negative or zero A coefficient for reaction "+int2str(rdata.number));
+                else {
+                    getArrhenius(c, highlow, coeff[0], coeff[1], coeff[2]);
+                    if (highlow == 1 || rdata.reactionType == THREE_BODY_RXN 
+                        || rdata.reactionType == ELEMENTARY_RXN) 
+                        chigh = coeff;
+                    else clow = coeff;
                 }
-                chigh = coeff;
-            }
+                if (rdata.reactionType == SURFACE_RXN) {
+                    getCoverageDependence(c, 
+                        kin.thermo(kin.surfacePhaseIndex()), rdata);
+                }
 
+                if (coeff[0] <= 0.0 && negA == 0) {
+                    throw CanteraError("getRateCoefficient", 
+                        "negative or zero A coefficient for reaction "+int2str(rdata.number));
+                }
+            }
             else if (nm == "falloff") {
                 getFalloff(c, rdata);
             }
@@ -877,6 +964,31 @@ next:
             rdata.reversible = true;
 
         string typ = r["type"];
+
+        /*
+         * If reaction orders are specified, then this reaction
+         * does not follow mass-action kinetics, and is not 
+         * an elementary reaction. So check that it is not reversible,
+         * since computing the reverse rate from thermochemistry only
+         * works for elementary reactions. Set the type to global,
+         * so that kinetics managers will know to process the reaction
+         * orders.
+         */
+        if (r.hasChild("order")) {
+            if (rdata.reversible == true) 
+                throw CanteraError("installReaction",
+                    "reaction orders may only be given for "
+                    "irreversible reactions");
+            //typ = "global";
+        }
+
+
+	/*
+	 * Seaarch the reaction element for the attribute "type".
+	 * If found, then branch on the type, to fill in appropriate
+	 * fields in rdata. 
+	 */
+
         if (typ == "falloff") {
             rdata.reactionType = FALLOFF_RXN;
             rdata.falloffType = SIMPLE_FALLOFF;
@@ -891,11 +1003,16 @@ next:
         else if (typ == "surface") {
             rdata.reactionType = SURFACE_RXN;
         }
+        //else if (typ == "global") {
+        //    rdata.reactionType = GLOBAL_RXN;
+        //}
         else if (typ != "")
             throw CanteraError("installReaction",
                 "Unknown reaction type: " + typ);
 
-
+        /*
+         * Look for undeclared duplicate reactions.
+         */
         if (check_for_duplicates) {
             doublereal c = 0.0;
             
@@ -929,8 +1046,6 @@ next:
                             _dup.clear();
                             throw CanteraError("installReaction",msg);
                         }
-                        //else 
-                        //     break;
                     }
                 }
             }
@@ -945,11 +1060,7 @@ next:
         rdata.equation = eqn;
         rdata.number = i;
         rdata.rxn_number = i;
-	/*
-	 * Seaarch the reaction element for the attribute "type".
-	 * If found, then branch on the type, to fill in appropriate
-	 * fields in rdata. 
-	 */
+
             
         getRateCoefficient(r.child("rateCoeff"), kin, rdata, negA);
 	/*
@@ -1084,7 +1195,7 @@ next:
 	 * the true number of reactions in the mechanism, itot.
 	 */
         kin.finalize();
-        writer = 0;
+        //writer = 0;
         _eqn.clear();
         _dup.clear();
         _nr.clear();
