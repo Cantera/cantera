@@ -276,7 +276,7 @@ namespace Cantera {
 
 
     XML_Node::XML_Node(string nm, XML_Node* p, int n) 
-        : m_name(nm), m_level(0),  m_parent(p), m_nchildren(0), 
+        : m_name(nm), m_parent(p), m_nchildren(0), 
           m_n(n), m_iscomment(false) {
         if (!p) m_root = this;
         else m_root = &p->root();
@@ -309,7 +309,8 @@ namespace Cantera {
 
     XML_Node& XML_Node::addChild(string name) { 
         int n = m_children.size();
-        m_children.push_back(new XML_Node(name, this, n));
+	XML_Node *xxx = new XML_Node(name, this, n);
+        m_children.push_back(xxx);
         m_nchildren = m_children.size();
         m_childindex[name] = m_children.back();
         m_children.back()->setParent(this);
@@ -324,10 +325,51 @@ namespace Cantera {
         m_childindex.erase(node->name());
     }
 
-    XML_Node* XML_Node::findID(const string& id, int depth) {
+    /**
+     * This routine carries out a search for an XML node based
+     * on both the xml element name and the attribute ID.
+     * If exact matches are found for both fields, the pointer
+     * to the matching XML Node is returned.
+     * 
+     * The ID attribute may be defaulted by setting it to "".
+     * In this case the pointer to the first xml element matching the name
+     * is returned.
+     *
+     * This algorithm does a lateral search of first generation children
+     * first before diving deeper into each tree branch.
+     */
+    XML_Node* XML_Node::
+    findNameID(const string &nameTarget, const string &idTarget) const {
+	XML_Node *scResult = 0;
+	XML_Node *sc;
+	string idattrib = id();
+	int n;
+	if (name() == nameTarget) {
+	  if (idTarget == "" || idTarget == idattrib) {
+	    return const_cast<XML_Node*>(this);
+	  }
+	}
+	for (n = 0; n < m_nchildren; n++) {
+	  sc = m_children[n];
+	  if (sc->name() == nameTarget) {
+	    if (idTarget == "") return sc;
+	    idattrib = sc->id();
+	    if (idTarget == idattrib) return sc;
+	  }
+	}
+	for (n = 0; n < m_nchildren; n++) {
+	  sc = m_children[n];
+	  scResult = sc->findNameID(nameTarget, idTarget);
+	  if (scResult) return scResult;
+	}
+	return scResult;
+    }
+    
+
+    XML_Node* XML_Node::findID(const string& id, int depth) const {
         if (hasAttrib("id")) {
             if (attrib("id") == id) {
-                return this;
+                return const_cast<XML_Node*>(this);
             }
         }
         if (depth > 0) {
@@ -593,11 +635,10 @@ namespace Cantera {
      * main recursive routine. It doesn't put a final endl
      * on. This is fixed up in the public method.
      */
-    void XML_Node::write_int(ostream& s, int level) {
+    void XML_Node::write_int(ostream& s, int level) const {
 
         if (m_name == "") return;
 
-        m_level = level;
         string indent(level, ' ');
         if (m_iscomment) {
 	  /*
@@ -765,7 +806,8 @@ namespace Cantera {
 #endif
 
         
-    XML_Node * const findXMLPhase(XML_Node *root, string idtarget) {
+    XML_Node * findXMLPhase(XML_Node *root, 
+			    const string &idtarget) {
 	XML_Node *scResult = 0;
 	XML_Node *sc;
 	if (!root) return 0;

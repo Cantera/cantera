@@ -114,11 +114,6 @@ namespace Cantera {
         }
         bool hasAttrib(string a) const {
             return (m_attribs.find(a) != m_attribs.end());
-            //if (m_attribs[a] != "") return true;
-            //else {
-            //    m_attribs.erase(a);
-            //    return false;
-            //}
         }
 
 
@@ -130,33 +125,46 @@ namespace Cantera {
         int number() const { return m_n; }
 
         XML_Node& child(int n) const { return *m_children[n]; }
-        //const XML_Node& child(int n) const { return *m_children[n]; }
         vector<XML_Node*>& children()  { return m_children; }
         const vector<XML_Node*>& children() const { return m_children; }
         int nChildren() const { return m_nchildren; }
 
         void build(istream& f);
 
-        XML_Node* findID(const string& id, int depth=100);
+	/**
+	 * This routine carries out a search for an XML node based
+	 * on both the xml element name and the attribute ID.
+	 * If exact matches are found for both fields, the pointer
+	 * to the matching XML Node is returned.
+	 * 
+	 * The ID attribute may be defaulted by setting it to "".
+	 * In this case the pointer to the first xml element matching the name
+	 * only is returned.
+	 * @internal
+	 * This algorithm does a lateral search of first generation children
+	 * first before diving deeper into each tree branch.
+	 */
+	XML_Node* findNameID(const string &nameTarget, 
+			     const string &idTarget) const;
+
+        XML_Node* findID(const string& id, int depth=100) const;
         XML_Node* findByAttr(const string& attr, const string& val);
         XML_Node* findByName(const string& nm);
         void getChildren(string name, vector<XML_Node*>& children) const;
         XML_Node& child(string loc) const;
         void write(ostream& s, int level = 0);
-        //const XML_Node* getRef() const;
         XML_Node& root() const { return *m_root; }
         void setRoot(XML_Node& root) { m_root = &root; }
         void copyUnion(XML_Node *node_dest);
         void copy(XML_Node *node_dest);
 
     private:
-	void write_int(ostream& s, int level = 0);
+	void write_int(ostream& s, int level = 0) const;
 
     protected:
 
         string m_name;
         string m_value;
-        int m_level;
         map<string, XML_Node*> m_childindex;
         map<string, string> m_attribs;
         XML_Node* m_parent;
@@ -259,11 +267,9 @@ namespace Cantera {
         }
     };
 
-    
-    //XML_Node* find_XML(string src, XML_Node* root=0, 
-    //		       string id="", string loc="", string name="");
+  
+    XML_Node * findXMLPhase(XML_Node* root, const string &id);
 
-    XML_Node * const findXMLPhase(XML_Node* root, string id);        
 }
 
 #endif
