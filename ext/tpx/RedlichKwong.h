@@ -21,7 +21,7 @@ namespace tpx {
             m_mw = MolWt;
 
             // compute the a and b parameters
-            m_a = 0.42748*GasConstant*GasConstant*pow(m_tcrit, 2.5)/m_pcrit;
+            m_a = 0.42748*GasConstant*GasConstant*m_tcrit*m_tcrit*sqrt(m_tcrit)/m_pcrit;
             m_b = 0.08664*GasConstant*m_tcrit/m_pcrit;
 	}
 
