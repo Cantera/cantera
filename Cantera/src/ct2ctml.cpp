@@ -83,7 +83,7 @@ namespace ctml {
         string path = tmpDir()+"/.cttmp.py";
         ofstream f(path.c_str());
         if (!f) {
-            throw CanteraError("ct2ctml","cannot write to "+tmpDir());
+            throw CanteraError("ct2ctml","cannot open "+path+" for writing.");
         }
         f << "from Cantera import *\n"
           << "from Cantera.ctml_writer import *\n"
@@ -96,7 +96,6 @@ namespace ctml {
           << "write()\n";
         f.close();
 #ifdef WIN32
-        //string cmd = "cmd /C "+pypath() + " " + path + ">> ct2ctml.log 2>&1";
         string cmd = pypath() + " " + path + ">> ct2ctml.log 2>&1";
 #else
         string cmd = pypath() + " " + path + " &> ct2ctml.log";
@@ -108,8 +107,7 @@ namespace ctml {
         catch (...) {
             ierr = -10;
         }
-        //char line[90];
-        //if (ierr != 0) {
+
         try {
             char ch=0;
             string s = "";

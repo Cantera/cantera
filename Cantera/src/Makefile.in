@@ -112,16 +112,6 @@ DEPENDS = $(EVERYTHING:.o=.d)
 	@CXX@ -c $< $(CXX_FLAGS) 
 #$(CXX_INCLUDES)
 
-# these depend on Makefile to insure that they get rebuilt whenever
-# 'configure' has been run since they were last compiled
-#misc.o: misc.cpp Makefile
-#	echo '#define CANTERA_ROOT "@prefix@/cantera"' > ctdir.h
-#	@CXX@ -c misc.cpp $(CXX_FLAGS) 
-
-#ct2ctml.o: ct2ctml.cpp Makefile
-#	echo '#define PYTHON_EXE "@PYTHON_CMD@"' > pypath.h
-#	@CXX@ -c ct2ctml.cpp $(CXX_FLAGS) 
-
 .f.o:
 	@F77@ -c $< $(F77_FLAGS) 
 
