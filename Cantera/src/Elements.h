@@ -20,12 +20,6 @@
 #include "ct_defs.h"
 #include "ctexceptions.h"
 
-/*!
- * @namespace Cantera
- * @brief All of Cantera's global variables exist in this namespace
- *
- *
- */
 namespace Cantera {
 
     class XML_Node;
