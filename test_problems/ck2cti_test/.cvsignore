@@ -2,5 +2,6 @@ Makefile
 *.log
 diff_test.out
 gri30a.cti
+gri30b.cti
 gri30.cti
 runtest

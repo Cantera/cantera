@@ -1,7 +1,6 @@
 #!/bin/sh
+# $Id$
 #
-#
-
 BINDIR=@buildbin@
 CK2CTI=$BINDIR/ck2cti
 $CK2CTI -i ./gri30.inp -id gri30 -tr ./gri30_tran.dat > gri30.cti
@@ -10,8 +9,15 @@ $CK2CTI -i ./gri30.inp -id gri30 -tr ./gri30_tran.dat > gri30.cti
 #
 cat gri30.cti | sed '1,5s/^#.*$/#/' > gri30a.cti
 #
+# Change all 3 character exponent expressions starting with 0
+# into 2 character exponent expressions
+# (MSVC++ defaults to 3, and I can't figure out how to change
+#  this behavior).
 #
-diff gri30a.cti gri30a_blessed.cti > diff_test.out
+../../bin/exp3to2.sh gri30a.cti > gri30b.cti
+#
+#
+diff gri30b.cti gri30a_blessed.cti > diff_test.out
 retnStat=$?
 #
 if [ $retnStat = "0" ]
