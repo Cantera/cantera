@@ -1,1 +1,11 @@
- 
+HFC134a.o: HFC134a.cpp HFC134a.h sub.h
+Hydrogen.o: Hydrogen.cpp Hydrogen.h Sub.h
+Methane.o: Methane.cpp Methane.h Sub.h
+Nitrogen.o: Nitrogen.cpp Nitrogen.h Sub.h
+Oxygen.o: Oxygen.cpp Oxygen.h Sub.h
+RedlichKwong.o: RedlichKwong.cpp RedlichKwong.h Sub.h
+Sub.o: Sub.cpp Sub.h
+Water.o: Water.cpp Water.h Sub.h
+lk.o: lk.cpp lk.h Sub.h
+utils.o: utils.cpp subs.h HFC134a.h sub.h Hydrogen.h Methane.h Nitrogen.h \
+  Oxygen.h Water.h RedlichKwong.h utils.h

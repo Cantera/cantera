@@ -36,7 +36,7 @@ void printStates() {
     }
 }
 
-void openRankine() {
+int openRankine(int np, void* p) {
 
     double etap = 0.6;     // pump isentropic efficiency
     double etat = 0.8;     // turbine isentropic efficiency
@@ -71,23 +71,27 @@ void openRankine() {
 
     double heat_in = h["3"] - h["2"];
     double efficiency = work/heat_in;
-	cout << "efficiency = " << efficiency << endl;
+    cout << "efficiency = " << efficiency << endl;
 #ifdef WIN32
-	cout << "press any key to end" << endl;
-	char ch;
-	cin >> ch;
+#ifndef CXX_DEMO
+    cout << "press any key to end" << endl;
+    char ch;
+    cin >> ch;
 #endif
+#endif
+    return 0;
 }
-     
+
 
 #ifndef CXX_DEMO
 int main() {
 
     try {
-        openRankine();
+        return openRankine(0, 0);
     }
     catch (CanteraError) {
         showErrors(cout);
+        return -1;
     }
 }
 #endif

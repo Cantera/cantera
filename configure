@@ -323,7 +323,7 @@ F77=${F77:=g77}
 
 # Fortran 77 compiler flags. Note that the Fortran compiler flags must be set
 # to produce object code compatible with the C/C++ compiler you are using.
-FFLAGS=${FFLAGS:='-O2'}
+FFLAGS=${FFLAGS:='-O2 -g'}
 
 # the additional Fortran flags required for linking, if any. Leave commented
 # out if no additional flags are required.

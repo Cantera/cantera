@@ -8,11 +8,11 @@
 #############################################################################
 
 # the name of the executable program to be created
-PROG_NAME = kinetics1@EXE_EXT@
+PROG_NAME = demos@EXE_EXT@
 
 # the object files to be linked together. List those generated from Fortran
 # and from C/C++ separately
-OBJS = kinetics1.o
+OBJS = demos.o
 
 # additional flags to be passed to the linker. If your program
 # requires other external libraries, put them here
@@ -62,7 +62,7 @@ $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a
 
 test:
 	@MAKE@ $(PROGRAM)
-	./runtest
+	echo 100 | $(PROGRAM) > $(PROGRAM).out
 
 install:
 	@INSTALL@ -d       @ct_demodir@/cxx

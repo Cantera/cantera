@@ -17,7 +17,7 @@
 
 using namespace Cantera;
 
-int demo() {
+int flamespeed(int np, void* p) {
   try {
     int i;
     IdealGasMix gas("gri30.cti","gri30_mix");	
@@ -32,9 +32,12 @@ int demo() {
     vector_fp x;
     x.resize(nsp);
 
-    doublereal phi=1.1;
-    cout << "Enter phi: ";
-    cin >> phi;
+    double phi = 0.0;
+    if (np > 0) phi = *(double*)(p);
+    if (phi == 0.0) {
+        cout << "Enter phi: ";
+        cin >> phi;
+    }
 
     doublereal C_atoms=1.0;
     doublereal H_atoms=4.0;
@@ -65,9 +68,9 @@ int demo() {
     doublereal Tad=gas.temperature();
     cout << phi<<' '<<Tad<<endl;
 
-    double Tin=temp;
-    double Tout=Tad;
-    double breakpt=0.2;
+    //double Tin=temp;
+    //double Tout=Tad;
+    //double breakpt=0.2;
 
 
     //=============  build each domain ========================
@@ -212,8 +215,9 @@ int demo() {
   }
 }
 
+#ifndef CXX_DEMO
 int main() {
-  return demo();
+    return flamespeed(0, 0);
 }
-
+#endif
 

@@ -26,6 +26,8 @@ namespace tpx {
             return new HFC134a;
         else if (lcname == "rk") 
             return new RedlichKwong;
+        else
+            return 0;
     }
 
     Substance * GetSub(int isub) {

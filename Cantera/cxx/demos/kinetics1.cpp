@@ -24,7 +24,7 @@
 #include "example_utils.h"
 
 
-int kinetics1() {
+int kinetics1(int np, void* p) {
 
     cout << "Constant-pressure ignition of a "
          << "hydrogen/oxygen/nitrogen"
@@ -113,7 +113,7 @@ int kinetics1() {
 int main() {
 
     try {
-        return kinetics1();
+        return kinetics1(0, 0);
     }
     // handle exceptions thrown by Cantera
     catch (CanteraError) {
