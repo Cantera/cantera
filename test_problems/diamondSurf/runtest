@@ -3,7 +3,7 @@
 #
 
 temp_success="1"
-/bin/rm  -f output.txt
+/bin/rm  -f output.txt outputa.txt diamond.xml diamonda.xml
 
 #################################################################
 #
@@ -19,8 +19,8 @@ then
   echo "runDiamond returned with bad status, $retnStat, check output"
 fi
 
-
-diff output.txt runDiamond_blessed.out > diff_test.out
+../../bin/exp3to2.sh output.txt > outputa.txt
+diff -w outputa.txt runDiamond_blessed.out > diff_test.out
 retnStat=$?
 if [ $retnStat = "0" ]
 then
@@ -31,7 +31,8 @@ else
   temp_success="0"
 fi
 
-diff diamond.xml diamond_blessed.xml > xml_diff_test.out
+../../bin/exp3to2.sh diamond.xml > diamonda.xml
+diff -w diamonda.xml diamond_blessed.xml > xml_diff_test.out
 retnStat=$?
 if [ $retnStat = "0" ]
 then

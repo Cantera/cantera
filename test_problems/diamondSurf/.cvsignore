@@ -10,3 +10,7 @@ xml_diff_test.out
 *.d
 .cttmp.py
 runDiamond.ilk
+diamondSurf.pdb
+diamonda.xml
+outputa.txt
+test.xml
