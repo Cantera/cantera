@@ -80,7 +80,7 @@ void openRankine() {
 }
      
 
- 
+#ifndef CXX_DEMO
 int main() {
 
     try {
@@ -90,4 +90,5 @@ int main() {
         showErrors(cout);
     }
 }
+#endif
 

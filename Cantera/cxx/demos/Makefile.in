@@ -68,8 +68,6 @@ install:
 	@INSTALL@ -d       @ct_demodir@/cxx
 	@INSTALL@ *.cpp    @ct_demodir@/cxx
 	@INSTALL@ *.h      @ct_demodir@/cxx
-	@INSTALL@ kin1_blessed.csv      @ct_demodir@/cxx
-	@INSTALL@ kin1_blessed.dat      @ct_demodir@/cxx
 	@INSTALL@ Makefile.install @ct_demodir@/cxx/Makefile
 	chown -R @username@ @ct_demodir@/cxx
 

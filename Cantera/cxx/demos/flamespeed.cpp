@@ -7,11 +7,8 @@
   process and the warning messages normally can be ignored. Since these
   warnings tend to hide more interesting warning/error messages, you may
   wish to suppress the warning*/
+#endif
 
-// precompiled headers
-#include "stdafx.h"
-
-#else
 #include <cantera/Cantera.h>
 #include <cantera/onedim.h>
 #include <cantera/IdealGasMix.h>
@@ -19,9 +16,6 @@
 #include <cantera/transport.h>
 
 using namespace Cantera;
-
-#endif
-
 
 int demo() {
   try {
@@ -218,14 +212,8 @@ int demo() {
   }
 }
 
-#ifdef WIN32
-int _tmain(int argc, _TCHAR* argv[])
-{
-  return demo();
-}
-#else
 int main() {
   return demo();
 }
-#endif
+
 
