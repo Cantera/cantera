@@ -191,10 +191,12 @@ namespace Cantera {
         string attr, val;
         string s = strip(tag);
         iloc = s.find(' ');
-        if (iloc > 0) {
+        if (iloc != string::npos) {
 	    name = s.substr(0, iloc);
             s = strip(s.substr(iloc+1,s.size()));
-            if (s[s.size()-1] == '/') name += "/";
+            if (s[s.size()-1] == '/') {
+	      name += "/";
+	    }
             // get attributes
             while (1) {
                 iloc = s.find('=');
@@ -252,12 +254,6 @@ namespace Cantera {
             return tag;
         }
         else {
-#ifdef DEBUG_HKM
-	  //cout << "tag fed to parseTag = " << tag << endl;
-	  //if (tag == "standardConc model=\"molar volume\" /") {
-	  //  cout << "we are here" << endl;
-	  //}
-#endif
             parseTag(tag, name, attribs);
             return name;
         }
@@ -587,8 +583,22 @@ namespace Cantera {
         m_level = level;
         string indent(level, ' ');
         if (m_iscomment) {
-            s << endl << indent << "<!-- " << m_value << " -->";
-            return;
+	  /*
+	   * In the comment section, we test to see if there
+	   * already is a space beginning and ending the comment.
+	   * If there already is one, we don't add another one.
+	   */
+	  s << endl << indent << "<!--";
+	  if (! isspace(m_value[0])) {
+	    s << " ";
+	  }
+	  s << m_value;
+	  int ll = m_value.size() - 1;
+	  if (! isspace(m_value[ll])) {
+	      s << " ";
+	  }
+	  s << "-->";
+	  return;
         }
         
         s << indent << "<" << m_name;
