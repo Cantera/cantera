@@ -4,7 +4,12 @@
  * Declares class PureFluid
  */
 
-// Copyright 2003  California Institute of Technology
+/*  $Author$
+ *  $Date$
+ *  $Revision$
+ *
+ *  Copyright 2003 California Institute of Technology
+ */
 
 #ifndef CT_EOS_TPX_H
 #define CT_EOS_TPX_H
