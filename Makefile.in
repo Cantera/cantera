@@ -262,7 +262,7 @@ uninstall:
 	rm -r -f @ct_docdir@
 	rm -r -f @ct_tutdir@
 	rm -r -f @prefix@/matlab/toolbox/cantera
-	cd tools; make uninstall
+	cd tools; @MAKE@ uninstall
 
 clean:
 	rm -f *.*~ @buildlib@/*.* 

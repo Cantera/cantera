@@ -1,3 +1,17 @@
+2004-10-10 05:11  dggoodwin
+
+	* Cantera/src/importCTML.cpp: moved arrays used to check for dup
+	  rxns into a class to avoid problems with initialization on some
+	  systems (FreeBSD)
+
+2004-10-10 05:09  dggoodwin
+
+	* Cantera/src/: global.h, misc.cpp: added sleep function
+
+2004-10-10 05:09  dggoodwin
+
+	* Cantera/src/ct2ctml.cpp: added sleep before call to python
+
 2004-10-09 11:58  dggoodwin
 
 	* ext/tpx/RedlichKwong.h: removed use of pow
@@ -4223,10 +4237,11 @@
 	  examples/cxx/transport_example2.cpp, ext/blas/Makefile.in,
 	  ext/cvode/Makefile.in, ext/f2c_libs/.cvsignore,
 	  ext/lapack/Makefile.in, ext/math/Makefile.in,
-	  ext/recipes/Makefile.in, ext/tpx/Makefile.in, ext/tpx/Sub.cpp,
-	  ext/tpx/Sub.h, ext/tpx/lk.cpp, ext/tpx/lk.h, ext/tpx/subs.h,
-	  ext/tpx/utils.cpp, include/GRI30.h, include/IdealGasMix.h,
-	  include/Interface.h, include/onedim.h, include/transport.h,
+	  ext/recipes/Makefile.in, ext/tpx/Makefile.in,
+	  ext/tpx/RedlichKwong.h, ext/tpx/Sub.cpp, ext/tpx/Sub.h,
+	  ext/tpx/lk.cpp, ext/tpx/lk.h, ext/tpx/subs.h, ext/tpx/utils.cpp,
+	  include/GRI30.h, include/IdealGasMix.h, include/Interface.h,
+	  include/onedim.h, include/transport.h,
 	  include/fortran/ctfdevmod.f, include/fortran/ctkineticsmod.f,
 	  include/fortran/ctmixturemod.f, include/fortran/ctmod.f,
 	  include/fortran/ctreactormod.f, include/fortran/ctthermomod.f,

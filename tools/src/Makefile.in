@@ -40,7 +40,7 @@ $(BINDIR)/cti2ctml: cti2ctml.o $(CANTERALIB_DEP)
                $(LCXX_END_LIBS)
 
 $(CONVLIB_DEP):
-	cd ../../Cantera/src/converters; make
+	cd ../../Cantera/src/converters; @MAKE@
 
 clean:
 	$(RM) *.o *.*~
