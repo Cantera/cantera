@@ -279,7 +279,7 @@ CXX=${CXX:=g++}
 CC=${CC:=gcc}
 
 # C++ compiler flags
-CXXFLAGS=${CXXFLAGS:="-O2 -Wall"}
+CXXFLAGS=${CXXFLAGS:="-O2 -g -Wall"}
 
 # the C++ flags required for linking. Uncomment if additional flags
 # need to be passed to the linker.

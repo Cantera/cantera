@@ -8,7 +8,7 @@ OBJDIR = .
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
 COBJS = Methane.o Nitrogen.o Oxygen.o Water.o Hydrogen.o RedlichKwong.o \
-        lk.o Sub.o utils.o
+        lk.o Sub.o utils.o HFC134a.o
 
 FOBJS = 
 

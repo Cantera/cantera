@@ -5,7 +5,7 @@
 # package, which in turn take most of the equations of state from the
 # compilation 'Thermodynamic Properties in SI', by W. C. Reynolds.
 
-
+# the substance flag corresponds to the 
 liquid_vapor(name = "water",
            elements = " O  H ",
            species = "H2O",
@@ -38,6 +38,13 @@ liquid_vapor(name = "oxygen",
            elements = " O ",
            species = "O2",
            substance_flag = 4,
+           initial_state = state(temperature = 300.0,
+                                 pressure = OneAtm) ) 
+
+liquid_vapor(name = "hfc134a",
+           elements = " C F H ",
+           species = "C2F4H2",
+           substance_flag = 5,
            initial_state = state(temperature = 300.0,
                                  pressure = OneAtm) ) 
 
@@ -109,3 +116,15 @@ species(name = "H2",
              )
        )
 
+# these thermo values result in h = 0, s = 0 for sat. liquid at 273.15
+# K.  This convention is not consistent with that followed elsewhere
+# in Cantera, but data on the heat of formation of c2f4h2 was not
+# found.
+species(name = "C2F4H2",
+    atoms = " C:2 F:4 H:2 ",
+    thermo = const_cp(
+                   t0 = 273.15,
+                   h0 = 23083414.8686,
+                   s0 = 167025.466
+                   )
+             )

@@ -22,6 +22,8 @@ namespace tpx {
             return new hydrogen;
         else if (lcname == "oxygen") 
             return new oxygen;
+        else if (lcname == "hfc134a") 
+            return new HFC134a;
         else if (lcname == "rk") 
             return new RedlichKwong;
     }
@@ -37,8 +39,8 @@ namespace tpx {
             return new hydrogen;
  	else if (isub == 4)
             return new oxygen;
-        // 	else if (isub == 5)
-        // 		return new HFC134a;
+        else if (isub == 5)
+            return new HFC134a;
         else if (isub == 6)
             return new RedlichKwong;
   	else

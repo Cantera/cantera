@@ -71,15 +71,34 @@ namespace Cantera {
         th.getChemPotentials(mu.begin());
         doublereal rt = GasConstant * th.temperature(); 
         int k;
+        if (th.nSpecies() > 1) {
 
-        sprintf(p, "\n                           X                 Y          Chem. Pot. / RT    \n");
-        s += p;
-        sprintf(p, "                     -------------     ------------     ------------\n");
-        s += p;
-        for (k = 0; k < kk; k++) {
-                sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n", 
-                    th.speciesName(k).c_str(), x[k], y[k], mu[k]/rt);
+            if (show_thermo) {
+                sprintf(p, "\n                           X     "
+                    "            Y          Chem. Pot. / RT    \n");
                 s += p;
+                sprintf(p, "                     -------------     "
+                    "------------     ------------\n");
+                s += p;
+                for (k = 0; k < kk; k++) {
+                    sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n", 
+                        th.speciesName(k).c_str(), x[k], y[k], mu[k]/rt);
+                    s += p;
+                }
+            }
+            else {
+                sprintf(p, "\n                           X"
+                    "Y\n");
+                s += p;
+                sprintf(p, "                     -------------"
+                    "     ------------\n");
+                s += p;
+                for (k = 0; k < kk; k++) {
+                    sprintf(p, "%18s   %12.6g     %12.6g\n", 
+                        th.speciesName(k).c_str(), x[k], y[k]);
+                    s += p;
+                }
+            }
         }
         return s;
     }

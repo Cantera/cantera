@@ -3,14 +3,15 @@
 
 #include "sub.h"
 
-class HFC134a : public Substance{
-public:
+namespace tpx {
+    class HFC134a : public Substance{
+    public:
 	HFC134a(){}
-       ~HFC134a(){}
+        ~HFC134a(){}
 
 	double MolWt();
 	double Tcrit();
-    double Pcrit();
+        double Pcrit();
 	double Vcrit();
 	double Tmin();
 	double Tmax();
@@ -21,11 +22,12 @@ public:
 	double fp();
 	double up();
 	double sp() 
-	   { return (up() - fp())/T; }
+            { return (up() - fp())/T + m_entropy_offset; }
 	double Psat();
-//    double dPsatdT();
-private:
+        //    double dPsatdT();
+    private:
 	double ldens();
     };
+}
 #endif // ! HFC134_H
 
