@@ -142,8 +142,6 @@ ifeq ($(build_matlab),1)
 endif
 
 finish-install:
-	@INSTALL@ -d @ct_bindir@
-	@INSTALL@ bin/ck2cti* @ct_bindir@
 	@INSTALL@ -d @ct_docdir@
 	#@INSTALL@ doc/*.pdf @ct_docdir@
 	@INSTALL@ -d @ct_demodir@/c++
@@ -159,10 +157,6 @@ finish-install:
 	@INSTALL@ Cantera/fortran/f77demos/f77demos.mak @ct_demodir@/f77/Makefile
 	chown -R @username@ @ct_demodir@/f77
 
-	rm -r -f @prefix@/cantera/demos
-	rm -r -f @prefix@/cantera/data
-	rm -r -f @prefix@/cantera/templates
-	rm -r -f @prefix@/cantera/tutorials
 	ln -s @ct_demodir@ @prefix@/cantera/demos
 	ln -s @ct_datadir@ @prefix@/cantera/data
 	ln -s @ct_templdir@ @prefix@/cantera/templates
