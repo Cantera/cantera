@@ -1,9 +1,9 @@
 #ifndef CK_GAS_H
 #define CK_GAS_H
 
-#include "sub.h"
+#include "Sub.h"
 
-#include <fstream.h>
+//#include <fstream.h>
 
 extern "C" { 
 	__declspec(dllimport) double __stdcall
@@ -15,7 +15,8 @@ extern "C" {
     chem(double temp, double dens, int ks, double *xmole, int ijob);
 }
 
-class ck_gas : public Substance{
+namespace tpx {
+class ck_gas : public Substance {
 public:
 
 	ck_gas() {
@@ -82,4 +83,5 @@ protected:
 	double *xm;
 
 };
+}
 #endif // ! CK_GAS
