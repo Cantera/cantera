@@ -218,6 +218,9 @@ namespace Cantera {
 
         // some work space
         m_spwork.resize(m_nsp);
+        m_spwork1.resize(m_nsp);
+        m_spwork2.resize(m_nsp);
+        m_spwork3.resize(m_nsp);
 
 
         // precompute and store log(epsilon_ij/k_B)
@@ -536,6 +539,129 @@ namespace Cantera {
         }
     }
 
+
+    void MultiTransport::getMassFluxes(const doublereal* state1,
+        const doublereal* state2, doublereal delta, 
+        doublereal* fluxes) {
+
+        double* x1 = m_spwork1.begin();
+        double* x2 = m_spwork2.begin();
+        double* x3 = m_spwork3.begin();
+        int n, nsp = m_thermo->nSpecies();
+        m_thermo->restoreState(nsp+2, state1);
+        double p1 = m_thermo->pressure();
+        double t1 = state1[0];
+        m_thermo->getMoleFractions(x1);
+
+        m_thermo->restoreState(nsp+2, state2);
+        double p2 = m_thermo->pressure();
+        double t2 = state2[0];
+        m_thermo->getMoleFractions(x2);
+
+        // 
+        double p = 0.5*(p1 + p2);
+        double t = 0.5*(state1[0] + state2[0]);
+
+        for (n = 0; n < nsp; n++) {
+            x3[n] = 0.5*(x1[n] + x2[n]);
+        }
+        m_thermo->setState_TPX(t, p, x3);
+        m_thermo->getMoleFractions(m_molefracs.begin());
+
+
+        // update the binary diffusion coefficients if necessary
+        updateDiff_T();
+
+        doublereal sum;
+        int i, j;
+
+        // If there is a temperature gadient, then get the
+        // thermal diffusion coefficients
+
+        bool addThermalDiffusion = false;
+        if (state1[0] != state2[0]) {
+            addThermalDiffusion = true;
+            getThermalDiffCoeffs(m_spwork.begin());
+        }
+
+        const doublereal* y = m_thermo->massFractions();
+        doublereal rho = m_thermo->density();
+
+        for (i = 0; i < m_nsp; i++) {
+            sum = 0.0;
+            for (j = 0; j < m_nsp; j++) {
+                m_aa(i,j) = m_molefracs[j]*m_molefracs[i]/m_bdiff(i,j);
+                sum += m_aa(i,j);
+            }
+            m_aa(i,i) -= sum;
+        }
+
+        // enforce the condition \sum Y_k V_k = 0. This is done by
+        // replacing the flux equation with the largest gradx
+        // component with the flux balance condition.
+        int jmax = 0;
+        doublereal gradmax = -1.0;
+        for (j = 0; j < m_nsp; j++) {
+            if (fabs(x2[j] - x1[j]) > gradmax) {
+                gradmax = fabs(x1[j] - x2[j]);
+                jmax = j;
+            }
+        }
+
+        // set the matrix elements in this row to the mass fractions,
+        // and set the entry in gradx to zero
+
+        for (j = 0; j < m_nsp; j++) {
+            m_aa(jmax,j) = y[j];
+            fluxes[j] = x2[j] - x1[j];
+        }
+        fluxes[jmax] = 0.0;
+
+        // use LAPACK to solve the equations
+        int info=0;
+        int nr = m_aa.nRows();
+        int nc = m_aa.nColumns();
+
+        ct_dgetrf(nr, nc, m_aa.begin(), nr, m_aa.ipiv().begin(), info);
+        if (info == 0) { 
+            int ndim = 1;
+            ct_dgetrs(ctlapack::NoTranspose, nr, ndim, 
+                m_aa.begin(), nr, m_aa.ipiv().begin(), fluxes, nr, info);
+            if (info != 0) 
+                throw CanteraError("MultiTransport::getMassFluxes",
+                    "Error in DGETRS. Info = "+int2str(info));
+        }
+        else 
+            throw CanteraError("MultiTransport::getMassFluxes",
+                "Error in DGETRF.  Info = "+int2str(info));
+
+
+        doublereal pp = pressure_ig();
+
+        // multiply diffusion velocities by rho * Y_k to create 
+        // mass fluxes, and divide by pressure
+        for (i = 0; i < m_nsp; i++) {
+            fluxes[i] *= rho * y[i] / pp;
+        }
+
+        // thermal diffusion
+        if (addThermalDiffusion) {
+            doublereal grad_logt = (t2 - t1)/m_temp;
+            for (i = 0; i < m_nsp; i++) {
+                fluxes[i] -= m_spwork[i]*grad_logt;
+            }
+        }
+    }
+
+    void MultiTransport::getMolarFluxes(const doublereal* state1,
+        const doublereal* state2, doublereal delta, 
+        doublereal* fluxes) {
+        getMassFluxes(state1, state2, delta, fluxes);
+        int k, nsp = m_thermo->nSpecies();
+        for (k = 0; k < nsp; k++) {
+            fluxes[k] /= m_mw[k];
+        }
+    }
 
     void MultiTransport::getMultiDiffCoeffs(int ld, doublereal* d) {
         int i,j;

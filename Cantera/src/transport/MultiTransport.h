@@ -107,6 +107,14 @@ namespace Cantera {
         doublereal* grad_T, int ldx, const doublereal* grad_X, 
             int ldf, doublereal* fluxes);
 
+        virtual void getMolarFluxes(const doublereal* state1,
+            const doublereal* state2, doublereal delta, 
+            doublereal* fluxes);
+
+        virtual void getMassFluxes(const doublereal* state1,
+            const doublereal* state2, doublereal delta, 
+            doublereal* fluxes);
+
         virtual void setSolutionMethod(int method) {
             if (method == GMRES) m_gmres = true;
             else m_gmres = false;
@@ -122,7 +130,6 @@ namespace Cantera {
         /**
          * @internal
          */
-        //bool init(const string& transportDatabase, phase_t& mix);
         virtual bool init(TransportParams& tr);
 
 
@@ -239,7 +246,7 @@ namespace Cantera {
         doublereal m_eps_gmres;
 
         // work space
-        vector_fp  m_spwork;
+        vector_fp  m_spwork, m_spwork1, m_spwork2, m_spwork3;
 
         void correctBinDiffCoeffs();
         bool m_visc_ok;
