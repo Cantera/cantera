@@ -81,6 +81,8 @@ namespace ctml {
     void getIntegers(const XML_Node& node, map<string,int>& v);
     void getFloats(const XML_Node& node, map<string,double>& v, bool convert=true);
     doublereal getFloat(const XML_Node& parent, string name, string type="");
+    int getInteger(const XML_Node& parent, string name);
+    
     void getStrings(const XML_Node& node, map<string,string>& v);
     void getFunction(const XML_Node& node, string& type, doublereal& xmin,
         doublereal& xmax, vector_fp& coeffs);

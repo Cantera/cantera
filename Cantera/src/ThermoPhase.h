@@ -590,8 +590,50 @@ namespace Cantera {
          * @param c array of \i n coefficients
          */
         virtual void setParameters(int n, doublereal* c) {}
-
-            
+        
+        
+        //---------------------------------------------------------
+        /// @name Critical state properties.
+        
+        //@{
+        
+        /// Critical temperature (K).
+        virtual doublereal critTemperature() const {
+            err("critTemperature"); return -1.0;
+        }
+        
+        /// Critical pressure (Pa).
+        virtual doublereal critPressure() const {
+            err("critPressure"); return -1.0;
+        }
+        
+        /// Critical density (kg/m3).
+        virtual doublereal critDensity() const {
+            err("critDensity"); return -1.0;
+        }                
+        
+        //@}
+        
+        virtual doublereal satTemperature(doublereal p) const {
+            err("satTemperature"); return -1.0;
+        }
+        
+        virtual doublereal satPressure(doublereal t) const {
+            err("satPressure"); return -1.0;
+        }
+        
+        virtual doublereal vaporFraction() const {
+            err("vaprFraction"); return -1.0;
+        }
+        
+        virtual void setState_satLiquid() {
+            err("setState_satLiquid"); 
+        }
+        
+        virtual void setState_satVapor() {
+            err("setState_satVapor");             
+        }
+        
         /**
          * @internal Install a species thermodynamic property
          * manager. The species thermodynamic property manager
@@ -625,7 +667,8 @@ namespace Cantera {
         doublereal maxTemp(int k = -1) {
             return m_spthermo->maxTemp();
         }
-
+        
+            
         ThermoPhase() {
             m_spthermo = 0;
 	    m_speciesData = 0;

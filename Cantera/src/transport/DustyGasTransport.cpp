@@ -3,9 +3,11 @@
  *  @file DustyGasTransport.cpp
  *  Implementation file for class DustyGasTransport
  *
- * @ingroup transportProps
+ *  @ingroup transportProps
  *
- *  $Author$
+ */
+
+/*  $Author$
  *  $Date$
  *  $Revision$
  *

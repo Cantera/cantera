@@ -6,9 +6,9 @@ namespace tpx {
 
 Substance * GetSub(int isub) {
  	if (isub == 0)
-                return new water();
- 	if (isub == 1)
- 		return new nitrogen();
+                return new water;
+ 	else if (isub == 1)
+ 		return new nitrogen;
  	else if (isub == 2)
  		return new methane;
  	else if (isub == 3)

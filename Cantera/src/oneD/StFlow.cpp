@@ -697,9 +697,8 @@ namespace Cantera {
      */
     void StFlow::updateDiffFluxes(const doublereal* x, int j0, int j1) {
         int j, k, m;
-        doublereal sum, wtm, rho, dz, gradlogT, s;
-        doublereal fluxsum;
-        char ch;
+        doublereal sum, wtm, rho, dz, gradlogT;
+
         switch (m_transport_option) {
 
         case c_Mixav_Transport:

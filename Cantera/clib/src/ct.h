@@ -2,6 +2,7 @@
 #define CTC_CT_H
 
 #include "clib_defs.h"
+#include <cantera/Cantera.h>
 
 extern "C" {
 
@@ -74,7 +75,16 @@ extern "C" {
     int DLL_IMPORT th_set_SV(int n, double* vals);
     int DLL_IMPORT th_set_SP(int n, double* vals);
     int DLL_IMPORT th_equil(int n, int XY);
-
+    
+    double DLL_IMPORT th_critTemperature(int n);
+    double DLL_EXPORT th_critPressure(int n);
+    double DLL_EXPORT th_critDensity(int n);
+    double DLL_EXPORT th_vaporFraction(int n);
+    double DLL_EXPORT th_satTemperature(int n, double p);
+    double DLL_EXPORT th_satPressure(int n, double t);
+    int DLL_EXPORT th_setState_satLiquid(int n);
+    int DLL_EXPORT th_setState_satVapor(int n);    
+    
     int DLL_IMPORT newKineticsFromXML(int mxml, int iphase, 
         int neighbor1=-1, int neighbor2=-1, int neighbor3=-1,
         int neighbor4=-1);

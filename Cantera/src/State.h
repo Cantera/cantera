@@ -194,10 +194,10 @@ namespace Cantera {
 
 	/// Set the temperature to value temp (K).
 	void setTemperature(doublereal temp) {
-            if (temp != m_temp) {
+            //if (temp != m_temp) {
                 m_temp = temp;
                 //m_T_updater.need_update();
-            } 
+                //} 
         }
 
 	/**

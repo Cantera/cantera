@@ -959,6 +959,11 @@ class ideal_gas(phase):
         self._tr = transport
         if self.debug:
             print 'Read ideal_gas entry '+self._name
+            try:
+                print 'in file '+__name__
+            except:
+                pass
+                
 
         
     def build(self, p):
@@ -1007,6 +1012,33 @@ class pure_solid(phase):
         k = ph.addChild("kinetics")
         k['model'] = 'none'        
 
+
+class pure_fluid(phase):
+    """A pure fluid."""
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 substance_flag = 0,
+                 initial_state = None,
+                 options = []):
+        
+        phase.__init__(self, name, 3, elements, species, 'none',
+                       initial_state, options)
+        self._subflag = substance_flag
+        self._pure = 1
+
+
+    def conc_dim(self):
+        return (0,0)
+        
+    def build(self, p):
+        ph = phase.build(self, p)
+        e = ph.addChild("thermo")
+        e['model'] = 'PureFluid'
+        e['fluid_type'] = `self._subflag`
+        k = ph.addChild("kinetics")
+        k['model'] = 'none'        
 
 class ideal_interface(phase):
     """An ideal interface."""
@@ -1208,7 +1240,10 @@ if __name__ == "__main__":
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.24  2003-11-13 12:29:45  dggoodwin
+# Revision 1.25  2003-11-24 16:39:33  dggoodwin
+# -
+#
+# Revision 1.24  2003/11/13 12:29:45  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.23  2003/11/12 18:58:15  dggoodwin

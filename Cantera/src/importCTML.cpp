@@ -769,6 +769,8 @@ namespace Cantera {
      */
     bool importPhase(XML_Node& phase, ThermoPhase* th) {
 
+        int subflag = -1;
+
         if (phase.name() != "phase") 
             throw CanteraError("importPhase",
                 "Current const XML_Node is not a phase element.");
@@ -796,7 +798,6 @@ namespace Cantera {
             const XML_Node& eos = phase.child("thermo");
             if (eos["model"] == "Incompressible") {
                 if (th->eosType() == cIncompressible) {
-                    //map<string, doublereal> d;
                     doublereal rho = getFloat(eos, "density", "-");
                     //doublereal rho = d["density"];
                     th->setParameters(1, &rho);
@@ -823,6 +824,25 @@ namespace Cantera {
                         throw CanteraError("importCTML",
                             "missing or negative site density");
                     th->setParameters(1, &n);
+                }
+                else {
+                    throw CanteraError("importCTML",
+                        "wrong equation of state type");
+                }
+            }
+            else if (eos["model"] == "PureFluid") {
+                if (th->eosType() == cPureFluid) {
+                    subflag = atoi(eos["fluid_type"].c_str());
+                    //doublereal h0 = getFloat(eos, "h0", "-");
+                    //doublereal s0 = getFloat(eos, "s0", "-");
+                    if (subflag < 0) 
+                        throw CanteraError("importCTML",
+                            "missing fluid type flag");
+                    //doublereal c[3];
+                    //c[0] = doublereal(subflag);
+                    //c[1] = h0;
+                    //c[2] = s0;
+                    //th->setParameters(3, c);
                 }
                 else {
                     throw CanteraError("importCTML",
@@ -963,6 +983,12 @@ namespace Cantera {
         setState(phase, th);
 
         th->saveSpeciesData(db);
+
+        if (th->eosType() == cPureFluid) {
+            doublereal dsub = doublereal(subflag);
+            th->setParameters(1, &dsub);
+        }
+
         return true;
     }        
 

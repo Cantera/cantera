@@ -19,6 +19,7 @@
 
 #include "SpeciesThermoFactory.h"
 #include "IdealGasPhase.h"
+#include "PureFluidPhase.h"
 #include "ConstDensityThermo.h"
 #include "SurfPhase.h"
 #include "MetalPhase.h"
@@ -29,16 +30,19 @@ namespace Cantera {
 
     ThermoFactory* ThermoFactory::__factory = 0;
 
-    static int ntypes = 5;
+    static int ntypes = 6;
     static string _types[] = {"IdealGas", "Incompressible", 
-                              "Surface", "Metal", "SolidCompound"};
-    static int _itypes[]   = {cIdealGas, cIncompressible, 
-                              cSurf, cMetal, cSolidCompound};
+                              "Surface", "Metal", "SolidCompound",
+                              "PureFluid"};
 
+    static int _itypes[]   = {cIdealGas, cIncompressible, 
+                              cSurf, cMetal, cSolidCompound,
+                              cPureFluid};
 
     ThermoPhase* ThermoFactory::newThermoPhase(string model) {
 
         int ieos=-1;
+
         for (int n = 0; n < ntypes; n++) {
             if (model == _types[n]) ieos = _itypes[n];
         }
@@ -65,6 +69,10 @@ namespace Cantera {
 
         case cSolidCompound:
             th = new SolidCompound;
+            break;
+
+        case cPureFluid:
+            th = new PureFluid;
             break;
 
         default:

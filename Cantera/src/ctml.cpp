@@ -250,6 +250,44 @@ namespace ctml {
     }
 
 
+    /**
+     * Get a floating-point value from a child element.  Returns a
+     * double value for the child named 'name' of element 'parent'. If
+     * 'type' is supplied and matches a known unit type, unit
+     * conversion to SI will be done if the child element has an attribute
+     * 'units'.
+     */
+    int getInteger(const XML_Node& parent, string name) {
+        if (!parent.hasChild(name)) 
+            throw CanteraError("getInteger (called from XML Node \"" +
+			       parent.name() + "\"): ",
+			       "no child XML element named " + name);
+        const XML_Node& node = parent.child(name);
+        int x, x0, x1;
+        string units, vmin, vmax;
+        x = atoi(node().c_str());
+        x0 = Undefined;
+        x1 = Undefined;
+        vmin = node["min"];
+        vmax = node["max"];
+        if (vmin != "") {
+            x0 = atoi(vmin.c_str());
+            if (x < x0) {
+                writelog("\nWarning: value "+node()+" is below lower limit of "
+                    +vmin+".\n");
+                }
+            }
+        if (node["max"] != "") {
+            x1 = atoi(vmax.c_str());
+            if (x > x1) {
+                writelog("\nWarning: value "+node()+" is above upper limit of "
+                    +vmax+".\n");
+            }
+        }
+        return x;
+    }
+
+
     void getFloatArray(const XML_Node& node, vector_fp& v, bool convert) {
         int icom;
         string numstr;

@@ -23,6 +23,7 @@
 #include "Storage.h"
 #include "Cabinet.h"
 #include "InterfaceKinetics.h"
+#include "PureFluidPhase.h"
 
 #include "clib_defs.h"
 
@@ -30,9 +31,20 @@ inline XML_Node* _xml(int i) {
     return Cabinet<XML_Node>::cabinet(false)->item(i);
 }
 
+static PureFluid* purefluid(int n) {
+    ThermoPhase* tp = th(n);
+    if (tp->eosType() == cPureFluid) {
+        return (PureFluid*)tp;
+    }
+    else {
+        throw CanteraError("purefluid","object is not a PureFluid object");
+    }
+}
+
 inline int nThermo() {
     return Storage::storage()->nThermo();
 }
+
  
 /**
  * Exported functions.
@@ -481,7 +493,43 @@ extern "C" {
         return 0;
     }
 
+    //-------------- pure fluids ---------------//
 
+    double DLL_EXPORT th_critTemperature(int n) {
+        return th(n)->critTemperature();
+    }
+
+    double DLL_EXPORT th_critPressure(int n) {
+        return th(n)->critPressure();
+    }
+
+    double DLL_EXPORT th_critDensity(int n) {
+        return th(n)->critDensity();
+    }
+
+    double DLL_EXPORT th_vaporFraction(int n) {
+        return th(n)->vaporFraction();
+    }
+
+    double DLL_EXPORT th_satTemperature(int n, double p) {
+        return th(n)->satTemperature(p);
+    }
+
+    double DLL_EXPORT th_satPressure(int n, double t) {
+        return th(n)->satPressure(t);
+    }
+
+    int DLL_EXPORT th_setState_satLiquid(int n) {
+        th(n)->setState_satLiquid();
+        return 0;
+    }
+
+    int DLL_EXPORT th_setState_satVapor(int n) {
+        th(n)->setState_satVapor();
+        return 0;
+    }
+
+    
     //-------------- Kinetics ------------------//
 
     int DLL_EXPORT newKineticsFromXML(int mxml, int iphase, 

@@ -117,7 +117,7 @@ ENABLE_RXNPATH='y'
 
 # non-ideal pure substance models for a few fluids imported from the
 # 'TPX' package (http://adam.caltech.edu/software/tpx)
-ENABLE_TPX='n'          
+ENABLE_TPX='y'          
 		
 
     

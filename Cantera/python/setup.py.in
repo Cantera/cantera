@@ -14,7 +14,7 @@ if platform == "win32":
 else:
     libs = ["clib", "zeroD","oneD","converters", "transport",
             "cantera","recipes","ctlapack",
-            "ctblas", "ctmath", "cvode", "stdc++", "g2c", "m"]
+            "ctblas", "ctmath", "cvode", "tpx", "stdc++", "g2c", "m"]
 
 
 #if sys.argv[1] == 'install':

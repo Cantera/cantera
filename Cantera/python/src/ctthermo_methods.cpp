@@ -8,7 +8,6 @@ ct_newThermoFromXML(PyObject *self, PyObject *args)
         return NULL;
     int n = newThermoFromXML(mxml);
     if (n < 0) return reportCanteraError();
-    //int p = th_phase(n);
     return Py_BuildValue("i",n);
 }
 
@@ -50,13 +49,6 @@ thermo_maxtemp(PyObject *self, PyObject *args) {
     return Py_BuildValue("d",th_maxTemp(th,k));        
 }
 
-// static PyObject*
-// thermo_geteos(PyObject *self, PyObject *args) {
-//     char *fname, *id;
-//     if (!PyArg_ParseTuple(args, "ss:geteos", &fname, &id)) return NULL;
-//     return Py_BuildValue("i",get_eos(fname, id));        
-// }
-
 static PyObject*
 thermo_import(PyObject *self, PyObject *args) {
     int n, mxml;
@@ -79,53 +71,68 @@ thermo_getfp(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ii:thermo_getfp", &th, &job)) 
         return NULL;
 
-    // floating-point attributes
-    switch (job) {
-    case 1:
-        vv = th_enthalpy_mole(th); break; 
-    case 2:
-        vv = th_intEnergy_mole(th); break;
-    case 3:
-        vv = th_entropy_mole(th); break;
-    case 4:
-        vv = th_gibbs_mole(th); break;
-    case 5:
-        vv = th_cp_mole(th); break;
-    case 6:
-        vv = th_cv_mole(th); break;
-    case 7:
-        vv = th_pressure(th); break;
-    case 8:
-        vv = th_enthalpy_mass(th); break; 
-    case 9:
-        vv = th_intEnergy_mass(th); break;
-    case 10:
-        vv = th_entropy_mass(th); break;
-    case 11:
-        vv = th_gibbs_mass(th); break;
-    case 12:
-        vv = th_cp_mass(th); break;
-    case 13:
-        vv = th_cv_mass(th); break;
-    default:
-        ok = false;
-    }
-    if (ok) {
-        if (vv == -999.999) {
-            return reportCanteraError();
+    try {
+
+        // floating-point attributes
+        switch (job) {
+        case 1:
+            vv = th_enthalpy_mole(th); break; 
+        case 2:
+            vv = th_intEnergy_mole(th); break;
+        case 3:
+            vv = th_entropy_mole(th); break;
+        case 4:
+            vv = th_gibbs_mole(th); break;
+        case 5:
+            vv = th_cp_mole(th); break;
+        case 6:
+            vv = th_cv_mole(th); break;
+        case 7:
+            vv = th_pressure(th); break;
+        case 8:
+            vv = th_enthalpy_mass(th); break; 
+        case 9:
+            vv = th_intEnergy_mass(th); break;
+        case 10:
+            vv = th_entropy_mass(th); break;
+        case 11:
+            vv = th_gibbs_mass(th); break;
+        case 12:
+            vv = th_cp_mass(th); break;
+        case 13:
+            vv = th_cv_mass(th); break;
+        case 50:
+            vv = th_critTemperature(th); break;
+        case 51:
+            vv = th_critPressure(th); break;
+        case 52:
+            vv = th_critDensity(th); break;
+        case 53:
+            vv = th_vaporFraction(th); break;
+
+        default:
+            ok = false;
         }
-        return Py_BuildValue("d",vv);        
+        if (ok) {
+            if (vv == -999.999) {
+                return reportCanteraError();
+            }
+            return Py_BuildValue("d",vv);        
+        }
+        else {
+            PyErr_SetString(ErrorObject,"Unknown floating-point attribute");
+            return NULL;
+        }
     }
-    else {
-        PyErr_SetString(ErrorObject,"Unknown floating-point attribute");
-        return NULL;
-    }        
+    catch (CanteraError) {
+        return reportCanteraError();
+    }
 }
 
 static PyObject*
 thermo_setfp(PyObject *self, PyObject *args)
 {
-    double v1, v2;
+    double v1 = -1.0, v2 = -1.0;
     int iok = -2;
     int th;
     int job;
@@ -134,7 +141,7 @@ thermo_setfp(PyObject *self, PyObject *args)
         return NULL;
 
     //vector_fp v(2);
-    double* v = new double[2];
+    double v[2];
     v[0] = v1; v[1] = v2;
 
     // set floating-point attributes
@@ -151,10 +158,14 @@ thermo_setfp(PyObject *self, PyObject *args)
         iok = th_set_SP(th, v); break;
     case 6:
         iok = th_setElectricPotential(th, v[0]); break;
+    case 7:
+        iok = th_setState_satLiquid(th); break;
+    case 8:
+        iok = th_setState_satVapor(th); break;
     default:
         iok = -10; 
     }
-    delete v;
+    //delete v;
     if (iok >= 0) 
         return Py_BuildValue("i",iok);
     if (iok == -1) return reportCanteraError();
@@ -227,6 +238,7 @@ thermo_equil(PyObject *self, PyObject *args)
         return NULL;
     }
 }
+
 
 
 

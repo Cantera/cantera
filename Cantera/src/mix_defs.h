@@ -35,6 +35,10 @@ namespace Cantera {
     const int cSurf = 3;           //  SurfPhase in SurfPhase.h 
     const int cMetal = 4;          //  MetalPhase in MetalPhase.h
     const int cSolidCompound = 5;  //  SolidCompound in SolidCompound.h
+    
+    // pure fluids with liquid/vapor eqs of state
+    const int cPureFluid = 10;
+    
     const int cEdge = 6;
 
     // kinetic manager types

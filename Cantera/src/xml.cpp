@@ -276,8 +276,9 @@ namespace Cantera {
 
 
     XML_Node::XML_Node(string nm, XML_Node* p, int n) 
-        : m_name(nm), m_parent(p), m_nchildren(0), 
-          m_n(n), m_iscomment(false), m_locked(false) {
+        : m_name(nm), m_value(""), m_parent(p),
+          m_locked(false), m_nchildren(0), 
+          m_n(n), m_iscomment(false) {
         if (!p) m_root = this;
         else m_root = &p->root();
     }
