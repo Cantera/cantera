@@ -1,3 +1,8 @@
+2004-05-13 10:52  dggoodwin
+
+	* ChangeLog: log file generated from CVS log output by perl script
+	  cvs2cl.pl
+
 2004-05-13 10:45  dggoodwin
 
 	* Cantera/src/converters/CKParser.cpp: fixed bug in which a species
@@ -20,10 +25,8 @@
 
 2004-04-24 05:55  dggoodwin
 
-	* Cantera/matlab/cantera/: @ReactorNet/ReactorNet.m,
-	  @ReactorNet/advance.m, @ReactorNet/reactornet_hndl.m,
-	  @ReactorNet/step.m, @ReactorNet/private/reactornetmethods.m,
-	  private/reactornetmethods.cpp: initial import
+	* Cantera/matlab/cantera/private/reactornetmethods.cpp: initial
+	  import
 
 2004-04-24 05:50  dggoodwin
 
