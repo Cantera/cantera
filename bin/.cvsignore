@@ -5,3 +5,5 @@ validate
 csvdiff
 *.ilk
 *.pdb
+cti2ctml
+install_tsc
