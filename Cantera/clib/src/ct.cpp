@@ -789,7 +789,7 @@ extern "C" {
             Kinetics* k = kin(n);
             ThermoPhase* p = &k->thermo();
             const vector_fp& mw = p->molecularWeights();
-            int nsp = mw.size();
+            int nsp = static_cast<int>(mw.size());
             double rrho = 1.0/p->density();
             if (len >= nsp) {            
                 k->getNetProductionRates(ydot);
