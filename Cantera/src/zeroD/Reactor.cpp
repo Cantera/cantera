@@ -102,7 +102,7 @@ namespace Cantera {
         m_atol.resize(neq());
         fill(m_atol.begin(), m_atol.end(), 1.e-15);
         m_integ->setTolerances(m_rtol, neq(), m_atol.begin());
-        m_integ->setMaxStep(m_maxstep);
+        m_integ->setMaxStepSize(m_maxstep);
         m_integ->initialize(t0, *this);
 #endif
         m_enthalpy = m_thermo->enthalpy_mass();

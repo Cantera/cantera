@@ -46,7 +46,7 @@ namespace Cantera {
         m_atol.resize(neq());
         fill(m_atol.begin(), m_atol.end(), m_atols);
         m_integ->setTolerances(m_rtol, neq(), m_atol.begin());
-        m_integ->setMaxStep(m_maxstep);
+        m_integ->setMaxStepSize(m_maxstep);
         if (m_verbose) {
             sprintf(buf, "Number of equations: %d\n", neq());
             writelog(buf);
