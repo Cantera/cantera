@@ -21,7 +21,8 @@ LINK_OPTIONS =
 
 #############################################################################
 
-                                                                                     
+# Check to see whether we are in the msvc++ environment 
+os_is_win = @OS_IS_WIN@
 
 # Fortran libraries
 FORT_LIBS = @FLIBS@
@@ -78,9 +79,16 @@ depends:
 .depends: $(DEPENDS)
 	cat *.d > .depends
 
+# Do the test -> For the windows vc++ environment, we have to skip checking on
+#                whether the program is uptodate, because we don't utilize make
+#                in that environment to build programs.
 test:
+ifeq ($(os_is_win), 1)
+else
 	@MAKE@ $(PROGRAM)
+endif
 	./runtest
+
 clean:
 	$(RM) $(OBJS) $(PROGRAM)
 	../../bin/rm_cvsignore
