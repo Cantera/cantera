@@ -6,7 +6,7 @@ namespace tpx {
     static string lowercase(string s) {
         size_t i, n = s.size();
         string lc(s);
-        for (int i = 0; i < n; i++) lc[i] = tolower(s[i]);
+        for (i = 0; i < n; i++) lc[i] = tolower(s[i]);
         return lc;
     }
 
