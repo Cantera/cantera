@@ -16,6 +16,8 @@
 #include "../CVode.h"
 #include "FlowDevice.h"
 #include "Wall.h"
+#include "../InterfaceKinetics.h"
+#include "../SurfPhase.h"
 
 namespace Cantera {
 
@@ -42,12 +44,11 @@ namespace Cantera {
                          m_energy(true)
     {
         m_integ = new CVodeInt;
-
         // use backward differencing, with a full Jacobian computed
         // numerically, and use a Newton linear iterator
         m_integ->setMethod(BDF_Method);
         m_integ->setProblemType(DENSE + NOJAC);
-        m_integ->setIterator(Newton_Iter);
+        m_integ->setIterator(Newton_Iter);        
     }
 
 
@@ -76,6 +77,18 @@ namespace Cantera {
         
         // set the second component to the total volume
         y[1] = m_vol;
+
+        // set the remaining components to the surface species
+        // coverages on the walls
+        int loc = m_nsp + 2;
+        SurfPhase* surf;
+        for (int m = 0; m < m_nwalls; m++) {
+            surf = m_wall[m]->surface(m_lr[m]);
+            if (surf) {
+                surf->getCoverages(y+loc);
+                loc += surf->nSpecies();
+            }
+        }
     }
 
 
@@ -85,7 +98,11 @@ namespace Cantera {
     void Reactor::initialize(doublereal t0) {
         m_mix->restoreState(m_state);
         m_sdot.resize(m_nsp, 0.0);
-        m_atol.resize(m_nsp + 2);
+        m_nv = m_nsp + 2;
+        for (int w = 0; w < m_nwalls; w++)
+            if (m_wall[w]->surface(m_lr[w]))
+                m_nv += m_wall[w]->surface(m_lr[w])->nSpecies();
+        m_atol.resize(neq());
         fill(m_atol.begin(), m_atol.end(), 1.e-15);
         m_integ->setTolerances(m_rtol, neq(), m_atol.begin());
         m_integ->setMaxStep(m_maxstep);
@@ -94,6 +111,23 @@ namespace Cantera {
         m_enthalpy = m_thermo->enthalpy_mass();
         m_pressure = m_thermo->pressure();
         m_intEnergy = m_thermo->intEnergy_mass();
+
+        int nt, maxnt;
+        for (int m = 0; m < m_nwalls; m++) {
+            if (m_wall[m]->kinetics(m_lr[m])) {
+                nt = m_wall[m]->kinetics(m_lr[m])->nTotalSpecies();
+                if (nt > maxnt) maxnt = nt;
+                if (m_wall[m]->kinetics(m_lr[m])) {
+                    if (&m_kin->thermo(0) != 
+                        &m_wall[m]->kinetics(m_lr[m])->thermo(0)) {
+                        throw CanteraError("Reactor::initialize",
+                            "First phase of all kinetics managers must be"
+                            " the gas.");
+                    }
+                }
+            }   
+        }
+        m_work.resize(maxnt);
 
         m_init = true;
     }
@@ -131,6 +165,17 @@ namespace Cantera {
         mix.setTemperature(temp);
         m_state[0] = temp;
 
+        int loc = m_nsp + 2;
+        SurfPhase* surf;
+        for (int m = 0; m < m_nwalls; m++) {
+            surf = m_wall[m]->surface(m_lr[m]);
+            if (surf) {
+                surf->setTemperature(temp);
+                surf->setCoverages(y+loc);
+                loc += surf->nSpecies();
+            }
+        }
+
         // save parameters needed by other connected reactors
         m_enthalpy = m_thermo->enthalpy_mass();
         m_pressure = m_thermo->pressure();
@@ -144,7 +189,7 @@ namespace Cantera {
      */
     void Reactor::eval(doublereal time, doublereal* y, doublereal* ydot) 
     {
-        int i;
+        int i, k, nk;
         m_time = time;
         updateState(y);          // synchronize the reactor state with y
 
@@ -152,11 +197,37 @@ namespace Cantera {
         m_Q    = 0.0;
 
         // compute wall terms
-        doublereal vdot;
+        doublereal vdot, rs0, sum, wallarea;
+        Kinetics* kin;
+        SurfPhase* surf;
+        int lr, ns, loc = m_nsp+2, surfloc;
+        fill(m_sdot.begin(), m_sdot.end(), 0.0);
         for (i = 0; i < m_nwalls; i++) {
-            vdot = m_lr[i]*m_wall[i]->vdot(time);
+            lr = 1 - 2*m_lr[i];
+            vdot = lr*m_wall[i]->vdot(time);
             m_vdot += vdot;
-            m_Q += m_lr[i]*m_wall[i]->Q(time);
+            m_Q += lr*m_wall[i]->Q(time);
+            kin = m_wall[i]->kinetics(m_lr[i]);
+            surf = m_wall[i]->surface(m_lr[i]);
+            if (surf && kin) {
+                rs0 = 1.0/surf->siteDensity();
+                nk = surf->nSpecies();
+                sum = 0.0;
+                kin->getNetProductionRates(m_work.begin());
+                ns = kin->surfacePhaseIndex();
+                surfloc = kin->kineticsSpeciesIndex(0,ns);
+                for (k = 1; k < nk; k++) {
+                    ydot[loc + k] = m_work[surfloc+k]*rs0*surf->size(k);
+                    sum -= ydot[loc + k];
+                }
+                ydot[loc] = sum;
+                loc += nk;
+
+                wallarea = m_wall[i]->area();
+                for (k = 0; k < m_nsp; k++) {
+                    m_sdot[k] += m_work[k]*wallarea;
+                }
+            }
         } 
 
         // volume equation
@@ -174,7 +245,7 @@ namespace Cantera {
         m_kin->getNetProductionRates(ydot+2);   // "omega dot"
         for (n = 0; n < m_nsp; n++) {
             ydot[n+2] *= m_vol;     //           moles/s/m^3 -> moles/s
-            //            ydot[n+2] += m_sdot[n]; 
+            ydot[n+2] += m_sdot[n]; 
             ydot[n+2] *= mw[n];
         }
 
