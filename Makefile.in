@@ -35,7 +35,7 @@ clib:
 	ranlib @buildlib@/*.a
 
 cxxlib: 
-	cd Cantera/cxx; make
+	cd Cantera/cxx; @MAKE@
 
 utils:
 	cd tools; @MAKE@
@@ -44,7 +44,7 @@ kernel-install:
 	@INSTALL@ -d @prefix@/lib/cantera
 	rm -f @prefix@/lib/cantera/*
 	@INSTALL@ -m 644 @buildlib@/*.a @prefix@/lib/cantera
-	cd Cantera/clib/src; make install
+	cd Cantera/clib/src; @MAKE@ install
 	ranlib @prefix@/lib/cantera/*.a
 
 data-install:
@@ -54,7 +54,7 @@ data-install:
 	#@INSTALL@ -m 644 tools/templates/gaslib.cpp @prefix@/cantera/templates
 
 tools-install:
-	cd tools; make install
+	cd tools; @MAKE@ install
 
 hdr-install:
 	@INSTALL@ -d @prefix@/include/cantera
@@ -116,7 +116,7 @@ finish-install:
 	@INSTALL@ -d @prefix@/cantera/demos/c++
 	@INSTALL@ examples/cxx/*.cpp @prefix@/cantera/demos/c++
 	@INSTALL@ examples/cxx/*.h @prefix@/cantera/demos/c++
-	@INSTALL@ examples/cxx/Makefile @prefix@/cantera/demos/c++
+	@INSTALL@ examples/cxx/@MAKE@file @prefix@/cantera/demos/c++
 	chown -R @username@ @prefix@/cantera/demos/c++
 	@INSTALL@ -d @prefix@/cantera/demos/f77
 	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
@@ -126,7 +126,7 @@ finish-install:
 
 
 example_codes:
-	(cd examples/cxx; make)
+	(cd examples/cxx; @MAKE@)
 
 test: example_codes
 	cd test_problems; @MAKE@ all
