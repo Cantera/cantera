@@ -44,6 +44,10 @@ typedef  int          ftnlen;           // Fortran hidden string length type
 #define LAPACK_NAMES_LOWERCASE
 #define LAPACK_FTN_TRAILING_UNDERSCORE
 
+// The configure script defines this if the operatiing system is Mac
+// OS X, This used to add some Mac-specific directories to the default
+// data file search path.
+/* #undef DARWIN */
 
 //--------- Cantera --------------
 

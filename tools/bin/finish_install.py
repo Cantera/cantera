@@ -1,22 +1,20 @@
 import sys, os, string
-prefix = sys.argv[1]
-pycmd = sys.argv[2]
-localinst = 1
-if prefix == '-':
-    prefix = '/usr/local'
-    
-if prefix == '/usr/local':
-    localinst = 0
+prefix = '/usr/local' 
+pycmd = '/usr/bin/python' # sys.argv[2]
+localinst = 0
 
 icyg = prefix.find('/cygdrive/')
 if icyg == 0:
     prefix = prefix[10]+':'+prefix[11:]
 
-bindir = prefix+'/bin'
-libdir = prefix+'/lib/cantera'
-hdrdir = prefix+'/include/cantera'
+bindir = '/usr/local/bin'
+libdir = '/usr/local/lib/cantera-1.5.3' 
+hdrdir = '/usr/local/include/cantera'
+demodir = '/usr/local/share/cantera/1.5.3/demos'
+datadir = '/usr/local/share/cantera/1.5.3/data'
+ctdir = '/usr/local/share/cantera/1.5.3'
 
-f = open(prefix+'/cantera/setup_cantera','w')
+f = open(ctdir+'/setup_cantera','w')
 f.write('#!/bin/sh\n')
 f.write('LD_LIBRARY_PATH='+libdir+':$LD_LIBRARY_PATH\nexport LD_LIBRARY_PATH\n')
 f.write('PATH='+bindir+':$PATH\nexport PATH\n')
@@ -53,9 +51,9 @@ if localinst:
         print 'error'
 f.close()
 
-f = open(bindir+'/mixmaster.py','w')
-f.write("""from MixMaster import MixMaster
-MixMaster()
+# write the script to run MixMaster
+f = open(bindir+'/mixmaster','w')
+f.write('#!/bin/sh\n'+pycmd+"""w -c 'from MixMaster import MixMaster; MixMaster()
 """)
 f.close()
 
@@ -79,8 +77,8 @@ File locations:
     applications      """+bindir+"""
     library files     """+libdir+"""
     C++ headers       """+hdrdir+"""
-    demos             """+prefix+"""/cantera/demos
-    data files        """+prefix+"""/cantera/data
+    demos             """+demodir+"""
+    data files        """+datadir+"""
     
     Matlab toolbox    """+prefix+"""/matlab/toolbox/cantera/cantera
     Matlab demos      """+prefix+"""/matlab/toolbox/cantera/cantera-demos

@@ -18,7 +18,19 @@ AC_DEFINE(NDEBUG)
 ac_sys_system=`uname -s`
 ac_sys_release=`uname -r`
 
-AC_PREFIX_DEFAULT([/usr/local])
+
+SHARED_CTLIB=0
+OS_IS_DARWIN=0
+OS_IS_WIN=0
+mex_ext=mexglx
+
+case $ac_sys_system in
+  Darwin*)  OS_IS_DARWIN=1; mex_ext=mexmac;;
+  CYGWIN*) OS_IS_WIN=1; mex_ext=dll;;
+esac
+
+#AC_PREFIX_DEFAULT([/usr/local])
+
 local_inst=1
 if test "x${prefix}" = "xNONE"; then
          prefix=${ac_default_prefix}
@@ -26,7 +38,7 @@ if test "x${prefix}" = "xNONE"; then
 	 if test ! -d ${prefix}; then
   echo 
   echo "********************************************************************"
-  echo "Installation directory /usr/local does not exist. Either create it and"
+  echo "Installation directory ${prefix} does not exist. Either create it and"
   echo "re-run configure, or specify another installation directory using the"
   echo "prefix option:"
   echo "    ./configure --prefix=<installation_directory>"
@@ -39,8 +51,56 @@ echo "Cantera will be installed in ${prefix}"
 
 AC_SUBST(prefix)
 AC_SUBST(local_inst)
-CANTERA_LIBDIR=$prefix/lib/cantera
-CANTERA_INCDIR=$prefix/include/cantera
+
+ctversion=${CANTERA_VERSION}
+
+if test -z $local_inst; then 
+ct_libdir=${prefix}/lib/cantera-${ctversion}
+ct_incdir=${prefix}/include/cantera
+ct_bindir=${prefix}/bin
+ct_datadir=${prefix}/share/cantera/${ctversion}/data
+ct_demodir=${prefix}/share/cantera/${ctversion}/demos
+ct_tutdir=${prefix}/share/cantera/${ctversion}/tutorials
+ct_docdir=${prefix}/share/cantera/${ctversion}/doc
+ct_dir=${prefix}/share/cantera/${ctversion}
+ct_mandir=${prefix}/share/man
+else
+ct_libdir=${prefix}/lib/cantera-${ctversion}
+ct_incdir=${prefix}/include/cantera
+ct_bindir=${prefix}/bin
+ct_datadir=${prefix}/share/cantera/${ctversion}/data
+ct_demodir=${prefix}/share/cantera/${ctversion}/demos
+ct_tutdir=${prefix}/share/cantera/${ctversion}/tutorials
+ct_docdir=${prefix}/share/cantera/${ctversion}/doc
+ct_dir=${prefix}/share/cantera/${ctversion}
+ct_mandir=${prefix}/share/man
+fi
+
+AC_SUBST(ct_libdir)
+AC_SUBST(ct_incdir)
+AC_SUBST(ct_bindir)
+AC_SUBST(ct_datadir)
+AC_SUBST(ct_demodir)
+AC_SUBST(ct_mandir)
+AC_SUBST(ct_tutdir)
+AC_SUBST(ct_docdir)
+AC_SUBST(ct_dir)
+
+CANTERA_DATADIR=$datadir/cantera/data
+
+#
+#    Cantera directory structure
+#
+if test -z "$CANTERA_ROOT"; then CANTERA_ROOT=$prefix/cantera; fi
+AC_SUBST(CANTERA_LIBDIR)
+AC_SUBST(CANTERA_INCDIR)
+if test -z "$CT_TOOLS_BIN"; then CT_TOOLS_BIN=$CANTERA_ROOT/tools/bin; fi
+AC_SUBST(CT_TOOLS_BIN)
+AC_SUBST(CANTERA_BINDIR)
+if test -z "$CANTERA_EXAMPLES_DIR"; then CANTERA_EXAMPLES_DIR=$CANTERA_ROOT/examples; fi
+AC_SUBST(CANTERA_EXAMPLES_DIR)
+AC_SUBST(CANTERA_DATADIR)
+
 
 ctroot=`(cd ..;pwd)`
 if test -z "$username"; then username=$USER; fi
@@ -53,6 +113,10 @@ AC_CANONICAL_SYSTEM()
 
 buildlib=$ctroot/build/lib/$target
 AC_SUBST(buildlib)
+
+if test -n "${OS_IS_DARWIN}"; then 
+AC_DEFINE(DARWIN)
+fi
 
 if test -z "$MAKE"; then MAKE='make'; fi
 AC_SUBST(MAKE)
@@ -224,25 +288,6 @@ fi
 AC_SUBST(LOCAL_LIBS)
 
 
-#
-#    Cantera directory structure
-#
-if test -z "$CANTERA_ROOT"; then CANTERA_ROOT=$prefix/cantera; fi
-#AC_SUBST(CANTERA_ROOT)
-#if test -z "$CANTERA_LIBDIR"; then CANTERA_LIBDIR=$CANTERA_ROOT/lib; fi
-AC_SUBST(CANTERA_LIBDIR)
-#if test -z "$CANTERA_INCDIR"; then CANTERA_INCDIR=$CANTERA_ROOT/include; fi
-AC_SUBST(CANTERA_INCDIR)
-if test -z "$CT_TOOLS_BIN"; then CT_TOOLS_BIN=$CANTERA_ROOT/tools/bin; fi
-AC_SUBST(CT_TOOLS_BIN)
-if test -z "$CANTERA_BINDIR"; then CANTERA_BINDIR=$CANTERA_ROOT/bin; fi
-AC_SUBST(CANTERA_BINDIR)
-if test -z "$CANTERA_EXAMPLES_DIR"; then CANTERA_EXAMPLES_DIR=$CANTERA_ROOT/examples; fi
-AC_SUBST(CANTERA_EXAMPLES_DIR)
-if test -z "$CANTERA_DATA_DIR"; then CANTERA_DATA_DIR=$CANTERA_ROOT/data; fi
-AC_SUBST(CANTERA_DATA_DIR)
-
-
 #-------------------------------------------------
 #      Language Interfaces
 #-------------------------------------------------
@@ -283,13 +328,12 @@ AC_SUBST(BUILD_PYTHON)
 #     Matlab Interface
 #
 BUILD_MATLAB=0
-if test "$BUILD_MATLAB_TOOLBOX" != "n"; then 
-  if test -z "$MATLAB_CMD"; then
-    AC_PATH_PROG(MATLAB_CMD, matlab, "none")
-    if test "$MATLAB_CMD" != "none"; then BUILD_MATLAB=1; BUILD_CLIB=1; fi
-  fi
-fi
-
+#if test "$BUILD_MATLAB_TOOLBOX" != "n"; then 
+#  if test -z "$MATLAB_CMD"; then
+#    AC_PATH_PROG(MATLAB_CMD, matlab, "none")
+#    if test "$MATLAB_CMD" != "none"; then BUILD_MATLAB=1; BUILD_CLIB=1; fi
+#  fi
+#fi
 AC_SUBST(BUILD_MATLAB)
 AC_SUBST(BUILD_CLIB)
 
@@ -318,16 +362,10 @@ if test -n "$G77"; then
   FFLAGS=$FFLAGS' -fno-second-underscore'
 fi
 
-SHARED_CTLIB=0
-OS_IS_DARWIN=0
-OS_IS_WIN=0
-mex_ext=mexglx
-
 dnl Checks for libraries.
 AC_F77_LIBRARY_LDFLAGS()
 case $ac_sys_system in
-  Darwin*)  FLIBS='-lg2c -lgcc'; SHARED_CTLIB=0; OS_IS_DARWIN=1; mex_ext=mexmac;;
-  CYGWIN*) OS_IS_WIN=1; mex_ext=dll;;
+  Darwin*)  FLIBS='-lg2c -lgcc'; SHARED_CTLIB=0;;
 esac
 AC_SUBST(FLIBS)
 AC_SUBST(OS_IS_DARWIN)
@@ -431,6 +469,7 @@ AC_OUTPUT(../Cantera/Makefile \
 	  ../tools/Makefile \
           ../tools/src/Makefile \
           ../tools/src/sample.mak \
+          ../tools/src/finish_install.py \
           ../tools/templates/f77/demo.mak \
           ../tools/templates/cxx/demo.mak \
 	  ../tools/testtools/Makefile \
