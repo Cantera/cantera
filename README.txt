@@ -3,7 +3,7 @@
 
                               release 1.5
 
-                               7/30/2004
+                               12/14/2004
 
       Copyright (c) 2001-2004 California Institute of Technology
 
@@ -19,11 +19,24 @@ All trademarks referenced herein are property of their respective
 holders.
 
 
+Web sites
+==========
+
+The main Cantera web site is http://www.cantera.org. This primarily serves
+as a gateway to the other two web sites:
+
+1. The Cantera User's Group. http://groups.yahoo.com/groups/cantera.   
+   This site has a message board, and some miscellaneous files and utilities. 
+
+2. The Cantera Sourceforge site. Distribution of the Cantera source code is
+   done using Sourceforge. The site is http://sourceforge.net/projects/cantera.
+
+
 Installing a Binary Version of Cantera
 ======================================
 
 Binary installers are available for the Windows and Mac platforms. If
-you wish to install from one of these, download the appropriate
+you want to install from one of these, download the appropriate
 installer from the Cantera Sourceforge site and run it. This is the
 simplest option if you want a standard installation, and plan to
 primarily use Cantera from Python or MATLAB. 
@@ -89,26 +102,13 @@ use g++ 2.95.
 2) Windows Build Procedure
 --------------------------
 
-Cantera can be built under Windows using Visual C++ 6.0 and Compaq
-Visual Fortran 6.0. You need to have cygwin installed, however, so
-that you can use 'make' ot set up the directory structure in the
-install directory. 
-
-The first step is to run 'configure' from a cygwin shell window. Once
-this finishes, start Visual C++, and go to the 'win32' directory and
-open workspace 'cantera.dsw'. Set the active project to 'all', and the
-active configuration to 'Win32 - Release'. Build the project.
-
-When this completes, return to the cygwin shell, and type 'make win'
-to complete the process. At the end, you should have a working
-installation in C:\Cantera (or wherever you specified to 'configure').
-
-The Windows build procedure is described in more detail in the 
-document **.
+Cantera can be built under Windows using Visual C++ .NET. See the
+document "cantera-vc7" at the Sourceforge site under "Cantera
+Documentation / Building and Installing" for more details.
 
 
 Configuring Matlab
----------------------
+--------------------
 
 The Matlab toolbox uses one compiled MEX program written in C++.
 Before you can build it, Matlab needs to be configured
@@ -128,10 +128,10 @@ containing the toolbox and type 'buildux' on unix/linux/Mac OS X, or
 Configuring Python
 ---------------------
 
-Before you can build the Python interface from the source, you need to
-have Python 2.0 or greater, and the 'Numeric' package must be
-installed. Python is available at www.python.org, and Numeric is
-available through SourceForge.
+Before you can build the Python interface, you need to have Python 2.0
+or greater, and the 'numarray' or 'Numeric' package must be
+installed. Python is available at www.python.org, and numarray and
+Numeric are available through SourceForge (project 'NumPy')
 
 
 Customizing

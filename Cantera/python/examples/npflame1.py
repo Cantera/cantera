@@ -6,6 +6,8 @@
 #
 from Cantera import *
 from Cantera.OneD import *
+from Cantera.OneD.CounterFlame import CounterFlame
+from Cantera.num import array
 
 ##################################################################
 # parameter values

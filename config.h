@@ -6,6 +6,14 @@
 #define CT_CONFIG_H
 
 
+//------------------------ Development flags ------------------//
+//
+// These flags turn on or off features that are still in
+// development and are not yet stable.
+
+#define DEV_EQUIL
+
+
 //------------------------ Fortran settings -------------------//
 
 
@@ -13,9 +21,9 @@
 // corresponding Fortran data types on your system. The defaults
 // are OK for most systems
 
-typedef  double       doublereal;       // Fortran double precision
-typedef  int     integer;          // Fortran integer
-typedef  int     ftnlen;           // Fortran hidden string length type
+typedef  double       doublereal;   // Fortran double precision
+typedef  int          integer;      // Fortran integer
+typedef  int          ftnlen;       // Fortran hidden string length type
 
 
 
@@ -51,8 +59,8 @@ typedef  int     ftnlen;           // Fortran hidden string length type
 // The configure script defines this if the operatiing system is Mac
 // OS X, This used to add some Mac-specific directories to the default
 // data file search path.
-#define DARWIN 0
-#define HAS_SSTREAM
+#define DARWIN 1
+#define HAS_SSTREAM 1
 
 // Identify whether the operating system is cygwin's overlay of
 // windows, with gcc being used as the compiler.
@@ -60,7 +68,7 @@ typedef  int     ftnlen;           // Fortran hidden string length type
 
 // Identify whether the operating system is windows based, with
 // microsoft vc++ being used as the compiler
-#define WINMSVC 1
+/* #undef WINMSVC */
 
 //--------- Fonts for reaction path diagrams ----------------------
 #define RXNPATH_FONT "Helvetica"
@@ -68,8 +76,13 @@ typedef  int     ftnlen;           // Fortran hidden string length type
 //--------------------- Python ------------------------------------
 // This path to the python executable is created during
 // Cantera's setup. It identifies the python executable
-// used to run Python to process .cti files.
-#define PYTHON_EXE "c:/python24/python.exe"
+// used to run Python to process .cti files. Note that this is only
+// used if environment variable PYTHON_CMD is not set.
+#define PYTHON_EXE "python"
+
+// If this is defined, the Cantera Python interface will use the
+// Numeric package; otherwise, it will use numarray.
+#define HAS_NUMERIC 1
 
 //--------------------- Cantera -----------------------------------
 
@@ -77,11 +90,11 @@ typedef  int     ftnlen;           // Fortran hidden string length type
 // This data pathway is used to locate a directory where datafiles
 // are to be found. Note, the local directory is always searched
 // as well.
-#define CANTERA_DATA "c:/cantera/data"
+#define CANTERA_DATA "/Applications/Cantera/data"
 
 #define INCL_PURE_FLUIDS 1
 
 //--------------------- compile options ----------------------------
-/* #undef USE_PCH */
+#define USE_PCH 1
 
 #endif

@@ -48,7 +48,7 @@ namespace ctml {
         return s;
     }
 
-#ifdef NOT_USED
+#ifdef INCL_CHECKPYTHON
     static bool checkPython() {
         time_t aclock;
         time( &aclock );

@@ -265,7 +265,7 @@ namespace Cantera {
             if (m_A(m,m) == 0.0) {
                 for (k = m+1; k < nColumns; k++) {
                     if (m_A(m,k) != 0.0) {
-                        for (n = 0; n < nRows; n++) {
+                        for (n = 0; n < int(nRows); n++) {
                             tmp = m_A(n,m);
                             m_A(n, m) = m_A(n, k);
                             m_A(n, k) = tmp;
@@ -290,7 +290,7 @@ namespace Cantera {
 
             // subtract A(n,m)/A(m,m) * (row m) from row n, so that 
             // A(n,m) = 0. 
-            for (n = m+1; n < m_nel; n++) {
+            for (n = int(m+1); n < int(m_nel); n++) {
                 fctr = m_A(n,m)/m_A(m,m);
                 for (k = 0; k < m_nsp; k++) {
                     m_A(n,k) -= m_A(m,k)*fctr;
@@ -330,8 +330,8 @@ namespace Cantera {
 #endif
 
         // create stoichometric coefficient matrix. 
-        for (n = 0; n < m_nsp; n++) {
-            if (n < m_nel) 
+        for (n = 0; n < int(m_nsp); n++) {
+            if (n < int(m_nel)) 
                 for (k = 0; k < m_nsp - m_nel; k++) 
                     m_N(n, k) = -m_A(n, k + m_nel);
             else {

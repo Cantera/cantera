@@ -6,6 +6,7 @@
 #
 from Cantera import *
 from Cantera.OneD import *
+from Cantera.OneD.BurnerFlame import BurnerFlame
 
 ################################################################
 #

@@ -4,7 +4,6 @@
 """
 
 import types
-#ok = 0
 from constants import *
 from exceptions import *
 from gases import *
@@ -12,15 +11,21 @@ from set import set
 from importFromFile import *
 
 from mixture import Mixture
+from num import *
 
 def writeCSV(f, list):
-    """Write list items to file 'f' in comma-separated-value format."""
+    """
+    Write list items to file 'f' in
+    comma-separated-value format.  Strings will be written as-is, and
+    other types of objects will be converted to strings and then
+    written. Each call to writeCSV writes one line of the file.
+    """
     for item in list:
         if type(item) == types.StringType:
             f.write(item+', ')
         else:
             f.write(`item`+', ')
-    f.write('\n')
+        f.write('\n')
 
 
 def table(keys, values):
@@ -43,8 +48,8 @@ def refCount(a):
     return _cantera.ct_refcnt(a)
 
 def addDirectory(dir):
+    """Add a directory to search for Cantera data files."""
     import _cantera
     return _cantera.ct_addDirectory(dir)
 
-#if ctdata:
-#    addDirectory(ctdata)
+

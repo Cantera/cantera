@@ -1,11 +1,16 @@
-#
-# Solve a steady-state problem by combined damped Newton
-# iteration and time integration.
-#
+""" Solve a steady-state problem by combined damped Newton iteration
+ and time integration. Function solve is no longer used, now that the
+ functional equivalent has been added to the Cantera C++ kernel.  """
                 
 from Cantera import CanteraError
 from Cantera.num import array
 import math, types
+
+print
+"""
+module solve is deprecated, and may be removed in a future release. If you
+use it and do not want it removed, send an e-mail to cantera-help@caltech.edu.
+"""
 
 def solve(sim, loglevel = 0, refine_grid = 1, plotfile = '', savefile = ''):
     """

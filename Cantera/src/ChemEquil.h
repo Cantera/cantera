@@ -23,6 +23,8 @@
 #include "ThermoPhase.h"
 #include "DenseMatrix.h"
 
+#include "MultiPhaseEquil.h"
+
 namespace Cantera {
 
     int _equilflag(const char* xy);
@@ -152,9 +154,18 @@ namespace Cantera {
      * calculation.
      */
     inline void equilibrate(thermo_t& s, int XY) {
-        ChemEquil e;
-        e.equilibrate(s,XY);
-        s.setElementPotentials(e.elementPotentials());
+        if (XY == TP) {
+            MultiPhase mix;
+            mix.addPhase(&s, 1.0);
+            mix.setTemperature(s.temperature());
+            mix.setPressure(s.pressure());
+            equilibrate(mix, XY);
+        }
+        else {
+            ChemEquil e;
+            e.equilibrate(s,XY);
+            s.setElementPotentials(e.elementPotentials());
+        }
     }
 
     /**

@@ -57,7 +57,7 @@ static bool checkElement(int i, int m) {
 
 static bool checkPhase(int i, int n) {
     try {
-        if (n < 0 || n >= _mix(i)->nPhases()) 
+        if (n < 0 || n >= int(_mix(i)->nPhases())) 
             throw CanteraError("checkPhase",
                 "illegal phase index ("+int2str(n)+") ");
         return true;

@@ -1,3 +1,5 @@
+"""Conversion factors to SI (m, kg, kmol, s)"""
+
 from constants import Avogadro, GasConstant
 
 kmol = 1.0
