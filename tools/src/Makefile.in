@@ -9,7 +9,7 @@ LCXX_FLAGS = -L$(LIBDIR)  @CXXFLAGS@
 LOCAL_LIBS = -lcantera @math_libs@ @LAPACK_LIBRARY@ @BLAS_LIBRARY@ -lctcxx 
 
 LCXX_END_LIBS = @LCXX_END_LIBS@
-OBJS = ck2cti.o
+#OBJS = ck2cti.o
 
 DEPENDS = $(OBJS:.o=.d)
 
@@ -17,18 +17,27 @@ CONVLIB_DEP = @buildlib@/libconverters.a
 CANTERALIB_DEP = @buildlib@/libcantera.a \
 	         @buildlib@/libctcxx.a
 
+exes = $(BINDIR)/cti2ctml
+ifeq ($(build_ck),1) 
+exes =  $(BINDIR)/cti2ctml $(BINDIR)/ck2cti
+endif
+
 .cpp.o:
 	@CXX@ -c $< @DEFS@  $(INCDIR) @CXXFLAGS@ $(CXX_FLAGS) 
 
-all: $(BINDIR)/cti2ctml $(BINDIR)/ck2cti
+all: $(exes)
 
 $(BINDIR)/ck2cti: ck2cti.o $(CONVLIB_DEP) $(CANTERALIB_DEP)
 	@CXX@ -o $(BINDIR)/ck2cti ck2cti.o $(LCXX_FLAGS) -lconverters $(LOCAL_LIBS) \
                $(LCXX_END_LIBS)
 
-$(BINDIR)/cti2ctml: cti2ctml.o $(CONVLIB_DEP) $(CANTERALIB_DEP)
-	@CXX@ -o $(BINDIR)/cti2ctml cti2ctml.o $(LCXX_FLAGS) -lconverters $(LOCAL_LIBS) \
+$(BINDIR)/cti2ctml: cti2ctml.o $(CANTERALIB_DEP)
+	@CXX@ -o $(BINDIR)/cti2ctml cti2ctml.o $(LCXX_FLAGS) $(LOCAL_LIBS) \
                $(LCXX_END_LIBS)
+
+$(CONVLIB_DEP):
+	cd ../../Cantera/src/converters; make
+
 clean:
 	$(RM) *.o *.*~
 

@@ -44,6 +44,9 @@ typedef  int          ftnlen;           // Fortran hidden string length type
 #define LAPACK_NAMES_LOWERCASE
 #define LAPACK_FTN_TRAILING_UNDERSCORE
 
+
+//--------- operating system --------------------------------------
+
 // The configure script defines this if the operatiing system is Mac
 // OS X, This used to add some Mac-specific directories to the default
 // data file search path.
@@ -53,14 +56,17 @@ typedef  int          ftnlen;           // Fortran hidden string length type
 //--------- Fonts for reaction path diagrams ----------------------
 #define RXNPATH_FONT "Helvetica"
 
-//--------- Cantera --------------
+
+//--------------------- Python ------------------------------------
+
+// used to run Python to process .cti files
+#define PYTHON_EXE "/usr/bin/python"
 
 
-//--------- CKReader -------------
+//--------------------- Cantera -----------------------------------
 
-
-
-//--------- CtLib ----------------
+// used to find data files
+#define CANTERA_ROOT "/usr/local/cantera"
 
 
 

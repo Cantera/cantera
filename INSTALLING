@@ -8,34 +8,60 @@ other systems have it too. If yours does not, you can get it at
 www.python.org.
 
 
-Build Instructions
-==================
+====================================================================
+                        Build Instructions
+====================================================================
 
-To build and install Cantera in /usr/local:
+To build Cantera and install it in /usr/local:
 
 ./configure
 make 
 make install
 
+To do 'make install', you may need to be super-user, or may need to
+preface 'make install' by 'sudo' ('sudo make install').
 
-To build and install Cantera in a different directory:
+Cantera applications will be put in /usr/local/bin, libraries will be
+installed in a version-specific subdirectory of
+/usr/local/lib/cantera, unix man pages will be installed under
+/usr/local/man, C++ header files will be installed in
+/usr/local/include/cantera, and various demos and data files will be
+installed in subdirectories of /usr/local/cantera.
+
+
+To install Cantera in a different directory:
 
 ./configure --prefix=/installation/dir
 make
 make install
 
 Here '/installation/dir' should be replaced with the absolute path to
-the installation directory.
+the installation directory. For example, to install in your home directory:
 
-To do 'make install', you may need to be super-user. On a Mac running
-OS X, type 'sudo make install'
+./configure --prefix=$HOME
+make
+make install
+
+In this case, subdirectories bin, lib, include, cantera will be
+created within your home directory if they don't exist already, and
+cantera will be installed into these directories.
+
 
 
 Configuring the Environment
 ---------------------------
 
-Execute script 'cantera/setup_cantera' to configure the environment for Cantera:
-source /usr/local/cantera/setup_cantera
+The build process will create an initialization script 'cantera.rc'. Type 
+
+source /usr/local/cantera/cantera.rc 
+
+to set the environment for Cantera. Alternatively, copy cantera.rc to your
+home directory as .cantera, and add the line
+
+source .cantera
+
+to your login script.
+
 
 
 The Python Interface
@@ -67,6 +93,7 @@ PYTHON_CMD               Python interpreter to use with Cantera
 
 MATLAB_CMD               Matlab command (default: 'matlab')
 
-Additional customization can be done by editing the configure script.
+Additional customization can be done by editing the configure script
+before running it.
 
 

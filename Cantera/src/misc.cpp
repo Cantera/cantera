@@ -22,9 +22,9 @@
 #include "SpeciesThermoFactory.h"
 #include "FalloffFactory.h"
 
-#ifndef WIN32
-#include "ctdir.h"
-#endif
+//#ifndef WIN32
+//#include "ctdir.h"
+//#endif
 
 #include <fstream>
 using namespace std;

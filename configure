@@ -94,7 +94,7 @@ USER_SRC_DIR="Cantera/user"
 ENABLE_THERMO='y'
 
 # enable importing Chemkin input files
-ENABLE_CK='y'              
+ENABLE_CK='n'              
 
 # homogeneous and heterogeneous kinetics
 ENABLE_KINETICS='y'
@@ -192,7 +192,7 @@ F77=${F77:=g77}
 F90=${F90:=f90}
 
 # Fortran compiler flags
-FFLAGS=${FFLAGS:='-O2 -Wall'}
+FFLAGS=${FFLAGS:='-O2'}
 
 # the additional Fortran flags required for linking, if any
 #LFORT_FLAGS="-lF77 -lFI77"
