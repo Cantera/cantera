@@ -369,6 +369,15 @@ namespace Cantera {
             throw CanteraError("equilibrate","illegal property pair."); // IllegalPropertyPair(XY);
         }
 
+        if (tempFixed) {
+            double tfixed = s.temperature();
+            if (tfixed > s.maxTemp() + 1.0 || tfixed < s.minTemp() - 1.0) {
+                throw CanteraError("ChemEquil","Specified temperature ("
+                    +fp2str(m_thermo->temperature())+" K) outside "
+                    "valid range of "+fp2str(m_thermo->minTemp())+" K to "
+                    +fp2str(m_thermo->maxTemp())+" K\n");
+            }                
+        }
         xval = m_p1->value(s);
         yval = m_p2->value(s);
         int mm = m_mm;
@@ -455,6 +464,8 @@ namespace Cantera {
 
         for (int ii = 0; ii < m_mm; ii++) x[ii] = -100.0;
         estimateElementPotentials(s, x);
+
+        x[m_mm] = log(m_phase->temperature());
 
         vector_fp above(nvar);
         vector_fp below(nvar);
@@ -549,8 +560,8 @@ namespace Cantera {
             && fabs(deltay) < options.relTolerance) {
             options.iterations = iter;
 
-            if (m_thermo->temperature() > m_thermo->maxTemp() ||
-                m_thermo->temperature() < m_thermo->minTemp() ) {
+            if (m_thermo->temperature() > m_thermo->maxTemp() + 1.0 ||
+                m_thermo->temperature() < m_thermo->minTemp() - 1.0 ) {
                 throw CanteraError("ChemEquil","Temperature ("
                     +fp2str(m_thermo->temperature())+" K) outside "
                     "valid range of "+fp2str(m_thermo->minTemp())+" K to "
