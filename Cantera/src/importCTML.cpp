@@ -628,7 +628,7 @@ namespace Cantera {
      * This function will fill in more fields in the ReactionData object.
      * 
      */
-    static void getRateCoefficient(const node_t& kf, kinetics_t& kin, 
+    void getRateCoefficient(const node_t& kf, kinetics_t& kin, 
         ReactionData& rdata, int negA) {
 
         int nc = kf.nChildren();
@@ -1021,7 +1021,7 @@ namespace Cantera {
      * stoichiometric coefficients have the same ratio for all
      * species.
      */
-    static doublereal isDuplicateReaction(map<int, doublereal>& r1, map<int, doublereal>& r2) {
+    doublereal isDuplicateReaction(map<int, doublereal>& r1, map<int, doublereal>& r2) {
         
         map<int, doublereal>::const_iterator b = r1.begin(), e = r1.end();
         int k1 = b->first;

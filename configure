@@ -23,6 +23,8 @@
 
 CANTERA_VERSION=${CANTERA_VERSION:="1.5.3"}
 
+CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
+
 #----------------------------------------------------------------------
 #         MS-Windows Options
 #----------------------------------------------------------------------
@@ -69,9 +71,16 @@ FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
 # full path to the desired Python interpreter. This allows you, for
 # example, to build your own private Python interpreter and use it
 # instead of the system Python interpreter.
-
-BUILD_PYTHON_INTERFACE=${BUILD_PYTHON_INTERFACE:="y"}  # must be "y"
 #PYTHON_CMD=${PYTHON_CMD:="python"}
+
+
+#   Use when site packages must be put in system directories
+#   but Cantera tutorials must be put in user space.
+#   (this is pretty much the norm on many multiuser unix systems)
+#
+SET_PYTHON_SITE_PACKAGE_TOPDIR=${SET_PYTHON_SITE_PACKAGE_TOPDIR:="n"}
+
+PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"} 
 
 
 
@@ -320,5 +329,19 @@ chmod +x ./configure
 chmod +x ./config.guess
 chmod +x ./config.sub
 chmod +x ./install-sh
-./configure $1 $2 $3 $4
+
+#
+# Decide whether to add a prefix variable to the configure line
+#
+if (test "x$CANTERA_CONFIG_PREFIX" = "x")
+then
+   CCPREFIX=""
+else 
+   CCPREFIX="--prefix="$CANTERA_CONFIG_PREFIX
+fi
+#
+# run the configure command in the config directory
+#
+./configure $CCPREFIX $1 $2 $3 $4
+
 

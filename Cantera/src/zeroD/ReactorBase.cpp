@@ -32,7 +32,6 @@ namespace Cantera {
                                  m_enthalpy(0.0),
                                  m_intEnergy(0.0), 
                                  m_pressure(0.0),
-                                 m_kappa(0.0),
                                  m_nwalls(0)
     {
         m_name = name;
@@ -51,11 +50,9 @@ namespace Cantera {
         m_thermo = &thermo;
         m_nsp = m_mix->nSpecies();
         m_mix->saveState(m_state);
-        m_rho0 = m_thermo->density();
         m_enthalpy = m_thermo->enthalpy_mass();
         m_intEnergy = m_thermo->intEnergy_mass();
         m_pressure = m_thermo->pressure();
-        m_kappa = m_thermo->isothermalCompressibility();
     }
 
     void ReactorBase::addInlet(FlowDevice& inlet) {

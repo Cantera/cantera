@@ -134,7 +134,6 @@ namespace Cantera {
         doublereal mass() const { return m_vol * density(); }
         const doublereal* massFractions() const { return m_state.begin() + 2; }
         doublereal massFraction(int k) const { return m_state[k+2]; }
-        doublereal compressibility() const { return m_kappa; }
 
         //@}
 
@@ -163,7 +162,6 @@ namespace Cantera {
         int m_nwalls;
         string m_name;
         double m_rho0;
-        double m_kappa;
 
     private:
 

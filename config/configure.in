@@ -365,11 +365,11 @@ fi
 AC_SUBST(BUILD_F90)
 
 
-BUILD_CLIB=0
+BUILD_CLIB=1
 #       
 #     Python Interface
 #
-BUILD_PYTHON=0
+BUILD_PYTHON=1
 if test -z "$PYTHON_CMD"; then 
     AC_PATH_PROGS(PYTHON_CMD, python2 python, "none")
 fi
@@ -377,9 +377,6 @@ if test "$PYTHON_CMD" != "none"; then
   if test "x$OS_IS_WIN" = "x1"; then
     PYTHON_CMD=`cygpath -a -w "$PYTHON_CMD" | sed 's/\\\/\\//g'`
   fi 
-  if test "$BUILD_PYTHON_INTERFACE" != "n"; then
-    BUILD_PYTHON=1; BUILD_CLIB=1
-  fi
 else
   echo 
   echo "********************************************************************"
@@ -391,6 +388,7 @@ else
 fi
 AC_SUBST(BUILD_PYTHON)
 AC_DEFINE_UNQUOTED(PYTHON_EXE,"$PYTHON_CMD")
+
 
 #       
 #     Matlab Interface

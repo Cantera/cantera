@@ -271,7 +271,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_unique_file="Cantera.README"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CVF_LIBDIR local_inst ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir CANTERA_LIBDIR CANTERA_INCDIR CT_TOOLS_BIN CANTERA_BINDIR CANTERA_EXAMPLES_DIR CANTERA_DATADIR build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE ARCHIVE SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR LAPACK_LIBRARY build_lapack BLAS_LIBRARY build_blas LOCAL_LIBS CANTERA_DATA_DIR CANTERA_PARTICLES_DIR BUILD_PARTICLES CT_SHARED_LIB BUILD_F90 PYTHON_CMD BUILD_PYTHON PYTHON_DIR MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC F77 FFLAGS ac_ct_F77 FLIBS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CVF_LIBDIR local_inst ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir CANTERA_LIBDIR CANTERA_INCDIR CT_TOOLS_BIN CANTERA_BINDIR CANTERA_EXAMPLES_DIR CANTERA_DATADIR build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE ARCHIVE SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR LAPACK_LIBRARY build_lapack BLAS_LIBRARY build_blas LOCAL_LIBS CT_SHARED_LIB BUILD_F90 PYTHON_CMD BUILD_PYTHON MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC F77 FFLAGS ac_ct_F77 FLIBS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1246,13 +1246,13 @@ ac_config_sub="$SHELL $ac_aux_dir/config.sub"
 ac_configure="$SHELL $ac_aux_dir/configure" # This should be Cygnus configure.
 
 
-echo " "
+echo
 echo "--------------------------------------------------------------"
-echo " "
+echo
 echo "           Cantera Configuration Script "
-echo " "
+echo
 echo "--------------------------------------------------------------"
-echo " "
+echo
 
 cat >>confdefs.h <<\_ACEOF
 #define NDEBUG 1
@@ -1549,7 +1549,6 @@ if test -n "$USER_SRC_DIR"; then USERDIR=$USER_SRC_DIR; INCL_USER_CODE=1; fi
 #########################################################
 KERNEL='base'
 BUILD_CK=
-BUILD_PARTICLES=
 
 NEED_CKREADER=
 NEED_BLAS=
@@ -1561,7 +1560,6 @@ NEED_CVODE=
 NEED_TRANSPORT=
 NEED_ZEROD=
 NEED_ONED=
-NEED_PARTICLES=
 
 if test "$ENABLE_THERMO" = "y"; then KERNEL=$KERNEL' 'thermo; fi
 if test "$ENABLE_KINETICS" = "y"; then KERNEL=$KERNEL' 'kinetics; fi
@@ -1691,47 +1689,6 @@ fi
 
 
 
-#
-#    Cantera directory structure
-#
-if test -z "$CANTERA_ROOT"; then CANTERA_ROOT=$prefix/cantera; fi
-#AC_SUBST(CANTERA_ROOT)
-#if test -z "$CANTERA_LIBDIR"; then CANTERA_LIBDIR=$CANTERA_ROOT/lib; fi
-
-#if test -z "$CANTERA_INCDIR"; then CANTERA_INCDIR=$CANTERA_ROOT/include; fi
-
-if test -z "$CT_TOOLS_BIN"; then CT_TOOLS_BIN=$CANTERA_ROOT/tools/bin; fi
-
-if test -z "$CANTERA_BINDIR"; then CANTERA_BINDIR=$CANTERA_ROOT/bin; fi
-
-if test -z "$CANTERA_EXAMPLES_DIR"; then CANTERA_EXAMPLES_DIR=$CANTERA_ROOT/examples; fi
-
-if test -z "$CANTERA_DATA_DIR"; then CANTERA_DATA_DIR=$CANTERA_ROOT/data; fi
-
-
-#--------------------------------------------------
-# Particle Library interface
-#--------------------------------------------------
-BUILD_PARTICLES=
-
-if test "$ENABLE_PARTICLES" = "y"
-then
-BUILD_PARTICLES=1
-NEED_PARTICLES=1
-if test -z "$CANTERA_PARTICLES_DIR"
-then
-  if test -z "$PARTICLES_DIR"
-  then
-    CANTERA_PARTICLES_DIR=$CANTERA_ROOT/Cantera/cads
-  else
-    CANTERA_PARTICLES_DIR=$CANTERA_ROOT/$PARTICLES_DIR
-  fi
-fi
-
-CXXFLAGS="$CXXFLAGS -DHAVE_PARTICLES -I$CANTERA_PARTICLES_DIR/src"
-fi
-
-
 #-------------------------------------------------
 #      Language Interfaces
 #-------------------------------------------------
@@ -1817,11 +1774,6 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define PYTHON_EXE "$PYTHON_CMD"
 _ACEOF
-
-
-if test -z "$PYTHON_DIR"; then
-  PYTHON_DIR=prefix
-fi
 
 
 #
@@ -3268,7 +3220,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3271:" \
+echo "$as_me:3223:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3445,7 +3397,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3448: \"$ac_link\") >&5
+(eval echo $as_me:3400: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3525,7 +3477,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3528: \"$ac_link\") >&5
+(eval echo $as_me:3480: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3793,7 +3745,7 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ac_config_files="$ac_config_files ../Cantera/Makefile ../Cantera/src/Makefile ../Cantera/src/zeroD/Makefile ../Cantera/src/oneD/Makefile ../Cantera/src/converters/Makefile ../Cantera/src/transport/Makefile ../Cantera/clib/src/Makefile ../Cantera/fortran/src/Makefile ../Cantera/fortran/f77demos/f77demos.mak ../Cantera/fortran/f77demos/isentropic.dsp ../Cantera/matlab/Makefile ../Cantera/matlab/setup_matlab.py ../Cantera/matlab/setup_winmatlab.py ../Cantera/python/Makefile ../Cantera/python/setup.py ../Cantera/cxx/Makefile ../Cantera/cxx/src/Makefile ../Cantera/cxx/demos/Makefile ../Cantera/user/Makefile ../Cantera/python/src/Makefile ../ext/lapack/Makefile ../ext/blas/Makefile ../ext/cvode/Makefile ../ext/math/Makefile ../ext/tpx/Makefile ../ext/Makefile ../ext/recipes/Makefile ../examples/Makefile ../examples/cxx/Makefile ../Makefile ../tools/Makefile ../tools/src/Makefile ../tools/src/sample.mak ../tools/src/finish_install.py ../tools/src/package4mac ../tools/templates/f77/demo.mak ../tools/templates/cxx/demo.mak ../tools/testtools/Makefile ../data/inputs/Makefile ../test_problems/Makefile ../test_problems/cxx_ex/Makefile ../test_problems/silane_equil/Makefile ../test_problems/surfkin/Makefile ../Cantera/cads/Makefile ../Cantera/cads/util_src/Makefile ../Cantera/cads/src/Makefile ../Cantera/cads/pe/Makefile ../Cantera/cads/pe/tests_condense/Makefile ../Cantera/cads/pe/tests_condense/dof1_1p05/Makefile ../Cantera/cads/pe/tests_condense/dof2_1p2/Makefile ../Cantera/cads/Cantf77/Makefile"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                        ac_config_files="$ac_config_files ../Cantera/Makefile ../Cantera/src/Makefile ../Cantera/src/zeroD/Makefile ../Cantera/src/oneD/Makefile ../Cantera/src/converters/Makefile ../Cantera/src/transport/Makefile ../Cantera/clib/src/Makefile ../Cantera/fortran/src/Makefile ../Cantera/fortran/f77demos/f77demos.mak ../Cantera/fortran/f77demos/isentropic.dsp ../Cantera/matlab/Makefile ../Cantera/matlab/setup_matlab.py ../Cantera/matlab/setup_winmatlab.py ../Cantera/python/Makefile ../Cantera/python/setup.py ../Cantera/cxx/Makefile ../Cantera/cxx/src/Makefile ../Cantera/cxx/demos/Makefile ../Cantera/user/Makefile ../Cantera/python/src/Makefile ../ext/lapack/Makefile ../ext/blas/Makefile ../ext/cvode/Makefile ../ext/math/Makefile ../ext/tpx/Makefile ../ext/Makefile ../ext/recipes/Makefile ../examples/Makefile ../examples/cxx/Makefile ../Makefile ../tools/Makefile ../tools/src/Makefile ../tools/src/sample.mak ../tools/src/finish_install.py ../tools/src/package4mac ../tools/templates/f77/demo.mak ../tools/templates/cxx/demo.mak ../tools/testtools/Makefile ../data/inputs/Makefile ../test_problems/Makefile ../test_problems/cxx_ex/Makefile ../test_problems/silane_equil/Makefile ../test_problems/surfkin/Makefile ../test_problems/diamondSurf/Makefile"
 
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
@@ -4308,14 +4260,7 @@ do
   "../test_problems/cxx_ex/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../test_problems/cxx_ex/Makefile" ;;
   "../test_problems/silane_equil/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../test_problems/silane_equil/Makefile" ;;
   "../test_problems/surfkin/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../test_problems/surfkin/Makefile" ;;
-  "../Cantera/cads/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/cads/Makefile" ;;
-  "../Cantera/cads/util_src/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/cads/util_src/Makefile" ;;
-  "../Cantera/cads/src/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/cads/src/Makefile" ;;
-  "../Cantera/cads/pe/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/cads/pe/Makefile" ;;
-  "../Cantera/cads/pe/tests_condense/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/cads/pe/tests_condense/Makefile" ;;
-  "../Cantera/cads/pe/tests_condense/dof1_1p05/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/cads/pe/tests_condense/dof1_1p05/Makefile" ;;
-  "../Cantera/cads/pe/tests_condense/dof2_1p2/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/cads/pe/tests_condense/dof2_1p2/Makefile" ;;
-  "../Cantera/cads/Cantf77/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Cantera/cads/Cantf77/Makefile" ;;
+  "../test_problems/diamondSurf/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../test_problems/diamondSurf/Makefile" ;;
   "../config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS ../config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -4456,14 +4401,10 @@ s,@build_lapack@,$build_lapack,;t t
 s,@BLAS_LIBRARY@,$BLAS_LIBRARY,;t t
 s,@build_blas@,$build_blas,;t t
 s,@LOCAL_LIBS@,$LOCAL_LIBS,;t t
-s,@CANTERA_DATA_DIR@,$CANTERA_DATA_DIR,;t t
-s,@CANTERA_PARTICLES_DIR@,$CANTERA_PARTICLES_DIR,;t t
-s,@BUILD_PARTICLES@,$BUILD_PARTICLES,;t t
 s,@CT_SHARED_LIB@,$CT_SHARED_LIB,;t t
 s,@BUILD_F90@,$BUILD_F90,;t t
 s,@PYTHON_CMD@,$PYTHON_CMD,;t t
 s,@BUILD_PYTHON@,$BUILD_PYTHON,;t t
-s,@PYTHON_DIR@,$PYTHON_DIR,;t t
 s,@MATLAB_CMD@,$MATLAB_CMD,;t t
 s,@BUILD_MATLAB@,$BUILD_MATLAB,;t t
 s,@BUILD_CLIB@,$BUILD_CLIB,;t t
