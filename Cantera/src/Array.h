@@ -187,8 +187,8 @@ namespace Cantera {
 
     /// output the array
     inline ostream& operator<<(ostream& s, const Array2D& m) {
-        int nr = m.nRows();
-        int nc = m.nColumns();
+        int nr = static_cast<int>(m.nRows());
+        int nc = static_cast<int>(m.nColumns());
         int i,j;
         for (i = 0; i < nr; i++) {
             for (j = 0; j < nc; j++) {
