@@ -128,8 +128,8 @@ class DataFrame(Frame):
         nv = len(vars)
         vv = []
         for n in range(nv):
-            if n < nv - 1 or vars[n].strip().isalnum():
-                nm = vars[n].split()[0]
+            nm = vars[n].split()[0]
+            if n < nv - 1 or nm.isalnum():
                 vv.append(nm)
             else:
                 break
@@ -318,9 +318,9 @@ class DataFrame(Frame):
             self.gdot = self.plt.plot(n,'red')
 
     def updateplot(self,event=None):
-        if not self.data: return
+        if self.data == None: return
 
-        if not self.zdata:
+        if self.zdata == None:
             self.newplot()
 
         n = self.n.get()
