@@ -5,7 +5,7 @@
 # if script ctnew is not on the PATH, set this to the path to it.
 CTNEW = ctnew
 
-SRCS = kinetics1.cpp
+SRCS = kinetics1.cpp kinetics2.cpp flame1.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 EXES = $(SRCS:.cpp=.x)

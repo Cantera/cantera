@@ -75,7 +75,12 @@ namespace Cantera {
             m_press = p;
         }
 
+        virtual void getActivityConcentrations(doublereal* c) const;
+
         virtual void getChemPotentials(doublereal* mu) const;
+        virtual void getStandardChemPotentials(doublereal* mu0) const;
+        virtual doublereal standardConcentration(int k=0) const;
+        virtual doublereal logStandardConc(int k=0) const;
 
 //         virtual void getPartialMolarEnthalpies(doublereal* hbar) const {
 //             const array_fp& _h = enthalpy_RT();

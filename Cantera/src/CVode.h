@@ -63,6 +63,7 @@ namespace Cantera {
         virtual void setMethod(MethodType t);
         virtual void setIterator(IterType t);
         virtual void setMaxStep(double hmax);
+        virtual void setMinStep(double hmin);
 
     private:
 
@@ -78,7 +79,7 @@ namespace Cantera {
         double m_reltol;
         double m_abstols;
         int m_nabs;
-        double m_hmax;
+        double m_hmax, m_hmin;
 
         vector_fp m_ropt;
         long int* m_iopt;

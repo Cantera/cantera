@@ -46,6 +46,7 @@ namespace Cantera {
     const int cGRI30 = 3;
     const int cInterfaceKinetics = 4;
     const int cLineKinetics = 5;
+    const int cEdgeKinetics = 6;
 }
 
 #endif

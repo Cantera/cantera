@@ -20,15 +20,16 @@
 #include "GasKinetics.h"
 #include "GRI_30_Kinetics.h"
 #include "InterfaceKinetics.h"
+#include "EdgeKinetics.h"
 #include "importCTML.h"
 
 namespace Cantera {
 
     KineticsFactory* KineticsFactory::__factory = 0;
 
-    static int ntypes = 4;
-    static string _types[] = {"none", "GasKinetics", "GRI30", "Interface"};
-    static int _itypes[]   = {0, cGasKinetics, cGRI30, cInterfaceKinetics};
+    static int ntypes = 5;
+    static string _types[] = {"none", "GasKinetics", "GRI30", "Interface", "Edge"};
+    static int _itypes[]   = {0, cGasKinetics, cGRI30, cInterfaceKinetics, cEdgeKinetics};
 
     /**
      * Return a new kinetics manager that implements a reaction
@@ -94,6 +95,10 @@ namespace Cantera {
 
         case cInterfaceKinetics:
             k = new InterfaceKinetics;
+            break;
+
+        case cEdgeKinetics:
+            k = new EdgeKinetics;
             break;
 
         default:

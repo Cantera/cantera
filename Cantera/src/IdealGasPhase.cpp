@@ -63,7 +63,6 @@ namespace Cantera {
             m_pp[k] = -grt[k] + mu_RT[k];
             m_pp[k] = m_p0 * exp(m_pp[k]);
             pres += m_pp[k];
-            //cout <<"setToEquil: " << k << "   "  << grt[k] << "  " << mu_RT[k] << endl;
         }
         // set state
         setState_PX(pres, m_pp.begin());
@@ -76,12 +75,8 @@ namespace Cantera {
             m_spthermo->update(tnow, m_cp0_R.begin(), m_h0_RT.begin(), 
                 m_s0_R.begin());
             m_tlast = tnow;
-            //            doublereal rrt = 1.0 / (GasConstant * tnow);
             int k;
-            //doublereal deltaE;
             for (k = 0; k < m_kk; k++) {
-                //deltaE = rrt * m_pe[k];
-                //m_h0_RT[k] += deltaE;
                 m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
             }
             m_logc0 = log(m_p0/(GasConstant * tnow));

@@ -4,12 +4,15 @@
  * Declares class PureFluid
  */
 
-// Copyright 2001  California Institute of Technology
+// Copyright 2003  California Institute of Technology
 
 #ifndef CT_EOS_TPX_H
 #define CT_EOS_TPX_H
 
 #include "ThermoPhase.h"
+
+#ifdef INCL_PURE_FLUIDS
+
 #include "../../ext/tpx/Sub.h"
 #include "../../ext/tpx/utils.h"
 
@@ -214,7 +217,8 @@ private:
     };
 
 }
-        
+
+#endif
 #endif
 
 

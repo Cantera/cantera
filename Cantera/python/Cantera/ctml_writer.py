@@ -574,6 +574,9 @@ class reaction(writer):
         if self._type == 'surface':
             mdim += -1
             ldim += 2
+        elif self._type == 'edge':
+            mdim += -1
+            ldim += 1
         else:
             mdim += -1
             ldim += 3
@@ -591,7 +594,9 @@ class reaction(writer):
         if self._type == '':
             self._kf = [self._kf]
         elif self._type == 'surface':
-            self._kf = [self._kf]            
+            self._kf = [self._kf]
+        elif self._type == 'edge':
+            self._kf = [self._kf]                        
         elif self._type == 'threeBody':
             self._kf = [self._kf]
             mdim += 1
@@ -733,6 +738,18 @@ class surface_reaction(reaction):
                  options = []):
         reaction.__init__(self, equation, kf, id, order, options)
         self._type = 'surface'
+
+
+class edge_reaction(reaction):
+
+    def __init__(self,
+                 equation = '',
+                 kf = None,
+                 id = '',
+                 order = '',                 
+                 options = []):
+        reaction.__init__(self, equation, kf, id, order, options)
+        self._type = 'edge'
 
 
 #--------------     
@@ -995,7 +1012,6 @@ class pure_solid(phase):
         self._pure = 1
         if self._dens < 0.0:
             raise 'density must be specified.'        
-        self._pure = 0
         self._tr = transport
 
     def conc_dim(self):
@@ -1005,6 +1021,74 @@ class pure_solid(phase):
         ph = phase.build(self, p)
         e = ph.addChild("thermo")
         e['model'] = 'SolidCompound'
+        addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
+        if self._tr:
+            t = ph.addChild('transport')
+            t['model'] = self._tr
+        k = ph.addChild("kinetics")
+        k['model'] = 'none'        
+
+
+class metal(phase):
+    """A metal."""
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 density = -1.0,
+                 transport = 'None',
+                 initial_state = None,
+                 options = []):
+        
+        phase.__init__(self, name, 3, elements, species, 'none',
+                       initial_state, options)
+        self._dens = density
+        self._pure = 0
+        #if self._dens < 0.0:
+        #    raise 'density must be specified.'        
+        self._tr = transport
+
+    def conc_dim(self):
+        return (0,0)
+        
+    def build(self, p):
+        ph = phase.build(self, p)
+        e = ph.addChild("thermo")
+        e['model'] = 'Metal'
+        addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
+        if self._tr:
+            t = ph.addChild('transport')
+            t['model'] = self._tr
+        k = ph.addChild("kinetics")
+        k['model'] = 'none'        
+
+
+class incompressible_solid(phase):
+    """An incompressible solid."""
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 density = -1.0,
+                 transport = 'None',
+                 initial_state = None,
+                 options = []):
+        
+        phase.__init__(self, name, 3, elements, species, 'none',
+                       initial_state, options)
+        self._dens = density
+        self._pure = 0
+        if self._dens < 0.0:
+            raise 'density must be specified.'        
+        self._tr = transport
+
+    def conc_dim(self):
+        return (1,-3)
+        
+    def build(self, p):
+        ph = phase.build(self, p)
+        e = ph.addChild("thermo")
+        e['model'] = 'Incompressible'
         addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
         if self._tr:
             t = ph.addChild('transport')
@@ -1077,6 +1161,45 @@ class ideal_interface(phase):
 
     def conc_dim(self):
         return (1, -2)
+
+
+class edge(phase):
+    """A 1D boundary between two surface phases."""
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 reactions = 'none',
+                 site_density = 0.0,
+                 phases = [],
+                 kinetics = 'Edge',
+                 transport = 'None',
+                 initial_state = None,
+                 options = []):
+
+        self._type = 'edge'
+        phase.__init__(self, name, 2, elements, species, reactions,
+                       initial_state, options)
+        self._pure = 0
+        self._kin = kinetics
+        self._tr = transport
+        self._phases = phases
+        self._sitedens = site_density
+        
+    def build(self, p):
+        ph = phase.build(self, p)
+        e = ph.addChild("thermo")
+        e['model'] = 'Edge'
+        addFloat(e, 'site_density', self._sitedens, defunits = _umol+'/'+_ulen+'2')
+        k = ph.addChild("kinetics")
+        k['model'] = self._kin
+        t = ph.addChild('transport')
+        t['model'] = self._tr
+        p = ph.addChild('phaseArray',self._phases)
+
+
+    def conc_dim(self):
+        return (1, -1)    
 
         
 #------------------ equations of state --------------------------
@@ -1185,6 +1308,7 @@ class SRI:
         f = p.addChild('falloff', s)
         f['type'] = 'SRI'
 
+
 class Lindemann:
     def __init__(self):
         pass
@@ -1240,7 +1364,10 @@ if __name__ == "__main__":
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.25  2003-11-24 16:39:33  dggoodwin
+# Revision 1.26  2004-02-03 03:31:06  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.25  2003/11/24 16:39:33  dggoodwin
 # -
 #
 # Revision 1.24  2003/11/13 12:29:45  dggoodwin

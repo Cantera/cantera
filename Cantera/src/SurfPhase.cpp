@@ -13,10 +13,7 @@
 #endif
 
 #include "SurfPhase.h"
-
-//#include "ReactionData.h"
-//#include "StoichManager.h"
-//#include "RateCoeffMgr.h"
+#include "EdgePhase.h"
 
 #include <iostream>
 using namespace std;
@@ -66,6 +63,17 @@ namespace Cantera {
     getStandardChemPotentials(doublereal* mu0) const {
         _updateThermo();
         copy(m_mu0.begin(), m_mu0.end(), mu0);
+    }
+
+    void SurfPhase::
+    getChemPotentials(doublereal* mu) const {
+        _updateThermo();
+        copy(m_mu0.begin(), m_mu0.end(), mu);
+        int k;
+        getActivityConcentrations(m_work.begin());
+        for (k = 0; k < m_kk; k++) {
+            mu[k] += GasConstant * temperature() * (log(m_work[k]) - logStandardConc(k));
+        } 
     }
 
     void SurfPhase::
@@ -141,8 +149,23 @@ namespace Cantera {
      */
     void SurfPhase::
     setCoverages(const doublereal* theta) {
+        double sum = 0.0;
+        for (int k = 0; k < m_kk; k++) sum += theta[k];
+
         for (int k = 0; k < m_kk; k++) {
-            m_work[k] = m_n0*theta[k]/size(k);
+            m_work[k] = m_n0*theta[k]/(sum*size(k));
+        }
+	/*
+	 * Call the State:: class function
+	 * setConcentrations.
+	 */
+        setConcentrations(m_work.begin());
+    }
+
+    void SurfPhase::
+    setCoveragesNoNorm(const doublereal* theta) {
+        for (int k = 0; k < m_kk; k++) {
+            m_work[k] = m_n0*theta[k]/(size(k));
         }
 	/*
 	 * Call the State:: class function
@@ -198,6 +221,10 @@ namespace Cantera {
             }
             m_tlast = tnow;
         }
+    }
+
+    EdgePhase::EdgePhase(doublereal n0) : SurfPhase(n0) {
+        setNDim(1);
     }
 
 }

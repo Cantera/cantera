@@ -108,10 +108,11 @@ namespace Cantera {
          * First evaluate the coverage-dependent terms in the reaction 
          * rates.
          */
-        m_surf->getCoverages(m_conc.begin());
-        m_rates.update_C(m_conc.begin());
-        m_rates.update(m_kdata->m_temp, 
-            m_kdata->m_logtemp, m_kdata->m_rfn.begin());
+        // UNCOMMENT and fix
+        //m_surf->getCoverages(m_conc.begin());
+        //m_rates.update_C(m_conc.begin());
+        //m_rates.update(m_kdata->m_temp, 
+        //    m_kdata->m_logtemp, m_kdata->m_rfn.begin());
 
         int np = nPhases();
         for (n = 0; n < np; n++) {
@@ -136,9 +137,11 @@ namespace Cantera {
      */
     void InterfaceKinetics::updateKc() {
         int i, irxn;
+
         vector_fp& m_rkc = m_kdata->m_rkcn;
         fill(m_rkc.begin(), m_rkc.end(), 0.0);
 
+        static vector_fp mu(nTotalSpecies());
         if (m_nrev > 0) {
 
             int n, nsp, k, ik=0;
@@ -161,10 +164,45 @@ namespace Cantera {
 
             for (i = 0; i < m_nrev; i++) {
                 irxn = m_revindex[i];
+                if (irxn < 0 || irxn >= nReactions()) {
+                    throw CanteraError("InterfaceKinetics","illegal value: irxn = "+int2str(irxn));
+                }
                 m_rkc[irxn] = exp(m_rkc[irxn]*rrt);
             }
             for (i = 0; i != m_nirrev; ++i) {
                 m_rkc[ m_irrev[i] ] = 0.0;
+            }
+        }
+    }
+
+
+    void InterfaceKinetics::checkPartialEquil() {
+        int i, irxn;
+        vector_fp dmu(nTotalSpecies(), 0.0);
+        vector_fp rmu(nReactions(), 0.0);
+        if (m_nrev > 0) {
+
+            int n, nsp, k, ik=0;
+            doublereal rt = GasConstant*thermo(0).temperature();
+            doublereal rrt = 1.0/rt;
+            int np = nPhases();
+            for (n = 0; n < np; n++) {
+                thermo(n).getChemPotentials(dmu.begin() + m_start[n]);
+                nsp = thermo(n).nSpecies();
+                for (k = 0; k < nsp; k++) {
+                    dmu[ik] += Faraday * m_phi[n] * thermo(n).charge(k);
+                    cout << thermo(n).speciesName(k) << "   " << dmu[ik] << endl;
+                    ik++;
+                }
+            }
+
+            // compute Delta mu^ for all reversible reactions
+            m_reactantStoich.decrementReactions(dmu.begin(), rmu.begin()); 
+            m_revProductStoich.incrementReactions(dmu.begin(), rmu.begin());
+
+            for (i = 0; i < m_nrev; i++) {
+                irxn = m_revindex[i];
+                cout << "Reaction " << reactionString(irxn) << "  " << rmu[irxn] << endl;
             }
         }
     }
@@ -247,6 +285,40 @@ namespace Cantera {
             }
         }
     }
+
+
+
+
+    /**
+     * Update the rates of progress of the reactions in the reaciton
+     * mechanism. This routine operates on internal data.
+     */
+    void InterfaceKinetics::getFwdRateConstants(doublereal* kfwd) {
+
+        _update_rates_T();
+        _update_rates_C();
+
+        const vector_fp& rf = m_kdata->m_rfn;
+
+        // copy rate coefficients into kfwd
+        copy(rf.begin(), rf.end(), kfwd);
+
+        // multiply by perturbation factor
+        multiply_each(kfwd, kfwd + nReactions(), m_perturb.begin());
+           
+    }
+
+
+    /**
+     * Update the rates of progress of the reactions in the reaciton
+     * mechanism. This routine operates on internal data.
+     */
+    void InterfaceKinetics::getRevRateConstants(doublereal* krev) {
+        getFwdRateConstants(krev);
+        const vector_fp& rkc = m_kdata->m_rkcn;
+        multiply_each(krev, krev + nReactions(), rkc.begin());
+    }
+
 
 
     /**
@@ -427,13 +499,11 @@ namespace Cantera {
 
         if (r.reversible) {
             m_revProductStoich.add(reactionNumber(), pk);
-            //m_dn.push_back(pk.size() - rk.size());
             m_revindex.push_back(reactionNumber());
             m_nrev++;
         }
         else {
             m_irrevProductStoich.add(reactionNumber(), pk);
-            //m_dn.push_back(pk.size() - rk.size());            
             m_irrev.push_back( reactionNumber() );
             m_nirrev++;
         }        
@@ -502,6 +572,8 @@ namespace Cantera {
             m_integrator->initialize();
         }
         m_integrator->integrate(0.0, tstep);
+        delete m_integrator;
+        m_integrator = 0;
     }
 
 }

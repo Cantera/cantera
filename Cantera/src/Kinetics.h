@@ -557,7 +557,10 @@ namespace Cantera {
                 m_start.push_back(0);
             }
             // there should only be one surface phase
-            if (thermo.eosType() == cSurf) {
+            int ptype = -100;
+            if (type() == cEdgeKinetics) ptype = cEdge;
+            else if (type() == cInterfaceKinetics) ptype = cSurf;
+            if (thermo.eosType() == ptype) {
                 if (m_surfphase >= 0) {
                     throw CanteraError("Kinetics::addPhase",
                         "cannot add more than one surface phase");

@@ -21,7 +21,6 @@
 #include "vec_functions.h"
 #include "ctexceptions.h"
 #include "ThermoPhase.h"
-#include "PropertyCalculator.h"
 #include "DenseMatrix.h"
 
 namespace Cantera {
@@ -61,7 +60,8 @@ namespace Cantera {
         bool contin;
     };
 
-
+    template<class M>
+    class PropertyCalculator;
 
     /**
      *  Chemical equilibrium processor. Sets a mixture to a state of

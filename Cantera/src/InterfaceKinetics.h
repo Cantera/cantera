@@ -258,6 +258,10 @@ namespace Cantera {
             return m_rxneqn[i];
         }
 
+
+        virtual void getFwdRateConstants(doublereal* kfwd);
+        virtual void getRevRateConstants(doublereal* krev);
+
 	//@}
         /**
          * @name Reaction Mechanism Construction
@@ -301,7 +305,7 @@ namespace Cantera {
         void _update_rates_C();
 
         void advanceCoverages(doublereal tstep);
-
+        void checkPartialEquil();
 
     protected:
 	/**
@@ -309,6 +313,7 @@ namespace Cantera {
 	 * that participate in the kinetics mechanism.
 	 */
         int                                 m_kk;
+        vector_int m_revindex;
 
         Rate1<SurfaceArrhenius>                    m_rates;        
         //Rate1<Arrhenius>                    m_rates;        
@@ -346,7 +351,7 @@ namespace Cantera {
         mutable vector<map<int, doublereal> >     m_rrxn;
         mutable vector<map<int, doublereal> >     m_prxn;
 
-        vector_int m_revindex;
+
         vector<string> m_rxneqn;
 
 	/**

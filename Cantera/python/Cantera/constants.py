@@ -12,3 +12,4 @@ StefanBoltz = 5.67e-8
 ElectronCharge = 1.602e-19
 Pi = 3.1415926
 Faraday = ElectronCharge * Avogadro
+Planck = 6.6262e-34

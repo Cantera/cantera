@@ -63,8 +63,6 @@ namespace Cantera {
             if (nt > ntmax) ntmax = nt;
         }
         m_integ = new CVodeInt;
-        //m_surfindex = kin.surfacePhaseIndex();
-        //m_surf = (SurfPhase*)&kin.thermo(m_surfindex);;
 
         // use backward differencing, with a full Jacobian computed
         // numerically, and use a Newton linear iterator
@@ -72,7 +70,6 @@ namespace Cantera {
         m_integ->setMethod(BDF_Method);
         m_integ->setProblemType(DENSE + NOJAC);
         m_integ->setIterator(Newton_Iter);
-        //m_nsp = m_surf->nSpecies();
         m_work.resize(ntmax);
     }
 

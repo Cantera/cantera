@@ -110,13 +110,8 @@ namespace Cantera {
 
         bool hasChild(string ch) const {
             return (m_childindex.find(ch) != m_childindex.end());
-            //return (m_childindex[ch] != 0);
         }
         bool hasAttrib(string a) const {
-            //cout << m_attribs.size() << endl;
-            //  if (m_attribs.size() == 0) {
-            //      cout << name() << " has zero length attribs " << endl;
-            //  }
             return (m_attribs.find(a) != m_attribs.end());
         }
 

@@ -16,11 +16,8 @@
 #ifndef CT_SURFPHASE_H
 #define CT_SURFPHASE_H
 
-//#include "ct_defs.h"
 #include "mix_defs.h"
 #include "ThermoPhase.h"
-//#include "ctvector.h"
-//#include <iostream>
 
 namespace Cantera {
 
@@ -43,6 +40,7 @@ namespace Cantera {
         virtual doublereal enthalpy_mole() const;
         virtual doublereal intEnergy_mole() const;
         virtual void getStandardChemPotentials(doublereal* mu0) const;
+        virtual void getChemPotentials(doublereal* mu) const;
         virtual void getActivityConcentrations(doublereal* c) const;
         virtual doublereal standardConcentration(int k = 0) const;
         virtual doublereal logStandardConc(int k=0) const;
@@ -52,7 +50,7 @@ namespace Cantera {
         void setPotentialEnergy(int k, doublereal pe);
         doublereal potentialEnergy(int k) {return m_pe[k];}
         void setSiteDensity(doublereal n0);
-        void setElectricPotential(doublereal V);
+        //void setElectricPotential(doublereal V);
 
 	/**
          * Pressure. Units: Pa.
@@ -82,6 +80,7 @@ namespace Cantera {
 	 *                 This is a dimensionless quantity.
          */
         void setCoverages(const doublereal* theta);
+        void setCoveragesNoNorm(const doublereal* theta);
         void setCoveragesByName(string cov);
         void getCoverages(doublereal* theta) const;
 

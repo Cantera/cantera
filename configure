@@ -36,8 +36,11 @@ CANTERA_VERSION=${CANTERA_VERSION:="1.5.3"}
 #  g++ and g77 compilers. 
 USE_VISUAL_STUDIO=${USE_VISUAL_STUDIO:="y"}
 
-#  
+#  If you are using Visual Studio, set this to the location of the
+# directory containing the Fortran libraries. This is only needed to
+# build the Matlab interface.
 FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
+
 
 #----------------------------------------------------------------------
 #         Language Interfaces
@@ -45,8 +48,7 @@ FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
 #
 
 # Cantera provides interfaces for several languages.  Set to 'y' to
-# build the specified interface. If you only plan to use Cantera from
-# C++, you do not need to build any of these.  
+# build the specified interface.
 
 
 #------------ Python -------------------------------------------------
@@ -87,7 +89,7 @@ BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
 # Cantera and build them automatically along with the rest of Cantera.
 # All you need to do is specify the directory where your source code is
 # located.
-USER_SRC_DIR="Cantera/user"
+USER_SRC_DIR="Cantera/user"  # don't change this
 
 
 
@@ -109,8 +111,9 @@ USER_SRC_DIR="Cantera/user"
 # thermodynamic properties 
 ENABLE_THERMO='y'
 
-# enable importing Chemkin input files
-ENABLE_CK='n'              
+# if set to 'y', the ck2cti program that converts Chemkin input files
+# to Cantera format will be built
+ENABLE_CK='y'              
 
 # homogeneous and heterogeneous kinetics
 ENABLE_KINETICS='y'
@@ -176,7 +179,7 @@ LAPACK_FTN_STRING_LEN_AT_END='y'
 CXX=${CXX:=g++}
 
 # C++ compiler flags
-CXXFLAGS=${CXXFLAGS:="-O2 -Wall"}
+CXXFLAGS=${CXXFLAGS:="-O0 -g -Wall"}
 
 # the C++ flags required for linking
 #LCXX_FLAGS=
@@ -208,7 +211,7 @@ F77=${F77:=g77}
 F90=${F90:=f90}
 
 # Fortran compiler flags
-FFLAGS=${FFLAGS:='-O2'}
+FFLAGS=${FFLAGS:='-O3 -g'}
 
 # the additional Fortran flags required for linking, if any
 #LFORT_FLAGS="-lF77 -lFI77"

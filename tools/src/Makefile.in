@@ -11,6 +11,8 @@ LOCAL_LIBS = -lcantera @math_libs@ @LAPACK_LIBRARY@ @BLAS_LIBRARY@ -lctcxx
 LCXX_END_LIBS = @LCXX_END_LIBS@
 #OBJS = ck2cti.o
 
+OBJS = ck2cti.o cti2ctml.o
+
 DEPENDS = $(OBJS:.o=.d)
 
 CONVLIB_DEP = @buildlib@/libconverters.a

@@ -26,12 +26,11 @@ namespace Cantera {
 
     /**
      * Manages the thermodynamic state. Class State manages the
-     * thermodynamic state of a multi-species solution. It
-     * holds values for the temperature, mass density, and mean
-     * molecular weight, and a vector of species mass
-     * fractions. For efficiency in mass/mole conversion, the vector
-     * of mass fractions divided by molecular weight \f$ Y_k/M_k \f$ 
-     * is also stored.
+     * thermodynamic state of a multi-species solution. It holds
+     * values for the temperature, mass density, and mean molecular
+     * weight, and a vector of species mass fractions. For efficiency
+     * in mass/mole conversion, the vector of mass fractions divided
+     * by molecular weight \f$ Y_k/M_k \f$ is also stored.
      *
      * Class State is not usually used directly in application
      * programs. Its primary use is as a base class for class Phase.

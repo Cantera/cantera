@@ -157,6 +157,11 @@ namespace Cantera {
         m_ropt[HMAX] = hmax;
     }
 
+    void CVodeInt::setMinStep(doublereal hmin) {
+        m_hmin = hmin;
+        m_ropt[HMIN] = hmin;
+    }
+
     void CVodeInt::setIterator(IterType t) {
         if (t == Newton_Iter) 
             m_iter = NEWTON;

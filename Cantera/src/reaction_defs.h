@@ -50,6 +50,8 @@ namespace Cantera {
      */
     const int SURFACE_RXN    = 20;
 
+    const int EDGE_RXN  = 22;
+
     const int GLOBAL_RXN     = 30;
 
     //@}

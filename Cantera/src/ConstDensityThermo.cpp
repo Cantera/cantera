@@ -16,6 +16,18 @@
 
 namespace Cantera {
 
+    void ConstDensityThermo::getActivityConcentrations(doublereal* c) const {
+        getConcentrations(c);
+    }
+
+    doublereal ConstDensityThermo::standardConcentration(int k) const {
+        return molarDensity();
+    }
+
+    doublereal ConstDensityThermo::logStandardConc(int k) const {
+        return log(molarDensity());
+    }
+
     void ConstDensityThermo::getChemPotentials(doublereal* mu) const {
         doublereal vdp = (pressure() - m_spthermo->refPressure())/
                          molarDensity();
@@ -26,6 +38,10 @@ namespace Cantera {
             xx = fmaxx(SmallNumber, moleFraction(k));
             mu[k] = rt*(g_RT[k] + log(xx)) + vdp;
         }
+    }
+
+    void ConstDensityThermo::getStandardChemPotentials(doublereal* mu0) const {
+        getPureGibbs(mu0);
     }
 
     void ConstDensityThermo::initThermo() {

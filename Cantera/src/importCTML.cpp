@@ -28,6 +28,7 @@
 #include "speciesThermoTypes.h"
 #include "ThermoPhase.h"
 #include "SurfPhase.h"
+#include "EdgePhase.h"
 #include "ThermoFactory.h"
 #include "SpeciesThermoFactory.h"
 #include "KineticsFactory.h"
@@ -531,7 +532,7 @@ namespace Cantera {
             // from concentration units used in the law of mass action
             // to coverages used in the sticking probability
             // expression
-            if (p.eosType() == cSurf) {
+            if (p.eosType() == cSurf || p.eosType() == cEdge) {
                 f /= pow(p.standardConcentration(klocal), order);
             }   
             // otherwise, increment the counter of bulk species
@@ -702,6 +703,15 @@ namespace Cantera {
         return t;
     }
 
+    ThermoPhase* newPhase(string infile, string id) {
+        XML_Node* root = get_XML_File(infile); 
+        if (id == "-") id = "";
+        XML_Node* x = get_XML_Node(string("#")+id, root);
+        if (x) 
+            return newPhase(*x);
+        else
+            return 0;
+    }
 
     /**
      * Set the thermodynamic state.
@@ -733,6 +743,11 @@ namespace Cantera {
         if (th->eosType() == cSurf && state.hasChild("coverages")) {
             comp = getString(state,"coverages");
             SurfPhase* s = (SurfPhase*)th;
+            s->setCoveragesByName(comp);
+        }
+        if (th->eosType() == cEdge && state.hasChild("coverages")) {
+            comp = getString(state,"coverages");
+            EdgePhase* s = (EdgePhase*)th;
             s->setCoveragesByName(comp);
         }
     }
@@ -789,6 +804,7 @@ namespace Cantera {
 	 * the xml tree. EOS's that we don't know about don't create an
 	 * error condition.
 	 */
+        bool eoserror = false;
         if (phase.hasChild("thermo")) {
             const XML_Node& eos = phase.child("thermo");
             if (eos["model"] == "Incompressible") {
@@ -798,8 +814,7 @@ namespace Cantera {
                     th->setParameters(1, &rho);
                 }
                 else {
-                    throw CanteraError("importCTML",
-                        "wrong equation of state type");
+                    eoserror = true;
                 }
             }
             else if (eos["model"] == "SolidCompound") {
@@ -808,8 +823,7 @@ namespace Cantera {
                     th->setDensity(rho);
                 }
                 else {
-                    throw CanteraError("importCTML",
-                        "wrong equation of state type");
+                    eoserror = true;
                 }
             }
             else if (eos["model"] == "Surface") {
@@ -821,10 +835,22 @@ namespace Cantera {
                     th->setParameters(1, &n);
                 }
                 else {
-                    throw CanteraError("importCTML",
-                        "wrong equation of state type");
+                    eoserror = true;
                 }
             }
+            else if (eos["model"] == "Edge") {
+                if (th->eosType() == cEdge) {
+                    doublereal n = getFloat(eos, "site_density", "-");
+                    if (n <= 0.0) 
+                        throw CanteraError("importCTML",
+                            "missing or negative site density");
+                    th->setParameters(1, &n);
+                }
+                else {
+                    eoserror = true;
+                }
+            }
+#ifdef INCL_PURE_FLUIDS
             else if (eos["model"] == "PureFluid") {
                 if (th->eosType() == cPureFluid) {
                     subflag = atoi(eos["fluid_type"].c_str());
@@ -840,9 +866,14 @@ namespace Cantera {
                     //th->setParameters(3, c);
                 }
                 else {
-                    throw CanteraError("importCTML",
-                        "wrong equation of state type");
+                    eoserror = true;
                 }
+            }
+#endif
+            if (eoserror) {
+                string msg = "Wrong equation of state type for phase "+phase["id"]+"\n";
+                msg += eos["model"]+" is not consistent with eos type "+int2str(th->eosType());
+                throw CanteraError("importCTML",msg);
             }
         }
 
@@ -1138,6 +1169,9 @@ next:
         else if (typ == "surface") {
             rdata.reactionType = SURFACE_RXN;
         }
+        else if (typ == "edge") {
+            rdata.reactionType = EDGE_RXN;
+        }
         //else if (typ == "global") {
         //    rdata.reactionType = GLOBAL_RXN;
         //}
@@ -1306,11 +1340,24 @@ next:
 	      const XML_Node& ii = *incl[nii];
 	      string imin = ii["min"];
 	      string imax = ii["max"];
+
+              string::size_type iwild = string::npos;
+              if (imax == imin) {
+                  iwild = imin.find("*");
+                  if (iwild != string::npos) {
+                      imin = imin.substr(0,iwild);
+                      imax = imin;
+                  }
+              }
+
 	      for (i = 0; i < nrxns; i++) {
 		const XML_Node* r = allrxns[i];
 		string rxid;
 		if (r) {
 		  rxid = (*r)["id"];
+                  if (iwild != string::npos) {
+                      rxid = rxid.substr(0,iwild);
+                  }
 		  /*
 		   * To decide whether the reaction is included or not
 		   * we do a lexical min max and operation. This 
@@ -1363,6 +1410,8 @@ next:
      */
     bool importKinetics(const XML_Node& phase, vector<ThermoPhase*> th, 
         Kinetics* k) {
+
+        if (k == 0) return false;
 
         Kinetics& kin = *k;
 

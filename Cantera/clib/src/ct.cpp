@@ -31,6 +31,8 @@ inline XML_Node* _xml(int i) {
     return Cabinet<XML_Node>::cabinet(false)->item(i);
 }
 
+
+#ifdef INCL_PURE_FLUID
 static PureFluid* purefluid(int n) {
     ThermoPhase* tp = th(n);
     if (tp->eosType() == cPureFluid) {
@@ -40,6 +42,11 @@ static PureFluid* purefluid(int n) {
         throw CanteraError("purefluid","object is not a PureFluid object");
     }
 }
+#else
+static ThermoPhase* purefluid(int n) {
+    return th(n);
+}
+#endif
 
 inline int nThermo() {
     return Storage::storage()->nThermo();
@@ -528,7 +535,6 @@ extern "C" {
         purefluid(n)->setState_satVapor();
         return 0;
     }
-
     
     //-------------- Kinetics ------------------//
 

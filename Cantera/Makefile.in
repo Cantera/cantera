@@ -26,7 +26,7 @@ endif
 
 clean:
 	cd src; @MAKE@ clean
-	cd cxx; @MAKE@ clean
+	cd cxx/src; @MAKE@ clean
 	cd clib/src; @MAKE@ clean
 	cd python; @MAKE@ clean
 ifeq ($(build_f90),1)
@@ -38,7 +38,7 @@ endif
 
 depends:
 	cd src; @MAKE@ depends
-	cd cxx; @MAKE@ depends
+	cd cxx/src; @MAKE@ depends
 	cd clib/src; @MAKE@ depends
 ifeq ($(build_f90),1)
 	cd fortran/src; @MAKE@ depends
@@ -49,7 +49,7 @@ endif
 
 install:
 	cd src; @MAKE@ install
-	cd cxx; @MAKE@ install
+	cd cxx/src; @MAKE@ install
 	cd clib/src; @MAKE@ install
 ifeq ($(build_f90),1)
 	cd fortran/src; @MAKE@ install

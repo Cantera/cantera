@@ -149,6 +149,10 @@ namespace Cantera {
         virtual void setMaxStep(double hmax)
             { warn("setMaxStep"); }
 
+        /** Set the minimum step size */
+        virtual void setMinStep(double hmin)
+            { warn("setMinStep"); }
+
     private:
 
         doublereal m_dummy;

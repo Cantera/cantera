@@ -105,7 +105,9 @@ namespace Cantera {
             }
             for (n = 0; n < m_nmcov; n++) {
                 k = m_msp[n];
-                th = fmaxx(theta[n], Tiny);
+                // changed n to k, dgg 1/22/04
+                th = fmaxx(theta[k], Tiny);
+                //                th = fmaxx(theta[n], Tiny);
                 m_mcov += m_mc[n]*log(th);
             }
         }

@@ -50,27 +50,19 @@ be created within your home directory if they don't exist already, and
 cantera will be installed into these directories.
 
 
-
 Configuring the Environment
 ---------------------------
 
 The build process will create a shell script 'cantera.cfg' that
-configures the environment for Cantera. This should be run by typing
+configures the environment for Cantera. This script may be found in
+directory 'cantera' within the installation directory
+(i.e. '/usr/local/cantera'). This should be run by typing
 
 source /usr/local/cantera/cantera.cfg
 
-to set environment variables before using Cantera. This may not be
-necessary if a default installation into /usr/local is done, but is
-necessary if a custom installation is done.
-
-If the HOME environment variable is set, the build process will copy
-cantera.cfg to your home directory. You can insure that the latest
-version of cantera.cfg is run every time you log in by adding the line
-
-source cantera.cfg
-
-to your shell login script.
-
+to set environment variables before using Cantera. It is recommended
+to add this line to your shell login script, so that Cantera will be
+correctly configured each time you log in.
 
 
 The Python Interface

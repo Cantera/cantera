@@ -24,7 +24,6 @@ namespace Cantera {
     class XML_Node;
 
 
-
     /**
      * @defgroup thermoprops Thermodynamic Properties
      *
@@ -100,9 +99,11 @@ namespace Cantera {
         const XML_Node* speciesData() { 
             if (m_speciesData) 
                 return m_speciesData;
-            else
+            else {
                 throw CanteraError("ThermoPhase::speciesData",
                     "m_speciesData is NULL");
+                return 0;
+            }
         }
 
 
@@ -186,6 +187,7 @@ namespace Cantera {
             return err("cv_mole");
         }
         
+
         /**
          * @}
          * @name Mechanical Properties
@@ -607,7 +609,7 @@ namespace Cantera {
         virtual void setState_satVapor() {
             err("setState_satVapor");             
         }
-        
+
         /**
          * @internal Install a species thermodynamic property
          * manager. The species thermodynamic property manager

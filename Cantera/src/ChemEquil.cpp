@@ -114,22 +114,6 @@ namespace Cantera {
             }
         }
         m_eloc = mneg;
-//         nneg = 0.0;
-//         if (nneg > 0) {
-//             for (k = 0; k < m_kk; k++) {
-//                 m_comp[k*m_mm + mneg] = m_phase->nAtoms(k,mneg);
-//                 for (m = 0; m < m_mm; m++) {
-//                     if (m != mneg) {
-//                         m_comp[k*m_mm + m] = m_phase->nAtoms(k,m);
-//                         m_comp[k*m_mm + mneg] += m_phase->nAtoms(k,m)*(nneg + 1);
-//                     }
-//                 }
-//                 cout << m_phase->speciesName(k) << "  ";
-//                 for (m = 0; m  < m_mm; m++) cout << m_comp[k*m_mm + m] << " ";
-//                 cout << endl;
-//             }
-//         }
-//         else {
         for (k = 0; k < m_kk; k++) {
             for (m = 0; m < m_mm; m++) {
                 m_comp[k*m_mm + m] = m_phase->nAtoms(k,m);
@@ -177,16 +161,12 @@ namespace Cantera {
             m_elementmolefracs[m] = 0.0;
             for (k = 0; k < m_kk; k++) {
                 m_elementmolefracs[m] += nAtoms(k,m) * m_molefractions[k];
-                //if (nAtoms(k,m) < 0.0) {
-                //    throw CanteraError("update","negative nAtoms");
-                //}
                 if (m_molefractions[k] < 0.0) {
                     throw CanteraError("update",
                         "negative mole fraction for "+m_phase->speciesName(k)+
                         ": "+fp2str(m_molefractions[k]));
                 }
             }
-            //cout << "update: " << m << "  " << m_elementmolefracs[m] << endl;
             sum += m_elementmolefracs[m];
         }
 
@@ -261,7 +241,6 @@ namespace Cantera {
             for (int k = 0; k < kksp; k++) { 
                 if (ip == ksp) {
                     m_molefractions[k] = aa(n+1, 0);
-                    //cout << "initial " << m_phase->speciesName(k) << "  " << m_molefractions[k] << endl;
                 }
                 ksp++;
             }

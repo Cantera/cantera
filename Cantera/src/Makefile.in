@@ -33,7 +33,7 @@ KINETICS   = GRI_30_Kinetics.o KineticsFactory.o GasKinetics.o FalloffFactory.o 
              ReactionStoichMgr.o $(THERMO)
 
 # heterogeneous kinetics
-HETEROKIN = InterfaceKinetics.o ImplicitSurfChem.o SurfPhase.o $(THERMO)
+HETEROKIN = InterfaceKinetics.o ImplicitSurfChem.o SurfPhase.o EdgeKinetics.o $(THERMO)
 
 # support for importing from Chemkin-compatible reaction mechanisms
 CK         = $(KINETICS)
