@@ -21,7 +21,7 @@ class Transport:
         loglevel  --- controls amount of diagnostic output
         """
         
-        self._phase = phase
+        #self._phase = phase
         if model == "" or model == "Default":
             try:
                 self.model = xml_phase.child('transport')['model']
@@ -42,13 +42,13 @@ class Transport:
         except:
             pass
 
-    def setTransportModel(self, model):
-        if self._models.has_key(model):
-            self.__tr_id = self._models[model]
-        else:
-            self.__tr_id = _cantera.Transport(model,
-                                                 self._phase._phase_id, 0)
-        self.model = model
+##     def setTransportModel(self, model):
+##         if self._models.has_key(model):
+##             self.__tr_id = self._models[model]
+##         else:
+##             self.__tr_id = _cantera.Transport(model,
+##                                                  self._phase._phase_id, 0)
+##         self.model = model
         
     def desc(self):
         if self.model == 'Multi':
