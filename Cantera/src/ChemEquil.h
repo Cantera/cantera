@@ -174,9 +174,7 @@ namespace Cantera {
      * calculation.
      */
     inline void equilibrate(thermo_t& s, const char* XY) {
-        ChemEquil e;
-        e.equilibrate(s,_equilflag(XY));
-        s.setElementPotentials(e.elementPotentials());
+        equilibrate(s,_equilflag(XY));
     }
 
 }

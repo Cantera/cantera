@@ -7,6 +7,8 @@
 
 namespace Cantera {
 
+    class MultiPhaseEquil;
+
     /// A class for multiphase mixtures. The mixture can contain any
     /// number of phases of any type.  All phases have the same
     /// temperature and pressure, and a specified number of moles.
@@ -27,7 +29,7 @@ namespace Cantera {
         /// Constructor. The constructor takes no arguments, since
         /// phases are added using method addPhase.
         MultiPhase() : m_temp(0.0), m_press(0.0), 
-                       m_nel(0), m_nsp(0), m_init(false) {}
+                       m_nel(0), m_nsp(0), m_init(false), m_equil(0) {}
 
         /// Destructor. Does nothing. Class MultiPhase does not take 
         /// "ownership" (i.e. responsibility for destroying) the
@@ -93,6 +95,8 @@ namespace Cantera {
         /// potentials of all species [J/kmol].
         void getChemPotentials(doublereal* mu);
 
+        void getValidChemPotentials(doublereal not_mu, doublereal* mu);
+
         /// Chemical potentials. Write into array \c mu the chemical
         /// potentials of all species [J/kmol].
         void getStandardChemPotentials(doublereal* mu);
@@ -101,6 +105,10 @@ namespace Cantera {
         doublereal temperature() {
             return m_temp;
         }
+
+        doublereal equilibrate(int XY, doublereal err = 1.0e-9, 
+            int maxsteps = 1000);
+
 
         /// Set the temperature [K].
         void setTemperature(doublereal T) {
@@ -143,6 +151,10 @@ namespace Cantera {
 
         void setMoles(doublereal* n);
 
+        bool tempOK(index_t p) {
+            return m_temp_OK[p];
+        }
+
     protected:
 
         /// Set the states of the phase objects to the locally-stored
@@ -165,6 +177,8 @@ namespace Cantera {
         index_t m_nel; 
         index_t m_nsp;
         bool m_init;
+        vector<bool> m_temp_OK;
+        MultiPhaseEquil* m_equil;
     };
 
     inline std::ostream& operator<<(std::ostream& s, Cantera::MultiPhase& x) {

@@ -12,6 +12,9 @@ RESDIR=$PKGDIR/Cantera/resources_dir
 NUMPYDIR=$PKGDIR/Numeric/root_dir/Library/Python/$PYVERSION
 NUMRESDIR=$PKGDIR/Numeric/resources_dir
 
+NUMARRAYPYDIR=$PKGDIR/numarray/root_dir/Library/Python/$PYVERSION
+NUMARRAYRESDIR=$PKGDIR/numarray/resources_dir
+
 # where Cantera has been installed
 instdir=/Applications/Cantera
 pylibdir=/Library/Python/$PYVERSION
@@ -24,11 +27,16 @@ $INSTALL -d $RESDIR
 $INSTALL -d $NUMPYDIR/Numeric
 $INSTALL -d $NUMRESDIR
 
+$INSTALL -d $NUMARRAYPYDIR/Numeric
+$INSTALL -d $NUMARRAYRESDIR
+
 rm -r -f $CTDIR/*
 rm -r -f $PYDIR/*
 rm -r -f $RESDIR/*
 rm -r -f $NUMPYDIR/*
 rm -r -f $NUMRESDIR/*
+rm -r -f $NUMARRAYPYDIR/*
+rm -r -f $NUMARRAYRESDIR/*
 
 cp -R -f $instdir/* $CTDIR
 chmod +x $CTDIR/bin/*
@@ -47,4 +55,6 @@ cp -f @ctroot@/License.rtf $RESDIR
 
 cp -R -f $pylibdir/Numeric/* $NUMPYDIR/Numeric
 cp -f $pylibdir/Numeric.pth $NUMPYDIR
+
+cp -R -f $pylibdir/numarray/* $NUMARRAYPYDIR/numarray
 

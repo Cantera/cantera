@@ -67,6 +67,10 @@ static bool checkPhase(int i, int n) {
     }
 }
 
+namespace Cantera {
+    int _equilflag(const char* xy);
+}
+
 extern "C" {  
 
     int DLL_EXPORT mix_new() {
@@ -180,7 +184,7 @@ extern "C" {
     doublereal DLL_EXPORT mix_equilibrate(int i, char* XY, 
         doublereal err, int maxiter) { 
         try {
-            return equilibrate(*_mix(i), XY, err, maxiter);
+            return equilibrate(*_mix(i), _equilflag(XY), err, maxiter);
         }
         catch (CanteraError) {
             return DERR;

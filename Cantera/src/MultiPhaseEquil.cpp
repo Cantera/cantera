@@ -416,14 +416,6 @@ namespace Cantera {
 
     void MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN) {
         index_t k, ik;
-        //if (m_iter > 500) {
-        //  for (ik = 0; ik < m_nsp; ik++) {
-                //k = m_order[ik];
-                //if (ik < m_nel) cout << "*";
-                //cout << m_mix->speciesName(m_species[k]) <<
-                //    ":    " << m_moles[k] << " += " << omega << " * " << deltaN[k] << endl;
-        //  }
-        //}
         if (omega < 0.0) 
             throw CanteraError("step","negative omega");
 
@@ -438,6 +430,7 @@ namespace Cantera {
             m_lastmoles[k] = m_moles[k];
             if (m_majorsp[k]) {
                 m_moles[k] += omega * deltaN[k];
+                if (m_moles[k] < 0.0) m_moles[k] = 0.0;
             }
             else {
                 m_moles[k] = fabs(m_moles[k])*fminn(10.0, exp(-m_deltaG_RT[ik - m_nel]));
@@ -544,7 +537,8 @@ namespace Cantera {
         // compute the gradient of G at this new position in the
         // current direction. If it is positive, then we have overshot
         // the minimum. In this case, interpolate back.
-        m_mix->getChemPotentials(m_mu.begin());
+        doublereal not_mu = 1.0e8;
+        m_mix->getValidChemPotentials(not_mu, m_mu.begin());
         doublereal grad1 = 0.0;
         for (k = 0; k < m_nsp; k++) {
             grad1 += m_work[k] * m_mu[m_species[k]];
@@ -573,8 +567,8 @@ namespace Cantera {
 
         dxi.resize(m_nsp - m_nel);
         computeN();
-
-        m_mix->getChemPotentials(m_mu.begin());
+        doublereal not_mu = 1.0e8;
+        m_mix->getValidChemPotentials(not_mu, m_mu.begin());
 
         for (j = 0; j < m_nsp - m_nel; j++) {
 
@@ -590,6 +584,7 @@ namespace Cantera {
 
             m_deltaG_RT[j] = dg_rt;
             fctr = 1.0;
+
             // if this is a formation reaction for a single-component phase, 
             // check whether reaction should be included
             ik = j + m_nel;

@@ -61,19 +61,45 @@ class Mixture:
         """Delete the Mixture instance. The phase objects are not deleted."""
         _cantera.mix_del(self.__mixid)
 
-##     def __repr__(self):
-##         s = ''
-##         for p in range(len(self._phases)):
-##             s += '\n*******************    Phase '+self._phases[p].name()+'    ******************************\n'
-##             s += '\n Moles: '+`self.phaseMoles(p)`+'\n'
-##             s += self._phases[p].__repr__()+'\n\n'
-##         return s
+    def __str__(self):
+        s = ''
+        for p in range(len(self._phases)):
+            s += '\n*******************    Phase '+self._phases[p].name()+'    ******************************\n'
+            s += '\n Moles: '+`self.phaseMoles(p)`+'\n'
+            s += self._phases[p].__repr__()+'\n\n'
+        return s
 
     def _addPhase(self, phase = None, moles = 0.0):
         """Add a phase to the mixture."""
         for k in range(phase.nSpecies()):
             self._spnames.append(phase.speciesName(k))            
         _cantera.mix_addPhase(self.__mixid, phase.thermo_hndl(), moles)
+
+    def nPhases(self):
+        """Total number of phases defined for the mixture."""
+        return len(self._phases)
+
+    def phaseName(self, n):
+        """Name of phase n."""
+        return self._phases[n].name()
+
+    def phaseNames(self):
+        """Names of all phases in the order added."""
+        np = self.nPhases()
+        nm = []
+        for n in range(np):
+            nm.append(self.phaseName(n))
+        return nm
+
+    def phaseIndex(self, phase):
+        """Index of phase with name 'phase'"""
+        np = self.nPhases()
+        if type(phase) <> types.StringType:
+            return phase
+        for n in range(np):
+            if self.phaseName(n) == phase:
+                return n
+        return -1
     
     def nElements(self):
         """Total number of elements present in the mixture."""
@@ -141,9 +167,16 @@ class Mixture:
     def pressure(self):
         """The pressure [Pa]."""
         return _cantera.mix_pressure(self.__mixid)    
-    def phaseMoles(self, n):
+    def phaseMoles(self, n = -1):
         """Moles of phase n."""
-        return _cantera.mix_phaseMoles(self.__mixid, n)
+        if n == -1:
+            np = self.nPhases()
+            moles = zeros(np,'d')
+            for m in range(np):
+                moles[m] = _cantera.mix_phaseMoles(self.__mixid, m)
+            return moles
+        else:   
+            return _cantera.mix_phaseMoles(self.__mixid, n)
     def setPhaseMoles(self, n, moles):
         """Set the number of moles of phase n."""
         _cantera.mix_setPhaseMoles(self.__mixid, n, moles)

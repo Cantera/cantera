@@ -43,7 +43,7 @@ namespace Cantera {
             for (i = 0; i < maxsteps; i++) {
                 stepComposition();
                 if (error() < err) break;
-            }
+            }            
             if (i >= maxsteps) {
                 printInfo();
                 throw CanteraError("MultiPhaseEquil::equilibrate",

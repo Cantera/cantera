@@ -1199,6 +1199,8 @@ class stoichiometric_solid(phase):
         self._tr = transport
 
     def conc_dim(self):
+        """A stoichiometric solid always has unit activity, so the
+        generalized concentration is 1 (dimensionless)."""
         return (0,0)
         
     def build(self, p):
@@ -1225,36 +1227,31 @@ class stoichiometric_liquid(stoichiometric_solid):
                  initial_state = None,
                  options = []):
         
-        stoichiometric_solid.__init__(self, name, 3, elements,
-                                      species, 'none',
+        stoichiometric_solid.__init__(self, name, elements,
+                                      species, density, transport,
                                       initial_state, options)
-        self._dens = density
-        self._pure = 1
-        if self._dens < 0.0:
-            raise CTI_Error('density must be specified.')
-        self._tr = transport
         
-class pure_solid(stoichiometric_solid):
-    """Deprecated. Use stoichiometric_solid"""
-    def __init__(self,
-                 name = '',
-                 elements = '',
-                 species = '',
-                 density = -1.0,
-                 transport = 'None',
-                 initial_state = None,
-                 options = []):
+## class pure_solid(stoichiometric_solid):
+##     """Deprecated. Use stoichiometric_solid"""
+##     def __init__(self,
+##                  name = '',
+##                  elements = '',
+##                  species = '',
+##                  density = -1.0,
+##                  transport = 'None',
+##                  initial_state = None,
+##                  options = []):
         
-        stoichiometric_solid.__init__(self, name, 3, elements,
-                                      species, 'none',
-                                      initial_state, options)
-        self._dens = density
-        self._pure = 1
-        if self._dens < 0.0:
-            raise CTI_Error('density must be specified.')
-        self._tr = transport
-        print 'WARNING: entry type pure_solid is deprecated.'
-        print 'Use stoichiometric_solid instead.'
+##         stoichiometric_solid.__init__(self, name, 3, elements,
+##                                       species, 'none',
+##                                       initial_state, options)
+##         self._dens = density
+##         self._pure = 1
+##         if self._dens < 0.0:
+##             raise CTI_Error('density must be specified.')
+##         self._tr = transport
+##         print 'WARNING: entry type pure_solid is deprecated.'
+##         print 'Use stoichiometric_solid instead.'
 
 
 class metal(phase):
@@ -1495,7 +1492,10 @@ if __name__ == "__main__":
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.8  2004-12-02 22:11:28  dggoodwin
+# Revision 1.9  2005-01-08 22:28:01  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.8  2004/12/02 22:11:28  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.7  2004/11/15 02:33:21  dggoodwin

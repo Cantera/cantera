@@ -195,8 +195,10 @@ namespace Cantera {
             getFloatArray(f0.child("floatArray"), c0, false);
             if (dualRange)
                 getFloatArray(f1ptr->child("floatArray"), c1, false);
-            else
+            else {
                 c1.resize(7,0.0);
+                copy(c0.begin(), c0.end(), c1.begin());
+            }
         }
         else if (fabs(tmax1 - tmin0) < 0.01) {
             tmin = tmin1;

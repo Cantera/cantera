@@ -1,4 +1,5 @@
 #include "MultiPhase.h"
+#include "MultiPhaseEquil.h"
 
 #include "ThermoPhase.h"
 #include "DenseMatrix.h"
@@ -19,6 +20,7 @@ namespace Cantera {
 
         // store its number of moles
         m_moles.push_back(moles);
+        m_temp_OK.push_back(true);
 
         // update the number of phases and the total number of
         // species
@@ -145,6 +147,22 @@ namespace Cantera {
 
     /// Chemical potentials. Write into array \c mu the chemical
     /// potentials of all species [J/kmol].
+    void MultiPhase::getValidChemPotentials(doublereal not_mu,
+        doublereal* mu) {
+        index_t i, loc = 0;
+        updatePhases();            
+        for (i = 0; i < m_np; i++) {
+            if (tempOK(i) || m_phase[i]->nSpecies() > 1) 
+                m_phase[i]->getChemPotentials(mu + loc);
+            else
+                fill(mu + loc, mu + loc + m_phase[i]->nSpecies(), not_mu);
+            loc += m_phase[i]->nSpecies();
+        }
+    }
+
+
+    /// Chemical potentials. Write into array \c mu the chemical
+    /// potentials of all species [J/kmol].
     void MultiPhase::getStandardChemPotentials(doublereal* mu) {
         index_t i, loc = 0;
         updatePhases();
@@ -240,7 +258,23 @@ namespace Cantera {
             doublereal* x = m_moleFractions.begin() + loc;
             loc += nsp;
             m_phase[p]->setState_TPX(m_temp, m_press, x);
+            m_temp_OK[p] = true;
+            if (m_temp < m_phase[p]->minTemp() 
+                || m_temp > m_phase[p]->maxTemp()) m_temp_OK[p] = false;
         }
     }            
+
+    doublereal MultiPhase::equilibrate(int XY, doublereal err, 
+        int maxsteps) {
+        cout << "in equil" << endl;
+        init();
+        if (m_equil == 0) {
+            m_equil = new MultiPhaseEquil(this);
+        }
+        m_equil->equilibrate(XY, err, maxsteps);
+        delete m_equil;
+        m_equil = 0;
+    }
+
 }
 
