@@ -45,7 +45,7 @@ namespace Cantera {
 #ifdef WIN32
                         tmp_dir(".") {}
 #else
-                        tmp_dir("/tmp") {}
+                        tmp_dir(".") {}
 #endif
         virtual ~Application() {
 	    map<string, XML_Node*>::iterator pos;
