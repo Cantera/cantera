@@ -70,23 +70,60 @@ namespace Cantera {
 	 */
         virtual int type() { return 0; }
 
+
+        /// Number of reactions in the reaction mechanism
+        int nReactions() const {return m_ii;}
+
+	//@}
+        /**
+         * @name Information/Lookup Functions about Phases and Species
+         */
+        //@{
+
         /**
          * Return the number of phases defined within the kinetics
 	 * object.
          */  
-        int nPhases() const { return m_thermo.size(); }
+        int nPhases() const { return m_thermo.size(); }	
 
 	/**
-	 * Returns the starting index of the species in the nth phase
-	 * associated with the reaction mechanism
+	 * Return the phase index of a phase in the list of phases
+	 * defined within the object.
 	 *
-	 * @param n Return the index of first species in the nth phase
-	 *          associated with the reaction mechanism.
+	 *  Input
+	 * ----------
+	 *  ph = string name of the phase
+	 *
+	 * If a -1 is returned, then the phase is not defined in
+	 * the Kinetics object.
+	 * (HKM -> unfound object will create another entry in the
+	 *  map, suggest rewriting this function)
 	 */
-        int start(int n) { return m_start[n]; }
+        int phaseIndex(string ph) { return m_phaseindex[ph] - 1; }
 
-        /// Number of reactions in the reaction mechanism
-        int nReactions() const {return m_ii;}
+	/**
+	 * This returns the integer index of the phase 
+	 * which has ThermoPhase type cSurf.
+	 */
+        int surfacePhaseIndex() { return m_surfphase; }
+
+	/**
+	 * This method returns a reference to the nth ThermoPhase
+	 * defined in this kinetics mechanism.
+	 * It is typically used so that member functions of the the
+	 * ThermoPhase may be called.
+	 */
+        thermo_t& thermo(int n=0) { return *m_thermo[n]; }
+        const thermo_t& thermo(int n=0) const { return *m_thermo[n]; }
+
+	/**
+	 * This method returns a reference to the nth ThermoPhase
+	 * defined in this kinetics mechanism.
+	 * It is typically used so that member functions of the
+	 * ThermoPhase may be called.
+	 */
+        thermo_t& phase(int n=0) { return *m_thermo[n]; }
+        const thermo_t& phase(int n=0) const { return *m_thermo[n]; }
 
         /**
 	 * Returns the total number of species in all phases
@@ -99,8 +136,128 @@ namespace Cantera {
             return n;
         }
 
-        int surfacePhaseIndex() { return m_surfphase; }
+	/**
+	 * Returns the starting index of the species in the nth phase
+	 * associated with the reaction mechanism
+	 *
+	 * @param n Return the index of first species in the nth phase
+	 *          associated with the reaction mechanism.
+	 */
+        int start(int n) { return m_start[n]; }
 
+	/**
+	 * This method returns the index of a species in the source
+	 * term vector for this kinetics object.
+	 *
+	 * @param k species index 
+	 * @param n phase index for the species
+	 */
+        int kineticsSpeciesIndex(int k, int n) const {
+            return m_start[n] + k;
+        }
+
+	/**
+	 * Return the string name of the kth species in the kinetics
+	 * manager. k can be equal to 0 to the number of species
+	 * in the kinetics manager, which is the sum of the
+	 * number of species in all phases participating in the
+	 * kinetics manager. 
+	 *  If k is out of bounds, the string "<unknown>" is returned.
+	 */
+        string kineticsSpeciesName(int k) const {
+            int np = m_start.size();
+            for (int n = np-1; n >= 0; n--) {
+                if (k >= m_start[n]) {
+                    return thermo(n).speciesName(k - m_start[n]);
+                }
+            }
+            return "<unknown>";
+        }
+
+	/**
+	 * This routine will look up a species number based on
+	 * the input string nm. The lookup of species will
+	 * occur for all phases listed in the kinetics obect,
+	 * unless the string ph refers to a specific phase of
+	 * the object. 
+	 *
+	 *  return
+	 *   If a match is found, the position in the species list
+	 *   is returned. 
+	 *   If no match is found, the value -2 is returned.
+	 */
+        int kineticsSpeciesIndex(string nm, string ph = "<any>") const {
+	  int np = m_thermo.size();
+	  int k;
+	  string id;
+	  for (int n = 0; n < np; n++) {
+	    id = thermo(n).id();
+	    if (ph == id) {
+	      k = thermo(n).speciesIndex(nm);
+	      if (k < 0) return -1;
+	      return k + m_start[n];
+	    }
+	    else if (ph == "<any>") {
+	      /*
+	       * Call the speciesIndex() member function of the
+	       * ThermoPhase object to find a match.
+	       */
+	      k = thermo(n).speciesIndex(nm);
+	      if (k >= 0) return k + m_start[n];
+	    }                    
+	  }
+	  return -2;
+        }
+
+	/**
+	 * This function looks up the string name of a species and
+	 * returns a reference to the ThermoPhase object of the
+	 * phase where the species resides.
+	 * Will throw an error if the species string doesn't match.
+	 */
+        thermo_t& speciesPhase(string nm) {
+            int np = m_thermo.size();
+            int k;
+            string id;
+            for (int n = 0; n < np; n++) {
+                k = thermo(n).speciesIndex(nm);
+                if (k >= 0) return thermo(n);
+            }
+            throw CanteraError("speciesPhase", "unknown species "+nm);
+        }
+
+	/**
+	 * This function takes as an argument the kineticsSpecies index
+	 * (i.e., the list index in the list of species in the kinetics
+	 * manager) and returns the species' owning ThermoPhase object.
+	 */
+        thermo_t& speciesPhase(int k) {
+            int np = m_start.size();
+            for (int n = np-1; n >= 0; n--) {
+                if (k >= m_start[n]) {
+                    return thermo(n);
+                }
+            }
+            throw CanteraError("speciesPhase", 
+                "illegal species index: "+int2str(k));            
+        }
+
+	/**
+	 * This function takes as an argument the kineticsSpecies index
+	 * (i.e., the list index in the list of species in the kinetics
+	 * manager) and returns the index of the phase owning the 
+	 * species.
+	 */
+        int speciesPhaseIndex(int k) {
+            int np = m_start.size();
+            for (int n = np-1; n >= 0; n--) {
+                if (k >= m_start[n]) {
+                    return n;
+                }
+            }
+            throw CanteraError("speciesPhaseIndex", 
+                "illegal species index: "+int2str(k));            
+        }
 
 	//@}
         /**
@@ -357,21 +514,6 @@ namespace Cantera {
          */
         //@{
 
-	/**
-	 * Return the phase index of a phase in the list of phases
-	 * defined within the object.
-	 *
-	 *  Input
-	 * ----------
-	 *  ph = string name of the phase
-	 *
-	 * If a -1 is returned, then the phase is not defined in
-	 * the Kinetics object.
-	 * (HKM -> unfound object will create another entry in the
-	 *  map, suggest rewriting this function)
-	 */
-        int phaseIndex(string ph) { return m_phaseindex[ph] - 1; }
-
         /**
          * Add a phase to the kinetics manager object. This must
 	 * be done before the function init() is called or 
@@ -401,122 +543,6 @@ namespace Cantera {
             m_thermo.push_back(&thermo);
             m_phaseindex[m_thermo.back()->id()] = nPhases();
         }
-
-	/**
-	 * This method returns a reference to the nth ThermoPhase
-	 * defined in this kinetics mechanism.
-	 * It is typically used so that member functions of the the
-	 * ThermoPhase may be called.
-	 */
-        thermo_t& thermo(int n=0) { return *m_thermo[n]; }
-        const thermo_t& thermo(int n=0) const { return *m_thermo[n]; }
-
-	/**
-	 * This method returns a reference to the nth ThermoPhase
-	 * defined in this kinetics mechanism.
-	 * It is typically used so that member functions of the
-	 * ThermoPhase may be called.
-	 */
-        thermo_t& phase(int n=0) { return *m_thermo[n]; }
-        const thermo_t& phase(int n=0) const { return *m_thermo[n]; }
-
-	/**
-	 * This method returns the index of a species in the source
-	 * term vector for this kinetics object.
-	 *
-	 * @param k species index 
-	 * @param n phase index for the species
-	 */
-        int kineticsSpeciesIndex(int k, int n) const {
-            return m_start[n] + k;
-        }
-
-	/**
-	 * Return the string name of the kth species in the kinetics
-	 * manager. k can be equal to 0 to the number of species
-	 * in the kinetics manager, which is the sum of the
-	 * number of species in all phases participating in the
-	 * kinetics manager. 
-	 *  If k is out of bounds, the string "<unknown>" is returned.
-	 */
-        string kineticsSpeciesName(int k) const {
-            int np = m_start.size();
-            for (int n = np-1; n >= 0; n--) {
-                if (k >= m_start[n]) {
-                    return thermo(n).speciesName(k - m_start[n]);
-                }
-            }
-            return "<unknown>";
-        }
-
-	/**
-	 * This routine will look up a species number based on
-	 * the input string nm. The lookup of species will
-	 * occur for all phases listed in the kinetics obect,
-	 * unless the string ph refers to a specific phase of
-	 * the object. 
-	 *
-	 *  return
-	 *   If a match is found, the position in the species list
-	 *   is returned. 
-	 *   If no match is found, the value -2 is returned.
-	 */
-        int kineticsSpeciesIndex(string nm, string ph = "<any>") const {
-	  int np = m_thermo.size();
-	  int k;
-	  string id;
-	  for (int n = 0; n < np; n++) {
-	    id = thermo(n).id();
-	    if (ph == id) {
-	      k = thermo(n).speciesIndex(nm);
-	      if (k < 0) return -1;
-	      return k + m_start[n];
-	    }
-	    else if (ph == "<any>") {
-	      /*
-	       * Call the speciesIndex() member function of the
-	       * ThermoPhase object to find a match.
-	       */
-	      k = thermo(n).speciesIndex(nm);
-	      if (k >= 0) return k + m_start[n];
-	    }                    
-	  }
-	  return -2;
-        }
-
-        thermo_t& speciesPhase(string nm) {
-            int np = m_thermo.size();
-            int k;
-            string id;
-            for (int n = 0; n < np; n++) {
-                k = thermo(n).speciesIndex(nm);
-                if (k >= 0) return thermo(n);
-            }
-            throw CanteraError("speciesPhase", "unknown species "+nm);
-        }
-
-        thermo_t& speciesPhase(int k) {
-            int np = m_start.size();
-            for (int n = np-1; n >= 0; n--) {
-                if (k >= m_start[n]) {
-                    return thermo(n);
-                }
-            }
-            throw CanteraError("speciesPhase", 
-                "illegal species index: "+int2str(k));            
-        }
-
-        int speciesPhaseIndex(int k) {
-            int np = m_start.size();
-            for (int n = np-1; n >= 0; n--) {
-                if (k >= m_start[n]) {
-                    return n;
-                }
-            }
-            throw CanteraError("speciesPhaseIndex", 
-                "illegal species index: "+int2str(k));            
-        }
-
 
         /**
          * Prepare the class for the addition of reactions. This function
@@ -572,7 +598,8 @@ namespace Cantera {
         void incrementRxnCount() { m_ii++; m_perturb.push_back(1.0); }
 
 	/**
-	 *
+	 * Returns true if the kinetics manager has been properly
+	 * initialized and finalized.
 	 */
         virtual bool ready() const {
 	    return false;
@@ -640,7 +667,7 @@ namespace Cantera {
         int m_index;
 
 	/**
-	 * ????????
+	 * Index in the list of phases of the last surface phase entered. 
 	 */
         int m_surfphase;
 
