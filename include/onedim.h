@@ -1,10 +1,10 @@
 #ifndef CT_INCL_ONEDIM_H
 #define CT_INCL_ONEDIM_H
 
-#include "oneD/OneDim.h"
-#include "oneD/Resid1D.h"
-#include "oneD/Inlet1D.h"
-#include "oneD/MultiNewton.h"
-#include "oneD/MultiJac.h"
+#include "kernel/oneD/OneDim.h"
+#include "kernel/oneD/Resid1D.h"
+#include "kernel/oneD/Inlet1D.h"
+#include "kernel/oneD/MultiNewton.h"
+#include "kernel/oneD/MultiJac.h"
 #endif
 
