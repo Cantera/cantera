@@ -1,7 +1,7 @@
 
 from ThermoPhase import ThermoPhase
 from exceptions import CanteraError
-import Numeric
+from Cantera.num import asarray
 import _cantera
 
 class SurfacePhase(ThermoPhase):
@@ -23,7 +23,7 @@ class SurfacePhase(ThermoPhase):
         nt = len(theta)
         if nt == self.nSpecies():
             _cantera.surf_setcoverages(self._phase_id,
-                                     Numeric.asarray(theta,'d'))
+                                     asarray(theta,'d'))
         else:
             raise CanteraError('expected '+`self.nSpecies()`+
                                ' coverage values, but got '+`nt`)

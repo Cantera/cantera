@@ -1,7 +1,7 @@
 """A counterflow flame."""
 
 from onedim import *
-import Numeric
+from Cantera.num import zeros
 import math
 
 def erfc(x):

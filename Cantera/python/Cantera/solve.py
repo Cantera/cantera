@@ -4,7 +4,7 @@
 #
                 
 from Cantera import CanteraError
-from Numeric import array
+from Cantera.num import array
 import math, types
 
 def solve(sim, loglevel = 0, refine_grid = 1, plotfile = '', savefile = ''):

@@ -1,6 +1,6 @@
 import _cantera
 import types
-from Numeric import zeros, array, asarray
+from Cantera.num import zeros, array, asarray
 from exceptions import CanteraError
 
 class Mixture:
@@ -216,7 +216,7 @@ class Mixture:
     
     def selectSpecies(self, f, species):
         """Given an array 'f' of floating-point species properties,
-        return a Numeric array of those values corresponding to species
+        return an array of those values corresponding to species
         listed in 'species'. This method is used internally to implement
         species selection in methods like moleFractions, massFractions, etc.
         >>> f = mix.chemPotentials()
@@ -233,7 +233,7 @@ class Mixture:
             for s in s:
                 k = self.speciesIndex(s)
                 fs.append(f[k])
-            return Numeric.asarray(fs)
+            return asarray(fs)
         else:
             return f
 

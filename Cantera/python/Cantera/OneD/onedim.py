@@ -1,6 +1,6 @@
 from Cantera import *
 from Cantera import _cantera
-import Numeric
+from Cantera.num import asarray, zeros
 
 _onoff = {'on':1, 'yes':1, 'off':0, 'no':0, 1:1, 0:0}
 
@@ -153,7 +153,7 @@ class Domain1D:
         d.setupGrid([0.0, 0.1, 0.2])
         
         """
-        return _cantera.domain_setupGrid(self._hndl, Numeric.asarray(grid))
+        return _cantera.domain_setupGrid(self._hndl, asarray(grid))
     
     def setID(self, id):
         return _cantera.domain_setID(self._hndl, id)
@@ -461,7 +461,7 @@ class Stack:
     def __init__(self, domains = None):
         self._hndl = 0
         nd = len(domains)
-        hndls = Numeric.zeros(nd,'i')
+        hndls = zeros(nd,'i')
         for n in range(nd):
             hndls[n] = domains[n].domain_hndl()
         self._hndl = _cantera.sim1D_new(hndls)
@@ -504,7 +504,7 @@ class Stack:
         idom = dom.index()
         icomp = dom.componentIndex(comp)
         _cantera.sim1D_setProfile(self._hndl, idom, icomp,
-                                  Numeric.asarray(pos), Numeric.asarray(v))
+                                  asarray(pos), asarray(v))
         
     def setFlatProfile(self, dom, comp, v):
         """Set a flat profile for one component in one domain.
@@ -540,7 +540,7 @@ class Stack:
 
         """
         _cantera.sim1D_setTimeStep(self._hndl, stepsize,
-                                   Numeric.asarray(nsteps))
+                                   asarray(nsteps))
         
     def getInitialSoln(self):
         """Load the initial solution from each domain into the global

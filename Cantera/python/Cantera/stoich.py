@@ -1,5 +1,5 @@
 from Cantera import exceptions
-from Numeric import array
+from Cantera.num import array
 from Cantera.elements import elementMoles
 
 def det3(A):

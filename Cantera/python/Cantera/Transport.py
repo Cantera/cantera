@@ -19,7 +19,7 @@ highly simplified class structure is used in the Python interface --
 there is only one class. """
 
 import _cantera
-from Numeric import asarray
+from Cantera.num import asarray
 import exceptions
 
 class Transport:

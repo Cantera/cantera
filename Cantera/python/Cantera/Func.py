@@ -7,7 +7,7 @@ corresponding classes in the C++ kernel.
 
 """
 
-from Numeric import array, asarray, ravel, shape, transpose
+from Cantera.num import array, asarray, ravel, shape, transpose
 import _cantera
 import types
 

@@ -1,5 +1,5 @@
 from onedim import *
-import Numeric
+from Cantera.num import array, zeros
 
 class StagnationFlow(Stack):
     """An axisymmetric flow impinging on a surface at normal incidence."""

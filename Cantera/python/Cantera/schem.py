@@ -15,7 +15,7 @@ Interface     -- interfaces
 
 from Cantera import CanteraError
 from Cantera import units
-from Numeric import array
+from Cantera.num import array
 from Cantera import ctsurf, constants, SurfWriter
 import math
 import types

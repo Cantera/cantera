@@ -5,7 +5,7 @@ Kinetics managers.
 from Cantera.exceptions import CanteraError, getCanteraError
 from Cantera.ThermoPhase import ThermoPhase
 from Cantera.XML import XML_Node
-import Numeric
+from Cantera.num import zeros
 import _cantera
 
 
@@ -167,7 +167,7 @@ class Kinetics:
         coefficient of species k in reaction i."""
         nsp = _cantera.kin_nspecies(self.ckin)
         nr = _cantera.kin_nreactions(self.ckin)
-        nu = Numeric.zeros((nsp,nr),'d')
+        nu = zeros((nsp,nr),'d')
         for i in range(nr):
             for k in range(nsp):
                 nu[k,i] = _cantera.kin_rstoichcoeff(self.ckin,k,i)
@@ -183,7 +183,7 @@ class Kinetics:
         coefficient of species k in reaction i."""        
         nsp = _cantera.kin_nspecies(self.ckin)
         nr = _cantera.kin_nreactions(self.ckin)
-        nu = Numeric.zeros((nsp,nr),'d')
+        nu = zeros((nsp,nr),'d')
         for i in range(nr):
             for k in range(nsp):
                 nu[k,i] = _cantera.kin_pstoichcoeff(self.ckin,k,i)

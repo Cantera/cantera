@@ -7,7 +7,7 @@ This module provides class Phase.
 import _cantera
 
 import types
-import Numeric 
+from Cantera.num import asarray
 from exceptions import CanteraError
 
 __revision__ = "$Id$"
@@ -57,7 +57,7 @@ class Phase:
             for e in elements:
                 m = self.elementIndex(e)
                 ae.append(atw[m])
-            return Numeric.asarray(ae)
+            return asarray(ae)
         else:
             return atw
         
@@ -242,7 +242,7 @@ class Phase:
         if type(x) == types.StringType:
             _cantera.phase_setstring(self._phase_id,1,x)
         else:
-            _cantera.phase_setarray(self._phase_id,1,norm,Numeric.asarray(x))
+            _cantera.phase_setarray(self._phase_id,1,norm,asarray(x))
 
             
     def setMassFractions(self, x, norm = 1):
@@ -252,7 +252,7 @@ class Phase:
         if type(x) == types.StringType:
             _cantera.phase_setstring(self._phase_id,2,x)
         else:        
-            _cantera.phase_setarray(self._phase_id,2,norm,Numeric.asarray(x))        
+            _cantera.phase_setarray(self._phase_id,2,norm,asarray(x))        
         
     def setState_TRX(self, t, rho, x):
         """Set the temperature, density, and mole fractions. The mole
@@ -278,7 +278,7 @@ class Phase:
     
     def selectSpecies(self, f, species):
         """Given an array 'f' of floating-point species properties,
-        return a Numeric array of those values corresponding to species
+        return an array of those values corresponding to species
         listed in 'species'. This method is used internally to implement
         species selection in methods like moleFractions, massFractions, etc.
         >>> f = ph.chemPotentials()
@@ -291,13 +291,13 @@ class Phase:
             for s in species:
                 k = self.speciesIndex(s)
                 fs.append(f[k])
-            return Numeric.asarray(fs)
+            return asarray(fs)
         else:
             return f
 
     def selectElements(self, f, elements):
         """Given an array 'f' of floating-point element properties,
-        return a Numeric array of those values corresponding to elements
+        return a nummodule array of those values corresponding to elements
         listed in 'elements'.
         >>> f = ph.elementPotentials()
         >>> lam_o, lam_h = ph.selectElements(f, ['O', 'H'])
@@ -308,7 +308,7 @@ class Phase:
             for s in elements:
                 k = self.elementIndex(s)
                 fs.append(f[k])
-            return Numeric.asarray(fs)
+            return asarray(fs)
         else:
             return f
 

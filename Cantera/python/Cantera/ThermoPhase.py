@@ -1,8 +1,10 @@
 """ This module implements class ThermoPhase, a class representing
 thermodynamic phases.  """
 
+from Cantera.num import zeros
+
 from Cantera.Phase import Phase
-from Numeric import zeros
+
 
 import _cantera
 import types

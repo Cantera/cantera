@@ -3,7 +3,7 @@ Zero-dimensional reactors.
 """
 
 import _cantera
-from Numeric import array, zeros
+from Cantera.num import array, zeros
 import types
 
 

@@ -14,8 +14,6 @@ def write_CSV_data(fname, names, npts, nvar, append, data):
                 the value of variable n at point j.
     """
     
-    from Numeric import array, shape
-
     if append > 0:
         f = open(fname,'a')
     else:

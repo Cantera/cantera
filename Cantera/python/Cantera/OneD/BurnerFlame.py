@@ -1,5 +1,5 @@
 from onedim import *
-import Numeric
+from Cantera.num import array, zeros
 
 class BurnerFlame(Stack):
     """A burner-stabilized flat flame."""
@@ -47,7 +47,7 @@ class BurnerFlame(Stack):
         self.getInitialSoln()                
         gas = self.gas
         nsp = gas.nSpecies()
-        yin = Numeric.zeros(nsp, 'd')
+        yin = zeros(nsp, 'd')
         for k in range(nsp):
             yin[k] = self.burner.massFraction(k)
         gas.setState_TPY(self.burner.temperature(), self.pressure, yin)
@@ -61,7 +61,7 @@ class BurnerFlame(Stack):
         u1 = self.burner.mdot()/gas.density()
 
         z1 = 0.2
-        locs = Numeric.array([0.0, z1, 1.0],'d')
+        locs = array([0.0, z1, 1.0],'d')
         self.setProfile('u', locs, [u0, u1, u1])
         self.setProfile('T', locs, [t0, teq, teq])
         for n in range(nsp):
@@ -122,7 +122,7 @@ class BurnerFlame(Stack):
         """Set the state of the object representing the gas to the
         current solution at grid point j."""
         nsp = self.gas.nSpecies()
-        y = Numeric.zeros(nsp, 'd')
+        y = zeros(nsp, 'd')
         for n in range(nsp):
             nm = self.gas.speciesName(n)
             y[n] = self.solution(nm, j)

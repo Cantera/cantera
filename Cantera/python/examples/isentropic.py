@@ -1,5 +1,5 @@
 from Cantera import *
-from Numeric import zeros
+from Cantera.num import zeros
 import math
 
 
