@@ -128,18 +128,29 @@ namespace Cantera {
 	       * We will assume that we are trying to open a cti file.
 	       * First, determine the name of the xml file, ff, derived from
 	       * the cti file.
+               * In all cases, we will write the xml file to the current
+               * directory.
 	       */
 	      string::size_type islash = path.rfind('/');
 	      if (islash != string::npos) 
 		  ff = string("./")+path.substr(islash+1,idot-islash - 1) + ".xml";
-	      else
+	      else {
 		  ff = string("./")+path.substr(0,idot) + ".xml";
+              }
+#ifdef DEBUG_PATHS
+              cout << "get_XML_File(): Expected location of xml file = "
+                   << ff << endl;
+#endif
 	      /*
 	       * Do a search of the existing XML trees to determine if we have
 	       * already processed this file. If we have, return a pointer to
 	       * the processed xml tree.
 	       */
 	      if (app()->xmlfiles.find(ff) != app()->xmlfiles.end()) {
+#ifdef DEBUG_PATHS
+                cout << "get_XML_File(): File, " << ff << ", was previously read."
+                     << " Retrieving the storred xml tree." << endl;
+#endif
 		return __app->xmlfiles[ff];	  
 	      }
 	      /*
@@ -164,7 +175,9 @@ namespace Cantera {
 	      __app->xmlfiles[ff] = x;
             }
             else {
-	      throw CanteraError("get_XML_File","cannot open "+ff+" for reading.");
+              string estring = "cannot open "+ff+" for reading.";
+              estring += "Note, this error indicates a possible configuration problem."; 
+	      throw CanteraError("get_XML_File", estring);
 	    }
         }
 	/*

@@ -117,6 +117,9 @@ namespace ctml {
 #else
         string cmd = pypath() + " " + path + " &> ct2ctml.log";
 #endif
+#ifdef DEBUG_PATHS
+        cout << "ct2ctml: executing the command " << cmd << endl;
+#endif
         int ierr = 0;
         try {
             ierr = system(cmd.c_str());
@@ -124,6 +127,36 @@ namespace ctml {
         catch (...) {
             ierr = -10;
         }
+
+        /*
+         * HKM -> This next section may seem a bit weird. However,
+         *        it is in response to an issue that arises when
+         *        running cantera with cygwin, using cygwin's
+         *        python intepreter. Basically, the xml file is
+         *        written to the local directory by the last
+         *        system command. Then, the xml file is read
+         *        immediately after by an ifstream() c++
+         *        command. Unfortunately, it seems that the
+         *        directory info is not being synched fast enough
+         *        so that the ifstream() read fails, even
+         *        though the file is actually there. Putting in a
+         *        sleep system call here fixes this problem. Also,
+         *        having the xml file pre-existing fixes the
+         *        problem as well. There may be more direct ways
+         *        to fix this bug; however, I am not aware of them.
+         */
+#if defined(CYGWIN) 
+#ifdef DEBUG_PATHS
+        cout << "sleeping for 3 secs" << endl;
+#endif
+        cmd = "sleep 3";
+        try {
+            ierr = system(cmd.c_str());
+        }
+        catch (...) {
+            ierr = -10;
+        }
+#endif
 
         try {
             char ch=0;
@@ -155,6 +188,7 @@ namespace ctml {
 			       "could not convert input file to CTML\n "
 			       "command line was: " + msg);
         }
+#ifndef DEBUG_PATHS
 #ifdef WIN32
         cmd = "cmd /C rm " + path;
 #else
@@ -163,6 +197,7 @@ namespace ctml {
             system(cmd.c_str());
         }
         catch (...) { ; }
+#endif
 #endif
     }
 
