@@ -73,9 +73,9 @@ namespace Cantera {
         /**
          * Restore a state saved on a previous call to saveState.
          */
-        void restoreState(vector_fp& state);
+        void restoreState(const vector_fp& state);
 
-        void restoreState(int lenstate, doublereal* state);
+        void restoreState(int lenstate, const doublereal* state);
 
         /**
          * Set the species mole fractions by name. 
@@ -185,8 +185,9 @@ namespace Cantera {
 	 */
 	int m_kk;
 	/**
-	 * m_ndim is the dimensionality of the phase. Basically, volumetric phases
-	 * have dimensionality 3 and surface phases have dimensionality 2.
+	 * m_ndim is the dimensionality of the phase. 
+	 * Volumetric phases have dimensionality 3 and surface phases
+	 * have dimensionality 2.
 	 */
         int m_ndim;
 	/**

@@ -26,11 +26,11 @@ namespace Cantera {
             getMassFractions(state + 2);
         }
 
-        void Phase::restoreState(vector_fp& state) {
+        void Phase::restoreState(const vector_fp& state) {
             restoreState(state.size(),state.begin());
         }
 
-        void Phase::restoreState(int lenstate, doublereal* state) {
+        void Phase::restoreState(int lenstate, const doublereal* state) {
             if (int(lenstate) >= nSpecies() + 2) {
                 setMassFractions_NoNorm(state + 2);
                 setTemperature(state[0]);
