@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
       for (int j = 1; j < argc; j++) {
 	tok = string(argv[j]);
 	if (tok[0] == '-') {
-	  int nopt = tok.size();
+	  int nopt = static_cast<int>(tok.size());
 	  for (int n = 1; n < nopt; n++) {
 	    if (tok[n] == 'h') {
 	      printUsage();
