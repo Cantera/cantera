@@ -7,8 +7,10 @@
 #include <string.h>
 
 void reportError() {
-    int buflen = 300;
-    char* output_buf = (char*)mxCalloc(buflen, sizeof(char));
+    int buflen = 0;
+    char* output_buf = 0;
+    buflen = getCanteraError(buflen, output_buf);
+    output_buf = (char*)mxCalloc(buflen, sizeof(char));
     getCanteraError(buflen, output_buf);
     mexErrMsgTxt(output_buf);
 }
@@ -47,6 +49,7 @@ void ctfunctions( int nlhs, mxArray *plhs[],
         output_buf = (char*)mxCalloc(buflen, sizeof(char));
         iok = getCanteraError(buflen, output_buf);
         plhs[0] = mxCreateString(output_buf);
+        iok = 0;
         return;
 
         // add directory
