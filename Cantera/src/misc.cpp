@@ -308,7 +308,7 @@ namespace Cantera {
             dirs.push_back(datadir);
         }
 
-        // CANTERA_ROOT is defined in file ctdir.h. This file is written
+        // CANTERA_ROOT is defined in file config.h. This file is written
         // during the build process (unix), and points to the directory
         // specified by the 'prefix' option to 'configure', or else to
         // /usr/local/cantera. This will generally not be defined under

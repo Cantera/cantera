@@ -90,7 +90,7 @@ PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"}
 # Matlab script. If this is set to "y" but Matlab is not found, the
 # Matlab toolbox will not be built.
 
-BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="n"}
+BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
 
 
 #----------------------------------------------------------------------
@@ -189,6 +189,10 @@ LAPACK_FTN_STRING_LEN_AT_END='y'
 # the C++ compiler to use.
 #
 CXX=${CXX:=g++}
+
+# the C compiler to use. This is only used to compile CVODE and
+# the Python extension module.
+CC=${CC:=gcc}
 
 # C++ compiler flags
 CXXFLAGS=${CXXFLAGS:="-O2 -Wall"}

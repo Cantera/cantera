@@ -12,6 +12,8 @@
 #include <iostream>
 #include <string>
 
+#include "../../../config.h"
+
 #ifdef HAS_SSTREAM
 #include <sstream>
 #endif
@@ -25,6 +27,8 @@ using namespace std;
 #include <time.h>
 #include "../ct_defs.h"
 #include "ctml.h"
+
+
 using namespace Cantera;
 
 namespace pip {

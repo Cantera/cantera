@@ -23,7 +23,7 @@
 
         // constructor
         if (job == 0) {
-            n = reactornet_new(i);
+            n = reactornet_new();
             plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
             double *h = mxGetPr(plhs[0]);
             *h = double(n);
