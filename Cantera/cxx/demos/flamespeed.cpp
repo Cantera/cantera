@@ -11,10 +11,19 @@
 // precompiled headers
 #include "stdafx.h"
 
+#else
+#include <cantera/Cantera.h>
+#include <cantera/onedim.h>
+#include <cantera/IdealGasMix.h>
+#include <cantera/equilibrium.h>
+#include <cantera/transport.h>
+
+using namespace Cantera;
+
 #endif
 
 
-void demo() {
+int demo() {
   try {
     int i;
     IdealGasMix gas("gri30.cti","gri30_mix");	
@@ -32,7 +41,6 @@ void demo() {
     doublereal phi=1.1;
     cout << "Enter phi: ";
     cin >> phi;
-    cout << endl;
 
     doublereal C_atoms=1.0;
     doublereal H_atoms=4.0;
@@ -44,6 +52,7 @@ void demo() {
       else if(k==gas.speciesIndex("N2")){ x[k]=0.79/phi/fa_stoic; }
       else{ x[k]=0.0; }
     }
+
     gas.setState_TPX(temp,pressure,x.begin());
     doublereal rho_in=gas.density();
 
@@ -65,6 +74,7 @@ void demo() {
     double Tin=temp;
     double Tout=Tad;
     double breakpt=0.2;
+
 
     //=============  build each domain ========================
 
@@ -176,6 +186,7 @@ void demo() {
        location will then be fixed for remainder of
        calculation.*/
 
+
     flow.solveEnergyEqn();
     refine_grid=true;
     flame.setFixedTemperature(900.0);
@@ -198,12 +209,12 @@ void demo() {
     cout << endl<<"Adiabatic flame temperature from equilibrium is: "<<Tad<<endl;
     cout << "Flame speed for phi="<<phi<<" is "<<Uvec[0]<<" m/s."<<endl;
 
-    //		return 0;    
+    return 0;    
   }
   catch (CanteraError) {
     showErrors(cerr);
     cerr << "program terminating." << endl;
-    //return -1;
+    return -1;
   }
 }
 
@@ -215,5 +226,6 @@ int _tmain(int argc, _TCHAR* argv[])
 #else
 int main() {
   return demo();
+}
 #endif
 
