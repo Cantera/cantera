@@ -553,7 +553,7 @@ AC_OUTPUT(../Cantera/Makefile \
           ../Cantera/python/setup.py \
 	  ../Cantera/cxx/Makefile \
 	  ../Cantera/cxx/src/Makefile \
-	  ../Cantera/cxx/demo/Makefile \
+	  ../Cantera/cxx/demos/Makefile \
 	  ../Cantera/user/Makefile \
 	  ../Cantera/python/src/Makefile \
           ../ext/lapack/Makefile \
