@@ -57,7 +57,7 @@ namespace ctml {
         if (!f) {
             throw CanteraError("checkPython","cannot open "+path+" for writing");
         }
-        f << "from Cantera import ctml_writer\n";
+        f << "import ctml_writer\n";
         f.close();
         int ierr = 0;
 #ifdef WIN32
@@ -185,11 +185,11 @@ namespace ctml {
         }
         if (ierr != 0) {
             string msg = cmd;
-            bool pyok = checkPython();
-            if (!pyok) 
-                msg += "\nError in Python installation.";
-            else
-                msg += "\nCheck error messages above for syntax errors.";
+            //bool pyok = checkPython();
+            //if (!pyok) 
+            //    msg += "\nError in Python installation.";
+            //else
+            //    msg += "\nCheck error messages above for syntax errors.";
             throw CanteraError("ct2ctml", 
 			       "could not convert input file to CTML\n "
 			       "command line was: " + msg);
