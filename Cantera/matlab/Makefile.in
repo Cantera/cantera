@@ -49,8 +49,8 @@ install:
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Wall/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@FlowDevice/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/1D
-	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/1D/@Domain1D
-	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/1D/@Stack
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/1D/@Domain1D/private
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/1D/@Stack/private
 	cd cantera; @INSTALL@ *.m *.@mex_ext@ @prefix@/matlab/toolbox/cantera/cantera
 	cd cantera/private; @INSTALL@ *.m \
             @prefix@/matlab/toolbox/cantera/cantera/private
