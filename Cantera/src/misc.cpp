@@ -117,6 +117,9 @@ namespace Cantera {
             string ext;
             if (idot != string::npos) {
                 ext = path.substr(idot, path.size());
+            } else {
+                ext = "";
+                idot = path.size();
             }
             if (ext != ".xml" && ext != ".ctml") {
 	      /*
@@ -323,11 +326,6 @@ namespace Cantera {
 	string datadir = string(CANTERA_DATA);
 	dirs.push_back(datadir);
 #endif
-#ifdef DEBUG_HKM
-	for (int i = 0; i < static_cast<int>(dirs.size()); i++) {
-	   cout << "default dir " << i << " = " << dirs[i] << endl;
-	}
-#endif
     }
 
 
@@ -365,14 +363,14 @@ namespace Cantera {
      */
     string findInputFile(string name) {
         appinit();
-		string::size_type islash = name.find('/');
-		string::size_type ibslash = name.find('\\');
+	string::size_type islash = name.find('/');
+	string::size_type ibslash = name.find('\\');
         string inname;
         vector<string>& dirs = __app->inputDirs;
         if (dirs.size() == 0) setDefaultDirectories();
 
         int nd;
-		if (islash == string::npos && ibslash == string::npos) {
+	if (islash == string::npos && ibslash == string::npos) {
             nd = static_cast<int>(dirs.size());
             int i;
             inname = "";
