@@ -23,6 +23,67 @@
 
 namespace Cantera {
 
+    void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
+        const doublereal* x) {
+        setMoleFractions(x); setTemperature(t); setPressure(p);
+    }
+
+    void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
+        compositionMap& x) {
+        setMoleFractionsByName(x); setTemperature(t); setPressure(p);
+    }
+
+    void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
+        const string& x) {
+        compositionMap xx;
+        int kk = nSpecies();
+        for (int k = 0; k < kk; k++) xx[speciesName(k)] = -1.0;
+        try {
+            parseCompString(x, xx);
+        }
+        catch (CanteraError) {
+            throw CanteraError("setState_TPX",
+                "Unknown species in composition map: "+ x);
+        }
+        setMoleFractionsByName(xx); setTemperature(t); setPressure(p);
+    }        
+
+    void ThermoPhase::setState_TPY(doublereal t, doublereal p, 
+        const doublereal* y) {
+        setMassFractions(y); setTemperature(t); setPressure(p);
+    }
+
+    void ThermoPhase::setState_TPY(doublereal t, doublereal p, 
+        compositionMap& y) {
+        setMassFractionsByName(y); setTemperature(t); setPressure(p);
+    }
+        
+    void ThermoPhase::setState_TPY(doublereal t, doublereal p, 
+        const string& y) {
+        compositionMap yy;
+        int kk = nSpecies();
+        for (int k = 0; k < kk; k++) yy[speciesName(k)] = -1.0;
+        try {
+            parseCompString(y, yy);
+        }
+        catch (CanteraError) {
+            throw CanteraError("setState_TPY",
+                "Unknown species in composition map: "+ y);
+        }
+        setMassFractionsByName(yy); setTemperature(t); setPressure(p);
+    }
+
+    void ThermoPhase::setState_TP(doublereal t, doublereal p) {
+        setTemperature(t); setPressure(p);
+    }
+
+    void ThermoPhase::setState_PX(doublereal p, doublereal* x) {
+        setMoleFractions(x); setPressure(p);
+    }
+
+    void ThermoPhase::setState_PY(doublereal p, doublereal* y) {
+        setMassFractions(y); setPressure(p);
+    }
 
     void ThermoPhase::setState_HP(doublereal h, doublereal p, 
         doublereal tol) {

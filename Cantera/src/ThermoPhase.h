@@ -53,13 +53,14 @@ namespace Cantera {
     class ThermoPhase : public Phase {
 
     public:
+        
+        /// Constructor.
+        ThermoPhase() : Phase(), m_spthermo(0), m_speciesData(0),
+            m_index(-1), m_phi(0.0) {}
 
+        
         virtual ~ThermoPhase() {
             delete m_spthermo;
-	    // Taking this out because I think i don't own it
-            //delete m_speciesData;
-            m_spthermo = 0;
-            m_speciesData = 0;
         }
 
 
@@ -90,11 +91,19 @@ namespace Cantera {
         void setIndex(int m) { m_index = m; }
 
 
+        /// used to access data needed to construct transport manager
+        /// later.
         void saveSpeciesData(const XML_Node* data) {
             m_speciesData = data;
         }
 
-        const XML_Node* speciesData() { return m_speciesData; }
+        const XML_Node* speciesData() { 
+            if (m_speciesData) 
+                return m_speciesData;
+            else
+                throw CanteraError("ThermoPhase::speciesData",
+                    "m_speciesData is NULL");
+        }
 
 
         /**
@@ -236,11 +245,7 @@ namespace Cantera {
         }
 
         void setElectricPotential(doublereal v) {
-            //int nsp = nSpecies();
             m_phi = v;
-            //for (int k = 0; k < nsp; k++) {
-            //    setPotentialEnergy(k, v*charge(k)*Faraday);
-            //}
         }
 
         doublereal electricPotential() { return m_phi; }
@@ -484,63 +489,32 @@ namespace Cantera {
          * @{
          */
         /** Set the temperature (K), pressure (Pa), and mole fractions.  */
-        void setState_TPX(doublereal t, doublereal p, const doublereal* x) {
-            setMoleFractions(x); setTemperature(t); setPressure(p);
-        }
+        void setState_TPX(doublereal t, doublereal p, const doublereal* x);
 
         /** Set the temperature (K), pressure (Pa), and mole fractions.  */
-        void setState_TPX(doublereal t, doublereal p, compositionMap& x) {
-            setMoleFractionsByName(x); setTemperature(t); setPressure(p);
-        }
+        void setState_TPX(doublereal t, doublereal p, compositionMap& x);
 
         /** Set the temperature (K), pressure (Pa), and mole fractions.  */
-        void setState_TPX(doublereal t, doublereal p, const string& x) {
-            compositionMap xx;
-            int kk = nSpecies();
-            for (int k = 0; k < kk; k++) xx[speciesName(k)] = -1.0;
-	    try {
-	      parseCompString(x, xx);
-	    }
-            catch (CanteraError) {
-	      throw CanteraError("setState_TPX",
-				 "Unknown species in composition map: "+ x);
-	    }
-            setMoleFractionsByName(xx); setTemperature(t); setPressure(p);
-        }        
+        void setState_TPX(doublereal t, doublereal p, const string& x);
 
         /** Set the temperature (K), pressure (Pa), and mass fractions. */
-        void setState_TPY(doublereal t, doublereal p, const doublereal* y) {
-            setMassFractions(y); setTemperature(t); setPressure(p);
-        }
+        void setState_TPY(doublereal t, doublereal p, const doublereal* y);
 
         /** Set the temperature (K), pressure (Pa), and mass fractions. */
-        void setState_TPY(doublereal t, doublereal p, compositionMap& y) {
-            setMassFractionsByName(y); setTemperature(t); setPressure(p);
-        }
+        void setState_TPY(doublereal t, doublereal p, compositionMap& y);
         
         /** Set the temperature (K), pressure (Pa), and mass fractions.  */
-        void setState_TPY(doublereal t, doublereal p, const string& y) {
-            compositionMap yy;
-            int kk = nSpecies();
-            for (int k = 0; k < kk; k++) yy[speciesName(k)] = -1.0;
-            parseCompString(y, yy);
-            setMassFractionsByName(yy); setTemperature(t); setPressure(p);
-        }
+        void setState_TPY(doublereal t, doublereal p, const string& y);
 
         /** Set the temperature (K) and pressure (Pa) */
-        void setState_TP(doublereal t, doublereal p) {
-            setTemperature(t); setPressure(p);
-        }
+        void setState_TP(doublereal t, doublereal p);
 
         /** Set the pressure (Pa) and mole fractions.  */
-        void setState_PX(doublereal p, doublereal* x) {
-            setMoleFractions(x); setPressure(p);
-        }
+        void setState_PX(doublereal p, doublereal* x);
 
         /** Set the pressure (Pa) and mass fractions.  */
-        void setState_PY(doublereal p, doublereal* y) {
-            setMassFractions(y); setPressure(p);
-        }
+        void setState_PY(doublereal p, doublereal* y);
+
 
         /** Set the specific enthalpy (J/kg) and pressure (Pa). */
         void setState_HP(doublereal h, doublereal p, doublereal tol = 1.e-8);
@@ -577,7 +551,7 @@ namespace Cantera {
         void getActivities(doublereal* a) {
             getActivityConcentrations(a);
             int nsp = nSpecies();
-            doublereal rc = standardConcentration();
+            doublereal rc = 1.0/standardConcentration();
             scale(a, a + nsp, a, rc); 
         }
 
@@ -661,21 +635,14 @@ namespace Cantera {
         }
 
         doublereal minTemp(int k = -1) {
-            return m_spthermo->minTemp();
+            return m_spthermo->minTemp(k);
         }
 
         doublereal maxTemp(int k = -1) {
-            return m_spthermo->maxTemp();
+            return m_spthermo->maxTemp(k);
         }
         
             
-        ThermoPhase() {
-            m_spthermo = 0;
-	    m_speciesData = 0;
-            m_index = -1;
-            m_phi = 0.0;
-        }
-
     protected:
 
         /// Pointer to the species thermodynamic property manager
