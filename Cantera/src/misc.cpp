@@ -124,7 +124,27 @@ namespace Cantera {
 
 
     XML_Node* get_XML_File(string file) {
-        string path = findInputFile(file);
+        string path = "";
+        try {
+            path = findInputFile(file);
+        }
+        catch (CanteraError) {
+            string::size_type idot = file.rfind('.');
+            string ext = "";
+            if (idot != string::npos) {
+                ext = file.substr(idot, file.size());
+                string ctifile = file.substr(0,idot)+".cti";
+                try {
+                    path = findInputFile(ctifile);
+                }
+                catch (CanteraError) {
+                    path = findInputFile(file);
+                }
+            }
+            else
+                path = findInputFile(file);
+        }
+
         string ff = path;
         if (app()->xmlfiles.find(path) 
             == app()->xmlfiles.end()) {

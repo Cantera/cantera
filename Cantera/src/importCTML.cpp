@@ -779,6 +779,10 @@ namespace Cantera {
                 if (eskip == "undeclared") {
                     sprule[jsp] = 1;
                 }
+                string dskip = sk["species"];
+                if (dskip == "duplicate") {
+                    sprule[jsp] += 10;
+                }
             }
 
             string fname, idstr;
@@ -837,28 +841,47 @@ namespace Cantera {
 		  spnames[nn] = (*allsp[nn])["name"];
 		}
             }
+            else if (nsp == 1 && spnames[0] == "unique") {
+                vector<XML_Node*> uniquesp;
+                db->getChildren("species",uniquesp);
+                nsp = static_cast<int>(uniquesp.size());
+                spnames.clear();
+                spnames.resize(nsp);
+                string spnm;
+                for (int nn = 0; nn < nsp; nn++) {
+		  spnm = (*uniquesp[nn])["name"];
+                  if (!declared[spnm]) spnames[nn] = spnm;
+		}
+            }
 
             string name;
+            bool skip;
             for (i = 0; i < nsp; i++) {
                 name = spnames[i];
-            
+                skip = false;
+                if (name == "") skip = true;
                 // Check that every species is only declared once
                 if (declared[name]) {
-                    throw CanteraError("importPhase",
-                        "duplicate species: "+name);
+                    if (sprule[jsp] >= 10) 
+                        skip = true;
+                    else
+                        throw CanteraError("importPhase",
+                            "duplicate species: "+name);
                 }
-                declared[name] = true;
+                if (!skip) {
+                    declared[name] = true;
 
-                // Find the species in the database by name.
-                XML_Node* s = db->findByAttr("name",spnames[i]);
-                if (s) {
-                    if (installSpecies(k, *s, *th, spthermo, sprule[jsp], 
-                            spfactory)) 
-                        ++k;
-                }
-                else {
-                    throw CanteraError("importPhase","no data for species "
-                        +name);
+                    // Find the species in the database by name.
+                    XML_Node* s = db->findByAttr("name",spnames[i]);
+                    if (s) {
+                        if (installSpecies(k, *s, *th, spthermo, sprule[jsp], 
+                                spfactory)) 
+                            ++k;
+                    }
+                    else {
+                        throw CanteraError("importPhase","no data for species "
+                            +name);
+                    }
                 }
             }
         }

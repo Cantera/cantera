@@ -7,6 +7,7 @@
 #include <iostream>
 using namespace std;
 
+#define DEBUG_MULTIPHASE_EQUIL
 
 namespace Cantera {
 
@@ -312,6 +313,22 @@ namespace Cantera {
             }
         }
 
+#ifdef DEBUG_MULTIPHASE_EQUIL
+        // check
+        bool ok = true;
+        for (m = 0; m < nRows; m++) {
+            if (m_A(m,m) != 1.0) ok = false;
+            for (n = 0; n < nRows; n++) {
+                if (n != m && fabs(m_A(m,n)) > TINY)
+                    ok = false;
+            }
+        }
+        if (!ok) {
+            cout << m_A << endl;
+            throw CanteraError("getComponents","error in A matrix");
+        }
+#endif
+
         // create stoichometric coefficient matrix. 
         for (n = 0; n < m_nsp; n++) {
             if (n < m_nel) 
@@ -385,7 +402,7 @@ namespace Cantera {
         index_t k, ik;
         if (omega < 0.0) 
             throw CanteraError("step","negative omega");
-        //cout << "entering step " << m_moles << endl << deltaN << endl;
+
         for (ik = 0; ik < m_nel; ik++) {
             k = m_order[ik];
             m_lastmoles[k] = m_moles[k];
@@ -445,16 +462,22 @@ namespace Cantera {
             // such that all 
             if (m_dsoln[k] == 1) {
 
-                if ((m_moles[k] > MAJOR_THRESHOLD) || (ik < m_nel)) {
+                if ((m_moles[k] > MAJOR_THRESHOLD) ) || (ik < m_nel)) {
                     omax = m_moles[k]*FCTR/(fabs(m_work[k]) + TINY);
                     if (m_work[k] < 0.0 && omax < omegamax) {
                         omegamax = omax;
+#ifdef DEBUG_MULTIPHASE_EQUIL
                         if (omegamax < 1.0e-5) {
                             cout << m_mix->speciesName(m_species[k]) << " results in "
                                  << " omega = " << omegamax << endl;
                             //cout << m_moles[k] << "  " << m_work[k] << endl;
                             if (ik < m_nel) cout << "component" << endl;
+                            index_t nk;
+                            for (nk = 0; nk < m_nel; nk++) {
+                                cout << "component " << m_mix->speciesName(m_species[m_order[nk]]) << "  " << m_moles[m_order[nk]] << endl;
+                            }
                         }
+#endif
                     }
                     m_majorsp[k] = true;
                 }
@@ -467,12 +490,14 @@ namespace Cantera {
                     omax = -m_moles[k]/m_work[k];
                     if (omax < omegamax) {
                         omegamax = omax*1.000001;
+#ifdef DEBUG_MULTIPHASE_EQUIL
                         if (omegamax < 1.0e-5) {
                             cout << m_mix->speciesName(m_species[k]) << " results in "
                                  << " omega = " << omegamax << endl;
                             //cout << m_moles[k] << "  " << m_work[k] << endl;
                             if (ik < m_nel) cout << "component" << endl;
                         }
+#endif
                     }
                 }
                 m_majorsp[k] = true;
@@ -498,6 +523,9 @@ namespace Cantera {
             for (k = 0; k < m_nsp; k++) m_moles[k] = m_lastmoles[k];
             step(omega, m_work);
         }
+        cout << m_moles << endl;
+        cout << m_work << endl;
+        cout << m_iter << " " << m_mix->elementMoles(m_element[0]) << endl;
         //cout << m_moles << endl;
         //cout << "omega: " << omega << "  " << m_mix->gibbs() << " " << error() << endl;
         return omega;
@@ -590,7 +618,7 @@ namespace Cantera {
                 if (m_moles[m_order[m]] <= 0.0 && (m_N(m, j)*dxi[j] < 0.0))
                     dxi[j] = 0.0;
              }
-             //cout << reactionString(j) << "  " << dxi[j] << "  " << fctr << " " << dg_rt << endl;
+             cout << reactionString(j) << "  " << dxi[j] << "  " << fctr << " " << dg_rt << endl;
             grad += dxi[j]*dg_rt;
 
         }

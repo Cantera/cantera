@@ -1025,7 +1025,7 @@ class phase:
                     if s[0] == ',': s = s[1:]
                     if s[-1] == ',': s = s[:-1]
 
-                    if self._spmap.has_key(s):
+                    if s <> 'all' and self._spmap.has_key(s):
                         raise CTI_Error('Multiply-declared species '+s+' in phase '+self._name)
                     self._spmap[s] = self._dim
             
@@ -1495,7 +1495,10 @@ if __name__ == "__main__":
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.7  2004-11-15 02:33:21  dggoodwin
+# Revision 1.8  2004-12-02 22:11:28  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.7  2004/11/15 02:33:21  dggoodwin
 # changed f90 mod file handling in Makefiles
 #
 # Revision 1.6  2004/09/29 11:00:39  dggoodwin
