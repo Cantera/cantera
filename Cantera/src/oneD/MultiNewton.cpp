@@ -39,9 +39,9 @@ namespace Cantera {
 
     // declarations for functions in newton_utils.h
     doublereal bound_step(const doublereal* x, 
-        const doublereal* step, Resid1D& r, int loglevel=0);
+        const doublereal* step, Domain1D& r, int loglevel=0);
     doublereal norm_square(const doublereal* x, 
-        const doublereal* step, Resid1D& r);
+        const doublereal* step, Domain1D& r);
 
 
 
@@ -122,7 +122,7 @@ namespace Cantera {
             step[n] = -step[n];
         }
 #ifdef DEBUG_STEP
-        Resid1D* d;
+        Domain1D* d;
         if (!ok) {
             for (n = 0; n < sz; n++) {
                 d = r.pointDomain(n);
@@ -176,9 +176,9 @@ namespace Cantera {
             writelog("\n\nDamped Newton iteration:\n");
             writelog(dashedline);
 
-            sprintf(m_buf,"\n%s  %9s   %9s   %9s  %9s  %9s  %5s\n",
+            sprintf(m_buf,"\n%s  %9s   %9s     %9s   %9s   %9s  %5s %5s\n",
                 "m","F_damp","F_bound","log10(ss)",
-                "log10(s0)","log10(s1)","N_jac");
+                "log10(s0)","log10(s1)","N_jac","Age");
             writelog(m_buf);
             writelog(dashedline+"\n");
         }
@@ -226,11 +226,11 @@ namespace Cantera {
             // write log information
             if (loglevel > 0) {
                 doublereal ss = r.ssnorm(x1,step1);
-                sprintf(m_buf,"\n%d  %9.5f   %9.5f   %9.5f   %9.5f   %9.5f  %5d ",
+                sprintf(m_buf,"\n%d  %9.5f   %9.5f   %9.5f   %9.5f   %9.5f %4d  %d/%d",
                     m,damp,fbound,log10(ss+SmallNumber),
                     log10(s0+SmallNumber),
                     log10(s1+SmallNumber), 
-                    jac.nEvals());
+                    jac.nEvals(), jac.age(), m_maxAge);
                 writelog(m_buf);
             }
 
@@ -284,6 +284,8 @@ namespace Cantera {
 
             // Check whether the Jacobian should be re-evaluated.
             if (jac.age() > m_maxAge) {
+                if (loglevel > 0) 
+                    writelog("\nMaximum Jacobian age reached ("+int2str(m_maxAge)+")\n");
                 forceNewJac = true;
             }
 
@@ -302,13 +304,20 @@ namespace Cantera {
 
             // damp the Newton step
             m = dampStep(x, stp, x1, stp1, s1, r, jac, loglevel-1, frst);
-            frst = false;
             if (loglevel == 1 && m >= 0) {
+                if (frst) {
+                    sprintf(m_buf,"\n\n    %10s    %10s   %5s ",
+                        "log10(ss)","log10(s1)","N_jac");
+                    writelog(m_buf);
+                    sprintf(m_buf,"\n    ------------------------------------");
+                    writelog(m_buf);
+                }
                 doublereal ss = r.ssnorm(x, stp);
-                sprintf(m_buf,"\n                   %10.4f    %10.4f   %d ",
+                sprintf(m_buf,"\n    %10.4f    %10.4f       %d ",
                     log10(ss),log10(s1),jac.nEvals());
                 writelog(m_buf);
             }
+            frst = false;
 
             // Successful step, but not converged yet. Take the damped
             // step, and try again.
@@ -323,7 +332,12 @@ namespace Cantera {
             // one was being used. If it was a new Jacobian, then
             // return -1 to signify failure.
             else if (m < 0) {
-                if (jac.age() > 1) forceNewJac = true;
+                if (jac.age() > 1) {
+                    forceNewJac = true;
+                    if (loglevel > 0)
+                        writelog("Re-evaluating Jacobian, since no damping "
+                            "coefficient\ncould be found with this Jacobian.");
+                }
                 else goto done;
             }
         }

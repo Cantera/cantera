@@ -45,14 +45,6 @@ namespace Cantera {
     typedef vector<XML_Node*> nodeset_t;
     typedef XML_Node node_t;
 
-    static int intValue(string val) {
-        return atoi(stripws(val).c_str());
-    }
-
-    static doublereal fpValue(string val) {
-        return atof(stripws(val).c_str());
-    }
-
     /// Number of reactant molecules
     static int nReacMolecules(ReactionData& r) {
         return accumulate(r.rstoich.begin(), r.rstoich.end(), 0);

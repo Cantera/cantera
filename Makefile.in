@@ -17,7 +17,7 @@ build_matlab = @BUILD_MATLAB@
 LIBDIR=@LIB_DIR@
 
 # removed utils temporarily
-all: kernel hdr-collect clib python matlab utils
+all: kernel cxxlib hdr-collect clib python matlab utils
 
 install: hdr-install kernel-install data-install python-install matlab-install tools-install finish-install
 

@@ -33,4 +33,7 @@ templates-install:
 	@INSTALL@ -m 644 templates/f77/*.cpp @prefix@/cantera/templates/f77
 	@INSTALL@ -m 644 templates/f77/*.f @prefix@/cantera/templates/f77
 	@INSTALL@ -m 644 templates/f77/*.mak @prefix@/cantera/templates/f77
+	@INSTALL@ -d @prefix@/cantera/templates/cxx
+	@INSTALL@ -m 644 templates/cxx/*.cpp @prefix@/cantera/templates/cxx
+	@INSTALL@ -m 644 templates/cxx/*.mak @prefix@/cantera/templates/cxx
 	chown -R @username@ @prefix@/cantera/templates

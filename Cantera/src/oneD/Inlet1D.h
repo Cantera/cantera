@@ -17,7 +17,7 @@
 #ifndef CT_BDRY1D_H
 #define CT_BDRY1D_H
 
-#include "Resid1D.h"
+#include "Domain1D.h"
 #include "../SurfPhase.h"
 #include "../InterfaceKinetics.h"
 #include "StFlow.h"
@@ -40,7 +40,7 @@ namespace Cantera {
      * The public methods are all virtual, and the base class
      * implementations throw exceptions.
      */
-    class Bdry1D : public Resid1D {
+    class Bdry1D : public Domain1D {
     public:
 
         Bdry1D();
@@ -70,6 +70,10 @@ namespace Cantera {
 
         /// The total mass flow rate [kg/m2/s].
         virtual doublereal mdot() {return m_mdot;}
+
+        virtual void _getInitialSoln(doublereal* x) {
+            cout << "Bdry1D::_getInitialSoln called!  " << m_index << endl;
+        }
 
     protected:
 
@@ -138,13 +142,32 @@ namespace Cantera {
             s << endl;
         }
 
+        virtual void showSolution(const doublereal* x) {
+            char buf[80];
+            sprintf(buf, "    Mass Flux:   %10.4g kg/m^2/s \n", x[0]);
+            writelog(buf);
+            sprintf(buf, "    Temperature: %10.4g K \n", x[1]);
+            writelog(buf);
+            if (m_flow) {
+                writelog("    Mass Fractions: \n");
+                for (int k = 0; k < m_flow->phase().nSpecies(); k++) {
+                    if (m_yin[k] != 0.0) {
+                        sprintf(buf, "        %16s  %10.4g \n",
+                            m_flow->phase().speciesName(k).c_str(), m_yin[k]);
+                        writelog(buf);
+                    }
+                }
+            }
+            writelog("\n");
+        }
+
         virtual void _getInitialSoln(doublereal* x) {
             x[0] = m_mdot;
             x[1] = m_temp;
         }
 
         virtual void _finalize(const doublereal* x) {
-            ; //m_mdot = x[0];
+            ;//m_mdot = x[0];
             //m_temp = x[1];
         }
 
@@ -156,7 +179,7 @@ namespace Cantera {
         virtual void eval(int jg, doublereal* xg, doublereal* rg, 
             integer* diagg, doublereal rdt);
         virtual void save(XML_Node& o, doublereal* soln);
-                
+        virtual void restore(XML_Node& dom, doublereal* soln);    
 
     protected:
 
@@ -190,7 +213,38 @@ namespace Cantera {
             integer* diagg, doublereal rdt);
 
         virtual void save(XML_Node& o, doublereal* soln);
+        virtual void restore(XML_Node& dom, doublereal* soln);    
+        virtual void _finalize(const doublereal* x) {
+            ; //m_temp = x[0];
+        }
+    protected:
 
+    };
+
+
+    /**
+     */
+    class Outlet1D : public Bdry1D {
+
+    public:
+
+        Outlet1D() {
+            m_type = cOutletType; 
+        }
+        virtual ~Outlet1D(){}
+
+        virtual string componentName(int n) const;
+
+        virtual void init();
+
+        virtual void eval(int jg, doublereal* xg, doublereal* rg, 
+            integer* diagg, doublereal rdt);
+
+        virtual void save(XML_Node& o, doublereal* soln);
+        virtual void restore(XML_Node& dom, doublereal* soln);    
+        virtual void _finalize(const doublereal* x) {
+            ; //m_temp = x[0];
+        }
     protected:
 
     };
@@ -219,6 +273,7 @@ namespace Cantera {
             integer* diagg, doublereal rdt);
 
         virtual void save(XML_Node& o, doublereal* soln);
+        virtual void restore(XML_Node& dom, doublereal* soln);    
 
         virtual void _getInitialSoln(doublereal* x) {
             x[0] = m_temp;
@@ -232,6 +287,14 @@ namespace Cantera {
             s << "-------------------  Surface " << domainIndex() << " ------------------- " << endl;
             s << "  temperature: " << m_temp << " K" << "    " << x[0] << endl;
         }
+
+        virtual void showSolution(const doublereal* x) {
+            char buf[80];
+            sprintf(buf, "    Temperature: %10.4g K \n", x[0]);
+            writelog(buf);
+            writelog("\n");
+        }
+
     protected:
 
     };

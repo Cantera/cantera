@@ -5,7 +5,7 @@
 #ifndef CT_ONEDIM_H
 #define CT_ONEDIM_H
 
-#include "Resid1D.h"
+#include "Domain1D.h"
 
 namespace Cantera {
 
@@ -14,7 +14,7 @@ namespace Cantera {
 
     /**
      * Container class for multiple-domain 1D problems. Each domain is
-     * represented by an instance of Resid1D.
+     * represented by an instance of Domain1D.
      */
     class OneDim {
 
@@ -24,13 +24,13 @@ namespace Cantera {
         OneDim();
 
         // Constructor.
-        OneDim(vector<Resid1D*> domains);
+        OneDim(vector<Domain1D*> domains);
 
         /// Destructor.
         virtual ~OneDim();
 
         /// Add a domain.
-        void addDomain(Resid1D* d);
+        void addDomain(Domain1D* d);
 
         /// Return a reference to the Jacobian evaluator.
         MultiJac& jacobian();
@@ -50,7 +50,9 @@ namespace Cantera {
         int nDomains() const { return m_nd; }
 
         /// Return a reference to domain i.
-        Resid1D& domain(int i) const { return *m_dom[i]; }
+        Domain1D& domain(int i) const { return *m_dom[i]; }
+
+        int domainIndex(string name);
 
         /// The index of the start of domain i in the solution vector.
         int start(int i) const { return m_dom[i]->loc(); }
@@ -59,10 +61,10 @@ namespace Cantera {
         int size() const { return m_size; }
 
         /// Pointer to left-most domain (first added).
-        Resid1D* left() { return m_dom[0]; }
+        Domain1D* left() { return m_dom[0]; }
 
         /// Pointer to right-most domain (last added).
-        Resid1D* right() { return m_dom.back(); }
+        Domain1D* right() { return m_dom.back(); }
 
         /// Number of solution components at global point jg.
         int nVars(int jg) { return m_nvars[jg]; }
@@ -123,7 +125,7 @@ namespace Cantera {
             int count = 1);
 
         /// Pointer to the domain global point i belongs to.
-        Resid1D* pointDomain(int i);
+        Domain1D* pointDomain(int i);
 
         void resize();
 
@@ -136,7 +138,6 @@ namespace Cantera {
             double* r, int loglevel);
 
         void writeStats();
-        void saveStats();
 
         void save(string fname, string id, string desc, doublereal* sol);
 
@@ -151,6 +152,7 @@ namespace Cantera {
             else
                 m_ts_jac_age = m_ss_jac_age;
         }
+        void saveStats();
 
     protected:
 
@@ -167,7 +169,7 @@ namespace Cantera {
         int m_bw;                 // Jacobian bandwidth
         int m_size;               // solution vector size
         
-        vector<Resid1D*> m_dom, m_connect, m_bulk;
+        vector<Domain1D*> m_dom, m_connect, m_bulk;
 
         bool m_init;
         vector_int m_nvars;
@@ -179,6 +181,8 @@ namespace Cantera {
         // options
         int m_ss_jac_age, m_ts_jac_age;
 
+    private:
+
         // statistics
         int m_nevals;
         doublereal m_evaltime;
@@ -188,7 +192,6 @@ namespace Cantera {
         vector_int m_funcEvals;
         vector_fp m_funcElapsed;
 
-    private:
 
     };
 

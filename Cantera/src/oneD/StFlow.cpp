@@ -93,16 +93,21 @@ namespace Cantera {
 
     //---------------------- drawline ----------------------------------
 
-    inline void drawline(ostream& s) {
+    static void drawline(ostream& s) {
         s << "\n-------------------------------------"
           <<  "------------------------------------------";
+    }
+
+    static void drawline() {
+        writelog("\n-------------------------------------"
+            "------------------------------------------");
     }
 
 
     //--------------------- linear interp ------------------------------
 
     StFlow::StFlow(igthermo_t* ph, int nsp, int points) : 
-        Resid1D(nsp+4, points),
+        Domain1D(nsp+4, points),
         m_inlet_u(0.0),
         m_inlet_V(0.0),
 	m_inlet_T(-1.0),
@@ -130,7 +135,7 @@ namespace Cantera {
         int nsp2 = m_thermo->nSpecies();
         if (nsp2 != m_nsp) {
             m_nsp = nsp2;
-            Resid1D::resize(m_nsp+4, points);
+            Domain1D::resize(m_nsp+4, points);
         }
 
 
@@ -148,7 +153,7 @@ namespace Cantera {
         // but turn off the energy equation at all points
         m_do_energy.resize(m_points,false);
 
-        m_diff.resize(m_nsp,m_points);
+        m_diff.resize(m_nsp*m_points);
         m_flux.resize(m_nsp,m_points);
         m_wdot.resize(m_nsp,m_points, 0.0);
         m_surfdot.resize(m_nsp, 0.0);
@@ -163,8 +168,8 @@ namespace Cantera {
         vmin[0] = -1.e20;
         vmax[0] = 1.e20;
 
-        // no negative V
-        vmin[1] = -0.1;
+        // V
+        vmin[1] = -1.e20;
         vmax[1] = 1.e20;
 
         // temperature bounds
@@ -173,13 +178,13 @@ namespace Cantera {
 
         // lamda should be negative
         vmin[3] = -1.e20;
-        vmax[3] = 1.0;
+        vmax[3] = 1.e20;
 
         // mass fraction bounds
         int k;
         for (k = 0; k < m_nsp; k++) {
             vmin[4+k] = -1.0e-5;
-            vmax[4+k] = 1.1;
+            vmax[4+k] = 1.0e5;
         }
         setBounds(vmin.size(), vmin.begin(), vmax.size(), vmax.begin());
 
@@ -187,13 +192,19 @@ namespace Cantera {
         //-------------------- default error tolerances ----------------
         vector_fp rtol(m_nv, 1.0e-8);
         vector_fp atol(m_nv, 1.0e-15);
-        setTolerances(rtol.size(), rtol.begin(), atol.size(), atol.begin());
+        setTolerances(rtol.size(), rtol.begin(), atol.size(), atol.begin(),false);
+        setTolerances(rtol.size(), rtol.begin(), atol.size(), atol.begin(),true);
 
         //-------------------- grid refinement -------------------------
         m_refiner->setActive(0, false);
         m_refiner->setActive(1, false);
         m_refiner->setActive(2, false);
         m_refiner->setActive(3, false);
+
+        vector_fp gr;
+        for (int ng = 0; ng < m_points; ng++) gr.push_back(1.0*ng/m_points);
+        setupGrid(m_points, gr.begin());
+        setID("stagnation flow");
     }
 
 
@@ -201,7 +212,7 @@ namespace Cantera {
      * Change the grid size. Called after grid refinement.
      */
     void StFlow::resize(int points) {
-        Resid1D::resize(m_nv, points);
+        Domain1D::resize(m_nv, points);
 
         m_rho.resize(m_points, 0.0);
         m_wtm.resize(m_points, 0.0);
@@ -210,7 +221,12 @@ namespace Cantera {
         m_visc.resize(m_points, 0.0);
         m_tcon.resize(m_points, 0.0);
 
-        m_diff.resize(m_nsp,m_points);
+        if (m_transport_option ==  c_Mixav_Transport) {
+            m_diff.resize(m_nsp*m_points);
+        }
+        else {
+            m_diff.resize(m_nsp*m_nsp*m_points);
+        }
         m_flux.resize(m_nsp,m_points);
         m_wdot.resize(m_nsp,m_points, 0.0);
         m_do_energy.resize(m_points,false);
@@ -338,11 +354,13 @@ namespace Cantera {
 
         // thermodynamic properties only if a Jacobian is
         // not being evaluated
-        if (jpt < 0) updateThermo(x, j0, j1);
+        if (jpt < 0) 
+            updateThermo(x, j0, j1);
 
         // update transport properties only if a Jacobian is
         // not being evaluated
-        if (jpt < 0) updateTransport(x, j0, j1);
+        if (jpt < 0) 
+            updateTransport(x, j0, j1);
 
         // update the species diffusive mass fluxes whether or not a
         // Jacobian is being evaluated
@@ -367,8 +385,6 @@ namespace Cantera {
 
                 // these may be modified by a boundary object
 
-#define NEW_INLET
-#ifdef NEW_INLET
 
                 // Continuity. This propagates information right-to-left,
                 // since rho_u at point 0 is dependent on rho_u at point 1,
@@ -385,8 +401,6 @@ namespace Cantera {
                  rsd[index(c_offset_V,0)] = V(x,0);
                  rsd[index(c_offset_T,0)] = T(x,0);
                  rsd[index(c_offset_L,0)] = -rho_u(x,0);
-                 //cout << "density = " << density(0) << "  " << u(x,0)
-                 //      << "   " << rho_u(x,0) << endl;
 
                  // The default boundary condition for species is zero
                  // flux. However, the boundary object may modify
@@ -395,28 +409,6 @@ namespace Cantera {
                      rsd[index(c_offset_Y + k, 0)] =  
                          -(m_flux(k,0) + rho_u(x,0)* Y(x,k,0));
                  }
-#else
-                // first, call the left boundary object to evaluate
-                // the residual
-                     
-                 m_boundary[0]->eval(x + index(0,0), m_rho[0], m_flux.begin(), 
-                     rsd + index(0,0));
-
-
-                // Now modify the left boundary conditions to allow
-                // specifying the mass flux at both boundaries. The
-                // right mass flux is specified directly as a boundary
-                // condition on the continuity equation; the left mass
-                // flux is matched by adjusting lambda.
-
-                // Shift the left continuity boundary condition to lambda,
-                     rsd[index(c_offset_L, 0)] = rsd[index(c_offset_U, 0)];
-
-                // and replace it with the continuity equation.
-                     rsd[index(c_offset_U,0)] = 
-                     -(rho_u(x,1) - rho_u(x,0))/m_dz[0]
-                     -(density(1)*V(x,1) + density(0)*V(x,0));
-#endif
             }
 
 
@@ -429,22 +421,18 @@ namespace Cantera {
             else if (j == m_points - 1) {
 
                  // the boundary object connected to the right of this
-                 // one may modify these equations by subtracting its
-                 // values for V, T, and mdot. As a result, these
-                 // residual equations will force the solution
-                 // variables to the values for the boundary object
+                 // one may modify or replace these equations. The
+                 // default boundary conditions are zero u, V, and T,
+                 // and zero diffusive flux for all species.
+
                 rsd[index(0,j)] = rho_u(x,j);
                 rsd[index(1,j)] = V(x,j);
                 rsd[index(2,j)] = T(x,j);
-
                 doublereal sum = 0.0;
                 for (k = 0; k < m_nsp; k++) {
                     sum += Y(x,k,j);
-                    rsd[index(k+4,j)] = rho_u(x,j)*Y(x,k,j) + m_flux(k,j-1);
+                    rsd[index(k+4,j)] = m_flux(k,j-1);
                 }
-
-                // TODO: why is this done here, but not for the left
-                // boundary or interior?
                 rsd[index(4,j)] = 1.0 - sum;
                 diag[index(4,j)] = 0;
             }
@@ -481,7 +469,9 @@ namespace Cantera {
                 //-------------------------------------------------
                 rsd[index(c_offset_V,j)]
                     = (shear(x,j) - lambda(x,j) - rho_u(x,j)*dVdz(x,j) 
-                        - m_rho[j]*V(x,j)*V(x,j))/m_rho[j];
+                        - m_rho[j]*V(x,j)*V(x,j))/m_rho[j]
+                    - rdt*(V(x,j) - V_prev(j));
+                diag[index(c_offset_V, j)] = 1;
 
 
                 //-------------------------------------------------
@@ -494,16 +484,16 @@ namespace Cantera {
 
                 doublereal convec, diffus;
                 for (k = 0; k < m_nsp; k++) {
-                    if (m_do_species[k]) {
-                        convec = rho_u(x,j)*dYdz(x,k,j);
-                        diffus = 2.0*(m_flux(k,j) - m_flux(k,j-1))
-                                 /(z(j+1) - z(j-1));
-                        rsd[index(c_offset_Y + k, j)]   
-                            = (m_wt[k]*(wdot(k,j) ) 
-                                - convec - diffus)/m_rho[j]
-                            - rdt*(Y(x,k,j) - Y_prev(k,j));
-                        diag[index(c_offset_Y + k, j)] = 1;
-                    }
+                    //if (m_do_species[k]) {
+                    convec = rho_u(x,j)*dYdz(x,k,j);
+                    diffus = 2.0*(m_flux(k,j) - m_flux(k,j-1))
+                             /(z(j+1) - z(j-1));
+                    rsd[index(c_offset_Y + k, j)]   
+                        = (m_wt[k]*(wdot(k,j) ) 
+                            - convec - diffus)/m_rho[j]
+                        - rdt*(Y(x,k,j) - Y_prev(k,j));
+                    diag[index(c_offset_Y + k, j)] = 1;
+                    //}
                 }
 
 
@@ -540,8 +530,6 @@ namespace Cantera {
                     
                     rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
                     diag[index(c_offset_T, j)] = 1;
-
-
                 }
             }
 
@@ -554,12 +542,13 @@ namespace Cantera {
                     diag[index(c_offset_Y+k, j)] = 0;
                 }
             }
+
             if (!m_do_energy[j]) {
                 rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
                 diag[index(c_offset_T, j)] = 0;
             }
 
-            //    lambda 
+            // Propagate lambda from left to right
             if (j > 0) {
                 rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
                 diag[index(c_offset_L, j)] = 0;
@@ -575,12 +564,22 @@ namespace Cantera {
      */
     void AxiStagnFlow::updateTransport(doublereal* x,int j0, int j1) {
         int j;
-        //for (j = j0; j <= j1; j++) {
-        for (j = j0; j < j1; j++) {
-            setGasAtMidpoint(x,j);
-            m_visc[j] = m_trans->viscosity();
-            m_trans->getMixDiffCoeffs(&m_diff(0,j));
-            m_tcon[j] = m_trans->thermalConductivity();
+        if (m_transport_option == c_Mixav_Transport) {
+            for (j = j0; j < j1; j++) {
+                setGasAtMidpoint(x,j);
+                m_visc[j] = m_trans->viscosity();
+                m_trans->getMixDiffCoeffs(m_diff.begin() + j*m_nsp);
+                m_tcon[j] = m_trans->thermalConductivity();
+            }
+        }
+        else if (m_transport_option == c_Multi_Transport) {
+            for (j = j0; j < j1; j++) {
+                setGasAtMidpoint(x,j);
+                m_visc[j] = m_trans->viscosity();
+                m_trans->getMultiDiffCoeffs(m_nsp, 
+                    m_diff.begin() + mindex(0,0,j));
+                m_tcon[j] = m_trans->thermalConductivity();
+            }
         }
     }
 
@@ -762,10 +761,19 @@ namespace Cantera {
      */
     void OneDFlow::updateTransport(doublereal* x,int j0, int j1) {
         int j;
-        for (j = j0; j < j1; j++) {
-            setGasAtMidpoint(x,j);
-            m_trans->getMixDiffCoeffs(&m_diff(0,j));
-            m_tcon[j] = m_trans->thermalConductivity();
+        if (m_transport_option == c_Mixav_Transport) {
+            for (j = j0; j < j1; j++) {
+                setGasAtMidpoint(x,j);
+                m_trans->getMixDiffCoeffs(m_diff.begin() + j*m_nsp);
+                m_tcon[j] = m_trans->thermalConductivity();
+            }
+        }
+        else if (m_transport_option == c_Multi_Transport) {
+            for (j = j0; j < j1; j++) {
+                setGasAtMidpoint(x,j);
+                m_trans->getMultiDiffCoeffs(m_nsp, m_diff.begin() + mindex(0,0,j));
+                m_tcon[j] = m_trans->thermalConductivity();
+            }
         }
     }
 
@@ -822,11 +830,65 @@ namespace Cantera {
 
 
     /**
+     * Print the solution.
+     */    
+    void StFlow::showSolution(const doublereal* x) {
+        int nn = m_nv/5;
+        int i, j, n;
+        char* buf = new char[100];
+
+        // The mean molecular weight is needed to convert
+        updateThermo(x, 0, m_points-1);
+
+        sprintf(buf, "    Pressure:  %10.4g Pa \n", m_press);
+        writelog(buf);
+        for (i = 0; i < nn; i++) {
+            drawline();
+            sprintf(buf, "\n        z   ");
+            writelog(buf);
+            for (n = 0; n < 5; n++) { 
+                sprintf(buf, " %10s ",componentName(i*5 + n).c_str());
+                writelog(buf);
+            }
+            drawline();
+            for (j = 0; j < m_points; j++) {
+                sprintf(buf, "\n %10.4g ",m_z[j]);
+                writelog(buf);
+                for (n = 0; n < 5; n++) { 
+                    sprintf(buf, " %10.4g ",component(x, i*5+n,j));
+                    writelog(buf);
+                }
+            }
+            writelog("\n");
+        }
+        int nrem = m_nv - 5*nn;
+        drawline();
+        sprintf(buf, "\n        z   ");
+        writelog(buf);
+        for (n = 0; n < nrem; n++) {
+            sprintf(buf, " %10s ", componentName(nn*5 + n).c_str());
+            writelog(buf);
+        }
+        drawline();
+        for (j = 0; j < m_points; j++) {
+            sprintf(buf, "\n %10.4g ",m_z[j]);
+            writelog(buf);
+            for (n = 0; n < nrem; n++) { 
+                sprintf(buf, " %10.4g ",component(x, nn*5+n,j));
+                writelog(buf);
+            }
+        }
+        writelog("\n");
+    }
+
+
+    /**
      * Update the diffusive mass fluxes.
      */
     void StFlow::updateDiffFluxes(const doublereal* x, int j0, int j1) {
-        int j, k;
-        double sum, wtm, rho, dz;
+        int j, k, m;
+        doublereal sum, wtm, rho, dz, gradlogT, s;
+
         switch (m_transport_option) {
 
         case c_Mixav_Transport:
@@ -837,20 +899,44 @@ namespace Cantera {
                 dz = z(j+1) - z(j);
                 
                 for (k = 0; k < m_nsp; k++) {
-                    m_flux(k,j) = m_wt[k]*(rho*m_diff(k,j)/wtm);
+                    m_flux(k,j) = m_wt[k]*(rho*m_diff[k+m_nsp*j]/wtm);
                     m_flux(k,j) *= (X(x,k,j) - X(x,k,j+1))/dz;
                     sum -= m_flux(k,j);
                 }
-                // correction flux to insure that \sum_k Y_k j_k = 0.
+                // correction flux to insure that \sum_k Y_k V_k = 0.
                 for (k = 0; k < m_nsp; k++) m_flux(k,j) += sum*Y(x,k,j);
             } 
             break;
 
         case c_Multi_Transport:
-            cout << " not yet implemented... " << endl;
+            for (m = j0; m < j1; m++) {
+                wtm = m_wtm[m];
+                rho = density(m);
+                dz = z(m+1) - z(m);
+                
+                for (k = 0; k < m_nsp; k++) {
+                    sum = 0.0;
+                    for (j = 0; j < m_nsp; j++) {
+                        s = m_wt[j]*m_diff[mindex(k,j,m)];
+                        s *= (X(x,k,m+1) - X(x,k,m))/dz;
+                        sum += s;
+                    }
+                    m_flux(k,m) = sum*rho*m_wt[k]/(wtm*wtm);
+                }
+            } 
+            break;
+        default:
+            throw CanteraError("updateDiffFluxes","unknown transport model");
         }
+
         if (m_do_soret) {
-            cout << " net yet implemented... " << endl;
+            throw CanteraError("updateDiffFluxes","not yet");
+            for (m = j0; m < j1; m++) {
+                gradlogT = 2.0*(T(x,m+1) - T(x,m))/(T(x,m+1) + T(x,m));
+                for (k = 0; k < m_nsp; k++) {
+                    m_flux(k,m) -= m_dthermal(k,m)*gradlogT;
+                }
+            }
         }
     }
 
@@ -1015,7 +1101,6 @@ namespace Cantera {
                 "solution contains no grid points.");
         }
 
-        cout << "importing...." << endl;
         writelog("Importing datasets:\n");
         for (n = 0; n < nd; n++) {
             XML_Node& fa = *d[n];
@@ -1025,13 +1110,11 @@ namespace Cantera {
                 writelog("axial velocity   ");
                 if ((int) x.size() == np) {
                     for (j = 0; j < np; j++) {
-                        cout << j << "  " << x[j] << "  " << np << endl;
-                        cout << index(0,j) << "  " << size_soln << endl;
                         soln[index(0,j)] = x[j];
                     }
                 }
                 else {
-                    cout << "error..." << endl;
+                    //cout << "error..." << endl;
                     goto error;
                 }
             }
@@ -1101,86 +1184,139 @@ namespace Cantera {
     }
 
 
-    void StFlow::save(string fname, string id, string desc, doublereal* sol) {
-        int k;
 
-        struct tm *newtime;
-        time_t aclock;
-        ::time( &aclock );                  /* Get time in seconds */
-        newtime = localtime( &aclock );   /* Convert time to struct tm form */
+    void StFlow::restore(XML_Node& dom, doublereal* soln) {
 
-        ArrayViewer soln(m_nv, m_points, sol);
+        vector<string> ignored;
+        int nsp = m_thermo->nSpecies();
+        vector_int did_species(nsp, 0);
 
-        XML_Node root("doc");
-        ifstream fin(fname.c_str());
-        XML_Node* ct;
-        if (fin) {
-            root.build(fin);
-            XML_Node* same_ID = root.findID(id);
-            int jid = 1;
-            string idnew = id;
-            while (same_ID != 0) {
-                idnew = id + "_" + int2str(jid);
-                jid++;
-                same_ID = root.findID(idnew);
+        vector<XML_Node*> str;
+        dom.getChildren("string",str);
+        int nstr = str.size();
+        for (int istr = 0; istr < nstr; istr++) {
+            XML_Node& nd = *str[istr];
+            writelog(nd["title"]+": "+nd.value()+"\n");
+        }
+
+        map<string, double> params;
+        getFloats(dom, params);
+        setPressure(params["pressure"]);
+
+
+        vector<XML_Node*> d;
+        dom.child("grid_data").getChildren("floatArray",d);
+        int nd = d.size();
+
+        vector_fp x;
+        int n, np, j, ks, k;
+        string nm;
+        bool readgrid = false, wrote_header = false;
+        for (n = 0; n < nd; n++) {
+            XML_Node& fa = *d[n];
+            nm = fa["title"];
+            if (nm == "z") {
+                getFloatArray(fa,x,false);
+                np = x.size();
+                writelog("Grid contains "+int2str(np)+
+                    " points.\n");
+                readgrid = true;
+
+                // note that setupGrid also resizes the domain.
+                setupGrid(np, x.begin());
             }
-            id = idnew;
-            fin.close();
-            ct = &root.child("ctml");
         }
-        else {
-            ct = &root.addChild("ctml");
+        if (!readgrid) {
+            throw CanteraError("StFlow::restore",
+                "domain contains no grid points.");
         }
 
-        XML_Node& flow = (XML_Node&)ct->addChild("flowfield");
-        flow.addAttribute("type",flowType());
-        flow.addAttribute("id",id);
-        addString(flow,"timestamp",asctime(newtime));
-        addFloat(flow, "pressure", m_press, "Pa", "pressure"); 
-        //        addString(flow,"solve_time",fp2str(m_container->solveTime()));
-        if (desc != "") addString(flow,"description",desc);
-        XML_Node& gv = flow.addChild("grid_data");
-        addFloatArray(gv,"z",m_z.size(),m_z.begin(),
-            "m","length");
-        vector_fp x(soln.nColumns());
+        writelog("Importing datasets:\n");
+        for (n = 0; n < nd; n++) {
+            XML_Node& fa = *d[n];
+            nm = fa["title"];
+            getFloatArray(fa,x,false);
+            if (nm == "u") {
+                writelog("axial velocity   ");
+                if ((int) x.size() == np) {
+                    for (j = 0; j < np; j++) {
+                        soln[index(0,j)] = x[j];
+                    }
+                }
+                else {
+                    goto error;
+                }
+            }
+            else if (nm == "z") {
+                ;   // already read grid
+            }
+            else if (nm == "V") {
+                writelog("radial velocity   ");
+                if ((int) x.size() == np) {
+                    for (j = 0; j < np; j++)
+                        soln[index(1,j)] = x[j];
+                }
+                else goto error;
+            }
+            else if (nm == "T") {
+                writelog("temperature   ");
+                if ((int) x.size() == np) {
+                    for (j = 0; j < np; j++)
+                        soln[index(2,j)] = x[j];
 
-        soln.getRow(0,x.begin());
-        addFloatArray(gv,"u",x.size(),x.begin(),"m/s","velocity");
-
-        soln.getRow(1,x.begin());
-        addFloatArray(gv,"V",
-            x.size(),x.begin(),"1/s","strainrate");
-
-        soln.getRow(2,x.begin());
-        addFloatArray(gv,"T",x.size(),x.begin(),"K","temperature",0.0);
-
-        soln.getRow(3,x.begin());
-        addFloatArray(gv,"L",x.size(),x.begin(),"N/m^4");
-
-        for (k = 0; k < m_nsp; k++) {
-            soln.getRow(4+k,x.begin());
-            addFloatArray(gv,m_thermo->speciesName(k),
-                x.size(),x.begin(),"","massFraction",0.0,1.0);
+                    // For fixed-temperature simulations, use the imported temperature profile by default. 
+                    // If this is not desired, call setFixedTempProfile *after* restoring the solution.
+                    vector_fp zz(np);
+                    for (int jj = 0; jj < np; jj++) zz[jj] = (grid(jj) - zmin())/(zmax() - zmin());
+                    setFixedTempProfile(zz, x);
+                }
+                else goto error;
+            }
+            else if (nm == "L") {
+                writelog("lambda   ");
+                if ((int) x.size() == np) {
+                    for (j = 0; j < np; j++)
+                        soln[index(3,j)] = x[j];
+                }
+                else goto error;
+            }
+            else if (m_thermo->speciesIndex(nm) >= 0) {
+                writelog(nm+"   ");
+                if ((int) x.size() == np) {
+                    k = m_thermo->speciesIndex(nm);
+                    did_species[k] = 1;
+                    for (j = 0; j < np; j++) 
+                        soln[index(k+4,j)] = x[j];
+                }
+            }
+            else
+                ignored.push_back(nm);
         }
 
-//         XML_Node& inlt = flow.addChild("inlet");
-//         addFloat(inlt,"T",m_inlet_T,"K","temperature",0.0);
-//         addFloat(inlt,"P",m_press,"Pa","pressure",0.0);
-//         for (k = 0; k < m_nsp; k++) {
-//             if (m_yin[k] != 0.0)
-//                 addFloat(inlt, m_thermo->speciesName(k), m_yin[k], 
-//                     "", "massFraction",0.0,1.0);
-//         }
+        if (ignored.size() != 0) {
+            writelog("\n\n");
+            writelog("Ignoring datasets:\n");
+            int nn = ignored.size();
+            for (int n = 0; n < nn; n++) {
+                writelog(ignored[n]+"   ");
+            }
+        }
 
-        ofstream s(fname.c_str());
-        if (!s) 
-            throw CanteraError("save","could not open file "+fname);
-        ct->writeHeader(s);
-        ct->write(s);
-        s.close();
-        writelog("Solution saved to file "+fname+" as solution '"+id+"'.\n");
-        m_container->writeStats();
+        for (ks = 0; ks < nsp; ks++) {
+            if (did_species[ks] == 0) {
+                if (!wrote_header) {
+                    writelog("Missing data for species:\n");
+                    wrote_header = true;
+                }
+                writelog(m_thermo->speciesName(ks)+" ");
+            }
+        }
+
+        return;
+ error:
+        throw CanteraError("StFlow::restore","Data size error");
     }
+
 
 
     void StFlow::save(XML_Node& o, doublereal* sol) {
@@ -1188,9 +1324,12 @@ namespace Cantera {
 
         ArrayViewer soln(m_nv, m_points, sol + loc());
 
-        XML_Node& flow = (XML_Node&)o.addChild("flowfield");
+        XML_Node& flow = (XML_Node&)o.addChild("domain");
         flow.addAttribute("type",flowType());
         flow.addAttribute("id",m_id);
+        flow.addAttribute("points",m_points);
+        flow.addAttribute("components",m_nv);
+
         if (m_desc != "") addString(flow,"description",m_desc);
         XML_Node& gv = flow.addChild("grid_data");
         addFloat(flow, "pressure", m_press, "Pa", "pressure"); 

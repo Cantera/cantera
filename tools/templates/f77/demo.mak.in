@@ -47,7 +47,7 @@ CXX = @CXX@
 CXX_FLAGS = @CXXFLAGS@
 
 # external libraries
-EXT_LIBS = @LOCAL_LIBS@ 
+EXT_LIBS = @LOCAL_LIBS@ -lctcxx
 
 # the directory where the Cantera libraries are located
 CANTERA_LIBDIR=@CANTERA_LIBDIR@

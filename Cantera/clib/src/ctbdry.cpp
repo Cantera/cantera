@@ -62,16 +62,26 @@ extern "C" {
     }
 
     int DLL_EXPORT bndry_settemperature(int i, double t) {
-        _bndry(i)->setTemperature(t);
+        try {
+            _bndry(i)->setTemperature(t);
+        }
+        catch (CanteraError) {return -1;}
         return 0;
     }
 
     double DLL_EXPORT bndry_spreadrate(int i) {
-        return ((Inlet1D*)_bndry(i))->spreadRate();
+        try {
+            return ((Inlet1D*)_bndry(i))->spreadRate();
+        }
+        catch (CanteraError) {return -1;}
+        return 0;
     }
 
     int DLL_EXPORT bndry_setSpreadRate(int i, double v) {
-        ((Inlet1D*)_bndry(i))->setSpreadRate(v);
+        try {
+            ((Inlet1D*)_bndry(i))->setSpreadRate(v);
+        }
+        catch (CanteraError) {return -1;}
         return 0;
     }
 
@@ -90,12 +100,18 @@ extern "C" {
     }
 
     int DLL_EXPORT bndry_setxin(int i, double* xin) {
-        _bndry(i)->setMoleFractions(xin);
+        try {
+            _bndry(i)->setMoleFractions(xin);
+        }
+        catch (CanteraError) {return -1;}
         return 0;
     }
 
     int DLL_EXPORT bndry_setxinbyname(int i, char* xin) {
-        _bndry(i)->setMoleFractions(string(xin));
+        try {
+            _bndry(i)->setMoleFractions(string(xin));
+        }
+        catch (CanteraError) {return -1;}
         return 0;
     }
 }

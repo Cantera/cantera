@@ -1,5 +1,6 @@
 
 from Cantera import OneAtm
+from Cantera.exceptions import CanteraError
 from Cantera.Flow import Flow1D
 from Cantera.boundaries1D import Inlet1D, Surf1D, Symm1D
 from Numeric import array, zeros, arrayrange
@@ -306,15 +307,16 @@ class StagnationFlame:
         
         if grid == None:
             grid = dx * array([0.0, 0.01, 0.03, 0.1, 0.3, 0.6, 1.0])
-        
+
         self.__flow = Flow1D(flow_type = 'Stag', gas = gas,
                              grid = grid, pressure = self.p)
 
         self.__left = Inlet1D()
+
         self.__right = Surf1D()
+
         self.__container = OneDim([self.__left, self.__flow, self.__right])
         self.start = 0
-        
 
         # get the compositions of the fuel and oxidizer streams, and
         # calculate the fuel/oxidizer ratio for stoichiometric
@@ -449,8 +451,13 @@ class StagnationFlame:
                 self.__flow.setTolerances(u = v, V = v, T = v, Y = v)
             elif o == 'max_jac_age':
                 self.__container.setOptions(max_jac_age = v)
+            elif o == 'jac_age':
+                self.__container.setOptions(max_jac_age = v[0])
+                self.__container.setOptions(ts_jac_age = v[1])                                
             elif o == 'timesteps':
                 self.__container.setOptions(nsteps = v[0], timestep = v[1])
+            else:
+                raise CanteraError("unknown option: "+o)
 
     def solve(self, loglevel = 0):
         if not self.start:
@@ -458,11 +465,6 @@ class StagnationFlame:
             self.start = 1
         solve(self.__container, loglevel = loglevel, refine_grid = 1)
 
-##     def esolve(self, loglevel = 0, efactor = 1.0e4):
-##         if not self.start:
-##             self.setEquilProducts()
-##             self.start = 1
-##         esolve(self.__container, efactor = efactor, loglevel = loglevel, refine_grid = 1)        
 
     def save(self, soln, desc, file = 'flame.xml'):
         self.__container.save(file, soln, desc)

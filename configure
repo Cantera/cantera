@@ -50,9 +50,7 @@ BUILD_FORTRAN_90_INTERFACE='n'       # Fortran is temporarily not working
 # to the path to the Python interpreter to use, if there is more than
 # one on your system.
 
-#BUILD_PYTHON_INTERFACE=${BUILD_PYTHON_INTERFACE:="y"}
-#PYTHON_CMD=${PYTHON_CMD:=python}
-
+BUILD_PYTHON_INTERFACE=${BUILD_PYTHON_INTERFACE:="y"}
 
 #----------- Matlab --------------------------------------------------
 
@@ -60,10 +58,7 @@ BUILD_FORTRAN_90_INTERFACE='n'       # Fortran is temporarily not working
 # be installed on your system first, since the build process runs a
 # Matlab script.
 
-# BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
-# MATLAB_CMD=${MATLAB_CMD:=matlab}
-
-
+BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
 
 #----------------------------------------------------------------------
 #         Kernel Configuration

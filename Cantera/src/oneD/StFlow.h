@@ -15,7 +15,7 @@
 #define CT_STFLOW_H
 
 #include "../transport/TransportBase.h"
-#include "Resid1D.h"
+#include "Domain1D.h"
 #include "../Array.h"
 #include "../sort.h"
 #include "../IdealGasPhase.h"
@@ -61,7 +61,7 @@ namespace Cantera {
      *  solution for a chemically-reacting, axisymmetric,
      *  stagnation-point flow.
      */
-    class StFlow : public Resid1D {
+    class StFlow : public Domain1D {
 
     public:
 
@@ -191,13 +191,15 @@ namespace Cantera {
             string title, int zone);
 
         virtual void showSolution(ostream& s, const doublereal* x);
+        virtual void showSolution(const doublereal* x);
 
-        void save(string fname, string id, string desc, doublereal* soln);
+        //void save(string fname, string id, string desc, doublereal* soln);
         virtual void save(XML_Node& o, doublereal* sol);
 
         void restore(int job, string fname, string id, int& size_z, 
             doublereal* z, int& size_soln, doublereal* soln);
 
+        virtual void restore(XML_Node& dom, doublereal* soln);
 
         // overloaded in subclasses
         virtual string flowType() { return "<none>"; }
@@ -381,15 +383,18 @@ namespace Cantera {
         // differencing, assuming u(z) is negative
 
         doublereal dVdz(const doublereal* x,int j) const {
-            return (V(x,j) - V(x,j-1))/m_dz[j-1];
+            int jloc = (u(x,j) > 0.0 ? j : j + 1);
+            return (V(x,jloc) - V(x,jloc-1))/m_dz[jloc-1];
         } 
 
         doublereal dYdz(const doublereal* x,int k, int j) const {
-            return (Y(x,k,j) - Y(x,k,j-1))/m_dz[j-1]; 
+            int jloc = (u(x,j) > 0.0 ? j : j + 1);
+            return (Y(x,k,jloc) - Y(x,k,jloc-1))/m_dz[jloc-1]; 
         } 
 
         doublereal dTdz(const doublereal* x,int j) const {
-            return (T(x,j) - T(x,j-1))/m_dz[j-1];
+            int jloc = (u(x,j) > 0.0 ? j : j + 1);
+            return (T(x,jloc) - T(x,jloc-1))/m_dz[jloc-1];
         }
         
         doublereal shear(const doublereal* x,int j) const {
@@ -402,6 +407,10 @@ namespace Cantera {
             doublereal c1 = m_tcon[j-1]*(T(x,j) - T(x,j-1));
             doublereal c2 = m_tcon[j]*(T(x,j+1) - T(x,j));
             return -2.0*(c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/(z(j+1) - z(j-1));
+        }
+
+        int mindex(int k, int j, int m) {
+            return m*m_nsp*m_nsp + m_nsp*j + k;
         }
 
         void updateDiffFluxes(const doublereal* x, int j0, int j1);
@@ -440,7 +449,8 @@ namespace Cantera {
         // transport properties
         vector_fp m_visc;
         vector_fp m_tcon;
-        Array2D m_diff;
+        vector_fp m_diff;
+        Array2D m_dthermal;
         Array2D m_flux;
 
         // production rates

@@ -138,6 +138,7 @@ class PathBuilder:
                              "buildlog", diagram.id(), 1)
         if format == "dot":
             diagram.write(0, dotfile)
+            diagram.write(1, "rp.txt")            
         elif format == "plain":
             diagram.write(1, dotfile)
 

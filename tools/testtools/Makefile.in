@@ -6,7 +6,7 @@ BINDIR = @ctroot@/bin
 build_ck = @BUILD_CK@
 
 LCXX_FLAGS = -L$(LIBDIR)  @CXXFLAGS@
-LOCAL_LIBS = -lcantera -lckreader @math_libs@ @LAPACK_LIBRARY@ @BLAS_LIBRARY@
+LOCAL_LIBS = -lcantera -lckreader @math_libs@ @LAPACK_LIBRARY@ @BLAS_LIBRARY@ -lctcxx
 
 LCXX_END_LIBS = @LCXX_END_LIBS@
 

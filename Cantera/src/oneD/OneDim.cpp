@@ -34,7 +34,7 @@ namespace Cantera {
      * Construct a OneDim container for the domains pointed at by the
      * input vector of pointers.
     */ 
-    OneDim::OneDim(vector<Resid1D*> domains) :
+    OneDim::OneDim(vector<Domain1D*> domains) :
         m_tmin(1.0e-16), m_tmax(0.1), m_tfactor(0.5),
         m_jac(0), m_newt(0), 
 	m_rdt(0.0), m_jac_ok(false),
@@ -56,10 +56,18 @@ namespace Cantera {
     }
 
 
+    int OneDim::domainIndex(string name) {
+        for (int n = 0; n < m_nd; n++) {
+            if (domain(n).id() == name) return n;
+        }
+        throw CanteraError("OneDim::domainIndex","no domain named >>"+name+"<<");
+    }
+
+
     /**
      * Domains are added left-to-right. 
      */
-    void OneDim::addDomain(Resid1D* d) {
+    void OneDim::addDomain(Domain1D* d) {
 
         // if 'd' is not the first domain, link it to the last domain
         // added (the rightmost one)
@@ -103,6 +111,7 @@ namespace Cantera {
         }
     }
 
+
     /**
      * Save statistics on function and Jacobiab evaulation, and reset
      * the counters. Statistics are saved only if the number of
@@ -118,7 +127,7 @@ namespace Cantera {
     void OneDim::saveStats() {
         if (m_jac) {
             int nev = m_jac->nEvals();
-            if (nev > 0) {
+            if (nev > 0 && m_nevals > 0) {
                 m_gridpts.push_back(m_pts);
                 m_jacEvals.push_back(m_jac->nEvals());
                 m_jacElapsed.push_back(m_jac->elapsedTime());
@@ -144,7 +153,7 @@ namespace Cantera {
         saveStats();
         m_pts = 0;
         for (i = 0; i < m_nd; i++) {
-            Resid1D* d = m_dom[i];
+            Domain1D* d = m_dom[i];
 
             int np = d->nPoints();
             int nv = d->nComponents();
@@ -207,8 +216,8 @@ namespace Cantera {
      * 8/26/02 changed '<' to '<='  DGG
      *
      */
-    Resid1D* OneDim::pointDomain(int i) {
-        Resid1D* d = right();
+    Domain1D* OneDim::pointDomain(int i) {
+        Domain1D* d = right();
         while (d) {
             if (d->loc() <= i) return d;
             d = d->left();
@@ -227,7 +236,7 @@ namespace Cantera {
         fill(m_mask.begin(), m_mask.end(), 0);
         if (rdt < 0.0) rdt = m_rdt;
 
-        vector<Resid1D*>::iterator d; 
+        vector<Domain1D*>::iterator d; 
 
         // iterate over the bulk domains first
         for (d = m_bulk.begin(); d != m_bulk.end(); ++d)
@@ -242,6 +251,8 @@ namespace Cantera {
             clock_t t1 = clock();
             m_evaltime += double(t1 - t0)/CLOCKS_PER_SEC;
             m_nevals++;
+            //string ne = string("evals = ")+int2str(m_nevals)+"\n";
+            //writelog(ne.c_str());
         }
     }
 
@@ -251,7 +262,7 @@ namespace Cantera {
      * residual. Used only for diagnostic output.
      */
     doublereal OneDim::ssnorm(doublereal* x, doublereal* r) {
-        eval(-1, x, r, 0.0);
+        eval(-1, x, r, 0.0, 0);
         doublereal ss = 0.0;
         for (int i = 0; i < m_size; i++) { 
             ss = fmaxx(fabs(r[i]),ss);
@@ -275,7 +286,7 @@ namespace Cantera {
 
         // iterate over all domains, preparing each one to begin
         // time stepping
-        Resid1D* d = left();
+        Domain1D* d = left();
         while (d) {
             d->initTimeInteg(dt, x);
             d = d->right();
@@ -300,7 +311,7 @@ namespace Cantera {
      */
     void OneDim::init() {
         if (!m_init) {
-            Resid1D* d = left();
+            Domain1D* d = left();
             while (d) {
                 d->init();
                 d = d->right();
@@ -313,9 +324,11 @@ namespace Cantera {
     /**
      * Signal that the current Jacobian is no longer valid.
      */
-    void Resid1D::needJacUpdate() { 
-        if (m_container)
+    void Domain1D::needJacUpdate() { 
+        if (m_container) {
             m_container->jacobian().setAge(10000);
+            m_container->saveStats();
+        }
     }
 
 
@@ -362,8 +375,8 @@ namespace Cantera {
                  copy(r, r + m_size, x);
                  if (m == 100) {
                      dt *= 1.5;
-                     cout << "m = 100, dt = " << dt << endl;
                  }
+                 //                 else dt /= 1.5;
                  if (dt > m_tmax) dt = m_tmax;
              }
 
@@ -372,7 +385,6 @@ namespace Cantera {
              else {
                  if (loglevel > 0) writelog("...failure.\n");
                  dt *= m_tfactor;
-                 cout << "halved dt = " << dt << endl;
                  if (dt < m_tmin)
                      throw CanteraError("OneDim::timeStep",
                          "Time integration failed.");
@@ -421,7 +433,7 @@ namespace Cantera {
         addString(sim,"timestamp",asctime(newtime));
         if (desc != "") addString(sim,"description",desc);
         
-        Resid1D* d = left();
+        Domain1D* d = left();
         while (d) {
             d->save(sim, sol);
             d = d->right();
@@ -431,6 +443,6 @@ namespace Cantera {
             throw CanteraError("save","could not open file "+fname);
         ct->write(s);
         s.close();
-        writelog("Solution saved to file "+fname+" as solution '"+id+"'.\n");
+        writelog("Solution saved to file "+fname+" as solution "+id+".\n");
     }
 }

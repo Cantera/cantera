@@ -18,6 +18,8 @@
 #include <fstream>
 using namespace std;
 
+//int writeToMatlab(const char* buf);
+
 namespace Cantera {
 
     /**
@@ -30,7 +32,8 @@ namespace Cantera {
      */
     class Application {
     public:
-        Application() : linelen(0), stop_on_error(false), write_log_to_cout(true) {}
+        Application() : linelen(0), stop_on_error(false), 
+                        write_log_to_cout(true), matlab(false) {}
         virtual ~Application(){}
         vector<string> inputDirs;
         vector<string> errorMessage;
@@ -40,6 +43,7 @@ namespace Cantera {
         size_t linelen;
         bool stop_on_error;
         bool write_log_to_cout;
+        bool matlab;
         map<string, string>     options;
     };
 
@@ -249,22 +253,13 @@ namespace Cantera {
         }
     }
 
+    void setMatlabMode(bool m) { 
+        appinit();
+        __app->matlab = m; 
+    }
+
     void write(const string& msg) {cout << msg;}
     void write(const char* msg) {cout << msg;}
-    void writelog(const string& msg) {
-        appinit(); 
-        __app->msglog += msg;
-        __app->linelen += msg.size();
-        if (msg[msg.size()-1] == '\n') __app->linelen = 0;
-        if (__app->linelen > 70) {
-            __app->msglog += "\n";
-            __app->linelen = 0;
-        }
-        if (__app->write_log_to_cout) {
-            cout << __app->msglog;
-            clearlog();
-        }
-    }
     void writelog(const char* msg) {writelog(string(msg));}
     void getlog(string& s) {
         appinit();

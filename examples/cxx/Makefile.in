@@ -40,7 +40,7 @@ CXX = @CXX@
 CXX_FLAGS = @CXXFLAGS@
 
 # external libraries
-EXT_LIBS = @LOCAL_LIBS@ 
+EXT_LIBS = @LOCAL_LIBS@ -lctcxx
 
 # Ending C++ linking libraries
 LCXX_END_LIBS = @LCXX_END_LIBS@

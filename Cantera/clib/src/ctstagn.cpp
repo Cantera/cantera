@@ -330,7 +330,7 @@ extern "C" {
 
     int DLL_EXPORT onedim_new(int nd, int* domains, int* types) {
         int i;
-        vector<Resid1D*> doms;
+        vector<Domain1D*> doms;
         for (i = 0; i < nd; i++) {
             switch (types[i]) {
             case 0:

@@ -34,8 +34,10 @@ namespace Cantera {
 
     doublereal linearInterp(doublereal x, const vector_fp& xpts, 
         const vector_fp& fpts) {
-        if (x <= xpts[0]) return fpts[0];
-        if (x >= xpts.back()) return fpts.back();
+        if (x <= xpts[0]) 
+            return fpts[0];
+        if (x >= xpts.back()) 
+            return fpts.back();
         const doublereal* loc = lower_bound(xpts.begin(), xpts.end(), x);
         int iloc = int(loc - xpts.begin()) - 1;
         doublereal ff = fpts[iloc] + 

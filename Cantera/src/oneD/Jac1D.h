@@ -15,7 +15,7 @@
 #ifndef CT_JAC1D_H
 #define CT_JAC1D_H
 
-#include "Resid1D.h"
+#include "Domain1D.h"
 #include "BandMatrix.h"
 //#include "ArrayViewer.h"
 #include "Array.h"
@@ -25,7 +25,7 @@ namespace Cantera {
 
     /**
      * Class Jac1D evaluates the Jacobian of a system of equations
-     * defined by a residual function of class Resid1D. It is
+     * defined by a residual function of class Domain1D. It is
      * assumed that the Jacobian is banded.
      */
     class Jac1D : public BandMatrix {
@@ -36,7 +36,7 @@ namespace Cantera {
          * Constructor. The residual function defining the system of
          * equations must be supplied.
          */
-        Jac1D(Resid1D& r);
+        Jac1D(Domain1D& r);
 
         /// Destructor. Does nothing.
         virtual ~Jac1D(){}
@@ -69,7 +69,7 @@ namespace Cantera {
 
     protected:
 
-        Resid1D* m_resid;
+        Domain1D* m_resid;
         Array2D m_r1;
         //        ArrayViewer m_x0, m_r0;
         int m_nv, m_points;

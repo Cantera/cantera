@@ -19,7 +19,8 @@ SRCS = cantera/private/ctmethods.cpp \
        cantera/private/transportmethods.cpp \
        cantera/private/reactormethods.cpp \
        cantera/private/wallmethods.cpp \
-       cantera/private/flowdevicemethods.cpp
+       cantera/private/flowdevicemethods.cpp \
+       cantera/private/onedimmethods.cpp
 
 CANTERA_LIBDIR=@buildlib@
 LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
@@ -44,6 +45,11 @@ install:
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Reactor/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Wall/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@FlowDevice/private
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/1D
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/1D/@Domain1D
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/1D/@Domain1D/private
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/1D/@Stack
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/1D/@Stack/private
 	cd cantera; @INSTALL@ *.m *.@mex_ext@ @prefix@/matlab/toolbox/cantera/cantera
 	cd cantera/private; @INSTALL@ *.m \
             @prefix@/matlab/toolbox/cantera/cantera/private
@@ -76,6 +82,15 @@ install:
             @prefix@/matlab/toolbox/cantera/cantera/@FlowDevice
 	cd cantera/@FlowDevice/private; @INSTALL@ *.m \
             @prefix@/matlab/toolbox/cantera/cantera/@FlowDevice/private
+	cd cantera/1D/@Domain1D; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/1D/@Domain1D
+	cd cantera/1D/@Domain1D/private; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/1D/@Domain1D/private
+	cd cantera/1D/@Stack; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/1D/@Stack
+	cd cantera/1D/@Stack/private; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/1D/@Stack/private
+
 
 clean:
 	echo '-'

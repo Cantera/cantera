@@ -1,7 +1,7 @@
 
 #include <map>
 #include <algorithm>
-#include "Resid1D.h"
+#include "Domain1D.h"
 
 #include "refine.h"
 
@@ -16,6 +16,11 @@ namespace Cantera {
         return false;
     }
 
+    static void drawline() {
+        string s(78,'#');
+        s += '\n';
+        writelog(s.c_str());
+    }
 
     /**
      * Return the square root of machine precision.
@@ -27,9 +32,9 @@ namespace Cantera {
     }
 
     
-    Refiner::Refiner(Resid1D& domain) :
-        m_ratio(10.0), m_slope(0.8), m_curve(0.8), m_min_range(0.01),
-        m_domain(&domain)
+    Refiner::Refiner(Domain1D& domain) :
+        m_ratio(10.0), m_slope(0.8), m_curve(0.8), m_min_range(0.001),
+        m_domain(&domain), m_npmax(200)
     {
         m_nv = m_domain->nComponents();
         m_active.resize(m_nv, true);
@@ -40,39 +45,48 @@ namespace Cantera {
     int Refiner::analyze(int n, const doublereal* z, 
         const doublereal* x) {
 
-        if (m_domain->nPoints() <= 1) return 0;
-        m_nv = m_domain->nComponents();
+        m_loc.clear();
+        m_c.clear();
+        m_keep.clear();
 
-        //m_ok = false;
+        m_keep[0] = 1;
+        m_keep[n-1] = 1;
+
+
+        if (m_domain->nPoints() <= 1) return 0;
+
+        m_nv = m_domain->nComponents();
 
         // check consistency
         if (n != m_domain->nPoints()) return -1;
 
-        m_loc.clear();
-        m_c.clear();
+
+        if (n >= m_npmax) return 0;
 
         /**
          * find locations where cell size ratio is too large.
          */
         int j;
         vector_fp dz(n-1, 0.0);
-        dz[0] = z[1] - z[0];
-        for (j = 1; j < n-1; j++) {
-            dz[j] = z[j+1] - z[j];
-            if (dz[j] > m_ratio*dz[j-1]) {
-                m_loc[j] = 1;
-                m_c["point "+int2str(j)] = 1;
-            }
-            if (dz[j] < dz[j-1]/m_ratio) {
-                m_loc[j-1] = 1;
-                m_c["point "+int2str(j-1)] = 1;                
-            }
-        }
-
         string name;
         doublereal vmin, vmax, smin, smax, aa, ss;
         doublereal dmax, r;
         vector_fp v(n), s(n-1);
+
+        dz[0] = z[1] - z[0];
+ //        for (j = 1; j < n-1; j++) {
+//             dz[j] = z[j+1] - z[j];
+//             if (dz[j] > m_ratio*dz[j-1]) {
+//                 m_loc[j] = 1;
+//                 m_c["point "+int2str(j)] = 1;
+//             }
+//             if (dz[j] < dz[j-1]/m_ratio) {
+//                 m_loc[j-1] = 1;
+//                 m_c["point "+int2str(j-1)] = 1;                
+//             }
+//             if (m_loc.size() + n > m_npmax) goto done;
+//         }
+
         for (int i = 0; i < m_nv; i++) {
             //cout << i << "   " << m_nv << "  " << m_active[i] << endl;
             if (m_active[i]) {
@@ -97,7 +111,6 @@ namespace Cantera {
                 aa = fmaxx(abs(vmax), abs(vmin));
                 ss = fmaxx(abs(smax), abs(smin));
 
-
                 // refine based on component i only if the range of v is
                 // greater than a fraction 'min_range' of max |v|. This
                 // eliminates components that consist of small fluctuations
@@ -114,6 +127,11 @@ namespace Cantera {
                         if (r > 1.0) {
                             m_loc[j] = 1;
                             m_c[name] = 1;
+                            if (m_loc.size() + n > m_npmax) goto done;
+                        }
+                        if (r >= 0.0) {
+                            m_keep[j] = 1;
+                            m_keep[j+1] = 1;
                         }
                     }
                 }
@@ -128,22 +146,27 @@ namespace Cantera {
 
                     // maximum allowable difference in slope between
                     // adjacent points.
-                    dmax = m_curve*(smax - smin);
+                    dmax = m_curve*(smax - smin); // + 0.5*m_curve*(smax + smin);
                     for (j = 0; j < n-2; j++) {
                         r = abs(s[j+1] - s[j]) / (dmax + m_thresh/dz[j]);
                         if (r > 1.0) {
                             m_c[name] = 1;
                             m_loc[j] = 1;
                             m_loc[j+1] = 1;
+                            if (m_loc.size() + n > m_npmax) goto done;
+                        }
+                        if (r >= 0.0) {
+                            m_keep[j+1] = 1;
                         }
                         //cout << "at point " << j << " slope r = "
                         //     << r << " for " << name << endl
                         //     << "    threshold = " << m_thresh << endl;
                     }
                 }
-                //cout << name << "  " << m_curve << "  " << smax << "  " << smin << "   " << ss << "   " << m_min_range << endl;
+
             }
         }
+done:
         return m_loc.size();
     }
 
@@ -154,14 +177,16 @@ namespace Cantera {
     void Refiner::show() {
         int nnew = m_loc.size();
         if (nnew > 0) {
-            writelog("Refining grid.  "
-                "New points inserted after grid points ");
+            drawline();
+            writelog(string("Refining grid in ") + 
+                m_domain->id()+".\n"
+                +"    New points inserted after grid points ");
             map<int, int>::const_iterator b = m_loc.begin();
             for (; b != m_loc.end(); ++b) {
                 writelog(int2str(b->first)+" ");
             }
             writelog("\n");
-            writelog("to resolve ");
+            writelog("    to resolve ");
             map<string, int>::const_iterator bb = m_c.begin();
             for (; bb != m_c.end(); ++bb) {
                 writelog(string(bb->first)+" ");
@@ -197,19 +222,5 @@ namespace Cantera {
         }
         zn[jn] = z[n-1];
         return 0;
-    }
-
-//         int npts = znew.size();
-//         newsoln.resize(npts*ncomp);
-//         newsoln = Numeric.zeros((npts, ncomp),'d')
-//         for i in range(ncomp):
-//             for j in range(npts):
-//                 newsoln[j,i] = interp.interp(znew[j],grid,solution[:,i])
-
-//         return (Numeric.array(znew), Numeric.array(znew), newsoln, self.ok)
-                               
-    
-                
-            
-    
+    }    
 }

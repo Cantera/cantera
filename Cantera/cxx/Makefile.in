@@ -14,7 +14,7 @@ SUFFIXES= .cpp .d .o
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
-OBJS = cxxutils.o
+OBJS = cxxutils.o writelog.o
 
 DEPENDS = $(OBJS:.o=.d)
 
@@ -34,7 +34,7 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
 	$(CXX) -c $< $(CXX_INCLUDES) $(CXX_FLAGS)
 
 LIB_NAME=libctcxx
-CXXLIB=$(LIB_NAME).a
+CXXLIB=@buildlib@/$(LIB_NAME).a
 
 all: $(OBJS)
 	@ARCHIVE@ $(CXXLIB) $(OBJS) 

@@ -28,6 +28,16 @@ namespace Cantera {
     string formatCompList(const Phase& mix, int xyc);
     string logfileName(const string& infile);    
     string getFileName(const string& path);
+
+    inline int intValue(string val) {
+        return atoi(stripws(val).c_str());
+    }
+
+    inline doublereal fpValue(string val) {
+        return atof(stripws(val).c_str());
+    }
+
+
 }
 
 #endif

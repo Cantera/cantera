@@ -56,6 +56,7 @@ flame.set(mdot            = 0.1,
 
 # turn the energy equation off (default)
 flame.set(energy = 'off')
+flame.show()
 
 # solve the flame, with output level 1
 flame.solve(1)

@@ -25,7 +25,12 @@ _geom = {'Axisymmetric':0, 'Axi':0, 'Planar':1}
 class Flow1D:
     """ One-dimensional reacting flows.
 
-    Class Flow1D models several types of steady 'one dimensional'
+    Class Flow1D simulates a one-dimensional flow domain. To use
+    Flow1D objects, they must be installed in a container, which is an
+    object of class OneDim. Each Flow1D domain must be terminated by
+    boundary domains.
+    
+    Class Flow1D can model several types of steady 'one dimensional'
     reacting flows. The flows are one-dimensional in the sense that
     the governing equations for the steady-state solution can be cast
     in the form of a set of ordinary differential equations in one
@@ -140,7 +145,7 @@ class Flow1D:
         # fraction and velocity profiles until the energy equation is
         # enabled.
         self.refine_components = range(4,4+self.nsp)
-        if self.type == 0: self.refine_components.append([0,1])
+        
         self.refiner = refine.Refiner(components = self.refine_components,
                                       names = self.names)
 
@@ -331,9 +336,9 @@ class Flow1D:
     def __repr__(self):
         return self.show()
     
-    def show(self):
+    def show(self, x = None):
         fname = tempfile.mktemp('.dat')
-        x = self.x 
+        x = self.x
         _cantera.flow_showsolution(self.__flow_id, fname, x)
         f = open(fname,'r')
         y = f.readlines()
@@ -519,7 +524,8 @@ class Flow1D:
         r.components = range(4,self.nsp+4)
         if self.energy:
             r.components.append(2)        
-
+            if self.type == 0:
+                r.components += [0,1]
 
         #dsave = r.delta
         #while 1 > 0:

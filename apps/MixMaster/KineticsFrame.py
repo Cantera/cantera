@@ -332,6 +332,8 @@ class ReactionPathFrame(Frame):
 
 		self.b.build(element = el, diagram = self.d,
 			dotfile = 'rxnpath.dot', format = 'dot')
+		self.b.build(element = el, diagram = self.d,
+			dotfile = 'rxnpath.txt', format = 'plain')		
 
 		if self.browser.get() == 1:
 			fmt = self.fmt.get()

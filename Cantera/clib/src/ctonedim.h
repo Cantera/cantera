@@ -1,0 +1,67 @@
+#ifndef CTC_ONEDIM_H
+#define CTC_ONEDIM_H
+
+#include "clib_defs.h"
+
+extern "C" {
+
+    int DLL_IMPORT domain_del(int i);
+    int DLL_IMPORT domain_type(int i);
+    int DLL_IMPORT domain_index(int i);
+    int DLL_IMPORT domain_nComponents(int i);
+    int DLL_IMPORT domain_nPoints(int i);
+    int DLL_IMPORT domain_componentName(int i, int n, int sz, char* buf);
+    int DLL_IMPORT domain_componentIndex(int i, char* name);
+    int DLL_IMPORT domain_setBounds(int i, int nl, double* lower, 
+        int nu, double* upper);
+    int DLL_IMPORT domain_setTolerances(int i, int nr, double* rtol, 
+        int na, double* atol, int itime);
+    int DLL_IMPORT domain_setupGrid(int i, int npts, double* grid);
+    int DLL_IMPORT domain_setID(int, char* id);
+    int DLL_IMPORT domain_setDesc(int, char* desc);
+    double DLL_IMPORT domain_grid(int i, int n);
+
+    int DLL_IMPORT bdry_setMdot(int i, double mdot);
+    int DLL_IMPORT bdry_setTemperature(int i, double t);
+    int DLL_IMPORT bdry_setMoleFractions(int i, char* x);
+    double DLL_IMPORT bdry_temperature(int i);
+    double DLL_IMPORT bdry_massFraction(int i, int k);
+    double DLL_IMPORT bdry_mdot(int i);
+
+    int DLL_IMPORT inlet_new();
+    int DLL_IMPORT outlet_new();
+    int DLL_IMPORT symm_new();
+    int DLL_IMPORT surf_new();
+
+    int DLL_IMPORT stflow_new(int iph, int ikin, int itr);
+    int DLL_IMPORT stflow_setPressure(int i, double p);
+    int DLL_IMPORT stflow_setFixedTempProfile(int i, int n, double* pos, 
+        double* temp);
+    int DLL_IMPORT stflow_solveSpeciesEqs(int i, int flag);
+    int DLL_IMPORT stflow_solveEnergyEqn(int i, int flag);
+
+    int DLL_IMPORT sim1D_new(int nd, int* domains);
+    int DLL_IMPORT sim1D_del(int i);
+    int DLL_IMPORT sim1D_setValue(int i, int dom, int comp, int localPoint, double value);
+    int DLL_IMPORT sim1D_setProfile(int i, int dom, int comp, 
+        int np, double* pos, double* v);
+    int DLL_IMPORT sim1D_setFlatProfile(int i, int dom, int comp, double v);
+    int DLL_IMPORT sim1D_showSolution(int i, char* fname);
+    int DLL_IMPORT sim1D_setTimeStep(int i, double stepsize, int ns, int* nsteps);
+    int DLL_IMPORT sim1D_solve(int i, int loglevel, int refine_grid);
+    int DLL_IMPORT sim1D_refine(int i, int loglevel);
+    int DLL_IMPORT sim1D_setRefineCriteria(int i, int dom, double ratio,
+        double slope, double curve);
+    int DLL_IMPORT sim1D_save(int i, char* fname, char* id, 
+        char* desc);
+    int DLL_IMPORT sim1D_restore(int i, char* fname, char* id);
+    int DLL_IMPORT sim1D_writeStats(int i);
+    int DLL_IMPORT sim1D_domainIndex(int i, char* name);
+    double DLL_IMPORT sim1D_value(int i, int idom, int icomp, int localPoint);
+    double DLL_IMPORT sim1D_workValue(int i, int idom, 
+        int icomp, int localPoint);
+    int DLL_IMPORT sim1D_eval(int i, double rdt, int count);
+}
+
+
+#endif

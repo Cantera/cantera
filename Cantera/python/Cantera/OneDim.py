@@ -49,55 +49,74 @@ class OneDim:
 
     
     def __init__(self, domains):
+        """Create a new one-didmensional model from a list of domains. """
+
+        # instance variables
         self._size = []
         self._start = []
         self._end = []
-        self._domain = []
-        self._flow = []
+        self._domain = []     # all domains
+        self._flow = []       # extended domains
         self._shape = []
         self._loc = 0
         self._opt = {}
         self.time = 0.0
         self.x = array([0.0,],'d')
         self._surf = []
-        dtype = []
-        dlist = []
         self.npts = []
+
+        # local variables
+        dtype = []          # list of integer domain types
+        dlist = []          # list of integer domain ids
+
+        # add each domain
         for d in domains:
+            
             if d.domainType == 0:
                 self.addFlow(d)
-                dtype.append(0)
                 dlist.append(d.flow_id())
                 self.npts.append(d.nPoints())
+
             elif d.domainType == 1:
                 self.addSurface(d)
-                dtype.append(1)
                 dlist.append(d.surf_id())
                 self.npts.append(1)
+
             elif d.domainType == 2:
                 self.addBoundary(d)
-                dtype.append(2)
                 dlist.append(d.bndry_id())
                 self.npts.append(1)
+
             else:
                 raise 'unknown domain type'
+            dtype.append(d.domainType)
+
         self.__onedim_id = _cantera.onedim_new(len(dlist),
-                                             array(dlist,'i'),
-                                             array(dtype,'i'))
+                                               array(dlist,'i'),
+                                               array(dtype,'i'))
         self.collect()        
         self.restoreDefaults();
         self.ienergy = 0
         self.ts_jac_age = 50
+
         
     def __del__(self):
+        """Delete the kernel object.
+
+        This does not delete the individual domains."""
         _cantera.onedim_del(self.__onedim_id)
 
+
     def addFlow(self, flow):
-    
+
+        # add the domain to the list of all domains and to the list of
+        # extended domains
         self._domain.append(flow)
         self._flow.append(flow)
+
+        # set the index of this domain
         flow.index = len(self._domain) - 1
-        
+
         np, nv = flow.shape()
         self._shape.append((np,nv))
         self._size.append(np*nv)
@@ -129,6 +148,7 @@ class OneDim:
         """
         for i in range(len(self._domain)):
             self._domain[i].x = self.solution(i)
+
             
     def solution(self, i):
         """ Return the solution array for domain i.
@@ -167,6 +187,7 @@ class OneDim:
         self._loc += np*nv
         self._end.append(self._loc)
 
+
     def addBoundary(self, b):
         """Add a boundary domain."""
         #self._surf.append(surf)
@@ -196,7 +217,7 @@ class OneDim:
 
         iok = _cantera.onedim_solve(self.__onedim_id, self.x,
                                    self.xnew, loglevel)
-        if loglevel > 0: print _cantera.readlog()
+        #if loglevel > 0: print _cantera.readlog()
         if iok >= 0:
             _cantera.copy(size(self.x),self.xnew,self.x)
         elif iok > -10:
@@ -258,6 +279,7 @@ class OneDim:
         self._opt = {}
         self.setOptions(
             max_jac_age = 20,
+            ts_jac_age = 30,
             timestep = 1.e-6,
             min_timestep = 1.e-12,
             max_timestep = 0.1,
@@ -369,7 +391,7 @@ class OneDim:
     def c_timeStep(self, nsteps, dt, loglevel = 0):
         dtnew = _cantera.onedim_timestep(self.__onedim_id, nsteps, dt,
                                self.x, self.xnew, loglevel)
-        print _cantera.readlog()
+        #print _cantera.readlog()
         return dtnew
 
 
@@ -381,8 +403,9 @@ class OneDim:
         loglevel -- controls amount of printed diagnostics
         """
 
-        self.setNewtonOptions(max_jac_age = self.ts_jac_age)
-
+        self.setNewtonOptions(max_jac_age = self._opt['ts_jac_age'])
+        print 'max jac age = ',self._opt['ts_jac_age']
+        
         if loglevel > 0:
             print_heading('Begin time integration.\n\n')
             print(' step    size (s)    log10(ss) ')
@@ -400,8 +423,8 @@ class OneDim:
                 m = self.newton_solve(loglevel-1)
                 self.time += dt
                 n += 1
-                if m == 100: dt *= 1.5
-                #if m > 0: dt *= 1.5
+                if m == 100:
+                    dt *= 1.5
                 if dt > maxdt: dt = maxdt
                 if loglevel > 0: print
                 
@@ -425,7 +448,7 @@ class OneDim:
 
     def showStatistics(self):
         _cantera.onedim_writestats(self.__onedim_id)
-        print _cantera.readlog()
+        #print _cantera.readlog()
 
 
     def save(self, filename, id, desc=""):
@@ -449,6 +472,6 @@ class OneDim:
             fn = filename + '.xml'
             
         _cantera.onedim_save(self.__onedim_id, fn, id, desc, self.x)
-        print _cantera.readlog()
+        #print _cantera.readlog()
 
 

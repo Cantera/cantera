@@ -3,7 +3,7 @@ dep
 #ifndef CT_SURF1D_H
 #define CT_SURF1D_H
 
-#include "Resid1D.h"
+#include "Domain1D.h"
 #include "SurfPhase.h"
 #include "InterfaceKinetics.h"
 #include "StFlow.h"
@@ -16,11 +16,11 @@ namespace Cantera {
     // surface is zero-dimensional, and defined by a set of surface
     // species coverages.
 
-    class Surf1D : public Resid1D {
+    class Surf1D : public Domain1D {
 
     public:
 
-        Surf1D(InterfaceKinetics* skin = 0) : Resid1D(1, 1, 0.0) {
+        Surf1D(InterfaceKinetics* skin = 0) : Domain1D(1, 1, 0.0) {
             m_type = cSurfType; 
             m_flow_left = 0;
             m_flow_right = 0;
@@ -119,7 +119,7 @@ namespace Cantera {
 
             // check for left and right flow objects
             if (m_index > 0) {
-                Resid1D& r = container().domain(m_index-1);
+                Domain1D& r = container().domain(m_index-1);
                 if (r.domainType() == cFlowType) {
                     m_flow_left = (StFlow*)&r;
                     m_left_nv = m_flow_left->nComponents();
@@ -143,7 +143,7 @@ namespace Cantera {
             }
             
             if (m_index < container().nDomains() - 1) {
-                Resid1D& r = container().domain(m_index+1);
+                Domain1D& r = container().domain(m_index+1);
                 if (r.domainType() == cFlowType) {
                     m_flow_right = (StFlow*)&r;
                     m_right_nv = m_flow_right->nComponents();

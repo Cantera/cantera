@@ -1,7 +1,21 @@
+/**
+ * @file ctmethods.cpp
+ *
+ * The interface between the MATLAB environment and the C++ Cantera
+ * kernel is through a single MEX file. This is top-level driver for
+ * the MEX file.
+ * 
+ * This file handles the methods of all Cantera MATLAB classes. The
+ * class is indicated by the first parameter in the call from MATLAB.
+ */
 
 #include "mex.h"
 #include "../../../clib/src/ct.h"
 #include "ctmatutils.h"
+
+namespace Cantera {
+    void setMatlabMode(bool m);
+}
 
 const int NO_CLASS = 0;
 const int XML_CLASS = 10;
@@ -12,24 +26,53 @@ const int TRANSPORT_CLASS = 50;
 const int REACTOR_CLASS = 60;
 const int WALL_CLASS = 70;
 const int FLOWDEVICE_CLASS = 80;
+const int ONEDIM_CLASS = 90;
 
-void ctfunctions( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] );
-void xmlmethods( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] );
-void thermomethods( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] );
-void phasemethods( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] );
-void kineticsmethods( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] );
-void transportmethods( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] );
-void reactormethods( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] );
-void wallmethods( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] );
-void flowdevicemethods( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] );
+void ctfunctions( int nlhs, mxArray *plhs[], int nrhs, 
+    const mxArray *prhs[] );
+
+void xmlmethods( int nlhs, mxArray *plhs[], int nrhs, 
+    const mxArray *prhs[] );
+
+void thermomethods( int nlhs, mxArray *plhs[], int nrhs, 
+    const mxArray *prhs[] );
+
+void phasemethods( int nlhs, mxArray *plhs[], int nrhs, 
+    const mxArray *prhs[] );
+
+void kineticsmethods( int nlhs, mxArray *plhs[], int nrhs, 
+    const mxArray *prhs[] );
+
+void transportmethods( int nlhs, mxArray *plhs[], int nrhs, 
+    const mxArray *prhs[] );
+
+void reactormethods( int nlhs, mxArray *plhs[], int nrhs, 
+    const mxArray *prhs[] );
+
+void wallmethods( int nlhs, mxArray *plhs[], int nrhs, 
+    const mxArray *prhs[] );
+
+void flowdevicemethods( int nlhs, mxArray *plhs[], int nrhs, 
+    const mxArray *prhs[] );
+
+void onedimmethods( int nlhs, mxArray *plhs[], int nrhs, 
+    const mxArray *prhs[] );
+
+
 
 extern "C" {
 
     void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[] )
     {
+        // flag specifying the class
         int iclass = getInt(prhs[0]);
+        
+        // specifies that function writelog should write to MATLAB
+        Cantera::setMatlabMode(true);
 
+        // Hand off to the appropriate routine, based on the
+        // value of the first parameter
         switch (iclass) {
         case NO_CLASS:
             ctfunctions(nlhs, plhs, nrhs, prhs); break;
@@ -49,6 +92,8 @@ extern "C" {
             wallmethods(nlhs, plhs, nrhs, prhs); break;
         case FLOWDEVICE_CLASS:
             flowdevicemethods(nlhs, plhs, nrhs, prhs); break;
+        case ONEDIM_CLASS:
+            onedimmethods(nlhs, plhs, nrhs, prhs); break;
         default:
             mexErrMsgTxt("unknown class");
         }
