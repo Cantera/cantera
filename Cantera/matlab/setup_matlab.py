@@ -1,10 +1,10 @@
 
 import sys
 
-bindir = '/usr/local/bin'
-libdir = '/Users/dgg/dv/sf/cantera/build/lib/powerpc-apple-darwin7.0.0'
-incdir = '/Users/dgg/dv/sf/cantera/build/include'
-libs   = ' -loneD -lzeroD -ltransport -lcantera -lrecipes -lcvode -lctlapack -lctmath -lctblas -ltpx  -lg2c -lgcc'
+bindir = 'c:/cantera/bin'
+libdir = 'd:/dgg/dv/sf/cantera/build/lib/i686-pc-win32'
+incdir = 'd:/dgg/dv/sf/cantera/build/include'
+libs   = ' -loneD -lzeroD -ltransport -lcantera -lrecipes -lcvode -lctlapack -lctmath -lctblas -ltpx  '
 
 f = open('setup.m','w')
 f.write('cd cantera\nbuildux\nexit\n')

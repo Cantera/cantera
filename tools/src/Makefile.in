@@ -2,7 +2,7 @@
 
 LIBDIR = @buildlib@
 INCDIR = -I@ctroot@/Cantera/src
-BINDIR = @ctroot@/bin
+BINDIR = @buildbin@/bin
 build_ck = @BUILD_CK@
 
 LCXX_FLAGS = -L$(LIBDIR)  @CXXFLAGS@

@@ -290,22 +290,6 @@ export SOEXT
 export MAKE
 export RPFONT
 
-#checkroot="checking whether CANTERA_ROOT is properly set..."
-#if test "$CANTERA_ROOT_INIT" = "$CANTERA_ROOT"; then 
-#    echo $checkroot' 'yes
-#else
-#    echo $checkroot' 'no
-#    echo '
-####  IMPORTANT!
-####  before using Cantera, set environment variable 
-####  CANTERA_ROOT to '$CANTERA_ROOT
-#    if test -n "$CANTERA_ROOT_INIT"; then
-#        echo '####  (CANTERA_ROOT is currently set to '$CANTERA_ROOT_INIT')
-# '
-#    fi
-#
-#fi
-
 cd config
 chmod +x ./configure 
 chmod +x ./config.guess

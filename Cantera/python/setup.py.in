@@ -9,7 +9,9 @@ libs = []
 platform = sys.platform
 
 if platform == "win32":
-    libs = ["cantera14"]
+    libs = ["clib", "zeroD","oneD","transport",
+            "cantera","recipes","ctlapack",
+            "ctblas", "ctmath", "cvode", "tpx"]
 else:
     libs = ["clib", "zeroD","oneD","transport",
             "cantera","recipes","ctlapack",

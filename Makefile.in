@@ -22,7 +22,7 @@ all: kernel user cxxlib hdr-collect clib python matlab utils datafiles
 
 # use this target on a Windows machine to build the Python and
 # MATLAB interfaces after building the project in Visual C++
-win: python matlab 
+win: hdr-collect python matlab 
 
 
 install: hdr-install kernel-install data-install python-install matlab-install tools-install finish-install

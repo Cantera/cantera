@@ -13,6 +13,9 @@ CANTERA_LIBDIR= @buildlib@
 LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
            $(CANTERA_LIBDIR)/liboneD.a \
            $(CANTERA_LIBDIR)/libtransport.a
+WIN_LIB_DEPS = $(CANTERA_LIBDIR)/cantera.lib $(CANTERA_LIBDIR)/zeroD.lib \
+           $(CANTERA_LIBDIR)/oneD.lib \
+           $(CANTERA_LIBDIR)/transport.lib
 SRCS = src/ctphase_methods.cpp \
       src/ctthermo_methods.cpp \
       src/ctkinetics_methods.cpp \
@@ -41,19 +44,13 @@ _build: $(SRCS) $(LIB_DEPS)
 
 _winbuild: $(SRCS)
 	touch src/pycantera.cpp 
-	cp -f winsetup.py setup.py
 	(@PYTHON_CMD@ setup.py build)
 	echo 'ok' > _winbuild
 
 install:
-ifeq ($(os_is_win),0)
 ifeq (@local_inst@,1)
 	(@PYTHON_CMD@ setup.py install --prefix=@prefix@)
 else
-	(@PYTHON_CMD@ setup.py install)
-endif
-else
-	cp -f winsetup.py setup.py
 	(@PYTHON_CMD@ setup.py install)
 endif
 

@@ -33,7 +33,12 @@ esac
 
 local_inst=1
 if test "x${prefix}" = "xNONE"; then
-         prefix=${ac_default_prefix}
+         if test "x${OS_IS_WIN}" = "x1"; then
+           prefix="/cygdrive/c/cantera"
+           mkdir ${prefix}
+         else
+           prefix=${ac_default_prefix}
+         fi
          local_inst=0
 	 if test ! -d ${prefix}; then
   echo 
@@ -119,6 +124,9 @@ AC_SUBST(CANTERA_DATADIR)
 ctroot=`(cd ..;pwd)`
 if test "x${OS_IS_WIN}" = "x1"; then
   ctroot=`cygpath -a -w "${ctroot}" | sed 's/\\\/\\//g'`
+  builddir="i686-pc-win32"
+else
+  builddir=$target
 fi
 
 if test -z "$username"; then username=$USER; fi
@@ -132,8 +140,11 @@ AC_CANONICAL_SYSTEM()
 buildinc=$ctroot/build/include
 AC_SUBST(buildinc)
 
-buildlib=$ctroot/build/lib/$target
+
+buildlib=$ctroot/build/lib/$builddir
 AC_SUBST(buildlib)
+buildbin=$ctroot/build/bin/$builddir
+AC_SUBST(buildbin)
 
 AC_DEFINE_UNQUOTED(DARWIN,$OS_IS_DARWIN)
 AC_DEFINE_UNQUOTED(RXNPATH_FONT,"$RPFONT")
@@ -382,12 +393,18 @@ AC_SUBST(export_name)
 
 
 dnl Checks for programs.
+AC_PROG_INSTALL
+precompile_headers=no
+if test "x$OS_IS_WIN" = "x1"; then
+CXX=cl.exe
+CC=cl.exe
+else
+
 AC_PROG_CXX()
 AC_PROG_CC()
-AC_PROG_INSTALL
 
 AC_MSG_CHECKING(for ability to precompile headers)
-precompile_headers=no
+
 if test -n "$GCC"; then
  msg=`rm -f *h.gch; $CXX testpch.h &> /dev/null`
  if test -f testpch.h.gch; then 
@@ -395,9 +412,7 @@ if test -n "$GCC"; then
  fi
 fi
 AC_MSG_RESULT(${precompile_headers})
-AC_SUBST(precompile_headers)
 
-AC_SUBST(CXX_DEPENDS)
 
 #---------------------------------
 #     Fortran
@@ -416,6 +431,15 @@ AC_F77_LIBRARY_LDFLAGS()
 case $ac_sys_system in
   Darwin*)  FLIBS='-lg2c -lgcc'; SHARED_CTLIB=0;;
 esac
+
+
+AC_OBJEXT
+AC_EXEEXT
+
+fi
+
+AC_SUBST(precompile_headers)
+AC_SUBST(CXX_DEPENDS)
 AC_SUBST(FLIBS)
 AC_SUBST(OS_IS_DARWIN)
 AC_SUBST(OS_IS_WIN)
@@ -428,9 +452,6 @@ AC_SUBST(F77_EXT)
 
 
 AC_LANG_CPLUSPLUS
-
-AC_OBJEXT
-AC_EXEEXT
 
 if test -z "$CXX_EXT"; then CXX_EXT=cpp; fi
 AC_SUBST(CXX_EXT)
