@@ -12,75 +12,64 @@
 % that models an ideal gas mixture with the species and reactions of
 % GRI-Mech 3.0. Another way to do this is shown here:
 
-gas = IdealGasMix('gri30.xml')
+gas = IdealGasMix('gri30.cti')
 
 % Function 'IdealGasMix' constructs an object representing an ideal
 % gas mixture by reading in attributes of the mixture from a file,
-% which in this case is 'gri30.xml'. This file contains a complete
+% which in this case is 'gri30.cti'. This file contains a complete
 % specification of the GRI-Mech 3.0 reaction mechanism, including
 % element data (name, atomic weight), species data (name, elemental
 % composition, coefficients to compute thermodynamic and transport
 % properties), and reaction data (stoichiometry, rate coefficient
-% parameters). The file is written in an XML dialect understood by
-% Cantera (CTML, or "Cantera Markup Language").
+% parameters). The file is written in a format understood by
+% Cantera, which is described in the document "Defining Phases and
+% Interfaces."
 %
-% Several reaction mechanism files in CTML format are included in the
+% Several reaction mechanism files in this format are included in the
 % Cantera distribution, including ones that model high-temperature air
 % and a hydrogen/oxygen reaction mechanism.  Under Windows, the
 % installation program puts these files in 'C:\Program
 % File\Common Files\Cantera.'  On a unix/linux machine, they are
-% kept in the 'data/inputs' subdirectory within the Cantera
+% kept in the 'data' subdirectory within the Cantera
 % installation directory.
 %
 %
 % CK-format files
 % ---------------
 %
-% Cantera also can use reaction mechanism files written in the format
-% used in the Chemkin-II software package [1], which we will refer to
-% as 'CK format'. Many gas-phase reaction mechanisms are available in
-% this format. (See, for example, 
-%  http://www.galcit.caltech.edu/EDL/mechanisms/library/library.html)
+% Cantera also comes with a converter utility for reaction mechanism
+% files written in the format used in the Chemkin-II software package
+% [1], which we will refer to as 'CK format'. Many gas-phase reaction
+% mechanisms are available in this format. (See, for example,
+% http://www.galcit.caltech.edu/EDL/mechanisms/library/library.html)
 
-% To use a CK-format reaction mechanism file, call IdealGasMix with
-% the file name, followed by the name of the thermodynamic property
-% database (optional), followed by the name of the transport
-% database (optional):
+% To use a CK-format reaction mechanism file, from the command line 
+% type:
 %
-% gas1 = IdealGasMix('mech1.inp')
-% gas2 = IdealGasMix('mech2.inp','therm.dat')
-% gas3 = IdealGasMix('mech2.inp','therm.dat','tran.dat')
+% ck2cti -i mech.ck -t therm.dat -tr tran.dat -id mymechname > mech.cti
 %
-% If no transport database is specified, then transport property
-% evaluation is disabled. 
-%
-% When function IdealGasMix is called with a CK file as an
-% argument, an equivalent file in CTML format is written, and then
-% the mixture attributes are read in from the CTML file. The next
-% time you use the mechanism, you can simply specify the CTML file:
-%
-% gas2 = IdealGasMix('mech2.xml')
-%
-% Note that CTML files contain all required thermodynamic and
-% transport data, and so no external databases need be specified.
+% Here therm.dat is a CK-format file containing species thermo
+% data, and tran.dat is a Chemkin-compatible transport database. If
+% transport properties are not needed, the transport database can
+% be omitted, and if all species thermo data are in the mechanism
+% file, the thermo database can also be omitted.
+
+% How does Cantera find .cti input files?  Cantera always looks in the
+% local directory first. If it is not there, Cantera looks for it on
+% its search path. It looks for it in the data directory specified
+% when Cantera was built (by default this is /usr/local/cantera/data
+% on unix systems). If you define environment variable
+% CANTERA_DATA_DIR, it will also look there, or else you can call
+% function addDirectory to add a directory to the search path.
+
+% Warning: when Cantera reads a .cti input file, wherever it is
+% located, it always writes a file of the same name but with extension
+% .xml *in the local directory*. If you happen to have some other file
+% by that name, it will be overwritten. Once the XML file is created,
+% you can use it instead of the .cti file, which will result in
+% somewhat faster startup.
 
 
-% The Search Path
-% ---------------
-%
-% Cantera looks in several standard directories for input files. As
-% long as you have set CANTERA_ROOT correctly, you can use file
-% 'gri30.xml' and the others that come with Cantera from any
-% directory. But note that Cantera always looks in the local directory
-% first. So if you have a modified file of the same name in the local
-% directory, it will be used instead.
-%
-% If you have a directory where you keep files you want to use with
-% Cantera, you can add it to the Cantera search path. For example, to
-% add directory '/usr/local/lib/inputs' to the search path, call the
-% MATLAB function 'addDirectory':
-%
-% addDirectory('/usr/local/lib/inputs')
 
 
 %----------------------------------------------------------------
