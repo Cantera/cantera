@@ -46,6 +46,8 @@ namespace Cantera {
     class GasKineticsData {
     public:
         GasKineticsData() :
+	    m_logp0(0.0),
+	    m_logc0(0.0),
             m_ROP_ok(false), 
             m_temp(0.0)
             {}
