@@ -34,6 +34,7 @@ SRCS = src/ctphase_methods.cpp \
       src/methods.h
 
 os_is_win = @OS_IS_WIN@
+use_clib_dll = @USE_CLIB_DLL@
 
 all: _build 
 
@@ -48,15 +49,22 @@ _build: $(SRCS) $(LIB_DEPS)
 # HKM -> If clib is built as a dll, it needs to be copied by hand to the
 #        site package directory.
 #
+ifeq ($(use_clib_dll), 1)
 CLIB_DLL=../../build/lib/i686-pc-win32/clib.dll
 CLIB_EXP=../../build/lib/i686-pc-win32/clib.exp
+else
+CLIB_DLL=
+CLIB_EXP=
+endif
 
 _winbuild: $(SRCS) $(WIN_LIB_DEPS) $(CLIB_DLL)
 	touch src/pycantera.cpp 
 	(@PYTHON_CMD@ setup.py build)
+ifeq ($(use_clib_dll), 1)
 ifeq ($(have_python_site_package_topdir), 1)
 	(@INSTALL@ -m 755 $(CLIB_DLL) $(CLIB_EXP)  \
             $(python_site_package_topdir)/lib/site-packages/Cantera)
+endif
 endif
 	echo 'ok' > _winbuild
 
