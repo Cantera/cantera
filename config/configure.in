@@ -551,7 +551,9 @@ AC_OUTPUT(../Cantera/Makefile \
           ../Cantera/matlab/setup_winmatlab.py \
 	  ../Cantera/python/Makefile \
           ../Cantera/python/setup.py \
+	  ../Cantera/cxx/Makefile \
 	  ../Cantera/cxx/src/Makefile \
+	  ../Cantera/cxx/demo/Makefile \
 	  ../Cantera/user/Makefile \
 	  ../Cantera/python/src/Makefile \
           ../ext/lapack/Makefile \
