@@ -579,7 +579,7 @@ AC_OUTPUT(../Cantera/Makefile \
           ../test_problems/diamondSurf/Makefile ) 
 #	)
 
-cp -f ../config.h ../Cantera/src
+#cp -f ../config.h ../Cantera/src
 echo
 if test "x${OS_IS_WIN}" = "x0"; then
 echo "Now type '${MAKE}' to build Cantera"

@@ -1,18 +1,21 @@
 
-Cantera should build 'out of the box' on linux, cygwin, Mac OS X, and
-Solaris. It should build on most other variants of unix with some
-tweaking. The build process runs a few Python scripts, so you need to
-have Python present whether or not you plan to install the Cantera
-Python interface. Linux and Mac OS X have python pre-installed; many
-other systems have it too. If yours does not, you can get it at
-www.python.org.
+Cantera should build 'out of the box' on systems running linux,
+cygwin, Mac OS X, Solaris, and MS-Windows. The Windows build procedure
+differs from the procedure for unix-like systems; it is described
+after the unix build procedure.
+
+The Python scripting language must be installed before building
+Cantera, since a few Python scripts are run during the build
+process. Linux and Mac OS X systems come with Python preinstalled; for
+other systems, Python can be downloaded from www.python.org.
 
 
 ====================================================================
-                        Build Instructions
+                        Unix/Linux Build Instructions
 ====================================================================
 
-To build Cantera and install it in /usr/local:
+To build Cantera with a default configuration and install it in
+/usr/local, type:
 
 ./configure
 make 
@@ -51,16 +54,22 @@ cantera will be installed into these directories.
 Configuring the Environment
 ---------------------------
 
-The build process will create an initialization script 'cantera.rc'. Type 
+The build process will create a shell script 'cantera.cfg' that
+configures the environment for Cantera. This should be run by typing
 
-source /usr/local/cantera/cantera.rc 
+source /usr/local/cantera/cantera.cfg
 
-to set the environment for Cantera. Alternatively, copy cantera.rc to your
-home directory as .cantera, and add the line
+to set environment variables before using Cantera. This may not be
+necessary if a default installation into /usr/local is done, but is
+necessary if a custom installation is done.
 
-source .cantera
+If the HOME environment variable is set, the build process will copy
+cantera.cfg to your home directory. You can insure that the latest
+version of cantera.cfg is run every time you log in by adding the line
 
-to your login script.
+source cantera.cfg
+
+to your shell login script.
 
 
 
@@ -71,29 +80,76 @@ If Python 2.x is installed, and the Numeric package is installed, then
 the Cantera Python interface will be built and installed.
 
 
+
 The MATLAB Toolbox
 ------------------
 
 If MATLAB is present, the MATLAB toolbox will be built and installed.
+If this is not desired, set environment variable BUILD_MATLAB_TOOLBOX
+to anything but "y" before running the 'configure' script, or edit the 'configure' script to set 
+
 
 
 Customizing
 -----------
 
-Before running configure, the following environment variables may be set:
+The configure script may be customized by editing it to set the values
+of various variables before running it. Alternatively, these variables 
+may be set in the environment before running configure. 
+
+Some of the variables that may be set are listed here.
 
 MAKE                     set to 'make' utility compatible with GNU make
 
-CXX                      C++ compiler
+CXX                      C++ compiler (default: 'g++')
 
-F77                      Fortran 77 compiler
+F77                      Fortran 77 compiler (default: 'g77')
 
 PYTHON_CMD               Python interpreter to use with Cantera 
                          (default: 'python')
 
 MATLAB_CMD               Matlab command (default: 'matlab')
 
-Additional customization can be done by editing the configure script
-before running it.
 
 
+
+
+====================================================================
+                        Windows Build Instructions
+====================================================================
+
+Requirements:
+
+1) cygwin                      (www.cygwin.com)
+2) python                      (www.python.org)
+3) MS Visual C++ 6.0  
+4) Compaq Visual Fortran 6.0  
+
+The Cantera build procedure for Windows requires the cygwin linux-like
+environment, so that the 'configure' script can be run and the 'make'
+utility used. Cygwin can be downloaded from www.cygwin.com. Only a
+minimal cygwin installation is needed. In particular, no compilers are
+required. During the installation of cygwin, you will be asked if text
+files should use unix or DOS line endings; select DOS.
+
+Cantera can be built under Windows using Microsoft Visual C++ 6.0 and
+Compaq Visual Fortran 6.0. 
+
+To perform a Windows installation, open a cygwin shell window, go to the 
+top-level directory of the Cantera source tree, and type 
+
+./configure
+
+By default, Cantera will be installed in c:/cantera; to change this,
+specify the prefix option as described for the unix build procedure
+above.
+
+After running configure, start Visual Studio and open workspace
+win32/cantera.dsw. Set the build configuration to 'Release' and build
+project 'all'. When this finishes, return to the cygwin shell and type
+
+make win
+make win-install
+
+After these commands finish, you should have a complete Cantera
+installation including the Python interface and the Matlab toolbox.

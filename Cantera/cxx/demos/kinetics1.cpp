@@ -18,6 +18,8 @@
 
 #include <cantera/zerodim.h>
 #include <cantera/IdealGasMix.h>
+#include <cantera/numerics.h>
+
 #include <time.h>
 #include "example_utils.h"
 

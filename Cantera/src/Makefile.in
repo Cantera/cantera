@@ -62,6 +62,7 @@ all:  config.h $(PCH) @KERNEL@ lib
 config.h: ../../config.h
 	cp -f ../../config.h ./config.h
 
+#	@(if test "x`diff -bB --brief config.h ../../config.h`" != "x"; then (cp -f ../../config.h ./config.h; echo 'copied ../../config.h'); fi)
 
 %.h.gch:
 ifeq (@precompile_headers@,yes)

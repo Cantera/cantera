@@ -98,6 +98,8 @@ namespace Cantera {
             copy(soln, soln + m_x.size(), m_x.begin());
         }
 
+        const doublereal* solution() const { return m_x.begin(); }
+
     protected:
 
         vector_fp m_x;          // the solution vector
