@@ -212,7 +212,7 @@ namespace ctml {
      * Get a floating-point value from a child element.  Returns a
      * double value for the child named 'name' of element 'parent'. If
      * 'type' is supplied and matches a known unit type, unit
-     * conversion will be done if the child element has an attribute
+     * conversion to SI will be done if the child element has an attribute
      * 'units'.
      */
     doublereal getFloat(XML_Node& parent, string name, string type) {
