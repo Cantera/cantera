@@ -64,7 +64,7 @@ f.close()
 # write the script to copy files to build a new app
 f = open(bindir+'/ctnew','w')
 f.write("""#!/bin/sh
-if test $1 = '-f77'; then
+if test "x$1" = "x-f77"; then
 cp """+templdir+"""/f77/*.* .
 else
 cp """+templdir+"""/cxx/*.* .

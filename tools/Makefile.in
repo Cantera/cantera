@@ -14,6 +14,7 @@ apps:
 apps-install:
 	@INSTALL@ -d @ct_bindir@
 	@INSTALL@ ../bin/ck2cti @ct_bindir@
+	@INSTALL@ ../bin/cti2ctml @ct_bindir@
 
 man-install:
 	@INSTALL@ -d @ct_mandir@/man1
