@@ -405,10 +405,13 @@ namespace Cantera {
                  // The default boundary condition for species is zero
                  // flux. However, the boundary object may modify
                  // this.
+                 sum = 0.0;
                  for (k = 0; k < m_nsp; k++) {
+                     sum += Y(x,k,0);
                      rsd[index(c_offset_Y + k, 0)] =  
                          -(m_flux(k,0) + rho_u(x,0)* Y(x,k,0));
                  }
+                 rsd[index(c_offset_Y, 0)] = 1.0 - sum; 
             }
 
 

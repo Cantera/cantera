@@ -186,7 +186,7 @@ namespace Cantera {
             rb[1] -= m_V0;
 
             rb[3] += x[0];       // lambda
-            for (k = 0; k < m_nsp; k++) {
+            for (k = 1; k < m_nsp; k++) {
                 if (m_flow->doSpecies(k)) {
                     rb[4+k] += x[0]*m_yin[k];
                 }

@@ -23,9 +23,9 @@ comp2       =  'C2H6:1';            % fuel composition
 
 initial_grid = 0.02*[0.0 0.2 0.4 0.6 0.8 1.0];  % m
 
-tol_ss    = [1.0e-5 1.0e-12];       % [rtol atol] for steady-state
+tol_ss    = [1.0e-5 1.0e-9];       % [rtol atol] for steady-state
                                     % problem
-tol_ts    = [1.0e-3 1.0e-4];        % [rtol atol] for time stepping
+tol_ts    = [1.0e-3 1.0e-9];        % [rtol atol] for time stepping
 
 loglevel  = 1;                      % amount of diagnostic output (0
                                     % to 5)
@@ -97,7 +97,7 @@ solve(fl, loglevel, 0); %refine_grid);
 %
 
 enableEnergy(f);
-setRefineCriteria(fl, 2, 200.0, 0.1, 0.1);
+setRefineCriteria(fl, 2, 200.0, 0.1, 0.2);
 solve(fl, loglevel, refine_grid);
 saveSoln(fl,'c2h6.xml','energy',['solution with energy' ...
 		    ' equation']);
