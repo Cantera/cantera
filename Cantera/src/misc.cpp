@@ -43,17 +43,21 @@ namespace Cantera {
     class Application {
     public:
         Application() : linelen(0), stop_on_error(false),
-#ifdef WIN32
-                        tmp_dir(".") 
-#else
-            tmp_dir("/tmp") 
-#endif
+                        //#ifdef WIN32
+                        tmp_dir("."), sleep("1") 
+            //#else
+            //tmp_dir(".") 
+            //#endif
             {
                 char* tmpdir = getenv("TMP");
                 if (tmpdir == 0) 
                     tmpdir = getenv("TEMP");
                 if (tmpdir != 0)
                     tmp_dir = string(tmpdir);
+                char* sleepstr = getenv("SLEEP");
+                if (sleepstr != 0) {
+                    sleep = string(sleepstr);
+                }
             }
 
         virtual ~Application() {
@@ -74,6 +78,7 @@ namespace Cantera {
         map<string, string>     options;
         string tmp_dir;
         map<string, XML_Node*> xmlfiles;
+        string sleep;
     };
         
             
@@ -216,6 +221,7 @@ namespace Cantera {
 
     void setTmpDir(string tmp) { app()->tmp_dir = tmp; }
     string tmpDir() { appinit(); return app()->tmp_dir; }
+    string sleep() { appinit(); return app()->sleep; }
 
     int nErrors() {
         return static_cast<int>(app()->errorMessage.size());

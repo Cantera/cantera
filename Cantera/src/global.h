@@ -64,6 +64,7 @@ namespace Cantera {
     /// The directory where temporary files may be created
     string tmpDir();
 
+    string sleep();
 
     /**
      * Write a diagnostic message to standard output.
