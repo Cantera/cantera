@@ -36,8 +36,12 @@ using namespace std;
 namespace Cantera {
 
 
-    class TransportParams;
-
+    /**
+     * Class DustyGasTransport implements the Dusty Gas model for
+     * transport in porous media. As implemented here, only species
+     * transport is handled. The viscosity, thermal conductivity, and
+     * thermal diffusion coefficients are not implemented.
+    */
     class DustyGasTransport : public Transport {
 
     public:
@@ -48,41 +52,58 @@ namespace Cantera {
         virtual ~DustyGasTransport() {}
 
         // overloaded base class methods
+
         virtual int model() { return cDustyGasTransport; }
 
         virtual void setParameters(int type, int k, doublereal* p);
 
 
         //virtual void getBinaryDiffCoeffs(int ld, doublereal* d);
+
+        /**
+         * Get the multicomponent effective diffusion coefficients.
+         */
         virtual void getMultiDiffCoeffs(int ld, doublereal* d);
 
 
-        // new methods
+        // new methods added in this class
 
+        /**
+         * Get the molar gas species fluxes. These fluxes include both the ordinary mass diffusion component
+         * and the Darcy (pressure-driven) commponent. 
+         */
         void getMolarFluxes(const double* grad_conc,
             double grad_P, double* fluxes);
 
+        /// Set the porosity (dimensionless)
         void setPorosity(doublereal porosity) {
             m_porosity = porosity;
             m_knudsen_ok = false;
             m_bulk_ok = false;
         }
 
+        /// Set the tortuosity (dimensionless)
         void setTortuosity(doublereal tort) {
             m_tortuosity = tort;
             m_knudsen_ok = false;
             m_bulk_ok = false;
         }
 
+        /// Set the mean pore radius (m)
         void setMeanPoreRadius(doublereal rbar) {
             m_pore_radius = rbar;
             m_knudsen_ok = false;
         }
 
+        /// Set the mean particle diameter
         void setMeanParticleDiameter(doublereal dbar) {
             m_diam = dbar;
         }
 
+        /** 
+         * Set the permeability. If not set, the value for
+         * close-packed spheres will be used by default. 
+         */ 
         void setPermeability(doublereal B) {
             m_perm = B;
         }
@@ -91,34 +112,44 @@ namespace Cantera {
          * @internal
          */
 
-        void updateTransport_T();
-        void updateTransport_C();
-
         friend class TransportFactory;
 
     protected:
+
+        // called by TransportFactory
+        void initialize(ThermoPhase* phase, Transport* gastr);
+
+    private:
+
+        void updateTransport_T();
+        void updateTransport_C();
 
         void updateBinaryDiffCoeffs();
         void updateMultiDiffCoeffs();
         void updateKnudsenDiffCoeffs();
         void eval_H_matrix();
-        void initialize(ThermoPhase* phase, Transport* gastr);
-    private:
 
 
-        // mixture attributes
+        // gas attributes
         int m_nsp;
         doublereal m_tmin, m_tmax;
         vector_fp  m_mw;
 
         // property values
+
+        /// binary diffusion coefficients
         DenseMatrix                  m_d;
-        vector_fp                    m_visc;
+
+        /// mole fractions
         vector_fp                    m_x;
+
+        /// Knudsen diffusion coefficients
         vector_fp                    m_dk;
+
+        /// temperature
         doublereal m_temp;
 
-        // H matrix quantities
+        /// multicomponent diffusion coefficients
         DenseMatrix  m_multidiff;
 
         // work space
@@ -135,9 +166,6 @@ namespace Cantera {
 
         Transport* m_gastran;
 
-        doublereal pressure_ig() {
-            return m_thermo->molarDensity() * GasConstant * m_thermo->temperature();
-        }
     };
 }
 #endif

@@ -178,7 +178,6 @@ namespace Cantera {
     }
 
     void DustyGasTransport::updateMultiDiffCoeffs() {
-
         // see if temperature has changed
         updateTransport_T();
 
@@ -189,6 +188,7 @@ namespace Cantera {
         
         // invert H
         int ierr = invert(m_multidiff, m_nsp);
+
         if (ierr != 0) {
             throw CanteraError("DustyGasTransport::updateMultiDiffCoeffs",
                 "invert returned ierr = "+int2str(ierr));
