@@ -57,12 +57,13 @@ def isnum(a):
         return 0
 
 def is_local_species(name):
+    """true if the species named 'name' is defined in this file"""
     if name in _speciesnames:
         return 1
     return 0
 
 def dataset(nm):
-    "Set the dataset name"
+    "Set the dataset name. Invoke this to change the name of the xml file."
     global _name
     _name = nm
 
@@ -74,6 +75,7 @@ def standard_pressure(p0):
 def on_error(undeclared_element = '',
              undeclared_species = '',
              negative_A = ''):
+    """specify an action when an error condition is encountered."""
     global _handle_error
     
     if undeclared_element:
@@ -85,6 +87,7 @@ def on_error(undeclared_element = '',
             
     
 def get_atomic_wts():
+    """get the atomic weights from the elements database."""
     global _atw
     edb = XML_Node('edb', src = 'elements.xml')
     edata = edb.child('ctml/elementData')
@@ -94,8 +97,10 @@ def get_atomic_wts():
             _atw[el['name']] = el['atomicWt']
             if el['atomicWt'] == '':
                 print 'no atomic weight for ',el['name']
+                
     
 def units(length = '', quantity = '', mass = '', time = '', act_energy = ''):
+    """set the default units."""
     global _ulen, _umol, _ue
     if length: _ulen = length
     if quantity: _umol = quantity
@@ -104,6 +109,7 @@ def units(length = '', quantity = '', mass = '', time = '', act_energy = ''):
     if mass: _umass = mass
 
 def ufmt(base, n):
+    """return a string representing a unit to a power n."""
     if n == 0: return ''
     if n == 1: return '-'+base
     if n == -1: return '/'+base
@@ -111,6 +117,7 @@ def ufmt(base, n):
     if n < 0: return '/'+base+`-n`    
     
 def write():
+    """write the CTML file."""
     x = XML_Node("ctml")
     for ph in _phases:
         ph.build(x)
@@ -126,8 +133,13 @@ def write():
         x.write(_name+'.xml')
     else:
         print x
+
             
 def addFloat(x, nm, val, fmt=''):
+    """
+    Add a child element to XML element x representing a
+    floating-point number.
+    """
     u = ''
     s = ''
     if isnum(val):
@@ -146,6 +158,7 @@ def addFloat(x, nm, val, fmt=''):
             s = `v`
         xc = x.addChild(nm, s)
         xc['units'] = u
+
     
 def getAtomicComp(atoms):
     if type(atoms) == types.DictType: return atoms
@@ -255,10 +268,6 @@ class species(writer):
         
 
     def build(self, p):
-        #phname = ''
-        #for ph in _phases:
-        #    if ph.has_species(self._name):
-        #        phname = ph._name
         hdr = '    species '+self._name+'    '
         p.addComment(hdr)        
         s = p.addChild("species")
