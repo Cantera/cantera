@@ -271,7 +271,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_unique_file="Cantera.README"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CVF_LIBDIR local_inst local_python_inst python_prefix ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir COMPACT_INSTALL CANTERA_LIBDIR CANTERA_INCDIR CT_TOOLS_BIN CANTERA_BINDIR CANTERA_EXAMPLES_DIR CANTERA_DATADIR build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE ARCHIVE DO_RANLIB RANLIB SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR build_with_f2c LOCAL_LIB_DIRS LOCAL_LIBS CANTERA_PARTICLES_DIR BUILD_PARTICLES CT_SHARED_LIB foundF90 BUILD_F90 F90 F90FLAGS F77FLAGS PYTHON_CMD WIN_PYTHON_CMD BUILD_PYTHON MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC F77 FFLAGS ac_ct_F77 FLIBS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CVF_LIBDIR local_inst local_python_inst python_prefix ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir COMPACT_INSTALL build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE ARCHIVE DO_RANLIB RANLIB SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR build_with_f2c LOCAL_LIB_DIRS LOCAL_LIBS CANTERA_PARTICLES_DIR BUILD_PARTICLES CT_SHARED_LIB F77FLAGS PYTHON_CMD WIN_PYTHON_CMD BUILD_PYTHON MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC F77 FFLAGS ac_ct_F77 FLIBS BUILD_F90 F90 F90FLAGS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1327,10 +1327,11 @@ local_python_inst=${local_inst}
 if test "x${SET_PYTHON_SITE_PACKAGE_TOPDIR}" = "xy"; then
    python_prefix=${PYTHON_SITE_PACKAGE_TOPDIR}
    local_python_inst=1
+   echo "Cantera's Python packages will be installed in ${python_prefix}"
 else
    python_prefix=$prefix
 fi
-echo "Cantera's Python packages will be installed in ${python_prefix}"
+
 
 
 
@@ -1340,7 +1341,8 @@ ctversion=${CANTERA_VERSION}
 homedir=${HOME}
 
 
-if test -z $local_inst; then
+# default is a distributed unix-like installation; these values may be
+# modified below.
 ct_libdir=${prefix}/lib/cantera/${ctversion}
 ct_incdir=${prefix}/include/cantera
 ct_incroot=${prefix}/include
@@ -1352,44 +1354,32 @@ ct_tutdir=${prefix}/cantera/${ctversion}/tutorials
 ct_docdir=${prefix}/cantera/${ctversion}/doc
 ct_dir=${prefix}/cantera/${ctversion}
 ct_mandir=${prefix}/share/man
-else
-ct_libdir=${prefix}/lib/cantera/${ctversion}
-ct_incdir=${prefix}/include/cantera
-ct_incroot=${prefix}/include
-ct_bindir=${prefix}/bin
-ct_datadir=${prefix}/cantera/${ctversion}/data
-ct_demodir=${prefix}/cantera/${ctversion}/demos
-ct_templdir=${prefix}/cantera/${ctversion}/templates
-ct_tutdir=${prefix}/cantera/${ctversion}/tutorials
-ct_docdir=${prefix}/cantera/${ctversion}/doc
-ct_dir=${prefix}/cantera/${ctversion}
-ct_mandir=${prefix}/share/man
-fi
 
-# default is unix-like distributed installation (not everything within one directory)
-COMPACT_INSTALL=0
+# A compact installation is one in which the $prefix directory
+# contains only Cantera files. It is different than a local
+# installation, in that the Python package is installed with other
+# Python packages and modules in site-packages, rather than with the
+# rest of the Cantera files, as in a local installation.  Therefore,
+# with a compact installation, there is no need to set PYTHONPATH. A
+# compact installation is done on Windows systems and on Mac OS X
+# systems, and a non-compact ("distributed") installation is done by
+# default on other unix/linux systems, unless a local installation is
+# being done.
+
+# default is unix-like distributed installation,
+# unless a local installation is being done.
+COMPACT_INSTALL=$local_inst
 
 if test "x${OS_IS_WIN}" = "x1"; then
 COMPACT_INSTALL=1
-ct_libdir=${prefix}/lib/${ctversion}
-ct_incdir=${prefix}/include/cantera
-ct_incroot=${prefix}/include
-ct_bindir=${prefix}/bin
-ct_datadir=${prefix}/data
-ct_demodir=${prefix}/demos
-ct_templdir=${prefix}/templates
-ct_tutdir=${prefix}/tutorials
-ct_docdir=${prefix}/doc
-ct_dir=${prefix}
-ct_mandir=${prefix}
 fi
 
 if test "x${OS_IS_DARWIN}" = "x1"; then
 COMPACT_INSTALL=1
+fi
+
+if test -n $COMPACT_INSTALL; then
 ct_libdir=${prefix}/lib/${ctversion}
-ct_incdir=${prefix}/include/cantera
-ct_incroot=${prefix}/include
-ct_bindir=${prefix}/bin
 ct_datadir=${prefix}/data
 ct_demodir=${prefix}/demos
 ct_templdir=${prefix}/templates
@@ -1412,20 +1402,20 @@ fi
 
 
 
-CANTERA_DATADIR=$datadir/cantera/data
+
 
 #
 #    Cantera directory structure
 #
-if test -z "$CANTERA_ROOT"; then CANTERA_ROOT=$prefix/cantera; fi
-
-
-if test -z "$CT_TOOLS_BIN"; then CT_TOOLS_BIN=$CANTERA_ROOT/tools/bin; fi
-
-
-if test -z "$CANTERA_EXAMPLES_DIR"; then CANTERA_EXAMPLES_DIR=$CANTERA_ROOT/examples; fi
-
-
+#if test -z "$CANTERA_ROOT"; then CANTERA_ROOT=$prefix/cantera; fi
+#AC_SUBST(CANTERA_LIBDIR)
+#AC_SUBST(CANTERA_INCDIR)
+#if test -z "$CT_TOOLS_BIN"; then CT_TOOLS_BIN=$CANTERA_ROOT/tools/bin; fi
+#AC_SUBST(CT_TOOLS_BIN)
+#AC_SUBST(CANTERA_BINDIR)
+#if test -z "$CANTERA_EXAMPLES_DIR"; then CANTERA_EXAMPLES_DIR=$CANTERA_ROOT/examples; fi
+#AC_SUBST(CANTERA_EXAMPLES_DIR)
+#AC_SUBST(CANTERA_DATADIR)
 
 
 # Make sure we can run config.sub.
@@ -1511,6 +1501,7 @@ test -n "$target_alias" &&
     NONENONEs,x,x, &&
   program_prefix=${target_alias}-
 
+# the root of the source tree
 ctroot=`(cd ..;pwd)`
 builddir=$target
 if test "x${OS_IS_WIN}" = "x1"; then
@@ -1523,8 +1514,9 @@ if test -z "$username"; then username=$USER; fi
 
 
 
+# the include directory in the 'build' subdirectory. This is required to build the test problems
+# before Cantera has been installed.
 buildinc=$ctroot/build/include
-
 
 
 buildlib=$ctroot/build/lib/$builddir
@@ -1532,6 +1524,7 @@ buildlib=$ctroot/build/lib/$builddir
 buildbin=$ctroot/build/bin/$builddir
 
 
+# add definitions to config.h
 cat >>confdefs.h <<_ACEOF
 #define DARWIN $OS_IS_DARWIN
 _ACEOF
@@ -1548,13 +1541,11 @@ cat >>confdefs.h <<_ACEOF
 #define RXNPATH_FONT "$RPFONT"
 _ACEOF
 
-cat >>confdefs.h <<_ACEOF
-#define CANTERA_ROOT "$prefix/cantera"
-_ACEOF
-
+#AC_DEFINE_UNQUOTED(CANTERA_ROOT,"$prefix/cantera")
 cat >>confdefs.h <<_ACEOF
 #define CANTERA_DATA "$ct_datadir"
 _ACEOF
+
 
 
 if test -z "$MAKE"; then MAKE='make'; fi
@@ -1693,13 +1684,9 @@ build_blas=1
 build_lapack=1
 fi
 
-# if test -z "$LAPACK_LIBRARY"; then LAPACK_LIBRARY=-lctlapack; build_lapack=1; fi
-# AC_SUBST(LAPACK_LIBRARY)
 
 
-# build_blas=0
-# if test -z "$BLAS_LIBRARY"; then BLAS_LIBRARY=-lctblas; build_blas=1; fi
-# AC_SUBST(BLAS_LIBRARY)
+
 
 
 
@@ -1830,51 +1817,13 @@ fi
 BUILD_F90=0
 if test "x$BUILD_F90_INTERFACE" = "xy"; then
   BUILD_F90=1
-  # Extract the first word of "$F90", so it can be a program name with args.
-set dummy $F90; ac_word=$2
-echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_foundF90+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test -n "$foundF90"; then
-  ac_cv_prog_foundF90="$foundF90" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_foundF90="yes"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-
-  test -z "$ac_cv_prog_foundF90" && ac_cv_prog_foundF90="no"
+#  AC_CHECK_PROG(foundF90, $F90, yes, no)
+#  if test x$foundF90 = "xno" ; then
+#    echo 'Did not find the Fortran 90 compiler, '$F90
+#    echo "     -> Turning off F90 interface even though it was requested"
+#    BUILD_F90=0
+#  fi
 fi
-fi
-foundF90=$ac_cv_prog_foundF90
-if test -n "$foundF90"; then
-  echo "$as_me:$LINENO: result: $foundF90" >&5
-echo "${ECHO_T}$foundF90" >&6
-else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-fi
-
-  if test x$foundF90 = "xno" ; then
-    echo 'Did not find the Fortran 90 compiler, '$F90
-    echo "     -> Turning off F90 interface even though it was requested"
-    BUILD_F90=0
-  fi
-fi
-
-
-
 
 if test "x$F77FLAGS" = "x"; then
   F77FLAGS=$FFLAGS
@@ -1894,10 +1843,7 @@ fi
 
 WIN_PYTHON_CMD=python
 if test $BUILD_PYTHON -gt 0; then
-if test "$PYTHON_CMD" = "default" ; then
-  PYTHON_CMD=
-fi
-if test -z "$PYTHON_CMD"; then
+  if test "$PYTHON_CMD" = "default"; then
     for ac_prog in python2 python
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
@@ -1992,18 +1938,19 @@ test -n "$WIN_PYTHON_CMD" || WIN_PYTHON_CMD=""none""
       WIN_PYTHON_CMD=`cygpath -a -w "$WIN_PYTHON_CMD" | sed 's/\\\/\\//g'`
       echo "Windows Python command: $WIN_PYTHON_CMD"
     fi
-else
+  else
     echo "Python command preset to $PYTHON_CMD"
-fi
-if test "$PYTHON_CMD" = "none"; then
-  echo
-  echo "********************************************************************"
-  echo "Configuration error. Python is required to build Cantera, but it"
-  echo "cannot be found. Set environment variable PYTHON_CMD to the full path to"
-  echo "the Python interpreter on your system, and run configure again."
-  echo "********************************************************************"
-  exit 1
-fi
+  fi
+
+  if test "$PYTHON_CMD" = "none"; then
+    echo
+    echo "********************************************************************"
+    echo "Configuration error. Python is required to build Cantera, but it"
+    echo "cannot be found. Set environment variable PYTHON_CMD to the full path to"
+    echo "the Python interpreter on your system, and run configure again."
+    echo "********************************************************************"
+    exit 1
+  fi
 else
   PYTHON_CMD=none
   WIN_PYTHON_CMD=none
@@ -3374,6 +3321,7 @@ _ACEOF
 fi
 echo "$as_me:$LINENO: result: ${precompile_headers}" >&5
 echo "${ECHO_T}${precompile_headers}" >&6
+fi
 
 has_sstream=no
 echo "$as_me:$LINENO: checking for sstream" >&5
@@ -3492,7 +3440,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3495:" \
+echo "$as_me:3443:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3669,7 +3617,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3672: \"$ac_link\") >&5
+(eval echo $as_me:3620: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3749,7 +3697,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3752: \"$ac_link\") >&5
+(eval echo $as_me:3700: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3917,15 +3865,74 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
+override_f77_libs=0;
 case $ac_sys_system in
-  Darwin*)  FLIBS='-lstdc++ -lg2c'; SHARED_CTLIB=0;;
+  Darwin*)  FLIBS='-lstdc++ -lg2c'; override_f77_libs=1; SHARED_CTLIB=0;;
 esac
 
-
-
-
-
+if test -n $override_f77_libs; then
+  echo The Fortran 77 libraries on this platform are not correctly determined by
+  echo the configuration process. They are being manually set to
+  echo     FLIBS = $FLIBS
 fi
+
+has_f90=no
+f90type=none
+f90_module_dir='-I'
+f90_opts=''
+
+if test -n ${BUILD_F90}; then
+  echo "$as_me:$LINENO: checking Fortran 90 compiler ($F90) type" >&5
+echo $ECHO_N "checking Fortran 90 compiler ($F90) type... $ECHO_C" >&6
+  cat >> testf90.f90 << EOF
+module mt
+double precision, parameter :: x = 2.3
+end module mt
+program testf90
+use mt
+integer :: i
+end program testf90
+EOF
+  msg=`${F90} -c testf90.f90 &> /dev/null`
+  if test -f testf90.o; then
+    has_f90=yes
+    rm testf90.o
+    f90type=unknown
+  fi
+#
+  msg=`${F90} -V &> f90out`
+  isnag=`grep -c NAGWare f90out`
+  if test "x${isnag}" != "x0"; then
+    f90type="NAG"
+    f90opts="-I. -I${ct_incroot}"
+  fi
+#
+  msg=`${F90} -V -c testf90.f90 &> f90out`
+  isabsoft=`grep -c Absoft f90out`
+  if test "x${isabsoft}" != "x0"; then
+    f90type="Absoft"
+    f90opts="-p. -p${ct_incroot} -s -YEXT_NAMES=LCS -YEXT_SFX=_ -YCFRL=1"
+  fi
+  rm -f testf90.f90 f90out
+  echo "$as_me:$LINENO: result: ${f90type}" >&5
+echo "${ECHO_T}${f90type}" >&6
+  if test -n $BUILD_F90; then
+    if test "x${has_f90}" = "xno"; then
+      echo "   -> cannot build the Fortran 90 interface"
+      BUILD_F90=0
+    fi
+  fi
+fi
+F90FLAGS=${f90opts}' '${F90FLAGS}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4645,12 +4652,6 @@ s,@ct_tutdir@,$ct_tutdir,;t t
 s,@ct_docdir@,$ct_docdir,;t t
 s,@ct_dir@,$ct_dir,;t t
 s,@COMPACT_INSTALL@,$COMPACT_INSTALL,;t t
-s,@CANTERA_LIBDIR@,$CANTERA_LIBDIR,;t t
-s,@CANTERA_INCDIR@,$CANTERA_INCDIR,;t t
-s,@CT_TOOLS_BIN@,$CT_TOOLS_BIN,;t t
-s,@CANTERA_BINDIR@,$CANTERA_BINDIR,;t t
-s,@CANTERA_EXAMPLES_DIR@,$CANTERA_EXAMPLES_DIR,;t t
-s,@CANTERA_DATADIR@,$CANTERA_DATADIR,;t t
 s,@build@,$build,;t t
 s,@build_cpu@,$build_cpu,;t t
 s,@build_vendor@,$build_vendor,;t t
@@ -4692,10 +4693,6 @@ s,@LOCAL_LIBS@,$LOCAL_LIBS,;t t
 s,@CANTERA_PARTICLES_DIR@,$CANTERA_PARTICLES_DIR,;t t
 s,@BUILD_PARTICLES@,$BUILD_PARTICLES,;t t
 s,@CT_SHARED_LIB@,$CT_SHARED_LIB,;t t
-s,@foundF90@,$foundF90,;t t
-s,@BUILD_F90@,$BUILD_F90,;t t
-s,@F90@,$F90,;t t
-s,@F90FLAGS@,$F90FLAGS,;t t
 s,@F77FLAGS@,$F77FLAGS,;t t
 s,@PYTHON_CMD@,$PYTHON_CMD,;t t
 s,@WIN_PYTHON_CMD@,$WIN_PYTHON_CMD,;t t
@@ -4721,6 +4718,9 @@ s,@F77@,$F77,;t t
 s,@FFLAGS@,$FFLAGS,;t t
 s,@ac_ct_F77@,$ac_ct_F77,;t t
 s,@FLIBS@,$FLIBS,;t t
+s,@BUILD_F90@,$BUILD_F90,;t t
+s,@F90@,$F90,;t t
+s,@F90FLAGS@,$F90FLAGS,;t t
 s,@precompile_headers@,$precompile_headers,;t t
 s,@CXX_DEPENDS@,$CXX_DEPENDS,;t t
 s,@OS_IS_DARWIN@,$OS_IS_DARWIN,;t t

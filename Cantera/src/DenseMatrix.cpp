@@ -93,6 +93,7 @@ namespace Cantera {
     }
 
 
+#ifdef INCL_LEAST_SQUARES
     /** @todo fix lwork */
     int leastSquares(DenseMatrix& A, double* b) {
         int info = 0;
@@ -113,6 +114,7 @@ namespace Cantera {
                 "DGELSS returned INFO = "+int2str(info));
         return 0;
     }
+#endif
 
     /**
      * Multiply \c A*b and return the result in \c prod. Uses BLAS

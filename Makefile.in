@@ -32,7 +32,8 @@ win: hdr-collect python matlab
 	@echo Now type \'make win-install\' to install Cantera in @ct_dir@.
 	@echo
 
-install: hdr-install kernel-install data-install f90-modules-install python-install \
+install: hdr-install kernel-install clib-install data-install f90-modules-install \
+         python-install \
          matlab-install particles-install tools-install finish-install
 
 win-install: hdr-install win-kernel-install data-install python-install \
@@ -52,6 +53,9 @@ kernel:
 	rm -f @buildbin@/*
 	cd ext; @MAKE@
 	cd Cantera/src; @MAKE@
+ifeq ($(do_ranlib),1)
+	@RANLIB@ @buildlib@/*.a
+endif
 
 # build the user library
 user:
@@ -60,9 +64,8 @@ ifeq ($(incl_user_code),1)
 endif
 
 clib: 
+ifeq ($(build_clib),1)
 	cd Cantera/clib/src; @MAKE@
-ifeq ($(do_ranlib),1)
-	@RANLIB@ @buildlib@/*.a
 endif
 
 fortran:
@@ -82,9 +85,13 @@ kernel-install:
 	@INSTALL@ -d @ct_libdir@
 	rm -f @ct_libdir@/*
 	@INSTALL@ -m 644 @buildlib@/*.a @ct_libdir@
-	cd Cantera/clib/src; @MAKE@ install
 ifeq ($(do_ranlib),1)
 	@RANLIB@ @ct_libdir@/*.a
+endif
+
+clib-install:
+ifeq ($(build_clib),1)
+	cd Cantera/clib/src; @MAKE@ install
 endif
 
 win-kernel-install:

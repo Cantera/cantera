@@ -86,9 +86,10 @@ namespace Cantera {
     /**  Solve Ax = b for multiple right-hand-side vectors. */
      int solve(DenseMatrix& A, DenseMatrix& b);
 
+#ifdef INCL_LEAST_SQUARES
     /** @todo fix lwork */
      int leastSquares(DenseMatrix& A, double* b);
-
+#endif
     /**
      * Multiply \c A*b and return the result in \c prod. Uses BLAS
      * routine DGEMV.

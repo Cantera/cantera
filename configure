@@ -14,8 +14,15 @@
 #  Edit this file to control how Cantera is built. Parameters can be set
 #  here, or alternatively environment variables may be set before calling
 #  this script.
+#
+#  The default configuration uses GNU compilers (gcc/g++/g77) and
+#  builds as much of Cantera and its language interfaces as it can
+#  (e.g. if MATLAB is installed on your system, the MATLAB toolbox
+#  will be built automatically, otherwise it will be skipped. On linux
+#  or Mac OS X, this default configuration should work, and most
+#  likely you don't need to edit this file at all - just run it.
 #  
-#  NOTE: if you make changes to this file, save it with another name
+#  NOTE: if you DO make changes to this file, save it with another name
 #  so that it will not be overwritten if you update the source
 #  distribution. 
 
@@ -43,7 +50,7 @@ CANTERA_INSTALL_DIR=${CANTERA_INSTALL_DIR:="c:/cantera"}
 #  On a PC running MS-Windows, Cantera can be built either using
 #  Microsoft Visual Studio, with the Visual C++ and Visual Fortran
 #  compilers, or using the linux-like cygwin environment with the 
-#  g++ and g77 compilers. 
+#  g++ and g77 compilers. Set this to "y" to use Visual Studio.
 USE_VISUAL_STUDIO=${USE_VISUAL_STUDIO:="y"}
 
 #  If you are using Visual Studio, set this to the location of the
@@ -52,46 +59,54 @@ USE_VISUAL_STUDIO=${USE_VISUAL_STUDIO:="y"}
 FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
 
 
-
 #----------------------------------------------------------------------
 #         Language Interfaces
 #----------------------------------------------------------------------
 #
-
-# Cantera provides interfaces for several languages.  Set to 'y' to
-# build the specified interface.
-
-
-#------------ Python -------------------------------------------------
- 
-# Cantera uses Python to process .cti input files, so if you plan to
-# use these, you need to have Python on your system. (If you will only
-# use CTML input files, then you don't need Python at all.)
-
-# You only need to build the full Cantera Python interface if you plan
-# to use Cantera from Python.  If so, Python 2.0 or greater is
-# required, and the Numeric extensions for Python are needed too. See
-# file INSTALLING for more details.
+# Cantera has several programming language interfaces. Select the ones
+# you want to build. The default is to try to build all language
+# interfaces.  The Python interface will be built, the MATLAB
+# interface will too if MATLAB is found, the Fortran 90/95 interface
+# will be built if a Fortran 90/95 compiler is found on your
+# system. You can customize these defaults by setting parameters in
+# this section.
 #
-# The configure process will attempt to find the Python interpreter on
-# your system. However, if there is more than one and you want a
-# specific interpreter to be used, then define PYTHON_CMD to be the
-# full path to the desired Python interpreter. This allows you, for
-# example, to build your own private Python interpreter and use it
-# instead of the system Python interpreter.
-#PYTHON_CMD=${PYTHON_CMD:="python"}
+#----------------- Python --------------------------------------------
+# 
+# In addition to being one of the supported language interfaces,
+# Python is used internally by Cantera, both in the build process and
+# at run time (to process .cti input files). Therefore, you need to
+# have Python on your system; if you don't, first install it from
+# http://www.python.org before proceeding with the installation of
+# Cantera.
+#
+# If you plan to write Python scripts yourself to solve problems, or
+# you want to use the graphical MixMaster application, then you need
+# the Cantera Python Package. If, on the other hand, you will only use
+# Cantera from some other language (e.g. MATLAB or Fortran 90/95) and
+# only need Python to process .cti files, then you only need a minimal
+# subset of the package (actually, only one file).
 
-# Set to one of the following:
-#    full      everything needed to use Cantera from Python
-#    minimal   only enough to process .cti files
-#    none      don't use Python at all; only CTML input files can be used.
+# Set PYTHON_PACKAGE to one of these two strings:
+#    full      install everything needed to use Cantera from Python
+#    minimal   install only enough to process .cti files
+
 PYTHON_PACKAGE=${PYTHON_PACKAGE:="full"}
 
 
-# Use when site packages must be put in system directories but Cantera
-# tutorials must be put in user space.  Note: an alternative to doing
-# this is to put everything in user space, and define environment
-# variable PYTHONPATH to tell Python where to find the Cantera package
+# Cantera needs to know where to find the Python interpreter.  By
+# default, the configuration process will look for it somewhere on
+# your PATH, either as 'python2' or as 'python'.  If it is not on the
+# PATH, or has a different name, set this to the full path to the
+# Python interpreter.
+PYTHON_CMD=${PYTHON_CMD:="default"}
+
+
+# Set this to 'y' when site packages must be put in system directories
+# but Cantera tutorials must be put in user space.  An alternative to
+# doing this is to put everything in user space by running this script
+# with the 'prefix' option, and defining environment variable PYTHONPATH
+# to tell Python where to find the Cantera package.
 #
 SET_PYTHON_SITE_PACKAGE_TOPDIR=${SET_PYTHON_SITE_PACKAGE_TOPDIR:="n"}
 
@@ -99,43 +114,41 @@ PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"}
 
 
 
-#----------- Matlab --------------------------------------------------
+#----------- MATLAB --------------------------------------------------
 
-# Set this to "y" if you want to build the Matlab toolbox. Matlab must
+# Set this to "y" if you want to build the MATLAB toolbox. MATLAB must
 # be installed on your system first, since the build process runs a
-# Matlab script. If this is set to "y" but Matlab is not found, the
-# Matlab toolbox will not be built.
+# Matlab script. If this is set to "y" but MATLAB is not found, the
+# MATLAB toolbox will not be built. Note that you may need to run 'mex
+# -setup' within MATLAB to configure it for your C++ compiler before
+# building the Cantera MATLAB Toolbox.
 
 BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
 
-                                                                                               
-#----------- Fortran 77 -----------------------------------------------------
-
-# Set this to "y" if you want to build Cantera using the f2c source instead
-# of with .f sources in the ext directory.
-# The default is not to do this on all platforms except vc++.
-# Set this to "n" to never do this on any platform.
-# Note, if set to "y", Cantera does not need a fortran compiler, and 
-# all fortran compiler parameters are irrelevant.
-
-BUILD_WITH_F2C=${BUILD_WITH_F2C:="y"}
-
+                                                                  
+                             
 #----------- Fortran 90/95 --------------------------------------------------
 
 # Set this to "y" if you want to build the Fortran 90/95 interface. 
-# A Fortran 90/95 compiler is required.
+# A Fortran 90/95 compiler is required. If none is found, the Fortran 90/95
+# interface will not be built.
 
 BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="y"}
 
 # The Fortran 90/95 compiler
 F90=${F90:=f95}
 
-# Compiler option flags for the Fortran 90/95 compiler
+# Compiler option flags for the Fortran 90/95 compiler. If you are
+# using the Absoft or the NAG compiler, additional options specific to
+# these compilers will be added automatically, and you do not need to
+# specify them here.  Otherwise, add any required compiler-specific
+# flas here.
 F90FLAGS=${F90FLAGS:='-O2'}
 
 
 #----------------------------------------------------------------------
 #         Customizations / Extensions
+#----------------------------------------------------------------------
 #
 # You can build your own libraries as part of the Cantera build process.
 # This allows you to derive your own classes from those provided by 
@@ -161,12 +174,15 @@ USER_SRC_DIR="Cantera/user"  # don't change this
 # and transport properties, it is sufficient to enable only KINETICS
 # and TRANSPORT.
 
+# Note: if you are building the full Python interface or the MATLAB
+# interface, it is necessary to build the full kernel.
 
 # thermodynamic properties 
 ENABLE_THERMO='y'
 
 # if set to 'y', the ck2cti program that converts Chemkin input files
-# to Cantera format will be built
+# to Cantera format will be built. If you don't use Chemkin format
+# files, or if you run ck2cti on some other machine, you can set this to 'n'. 
 ENABLE_CK='y'              
 
 # homogeneous and heterogeneous kinetics
@@ -191,7 +207,7 @@ ENABLE_SOLVERS='y'
 ENABLE_RXNPATH='y'         
 
 # non-ideal pure substance models for a few fluids imported from the
-# 'TPX' package (http://adam.caltech.edu/software/tpx)
+# 'TPX' package. (http://adam.caltech.edu/software/tpx)
 ENABLE_TPX='y'          
 		
 
@@ -207,10 +223,9 @@ ENABLE_TPX='y'
 # string that should be passed to the linker to link to these
 # libraries, and set BLAS_LAPACK_DIR to the directory where these
 # libraries are located. Otherwise, leave these lines commented out.
-
+#
 #BLAS_LAPACK_LIBS='-llapack -lf77blas -lcblas -latlas'
-#BLAS_LAPACK_DIR='/usr/lib/atlas'
-
+#BLAS_LAPACK_DIR='/usr/lib'
 #
 # The options below do not need to be set if you are using the default
 # libraries.
@@ -224,7 +239,6 @@ LAPACK_FTN_TRAILING_UNDERSCORE='y'
 
 # Currently this must be set to 'y'.
 LAPACK_FTN_STRING_LEN_AT_END='y'
-
 
 
 #------------------------------------------------------------------
@@ -242,8 +256,9 @@ CC=${CC:=gcc}
 # C++ compiler flags
 CXXFLAGS=${CXXFLAGS:="-O2 -Wall"}
 
-# the C++ flags required for linking
-#LCXX_FLAGS="-L/usr/lib/atlas"
+# the C++ flags required for linking. Uncomment if additional flags
+# need to be passed to the linker.
+#LCXX_FLAGS="-framework vecLib"
 
 # Ending libraries to tack onto the linking of all C++ programs
 LCXX_END_LIBS=${LCXX_END_LIBS:="-lm"}
@@ -256,36 +271,37 @@ PIC=${PIC:=-fPIC}
 SHARED=${SHARED:="-shared"}
  
 
-
 #-------------------------------------------------------------------
-#      Fortran compiler options
+#      External procedures
 #-------------------------------------------------------------------
 
-# Note: the Fortran 90 interface is currently not available. Hopefully
-# it will be back at a future date...
+# Cantera uses several external software packages, which are all in
+# the 'ext' directory.. These options control how these packages are built.
 
-# Cantera uses some external procedures written in Fortran 77.
-# In addition, Cantera implements an interface for Fortran 90
-# application programs. The parameters in this section apply
-# to both.
+# For external procedures written in Fortran 77, both the original F77
+# source code and C souce code generated by the 'f2c' program are
+# included.  Set this to "y" if you want to build Cantera using the
+# f2c-generated C sources instead of using the F77 sources in the ext
+# directory.
 
-# the Fortran 77 and Fortran 90 compilers. You only need a Fortran 90
-# compiler if you are building the Fortran 90 interface.
+# The default is not to do this on all platforms except vc++.
+# Set this to "n" to never do this on any platform.
+# Note, if set to "y", Cantera does not need a fortran compiler, and 
+# all fortran compiler parameters below are irrelevant.
+
+BUILD_WITH_F2C=${BUILD_WITH_F2C:="default"}
+
+# if you are building the external Fortran 77 procedures from the Fortran 
+# source code, enter the compiler here. 
 F77=${F77:=g77}
 
-# Fortran 77 compiler flags. Note that these may be specified separately 
-# from the options for the Fortran 90/95 compiler (if any).
+# Fortran 77 compiler flags. Note that the Fortran compiler flags must be set
+# to produce object code compatible with the C/C++ compiler you are using.
 FFLAGS=${FFLAGS:='-O2'}
 
-# the additional Fortran flags required for linking, if any
+# the additional Fortran flags required for linking, if any. Leave commented
+# out if no additional flags are required.
 #LFORT_FLAGS="-lF77 -lFI77"
-
-# Fortran 90 module directory 
-## FORT_MODULE_DIRECTORY=${FORT_MODULE_DIRECTORY:=$CANTERA_ROOT/include/fortran}
-
-# Fortran 90 module search path command
-## FORT_MODULE_PATH_CMD=${FORT_MODULE_PATH_CMD:="-I$FORT_MODULE_DIRECTORY"}
-
 
 
 #------------------------------------------------------

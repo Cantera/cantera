@@ -29,42 +29,44 @@ C***END PROLOGUE  FDUMP
 C***FIRST EXECUTABLE STATEMENT  FDUMP
       RETURN
       END
-      integer function isamax(n,sx,incx)
-c
-c     finds the index of element having max. absolute value.
-c     jack dongarra, linpack, 3/11/78.
-c     modified 3/93 to return if incx .le. 0.
-c
-      real sx(1),smax
-      integer i,incx,ix,n
-c
-      isamax = 0
-      if( n.lt.1 .or. incx.le.0 ) return
-      isamax = 1
-      if(n.eq.1)return
-      if(incx.eq.1)go to 20
-c
-c        code for increment not equal to 1
-c
-      ix = 1
-      smax = abs(sx(1))
-      ix = ix + incx
-      do 10 i = 2,n
-         if(abs(sx(ix)).le.smax) go to 5
-         isamax = i
-         smax = abs(sx(ix))
-    5    ix = ix + incx
-   10 continue
-      return
-c
-c        code for increment equal to 1
-c
-   20 smax = abs(sx(1))
-      do 30 i = 2,n
-         if(abs(sx(i)).le.smax) go to 30
-         isamax = i
-         smax = abs(sx(i))
-   30 continue
-      return
-      end
 
+c$$$
+c$$$      integer function isamax(n,sx,incx)
+c$$$c
+c$$$c     finds the index of element having max. absolute value.
+c$$$c     jack dongarra, linpack, 3/11/78.
+c$$$c     modified 3/93 to return if incx .le. 0.
+c$$$c
+c$$$      real sx(1),smax
+c$$$      integer i,incx,ix,n
+c$$$c
+c$$$      isamax = 0
+c$$$      if( n.lt.1 .or. incx.le.0 ) return
+c$$$      isamax = 1
+c$$$      if(n.eq.1)return
+c$$$      if(incx.eq.1)go to 20
+c$$$c
+c$$$c        code for increment not equal to 1
+c$$$c
+c$$$      ix = 1
+c$$$      smax = abs(sx(1))
+c$$$      ix = ix + incx
+c$$$      do 10 i = 2,n
+c$$$         if(abs(sx(ix)).le.smax) go to 5
+c$$$         isamax = i
+c$$$         smax = abs(sx(ix))
+c$$$    5    ix = ix + incx
+c$$$   10 continue
+c$$$      return
+c$$$c
+c$$$c        code for increment equal to 1
+c$$$c
+c$$$   20 smax = abs(sx(1))
+c$$$      do 30 i = 2,n
+c$$$         if(abs(sx(i)).le.smax) go to 30
+c$$$         isamax = i
+c$$$         smax = abs(sx(i))
+c$$$   30 continue
+c$$$      return
+c$$$      end
+c$$$

@@ -8,6 +8,7 @@ libs = []
 platform = sys.platform
 
 flibs = '@FLIBS@'
+#linkargs = '@LCXX_FLAGS@'
 
 bllibstr = "@BLAS_LAPACK_LIBS@"
 bllibs = bllibstr.replace('-l',' ')

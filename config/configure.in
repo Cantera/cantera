@@ -83,10 +83,11 @@ local_python_inst=${local_inst}
 if test "x${SET_PYTHON_SITE_PACKAGE_TOPDIR}" = "xy"; then
    python_prefix=${PYTHON_SITE_PACKAGE_TOPDIR}
    local_python_inst=1
+   echo "Cantera's Python packages will be installed in ${python_prefix}"
 else
    python_prefix=$prefix
 fi
-echo "Cantera's Python packages will be installed in ${python_prefix}"
+
 AC_SUBST(local_python_inst)
 AC_SUBST(python_prefix)
 
@@ -96,8 +97,9 @@ AC_SUBST(ctversion)
 homedir=${HOME}
 AC_SUBST(homedir)
 
-if test -z $local_inst; then 
-ct_libdir=${prefix}/lib/cantera/${ctversion}
+# default is a distributed unix-like installation; these values may be
+# modified below.
+ct_libdir=${prefix}/lib/cantera/${ctversion}  
 ct_incdir=${prefix}/include/cantera
 ct_incroot=${prefix}/include
 ct_bindir=${prefix}/bin
@@ -108,44 +110,32 @@ ct_tutdir=${prefix}/cantera/${ctversion}/tutorials
 ct_docdir=${prefix}/cantera/${ctversion}/doc
 ct_dir=${prefix}/cantera/${ctversion}
 ct_mandir=${prefix}/share/man
-else
-ct_libdir=${prefix}/lib/cantera/${ctversion}
-ct_incdir=${prefix}/include/cantera
-ct_incroot=${prefix}/include
-ct_bindir=${prefix}/bin
-ct_datadir=${prefix}/cantera/${ctversion}/data
-ct_demodir=${prefix}/cantera/${ctversion}/demos
-ct_templdir=${prefix}/cantera/${ctversion}/templates
-ct_tutdir=${prefix}/cantera/${ctversion}/tutorials
-ct_docdir=${prefix}/cantera/${ctversion}/doc
-ct_dir=${prefix}/cantera/${ctversion}
-ct_mandir=${prefix}/share/man
-fi
 
-# default is unix-like distributed installation (not everything within one directory)
-COMPACT_INSTALL=0
+# A compact installation is one in which the $prefix directory
+# contains only Cantera files. It is different than a local
+# installation, in that the Python package is installed with other
+# Python packages and modules in site-packages, rather than with the
+# rest of the Cantera files, as in a local installation.  Therefore,
+# with a compact installation, there is no need to set PYTHONPATH. A
+# compact installation is done on Windows systems and on Mac OS X
+# systems, and a non-compact ("distributed") installation is done by
+# default on other unix/linux systems, unless a local installation is
+# being done.
+ 
+# default is unix-like distributed installation,
+# unless a local installation is being done.
+COMPACT_INSTALL=$local_inst
 
 if test "x${OS_IS_WIN}" = "x1"; then
 COMPACT_INSTALL=1
-ct_libdir=${prefix}/lib/${ctversion}
-ct_incdir=${prefix}/include/cantera
-ct_incroot=${prefix}/include
-ct_bindir=${prefix}/bin
-ct_datadir=${prefix}/data
-ct_demodir=${prefix}/demos
-ct_templdir=${prefix}/templates
-ct_tutdir=${prefix}/tutorials
-ct_docdir=${prefix}/doc
-ct_dir=${prefix}
-ct_mandir=${prefix}
 fi
 
 if test "x${OS_IS_DARWIN}" = "x1"; then
 COMPACT_INSTALL=1
+fi
+
+if test -n $COMPACT_INSTALL; then
 ct_libdir=${prefix}/lib/${ctversion}
-ct_incdir=${prefix}/include/cantera
-ct_incroot=${prefix}/include
-ct_bindir=${prefix}/bin
 ct_datadir=${prefix}/data
 ct_demodir=${prefix}/demos
 ct_templdir=${prefix}/templates
@@ -154,6 +144,7 @@ ct_docdir=${prefix}/doc
 ct_dir=${prefix}
 ct_mandir=${prefix}
 fi
+
 
 AC_SUBST(ct_libdir)
 AC_SUBST(ct_incdir)
@@ -168,24 +159,24 @@ AC_SUBST(ct_docdir)
 AC_SUBST(ct_dir)
 AC_SUBST(COMPACT_INSTALL)
 
-CANTERA_DATADIR=$datadir/cantera/data
 
 #
 #    Cantera directory structure
 #
-if test -z "$CANTERA_ROOT"; then CANTERA_ROOT=$prefix/cantera; fi
-AC_SUBST(CANTERA_LIBDIR)
-AC_SUBST(CANTERA_INCDIR)
-if test -z "$CT_TOOLS_BIN"; then CT_TOOLS_BIN=$CANTERA_ROOT/tools/bin; fi
-AC_SUBST(CT_TOOLS_BIN)
-AC_SUBST(CANTERA_BINDIR)
-if test -z "$CANTERA_EXAMPLES_DIR"; then CANTERA_EXAMPLES_DIR=$CANTERA_ROOT/examples; fi
-AC_SUBST(CANTERA_EXAMPLES_DIR)
-AC_SUBST(CANTERA_DATADIR)
+#if test -z "$CANTERA_ROOT"; then CANTERA_ROOT=$prefix/cantera; fi
+#AC_SUBST(CANTERA_LIBDIR)
+#AC_SUBST(CANTERA_INCDIR)
+#if test -z "$CT_TOOLS_BIN"; then CT_TOOLS_BIN=$CANTERA_ROOT/tools/bin; fi
+#AC_SUBST(CT_TOOLS_BIN)
+#AC_SUBST(CANTERA_BINDIR)
+#if test -z "$CANTERA_EXAMPLES_DIR"; then CANTERA_EXAMPLES_DIR=$CANTERA_ROOT/examples; fi
+#AC_SUBST(CANTERA_EXAMPLES_DIR)
+#AC_SUBST(CANTERA_DATADIR)
 
 
 AC_CANONICAL_SYSTEM()
 
+# the root of the source tree
 ctroot=`(cd ..;pwd)`
 builddir=$target
 if test "x${OS_IS_WIN}" = "x1"; then
@@ -198,21 +189,24 @@ AC_SUBST(username)
  
 AC_SUBST(ctroot)
 
+# the include directory in the 'build' subdirectory. This is required to build the test problems
+# before Cantera has been installed.
 buildinc=$ctroot/build/include
 AC_SUBST(buildinc)
-
 
 buildlib=$ctroot/build/lib/$builddir
 AC_SUBST(buildlib)
 buildbin=$ctroot/build/bin/$builddir
 AC_SUBST(buildbin)
 
+# add definitions to config.h
 AC_DEFINE_UNQUOTED(DARWIN,$OS_IS_DARWIN)
 AC_DEFINE_UNQUOTED(CYGWIN,$OS_IS_CYGWIN)
 AC_DEFINE_UNQUOTED(WINMSVC,$OS_IS_WIN)
 AC_DEFINE_UNQUOTED(RXNPATH_FONT,"$RPFONT")
-AC_DEFINE_UNQUOTED(CANTERA_ROOT,"$prefix/cantera")
+#AC_DEFINE_UNQUOTED(CANTERA_ROOT,"$prefix/cantera")
 AC_DEFINE_UNQUOTED(CANTERA_DATA,"$ct_datadir")
+
 
 if test -z "$MAKE"; then MAKE='make'; fi
 AC_SUBST(MAKE)
@@ -347,17 +341,13 @@ build_blas=1
 build_lapack=1
 fi
 
-# if test -z "$LAPACK_LIBRARY"; then LAPACK_LIBRARY=-lctlapack; build_lapack=1; fi
-# AC_SUBST(LAPACK_LIBRARY)
 AC_SUBST(build_lapack)
 
-# build_blas=0
-# if test -z "$BLAS_LIBRARY"; then BLAS_LIBRARY=-lctblas; build_blas=1; fi
-# AC_SUBST(BLAS_LIBRARY)
 AC_SUBST(build_blas)
 
 AC_SUBST(BLAS_LAPACK_LIBS)
 AC_SUBST(BLAS_LAPACK_DIR)
+
 #
 # Stubout section for f2c versions of lapack:
 #    Define these variables, but turn them off in main version of code
@@ -484,16 +474,13 @@ AC_SUBST(CT_SHARED_LIB)
 BUILD_F90=0
 if test "x$BUILD_F90_INTERFACE" = "xy"; then
   BUILD_F90=1
-  AC_CHECK_PROG(foundF90, $F90, yes, no)
-  if test x$foundF90 = "xno" ; then
-    echo 'Did not find the Fortran 90 compiler, '$F90 
-    echo "     -> Turning off F90 interface even though it was requested" 
-    BUILD_F90=0
-  fi
+#  AC_CHECK_PROG(foundF90, $F90, yes, no)
+#  if test x$foundF90 = "xno" ; then
+#    echo 'Did not find the Fortran 90 compiler, '$F90 
+#    echo "     -> Turning off F90 interface even though it was requested" 
+#    BUILD_F90=0
+#  fi
 fi
-AC_SUBST(BUILD_F90)
-AC_SUBST(F90)
-AC_SUBST(F90FLAGS)
 
 if test "x$F77FLAGS" = "x"; then
   F77FLAGS=$FFLAGS
@@ -513,28 +500,26 @@ fi
 
 WIN_PYTHON_CMD=python
 if test $BUILD_PYTHON -gt 0; then
-if test "$PYTHON_CMD" = "default" ; then
-  PYTHON_CMD=
-fi
-if test -z "$PYTHON_CMD"; then 
+  if test "$PYTHON_CMD" = "default"; then 
     AC_PATH_PROGS(PYTHON_CMD, python2 python, "none")
     if test "x$OS_IS_WIN" = "x1"; then
       AC_PATH_PROGS(WIN_PYTHON_CMD, python, "none")
       WIN_PYTHON_CMD=`cygpath -a -w "$WIN_PYTHON_CMD" | sed 's/\\\/\\//g'`
       echo "Windows Python command: $WIN_PYTHON_CMD"
     fi 
-else
+  else
     echo "Python command preset to $PYTHON_CMD"
-fi
-if test "$PYTHON_CMD" = "none"; then
-  echo 
-  echo "********************************************************************"
-  echo "Configuration error. Python is required to build Cantera, but it"
-  echo "cannot be found. Set environment variable PYTHON_CMD to the full path to"
-  echo "the Python interpreter on your system, and run configure again."
-  echo "********************************************************************"
-  exit 1
-fi
+  fi
+
+  if test "$PYTHON_CMD" = "none"; then
+    echo 
+    echo "********************************************************************"
+    echo "Configuration error. Python is required to build Cantera, but it"
+    echo "cannot be found. Set environment variable PYTHON_CMD to the full path to"
+    echo "the Python interpreter on your system, and run configure again."
+    echo "********************************************************************"
+    exit 1
+  fi
 else
   PYTHON_CMD=none
   WIN_PYTHON_CMD=none
@@ -594,6 +579,7 @@ if test -n "$GCC"; then
  fi
 fi
 AC_MSG_RESULT(${precompile_headers})
+fi
 
 has_sstream=no
 AC_MSG_CHECKING(for sstream)
@@ -625,15 +611,72 @@ fi
 
 dnl Checks for libraries.
 AC_F77_LIBRARY_LDFLAGS()
+override_f77_libs=0;
 case $ac_sys_system in
-  Darwin*)  FLIBS='-lstdc++ -lg2c'; SHARED_CTLIB=0;;
+  Darwin*)  FLIBS='-lstdc++ -lg2c'; override_f77_libs=1; SHARED_CTLIB=0;;
 esac
+
+if test -n $override_f77_libs; then
+  echo The Fortran 77 libraries on this platform are not correctly determined by 
+  echo the configuration process. They are being manually set to 
+  echo     FLIBS = $FLIBS
+fi
+
+has_f90=no
+f90type=none
+f90_module_dir='-I'
+f90_opts=''
+
+if test -n ${BUILD_F90}; then
+  AC_MSG_CHECKING(Fortran 90 compiler ($F90) type)
+  cat >> testf90.f90 << EOF
+module mt
+double precision, parameter :: x = 2.3
+end module mt
+program testf90
+use mt
+integer :: i
+end program testf90
+EOF
+  msg=`${F90} -c testf90.f90 &> /dev/null`
+  if test -f testf90.o; then 
+    has_f90=yes
+    rm testf90.o
+    f90type=unknown
+  fi
+#
+  msg=`${F90} -V &> f90out`
+  isnag=`grep -c NAGWare f90out`
+  if test "x${isnag}" != "x0"; then 
+    f90type="NAG"
+    f90opts="-I. -I${ct_incroot}"
+  fi
+#
+  msg=`${F90} -V -c testf90.f90 &> f90out`
+  isabsoft=`grep -c Absoft f90out`
+  if test "x${isabsoft}" != "x0"; then  
+    f90type="Absoft"
+    f90opts="-p. -p${ct_incroot} -s -YEXT_NAMES=LCS -YEXT_SFX=_ -YCFRL=1"
+  fi
+  rm -f testf90.f90 f90out
+  AC_MSG_RESULT(${f90type})
+  if test -n $BUILD_F90; then
+    if test "x${has_f90}" = "xno"; then
+      echo "   -> cannot build the Fortran 90 interface"
+      BUILD_F90=0
+    fi
+  fi
+fi
+F90FLAGS=${f90opts}' '${F90FLAGS}
+AC_SUBST(BUILD_F90)
+AC_SUBST(F90)
+AC_SUBST(F90FLAGS)
+
 
 
 AC_OBJEXT
 AC_EXEEXT
 
-fi
 
 AC_SUBST(precompile_headers)
 AC_SUBST(CXX_DEPENDS)

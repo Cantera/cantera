@@ -14,21 +14,6 @@
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 FORT_FLAGS = @F90FLAGS@
 
-CXX_OBJS = fct.o fctxml.o
-
-#INTERFACE_MODULE_OBJS = fct_interface.o fctxml_interface.o 
-#
-#USER_MODULE_OBJS = cantera_xml.o cantera_thermo.o cantera_kinetics.o \
-#                   cantera_funcs.o canteramod.o
-#
-#MODULES = $(INTERFACE_MODULE_OBJS) $(USER_MODULE_OBJS)
-#OBJS = $(CXX_OBJS) $(USER_MODULE_OBJS)
-#
-#DEPENDS = $(CXX_OBJS:.o=.d)
-#UMODS = $(USER_MODULE_OBJS:cantera_=)
-#MODFILES = $(INTERFACE_MODULE_OBJS:_interface.o=.mod) $(UMODS:.o=.mod) 
-
-
 
 CXX_OBJS = fct.o fctxml.o
 
@@ -90,21 +75,22 @@ LIB_NAME=libfct.a
 
 FTLIB = @buildlib@/$(LIB_NAME)
 
-lib: $(MODFILES) $(USER_MODULE_OBJS) $(CXX_OBJS) $(LIB_DEPS)
+$(FTLIB): $(MODFILES) $(USER_MODULE_OBJS) $(CXX_OBJS) $(LIB_DEPS)
 	$(RM)     $(FTLIB)
 	@ARCHIVE@ $(FTLIB) $(OBJS) 
 	cp -f $(MODFILES) $(MODULE_DIR)
 
 clean:
-	$(RM) $(OBJS) $(FTLIB)
+	$(RM) $(OBJS) $(FTLIB) $(MODFILES)
 
 install:
-	@INSTALL@ $(FTLIB) @prefix@/lib/cantera
+	@INSTALL@ $(FTLIB) @ct_libdir@
+	@INSTALL@ $(MODFILES) @ct_incdir@
 
 win-install:
-	@INSTALL@ ../../../lib/clib.lib @prefix@/lib/cantera
+	@INSTALL@ ../../../lib/fct.lib @ct_libdir@
 
-%.d:
+%.d: %.cpp
 	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
 
 depends: $(DEPENDS)

@@ -66,6 +66,49 @@ namespace ct {
     };
 
 
+    /**
+     *  A class for single-precision floating-point arrays
+     */
+    class ctvector_float {
+    public:
+
+        typedef unsigned int size_t;
+        typedef float doublereal;
+        typedef doublereal* iterator;
+        typedef const doublereal* const_iterator;
+        typedef doublereal* pointer;
+        typedef size_t difference_type;
+        typedef doublereal value_type;
+
+        ctvector_float(size_t n=0);
+        ctvector_float(size_t n, value_type v0);
+        ctvector_float(const ctvector_float& x);
+        ctvector_float operator=(const ctvector_float& x);
+        virtual ~ctvector_float();
+
+        value_type operator[](size_t n) const { return _data[n]; }
+        value_type& operator[](size_t n) { return _data[n]; }
+
+        void resize(size_t n);
+        void resize(size_t n, value_type v0);
+
+        value_type back() const { return _data[_size-1]; }
+        const_iterator begin() const { return _data; }
+        iterator begin() { return _data; }
+        const_iterator end() const { return _data + _size; }
+        iterator end() { return _data + _size; }
+        void push_back(value_type x);
+        size_t size() const { return _size; }
+        void clear();
+        bool empty() const { return (_size == 0); }
+
+    protected:
+        size_t _size, _alloc;
+        iterator _data;
+    private:
+    };
+
+
     // integer arrays
     class ctvector_int {
     public:
@@ -113,6 +156,8 @@ namespace ct {
 
 std::ostream& operator<<(std::ostream& s, const ct::ctvector_fp& v);
 std::ostream& operator<<(std::ostream& s, ct::ctvector_fp& v);
+std::ostream& operator<<(std::ostream& s, const ct::ctvector_float& v);
+std::ostream& operator<<(std::ostream& s, ct::ctvector_float& v);
 std::ostream& operator<<(std::ostream& s, const ct::ctvector_int& v);
 
 

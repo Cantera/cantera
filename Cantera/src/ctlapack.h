@@ -12,7 +12,11 @@
 #ifndef CT_CTLAPACK_H
 #define CT_CTLAPACK_H
 
+#undef USE_CBLAS
+
 #include "ct_defs.h"
+
+//#include <vecLib/cblas.h>
 
 // map BLAS names to names with or without a trailing underscore.
 #ifndef LAPACK_FTN_TRAILING_UNDERSCORE
@@ -47,18 +51,15 @@ namespace ctlapack {
 }
 const char no_yes[2] = {'N', 'T'};
 
-//  #ifdef HAVE_INTEL_MKL
-//  #include "../../ext/math/mkl_cblas.h"
-//     const CBLAS_ORDER cblasOrder[2] = { CblasRowMajor, CblasColMajor };
-//     const CBLAS_TRANSPOSE cblasTrans[2] = { CblasNoTrans, CblasTrans };
-//  #endif
+//const CBLAS_ORDER cblasOrder[2] = { CblasRowMajor, CblasColMajor };
+//const CBLAS_TRANSPOSE cblasTrans[2] = { CblasNoTrans, CblasTrans };
+
 
 
 // C interfaces for Fortran Lapack routines 
 extern "C" {
 
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
-
     int _DGEMV_(const char* transpose,
         const integer* m, const integer* n, const doublereal* alpha,
         const doublereal* a, const integer* lda, const doublereal* x,
@@ -133,6 +134,10 @@ namespace Cantera {
         //cblas_dgemv(cblasOrder[storage], cblasTrans[trans], m, n, alpha, 
         //    a, lda, x, incX, beta, y, incY);
         //#else
+#ifdef USE_CBLAS
+        cblas_dgemv(cblasOrder[storage], cblasTrans[trans], m, n, alpha, 
+            a, lda, x, incX, beta, y, incY);
+#else
         integer f_m = m, f_n = n, f_lda = lda, f_incX = incX, f_incY = incY;
         doublereal f_alpha = alpha, f_beta = beta;
         ftnlen trsize = 1;
@@ -143,7 +148,7 @@ namespace Cantera {
         _DGEMV_(&no_yes[trans], trsize, &f_m, &f_n, &f_alpha, a,
             &f_lda, x, &f_incX, &f_beta, y, &f_incY);
 #endif
-        //#endif
+#endif
     }
         
 
