@@ -182,7 +182,7 @@ CXXFLAGS=${CXXFLAGS:="-O2 -Wall"}
 #LCXX_FLAGS=
 
 # Ending libraries to tack onto the linking of all C++ programs
-LCXX_END_LIBS="-lm"
+LCXX_END_LIBS=${LCXX_END_LIBS:="-lm"}
 
 # the compiler flag to use to compile code that will be inserted into shared 
 # libraries. 
