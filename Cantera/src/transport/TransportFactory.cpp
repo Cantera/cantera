@@ -24,14 +24,14 @@
 
 #include "TransportFactory.h"
 
-#include "polyfit.h"
+#include "../polyfit.h"
 #include "MMCollisionInt.h"
 #include <stdio.h>
-#include "xml.h"
+#include "../xml.h"
 #include "TransportParams.h"
-#include "global.h"
-#include "IdealGasPhase.h"
-#include "ctml.h"
+#include "../global.h"
+#include "../IdealGasPhase.h"
+#include "../ctml.h"
 
 
 /**
@@ -516,14 +516,14 @@ namespace Cantera {
                     tr.astar_poly.push_back(ca);
                     tr.bstar_poly.push_back(cb);
                     tr.cstar_poly.push_back(cc);
-                    tr.poly[i][j] = tr.astar_poly.size() - 1;
+					tr.poly[i][j] = static_cast<int>(tr.astar_poly.size()) - 1;
                     tr.fitlist.push_back(dstar);
                 }
 
                 // delta* found in fitlist, so just point to this
                 // polynomial
                 else {
-                    tr.poly[i][j] = (dptr - tr.fitlist.begin());
+                    tr.poly[i][j] = static_cast<int>((dptr - tr.fitlist.begin()));
                 }
                 tr.poly[j][i] = tr.poly[i][j];
             } 
@@ -558,7 +558,7 @@ namespace Cantera {
         //XML_Node* sparray = find_XML("", &root, "", "", "speciesData");
         vector<XML_Node*> xspecies;
         transport_database->getChildren("species",xspecies);
-        int nsp = xspecies.size();
+        int nsp = static_cast<int>(xspecies.size());
         
         // read all entries in database into 'datatable' and check for 
         // errors. Note that this procedure validates all entries, not 
