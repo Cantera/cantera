@@ -1,0 +1,128 @@
+#!/bin/sh
+
+############################################################################
+#
+#  Makefile input to compile the Particles library within Cantera.
+#
+#############################################################################
+
+# the name of the executable program to be created
+LIBP = libParticles.a
+
+# the object files to be linked together. List those generated from Fortran
+# and from C/C++ separately
+LIBOBJS = GasParticle.o GasParticleMixture.o GasSectionParticle.o GSP_init.o \
+          GSP_src.o romberg.o romberg2D.o search.o \
+          IdealReactingGas.o sectionBF.o sectionBF1.o sectionBF2.o \
+	  sectionBF1divv.o PartDiscGalerkin.o PartCoagulation.o \
+	  romberg2DLinear.o  \
+          PartInterfaceKinetics.o  \
+          SurfRxnModels.o PartKineticsFactory.o ParticleSurfRxn.o \
+          PSR_InterfaceKinetics.o Placid.o\
+          IdealSolidSolnPhase.o SolidKinetics.o 
+
+# additional flags to be passed to the linker. If your program
+# requires other external libraries, put them here
+LINK_OPTIONS = 
+
+
+#############################################################################
+
+# the Fortran compiler
+FORT = @F77@
+
+# Fortran compile flags  
+FORT_FLAGS = @FFLAGS@ 
+
+# Fortran libraries
+FORT_LIBS = @FLIBS@
+
+# the C++ compiler
+CXX = @CXX@
+
+# C++ compile flags
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) 
+
+# external libraries
+EXT_LIBS = @LOCAL_LIBS@ 
+
+# Ending C++ linking libraries
+LCXX_END_LIBS = @LCXX_END_LIBS@
+
+
+#------  you probably don't have to change anything below this line -----
+
+
+# The directory where the Cantera libraries are located
+CANTERA_LIBDIR=@buildlib@
+CANTERA_LIBDEP=$(CANTERA_LIBDIR)/libcantera.a
+
+# Required Cantera libraries
+CANTERA_LIBS =  -ltransport  -lcantera -lctcxx
+
+# The directory where Cantera include files may be found.
+# CANTERA_INCDIR=@CANTERA_INCDIR@
+KERNEL_INCDIR=  ../../src
+CANTERA_INCDIR=  ../../../include
+# Flags passed to the C++ compiler/linker for the linking step
+LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
+
+# How to compile C++ source files to object files
+.@CXX_EXT@.@OBJ_EXT@:
+	$(CXX) -c $< -I../util_src -I$(KERNEL_INCDIR)  $(CXX_FLAGS)
+
+# How to compile Fortran source files to object files
+.@F77_EXT@.@OBJ_EXT@:
+	$(FORT) -c $< -I../util_src $(FORT_FLAGS)
+
+
+all: $(LIBOBJS) ISSPTester SK_ISSPTester ctitoxml xmlcopyTester
+
+DEPENDS=$(LIBOBJS:.o=.d)
+
+%.d:
+	g++ -MM -I../util_src -I$(KERNEL_INCDIR) $(CXX_FLAGS) $*.cpp > $*.d
+
+$(LIBP): $(LIBOBJS)
+	@ARCHIVE@ $(LIBP) $(LIBOBJS)
+
+####################################################################
+#       Executable Programs
+####################################################################
+
+
+ISSPTester: ISSPTester.o $(LIBP) $(CANTERA_LIBDEP)
+	$(CXX) -o ISSPTester ISSPTester.o  -L. -lParticles \
+            -L$(CANTERA_LIBDIR) $(CANTERA_LIBS) -lcvode -lctlapack -lctblas \
+            -lgcc -lg2c -lstdc++ -lm
+
+SK_ISSPTester: SK_ISSPTester.o $(LIBP) $(CANTERA_LIBDEP)
+	$(CXX) -o SK_ISSPTester SK_ISSPTester.o  -L. -lParticles \
+            -L$(CANTERA_LIBDIR) $(CANTERA_LIBS) -lcvode -lctlapack -lctblas \
+            -lgcc -lg2c -lstdc++ -lm
+
+ctitoxml: ctitoxml.o $(LIBP) $(CANTERA_LIBDEP)
+	$(CXX) -o  ctitoxml ctitoxml.o \
+            -L$(CANTERA_LIBDIR) $(CANTERA_LIBS) -lcvode -lctlapack -lctblas \
+            -lgcc -lg2c -lstdc++ -lm
+
+xmlcopyTester: xmlcopyTester.o $(LIBP) $(CANTERA_LIBDEP)
+	$(CXX) -o xmlcopyTester xmlcopyTester.o \
+            -L$(CANTERA_LIBDIR) $(CANTERA_LIBS) -lcvode -lctlapack -lctblas \
+            -lgcc -lg2c -lstdc++ -lm
+
+clean:
+	$(RM) $(LIBOBJS) $(LIBGP)
+
+
+depends: $(DEPENDS)
+	cat *.d > .depends
+	$(RM) $(DEPENDS)
+
+TAGS:
+	etags *.h *.cpp
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
+
