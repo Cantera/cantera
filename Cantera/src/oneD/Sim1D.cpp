@@ -276,7 +276,6 @@ namespace Cantera {
                     istep++;
                     if (istep >= int(m_steps.size())) {
                         nsteps = m_steps.back();
-                        //           dt *= 2.0;
                     }
                     else {
                         nsteps = m_steps[istep];
@@ -287,8 +286,11 @@ namespace Cantera {
             if (loglevel > 2) showSolution();
             
             if (refine_grid) {
-                //writelog("calling refine.\n");
                 new_points = refine(loglevel);
+                if (new_points < 0) {
+                    writelog("Maximum number of grid points reached.");
+                    new_points = 0;
+                }
             }
             else {
                 if (loglevel > 0) writelog("grid refinement disabled.\n");
@@ -305,7 +307,7 @@ namespace Cantera {
         int np = 0;
         vector_fp znew, xnew;
         doublereal xmid, zmid;
-        int strt, n, m, i;
+        int strt, n, m, i, ianalyze;
         vector_int dsize;
 
         for (n = 0; n < m_nd; n++) {
@@ -314,7 +316,10 @@ namespace Cantera {
             Refiner& r = d.refiner();
 
             // determine where new points are needed
-            r.analyze(d.grid().size(), d.grid().begin(), m_x.begin() + start(n));
+            ianalyze = r.analyze(d.grid().size(), 
+                d.grid().begin(), m_x.begin() + start(n));
+            if (ianalyze < 0) return ianalyze;
+
             if (loglevel > 0) { r.show(); }
 
             np += r.nNewPoints();
@@ -409,5 +414,17 @@ namespace Cantera {
             }                    
         }
     }
-            
+
+    void Sim1D::setMaxGridPoints(int dom, int npoints) {
+        if (dom >= 0) {
+            Refiner& r = domain(dom).refiner();
+            r.setMaxPoints(npoints);
+        }
+        else {
+            for (int n = 0; n < m_nd; n++) {
+                Refiner& r = domain(n).refiner();
+                r.setMaxPoints(npoints);
+            }                    
+        }
+    }            
 }
