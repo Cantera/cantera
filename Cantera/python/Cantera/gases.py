@@ -13,17 +13,13 @@ from Cantera.solution import Solution
 #import _cantera
 import os
 
-def IdealGasMix(src="", id = ""):
+def IdealGasMix(src="", id = "", loglevel = 0):
     """Return a Solution object representing an ideal gas mixture.
 
     src       --- input file
-    root      --- root of an XML tree containing the phase specification.
-                  Specify src or root but not both.
-    thermo    --- auxiliary thermo database
-    transport --- transport model
-    trandb    --- transport database
+    id        --- XML id tag for phase
     """
-    return Solution(src=src,id=id)
+    return Solution(src=src,id=id,loglevel=loglevel)
 
 
 def GRI30(transport = ""):

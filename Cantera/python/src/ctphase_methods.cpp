@@ -62,17 +62,17 @@ py_natoms(PyObject *self, PyObject *args) {
     return Py_BuildValue("d",phase_nAtoms(ph, k, m));        
 }
 
-static PyObject*
-py_addelement(PyObject *self, PyObject *args) {
-    int ph;
-    char* name;
-    double wt;
-    if (!PyArg_ParseTuple(args, "isd:py_addelement", &ph, &name, &wt)) 
-        return NULL;
-    int ok = phase_addElement(ph, name, wt);
-    if (ok < 0) return reportError(ok);
-    else return Py_BuildValue("i",0);
-}
+// static PyObject*
+// py_addelement(PyObject *self, PyObject *args) {
+//     int ph;
+//     char* name;
+//     double wt;
+//     if (!PyArg_ParseTuple(args, "isd:py_addelement", &ph, &name, &wt)) 
+//         return NULL;
+//     int ok = phase_addElement(ph, name, wt);
+//     if (ok < 0) return reportError(ok);
+//     else return Py_BuildValue("i",0);
+// }
 
 static PyObject*
 py_elementindex(PyObject *self, PyObject *args) {

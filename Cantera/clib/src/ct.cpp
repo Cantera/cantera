@@ -937,13 +937,14 @@ extern "C" {
     }
 
     int DLL_EXPORT getCanteraError(int buflen, char* buf) {
-        string e; // = "<no error>";
-        //if (nErrors() > 0)
+        string e; 
         e = lastErrorMessage();
-        int n = min(e.size(), buflen-1);
-        copy(e.begin(), e.begin() + n, buf);
-        buf[min(n, buflen-1)] = '\0';
-        return 0;
+        if (buflen > 0) {
+            int n = min(e.size(), buflen-1);
+            copy(e.begin(), e.begin() + n, buf);
+            buf[min(n, buflen-1)] = '\0';
+        }
+        return int(e.size());
     }
 
     int DLL_EXPORT addCanteraDirectory(int buflen, char* buf) {

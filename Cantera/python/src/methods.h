@@ -11,7 +11,7 @@ static PyMethodDef ct_methods[] = {
     {"phase_nelements", py_nelements,  METH_VARARGS},
     {"phase_nspecies", py_nspecies,  METH_VARARGS},
     {"phase_natoms", py_natoms,  METH_VARARGS},
-    {"phase_addelement", py_addelement,  METH_VARARGS},
+    //{"phase_addelement", py_addelement,  METH_VARARGS},
     {"phase_elementindex", py_elementindex,  METH_VARARGS},
     {"phase_speciesindex", py_speciesindex,  METH_VARARGS},
     {"phase_getarray", phase_getarray,  METH_VARARGS},
@@ -82,10 +82,11 @@ static PyMethodDef ct_methods[] = {
     {"tran_setParameters", py_setParameters,  METH_VARARGS},
    
     {"get_Cantera_Error", ct_get_cantera_error,  METH_VARARGS},
-    {"ct_print", ct_print,  METH_VARARGS},
+    //{"ct_print", ct_print,  METH_VARARGS},
+    {"ct_addDirectory", ct_addDirectory, METH_VARARGS},
     {"ct_refcnt", ct_refcnt,  METH_VARARGS},
-    {"readlog", ct_readlog,  METH_VARARGS},
-    {"buildSolutionFromXML", ct_buildSolutionFromXML, METH_VARARGS},
+    //{"readlog", ct_readlog,  METH_VARARGS},
+    //{"buildSolutionFromXML", ct_buildSolutionFromXML, METH_VARARGS},
 
     {"domain_clear", py_domain_clear, METH_VARARGS},
     {"domain_del", py_domain_del, METH_VARARGS},

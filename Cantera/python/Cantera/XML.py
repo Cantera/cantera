@@ -22,7 +22,7 @@ class XML_Node:
         If 'wrap' is greater than zero, then only a Python wrapper is
         created - no new kernel object results.
         """
-        
+        self._xml_id = 0
         self.wrap = wrap
 
         # create a wrapper for an existing kernel object

@@ -5,23 +5,47 @@ print """
 
 """
 ####################################################################
+from Cantera import *
 from time import clock
 
-# You can build a gas mixture object by importing element, species,
-# and reaction definitions from input files in the format described in
-# the document "Defining Phases and Interfaces". A set of input files
-# in this format is contained in the data folder. 
+# In the last tutorial, we used function GRI30 to create an object
+# that models an ideal gas mixture with the species and reactions of
+# GRI-Mech 3.0. Another way to do this is shown here:
 
-# Many existing reaction mechanism files are in "CK format," by
-# which we mean the input file format developed for use with the
-# Chemkin-II software package. [See R. J. Kee, F. M. Rupley, and
-# J. A. Miller, Sandia National Laboratories Report SAND89-8009
-# (1989).]
+gas = importPhase('gri30.cti', 'gri30')
 
-# Cantera comes with a converter utility program 'ck2cti' (or 'ck2cti.exe')
-# that converts CK format into Cantera format. This program should be run
-# from the command line first to convert any CK files you plan to use into
-# Cantera format.
+# Function 'importPhase' constructs an object representing a phase of
+# matter by reading in attributes of the phase from a file, which in
+# this case is 'gri30.cti'. This file contains a complete
+# specification of the GRI-Mech 3.0 reaction mechanism, including
+# element data (name, atomic weight), species data (name, elemental
+# composition, coefficients to compute thermodynamic and transport
+# properties), and reaction data (stoichiometry, rate coefficient
+# parameters). The file is written in a format understood by Cantera,
+# which is described in the document "Defining Phases and Interfaces."
+
+
+# CTI files distributed with Cantera
+#---------------------------------
+
+# Several reaction mechanism files in this format are included in the
+# Cantera distribution, including ones that model high-temperature
+# air, a hydrogen/oxygen reaction mechanism, and a few surface
+# reaction mechanisms. Under Windows, the installation program puts
+# these files in 'C:\Program File\Common Files\Cantera.'  On a
+# unix/linux/Mac OSX machine, they are usually kept in the 'data'
+# subdirectory within the Cantera installation directory.
+
+# If for some reason Cantera has difficulty finding where these files
+# are on your system, set environment variable CANTERA_DATA to the
+# directory where they are located. Alternatively, you can call function
+# addDirectory to add a directory to the Cantera search path:
+addDirectory('/usr/local/data')
+ggg = importPhase('dummy.cti')
+
+# Cantera input files are plain text files, and can be created with
+# any text editor. See the document 'Defining Phases and Interfaces'
+# for more information.
 
 from Cantera import *
 t0 = clock()
@@ -33,6 +57,7 @@ print 'time to create gas1 = ',clock() - t0
 # directory. Under Windows, this directory is in C:\Program
 # Files\Common Files\Cantera and/or C:\CANTERA\DATA. On most other
 # platforms, it is usually in /usr/local/cantera/data.
+
 
 # A Cantera input file may contain more than one phase specification, or may
 # contain specifications of interfaces (surfaces).
@@ -87,6 +112,22 @@ gas4 = IdealGasMix('gri30.xml')
 # Interfaces can be imported from XML files too.
 diamonnd_surf2 = importInterface('diamond.xml','diamond_100',
                                  phases = [gas2, diamond])
+
+
+# Converting CK-format files
+# --------------------------
+
+# Many existing reaction mechanism files are in "CK format," by
+# which we mean the input file format developed for use with the
+# Chemkin-II software package. [See R. J. Kee, F. M. Rupley, and
+# J. A. Miller, Sandia National Laboratories Report SAND89-8009
+# (1989).]
+
+# Cantera comes with a converter utility program 'ck2cti' (or
+# 'ck2cti.exe') that converts CK format into Cantera format. This
+# program should be run from the command line first to convert any CK
+# files you plan to use into Cantera format. This utility program can
+# also be downloaded from the Cantera User's Group web site.
 
 
 

@@ -4,8 +4,10 @@
 #include "Python.h"
 
 static PyObject* reportCanteraError() {
-    char* buf = new char[400];
-    getCanteraError(400, buf);
+    char* buf = 0;
+    int buflen = getCanteraError(0, buf);
+    buf = new char[buflen+1];
+    getCanteraError(buflen, buf);
     PyErr_SetString(ErrorObject,buf);
     delete buf;
     return NULL;

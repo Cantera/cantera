@@ -59,3 +59,7 @@ def refCount(a):
     """Return the reference count for an object."""
     import _cantera
     return _cantera.ct_refcnt(a)
+
+def addDirectory(dir):
+    import _cantera
+    return _cantera.ct_addDirectory(dir)
