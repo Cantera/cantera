@@ -21,9 +21,9 @@
 #include <stdlib.h>
 #include "ctml.h"
 
-#ifndef WIN32
-#include "pypath.h"
-#endif
+//#ifndef WIN32
+//#include "pypath.h"
+//#endif
 
 using namespace Cantera;
 
