@@ -36,7 +36,12 @@ namespace ckr {
     //@}
 
 
-
+    /// Exception class for syntax errors.
+    class CK_SyntaxError : public CK_Exception {
+    public:
+        CK_SyntaxError(ostream& f, const string& s, int linenum = -1);
+        ostream& m_out;
+    };
 
     /**
      * Chemkin mechanism file parser. For internal use by class CKReader.
