@@ -34,8 +34,7 @@ run 'configure' with the 'prefix' option:
 configure --prefix=$HOME/my_cantera_dir
 
 If necessary, edit 'configure' to set options appropriate for your
-system. As shipped, the configure script is set up to build Cantera on
-a linux system.
+system.
 
 After running 'configure', type:
 
@@ -44,15 +43,23 @@ make install
 
 The last one may need to be run as super-user.
 
-By default, this procedure also builds the Python and MATLAB interfaces.
-Edit 'configure' to disable building these if desired. 
+To test the installation, type
 
-To use either the Python or Matlab interfaces, the shared library file
-installed in '/usr/local/lib' (or wherever you installed it) must be on the
-library search path. Set LD_LIBRARY_PATH if necessary:
+make test
 
-export LD_LIBRARY_PATH=$HOME/my_cantera_dir/lib
+After running 'make install', run script '/usr/local/cantera/setup_cantera'
+to configure the environment before using Cantera.
 
+The build process requires a 'make' utility compatible with GNU
+'make'.  If this has a different name on your system, define
+environment variable MAKE to the name (e..g. 'gmake') before running
+'configure'.
+
+This procedure also builds the Python and MATLAB interfaces if 
+your system is configured to use them. The requirements are:
+    -- Python 2.x + NumPy for the Python interface
+    -- MATLAB 6.x for the MATLAB toolbox
+If either is missing or an error occurs, the interface is not installed.
 
 
 2) Windows Build Procedure
@@ -65,9 +72,9 @@ the active project to 'examples', and the active configuration to
 the Build menu to verify that it works.
 
 If you plan to build the Python or MATLAB interfaces, you also need to
-build project 'ct'. This creates a DLL file which by default
-is placed in the Windows system directory. Edit the project settings if you want
-to put it somewhere else. 
+build project 'ct'. This creates a DLL file which by default is placed
+in the Windows system directory. Edit the project settings if you want
+to put it somewhere else.
 
 
 
@@ -75,25 +82,44 @@ Configuring Matlab
 ---------------------
 
 The Matlab toolbox uses one compiled MEX program written in C++.
-Before you can build it from the source, Matlab needs to be configured
+Before you can build it, Matlab needs to be configured
 for your compiler. In Matlab type:
 
 mex -setup
 
 and enter the number for the compiler you wish to use.
 
-To build the MEX file needed for the Matlab toolbox, within Matlab
-go to to the 'cantera' directory containing the toolbox and type
-'buildux' on unix/linux/Mac OS X, or 'buildwin' on Windows.
-
+The Matlab toolbox is built automatically by the Cantera build
+process, but can also be built manually.  To build the MEX file needed
+for the Matlab toolbox, within Matlab go to to the 'cantera' directory
+containing the toolbox and type 'buildux' on unix/linux/Mac OS X, or
+'buildwin' on Windows.
 
 
 Configuring Python
 ---------------------
 
 Before you can build the Python interface from the source, you need to
-have Python 2.0 or greater, you need to be able to write into its
-'Lib/site-packages' directory, and the 'Numeric' package must be
-installed. If any of these are not the case, run the Python script
-'ctupdate.py' found in the 'tools/bin' directory to download and
-install Python and Numeric, or install them yourself.
+have Python 2.0 or greater, and the 'Numeric' package must be
+installed. Python is available at www.python.org, and Numeric is
+available through SourceForge.
+
+
+Customizing
+-----------
+
+Before running configure, the following environment variables may be set:
+
+MAKE                     set to 'make' utility compatible with GNU make
+
+CXX                      C++ compiler
+
+F77                      Fortran 77 compiler
+
+PYTHON_CMD               Python interpreter to use with Cantera 
+                         (default: 'python')
+
+MATLAB_CMD               Matlab command (default: 'matlab')
+
+Additional customization can be done by editing the configure script.
+
