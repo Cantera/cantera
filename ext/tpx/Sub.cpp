@@ -8,6 +8,21 @@
 
 namespace tpx {
 
+    static string fp2str(double x, string fmt="%g") {
+        char buf[30];
+        sprintf(buf, fmt.c_str(), x);
+        return string(buf);
+    }
+
+    static string int2str(int n, string fmt="%d") {
+        char buf[30];
+        sprintf(buf, fmt.c_str(), n);
+        return string(buf);
+    }
+
+    string TPX_Error::ErrorMessage = "";
+    string TPX_Error::ErrorProcedure = "";
+
     string errorMsg(int flag) {
         switch(flag) {
         case NoConverge: return "no convergence";
@@ -21,7 +36,9 @@ namespace tpx {
 
     //-------------- Public Member Functions --------------
 
-    // Pressure
+    /// Pressure [Pa]. If two phases are present, return the
+    /// saturation pressure; otherwise return the pressure
+    /// computed directly from the underlying eos.
     double Substance::P() {
 	double ppp = (TwoPhase() ? Ps() : Pp());
 	return (Err ? Undef : ppp);
@@ -29,7 +46,8 @@ namespace tpx {
 
     const double DeltaT = 0.000001;
 
-    // dPs/dT
+    /// The derivative of the saturation pressure 
+    /// with respect to temperature.
     double Substance::dPsdT() {
 	double ps1, tsave, dpdt;
 	tsave = T;
@@ -40,17 +58,16 @@ namespace tpx {
 	return (Err ? Undef : dpdt);
     }
 
-    // TwoPhase() true if liquid/vapor mixture
-
+    /// true if a liquid/vapor mixture, false otherwise
     int Substance::TwoPhase() {
 	if (T >= Tcrit()) return 0;
 	update_sat();
 	return ((Rho < Rhf) && (Rho > Rhv) ? 1 : 0);
 }
 
-    // x() calculates the vapor fraction. 
-    // If T >= Tcrit, 0 is returned for v < Vcrit; 1 otherwise.
-
+    /// Vapor fraction. 
+    /// If T >= Tcrit, 0 is returned for v < Vcrit, and 1 is
+    /// returned if v > Vcrit.
     double Substance::x() {
 	double xx, vv, vl;
 	if (T >= Tcrit())
@@ -70,10 +87,12 @@ namespace tpx {
 	}
     }
     
+    /// Saturation temperature at pressure p.
     double Substance::Tsat(double p) {
 	double Tsave, p_here, dp, dt, dpdt, dta,
             dtm, tsat;
 	if (Err || (p <= 0.0) || (p > Pcrit())) {
+            throw TPX_Error("Substance::Tsat","illegal pressure value");
             set_Err(PresError);
             return Undef;
 	}
@@ -120,7 +139,7 @@ namespace tpx {
 	double temp;
 	
 	clear_Err();  // clear error flag
-	
+
 	/* if inverted (PT) switch order and change sign of XY (TP = -PT) */
 	if (XY < 0) {
             double tmp = x0;
@@ -233,8 +252,9 @@ namespace tpx {
 	if (r0 > 0.0) {
             Rho = r0;
 	}
-	else
+	else {
             set_Err(InvalidInput);
+        }
     }
     
     void Substance::set_T(double t0) {
@@ -242,6 +262,8 @@ namespace tpx {
             T = t0;
 	}
 	else {
+            throw TPX_Error("Substance::set_T",
+                "illegal temperature value "+fp2str(t0));
             set_Err(TempError);
 	}
     }
@@ -250,12 +272,17 @@ namespace tpx {
 	if (v0 > 0) { 
             Rho = 1.0/v0;
 	}
-	else
+	else {
+            throw TPX_Error("Substance::set_v",
+                "negative specific volume: "+fp2str(v0));
             set_Err(InvalidInput);
+        }
     }
     
     double Substance::Ps() {
 	if (T < Tmin() || T > Tcrit()) {
+            throw TPX_Error("Substance::Ps",
+                "illegal temperature value "+fp2str(T));
             set_Err(TempError);
             return Undef;
 	}
@@ -289,13 +316,19 @@ namespace tpx {
                 Rho = ldens();                // trial value = liquid density
                 set_TPp(T,pp);
                 Rhf = Rho;                    // sat liquid density
+
                 gf = hp() - T*sp();
                 Rho = pp*MolWt()/(8314.0*T);  // trial value = ideal gas
                 set_TPp(T,pp);
+
                 Rhv = Rho;                    // sat vapor density
                 gv = hp() - T*sp();
                 dg = gv - gf;
                 
+                if (Rhf <= Rhv) {
+                    throw TPX_Error("Substance::update_sat",
+                        "wrong root found for sat. liquid or vapor");
+                }
                 if (fabs(dg) < 0.001) break;
                 dp = dg/(1.0/Rhv - 1.0/Rhf);
                 psold = pp;
@@ -305,14 +338,23 @@ namespace tpx {
                     lps -= dlp;
                     pp = exp(lps);
                 }
-                else        
+                else {
                     pp -= dp;
+                    lps = log(pp); // added 10/5/04
+                }
+                if (pp > Pcrit()) {
+                    pp = psold + 0.5*(Pcrit() - psold);
+                }
+                else if (pp < 0.0) {
+                    pp = psold/2.0;
+                }
             }	
-            if (i >= 20) {
+            if (i >= 200) {
                 Pst = Undef;
                 Rhv = Undef;
                 Rhf = Undef;
                 Tslast = Undef;
+                throw TPX_Error("substance::update_sat","no convergence");
                 set_Err(NoConverge);
             }
             else {
@@ -415,7 +457,7 @@ namespace tpx {
             y_here = prop(ify);
             err_x = fabs(X - x_here);
             err_y = fabs(Y - y_here);
-            //cout << x_here << "  " << y_here << endl;
+            //            cout << "set_xy: " << x_here << "  " << y_here << endl;
             //cout << err_x << "  " << err_y << endl;
             //cout << X << "  " << Y << endl;
 
@@ -463,6 +505,8 @@ namespace tpx {
             Set(TV, t_here, v_here);
             LoopCount++;
             if (LoopCount > 200) {
+                //cout << "set_xy... no converge " << endl;
+                throw TPX_Error("Substance::set_xy","no convergence");
                 set_Err(NoConverge); 
                 break;
             }
@@ -524,6 +568,7 @@ namespace tpx {
 	dvs2 = 0.7*Vcrit();
 	int LoopCount = 0;
 	
+        //cout << "entering set_TPp with Rho = " << Rho << endl;
 	double v_save = 1.0/Rho;
 	set_T(Temp);
 	v_here = vp();
@@ -531,14 +576,22 @@ namespace tpx {
 	// loop
 	
 	while(P_here = Pp(), fabs(Pressure - P_here) >= ErrP*Pressure) {
-            if (P_here < 0.0)	
+            //cout << "P_here, P, Rho = " 
+            //     << P_here << " " << Pressure << " " << Rho << endl;
+            if (P_here < 0.0) {
+                //cout << "neg P_here, calling Bracket" << endl;
                 BracketSlope(Pressure);
+            }
             else {
                 dv = 0.001*v_here;
-                if (v_here <= Vcrit()) dv *= -1.0;
+                if (v_here <= Vcrit()) {
+                    dv *= -1.0;
+                    //cout << "v_here less than Vcrit " << endl;
+                }
                 Set(TV, Temp, v_here+dv);
                 dpdv = (Pp() - P_here)/dv;
                 if (dpdv > 0.0) {
+                    //cout << "dpdv > 0" << endl;
                     BracketSlope(Pressure);
                 }
                 else {
@@ -548,6 +601,8 @@ namespace tpx {
                         Vmax = v_here;
                     if (v_here == Vmin) Pmin = P_here;
                     if (v_here == Vmax) Pmax = P_here;
+                    //cout << "Vmin, Pmin = " << Vmin << " " << Pmin << endl;
+                    //cout << "Vmax, Pmax = " << Vmax << " " << Pmax << endl;
                     if (Vmin >= Vmax) 
                         set_Err(GenError); 
                     else if ((Vmin > 0.0) && (Vmax < Big)) kbr = 1;
@@ -572,14 +627,21 @@ namespace tpx {
             dva = fabs(dv);
             if (dva > dvm) dv *= dvm/dva;
             v_here += dv;
+            //cout << "v_here, dv = " << v_here << " " << dv << endl;
             if (dv == 0.0) {
+                //cout << "setTPp dv=0 ... no converge " << endl;
+                throw TPX_Error("Substance::set_TPp","dv = 0 and no convergence");
                 set_Err(NoConverge); 
                 return;
             }
             Set(TV, Temp, v_here);
             LoopCount++;
             if (LoopCount > 100) {       
+                //cout << "setTPp... no converge " << endl;
                 Set(TV, Temp, v_save);
+                throw TPX_Error("Substance::set_TPp",string("no convergence for ")
+                    +"P* = "+fp2str(Pressure/Pcrit())+". V* = "
+                    +fp2str(v_save/Vcrit()));
                 set_Err(NoConverge);
                 return;
             }
