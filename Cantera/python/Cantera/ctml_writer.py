@@ -339,15 +339,15 @@ class const_cp(thermo):
     
     def __init__(self, 
                  t0 = 298.15, cp0 = 0.0, h0 = 0.0, s0 = 0.0,
-                 tmax = -1.0, tmin = -1.0):
+                 tmax = 5000.0, tmin = 100.0):
         self._t = [tmin, tmax]
         self._c = [t0, h0, s0, cp0]
         
     def build(self, t):
         #t = self._build(p)
         c = t.addChild('const_cp')
-        if self._t[0] >= 0.0: c['Tmin'] = self._t[0]
-        if self._t[1] >= 0.0: c['Tmax'] = self._t[1]
+        if self._t[0] >= 0.0: c['Tmin'] = `self._t[0]`
+        if self._t[1] >= 0.0: c['Tmax'] = `self._t[1]`
         addFloat(c,'t0',self._c[0])
         addFloat(c,'h0',self._c[1])
         addFloat(c,'s0',self._c[2])        
