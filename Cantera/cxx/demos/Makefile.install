@@ -8,7 +8,7 @@ CTNEW = ctnew
 .SUFFIXES :
 .SUFFIXES : .mak
 
-SRCS = kinetics1.cpp flamespeed.cpp
+SRCS = kinetics1.cpp flamespeed.cpp rankine.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 EXES = $(SRCS:.cpp=.x)

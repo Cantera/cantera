@@ -8,38 +8,52 @@
 #
 ###############################################################
 
-SUFFIXES=
-SUFFIXES= .cpp .d .o
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o .h
 
-OBJDIR = .
+INCDIR = ../../../build/include/cantera/kernel/transport
+INSTALL_TSC = ../../../bin/install_tsc
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
-# stirred reactors
+# Transport Object Files
 OBJS    = TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.o \
           SolidTransport.o DustyGasTransport.o
+TRAN_H  =  TransportFactory.h MultiTransport.h MixTransport.h \
+           MMCollisionInt.h  SolidTransport.h DustyGasTransport.h \
+           TransportBase.h L_matrix.h FtnTransport.h TransportParams.h
 
 CXX_INCLUDES = -I..
 LIB = @buildlib@/libtransport.a
 
 DEPENDS = $(OBJS:.o=.d)
 
+all: $(LIB)
+	@(for lh in $(TRAN_H) ; do \
+	  $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
+	done)
 %.d:
 	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
 	@CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
 
-.f.o:
-	@F77@ -c $< $(F77_FLAGS) 
-
-all lib: $(LIB)
-
-$(LIB): $(OBJS)
+$(LIB): $(OBJS) $(TRAN_H)
 	@ARCHIVE@ $(LIB) $(OBJS) > /dev/null
 
 clean:
-	$(RM) *.o *~ $(LIB)
+	@(for lh in $(TRAN_H) ; do \
+            th=$(INCDIR)/"$${lh}" ; \
+	    if test -f "$${th}" ; then \
+	      $(RM) "$${th}"  ; \
+              echo "$(RM) $${th}" ; \
+            fi \
+	  done)
+	@(if test -f $(LIB) ; then \
+	    $(RM) $(LIB) ; \
+            echo "$(RM) $(LIB)" ; \
+          fi)
+	$(RM) *.o *~ 
 
 depends: $(DEPENDS)
 	cat *.d > .depends

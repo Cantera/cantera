@@ -29,7 +29,6 @@ bool match(const string& s1, const string& s2)
 }
 
 
-/// remove all white space from string s.
 void removeWhiteSpace(string& s) {
     string r;
     int ssize = static_cast<int>(s.size());

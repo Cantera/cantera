@@ -139,12 +139,9 @@ void getTokens(string& begin,
 
 bool match(const string& s1, const string& s2);
 
-/**
- *  
+/**  
  * Check whether string 'word' begins with a Chemkin keyword.
- *
  */
-
 inline bool isKeyword(string word) 
 {
     return (match(word, "ELEM") ||

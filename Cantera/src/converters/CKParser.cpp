@@ -6,32 +6,15 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.15  2004-10-10 20:46:36  dggoodwin
-// changes to make type integer compatible with f2c
+// Revision 1.16  2005-01-07 10:26:43  dggoodwin
+// merged changes from branch
 //
-// Revision 1.14  2004/09/13 11:22:21  dggoodwin
+// Revision 1.15.2.2  2004/12/18 15:16:13  dggoodwin
+// minor cleanup
+//
+// Revision 1.15.2.1  2004/12/18 15:00:02  dggoodwin
 // *** empty log message ***
 //
-// Revision 1.13  2004/08/28 16:12:41  dggoodwin
-// cleanup
-//
-// Revision 1.12  2004/08/05 14:56:57  dggoodwin
-// *** empty log message ***
-//
-// Revision 1.11  2004/07/27 14:22:31  dggoodwin
-// *** empty log message ***
-//
-// Revision 1.10  2004/07/23 00:15:15  dggoodwin
-// *** empty log message ***
-//
-// Revision 1.9  2004/07/14 11:24:13  dggoodwin
-// *** empty log message ***
-//
-// Revision 1.8  2004/07/02 17:34:13  hkmoffa
-// Eliminated warnings due to signed and unsigned comparisons.
-//
-// Revision 1.7  2004/07/02 17:27:01  hkmoffa
-// static_casts to eliminate VC++ warnings.
 //
 // Revision 1.6  2004/07/02 16:48:13  hkmoffa
 // Moved CK_SyntaxError definition to the .h file. It's used in more
@@ -270,7 +253,7 @@ namespace ckr {
      * Constructor. Construct a parser for the specified input file.
      */
     CKParser::CKParser(istream* infile, const string& fname, ostream* log) 
-        : verbose(true), m_line (0), debug(false) {
+        : verbose(true), debug(false), m_line (0) {
         m_ckfile = infile; 
         m_ckfilename = fname;
         m_log = log;
@@ -925,7 +908,7 @@ next:
             // look for a metadata line
             if (s[0] == '%') {
                 metaDataLine = true;
-                if (eqloc > 0 && eqloc < s.size()) {
+                if (eqloc > 0 && eqloc < int(s.size())) {
                     int ierr, ierp;
                     vector<grouplist_t> rg, pg;
                     s[eqloc] = ' ';
@@ -964,7 +947,7 @@ next:
                 }   
             }
 
-            else if (eqloc >= 0 && eqloc < s.size()) {
+            else if (eqloc >= 0 && eqloc < int(s.size())) {
                 if (nRxns > 0) {
                     rxn.number = nRxns;
                     reactions.push_back(rxn);

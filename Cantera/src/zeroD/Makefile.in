@@ -8,20 +8,28 @@
 #
 ###############################################################
 
-SUFFIXES=
-SUFFIXES= .cpp .d .o
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o .h
 
-OBJDIR = .
+INCDIR = ../../../build/include/cantera/kernel/zeroD
+INSTALL_TSC = ../../../bin/install_tsc
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
 # stirred reactors
 OBJS    = Reactor.o ReactorBase.o FlowDevice.o Wall.o ReactorNet.o
+ZEROD_H = Reactor.h ReactorBase.h FlowDevice.h Wall.h ReactorNet.h \
+          flowControllers.h PID_Controller.h Reservoir.h
 
 CXX_INCLUDES = -I..
 ZEROD_LIB = @buildlib@/libzeroD.a
 
 DEPENDS = $(OBJS:.o=.d)
+
+all: $(ZEROD_LIB)
+	@(for lh in $(ZEROD_H) ; do \
+          $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
+        done)
 
 %.d:
 	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
@@ -32,13 +40,22 @@ DEPENDS = $(OBJS:.o=.d)
 .f.o:
 	@F77@ -c $< $(F77_FLAGS) 
 
-all lib: $(ZEROD_LIB)
-
-$(ZEROD_LIB): $(OBJS)
+$(ZEROD_LIB): $(OBJS) $(ZEROD_H)
 	@ARCHIVE@ $(ZEROD_LIB) $(OBJS) > /dev/null
 
 clean:
-	$(RM) *.o *~ $(ZEROD_LIB)
+	@(for lh in $(ZEROD_H) ; do \
+            th=$(INCDIR)/"$${lh}" ; \
+            if test -f "$${th}" ; then \
+              $(RM) "$${th}"  ; \
+              echo "$(RM) $${th}" ; \
+            fi \
+          done)
+	@(if test -f $(ZEROD_LIB) ; then \
+            $(RM) $(ZEROD_LIB) ; \
+            echo "$(RM) $(ZEROD_LIB)" ; \
+          fi)
+	$(RM) *.o *~
 
 depends: $(DEPENDS)
 	cat *.d > .depends

@@ -1,5 +1,5 @@
 /**
- *  @file Constituents.cpp.
+ *  @file Constituents.cpp
  *  Implementation file for class Constituents
  */
 

@@ -112,10 +112,6 @@ namespace Cantera {
     }
 #endif
 
-    /**
-     * Multiply \c A*b and return the result in \c prod. Uses BLAS
-     * routine DGEMV.
-     */
     void multiply(const DenseMatrix& A, const double* b, double* prod) {
         ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, 
             static_cast<int>(A.nRows()), static_cast<int>(A.nColumns()), 1.0, 
@@ -129,10 +125,6 @@ namespace Cantera {
             A.begin(), static_cast<int>(A.nRows()), b, 1, 1.0, prod, 1);
     }
 
-
-    /**
-     * invert A. A is overwritten with A^-1.
-     */
     int invert(DenseMatrix& A, int nn) {
         integer n = (nn > 0 ? nn : static_cast<int>(A.nRows()));
         int info=0;

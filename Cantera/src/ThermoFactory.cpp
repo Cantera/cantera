@@ -79,7 +79,7 @@ namespace Cantera {
 
 #ifdef INCL_PURE_FLUIDS
         case cPureFluid:
-            th = new PureFluid;
+            th = new PureFluidPhase;
             break;
 #endif
 

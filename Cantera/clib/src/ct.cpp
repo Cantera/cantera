@@ -35,14 +35,14 @@ inline XML_Node* _xml(int i) {
 
 
 #ifdef INCL_PURE_FLUID
-static PureFluid* purefluid(int n) {
+static PureFluidPhase* purefluid(int n) {
     try {
         ThermoPhase* tp = th(n);
         if (tp->eosType() == cPureFluid) {
-            return (PureFluid*)tp;
+            return (PureFluidPhase*)tp;
         }
         else {
-            throw CanteraError("purefluid","object is not a PureFluid object");
+            throw CanteraError("purefluid","object is not a PureFluidPhase object");
         }
     }
     catch (CanteraError) {
@@ -735,6 +735,46 @@ extern "C" {
             Kinetics* k = kin(n);
             if (len >= k->nReactions()) {
                 k->getActivationEnergies(E);
+                return 0;
+            }
+            else 
+                return ERR;
+        }
+        catch (CanteraError) {return -1;}
+    }
+
+
+    int DLL_EXPORT kin_getDelta(int n, int job, int len, double* delta) {
+        try {
+            Kinetics* k = kin(n);
+            if (len < k->nReactions()) return ERR;
+            switch (job) {
+            case 0:
+                k->getDeltaEnthalpy(delta); break;
+            case 1:
+                k->getDeltaGibbs(delta); break;
+            case 2:
+                k->getDeltaEntropy(delta); break;
+            case 3:
+                k->getDeltaSSEnthalpy(delta); break;
+            case 4:
+                k->getDeltaSSGibbs(delta); break;
+            case 5:
+                k->getDeltaSSEntropy(delta); break;
+            default:
+                return ERR;
+            }
+            return 0;
+        }
+        catch (CanteraError) {return -1;}
+    }
+
+
+    int DLL_EXPORT kin_getDeltaEntropy(int n, int len, double* deltaS) {
+        try {
+            Kinetics* k = kin(n);
+            if (len >= k->nReactions()) {
+                k->getDeltaEntropy(deltaS);
                 return 0;
             }
             else 

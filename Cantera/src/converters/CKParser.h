@@ -22,7 +22,6 @@ using namespace std;
 #include "Element.h"
 #include "Species.h"
 #include "Reaction.h"
-#include "Group.h"
 
 namespace ckr {
 

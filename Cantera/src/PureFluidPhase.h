@@ -19,20 +19,23 @@
 #ifdef INCL_PURE_FLUIDS
 
 #include "mix_defs.h"
-#include "../../ext/tpx/Sub.h"
-#include "../../ext/tpx/utils.h"
+
+namespace tpx {
+    class Substance;
+}
 
 namespace Cantera {
-    
+
+
     /// Class for single-component fluids
-    class PureFluid  : public ThermoPhase {
+    class PureFluidPhase  : public ThermoPhase {
 
     public:
 
-        PureFluid() : ThermoPhase(), m_sub(0), m_subflag(0), 
+        PureFluidPhase() : ThermoPhase(), m_sub(0), m_subflag(0), 
                       m_mw(-1.0), m_verbose(false) {}
 
-        virtual ~PureFluid() { delete m_sub; }
+        virtual ~PureFluidPhase();
         
         
         virtual int eosType() const { return cPureFluid; }
@@ -50,109 +53,43 @@ namespace Cantera {
             mu[0] = gibbs_mole();
         }
 
-        virtual doublereal isothermalCompressibility() {
-            return m_sub->isothermalCompressibility();
-        }
+        virtual doublereal isothermalCompressibility();
+        virtual doublereal thermalExpansionCoeff();
 
-        virtual doublereal thermalExpansionCoeff() {
-            return m_sub->thermalExpansionCoeff();
-        }
-
-        tpx::Substance& TPX_Substance() { return *m_sub; }
+        tpx::Substance& TPX_Substance();
 
         /// critical temperature 
-        virtual doublereal critTemperature() const { return m_sub->Tcrit(); }
-        
+        virtual doublereal critTemperature() const;
+ 
         /// critical pressure
-        virtual doublereal critPressure() const { return m_sub->Pcrit(); }
+        virtual doublereal critPressure() const;
         
         /// critical density
-        virtual doublereal critDensity() const { return 1.0/m_sub->Vcrit(); }
-        
+        virtual doublereal critDensity() const;
         
         /// saturation temperature
-        virtual doublereal satTemperature(doublereal p) const { 
-            try {
-                doublereal ts = m_sub->Tsat(p);
-                return ts;
-            }
-            catch(tpx::TPX_Error) {
-                reportTPXError();
-                return -1.0;
-            }
-        }
+        virtual doublereal satTemperature(doublereal p) const;
         
         virtual void setState_HP(doublereal h, doublereal p, 
-            doublereal tol = 1.e-8) {
-            Set(tpx::HP, h, p);
-            setState_TR(m_sub->Temp(), 1.0/m_sub->v());
-            check();
-        }
+            doublereal tol = 1.e-8);
 
         virtual void setState_UV(doublereal u, doublereal v, 
-            doublereal tol = 1.e-8) {
-            Set(tpx::UV, u, v);
-            setState_TR(m_sub->Temp(), 1.0/m_sub->v());
-            check();
-        }
+            doublereal tol = 1.e-8);
 
         virtual void setState_SV(doublereal s, doublereal v, 
-            doublereal tol = 1.e-8) {
-            Set(tpx::SV, s, v);
-            setState_TR(m_sub->Temp(), 1.0/m_sub->v());
-            check();
-        }
+            doublereal tol = 1.e-8);
 
         virtual void setState_SP(doublereal s, doublereal p, 
-            doublereal tol = 1.e-8) {
-            Set(tpx::SP, s, p);
-            setState_TR(m_sub->Temp(), 1.0/m_sub->v());
-            check();
-        }
+            doublereal tol = 1.e-8);
 
         /// saturation pressure
-        virtual doublereal satPressure(doublereal t) const {
-            //doublereal tsv = m_sub->Temp();
-            doublereal vsv = m_sub->v();
-            //if (t < 0.0)
-            //    Set(tpx::TP, temperature(), 0.5*m_sub->Pcrit());
-            //else
-            //    Set(tpx::TP, t, 0.5*m_sub->Pcrit());
-            try {
-                Set(tpx::TV,t,vsv);
-                doublereal ps = m_sub->Ps();
-                //Set(tpx::TV,tsv,vsv);
-                //check(ps);
-                return ps;
-            }
-            catch(tpx::TPX_Error) {
-                reportTPXError();
-                return -1.0;
-            }
-        }
+        virtual doublereal satPressure(doublereal t) const;
         
-        virtual doublereal vaporFraction() const {
-            setTPXState();
-            doublereal x = m_sub->x();
-            check(x);
-            return x;
-        }
+        virtual doublereal vaporFraction() const;
         
-        virtual void setState_Tsat(doublereal t, doublereal x) {
-            setTemperature(t);
-            setTPXState();
-            Set(tpx::TX, t, x);
-            setDensity(1.0/m_sub->v());
-            check();
-        }
+        virtual void setState_Tsat(doublereal t, doublereal x);
 
-        virtual void setState_Psat(doublereal p, doublereal x) {
-            setTPXState();
-            Set(tpx::PX, p, x);
-            setTemperature(m_sub->Temp());
-            setDensity(1.0/m_sub->v());
-            check();
-        }
+        virtual void setState_Psat(doublereal p, doublereal x);
 
         virtual void initThermo();
         virtual void setParametersFromXML(const XML_Node& eosdata);

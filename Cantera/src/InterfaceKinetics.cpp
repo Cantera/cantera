@@ -385,6 +385,188 @@ namespace Cantera {
 
 
     /**
+     *
+     * getDeltaGibbs():
+     *
+     * Return the vector of values for the reaction gibbs free energy
+     * change
+     * These values depend upon the concentration
+     * of the ideal gas.
+     *
+     *  units = J kmol-1
+     */
+    void InterfaceKinetics::getDeltaGibbs(doublereal* deltaG) {
+	/*
+	 * Get the chemical potentials of the species in the 
+	 * ideal gas solution.
+	 */
+        int np = nPhases();
+        int n;
+        for (n = 0; n < np; n++) {
+            thermo(n).getChemPotentials(m_grt.begin() + m_start[n]);
+        }
+	/*
+	 * Use the stoichiometric manager to find deltaG for each
+	 * reaction.
+	 */
+	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaG);
+    }
+    
+    /**
+     *
+     * getDeltaEnthalpy():
+     * 
+     * Return the vector of values for the reactions change in
+     * enthalpy.
+     * These values depend upon the concentration
+     * of the solution.
+     *
+     *  units = J kmol-1
+     */
+    void InterfaceKinetics::getDeltaEnthalpy(doublereal* deltaH) {
+	/*
+	 * Get the partial molar enthalpy of all species in the 
+	 * ideal gas.
+	 */
+        int np = nPhases();
+        int n;
+        for (n = 0; n < np; n++) {
+            thermo(n).getPartialMolarEnthalpies(m_grt.begin() + m_start[n]);
+        }
+	/*
+	 * Use the stoichiometric manager to find deltaG for each
+	 * reaction.
+	 */
+	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaH);
+    }
+
+    /************************************************************************
+     *
+     * getDeltaEntropy():
+     *
+     * Return the vector of values for the reactions change in
+     * entropy.
+     * These values depend upon the concentration
+     * of the solution.
+     *
+     *  units = J kmol-1 Kelvin-1
+     */
+    void InterfaceKinetics::getDeltaEntropy( doublereal* deltaS) {
+	/*
+	 * Get the partial molar entropy of all species in the
+	 * solid solution.
+	 */
+        int np = nPhases();
+        int n;
+        for (n = 0; n < np; n++) {
+            thermo(n).getPartialMolarEntropies(m_grt.begin() + m_start[n]);
+        }
+	/*
+	 * Use the stoichiometric manager to find deltaS for each
+	 * reaction.
+	 */
+	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaS);
+    }
+
+    /**
+     *
+     * getDeltaSSGibbs():
+     *
+     * Return the vector of values for the reaction 
+     * standard state gibbs free energy change.
+     * These values don't depend upon the concentration
+     * of the solution.
+     *
+     *  units = J kmol-1
+     */
+    void InterfaceKinetics::getDeltaSSGibbs(doublereal* deltaG) {
+	/*
+	 *  Get the standard state chemical potentials of the species.
+         *  This is the array of chemical potentials at unit activity 
+	 *  We define these here as the chemical potentials of the pure
+	 *  species at the temperature and pressure of the solution.
+	 */
+        int np = nPhases();
+        int n;
+        for (n = 0; n < np; n++) {
+            thermo(n).getStandardChemPotentials(m_grt.begin() + m_start[n]);
+        }
+	/*
+	 * Use the stoichiometric manager to find deltaG for each
+	 * reaction.
+	 */
+	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaG);
+    }
+
+    /**
+     *
+     * getDeltaSSEnthalpy():
+     *
+     * Return the vector of values for the change in the
+     * standard state enthalpies of reaction.
+     * These values don't depend upon the concentration
+     * of the solution.
+     *
+     *  units = J kmol-1
+     */
+    void InterfaceKinetics::getDeltaSSEnthalpy(doublereal* deltaH) {
+	/*
+	 *  Get the standard state enthalpies of the species.
+         *  This is the array of chemical potentials at unit activity 
+	 *  We define these here as the enthalpies of the pure
+	 *  species at the temperature and pressure of the solution.
+	 */
+        int np = nPhases();
+        int n;
+        for (n = 0; n < np; n++) {
+            thermo(n).getEnthalpy_RT(m_grt.begin() + m_start[n]);
+        }
+	doublereal RT = thermo().temperature() * GasConstant;
+	for (int k = 0; k < m_kk; k++) {
+	  m_grt[k] *= RT;
+	}
+	/*
+	 * Use the stoichiometric manager to find deltaG for each
+	 * reaction.
+	 */
+	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaH);
+    }
+
+    /*********************************************************************
+     *
+     * getDeltaSSEntropy():
+     *
+     * Return the vector of values for the change in the
+     * standard state entropies for each reaction.
+     * These values don't depend upon the concentration
+     * of the solution.
+     *
+     *  units = J kmol-1 Kelvin-1
+     */
+    void InterfaceKinetics::getDeltaSSEntropy(doublereal* deltaS) {
+	/*
+	 *  Get the standard state entropy of the species.
+	 *  We define these here as the entropies of the pure
+	 *  species at the temperature and pressure of the solution.
+	 */
+        int np = nPhases();
+        int n;
+        for (n = 0; n < np; n++) {
+            thermo(n).getEntropy_R(m_grt.begin() + m_start[n]);
+        }
+	doublereal R = GasConstant;
+	for (int k = 0; k < m_kk; k++) {
+	  m_grt[k] *= R;
+	}
+	/*
+	 * Use the stoichiometric manager to find deltaS for each
+	 * reaction.
+	 */
+	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaS);
+    }
+
+
+    /**
      * Add a single reaction to the mechanism. This routine
      * must be called after init() and before finalize().
      * This function branches on the types of reactions allowed
@@ -608,6 +790,7 @@ namespace Cantera {
         m_prxn.resize(m_kk);
         m_conc.resize(m_kk);
         m_mu0.resize(m_kk);
+        m_grt.resize(m_kk);
         m_pot.resize(m_kk, 0.0);
         m_phi.resize(np, 0.0);
     }

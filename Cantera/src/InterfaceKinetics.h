@@ -157,6 +157,59 @@ namespace Cantera {
 	virtual void getEquilibriumConstants(doublereal* kc);
 
 
+	virtual void getDeltaGibbs( doublereal* deltaG);
+
+	/**
+	 * Return the vector of values for the reactions change in
+	 * enthalpy.
+	 * These values depend upon the concentration
+	 * of the solution.
+	 *
+	 *  units = J kmol-1
+	 */
+	virtual void getDeltaEnthalpy( doublereal* deltaH);
+
+	/**
+	 * Return the vector of values for the reactions change in
+	 * entropy.
+	 * These values depend upon the concentration
+	 * of the solution.
+	 *
+	 *  units = J kmol-1 Kelvin-1
+	 */
+	virtual void getDeltaEntropy(doublereal* deltaS);
+
+	/**
+	 * Return the vector of values for the reaction 
+	 * standard state gibbs free energy change.
+	 * These values don't depend upon the concentration
+	 * of the solution.
+	 *
+	 *  units = J kmol-1
+	 */
+	virtual void getDeltaSSGibbs(doublereal* deltaG);
+
+	/**
+	 * Return the vector of values for the change in the
+	 * standard state enthalpies of reaction.
+	 * These values don't depend upon the concentration
+	 * of the solution.
+	 *
+	 *  units = J kmol-1
+	 */
+	virtual void getDeltaSSEnthalpy(doublereal* deltaH);
+
+	/**
+	 * Return the vector of values for the change in the
+	 * standard state entropies for each reaction.
+	 * These values don't depend upon the concentration
+	 * of the solution.
+	 *
+	 *  units = J kmol-1 Kelvin-1
+	 */
+	virtual void getDeltaSSEntropy(doublereal* deltaS);
+
+
 	//@}
         /**
          * @name Species Production Rates
@@ -323,6 +376,7 @@ namespace Cantera {
 
         void advanceCoverages(doublereal tstep);
         void checkPartialEquil();
+        vector_fp m_grt;
 
     protected:
 	/**

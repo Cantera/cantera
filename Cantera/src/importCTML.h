@@ -28,71 +28,11 @@ namespace Cantera {
 
     bool isCTMLFile(string infile);
 
-    /**
-     * This routine will locate an XML node in either the input
-     * XML tree or in another input file specified by the file
-     * part of the file_ID string. Searches are based on the
-     * ID attribute of the XML element only.
-     *
-     * @param file_ID This is a concatenation of two strings seperated
-     *                by the "#" character. The string before the
-     *                pound character is the file name of an xml
-     *                file to carry out the search. The string after
-     *                the # character is the ID attribute 
-     *                of the xml element to search for. 
-     *                The string is interpreted as a file string if
-     *                no # character is in the string.
-     *
-     * @param root    If the file string is empty, searches for the
-     *                xml element with matching ID attribute are
-     *                carried out from this XML node.
-     */
     XML_Node* get_XML_Node(const string& src, XML_Node* root);
 
-    /**
-     * This routine will locate an XML node in either the input
-     * XML tree or in another input file specified by the file
-     * part of the file_ID string. Searches are based on the
-     * XML element name and the ID attribute of the XML element.
-     *
-     * @param nameTarget This is the XML element name to look for.
-     *                   
-     * @param file_ID This is a concatenation of two strings seperated
-     *                by the "#" character. The string before the
-     *                pound character is the file name of an xml
-     *                file to carry out the search. The string after
-     *                the # character is the ID attribute 
-     *                of the xml element to search for. 
-     *                The string is interpreted as a file string if
-     *                no # character is in the string.
-     *
-     * @param root    If the file string is empty, searches for the
-     *                xml element with matching ID attribute are
-     *                carried out from this XML node.
-     */
     XML_Node* get_XML_NameID(const string& nameTarget,
 			     const string& file_ID, XML_Node* root);
 
-    /**
-     * Install a species into a ThermoPhase object, which defines
-     * the phase thermodynamics and speciation.
-     *
-     *  This routine first gathers the information from the Species XML
-     *  tree and calls addUniqueSpecies() to add it to the
-     *  ThermoPhase object, p.
-     *  This information consists of:
-     *         ecomp[] = element composition of species.
-     *         chgr    = electric charge of species
-     *         name    = string name of species
-     *         sz      = size of the species 
-     *                 (option double used a lot in thermo)
-     *
-     *  Then, the routine processes the "thermo" XML element and
-     *  calls underlying utility routines to read the XML elements
-     *  containing the thermodynamic information for the reference
-     *  state of the species. Failures or lack of information trigger
-     *  an "UnknownSpeciesThermoModel" exception being thrown.
-     */
     bool installSpecies(int k, const XML_Node& s, thermo_t& p, 
 			SpeciesThermo& spthermo, int rule,
 			SpeciesThermoFactory* spfactory);
@@ -100,14 +40,6 @@ namespace Cantera {
     bool importPhase(XML_Node& phase, ThermoPhase* th, 
         SpeciesThermoFactory* spfactory = 0);
 
-    /**
-     * This function returns true if two reactions are duplicates of
-     * one another, and false otherwise.  The input arguments are two
-     * maps from species number to stoichiometric coefficient, one for
-     * each reaction. The reactions are considered duplicates if their
-     * stoichiometric coefficients have the same ratio for all
-     * species.
-     */
     doublereal isDuplicateReaction(map<int, doublereal>& r1,
                                    map<int, doublereal>& r2);
 

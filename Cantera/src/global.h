@@ -41,20 +41,12 @@ namespace Cantera {
     /// Discard the last error message
     void popError();
 
-    /// Find a file on a search path
     string findInputFile(string name);
 
     /// Add a directory to the search path
     void addDirectory(string dir);
 
-    /// Delete the application singly defined information
     void appdelete();
-
-    // Write a message (deprecated; use writelog)
-    //void write(const string& msg);
-
-    //  Write a message (deprecated; use writelog)
-    //void write(const char* msg);
 
     /// The root directory where Cantera is installed
     string canteraRoot();

@@ -3,18 +3,18 @@
  * 
  * This parameterization requires 7 coefficients A - G:
  *
- *  Cp° = A + B*t + C*t2 + D*t3 + E/t^2
+ *  \f[ C_p = A + B*t + C*t2 + D*t3 + E/t^2 \f]
  *
- *  H° - H°298.15= A*t + B*t^2/2 + C*t^3/3 + D*t^4/4 - E/t + F 
- *                 - \Delta_f H°f,298
+ *  \f[ H - H_298.15= A*t + B*t^2/2 + C*t^3/3 + D*t^4/4 - E/t + F 
+ *                 - \Delta_f H_{f,298} \f]
  *
- *  S° = A*ln(t) + B*t + C*t^2/2 + D*t^3/3 - E/(2*t^2) + G
+ *  \f[ S = A*ln(t) + B*t + C*t^2/2 + D*t^3/3 - E/(2*t^2) + G \f]
  *
- *     Cp = heat capacity (J/mol*K)
- *     H° = standard enthalpy (kJ/mol)
- *     \Delta_f H°298.15 = enthalpy of formation at 298.15 K (kJ/mol)
- *     S° = standard entropy (J/mol*K)
- *     t = temperature (K) / 1000.
+ *    - Cp = heat capacity (J/mol*K)
+ *    - H = standard enthalpy (kJ/mol)
+ *    - \f$ \Delta_f H_298.15 \f$ = enthalpy of formation at 298.15 K (kJ/mol)
+ *    - S = standard entropy (J/mol*K)
+ *    - t = temperature (K) / 1000.
  *
  */
 

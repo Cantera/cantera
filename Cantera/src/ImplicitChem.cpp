@@ -1,5 +1,5 @@
 /**
- *  @file Reactor.cpp
+ *  @file ImplicitChem.cpp
  */
 
 /* $Author$
