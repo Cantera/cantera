@@ -44,11 +44,21 @@ using namespace ctml;
 
 
 // these are all used to check for duplicate reactions
-vector< map<int, doublereal> > _reactiondata;
-vector<string> _eqn;
-vector_int _dup, _nr, _typ;
-vector<bool> _rev;
+class rxninfo {
+public:
+    vector< map<int, doublereal> > rdata;
+    vector<string> eqn;
+    vector<int> dup, nr, typ;
+    vector<bool> rev;
+};
 
+rxninfo* _rxns = 0;
+#define _reactiondata _rxns->rdata
+#define _eqn _rxns->eqn
+#define _dup _rxns->dup
+#define _nr _rxns->nr
+#define _typ _rxns->typ
+#define _rev _rxns->rev
 
 namespace Cantera {
 
@@ -1037,7 +1047,7 @@ next:
          */
         if (check_for_duplicates) {
             doublereal c = 0.0;
-            
+
             map<int, doublereal> rxnstoich;
             rxnstoich.clear();
             int nr = rdata.reactants.size();
@@ -1118,6 +1128,9 @@ next:
     bool installReactionArrays(const XML_Node& p, Kinetics& kin, 
         string default_phase, bool check_for_duplicates) {
 
+        if (_rxns == 0) {
+            _rxns = new rxninfo;
+        }
         _eqn.clear();
         _dup.clear();
         _nr.clear();
@@ -1244,6 +1257,8 @@ next:
         _nr.clear();
         _typ.clear();
         _reactiondata.clear();
+        delete _rxns;
+        _rxns = 0;
         return true;
     }
 
