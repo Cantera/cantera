@@ -97,14 +97,17 @@ namespace Cantera {
         const doublereal* step, OneDim& r) const {
         doublereal f, sum = 0.0;//, fmx = 0.0;
         int n;
-        int nd = r.nDomains();
+        int nd = r.nDomains(); 
         for (n = 0; n < nd; n++) {
             f = norm_square(x + r.start(n), step + r.start(n),
                 r.domain(n));
             sum += f;
-            //            if (f > fmx) fmx = f;
+            //            cout << "n = " << n << "   f = " << f << endl;
         }
+        //cout << "sum = " << sum << endl;
+        //cout << "r.size() = " << r.size() << endl;
         sum /= r.size();
+        //cout << "sum = " << sum << "   " << sqrt(sum) << endl;        
         return sqrt(sum);
     }
 
@@ -121,7 +124,11 @@ namespace Cantera {
         for (n = 0; n < sz; n++) {
             step[n] = -step[n];
         }
+        jac.solve(sz, step, step);
+
+#undef DEBUG_STEP
 #ifdef DEBUG_STEP
+        bool ok = false;
         Domain1D* d;
         if (!ok) {
             for (n = 0; n < sz; n++) {
@@ -132,10 +139,10 @@ namespace Cantera {
                     r.pointDomain(n)->componentName(n - d->loc() - nvd*pt)
                      << "    " << x[n] << "     " << step[n] << endl;
             }
-            if (!ok) throw "not ok";
+            //if (!ok) throw "not ok";
         }
 #endif
-        jac.solve(sz, step, step);
+
     }
 
 

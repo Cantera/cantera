@@ -58,10 +58,10 @@ namespace Cantera {
         m_nv = m_domain->nComponents();
 
         // check consistency
-        if (n != m_domain->nPoints()) return -1;
+        if (n != m_domain->nPoints()) throw CanteraError("analyze","inconsistent");
 
 
-        if (n >= m_npmax) return 0;
+        if (n >= m_npmax) throw CanteraError("analyze","max points");
 
         /**
          * find locations where cell size ratio is too large.
@@ -88,7 +88,7 @@ namespace Cantera {
 //         }
 
         for (int i = 0; i < m_nv; i++) {
-            //cout << i << "   " << m_nv << "  " << m_active[i] << endl;
+            cout << i << "   " << m_nv << "  " << m_active[i] << endl;
             if (m_active[i]) {
                 name = m_domain->componentName(i);
             
@@ -129,7 +129,7 @@ namespace Cantera {
                             m_c[name] = 1;
                             if (int(m_loc.size()) + n > m_npmax) goto done;
                         }
-                        if (r >= 0.0) {
+                        if (r >= -1.0) {
                             m_keep[j] = 1;
                             m_keep[j+1] = 1;
                         }
@@ -155,7 +155,7 @@ namespace Cantera {
                             m_loc[j+1] = 1;
                             if (int(m_loc.size()) + n > m_npmax) goto done;
                         }
-                        if (r >= 0.0) {
+                        if (r >= -1.0) {
                             m_keep[j+1] = 1;
                         }
                         //cout << "at point " << j << " slope r = "

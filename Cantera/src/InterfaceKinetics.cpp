@@ -111,7 +111,7 @@ namespace Cantera {
     void SurfPhase::
     setElectricPotential(doublereal V) {
         for (int k = 0; k < m_kk; k++) {
-            m_pe[k] = charge(k)*Faraday;
+            m_pe[k] = charge(k)*Faraday*V;
         }
         _updateThermo(true);
     }
@@ -125,7 +125,7 @@ namespace Cantera {
     }
 
     void SurfPhase::
-    getCoverages(doublereal* theta) {
+    getCoverages(doublereal* theta) const {
         getConcentrations(theta);
         for (int k = 0; k < m_kk; k++) {
             theta[k] *= size(k)/m_n0; 
@@ -147,7 +147,7 @@ namespace Cantera {
                 m_s0[k] *= GasConstant;
                 m_cp0[k] *= GasConstant;
                 deltaE = m_pe[k];
-                m_h0[k] += deltaE;
+                //m_h0[k] += deltaE;
                 m_mu0[k] = m_h0[k] - tnow*m_s0[k];
             }
             m_tlast = tnow;
@@ -166,6 +166,7 @@ namespace Cantera {
     InterfaceKinetics(thermo_t* thermo) :
         Kinetics(thermo),
         m_kk(0), 
+        m_redo_rates(false),
         m_nirrev(0), 
         m_nrev(0),
         m_finalized(false)
@@ -177,12 +178,14 @@ namespace Cantera {
     void InterfaceKinetics::
     _update_rates_T() {
         doublereal T = thermo().temperature();
-        if (T != m_kdata->m_temp) {
+        if (T != m_kdata->m_temp || m_redo_rates) {
             doublereal logT = log(T);
             m_rates.update(T, logT, m_kdata->m_rfn.begin());
+            correctElectronTransferRates(m_kdata->m_rfn.begin());
             m_kdata->m_temp = T;
             updateKc();
             m_kdata->m_ROP_ok = false;
+            m_redo_rates = false;
         }
     };
 
@@ -212,10 +215,14 @@ namespace Cantera {
         doublereal rrt = 1.0/rt;
         int np = nPhases();
         for (n = 0; n < np; n++) {
+            //            cout << n << "start = " << m_start[n] << endl;
             thermo(n).getStandardChemPotentials(m_mu0.begin() + m_start[n]);
             nsp = thermo(n).nSpecies();
             for (k = 0; k < nsp; k++) {
+                //cout << ik << "mu0 = " << m_mu0[ik] << endl;
                 m_mu0[ik] -= rt*thermo(n).logStandardConc(k);
+                m_mu0[ik] += Faraday * m_phi[n] * thermo(n).charge(k);
+                //cout << ik << "mu0 = " << m_mu0[ik] << endl;
                 ik++;
             }
         }
@@ -228,7 +235,9 @@ namespace Cantera {
 
         for (i = 0; i < m_nrev; i++) {
             irxn = m_revindex[i];
+            //cout << "rev   " << irxn << "  " << m_rkc[irxn] << endl;
             m_rkc[irxn] = exp(m_rkc[irxn]*rrt);
+            //cout << "rev   " << irxn << "  " << m_rkc[irxn] << endl;
         }
 
         for(i = 0; i != m_nirrev; ++i) {
@@ -251,7 +260,14 @@ namespace Cantera {
             thermo(n).getStandardChemPotentials(m_mu0.begin() + m_start[n]);
             nsp = thermo(n).nSpecies();
             for (k = 0; k < nsp; k++) {
+                //cout << thermo(n).id() << "  " << thermo(n).speciesName(k) 
+                //     << "   " << m_mu0[ik] << endl;
                 m_mu0[ik] -= rt*thermo(n).logStandardConc(k);
+                m_mu0[ik] += Faraday * m_phi[n] * thermo(n).charge(k);
+                //if (thermo(n).charge(k) != 0.0) {
+                //    cout << thermo(n).id() << "  " << thermo(n).speciesName(k) 
+                //         << "   " << m_phi[n] << "  " << thermo(n).charge(k) << endl;
+                //}
                 ik++;
             }
         }
@@ -266,6 +282,41 @@ namespace Cantera {
             kc[i] = exp(-kc[i]*rrt);
         }
     }
+
+
+    /**
+     * Get the equilibrium constants of all reactions, whether
+     * reversible or not.
+     */
+    void InterfaceKinetics::correctElectronTransferRates(doublereal* kf) {
+        int i;
+
+        int n, nsp, k, ik=0;
+        doublereal rt = GasConstant*thermo(0).temperature();
+        doublereal rrt = 1.0/rt;
+        int np = nPhases();
+        for (n = 0; n < np; n++) {
+            nsp = thermo(n).nSpecies();
+            for (k = 0; k < nsp; k++) {
+                m_pot[ik] = Faraday*thermo(n).charge(k)*m_phi[n];
+                ik++;
+            }
+        }
+        fill(m_rwork.begin(), m_rwork.begin() + m_ii, 0.0);
+        m_reactantStoich.decrementReactions(m_pot.begin(), m_rwork.begin()); 
+        m_revProductStoich.incrementReactions(m_pot.begin(), m_rwork.begin());
+        m_irrevProductStoich.incrementReactions(m_pot.begin(), m_rwork.begin());
+        doublereal eamod, ea;
+        for (i = 0; i < m_ii; i++) {
+            //loc = m_index[i].second;
+            //if (loc >= 0) {
+            //    const Arrhenius& r = m_rates.rateCoeff(m_index[i].second);
+            //  ea = GasConstant*r.activationEnergy_R();
+            eamod = 0.5*m_rwork[i];
+            if (m_index[i].second >= 0) kf[i] *= exp(-eamod*rrt);
+        }
+    }
+
 
 
     void InterfaceKinetics::updateROP() {
@@ -311,7 +362,6 @@ namespace Cantera {
 
         m_kdata->m_ROP_ok = true;
     }
-
 
     void InterfaceKinetics::
     addReaction(const ReactionData& r) {
@@ -436,9 +486,12 @@ namespace Cantera {
         m_prxn.resize(m_kk);
         m_conc.resize(m_kk);
         m_mu0.resize(m_kk);
+        m_pot.resize(m_kk, 0.0);
+        m_phi.resize(np,0.0);
     }
 
     void InterfaceKinetics::finalize() {
+        m_rwork.resize(nReactions());
         m_finalized = true;
     }
 

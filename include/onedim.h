@@ -3,7 +3,7 @@
 
 #include "kernel/oneD/Sim1D.h"
 #include "kernel/oneD/OneDim.h"
-#include "kernel/oneD/Resid1D.h"
+#include "kernel/oneD/Domain1D.h"
 #include "kernel/oneD/Inlet1D.h"
 #include "kernel/oneD/MultiNewton.h"
 #include "kernel/oneD/MultiJac.h"

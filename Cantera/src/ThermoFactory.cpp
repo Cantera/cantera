@@ -21,15 +21,19 @@
 #include "IdealGasPhase.h"
 #include "ConstDensityThermo.h"
 #include "SurfPhase.h"
+#include "MetalPhase.h"
+#include "SolidCompound.h"
 #include "importCTML.h"
 
 namespace Cantera {
 
     ThermoFactory* ThermoFactory::__factory = 0;
 
-    static int ntypes = 3;
-    static string _types[] = {"IdealGas", "Incompressible", "Surface"};
-    static int _itypes[]   = {cIdealGas, cIncompressible, cSurf};
+    static int ntypes = 5;
+    static string _types[] = {"IdealGas", "Incompressible", 
+                              "Surface", "Metal", "SolidCompound"};
+    static int _itypes[]   = {cIdealGas, cIncompressible, 
+                              cSurf, cMetal, cSolidCompound};
 
 
     ThermoPhase* ThermoFactory::newThermoPhase(string model) {
@@ -53,6 +57,14 @@ namespace Cantera {
 
         case cSurf:
             th = new SurfPhase;
+            break;
+
+        case cMetal:
+            th = new MetalPhase;
+            break;
+
+        case cSolidCompound:
+            th = new SolidCompound;
             break;
 
         default:
@@ -99,22 +111,23 @@ namespace Cantera {
         switch (ieos) {
 
         case cIdealGas:
-            // Ideal gas
             th = new IdealGasPhase;
             break;
 
         case cIncompressible:
-            //            getFloats(eos,d);
-            //dens = d["density"];
             th = new ConstDensityThermo;
-            //th->setParameters(1, &dens);
             break;
 
         case cSurf:
-            //getFloats(eos,d);
-            //dens = d["site_density"];
             th = new SurfPhase;
-            //th->setParameters(1, &dens);
+            break;
+
+        case cMetal:
+            th = new MetalPhase;
+            break;
+
+        case cSolidCompound:
+            th = new SolidCompound;
             break;
 
         default:
@@ -122,8 +135,10 @@ namespace Cantera {
                 "newThermo: unknown equation of state: "+eostype);
         }
         th->setSpeciesThermo(spthermo);
+
         // import the phase specification
         importPhase(node, th);
+
         return th;
     }
 

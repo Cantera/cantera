@@ -107,10 +107,10 @@ namespace Cantera {
             m_nv = nv;
             m_max.resize(m_nv, 0.0);
             m_min.resize(m_nv, 0.0);
-            m_rtol_ss.resize(m_nv, 0.0);
-            m_atol_ss.resize(m_nv, 0.0);
-            m_rtol_ts.resize(m_nv, 0.0);
-            m_atol_ts.resize(m_nv, 0.0);
+            m_rtol_ss.resize(m_nv, 1.0e-8);
+            m_atol_ss.resize(m_nv, 1.0e-15);
+            m_rtol_ts.resize(m_nv, 1.0e-8);
+            m_atol_ts.resize(m_nv, 1.0e-15);
             m_points = np;
             m_z.resize(np, 0.0);
             m_slast.resize(m_nv * m_points, 0.0);

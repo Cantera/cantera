@@ -31,6 +31,21 @@ py_transport_delete(PyObject *self, PyObject *args)
 
 
 static PyObject*
+py_setParameters(PyObject *self, PyObject *args) {
+    int n, k, typ;
+    PyObject* parray;
+    if (!PyArg_ParseTuple(args, "iiiO:py_setParameters", 
+            &n, &typ, &k, &parray)) return NULL;
+
+    PyArrayObject* a = (PyArrayObject*)parray;
+    double* xd = (double*)a->data;
+    int ok = trans_setParameters(n, typ, k, xd);
+    if (ok < 0) return reportError(ok);
+    return Py_BuildValue("i",ok);        
+}
+
+
+static PyObject*
 py_viscosity(PyObject *self, PyObject *args) {
     int n;
     if (!PyArg_ParseTuple(args, "i:py_viscosity", &n)) return NULL;

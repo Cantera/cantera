@@ -728,6 +728,10 @@ extern "C" {
         catch (CanteraError) { return -1; }
     }
 
+    int DLL_EXPORT trans_setParameters(int n, int type, int k, double* d) {
+        try { trans(n)->setParameters(type, k, d); return 0;}
+        catch (CanteraError) { return -1; }
+    }
 
     //-------------------- Functions ---------------------------
 

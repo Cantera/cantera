@@ -42,6 +42,10 @@ namespace Cantera {
             s << ");" << endl;
         }
 
+        doublereal activationEnergy_R() const {
+            return m_E;
+        }
+
     protected:
         doublereal m_logA, m_b, m_E;
     };

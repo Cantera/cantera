@@ -75,6 +75,7 @@ static PyMethodDef ct_methods[] = {
     {"tran_binaryDiffCoeffs", py_binaryDiffCoeffs,  METH_VARARGS},
     {"tran_mixDiffCoeffs", py_mixDiffCoeffs,  METH_VARARGS},
     {"tran_multiDiffCoeffs", py_multiDiffCoeffs,  METH_VARARGS},
+    {"tran_setParameters", py_setParameters,  METH_VARARGS},
    
     {"get_Cantera_Error", ct_get_cantera_error,  METH_VARARGS},
     {"ct_print", ct_print,  METH_VARARGS},

@@ -22,7 +22,7 @@ namespace Cantera {
             if (units == "") return 1.0;
             doublereal f = 1.0, fctr;
             int tsize;
-            string u = units, tok;
+            string u = units, tok, tsub;
             int k;
             char action = '-';
             while (1 > 0) {
@@ -33,18 +33,22 @@ namespace Cantera {
                     tok = u;
                 tsize = tok.size();
                 if (tok[tsize - 1] == '2') {
-                    fctr = m_u[tok.substr(0,tsize-2)];
+                    tsub = tok.substr(0,tsize-1);
+                    fctr = m_u[tsub];
                     fctr *= fctr;
                 }
                 else if (tok[tsize - 1] == '3') {
-                    fctr = m_u[tok.substr(0,tsize-2)];
+                    tsub = tok.substr(0,tsize-1);
+                    fctr = m_u[tsub];
                     fctr *= fctr*fctr;
                 }
-                else
+                else {
+                    tsub = tok;
                     fctr = m_u[tok];
+                }
 
                 if (fctr == 0) 
-                    throw CanteraError("toSI","unknown unit: "+tok);
+                    throw CanteraError("toSI","unknown unit: "+tsub);
                 if (action == '-') f *= fctr;
                 else if (action == '/') f /= fctr;
                 if (k < 0) break;

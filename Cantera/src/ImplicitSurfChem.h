@@ -21,7 +21,8 @@
 
 #include "FuncEval.h"
 #include "CVode.h"
-#include "surfKinetics.h"
+#include "InterfaceKinetics.h"
+#include "SurfPhase.h"
 
 namespace Cantera {
 
@@ -37,7 +38,7 @@ namespace Cantera {
         /**
          * Constructor.
          */
-        ImplicitSurfChem(SurfKinetics& kin);
+        ImplicitSurfChem(InterfaceKinetics& kin);
 
 
         /**
@@ -90,8 +91,8 @@ namespace Cantera {
          */
         void updateState(doublereal* y);
 
-        SurfacePhase* m_surf;
-        SurfKinetics* m_kin;
+        SurfPhase* m_surf;
+        InterfaceKinetics* m_kin;
         int m_nsp;
         Integrator* m_integ;         // pointer to integrator
         doublereal m_atol, m_rtol;   // tolerances

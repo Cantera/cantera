@@ -404,7 +404,6 @@ class OneDim:
         """
 
         self.setNewtonOptions(max_jac_age = self._opt['ts_jac_age'])
-        print 'max jac age = ',self._opt['ts_jac_age']
         
         if loglevel > 0:
             print_heading('Begin time integration.\n\n')

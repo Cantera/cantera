@@ -66,6 +66,11 @@ namespace Cantera {
 
         virtual int ID() { return cInterfaceKinetics; }
 
+        void setElectricPotential(int n, doublereal V) {
+            m_phi[n] = V;
+            m_redo_rates = true;
+        }
+
         virtual doublereal reactantStoichCoeff(int k, int i) const {
             return m_rrxn[k][i];
         }
@@ -153,7 +158,7 @@ namespace Cantera {
                 < m_revindex.end()) return true;
             else return false;
         }
-
+        void correctElectronTransferRates(doublereal* kf);
         void _update_rates_T();
         void _update_rates_C();
 
@@ -162,7 +167,8 @@ namespace Cantera {
         int                                 m_kk;
 
         Rate1<Arrhenius>                    m_rates;        
-        
+        bool                                m_redo_rates;
+
         mutable map<int, pair<int, int> >   m_index;
 
         vector<int> m_irrev;
@@ -191,6 +197,9 @@ namespace Cantera {
 
         vector_fp m_conc;
         vector_fp m_mu0;
+        vector_fp m_phi;
+        vector_fp m_pot;
+        vector_fp m_rwork;
 
     private:
 

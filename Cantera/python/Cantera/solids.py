@@ -2,7 +2,7 @@
 
 from solution import Solution
 
-def Solid(import_file="", id="",
+def Solid(src="", 
                 kmodel=1, transport=None):
     return Solution(import_file=import_file,
                     thermo_db="",

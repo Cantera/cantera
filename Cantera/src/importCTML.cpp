@@ -33,12 +33,15 @@ using namespace std;
 #include "ReactionData.h"
 #include "global.h"
 #include "stringUtils.h"
+#include "GasKineticsWriter.h"
 
 #include "xml.h"
 #include "ctml.h"
 using namespace ctml;
 
 #include <stdio.h>
+
+GasKineticsWriter* writer = 0;
 
 namespace Cantera {
 
@@ -191,15 +194,15 @@ namespace Cantera {
 	     * Define a map and get all of the floats in the
 	     * current XML species block
 	     */
-            map<string, double> fd;
-            getFloats(s, fd);
+            //map<string, double> fd;
+            //getFloats(s, fd);
+            doublereal chrg = 0.0;
+            if (s.hasChild("charge")) chrg = getFloat(s, "charge");
+            doublereal sz = 1.0;
+            if (s.hasChild("size")) sz = getFloat(s, "size");
 
-	    /*
-	     * Set a default for the size parameter to one
-	     */
-            if (fd["size"] == 0.0) fd["size"] = 1.0;
             p.addUniqueSpecies(s["name"], ecomp.begin(),
-				 fd["charge"], fd["size"]);
+				 chrg, sz);
 
             // get thermo
             XML_Node& thermo = s.child("thermo");
@@ -391,7 +394,8 @@ namespace Cantera {
                 vector_fp coeff(3);
                 getArrhenius(c, order, coeff[0], coeff[1], coeff[2]);
                 if (order == 0) order = nr;
-                if (order == nr || rdata.reactionType == THREE_BODY_RXN) 
+                if (order == nr || rdata.reactionType == THREE_BODY_RXN 
+                    || rdata.reactionType == ELEMENTARY_RXN) 
                     chigh = coeff;
                 else if (order == nr + 1) clow = coeff;
                 else {
@@ -401,6 +405,15 @@ namespace Cantera {
                         "wrong Arrhenius coeff order");
                 }
             }
+//             else if (nm == "Stick") {
+//                 vector_fp coeff(3);
+//                 string spname = c["species"];
+//                 ThermoPhase& th = kin.speciesPhase(spname);
+//                 int isp = th.speciesIndex(spname);
+//                 double mw = th.molecularWeights()[isp];
+//                 cbar = sqrt((8.0*GasConstant)/(Pi*mw));
+            //                
+            //            }
             else if (nm == "falloff") {
                 getFalloff(c, rdata);
             }
@@ -501,11 +514,21 @@ namespace Cantera {
                         "wrong equation of state type");
                 }
             }
+            else if (eos["model"] == "SolidCompound") {
+                if (th->eosType() == cSolidCompound) {
+                    doublereal rho = getFloat(eos, "density", "-");
+                    th->setDensity(rho);
+                }
+                else {
+                    throw CanteraError("importCTML",
+                        "wrong equation of state type");
+                }
+            }
             else if (eos["model"] == "Surface") {
                 if (th->eosType() == cSurf) {
-                    map<string, doublereal> d;
+                    //map<string, doublereal> d;
                     //getFloats(eos, d);
-                    doublereal n = fpValue(eos("site_density"));
+                    doublereal n = getFloat(eos, "site_density", "-");
                     th->setParameters(1, &n);
                 }
                 else {
@@ -685,12 +708,16 @@ namespace Cantera {
 
         getRateCoefficient(r.child("rateCoeff"), kin, rdata);
         kin.addReaction(rdata);
+        //if (writer) writer->addReaction(rdata);
         return true;
     }
 
 
     bool installReactionArrays(XML_Node& p, Kinetics& kin, 
         string default_phase) {
+
+        writer = new GasKineticsWriter;
+
         vector<XML_Node*> rarrays;
         int itot = 0;
         p.getChildren("reactionArray",rarrays);
@@ -738,6 +765,12 @@ namespace Cantera {
             }
         }
         kin.finalize();
+        ofstream fwrite("mech.cpp");
+        //writer->writeGetNetProductionRates(cout, kin.nTotalSpecies(),
+        //    kin.nReactions());
+        fwrite.close();
+        delete writer;
+        writer = 0;
         return true;
     }
 

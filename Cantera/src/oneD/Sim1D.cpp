@@ -336,9 +336,9 @@ namespace Cantera {
                         }
                     }
                 }
-                //else {
-                //    throw CanteraError("refine","keepPoint is false at m = "+int2str(m));
-                //}
+                else {
+                    throw CanteraError("refine","keepPoint is false at m = "+int2str(m));
+                }
             }
             dsize.push_back(znew.size() - nstart);
         }

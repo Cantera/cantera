@@ -251,6 +251,18 @@ namespace Cantera {
             return -2;
         }
 
+        thermo_t& speciesPhase(string nm) {
+            int np = m_thermo.size();
+            int k;
+            string id;
+            for (int n = 0; n < np; n++) {
+                k = thermo(n).speciesIndex(nm);
+                if (k >= 0) return thermo(n);
+            }
+            throw CanteraError("speciesPhase", "unknown species "+nm);
+        }
+
+
         /**
          * Prepare to add reactions.
          */

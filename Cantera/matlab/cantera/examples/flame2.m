@@ -10,8 +10,8 @@ t0 = cputime;  % record the starting time
 % parameter values
 p          =   oneatm;              % pressure
 tin        =   300.0;               % inlet temperature
-mdot_o     =   0.24;                % air, kg/m^2/s
-mdot_f     =   0.08;                % fuel, kg/m^2/s
+mdot_o     =   0.72;                % air, kg/m^2/s
+mdot_f     =   0.24;                % fuel, kg/m^2/s
 
 rxnmech    =  'gri30.xml';          % reaction mechanism file
 transport  =  'Mix';                % transport model

@@ -21,12 +21,12 @@
 
 namespace Cantera {
 
-    ImplicitSurfChem::ImplicitSurfChem(SurfKinetics& kin) 
+    ImplicitSurfChem::ImplicitSurfChem(InterfaceKinetics& kin) 
         : FuncEval(), m_kin(&kin), m_integ(0),
-          m_atol(1.e-15), m_rtol(1.e-7), m_maxstep(0.0)
+          m_atol(1.e-14), m_rtol(1.e-7), m_maxstep(0.0)
     {
         m_integ = new CVodeInt;
-        m_surf = &kin.sphase();
+        m_surf = (SurfPhase*)&kin.thermo(kin.nPhases()-1);
 
         // use backward differencing, with a full Jacobian computed
         // numerically, and use a Newton linear iterator
@@ -35,7 +35,7 @@ namespace Cantera {
         m_integ->setProblemType(DENSE + NOJAC);
         m_integ->setIterator(Newton_Iter);
         m_nsp = m_surf->nSpecies();
-        m_work.resize(m_kin->nTotal());
+        m_work.resize(m_kin->nTotalSpecies());
     }
 
     // overloaded method of FuncEval. Called by the integrator to
@@ -69,11 +69,14 @@ namespace Cantera {
         doublereal rs0 = 1.0/m_surf->siteDensity();
         m_kin->getNetProductionRates(m_work.begin());
         int k;
-        int kbulk = m_kin->nTotal() - m_nsp;
+        int kbulk = m_kin->nTotalSpecies() - m_nsp;
         doublereal sum = 0.0;
-        for (k = 0; k < m_nsp; k++) {
+        for (k = 1; k < m_nsp; k++) {
             ydot[k] = m_work[kbulk + k] * rs0 * m_surf->size(k);
+            sum -= ydot[k];
         }
+        //if (sum < 0.0) sum = 0.0;
+        ydot[0] = sum;
     }
 
 }

@@ -1,4 +1,5 @@
 import _cantera
+from Numeric import asarray
 
 class Transport:
 
@@ -80,5 +81,10 @@ class Transport:
 
     def multiDiffCoeffs(self):
         return _cantera.tran_multiDiffCoeffs(self.__tr_id,
-                                           self.trnsp)    
+                                           self.trnsp)
+
+    def setParameters(self, type, k, params):
+        return _cantera.tran_setParameters(self.__tr_id,
+                                           type, k, asarray(params))
+    
     

@@ -78,6 +78,10 @@ namespace Cantera {
             return -1;
         }
     
+        const R& rateCoeff(int loc) const {
+            return m_rates[loc];
+        }
+
         void update_C(const doublereal* c) {
             TYPENAME_KEYWORD vector<R>::iterator b = m_rates.begin();
             TYPENAME_KEYWORD vector<R>::iterator e = m_rates.end();

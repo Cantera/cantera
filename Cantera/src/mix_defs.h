@@ -13,6 +13,8 @@ namespace Cantera {
     const int cIdealGas = 1;
     const int cIncompressible = 2;
     const int cSurf = 3;
+    const int cMetal = 4;
+    const int cSolidCompound = 5;
 
     // kinetic manager types
     const int cGasKinetics = 2;
