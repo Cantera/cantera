@@ -45,7 +45,7 @@ namespace Cantera {
     }
 
     void StoichSubstance::setParametersFromXML(const XML_Node& eosdata) {
-        eosdata.require("model","Incompressible");
+        eosdata.require("model","StoichSubstance");
         doublereal rho = getFloat(eosdata, "density", "-");
         setDensity(rho);
     }
