@@ -1,0 +1,6 @@
+Makefile
+*.log
+diff_test.out
+gri30a.cti
+gri30.cti
+runtest

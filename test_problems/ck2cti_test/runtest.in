@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+#
+
+BINDIR=@buildbin@
+CK2CTI=$BINDIR/ck2cti
+$CK2CTI -i ./gri30.inp -id gri30 -tr ./gri30_tran.dat > gri30.cti
+#
+# strip out variably dated stuff
+#
+cat gri30.cti | sed '1,5s/^#.*$/#/' > gri30a.cti
+#
+#
+diff gri30a.cti gri30a_blessed.cti > diff_test.out
+retnStat=$?
+#
+if [ $retnStat = "0" ]
+then
+  echo "successful diff comparison on ck2cti test"
+else
+  echo "unsuccessful diff comparison on ck2cti test"
+fi
+

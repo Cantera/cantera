@@ -1,0 +1,14 @@
+#
+# $Revision$
+# $Author$
+# $Date$
+#
+#
+all:
+
+test:
+	./runtest
+
+clean:
+	../../bin/rm_cvsignore
+
