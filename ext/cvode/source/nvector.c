@@ -450,20 +450,22 @@ boole N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
   for (i=0; i<N; i++, cd++, xd++, md++) {
     if ( *cd == ZERO) *md = ZERO;
     else {
-      if ( *cd > ONEPT5 || (*cd) < -ONEPT5)
-        if ( (*xd)*(*cd) <= ZERO) {
-	   test = FALSE;
-	    *md = ONE;
-        }
-        else 
-	  *md = ZERO;
-      else if ( (*cd) > HALF || (*cd) < -HALF)
-        if ( (*xd)*(*cd) < ZERO ) {
+      if ( *cd > ONEPT5 || (*cd) < -ONEPT5) {
+	if ( (*xd)*(*cd) <= ZERO) {
 	  test = FALSE;
 	  *md = ONE;
 	}
-       else
-         *md = ZERO;
+	else {
+	  *md = ZERO;
+	}
+      } else if ( (*cd) > HALF || (*cd) < -HALF) {
+	if ( (*xd)*(*cd) < ZERO ) {
+	  test = FALSE;
+	  *md = ONE;
+	} else {
+	  *md = ZERO;
+	}
+      }
     }
   }
 return(test);
