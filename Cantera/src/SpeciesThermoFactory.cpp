@@ -72,7 +72,8 @@ namespace Cantera {
             + SHOMATE*ishomate + SIMPLE*isimple);
     }
 
-    SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(vector<XML_Node*> nodes) {
+    SpeciesThermo* SpeciesThermoFactory::
+    newSpeciesThermo(vector<XML_Node*> nodes) {
         int n = nodes.size();
         int inasa = 0, ishomate = 0, isimple = 0;
         for (int j = 0; j < n; j++) {
@@ -83,7 +84,8 @@ namespace Cantera {
     }
 
 
-    SpeciesThermo* SpeciesThermoFactory::newSpeciesThermoOpt(vector<XML_Node*> nodes) {
+    SpeciesThermo* SpeciesThermoFactory::
+    newSpeciesThermoOpt(vector<XML_Node*> nodes) {
         int n = nodes.size();
         int inasa = 0, ishomate = 0, isimple = 0;
         for (int j = 0; j < n; j++) {
@@ -302,7 +304,14 @@ namespace Cantera {
     void SpeciesThermoFactory::
     installThermoForSpecies(int k, const XML_Node& s, 
         SpeciesThermo& spthermo) {
-
+	/*
+	 * Check to see that the species block has a thermo block
+	 * before processing. Throw an error if not there.
+	 */
+	if (!(s.hasChild("thermo"))) {
+	  throw UnknownSpeciesThermoModel("installSpecies", 
+					  s["name"], "<nonexistent>");
+	}
 	const XML_Node& thermo = s.child("thermo");
 	const vector<XML_Node*>& tp = thermo.children();
 	int nc = tp.size();
@@ -318,7 +327,8 @@ namespace Cantera {
                 installNasaThermoFromXML(spthermo, k, f, 0);
             }
             else {
-                UnknownSpeciesThermoModel("installSpecies", s["name"], f->name());
+                throw UnknownSpeciesThermoModel("installSpecies", 
+						s["name"], f->name());
             }
 	}
 	else if (nc == 2) {
@@ -331,13 +341,14 @@ namespace Cantera {
                 installShomateThermoFromXML(spthermo, k, f0, f1);
             } 
             else {
-                UnknownSpeciesThermoModel("installSpecies", s["name"], 
-                    f0->name() + " and " + f1->name());
+                throw UnknownSpeciesThermoModel("installSpecies", s["name"], 
+						f0->name() + " and "
+						+ f1->name());
             }
 	}
 	else {
-	    UnknownSpeciesThermoModel("installSpecies", s["name"], 
-                "multiple");
+	    throw UnknownSpeciesThermoModel("installSpecies", s["name"], 
+					    "multiple");
 	}
     }
 
