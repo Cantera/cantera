@@ -170,7 +170,7 @@ namespace Cantera {
         // CANTERA_ROOT is defined in file ctdir.h. This file is written
         // during the build process (unix), and points to the directory
         // specified by the 'prefix' option to 'configure', or else to
-        // /usr/local.cantera. This will generally not be defined under
+        // /usr/local/cantera. This will generally not be defined under
         // Windows.
 #ifdef CANTERA_ROOT
 	string datadir = string(CANTERA_ROOT) + "/data";
