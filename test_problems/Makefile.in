@@ -19,8 +19,9 @@ test:
 	cd surfkin;      @MAKE@ test
 	cd diamondSurf;  @MAKE@ test
 	cd ck2cti_test;  @MAKE@ test
-ifeq($(test_python),2)
+ifeq ($(test_python),2)
 	cd python;       @MAKE@ test
+endif
 
 clean:
 	$(RM) *.*~ 
@@ -29,8 +30,9 @@ clean:
 	cd surfkin;      @MAKE@ clean
 	cd diamondSurf;  @MAKE@ clean
 	cd ck2cti_test;  @MAKE@ clean
-ifeq($(test_python),2)
+ifeq ($(test_python),2)
 	cd python;       @MAKE@ clean
+endif
 
 depends:
 	cd cxx_ex;       @MAKE@ depends
