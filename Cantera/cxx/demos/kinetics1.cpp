@@ -34,8 +34,7 @@ int main() {
 
         // create an ideal gas mixture that corresponds to GRI-Mech
         // 3.0
-        IdealGasMix* gg = new IdealGasMix("gri30.cti", "gri30");
-        IdealGasMix& gas = *gg;
+        IdealGasMix gas("gri30.cti", "gri30");
 
         // set the state
         gas.setState_TPX(1001.0, OneAtm, "H2:2.0, O2:1.0, N2:4.0");
@@ -47,19 +46,26 @@ int main() {
         // create a reservoir to represent the environment
         Reservoir env;
 
-        // specify the thermodynamic property and kinetics managers
+        // 'insert' the gas into the reactor and environment.  Note
+        // that it is ok to insert the same gas object into multiple
+        // reactors or reservoirs. All this means is that this object
+        // will be used to evaluate thermodynamic or kinetic
+        // quantities needed.
         r.insert(gas);
         env.insert(gas);
 
-        // create a flexible, insulating wall between the reactor and the
-        // environment
+        // create a wall between the reactor and the environment
         Wall w;
         w.install(r,env);
 
-        // set the "expansion rate coefficient" to a large value, in order to
-        // approach the constant-pressure limit; see the documentation 
-        // for class Reactor
+        // The wall "expansion rate coefficient" controls how fast it
+        // moves in response to a pressure difference. Set it to a
+        // large value to approach the constant-pressure limit, so
+        // that the wall moves to counteract even small pressure
+        // differences
         w.setExpansionRateCoeff(1.e9);
+
+        // set the wall to have unit area (arbitrary)
         w.setArea(1.0);
 
         double tm;
@@ -72,13 +78,14 @@ int main() {
         saveSoln(0, 0.0, gas, soln);
 
         // main loop
-        clock_t t0 = clock();
+        clock_t t0 = clock();        // save start time
         for (int i = 1; i <= nsteps; i++) {
             tm = i*dt;
             r.advance(tm);
+            cout << "time = " << tm << " s" << endl;
             saveSoln(tm, gas, soln);
         }
-        clock_t t1 = clock();
+        clock_t t1 = clock();        // save end time
 
 
         // make a Tecplot data file and an Excel spreadsheet
@@ -99,7 +106,6 @@ int main() {
              << "  kin1.csv    (Excel CSV file)" << endl
              << "  kin1.dat    (Tecplot data file)" << endl;
 
-	delete gg;
         return 0;
     }
 
