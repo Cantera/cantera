@@ -32,7 +32,7 @@ win: hdr-collect python matlab
 	@echo Now type \'make win-install\' to install Cantera in @ct_dir@.
 	@echo
 
-install: hdr-install kernel-install data-install python-install \
+install: hdr-install kernel-install data-install f90-modules-install python-install \
          matlab-install particles-install tools-install finish-install
 
 win-install: hdr-install win-kernel-install data-install python-install \
@@ -104,6 +104,8 @@ tools-install:
 hdr-install:
 	@INSTALL@ -d @ct_incdir@
 	cp -r -f build/include/cantera @ct_incroot@
+
+f90-modules-install:
 ifeq ($(build_f90),1)
 	cp -f build/include/cantera/*.mod @ct_incroot@
 endif
