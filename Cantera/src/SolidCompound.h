@@ -26,23 +26,28 @@ namespace Cantera {
     /**
      * @ingroup thermoprops
      *
-     * Class IdealGasPhase represents low-density gases that obey the
-     * ideal gas equation of state. It derives from class ThermoPhase,
+     * Class SolidCompound represents solid compounds.
+     * It derives from class ThermoPhase,
      * and overloads the virtual methods defined there with ones that
-     * use expressions appropriate for ideal gas mixtures.
+     * use expressions appropriate for solid compounds
      *
      */
-    class SolidCompound : public ThermoPhase  {
+    class SolidCompound : public ThermoPhase {
 
     public:
 
-        SolidCompound(): m_tlast(-1.0), m_tmin(0.0), m_tmax(0.0),
-                         m_press(OneAtm), m_p0(OneAtm) {}
+        SolidCompound():
+	    m_kk(0),
+	    m_tmin(0.0),
+	    m_tmax(0.0),
+	    m_p0(OneAtm),
+	    m_press(OneAtm),
+	    m_tlast(-1.0)  {}
 
         virtual ~SolidCompound() {}
 
         /**
-         * Equation of state flag. Returns the value cIdealGas, defined 
+         * Equation of state flag. Returns the value cSolidCompound, defined 
          * in mix_defs.h.
          */
         virtual int eosType() const { return cSolidCompound; }
@@ -176,7 +181,7 @@ namespace Cantera {
 
         void _updateThermo() const;
     };
-        
+    
 }
         
 #endif
