@@ -62,8 +62,10 @@ namespace Cantera {
     class XML_NoChild : public XML_Error {
     public:
         XML_NoChild(string parent, string child) {
-            m_msg += "Node " + parent + " has no child named " 
-                     + child + ".\n";
+            m_msg += "           The XML Node, \"" + parent + 
+		"\", does not contain a required\n" +
+                     "           XML child node named \"" 
+                     + child + "\".\n";
             setError("XML_NoChild",m_msg);
         }
         virtual ~XML_NoChild() {}
@@ -110,13 +112,84 @@ namespace Cantera {
         if (j == i) return "";
         else return aline.substr(j+1, i - j - 1);
     }
-    
 
-    void XML_Reader::parseTag(string line, string& name, 
+    /**
+     * Find the first position of a character, q, in string s,
+     * which is not immediately preceded by the backslash character
+     * '\'
+     */
+    static string::size_type findUnbackslashed(string s, const char q,
+					       string::size_type istart = 0) {
+	string::size_type iloc, icurrent, len;
+	icurrent = istart;
+	len = s.size();
+	while (1) {
+	  iloc = s.find(q, icurrent);
+	  if (iloc == string::npos || iloc == 0) {
+	    return iloc;
+	  }
+	  char cm1 = s[iloc-1];
+	  if (cm1 == '\\') {
+	    if (iloc >= (len -1)) return string::npos;
+	    icurrent = iloc + 1;
+	  } else {
+	    return iloc;
+	  }
+	}
+    }
+
+    /**
+     *  Searches a string for the first occurrence of a valid
+     *  quoted string. Quotes can start with either a single
+     *  quote or a double quote, but must also end with the same
+     *  type. Quotes may be commented out by preceding with a
+     *  backslash character, '\\'. 
+     */
+    int XML_Reader::findQuotedString(const string& s, string &rstring) {
+	const char q1 = '\'';
+	const char q2 = '"';
+	rstring = "";
+	char qtype = ' ';
+	string::size_type iloc1, iloc2, ilocStart;
+	iloc1 = findUnbackslashed(s, q1);
+	iloc2 = findUnbackslashed(s, q2);
+	if (iloc2 != string::npos) {
+	  ilocStart = iloc2;
+	  qtype = q2;
+	}
+	if (iloc1 != string::npos) {
+	  if (iloc1 < ilocStart) {
+	    ilocStart = iloc1;
+	    qtype = q1;
+	  }
+	}
+	if (qtype == ' ') return 0;
+
+	iloc1 = findUnbackslashed(s, qtype, ilocStart+1);
+
+	if (iloc1 == string::npos) {
+	  return 0;
+	}
+	/*
+	 * Define the return string by the two endpoints.
+	 * Strip the surrounding quotes as well
+	 */
+	rstring = s.substr(ilocStart + 1, iloc1 - 1);
+	/*
+	 * Return the first character position past the quotes
+	 */
+	return iloc1+1;	
+    }
+    
+    /**
+     * parseTag parses XML tags, i.e., the XML elements that are
+     * inbetween angle brackets.
+     */
+    void XML_Reader::parseTag(string tag, string& name, 
 			      map<string, string>& attribs) {
-        int iloc;
+        string::size_type iloc;
         string attr, val;
-        string s = strip(line);
+        string s = strip(tag);
         iloc = s.find(' ');
         if (iloc > 0) {
 	    name = s.substr(0, iloc);
@@ -125,18 +198,20 @@ namespace Cantera {
             // get attributes
             while (1) {
                 iloc = s.find('=');
-                if (iloc < 0) break;
+                if (iloc == string::npos) break;
                 attr = strip(s.substr(0,iloc));
                 if (attr == "") break;
                 s = strip(s.substr(iloc+1,s.size()));
-                iloc = s.find(' ');
-                if (iloc < 0) iloc = s.size();
-                val = inquotes(s.substr(0,iloc));
+                //iloc = s.find(' ');
+                //if (iloc < 0) iloc = s.size();
+                iloc = findQuotedString(s, val);
                 attribs[attr] = val;
-                if (iloc < int(s.size())) 
-                    s = strip(s.substr(iloc+1,s.size()));
-                else
-                    break;
+		if (iloc != string::npos) {
+		  if (iloc < s.size()) 
+		      s = strip(s.substr(iloc,s.size()));
+		  else
+		      break;
+		}
             }
         }
         else {
@@ -177,6 +252,12 @@ namespace Cantera {
             return tag;
         }
         else {
+#ifdef DEBUG_HKM
+	  cout << "tag fed to parseTag = " << tag << endl;
+	  if (tag == "standardConc model=\"molar volume\" /") {
+	    cout << "we are here" << endl;
+	  }
+#endif
             parseTag(tag, name, attribs);
             return name;
         }
@@ -388,6 +469,68 @@ namespace Cantera {
         }
     } 
 
+    void XML_Node::copyUnion(XML_Node *node_dest) {
+	XML_Node *sc, *dc;
+	int ndc, idc;
+	node_dest->addValue(m_value);
+	if (m_name == "") return;
+	map<string,string>::const_iterator b = m_attribs.begin();
+        for (; b != m_attribs.end(); ++b) {
+	  if (! node_dest->hasAttrib(b->first)) {
+	    node_dest->addAttribute(b->first, b->second);
+	  }
+	}
+	vector<XML_Node*> &vsc = node_dest->children();
+	for (int n = 0; n < m_nchildren; n++) {
+	  sc = m_children[n];
+	  ndc = node_dest->nChildren();
+	  dc = 0;
+	  if (! sc->m_iscomment) {
+	    for (idc = 0; idc < ndc; idc++) {
+	      XML_Node *dcc = vsc[idc];
+	      if (dcc->name() == sc->name()) {
+		if (sc->hasAttrib("id")) {
+		  if (sc->attrib("id") != dcc->attrib("id")) break;
+		}
+		if (sc->hasAttrib("name")) {
+		  if (sc->attrib("name") != dcc->attrib("name")) break;
+		}
+		if (sc->hasAttrib("model")) {
+		  if (sc->attrib("model") != dcc->attrib("model")) break;
+		}
+		if (sc->hasAttrib("title")) {
+		  if (sc->attrib("title") != dcc->attrib("title")) break;
+		}
+		dc = vsc[idc];
+	      }
+	    }
+	  }
+	  if (!dc) {
+	    (void) node_dest->addChild(sc->name());
+	    dc = vsc[ndc];
+	  }
+	  sc->copyUnion(dc);
+	}
+    }
+
+   void XML_Node::copy(XML_Node *node_dest) {
+	XML_Node *sc, *dc;
+	int ndc;
+	node_dest->addValue(m_value);
+	if (m_name == "") return;
+	map<string,string>::const_iterator b = m_attribs.begin();
+        for (; b != m_attribs.end(); ++b) {
+	  node_dest->addAttribute(b->first, b->second);
+	}
+	vector<XML_Node*> &vsc = node_dest->children();
+	for (int n = 0; n < m_nchildren; n++) {
+	  sc = m_children[n];
+	  ndc = node_dest->nChildren();
+	  (void) node_dest->addChild(sc->name());
+	  dc = vsc[ndc];
+	  sc->copy(dc);
+	}
+    }
 
     void XML_Node::getChildren(string nm, 
         vector<XML_Node*>& children) const {
@@ -403,6 +546,15 @@ namespace Cantera {
         int iloc;
         string cname;
         map<string,XML_Node*>::const_iterator i;
+#ifdef DEBUG_HKM
+	if (loc == "elementArray") {
+	  i =  m_childindex.begin();
+	  for ( ; i != m_childindex.end(); i++) {
+	    XML_Node*ccc = i->second;
+	    cout << i->first << "  " << ccc->name() << endl;
+	  }
+	}
+#endif
         while (1) {
             iloc = loc.find('/');
             if (iloc >= 0) {
@@ -423,12 +575,17 @@ namespace Cantera {
         }
     }
     
-    void XML_Node::write(ostream& s, int level) {
+    /**
+     * Write an XML subtree to an output stream. This is the
+     * main recursive routine. It doesn't put a final endl
+     * on. This is fixed up in the public method.
+     */
+    void XML_Node::write_int(ostream& s, int level) {
 
         if (m_name == "") return;
 
         m_level = level;
-        string indent(level,' ');
+        string indent(level, ' ');
         if (m_iscomment) {
             s << endl << indent << "<!-- " << m_value << " -->";
             return;
@@ -447,11 +604,11 @@ namespace Cantera {
             
             if (m_value != "") {
                 string vv = m_value;
-                int ieol = vv.find('\n');
-                if (ieol >= 0) { 
+                string::size_type ieol = vv.find('\n');
+                if (ieol != string::npos) { 
                     while (1 > 0) {
                         ieol = vv.find('\n');
-                        if (ieol >= 0) {
+                        if (ieol != string::npos) {
                             s << endl << indent << vv.substr(0,ieol);
                             vv = vv.substr(ieol+1,vv.size());
                         }
@@ -461,17 +618,29 @@ namespace Cantera {
                         }
                     }
                 }
-                else
-                    s << m_value;
+                else {
+		  s << m_value;
+		}
             }
             int i;
             for (i = 0; i < m_nchildren; i++) {
                 s << endl;
-                m_children[i]->write(s,level + 2);
+                m_children[i]->write_int(s,level + 2);
             }
             if (m_nchildren > 0) s << endl << indent;
             s << "</" << m_name << ">";
         }
+    }
+
+    /**
+     * Write an XML subtree to an output stream. This is a 
+     * wrapper around the static routine write_int(). All this
+     * does is add an endl on to the output stream. write_int() is
+     * fine, but the last endl wasn't beeing written.
+     */
+    void XML_Node::write(ostream& s, int level) {
+	write_int(s, level);
+	s << endl;
     }
 
     XML_Node* XML_Node::getRef() {
@@ -480,9 +649,26 @@ namespace Cantera {
         return find_XML(node["src"], &root(), node["idRef"]);
     }
 
+    /*
+     * Find a particular XML element by a fairly complicated hierarchal
+     * search objective.
+     *
+     * HKM -Note: Right now this routine contains a memory leak.
+     *            A "new" operation is conditionally carried out and
+     *            the pointer may or may not be returned to the calling
+     *            program. Therefore, it can't be deleted in the 
+     *            calling program. This
+     *            eventually needs to be fixed by extracting the xml
+     *            malloc and build operation from the search operation.
+     */
     XML_Node* find_XML(string src, XML_Node* root, string id, string loc, 
         string name) {
-
+#ifdef DEBUG_HKM
+        cout << "find_XML src = " << src << endl;
+        cout << "find_XML id  = " << id << endl;
+        cout << "find_XML loc = " << loc << endl;
+        cout << "find_XML name = " << name << endl;
+#endif
         string file, id2;
         split(src, file, id2);
         src = file;
@@ -536,6 +722,38 @@ namespace Cantera {
                 return 0;
             }
         }
+    }
+
+    XML_Node* findXMLPhase(XML_Node *root, string idtarget) {
+	XML_Node *scResult = 0;
+	XML_Node *sc;
+	if (!root) return 0;
+	string idattrib;
+	string rname = root->name();
+	if (rname == "phase") {
+	  if (idtarget == "") return root;
+	  idattrib = root->id();
+	  if (idtarget == idattrib) return root;
+	  else return               0;
+	}
+
+	vector<XML_Node*> &vsc = root->children();
+	for (int n = 0; n < root->nChildren(); n++) {
+	  sc = vsc[n];
+	  if (sc->name() == "phase") {
+	    if (idtarget == "") return sc;
+	    idattrib = sc->id();
+	    if (idtarget == idattrib) return sc;
+	  }
+	}
+	for (int n = 0; n < root->nChildren(); n++) {
+	  sc = vsc[n];
+	  if  (sc->name() != "phase") {
+	    scResult = findXMLPhase(sc, idtarget);
+	    if (scResult) return scResult;
+	  }
+	}
+	return scResult;
     }
 
 }

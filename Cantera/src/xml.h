@@ -37,6 +37,9 @@ namespace Cantera {
         void getchr(char& ch);
         string strip(const string& aline);
         string inquotes(const string& aline);
+
+	int findQuotedString(const string& aline, string &rstring);
+
         void parseTag(string line, string& name, map<string, string>& attribs);
         string readTag(map<string, string>& attribs);
         string readValue();
@@ -71,15 +74,27 @@ namespace Cantera {
         }
         string operator()() const { return m_value; }
         string operator()(string loc) const { return value(loc); }
+
+	/**
+	 * The operator[] is overloaded to provide a lookup capability
+	 * on attributes for the current XML element.
+	 *
+	 * For example
+	 *     xmlNode["id"] 
+	 * will return the value of the attribute "id" for the current
+	 * XML element. It will return the blank string if there isn't
+	 * an attribute with that name.
+	 */
         string operator[](string attr) const {
             return attrib(attr);
-            //if (hasAttrib(attr)) {return m_attribs[attr]; }
         }
+
         string attrib(string attr) const { 
             map<string,string>::const_iterator i = m_attribs.find(attr);
             if (i != m_attribs.end()) return i->second;
             else return ""; 
         }
+
         map<string,string>& attribs() { return m_attribs; }
         XML_Node* parent() { return m_parent; }
         XML_Node* setParent(XML_Node* p) { m_parent = p; return p; }
@@ -97,6 +112,7 @@ namespace Cantera {
             //}
         }
 
+
         string name() { return m_name; }
         string id() {
             if (hasAttrib("id")) return attrib("id");
@@ -105,7 +121,7 @@ namespace Cantera {
         int number() { return m_n; }
 
         XML_Node& child(int n) const { return *m_children[n]; }
-        vector<XML_Node*> children() { return m_children; }
+        vector<XML_Node*> &children() { return m_children; }
         int nChildren() const { return m_nchildren; }
 
         void build(istream& f);
@@ -119,10 +135,14 @@ namespace Cantera {
         XML_Node* getRef();
         XML_Node& root() { return *m_root; }
         void setRoot(XML_Node& root) { m_root = &root; }
+        void copyUnion(XML_Node *node_dest);
+        void copy(XML_Node *node_dest);
+
+    private:
+	void write_int(ostream& s, int level = 0);
 
     protected:
 
-        vector<string> m_tags;
         string m_name;
         string m_value;
         int m_level;
@@ -228,11 +248,11 @@ namespace Cantera {
         }
     };
 
-    //inline XML_getByID(string file, string id) {
-
+    
     XML_Node* find_XML(string src, XML_Node* root=0, 
-        string id="", string loc="", string name="");
-        
+		       string id="", string loc="", string name="");
+
+    XML_Node* findXMLPhase(XML_Node* root, string id);        
 }
 
 #endif
