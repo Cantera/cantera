@@ -1,0 +1,76 @@
+#!/bin/sh
+#
+#
+
+temp_success="1"
+/bin/rm  -f diamond.csv flame1.csv 
+
+#################################################################
+#
+#################################################################
+CANTERA_DATA=${CANTERA_DATA:=../../data/inputs}; export CANTERA_DATA
+
+CANTERA_BIN=${CANTERA_BIN:=../../bin}
+PYTHON_CMD=$1
+
+$PYTHON_CMD ../../Cantera/python/examples/flame1.py > flame1.out
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "flame1.py returned with bad status, $retnStat, check output"
+fi
+
+$PYTHON_CMD ../../Cantera/python/examples/diamond.py > diamond.out
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "diamond.py returned with bad status, $retnStat, check output"
+fi
+
+#################################################################
+#
+#################################################################
+
+$CANTERA_BIN/csvdiff flame1.csv flame1_blessed.csv > flame1_test.out
+retnStat=$?
+if [ $retnStat = "1" ]
+then
+  echo "successful csv comparison on flame1 test"
+else
+  echo "unsuccessful csv comparison on flame1 test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+fi
+
+#################################################################
+#
+#################################################################
+
+$CANTERA_BIN/csvdiff diamond.csv diamond_blessed.csv > diamond_test.out
+retnStat=$?
+if [ $retnStat = "1" ]
+then
+  echo "successful csv comparison on diamond test"
+  if [ $temp_success = "1" ]
+  then
+    echo "PASSED" > csvCode.txt
+  fi
+else
+  echo "unsuccessful csv comparison on diamond test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+fi
+
+if [ $temp_success = "1" ]
+then
+  echo 'Python csv test PASSED!'
+else
+  echo 'Python csv test FAILED!'
+fi
+
+#################################################################
+#
+#################################################################
+

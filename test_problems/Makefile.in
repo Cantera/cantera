@@ -4,6 +4,8 @@
 # $Date$
 #
 #
+test_python=@BUILD_PYTHON@
+
 all:
 	cd cxx_ex;       @MAKE@ all
 	cd silane_equil; @MAKE@ all
@@ -17,6 +19,8 @@ test:
 	cd surfkin;      @MAKE@ test
 	cd diamondSurf;  @MAKE@ test
 	cd ck2cti_test;  @MAKE@ test
+ifeq($(test_python),2)
+	cd python;       @MAKE@ test
 
 clean:
 	$(RM) *.*~ 
@@ -25,6 +29,8 @@ clean:
 	cd surfkin;      @MAKE@ clean
 	cd diamondSurf;  @MAKE@ clean
 	cd ck2cti_test;  @MAKE@ clean
+ifeq($(test_python),2)
+	cd python;       @MAKE@ clean
 
 depends:
 	cd cxx_ex;       @MAKE@ depends

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# test target -> make the program and run the test
+test:
+	./runtest @PYTHON_CMD@
+
+# clean target -> clean up
+clean:
+	../../bin/rm_cvsignore
+
