@@ -1,7 +1,7 @@
 
 #include "Wall.h"
 #include "ReactorBase.h"
-#include "Func1.h"
+#include "../Func1.h"
 #include "../InterfaceKinetics.h"
 #include "../SurfPhase.h"
 
