@@ -32,32 +32,48 @@ namespace Cantera {
 
     SpeciesThermoFactory* SpeciesThermoFactory::__factory = 0;
 
+
+    static void getSpeciesThermoTypes(XML_Node* node, 
+        int& has_nasa, int& has_shomate, int& has_simple) {
+        XML_Node& sparray = *node;
+        vector<XML_Node*> sp;
+        sparray.getChildren("species",sp);
+        int ns = sp.size();
+        for (int n = 0; n < ns; n++) {
+            XML_Node& th = sp[n]->child("thermo");
+            if (th.hasChild("NASA")) has_nasa = 1;
+            if (th.hasChild("Shomate")) has_shomate = 1;
+            if (th.hasChild("const_cp")) has_simple = 1;
+            if (th.hasChild("poly")) {
+                if (th.child("poly")["order"] == "1") has_simple = 1;
+                else throw CanteraError("newSpeciesThermo",
+                    "poly with order > 1 not yet supported");
+            }
+        }
+    }
+
+
     /**
      * Return a species thermo manager to handle the parameterizations
      * specified in a CTML phase specification.
      */
     SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(XML_Node* node) {
-        XML_Node& sparray = *node; //node->child("speciesData");
-        vector<XML_Node*> sp;
-        sparray.getChildren("species",sp);
-        int ns = sp.size();
-        int inasa = 0;
-        int ishomate = 0;
-        int isimple = 0;
-        for (int n = 0; n < ns; n++) {
-            XML_Node& th = sp[n]->child("thermo");
-            if (th.hasChild("NASA")) inasa = 1;
-            if (th.hasChild("Shomate")) ishomate = 1;
-            if (th.hasChild("const_cp")) isimple = 1;
-            if (th.hasChild("poly")) {
-                if (th.child("poly")["order"] == "1") isimple = 1;
-                else throw CanteraError("newSpeciesThermo",
-                    "poly with order > 1 not yet supported");
-            }
-        }
-        return newSpeciesThermo(NASA*inasa 
+        int inasa = 0, ishomate = 0, isimple = 0;
+        getSpeciesThermoTypes(node, inasa, ishomate, isimple);
+        return newSpeciesThermo(NASA*inasa
             + SHOMATE*ishomate + SIMPLE*isimple);
     }
+
+    SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(vector<XML_Node*> nodes) {
+        int n = nodes.size();
+        int inasa = 0, ishomate = 0, isimple = 0;
+        for (int j = 0; j < n; j++) {
+            getSpeciesThermoTypes(nodes[j], inasa, ishomate, isimple);
+        }
+        return newSpeciesThermo(NASA*inasa
+            + SHOMATE*ishomate + SIMPLE*isimple);
+    }
+
 
     SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(int type) {
         

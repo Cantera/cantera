@@ -50,9 +50,9 @@ namespace Cantera {
         virtual ~Phase(){ delete m_xml; }
         
         XML_Node& xml() { return *m_xml; }
-        string id() { return m_id; }
+        string id() const { return m_id; }
         void setID(string id) {m_id = id;} 
-        int index() { return m_index; }
+        int index() const { return m_index; }
         void setIndex(int m) { m_index = m; }
 
         /** 
@@ -154,9 +154,9 @@ namespace Cantera {
          */
         doublereal chargeDensity() const;
 
-        void update_T(int n) const;
+        //void update_T(int n) const;
 
-        void update_C(int n) const;
+        //void update_C(int n) const;
 
         /// Number of spatial dimensions (1, 2, or 3)
         int nDim() {return m_ndim;}
@@ -170,9 +170,9 @@ namespace Cantera {
  
         virtual bool ready() const;
 
-        int installUpdater_T(Updater* u);
+//         int installUpdater_T(Updater* u);
 
-        int installUpdater_C(Updater* u);
+//         int installUpdater_C(Updater* u);
 
     protected:
 

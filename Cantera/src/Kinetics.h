@@ -16,7 +16,6 @@
 #define CT_KINETICS_H
 
 #include "ctexceptions.h"
-//#include "Phase.h"
 #include "ThermoPhase.h"
 
 namespace Cantera {
@@ -36,7 +35,7 @@ namespace Cantera {
         typedef ThermoPhase thermo_t;
 
         /// Constructors.
-        Kinetics() : m_ii(0), m_thermo(0), m_index(-1) {}
+        Kinetics() : m_ii(0), m_thermo(0), m_index(-1), m_surfphase(-1) {}
 
 	/**
 	 * This Constructor initializes with a starting phase.
@@ -44,7 +43,7 @@ namespace Cantera {
 	 * sets up are also done here.
 	 */
         Kinetics(thermo_t* thermo) 
-            : m_ii(0), m_index(-1) {
+            : m_ii(0), m_index(-1), m_surfphase(-1) {
             if (thermo) {
                 m_start.push_back(0);
                 m_thermo.push_back(thermo);
@@ -75,6 +74,8 @@ namespace Cantera {
             for (int p = 0; p < np; p++) n += thermo(p).nSpecies();
             return n;
         }
+
+        int surfacePhaseIndex() { return m_surfphase; }
 
         /**
          * Stoichiometric coefficient of species k as a reactant in
@@ -268,9 +269,20 @@ namespace Cantera {
 	 * @param k species index 
 	 * @param n phase index for the species
 	 */
-        int kineticsSpeciesIndex(int k, int n) {
+        int kineticsSpeciesIndex(int k, int n) const {
             return m_start[n] + k;
         }
+
+        string kineticsSpeciesName(int k) const {
+            int np = m_start.size();
+            for (int n = np-1; n >= 0; n--) {
+                if (k >= m_start[n]) {
+                    return thermo(n).speciesName(k - m_start[n]);
+                }
+            }
+            return "<unknown>";
+        }
+
 	/**
 	 * This routine will look up a species number based on
 	 * the input string nm. The lookup of species will
@@ -283,7 +295,7 @@ namespace Cantera {
 	 *   is returned. 
 	 *   If no match is found, the value -2 is returned.
 	 */
-        int kineticsSpeciesIndex(string nm, string ph = "<any>") {
+        int kineticsSpeciesIndex(string nm, string ph = "<any>") const {
 	  int np = m_thermo.size();
 	  int k;
 	  string id;
@@ -315,6 +327,17 @@ namespace Cantera {
                 if (k >= 0) return thermo(n);
             }
             throw CanteraError("speciesPhase", "unknown species "+nm);
+        }
+
+        thermo_t& speciesPhase(int k) {
+            int np = m_start.size();
+            for (int n = np-1; n >= 0; n--) {
+                if (k >= m_start[n]) {
+                    return thermo(n);
+                }
+            }
+            throw CanteraError("speciesPhase", 
+                "illegal species index: "+int2str(k));            
         }
 
 
@@ -439,6 +462,8 @@ namespace Cantera {
 	 */
         map<string, int> m_phaseindex;
         int m_index;
+
+        int m_surfphase;
 
     private:
 

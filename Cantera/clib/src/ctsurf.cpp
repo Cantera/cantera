@@ -2,6 +2,7 @@
 // Cantera includes
 #include "SurfPhase.h"
 #include "InterfaceKinetics.h"
+#include "ImplicitSurfChem.h"
 
 #include "Cabinet.h"
 #include "Storage.h"

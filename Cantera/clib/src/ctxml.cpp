@@ -93,6 +93,16 @@ extern "C" {
         return 0;
     }
 
+    int DLL_EXPORT xml_addComment(int i, const char* comment) {
+        try {
+            string c = string(comment);
+            XML_Node& node = *_xml(i);
+            node.addComment(c);
+        }
+        catch (CanteraError) { return -1; }
+        return 0;
+    }
+
     int DLL_EXPORT xml_tag(int i, char* tag) {
         try {
             XML_Node& node = *_xml(i);

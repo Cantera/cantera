@@ -171,6 +171,18 @@ py_xml_addAttrib(PyObject *self, PyObject *args)
 }
 
 static PyObject*
+py_xml_addComment(PyObject *self, PyObject *args)
+{
+    int n;
+    char *comment;
+    if (!PyArg_ParseTuple(args, "is:xml_addComment", &n, &comment))
+        return NULL;
+    int m = xml_addComment(n, comment);
+    if (m < 0) return reportError(m);
+    return Py_BuildValue("i",m);
+}
+
+static PyObject*
 py_xml_removeChild(PyObject *self, PyObject *args)
 {
     int n, m;

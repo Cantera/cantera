@@ -1,7 +1,7 @@
 """
 """
 
-import string
+#import string
 import os
 
 from constants import *
@@ -29,30 +29,41 @@ class Solution(ThermoPhase, Kinetics, Transport):
     """
 
     def __init__(self, src="", root=None,
-                 transport = "None", thermo_db = "",
-                 transport_db = ""):
+                 transport = "", thermo_db = "",
+                 transport_db = "", phases=[]):
         
         self.ckin = 0
         self._owner = 0
         self.verbose = 1
-
-        fn = string.split(src,'#')
+        fn = src.split('#')
+        id = ""
+        if len(fn) > 1: id = fn[1]
         fn = fn[0]
+            
         fname = os.path.basename(fn)
         ff = os.path.splitext(fname)
         if ff[1] <> '.xml' and ff[1] <> '.ctml':
-            ctmodule.ck2ctml(src, thermo_db, transport_db, ff[0]+'.xml',
-                    ff[0])
+            #if ff[1] == '.py' or ff[1] == '.in':
+            from Cantera import pip
+            pip.process(fname)                
+            #else:
+            #    ctmodule.ck2ctml(src, thermo_db, transport_db, ff[0]+'.xml',
+            #                     ff[0])
             src = ff[0]+'.xml'
         
         # get the 'phase' element
-        s = XML.find_XML(src=src, root=root, name="phase")
+
+        if id:
+            s = XML.find_XML(src=src, root=root, id=id)
+        else:
+            s = XML.find_XML(src=src, root=root, name="phase")        
 
         # get the equation of state model
         ThermoPhase.__init__(self, xml_phase=s)
 
         # get the kinetics model
-        Kinetics.__init__(self, xml_phase=s, phases=[self])
+        ph = [self]+list(phases)
+        Kinetics.__init__(self, xml_phase=s, phases=ph)
 
         Transport.__init__(self, xml_phase=s, phase=self,
                            model = transport, loglevel=4)

@@ -19,7 +19,6 @@
       <include max="27" min="1" prefix="ohmech_rxn_"/>
     </reactionArray>
     <kinetics model="GasKinetics"/>
-    <transport model="Mix"/>
   </phase>
 
   <!-- species data -->
@@ -29,14 +28,17 @@
     <species id="ohmech_s_H2" name="H2">
       <note>TPIS78</note>
       <atomArray> H:2 </atomArray>
+      <charge>0.000000000E+00</charge>
       <thermo>
-        <NASA Tmax="3500" Tmid="1000" Tmin="200">
-          <floatArray size="7" title="low">
+        <NASA Tmax="1000" Tmin="200">
+          <floatArray size="7" title="coeffs">
             2.344331120E+00,   7.980520750E-03,  -1.947815100E-05,
             2.015720940E-08,  -7.376117610E-12,  -9.179351730E+02,
             6.830102380E-01
           </floatArray>
-          <floatArray size="7" title="high">
+        </NASA>
+        <NASA Tmax="3500" Tmin="1000">
+          <floatArray size="7" title="coeffs">
             3.337279200E+00,  -4.940247310E-05,   4.994567780E-07,
            -1.795663940E-10,   2.002553760E-14,  -9.501589220E+02,
            -3.205023310E+00
@@ -45,10 +47,11 @@
       </thermo>
       <transport>
         <string title="geometry">linear</string>
-        <float title="LJ_welldepth" units="Kelvin">3.800000000E+01</float>
-        <float title="LJ_diameter" units="A">2.920000000E+00</float>
-        <float title="polarizability" units="A^3">7.900000000E-01</float>
-        <float title="rotRelax">2.800000000E+02</float>
+        <LJ_welldepth units="Kelvin">3.800000000E+01</LJ_welldepth>
+        <LJ_diameter units="A">2.920000000E+00</LJ_diameter>
+        <dipoleMoment units="Debye">0.000000000E+00</dipoleMoment>
+        <polarizability units="A^3">7.900000000E-01</polarizability>
+        <rotRelax>2.800000000E+02</rotRelax>
       </transport>
     </species>
 
@@ -56,14 +59,17 @@
     <species id="ohmech_s_H" name="H">
       <note>L 7/88</note>
       <atomArray> H:1 </atomArray>
+      <charge>0.000000000E+00</charge>
       <thermo>
-        <NASA Tmax="3500" Tmid="1000" Tmin="200">
-          <floatArray size="7" title="low">
+        <NASA Tmax="1000" Tmin="200">
+          <floatArray size="7" title="coeffs">
             2.500000000E+00,   7.053328190E-13,  -1.995919640E-15,
             2.300816320E-18,  -9.277323320E-22,   2.547365990E+04,
            -4.466828530E-01
           </floatArray>
-          <floatArray size="7" title="high">
+        </NASA>
+        <NASA Tmax="3500" Tmin="1000">
+          <floatArray size="7" title="coeffs">
             2.500000010E+00,  -2.308429730E-11,   1.615619480E-14,
            -4.735152350E-18,   4.981973570E-22,   2.547365990E+04,
            -4.466829140E-01
@@ -72,8 +78,11 @@
       </thermo>
       <transport>
         <string title="geometry">atom</string>
-        <float title="LJ_welldepth" units="Kelvin">1.450000000E+02</float>
-        <float title="LJ_diameter" units="A">2.050000000E+00</float>
+        <LJ_welldepth units="Kelvin">1.450000000E+02</LJ_welldepth>
+        <LJ_diameter units="A">2.050000000E+00</LJ_diameter>
+        <dipoleMoment units="Debye">0.000000000E+00</dipoleMoment>
+        <polarizability units="A^3">0.000000000E+00</polarizability>
+        <rotRelax>0.000000000E+00</rotRelax>
       </transport>
     </species>
 
@@ -81,14 +90,17 @@
     <species id="ohmech_s_O" name="O">
       <note>L 1/90</note>
       <atomArray> O:1 </atomArray>
+      <charge>0.000000000E+00</charge>
       <thermo>
-        <NASA Tmax="3500" Tmid="1000" Tmin="200">
-          <floatArray size="7" title="low">
+        <NASA Tmax="1000" Tmin="200">
+          <floatArray size="7" title="coeffs">
             3.168267100E+00,  -3.279318840E-03,   6.643063960E-06,
            -6.128066240E-09,   2.112659710E-12,   2.912225920E+04,
             2.051933460E+00
           </floatArray>
-          <floatArray size="7" title="high">
+        </NASA>
+        <NASA Tmax="3500" Tmin="1000">
+          <floatArray size="7" title="coeffs">
             2.569420780E+00,  -8.597411370E-05,   4.194845890E-08,
            -1.001777990E-11,   1.228336910E-15,   2.921757910E+04,
             4.784338640E+00
@@ -97,8 +109,11 @@
       </thermo>
       <transport>
         <string title="geometry">atom</string>
-        <float title="LJ_welldepth" units="Kelvin">8.000000000E+01</float>
-        <float title="LJ_diameter" units="A">2.750000000E+00</float>
+        <LJ_welldepth units="Kelvin">8.000000000E+01</LJ_welldepth>
+        <LJ_diameter units="A">2.750000000E+00</LJ_diameter>
+        <dipoleMoment units="Debye">0.000000000E+00</dipoleMoment>
+        <polarizability units="A^3">0.000000000E+00</polarizability>
+        <rotRelax>0.000000000E+00</rotRelax>
       </transport>
     </species>
 
@@ -106,14 +121,17 @@
     <species id="ohmech_s_O2" name="O2">
       <note>TPIS89</note>
       <atomArray> O:2 </atomArray>
+      <charge>0.000000000E+00</charge>
       <thermo>
-        <NASA Tmax="3500" Tmid="1000" Tmin="200">
-          <floatArray size="7" title="low">
+        <NASA Tmax="1000" Tmin="200">
+          <floatArray size="7" title="coeffs">
             3.782456360E+00,  -2.996734160E-03,   9.847302010E-06,
            -9.681295090E-09,   3.243728370E-12,  -1.063943560E+03,
             3.657675730E+00
           </floatArray>
-          <floatArray size="7" title="high">
+        </NASA>
+        <NASA Tmax="3500" Tmin="1000">
+          <floatArray size="7" title="coeffs">
             3.282537840E+00,   1.483087540E-03,  -7.579666690E-07,
             2.094705550E-10,  -2.167177940E-14,  -1.088457720E+03,
             5.453231290E+00
@@ -122,10 +140,11 @@
       </thermo>
       <transport>
         <string title="geometry">linear</string>
-        <float title="LJ_welldepth" units="Kelvin">1.074000000E+02</float>
-        <float title="LJ_diameter" units="A">3.458000000E+00</float>
-        <float title="polarizability" units="A^3">1.600000000E+00</float>
-        <float title="rotRelax">3.800000000E+00</float>
+        <LJ_welldepth units="Kelvin">1.074000000E+02</LJ_welldepth>
+        <LJ_diameter units="A">3.458000000E+00</LJ_diameter>
+        <dipoleMoment units="Debye">0.000000000E+00</dipoleMoment>
+        <polarizability units="A^3">1.600000000E+00</polarizability>
+        <rotRelax>3.800000000E+00</rotRelax>
       </transport>
     </species>
 
@@ -133,14 +152,17 @@
     <species id="ohmech_s_OH" name="OH">
       <note>RUS 78</note>
       <atomArray> O:1  H:1 </atomArray>
+      <charge>0.000000000E+00</charge>
       <thermo>
-        <NASA Tmax="3500" Tmid="1000" Tmin="200">
-          <floatArray size="7" title="low">
+        <NASA Tmax="1000" Tmin="200">
+          <floatArray size="7" title="coeffs">
             3.992015430E+00,  -2.401317520E-03,   4.617938410E-06,
            -3.881133330E-09,   1.364114700E-12,   3.615080560E+03,
            -1.039254580E-01
           </floatArray>
-          <floatArray size="7" title="high">
+        </NASA>
+        <NASA Tmax="3500" Tmin="1000">
+          <floatArray size="7" title="coeffs">
             3.092887670E+00,   5.484297160E-04,   1.265052280E-07,
            -8.794615560E-11,   1.174123760E-14,   3.858657000E+03,
             4.476696100E+00
@@ -149,8 +171,11 @@
       </thermo>
       <transport>
         <string title="geometry">linear</string>
-        <float title="LJ_welldepth" units="Kelvin">8.000000000E+01</float>
-        <float title="LJ_diameter" units="A">2.750000000E+00</float>
+        <LJ_welldepth units="Kelvin">8.000000000E+01</LJ_welldepth>
+        <LJ_diameter units="A">2.750000000E+00</LJ_diameter>
+        <dipoleMoment units="Debye">0.000000000E+00</dipoleMoment>
+        <polarizability units="A^3">0.000000000E+00</polarizability>
+        <rotRelax>0.000000000E+00</rotRelax>
       </transport>
     </species>
 
@@ -158,14 +183,17 @@
     <species id="ohmech_s_H2O" name="H2O">
       <note>L 8/89</note>
       <atomArray> H:2  O:1 </atomArray>
+      <charge>0.000000000E+00</charge>
       <thermo>
-        <NASA Tmax="3500" Tmid="1000" Tmin="200">
-          <floatArray size="7" title="low">
+        <NASA Tmax="1000" Tmin="200">
+          <floatArray size="7" title="coeffs">
             4.198640560E+00,  -2.036434100E-03,   6.520402110E-06,
            -5.487970620E-09,   1.771978170E-12,  -3.029372670E+04,
            -8.490322080E-01
           </floatArray>
-          <floatArray size="7" title="high">
+        </NASA>
+        <NASA Tmax="3500" Tmin="1000">
+          <floatArray size="7" title="coeffs">
             3.033992490E+00,   2.176918040E-03,  -1.640725180E-07,
            -9.704198700E-11,   1.682009920E-14,  -3.000429710E+04,
             4.966770100E+00
@@ -174,10 +202,11 @@
       </thermo>
       <transport>
         <string title="geometry">nonlinear</string>
-        <float title="LJ_welldepth" units="Kelvin">5.724000000E+02</float>
-        <float title="LJ_diameter" units="A">2.605000000E+00</float>
-        <float title="dipoleMoment" units="Debye">1.844000000E+00</float>
-        <float title="rotRelax">4.000000000E+00</float>
+        <LJ_welldepth units="Kelvin">5.724000000E+02</LJ_welldepth>
+        <LJ_diameter units="A">2.605000000E+00</LJ_diameter>
+        <dipoleMoment units="Debye">1.844000000E+00</dipoleMoment>
+        <polarizability units="A^3">0.000000000E+00</polarizability>
+        <rotRelax>4.000000000E+00</rotRelax>
       </transport>
     </species>
 
@@ -185,14 +214,17 @@
     <species id="ohmech_s_HO2" name="HO2">
       <note>L 5/89</note>
       <atomArray> H:1  O:2 </atomArray>
+      <charge>0.000000000E+00</charge>
       <thermo>
-        <NASA Tmax="3500" Tmid="1000" Tmin="200">
-          <floatArray size="7" title="low">
+        <NASA Tmax="1000" Tmin="200">
+          <floatArray size="7" title="coeffs">
             4.301798010E+00,  -4.749120510E-03,   2.115828910E-05,
            -2.427638940E-08,   9.292251240E-12,   2.948080400E+02,
             3.716662450E+00
           </floatArray>
-          <floatArray size="7" title="high">
+        </NASA>
+        <NASA Tmax="3500" Tmin="1000">
+          <floatArray size="7" title="coeffs">
             4.017210900E+00,   2.239820130E-03,  -6.336581500E-07,
             1.142463700E-10,  -1.079085350E-14,   1.118567130E+02,
             3.785102150E+00
@@ -201,9 +233,11 @@
       </thermo>
       <transport>
         <string title="geometry">nonlinear</string>
-        <float title="LJ_welldepth" units="Kelvin">1.074000000E+02</float>
-        <float title="LJ_diameter" units="A">3.458000000E+00</float>
-        <float title="rotRelax">1.000000000E+00</float>
+        <LJ_welldepth units="Kelvin">1.074000000E+02</LJ_welldepth>
+        <LJ_diameter units="A">3.458000000E+00</LJ_diameter>
+        <dipoleMoment units="Debye">0.000000000E+00</dipoleMoment>
+        <polarizability units="A^3">0.000000000E+00</polarizability>
+        <rotRelax>1.000000000E+00</rotRelax>
       </transport>
     </species>
 
@@ -211,14 +245,17 @@
     <species id="ohmech_s_H2O2" name="H2O2">
       <note>L 7/88</note>
       <atomArray> H:2  O:2 </atomArray>
+      <charge>0.000000000E+00</charge>
       <thermo>
-        <NASA Tmax="3500" Tmid="1000" Tmin="200">
-          <floatArray size="7" title="low">
+        <NASA Tmax="1000" Tmin="200">
+          <floatArray size="7" title="coeffs">
             4.276112690E+00,  -5.428224170E-04,   1.673357010E-05,
            -2.157708130E-08,   8.624543630E-12,  -1.770258210E+04,
             3.435050740E+00
           </floatArray>
-          <floatArray size="7" title="high">
+        </NASA>
+        <NASA Tmax="3500" Tmin="1000">
+          <floatArray size="7" title="coeffs">
             4.165002850E+00,   4.908316940E-03,  -1.901392250E-06,
             3.711859860E-10,  -2.879083050E-14,  -1.786178770E+04,
             2.916156620E+00
@@ -227,9 +264,11 @@
       </thermo>
       <transport>
         <string title="geometry">nonlinear</string>
-        <float title="LJ_welldepth" units="Kelvin">1.074000000E+02</float>
-        <float title="LJ_diameter" units="A">3.458000000E+00</float>
-        <float title="rotRelax">3.800000000E+00</float>
+        <LJ_welldepth units="Kelvin">1.074000000E+02</LJ_welldepth>
+        <LJ_diameter units="A">3.458000000E+00</LJ_diameter>
+        <dipoleMoment units="Debye">0.000000000E+00</dipoleMoment>
+        <polarizability units="A^3">0.000000000E+00</polarizability>
+        <rotRelax>3.800000000E+00</rotRelax>
       </transport>
     </species>
 
@@ -237,14 +276,17 @@
     <species id="ohmech_s_AR" name="AR">
       <note>120186</note>
       <atomArray> Ar:1 </atomArray>
+      <charge>0.000000000E+00</charge>
       <thermo>
-        <NASA Tmax="5000" Tmid="1000" Tmin="300">
-          <floatArray size="7" title="low">
+        <NASA Tmax="1000" Tmin="300">
+          <floatArray size="7" title="coeffs">
             2.500000000E+00,   0.000000000E+00,   0.000000000E+00,
             0.000000000E+00,   0.000000000E+00,  -7.453750000E+02,
             4.366000000E+00
           </floatArray>
-          <floatArray size="7" title="high">
+        </NASA>
+        <NASA Tmax="5000" Tmin="1000">
+          <floatArray size="7" title="coeffs">
             2.500000000E+00,   0.000000000E+00,   0.000000000E+00,
             0.000000000E+00,   0.000000000E+00,  -7.453750000E+02,
             4.366000000E+00
@@ -253,8 +295,11 @@
       </thermo>
       <transport>
         <string title="geometry">atom</string>
-        <float title="LJ_welldepth" units="Kelvin">1.365000000E+02</float>
-        <float title="LJ_diameter" units="A">3.330000000E+00</float>
+        <LJ_welldepth units="Kelvin">1.365000000E+02</LJ_welldepth>
+        <LJ_diameter units="A">3.330000000E+00</LJ_diameter>
+        <dipoleMoment units="Debye">0.000000000E+00</dipoleMoment>
+        <polarizability units="A^3">0.000000000E+00</polarizability>
+        <rotRelax>0.000000000E+00</rotRelax>
       </transport>
     </species>
   </speciesData>
@@ -267,8 +312,12 @@
       <equation>2 O + M [=] O2 + M</equation>
       <reactants> O:2 </reactants>
       <products> O2:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="3">1.2e+17 -1 0</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm6/mol2/s">1.200000000E+17</A>
+          <b>-1.000000000E+00</b>
+          <E units="cal/mol">0.000000000E+00</E>
+        </Arrhenius>
         <efficiencies default="1">
          AR:0.83  H2:2.4  H2O:15.4 
         </efficiencies>
@@ -280,8 +329,12 @@
       <equation>O + H + M [=] OH + M</equation>
       <reactants> O:1  H:1 </reactants>
       <products> OH:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="3">5e+17 -1 0</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm6/mol2/s">5.000000000E+17</A>
+          <b>-1.000000000E+00</b>
+          <E units="cal/mol">0.000000000E+00</E>
+        </Arrhenius>
         <efficiencies default="1">
          AR:0.7  H2:2  H2O:6 
         </efficiencies>
@@ -293,8 +346,12 @@
       <equation>O + H2 [=] H + OH</equation>
       <reactants> O:1  H2:1 </reactants>
       <products> H:1  OH:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">38700 2.7 6260</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">3.870000000E+04</A>
+          <b>2.700000000E+00</b>
+          <E units="cal/mol">6.260000000E+03</E>
+        </Arrhenius>
       </rateCoeff>
     </reaction>
 
@@ -303,8 +360,12 @@
       <equation>O + HO2 [=] OH + O2</equation>
       <reactants> O:1  HO2:1 </reactants>
       <products> OH:1  O2:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">2e+13 0 0</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">2.000000000E+13</A>
+          <b>0.000000000E+00</b>
+          <E units="cal/mol">0.000000000E+00</E>
+        </Arrhenius>
       </rateCoeff>
     </reaction>
 
@@ -313,8 +374,12 @@
       <equation>O + H2O2 [=] OH + HO2</equation>
       <reactants> O:1  H2O2:1 </reactants>
       <products> OH:1  HO2:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">9.63e+06 2 4000</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">9.630000000E+06</A>
+          <b>2.000000000E+00</b>
+          <E units="cal/mol">4.000000000E+03</E>
+        </Arrhenius>
       </rateCoeff>
     </reaction>
 
@@ -323,8 +388,12 @@
       <equation>H + 2 O2 [=] HO2 + O2</equation>
       <reactants> H:1  O2:2 </reactants>
       <products> HO2:1  O2:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="3">2.08e+19 -1.24 0</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm6/mol2/s">2.080000000E+19</A>
+          <b>-1.240000000E+00</b>
+          <E units="cal/mol">0.000000000E+00</E>
+        </Arrhenius>
       </rateCoeff>
     </reaction>
 
@@ -333,8 +402,12 @@
       <equation>H + O2 + H2O [=] HO2 + H2O</equation>
       <reactants> H:1  O2:1  H2O:1 </reactants>
       <products> HO2:1  H2O:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="3">1.126e+19 -0.76 0</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm6/mol2/s">1.126000000E+19</A>
+          <b>-7.600000000E-01</b>
+          <E units="cal/mol">0.000000000E+00</E>
+        </Arrhenius>
       </rateCoeff>
     </reaction>
 
@@ -343,8 +416,12 @@
       <equation>H + O2 + AR [=] HO2 + AR</equation>
       <reactants> H:1  O2:1  AR:1 </reactants>
       <products> HO2:1  AR:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="3">7e+17 -0.8 0</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm6/mol2/s">7.000000000E+17</A>
+          <b>-8.000000000E-01</b>
+          <E units="cal/mol">0.000000000E+00</E>
+        </Arrhenius>
       </rateCoeff>
     </reaction>
 
@@ -353,8 +430,12 @@
       <equation>H + O2 [=] O + OH</equation>
       <reactants> H:1  O2:1 </reactants>
       <products> O:1  OH:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">2.65e+16 -0.6707 17041</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">2.650000000E+16</A>
+          <b>-6.707000000E-01</b>
+          <E units="cal/mol">1.704100000E+04</E>
+        </Arrhenius>
       </rateCoeff>
     </reaction>
 
@@ -363,8 +444,12 @@
       <equation>2 H + M [=] H2 + M</equation>
       <reactants> H:2 </reactants>
       <products> H2:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="3">1e+18 -1 0</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm6/mol2/s">1.000000000E+18</A>
+          <b>-1.000000000E+00</b>
+          <E units="cal/mol">0.000000000E+00</E>
+        </Arrhenius>
         <efficiencies default="1">
          AR:0.63  H2:0  H2O:0 
         </efficiencies>
@@ -376,8 +461,12 @@
       <equation>2 H + H2 [=] 2 H2</equation>
       <reactants> H:2  H2:1 </reactants>
       <products> H2:2 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="3">9e+16 -0.6 0</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm6/mol2/s">9.000000000E+16</A>
+          <b>-6.000000000E-01</b>
+          <E units="cal/mol">0.000000000E+00</E>
+        </Arrhenius>
       </rateCoeff>
     </reaction>
 
@@ -386,8 +475,12 @@
       <equation>2 H + H2O [=] H2 + H2O</equation>
       <reactants> H:2  H2O:1 </reactants>
       <products> H2:1  H2O:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="3">6e+19 -1.25 0</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm6/mol2/s">6.000000000E+19</A>
+          <b>-1.250000000E+00</b>
+          <E units="cal/mol">0.000000000E+00</E>
+        </Arrhenius>
       </rateCoeff>
     </reaction>
 
@@ -396,8 +489,12 @@
       <equation>H + OH + M [=] H2O + M</equation>
       <reactants> H:1  OH:1 </reactants>
       <products> H2O:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="3">2.2e+22 -2 0</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm6/mol2/s">2.200000000E+22</A>
+          <b>-2.000000000E+00</b>
+          <E units="cal/mol">0.000000000E+00</E>
+        </Arrhenius>
         <efficiencies default="1">
          AR:0.38  H2:0.73  H2O:3.65 
         </efficiencies>
@@ -409,8 +506,12 @@
       <equation>H + HO2 [=] O + H2O</equation>
       <reactants> H:1  HO2:1 </reactants>
       <products> O:1  H2O:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">3.97e+12 0 671</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">3.970000000E+12</A>
+          <b>0.000000000E+00</b>
+          <E units="cal/mol">6.710000000E+02</E>
+        </Arrhenius>
       </rateCoeff>
     </reaction>
 
@@ -419,8 +520,12 @@
       <equation>H + HO2 [=] O2 + H2</equation>
       <reactants> H:1  HO2:1 </reactants>
       <products> O2:1  H2:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">4.48e+13 0 1068</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">4.480000000E+13</A>
+          <b>0.000000000E+00</b>
+          <E units="cal/mol">1.068000000E+03</E>
+        </Arrhenius>
       </rateCoeff>
     </reaction>
 
@@ -429,8 +534,12 @@
       <equation>H + HO2 [=] 2 OH</equation>
       <reactants> H:1  HO2:1 </reactants>
       <products> OH:2 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">8.4e+13 0 635</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">8.400000000E+13</A>
+          <b>0.000000000E+00</b>
+          <E units="cal/mol">6.350000000E+02</E>
+        </Arrhenius>
       </rateCoeff>
     </reaction>
 
@@ -439,8 +548,12 @@
       <equation>H + H2O2 [=] HO2 + H2</equation>
       <reactants> H:1  H2O2:1 </reactants>
       <products> HO2:1  H2:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">1.21e+07 2 5200</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">1.210000000E+07</A>
+          <b>2.000000000E+00</b>
+          <E units="cal/mol">5.200000000E+03</E>
+        </Arrhenius>
       </rateCoeff>
     </reaction>
 
@@ -449,8 +562,12 @@
       <equation>H + H2O2 [=] OH + H2O</equation>
       <reactants> H:1  H2O2:1 </reactants>
       <products> OH:1  H2O:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">1e+13 0 3600</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">1.000000000E+13</A>
+          <b>0.000000000E+00</b>
+          <E units="cal/mol">3.600000000E+03</E>
+        </Arrhenius>
       </rateCoeff>
     </reaction>
 
@@ -459,8 +576,12 @@
       <equation>OH + H2 [=] H + H2O</equation>
       <reactants> OH:1  H2:1 </reactants>
       <products> H:1  H2O:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">2.16e+08 1.51 3430</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">2.160000000E+08</A>
+          <b>1.510000000E+00</b>
+          <E units="cal/mol">3.430000000E+03</E>
+        </Arrhenius>
       </rateCoeff>
     </reaction>
 
@@ -469,9 +590,17 @@
       <equation>2 OH (+ M) [=] H2O2 (+ M)</equation>
       <reactants> OH:2 </reactants>
       <products> H2O2:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">7.4e+13 -0.37 0</Arrhenius>
-        <Arrhenius order="3">2.3e+18 -0.9 -1700</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">7.400000000E+13</A>
+          <b>-3.700000000E-01</b>
+          <E units="cal/mol">0.000000000E+00</E>
+        </Arrhenius>
+        <Arrhenius name="k0">
+          <A units="cm6/mol2/s">2.300000000E+18</A>
+          <b>-9.000000000E-01</b>
+          <E units="cal/mol">-1.700000000E+03</E>
+        </Arrhenius>
         <falloff type="Troe"> 0.7346  94  1756  5182 </falloff>
         <efficiencies default="1">
          AR:0.7  H2:2  H2O:6 
@@ -484,8 +613,12 @@
       <equation>2 OH [=] O + H2O</equation>
       <reactants> OH:2 </reactants>
       <products> O:1  H2O:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">35700 2.4 -2110</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">3.570000000E+04</A>
+          <b>2.400000000E+00</b>
+          <E units="cal/mol">-2.110000000E+03</E>
+        </Arrhenius>
       </rateCoeff>
     </reaction>
 
@@ -494,8 +627,12 @@
       <equation>OH + HO2 [=] O2 + H2O</equation>
       <reactants> OH:1  HO2:1 </reactants>
       <products> O2:1  H2O:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">1.45e+13 0 -500</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">1.450000000E+13</A>
+          <b>0.000000000E+00</b>
+          <E units="cal/mol">-5.000000000E+02</E>
+        </Arrhenius>
       </rateCoeff>
       <duplicate>idtag_rxn_27</duplicate>
     </reaction>
@@ -505,8 +642,12 @@
       <equation>OH + H2O2 [=] HO2 + H2O</equation>
       <reactants> OH:1  H2O2:1 </reactants>
       <products> HO2:1  H2O:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">2e+12 0 427</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">2.000000000E+12</A>
+          <b>0.000000000E+00</b>
+          <E units="cal/mol">4.270000000E+02</E>
+        </Arrhenius>
       </rateCoeff>
       <duplicate>idtag_rxn_24</duplicate>
     </reaction>
@@ -516,8 +657,12 @@
       <equation>OH + H2O2 [=] HO2 + H2O</equation>
       <reactants> OH:1  H2O2:1 </reactants>
       <products> HO2:1  H2O:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">1.7e+18 0 29410</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">1.700000000E+18</A>
+          <b>0.000000000E+00</b>
+          <E units="cal/mol">2.941000000E+04</E>
+        </Arrhenius>
       </rateCoeff>
       <duplicate>idtag_rxn_23</duplicate>
     </reaction>
@@ -527,8 +672,12 @@
       <equation>2 HO2 [=] O2 + H2O2</equation>
       <reactants> HO2:2 </reactants>
       <products> O2:1  H2O2:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">1.3e+11 0 -1630</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">1.300000000E+11</A>
+          <b>0.000000000E+00</b>
+          <E units="cal/mol">-1.630000000E+03</E>
+        </Arrhenius>
       </rateCoeff>
       <duplicate>idtag_rxn_26</duplicate>
     </reaction>
@@ -538,8 +687,12 @@
       <equation>2 HO2 [=] O2 + H2O2</equation>
       <reactants> HO2:2 </reactants>
       <products> O2:1  H2O2:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">4.2e+14 0 12000</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">4.200000000E+14</A>
+          <b>0.000000000E+00</b>
+          <E units="cal/mol">1.200000000E+04</E>
+        </Arrhenius>
       </rateCoeff>
       <duplicate>idtag_rxn_25</duplicate>
     </reaction>
@@ -549,8 +702,12 @@
       <equation>OH + HO2 [=] O2 + H2O</equation>
       <reactants> OH:1  HO2:1 </reactants>
       <products> O2:1  H2O:1 </products>
-      <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-        <Arrhenius order="2">5e+15 0 17330</Arrhenius>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">5.000000000E+15</A>
+          <b>0.000000000E+00</b>
+          <E units="cal/mol">1.733000000E+04</E>
+        </Arrhenius>
       </rateCoeff>
       <duplicate>idtag_rxn_22</duplicate>
     </reaction>

@@ -1,11 +1,12 @@
 
 static PyObject*
 kin_newFromXML(PyObject *self, PyObject *args) {
-    int mxml, iphase, neighbor1, neighbor2;
-    if (!PyArg_ParseTuple(args, "iiii:newFromXML", &mxml, 
-            &iphase, &neighbor1, &neighbor2)) 
+    int mxml, iphase, neighbor1, neighbor2, neighbor3, neighbor4;
+    if (!PyArg_ParseTuple(args, "iiiiii:newFromXML", &mxml, 
+            &iphase, &neighbor1, &neighbor2, &neighbor3, &neighbor4)) 
         return NULL;
-    int n = newKineticsFromXML(mxml, iphase, neighbor1, neighbor2);
+    int n = newKineticsFromXML(mxml, iphase, neighbor1, neighbor2,
+        neighbor3, neighbor4);
     if (n < 0) return reportError(n);
     return Py_BuildValue("i",n);
 }
@@ -17,6 +18,13 @@ kin_delete(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i:kin_delete", &kin)) return NULL;    
     delKinetics(kin);
     return Py_BuildValue("i",0);
+}
+
+static PyObject*
+kin_phase(PyObject *self, PyObject *args) {
+    int kin, n;
+    if (!PyArg_ParseTuple(args, "ii:kin_phase", &kin, &n)) return NULL;
+    return Py_BuildValue("i",kin_phase(kin, n));        
 }
 
 static PyObject*
@@ -100,6 +108,17 @@ kin_speciesIndex(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "iss:kin_speciesIndex", &kin, &nm, &ph)) 
         return NULL;
     return Py_BuildValue("i",kin_speciesIndex(kin,nm,ph));        
+}
+
+static PyObject*
+kin_advanceCoverages(PyObject *self, PyObject *args) {
+    int kin;
+    double dt;
+    if (!PyArg_ParseTuple(args, "id:kin_advanceCoverages", &kin, &dt)) 
+        return NULL;
+    int iok = kin_advanceCoverages(kin, dt);
+    if (iok < 0) return reportCanteraError();
+    return Py_BuildValue("i",0);        
 }
 
 static PyObject*

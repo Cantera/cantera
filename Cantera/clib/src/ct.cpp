@@ -22,6 +22,7 @@
 #include "converters/ck2ctml.h"
 #include "Storage.h"
 #include "Cabinet.h"
+#include "InterfaceKinetics.h"
 
 #include "clib_defs.h"
 
@@ -475,10 +476,17 @@ extern "C" {
             return -10;
     }
 
+    int DLL_EXPORT th_setElectricPotential(int n, double v) {
+        th(n)->setElectricPotential(v);
+        return 0;
+    }
+
+
     //-------------- Kinetics ------------------//
 
     int DLL_EXPORT newKineticsFromXML(int mxml, int iphase, 
-        int neighbor1, int neighbor2) {
+        int neighbor1, int neighbor2, int neighbor3, 
+        int neighbor4) {
         try {
             XML_Node* x = _xml(mxml);
             vector<thermo_t*> phases;
@@ -487,6 +495,12 @@ extern "C" {
                 phases.push_back(th(neighbor1));
                 if (neighbor2 >= 0) {
                     phases.push_back(th(neighbor2));
+                    if (neighbor3 >= 0) {
+                        phases.push_back(th(neighbor3));
+                        if (neighbor4 >= 0) {
+                            phases.push_back(th(neighbor4));
+                        }
+                    }
                 }
             }
             Kinetics* kin = newKineticsMgr(*x, phases);
@@ -648,6 +662,10 @@ extern "C" {
         return kin(n)->multiplier(i);
     }
 
+    int DLL_EXPORT kin_phase(int n, int i) {
+        return thermo_index(kin(n)->thermo(i).id());
+    }
+
     int DLL_EXPORT kin_getEquilibriumConstants(int n, int len, double* kc) {
         try {
             Kinetics* k = kin(n);
@@ -684,6 +702,20 @@ extern "C" {
         catch (CanteraError) {return -1;}
     }
 
+    int DLL_EXPORT kin_advanceCoverages(int n, double tstep) {
+        try {
+            Kinetics* k = kin(n);
+            if (k->type() == cInterfaceKinetics) {
+                ((InterfaceKinetics*)k)->advanceCoverages(tstep);
+            }
+            else {
+                throw CanteraError("kin_advanceCoverages",
+                    "wrong kinetics manager type");
+            }
+            return 0;
+        }
+        catch (CanteraError) {return -1;}
+    }
 
     //------------------- Transport ---------------------------
 

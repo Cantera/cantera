@@ -17,7 +17,7 @@
 #include "GasKinetics.h"
 
 #include "ReactionData.h"
-#include "StoichManager.h"
+//#include "StoichManager.h"
 #include "Enhanced3BConc.h"
 #include "ThirdBodyMgr.h"
 #include "RateCoeffMgr.h"
@@ -52,6 +52,7 @@ namespace Cantera {
     {
         m_kdata = new GasKineticsData;
         m_kdata->m_temp = 0.0;
+        //        m_rxnstoich = new ReactionStoichMgr;
     }
 
     /**
@@ -128,8 +129,9 @@ namespace Cantera {
         fill(m_rkc.begin(), m_rkc.end(), 0.0);
 
         // compute Delta G^0 for all reversible reactions
-        m_reactantStoich.decrementReactions(m_grt.begin(), m_rkc.begin()); 
-        m_revProductStoich.incrementReactions(m_grt.begin(), m_rkc.begin());
+        m_rxnstoich.getRevReactionDelta(m_ii, m_grt.begin(), m_rkc.begin());
+            //m_reactantStoich.decrementReactions(m_grt.begin(), m_rkc.begin()); 
+            //m_revProductStoich.incrementReactions(m_grt.begin(), m_rkc.begin());
  
         doublereal logc0 = m_kdata->m_logc0;
         doublereal rrt = 1.0/(GasConstant * thermo().temperature());
@@ -157,11 +159,13 @@ namespace Cantera {
         fill(rkc.begin(), rkc.end(), 0.0);
         
         // compute Delta G^0 for all reactions
-        m_reactantStoich.decrementReactions(m_grt.begin(), rkc.begin()); 
-        m_revProductStoich.incrementReactions(m_grt.begin(), 
-            rkc.begin());
-        m_irrevProductStoich.incrementReactions(m_grt.begin(), 
-            rkc.begin());
+        m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), rkc.begin());
+
+            //        m_reactantStoich.decrementReactions(m_grt.begin(), rkc.begin()); 
+            //m_revProductStoich.incrementReactions(m_grt.begin(), 
+            //rkc.begin());
+            //m_irrevProductStoich.incrementReactions(m_grt.begin(), 
+            //rkc.begin());
  
         doublereal logc0 = m_kdata->m_logc0;
         doublereal rrt = 1.0/(GasConstant * thermo().temperature());
@@ -239,11 +243,13 @@ namespace Cantera {
         multiply_each(ropr.begin(), ropr.end(), m_rkc.begin());
 
         // multiply ropf by concentration products
-        m_reactantStoich.multiply(m_conc.begin(), ropf.begin()); 
+        m_rxnstoich.multiplyReactants(m_conc.begin(), ropf.begin()); 
+        //m_reactantStoich.multiply(m_conc.begin(), ropf.begin()); 
 
         // for reversible reactions, multiply ropr by concentration
         // products
-        m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
+        m_rxnstoich.multiplyRevProducts(m_conc.begin(), ropr.begin()); 
+        //m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
 
         for (int j = 0; j != m_ii; ++j) {
             ropnet[j] = ropf[j] - ropr[j];
@@ -390,26 +396,18 @@ namespace Cantera {
         m_kdata->m_rkcn.push_back(0.0);
         //        int nr = r.size();
         
-        //int i;
-        //for (i = 0; i < nr; i++) {
-        //     m_rrxn[r[i]][rnum] += 1.0;
-        //}
-        m_reactantStoich.add( reactionNumber(), rk);
-
-        //int np = p.size();
-        //
-        //for (i = 0; i < np; i++) {
-        //    m_prxn[p[i]][rnum] += 1.0;
-        // }
+        //m_reactantStoich.add( reactionNumber(), rk);
 
         if (r.reversible) {
-            m_revProductStoich.add(reactionNumber(), pk);
+            m_rxnstoich.add(reactionNumber(), rk, pk, true);
+            //m_revProductStoich.add(reactionNumber(), pk);
             m_dn.push_back(pk.size() - rk.size());
             m_revindex.push_back(reactionNumber());
             m_nrev++;
         }
         else {
-            m_irrevProductStoich.add(reactionNumber(), pk);
+            m_rxnstoich.add(reactionNumber(), rk, pk, false);
+            //m_irrevProductStoich.add(reactionNumber(), pk);
             m_dn.push_back(pk.size() - rk.size());            
             m_irrev.push_back( reactionNumber() );
             m_nirrev++;

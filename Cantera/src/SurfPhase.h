@@ -36,7 +36,7 @@ namespace Cantera {
     public:
 
         SurfPhase(doublereal n0 = 0.0);
-        virtual ~SurfPhase() {}
+        virtual ~SurfPhase();
         virtual int eosType() const { return cSurf; }
         virtual doublereal enthalpy_mole() const;
         virtual doublereal intEnergy_mole() const;

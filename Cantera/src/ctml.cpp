@@ -21,6 +21,8 @@
 
 #include "ctml.h"
 
+#define CTML_VERSION_1_4_1
+
 namespace ctml {
 
     static doublereal fpValue(string val) {
@@ -69,11 +71,15 @@ namespace ctml {
         string type, 
         doublereal minval,
         doublereal maxval) {
-
         string fmt = "%17.9E";
+#ifdef CTML_VERSION_1_4
         XML_Node& f = node.addChild("float",val,fmt);
         f.addAttribute("title",title);
-        if (type != "") f.addAttribute("type",type);        
+#endif
+#ifdef CTML_VERSION_1_4_1
+        XML_Node& f = node.addChild(title,val,fmt); 
+#endif
+        if (type != "") f.addAttribute("type",type);
         if (units != "") f.addAttribute("units",units);
         if (minval != Undef) f.addAttribute("min",minval);
         if (maxval != Undef) f.addAttribute("max",maxval);

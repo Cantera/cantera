@@ -84,12 +84,12 @@ namespace Cantera {
             m_spthermo->update(tnow, m_cp0_R.begin(), m_h0_RT.begin(), 
                 m_s0_R.begin());
             m_tlast = tnow;
-            doublereal rrt = 1.0 / (GasConstant * tnow);
+            //            doublereal rrt = 1.0 / (GasConstant * tnow);
             int k;
-            doublereal deltaE;
+            //doublereal deltaE;
             for (k = 0; k < m_kk; k++) {
-                deltaE = rrt * m_pe[k];
-                m_h0_RT[k] += deltaE;
+                //deltaE = rrt * m_pe[k];
+                //m_h0_RT[k] += deltaE;
                 m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
             }
             m_tlast = tnow;

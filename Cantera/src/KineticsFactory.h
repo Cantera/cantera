@@ -52,7 +52,7 @@ namespace Cantera {
 
 
     /**
-     *  Create a new thermo manager instance.
+     *  Create a new kinetics manager.
      */
     inline Kinetics* newKineticsMgr(XML_Node& phase,  
         vector<ThermoPhase*> th, KineticsFactory* f=0) {
@@ -64,7 +64,7 @@ namespace Cantera {
     }
 
     /**
-     *  Create a new thermo manager instance.
+     *  Create a new kinetics manager.
      */
     inline Kinetics* newKineticsMgr(string model, KineticsFactory* f=0) {
         if (f == 0) {

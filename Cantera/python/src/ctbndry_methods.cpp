@@ -42,6 +42,19 @@ py_bndry_settemperature(PyObject *self, PyObject *args)
     return Py_BuildValue("i",0);
 }
 
+
+static PyObject*
+py_bndry_setspreadrate(PyObject *self, PyObject *args)
+{
+    int n;
+    double v;
+    if (!PyArg_ParseTuple(args, "id:bndry_setspreadrate", &n, &v))
+        return NULL;
+    int iok = bndry_setSpreadRate(n, v);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
 static PyObject*
 py_bndry_mdot(PyObject *self, PyObject *args)
 {

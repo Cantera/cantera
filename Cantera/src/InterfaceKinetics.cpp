@@ -19,6 +19,8 @@
 #include "StoichManager.h"
 #include "RateCoeffMgr.h"
 
+#include "ImplicitSurfChem.h"
+
 #include <iostream>
 using namespace std;
 
@@ -43,6 +45,9 @@ namespace Cantera {
         _updateThermo();
         return mean_X(m_h0.begin());
     }
+
+    SurfPhase::
+    ~SurfPhase() { }
 
     /**
      * For a surface phase, the pressure is not a relevant
@@ -101,20 +106,20 @@ namespace Cantera {
         _updateThermo(true);
     }
 
-
     void SurfPhase::
     setSiteDensity(doublereal n0) {
         doublereal x = n0;
         setParameters(1, &x);
     }
 
-    void SurfPhase::
-    setElectricPotential(doublereal V) {
-        for (int k = 0; k < m_kk; k++) {
-            m_pe[k] = charge(k)*Faraday*V;
-        }
-        _updateThermo(true);
-    }
+
+    //void SurfPhase::
+    //setElectricPotential(doublereal V) {
+    //    for (int k = 0; k < m_kk; k++) {
+    //        m_pe[k] = charge(k)*Faraday*V;
+    //    }
+    //    _updateThermo(true);
+    //}
 
     void SurfPhase::
     setCoverages(const doublereal* theta) {
@@ -141,12 +146,12 @@ namespace Cantera {
             m_tlast = tnow;
             doublereal rt = GasConstant * tnow;
             int k;
-            doublereal deltaE;
+            //doublereal deltaE;
             for (k = 0; k < m_kk; k++) {
                 m_h0[k] *= rt;
                 m_s0[k] *= GasConstant;
                 m_cp0[k] *= GasConstant;
-                deltaE = m_pe[k];
+                //deltaE = m_pe[k];
                 //m_h0[k] += deltaE;
                 m_mu0[k] = m_h0[k] - tnow*m_s0[k];
             }
@@ -169,29 +174,53 @@ namespace Cantera {
         m_redo_rates(false),
         m_nirrev(0), 
         m_nrev(0),
+        m_integrator(0),
         m_finalized(false)
     {
         m_kdata = new InterfaceKineticsData;
         m_kdata->m_temp = 0.0;
     }
 
+    InterfaceKinetics::
+    ~InterfaceKinetics(){
+        delete m_kdata;
+        delete m_integrator;
+    }
+
     void InterfaceKinetics::
     _update_rates_T() {
+        _update_rates_phi();
         doublereal T = thermo().temperature();
         if (T != m_kdata->m_temp || m_redo_rates) {
             doublereal logT = log(T);
             m_rates.update(T, logT, m_kdata->m_rfn.begin());
-            correctElectronTransferRates(m_kdata->m_rfn.begin());
+            applyButlerVolmerCorrection(m_kdata->m_rfn.begin());
             m_kdata->m_temp = T;
             updateKc();
             m_kdata->m_ROP_ok = false;
             m_redo_rates = false;
         }
-    };
+    }
+
+    void InterfaceKinetics::
+    _update_rates_phi() {
+        int np = nPhases();
+        for (int n = 0; n < np; n++) {
+            if (thermo(n).electricPotential() != m_phi[n]) {
+                m_phi[n] = thermo(n).electricPotential();
+                m_redo_rates = true;
+            }
+        }
+    }
+
 
 
     /**
-     * Update properties that depend on concentrations.
+     * Update properties that depend on concentrations. This method
+     * fills out the array of generalized concentrations by calling
+     * method getActivityConcentrations for each phase, which classes
+     * representing phases should overload to return the appropriate
+     * quantities.
      */         
     void InterfaceKinetics::
     _update_rates_C() {
@@ -203,8 +232,10 @@ namespace Cantera {
         m_kdata->m_ROP_ok = false;
     }
 
+
     /**
-     * Update the equilibrium constants in molar units.
+     * Update the equilibrium constants in molar units for all
+     * reversible reactions.
      */
     void InterfaceKinetics::updateKc() {
         int i, irxn;
@@ -215,14 +246,11 @@ namespace Cantera {
         doublereal rrt = 1.0/rt;
         int np = nPhases();
         for (n = 0; n < np; n++) {
-            //            cout << n << "start = " << m_start[n] << endl;
             thermo(n).getStandardChemPotentials(m_mu0.begin() + m_start[n]);
             nsp = thermo(n).nSpecies();
             for (k = 0; k < nsp; k++) {
-                //cout << ik << "mu0 = " << m_mu0[ik] << endl;
                 m_mu0[ik] -= rt*thermo(n).logStandardConc(k);
                 m_mu0[ik] += Faraday * m_phi[n] * thermo(n).charge(k);
-                //cout << ik << "mu0 = " << m_mu0[ik] << endl;
                 ik++;
             }
         }
@@ -235,15 +263,14 @@ namespace Cantera {
 
         for (i = 0; i < m_nrev; i++) {
             irxn = m_revindex[i];
-            //cout << "rev   " << irxn << "  " << m_rkc[irxn] << endl;
             m_rkc[irxn] = exp(m_rkc[irxn]*rrt);
-            //cout << "rev   " << irxn << "  " << m_rkc[irxn] << endl;
         }
 
         for(i = 0; i != m_nirrev; ++i) {
             m_rkc[ m_irrev[i] ] = 0.0;
         }
     }
+
 
     /**
      * Get the equilibrium constants of all reactions, whether
@@ -260,14 +287,8 @@ namespace Cantera {
             thermo(n).getStandardChemPotentials(m_mu0.begin() + m_start[n]);
             nsp = thermo(n).nSpecies();
             for (k = 0; k < nsp; k++) {
-                //cout << thermo(n).id() << "  " << thermo(n).speciesName(k) 
-                //     << "   " << m_mu0[ik] << endl;
                 m_mu0[ik] -= rt*thermo(n).logStandardConc(k);
                 m_mu0[ik] += Faraday * m_phi[n] * thermo(n).charge(k);
-                //if (thermo(n).charge(k) != 0.0) {
-                //    cout << thermo(n).id() << "  " << thermo(n).speciesName(k) 
-                //         << "   " << m_phi[n] << "  " << thermo(n).charge(k) << endl;
-                //}
                 ik++;
             }
         }
@@ -285,16 +306,19 @@ namespace Cantera {
 
 
     /**
-     * Get the equilibrium constants of all reactions, whether
-     * reversible or not.
+     * For reactions that transfer charge across a potential difference,
+     * the activation energies are modified by the potential difference.
+     * (see, for example, ...). This method applies this correction.
      */
-    void InterfaceKinetics::correctElectronTransferRates(doublereal* kf) {
+    void InterfaceKinetics::applyButlerVolmerCorrection(doublereal* kf) {
         int i;
 
         int n, nsp, k, ik=0;
         doublereal rt = GasConstant*thermo(0).temperature();
         doublereal rrt = 1.0/rt;
         int np = nPhases();
+
+        // compute the electrical potential energy of each species
         for (n = 0; n < np; n++) {
             nsp = thermo(n).nSpecies();
             for (k = 0; k < nsp; k++) {
@@ -302,18 +326,25 @@ namespace Cantera {
                 ik++;
             }
         }
+
+        // compute the change in electrical potential energy for each
+        // reaction. This will only be non-zero if a potential
+        // difference is present.
         fill(m_rwork.begin(), m_rwork.begin() + m_ii, 0.0);
         m_reactantStoich.decrementReactions(m_pot.begin(), m_rwork.begin()); 
         m_revProductStoich.incrementReactions(m_pot.begin(), m_rwork.begin());
         m_irrevProductStoich.incrementReactions(m_pot.begin(), m_rwork.begin());
-        doublereal eamod, ea;
+        // modify the reaction rates. Only modify those with a
+        // non-zero activation energy, and do not decrease the
+        // activation energy below zero.
+        doublereal ea, eamod;
         for (i = 0; i < m_ii; i++) {
-            //loc = m_index[i].second;
-            //if (loc >= 0) {
-            //    const Arrhenius& r = m_rates.rateCoeff(m_index[i].second);
-            //  ea = GasConstant*r.activationEnergy_R();
             eamod = 0.5*m_rwork[i];
-            if (m_index[i].second >= 0) kf[i] *= exp(-eamod*rrt);
+            if (eamod != 0.0 && m_E[i] != 0.0) {
+                ea = GasConstant * m_E[i];
+                if (eamod + ea < 0.0) eamod = -ea;
+                kf[i] *= exp(-eamod*rrt);
+            }
         }
     }
 
@@ -386,6 +417,8 @@ namespace Cantera {
         iloc = m_rates.install( reactionNumber(),
             r.rateCoeffType, r.rateCoeffParameters.size(), 
             r.rateCoeffParameters.begin() );
+        // store activation energy
+        m_E.push_back(r.rateCoeffParameters[2]);
         // add constant term to rate coeff value vector
         m_kdata->m_rfn.push_back(r.rateCoeffParameters[0]);                
         registerReaction( reactionNumber(), ELEMENTARY_RXN, iloc);
@@ -498,6 +531,15 @@ namespace Cantera {
 
     bool InterfaceKinetics::ready() const {
         return (m_finalized);
+    }
+
+    void InterfaceKinetics::
+    advanceCoverages(doublereal tstep) {
+        if (m_integrator == 0) {
+            m_integrator = new ImplicitSurfChem(*this);
+            m_integrator->initialize();
+        }
+        m_integrator->integrate(0.0, tstep);
     }
 
 }

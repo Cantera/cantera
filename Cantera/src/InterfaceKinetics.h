@@ -31,6 +31,7 @@ namespace Cantera {
     class ReactionData;
     class InterfaceKineticsData;
     class ThermoPhase;
+    class ImplicitSurfChem;
 
     /**
      * Holds mechanism-specific data.
@@ -62,12 +63,13 @@ namespace Cantera {
         InterfaceKinetics(thermo_t* thermo = 0);
 
         /// Destructor.
-        virtual ~InterfaceKinetics(){delete m_kdata;}
+        virtual ~InterfaceKinetics();
 
         virtual int ID() { return cInterfaceKinetics; }
+        virtual int type() { return cInterfaceKinetics; }
 
         void setElectricPotential(int n, doublereal V) {
-            m_phi[n] = V;
+            thermo(n).setElectricPotential(V);
             m_redo_rates = true;
         }
 
@@ -158,9 +160,11 @@ namespace Cantera {
                 < m_revindex.end()) return true;
             else return false;
         }
-        void correctElectronTransferRates(doublereal* kf);
         void _update_rates_T();
+        void _update_rates_phi();
         void _update_rates_C();
+
+        void advanceCoverages(doublereal tstep);
 
     protected:
 
@@ -200,6 +204,9 @@ namespace Cantera {
         vector_fp m_phi;
         vector_fp m_pot;
         vector_fp m_rwork;
+        vector_fp m_E;
+
+        ImplicitSurfChem*                      m_integrator;
 
     private:
 
@@ -215,6 +222,7 @@ namespace Cantera {
         void registerReaction(int rxnNumber, int type, int loc) {
             m_index[rxnNumber] = pair<int, int>(type, loc);
         }
+        void applyButlerVolmerCorrection(doublereal* kf);
         bool m_finalized;
     };
 }

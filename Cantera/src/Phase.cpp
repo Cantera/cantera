@@ -207,13 +207,13 @@ namespace Cantera {
     }
 
 
-        void Phase::update_T(int n) const {
-            m_T_updater.update(n);
-        }
+//         void Phase::update_T(int n) const {
+//             m_T_updater.update(n);
+//         }
 
-        void Phase::update_C(int n) const {
-            m_C_updater.update(n);
-        }
+//         void Phase::update_C(int n) const {
+//             m_C_updater.update(n);
+//         }
 
         /** 
          *  Finished adding species, prepare to use them for calculation
@@ -238,11 +238,11 @@ namespace Cantera {
             return (m_kk > 0 && Constituents::ready() && State::ready());
         }
 
-        int Phase::installUpdater_T(Updater* u) {
-            return m_T_updater.install(u);
-        }
+//         int Phase::installUpdater_T(Updater* u) {
+//             return m_T_updater.install(u);
+//         }
 
-        int Phase::installUpdater_C(Updater* u) {
-            return m_C_updater.install(u);
-        }
+//         int Phase::installUpdater_C(Updater* u) {
+//             return m_C_updater.install(u);
+//         }
 }

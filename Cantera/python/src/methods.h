@@ -35,6 +35,7 @@ static PyMethodDef ct_methods[] = {
 
     {"xml_attrib", py_xml_attrib, METH_VARARGS},
     {"xml_addAttrib", py_xml_addAttrib, METH_VARARGS},
+    {"xml_addComment", py_xml_addComment, METH_VARARGS},
     {"xml_tag", py_xml_tag, METH_VARARGS},
     {"xml_value", py_xml_value, METH_VARARGS},
     {"xml_new", py_xml_new, METH_VARARGS},
@@ -66,6 +67,8 @@ static PyMethodDef ct_methods[] = {
     {"kin_speciesIndex", kin_speciesIndex,  METH_VARARGS},
     {"kin_getarray", kin_getarray,  METH_VARARGS},
     {"kin_getstring", kin_getstring,  METH_VARARGS},
+    {"kin_phase", kin_phase,  METH_VARARGS},
+    {"kin_advanceCoverages", kin_advanceCoverages,  METH_VARARGS},
 
     {"Transport", py_transport_new,  METH_VARARGS},
     {"tran_delete", py_transport_delete,  METH_VARARGS},
@@ -156,6 +159,7 @@ static PyMethodDef ct_methods[] = {
     {"bndry_setxin", py_bndry_setxin, METH_VARARGS},
     {"bndry_setxinbyname", py_bndry_setxinbyname, METH_VARARGS},
     {"bndry_settemperature", py_bndry_settemperature, METH_VARARGS},
+    {"bndry_setspreadrate", py_bndry_setspreadrate, METH_VARARGS},
     {"bndry_new", py_bndry_new, METH_VARARGS},
     {"bndry_del", py_bndry_del, METH_VARARGS},
     {"bndry_mdot", py_bndry_mdot, METH_VARARGS},

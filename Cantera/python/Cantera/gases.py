@@ -34,13 +34,17 @@ def IdealGasMix(src="", root=None, transport='None',
     else:
         nm = ff
         ext = ''
-    if ext <> '.xml' and ext <> '.XML' and ext <> '.ctml' and ext <> '.CTML':
-        outfile = p+os.sep+nm+'.xml'
-        ck2ctml(infile = src, outfile = outfile, thermo = thermo,
-                transport = trandb, id = nm)
-        return Solution(src=outfile, root=None, transport=transport)
-    else:
-        return Solution(src=src, root=root, transport=transport)
+##     if ext <> '.xml' and ext <> '.XML' and ext <> '.ctml' and ext <> '.CTML':
+##         outfile = p+os.sep+nm+'.xml'
+##         if ext == '.py':
+##             from Cantera import pip
+##             pip.process(fname)
+##         else:
+##             ck2ctml(infile = src, outfile = outfile, thermo = thermo,
+##                     transport = trandb, id = nm)
+##         return Solution(src=outfile, root=None, transport=transport)
+##     else:
+    return Solution(src=src, root=root, transport=transport)
 
 def GRI30(transport='None'):
     """Return a Solution instance implementing reaction mechanism

@@ -15,7 +15,7 @@
 #include "GRI_30_Kinetics.h"
 
 #include "ReactionData.h"
-#include "StoichManager.h"
+//#include "StoichManager.h"
 #include "Enhanced3BConc.h"
 #include "ThirdBodyMgr.h"
 #include "RateCoeffMgr.h"

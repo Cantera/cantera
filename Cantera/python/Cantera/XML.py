@@ -82,6 +82,9 @@ class XML_Node:
 
     def addAttrib(self, key, value):
         _cantera.xml_addAttrib(self._xml_id, key, value)
+
+    def addComment(self, comment):
+        _cantera.xml_addComment(self._xml_id, comment)
         
     def value(self, loc=""):
         if loc:

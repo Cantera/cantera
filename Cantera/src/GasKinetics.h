@@ -21,7 +21,10 @@
 #include "Kinetics.h"
 
 #include "utilities.h"
-#include "StoichManager.h"
+
+//#include "StoichManager.h"
+
+#include "ReactionStoichMgr.h"
 #include "ThirdBodyMgr.h"
 #include "FalloffMgr.h"
 #include "RateCoeffMgr.h"
@@ -109,34 +112,39 @@ namespace Cantera {
 #ifdef HWMECH
             get_wdot(m_kdata->m_ropnet.begin(), net);
 #else
-            fill(net, net + m_kk, 0.0);
-            m_revProductStoich.incrementSpecies(
-                m_kdata->m_ropnet.begin(), net);
-            m_irrevProductStoich.incrementSpecies(
-                m_kdata->m_ropnet.begin(), net);
-            m_reactantStoich.decrementSpecies(
-                m_kdata->m_ropnet.begin(), net);
+            m_rxnstoich.getNetProductionRates(m_kk, m_kdata->m_ropnet.begin(), net); 
+            //fill(net, net + m_kk, 0.0);
+            //m_revProductStoich.incrementSpecies(
+            //    m_kdata->m_ropnet.begin(), net);
+            //m_irrevProductStoich.incrementSpecies(
+            //    m_kdata->m_ropnet.begin(), net);
+            //m_reactantStoich.decrementSpecies(
+            //    m_kdata->m_ropnet.begin(), net);
 #endif
         }
 
         virtual void getCreationRates(doublereal* cdot) {
             updateROP();
-            fill(cdot, cdot + m_kk, 0.0);
-            m_revProductStoich.incrementSpecies(
-                m_kdata->m_ropf.begin(), cdot);
-            m_irrevProductStoich.incrementSpecies(
-                m_kdata->m_ropf.begin(), cdot);
-            m_reactantStoich.incrementSpecies(
-                m_kdata->m_ropr.begin(), cdot);
+            m_rxnstoich.getCreationRates(m_kk, m_kdata->m_ropf.begin(), 
+                m_kdata->m_ropr.begin(), cdot); 
+            //fill(cdot, cdot + m_kk, 0.0);
+            //m_revProductStoich.incrementSpecies(
+            //    m_kdata->m_ropf.begin(), cdot);
+            //m_irrevProductStoich.incrementSpecies(
+            //    m_kdata->m_ropf.begin(), cdot);
+            //m_reactantStoich.incrementSpecies(
+            //    m_kdata->m_ropr.begin(), cdot);
         }
 
         virtual void getDestructionRates(doublereal* ddot) {
             updateROP();
-            fill(ddot, ddot + m_kk, 0.0);
-            m_revProductStoich.incrementSpecies(
-                m_kdata->m_ropr.begin(), ddot);
-            m_reactantStoich.incrementSpecies(
-                m_kdata->m_ropf.begin(), ddot);
+            m_rxnstoich.getDestructionRates(m_kk, m_kdata->m_ropf.begin(), 
+                m_kdata->m_ropr.begin(), ddot); 
+            //            fill(ddot, ddot + m_kk, 0.0);
+            //m_revProductStoich.incrementSpecies(
+            //    m_kdata->m_ropr.begin(), ddot);
+            //m_reactantStoich.incrementSpecies(
+            //    m_kdata->m_ropf.begin(), ddot);
         }
 
         virtual void getEquilibriumConstants(doublereal* kc);
@@ -204,9 +212,11 @@ namespace Cantera {
         
         vector<int> m_irrev;
 
-        StoichManagerN                      m_reactantStoich;
-        StoichManagerN                      m_revProductStoich;
-        StoichManagerN                      m_irrevProductStoich;
+        //StoichManagerN                      m_reactantStoich;
+        //StoichManagerN                      m_revProductStoich;
+        //StoichManagerN                      m_irrevProductStoich;
+
+        ReactionStoichMgr                   m_rxnstoich;
 
         vector<int>                         m_fwdOrder;
 

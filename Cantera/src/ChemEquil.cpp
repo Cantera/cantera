@@ -316,7 +316,6 @@ namespace Cantera {
         delete m_p2;
         bool tempFixed = true;
         initialize(s);
-
         switch (XY) {
         case TP: case PT:
             m_p1 = new TemperatureCalculator<thermo_t>;
@@ -346,7 +345,6 @@ namespace Cantera {
 
         xval = m_p1->value(s);
         yval = m_p2->value(s);
-
         int mm = m_mm;
         
         int m;
@@ -357,7 +355,6 @@ namespace Cantera {
     
         vector_fp res_trial(nvar);
         vector_fp elementMol(mm, 0.0);
-
         double perturb;
         for (m = 0; m < mm; m++) {
             perturb = Cutoff*(1.0 + rand());

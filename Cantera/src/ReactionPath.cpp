@@ -37,7 +37,7 @@ namespace Cantera {
     }
         
     void SpeciesNode::printPaths() {
-        for (int i = 0; i < m_paths.size(); i++) {
+        for (int i = 0; i < int(m_paths.size()); i++) {
             cout << m_paths[i]->begin()->name << " -->  "
                  << m_paths[i]->end()->name << ":   "
                  << m_paths[i]->flow() << endl;
@@ -789,14 +789,13 @@ namespace Cantera {
 
     string reactionLabel(int i, int kr, int nr, const vector_int& slist, 
         const Kinetics& s) {
-
-        const Kinetics::thermo_t& ph = s.thermo();
-
+        
+        //int np = s.nPhases();
         string label = "";
         int l;
         for (l = 0; l < nr; l++) {
             if (l != kr) 
-                label += " + "+ ph.speciesName(slist[l]);
+                label += " + "+ s.kineticsSpeciesName(slist[l]);
         }
         if (s.reactionType(i) == THREE_BODY_RXN)
             label += " + M "; 
@@ -823,7 +822,7 @@ namespace Cantera {
         r.element = element;
         if (m < 0) return -1;
         
-        int k;
+        //int k;
         int kk = ph.nSpecies();
 
         s.getFwdRatesOfProgress(m_ropf.begin());
@@ -831,11 +830,11 @@ namespace Cantera {
 
         ph.getMoleFractions(m_x.begin());
 
-        doublereal sum = 0.0;
-        for (k = 0; k < kk; k++) {
-            sum += m_x[k] * ph.nAtoms(k,m);
-        }
-        sum *= ph.molarDensity();
+        //doublereal sum = 0.0;
+        //for (k = 0; k < kk; k++) {
+        //    sum += m_x[k] * ph.nAtoms(k,m);
+        //}
+        //sum *= ph.molarDensity();
 
         // species explicitly included or excluded
         vector<string>& in_nodes = r.included();
@@ -846,9 +845,9 @@ namespace Cantera {
         vector_int status;
 	status.resize(kk,0);
         for (int ni = 0; ni < nin; ni++) 
-            status[ph.speciesIndex(in_nodes[ni])] = 1;
+            status[s.kineticsSpeciesIndex(in_nodes[ni])] = 1;
         for (int ne = 0; ne < nout; ne++) 
-            status[ph.speciesIndex(out_nodes[ne])] = -1;
+            status[s.kineticsSpeciesIndex(out_nodes[ne])] = -1;
 
         for (i = 0; i < m_nr; i++) 
         {

@@ -12,6 +12,7 @@ extern "C" {
     int DLL_IMPORT xml_build(int i, const char* file);
     int DLL_IMPORT xml_attrib(int i, const char* key, char* value);
     int DLL_IMPORT xml_addAttrib(int i, const char* key, const char* value);
+    int DLL_IMPORT xml_addComment(int i, const char* comment);
     int DLL_IMPORT xml_value(int i, char* value);
     int DLL_IMPORT xml_tag(int i, char* tag);
     int DLL_IMPORT xml_child(int i, const char* loc);

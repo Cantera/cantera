@@ -141,9 +141,8 @@ namespace Cantera {
          * are the ones with names beginning with an underscore. These
          * are only called by the property updaters.
          */
-
-        void updateTransport_T() {m_thermo->update_T(m_update_transport_T);}
-        void updateTransport_C() {m_thermo->update_C(m_update_transport_C);}
+        void updateTransport_T();
+        void updateTransport_C();
 
         void updateThermal_T();
         void updateViscosity_T();
@@ -167,13 +166,15 @@ namespace Cantera {
 
     private:
 
-        int m_update_transport_T;
-        int m_update_transport_C;
-        int m_update_spvisc_T;
-        int m_update_visc_T;
-        int m_update_diff_T;
-        int m_update_thermal_T;
+//         int m_update_transport_T;
+//         int m_update_transport_C;
+//         int m_update_spvisc_T;
+//         int m_update_visc_T;
+//         int m_update_diff_T;
+//         int m_update_thermal_T;
 
+        doublereal m_diff_tlast, m_spvisc_tlast, m_visc_tlast,
+            m_thermal_tlast;
 
         // mixture attributes
         int m_nsp;

@@ -80,37 +80,70 @@ namespace Cantera {
      * Install a NASA polynomial thermodynamic property
      * parameterization for species k.
      */
-    void installNasaThermo(SpeciesThermo& sp, int k, XML_Node& f) {
-        doublereal tmin, tmid, tmax;
-        tmin = fpValue(f["Tmin"]);
-        tmid = fpValue(f["Tmid"]);
-        tmax = fpValue(f["Tmax"]);
+    void installNasaThermo(SpeciesThermo& sp, int k, XML_Node& f0, XML_Node& f1) {
+        doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
 
-        vector<XML_Node*> fa;
-        f.getChildren("floatArray",fa);
+        tmin0 = fpValue(f0["Tmin"]);
+        tmax0 = fpValue(f0["Tmax"]);
+        tmin1 = fpValue(f1["Tmin"]);
+        tmax1 = fpValue(f1["Tmax"]);
+
         vector_fp c0, c1;
-        getFloatArray(*fa[0], c0, false);
-        getFloatArray(*fa[1], c1, false);
+        if (fabs(tmax0 - tmin1) < 0.01) {
+            tmin = tmin0;
+            tmid = tmax0;
+            tmax = tmax1;
+            getFloatArray(f0.child("floatArray"), c0, false);
+            getFloatArray(f1.child("floatArray"), c1, false);
+        }
+        else if (fabs(tmax1 - tmin0) < 0.01) {
+            tmin = tmin1;
+            tmid = tmax1;
+            tmax = tmax0;
+            getFloatArray(f1.child("floatArray"), c0, false);
+            getFloatArray(f0.child("floatArray"), c1, false);
+        }
+        else {
+            throw CanteraError("installNasaThermo","non-continuous temperature ranges.");
+        }
         array_fp c(15);
         c[0] = tmid;
         doublereal p0 = OneAtm;
-        if ((*fa[0])["title"] == "low") {
-            c[1] = c0[5];
-            c[2] = c0[6];
-            copy(c0.begin(), c0.begin()+5, c.begin() + 3);
-            c[8] = c1[5];
-            c[9] = c1[6];
-            copy(c1.begin(), c1.begin()+5, c.begin() + 10);
-        }
-        else {
-            c[1] = c1[5];
-            c[2] = c1[6];
-            copy(c1.begin(), c1.begin()+5, c.begin() + 3);
-            c[8] = c0[5];
-            c[9] = c0[6];
-            copy(c0.begin(), c0.begin()+5, c.begin() + 10);
-        }
+        c[1] = c0[5];
+        c[2] = c0[6];
+        copy(c0.begin(), c0.begin()+5, c.begin() + 3);
+        c[8] = c1[5];
+        c[9] = c1[6];
+        copy(c1.begin(), c1.begin()+5, c.begin() + 10);
         sp.install(k, NASA, c.begin(), tmin, tmax, p0);
+        
+//         tmax = fpValue(f["Tmax"]);
+
+//         vector<XML_Node*> fa;
+//         f.getChildren("floatArray",fa);
+//         vector_fp c0, c1;
+//         getFloatArray(*fa[0], c0, false);
+//         getFloatArray(*fa[1], c1, false);
+//         array_fp c(15);
+//         c[0] = tmid;
+//         doublereal p0 = OneAtm;
+//         if ((*fa[0])["title"] == "low") {
+//             c[1] = c0[5];
+//             c[2] = c0[6];
+//             copy(c0.begin(), c0.begin()+5, c.begin() + 3);
+//             c[8] = c1[5];
+//             c[9] = c1[6];
+//             copy(c1.begin(), c1.begin()+5, c.begin() + 10);
+//         }
+//         else {
+//             c[1] = c1[5];
+//             c[2] = c1[6];
+//             copy(c1.begin(), c1.begin()+5, c.begin() + 3);
+//             c[8] = c0[5];
+//             c[9] = c0[6];
+//             copy(c0.begin(), c0.begin()+5, c.begin() + 10);
+//         }
+//         sp.install(k, NASA, c.begin(), tmin, tmax, p0);
     }
 
     /** 
@@ -210,10 +243,10 @@ namespace Cantera {
             int nc = tp.size();
             if (nc == 1) {
                 XML_Node& f = *tp[0];
-                if (f.name() == "NASA") {
-                    installNasaThermo(spthermo, k, f);
-                }
-                else if (f.name() == "Shomate") {
+                //if (f.name() == "NASA") {
+                //    installNasaThermo(spthermo, k, f);
+                //}
+                if (f.name() == "Shomate") {
                     installShomateThermo(spthermo, k, f);
                 }
                 else if (f.name() == "const_cp") {
@@ -222,7 +255,14 @@ namespace Cantera {
                 else 
                     throw CanteraError("importCTML",
                         "Unsupported species thermo parameterization"
-                        " for species "+s["name"]);
+                        " for species "+s["name"]+": "+f.name());
+            }
+            else if (nc == 2) {
+                XML_Node& f0 = *tp[0];
+                XML_Node& f1 = *tp[1];
+                if (f0.name() == "NASA" && f1.name() == "NASA") {
+                    installNasaThermo(spthermo, k, f0, f1);
+                }
             }
             else 
                 throw CanteraError("importCTML",
@@ -276,53 +316,43 @@ namespace Cantera {
     }
 
 
-    void getArrhenius(XML_Node& node, int& order, doublereal& A, doublereal& b, 
+    void getArrhenius(XML_Node& node, int& highlow, doublereal& A, doublereal& b, 
         doublereal& E) {
         
-        // get rxn order to do unit conversion for pre-exponential
-        order = intValue(node["order"]);
+        if (node["name"] == "k0") 
+            highlow = 0;
+        else highlow = 1;
         
-        //nodeset_t c = node.children();
+        A = getFloat(node, "A", "-");
+        b = getFloat(node, "b");
+        E = getFloat(node, "E", "-");
+        E /= GasConstant;
+    }                
 
-        vector<string> abe;
-        getStringArray(node, abe);
-        A = fpValue(abe[0]);
-        b = fpValue(abe[1]);
-        E = fpValue(abe[2]);
-
-        string u = (*node.parent())["units"];
-        string eu = (*node.parent())["Eunits"];
-
-        doublereal cmult = 1.0;
-        if (u != "") {
-            if (u == "mol,cm,s") 
-                cmult = 1.0e-6 / CtMoles_per_mole; 
-            else if (u == "molec,cm,s") 
-                cmult = 1.0e-6*Avogadro;
+    void getStick(XML_Node& node, doublereal mw, Kinetics& kin,
+        ReactionData& r, doublereal& A, doublereal& b, doublereal& E) {
+        int nr = r.reactants.size();
+        int k, ns, not_surf = 0;
+        doublereal f = 1.0;
+        for (int n = 0; n < nr; n++) {
+            k = r.reactants[n];
+            ns = r.rstoich[n];
+            const ThermoPhase& p = kin.speciesPhase(k);
+            if (p.eosType() == cSurf) 
+                f /= pow(p.standardConcentration(k),ns);
             else 
-                throw CanteraError("getArrhenius","unknown units for A");
+                not_surf++;
         }
-        A *= pow(cmult, order - 1);
-
-        doublereal gasConstant = 1.0;
-        if (eu != "") {
-            if (eu == "cal/mol") 
-                gasConstant = 1.987;
-            else if (eu == "kcal/mol") 
-                gasConstant = 1.987e-3;
-            else if (eu == "J/mol") 
-                gasConstant = 8.314;
-            else if (eu == "kJ/mol") 
-                gasConstant = 8.314e-3;
-            else if (eu == "K") 
-                gasConstant = 1.0;
-            else if (eu == "eV") 
-                gasConstant = 1.0/11600.0;
-            else 
-                throw CanteraError("getArrhenius",
-                    "unknown units for activation energy: "+eu);
+        if (not_surf != 1) {
+            throw CanteraError("getStick",
+                "reaction probabilities can only be used in "
+                "reactions with exactly 1 bulk species.");
         }
-        E /= gasConstant;
+        doublereal cbar = sqrt(8.0*GasConstant/(Pi*mw));
+        A = 0.25 * getFloat(node, "A", "-") * cbar * f;
+        b = getFloat(node, "b") + 0.5;
+        E = getFloat(node, "E", "-");
+        E /= GasConstant;
     }                
 
 
@@ -384,36 +414,30 @@ namespace Cantera {
         int nc = kf.nChildren();
         const nodeset_t& kf_children = kf.children();
         vector_fp clow(3,0.0), chigh(3,0.0);
-        int nr = nReacMolecules(rdata);
+        //        int nr = nReacMolecules(rdata);
         for (int m = 0; m < nc; m++) {
             node_t& c = *kf_children[m];
             string nm = c.name();
-            int order=0;
+            int highlow=0;
 
             if (nm == "Arrhenius") {
                 vector_fp coeff(3);
-                getArrhenius(c, order, coeff[0], coeff[1], coeff[2]);
-                if (order == 0) order = nr;
-                if (order == nr || rdata.reactionType == THREE_BODY_RXN 
+                getArrhenius(c, highlow, coeff[0], coeff[1], coeff[2]);
+                if (highlow == 1 || rdata.reactionType == THREE_BODY_RXN 
                     || rdata.reactionType == ELEMENTARY_RXN) 
                     chigh = coeff;
-                else if (order == nr + 1) clow = coeff;
-                else {
-                    cerr << "\n\n\n" << endl;
-                    kf.write(cerr);
-                    throw CanteraError("importCTML",
-                        "wrong Arrhenius coeff order");
-                }
+                else clow = coeff;
             }
-//             else if (nm == "Stick") {
-//                 vector_fp coeff(3);
-//                 string spname = c["species"];
-//                 ThermoPhase& th = kin.speciesPhase(spname);
-//                 int isp = th.speciesIndex(spname);
-//                 double mw = th.molecularWeights()[isp];
-//                 cbar = sqrt((8.0*GasConstant)/(Pi*mw));
-            //                
-            //            }
+            else if (nm == "Stick") {
+                vector_fp coeff(3);
+                string spname = c["species"];
+                ThermoPhase& th = kin.speciesPhase(spname);
+                int isp = th.speciesIndex(spname);
+                double mw = th.molecularWeights()[isp];
+                getStick(c, mw, kin, rdata, coeff[0], coeff[1], coeff[2]);
+                chigh = coeff;
+            }
+
             else if (nm == "falloff") {
                 getFalloff(c, rdata);
             }
@@ -540,7 +564,7 @@ namespace Cantera {
 
 
         /*************************************************
-         *  Add the elements.
+         *  AddArrhethe elements.
          ************************************************/
 
 
@@ -578,19 +602,27 @@ namespace Cantera {
          * the species database.
          ***************************************************************/
 
-        XML_Node& species = phase.child("speciesArray");
+        vector<XML_Node*> sparrays;
+        phase.getChildren("speciesArray", sparrays);
+        int jsp, nspa = sparrays.size();
+        vector<XML_Node*> dbases;
+        vector_int sprule(nspa,0);
 
-        int sprule = 0;
-        if (species.hasChild("skip")) {
-            XML_Node& sk = species.child("skip");
-            string eskip = sk["element"];
-            if (eskip == "undeclared") {
-                sprule = 1;
+        for (jsp = 0; jsp < nspa; jsp++) {
+
+            XML_Node& species = *sparrays[jsp]; // phase.child("speciesArray");
+
+            if (species.hasChild("skip")) {
+                XML_Node& sk = species.child("skip");
+                string eskip = sk["element"];
+                if (eskip == "undeclared") {
+                    sprule[jsp] = 1;
+                }
             }
+            db = find_XML(species["datasrc"], &phase.root(), species["idRef"],
+                "","speciesData");
+            dbases.push_back(db);
         }
-            
-        db = find_XML(species["datasrc"], &phase.root(), species["idRef"],
-            "","speciesData");
 
 
         /*******************************************************
@@ -602,42 +634,55 @@ namespace Cantera {
          ******************************************************/
 
         delete &th->speciesThermo();
-        SpeciesThermo* spth = newSpeciesThermoMgr(db);
+        SpeciesThermo* spth = newSpeciesThermoMgr(dbases);
         th->setSpeciesThermo(spth);
         SpeciesThermo& spthermo = th->speciesThermo();
 
-
-        /*
-         * Get the array of species name strings.
-         */                          
-        vector<string> spnames;
-        getStringArray(species, spnames);
-        int nsp = spnames.size();
-
         map<string,bool> declared;
-        string name;
         int k = 0;
-        for (i = 0; i < nsp; i++) {
-            name = spnames[i];
-            
-            // Check that every species is only declared once
-            if (declared[name]) {
-                throw CanteraError("importPhase",
-                    "duplicate species: "+name);
-            }
-            declared[name] = true;
+        for (jsp = 0; jsp < nspa; jsp++) {
+
+            XML_Node& species = *sparrays[jsp]; 
+            db = dbases[jsp];
 
             /*
-             * Find the species in the database by name.
-             */
-            XML_Node* s = db->findByAttr("name",spnames[i]);
-            if (s) {
-                if (installSpecies(k, *s, *th, spthermo, sprule)) 
-                    ++k;
+             * Get the array of species name strings.
+             */                          
+            vector<string> spnames;
+            getStringArray(species, spnames);
+            int nsp = spnames.size();
+
+            if (nsp == 1 && spnames[0] == "all") {
+                vector<XML_Node*> allsp;
+                db->getChildren("species",allsp);
+                nsp = allsp.size();
+                spnames.resize(nsp);
+                for (int nn = 0; nn < nsp; nn++) spnames[nn] = (*allsp[nn])["name"];
             }
-            else {
-                throw CanteraError("importPhase","no data for species "
-                    +name);
+
+            string name;
+            for (i = 0; i < nsp; i++) {
+                name = spnames[i];
+            
+                // Check that every species is only declared once
+                if (declared[name]) {
+                    throw CanteraError("importPhase",
+                        "duplicate species: "+name);
+                }
+                declared[name] = true;
+
+                /*
+                 * Find the species in the database by name.
+                 */
+                XML_Node* s = db->findByAttr("name",spnames[i]);
+                if (s) {
+                    if (installSpecies(k, *s, *th, spthermo, sprule[jsp])) 
+                        ++k;
+                }
+                else {
+                    throw CanteraError("importPhase","no data for species "
+                        +name);
+                }
             }
         }
         th->freezeSpecies();
@@ -661,7 +706,11 @@ namespace Cantera {
         int nn, eqlen;
         vector_fp dummy;
 
-        eqn = r("equation");
+        if (r.hasChild("equation"))
+            eqn = r("equation");
+        else
+            eqn = "<no equation>";
+
         eqlen = eqn.size();
         for (nn = 0; nn < eqlen; nn++) {
             if (eqn[nn] == '[') eqn[nn] = '<';
@@ -677,7 +726,7 @@ namespace Cantera {
         ok = ok && getReagents(r, kin, -1, default_phase, rdata.products, 
             rdata.pstoich, dummy, rule);
         if (!ok) {
-            cout << "skipping " << eqn << endl;
+            //cout << "skipping " << eqn << endl;
             return false;
         }
 
@@ -715,9 +764,6 @@ namespace Cantera {
 
     bool installReactionArrays(XML_Node& p, Kinetics& kin, 
         string default_phase) {
-
-        writer = new GasKineticsWriter;
-
         vector<XML_Node*> rarrays;
         int itot = 0;
         p.getChildren("reactionArray",rarrays);
@@ -736,40 +782,50 @@ namespace Cantera {
                     rxnrule = 1;
                 }
             }
-
+            int i, nrxns = 0;
             vector<XML_Node*> incl;
             rxns.getChildren("include",incl);
             int ninc = incl.size();
-            for (int nii = 0; nii < ninc; nii++) {
-                int nrxns = 0;
-                XML_Node& ii = *incl[nii];
-                vector<string> rxn_ids;
-                string pref = ii["prefix"];
-                int imin = atoi(ii["min"].c_str());
-                int imax = atoi(ii["max"].c_str());
-                if (imin != 0 && imax != 0) {
-                    nrxns = imax - imin + 1;
-                    for (int nn=0; nn<nrxns; nn++) {
-                        rxn_ids.push_back(pref+int2str(imin+nn));
-                    }
-                }
-                
-                int i;
+
+            // if no 'include' directive, then include all reactions
+            if (ninc == 0) {
+                vector<XML_Node*> allrxns;
+                rdata->getChildren("reaction",allrxns);
+                nrxns = allrxns.size();
                 for (i = 0; i < nrxns; i++) {
-                    XML_Node* r = rdata->findID(rxn_ids[i],1);
+                    XML_Node* r = allrxns[i];
                     if (r) {
                         if (installReaction(itot, *r, &kin, 
                                 default_phase, rxnrule)) ++itot;
                     }
                 }
             }
+            else {
+                for (int nii = 0; nii < ninc; nii++) {
+                    nrxns = 0;
+                    XML_Node& ii = *incl[nii];
+                    vector<string> rxn_ids;
+                    string pref = ii["prefix"];
+                    int imin = atoi(ii["min"].c_str());
+                    int imax = atoi(ii["max"].c_str());
+                    if (imin != 0 && imax != 0) {
+                        nrxns = imax - imin + 1;
+                        for (int nn=0; nn<nrxns; nn++) {
+                            rxn_ids.push_back(pref+int2str(imin+nn));
+                        }
+                    }
+                    
+                    for (i = 0; i < nrxns; i++) {
+                        XML_Node* r = rdata->findID(rxn_ids[i],1);
+                        if (r) {
+                            if (installReaction(itot, *r, &kin, 
+                                    default_phase, rxnrule)) ++itot;
+                        }
+                    }
+                }
+            }
         }
         kin.finalize();
-        ofstream fwrite("mech.cpp");
-        //writer->writeGetNetProductionRates(cout, kin.nTotalSpecies(),
-        //    kin.nReactions());
-        fwrite.close();
-        delete writer;
         writer = 0;
         return true;
     }

@@ -40,8 +40,8 @@ namespace Cantera {
 	    m_kk(0),
 	    m_tmin(0.0),
 	    m_tmax(0.0),
-	    m_p0(OneAtm),
 	    m_press(OneAtm),
+	    m_p0(OneAtm),
 	    m_tlast(-1.0)  {}
 
         virtual ~SolidCompound() {}
@@ -71,8 +71,6 @@ namespace Cantera {
          */
         virtual doublereal intEnergy_mole() const {
             _updateThermo();
-            //            cout << "intEnergy: " << m_h0_RT[0] << "  " << m_p0/molarDensity()
-            //      << endl;
             return GasConstant * temperature() * m_h0_RT[0]
                 - m_p0 / molarDensity();
         }
@@ -82,7 +80,6 @@ namespace Cantera {
          */
         virtual doublereal entropy_mole() const {
             _updateThermo();
-            //cout << "s/r = " << m_s0_R[0] << endl;
             return GasConstant * m_s0_R[0];
         }
 
@@ -170,7 +167,7 @@ namespace Cantera {
     protected:
 
         int m_kk;
-        doublereal m_tmin, m_tmax, m_p0, m_press;
+        doublereal m_tmin, m_tmax, m_press, m_p0;
 
         mutable doublereal     m_tlast;
         mutable array_fp      m_h0_RT;

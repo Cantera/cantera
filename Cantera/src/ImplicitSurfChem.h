@@ -93,7 +93,7 @@ namespace Cantera {
 
         SurfPhase* m_surf;
         InterfaceKinetics* m_kin;
-        int m_nsp;
+        int m_nsp, m_surfindex;
         Integrator* m_integ;         // pointer to integrator
         doublereal m_atol, m_rtol;   // tolerances
         doublereal m_maxstep;        // max step size

@@ -13,10 +13,15 @@ else
 end
 
 pr = zeros(31,31);
+xh2 = zeros(31,31);
+visc = zeros(31,31);
+lambda = zeros(31,31);
 t = [];
 xo2 = [];
 io2 = speciesIndex(gas,'O2');
 ih2 = speciesIndex(gas,'H2');
+ih = speciesIndex(gas,'H');
+ih2o = speciesIndex(gas,'H2O');
 
 atm = oneatm;
 t0 = cputime;
@@ -29,9 +34,11 @@ for i = 1:31
       x(ih2) = 1.0 - xo2(j);
       set(gas,'T',t(i),'P',oneatm,'X',x);
       equilibrate(gas,'TP');
-      pr(i,j) = viscosity(gas)*cp_mass(gas)/ ...
-		thermalConductivity(gas);
-      
+      visc(i,j) = viscosity(gas);
+      lambda(i,j) = thermalConductivity(gas);  
+      pr(i,j) = visc(i,j)*cp_mass(gas)/lambda(i,j);
+      x = moleFractions(gas);
+      xh2(i,j) = x(ih2);      
    end
 end
 disp(['CPU time = ' num2str(cputime - t0)]);
@@ -39,8 +46,27 @@ disp(['CPU time = ' num2str(cputime - t0)]);
 % plot results
 
 figure(1);
+subplot(2,2,1);
 surf(xo2,t,pr);
 xlabel('Elemental O/(O+H)');
 ylabel('Temperature (K)');
 zlabel('Prandtl Number');
+
+subplot(2,2,2);
+surf(xo2,t,xh2);
+xlabel('Elemental O/(O+H)');
+ylabel('Temperature (K)');
+zlabel('H_2 Mole Fraction');
+
+subplot(2,2,3);
+surf(xo2,t,visc);
+xlabel('Elemental O/(O+H)');
+ylabel('Temperature (K)');
+zlabel('Viscosity');
+
+subplot(2,2,4);
+surf(xo2,t,lambda);
+xlabel('Elemental O/(O+H)');
+ylabel('Temperature (K)');
+zlabel('Thermal Conductivity');
 

@@ -1,8 +1,8 @@
 <ctml>
   <elementData caseSensitive="no">
 	<element name="H", atomicWt = "1.00794"/>
-	<element name="D", atomicWt = "2.0"/>
-	<element name="Tr", atomicWt = "3.0"/>
+	<element name="D", atomicWt = "2.0147"/>
+	<element name="Tr", atomicWt = "3.016327"/>
 	<element name="He", atomicWt = "4.002602"/>
 	<element name="Li", atomicWt = "6.941"/>
 	<element name="Be", atomicWt = "9.012182"/>

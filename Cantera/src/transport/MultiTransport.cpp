@@ -45,33 +45,33 @@
 namespace Cantera {
 
 
-    template<class S>
-    struct UpdateSpeciesVisc : public Updater {
-        UpdateSpeciesVisc(S& s) : Updater(), m_s(s) {}
-        void update() { m_s._update_species_visc_T(); }
-        S& m_s;
-    };
+//     template<class S>
+//     struct UpdateSpeciesVisc : public Updater {
+//         UpdateSpeciesVisc(S& s) : Updater(), m_s(s) {}
+//         void update() { m_s._update_species_visc_T(); }
+//         S& m_s;
+//     };
 
-    template<class S>
-    struct UpdateVisc_T : public Updater {
-        UpdateVisc_T(S& s) : Updater(), m_s(s) {}
-        void update() { m_s._update_visc_T(); }
-        S& m_s;
-    };
+//     template<class S>
+//     struct UpdateVisc_T : public Updater {
+//         UpdateVisc_T(S& s) : Updater(), m_s(s) {}
+//         void update() { m_s._update_visc_T(); }
+//         S& m_s;
+//     };
 
-    template<class S>
-    struct UpdateDiff_T : public Updater {
-        UpdateDiff_T(S& s) : Updater(), m_s(s) {}
-        void update() { m_s._update_diff_T(); }
-        S& m_s;
-    };
+//     template<class S>
+//     struct UpdateDiff_T : public Updater {
+//         UpdateDiff_T(S& s) : Updater(), m_s(s) {}
+//         void update() { m_s._update_diff_T(); }
+//         S& m_s;
+//     };
 
-    template<class S>
-    struct UpdateThermal_T : public Updater {
-        UpdateThermal_T(S& s) : Updater(), m_s(s) {}
-        void update() { m_s._update_thermal_T(); }
-        S& m_s;
-    };
+//     template<class S>
+//     struct UpdateThermal_T : public Updater {
+//         UpdateThermal_T(S& s) : Updater(), m_s(s) {}
+//         void update() { m_s._update_thermal_T(); }
+//         S& m_s;
+//     };
 
 
     /////////////////////////// constants //////////////////////////
@@ -189,6 +189,11 @@ namespace Cantera {
         m_l0000_ok = false;
         m_lmatrix_soln_ok = false;
 
+        m_diff_tlast = 0.0;
+        m_spvisc_tlast = 0.0;
+        m_visc_tlast = 0.0;
+        m_thermal_tlast = 0.0;
+
         // use LU decomposition by default
         m_gmres = false;
  
@@ -223,19 +228,19 @@ namespace Cantera {
                 m_sqrt_eps_k[k]/sq298);
         }
 
-        // install updaters
-        m_update_transport_T = m_thermo->installUpdater_T(
-            new UpdateTransport_T<MultiTransport>(*this));
-        m_update_transport_C = m_thermo->installUpdater_C(
-            new UpdateTransport_C<MultiTransport>(*this));
-        m_update_spvisc_T = m_thermo->installUpdater_T(
-            new UpdateSpeciesVisc<MultiTransport>(*this));
-        m_update_visc_T = m_thermo->installUpdater_T(
-            new UpdateVisc_T<MultiTransport>(*this));
-        m_update_diff_T = m_thermo->installUpdater_T(
-            new UpdateDiff_T<MultiTransport>(*this));
-        m_update_thermal_T = m_thermo->installUpdater_T(
-            new UpdateThermal_T<MultiTransport>(*this));
+//         // install updaters
+//         m_update_transport_T = m_thermo->installUpdater_T(
+//             new UpdateTransport_T<MultiTransport>(*this));
+//         m_update_transport_C = m_thermo->installUpdater_C(
+//             new UpdateTransport_C<MultiTransport>(*this));
+//         m_update_spvisc_T = m_thermo->installUpdater_T(
+//             new UpdateSpeciesVisc<MultiTransport>(*this));
+//         m_update_visc_T = m_thermo->installUpdater_T(
+//             new UpdateVisc_T<MultiTransport>(*this));
+//         m_update_diff_T = m_thermo->installUpdater_T(
+//             new UpdateDiff_T<MultiTransport>(*this));
+//         m_update_thermal_T = m_thermo->installUpdater_T(
+//             new UpdateThermal_T<MultiTransport>(*this));
 
         return true;
     }
@@ -551,14 +556,25 @@ namespace Cantera {
         }
     }
 
-                 
+              
+    void MultiTransport::updateTransport_T() {
+        //m_thermo->update_T(m_update_transport_T);
+        _update_transport_T();
+    }
+
+    void MultiTransport::updateTransport_C() {
+        // {m_thermo->update_C(m_update_transport_C);
+        _update_transport_C();
+    }
+
+   
     /**
      *  Update temperature-dependent quantities. This method is called
      *  by the temperature property updater.
      */ 
     void MultiTransport::_update_transport_T() 
     {
-        //if (m_temp == m_thermo->temperature()) return;
+        if (m_temp == m_thermo->temperature()) return;
 
         m_temp = m_thermo->temperature();
         m_logt = log(m_temp);
@@ -620,7 +636,10 @@ namespace Cantera {
      * from the polynomial fits at unit pressure (1 Pa).
      */
     void MultiTransport::updateDiff_T() {
-        m_thermo->update_T(m_update_diff_T);
+        if (m_diff_tlast == m_thermo->temperature()) return;
+        _update_diff_T();
+        m_diff_tlast = m_thermo->temperature();
+        //m_thermo->update_T(m_update_diff_T);
     }
 
     void MultiTransport::_update_diff_T() {
@@ -661,7 +680,10 @@ namespace Cantera {
      * The flag m_visc_ok is set to true.
      */
     void MultiTransport::updateSpeciesViscosities_T() {
-        m_thermo->update_T(m_update_spvisc_T);
+        if (m_spvisc_tlast == m_thermo->temperature()) return;
+        _update_species_visc_T();
+        //m_thermo->update_T(m_update_spvisc_T);
+        m_spvisc_tlast = m_thermo->temperature();
     }
 
 
@@ -687,7 +709,10 @@ namespace Cantera {
      * @internal
      */
     void MultiTransport::updateViscosity_T() {
-        m_thermo->update_T(m_update_visc_T);
+        if (m_visc_tlast == m_thermo->temperature()) return;
+        _update_visc_T(); 
+        //m_thermo->update_T(m_update_visc_T);
+        m_visc_tlast = m_thermo->temperature();
     }
 
     void MultiTransport::_update_visc_T() {
@@ -718,10 +743,14 @@ namespace Cantera {
      * thermal conductivity and thermal diffusion coefficients.
      */
     void MultiTransport::updateThermal_T() {
-        m_thermo->update_T(m_update_thermal_T);
+        if (m_thermal_tlast == m_thermo->temperature()) return;
+        _update_thermal_T(); 
+        // m_thermo->update_T(m_update_thermal_T);
+        m_thermal_tlast = m_thermo->temperature();
     }
 
     void MultiTransport::_update_thermal_T() {
+
         // we need species viscosities and binary diffusion
         // coefficients
         updateSpeciesViscosities_T();

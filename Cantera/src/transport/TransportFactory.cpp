@@ -691,12 +691,19 @@ namespace Cantera {
             getString(tr, "geometry", val, type);
             geom = gindx[val] - 100;
             map<string, doublereal> fv;
-            getFloats(tr, fv, false);
-            welldepth = fv["LJ_welldepth"];
-            diam = fv["LJ_diameter"];
-            dipole = fv["dipoleMoment"];
-            polar = fv["polarizability"];
-            rot = fv["rotRelax"];
+
+            welldepth = getFloat(tr, "LJ_welldepth");
+            diam = getFloat(tr, "LJ_diameter");
+            dipole = getFloat(tr, "dipoleMoment");
+            polar = getFloat(tr, "polarizability");
+            rot = getFloat(tr, "rotRelax");
+
+            //getFloats(tr, fv, false);
+            //welldepth = fv["LJ_welldepth"];
+            //diam = fv["LJ_diameter"];
+            //dipole = fv["dipoleMoment"];
+            //polar = fv["polarizability"];
+            //rot = fv["rotRelax"];
 
             TransportData data;
             data.speciesName = name;

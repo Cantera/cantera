@@ -45,6 +45,7 @@ namespace Cantera {
          */ 
         virtual SpeciesThermo* newSpeciesThermo(int type);
         virtual SpeciesThermo* newSpeciesThermo(XML_Node* node);
+        virtual SpeciesThermo* newSpeciesThermo(vector<XML_Node*> nodes);
 
     private:
         static SpeciesThermoFactory* __factory;
@@ -73,6 +74,15 @@ namespace Cantera {
             f = SpeciesThermoFactory::factory();
         }
         SpeciesThermo* sptherm = f->newSpeciesThermo(node);
+        return sptherm;
+    }
+
+    inline SpeciesThermo* newSpeciesThermoMgr(vector<XML_Node*> nodes, 
+        SpeciesThermoFactory* f=0) {
+        if (f == 0) {
+            f = SpeciesThermoFactory::factory();
+        }
+        SpeciesThermo* sptherm = f->newSpeciesThermo(nodes);
         return sptherm;
     }
 

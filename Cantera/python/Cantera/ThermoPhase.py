@@ -237,6 +237,9 @@ class ThermoPhase(Phase):
         energy and the pressure."""        
         _cantera.thermo_setfp(self._phase_id, 5, s, p)        
 
+    def setElectricPotential(self, v):
+        _cantera.thermo_setfp(self._phase_id, 6, v, 0);
+        
     def equilibrate(self, XY):
         """Set to a state of chemical equilibrium holding property pair
         'XY' constant. The pair is specified by a two-letter string,

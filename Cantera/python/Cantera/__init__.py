@@ -7,6 +7,8 @@ from constants import *
 from gases import *
 from exceptions import *
 from set import set
+from importFromFile import *
+
 #from _version import __createdate__
 
 try:

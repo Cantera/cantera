@@ -1,296 +1,406 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="ctml.xslt"?>
-<ctml xmlns="http://www.cantera.org"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cantera.org  /Users/dgg/ctml.xsd">
-      <!-- generated from air.inp by ck2ctml. -->
-      <!-- transport data from ../transport/gri30_tran.dat. -->
-      <phase id="air">
-            <state>
-                  <temperature units="K">300</temperature>
-                  <pressure units="atm">1</pressure>
-                  <moleFractions>O:1.0</moleFractions>
-            </state>
-            <thermo model="IdealGas"/>
-            <elementArray datasrc="elements.xml"> O N Ar </elementArray>
-            <speciesArray datasrc="#air_species_data"> O O2 N NO NO2 N2O N2 AR </speciesArray>
-            <reactionArray datasrc="#air_rxn_data">
-                  <include max="8" min="1" prefix="air_rxn_"/>
-            </reactionArray>
-            <kinetics model="GasKinetics"/>
-      </phase>
-      <!-- species data -->
-      <speciesData id="air_species_data">
-            <!-- O -->
-            <species id="air_s_O" name="O">
-                  <note>L 1/90</note>
-                  <atomArray> O:1 </atomArray>
-                  <thermo>
-                        <NASA Tmax="3500" Tmid="1000" Tmin="200">
-                              <floatArray size="7" title="low"> 3.168267100E+00,
-                                    -3.279318840E-03, 6.643063960E-06,
-                                    -6.128066240E-09, 2.112659710E-12,
-                                    2.912225920E+04, 2.051933460E+00 </floatArray>
-                              <floatArray size="7" title="high">
-                                    2.569420780E+00, -8.597411370E-05,
-                                    4.194845890E-08, -1.001777990E-11,
-                                    1.228336910E-15, 2.921757910E+04,
-                                    4.784338640E+00 </floatArray>
-                        </NASA>
-                  </thermo>
-                  <transport>
-                        <string title="geometry">atom</string>
-                        <float title="LJ_welldepth" units="Kelvin">8.000000000E+01</float>
-                        <float title="LJ_diameter" units="A">2.750000000E+00</float>
-                  </transport>
-            </species>
-            <!-- O2 -->
-            <species id="air_s_O2" name="O2">
-                  <note>TPIS89</note>
-                  <atomArray> O:2 </atomArray>
-                  <thermo>
-                        <NASA Tmax="3500" Tmid="1000" Tmin="200">
-                              <floatArray size="7" title="low"> 3.782456360E+00,
-                                    -2.996734160E-03, 9.847302010E-06,
-                                    -9.681295090E-09, 3.243728370E-12,
-                                    -1.063943560E+03, 3.657675730E+00 </floatArray>
-                              <floatArray size="7" title="high">
-                                    3.282537840E+00, 1.483087540E-03,
-                                    -7.579666690E-07, 2.094705550E-10,
-                                    -2.167177940E-14, -1.088457720E+03,
-                                    5.453231290E+00 </floatArray>
-                        </NASA>
-                  </thermo>
-                  <transport>
-                        <string title="geometry">linear</string>
-                        <float title="LJ_welldepth" units="Kelvin">1.074000000E+02</float>
-                        <float title="LJ_diameter" units="A">3.458000000E+00</float>
-                        <float title="polarizability" units="A^3">1.600000000E+00</float>
-                        <float title="rotRelax">3.800000000E+00</float>
-                  </transport>
-            </species>
-            <!-- N -->
-            <species id="air_s_N" name="N">
-                  <note>L 6/88</note>
-                  <atomArray> N:1 </atomArray>
-                  <thermo>
-                        <NASA Tmax="6000" Tmid="1000" Tmin="200">
-                              <floatArray size="7" title="low"> 2.500000000E+00,
-                                    0.000000000E+00, 0.000000000E+00,
-                                    0.000000000E+00, 0.000000000E+00,
-                                    5.610463700E+04, 4.193908700E+00 </floatArray>
-                              <floatArray size="7" title="high">
-                                    2.415942900E+00, 1.748906500E-04,
-                                    -1.190236900E-07, 3.022624500E-11,
-                                    -2.036098200E-15, 5.613377300E+04,
-                                    4.649609600E+00 </floatArray>
-                        </NASA>
-                  </thermo>
-                  <transport>
-                        <string title="geometry">atom</string>
-                        <float title="LJ_welldepth" units="Kelvin">7.140000000E+01</float>
-                        <float title="LJ_diameter" units="A">3.298000000E+00</float>
-                  </transport>
-            </species>
-            <!-- NO -->
-            <species id="air_s_NO" name="NO">
-                  <note>RUS 78</note>
-                  <atomArray> N:1 O:1 </atomArray>
-                  <thermo>
-                        <NASA Tmax="6000" Tmid="1000" Tmin="200">
-                              <floatArray size="7" title="low"> 4.218476300E+00,
-                                    -4.638976000E-03, 1.104102200E-05,
-                                    -9.336135400E-09, 2.803577000E-12,
-                                    9.844623000E+03, 2.280846400E+00 </floatArray>
-                              <floatArray size="7" title="high">
-                                    3.260605600E+00, 1.191104300E-03,
-                                    -4.291704800E-07, 6.945766900E-11,
-                                    -4.033609900E-15, 9.920974600E+03,
-                                    6.369302700E+00 </floatArray>
-                        </NASA>
-                  </thermo>
-                  <transport>
-                        <string title="geometry">linear</string>
-                        <float title="LJ_welldepth" units="Kelvin">9.753000000E+01</float>
-                        <float title="LJ_diameter" units="A">3.621000000E+00</float>
-                        <float title="polarizability" units="A^3">1.760000000E+00</float>
-                        <float title="rotRelax">4.000000000E+00</float>
-                  </transport>
-            </species>
-            <!-- NO2 -->
-            <species id="air_s_NO2" name="NO2">
-                  <note>L 7/88</note>
-                  <atomArray> N:1 O:2 </atomArray>
-                  <thermo>
-                        <NASA Tmax="6000" Tmid="1000" Tmin="200">
-                              <floatArray size="7" title="low"> 3.944031200E+00,
-                                    -1.585429000E-03, 1.665781200E-05,
-                                    -2.047542600E-08, 7.835056400E-12,
-                                    2.896617900E+03, 6.311991700E+00 </floatArray>
-                              <floatArray size="7" title="high">
-                                    4.884754200E+00, 2.172395600E-03,
-                                    -8.280690600E-07, 1.574751000E-10,
-                                    -1.051089500E-14, 2.316498300E+03,
-                                    -1.174169500E-01 </floatArray>
-                        </NASA>
-                  </thermo>
-                  <transport>
-                        <string title="geometry">nonlinear</string>
-                        <float title="LJ_welldepth" units="Kelvin">2.000000000E+02</float>
-                        <float title="LJ_diameter" units="A">3.500000000E+00</float>
-                        <float title="rotRelax">1.000000000E+00</float>
-                  </transport>
-            </species>
-            <!-- N2O -->
-            <species id="air_s_N2O" name="N2O">
-                  <note>L 7/88</note>
-                  <atomArray> N:2 O:1 </atomArray>
-                  <thermo>
-                        <NASA Tmax="6000" Tmid="1000" Tmin="200">
-                              <floatArray size="7" title="low"> 2.257150200E+00,
-                                    1.130472800E-02, -1.367131900E-05,
-                                    9.681980600E-09, -2.930718200E-12,
-                                    8.741774400E+03, 1.075799200E+01 </floatArray>
-                              <floatArray size="7" title="high">
-                                    4.823072900E+00, 2.627025100E-03,
-                                    -9.585087400E-07, 1.600071200E-10,
-                                    -9.775230300E-15, 8.073404800E+03,
-                                    -2.201720700E+00 </floatArray>
-                        </NASA>
-                  </thermo>
-                  <transport>
-                        <string title="geometry">linear</string>
-                        <float title="LJ_welldepth" units="Kelvin">2.324000000E+02</float>
-                        <float title="LJ_diameter" units="A">3.828000000E+00</float>
-                        <float title="rotRelax">1.000000000E+00</float>
-                  </transport>
-            </species>
-            <!-- N2 -->
-            <species id="air_s_N2" name="N2">
-                  <note>121286</note>
-                  <atomArray> N:2 </atomArray>
-                  <thermo>
-                        <NASA Tmax="5000" Tmid="1000" Tmin="300">
-                              <floatArray size="7" title="low"> 3.298677000E+00,
-                                    1.408240400E-03, -3.963222000E-06,
-                                    5.641515000E-09, -2.444854000E-12,
-                                    -1.020899900E+03, 3.950372000E+00 </floatArray>
-                              <floatArray size="7" title="high">
-                                    2.926640000E+00, 1.487976800E-03,
-                                    -5.684760000E-07, 1.009703800E-10,
-                                    -6.753351000E-15, -9.227977000E+02,
-                                    5.980528000E+00 </floatArray>
-                        </NASA>
-                  </thermo>
-                  <transport>
-                        <string title="geometry">linear</string>
-                        <float title="LJ_welldepth" units="Kelvin">9.753000000E+01</float>
-                        <float title="LJ_diameter" units="A">3.621000000E+00</float>
-                        <float title="polarizability" units="A^3">1.760000000E+00</float>
-                        <float title="rotRelax">4.000000000E+00</float>
-                  </transport>
-            </species>
-            <!-- AR -->
-            <species id="air_s_AR" name="AR">
-                  <note>120186</note>
-                  <atomArray> Ar:1 </atomArray>
-                  <thermo>
-                        <NASA Tmax="5000" Tmid="1000" Tmin="300">
-                              <floatArray size="7" title="low"> 2.500000000E+00,
-                                    0.000000000E+00, 0.000000000E+00,
-                                    0.000000000E+00, 0.000000000E+00,
-                                    -7.453750000E+02, 4.366000000E+00 </floatArray>
-                              <floatArray size="7" title="high">
-                                    2.500000000E+00, 0.000000000E+00,
-                                    0.000000000E+00, 0.000000000E+00,
-                                    0.000000000E+00, -7.453750000E+02,
-                                    4.366000000E+00 </floatArray>
-                        </NASA>
-                  </thermo>
-                  <transport>
-                        <string title="geometry">atom</string>
-                        <float title="LJ_welldepth" units="Kelvin">1.365000000E+02</float>
-                        <float title="LJ_diameter" units="A">3.330000000E+00</float>
-                  </transport>
-            </species>
-      </speciesData>
-      <!-- reaction data -->
-      <reactionData id="air_rxn_data">
-            <!-- air reaction 1 -->
-            <reaction id="air_rxn_1" reversible="yes" type="threeBody">
-                  <equation>2 O + M [=] O2 + M</equation>
-                  <reactants> O:2 </reactants>
-                  <products> O2:1 </products>
-                  <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-                        <Arrhenius order="3">1.2e+17 -1 0</Arrhenius>
-                        <efficiencies default="1"> AR:0.83 </efficiencies>
-                  </rateCoeff>
-            </reaction>
-            <!-- air reaction 2 -->
-            <reaction id="air_rxn_2" reversible="yes">
-                  <equation>N + NO [=] N2 + O</equation>
-                  <reactants> N:1 NO:1 </reactants>
-                  <products> N2:1 O:1 </products>
-                  <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-                        <Arrhenius order="2">2.7e+13 0 355</Arrhenius>
-                  </rateCoeff>
-            </reaction>
-            <!-- air reaction 3 -->
-            <reaction id="air_rxn_3" reversible="yes">
-                  <equation>N + O2 [=] NO + O</equation>
-                  <reactants> N:1 O2:1 </reactants>
-                  <products> NO:1 O:1 </products>
-                  <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-                        <Arrhenius order="2">9e+09 1 6500</Arrhenius>
-                  </rateCoeff>
-            </reaction>
-            <!-- air reaction 4 -->
-            <reaction id="air_rxn_4" reversible="yes">
-                  <equation>N2O + O [=] N2 + O2</equation>
-                  <reactants> N2O:1 O:1 </reactants>
-                  <products> N2:1 O2:1 </products>
-                  <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-                        <Arrhenius order="2">1.4e+12 0 10810</Arrhenius>
-                  </rateCoeff>
-            </reaction>
-            <!-- air reaction 5 -->
-            <reaction id="air_rxn_5" reversible="yes">
-                  <equation>N2O + O [=] 2 NO</equation>
-                  <reactants> N2O:1 O:1 </reactants>
-                  <products> NO:2 </products>
-                  <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-                        <Arrhenius order="2">2.9e+13 0 23150</Arrhenius>
-                  </rateCoeff>
-            </reaction>
-            <!-- air reaction 6 -->
-            <reaction id="air_rxn_6" reversible="yes" type="falloff">
-                  <equation>N2O (+ M) [=] N2 + O (+ M)</equation>
-                  <reactants> N2O:1 </reactants>
-                  <products> N2:1 O:1 </products>
-                  <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-                        <Arrhenius order="1">7.91e+10 0 56020</Arrhenius>
-                        <Arrhenius order="2">6.37e+14 0 56640</Arrhenius>
-                        <falloff type="Lindemann"/>
-                        <efficiencies default="1"> AR:0.625 </efficiencies>
-                  </rateCoeff>
-            </reaction>
-            <!-- air reaction 7 -->
-            <reaction id="air_rxn_7" reversible="yes" type="threeBody">
-                  <equation>NO + O + M [=] NO2 + M</equation>
-                  <reactants> NO:1 O:1 </reactants>
-                  <products> NO2:1 </products>
-                  <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-                        <Arrhenius order="3">1.06e+20 -1.41 0</Arrhenius>
-                        <efficiencies default="1"> AR:0.7 </efficiencies>
-                  </rateCoeff>
-            </reaction>
-            <!-- air reaction 8 -->
-            <reaction id="air_rxn_8" reversible="yes">
-                  <equation>NO2 + O [=] NO + O2</equation>
-                  <reactants> NO2:1 O:1 </reactants>
-                  <products> NO:1 O2:1 </products>
-                  <rateCoeff Eunits="cal/mol" units="mol,cm,s">
-                        <Arrhenius order="2">3.9e+12 0 -240</Arrhenius>
-                  </rateCoeff>
-            </reaction>
-      </reactionData>
+<?xml version="1.0"?>
+<ctml>
+
+  <!-- generated from air.inp by ck2ctml. -->
+
+  <!-- transport data from ../transport/gri30_tran.dat. -->
+  <phase id="air">
+    <state>
+      <temperature units="K">300</temperature>
+      <pressure units="atm">1</pressure>
+      <moleFractions>O:1.0</moleFractions>
+    </state>
+    <thermo model="IdealGas"/>
+    <elementArray datasrc="elements.xml"> O  N  Ar </elementArray>
+    <speciesArray datasrc="#air_species_data">
+     O  O2  N  NO  NO2  N2O  N2  AR 
+    </speciesArray>
+    <reactionArray datasrc="#air_rxn_data">
+      <include max="8" min="1" prefix="air_rxn_"/>
+    </reactionArray>
+    <kinetics model="GasKinetics"/>
+  </phase>
+
+  <!-- species data -->
+  <speciesData id="air_species_data">
+
+    <!-- O -->
+    <species id="air_s_O" name="O">
+      <note>L 1/90</note>
+      <atomArray> O:1 </atomArray>
+      <charge>0.000000000E+00</charge>
+      <thermo>
+        <NASA Tmax="1000" Tmin="200">
+          <floatArray size="7" title="coeffs">
+            3.168267100E+00,  -3.279318840E-03,   6.643063960E-06,
+           -6.128066240E-09,   2.112659710E-12,   2.912225920E+04,
+            2.051933460E+00
+          </floatArray>
+        </NASA>
+        <NASA Tmax="3500" Tmin="1000">
+          <floatArray size="7" title="coeffs">
+            2.569420780E+00,  -8.597411370E-05,   4.194845890E-08,
+           -1.001777990E-11,   1.228336910E-15,   2.921757910E+04,
+            4.784338640E+00
+          </floatArray>
+        </NASA>
+      </thermo>
+      <transport>
+        <string title="geometry">atom</string>
+        <LJ_welldepth units="Kelvin">8.000000000E+01</LJ_welldepth>
+        <LJ_diameter units="A">2.750000000E+00</LJ_diameter>
+        <dipoleMoment units="Debye">0.000000000E+00</dipoleMoment>
+        <polarizability units="A^3">0.000000000E+00</polarizability>
+        <rotRelax>0.000000000E+00</rotRelax>
+      </transport>
+    </species>
+
+    <!-- O2 -->
+    <species id="air_s_O2" name="O2">
+      <note>TPIS89</note>
+      <atomArray> O:2 </atomArray>
+      <charge>0.000000000E+00</charge>
+      <thermo>
+        <NASA Tmax="1000" Tmin="200">
+          <floatArray size="7" title="coeffs">
+            3.782456360E+00,  -2.996734160E-03,   9.847302010E-06,
+           -9.681295090E-09,   3.243728370E-12,  -1.063943560E+03,
+            3.657675730E+00
+          </floatArray>
+        </NASA>
+        <NASA Tmax="3500" Tmin="1000">
+          <floatArray size="7" title="coeffs">
+            3.282537840E+00,   1.483087540E-03,  -7.579666690E-07,
+            2.094705550E-10,  -2.167177940E-14,  -1.088457720E+03,
+            5.453231290E+00
+          </floatArray>
+        </NASA>
+      </thermo>
+      <transport>
+        <string title="geometry">linear</string>
+        <LJ_welldepth units="Kelvin">1.074000000E+02</LJ_welldepth>
+        <LJ_diameter units="A">3.458000000E+00</LJ_diameter>
+        <dipoleMoment units="Debye">0.000000000E+00</dipoleMoment>
+        <polarizability units="A^3">1.600000000E+00</polarizability>
+        <rotRelax>3.800000000E+00</rotRelax>
+      </transport>
+    </species>
+
+    <!-- N -->
+    <species id="air_s_N" name="N">
+      <note>L 6/88</note>
+      <atomArray> N:1 </atomArray>
+      <charge>0.000000000E+00</charge>
+      <thermo>
+        <NASA Tmax="1000" Tmin="200">
+          <floatArray size="7" title="coeffs">
+            2.500000000E+00,   0.000000000E+00,   0.000000000E+00,
+            0.000000000E+00,   0.000000000E+00,   5.610463700E+04,
+            4.193908700E+00
+          </floatArray>
+        </NASA>
+        <NASA Tmax="6000" Tmin="1000">
+          <floatArray size="7" title="coeffs">
+            2.415942900E+00,   1.748906500E-04,  -1.190236900E-07,
+            3.022624500E-11,  -2.036098200E-15,   5.613377300E+04,
+            4.649609600E+00
+          </floatArray>
+        </NASA>
+      </thermo>
+      <transport>
+        <string title="geometry">atom</string>
+        <LJ_welldepth units="Kelvin">7.140000000E+01</LJ_welldepth>
+        <LJ_diameter units="A">3.298000000E+00</LJ_diameter>
+        <dipoleMoment units="Debye">0.000000000E+00</dipoleMoment>
+        <polarizability units="A^3">0.000000000E+00</polarizability>
+        <rotRelax>0.000000000E+00</rotRelax>
+      </transport>
+    </species>
+
+    <!-- NO -->
+    <species id="air_s_NO" name="NO">
+      <note>RUS 78</note>
+      <atomArray> N:1  O:1 </atomArray>
+      <charge>0.000000000E+00</charge>
+      <thermo>
+        <NASA Tmax="1000" Tmin="200">
+          <floatArray size="7" title="coeffs">
+            4.218476300E+00,  -4.638976000E-03,   1.104102200E-05,
+           -9.336135400E-09,   2.803577000E-12,   9.844623000E+03,
+            2.280846400E+00
+          </floatArray>
+        </NASA>
+        <NASA Tmax="6000" Tmin="1000">
+          <floatArray size="7" title="coeffs">
+            3.260605600E+00,   1.191104300E-03,  -4.291704800E-07,
+            6.945766900E-11,  -4.033609900E-15,   9.920974600E+03,
+            6.369302700E+00
+          </floatArray>
+        </NASA>
+      </thermo>
+      <transport>
+        <string title="geometry">linear</string>
+        <LJ_welldepth units="Kelvin">9.753000000E+01</LJ_welldepth>
+        <LJ_diameter units="A">3.621000000E+00</LJ_diameter>
+        <dipoleMoment units="Debye">0.000000000E+00</dipoleMoment>
+        <polarizability units="A^3">1.760000000E+00</polarizability>
+        <rotRelax>4.000000000E+00</rotRelax>
+      </transport>
+    </species>
+
+    <!-- NO2 -->
+    <species id="air_s_NO2" name="NO2">
+      <note>L 7/88</note>
+      <atomArray> N:1  O:2 </atomArray>
+      <charge>0.000000000E+00</charge>
+      <thermo>
+        <NASA Tmax="1000" Tmin="200">
+          <floatArray size="7" title="coeffs">
+            3.944031200E+00,  -1.585429000E-03,   1.665781200E-05,
+           -2.047542600E-08,   7.835056400E-12,   2.896617900E+03,
+            6.311991700E+00
+          </floatArray>
+        </NASA>
+        <NASA Tmax="6000" Tmin="1000">
+          <floatArray size="7" title="coeffs">
+            4.884754200E+00,   2.172395600E-03,  -8.280690600E-07,
+            1.574751000E-10,  -1.051089500E-14,   2.316498300E+03,
+           -1.174169500E-01
+          </floatArray>
+        </NASA>
+      </thermo>
+      <transport>
+        <string title="geometry">nonlinear</string>
+        <LJ_welldepth units="Kelvin">2.000000000E+02</LJ_welldepth>
+        <LJ_diameter units="A">3.500000000E+00</LJ_diameter>
+        <dipoleMoment units="Debye">0.000000000E+00</dipoleMoment>
+        <polarizability units="A^3">0.000000000E+00</polarizability>
+        <rotRelax>1.000000000E+00</rotRelax>
+      </transport>
+    </species>
+
+    <!-- N2O -->
+    <species id="air_s_N2O" name="N2O">
+      <note>L 7/88</note>
+      <atomArray> N:2  O:1 </atomArray>
+      <charge>0.000000000E+00</charge>
+      <thermo>
+        <NASA Tmax="1000" Tmin="200">
+          <floatArray size="7" title="coeffs">
+            2.257150200E+00,   1.130472800E-02,  -1.367131900E-05,
+            9.681980600E-09,  -2.930718200E-12,   8.741774400E+03,
+            1.075799200E+01
+          </floatArray>
+        </NASA>
+        <NASA Tmax="6000" Tmin="1000">
+          <floatArray size="7" title="coeffs">
+            4.823072900E+00,   2.627025100E-03,  -9.585087400E-07,
+            1.600071200E-10,  -9.775230300E-15,   8.073404800E+03,
+           -2.201720700E+00
+          </floatArray>
+        </NASA>
+      </thermo>
+      <transport>
+        <string title="geometry">linear</string>
+        <LJ_welldepth units="Kelvin">2.324000000E+02</LJ_welldepth>
+        <LJ_diameter units="A">3.828000000E+00</LJ_diameter>
+        <dipoleMoment units="Debye">0.000000000E+00</dipoleMoment>
+        <polarizability units="A^3">0.000000000E+00</polarizability>
+        <rotRelax>1.000000000E+00</rotRelax>
+      </transport>
+    </species>
+
+    <!-- N2 -->
+    <species id="air_s_N2" name="N2">
+      <note>121286</note>
+      <atomArray> N:2 </atomArray>
+      <charge>0.000000000E+00</charge>
+      <thermo>
+        <NASA Tmax="1000" Tmin="300">
+          <floatArray size="7" title="coeffs">
+            3.298677000E+00,   1.408240400E-03,  -3.963222000E-06,
+            5.641515000E-09,  -2.444854000E-12,  -1.020899900E+03,
+            3.950372000E+00
+          </floatArray>
+        </NASA>
+        <NASA Tmax="5000" Tmin="1000">
+          <floatArray size="7" title="coeffs">
+            2.926640000E+00,   1.487976800E-03,  -5.684760000E-07,
+            1.009703800E-10,  -6.753351000E-15,  -9.227977000E+02,
+            5.980528000E+00
+          </floatArray>
+        </NASA>
+      </thermo>
+      <transport>
+        <string title="geometry">linear</string>
+        <LJ_welldepth units="Kelvin">9.753000000E+01</LJ_welldepth>
+        <LJ_diameter units="A">3.621000000E+00</LJ_diameter>
+        <dipoleMoment units="Debye">0.000000000E+00</dipoleMoment>
+        <polarizability units="A^3">1.760000000E+00</polarizability>
+        <rotRelax>4.000000000E+00</rotRelax>
+      </transport>
+    </species>
+
+    <!-- AR -->
+    <species id="air_s_AR" name="AR">
+      <note>120186</note>
+      <atomArray> Ar:1 </atomArray>
+      <charge>0.000000000E+00</charge>
+      <thermo>
+        <NASA Tmax="1000" Tmin="300">
+          <floatArray size="7" title="coeffs">
+            2.500000000E+00,   0.000000000E+00,   0.000000000E+00,
+            0.000000000E+00,   0.000000000E+00,  -7.453750000E+02,
+            4.366000000E+00
+          </floatArray>
+        </NASA>
+        <NASA Tmax="5000" Tmin="1000">
+          <floatArray size="7" title="coeffs">
+            2.500000000E+00,   0.000000000E+00,   0.000000000E+00,
+            0.000000000E+00,   0.000000000E+00,  -7.453750000E+02,
+            4.366000000E+00
+          </floatArray>
+        </NASA>
+      </thermo>
+      <transport>
+        <string title="geometry">atom</string>
+        <LJ_welldepth units="Kelvin">1.365000000E+02</LJ_welldepth>
+        <LJ_diameter units="A">3.330000000E+00</LJ_diameter>
+        <dipoleMoment units="Debye">0.000000000E+00</dipoleMoment>
+        <polarizability units="A^3">0.000000000E+00</polarizability>
+        <rotRelax>0.000000000E+00</rotRelax>
+      </transport>
+    </species>
+  </speciesData>
+
+  <!-- reaction data -->
+  <reactionData id="air_rxn_data">
+
+    <!-- air reaction 1 -->
+    <reaction id="air_rxn_1" reversible="yes" type="threeBody">
+      <equation>2 O + M [=] O2 + M</equation>
+      <reactants> O:2 </reactants>
+      <products> O2:1 </products>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm6/mol2/s">1.200000000E+17</A>
+          <b>-1.000000000E+00</b>
+          <E units="cal/mol">0.000000000E+00</E>
+        </Arrhenius>
+        <efficiencies default="1">
+         AR:0.83 
+        </efficiencies>
+      </rateCoeff>
+    </reaction>
+
+    <!-- air reaction 2 -->
+    <reaction id="air_rxn_2" reversible="yes">
+      <equation>N + NO [=] N2 + O</equation>
+      <reactants> N:1  NO:1 </reactants>
+      <products> N2:1  O:1 </products>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">2.700000000E+13</A>
+          <b>0.000000000E+00</b>
+          <E units="cal/mol">3.550000000E+02</E>
+        </Arrhenius>
+      </rateCoeff>
+    </reaction>
+
+    <!-- air reaction 3 -->
+    <reaction id="air_rxn_3" reversible="yes">
+      <equation>N + O2 [=] NO + O</equation>
+      <reactants> N:1  O2:1 </reactants>
+      <products> NO:1  O:1 </products>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">9.000000000E+09</A>
+          <b>1.000000000E+00</b>
+          <E units="cal/mol">6.500000000E+03</E>
+        </Arrhenius>
+      </rateCoeff>
+    </reaction>
+
+    <!-- air reaction 4 -->
+    <reaction id="air_rxn_4" reversible="yes">
+      <equation>N2O + O [=] N2 + O2</equation>
+      <reactants> N2O:1  O:1 </reactants>
+      <products> N2:1  O2:1 </products>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">1.400000000E+12</A>
+          <b>0.000000000E+00</b>
+          <E units="cal/mol">1.081000000E+04</E>
+        </Arrhenius>
+      </rateCoeff>
+    </reaction>
+
+    <!-- air reaction 5 -->
+    <reaction id="air_rxn_5" reversible="yes">
+      <equation>N2O + O [=] 2 NO</equation>
+      <reactants> N2O:1  O:1 </reactants>
+      <products> NO:2 </products>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">2.900000000E+13</A>
+          <b>0.000000000E+00</b>
+          <E units="cal/mol">2.315000000E+04</E>
+        </Arrhenius>
+      </rateCoeff>
+    </reaction>
+
+    <!-- air reaction 6 -->
+    <reaction id="air_rxn_6" reversible="yes" type="falloff">
+      <equation>N2O (+ M) [=] N2 + O (+ M)</equation>
+      <reactants> N2O:1 </reactants>
+      <products> N2:1  O:1 </products>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="/s">7.910000000E+10</A>
+          <b>0.000000000E+00</b>
+          <E units="cal/mol">5.602000000E+04</E>
+        </Arrhenius>
+        <Arrhenius name="k0">
+          <A units="cm3/mol/s">6.370000000E+14</A>
+          <b>0.000000000E+00</b>
+          <E units="cal/mol">5.664000000E+04</E>
+        </Arrhenius>
+        <falloff type="Lindemann"/>
+        <efficiencies default="1">
+         AR:0.625 
+        </efficiencies>
+      </rateCoeff>
+    </reaction>
+
+    <!-- air reaction 7 -->
+    <reaction id="air_rxn_7" reversible="yes" type="threeBody">
+      <equation>NO + O + M [=] NO2 + M</equation>
+      <reactants> NO:1  O:1 </reactants>
+      <products> NO2:1 </products>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm6/mol2/s">1.060000000E+20</A>
+          <b>-1.410000000E+00</b>
+          <E units="cal/mol">0.000000000E+00</E>
+        </Arrhenius>
+        <efficiencies default="1">
+         AR:0.7 
+        </efficiencies>
+      </rateCoeff>
+    </reaction>
+
+    <!-- air reaction 8 -->
+    <reaction id="air_rxn_8" reversible="yes">
+      <equation>NO2 + O [=] NO + O2</equation>
+      <reactants> NO2:1  O:1 </reactants>
+      <products> NO:1  O2:1 </products>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">3.900000000E+12</A>
+          <b>0.000000000E+00</b>
+          <E units="cal/mol">-2.400000000E+02</E>
+        </Arrhenius>
+      </rateCoeff>
+    </reaction>
+  </reactionData>
 </ctml>

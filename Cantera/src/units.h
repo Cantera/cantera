@@ -25,6 +25,7 @@ namespace Cantera {
             string u = units, tok, tsub;
             int k;
             char action = '-';
+            //if (units[0] == '/') action = '/';
             while (1 > 0) {
                 k = u.find_first_of("/-");
                 if (k >= 0)
@@ -32,7 +33,9 @@ namespace Cantera {
                 else
                     tok = u;
                 tsize = tok.size();
-                if (tok[tsize - 1] == '2') {
+                if (tsize == 0) 
+                    fctr = 1.0;
+                else if (tok[tsize - 1] == '2') {
                     tsub = tok.substr(0,tsize-1);
                     fctr = m_u[tsub];
                     fctr *= fctr;
@@ -41,6 +44,21 @@ namespace Cantera {
                     tsub = tok.substr(0,tsize-1);
                     fctr = m_u[tsub];
                     fctr *= fctr*fctr;
+                }
+                else if (tok[tsize - 1] == '4') {
+                    tsub = tok.substr(0,tsize-1);
+                    fctr = m_u[tsub];
+                    fctr *= fctr*fctr*fctr;
+                }
+                else if (tok[tsize - 1] == '5') {
+                    tsub = tok.substr(0,tsize-1);
+                    fctr = m_u[tsub];
+                    fctr *= fctr*fctr*fctr*fctr;
+                }
+                else if (tok[tsize - 1] == '6') {
+                    tsub = tok.substr(0,tsize-1);
+                    fctr = m_u[tsub];
+                    fctr *= fctr*fctr*fctr*fctr*fctr;
                 }
                 else {
                     tsub = tok;
@@ -96,6 +114,12 @@ namespace Cantera {
             m_u["atm"]      = 1.01325e5;
             m_u["bar"]      = 1.0e5;
             m_u["Pa"]       = 1.0;
+
+            // time
+            m_u["s"]        = 1.0;
+            m_u["min"]      = 60.0;
+            m_u["hr"]       = 3600.0;
+            m_u["ms"]       = 0.001;
         }
     };
 }

@@ -5,6 +5,11 @@ AC_INIT(Cantera.README)
 AC_CONFIG_HEADER(../config.h)
 AC_CONFIG_AUX_DIR(.)
 
+echo
+echo "**************************************************************"
+echo "   Cantera Configuration Script "
+echo "**************************************************************"
+echo
 
 AC_DEFINE(NDEBUG)
 
@@ -16,7 +21,29 @@ local_inst=1
 if test "x${prefix}" = "xNONE"; then
          prefix=${ac_default_prefix}
          local_inst=0
+	 if test ! -d ${prefix}; then
+  echo 
+  echo "********************************************************************"
+  echo "Installation directory /usr/local does not exist. Either create it and"
+  echo "re-run configure, or specify another installation directory using the"
+  echo "prefix option:"
+  echo "    ./configure --prefix=<installation_directory>"
+  echo "********************************************************************"
+  exit 1       
 fi
+fi
+
+echo "Cantera will be installed in ${prefix}"
+if test ! -w ${prefix}; then
+echo "checking for write-access... no"
+echo
+echo "****  Since you do not have write-access to ${prefix}, you will need to"
+echo "****  run the 'make install' step as super-user."
+echo 
+else
+echo "checking for write-access... yes"
+fi
+
 AC_SUBST(prefix)
 AC_SUBST(local_inst)
 CANTERA_LIBDIR=$prefix/lib/cantera
@@ -221,24 +248,25 @@ AC_SUBST(CANTERA_DATA_DIR)
 AC_SUBST(CT_SHARED_LIB)
 
 BUILD_CLIB=0
-#
-#  Fortran 90 Interface
-#
-BUILD_F90=0
-if test "$BUILD_FORTRAN_90_INTERFACE" = "y"; then BUILD_F90=1; BUILD_CLIB=1; fi
-AC_SUBST(BUILD_F90)
-
 #       
 #     Python Interface
 #
 BUILD_PYTHON=0
-if test "$BUILD_PYTHON_INTERFACE" != "n"; then
-  if test -z "$PYTHON_CMD"; then 
+if test -z "$PYTHON_CMD"; then 
     AC_PATH_PROGS(PYTHON_CMD, python2 python, "none")
-    if test "$PYTHON_CMD" != "none"; then BUILD_PYTHON=1; BUILD_CLIB=1; fi
-  else
-    BUILD_PYTHON=1
+fi
+if test "$PYTHON_CMD" != "none"; then
+  if test "$BUILD_PYTHON_INTERFACE" != "n"; then
+    BUILD_PYTHON=1; BUILD_CLIB=1
   fi
+else
+  echo 
+  echo "********************************************************************"
+  echo "Configuration error. Python is required to build Cantera, but it"
+  echo "cannot be found. Set environment variable PYTHON_CMD to the command to"
+  echo "run the Python interpreter on your system, and run configure again."
+  echo "********************************************************************"
+  exit 1
 fi
 AC_SUBST(BUILD_PYTHON)
 
@@ -274,7 +302,6 @@ AC_SUBST(CXX_DEPENDS)
 #---------------------------------
 
 AC_PROG_F77()
-AC_SUBST(F90)
 
 # if G77 is defined, then add a flag to turn off adding a second underscore
 # to procedures that have an underscore in the name
@@ -295,17 +322,9 @@ esac
 AC_SUBST(SHARED_CTLIB)
 AC_SUBST(mex_ext)
 
-# filename extensions for Fortran 77 and Fortran 90
+# filename extensions for Fortran 77
 if test -z "$F77_EXT"; then F77_EXT=f; fi
 AC_SUBST(F77_EXT)
-if test -z "$F90_EXT"; then F90_EXT=f90; fi
-AC_SUBST(F90_EXT)
-
-
-if test -n "$FORT_MODULE_PATH_CMD"
-then FORT_MOD_PATH=$FORT_MODULE_PATH_CMD
-fi
-AC_SUBST(FORT_MOD_PATH)
 
 
 AC_LANG_CPLUSPLUS
@@ -405,6 +424,9 @@ AC_OUTPUT(../Cantera/Makefile \
           ../test_problems/silane_equil/Makefile) 
 #	)
 
+echo
+echo "Now type '${MAKE}' to build Cantera"
+echo  
 # $Log: configure.in,v
 
 

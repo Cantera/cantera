@@ -199,6 +199,8 @@ namespace Cantera {
             err("setPressure");
         }
 
+        virtual void updateDensity() {}
+
         /**
          * @} 
          * @name Potential Energy
@@ -231,11 +233,15 @@ namespace Cantera {
         }
 
         void setElectricPotential(doublereal v) {
-            int nsp = nSpecies();
-            for (int k = 0; k < nsp; k++) {
-                setPotentialEnergy(k, v*charge(k)*Faraday);
-            }
+            //int nsp = nSpecies();
+            m_phi = v;
+            //for (int k = 0; k < nsp; k++) {
+            //    setPotentialEnergy(k, v*charge(k)*Faraday);
+            //}
         }
+
+        doublereal electricPotential() { return m_phi; }
+
 
         /**
          * @}
@@ -594,6 +600,7 @@ namespace Cantera {
             m_spthermo = 0;
             m_index = -1;
             m_speciesData = 0;
+            m_phi = 0.0;
         }
 
     protected:
@@ -605,6 +612,7 @@ namespace Cantera {
 
         /// Index number
         int m_index;
+        doublereal m_phi;
 
     private:
 

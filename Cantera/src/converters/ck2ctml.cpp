@@ -40,10 +40,12 @@ namespace ctml {
         doublereal maxx) {
         XML_Node& f = node.addChild("NASA");
         if (minx != -999.0) f.addAttribute("Tmin",minx);
-        if (maxx != -999.0) f.addAttribute("Tmid",midx);
-        if (maxx != -999.0) f.addAttribute("Tmax",maxx);
-        addFloatArray(f,"low",low.size(),low.begin());
-        addFloatArray(f,"high",high.size(),high.begin());
+        if (midx != -999.0) f.addAttribute("Tmax",midx);
+        addFloatArray(f,"coeffs",low.size(),low.begin());
+        XML_Node& fh = node.addChild("NASA");
+        if (midx != -999.0) fh.addAttribute("Tmin",midx);
+        if (maxx != -999.0) fh.addAttribute("Tmax",maxx);
+        addFloatArray(fh,"coeffs",high.size(),high.begin());
     }
 
     /*
@@ -66,10 +68,27 @@ namespace ctml {
 
     static void addArrhenius(XML_Node& node,  
         doublereal A, doublereal b, doublereal E, int order, 
-        string unitsys, string E_units) {
+        string id, string E_units) {
+
+#ifdef OLD_VERSION
+        // versions prior to 1.4.1
         string abe = fp2str(A)+" "+fp2str(b)+" "+fp2str(E);
         XML_Node& r = node.addChild("Arrhenius",abe);
         r.addAttribute("order",order);
+#else
+        // version 1.4.1
+        XML_Node& rn = node.addChild("Arrhenius");
+        if (id != "") rn.addAttribute("name",id);
+        string units;
+        if (order == 1) units = "/s";
+        else if (order == 2) units = "cm3/mol/s";
+        else if (order == 3) units = "cm6/mol2/s";
+        else throw CanteraError("addArrhenius",
+            "unsupported rxn order: "+int2str(order));
+        addFloat(rn, "A", A,  units);
+        addFloat(rn, "b", b);
+        addFloat(rn, "E", E, E_units);
+#endif
     }
 
     /*
@@ -273,17 +292,17 @@ namespace ctml {
         
 
         XML_Node& kf = r.addChild("rateCoeff");
-        kf.addAttribute("units","mol,cm,s");
-        kf.addAttribute("Eunits",e_unit);
+        //kf.addAttribute("units","mol,cm,s");
+        //kf.addAttribute("Eunits",e_unit);
 
         //kf.addAttribute("id",r["id"]+"_kf");
         if (rxn.kf.type == ckr::Arrhenius)
             addArrhenius(kf, rxn.kf.A, rxn.kf.n, rxn.kf.E, 
-                int(order), "mol,cm,s", e_unit);
+                int(order), "", e_unit);
 
         if (rxn.isFalloffRxn) {
             addArrhenius(kf, rxn.kf_aux.A, rxn.kf_aux.n, rxn.kf_aux.E, 
-                int(order+1), "mol,cm,s", e_unit);
+                int(order+1), "k0", e_unit);
             
             if (rxn.falloffType == ckr::Lindemann)
                 addFalloff(kf,"Lindemann",rxn.falloffParameters);
@@ -426,15 +445,15 @@ namespace ctml {
                 addString(tr,"geometry","nonlinear"); break;
             default: ;
             }
-            if (t.welldepth != 0.0)
+            //if (t.welldepth != 0.0)
                 addFloat(tr,"LJ_welldepth",t.welldepth,"Kelvin");
-            if (t.diam != 0.0)
+                //if (t.diam != 0.0)
                 addFloat(tr,"LJ_diameter",t.diam,"A");
-            if (t.dipole != 0.0)
+                //if (t.dipole != 0.0)
                 addFloat(tr,"dipoleMoment",t.dipole,"Debye");
-            if (t.polar != 0.0)
+                //if (t.polar != 0.0)
                 addFloat(tr,"polarizability",t.polar,"A^3");
-            if (t.rot != 0.0)
+                //if (t.rot != 0.0)
                 addFloat(tr,"rotRelax",t.rot);
         }
     }
@@ -562,6 +581,7 @@ namespace ctml {
             }
 
             XML_Node root("ctml");
+            root["version"] = CTML_Version;
             root.addComment("generated from "+infile+" by ck2ctml.");
             if (trfile != "") 
             root.addComment("transport data from "+trfile+".");

@@ -226,8 +226,6 @@ namespace Cantera {
 
     private:
 
-        doublereal m_temp, m_dens;
-
 	/**
 	 * Temperature. This is an independent variable 
 	 * units = Kelvin

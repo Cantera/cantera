@@ -14,6 +14,7 @@
 using namespace std;
 
 #include "converters/ck2ctml.h"
+#include "converters/ck2ct.h"
 
 using namespace ctml;
 
@@ -68,8 +69,14 @@ int main(int argc, char** argv) {
         ++i;
     }
 
+#define MAKE_CT_INPUT
+#ifdef MAKE_CT_INPUT
+    int ierr = pip::convert_ck(infile.c_str(), dbfile.c_str(), trfile.c_str(), 
+        idtag.c_str());
+#else
     int ierr = convert_ck(infile.c_str(), dbfile.c_str(), trfile.c_str(), 
         outfile.c_str(), idtag.c_str());
+#endif
     if (ierr < 0) {
         showErrors(cerr);
     }

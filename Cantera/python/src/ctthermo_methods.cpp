@@ -149,6 +149,8 @@ thermo_setfp(PyObject *self, PyObject *args)
         iok = th_set_SV(th, v); break;
     case 5:
         iok = th_set_SP(th, v); break;
+    case 6:
+        iok = th_setElectricPotential(th, v[0]); break;
     default:
         iok = -10; 
     }

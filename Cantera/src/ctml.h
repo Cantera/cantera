@@ -26,6 +26,8 @@ using namespace Cantera;
 
 namespace ctml {
 
+    const string CTML_Version = "1.4.1";
+
     bool isBuiltin(string nm);
 
     void addBool(XML_Node& node, 

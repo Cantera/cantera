@@ -66,6 +66,7 @@ extern "C" {
     int DLL_IMPORT th_getEnthalpies_RT(int n, int lenm, double* h_rt);
     int DLL_IMPORT th_getEntropies_R(int n, int lenm, double* s_r);
     int DLL_IMPORT th_getCp_R(int n, int lenm, double* cp_r);
+    int DLL_IMPORT th_setElectricPotential(int n, double v);
     int DLL_IMPORT get_eos(char* fname, char* phase_id);
 
     int DLL_IMPORT th_set_HP(int n, double* vals);
@@ -75,7 +76,8 @@ extern "C" {
     int DLL_IMPORT th_equil(int n, int XY);
 
     int DLL_IMPORT newKineticsFromXML(int mxml, int iphase, 
-        int neighbor1=-1, int neighbor2=-1);
+        int neighbor1=-1, int neighbor2=-1, int neighbor3=-1,
+        int neighbor4=-1);
     int DLL_IMPORT installRxnArrays(int pxml, int ikin, 
         char* default_phase);
     int DLL_IMPORT kin_nSpecies(int n);
@@ -99,6 +101,8 @@ extern "C" {
     int DLL_IMPORT kin_type(int n);
     int DLL_IMPORT kin_start(int n, int p);
     int DLL_IMPORT kin_speciesIndex(int n, const char* nm, const char* ph);
+    int DLL_IMPORT kin_advanceCoverages(int n, double tstep);
+    int DLL_IMPORT kin_phase(int n, int i);
 
     int DLL_IMPORT newTransport(char* model,  
         int th, int loglevel);

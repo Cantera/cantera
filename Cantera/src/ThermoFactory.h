@@ -40,7 +40,7 @@ namespace Cantera {
          * Create a new thermodynamic property manager.
          * @param type the type to be created.
          */ 
-        virtual ThermoPhase* newThermo(XML_Node& node, string id);
+        //virtual ThermoPhase* newThermo(XML_Node& node, string id);
         virtual ThermoPhase* newThermoPhase(string model);
 
     private:
@@ -53,14 +53,14 @@ namespace Cantera {
     /**
      *  Create a new thermo manager instance.
      */
-    inline ThermoPhase* newThermoMgr(XML_Node& root, string id,  
-        ThermoFactory* f=0) {
-        if (f == 0) {
-            f = ThermoFactory::factory();
-        }
-        ThermoPhase* therm = f->newThermo(root, id);
-        return therm;
-    }
+//     inline ThermoPhase* newThermoMgr(XML_Node& root, string id,  
+//         ThermoFactory* f=0) {
+//         if (f == 0) {
+//             f = ThermoFactory::factory();
+//         }
+//         ThermoPhase* therm = f->newThermo(root, id);
+//         return therm;
+//     }
 
     /**
      *  Create a new thermo manager instance.

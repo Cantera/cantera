@@ -7,7 +7,7 @@ from Cantera import units
 #from Cantera.gases import H_O_AR
 
 
-gas = GRI30(transport = 'Default')
+gas = GRI30(transport = 'Mix')
 
 flame = BurnerFlame(
     domain = (0, 0.01),
