@@ -49,6 +49,7 @@ BUILD_FORTRAN_90_INTERFACE='n'       # Fortran is temporarily not working
 # a python script.  Python 2.0 or greater is required. Set PYTHON_CMD
 # to the path to the Python interpreter to use, if there is more than
 # one on your system.
+#
 
 BUILD_PYTHON_INTERFACE=${BUILD_PYTHON_INTERFACE:="y"}
 
