@@ -74,8 +74,6 @@ namespace Cantera {
                 m_species.push_back(k);
             }
         }
-        //cout << "nsp = " << m_nsp << endl;
-        //cout << m_element << endl << m_species << endl;
 
         // some work arrays for internal use
         m_work.resize(m_nsp);
@@ -245,7 +243,6 @@ namespace Cantera {
         else {
             for (k = 0; k < m_nsp; k++) m_order[k] = order[k];
         }
-        //        cout << m_order << endl;
         doublereal tmp;
         index_t itmp;
 
@@ -349,10 +346,6 @@ namespace Cantera {
                         m_solnrxn[j] = true;
             }
         }
-        //cout << "exit: " << m_order << endl;    
-        //for (j = 0; j < m_nsp - m_nel; j++) {
-        //    cout << reactionString(j) << endl;
-        //}
     }
 
 
@@ -523,11 +516,6 @@ namespace Cantera {
             for (k = 0; k < m_nsp; k++) m_moles[k] = m_lastmoles[k];
             step(omega, m_work);
         }
-        cout << m_moles << endl;
-        cout << m_work << endl;
-        cout << m_iter << " " << m_mix->elementMoles(m_element[0]) << endl;
-        //cout << m_moles << endl;
-        //cout << "omega: " << omega << "  " << m_mix->gibbs() << " " << error() << endl;
         return omega;
     }
 
@@ -610,7 +598,6 @@ namespace Cantera {
                     }
                 }
                 fctr = 1.0/(term1 + csum + sum);
-                //cout << "fctr terms = " << term1 << " " << csum << " " << sum << endl;
             }
             dxi[j] = -fctr*dg_rt;
             index_t m;
@@ -618,7 +605,6 @@ namespace Cantera {
                 if (m_moles[m_order[m]] <= 0.0 && (m_N(m, j)*dxi[j] < 0.0))
                     dxi[j] = 0.0;
              }
-             cout << reactionString(j) << "  " << dxi[j] << "  " << fctr << " " << dg_rt << endl;
             grad += dxi[j]*dg_rt;
 
         }
@@ -660,18 +646,9 @@ namespace Cantera {
                 if (k == m_order[ij]) ok = true;
             }
             if (!ok) {
-                //for (ij = 0; ij < m_nel; ij++) {
-                //    cout << m_mix->speciesName(m_order[ij]) << endl;
-                //}
-                //cout << "mismatch: " << m << " " << m_mix->elementName(m) << " " << m_mix->speciesName(k)  << endl;
-                //cout << "sortindex = " << m_sortindex << endl;
                 getComponents(m_sortindex);
                 break;
             }
-            //    for (ij = 0; ij < m_nel; ij++)
-            //        m_lastsort[ij] = m_sortindex[ij];
-            //    break;
-            //}
         }
     }
 
