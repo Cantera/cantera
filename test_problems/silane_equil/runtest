@@ -10,7 +10,7 @@ temp_success="1"
 #################################################################
 
 CANTERA_BIN=${CANTERA_BIN:=../../bin}
-silane_equil > output.txt
+./silane_equil > output.txt
 retnStat=$?
 if [ $retnStat != "0" ]
 then

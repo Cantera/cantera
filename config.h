@@ -9,11 +9,11 @@
 //------------------------ Fortran settings -------------------//
 
 
-// define types doublereal, integer, and ftnlen to match the 
+// define types doublereal, integer, and ftnlen to match the
 // corresponding Fortran data types on your system. The defaults
 // are OK for most systems
 
-typedef  double       doublereal;       // Fortran double precision 
+typedef  double       doublereal;       // Fortran double precision
 typedef  int          integer;          // Fortran integer
 typedef  int          ftnlen;           // Fortran hidden string length type
 
@@ -22,7 +22,7 @@ typedef  int          ftnlen;           // Fortran hidden string length type
 // adding a hidden argement with the length of the string. Some
 // compilers add the hidden length argument immediately after the
 // CHARACTER variable being passed, while others put all of the hidden
-// length arguments at the end of the argument list. Define this if 
+// length arguments at the end of the argument list. Define this if
 // the lengths are at the end of the argument list. This is usually the
 // case for most unix Fortran compilers, but is (by default) false for
 // Visual Fortran under Windows.
@@ -37,7 +37,7 @@ typedef  int          ftnlen;           // Fortran hidden string length type
 //-------- LAPACK / BLAS ---------
 
 // Define if you are using LAPACK and BLAS from the Intel Math Kernel
-// Library 
+// Library
 /* #undef HAVE_INTEL_MKL */
 
 #define LAPACK_FTN_STRING_LEN_AT_END
@@ -45,7 +45,7 @@ typedef  int          ftnlen;           // Fortran hidden string length type
 #define LAPACK_FTN_TRAILING_UNDERSCORE
 
 
-//--------- Cantera -------------- 
+//--------- Cantera --------------
 
 
 //--------- CKReader -------------

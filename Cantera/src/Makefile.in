@@ -117,6 +117,8 @@ clean:
 	$(RM) *.o *~ $(CANTERA_LIB)
 	cd zeroD; @MAKE@ clean
 	cd oneD;  @MAKE@ clean
+	cd converters; @MAKE@ clean
+	cd transport; @MAKE@ clean
 
 depends: $(DEPENDS)
 	cat *.d > .depends
