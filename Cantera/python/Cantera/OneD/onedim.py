@@ -316,6 +316,10 @@ class AxisymmetricFlow(Domain1D):
         _cantera.stflow_setPressure(self._hndl, p)
         self._p = p
 
+    def setTransportModel(self, transp):
+        itr = transp.transport_hndl()
+        _cantera.stflow_setTransport(self._hndl, itr)
+
     def pressure(self):
         return self._p
         

@@ -121,6 +121,7 @@ static PyMethodDef ct_methods[] = {
     {"reactingsurf_new", py_reactingsurf_new, METH_VARARGS},
     {"stflow_new", py_stflow_new, METH_VARARGS},
     {"stflow_setPressure", py_stflow_setPressure, METH_VARARGS},
+    {"stflow_setTransport", py_stflow_setTransport, METH_VARARGS},
     {"stflow_setFixedTempProfile", py_stflow_setFixedTempProfile, METH_VARARGS},
     {"stflow_solveSpeciesEqs", py_stflow_solveSpeciesEqs, METH_VARARGS},
     {"stflow_solveEnergyEqn", py_stflow_solveEnergyEqn, METH_VARARGS},

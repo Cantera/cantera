@@ -427,6 +427,7 @@ namespace Cantera {
         vector_fp m_visc;
         vector_fp m_tcon;
         vector_fp m_diff;
+        vector_fp m_multidiff;
         Array2D m_dthermal;
         Array2D m_flux;
 

@@ -154,6 +154,7 @@ namespace Cantera {
         m_do_energy.resize(m_points,false);
 
         m_diff.resize(m_nsp*m_points);
+        m_multidiff.resize(m_nsp*m_nsp*m_points);
         m_flux.resize(m_nsp,m_points);
         m_wdot.resize(m_nsp,m_points, 0.0);
         m_surfdot.resize(m_nsp, 0.0);
@@ -225,7 +226,8 @@ namespace Cantera {
             m_diff.resize(m_nsp*m_points);
         }
         else {
-            m_diff.resize(m_nsp*m_nsp*m_points);
+            m_multidiff.resize(m_nsp*m_nsp*m_points);
+            m_diff.resize(m_nsp*m_points);
         }
         m_flux.resize(m_nsp,m_points);
         m_wdot.resize(m_nsp,m_points, 0.0);
@@ -261,7 +263,8 @@ namespace Cantera {
 
         if (m_trans->model() == cMulticomponent) {
             m_transport_option = c_Multi_Transport;
-            m_diff.resize(m_nsp*m_nsp*m_points);
+            m_multidiff.resize(m_nsp*m_nsp*m_points);
+            m_diff.resize(m_nsp*m_points);
             m_dthermal.resize(m_nsp, m_points, 0.0);
         }
         else if (m_trans->model() == cMixtureAveraged) {
@@ -379,7 +382,7 @@ namespace Cantera {
 
         // update thermodynamic properties only if a Jacobian is not
         // being evaluated
-        if (jpt < 0 || (m_transport_option == c_Multi_Transport)) {
+        if (jpt < 0) { //if (jpt < 0 || (m_transport_option == c_Multi_Transport)) {
             updateThermo(x, j0, j1);
 
             // update transport properties only if a Jacobian is not being
@@ -591,7 +594,8 @@ namespace Cantera {
      * from j0 to j1, based on solution x.
      */
     void AxiStagnFlow::updateTransport(doublereal* x,int j0, int j1) {
-        int j;
+        int j,k,m;
+        //        writelog("\nentered updateTransport\n");
         if (m_transport_option == c_Mixav_Transport) {
             for (j = j0; j < j1; j++) {
                 setGasAtMidpoint(x,j);
@@ -601,22 +605,39 @@ namespace Cantera {
             }
         }
         else if (m_transport_option == c_Multi_Transport) {
-            for (j = j0; j < j1; j++) {
-                setGasAtMidpoint(x,j);
+            doublereal sum, sumx, wtm, dz;
+            doublereal eps = 1.0e-12;
+            for (m = j0; m < j1; m++) {
+                setGasAtMidpoint(x,m);
+                dz = m_z[m+1] - m_z[m];
                 //dz = m_z[j+1] - m_z[j];
+                wtm = m_thermo->meanMolecularWeight();
 
-                m_visc[j] = m_trans->viscosity();
+                m_visc[m] = m_trans->viscosity();
 
                 m_trans->getMultiDiffCoeffs(m_nsp, 
-                    m_diff.begin() + mindex(0,0,j));
-                //for (k = 0; k < m_nsp; k++) {  
-                
-                m_tcon[j] = m_trans->thermalConductivity();
+                    m_multidiff.begin() + mindex(0,0,m));
+
+                for (k = 0; k < m_nsp; k++) {
+                    sum = 0.0;
+                    sumx = 0.0;
+                    for (j = 0; j < m_nsp; j++) {
+                        if (j != k) {
+                            sum += m_wt[j]*m_multidiff[mindex(k,j,m)]*
+                                   ((X(x,j,m+1) - X(x,j,m))/dz + eps);
+                            sumx += (X(x,j,m+1) - X(x,j,m))/dz;
+                        }
+                    }
+                    m_diff[k + m*m_nsp] = sum/(wtm*(sumx+eps));
+                }
+
+                m_tcon[m] = m_trans->thermalConductivity();
                 if (m_do_soret) {
-                    m_trans->getThermalDiffCoeffs(m_dthermal.begin() + j*m_nsp);
+                    m_trans->getThermalDiffCoeffs(m_dthermal.begin() + m*m_nsp);
                 }
             }
         }
+        //writelog("leaving updateTransport\n");
     }
 
 
@@ -920,6 +941,7 @@ namespace Cantera {
         switch (m_transport_option) {
 
         case c_Mixav_Transport:
+        case c_Multi_Transport:
             for (j = j0; j < j1; j++) {
                 sum = 0.0;
                 wtm = m_wtm[j];
@@ -936,26 +958,26 @@ namespace Cantera {
             } 
             break;
 
-        case c_Multi_Transport:
-            for (m = j0; m < j1; m++) {
-                wtm = m_wtm[m];
-                rho = density(m);
-                dz = z(m+1) - z(m);
-                fluxsum = 0.0;
-                for (k = 0; k < m_nsp; k++) {
-                    sum = 0.0;
-                    for (j = 0; j < m_nsp; j++) {
-                        if (j != k) {
-                            s = m_wt[j]*m_diff[mindex(k,j,m)];
-                            s *= (X(x,j,m+1) - X(x,j,m))/dz;
-                            sum += s;
-                        }
-                    }
-                    m_flux(k,m) = sum*rho*m_wt[k]/(wtm*wtm);
-                    fluxsum -= m_flux(k,m);
-                }
-            } 
-            break;
+//         case c_Multi_Transport:
+//             for (m = j0; m < j1; m++) {
+//                 wtm = m_wtm[m];
+//                 rho = density(m);
+//                 dz = z(m+1) - z(m);
+//                 fluxsum = 0.0;
+//                 for (k = 0; k < m_nsp; k++) {
+//                     sum = 0.0;
+//                     for (j = 0; j < m_nsp; j++) {
+//                         if (j != k) {
+//                             s = m_wt[j]*m_diff[mindex(k,j,m)];
+//                             s *= (X(x,j,m+1) - X(x,j,m))/dz;
+//                             sum += s;
+//                         }
+//                     }
+//                     m_flux(k,m) = sum*rho*m_wt[k]/(wtm*wtm);
+//                     fluxsum -= m_flux(k,m);
+//                 }
+//             } 
+//             break;
         default:
             throw CanteraError("updateDiffFluxes","unknown transport model");
         }

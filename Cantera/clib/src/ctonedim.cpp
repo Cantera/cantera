@@ -325,9 +325,18 @@ extern "C" {
             IdealGasPhase* ph = (IdealGasPhase*)_thermo(iph);
             AxiStagnFlow* x = new AxiStagnFlow(ph, ph->nSpecies(), 2);
             x->setKinetics(*_kinetics(ikin));
-            x->setTransport(*_transport(ikin));
+            x->setTransport(*_transport(itr));
 
             return Cabinet<Domain1D>::cabinet()->add(x);
+        }
+        catch (CanteraError) { return -1; }
+    }
+
+
+    int DLL_EXPORT stflow_setTransport(int i, int itr) {
+        try {
+            _stflow(i)->setTransport(*_transport(itr));
+            return 0;
         }
         catch (CanteraError) { return -1; }
     }

@@ -26,7 +26,7 @@ tol_ss    = [1.0e-5, 1.0e-9]        # [rtol atol] for steady-state
                                     # problem
 tol_ts    = [1.0e-5, 1.0e-4]        # [rtol atol] for time stepping
 
-loglevel  = 1                       # amount of diagnostic output (0
+loglevel  = 5                       # amount of diagnostic output (0
                                     # to 5)
 				    
 refine_grid = 1                     # 1 to enable refinement, 0 to
@@ -39,6 +39,7 @@ refine_grid = 1                     # 1 to enable refinement, 0 to
 # and transport properties
 #
 gas = GRI30('Mix')
+gas.addTransportModel('Multi')
 
 # set its state to that of the unburned gas at the burner
 gas.setState_TPX(tburner, p, comp)
@@ -56,14 +57,20 @@ f.setRefineCriteria(ratio = 10.0, slope = 1, curve = 1)
 f.setMaxJacAge(50, 50)
 f.setTimeStep(1.0e-5, [1, 2, 5, 10, 20])
 
-f.solve(loglevel,refine_grid)
+f.solve(loglevel, refine_grid)
 f.save('ch4_flame1.xml','no_energy',
        'solution with the energy equation disabled')
 
 f.set(energy = 'on')
 f.setRefineCriteria(ratio = 3.0, slope = 0.1, curve = 0.2)
-f.solve(loglevel,refine_grid)
+f.solve(loglevel, refine_grid)
 f.save('ch4_flame1.xml','energy',
+       'solution with the energy equation enabled')
+
+gas.switchTransportModel('Multi')
+f.flame.setTransportModel(gas)
+f.solve(loglevel, refine_grid)
+f.save('ch4_flame1.xml','energy_multi',
        'solution with the energy equation enabled')
 
 # write the velocity, temperature, and mole fractions to a CSV file

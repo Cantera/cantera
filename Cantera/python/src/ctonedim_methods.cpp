@@ -476,6 +476,19 @@ py_stflow_new(PyObject *self, PyObject *args)
 
 
 static PyObject *
+py_stflow_setTransport(PyObject *self, PyObject *args)
+{
+    int _val;
+    int i, itr;
+    if (!PyArg_ParseTuple(args, "ii:stflow_setTransport", &i, &itr)) 
+        return NULL;
+        
+    _val = stflow_setTransport(i,itr); 
+    if (int(_val) == -1) return reportCanteraError();
+    return Py_BuildValue("i",_val);
+}
+
+static PyObject *
 py_stflow_setPressure(PyObject *self, PyObject *args)
 {
     int _val;

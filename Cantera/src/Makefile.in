@@ -55,7 +55,10 @@ EVERYTHING = $(KINETICS) $(HETEROKIN) $(ELECTROCHEM) $(EQUIL) $(CK) \
              $(TRANSPORT) $(REACTOR) $(RPATH) $(SOLVERS) $(FLOW1D)
 
 
-all:  @KERNEL@ lib
+all:  config.h @KERNEL@ lib
+
+config.h: ../../config.h
+	cp -f ../../config.h ./config.h
 
 base: $(BASE)
 

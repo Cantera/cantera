@@ -1,5 +1,6 @@
 import _cantera
 from Numeric import asarray
+import exceptions
 
 class Transport:
 
@@ -32,6 +33,7 @@ class Transport:
         self.__tr_id = _cantera.Transport(self.model,
                                              phase._phase_id, loglevel)
         self.trnsp = phase.nSpecies()
+        self._phase_id = phase._phase_id
         self._models = {}
         self._models[self.model] = self.__tr_id
 
@@ -41,13 +43,26 @@ class Transport:
         except:
             pass
 
+    def addTransportModel(self, model, loglevel=1):
+        new_id = _cantera.Transport(model,
+                                    self._phase_id, loglevel)
+        self._models[model] = new_id
+        
+
+    def switchTransportModel(self, model):
+        if self._models.has_key(model):
+            self.__tr_id = self._models[model]
+        else:
+            raise CanteraError("Transport model "+model+" not defined. Use "
+                               +"method addTransportModel first.")
+            
     def desc(self):
         if self.model == 'Multi':
             return 'Multicomponent'
         elif self.model == 'Mix':
             return 'Mixture-averaged'
         else:
-            return 'Unknown'
+            return self.model
             
     def transport_id(self):
         return self.__tr_id
