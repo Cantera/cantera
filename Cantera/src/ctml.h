@@ -90,6 +90,7 @@ namespace ctml {
 
     string getString(XML_Node& parent, string name);
 
+    // these are defined in ct2ctml.cpp
     void get_CTML_Tree(XML_Node*, string file);
     void ct2ctml(const char* file);
 }

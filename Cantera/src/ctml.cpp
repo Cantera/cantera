@@ -369,18 +369,4 @@ namespace ctml {
         if (node["max"] != "") xmax = fpValue(node["max"]);
         type = node["type"];
     }
-
-    void get_CTML_Tree(XML_Node* m_r, string infile) {
-        string path = findInputFile(infile);
-	ifstream fin(path.c_str());
-	if (!fin) {
-	  throw CanteraError("get_CTML_Tree","could not open "
-			     +path+" for reading.");
-	}
-	if (!m_r) {
-	  throw CanteraError("get_CTML_Tree",
-			     " Need to malloc XML_Node first");
-	}
-        m_r->build(fin);
-    }
 }
