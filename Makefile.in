@@ -283,7 +283,7 @@ ifeq ($(build_particles),1)
 endif
 
 changes: 
-	cvs2cl.pl --prune
+	tools/bin/cvs2cl.pl --prune
 	cvs commit -m' ' ChangeLog
 
 export: changes
