@@ -42,9 +42,20 @@ namespace Cantera {
             return __factory;
         }
 
+	static void deleteFactory() {
+	    if (__factory) {
+	      delete __factory;
+	      __factory = 0;
+	    }
+	}
+
+	/**
+         * Destructor doesn't do anything. We do not delete statically
+	 * created single instance of this class here, because it would
+	 * create an infinite loop if destructor is called for that
+	 * single instance.
+         */
         virtual ~ThermoFactory() {
-            delete __factory;
-            __factory = 0;
         }
 
         /**
