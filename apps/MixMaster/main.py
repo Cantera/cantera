@@ -45,7 +45,8 @@ class MixMaster:
 
     def openmech(self):
         from tkFileDialog import askopenfilename
-        pathname = askopenfilename(filetypes=[("XML Files", "*.xml *.ctml"),
+        pathname = askopenfilename(filetypes=[("Cantera Input Files", "*.cti"),
+                                              ("XML Files", "*.xml *.ctml"),
                                               ("All Files", "*.*")])
         if pathname:
             self.loadmech('', pathname)

@@ -7,9 +7,9 @@ import os
 
 # automatically-loaded mechanisms
 _autoload = [
-    (' GRI-Mech 3.0', 'gri30.xml'),
-    (' Air', 'air.xml'),
-    (' H/O/Ar', 'h2o2.xml')
+    (' GRI-Mech 3.0', 'gri30.cti'),
+    (' Air', 'air.cti'),
+    (' H/O/Ar', 'h2o2.cti')
     ] 
 
 def testit():

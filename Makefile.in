@@ -13,6 +13,7 @@ build_ck = @BUILD_CK@
 build_clib = @BUILD_CLIB@
 build_python = @BUILD_PYTHON@
 build_matlab = @BUILD_MATLAB@
+os_is_win = @OS_IS_WIN@
 
 LIBDIR=@LIB_DIR@
 
@@ -55,7 +56,6 @@ win-kernel-install:
 	@INSTALL@ -d @prefix@/lib/cantera
 	rm -f @prefix@/lib/cantera/*
 	@INSTALL@ -m 644 lib/*.lib @prefix@/lib/cantera
-	@INSTALL@ -m 644 lib/*.obj @prefix@/lib/cantera
 
 data-install:
 	@INSTALL@ -d @prefix@/cantera/data
@@ -89,7 +89,11 @@ hdr-collect:
 
 python: 
 ifeq ($(build_python),1)
+ifeq ($(os_is_win),0)
 	cd Cantera/python; @MAKE@
+else
+	cd Cantera/python; @MAKE@ win
+endif
 endif
 
 python-install:

@@ -29,17 +29,21 @@ SRCS = src/ctphase_methods.cpp \
 
 os_is_win = @OS_IS_WIN@
 
-all: _build
+all: _build 
+
+win: _winbuild
 
 _build: $(SRCS) $(LIB_DEPS)
 	touch src/pycantera.cpp 
-ifeq ($(os_is_win),0)
 	(@PYTHON_CMD@ setup.py build)
-else
+	echo 'ok' > _build
+
+
+_winbuild: $(SRCS)
+	touch src/pycantera.cpp 
 	cp -f winsetup.py setup.py
 	(@PYTHON_CMD@ setup.py build)
-endif
-	echo 'ok' > _build
+	echo 'ok' > _winbuild
 
 install:
 ifeq ($(os_is_win),0)
