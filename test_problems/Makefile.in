@@ -7,13 +7,16 @@
 all:
 	cd cxx_ex;       @MAKE@ all
 	cd silane_equil; @MAKE@ all
+	cd surfkin;      @MAKE@ all
 
 test:
 	cd cxx_ex;       @MAKE@ test
 	cd silane_equil; @MAKE@ test
+	cd surfkin;      @MAKE@ test
 
 clean:
 	$(RM) *.*~ 
 	cd cxx_ex;       @MAKE@ clean
 	cd silane_equil; @MAKE@ clean
+	cd surfkin;      @MAKE@ clean
 
