@@ -14,8 +14,8 @@
 #pragma warning(disable:4503)
 #endif
 
-#include "DenseMatrix.h"
-#include "ct_defs.h"
+#include "../DenseMatrix.h"
+#include "../ct_defs.h"
 
 #include <vector>
 using namespace std;
