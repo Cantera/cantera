@@ -106,7 +106,12 @@ print """
     setup script      """+prefix+"""/cantera/setup_cantera
     
     The setup script configures the environment for Cantera. It is
-    recommended that you run this script before using Cantera, or
-    include its contents in your shell login script.  """
+    recommended that you run this script by typing
+
+      source """+prefix+"""/cantera/setup_cantera
+    
+    before using Cantera, or else
+    include its contents in your shell login script.
+    """
 
     
