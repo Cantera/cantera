@@ -199,7 +199,21 @@ namespace Cantera {
 
         InterfaceKineticsData* m_kdata;
 
+	/**
+	 * An array of generalized concentrations
+         * \f$ C_k \f$ that are defined such that \f$ a_k = C_k /
+         * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration/
+         * These generalized concentrations are used
+         * by this kinetics manager class to compute the forward and
+         * reverse rates of elementary reactions. The "units" for the
+	 * concentrations of each phase depend  upon the implementation
+	 * of kinetics within that phase.
+	 *  The order of concentrations withins the vector is based on
+	 * the order of listed ThermoPhase objects in the class, and the
+	 * order of the species within each ThermoPhase class.
+	 */
         vector_fp m_conc;
+
         vector_fp m_mu0;
         vector_fp m_phi;
         vector_fp m_pot;
