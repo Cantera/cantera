@@ -211,6 +211,9 @@ namespace ctml {
 
         // find the input file on the Cantera search path
         string inname = findInputFile(file);
+#ifdef DEBUG_PATHS
+        cout <<"Found file: " << inname << endl;
+#endif
         if (inname == "") 
             throw CanteraError("get_CTML_tree", "file "+file+" not found");
 
@@ -229,7 +232,15 @@ namespace ctml {
         else {
 	  ff = inname;
 	}
+#ifdef DEBUG_PATHS
+       cout << "Attempting to parse xml file " << ff << endl;
+#endif
         ifstream fin(ff.c_str());
+        if (!fin) {
+          throw 
+            CanteraError("get_CTML_tree",
+                         "XML file " + ff + " not found");
+        }
         rootPtr->build(fin);
         fin.close();
     }
