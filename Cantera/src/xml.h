@@ -263,7 +263,7 @@ namespace Cantera {
     //XML_Node* find_XML(string src, XML_Node* root=0, 
     //		       string id="", string loc="", string name="");
 
-    const XML_Node* findXMLPhase(XML_Node* root, string id);        
+    XML_Node * const findXMLPhase(XML_Node* root, string id);        
 }
 
 #endif

@@ -663,11 +663,22 @@ namespace Cantera {
      * Write an XML subtree to an output stream. This is a 
      * wrapper around the static routine write_int(). All this
      * does is add an endl on to the output stream. write_int() is
-     * fine, but the last endl wasn't beeing written.
+     * fine, but the last endl wasn't being written.
+     * It also checks for the special name "--". If found and we
+     * are at the root of the xml tree, then the block
+     * is skipped and the children are processed. "--" is used
+     * to denote the top of the tree.
      */
     void XML_Node::write(ostream& s, int level) {
-	write_int(s, level);
-	s << endl;
+	if (m_name == "--" && m_root == this) {
+          for (int i = 0; i < m_nchildren; i++) {
+            m_children[i]->write_int(s,level);
+	    s << endl;
+          }
+        } else {
+	  write_int(s, level);
+	  s << endl;
+	}
     }
 
     //const XML_Node* XML_Node::getRef() const {
@@ -754,8 +765,8 @@ namespace Cantera {
 #endif
 
         
-    const XML_Node* findXMLPhase(XML_Node *root, string idtarget) {
-	const XML_Node *scResult = 0;
+    XML_Node * const findXMLPhase(XML_Node *root, string idtarget) {
+	XML_Node *scResult = 0;
 	XML_Node *sc;
 	if (!root) return 0;
 	string idattrib;
