@@ -13,6 +13,7 @@ using namespace std;
 
 #include "ct_defs.h"
 #include "ctexceptions.h"
+#include "stringUtils.h"
 
 extern "C" {
 
