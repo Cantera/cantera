@@ -40,7 +40,7 @@ namespace Cantera {
     // get the initial conditions.
     void ImplicitChem::getInitialConditions(double t0, size_t leny, double* y) 
     {
-        m_thermo->getMassFractions(leny, y);
+        m_thermo->getMassFractions(y);
         m_h0 = m_thermo->enthalpy_mass();
         m_rho = m_thermo->density();
         m_press = m_thermo->pressure();
