@@ -236,12 +236,7 @@ class species(writer):
                  charge = -999):
         self._name = name
         self._atoms = getAtomicComp(atoms)
-        #mw = 0.0
-        #for a in self._atoms.keys():
-        #    mw += self._atoms[a]*float(_atw[a])
-        #self._mw = mw
-        #global _mw
-        #_mw[name] = mw
+
         self._comment = note
         
         if thermo:
@@ -1363,7 +1358,10 @@ validate()
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.31  2004-03-12 05:59:59  dggoodwin
+# Revision 1.32  2004-04-23 16:35:32  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.31  2004/03/12 05:59:59  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.30  2004/02/08 13:25:21  dggoodwin
