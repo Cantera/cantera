@@ -45,7 +45,7 @@ env = Reservoir(Air())
 # use GRI-Mech 3.0 for the methane/air mixture, and set its initial state
 gri3 = GRI30()
 
-gri3.set(T = 500.0, P = 0.1*OneAtm, X = 'CH4:1.1, O2:2, N2:7.52')
+gri3.set(T = 500.0, P = 0.2*OneAtm, X = 'CH4:1.1, O2:2, N2:7.52')
 
 # create a reactor for the methane/air side
 r2 = Reactor(gri3)
@@ -58,15 +58,15 @@ r2 = Reactor(gri3)
 
 # add a flexible wall (a piston) between r2 and r1
 w = Wall(r2, r1)
-w.set(area = 2.0, K=0.55e-4)
+w.set(area = 1.0, K=0.5e-4, U = 100.0)
 
 
 # heat loss to the environment. Heat loss always occur through walls,
 # so we create a wall separating r1 from the environment, give it a
 # non-zero area, and specify the overall heat transfer coefficient
 # through the wall.
-w2 = Wall(r1, env)
-w2.set(area = 0.5, U=100.0)
+w2 = Wall(r2, env)
+w2.set(area = 1.0, U=500.0)
 
 sim = ReactorNet([r1, r2])
 
@@ -75,16 +75,48 @@ print 'finished setup, begin solution...'
 
 time = 0.0
 f = open('piston.csv','w')
-writeCSV(f,['time (s)','T2 (K)','P2 (Pa)','V2 (m3)',
-            'T1 (K)','P1 (Pa)','V1 (m3)'])
+writeCSV(f,['time (s)','T1 (K)','P1 (Bar)','V1 (m3)',
+            'T2 (K)','P2 (Bar)','V2 (m3)'])
+temp = zeros([300, 2], 'd')
+pres = zeros([300, 2], 'd')
+vol = zeros([300, 2], 'd')
+tm = zeros(300,'d')
 for n in range(300):
-    time += 4.e-5
+    time += 4.e-4
     print time, r2.temperature(),n
-    sim.advance(time)    
-    writeCSV(f, [r2.time(), r2.temperature(), r2.pressure(), r2.volume(),
-                 r1.temperature(), r1.pressure(), r1.volume()])
+    sim.advance(time)
+    tm[n] = time
+    temp[n,:] = [r1.temperature(), r2.temperature()]
+    pres[n,:] = [1.0e-5*r1.pressure(), 1.0e-5*r2.pressure()]
+    vol[n,:] = [r1.volume(), r2.volume()]
+    writeCSV(f, [tm[n], temp[n,0], pres[n,0], vol[n,0],
+                 temp[n,1], pres[n,1], vol[n,1]])
 f.close()
 import os
 print 'Output written to file piston.csv'
 print 'Directory: '+os.getcwd()
 
+if 1:
+    from matplotlib.matlab import *
+    clf
+    subplot(2,2,1)
+    plot(tm, temp[:,0],'g-',tm, temp[:,1],'b-')
+    legend(['Reactor 1','Reactor 2'],2)
+    xlabel('Time (s)');
+    ylabel('Temperature (K)');
+         
+    subplot(2,2,2)
+    plot(tm, pres[:,0],'g-',tm, pres[:,1],'b-')
+    legend(['Reactor 1','Reactor 2'],2)
+    xlabel('Time (s)');
+    ylabel('Pressure (Bar)');
+         
+    subplot(2,2,3)
+    plot(tm, vol[:,0],'g-',tm, vol[:,1],'b-')
+    legend(['Reactor 1','Reactor 2'],2)
+    xlabel('Time (s)');
+    ylabel('Volume (m^3)');         
+
+    show()
+#except:
+#    pass

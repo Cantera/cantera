@@ -244,7 +244,10 @@ depends:
 		cd Cantera/cads; @MAKE@ depends
 	endif
 
-export:
+changes: 
+	perl cvs2cl.pl --prune
+
+export: changes
 	@INSTALL@ -d $(export_dir)
 	if (test -d $(export_dir)/cantera); then rm -r -f $(export_dir)/cantera; fi
 	cd $(export_dir); cvs export  -D 1/01/2010 cantera

@@ -62,6 +62,7 @@ def isentropic(g = None):
         data[r,:] = [area, v/soundspeed(gas), gas.temperature(), p/p0]
 
     data[:,0] /= amin
+
     return data
 
     
@@ -69,8 +70,18 @@ def isentropic(g = None):
 if __name__ == "__main__":
     print isentropic.__doc__
     data = isentropic()
-    print 'area ratio,   Mach number,   temperature,   pressure ratio'
-    print data
+    try:
+        from matplotlib.matlab import *
+        clf
+        plot(data[:,1], data[:,0])
+        ylabel('Area Ratio')
+        xlabel('Mach Number')
+        title('Isentropic Flow: Area Ratio vs. Mach Number')
+        show()
+    
+    except:
+        print 'area ratio,   Mach number,   temperature,   pressure ratio'
+        print data
 
 
 
