@@ -46,24 +46,20 @@ using namespace ct;
  */
 namespace Cantera {
 
-#define CANTERA_VERSION 1.3
+#define CANTERA_VERSION 1.5
 
     // use kg-moles, rather than g-moles.
-#define USE_KMOL
 
-#ifdef USE_KMOL
     const doublereal CtMoles_per_mole = 1.e-3;       // kmol
     /// Avogadro's Number
     const doublereal Avogadro = 6.022136736e26;
-    /// Universal Gas Constant
-    const doublereal GasConstant = 8314.0;
-    const doublereal logGasConstant = 9.02569612;
-#else
-    const doublereal CtMoles_per_mole = 1.0;         // mol
-    const doublereal Avogadro = 6.022136736e23;
-    const doublereal GasConstant = 8.3140;
-    const doublereal logGasConstant = 2.117940841;
-#endif
+
+    //const doublereal GasConstant = 8314.0;
+
+    /// Universal Gas Constant. 1999 CODATA value.
+    const doublereal GasConstant = 8314.47215;
+
+    const doublereal logGasConstant = 9.025752908;
 
     /// One atmosphere
     const doublereal OneAtm = 1.01325e5;             // Pa
@@ -144,17 +140,17 @@ namespace Cantera {
         return inner_product(u.begin(), u.end(), v.begin(), 0.0);
     }
 
-    template<class A>
-    inline ostream& operator<<(ostream& s, const vector<A>& v) {
-        int n = v.size();
-        s << "<";
-        for (int i = 0; i < n; i++) {
-            s << v[i];
-            if (i < n-1) s << ", ";
-        }
-        s << ">";
-        return s;
-    }
+//     template<class A>
+//     inline ostream& operator<<(ostream& s, const vector<A>& v) {
+//         int n = v.size();
+//         s << "<";
+//         for (int i = 0; i < n; i++) {
+//             s << v[i];
+//             if (i < n-1) s << ", ";
+//         }
+//         s << ">";
+//         return s;
+//     }
 
 }  // namespace
 
