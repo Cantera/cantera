@@ -2,32 +2,21 @@
  Cantera .cti input file processor
 
  The functions and classes in this module process Cantera .cti input
- files and produce CTML files.
+ files and produce CTML files. It can be imported as a module, or used
+ as a script.
 
- usage:
+ script usage:
 
- from Cantera import *
- from Cantera.ctml_writer import *
- execfile('infile.cti')
- write()
+ python ctml_writer.py infile.cti
+
+ This will produce CTML file 'infile.xml'
 
 """
 
-##########################################
-#
-# $Author$
-# $Revision$
-# $Date$
-# $Log$
-# Revision 1.14  2003-08-16 20:17:21  dggoodwin
-# changed handling of reaction pre-exponential units to write converted value to CTML, rather than pass original value with a units string
-#
-#
-###########################################
 from Cantera import CanteraError
 from Cantera import GasConstant
 from Cantera.XML import XML_Node
-import types, math
+import types, math, copy
 
 SPECIES = 10
 SPECIES_SET = 20
@@ -46,7 +35,10 @@ _umol = 'kmol'
 _umass = 'kg'
 _utime = 's'
 _ue = 'J/kmol'
+_uenergy = 'J'
+_upres = 'Pa'
 
+# used to convert reaction pre-exponentials
 _length = {'cm':0.01, 'm':1.0, 'mm':0.001}
 _moles = {'kmol':1.0, 'mol':0.001, 'molec':1.0/6.023e26}
 _time = {'s':1.0, 'min':60.0, 'hr':3600.0}
@@ -123,14 +115,17 @@ def get_atomic_wts():
                 print 'no atomic weight for ',el['name']
                 
     
-def units(length = '', quantity = '', mass = '', time = '', act_energy = ''):
+def units(length = '', quantity = '', mass = '', time = '',
+          act_energy = '', energy = '', pressure = ''):
     """set the default units."""
-    global _ulen, _umol, _ue
+    global _ulen, _umol, _ue, _utime, _umass, _uenergy, _upres
     if length: _ulen = length
     if quantity: _umol = quantity
     if act_energy: _ue = act_energy
     if time: _utime = time
     if mass: _umass = mass
+    if energy: _uenergy = energy
+    if pressure: _upres = pressure
 
 def ufmt(base, n):
     """return a string representing a unit to a power n."""
@@ -163,7 +158,7 @@ def write():
         print x
 
             
-def addFloat(x, nm, val, fmt=''):
+def addFloat(x, nm, val, fmt='', defunits=''):
     """
     Add a child element to XML element x representing a
     floating-point number.
@@ -176,7 +171,9 @@ def addFloat(x, nm, val, fmt=''):
             s = fmt % fval
         else:
             s = `fval`
-        x.addChild(nm, s)
+        xc = x.addChild(nm, s)
+        if defunits:
+            xc['units'] = defunits
     else:
         v = val[0]
         u = val[1]
@@ -266,7 +263,12 @@ class species(writer):
         global _mw
         _mw[name] = mw
         self._comment = comment
-        self._thermo = thermo
+        
+        if thermo:
+            self._thermo = thermo
+        else:
+            self._thermo = const_cp()
+            
         self._transport = transport
         chrg = 0
         self._charge = charge
@@ -368,10 +370,11 @@ class const_cp(thermo):
         c = t.addChild('const_cp')
         if self._t[0] >= 0.0: c['Tmin'] = `self._t[0]`
         if self._t[1] >= 0.0: c['Tmax'] = `self._t[1]`
-        addFloat(c,'t0',self._c[0])
-        addFloat(c,'h0',self._c[1])
-        addFloat(c,'s0',self._c[2])        
-        addFloat(c,'cp0',self._c[3])
+        energy_units = _uenergy+'/'+_umol
+        addFloat(c,'t0',self._c[0], defunits = 'K')
+        addFloat(c,'h0',self._c[1], defunits = energy_units)
+        addFloat(c,'s0',self._c[2], defunits = energy_units+'/K')        
+        addFloat(c,'cp0',self._c[3], defunits = energy_units+'/K')
 
 
 class gas_transport:
@@ -398,16 +401,20 @@ class gas_transport:
         addFloat(t, "dipoleMoment", (self._dipole, 'Debye'),'%8.3f')        
         addFloat(t, "polarizability", (self._polar, 'A3'),'%8.3f')
         addFloat(t, "rotRelax", self._rot_relax,'%8.3f')        
+
         
 class Arrhenius(writer):
     def __init__(self,
                  A = 0.0,
                  n = 0.0,
                  E = 0.0,
-                 coverage = []):
+                 coverage = [],
+                 rate_type = ''):
         self._c = [A, n, E]
+        self._type = rate_type
+        
         if coverage:
-            if type(coverage[0] == types.StringType):
+            if type(coverage[0]) == types.StringType:
                 self._cov = [coverage]
             else:
                 self._cov = coverage
@@ -416,82 +423,50 @@ class Arrhenius(writer):
 
         
     def build(self, p, units_factor = 1.0, gas_species = [], name = ''):
-        if self._c[0] < 0.0:
-            e = _handle_error['negative_A']
-            if e == 'skip': return
-            elif e == 'warn':
-                print 'Warning: negative pre-exponential: A = ',self._c[0]
-            elif e == 'continue':
-                pass
-            else:
-                raise CanteraError('negative pre-exponential: A = '+`self._c[0]`)
-                
+        
         a = p.addChild('Arrhenius')
         if name: a['name'] = name
-        addFloat(a,'A',self._c[0]*units_factor, fmt = '%14.6E')
-##         if isnum(self._c[0]):
-##             addFloat(a,'A', (self._c[0], units), fmt = '%14.6E')
-##         else:
-##             addFloat(a,'A',self._c[0], fmt = '%14.6E')
-        a.addChild('b',`self._c[1]`)
-        if isnum(self._c[2]):
-            addFloat(a,'E',(self._c[2],_ue), fmt = '%f')
-        else:
-            addFloat(a,'E',self._c[2], fmt = '%f')
-            
-        if self._cov:
-            for cov in self._cov:
-                c = a.addChild('coverage')
-                c['species'] = cov[0]
-                addFloat(c, 'a', cov[1], fmt = '%f')
-                c.addChild('m', `cov[2]`)
-                if isnum(cov[3]):
-                    addFloat(c, 'e',(cov[3],_ue), fmt = '%f')
-                else:
-                    addFloat(c, 'e', cov[3], fmt = '%f')                
-                     
 
-class stick(writer):
-    def __init__(self,
-                 A = 0.0,
-                 n = 0.0,
-                 E = 0.0,
-                 coverage = []):
-        self._c = [A, n, E]
-        if coverage:
-            if type(coverage[0] == types.StringType):
-                self._cov = [coverage]
-            else:
-                self._cov = coverage
+        # check for sticking probability
+        if self._type:
+            a['type'] = self._type
+            if self._type == 'stick':
+                ngas = len(gas_species)
+                if ngas <> 1:
+                    raise CanteraError("""
+Sticking probabilities can only be used for reactions with one gas-phase
+reactant, but this reaction has """+`ngas`+': '+`gas_species`)
+                else:
+                    a['species'] = gas_species[0]
+                    units_factor = 1.0
+                    
+        # if a pure number is entered for A, multiply by the conversion
+        # factor to SI and write it to CTML as a pure number. Otherwise,
+        # pass it as-is through to CTML with the unit string.
+        if isnum(self._c[0]):
+            addFloat(a,'A',self._c[0]*units_factor, fmt = '%14.6E')
         else:
-            self._cov = None
-            
-        self._sp = species
-        
-    def build(self, p, units = '', gas_species = [], name = ''):
-        a = p.addChild('Stick')
-        ngas = len(gas_species)
-        if ngas <> 1:
-                raise 'sticking probabilities can only be used for reactions with one gas-phase reactant'
-        a['species'] = gas_species[0]
-        if name: a['name'] = name
-        addFloat(a,'A',self._c[0], fmt = '%14.6E')
+            addFloat(a,'A',self._c[0], fmt = '%14.6E')
+
+        # The b coefficient should be dimensionless, so there is no
+        # need to use 'addFloat'
         a.addChild('b',`self._c[1]`)
-        if isnum(self._c[2]):
-            addFloat(a,'E',(self._c[2],_ue), fmt = '%f')
-        else:
-            addFloat(a,'E',self._c[2], fmt = '%f')
-            
+
+        # If a pure number is entered for the activation energy,
+        # add the default units, otherwise use the supplied units.
+        addFloat(a,'E', self._c[2], fmt = '%f', defunits = _ue)
+
+        # for surface reactions, a coverage dependence may be specified.
         if self._cov:
             for cov in self._cov:
                 c = a.addChild('coverage')
                 c['species'] = cov[0]
                 addFloat(c, 'a', cov[1], fmt = '%f')
                 c.addChild('m', `cov[2]`)
-                if isnum(cov[3]):
-                    addFloat(c, 'e',(cov[3],_ue), fmt = '%f')
-                else:
-                    addFloat(c, 'e', cov[3], fmt = '%f')
+                addFloat(c, 'e', cov[3], fmt = '%f', defunits = _ue)
+
+def stick(A = 0.0, n = 0.0, E = 0.0, coverage = []):
+    return Arrhenius(A = A, n = n, E = E, coverage = coverage, rate_type = 'stick')
 
 
 def getPairs(s):
@@ -532,7 +507,7 @@ class reaction(writer):
         self._r = getReactionSpecies(r)
         self._p = getReactionSpecies(p)
 
-        self._rxnorder = self._r
+        self._rxnorder = copy.copy(self._r)
         if self._order:
             ord = getPairs(self._order)
             for o in ord.keys():
@@ -571,7 +546,7 @@ class reaction(writer):
             nm = -999
             nl = -999
 
-            str += s+':'+`ns`+' '
+            str += s+':'+`self._r[s]`+' '
             
             for ph in _phases:
                 if ph.has_species(s):
@@ -582,6 +557,7 @@ class reaction(writer):
 
             mdim += nm*ns
             ldim += nl*ns
+            print s, ns, nm, nl, mdim, ldim
 
         p.addComment("   reaction "+id+"    ")                
         r = p.addChild('reaction')
@@ -604,7 +580,9 @@ class reaction(writer):
         r.addChild('equation',ee)
 
         if self._order:
-            r.addChild('order',self._order)
+            for osp in self._rxnorder.keys():
+                o = r.addChild('order',self._rxnorder[osp])
+                o['species'] = osp
                 
 
         # adjust the moles and length powers based on the dimensions of
@@ -612,9 +590,11 @@ class reaction(writer):
         if self._type == 'surface':
             mdim += -1
             ldim += 2
+            print 'surf: mdim, ldim: ',mdim, ldim
         else:
             mdim += -1
             ldim += 3
+            print 'not surf: mdim, ldim: ',mdim, ldim
 
 
         # add the reaction type as an attribute if it has been specified.
@@ -640,6 +620,7 @@ class reaction(writer):
 
             unit_fctr = (math.pow(_length[_ulen], -ldim) *
                          math.pow(_moles[_umol], -mdim) / _time[_utime])
+            print 'unit_fctr = ',unit_fctr
             
             # compute the pre-exponential units string, and if it begins with a
             # dash, remove it.
@@ -767,14 +748,10 @@ class surface_reaction(reaction):
     def __init__(self,
                  equation = '',
                  kf = None,
-                 stick = None,
                  id = '',
                  order = '',                 
                  options = []):
-        if stick:
-            reaction.__init__(self, equation, stick, id, order, options)
-        else:
-            reaction.__init__(self, equation, kf, id, order, options)
+        reaction.__init__(self, equation, kf, id, order, options)
         self._type = 'surface'
 
 
@@ -798,9 +775,9 @@ class state:
         
     def build(self, ph):
         st = ph.addChild('state')
-        if self._t: addFloat(st, 'temperature', self._t)
-        if self._p: addFloat(st, 'pressure', self._p)
-        if self._rho: addFloat(st, 'density', self._rho)
+        if self._t: addFloat(st, 'temperature', self._t, defunits = 'K')
+        if self._p: addFloat(st, 'pressure', self._p, defunits = _upres)
+        if self._rho: addFloat(st, 'density', self._rho, defunits = _umass+'/'+_ulen+'3')
         if self._x: st.addChild('moleFractions', self._x)
         if self._y: st.addChild('massFractions', self._y)
         if self._c: st.addChild('coverages', self._c)
@@ -936,9 +913,9 @@ class phase(writer):
         ph['dim'] = `self._dim`
 
         # ------- error tests -------
-        err = ph.addChild('validation')
-        err.addChild('duplicateReactions','halt')
-        err.addChild('thermo','warn')
+        #err = ph.addChild('validation')
+        #err.addChild('duplicateReactions','halt')
+        #err.addChild('thermo','warn')
         
         e = ph.addChild('elementArray',self._el)
         e['datasrc'] = 'elements.xml'
@@ -1016,7 +993,7 @@ class pure_solid(phase):
         ph = phase.build(self, p)
         e = ph.addChild("thermo")
         e['model'] = 'SolidCompound'
-        addFloat(e, 'density', self._dens)
+        addFloat(e, 'density', self._dens, defunit = _umass+'/'+_ulen+'3')
         if self._tr:
             t = ph.addChild('transport')
             t['model'] = self._tr
@@ -1050,7 +1027,7 @@ class ideal_interface(phase):
         ph = phase.build(self, p)
         e = ph.addChild("thermo")
         e['model'] = 'Surface'
-        addFloat(e, 'site_density',self._sitedens)
+        addFloat(e, 'site_density', self._sitedens, defunits = _umol+'/'+_ulen+'2')
         k = ph.addChild("kinetics")
         k['model'] = self._kin
         t = ph.addChild('transport')
@@ -1064,75 +1041,75 @@ class ideal_interface(phase):
         
 #------------------ equations of state --------------------------
 
-class eos(writer):
-    def is_pure(self):
-        return self._pure
+## class eos(writer):
+##     def is_pure(self):
+##         return self._pure
     
-class incompressible_eos(eos):
-    def __init__(self, density = -1.0):
-        self._dens = density
-        self._pure = 0
-        if self._dens < 0.0:
-            raise 'density must be specified.'
+## class incompressible_eos(eos):
+##     def __init__(self, density = -1.0):
+##         self._dens = density
+##         self._pure = 0
+##         if self._dens < 0.0:
+##             raise 'density must be specified.'
         
-    def build(self, p):
-        e = p.addChild("thermo")
-        e['model'] = 'Incompressible'
-        addFloat(e, 'density', self._dens)
+##     def build(self, p):
+##         e = p.addChild("thermo")
+##         e['model'] = 'Incompressible'
+##         addFloat(e, 'density', self._dens)
 
-    def conc_dim(self):
-        return (1, -3)
+##     def conc_dim(self):
+##         return (1, -3)
     
-class solid_compound_eos(eos):
-    def __init__(self, density = -1.0):
-        self._dens = density
-        self._pure = 1
-        if self._dens < 0.0:
-            raise 'density must be specified.'
+## class solid_compound_eos(eos):
+##     def __init__(self, density = -1.0):
+##         self._dens = density
+##         self._pure = 1
+##         if self._dens < 0.0:
+##             raise 'density must be specified.'
         
-    def build(self, p):
-        e = p.addChild("thermo")
-        e['model'] = 'SolidCompound'
-        addFloat(e, 'density', self._dens)
-        if len(self.parent._spmap) > 1:
-            raise 'A solid compound can only have one species.'
+##     def build(self, p):
+##         e = p.addChild("thermo")
+##         e['model'] = 'SolidCompound'
+##         addFloat(e, 'density', self._dens)
+##         if len(self.parent._spmap) > 1:
+##             raise 'A solid compound can only have one species.'
         
-    def conc_dim(self):
-        return (0, 0)
+##     def conc_dim(self):
+##         return (0, 0)
 
 
-class ideal_gas_eos(eos):
-    def __init__(self, kinetics = 'GasKinetics',
-                 transport = 'none'):
-        self._pure = 0
-        self._kin = kinetics
-        self._tr = transport
-        global _idealgas_class
-        _idealgas_class = self.__class__
+## class ideal_gas_eos(eos):
+##     def __init__(self, kinetics = 'GasKinetics',
+##                  transport = 'none'):
+##         self._pure = 0
+##         self._kin = kinetics
+##         self._tr = transport
+##         global _idealgas_class
+##         _idealgas_class = self.__class__
         
-    def build(self, p):
-        e = p.addChild("thermo")
-        e['model'] = 'IdealGas'
-        k = p.addChild("kinetics")
-        k['model'] = self._kin
-        t = p.addChild('transport')
-        t['model'] = self._tr
+##     def build(self, p):
+##         e = p.addChild("thermo")
+##         e['model'] = 'IdealGas'
+##         k = p.addChild("kinetics")
+##         k['model'] = self._kin
+##         t = p.addChild('transport')
+##         t['model'] = self._tr
         
-    def conc_dim(self):
-        return (1, -3)
+##     def conc_dim(self):
+##         return (1, -3)
 
 
-class surface(eos):
-    def __init__(self, site_density = 0.0):
-        self._pure = 0
-        self._s0 = site_density
-    def build(self, p):
-        e = p.addChild("thermo")
-        e['model'] = 'Surface'
-        addFloat(e, 'site_density', self._s0, '%14.6E')
+## class surface(eos):
+##     def __init__(self, site_density = 0.0):
+##         self._pure = 0
+##         self._s0 = site_density
+##     def build(self, p):
+##         e = p.addChild("thermo")
+##         e['model'] = 'Surface'
+##         addFloat(e, 'site_density', self._s0, '%14.6E')
         
-    def conc_dim(self):
-        return (1, -2)    
+##     def conc_dim(self):
+##         return (1, -2)    
         
 #-------------------------------------------------------------------
 
@@ -1204,3 +1181,33 @@ class Lindemann:
 
 get_atomic_wts()
 validate()
+
+
+if __name__ == "__main__":
+    from Cantera import *
+    import sys, os, os.path
+    file = sys.argv[1]
+    base = os.path.basename(file)
+    root, ext = os.path.splitext(base)
+    dataset(root)
+    execfile(file)
+    write()
+    
+
+##########################################
+#
+# $Author$
+# $Revision$
+# $Date$
+# $Log$
+# Revision 1.15  2003-08-18 05:05:02  dggoodwin
+# added support for specified reaction order, sticking coefficients,
+# coverage dependence of rate coefficients; fixed error where site_density
+# was not being converted to SI.
+#
+# Revision 1.14  2003/08/16 20:17:21  dggoodwin
+# changed handling of reaction pre-exponential units to write converted
+# value to CTML, rather than pass original value with a units string
+#
+#
+###########################################
