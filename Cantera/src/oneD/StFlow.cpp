@@ -261,9 +261,12 @@ namespace Cantera {
 
         if (m_trans->model() == cMulticomponent) {
             m_transport_option = c_Multi_Transport;
+            m_diff.resize(m_nsp*m_nsp*m_points);
+            m_dthermal.resize(m_nsp, m_points, 0.0);
         }
         else if (m_trans->model() == cMixtureAveraged) {
             m_transport_option = c_Mixav_Transport;
+            m_diff.resize(m_nsp*m_points);
             if (withSoret) 
                 throw CanteraError("setTransport",
                     "Thermal diffusion (the Soret effect) "
@@ -374,15 +377,15 @@ namespace Cantera {
         //              update properties
         //-----------------------------------------------------
 
-        // thermodynamic properties only if a Jacobian is
-        // not being evaluated
-        if (jpt < 0) 
+        // update thermodynamic properties only if a Jacobian is not
+        // being evaluated
+        if (jpt < 0 || (m_transport_option == c_Multi_Transport)) {
             updateThermo(x, j0, j1);
 
-        // update transport properties only if a Jacobian is
-        // not being evaluated
-        if (jpt < 0) 
+            // update transport properties only if a Jacobian is not being
+            // evaluated 
             updateTransport(x, j0, j1);
+        }
 
         // update the species diffusive mass fluxes whether or not a
         // Jacobian is being evaluated
@@ -600,10 +603,18 @@ namespace Cantera {
         else if (m_transport_option == c_Multi_Transport) {
             for (j = j0; j < j1; j++) {
                 setGasAtMidpoint(x,j);
+                //dz = m_z[j+1] - m_z[j];
+
                 m_visc[j] = m_trans->viscosity();
+
                 m_trans->getMultiDiffCoeffs(m_nsp, 
                     m_diff.begin() + mindex(0,0,j));
+                //for (k = 0; k < m_nsp; k++) {  
+                
                 m_tcon[j] = m_trans->thermalConductivity();
+                if (m_do_soret) {
+                    m_trans->getThermalDiffCoeffs(m_dthermal.begin() + j*m_nsp);
+                }
             }
         }
     }
@@ -904,7 +915,8 @@ namespace Cantera {
     void StFlow::updateDiffFluxes(const doublereal* x, int j0, int j1) {
         int j, k, m;
         doublereal sum, wtm, rho, dz, gradlogT, s;
-
+        doublereal fluxsum;
+        char ch;
         switch (m_transport_option) {
 
         case c_Mixav_Transport:
@@ -929,15 +941,18 @@ namespace Cantera {
                 wtm = m_wtm[m];
                 rho = density(m);
                 dz = z(m+1) - z(m);
-                
+                fluxsum = 0.0;
                 for (k = 0; k < m_nsp; k++) {
                     sum = 0.0;
                     for (j = 0; j < m_nsp; j++) {
-                        s = m_wt[j]*m_diff[mindex(k,j,m)];
-                        s *= (X(x,k,m+1) - X(x,k,m))/dz;
-                        sum += s;
+                        if (j != k) {
+                            s = m_wt[j]*m_diff[mindex(k,j,m)];
+                            s *= (X(x,j,m+1) - X(x,j,m))/dz;
+                            sum += s;
+                        }
                     }
                     m_flux(k,m) = sum*rho*m_wt[k]/(wtm*wtm);
+                    fluxsum -= m_flux(k,m);
                 }
             } 
             break;
@@ -946,7 +961,6 @@ namespace Cantera {
         }
 
         if (m_do_soret) {
-            throw CanteraError("updateDiffFluxes","not yet");
             for (m = j0; m < j1; m++) {
                 gradlogT = 2.0*(T(x,m+1) - T(x,m))/(T(x,m+1) + T(x,m));
                 for (k = 0; k < m_nsp; k++) {
