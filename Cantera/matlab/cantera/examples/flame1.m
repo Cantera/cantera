@@ -47,7 +47,6 @@ set(gas,'T', tburner, 'P', p, 'X', comp);
 %%%%%%%%%%%%%%%% create the flow object %%%%%%%%%%%%%%%%%%%%%%%
 
 f = AxisymmetricFlow(gas,'flow');
-
 set(f, 'P', p, 'grid', initial_grid);
 set(f, 'tol', tol_ss, 'tol-time', tol_ts);
 
