@@ -145,6 +145,19 @@ static int diff_double(double d1, double d2, double rtol, double atol)
   return 0;
 }
 
+static int diff_double_slope(double d1, double d2, double rtol, 
+    double atol, double xtol, double slope1, double slope2)
+
+/*
+ * Compares 2 doubles. If they are not within tolerance, then this
+ * function returns true. 
+ */
+{
+    double atol2 = xtol*(fabs(slope1) + fabs(slope2));
+  if (fabs(d1-d2) > (atol + atol2 + rtol * 0.5 * (fabs(d1) + fabs(d2)))) return 1;
+  return 0;
+}
+
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
@@ -754,7 +767,12 @@ int main(int argc, char *argv[])
   /*
    * Compare the solutions in each file
    */
-  
+#define DGG_MODS
+
+#ifdef DGG_MODS
+  double slope1, slope2, xatol;
+#endif
+
   for (k = 0; k < nColcomparisons; k++) {
 
     i1 =  compColList[k][0];
@@ -766,7 +784,21 @@ int main(int argc, char *argv[])
     atol_j =             get_atol(curVarValues1, nDataRows1, gatol);
     atol_j = MAX(atol_j, get_atol(curVarValues2, nDataRows2, gatol));
     for (j = 0; j < nDataRows1; j++) {
+#ifdef DGG_MODS
+        slope1 = 0.0;
+        slope2 = 0.0;
+        xatol = fabs(grtol * (NVValues1[0][j] - NVValues1[0][j-1]));
+        if (j > 0 && k > 0) {
+            slope1 = (curVarValues1[j] - curVarValues1[j-1])/
+                     (NVValues1[0][j] - NVValues1[0][j-1]);
+            slope2 = (curVarValues2[j] - curVarValues2[j-1])/
+                     (NVValues2[0][j] - NVValues2[0][j-1]);
+        }
+        if (diff_double_slope(curVarValues1[j], curVarValues2[j], 
+                grtol, atol_j, xatol, slope1, slope2)) {
+#else
       if (diff_double(curVarValues1[j], curVarValues2[j], grtol, atol_j)) {
+#endif
 	ndiff++;
 	rel_diff = calc_rdiff((double) curVarValues1[j], 
 			      (double) curVarValues2[j], grtol, atol_j);
