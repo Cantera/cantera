@@ -2,14 +2,17 @@
 #define CTPY_UTILS
 
 #include "Python.h"
+#include "../../src/global.h"
 
 static PyObject* reportCanteraError() {
-    char* buf = 0;
-    int buflen = getCanteraError(0, buf) + 1;
-    buf = new char[buflen+1];
-    getCanteraError(buflen, buf);
-    PyErr_SetString(ErrorObject,buf);
-    delete buf;
+    Cantera::showErrors();
+    //char* buf = 0;
+    //int buflen = getCanteraError(0, buf) + 1;
+    //buf = new char[buflen+1];
+    //getCanteraError(buflen, buf);
+    //PyErr_SetString(ErrorObject,buf);
+    //delete buf;
+    PyErr_SetString(ErrorObject,"An exception was thrown by Cantera.");
     return NULL;
 }
 

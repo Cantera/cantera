@@ -22,6 +22,7 @@
 #include "SpeciesThermoFactory.h"
 #include "ThermoFactory.h"
 #include "FalloffFactory.h"
+#include "logger.h"
 
 //#ifndef WIN32
 //#include "ctdir.h"
@@ -58,6 +59,7 @@ namespace Cantera {
                 if (sleepstr != 0) {
                     sleep = string(sleepstr);
                 }
+                logwriter = new Logger();
             }
 
         virtual ~Application() {
@@ -79,8 +81,10 @@ namespace Cantera {
         string tmp_dir;
         map<string, XML_Node*> xmlfiles;
         string sleep;
+        Logger* logwriter;
     };
         
+    
             
     /// Returns a pointer to the one and only instance of Application
     Application* app();
@@ -117,6 +121,7 @@ namespace Cantera {
         }
         return __app;
     }
+
 
     XML_Node* get_XML_File(string file) {
         string path = findInputFile(file);
@@ -255,7 +260,7 @@ namespace Cantera {
         if (i == 0) return;
         f << endl << endl;
         f << "************************************************" << endl;
-        f << "                Cantera Error!                  " << endl;
+        f << "                   Cantera Error!                  " << endl;
         f << "************************************************" << endl << endl;
         int j;
         for (j = 0; j < i; j++) {
@@ -274,7 +279,7 @@ namespace Cantera {
         if (i == 0) return;
         writelog("\n\n");
         writelog("************************************************\n");
-        writelog("                Cantera Error!                  \n");
+        writelog("                   Cantera Error!                  \n");
         writelog("************************************************\n\n");
         int j;
         for (j = 0; j < i; j++) {
@@ -363,6 +368,13 @@ namespace Cantera {
     void addDirectory(string dir) {
         appinit();
         if (__app->inputDirs.size() == 0) setDefaultDirectories();
+        string d = stripnonprint(dir);
+        size_t m, n = __app->inputDirs.size();
+
+        // don't add if already present
+        for (m = 0; m < n; m++)
+            if (d == __app->inputDirs[m]) return;
+
         __app->inputDirs.push_back(stripnonprint(dir));
     }
 
@@ -430,6 +442,24 @@ namespace Cantera {
         else {
             return name;
         }
+    }
+
+    void writelog(const string& msg) {
+        app()->logwriter->write(msg);
+    }
+
+    void error(const string& msg) {
+        app()->logwriter->error(msg);
+    }
+
+    int userInterface() {
+        return app()->logwriter->env();
+    }
+
+    void setLogger(Logger* logwriter) {
+        appinit();
+        delete __app->logwriter;
+        __app->logwriter = logwriter;
     }
 
     void writelog(const char* msg) {writelog(string(msg));}

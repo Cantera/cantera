@@ -1,3 +1,6 @@
+#ifndef PYLOGGER_H
+#define PYLOGGER_H
+
 #include "Python.h"
 #include <string>
 #include "../../src/logger.h"
@@ -40,3 +43,4 @@ namespace Cantera {
     };
 }
 
+#endif

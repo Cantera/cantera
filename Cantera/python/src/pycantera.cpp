@@ -54,7 +54,8 @@ static PyObject *ErrorObject;
 
 
 #include "methods.h"
-
+#include "pylogger.h"
+#include "../../src/global.h"
 extern "C" {
 
     /* Initialization function for the module */
@@ -69,6 +70,8 @@ extern "C" {
         /* Create the module and add the functions */
         m = Py_InitModule("_cantera", ct_methods);
         import_array();
+        Cantera::Logger* pylog = new Cantera::Py_Logger;
+        setLogger(pylog);
  
         /* Add some symbolic constants to the module */
         d = PyModule_GetDict(m);

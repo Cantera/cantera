@@ -39,12 +39,12 @@ namespace ctml {
             string sp = stripws(string(py));
             if (sp.size() > 0) s = sp;
         }
-#ifdef PYTHON_EXE
-        else {
-            string se = stripws(string(PYTHON_EXE));
-            if (se.size() > 0) s = se;
-        }
-#endif
+        //#ifdef PYTHON_EXE
+            //else {
+        //string se = stripws(string(PYTHON_EXE));
+        //  if (se.size() > 0) s = se;
+        //}
+        //#endif
         return s;
     }
 

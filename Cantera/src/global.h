@@ -22,6 +22,7 @@
 namespace Cantera {
 
     class XML_Node;
+    class Logger;
 
     /// Number of errors that have been encountered so far
     int nErrors();
@@ -98,6 +99,8 @@ namespace Cantera {
 
     /// returns 1 for MATLAB, 2 for Python, and 0 for C++ or Fortran.
     int userInterface();
+
+    void setLogger(Logger* logwriter);
 
     /**
      * Return the conversion factor to convert unit string 'unit' to

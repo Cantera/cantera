@@ -12,6 +12,8 @@
 #include "mex.h"
 #include "../../../clib/src/ct.h"
 #include "ctmatutils.h"
+#include "mllogger.h"
+#include "../../../src/global.h"
 
 namespace Cantera {
     void setMatlabMode(bool m);
@@ -70,6 +72,14 @@ void onedimmethods( int nlhs, mxArray *plhs[], int nrhs,
 void funcmethods( int nlhs, mxArray *plhs[], int nrhs, 
     const mxArray *prhs[] );
 
+static Cantera::ML_Logger* _logger = 0;
+
+void initLogger() {
+    if (!_logger) {
+        _logger = new Cantera::ML_Logger;
+        Cantera::setLogger(_logger);
+    }
+}
 
 
 extern "C" {
@@ -77,6 +87,11 @@ extern "C" {
     void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[] )
     {
+
+        // create a log writer for error messages if this is the
+        // first MATLAB function call
+        initLogger();
+
         // flag specifying the class
         int iclass = getInt(prhs[0]);
         
