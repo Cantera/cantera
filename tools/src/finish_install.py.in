@@ -80,6 +80,11 @@ fm.write("""path('"""+prefix+"""/matlab/toolbox/cantera/cantera',path)\n""")
 fm.write("""path('"""+prefix+"""/matlab/toolbox/cantera/cantera/1D',path)\n""")
 fm.close()
 
+fm = open(ctdir+"/cantera_demos.m","w")
+fm.write("""ctpath;\n""")
+fm.write("""cd demos/matlab;\n""")
+fm.write("""run_examples;\n""")
+fm.close()
 print """
 
 Cantera has been successfully installed.

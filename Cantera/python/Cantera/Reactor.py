@@ -439,11 +439,12 @@ _mfccount = 0
 class MassFlowController(FlowDevice):
     
     """Mass flow controllers. A mass flow controller maintains a
-    constant mass flow rate independent of upstream and downstream
-    conditions. The equation used to compute the mass flow rate is
-    \f[ \dot m = \dot m_0, \f] where \f$ \dot m_0 \f$ is a 
-    non-negative value specified when the object is constructed or set
-    by calling method setMassFlowRate.
+    specified mass flow rate independent of upstream and downstream
+    conditions. The equation used to compute the mass flow rate is \f[
+    \dot m = \max(\dot m_0, 0.0), \f] where \f$ \dot m_0 \f$ is either
+    a constant value or a function of time. Note that if \f$\dot m_0 <
+    0\f$, the mass flow rate will be set to zero, since reversal of
+    the flow direction is not allowed.
     
     Unlike a real mass flow controller, a MassFlowController object
     will maintain the flow even if the downstream pressure is greater
@@ -460,6 +461,15 @@ class MassFlowController(FlowDevice):
     are constant across a mass flow controller, and the pressure
     difference equals the difference in pressure between the upstream
     and downstream reactors.
+
+    Examples:
+    
+    >>> mfc1 = MassFlowController(upstream = res1, downstream = reactr,
+    ...                           name = 'fuel_mfc', mdot = 0.1)
+    >>> air_mdot = Gaussian(A = 0.1, t0 = 2.0, FWHM = 0.1)
+    >>> mfc2 = MassFlowController(upstream = res2, downstream = reactr,
+    ...                           name = 'air_mfc', mdot = air_mdot)
+    
     """
     def __init__(self, upstream=None,
                  downstream=None,
@@ -475,9 +485,10 @@ class MassFlowController(FlowDevice):
         integer assigned in the order the MassFlowController object
         was created.
 
-        mdot - Mass flow rate [kg/s]. This mass flow rate will be
-        maintained, independent of unstream and downstream conditions,
-        unless reset by calling method 'setMassFlowRate'.
+        mdot - Mass flow rate [kg/s]. This mass flow rate, which may
+        be a constant of a function of time, will be maintained,
+        independent of unstream and downstream conditions, unless
+        reset by calling method 'set'.
 
         verbose - if set to a positive integer, additional diagnostic
         information will be printed.
@@ -505,7 +516,9 @@ class MassFlowController(FlowDevice):
 
 
     def set(self, mdot = 0.0):
-        """Set the mass flow rate [kg/s].
+        """Set the mass flow rate [kg/s]. May be called at any time to
+        change the mass flow rate to a new value, or to a new function
+        of time.
 
         >>> mfc.set(mdot = 0.2)
         """
@@ -516,12 +529,19 @@ _valvecount = 0
 
 class Valve(FlowDevice):
     """Valves. In Cantera, a Valve object is a flow devices with mass
-    flow rate proportional to the pressure drop across it. The equation
-    used to compute the mass flow rate is
+    flow rate that is a function of the pressure drop across it. The default behavior
+    is linear:
     \f[ \dot m = K_v (P_1 - P_2) \f]
     if \f$ P_1 > P_2. \f$
     Otherwise,
-    \f$ \dot m = 0 \f$. It is never possible for the flow to reverse
+    \f$ \dot m = 0 \f$.
+    However, an arbitrary function \f$ F\f$ can also be specified, such that
+    \f[
+    \dot m = F(P_1 - P_2).
+    \f]
+    if \f$ P_1 > P_2, \f$
+    or  \f$ \dot m = 0 \f$ otherwise.    
+    It is never possible for the flow to reverse
     and go from the downstream to the upstream reactor/reservoir through
     a line containing a Valve object. 
 
@@ -531,14 +551,6 @@ class Valve(FlowDevice):
     sufficiently large value, very small pressure differences will
     result in flow between the reactors that counteracts the pressure
     difference.
-
-    Since the mass flow rate is assumed to be linear in \f$ \Delta P \f$,
-    these objects do not model real, physical valves, in which the flow rate 
-    is proportional to \f$ \sqrt(\Delta P) \f$ for small pressure
-    differences, and becomes independent of \f$ \Delta P \f$ when
-    it becomes large (choked flow). Perhaps the name of this class should
-    be changed to avoid confusion with real valves -- if you have suggestions,
-    post a comment at  the Cantera User's Group site.
 
     A Valve is assumed to be adiabatic, non-reactive, and have
     negligible internal volume, so that it is internally always in
@@ -577,11 +589,10 @@ class Valve(FlowDevice):
         self.setValveCoeff(Kv, mdot0)
 
 
-    def setValveCoeff(self, Kv = -1.0, mdot0 = 0.0):
+    def setValveCoeff(self, Kv = -1.0):
         """Set or reset the valve coefficient \f$ K_v \f$."""
-        vv = zeros(2,'d')
+        vv = zeros(1,'d')
         vv[0] = Kv
-        vv[1] = mdot0
         if self._verbose:
             print
             print self._name+': setting valve coefficient to '+`Kv`+' kg/Pa-s'
@@ -595,17 +606,35 @@ class Valve(FlowDevice):
         else:
             raise CanteraError("Wrong type for valve characteristic function.")
 
-    def set(self, Kv = -1.0, mdot = 0.0, F = None):
+    def set(self, Kv = -1.0, F = None):
+        """Set or reset valve properties. All keywords are optional.
+
+        Kv - constant in linear mass flow rate equation.
+
+        F - function of \f$\Delta P\f$.
+        """
         if F:
             self.setFunction(F)
         if Kv > 0.0:
-            self.setValveCoeff(Kv, mdot0 = mdot)
+            self.setValveCoeff(Kv)
             
 
 
 _pccount = 0
 
 class PressureController(FlowDevice):
+
+    """ A PressureController is designed to be used in conjunction
+    with another 'master' flow controller, typically a
+    MassFlowController. The master flow controller is installed on the
+    inlet of the reactor, and the corresponding PressureController is
+    installed on on outlet of the reactor. The PressureController mass
+    flow rate is equal to the master mass flow rate, plus a
+    small correction dependent on the pressure difference:
+    \f[
+    \dot m = \dot m_{\rm master} + K_v(P_1 - P_2).
+    \f]
+    """
 
     def __init__(self, upstream=None, downstream=None,
                  name='', master = None, Kv = 0.0, verbose=0):
@@ -614,10 +643,10 @@ class PressureController(FlowDevice):
         
         downstream - downstream reactor or reservoir.
         
-        name - name used to identify the valve in output.
-        If no name is specified, it defaults to 'Valve_n', where n is an
-        integer assigned in the order the Valve object
-        was created.
+        name - name used to identify the pressure controller in
+        output.  If no name is specified, it defaults to
+        'PressureController_n', where n is an integer assigned in the
+        order the PressureController object was created.
 
         Kv - the constant in the mass flow rate equation.
 
@@ -646,6 +675,7 @@ class PressureController(FlowDevice):
         self._setParameters(vv)
 
     def setMaster(self, master):
+        """Set the master flow controller."""
         _cantera.flowdev_setMaster(self.flowdev_id(),
                                    master.flowdev_id())
             

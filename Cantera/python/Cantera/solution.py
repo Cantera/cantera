@@ -26,7 +26,7 @@ class Solution(ThermoPhase, Kinetics, Transport):
 
     """
 
-    def __init__(self, src="", id=""):
+    def __init__(self, src="", id="", loglevel = 0):
 
         self.ckin = 0
         self._owner = 0
@@ -52,7 +52,7 @@ class Solution(ThermoPhase, Kinetics, Transport):
 
         # initialize the transport model
         Transport.__init__(self, xml_phase=s, phase=self,
-                           model = '', loglevel=0)
+                           model = '', loglevel=loglevel)
         
     def __del__(self):
         Transport.__del__(self)

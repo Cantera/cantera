@@ -130,6 +130,9 @@ clean:
 depends:
 	echo '-'
 
+run-demo:
+	(cd @ct_dir@; matlab -nojvm -nosplash -r cantera_demos)
+
 # end of file
 
 

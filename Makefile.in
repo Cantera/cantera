@@ -213,6 +213,9 @@ test: example_codes datafiles
 	cd test_problems; @MAKE@ all
 	cd test_problems; @MAKE@ test
 
+run-matlab-demo:
+	cd Cantera/matlab; @MAKE@ run-demo
+
 datafiles:
 	cd data/inputs; @MAKE@
 

@@ -422,7 +422,7 @@ namespace Cantera {
         // T* range
         tr.xml->XML_open(flog, "collision_integrals");
         m_integrals = new MMCollisionInt;
-        m_integrals->init(tr.xml, tstar_min, tstar_max);
+        m_integrals->init(tr.xml, tstar_min, tstar_max, log_level);
         fitCollisionIntegrals(flog, tr);
         tr.xml->XML_close(flog, "collision_integrals");
 
