@@ -70,10 +70,9 @@ fi
 if test "x${OS_IS_WIN}" = "x1"; then
   prefix=`cygpath -a -m "${prefix}" `
 fi
-
-
 echo "Cantera will be installed in ${prefix}"
 AC_SUBST(prefix)
+
 AC_SUBST(local_inst)
 
 #
@@ -82,14 +81,27 @@ AC_SUBST(local_inst)
 local_python_inst=${local_inst}
 if test "x${SET_PYTHON_SITE_PACKAGE_TOPDIR}" = "xy"; then
    python_prefix=${PYTHON_SITE_PACKAGE_TOPDIR}
+   python_win_prefix=$python_prefix
+   if test "x${OS_IS_WIN}" = "x1" ; then
+     python_prefix=`cygpath -a -m "${python_prefix}"`
+     python_win_prefix=`cygpath -a -w "${python_prefix}"`
+   elif  test  "x${OS_IS_CYGWIN}" = "x1" ; then
+     python_prefix=`cygpath -a -u "${python_prefix}"`
+     python_win_prefix=`cygpath -a -w "${python_prefix}"`
+   fi
    local_python_inst=1
    echo "Cantera's Python packages will be installed in ${python_prefix}"
 else
    python_prefix=$prefix
+   python_win_prefix=$python_prefix
+   if test "x${OS_IS_WIN}" = "x1"; then
+     python_win_prefix=`cygpath -a -w "${python_prefix}" `
+   fi
 fi
 
 AC_SUBST(local_python_inst)
 AC_SUBST(python_prefix)
+AC_SUBST(python_win_prefix)
 
 ctversion=${CANTERA_VERSION}
 AC_SUBST(ctversion)
@@ -551,11 +563,16 @@ if test "$BUILD_MATLAB_TOOLBOX" != "n"; then
   else
     echo "Matlab command preset to $(MATLAB_CMD)$"
   fi
-fi
-if test "x$OS_IS_WIN" = "x1"; then
-    MATLAB_CMD=`cygpath -a -m "$MATLAB_CMD" | sed 's/\\\/\\//g'`
+  if test "x$OS_IS_WIN" = "x1"; then
+    MATLAB_CMD=`cygpath -a -m "$MATLAB_CMD" `
     echo "Windows MATLAB command: ${MATLAB_CMD}"
-fi 
+  fi 
+else
+  echo "MATLAB interface will not be installed"
+  if test -z "$MATLAB_CMD"; then
+    MATLAB_CMD="matlab"
+  fi
+fi
 AC_SUBST(BUILD_MATLAB)
 AC_SUBST(MATLAB_CMD)
 AC_SUBST(BUILD_CLIB)
