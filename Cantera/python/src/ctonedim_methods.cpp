@@ -428,6 +428,15 @@ py_outlet_new(PyObject *self, PyObject *args)
     return Py_BuildValue("i",_val);
 }
 
+static PyObject *
+py_outletres_new(PyObject *self, PyObject *args)
+{
+    int _val;
+    _val = outletres_new(); 
+    if (int(_val) == -1) return reportCanteraError();
+    return Py_BuildValue("i",_val);
+}
+
 
 static PyObject *
 py_symm_new(PyObject *self, PyObject *args)

@@ -76,6 +76,7 @@ namespace ckr {
         string m_ckfilename;
         ostream* m_log;
         bool m_nasafmt;
+        char m_last_eol;
         void readThermoRecord(Species& sp);
         void getCKLine(string& s, string& comment);    
         void putCKLine(string& s, string& comment);

@@ -436,12 +436,12 @@ namespace Cantera {
             xb = x - nc;
             rb = r - nc;
             db = diag - nc;
-            rb[0] = xb[3];      
-            rb[2] = xb[2] - xb[2 - nc];
+
+            // zero Lambda
+            rb[0] = xb[3];               // zero Lambda
+            rb[2] = xb[2] - xb[2 - nc];  // zero T gradient
             for (k = 5; k < nc; k++) {
-                //                if (m_flow_left->doSpecies(k-4)) {
-                rb[k] = xb[k] - xb[k - nc];
-                //}
+                rb[k] = xb[k] - xb[k - nc]; // zero mass fraction gradient
             }
         }
     }
@@ -457,6 +457,139 @@ namespace Cantera {
     }
 
     void Outlet1D::
+    restore(XML_Node& dom, doublereal* soln) {
+        resize(1,1);
+    }
+
+
+
+
+    //--------------------------------------------------   
+    //      OutletRes1D
+    //--------------------------------------------------
+
+
+    void OutletRes1D::
+    setMoleFractions(string xres) {
+        m_xstr = xres;
+        if (m_flow) {
+            m_flow->phase().setMoleFractionsByName(xres);
+            m_flow->phase().getMassFractions(m_yres.begin());
+            needJacUpdate();
+        }
+    }
+
+    void OutletRes1D::
+    setMoleFractions(doublereal* xres) {
+        if (m_flow) {
+            m_flow->phase().setMoleFractions(xres);
+            m_flow->phase().getMassFractions(m_yres.begin());
+            needJacUpdate();
+        }
+    }
+ 
+    string OutletRes1D::componentName(int n) const { 
+        switch (n) {
+        case 0: return "dummy"; break;
+        default: return "<unknown>";
+        }
+    }
+
+    void OutletRes1D::
+    init() { 
+        _init(1); 
+       // set bounds (dummy)
+        const doublereal lower = -1.0;
+        const doublereal upper = 1.0;
+        setBounds(1, &lower, 1, &upper);
+
+        // set tolerances
+        const doublereal rtol = 1e-4;
+        const doublereal atol = 1.e-4;
+        setTolerances(1, &rtol, 1, &atol);
+
+        if (m_flow_left) {
+            m_flow = m_flow_left;
+        }
+        else if (m_flow_right) {
+            m_flow = m_flow_right;
+        }
+        else {
+            throw CanteraError("OutletRes1D::init","no flow!");
+        }
+
+        m_nsp = m_flow->nComponents() - 4;
+        m_yres.resize(m_nsp, 0.0);
+        if (m_xstr != "") 
+            setMoleFractions(m_xstr);
+        else
+            m_yres[0] = 1.0;
+    }
+
+
+    void OutletRes1D::
+    eval(int jg, doublereal* xg, doublereal* rg, 
+        integer* diagg, doublereal rdt) {
+
+        if (jg >= 0 && (jg < firstPoint() - 2 || jg > lastPoint() + 2)) return;
+
+        // start of local part of global arrays
+        doublereal* x = xg + loc();
+        doublereal* r = rg + loc();
+        integer* diag = diagg + loc();
+        doublereal *xb, *rb;
+        integer *db;
+
+        // drive dummy component to zero
+        r[0] = x[0];
+        diag[0] = 0;
+        int nc, k;
+
+        if (m_flow_right) {
+            nc = m_flow_right->nComponents();
+            xb = x + 1;
+            rb = r + 1;
+            db = diag + 1;
+
+            // this seems wrong...
+            // zero Lambda
+            rb[0] = xb[3];
+      
+            // zero gradient for T
+            rb[2] = xb[2] - xb[2 + nc];
+
+            // specified mass fractions
+            for (k = 4; k < nc; k++) {
+                rb[k] = xb[k] - m_yres[k-4];
+            }
+        }
+
+        if (m_flow_left) {
+
+            nc = m_flow_left->nComponents();
+            xb = x - nc;
+            rb = r - nc;
+            db = diag - nc;
+
+            rb[0] = xb[3];                     // zero Lambda
+            rb[2] = xb[2] - xb[2 - nc];        // zero dT/dz
+            for (k = 5; k < nc; k++) {
+                rb[k] = xb[k] - m_yres[k-4];     // fixed Y
+            }
+        }
+    }
+
+
+    void OutletRes1D::
+    save(XML_Node& o, doublereal* soln) {
+        XML_Node& outlt = o.addChild("domain");
+        outlt.addAttribute("id",id());
+        outlt.addAttribute("points",1);
+        outlt.addAttribute("type","outletcomp");
+        outlt.addAttribute("components",nComponents());
+    }
+
+    void OutletRes1D::
     restore(XML_Node& dom, doublereal* soln) {
         resize(1,1);
     }

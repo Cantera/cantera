@@ -9,7 +9,7 @@
 ###############################################################
 
 SUFFIXES=
-SUFFIXES= .cpp .d .o
+SUFFIXES= .cpp .d .o .dh
 
 OBJDIR = .
 
@@ -56,6 +56,7 @@ EVERYTHING = $(KINETICS) $(HETEROKIN) $(ELECTROCHEM) $(EQUIL) $(CK) \
 
 
 PCH = ct_defs.h.gch utilities.h.gch ThermoPhase.h.gch Kinetics.h.gch
+PCHSRC = ($PCH:.h.gch=.h)
 
 all:  config.h $(PCH) @KERNEL@ lib
 
@@ -109,10 +110,14 @@ CXX_LIBS = @LIBS@
 CXX_INCLUDES = -I.
 CANTERA_LIB = @buildlib@/libcantera.a
 
-DEPENDS = $(EVERYTHING:.o=.d) $(PCH:.gch=.d)
+DEPENDS = $(EVERYTHING:.o=.d) $(PCH:.h.gch=.dh)
+SRCS = $(EVERYTHING:.o=.cpp) $(PCH:.gch=)
 
-%.d:
-	g++ -MM $*.cpp > $*.d
+.cpp.d:
+	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
+
+.h.dh:
+	g++ -MM $(CXX_INCLUDES) $*.h > $*.dh
 
 .cpp.o:
 	@CXX@ -c $< $(CXX_FLAGS) 

@@ -305,6 +305,15 @@ class Outlet(Bdry1D):
         Bdry1D.__init__(self)        
         self._hndl = _cantera.outlet_new()
         if id: self.setID(id)        
+
+class OutletRes(Bdry1D):
+    """A one-dimensional outlet into a reservoir."""
+    
+    def __init__(self, id = 'outletres'):
+        Bdry1D.__init__(self)        
+        self._hndl = _cantera.outletres_new()
+        if id: self.setID(id)        
+
     
 class SymmPlane(Bdry1D):
     """A symmetry plane."""

@@ -38,6 +38,7 @@ extern "C" {
 
     int DLL_IMPORT inlet_new();
     int DLL_IMPORT outlet_new();
+    int DLL_IMPORT outletres_new();
     int DLL_IMPORT symm_new();
     int DLL_IMPORT surf_new();
     int DLL_IMPORT reactingsurf_new();

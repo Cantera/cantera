@@ -14,7 +14,7 @@ SUFFIXES= .cpp .d .o
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
-OBJS = ct.o Storage.o ctsurf.o ctrpath.o ctbdry.o \
+OBJS = ct.o Storage.o ctsurf.o ctrpath.o \
        ctreactor.o ctfunc.o ctxml.o ctonedim.o
 
 DEPENDS = $(OBJS:.o=.d)

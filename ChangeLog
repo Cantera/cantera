@@ -1,3 +1,493 @@
+2004-07-21 13:41  hkmoffa
+
+	* Cantera/src/: ThermoFactory.h, misc.cpp: Took the deletion of a
+	  static pointer out of destructor.
+
+2004-07-16 17:18  hkmoffa
+
+	* Cantera/src/: ConstDensityThermo.h, NasaPoly1.h, NasaThermo.h,
+	  PolyThermoMgr.h, ShomatePoly.h, ShomateThermo.h, SimpleThermo.h,
+	  SpeciesThermo.h, SpeciesThermoMgr.h, StoichSubstance.cpp,
+	  StoichSubstance.h, ThermoPhase.h:  Added "getParameter" routines
+	  to most of the species and phase
+	   thermo objects.
+
+	   Fixed a bug in NasaThermo::update_one() and
+	  ShomateThermo::update_one()
+	   that occurred because m_low_map and m_high_map contained bad
+	   information. They were maps to fixed pointers, but the location
+	  of the
+	   objects that they referred to changed during vector resizing
+	  operations.
+
+2004-07-12 07:58  hkmoffa
+
+	* Cantera/clib/src/: ct.cpp, ctonedim.cpp: static_cast to eliminate
+	  warnings from msvc.
+
+2004-07-12 07:57  hkmoffa
+
+	* Cantera/clib/src/Storage.cpp: Static casts to eliminates warnings
+	  from msvc
+
+2004-07-12 07:57  hkmoffa
+
+	* Cantera/clib/src/Cabinet.h: Static_casts to eliminate warnings
+	  from msvc.
+
+2004-07-08 13:32  hkmoffa
+
+	* Cantera/src/StoichSubstance.cpp: Fixed an error that was making
+	  the diamond test problem fail.
+
+2004-07-08 13:32  hkmoffa
+
+	* test_problems/diamondSurf/diamond_blessed.xml: Updated file so
+	  test would pass
+
+2004-07-08 13:14  hkmoffa
+
+	* test_problems/silane_equil/output_blessed.txt: Updated blessed
+	  file.
+
+2004-07-08 11:14  hkmoffa
+
+	* Cantera/src/: InterfaceKinetics.cpp, InterfaceKinetics.h: Added
+	  more comments. -> only formatting.
+
+2004-07-08 11:12  hkmoffa
+
+	* Cantera/src/Group.cpp: only formatting.
+
+2004-07-08 11:11  hkmoffa
+
+	* Cantera/src/units.h: Fixed an error that I recently introduced in
+	  using size_types.
+
+2004-07-08 11:10  hkmoffa
+
+	* Cantera/src/ctml.cpp: Fixed errors that I recently introduced in
+	  using size_types.
+
+2004-07-08 11:09  hkmoffa
+
+	* Cantera/src/misc.cpp: Fixed an error that I recently introduced
+	  in using size_types
+
+2004-07-08 11:07  hkmoffa
+
+	* Cantera/src/stringUtils.cpp: Fixed an error that I recently
+	  introduced in using size_types.
+
+2004-07-08 11:03  hkmoffa
+
+	* Cantera/src/GasKinetics.h: Added more initializations
+
+2004-07-08 09:08  hkmoffa
+
+	* Cantera/src/misc.cpp: Fixed an error that I introduced. Must
+	  always check string::size_type against string::npos.
+
+2004-07-02 10:34  hkmoffa
+
+	* Cantera/src/converters/CKParser.cpp: Eliminated warnings due to
+	  signed and unsigned comparisons.
+
+2004-07-02 10:28  hkmoffa
+
+	* Cantera/src/converters/CKReader.cpp: static_cast to eliminate
+	  VC++ warnings.
+
+2004-07-02 10:27  hkmoffa
+
+	* Cantera/src/converters/CKParser.cpp: static_casts to eliminate
+	  VC++ warnings.
+
+2004-07-02 10:25  hkmoffa
+
+	* Cantera/src/converters/ck2ct.cpp: fixed file names for include
+	  files.  static_cast to eliminate VC++ warnigns.
+
+2004-07-02 10:24  hkmoffa
+
+	* Cantera/src/converters/ckr_utils.cpp: static_cast to eliminate
+	  VC++ warnings.
+
+2004-07-02 10:23  hkmoffa
+
+	* Cantera/src/converters/ckr_defs.h: Corrected file locations for
+	  include files.
+
+2004-07-02 10:21  hkmoffa
+
+	* Cantera/src/converters/: writelog.cpp, filter.cpp, Reaction.cpp:
+	  static_cast to eliminate VC++ warnings.
+
+2004-07-02 10:20  hkmoffa
+
+	* Cantera/src/converters/ck2ctml.cpp: Corrected file locations of
+	  include files.  static_cast to eliminate VC++ warnings.
+
+2004-07-02 10:19  hkmoffa
+
+	* Cantera/src/converters/ck2ctml.h: Corrected file locations of
+	  include files.
+
+2004-07-02 09:48  hkmoffa
+
+	* Cantera/src/converters/: CKParser.cpp, CKParser.h: Moved
+	  CK_SyntaxError definition to the .h file. It's used in more than
+	  one .cpp file.
+
+2004-07-02 09:47  hkmoffa
+
+	* Cantera/src/converters/filter.cpp: split long lines.
+
+2004-07-02 09:14  hkmoffa
+
+	* Cantera/src/zeroD/FlowDevice.cpp: Corrected file location of
+	  include file.
+
+2004-07-02 09:13  hkmoffa
+
+	* Cantera/src/zeroD/ReactorBase.cpp: static_cast to eliminate VC++
+	  warnings.
+
+2004-07-02 09:12  hkmoffa
+
+	* Cantera/src/zeroD/Wall.cpp: Correct file location of include
+	  file.
+
+2004-07-02 09:05  hkmoffa
+
+	* Cantera/src/transport/TransportFactory.cpp: Corrected file
+	  locations of include files.  static_cast to eliminate VC++
+	  warnings.
+
+2004-07-02 09:04  hkmoffa
+
+	* Cantera/src/transport/MultiTransport.cpp: static_cast to
+	  eliminate VC++ warnings.
+
+2004-07-02 09:02  hkmoffa
+
+	* Cantera/src/transport/MMCollisionInt.cpp: commented out a
+	  variable that wasn't used.
+
+2004-07-02 09:01  hkmoffa
+
+	* Cantera/src/transport/: L_matrix.h, MixTransport.cpp: Corrected
+	  the file location of include files.
+
+2004-07-02 08:59  hkmoffa
+
+	* Cantera/src/transport/: TransportParams.h, SolidTransport.cpp:
+	  Corrected the file locations of include files.
+
+2004-07-02 08:29  hkmoffa
+
+	* Cantera/src/oneD/MultiNewton.cpp: static_cast to eliminate VC++
+	  warnings.
+
+2004-07-02 08:27  hkmoffa
+
+	* Cantera/src/oneD/OneDim.cpp: Static_cast to eliminate VC++
+	  warnings.
+
+2004-07-02 08:26  hkmoffa
+
+	* Cantera/src/oneD/: Sim1D.cpp, StFlow.cpp: static_cast to
+	  eliminate VC++ warnings.
+
+2004-07-02 08:23  hkmoffa
+
+	* Cantera/src/oneD/refine.cpp: Static_cast to eliminate VC++
+	  warnings.
+
+2004-07-02 08:21  hkmoffa
+
+	* Cantera/src/oneD/refine.h: static_cast to eliminate warning in
+	  VC++
+
+2004-07-02 08:20  hkmoffa
+
+	* Cantera/src/oneD/Solid1D.cpp: Fixed one Error in file not part of
+	  the distribution
+
+2004-07-02 08:19  hkmoffa
+
+	* Cantera/src/oneD/Solid1D.h: Fixed one error in a file not yet
+	  part of distribution.
+
+2004-07-02 07:58  hkmoffa
+
+	* Cantera/src/DASPK.cpp: Fixed an error in a calling routine.
+
+	  Fixed an error involving passing a pointer through an integer
+	  array, when the length of the pointer is longer than the length
+	  of a single integer. Basically, you have to cast first to the
+	  longer variable, before assigning.
+
+2004-07-02 07:48  hkmoffa
+
+	* Cantera/src/SpeciesThermoFactory.cpp: static_cast to eliminate
+	  VC++ warnings.
+
+2004-07-02 07:47  hkmoffa
+
+	* Cantera/src/misc.cpp: static_cast and size_type to eliminate VC++
+	  warnings.
+
+2004-07-02 07:46  hkmoffa
+
+	* Cantera/src/importCTML.cpp: static_cast to eliminate VC++ warning
+	  messages.
+
+2004-07-02 07:45  hkmoffa
+
+	* Cantera/src/ImplicitSurfChem.cpp: static_cast to eliminate VC++
+	  warning message.
+
+2004-07-02 07:44  hkmoffa
+
+	* Cantera/src/ImplicitChem.h: Changed the name of a routine, to get
+	  it to compile. However, I don't think this is part of the
+	  distribution.
+
+2004-07-02 07:43  hkmoffa
+
+	* Cantera/src/surfKinetics.h: changed the name of an include file.
+	  however, I think this is no longer part of the distribution.
+
+2004-07-02 07:42  hkmoffa
+
+	* Cantera/src/ReactionPath.cpp: static_cast to eliminate warning
+	  messages.
+
+2004-07-02 07:41  hkmoffa
+
+	* Cantera/src/ctml.cpp: static cast and size_type to eliminate VC++
+	  warning messages.
+
+2004-07-02 07:39  hkmoffa
+
+	* Cantera/src/: stringUtils.cpp, ReactionPath.h: static_cast to
+	  eliminate VC++ warning messages.
+
+2004-07-01 16:58  hkmoffa
+
+	* Cantera/src/GasKinetics.cpp: static_cast to eliminate VC++
+	  warnings.
+
+2004-07-01 16:54  hkmoffa
+
+	* Cantera/src/: ArrayViewer.h, Kinetics.h: static_cast to eliminate
+	  VC++ warnings.
+
+2004-07-01 16:50  hkmoffa
+
+	* Cantera/src/StoichManager.h: static_cast to eliminate VC++
+	  warnings.
+
+2004-07-01 16:47  hkmoffa
+
+	* Cantera/src/: NasaThermo.h, ShomateThermo.h, RateCoeffMgr.h,
+	  ThirdBodyMgr.h: static_cast to eliminate VC++ warnings.
+
+2004-07-01 16:46  hkmoffa
+
+	* Cantera/src/plots.cpp: static_casts to eliminate VC++ warnings.
+
+2004-07-01 16:46  hkmoffa
+
+	* Cantera/src/units.h: small changes to eliminate VC++ warnings.
+
+2004-07-01 16:40  hkmoffa
+
+	* Cantera/src/DenseMatrix.cpp: static_cast to eliminate VC++
+	  warnings
+
+2004-07-01 16:35  hkmoffa
+
+	* Cantera/src/: Group.cpp, Group.h: Fixed an error that turned up
+	  in VC++.  I think the problem was that VC++ didn't allow friend
+	  functions to be defined in the body of declarations in .h files.
+
+2004-07-01 16:26  hkmoffa
+
+	* Cantera/src/Elements.cpp: static cast added to avoid VC++
+	  compiler warning.
+
+2004-07-01 16:25  hkmoffa
+
+	* Cantera/src/Array.h: static_cast added to avoid VC++ compiler
+	  issues.
+
+2004-07-01 16:22  hkmoffa
+
+	* Cantera/src/xml.cpp: VC++ warnings were taken out
+
+2004-07-01 16:12  hkmoffa
+
+	* Cantera/src/xml.h: Added static_cast to remove VC++ compiler
+	  warning.
+
+2004-06-30 15:30  hkmoffa
+
+	* Cantera/src/ImplicitChem.cpp: Fixed an error with a calling
+	  statement.
+
+2004-06-30 14:08  hkmoffa
+
+	* Cantera/src/ResidEval.h: Fixed a compiler error that showed up
+	  VC++
+
+2004-06-28 16:51  hkmoffa
+
+	* Cantera/src/Phase.h: Set m_xml to zero after deletion.
+
+2004-06-28 16:49  hkmoffa
+
+	* Cantera/src/importCTML.h: Added the installSpecies() declaration
+	  back in. This is needed for the particle species thermo object.
+	  It's in the cpp file, but just not declared here.
+
+2004-06-28 16:47  hkmoffa
+
+	* Cantera/src/SpeciesThermoFactory.cpp: Added a few throw
+	  statements that was missing.	Added a throw UnknownSpeciesThermo
+	  statement for cases where the complete thermo block is missing.
+	  This is necessary for particle species object to function.
+
+2004-06-17 10:49  dggoodwin
+
+	* Cantera/src/PureFluidPhase.cpp: initial import
+
+2004-06-16 14:55  dggoodwin
+
+	* Cantera/src/GasKinetics.cpp: changed call to
+	  ReactionStoichMgr::add so that non-integral reaction orders are
+	  correctly processed.
+
+2004-06-08 17:59  dggoodwin
+
+	* Cantera/src/: ConstDensityThermo.cpp, ConstDensityThermo.h,
+	  Constituents.cpp, Constituents.h, EdgePhase.h, Elements.h,
+	  Makefile.in, PureFluidPhase.h, SpeciesThermoFactory.cpp,
+	  SpeciesThermoFactory.h, StoichSubstance.cpp, StoichSubstance.h,
+	  SurfPhase.cpp, SurfPhase.h, ThermoFactory.cpp, ThermoPhase.cpp,
+	  ThermoPhase.h, importCTML.cpp, importCTML.h, xml.cpp, xml.h,
+	  zeroD/Wall.h: moved functions to read XML input files out of
+	  importCTML.cpp and into specific classes
+
+2004-06-06 15:02  dggoodwin
+
+	* Cantera/src/Elements.cpp: moved reading of xml element data to
+	  Elements.cpp
+
+2004-06-03 22:19  dggoodwin
+
+	* Makefile.in, configure, Cantera/matlab/setup_winmatlab.py,
+	  Cantera/python/Cantera/DustyGasTransport.py,
+	  Cantera/python/Cantera/Func.py,
+	  Cantera/python/Cantera/Interface.py,
+	  Cantera/python/Cantera/Phase.py,
+	  Cantera/python/Cantera/Reactor.py,
+	  Cantera/python/Cantera/ThermoPhase.py,
+	  Cantera/python/Cantera/Transport.py,
+	  Cantera/python/Cantera/importFromFile.py,
+	  Cantera/python/src/ctreactor_methods.cpp,
+	  Cantera/src/ct2ctml.cpp, config/configure, config/configure.in,
+	  test_problems/cxx_ex/gri30.xml, test_problems/cxx_ex/silane.xml:
+	  added comments
+
+2004-06-02 21:01  dggoodwin
+
+	* Cantera/python/Cantera/importFromFile.py: added comments
+
+2004-06-02 20:44  dggoodwin
+
+	* Cantera/python/Cantera/Interface.py: added comments
+
+2004-06-02 05:57  dggoodwin
+
+	* Cantera/python/: Cantera/Func.py, Cantera/Phase.py,
+	  Cantera/ThermoPhase.py, examples/reactor1.py,
+	  examples/reactor2.py: minor cleanup
+
+2004-06-01 21:39  dggoodwin
+
+	* Cantera/python/: Makefile.in, ctml_writer.py, setup.py.in: moved
+	  ctml_writer.py out of Cantera package
+
+2004-05-29 21:04  dggoodwin
+
+	* Cantera/src/oneD/: Sim1D.cpp, refine.cpp: fixed problem with
+	  continuing beyond max number of points
+
+2004-05-29 21:02  dggoodwin
+
+	* Cantera/python/Cantera/ctml_writer.py: converted to pure python
+
+2004-05-23 17:08  dggoodwin
+
+	* Cantera/matlab/cantera/: @Reactor/private/reactormethods.cpp,
+	  @Transport/private/newTransport.cpp,
+	  @Transport/private/trans_methods.cpp,
+	  @Wall/private/wallmethods.cpp, @XML_Node/private/newxml.cpp,
+	  @XML_Node/private/xmlmethods.cpp: removed unused files
+
+2004-05-23 17:05  dggoodwin
+
+	* Cantera/matlab/cantera/@Kinetics/private/: delkinetics.cpp,
+	  isrev.cpp, kin_get.cpp, kin_set.cpp, newkinetics.cpp,
+	  production.cpp, pstoich.cpp, rop.cpp, rstoich.cpp, rxnstring.cpp:
+	  removed unused files
+
+2004-05-21 20:52  dggoodwin
+
+	* Cantera/python/tutorial/: tut2.py, tut3.py, tut4.py: updated
+	  tutorials
+
+2004-05-21 11:09  dggoodwin
+
+	* Cantera/src/transport/MMCollisionInt.cpp: fixed bug in which
+	  upper T* limit was incorrect in fits if T*max > 100, as with
+	  helium.
+
+2004-05-17 16:22  dggoodwin
+
+	* config/configure.in: added test for sstream
+
+2004-05-17 15:59  dggoodwin
+
+	* Cantera/matlab/cantera/@ReactorNet/: addReactor.m, atol.m,
+	  rtol.m, setInitialTime.m, setMaxTimeStep.m, setTolerances.m,
+	  time.m: initial import
+
+2004-05-17 09:23  dggoodwin
+
+	* test_problems/cxx_ex/: kin1_blessed.csv, kin2_blessed.csv:
+	  reverted to previus version due to error in last versions
+
+2004-05-16 06:54  dggoodwin
+
+	* Cantera/src/: CVode.cpp, CVode.h, Integrator.h: changed
+	  setMaxStep to setMaxStepSize, setMinStep to setMinStepSize, and
+	  added setMaxSteps to set the maximum number of steps that will be
+	  taken.
+
+2004-05-14 20:19  dggoodwin
+
+	* Cantera/python/examples/critProperties.py: added example of
+	  computing critical-state properties
+
+2004-05-14 14:15  dggoodwin
+
+	* Cantera/src/transport/: MultiTransport.h, MultiTransport.cpp:
+	  added ability to compute mixture-averaged diffusion coefficients
+	  in class MultiTransport.
+
 2004-05-13 10:52  dggoodwin
 
 	* ChangeLog: log file generated from CVS log output by perl script
@@ -25,8 +515,10 @@
 
 2004-04-24 05:55  dggoodwin
 
-	* Cantera/matlab/cantera/private/reactornetmethods.cpp: initial
-	  import
+	* Cantera/matlab/cantera/: @ReactorNet/ReactorNet.m,
+	  @ReactorNet/advance.m, @ReactorNet/reactornet_hndl.m,
+	  @ReactorNet/step.m, @ReactorNet/private/reactornetmethods.m,
+	  private/reactornetmethods.cpp: initial import
 
 2004-04-24 05:50  dggoodwin
 
@@ -513,10 +1005,6 @@
 
 	* Cantera/python/Cantera/ctml_writer.py: added capability to have
 	  species names with embedded commas
-
-2003-10-24 03:11  dggoodwin
-
-	* tools/doc/html/banner4.jpg: initial import
 
 2003-10-21 17:33  dggoodwin
 

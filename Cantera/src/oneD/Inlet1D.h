@@ -287,6 +287,52 @@ namespace Cantera {
     };
 
 
+
+    /**
+     * An outlet with specified composition.
+     */
+    class OutletRes1D : public Bdry1D {
+
+    public:
+
+        /**
+         * Constructor. 
+         */
+        OutletRes1D() : Bdry1D(), m_nsp(0), m_flow(0) {
+            m_type = cOutletResType;
+            m_xstr = "";
+        }
+        virtual ~OutletRes1D(){}
+
+        virtual void showSolution(const doublereal* x) {}
+
+        virtual void _getInitialSoln(doublereal* x) {
+            x[0] = m_temp;
+        }
+
+        virtual void _finalize(const doublereal* x) {
+            ;
+        }
+
+        virtual void setMoleFractions(string xin);
+        virtual void setMoleFractions(doublereal* xin);
+        virtual doublereal massFraction(int k) {return m_yres[k];}
+        virtual string componentName(int n) const;
+        virtual void init();
+        virtual void eval(int jg, doublereal* xg, doublereal* rg, 
+            integer* diagg, doublereal rdt);
+        virtual void save(XML_Node& o, doublereal* soln);
+        virtual void restore(XML_Node& dom, doublereal* soln);    
+
+    protected:
+
+        int m_nsp;
+        vector_fp m_yres;
+        string m_xstr;
+        StFlow *m_flow;
+    };
+
+
     /**
      * A non-reacting surface. The axial velocity is zero
      * (impermeable), as is the transverse velocity (no slip). The

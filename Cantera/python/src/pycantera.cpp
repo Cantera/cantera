@@ -41,7 +41,7 @@ static PyObject *ErrorObject;
 #include "ctxml_methods.cpp"
 #include "ctfuncs.cpp"
 #include "ctsurf_methods.cpp"
-#include "ctbndry_methods.cpp"
+//#include "ctbndry_methods.cpp"
 #include "ctrpath_methods.cpp"
 #include "ctreactor_methods.cpp"
 #include "ctfunc_methods.cpp"

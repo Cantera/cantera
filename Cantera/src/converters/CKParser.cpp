@@ -6,7 +6,10 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.10  2004-07-23 00:15:15  dggoodwin
+// Revision 1.11  2004-07-27 14:22:31  dggoodwin
+// *** empty log message ***
+//
+// Revision 1.10  2004/07/23 00:15:15  dggoodwin
 // *** empty log message ***
 //
 // Revision 1.9  2004/07/14 11:24:13  dggoodwin
@@ -260,6 +263,7 @@ namespace ckr {
         m_ckfilename = fname;
         m_log = log;
         m_nasafmt = false;
+        m_last_eol = '\n';
     }
 
 
@@ -319,10 +323,20 @@ namespace ckr {
 
             // if an end-of-line character is seen, then break.
             // Check for all common end-of-line characters.
-            if (ch == '\n' || ch == char10 || ch == char13) break;
+            if (ch == char13 || (ch == char10 && (m_last_eol != char13)))  {
+#undef DEBUG_EOL
+#ifdef DEBUG_EOL
+                cout << "EOL: found character " << int(ch) << " ending line:" << endl;
+                cout << line << endl;
+                cout << int(m_last_eol) << " " << int('\n') << " " << int(ch) << endl; 
+#endif
+                m_last_eol = ch;
+                break;
+            }
             if (isprint(ch)) line += ch;
         }
-		string::size_type icom = line.find(commentChar);
+
+        string::size_type icom = line.find(commentChar);
 
         // lines that begin with !% are not comments for Cantera
         if (icom == 0 && line[1] == undoCommentChar) {
@@ -333,7 +347,7 @@ namespace ckr {
         int len = static_cast<int>(line.size());
 
         for (int i = 0; i < len; i++) if (!isprint(line[i])) line[i] = ' ';
-        if (icom >= 0) {
+        if (icom != string::npos) {
             s = line.substr(0, icom);
             comment = line.substr(icom+1,len-icom-1); 
         }
@@ -860,6 +874,10 @@ next:
             }
             while (s == "" && comment[0] != '%');
 
+#undef DEBUG_LINE
+#ifdef DEBUG_LINE
+            cout << "Line: " << s << endl;
+#endif
             // end of REACTION section or EOF
             /// @todo does this handle case of 1 reaction correctly?
             if (isKeyword(s) || s == "<EOF>") {
@@ -873,7 +891,8 @@ next:
             }
 
             // rxn line
-	    string::size_type eqloc;
+	    //string::size_type eqloc;
+	    int eqloc;
             string sleft, sright;
             bool auxDataLine, metaDataLine;
 
@@ -968,7 +987,7 @@ next:
                 else throw CK_SyntaxError(*m_log, 
                     "expected <=>, =>, or =", m_line);
 
-				string::size_type mloc, mloc2;
+                string::size_type mloc, mloc2;
 
                 // process reactants	    
                 removeWhiteSpace(sleft);
@@ -977,10 +996,10 @@ next:
                 string sm, mspecies;
 
                 mloc = sleft.find("(+");
-                if (mloc >= 0) {
+                if (mloc != string::npos) {
                     sm = sleft.substr(mloc+2, 1000);
                     mloc2 = sm.find(")");
-                    if (mloc2 >= 0) {
+                    if (mloc2 != string::npos) {
                         mspecies = sm.substr(0,mloc2);
                         rxn.isFalloffRxn = true;
                         rxn.type = Falloff;
@@ -996,8 +1015,8 @@ next:
                         "missing )", m_line);
                 }
 
-                else if ((mloc = sleft.find("+M"), mloc >= 0) ||
-                    (mloc = sleft.find("+m"), mloc >= 0)) {
+                else if ((mloc = sleft.find("+M"), mloc != string::npos) ||
+                    (mloc = sleft.find("+m"), mloc != string::npos)) {
 
                     if (static_cast<int>(mloc) ==
 			static_cast<int>(sleft.size()) - 2) {
@@ -1040,12 +1059,11 @@ next:
                 sright = sright.substr(0, sright.find(toks[ntoks - 3]) - 1 );
 
                 removeWhiteSpace(sright);
-
                 mloc = sright.find("(+");
-                if (mloc >= 0) {
+                if (mloc != string::npos) {
                     sm = sright.substr(mloc+2, 1000);
                     mloc2 = sm.find(")");
-                    if (mloc2 >= 0) {
+                    if (mloc2 != string::npos) {
                         mspecies = sm.substr(0,mloc2);
 
                         if (rxn.type == ThreeBody) 
@@ -1071,8 +1089,8 @@ next:
                     }
                 }
 
-                else if ((mloc = sright.find("+M"), mloc >= 0) ||
-                    (mloc = sright.find("+m"), mloc >= 0)) {
+                else if ((mloc = sright.find("+M"), mloc != string::npos) ||
+                    (mloc = sright.find("+m"), mloc != string::npos)) {
 
                     if (static_cast<int>(mloc) == 
 			static_cast<int>(sright.size()) - 2) {

@@ -244,6 +244,14 @@ extern "C" {
         catch (CanteraError) { return -1; }
     }
 
+    int DLL_EXPORT outletres_new() {
+        try {
+            OutletRes1D* i = new OutletRes1D();
+            return Cabinet<Domain1D>::cabinet()->add(i);
+        }
+        catch (CanteraError) { return -1; }
+    }
+
     int DLL_EXPORT bdry_setMdot(int i, double mdot) {
         try {
             _bdry(i)->setMdot(mdot);
