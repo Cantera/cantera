@@ -46,18 +46,23 @@ namespace ctml {
         addFloatArray(f,"high",high.size(),high.begin());
     }
 
-    static void addShomate(XML_Node& node, 
-        const vector_fp& low, const vector_fp& high,  
-        doublereal minx, doublereal midx, 
-        doublereal maxx) {
-        XML_Node& f = node.addChild("Shomate");
-        if (minx != -999.0) f.addAttribute("Tmin",minx);
-        if (maxx != -999.0) f.addAttribute("Tmid",midx);
-        if (maxx != -999.0) f.addAttribute("Tmax",maxx);
-        addFloatArray(f,"low",low.size(),low.begin());
-        addFloatArray(f,"high",high.size(),high.begin());
-    }
-
+    /*
+     * HKM -
+     * Took out because it was defined as static but not used
+     * in this file
+     * 
+     *  static void addShomate(XML_Node& node, 
+     *                         const vector_fp& low, const vector_fp& high,  
+     *                         doublereal minx, doublereal midx, 
+     *                         doublereal maxx) {
+     *    XML_Node& f = node.addChild("Shomate");
+     *    if (minx != -999.0) f.addAttribute("Tmin",minx);
+     *    if (maxx != -999.0) f.addAttribute("Tmid",midx);
+     *    if (maxx != -999.0) f.addAttribute("Tmax",maxx);
+     *    addFloatArray(f,"low",low.size(),low.begin());
+     *    addFloatArray(f,"high",high.size(),high.begin());
+     * }
+     */
 
     static void addArrhenius(XML_Node& node,  
         doublereal A, doublereal b, doublereal E, int order, 
@@ -67,16 +72,22 @@ namespace ctml {
         r.addAttribute("order",order);
     }
 
-    static void addRateCoeff(XML_Node& node, string title, string type,  
-        string direction, int order, doublereal A, doublereal b, doublereal E, 
-        string unitsys, string E_units) {
-        XML_Node& r = node.addChild("rateCoeff");
-
-        r.addAttribute("id",title);
-        if (type == "Arrhenius")
-            addArrhenius(r, A, b, E, order, unitsys, E_units);
-        r.addAttribute("direction",direction);
-    }
+    /*
+     * HKM -
+     * Took out because it was defined as static but not used
+     * in this file
+     * 
+     * static void addRateCoeff(XML_Node& node, string title, string type,  
+     *                          string direction, int order, doublereal A,
+     *                          doublereal b, doublereal E, 
+     *                          string unitsys, string E_units) {
+     *    XML_Node& r = node.addChild("rateCoeff");
+     *    r.addAttribute("id",title);
+     *    if (type == "Arrhenius")
+     *        addArrhenius(r, A, b, E, order, unitsys, E_units);
+     *    r.addAttribute("direction",direction);
+     *  }
+    */
 
     static void addFalloff(XML_Node& node, string type, 
         const vector_fp& params) {
@@ -87,39 +98,58 @@ namespace ctml {
         f.addAttribute("type",type);
     }
 
-    static void addTroeFalloff(XML_Node& node, const vector_fp& params) {
-        XML_Node& f = node.addChild("falloff");
-        f.addAttribute("type","Troe");
-        addFloat(f,"A",params[0]);
-        addFloat(f,"T***",params[1]);
-        addFloat(f,"T*",params[2]);
-        if (params.size() == 4)
-            addFloat(f,"T**",params[3]);
-    }
-
-    static void addSRIFalloff(XML_Node& node, const vector_fp& params) {
-        XML_Node& f = node.addChild("falloff");
-        f.addAttribute("type","SRI");
-        addFloat(f,"A",params[0]);
-        addFloat(f,"B",params[1]);
-        addFloat(f,"C",params[2]);
-        if (params.size() == 5) {
-            addFloat(f,"D",params[3]);
-            addFloat(f,"E",params[4]);
-        }
-    }
-
-    static void addElement(XML_Node& node, string idtag, const ckr::Element& el) {
-        XML_Node& elx = node.addChild("element");
-        elx.addAttribute("id",idtag+"_e_"+el.name);
-        string elnm = el.name;
-        elnm[0] = toupper(elnm[0]);
-        if (el.name.size() == 2) elnm[1] = tolower(elnm[1]);
-        elx.addAttribute("name",elnm);
-        elx.addAttribute("atomicWt",el.atomicWeight);
-        //addFloat(elx, "mass", el.atomicWeight, "amu");
-        //addString(elx, "elementSymbol", el.name);
-    }
+    /*
+     * HKM -
+     * Took out because it was defined as static but not used
+     * in this file
+     * 
+     * static void addTroeFalloff(XML_Node& node, 
+     *                            const vector_fp& params) {
+     *   XML_Node& f = node.addChild("falloff");
+     *   f.addAttribute("type","Troe");
+     *   addFloat(f,"A",params[0]);
+     *   addFloat(f,"T***",params[1]);
+     *   addFloat(f,"T*",params[2]);
+     *   if (params.size() == 4)
+     *       addFloat(f,"T**",params[3]);
+     *  }
+     */
+    /*
+     * HKM -
+     * Took out because it was defined as static but not used
+     * in this file
+     * 
+     * static void addSRIFalloff(XML_Node& node, 
+     *                         const vector_fp& params) {
+     *   XML_Node& f = node.addChild("falloff");
+     *   f.addAttribute("type","SRI");
+     *   addFloat(f,"A",params[0]);
+     *   addFloat(f,"B",params[1]);
+     *   addFloat(f,"C",params[2]);
+     *   if (params.size() == 5) {
+     *       addFloat(f,"D",params[3]);
+     *       addFloat(f,"E",params[4]);
+     *   }
+     *  }
+     */
+    /*
+     * HKM -
+     * Took out because it was defined as static but not used
+     * in this file
+     * 
+     * static void addElement(XML_Node& node, string idtag, 
+     *                        const ckr::Element& el) {
+     *   XML_Node& elx = node.addChild("element");
+     *   elx.addAttribute("id",idtag+"_e_"+el.name);
+     *   string elnm = el.name;
+     *   elnm[0] = toupper(elnm[0]);
+     *   if (el.name.size() == 2) elnm[1] = tolower(elnm[1]);
+     *   elx.addAttribute("name",elnm);
+     *   elx.addAttribute("atomicWt",el.atomicWeight);
+     *   //addFloat(elx, "mass", el.atomicWeight, "amu");
+     *   //addString(elx, "elementSymbol", el.name);
+     * }
+     */
     
     /**
      * addSpecies():
