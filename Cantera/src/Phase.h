@@ -184,7 +184,15 @@ namespace Cantera {
 	 *    become hidden.
 	 */
 	int m_kk;
+	/**
+	 * m_ndim is the dimensionality of the phase. Basically, volumetric phases
+	 * have dimensionality 3 and surface phases have dimensionality 2.
+	 */
         int m_ndim;
+	/**
+	 * m_index is the index of the phase
+	 * 
+	 */
         int m_index;
 
     private:
