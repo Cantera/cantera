@@ -1,9 +1,11 @@
 
-Cantera should build 'out of the box' on linux, cygwin, and Mac OS
-10.2. It should build on most other variants of unix with some
+Cantera should build 'out of the box' on linux, cygwin, Mac OS X, and
+Solaris. It should build on most other variants of unix with some
 tweaking. The build process runs a few Python scripts, so you need to
 have Python present whether or not you plan to install the Cantera
-python interface. Linux and Mac OS 10.2 have python pre-installed.
+Python interface. Linux and Mac OS X have python pre-installed; many
+other systems have it too. If yours does not, you can get it at
+www.python.org.
 
 
 Build Instructions
@@ -22,9 +24,31 @@ To build and install Cantera in a different directory:
 make
 make install
 
+Here '/installation/dir' should be replaced with the absolute path to
+the installation directory.
+
 To do 'make install', you may need to be super-user. On a Mac running
 OS X, type 'sudo make install'
 
+
+Configuring the Environment
+---------------------------
+
+Execute script 'cantera/setup_cantera' to configure the environment for Cantera:
+source /usr/local/cantera/setup_cantera
+
+
+The Python Interface
+--------------------
+
+If Python 2.x is installed, and the Numeric package is installed, then
+the Cantera Python interface will be built and installed.
+
+
+The MATLAB Toolbox
+------------------
+
+If MATLAB is present, the MATLAB toolbox will be built and installed.
 
 
 Customizing
@@ -32,20 +56,17 @@ Customizing
 
 Before running configure, the following environment variables may be set:
 
+MAKE                     set to 'make' utility compatible with GNU make
+
 CXX                      C++ compiler
 
 F77                      Fortran 77 compiler
 
-BUILD_PYTHON_MODULE      build the Cantera Python interface  ('y' or 'n')
+PYTHON_CMD               Python interpreter to use with Cantera 
+                         (default: 'python')
 
-BUILD_MATLAB_TOOLBOX     build the Matlab toolbox ('y' or 'n')
-
-PYTHON_CMD               Python interpreter to use with Cantera (default: 'python')
-                         You must have write access to the
-                         'site-packages' directory of this Python
-                         interpreter if you are installing the Cantera
-                         Python interface, and it must have the
-                         'Numeric' package installed.
+MATLAB_CMD               Matlab command (default: 'matlab')
 
 Additional customization can be done by editing the configure script.
+
 
