@@ -47,7 +47,6 @@ namespace Cantera {
             norm += x[k];
         }
         m_mmw = sum/norm;
-        //m_C_updater.need_update();
     }
 
     void State::setMoleFractions_NoNorm(const doublereal* x) {
@@ -58,7 +57,6 @@ namespace Cantera {
             m_ym[k] = x[k]*rmmw;
             m_y[k] = m_ym[k] * m_molwts[k];
         }
-        //m_C_updater.need_update();
     }
 
     /// Mass fraction of species k.
