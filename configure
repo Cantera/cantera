@@ -150,7 +150,7 @@ LAPACK_FTN_STRING_LEN_AT_END='y'
 CXX=${CXX:=g++}
 
 # C++ compiler flags
-CXXFLAGS=${CXXFLAGS:="-O3 -Wall -Wstrict-prototypes"}
+CXXFLAGS=${CXXFLAGS:="-O2 -Wall"}
 
 # the C++ flags required for linking
 #LCXX_FLAGS=
@@ -181,7 +181,7 @@ SHARED=${SHARED:="-shared"}
 F90=${F90:=f90}
 
 # Fortran compiler flags
-FFLAGS=${FFLAGS:='-O3 -Wall'}
+FFLAGS=${FFLAGS:='-O2'}
 
 # the additional Fortran flags required for linking, if any
 #LFORT_FLAGS =
