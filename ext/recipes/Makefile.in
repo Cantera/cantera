@@ -24,9 +24,7 @@ $(LIB): $(OBJS)
 clean:
 	$(RM) $(OBJS) $(LIB)
 
-
-#include $(DEPENDS)
- 
+depends: 
 
 
 
