@@ -608,7 +608,9 @@ namespace Cantera {
     void InterfaceKinetics::
     advanceCoverages(doublereal tstep) {
         if (m_integrator == 0) {
-            m_integrator = new ImplicitSurfChem(*this);
+            vector<InterfaceKinetics*> k;
+            k.push_back(this);
+            m_integrator = new ImplicitSurfChem(k);
             m_integrator->initialize();
         }
         m_integrator->integrate(0.0, tstep);

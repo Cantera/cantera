@@ -21,15 +21,50 @@
 
 namespace Cantera {
 
-    ImplicitSurfChem::ImplicitSurfChem(InterfaceKinetics& kin) 
-        : FuncEval(), m_kin(&kin), m_integ(0),
+//     ImplicitSurfChem::ImplicitSurfChem(InterfaceKinetics& kin) 
+//         : FuncEval(), m_kin(&kin), m_integ(0),
+//           m_atol(1.e-14), m_rtol(1.e-7), m_maxstep(0.0)
+//     {
+//         m_integ = new CVodeInt;
+//         m_surfindex = kin.surfacePhaseIndex();
+//         if (m_surfindex < 0) 
+//             throw CanteraError("ImplicitSurfChem","kinetics manager contains no surface phase");
+//         m_surf = (SurfPhase*)&kin.thermo(m_surfindex);;
+
+//         // use backward differencing, with a full Jacobian computed
+//         // numerically, and use a Newton linear iterator
+
+//         m_integ->setMethod(BDF_Method);
+//         m_integ->setProblemType(DENSE + NOJAC);
+//         m_integ->setIterator(Newton_Iter);
+//         m_nsp = m_surf->nSpecies();
+//         m_work.resize(m_kin->nTotalSpecies());
+//     }
+
+
+    ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) 
+        : FuncEval(),  m_nv(0), m_integ(0), 
           m_atol(1.e-14), m_rtol(1.e-7), m_maxstep(0.0)
     {
+        m_nsurf = k.size();
+        int ns;
+        int nt, ntmax = 0;
+        for (int n = 0; n < m_nsurf; n++) {
+            m_kin.push_back(k[n]);
+            ns = k[n]->surfacePhaseIndex();
+            if (ns < 0) 
+                throw CanteraError("ImplicitSurfChem",
+                    "kinetics manager contains no surface phase");
+            m_surfindex.push_back(ns);
+            m_surf.push_back((SurfPhase*)&k[n]->thermo(ns));
+            m_nsp.push_back(m_surf.back()->nSpecies());
+            m_nv += m_nsp.back();
+            nt = k[n]->nTotalSpecies();
+            if (nt > ntmax) ntmax = nt;
+        }
         m_integ = new CVodeInt;
-        m_surfindex = kin.surfacePhaseIndex();
-        if (m_surfindex < 0) 
-            throw CanteraError("ImplicitSurfChem","kinetics manager contains no surface phase");
-        m_surf = (SurfPhase*)&kin.thermo(m_surfindex);;
+        //m_surfindex = kin.surfacePhaseIndex();
+        //m_surf = (SurfPhase*)&kin.thermo(m_surfindex);;
 
         // use backward differencing, with a full Jacobian computed
         // numerically, and use a Newton linear iterator
@@ -37,8 +72,8 @@ namespace Cantera {
         m_integ->setMethod(BDF_Method);
         m_integ->setProblemType(DENSE + NOJAC);
         m_integ->setIterator(Newton_Iter);
-        m_nsp = m_surf->nSpecies();
-        m_work.resize(m_kin->nTotalSpecies());
+        //m_nsp = m_surf->nSpecies();
+        m_work.resize(ntmax);
     }
 
 
@@ -47,7 +82,11 @@ namespace Cantera {
     void ImplicitSurfChem::getInitialConditions(double t0, size_t lenc, 
         double* c) 
     {
-        m_surf->getCoverages(c);
+        int loc = 0;
+        for (int n = 0; n < m_nsurf; n++) {
+            m_surf[n]->getCoverages(c + loc);
+            loc += m_nsp[n];
+        }
     }
 
 
@@ -61,7 +100,11 @@ namespace Cantera {
 
 
     void ImplicitSurfChem::updateState(doublereal* c) {
-        m_surf->setCoverages(c);
+        int loc = 0;
+        for (int n = 0; n < m_nsurf; n++) {
+            m_surf[n]->setCoverages(c + loc);
+            loc += m_nsp[n];
+        }
     }
 
 
@@ -71,18 +114,22 @@ namespace Cantera {
     void ImplicitSurfChem::eval(doublereal time, doublereal* y, 
         doublereal* ydot) 
     {
-        updateState(y);   // synchronize the surface state with y
-        doublereal rs0 = 1.0/m_surf->siteDensity();
-        m_kin->getNetProductionRates(m_work.begin());
-        int k;
-        int kstart = m_kin->start(m_surfindex);
-        doublereal sum = 0.0;
-        for (k = 1; k < m_nsp; k++) {
-            ydot[k] = m_work[kstart + k] * rs0 * m_surf->size(k);
-            sum -= ydot[k];
+        updateState(y);   // synchronize the surface state(s) with y
+        doublereal rs0, sum;
+        int loc, k, kstart;
+        for (int n = 0; n < m_nsurf; n++) {
+            rs0 = 1.0/m_surf[n]->siteDensity();
+            m_kin[n]->getNetProductionRates(m_work.begin());
+            kstart = m_kin[n]->start(m_surfindex[n]);
+            sum = 0.0;
+            loc = 0;
+            for (k = 1; k < m_nsp[n]; k++) {
+                ydot[k + loc] = m_work[kstart + k] * rs0 * m_surf[n]->size(k);
+                sum -= ydot[k];
+            }
+            ydot[loc] = sum;
+            loc += m_nsp[n];
         }
-        //if (sum < 0.0) sum = 0.0;
-        ydot[0] = sum;
     }
 
 }

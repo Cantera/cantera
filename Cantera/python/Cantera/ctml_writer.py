@@ -19,16 +19,18 @@ SPECIES_SET = 20
 COLLECTION = 30
 THERMO = 40
 
-ALL = 10
-SKIP_UNDECLARED_ELEMENTS = 20
-SKIP_UNDECLARED_SPECIES = 30
-STOP = 0
+#ALL = 10
+#SKIP_UNDECLARED_ELEMENTS = 20
+#SKIP_UNDECLARED_SPECIES = 30
+#STOP = 0
 
-_EXCEPT = 10
-_WARN = 2
-_SKIP = 1
-_handle_undeclared_element = _EXCEPT
-_handle_undeclared_species = _EXCEPT
+#_EXCEPT = 10
+#_WARN = 2
+#_SKIP = 1
+_handle_error = {}
+#_handle_undeclared_element = _EXCEPT
+#_handle_undeclared_species = _EXCEPT
+#_handle_neg_A = _EXCEPT
 
 # default units
 _ulen = 'm' 
@@ -71,13 +73,17 @@ def standard_pressure(p0):
     global _pref
     _pref = p0
 
-def on_error(undeclared_element = '', undeclared_species = ''):
-    global _handle_undeclared_species
-    global _handle_undeclared_element
+def on_error(undeclared_element = '',
+             undeclared_species = '',
+             negative_A = ''):
+    global _handle_error
     
-    _handle_undeclared_species = undeclared_species
-    _handle_undeclared_element = undeclared_element
-            
+    if undeclared_element:
+        _handle_error['undeclared_element'] = undeclared_element
+    if undeclared_species:
+        _handle_error['undeclared_species'] = undeclared_species
+    if negative_A:
+        _handle_error['negative_A'] = negative_A                
             
     
 def get_atomic_wts():
@@ -324,8 +330,9 @@ class NASA(thermo):
 class const_cp(thermo):
     """Constant specific heat."""
     
-    def __init__(self, tmax = -1.0, tmin = -1.0,
-                 t0 = 298.15, cp0 = 0.0, h0 = 0.0, s0 = 0.0):
+    def __init__(self, 
+                 t0 = 298.15, cp0 = 0.0, h0 = 0.0, s0 = 0.0,
+                 tmax = -1.0, tmin = -1.0):
         self._t = [tmin, tmax]
         self._c = [t0, h0, s0, cp0]
         
@@ -373,6 +380,16 @@ class Arrhenius(writer):
         self._c = [A, n, E]
         
     def build(self, p, units = '', gas_species = [], name = ''):
+        if self._c[0] < 0.0:
+            e = _handle_error['negative_A']
+            if e == 'skip': return
+            elif e == 'warn':
+                print 'Warning: negative pre-exponential: A = ',self._c[0]
+            elif e == 'continue':
+                pass
+            else:
+                raise CanteraError('negative pre-exponential: A = '+`self._c[0]`)
+                
         a = p.addChild('Arrhenius')
         if name: a['name'] = name
         if isnum(self._c[0]):
@@ -809,7 +826,7 @@ class phase(writer):
             datasrc = r[0]
             ra = p.addChild('reactionArray')
             ra['datasrc'] = datasrc+'#reaction_data'
-            if _handle_undeclared_species == 'skip':
+            if _handle_error['undeclared_species'] == 'skip':
                 rk = ra.addChild('skip')
                 rk['species'] = 'undeclared'
             
@@ -836,7 +853,7 @@ class phase(writer):
             sa = ph.addChild('speciesArray',names)
             sa['datasrc'] = datasrc+'#species_data'
 
-            if _handle_undeclared_element == 'skip':
+            if _handle_error['undeclared_element'] == 'skip':
                 sk = sa.addChild('skip')
                 sk['element'] = 'undeclared'
             

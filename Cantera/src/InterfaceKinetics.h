@@ -166,6 +166,7 @@ namespace Cantera {
 
         void advanceCoverages(doublereal tstep);
 
+
     protected:
 
         int                                 m_kk;

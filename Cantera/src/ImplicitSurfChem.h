@@ -38,8 +38,12 @@ namespace Cantera {
         /**
          * Constructor.
          */
-        ImplicitSurfChem(InterfaceKinetics& kin);
+        //ImplicitSurfChem(InterfaceKinetics& kin);
 
+        /**
+         * Constructor for multiple surfaces.
+         */
+        ImplicitSurfChem(vector<InterfaceKinetics*> k);
 
         /**
          * Destructor. Deletes the integrator.
@@ -77,7 +81,7 @@ namespace Cantera {
         }
 
         // overloaded methods of class FuncEval
-        virtual int neq() { return m_nsp; }
+        virtual int neq() { return m_nv; }
 	virtual void eval(doublereal t, doublereal* y, doublereal* ydot);
         virtual void getInitialConditions(doublereal t0, 
             size_t leny, doublereal* y);
@@ -91,9 +95,13 @@ namespace Cantera {
          */
         void updateState(doublereal* y);
 
-        SurfPhase* m_surf;
-        InterfaceKinetics* m_kin;
-        int m_nsp, m_surfindex;
+        vector<SurfPhase*>            m_surf;
+        vector<InterfaceKinetics*>    m_kin;
+        vector_int                    m_nsp;
+        vector_int                    m_surfindex;
+        int                           m_nsurf;
+        int                           m_nv;
+        //int m_nsp, m_surfindex;
         Integrator* m_integ;         // pointer to integrator
         doublereal m_atol, m_rtol;   // tolerances
         doublereal m_maxstep;        // max step size
