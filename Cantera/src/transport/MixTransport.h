@@ -96,7 +96,8 @@ namespace Cantera {
 
 
         doublereal pressure_ig() {
-            return m_thermo->molarDensity() * GasConstant * m_thermo->temperature();
+            return (m_thermo->molarDensity() * GasConstant *
+		    m_thermo->temperature());
         }
 
         // mixture attributes

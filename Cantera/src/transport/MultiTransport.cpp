@@ -128,7 +128,10 @@ namespace Cantera {
 
 
     MultiTransport::MultiTransport(thermo_t* thermo) 
-        : Transport(thermo) {}
+        : Transport(thermo),
+	  m_temp(-1.0)
+    {
+    }
 
     bool MultiTransport::init(TransportParams& tr) {
 

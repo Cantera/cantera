@@ -38,7 +38,16 @@ namespace Cantera {
     //////////////////// class MixTransport methods //////////////
 
 
-    MixTransport::MixTransport() {}
+    MixTransport::MixTransport() :
+	m_nsp(0),
+	m_tmin(-1.0),
+	m_tmax(100000.),
+	m_temp(-1.0),
+	m_logt(0.0)
+    {
+
+
+    }
 
     bool MixTransport::init(TransportParams& tr) {
 
