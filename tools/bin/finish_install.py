@@ -10,9 +10,10 @@ if icyg == 0:
 bindir = '/usr/local/bin'
 libdir = '/usr/local/lib/cantera-1.5.3' 
 hdrdir = '/usr/local/include/cantera'
-demodir = '/usr/local/share/cantera/1.5.3/demos'
-datadir = '/usr/local/share/cantera/1.5.3/data'
-ctdir = '/usr/local/share/cantera/1.5.3'
+demodir = '/usr/local/cantera/1.5.3/demos'
+datadir = '/usr/local/cantera/1.5.3/data'
+templdir = '/usr/local/cantera/1.5.3/templates'
+ctdir = '/usr/local/cantera/1.5.3'
 
 f = open(ctdir+'/setup_cantera','w')
 f.write('#!/bin/sh\n')
@@ -53,9 +54,22 @@ f.close()
 
 # write the script to run MixMaster
 f = open(bindir+'/mixmaster','w')
-f.write('#!/bin/sh\n'+pycmd+"""w -c 'from MixMaster import MixMaster; MixMaster()
+f.write('#!/bin/sh\n'+pycmd+"""w -c 'from MixMaster import MixMaster; MixMaster()'
 """)
 f.close()
+
+
+# write the script to copy files to build a new app
+f = open(bindir+'/ctnew','w')
+f.write("""#!/bin/sh
+if test $1 = '-f77'; then
+cp """+templdir+"""/f77/*.* .
+else
+cp """+templdir+"""/cxx/*.* .
+fi
+""")
+f.close()
+
 
 try:
     import Cantera
@@ -63,7 +77,7 @@ try:
 except:
     ctpath = "-"
 
-fm = open(prefix+"/cantera/ctpath.m","w")
+fm = open(ctdir+"/ctpath.m","w")
 fm.write("""path(path,'"""+prefix+"""/matlab/toolbox/cantera/cantera')\n""")
 fm.write("""path(path,'"""+prefix+"""/matlab/toolbox/cantera/cantera/1D')\n""")
 fm.close()
@@ -85,7 +99,7 @@ File locations:
     Matlab tutorials  """+prefix+"""/matlab/toolbox/cantera/cantera-tutorials
 
     An m-file to set the correct matlab path for Cantera
-    is at """+prefix+"""/cantera/ctpath.m"""
+    is at """+ctdir+"""/ctpath.m"""
     
 if ctpath <> "-":
     print """
@@ -103,14 +117,15 @@ else:
  ######################################################################            
 """
 
-print """
 
-    setup script      """+prefix+"""/cantera/setup_cantera
+print """
+    
+    setup script      """+ctdir+"""/setup_cantera
     
     The setup script configures the environment for Cantera. It is
     recommended that you run this script by typing
 
-      source """+prefix+"""/cantera/setup_cantera
+      source """+ctdir+"""/setup_cantera
     
     before using Cantera, or else
     include its contents in your shell login script.

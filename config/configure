@@ -271,7 +271,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_unique_file="Cantera.README"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS local_inst ct_libdir ct_incdir ct_bindir ct_datadir ct_demodir ct_mandir ct_tutdir ct_docdir ct_dir CANTERA_LIBDIR CANTERA_INCDIR CT_TOOLS_BIN CANTERA_BINDIR CANTERA_EXAMPLES_DIR CANTERA_DATADIR username ctroot build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os buildlib MAKE ARCHIVE SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR LAPACK_LIBRARY build_lapack BLAS_LIBRARY build_blas LOCAL_LIBS CT_SHARED_LIB BUILD_F90 PYTHON_CMD BUILD_PYTHON BUILD_MATLAB BUILD_CLIB export_name CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX_DEPENDS F77 FFLAGS ac_ct_F77 FLIBS OS_IS_DARWIN OS_IS_WIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS local_inst ctversion ct_libdir ct_incdir ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir CANTERA_LIBDIR CANTERA_INCDIR CT_TOOLS_BIN CANTERA_BINDIR CANTERA_EXAMPLES_DIR CANTERA_DATADIR username ctroot build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os buildlib MAKE ARCHIVE SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR LAPACK_LIBRARY build_lapack BLAS_LIBRARY build_blas LOCAL_LIBS CT_SHARED_LIB BUILD_F90 PYTHON_CMD BUILD_PYTHON BUILD_MATLAB BUILD_CLIB export_name CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX_DEPENDS F77 FFLAGS ac_ct_F77 FLIBS OS_IS_DARWIN OS_IS_WIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1298,27 +1298,31 @@ echo "Cantera will be installed in ${prefix}"
 
 ctversion=${CANTERA_VERSION}
 
+
 if test -z $local_inst; then
 ct_libdir=${prefix}/lib/cantera-${ctversion}
 ct_incdir=${prefix}/include/cantera
 ct_bindir=${prefix}/bin
-ct_datadir=${prefix}/share/cantera/${ctversion}/data
-ct_demodir=${prefix}/share/cantera/${ctversion}/demos
-ct_tutdir=${prefix}/share/cantera/${ctversion}/tutorials
-ct_docdir=${prefix}/share/cantera/${ctversion}/doc
-ct_dir=${prefix}/share/cantera/${ctversion}
+ct_datadir=${prefix}/cantera/${ctversion}/data
+ct_demodir=${prefix}/cantera/${ctversion}/demos
+ct_templdir=${prefix}/cantera/${ctversion}/templates
+ct_tutdir=${prefix}/cantera/${ctversion}/tutorials
+ct_docdir=${prefix}/cantera/${ctversion}/doc
+ct_dir=${prefix}/cantera/${ctversion}
 ct_mandir=${prefix}/share/man
 else
 ct_libdir=${prefix}/lib/cantera-${ctversion}
 ct_incdir=${prefix}/include/cantera
 ct_bindir=${prefix}/bin
-ct_datadir=${prefix}/share/cantera/${ctversion}/data
-ct_demodir=${prefix}/share/cantera/${ctversion}/demos
-ct_tutdir=${prefix}/share/cantera/${ctversion}/tutorials
-ct_docdir=${prefix}/share/cantera/${ctversion}/doc
-ct_dir=${prefix}/share/cantera/${ctversion}
+ct_datadir=${prefix}/cantera/${ctversion}/data
+ct_demodir=${prefix}/cantera/${ctversion}/demos
+ct_templdir=${prefix}/cantera/${ctversion}/templates
+ct_tutdir=${prefix}/cantera/${ctversion}/tutorials
+ct_docdir=${prefix}/cantera/${ctversion}/doc
+ct_dir=${prefix}/cantera/${ctversion}
 ct_mandir=${prefix}/share/man
 fi
+
 
 
 
@@ -3079,7 +3083,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3082:" \
+echo "$as_me:3086:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3256,7 +3260,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3259: \"$ac_link\") >&5
+(eval echo $as_me:3263: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3336,7 +3340,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3339: \"$ac_link\") >&5
+(eval echo $as_me:3343: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3597,7 +3601,7 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 
-                                                                                                                                                                                                                                                                                                                                                                                            ac_config_files="$ac_config_files ../Cantera/Makefile ../Cantera/src/Makefile ../Cantera/src/zeroD/Makefile ../Cantera/src/oneD/Makefile ../Cantera/src/converters/Makefile ../Cantera/src/transport/Makefile ../Cantera/clib/src/Makefile ../Cantera/fortran/src/Makefile ../Cantera/fortran/f77demos/f77demos.mak ../Cantera/matlab/Makefile ../Cantera/python/Makefile ../Cantera/python/setup.py ../Cantera/cxx/Makefile ../Cantera/user/Makefile ../Cantera/python/src/Makefile ../ext/lapack/Makefile ../ext/blas/Makefile ../ext/cvode/Makefile ../ext/math/Makefile ../ext/tpx/Makefile ../ext/Makefile ../ext/recipes/Makefile ../examples/Makefile ../examples/cxx/Makefile ../Makefile ../tools/Makefile ../tools/src/Makefile ../tools/src/sample.mak ../tools/src/finish_install.py ../tools/templates/f77/demo.mak ../tools/templates/cxx/demo.mak ../tools/testtools/Makefile ../data/inputs/Makefile ../test_problems/Makefile ../test_problems/cxx_ex/Makefile ../test_problems/silane_equil/Makefile ../test_problems/surfkin/Makefile ../test_problems/diamondSurf/Makefile"
+                                                                                                                                                                                                                                                                                                                                                                                                      ac_config_files="$ac_config_files ../Cantera/Makefile ../Cantera/src/Makefile ../Cantera/src/zeroD/Makefile ../Cantera/src/oneD/Makefile ../Cantera/src/converters/Makefile ../Cantera/src/transport/Makefile ../Cantera/clib/src/Makefile ../Cantera/fortran/src/Makefile ../Cantera/fortran/f77demos/f77demos.mak ../Cantera/matlab/Makefile ../Cantera/python/Makefile ../Cantera/python/setup.py ../Cantera/cxx/Makefile ../Cantera/user/Makefile ../Cantera/python/src/Makefile ../ext/lapack/Makefile ../ext/blas/Makefile ../ext/cvode/Makefile ../ext/math/Makefile ../ext/tpx/Makefile ../ext/Makefile ../ext/recipes/Makefile ../examples/Makefile ../examples/cxx/Makefile ../Makefile ../tools/Makefile ../tools/src/Makefile ../tools/src/sample.mak ../tools/src/finish_install.py ../tools/src/package4mac ../tools/templates/f77/demo.mak ../tools/templates/cxx/demo.mak ../tools/testtools/Makefile ../data/inputs/Makefile ../test_problems/Makefile ../test_problems/cxx_ex/Makefile ../test_problems/silane_equil/Makefile ../test_problems/surfkin/Makefile ../test_problems/diamondSurf/Makefile"
 
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
@@ -4098,6 +4102,7 @@ do
   "../tools/src/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../tools/src/Makefile" ;;
   "../tools/src/sample.mak" ) CONFIG_FILES="$CONFIG_FILES ../tools/src/sample.mak" ;;
   "../tools/src/finish_install.py" ) CONFIG_FILES="$CONFIG_FILES ../tools/src/finish_install.py" ;;
+  "../tools/src/package4mac" ) CONFIG_FILES="$CONFIG_FILES ../tools/src/package4mac" ;;
   "../tools/templates/f77/demo.mak" ) CONFIG_FILES="$CONFIG_FILES ../tools/templates/f77/demo.mak" ;;
   "../tools/templates/cxx/demo.mak" ) CONFIG_FILES="$CONFIG_FILES ../tools/templates/cxx/demo.mak" ;;
   "../tools/testtools/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../tools/testtools/Makefile" ;;
@@ -4193,11 +4198,13 @@ s,@ECHO_N@,$ECHO_N,;t t
 s,@ECHO_T@,$ECHO_T,;t t
 s,@LIBS@,$LIBS,;t t
 s,@local_inst@,$local_inst,;t t
+s,@ctversion@,$ctversion,;t t
 s,@ct_libdir@,$ct_libdir,;t t
 s,@ct_incdir@,$ct_incdir,;t t
 s,@ct_bindir@,$ct_bindir,;t t
 s,@ct_datadir@,$ct_datadir,;t t
 s,@ct_demodir@,$ct_demodir,;t t
+s,@ct_templdir@,$ct_templdir,;t t
 s,@ct_mandir@,$ct_mandir,;t t
 s,@ct_tutdir@,$ct_tutdir,;t t
 s,@ct_docdir@,$ct_docdir,;t t

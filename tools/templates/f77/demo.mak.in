@@ -50,10 +50,10 @@ CXX_FLAGS = @CXXFLAGS@
 EXT_LIBS = @LOCAL_LIBS@ -lctcxx
 
 # the directory where the Cantera libraries are located
-CANTERA_LIBDIR=@CANTERA_LIBDIR@
+CANTERA_LIBDIR=@ct_libdir@
 
 # the directory where Cantera include files may be found.
-CANTERA_INCDIR=@CANTERA_INCDIR@
+CANTERA_INCDIR=@ct_incdir@
 
 # flags passed to the C++ compiler/linker for the linking step
 LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@

@@ -150,6 +150,7 @@ finish-install:
 	@INSTALL@ examples/cxx/*.h @ct_demodir@/c++
 	@INSTALL@ examples/cxx/Makefile @ct_demodir@/c++
 	chown -R @username@ @ct_demodir@/c++
+
 	@INSTALL@ -d @ct_demodir@/f77
 	@INSTALL@ Cantera/fortran/f77demos/*.f @ct_demodir@/f77
 	@INSTALL@ tools/templates/f77/demo_ftnlib.cpp @ct_demodir@/f77
@@ -157,8 +158,13 @@ finish-install:
 	@INSTALL@ Cantera/fortran/f77demos/f77demos.mak @ct_demodir@/f77/Makefile
 	chown -R @username@ @ct_demodir@/f77
 
-	@INSTALL@ README*.txt @ct_dir@
-	@INSTALL@ License.* @ct_dir@
+	ln -s @ct_demodir@ @prefix@/cantera/demos
+	ln -s @ct_datadir@ @prefix@/cantera/data
+	ln -s @ct_templdir@ @prefix@/cantera/templates
+	ln -s @ct_tutdir@ @prefix@/cantera/tutorials
+
+	@INSTALL@ README*.txt @prefix@/cantera
+	@INSTALL@ License.* @prefix@/cantera
 	@INSTALL@ tools/src/finish_install.py tools/bin
 	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
 #@INSTALL@ bin/ctmkmf @ct_bindir@/ctnew
@@ -181,7 +187,6 @@ uninstall:
 	rm -r -f @ct_docdir@
 	rm -r -f @ct_tutdir@
 	rm -r -f @prefix@/matlab/toolbox/cantera
-	rm -r -f @ct_doc
 	cd tools; make uninstall
 
 clean:

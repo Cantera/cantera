@@ -18,6 +18,7 @@ apps-install:
 man-install:
 	@INSTALL@ -d @ct_mandir@/man1
 	@INSTALL@ man/ck2cti.1 @ct_mandir@/man1
+	@INSTALL@ man/mixmaster.1 @ct_mandir@/man1
 
 uninstall:
 	rm -r -f @ct_mandir@/man1/ck2cti.1
@@ -36,12 +37,12 @@ depends:
 	cd testtools; @MAKE@ depends
 
 templates-install:
-	@INSTALL@ -d @prefix@/cantera/templates
-	@INSTALL@ -d @prefix@/cantera/templates/f77
-	@INSTALL@ -m 644 templates/f77/*.cpp @prefix@/cantera/templates/f77
-	@INSTALL@ -m 644 templates/f77/*.f @prefix@/cantera/templates/f77
-	@INSTALL@ -m 644 templates/f77/*.mak @prefix@/cantera/templates/f77
-	@INSTALL@ -d @prefix@/cantera/templates/cxx
-	@INSTALL@ -m 644 templates/cxx/*.cpp @prefix@/cantera/templates/cxx
-	@INSTALL@ -m 644 templates/cxx/*.mak @prefix@/cantera/templates/cxx
-	chown -R @username@ @prefix@/cantera/templates
+	@INSTALL@ -d @ct_dir@/templates
+	@INSTALL@ -d @ct_dir@/templates/f77
+	@INSTALL@ -m 644 templates/f77/*.cpp @ct_dir@/templates/f77
+	@INSTALL@ -m 644 templates/f77/*.f @ct_dir@/templates/f77
+	@INSTALL@ -m 644 templates/f77/*.mak @ct_dir@/templates/f77
+	@INSTALL@ -d @ct_dir@/templates/cxx
+	@INSTALL@ -m 644 templates/cxx/*.cpp @ct_dir@/templates/cxx
+	@INSTALL@ -m 644 templates/cxx/*.mak @ct_dir@/templates/cxx
+	chown -R @username@ @ct_dir@/templates

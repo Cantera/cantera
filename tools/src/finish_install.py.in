@@ -12,6 +12,7 @@ libdir = '@ct_libdir@'
 hdrdir = '@ct_incdir@'
 demodir = '@ct_demodir@'
 datadir = '@ct_datadir@'
+templdir = '@ct_templdir@'
 ctdir = '@ct_dir@'
 
 f = open(ctdir+'/setup_cantera','w')
@@ -57,13 +58,26 @@ f.write('#!/bin/sh\n'+pycmd+"""w -c 'from MixMaster import MixMaster; MixMaster(
 """)
 f.close()
 
+
+# write the script to copy files to build a new app
+f = open(bindir+'/ctnew','w')
+f.write("""#!/bin/sh
+if test $1 = '-f77'; then
+cp """+templdir+"""/f77/*.* .
+else
+cp """+templdir+"""/cxx/*.* .
+fi
+""")
+f.close()
+
+
 try:
     import Cantera
     ctpath = Cantera.__path__[0]
 except:
     ctpath = "-"
 
-fm = open(prefix+"/cantera/ctpath.m","w")
+fm = open(ctdir+"/ctpath.m","w")
 fm.write("""path(path,'"""+prefix+"""/matlab/toolbox/cantera/cantera')\n""")
 fm.write("""path(path,'"""+prefix+"""/matlab/toolbox/cantera/cantera/1D')\n""")
 fm.close()
@@ -85,7 +99,7 @@ File locations:
     Matlab tutorials  """+prefix+"""/matlab/toolbox/cantera/cantera-tutorials
 
     An m-file to set the correct matlab path for Cantera
-    is at """+prefix+"""/cantera/ctpath.m"""
+    is at """+ctdir+"""/ctpath.m"""
     
 if ctpath <> "-":
     print """
@@ -106,12 +120,12 @@ else:
 
 print """
     
-    setup script      """+prefix+"""/cantera/setup_cantera
+    setup script      """+ctdir+"""/setup_cantera
     
     The setup script configures the environment for Cantera. It is
     recommended that you run this script by typing
 
-      source """+prefix+"""/cantera/setup_cantera
+      source """+ctdir+"""/setup_cantera
     
     before using Cantera, or else
     include its contents in your shell login script.

@@ -53,26 +53,29 @@ AC_SUBST(prefix)
 AC_SUBST(local_inst)
 
 ctversion=${CANTERA_VERSION}
+AC_SUBST(ctversion)
 
 if test -z $local_inst; then 
 ct_libdir=${prefix}/lib/cantera-${ctversion}
 ct_incdir=${prefix}/include/cantera
 ct_bindir=${prefix}/bin
-ct_datadir=${prefix}/share/cantera/${ctversion}/data
-ct_demodir=${prefix}/share/cantera/${ctversion}/demos
-ct_tutdir=${prefix}/share/cantera/${ctversion}/tutorials
-ct_docdir=${prefix}/share/cantera/${ctversion}/doc
-ct_dir=${prefix}/share/cantera/${ctversion}
+ct_datadir=${prefix}/cantera/${ctversion}/data
+ct_demodir=${prefix}/cantera/${ctversion}/demos
+ct_templdir=${prefix}/cantera/${ctversion}/templates
+ct_tutdir=${prefix}/cantera/${ctversion}/tutorials
+ct_docdir=${prefix}/cantera/${ctversion}/doc
+ct_dir=${prefix}/cantera/${ctversion}
 ct_mandir=${prefix}/share/man
 else
 ct_libdir=${prefix}/lib/cantera-${ctversion}
 ct_incdir=${prefix}/include/cantera
 ct_bindir=${prefix}/bin
-ct_datadir=${prefix}/share/cantera/${ctversion}/data
-ct_demodir=${prefix}/share/cantera/${ctversion}/demos
-ct_tutdir=${prefix}/share/cantera/${ctversion}/tutorials
-ct_docdir=${prefix}/share/cantera/${ctversion}/doc
-ct_dir=${prefix}/share/cantera/${ctversion}
+ct_datadir=${prefix}/cantera/${ctversion}/data
+ct_demodir=${prefix}/cantera/${ctversion}/demos
+ct_templdir=${prefix}/cantera/${ctversion}/templates
+ct_tutdir=${prefix}/cantera/${ctversion}/tutorials
+ct_docdir=${prefix}/cantera/${ctversion}/doc
+ct_dir=${prefix}/cantera/${ctversion}
 ct_mandir=${prefix}/share/man
 fi
 
@@ -81,6 +84,7 @@ AC_SUBST(ct_incdir)
 AC_SUBST(ct_bindir)
 AC_SUBST(ct_datadir)
 AC_SUBST(ct_demodir)
+AC_SUBST(ct_templdir)
 AC_SUBST(ct_mandir)
 AC_SUBST(ct_tutdir)
 AC_SUBST(ct_docdir)
@@ -470,6 +474,7 @@ AC_OUTPUT(../Cantera/Makefile \
           ../tools/src/Makefile \
           ../tools/src/sample.mak \
           ../tools/src/finish_install.py \
+          ../tools/src/package4mac \
           ../tools/templates/f77/demo.mak \
           ../tools/templates/cxx/demo.mak \
 	  ../tools/testtools/Makefile \
