@@ -219,6 +219,7 @@ endif
 	@INSTALL@ tools/src/finish_install.py tools/bin
 	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
 	chmod +x @ct_bindir@/ctnew
+	cp -f @homedir@/setup_cantera @ct_bindir@
 else
 	cd Cantera/fortran/f77demos; sed s'/isentropic/ctlib/g' isentropic.dsp > ctlib.dsp
 	@INSTALL@ Cantera/fortran/f77demos/*.dsp @ct_demodir@/f77
