@@ -197,15 +197,15 @@ namespace Cantera {
         //-----------------------------------------------------
 
         // overloaded methods of class FuncEval
-        virtual int neq() { return m_nsp + 2; }
+        virtual int neq() { return m_nv; }
 	virtual void eval(doublereal t, doublereal* y, doublereal* ydot);
         virtual void getInitialConditions(doublereal t0, size_t leny, 
             doublereal* y);
-        virtual void initialize(doublereal t0 = 0.0);
-
-
 
         //-----------------------------------------------------
+
+        virtual void initialize(doublereal t0 = 0.0);
+
 
         /**
          * @name Methods to specify simulation options.
@@ -284,10 +284,12 @@ namespace Cantera {
         doublereal m_kv, m_p0;
         vector_fp m_atol;
         doublereal m_rtol;
+        vector_fp m_work;
         vector_fp m_sdot;            // surface production rates
         bool m_trad_set;
         bool m_chem;
         bool m_energy;
+        int m_nv;
 
     private:
     };
