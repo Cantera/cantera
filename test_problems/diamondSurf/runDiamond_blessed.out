@@ -2,11 +2,11 @@ Number of species = 4
 Number of species in diamond = 1
 Number of species in diamond_100 = 8
 Number of reactions = 20
-0  1  -8.95751e-05
-1  2  4.48403e-05
-2  3  -3.51539e-08
+0  1  -8.96125e-05
+1  2  4.48274e-05
+2  3  -1.41433e-08
 3  4   nil
-4  0  3.51539e-08
+4  0  1.41433e-08
 5  2   nil
 6  1   nil
 7  1   nil
@@ -15,14 +15,14 @@ Number of reactions = 20
 10  3   nil
 11  3   nil
 12  2   nil
-sum = -2.53573e-21
-growth rate = 0.43183 microns per hour
+sum = -1.6718e-20
+growth rate = 0.173736 microns per hour
 Coverages:
-0   c6HH   0.462262
-1   c6H*   0.037052
-2   c6*H   0.474283
-3   c6**   0.0219445
-4   c6HM   0.00174648
-5   c6HM*   2.56272e-05
-6   c6*M   0.00264858
-7   c6B   3.8171e-05
+0   c6HH   0.46339
+1   c6H*   0.0371799
+2   c6*H   0.47592
+3   c6**   0.0223553
+4   c6HM   4.1206e-05
+5   c6HM*   1.03105e-05
+6   c6*M   0.00106559
+7   c6B   3.82635e-05

@@ -49,18 +49,18 @@ int main(int argc, char** argv) {
       string path = findInputFile(infile);
       ctml::get_CTML_Tree(xc, path);
 
-      XML_Node * const xg = (XML_Node *) findXMLPhase(xc, "gas");
+      XML_Node * const xg = xc->findNameID("phase", "gas");
       ThermoPhase *gasTP = newPhase(*xg);
       int nsp = gasTP->nSpecies();
       cout << "Number of species = " << nsp << endl;
 
-      XML_Node * const xd = (XML_Node *) findXMLPhase(xc, "diamond");
+      XML_Node * const xd = xc->findNameID("phase", "diamond");
       ThermoPhase *diamondTP = newPhase(*xd);
       int nsp_diamond = diamondTP->nSpecies();
       cout << "Number of species in diamond = " << nsp_diamond << endl;
 
 
-      XML_Node * const xs = (XML_Node *) findXMLPhase(xc, "diamond_100");
+      XML_Node * const xs = xc->findNameID("phase", "diamond_100");
       ThermoPhase *diamond100TP = newPhase(*xs);
       int nsp_d100 = diamond100TP->nSpecies();
       cout << "Number of species in diamond_100 = " << nsp_d100 << endl;
@@ -133,7 +133,6 @@ int main(int argc, char** argv) {
       diamond100TP->getMoleFractions(x);
       cout << "Coverages:" << endl;
       for (k = 0; k < 8; k++) {
-	int iii = 3;
 	cout << k << "   " << diamond100TP->speciesName(k) 
 	     << "   " 
 	     << x[k] << endl;
