@@ -2,6 +2,7 @@
 #ifdef WIN32
 #pragma warning(disable:4786)
 #pragma warning(disable:4503)
+#pragma warning(disable:4800)
 #endif
 
 
@@ -109,7 +110,7 @@ extern "C" {
             int lout = min(sz, nm.size());
             copy(nm.c_str(), nm.c_str() + lout, buf);
             buf[lout] = '\0';
-            return nm.size();
+            return static_cast<int>(nm.size());
         }
         catch (CanteraError) { return -1; }
     }

@@ -926,7 +926,7 @@ extern "C" {
             bool stherm = (show_thermo != 0);
             string s = report(*th(nth), stherm);
             if (int(s.size()) > ibuf - 1) {
-                return -(s.size() + 1);
+                return -(static_cast<int>(s.size()) + 1);
             }
             copy(s.begin(), s.end(), buf);
             buf[s.size() - 1] = '\0';
@@ -940,7 +940,7 @@ extern "C" {
         string e; 
         e = lastErrorMessage();
         if (buflen > 0) {
-            int n = min(e.size(), buflen-1);
+            int n = min(static_cast<int>(e.size()), buflen-1);
             copy(e.begin(), e.begin() + n, buf);
             buf[min(n, buflen-1)] = '\0';
         }
@@ -956,7 +956,7 @@ extern "C" {
         string s;
         writelog("function readlog is deprecated!");
         //getlog(s);
-        int nlog = s.size();
+        int nlog = static_cast<int>(s.size());
         if (n < 0) return nlog; 
         int nn = min(n-1, nlog);
         copy(s.begin(), s.begin() + nn,
