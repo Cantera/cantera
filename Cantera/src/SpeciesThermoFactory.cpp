@@ -40,7 +40,7 @@ namespace Cantera {
         const XML_Node& sparray = *node;
         vector<XML_Node*> sp;
         sparray.getChildren("species",sp);
-        int ns = sp.size();
+        int ns = static_cast<int>(sp.size());
         for (int n = 0; n < ns; n++) {
 	  XML_Node* spNode = sp[n];
 	  if (spNode->hasChild("thermo")) {
@@ -74,7 +74,7 @@ namespace Cantera {
 
     SpeciesThermo* SpeciesThermoFactory::
     newSpeciesThermo(vector<XML_Node*> nodes) {
-        int n = nodes.size();
+        int n = static_cast<int>(nodes.size());
         int inasa = 0, ishomate = 0, isimple = 0;
         for (int j = 0; j < n; j++) {
             getSpeciesThermoTypes(nodes[j], inasa, ishomate, isimple);
@@ -86,7 +86,7 @@ namespace Cantera {
 
     SpeciesThermo* SpeciesThermoFactory::
     newSpeciesThermoOpt(vector<XML_Node*> nodes) {
-        int n = nodes.size();
+        int n = static_cast<int>(nodes.size());
         int inasa = 0, ishomate = 0, isimple = 0;
         for (int j = 0; j < n; j++) {
 	  try {
@@ -314,7 +314,7 @@ namespace Cantera {
 	}
 	const XML_Node& thermo = s.child("thermo");
 	const vector<XML_Node*>& tp = thermo.children();
-	int nc = tp.size();
+	int nc = static_cast<int>(tp.size());
 	if (nc == 1) {
             const XML_Node* f = tp[0];
             if (f->name() == "Shomate") {
