@@ -456,7 +456,7 @@ AC_SUBST(LOCAL_LIBS)
 #--------------------------------------------------
 # Particle Library interface
 #--------------------------------------------------
-BUILD_PARTICLES=
+BUILD_PARTICLES=0
 
 if test "$ENABLE_PARTICLES" = "y"
 then 
