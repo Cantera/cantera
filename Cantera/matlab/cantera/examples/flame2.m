@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  A burner-stabilized flat flame
+%  An axisymmetric stagnation-point non-premixed flame
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -8,18 +8,19 @@ t0 = cputime;  % record the starting time
 
 
 % parameter values
-p          =   0.05*oneatm;         % pressure
-tburner    =   373.0;               % burner temperature
-mdot       =   0.04;                % kg/m^2/s
+p          =   oneatm;              % pressure
+tin        =   300.0;               % inlet temperature
+mdot_o     =   0.24;                % air, kg/m^2/s
+mdot_f     =   0.08;                % fuel, kg/m^2/s
 
-rxnmech    =  'gri30.xml';           % reaction mechanism file
+rxnmech    =  'gri30.xml';          % reaction mechanism file
 transport  =  'Mix';                % transport model
-comp       =  'O2:0.21, N2:0.78, AR:0.01';  % premixed gas composition
-comp2       =  'C2H2:1'; % premixed gas composition
+comp1       =  'O2:0.21, N2:0.78, AR:0.01';  % air composition
+comp2       =  'C2H6:1';            % fuel composition
 
-initial_grid = [0.0 0.02 0.04 0.06 0.08 0.1 0.12 0.14 0.16 0.18 0.2];  % m
+initial_grid = 0.02*[0.0 0.2 0.4 0.6 0.8 1.0];  % m
 
-tol_ss    = [1.0e-7 1.0e-12];       % [rtol atol] for steady-state
+tol_ss    = [1.0e-5 1.0e-12];       % [rtol atol] for steady-state
                                     % problem
 tol_ts    = [1.0e-3 1.0e-4];        % [rtol atol] for time stepping
 
@@ -37,8 +38,8 @@ refine_grid = 1;                    % 1 to enable refinement, 0 to
 %
 gas = IdealGasMix(rxnmech, transport);
 
-% set its state to that of the unburned gas at the burner
-set(gas,'T', tburner, 'P', p, 'X', comp);
+% set its state to that of the  fuel (arbitrary)
+set(gas,'T', tin, 'P', p, 'X', comp2);
 
 
 
@@ -51,40 +52,36 @@ set(f, 'tol', tol_ss, 'tol-time', tol_ts);
 
 
 
-%%%%%%%%%%%%%%% create the burner %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%% create the air inlet %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  The burner is an Inlet object. The temperature, mass flux, 
-%  and composition (relative molar) may be specified.
+%  The temperature, mass flux, and composition (relative molar) may be
+%  specified.
 %
-burner = Inlet('burner');
-set(burner, 'T', tburner, 'MassFlux', mdot, 'X', comp);
+inlet_o = Inlet('air_inlet');
+set(inlet_o, 'T', tin, 'MassFlux', mdot_o, 'X', comp1);
 
 
 
-%%%%%%%%%%%%%% create the outlet %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%% create the fuel inlet %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
-%  The type of flame is determined by the object that terminates
-%  the domain. An Outlet object imposes zero gradient boundary
-%  conditions for the temperature and mass fractions, and zero
-%  radial velocity and radial pressure gradient.
 %
-s = Inlet('right');
-set(s, 'T', tburner, 'MassFlux', 0.04, 'X', comp2);
+inlet_f = Inlet('fuel_inlet');
+set(inlet_f, 'T', tin, 'MassFlux', mdot_f, 'X', comp2);
+
 
 %%%%%%%%%%%%% create the flame object  %%%%%%%%%%%%
 %
 % Once the component parts have been created, they can be assembled
 % to create the flame object.
 %
-fl = flame(gas, burner, f, s);
+fl = flame(gas, inlet_o, f, inlet_f);
 
 % if the starting solution is to be read from a previously-saved
 % solution, uncomment this line and edit the file name and solution id.
 %restore(fl,'h2flame2.xml', 'energy')
 
-
-resid(fl, 'flow')
-solve(fl, 1, 1);
+% solve with fixed temperature profile first
+solve(fl, loglevel, refine_grid);
 
 
 %%%%%%%%%%%% enable the energy equation %%%%%%%%%%%%%%%%%%%%%
@@ -95,10 +92,9 @@ solve(fl, 1, 1);
 %
 
 enableEnergy(f);
-resid(fl, 'flow')
 setRefineCriteria(fl, 2, 200.0, 0.1, 0.1);
-solve(fl, 1, 1);
-saveSoln(fl,'h2fl.xml','energy',['solution with energy' ...
+solve(fl, loglevel, refine_grid);
+saveSoln(fl,'c2h6.xml','energy',['solution with energy' ...
 		    ' equation']);
 
 
@@ -112,20 +108,24 @@ disp(e);
 %%%%%%%%%% make plots %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 figure(1);
-subplot(2,2,1);
+subplot(2,3,1);
 plotSolution(fl, 'flow', 'T');
 title('Temperature [K]');
-subplot(2,2,2);
-plotSolution(fl, 'flow', 'H2O');
-title('Axial Velocity [m/s]');
-subplot(2,2,3);
+subplot(2,3,2);
+plotSolution(fl, 'flow', 'C2H6');
+title('C2H6 Mass Fraction');
+subplot(2,3,3);
 plotSolution(fl, 'flow', 'O2');
 title('O2 Mass Fraction');
-subplot(2,2,4);
-plotSolution(fl, 'flow', 'H2');
-title('H2 Mass Fraction');
-%subplot(2,2,4);
-%plotSolution(fl, 'flow', 'V');
-%title('V');  
+subplot(2,3,4);
+plotSolution(fl, 'flow', 'CH');
+title('CH Mass Fraction');
+subplot(2,3,5);
+plotSolution(fl, 'flow', 'V');
+title('Radial Velocity / Radius [s^-1]');
+subplot(2,3,6);
+plotSolution(fl, 'flow', 'u');
+title('Axial Velocity [m/s]');
+
 
 
