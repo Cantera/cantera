@@ -98,6 +98,8 @@ win-kernel-install:
 	@INSTALL@ -d @ct_libdir@
 	rm -f @ct_libdir@/*
 	@INSTALL@ -m 644 @buildlib@/*.lib @ct_libdir@
+	@INSTALL@ -m 644 @buildlib@/*.dll @ct_libdir@
+	@INSTALL@ -m 644 @buildlib@/*.exp @ct_libdir@
 
 data-install:
 	@INSTALL@ -d @ct_datadir@
