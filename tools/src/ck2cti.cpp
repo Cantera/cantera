@@ -1,5 +1,6 @@
 /**
  * @file ck2cti.cpp
+ * $Id$
  *
  * Program to convert Chemkin-II-format reaction mechanism files to
  * Cantera input format. The resulting Cantera input file contains a
