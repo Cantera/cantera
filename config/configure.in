@@ -33,10 +33,11 @@ esac
 
 CVF_LIBDIR=""
 if test "x${OS_IS_CYGWIN}" = "x1"; then
-if test "${USE_VISUAL_STUDIO}" = "y"; then
-OS_IS_WIN=1;
-CVF_LIBDIR=$FORTRAN_LIB_DIR
-fi
+  if test "${USE_VISUAL_STUDIO}" = "y"; then
+    OS_IS_WIN=1;
+    OS_IS_CYGWIN=0;
+    CVF_LIBDIR=$FORTRAN_LIB_DIR
+  fi
 fi
 AC_SUBST(CVF_LIBDIR)
 
@@ -46,7 +47,7 @@ if test "x$OS_IS_DARWIN" = "x1"; then prdef="/Applications/Cantera"; fi
 
 local_inst=1
 if test "x${prefix}" = "xNONE"; then
-         if test "x${OS_IS_CYGWIN}" = "x1"; then
+         if test "x${OS_IS_CYGWIN}" = "x1" -o "x${OS_IS_WIN}" = "x1" ; then
            prefix=${CANTERA_INSTALL_DIR}
            # mkdir ${prefix}
          else
@@ -69,7 +70,6 @@ fi
 if test "x${OS_IS_WIN}" = "x1"; then
   prefix=`cygpath -a -m "${prefix}" `
 fi
-
 
 
 echo "Cantera will be installed in ${prefix}"
@@ -201,8 +201,12 @@ AC_SUBST(buildbin)
 
 # add definitions to config.h
 AC_DEFINE_UNQUOTED(DARWIN,$OS_IS_DARWIN)
-AC_DEFINE_UNQUOTED(CYGWIN,$OS_IS_CYGWIN)
-AC_DEFINE_UNQUOTED(WINMSVC,$OS_IS_WIN)
+if test "x${OS_IS_CYGWIN}" = "x1"; then
+  AC_DEFINE_UNQUOTED(CYGWIN,$OS_IS_CYGWIN)
+fi
+if test "x${OS_IS_WIN}" = "x1"; then
+  AC_DEFINE_UNQUOTED(WINMSVC,$OS_IS_WIN)
+fi
 AC_DEFINE_UNQUOTED(RXNPATH_FONT,"$RPFONT")
 #AC_DEFINE_UNQUOTED(CANTERA_ROOT,"$prefix/cantera")
 AC_DEFINE_UNQUOTED(CANTERA_DATA,"$ct_datadir")
@@ -509,8 +513,10 @@ if test $BUILD_PYTHON -gt 0; then
     fi 
   else
     echo "Python command preset to $PYTHON_CMD"
-    WIN_PYTHON_CMD=`cygpath -a -m "$PYTHON_CMD"`
-    echo "Windows Python Command set to $WIN_PYTHON_CMD"
+    if test "x$OS_IS_WIN" = "x1"; then
+      WIN_PYTHON_CMD=`cygpath -a -m "$PYTHON_CMD"`
+      echo "Windows Python Command set to $WIN_PYTHON_CMD"
+    fi
   fi
 
   if test "$PYTHON_CMD" = "none"; then
