@@ -5,7 +5,7 @@
 
 static PyObject* reportCanteraError() {
     char* buf = 0;
-    int buflen = getCanteraError(0, buf);
+    int buflen = getCanteraError(0, buf) + 1;
     buf = new char[buflen+1];
     getCanteraError(buflen, buf);
     PyErr_SetString(ErrorObject,buf);
