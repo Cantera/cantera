@@ -18,30 +18,12 @@
 #undef USE_DGG_CODE
 
 #include "ct_defs.h"
-#include "ctexceptions.h"
+//#include "ctexceptions.h"
 
 namespace Cantera {
 
     class XML_Node;
-
-#ifdef INCL_DEPRECATED_METHODS
-    /**
-     * Holds element name and atomic weight. Used for output of
-     * element properties and initial initialization only.
-     */
-    struct ElementData {
-      string name;
-      doublereal atomicWeight;
-    };
-#endif
-
-    class ElementRangeError : public CanteraError {
-    public:
-        ElementRangeError(string func, int m, int mmax) :
-            CanteraError(func, "Element index " + int2str(m) + 
-                " outside valid range of 0 to " + int2str(mmax-1)) {}
-    };
-
+    class ElementRangeError;
 
     /** Elements Class: Object contains the elements that make up species.
      * 
@@ -78,11 +60,6 @@ namespace Cantera {
 	 */
         int nElements() const { return m_mm; }
 
-#ifdef INCL_DEPRECATED_METHODS
-        /// Returns an ElementData struct that contains the parameters 
-	/// for element m.
-        ElementData element(int m) const;
-#endif
         /** Function that returns the index of an element.
 	 *
          * Index of element named \c name. The index is an integer
@@ -179,14 +156,7 @@ namespace Cantera {
 	 *  Note, a string search is the primary way to identify elements.
 	 */
         vector<string>                 m_elementNames;
-#ifdef USE_DGG_CODE
-        /**
-         *  Map of elements to indecises
-	 *
-	 *  NOTE: this is redundent
-         */
-        map<string, int>               m_definedElements;
-#endif
+
 	/**
 	 * Number of Constituents Objects that use this object
 	 *

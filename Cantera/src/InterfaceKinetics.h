@@ -22,7 +22,8 @@
 
 #include "utilities.h"
 #include "RateCoeffMgr.h"
-#include "StoichManager.h"
+#include "ReactionStoichMgr.h"
+//#include "StoichManager.h"
 
 namespace Cantera {
 
@@ -165,13 +166,15 @@ namespace Cantera {
          */ 
         virtual void getCreationRates(doublereal* cdot) {
             updateROP();
-            fill(cdot, cdot + m_kk, 0.0);
-            m_revProductStoich.incrementSpecies(
-                m_kdata->m_ropf.begin(), cdot);
-            m_irrevProductStoich.incrementSpecies(
-                m_kdata->m_ropf.begin(), cdot);
-            m_reactantStoich.incrementSpecies(
-                m_kdata->m_ropr.begin(), cdot);
+            m_rxnstoich.getCreationRates(m_kk, m_kdata->m_ropf.begin(), 
+                m_kdata->m_ropr.begin(), cdot); 
+            //fill(cdot, cdot + m_kk, 0.0);
+            //m_revProductStoich.incrementSpecies(
+            //    m_kdata->m_ropf.begin(), cdot);
+            //m_irrevProductStoich.incrementSpecies(
+            //    m_kdata->m_ropf.begin(), cdot);
+            //m_reactantStoich.incrementSpecies(
+            //    m_kdata->m_ropr.begin(), cdot);
         }
 
         /**
@@ -184,11 +187,13 @@ namespace Cantera {
          */ 
         virtual void getDestructionRates(doublereal* ddot) {
             updateROP();
-            fill(ddot, ddot + m_kk, 0.0);
-            m_revProductStoich.incrementSpecies(
-                m_kdata->m_ropr.begin(), ddot);
-            m_reactantStoich.incrementSpecies(
-                m_kdata->m_ropf.begin(), ddot);
+            m_rxnstoich.getDestructionRates(m_kk, m_kdata->m_ropf.begin(), 
+                m_kdata->m_ropr.begin(), ddot); 
+            //            fill(ddot, ddot + m_kk, 0.0);
+            //m_revProductStoich.incrementSpecies(
+            //    m_kdata->m_ropr.begin(), ddot);
+            //m_reactantStoich.incrementSpecies(
+            //    m_kdata->m_ropf.begin(), ddot);
         }
 
 	/**
@@ -200,13 +205,14 @@ namespace Cantera {
          */ 
         virtual void getNetProductionRates(doublereal* net) {
             updateROP();
-            fill(net, net + m_kk, 0.0);
-            m_revProductStoich.incrementSpecies(
-                m_kdata->m_ropnet.begin(), net);
-            m_irrevProductStoich.incrementSpecies(
-                m_kdata->m_ropnet.begin(), net);
-            m_reactantStoich.decrementSpecies(
-                m_kdata->m_ropnet.begin(), net);
+            //fill(net, net + m_kk, 0.0);
+            //m_revProductStoich.incrementSpecies(
+            //   m_kdata->m_ropnet.begin(), net);
+            //m_irrevProductStoich.incrementSpecies(
+            //   m_kdata->m_ropnet.begin(), net);
+            //m_reactantStoich.decrementSpecies(
+            //   m_kdata->m_ropnet.begin(), net);
+            m_rxnstoich.getNetProductionRates(m_kk, m_kdata->m_ropnet.begin(), net); 
         }
 
         //@}
@@ -331,11 +337,12 @@ namespace Cantera {
 
         vector<int> m_irrev;
 
-        StoichManagerN                      m_reactantStoich;
-        StoichManagerN                      m_revProductStoich;
-        StoichManagerN                      m_irrevProductStoich;
+        //        StoichManagerN                      m_reactantStoich;
+        //StoichManagerN                      m_revProductStoich;
+        //StoichManagerN                      m_irrevProductStoich;
 
-        StoichManagerN                      m_globalReactantStoich;
+        //StoichManagerN                      m_globalReactantStoich;
+        ReactionStoichMgr                   m_rxnstoich;
 
         int m_nirrev;
 
@@ -401,6 +408,7 @@ namespace Cantera {
         }
         void applyButlerVolmerCorrection(doublereal* kf);
         bool m_finalized;
+        bool m_has_coverage_dependence;
     };
 }
 

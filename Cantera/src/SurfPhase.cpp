@@ -14,6 +14,7 @@
 
 #include "SurfPhase.h"
 #include "EdgePhase.h"
+#include "utilities.h"
 
 #include <iostream>
 using namespace std;
@@ -225,18 +226,17 @@ namespace Cantera {
             m_tlast = tnow;
             doublereal rt = GasConstant * tnow;
             int k;
-            //doublereal deltaE;
             for (k = 0; k < m_kk; k++) {
                 m_h0[k] *= rt;
                 m_s0[k] *= GasConstant;
                 m_cp0[k] *= GasConstant;
-                //deltaE = m_pe[k];
-                //m_h0[k] += deltaE;
                 m_mu0[k] = m_h0[k] - tnow*m_s0[k];
             }
             m_tlast = tnow;
         }
     }
+
+
 
     EdgePhase::EdgePhase(doublereal n0) : SurfPhase(n0) {
         setNDim(1);

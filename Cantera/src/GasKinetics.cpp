@@ -677,11 +677,3 @@ namespace Cantera {
     }
 
 }
-
-
-
-
-
-
-
-

@@ -23,6 +23,13 @@
 
 namespace Cantera {
 
+    void ThermoPhase::getActivities(doublereal* a) {
+        getActivityConcentrations(a);
+        int nsp = nSpecies();
+        int k;
+        for (k = 0; k < nsp; k++) a[k] /= standardConcentration(k);
+    }
+
     void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
         const doublereal* x) {
         setMoleFractions(x); setTemperature(t); setPressure(p);

@@ -68,7 +68,7 @@ namespace Cantera {
         
         // set components y + 2 ... y + K + 1 to the  
         // mass M_k of each species
-        m_mix->getMassFractions(leny-2, y+2);
+        m_mix->getMassFractions(y+2);
         scale(y + 2, y + m_nsp + 2, y + 2, mass);
             
         // set the first component to the total internal 

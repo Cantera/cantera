@@ -46,7 +46,8 @@ namespace Cantera {
         m_nrev(0),
         m_surf(0),
         m_integrator(0),
-        m_finalized(false)
+        m_finalized(false),
+        m_has_coverage_dependence(false)
     {
         m_kdata = new InterfaceKineticsData;
         m_kdata->m_temp = 0.0;
@@ -69,6 +70,11 @@ namespace Cantera {
     void InterfaceKinetics::
     _update_rates_T() {
         _update_rates_phi();
+        if (m_has_coverage_dependence) {
+            m_surf->getCoverages(m_conc.begin());
+            m_rates.update_C(m_conc.begin());
+            m_redo_rates = true;
+        }
         doublereal T = thermo(surfacePhaseIndex()).temperature();
         if (T != m_kdata->m_temp || m_redo_rates) {
             m_kdata->m_logtemp = log(T);
@@ -103,16 +109,6 @@ namespace Cantera {
     void InterfaceKinetics::
     _update_rates_C() {
         int n;
-
-        /**
-         * First evaluate the coverage-dependent terms in the reaction 
-         * rates.
-         */
-        // UNCOMMENT and fix
-        //m_surf->getCoverages(m_conc.begin());
-        //m_rates.update_C(m_conc.begin());
-        //m_rates.update(m_kdata->m_temp, 
-        //    m_kdata->m_logtemp, m_kdata->m_rfn.begin());
 
         int np = nPhases();
         for (n = 0; n < np; n++) {
@@ -159,8 +155,9 @@ namespace Cantera {
             }
 
             // compute Delta mu^0 for all reversible reactions
-            m_reactantStoich.decrementReactions(m_mu0.begin(), m_rkc.begin()); 
-            m_revProductStoich.incrementReactions(m_mu0.begin(), m_rkc.begin());
+            //m_reactantStoich.decrementReactions(m_mu0.begin(), m_rkc.begin()); 
+            //m_revProductStoich.incrementReactions(m_mu0.begin(), m_rkc.begin());
+            m_rxnstoich.getRevReactionDelta(m_ii, m_mu0.begin(), m_rkc.begin());
 
             for (i = 0; i < m_nrev; i++) {
                 irxn = m_revindex[i];
@@ -183,8 +180,8 @@ namespace Cantera {
         if (m_nrev > 0) {
 
             int n, nsp, k, ik=0;
-            doublereal rt = GasConstant*thermo(0).temperature();
-            doublereal rrt = 1.0/rt;
+            //doublereal rt = GasConstant*thermo(0).temperature();
+            //            doublereal rrt = 1.0/rt;
             int np = nPhases();
             for (n = 0; n < np; n++) {
                 thermo(n).getChemPotentials(dmu.begin() + m_start[n]);
@@ -197,8 +194,9 @@ namespace Cantera {
             }
 
             // compute Delta mu^ for all reversible reactions
-            m_reactantStoich.decrementReactions(dmu.begin(), rmu.begin()); 
-            m_revProductStoich.incrementReactions(dmu.begin(), rmu.begin());
+            //m_reactantStoich.decrementReactions(dmu.begin(), rmu.begin()); 
+            //m_revProductStoich.incrementReactions(dmu.begin(), rmu.begin());
+            m_rxnstoich.getRevReactionDelta(m_ii, dmu.begin(), rmu.begin());
 
             for (i = 0; i < m_nrev; i++) {
                 irxn = m_revindex[i];
@@ -231,9 +229,10 @@ namespace Cantera {
 
         fill(kc, kc + m_ii, 0.0);
 
-        m_reactantStoich.decrementReactions(m_mu0.begin(), kc); 
-        m_revProductStoich.incrementReactions(m_mu0.begin(), kc);
-        m_irrevProductStoich.incrementReactions(m_mu0.begin(), kc);
+        //m_reactantStoich.decrementReactions(m_mu0.begin(), kc); 
+        //m_revProductStoich.incrementReactions(m_mu0.begin(), kc);
+        //m_irrevProductStoich.incrementReactions(m_mu0.begin(), kc);
+        m_rxnstoich.getReactionDelta(m_ii, m_mu0.begin(), kc);
 
         for (i = 0; i < m_ii; i++) {
             kc[i] = exp(-kc[i]*rrt);
@@ -266,10 +265,11 @@ namespace Cantera {
         // compute the change in electrical potential energy for each
         // reaction. This will only be non-zero if a potential
         // difference is present.
-        fill(m_rwork.begin(), m_rwork.begin() + m_ii, 0.0);
-        m_reactantStoich.decrementReactions(m_pot.begin(), m_rwork.begin()); 
-        m_revProductStoich.incrementReactions(m_pot.begin(), m_rwork.begin());
-        m_irrevProductStoich.incrementReactions(m_pot.begin(), m_rwork.begin());
+        //fill(m_rwork.begin(), m_rwork.begin() + m_ii, 0.0);
+        //m_reactantStoich.decrementReactions(m_pot.begin(), m_rwork.begin()); 
+        //m_revProductStoich.incrementReactions(m_pot.begin(), m_rwork.begin());
+        //m_irrevProductStoich.incrementReactions(m_pot.begin(), m_rwork.begin());
+        m_rxnstoich.getReactionDelta(m_ii, m_pot.begin(), m_rwork.begin());
 
         // modify the reaction rates. Only modify those with a
         // non-zero activation energy, and do not decrease the
@@ -355,14 +355,16 @@ namespace Cantera {
         multiply_each(ropr.begin(), ropr.end(), m_rkc.begin());
 
         // multiply ropf by concentration products
-        m_reactantStoich.multiply(m_conc.begin(), ropf.begin()); 
+        m_rxnstoich.multiplyReactants(m_conc.begin(), ropf.begin()); 
+        //m_reactantStoich.multiply(m_conc.begin(), ropf.begin()); 
 
         // for reversible reactions, multiply ropr by concentration
         // products
-        m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
+        m_rxnstoich.multiplyRevProducts(m_conc.begin(), ropr.begin()); 
+        //m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
 
         // do global reactions
-        m_globalReactantStoich.power(m_conc.begin(), ropf.begin());
+        //m_globalReactantStoich.power(m_conc.begin(), ropf.begin());
 
         for (int j = 0; j != m_ii; ++j) {
             ropnet[j] = ropf[j] - ropr[j];
@@ -388,21 +390,37 @@ namespace Cantera {
     void InterfaceKinetics::
     addReaction(const ReactionData& r) {
 
-        int nr = r.reactants.size();
+        //        int nr = r.reactants.size();
 
-        // a global reaction is idnetified as one with 
+        // a global reaction is identified as one with 
         // a reactant stoichiometric coefficient not equal 
         // to the molecularity for some reactant
-        bool isglobal = false;
-        for (int n = 0; n < nr; n++) {
-            if (r.rstoich[n] != int(r.order[n])) {
-                isglobal = true; break;
-            }
-        }
-        if (isglobal)
-            addGlobalReaction(r);
-        else
-            addElementaryReaction(r);
+//         bool isglobal = false;
+//         for (int n = 0; n < nr; n++) {
+//            if (r.rstoich[n] != int(r.order[n])) {
+//                isglobal = true; break;
+//            }
+//         }
+        // if (isglobal)
+        //     addGlobalReaction(r);
+        //else
+
+        //        if (r.global) 
+        //    cout << r.equation << " is global " << endl;
+
+        addElementaryReaction(r);
+
+        //if (r.global) {
+        //    int nr = r.order.size();
+        //    vector_fp ordr(nr);
+        //    for (int n = 0; n < nr; n++) {
+        //        ordr[n] = r.order[n] - r.rstoich[n];
+                //      cout << r.reactants[n] << "  " << r.order[n] << "  " << ordr[n] << endl;
+        //  }
+            //m_globalReactantStoich.add( reactionNumber(),
+            //    r.reactants, ordr);
+            //}
+
 
 //         if (r.reactionType == ELEMENTARY_RXN)      
 //             addElementaryReaction(r);
@@ -425,6 +443,9 @@ namespace Cantera {
         // install rate coeff calculator
         vector_fp rp = r.rateCoeffParameters;
         int ncov = r.cov.size();
+        if (ncov > 3) {
+            m_has_coverage_dependence = true;
+        }
         for (int m = 0; m < ncov; m++) rp.push_back(r.cov[m]);
         iloc = m_rates.install( reactionNumber(),
             r.rateCoeffType, rp.size(), 
@@ -437,31 +458,32 @@ namespace Cantera {
     }
 
 
-    void InterfaceKinetics::
-    addGlobalReaction(const ReactionData& r) {
+//     void InterfaceKinetics::
+//     addGlobalReaction(const ReactionData& r) {
             
-        int iloc;
-        // install rate coeff calculator
-        vector_fp rp = r.rateCoeffParameters;
-        int ncov = r.cov.size();
-        for (int m = 0; m < ncov; m++) rp.push_back(r.cov[m]);
-        iloc = m_rates.install( reactionNumber(),
-            r.rateCoeffType, rp.size(),
-            rp.begin() );
+//         int iloc;
+//         // install rate coeff calculator
+//         vector_fp rp = r.rateCoeffParameters;
+//         int ncov = r.cov.size();
+//         for (int m = 0; m < ncov; m++) rp.push_back(r.cov[m]);
+//         iloc = m_rates.install( reactionNumber(),
+//             r.rateCoeffType, rp.size(),
+//             rp.begin() );
+//         // store activation energy
+//         m_E.push_back(r.rateCoeffParameters[2]);
+//         // add constant term to rate coeff value vector
+//         m_kdata->m_rfn.push_back(r.rateCoeffParameters[0]);
 
-        // add constant term to rate coeff value vector
-        m_kdata->m_rfn.push_back(r.rateCoeffParameters[0]);
+//         int nr = r.order.size();
+//         vector_fp ordr(nr);
+//         for (int n = 0; n < nr; n++) {
+//             ordr[n] = r.order[n] - r.rstoich[n];
+//         }
+//         m_globalReactantStoich.add( reactionNumber(),
+//             r.reactants, ordr);
 
-        int nr = r.order.size();
-        vector_fp ordr(nr);
-        for (int n = 0; n < nr; n++) {
-            ordr[n] = r.order[n] - r.rstoich[n];
-        }
-        m_globalReactantStoich.add( reactionNumber(),
-            r.reactants, ordr);
-
-        registerReaction( reactionNumber(), GLOBAL_RXN, iloc);
-    }
+//         registerReaction( reactionNumber(), GLOBAL_RXN, iloc);
+//     }
 
         
     void InterfaceKinetics::installReagents(const ReactionData& r) {
@@ -472,6 +494,16 @@ namespace Cantera {
         int n, ns, m;
 
         int rnum = reactionNumber();
+
+        // vectors rk and pk are lists of species numbers, with
+        // repeated entries for species with stoichiometric
+        // coefficients > 1. This allows the reaction to be defined
+        // with unity reaction order for each reactant, and so the
+        // faster method 'multiply' can be used to compute the rate of
+        // progress instead of 'power'.
+
+        // Note that this procedure is used for global reactions also. 
+        // The 
 
         vector_int rk;
         int nr = r.reactants.size();
@@ -497,15 +529,17 @@ namespace Cantera {
 
         m_kdata->m_rkcn.push_back(0.0);
 
-        m_reactantStoich.add( reactionNumber(), rk);
+        m_rxnstoich.add( reactionNumber(), r);
+
+        //m_reactantStoich.add( reactionNumber(), rk);
 
         if (r.reversible) {
-            m_revProductStoich.add(reactionNumber(), pk);
+            //  m_revProductStoich.add(reactionNumber(), pk);
             m_revindex.push_back(reactionNumber());
             m_nrev++;
         }
         else {
-            m_irrevProductStoich.add(reactionNumber(), pk);
+            //m_irrevProductStoich.add(reactionNumber(), pk);
             m_irrev.push_back( reactionNumber() );
             m_nirrev++;
         }        

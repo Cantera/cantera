@@ -1146,7 +1146,7 @@ next:
                 throw CanteraError("installReaction",
                     "reaction orders may only be given for "
                     "irreversible reactions");
-            //typ = "global";
+            rdata.global = true;
         }
 
 

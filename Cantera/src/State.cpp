@@ -116,6 +116,26 @@ namespace Cantera {
         }
     }
 
+    void State::getConcentrations(doublereal* c) const {
+        scale(m_ym.begin(), m_ym.end(), c, m_dens);
+    }
+
+    doublereal State::mean_X(const doublereal* Q) const {
+        return m_mmw*dot(m_ym.begin(), m_ym.end(), Q);
+    }
+
+    doublereal State::mean_Y(const doublereal* Q) const {
+        return dot(m_ym.begin(), m_ym.end(), Q);
+    }
+
+    void State::getMoleFractions(doublereal* x) const {
+        scale(m_ym.begin(), m_ym.end(), x, m_mmw);
+    }
+
+    void State::getMassFractions(doublereal* y) const {
+        copy(m_y.begin(), m_y.end(), y);
+    }
+
     void State::init(const array_fp& mw) {
         m_kk = mw.size();
         m_molwts.resize(m_kk);

@@ -19,6 +19,7 @@
 #include "mix_defs.h"
 #include "ThermoPhase.h"
 #include "SpeciesThermo.h"
+#include "utilities.h"
 
 namespace Cantera {
 

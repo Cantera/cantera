@@ -33,6 +33,7 @@ namespace Cantera {
             error = 0;
             equation = "";
             default_3b_eff = 1.0;
+            global = false;
         }
         ~ReactionData(){}
 
@@ -56,6 +57,7 @@ namespace Cantera {
         string equation;
         doublereal default_3b_eff;
         vector_fp cov;
+        bool global;
     };
 }
 

@@ -638,7 +638,7 @@ namespace Cantera {
             
         //scale(m_work.begin(), m_work.end(), m_work.begin(), m_mult[0]);
         
-        bool enabled = true;
+        //        bool enabled = true;
         int ioffset = m_kin->kineticsSpeciesIndex(0, m_surfindex);
 
         if (m_enabled) {

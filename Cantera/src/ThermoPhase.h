@@ -550,12 +550,7 @@ namespace Cantera {
         }
         //@}
 
-        void getActivities(doublereal* a) {
-            getActivityConcentrations(a);
-            int nsp = nSpecies();
-            doublereal rc = 1.0/standardConcentration();
-            scale(a, a + nsp, a, rc); 
-        }
+        void getActivities(doublereal* a);
 
 
         /**

@@ -22,12 +22,14 @@
 
 #include "Elements.h"
 #include "xml.h"
+#include "ctexceptions.h"
 
 #ifdef USE_DGG_CODE
 #include <map>
 #endif
 
 namespace Cantera {
+
     
     /* awData structure */
     /**

@@ -19,8 +19,9 @@
 #ifndef CT_STATE2_H
 #define CT_STATE2_H
 
-#include "utilities.h"
-#include "ctexceptions.h"
+#include "ct_defs.h"
+//#include "utilities.h"
+//#include "ctexceptions.h"
 
 namespace Cantera {
 
@@ -62,9 +63,7 @@ namespace Cantera {
          * @param x On return, x contains the mole fractions. Must have a
          * length greater than or equal to the number of species.
          */
-	void getMoleFractions(doublereal* x) const {
-            scale(m_ym.begin(), m_ym.end(), x, m_mmw);
-        }
+	void getMoleFractions(doublereal* x) const;
 
         /// The mole fraction of species k.
         doublereal moleFraction(int k) const;
@@ -89,18 +88,16 @@ namespace Cantera {
          * @param y On return, y contains the mass fractions. Array y 
          * must have a length at least as large as the number of species.
          */
-	void getMassFractions(size_t leny, doublereal* y) const {
-            copy(m_y.begin(), m_y.end(), y);
-        }
+	//void getMassFractions(size_t leny, doublereal* y) const {
+        //    copy(m_y.begin(), m_y.end(), y);
+        //}
 
         /**
          * Get the species mass fractions.  @param y On return, y
          * contains the mass fractions. Array \i y must have a length
          * greater than or equal to the number of species.
          */
-	void getMassFractions(doublereal* y) const {
-            copy(m_y.begin(), m_y.end(), y);
-        }
+	void getMassFractions(doublereal* y) const;
 
         /// Mass fraction of species k.
         doublereal massFraction(int k) const;
@@ -127,10 +124,7 @@ namespace Cantera {
          * Array \i c must have a length greater than or equal to 
          * the number of species.
          */
-	void getConcentrations(doublereal* c) const {
-            doublereal f = m_dens;
-            scale(m_ym.begin(), m_ym.end(), c, f);
-        }
+	void getConcentrations(doublereal* c) const;
 
 	/**
          * Evaluate the mole-fraction-weighted mean of Q:
@@ -138,10 +132,7 @@ namespace Cantera {
          * Array Q should contain pure-species molar property 
          * values.
          */
-	doublereal mean_X(const doublereal* Q) const {
-            return m_mmw*dot(m_ym.begin(), m_ym.end(), Q);
-        }
-
+	doublereal mean_X(const doublereal* Q) const;
 
 	/**
          * Evaluate the mass-fraction-weighted mean of Q:
@@ -149,9 +140,7 @@ namespace Cantera {
          * Array Q should contain pure-species property 
          * values in mass units.
          */        
-	doublereal mean_Y(const doublereal* Q) const {
-            return dot(m_y.begin(), m_y.end(), Q);
-	}
+	doublereal mean_Y(const doublereal* Q) const;
 
 	/**
          * The mean molecular weight. Units: (kg/kmol)
@@ -179,10 +168,10 @@ namespace Cantera {
 
 	/// Set the density to value rho (kg/m^3).
 	void setDensity(doublereal rho) {
-            if (rho != m_dens) {
+            //            if (rho != m_dens) {
                 m_dens = rho;
                 //m_C_updater.need_update();
-            }
+                //}
         }
 
 	/// Set the molar density to value n (kmol/m^3).

@@ -23,7 +23,7 @@ namespace Cantera {
         void Phase::saveState(int lenstate, doublereal* state) const {
             state[0] = temperature();
             state[1] = density();
-            getMassFractions(lenstate - 2, state + 2);
+            getMassFractions(state + 2);
         }
 
         void Phase::restoreState(vector_fp& state) {

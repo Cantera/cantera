@@ -64,7 +64,7 @@ namespace Cantera {
 
         // copy mass fractions        
         int nsp0 = oldmech.nSpecies();
-        int nsp1 = newmech.nSpecies();
+        //int nsp1 = newmech.nSpecies();
 
         // loop over the species in the old mechanism
         for (int k = 0; k < nsp0; k++) {
@@ -86,17 +86,17 @@ namespace Cantera {
         // normalize mass fractions
         for (j = 0; j < points; j++) {
             newmech.setMassFractions(&newSoln[nv_new*j + 4]);
-            newmech.getMassFractions(nsp1,&newSoln[nv_new*j + 4]);
+            newmech.getMassFractions(&newSoln[nv_new*j + 4]);
         }
     }
 
 
     //---------------------- drawline ----------------------------------
 
-    static void drawline(ostream& s) {
-        s << "\n-------------------------------------"
-          <<  "------------------------------------------";
-    }
+    //static void drawline(ostream& s) {
+    //    s << "\n-------------------------------------"
+    //      <<  "------------------------------------------";
+    //}
 
     static void drawline() {
         writelog("\n-------------------------------------"

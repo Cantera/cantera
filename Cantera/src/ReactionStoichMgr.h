@@ -18,6 +18,7 @@
 namespace Cantera {
 
   class StoichManagerN;
+    class ReactionData;
 
   /**
    * Reaction mechanism stoichiometry manager. This is an internal class used
@@ -110,11 +111,11 @@ namespace Cantera {
      * species with index in the corresponding location in 'reactants.'
      *
      */
-    void add(int rxn, const vector_int& reactants, const vector_int& products,
-	     bool reversible, const vector_fp& fwdOrder);
+      //    void add(int rxn, const vector_int& reactants, const vector_int& products,
+      //	     bool reversible, const vector_fp& fwdOrder);
 
 
-
+      void add(int rxn, const ReactionData& r);
 
     /**
      * Species creation rates. 
@@ -219,9 +220,10 @@ namespace Cantera {
 
   protected:
 
-    StoichManagerN*  m_reactants;      
-    StoichManagerN*  m_revproducts;
-    StoichManagerN*  m_irrevproducts;
+      StoichManagerN*  m_reactants;      
+      StoichManagerN*  m_revproducts;
+      StoichManagerN*  m_irrevproducts;
+      StoichManagerN*  m_global;
 
   };
 }
