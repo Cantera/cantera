@@ -159,12 +159,12 @@ namespace Cantera {
         XML_Node *db, *doc;
         split(file_ID, fname, idTarget);
         if (fname == "") {
-	  if (!root) return 0;
-	  db = root->findNameID(nameTarget, idTarget);
+            if (!root) return 0;
+            db = root->findNameID(nameTarget, idTarget);
         } else {
-	  doc = get_XML_File(fname);
-	  if (!doc) return 0;
-	  db = doc->findNameID(nameTarget, idTarget);
+            doc = get_XML_File(fname);
+            if (!doc) return 0;
+            db = doc->findNameID(nameTarget, idTarget);
         }
         return db;
     }
@@ -1361,7 +1361,9 @@ next:
         ThermoPhase* th, Kinetics* k) {
         XML_Node* x;
         try {
-            x = get_XML_Node(string("#")+id, &root); 
+
+            x = get_XML_NameID(nm, string("#")+id, &root);
+            //            x = get_XML_Node(string("#")+id, &root); 
 
             /*
              * Fill in the ThermoPhase object by querying the
