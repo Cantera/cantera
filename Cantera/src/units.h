@@ -1,3 +1,9 @@
+/**
+ * @file units.h
+ *
+ * Unit conversions.
+ */
+
 #ifndef CT_UNITS_H
 #define CT_UNITS_H
 
@@ -20,9 +26,13 @@ namespace Cantera {
 	    }
 	}
 
-        virtual ~Unit() {
-        }
+        virtual ~Unit() {}
 
+        /**
+         * Return the multiplier required to convert an activation
+         * energy to SI units.
+         * @param units activation energy units
+         */
         doublereal actEnergyToSI(string units) {
             if (m_act_u.find(units) != m_act_u.end()) {
                 return m_act_u[units];
@@ -32,15 +42,25 @@ namespace Cantera {
             }
         }
 
+        /**
+         * Return the multiplier required to convert a dimensional quantity 
+         * with units specified by string 'units' to SI units.
+         */
         doublereal toSI(string units) {
+
+            // if dimensionless, return 1.0
             if (units == "") return 1.0;
+
             doublereal f = 1.0, fctr;
             int tsize;
             string u = units, tok, tsub;
             int k;
             char action = '-';
-            //if (units[0] == '/') action = '/';
+
             while (1 > 0) {
+
+                // get token consisting of all characters up to the next 
+                // dash, slash, or the end of the string
                 k = u.find_first_of("/-");
                 if (k >= 0)
                     tok = u.substr(0,k);
@@ -79,6 +99,8 @@ namespace Cantera {
                     fctr = m_u[tok];
                 }
 
+                // tok is not one of the entries in map m_u, then 
+                // m_u[tok] returns 0.0. Check for this.
                 if (fctr == 0) 
                     throw CanteraError("toSI","unknown unit: "+tsub);
                 if (action == '-') f *= fctr;

@@ -15,19 +15,13 @@ namespace Cantera {
     public:
         Interface(string infile, string id, vector<ThermoPhase*> phases) 
             : m_ok(false), m_r(0) {
-            string path = findInputFile(infile);
-            ifstream fin(path.c_str());
-            if (!fin) {
-                throw CanteraError("Interface","could not open "
-                    +path+" for reading.");
-            }
-            
-            m_r = new XML_Node("-");
-            m_r->build(fin);
 
-            XML_Node* x = find_XML("", m_r, id, "", "");
+            m_r = get_XML_File(infile); 
+            if (id == "-") id = "";
+
+            XML_Node* x = get_XML_Node("#"+id, m_r);
             if (!x)                 
-                throw CanteraError("Interface","error in find_XML");
+                throw CanteraError("Interface","error in get_XML_Node");
 
             importPhase(*x, this);
             phases.push_back(this);

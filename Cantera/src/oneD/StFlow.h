@@ -17,7 +17,7 @@
 #include "../transport/TransportBase.h"
 #include "Domain1D.h"
 #include "../Array.h"
-#include "../sort.h"
+//#include "../sort.h"
 #include "../IdealGasPhase.h"
 #include "../Kinetics.h"
 #include "../funcs.h"
@@ -56,10 +56,8 @@ namespace Cantera {
 
 
     /**
-     *  A class for one-dimensional reacting stagnation-point
-     *  flows. This class implements the one-dimensional similarity
-     *  solution for a chemically-reacting, axisymmetric,
-     *  stagnation-point flow.
+     *  This class implements the one-dimensional similarity solution
+     *  for a chemically-reacting, axisymmetric, flow.
      */
     class StFlow : public Domain1D {
 
@@ -82,7 +80,6 @@ namespace Cantera {
 
         virtual void setupGrid(int n, const doublereal* z);
 
-        //thermo_t& phase() { return *m_phase; }
         thermo_t& phase() { return *m_thermo; }
         kinetics_t& kinetics() { return *m_kin; }
 
@@ -90,9 +87,7 @@ namespace Cantera {
          * Set the thermo manager. Note that the flow equations assume
          * the ideal gas equation.
          */
-        void setThermo(igthermo_t& th) { 
-            m_thermo = &th;
-        }
+        void setThermo(igthermo_t& th) { m_thermo = &th; }
 
         /// set the kinetics manager
         void setKinetics(kinetics_t& kin) { m_kin = &kin; }
@@ -104,7 +99,7 @@ namespace Cantera {
         void setPressure(doublereal p) { m_press = p; }
 
         /// Check that all required parameters have been set.
-        bool ready();
+        //bool ready();
 
         virtual void setState(int point, const doublereal* state) {
             setTemperature(point, state[2]);
@@ -125,26 +120,7 @@ namespace Cantera {
             }
         }   
 
-        virtual void _finalize(const doublereal* x) {
-            int k, j;
-            doublereal zz, tt;
-            int nz = m_zfix.size();
-            bool e = m_do_energy[0];
-            for (j = 0; j < m_points; j++) {
-                if (e || nz == 0) 
-                    setTemperature(j, T(x, j));
-                else {
-                    zz = (z(j) - z(0))/(z(m_points - 1) - z(0));
-                    tt = linearInterp(zz, m_zfix, m_tfix);
-                    setTemperature(j, tt);
-                }   
-                for (k = 0; k < m_nsp; k++) {
-                    setMassFraction(j, k, Y(x, k, j));
-                }
-            }
-            if (e) solveEnergyEqn();
-        }
-
+        virtual void _finalize(const doublereal* x);
 
         void setFixedTempProfile(vector_fp& zfixed, vector_fp& tfixed) {
             m_zfix = zfixed;
@@ -165,6 +141,7 @@ namespace Cantera {
          * Set the mass fraction fixed point for species k at grid
          * point j, and disable the species equation so that the
          * solution will be held to this value.
+         * note: in practice, the species are hardly ever held fixed.
          */
         void setMassFraction(int j, int k, doublereal y) {
             m_fixedy(k,j) = y;
@@ -181,23 +158,23 @@ namespace Cantera {
          */
         doublereal Y_fixed(int k, int j) const {return m_fixedy(k,j);}
 
+
         virtual string componentName(int n) const;
 
-        /**
-         * Write a Tecplot zone corresponding to the current solution.
-         * May be called multiple times to generate animation.
-         */
-        void outputTEC(ostream &s, const doublereal* x, 
-            string title, int zone);
+//         /**
+//          * Write a Tecplot zone corresponding to the current solution.
+//          * May be called multiple times to generate animation.
+//          */
+//         void outputTEC(ostream &s, const doublereal* x, 
+//             string title, int zone);
 
-        virtual void showSolution(ostream& s, const doublereal* x);
+        //        virtual void showSolution(ostream& s, const doublereal* x);
         virtual void showSolution(const doublereal* x);
 
-        //void save(string fname, string id, string desc, doublereal* soln);
         virtual void save(XML_Node& o, doublereal* sol);
 
-        void restore(int job, string fname, string id, int& size_z, 
-            doublereal* z, int& size_soln, doublereal* soln);
+        //        void restore(int job, string fname, string id, int& size_z, 
+        //    doublereal* z, int& size_soln, doublereal* soln);
 
         virtual void restore(const XML_Node& dom, doublereal* soln);
 
@@ -240,7 +217,7 @@ namespace Cantera {
             needJacUpdate();
         }
 
-        void setEnergyFactor(doublereal efctr);
+        //        void setEnergyFactor(doublereal efctr);
 
         void fixSpecies(int k=-1) {
             if (k == -1) {
@@ -259,21 +236,22 @@ namespace Cantera {
         virtual void setFixedPoint(int j0, doublereal t0){}
 
 
-        virtual void setBoundaries(FlowBdry::Boundary* left,
-            FlowBdry::Boundary* right) {
-            if (left) {
-                m_boundary[0] = left;
-                left->faceRight();
-            }
-            if (right) {
-                m_boundary[1] = right;
-                right->faceLeft();
-            }
-        }
+ //        virtual void setBoundaries(FlowBdry::Boundary* left,
+//             FlowBdry::Boundary* right) {
+//             if (left) {
+//                 m_boundary[0] = left;
+//                 left->faceRight();
+//             }
+//             if (right) {
+//                 m_boundary[1] = right;
+//                 right->faceLeft();
+//             }
+//         }
 
         void setJac(MultiJac* jac);
         void setGas(const doublereal* x,int j);
         void setGasAtMidpoint(const doublereal* x,int j);
+
 
     protected:
 

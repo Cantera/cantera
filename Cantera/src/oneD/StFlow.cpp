@@ -301,6 +301,28 @@ namespace Cantera {
     }
 
 
+    void StFlow::_finalize(const doublereal* x) {
+        int k, j;
+        doublereal zz, tt;
+        int nz = m_zfix.size();
+        bool e = m_do_energy[0];
+        for (j = 0; j < m_points; j++) {
+            if (e || nz == 0) 
+                setTemperature(j, T(x, j));
+            else {
+                zz = (z(j) - z(0))/(z(m_points - 1) - z(0));
+                tt = linearInterp(zz, m_zfix, m_tfix);
+                setTemperature(j, tt);
+            }   
+            for (k = 0; k < m_nsp; k++) {
+                setMassFraction(j, k, Y(x, k, j));
+            }
+        }
+        if (e) solveEnergyEqn();
+    }
+
+
+    //------------------------------------------------------
 
     /**
      *  Evaluate the residual function for axisymmetric stagnation
@@ -587,249 +609,240 @@ namespace Cantera {
     }
 
 
-    void OneDFlow::eval(int jg, doublereal* xg, doublereal* rg, integer* diagg,
-        doublereal rdt) {
+//     void OneDFlow::eval(int jg, doublereal* xg, doublereal* rg, integer* diagg,
+//         doublereal rdt) {
 
-        static double elapsed;
-        //        doublereal rtau = 1.e5;
+//         static double elapsed;
 
-        clock_t t0 = clock();
+//         clock_t t0 = clock();
 
-        //        doublereal rdt_save = rdt;
-        if (jg >= 0) rdt = 0.0;
+//         if (jg >= 0) rdt = 0.0;
 
-        if (jg >= 0 && (jg < firstPoint() || jg > lastPoint())) return;
+//         if (jg >= 0 && (jg < firstPoint() || jg > lastPoint())) return;
 
-        // start of local part of global arrays
-        doublereal* x = xg + loc();
-        doublereal* rsd = rg + loc();
-        integer* diag = diagg + loc();
+//         // start of local part of global arrays
+//         doublereal* x = xg + loc();
+//         doublereal* rsd = rg + loc();
+//         integer* diag = diagg + loc();
 
-        int jmin, jmax, jpt;
-        jpt = jg - firstPoint();
+//         int jmin, jmax, jpt;
+//         jpt = jg - firstPoint();
 
-        for (int jj = 0; jj < m_points*m_nv; jj++) {
-            if (x[jj] < -1.e20 || x[jj] > 1.e20) {
-                showSolution(cout, x);
-                throw CanteraError("tlt","tlt");
-            }
-        }
+//         // the residual function is evaluated for jmin <= j <= jmax, and
+//         // properties and evaluated for j0 <= j <= j1. 
 
-        // the residual function is evaluated for jmin <= j <= jmax, and
-        // properties and evaluated for j0 <= j <= j1. 
+//         if (jg < 0) {
+//             jmin = 0; 
+//             jmax = m_points - 1;
+//         }
+//         else {                   
+//             jmin = max(jpt-1,0);
+//             jmax = min(jpt+1,m_points-1);
+//         }
+//         int j0 = max(jmin-1,0);
+//         int j1 = min(jmax+1,m_points-1);
 
-        if (jg < 0) {
-            jmin = 0; 
-            jmax = m_points - 1;
-        }
-        else {                   
-            jmin = max(jpt-1,0);
-            jmax = min(jpt+1,m_points-1);
-        }
-        int j0 = max(jmin-1,0);
-        int j1 = min(jmax+1,m_points-1);
+//         int j, k;
 
-        int j, k;
+//         //----------------------------------------------------- 
+//         // compute properties needed in the residual equations
+//         //-----------------------------------------------------
 
-        //----------------------------------------------------- 
-        // compute properties needed in the residual equations
-        //-----------------------------------------------------
+//         // for each point, synchronize the state of the fluid object
+//         // with the current solution values, and then use this object
+//         // to compute the density, mean molecular weight, and mean
+//         // specific heat at constant pressure.
+//         if (jpt < 0) updateThermo(x, j0, j1);
 
-        // for each point, synchronize the state of the fluid object
-        // with the current solution values, and then use this object
-        // to compute the density, mean molecular weight, and mean
-        // specific heat at constant pressure.
-        if (jpt < 0) updateThermo(x, j0, j1);
+//         // skip updating transport properties if a Jacobian is
+//         // being evaluated
+//         if (jpt < 0) updateTransport(x, j0, j1);
 
-        // skip updating transport properties if a Jacobian is
-        // being evaluated
-        if (jpt < 0) updateTransport(x, j0, j1);
-
-        // update the species diffusive mass fluxes
-        updateDiffFluxes(x, j0, j1);
+//         // update the species diffusive mass fluxes
+//         updateDiffFluxes(x, j0, j1);
 
 
-        //----------------------------------------------------
-        // evaluate the residual equations at all required
-        // grid points
-        //----------------------------------------------------
+//         //----------------------------------------------------
+//         // evaluate the residual equations at all required
+//         // grid points
+//         //----------------------------------------------------
 
-        doublereal sum, sum2, deltaz, dtdzj;
-
-
-        for (j = jmin; j <= jmax; j++) {
+//         doublereal sum, sum2, deltaz, dtdzj;
 
 
-            //----------------------------------------------
-            //         boundaries
-            //----------------------------------------------
-
-            if (j == 0) {
-                setGas(x,0);
-                m_boundary[0]->eval(x, m_rho[0], m_flux.begin(), 
-                    rsd);
-            }
-
-            else if (j == m_points - 1) {
-                m_boundary[1]->eval(x + index(0, j), m_rho[j], 
-                    m_flux.begin() + m_nsp*(j-1), 
-                    rsd + index(0, j));
-            }
+//         for (j = jmin; j <= jmax; j++) {
 
 
-            //------------------------------------------
-            //     interior points                 
-            //------------------------------------------
+//             //----------------------------------------------
+//             //         boundaries
+//             //----------------------------------------------
+
+//             if (j == 0) {
+//                 setGas(x,0);
+//                 m_boundary[0]->eval(x, m_rho[0], m_flux.begin(), 
+//                     rsd);
+//             }
+
+//             else if (j == m_points - 1) {
+//                 m_boundary[1]->eval(x + index(0, j), m_rho[j], 
+//                     m_flux.begin() + m_nsp*(j-1), 
+//                     rsd + index(0, j));
+//             }
+
+
+//             //------------------------------------------
+//             //     interior points                 
+//             //------------------------------------------
             
-            else {
+//             else {
                 
-                //    continuity
-                rsd[index(c_offset_U,j)] = (rho_u(x,j-1) - rho_u(x,j));
+//                 //    continuity
+//                 rsd[index(c_offset_U,j)] = (rho_u(x,j-1) - rho_u(x,j));
                 
-                //    radial velocity = 0
-                rsd[index(c_offset_V,j)] = V(x,j);
+//                 //    radial velocity = 0
+//                 rsd[index(c_offset_V,j)] = V(x,j);
                 
-                //    species equations
-                getWdot(x,j);
+//                 //    species equations
+//                 getWdot(x,j);
 
-                doublereal convec, diffus;
-                for (k = 0; k < m_nsp; k++) {
-                    if (m_do_species[k]) {
+//                 doublereal convec, diffus;
+//                 for (k = 0; k < m_nsp; k++) {
+//                     if (m_do_species[k]) {
 
-                        convec = rho_u(x,j) * dYdz(x,k,j);               
-                        diffus = 2.0*(m_flux(k,j) - m_flux(k,j-1))/(z(j+1) - z(j-1));
-                        rsd[index(c_offset_Y + k, j)] = 
-                            (m_wt[k]*wdot(k,j) - convec - diffus)/m_rho[j]
-                            - rdt*(Y(x,k,j) - Y_prev(k,j));
-                        diag[index(c_offset_Y + k, j)] = 1;
-                    }
-                    else 
-                        rsd[index(c_offset_Y+k,j)] = (Y(x,k,j) - Y_fixed(k,j));
-                }
+//                         convec = rho_u(x,j) * dYdz(x,k,j);               
+//                         diffus = 2.0*(m_flux(k,j) - m_flux(k,j-1))/(z(j+1) - z(j-1));
+//                         rsd[index(c_offset_Y + k, j)] = 
+//                             (m_wt[k]*wdot(k,j) - convec - diffus)/m_rho[j]
+//                             - rdt*(Y(x,k,j) - Y_prev(k,j));
+//                         diag[index(c_offset_Y + k, j)] = 1;
+//                     }
+//                     else 
+//                         rsd[index(c_offset_Y+k,j)] = (Y(x,k,j) - Y_fixed(k,j));
+//                 }
 
 
-                //    energy equation
+//                 //    energy equation
 
-                if (m_do_energy[j]) {
-                    setGas(x,j);
+//                 if (m_do_energy[j]) {
+//                     setGas(x,j);
 
-                    // heat release term
-                    const vector_fp& h_RT = m_thermo->enthalpy_RT();
-                    const vector_fp& cp_R = m_thermo->cp_R();
-                    sum = 0.0;
-                    sum2 = 0.0;
-                    deltaz = (z(j+1) - z(j-1));
-                    doublereal flxk;
-                    for (k = 0; k < m_nsp; k++) {
-                        flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
+//                     // heat release term
+//                     const vector_fp& h_RT = m_thermo->enthalpy_RT();
+//                     const vector_fp& cp_R = m_thermo->cp_R();
+//                     sum = 0.0;
+//                     sum2 = 0.0;
+//                     deltaz = (z(j+1) - z(j-1));
+//                     doublereal flxk;
+//                     for (k = 0; k < m_nsp; k++) {
+//                         flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
 
-                        sum += wdot(k,j)*h_RT[k];
-                        sum2 += flxk*cp_R[k]/m_wt[k];
-                    }
-                    sum *= GasConstant * T(x,j);
-                    dtdzj = (T(x,j+1) - T(x,j-1))/deltaz; // dTdz(x,j) + (m_dz[j-1]/deltaz)*(dTdz(x,j+1) - dTdz(x,j));
-                    sum2 *= GasConstant * dtdzj;
-                    rsd[index(c_offset_T, j)]   = - m_cp[j]*rho_u(x,j)*dtdzj 
-                                           - divHeatFlux(x,j) - sum - sum2;
-                    rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
-                    rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
-                    diag[index(c_offset_T, j)] = 1;
-                }
+//                         sum += wdot(k,j)*h_RT[k];
+//                         sum2 += flxk*cp_R[k]/m_wt[k];
+//                     }
+//                     sum *= GasConstant * T(x,j);
+//                     dtdzj = (T(x,j+1) - T(x,j-1))/deltaz; // dTdz(x,j) + (m_dz[j-1]/deltaz)*(dTdz(x,j+1) - dTdz(x,j));
+//                     sum2 *= GasConstant * dtdzj;
+//                     rsd[index(c_offset_T, j)]   = - m_cp[j]*rho_u(x,j)*dtdzj 
+//                                            - divHeatFlux(x,j) - sum - sum2;
+//                     rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
+//                     rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
+//                     diag[index(c_offset_T, j)] = 1;
+//                 }
                 
-                //    lambda = 0
-                rsd[index(c_offset_L, j)] = lambda(x,j);
+//                 //    lambda = 0
+//                 rsd[index(c_offset_L, j)] = lambda(x,j);
 
-            }
-            for (k = 0; k < m_nsp; k++) {
-                if (!m_do_species[k]) {
-                    rsd[index(c_offset_Y+k,j)] = 
-                        (Y(x,k,j) - Y_fixed(k,j));
-                    diag[index(c_offset_Y+k, j)] = 0;
-                }
-            }
-            if (!m_do_energy[j]) {
-                rsd[index(c_offset_T, j)] = (T(x,j) - T_fixed(j));
-                diag[index(c_offset_T, j)] = 0;
-            }
+//             }
+//             for (k = 0; k < m_nsp; k++) {
+//                 if (!m_do_species[k]) {
+//                     rsd[index(c_offset_Y+k,j)] = 
+//                         (Y(x,k,j) - Y_fixed(k,j));
+//                     diag[index(c_offset_Y+k, j)] = 0;
+//                 }
+//             }
+//             if (!m_do_energy[j]) {
+//                 rsd[index(c_offset_T, j)] = (T(x,j) - T_fixed(j));
+//                 diag[index(c_offset_T, j)] = 0;
+//             }
 
-        }
-        clock_t t1 = clock();
-        elapsed += double(t1 - t0)/CLOCKS_PER_SEC;
-    }
-
-
-    /**
-     * Update the transport properties at grid points in the range
-     * from j0 to j1, based on solution x.
-     */
-    void OneDFlow::updateTransport(doublereal* x,int j0, int j1) {
-        int j;
-        if (m_transport_option == c_Mixav_Transport) {
-            for (j = j0; j < j1; j++) {
-                setGasAtMidpoint(x,j);
-                m_trans->getMixDiffCoeffs(m_diff.begin() + j*m_nsp);
-                m_tcon[j] = m_trans->thermalConductivity();
-            }
-        }
-        else if (m_transport_option == c_Multi_Transport) {
-            for (j = j0; j < j1; j++) {
-                setGasAtMidpoint(x,j);
-                m_trans->getMultiDiffCoeffs(m_nsp, m_diff.begin() + mindex(0,0,j));
-                m_tcon[j] = m_trans->thermalConductivity();
-            }
-        }
-    }
+//         }
+//         clock_t t1 = clock();
+//         elapsed += double(t1 - t0)/CLOCKS_PER_SEC;
+//     }
 
 
-    /**
-     * Print the solution.
-     */    
-    void StFlow::showSolution(ostream& s, const doublereal* x) {
-        int nn = m_nv/5;
-        int i, j, n;
-        char* buf = new char[100];
+//     /**
+//      * Update the transport properties at grid points in the range
+//      * from j0 to j1, based on solution x.
+//      */
+//     void OneDFlow::updateTransport(doublereal* x,int j0, int j1) {
+//         int j;
+//         if (m_transport_option == c_Mixav_Transport) {
+//             for (j = j0; j < j1; j++) {
+//                 setGasAtMidpoint(x,j);
+//                 m_trans->getMixDiffCoeffs(m_diff.begin() + j*m_nsp);
+//                 m_tcon[j] = m_trans->thermalConductivity();
+//             }
+//         }
+//         else if (m_transport_option == c_Multi_Transport) {
+//             for (j = j0; j < j1; j++) {
+//                 setGasAtMidpoint(x,j);
+//                 m_trans->getMultiDiffCoeffs(m_nsp, m_diff.begin() + mindex(0,0,j));
+//                 m_tcon[j] = m_trans->thermalConductivity();
+//             }
+//         }
+//     }
 
-        // The mean molecular weight is needed to convert
-        updateThermo(x, 0, m_points-1);
 
-        for (i = 0; i < nn; i++) {
-            drawline(s);
-            sprintf(buf, "\n        z   ");
-            s << buf;
-            for (n = 0; n < 5; n++) { 
-                sprintf(buf, " %10s ",componentName(i*5 + n).c_str());
-                s << buf;
-            }
-            drawline(s);
-            for (j = 0; j < m_points; j++) {
-                sprintf(buf, "\n %10.4g ",m_z[j]);
-                s << buf;
-                for (n = 0; n < 5; n++) { 
-                    sprintf(buf, " %10.4g ",component(x, i*5+n,j));
-                    s << buf;
-                }
-            }
-            s << endl;
-        }
-        int nrem = m_nv - 5*nn;
-        drawline(s);
-        sprintf(buf, "\n        z   ");
-        s << buf;
-        for (n = 0; n < nrem; n++) {
-            sprintf(buf, "  %10s  ", componentName(nn*5 + n).c_str());
-            s << buf;
-        }
-        drawline(s);
-        for (j = 0; j < m_points; j++) {
-            sprintf(buf, "\n  %10.4g ",m_z[j]);
-            s << buf;
-            for (n = 0; n < nrem; n++) { 
-                sprintf(buf, "  %10.4g  ",component(x, nn*5+n,j));
-                s << buf;
-            }
-        }
-        s << endl;
-    }
+//     /**
+//      * Print the solution.
+//      */    
+//     void StFlow::showSolution(ostream& s, const doublereal* x) {
+//         int nn = m_nv/5;
+//         int i, j, n;
+//         char* buf = new char[100];
+
+//         // The mean molecular weight is needed to convert
+//         updateThermo(x, 0, m_points-1);
+
+//         for (i = 0; i < nn; i++) {
+//             drawline(s);
+//             sprintf(buf, "\n        z   ");
+//             s << buf;
+//             for (n = 0; n < 5; n++) { 
+//                 sprintf(buf, " %10s ",componentName(i*5 + n).c_str());
+//                 s << buf;
+//             }
+//             drawline(s);
+//             for (j = 0; j < m_points; j++) {
+//                 sprintf(buf, "\n %10.4g ",m_z[j]);
+//                 s << buf;
+//                 for (n = 0; n < 5; n++) { 
+//                     sprintf(buf, " %10.4g ",component(x, i*5+n,j));
+//                     s << buf;
+//                 }
+//             }
+//             s << endl;
+//         }
+//         int nrem = m_nv - 5*nn;
+//         drawline(s);
+//         sprintf(buf, "\n        z   ");
+//         s << buf;
+//         for (n = 0; n < nrem; n++) {
+//             sprintf(buf, "  %10s  ", componentName(nn*5 + n).c_str());
+//             s << buf;
+//         }
+//         drawline(s);
+//         for (j = 0; j < m_points; j++) {
+//             sprintf(buf, "\n  %10.4g ",m_z[j]);
+//             s << buf;
+//             for (n = 0; n < nrem; n++) { 
+//                 sprintf(buf, "  %10.4g  ",component(x, nn*5+n,j));
+//                 s << buf;
+//             }
+//         }
+//         s << endl;
+//     }
 
 
     /**
@@ -945,32 +958,32 @@ namespace Cantera {
 
 
 
-    void StFlow::outputTEC(ostream &s, const doublereal* x, 
-        string title, int zone) {
-        int j,k;
-        s << "TITLE     = \"" + title + "\"" << endl;
-        s << "VARIABLES = \"Z (m)\"" << endl;
-        s << "\"u (m/s)\"" << endl;
-        s << "\"V (1/s)\"" << endl;
-        s << "\"T (K)\"" << endl;
-        s << "\"lambda\"" << endl;
+//     void StFlow::outputTEC(ostream &s, const doublereal* x, 
+//         string title, int zone) {
+//         int j,k;
+//         s << "TITLE     = \"" + title + "\"" << endl;
+//         s << "VARIABLES = \"Z (m)\"" << endl;
+//         s << "\"u (m/s)\"" << endl;
+//         s << "\"V (1/s)\"" << endl;
+//         s << "\"T (K)\"" << endl;
+//         s << "\"lambda\"" << endl;
 
-        for (k = 0; k < m_nsp; k++) {
-            s << "\"" << m_thermo->speciesName(k) << "\"" << endl;
-        }
-        s << "ZONE T=\"c" << zone << "\"" << endl;
-        s << " I=" << m_points << ",J=1,K=1,F=POINT" << endl;
-        s << "DT=(SINGLE SINGLE SINGLE SINGLE";
-        for (k = 0; k < m_nsp; k++) s << " SINGLE";
-        s << " )" << endl;
-        for (j = 0; j < m_points; j++) {
-            s << z(j) << " ";
-            for (k = 0; k < m_nv; k++) {
-                s << component(x, k, j) << " ";
-            }
-            s << endl;
-        }
-    }
+//         for (k = 0; k < m_nsp; k++) {
+//             s << "\"" << m_thermo->speciesName(k) << "\"" << endl;
+//         }
+//         s << "ZONE T=\"c" << zone << "\"" << endl;
+//         s << " I=" << m_points << ",J=1,K=1,F=POINT" << endl;
+//         s << "DT=(SINGLE SINGLE SINGLE SINGLE";
+//         for (k = 0; k < m_nsp; k++) s << " SINGLE";
+//         s << " )" << endl;
+//         for (j = 0; j < m_points; j++) {
+//             s << z(j) << " ";
+//             for (k = 0; k < m_nv; k++) {
+//                 s << component(x, k, j) << " ";
+//             }
+//             s << endl;
+//         }
+//     }
 
 
     string StFlow::componentName(int n) const {
@@ -983,207 +996,202 @@ namespace Cantera {
             if (n >= (int) c_offset_Y && n < (int) (c_offset_Y + m_nsp)) {
                     return m_thermo->speciesName(n - c_offset_Y);
             }
-                 //    if (m_do_species[n - c_offset_Y]) 
-                 //   return m_thermo->speciesName(n - c_offset_Y)+"  ";
-                 // else
-                 //   return m_thermo->speciesName(n - c_offset_Y)+" *";
-                 //}
             else 
                 return "<unknown>";
         }
     }
 
 
-    /**
-     * Returns true if all necessary parameters have been set; otherwise it 
-     * throws an exception.
-     */
-    bool StFlow::ready() {
-        if (m_press < 0.0) { 
-            throw CanteraError("StFlow::ready",
-                "pressure not specified - call setPressure");
-            return false;
-        }
-        if (m_points == 0) {
-            throw CanteraError("StFlow::ready",
-                "grid not specified - call setupGrid");
-            return false;
-        }
-        if (m_nsp < 0) {
-            throw CanteraError("StFlow::ready",
-                "fluid not specified - call specifyFluid");
-            return false;
-        }
-        if (m_boundary[0] == 0 || m_boundary[1] == 0) {
-            throw CanteraError("StFlow::ready",
-                "boundaries not specified - call setBoundary");
-            return false;
-        }
-        m_ok = true;
-        return m_ok;
-    }
+//     /**
+//      * Returns true if all necessary parameters have been set; otherwise it 
+//      * throws an exception.
+//      */
+//     bool StFlow::ready() {
+//         if (m_press < 0.0) { 
+//             throw CanteraError("StFlow::ready",
+//                 "pressure not specified - call setPressure");
+//             return false;
+//         }
+//         if (m_points == 0) {
+//             throw CanteraError("StFlow::ready",
+//                 "grid not specified - call setupGrid");
+//             return false;
+//         }
+//         if (m_nsp < 0) {
+//             throw CanteraError("StFlow::ready",
+//                 "fluid not specified - call specifyFluid");
+//             return false;
+//         }
+//         if (m_boundary[0] == 0 || m_boundary[1] == 0) {
+//             throw CanteraError("StFlow::ready",
+//                 "boundaries not specified - call setBoundary");
+//             return false;
+//         }
+//         m_ok = true;
+//         return m_ok;
+//     }
 
     
-    void StFlow::restore(int job, 
-        string fname, string id, int& size_z, doublereal* z, 
-        int& size_soln, doublereal* soln) {
+//     void StFlow::restore(int job, 
+//         string fname, string id, int& size_z, doublereal* z, 
+//         int& size_soln, doublereal* soln) {
 
-        vector<string> ignored;
-        int nsp = m_thermo->nSpecies();
-        vector_int did_species(nsp, 0);
+//         vector<string> ignored;
+//         int nsp = m_thermo->nSpecies();
+//         vector_int did_species(nsp, 0);
 
-        ifstream s(fname.c_str());
-        if (!s) 
-            throw CanteraError("StFlow::restore",
-                "could not open input file "+fname);
+//         ifstream s(fname.c_str());
+//         if (!s) 
+//             throw CanteraError("StFlow::restore",
+//                 "could not open input file "+fname);
 
-        XML_Node root;
-        root.build(s);
-        s.close();
-        int k;
+//         XML_Node root;
+//         root.build(s);
+//         s.close();
+//         int k;
 
-        const XML_Node* f = root.findID(id);
-        if (!f) {
-            throw CanteraError("StFlow::restore","No solution with id = "+id);
-        }
+//         const XML_Node* f = root.findID(id);
+//         if (!f) {
+//             throw CanteraError("StFlow::restore","No solution with id = "+id);
+//         }
         
-        const XML_Node& flow = f->child("domain");
-        f = &flow;
+//         const XML_Node& flow = f->child("domain");
+//         f = &flow;
 
-        //if (f->name() != "flowfield") {
-        //    throw CanteraError("StFlow::restore","The element with id "
-        //        +id+" does not contain flowfield data.");
-        //}
+//         //if (f->name() != "flowfield") {
+//         //    throw CanteraError("StFlow::restore","The element with id "
+//         //        +id+" does not contain flowfield data.");
+//         //}
 
-        vector<XML_Node*> str;
-        f->getChildren("string",str);
-        int nstr = str.size();
-        for (int istr = 0; istr < nstr; istr++) {
-            const XML_Node& nd = *str[istr];
-            writelog(nd["title"]+": "+nd.value()+"\n");
-        }
+//         vector<XML_Node*> str;
+//         f->getChildren("string",str);
+//         int nstr = str.size();
+//         for (int istr = 0; istr < nstr; istr++) {
+//             const XML_Node& nd = *str[istr];
+//             writelog(nd["title"]+": "+nd.value()+"\n");
+//         }
 
-        vector<XML_Node*> d;
-        f->child("grid_data").getChildren("floatArray",d);
-        int nd = d.size();
+//         vector<XML_Node*> d;
+//         f->child("grid_data").getChildren("floatArray",d);
+//         int nd = d.size();
 
-        vector_fp x;
-        int n, np = 0, j, ks;
-        string nm;
-        bool readgrid = false, wrote_header = false;
-        for (n = 0; n < nd; n++) {
-            const XML_Node& fa = *d[n];
-            nm = fa["title"];
-            if (nm == "z") {
-                getFloatArray(fa,x,false);
-                np = x.size();
-                if (job == -1) {
-                    size_z = np;
-                    //size_soln = (nd - 1)*np;
-                    size_soln = (m_nsp + 4)*np;
-                    return;
-                }
-                writelog("Grid contains "+int2str(np)+
-                    " points.\n");
-                if (size_z < np) {
-                    throw CanteraError("restore",
-                        "grid array must be have length at least "
-                        +int2str(np));
-                } 
-//                 if (size_soln < (m_nsp + 4)*np) {
+//         vector_fp x;
+//         int n, np = 0, j, ks;
+//         string nm;
+//         bool readgrid = false, wrote_header = false;
+//         for (n = 0; n < nd; n++) {
+//             const XML_Node& fa = *d[n];
+//             nm = fa["title"];
+//             if (nm == "z") {
+//                 getFloatArray(fa,x,false);
+//                 np = x.size();
+//                 if (job == -1) {
+//                     size_z = np;
+//                     //size_soln = (nd - 1)*np;
+//                     size_soln = (m_nsp + 4)*np;
+//                     return;
+//                 }
+//                 writelog("Grid contains "+int2str(np)+
+//                     " points.\n");
+//                 if (size_z < np) {
 //                     throw CanteraError("restore",
-//                         "solution array must have length at least "
-//                         +int2str((m_nsp + 4)*np));
+//                         "grid array must be have length at least "
+//                         +int2str(np));
 //                 } 
-                copy(x.begin(), x.end(), z);
-                readgrid = true;
-            }
-        }
-        if (!readgrid) {
-            throw CanteraError("StFlow::restore",
-                "solution contains no grid points.");
-        }
+// //                 if (size_soln < (m_nsp + 4)*np) {
+// //                     throw CanteraError("restore",
+// //                         "solution array must have length at least "
+// //                         +int2str((m_nsp + 4)*np));
+// //                 } 
+//                 copy(x.begin(), x.end(), z);
+//                 readgrid = true;
+//             }
+//         }
+//         if (!readgrid) {
+//             throw CanteraError("StFlow::restore",
+//                 "solution contains no grid points.");
+//         }
 
-        writelog("Importing datasets:\n");
-        for (n = 0; n < nd; n++) {
-            const XML_Node& fa = *d[n];
-            nm = fa["title"];
-            getFloatArray(fa,x,false);
-            if (nm == "u") {
-                writelog("axial velocity   ");
-                if ((int) x.size() == np) {
-                    for (j = 0; j < np; j++) {
-                        soln[index(0,j)] = x[j];
-                    }
-                }
-                else {
-                    goto error;
-                }
-            }
-            else if (nm == "z") {
-                ;
-            }
-            else if (nm == "V") {
-                writelog("radial velocity   ");
-                if ((int) x.size() == np) {
-                    for (j = 0; j < np; j++)
-                        soln[index(1,j)] = x[j];
-                }
-                else goto error;
-            }
-            else if (nm == "T") {
-                writelog("temperature   ");
-                if ((int) x.size() == np) {
-                    for (j = 0; j < np; j++)
-                        soln[index(2,j)] = x[j];
-                }
-                else goto error;
-            }
-            else if (nm == "L") {
-                writelog("lambda   ");
-                if ((int) x.size() == np) {
-                    for (j = 0; j < np; j++)
-                        soln[index(3,j)] = x[j];
-                }
-                else goto error;
-            }
-            else if (m_thermo->speciesIndex(nm) >= 0) {
-                writelog(nm+"   ");
-                if ((int) x.size() == np) {
-                    k = m_thermo->speciesIndex(nm);
-                    did_species[k] = 1;
-                    for (j = 0; j < np; j++) 
-                        soln[index(k+4,j)] = x[j];
-                }
-            }
-            else
-                ignored.push_back(nm);
-        }
+//         writelog("Importing datasets:\n");
+//         for (n = 0; n < nd; n++) {
+//             const XML_Node& fa = *d[n];
+//             nm = fa["title"];
+//             getFloatArray(fa,x,false);
+//             if (nm == "u") {
+//                 writelog("axial velocity   ");
+//                 if ((int) x.size() == np) {
+//                     for (j = 0; j < np; j++) {
+//                         soln[index(0,j)] = x[j];
+//                     }
+//                 }
+//                 else {
+//                     goto error;
+//                 }
+//             }
+//             else if (nm == "z") {
+//                 ;
+//             }
+//             else if (nm == "V") {
+//                 writelog("radial velocity   ");
+//                 if ((int) x.size() == np) {
+//                     for (j = 0; j < np; j++)
+//                         soln[index(1,j)] = x[j];
+//                 }
+//                 else goto error;
+//             }
+//             else if (nm == "T") {
+//                 writelog("temperature   ");
+//                 if ((int) x.size() == np) {
+//                     for (j = 0; j < np; j++)
+//                         soln[index(2,j)] = x[j];
+//                 }
+//                 else goto error;
+//             }
+//             else if (nm == "L") {
+//                 writelog("lambda   ");
+//                 if ((int) x.size() == np) {
+//                     for (j = 0; j < np; j++)
+//                         soln[index(3,j)] = x[j];
+//                 }
+//                 else goto error;
+//             }
+//             else if (m_thermo->speciesIndex(nm) >= 0) {
+//                 writelog(nm+"   ");
+//                 if ((int) x.size() == np) {
+//                     k = m_thermo->speciesIndex(nm);
+//                     did_species[k] = 1;
+//                     for (j = 0; j < np; j++) 
+//                         soln[index(k+4,j)] = x[j];
+//                 }
+//             }
+//             else
+//                 ignored.push_back(nm);
+//         }
 
-        if (ignored.size() != 0) {
-            writelog("\n\n");
-            writelog("Ignoring datasets:\n");
-            int nn = ignored.size();
-            for (int n = 0; n < nn; n++) {
-                writelog(ignored[n]+"   ");
-            }
-        }
+//         if (ignored.size() != 0) {
+//             writelog("\n\n");
+//             writelog("Ignoring datasets:\n");
+//             int nn = ignored.size();
+//             for (int n = 0; n < nn; n++) {
+//                 writelog(ignored[n]+"   ");
+//             }
+//         }
 
-        for (ks = 0; ks < nsp; ks++) {
-            if (did_species[ks] == 0) {
-                if (!wrote_header) {
-                    writelog("Missing data for species:\n");
-                    wrote_header = true;
-                }
-                writelog(m_thermo->speciesName(ks)+" ");
-            }
-        }
+//         for (ks = 0; ks < nsp; ks++) {
+//             if (did_species[ks] == 0) {
+//                 if (!wrote_header) {
+//                     writelog("Missing data for species:\n");
+//                     wrote_header = true;
+//                 }
+//                 writelog(m_thermo->speciesName(ks)+" ");
+//             }
+//         }
 
-        writelog("\n\nFinished importing solution.\n\n");
-        return;
- error:
-        throw CanteraError("StFlow::restore","Data size error");
-    }
+//         writelog("\n\nFinished importing solution.\n\n");
+//         return;
+//  error:
+//         throw CanteraError("StFlow::restore","Data size error");
+//     }
 
 
 
@@ -1267,10 +1275,14 @@ namespace Cantera {
                     for (j = 0; j < np; j++)
                         soln[index(2,j)] = x[j];
 
-                    // For fixed-temperature simulations, use the imported temperature profile by default. 
-                    // If this is not desired, call setFixedTempProfile *after* restoring the solution.
+                    // For fixed-temperature simulations, use the
+                    // imported temperature profile by default.  If
+                    // this is not desired, call setFixedTempProfile
+                    // *after* restoring the solution.
+
                     vector_fp zz(np);
-                    for (int jj = 0; jj < np; jj++) zz[jj] = (grid(jj) - zmin())/(zmax() - zmin());
+                    for (int jj = 0; jj < np; jj++) 
+                        zz[jj] = (grid(jj) - zmin())/(zmax() - zmin());
                     setFixedTempProfile(zz, x);
                 }
                 else goto error;
@@ -1365,20 +1377,16 @@ namespace Cantera {
         m_jac = jac;
     }
 
-    //void StFlow::requestJacUpdate() {
-    //    if (m_jac) m_jac->setAge(10000);
-    //}
-
-    void StFlow::setEnergyFactor(doublereal efctr) {
-        doublereal de = efctr - m_efctr;
-        m_efctr = efctr;
-        int strt = loc();
-        int jg;
-        for (int j = 1; j < m_points - 1; j++) {
-            jg = strt + index(c_offset_T, j);
-            m_jac->incrementDiagonal(jg, -de);
-        }
-    }
+//     void StFlow::setEnergyFactor(doublereal efctr) {
+//         doublereal de = efctr - m_efctr;
+//         m_efctr = efctr;
+//         int strt = loc();
+//         int jg;
+//         for (int j = 1; j < m_points - 1; j++) {
+//             jg = strt + index(c_offset_T, j);
+//             m_jac->incrementDiagonal(jg, -de);
+//         }
+//     }
 
 
 }
