@@ -35,18 +35,24 @@ def IdealGasMix(src="", id = ""):
 ##         ext = ''
     return Solution(src=src,id=id)
 
-def GRI30():
+def GRI30(transport = ""):
     """Return a Solution instance implementing reaction mechanism
     GRI-Mech 3.0."""
-    return Solution(src="gri30.xml", id="gri30_hw")
+    if transport == "":
+        return Solution(src="gri30.cti", id="gri30")
+    elif transport == "Mix":
+        return Solution(src="gri30.cti", id="gri30_mix")
+    elif transport == "Multi":
+        return Solution(src="gri30.cti", id="gri30_multi")    
+    
 
 def Air():
     """Return a Solution instance implementing the O/N/Ar portion of
     reaction mechanism GRI-Mech 3.0. The initial composition is set to
     that of air"""    
-    return Solution(src="air.xml", id="air")
+    return Solution(src="air.cti", id="air")
 
 def Argon():
     """Return a Solution instance representing pure argon."""    
-    return Solution(src="argon.xml#argon")
+    return Solution(src="argon.cti", id="argon")
 

@@ -11,7 +11,7 @@ from Cantera.flame import *
 from Cantera import units
 
 # start with only a hydrogen/oxygen mechanism
-gas = IdealGasMix('h2o2.xml', transport='Mix')
+gas = IdealGasMix('h2o2.cti')
 
 flame = StagnationFlame(
     domain = (0, 0.02),

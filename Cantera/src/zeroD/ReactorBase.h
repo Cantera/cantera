@@ -75,8 +75,6 @@ namespace Cantera {
          * a pointer to this substance is stored, and as the integration
          * proceeds, the state of the substance is modified.
          */
-        //void setMixture(phase_t& mix, thermo_t& thermo);
-        //void setPhase(phase_t& phase);
         void setThermoMgr(thermo_t& thermo);
 
         void addInlet(FlowDevice& inlet);
@@ -106,28 +104,26 @@ namespace Cantera {
 
         //@}
 
-        /// return a reference to the mixture.
-        thermo_t& contents() {
-            return *m_mix; 
-        }
+        void resetState();
 
-        const thermo_t& contents() const {
-            return *m_mix; 
-        }
+        /// return a reference to the contents.
+        thermo_t& contents() { return *m_mix; }
+
+        const thermo_t& contents() const { return *m_mix; }
 
         doublereal residenceTime();
 
 
-        //------------------------------------------------------
-
-
-        /** @name Solution components. */
+        /** 
+         * @name Solution components. 
+         * The values returned are those after the last call to advance 
+         * or step. 
+         */
         //@{
 
         /// the current time (s).
         doublereal time() const { return m_time; }
 
-        // property values after the last call to advance.
         doublereal volume() const { return m_vol; }
         doublereal density() const { return m_state[1]; }
         doublereal temperature() const { return m_state[0]; }
@@ -139,23 +135,16 @@ namespace Cantera {
         doublereal massFraction(int k) const { return m_state[k+2]; }
         //@}
 
-        //-----------------------------------------------------
-
-
         int error(string msg) const {
-            cout << "Error: " << msg << endl;
+            writelog("Error: "+msg);
             return 1;
         }
-
-        //-----------------------------------------------------
-
 
     protected:
 
         int m_nsp;
         thermo_t* m_mix;
         thermo_t*  m_thermo;
-//        kinetics_t* m_kin;
         doublereal m_time;
         doublereal m_vol, m_vol0;
         bool m_init;
@@ -173,8 +162,9 @@ namespace Cantera {
         
     private:
 
-        void tilt() const { throw error("ReactorBase method called!"); }
-
+        void tilt(string method="") const { 
+        throw CanteraError("ReactorBase::"+method,
+            "ReactorBase method called!"); }
     };
 }
 

@@ -81,7 +81,7 @@ namespace Cantera {
 
         OneDim* m_resid;
         vector_fp    m_r1;
-        doublereal m_atol;
+        doublereal m_rtol, m_atol;
         doublereal m_elapsed;
         vector_fp m_ssdiag;
         vector_int m_mask;

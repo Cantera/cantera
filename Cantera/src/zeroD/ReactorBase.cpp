@@ -35,20 +35,12 @@ namespace Cantera {
                                  m_nwalls(0)
     {}
  
-//     void ReactorBase::setMixture(phase_t& mix, thermo_t& thermo){
-//         m_mix = &mix;
-//         m_thermo = &thermo;
-//         m_nsp = m_mix->nSpecies();
+//     void ReactorBase::resetState() {
 //         m_mix->saveState(m_state);
 //         m_enthalpy = m_thermo->enthalpy_mass();
 //         m_intEnergy = m_thermo->intEnergy_mass();
 //         m_pressure = m_thermo->pressure();
-//     }
-
-//     void ReactorBase::setPhase(phase_t& ph){
-//         m_mix = &ph;
-//         m_nsp = m_mix->nSpecies();
-//         m_mix->saveState(m_state);
+//         m_init = false;
 //     }
 
     void ReactorBase::setThermoMgr(thermo_t& thermo){

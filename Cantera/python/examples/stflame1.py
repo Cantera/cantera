@@ -11,7 +11,7 @@ from Cantera.flame import *
 # Import the hydrogen/oxygen reaction mechanism
 # The input file is in directory 'data/inputs'.
 
-gas = IdealGasMix(src = 'h2o2.xml', transport='Mix')
+gas = IdealGasMix('h2o2.cti')
 
 
 # Create a stagnation-point flame in the domain z = 0 (the inlet) to z

@@ -9,7 +9,7 @@ import os
 from Cantera import units
 from Cantera.flame import *
 
-gas = IdealGasMix(src = 'h2o2.xml', transport='Mix')
+gas = IdealGasMix(src = 'h2o2.cti')
 
 # create a burner-stabilized flame in the domain z = 0 to z = 20 cm,
 # define the fuel to be pure hydrogen, and the oxidizer to be

@@ -277,7 +277,8 @@ namespace Cantera {
                 for (n = 0; n < m_nsp; n++) {
                     ydot[2+n] -= mdot_out * mf[n];
                 }
-                ydot[0] -= mdot_out * enthalpy;
+                if (m_energy)
+                    ydot[0] -= mdot_out * enthalpy;
             }
 
 
@@ -289,7 +290,8 @@ namespace Cantera {
                 for (n = 0; n < m_nsp; n++) {
                     ydot[2+n] += m_inlet[i]->massFlowRate(n);
                 }
-                ydot[0] += mdot_in * m_inlet[i]->enthalpy_mass();
+                if (m_energy)
+                    ydot[0] += mdot_in * m_inlet[i]->enthalpy_mass();
             }
         }
     }

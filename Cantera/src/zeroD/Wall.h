@@ -40,8 +40,8 @@ namespace Cantera {
         virtual ~Wall() {}
 
         /**
-         * Rate of volume change (kg/s). Positive value increases volume
-         * Of reactor on left, and decreases volume on right.
+         * Rate of volume change (kg/s). Positive value increases
+         * volume of reactor on left, and decreases volume on right.
          */
         virtual doublereal vdot(doublereal t);
         virtual doublereal Q(doublereal t);
@@ -57,8 +57,12 @@ namespace Cantera {
         /// Set the overall heat transfer coefficient [W/m^2/K].
         void setHeatTransferCoeff(doublereal U) { m_rrth = U; }
 
+        /** Set the rate of volume change to a specified function.*/
         void setExpansionRate(Func1* f=0) {if (f) m_vf = f;}
 
+        /** 
+         * Set the expansion rate coefficient.
+         */
         void setExpansionRateCoeff(doublereal k) {m_k = k;}
 
         /**

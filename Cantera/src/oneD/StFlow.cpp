@@ -1047,7 +1047,7 @@ namespace Cantera {
             throw CanteraError("StFlow::restore","No solution with id = "+id);
         }
         
-        const XML_Node& flow = f->child("flowfield");
+        const XML_Node& flow = f->child("domain");
         f = &flow;
 
         //if (f->name() != "flowfield") {

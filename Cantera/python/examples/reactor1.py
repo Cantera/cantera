@@ -29,6 +29,6 @@ for n in range(100):
     env.advance(time)    
     print '%10.3e %10.3f %10.3f %14.6e' % (r.time(), r.temperature(), 
                                            r.pressure(), r.intEnergy_mass())
+    print env.pressure()
 
-#print gri3
 

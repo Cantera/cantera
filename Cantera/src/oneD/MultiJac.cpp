@@ -43,6 +43,7 @@ namespace Cantera {
             ff *= 0.5;
         }
         m_atol = sqrt(ff);
+        m_rtol = 1.0e-5;
     }
 
     void MultiJac::updateTransient(doublereal rdt, integer* mask) {
@@ -76,7 +77,7 @@ namespace Cantera {
                 
                 // perturb x(n)
                 xsave = x0[ipt];
-                dx = m_atol;
+                dx = m_atol + fabs(xsave)*m_rtol;
                 x0[ipt] = xsave + dx;
                 dx = x0[ipt] - xsave;
                 rdx = 1.0/dx;
