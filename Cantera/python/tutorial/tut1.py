@@ -27,6 +27,7 @@ print gas1
 #                     -------------     ------------ 
 #                H2   1.000000e+000     1.000000e+000
 #
+# (except that it will list many more species).
 #
 # What you have just done is to create an object ("gas1") that
 # implements GRI-Mech 3.0, the 53-species, 325-reaction natural gas
@@ -48,12 +49,6 @@ print gas1
 # input file defining GRI-Mech 3.0 that the 'GRI30' function reads. In
 # general, whichever species is listed first will initially have a
 # mole fraction of 1.0, and all of the others will be zero.
-
-# The printed summary only shows those species with non-zero mole
-# fractions, so only H2 is shown, and the 52 other species are not
-# listed. (More precisely, only species with mole fractions above a
-# threshold value of 1.E-20 are shown.)
-
 
 #  Setting the state
 #  -----------------
@@ -90,7 +85,7 @@ print gas1
 #
 # Cantera adopts the following convention: only one of the set
 # (temperature, density, mass fractions) is altered by setting any
-# single property. In particular:
+# single property. This means that:
 #
 # a) Setting the temperature is done holding density and
 #    composition  fixed. (The pressure changes.)

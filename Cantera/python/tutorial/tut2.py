@@ -5,72 +5,56 @@
 ####################################################################
 
 # You can build a gas mixture object by importing element, species,
-# and reaction definitions from input files in supported
-# formats. Currently, two formats are supported. 
+# and reaction definitions from input files in the format described in
+# the document "Defining Phases and Interfaces"). A set of input files
+# in this format is contained in the data folder. 
 
-# Importing CK-format files
-# -------------------------
+# Many existing reaction mechanism files are in "CK format," by
+# which we mean the input file format developed for use with the
+# Chemkin-II software package. [See R. J. Kee, F. M. Rupley, and
+# J. A. Miller, Sandia National Laboratories Report SAND89-8009
+# (1989).]
 
-# By 'CK format', we mean the input file format developed for use
-# with the Chemkin-II software package. [See R. J. Kee,
-# F. M. Rupley, and J. A. Miller, Sandia National Laboratories
-# Report SAND89-8009 (1989).]
-
-# These files contain no equation of state information, since an
-# ideal gas mixture is implicitly assumed. (Chemkin-II does not
-# handle non-ideal gases.) Therefore, it is appropriate in Cantera
-# to build from them objects that represent ideal gas
-# mixtures. This is done using function IdealGasMix:
+# Cantera comes with a converter utility program 'ck2cti' (or 'ck2cti.exe')
+# that converts CK format into Cantera format. This program should be run
+# from the command line first to convert any CK files you plan to use into
+# Cantera format.
 
 from Cantera import *
-gas1 = IdealGasMix('mech.inp')
+gas1 = IdealGasMix('gri30.cti')
 
-# This statement creates a mixture that implements GRI-Mech 3.0,
-# much like function GRI30 does. File 'gri30.inp' is in the 'data'
-# directory. Under Windows, this directory 
-#
-# Cantera always looks in the local directory first, however. So if
-# you have a file of the same name in the local directory,
-# it will be used instead.
+# This statement creates a mixture that implements GRI-Mech 3.0, much
+# like function GRI30 does. File 'gri30.cti' is in the 'data'
+# directory. Under Windows, this directory is in
+# C:\Program Files\Common Files\Cantera.
 
+# A Cantera input file may contain more than one phase specification, or may
+# contain specifications of interfaces (surfaces).
 
-# The CK file format specification does not require that all
-# species data be contained in the file. Missing species
-# definitions (usually called 'thermo' data but in fact defining
-# all properties of the species, including name, phase, and
-# elemental composition) are to be looked up in a second
-# 'thermodynamic database' file. To create the object from an
-# incomplete input file, give both file names as arguments:
+# Use importPhase to import a phase:
+gas2 = importPhase('diamond.cti', 'gas')        # a gas
+diamond = importPhase('diamond.cti','diamond')  # bulk diamond
 
-gas2 = IdealGasMix('air.inp','nasathermo.dat')
+# Use importInterface to import a surface:
+diamonnd_surf = importInterface('diamond.cti','diamond_100',
+                                phases = [gas2, diamond])
+# Note that the bulk (i.e., 3D) phases that participate in the surface reactions
+# must also be passed as arguments to importInterface.
 
-# The CK file specification does not include transport data for the
-# species. These too are taken from an external database. If you
-# need transport properties, include the transport file name and
-# transport model to implement as follows:
+# How does Cantera find input files like diamond.cti?  Cantera always
+# looks in the local directory first. If it is not there, Cantera
+# looks for it on its search path. It looks for it in the data
+# directory specified when Cantera was built (by default this is
+# /usr/local/cantera/data on unix systems). If you define environment
+# variable CANTERA_DATA_DIR, it will also look there, or else you can
+# call function addDirectory to add a directory to the search path.
 
-gas3 = IdealGasMix(src = 'gri30.inp',
-                   transport_db = 'gri30_tran.dat',
-                   transport = 'Multi')
-
-# Allowable values for the transport model are 'Multi' and
-# 'Mix'. If the model is omitted, 'Mix' is assumed.
-
-
-# Importing CTML files
-# -------------------
-
-# Cantera can also read input files in an XML-based format called
-# 'CTML' (Cantera Markup Language).  These input files are complete,
-# and do not require auxiliary database files for either thermodynamic
-# or transport properties. To import a CTML file, simply give the file
-# name in the call to IdealGasMix:
-
-gxml = IdealGasMix('gri30.xml')
-
-# Cantera determines the file format by examining its contents.  A
-# conversion utility is available that converts CK-format files into
-# CTML.
+# Warning: when Cantera reads a .cti input file, wherever it is
+# located, it always writes a file of the same name but with extension
+# .xml *in the local directory*. If you happen to have some other file
+# by that name, it will be overwritten. Once the XML file is created,
+# you can use it instead of the .cti file, which will result in
+# somewhat faster startup.
 
 
 
