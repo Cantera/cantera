@@ -9,3 +9,4 @@ xml_diff_test.out
 .depends
 *.d
 .cttmp.py
+runDiamond.ilk
