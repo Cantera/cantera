@@ -24,15 +24,15 @@
 #include "../ThermoPhase.h"
 
 #include "MultiTransport.h"
-#include "ctlapack.h"
-#include "../../ext/math/gmres.h"
+#include "../ctlapack.h"
+#include "../../../ext/math/gmres.h"
 
-#include "DenseMatrix.h"
-#include "polyfit.h"
-#include "utilities.h"
+#include "../DenseMatrix.h"
+#include "../polyfit.h"
+#include "../utilities.h"
 #include "L_matrix.h"
 #include "TransportParams.h"
-#include "IdealGasPhase.h"
+#include "../IdealGasPhase.h"
 
 #include "TransportFactory.h"
 
@@ -113,15 +113,17 @@ namespace Cantera {
          * blocks.
          */
         void L_Matrix::mult(const doublereal* b, doublereal* prod) const {
-            integer n = nRows()/3;
+            integer n = static_cast<int>(nRows())/3;
             integer n2 = 2*n;
             integer n3 = 3*n;
             ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, n, n2, 1.0, 
-                data().begin(), nRows(), b, 1, 0.0, prod, 1);
+                data().begin(), static_cast<int>(nRows()), b, 1, 0.0, prod, 1);
             ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, n, n3, 1.0, 
-                data().begin() + n, nRows(), b, 1, 0.0, prod+n, 1);
+                data().begin() + n, static_cast<int>(nRows()), 
+				b, 1, 0.0, prod+n, 1);
             ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, n, n, 1.0, 
-                data().begin() + n*n3 + n2, nRows(), b + n, 1, 0.0, prod+n2, 1);
+                data().begin() + n*n3 + n2, static_cast<int>(nRows()), 
+				b + n, 1, 0.0, prod+n2, 1);
             for (int i = 0; i < n; i++)
                 prod[i + n2] += b[i + n2] * value(i + n2, i + n2);
         }
@@ -490,11 +492,14 @@ namespace Cantera {
 
         // use LAPACK to solve the equations
         int info=0;
-        ct_dgetrf(m_aa.nRows(), m_aa.nColumns(), m_aa.begin(), m_aa.nRows(), 
+        ct_dgetrf(static_cast<int>(m_aa.nRows()), 
+			      static_cast<int>(m_aa.nColumns()), m_aa.begin(),
+				  static_cast<int>(m_aa.nRows()), 
             m_aa.ipiv().begin(), info);
         if (info == 0) { 
-            ct_dgetrs(ctlapack::NoTranspose, m_aa.nRows(), ndim, 
-                m_aa.begin(), m_aa.nRows(), 
+            ct_dgetrs(ctlapack::NoTranspose, 
+					  static_cast<int>(m_aa.nRows()), ndim, 
+                m_aa.begin(), static_cast<int>(m_aa.nRows()), 
                 m_aa.ipiv().begin(), fluxes, ldf, info);
             if (info != 0) info += 100;
         }
