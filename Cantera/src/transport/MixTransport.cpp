@@ -264,7 +264,14 @@ namespace Cantera {
         }
     }
 
-
+    /**
+     * Mixture-averaged diffusion coefficients [m^2/s]. 
+     *
+     * For the single species case or the pure fluid case
+     * the routine returns the self-diffusion coefficient.
+     * This is need to avoid a Nan result in the formula
+     * below.
+     */
     void MixTransport::getMixDiffCoeffs(doublereal* d) {
 
         update_T();
@@ -277,16 +284,24 @@ namespace Cantera {
         doublereal mmw = m_thermo->meanMolecularWeight();
         doublereal sumxw = 0.0, sum2;
         doublereal p = pressure_ig();
-        for (k = 0; k < m_nsp; k++) sumxw += m_molefracs[k] * m_mw[k];
-        for (k = 0; k < m_nsp; k++) {
+	if (m_nsp == 1) {
+	  d[0] = m_bdiff(0,0) / p;
+	} else {
+	  for (k = 0; k < m_nsp; k++) sumxw += m_molefracs[k] * m_mw[k];
+	  for (k = 0; k < m_nsp; k++) {
             sum2 = 0.0;
             for (j = 0; j < m_nsp; j++) {
-                if (j != k) {
-                    sum2 += m_molefracs[j] / m_bdiff(j,k);
-                }
+	      if (j != k) {
+		sum2 += m_molefracs[j] / m_bdiff(j,k);
+	      }
             }
-            d[k] = (sumxw - m_molefracs[k] * m_mw[k])/(p * mmw * sum2);
-        }
+	    if (sum2 <= 0.0) {
+	      d[k] = m_bdiff(k,k) / p;
+	    } else {
+	      d[k] = (sumxw - m_molefracs[k] * m_mw[k])/(p * mmw * sum2);
+	    }
+	  }
+	}
     }
 
                  
