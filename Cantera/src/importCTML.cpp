@@ -355,14 +355,21 @@ namespace Cantera {
     void getStick(XML_Node& node, doublereal mw, Kinetics& kin,
         ReactionData& r, doublereal& A, doublereal& b, doublereal& E) {
         int nr = r.reactants.size();
-        int k, ns, not_surf = 0;
+        int k, klocal, ns, not_surf = 0;
+        int np = 0;
         doublereal f = 1.0;
         for (int n = 0; n < nr; n++) {
             k = r.reactants[n];
             ns = r.rstoich[n];
-            const ThermoPhase& p = kin.speciesPhase(k);
-            if (p.eosType() == cSurf) 
-                f /= pow(p.standardConcentration(k),ns);
+            //const ThermoPhase& p =
+            np = kin.speciesPhaseIndex(k);
+            const ThermoPhase& p = kin.thermo(np);
+            klocal = p.speciesIndex(kin.kineticsSpeciesName(k));
+            if (p.eosType() == cSurf) {
+                cout << "f before = " << f << endl;
+                f /= pow(p.standardConcentration(klocal),ns);
+                cout << "f, k, klocal = " << f << "  " << k << "  " << klocal << endl;
+            }   
             else 
                 not_surf++;
         }
@@ -376,6 +383,7 @@ namespace Cantera {
         b = getFloat(node, "b") + 0.5;
         E = getFloat(node, "E", "actEnergy");
         E /= GasConstant;
+        cout << "A, cbar, f, b, E: " << A << "  " << cbar << "  " << f << "  " << b << "  " << E << endl;
     }                
 
 

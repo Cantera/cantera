@@ -471,6 +471,17 @@ namespace Cantera {
                 "illegal species index: "+int2str(k));            
         }
 
+        int speciesPhaseIndex(int k) {
+            int np = m_start.size();
+            for (int n = np-1; n >= 0; n--) {
+                if (k >= m_start[n]) {
+                    return n;
+                }
+            }
+            throw CanteraError("speciesPhaseIndex", 
+                "illegal species index: "+int2str(k));            
+        }
+
 
         /**
          * Prepare the class for the addition of reactions. This function

@@ -340,7 +340,7 @@ class Arrhenius(writer):
                  E = 0.0):
         self._c = [A, n, E]
         
-    def build(self, p, units = '', name = ''):
+    def build(self, p, units = '', gas_species = [], name = ''):
         a = p.addChild('Arrhenius')
         if name: a['name'] = name
         if isnum(self._c[0]):
@@ -354,24 +354,27 @@ class Arrhenius(writer):
             addFloat(a,'E',self._c[2], fmt = '%f')
                      
 
-class sticking_prob(writer):
+class stick(writer):
     def __init__(self,
                  A = 0.0,
                  n = 0.0,
-                 E = 0.0,
-                 species = ''):
+                 E = 0.0):
         self._c = [A, n, E]
         self._sp = species
         
-    def build(self, p):
+    def build(self, p, units = '', gas_species = [], name = ''):
         a = p.addChild('Stick')
-        a['species'] = self._sp
-        addFloat(a,'A',self._c[0],fmt = '%14.6E')
-        a.addChild('n',`self._c[1]`)
+        ngas = len(gas_species)
+        if ngas <> 1:
+                raise 'sticking probabilities can only be used for reactions with one gas-phase reactant'
+        a['species'] = gas_species[0]
+        if name: a['name'] = name
+        addFloat(a,'A',self._c[0], fmt = '%14.6E')
+        a.addChild('b',`self._c[1]`)
         if isnum(self._c[2]):
             addFloat(a,'E',(self._c[2],_ue), fmt = '%f')
         else:
-            addFloat(a,'E',self._c[2], fmt = '%f')                
+            addFloat(a,'E',self._c[2], fmt = '%f')
 
         
 class reaction(writer):
@@ -490,7 +493,7 @@ class reaction(writer):
                 k = kf
             else:
                 k = Arrhenius(A = kf[0], n = kf[1], E = kf[2])
-            k.build(kfnode, units = ku, name = nm)
+            k.build(kfnode, units = ku, gas_species = self._igspecies, name = nm)
 
             # set values for low-pressure rate coeff if falloff rxn
             mdim += 1
@@ -604,8 +607,12 @@ class surface_reaction(reaction):
     def __init__(self,
                  equation = '',
                  kf = None,
+                 stick = None,
                  id = ''):
-        reaction.__init__(self, equation, kf, id)
+        if stick:
+            reaction.__init__(self, equation, stick, id)
+        else:
+            reaction.__init__(self, equation, kf, id)
         self._type = 'surface'
 
 #--------------            
@@ -826,6 +833,8 @@ class pure_solid(phase):
         self._pure = 0
         self._tr = transport
 
+    def conc_dim(self):
+        return (0,0)
         
     def build(self, p):
         ph = phase.build(self, p)
@@ -837,6 +846,7 @@ class pure_solid(phase):
             t['model'] = self._tr
         k = ph.addChild("kinetics")
         k['model'] = 'none'        
+
 
 class ideal_interface(phase):
     """An ideal interface."""
