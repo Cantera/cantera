@@ -128,9 +128,9 @@ class DataFrame(Frame):
         nv = len(vars)
         vv = []
         for n in range(nv):
-            nm = vars[n].split()[0]
-            if n < nv - 1 or nm.isalnum():
-                vv.append(nm)
+            nm = vars[n].split()
+            if n < nv - 1 or (len(nm) > 0 and nm[0].isalnum()):
+                vv.append(nm[0])
             else:
                 break
         nv = len(vv)
