@@ -35,7 +35,8 @@ namespace ckr {
      */
 
     bool filter(const string& infile, const string& database,
-        const string& outfile, const vector<int>& species, const vector<int>& reactions) {
+		const string& outfile, const vector<int>& species,
+		const vector<int>& reactions) {
 
         bool ok = true;
         
@@ -54,7 +55,8 @@ namespace ckr {
             }
         }
         catch (ckr::CK_SyntaxError) {
-            cerr << "syntax error encountered while parsing " << infile << endl;
+            cerr << "syntax error encountered while parsing " 
+		 << infile << endl;
             cerr << "see log file " << logfile << " for details." 
                  << endl << endl;
             return false;
