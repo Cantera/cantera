@@ -159,13 +159,15 @@ namespace Cantera {
         }
     }
 
-
     //////////////////////////////////////////////////////////////////
 
-
-
     /**
-     * Construct an empty reaction mechanism.
+     * Construct an empty InterfaceKinetics reaction mechanism.
+     *  @param thermo This is an optional parameter that may be
+     *         used to initialize the inherited Kinetics class with
+     *         one ThermoPhase class object -> in other words it's
+     *         useful for initialization of homogeneous kinetics 
+     *         mechanisms.
      */    
     InterfaceKinetics::
     InterfaceKinetics(thermo_t* thermo) :
@@ -181,12 +183,20 @@ namespace Cantera {
         m_kdata->m_temp = 0.0;
     }
 
+    /**
+     * Destructor
+     */
     InterfaceKinetics::
     ~InterfaceKinetics(){
         delete m_kdata;
         delete m_integrator;
     }
 
+
+    /**
+     * Update properties that depend on temperature
+     *
+     */ 
     void InterfaceKinetics::
     _update_rates_T() {
         _update_rates_phi();
@@ -214,20 +224,27 @@ namespace Cantera {
     }
 
 
-
     /**
      * Update properties that depend on concentrations. This method
      * fills out the array of generalized concentrations by calling
      * method getActivityConcentrations for each phase, which classes
      * representing phases should overload to return the appropriate
      * quantities.
-     */         
+     */ 
     void InterfaceKinetics::
     _update_rates_C() {
         int n;
         int np = nPhases();
         for (n = 0; n < np; n++) {
-            thermo(n).getActivityConcentrations(m_conc.begin() + m_start[n]);
+	  /*
+	   * We call the getActivityConcentrations function of each
+	   * ThermoPhase class that makes up this kinetics object to 
+	   * obtain the generalized concentrations for species within that 
+	   * class. This is collected in the vector m_conc. m_start[]
+	   * are integer indecises for that vector denoting the start of the
+	   * species for each phase.
+	   */
+	  thermo(n).getActivityConcentrations(m_conc.begin() + m_start[n]);
         }
         m_kdata->m_ROP_ok = false;
     }
@@ -266,7 +283,7 @@ namespace Cantera {
             m_rkc[irxn] = exp(m_rkc[irxn]*rrt);
         }
 
-        for(i = 0; i != m_nirrev; ++i) {
+        for (i = 0; i != m_nirrev; ++i) {
             m_rkc[ m_irrev[i] ] = 0.0;
         }
     }
@@ -334,10 +351,12 @@ namespace Cantera {
         m_reactantStoich.decrementReactions(m_pot.begin(), m_rwork.begin()); 
         m_revProductStoich.incrementReactions(m_pot.begin(), m_rwork.begin());
         m_irrevProductStoich.incrementReactions(m_pot.begin(), m_rwork.begin());
+
         // modify the reaction rates. Only modify those with a
         // non-zero activation energy, and do not decrease the
         // activation energy below zero.
         doublereal ea, eamod;
+
         for (i = 0; i < m_ii; i++) {
             eamod = 0.5*m_rwork[i];
             if (eamod != 0.0 && m_E[i] != 0.0) {
