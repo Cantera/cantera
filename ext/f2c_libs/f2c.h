@@ -7,6 +7,22 @@
 #ifndef F2C_INCLUDE
 #define F2C_INCLUDE
 
+#ifdef _WIN32
+#include <io.h>       /* for real isatty() */
+/*
+ * Need the following definition so that MS math.h doesn't redefine the structure
+ * complex to be two doubles. f2c defines the structure complex to be 2 reals,
+ * and the structure doublecomplex to be 2 doubles.
+ */
+#define _COMPLEX_DEFINED 
+typedef __int64 longint;
+typedef __int64 ulongint;  /* HACK ALERT */
+// warning C4244: 'xoperx' : conversion from 'xxx ' to 'xxx ', possible loss of data
+// warning C4101:  'xxx' : unreferenced local variable
+#pragma warning(disable:4244)
+#pragma warning(disable:4101)
+#endif
+
 typedef long int integer;
 typedef unsigned long int uinteger;
 typedef char *address;
@@ -156,8 +172,12 @@ typedef struct Namelist Namelist;
 
 #define abs(x) ((x) >= 0 ? (x) : -(x))
 #define dabs(x) (doublereal)abs(x)
+#ifndef min
 #define min(a,b) ((a) <= (b) ? (a) : (b))
+#endif
+#ifndef max
 #define max(a,b) ((a) >= (b) ? (a) : (b))
+#endif
 #define dmin(a,b) (doublereal)min(a,b)
 #define dmax(a,b) (doublereal)max(a,b)
 #define bit_test(a,b)	((a) >> (b) & 1)
