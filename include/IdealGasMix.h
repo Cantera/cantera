@@ -34,7 +34,9 @@ namespace Cantera {
             m_ok = buildSolutionFromXML(root, id, "phase", this, this);
         }
         
-        virtual ~IdealGasMix() {}
+        virtual ~IdealGasMix() { 
+ 	    delete m_r;
+	}
 
         bool operator!() { return !m_ok;}
         bool ready() { return m_ok; }

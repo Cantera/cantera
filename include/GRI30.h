@@ -23,7 +23,7 @@ namespace Cantera {
             
             m_r = new XML_Node("-");
             m_r->build(fin);
-            m_ok = buildSolutionFromXML(*m_r, "gri30_hw", "phase", this, this);
+            m_ok = buildSolutionFromXML(*m_r, "gri30", "phase", this, this);
             if (!m_ok) throw CanteraError("GRI30",
                 "buildSolutionFromXML returned false");
         }
