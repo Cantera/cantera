@@ -46,7 +46,10 @@ namespace Cantera {
                   m_xml(new XML_Node("phase")), m_id("<phase>") {}
 
         /// Destructor.
-        virtual ~Phase(){ delete m_xml; }
+        virtual ~Phase(){ 
+	    delete m_xml;
+	    m_xml = 0;
+	}
         
         XML_Node& xml() { return *m_xml; }
         string id() const { return m_id; }
