@@ -150,7 +150,7 @@ namespace Cantera {
 	const char q2 = '"';
 	rstring = "";
 	char qtype = ' ';
-	string::size_type iloc1, iloc2, ilocStart;
+	string::size_type iloc1, iloc2, ilocStart = 0;
 	iloc1 = findUnbackslashed(s, q1);
 	iloc2 = findUnbackslashed(s, q2);
 	if (iloc2 != string::npos) {
