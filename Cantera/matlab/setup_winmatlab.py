@@ -1,16 +1,16 @@
 
 import sys
 
-bindir = '/Applications/Cantera/bin'
-libdir = '/Users/dgg/dv/sf/cantera/build/lib/powerpc-apple-darwin7.4.0'
-incdir = '/Users/dgg/dv/sf/cantera/build/include'
-dflibdir = ''
+bindir = 'c:/cantera/bin'
+libdir = 'd:/dgg/dv/sf/cantera/build/lib/i686-pc-win32'
+incdir = 'd:/dgg/dv/sf/cantera/build/include'
+dflibdir = 'D:\Program Files\Microsoft Visual Studio\DF98\LIB'
 
 bllibstr = "-lctlapack -lctblas"
 bllibs = bllibstr.replace('-l',' ')
 bllist = bllibs.split()
 
-bldir = ""
+bldir = "d:/dgg/dv/sf/cantera/build/lib/i686-pc-win32"
 
 libs = ['clib', 'oneD', 'zeroD', 'transport', 'cantera', 'recipes',
         'cvode', 'ctmath', 'tpx']
@@ -35,15 +35,14 @@ s = ''
 for lib in libs:
     s += '    '+libdir+'/'+lib+'.lib ...\n'
 fb.write(s)
-fb.write('    "'+dflibdir+'/dformd.lib" ...\n')
-fb.write('    "'+dflibdir+'/dfconsol.lib" ...\n')
-fb.write('    "'+dflibdir+'/dfport.lib" \n')
-
 if bllist:
     s = ''
     for lib in bllist:
         s += '    '+bldir+'/'+lib+'.lib ...\n'
     fb.write(s)
+fb.write('    "'+dflibdir+'/dformd.lib" ...\n')
+fb.write('    "'+dflibdir+'/dfconsol.lib" ...\n')
+fb.write('    "'+dflibdir+'/dfport.lib" \n')
 
 fb.close()
 

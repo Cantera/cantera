@@ -35,15 +35,14 @@ s = ''
 for lib in libs:
     s += '    '+libdir+'/'+lib+'.lib ...\n'
 fb.write(s)
-fb.write('    "'+dflibdir+'/dformd.lib" ...\n')
-fb.write('    "'+dflibdir+'/dfconsol.lib" ...\n')
-fb.write('    "'+dflibdir+'/dfport.lib" \n')
-
 if bllist:
     s = ''
     for lib in bllist:
         s += '    '+bldir+'/'+lib+'.lib ...\n'
     fb.write(s)
+fb.write('    "'+dflibdir+'/dformd.lib" ...\n')
+fb.write('    "'+dflibdir+'/dfconsol.lib" ...\n')
+fb.write('    "'+dflibdir+'/dfport.lib" \n')
 
 fb.close()
 

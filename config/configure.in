@@ -339,6 +339,7 @@ build_lapack=0
 build_blas=0
 if test -z "$BLAS_LAPACK_LIBS"
 then BLAS_LAPACK_LIBS="-lctlapack -lctblas"
+BLAS_LAPACK_DIR="$buildlib"
 build_blas=1
 build_lapack=1
 fi
