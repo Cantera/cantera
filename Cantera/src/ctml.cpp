@@ -140,7 +140,7 @@ namespace ctml {
     void getIntegers(const XML_Node& node, map<string,int>& v) {
         vector<XML_Node*> f;
         node.getChildren("integer",f);
-        int n = f.size();
+        int n = static_cast<int>(f.size());
         integer x, x0, x1;
         string typ, title, vmin, vmax;
         for (int i = 0; i < n; i++) {
@@ -161,7 +161,7 @@ namespace ctml {
     void getStrings(const XML_Node& node, map<string,string>& v) {
         vector<XML_Node*> f;
         node.getChildren("string",f);
-        int n = f.size();
+        int n = static_cast<int>(f.size());
         string typ, title;
         for (int i = 0; i < n; i++) {
             const XML_Node& fi = *(f[i]);
@@ -174,7 +174,7 @@ namespace ctml {
     void getFloats(const XML_Node& node, map<string,double>& v, bool convert) {
         vector<XML_Node*> f;
         node.getChildren("float",f);
-        int n = f.size();
+        int n = static_cast<int>(f.size());
         doublereal x, x0, x1, fctr;
         string typ, title, units, vmin, vmax;
         for (int i = 0; i < n; i++) {
@@ -289,7 +289,7 @@ namespace ctml {
 
 
     void getFloatArray(const XML_Node& node, vector_fp& v, bool convert) {
-        int icom;
+		string::size_type icom;
         string numstr;
         if (node.name() != "floatArray") 
             throw CanteraError("getFloatArray","wrong element type: "
@@ -354,7 +354,7 @@ namespace ctml {
         vector<string> v;
         getStringArray(node, v);
         string key, val;
-        int n = v.size();
+        int n = static_cast<int>(v.size());
         string::size_type icolon;
         for (int i = 0; i < n; i++) {
             icolon = v[i].find(":");
@@ -372,8 +372,8 @@ namespace ctml {
 		  vector<string>& val) {
         vector<string> v;
         getStringArray(node, v);
-        int n = v.size();
-	string::size_type icolon;
+        int n = static_cast<int>(v.size());
+		string::size_type icolon;
         for (int i = 0; i < n; i++) {
             icolon = v[i].find(":");
             if (icolon == string::npos) {
@@ -393,10 +393,8 @@ namespace ctml {
      * v.
      */
     void getStringArray(const XML_Node& node, vector<string>& v) {
-        int ibegin, iend;
-
+		string::size_type ibegin, iend;
         v.clear();
-
         string val = node.value();
         while (1 > 0) {
             ibegin = val.find_first_not_of(" \n\t");
