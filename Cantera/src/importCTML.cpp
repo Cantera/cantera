@@ -348,6 +348,64 @@ namespace Cantera {
     }
 
 
+
+    /**
+     * This function will check a specific reaction to see if it the
+     * elements balance.
+     */
+    static void checkRxnElementBalance(Kinetics& kin, const ReactionData &rdata) {
+	int index, klocal, n, kp, kr, m, nel;
+        double kstoich;
+        map<string, double> bal, balr, balp;
+        bal.clear();
+        balp.clear();
+        balr.clear();
+	int np = rdata.products.size();
+	for (index = 0; index < np; index++) {
+            kp = rdata.products[index];
+            n = kin.speciesPhaseIndex(kp);
+            klocal = kp - kin.start(n);
+            kstoich = rdata.pstoich[index];
+            const ThermoPhase& ph = kin.speciesPhase(kp);
+            nel = ph.nElements();
+            for (m = 0; m < nel; m++) {
+                bal[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
+                balp[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
+            }
+	}
+	int nr = rdata.reactants.size();
+	for (index = 0; index < nr; index++) {
+            kr = rdata.reactants[index];
+            n = kin.speciesPhaseIndex(kr);
+            klocal = kr - kin.start(n);
+            kstoich = rdata.rstoich[index];
+            const ThermoPhase& ph = kin.speciesPhase(kr);
+            nel = ph.nElements();
+            for (m = 0; m < nel; m++) {
+                bal[ph.elementName(m)] -= kstoich*ph.nAtoms(klocal,m);
+                balr[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
+            }
+	}
+
+        map<string, double>::iterator b = bal.begin();
+        string msg = "\n\tElement    Reactants    Products";
+        bool ok = true;
+        for (; b != bal.end(); ++b) {
+            if (b->second != 0.0) {
+                ok = false;
+                msg += "\n\t"+b->first+"           "+ fp2str(balr[b->first])
+                       +"           "+ fp2str(balp[b->first]);
+            }
+        }
+        if (msg != "") {
+            msg = "The following reaction is unbalanced:\n\t"
+                  + rdata.equation + "\n" + msg + "\n";
+            throw CanteraError("checkRxnElementBalance",msg);
+        }
+    }
+
+
+
     /**
      * Get the reactants or products of a reaction. The information
      * is returned in the spnum, stoich, and order vectors. The
@@ -1167,9 +1225,6 @@ next:
         else if (typ == "edge") {
             rdata.reactionType = EDGE_RXN;
         }
-        //else if (typ == "global") {
-        //    rdata.reactionType = GLOBAL_RXN;
-        //}
         else if (typ != "")
             throw CanteraError("installReaction",
                 "Unknown reaction type: " + typ);
@@ -1232,9 +1287,12 @@ next:
 	 * to the kinetics object by calling the Kinetics member function,
 	 * addReaction()
 	 */
+        checkRxnElementBalance(kin, rdata);
         kin.addReaction(rdata);
         return true;
     }
+
+
 
    /**
      *  Take information from the XML tree, p, about reactions
