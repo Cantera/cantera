@@ -21,7 +21,7 @@ using namespace std;
 #include "writelog.h"
 
 
-#include "xml.h"
+#include "../xml.h"
 #include "ck2ctml.h"
 
 //using namespace Cantera;
@@ -191,7 +191,7 @@ namespace ctml {
         //spx.addAttribute("phaseType",sp.phase);
         if (stripws(sp.id) != "") spx.addChild("note",sp.id);
         //addString(spx,"comment","ideal gas");
-        int nel = sp.elements.size();
+        int nel = static_cast<int>(sp.elements.size());
         int m, num;
         string nm, str="";
         doublereal charge = 0.0;
@@ -236,7 +236,7 @@ namespace ctml {
 
         node.addComment(idtag+" reaction "+int2str(i+1));
         string eqn = ckr::reactionEquation(rxn);
-        int eqlen = eqn.size();
+        int eqlen = static_cast<int>(eqn.size());
         for (int nn = 0; nn < eqlen; nn++) {
             if (eqn[nn] == '<') eqn[nn] = '[';
             if (eqn[nn] == '>') eqn[nn] = ']';
@@ -261,8 +261,8 @@ namespace ctml {
         else if (eunit == ckr::Electron_Volts)
             e_unit = "eV";
 
-        int nr = rxn.reactants.size();
-        int np = rxn.products.size();
+        int nr = static_cast<int>(rxn.reactants.size());
+        int np = static_cast<int>(rxn.products.size());
 
         int n;
         doublereal order = 0.0;
@@ -316,7 +316,7 @@ namespace ctml {
                 throw CanteraError("addReaction","unknown falloff type");
         }
 
-        int ne = rxn.e3b.size();
+        int ne = static_cast<int>(rxn.e3b.size());
         if (rxn.thirdBody != "<none>") {
             if (rxn.thirdBody != "M") {
                 XML_Node& e3b = kf.addChild("efficiencies",rxn.thirdBody+":1.0");
@@ -433,7 +433,7 @@ namespace ctml {
 
         vector<XML_Node*> sp;
         node.getChildren("species",sp);
-        int ns = sp.size();
+        int ns = static_cast<int>(sp.size());
         for (int n = 0; n < ns; n++) {
             XML_Node& spx = *sp[n];
             string nm = spx["name"];
@@ -490,7 +490,7 @@ namespace ctml {
         eos.addAttribute("model","IdealGas");
 
         string enames;
-        int nel = r.elements.size();
+        int nel = static_cast<int>(r.elements.size());
         int i;
         map<string, string> emap;
         string elnm;
@@ -509,7 +509,7 @@ namespace ctml {
         root.addComment("species data");
         XML_Node& spdata = root.addChild("speciesData");
         spdata.addAttribute("id",idtag+"_species_data");
-        int nsp = r.species.size();
+        int nsp = static_cast<int>(r.species.size());
         for (i = 0; i < nsp; i++) {
             spnames += " "+r.species[i].name+" ";
             if ((i+1) % 10 == 0) spnames += "\n";
@@ -530,7 +530,7 @@ namespace ctml {
         XML_Node& kin = root.addChild("reactionData");
         kin.addAttribute("id",idtag+"_rxn_data");
 
-        int nrxns = r.reactions.size();
+        int nrxns = static_cast<int>(r.reactions.size());
         incl.addAttribute("prefix",idtag+"_rxn_");
 
         int irxn = 0;
