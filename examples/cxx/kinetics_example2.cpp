@@ -10,6 +10,11 @@
 //
 /////////////////////////////////////////////////////////////
 
+// turn off warnings under Windows
+#ifdef WIN32
+#pragma warning(disable:4786)
+#pragma warning(disable:4503)
+#endif
 
 #include "Cantera.h"
 #include "GRI30.h"
@@ -109,6 +114,7 @@ int kinetics_example2(int job) {
     catch (CanteraError) {
         showErrors(cout);
         cout << " terminating... " << endl;
+        appdelete();
         return -1;
     }
 }

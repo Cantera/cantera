@@ -10,6 +10,11 @@
 //
 /////////////////////////////////////////////////////////////
 
+// turn off warnings under Windows
+#ifdef WIN32
+#pragma warning(disable:4786)
+#pragma warning(disable:4503)
+#endif
 
 #include "Cantera.h"
 #include <time.h>
@@ -65,7 +70,7 @@ int equil_example1(int job) {
 
         // create a gas mixture, and set its state
 
-        IdealGasMix gas("silane.xml", "silane");
+        IdealGasMix gas("silane.cti", "silane");
         int nsp = gas.nSpecies();
 
         int ntemps = 50;   // number of temperatures
@@ -114,6 +119,7 @@ int equil_example1(int job) {
     catch (CanteraError) {
         showErrors(cout);
         cout << " terminating... " << endl;
+        appdelete();
         return -1;
     }
 }

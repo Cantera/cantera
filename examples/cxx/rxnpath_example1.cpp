@@ -10,6 +10,11 @@
 //
 /////////////////////////////////////////////////////////////
 
+// turn off warnings under Windows
+#ifdef WIN32
+#pragma warning(disable:4786)
+#pragma warning(disable:4503)
+#endif
 
 #include "Cantera.h"
 #include "zerodim.h"
@@ -80,7 +85,7 @@ int rxnpath_example1(int job) {
 
     try {
 
-        cout << "Reaction path diagram movies with file gri30mod.inp." << endl;
+        cout << "Reaction path diagram movies with file gri30.cti." << endl;
         if (job >= 1) {
             cout << "Generate reaction path diagrams following nitrogen\n"
                  << "as a function of time for constant-pressure ignition of a\n"
@@ -94,10 +99,10 @@ int rxnpath_example1(int job) {
 
         // create an ideal gas mixture that corresponds to GRI-Mech
         // 3.0
-        IdealGasMix gas("gri30.xml", "gri30");
+        IdealGasMix gas("gri30.cti", "gri30");
         gas.setState_TPX(1001.0, OneAtm, "H2:2.0, O2:1.0, N2:4.0");
         int nsp = gas.nSpecies();
-        cout << "number of species = " << nsp << endl;
+
         // create a reactor
         Reactor r;
 
@@ -156,6 +161,7 @@ int rxnpath_example1(int job) {
     catch (CanteraError) {
         showErrors(cout);
         cout << " terminating... " << endl;
+        appdelete();
         return -1;
     }
 }

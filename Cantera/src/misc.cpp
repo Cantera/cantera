@@ -49,8 +49,9 @@ namespace Cantera {
         virtual ~Application() {
 	    map<string, XML_Node*>::iterator pos;
 	    for (pos = xmlfiles.begin(); pos != xmlfiles.end(); ++pos) {
-	      delete pos->second;
-	      pos->second = 0;
+                pos->second->unlock();
+                delete pos->second;
+                pos->second = 0;
 	    }
 	}
         vector<string> inputDirs;
@@ -152,6 +153,7 @@ namespace Cantera {
             XML_Node* x = new XML_Node("doc");
             if (s) {
 	      x->build(s);
+              x->lock();
 	      __app->xmlfiles[ff] = x;
             }
             else {
@@ -171,12 +173,14 @@ namespace Cantera {
             map<string, XML_Node*>::iterator 
                 b = app()->xmlfiles.begin(), e = app()->xmlfiles.end();
             for(; b != e; ++b) {
+                b->second->unlock();
                 delete b->second;
                 __app->xmlfiles.erase(b->first);
             }
         }
         else if (app()->xmlfiles.find(file) 
             != app()->xmlfiles.end()) {
+            __app->xmlfiles[file]->unlock();
             delete __app->xmlfiles[file];
             __app->xmlfiles.erase(file);
         }

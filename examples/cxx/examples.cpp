@@ -2,6 +2,12 @@
 #include "Cantera.h"
 //#include "ctexceptions.h"
 
+// turn off warnings under Windows
+#ifdef WIN32
+#pragma warning(disable:4786)
+#pragma warning(disable:4503)
+#endif
+
 #define NUM_EXAMPLES 6
 
 int kinetics_example1(int job);

@@ -113,6 +113,10 @@ namespace Cantera {
             //return (m_childindex[ch] != 0);
         }
         bool hasAttrib(string a) const {
+            //cout << m_attribs.size() << endl;
+            //  if (m_attribs.size() == 0) {
+            //      cout << name() << " has zero length attribs " << endl;
+            //  }
             return (m_attribs.find(a) != m_attribs.end());
         }
 
@@ -157,6 +161,8 @@ namespace Cantera {
         void setRoot(XML_Node& root) { m_root = &root; }
         void copyUnion(XML_Node *node_dest);
         void copy(XML_Node *node_dest);
+        void lock() {m_locked = true;}
+        void unlock() {m_locked = false; }
 
     private:
 	void write_int(ostream& s, int level = 0) const;
@@ -169,6 +175,7 @@ namespace Cantera {
         map<string, string> m_attribs;
         XML_Node* m_parent;
         XML_Node* m_root;
+        bool m_locked;
         vector<XML_Node*> m_children;
         int m_nchildren;
         int m_n;

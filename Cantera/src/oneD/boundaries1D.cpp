@@ -11,7 +11,11 @@
 // Copyright 2002-3  California Institute of Technology
 
 
-
+// turn off warnings under Windows
+#ifdef WIN32
+#pragma warning(disable:4786)
+#pragma warning(disable:4503)
+#endif
 
 #include "Inlet1D.h"
 

@@ -1,11 +1,3 @@
-
-// Cantera includes
-#include "ctml.h"
-#include "importCTML.h"
-
-#include "Cabinet.h"
-#include "Storage.h"
-
 // Build as a DLL under Windows
 #ifdef WIN32
 #define DLL_EXPORT __declspec(dllexport)
@@ -14,6 +6,14 @@
 #else
 #define DLL_EXPORT
 #endif
+
+// Cantera includes
+#include "ctml.h"
+#include "importCTML.h"
+
+#include "Cabinet.h"
+#include "Storage.h"
+
 
 // Values returned for error conditions
 #define ERR -999

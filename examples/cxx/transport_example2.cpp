@@ -10,6 +10,11 @@
 //
 /////////////////////////////////////////////////////////////
 
+// turn off warnings under Windows
+#ifdef WIN32
+#pragma warning(disable:4786)
+#pragma warning(disable:4503)
+#endif
 
 #include "Cantera.h"
 #include "transport.h"
@@ -56,7 +61,7 @@ int transport_example2(int job) {
 
         // create a gas mixture, and set its state
 
-        IdealGasMix gas("gri30.xml", "gri30");
+        IdealGasMix gas("gri30.cti", "gri30");
         doublereal temp = 2000.0;
         doublereal pres = 2.0*OneAtm;
         gas.setState_TPX(temp, pres, "H2:1.0, O2:0.5, CH4:0.1, N2:0.2");
@@ -107,6 +112,7 @@ int transport_example2(int job) {
     catch (CanteraError) {
         showErrors(cout);
         cout << " terminating... " << endl;
+        appdelete();
         return -1;
     }
 }

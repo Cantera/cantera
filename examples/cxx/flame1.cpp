@@ -7,7 +7,7 @@ main() {
 
     // create the gas object
 
-    IdealGasMix gas("gri30.xml");
+    IdealGasMix gas("gri30.cti");
     doublereal temp = 500.0;
     doublereal pres = 2.0*OneAtm;
     gas.setState_TPX(temp, pres, "CH4:1.0, O2:2.0, N2:7.52");

@@ -10,6 +10,11 @@
 //
 /////////////////////////////////////////////////////////////
 
+// turn off warnings under Windows
+#ifdef WIN32
+#pragma warning(disable:4786)
+#pragma warning(disable:4503)
+#endif
 
 #include "zerodim.h"
 #include "IdealGasMix.h"
@@ -29,7 +34,7 @@ int kinetics_example1(int job) {
     try {
 
         cout << "Ignition simulation using class IdealGasMix "
-             << "with file gri30.inp." 
+             << "with file gri30.cti." 
              << endl;
 
         if (job >= 1) {
@@ -44,7 +49,7 @@ int kinetics_example1(int job) {
 
         // create an ideal gas mixture that corresponds to GRI-Mech
         // 3.0
-        IdealGasMix* gg = new IdealGasMix("gri30.xml", "gri30");
+        IdealGasMix* gg = new IdealGasMix("gri30.cti", "gri30");
         IdealGasMix& gas = *gg;
 
         // set the state
@@ -121,6 +126,7 @@ int kinetics_example1(int job) {
     catch (CanteraError) {
         showErrors(cout);
         cout << " terminating... " << endl;
+        appdelete();
         return -1;
     }
 }
