@@ -47,6 +47,9 @@ templates-install:
 	@INSTALL@ -m 644 templates/f77/*.cpp @ct_dir@/templates/f77
 	@INSTALL@ -m 644 templates/f77/*.f @ct_dir@/templates/f77
 	@INSTALL@ -m 644 templates/f77/*.mak @ct_dir@/templates/f77
+	@INSTALL@ -d @ct_dir@/templates/f90
+	@INSTALL@ -m 644 templates/f90/*.f90 @ct_dir@/templates/f90
+	@INSTALL@ -m 644 templates/f90/*.mak @ct_dir@/templates/f90
 	@INSTALL@ -d @ct_dir@/templates/cxx
 	@INSTALL@ -m 644 templates/cxx/*.cpp @ct_dir@/templates/cxx
 	@INSTALL@ -m 644 templates/cxx/*.mak @ct_dir@/templates/cxx

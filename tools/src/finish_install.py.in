@@ -62,6 +62,8 @@ f = open(bindir+'/ctnew','w')
 f.write("""#!/bin/sh
 if test "x$1" = "x-f77"; then
 cp """+templdir+"""/f77/*.* .
+elif test "x$1" = "x-f90"; then
+cp """+templdir+"""/f90/*.* .
 else
 cp """+templdir+"""/cxx/*.* .
 fi

@@ -157,44 +157,10 @@ class XML_Node:
             s += line
         return s
 
-##     def getRef(self):
-##         if not self["idRef"]: return self
-##         return find_XML(src = self["src"], root = self.root(),
-##                         id = self["idRef"])
-    
-
 def clear_XML():
     _cantera.xml_clear()
 
     
-## def find_XML(src = "", root = None, id = "", loc = "", name=""):
-##     doc = None
-##     r = None
-##     if src:
-##         ihash = string.find(src,'#')
-##         if ihash < 0:
-##             fname = src
-##         else:
-##             fname, idnew = string.split(src,'#')
-##             if idnew: id = idnew
-##         if fname:
-##             doc = XML_Node(name="doc", src=fname)
-##             root = None
-##         elif root:
-##             doc = root
-##     elif root:
-##         doc = root            
-##     else:
-##         raise exceptions.CanteraError("either root or src must be specified.")
-    
-## ##    try:
-##     if loc or id or name:
-##         r = doc.child(loc=loc, id=id, name=name)
-##     else:
-##         r = doc
-##     return r
-
-
 def getFloatArray(node, convert_units=0):
     sz = int(node['size'])
     return _cantera.ctml_getFloatArray(node._xml_id, convert_units, sz)

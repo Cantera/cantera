@@ -294,9 +294,9 @@ namespace Cantera {
             }
         }
         if (j < m_mm) 
-            return -1;
-        //throw CanteraError("estimateElementPotentials",
-        //      "too few species (" + int2str(j) + ").");
+            //    return -1;
+            throw CanteraError("estimateElementPotentials",
+                "too few species (" + int2str(j) + ").");
 
         for (m = 0; m < m_mm; m++) {
             for (n = 0; n < m_mm; n++) {

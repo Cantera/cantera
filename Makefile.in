@@ -104,6 +104,9 @@ tools-install:
 hdr-install:
 	@INSTALL@ -d @ct_incdir@
 	cp -r -f build/include/cantera @ct_incroot@
+ifeq ($(build_f90),1)
+	cp -f build/include/cantera/*.mod @ct_incroot@
+endif
 
 # collect scattered header files and build the include directory
 hdr-collect:

@@ -1,16 +1,16 @@
 
 import sys
 
-bindir = 'c:/cantera/bin'
-libdir = 'd:/dgg/dv/sf/cantera/build/lib/i686-pc-win32'
-incdir = 'd:/dgg/dv/sf/cantera/build/include'
-dflibdir = 'D:\Program Files\Microsoft Visual Studio\DF98\LIB'
+bindir = '/Applications/Cantera/bin'
+libdir = '/Users/dgg/dv/sf/cantera/build/lib/powerpc-apple-darwin7.4.0'
+incdir = '/Users/dgg/dv/sf/cantera/build/include'
+dflibdir = ''
 
 bllibstr = "-lctlapack -lctblas"
 bllibs = bllibstr.replace('-l',' ')
 bllist = bllibs.split()
 
-bldir = "d:/dgg/dv/sf/cantera/build/lib/i686-pc-win32"
+bldir = "/Users/dgg/dv/sf/cantera/build/lib/powerpc-apple-darwin7.4.0"
 
 libs = ['clib', 'oneD', 'zeroD', 'transport', 'cantera', 'recipes',
         'cvode', 'ctmath', 'tpx']

@@ -83,7 +83,7 @@ namespace Cantera {
         doublereal mout = 0.0;
         for (int i = 0; i < nout; i++) 
             mout += m_outlet[i]->massFlowRate();
-        return volume()/mout;
+        return mass()/mout;
     }
 
     FlowDevice& ReactorBase::inlet(int n)  { return *m_inlet[n]; }

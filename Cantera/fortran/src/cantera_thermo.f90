@@ -12,8 +12,22 @@ module cantera_thermo
     integer :: nsp
   end type phase_t
 
+! these definitions are for use with the equilibrate function.
   integer, parameter :: TV = 100
   integer, parameter :: HP = 101
+  integer, parameter :: SP = 102
+  integer, parameter :: PV = 103
+  integer, parameter :: TP = 104
+  integer, parameter :: UV = 105
+  integer, parameter :: SV = 107
+
+  integer, parameter :: VT = -100
+  integer, parameter :: PH = -101
+  integer, parameter :: PS = -102
+  integer, parameter :: VP = -103
+  integer, parameter :: PT = -104
+  integer, parameter :: VU = -105
+  integer, parameter :: VS = -107
 
 contains
 

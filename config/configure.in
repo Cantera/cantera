@@ -441,7 +441,8 @@ if test "x$BUILD_F90_INTERFACE" = "xy"; then
 fi
 AC_SUBST(BUILD_F90)
 AC_SUBST(F90)
-AC_SUBST(F77FLAGS)
+AC_SUBST(F90FLAGS)
+# AC_SUBST(F77FLAGS)
 
 BUILD_CLIB=1
 #       
@@ -566,7 +567,7 @@ fi
 dnl Checks for libraries.
 AC_F77_LIBRARY_LDFLAGS()
 case $ac_sys_system in
-  Darwin*)  FLIBS='-lg2c -lgcc'; SHARED_CTLIB=0;;
+  Darwin*)  FLIBS='-lstdc++ -lg2c'; SHARED_CTLIB=0;;
 esac
 
 
@@ -685,6 +686,7 @@ AC_OUTPUT(../Cantera/Makefile \
           ../tools/src/finish_install.py \
           ../tools/src/package4mac \
           ../tools/templates/f77/demo.mak \
+          ../tools/templates/f90/demo.mak \
           ../tools/templates/cxx/demo.mak \
 	  ../tools/testtools/Makefile \
           ../data/inputs/Makefile  \

@@ -116,7 +116,13 @@ BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
 # A Fortran 90/95 compiler is required.
 # UNDER DEVELOPMENT - UNSTABLE!!
 
-BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="n"}
+BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="y"}
+
+# The Fortran 90/95 compiler
+F90=${F90:=f95}
+
+# Compiler option flags for the Fortran 90/95 compiler
+F90FLAGS=${F90FLAGS:='-O2'}
 
 
 #----------------------------------------------------------------------
@@ -258,9 +264,8 @@ SHARED=${SHARED:="-shared"}
 # compiler if you are building the Fortran 90 interface.
 F77=${F77:=g77}
 
-F90=${F90:=f95}
-
-# Fortran compiler flags
+# Fortran 77 compiler flags. Note that these may be specified separately 
+# from the options for the Fortran 90/95 compiler (if any).
 FFLAGS=${FFLAGS:='-O2'}
 
 # additional flags required to compile fixed-format F77 procedures
@@ -324,7 +329,7 @@ export RANLIB
 export BLAS_LAPACK_LIBS
 export BLAS_LAPACK_DIR
 export BUILD_F90
-export BUILD_FORTRAN_90_INTERFACE
+export BUILD_F90_INTERFACE
 export PYTHON_PACKAGE
 export BUILD_MATLAB_TOOLBOX
 #export MATLAB_CMD
@@ -351,6 +356,7 @@ export F90
 export F90_EXT
 export FFLAGS
 export F77FLAGS
+export F90FLAGS
 export LAPACK_NAMES
 export LCXX_FLAGS
 export LCXX_END_LIBS
