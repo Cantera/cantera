@@ -13,9 +13,14 @@ namespace Cantera {
             return __u;
         }
 
+	static void deleteUnit() {
+	    if (__u) {
+	      delete __u;
+	      __u = 0;
+	    }
+	}
+
         virtual ~Unit() {
-            delete __u;
-            __u = 0;
         }
 
         doublereal actEnergyToSI(string units) {
