@@ -289,7 +289,7 @@ namespace ctml {
 
 
     void getFloatArray(const XML_Node& node, vector_fp& v, bool convert) {
-		string::size_type icom;
+	string::size_type icom;
         string numstr;
         if (node.name() != "floatArray") 
             throw CanteraError("getFloatArray","wrong element type: "
@@ -312,7 +312,7 @@ namespace ctml {
         string val = node.value();
         while (1 > 0) {
             icom = val.find(',');
-            if (icom >= 0) {
+            if (icom != string::npos) {
                 numstr = val.substr(0,icom);
                 val = val.substr(icom+1,val.size());
                 v.push_back(atof(numstr.c_str()));
@@ -393,25 +393,25 @@ namespace ctml {
      * v.
      */
     void getStringArray(const XML_Node& node, vector<string>& v) {
-		string::size_type ibegin, iend;
+	string::size_type ibegin, iend;
         v.clear();
         string val = node.value();
         while (1 > 0) {
             ibegin = val.find_first_not_of(" \n\t");
-            if (ibegin >= 0) {
+            if (ibegin != string::npos) {
                 val = val.substr(ibegin,val.size());
                 iend = val.find_first_of(" \n\t");
-                if (iend > 0) {
-                    v.push_back(val.substr(0,iend));
-                    val = val.substr(iend+1,val.size());
-                }
-                else {
-                    v.push_back(val.substr(0,iend));
-                    break;
+                if (iend == string::npos) {
+                   v.push_back(val);
+                   break;
+                } else {
+                   v.push_back(val.substr(0,iend));
+                   val = val.substr(iend+1,val.size());
                 }
             }
-            else
-                break;
+            else {
+              break;
+            }
         }
     }
 
