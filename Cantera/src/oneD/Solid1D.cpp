@@ -22,7 +22,7 @@
 
 #include "Solid1D.h"
 #include "../ArrayViewer.h"
-#include "ctml.h"
+#include "../ctml.h"
 #include "MultiJac.h"
 
 using namespace ctml;
