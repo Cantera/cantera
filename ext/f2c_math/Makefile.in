@@ -94,3 +94,7 @@ depends:
 .depends: $(DEPENDS)
 	cat *.d > .depends
 
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
+

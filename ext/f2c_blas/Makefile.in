@@ -11,7 +11,6 @@
 .SUFFIXES :
 .SUFFIXES : .c .d .o
 
-
 # the directory where the Cantera libraries are located
 CANTERA_LIBDIR=@buildlib@
 
@@ -110,3 +109,8 @@ depends:
 
 .depends: $(DEPENDS)
 	cat *.d > .depends
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
+

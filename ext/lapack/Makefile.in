@@ -1,4 +1,5 @@
 # $License$
+# $Id$
 #
 #/bin/sh
 
@@ -71,19 +72,6 @@ $(LAPACKLIB):  $(OBJS)
 
 %.o : %.f
 	@F77@ -c $<  $(F77_INCLUDES) $(F_FLAGS) 
-
-
 clean:
 	$(RM) $(OBJS) $(LAPACKLIB)
-
- 
-
-
-
-
-
-
-
-
-
-
+depends:

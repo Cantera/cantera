@@ -32,12 +32,13 @@ $(TPLIB): $(COBJS) $(FOBJS)
 	@ARCHIVE@ $(TPLIB) $(COBJS) $(FOBJS) > /dev/null
 
 clean:
-	$(RM) $(COBJS) $(FOBJS) *~
+	$(RM) $(COBJS) $(FOBJS) *~ *.d .depends
 
 depends: $(DEPENDS)
 	cat *.d > .depends
 	$(RM) $(DEPENDS)
 
+ifeq ($(wildcard .depends), .depends)
 include .depends
-
+endif
 

@@ -89,5 +89,5 @@ clean:
 	$(RM)  ./libcvode.a
 	$(RM)  $(OBJS)
 
-
+depends:
 

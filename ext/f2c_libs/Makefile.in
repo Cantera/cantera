@@ -18,7 +18,7 @@
 #	-fPIC
 # to the CFLAGS = line below.
 
-.SUFFIXES: .c .o
+.SUFFIXES: .c .o .d
 
 # the C compiler
 CC = @CC@
@@ -28,10 +28,12 @@ CFLAGS = @CXXFLAGS@ $(CXX_OPT)
 
 # Destination f2c lib located in Cantera's build directory
 # -> Calling it ctf2c
+BUILDINCDIR=../../build/include/cantera
 F2C_LIB = @buildlib@/libctf2c.a
+F2C_H   = $(BUILDINCDIR)/f2c.h
 
 # compile, then strip unnecessary symbols
-.c.o:
+.c.o: f2c.h
 	$(CC) -c -DSkip_f2c_Undefs $(CFLAGS) $*.c
 	ld -r -x -o $*.xxx $*.o
 	mv $*.xxx $*.o
@@ -83,11 +85,15 @@ TIME =	dtime_.o etime_.o
 OFILES = $(MISC) $(POW) $(CX) $(DCX) $(REAL) $(DBL) $(INT) \
 	$(HALF) $(CMP) $(EFL) $(CHAR) $(I77) $(TIME)
 
-all: f2c.h signal1.h sysdep1.h $(F2C_LIB)
+all: f2c.h signal1.h sysdep1.h $(F2C_LIB) $(F2C_H)
 
 $(F2C_LIB): $(OFILES)
 	ar r $(F2C_LIB) $?
 	-ranlib  $(F2C_LIB)
+
+$(F2C_H): f2c.h
+	@INSTALL@ -d $(BUILDINCDIR)
+	@INSTALL@ f2c.h $(F2C_H)
 
 ### If your system lacks ranlib, you don't need it; see README.
 
@@ -122,11 +128,10 @@ sysdep1.h: sysdep1.h0
 #main.o: main.c
 #	$(CC) -c -Donexit=on_exit -DSkip_f2c_Undefs main.c
 
-
-
 clean:
-	$(RM) $(F2C_LIB) *.o arith.h signal1.h sysdep1.h
+	$(RM) $(F2C_LIB) *.o *.d arith.h signal1.h sysdep1.h $(F2C_H)
 
+$(OFILES):      f2c.h
 backspac.o:	fio.h
 close.o:	fio.h
 dfe.o:		fio.h
@@ -186,4 +191,7 @@ arith.h: arithchk.c
 	 $(CC) -DNO_LONG_LONG $(CFLAGS) -DNO_FPINIT arithchk.c -lm
 	./a.out >arith.h
 	rm -f a.out arithchk.o
+
+# depends target -> already in the Makefile
+depends:
 

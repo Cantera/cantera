@@ -65,6 +65,5 @@ $(BLASLIB):  $(OBJS)
 clean:
 	$(RM) $(OBJS) $(BLASLIB)
 
-
-
+depends:
 
