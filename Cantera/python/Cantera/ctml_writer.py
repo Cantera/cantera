@@ -12,16 +12,151 @@
  This will produce CTML file 'infile.xml'
 
 """
+import string
 
-from Cantera.exceptions import CanteraError
-from Cantera.constants import *
-from Cantera.XML import XML_Node
+class CTI_Error:
+    def __init__(self, msg):
+        print '\n\n***** Error parsing input file *****\n\n'
+        print msg
+        print
+
+
+
+
+indent = ['',' ','  ','   ','    ','     ',
+          '      ','       ','        ',
+          '          ','           ']
+
+#-----------------------------------------------------
+
+class XMLnode:
+    
+    """This is a minimal class to allow easy creation of an XML tree
+    from Python. It can write XML, but cannot read it."""
+    
+    def __init__(self, name="--", value = ""):
+        
+        """Create a new node. Usually this only needs to be explicitly
+        called to create the root element. Method addChild calls this
+        constructor to create the new child node."""
+
+        # convert value to string
+        self._name = name
+        if type(value) <> types.StringType:
+            self._value = string.lstrip(`value`)
+        else:
+            self._value = string.lstrip(value)
+            
+        self._attribs = {}    # dictionary of attributes
+        self._children = []   # list of child nodes
+        self._childmap = {}   # dictionary of child nodes
+
+        
+    def name(self):
+        """The tag name of the node."""
+        return self._name
+
+
+    def nChildren(self):
+        """Number of child elements."""
+        return len(self._children)
+
+    def addChild(self, name, value=""):
+        """Add a child with tag 'name', and set its value if the value
+        parameter is supplied."""
+        c = XMLnode(name = name, value = value)
+        self._children.append(c)
+        self._childmap[name] = c
+        return c
+
+    def addComment(self, comment):
+        """Add a comment."""
+        self.addChild(name = '_comment_', value = comment)
+        
+    def value(self):
+        """A string containing the element value."""
+        return self._value
+
+    def child(self, name=""):
+        """The child node with specified name."""
+        return self._childmap[name]
+
+    def __getitem__(self, key):
+        """Get an attribute using the syntax node[key]"""
+        return self._attribs[key]
+
+    def __setitem__(self, key, value):
+        """Set a new attribute using the syntax node[key] = value."""
+        self._attribs[key] = value    
+
+    def __call__(self):
+        """Allows getting the value using the syntax 'node()'"""
+        return self._value
+
+    def write(self, file):
+        """Write out the XML tree to a file."""
+        f = open(file,'w')
+        f.write('<?xml version="1.0"?>\n')
+        self._write(f, 0)
+        f.write('\n')
+        
+    def _write(self, f, level = 0):
+
+        """Internal method used to write the XML representation of
+        each node."""
+        if self._name == "": return
+        
+        indnt = indent[level]
+
+        # handle comments
+        if self._name == '_comment_':
+            f.write('\n'+indnt+'<!--')
+            if len(self._value) > 0:
+                if self._value[0] <> ' ':
+                    self._value = ' '+self._value
+                if self._value[-1] <> ' ':
+                    self._value = self._value+' '
+            f.write(self._value+'-->')
+            return
+
+        # write the opening tag and attributes
+        f.write(indnt + '<' + self._name)
+        for a in self._attribs.keys():
+            f.write(' '+a+'="'+self._attribs[a]+'"')
+        if (self._value == "" and self.nChildren() == 0):
+            f.write('/>')
+        else:
+            f.write('>')
+            if self._value <> "":
+                vv = string.lstrip(self._value)
+                ieol = vv.find('\n')
+                if ieol >= 0:
+                    while 1 > 0:
+                        ieol = vv.find('\n')
+                        if ieol >= 0:
+                            f.write('\n  '+indnt+vv[:ieol])
+                            vv = string.lstrip(vv[ieol+1:])
+                        else:
+                            f.write('\n  '+indnt+vv)
+                            break
+                else:
+                    f.write(self._value)
+
+            for c in self._children:
+                f.write('\n')
+                c._write(f, level + 2)
+            if (self.nChildren() > 0):
+                f.write('\n'+indnt)
+            f.write('</'+self._name+'>')
+
+#--------------------------------------------------
+
+# constants that can be used in .cti files
+OneAtm = 1.01325e5
+OneBar = 1.0e5
+
+
 import types, math, copy
-
-SPECIES = 10
-SPECIES_SET = 20
-COLLECTION = 30
-THERMO = 40
 
 # default units
 _ulen = 'm' 
@@ -53,6 +188,7 @@ _atw = {}
 _valsp = ''
 _valrxn = ''
 
+
 def validate(species = 'yes', reactions = 'yes'):
     global _valsp
     global _valrxn
@@ -82,19 +218,6 @@ def standard_pressure(p0):
     global _pref
     _pref = p0
 
-def get_atomic_wts():
-    """get the atomic weights from the elements database."""
-    global _atw
-    edb = XML_Node('edb', src = 'elements.xml')
-    edata = edb.child('ctml/elementData')
-    e = edata.children()
-    for el in e:
-        if el['name'] <> 'dummy':
-            _atw[el['name']] = el['atomicWt']
-            if el['atomicWt'] == '':
-                print 'no atomic weight for ',el['name']
-                
-    
 def units(length = '', quantity = '', mass = '', time = '',
           act_energy = '', energy = '', pressure = ''):
     """set the default units."""
@@ -117,7 +240,7 @@ def ufmt(base, n):
     
 def write():
     """write the CTML file."""
-    x = XML_Node("ctml")
+    x = XMLnode("ctml")
     v = x.addChild("validate")
     v["species"] = _valsp
     v["reactions"] = _valrxn
@@ -190,41 +313,24 @@ def getReactionSpecies(s):
             n = 1
     return d
 
-class writer:
-    def write_ctml(self, file = ''):
-        x = XML_Node("ctml")
-        self.build(x)
-        if file:
-            x.write(file)
-        else:
-            print x
-    
-class collection(writer):
-    def __init__(self, s):
-        self._s = s
-        self.type = COLLECTION        
-    def build(self, p):
-        for s in self._s:
-            s.build(p)
-            
-class species_set(writer):
+class species_set:
     def __init__(self, name = '', species = []):
         self._s = species
         self._name = name
-        self.type = SPECIES_SET
+        #self.type = SPECIES_SET
         
     def build(self, p):
         p.addComment('     species definitions     ')
         sd = p.addChild("speciesData")
-        sd.addAttrib("id","species_data")
+        sd["id"] = "species_data"
         for s in self._s:
-            if s.type == SPECIES:
-                s.build(sd)
-            else:
-                raise 'wrong object type in species_set: '+s.__class__
+            #if s.type == SPECIES:
+            s.build(sd)
+            #else:
+            #    raise 'wrong object type in species_set: '+s.__class__
 
             
-class species(writer):
+class species:
     """A species."""
     
     def __init__(self,
@@ -251,16 +357,16 @@ class species(writer):
             chrg = -self._atoms['E']
             if self._charge <> -999:
                 if self._charge <> chrg:
-                    raise 'specified charge inconsistent with number of electrons'
+                    raise CTI_Error('specified charge inconsistent with number of electrons')
             else:
                 self._charge = chrg
-        self.type = SPECIES
+                #        self.type = SPECIES
         
         global _species
         _species.append(self)
         global _speciesnames
         if name in _speciesnames:
-            raise CanteraError('species '+name+' multiply defined.')
+            raise CTI_Error('species '+name+' multiply defined.')
         _speciesnames.append(name)
         
 
@@ -268,7 +374,7 @@ class species(writer):
         hdr = '    species '+self._name+'    '
         p.addComment(hdr)        
         s = p.addChild("species")
-        s.addAttrib("name",self._name)
+        s["name"] = self._name
         a = ''
         for e in self._atoms.keys():
             a += e+':'+`self._atoms[e]`+' '
@@ -294,7 +400,7 @@ class species(writer):
                 for n in range(nt):
                     self._transport[n].build(t)                    
 
-class thermo(writer):
+class thermo:
     """Base class for species standard-state thermodynamic properties."""
     def _build(self, p):
         return p.addChild("thermo")
@@ -308,7 +414,7 @@ class NASA(thermo):
         self._t = range
         self._pref = p0
         if len(coeffs) <> 7:
-            raise 'NASA coefficient list must have length = 7'
+            raise CTI_Error('NASA coefficient list must have length = 7')
         self._coeffs = coeffs
 
         
@@ -342,7 +448,7 @@ class Shomate(thermo):
         self._t = range
         self._pref = p0
         if len(coeffs) <> 7:
-            raise 'Shomate coefficient list must have length = 7'
+            raise CTI_Error('Shomate coefficient list must have length = 7')
         self._coeffs = coeffs
 
         
@@ -412,7 +518,7 @@ class gas_transport:
         addFloat(t, "rotRelax", self._rot_relax,'%8.3f')        
 
         
-class Arrhenius(writer):
+class Arrhenius:
     def __init__(self,
                  A = 0.0,
                  n = 0.0,
@@ -443,7 +549,7 @@ class Arrhenius(writer):
             if self._type == 'stick':
                 ngas = len(gas_species)
                 if ngas <> 1:
-                    raise CanteraError("""
+                    raise CTI_Error("""
 Sticking probabilities can only be used for reactions with one gas-phase
 reactant, but this reaction has """+`ngas`+': '+`gas_species`)
                 else:
@@ -491,7 +597,7 @@ def getPairs(s):
         m[key] = float(val)
     return m
     
-class reaction(writer):
+class reaction:
     def __init__(self,
                  equation = '',
                  kf = None,
@@ -528,7 +634,7 @@ class reaction(writer):
                 if self._rxnorder.has_key(o):
                     self._rxnorder[o] = ord[o]
                 else:
-                    raise CanteraError("order specified for non-reactant: "+o)
+                    raise CTI_Error("order specified for non-reactant: "+o)
             
         self._kf = kf
         self._igspecies = []
@@ -578,7 +684,7 @@ class reaction(writer):
                             mindim = ph._dim
                     break
             if nm == -999:
-                raise CanteraError("species "+s+" not found")
+                raise CTI_Error("species "+s+" not found")
 
             mdim += nm*ns
             ldim += nl*ns
@@ -616,14 +722,14 @@ class reaction(writer):
             ldim += 2
             p = self._dims[:3]
             if p[0] <> 0 or p[1] <> 0 or p[2] > 1:            
-                raise CanteraError(self._e +'\nA surface reaction may contain at most '+
+                raise CTI_Error(self._e +'\nA surface reaction may contain at most '+
                                    'one surface phase.')
         elif self._type == 'edge':
             mdim += -1
             ldim += 1
             p = self._dims[:2]
             if p[0] <> 0 or p[1] > 1:
-                raise CanteraError(self._e+'\nAn edge reaction may contain at most '+
+                raise CTI_Error(self._e+'\nAn edge reaction may contain at most '+
                                    'one edge phase.')                
         else:
             mdim += -1
@@ -751,7 +857,7 @@ class falloff_reaction(reaction):
             for r in self._r.keys():
                 if r[-1] == ')' and r.find('(') < 0:
                     if self._eff:
-                        raise '(+ '+mspecies+') and '+self._eff+' cannot both be specified'
+                        raise CTI_Error('(+ '+mspecies+') and '+self._eff+' cannot both be specified')
                     self._eff = r[-1]+':1.0'
                     self._effm = 0.0
                     
@@ -824,7 +930,7 @@ class state:
         if self._c: st.addChild('coverages', self._c)
     
 
-class phase(writer):
+class phase:
     """Base class for phases of matter."""
     
     def __init__(self,
@@ -892,18 +998,18 @@ class phase(writer):
                     if s[-1] == ',': s = s[:-1]
 
                     if self._spmap.has_key(s):
-                        raise CanteraError('Multiply-declared species '+s+' in phase '+self._name)
+                        raise CTI_Error('Multiply-declared species '+s+' in phase '+self._name)
                     self._spmap[s] = self._dim
             
         self._rxns = reactions
 
         # check that species have been declared
         if len(self._spmap) == 0:
-            raise CanteraError('No species declared for phase '+self._name)
+            raise CTI_Error('No species declared for phase '+self._name)
         
         # and that only one species is declared if it is a pure phase
         if self.is_pure() and len(self._spmap) > 1:
-            raise CanteraError('Stoichiometric phases must  declare exactly one species, \n'+
+            raise CTI_Error('Stoichiometric phases must  declare exactly one species, \n'+
                                'but phase '+self._name+' declares '+`len(self._spmap)`+'.')
 
         self._initial = initial_state
@@ -1061,7 +1167,7 @@ class stoichiometric_solid(phase):
         self._dens = density
         self._pure = 1
         if self._dens < 0.0:
-            raise 'density must be specified.'        
+            raise CTI_Error('density must be specified.')
         self._tr = transport
 
     def conc_dim(self):
@@ -1097,7 +1203,7 @@ class stoichiometric_liquid(stoichiometric_solid):
         self._dens = density
         self._pure = 1
         if self._dens < 0.0:
-            raise 'density must be specified.' 
+            raise CTI_Error('density must be specified.')
         self._tr = transport
         
 class pure_solid(stoichiometric_solid):
@@ -1117,7 +1223,7 @@ class pure_solid(stoichiometric_solid):
         self._dens = density
         self._pure = 1
         if self._dens < 0.0:
-            raise 'density must be specified.' 
+            raise CTI_Error('density must be specified.')
         self._tr = transport
         print 'WARNING: entry type pure_solid is deprecated.'
         print 'Use stoichiometric_solid instead.'
@@ -1171,7 +1277,7 @@ class incompressible_solid(phase):
         self._dens = density
         self._pure = 0
         if self._dens < 0.0:
-            raise 'density must be specified.'        
+            raise CTI_Error('density must be specified.')
         self._tr = transport
 
     def conc_dim(self):
@@ -1389,7 +1495,10 @@ validate()
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.33  2004-04-23 19:03:21  dggoodwin
+# Revision 1.34  2004-05-30 04:02:55  dggoodwin
+# converted to pure python
+#
+# Revision 1.33  2004/04/23 19:03:21  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.32  2004/04/23 16:35:32  dggoodwin
