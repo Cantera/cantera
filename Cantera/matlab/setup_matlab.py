@@ -1,10 +1,10 @@
 
 import sys
 
-bindir = 'd:/dgg/ct153/bin'
-libdir = 'd:/dgg/dv/sf/cantera/build/lib/i686-pc-cygwin'
-incdir = 'd:/dgg/dv/sf/cantera/build/include'
-libs   = ' -loneD -lzeroD -ltransport -lcantera -lrecipes -lcvode -lctlapack -lctmath -lctblas -ltpx   -lg2c -L/usr/lib/gcc-lib/i686-pc-cygwin/2.95.2-6 -L/usr/lib/mingw -lcygwin -luser32 -lkernel32 -ladvapi32 -lshell32'
+bindir = '/usr/local/bin'
+libdir = '/Users/dgg/dv/sf/cantera/build/lib/powerpc-apple-darwin7.0.0'
+incdir = '/Users/dgg/dv/sf/cantera/build/include'
+libs   = ' -loneD -lzeroD -ltransport -lcantera -lrecipes -lcvode -lctlapack -lctmath -lctblas -ltpx  -lg2c -lgcc'
 
 f = open('setup.m','w')
 f.write('cd cantera\nbuildux\nexit\n')
