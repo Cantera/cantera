@@ -526,7 +526,7 @@ namespace Cantera {
         XML_Node* doc = get_XML_File(element_database);
         XML_Node* dbe = &doc->child("ctml/elementData");
 
-        int nel = enames.size();
+        int nel = static_cast<int>(enames.size());
         int i;
         string enm;
         for (i = 0; i < nel; i++) {
