@@ -7,7 +7,7 @@ BLASLIB = @buildlib@/libctblas.a
 SUFFIXES=
 SUFFIXES= .f .o
 
-F_FLAGS = @FFLAGS@ $(F77_FLAGS)
+F_FLAGS = @FFLAGS@ @F77FLAGS@
 
 OBJS = \
 dasum.o \
@@ -46,10 +46,11 @@ dtrmv.o \
 dtrsm.o \
 dtrsv.o \
 dzasum.o \
-dznrm2.o \
 idamax.o \
 lsame.o \
 xerbla.o 
+
+# dznrm2.o \
 
 
 #SRCS = $(OBJS:.o=.cpp)
@@ -58,8 +59,8 @@ xerbla.o
 $(BLASLIB):  $(OBJS)
 	@ARCHIVE@ $(BLASLIB) $(OBJS) > /dev/null
 
-.f.o:
-	@F77@ -c $<  $(F77_INCLUDES) $(F_FLAGS) 
+%.o : %.f
+	@F77@ -c $< $(F_FLAGS) 
 
 clean:
 	$(RM) $(OBJS) $(BLASLIB)

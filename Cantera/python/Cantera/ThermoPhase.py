@@ -130,6 +130,18 @@ class ThermoPhase(Phase):
         underlying kernel thermo manager."""
         mu = _cantera.thermo_getarray(self._phase_id,20)
         return self.selectSpecies(mu, species)
+
+    def elementPotentials(self, elements = []):
+        """Element potentials of the elements.
+        
+        This method returns an array containing the element potentials
+        [J/kmol]. The element potentials are only defined for
+        equilibrium states. This method first sets the composition to
+        a state of equilibrium holding T and P constant, then computes
+        the element potentials for this equilibrium state.  """
+        
+        lamb = _cantera.thermo_getarray(self._phase_id,21)
+        return self.selectElements(lamb, elements)
     
     def enthalpies_RT(self, species = []):
         """Pure species non-dimensional enthalpies.

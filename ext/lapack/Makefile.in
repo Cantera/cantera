@@ -7,7 +7,7 @@ LAPACKLIB = @buildlib@/libctlapack.a
 SUFFIXES=
 SUFFIXES= .f .o
 
-F_FLAGS = @FFLAGS@ $(F77_FLAGS)
+F_FLAGS = @FFLAGS@ @F77FLAGS@
 
 OBJS = \
 dbdsqr.o \
@@ -69,7 +69,7 @@ all: $(LAPACKLIB)
 $(LAPACKLIB):  $(OBJS)
 	@ARCHIVE@ $(LAPACKLIB) $(OBJS) > /dev/null
 
-.f.o:
+%.o : %.f
 	@F77@ -c $<  $(F77_INCLUDES) $(F_FLAGS) 
 
 

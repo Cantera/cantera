@@ -7,10 +7,9 @@ LIB = @buildlib@/librecipes.a
 SUFFIXES=
 SUFFIXES= .f .d .o
 
-F_FLAGS = @FFLAGS@ $(F77_FLAGS)
+F_FLAGS = @FFLAGS@ @F77FLAGS@
 
 OBJS = simp1.o simp2.o simp3.o simplx.o 
-#splie2.o splin2.o spline.o splint.o
 SRCS = $(OBJS:.o=.cpp)
 
 
@@ -19,8 +18,8 @@ all:  $(LIB)
 $(LIB): $(OBJS)
 	@ARCHIVE@ $(LIB) $(OBJS) > /dev/null
 
-.f.o:
-	@F77@ -c $< $(F77_INCLUDES) $(F_FLAGS)
+%.o : %.f
+	@F77@ -c $< $(F_FLAGS)
 
 clean:
 	$(RM) $(OBJS) $(LIB)

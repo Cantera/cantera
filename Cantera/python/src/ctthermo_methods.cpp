@@ -186,15 +186,21 @@ thermo_getarray(PyObject *self, PyObject *args)
         return NULL;
 
     int nsp = th_nSpecies(th);
+    int nel = phase_nElements(th);
+    int xlen = (job == 21 ? nel : nsp);
 
     // array attributes
     int iok = -22;
+
     PyArrayObject* x = 
-        (PyArrayObject*)PyArray_FromDims(1, &nsp, PyArray_DOUBLE);
+        (PyArrayObject*)PyArray_FromDims(1, &xlen, PyArray_DOUBLE);
     double* xd = (double*)x->data;
     switch (job) {
     case 20:
         iok = th_chemPotentials(th,nsp,xd);
+        break;
+    case 21:
+        iok = th_elementPotentials(th,nel,xd);
         break;
     case 23:
         iok = th_getEnthalpies_RT(th,nsp,xd);

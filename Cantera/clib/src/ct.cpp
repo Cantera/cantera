@@ -393,6 +393,18 @@ extern "C" {
             return -10;
     }
 
+    int DLL_EXPORT th_elementPotentials(int n, int lenm, double* lambda) {
+        thermo_t* thrm = th(n);
+        int nel = thrm->nElements();
+        if (lenm >= nel) {
+            equilibrate(*thrm, "TP");
+            thrm->getElementPotentials(lambda);
+            return 0;
+        }
+        else
+            return -10;
+    }
+
     int DLL_EXPORT th_setPressure(int n, double p) {
         try {
             if (p < 0.0) throw CanteraError("th_setPressure",

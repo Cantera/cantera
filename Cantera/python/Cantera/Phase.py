@@ -288,4 +288,21 @@ class Phase:
             return Numeric.asarray(fs)
         else:
             return f
-        
+
+    def selectElements(self, f, elements):
+        """Given an array 'f' of floating-point element properties,
+        return a Numeric array of those values corresponding to elements
+        listed in 'elements'.
+        >>> f = ph.elementPotentials()
+        >>> lam_o, lam_h = ph.selectElements(f, ['O', 'H'])
+        """
+        if elements:
+            fs = []
+            k = 0
+            for s in elements:
+                k = self.elementIndex(s)
+                fs.append(f[k])
+            return Numeric.asarray(fs)
+        else:
+            return f
+

@@ -7,6 +7,8 @@ except:
 libs = []
 platform = sys.platform
 
+flibs = '@FLIBS@'
+
 bllibstr = "@BLAS_LAPACK_LIBS@"
 bllibs = bllibstr.replace('-l',' ')
 bllist = bllibs.split()

@@ -10,11 +10,13 @@
 
 
 SUFFIXES=
-SUFFIXES= .cpp .d .o
+SUFFIXES= .cpp .d .o .f90 .mod
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
-OBJS = fct.o fctxml.o
+OBJS = fct.o fctxml.o fctxml_interface.o cantera_xml.o
+
+MODULES = fctxml.mod cantera_xml.mod
 
 DEPENDS = $(OBJS:.o=.d)
 
@@ -23,6 +25,9 @@ FORT_LIBS = @FLIBS@
 
 # the C++ compiler
 CXX = @CXX@
+
+# the Fortran 90/95 compiler
+F90 = @F90@
 
 # external libraries
 EXT_LIBS = @LOCAL_LIBS@ 
@@ -43,14 +48,20 @@ CXX_INCLUDES = -I$(CANTERA_INCDIR)
 LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
 
 # how to compile C++ source files to object files
-.@CXX_EXT@.@OBJ_EXT@:
+%.o : %.cpp
 	$(CXX) -c $< $(CXX_INCLUDES) $(CXX_FLAGS)
+
+%.o : %.f90
+	$(F90) -c $< $(FORT_FLAGS)
+
+%.mod : %.f90
+	$(F90) -c $< $(FORT_FLAGS)
 
 LIB_NAME=libfct.a
 
 FTLIB = @buildlib@/$(LIB_NAME)
- 
-lib: $(OBJS) $(LIB_DEPS)
+
+lib: $(MODULES) $(OBJS) $(LIB_DEPS)
 	$(RM)     $(FTLIB)
 	@ARCHIVE@ $(FTLIB) $(OBJS) 
 
@@ -59,6 +70,9 @@ clean:
 
 install:
 	@INSTALL@ $(FTLIB) @prefix@/lib/cantera
+
+win-install:
+	@INSTALL@ ../../../lib/clib.lib @prefix@/lib/cantera
 
 
 %.d:

@@ -10,7 +10,7 @@ LIB = @buildlib@/libctmath.a
 SUFFIXES=
 SUFFIXES= .f .d .o
 
-F_FLAGS = @FFLAGS@ $(F77_FLAGS)
+F_FLAGS = @FFLAGS@ @F77FLAGS@
 
 OBJS = \
 mach.o \
@@ -40,10 +40,10 @@ SRCS = $(OBJS:.o=.cpp)
 $(LIB):  $(OBJS)
 	@ARCHIVE@ $(LIB) $(OBJS) > /dev/null
 
-.cpp.o:
+%.o : %.cpp
 	@CXX@ -c $< @DEFS@  @CXXFLAGS@ $(INCLUDES)
 
-.f.o:
+%.o : %.f
 	@F77@ -c $< $(F_FLAGS)
 
 clean:

@@ -161,13 +161,8 @@ matlab:
 ifeq ($(build_matlab),1)
 	cd Cantera/matlab; @MAKE@
 else
-	@echo 'NOT installing the Matlab toolbox'
+	@echo 'NOT building the Matlab toolbox'
 endif
-
-#win-matlab:
-#ifeq ($(build_matlab),1)
-#	cd Cantera/matlab; @MAKE@ win
-#endif
 
 matlab-install:
 ifeq ($(build_matlab),1)
@@ -200,11 +195,13 @@ finish-install:
 	chown -R @username@ @ct_demodir@/f77
 
 ifeq ($(os_is_win),0)
+
+# if not a 'compact' installation, then add some symbolic links for convenience.
+ifeq ($(compact_install),0)
 	rm -fR @prefix@/cantera/demos
 	rm -fR @prefix@/cantera/data
 	rm -fR @prefix@/cantera/templates
 	rm -fR @prefix@/cantera/tutorials
-ifeq ($(compact_install),0)
 	ln -s @ct_demodir@ @prefix@/cantera/demos
 	ln -s @ct_datadir@ @prefix@/cantera/data
 	ln -s @ct_templdir@ @prefix@/cantera/templates
@@ -219,11 +216,6 @@ else
 	@INSTALL@ Cantera/fortran/f77demos/*.dsp @ct_demodir@/f77
 	@INSTALL@ @buildbin@/* @ct_bindir@
 endif
-
-#@INSTALL@ bin/ctmkmf @ct_bindir@/ctnew
-#@INSTALL@ bin/cxx_examples @ct_demodir@/c++
-
-
 
 example_codes:
 	(cd examples/cxx; @MAKE@)
@@ -272,6 +264,7 @@ endif
 
 changes: 
 	cvs2cl.pl --prune
+	cvs commit -m' ' ChangeLog
 
 export: changes
 	@INSTALL@ -d $(export_dir)

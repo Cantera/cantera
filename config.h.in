@@ -70,4 +70,7 @@ typedef  int          ftnlen;           // Fortran hidden string length type
 
 #undef INCL_PURE_FLUIDS
 
+//--------------------- compile options ----------------------------
+#undef USE_PCH
+
 #endif

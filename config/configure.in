@@ -439,7 +439,8 @@ if test "$BUILD_F90_INTERFACE" != "n"; then
   BUILD_F90=1
 fi
 AC_SUBST(BUILD_F90)
-
+AC_SUBST(F90)
+AC_SUBST(F77FLAGS)
 
 BUILD_CLIB=1
 #       
@@ -528,6 +529,7 @@ if test -n "$GCC"; then
  msg=`rm -f *h.gch; $CXX testpch.h &> /dev/null`
  if test -f testpch.h.gch; then 
   precompile_headers=yes
+  AC_DEFINE(USE_PCH)
  fi
 fi
 AC_MSG_RESULT(${precompile_headers})

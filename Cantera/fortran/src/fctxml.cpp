@@ -1,25 +1,17 @@
-// Build as a DLL under Windows
-#ifdef WIN32
-#define DLL_EXPORT __declspec(dllexport)
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#else
-#define DLL_EXPORT
-#endif
+
+#include "flib_defs.h"
 
 // Cantera includes
 #include "ctml.h"
 #include "importCTML.h"
 
 #include "../../clib/src/Cabinet.h"
-//#include "Storage.h"
-
 
 // Values returned for error conditions
 #define ERR -999
 #define DERR -999.999
 
-Cabinet<XML_Node>*   Cabinet<XML_Node>::__storage = 0;
+//Cabinet<XML_Node>*   Cabinet<XML_Node>::__storage = 0;
 
 inline XML_Node* _xml(const integer* i) {
     return Cabinet<XML_Node>::cabinet(false)->item(*i);
@@ -41,14 +33,16 @@ extern "C" {
     }
 
     int DLL_EXPORT fxml_get_xml_file_(const char* file, ftnlen filelen) {
-        //try {
+        try {
             XML_Node* x = get_XML_File(string(file, filelen));
             int ix = Cabinet<XML_Node>::cabinet(false)->add(x);
             cout << "ix = " << ix << endl;
             return ix;
-            //}
-            //catch (CanteraError) {
-            //cout << "error...." << endl; return 23; }
+        }
+        catch (CanteraError) {
+            handleError();
+            return -1; 
+        }
     }
 
     int DLL_EXPORT fxml_clear_() {
@@ -57,7 +51,7 @@ extern "C" {
             close_XML_File("all");
             return 0;
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { handleError(); return -1;}
     }
 
     int DLL_EXPORT fxml_del_(const integer* i) {
@@ -78,14 +72,14 @@ extern "C" {
         return Cabinet<XML_Node>::cabinet(false)->assign(*i,*j);
     }
 
-    int DLL_EXPORT fxml_preprocess_and_build_(const integer* i, 
-        const char* file, ftnlen filelen) {
-        try {
-            get_CTML_Tree(_xml(i), string(file, filelen));
-            return 0;
-        }
-        catch (CanteraError) { return -1; }
-    }
+//     int DLL_EXPORT fxml_preprocess_and_build_(const integer* i, 
+//         const char* file, ftnlen filelen) {
+//         try {
+//             get_CTML_Tree(_xml(i), string(file, filelen));
+//             return 0;
+//         }
+//         catch (CanteraError) { handleError(); return -1;}
+//     }
 
 
 
@@ -102,7 +96,7 @@ extern "C" {
                 throw CanteraError("fxml_attrib","node "
                     " has no attribute '"+ky+"'");
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { handleError(); }
         return 0;
     }
 
@@ -114,7 +108,7 @@ extern "C" {
             XML_Node& node = *_xml(i);
             node.addAttribute(ky, val);
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { handleError(); }
         return 0;
     }
 
@@ -125,7 +119,7 @@ extern "C" {
             XML_Node& node = *_xml(i);
             node.addComment(c);
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { handleError(); }
         return 0;
     }
 
@@ -135,7 +129,7 @@ extern "C" {
             const string v = node.name();
             strncpy(tag, v.c_str(), taglen);
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { handleError(); }
         return 0;
     }
 
@@ -145,7 +139,7 @@ extern "C" {
             const string v = node.value();
             strncpy(value, v.c_str(), valuelen);
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { handleError(); }
         return 0;
     }
 
@@ -155,7 +149,7 @@ extern "C" {
             XML_Node& c = node.child(string(loc, loclen));
             return Cabinet<XML_Node>::cabinet()->add(&c);
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { handleError(); }
         return 0;
     }
 
@@ -165,7 +159,7 @@ extern "C" {
             XML_Node& c = node.child(*m);
             return Cabinet<XML_Node>::cabinet()->add(&c);
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { handleError(); }
         return 0;
     }
 
@@ -179,7 +173,7 @@ extern "C" {
             else 
                 throw CanteraError("fxml_find_id","id not found: "+string(id, idlen));
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { handleError(); }
         return 0;
     }
 
@@ -194,7 +188,7 @@ extern "C" {
                 throw CanteraError("fxml_findByName","name "+string(nm, nmlen)
                     +" not found");
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { handleError(); }
         return 0;
     }
 
@@ -203,7 +197,8 @@ extern "C" {
             XML_Node& node = *_xml(i);
             return node.nChildren();
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { handleError(); }
+        return 0;
     }
 
     int DLL_EXPORT fxml_addchild_(const integer* i, const char* name, 
@@ -214,7 +209,7 @@ extern "C" {
                 string(value,valuelen));
             return Cabinet<XML_Node>::cabinet()->add(&c);
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { handleError(); }
         return 0;
     }
 
@@ -225,7 +220,7 @@ extern "C" {
             XML_Node& c = node.addChild(chld);
             return Cabinet<XML_Node>::cabinet()->add(&c);
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { handleError(); }
         return 0;
     }
 
@@ -243,7 +238,7 @@ extern "C" {
             }
             return 0;
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { handleError(); }
         return 0;
     }
 
@@ -268,7 +263,7 @@ extern "C" {
             }
             //n = nv;
         }
-        catch (CanteraError) { return -1; }
+        catch (CanteraError) { handleError(); }
         return 0;
     }
 

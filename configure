@@ -247,10 +247,15 @@ SHARED=${SHARED:="-shared"}
 # the Fortran 77 and Fortran 90 compilers. You only need a Fortran 90
 # compiler if you are building the Fortran 90 interface.
 F77=${F77:=g77}
-F90=${F90:=f90}
+
+F90=${F90:=f95}
 
 # Fortran compiler flags
 FFLAGS=${FFLAGS:='-O2'}
+
+# additional flags required to compile fixed-format F77 procedures
+# in the 'ext' directory
+#F77FLAGS=${F77FLAGS:='-w -dusty -fixed -save'}
 
 # the additional Fortran flags required for linking, if any
 #LFORT_FLAGS="-lF77 -lFI77"
@@ -335,6 +340,7 @@ export F77_EXT
 export F90
 export F90_EXT
 export FFLAGS
+export F77FLAGS
 export LAPACK_NAMES
 export LCXX_FLAGS
 export LCXX_END_LIBS

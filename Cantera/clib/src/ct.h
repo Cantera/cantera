@@ -64,6 +64,7 @@ extern "C" {
     double DLL_IMPORT th_cp_mass(int n);
     double DLL_IMPORT th_cv_mass(int n);
     int DLL_IMPORT th_chemPotentials(int n, int lenm, double* murt);
+    int DLL_IMPORT th_elementPotentials(int n, int lenm, double* lambda);
     int DLL_IMPORT th_getEnthalpies_RT(int n, int lenm, double* h_rt);
     int DLL_IMPORT th_getEntropies_R(int n, int lenm, double* s_r);
     int DLL_IMPORT th_getCp_R(int n, int lenm, double* cp_r);
