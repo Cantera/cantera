@@ -431,7 +431,7 @@ reactant, but this reaction has """+`ngas`+': '+`gas_species`)
         if isnum(self._c[0]):
             addFloat(a,'A',self._c[0]*units_factor, fmt = '%14.6E')
         elif len(self._c[0]) == 2 and self._c[0][1] == '/site':
-            addFloat(a,'A',self._c[0]/rxn_phase._sitedens,
+            addFloat(a,'A',self._c[0][0]/rxn_phase._sitedens,
                      fmt = '%14.6E')            
         else:
             addFloat(a,'A',self._c[0], fmt = '%14.6E')
@@ -1310,7 +1310,10 @@ validate()
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.29  2004-02-08 13:22:31  dggoodwin
+# Revision 1.30  2004-02-08 13:25:21  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.29  2004/02/08 13:22:31  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.28  2004/02/08 13:09:10  dggoodwin
