@@ -21,6 +21,8 @@
 
 namespace Cantera {
 
+    class XML_Node;
+
     /// Number of errors that have been encountered so far
     int nErrors();
 
@@ -92,6 +94,9 @@ namespace Cantera {
     doublereal toSI(string unit);
     doublereal actEnergyToSI(string unit);
     //
+
+    XML_Node* get_XML_File(string file);
+    void close_XML_File(string file);
 }
 
 #endif
