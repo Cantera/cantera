@@ -15,11 +15,26 @@
 #define SPECIESTHERMO_FACTORY_H
 
 #include "SpeciesThermo.h"
-//#include "xml.h"
+#include "ctexceptions.h"
 
 namespace Cantera {
 
     class XML_Node;
+
+    /**
+     * Throw a named error for an unknown or missing species thermo
+     * model. 
+     */
+    class UnknownSpeciesThermoModel: public CanteraError {
+    public:
+	UnknownSpeciesThermoModel(string proc, string spName,
+				  string speciesThermoModel) :
+	    CanteraError(proc, "species :" + spName + 
+			 ": Specified speciesThermoPhase model "   
+			 + speciesThermoModel + 
+			 " does not match any known type.") {}
+	virtual ~UnknownSpeciesThermoModel() {}
+    };
 
     /**
      * Factory to build instances of classes that manage the
@@ -33,10 +48,20 @@ namespace Cantera {
             if (!__factory) __factory = new SpeciesThermoFactory;
             return __factory;
         }
-
+	static void deleteFactory() {
+	    if (__factory) {
+	      delete __factory;
+	      __factory = 0;
+	    }
+	}
+	
+	/**
+         * Destructor doesn't do anything. We do not delete statically
+	 * created single instance of this class here, because it would
+	 * create an infinite loop if destructor is called for that
+	 * single instance.
+         */
         virtual ~SpeciesThermoFactory() {
-            delete __factory;
-            __factory = 0;
         }
 
         /**
@@ -46,6 +71,7 @@ namespace Cantera {
         virtual SpeciesThermo* newSpeciesThermo(int type);
         virtual SpeciesThermo* newSpeciesThermo(XML_Node* node);
         virtual SpeciesThermo* newSpeciesThermo(vector<XML_Node*> nodes);
+        virtual SpeciesThermo* newSpeciesThermoOpt(vector<XML_Node*> nodes);
 
     private:
         static SpeciesThermoFactory* __factory;
@@ -78,11 +104,16 @@ namespace Cantera {
     }
 
     inline SpeciesThermo* newSpeciesThermoMgr(vector<XML_Node*> nodes, 
-        SpeciesThermoFactory* f=0) {
+        SpeciesThermoFactory* f=0, bool opt=false) {
         if (f == 0) {
             f = SpeciesThermoFactory::factory();
         }
-        SpeciesThermo* sptherm = f->newSpeciesThermo(nodes);
+	SpeciesThermo* sptherm;
+	if (opt) {
+	  sptherm = f->newSpeciesThermoOpt(nodes);
+	} else { 
+	  sptherm = f->newSpeciesThermo(nodes);
+	}
         return sptherm;
     }
 

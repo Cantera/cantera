@@ -80,7 +80,7 @@ namespace Cantera {
             doublereal* s_R) const=0;
 
         /**
-         * Like update, but only updates position k.
+         * Like update, but only updates the species k.
          */
         virtual void update_one(int k, doublereal T, 
             doublereal* cp_R, 

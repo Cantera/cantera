@@ -40,6 +40,8 @@ namespace Cantera {
         sparray.getChildren("species",sp);
         int ns = sp.size();
         for (int n = 0; n < ns; n++) {
+	  XML_Node* spNode = sp[n];
+	  if (spNode->hasChild("thermo")) {
             const XML_Node& th = sp[n]->child("thermo");
             if (th.hasChild("NASA")) has_nasa = 1;
             if (th.hasChild("Shomate")) has_shomate = 1;
@@ -49,6 +51,10 @@ namespace Cantera {
                 else throw CanteraError("newSpeciesThermo",
                     "poly with order > 1 not yet supported");
             }
+	  } else {
+	    throw UnknownSpeciesThermoModel("getSpeciesThermoTypes:",
+					    spNode->attrib("name"), "missing");
+	  }
         }
     }
 
@@ -69,6 +75,21 @@ namespace Cantera {
         int inasa = 0, ishomate = 0, isimple = 0;
         for (int j = 0; j < n; j++) {
             getSpeciesThermoTypes(nodes[j], inasa, ishomate, isimple);
+        }
+        return newSpeciesThermo(NASA*inasa
+            + SHOMATE*ishomate + SIMPLE*isimple);
+    }
+
+
+    SpeciesThermo* SpeciesThermoFactory::newSpeciesThermoOpt(vector<XML_Node*> nodes) {
+        int n = nodes.size();
+        int inasa = 0, ishomate = 0, isimple = 0;
+        for (int j = 0; j < n; j++) {
+	  try {
+            getSpeciesThermoTypes(nodes[j], inasa, ishomate, isimple);
+	  } catch (UnknownSpeciesThermoModel) {
+
+	  }
         }
         return newSpeciesThermo(NASA*inasa
             + SHOMATE*ishomate + SIMPLE*isimple);
