@@ -6,8 +6,22 @@ py_xml_new(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "s:xml_new", &nm))
         return NULL;
     int n = xml_new(nm);
-    return Py_BuildValue("i",n);
+    PyObject* pn = Py_BuildValue("i",n);
+    return pn;
 }
+
+static PyObject*
+py_xml_get_XML_File(PyObject *self, PyObject *args)
+{
+    char* file;
+    if (!PyArg_ParseTuple(args, "s:xml_get_XML_File", &file))
+        return NULL;
+    int n = xml_get_XML_File(file);
+    if (n < 0) return reportError(n);
+    PyObject* pn = Py_BuildValue("i",n);
+    return pn;
+}
+
 
 static PyObject*
 py_xml_del(PyObject *self, PyObject *args)
@@ -21,17 +35,9 @@ py_xml_del(PyObject *self, PyObject *args)
 }
 
 static PyObject*
-py_xml_build(PyObject *self, PyObject *args)
+py_xml_clear(PyObject *self, PyObject *args)
 {
-    int n, pre;
-    char* file;
-    if (!PyArg_ParseTuple(args, "isi:xml_build", &n, &file, &pre))
-        return NULL;
-    int iok;
-    if (pre > 0) 
-        iok = xml_preprocess_and_build(n, file);
-    else
-        iok = xml_build(n, file);
+    int iok = xml_clear();
     if (iok < 0) return reportError(iok);
     return Py_BuildValue("i",0);
 }

@@ -362,6 +362,11 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             icount = getInt(prhs[4]);
             iok = sim1D_eval(dom, rdt, icount); 
             break;
+            //case 200:
+            //iok = domain1D_clear();
+            //iok = sim1D_clear();
+            //break;
+
         default:
             mexPrintf(" job = %d ",job);
             mexErrMsgTxt("unknown parameter");

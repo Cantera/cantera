@@ -28,38 +28,33 @@ class Solution(ThermoPhase, Kinetics, Transport):
 
     """
 
-    def __init__(self, src="", root=None,
-                 transport = "", thermo_db = "",
-                 transport_db = "", phases=[]):
+    def __init__(self, src="", id=""):
 
         self.ckin = 0
         self._owner = 0
         self.verbose = 1
-        fn = src.split('#')
-        id = ""
-        if len(fn) > 1:
-            id = fn[1]
-        fn = fn[0]
-        fname = os.path.basename(fn)
+        fname = os.path.basename(src)
         ff = os.path.splitext(fname)
 
-        if src and not root:
-            root = XML.XML_Node(name = 'doc', src = fn, preprocess = 1)
+        if src:
+            root = XML.XML_Node(name = 'doc', src = src, preprocess = 1)
 
         if id:
             s = root.child(id = id)
+            
         else:
             s = root.child(name = "phase")
 
-        # get the equation of state model
+        # initialize the equation of state
         ThermoPhase.__init__(self, xml_phase=s)
 
-        # get the kinetics model
-        ph = [self]+list(phases)
+        # initialize the kinetics model
+        ph = [self]
         Kinetics.__init__(self, xml_phase=s, phases=ph)
 
+        # initialize the transport model
         Transport.__init__(self, xml_phase=s, phase=self,
-                           model = transport, loglevel=4)
+                           model = '', loglevel=0)
         
     def __del__(self):
         Transport.__del__(self)

@@ -75,8 +75,8 @@ namespace Cantera {
 
     void ReactorBase::addWall(Wall& w, int lr) {
         m_wall.push_back(&w);
-        if (lr > 0) m_lr.push_back(1);
-        else m_lr.push_back(-1);
+        if (lr == 0) m_lr.push_back(0);
+        else m_lr.push_back(1);
         m_nwalls++;
     }
 

@@ -317,6 +317,18 @@ extern "C" {
         return 0;
     }
 
+    int DLL_EXPORT wall_setkinetics(int i, int n, int m) {
+        Kinetics *left=0, *right=0;
+        if (n > 0) 
+            if (_kin(n)->type() == cInterfaceKinetics)
+                left = _kin(n);
+        if (m > 0) 
+            if (_kin(m)->type() == cInterfaceKinetics)
+                right = _kin(m);
+        _wall(i)->setKinetics(left, right);
+        return 0;
+    }
+
     double DLL_EXPORT wall_vdot(int i, double t) {
         return _wall(i)->vdot(t);
     }

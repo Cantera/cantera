@@ -325,6 +325,17 @@ py_wall_install(PyObject *self, PyObject *args)
 }
 
 static PyObject*
+py_wall_setkinetics(PyObject *self, PyObject *args)
+{
+    int n, k1, k2;
+    if (!PyArg_ParseTuple(args, "iii:wall_setkinetics", &n, &k1, &k2))
+        return NULL;
+    int iok = wall_setkinetics(n, k1, k2);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
 py_wall_vdot(PyObject *self, PyObject *args)
 {
     int n;

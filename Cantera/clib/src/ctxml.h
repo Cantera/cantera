@@ -6,7 +6,9 @@
 extern "C" {  
 
     int DLL_IMPORT xml_new(const char* name);
+    int DLL_IMPORT xml_get_XML_File(const char* file);
     int DLL_IMPORT xml_del(int i);
+    int DLL_IMPORT xml_clear();
     int DLL_IMPORT xml_copy(int i);
     int DLL_IMPORT xml_assign(int i, int j);
     int DLL_IMPORT xml_build(int i, const char* file);

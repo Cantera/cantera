@@ -70,9 +70,9 @@ public:
      * instance. All access to the Cabinet<M> instance should go
      * through this function.
      */
-    static Cabinet<M>* cabinet() {
+    static Cabinet<M>* cabinet(bool canDelete = true) {
         if (__storage == 0) {
-            __storage = new Cabinet<M>;
+            __storage = new Cabinet<M>(canDelete);
         }
         return __storage;
     }
@@ -124,15 +124,16 @@ public:
 
 
     /** 
-     * Delete all objects.
+     * Delete all objects but the first.
      */
     int clear() {
         int i, n;
         n = __table.size();
         for (i = 1; i < n; i++) {del(i);}
-        delete __table[0];
-        __table = vector<M*>();
-		return 0;
+        if (_can_delete) delete __table[0];
+        __table.clear();
+        add(new M);
+        return 0;
     }
 
 
@@ -144,7 +145,7 @@ public:
     void del(int n) {
         if (n == 0) return;
         if (__table[n] != __table[0]) {
-            delete __table[n];
+            if (_can_delete) delete __table[n];
             __table[n] = __table[0]; 
         }
         else {
@@ -171,7 +172,7 @@ private:
     /**
      * Constructor. 
      */
-    Cabinet() { add(new M); }
+    Cabinet(bool canDelete = true) : _can_delete(canDelete) { add(new M); }
 
 
     /**
@@ -183,6 +184,11 @@ private:
      * Vector to hold pointers to objects.
      */
     std::vector<M*> __table;
+
+    /**
+     * Set to false if 'clear' should not delete the entries.
+     */
+    bool _can_delete;
 };
 
 #endif

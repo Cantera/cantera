@@ -344,6 +344,15 @@ class Wall:
         _cantera.wall_install(self.__wall_id, left.reactor_id(),
                                right.reactor_id())
 
+    def setKinetics(self, left, right):
+        ileft = 0
+        iright = 0
+        if left:
+            ileft = left.kin_index()
+        if right:
+            iright = right.kin_index()
+        _cantera.wall_setkinetics(self.__wall_id, ileft, iright)
+                                  
     def set(self, **p):
         for item in p.keys():
             if item == 'A' or item == 'area':

@@ -52,7 +52,7 @@ namespace Cantera {
         Kinetics(thermo_t* thermo) 
             : m_ii(0), m_index(-1), m_surfphase(-1) {
             if (thermo) {
-//                 addPhase(*thermo);
+                addPhase(*thermo);
 //                 m_start.push_back(0);
 //                 if (thermo->eosType() == cSurf) m_surfphase = nPhases();
 //                 m_thermo.push_back(thermo);
@@ -148,7 +148,7 @@ namespace Cantera {
 	/**
 	 * Returns the starting index of the species in the nth phase
 	 * associated with the reaction mechanism. @deprecated. Can be
-         * replaced by kineticsSpeciesIndex(0).
+         * replaced by kineticsSpeciesIndex(0,n).
 	 *
 	 * @param n Return the index of first species in the nth phase
 	 *          associated with the reaction mechanism.

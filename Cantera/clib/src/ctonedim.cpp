@@ -67,6 +67,14 @@ inline Transport* _transport(int n) {
 
 extern "C" {
 
+    int DLL_EXPORT domain_clear() {
+        try {
+            Cabinet<Domain1D>::cabinet()->clear();
+            return 0;
+        }
+        catch (CanteraError) { return -1; }
+    }
+
     int DLL_EXPORT domain_del(int i) {
         Cabinet<Domain1D>::cabinet()->del(i);
         return 0;
@@ -330,6 +338,14 @@ extern "C" {
             }
             Sim1D* s = new Sim1D(d);
             return Cabinet<Sim1D>::cabinet()->add(s);
+        }
+        catch (CanteraError) { return -1; }
+    }
+
+    int DLL_EXPORT sim1D_clear() {
+        try {
+            Cabinet<Sim1D>::cabinet()->clear();
+            return 0;
         }
         catch (CanteraError) { return -1; }
     }

@@ -71,21 +71,24 @@ int Storage::clear() {
     int i, n;
     n = __thtable.size();
     for (i = 1; i < n; i++) {
-        if (__thtable[i] != __thtable[0])
+        if (__thtable[i] != __thtable[0]) {
             delete __thtable[i];
-        __thtable[i] = __thtable[0];
+            __thtable[i] = __thtable[0];
+        }
     }
     n = __ktable.size();
     for (i = 1; i < n; i++) {
-        if (__ktable[i] != __ktable[0])
+        if (__ktable[i] != __ktable[0]) {
             delete __ktable[i];
-        __ktable[i] = __ktable[0];
+            __ktable[i] = __ktable[0];
+        }
     }
     n = __trtable.size();
     for (i = 1; i < n; i++) {
-        if (__trtable[i] != __trtable[0])
+        if (__trtable[i] != __trtable[0]) {
             delete __trtable[i];
-        __trtable[i] = __trtable[0];
+            __trtable[i] = __trtable[0];
+        }
     }
     return 0;
 }

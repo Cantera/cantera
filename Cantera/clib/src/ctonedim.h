@@ -5,6 +5,7 @@
 
 extern "C" {
 
+    int DLL_IMPORT domain_clear();
     int DLL_IMPORT domain_del(int i);
     int DLL_IMPORT domain_type(int i);
     int DLL_IMPORT domain_index(int i);
@@ -42,6 +43,7 @@ extern "C" {
     int DLL_IMPORT stflow_solveSpeciesEqs(int i, int flag);
     int DLL_IMPORT stflow_solveEnergyEqn(int i, int flag);
 
+    int DLL_IMPORT sim1D_clear();
     int DLL_IMPORT sim1D_new(int nd, int* domains);
     int DLL_IMPORT sim1D_del(int i);
     int DLL_IMPORT sim1D_setValue(int i, int dom, int comp, int localPoint, double value);

@@ -23,6 +23,16 @@ ct_get_cantera_error(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+ct_refcnt(PyObject *self, PyObject *args)
+{
+    PyObject* o;
+    if (!PyArg_ParseTuple(args, "O", &o)) return NULL;
+    cout << "refcnt = " << o->ob_refcnt << endl;
+    PyObject* cnt = Py_BuildValue("i",o->ob_refcnt);
+    return cnt;
+}
+
+static PyObject *
 ct_print(PyObject *self, PyObject *args)
 {
     char* msg;

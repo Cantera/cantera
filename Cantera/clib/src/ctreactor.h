@@ -57,6 +57,7 @@ extern "C" {
      int DLL_IMPORT wall_copy(int i);
      int DLL_IMPORT wall_assign(int i, int j);
      int DLL_IMPORT wall_install(int i, int n, int m);
+     int DLL_IMPORT wall_setkinetics(int i, int n, int m);
      double DLL_IMPORT wall_vdot(int i, double t);
      double DLL_IMPORT wall_Q(int i, double t);
      double DLL_IMPORT wall_area(int i);

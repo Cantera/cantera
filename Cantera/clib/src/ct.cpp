@@ -27,7 +27,7 @@
 #include "clib_defs.h"
 
 inline XML_Node* _xml(int i) {
-    return Cabinet<XML_Node>::cabinet()->item(i);
+    return Cabinet<XML_Node>::cabinet(false)->item(i);
 }
 
 inline int nThermo() {
@@ -844,13 +844,18 @@ extern "C" {
 
     } 
     int DLL_EXPORT clearStorage() {
-        Storage::__storage->clear();
-        return 0;
+        try {
+            Storage::storage()->clear();
+            return 0;
+        }
+        catch (CanteraError) {
+            return -1;
+        }
     }
 
     int DLL_EXPORT delThermo(int n) {
         try {
-            Storage::__storage->deleteThermo(n);
+            Storage::storage()->deleteThermo(n);
             return 0;
         }
         catch (CanteraError) {
@@ -859,12 +864,12 @@ extern "C" {
     }
 
     int DLL_EXPORT delKinetics(int n) {
-        Storage::__storage->deleteKinetics(n);
+        Storage::storage()->deleteKinetics(n);
         return 0;
     }
 
     int DLL_EXPORT delTransport(int n) {
-        Storage::__storage->deleteTransport(n);
+        Storage::storage()->deleteTransport(n);
         return 0;
     }
 
@@ -880,7 +885,8 @@ extern "C" {
         Kinetics& kin = *k;
         XML_Node *x, *r=0;
         if (root) r = &root->root();
-        x = find_XML(string(src), r, string(id), "", "phase");
+        x = get_XML_Node(string(src), r);
+        //x = find_XML(string(src), r, string(id), "", "phase");
         if (!x) return false;
         importPhase(*x, t);
         kin.addPhase(*t);

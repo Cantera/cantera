@@ -554,6 +554,8 @@ class reaction(writer):
                     if ph.is_ideal_gas():
                         self._igspecies.append(s)
                     break
+            if nm == -999:
+                raise CanteraError("species "+s+" not found")
 
             mdim += nm*ns
             ldim += nl*ns
@@ -1195,7 +1197,10 @@ if __name__ == "__main__":
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.17  2003-08-20 15:35:32  dggoodwin
+# Revision 1.18  2003-08-21 14:29:53  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.17  2003/08/20 15:35:32  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.16  2003/08/19 22:02:01  hkmoffa

@@ -1,6 +1,8 @@
 
 #include "mex.h"
 #include "../../../clib/src/ct.h"
+#include "../../../clib/src/ctonedim.h"
+#include "../../../clib/src/ctxml.h"
 #include "ctmatutils.h"
 #include <string.h>
 
@@ -51,6 +53,14 @@ void ctfunctions( int nlhs, mxArray *plhs[],
     case 3:
         infile = getString(prhs[2]);
         iok = addCanteraDirectory(strlen(infile), infile);
+        break;
+
+        // clear storage
+    case 4:
+        iok = domain_clear();
+        iok = sim1D_clear();
+        //iok = xml_clear();
+        iok = clearStorage();
         break;
 
     default:

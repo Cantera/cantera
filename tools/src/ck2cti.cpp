@@ -1,7 +1,7 @@
 /**
- * @file ck2ctml.cpp
+ * @file ck2cti.cpp
  *
- * Program to convert CK-format reaction mechanism files to CTML format.
+ * Program to convert CK-format reaction mechanism files to Cantera input format.
  *
  */
 #ifdef WIN32
@@ -13,30 +13,29 @@
 #include <string>
 using namespace std;
 
-#include "converters/ck2ctml.h"
+#include "ct_defs.h"
+#include "global.h"
 #include "converters/ck2ct.h"
 
-using namespace ctml;
+using namespace Cantera;
 
 int showHelp() {
-    cout << "\nck2ckml: convert a CK-format reaction mechanism file to CTML.\n"
+    cout << "\nck2cti: convert a CK-format reaction mechanism file to Cantera input format.\n"
          << "\n   D. G. Goodwin, Caltech \n"
-         << "   Version 1.0, August 2002.\n\n"
+         << "   Version 1.0, August 2003.\n\n"
          << endl;
     cout << "options:" << endl;
     cout << "    -i  <input file> \n"
-         << "    -o  <output file> \n"
          << "    -t  <thermo database> \n"
          << "    -tr <transport database> \n"
-         << "    -id  <identifier> \n";
+         << "    -id  <identifier> \n\n"
+         << "The results are written to the standard output.\n";
     return 0;
 }
 
 int main(int argc, char** argv) {
-    string infile="chem.inp", dbfile="", trfile="", logfile, outfile="";
+    string infile="chem.inp", dbfile="", trfile="", logfile;
     string idtag = "gas";
-    //    ckr::CKReader r;
-    //r.validate = true;
     int i=1;
     if (argc == 1) return showHelp();
  
@@ -45,10 +44,6 @@ int main(int argc, char** argv) {
         if (i < argc-1) {
             if (arg == "-i") {
                 infile = argv[i+1];
-                ++i;
-            }
-            else if (arg == "-o") {
-                outfile = argv[i+1];
                 ++i;
             }
             else if (arg == "-t") {
@@ -69,14 +64,9 @@ int main(int argc, char** argv) {
         ++i;
     }
 
-#define MAKE_CT_INPUT
-#ifdef MAKE_CT_INPUT
     int ierr = pip::convert_ck(infile.c_str(), dbfile.c_str(), trfile.c_str(), 
         idtag.c_str());
-#else
-    int ierr = convert_ck(infile.c_str(), dbfile.c_str(), trfile.c_str(), 
-        outfile.c_str(), idtag.c_str());
-#endif
+
     if (ierr < 0) {
         showErrors(cerr);
     }

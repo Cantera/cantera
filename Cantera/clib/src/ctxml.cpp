@@ -22,7 +22,7 @@
 Cabinet<XML_Node>*   Cabinet<XML_Node>::__storage = 0;
 
 inline XML_Node* _xml(int i) {
-    return Cabinet<XML_Node>::cabinet()->item(i);
+    return Cabinet<XML_Node>::cabinet(false)->item(i);
 }
 
 extern "C" {  
@@ -33,11 +33,28 @@ extern "C" {
             x = new XML_Node;
         else 
             x = new XML_Node(string(name));
-        return Cabinet<XML_Node>::cabinet()->add(x);
+        return Cabinet<XML_Node>::cabinet(true)->add(x);
+    }
+
+    int DLL_EXPORT xml_get_XML_File(const char* file) {
+        try {
+            XML_Node* x = get_XML_File(string(file));
+            return Cabinet<XML_Node>::cabinet(false)->add(x);
+        }
+        catch (CanteraError) { return -1; }
+    }
+
+    int DLL_EXPORT xml_clear() {
+        try {
+            Cabinet<XML_Node>::cabinet(false)->clear();
+            close_XML_File("all");
+            return 0;
+        }
+        catch (CanteraError) { return -1; }
     }
 
     int DLL_EXPORT xml_del(int i) {
-        Cabinet<XML_Node>::cabinet()->del(i);
+        Cabinet<XML_Node>::cabinet(false)->del(i);
         return 0;
     }
 
@@ -47,15 +64,16 @@ extern "C" {
     }
 
     int DLL_EXPORT xml_copy(int i) {
-        return Cabinet<XML_Node>::cabinet()->newCopy(i);
+        return Cabinet<XML_Node>::cabinet(false)->newCopy(i);
     }
 
     int DLL_EXPORT xml_assign(int i, int j) {
-        return Cabinet<XML_Node>::cabinet()->assign(i,j);
+        return Cabinet<XML_Node>::cabinet(false)->assign(i,j);
     }
 
     int DLL_EXPORT xml_build(int i, const char* file) {
         try {
+            writelog("WARNING: xml_build called. Use get_XML_File instead.");
             string path = findInputFile(string(file));
             ifstream f(path.c_str());
             if (!f) {
@@ -76,6 +94,8 @@ extern "C" {
         }
         catch (CanteraError) { return -1; }
     }
+
+
 
     int DLL_EXPORT xml_attrib(int i, const char* key, char* value) {
         try {
