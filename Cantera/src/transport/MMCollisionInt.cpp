@@ -410,7 +410,7 @@ namespace Cantera {
                 values.begin());        }
 
 
-    void MMCollisionInt::fit_omega22(int degree, 
+    void MMCollisionInt::fit_omega22(ostream& logfile, int degree, 
         doublereal deltastar, doublereal* o22) 
     {
 
@@ -429,8 +429,9 @@ namespace Cantera {
         rmserr = polyfit(n, logT, values.begin(), 
             w.begin(), degree, ndeg, 0.0, o22);
         if (rmserr > 0.01) {
-            cerr << "Warning: RMS error = " << rmserr << " for omega_22 fit "
-                 << "with delta* = " << deltastar << endl;
+            char p[100];
+            sprintf(p, "Warning: RMS error = %12.6g in omega_22 fit with delta* = %12.6g\n", rmserr, deltastar);
+            m_xml->XML_comment(logfile, p);
         }
     }
 

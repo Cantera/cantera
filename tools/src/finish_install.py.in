@@ -85,6 +85,7 @@ fm.write("""ctpath;\n""")
 fm.write("""cd demos/matlab;\n""")
 fm.write("""run_examples;\n""")
 fm.close()
+
 print """
 
 Cantera has been successfully installed.

@@ -510,7 +510,7 @@ namespace Cantera {
                     vector_fp co22(degree+1);
                     m_integrals->fit(logfile, degree, dstar,  
                         ca.begin(), cb.begin(), cc.begin());
-                    m_integrals->fit_omega22(degree, dstar,
+                    m_integrals->fit_omega22(logfile, degree, dstar,
                         co22.begin());
                     tr.omega22_poly.push_back(co22);
                     tr.astar_poly.push_back(ca);

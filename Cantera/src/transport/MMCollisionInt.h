@@ -67,7 +67,7 @@ namespace Cantera {
         void fit(ostream& logfile, int degree, doublereal deltastar,
             doublereal* astar, doublereal* bstar, doublereal* cstar);
 
-        void fit_omega22(int degree, doublereal deltastar, doublereal* om22);
+        void fit_omega22(ostream& logfile, int degree, doublereal deltastar, doublereal* om22);
         doublereal omega11(double tstar, double deltastar) {
             return omega22(tstar, deltastar)/astar(tstar, deltastar); 
         }    
