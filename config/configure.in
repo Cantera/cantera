@@ -402,6 +402,7 @@ AC_OUTPUT(../Cantera/Makefile \
 	  ../Cantera/src/transport/Makefile \
 	  ../Cantera/clib/src/Makefile \
 	  ../Cantera/fortran/src/Makefile \
+	  ../Cantera/fortran/f77demos/f77demos.mak \
 	  ../Cantera/matlab/Makefile \
 	  ../Cantera/python/Makefile \
           ../Cantera/python/setup.py \

@@ -126,6 +126,12 @@ finish-install:
 	@INSTALL@ examples/cxx/Makefile @prefix@/cantera/demos/c++
 	chown -R @username@ @prefix@/cantera/demos/c++
 	@INSTALL@ -d @prefix@/cantera/demos/f77
+	@INSTALL@ Cantera/fortran/f77demos/*.f @prefix@/cantera/demos/f77
+	@INSTALL@ tools/templates/f77/demo_ftnlib.cpp @prefix@/cantera/demos/f77
+	@INSTALL@ Cantera/fortran/f77demos/*.txt @prefix@/cantera/demos/f77
+	@INSTALL@ Cantera/fortran/f77demos/f77demos.mak @prefix@/cantera/demos/f77/Makefile
+	chown -R @username@ @prefix@/cantera/demos/f77
+
 	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
 #@INSTALL@ bin/ctmkmf @prefix@/bin/ctnew
 #@INSTALL@ bin/cxx_examples @prefix@/cantera/demos/c++

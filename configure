@@ -58,7 +58,7 @@ BUILD_PYTHON_INTERFACE=${BUILD_PYTHON_INTERFACE:="y"}
 # Set this to "y" if you want to build the Matlab toolbox. Matlab must
 # be installed on your system first, since the build process runs a
 # Matlab script.
-
+PYTHON_CMD=${PYTHON_CMD:="/usr/local/bin/python"}
 BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
 
 #----------------------------------------------------------------------

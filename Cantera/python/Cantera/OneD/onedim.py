@@ -130,8 +130,14 @@ class Domain1D:
     def setDesc(self, desc):
         return _cantera.domain_setDesc(self._hndl, desc)
     
-    def grid(self, n):
-        return _cantera.domain_grid(self._hndl, n)
+    def grid(self, n = -1):
+        if n >= 0:
+            return _cantera.domain_grid(self._hndl, n)
+        else:
+            g = zeros(self.nPoints(),'d')
+            for j in range(len(g)):
+                g[j] = _cantera.domain_grid(self._hndl, j)
+            return g
 
     def set(self, **options):
         self._set(options)

@@ -52,8 +52,6 @@ while length(property_argin) >= 2,
        if sz == nComponents(a)
 	 setTolerances(a, val(1,:), val(2,:));
        elseif length(val) == 2
-	 %rt = val(1)*ones(1,nComponents(a));
-	 %at = val(2)*ones(1,nComponents(a));
 	 setTolerances(a, 'default', val(1), val(2));
        else
 	 error('wrong array size for error tolerances');
@@ -63,8 +61,8 @@ while length(property_argin) >= 2,
        if sz == nComponents(a)
 	 setTolerances(a, val(1,:), val(2,:));
        elseif length(val) == 2
-	 rt = val(1) %*ones(1,nComponents(a));
-	 at = val(2) %*ones(1,nComponents(a));
+	 rt = val(1);
+	 at = val(2);
 	 setTolerances(a, 'default', rt, at, 'ts');	 
        else
 	 error('wrong array size for error tolerances');

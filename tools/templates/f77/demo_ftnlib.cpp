@@ -7,28 +7,46 @@
  functions that access the objects through the pointers.
 
  This particular example defines functions that return thermodynamic
- properties and kinetic rates for reacting ideal gas mixtures. Only a
- single pointer to an IdealGasMix object is stored, so only one
- reaction mechanism may be used at any one time in the application.
- Of course, it is a simple modification to store multiple objects if 
- it is desired to use multiple reaction mechanisms.
+ properties, transport properties, and kinetic rates for reacting
+ ideal gas mixtures. Only a single pointer to an IdealGasMix object is
+ stored, so only one reaction mechanism may be used at any one time in
+ the application.  Of course, it is a simple modification to store
+ multiple objects if it is desired to use multiple reaction
+ mechanisms.
 
  The functions defined here are ones commonly needed in application
- programs that simulate gas-phase combustion or similar processes.
+ programs that simulate gas-phase combustion or similar
+ processes. Similar libraries to access other capabilities of Cantera
+ (surface chemistry, etc.) could be written in the same way.
 
  */
 
 // add any other Cantera header files you need here
 #include "IdealGasMix.h"
-#include "equilibrium.h"
 
-// store a pointer to an IdealGasMix object. The object itself will
-// be created by the call to init_.
+
+// store a pointer to an IdealGasMix object
 static IdealGasMix* _gas = 0;
 
-
-// provides access to the pointer for functions in other libraries
+// provides access to the pointers for functions in other libraries
 IdealGasMix* _gasptr() { return _gas; }
+
+// comment these out to produce a smaller executable if not needed
+#define WITH_EQUIL
+#define WITH_TRANSPORT
+
+#ifdef WITH_EQUIL
+#include "equilibrium.h"
+#endif
+
+
+#ifdef WITH_TRANSPORT
+#include "transport.h"
+
+// store a pointer to a transport manager
+static Transport* _trans = 0;
+Transport* _transptr() { return _trans; }
+#endif
 
 // error handler 
 void handleError() {
@@ -50,17 +68,28 @@ extern "C" {
      * you have a file in Chemkin-compatible format, use utility
      * program ck2cti first to convert it into Cantera format.)
      */
-    void newidealgasmix_(char* file, char* id, 
-        ftnlen lenfile, ftnlen lenid) {
+    void newidealgasmix_(char* file, char* id, char* transport, 
+        ftnlen lenfile, ftnlen lenid, ftnlen lentr) {
+        string trmodel = "";
         try {
             string fin = string(file, lenfile);
             string fth = string(id, lenid);
+            trmodel = string(transport, lentr);
             if (_gas) delete _gas;
             _gas = new IdealGasMix(fin, fth);
         }
         catch (CanteraError) {
             handleError();
         }
+#ifdef WITH_TRANSPORT
+        try {
+            if (_trans) delete _trans;
+            _trans = newTransportMgr(trmodel,_gas,1);
+        }
+        catch (CanteraError) { 
+            _trans =  newTransportMgr("",_gas,1);
+        }
+#endif
     }
 
     ///   integer function nElements() 
@@ -72,6 +101,14 @@ extern "C" {
     /// integer function nReactions()
     integer nreactions_() { return _gas->nReactions(); }
 
+    void getspeciesname_(integer* k, char* name, ftnlen n) {
+        int ik = *k - 1;
+        fill(name, name + n, ' ');
+        string spnm = _gas->speciesName(ik);
+        int ns = spnm.size();
+        unsigned int nmx = (ns > n ? n : ns);
+        copy(spnm.begin(), spnm.begin()+nmx, name);
+    }    
 
     //-------------- setting the state ----------------------------
 
@@ -95,6 +132,20 @@ extern "C" {
     void setstate_try_(doublereal* T, doublereal* rho, doublereal* Y) {
         try {
             _gas->setState_TRY(*T, *rho, Y);
+        }
+        catch (CanteraError) { handleError(); }
+    } 
+
+    void setstate_tpy_(doublereal* T, doublereal* p, doublereal* Y) {
+        try {
+            _gas->setState_TPY(*T, *p, Y);
+        }
+        catch (CanteraError) { handleError(); }
+    } 
+
+    void setstate_sp_(doublereal* s, doublereal* p) {
+        try {
+            _gas->setState_SP(*s, *p);
         }
         catch (CanteraError) { handleError(); }
     } 
@@ -162,6 +213,10 @@ extern "C" {
         return _gas->cp_mass();
     }
 
+    doublereal cv_mass_() { 
+        return _gas->cv_mass();
+    }
+
     doublereal gibbs_mass_() { 
         return _gas->gibbs_mass();
     }
@@ -174,6 +229,7 @@ extern "C" {
         _gas->getMassFractions(y);
     }
 
+#ifdef WITH_EQUIL
     void equilibrate_(char* opt, ftnlen lenopt) {
         try {
             if (lenopt != 2) {
@@ -185,7 +241,7 @@ extern "C" {
         }
         catch (CanteraError) { handleError(); }
     }
-
+#endif
 
     //---------------- kinetics -------------------------
 
@@ -221,6 +277,38 @@ extern "C" {
     void getrevratesofprogress_(doublereal* q) {
         _gas->getRevRatesOfProgress(q);
     }
+
+    //-------------------- transport properties --------------------
+
+#ifdef WITH_TRANSPORT
+    double viscosity_() {
+        try {
+            return _trans->viscosity();
+        }
+        catch (CanteraError) { handleError(); return 0.0; }        
+    }
+
+    double thermalconductivity_() {
+        try {
+            return _trans->thermalConductivity();
+        }
+        catch (CanteraError) { handleError(); return 0.0; }
+    }
+
+    void getmixdiffcoeffs_(double* diff) {
+        try {
+            _trans->getMixDiffCoeffs(diff);
+        }
+        catch (CanteraError) { handleError();}
+    }
+
+    void getthermaldiffcoeffs_(double* dt) {
+        try {
+            _trans->getThermalDiffCoeffs(dt);
+        }
+        catch (CanteraError) { handleError();}
+    }
+#endif
 
 }
 

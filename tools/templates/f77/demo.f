@@ -4,16 +4,20 @@ c
 c     This program uses functions defined in demo_ftnlib.cpp to create
 c     an ideal gas mixture and print some its properties. 
 c
+c     For a C++ version of this program, see ../cxx/demo.cpp.
+c
       program demo
       implicit double precision (a-h,o-z)
       parameter (MAXSP = 20, MAXRXNS = 100)
       double precision q(MAXRXNS), qf(MAXRXNS), qr(MAXRXNS)
       double precision x(MAXSP), y(MAXSP), wdot(MAXSP)
+      double precision diff(MAXSP)
       character*80 eq
+      character*20 name
 c
       write(*,*) '**** Fortran 77 Test Program ****'
 
-      call newIdealGasMix('h2o2.cti','ohmech')
+      call newIdealGasMix('h2o2.cti','ohmech','Mix')
       t = 1200.0
       p = 101325.0
       call setState_TPX_String(t, p,
@@ -60,7 +64,24 @@ c     for each reaction, print the equation and the rates of progress
  20      format(a27,3e14.5,' kmol/m3/s')
       end do
 
+c
+c     Transport properties
+c
+      dnu = viscosity()
+      dlam = thermalConductivity()
+      call getMixDiffCoeffs(diff)
+
+      write(*,30) dnu, dlam
+ 30   format(//'Viscosity:             ',g14.5,'  Pa-s'/
+     $         'Thermal conductivity:  ',g14.5,'  W/m/K'/)
+      write(*,*) 'Species            ',
+     $     '    Diffusion Coefficient'
+      nsp = nSpecies()
+      do k = 1, nsp
+         call getSpeciesName(k, name)
+         write(*,40) name, diff(k)
+ 40      format(' ',a20,e14.5,' m2/s')
+      end do
+
       stop
       end
-
-      
