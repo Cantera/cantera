@@ -81,7 +81,7 @@ bool CKReader::read(const string& inputFile, const string& thermoDatabase,
     //-----------   process ELEMENT section  ----------------------
 
     bool elok = parser.readElementSection(elements);
-    int nel = elements.size();
+    int nel = static_cast<int>(elements.size());
     vector<string> elementSymbols;
     for (int j = 0; j < nel; j++) elementSymbols.push_back(elements[j].name);
 
@@ -119,7 +119,7 @@ bool CKReader::read(const string& inputFile, const string& thermoDatabase,
 
     vector<string> speciesSymbols;
     bool spok = parser.readSpeciesSection(species);
-    int nsp = species.size();
+    int nsp = static_cast<int>(species.size());
 
     if (verbose) log << newTask("reading species") << endl;
 
@@ -161,14 +161,14 @@ bool CKReader::read(const string& inputFile, const string& thermoDatabase,
     bool hasthermo = parser.advanceToKeyword("THERM","REAC");
 
     int k, optionFlag = 0;
-    int undefined = species.size();
+    int undefined = static_cast<int>(species.size());
     string nm;
     vector<string> undef;
     bool allsp = (speciesSymbols[0] == "<ALL>");
     if (hasthermo && parser.readThermoSection(speciesSymbols,
         speciesData, temp, optionFlag, log)) {
         if (allsp) {
-            nsp = speciesData.size(); 
+            nsp = static_cast<int>(speciesData.size()); 
             for (k = 0; k < nsp; k++) {
                 Species s;
                 s.name = speciesSymbols[k];
@@ -213,7 +213,7 @@ bool CKReader::read(const string& inputFile, const string& thermoDatabase,
         undefined = 0;
         if (allsp) {
             species.clear();
-            nsp = speciesData.size(); 
+            nsp = static_cast<int>(speciesData.size()); 
             for (k = 0; k < nsp; k++) {
                 Species s;
                 s.name = undef[k];
@@ -251,7 +251,8 @@ bool CKReader::read(const string& inputFile, const string& thermoDatabase,
     parser2.verbose = verbose;
 
     parser2.readReactionSection(speciesSymbols, elementSymbols, reactions, units);
-    log << "\nread " << reactions.size() << " reactions." << endl;
+    log << "\nread " << static_cast<int>(reactions.size()) 
+		<< " reactions." << endl;
 
     bool rxnok = true;
     if (validate) rxnok = rxnok && validateReactions(log);
@@ -287,7 +288,7 @@ bool CKReader::writeReactions(ostream& log) {
 
     bool ok = true;
     //    int ns = species.size();
-    int nrxns = reactions.size();
+    int nrxns = static_cast<int>(reactions.size());
     log.flags(ios::unitbuf);
     log.precision(6);
 
@@ -320,7 +321,7 @@ bool CKReader::writeReactions(ostream& log) {
             log << "   reverse rate coeff: ";
             ok = ok && writeRateCoeff(r.krev, log);
         }            
-        int ne = r.e3b.size();
+        int ne = static_cast<int>(r.e3b.size());
 
         if (ne > 0) {
             vector<string> enhSpecies;
@@ -346,8 +347,8 @@ bool CKReader::writeReactions(ostream& log) {
 
 /// validate the species
 bool CKReader::validateSpecies(ostream& log) {
-    int nel = elements.size();
-    int nsp = species.size();
+    int nel = static_cast<int>(elements.size());
+    int nsp = static_cast<int>(species.size());
     double nm, tol;
     int j, k, m;
 
@@ -413,7 +414,7 @@ bool CKReader::validateReactions(ostream& log) {
 
     bool ok = true;
     //    int ns = species.size();
-    int nrxns = reactions.size();
+    int nrxns = static_cast<int>(reactions.size());
 
     vector<int> unbal;
     log << "checking that all reactions balance...";
@@ -421,7 +422,7 @@ bool CKReader::validateReactions(ostream& log) {
         log << " OK" << endl;
     }
     else {
-        int nu = unbal.size();
+        int nu = static_cast<int>(unbal.size());
         for (int iu = 0; iu < nu; iu++) {
             log << "   error... reaction " << unbal[iu] 
                 << " does not balance" << endl;
@@ -471,7 +472,7 @@ bool CKReader::validateReactions(ostream& log) {
 bool checkThermo(ostream& log, speciesList& sp, double tol) {
     const double dt = 0.0001;
     double t, cp0, h0, s0, cp1, h1, s1;
-    int nsp = sp.size();
+    int nsp = static_cast<int>(sp.size());
     const int n_points = 20;
 
     int k;
@@ -585,7 +586,7 @@ bool checkThermo(ostream& log, speciesList& sp, double tol) {
         // This does not include any possible electronic contribution
         
         cp0 = cp(s.thigh, s);
-        int nel = s.elements.size();
+        int nel = static_cast<int>(s.elements.size());
         int i;
         double na = 0.0;
         for (i = 0; i < nel; i++) 
@@ -627,7 +628,7 @@ bool checkThermo(ostream& log, speciesList& sp, double tol) {
     bool checkBalance(ostream& f, speciesTable& speciesData, 
         reactionList& r, vector<int>& unbalanced) 
     {
-        int nrxn = r.size();
+        int nrxn = static_cast<int>(r.size());
         string rname, pname;
         vector<string> elementSyms;
         unsigned int m;
@@ -638,8 +639,8 @@ bool checkThermo(ostream& log, speciesList& sp, double tol) {
         for (int i = 0; i < nrxn; i++) 
         {
             atoms.clear();
-            int nr = r[i].reactants.size();
-            int np = r[i].products.size();
+            int nr = static_cast<int>(r[i].reactants.size());
+            int np = static_cast<int>(r[i].products.size());
             int j;
             double stoichCoeff;
             for (j = 0; j < nr; j++) 
