@@ -1,7 +1,4 @@
-"""
-"""
 
-#import string
 import os
 
 from constants import *
@@ -66,5 +63,18 @@ class Solution(ThermoPhase, Kinetics, Transport):
         return _cantera.phase_report(self._phase_id, self.verbose)
 
     def set(self, **options):
+        """Set various properties.
+        T       --- temperature [K]
+        P       --- pressure [Pa]
+        Rho     --- density [kg/m3]
+        V       --- specific volume [m3/kg]
+        H       --- specific enthalpy [J/kg]
+        U       --- specific internal energy [J/kg]
+        S       --- specific entropy [J/kg/K]
+        X       --- mole fractions (string or array)
+        Y       --- mass fractions (string or array)
+        Vapor   --- saturated vapor fraction
+        Liquid  --- saturated liquid fraction
+        """
         setByName(self, options)
     

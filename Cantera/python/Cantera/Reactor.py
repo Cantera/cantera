@@ -1,11 +1,11 @@
 """
-Zero-dimensional reactors. More text.
-
+Zero-dimensional reactors.
 """
 
 import _cantera
 from Numeric import array, zeros
 import types
+
 
 class ReactorBase:
     """Base class for reactors.""" 
@@ -25,10 +25,10 @@ class ReactorBase:
         self._walls = []
         self._name = name
         self._verbose = verbose
-        if contents:
-            self.insert(contents)
+        self.insert(contents)
         self.setInitialVolume(volume)
         self.setEnergy(energy)
+
 
     def __del__(self):
         """Delete the reactor instance."""
@@ -37,9 +37,19 @@ class ReactorBase:
         _cantera.reactor_del(self.__reactor_id)
 
     def __str__(self):
-        return self._name
-
+        s = self._name
+        if self._contents:
+            s += ": \n"+`self._contents`
+        return s
+    
+    def __repr__(self):
+        s = self._name
+        if self._contents:
+            s += ": \n"+`self._contents`
+        return s
+        
     def name(self):
+        """Reactor name."""
         return self._name
     
     def reactor_id(self):
@@ -52,14 +62,15 @@ class ReactorBase:
         Insert 'contents' into the reactor. Sets the objects used to compute
         thermodynamic properties and kinetic rates.
         """
-        self.contents = contents
-        _cantera.reactor_setThermoMgr(self.__reactor_id, contents._phase_id)
-        _cantera.reactor_setKineticsMgr(self.__reactor_id, contents.ckin)
+        self._contents = contents
+        if contents:
+            _cantera.reactor_setThermoMgr(self.__reactor_id, contents._phase_id)
+            _cantera.reactor_setKineticsMgr(self.__reactor_id, contents.ckin)
 
         
     def setInitialTime(self, t0):
         """Set the initial time. Restarts integration from this time
-        using the current state as the initial condition. weDefault: 0.0 s"""
+        using the current state as the initial condition. Default: 0.0 s"""
         _cantera.reactor_setInitialTime(self.__reactor_id, t0)
 
     def setInitialVolume(self, t0):
@@ -67,8 +78,10 @@ class ReactorBase:
         _cantera.reactor_setInitialVolume(self.__reactor_id, t0)
 
     def setEnergy(self, e):
-        """Turn the energy equation on or off. If off, the reactor
-        temperature is held constant."""
+        """Turn the energy equation on or off. If the argument is the
+        string 'off' or the number 0, the energy equation is disabled,
+        and the reactor temperature is held constant at its initial
+        value."""
         ie = 1
         if e == 'off' or e == 0:
             ie = 0
@@ -113,24 +126,26 @@ class ReactorBase:
 
     def advance(self, time):
         """Advance the state of the reactor in time from the current
-        time to time 'time'. Note: this method is deprecated. See class ReactorNet."""
+        time to time 'time'. Note: this method is deprecated. See
+        class ReactorNet."""
         return _cantera.reactor_advance(self.__reactor_id, time)
 
     def step(self, time):
-        """Advance the state of the reactor in time from the current
-        time to time 'time'. Note: this method is deprecated. See class ReactorNet."""
+        """Take one internal time step from the current time toward
+        time 'time'. Note: this method is deprecated. See class
+        ReactorNet."""
         return _cantera.reactor_step(self.__reactor_id, time)    
     
     def massFraction(self, k):
         """Mass fraction of species k."""
         if type(k) == types.StringType:
-            kk = self.contents.speciesIndex(k)
+            kk = self._contents.speciesIndex(k)
         else:
             kk = k
         return _cantera.reactor_massFraction(self.__reactor_id, kk)
 
     def massFractions(self):
-        nsp = self.contents.nSpecies()
+        nsp = self._contents.nSpecies()
         y = zeros(nsp,'d')
         for k in range(nsp):
             y[k] = self.massFraction(k)
@@ -138,40 +153,67 @@ class ReactorBase:
 
     def moleFractions(self):
         y = self.massFractions()
-        self.contents.setMassFractions(y)
-        return self.contents.moleFractions()
+        self._contents.setMassFractions(y)
+        return self._contents.moleFractions()
 
     def inlets(self):
+        """Return the list of flow devices installed on inlets to this reactor."""        
         return self._inlets
 
     def outlets(self):
+        """Return the list of flow devices installed on outlets
+        on this reactor."""
         return self._outlets
 
     def walls(self):
+        """Return the list of walls installed on this reactor."""
         return self._walls
     
     def _addInlet(self, inlet):
-        """For internal use"""
+        """For internal use. Store a reference to 'inlet'
+        so that it will not be deleted before this object."""        
         self._inlets.append(inlet)
 
     def _addOutlet(self, outlet):
+        """For internal use. Store a reference to 'outlet'
+        so that it will not be deleted before this object."""        
         self._outlets.append(outlet)
 
     def _addWall(self, wall):
+        """For internal use. Store a reference to 'wall'
+        so that it will not be deleted before this object."""
         self._walls.append(wall)
 
+    def updateContents(self):
+        """Set the state of the object representing the reactor contents
+        to the current reactor state."""
+        self._contents.setState_TRY(self.temperature(),
+                                   self.density(),
+                                   self.massFractions())
+        
+    def contents(self):
+        updateContents()
+        return self._contents
     
+
+_reactorcount = 0
+_reserviorcount = 0
+
 class Reactor(ReactorBase):
     """
     A reactor.
     """
-    def __init__(self, contents = None, name = '<reactor>',
+    def __init__(self, contents = None, name = '',
                  volume = 1.0, energy = 'on',
                  verbose = 0):
         """
         Create a Reactor instance, and if 'contents' is specified,
         insert it.
         """
+        global _reactorcount
+        if name == '':
+            name = 'Reactor_'+`_reactorcount`
+        _reactorcount += 1
         ReactorBase.__init__(self, contents = contents, name = name,
                              volume = volume, energy = energy,
                              verbose = verbose, type = 1)
@@ -184,6 +226,10 @@ class Reservoir(ReactorBase):
     nothing.
     """
     def __init__(self, contents = None, name = '<reservoir>', verbose = 0):
+        global _reservoircount
+        if name == '':
+            name = 'Reservoir_'+`_reservoircount`
+        _reservoircount += 1
         ReactorBase.__init__(self, contents = contents,
                              name = name, verbose = verbose, type = 2)
             

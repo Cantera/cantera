@@ -10,7 +10,6 @@ def thermoIndex(id):
     return _cantera.thermo_thermoIndex(id)
 
 class ThermoPhase(Phase):
-
     """ Class ThermoPhase may be used to represent the intensive state
     of a homogeneous phase of matter, which might be a gas, liquid, or solid.
     """
@@ -229,6 +228,7 @@ class ThermoPhase(Phase):
         _cantera.thermo_setfp(self._phase_id, 5, s, p)        
 
     def setElectricPotential(self, v):
+        """Set the electric potential."""
         _cantera.thermo_setfp(self._phase_id, 6, v, 0);
         
     def equilibrate(self, XY):
@@ -263,12 +263,29 @@ class ThermoPhase(Phase):
         return _cantera.thermo_getfp(self._phase_id,53)
 
     def setState_Psat(self, p, vaporFraction):
+        """Set the state of a saturated liquid/vapor mixture by
+        specifying the pressure and vapor fraction."""
         _cantera.thermo_setfp(self._phase_id,8, p, vaporFraction)
 
     def setState_Tsat(self, t, vaporFraction):
+        """Set the state of a saturated liquid/vapor mixture by
+        specifying the temperature and vapor fraction."""        
         _cantera.thermo_setfp(self._phase_id,7, t, vaporFraction)        
         
 
+    def saveState(self):
+        """Return an array with state information that can later be
+        used to restore the state."""
+        state = zeros(self.nSpecies()+2,'d')
+        state[0] = self.temperature()
+        state[1] = self.density()
+        state[2:] = self.massFractions()
+        return state
+
+    def restoreState(self, s):
+        """Restore the state to that stored in array s."""
+        self.setState_TRY(state[0], state[1], state[2:])
+        
     def thermophase(self):
         """Return the integer index that is used to
         reference the kernel object. For internal use."""

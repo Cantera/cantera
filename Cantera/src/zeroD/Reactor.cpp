@@ -55,6 +55,7 @@ namespace Cantera {
             return;
         }  
         m_time = t0;
+        m_mix->restoreState(m_state);
 
         // total mass
         doublereal mass = m_mix->density() * m_vol;
