@@ -82,6 +82,8 @@ install:
             @prefix@/matlab/toolbox/cantera/cantera/@FlowDevice
 	cd cantera/@FlowDevice/private; @INSTALL@ *.m \
             @prefix@/matlab/toolbox/cantera/cantera/@FlowDevice/private
+	cd cantera/1D; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/1D
 	cd cantera/1D/@Domain1D; @INSTALL@ *.m \
             @prefix@/matlab/toolbox/cantera/cantera/1D/@Domain1D
 	cd cantera/1D/@Domain1D/private; @INSTALL@ *.m \
