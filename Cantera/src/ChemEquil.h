@@ -32,6 +32,8 @@ using namespace std;
 
 namespace Cantera {
 
+    static int _equilflag(char* xy);
+
     /**
      *  Chemical equilibrium options. Used internally by class ChemEquil.
      */
@@ -143,29 +145,6 @@ namespace Cantera {
 
 
     //-----------------------------------------------------------
-    //                 exceptions
-    //-----------------------------------------------------------
-
-//     class ChemEquilError : public CanteraError {
-//     public:
-//         ChemEquilError(string msg = "") {
-//             if (msg == "")
-//                 m_msg += "Exception thrown in class ChemEquil.\n";
-//             else
-//                 m_msg += msg;
-//         }
-//     };
-
-
-//     class IllegalPropertyPair : public ChemEquilError {
-//     public:
-//         IllegalPropertyPair(int XY) {
-//             m_msg += "Illegal property pair flag: " + int2str(XY) + "\n";
-//         }
-//     };
-
-
-    //-----------------------------------------------------------
     //              convenience functions
     //-----------------------------------------------------------
 
@@ -176,13 +155,17 @@ namespace Cantera {
      */
     inline void equilibrate(thermo_t& s, int XY) {
         ChemEquil e;
-        //try {
         e.equilibrate(s,XY);
-            //}
-            //catch (CanteraError) {
-            //throw CanteraError("equilibrate",
-            //    "equilibrium error ");
-            //}
+    }
+
+    /**
+     * Set a mixture to a state of chemical equilibrium. The flag 'XY'
+     * determines the two properties that will be held fixed in the
+     * calculation.
+     */
+    inline void equilibrate(thermo_t& s, char* XY) {
+        ChemEquil e;
+        e.equilibrate(s,_equilflag(XY));
     }
 
 }

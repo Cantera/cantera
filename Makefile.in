@@ -19,7 +19,7 @@ LIBDIR=@LIB_DIR@
 # removed utils temporarily
 all: kernel movelibs clib python matlab 
 
-install: hdr-install kernel-install data-install python-install matlab-install finish-install
+install: hdr-install kernel-install data-install python-install matlab-install tools-install finish-install
 
 demos: example_codes
 
@@ -49,10 +49,12 @@ kernel-install:
 
 data-install:
 	@INSTALL@ -d @prefix@/cantera/data
-	@INSTALL@ -d @prefix@/cantera/templates
 	@INSTALL@ -m 644 data/inputs/*.xml @prefix@/cantera/data
-	@INSTALL@ -m 644 tools/src/*.mak @prefix@/cantera/templates
+
 	#@INSTALL@ -m 644 tools/templates/gaslib.cpp @prefix@/cantera/templates
+
+tools-install:
+	cd tools; make install
 
 hdr-install:
 	@INSTALL@ -d @prefix@/include/cantera
@@ -85,6 +87,8 @@ ifeq ($(build_python),1)
 	@INSTALL@ -d @prefix@/cantera/tutorials/python
 	@INSTALL@ Cantera/python/tutorial/*.py \
                 @prefix@/cantera/tutorials/python
+	chown -R @username@ @prefix@/cantera/demos/python
+	chown -R @username@ @prefix@/cantera/tutorials/python
 endif
 
 matlab:
@@ -99,12 +103,15 @@ ifeq ($(build_matlab),1)
 	@INSTALL@ Cantera/matlab/cantera/examples/*.m @prefix@/cantera/demos/matlab
 	@INSTALL@ -d @prefix@/cantera/tutorials/matlab
 	@INSTALL@ Cantera/matlab/cantera/tutorial/*.m @prefix@/cantera/tutorials/matlab
+	chown -R @username@ @prefix@/cantera/demos/matlab
+	chown -R @username@ @prefix@/cantera/tutorials/matlab
 endif
 
 finish-install:
 	@INSTALL@ -d @prefix@/bin
 	@INSTALL@ -d @prefix@/cantera/demos/c++
 	@INSTALL@ examples/cxx/*.cpp @prefix@/cantera/demos/c++
+	@INSTALL@ -d @prefix@/cantera/demos/f77
 	@PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@
 #@INSTALL@ bin/ctmkmf @prefix@/bin/ctnew
 #@INSTALL@ bin/cxx_examples @prefix@/cantera/demos/c++
@@ -124,9 +131,8 @@ uninstall:
 	rm -f @prefix@/lib/lib@CT_SHARED_LIB@.a
 
 clean:
-	$(RM) *.*~ lib/Cantera.a lib/libckreader.a lib/*.a lib/*.so bin/ck2ctml bin/ctsetup bin/cxx_examples
+	$(RM) *.*~ lib/Cantera.a lib/*.a lib/*.so bin/ck2ctml bin/ctsetup bin/cxx_examples
 	cd Cantera; @MAKE@ clean
-	cd CKReader; @MAKE@ clean
 	cd tools; @MAKE@ clean
 	cd ext; @MAKE@ clean
 	cd test_problems; @MAKE@ clean
@@ -136,7 +142,6 @@ docs:
 	cd tools/doxygen/Cantera; doxygen Cantera.cfg
 
 depends:
-	cd CKReader; @MAKE@ depends
 	cd Cantera; @MAKE@ depends
 	cd tools; @MAKE@ depends
 

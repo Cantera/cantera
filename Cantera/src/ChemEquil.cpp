@@ -33,6 +33,19 @@ using namespace std;
 
 namespace Cantera {
 
+    int _equilflag(char* xy) {
+        string flag = string(xy);
+        if (flag == "TP") return TP;
+        else if (flag == "TV") return TV;
+        else if (flag == "HP") return HP;
+        else if (flag == "UV") return UV;
+        else if (flag == "SP") return SP;
+        else if (flag == "SV") return SV;
+        else if (flag == "UP") return UP;
+        else throw CanteraError("_equilflag","unknown property pair "+flag);
+        }
+
+
     //-----------------------------------------------------------
     //                 construction / destruction 
     //-----------------------------------------------------------
