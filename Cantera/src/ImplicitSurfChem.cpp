@@ -46,7 +46,7 @@ namespace Cantera {
         : FuncEval(),  m_nv(0), m_integ(0), 
           m_atol(1.e-14), m_rtol(1.e-7), m_maxstep(0.0)
     {
-        m_nsurf = k.size();
+        m_nsurf = static_cast<int>(k.size());
         int ns;
         int nt, ntmax = 0;
         for (int n = 0; n < m_nsurf; n++) {
