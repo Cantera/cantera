@@ -1,9 +1,16 @@
+/**
+ *  @file misc.cpp
+ */
+
+/*
+ * $Author$
+ * $Revision$
+ * $Date$
+ */
 
 #ifdef WIN32
 #pragma warning(disable:4786)
 #pragma warning(disable:4503)
-
-//#include "ctwin.h"
 #endif
 
 #include "global.h"
