@@ -46,7 +46,7 @@ RSC=rc.exe
 # ADD F90 /assume:underscore /compile_only /iface:nomixed_str_len_arg /iface:cref /math_library:fast /names:lowercase /nologo /warn:nofileopt /module:""
 # SUBTRACT F90 /threads
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /W3 /GX /O2 /Ob2 /I "../../include" /I "../../Cantera/src" /I "../../Cantera/cxx/src" /I "../.." /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
+# ADD CPP /nologo /W3 /GX /O2 /Ob2 /I "../../include" /I "d:/dgg/ctcyg/include/cantera" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe

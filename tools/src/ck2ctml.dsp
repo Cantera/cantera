@@ -43,10 +43,10 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE F90 /compile_only /nologo /warn:nofileopt
-# ADD F90 /assume:underscore /compile_only /iface:nomixed_str_len_arg /iface:cref /libs:static /math_library:fast /names:lowercase /nologo /warn:nofileopt /module:""
+# ADD F90 /assume:underscore /compile_only /iface:nomixed_str_len_arg /iface:cref /math_library:fast /names:lowercase /nologo /warn:nofileopt /module:""
 # SUBTRACT F90 /threads
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /W3 /GX /O2 /I "../../include" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
+# ADD CPP /nologo /W3 /GX /O2 /I "../../Cantera/src" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
