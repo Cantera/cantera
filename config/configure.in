@@ -332,7 +332,7 @@ if test -z "$PYTHON_CMD"; then
     AC_PATH_PROGS(PYTHON_CMD, python2 python, "none")
 fi
 if test "$PYTHON_CMD" != "none"; then
-  if test "$OS_IS_WIN" = "1"; then
+  if test "x$OS_IS_WIN" = "x1"; then
     PYTHON_CMD=`cygpath -a -w "$PYTHON_CMD" | sed 's/\\\/\\//g'`
   fi 
   if test "$BUILD_PYTHON_INTERFACE" != "n"; then
@@ -360,7 +360,7 @@ if test "$BUILD_MATLAB_TOOLBOX" != "n"; then
     if test "$MATLAB_CMD" != "none"; then BUILD_MATLAB=1; BUILD_CLIB=1; fi
   fi
 fi
-if test "$OS_IS_WIN" = "1"; then
+if test "x$OS_IS_WIN" = "x1"; then
     MATLAB_CMD=`cygpath -a -w "$MATLAB_CMD" | sed 's/\\\/\\//g'`
     echo "Windows MATLAB command: ${MATLAB_CMD}"
 fi 
@@ -527,7 +527,7 @@ AC_OUTPUT(../Cantera/Makefile \
 
 cp -f ../config.h ../Cantera/src
 echo
-if test "x${OS_IS_WIN}" = 0; then
+if test "x${OS_IS_WIN}" = "x0"; then
 echo "Now type '${MAKE}' to build Cantera"
 else
 echo "Now start Visual Studio, open workspace 'win32/cantera.dsw',"
