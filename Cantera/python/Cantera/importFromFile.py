@@ -1,5 +1,7 @@
 """Functions to import phase and interface definitions from CTI or
-CTML files."""
+CTML files. This module is imported when the Cantera package is
+imported, and therfore does not need to be explicitly imported in
+application programs."""
 
 import solution
 import Interface

@@ -14,24 +14,25 @@ __revision__ = "$Id$"
 
 class Phase:
 
-    """Class Phase manages basic state and constituent property
-    information for a homogeneous phase of matter. It does not contain
-    information on the equation of state, homogeneous kinetics, or
-    transport properties -- these attributes of the phase are the
-    responsibility of other classes (see the ThermoPhase, Kinetics, and
-    Transport classes).
+    """Phases of matter.
 
-    In the C++ kernel, class Phase is only a base class for
-    ThermoPhase. This structure is maintained in the Python wrapper
-    class. Class Phase implements methods of the C++ Phase class, but
-    the instance is actually a 'ThermoPhase' object. Also, in C++
-    class Phase is itself derived from more elementary classes (State
-    and Constituents), but these are not exposed in Python.
+    Class Phase manages basic state and constituent property
+    information for a homogeneous phase of matter. It handles only
+    those properties that do not require the equation of state, namely
+    the temperature, density, chemical composition, and attributes of
+    the elements and species.
 
+    It does not know about the pressure, or any other thermodynamic property
+    requiring the equation of state -- class ThermoPhase derives from Phase
+    and adds those properties. 
+
+    Class Phase is not usually instantiated directly. It is used as a
+    base class for class ThermoPhase.
+    
     """
     
-    def __init__(self, index = -1):
-        pass
+    #def __init__(self, index = -1):
+    #    pass
         
     def phase_id(self):
         """The integer index used to access the kernel-level object.

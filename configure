@@ -21,9 +21,13 @@
 
 #######################################################################
 
-CANTERA_VERSION=${CANTERA_VERSION:="1.5.4"}
 
+# If you define this to be <prefix>, then instead of running this
+# script as ./configure --prefix=<prefix> you can just run it as
+# ./configure
 CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
+
+
 
 #----------------------------------------------------------------------
 #         MS-Windows Options
@@ -33,8 +37,8 @@ CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
 #  a Windows PC. 
 #
 #  Cantera will be installed by default in c:\cantera. Change this to
-#  install it somewhere else
-CANTERA_INSTALL_DIR=${CANTERA_INSTALL_DIR:="c:\cantera"}
+#  install it somewhere else. Use forward slashes in the path name.
+CANTERA_INSTALL_DIR=${CANTERA_INSTALL_DIR:="c:/cantera"}
  
 #  On a PC running MS-Windows, Cantera can be built either using
 #  Microsoft Visual Studio, with the Visual C++ and Visual Fortran
@@ -48,6 +52,7 @@ USE_VISUAL_STUDIO=${USE_VISUAL_STUDIO:="y"}
 FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
 
 
+
 #----------------------------------------------------------------------
 #         Language Interfaces
 #----------------------------------------------------------------------
@@ -59,9 +64,12 @@ FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
 
 #------------ Python -------------------------------------------------
  
-# Cantera now requires that the Python interface be built, since it
-# uses Python to process input files, even when Cantera is used from
-# another language (e.g. MATLAB or C++). Python 2.0 or greater is
+# Cantera uses Python to process .cti input files, so if you plan to
+# use these, you need to have Python on your system. (If you will only
+# use CTML input files, then you don't need Python at all.)
+
+# You only need to build the full Cantera Python interface if you plan
+# to use Cantera from Python.  If so, Python 2.0 or greater is
 # required, and the Numeric extensions for Python are needed too. See
 # file INSTALLING for more details.
 #
@@ -73,14 +81,22 @@ FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
 # instead of the system Python interpreter.
 #PYTHON_CMD=${PYTHON_CMD:="python"}
 
+# Set to one of the following:
+#    full      everything needed to use Cantera from Python
+#    minimal   only enough to process .cti files
+#    none      don't use Python at all; only CTML input files can be used.
+PYTHON_PACKAGE=${PYTHON_PACKAGE:="full"}
 
-#   Use when site packages must be put in system directories
-#   but Cantera tutorials must be put in user space.
-#   (this is pretty much the norm on many multiuser unix systems)
+
+# Use when site packages must be put in system directories but Cantera
+# tutorials must be put in user space.  Note: an alternative to doing
+# this is to put everything in user space, and define environment
+# variable PYTHONPATH to tell Python where to find the Cantera package
 #
 SET_PYTHON_SITE_PACKAGE_TOPDIR=${SET_PYTHON_SITE_PACKAGE_TOPDIR:="n"}
 
 PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"} 
+
 
 
 #----------- Matlab --------------------------------------------------
@@ -100,7 +116,8 @@ BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
 # This allows you to derive your own classes from those provided by 
 # Cantera and build them automatically along with the rest of Cantera.
 # All you need to do is specify the directory where your source code is
-# located.
+# located. This capability is not yet fully functional, but should work
+# for C++ applications.
 USER_SRC_DIR="Cantera/user"  # don't change this
 
 
@@ -168,7 +185,8 @@ ENABLE_TPX='y'
 #
 # LAPACK_LIBRARY=-llapack
 #
-# The options below do not need be set if you are using the default libraries.
+# The options below do not need to be set if you are using the default
+# libraries.
 #
 # Set to 'lower' or 'upper', depending on whether the procedure names
 # in the libraries are lowercase or uppercase. If you don't know, run
@@ -216,6 +234,9 @@ SHARED=${SHARED:="-shared"}
 #      Fortran compiler options
 #-------------------------------------------------------------------
 
+# Note: the Fortran 90 interface is currently not available. Hopefully
+# it will be back at a future date...
+
 # Cantera uses some external procedures written in Fortran 77.
 # In addition, Cantera implements an interface for Fortran 90
 # application programs. The parameters in this section apply
@@ -232,11 +253,11 @@ FFLAGS=${FFLAGS:='-O2'}
 # the additional Fortran flags required for linking, if any
 #LFORT_FLAGS="-lF77 -lFI77"
 
-# Fortran 90 module directory
-FORT_MODULE_DIRECTORY=${FORT_MODULE_DIRECTORY:=$CANTERA_ROOT/include/fortran}
+# Fortran 90 module directory 
+## FORT_MODULE_DIRECTORY=${FORT_MODULE_DIRECTORY:=$CANTERA_ROOT/include/fortran}
 
 # Fortran 90 module search path command
-FORT_MODULE_PATH_CMD=${FORT_MODULE_PATH_CMD:="-I$FORT_MODULE_DIRECTORY"}
+## FORT_MODULE_PATH_CMD=${FORT_MODULE_PATH_CMD:="-I$FORT_MODULE_DIRECTORY"}
 
 
 
@@ -271,6 +292,8 @@ CT_SHARED_LIB=${CT_SHARED_LIB:=clib}
 # lowercase 'helvetica'.
 RPFONT=${RPFONT:="Helvetica"}
 
+ 
+CANTERA_VERSION=${CANTERA_VERSION:="1.5.4"}
 
 
 #-----------------------------------------------------------------------
@@ -284,7 +307,7 @@ export RANLIB
 export BLAS_LIBRARY
 export BUILD_F90
 export BUILD_FORTRAN_90_INTERFACE
-export BUILD_PYTHON_INTERFACE
+export PYTHON_PACKAGE
 export BUILD_MATLAB_TOOLBOX
 #export MATLAB_CMD
 export CANTERA_ROOT

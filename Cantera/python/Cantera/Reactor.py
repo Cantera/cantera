@@ -8,16 +8,27 @@ import types
 
 
 class ReactorBase:
-    """Base class for reactors.""" 
+    """Base class for reactors and reservoirs.
+
+    Classes Reactor and Reservoir derive from a common base class
+    ReactorBase. They have the same set of methods, which are all
+    inherited from ReactorBase.
+
+    (This is not quite true in the corresponding classes in the
+    Cantera C++ kernel. There class Reactor defines some methods that
+    class Reservoir doesn't. These are used internally by the
+    ReactorNet instance that integrates the system of ODEs describing
+    the network to evaluate the portion of the ODE system associated
+    with that reactor.)
+    """
 
     def __init__(self, name = '', contents = None,
                  volume = 1.0, energy = 'on',
                  type = -1, verbose = 0):
         """
-        Create a new ReactorBase instance. If 'contents' is specified,
-        method 'insert' is invoked. The 'type' parameter determines
-        the type of C++ Reactor object that is instantiated (1 = Reactor,
-        2 = Reservoir).
+        See class 'Reactor' for a description of the constructor parameters.
+        The 'type' parameter specifies whether a Reactor (type = 1) or
+        Reservoir (type = 2) will be created.
         """
         self.__reactor_id = _cantera.reactor_new(type)
         self._type = type
@@ -60,12 +71,12 @@ class ReactorBase:
         return s
         
     def name(self):
-        """The name of the reactor specified when it was constructed."""
+        """The name of the reactor."""
         return self._name
     
     def reactor_id(self):
         """The integer index used to access the kernel reactor
-        object. For internal use.  """
+        object. For internal use."""
         return self.__reactor_id
     
     def insert(self, contents):
@@ -73,17 +84,19 @@ class ReactorBase:
         Insert 'contents' into the reactor. Sets the objects used to compute
         thermodynamic properties and kinetic rates.
         """
+        # store a reference to contents so that it will live as long
+        # as this object
         self._contents = contents
         if contents:
             _cantera.reactor_setThermoMgr(self.__reactor_id, contents._phase_id)
             _cantera.reactor_setKineticsMgr(self.__reactor_id, contents.ckin)
 
         
-    def setInitialTime(self, T0):
-        """Deprecated.
-        Set the initial time. Restarts integration from this time
-        using the current state as the initial condition. Default: 0.0 s"""
-        _cantera.reactor_setInitialTime(self.__reactor_id, T0)
+##     def setInitialTime(self, T0):
+##         """Deprecated.
+##         Set the initial time. Restarts integration from this time
+##         using the current state as the initial condition. Default: 0.0 s"""
+##         _cantera.reactor_setInitialTime(self.__reactor_id, T0)
 
     def _setInitialVolume(self, V0):
         """Set the initial reactor volume. """
@@ -155,7 +168,9 @@ class ReactorBase:
         """The mass fraction of species s, specified either by name or
         index number.
         >>> y1 = r.massFraction(7)
+        ___0.02
         >>> y2 = r.massFraction('CH3O')
+        ___0.02
         """
         if type(s) == types.StringType:
             kk = self._contents.speciesIndex(s)
@@ -180,8 +195,10 @@ class ReactorBase:
     def moleFraction(self, s):
         """The mole fraction of species s, specified either by name or
         index number.
-        >>> x1 = r.moleFraction(7)
-        >>> x2 = r.moleFraction('CH3O')
+        >>> x1 = r.moleFraction(9)
+        ___0.00012
+        >>> x2 = r.moleFraction('CH3')
+        ___0.00012
         """        
         if type(s) == types.StringType:
             kk = self._contents.speciesIndex(s)
@@ -196,7 +213,7 @@ class ReactorBase:
         the reactor:
         >>> for n in r.inlets():
         ...    print n.name(), n.massFlowRate()
-        See MassFlowController, Valve.
+        See: MassFlowController, Valve, PressureController.
         """        
         return self._inlets
 
@@ -205,7 +222,7 @@ class ReactorBase:
         on this reactor.
         >>> for o in r.outlets():
         ...    print o.name(), o.massFlowRate()
-        See MassFlowController, Valve.        
+        See: MassFlowController, Valve, PressureController.        
         """
         return self._outlets
 
@@ -213,7 +230,7 @@ class ReactorBase:
         """Return the list of walls installed on this reactor.
         >>> for w in r.walls():
         ...    print w.name()
-        See Wall.
+        See: Wall.
         """
         return self._walls
     
@@ -292,7 +309,7 @@ class Reactor(ReactorBase):
                  verbose = 0):
         """
         contents - Reactor contents. If not specified, the reactor is
-        initially empty. In this case, call method insert to specify
+        initially empty. In this case, call method 'insert' to specify
         the contents.
 
         name - Used only to identify this reactor in output. If not
@@ -440,8 +457,10 @@ class MassFlowController(FlowDevice):
     
     """Mass flow controllers. A mass flow controller maintains a
     specified mass flow rate independent of upstream and downstream
-    conditions. The equation used to compute the mass flow rate is \f[
-    \dot m = \max(\dot m_0, 0.0), \f] where \f$ \dot m_0 \f$ is either
+    conditions. The equation used to compute the mass flow rate is
+    \f[
+    \dot m = \max(\dot m_0, 0.0),
+    \f] where \f$ \dot m_0 \f$ is either
     a constant value or a function of time. Note that if \f$\dot m_0 <
     0\f$, the mass flow rate will be set to zero, since reversal of
     the flow direction is not allowed.
@@ -694,12 +713,79 @@ _wallcount = 0
 class Wall:
     """
     Reactor walls.
-    A Wall separates two reactors, or a reactor and a reservoir.
+    
+    A Wall separates two reactors, or a reactor and a reservoir. A
+    wall has a finite area, may conduct or radiate heat between the
+    two reactors on either side, and may move like a piston.
+
+    Walls are stateless objects in Cantera, meaning that no
+    differential equation is integrated to determine any wall
+    property. Since it is the wall (piston) velocity that enters the
+    energy equation, this means that it is the velocity, not the
+    acceleration or displacement, that is specified. The wall
+    velocity is computed from
+    \f[
+    v = K(P_{\\rm left} - P_{\\rm right}) + v_0(t),
+    \f]
+    where $K$ is a non-negative constant, and \f$v_0(t)$ is a
+    specified function of time. The velocity is positive if the wall is
+    moving to the right.
+
+    The heat flux through the wall is computed from
+    \f[
+    q = U(T_{\\rm left} - T_{\\rm right}) + \epsilon\sigma (T_{\\rm left}^4
+    - T_{\\rm right}^4) + q_0(t),
+    \f]
+    where \f$ U \f$ is the overall heat transfer coefficient for
+    conduction/convection, and \f$ \\epsilon \f$ is the emissivity.
+    The function \f$ q_0(t)$ is a specified function of time.
+    The heat flux is positive when heat flows from the reactor on the left
+    to the reactor on the right.
+
+    A heterogeneous reaction mechanism may be specified for one or
+    both of the wall surfaces. The mechanism object (typically an
+    instance of class Interface) must be constructed so that it is
+    properly linked to the object representing the fluid in the
+    reactor the surface in question faces. The surface temperature on
+    each side is taken to be equal to the temperature of the reactor
+    it faces.
+    
     """
-    def __init__(self, left=None, right=None, name = '',
+    def __init__(self, left, right, name = '',
                  A = 1.0, K = 0.0, U = 0.0,
                  Q = None, velocity = None,
                  kinetics = [None, None]):
+        """
+        Constructor arguments:
+        
+        left - Reactor or reservoir on the left. Required.
+
+        right - Reactor or reservoir on the right. Required.
+
+        name - Name string.
+        If omitted, the name is 'Wall_n', where 'n' is an integer
+        assigned in the order walls are created.
+
+        A - Wall area [m^2]. Defaults to 1.0 m^2.
+
+        K - Wall expansion rate parameter [m/s/Pa]. Defaults to 0.0.
+
+        U - Overall heat transfer coefficient [W/m^2]. Defaults to 0.0
+        (adiabbatic wall).
+
+        Q - Heat flux function \f$ q_0(t) \f$ [W/m^2]. Optional. Default:
+        \f$ q_0(t) = 0.0 \f$.
+
+        velocity - Wall velocity function \f$ v_0(t) \f$ [m/s].
+        Default: \f$ v_0(t) = 0.0 \f$.
+
+        kinetics - Surface reaction mechanisms for the left-facing and
+        right-facing surface, respectively. These must be instances of
+        class Kinetics, or of a class derived from Kinetics, such as
+        Interface. If chemistry occurs on only one side, enter 'None'
+        for the non-reactive side.
+
+        """
         typ = 0
         self.__wall_id = _cantera.wall_new(typ)
 
@@ -712,7 +798,7 @@ class Wall:
         
         if left and right:
             self.install(left, right)
-        elif left or right:
+        else:
             raise CanteraError('both left and right reactors must be specified.')
         self.setArea(A)
         self.setExpansionRateCoeff(K)
@@ -723,14 +809,17 @@ class Wall:
         self.setKinetics(kinetics[0],kinetics[1])
 
     def __del__(self):
-        """
-        Delete the Wall instance.
-        """
+        """ Delete the Wall instance. This method is called
+        automatically when no Python object stores a reference to this
+        Wall. Since reactors and reserviors store references to all
+        Walls installed on them, this method will only be called after
+        the reactors/reservoirs have been deleted.  """
+        
         _cantera.wall_del(self.__wall_id)
         
     def ready(self):
         """
-        Return 1 if the wall instance is ready for use, 0 otherwise.
+        Return 1 if the wall instance is ready for use, 0 otherwise. Deprecated.
         """
         return _cantera.wall_ready(self.__wall_id)
 
@@ -742,7 +831,7 @@ class Wall:
 
     def setArea(self, a):
         """
-        Set the area (m^2).
+        Set the area (m^2). The wall area may be changed manually at any time during a simulation.
         """
         _cantera.wall_setArea(self.__wall_id, a)
 
@@ -759,14 +848,15 @@ class Wall:
     def setEmissivity(self, epsilon):
         """
         Set the emissivity.
-        The radiative heat flux through the wall is computed from
-        \f[ q_r = \epsion \sigma (T_\ell^4 - T_r^4) \f]
         """
+        _cantera.wall_setEmissivity(self.__wall_id, epsilon)
         
-    def setHeatFlux(self, qfunc=None):
+    
+    def setHeatFlux(self, qfunc):
         """
         Specify the time-dependent heat flux function [W/m2].
-        'qfunc' must be a functor.
+        'qfunc' must be a functor (an instance of a subclass of Cantera.Func1).
+        See: Func1.
         """
         n = 0
         if qfunc: n = qfunc.func_id()
@@ -777,9 +867,11 @@ class Wall:
         resulting from a unit pressure drop."""
         _cantera.wall_setExpansionRateCoeff(self.__wall_id, k)        
         
-    def setVelocity(self, vfunc=None):
+    def setVelocity(self, vfunc):
         """
-        Specify the velocity function [m/s].
+        Specify the velocity function [m/s]. 'vfunc' must
+        be a functor (an instance of a subclass of Cantera.Func1)
+        See: Func1.
         """
         n = 0
         if vfunc: n = vfunc.func_id()
@@ -791,11 +883,17 @@ class Wall:
         reactor volume decreasing."""
         return _cantera.wall_vdot(self.__wall_id)
 
+    def velocity(self):
+        return self.vdot()/self.area()
+
     def heatFlowRate(self):
         """Rate of heat flow through the wall. A positive value
         corresponds to heat flowing from the left-hand reactor to the
         right-hand one."""
         return _cantera.wall_Q(self.__wall_id)
+
+    def heatFlux(self):
+        return self.heatFlowRate()/self.area()
     
     def install(self, left, right):
         left._addWall(self, right)
@@ -814,6 +912,9 @@ class Wall:
         _cantera.wall_setkinetics(self.__wall_id, ileft, iright)
                                   
     def set(self, **p):
+        """Set various wall parameters: 'A', 'U', 'K', 'Q'. 'velocity'.
+        These have the same meanings as in the constructor.
+        """
         for item in p.keys():
             if item == 'A' or item == 'area':
                 self.setArea(p[item])
@@ -825,8 +926,8 @@ class Wall:
                 self.setExpansionRateCoeff(p[item])
             elif item == 'Q':
                 self.setHeatFlux(p[item])
-            elif item == 'Vdot':
-                self.setExpansionRate(p[item])
+            elif item == 'velocity':
+                self.setVelocity(p[item])
             else:
                 raise 'unknown parameter: ',item
                 

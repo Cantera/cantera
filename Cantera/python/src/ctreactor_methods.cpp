@@ -384,7 +384,7 @@ static PyObject*
 py_wall_setArea(PyObject *self, PyObject *args)
 {
     int n;
-    double area;
+     double area;
     if (!PyArg_ParseTuple(args, "id:wall_setArea", &n, &area))
         return NULL;
     int iok = wall_setArea(n, area);

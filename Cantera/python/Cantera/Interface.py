@@ -8,7 +8,6 @@ from Kinetics import Kinetics
 import XML
 
 __revision__ = "$Id$"
-__log__ = "$Log: "
 
 class Interface(SurfacePhase, Kinetics):    
     """
@@ -27,7 +26,7 @@ class Interface(SurfacePhase, Kinetics):
     def __init__(self, src="", root=None, phases=[]):
         """
         src - CTML or CTI input file name. If more than one phase is
-        defined in the file, src should be specified as '<filename>#<id>'
+        defined in the file, src should be specified as 'filename\#id'
         If the file is not CTML, it will be run through the CTI -> CTML
         preprocessor first.
 

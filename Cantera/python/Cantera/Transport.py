@@ -1,3 +1,22 @@
+""" Cantera provides a set of classes for 'transport managers' that
+manage the computation of various transport properties of a phase of
+matter. Every object
+representing a phase of matter for which transport properties are needed
+has a transport manager assigned to
+it. The transport manager has only one job: to compute the values
+of the transport properties of its assigned phase.
+
+A transport manager may do additional things not apparent to the user
+in order to improve the speed of transport property evaluation. For
+example, it may cache intermediate results that depend only on
+temperature, so that if it happens to be called again at the same
+temperature (a common occurrence) it can skip over computing the
+stored temperature-dependent intermediate properties.
+This is why we use the term 'manager' rather than 'calculator' 
+
+In the Cantera kernel, each different transport model is implemented by a different class derived from the genericse class Transport. A highly simplified class structure is used in the Python interface -- there is only one class 
+"""
+
 import _cantera
 from Numeric import asarray
 import exceptions

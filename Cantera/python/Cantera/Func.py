@@ -13,19 +13,30 @@ import types
 
 
 class Func1:
-    """A class for functors of one variable.
+    """Functors of one variable. 
 
     A Functor is an object that behaves like a function. Class 'Func1'
     is the base class from which several functor classes derive. These
-    classes are designed to be used with the Cantera kernel.  """
+    classes are designed to allow specifying functions of time from Python
+    that can be used by the C++ kernel.
+
+    Functors can be added, multiplied, and divided to yield new functors.
+    >>> f1 = Polynomial([1.0, 0.0, 3.0])  # 3*t*t + 1
+    >>> f1(2.0)
+    ___13
+    >>> f2 = Polynomial([-1.0, 2.0])      # 2*t - 1
+    >>> f2(2.0)
+    ___5
+    >>> f3 = f1/f2                        # (3*t*t + 1)/(2*t - 1)
+    >>> f3(2.0)
+    ___4.3333333
+    """
     
     def __init__(self, typ, n, coeffs=[]):
         """
-        typ - functor type
-
-        n - order
-
-        coeffs - coefficient array
+        The constructor is meant to be called from constructors of
+        subclasses of Func1.
+        See: Polynomial, Gaussian, Arrhenius, Fourier, Const, PeriodicFunction
         """
         self.n = n
         self.coeffs = asarray(coeffs,'d')
@@ -80,7 +91,7 @@ class Func1:
         return RatioFunction(other, self)            
 
     def func_id(self):
-        """Return the integer index used internally to access the
+        """Internal. Return the integer index used internally to access the
         kernel-level object."""
         return self._func_id
 
@@ -109,20 +120,22 @@ class Gaussian(Func1):
     \f]
     where
     \f[
-    \tau = \frac{\mbox{FWHM}}{2.0\sqrt{\log(2.0)}}
+    \tau = \frac{\mbox{FWHM}}{2.0\sqrt{\ln(2.0)}}
     \f]
-    Here FWHM denotes the full width at half maximum. 
+    'FWHM' denotes the full width at half maximum.
+
+    As an example, here is how to create
+    a Gaussian pulse with peak amplitude 10.0, centered at time 2.0,
+    with full-width at half max = 0.2:
+    >>> f = Gaussian(A = 10.0, t0 = 2.0, FWHM = 0.2)    
+    >>> f(2.0)
+    ___10
+    >>> f(1.9)
+    ___5
+    >>> f(2.1)
+    ___5
     """
-    def __init__(self, A = 0.0, t0 = 0.0, FWHM = 1.0):
-        """
-
-        A - Peak value.
-
-        t0 - time at which pulse is centered.
-
-        FWHM - full width at half-maximum.
-
-        """
+    def __init__(self, A, t0, FWHM):
         coeffs = array([A, t0, FWHM], 'd')
         Func1.__init__(self, 4, 0, coeffs)
 
@@ -134,17 +147,22 @@ class Fourier(Func1):
     \f]
     where
     \f[
-    a_n = \int_{-\pi/\omega}^{\pi/\omega} f(t) \cos(n \omega t) dt
+    a_n = \frac{\omega}{\pi}
+    \int_{-\pi/\omega}^{\pi/\omega} f(t) \cos(n \omega t) dt
     \f]
     and
     \f[
-    b_n = \int_{-\pi/\omega}^{\pi/\omega} f(t) \sin(n \omega t) dt.
+    b_n = \frac{\omega}{\pi}
+    \int_{-\pi/\omega}^{\pi/\omega} f(t) \sin(n \omega t) dt.
     \f]
-    The function \f$ f(t) \f$ must be periodic, with period \f$ T = 2\pi/\omega \f$.
+    The function \f$ f(t) \f$ is periodic, with period \f$ T = 2\pi/\omega \f$.
+
+    As an example, a function with Fourier components up to the second harmonic
+    is constructed as follows:
     >>> coeffs = [(a0, b0), (a1, b1), (a2, b2)]
     >>> f = Fourier(omega, coeffs)
-    Note that b0 must be specified, but is not
-    used. The value of b0 is arbitrary.
+    Note that 'b0' must be specified, but is not
+    used. The value of 'b0' is arbitrary.
     """
     def __init__(self, omega, coefficients):
         """
@@ -164,8 +182,9 @@ class Fourier(Func1):
 class Arrhenius(Func1):
     """Sum of modified Arrhenius terms. Instances of class 'Arrhenius' evaluate
     \f[
-    f(T) = \sum_{i=1}^n A_n T^{b_n}\exp(-E_n/T)
+    f(T) = \sum_{n=1}^N A_n T^{b_n}\exp(-E_n/T)
     \f]
+    
     Example:
 
     >>> f = Arrhenius([(a0, b0, e0), (a1, b1, e1)])
@@ -186,7 +205,16 @@ class Arrhenius(Func1):
 
 def Const(value):
     """Constant function.
-    >>> f = Const(4.0)  # evaluates f(t) = 4.0.
+    Objects created by function Const
+    act as functions that have a constant value.
+    These are used internally whenever a statement like
+    >>> f = Gausian(2.0, 1.0, 0.1) + 4.0
+    is encountered. The addition operator of class Func1 is defined
+    so that this is equivalent to
+    >>> f = SumFunction(Gaussian(2.0, 1.0, 0.1), Const(4.0))
+
+    Function Const returns instances of class Polynomial that have
+    degree zero, with the constant term set to the desired value.
     """
     return Polynomial([value])
 

@@ -10,10 +10,17 @@ def thermoIndex(id):
     return _cantera.thermo_thermoIndex(id)
 
 class ThermoPhase(Phase):
-    """ Phases of matter.
+    """ A phase with an equation of state.
 
-    Class ThermoPhase may be used to represent the intensive state
-    of a homogeneous phase of matter, which might be a gas, liquid, or solid.
+    Class ThermoPhase may be used to represent the intensive
+    thermodynamic state of a phase of matter, which might be a gas,
+    liquid, or solid.  Class ThermoPhase extends class Phase by
+    providing methods that require knowledge of the equation of state.
+
+    Class ThermoPhase is not usually instantiated directly. It is used
+    as base class for classes Solution and Interface.
+
+    See: Solution, Interface
     """
 
     #used in the 'equilibrate' method
@@ -26,7 +33,9 @@ class ThermoPhase(Phase):
         xml_phase - CTML node specifying the attributes of this phase
 
         index - optional. If positive, create only a Python wrapper for
-        an existing kernel object
+        an existing kernel object, instead of creating a new kernel object.
+        The value of 'index' is the integer index number to reference the
+        existing kernel object.
         """
         
         self._phase_id = 0

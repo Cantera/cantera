@@ -415,12 +415,19 @@ BUILD_CLIB=1
 #       
 #     Python Interface
 #
-BUILD_PYTHON=1
+BUILD_PYTHON=0
+if test "x$PYTHON_PACKAGE" = "xfull"; then
+   BUILD_PYTHON=2
+elif test "x$PYTHON_PACKAGE" = "xminimal"; then
+   BUILD_PYTHON=1
+fi
+
 WIN_PYTHON_CMD=python
+if test $BUILD_PYTHON -gt 0; then
 if test -z "$PYTHON_CMD"; then 
     AC_PATH_PROGS(PYTHON_CMD, python2 python, "none")
     if test "x$OS_IS_WIN" = "x1"; then
-      AC_PATH_PROGS(WIN_PYTHON_CMD, pythonw python, "none")
+      AC_PATH_PROGS(WIN_PYTHON_CMD, python, "none")
       WIN_PYTHON_CMD=`cygpath -a -w "$WIN_PYTHON_CMD" | sed 's/\\\/\\//g'`
       echo "Windows Python command: $WIN_PYTHON_CMD"
     fi 
@@ -436,6 +443,11 @@ if test "$PYTHON_CMD" = "none"; then
   echo "********************************************************************"
   exit 1
 fi
+else
+  PYTHON_CMD=none
+  WIN_PYTHON_CMD=none
+fi
+
 AC_SUBST(BUILD_PYTHON)
 if test "x$OS_IS_WIN" = "x1"; then
 AC_DEFINE_UNQUOTED(PYTHON_EXE,"$WIN_PYTHON_CMD")

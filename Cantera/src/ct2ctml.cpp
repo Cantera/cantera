@@ -87,7 +87,7 @@ namespace ctml {
         if (!f) {
             throw CanteraError("ct2ctml","cannot open "+path+" for writing.");
         }
-        f << "from Cantera.ctml_writer import *\n"
+        f << "from ctml_writer import *\n"
           << "import sys, os, os.path\n"
           << "file = \"" << file << "\"\n"
           << "base = os.path.basename(file)\n"

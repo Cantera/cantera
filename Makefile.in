@@ -126,17 +126,21 @@ endif
 
 
 python: 
-ifeq ($(build_python),1)
+ifeq ($(build_python),2)
 ifeq ($(os_is_win),0)
 	cd Cantera/python; @MAKE@
 else
 	cd Cantera/python; @MAKE@ win
 endif
 endif
+ifeq ($(build_python),1)
+	cd Cantera/python; @MAKE@ minbuild
+endif
 
 python-install:
-ifeq ($(build_python),1)
+ifneq ($(build_python),0)
 	cd Cantera/python; @MAKE@ install
+ifeq ($(build_python),2)
 	@INSTALL@ -d @ct_demodir@/python
 	@INSTALL@ Cantera/python/examples/*.py @ct_demodir@/python
 	@INSTALL@ -d @ct_tutdir@/python
@@ -144,11 +148,16 @@ ifeq ($(build_python),1)
                 @ct_tutdir@/python
 	chown -R @username@ @ct_demodir@/python
 	chown -R @username@ @ct_tutdir@/python
+else
+	@echo 'NOT installing Python demos or tutorials'
+endif
 endif
 
 matlab:
 ifeq ($(build_matlab),1)
 	cd Cantera/matlab; @MAKE@
+else
+	@echo 'NOT installing the Matlab toolbox'
 endif
 
 #win-matlab:
