@@ -3,3 +3,4 @@ configure.sol
 configure.linux
 build
 config.h
+win32_old
