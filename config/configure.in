@@ -67,7 +67,7 @@ if test "x${prefix}" = "xNONE"; then
 fi
 
 if test "x${OS_IS_WIN}" = "x1"; then
-  prefix=`cygpath -a -m "${prefix}" | sed 's/\\\/\\//g'`
+  prefix=`cygpath -a -m "${prefix}" `
 fi
 
 
@@ -811,6 +811,9 @@ AC_OUTPUT(../Cantera/Makefile \
 #	)
 if test "x${OS_IS_WIN}" = "x1"; then
 cp -f ../config.h ../Cantera/src
+cd ../ext/f2c_libs
+cp arith.hwin32 arith.h
+cd ../../config
 fi
 if test -f "../test_problems/ck2cti_test/runtest"; then
   chmod +x ../test_problems/ck2cti_test/runtest
