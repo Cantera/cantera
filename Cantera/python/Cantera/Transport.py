@@ -19,7 +19,6 @@ class Transport:
                       model will be taken from the input file.
         loglevel  --- controls amount of diagnostic output
         """
-        
         if model == "" or model == "Default":
             try:
                 self.model = xml_phase.child('transport')['model']

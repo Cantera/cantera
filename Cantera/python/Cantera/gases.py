@@ -23,17 +23,8 @@ def IdealGasMix(src="", id = ""):
     transport --- transport model
     trandb    --- transport database
     """
-##     p = os.path.normpath(os.path.dirname(src))        
-##     fname = os.path.basename(src)
-##     ff = os.path.splitext(fname)
-##     nm = ""
-##     if len(ff) > 1:
-##         nm = ff[0]
-##         ext = ff[1]
-##     else:
-##         nm = ff
-##         ext = ''
     return Solution(src=src,id=id)
+
 
 def GRI30(transport = ""):
     """Return a Solution instance implementing reaction mechanism
@@ -51,6 +42,7 @@ def Air():
     reaction mechanism GRI-Mech 3.0. The initial composition is set to
     that of air"""    
     return Solution(src="air.cti", id="air")
+
 
 def Argon():
     """Return a Solution instance representing pure argon."""    

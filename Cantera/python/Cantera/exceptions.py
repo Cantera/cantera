@@ -1,6 +1,13 @@
+"""
+Cantera exceptions
+"""
+
 import _cantera
 
 def getCanteraError():
+    """
+    Get an error message generated when Cantera throws an exception.
+    """
     return _cantera.get_Cantera_Error()
 
 class CanteraError(Exception):

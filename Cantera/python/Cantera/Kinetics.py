@@ -1,3 +1,6 @@
+"""
+Kinetics managers.
+"""
 
 from Cantera.exceptions import CanteraError, getCanteraError
 from Cantera.ThermoPhase import ThermoPhase
@@ -6,29 +9,29 @@ import Numeric
 import _cantera
 
 
-def buildKineticsPhases(root=None, id=None):
-    """Return a list of ThermoPhase objects representing the phases
-    involved in a reaction mechanism.
+## def buildKineticsPhases(root=None, id=None):
+##     """Return a list of ThermoPhase objects representing the phases
+##     involved in a reaction mechanism.
 
-    root -- XML node contaning a 'kinetics' child
-    id   -- id attribute of the desired 'kinetics' node
-    """
-    kin = root.child(id = id)
-    phase_refs = kin.children("phaseRef")
-    th = None
-    phases = []
-    for p in phase_refs:
-        phase_id = p["id"]
-        try:
-            th = ThermoPhase(root=root, id=phase_id)
-        except:
-            if p["src"]:
-                pnode = XML_Node(name="root",src=src)
-                th = ThermoPhase(pnode, phase_id)
-            else:
-                raise CanteraError("phase "+phase_id+" not found.")
-        phases.append(th)
-    return phases
+##     root -- XML node contaning a 'kinetics' child
+##     id   -- id attribute of the desired 'kinetics' node
+##     """
+##     kin = root.child(id = id)
+##     phase_refs = kin.children("phaseRef")
+##     th = None
+##     phases = []
+##     for p in phase_refs:
+##         phase_id = p["id"]
+##         try:
+##             th = ThermoPhase(root=root, id=phase_id)
+##         except:
+##             if p["src"]:
+##                 pnode = XML_Node(name="root",src=src)
+##                 th = ThermoPhase(pnode, phase_id)
+##             else:
+##                 raise CanteraError("phase "+phase_id+" not found.")
+##         phases.append(th)
+##     return phases
 
 
 class Kinetics:
@@ -36,6 +39,10 @@ class Kinetics:
     Kinetics managers. Instances of class Kinetics are responsible for
     evaluating reaction rates of progress, species production rates,
     and other quantities pertaining to a reaction mechanism.
+
+    parameters -
+    kintype    - integer specifying the type of kinetics manager to create.
+    
     """
     
     def __init__(self, kintype=-1, thrm=0, xml_phase=None, id=None, phases=[]):
@@ -50,6 +57,9 @@ class Kinetics:
         self._np = np
         self._sp = []
         self._phnum = {}
+
+        # p0 through p4 are the integer indices of the phase objects
+        # corresponding to the input sequence of phases
         
         self._end = [0]
         p0 = phases[0].thermophase()
@@ -66,7 +76,7 @@ class Kinetics:
         if np >= 5:
             p4 = phases[4].thermophase()
         if np >= 6:
-            raise CanteraError("only 4 neighbor phases allowed")
+            raise CanteraError("a maximum of 4 neighbor phases allowed")
         
         self.ckin = _cantera.KineticsFromXML(xml_phase,
                                                  p0, p1, p2, p3, p4)
@@ -88,6 +98,7 @@ class Kinetics:
             _cantera.kin_delete(self.ckin)
 
     def kin_index(self):
+        print "kin_index is deprecated. Use kinetics_hndl."
         return self.ckin
 
     def kinetics_hndl(self):
@@ -98,6 +109,19 @@ class Kinetics:
         return _cantera.kin_type(self.ckin)
 
     def kineticsSpeciesIndex(self, name, phase):
+        """The index of a species.
+        name  -- species name
+        phase -- phase name
+
+        Kinetics managers for heterogeneous reaction mechanisms
+        maintain a list of all species in all phases. The order of the
+        species in this list determines the ordering of the arrays of
+        production rates. This method returns the index for the
+        specified species of the specified phase, and is used to
+        locate the entry for a particular species in the production
+        rate arrays.
+
+        """
         return _cantera.kin_speciesIndex(self.ckin, name, phase)
 
     def kineticsStart(self, n):

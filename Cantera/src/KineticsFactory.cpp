@@ -31,7 +31,7 @@ namespace Cantera {
     static int _itypes[]   = {0, cGasKinetics, cGRI30, cInterfaceKinetics};
 
     /**
-     * Return a new kinetics manager that "implements" a reaction
+     * Return a new kinetics manager that implements a reaction
      * mechanism specified in a CTML file. In other words, the
      * kinetics manager, given the rate constants and formulation of the
      * reactions that make up a kinetics mechanism, is responsible for
@@ -73,8 +73,8 @@ namespace Cantera {
         }
 	/*
 	 * Assign the kinetics manager based on the value of ikin.
-	 * Kinetics managers are classed derived from the base 
-	 * Kinetics class. Unknown kinetics managers will throw an
+	 * Kinetics managers are classes derived from the base 
+	 * Kinetics class. Unknown kinetics managers will throw a
 	 * CanteraError here.
 	 */
         Kinetics* k=0;
@@ -101,12 +101,11 @@ namespace Cantera {
 				       kintype);
         }
 
-        // Now, that we have the kinetics manager, we can
-        // import the reaction mechanism into the kinetics manager.
+        // Now that we have the kinetics manager, we can
+        // import the reaction mechanism into it.
         importKinetics(phaseData, th, k);
-	/*
-	 * Return the pointer to the kinetics manager
-	 */
+
+        // Return the pointer to the kinetics manager
         return k;
     }
 

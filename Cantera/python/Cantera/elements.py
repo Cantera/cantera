@@ -1,21 +1,30 @@
+"""
+Atomic elements.
 
-def elementMoles(mix, element):
-    """Number of moles of an element in one mole of a mixture.
+"""
 
-    mix     -- a mixture object.
-    element -- the symbol for an element in 'mix'.
+def elementMoles(s, element):
+    """Number of moles of an element in one mole of a solution.
+
+    s       -- an object representing a solution.
+    element -- the symbol for an element in 's'.
     """
     
     nsp = mix.nSpecies()
+
+    # see if 'element' corresponds to a symbol for one of the elements
+    # in s. If it does not, return zero moles.
     try:
-        m = mix.elementIndex(element)
+        m = s.elementIndex(element)
 	if m < 0.0: return 0.0
     except:
         return 0.0
-    x = mix.moleFractions()
+    
+    x = s.moleFractions()
     moles = 0.0
     for k in range(nsp):
-        moles += x[k]*mix.nAtoms(k,m)
+        moles += x[k]*s.nAtoms(k,m)
     return moles
+
 
 

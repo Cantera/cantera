@@ -13,11 +13,9 @@
 #ifndef CT_PHASE_H
 #define CT_PHASE_H
 
-//#include "ct_defs.h"
 #include "State.h"
 #include "Constituents.h"
 #include "vec_functions.h"
-//#include "ctexceptions.h"
 
 #include "ctml.h"
 using namespace ctml;
@@ -160,10 +158,6 @@ namespace Cantera {
          */
         doublereal chargeDensity() const;
 
-        //void update_T(int n) const;
-
-        //void update_C(int n) const;
-
         /// Number of spatial dimensions (1, 2, or 3)
         int nDim() {return m_ndim;}
         void setNDim(int ndim) {m_ndim = ndim;}
@@ -176,9 +170,6 @@ namespace Cantera {
  
         virtual bool ready() const;
 
-//         int installUpdater_T(Updater* u);
-
-//         int installUpdater_C(Updater* u);
 
     protected:
 
