@@ -266,14 +266,11 @@ namespace Cantera {
 
     doublereal MultiPhase::equilibrate(int XY, doublereal err, 
         int maxsteps) {
-        cout << "in equil" << endl;
         init();
         if (m_equil == 0) {
             m_equil = new MultiPhaseEquil(this);
         }
-        m_equil->equilibrate(XY, err, maxsteps);
-        delete m_equil;
-        m_equil = 0;
+        return m_equil->equilibrate(XY, err, maxsteps);
     }
 
 }
