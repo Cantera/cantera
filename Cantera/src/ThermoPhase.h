@@ -372,8 +372,8 @@ namespace Cantera {
         //@}
 
         /**
-         * Get the nondimensional Enthalpy functions for the pure species
-         * at the current T and P.
+         * Get the nondimensional Enthalpy functions for the species
+         * at their standard states at the current T and P.
          */
         virtual void getEnthalpy_RT(doublereal* hrt) const {
             err("getEnthalpy_RT");
@@ -381,8 +381,8 @@ namespace Cantera {
 
 
         /**
-         * Get the nondimensional Entropies for the pure species
-         * at the current T and P.
+         * Get the nondimensional Entropies for the species
+         * at their standard states at the current T and P.
          */
         virtual void getEntropy_R(doublereal* sr) const {
             err("getEntropy_R");
@@ -390,14 +390,18 @@ namespace Cantera {
 
 
         /**
-         * Get the nondimensional Gibbs functions for the pure species
-         * at the current T and P.
+         * Get the nondimensional Gibbs functions for the species
+         * at their standard states at the current T and P.
          */
         virtual void getGibbs_RT(doublereal* grt) const {
             err("getGibbs_RT");
         }
 
 
+	/**
+	 * Get the nondimensional Gibbs functions for the pure species
+	 * at the current T and P.
+	 */
         virtual void getPureGibbs(doublereal* gpure) const {
             err("getPureGibbs");
         }
@@ -624,8 +628,8 @@ namespace Cantera {
 
         ThermoPhase() {
             m_spthermo = 0;
+	    m_speciesData = 0;
             m_index = -1;
-            m_speciesData = 0;
             m_phi = 0.0;
         }
 
