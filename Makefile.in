@@ -49,9 +49,6 @@ demos: example_codes
 kernel:  
 	@INSTALL@ -d @buildlib@
 	@INSTALL@ -d @buildbin@
-	rm -f @buildlib@/*.a
-	rm -f @buildlib@/*.so
-	rm -f @buildbin@/*
 	cd ext; @MAKE@
 	cd Cantera/src; @MAKE@
 ifeq ($(do_ranlib),1)
