@@ -1,3 +1,7 @@
+"""
+Multiphase mixtures.
+"""
+
 import _cantera
 import types
 from Cantera.num import zeros, array, asarray
@@ -5,7 +9,7 @@ from exceptions import CanteraError
 
 class Mixture:
     """
-    Multiphase mixtures.  Class Mixture represents
+    xxx Multiphase mixtures.  Class Mixture represents
     mixtures of one or more phases of matter.  To construct a mixture,
     supply a list of phases to the constructor, each paired with the
     number of moles for that phase:
@@ -36,6 +40,7 @@ class Mixture:
     """
     
     def __init__(self, phases=[]):
+        """ init """
         self.__mixid = _cantera.mix_new()
         self._spnames = []
         self._phases = []
@@ -56,13 +61,13 @@ class Mixture:
         """Delete the Mixture instance. The phase objects are not deleted."""
         _cantera.mix_del(self.__mixid)
 
-    def __repr__(self):
-        s = ''
-        for p in range(len(self._phases)):
-            s += '\n*******************    Phase '+self._phases[p].name()+'    ******************************\n'
-            s += '\n Moles: '+`self.phaseMoles(p)`+'\n'
-            s += self._phases[p].__repr__()+'\n\n'
-        return s
+##     def __repr__(self):
+##         s = ''
+##         for p in range(len(self._phases)):
+##             s += '\n*******************    Phase '+self._phases[p].name()+'    ******************************\n'
+##             s += '\n Moles: '+`self.phaseMoles(p)`+'\n'
+##             s += self._phases[p].__repr__()+'\n\n'
+##         return s
 
     def _addPhase(self, phase = None, moles = 0.0):
         """Add a phase to the mixture."""

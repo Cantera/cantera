@@ -11,14 +11,7 @@ from gases import *
 from set import set
 from importFromFile import *
 
-ctdata = ''
-try:
-    import cantera_loc
-    ctdata = cantera_loc.CANTERA_DATA
-except:
-    pass
-
-from Mixture import Mixture
+from mixture import Mixture
 
 def writeCSV(f, list):
     """Write list items to file 'f' in comma-separated-value format."""

@@ -26,5 +26,5 @@ zeros = nummodule.zeros
 array = nummodule.array
 asarray = nummodule.asarray
 transpose = nummodule.transpose
-
+ravel = nummodule.ravel
 
