@@ -5,6 +5,14 @@
 #define CT_CONFIG_H
 
 
+//------------------------ Development flags ------------------//
+//
+// These flags turn on or off features that are still in 
+// development and are not yet stable. 
+
+#define DEV_EQUIL  
+
+
 //------------------------ Fortran settings -------------------//
 
 
@@ -12,9 +20,9 @@
 // corresponding Fortran data types on your system. The defaults
 // are OK for most systems
 
-typedef  double       doublereal;       // Fortran double precision 
-typedef  int     integer;          // Fortran integer
-typedef  int     ftnlen;           // Fortran hidden string length type
+typedef  double       doublereal;   // Fortran double precision 
+typedef  int          integer;      // Fortran integer
+typedef  int          ftnlen;       // Fortran hidden string length type
 
 
 

@@ -118,7 +118,7 @@ namespace Cantera {
      */
     void multiply(const DenseMatrix& A, const double* b, double* prod) {
         ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, 
-            static_cast<int>(A.nRows()), static_cast<int>(A.nRows()), 1.0, 
+            static_cast<int>(A.nRows()), static_cast<int>(A.nColumns()), 1.0, 
             A.begin(), static_cast<int>(A.nRows()), b, 1, 0.0, prod, 1);
     }
 

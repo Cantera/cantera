@@ -251,6 +251,23 @@ static PyMethodDef ct_methods[] = {
     {"func_del", py_func_del, METH_VARARGS},
     {"func_value", py_func_value, METH_VARARGS},
 
+    {"mix_new", py_mix_new, METH_VARARGS},
+    {"mix_del", py_mix_del, METH_VARARGS},
+    {"mix_addPhase", py_mix_addPhase, METH_VARARGS},
+    {"mix_nElements", py_mix_nElements, METH_VARARGS},
+    {"mix_nSpecies", py_mix_nSpecies, METH_VARARGS},
+    {"mix_nAtoms", py_mix_nAtoms, METH_VARARGS},
+    {"mix_setTemperature", py_mix_setTemperature, METH_VARARGS},
+    {"mix_temperature", py_mix_temperature, METH_VARARGS},
+    {"mix_setPressure", py_mix_setPressure, METH_VARARGS},
+    {"mix_pressure", py_mix_pressure, METH_VARARGS},
+    {"mix_phaseMoles", py_mix_phaseMoles, METH_VARARGS},
+    {"mix_setPhaseMoles", py_mix_setPhaseMoles, METH_VARARGS},
+    {"mix_speciesMoles", py_mix_speciesMoles, METH_VARARGS},
+    {"mix_elementMoles", py_mix_elementMoles, METH_VARARGS},
+    {"mix_equilibrate", py_mix_equilibrate, METH_VARARGS},
+    {"mix_getChemPotentials", py_mix_getChemPotentials, METH_VARARGS},
+
 #ifdef INCL_USER_PYTHON
 #include "usermethods.h"
 #endif

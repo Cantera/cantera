@@ -4,7 +4,9 @@
 #ifndef CT_EQUIL_INCL
 #define CT_EQUIL_INCL
 #include "kernel/ChemEquil.h"
-#include "kernel/MultiPhaseEquil.h"
+//#ifdef DEV_EQUIL
+//#include "kernel/MultiPhaseEquil.h"
+//#endif
 #endif
   
 

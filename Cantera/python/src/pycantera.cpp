@@ -24,6 +24,7 @@
 #include "ctreactor.h" 
 #include "ctfunc.h"
 #include "ctonedim.h"
+#include "ctmultiphase.h"
 
 #include <iostream>
 using namespace std;
@@ -46,6 +47,7 @@ static PyObject *ErrorObject;
 #include "ctreactor_methods.cpp"
 #include "ctfunc_methods.cpp"
 #include "ctonedim_methods.cpp"
+#include "ctmultiphase_methods.cpp"
 
 #ifdef INCL_USER_PYTHON
 #include "ctuser.h"

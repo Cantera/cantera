@@ -40,7 +40,7 @@ HETEROKIN = InterfaceKinetics.o ImplicitSurfChem.o SurfPhase.o EdgeKinetics.o $(
 CK         = $(KINETICS)
 
 # chemical equilibrium
-EQUIL      = ChemEquil.o sort.o $(THERMO)
+EQUIL      = ChemEquil.o MultiPhaseEquil.o sort.o $(THERMO)
 
 # reaction path analysis
 RPATH      = Group.o ReactionPath.o

@@ -65,18 +65,20 @@ namespace Cantera {
         int kk = th.nSpecies();
         array_fp x(kk);
         array_fp y(kk);
+        array_fp mu(kk);
         th.getMoleFractions(x.begin());
         th.getMassFractions(y.begin());
-
+        th.getChemPotentials(mu.begin());
+        doublereal rt = GasConstant * th.temperature(); 
         int k;
 
-        sprintf(p, "\n                           X                 Y   \n");
+        sprintf(p, "\n                           X                 Y          Chem. Pot. / RT    \n");
         s += p;
-        sprintf(p, "                     -------------     ------------\n");
+        sprintf(p, "                     -------------     ------------     ------------\n");
         s += p;
         for (k = 0; k < kk; k++) {
-                sprintf(p, "%18s   %12.6e     %12.6e\n", 
-                    th.speciesName(k).c_str(), x[k], y[k]);
+                sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n", 
+                    th.speciesName(k).c_str(), x[k], y[k], mu[k]/rt);
                 s += p;
         }
         return s;
