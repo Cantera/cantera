@@ -1,4 +1,4 @@
-§/**
+/**
  * @file Solid1D.h
  *
  */
@@ -92,7 +92,7 @@ namespace Cantera {
 
         virtual void setState(int point, const doublereal* state) {
             setTemperature(point, state[c_T_loc]);
-            setElectricPotential(point, state[c_phi_loc);
+            setElectricPotential(point, state[c_phi_loc]);
             int k;
             for (k = 0; k < m_nsp; k++) {
                 setConcentration(point, k, state[c_C_loc+k]);
@@ -186,7 +186,7 @@ namespace Cantera {
         virtual string componentName(int n) const;
 
         void setDielectricConstant(doublereal e) { m_eps = e; }
-        doublereal dielectricConstant() { return e; }
+        doublereal dielectricConstant() { return m_eps; }
 
         /**
          * Write a Tecplot zone corresponding to the current solution.
@@ -330,7 +330,7 @@ namespace Cantera {
             return m_flux(k, j);
         }
 
-        doublereal phi(doublereal* x, j) {
+        doublereal phi(const doublereal* x, int j) {
             return x[index(c_phi_loc, j)];
         }
 
@@ -355,7 +355,7 @@ namespace Cantera {
         //
         //---------------------------------------------------------
 
-        doublereal m_eps           // relative dielectric constant
+        doublereal m_eps;           // relative dielectric constant
 
         // grid parameters
         vector_fp m_dz;
