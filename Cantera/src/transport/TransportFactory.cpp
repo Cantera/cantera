@@ -579,41 +579,49 @@ namespace Cantera {
         for (i = 0; i < nsp; i++) {
             const XML_Node& sp = *xspecies[i];
             name = sp["name"];
-            XML_Node& tr = sp.child("transport");
-            getString(tr, "geometry", val, type);
-            geom = gindx[val] - 100;
-            map<string, doublereal> fv;
 
-            welldepth = getFloat(tr, "LJ_welldepth");
-            diam = getFloat(tr, "LJ_diameter");
-            dipole = getFloat(tr, "dipoleMoment");
-            polar = getFloat(tr, "polarizability");
-            rot = getFloat(tr, "rotRelax");
+            // put in a try block so that species with no 'transport'
+            // child are skipped, instead of throwing an exception.
+            try {
+                XML_Node& tr = sp.child("transport");
+                getString(tr, "geometry", val, type);
+                geom = gindx[val] - 100;
+                map<string, doublereal> fv;
 
-             GasTransportData data;
-            data.speciesName = name;
-            data.geometry = geom;
-            if (welldepth >= 0.0) data.wellDepth = welldepth;
-            else throw TransportDBError(linenum,
-                "negative well depth");
+                welldepth = getFloat(tr, "LJ_welldepth");
+                diam = getFloat(tr, "LJ_diameter");
+                dipole = getFloat(tr, "dipoleMoment");
+                polar = getFloat(tr, "polarizability");
+                rot = getFloat(tr, "rotRelax");
 
-            if (diam > 0.0) data.diameter = diam;
-            else throw TransportDBError(linenum,
-                "negative or zero diameter");
+                GasTransportData data;
+                data.speciesName = name;
+                data.geometry = geom;
+                if (welldepth >= 0.0) data.wellDepth = welldepth;
+                else throw TransportDBError(linenum,
+                    "negative well depth");
 
-            if (dipole >= 0.0) data.dipoleMoment = dipole;
-            else throw TransportDBError(linenum,
-                "negative dipole moment");
-            
-            if (polar >= 0.0) data.polarizability = polar;
-            else throw TransportDBError(linenum,
-                "negative polarizability");
+                if (diam > 0.0) data.diameter = diam;
+                else throw TransportDBError(linenum,
+                    "negative or zero diameter");
 
-            if (rot >= 0.0) data.rotRelaxNumber = rot;
-            else throw TransportDBError(linenum,
-                "negative rotation relaxation number");
+                if (dipole >= 0.0) data.dipoleMoment = dipole;
+                else throw TransportDBError(linenum,
+                    "negative dipole moment");
+                
+                if (polar >= 0.0) data.polarizability = polar;
+                else throw TransportDBError(linenum,
+                    "negative polarizability");
 
-            datatable[name] = data;
+                if (rot >= 0.0) data.rotRelaxNumber = rot;
+                else throw TransportDBError(linenum,
+                    "negative rotation relaxation number");
+
+                datatable[name] = data;
+            }
+            catch(CanteraError) {
+                ;
+            }
         }
 
          for (i = 0; i < tr.nsp; i++) {
