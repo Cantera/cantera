@@ -79,7 +79,7 @@ namespace Cantera {
     }
 
     doublereal ReactorBase::residenceTime() {
-        int nout = m_outlet.size();
+        int nout = static_cast<int>(m_outlet.size());
         doublereal mout = 0.0;
         for (int i = 0; i < nout; i++) 
             mout += m_outlet[i]->massFlowRate();
