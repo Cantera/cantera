@@ -327,10 +327,13 @@ class NASA(thermo):
         else:
             n['P0'] = `self._pref`
         str = ''
-        for i in  range(7):
+        for i in  range(4):
             str += '%17.9E, ' % self._coeffs[i]
-            if i > 0 and 3*((i+1)/3) == i: str += '\n'
-        str = str[:-2]
+        str += '\n'
+        str += '%17.9E, %17.9E, %17.9E' % (self._coeffs[4],
+                                           self._coeffs[5], self._coeffs[6])
+        #if i > 0 and 3*((i+1)/3) == i: str += '\n'
+        #str = str[:-2]
         u = n.addChild("floatArray", str)
         u["size"] = "7"
         u["name"] = "coeffs"
@@ -809,11 +812,19 @@ class phase(writer):
                 self._sp.append(('', spnames))                
 
             # strip the commas, and make the list of species names
-            sptoks = spnames.replace(',',' ').split()            
+            # 10/31/03: commented out the next line, so that species names may contain commas
+            #sptoks = spnames.replace(',',' ').split()
+            sptoks = spnames.split()
+            
             for s in sptoks:
-                if self._spmap.has_key(s):
-                    raise CanteraError('Multiply-declared species '+s+' in phase '+self._name)
-                self._spmap[s] = self._dim
+                # check for stray commas
+                if s <> ',':
+                    if s[0] == ',': s = s[1:]
+                    if s[-1] == ',': s = s[:-1]
+
+                    if self._spmap.has_key(s):
+                        raise CanteraError('Multiply-declared species '+s+' in phase '+self._name)
+                    self._spmap[s] = self._dim
             
         self._rxns = reactions
 
@@ -1187,7 +1198,10 @@ if __name__ == "__main__":
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.21  2003-10-14 06:48:07  dggoodwin
+# Revision 1.22  2003-11-01 04:48:20  dggoodwin
+# added capability to have species names with embedded commas
+#
+# Revision 1.21  2003/10/14 06:48:07  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.20  2003/09/22 13:14:34  dggoodwin
