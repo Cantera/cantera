@@ -299,32 +299,46 @@ namespace ctml {
         }
     }
 
+    /**
+     * This routine is used to interpret the value portions of XML
+     * elements that contain colon separated pairs. These are used,
+     * for example, in describing the element composition of species.
+     *       <atomArray> H:4 C:1 <atomArray\>
+     * The string is first separated into a string vector according
+     * to the location of white space. Then each string is again
+     * separated into two parts according to the location of a
+     * colon in the string. The first part of the string is 
+     * used as the key, while the second part of the string is
+     * used as the value, in the return map.
+     * It is an error to not find a colon in each string pair.
+     */
     void getMap(const XML_Node& node, map<string, string>& m) {
         vector<string> v;
         getStringArray(node, v);
         string key, val;
         int n = v.size();
-        int icolon;
+        string::size_type icolon;
         for (int i = 0; i < n; i++) {
             icolon = v[i].find(":");
-            if (icolon < 0) {
+            if (icolon == string::npos) {
                 throw CanteraError("getMap","missing colon in map entry ("
                     +v[i]+")");
             }
             key = v[i].substr(0,icolon);
-            val = v[i].substr(icolon+1, v.size());
+            val = v[i].substr(icolon+1, v[i].size());
             m[key] = val;
         }
     }
 
-    void getPairs(const XML_Node& node, vector<string>& key, vector<string>& val) {
+    void getPairs(const XML_Node& node, vector<string>& key, 
+		  vector<string>& val) {
         vector<string> v;
         getStringArray(node, v);
         int n = v.size();
-        int icolon;
+	string::size_type icolon;
         for (int i = 0; i < n; i++) {
             icolon = v[i].find(":");
-            if (icolon < 0) {
+            if (icolon == string::npos) {
                 throw CanteraError("getMap","missing colon in map entry ("
                     +v[i]+")");
             }
@@ -333,6 +347,13 @@ namespace ctml {
         }
     }
 
+    /**
+     * This function interprets the value portion of an XML element
+     * as a string. It then separates the string up into tokens
+     * according to the location of white space.
+     * The separate tokens are returned in the string vector,
+     * v.
+     */
     void getStringArray(const XML_Node& node, vector<string>& v) {
         int ibegin, iend;
 
