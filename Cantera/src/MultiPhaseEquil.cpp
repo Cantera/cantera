@@ -121,6 +121,7 @@ namespace Cantera {
             else
                 m_dsoln.push_back(0);
         }
+        m_force = false; 
         setMoles();
     }
 
@@ -144,8 +145,8 @@ namespace Cantera {
      *  @param elementMoles  vector of elemental moles
      */
     int MultiPhaseEquil::setInitialMoles() {
-        int m, n;
-        double lp = log(m_press/OneAtm);
+        index_t m, n;
+        doublereal lp = log(m_press/OneAtm);
         
         DenseMatrix aa(m_nel+2, m_nsp+1, 0.0);
         
@@ -159,12 +160,13 @@ namespace Cantera {
         m_mix->getStandardChemPotentials(m_mu.begin());
         
         int kpp = 0;
+        index_t k, q;
         doublereal rt = GasConstant * m_temp;
-        for (int k = 0; k < m_nsp; k++) {
+        for (k = 0; k < m_nsp; k++) {
             kpp++;
             aa(0, kpp) =  -m_mu[m_species[k]]/rt;
             aa(0, kpp) -= m_dsoln[k]*lp;               // ideal gas
-            for (int q = 0; q < m_nel; q++)                           
+            for (q = 0; q < m_nel; q++)                           
                 aa(q+1, kpp) = -m_mix->nAtoms(m_species[k], m_element[q]);
         }
 
@@ -188,7 +190,7 @@ namespace Cantera {
         for (n = 0; n < m_nel; n++) {
             int ksp = 0;
             int ip = iposv[n] - 1;
-            for (int k = 0; k < m_nsp; k++) { 
+            for (int k = 0; k < int(m_nsp); k++) { 
                 if (ip == ksp) {
                     m_moles[k] = aa(n+1, 0);
                 }
@@ -233,8 +235,8 @@ namespace Cantera {
     ///  any, will be erased.
 
     void MultiPhaseEquil::getComponents(const vector_int& order) {
-        int m, n, k, j;
-
+        index_t m, k, j;
+        int n;
         // if the input species array has the wrong size, ignore it
         // and consider the species for constituents in declarationi order.
         if (order.size() != m_nsp) {
@@ -314,6 +316,7 @@ namespace Cantera {
         // check
         bool ok = true;
         for (m = 0; m < nRows; m++) {
+            cout << m_mix->speciesName(m_species[m_order[m]]) << endl;
             if (m_A(m,m) != 1.0) ok = false;
             for (n = 0; n < nRows; n++) {
                 if (n != m && fabs(m_A(m,n)) > TINY)
@@ -369,6 +372,26 @@ namespace Cantera {
         }
     }
 
+    void MultiPhaseEquil::printInfo() {
+        index_t m, ik, k;
+        cout << "components: " << endl;
+        for (m = 0; m < m_nel; m++) {
+            ik = m_order[m];
+            k = m_species[ik];
+            cout << m_mix->speciesName(k) << " " << m_moles[ik] << endl;
+        }
+        cout << "non-components: " << endl;
+        for (m = m_nel; m < m_nsp; m++) {
+            ik = m_order[m];
+            k = m_species[ik];
+            cout << m_mix->speciesName(k) << " " << m_moles[ik] << endl;
+        }
+        cout << "Error = " << error() << endl;
+        for (k = 0; k < m_nsp - m_nel; k++) {
+            cout << reactionString(k) << "  " << m_deltaG_RT[k] << endl;
+        }
+    }
+
     /// Return a string specifying the jth reaction. 
     string MultiPhaseEquil::reactionString(index_t j) {
         string sr = "", sp = "";
@@ -391,8 +414,16 @@ namespace Cantera {
         return sr + " <=> " + sp;
     }
 
-    doublereal MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN) {
+    void MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN) {
         index_t k, ik;
+        //if (m_iter > 500) {
+        //  for (ik = 0; ik < m_nsp; ik++) {
+                //k = m_order[ik];
+                //if (ik < m_nel) cout << "*";
+                //cout << m_mix->speciesName(m_species[k]) <<
+                //    ":    " << m_moles[k] << " += " << omega << " * " << deltaN[k] << endl;
+        //  }
+        //}
         if (omega < 0.0) 
             throw CanteraError("step","negative omega");
 
@@ -421,11 +452,14 @@ namespace Cantera {
     stepComposition() {
 
         m_iter++;
-        index_t m, ip, ik, nsp, j, k = 0;
+        index_t ik, j, k = 0;
         doublereal grad0 = computeReactionSteps(m_dxi);
 
-        if (grad0 > 0.0) 
-            throw CanteraError("stepComposition", "positive gradient!");
+        //if (grad0 > 0.0) {
+            //cout << *m_mix << endl;
+            // cout << "gradient = " << grad0 << endl;
+            //    throw CanteraError("stepComposition", "positive gradient!");
+        //}
 
         
         // compute mole the fraction changes. 
@@ -442,13 +476,17 @@ namespace Cantera {
         unsort(m_work);
 
         // scale omega to keep the major species non-negative
-        const doublereal FCTR = 0.99;
+        doublereal FCTR = 0.99;
         const doublereal MAJOR_THRESHOLD = 1.0e-12;
 
         doublereal omega = 1.0, omax, omegamax = 1.0;
         for (ik = 0; ik < m_nsp; ik++) {
             k = m_order[ik];
-
+            if (ik < m_nel) {
+                FCTR = 0.99;
+                if (m_moles[k] < MAJOR_THRESHOLD) m_force = true;
+            }
+            else FCTR = 0.9;
             // if species k is in a multi-species solution phase, then its 
             // mole number must remain positive, unless the entire phase 
             // goes away. First we'll determine an upper bound on omega,
@@ -456,11 +494,13 @@ namespace Cantera {
             if (m_dsoln[k] == 1) {
 
                 if ((m_moles[k] > MAJOR_THRESHOLD)  || (ik < m_nel)) {
+                    if (m_moles[k] < MAJOR_THRESHOLD) m_force = true;
                     omax = m_moles[k]*FCTR/(fabs(m_work[k]) + TINY);
                     if (m_work[k] < 0.0 && omax < omegamax) {
                         omegamax = omax;
-#ifdef DEBUG_MULTIPHASE_EQUIL
                         if (omegamax < 1.0e-5) {
+                            m_force = true;
+#ifdef DEBUG_MULTIPHASE_EQUIL
                             cout << m_mix->speciesName(m_species[k]) << " results in "
                                  << " omega = " << omegamax << endl;
                             //cout << m_moles[k] << "  " << m_work[k] << endl;
@@ -469,8 +509,8 @@ namespace Cantera {
                             for (nk = 0; nk < m_nel; nk++) {
                                 cout << "component " << m_mix->speciesName(m_species[m_order[nk]]) << "  " << m_moles[m_order[nk]] << endl;
                             }
-                        }
 #endif
+                        }
                     }
                     m_majorsp[k] = true;
                 }
@@ -483,14 +523,15 @@ namespace Cantera {
                     omax = -m_moles[k]/m_work[k];
                     if (omax < omegamax) {
                         omegamax = omax*1.000001;
-#ifdef DEBUG_MULTIPHASE_EQUIL
                         if (omegamax < 1.0e-5) {
+                            m_force = true;
+#ifdef DEBUG_MULTIPHASE_EQUIL
                             cout << m_mix->speciesName(m_species[k]) << " results in "
                                  << " omega = " << omegamax << endl;
                             //cout << m_moles[k] << "  " << m_work[k] << endl;
                             if (ik < m_nel) cout << "component" << endl;
-                        }
 #endif
+                        }
                     }
                 }
                 m_majorsp[k] = true;
@@ -512,7 +553,7 @@ namespace Cantera {
 
         omega = omegamax;
         if (grad1 > 0.0) {
-            omega *= -grad0 / (grad1 - grad0);
+            omega *= fabs(grad0) / (grad1 + fabs(grad0));
             for (k = 0; k < m_nsp; k++) m_moles[k] = m_lastmoles[k];
             step(omega, m_work);
         }
@@ -524,9 +565,8 @@ namespace Cantera {
 
     doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi) {
 
-        index_t i, j, k, ik, kc, ip;
-        int inu;
-        doublereal stoich, nmoles, csum, term1, fctr, dg_rt;
+        index_t j, k, ik, kc, ip;
+        doublereal stoich, nmoles, csum, term1, fctr;
         vector_fp nu;
         const doublereal TINY = 1.0e-20;
         doublereal grad = 0.0;
@@ -612,9 +652,7 @@ namespace Cantera {
     }
 
     void MultiPhaseEquil::computeN() {
-        index_t m, k, isp;
-
-        const doublereal THRESHOLD = 0.01;
+        index_t m, k;
 
         // get the species moles
 
@@ -643,10 +681,11 @@ namespace Cantera {
             }
             ok = false;
             for (ij = 0; ij < m_nel; ij++) {
-                if (k == m_order[ij]) ok = true;
+                if (int(k) == m_order[ij]) ok = true;
             }
-            if (!ok) {
+            if (!ok || m_force) {
                 getComponents(m_sortindex);
+                m_force = true;
                 break;
             }
         }

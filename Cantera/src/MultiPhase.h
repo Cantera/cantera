@@ -3,6 +3,7 @@
 
 #include "ThermoPhase.h"
 #include "DenseMatrix.h"
+#include "stringUtils.h"
 #include <iostream>
 
 
@@ -37,15 +38,13 @@ namespace Cantera {
 
         /// Add a phase to the mixture. 
         /// @param p pointer to the phase object
-        /// 
+        /// @param moles total number of moles of all species in this phase
         void addPhase(phase_t* p, doublereal moles) {
 
             if (m_init) {
-                throw CanteraError("addPhase","phases cannot be added after init() has been called.");
+                throw CanteraError("addPhase",
+                    "phases cannot be added after init() has been called.");
             }
-            // set this false so that init() will be called to
-            // recompute the atomic composition array
-            m_init = false;
 
             // save the pointer to the phase object
             m_phase.push_back(p);
@@ -104,7 +103,9 @@ namespace Cantera {
             copy(m_moleFractions.begin(), m_moleFractions.end(), x);
         }
 
-        // process phases and build atomic composition array
+
+        /// Process phases and build atomic composition array. After 
+        /// init() has been called, no more phases may be added.
         void init() {
             if (m_init) return;
             index_t ip, kp, k = 0, nsp, m;
@@ -130,8 +131,9 @@ namespace Cantera {
                         }
                         if (m == 0) {
                             m_snames.push_back(p->speciesName(kp));
-                            if (kp == 0) 
+                            if (kp == 0) {
                                 m_spstart.push_back(m_spphase.size());
+                            }
                             m_spphase.push_back(ip);
                         }
                         k++;
@@ -150,23 +152,32 @@ namespace Cantera {
             return m_moles[n];
         }
 
-        /// Set the number of moles of phase with index p.
+        /// Set the number of moles of phase with index n.
         void setPhaseMoles(index_t n, doublereal moles) {
             m_moles[n] = moles;
         }
 
-        /// Return a reference to phase n.
+        /// Return a reference to phase n. The state of phase n is
+        /// also updated to match the state stored locally in the 
+        /// mixture object.
         phase_t& phase(index_t n) {
+            if (!m_init) init();
+            m_phase[n]->setState_TPX(m_temp, m_press, 
+                m_moleFractions.begin() + m_spstart[n]);
             return *m_phase[n];
         }
 
         /// Return a const reference to phase n.
         const phase_t& phase(index_t n) const {
+            if (!m_init) init();
+            m_phase[n]->setState_TPX(m_temp, 
+                m_press, m_moleFractions.begin() + m_spstart[n]);
             return *m_phase[n];
         }
 
         /// Moles of species \c k.
         doublereal speciesMoles(index_t k) {
+            if (!m_init) init();
             index_t ip = m_spphase[k];
             return m_moles[ip]*m_moleFractions[k];
         }
@@ -197,7 +208,8 @@ namespace Cantera {
         /// Chemical potentials. Write into array \c mu the chemical
         /// potentials of all species [J/kmol].
         void getChemPotentials(doublereal* mu) {
-            index_t i, k = 0, loc = 0;
+            index_t i, loc = 0;
+            updatePhases();            
             for (i = 0; i < m_np; i++) {
                 m_phase[i]->getChemPotentials(mu + loc);
                 loc += m_phase[i]->nSpecies();
@@ -207,7 +219,8 @@ namespace Cantera {
         /// Chemical potentials. Write into array \c mu the chemical
         /// potentials of all species [J/kmol].
         void getStandardChemPotentials(doublereal* mu) {
-            index_t i, k = 0, loc = 0;
+            index_t i, loc = 0;
+            updatePhases();
             for (i = 0; i < m_np; i++) {
                 m_phase[i]->getStandardChemPotentials(mu + loc);
                 loc += m_phase[i]->nSpecies();
@@ -237,6 +250,7 @@ namespace Cantera {
         doublereal gibbs() {
             index_t i;
             doublereal sum = 0.0;
+            updatePhases();
             for (i = 0; i < m_np; i++) 
                 sum += m_phase[i]->gibbs_mole() * m_moles[i];
             return sum;
@@ -270,6 +284,32 @@ namespace Cantera {
                 p->getMoleFractions(m_moleFractions.begin() + loc);
                 loc += p->nSpecies();
             }
+        }
+
+        void setPhaseMoleFractions(index_t n, doublereal* x) {
+            phase_t* p = m_phase[n];
+            p->setState_TPX(m_temp, m_press, x);
+        }
+
+        void setMolesByName(compositionMap& xMap) {
+            int kk = nSpecies();
+            doublereal x;
+            vector_fp mf(kk, 0.0);
+            for (int k = 0; k < kk; k++) {
+                x = xMap[speciesName(k)];
+                if (x > 0.0) mf[k] = x;
+            }
+            setMoles(mf.begin());
+        }
+
+        void setMolesByName(const string& x) {
+            compositionMap xx;
+            int kk = nSpecies();
+            for (int k = 0; k < kk; k++) { 
+                xx[speciesName(k)] = -1.0;
+            }
+            parseCompString(x, xx);
+            setMolesByName(xx); 
         }
 
         void setMoles(doublereal* n) {
@@ -330,16 +370,16 @@ namespace Cantera {
         bool m_init;
     };
 
-inline std::ostream& operator<<(std::ostream& s, Cantera::MultiPhase& x) {
-            int ip;
-            for (ip = 0; ip < x.nPhases(); ip++) {
-                s << "*************** Phase " << ip << " *****************" << endl;
-                s << "Moles: " << x.phaseMoles(ip) << endl;
+    inline std::ostream& operator<<(std::ostream& s, Cantera::MultiPhase& x) {
+        size_t ip;
+        for (ip = 0; ip < x.nPhases(); ip++) {
+            s << "*************** Phase " << ip << " *****************" << endl;
+            s << "Moles: " << x.phaseMoles(ip) << endl;
                 
-                s << report(x.phase(ip)) << endl;
-            }
-            return s;
+            s << report(x.phase(ip)) << endl;
         }
+        return s;
+    }
 }
 
 #endif

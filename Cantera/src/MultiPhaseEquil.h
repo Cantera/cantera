@@ -45,6 +45,7 @@ namespace Cantera {
                 if (error() < err) break;
             }
             if (i >= maxsteps) {
+                printInfo();
                 throw CanteraError("MultiPhaseEquil::equilibrate",
                     "no convergence in " + int2str(maxsteps) + 
                     " iterations. Error = " + fp2str(error()));
@@ -54,7 +55,7 @@ namespace Cantera {
 
         string reactionString(index_t j);
         doublereal error();
-
+        void printInfo();
     protected:
 
         void getComponents(const vector_int& order);
@@ -63,7 +64,7 @@ namespace Cantera {
         doublereal stepComposition();
         void sort(vector_fp& x);
         void unsort(vector_fp& x);
-        doublereal step(doublereal omega, vector_fp& deltaN);
+        void step(doublereal omega, vector_fp& deltaN);
         doublereal computeReactionSteps(vector_fp& dxi);
         void setMoles();
 
@@ -84,6 +85,7 @@ namespace Cantera {
         vector_int m_incl_element, m_incl_species;
         vector_int m_species, m_element;
         vector<bool> m_solnrxn;
+        bool m_force;
     };
 
     //-----------------------------------------------------------
