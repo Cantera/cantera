@@ -120,4 +120,26 @@ py_multiDiffCoeffs(PyObject *self, PyObject *args) {
     return PyArray_Return(d);
 }
 
+static PyObject*
+py_getMolarFluxes(PyObject *self, PyObject *args) {
+    int n, id;
+    PyObject *state1, *state2;
+    double delta;
+    if (!PyArg_ParseTuple(args, "iiOOd:py_getMolarFluxes", &n, &id,  
+            &state1, &state2, &delta)) 
+        return NULL;
+    PyArrayObject* state1array = (PyArrayObject*)state1;
+    PyArrayObject* state2array = (PyArrayObject*)state2;
+    double* d1 = (double*)state1array->data;
+    double* d2 = (double*)state2array->data;
+    PyArrayObject* f = (PyArrayObject*)PyArray_FromDims(1, &id, PyArray_DOUBLE);
+    double* fd = (double*)f->data;
+    int iok = trans_getMolarFluxes(n, d1, d2, delta, fd);
+    if (iok < 0) return reportError(iok);
+    return PyArray_Return(f);
+}
+
+
+
+
 
