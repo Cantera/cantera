@@ -154,6 +154,7 @@ namespace Cantera {
     inline void equilibrate(thermo_t& s, int XY) {
         ChemEquil e;
         e.equilibrate(s,XY);
+        s.setElementPotentials(e.elementPotentials());
     }
 
     /**

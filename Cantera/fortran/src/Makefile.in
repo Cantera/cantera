@@ -12,7 +12,7 @@
 .SUFFIXES :  .cpp .d .o .f90 .mod
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
-FORT_FLAGS = @F90FLAGS@
+FORT_FLAGS = @F90BUILDFLAGS@
 
 
 CXX_OBJS = fct.o fctxml.o
@@ -77,7 +77,7 @@ FTLIB = @buildlib@/$(LIB_NAME)
 
 $(FTLIB): $(MODFILES) $(USER_MODULE_OBJS) $(CXX_OBJS) $(LIB_DEPS)
 	$(RM)     $(FTLIB)
-	@ARCHIVE@ $(FTLIB) $(OBJS) 
+	@ARCHIVE@ $(FTLIB) $(OBJS)
 
 clean:
 	$(RM) $(OBJS) $(FTLIB) $(MODFILES)

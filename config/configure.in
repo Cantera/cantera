@@ -691,14 +691,16 @@ EOF
   isnag=`grep -c NAGWare f90out`
   if test "x${isnag}" != "x0"; then 
     f90type="NAG"
-    f90opts="-I. -I${ct_incroot}"
+    f90opts="-I. -I${ct_incdir}"
+    f90buildopts="-I."
   fi
 #
   msg=`${F90} -V -c testf90.f90 &> f90out`
   isabsoft=`grep -c Absoft f90out`
   if test "x${isabsoft}" != "x0"; then  
     f90type="Absoft"
-    f90opts="-p. -p${ct_incroot} -s -YEXT_NAMES=LCS -YEXT_SFX=_ -YCFRL=1"
+    f90opts="-p. -p${ct_incdir} -s -YEXT_NAMES=LCS -YEXT_SFX=_ -YCFRL=1"
+    f90buildopts="-p. -s -YEXT_NAMES=LCS -YEXT_SFX=_ -YCFRL=1"
   fi
   rm -f testf90.f90 f90out
   AC_MSG_RESULT(${f90type})
@@ -709,10 +711,13 @@ EOF
     fi
   fi
 fi
+savef90flags=${F90FLAGS}
 F90FLAGS=${f90opts}' '${F90FLAGS}
+F90BUILDFLAGS=${f90buildopts}' '${savef90flags}
 AC_SUBST(BUILD_F90)
 AC_SUBST(F90)
 AC_SUBST(F90FLAGS)
+AC_SUBST(F90BUILDFLAGS)
 
 
 

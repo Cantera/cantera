@@ -69,6 +69,7 @@ endif
 fortran:
 ifeq ($(build_f90),1)
 	cd Cantera/fortran/src; @MAKE@
+	@INSTALL@ Cantera/fortran/src/*.mod build/include/cantera
 else
 	@echo skipping building the Fortran 90/95 interface
 endif
@@ -116,7 +117,7 @@ hdr-install:
 
 f90-modules-install:
 ifeq ($(build_f90),1)
-	cp -f build/include/cantera/*.mod @ct_incroot@/cantera
+	@INSTALL@ -m  644 build/include/cantera/*.mod @ct_incroot@/cantera
 endif
 
 # collect scattered header files and build the include directory
@@ -135,9 +136,7 @@ hdr-collect:
 	@INSTALL@ Cantera/src/zeroD/*.h build/include/cantera/kernel/zeroD
 	@INSTALL@ Cantera/src/converters/*.h build/include/cantera/kernel/converters
 	@INSTALL@ Cantera/src/transport/*.h build/include/cantera/kernel/transport
-ifeq ($(build_f90),1)
-	@INSTALL@ Cantera/fortran/src/*.mod build/include/cantera
-endif
+
 
 particles:
 ifeq ($(build_particles),1)

@@ -140,6 +140,10 @@ namespace Cantera {
         return inner_product(u.begin(), u.end(), v.begin(), 0.0);
     }
 
+    //    inline ostream& operator<<(ostream& s, const vector_fp& v) {
+    //    return ct::operator<<(s, v);
+    //}
+
 //     template<class A>
 //     inline ostream& operator<<(ostream& s, const vector<A>& v) {
 //         int n = v.size();

@@ -13,31 +13,32 @@
 #include <iostream>
 using namespace std;
 #include "ctvector.h"
-using namespace ct;
-
-    ostream& operator<<(ostream& s, const ctvector_int& v) {
-        int n = v.size();
-        s << "<";
-        for (int i = 0; i < n; i++) {
-            s << v[i];
-            if (i < n-1) s << ", ";
-        }
-        s << ">";
-        return s;
-    }
-
-    ostream& operator<<(ostream& s, const ctvector_fp& v) {
-        int n = v.size();
-        s << "<";
-        for (int i = 0; i < n; i++) {
-            s << v[i];
-            if (i < n-1) s << ", ";
-        }
-        s << ">";
-        return s;
-    }
+//using namespace ct;
 
 namespace ct {
+
+
+std::ostream& operator<<(std::ostream& s, const ctvector_int& v) {
+        int n = v.size();
+        s << "<";
+        for (int i = 0; i < n; i++) {
+            s << v[i];
+            if (i < n-1) s << ", ";
+        }
+        s << ">";
+        return s;
+    }
+
+std::ostream& operator<<(std::ostream& s, const ctvector_fp& v) {
+        int n = v.size();
+        s << "<";
+        for (int i = 0; i < n; i++) {
+            s << v[i];
+            if (i < n-1) s << ", ";
+        }
+        s << ">";
+        return s;
+    }
 
     ctvector_fp::ctvector_fp(size_t n) : _size(0), _alloc(0), _data(0) {
         resize(n);

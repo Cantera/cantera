@@ -1479,6 +1479,15 @@ class Lindemann:
 #get_atomic_wts()
 validate()
 
+if __name__ == "__main__":
+    import sys, os
+    file = sys.argv[1]
+    base = os.path.basename(file)
+    root, ext = os.path.splitext(base)
+    dataset(root)
+    execfile(file)
+    write()
+    
 
 ##########################################
 #
@@ -1486,7 +1495,10 @@ validate()
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.6  2004-09-29 11:00:39  dggoodwin
+# Revision 1.7  2004-11-15 02:33:21  dggoodwin
+# changed f90 mod file handling in Makefiles
+#
+# Revision 1.6  2004/09/29 11:00:39  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.5  2004/09/20 10:25:02  dggoodwin

@@ -153,13 +153,12 @@ namespace ct {
     private:
     };
 
-}
 
 std::ostream& operator<<(std::ostream& s, const ct::ctvector_fp& v);
-std::ostream& operator<<(std::ostream& s, ct::ctvector_fp& v);
+    //std::ostream& operator<<(std::ostream& s, ct::ctvector_fp& v);
 //std::ostream& operator<<(std::ostream& s, const ct::ctvector_float& v);
 //std::ostream& operator<<(std::ostream& s, ct::ctvector_float& v);
 std::ostream& operator<<(std::ostream& s, const ct::ctvector_int& v);
-
+}
 
 #endif

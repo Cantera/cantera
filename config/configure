@@ -271,7 +271,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_unique_file="Cantera.README"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CVF_LIBDIR local_inst local_python_inst python_prefix python_win_prefix ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir COMPACT_INSTALL build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE ARCHIVE DO_RANLIB RANLIB SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR build_with_f2c LOCAL_LIB_DIRS LOCAL_LIBS CANTERA_PARTICLES_DIR BUILD_PARTICLES CT_SHARED_LIB F77FLAGS PYTHON_CMD WIN_PYTHON_CMD BUILD_PYTHON MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC F77 FFLAGS ac_ct_F77 FLIBS BUILD_F90 F90 F90FLAGS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CVF_LIBDIR USE_CLIB_DLL local_inst local_python_inst python_prefix python_win_prefix ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir COMPACT_INSTALL build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE ARCHIVE DO_RANLIB RANLIB SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR build_with_f2c LOCAL_LIB_DIRS LOCAL_LIBS CANTERA_PARTICLES_DIR BUILD_PARTICLES CT_SHARED_LIB F77FLAGS PYTHON_CMD WIN_PYTHON_CMD BUILD_PYTHON MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC F77 FFLAGS ac_ct_F77 FLIBS BUILD_F90 F90 F90FLAGS F90BUILDFLAGS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1285,6 +1285,18 @@ if test "x${OS_IS_CYGWIN}" = "x1"; then
 fi
 
 
+#
+# Determine if clib is to be a static or dynamic library
+# -> will test to see if USE_DLL is defined in the cygwmin environment
+#
+USE_CLIB_DLL=0
+if test "x${OS_IS_WIN}" = "x1"; then
+   if test -n ${USE_CLIB_DLL} ; then
+     USE_CLIB_DLL=1
+   fi
+fi
+
+
 prdef="/usr/local"
 if test "x$OS_IS_DARWIN" = "x1"; then prdef="/Applications/Cantera"; fi
 #AC_PREFIX_DEFAULT([$prdef])
@@ -1400,7 +1412,6 @@ ct_docdir=${prefix}/doc
 ct_dir=${prefix}
 ct_mandir=${prefix}
 fi
-
 
 
 
@@ -1859,7 +1870,8 @@ fi
 
 WIN_PYTHON_CMD=python
 if test $BUILD_PYTHON -gt 0; then
-  if test "$PYTHON_CMD" = "default"; then
+  if test "$PYTHON_CMD" = "default" -o \
+          "$PYTHON_CMD"x = "x"; then
     for ac_prog in python2 python
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
@@ -1905,6 +1917,11 @@ fi
 done
 test -n "$PYTHON_CMD" || PYTHON_CMD=""none""
 
+    if test "$PYTHON_CMD" = "none" ; then
+      echo "ERROR: python requested, but no python executable found!"
+    else
+      echo "Python command set to " $PYTHON_CMD
+    fi
     if test "x$OS_IS_WIN" = "x1"; then
       for ac_prog in python
 do
@@ -3465,7 +3482,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3468:" \
+echo "$as_me:3485:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3642,7 +3659,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3645: \"$ac_link\") >&5
+(eval echo $as_me:3662: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3722,7 +3739,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3725: \"$ac_link\") >&5
+(eval echo $as_me:3742: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3929,14 +3946,16 @@ EOF
   isnag=`grep -c NAGWare f90out`
   if test "x${isnag}" != "x0"; then
     f90type="NAG"
-    f90opts="-I. -I${ct_incroot}"
+    f90opts="-I. -I${ct_incdir}"
+    f90buildopts="-I."
   fi
 #
   msg=`${F90} -V -c testf90.f90 &> f90out`
   isabsoft=`grep -c Absoft f90out`
   if test "x${isabsoft}" != "x0"; then
     f90type="Absoft"
-    f90opts="-p. -p${ct_incroot} -s -YEXT_NAMES=LCS -YEXT_SFX=_ -YCFRL=1"
+    f90opts="-p. -p${ct_incdir} -s -YEXT_NAMES=LCS -YEXT_SFX=_ -YCFRL=1"
+    f90buildopts="-p. -s -YEXT_NAMES=LCS -YEXT_SFX=_ -YCFRL=1"
   fi
   rm -f testf90.f90 f90out
   echo "$as_me:$LINENO: result: ${f90type}" >&5
@@ -3948,7 +3967,10 @@ echo "${ECHO_T}${f90type}" >&6
     fi
   fi
 fi
+savef90flags=${F90FLAGS}
 F90FLAGS=${f90opts}' '${F90FLAGS}
+F90BUILDFLAGS=${f90buildopts}' '${savef90flags}
+
 
 
 
@@ -4049,7 +4071,7 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ac_config_files="$ac_config_files ../Cantera/Makefile ../Cantera/src/Makefile ../Cantera/src/zeroD/Makefile ../Cantera/src/oneD/Makefile ../Cantera/src/converters/Makefile ../Cantera/src/transport/Makefile ../Cantera/clib/src/Makefile ../Cantera/fortran/src/Makefile ../Cantera/fortran/f77demos/f77demos.mak ../Cantera/fortran/f77demos/isentropic.dsp ../Cantera/matlab/Makefile ../Cantera/matlab/setup_matlab.py ../Cantera/matlab/setup_winmatlab.py ../Cantera/python/Makefile ../Cantera/python/setup.py ../Cantera/cxx/Makefile ../Cantera/cxx/src/Makefile ../Cantera/cxx/demos/Makefile ../Cantera/user/Makefile ../Cantera/python/src/Makefile ../ext/lapack/Makefile ../ext/blas/Makefile ../ext/cvode/Makefile ../ext/math/Makefile ../ext/tpx/Makefile ../ext/Makefile ../ext/recipes/Makefile ../ext/f2c_libs/Makefile ../ext/f2c_blas/Makefile ../ext/f2c_lapack/Makefile ../ext/f2c_math/Makefile ../ext/f2c_recipes/Makefile ../examples/Makefile ../examples/cxx/Makefile ../Makefile ../tools/Makefile ../tools/src/Makefile ../tools/src/sample.mak ../tools/src/finish_install.py ../tools/src/package4mac ../tools/templates/f77/demo.mak ../tools/templates/f90/demo.mak ../tools/templates/cxx/demo.mak ../tools/testtools/Makefile ../data/inputs/Makefile ../test_problems/Makefile ../test_problems/cxx_ex/Makefile ../test_problems/silane_equil/Makefile ../test_problems/surfkin/Makefile ../test_problems/diamondSurf/Makefile ../test_problems/ck2cti_test/Makefile ../test_problems/ck2cti_test/runtest ../test_problems/python/Makefile"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ac_config_files="$ac_config_files ../Cantera/Makefile ../Cantera/src/Makefile ../Cantera/src/zeroD/Makefile ../Cantera/src/oneD/Makefile ../Cantera/src/converters/Makefile ../Cantera/src/transport/Makefile ../Cantera/clib/src/Makefile ../Cantera/fortran/src/Makefile ../Cantera/fortran/f77demos/f77demos.mak ../Cantera/fortran/f77demos/isentropic.dsp ../Cantera/matlab/Makefile ../Cantera/matlab/setup_matlab.py ../Cantera/matlab/setup_winmatlab.py ../Cantera/python/Makefile ../Cantera/python/setup.py ../Cantera/cxx/Makefile ../Cantera/cxx/src/Makefile ../Cantera/cxx/demos/Makefile ../Cantera/user/Makefile ../Cantera/python/src/Makefile ../ext/lapack/Makefile ../ext/blas/Makefile ../ext/cvode/Makefile ../ext/math/Makefile ../ext/tpx/Makefile ../ext/Makefile ../ext/recipes/Makefile ../ext/f2c_libs/Makefile ../ext/f2c_blas/Makefile ../ext/f2c_lapack/Makefile ../ext/f2c_math/Makefile ../ext/f2c_recipes/Makefile ../examples/Makefile ../examples/cxx/Makefile ../Makefile ../tools/Makefile ../tools/src/Makefile ../tools/src/sample.mak ../tools/src/finish_install.py ../tools/src/package4mac ../tools/templates/f77/demo.mak ../tools/templates/f90/demo.mak ../tools/templates/cxx/demo.mak ../tools/testtools/Makefile ../data/inputs/Makefile ../test_problems/Makefile ../test_problems/cxx_ex/Makefile ../test_problems/silane_equil/Makefile ../test_problems/surfkin/Makefile ../test_problems/diamondSurf/Makefile ../test_problems/ck2cti_test/Makefile ../test_problems/ck2cti_test/runtest ../test_problems/python/Makefile ../bin/install_tsc"
 
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
@@ -4574,6 +4596,7 @@ do
   "../test_problems/ck2cti_test/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../test_problems/ck2cti_test/Makefile" ;;
   "../test_problems/ck2cti_test/runtest" ) CONFIG_FILES="$CONFIG_FILES ../test_problems/ck2cti_test/runtest" ;;
   "../test_problems/python/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../test_problems/python/Makefile" ;;
+  "../bin/install_tsc" ) CONFIG_FILES="$CONFIG_FILES ../bin/install_tsc" ;;
   "../config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS ../config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -4660,6 +4683,7 @@ s,@ECHO_N@,$ECHO_N,;t t
 s,@ECHO_T@,$ECHO_T,;t t
 s,@LIBS@,$LIBS,;t t
 s,@CVF_LIBDIR@,$CVF_LIBDIR,;t t
+s,@USE_CLIB_DLL@,$USE_CLIB_DLL,;t t
 s,@local_inst@,$local_inst,;t t
 s,@local_python_inst@,$local_python_inst,;t t
 s,@python_prefix@,$python_prefix,;t t
@@ -4747,6 +4771,7 @@ s,@FLIBS@,$FLIBS,;t t
 s,@BUILD_F90@,$BUILD_F90,;t t
 s,@F90@,$F90,;t t
 s,@F90FLAGS@,$F90FLAGS,;t t
+s,@F90BUILDFLAGS@,$F90BUILDFLAGS,;t t
 s,@precompile_headers@,$precompile_headers,;t t
 s,@CXX_DEPENDS@,$CXX_DEPENDS,;t t
 s,@OS_IS_DARWIN@,$OS_IS_DARWIN,;t t
@@ -5231,6 +5256,10 @@ fi
 if test -f "../test_problems/ck2cti_test/runtest"; then
   chmod +x ../test_problems/ck2cti_test/runtest
 fi
+if test -f "../bin/install_tsc"; then
+  chmod +x ../bin/install_tsc
+fi
+
 
 echo
 if test "x${OS_IS_WIN}" = "x0"; then
