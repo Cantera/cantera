@@ -82,6 +82,16 @@ SET_PYTHON_SITE_PACKAGE_TOPDIR=${SET_PYTHON_SITE_PACKAGE_TOPDIR:="n"}
 
 PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"} 
 
+#
+# Proposed extension:
+#   Use when site packages must be put in system directories
+#   but Cantera tutorials must be put in user space.
+#   (this is pretty much the norm on many multiuser unix systems)
+#
+SET_PYTHON_SITE_PACKAGE_TOPDIR=${SET_PYTHON_SITE_PACKAGE_TOPDIR:="n"}
+
+PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"} 
+
 
 
 #----------- Matlab --------------------------------------------------
@@ -313,8 +323,9 @@ export LIB_DIR
 export FORT_MODULE_DIRECTORY
 export FORT_MODULE_PATH_COMMAND
 export OBJ_EXT
-export PYTHON_INCDIR
 #export PYTHON_CMD
+export SET_PYTHON_SITE_PACKAGE_DIR
+export PYTHON_SITE_PACKAGE_TOPDIR
 export PIC
 export SHARED
 export SOEXT
