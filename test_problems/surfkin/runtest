@@ -20,7 +20,7 @@ then
 fi
 
 
-diff output.txt output_blessed.txt > diff_test.out
+diff -w output.txt output_blessed.txt > diff_test.out
 retnStat=$?
 if [ $retnStat = "0" ]
 then

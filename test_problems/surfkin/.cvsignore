@@ -8,3 +8,5 @@ output.txt
 *.d
 .depends
 gri30.xml
+surfdemo.ilk
+surfkin.pdb
