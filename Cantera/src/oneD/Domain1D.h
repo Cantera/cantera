@@ -152,6 +152,11 @@ namespace Cantera {
             copy(lower, lower + m_nv, m_min.begin());
         }
 
+        void setBounds(int n, doublereal lower, doublereal upper) {
+            m_min[n] = lower;
+            m_max[n] = upper;
+        }
+
         void setTolerances(int nr, const doublereal* rtol, 
             int na, const doublereal* atol, int ts = 0) {
             if (nr < m_nv || na < m_nv)
@@ -165,6 +170,17 @@ namespace Cantera {
             if (ts <= 0) {
                 copy(rtol, rtol + m_nv, m_rtol_ts.begin());
                 copy(atol, atol + m_nv, m_atol_ts.begin());
+            }
+        }
+
+        void setTolerances(int n, doublereal rtol, doublereal atol, int ts = 0) {
+            if (ts >= 0) {
+                m_rtol_ss[n] = rtol;
+                m_atol_ss[n] = atol;
+            }
+            if (ts <= 0) {
+                m_rtol_ts[n] = rtol;
+                m_atol_ts[n] = atol;
             }
         }
 

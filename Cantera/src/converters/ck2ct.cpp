@@ -12,7 +12,12 @@
 #include <iostream>
 #include <string>
 
+// on cygwin, #include <sstream> doesn't work
+#if defined(__CYGWIN__)
+#undef USE_STRINGSTREAM
+#else
 #define USE_STRINGSTREAM
+#endif
 
 #ifdef USE_STRINGSTREAM
 #include <sstream>

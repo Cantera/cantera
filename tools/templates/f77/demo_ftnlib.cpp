@@ -30,6 +30,11 @@ static IdealGasMix* _gas = 0;
 // provides access to the pointer for functions in other libraries
 IdealGasMix* _gasptr() { return _gas; }
 
+// error handler 
+void handleError() {
+    showErrors(cout);
+    exit(-1);
+}
 
 // extern "C" turns off C++ name-mangling, so that the procedure names
 // in the object file are exactly as shown here.
@@ -41,19 +46,23 @@ extern "C" {
 
     /**
      * Read in a reaction mechanism file and create an IdealGasMix
-     * object. The file may be in Chemkin-compatible format or in
-     * CTML. The name of a thermodynamic database may be supplied as a
-     * second argument. If none is required, enter an empty string as
-     * the second argument.
+     * object. The file may be in Cantera input format or in CTML. (If
+     * you have a file in Chemkin-compatible format, use utility
+     * program ck2cti first to convert it into Cantera format.)
      */
-    void newidealgasmix_(char* file, char* thermo, 
-        ftnlen lenfile, ftnlen lenthermo) {
-        string fin = string(file, lenfile);
-        string fth = string(thermo, lenthermo);
-        if (_gas) delete _gas;
-        _gas = new IdealGasMix(fin, fth);
+    void newidealgasmix_(char* file, char* id, 
+        ftnlen lenfile, ftnlen lenid) {
+        try {
+            string fin = string(file, lenfile);
+            string fth = string(id, lenid);
+            if (_gas) delete _gas;
+            _gas = new IdealGasMix(fin, fth);
+        }
+        catch (CanteraError) {
+            handleError();
+        }
     }
- 
+
     ///   integer function nElements() 
     integer nelements_() { return _gas->nElements(); }
 
@@ -68,17 +77,26 @@ extern "C" {
 
     // subroutine setState_TPX(T, P, X)
     void setstate_tpx_(doublereal* T, doublereal* P, doublereal* X) {
-        _gas->setState_TPX(*T, *P, X);
+        try {
+            _gas->setState_TPX(*T, *P, X);
+        }
+        catch (CanteraError) { handleError(); }
     } 
 
     /// subroutine setState_TPX_String(T, P, X)
     void setstate_tpx_string_(doublereal* T, doublereal* P, 
         char* X, ftnlen lenx) {
-        _gas->setState_TPX(*T, *P, string(X, lenx));
+        try {
+            _gas->setState_TPX(*T, *P, string(X, lenx));
+        }
+        catch (CanteraError) { handleError(); }
     } 
 
     void setstate_try_(doublereal* T, doublereal* rho, doublereal* Y) {
-        _gas->setState_TRY(*T, *rho, Y);
+        try {
+            _gas->setState_TRY(*T, *rho, Y);
+        }
+        catch (CanteraError) { handleError(); }
     } 
 
     //-------------- thermodynamic properties ----------------------
@@ -148,13 +166,24 @@ extern "C" {
         return _gas->gibbs_mass();
     }
     
+    void gotmolefractions_(doublereal* x) {
+        _gas->getMoleFractions(x);
+    }
+
+    void gotmassfractions_(doublereal* y) {
+        _gas->getMassFractions(y);
+    }
+
     void equilibrate_(char* opt, ftnlen lenopt) {
-        if (lenopt != 2) {
-            throw CanteraError("equilibrate",
-                "two-character string required.");
+        try {
+            if (lenopt != 2) {
+                throw CanteraError("equilibrate",
+                    "two-character string required.");
+            }
+            string optstr = string(opt, 2);
+            equilibrate(*_gas, optstr.c_str());
         }
-        string optstr = string(opt, 2);
-        equilibrate(*_gas, optstr.c_str());
+        catch (CanteraError) { handleError(); }
     }
 
 
@@ -205,11 +234,11 @@ int main() {
     }
     catch (CanteraError) {
         showErrors(cerr);
-        return -1;
+        exit(-1);
     }
     catch (...) {
         cout << "An exception was trapped. Program terminating." << endl;
-        return -1;
+        exit(-1);
     }
 }
 

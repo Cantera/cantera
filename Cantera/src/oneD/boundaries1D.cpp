@@ -23,8 +23,9 @@ namespace Cantera {
                        m_left_loc(0), m_right_loc(0),
                        m_left_points(0), m_nv(0), 
                        m_left_nsp(0), m_right_nsp(0),
+                       m_sp_left(0), m_sp_right(0),
                        m_start_left(0), m_start_right(0),
-                       m_phase_left(0), m_phase_right(0), m_mdot(0.0) {
+                       m_phase_left(0), m_phase_right(0), m_temp(0.0), m_mdot(0.0) {
         m_type = cConnectorType;
     }
 
@@ -220,16 +221,16 @@ namespace Cantera {
         inlt.addAttribute("type","inlet");
         inlt.addAttribute("components",nComponents());
         for (int k = 0; k < nComponents(); k++) {
-            ctml::addFloat(inlt, componentName(k), s[k], "", "",0.0, 1.0);
+            ctml::addFloat(inlt, componentName(k), s[k], "", "",lowerBound(k), upperBound(k));
         }
     }
              
     void Inlet1D::
     restore(XML_Node& dom, doublereal* soln) {
-        map<string, double> x;
-        getFloats(dom, x);
-        soln[0] = x["mdot"];
-        soln[1] = x["temperature"];
+        //map<string, double> x;
+        //getFloats(dom, x);
+        soln[0] = getFloat(dom, "mdot", "massflowrate"); // x["mdot"];
+        soln[1] = getFloat(dom, "temperature", "temperature"); // x["temperature"];
         resize(2,1);
     }
 

@@ -1,17 +1,35 @@
-function d = setTolerances(d, rtol, atol, typ)
+function d = setTolerances(d, component, rtol, atol, typ)
 % SETTOLERANCES - 
 %   
 ityp = 0;
-if nargin == 4 
+if nargin == 5
   switch typ
    case 'ts'
-    itype = -1;
+    ityp = -1;
    case 'time'
-    itype = -1;
+    ityp = -1;
    case 'ss'
-    itype = 1;
+    ityp = 1;
    case 'steady'
-    itype = 1;
+    ityp = 1;
   end
 end
-domain_methods(d.dom_id, 52, rtol, atol, ityp);
+
+if strcmp(component,'default')
+  nc = nComponents(d)
+  for ii = 1:nc
+    domain_methods(d.dom_id, 52, ii, rtol, atol, ityp);
+  end
+  return
+end
+  
+if iscell(component)
+  nc = length(component);
+  for ii = 1:nc
+    n = componentIndex(d, component{ii});
+    domain_methods(d.dom_id, 52, n, rtol, atol, ityp);
+  end
+else
+  n = componentIndex(d, component);
+  domain_methods(d.dom_id, 52, n, rtol, atol, ityp);
+end

@@ -120,22 +120,13 @@ py_domain_setBounds(PyObject *self, PyObject *args)
 {
     int _val;
     int i;
-    PyObject* lower;
-    PyObject* upper;
-    if (!PyArg_ParseTuple(args, "iOO:domain_setBounds", &i, &lower, &upper)) 
+    int n;
+    double lower;
+    double upper;
+    if (!PyArg_ParseTuple(args, "iidd:domain_setBounds", &i, &n, &lower, &upper)) 
         return NULL;
         
-
-    PyArrayObject* lower_array = (PyArrayObject*)lower;
-    double* lower_data = (double*)lower_array->data;
-    int lower_len = lower_array->dimensions[0];
-
-
-    PyArrayObject* upper_array = (PyArrayObject*)upper;
-    double* upper_data = (double*)upper_array->data;
-    int upper_len = upper_array->dimensions[0];
-
-    _val = domain_setBounds(i,lower_len,lower_data,upper_len,upper_data); 
+    _val = domain_setBounds(i,n,lower,upper); 
     if (int(_val) == -1) return reportCanteraError();
     return Py_BuildValue("i",_val);
 }
@@ -176,23 +167,13 @@ py_domain_setTolerances(PyObject *self, PyObject *args)
 {
     int _val;
     int i;
-    PyObject* rtol;
-    PyObject* atol;
+    int n;
+    double rtol, atol;
     int itime;
-    if (!PyArg_ParseTuple(args, "iOOi:domain_setTolerances", &i, &rtol, &atol, &itime)) 
+    if (!PyArg_ParseTuple(args, "iiddi:domain_setTolerances", &i, &n, &rtol, &atol, &itime)) 
         return NULL;
         
-
-    PyArrayObject* rtol_array = (PyArrayObject*)rtol;
-    double* rtol_data = (double*)rtol_array->data;
-    int rtol_len = rtol_array->dimensions[0];
-
-
-    PyArrayObject* atol_array = (PyArrayObject*)atol;
-    double* atol_data = (double*)atol_array->data;
-    int atol_len = atol_array->dimensions[0];
-
-    _val = domain_setTolerances(i,rtol_len,rtol_data,atol_len,atol_data,itime); 
+    _val = domain_setTolerances(i,n,rtol,atol,itime); 
     if (int(_val) == -1) return reportCanteraError();
     return Py_BuildValue("i",_val);
 }

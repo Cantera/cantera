@@ -83,9 +83,7 @@ fl = flame(gas, burner, f, s);
 % solution, uncomment this line and edit the file name and solution id.
 %restore(fl,'h2flame2.xml', 'energy')
 
-
 solve(fl, 1, refine_grid);
-
 
 %%%%%%%%%%%% enable the energy equation %%%%%%%%%%%%%%%%%%%%%
 %

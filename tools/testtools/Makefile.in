@@ -20,11 +20,10 @@ DEPENDS = $(OBJS:.o=.d)
 .cpp.o:
 	@CXX@ -c $< @DEFS@  -I$(INCDIR) @CXXFLAGS@ $(CXX_FLAGS) -O0
 
-all: csvdiff
-	cp csvdiff ../../bin
+all: $(BINDIR)/csvdiff
 
-csvdiff: mdp_allo.o csvdiff.o tok_input_util.o
-	@CXX@ -o csvdiff  mdp_allo.o csvdiff.o tok_input_util.o \
+$(BINDIR)/csvdiff: mdp_allo.o csvdiff.o tok_input_util.o
+	@CXX@ -o $(BINDIR)/csvdiff  mdp_allo.o csvdiff.o tok_input_util.o \
 	 $(LCXX_FLAGS) $(LCXX_END_LIBS) 
 
 clean:

@@ -333,7 +333,7 @@ static double *smalloc(size_t n)
 #endif
   double *pntr; 
   if (n < 0) {
-    Fprintf(stderr, "smalloc ERROR: Non-positive argument. (%d)\n", n);
+      Fprintf(stderr, "smalloc ERROR: Non-positive argument. (%d)\n", int(n));
     return NULL;
   }
   else if (n == 0) pntr = NULL;
@@ -344,7 +344,7 @@ static double *smalloc(size_t n)
   }
   if (pntr == NULL && n != 0) {
     Fprintf(stderr, "smalloc : Out of space - number of bytes "
-            "requested = %d\n", n);
+        "requested = %d\n", int(n));
   }
 #ifdef MDP_MEMDEBUG
   if (firsttime) {

@@ -8,6 +8,10 @@ if prefix == '-':
 if prefix == '/usr/local':
     localinst = 0
 
+icyg = prefix.find('/cygdrive/')
+if icyg == 0:
+    prefix = prefix[10]+':'+prefix[11:]
+
 bindir = prefix+'/bin'
 libdir = prefix+'/lib/cantera'
 hdrdir = prefix+'/include/cantera'

@@ -144,9 +144,9 @@ namespace Cantera {
 
         virtual void showSolution(const doublereal* x) {
             char buf[80];
-            sprintf(buf, "    Mass Flux:   %10.4g kg/m^2/s \n", x[0]);
+            sprintf(buf, "    Mass Flux:   %10.4g kg/m^2/s \n", m_mdot);
             writelog(buf);
-            sprintf(buf, "    Temperature: %10.4g K \n", x[1]);
+            sprintf(buf, "    Temperature: %10.4g K \n", m_temp);
             writelog(buf);
             if (m_flow) {
                 writelog("    Mass Fractions: \n");
@@ -297,7 +297,7 @@ namespace Cantera {
 
         virtual void showSolution(const doublereal* x) {
             char buf[80];
-            sprintf(buf, "    Temperature: %10.4g K \n", x[0]);
+            sprintf(buf, "    Temperature: %10.4g K \n", m_temp);
             writelog(buf);
             writelog("\n");
         }
@@ -354,7 +354,7 @@ namespace Cantera {
 
         virtual void showSolution(const doublereal* x) {
             char buf[80];
-            sprintf(buf, "    Temperature: %10.4g K \n", x[0]);
+            sprintf(buf, "    Temperature: %10.4g K \n", m_temp);
             writelog(buf);
             writelog("    Coverages: \n");
             for (int k = 0; k < m_nsp; k++) {

@@ -12,3 +12,7 @@ make a copy with a different name, open the copy in Visual Studio,
 delete file demo.f and replace it with your Fortran program. If you
 need to change demo_ftnlib.cpp, then also replace it with your
 modified version.
+
+Note that the include and library directories are specified relative
+to the location of the project file. If you move it to another
+directory, you will need to update these locations under 'Settings'.

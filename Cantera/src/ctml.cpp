@@ -75,8 +75,7 @@ namespace ctml {
 #ifdef CTML_VERSION_1_4
         XML_Node& f = node.addChild("float",val,fmt);
         f.addAttribute("title",title);
-#endif
-#ifdef CTML_VERSION_1_4_1
+#else
         XML_Node& f = node.addChild(title,val,fmt); 
 #endif
         if (type != "") f.addAttribute("type",type);

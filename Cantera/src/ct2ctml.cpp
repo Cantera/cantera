@@ -44,7 +44,11 @@ namespace ctml {
         f << "from Cantera import *\n";
         f.close();
         int ierr = 0;
-        string cmd = pypath() + " " + path + " > " + tmpDir() + "/log";
+#ifdef WIN32
+        string cmd = "cmd /C "+pypath() + " " + path + ">> log 2>&1";
+#else
+        string cmd = pypath() + " " + path + " &> " + tmpDir() + "/log";
+#endif
         try {
             ierr = system(cmd.c_str());
             if (ierr != 0) {
@@ -85,8 +89,12 @@ namespace ctml {
           << "execfile(file)\n"
           << "write()\n";
         f.close();
-        string cmd = pypath() + " " + path + " > ct2ctml.log";
-        int ierr;
+#ifdef WIN32
+        string cmd = "cmd /C "+pypath() + " " + path + ">> ct2ctml.log 2>&1";
+#else
+        string cmd = pypath() + " " + path + " &> ct2ctml.log";
+#endif
+        int ierr = 0;
         try {
             ierr = system(cmd.c_str());
         }

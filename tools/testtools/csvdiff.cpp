@@ -38,9 +38,9 @@
 #include <limits.h>
 #include <unistd.h>
 
-//#ifndef CYGWIN
-//#include <getopt.h>
-//#endif
+#if defined(__CYGWIN__)
+#include <getopt.h>
+#endif
 
 #include "mdp_allo.h"
 #include "tok_input_util.h"

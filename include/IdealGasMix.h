@@ -15,18 +15,11 @@ namespace Cantera {
     public:
         IdealGasMix(string infile, string id="") : m_ok(false), m_r(0) {
             
-        //string path = findInputFile(infile);
-        //  ifstream fin(path.c_str());
-        //  if (!fin) {
-        //      throw CanteraError("IdealGasMix","could not open "
-        //          +path+" for reading.");
-        //  }
-            
-        m_r = new XML_Node("-");
-        get_CTML_Tree(m_r, infile); // build(fin);
-            m_ok = buildSolutionFromXML(*m_r, id, "phase", this, this);
-            if (!m_ok) throw CanteraError("IdealGasMix",
-                "buildSolutionFromXML returned false");
+        m_r = get_XML_File(infile); 
+        if (id == "-") id = "";
+        m_ok = buildSolutionFromXML(*m_r, id, "phase", this, this);
+        if (!m_ok) throw CanteraError("IdealGasMix",
+            "buildSolutionFromXML returned false");
         }
 
 

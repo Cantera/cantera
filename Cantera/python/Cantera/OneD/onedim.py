@@ -2,6 +2,8 @@ from Cantera import *
 from Cantera import _cantera
 import Numeric
 
+_onoff = {'on':1, 'yes':1, 'off':0, 'no':0}
+
 class Domain1D:
     """One-dimensional domains."""
     
@@ -16,11 +18,11 @@ class Domain1D:
         return self._hndl
     
     def type(self):
-        """Domain type."""
+        """Domain type. Integer."""
         return _cantera.domain_type(self._hndl)
     
     def index(self):
-        """Index of this domain in a stack."""
+        """Index of this domain in a stack. Returns -1 if this domain is not part of a stack."""
         return _cantera.domain_index(self._hndl)
     
     def nComponents(self):
@@ -36,18 +38,43 @@ class Domain1D:
         return _cantera.domain_componentName(self._hndl, n)
     
     def componentIndex(self, name):
-        """Index of the component named 'name'"""
+        """Index of the component with name 'name'"""
         return _cantera.domain_componentIndex(self._hndl, name)
     
-    def setBounds(self, lower, upper):
-        """Set the lower and upper bounds on the solution."""
-        return _cantera.domain_setBounds(self._hndl,
-                                         Numeric.asarray(lower),
-                                         Numeric.asarray(upper))
+    def setBounds(self, **bounds):        
+        """Set the lower and upper bounds on the solution.
+
+        The argument list should consist of keyword/value pairs, with
+        component names as keywords and (lower_bound, upper_bound)
+        tuples as the values.  The keyword 'default' may be used to
+        specify default bounds for all unspecified components. The
+        keyword 'Y' can be used to stand for all species mass
+        fractions in flow domains.  """
+        
+        d = {}
+        if bounds.has_key('default'):
+            for n in range(self.nComponents()):
+                d[self.componentName(n)] = bounds['default']
+            del bounds['default']
+        
+        for b in bounds.keys():
+            if b == 'Y':
+                if self.type >= 50:
+                    nc = self.nComponents()
+                    for n in range(4, nc):
+                        d[self.componentName(n)] = bounds[b]
+                else:
+                    raise CanteraError('Y can only be specified in flow domains.')
+            else:
+                d[b] = bounds[b]
+        for b in d.keys():
+            n = self.componentIndex(b)
+            _cantera.domain_setBounds(self._hndl, n, d[b][0], d[b][1])
+
     def bounds(self, component):
         ic = self.componentIndex(component)
         lower = _cantera.domain_lowerBound(self._hndl, ic)
-        upper = _cantera.domain_upperBound(self._hndl, ic)        
+        upper = _cantera.domain_upperBound(self._hndl, ic)
         return (lower, upper)
 
     def tolerances(self, component):
@@ -56,21 +83,48 @@ class Domain1D:
         a = _cantera.domain_atol(self._hndl, ic)        
         return (r, a)
     
-    def setTolerances(self, rtol, atol, time=0):
+    def setTolerances(self, **tol):
         """Set the error tolerances. If 'time' is present and
         non-zero, then the values entered will apply to the transient
         problem. Otherwise, they will apply to the steady-state
-        problem.  """
-        return _cantera.domain_setTolerances(self._hndl,
-                                             Numeric.asarray(rtol),
-                                             Numeric.asarray(atol), itime)
+        problem. 
+
+        The argument list should consist of keyword/value pairs, with
+        component names as keywords and (rtol, atol) tuples as the
+        values.  The keyword 'default' may be used to specify default
+        bounds for all unspecified components. The keyword 'Y' can be
+        used to stand for all species mass fractions in flow domains.
+        """
+        
+        d = {}
+        if tol.has_key('default'):
+            for n in range(self.nComponents()):
+                d[self.componentName(n)] = tol['default']
+            del tol['default']
+                
+        itime = 0
+        for b in tol.keys():
+            if b == 'time': itime = -1
+            elif b == 'steady': itime = 1
+            elif b == 'Y':
+                if self.type >= 50:
+                    nc = self.nComponents()
+                    for n in range(4, nc):
+                        d[self.componentName(n)] = tol[b]
+                else:
+                    raise CanteraError('Y can only be specified in flow domains.')
+            else:
+                d[b] = tol[b]
+        for b in d.keys():
+            n = self.componentIndex(b)
+            _cantera.domain_setTolerances(self._hndl, n, d[b][0], d[b][1], itime)
+
     
     def setupGrid(self, grid):
         """Specify the grid."""
         return _cantera.domain_setupGrid(self._hndl, Numeric.asarray(grid))
     
     def setID(self, id):
-        print 'id = ',id
         return _cantera.domain_setID(self._hndl, id)
     
     def setDesc(self, desc):
@@ -99,26 +153,25 @@ class Domain1D:
             else:
                 raise CanteraError('unknown attribute: '+opt)
 
-    def _dict2array(self, d):
-        a = zeros(self.nComponents(),'d')
+    def _dict2arrays(self, d = None, array1 = None, array2 = None):
+        nc = self.nComponents()
         if d.has_key('default'):
-            a += d['default']
-        for k in d.keys():
-            a[self.componentIndex(k)] = d[k]
-        print a
-        return a
-
-    def _dict2arrays(self, d):
-        a1 = zeros(self.nComponents(),'d')
-        a2 = zeros(self.nComponents(),'d')        
-        if d.has_key('default'):
-            a1 += d['default'][0]
-            a2 += d['default'][1]
+            a1 = zeros(nc,'d') + d['default'][0]            
+            a2 = zeros(nc,'d') + d['default'][1]
             del d['default']
+        else:
+            if array1: a1 = array(array1)
+            else: a1 = zeros(nc,'d')
+            if array2: a2 = array(array2)
+            else: a2 = zeros(nc,'d')        
+
         for k in d.keys():
-            a1[self.componentIndex(k)] = d[k][0]
-            a2[self.componentIndex(k)] = d[k][1]            
-        print a1, a2
+            c = self.componentIndex(k)
+            if c >= 0:
+                a1[self.componentIndex(k)] = d[k][0]
+                a2[self.componentIndex(k)] = d[k][1]
+            else:
+                raise CanteraError('unknown component '+k)
         return (a1, a2)
     
 
@@ -149,14 +202,16 @@ class Bdry1D(Domain1D):
     def set(self, **options):
         for opt in options.keys():
             v = options[opt]
-            if opt == 'mdot':
+            if opt == 'mdot' or opt == 'massflux':
                 self.setMdot(v)
-            elif opt == 'temperature':
+                del options[opt]
+            elif opt == 'temperature' or opt == 'T':
                 self.setTemperature(v)
-            elif opt == 'mole_fractions':
+                del options[opt]                
+            elif opt == 'mole_fractions' or opt == 'X':
                 self.setMoleFractions(v)
-            else:
-                self._set(options)
+                del options[opt]                
+        self._set(options)
 
 
 class Inlet(Bdry1D):
@@ -201,35 +256,83 @@ class Surface(Bdry1D):
 
         
 class AxisymmetricFlow(Domain1D):
-    """An axisymmetric flow"""
-    def __init__(self, id = 'axisymmetric_flow', gas = 'None'):
+    """An axisymmetric flow domain.
+
+    In an axisymmetric flow domain, the equations solved are the
+    similarity equations for the flow in a finite-height gap of
+    infinite radial extent. The solution variables are
+      u       -- axial velocity 
+      V       -- radial velocity divided by radius
+      T       -- temperature
+      lambda  -- (1/r)(dP/dr)
+      Y_k     -- species mass fractions
+      
+    It may be shown that if the boundary conditions on these variables
+    are independent of radius, then a similarity solution to the exact
+    governing equations exists in which these variables are all
+    independent of radius. This solution holds only in in
+    low-Mach-number limit, in which case (dP/dz) = 0, and lambda is a
+    constant. (Lambda is treated as a spatially-varying solution
+    variable for numerical reasons, but in the final solution it is
+    always independent of z.) As implemented here, the governing
+    equations assume an ideal gas mixture.  Arbitrary chemistry is
+    allowed, as well as arbitrary variation of the transport
+    properties.
+    """
+    def __init__(self, id = 'axisymmetric_flow', gas = None):
         Domain1D.__init__(self)
         iph = gas.thermo_hndl()
         ikin = gas.kinetics_hndl()
         itr = gas.transport_hndl()
         self._hndl = _cantera.stflow_new(iph, ikin, itr)
         if id: self.setID(id)
-
+        self._p = -1.0
         self.setPressure(gas.pressure())
+        self.solveEnergyEqn()
         
     def setPressure(self, p):
         """Set the pressure [Pa]. The pressure is a constant, since
-        the governing equations are those appropriate for the
-        low-Mach-number limit."""
+        the governing equations are those for the low-Mach-number limit."""
         _cantera.stflow_setPressure(self._hndl, p)
+        self._p = p
+
+    def pressure(self):
+        return self._p
         
     def setFixedTempProfile(self, temp):
-        """Set the fixed temperature profile.
-        This profile is used whenever the energy equation is disabled.
-        """
+        """Set the fixed temperature profile.  This profile is used
+        whenever the energy equation is disabled.  """
         return _cantera.stflow_setFixedTempProfile(self._hndl, temp)
     
-    def solveSpeciesEqs(self, flag):
+    def solveSpeciesEqs(self, flag = 1):
+        """Enable or disable solving the species equations. If invoked
+        with no arguments or with a non-zero argument, the species
+        equations will be solved. If invoked with a zero argument,
+        they will not be, and instead the species profiles will be
+        held at their initial values. Default: species equations
+        enabled."""
         return _cantera.stflow_solveSpeciesEqs(self._hndl, flag)
     
-    def solveEnergyEqn(self, flag):
+    def solveEnergyEqn(self, flag = 1):
+        """Enable or disable solving the energy equation. If invoked
+        with no arguments or with a non-zero argument, the energy
+        equations will be solved. If invoked with a zero argument,
+        it will not be, and instead the temperature profiles will be
+        held to the one specified by the call to setFixedTempProfile.
+        Default: energy equation enabled."""        
         return _cantera.stflow_solveEnergyEqn(self._hndl, flag)
 
+    def set(self, **opt):
+        for o in opt.keys():
+            v = opt[o]
+            if o == 'P' or o == 'pressure':
+                self.setPressure(v)
+                del opt[o]
+            elif o == 'energy':
+                self.solveEnergyEqn(flag = _onoff[v])
+            else:
+                self._set(opt)
+                
 
 class Stack:
     
@@ -245,6 +348,7 @@ class Stack:
         for n in range(nd):
             hndls[n] = domains[n].domain_hndl()
         self._hndl = _cantera.sim1D_new(hndls)
+        self._domains = domains
         
     def __del__(self):
         _cantera.sim1D_del(self._hndl)
@@ -278,27 +382,35 @@ class Stack:
     def refine(self, loglevel=1):
         return _cantera.sim1D_refine(self._hndl, loglevel)
     
-    def setRefineCriteria(self, dom, ratio = 10.0, slope = 0.8,
+    def setRefineCriteria(self, domain = None, ratio = 10.0, slope = 0.8,
                           curve = 0.8, prune = 0.05):
-        idom = dom.index()
+        idom = domain.index()
         return _cantera.sim1D_setRefineCriteria(self._hndl,
                                                 idom, ratio, slope, curve, prune)
-    def save(self, fname, id, desc):
-        return _cantera.sim1D_save(self._hndl, fname, id, desc)
+    def save(self, file = 'soln.xml', id = 'solution', desc = 'none'):
+        return _cantera.sim1D_save(self._hndl, file, id, desc)
     
-    def restore(self, fname, id):
-        return _cantera.sim1D_restore(self._hndl, fname, id)
+    def restore(self, file = 'soln.xml', id = 'solution'):
+        return _cantera.sim1D_restore(self._hndl, file, id)
 
-    def writeStats(self):
+    def showStats(self):
         return _cantera.sim1D_writeStats(self._hndl)
 
     def domainIndex(self, name):
         return _cantera.sim1D_domainIndex(self._hndl, name)
 
-    def value(self, dom, icomp, localPoint):
-        idom = dom.index()
+    def value(self, domain, component, localPoint):
+        icomp = domain.componentIndex(component)
+        idom = domain.index()
         return _cantera.sim1D_value(self._hndl, idom, icomp, localPoint)
 
+    def profile(self, domain, component):
+        np = domain.nPoints()
+        x = zeros(np,'d')
+        for n in range(np):
+            x[n] = self.value(domain, component, n)
+        return x
+    
     def workValue(self, dom, icomp, localPoint):
         idom = dom.index()        
         return _cantera.sim1D_workValue(self._hndl, idom, icomp, localPoint)

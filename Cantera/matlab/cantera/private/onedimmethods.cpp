@@ -208,30 +208,28 @@ void onedimmethods( int nlhs, mxArray *plhs[],
     else {
 
         int iok = -1;
-        double *lower, *upper, *rtol, *atol, *grid, *pos, *values, 
+        double lower, upper, rtol, atol, *grid, *pos, *values, 
             mdot, t, p, val, *temp, ratio, slope, curve, tstep, *dts, 
             rdt, prune;
-        int nlower, nupper, nr, na, npts, np, comp, localPoint, idom,
+        int nlower, nupper, nr, na, npts, np, nv, comp, localPoint, idom,
             loglevel, refine_grid, n, flag, itime, ns, *nsteps, icount,
             onoff, ss_age, ts_age;
         char *xstr, *fname, *id, *desc, *name;
         switch (job) {
         case 51:
-            checkNArgs(5, nrhs);
-            lower = mxGetPr(prhs[3]);
-            nlower = mxGetM(prhs[3]) *  mxGetN(prhs[3]);
-            upper = mxGetPr(prhs[4]);
-            nupper = mxGetM(prhs[4]) *  mxGetN(prhs[4]);
-            iok = domain_setBounds(dom, nlower, lower, nupper, upper);
+            checkNArgs(6, nrhs);
+            n = getInt(prhs[3]) - 1;
+            lower = getDouble(prhs[4]);
+            upper = getDouble(prhs[5]);
+            iok = domain_setBounds(dom, n, lower, upper);
             break;
         case 52:
-            checkNArgs(6, nrhs);
-            rtol = mxGetPr(prhs[3]);
-            nr = mxGetM(prhs[3]) *  mxGetN(prhs[3]);
-            atol = mxGetPr(prhs[4]);
-            na = mxGetM(prhs[4]) *  mxGetN(prhs[4]);
-            itime = getInt(prhs[5]);
-            iok = domain_setTolerances(dom, nr, rtol, na, atol, itime);
+            checkNArgs(7, nrhs);
+            n = getInt(prhs[3]) - 1;
+            rtol = getDouble(prhs[4]);
+            atol = getDouble(prhs[5]);
+            itime = getInt(prhs[6]);
+            iok = domain_setTolerances(dom, n, rtol, atol, itime);
             break;
         case 53:
             checkNArgs(4, nrhs);
@@ -269,7 +267,8 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             pos = mxGetPr(prhs[3]);
             temp = mxGetPr(prhs[4]);
             n = mxGetM(prhs[3])*mxGetN(prhs[3]);
-            iok = stflow_setFixedTempProfile(dom, n, pos, temp);
+            m = mxGetM(prhs[4])*mxGetN(prhs[4]);
+            iok = stflow_setFixedTempProfile(dom, n, pos, m, temp);
             break;
         case 65:
             checkNArgs(4, nrhs);
@@ -297,7 +296,8 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             pos = mxGetPr(prhs[5]);
             values = mxGetPr(prhs[6]);
             np = mxGetM(prhs[5])*mxGetN(prhs[5]);
-            iok = sim1D_setProfile(dom, idom, comp, np, pos, values);
+            nv = mxGetM(prhs[6])*mxGetN(prhs[6]);
+            iok = sim1D_setProfile(dom, idom, comp, np, pos, nv, values);
             break;
         case 102:
             checkNArgs(6, nrhs);

@@ -123,10 +123,9 @@ extern "C" {
         catch (CanteraError) { return -1; }
     }
 
-    int DLL_EXPORT domain_setBounds(int i, int nl, double* lower, 
-        int nu, double* upper) {
+    int DLL_EXPORT domain_setBounds(int i, int n, double lower, double upper) {
         try {
-            _domain(i)->setBounds(nl, lower, nu, upper);
+            _domain(i)->setBounds(n, lower, upper);
             return 0;
         }
         catch (CanteraError) { return -1; }
@@ -146,10 +145,10 @@ extern "C" {
         catch (CanteraError) { return -1.0; }
     }
 
-    int DLL_EXPORT domain_setTolerances(int i, int nr, double* rtol, 
-        int na, double* atol, int itime) {
+    int DLL_EXPORT domain_setTolerances(int i, int n, double rtol, 
+        double atol, int itime) {
         try {
-            _domain(i)->setTolerances(nr, rtol, na, atol, itime);
+            _domain(i)->setTolerances(n, rtol, atol, itime);
             return 0;
         }
         catch (CanteraError) { return -1; }

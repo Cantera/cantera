@@ -1,4 +1,5 @@
-function d = setBounds(d, lower, upper)
+function d = setBounds(d, component, lower, upper)
 % SETBOUNDS - 
 %   
-domain_methods(d.dom_id, 51, lower, upper);
+n = componentIndex(d,component);
+domain_methods(d.dom_id, 51, n, lower, upper);

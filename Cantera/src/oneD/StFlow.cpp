@@ -1201,9 +1201,10 @@ namespace Cantera {
             writelog(nd["title"]+": "+nd.value()+"\n");
         }
 
-        map<string, double> params;
-        getFloats(dom, params);
-        setPressure(params["pressure"]);
+        //map<string, double> params;
+        double pp = -1.0;
+        pp = getFloat(dom, "pressure", "pressure");
+        setPressure(pp);
 
 
         vector<XML_Node*> d;

@@ -43,10 +43,10 @@ namespace Cantera {
             for (j = 0; j < np; j++) {
                 val = x[index(m,j)];
                 if (loglevel > 0) {
-                    if (val > above + Tiny || val < below - Tiny) {
+                    if (val > above + 1.0e-12 || val < below - 1.0e-12) {
                         sprintf(buf, "domain %d: %20s(%d) = %10.3e (%10.3e, %10.3e)\n",
                             r.domainIndex(), r.componentName(m).c_str(), j, val, below, above);
-                        writelog(string("ERROR: solution out of bounds.\n")+buf);
+                        writelog(string("\nERROR: solution out of bounds.\n")+buf);
                     }
                 }
 

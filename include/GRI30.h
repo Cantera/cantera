@@ -14,15 +14,7 @@ namespace Cantera {
     {
     public:
         GRI30() : m_ok(false), m_r(0) {
-            string path = findInputFile("gri30.xml");
-            ifstream fin(path.c_str());
-            if (!fin) {
-                throw CanteraError("GRI30","could not open "
-                    +path+" for reading.");
-            }
-            
-            m_r = new XML_Node("-");
-            m_r->build(fin);
+            m_r = get_XML_File("gri30.xml");
             m_ok = buildSolutionFromXML(*m_r, "gri30", "phase", this, this);
             if (!m_ok) throw CanteraError("GRI30",
                 "buildSolutionFromXML returned false");

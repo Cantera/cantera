@@ -13,12 +13,12 @@ extern "C" {
     int DLL_IMPORT domain_nPoints(int i);
     int DLL_IMPORT domain_componentName(int i, int n, int sz, char* nameout);
     int DLL_IMPORT domain_componentIndex(int i, char* name);
-    int DLL_IMPORT domain_setBounds(int i, int nl, double* lower, 
-        int nu, double* upper);
+    int DLL_IMPORT domain_setBounds(int i, int n, double lower, 
+        double upper);
     double DLL_EXPORT domain_lowerBound(int i, int n);
     double DLL_EXPORT domain_upperBound(int i, int n);
-    int DLL_IMPORT domain_setTolerances(int i, int nr, double* rtol, 
-        int na, double* atol, int itime);
+    int DLL_IMPORT domain_setTolerances(int i, int n, double rtol, 
+        double atol, int itime);
     double DLL_IMPORT domain_rtol(int i, int n);
     double DLL_IMPORT domain_atol(int i, int n);
     int DLL_IMPORT domain_setupGrid(int i, int npts, double* grid);

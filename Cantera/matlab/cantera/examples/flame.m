@@ -52,7 +52,7 @@ teq = temperature(gas);
 yeq = massFractions(gas);
 rhoeq = density(gas);
 
-z1 = 0.5;
+z1 = 0.2;
 mdot0 = massFlux(left);
 mdot1 = massFlux(right);
 t0 = temperature(left);

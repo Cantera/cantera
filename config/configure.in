@@ -311,15 +311,19 @@ fi
 
 SHARED_CTLIB=0
 OS_IS_DARWIN=0
+OS_IS_WIN=0
 mex_ext=mexglx
 
 dnl Checks for libraries.
 AC_F77_LIBRARY_LDFLAGS()
 case $ac_sys_system in
-  Darwin*)  FLIBS='-lg2c -lgcc'; SHARED_CTLIB=0; OS_IS_DARWIN=1; mex_ext=mexmac;
+  Darwin*)  FLIBS='-lg2c -lgcc'; SHARED_CTLIB=0; OS_IS_DARWIN=1; mex_ext=mexmac;;
+  CYGWIN*) OS_IS_WIN=1; mex_ext=dll;;
+esac
   AC_SUBST(FLIBS)
   AC_SUBST(OS_IS_DARWIN)
-esac
+AC_SUBST(OS_IS_WIN)
+
 AC_SUBST(SHARED_CTLIB)
 AC_SUBST(mex_ext)
 
