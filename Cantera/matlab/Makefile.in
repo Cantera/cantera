@@ -24,6 +24,8 @@ SRCS = cantera/private/ctmethods.cpp \
        cantera/private/surfmethods.cpp
 
 CANTERA_LIBDIR=@buildlib@
+os_is_win=@OS_IS_WIN@
+
 ifeq ($(os_is_win),0)
 LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
            $(CANTERA_LIBDIR)/liboneD.a \
@@ -33,8 +35,6 @@ LIB_DEPS = $(CANTERA_LIBDIR)/cantera.lib $(CANTERA_LIBDIR)/zeroD.lib \
            $(CANTERA_LIBDIR)/oneD.lib \
            $(CANTERA_LIBDIR)/transport.lib 
 endif
-
-os_is_win=@OS_IS_WIN@
 
 all: cantera/ctmethods.@mex_ext@
 

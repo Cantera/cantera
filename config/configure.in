@@ -45,7 +45,7 @@ AC_SUBST(CVF_LIBDIR)
 local_inst=1
 if test "x${prefix}" = "xNONE"; then
          if test "x${OS_IS_CYGWIN}" = "x1"; then
-           prefix="/cygdrive/c/cantera"
+           prefix=${CANTERA_INSTALL_DIR}
            # mkdir ${prefix}
          else
            prefix=${ac_default_prefix}

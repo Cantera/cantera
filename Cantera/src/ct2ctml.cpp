@@ -47,7 +47,7 @@ namespace ctml {
         if (!f) {
             throw CanteraError("checkPython","cannot open "+path+" for writing");
         }
-        f << "from Cantera import *\n";
+        f << "from Cantera import ctml_writer\n";
         f.close();
         int ierr = 0;
 #ifdef WIN32
@@ -85,8 +85,7 @@ namespace ctml {
         if (!f) {
             throw CanteraError("ct2ctml","cannot open "+path+" for writing.");
         }
-        f << "from Cantera import *\n"
-          << "from Cantera.ctml_writer import *\n"
+        f << "from Cantera.ctml_writer import *\n"
           << "import sys, os, os.path\n"
           << "file = \"" << file << "\"\n"
           << "base = os.path.basename(file)\n"
@@ -96,7 +95,7 @@ namespace ctml {
           << "write()\n";
         f.close();
 #ifdef WIN32
-        string cmd = pypath() + " " + path + ">> ct2ctml.log 2>&1";
+        string cmd = pypath() + " " + path + "> ct2ctml.log 2>&1";
 #else
         string cmd = pypath() + " " + path + " &> ct2ctml.log";
 #endif

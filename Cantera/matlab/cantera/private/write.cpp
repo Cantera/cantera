@@ -11,7 +11,7 @@ namespace Cantera {
         int n = 0;
         while (ch != '\0') {
             if (ch =='\n') {
-                ss += " ');";
+                ss += "');";
                 mexEvalString(ss.c_str());
                 ss = "disp('";
             }

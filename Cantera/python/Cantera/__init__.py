@@ -3,9 +3,10 @@
 #
 
 import types
+ok = 0
 from constants import *
-from gases import *
 from exceptions import *
+from gases import *
 from set import set
 from importFromFile import *
 

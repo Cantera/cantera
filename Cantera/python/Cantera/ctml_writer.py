@@ -13,8 +13,8 @@
 
 """
 
-from Cantera import CanteraError
-from Cantera import GasConstant
+from Cantera.exceptions import CanteraError
+from Cantera.constants import *
 from Cantera.XML import XML_Node
 import types, math, copy
 
@@ -1347,15 +1347,15 @@ class Lindemann:
 validate()
 
 
-if __name__ == "__main__":
-    from Cantera import *
-    import sys, os, os.path
-    file = sys.argv[1]
-    base = os.path.basename(file)
-    root, ext = os.path.splitext(base)
-    dataset(root)
-    execfile(file)
-    write()
+## if __name__ == "__main__":
+##     from Cantera import *
+##     import sys, os, os.path
+##     file = sys.argv[1]
+##     base = os.path.basename(file)
+##     root, ext = os.path.splitext(base)
+##     dataset(root)
+##     execfile(file)
+##     write()
     
 
 ##########################################
@@ -1364,7 +1364,10 @@ if __name__ == "__main__":
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.26  2004-02-03 03:31:06  dggoodwin
+# Revision 1.27  2004-02-03 16:42:54  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.26  2004/02/03 03:31:06  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.25  2003/11/24 16:39:33  dggoodwin

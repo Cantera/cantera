@@ -145,6 +145,7 @@ endif
 
 finish-install:
 	@INSTALL@ -d @ct_docdir@
+	@INSTALL@ -d @ct_bindir@
 	#@INSTALL@ doc/*.pdf @ct_docdir@
 
 	@INSTALL@ -d @ct_demodir@/cxx
@@ -169,7 +170,6 @@ ifeq ($(os_is_win),0)
 	ln -s @ct_datadir@ @prefix@/cantera/data
 	ln -s @ct_templdir@ @prefix@/cantera/templates
 	ln -s @ct_tutdir@ @prefix@/cantera/tutorials
-	@INSTALL@ README*.txt @prefix@/cantera
 	@INSTALL@ License.* @prefix@/cantera
 	@INSTALL@ tools/src/finish_install.py tools/bin
 	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
@@ -177,7 +177,6 @@ ifeq ($(os_is_win),0)
 else
 	cd Cantera/fortran/f77demos; sed s'/isentropic/ctlib/g' isentropic.dsp > ctlib.dsp
 	@INSTALL@ Cantera/fortran/f77demos/*.dsp @ct_demodir@/f77
-	@INSTALL@ README.txt @ct_dir@
 	@INSTALL@ @buildbin@/* @ct_bindir@
 endif
 

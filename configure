@@ -29,7 +29,11 @@ CANTERA_VERSION=${CANTERA_VERSION:="1.5.3"}
 #
 #  These options only need to be set if you are building Cantera on 
 #  a Windows PC. 
-# 
+#
+#  Cantera will be installed by default in c:\cantera. Change this to
+#  install it somewhere else
+CANTERA_INSTALL_DIR=${CANTERA_INSTALL_DIR:="c:\cantera"}
+ 
 #  On a PC running MS-Windows, Cantera can be built either using
 #  Microsoft Visual Studio, with the Visual C++ and Visual Fortran
 #  compilers, or using the linux-like cygwin environment with the 
@@ -309,6 +313,7 @@ export MAKE
 export RPFONT
 export USE_VISUAL_STUDIO
 export FORTRAN_LIB_DIR
+export CANTERA_INSTALL_DIR
 
 cd config
 chmod +x ./configure 
