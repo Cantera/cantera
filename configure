@@ -19,9 +19,6 @@
 #  so that it will not be overwritten if you update the source
 #  distribution. 
 
-#  Any parameters you are unsure of may be commented out, and
-#  'configure' will attempt to find suitable values for your system.
-
 #######################################################################
 
 CANTERA_VERSION=${CANTERA_VERSION:="1.5.3"}
@@ -39,21 +36,31 @@ CANTERA_VERSION=${CANTERA_VERSION:="1.5.3"}
 
 #------------ Python -------------------------------------------------
  
-# Set this if you want to build the Cantera Python interface.  Python
-# must be installed on your system first, since the build process runs
-# a python script.  Python 2.0 or greater is required. Set PYTHON_CMD
-# to the path to the Python interpreter to use, if there is more than
-# one on your system.
+# Cantera now requires that the Python interface be built, since it
+# uses Python to process input files, even when Cantera is used from
+# another language (e.g. MATLAB or C++). Python 2.0 or greater is
+# required, and the Numeric extensions for Python are needed too. See
+# file INSTALLING for more details.
 #
+# The configure process will attempt to find the Python interpreter on
+# your system. However, if there is more than one and you want a
+# specific interpreter to be used, then define PYTHON_CMD to be the
+# full path to the desired Python interpreter. This allows you, for
+# example, to build your own private Python interpreter and use it
+# instead of the system Python interpreter.
 
-BUILD_PYTHON_INTERFACE=${BUILD_PYTHON_INTERFACE:="y"}
+BUILD_PYTHON_INTERFACE=${BUILD_PYTHON_INTERFACE:="y"}  # must be "y"
 #PYTHON_CMD=${PYTHON_CMD:="python"}
+
+
 
 #----------- Matlab --------------------------------------------------
 
 # Set this to "y" if you want to build the Matlab toolbox. Matlab must
 # be installed on your system first, since the build process runs a
-# Matlab script.
+# Matlab script. If this is set to "y" but Matlab is not found, the
+# Matlab toolbox will not be built.
+
 BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
 
 

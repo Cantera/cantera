@@ -89,7 +89,7 @@ int kinetics_example2(int job) {
 
 
         // make a Tecplot data file and an Excel spreadsheet
-        string plotTitle = "kinetics example 1: constant-pressure ignition";
+        string plotTitle = "kinetics example 2: constant-pressure ignition";
         plotSoln("kin2.dat", "TEC", plotTitle, gas, soln);
         plotSoln("kin2.csv", "XL", plotTitle, gas, soln);
 

@@ -1476,10 +1476,17 @@ _ACEOF
 if test -z "$MAKE"; then MAKE='make'; fi
 
 
-#if test -z "$ARCHIVE"; then ARCHIVE='ar ruv'; fi
+#----------- ARCHIVE --------------------
+
+if test "x${OS_IS_DARWIN}" = "x1"; then
+ARCHIVE='libtool -static -o'
+fi
 
 
-#if test -z "$SOEXT"; then SOEXT='so'; fi
+
+#----------------------------------------
+
+
 
 
 if test -z "$SHARED"; then SHARED='-shared'; fi
@@ -3171,7 +3178,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3174:" \
+echo "$as_me:3181:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3348,7 +3355,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3351: \"$ac_link\") >&5
+(eval echo $as_me:3358: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3428,7 +3435,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3431: \"$ac_link\") >&5
+(eval echo $as_me:3438: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
