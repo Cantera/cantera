@@ -18,7 +18,7 @@ instructive.
 
 """
 
-
+import sys
 from Cantera import *
 from Cantera.Reactor import *
 from Cantera.Func import *
@@ -96,27 +96,32 @@ import os
 print 'Output written to file piston.csv'
 print 'Directory: '+os.getcwd()
 
-if 1:
-    from matplotlib.matlab import *
-    clf
-    subplot(2,2,1)
-    plot(tm, temp[:,0],'g-',tm, temp[:,1],'b-')
-    legend(['Reactor 1','Reactor 2'],2)
-    xlabel('Time (s)');
-    ylabel('Temperature (K)');
+args = sys.argv
+if len(args) > 1 and args[1] == '-plot':
+    try:    
+        from matplotlib.matlab import *
+        clf
+        subplot(2,2,1)
+        plot(tm, temp[:,0],'g-',tm, temp[:,1],'b-')
+        legend(['Reactor 1','Reactor 2'],2)
+        xlabel('Time (s)');
+        ylabel('Temperature (K)');
+        
+        subplot(2,2,2)
+        plot(tm, pres[:,0],'g-',tm, pres[:,1],'b-')
+        legend(['Reactor 1','Reactor 2'],2)
+        xlabel('Time (s)');
+        ylabel('Pressure (Bar)');
          
-    subplot(2,2,2)
-    plot(tm, pres[:,0],'g-',tm, pres[:,1],'b-')
-    legend(['Reactor 1','Reactor 2'],2)
-    xlabel('Time (s)');
-    ylabel('Pressure (Bar)');
-         
-    subplot(2,2,3)
-    plot(tm, vol[:,0],'g-',tm, vol[:,1],'b-')
-    legend(['Reactor 1','Reactor 2'],2)
-    xlabel('Time (s)');
-    ylabel('Volume (m^3)');         
+        subplot(2,2,3)
+        plot(tm, vol[:,0],'g-',tm, vol[:,1],'b-')
+        legend(['Reactor 1','Reactor 2'],2)
+        xlabel('Time (s)');
+        ylabel('Volume (m^3)');         
 
-    show()
-#except:
-#    pass
+        show()
+    except:
+        pass
+else:
+    print """To view a plot of these results, run this script with the option -plot"""
+    

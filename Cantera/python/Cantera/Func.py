@@ -20,6 +20,13 @@ class Func1:
     classes are designed to be used with the Cantera kernel.  """
     
     def __init__(self, typ, n, coeffs=[]):
+        """
+        typ - functor type
+
+        n - order
+
+        coeffs - coefficient array
+        """
         self.n = n
         self.coeffs = asarray(coeffs,'d')
         self._func_id = _cantera.func_new(typ, n, self.coeffs)
@@ -73,7 +80,8 @@ class Func1:
         return RatioFunction(other, self)            
 
     def func_id(self):
-        """Return the integer index used internally to access the kernel-level object."""
+        """Return the integer index used internally to access the
+        kernel-level object."""
         return self._func_id
 
 
@@ -88,6 +96,9 @@ class Polynomial(Func1):
     >>> p2 = Polynomial([6.0, 8.0])         #    8t + 6
     """
     def __init__(self, coeffs=[]):
+        """
+        coeffs - polynomial coefficients
+        """
         Func1.__init__(self, 2, len(coeffs)-1, coeffs)
 
 
@@ -181,7 +192,13 @@ def Const(value):
 
 
 class PeriodicFunction(Func1):
+    """Converts a function into a periodic function with period T."""
     def __init__(self, func, T):
+        """
+        func - initial non-periodic function
+
+        T - period [s]
+        """
         Func1.__init__(self, 50, func.func_id(), array([T],'d'))
         
 

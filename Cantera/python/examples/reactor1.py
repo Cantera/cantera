@@ -3,6 +3,8 @@
   Constant-pressure, adiabatic kinetics simulation.
 
 """
+import sys
+
 from Cantera import *
 from Cantera.Reactor import *
 from Cantera.Func import *
@@ -41,25 +43,29 @@ for n in range(100):
 
 # plot the results if matplotlib is installed.
 # see http://matplotlib.sourceforge.net to get it
-try:
-    from matplotlib.matlab import *
-    clf
-    subplot(2,2,1)
-    plot(tim,data[:,0])
-    xlabel('Time (s)');
-    ylabel('Temperature (K)');
-    subplot(2,2,2)
-    plot(tim,data[:,1])
-    xlabel('Time (s)');
-    ylabel('OH Mole Fraction');
-    subplot(2,2,3)
-    plot(tim,data[:,2]);
-    xlabel('Time (s)');
-    ylabel('H Mole Fraction');
-    subplot(2,2,4)
-    plot(tim,data[:,3]);
-    xlabel('Time (s)');
-    ylabel('H2 Mole Fraction');
-    show()
-except:
-    pass
+args = sys.argv
+if len(args) > 1 and args[1] == '-plot':
+    try:
+        from matplotlib.matlab import *
+        clf
+        subplot(2,2,1)
+        plot(tim,data[:,0])
+        xlabel('Time (s)');
+        ylabel('Temperature (K)');
+        subplot(2,2,2)
+        plot(tim,data[:,1])
+        xlabel('Time (s)');
+        ylabel('OH Mole Fraction');
+        subplot(2,2,3)
+        plot(tim,data[:,2]);
+        xlabel('Time (s)');
+        ylabel('H Mole Fraction');
+        subplot(2,2,4)
+        plot(tim,data[:,3]);
+        xlabel('Time (s)');
+        ylabel('H2 Mole Fraction');
+        show()
+    except:
+        pass
+else:
+    print """To view a plot of these results, run this script with the option -plot"""

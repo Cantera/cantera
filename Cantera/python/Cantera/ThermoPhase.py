@@ -10,7 +10,9 @@ def thermoIndex(id):
     return _cantera.thermo_thermoIndex(id)
 
 class ThermoPhase(Phase):
-    """ Class ThermoPhase may be used to represent the intensive state
+    """ Phases of matter.
+
+    Class ThermoPhase may be used to represent the intensive state
     of a homogeneous phase of matter, which might be a gas, liquid, or solid.
     """
 
@@ -20,8 +22,12 @@ class ThermoPhase(Phase):
 
 
     def __init__(self, xml_phase=None, index=-1):
-        """Create a new object representing a phase of matter, or wrap
-        an existing kernel instance."""
+        """
+        xml_phase - CTML node specifying the attributes of this phase
+
+        index - optional. If positive, create only a Python wrapper for
+        an existing kernel object
+        """
         
         self._phase_id = 0
         self._owner = 0
