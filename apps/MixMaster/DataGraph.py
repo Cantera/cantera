@@ -98,7 +98,6 @@ class DataGraph(Frame):
         for id in ids:
 	    self.canvas.delete(id)
 
-    def 
     def screendata(self):
 	    self.xdata = array(self.data[self.ix,:])
 	    self.ydata = array(self.data[self.iy,:])	    
