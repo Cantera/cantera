@@ -35,13 +35,20 @@ namespace Cantera {
         // typedefs
         typedef ThermoPhase thermo_t;
 
-        /// Constructor.
+        /// Constructors.
         Kinetics() : m_ii(0), m_thermo(0), m_index(-1) {}
+
+	/**
+	 * This Constructor initializes with a starting phase.
+	 * All of the appropriate entries that addPhase() (below)
+	 * sets up are also done here.
+	 */
         Kinetics(thermo_t* thermo) 
             : m_ii(0), m_index(-1) {
             if (thermo) {
                 m_start.push_back(0);
                 m_thermo.push_back(thermo);
+		m_phaseindex[m_thermo.back()->id()] = nPhases();
             }
         }
 
@@ -222,7 +229,7 @@ namespace Cantera {
         int phaseIndex(string ph) { return m_phaseindex[ph] - 1; }
 
         /**
-         * Add a phase.
+         * Add a phase to the kinetics object
          */
         void addPhase(thermo_t& thermo) { 
             if (m_thermo.size() > 0) {
@@ -424,7 +431,12 @@ namespace Cantera {
 	 */
         vector_int  m_start;
 
-        //        XML_Node* m_xml;
+        /**
+	 * Mapping of the phase id, i.e., the id attribute in the xml phase
+	 * element to the position of the phase within the kinetics object.
+	 * Positions start with the value of 1. The member function, phaseIndex()
+	 * decrements by one before returning the index value.
+	 */
         map<string, int> m_phaseindex;
         int m_index;
 
