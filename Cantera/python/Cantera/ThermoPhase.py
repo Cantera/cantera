@@ -2,6 +2,7 @@
 thermodynamic phases.  """
 
 from Cantera.Phase import Phase
+from Numeric import zeros
 
 import _cantera
 import types
