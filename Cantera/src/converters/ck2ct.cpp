@@ -26,7 +26,7 @@ using namespace std;
 #include "ck2ct.h"
 #include <time.h>
 #include "../ct_defs.h"
-#include "ctml.h"
+#include "../ctml.h"
 
 
 using namespace Cantera;
@@ -191,7 +191,7 @@ namespace pip {
     static void addSpecies(string idtag, const ckr::Species& sp) {
         string spname = sp.name;
         printf("\nspecies(name = \"%s\",\n",spname.c_str());
-        int nel = sp.elements.size();
+        int nel = static_cast<int>(sp.elements.size());
         int m, num;
         string nm, str="";
         doublereal charge = 0.0;
@@ -236,7 +236,7 @@ namespace pip {
         const ckr::ReactionUnits& runits, doublereal version) {
 
         cout << "\n#  Reaction " << i+1 << endl;
-        int nc = rxn.comment.size();
+        int nc = static_cast<int>(rxn.comment.size());
         for (int nn = 0; nn < nc; nn++) 
             if (rxn.comment[nn] != "") cout << "# " << rxn.comment[nn] << endl;
         string eqn = ckr::reactionEquation(rxn);
@@ -272,7 +272,7 @@ namespace pip {
         }
 
 
-        int ne = rxn.e3b.size();
+        int ne = static_cast<int>(rxn.e3b.size());
         if (rxn.thirdBody != "<none>") {
             if (rxn.thirdBody != "M") {
                 ;
@@ -332,7 +332,7 @@ namespace pip {
         printf("\nideal_gas(name = \"%s\",\n",idtag.c_str());
 
         string enames;
-        int nel = r.elements.size();
+        int nel = static_cast<int>(r.elements.size());
         int i;
         map<string, string> emap;
         string elnm;
@@ -347,7 +347,7 @@ namespace pip {
         printf("      elements = \"%s\",\n",enames.c_str());
 
         string spnames = "";
-        int nsp = r.species.size();
+        int nsp = static_cast<int>(r.species.size());
         for (i = 0; i < nsp; i++) {
             spnames += " "+r.species[i].name+" ";
             if ((i+1) % 10 == 0) spnames += "\n                  ";
@@ -376,7 +376,7 @@ namespace pip {
         writeline();
 
 
-        int nrxns = r.reactions.size();
+        int nrxns = static_cast<int>(r.reactions.size());
 
          int irxn = 0;
          string idktag = idtag;
