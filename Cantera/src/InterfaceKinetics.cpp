@@ -270,7 +270,8 @@ namespace Cantera {
 
     /**
      * Update the equilibrium constants in molar units for all
-     * reversible reactions.
+     * reversible reactions. Irreversible reactions have their 
+     * equilibrium constant set to zero.
      */
     void InterfaceKinetics::updateKc() {
         int i, irxn;
@@ -386,7 +387,10 @@ namespace Cantera {
     }
 
 
-
+    /**
+     * Update the rates of progress of the reactions in the reaciton
+     * mechanism. This routine operates on internal data.
+     */
     void InterfaceKinetics::updateROP() {
 
         _update_rates_T();
@@ -431,6 +435,20 @@ namespace Cantera {
         m_kdata->m_ROP_ok = true;
     }
 
+
+    /**
+     * Add a single reaction to the mechanism. This routine
+     * must be called after init() and before finalize().
+     * This function branches on the types of reactions allowed
+     * by the interfaceKinetics manager in order to install
+     * the reaction correctly in the manager.
+     * The manager allows the following reaction types
+     *  Elementary
+     *  Surface
+     *  Global  
+     * There is no difference between elementary and surface 
+     * reactions.
+     */
     void InterfaceKinetics::
     addReaction(const ReactionData& r) {
 
@@ -546,7 +564,14 @@ namespace Cantera {
         }
     }
 
-
+    /**
+     * Prepare the class for the addition of reactions. This function
+     * must be called after instantiation of the class, but before
+     * any reactions are actually added to the mechanism.
+     * This function calculates m_kk the number of species in all
+     * phases participating in the reaction mechanism. We don't know
+     * m_kk previously, before all phases have been added. 
+     */
     void InterfaceKinetics::init() {
         int n;
         m_kk = 0;
@@ -559,9 +584,17 @@ namespace Cantera {
         m_conc.resize(m_kk);
         m_mu0.resize(m_kk);
         m_pot.resize(m_kk, 0.0);
-        m_phi.resize(np,0.0);
+        m_phi.resize(np, 0.0);
     }
 
+    /**
+     * Finish adding reactions and prepare for use. This function
+     * must be called after all reactions are entered into the mechanism
+     * and before the mechanism is used to calculate reaction rates.
+     *
+     * Here, we resize work arrays based on the number of reactions,
+     * since we don't know this number up to now.
+     */
     void InterfaceKinetics::finalize() {
         m_rwork.resize(nReactions());
         m_finalized = true;
