@@ -2,23 +2,30 @@
 #include "mex.h"
 #include "ctmatutils.h"
 #include "../../../clib/src/ctfunc.h"
-
+#include "../../../clib/src/ct.h"
 
 void funcmethods( int nlhs, mxArray *plhs[],
     int nrhs, const mxArray *prhs[] )
 {
     int job = getInt(prhs[1]);
     int nn;
+    double* ptr = 0;
 
     // constructor
     if (job == 0) {
         int type = getInt(prhs[2]);
         int n = getInt(prhs[3]);
-        double* ptr = mxGetPr(prhs[4]);
-        int msize = mxGetM(prhs[4]);
-        int nsize = mxGetN(prhs[4]);
-        int lenp = msize*nsize;
-        nn = func_new(type, n, lenp, ptr);
+        if (type < 20) {
+            ptr = mxGetPr(prhs[4]);
+            int msize = mxGetM(prhs[4]);
+            int nsize = mxGetN(prhs[4]);
+            int lenp = msize*nsize;
+            nn = func_new(type, n, lenp, ptr);
+        }
+        else {
+            int m = getInt(prhs[4]);
+            nn = func_new(type, n, m, ptr);
+        }
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         double *h = mxGetPr(plhs[0]);
         *h = double(nn);
@@ -32,7 +39,7 @@ void funcmethods( int nlhs, mxArray *plhs[],
         double v;
         int i = getInt(prhs[2]);
         if (job == 1) {
-            nn = func_del(int i);
+            nn = func_del(i);
             if (nn < 0) reportError();
             v = double(nn);
         }

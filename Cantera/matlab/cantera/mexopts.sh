@@ -314,7 +314,7 @@
             ;;
         mac)
 #----------------------------------------------------------------------------
-            CC='g++3'
+            CC='g++2'
             CFLAGS='-fno-common -traditional-cpp'
 
             CLIBS="$MLIBS"
@@ -322,8 +322,8 @@
             COPTIMFLAGS='-O3 -DNDEBUG'
             CDEBUGFLAGS='-g'
 
-            if [ -f /usr/bin/g++3 ]; then 
-                CXX=g++3
+            if [ -f /usr/bin/g++2 ]; then 
+                CXX=g++2
             else
                 CXX=c++
             fi
