@@ -847,6 +847,7 @@ AC_OUTPUT(../Cantera/Makefile \
           ../test_problems/ck2cti_test/Makefile \
           ../test_problems/ck2cti_test/runtest \
           ../test_problems/python/Makefile \
+          ../bin/install_tsc \
           )
 #	)
 if test "x${OS_IS_WIN}" = "x1"; then
@@ -858,6 +859,10 @@ fi
 if test -f "../test_problems/ck2cti_test/runtest"; then
   chmod +x ../test_problems/ck2cti_test/runtest
 fi
+if test -f "../bin/install_tsc"; then
+  chmod +x ../bin/install_tsc
+fi
+
 
 echo
 if test "x${OS_IS_WIN}" = "x0"; then
