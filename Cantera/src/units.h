@@ -55,7 +55,7 @@ namespace Cantera {
             doublereal f = 1.0, fctr;
             int tsize;
             string u = units, tok, tsub;
-            int k;
+            string::size_type k;
             char action = '-';
 
             while (1 > 0) {
@@ -63,11 +63,11 @@ namespace Cantera {
                 // get token consisting of all characters up to the next 
                 // dash, slash, or the end of the string
                 k = u.find_first_of("/-");
-                if (k >= 0)
+                if (k != string::npos)
                     tok = u.substr(0,k);
                 else
                     tok = u;
-                tsize = tok.size();
+                tsize = static_cast<int>(tok.size());
                 if (tsize == 0) 
                     fctr = 1.0;
                 else if (tok[tsize - 1] == '2') {
