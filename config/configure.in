@@ -238,6 +238,13 @@ AC_SUBST(CANTERA_DATA_DIR)
 
 AC_SUBST(CT_SHARED_LIB)
 
+BUILD_F90=0
+if test "$BUILD_F90_INTERFACE" != "n"; then
+  BUILD_F90=1
+fi
+AC_SUBST(BUILD_F90)
+
+
 BUILD_CLIB=0
 #       
 #     Python Interface
@@ -299,6 +306,7 @@ AC_PROG_F77()
 if test -n "$G77"; then
   FFLAGS=$FFLAGS' -fno-second-underscore'
 fi
+
 SHARED_CTLIB=0
 OS_IS_DARWIN=0
 mex_ext=mexglx
@@ -388,6 +396,7 @@ AC_OUTPUT(../Cantera/Makefile \
 	  ../Cantera/src/converters/Makefile \
 	  ../Cantera/src/transport/Makefile \
 	  ../Cantera/clib/src/Makefile \
+	  ../Cantera/fortran/src/Makefile \
 	  ../Cantera/matlab/Makefile \
 	  ../Cantera/python/Makefile \
           ../Cantera/python/setup.py \

@@ -1,14 +1,18 @@
-#
-# Cantera input file processor
-#
-# The functions and classes in this module process Cantera .cti input files and produce CTML files. #
-# usage:
-#
-# from Cantera import *
-# from Cantera.ctml_writer import *
-# execfile('infile.cti')
-# write()
-#
+"""
+ Cantera .cti input file processor
+
+ The functions and classes in this module process Cantera .cti input
+ files and produce CTML files.
+
+ usage:
+
+ from Cantera import *
+ from Cantera.ctml_writer import *
+ execfile('infile.cti')
+ write()
+
+"""
+
 from Cantera import CanteraError
 from Cantera import GasConstant
 from Cantera.XML import XML_Node
@@ -19,18 +23,9 @@ SPECIES_SET = 20
 COLLECTION = 30
 THERMO = 40
 
-#ALL = 10
-#SKIP_UNDECLARED_ELEMENTS = 20
-#SKIP_UNDECLARED_SPECIES = 30
-#STOP = 0
-
-#_EXCEPT = 10
-#_WARN = 2
-#_SKIP = 1
+# dictionary maps error conditions -> action
 _handle_error = {}
-#_handle_undeclared_element = _EXCEPT
-#_handle_undeclared_species = _EXCEPT
-#_handle_neg_A = _EXCEPT
+
 
 # default units
 _ulen = 'm' 

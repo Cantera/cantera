@@ -1,0 +1,74 @@
+#/bin/sh
+###############################################################
+#  $Author$
+#  $Date$
+#  $Revision$
+#
+#  Copyright 2001 California Institute of Technology
+#
+###############################################################
+
+
+SUFFIXES=
+SUFFIXES= .cpp .d .o
+
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
+
+OBJS = fct.o
+
+DEPENDS = $(OBJS:.o=.d)
+
+# Fortran libraries
+FORT_LIBS = @FLIBS@
+
+# the C++ compiler
+CXX = @CXX@
+
+# external libraries
+EXT_LIBS = @LOCAL_LIBS@ 
+
+# the directory where the Cantera libraries are located
+CANTERA_LIBDIR=@buildlib@
+
+# ../../../lib
+LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a \
+           $(CANTERA_LIBDIR)/libtransport.a $(CANTERA_LIBDIR)/libconverters.a
+
+# the directory where Cantera include files may be found.
+CANTERA_INCDIR=../../src
+
+CXX_INCLUDES = -I$(CANTERA_INCDIR)  
+
+# flags passed to the C++ compiler/linker for the linking step
+LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
+
+# how to compile C++ source files to object files
+.@CXX_EXT@.@OBJ_EXT@:
+	$(CXX) -c $< $(CXX_INCLUDES) $(CXX_FLAGS)
+
+LIB_NAME=libfct.a
+
+FTLIB = @buildlib@/$(LIB_NAME).a
+ 
+lib: $(OBJS) $(LIB_DEPS)
+	$(RM)     $(FTLIB)
+	@ARCHIVE@ $(FTLIB) $(OBJS) 
+	ranlib $(FTLIB) 
+
+clean:
+	$(RM) $(OBJS) $(FTLIB)
+
+install:
+	@INSTALL@ $(FTLIB) @prefix@/lib/cantera
+
+
+%.d:
+	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
+
+depends: $(DEPENDS)
+	cat *.d > .depends
+	$(RM) $(DEPENDS) 
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif

@@ -252,7 +252,6 @@ namespace Cantera {
 
         friend class TransportFactory;
 
-    protected:
 
         /**
          * Constructor. New transport managers should be created using
@@ -261,6 +260,8 @@ namespace Cantera {
          */
         Transport(thermo_t* thermo=0) 
             : m_thermo(thermo), m_ready(false), m_nmin(0), m_index(-1) {}
+
+    protected:
 
         /**
          * @name Transport manager construction
