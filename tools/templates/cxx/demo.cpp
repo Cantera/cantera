@@ -36,7 +36,7 @@ void demoprog() {
     IdealGasMix gas("h2o2.cti","ohmech");
     double temp = 1200.0;
     double pres = OneAtm;
-    gas.setState_TPX(temp, pres, "H2:2, O2:1, OH:0.01, H:0.01, O:0.01");
+    gas.setState_TPX(temp, pres, "H2:1, O2:1");
 
 
     //    Thermodynamic properties
