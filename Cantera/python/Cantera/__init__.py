@@ -30,6 +30,12 @@ except:
     """
     raise "could not import Numeric"
 
+ctdata = ''
+try:
+    import cantera_loc
+    ctdata = cantera_loc.CANTERA_DATA
+except:
+    pass
 
 def writeCSV(f, list):
     """Write list items to file 'f' in comma-separated-value format."""
@@ -63,3 +69,6 @@ def refCount(a):
 def addDirectory(dir):
     import _cantera
     return _cantera.ct_addDirectory(dir)
+
+if ctdata:
+    addDirectory(ctdata)

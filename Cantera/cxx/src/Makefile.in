@@ -14,7 +14,7 @@ SUFFIXES= .cpp .d .o
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
-OBJS = cxxutils.o writelog.o
+OBJS = cxxutils.o 
 
 DEPENDS = $(OBJS:.o=.d)
 

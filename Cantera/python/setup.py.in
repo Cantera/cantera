@@ -50,7 +50,7 @@ if @BUILD_PYTHON@ == 2:
           packages = ["","Cantera","Cantera.OneD",
                       "MixMaster","MixMaster.Units"],
           ext_modules=[ Extension("Cantera._cantera",
-                                  ["src/pycantera.cpp", "src/writelog.cpp"],
+                                  ["src/pycantera.cpp"],
                                   include_dirs=["../../build/include",
                                                 "src", "../clib/src"],
                                   library_dirs = libdir,

@@ -22,8 +22,8 @@ EOF
 rm -f cantera_loc.py
 cat > cantera_loc.py << AOF
 # Cantera localization module. 
-CANTERA_INSTALL_DIR=$apps/Cantera
-CANTERA_DATA=$apps/Cantera/data
+CANTERA_INSTALL_DIR='$apps/Cantera'
+CANTERA_DATA='$apps/Cantera/data'
 AOF
 python setup.py install
 

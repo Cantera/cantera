@@ -1,9 +1,9 @@
 
-#include "Cantera.h"
-#include "IdealGasMix.h"
-#include "transport.h"
+#include "/Applications/Cantera/include/cantera/Cantera.h"
+#include "cantera/IdealGasMix.h"
+#include "cantera/transport.h"
 
-main() {
+int main() {
 
     // create the gas object
 
@@ -51,7 +51,7 @@ main() {
 
     //=================== create the container and insert the domains =====
     
-    vector<Resid1D*> domains;
+    vector<Domain1D*> domains;
     domains.push_back(inlet);
     domains.push_back(flow);
     domains.push_back(surf);
