@@ -1,3 +1,24 @@
+2005-01-22 04:48  dggoodwin
+
+	* win32/vc7/: SetupCantera/SetupCantera.vdproj,
+	  cantera/cantera.vcproj, ck2cti/ck2cti.vcproj,
+	  converters/converters.vcproj, ctmatlab/ctmatlab.vcproj,
+	  ctpython/ctpython.vcproj, cvode/cvode.vcproj,
+	  cxxutils/cxxutils.vcproj, f2c_blas/f2c_blas.vcproj,
+	  f2c_lapack/f2c_lapack.vcproj, f2c_libs/f2c_libs.vcproj,
+	  f2c_math/f2c_math.vcproj, f2c_recipes/f2c_recipes.vcproj,
+	  oneD/oneD.vcproj, tpx/tpx.vcproj, transport/transport.vcproj,
+	  zeroD/zeroD.vcproj: added hfc134a to Cantera
+
+2005-01-19 13:22  dggoodwin
+
+	* data/inputs/: nasa.cti, nasa_condensed.cti, nasa_gas.cti:
+	  separated gaseous and condensed-phase species
+
+2005-01-18 06:36  dggoodwin
+
+	* ext/tpx/HFC134a.h: fixed include error
+
 2005-01-14 05:41  dggoodwin
 
 	* configure, Cantera/python/Cantera/liquidvapor.py,
@@ -143,7 +164,12 @@
 
 2005-01-07 17:10  dggoodwin
 
-	* win32/vc7/cantera/cantera.vcproj: added a file to project cantera
+	* win32/vc7/: cantera/cantera.vcproj, config_h/config_h.vcproj:
+	  added a file to project cantera
+
+2005-01-07 16:59  dggoodwin
+
+	* win32/vc7/config_h/config_h.vcproj: added project config_h
 
 2005-01-07 16:29  dggoodwin
 
