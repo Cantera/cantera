@@ -171,8 +171,10 @@ finish-install:
 	@INSTALL@ README*.txt @prefix@/cantera
 	@INSTALL@ License.* @prefix@/cantera
 	@INSTALL@ tools/src/finish_install.py tools/bin
+ifeq ($(os_is_win),0)
 	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
 	chmod +x @ct_bindir@/ctnew
+endif
 
 #@INSTALL@ bin/ctmkmf @ct_bindir@/ctnew
 #@INSTALL@ bin/cxx_examples @ct_demodir@/c++

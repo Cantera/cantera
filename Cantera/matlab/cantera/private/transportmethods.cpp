@@ -2,7 +2,7 @@
 #include "mex.h"
 #include "../../../clib/src/ct.h"
 #include "ctmatutils.h"
-#include <fstream.h>
+#include <fstream>
 
 void reportError();
 

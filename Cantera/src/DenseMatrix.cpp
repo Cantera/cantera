@@ -125,7 +125,7 @@ namespace Cantera {
      */
     int invert(DenseMatrix& A, int nn) {
         integer n = (nn > 0 ? nn : A.nRows());
-        integer info;
+        integer info=0;
         ct_dgetrf(n, n, A.begin(), A.nRows(), A.ipiv().begin(), info);
         if (info != 0) 
             throw CanteraError("invert",

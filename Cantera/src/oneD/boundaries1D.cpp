@@ -274,7 +274,7 @@ namespace Cantera {
         doublereal* x = xg + loc();
         doublereal* r = rg + loc();
         integer* diag = diagg + loc();
-        integer *db;
+//        integer *db;
 
         r[0] = x[0];
         diag[0] = 0;

@@ -301,7 +301,7 @@ extern "C" {
     int DLL_EXPORT reactingsurf_enableCoverageEqs(int i, int onoff) {
         try {
             ReactingSurf1D* srf = (ReactingSurf1D*)_bdry(i);
-            srf->enableCoverageEquations(onoff);
+            srf->enableCoverageEquations(bool(onoff));
             return 0;
         }
 
