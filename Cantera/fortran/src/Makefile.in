@@ -13,12 +13,36 @@ SUFFIXES=
 SUFFIXES= .cpp .d .o .f90 .mod
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
+FORT_FLAGS = @F90FLAGS@
 
-OBJS = fct.o fctxml.o fctxml_interface.o cantera_xml.o
+CXX_OBJS = fct.o fctxml.o
 
-MODULES = fctxml.mod cantera_xml.mod
+#INTERFACE_MODULE_OBJS = fct_interface.o fctxml_interface.o 
+#
+#USER_MODULE_OBJS = cantera_xml.o cantera_thermo.o cantera_kinetics.o \
+#                   cantera_funcs.o canteramod.o
+#
+#MODULES = $(INTERFACE_MODULE_OBJS) $(USER_MODULE_OBJS)
+#OBJS = $(CXX_OBJS) $(USER_MODULE_OBJS)
+#
+#DEPENDS = $(CXX_OBJS:.o=.d)
+#UMODS = $(USER_MODULE_OBJS:cantera_=)
+#MODFILES = $(INTERFACE_MODULE_OBJS:_interface.o=.mod) $(UMODS:.o=.mod) 
 
-DEPENDS = $(OBJS:.o=.d)
+
+
+CXX_OBJS = fct.o fctxml.o
+
+INTERFACE_MODULE_OBJS = fct_interface.o fctxml_interface.o 
+
+USER_MODULE_OBJS = cantera_xml.o cantera_thermo.o cantera_kinetics.o \
+                   cantera_transport.o cantera_funcs.o cantera.o
+
+MODULES = $(INTERFACE_MODULE_OBJS:_interface.o=.mod) $(USER_MODULE_OBJS)
+OBJS = $(CXX_OBJS) $(USER_MODULE_OBJS)
+
+DEPENDS = $(CXX_OBJS:.o=.d)
+MODFILES = $(MODULES:.o=.mod)
 
 # Fortran libraries
 FORT_LIBS = @FLIBS@
@@ -42,6 +66,9 @@ LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a \
 # the directory where Cantera include files may be found.
 CANTERA_INCDIR=../../src
 
+# the directory where module .mod files should be put
+MODULE_DIR = @buildinc@/cantera
+
 CXX_INCLUDES = -I$(CANTERA_INCDIR)  
 
 # flags passed to the C++ compiler/linker for the linking step
@@ -54,16 +81,21 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
 %.o : %.f90
 	$(F90) -c $< $(FORT_FLAGS)
 
+%.mod : %_interface.f90
+	$(F90) -c $< $(FORT_FLAGS)
+
 %.mod : %.f90
 	$(F90) -c $< $(FORT_FLAGS)
+
 
 LIB_NAME=libfct.a
 
 FTLIB = @buildlib@/$(LIB_NAME)
 
-lib: $(MODULES) $(OBJS) $(LIB_DEPS)
+lib: $(MODFILES) $(USER_MODULE_OBJS) $(CXX_OBJS) $(LIB_DEPS)
 	$(RM)     $(FTLIB)
 	@ARCHIVE@ $(FTLIB) $(OBJS) 
+	cp -f $(MODFILES) $(MODULE_DIR)
 
 clean:
 	$(RM) $(OBJS) $(FTLIB)
@@ -81,6 +113,10 @@ win-install:
 depends: $(DEPENDS)
 	cat *.d > .depends
 	$(RM) $(DEPENDS) 
+
+cantera_thermo.o: fct.mod cantera_xml.mod cantera_thermo.f90
+fct.mod: fct_interface.f90
+fctxml.mod: fctxml_interface.f90
 
 ifeq ($(wildcard .depends), .depends)
 include .depends

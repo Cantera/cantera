@@ -31,13 +31,19 @@ def getargs(line):
             raise 'malformed argument: '
     return nm, v
 
-_c2fout = {'int*':'integer', 'integer*':'integer', 'double*':'double precision',
+_c2fout = {'int*':'integer', 'integer*':'integer',
+           'double*':'double precision', 'doublereal*':'double precision',
            'char*':'character*(*)'}
 
 _c2fin  = {'const int*':'integer', 'const integer*':'integer',
-           'const double*':'double precision', 'const char*':'character*(*)'}
+           'const double*':'double precision',
+           'const doublereal*':'double precision',
+           'const char*':'character*(*)'}
 
-_c2fret = {'int':'integer', 'integer':'integer', 'double':'double precision'}
+_c2fret = {'int':'integer', 'integer':'integer',
+           'double':'double precision',
+           'status_t':'integer',
+           'doublereal':'double precision'}
 
 
 def writeinterface(fint, rtype, name, args):
@@ -54,15 +60,25 @@ def writeinterface(fint, rtype, name, args):
     s += argstr+')\n'
     fint.write(s)
     for a in args:
+        if a[0][0] == 'd':
+            arr = '(*)'
+        else:
+            arr = ''
         if a[0] in _c2fin:
-            fint.write('        '+_c2fin[a[0]]+', intent(in) :: '+a[1]+'\n')
+            fint.write('        '+_c2fin[a[0]]+', intent(in) :: '+a[1]+arr+'\n')
         elif a[0] in _c2fout:
-            fint.write('        '+_c2fout[a[0]]+', intent(out) :: '+a[1]+'\n')
+            fint.write('        '+_c2fout[a[0]]+', intent(out) :: '+a[1]+arr+'\n')
     fint.write('    end function '+name+'\n\n')
     
 
 def writef90(fmod, rtype, otype, hndl, name, args):
-    s = '    '+_c2fret[rtype] + ' function '
+    subroutine = 0
+    if rtype == 'status_t':
+        subroutine = 1
+    if subroutine:
+        s = '    subroutine '
+    else:
+        s = '    '+_c2fret[rtype] + ' function '
     if name[-1] == '_':
         name = name[:-1]
     wname = 'ct'+name[1:]
@@ -77,40 +93,49 @@ def writef90(fmod, rtype, otype, hndl, name, args):
     s += argstr+')\n'
     fmod.write(s)
     fmod.write("""      implicit none
-      type("""+otype+'), intent(in) :: self\n')
+      type("""+otype+'), intent(inout) :: self\n')
     for a in args[1:]:
+        if a[0][0] == 'd':
+            arr = '(*)'
+        else:
+            arr = ''            
         if a[0] in _c2fin:
-            fmod.write('      '+_c2fin[a[0]]+', intent(in) :: '+a[1]+'\n')
+            fmod.write('      '+_c2fin[a[0]]+', intent(in) :: '+a[1]+arr+'\n')
         elif a[0] in _c2fout:
-            fmod.write('      '+_c2fout[a[0]]+', intent(out) :: '+a[1]+'\n')
-    s = '      '+wname+' = '+name+'(self%'+hndl+', '            
+            fmod.write('      '+_c2fout[a[0]]+', intent(out) :: '+a[1]+arr+'\n')
+    if subroutine:
+        s = '      self%err = '+name+'(self%'+hndl+', '
+    else:
+        s = '      '+wname+' = '+name+'(self%'+hndl+', '                
     argstr = ''
     for a in args[1:]:
         if a[0] <> 'ftnlen':
             argstr += a[1] + ', '
     argstr = argstr[:-2]
     s += argstr+')'
-    fmod.write(s+"""
-    end function """+wname+'\n\n')
+    if subroutine:
+        fmod.write(s+'\n    end subroutine '+wname+'\n\n')
+    else:
+        fmod.write(s+'\n    end function '+wname+'\n\n')
     
 
     
-fname = sys.argv[1]
-otype = sys.argv[2]
-hndl = sys.argv[3]
-modname = sys.argv[4]
+fname = sys.argv[1]    # fctxml
+otype = sys.argv[2]    # XML_Node
+hndl = sys.argv[3]     # xml_id
 
 base, ext = fname.split('.')
+modname = base
 
 f = open(fname,'r')
-fint = open(base+'.f90','w')
-fmod = open(modname+'.f90','w')
-fgen = open('cantera_'+modname+'.f90','w')
+fint = open(base+'_interface.f90','w')
+#fmod = open(modname+'.f90','w')
+fmod = open('cantera_'+modname+'.f90','w')
 
 lines = f.readlines()
 f.close()
 
-_rtypes = ['int', 'double', 'integer']
+#_rtypes = ['int', 'double', 'integer']
 
 infunc = 0
 funcline = ''
@@ -121,7 +146,7 @@ fint.write('module '+base+'\n')
 fint.write('interface\n')
 for line in lines:
     toks = line.split()
-    if len(toks) > 0:
+    if len(toks) > 0 and toks[0][:2] <> '//':
         if toks[0] == 'extern':
             extern = 1
         if extern:
@@ -155,7 +180,7 @@ contains
 
 for line in lines:
     toks = line.split()
-    if len(toks) > 0:
+    if len(toks) > 0 and toks[0][:2] <> '//':
         if toks[0] == 'extern':
             extern = 1
         if extern:
