@@ -112,6 +112,10 @@ namespace Cantera {
             }
         }
 
+        void writeUpdate(ostream & output1, string key) {
+	    output1 << key;
+        }
+
     protected:
         vector<R>             m_rates;
         vector<int>           m_rxn;
