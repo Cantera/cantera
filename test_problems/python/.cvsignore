@@ -1,3 +1,4 @@
+.cttmp.py
 Makefile
 flame1.csv
 diamond.csv
@@ -5,3 +6,4 @@ diamond.csv
 *.xml
 *.txt
 *.log
+flame1_blessed_tmp.csv

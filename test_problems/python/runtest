@@ -3,7 +3,9 @@
 #
 
 temp_success="1"
-/bin/rm  -f diamond.csv flame1.csv 
+/bin/rm  -f diamond.csv flame1.csv flame1_blessed_tmp.csv \
+            flame1.out diamond.out flame1_test.out \
+            diamond_test.out
 
 #################################################################
 #
@@ -42,8 +44,15 @@ fi
 #################################################################
 #
 #################################################################
-
-$CANTERA_BIN/csvdiff flame1.csv flame1_blessed.csv > flame1_test.out
+#
+# Machine dependent blessed file for now
+#
+/bin/cp flame1_blessed.csv flame1_blessed_tmp.csv
+machType=`../../bin/get_arch`
+if test x"$machType" = "xlinux" ; then
+  /bin/cp flame1_blessed_linux.csv flame1_blessed_tmp.csv
+fi
+$CANTERA_BIN/csvdiff flame1.csv flame1_blessed_tmp.csv > flame1_test.out
 retnStat=$?
 if [ $retnStat = "1" ]
 then
