@@ -2,7 +2,7 @@
 #include <string>
 using namespace std;
 
-static std::string ss = "print \"";
+static std::string ss = "print \"\"\" ";
 
 namespace Cantera {
 
@@ -11,9 +11,9 @@ namespace Cantera {
         int n = 0;
         while (ch != '\0') {
             if (ch =='\n') {
-                ss += "\"";
+                ss += "\"\"\"";
                 PyRun_SimpleString((char *)ss.c_str());            
-                ss = "print \"";
+                ss = "print \"\"\"";
             }
             else 
                 ss += ch;

@@ -191,14 +191,14 @@ namespace ctml {
             if (vmin != "") {
                 x0 = atof(vmin.c_str());
                 if (x < x0 - Tiny) {
-                write("\nWarning: value "+fi()+" is below lower limit of "
+                writelog("\nWarning: value "+fi()+" is below lower limit of "
                     +vmin+".\n");
                 }
             }
             if (fi["max"] != "") {
                 x1 = atof(vmax.c_str());
                 if (x > x1 + Tiny) {
-                write("\nWarning: value "+fi()+" is above upper limit of "
+                writelog("\nWarning: value "+fi()+" is above upper limit of "
                     +vmax+".\n");
                 }
             }
@@ -232,14 +232,14 @@ namespace ctml {
         if (vmin != "") {
             x0 = atof(vmin.c_str());
             if (x < x0 - Tiny) {
-                write("\nWarning: value "+node()+" is below lower limit of "
+                writelog("\nWarning: value "+node()+" is below lower limit of "
                     +vmin+".\n");
                 }
             }
         if (node["max"] != "") {
             x1 = atof(vmax.c_str());
             if (x > x1 + Tiny) {
-                write("\nWarning: value "+node()+" is above upper limit of "
+                writelog("\nWarning: value "+node()+" is above upper limit of "
                     +vmax+".\n");
             }
         }
@@ -286,11 +286,11 @@ namespace ctml {
             }
             vv = v.back();
             if (vmin != Undef && vv < vmin - Tiny) {
-                write("\nWarning: value "+fp2str(vv)+
+                writelog("\nWarning: value "+fp2str(vv)+
                     " is below lower limit of " +fp2str(vmin)+".\n");
             }
             if (vmax != Undef && vv > vmax + Tiny) {
-                write("\nWarning: value "+fp2str(vv)+
+                writelog("\nWarning: value "+fp2str(vv)+
                     " is above upper limit of " +fp2str(vmin)+".\n");
             }
         }

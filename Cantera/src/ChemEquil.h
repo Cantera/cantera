@@ -26,7 +26,7 @@ using namespace std;
 #include "ct_defs.h"
 #include "vec_functions.h"
 #include "ctexceptions.h"
-#include "Thermo.h"
+#include "ThermoPhase.h"
 #include "PropertyCalculator.h"
 #include "DenseMatrix.h"
 

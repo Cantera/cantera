@@ -69,7 +69,7 @@ extern "C" {
         int iclass = getInt(prhs[0]);
         
         // specifies that function writelog should write to MATLAB
-        Cantera::setMatlabMode(true);
+        //Cantera::setMatlabMode(true);
 
         // Hand off to the appropriate routine, based on the
         // value of the first parameter

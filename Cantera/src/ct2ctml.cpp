@@ -39,20 +39,26 @@ namespace ctml {
         }
         f << "from Cantera import *\n";
         f.close();
+        int ierr = 0;
         string cmd = pypath() + " " + path + " &> " + tmpDir() + "/log";
-        int ierr = system(cmd.c_str());
-        if (ierr != 0) {
-            string msg;
-            msg = cmd + "\n\n########################################################################\n\n"
-                  "The Cantera Python interface is required in order to process\n"
-                  "Cantera input files, but it does not seem to be correctly installed.\n\n"
-                  "Check that you can invoke the Python interpreter with \n"
-                  "the command \"python\", and that typing \"from Cantera import *\"\n"
-                  "at the Python prompt does not produce an error. If Python on your system\n"
-                  "is invoked with some other command, set environment variable PYTHON_CMD\n"
-                  "to the full path to the Python interpreter. \n\n"
-                  "#########################################################################\n\n";
-            writelog(msg);
+        try {
+            ierr = system(cmd.c_str());
+            if (ierr != 0) {
+                string msg;
+                msg = cmd + "\n\n########################################################################\n\n"
+                      "The Cantera Python interface is required in order to process\n"
+                      "Cantera input files, but it does not seem to be correctly installed.\n\n"
+                      "Check that you can invoke the Python interpreter with \n"
+                      "the command \"python\", and that typing \"from Cantera import *\"\n"
+                      "at the Python prompt does not produce an error. If Python on your system\n"
+                      "is invoked with some other command, set environment variable PYTHON_CMD\n"
+                      "to the full path to the Python interpreter. \n\n"
+                      "#########################################################################\n\n";
+                writelog(msg);
+                return false;
+            }
+        }
+        catch (...) {
             return false;
         }
         return true;
@@ -76,19 +82,37 @@ namespace ctml {
           << "write()\n";
         f.close();
         string cmd = pypath() + " " + path + " &> ct2ctml.log";
-        int ierr = system(cmd.c_str());
-        if (ierr != 0) {
-            string msg = cmd;
+        int ierr;
+        try {
+            ierr = system(cmd.c_str());
+        }
+        catch (...) {
+            ierr = -10;
+        }
+        char line[90];
+        //if (ierr != 0) {
+        try {
+            char ch;
+            string s = "";
             ifstream ferr("ct2ctml.log");
             if (ferr) {
-                char line[80];
                 while (!ferr.eof()) {
                     //msg += "\n";
-                    ferr.getline(line, 80);
-                    writelog(string(line)+"\n");
+                    ferr.get(ch);
+                    s += ch;
+                    if (ch == '\n') {
+                        writelog(s);
+                        s = "";
+                    }
                 }
                 ferr.close();
             }
+        }
+        catch (...) {
+            ; //writelog("could not print error message.\n");
+        }
+        if (ierr != 0) {
+            string msg = cmd;
             bool pyok = checkPython();
             if (!pyok) 
                 msg += "\nError in Python installation.";

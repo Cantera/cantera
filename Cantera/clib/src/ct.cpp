@@ -831,14 +831,15 @@ extern "C" {
 
     int DLL_EXPORT readlog(int n, char* buf) {
         string s;
-        getlog(s);
+        writelog("function readlog is deprecated!");
+        //getlog(s);
         int nlog = s.size();
         if (n < 0) return nlog; 
         int nn = min(n-1, nlog);
         copy(s.begin(), s.begin() + nn,
             buf);
         buf[min(nlog, n-1)] = '\0';
-        clearlog();
+        //clearlog();
         return 0;
 
     } 

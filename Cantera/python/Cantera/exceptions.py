@@ -9,9 +9,9 @@ class CanteraError(Exception):
             msg = _cantera.get_Cantera_Error()
         self.msg = msg
     def __str__(self):
-        print '\n\n\n#############  CANTERA ERROR  ############\n'
+        print '\n\n\n#######################  CANTERA ERROR  ######################\n'
         print '    ',self.msg
-        print '\n##########################################\n'
+        print '\n##############################################################\n'
 
 
 class OptionError(CanteraError):

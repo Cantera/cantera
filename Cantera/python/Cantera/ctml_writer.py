@@ -1,8 +1,15 @@
-
 #
 # Cantera input file processor
 #
-
+# The functions and classes in this module process Cantera .cti input files and produce CTML files. #
+# usage:
+#
+# from Cantera import *
+# from Cantera.ctml_writer import *
+# execfile('infile.cti')
+# write()
+#
+from Cantera import CanteraError
 from Cantera import GasConstant
 from Cantera.XML import XML_Node
 import types, math
@@ -17,6 +24,12 @@ SKIP_UNDECLARED_ELEMENTS = 20
 SKIP_UNDECLARED_SPECIES = 30
 STOP = 0
 
+_EXCEPT = 10
+_WARN = 2
+_SKIP = 1
+_handle_undeclared_element = _EXCEPT
+_handle_undeclared_species = _EXCEPT
+
 # default units
 _ulen = 'm' 
 _umol = 'kmol'
@@ -30,18 +43,26 @@ _pref = 1.0e5    # 1 bar
 _name = 'noname'
 
 _species = []
+_speciesnames = []
 _phases = []
 _reactions = []
 _atw = {}
 _mw = {}
 
 def isnum(a):
+    """True if a is an integer or floating-point number."""
     if type(a) == types.IntType or type(a) == types.FloatType:
         return 1
     else:
         return 0
-    
+
+def is_local_species(name):
+    if name in _speciesnames:
+        return 1
+    return 0
+
 def dataset(nm):
+    "Set the dataset name"
     global _name
     _name = nm
 
@@ -49,6 +70,15 @@ def standard_pressure(p0):
     """Set the default standard-state pressure."""
     global _pref
     _pref = p0
+
+def on_error(undeclared_element = '', undeclared_species = ''):
+    global _handle_undeclared_species
+    global _handle_undeclared_element
+    
+    _handle_undeclared_species = undeclared_species
+    _handle_undeclared_element = undeclared_element
+            
+            
     
 def get_atomic_wts():
     global _atw
@@ -216,6 +246,8 @@ class species(writer):
         
         global _species
         _species.append(self)
+        global _speciesnames
+        _speciesnames.append(name)
         
 
     def build(self, p):
@@ -417,22 +449,13 @@ class reaction(writer):
             else:
                 nstr = `self._num`
             id = nstr
-        p.addComment("   reaction "+id+"    ")                
-        r = p.addChild('reaction')
-        r['id'] = id
-        if self.rev:
-            r['reversible'] = 'yes'
-        else:
-            r['reversible'] = 'no'
 
-        ee = self._e.replace('<','[')
-        ee = ee.replace('>',']')
-        r.addChild('equation',ee)
         
         mdim = 0
         ldim = 0
         str = ''
 
+            
         for s in self._r.keys():
             ns = self._r[s]
             nm = -999
@@ -446,12 +469,49 @@ class reaction(writer):
                     if ph.is_ideal_gas():
                         self._igspecies.append(s)
                     break
-            if nm < 0:
-                print self._r
-                raise 'undeclared species '+s
-            else:
-                mdim += nm*ns
-                ldim += nl*ns
+##             if nm < 0:
+##                 if _handle_undeclared_species == _WARN:
+##                     print 'Warning... skipping reaction '+self._e
+##                     print 'because species '+s+' is undeclared'
+##                 if _handle_undeclared_species <= _WARN:
+##                     return 0
+##                 else:
+##                     raise CanteraError('undeclared species '+s+' in reaction '+self._e)
+
+##             else:
+            mdim += nm*ns
+            ldim += nl*ns
+
+##         for s in self._p.keys():
+##             ns = self._p[s]
+##             ok = 0
+##             for ph in _phases:
+##                 if ph.has_species(s):
+##                     ok = 1
+##                     break
+                
+##             if not ok:
+##                 if _handle_undeclared_species == _WARN:
+##                     print 'Warning... skipping reaction '+self._e
+##                     print 'because species '+s+' is undeclared'
+##                 if _handle_undeclared_species <= _WARN:
+##                     return 0
+##                 else:
+##                     raise CanteraError('undeclared species '+s+' in reaction '+self._e)
+
+
+        p.addComment("   reaction "+id+"    ")                
+        r = p.addChild('reaction')
+        r['id'] = id
+        if self.rev:
+            r['reversible'] = 'yes'
+        else:
+            r['reversible'] = 'no'
+
+        ee = self._e.replace('<','[')
+        ee = ee.replace('>',']')
+        r.addChild('equation',ee)
+                
 
         # adjust the moles and length powers based on the dimensions of
         # the rate of progress (moles/length^2 or moles/length^3)
@@ -537,6 +597,7 @@ class three_body_reaction(reaction):
         
     def build(self, p):
         r = reaction.build(self, p)
+        if r == 0: return
         kfnode = r.child('rateCoeff')
         
         if self._eff:
@@ -591,7 +652,7 @@ class falloff_reaction(reaction):
         
     def build(self, p):
         r = reaction.build(self, p)
-
+        if r == 0: return
         kfnode = r.child('rateCoeff')
         
         if self._eff and self._effm >= 0.0:
@@ -748,6 +809,10 @@ class phase(writer):
             datasrc = r[0]
             ra = p.addChild('reactionArray')
             ra['datasrc'] = datasrc+'#reaction_data'
+            if _handle_undeclared_species == 'skip':
+                rk = ra.addChild('skip')
+                rk['species'] = 'undeclared'
+            
             rtoks = r[1].split()
             if rtoks[0] <> 'all':
                 i = ra.addChild('include')
@@ -770,10 +835,10 @@ class phase(writer):
             datasrc, names = s
             sa = ph.addChild('speciesArray',names)
             sa['datasrc'] = datasrc+'#species_data'
-            
-        if self._skip:
-            sk = sa.addChild('skip')
-            sk['element'] = 'undeclared'
+
+            if _handle_undeclared_element == 'skip':
+                sk = sa.addChild('skip')
+                sk['element'] = 'undeclared'
             
         if self._rxns <> 'none':
             self.buildrxns(ph)

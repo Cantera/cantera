@@ -33,7 +33,7 @@ namespace Cantera {
     class Application {
     public:
         Application() : linelen(0), stop_on_error(false), 
-                        write_log_to_cout(true), matlab(false), tmp_dir("/tmp") {}
+                        tmp_dir("/tmp") {}
         virtual ~Application(){}
         vector<string> inputDirs;
         vector<string> errorMessage;
@@ -42,8 +42,8 @@ namespace Cantera {
         string msglog;
         size_t linelen;
         bool stop_on_error;
-        bool write_log_to_cout;
-        bool matlab;
+        //bool write_log_to_cout;
+        //bool matlab;
         map<string, string>     options;
         string tmp_dir;
     };
@@ -69,10 +69,10 @@ namespace Cantera {
         return __app;
     }
 
-    void setTmpDir(string tmp) { appinit();  __app->tmp_dir = tmp; }
-    string tmpDir() { appinit(); return __app->tmp_dir; }
+    void setTmpDir(string tmp) { app()->tmp_dir = tmp; }
+    string tmpDir() { appinit(); return app()->tmp_dir; }
 
-    int nErrors() {return __app->errorMessage.size();}
+    int nErrors() {return app()->errorMessage.size();}
 
     void popError() {
         appinit();
@@ -256,22 +256,23 @@ namespace Cantera {
         }
     }
 
-    void setMatlabMode(bool m) { 
-        appinit();
-        __app->matlab = m; 
-    }
+    //void setMatlabMode(bool m) { 
+    //    appinit();
+    //    __app->matlab = m; 
+    //}
 
-    void write(const string& msg) {cout << msg;}
-    void write(const char* msg) {cout << msg;}
+    //void write(const string& msg) {cout << msg;}
+    //void write(const char* msg) {cout << msg;}
+
     void writelog(const char* msg) {writelog(string(msg));}
-    void getlog(string& s) {
-        appinit();
-        s = __app->msglog;
-        //__app->msglog = "";
-    }
-    void clearlog() {
-        __app->msglog = "";
-    }
+    //void getlog(string& s) {
+    //    appinit();
+    //    s = __app->msglog;
+    //    //__app->msglog = "";
+    //}
+    //void clearlog() {
+    //    __app->msglog = "";
+    //}
 
     doublereal toSI(string unit) {
         doublereal f = Unit::units()->toSI(unit);
