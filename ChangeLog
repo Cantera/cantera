@@ -332,6 +332,11 @@
 	* Cantera/python/Makefile.in: took care of problem with clib.dll
 	  for MSVC6.0
 
+2004-09-24 10:24  hkmoffa
+
+	* win32/README: Added another step, involving setting up paths and
+	  environmental variables.
+
 2004-09-20 03:18  dggoodwin
 
 	* Cantera/src/: EdgeKinetics.cpp, EdgeKinetics.h, ReactionData.h,
@@ -341,6 +346,10 @@
 2004-09-16 15:08  hkmoffa
 
 	* Makefile.in: Added dll install
+
+2004-09-16 15:07  hkmoffa
+
+	* win32/README: Added another step.
 
 2004-09-16 14:43  hkmoffa
 
@@ -378,6 +387,10 @@
 	* Cantera/src/converters/ck2ct.cpp: Took out a print statement that
 	  was causing a test to fail.
 
+2004-09-02 13:48  hkmoffa
+
+	* win32/README: Added a cd command.
+
 2004-08-28 09:13  dggoodwin
 
 	* tools/bin/erase: script to remove a file from the repository
@@ -403,6 +416,10 @@
 2004-08-27 13:35  hkmoffa
 
 	* bin/.cvsignore: added some windows tmp files
+
+2004-08-27 13:29  hkmoffa
+
+	* win32/README: Added detailed instructions for vc7
 
 2004-08-27 13:21  hkmoffa
 
@@ -573,6 +590,18 @@
 	  Cantera/src/ctvector.cpp, Cantera/src/ctvector.h,
 	  Cantera/src/misc.cpp, config/configure, config/configure.in,
 	  ext/math/fdump.f: improvements to the configuration process
+
+2004-08-06 16:29  hkmoffa
+
+	* win32/vc6/: cantera.dsw, all/all.dsp, blas/blas.dsp,
+	  cantera/cantera.dsp, cantera_examples/cantera_examples.dsw,
+	  ck2cti/ck2cti.dsp, ckreader/ckreader.dsp, clib/clib.dsp,
+	  converters/converters.dsp, ct/ct.dsp, ctmath/ctmath.dsp,
+	  ctsetup/ctsetup.dsp, cvode/cvode.dsp, cxxutils/cxxutils.dsp,
+	  cxxutils/cxxutils.mak, lapack/lapack.dsp, oneD/oneD.dsp,
+	  recipes/recipes.dsp, tpx/tpx.dsp, tpx/tpx.mak,
+	  transport/transport.dsp, zeroD/zeroD.dsp: Duplicating existing
+	  structure in the new module. However, it's one directory deeper.
 
 2004-08-06 16:09  hkmoffa
 
@@ -842,6 +871,14 @@
 
 	* Cantera/src/: IdealGasThermo.cpp, ImplicitChem.cpp, Makefile.in,
 	  SolidCompound.cpp, importSurfChem.cpp, surfKinetics.cpp: cleanup
+
+2004-08-03 02:18  dggoodwin
+
+	* win32/README: Initial revision
+
+2004-08-03 02:18  dggoodwin
+
+	* win32/README: initial import
 
 2004-08-03 02:09  dggoodwin
 
@@ -1705,11 +1742,6 @@
 
 	* Makefile.in: -
 
-2003-12-22 08:06  dggoodwin
-
-	* win32/: cantera.dsw, cantera/cantera.dsp, cxxutils/cxxutils.dsp,
-	  cxxutils/cxxutils.mak, tpx/tpx.dsp, tpx/tpx.mak: initial import
-
 2003-12-22 06:41  dggoodwin
 
 	* config/: configure, configure.in, testpch.h: initial import
@@ -1722,8 +1754,8 @@
 	  Cantera/matlab/cantera/private/transportmethods.cpp,
 	  Cantera/src/BandMatrix.cpp, Cantera/src/DenseMatrix.cpp,
 	  Cantera/src/config.h, Cantera/src/oneD/boundaries1D.cpp,
-	  config/configure, config/configure.in, win32/cantera.dsw,
-	  win32/transport/transport.dsp: updated Windows build procedure
+	  config/configure, config/configure.in: updated Windows build
+	  procedure
 
 2003-12-20 10:03  hkmoffa
 
@@ -3381,15 +3413,7 @@
 	  tools/testtools/Makefile.in, tools/testtools/csvdiff.cpp,
 	  tools/testtools/mdp_allo.cpp, tools/testtools/mdp_allo.h,
 	  tools/testtools/tok_input_util.cpp,
-	  tools/testtools/tok_input_util.h, win32/cantera.dsw,
-	  win32/blas/blas.dsp, win32/cantera/cantera.dsp,
-	  win32/cantera_examples/cantera_examples.dsw,
-	  win32/ckreader/ckreader.dsp, win32/converters/converters.dsp,
-	  win32/ct/ct.dsp, win32/ctmath/ctmath.dsp,
-	  win32/ctsetup/ctsetup.dsp, win32/cvode/cvode.dsp,
-	  win32/lapack/lapack.dsp, win32/oneD/oneD.dsp,
-	  win32/recipes/recipes.dsp, win32/transport/transport.dsp,
-	  win32/zeroD/zeroD.dsp: Initial import.
+	  tools/testtools/tok_input_util.h: Initial import.
 
 2003-04-14 10:57  dggoodwin
 
@@ -3986,13 +4010,5 @@
 	  tools/testtools/Makefile.in, tools/testtools/csvdiff.cpp,
 	  tools/testtools/mdp_allo.cpp, tools/testtools/mdp_allo.h,
 	  tools/testtools/tok_input_util.cpp,
-	  tools/testtools/tok_input_util.h, win32/cantera.dsw,
-	  win32/blas/blas.dsp, win32/cantera/cantera.dsp,
-	  win32/cantera_examples/cantera_examples.dsw,
-	  win32/ckreader/ckreader.dsp, win32/converters/converters.dsp,
-	  win32/ct/ct.dsp, win32/ctmath/ctmath.dsp,
-	  win32/ctsetup/ctsetup.dsp, win32/cvode/cvode.dsp,
-	  win32/lapack/lapack.dsp, win32/oneD/oneD.dsp,
-	  win32/recipes/recipes.dsp, win32/transport/transport.dsp,
-	  win32/zeroD/zeroD.dsp: Initial revision
+	  tools/testtools/tok_input_util.h: Initial revision
 
