@@ -3,3 +3,5 @@ diff_test.out
 output.txt
 silane_equil
 csvCode.txt
+*.d
+.depends

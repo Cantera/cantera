@@ -7,6 +7,9 @@
 #
 #############################################################################
 
+# addition to suffixes
+.SUFFIXES : .d
+
 # the name of the executable program to be created
 PROG_NAME = silane_equil
 
@@ -29,9 +32,6 @@ CXX = @CXX@
 # C++ compile flags
 CXX_FLAGS = @CXXFLAGS@
 
-# external libraries
-EXT_LIBS = @LOCAL_LIBS@ -lctcxx
-
 # Ending C++ linking libraries
 LCXX_END_LIBS = @LCXX_END_LIBS@
 
@@ -39,7 +39,7 @@ LCXX_END_LIBS = @LCXX_END_LIBS@
 CANTERA_LIBDIR=@buildlib@
 
 # required Cantera libraries
-CANTERA_LIBS =  
+CANTERA_LIBS = @LOCAL_LIBS@ -lctcxx
 
 # the directory where Cantera include files may be found.
 CANTERA_INCDIR=@ctroot@/build/include/cantera
@@ -47,24 +47,40 @@ CANTERA_INCDIR=@ctroot@/build/include/cantera
 # flags passed to the C++ compiler/linker for the linking step
 LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
 
-# how to compile C++ source files to object files
+# How to compile C++ source files to object files
 .@CXX_EXT@.@OBJ_EXT@:
 	$(CXX) -c $< -I$(CANTERA_INCDIR) $(CXX_FLAGS)
 
+# How to compile the dependency file
+.cpp.d:
+	g++ -MM -I$(CANTERA_INCDIR) $(CXX_FLAGS) $*.cpp > $*.d
+
+# List of dependency files to be created
+DEPENDS=$(OBJS:.o=.d)
+
+# Program Name
 PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
 all: $(PROGRAM)
 
 $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a
-	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
-                   $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ $(FORT_LIBS) \
+	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(LINK_OPTIONS) \
+                  $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
+
+# depends target -> forces recalculation of dependencies
+depends:
+	$(RM) *.d .depends
+	@MAKE@ .depends
+
+.depends: $(DEPENDS)
+	cat *.d > .depends
 
 test:
 	@MAKE@ $(PROGRAM)
 	./runtest
 clean:
-	$(RM) $(OBJS) $(PROGRAM)
+	$(RM) $(OBJS) $(PROGRAM) $(DEPENDS) .depends
 	../../bin/rm_cvsignore
 
 

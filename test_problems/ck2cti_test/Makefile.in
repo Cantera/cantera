@@ -12,3 +12,5 @@ test:
 clean:
 	../../bin/rm_cvsignore
 
+depends:
+

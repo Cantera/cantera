@@ -32,9 +32,6 @@ CXX = @CXX@
 # C++ compile flags
 CXX_FLAGS = @CXXFLAGS@
 
-# external libraries
-EXT_LIBS = @LOCAL_LIBS@ -lctcxx
-
 # Ending C++ linking libraries
 LCXX_END_LIBS = @LCXX_END_LIBS@
 
@@ -42,7 +39,7 @@ LCXX_END_LIBS = @LCXX_END_LIBS@
 CANTERA_LIBDIR=@buildlib@
 
 # required Cantera libraries
-CANTERA_LIBS =  
+CANTERA_LIBS = @LOCAL_LIBS@ -lctcxx 
 
 # the directory where Cantera include files may be found.
 CANTERA_INCDIR=@ctroot@/build/include/cantera
@@ -69,12 +66,12 @@ all: $(PROGRAM)
 
 # Rule to make the program
 $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a 
-	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
-                   $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ $(FORT_LIBS) \
+	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(LINK_OPTIONS) \
+                  $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
 
 # depends target
-depends: .depends
+depends: 
 	$(RM) *.d .depends
 	@MAKE@ .depends
 
@@ -90,17 +87,4 @@ test:
 clean:
 	$(RM) $(OBJS) $(PROGRAM) $(DEPENDS) .depends
 	../../bin/rm_cvsignore
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -42,7 +42,7 @@ LCXX_END_LIBS = @LCXX_END_LIBS@
 CANTERA_LIBDIR=@buildlib@
 
 # required Cantera libraries
-CANTERA_LIBS =  
+CANTERA_LIBS =  @LOCAL_LIBS@ -lctcxx
 
 # the directory where Cantera include files may be found.
 CANTERA_INCDIR=@ctroot@/build/include/cantera
@@ -65,14 +65,15 @@ PROGRAM = $(PROG_NAME)$(EXE_EXT)
 all: $(PROGRAM)
 
 $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a 
-	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
-                   $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ $(FORT_LIBS) \
+	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(LINK_OPTIONS) \
+                  $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
 
 $(OBJS): 
 
-depends: $(DEPENDS)
-	cat *.d > .depends
+depends:
+	$(RM) *.d .depends
+	@MAKE@ .depends
 
 .depends: $(DEPENDS)
 	cat *.d > .depends
