@@ -75,13 +75,17 @@ int equil_example1(int job) {
 
         int ntemps = 50;   // number of temperatures
         Array2D output(nsp+2, ntemps);
-
+        
         // main loop
         doublereal temp;
+        doublereal thigh = gas.maxTemp();
+        doublereal tlow = 500.0;
+        doublereal dt = (thigh - tlow)/(ntemps - 1);
         doublereal pres = 0.01*OneAtm;
         clock_t t0 = clock();
         for (int i = 0; i < ntemps; i++) {
-            temp = 500.0 + 50.0*i;
+            temp = tlow + dt*i;
+            if (temp > gas.maxTemp()) break;
             gas.setState_TPX(temp, pres, "SIH4:0.01, H2:1.0");
             try {
                 equilibrate(gas,TP);
