@@ -6,11 +6,11 @@ function nm = elementName(a, m)
 %    integers, the output will be a cell array of
 %    the same shape containing the name strings.
 %
-[m, n] = size(k);
+[mm, nn] = size(m);
 nm = {};
-for i = 1:m
-  for j = 1:n
-    nm{i,j} = phase_get(a.tp_id, 41, k(i,j));
+for i = 1:mm
+  for j = 1:nn
+    nm{i,j} = phase_get(a.tp_id, 41, m(i,j));
   end
 end
 
