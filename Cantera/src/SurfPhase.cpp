@@ -102,6 +102,20 @@ namespace Cantera {
     }
 
     void SurfPhase::
+    getEnthalpy_RT(doublereal* hrt) const {
+        _updateThermo();
+        double rrt = 1.0/(GasConstant*temperature());
+        scale(m_h0.begin(), m_h0.end(), hrt, rrt);
+    }
+
+    void SurfPhase::
+    getEntropy_R(doublereal* sr) const {
+        _updateThermo();
+        double rr = 1.0/GasConstant;
+        scale(m_s0.begin(), m_s0.end(), sr, rr);
+    }
+
+    void SurfPhase::
     initThermo() {
         m_h0.resize(m_kk);
         m_s0.resize(m_kk);

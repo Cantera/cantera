@@ -319,7 +319,9 @@ namespace Cantera {
         multiply_each(krev, krev + nReactions(), rkc.begin());
     }
 
-
+    void InterfaceKinetics::getActivationEnergies(doublereal *E) {
+        copy(m_E.begin(), m_E.end(), E);
+    }
 
     /**
      * Update the rates of progress of the reactions in the reaciton

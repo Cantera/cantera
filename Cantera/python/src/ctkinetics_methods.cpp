@@ -151,6 +151,15 @@ kin_getarray(PyObject *self, PyObject *args)
     case 30:
         iok = kin_getNetRatesOfProgress(kin, nrxns, xd);
         break;
+    case 32:
+        iok = kin_getActivationEnergies(kin, nrxns, xd);
+        break;
+    case 34:
+        iok = kin_getFwdRateConstants(kin, nrxns, xd);
+        break;
+    case 36:
+        iok = kin_getRevRateConstants(kin, nrxns, xd);
+        break;
     case 40:
         iok = kin_getEquilibriumConstants(kin, nrxns, xd);
         break;

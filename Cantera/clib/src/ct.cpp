@@ -463,36 +463,45 @@ extern "C" {
 
 
     int DLL_EXPORT th_getEnthalpies_RT(int n, int lenm, double* h_rt) {
-        thermo_t* thrm = th(n);
-        int nsp = thrm->nSpecies();
-        if (lenm >= nsp) {
-            thrm->getEnthalpy_RT(h_rt);
-            return 0;
+        try {
+            thermo_t* thrm = th(n);
+            int nsp = thrm->nSpecies();
+            if (lenm >= nsp) {
+                thrm->getEnthalpy_RT(h_rt);
+                return 0;
+            }
+            else
+                return -10;
         }
-        else
-            return -10;
+        catch (CanteraError) {return -1;}
     }
 
     int DLL_EXPORT th_getEntropies_R(int n, int lenm, double* s_r) {
-        thermo_t* thrm = th(n);
-        int nsp = thrm->nSpecies();
-        if (lenm >= nsp) {
-            thrm->getEntropy_R(s_r);
-            return 0;
+        try {
+            thermo_t* thrm = th(n);
+            int nsp = thrm->nSpecies();
+            if (lenm >= nsp) {
+                thrm->getEntropy_R(s_r);
+                return 0;
+            }
+            else
+                return -10;
         }
-        else
-            return -10;
+        catch (CanteraError) {return -1;}
     }
 
     int DLL_EXPORT th_getCp_R(int n, int lenm, double* cp_r) {
-        thermo_t* thrm = th(n);
-        int nsp = thrm->nSpecies();
-        if (lenm >= nsp) {
-            thrm->getCp_R(cp_r);
-            return 0;
+        try {
+            thermo_t* thrm = th(n);
+            int nsp = thrm->nSpecies();
+            if (lenm >= nsp) {
+                thrm->getCp_R(cp_r);
+                return 0;
+            }
+            else
+                return -10;
         }
-        else
-            return -10;
+        catch (CanteraError) {return -1;}
     }
 
     int DLL_EXPORT th_setElectricPotential(int n, double v) {
@@ -655,6 +664,47 @@ extern "C" {
         }
         catch (CanteraError) {return -1;}
     }
+
+    int DLL_EXPORT kin_getFwdRateConstants(int n, int len, double* kfwd) {
+        try {
+            Kinetics* k = kin(n);
+            if (len >= k->nReactions()) {
+                k->getFwdRateConstants(kfwd);
+                return 0;
+            }
+            else 
+                return ERR;
+        }
+        catch (CanteraError) {return -1;}
+    }
+
+    int DLL_EXPORT kin_getRevRateConstants(int n, int len, double* krev) {
+        try {
+            Kinetics* k = kin(n);
+            if (len >= k->nReactions()) {
+                k->getRevRateConstants(krev);
+                return 0;
+            }
+            else 
+                return ERR;
+        }
+        catch (CanteraError) {return -1;}
+    }
+
+
+    int DLL_EXPORT kin_getActivationEnergies(int n, int len, double* E) {
+        try {
+            Kinetics* k = kin(n);
+            if (len >= k->nReactions()) {
+                k->getActivationEnergies(E);
+                return 0;
+            }
+            else 
+                return ERR;
+        }
+        catch (CanteraError) {return -1;}
+    }
+
 
     int DLL_EXPORT kin_getCreationRates(int n, int len, double* cdot) {
         try {

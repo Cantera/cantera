@@ -212,6 +212,7 @@ thermo_getarray(PyObject *self, PyObject *args)
     if (iok >= 0) {
         return PyArray_Return(x);
     }
+    else if (iok == -1) return reportCanteraError();
     else {
         PyErr_SetString(ErrorObject,"Unknown array attribute");
         return NULL;

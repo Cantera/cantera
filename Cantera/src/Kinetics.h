@@ -521,6 +521,16 @@ namespace Cantera {
 	}
 
 
+	/**
+	 * Return the activation energies in Kelvin.
+	 *
+	 * length is the number of reactions
+	 */
+	virtual void getActivationEnergies(doublereal *E) {
+            err("getActivationEnergies");
+	}
+
+
 	//@}
         /**
          * @name Reaction Mechanism Construction

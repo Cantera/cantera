@@ -261,6 +261,7 @@ namespace Cantera {
 
         virtual void getFwdRateConstants(doublereal* kfwd);
         virtual void getRevRateConstants(doublereal* krev);
+	virtual void getActivationEnergies(doublereal *E);
 
 	//@}
         /**

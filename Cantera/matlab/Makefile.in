@@ -44,7 +44,7 @@ ifeq ($(os_is_win),0)
 else
 	@PYTHON_CMD@ setup_winmatlab.py
 endif
-	(@MATLAB_CMD@ -nodesktop -nojvm -nosplash -r setup)
+	(@MATLAB_CMD@ -nojvm -nosplash -r setup)
 	rm -f setup.m 
 
 

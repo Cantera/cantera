@@ -48,7 +48,7 @@ _speciesnames = []
 _phases = []
 _reactions = []
 _atw = {}
-#_mw = {}
+
 
 _valsp = ''
 _valrxn = ''
@@ -405,7 +405,8 @@ class Arrhenius(writer):
             self._cov = None
 
         
-    def build(self, p, units_factor = 1.0, gas_species = [], name = ''):
+    def build(self, p, units_factor = 1.0,
+              gas_species = [], name = '', rxn_phase = None):
         
         a = p.addChild('Arrhenius')
         if name: a['name'] = name
@@ -422,12 +423,16 @@ reactant, but this reaction has """+`ngas`+': '+`gas_species`)
                 else:
                     a['species'] = gas_species[0]
                     units_factor = 1.0
+                
                     
         # if a pure number is entered for A, multiply by the conversion
         # factor to SI and write it to CTML as a pure number. Otherwise,
         # pass it as-is through to CTML with the unit string.
         if isnum(self._c[0]):
             addFloat(a,'A',self._c[0]*units_factor, fmt = '%14.6E')
+        elif len(self._c[0]) == 2 and self._c[0][1] == '/site':
+            addFloat(a,'A',self._c[0]/rxn_phase._sitedens,
+                     fmt = '%14.6E')            
         else:
             addFloat(a,'A',self._c[0], fmt = '%14.6E')
 
@@ -501,6 +506,8 @@ class reaction(writer):
             
         self._kf = kf
         self._igspecies = []
+        self._dims = [0]*4
+        self._rxnphase = None
         self._type = ''
         _reactions.append(self)
 
@@ -524,18 +531,25 @@ class reaction(writer):
         ldim = 0
         str = ''
 
+        rxnph = []
         for s in self._r.keys():
             ns = self._rxnorder[s]
             nm = -999
             nl = -999
 
             str += s+':'+`self._r[s]`+' '
-            
+            mindim = 4
             for ph in _phases:
                 if ph.has_species(s):
                     nm, nl = ph.conc_dim()
                     if ph.is_ideal_gas():
                         self._igspecies.append(s)
+                    if not ph in rxnph:
+                        rxnph.append(ph)
+                        self._dims[ph._dim] += 1
+                        if ph._dim < mindim:
+                            self._rxnphase = ph
+                            mindim = ph._dim
                     break
             if nm == -999:
                 raise CanteraError("species "+s+" not found")
@@ -574,9 +588,17 @@ class reaction(writer):
         if self._type == 'surface':
             mdim += -1
             ldim += 2
+            p = self._dims[:3]
+            if p[0] <> 0 or p[1] <> 0 or p[2] > 1:            
+                raise CanteraError(self._e +'\nA surface reaction may contain at most '+
+                                   'one surface phase.')
         elif self._type == 'edge':
             mdim += -1
             ldim += 1
+            p = self._dims[:2]
+            if p[0] <> 0 or p[1] > 1:
+                raise CanteraError(self._e+'\nAn edge reaction may contain at most '+
+                                   'one edge phase.')                
         else:
             mdim += -1
             ldim += 3
@@ -607,11 +629,6 @@ class reaction(writer):
             unit_fctr = (math.pow(_length[_ulen], -ldim) *
                          math.pow(_moles[_umol], -mdim) / _time[_utime])
             
-            # compute the pre-exponential units string, and if it begins with a
-            # dash, remove it.
-            #ku = ufmt(_ulen,-ldim) + ufmt(_umol,-mdim) + ufmt('s',-1)
-            #if ku[0] == '-': ku = ku[1:]
-
             if type(kf) == types.InstanceType:
                 k = kf
             else:
@@ -875,7 +892,7 @@ class phase(writer):
     
     def is_pure(self):
         return 0
-    
+
     def has_species(self, s):
         """Return 1 is a species with name 's' belongs to the phase,
         or 0 otherwise."""
@@ -1178,7 +1195,7 @@ class edge(phase):
                  options = []):
 
         self._type = 'edge'
-        phase.__init__(self, name, 2, elements, species, reactions,
+        phase.__init__(self, name, 1, elements, species, reactions,
                        initial_state, options)
         self._pure = 0
         self._kin = kinetics
@@ -1190,7 +1207,7 @@ class edge(phase):
         ph = phase.build(self, p)
         e = ph.addChild("thermo")
         e['model'] = 'Edge'
-        addFloat(e, 'site_density', self._sitedens, defunits = _umol+'/'+_ulen+'2')
+        addFloat(e, 'site_density', self._sitedens, defunits = _umol+'/'+_ulen)
         k = ph.addChild("kinetics")
         k['model'] = self._kin
         t = ph.addChild('transport')
@@ -1201,78 +1218,6 @@ class edge(phase):
     def conc_dim(self):
         return (1, -1)    
 
-        
-#------------------ equations of state --------------------------
-
-## class eos(writer):
-##     def is_pure(self):
-##         return self._pure
-    
-## class incompressible_eos(eos):
-##     def __init__(self, density = -1.0):
-##         self._dens = density
-##         self._pure = 0
-##         if self._dens < 0.0:
-##             raise 'density must be specified.'
-        
-##     def build(self, p):
-##         e = p.addChild("thermo")
-##         e['model'] = 'Incompressible'
-##         addFloat(e, 'density', self._dens)
-
-##     def conc_dim(self):
-##         return (1, -3)
-    
-## class solid_compound_eos(eos):
-##     def __init__(self, density = -1.0):
-##         self._dens = density
-##         self._pure = 1
-##         if self._dens < 0.0:
-##             raise 'density must be specified.'
-        
-##     def build(self, p):
-##         e = p.addChild("thermo")
-##         e['model'] = 'SolidCompound'
-##         addFloat(e, 'density', self._dens)
-##         if len(self.parent._spmap) > 1:
-##             raise 'A solid compound can only have one species.'
-        
-##     def conc_dim(self):
-##         return (0, 0)
-
-
-## class ideal_gas_eos(eos):
-##     def __init__(self, kinetics = 'GasKinetics',
-##                  transport = 'none'):
-##         self._pure = 0
-##         self._kin = kinetics
-##         self._tr = transport
-##         global _idealgas_class
-##         _idealgas_class = self.__class__
-        
-##     def build(self, p):
-##         e = p.addChild("thermo")
-##         e['model'] = 'IdealGas'
-##         k = p.addChild("kinetics")
-##         k['model'] = self._kin
-##         t = p.addChild('transport')
-##         t['model'] = self._tr
-        
-##     def conc_dim(self):
-##         return (1, -3)
-
-
-## class surface(eos):
-##     def __init__(self, site_density = 0.0):
-##         self._pure = 0
-##         self._s0 = site_density
-##     def build(self, p):
-##         e = p.addChild("thermo")
-##         e['model'] = 'Surface'
-##         addFloat(e, 'site_density', self._s0, '%14.6E')
-        
-##     def conc_dim(self):
-##         return (1, -2)    
         
 #-------------------------------------------------------------------
 
@@ -1364,7 +1309,10 @@ validate()
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.27  2004-02-03 16:42:54  dggoodwin
+# Revision 1.28  2004-02-08 13:09:10  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.27  2004/02/03 16:42:54  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.26  2004/02/03 03:31:06  dggoodwin

@@ -9,31 +9,6 @@ import Numeric
 import _cantera
 
 
-## def buildKineticsPhases(root=None, id=None):
-##     """Return a list of ThermoPhase objects representing the phases
-##     involved in a reaction mechanism.
-
-##     root -- XML node contaning a 'kinetics' child
-##     id   -- id attribute of the desired 'kinetics' node
-##     """
-##     kin = root.child(id = id)
-##     phase_refs = kin.children("phaseRef")
-##     th = None
-##     phases = []
-##     for p in phase_refs:
-##         phase_id = p["id"]
-##         try:
-##             th = ThermoPhase(root=root, id=phase_id)
-##         except:
-##             if p["src"]:
-##                 pnode = XML_Node(name="root",src=src)
-##                 th = ThermoPhase(pnode, phase_id)
-##             else:
-##                 raise CanteraError("phase "+phase_id+" not found.")
-##         phases.append(th)
-##     return phases
-
-
 class Kinetics:
     """
     Kinetics managers. Instances of class Kinetics are responsible for
@@ -217,6 +192,15 @@ class Kinetics:
     def equilibriumConstants(self):
         return _cantera.kin_getarray(self.ckin,40)
 
+    def activationEnergies(self):
+        return _cantera.kin_getarray(self.ckin,32)
+
+    def fwdRateConstants(self):
+        return _cantera.kin_getarray(self.ckin,34)
+
+    def revRateConstants(self):
+        return _cantera.kin_getarray(self.ckin,36)        
+    
     def creationRates(self, phase = None):
         c = _cantera.kin_getarray(self.ckin,50)
         if phase:

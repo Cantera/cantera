@@ -101,6 +101,11 @@ extern "C" {
     int DLL_IMPORT kin_getRevRatesOfProgress(int n, int len, double* revROP);
     int DLL_IMPORT kin_getNetRatesOfProgress(int n, int len, double* netROP);
     int DLL_IMPORT kin_getEquilibriumConstants(int n, int len, double* kc);
+
+    int DLL_IMPORT kin_getFwdRateConstants(int n, int len, double* kfwd);
+    int DLL_IMPORT kin_getRevRateConstants(int n, int len, double* krev);
+    int DLL_IMPORT kin_getActivationEnergies(int n, int len, double* E);
+
     int DLL_IMPORT kin_getCreationRates(int n, int len, double* cdot);
     int DLL_IMPORT kin_getDestructionRates(int n, int len, double* ddot);
     int DLL_IMPORT kin_getNetProductionRates(int n, int len, double* wdot);

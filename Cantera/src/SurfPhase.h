@@ -52,6 +52,9 @@ namespace Cantera {
         void setSiteDensity(doublereal n0);
         //void setElectricPotential(doublereal V);
 
+        void getEnthalpy_RT(doublereal* hrt) const;
+        void getEntropy_R(doublereal* sr) const;
+
 	/**
          * Pressure. Units: Pa.
          */ 

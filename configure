@@ -183,7 +183,7 @@ LAPACK_FTN_STRING_LEN_AT_END='y'
 CXX=${CXX:=g++}
 
 # C++ compiler flags
-CXXFLAGS=${CXXFLAGS:="-O0 -g -Wall"}
+CXXFLAGS=${CXXFLAGS:="-O3 -Wall"}
 
 # the C++ flags required for linking
 #LCXX_FLAGS=
@@ -215,7 +215,7 @@ F77=${F77:=g77}
 F90=${F90:=f90}
 
 # Fortran compiler flags
-FFLAGS=${FFLAGS:='-O3 -g'}
+FFLAGS=${FFLAGS:='-O3'}
 
 # the additional Fortran flags required for linking, if any
 #LFORT_FLAGS="-lF77 -lFI77"
