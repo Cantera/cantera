@@ -20,12 +20,6 @@ using namespace std;
 
 namespace Cantera {
 
-    ///////////////////////////////////////////////////////////////
-    //
-    //                  Helper Template Functions
-    //
-    ///////////////////////////////////////////////////////////////
-
     /**
      * Invokes the 'updateProperties' method of all objects in the
      * list.
@@ -180,8 +174,8 @@ namespace Cantera {
 	map<int, int> speciesToType;
     };
 
-#define REMOVE_FOR_V155
-#ifndef REMOVE_FOR_V155
+    //#define REMOVE_FOR_V155
+    //#ifndef REMOVE_FOR_V155
 
     /**
      *  This species thermo manager requires that all species have the
@@ -246,7 +240,7 @@ namespace Cantera {
         vector<T> m_thermo;
         doublereal m_pref;
     };
-#endif
+    //#endif
 
 }
 

@@ -98,7 +98,6 @@ namespace Cantera {
             m_redo_rates = true;
 	}
 
- 	//@}
         /**
          * @name Reaction Rates Of Progress
          */

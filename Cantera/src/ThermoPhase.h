@@ -206,8 +206,9 @@ namespace Cantera {
 
         /**
          * This method returns an array of generalized concentrations
-         * \f$ C_k \f$ that are defined such that \f$ a_k = C_k /
-         * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
+         * \f$ C_k\f$ that are defined such that 
+         * \f$ a_k = C_k / C^0_k, \f$ where \f$ C^0_k \f$ 
+         * is a standard concentration
          * defined below.  These generalized concentrations are used
          * by kinetics manager classes to compute the forward and
          * reverse rates of elementary reactions. 
@@ -245,8 +246,8 @@ namespace Cantera {
              return -1.0;
          }
 
-        /** Get the array of chemical potentials at unit activity \f$
-         * \mu^0_k \f$.
+        /** Get the array of chemical potentials at unit activity 
+         * \f$ \mu^0_k \f$.
          */
         virtual void getStandardChemPotentials(doublereal* mu) const {
             err("getStandardChemPotentials");
@@ -274,8 +275,8 @@ namespace Cantera {
 					  int sizeUA = 6);
 
         /** 
-         * Get the array of non-dimensional chemical potentials \f$
-         * \mu_k / \hat R T \f$.
+         * Get the array of non-dimensional chemical potentials 
+         * \f$ \mu_k / \hat R T \f$.
          */
         virtual void getChemPotentials_RT(doublereal* mu) const {
             err("getChemPotentials_RT");
@@ -290,7 +291,7 @@ namespace Cantera {
 
         /**
          * Get the species electrochemical potentials. Units: J/kmol.
-         * This method adds a term \f$ Fz_k \phi_k$ to the 
+         * This method adds a term \f$ Fz_k \phi_k \f$ to the 
          * to each chemical potential.
          */
         void getElectrochemPotentials(doublereal* mu) const {
@@ -432,7 +433,6 @@ namespace Cantera {
         }
         //@}
 
-        /// @internal
         doublereal _RT() const {
             return temperature() * GasConstant;
         }
@@ -491,15 +491,17 @@ namespace Cantera {
         //@}
 
         /**
-         * @internal
          * @name Chemical Equilibrium
+         * Chemical equilibrium.
          * @{
-         *
+         */
+
+        /**
          * This method is used by the ChemEquil equilibrium solver.
          * It sets the state such that the chemical potentials satisfy
          * \f[ \frac{\mu_k}{\hat R T} = \sum_m A_{k,m}
-         * \left(\frac{\lambda_m} {\hat R T}\right) \f] where \f$
-         * \lambda_m \f$ is the element potential of element m. The
+         * \left(\frac{\lambda_m} {\hat R T}\right) \f] where 
+         * \f$ \lambda_m \f$ is the element potential of element m. The
          * temperature is unchanged.  Any phase (ideal or not) that
          * implements this method can be equilibrated by ChemEquil.
          */ 

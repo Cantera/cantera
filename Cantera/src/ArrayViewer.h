@@ -1,9 +1,8 @@
 /**
- *  @file Array.h
- *
- *  Header file for class Array2D
- *
- *  $Author$
+ *  @file ArrayViewer.h
+ */
+
+/*  $Author$
  *  $Revision$
  *  $Date$
  *

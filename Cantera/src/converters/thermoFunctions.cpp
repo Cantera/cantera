@@ -11,13 +11,6 @@
 #pragma warning(disable:4786)
 #endif
 
-/**
- *   @file thermoFunctions.cpp
- *   Species thermodynamic properties implementation.
- *   @author California Institute of Technology, Caltech
- *   @date @today
- */
-
 #include <math.h>
 #include "thermoFunctions.h"
 #include <iostream>

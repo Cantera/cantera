@@ -6,7 +6,10 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.12  2004-08-05 14:56:57  dggoodwin
+// Revision 1.13  2004-08-28 16:12:41  dggoodwin
+// cleanup
+//
+// Revision 1.12  2004/08/05 14:56:57  dggoodwin
 // *** empty log message ***
 //
 // Revision 1.11  2004/07/27 14:22:31  dggoodwin
@@ -75,9 +78,6 @@ namespace ckr {
 
     static int parseGroupString(string str, vector<string>& esyms, 
         vector_int& result);
-
-    /// @internal
-    //static string dummy_string;
 
     /**
      *  Throw an exception if one of the four lines that must have 

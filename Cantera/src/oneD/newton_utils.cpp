@@ -86,8 +86,8 @@ namespace Cantera {
      *
      * @param x     Solution vector for this domain.
      * @param step  Newton step vector for this domain.
-     * @param r     Object representing the domain. Used to get tolerances, number of components,
-     *              and number of points.
+     * @param r     Object representing the domain. Used to get tolerances, 
+     *              number of components, and number of points.
      *
      * The return value is
      * \f[
@@ -98,10 +98,10 @@ namespace Cantera {
      *     w_n = \epsilon_{r,n} \frac{\sum_j |x_{n,j}|}{J} + \epsilon_{a,n}.
      * \f]
      * Here \f$\epsilon_{r,n} \f$ is the relative error tolerance for
-     * component \f$ n \f$, and multiplies the average magnitude of
-     * solution component n in the domain. The second term, \f$
-     * \epsilon_{a,n}$, is the absolute error tolerance for component
-     * \f$ n \f$.
+     * component n, and multiplies the average magnitude of
+     * solution component n in the domain. The second term, 
+     * \f$\epsilon_{a,n}\f$, is the absolute error tolerance for component
+     * n.
      *
      */
     doublereal norm_square(const doublereal* x, 

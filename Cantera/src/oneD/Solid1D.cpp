@@ -1,5 +1,5 @@
 /**
- * @file Solid.cpp
+ * @file Solid1D.cpp
  */
 
 /*

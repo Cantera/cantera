@@ -39,24 +39,25 @@ namespace Cantera {
    * quantities may be called.
    *
    * The nomenclature used below to document the methods is as follows.
+   *
    * - \f$ N_r \f$
-   *   - Integer reactant stoichiometric coefficient matrix. The (k,i)
+   *     Integer reactant stoichiometric coefficient matrix. The (k,i)
    *     element of this matrix is the stoichiometric coefficient of
    *     species \i k as a reactant in reaction \i i.
    * - \f$ N_p \f$
-   *   - Integer product stoichiometric coefficient matrix. The (k,i)
+   *     Integer product stoichiometric coefficient matrix. The (k,i)
    *     element of this matrix is the stoichiometric coefficient of
    *     species \i k as a product in reaction \i i.
    * - \f$ Q_{\rm fwd} \f$
-   *   - Vector of length I of forward rates of progress.
+   *     Vector of length I of forward rates of progress.
    * - \f$ Q_{\rm rev} \f$
-   *   - Vector of length I of reverse rates of progress.
+   *     Vector of length I of reverse rates of progress.
    * - \f$ C \f$ 
-   *   - Vector of K species creation rates. 
+   *     Vector of K species creation rates. 
    * - \f$ D \f$ 
-   *   - Vector of K species destruction rates. 
+   *     Vector of K species destruction rates. 
    * - \f$ W = C - D \f$ 
-   *   - Vector of K species net production rates. 
+   *     Vector of K species net production rates. 
    *     
    */
   class ReactionStoichMgr {

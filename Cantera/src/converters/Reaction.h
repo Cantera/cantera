@@ -247,11 +247,7 @@ namespace ckr {
     Reaction forwardReaction(const Reaction& rxn);
     Reaction reverseReaction(const Reaction& rxn);
 }
-/**
- * @file Reaction.h
- * Definitions of reaction-related classes.
- * @author California Institute of Technology, Caltech
- */
+
 
 
 

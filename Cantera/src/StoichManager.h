@@ -376,7 +376,7 @@ namespace Cantera {
   }
 
 
-  /**
+    /*
    * This class handles operations involving the stoichiometric
    * coefficients on one side of a reaction (reactant or product) for
    * a set of reactions comprising a reaction mechanism. This class is
@@ -393,7 +393,7 @@ namespace Cantera {
    * r_i = \sum_m^{M_i} s_{k_{m,i}}
    * \f] 
    * To understand the operations performed by this class, let
-   * $N_{k,i}$ denote the stoichiometric coefficient of species k on
+   * \f$ N_{k,i}\f$ denote the stoichiometric coefficient of species k on
    * one side (reactant or product) in reaction i. Then \b N is a sparse
    * K by I matrix of stoichiometric coefficients.
    * 

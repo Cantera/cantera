@@ -1,6 +1,6 @@
 /**
  *
- * @file GasKinetics.h
+ * @file GasKineticsWriter.h
  *
  * $Author$
  * $Revision$

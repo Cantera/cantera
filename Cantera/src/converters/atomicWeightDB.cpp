@@ -1,5 +1,5 @@
 /**
- *  @file atomicWeightsDB.cpp
+ *  @file atomicWeightDB.cpp
  *
  * internal database of default atomic weights
  *
@@ -13,9 +13,7 @@
 #pragma warning(disable:4786)
 #endif
 
-//#include "../../config.h"
 #include <map>
-//#include "../Cantera/src/ctmap.h"
 #include <string>
 #include <iostream>
 using namespace std;

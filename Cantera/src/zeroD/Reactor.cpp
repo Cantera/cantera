@@ -88,7 +88,7 @@ namespace Cantera {
     }
 
 
-    /**
+    /*
      *  Must be called before calling method 'advance'
      */
     void Reactor::initialize(doublereal t0) {
@@ -181,7 +181,7 @@ namespace Cantera {
         evalEqs(time, y, ydot);
     }
 
-    /**
+    /*
      * Called by the integrator to evaluate ydot given y at time 'time'.
      */
     void Reactor::evalEqs(doublereal time, doublereal* y, doublereal* ydot) 
@@ -255,10 +255,12 @@ namespace Cantera {
         }
 
 
-        /**
+        /*
          *  Energy equation.
-         * \dot U = -P\dot V + A \dot q + \dot m_{in} h_{in}
+         *  \f[
+         *  \dot U = -P\dot V + A \dot q + \dot m_{in} h_{in}
          * - \dot m_{out} h.
+         * \f]
          */
         if (m_energy) {
             ydot[0] = - m_thermo->pressure() * m_vdot - m_Q;

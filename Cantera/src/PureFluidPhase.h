@@ -1,5 +1,5 @@
 /**
- *  @file PureFluid.h
+ *  @file PureFluidPhase.h
  *
  * Declares class PureFluid
  */

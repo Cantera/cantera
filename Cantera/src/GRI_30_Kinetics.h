@@ -1,6 +1,6 @@
 /**
  *
- * @file GasKinetics.h
+ * @file GRI_30_Kinetics.h
  *
  */
 

@@ -72,7 +72,7 @@ namespace Cantera {
          * stoichiometric substance, the molar internal energy is
          * independent of pressure. Since the thermodynamic properties
          * are specified by giving the standard-state enthalpy, the
-         * term \f$ P_0 \hat v$ is subtracted from the specified molar
+         * term \f$ P_0 \hat v\f$ is subtracted from the specified molar
          * enthalpy to compute the molar internal energy.
          */
         virtual doublereal intEnergy_mole() const {
@@ -99,7 +99,7 @@ namespace Cantera {
 
         /**
          * Molar heat capacity at constant pressure. Units: J/kmol/K.
-         * For an incompressible substance, \f$ \hat c_p = \hat c_v$.
+         * For an incompressible substance, \f$ \hat c_p = \hat c_v\f$.
          */
         virtual doublereal cp_mole() const {
             _updateThermo();
@@ -108,7 +108,7 @@ namespace Cantera {
 
         /**
          * Molar heat capacity at constant volume. Units: J/kmol/K.
-         * For an incompressible substance, \f$ \hat c_p = \hat c_v$.
+         * For an incompressible substance, \f$ \hat c_p = \hat c_v\f$.
          */
         virtual doublereal cv_mole() const {
             return cp_mole();

@@ -50,9 +50,6 @@ namespace Cantera {
             }
         }
 
-    /**
-     * Solve Ax = b. Array b is overwritten on exit with x.
-     */
     int solve(DenseMatrix& A, double* b) {
         int info=0;
         ct_dgetrf(static_cast<int>(A.nRows()), 
@@ -72,7 +69,6 @@ namespace Cantera {
         return 0;
     }
 
-    /**  Solve Ax = b for multiple right-hand-side vectors. */
     int solve(DenseMatrix& A, DenseMatrix& b) {
         int info=0;
         ct_dgetrf(static_cast<int>(A.nRows()), 
