@@ -48,8 +48,8 @@ namespace ctml {
     void ck2ctml(string idtag, ckr::CKReader& r,
         XML_Node& root);
 
-    int convert_ck(const char* in_file, const char* db_file,
-        const char* tr_file, const char* out_file, const char* id_tag);
+    int convert_ck(const char * const in_file, const char * const db_file,
+        const char * const tr_file, const char * const out_file, const char * const id_tag);
 
 }
 
