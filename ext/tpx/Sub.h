@@ -25,6 +25,18 @@ using namespace std;
 
 namespace tpx {
 
+    class TPX_Error {
+    public:
+        TPX_Error(string p, string e) {
+            ErrorMessage = e;
+            ErrorProcedure = p;
+        }
+        virtual ~TPX_Error(){}
+        static string ErrorMessage;
+        static string ErrorProcedure;
+    };
+
+
     const double OneAtm = 1.01325e5;
     const double Liquid = 0.0;
     const double Vapor = 1.0;
@@ -202,7 +214,10 @@ namespace tpx {
 	void update_sat();
 
 	void set_Err(int ErrFlag) {
-		if (!Err) Err = ErrFlag;
+            if (!Err) {
+                Err = ErrFlag;
+                //throw TPX_Error(""errorMsg(Err));
+            }
 	}
 	void clear_Err() {Err = 0;}
 
