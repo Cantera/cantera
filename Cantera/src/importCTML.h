@@ -17,6 +17,7 @@
 using namespace std;
 
 #include "ThermoPhase.h"
+#include "Kinetics.h"
 
 namespace Cantera {
 
@@ -75,10 +76,33 @@ namespace Cantera {
 		    			SpeciesThermo& spthermo, int rule); 
 
     bool importPhase(XML_Node& phase, ThermoPhase* th);
+
+    /**
+     * This function returns true if two reactions are duplicates of
+     * one another, and false otherwise.  The input arguments are two
+     * maps from species number to stoichiometric coefficient, one for
+     * each reaction. The reactions are considered duplicates if their
+     * stoichiometric coefficients have the same ratio for all
+     * species.
+     */
+    doublereal isDuplicateReaction(map<int, doublereal>& r1,
+                                   map<int, doublereal>& r2);
+
     bool importKinetics(const XML_Node& phase, vector<ThermoPhase*> th, 
         Kinetics* kin);
     bool installReactionArrays(const XML_Node& parent, Kinetics& kin, 
         string default_phase, bool check_for_duplicates = false);
+
+    /**
+     * Extract the rate coefficient for a reaction from the xml node, kf.
+     * kf should point to a XML element named "rateCoeff".
+     * rdata is the partially filled ReactionData object for the reaction.
+     * This function will fill in more fields in the ReactionData object.
+     * 
+     */
+    void getRateCoefficient(const XML_Node& kf, kinetics_t& kin, 
+			    ReactionData& rdata, int negA);
+
     ThermoPhase* newPhase(XML_Node& phase);
     ThermoPhase* newPhase(string file, string id);
     bool buildSolutionFromXML(XML_Node& root, string id, string nm, 
