@@ -473,8 +473,8 @@ namespace Cantera {
             if (elMoles[m] < Cutoff && m != m_eloc) x[m] = -1000.0;
             //if (m == m_eloc) x[m] = -10.0;
         }
-        above[mm] = log(m_thermo->maxTemp());  //log(1.e4);
-        below[mm] = log(m_thermo->minTemp()); //log(10.0);
+        above[mm] = log(m_thermo->maxTemp() + 1.0);  //log(1.e4);
+        below[mm] = log(m_thermo->minTemp() - 1.0); //log(10.0);
 
         vector_fp grad(nvar, 0.0);        // gradient of f = F*F/2
         vector_fp oldx(nvar, 0.0);        // old solution

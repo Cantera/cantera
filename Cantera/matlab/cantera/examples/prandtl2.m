@@ -23,10 +23,14 @@ ih2 = speciesIndex(gas,'H2');
 ih = speciesIndex(gas,'H');
 ih2o = speciesIndex(gas,'H2O');
 
+minT = minTemp(gas);
+maxT = maxTemp(gas);
+dT = (maxT - minT)/30.0;
+
 atm = oneatm;
 t0 = cputime;
 for i = 1:31
-   t(i) = 300.0 + 100.0*i;
+   t(i) = minT + dT*(i-1);
    for j = 1:31
       xo2(j) = 0.99*(j-1)/30.0;
       x = zeros(nSpecies(gas),1);      

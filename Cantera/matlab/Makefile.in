@@ -29,7 +29,9 @@ LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
            $(CANTERA_LIBDIR)/liboneD.a \
            $(CANTERA_LIBDIR)/libtransport.a 
 else
-LIB_DEPS =
+LIB_DEPS = $(CANTERA_LIBDIR)/cantera.lib $(CANTERA_LIBDIR)/zeroD.lib \
+           $(CANTERA_LIBDIR)/oneD.lib \
+           $(CANTERA_LIBDIR)/transport.lib 
 endif
 
 os_is_win=@OS_IS_WIN@

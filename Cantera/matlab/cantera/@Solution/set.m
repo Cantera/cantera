@@ -134,7 +134,7 @@ elseif ntot == 2
   % set property pairs
   %
   if nt == 1
-    setTemperature(a,tval)
+    setTemperature(a,tval);
     if nv == 1
       setDensity(a,1.0/vval);   % temperature held fixed
     elseif np == 1
