@@ -10,6 +10,8 @@
 #include "ctexceptions.h"
 #include "stringUtils.h"
 #include "units.h"
+#include "xml.h"
+#include "ctml.h"
 
 #ifndef WIN32
 #include "ctdir.h"
@@ -46,6 +48,7 @@ namespace Cantera {
         //bool matlab;
         map<string, string>     options;
         string tmp_dir;
+        map<string, XML_Node*> xmlfiles;
     };
 
 
@@ -67,6 +70,51 @@ namespace Cantera {
             setDefaultDirectories();
         }
         return __app;
+    }
+
+    XML_Node* get_XML_File(string file) {
+        if (app()->xmlfiles.find(file) 
+            == app()->xmlfiles.end()) {
+            string path = findInputFile(file);
+
+            /*
+             * Check whether or not the file is XML. If not, it will
+             * be first processed with the preprocessor.
+             */
+            string::size_type idot = path.rfind('.');
+            string ext, ff;
+            if (idot != string::npos) {
+                ext = path.substr(idot, path.size());
+            }
+            if (ext != ".xml" && ext != ".ctml") {
+                ctml::ct2ctml(path.c_str());
+                ff = path.substr(0,idot) + ".xml";
+            }
+            else {
+                ff = path;
+            }
+            ifstream s(ff.c_str());
+            XML_Node* x = new XML_Node("doc");
+            x->build(s);
+            __app->xmlfiles[file] = x;
+        }
+        return __app->xmlfiles[file];
+    }
+
+    void close_XML_File(string file) {
+        if (file == "all") {
+            map<string, XML_Node*>::iterator 
+                b = app()->xmlfiles.begin(), e = app()->xmlfiles.end();
+            for(; b != e; ++b) {
+                delete b->second;
+                __app->xmlfiles.erase(b->first);
+            }
+        }
+        else if (app()->xmlfiles.find(file) 
+            != app()->xmlfiles.end()) {
+            delete __app->xmlfiles[file];
+            __app->xmlfiles.erase(file);
+        }
     }
 
     void setTmpDir(string tmp) { app()->tmp_dir = tmp; }
