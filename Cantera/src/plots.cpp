@@ -53,8 +53,8 @@ namespace Cantera {
     void outputTEC(ostream &s, string title, const vector<string>& names,  
         const Array2D& data) {
         int i,j;
-        int npts = data.nColumns();
-        int nv = data.nRows();
+        int npts = static_cast<int>(data.nColumns());
+        int nv = static_cast<int>(data.nRows());
         s << "TITLE     = \"" + title + "\"" << endl;
         s << "VARIABLES = " << endl;
         for (i = 0; i < nv; i++) {
@@ -84,8 +84,8 @@ namespace Cantera {
     void outputExcel(ostream &s, string title, const vector<string>& names,  
         const Array2D& data) {
         int i,j;
-        int npts = data.nColumns();
-        int nv = data.nRows();
+        int npts = static_cast<int>(data.nColumns());
+        int nv = static_cast<int>(data.nRows());
         s << title + "," << endl;
         for (i = 0; i < nv; i++) {
             s << names[i] << ",";
