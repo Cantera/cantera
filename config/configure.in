@@ -127,10 +127,7 @@ AC_SUBST(buildinc)
 buildlib=$ctroot/build/lib/$target
 AC_SUBST(buildlib)
 
-if test -n "${OS_IS_DARWIN}"; then 
-AC_DEFINE(DARWIN)
-fi
-
+AC_DEFINE_UNQUOTED(DARWIN,$OS_IS_DARWIN)
 AC_DEFINE_UNQUOTED(RXNPATH_FONT,"$RPFONT")
 AC_DEFINE_UNQUOTED(CANTERA_ROOT,"$prefix/cantera")
 
