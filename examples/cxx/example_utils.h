@@ -17,8 +17,9 @@ void saveSoln(int i, double time, const G& gas, A& soln) {
 
 template<class G, class A>
 void saveSoln(double time, const G& gas, A& soln) {  
-    soln.resize(soln.nRows(), soln.nColumns() + 1);
-    int back = soln.nColumns() - 1;
+    soln.resize(static_cast<int>(soln.nRows()), 
+		static_cast<int>(soln.nColumns()) + 1);
+    int back = static_cast<int>(soln.nColumns()) - 1;
     soln(0,back) = time;
     soln(1,back) = gas.temperature();
     soln(2,back) = gas.density();

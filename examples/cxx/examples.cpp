@@ -17,11 +17,11 @@ int transport_example2(int job);
 int equil_example1(int job);
 int rxnpath_example1(int job);
 
-typedef int (*exfun)(int n=2);
+typedef int (*exfun)(int n);
  
-int run_example(int n, exfun f) {
+int run_example(int n, exfun f, int job = 2) {
     cout << "\n\n\n\n>>>>>  example " << n+1 << "\n\nDescription:  ";
-    int i = f();  
+    int i = f(job);
     showErrors(cout);
     return i;
 }
@@ -62,14 +62,15 @@ int main(int argc, char** argv) {
     try {
 
         int i = 0;
+		int job = 2;
         if (example_num == 0) {
             int j;
             for (j = 0; j < NUM_EXAMPLES; j++) {
-                i = run_example(j, fex[j]);
+                i = run_example(j, fex[j], 2);
             }
         }
         else if (example_num > 0 && example_num <= NUM_EXAMPLES)
-            i = run_example(example_num-1, fex[example_num-1]);
+            i = run_example(example_num-1, fex[example_num-1], 2);
 
         return 0;
     }
