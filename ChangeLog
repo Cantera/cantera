@@ -1,3 +1,79 @@
+2004-08-03 02:09  dggoodwin
+
+	* Cantera/src/: Constituents.cpp, DenseMatrix.h, EOS_TPX.h,
+	  EdgePhase.h, GRI30.h, IdealGasThermo.h, InterfaceKinetics.cpp,
+	  Makefile.in, NasaThermo.h, ReactionData.h, Resid.h, RxnRates.h,
+	  ShomateThermo.h, SimpleThermo.h, SolidCompound.h,
+	  SpeciesThermo.h, SpeciesThermoFactory.cpp, SpeciesThermoMgr.h,
+	  StoichManager.h, exceptions.h, fitPoly.h, pureSubstances.h,
+	  surfKinetics.h, transportModels.h, xml.cpp: removed unused files
+
+2004-08-01 14:33  dggoodwin
+
+	* Cantera/fortran/src/fctxml.cpp: initial import
+
+2004-08-01 09:43  dggoodwin
+
+	* Cantera/matlab/cantera/@ThermoPhase/speciesIndex.m: added support
+	  for cell arrays of species names
+
+2004-08-01 09:43  dggoodwin
+
+	* Cantera/matlab/cantera/@ThermoPhase/elementIndex.m: added support
+	  for cell arrays of element names
+
+2004-07-30 05:26  dggoodwin
+
+	* Cantera/matlab/cantera/@ThermoPhase/elementName.m: fixed bug
+
+2004-07-29 15:31  dggoodwin
+
+	* Cantera/src/: RateCoeffMgr.h, RxnRates.h, reaction_defs.h,
+	  oneD/boundaries1D.cpp, zeroD/ReactorNet.cpp: added ArrheniusSum
+	  class
+
+2004-07-29 15:22  dggoodwin
+
+	* Cantera/python/src/: ctreactor_methods.cpp, methods.h: removed
+	  time() methods for class Reactor and added them to class
+	  ReactorNet
+
+2004-07-29 15:21  dggoodwin
+
+	* Cantera/python/Cantera/Reactor.py: removed method Reactor.time(),
+	  and added ReactorNet.time()
+
+2004-07-29 15:14  hkmoffa
+
+	* test_problems/: Makefile.in, cxx_ex/Makefile.in,
+	  cxx_ex/gri30.xml, diamondSurf/Makefile.in,
+	  silane_equil/.cvsignore, silane_equil/Makefile.in,
+	  silane_equil/silane_equil.cpp, surfkin/Makefile.in: Added depends
+	  target to makefiles
+
+2004-07-29 14:43  hkmoffa
+
+	* test_problems/diamondSurf/: .cvsignore, Makefile.in: Added a
+	  depends target
+
+2004-07-28 16:44  hkmoffa
+
+	* config/configure.in: Added support for ck2cti_test
+
+2004-07-28 16:36  hkmoffa
+
+	* test_problems/surfkin/: .cvsignore, Makefile.in: Added a depends
+	  capability
+
+2004-07-26 16:12  dggoodwin
+
+	* Cantera/python/src/methods.h: removed unused bndry functions
+
+2004-07-26 08:58  hkmoffa
+
+	* Cantera/src/: NasaThermo.h, ShomateThermo.h: Removed the at()
+	  function for vectors. gcc v2.95 does not support this function.
+
 2004-07-21 13:41  hkmoffa
 
 	* Cantera/src/: ThermoFactory.h, misc.cpp: Took the deletion of a
