@@ -1,4 +1,4 @@
-function v = kinetics_get(n, job, a, b, c, d)
+function v = kinetics_get(n, job, a, b, c, d, e, f)
 % KINETICS_GET - get kinetics attributes 
 %   
 if nargin == 2
@@ -11,4 +11,8 @@ elseif nargin == 5
   v = ctmethods(40, n, job, a, b, c);  
 elseif nargin == 6
   v = ctmethods(40, n, job, a, b, c, d); 
+elseif nargin == 7
+  v = ctmethods(40, n, job, a, b, c, d, e);
+elseif nargin == 8
+  v = ctmethods(40, n, job, a, b, c, d, e, f); 
 end

@@ -83,7 +83,7 @@ static PyMethodDef ct_methods[] = {
     {"get_Cantera_Error", ct_get_cantera_error,  METH_VARARGS},
     {"ct_print", ct_print,  METH_VARARGS},
     {"readlog", ct_readlog,  METH_VARARGS},
-    {"ck2ctml", ct_ck2ctml,  METH_VARARGS},
+    {"ck2cti", ct_ck2cti,  METH_VARARGS},
     {"buildSolutionFromXML", ct_buildSolutionFromXML, METH_VARARGS},
 
     {"Flow", py_flow_new,  METH_VARARGS},

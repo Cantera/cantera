@@ -48,14 +48,14 @@ ct_readlog(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-ct_ck2ctml(PyObject *self, PyObject *args)
+ct_ck2cti(PyObject *self, PyObject *args)
 {
     int iok;
-    char *infile, *thermo, *tran, *outfile, *idtag;
-    if (!PyArg_ParseTuple(args, "sssss:ck2ctml", &infile, 
-            &thermo, &tran, &outfile, &idtag)) 
+    char *infile, *thermo, *tran, *idtag;
+    if (!PyArg_ParseTuple(args, "ssss:ck2cti", &infile, 
+            &thermo, &tran, &idtag)) 
         return NULL;
-    iok = ck_to_ctml(infile, thermo, tran, outfile, idtag);
+    iok = ck_to_cti(infile, thermo, tran, idtag);
     if (iok == -1) { return reportCanteraError();}
     return Py_BuildValue("i",iok); 
 }

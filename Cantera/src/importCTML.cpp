@@ -1132,6 +1132,7 @@ next:
         bool phase_ok;
 
         string phase_id;
+        string msg = "";
         for (int n = 0; n < np; n++) {
             phase_id = phase_ids[n];
             phase_ok = false;
@@ -1148,10 +1149,11 @@ next:
                         kin.addPhase(*th[m]);
                     }
                 }
+                msg += " "+th[m]->id();
             }
             if (!phase_ok) {
                 throw CanteraError("importKinetics",
-                    "phase "+phase_id+" not found.");
+                    "phase "+phase_id+" not found. Supplied phases are:"+msg);
             }
         }
 

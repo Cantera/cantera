@@ -1,4 +1,5 @@
-function k = Kinetics(r, ph, neighbor1, neighbor2)
+function k = Kinetics(r, ph, neighbor1, neighbor2, neighbor3, neighbor4)
+%
 % KINETICS - Kinetics class constructor. 
 %
 %   Class Kinetics represents kinetics managers, which are classes
@@ -6,28 +7,50 @@ function k = Kinetics(r, ph, neighbor1, neighbor2)
 %   attributes are specified in a CTML file. 
 %
 %
+
+% indices for bulk phases in a heterogeneous mechanism.
+% initialize < 0 so that bulk phases will not be included.
+ineighbor1 = -1;
+ineighbor2 = -1;
+ineighbor3 = -1;
+ineighbor4 = -1;
+
 if nargin == 1
    if isa(r,'Kinetics')
       % create a copy
       k = r;
       return
-   end
-elseif nargin == 2
-   if isa(r,'XML_Node')
-      k.owner = 1;
-      i = hndl(r);
-      iph = hndl(ph);
-      ineighbor1 = -1;
-      ineighbor2 = -1;
-      k.id = kinetics_get(i,0,iph,ineighbor1,ineighbor2);
-      if k.id < 0
-	 error(geterr);
-      end
    else
-      k.owner = 0;
-      k.id = r;
+     error('wrong number of arguments')
    end
-   k = class(k,'Kinetics');
-else
-   error('wrong number of arguments');
 end
+
+
+if ~isa(r,'XML_Node')
+  error('first argument must be an XML_Node object')
+end
+
+k.owner = 1;
+ixml = hndl(r);
+
+iphase = hndl(ph)
+if nargin > 2
+  ineighbor1 = hndl(neighbor1)
+  if nargin > 3
+    ineighbor2 = hndl(neighbor2)
+    if nargin > 4
+      ineighbor3 = hndl(neighbor3)
+      if nargin > 5
+	ineighbor4 = hndl(neighbor4)
+      end
+    end
+  end
+end
+k.id = kinetics_get(ixml,0,iphase,ineighbor1,ineighbor2,ineighbor3, ...
+		    ineighbor4);
+if k.id < 0
+  error(geterr);
+end
+
+k = class(k,'Kinetics');
+

@@ -130,8 +130,8 @@ extern "C" {
     int DLL_IMPORT buildSolutionFromXML(char* src, int ixml, char* id, 
         int ith, int ikin);
 
-    int DLL_IMPORT ck_to_ctml(char* in_file, char* db_file,
-        char* tr_file, char* out_file, char* id_tag);
+    int DLL_IMPORT ck_to_cti(char* in_file, char* db_file,
+        char* tr_file, char* id_tag);
 }
 
 #endif

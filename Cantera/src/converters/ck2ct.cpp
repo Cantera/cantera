@@ -312,11 +312,11 @@ namespace pip {
 
         //cout << "dataset(\"" << idtag << "\")" << endl;
 
-        cout << "\n\n";
-        writeline();
-        cout << "#\n#  The default units. These will be used for dimensional quantities" << endl
-             << "#  with unspecified units." << endl;
-        writeline();
+        //        cout << "\n\n";
+        //writeline();
+        //cout << "#\n#  The default units. These will be used for dimensional quantities" << endl
+        //     << "#  with unspecified units." << endl;
+        //writeline();
         
         cout << "units(length = \"cm\", time = \"s\", quantity = \"mol\", ";
         string e_unit;
@@ -335,15 +335,15 @@ namespace pip {
             e_unit = "eV";
         cout << "act_energy = " << "\"" << e_unit << "\")\n\n";
 
-        cout << "\n\n\n";
-        writeline();
-        cout << "#\n#  The phase definition. This specifies an ideal gas mixture that" << endl
-             << "#  includes all species and reactions defined in this file."
-             << "\n#\n";
-        writeline();
+        //cout << "\n\n\n";
+        //writeline();
+        //cout << "#\n#  The phase definition. This specifies an ideal gas mixture that" << endl
+        //    << "#  includes all species and reactions defined in this file."
+        //     << "\n#\n";
+        //writeline();
 
 
-        printf("ideal_gas(name = \"%s\",\n",idtag.c_str());
+        printf("\nideal_gas(name = \"%s\",\n",idtag.c_str());
 
         string enames;
         int nel = r.elements.size();
@@ -372,7 +372,7 @@ namespace pip {
 
         cout << "\n\n\n";
         writeline();
-        cout << "#\n#  Species data \n#\n";
+        cout << "#  Species data \n";
         writeline();
 
         for (i = 0; i < nsp; i++) {
@@ -381,7 +381,7 @@ namespace pip {
 
         cout << "\n\n\n";
         writeline();
-        cout << "#\n#  Reaction data \n#\n";
+        cout << "#  Reaction data \n";
         writeline();
 
 
@@ -422,6 +422,7 @@ namespace pip {
     int convert_ck(const char* in_file, const char* db_file,
         const char* tr_file, const char* id_tag) {
         ckr::CKReader r;
+
         r.validate = true;
         //int i=1;
 
@@ -441,19 +442,18 @@ namespace pip {
  
         try {
 
-            logfile = "ck2ct.log";
+            logfile = "ck2cti.log";
             if (!r.read(infile, dbfile, logfile)) {
                 throw CanteraError("convert_ck",
                     "error encountered in input file " + string(infile) 
-                    + "\nsee file ck2ct.log for more information.\n");
+                    + "\nsee file ck2cti.log for more information.\n");
             }
-
 
             cout << "#" << endl;
             cout << "# Generated from file " 
-                 << infile << "\n# by ck2ct on " << asctime(newtime) << "#\n" << endl;
+                 << infile << "\n# by ck2cti on " << asctime(newtime) << "#" << endl;
             if (trfile != "") {
-                cout << "# Transport data from file "+trfile+"." << endl;
+                cout << "# Transport data from file "+trfile+".\n" << endl;
                 getTransportData(trfile);
             }
             ck2ct(idtag, r);
@@ -461,10 +461,8 @@ namespace pip {
         catch (CanteraError) {
             return -1;
         }
-        
         return 0;
     }
-
 }
 
 

@@ -25,19 +25,18 @@ void ctfunctions( int nlhs, mxArray *plhs[],
 
     switch (job) {
 
-        // convert CK file to CTML
+        // convert CK file to CTI
     case 1:
-        if (nrhs < 7) {
+        if (nrhs < 6) {
             mexErrMsgTxt("Wrong number of inputs.");
             return;
         } 
         infile = getString(prhs[2]);
         dbfile = getString(prhs[3]);
         trfile = getString(prhs[4]);
-        outfile = getString(prhs[5]);
-        idtag = getString(prhs[6]);
+        idtag = getString(prhs[5]);
 
-        iok = ck_to_ctml(infile, dbfile, trfile, outfile, idtag);
+        iok = ck_to_cti(infile, dbfile, trfile, idtag);
         break;  
 
         // get Cantera error

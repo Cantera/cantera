@@ -19,7 +19,7 @@
 #include "transport/TransportFactory.h"
 #include "ctml.h"
 #include "importCTML.h"
-#include "converters/ck2ctml.h"
+#include "converters/ck2ct.h"
 #include "Storage.h"
 #include "Cabinet.h"
 #include "InterfaceKinetics.h"
@@ -895,9 +895,9 @@ extern "C" {
     }
 
 
-    int DLL_EXPORT ck_to_ctml(char* in_file, char* db_file,
-        char* tr_file, char* out_file, char* id_tag) {
-        return convert_ck(in_file, db_file, tr_file, out_file, id_tag);
+    int DLL_EXPORT ck_to_cti(char* in_file, char* db_file,
+        char* tr_file, char* id_tag) {
+        return pip::convert_ck(in_file, db_file, tr_file, id_tag);
     }
 
 }

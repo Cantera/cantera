@@ -17,12 +17,14 @@ void kineticsmethods( int nlhs, mxArray *plhs[],
 
     // construct a new instance
     if (job == 0) {
-        checkNArgs(6, nrhs);
+        checkNArgs(8, nrhs);
         int root = getInt(prhs[1]);
         int iph = getInt(prhs[3]);
         int in1 = getInt(prhs[4]);
         int in2 = getInt(prhs[5]);
-        vv = newKineticsFromXML(root, iph, in1, in2);
+        int in3 = getInt(prhs[6]);
+        int in4 = getInt(prhs[7]);
+        vv = newKineticsFromXML(root, iph, in1, in2, in3, in4);
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         double *h = mxGetPr(plhs[0]);
         *h = vv;
