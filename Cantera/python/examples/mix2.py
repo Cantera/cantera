@@ -1,17 +1,29 @@
-# Mixing two streams with reaction. This is the same as mix1.py,
-# except that a source of H atoms is added to ignite the fuel/air
-# mixture. Once ignited, the flow of H atoms is stopped.
+# Mixing two streams.
 
-import math
+# Since reactors can have multiple inlets and outlets, they can be
+# used to implement mixers, splitters, etc. In this example, air and
+# methane are mixed in stoichiometric proportions. Due to the low
+# temperature, no reactions occur. Note that the air stream and the
+# methane stream use *different* reaction mechanisms, with different
+# numbers of species and reactions. When gas flows from one reactor or
+# reservoir to another one with a different reaction mechanism,
+# species are matched by name. If the upstream reactor contains a
+# species that is not present in the downstream reaction mechanism, it
+# will be ignored. In general, reaction mechanisms for downstream
+# reactors should contain all species that might be present in any
+# upstream reactor.
+#
+#-----------------------------------------------------------------------
+
 from Cantera import *
-from Cantera.Reactor import Reactor, Reservoir, MassFlowController, Valve
+from Cantera.Reactor import *
 
 
 # Use air for stream a. Note that the Air() function does not set the
 # composition correctly; thus, we need to explicitly set the
 # composition to that of air.
 gas_a = Air()
-gas_a.setState_TPX(300.0, OneAtm, 'O2:0.21, N2:0.78, AR:0.01')
+gas_a.set(T = 300.0, P = OneAtm, X = 'O2:0.21, N2:0.78, AR:0.01')
 rho_a = gas_a.density()
 
 
@@ -19,7 +31,7 @@ rho_a = gas_a.density()
 # desired to have a pure mixer, with no chemistry, use instead a
 # reaction mechanism for gas_b that has no reactions.
 gas_b = GRI30()
-gas_b.setState_TPX(300.0, OneAtm, 'CH4:1')
+gas_b.set(T = 300.0, P = OneAtm, X = 'CH4:1')
 rho_b = gas_b.density()
 
 
@@ -43,51 +55,49 @@ mixer = Reactor(gas_b)
 # create two mass flow controllers connecting the upstream reservoirs
 # to the mixer, and set their mass flow rates to values corresponding
 # to stoichiometric combustion.
-mfc1 = MassFlowController(res_a, mixer)
-mfc1.setMassFlowRate(rho_a*2.5/0.21)
+mfc1 = MassFlowController(upstream = res_a,
+                          downstream = mixer,
+                          mdot = rho_a*2.5/0.21)
 
-mfc2 = MassFlowController(res_b, mixer)
-mfc2.setMassFlowRate(rho_b*1.0)
-
-
-# connect the mixer to the downstream reservoir with a valve.
-outlet = Valve(mixer, downstream)
-outlet.setValveCoeff(1.0)
+mfc2 = MassFlowController(upstream = res_b,
+                          downstream = mixer,
+                          mdot = rho_b*1.0)
 
 
 # add an igniter to ignite the mixture. The 'igniter' consists of a
 # stream of pure H.
-gas_c = IdealGasMix('h2o2.xml')
-gas_c.setState_TPX(300.0, OneAtm, 'H:1')
+gas_c = IdealGasMix('h2o2.cti')
+gas_c.set(T = 300.0, P = OneAtm, X = 'H:1')
 igniter = Reactor(gas_c)
 
-mfc3 = MassFlowController(igniter, mixer)
-mfc3.setMassFlowRate(0.05)
+mfc3 = MassFlowController(upstream = igniter, downstream = mixer,
+                          mdot = 0.05)
 
 
+# connect the mixer to the downstream reservoir with a valve.
+outlet = Valve(upstream = mixer, downstream = downstream, Kv = 1.0)
+
+sim = ReactorNet([mixer])
 
 # Since the mixer is a reactor, we need to integrate in time to reach
 # steady state. A few residence times should be enough.
 t = 0.0
 for n in range(30):
     tres = mixer.mass()/(mfc1.massFlowRate() + mfc2.massFlowRate())
-    tnow = t
     t += 0.5*tres
-    mixer.advance(t)
-    
+    sim.advance(t)
+
     # if ignited, turn the igniter off.
     # We also need to restart the integration in this case.
     if mixer.temperature() > 1200.0:
-        mfc3.setMassFlowRate(0.0)
-        mixer.setInitialTime(t)
+        mfc3.set(mdot = 0.0)
+        sim.setInitialTime(t)
         
     print '%14.5g %14.5g %14.5g  %14.5g  %14.5g' % (t, mixer.temperature(),
                                                     mixer.enthalpy_mass(),
                                                     mixer.pressure(),
                                                     mixer.massFraction('CH4'))
-gas_b.setState_TPY(mixer.temperature(), mixer.pressure(), mixer.massFractions())
 
 # view the state of the gas in the mixer
-gas_b.setState_TPY(mixer.temperature(), mixer.pressure(),
-                   mixer.massFractions())
-print gas_b    
+print mixer.contents()
+

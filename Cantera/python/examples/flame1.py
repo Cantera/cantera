@@ -44,7 +44,7 @@ refine_grid = 1                     # 1 to enable refinement, 0 to
 gas = IdealGasMix(rxnmech, mix)
 
 # set its state to that of the unburned gas at the burner
-gas.setState_TPX(tburner, p, comp)
+gas.set(T = tburner, P = p, X = comp)
 
 f = BurnerFlame(gas = gas, grid = initial_grid)
 

@@ -271,7 +271,7 @@ class ReactorBase:
         It is also allowed to write
         >>> gas = r.contents()
         """
-        syncContents()
+        self.syncContents()
         return self._contents
     
 

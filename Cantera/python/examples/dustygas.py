@@ -16,7 +16,7 @@ from Cantera.DustyGasTransport import *
 g = importPhase('h2o2.cti')
 
 # set the gas state
-g.setState_TPX(500.0, OneAtm, "OH:1, H:2, O2:3")
+g.set(T = 500.0, P = OneAtm, X = "OH:1, H:2, O2:3")
 
 # create a Dusty Gas transport manager for this phase
 d = DustyGasTransport(g)

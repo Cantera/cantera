@@ -182,7 +182,7 @@ def Const(value):
 
 class PeriodicFunction(Func1):
     def __init__(self, func, T):
-        Func1.__init__(self, 50, func._func_id(), array([T],'d'))
+        Func1.__init__(self, 50, func.func_id(), array([T],'d'))
         
 
 # functions that combine two functions
@@ -209,7 +209,7 @@ class SumFunction(Func1):
         self.f1 = f1
         self.f2 = f2
         self.n = -1
-        self._func_id = _cantera.func_newcombo(20, f1._func_id(), f2._func_id())
+        self._func_id = _cantera.func_newcombo(20, f1.func_id(), f2.func_id())
 
 class ProdFunction(Func1):
     """Product of two functions.
@@ -232,7 +232,7 @@ class ProdFunction(Func1):
         self.f1 = f1
         self.f2 = f2        
         self.n = -1
-        self._func_id = _cantera.func_newcombo(30, f1._func_id(), f2._func_id())
+        self._func_id = _cantera.func_newcombo(30, f1.func_id(), f2.func_id())
 
 class RatioFunction(Func1):
     """Ratio of two functions.
@@ -255,6 +255,6 @@ class RatioFunction(Func1):
         self.f1 = f1
         self.f2 = f2        
         self.n = -1
-        self._func_id = _cantera.func_newcombo(40, f1._func_id(), f2._func_id())
+        self._func_id = _cantera.func_newcombo(40, f1.func_id(), f2.func_id())
     
         

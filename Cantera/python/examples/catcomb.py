@@ -10,7 +10,6 @@
 # The catalytic combustion mechanism is from Deutschman et al., 26th
 # Symp. (Intl.) on Combustion,1996 pp. 1747-1754
 #
-# On a Mac G4, this example takes about 20 sec.
 #
 
 from Cantera import *
@@ -62,7 +61,7 @@ refine_grid = 1                    # 1 to enable refinement, 0 to
 # input file 'ptcombust.cti,' which is a stripped-down version of
 # GRI-Mech 3.0. 
 gas = importPhase('ptcombust.cti','gas')
-gas.setState_TPX(tinlet, p, comp1)
+gas.set(T = tinlet, P = p, X = comp1)
 
 
 ################ create the interface object ##################

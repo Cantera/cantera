@@ -21,7 +21,7 @@
 
 #######################################################################
 
-CANTERA_VERSION=${CANTERA_VERSION:="1.5.3"}
+CANTERA_VERSION=${CANTERA_VERSION:="1.5.4"}
 
 CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
 
@@ -82,17 +82,6 @@ SET_PYTHON_SITE_PACKAGE_TOPDIR=${SET_PYTHON_SITE_PACKAGE_TOPDIR:="n"}
 
 PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"} 
 
-#
-# Proposed extension:
-#   Use when site packages must be put in system directories
-#   but Cantera tutorials must be put in user space.
-#   (this is pretty much the norm on many multiuser unix systems)
-#
-SET_PYTHON_SITE_PACKAGE_TOPDIR=${SET_PYTHON_SITE_PACKAGE_TOPDIR:="n"}
-
-PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"} 
-
-
 
 #----------- Matlab --------------------------------------------------
 
@@ -101,7 +90,7 @@ PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"}
 # Matlab script. If this is set to "y" but Matlab is not found, the
 # Matlab toolbox will not be built.
 
-BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
+BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="n"}
 
 
 #----------------------------------------------------------------------
@@ -202,7 +191,7 @@ LAPACK_FTN_STRING_LEN_AT_END='y'
 CXX=${CXX:=g++}
 
 # C++ compiler flags
-CXXFLAGS=${CXXFLAGS:="-O0 -Wall"}
+CXXFLAGS=${CXXFLAGS:="-O2 -Wall"}
 
 # the C++ flags required for linking
 #LCXX_FLAGS=
@@ -234,7 +223,7 @@ F77=${F77:=g77}
 F90=${F90:=f90}
 
 # Fortran compiler flags
-FFLAGS=${FFLAGS:='-O2 -g'}
+FFLAGS=${FFLAGS:='-O2'}
 
 # the additional Fortran flags required for linking, if any
 #LFORT_FLAGS="-lF77 -lFI77"

@@ -11,7 +11,7 @@ ideal_gas(name = 'gas',
                                 pressure = 1.0e3,
                                 mole_fractions = 'H:0.002, H2:1, CH4:0.01, CH3:0.0002'))
 
-pure_solid(name = 'diamond',
+stoichiometric_solid(name = 'diamond',
            elements = 'C',
            density = (3.52, 'g/cm3'),
            species = 'C(d)')

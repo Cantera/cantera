@@ -32,7 +32,7 @@ from Cantera.Func import *
 # 'GRI30()'
 
 ar = Argon()
-ar.setState_TPX(1000.0, 20.0*OneAtm, 'AR:1')
+ar.set(T = 1000.0, P = 20.0*OneAtm, X = 'AR:1')
 
 # create a reactor to represent the side of the cylinder filled with argon
 r1   = Reactor(ar)
@@ -45,7 +45,7 @@ env = Reservoir(Air())
 # use GRI-Mech 3.0 for the methane/air mixture, and set its initial state
 gri3 = GRI30()
 
-gri3.setState_TPX(500.0, 0.1*OneAtm, 'CH4:1.1, O2:2, N2:7.52')
+gri3.set(T = 500.0, P = 0.1*OneAtm, X = 'CH4:1.1, O2:2, N2:7.52')
 
 # create a reactor for the methane/air side
 r2 = Reactor(gri3)
@@ -58,7 +58,7 @@ r2 = Reactor(gri3)
 
 # add a flexible wall (a piston) between r2 and r1
 w = Wall(r2, r1)
-w.set(area = 2.0, K=1.1e-4)
+w.set(area = 2.0, K=0.55e-4)
 
 
 # heat loss to the environment. Heat loss always occur through walls,
@@ -67,6 +67,8 @@ w.set(area = 2.0, K=1.1e-4)
 # through the wall.
 w2 = Wall(r1, env)
 w2.set(area = 0.5, U=100.0)
+
+sim = ReactorNet([r1, r2])
 
 # Now the problem is set up, and we're ready to solve it.
 print 'finished setup, begin solution...'
@@ -78,8 +80,7 @@ writeCSV(f,['time (s)','T2 (K)','P2 (Pa)','V2 (m3)',
 for n in range(300):
     time += 4.e-5
     print time, r2.temperature(),n
-    r1.advance(time)    
-    r2.advance(time)
+    sim.advance(time)    
     writeCSV(f, [r2.time(), r2.temperature(), r2.pressure(), r2.volume(),
                  r1.temperature(), r1.pressure(), r1.volume()])
 f.close()

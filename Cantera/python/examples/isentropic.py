@@ -30,7 +30,7 @@ def isentropic(g = None):
 
     if g == None:
         gas = GRI30()
-        gas.setState_TPX(1200.0,10.0*OneAtm,'H2:1,N2:0.1')
+        gas.set(T = 1200.0,P = 10.0*OneAtm,X = 'H2:1,N2:0.1')
     else:
         gas = g
 
@@ -50,7 +50,7 @@ def isentropic(g = None):
         p = p0*(r+1)/201.0
 
         # set the state using (p,s0)
-        gas.setState_SP(s0,p)
+        gas.set(S = s0, P = p)
    
         h = gas.enthalpy_mass()
         rho = gas.density()
