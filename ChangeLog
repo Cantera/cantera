@@ -1,3 +1,237 @@
+2005-01-09 12:29  dggoodwin
+
+	* config.h, configure, Cantera/clib/src/ct.cpp,
+	  Cantera/clib/src/ctmultiphase.cpp,
+	  Cantera/cxx/include/PureFluid.h, Cantera/cxx/src/writelog.cpp,
+	  Cantera/python/ctml_writer.py, Cantera/python/winsetup.py,
+	  Cantera/python/Cantera/Mixture.py,
+	  Cantera/python/Cantera/mixture.py, Cantera/python/Cantera/num.py,
+	  Cantera/src/ChemEquil.cpp, Cantera/src/ChemEquil.h,
+	  Cantera/src/Constituents.cpp, Cantera/src/ImplicitChem.cpp,
+	  Cantera/src/InterfaceKinetics.h, Cantera/src/Makefile.in,
+	  Cantera/src/MultiPhase.cpp, Cantera/src/MultiPhase.h,
+	  Cantera/src/MultiPhaseEquil.cpp, Cantera/src/MultiPhaseEquil.h,
+	  Cantera/src/PureFluidPhase.h,
+	  Cantera/src/SpeciesThermoFactory.cpp,
+	  Cantera/src/ThermoFactory.cpp, Cantera/src/config.h,
+	  Cantera/src/ct2ctml.cpp, Cantera/src/global.h,
+	  Cantera/src/importCTML.h, Cantera/src/converters/CKParser.cpp,
+	  Cantera/src/oneD/StFlow.cpp, Cantera/src/transport/Makefile.in,
+	  Cantera/src/zeroD/Makefile.in,
+	  Cantera/src/zeroD/flowControllers.h, apps/MixMaster/DataFrame.py,
+	  apps/MixMaster/DataGraph.py, apps/MixMaster/Mix.py,
+	  apps/MixMaster/main.py, bin/mixmaster.py,
+	  data/inputs/graphite.cti, data/inputs/water.cti,
+	  tools/src/package4mac.in, tools/testtools/csvdiff.cpp: trunk
+	  changes merged in
+
+2005-01-09 11:32  dggoodwin
+
+	* tools/testtools/csvdiff.cpp: modified csvdiff to allow larger
+	  error bounds when solution is changing rapidly
+
+2005-01-09 10:58  dggoodwin
+
+	* test_problems/silane_equil/output_blessed.txt: updated blessed
+	  output due to format change
+
+2005-01-08 14:27  dggoodwin
+
+	* data/inputs/: graphite.cti, water.cti: added water.cti
+
+2005-01-07 17:10  dggoodwin
+
+	* win32/vc7/cantera/cantera.vcproj: added a file to project cantera
+
+2005-01-07 16:29  dggoodwin
+
+	* win32/vc7/demos/: CanteraDemos.sln, Rankine.vcproj: added project
+	  rankine
+
+2005-01-07 02:26  dggoodwin
+
+	* Cantera/: clib/src/ct.cpp, clib/src/ct.h,
+	  cxx/demos/Makefile.install, cxx/demos/rankine.cpp,
+	  cxx/src/writelog.cpp, src/ChemEquil.h, src/Constituents.cpp,
+	  src/DenseMatrix.cpp, src/ImplicitChem.cpp,
+	  src/InterfaceKinetics.cpp, src/InterfaceKinetics.h,
+	  src/Makefile.in, src/PureFluidPhase.cpp, src/PureFluidPhase.h,
+	  src/ShomateThermo.h, src/ThermoFactory.cpp, src/config.h,
+	  src/ct2ctml.cpp, src/global.h, src/importCTML.h,
+	  src/converters/CKParser.cpp, src/converters/CKParser.h,
+	  src/converters/CKReader.h, src/converters/Group.h,
+	  src/converters/ckr_utils.cpp, src/converters/ckr_utils.h,
+	  src/converters/config.h, src/converters/writelog.cpp,
+	  src/oneD/StFlow.cpp, src/transport/Makefile.in,
+	  src/zeroD/Makefile.in, src/zeroD/flowControllers.h: merged
+	  changes from branch
+
+2005-01-07 01:58  dggoodwin
+
+	* Cantera/src/MultiPhase.cpp: initial import
+
+2005-01-07 01:55  dggoodwin
+
+	* Cantera/: src/PureFluidPhase.cpp, src/PureFluidPhase.h,
+	  src/ThermoFactory.cpp, clib/src/ct.cpp, python/Cantera/num.py:
+	  changed class PureFluid to PureFluidPhase
+
+2005-01-07 01:46  dggoodwin
+
+	* Cantera/cxx/include/PureFluid.h: merged from branch
+
+2005-01-07 01:43  dggoodwin
+
+	* Cantera/cxx/include/PureFluid.h: initial import
+
+2005-01-07 01:39  dggoodwin
+
+	* Cantera/cxx/demos/: Makefile.install, rankine.cpp: added open
+	  rankine example
+
+2005-01-06 15:42  dggoodwin
+
+	* config.h, winconfig.h, Cantera/python/Cantera/num.py,
+	  Cantera/src/config.h: cleanup
+
+2005-01-06 15:30  dggoodwin
+
+	* Cantera/cxx/demos/flamespeed.cpp,
+	  examples/cxx/transport_example1.cpp: minor cleanup
+
+2005-01-06 04:49  dggoodwin
+
+	* ChangeLog, README.txt, Cantera/clib/src/ctmultiphase.cpp,
+	  Cantera/cxx/demos/flamespeed.cpp,
+	  Cantera/python/Cantera/__init__.py,
+	  Cantera/python/examples/flame1.py,
+	  Cantera/python/examples/flame2.py,
+	  Cantera/python/examples/npflame1.py,
+	  Cantera/python/examples/stflame1.py, Cantera/src/ChemEquil.h,
+	  Cantera/src/Makefile.in, Cantera/src/MultiPhaseEquil.cpp,
+	  Cantera/src/ct2ctml.cpp, Cantera/src/ctvector.cpp,
+	  Cantera/src/oneD/StFlow.cpp, examples/cxx/transport_example1.cpp,
+	  ext/tpx/Sub.cpp: trunk changes merged into branch
+
+2005-01-06 04:32  dggoodwin
+
+	* test_problems/silane_equil/output_blessed.txt: updated blessed
+	  output due to format change
+
+2005-01-06 03:59  dggoodwin
+
+	* Cantera/python/Cantera/: Mixture.py, mixture.py: re-added
+
+2005-01-06 03:58  dggoodwin
+
+	* Cantera/python/Cantera/: Mixture.py, __init__.py, num.py,
+	  solve.py, units.py, OneD/__init__.py: merged trunk
+
+2005-01-06 03:09  dggoodwin
+
+	* Cantera/src/ctvector.cpp: fixed memory leak in operator=
+
+2005-01-06 03:08  dggoodwin
+
+	* Cantera/src/oneD/StFlow.cpp: fixed memory leak in showSolution
+
+2005-01-05 13:04  dggoodwin
+
+	* README.txt, config.h, Cantera/clib/src/ctmultiphase.cpp,
+	  Cantera/python/Cantera/__init__.py,
+	  Cantera/python/Cantera/solve.py, Cantera/python/Cantera/units.py,
+	  Cantera/python/Cantera/OneD/__init__.py,
+	  Cantera/python/examples/flame1.py,
+	  Cantera/python/examples/flame2.py,
+	  Cantera/python/examples/npflame1.py,
+	  Cantera/python/examples/stflame1.py, Cantera/src/ChemEquil.h,
+	  Cantera/src/Makefile.in, Cantera/src/MultiPhase.h,
+	  Cantera/src/MultiPhaseEquil.cpp, Cantera/src/config.h,
+	  Cantera/src/ct2ctml.cpp, examples/cxx/transport_example1.cpp:
+	  minor cleanup
+
+2005-01-05 04:36  dggoodwin
+
+	* INSTALLING, README, README.txt: removed unneeded files
+
+2005-01-04 17:28  dggoodwin
+
+	* ext/tpx/Sub.cpp: fixed problem with starting guess for T in Tsat
+	  that caused an exception with T > Tcrit on entry
+
+2005-01-04 17:04  hkmoffa
+
+	* win32/vc7/cvode/.cvsignore: Added a directory name
+
+2005-01-04 17:03  hkmoffa
+
+	* win32/vc7/.cvsignore: added a file name
+
+2005-01-04 17:01  hkmoffa
+
+	* win32/vc7/: transport/.cvsignore, oneD/.cvsignore: Added a
+	  directory
+
+2005-01-04 17:00  hkmoffa
+
+	* win32/vc7/SetupCantera/.cvsignore: Adding the .cvsignore file
+
+2005-01-04 16:58  hkmoffa
+
+	* win32/vc7/clib/: .cvsignore, clib.vcproj: Changed the library
+	  paths in the Debug and Release versions.
+
+2005-01-04 16:54  hkmoffa
+
+	* win32/vc7/ctmatlab/: .cvsignore, runmlab.cmd: changed forward
+	  slashes into backslashes.
+
+2005-01-04 16:46  hkmoffa
+
+	* win32/vc7/ctpython/: .cvsignore, ctpython.vcproj, runpython.cmd:
+	  changed runpython.cmd to use backslashes.
+
+2005-01-04 14:28  hkmoffa
+
+	* win32/vc7/SetupCantera/SetupCantera.vdproj: Changed LF's to
+	  CR-LF's in the entire file. mcvc++ was having trouble reading the
+	  file with just LF's.
+
+2005-01-04 14:23  hkmoffa
+
+	* win32/vc7/SetupCantera/SetupCantera.vdproj: Changed LF's into
+	  CR-LF's in this file. This was causing msvc++ not to be able to
+	  load the file, at least for me.
+
+2005-01-04 12:32  hkmoffa
+
+	* Cantera/src/transport/Makefile.in: New Makefile Format:
+	  Installs .h files and libs at the same time.
+
+2005-01-04 12:30  hkmoffa
+
+	* Cantera/src/zeroD/Makefile.in: New Makefile format:	 installs
+	  .h files and libs at the same time.
+
+2005-01-03 15:40  hkmoffa
+
+	* Cantera/python/Cantera/__init__.py: Took out the reference to
+	  ctdata.  ATM, this causes all python jobs to fail.
+
+2005-01-03 15:12  hkmoffa
+
+	* Cantera/src/ct2ctml.cpp: ifdeffed out a static function that was
+	  not used.
+
+2004-12-18 07:16  dggoodwin
+
+	* Cantera/src/converters/: CKParser.cpp, CKReader.h, config.h:
+	  minor cleanup
+
+2004-12-15 22:56  dggoodwin
+
+	* Cantera/src/MultiPhase.cpp: initial import
+
 2004-12-13 10:38  dggoodwin
 
 	* win32/vc7/demos/: CanteraDemos.sln, ReadMe.txt, demo.vcproj:
