@@ -63,7 +63,7 @@ namespace Cantera {
          * first.
          */
         void integrate(doublereal t0, doublereal t1) {
-            m_integ->reinitialize(t0, *this);
+            m_integ->initialize(t0, *this);
             m_integ->setMaxStep(t1 - t0);
             m_integ->integrate(t1);
             updateState(m_integ->solution());

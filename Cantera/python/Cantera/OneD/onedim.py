@@ -237,7 +237,10 @@ class Inlet(Bdry1D):
         self._hndl = _cantera.inlet_new()
         if id: self.setID(id)
         
-    
+    def setSpreadRate(self, V0 = 0.0):
+        _cantera.inlet_setSpreadRate(self._hndl, V0)
+        
+        
 class Outlet(Bdry1D):
     def __init__(self, id = 'outlet'):
         Bdry1D.__init__(self)        

@@ -93,6 +93,10 @@ namespace Cantera {
                         for (m = 0; m < mv; m++) {
                             value(m+iloc,ipt) = (m_r1[m+iloc] 
                                 - resid0[m+iloc])*rdx;
+                            //if (m == 15) {
+                            //    cout << "perturbed " << n << " " << value(m+iloc,ipt) <<  " " << m_r1[m+iloc]
+                            //         << " " << resid0[m+iloc] << " " << rdx << endl;
+                            //}
                         }
                     }
                 }

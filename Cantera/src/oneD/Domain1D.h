@@ -27,6 +27,7 @@ namespace Cantera {
     const int cInletType        = 104;
     const int cSymmType         = 105;
     const int cOutletType       = 106;
+    const int cEmptyType        = 107;
 
     class MultiJac;
     class OneDim;

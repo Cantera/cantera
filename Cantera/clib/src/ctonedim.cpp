@@ -308,6 +308,16 @@ extern "C" {
         catch (CanteraError) { return -1; }
     }
 
+    int DLL_EXPORT inlet_setSpreadRate(int i, double v) {
+        try {
+            Inlet1D* inlt = (Inlet1D*)_bdry(i);
+            inlt->setSpreadRate(v);
+            return 0;
+        }
+
+        catch (CanteraError) { return -1; }
+    }
+
     //------------------ stagnation flow domains --------------------
 
     int DLL_EXPORT stflow_new(int iph, int ikin, int itr) {

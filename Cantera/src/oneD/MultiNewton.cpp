@@ -117,9 +117,19 @@ namespace Cantera {
         int n, iok;
         int sz = r.size();
         r.eval(-1, x, step);
+#undef DEBUG_STEP
+#ifdef DEBUG_STEP
+        vector_fp ssave(sz, 0.0);
+        for (n = 0; n < sz; n++) {
+            step[n] = -step[n];
+            ssave[n] = step[n];
+        }
+#else
         for (n = 0; n < sz; n++) {
             step[n] = -step[n];
         }
+#endif
+
         try {
 	  iok = jac.solve(sz, step, step);
 	  if (iok > 0) {
@@ -144,7 +154,7 @@ namespace Cantera {
         catch (CanteraError) {
 	  showErrors(cout);
 	}
-#undef DEBUG_STEP
+
 #ifdef DEBUG_STEP
         bool ok = false;
         Domain1D* d;
@@ -153,16 +163,12 @@ namespace Cantera {
                 d = r.pointDomain(n);
                 int nvd = d->nComponents();
                 int pt = (n - d->loc())/nvd;
-                cout << pt << "  " << 
+                cout << "step: " << pt << "  " << 
                     r.pointDomain(n)->componentName(n - d->loc() - nvd*pt)
-                     << "    " << x[n] << "     " << step[n] << endl;
+                     << "    " << x[n] << "     " << ssave[n] << "   " << step[n] << endl;
             }
-            //if (!ok) throw "not ok";
         }
 #endif
-        //throw CanteraError("step","step error");
-        //        }
-
     }
 
 

@@ -1,23 +1,29 @@
 <ctml>
+  <validate reactions="yes" species="yes"/>
 
-  <!--     phase silane      -->
+  <!--    phase silane     -->
   <phase dim="3" id="silane">
     <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
     <speciesArray datasrc="#species_data">
      H2  H  HE  SIH4  SI  SIH  SIH2  SIH3  H3SISIH  SI2H6 
                        H2SISIH2  SI3H8  SI2  SI3 </speciesArray>
     <reactionArray datasrc="#reaction_data"/>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
     <thermo model="IdealGas"/>
     <kinetics model="GasKinetics"/>
     <transport model="None"/>
   </phase>
 
-  <!--      species definitions      -->
+  <!--     species definitions     -->
   <speciesData id="species_data">
 
-    <!--     species H2     -->
+    <!--    species H2    -->
     <species name="H2">
       <atomArray>H:2 </atomArray>
+      <note>TPIS78</note>
       <thermo>
         <NASA P0="100000.0" Tmax="1000.0" Tmin="200.0">
           <floatArray name="coeffs" size="7">
@@ -32,9 +38,10 @@
       </thermo>
     </species>
 
-    <!--     species H     -->
+    <!--    species H    -->
     <species name="H">
       <atomArray>H:1 </atomArray>
+      <note>L 7/88</note>
       <thermo>
         <NASA P0="100000.0" Tmax="1000.0" Tmin="200.0">
           <floatArray name="coeffs" size="7">
@@ -49,9 +56,10 @@
       </thermo>
     </species>
 
-    <!--     species HE     -->
+    <!--    species HE    -->
     <species name="HE">
       <atomArray>He:1 </atomArray>
+      <note>120186</note>
       <thermo>
         <NASA P0="100000.0" Tmax="1000.0" Tmin="300.0">
           <floatArray name="coeffs" size="7">
@@ -66,9 +74,10 @@
       </thermo>
     </species>
 
-    <!--     species SIH4     -->
+    <!--    species SIH4    -->
     <species name="SIH4">
       <atomArray>H:4 Si:1 </atomArray>
+      <note>90784</note>
       <thermo>
         <NASA P0="100000.0" Tmax="1000.0" Tmin="300.0">
           <floatArray name="coeffs" size="7">
@@ -83,9 +92,10 @@
       </thermo>
     </species>
 
-    <!--     species SI     -->
+    <!--    species SI    -->
     <species name="SI">
       <atomArray>Si:1 </atomArray>
+      <note>J 3/67</note>
       <thermo>
         <NASA P0="100000.0" Tmax="1000.0" Tmin="300.0">
           <floatArray name="coeffs" size="7">
@@ -100,9 +110,10 @@
       </thermo>
     </species>
 
-    <!--     species SIH     -->
+    <!--    species SIH    -->
     <species name="SIH">
       <atomArray>H:1 Si:1 </atomArray>
+      <note>121986</note>
       <thermo>
         <NASA P0="100000.0" Tmax="1000.0" Tmin="300.0">
           <floatArray name="coeffs" size="7">
@@ -117,9 +128,10 @@
       </thermo>
     </species>
 
-    <!--     species SIH2     -->
+    <!--    species SIH2    -->
     <species name="SIH2">
       <atomArray>H:2 Si:1 </atomArray>
+      <note>42489</note>
       <thermo>
         <NASA P0="100000.0" Tmax="1000.0" Tmin="300.0">
           <floatArray name="coeffs" size="7">
@@ -134,9 +146,10 @@
       </thermo>
     </species>
 
-    <!--     species SIH3     -->
+    <!--    species SIH3    -->
     <species name="SIH3">
       <atomArray>H:3 Si:1 </atomArray>
+      <note>42489</note>
       <thermo>
         <NASA P0="100000.0" Tmax="1000.0" Tmin="300.0">
           <floatArray name="coeffs" size="7">
@@ -151,9 +164,10 @@
       </thermo>
     </species>
 
-    <!--     species H3SISIH     -->
+    <!--    species H3SISIH    -->
     <species name="H3SISIH">
       <atomArray>H:4 Si:2 </atomArray>
+      <note>111191</note>
       <thermo>
         <NASA P0="100000.0" Tmax="1500.0" Tmin="300.0">
           <floatArray name="coeffs" size="7">
@@ -168,9 +182,10 @@
       </thermo>
     </species>
 
-    <!--     species SI2H6     -->
+    <!--    species SI2H6    -->
     <species name="SI2H6">
       <atomArray>H:6 Si:2 </atomArray>
+      <note>90784</note>
       <thermo>
         <NASA P0="100000.0" Tmax="1000.0" Tmin="300.0">
           <floatArray name="coeffs" size="7">
@@ -185,9 +200,10 @@
       </thermo>
     </species>
 
-    <!--     species H2SISIH2     -->
+    <!--    species H2SISIH2    -->
     <species name="H2SISIH2">
       <atomArray>H:4 Si:2 </atomArray>
+      <note>42489</note>
       <thermo>
         <NASA P0="100000.0" Tmax="1000.0" Tmin="300.0">
           <floatArray name="coeffs" size="7">
@@ -202,9 +218,10 @@
       </thermo>
     </species>
 
-    <!--     species SI3H8     -->
+    <!--    species SI3H8    -->
     <species name="SI3H8">
       <atomArray>H:8 Si:3 </atomArray>
+      <note>90784</note>
       <thermo>
         <NASA P0="100000.0" Tmax="1000.0" Tmin="300.0">
           <floatArray name="coeffs" size="7">
@@ -219,9 +236,10 @@
       </thermo>
     </species>
 
-    <!--     species SI2     -->
+    <!--    species SI2    -->
     <species name="SI2">
       <atomArray>Si:2 </atomArray>
+      <note>90784</note>
       <thermo>
         <NASA P0="100000.0" Tmax="1000.0" Tmin="300.0">
           <floatArray name="coeffs" size="7">
@@ -236,9 +254,10 @@
       </thermo>
     </species>
 
-    <!--     species SI3     -->
+    <!--    species SI3    -->
     <species name="SI3">
       <atomArray>Si:3 </atomArray>
+      <note>J 3/67</note>
       <thermo>
         <NASA P0="100000.0" Tmax="1000.0" Tmin="300.0">
           <floatArray name="coeffs" size="7">
@@ -255,12 +274,12 @@
   </speciesData>
   <reactionData id="reaction_data">
 
-    <!--    reaction reaction_0001     -->
-    <reaction id="reaction_0001" reversible="yes">
+    <!--   reaction 0001    -->
+    <reaction id="0001" reversible="yes">
       <equation>SIH4 + H [=] SIH3 + H2</equation>
       <rateCoeff>
         <Arrhenius>
-          <A units="cm3/mol/s">  7.800000E+14</A>
+          <A>  7.800000E+11</A>
           <b>0</b>
           <E units="cal/mol">2260.000000</E>
         </Arrhenius>
@@ -269,12 +288,12 @@
       <products>H2:1 SIH3:1</products>
     </reaction>
 
-    <!--    reaction reaction_0002     -->
-    <reaction id="reaction_0002" reversible="yes" type="threeBody">
+    <!--   reaction 0002    -->
+    <reaction id="0002" reversible="yes" type="threeBody">
       <equation>SIH4 + M [=] SIH3 + H + M</equation>
       <rateCoeff>
         <Arrhenius>
-          <A units="cm3/mol/s">  3.910000E+15</A>
+          <A>  3.910000E+12</A>
           <b>0</b>
           <E units="cal/mol">89356.000000</E>
         </Arrhenius>
@@ -283,12 +302,12 @@
       <products>H:1 SIH3:1</products>
     </reaction>
 
-    <!--    reaction reaction_0003     -->
-    <reaction id="reaction_0003" reversible="yes">
+    <!--   reaction 0003    -->
+    <reaction id="0003" reversible="yes">
       <equation>SIH3 + H [=] SIH2 + H2</equation>
       <rateCoeff>
         <Arrhenius>
-          <A units="cm3/mol/s">  7.800000E+14</A>
+          <A>  7.800000E+11</A>
           <b>0</b>
           <E units="cal/mol">2260.000000</E>
         </Arrhenius>
@@ -297,12 +316,12 @@
       <products>H2:1 SIH2:1</products>
     </reaction>
 
-    <!--    reaction reaction_0004     -->
-    <reaction id="reaction_0004" reversible="yes" type="threeBody">
+    <!--   reaction 0004    -->
+    <reaction id="0004" reversible="yes" type="threeBody">
       <equation>SI + SI + M [=] SI2 + M</equation>
       <rateCoeff>
         <Arrhenius>
-          <A units="cm6/mol2/s">  2.470000E+16</A>
+          <A>  2.470000E+10</A>
           <b>0</b>
           <E units="cal/mol">1178.000000</E>
         </Arrhenius>
@@ -311,12 +330,12 @@
       <products>SI2:1</products>
     </reaction>
 
-    <!--    reaction reaction_0005     -->
-    <reaction id="reaction_0005" reversible="yes">
+    <!--   reaction 0005    -->
+    <reaction id="0005" reversible="yes">
       <equation>SIH4 + SIH2 [=] H3SISIH + H2</equation>
       <rateCoeff>
         <Arrhenius>
-          <A units="cm3/mol/s">  1.300000E+13</A>
+          <A>  1.300000E+10</A>
           <b>0</b>
           <E units="cal/mol">0.000000</E>
         </Arrhenius>
@@ -325,12 +344,12 @@
       <products>H2:1 H3SISIH:1</products>
     </reaction>
 
-    <!--    reaction reaction_0006     -->
-    <reaction id="reaction_0006" reversible="yes">
+    <!--   reaction 0006    -->
+    <reaction id="0006" reversible="yes">
       <equation>SIH + H2 [=] SIH2 + H</equation>
       <rateCoeff>
         <Arrhenius>
-          <A units="cm3/mol/s">  4.800000E+14</A>
+          <A>  4.800000E+11</A>
           <b>0</b>
           <E units="cal/mol">23.640000</E>
         </Arrhenius>
@@ -339,12 +358,12 @@
       <products>H:1 SIH2:1</products>
     </reaction>
 
-    <!--    reaction reaction_0007     -->
-    <reaction id="reaction_0007" reversible="yes">
+    <!--   reaction 0007    -->
+    <reaction id="0007" reversible="yes">
       <equation>SIH + SIH4 [=] H3SISIH + H</equation>
       <rateCoeff>
         <Arrhenius>
-          <A units="cm3/mol/s">  1.600000E+14</A>
+          <A>  1.600000E+11</A>
           <b>0</b>
           <E units="cal/mol">0.000000</E>
         </Arrhenius>
@@ -353,12 +372,12 @@
       <products>H:1 H3SISIH:1</products>
     </reaction>
 
-    <!--    reaction reaction_0008     -->
-    <reaction id="reaction_0008" reversible="yes">
+    <!--   reaction 0008    -->
+    <reaction id="0008" reversible="yes">
       <equation>SI + H2 [=] SIH + H</equation>
       <rateCoeff>
         <Arrhenius>
-          <A units="cm3/mol/s">  1.500000E+15</A>
+          <A>  1.500000E+12</A>
           <b>0</b>
           <E units="cal/mol">31.800000</E>
         </Arrhenius>
@@ -367,17 +386,17 @@
       <products>H:1 SIH:1</products>
     </reaction>
 
-    <!--    reaction reaction_0009     -->
-    <reaction id="reaction_0009" reversible="yes" type="falloff">
+    <!--   reaction 0009    -->
+    <reaction id="0009" reversible="yes" type="falloff">
       <equation>SIH4 (+ M) [=] SIH2 + H2 (+ M)</equation>
       <rateCoeff>
         <Arrhenius>
-          <A units="/s">  3.119000E+09</A>
+          <A>  3.119000E+09</A>
           <b>1.669</b>
           <E units="cal/mol">54710.000000</E>
         </Arrhenius>
         <Arrhenius name="k0">
-          <A units="cm3/mol/s">  5.214000E+29</A>
+          <A>  5.214000E+26</A>
           <b>-3.5449999999999999</b>
           <E units="cal/mol">57550.000000</E>
         </Arrhenius>
@@ -388,17 +407,17 @@
       <products>H2:1 SIH2:1</products>
     </reaction>
 
-    <!--    reaction reaction_0010     -->
-    <reaction id="reaction_0010" reversible="yes" type="falloff">
+    <!--   reaction 0010    -->
+    <reaction id="0010" reversible="yes" type="falloff">
       <equation>H3SISIH (+ M) [=] H2SISIH2 (+ M)</equation>
       <rateCoeff>
         <Arrhenius>
-          <A units="/s">  2.540000E+13</A>
+          <A>  2.540000E+13</A>
           <b>-0.22389999999999999</b>
           <E units="cal/mol">5381.000000</E>
         </Arrhenius>
         <Arrhenius name="k0">
-          <A units="cm3/mol/s">  1.099000E+33</A>
+          <A>  1.099000E+30</A>
           <b>-5.7649999999999997</b>
           <E units="cal/mol">9152.000000</E>
         </Arrhenius>
@@ -409,17 +428,17 @@
       <products>H2SISIH2:1</products>
     </reaction>
 
-    <!--    reaction reaction_0011     -->
-    <reaction id="reaction_0011" reversible="yes" type="falloff">
+    <!--   reaction 0011    -->
+    <reaction id="0011" reversible="yes" type="falloff">
       <equation>SI3H8 (+ M) [=] SIH4 + H3SISIH (+ M)</equation>
       <rateCoeff>
         <Arrhenius>
-          <A units="/s">  3.730000E+12</A>
+          <A>  3.730000E+12</A>
           <b>0.99199999999999999</b>
           <E units="cal/mol">50850.000000</E>
         </Arrhenius>
         <Arrhenius name="k0">
-          <A units="cm3/mol/s">  4.360000E+76</A>
+          <A>  4.360000E+73</A>
           <b>-17.260000000000002</b>
           <E units="cal/mol">59303.000000</E>
         </Arrhenius>
@@ -430,17 +449,17 @@
       <products>SIH4:1 H3SISIH:1</products>
     </reaction>
 
-    <!--    reaction reaction_0012     -->
-    <reaction id="reaction_0012" reversible="yes" type="falloff">
+    <!--   reaction 0012    -->
+    <reaction id="0012" reversible="yes" type="falloff">
       <equation>SI3H8 (+ M) [=] SIH2 + SI2H6 (+ M)</equation>
       <rateCoeff>
         <Arrhenius>
-          <A units="/s">  6.970000E+12</A>
+          <A>  6.970000E+12</A>
           <b>0.96909999999999996</b>
           <E units="cal/mol">52677.000000</E>
         </Arrhenius>
         <Arrhenius name="k0">
-          <A units="cm3/mol/s">  1.730000E+69</A>
+          <A>  1.730000E+66</A>
           <b>-15.07</b>
           <E units="cal/mol">60491.000000</E>
         </Arrhenius>
@@ -451,17 +470,17 @@
       <products>SI2H6:1 SIH2:1</products>
     </reaction>
 
-    <!--    reaction reaction_0013     -->
-    <reaction id="reaction_0013" reversible="yes" type="falloff">
+    <!--   reaction 0013    -->
+    <reaction id="0013" reversible="yes" type="falloff">
       <equation>SI2H6 (+ M) [=] H2 + H3SISIH (+ M)</equation>
       <rateCoeff>
         <Arrhenius>
-          <A units="/s">  9.086000E+09</A>
+          <A>  9.086000E+09</A>
           <b>1.8340000000000001</b>
           <E units="cal/mol">54197.000000</E>
         </Arrhenius>
         <Arrhenius name="k0">
-          <A units="cm3/mol/s">  1.945000E+44</A>
+          <A>  1.945000E+41</A>
           <b>-7.7720000000000002</b>
           <E units="cal/mol">59023.000000</E>
         </Arrhenius>
@@ -472,17 +491,17 @@
       <products>H2:1 H3SISIH:1</products>
     </reaction>
 
-    <!--    reaction reaction_0014     -->
-    <reaction id="reaction_0014" reversible="yes" type="falloff">
+    <!--   reaction 0014    -->
+    <reaction id="0014" reversible="yes" type="falloff">
       <equation>SI2H6 (+ M) [=] SIH4 + SIH2 (+ M)</equation>
       <rateCoeff>
         <Arrhenius>
-          <A units="/s">  1.810000E+10</A>
+          <A>  1.810000E+10</A>
           <b>1.7470000000000001</b>
           <E units="cal/mol">50203.000000</E>
         </Arrhenius>
         <Arrhenius name="k0">
-          <A units="cm3/mol/s">  5.090000E+53</A>
+          <A>  5.090000E+50</A>
           <b>-10.369999999999999</b>
           <E units="cal/mol">56034.000000</E>
         </Arrhenius>

@@ -149,6 +149,7 @@ static PyMethodDef ct_methods[] = {
     {"bdry_temperature", py_bdry_temperature, METH_VARARGS},
     {"bdry_massFraction", py_bdry_massFraction, METH_VARARGS},
     {"bdry_mdot", py_bdry_mdot, METH_VARARGS},
+    {"inlet_setSpreadRate", py_inlet_setSpreadRate, METH_VARARGS},
     {"reactingsurf_setkineticsmgr", py_reactingsurf_setkineticsmgr, METH_VARARGS},
     {"reactingsurf_enableCoverageEqs", py_reactingsurf_enableCoverageEqs, METH_VARARGS},
     {"inlet_new", py_inlet_new, METH_VARARGS},

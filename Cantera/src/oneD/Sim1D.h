@@ -72,6 +72,8 @@ namespace Cantera {
         void showSolution(ostream& s);
         void showSolution();
 
+        const doublereal* solution() { return m_x.begin(); }
+
         void setTimeStep(doublereal stepsize, int n, integer* tsteps);
 
         //void setMaxTimeStep(doublereal tmax) { m_maxtimestep = tmax; }
@@ -91,6 +93,10 @@ namespace Cantera {
 
         void restore(string fname, string id);
         void getInitialSoln();
+
+        void setSolution(const doublereal* soln) {
+            copy(soln, soln + m_x.size(), m_x.begin());
+        }
 
     protected:
 

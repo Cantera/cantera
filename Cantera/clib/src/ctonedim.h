@@ -42,6 +42,8 @@ extern "C" {
     int DLL_IMPORT surf_new();
     int DLL_IMPORT reactingsurf_new();
 
+    int DLL_IMPORT inlet_setSpreadRate(int i, double v);
+
     int DLL_IMPORT stflow_new(int iph, int ikin, int itr);
     int DLL_IMPORT stflow_setPressure(int i, double p);
     int DLL_IMPORT stflow_setFixedTempProfile(int i, int n, double* pos, 

@@ -210,7 +210,7 @@ F90_EXT=${F90_EXT:=f90}
 #EXE_EXT=
 
 
-CT_SHARED_LIB=${CT_SHARED_LIB:=ct14}
+CT_SHARED_LIB=${CT_SHARED_LIB:=clib}
 
 
 #-----------------------------------------------------------------------

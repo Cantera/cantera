@@ -477,8 +477,8 @@ namespace Cantera {
         for (int ii = 0; ii < m_mm; ii++) x[ii] = -100.0;
         //try {
             estimateElementPotentials(s, x);
-            //}
-            //catch (CanteraError) { ; }
+            //    }
+            //catch (CanteraError) { writelog("estimateElementPotentials failed, but continuing anyway,...\n"); }
 
         x[m_mm] = log(m_phase->temperature());
     

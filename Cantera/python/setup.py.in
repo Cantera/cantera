@@ -12,7 +12,7 @@ platform = sys.platform
 if platform == "win32":
     libs = ["cantera14"]
 else:
-    libs = ["ct14", "zeroD","oneD","converters", "transport",
+    libs = ["clib", "zeroD","oneD","converters", "transport",
             "cantera","recipes","ctlapack",
             "ctblas", "ctmath", "cvode", "stdc++", "g2c", "m"]
 

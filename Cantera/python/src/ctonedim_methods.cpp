@@ -262,6 +262,21 @@ py_domain_setDesc(PyObject *self, PyObject *args)
 
 
 static PyObject *
+py_inlet_setSpreadRate(PyObject *self, PyObject *args)
+{
+    int _val;
+    int i;
+    double v;
+    if (!PyArg_ParseTuple(args, "id:inlet_setSpreadRate", &i, &v)) 
+        return NULL;
+        
+    _val = inlet_setSpreadRate(i,v); 
+    if (int(_val) == -1) return reportCanteraError();
+    return Py_BuildValue("i",_val);
+}
+
+
+static PyObject *
 py_domain_grid(PyObject *self, PyObject *args)
 {
     double _val;

@@ -239,6 +239,63 @@ namespace Cantera {
     }
 
 
+
+
+    //--------------------------------------------------   
+    //      Empty1D
+    //--------------------------------------------------
+
+    string Empty1D::componentName(int n) const { 
+        switch (n) {
+        case 0: return "dummy"; break;
+        default: return "<unknown>";
+        }
+    }
+
+    void Empty1D::
+    init() { //_init(1); 
+       // set bounds (T)
+        const doublereal lower = -1.0;
+        const doublereal upper = 1.0;
+        setBounds(1, &lower, 1, &upper);
+
+        // set tolerances
+        const doublereal rtol = 1e-4;
+        const doublereal atol = 1.e-4;
+        setTolerances(1, &rtol, 1, &atol);
+    }
+
+    void Empty1D::
+    eval(int jg, doublereal* xg, doublereal* rg, 
+        integer* diagg, doublereal rdt) {
+        if (jg >= 0 && (jg < firstPoint() - 2 || jg > lastPoint() + 2)) return;
+
+        // start of local part of global arrays
+        doublereal* x = xg + loc();
+        doublereal* r = rg + loc();
+        integer* diag = diagg + loc();
+        integer *db;
+
+        r[0] = x[0];
+        diag[0] = 0;
+    }
+
+    void Empty1D::
+    save(XML_Node& o, doublereal* soln) {
+        XML_Node& symm = o.addChild("domain");
+        symm.addAttribute("id",id());
+        symm.addAttribute("points",1);
+        symm.addAttribute("type","empty");
+        symm.addAttribute("components",nComponents());
+    }
+
+    void Empty1D::
+    restore(XML_Node& dom, doublereal* soln) {
+        resize(1,1);
+    }
+
+
+
     //--------------------------------------------------   
     //      Symm1D
     //--------------------------------------------------

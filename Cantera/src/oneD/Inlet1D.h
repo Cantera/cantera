@@ -193,6 +193,36 @@ namespace Cantera {
 
 
     /**
+     * A terminator that does nothing.
+     */
+    class Empty1D : public Domain1D {
+
+    public:
+
+        Empty1D() : Domain1D() {
+            m_type = cEmptyType; 
+        }
+        virtual ~Empty1D(){}
+
+        virtual string componentName(int n) const;
+
+        virtual void init();
+
+        virtual void eval(int jg, doublereal* xg, doublereal* rg, 
+            integer* diagg, doublereal rdt);
+
+        virtual void save(XML_Node& o, doublereal* soln);
+        virtual void restore(XML_Node& dom, doublereal* soln);    
+        virtual void _finalize(const doublereal* x) {}
+        virtual void _getInitialSoln(doublereal* x) {
+            x[0] = 0.0;
+        }
+
+    protected:
+
+    };
+
+    /**
      * A symmetry plane. The axial velocity u = 0, and all other
      * components have zero axial gradients.
      */
