@@ -1,9 +1,10 @@
 #!/bin/sh
 #
+# $Id$
 #
-
 temp_success="1"
-/bin/rm  -f eq1.csv  tr1.csv tr2.csv  kin1.csv  kin2.csv
+/bin/rm  -f eq1.csv  tr1.csv tr2.csv  kin1.csv  kin2.csv \
+            kin1_blessed_tmp.csv kin2_blessed_tmp.csv
 
 #################################################################
 #
@@ -18,6 +19,11 @@ then
   temp_success="0"
   echo "cxx_examples returned with bad status, $retnStat, check output"
 fi
+
+#
+# Machine dependent blessed files require knowing the machType
+#
+machType=`../../bin/get_arch`
 
 #################################################################
 #
@@ -73,10 +79,19 @@ else
 fi
 
 #################################################################
-#
+# KIN1 -> Test for compliance
 #################################################################
+#
+# Currently kin1 is creating a machine dependent result:
+# -> difference is in one time in minor components during the middle
+#    of a large change.
+#
+cp  kin1_blessed.csv  kin1_blessed_tmp.csv
+if test x"$machType" = "xcygwin" ; then
+  /bin/cp  kin1_blessed_win.csv   kin1_blessed_tmp.csv 
+fi
 
-$CANTERA_BIN/csvdiff kin1.csv kin1_blessed.csv > kin1_test.out
+$CANTERA_BIN/csvdiff kin1.csv kin1_blessed_tmp.csv > kin1_test.out
 retnStat=$?
 if [ $retnStat = "1" ]
 then
@@ -92,10 +107,19 @@ else
 fi
 
 #################################################################
-#
+# kin2 test -> check for compliance
 #################################################################
+#
+# Currently kin2 is creating a machine dependent result:
+# -> difference is in one time in minor components during the middle
+#    of a large change.
+#
+cp  kin2_blessed.csv  kin2_blessed_tmp.csv
+if test x"$machType" = "xcygwin" ; then
+  /bin/cp  kin2_blessed_win.csv   kin2_blessed_tmp.csv 
+fi
 
-$CANTERA_BIN/csvdiff kin2.csv kin2_blessed.csv > kin2_test.out
+$CANTERA_BIN/csvdiff kin2.csv kin2_blessed_tmp.csv > kin2_test.out
 retnStat=$?
 if [ $retnStat = "1" ]
 then
