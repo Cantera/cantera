@@ -48,10 +48,10 @@ class Kinetics:
         """
         np = len(phases)
         self._np = np
-        self._ph = {}
+        #self._ph = {}
         self._sp = []
-        for p in phases:
-            self._ph[p.thermophase()] = p
+        #for p in phases:
+        #    self._ph[p.thermophase()] = p
         self._phnum = {}
         
         self._end = [0]
@@ -72,25 +72,25 @@ class Kinetics:
             p4 = phases[4].thermophase()
         if np >= 6:
             raise CanteraError("only 4 neighbor phases allowed")
-        #try:
+        
         self.ckin = _cantera.KineticsFromXML(xml_phase,
                                                  p0, p1, p2, p3, p4)
         
         for nn in range(self._np):
                 p = self.phase(nn)
-                self._phnum[p] = nn
+                self._phnum[p.thermophase()] = nn
                 self._end.append(self._end[-1]+p.nSpecies())
                 for k in range(p.nSpecies()):
                     self._sp.append(p.speciesName(k))
                 
-        #except:
-        #    print getCanteraError()
-        #    self.ckin = 0
-        self.phases = phases
+        #self.phases = phases
         
 
         
     def __del__(self):
+        self.clear()
+        
+    def clear(self):
         """Delete the kinetics manager."""
         if self.ckin > 0:
             _cantera.kin_delete(self.ckin)
@@ -109,7 +109,8 @@ class Kinetics:
         return _cantera.kin_start(self.ckin, n)
 
     def phase(self, n):
-        return self._ph[_cantera.kin_phase(self.ckin, n)]
+        return ThermoPhase(index = _cantera.kin_phase(self.ckin, n))
+        #return self._ph[_cantera.kin_phase(self.ckin, n)]
     
     def nReactions(self):
         """Number of reactions."""
@@ -200,8 +201,9 @@ class Kinetics:
     def creationRates(self, phase = None):
         c = _cantera.kin_getarray(self.ckin,50)
         if phase:
-            if self._phnum.has_key(phase):
-                n = self._phnum[phase]
+            kp = phase.thermophase()
+            if self._phnum.has_key(kp):
+                n = self._phnum[kp]
                 return c[self._end[n]:self._end[n+1]]
             else:
                 raise CanteraError('unknown phase')
@@ -212,8 +214,9 @@ class Kinetics:
     def destructionRates(self, phase = None):
         d = _cantera.kin_getarray(self.ckin,60)
         if phase:
-            if self._phnum.has_key(phase):
-                n = self._phnum[phase]
+            kp = phase.thermophase()            
+            if self._phnum.has_key(kp):
+                n = self._phnum[kp]
                 return d[self._end[n]:self._end[n+1]]
             else:
                 raise CanteraError('unknown phase')
@@ -224,8 +227,9 @@ class Kinetics:
     def netProductionRates(self, phase = None):
         w = _cantera.kin_getarray(self.ckin,70)        
         if phase:
-            if self._phnum.has_key(phase):
-                n = self._phnum[phase]
+            kp = phase.thermophase()            
+            if self._phnum.has_key(kp):
+                n = self._phnum[kp]
                 return w[self._end[n]:self._end[n+1]]
             else:
                 raise CanteraError('unknown phase')
