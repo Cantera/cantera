@@ -47,6 +47,9 @@ _winbuild: $(SRCS) $(WIN_LIB_DEPS)
 	(@PYTHON_CMD@ setup.py build)
 	echo 'ok' > _winbuild
 
+minbuild:
+	(@PYTHON_CMD@ setup.py build)
+
 install:
 ifeq (@local_python_inst@,1)
 	(@PYTHON_CMD@ setup.py install --prefix=@python_prefix@)

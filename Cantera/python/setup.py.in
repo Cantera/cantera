@@ -2,8 +2,8 @@ import sys
 try:
     from distutils.core import setup, Extension
 except:
-    print 'could not import distutils. Skipping Python interface.'
-    sys.exit(0)
+    print 'could not import distutils. Will try anyway...'
+    #sys.exit(0)
     
 libs = []
 platform = sys.platform
@@ -23,25 +23,36 @@ else:
             "cantera","recipes","ctlapack",
             "ctblas", "ctmath", "cvode", "tpx", "stdc++", "g2c", "m"]
 
-
-setup(name="Cantera",
-      version="@ctversion@",
-      description="The Cantera Python Interface",
-      long_description="""
-      """,
-      author="Prof. D. G. Goodwin, Caltech",
-      author_email="dgoodwin@caltech.edu",
-      url="http://www.cantera.org",
-      package_dir = {'MixMaster':'../../apps/MixMaster'},
-      packages = ["","Cantera","Cantera.OneD",
-                  "MixMaster","MixMaster.Units"],
-      ext_modules=[
-    Extension("Cantera._cantera",
-              ["src/pycantera.cpp", "src/writelog.cpp"],
-              include_dirs=["../../build/include",
-                            "src", "../clib/src"],
-              library_dirs = ["@buildlib@"], libraries = libs)
-    ],
-      )
-
-
+if @BUILD_PYTHON@ == 2:
+    
+    setup(name="Cantera",
+          version="@ctversion@",
+          description="The Cantera Python Interface",
+          long_description="""
+          """,
+          author="Prof. D. G. Goodwin, Caltech",
+          author_email="dgoodwin@caltech.edu",
+          url="http://www.cantera.org",
+          package_dir = {'MixMaster':'../../apps/MixMaster'},
+          packages = ["","Cantera","Cantera.OneD",
+                      "MixMaster","MixMaster.Units"],
+          ext_modules=[ Extension("Cantera._cantera",
+                                  ["src/pycantera.cpp", "src/writelog.cpp"],
+                                  include_dirs=["../../build/include",
+                                                "src", "../clib/src"],
+                                  library_dirs = ["@buildlib@"],
+                                  libraries = libs)
+                        ],
+          )
+else:
+    
+    setup(name="Cantera CTI File Processor",
+          version="@ctversion@",
+          description="Converts .cti files to CTML",
+          long_description="""
+          """,
+          author="Prof. D. G. Goodwin, Caltech",
+          author_email="dgoodwin@caltech.edu",
+          url="http://www.cantera.org",
+          py_modules = ["ctml_writer"],
+          )
