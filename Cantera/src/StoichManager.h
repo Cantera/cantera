@@ -44,6 +44,9 @@ namespace Cantera {
      *
      *  - multiply(in, out) : out[irxn] is multiplied by 
      *    in[k0] * in[k1] * in[k2]
+     *
+     *  - power(in, out) : out[irxn] is multiplied by 
+     *     (in[k0]^order0) * (in[k1]^order1) * (in[k2]^order2)
      * 
      *  - incrementReaction(in, out) : out[irxn] is incremented by 
      *    in[k0] + in[k1] + in[k2]
@@ -57,6 +60,37 @@ namespace Cantera {
      *  - decrementSpecies(in, out)  : out[k0], out[k1], and out[k2]
      *    are all decremented by in[irxn]
      *
+     * The function multiply() is usually used when evaluating the
+     * forward and reverse rates of progress of reactions.
+     * The rate constants are usually loaded into out[]. Then 
+     * multply() is called to add in the dependence of the 
+     * species concentrations to yield a forward and reverse rop.
+     *
+     * The function incrementSpecies() and its cousin decrementSpecies()
+     * is used to translate from rates of progress to species production 
+     * rates. The vector in[] is preloaed with the rates of progess of 
+     * all reactions. Then incrementSpecies() is called to 
+     * increment the species production vector, out[], with the rates
+     * of progress. 
+     *
+     * The functions incrementReaction() and decrementReaction() are
+     * used to find the standard state equilibrium constant for
+     * a reaction. Here, output[] is a vector of length
+     * number of reactions, usually the standard gibbs free energies
+     * of reaction, while input, usually the standard state
+     * gibbs free energies of species, is a vector of length number of
+     * species.
+     * 
+     * Note the stoichiometric coefficient for a species in a reaction
+     * is handled by always assuming it is equal to one and then 
+     * treating reactants and products for a reaction separately.
+     * Bimolecular reactions involving the identical species are 
+     * treated as involving separate species.
+     *
+     * @internal This class should be upgraded to include cases where
+     * real stoichiometric coefficients are used. Shouldn't be that
+     * hard to do, and they occur in engineering simulations with some
+     * regularity.
      * 
      */
 
@@ -109,12 +143,12 @@ namespace Cantera {
 
 
     /**
-     * Handles two species in a reaction.
+     * Handles two species in a single reaction.
      * @ingroup Stoichiometry
      */
     class C2 {
     public:
-        C2( int rxn = 0, int ic0 = 0, int ic1 = 0, 
+        C2( int rxn = 0, int ic0 = 0, int ic1 = 0,
             doublereal order0 = 1.0, doublereal order1 = 1.0 ) 
             : m_rxn (rxn), m_ic0 (ic0), m_ic1 (ic1), 
               m_order0(order0), m_order1(order1) {}
@@ -134,13 +168,13 @@ namespace Cantera {
                              pow(input[m_ic1],m_order1); 
         }
         void incrementSpecies(const doublereal* input, 
-            doublereal* output) const {
+			      doublereal* output) const {
             doublereal x = input[m_rxn]; 
             output[m_ic0] += x;
             output[m_ic1] += x;
         }
         void decrementSpecies(const doublereal* input, 
-            doublereal* output) const {
+			      doublereal* output) const {
             doublereal x = input[m_rxn]; 
             output[m_ic0] -= x;
             output[m_ic1] -= x; 
@@ -154,7 +188,14 @@ namespace Cantera {
             *(output + m_rxn) -= (*(input + m_ic0) + *(input + m_ic1)); 
         }
     private:
-        int m_rxn, m_ic0, m_ic1;
+	/**
+	 * Reaction index -> index into the ROP vector
+	 */
+        int m_rxn;
+	/**
+	 * Species indecise -> index into the species vector for the two species.
+	 */
+	int m_ic0, m_ic1;
         doublereal m_order0, m_order1;
     };
   
@@ -315,16 +356,50 @@ namespace Cantera {
     }
 
 
-        class StoichManagerN {
+    class StoichManagerN {
     public:
 
+	/**
+	 * Constructor for the StoichManagerN class.
+	 *
+	 * @internal Consider adding defaulted entries here that supply
+	 * the total number of reactions in the mechanism and the total
+	 * number of species in the species list. Then, we could use those
+	 * numbers to provide error checks during the construction of the
+	 * object. Those numbers would also provide some clarity to the
+	 * purpose and utility of this class.
+	 */
         StoichManagerN()  {}
 
+	/**
+	 * Add a single reaction to the list of reactions that this
+	 * stoichiometric manager object handles.
+	 *
+	 * This function is the same as the add() function below. However,
+	 * the order of each species in the power list expression is
+	 * set to one automatically.
+	 */
         void add(int rxn, const vector_int& k) {
             vector_fp order(k.size(), 1.0);
             add(rxn, k, order);
         }
 
+	/**
+	 * Add a single reaction to the list of reactions that this
+	 * stoichiometric manager object handles.
+	 *
+	 * @param rxn  Reaction index of the current reaction. This is used
+	 *             as an index into vectors which have length n_total_rxn.
+	 * @param k    This is a vector of integer values specifying the
+	 *             species indecises. The length of this vector species
+	 *             the number of different species in the description.
+	 *             The value of the entries are the species indices.
+	 *             These are used as indexes into vectors which have
+	 *             length n_total_species.
+	 *  @param order This is a vector of the same length as vector k.
+	 *         The order is used for the routine order(), which produces
+	 *         a power law expression involving the species vector.
+	 */
         void add(int rxn, const vector_int& k, const vector_fp& order) {
             m_n[rxn] = k.size();
             switch (k.size()) {
@@ -343,7 +418,7 @@ namespace Cantera {
                 break; 
             default:
                 m_loc[rxn] = m_cn_list.size(); 
-                m_cn_list.push_back(C_AnyN(rxn, k, order)); 
+                m_cn_list.push_back(C_AnyN(rxn, k, order));
             }
         }
     
@@ -395,7 +470,15 @@ namespace Cantera {
         vector<C2>     m_c2_list;
         vector<C3>     m_c3_list;
         vector<C_AnyN> m_cn_list;
+	/**
+	 * Mapping with the Reaction Number as key and the Number of species
+	 * as the value.
+	 */
         map<int, int>  m_n;
+	/**
+	 * Mapping with the Reaction Number as key and the placement in the
+	 * vector of reactions list( i.e., m_c1_list[]) as key
+	 */
         map<int, int>  m_loc;
     };
 
@@ -438,10 +521,3 @@ namespace Cantera {
     }
 
 #endif
-
-
-
-
-
-
-
