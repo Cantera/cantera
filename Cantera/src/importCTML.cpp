@@ -771,7 +771,7 @@ namespace Cantera {
         int nt = th.size();
 
         // for each referenced phase, attempt to find its id among those
-        // phases that have already been built. 
+        // phases specified. 
         bool phase_ok;
 
         string phase_id;

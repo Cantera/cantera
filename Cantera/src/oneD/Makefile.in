@@ -16,7 +16,7 @@ OBJDIR = .
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
 # stirred reactors
-OBJS    = MultiJac.o MultiNewton.o newton_utils.o OneDim.o StFlow.o
+OBJS    = MultiJac.o MultiNewton.o newton_utils.o OneDim.o StFlow.o boundaries1D.o refine.o Sim1D.o 
 
 CXX_INCLUDES = -I..
 ONED_LIB = @buildlib@/liboneD.a

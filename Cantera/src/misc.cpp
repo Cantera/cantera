@@ -30,15 +30,16 @@ namespace Cantera {
      */
     class Application {
     public:
-        Application() : linelen(0) {}
+        Application() : linelen(0), stop_on_error(false), write_log_to_cout(true) {}
         virtual ~Application(){}
         vector<string> inputDirs;
         vector<string> errorMessage;
         vector<string> warning;
         vector<string> errorRoutine;
         string msglog;
-        bool stop_on_error;
         size_t linelen;
+        bool stop_on_error;
+        bool write_log_to_cout;
         map<string, string>     options;
     };
 
@@ -87,9 +88,9 @@ namespace Cantera {
         int i = __app->errorMessage.size();
         if (i == 0) return;
         f << endl << endl;
-        f << "**********************" << endl;
-        f << "    Cantera Error!    " << endl;
-        f << "**********************" << endl << endl;
+        f << "************************************************" << endl;
+        f << "                Cantera Error!                  " << endl;
+        f << "************************************************" << endl << endl;
         int j;
         for (j = 0; j < i; j++) {
             f << endl;
@@ -258,6 +259,10 @@ namespace Cantera {
         if (__app->linelen > 70) {
             __app->msglog += "\n";
             __app->linelen = 0;
+        }
+        if (__app->write_log_to_cout) {
+            cout << __app->msglog;
+            clearlog();
         }
     }
     void writelog(const char* msg) {writelog(string(msg));}

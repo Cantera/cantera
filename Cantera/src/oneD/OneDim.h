@@ -17,6 +17,7 @@ namespace Cantera {
      * represented by an instance of Resid1D.
      */
     class OneDim {
+
     public: 
 
         // Default constructor.
@@ -31,14 +32,19 @@ namespace Cantera {
         /// Add a domain.
         void addDomain(Resid1D* d);
 
-        /// Return a reference to the Jacobian.
+        /// Return a reference to the Jacobian evaluator.
         MultiJac& jacobian();
 
         /// Return a reference to the Newton iterator.
         MultiNewton& newton();
 
-        /// Solve F(x) = 0, where F(x) is the multi-domain residual.
-        int solve(doublereal* x, doublereal* xnew, int loglevel);
+        /**
+         * Solve F(x) = 0, where F(x) is the multi-domain residual function.
+         * @param x0         Starting estimate of solution.
+         * @param x1         Final solution satisfying F(x1) = 0.
+         * @param loglevel   Controls amount of diagnostic output.
+         */
+        int solve(doublereal* x0, doublereal* x1, int loglevel);
 
         /// Number of domains.
         int nDomains() const { return m_nd; }
@@ -61,8 +67,10 @@ namespace Cantera {
         /// Number of solution components at global point jg.
         int nVars(int jg) { return m_nvars[jg]; }
 
-        /** Location in the solution vector of the first component of
-            global point jg. */
+        /**
+         * Location in the solution vector of the first component of
+         *  global point jg.
+         */
         int loc(int jg) { return m_loc[jg]; }
 
         /// Jacobian bandwidth.
@@ -74,13 +82,16 @@ namespace Cantera {
         /// Total number of points.
         int points() { return m_pts; }
 
-        /// Staedy-state max norm of the residual.
+        /**
+         * Steady-state max norm of the residual evaluated using solution x.
+         * On return, array r contains the steady-state residual values.
+         */
         doublereal ssnorm(doublereal* x, doublereal* r);
 
         /// Reciprocal of the time step. 
         doublereal rdt() const { return m_rdt; }
         
-        /// Prepare for time stepping.
+        /// Prepare for time stepping beginning with solution x.
         void initTimeInteg(doublereal dt, doublereal* x);
 
         /// True if transient mode.
@@ -89,10 +100,25 @@ namespace Cantera {
         /// True if steady mode.
         bool steady() const { return (m_rdt == 0.0); }
 
-        /// Set steady mode
+
+        /**
+         * Set steady mode.  After invoking this method, subsequent
+         * calls to solve() will solve the steady-state problem.
+         */
         void setSteadyMode();
 
-        /// Evaluate the multi-domain residual function 
+
+        /**
+         * Evaluate the multi-domain residual function
+         * 
+         * @param j       if j > 0, only evaluate residual for points j-1, j, 
+         *                and j + 1; otherwise, evaluate at all grid points.
+         * @param x       solution vector
+         * @param r       on return, contains the residual vector
+         * @param rdt     Reciprocal of the time step. if omitted, then
+         *                  the default value is used.
+         * @param count   Set to zero to omit this call from the statistics
+         */ 
         void eval(int j, double* x, double* r, doublereal rdt=-1.0, 
             int count = 1);
 
@@ -100,7 +126,8 @@ namespace Cantera {
         Resid1D* pointDomain(int i);
 
         void resize();
-        doublereal solveTime() { return m_solve_time; }
+
+        //doublereal solveTime() { return m_solve_time; }
 
         //void setTransientMask();
         vector_int& transientMask() { return m_mask; }
@@ -113,21 +140,35 @@ namespace Cantera {
 
         void save(string fname, string id, string desc, doublereal* sol);
 
+        // options
+        void setMinTimeStep(doublereal tmin) { m_tmin = tmin; }
+        void setMaxTimeStep(doublereal tmax) { m_tmax = tmax; }
+        void setTimeStepFactor(doublereal tfactor) { m_tfactor = tfactor; }
+        void setJacAge(int ss_age, int ts_age=-1) {
+            m_ss_jac_age = ss_age;
+            if (ts_age > 0) 
+                m_ts_jac_age = ts_age;
+            else
+                m_ts_jac_age = m_ss_jac_age;
+        }
+
     protected:
 
-        MultiJac* m_jac;
-        MultiNewton* m_newt;
-        doublereal m_rdt;
-        bool m_jac_ok;
-        int m_nd;
-        int m_bw;
-        int m_size;
-        vector_int m_states;
-        vector_int m_start;
-        vector_int m_comp, m_points;
+        doublereal m_tmin;        // minimum timestep size
+        doublereal m_tmax;        // maximum timestep size
+        doublereal m_tfactor;     // factor time step is multiplied by
+                                  // if time stepping fails ( < 1 )
+
+        MultiJac* m_jac;          // Jacobian evaluator
+        MultiNewton* m_newt;      // Newton iterator
+        doublereal m_rdt;         // reciprocal of time step
+        bool m_jac_ok;            // if true, Jacobian is current
+        int m_nd;                 // number of domains
+        int m_bw;                 // Jacobian bandwidth
+        int m_size;               // solution vector size
+        
         vector<Resid1D*> m_dom, m_connect, m_bulk;
-        vector_int m_flow, m_bdry;
-        int m_nflow, m_nbdry;
+
         bool m_init;
         vector_int m_nvars;
         vector_int m_loc;
@@ -135,9 +176,10 @@ namespace Cantera {
         int m_pts;
         doublereal m_solve_time;
 
+        // options
         int m_ss_jac_age, m_ts_jac_age;
 
-        // stats
+        // statistics
         int m_nevals;
         doublereal m_evaltime;
         vector_int m_gridpts;
@@ -147,6 +189,7 @@ namespace Cantera {
         vector_fp m_funcElapsed;
 
     private:
+
     };
 
 }

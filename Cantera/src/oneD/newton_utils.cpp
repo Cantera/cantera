@@ -38,10 +38,11 @@ namespace Cantera {
             for (j = 0; j < np; j++) {
                 val = x[index(m,j)];
                 if (loglevel > 0) {
-                    if (val > above + Tiny || val < below - Tiny)
-                        cout << "ERROR: solution out of bounds. " 
-                             << r.componentName(m) << "(" << j << ") = " << val
-                             << " (" << below << ", " << above << ")" << endl;
+                    if (val > above + Tiny || val < below - Tiny) {
+                        sprintf(buf, "domain %d: %20s(%d) = %10.3e (%10.3e, %10.3e)\n",
+                            r.domainIndex(), r.componentName(m).c_str(), j, val, below, above);
+                        writelog(string("ERROR: solution out of bounds.\n")+buf);
+                    }
                 }
 
                 newval = val + step[index(m,j)];
@@ -57,13 +58,13 @@ namespace Cantera {
                 if (loglevel > 1 && (newval > above || newval < below)) {
                     if (!wroteTitle) { 
                         writelog("\nNewton step takes solution out of bounds.\n\n");
-                        sprintf(buf,"  %12s  %4s  %10s  %10s  %10s  %10s\n",
-                            "component","pt","value","step","min","max");
+                        sprintf(buf,"  %12s  %12s  %4s  %10s  %10s  %10s  %10s\n",
+                            "domain","component","pt","value","step","min","max");
                         wroteTitle = true;
                         writelog(buf);
                     }
-                    sprintf(buf, "  %12s  %4i  %10.3e  %10.3e  %10.3e  %10.3e\n",
-                        r.componentName(m).c_str(), j, val, 
+                    sprintf(buf, "          %4i  %12s  %4i  %10.3e  %10.3e  %10.3e  %10.3e\n",
+                        r.domainIndex(), r.componentName(m).c_str(), j, val, 
                         step[index(m,j)], below, above);
                     writelog(buf);
                 }

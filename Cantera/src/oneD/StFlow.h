@@ -15,16 +15,14 @@
 #define CT_STFLOW_H
 
 #include "../transport/TransportBase.h"
-//#include "IdealGasMix.h"
 #include "Resid1D.h"
-//#include "../ChemEquil.h"
 #include "../Array.h"
 #include "../sort.h"
-//#include "ImplicitChem.h"
 #include "../IdealGasPhase.h"
 #include "../Kinetics.h"
-
+#include "../funcs.h"
 #include "../flowBoundaries.h"
+
 
 namespace Cantera {
 
@@ -82,19 +80,18 @@ namespace Cantera {
          */
         //@{
 
-        void setupGrid(int n, const doublereal* z);
+        virtual void setupGrid(int n, const doublereal* z);
 
         //thermo_t& phase() { return *m_phase; }
         thermo_t& phase() { return *m_thermo; }
         kinetics_t& kinetics() { return *m_kin; }
 
         /**
-         * Set the thermo manager. Note that the flow equations
-         * assume the ideal gas equation.
+         * Set the thermo manager. Note that the flow equations assume
+         * the ideal gas equation.
          */
         void setThermo(igthermo_t& th) { 
             m_thermo = &th;
-            //m_phase = &th.phase();
         }
 
         /// set the kinetics manager
@@ -104,12 +101,55 @@ namespace Cantera {
         void setTransport(Transport& trans, bool withSoret = false);
 
         /// set the pressure
-        void setPressure(doublereal p) {
-            m_press = p;
-        }
+        void setPressure(doublereal p) { m_press = p; }
 
         /// Check that all required parameters have been set.
         bool ready();
+
+        virtual void setState(int point, const doublereal* state) {
+            setTemperature(point, state[2]);
+            int k;
+            for (k = 0; k < m_nsp; k++) {
+                setMassFraction(point, k, state[4+k]);
+            }
+        }
+
+
+        virtual void _getInitialSoln(doublereal* x) {
+            int k, j;
+            for (j = 0; j < m_points; j++) {
+                x[index(2,j)] = T_fixed(j);
+                for (k = 0; k < m_nsp; k++) {
+                    x[index(4+k,j)] = Y_fixed(k,j);
+                }
+            }
+        }   
+
+        virtual void _finalize(const doublereal* x) {
+            int k, j;
+            doublereal zz, tt;
+            int nz = m_zfix.size();
+            bool e = m_do_energy[0];
+            for (j = 0; j < m_points; j++) {
+                if (e || nz == 0) 
+                    setTemperature(j, T(x, j));
+                else {
+                    zz = (z(j) - z(0))/(z(m_points - 1) - z(0));
+                    tt = linearInterp(zz, m_zfix, m_tfix);
+                    setTemperature(j, tt);
+                }   
+                for (k = 0; k < m_nsp; k++) {
+                    setMassFraction(j, k, Y(x, k, j));
+                }
+            }
+            if (e) solveEnergyEqn();
+        }
+
+
+        void setFixedTempProfile(vector_fp& zfixed, vector_fp& tfixed) {
+            m_zfix = zfixed;
+            m_tfix = tfixed;
+        }
 
         /**
          * Set the temperature fixed point at grid point j, and
@@ -128,10 +168,17 @@ namespace Cantera {
          */
         void setMassFraction(int j, int k, doublereal y) {
             m_fixedy(k,j) = y;
-            m_do_species[k] = false;
+            m_do_species[k] = true; // false;
         }
 
+        /**
+         * The fixed temperature value at point j.
+         */
         doublereal T_fixed(int j) const {return m_fixedtemp[j];}
+
+        /**
+         * The fixed mass fraction value of species k at point j.
+         */
         doublereal Y_fixed(int k, int j) const {return m_fixedy(k,j);}
 
         virtual string componentName(int n) const;
@@ -143,7 +190,7 @@ namespace Cantera {
         void outputTEC(ostream &s, const doublereal* x, 
             string title, int zone);
 
-        void showSolution(ostream& s, const doublereal* x);
+        virtual void showSolution(ostream& s, const doublereal* x);
 
         void save(string fname, string id, string desc, doublereal* soln);
         virtual void save(XML_Node& o, doublereal* sol);
@@ -159,9 +206,12 @@ namespace Cantera {
             if (j < 0)
                 for (int i = 0; i < m_points; i++)
                     m_do_energy[i] = true;
-            else
-            m_do_energy[j] = true;
-            requestJacUpdate();
+            else 
+                m_do_energy[j] = true;
+            m_refiner->setActive(0, true);
+            m_refiner->setActive(1, true);
+            m_refiner->setActive(2, true);
+            needJacUpdate();
         }
 
         void fixTemperature(int j=-1) {
@@ -170,7 +220,10 @@ namespace Cantera {
                     m_do_energy[i] = false;
                 }
             else m_do_energy[j] = false;
-            requestJacUpdate();
+            m_refiner->setActive(0, false);
+            m_refiner->setActive(1, false);
+            m_refiner->setActive(2, false);
+            needJacUpdate();
         }
 
         bool doSpecies(int k) { return m_do_species[k]; }
@@ -182,7 +235,7 @@ namespace Cantera {
                     m_do_species[i] = true;
             }
             else m_do_species[k] = true;
-            requestJacUpdate();
+            needJacUpdate();
         }
 
         void setEnergyFactor(doublereal efctr);
@@ -193,17 +246,14 @@ namespace Cantera {
                     m_do_species[i] = false;
             }
             else m_do_species[k] = false;
-            requestJacUpdate();
+            needJacUpdate();
             //m_jac->setAge(10000);
         }
 
         void integrateChem(doublereal* x,doublereal dt);
 
-        doublereal z(int j) const {return m_z[j];}
-        doublereal zmin() const { return m_z[0]; }
-        doublereal zmax() const { return m_z[m_points - 1]; }
-
         void resize(int points);
+
         virtual void setFixedPoint(int j0, doublereal t0){}
 
 
@@ -226,14 +276,10 @@ namespace Cantera {
 
     protected:
 
-    // used to write mole fractions to plot files.
+        // used to write mass fractions to plot files.
 
         doublereal component(const doublereal* x, int i, int j) const {
             doublereal xx = x[index(i,j)];
-            //if (i >= 4) {
-            //    return xx*m_wtm[j]/m_wt[i-4];
-            //}
-            //else return xx;
             return xx;
         }
 
@@ -247,11 +293,16 @@ namespace Cantera {
 
         doublereal wdot(int k, int j) const {return m_wdot(k,j);}
 
+        /// write the net production rates at point j into array m_wdot
         void getWdot(doublereal* x,int j) { 
             setGas(x,j);
             m_kin->getNetProductionRates(&m_wdot(0,j));
         }
 
+        /**
+         * update the thermodynamic properties from point
+         * j0 to point j1 (inclusive), based on solution x.
+         */
         void updateThermo(const doublereal* x, int j0, int j1) {
             int j;
             for (j = j0; j <= j1; j++) {
@@ -261,6 +312,7 @@ namespace Cantera {
                 m_cp[j]  = m_thermo->cp_mass();
             }
         }
+
 
         //--------------------------------
         // central-differenced derivatives
@@ -329,17 +381,14 @@ namespace Cantera {
         // differencing, assuming u(z) is negative
 
         doublereal dVdz(const doublereal* x,int j) const {
-            //return (V(x,j+1) - V(x,j-1))/(m_dz[j] + m_dz[j-1]);
             return (V(x,j) - V(x,j-1))/m_dz[j-1];
         } 
 
         doublereal dYdz(const doublereal* x,int k, int j) const {
-            //return (Y(x,k,j+1) - Y(x,k,j))/m_dz[j]; 
             return (Y(x,k,j) - Y(x,k,j-1))/m_dz[j-1]; 
         } 
 
         doublereal dTdz(const doublereal* x,int j) const {
-            // return (T(x,j+1) - T(x,j))/m_dz[j];
             return (T(x,j) - T(x,j-1))/m_dz[j-1];
         }
         
@@ -357,6 +406,12 @@ namespace Cantera {
 
         void updateDiffFluxes(const doublereal* x, int j0, int j1);
 
+        //---------------------------------------------------------
+        //
+        //             member data
+        //
+        //---------------------------------------------------------
+
         // inlet
         doublereal m_inlet_u;
         doublereal m_inlet_V;
@@ -369,8 +424,9 @@ namespace Cantera {
 
         doublereal m_press;        // pressure
 
+        // grid parameters
         vector_fp m_dz;
-        vector_fp m_z;
+        //vector_fp m_z;
 
         // mixture thermo properties
         vector_fp m_rho;
@@ -393,14 +449,11 @@ namespace Cantera {
 
         int m_nsp;
 
-        //IdealGasMix*    m_fluid;
-        //thermo_t*          m_phase;
-        igthermo_t*         m_thermo;
-        kinetics_t*       m_kin;
+        igthermo_t*     m_thermo;
+        kinetics_t*     m_kin;
         Transport*      m_trans;
-        //ImplicitChem*   m_integrator;
 
-        MultiJac*          m_jac;
+        MultiJac*       m_jac;
 
         bool m_ok;
 
@@ -410,23 +463,30 @@ namespace Cantera {
         vector<bool> m_do_species;
         int m_transport_option;
 
-        vector_fp m_zest;
-        Array2D   m_yest;
+        // solution estimate
+        //vector_fp m_zest;
+        //Array2D   m_yest;
+
+        // fixed T and Y values
         Array2D   m_fixedy;
         vector_fp m_fixedtemp;
         vector_fp m_zfix;
         vector_fp m_tfix;
 
         vector<FlowBdry::Boundary*>  m_boundary;
+
         doublereal m_efctr;
 
     private:
 
-        void requestJacUpdate();
         vector_fp m_ybar;
     };
 
 
+
+    /**
+     * A class for axisymmetric stagnation flows.
+     */
     class AxiStagnFlow : public StFlow {
     public:
         AxiStagnFlow(igthermo_t* ph = 0, int nsp = 1, int points = 1) :

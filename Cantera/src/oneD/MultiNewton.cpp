@@ -176,7 +176,7 @@ namespace Cantera {
             writelog("\n\nDamped Newton iteration:\n");
             writelog(dashedline);
 
-            sprintf(m_buf,"\n%s  %8s   %8s   %8s  %8s  %8s  %5s\n",
+            sprintf(m_buf,"\n%s  %9s   %9s   %9s  %9s  %9s  %5s\n",
                 "m","F_damp","F_bound","log10(ss)",
                 "log10(s0)","log10(s1)","N_jac");
             writelog(m_buf);
@@ -226,7 +226,7 @@ namespace Cantera {
             // write log information
             if (loglevel > 0) {
                 doublereal ss = r.ssnorm(x1,step1);
-                sprintf(m_buf,"\n%d  %8.4f   %8.4f   %8.4f   %8.4f   %8.4f  %5d ",
+                sprintf(m_buf,"\n%d  %9.5f   %9.5f   %9.5f   %9.5f   %9.5f  %5d ",
                     m,damp,fbound,log10(ss+SmallNumber),
                     log10(s0+SmallNumber),
                     log10(s1+SmallNumber), 

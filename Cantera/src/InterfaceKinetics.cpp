@@ -39,6 +39,7 @@ namespace Cantera {
 
     doublereal SurfPhase::
     enthalpy_mole() const {
+        if (m_n0 <= 0.0) return 0.0; 
         _updateThermo();
         return mean_X(m_h0.begin());
     }
@@ -58,10 +59,14 @@ namespace Cantera {
     }
 
     void SurfPhase::
-    getActivityConcentrations(doublereal* c) const { getConcentrations(c); }
+    getActivityConcentrations(doublereal* c) const { 
+        getConcentrations(c); 
+    }
 
     doublereal SurfPhase::
-    standardConcentration(int k) const { return m_n0/size(k); }
+    standardConcentration(int k) const {
+        return m_n0/size(k); 
+    }
 
     doublereal SurfPhase::
     logStandardConc(int k) const {

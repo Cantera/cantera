@@ -46,7 +46,7 @@ namespace Cantera {
 
         /// Default constructor
         SpeciesNode() : number(-1), name(""), value(0.0), 
-                        visible(false) {}
+                        visible(false), m_in(0.0), m_out(0.0) {}
 
         /// Destructor
         virtual ~SpeciesNode() {}
@@ -75,10 +75,17 @@ namespace Cantera {
         int nPaths() const { return m_paths.size(); }
 
         /// add a path to or from this node
-        void addPath(Path* path) { m_paths.push_back(path); }
+        void addPath(Path* path);
 
+        double outflow() {return m_out;}
+        double inflow() {return m_in;}
+        double netOutflow() {return m_out - m_in;}
+        
+        void printPaths();
+
+        
     protected:
-
+        double m_in, m_out;
         path_list m_paths;
     };
 

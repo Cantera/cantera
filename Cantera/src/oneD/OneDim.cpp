@@ -17,15 +17,16 @@ namespace Cantera {
      * Default constructor. Create an empty object.
      */
     OneDim::OneDim() 
-      : m_jac(0), m_newt(0), 
-	m_rdt(0.0), m_jac_ok(false),
-	m_nd(0), m_bw(0), m_size(0),
-	m_nflow(0), m_nbdry(0), m_init(false),
-	m_ss_jac_age(10), m_ts_jac_age(20),
-	m_nevals(0), m_evaltime(0.0)
+        : m_tmin(1.0e-16), m_tmax(0.1), m_tfactor(0.5),
+          m_jac(0), m_newt(0), 
+          m_rdt(0.0), m_jac_ok(false),
+          m_nd(0), m_bw(0), m_size(0),
+          m_init(false),
+          m_ss_jac_age(10), m_ts_jac_age(20),
+          m_nevals(0), m_evaltime(0.0)
     {
         m_newt = new MultiNewton(1);
-        m_solve_time = 0.0;
+        //m_solve_time = 0.0;
     }
 
 
@@ -33,11 +34,12 @@ namespace Cantera {
      * Construct a OneDim container for the domains pointed at by the
      * input vector of pointers.
     */ 
-    OneDim::OneDim(vector<Resid1D*> domains) : 
+    OneDim::OneDim(vector<Resid1D*> domains) :
+        m_tmin(1.0e-16), m_tmax(0.1), m_tfactor(0.5),
         m_jac(0), m_newt(0), 
 	m_rdt(0.0), m_jac_ok(false),
 	m_nd(0), m_bw(0), m_size(0),
-	m_nflow(0), m_nbdry(0), m_init(false),
+	m_init(false),
 	m_ss_jac_age(10), m_ts_jac_age(20),
 	m_nevals(0), m_evaltime(0.0)
     {
@@ -46,17 +48,25 @@ namespace Cantera {
         m_newt = new MultiNewton(1);
         int nd = domains.size();
         int i;
-        for (i = 0; i < nd; i++) addDomain(domains[i]);
+        for (i = 0; i < nd; i++) {
+            addDomain(domains[i]);
+        }
         init();
         resize();
     }
 
+
+    /**
+     * Domains are added left-to-right. 
+     */
     void OneDim::addDomain(Resid1D* d) {
 
-        // if not the first domain, link it to the last (rightmost)
-        // current domain
+        // if 'd' is not the first domain, link it to the last domain
+        // added (the rightmost one)
         int n = m_dom.size();
-        if (m_dom.size() > 0) m_dom.back()->append(d);
+        if (n > 0) m_dom.back()->append(d);
+
+        // every other domain is a connector
         if (2*(n/2) == n)
             m_connect.push_back(d);
         else
@@ -93,6 +103,18 @@ namespace Cantera {
         }
     }
 
+    /**
+     * Save statistics on function and Jacobiab evaulation, and reset
+     * the counters. Statistics are saved only if the number of
+     * Jacobian evaluations is greater than zero. The statistics saved 
+     * are 
+     *
+     *    - number of grid points
+     *    - number of Jacobian evaluations
+     *    - CPU time spent evaluating Jacobians
+     *    - number of non-Jacobian function evaluations
+     *    - CPU time spent evaluating functions 
+     */
     void OneDim::saveStats() {
         if (m_jac) {
             int nev = m_jac->nEvals();
@@ -108,16 +130,18 @@ namespace Cantera {
         }
     }
 
+
+    /**
+     * Call after one or more grids has been refined.
+     */
     void OneDim::resize() {
         int i;
         m_bw = 0;
-        m_nvars.clear();
-        m_loc.clear();
-
+        vector_int nvars, loc;
         int lc = 0;
 
+        // save the statistics for the last grid
         saveStats();
-
         m_pts = 0;
         for (i = 0; i < m_nd; i++) {
             Resid1D* d = m_dom[i];
@@ -125,8 +149,8 @@ namespace Cantera {
             int np = d->nPoints();
             int nv = d->nComponents();
             for (int n = 0; n < np; n++) {
-                m_nvars.push_back(nv);
-                m_loc.push_back(lc);
+                nvars.push_back(nv);
+                loc.push_back(lc);
                 lc += nv;
                 m_pts++;
             }
@@ -147,9 +171,13 @@ namespace Cantera {
 
             m_size = d->loc() + d->size();
         }
+        m_nvars = nvars;
+        m_loc = loc;
+
         m_newt->resize(size());
         m_mask.resize(size());
-        
+
+        // delete the current Jacobian evaluator and create a new one        
         delete m_jac;
         m_jac = new MultiJac(*this);
         m_jac_ok = false;
@@ -160,20 +188,13 @@ namespace Cantera {
 
 
     int OneDim::solve(doublereal* x, doublereal* xnew, int loglevel) {
-        clock_t t0 = clock();
-        static int iok = 0, inotok = 0;
         if (!m_jac_ok) {
-            eval(-1, x, xnew, 0.0, 0); // m_rdt);
-            m_jac->eval(x, xnew, 0.0); // m_rdt);
+            eval(-1, x, xnew, 0.0, 0);
+            m_jac->eval(x, xnew, 0.0);
             m_jac->updateTransient(m_rdt, m_mask.begin());
             m_jac_ok = true;
-            inotok++;
         }
-        else
-            iok++;
         int m = m_newt->solve(x, xnew, *this, *m_jac, loglevel);
-        clock_t t1 = clock();
-        m_solve_time += (t1 - t0)/(1.0*CLOCKS_PER_SEC);
         return m;
     }
 
@@ -202,16 +223,21 @@ namespace Cantera {
      */
     void OneDim::eval(int j, double* x, double* r, doublereal rdt, int count) {
         clock_t t0 = clock();
-        fill(r, r+m_size, 0.0);
+        fill(r, r + m_size, 0.0);
         fill(m_mask.begin(), m_mask.end(), 0);
         if (rdt < 0.0) rdt = m_rdt;
 
         vector<Resid1D*>::iterator d; 
+
+        // iterate over the bulk domains first
         for (d = m_bulk.begin(); d != m_bulk.end(); ++d)
             (*d)->eval(j, x, r, m_mask.begin(), rdt);
+
+        // then over the connector domains
         for (d = m_connect.begin(); d != m_connect.end(); ++d)
             (*d)->eval(j, x, r, m_mask.begin(), rdt);
 
+        // increment counter and time
         if (count) {
             clock_t t1 = clock();
             m_evaltime += double(t1 - t0)/CLOCKS_PER_SEC;
@@ -220,7 +246,7 @@ namespace Cantera {
     }
 
 
-    /** 
+    /**
      * The 'infinity' (maximum magnitude) norm of the steady-state
      * residual. Used only for diagnostic output.
      */
@@ -240,9 +266,15 @@ namespace Cantera {
     void OneDim::initTimeInteg(doublereal dt, doublereal* x) {
         doublereal rdt_old = m_rdt;
         m_rdt = 1.0/dt;
+
+        // if the stepsize has changed, then update the transient
+        // part of the Jacobian
         if (fabs(rdt_old - m_rdt) > Tiny) {
             m_jac->updateTransient(m_rdt, m_mask.begin());
         }
+
+        // iterate over all domains, preparing each one to begin
+        // time stepping
         Resid1D* d = left();
         while (d) {
             d->initTimeInteg(dt, x);
@@ -250,7 +282,8 @@ namespace Cantera {
         }
     }
     
-    /** 
+
+    /**
      * Prepare to solve the steady-state problem.  Set the reciprocal
      * of the time step to zero, and, if it was previously non-zero,
      * signal that a new Jacobian will be needed.
@@ -276,6 +309,7 @@ namespace Cantera {
         m_init = true;
     }
 
+
     /**
      * Signal that the current Jacobian is no longer valid.
      */
@@ -283,6 +317,7 @@ namespace Cantera {
         if (m_container)
             m_container->jacobian().setAge(10000);
     }
+
 
     /**
      * Take time steps using Backward Euler.
@@ -294,13 +329,15 @@ namespace Cantera {
      doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x, 
          doublereal* r, int loglevel) {
 
+         // set the Jacobian age parameter to the transient value
          newton().setOptions(m_ts_jac_age);
                 
          if (loglevel > 0) {
-             writelog("Begin time integration.\n\n");
-             writelog(" step    size (s)    log10(ss) ");
-             writelog("===============================");
+             //writelog("Begin time stepping.\n\n");
+             writelog("\n\n step    size (s)    log10(ss) \n");
+             writelog("===============================\n");
          }
+
          int n = 0, m;
          doublereal ss;
          char str[80];
@@ -310,32 +347,54 @@ namespace Cantera {
                  sprintf(str, " %4d  %10.4g  %10.4g" , n,dt,log10(ss));
                  writelog(str);
              }
+
+             // set up for time stepping with stepsize dt
              initTimeInteg(dt,x);
+
+             // solve the transient problem
              m = solve(x, r, loglevel-1);
+
+             // successful time step. Copy the new solution in r to 
+             // the current solution in x.
              if (m >= 0) {
                  n += 1;
                  if (loglevel > 0) writelog("\n");
                  copy(r, r + m_size, x);
+                 if (m == 100) {
+                     dt *= 1.5;
+                     cout << "m = 100, dt = " << dt << endl;
+                 }
+                 if (dt > m_tmax) dt = m_tmax;
              }
+
+             // No solution could be found with this time step. 
+             // Decrease the stepsize and try again.
              else {
-                 if (loglevel > 0) writelog("...failure.");
-                 dt *= 0.5;
-                 if (dt < 1.e-14)
+                 if (loglevel > 0) writelog("...failure.\n");
+                 dt *= m_tfactor;
+                 cout << "halved dt = " << dt << endl;
+                 if (dt < m_tmin)
                      throw CanteraError("OneDim::timeStep",
                          "Time integration failed.");
              }
          }
+
+         // Prepare to solve the steady problem.
          setSteadyMode();
-         newton().setOptions(m_ss_jac_age);        
+         newton().setOptions(m_ss_jac_age);     
+
+         // return the value of the last stepsize, which may be smaller
+         // than the initial stepsize   
          return dt;
      }
+
 
     void OneDim::save(string fname, string id, string desc, doublereal* sol) {
 
         struct tm *newtime;
         time_t aclock;
-        ::time( &aclock );                  /* Get time in seconds */
-        newtime = localtime( &aclock );   /* Convert time to struct tm form */
+        ::time( &aclock );              /* Get time in seconds */
+        newtime = localtime( &aclock ); /* Convert time to struct tm form */
 
         XML_Node root("doc");
         ifstream fin(fname.c_str());

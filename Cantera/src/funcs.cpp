@@ -23,6 +23,29 @@ extern "C" {
 
 namespace Cantera {
 
+    /**
+     * Linearly interpolate a function defined on a discrete grid.
+     * vector xpts contains a monotonic sequence of grid points, and 
+     * vector fpts contains function values defined at these points.
+     * The value returned is the linear interpolate at point x.
+     * If x is outside the range of xpts, the value of fpts at the 
+     * nearest end is returned.
+     */
+
+    doublereal linearInterp(doublereal x, const vector_fp& xpts, 
+        const vector_fp& fpts) {
+        if (x <= xpts[0]) return fpts[0];
+        if (x >= xpts.back()) return fpts.back();
+        const doublereal* loc = lower_bound(xpts.begin(), xpts.end(), x);
+        int iloc = int(loc - xpts.begin()) - 1;
+        doublereal ff = fpts[iloc] + 
+            (x - xpts[iloc])*(fpts[iloc + 1] 
+                - fpts[iloc])/(xpts[iloc + 1] - xpts[iloc]);
+        return ff;
+    }
+
+
+
     doublereal polyfit(int n, doublereal* x, doublereal* y, doublereal* w, 
         int maxdeg, int& ndeg, doublereal eps, doublereal* r) {
         integer nn = n;

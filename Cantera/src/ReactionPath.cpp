@@ -28,6 +28,22 @@
 
 namespace Cantera {
      
+    /// add a path to or from this node
+    void SpeciesNode::addPath(Path* path) { 
+        m_paths.push_back(path);
+        if (path->begin() == this) m_out += path->flow();
+        else if (path->end() == this) m_in += path->flow();
+        else throw CanteraError("addPath","path added to wrong node");
+    }
+        
+    void SpeciesNode::printPaths() {
+        for (int i = 0; i < m_paths.size(); i++) {
+            cout << m_paths[i]->begin()->name << " -->  "
+                 << m_paths[i]->end()->name << ":   "
+                 << m_paths[i]->flow() << endl;
+        }
+    }
+
 
     /** 
      * Construct a path connecting two species nodes.

@@ -3,8 +3,9 @@
  *  @file DASPK.h
  *
  *  Header file for class DASPK
- *
- *  $Author$
+ */
+
+/*  $Author$
  *  $Date$
  *  $Revision$
  *
