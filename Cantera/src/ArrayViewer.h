@@ -15,10 +15,6 @@
 #ifndef CT_ARRAYVIEWER_H
 #define CT_ARRAYVIEWER_H
 
-#include <iostream>
-#include <vector>
-using namespace std;
-
 #include "ct_defs.h"
 #include "ctexceptions.h"
 #include "stringUtils.h"

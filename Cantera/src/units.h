@@ -8,6 +8,7 @@
 #define CT_UNITS_H
 
 #include "ct_defs.h"
+#include "ctexceptions.h"
 
 namespace Cantera {
 

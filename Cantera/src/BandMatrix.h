@@ -14,10 +14,6 @@
 #ifndef CT_BANDMATRIX_H
 #define CT_BANDMATRIX_H
 
-#include <iostream>
-#include <vector>
-using namespace std;
-
 #include "ct_defs.h"
 #include "ctlapack.h"
 #include "utilities.h"

@@ -16,12 +16,6 @@
 #define CT_CHEM_EQUIL_H
 
 
-// STL includes
-#include <stdlib.h>
-#include <vector>
-using namespace std;
-
-
 // Cantera includes
 #include "ct_defs.h"
 #include "vec_functions.h"

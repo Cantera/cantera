@@ -21,7 +21,7 @@
 #include "config.h"
 
 // STL includes
-//#include <iostream>
+#include <iostream>
 #include <fstream>
 #include <vector>
 #include <map>

@@ -31,6 +31,7 @@ namespace Cantera {
      * These classes are used to represent phases of matter.
      */
 
+
     /**
      * Base class for phases of matter. Class Phase derives from both
      * Constituents and State. In addition to the methods of those two
@@ -129,6 +130,11 @@ namespace Cantera {
          * Copy the vector of molecular weights into array weights.
          */
         void getMolecularWeights(int iwt, doublereal* weights);
+
+        /**
+         * Copy the vector of molecular weights into array weights.
+         */
+        void getMolecularWeights(doublereal* weights);
 
         /**
          * Return a const reference to the internal vector of

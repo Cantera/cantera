@@ -1,20 +1,21 @@
-/**
- *  @file Constituents.h
- *  Header file for class Constituents
- *
- *  $Author$ 
+
+///  @file Constituents.h
+///  Header file for class Constituents
+
+
+/*  $Author$ 
  *  $Date$
  *  $Revision$
  *
  *  $Log$
- *  Revision 1.4  2003-09-03 18:15:50  hkmoffa
+ *  Revision 1.5  2003-11-12 18:58:17  dggoodwin
+ *  *** empty log message ***
+ *
+ *  Revision 1.4  2003/09/03 18:15:50  hkmoffa
  *  Added a vector get for the atoms in a species.
  *
  *  Revision 1.3  2003/07/21 16:02:53  hkmoffa
  *  Took out a double nested @name that gave a warning to doxygen
- *
- *  Revision 1.2  2003/06/27 14:19:16  dggoodwin
- *  *** empty log message ***
  *
  *  Revision 1.1.1.1  2003/04/14 17:57:51  dggoodwin
  *  Initial import.
@@ -35,7 +36,6 @@
 #include "ct_defs.h"
 using namespace std;
 
-//#include "Elements.h"
 #include "SpeciesThermo.h"
 #include "ctexceptions.h"
 #include "stringUtils.h"
@@ -45,24 +45,6 @@ namespace Cantera {
 
     class Elements;
 
-#ifdef INCL_DEPRECATED_METHODS
-
-    /**
-     * Structure returned by method species()
-     * @param name species name
-     * @param atoms vector of element atom numbers
-     * @param phase flag specifying phase
-     * @param charge electric charge
-     * @param molecularWeight molecular weight
-     */ 
-    struct SpeciesData {
-        string name;
-        vector_fp atoms;
-        int phase;
-        doublereal charge;
-        doublereal molecularWeight;
-    };
-#endif
 
     /************** DEFINITIONS OF ERRORS *****************************/
 
@@ -73,86 +55,116 @@ namespace Cantera {
                 " outside valid range of 0 to " + int2str(kmax-1)) {}
     };
 
+    /******************************************************************/
 
-    /**
-     * Class Constituents manages a set of elements and species. The
-     * set of elements must include all those that compose the
-     * species, but may include additional elements. The species all
-     * must belong to the same phase.
-     */
+
+    /// Class Constituents manages a set of elements and
+    /// species. Class Constituents is designed to provide information
+    /// about the elements and species in a phase - names, index
+    /// numbers (location in arrays), atomic or molecular weights,
+    /// etc. No computations are performed by the methods of this
+    /// class. The set of elements must include all those that compose
+    /// the species, but may include additional elements. The species
+    /// all must belong to the same phase.
+
     class Constituents {
 
     public:
 
-        Constituents(Elements* ptr_Elements = 0);
-        ~Constituents();
+      /// Constructor.
+      Constituents(Elements* ptr_Elements = 0);
 
-        /// Atomic weight of element m. 
-        doublereal atomicWeight(int m) const;
-        /// vector of atomic weights
-        const array_fp& atomicWeights() const;
-        /// Number of elements.
-        int nElements() const;
+      /// Destructor. 
+      ~Constituents();
 
-#ifdef INCL_DEPRECATED_METHODS
-        /**
-         *  Returns an ElementData struct that contains the 
-         *  parameters for element number m.
-         */
-        ElementData element(int m) const {
-	  return m_Elements->element(m);
-        }
-#endif
-        /**
-         * @name Adding Elements and Species
-         * These methods are used to add new elements or species.
-         * They are not usually called by user programs.
-         */ 
-        void addElement(const string& symbol, doublereal weight);
-        void addElement(const XML_Node& e);
-	void addUniqueElement(const string& symbol, doublereal weight);
-	void addUniqueElement(const XML_Node& e);
-        /**
-         * Prohibit addition of more elements, and prepare to add
-         * species.
-         */
-        void freezeElements();
-        /// True if freezeElements has been called.
-        bool elementsFrozen();
-        /**
-         * Index of element named 'name'. The index is an integer
-         * assigned to each element in the order it was added,
-         * beginning with 0 for the first element.  If 'name' is not
-         * the name of an element in the set, then the value -1 is
-         * returned.
-         */
-        int elementIndex(string name) const;
-        /**
-         * Name of the element with index m.  @param m Element
-         * index. If m < 0 or m >= nElements() an exception is thrown.
-         */
-        string elementName(int m) const;
-        /** 
-         * Returns a read-only reference to the vector of element names.
-         */
-        const vector<string>& elementNames() const;
+      /// @name Element Information
+      //@{
+        
+      /// Name of the element with index m.  @param m Element
+      /// index. If m < 0 or m >= nElements() an exception is thrown.
+      string elementName(int m) const;
 
-        /**
-	 * Returns the Number of species in the phase
-	 */
+
+      /// Index of element named 'name'. The index is an integer
+      /// assigned to each element in the order it was added,
+      /// beginning with 0 for the first element.  If 'name' is not
+      /// the name of an element in the set, then the value -1 is
+      /// returned.
+      int elementIndex(string name) const;
+
+
+      /// Atomic weight of element m. 
+      doublereal atomicWeight(int m) const;
+
+
+      /// Return a read-only reference to the vector of element names.
+      const vector<string>& elementNames() const;
+
+
+      /// Return a read-only reference to the vector of atomic weights.
+      const array_fp& atomicWeights() const;
+
+
+      /// Number of elements.
+      int nElements() const;
+
+      //@}
+
+
+
+      /// @name Adding Elements and Species
+      /// These methods are used to add new elements or species.
+      /// These are not usually called by user programs.
+      /// 
+      /// Since species are checked to insure that they are only 
+      /// composed of declared elements, it is necessary to first
+      /// add all elements before adding any species. 
+
+      //@{
+
+      /// Add an element. 
+      /// @param symbol Atomic symbol string.
+      /// @param weight Atomic mass in amu.
+      void addElement(const string& symbol, doublereal weight);
+
+      /// Add an element from an XML specification.
+      void addElement(const XML_Node& e);
+
+      void addUniqueElement(const string& symbol, doublereal weight);
+
+      void addUniqueElement(const XML_Node& e);
+
+   
+      /// Prohibit addition of more elements, and prepare to add
+      /// species.
+      void freezeElements();
+
+      /// True if freezeElements has been called.
+      bool elementsFrozen();
+
+      //@}
+      
+	/// Returns the number of species in the phase
         int nSpecies() const { return m_kk; }
+
         /// Molecular weight of species k.
         doublereal molecularWeight(int k) const;
+
+	/// Molar mass. Preferred name for molecular weight.
+	doublereal molarMass(int k) const {
+	  return molecularWeight(k);
+	}
+
         /**
 	 * Return a const reference to the vector of molecular weights
 	 * of the species
 	 */
         const array_fp& molecularWeights() const;
 
-        /**
-         * Electrical charge of one species k molecule, divided by
-         * \f$ e = 1.602 \times 10^{-19}\f$ Coulombs.
-         */ 
+        
+	///   Electrical charge of one species k molecule, divided by
+	///   the magnitude of the electron charge ( \f$ e = 1.602
+	///   \times 10^{-19}\f$ Coulombs). Dimensionless.
         doublereal charge(int k) const;
 
        /**

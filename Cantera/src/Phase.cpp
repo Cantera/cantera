@@ -150,8 +150,17 @@ namespace Cantera {
 
         /**
          * Copy the vector of molecular weights into array weights.
+	 * @deprecated
          */
         void Phase::getMolecularWeights(int iwt, doublereal* weights) {
+            const array_fp& mw = Constituents::molecularWeights();
+            copy(mw.begin(), mw.end(), weights);
+	}
+
+       /**
+         * Copy the vector of molecular weights into array weights.
+         */
+        void Phase::getMolecularWeights(doublereal* weights) {
             const array_fp& mw = Constituents::molecularWeights();
             copy(mw.begin(), mw.end(), weights);
         }

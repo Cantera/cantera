@@ -10,43 +10,57 @@
 
 namespace Cantera {
 
-    ReactionStoichMgr::
-    ReactionStoichMgr() {
-        m_reactants = new StoichManagerN;
-        m_revproducts = new StoichManagerN;
-        m_irrevproducts = new StoichManagerN;
-    }
+  // create stoichiometry managers for the reactants of all reactions,
+  // for the products of the reversible reactions, and for the
+  // products of the irreversible reactions.
+  ReactionStoichMgr::
+  ReactionStoichMgr() {
+    m_reactants = new StoichManagerN;
+    m_revproducts = new StoichManagerN;
+    m_irrevproducts = new StoichManagerN;
+  }
 
-    ReactionStoichMgr::~ReactionStoichMgr() {
-        delete m_reactants;
-        delete m_revproducts;
-        delete m_irrevproducts;
-    }
+  // delete the three stoichiometry managers
+  ReactionStoichMgr::~ReactionStoichMgr() {
+    delete m_reactants;
+    delete m_revproducts;
+    delete m_irrevproducts;
+  }
 
-    void ReactionStoichMgr::
-    add(int rxn, const vector_int& reactants, const vector_int& products,
-        bool reversible) {
-        vector_fp forder(reactants.size(), 1.0);
-        add(rxn, reactants, products, reversible, forder);
-    }
 
-    void ReactionStoichMgr::
-    add(int rxn, const vector_int& reactants, const vector_int& products,
-        bool reversible, const vector_fp& fwdOrder) {
-        m_reactants->add(rxn, reactants, fwdOrder);
-        if (reversible) 
-            m_revproducts->add(rxn, products);
-        else
-            m_irrevproducts->add(rxn, products);
-    }
+  void ReactionStoichMgr::
+  add(int rxn, const vector_int& reactants, const vector_int& products,
+      bool reversible) {
+    vector_fp forder(reactants.size(), 1.0);
+    add(rxn, reactants, products, reversible, forder);
+  }
 
-    void ReactionStoichMgr::
-    getCreationRates(int nsp, const doublereal* ropf, const doublereal* ropr, doublereal* c) {
-        fill(c, c + nsp, 0.0);
-        m_revproducts->incrementSpecies(ropf, c);
-        m_irrevproducts->incrementSpecies(ropf, c);
-        m_reactants->incrementSpecies(ropr, c);
-    }
+
+  void ReactionStoichMgr::
+  add(int rxn, const vector_int& reactants, const vector_int& products,
+      bool reversible, const vector_fp& fwdOrder) {
+
+    // add the reactants with the specified forward order
+    m_reactants->add(rxn, reactants, fwdOrder);
+
+    // depending on whether the reversible flag is set or not, add the
+    // products either to the reversible or irreversible product
+    // stoichiometry manager.
+    if (reversible) 
+      m_revproducts->add(rxn, products);
+    else
+      m_irrevproducts->add(rxn, products);
+  }
+
+
+  void ReactionStoichMgr::
+  getCreationRates(int nsp, const doublereal* ropf, const doublereal* ropr, doublereal* c) {
+    // zero out the target array
+    fill(c, c + nsp, 0.0);
+    m_revproducts->incrementSpecies(ropf, c);
+    m_irrevproducts->incrementSpecies(ropf, c);
+    m_reactants->incrementSpecies(ropr, c);
+  }
 
     void ReactionStoichMgr::
     getDestructionRates(int nsp, const doublereal* ropf, const doublereal* ropr, doublereal* d) {

@@ -781,6 +781,9 @@ class phase(writer):
         self._sp = []
         self._rx = []
         self._options = options
+        self.debug = 0
+        if 'debug' in options:
+            self.debug = 1
 
         #--------------------------------
         #        process species
@@ -943,12 +946,15 @@ class ideal_gas(phase):
                  transport = 'None',
                  initial_state = None,
                  options = []):
-        
+
+        print 'ig options = ',options
         phase.__init__(self, name, 3, elements, species, reactions,
                        initial_state, options)
         self._pure = 0
         self._kin = kinetics
         self._tr = transport
+        if self.debug:
+            print 'Read ideal_gas entry '+self._name
 
         
     def build(self, p):
@@ -1198,7 +1204,10 @@ if __name__ == "__main__":
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.22  2003-11-01 04:48:20  dggoodwin
+# Revision 1.23  2003-11-12 18:58:15  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.22  2003/11/01 04:48:20  dggoodwin
 # added capability to have species names with embedded commas
 #
 # Revision 1.21  2003/10/14 06:48:07  dggoodwin

@@ -16,10 +16,6 @@
 #pragma warning(disable:4503)
 #endif
 
-// STL includes
-#include <algorithm>
-#include <iostream>
-
 #include "ReactionPath.h"
 #include "Kinetics.h"
 #include "reaction_defs.h"

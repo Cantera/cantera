@@ -12,9 +12,6 @@
 #ifndef CT_RXNPATH_GROUP
 #define CT_RXNPATH_GROUP
 
-#include <vector>
-using namespace std;
-
 #include "ct_defs.h"
 
 namespace Cantera {

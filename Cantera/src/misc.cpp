@@ -238,21 +238,7 @@ namespace Cantera {
 
 
     /**
-     * Set the default directories for input files. Four directories are
-     * added to the search path used by findInputFile. These are
-     * 'data', 'data/inputs', 'data/thermo', and
-     * 'data/transport'. These names are for convenience only -
-     * findInputFile searches all of them, independent of the type of
-     * file. The location of the 'data' directory depends on how
-     * environment variables are set. If CANTERA_DATA_DIR is set, then
-     * this will be used instead of 'data'. In addition, if
-     * WIN_CANTERA_ROOT or CANTERA_ROOT are set, then 'data' is
-     * assumed to be a top-level subdirectory. WIN_CANTERA_ROOT should
-     * only be set on PCs, and should be in 'DOS' format, for example
-     * 'C:\CANTERA'. CANTERA_ROOT, on the other hand, should be in
-     * unix-like format ('/home/usr/cantera'). This allows Cantera to
-     * be built on PCs using a unix-like environment (Cygwin) and
-     * compiler (g++), as well as using Win32 compilers.
+     * Set the default directories for input data files. 
      */
     void setDefaultDirectories() {
         appinit();
@@ -261,15 +247,16 @@ namespace Cantera {
         // always look in the local directory first
         dirs.push_back(".");
 
+
 #ifdef WIN32
-        /*
-         * Under Windows, the Cantera setup utility puts data files in
-         * a directory 'Cantera\data' below the one the environment
-         * variable COMMONPROGRAMFILES points to. (This is usually
-         * C:\Program Files\Common Files.) If this environment
-         * variable is defined, then this directory is assumed to
-         * exist and is added to the search path.
-         */
+        //
+	// Under Windows, the Cantera setup utility puts data files in
+	// a directory 'Cantera\data' below the one the environment
+	// variable COMMONPROGRAMFILES points to. (This is usually
+	// C:\Program Files\Common Files.) If this environment
+	// variable is defined, then this directory is assumed to
+	// exist and is added to the search path.
+	//
         const char* comfiles = getenv("COMMONPROGRAMFILES");
         if (comfiles != 0) {
             string cfiles = string(comfiles);
@@ -285,6 +272,18 @@ namespace Cantera {
             dirs.push_back(tmpldir);
         }
 #endif
+
+#ifdef DARWIN
+	//
+	// add a default data location for Mac OS X
+	//
+	dirs.push_back("/Applications/Cantera/Data");
+#endif
+
+	//
+	// if environment variable CANTERA_DATA is defined, then add
+	// it to the search path
+	//
         if (getenv("CANTERA_DATA") != 0) {
             string datadir = string(getenv("CANTERA_DATA"));
             dirs.push_back(datadir);
@@ -299,6 +298,7 @@ namespace Cantera {
 	string datadir = string(CANTERA_ROOT) + "/data";
 	dirs.push_back(datadir);
 #endif
+
     }
 
 

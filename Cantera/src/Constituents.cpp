@@ -19,7 +19,6 @@
 
 #include "Constituents.h"
 #include "Elements.h"
-#include <iostream>
 using namespace std;
 
 namespace Cantera {

@@ -16,6 +16,7 @@ tburner    =   373.0                # burner temperature
 mdot       =   0.06                 # kg/m^2/s
 
 rxnmech    =  'h2o2.cti'            # reaction mechanism file
+mix        =  'ohmech'              # gas mixture model
 comp       =  'H2:1.8, O2:1, AR:7'  # premixed gas composition
 
 # The solution domain is chosen to be 50 cm, and a point very near the
@@ -40,7 +41,7 @@ refine_grid = 1                     # 1 to enable refinement, 0 to
 # This object will be used to evaluate all thermodynamic, kinetic,
 # and transport properties
 #
-gas = IdealGasMix(rxnmech)
+gas = IdealGasMix(rxnmech, mix)
 
 # set its state to that of the unburned gas at the burner
 gas.setState_TPX(tburner, p, comp)

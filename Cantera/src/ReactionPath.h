@@ -14,13 +14,6 @@
 #ifndef CT_RXNPATH_H
 #define CT_RXNPATH_H
 
-// STL includes
-#include <vector>
-#include <map>
-#include <string>
-#include <iostream>
-using namespace std;
-
 // Cantera includes 
 #include "ct_defs.h"
 #include "DenseMatrix.h"
