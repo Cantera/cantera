@@ -1,3 +1,14 @@
+2004-10-10 13:46  dggoodwin
+
+	* config.h.in, Cantera/src/DenseMatrix.cpp,
+	  Cantera/src/GasKinetics.cpp, Cantera/src/ctvector.cpp,
+	  Cantera/src/ctvector.h, Cantera/src/converters/CKParser.cpp,
+	  Cantera/src/converters/writelog.cpp, Cantera/src/oneD/StFlow.cpp,
+	  Cantera/src/transport/TransportFactory.cpp,
+	  Cantera/src/transport/TransportParams.h, ext/f2c_libs/f2c.h,
+	  ext/f2c_recipes/simplx.c: changes to make type integer compatible
+	  with f2c
+
 2004-10-10 05:11  dggoodwin
 
 	* Cantera/src/importCTML.cpp: moved arrays used to check for dup
