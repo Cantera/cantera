@@ -4,10 +4,7 @@ import exceptions
 
 class Transport:
 
-    """Transport property manager. In most cases, this class is used
-    as a base class to provide transport properties, and is not
-    instantiated directly.
-
+    """Transport property manager.
     A transport property manager is responsible for computing transport
     properties.
     """
@@ -16,9 +13,10 @@ class Transport:
         """Create a transport property manager.
 
         xml_phase --- XML phase element
-        phase     --- ThermoPhase instance representing phase transport
-                      properties are for
-        model     --- transport model
+        phase     --- ThermoPhase instance representing the phase that the
+                      transport properties are for
+        model     --- string specifying transport model. If omitted,
+                      model will be taken from the input file.
         loglevel  --- controls amount of diagnostic output
         """
         
@@ -38,10 +36,11 @@ class Transport:
         self._models[self.model] = self.__tr_id
 
     def __del__(self):
-        try:
-            _cantera.tran_delete(self.__tr_id)
-        except:
-            pass
+        for m in self._models.keys():
+            try:
+                _cantera.tran_delete(self._models[m])
+            except:
+                pass
 
     def addTransportModel(self, model, loglevel=1):
         new_id = _cantera.Transport(model,

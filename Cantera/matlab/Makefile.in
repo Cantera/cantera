@@ -43,7 +43,8 @@ else
 	@PYTHON_CMD@ setup_winmatlab.py
 endif
 	(@MATLAB_CMD@ -nodesktop -nojvm -nosplash -r setup)
-	rm -f setup.m
+	rm -f setup.m 
+
 
 install:
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera

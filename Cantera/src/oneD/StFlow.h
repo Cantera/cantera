@@ -17,7 +17,6 @@
 #include "../transport/TransportBase.h"
 #include "Domain1D.h"
 #include "../Array.h"
-//#include "../sort.h"
 #include "../IdealGasPhase.h"
 #include "../Kinetics.h"
 #include "../funcs.h"
@@ -25,18 +24,17 @@
 
 
 namespace Cantera {
-
+    
     typedef IdealGasPhase igthermo_t;
  
     class MultiJac;
-
+    
+    
     //------------------------------------------
     //   constants
     //------------------------------------------
-
-    /**
-     * Offsets of solution components in the solution array.
-     */
+    
+    // Offsets of solution components in the solution array.
     const unsigned int c_offset_U = 0;    // axial velocity
     const unsigned int c_offset_V = 1;    // strain rate
     const unsigned int c_offset_T = 2;    // temperature
@@ -48,16 +46,17 @@ namespace Cantera {
     const int c_Multi_Transport = 1;
     const int c_Soret = 2;
 
-
-
+    
+    
     //-----------------------------------------------------------
     //  Class StFlow
     //-----------------------------------------------------------
 
 
     /**
-     *  This class implements the one-dimensional similarity solution
-     *  for a chemically-reacting, axisymmetric, flow.
+     *  This class represents 1D flow domains that satisfy the
+     *  one-dimensional similarity solution for chemically-reacting,
+     *  axisymmetric, flows. 
      */
     class StFlow : public Domain1D {
 
@@ -67,7 +66,11 @@ namespace Cantera {
         // construction and destruction
         //--------------------------------
 
-        // Constructor.
+        /// Constructor. Create a new flow domain.
+        /// @param gas Object representing the gas phase. This object
+        /// will be used to evaluate all thermodynamic, kinetic, and transport
+        /// properties.
+        /// @param nsp Number of species. 
         StFlow(igthermo_t* ph = 0, int nsp = 1, int points = 1);
 
         /// Destructor.
@@ -89,18 +92,19 @@ namespace Cantera {
          */
         void setThermo(igthermo_t& th) { m_thermo = &th; }
 
-        /// set the kinetics manager
+        /// Set the kinetics manager. The kinetics manager must 
         void setKinetics(kinetics_t& kin) { m_kin = &kin; }
 
         /// set the transport manager
         void setTransport(Transport& trans, bool withSoret = false);
 
-        /// set the pressure
+        /// Set the pressure. Since the flow equations are for the limit of
+        /// small Mach number, the pressure is very nearly constant
+        /// throughout the flow.
         void setPressure(doublereal p) { m_press = p; }
 
-        /// Check that all required parameters have been set.
-        //bool ready();
-
+        
+        /// @todo remove? may be unused
         virtual void setState(int point, const doublereal* state) {
             setTemperature(point, state[2]);
             int k;
@@ -109,7 +113,9 @@ namespace Cantera {
             }
         }
 
-
+        
+        /// Write the initial solution estimate into
+        /// array x. 
         virtual void _getInitialSoln(doublereal* x) {
             int k, j;
             for (j = 0; j < m_points; j++) {
@@ -121,7 +127,12 @@ namespace Cantera {
         }   
 
         virtual void _finalize(const doublereal* x);
-
+        
+        
+        /// Sometimes it is desired to carry out the simulation
+        /// using a specified temperature profile, rather than
+        /// computing it by solving the energy equation. This
+        /// method specifies this profile.
         void setFixedTempProfile(vector_fp& zfixed, vector_fp& tfixed) {
             m_zfix = zfixed;
             m_tfix = tfixed;
@@ -147,34 +158,22 @@ namespace Cantera {
             m_fixedy(k,j) = y;
             m_do_species[k] = true; // false;
         }
-
-        /**
-         * The fixed temperature value at point j.
-         */
+        
+        
+         /// The fixed temperature value at point j.
         doublereal T_fixed(int j) const {return m_fixedtemp[j];}
-
-        /**
-         * The fixed mass fraction value of species k at point j.
-         */
+        
+        
+        /// The fixed mass fraction value of species k at point j.
         doublereal Y_fixed(int k, int j) const {return m_fixedy(k,j);}
 
 
         virtual string componentName(int n) const;
 
-//         /**
-//          * Write a Tecplot zone corresponding to the current solution.
-//          * May be called multiple times to generate animation.
-//          */
-//         void outputTEC(ostream &s, const doublereal* x, 
-//             string title, int zone);
 
-        //        virtual void showSolution(ostream& s, const doublereal* x);
         virtual void showSolution(const doublereal* x);
 
         virtual void save(XML_Node& o, doublereal* sol);
-
-        //        void restore(int job, string fname, string id, int& size_z, 
-        //    doublereal* z, int& size_soln, doublereal* soln);
 
         virtual void restore(const XML_Node& dom, doublereal* soln);
 
@@ -217,8 +216,6 @@ namespace Cantera {
             needJacUpdate();
         }
 
-        //        void setEnergyFactor(doublereal efctr);
-
         void fixSpecies(int k=-1) {
             if (k == -1) {
                 for (int i = 0; i < m_nsp; i++) 
@@ -226,7 +223,6 @@ namespace Cantera {
             }
             else m_do_species[k] = false;
             needJacUpdate();
-            //m_jac->setAge(10000);
         }
 
         void integrateChem(doublereal* x,doublereal dt);
@@ -236,26 +232,12 @@ namespace Cantera {
         virtual void setFixedPoint(int j0, doublereal t0){}
 
 
- //        virtual void setBoundaries(FlowBdry::Boundary* left,
-//             FlowBdry::Boundary* right) {
-//             if (left) {
-//                 m_boundary[0] = left;
-//                 left->faceRight();
-//             }
-//             if (right) {
-//                 m_boundary[1] = right;
-//                 right->faceLeft();
-//             }
-//         }
-
         void setJac(MultiJac* jac);
         void setGas(const doublereal* x,int j);
         void setGasAtMidpoint(const doublereal* x,int j);
 
 
     protected:
-
-        // used to write mass fractions to plot files.
 
         doublereal component(const doublereal* x, int i, int j) const {
             doublereal xx = x[index(i,j)];
