@@ -309,11 +309,53 @@ namespace Cantera {
                 m_rmolwts[k] = 1.0/m_molwts[k];
 	}
 
+	/**
+	 * m_kk is the number of species in the mixture
+	 */
         int m_kk;
-        doublereal m_temp, m_dens;
+
+	/**
+	 * Temperature. This is an independent variable 
+	 * units = Kelvin
+	 */
+        doublereal m_temp;
+
+	/**
+	 * Density -> this is an independent variable except in
+	 *            the incompressible degenerate case. Thus,
+	 *            the pressure is determined from this variable
+	 *            not the other way round.
+	 * units = kg m-3
+	 */
+	doublereal m_dens;
+
+	/**
+	 * m_mmw is the mean molecular weight of the mixture
+	 * (kg kmol-1)
+	 */
         doublereal m_mmw;
-        mutable array_fp m_ym, m_y;
-	array_fp m_molwts, m_rmolwts;
+        
+	/**
+	 *  m_ym[k] = mole fraction of species k divided by the
+	 *            mean molecular weight of mixture.
+	 */
+        mutable array_fp m_ym;
+
+	/**
+	 * m_y[k]  = mass fraction of species k
+	 */
+        mutable array_fp m_y;
+
+	/**
+	 * m_molwts[k] = molecular weight of species k (kg kmol-1)
+	 */
+	array_fp m_molwts;
+
+	/**
+	 *  m_rmolwts[k] = inverse of the molecular weight of species k
+	 *  units = kmol kg-1.
+	 */
+	array_fp m_rmolwts;
 
         // property updaters
         mutable PropertyUpdater m_T_updater;
@@ -327,16 +369,6 @@ namespace Cantera {
 }
 
 #endif
-
-
-
-
-
-
-
-
-
-
 
 
 
