@@ -1,7 +1,8 @@
 function x = XML_Node(name, src, wrap)
 %
-% XML_Node Cantera XML_Node class constructor
+% XML_Node - Cantera XML_Node class constructor
 %
+
 x.id = 0;
 if nargin == 3
    x.id = wrap;

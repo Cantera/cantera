@@ -330,6 +330,10 @@ AC_SUBST(build_blas)
 
 LOCAL_LIBS= 
 
+if test -n "$INCL_USER_CODE"
+then LOCAL_LIBS=$LOCAL_LIBS' '-luser
+fi
+
 if test -n "$NEED_ONED"
 then LOCAL_LIBS=$LOCAL_LIBS' '-loneD
 fi
@@ -342,12 +346,7 @@ if test -n "$NEED_TRANSPORT"
 then LOCAL_LIBS=$LOCAL_LIBS' '-ltransport
 fi
 
-#if test -n "$NEED_CKREADER"
-#then LOCAL_LIBS=$LOCAL_LIBS' '-lconverters
-#fi
-
 LOCAL_LIBS=$LOCAL_LIBS' '-lcantera
-
 
 if test -n "$NEED_RECIPES"
 then LOCAL_LIBS=$LOCAL_LIBS' '-lrecipes

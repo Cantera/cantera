@@ -203,9 +203,14 @@ namespace Cantera {
 
     string lastErrorMessage() {
         appinit();
-        if (nErrors() > 0)
-            return "\nProcedure: "+__app->errorRoutine.back()
-		+"\nError:   "+__app->errorMessage.back();
+        if (nErrors() > 0) {
+            string head = 
+                "\n\n************************************************\n"
+                "                Cantera Error!                  \n"
+                "************************************************\n\n";
+            return head+string("\nProcedure: ")+__app->errorRoutine.back()
+		+string("\nError:   ")+__app->errorMessage.back();
+        }
         else
             return "<no Cantera error>";
     }

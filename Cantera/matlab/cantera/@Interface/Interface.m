@@ -1,10 +1,6 @@
 function s = Interface(src, id, p1, p2, p3, p4)
 % Interface - class Interface constructor.
 %
-%
-if nargin ~= 3
-   error('wrong number of arguments');
-end
 doc = XML_Node('doc',src);
 node = findByID(doc,id);
 t = ThermoPhase(node);

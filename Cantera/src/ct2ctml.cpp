@@ -21,24 +21,26 @@
 #include <stdlib.h>
 #include "ctml.h"
 
-//#ifndef WIN32
-//#include "pypath.h"
-//#endif
-
 using namespace Cantera;
 
 namespace ctml {
 
+    // return the full path to the Python interpreter.  Use
+    // environment variable PYTHON_CMD if it is set, otherwise use the
+    // definition PYTHON_EXE if it is defined. Failing that, return
+    // the string 'python'.
     static string pypath() {
         string s = "python";
-#ifdef PYTHON_EXE
-        s = string(PYTHON_EXE);
-        return s;
-#else
         const char* py = getenv("PYTHON_CMD");
-        if (py) s = string(py);
-        return s;
+        if (py) {
+            s = string(py);
+        }
+#ifdef PYTHON_EXE
+        else {
+            s = string(PYTHON_EXE);
+        }
 #endif
+        return s;
     }
 
     static bool checkPython() {
@@ -59,7 +61,7 @@ namespace ctml {
             ierr = system(cmd.c_str());
             if (ierr != 0) {
                 string msg;
-                msg = cmd + "\n\n########################################################################\n\n"
+                msg = cmd +"\n\n########################################################################\n\n"
                       "The Cantera Python interface is required in order to process\n"
                       "Cantera input files, but it does not seem to be correctly installed.\n\n"
                       "Check that you can invoke the Python interpreter with \n"
@@ -113,7 +115,6 @@ namespace ctml {
             ifstream ferr("ct2ctml.log");
             if (ferr) {
                 while (!ferr.eof()) {
-                    //msg += "\n";
                     ferr.get(ch);
                     s += ch;
                     if (ch == '\n') {
@@ -125,7 +126,7 @@ namespace ctml {
             }
         }
         catch (...) {
-            ; //writelog("could not print error message.\n");
+            ; 
         }
         if (ierr != 0) {
             string msg = cmd;

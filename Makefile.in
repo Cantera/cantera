@@ -25,14 +25,19 @@ all:    kernel user cxxlib hdr-collect clib python matlab particles \
 
 # use this target on a Windows machine to build the Python and
 # MATLAB interfaces after building the project in Visual C++
-win: hdr-collect python matlab 
-
+win: hdr-collect python matlab
+	@echo 
+	@echo Now type \'make win-install\' to install Cantera in @ct_dir@.
+	@echo
 
 install: hdr-install kernel-install data-install python-install \
          matlab-install particles-install tools-install finish-install
 
 win-install: hdr-install win-kernel-install data-install python-install \
              matlab-install particles-install finish-install
+	@echo
+	@echo Cantera has been successfully installed in @ct_dir@.
+	@echo
 
 demos: example_codes
 
@@ -146,10 +151,10 @@ ifeq ($(build_matlab),1)
 	cd Cantera/matlab; @MAKE@
 endif
 
-win-matlab:
-ifeq ($(build_matlab),1)
-	cd Cantera/matlab; @MAKE@ win
-endif
+#win-matlab:
+#ifeq ($(build_matlab),1)
+#	cd Cantera/matlab; @MAKE@ win
+#endif
 
 matlab-install:
 ifeq ($(build_matlab),1)

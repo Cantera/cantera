@@ -8,6 +8,16 @@
 #
 ###############################################################
 
+###############################################################
+# list your object files here
+# This is probably the only thing you need to change in this file.
+
+OBJS    = user.o
+
+###############################################################
+
+
+
 SUFFIXES=
 SUFFIXES= .cpp .d .o
 
@@ -15,8 +25,6 @@ OBJDIR = .
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
-# list your object files here
-OBJS    = user.o
 
 CXX_INCLUDES = -I../src
 

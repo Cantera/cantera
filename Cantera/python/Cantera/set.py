@@ -49,9 +49,12 @@ def setByName(a, options):
         elif o == 'Entropy' or o == 'S':
             sval = val
             ns += 1
-        elif o == 'Sat' or o == 'Vapor' or o == 'Vap':
+        elif o == 'Vapor' or o == 'Vap':
             nq += 1
             qval = val
+        elif o == 'Liquid' or o == 'Liq':
+            nq += 1
+            qval = 1.0 - val            
             
         else:
             raise CanteraError('unknown property: '+o)
@@ -59,20 +62,27 @@ def setByName(a, options):
     if nx + ny > 1:
         raise CanteraError('composition specified multiple times')
 
+    nn = [nt, np, nv, ns, nh, nu, nq]
+    for n in nn:
+        if n > 1:
+            raise CanteraError('property specified multiple times')
+        
     ntot = nt + np + nv + ns + nh + nu + nq
 
+    # set individual properties
     if ntot == 1:
         if nt == 1:
             a.setTemperature(tval)
         elif nv == 1:
             a.setDensity(1.0/vval)
         elif np == 1:
-            a.seetPressure(pval)
+            a.setPressure(pval)
         else:
             props = options.keys()
             raise CanteraError('property '+props[0]+
                                ' can only be set in combination with '
                                +'another property')
+    # set property pairs
     elif ntot == 2:
         if np == 1 and nh == 1:
             a.setState_HP(hval, pval)

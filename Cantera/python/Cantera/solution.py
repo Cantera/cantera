@@ -43,6 +43,8 @@ class Solution(ThermoPhase, Kinetics, Transport):
         else:
             s = root.child(name = "phase")
 
+        self._name = s['id']
+        
         # initialize the equation of state
         ThermoPhase.__init__(self, xml_phase=s)
 
@@ -62,6 +64,9 @@ class Solution(ThermoPhase, Kinetics, Transport):
     def __repr__(self):
         return _cantera.phase_report(self._phase_id, self.verbose)
 
+    def name(self):
+        return self._name
+    
     def set(self, **options):
         """Set various properties.
         T       --- temperature [K]

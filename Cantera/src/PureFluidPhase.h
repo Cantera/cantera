@@ -73,7 +73,7 @@ namespace Cantera {
         virtual doublereal enthalpy_mole() const {
             setTPXState();
             doublereal h = m_sub->h() * m_mw;
-            check();
+            check(h);
             return h;            
         }
         
@@ -83,7 +83,7 @@ namespace Cantera {
         virtual doublereal intEnergy_mole() const {
             setTPXState();
             doublereal u = m_sub->u() * m_mw;
-            check();
+            check(u);
             return u;            
         }
 
@@ -93,7 +93,7 @@ namespace Cantera {
         virtual doublereal entropy_mole() const {
             setTPXState();
             doublereal s = m_sub->s() * m_mw;
-            check();
+            check(s);
             return s;            
         }
 
@@ -103,7 +103,7 @@ namespace Cantera {
         virtual doublereal gibbs_mole() const {
             setTPXState();
             doublereal g = m_sub->g() * m_mw;
-            check();
+            check(g);
             return g;            
         }
 
@@ -114,7 +114,7 @@ namespace Cantera {
         virtual doublereal cp_mole() const {
             setTPXState();
             doublereal cp = m_sub->cp() * m_mw;
-            check();
+            check(cp);
             return cp;            
         }
 
@@ -125,7 +125,7 @@ namespace Cantera {
         virtual doublereal cv_mole() const {
             setTPXState();
             doublereal cv = m_sub->cv() * m_mw;
-            check();
+            check(cv);
             return cv;
         }
         
@@ -136,7 +136,7 @@ namespace Cantera {
         virtual doublereal pressure() const {
             setTPXState();
             doublereal p = m_sub->P();
-            check();
+            check(p);
             return p;
         }
         
@@ -177,7 +177,7 @@ namespace Cantera {
         /// saturation temperature
         virtual doublereal satTemperature(doublereal p) const { 
             doublereal ts = m_sub->Tsat(p);
-            check();
+            check(ts);
             return ts;
         }
         
@@ -220,14 +220,14 @@ namespace Cantera {
 
             doublereal ps = m_sub->Ps();
             m_sub->Set(tpx::TV,tsv,vsv);
-            check();
+            check(ps);
             return ps;
             }
         
         virtual doublereal vaporFraction() const {
             setTPXState();
             doublereal x = m_sub->x();
-            check();
+            check(x);
             return x;
         }
         
@@ -235,14 +235,16 @@ namespace Cantera {
             setTemperature(t);
             setTPXState();
             m_sub->Set(tpx::TX, t, x);
-            setDensity(1.0/m_sub->v());            
+            setDensity(1.0/m_sub->v());
+            check();
         }
 
         virtual void setState_Psat(doublereal p, doublereal x) {
             setTPXState();
             m_sub->Set(tpx::PX, p, x);
             setTemperature(m_sub->Temp());
-            setDensity(1.0/m_sub->v());            
+            setDensity(1.0/m_sub->v());
+            check();
         }
 
 
@@ -252,8 +254,8 @@ protected:
             m_sub->Set(tpx::TV, temperature(), 1.0/density());            
         }
         
-        void check() const {
-            if (m_sub->Error()) {
+        void check(doublereal v = 0.0) const {
+            if (m_sub->Error() || v == tpx::Undef) {
                 throw CanteraError("PureFluidPhase",string(tpx::errorMsg(
                                                                m_sub->Error())));
             }

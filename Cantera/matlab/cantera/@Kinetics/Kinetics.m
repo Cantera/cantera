@@ -6,7 +6,6 @@ function k = Kinetics(r, ph, neighbor1, neighbor2, neighbor3, neighbor4)
 %   that manage reaction mechanisms.  The reaction mechanism
 %   attributes are specified in a CTML file. 
 %
-%
 
 % indices for bulk phases in a heterogeneous mechanism.
 % initialize < 0 so that bulk phases will not be included.
@@ -15,9 +14,10 @@ ineighbor2 = -1;
 ineighbor3 = -1;
 ineighbor4 = -1;
 
+% if only one argument is supplied, and it is an instance of
+% 'Kinetics', return a copy of this instance
 if nargin == 1
    if isa(r,'Kinetics')
-      % create a copy
       k = r;
       return
    else
@@ -25,7 +25,8 @@ if nargin == 1
    end
 end
 
-
+% if more than one arguement, first one must be an XML_Node
+% instance representing the XML tree
 if ~isa(r,'XML_Node')
   error('first argument must be an XML_Node object')
 end
@@ -33,6 +34,8 @@ end
 k.owner = 1;
 ixml = hndl(r);
 
+% get the integer indices used to find the stored objects
+% representing the phases participating in the mechanism. 
 iphase = thermo_hndl(ph);
 if nargin > 2
   ineighbor1 = thermo_hndl(neighbor1)
