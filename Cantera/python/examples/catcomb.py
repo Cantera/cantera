@@ -1,4 +1,4 @@
-# CATCOMB  -- Catalytic combustion on platinum.
+# CATCOMB  -- Catalytic combustion of methane on platinum.
 # 
 # This script solves a catalytic combustion problem. A stagnation flow
 # is set up, with a gas inlet 10 cm from a platinum surface at 900
@@ -82,27 +82,42 @@ surf_phase.setTemperature(tsurf)
 # coverages. 
 surf_phase.advanceCoverages(1.0)
 
+# create the object that simulates the stagnation flow, and specify an
+# initial grid
 sim = StagnationFlow(gas = gas, surfchem = surf_phase,
                      grid = initial_grid)
 
+# Objects of class StagnationFlow have members that represent the gas inlet ('inlet') and the surface ('surface'). Set some parameters of these objects.
 sim.inlet.set(mdot = mdot, T = tinlet, X = comp1)
 sim.surface.set(T = tsurf)
 
+# Set error tolerances
 sim.set(tol = tol_ss, tol_time = tol_ts)
 
+# Method 'init' must be called before beginning a simulation 
 sim.init()
+
+# Show the initial solution estimate
 sim.showSolution()
 
-# start with the energy equation on
+
+
+# Solving problems with stiff chemistry coulpled to flow can require
+# a sequential approach where solutions are first obtained for
+# simpler problems and used as the initial guess for more difficult
+# problems.
+
+# start with the energy equation on (default is 'off')
 sim.set(energy = 'on')
 
 # disable the surface coverage equations, and turn off all gas and
-# surface chemistry
+# surface chemistry.
 sim.surface.setCoverageEqs('off')
 surf_phase.setMultiplier(0.0);
 gas.setMultiplier(0.0);
 
-# solve the problem, refining the grid if needed
+# solve the problem, refining the grid if needed, to determine the
+# non-reacting velocity and temperature distributions
 sim.solve(loglevel, refine_grid)
 
 # now turn on the surface coverage equations, and turn the
@@ -119,7 +134,7 @@ for iter in range(6):
 # problem.
 sim.showSolution()
 
-#Now switch the inlet to the methane/air composition.
+# Now switch the inlet to the methane/air composition.
 sim.inlet.set(X = comp2)
 
 # set more stringent grid refinement criteria
@@ -138,16 +153,19 @@ sim.save("catcomb.xml", "soln1")
 # save selected solution components in a CSV file for plotting in
 # Excel or MATLAB.
 
+# These methods return arrays containing the values at all grid points
 z = sim.flow.grid()
 T = sim.T()
 u = sim.u()
 V = sim.V()
+
 f = open('catcomb.csv','w')
-writeCSV(f, ['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)']
+writeCSV(f, ['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)', 'rho (kg/m3']
          + list(gas.speciesNames()))
 for n in range(sim.flow.nPoints()):
     sim.setGasState(n)
-    writeCSV(f, [z[n], u[n], V[n], T[n]]+list(gas.moleFractions()))
+    writeCSV(f, [z[n], u[n], V[n], T[n], gas.density()]
+             +list(gas.moleFractions()))
 
 # write the surface coverages to the CSV file
 cov = sim.coverages()
@@ -159,4 +177,5 @@ f.close()
 
 print 'solution saved to catcomb.csv'
 
+# show some statistics 
 sim.showStats()

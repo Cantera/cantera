@@ -6,7 +6,7 @@
  * $Date$
  */
 
-// Copyright 2001  California Institute of Technology
+// Copyright 2001-2004  California Institute of Technology
 
 /**
  * @defgroup kineticsGroup Kinetics
@@ -21,14 +21,16 @@
 
 namespace Cantera {
 
+    // forward references
     class ReactionData;
 
-    /**
-     * Public interface for kinetics managers. This class serves as a
-     * base class to derive 'kinetics managers', which are classes
-     * that manage homogeneous chemistry within one phase, or
-     * heterogeneous chemistry at one interface.
-     */
+
+    ///
+    /// Public interface for kinetics managers. This class serves as a
+    /// base class to derive 'kinetics managers', which are classes
+    /// that manage homogeneous chemistry within one phase, or
+    /// heterogeneous chemistry at one interface.
+    ///
     class Kinetics {
 
     public:
@@ -46,25 +48,21 @@ namespace Cantera {
 
 	/**
 	 * This Constructor initializes with a starting phase.
-	 * All of the appropriate entries that addPhase() (below)
-	 * sets up are also done here.
 	 */
         Kinetics(thermo_t* thermo) 
             : m_ii(0), m_index(-1), m_surfphase(-1) {
             if (thermo) {
                 addPhase(*thermo);
-//                 m_start.push_back(0);
-//                 if (thermo->eosType() == cSurf) m_surfphase = nPhases();
-//                 m_thermo.push_back(thermo);
-// 		m_phaseindex[m_thermo.back()->id()] = nPhases();
             }
         }
 
         /// Destructor. Does nothing.
         virtual ~Kinetics() {}
 
+        /// For internal use.
         int index(){ return m_index; }
         void setIndex(int index) { m_index = index; }
+
 
 	/**
 	 *  Identifies the subclass of the Kinetics manager type.
@@ -78,13 +76,14 @@ namespace Cantera {
 
 	//@}
 
+
         /**
          * @name Information/Lookup Functions about Phases and Species
          */
         //@{
 
         /**
-         * Return the number of phases defined within the kinetics
+         * The number of phases defined within the kinetics
 	 * object.
          */  
         int nPhases() const { return m_thermo.size(); }	
@@ -101,6 +100,7 @@ namespace Cantera {
 	 * the Kinetics object.
 	 * (HKM -> unfound object will create another entry in the
 	 *  map, suggest rewriting this function)
+         * @todo rewrite.
 	 */
         int phaseIndex(string ph) { return m_phaseindex[ph] - 1; }
 
@@ -133,10 +133,10 @@ namespace Cantera {
         const thermo_t& phase(int n=0) const { return *m_thermo[n]; }
 
         /**
-	 * Returns the total number of species in all phases
-	 * participating in the kinetics mechanism. This is useful to
-	 * dimension arrays for use in calls to methods that return
-	 * the species production rates, for example.
+	 * The total number of species in all phases participating in
+	 * the kinetics mechanism. This is useful to dimension arrays
+	 * for use in calls to methods that return the species
+	 * production rates, for example.
 	 */
         int nTotalSpecies() const {
             int n=0, np;
@@ -155,9 +155,25 @@ namespace Cantera {
 	 */
         int start(int n) { return m_start[n]; }
 
+
 	/**
-	 * This method returns the index of a species in the source
-	 * term vector for this kinetics object. 
+	 * The location of species k of phase n in species arrays.
+         * Kinetics manager classes return species production rates in
+         * flat arrays, with the species of each phases following one
+         * another, in the order the phases were added.  This method
+         * is useful to find the value for a particular species of a
+         * particular phase in arrrays returned from methods like
+         * getCreationRates that return an array of species-specific
+         * quantities.
+         *
+         * Example: suppose a heterogeneous mechanism involves three
+         * phases.  The first contains 12 species, the second 26, and
+         * the third 3.  Then species arrays must have size at least
+         * 41, and positions 0 - 11 are the values for the species in
+         * the first phase, positions 12 - 37 are the values for the
+         * species in the second phase, etc.  Then
+         * kineticsSpeciesIndex(7, 0) = 7, kineticsSpeciesIndex(4, 1)
+         * = 16, and kineticsSpeciesIndex(2, 2) = 40.
 	 *
 	 * @param k species index 
 	 * @param n phase index for the species
@@ -244,16 +260,7 @@ namespace Cantera {
 	 * manager) and returns the species' owning ThermoPhase object.
 	 */
         thermo_t& speciesPhase(int k) {
-            return thermo(speciesPhaseIndex(k));
-//             int np = m_start.size();
-//             for (int n = np-1; n >= 0; n--) {
-//                 if (k >= m_start[n]) {
-//                     return thermo(n);
-//                 }
-//             }
-//             throw CanteraError("speciesPhase", 
-//                 "illegal species index: "+int2str(k));          
-                
+            return thermo(speciesPhaseIndex(k));                
         }
 
 	/**

@@ -17,7 +17,6 @@
 
 #include "ct.h"
 #include "ctxml.h"
-//#include "ctstagn.h" 
 #include "ctsurf.h"
 #include "ctbdry.h"
 #include "ctrpath.h"
@@ -39,7 +38,6 @@ static PyObject *ErrorObject;
 #include "ctkinetics_methods.cpp"
 #include "cttransport_methods.cpp"
 #include "ctxml_methods.cpp"
-//#include "ctflow_methods.cpp"
 #include "ctfuncs.cpp"
 #include "ctsurf_methods.cpp"
 #include "ctbndry_methods.cpp"
@@ -47,6 +45,12 @@ static PyObject *ErrorObject;
 #include "ctreactor_methods.cpp"
 #include "ctfunc_methods.cpp"
 #include "ctonedim_methods.cpp"
+
+#ifdef INCL_USER_PYTHON
+#include "ctuser.h"
+#include "ctuser_methods.cpp"
+#endif
+
 
 #include "methods.h"
 

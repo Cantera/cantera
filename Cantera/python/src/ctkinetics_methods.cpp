@@ -157,8 +157,10 @@ kin_getarray(PyObject *self, PyObject *args)
     case 34:
         iok = kin_getFwdRateConstants(kin, nrxns, xd);
         break;
+    case 35:
+        iok = kin_getRevRateConstants(kin, 1, nrxns, xd);
     case 36:
-        iok = kin_getRevRateConstants(kin, nrxns, xd);
+        iok = kin_getRevRateConstants(kin, 0, nrxns, xd);
         break;
     case 40:
         iok = kin_getEquilibriumConstants(kin, nrxns, xd);

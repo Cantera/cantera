@@ -190,17 +190,22 @@ class Kinetics:
         return _cantera.kin_getarray(self.ckin,30)
 
     def equilibriumConstants(self):
+        """Equilibrium constants in concentration units for all reactions."""
         return _cantera.kin_getarray(self.ckin,40)
 
     def activationEnergies(self):
+        """Activation energies in Kelvin for all reactions."""
         return _cantera.kin_getarray(self.ckin,32)
 
     def fwdRateConstants(self):
         return _cantera.kin_getarray(self.ckin,34)
 
-    def revRateConstants(self):
-        return _cantera.kin_getarray(self.ckin,36)        
-    
+    def revRateConstants(self, doIrreversible = 0):
+        if doIrreversible:
+            return _cantera.kin_getarray(self.ckin,35)
+        else:
+            return _cantera.kin_getarray(self.ckin,36)
+        
     def creationRates(self, phase = None):
         c = _cantera.kin_getarray(self.ckin,50)
         if phase:

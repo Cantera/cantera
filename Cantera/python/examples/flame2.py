@@ -1,8 +1,6 @@
 #
-# FLAME1 - A burner-stabilized flat flame
-#
-#    This script simulates a burner-stablized lean hydrogen-oxygen flame
-#    at low pressure.
+# FLAME2 - A burner-stabilized, premixed methane/air flat flame
+#          with multicomponent transport properties
 #
 from Cantera import *
 from Cantera.OneD import *
@@ -35,9 +33,10 @@ refine_grid = 1                     # 1 to enable refinement, 0 to
 
 ################ create the gas object ########################
 #
-# This object will be used to evaluate all thermodynamic, kinetic,
-# and transport properties
-#
+# This object will be used to evaluate all thermodynamic, kinetic, and
+# transport properties. It is created with two transport managers, to
+# enable switching from mixture-averaged to multicomponent transport
+# on the last solution.
 gas = GRI30('Mix')
 gas.addTransportModel('Multi')
 
@@ -71,19 +70,20 @@ gas.switchTransportModel('Multi')
 f.flame.setTransportModel(gas)
 f.solve(loglevel, refine_grid)
 f.save('ch4_flame1.xml','energy_multi',
-       'solution with the energy equation enabled')
+       'solution with the energy equation enabled and multicomponent transport')
 
-# write the velocity, temperature, and mole fractions to a CSV file
+# write the velocity, temperature, density, and mole fractions to a CSV file
 z = f.flame.grid()
 T = f.T()
 u = f.u()
 V = f.V()
 fcsv = open('flame2.csv','w')
-writeCSV(fcsv, ['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)']
+writeCSV(fcsv, ['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)', 'rho (kg/m3)']
          + list(gas.speciesNames()))
 for n in range(f.flame.nPoints()):
     f.setGasState(n)
-    writeCSV(fcsv, [z[n], u[n], V[n], T[n]]+list(gas.moleFractions()))
+    writeCSV(fcsv, [z[n], u[n], V[n], T[n], gas.density()]
+             +list(gas.moleFractions()))
 fcsv.close()
 
 print 'solution saved to flame2.csv'

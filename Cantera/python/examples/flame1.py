@@ -73,11 +73,12 @@ T = f.T()
 u = f.u()
 V = f.V()
 fcsv = open('flame1.csv','w')
-writeCSV(fcsv, ['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)']
+writeCSV(fcsv, ['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)', 'rho (kg/m3)']
          + list(gas.speciesNames()))
 for n in range(f.flame.nPoints()):
     f.setGasState(n)
-    writeCSV(fcsv, [z[n], u[n], V[n], T[n]]+list(gas.moleFractions()))
+    writeCSV(fcsv, [z[n], u[n], V[n], T[n], gas.density()]
+             +list(gas.moleFractions()))
 fcsv.close()
 
 print 'solution saved to flame1.csv'

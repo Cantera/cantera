@@ -124,7 +124,7 @@ extern "C" {
     int DLL_EXPORT phase_getMassFractions(int n, int leny, double* y) {
         ThermoPhase* p = ph(n);
         if (leny >= p->nSpecies()) {
-            p->getMassFractions(leny, y);
+            p->getMassFractions(y);
             return 0;
         }
         else
@@ -678,11 +678,13 @@ extern "C" {
         catch (CanteraError) {return -1;}
     }
 
-    int DLL_EXPORT kin_getRevRateConstants(int n, int len, double* krev) {
+    int DLL_EXPORT kin_getRevRateConstants(int n, int doIrreversible, int len, double* krev) {
         try {
             Kinetics* k = kin(n);
+            bool doirrev = false;
+            if (doIrreversible != 0) doirrev = true;
             if (len >= k->nReactions()) {
-                k->getRevRateConstants(krev);
+                k->getRevRateConstants(krev, doirrev);
                 return 0;
             }
             else 

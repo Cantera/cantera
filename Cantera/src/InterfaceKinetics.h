@@ -23,7 +23,6 @@
 #include "utilities.h"
 #include "RateCoeffMgr.h"
 #include "ReactionStoichMgr.h"
-//#include "StoichManager.h"
 
 namespace Cantera {
 
@@ -35,8 +34,9 @@ namespace Cantera {
     class SurfPhase;
     class ImplicitSurfChem;
 
+
     /**
-     * Holds mechanism-specific data.
+     * Holds mechanism-specific data. 
      */
     class InterfaceKineticsData {
     public:
@@ -57,6 +57,10 @@ namespace Cantera {
     };
 
 
+    ///
+    ///  A kinetics manager for heterogeneous reaction mechanisms. The reactions are
+    ///  assumed to occur at a 2D interface between two 3D phases.
+    ///
     class InterfaceKinetics : public Kinetics {
 
     public:
@@ -73,6 +77,7 @@ namespace Cantera {
 	 */
         InterfaceKinetics(thermo_t* thermo = 0);
 
+
         /// Destructor.
         virtual ~InterfaceKinetics();
 
@@ -83,13 +88,14 @@ namespace Cantera {
         virtual int ID() { return cInterfaceKinetics; }
 
 	/**
-	 * Identifies the subclass of the Kinetics manager type.
+	 * Identifies the subclass of the kinetics manager type.
 	 * These are listed in mix_defs.h.
 	 */
         virtual int type() { return cInterfaceKinetics; }
 
 	/**
-	 * Set the electric potential in the nth phase
+	 * Set the electric potential in the nth phase.
+         * @deprecated
 	 *
 	 * @param n phase Index in this kinetics object. 
 	 * @param V Electric potential (volts)
@@ -100,10 +106,13 @@ namespace Cantera {
 	}
 
  	//@}
-        /**
-         * @name Reaction Rates Of Progress
-         */
+
+
+        ///
+        ///  @name Reaction Rates Of Progress
+        ///
         //@{ 
+
 
         /**
          * Forward rates of progress.
@@ -116,6 +125,7 @@ namespace Cantera {
             updateROP(); 
             copy(m_kdata->m_ropf.begin(), m_kdata->m_ropf.end(), fwdROP);
         }
+
 
 	/**
          * Reverse rates of progress.
@@ -266,7 +276,7 @@ namespace Cantera {
 
 
         virtual void getFwdRateConstants(doublereal* kfwd);
-        virtual void getRevRateConstants(doublereal* krev);
+        virtual void getRevRateConstants(doublereal* krev, bool doIrreversible = false);
 	virtual void getActivationEnergies(doublereal *E);
 
 	//@}

@@ -313,11 +313,21 @@ namespace Cantera {
      * Update the rates of progress of the reactions in the reaciton
      * mechanism. This routine operates on internal data.
      */
-    void InterfaceKinetics::getRevRateConstants(doublereal* krev) {
+    void InterfaceKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible) {
         getFwdRateConstants(krev);
-        const vector_fp& rkc = m_kdata->m_rkcn;
-        multiply_each(krev, krev + nReactions(), rkc.begin());
+        if (doIrreversible) {
+	  doublereal *tmpKc = m_kdata->m_ropnet.begin();
+	  getEquilibriumConstants(tmpKc);
+	  for (int i = 0; i < m_ii; i++) {
+	    krev[i] /=  tmpKc[i];
+	  }
+        }
+        else {
+            const vector_fp& rkc = m_kdata->m_rkcn;
+            multiply_each(krev, krev + nReactions(), rkc.begin());
+        }
     }
+
 
     void InterfaceKinetics::getActivationEnergies(doublereal *E) {
         copy(m_E.begin(), m_E.end(), E);

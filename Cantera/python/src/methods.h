@@ -238,6 +238,10 @@ static PyMethodDef ct_methods[] = {
     {"func_del", py_func_del, METH_VARARGS},
     {"func_value", py_func_value, METH_VARARGS},
 
+#ifdef INCL_USER_PYTHON
+#include "usermethods.h"
+#endif
+
     {NULL,  NULL}		   /* sentinel */
 };
 

@@ -249,7 +249,8 @@ surface_reaction( "H(S) + OH(S) <=> H2O(S) + PT(S)",   [3.70000E+21, 0, 17400])
 surface_reaction( "OH(S) + OH(S) <=> H2O(S) + O(S)",   [3.70000E+21, 0, 48200])
 
 #  Reaction 15
-surface_reaction( "CO + PT(S) => CO(S)",   [1.61800E+20, 0.5, 0], order = "PT(S):2")
+surface_reaction( "CO + PT(S) => CO(S)",   [1.61800E+20, 0.5, 0], 
+                  order = "PT(S):2")
 
 #  Reaction 16
 surface_reaction( "CO(S) => CO + PT(S)",   [1.00000E+13, 0, 125500])
