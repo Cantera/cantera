@@ -208,6 +208,8 @@ buildbin=$ctroot/build/bin/$builddir
 AC_SUBST(buildbin)
 
 AC_DEFINE_UNQUOTED(DARWIN,$OS_IS_DARWIN)
+AC_DEFINE_UNQUOTED(CYGWIN,$OS_IS_CYGWIN)
+AC_DEFINE_UNQUOTED(WINMSVC,$OS_IS_WIN)
 AC_DEFINE_UNQUOTED(RXNPATH_FONT,"$RPFONT")
 AC_DEFINE_UNQUOTED(CANTERA_ROOT,"$prefix/cantera")
 AC_DEFINE_UNQUOTED(CANTERA_DATA,"$ct_datadir")
@@ -435,9 +437,20 @@ AC_SUBST(BUILD_PARTICLES)
 
 AC_SUBST(CT_SHARED_LIB)
 
+#
+# Fortran90 Interface
+#   Before turning on this interface, we do a rudimentary check
+#   to make sure that the F90 compiler can be found 
+#
 BUILD_F90=0
 if test "x$BUILD_F90_INTERFACE" = "xy"; then
   BUILD_F90=1
+  AC_CHECK_PROG(foundF90, $F90, yes, no)
+  if test x$foundF90 != "x1" ; then
+    echo 'Did not find the fortran90 compiler, '$F90 
+    echo "     -> Turning off F90 interface even though it was requested" 
+    BUILD_F90=0
+  fi
 fi
 AC_SUBST(BUILD_F90)
 AC_SUBST(F90)
@@ -461,6 +474,9 @@ fi
 
 WIN_PYTHON_CMD=python
 if test $BUILD_PYTHON -gt 0; then
+if test "$PYTHON_CMD" = "default" ; then
+  PYTHON_CMD=
+fi
 if test -z "$PYTHON_CMD"; then 
     AC_PATH_PROGS(PYTHON_CMD, python2 python, "none")
     if test "x$OS_IS_WIN" = "x1"; then
