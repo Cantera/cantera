@@ -15,17 +15,6 @@
 
  The functions defined here are ones commonly needed in application
  programs that simulate gas-phase combustion or similar processes.
- You may find that you can use this library without modification.  If
- you need to access additional capabilities of Cantera from Fortran,
- you can use this file as a guide. Also take a look at the Fortran 77
- examples in the demos/f77 subdirectory within the directory where
- Cantera is installed.
-
- Note that this library is not an "official" Cantera Fortran 77
- interface, only an example. If you use it with your Fortran 77
- application and want your application to be portable to other
- machines running Cantera, include this file along with your source
- code. 
 
  */
 
@@ -37,16 +26,10 @@
 // be created by the call to init_.
 static IdealGasMix* _gas = 0;
 
-map<string, int> _equil_opt;
 
-static void _init() {
-    _equil_opt["TP"] = TP;
-    _equil_opt["TV"] = TV;
-    _equil_opt["HP"] = HP;
-    _equil_opt["UV"] = UV;
-    _equil_opt["SP"] = SP;
-    _equil_opt["SV"] = SV;
-}
+// provides access to the pointer for functions in other libraries
+IdealGasMix* _gasptr() { return _gas; }
+
 
 // extern "C" turns off C++ name-mangling, so that the procedure names
 // in the object file are exactly as shown here.
@@ -172,7 +155,7 @@ extern "C" {
                 "two-character string required.");
         }
         string optstr = string(opt, 2);
-        equilibrate(*_gas, _equil_opt[optstr]);
+        equilibrate(*_gas, optstr.c_str(););
     }
 
 
