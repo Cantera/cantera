@@ -727,7 +727,14 @@ extern "C" {
         Kinetics& kin = *k;
         XML_Node *x, *r=0;
         if (root) r = &root->root();
-        x = find_XML(f2string(src, lensrc), r, f2string(id,lenid), "", "phase");
+	string srcS = f2string(src, lensrc);
+	string idS  = f2string(id, lenid);
+	if (srcS != "") {
+           x = get_XML_Node(srcS, r);
+	} else {
+           x = get_XML_Node(idS, r);
+	}
+        // x = find_XML(f2string(src, lensrc), r, f2string(id,lenid), "", "phase");
         if (!x) return false;
         importPhase(*x, t);
         kin.addPhase(*t);
