@@ -7,7 +7,7 @@ namespace Cantera {
                                m_integ(0), m_time(0.0), m_init(false), 
                                m_nv(0), m_rtol(1.0e-9), m_atols(1.0e-15),
                                m_maxstep(-1.0),
-                               m_verbose(true)
+                               m_verbose(false)
     {
         m_integ = new CVodeInt;
 
@@ -59,8 +59,8 @@ namespace Cantera {
 
     void ReactorNet::advance(doublereal time) {
         if (!m_init) {
-            //if (m_maxstep < 0.0)
-            m_maxstep = time;// - m_time;
+            if (m_maxstep < 0.0)
+                m_maxstep = time - m_time;
             initialize();
         }
         m_integ->integrate(time);
@@ -70,8 +70,8 @@ namespace Cantera {
 
     double ReactorNet::step(doublereal time) {
         if (!m_init) {
-            //if (m_maxstep < 0.0)
-            m_maxstep = time;// - m_time;
+            if (m_maxstep < 0.0)
+                m_maxstep = time - m_time;
             initialize();
         }
         m_time = m_integ->step(time);

@@ -67,6 +67,7 @@ namespace Cantera {
     const int  LANDAUTELLER = 2;
     const int  TSTRATE = 3;
     const int  SURF_ARRHENIUS = 4;
+    const int  ARRHENIUS_SUM = 5;
 
     //@}
 

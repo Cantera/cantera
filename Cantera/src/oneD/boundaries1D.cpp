@@ -572,7 +572,7 @@ namespace Cantera {
             db = diag - nc;
 
             rb[0] = xb[3];                     // zero Lambda
-            rb[2] = xb[2] - xb[2 - nc];        // zero dT/dz
+            rb[2] = xb[2] - m_temp; //xb[2] - xb[2 - nc];        // zero dT/dz
             for (k = 5; k < nc; k++) {
                 rb[k] = xb[k] - m_yres[k-4];     // fixed Y
             }
@@ -585,7 +585,7 @@ namespace Cantera {
         XML_Node& outlt = o.addChild("domain");
         outlt.addAttribute("id",id());
         outlt.addAttribute("points",1);
-        outlt.addAttribute("type","outletcomp");
+        outlt.addAttribute("type","outletres");
         outlt.addAttribute("components",nComponents());
     }
 

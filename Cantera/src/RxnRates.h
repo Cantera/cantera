@@ -26,6 +26,8 @@ namespace Cantera {
         Arrhenius() : m_b (0.0), m_E (0.0) {}
         Arrhenius( int csize, const doublereal* c )
             : m_b (c[1]), m_E (c[2]) { m_logA = log(c[0]);}
+        Arrhenius( doublereal A, doublereal b, doublereal E)
+            : m_b (b), m_E (E) { m_logA = log(A);}
 
         void update_C(const doublereal* c) {}
         
@@ -52,6 +54,52 @@ namespace Cantera {
 
     protected:
         doublereal m_logA, m_b, m_E;
+    };
+
+
+    class ArrheniusSum {
+
+    public:
+        static int type(){ return ARRHENIUS_SUM; }        
+        ArrheniusSum() : m_nterms(0) {}
+        ArrheniusSum( int csize, const doublereal* c ) {
+            m_nterms = 0;
+            addArrheniusTerm(c[0], c[1], c[2]);
+        }
+        void addArrheniusTerm(doublereal A, doublereal b, doublereal E) {
+            m_terms.push_back(Arrhenius(A, b, E));
+            m_nterms++;
+        }
+            
+        void update_C(const doublereal* c) {}
+        
+        doublereal update(doublereal logT, doublereal recipT) const {
+            int n;
+            doublereal f, fexp = 0.0;
+            for (n = 0; n < m_nterms; n++) {
+                f = m_terms[n].update(logT, recipT);
+                fexp += exp(f);
+            }
+            return log(fexp);
+        }
+
+        doublereal update_dT(doublereal logT, doublereal recipT) const {
+            throw CanteraError("ArrheniusSum::update_dT","not implemented.");
+        }
+        
+        void writeUpdateRHS(ostream& s) const {
+            ;
+        }
+
+        //doublereal activationEnergy_R() const {
+        //    return m_E;
+        //}
+
+        static bool alwaysComputeRate() { return true;}
+
+    protected:
+        vector<Arrhenius> m_terms;
+        int m_nterms;
     };
 
 

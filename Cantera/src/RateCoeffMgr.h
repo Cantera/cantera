@@ -15,10 +15,6 @@
 #include "utilities.h"
 #include "RxnRates.h"
 
-//#ifdef HAVE_INTEL_MKL
-//#include "mkl_vml.h"
-//#endif
-
 #include "ct_defs.h"
 #include "ctexceptions.h"
 
@@ -128,31 +124,36 @@ namespace Cantera {
      * This rate coefficient manager supports two parameterizations of
      * any type.
      */
-//     template<class R1, class R2>
-//     class Rate2 : public RateCoeffMgr {
-//     public:
+    template<class R1, class R2>
+    class Rate2 {
+    public:
 
-//         Rate2(){}
-//         virtual ~Rate2(){}
+        Rate2(){}
+        virtual ~Rate2(){}
 
-//         virtual int install( int rxnNumber,  int rateType, const vector_fp& c ) {
-//             if (rateType == R1::type())
-//                 return m_r1.install(rxnNumber, rateType, c);
-//             else if (rateType == R2::type())
-//                 return m_r2.install(rxnNumber, rateType, c);
-//             else
-//                 throw UnknownRateCoefficient();
-//             return -1;
-//         }
+        int install( int rxnNumber,  int rateType, int m,
+            const doublereal* c) {
+            if (rateType == R1::type())
+                return m_r1.install(rxnNumber, rateType, m, c);
+            else if (rateType == R2::type())
+                return m_r2.install(rxnNumber, rateType, m, c);
+            else
+                throw CanteraError("Rate2::install",
+                    "unknown rate coefficient type");
+            return -1;
+        }
     
-//         virtual void update(doublereal T, doublereal logT, vector_fp& values) {
-//             m_r1.update(T, logT, values);
-//             m_r2.update(T, logT, values);
-//         }
-//     protected:
-//         Rate1<R1> m_r1;
-//         Rate1<R2> m_r2;
-//     };
+        void update(doublereal T, doublereal logT, 
+            doublereal* values) {
+            m_r1.update(T, logT, values);
+            m_r2.update(T, logT, values);
+        }
+
+    protected:
+
+        Rate1<R1> m_r1;
+        Rate1<R2> m_r2;
+    };
     
 }
 
