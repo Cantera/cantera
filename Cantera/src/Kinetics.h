@@ -64,7 +64,10 @@ namespace Cantera {
         int index(){ return m_index; }
         void setIndex(int index) { m_index = index; }
 
-        /// Identifies subclass.
+	/**
+	 *  Identifies the subclass of the Kinetics manager type.
+	 *  These are listed in mix_defs.h.
+	 */
         virtual int type() { return 0; }
 
         /**
@@ -312,7 +315,17 @@ namespace Cantera {
          * isReversible(i) is false, then the reverse rate of progress
          * for reaction i is always zero.
          */
-        virtual bool isReversible(int i){return false;}
+        virtual bool isReversible(int i){
+	    err("isReversible");
+	    return false;
+	}
+
+	/**
+	 * Return a string representing the reaction.
+	 */
+        virtual string reactionString(int i) const {
+            err("reactionString"); return "<null>";
+        }
 
 	/**
 	 * Return the forward rate constants
@@ -360,12 +373,26 @@ namespace Cantera {
         int phaseIndex(string ph) { return m_phaseindex[ph] - 1; }
 
         /**
-         * Add a phase to the kinetics object
+         * Add a phase to the kinetics manager object. This must
+	 * be done before the function init() is called or 
+	 * before any reactions are input.
+	 * The following fields are updated:
+	 *  m_start -> vector of integers, containing the
+	 *             starting position of the species for
+	 *             each phase in the kinetics mechanism.
+	 *  m_surfphase -> index of the surface phase.
+	 *  m_thermo -> vector of pointers to ThermoPhase phases
+	 *              that participate in the kinetics 
+	 *              mechanism.
+	 *  m_phaseindex -> map containing the string id of each
+	 *              ThermoPhase phase as a key and the
+	 *              index of the phase within the kinetics
+	 *              manager object as the value.
          */
         void addPhase(thermo_t& thermo) { 
             if (m_thermo.size() > 0) {
                 m_start.push_back(m_start.back() 
-                    + m_thermo.back()->nSpecies());
+				  + m_thermo.back()->nSpecies());
             }
             else {
                 m_start.push_back(0);
@@ -385,7 +412,7 @@ namespace Cantera {
         const thermo_t& thermo(int n=0) const { return *m_thermo[n]; }
 
 	/**
-	 * This method returns a reference to the nth thermophase
+	 * This method returns a reference to the nth ThermoPhase
 	 * defined in this kinetics mechanism.
 	 * It is typically used so that member functions of the
 	 * ThermoPhase may be called.
@@ -404,6 +431,14 @@ namespace Cantera {
             return m_start[n] + k;
         }
 
+	/**
+	 * Return the string name of the kth species in the kinetics
+	 * manager. k can be equal to 0 to the number of species
+	 * in the kinetics manager, which is the sum of the
+	 * number of species in all phases participating in the
+	 * kinetics manager. 
+	 *  If k is out of bounds, the string "<unknown>" is returned.
+	 */
         string kineticsSpeciesName(int k) const {
             int np = m_start.size();
             for (int n = np-1; n >= 0; n--) {
@@ -497,12 +532,13 @@ namespace Cantera {
 	 */
         virtual void finalize() {}
 
-        virtual void addReaction(const ReactionData& r) {err("addReaction");}
-
-        virtual string reactionString(int i) const {
-            err("reactionString"); return "<null>";
-        }
-
+	/**
+	 * Add a single reaction to the mechanism. This routine
+	 * must be called after init() and before finalize().
+	 */
+        virtual void addReaction(const ReactionData& r) {
+	    err("addReaction");
+	}
 
         virtual const vector<grouplist_t>& reactantGroups(int i) { 
 	    err("reactantGroups"); 
@@ -573,7 +609,6 @@ namespace Cantera {
 	 * reactant is listed contiguously in the vector a number of 
 	 * times equal to its stoichiometric coefficient.
 	 */
-
         vector<vector_int> m_products;
 
 	/**
