@@ -201,6 +201,12 @@ class Phase:
         checked for validity and returned. If no such species is
         present, an exception is thrown."""
         nsp = self.nSpecies()
+        if type(species) == types.ListType:
+            s = []
+            for sp in species:
+                s.append(self.speciesIndex(sp))
+            return s
+        
         if type(species) == types.IntType or type(species) == types.FloatType:
             k = species
         else:

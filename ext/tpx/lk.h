@@ -1,18 +1,23 @@
-#ifndef LK_H
-#define LK_H
+#ifndef TPX_LK_H
+#define TPX_LK_H
 
-#include "sub.h"
+#include "Sub.h"
 
-class lk : public Substance{
-public:
-	lk(double tc = 1.0, double pc = 1.0, double wt = 1.0, int itype = 0)
+namespace tpx {
+
+    class leekesler : public Substance{
+
+    public:
+
+	leekesler(double tc = 1.0, double pc = 1.0, 
+            double wt = 1.0, int itype = 0)
 	{
 		Tcr = tc;
 		Pcr = pc;
 		Mw = wt;
 		Isr = itype;   // simple fluid or reference 
-	};
-	~lk() {};
+	}
+	~leekesler() {}
 
 	double MolWt();
 	double Tcrit();
@@ -27,18 +32,30 @@ public:
 	double up();
 	double sp();
 	double Psat();
+        double dPsatdT(); 
+
+        // compressibility 
 	double z();
+
+        // enthalpy departure
 	double hdep();
+
+        // entropy departure 
 	double sdep();
+
 	double ldens();
 
-protected:
+    protected:
+
 	double Tcr, Pcr, Mw;
 	int Isr;
 
-private:
+    private:
+
 	double W(int n, double egrho, double gamma);
 	double I();
 	double J();
-};
-#endif // ! LK_H
+    };
+}
+
+#endif // ! TPX_LK_H

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-INSTALL='@INSTALL'
+INSTALL='@INSTALL@'
 
 PYVERSION=2.3
 PKGDIR=$HOME/Packages
@@ -8,6 +8,9 @@ PKGDIR=$HOME/Packages
 CTDIR=$PKGDIR/Cantera/root_dir/Applications/Cantera
 PYDIR=$PKGDIR/Cantera/root_dir/Library/Python/$PYVERSION
 RESDIR=$PKGDIR/Cantera/resources_dir
+
+NUMPYDIR=$PKGDIR/Numeric/root_dir/Library/Python/$PYVERSION
+NUMRESDIR=$PKGDIR/Numeric/resources_dir
 
 # where Cantera has been installed
 instdir=/Applications/Cantera
@@ -17,6 +20,9 @@ $INSTALL -d $CTDIR
 $INSTALL -d $PYDIR/Cantera
 $INSTALL -d $PYDIR/MixMaster
 $INSTALL -d $RESDIR
+
+$INSTALL -d $NUMPYDIR/Numeric
+$INSTALL -d $NUMRESDIR
 
 cp -R -f $instdir/* $CTDIR
 chmod +x $CTDIR/bin/*
@@ -28,3 +34,5 @@ cp -f ~/setup_cantera $CTDIR
 
 cp -f /Users/dgg/dv/sf/cantera/License.txt $RESDIR
 
+cp -R -f $pylibdir/Numeric/* $NUMPYDIR/Numeric
+cp -f $pylibdir/Numeric.pth $NUMPYDIR
