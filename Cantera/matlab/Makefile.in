@@ -21,7 +21,8 @@ SRCS = cantera/private/ctmethods.cpp \
        cantera/private/wallmethods.cpp \
        cantera/private/flowdevicemethods.cpp \
        cantera/private/onedimmethods.cpp \
-       cantera/private/surfmethods.cpp
+       cantera/private/surfmethods.cpp \
+       cantera/private/funcmethods.cpp
 
 CANTERA_LIBDIR=@buildlib@
 os_is_win=@OS_IS_WIN@
@@ -61,6 +62,7 @@ install:
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Reactor/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Wall/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@FlowDevice/private
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Func/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/1D
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/1D/@Domain1D/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/1D/@Stack/private
@@ -100,6 +102,10 @@ install:
             @prefix@/matlab/toolbox/cantera/cantera/@FlowDevice
 	cd cantera/@FlowDevice/private; @INSTALL@ *.m \
             @prefix@/matlab/toolbox/cantera/cantera/@FlowDevice/private
+	cd cantera/@Func; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@Func
+	cd cantera/@Func/private; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@Func/private
 	cd cantera/1D; @INSTALL@ *.m \
             @prefix@/matlab/toolbox/cantera/cantera/1D
 	cd cantera/1D/@Domain1D; @INSTALL@ *.m \

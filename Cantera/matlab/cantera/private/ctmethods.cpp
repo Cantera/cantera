@@ -28,6 +28,7 @@ const int WALL_CLASS = 70;
 const int FLOWDEVICE_CLASS = 80;
 const int ONEDIM_CLASS = 90;
 const int SURF_CLASS = 100;
+const int FUNC_CLASS = 110;
 
 void ctfunctions( int nlhs, mxArray *plhs[], int nrhs, 
     const mxArray *prhs[] );
@@ -62,6 +63,9 @@ void flowdevicemethods( int nlhs, mxArray *plhs[], int nrhs,
 void onedimmethods( int nlhs, mxArray *plhs[], int nrhs, 
     const mxArray *prhs[] );
 
+void funcmethods( int nlhs, mxArray *plhs[], int nrhs, 
+    const mxArray *prhs[] );
+
 
 
 extern "C" {
@@ -72,9 +76,6 @@ extern "C" {
         // flag specifying the class
         int iclass = getInt(prhs[0]);
         
-        // specifies that function writelog should write to MATLAB
-        //Cantera::setMatlabMode(true);
-
         // Hand off to the appropriate routine, based on the
         // value of the first parameter
         switch (iclass) {
@@ -100,6 +101,8 @@ extern "C" {
             onedimmethods(nlhs, plhs, nrhs, prhs); break;
         case SURF_CLASS:
             surfmethods(nlhs, plhs, nrhs, prhs); break;
+        case FUNC_CLASS:
+            funcmethods(nlhs, plhs, nrhs, prhs); break;
         default:
             mexErrMsgTxt("unknown class");
         }
