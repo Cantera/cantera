@@ -456,14 +456,6 @@ namespace Cantera {
         for (int ii = 0; ii < m_mm; ii++) x[ii] = -100.0;
         estimateElementPotentials(s, x);
 
-        x[m_mm] = log(m_phase->temperature());
-        if (m_thermo->temperature() > m_thermo->maxTemp() ||
-            m_thermo->temperature() < m_thermo->minTemp() ) {
-            throw CanteraError("ChemEquil","Temperature ("
-                +fp2str(m_thermo->temperature())+" K) outside "
-                "valid range of "+fp2str(m_thermo->minTemp())+" K to "
-                +fp2str(m_thermo->maxTemp())+" K\n");
-        }
         vector_fp above(nvar);
         vector_fp below(nvar);
 
@@ -556,6 +548,15 @@ namespace Cantera {
             && fabs(deltax) < options.relTolerance 
             && fabs(deltay) < options.relTolerance) {
             options.iterations = iter;
+
+            if (m_thermo->temperature() > m_thermo->maxTemp() ||
+                m_thermo->temperature() < m_thermo->minTemp() ) {
+                throw CanteraError("ChemEquil","Temperature ("
+                    +fp2str(m_thermo->temperature())+" K) outside "
+                    "valid range of "+fp2str(m_thermo->minTemp())+" K to "
+                    +fp2str(m_thermo->maxTemp())+" K\n");
+        }
+
             return 0;
         }
     
