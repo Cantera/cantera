@@ -23,6 +23,8 @@ namespace Cantera {
 
     class XML_Node;
 
+
+
     /**
      * @defgroup thermoprops Thermodynamic Properties
      *
@@ -54,7 +56,8 @@ namespace Cantera {
 
         virtual ~ThermoPhase() {
             delete m_spthermo;
-            delete m_speciesData;
+	    // Taking this out because I think i don't own it
+            //delete m_speciesData;
             m_spthermo = 0;
             m_speciesData = 0;
         }
@@ -287,12 +290,15 @@ namespace Cantera {
              return -1.0;
          }
 
-        /** The natural logarithm of the standard concentration. */
+        /**
+	 *
+	 * Returns the natural logarithm of the standard 
+	 * concentration of the kth species
+	 */
          virtual doublereal logStandardConc(int k=0) const {
              err("logStandardConc");
              return -1.0;
          }
-
 
         /** Get the array of chemical potentials at unit activity \f$
          * \mu^0_k \f$.
@@ -301,6 +307,26 @@ namespace Cantera {
             err("getStandardChemPotentials");
         }
 
+	/**
+	 * Returns the units of the standard and general concentrations
+	 * Note they have the same units, as their divisor is 
+	 * defined to be equal to the activity of the kth species
+	 * in the solution, which is unitless.
+	 *
+	 * This routine is used in print out applications where the
+	 * units are needed. Usually, MKS units are assumed throughout
+	 * the program and in the XML input files.
+	 *
+	 *  uA[0] = kmol units - default  = 1
+	 *  uA[1] = m    units - default  = -nDim(), the number of spatial
+	 *                                dimensions in the Phase class.
+	 *  uA[2] = kg   units - default  = 0;
+	 *  uA[3] = Pa(pressure) units - default = 0;
+	 *  uA[4] = Temperature units - default = 0;
+	 *  uA[5] = time units - default = 0
+	 */
+	virtual void getUnitsStandardConc(double *uA, int k = 0,
+					  int sizeUA = 6);
 
         /** 
          * Get the array of non-dimensional chemical potentials \f$
