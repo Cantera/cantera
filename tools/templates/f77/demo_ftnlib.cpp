@@ -19,10 +19,14 @@
  processes. Similar libraries to access other capabilities of Cantera
  (surface chemistry, etc.) could be written in the same way.
 
+ This library is designed for Fortran compilers that expect external
+ procedure na,es to be lowercase with a trailing underscore. If this
+ is not the case, the procedure names must be edited before use.
+
  */
 
 // add any other Cantera header files you need here
-#include "IdealGasMix.h"
+#include <cantera/IdealGasMix.h>
 
 
 // store a pointer to an IdealGasMix object
@@ -36,12 +40,12 @@ IdealGasMix* _gasptr() { return _gas; }
 #define WITH_TRANSPORT
 
 #ifdef WITH_EQUIL
-#include "equilibrium.h"
+#include <cantera/equilibrium.h>
 #endif
 
 
 #ifdef WITH_TRANSPORT
-#include "transport.h"
+#include <cantera/transport.h>
 
 // store a pointer to a transport manager
 static Transport* _trans = 0;
@@ -59,7 +63,8 @@ void handleError() {
 
 extern "C" {
 
-    /// This is the Fortran main program
+    /// This is the Fortran main program. This works for g77; it may
+    /// need to be modified for other Fortran compilers
     extern int MAIN__();
 
     /**
@@ -112,7 +117,7 @@ extern "C" {
 
     //-------------- setting the state ----------------------------
 
-    // subroutine setState_TPX(T, P, X)
+    /// subroutine setState_TPX(T, P, X)
     void setstate_tpx_(doublereal* T, doublereal* P, doublereal* X) {
         try {
             _gas->setState_TPX(*T, *P, X);

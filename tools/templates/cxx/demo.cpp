@@ -3,10 +3,10 @@
 //
 //
 
-#include "Cantera.h"
-#include "IdealGasMix.h"
-#include "equilibrium.h"
-#include "transport.h"
+#include <cantera/Cantera.h>
+#include <cantera/IdealGasMix.h>
+#include <cantera/equilibrium.h>
+#include <cantera/transport.h>
 
 using namespace Cantera;
 

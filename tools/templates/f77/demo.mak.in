@@ -4,7 +4,7 @@
 # default, the main program file is 'demo.f,' which prints out some
 # properties of a reacting gas mixture. It uses the library
 # 'demo_ftnlib.cpp,' which contains Fortran-callable functions that
-# are implemented with C++ calls to Cantera.  
+# are implemented with C++ calls to Cantera.
 
 # To build program 'demo', simply type 'make', or 'make -f <this
 # file>' if this file is named something other than 'Makefile.'  
@@ -25,7 +25,8 @@ OBJS = demo.o demo_ftnlib.o
 
 # additional flags to be passed to the linker. If your program
 # requires other external libraries, put them here
-LINK_OPTIONS = 
+LINK_OPTIONS = @LCXX_FLAGS@
+
 
 #---------------------------------------------------------------------------
 # You probably don't need to edit anything below.
@@ -53,10 +54,10 @@ EXT_LIBS = @LOCAL_LIBS@ -lctcxx
 CANTERA_LIBDIR=@ct_libdir@
 
 # the directory where Cantera include files may be found.
-CANTERA_INCDIR=@ct_incdir@
+CANTERA_INCDIR=@ct_incroot@
 
 # flags passed to the C++ compiler/linker for the linking step
-LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
+LCXXFLAGS = -L$(CANTERA_LIBDIR) @LCXX_FLAGS@
 
 # how to compile C++ source files to object files
 .@CXX_EXT@.@OBJ_EXT@:
@@ -73,7 +74,7 @@ DEPENDS = $(OBJS:.o=.d)
 all: $(PROGRAM)
 
 $(PROGRAM): $(OBJS)
-	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ $(FORT_LIBS)
+	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXXFLAGS) $(CANTERA_LIBS) $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ $(FORT_LIBS)
 
 %.d:
 	g++ -MM $*.cpp > $*.d

@@ -58,6 +58,7 @@ AC_SUBST(ctversion)
 if test -z $local_inst; then 
 ct_libdir=${prefix}/lib/cantera-${ctversion}
 ct_incdir=${prefix}/include/cantera
+ct_incroot=${prefix}/include
 ct_bindir=${prefix}/bin
 ct_datadir=${prefix}/cantera/${ctversion}/data
 ct_demodir=${prefix}/cantera/${ctversion}/demos
@@ -69,6 +70,7 @@ ct_mandir=${prefix}/share/man
 else
 ct_libdir=${prefix}/lib/cantera-${ctversion}
 ct_incdir=${prefix}/include/cantera
+ct_incroot=${prefix}/include
 ct_bindir=${prefix}/bin
 ct_datadir=${prefix}/cantera/${ctversion}/data
 ct_demodir=${prefix}/cantera/${ctversion}/demos
@@ -81,6 +83,7 @@ fi
 
 AC_SUBST(ct_libdir)
 AC_SUBST(ct_incdir)
+AC_SUBST(ct_incroot)
 AC_SUBST(ct_bindir)
 AC_SUBST(ct_datadir)
 AC_SUBST(ct_demodir)

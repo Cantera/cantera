@@ -10,12 +10,12 @@ c
       implicit double precision (a-h,o-z)
       parameter (MAXSP = 20, MAXRXNS = 100)
       double precision q(MAXRXNS), qf(MAXRXNS), qr(MAXRXNS)
-      double precision x(MAXSP), y(MAXSP), wdot(MAXSP)
       double precision diff(MAXSP)
       character*80 eq
       character*20 name
 c
-      write(*,*) '**** Fortran 77 Test Program ****'
+      write(*,*)
+      write(*,*) '********   Fortran 77 Test Program   ********'
 
       call newIdealGasMix('h2o2.cti','ohmech','Mix')
       t = 1200.0
