@@ -69,7 +69,7 @@ namespace Cantera {
     }
 
     MultiNewton::~MultiNewton() {
-        int n = m_workarrays.size();
+        int n = static_cast<int>(m_workarrays.size());
         int i;
         for (i = 0; i < n; i++) {
             delete[] m_workarrays[i];
@@ -81,7 +81,7 @@ namespace Cantera {
      */
     void MultiNewton::resize(int sz) {
         m_n = sz;
-        int n = m_workarrays.size();
+        int n = static_cast<int>(m_workarrays.size());
         int i;
         for (i = 0; i < n; i++) {
             delete[] m_workarrays[i];

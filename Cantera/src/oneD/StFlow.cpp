@@ -22,7 +22,7 @@
 
 #include "StFlow.h"
 #include "../ArrayViewer.h"
-#include "ctml.h"
+#include "../ctml.h"
 #include "MultiJac.h"
 
 using namespace ctml;
@@ -758,7 +758,7 @@ namespace Cantera {
 
         vector<XML_Node*> str;
         dom.getChildren("string",str);
-        int nstr = str.size();
+        int nstr = static_cast<int>(str.size());
         for (int istr = 0; istr < nstr; istr++) {
             const XML_Node& nd = *str[istr];
             writelog(nd["title"]+": "+nd.value()+"\n");
@@ -772,7 +772,7 @@ namespace Cantera {
 
         vector<XML_Node*> d;
         dom.child("grid_data").getChildren("floatArray",d);
-        int nd = d.size();
+        int nd = static_cast<int>(d.size());
 
         vector_fp x;
         int n, np = 0, j, ks, k;
@@ -866,7 +866,7 @@ namespace Cantera {
         if (ignored.size() != 0) {
             writelog("\n\n");
             writelog("Ignoring datasets:\n");
-            int nn = ignored.size();
+            int nn = static_cast<int>(ignored.size());
             for (int n = 0; n < nn; n++) {
                 writelog(ignored[n]+"   ");
             }
@@ -905,7 +905,7 @@ namespace Cantera {
         addFloat(flow, "pressure", m_press, "Pa", "pressure"); 
         addFloatArray(gv,"z",m_z.size(),m_z.begin(),
             "m","length");
-        vector_fp x(soln.nColumns());
+		vector_fp x(static_cast<ctvector_fp::size_t>(soln.nColumns()));
 
         soln.getRow(0,x.begin());
         addFloatArray(gv,"u",x.size(),x.begin(),"m/s","velocity");

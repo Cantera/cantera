@@ -55,8 +55,8 @@ namespace Cantera {
      * @param value the value.
      */
     void Sim1D::setValue(int dom, int comp, int localPoint,  doublereal value) {
-        int iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
-        m_x[iloc] = value;
+        size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
+        m_x[static_cast<int>(iloc)] = value;
     }
 
 
@@ -67,13 +67,13 @@ namespace Cantera {
      * the leftmost grid point in the domain.
      */
     doublereal Sim1D::value(int dom, int comp, int localPoint) const {
-        int iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
-        return m_x[iloc];
+        size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
+        return m_x[static_cast<int>(iloc)];
     }
 
     doublereal Sim1D::workValue(int dom, int comp, int localPoint) const {
-        int iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
-        return m_xnew[iloc];
+        size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
+        return m_xnew[static_cast<int>(iloc)];
     }
 
 
