@@ -22,6 +22,8 @@
 #include <time.h>
 #include "ctml.h"
 
+//#define DEBUG_PATHS
+
 using namespace Cantera;
 
 namespace ctml {
@@ -34,11 +36,13 @@ namespace ctml {
         string s = "python";
         const char* py = getenv("PYTHON_CMD");
         if (py) {
-            s = string(py);
+            string sp = stripws(string(py));
+            if (sp.size() > 0) s = sp;
         }
 #ifdef PYTHON_EXE
         else {
-            s = string(PYTHON_EXE);
+            string se = stripws(string(PYTHON_EXE));
+            if (se.size() > 0) s = se;
         }
 #endif
         return s;
@@ -119,7 +123,7 @@ namespace ctml {
         string cmd = pypath() + " " + path + " &> ct2ctml.log";
 #endif
 #ifdef DEBUG_PATHS
-        cout << "ct2ctml: executing the command " << cmd << endl;
+        writelog("ct2ctml: executing the command " + cmd + "\n");
 #endif
         int ierr = 0;
         try {
@@ -148,7 +152,7 @@ namespace ctml {
          */
 #if defined(CYGWIN) 
 #ifdef DEBUG_PATHS
-        cout << "sleeping for 3 secs" << endl;
+        writelog("sleeping for 3 secs+\n");
 #endif
         cmd = "sleep 3";
         try {
@@ -195,7 +199,8 @@ namespace ctml {
 #else
         cmd = "rm -f " + path;
         try {
-            system(cmd.c_str());
+            if (ierr == 0) 
+                system(cmd.c_str());
         }
         catch (...) { ; }
 #endif
@@ -213,7 +218,7 @@ namespace ctml {
         // find the input file on the Cantera search path
         string inname = findInputFile(file);
 #ifdef DEBUG_PATHS
-        cout <<"Found file: " << inname << endl;
+        writelog("Found file: "+inname+"\n");
 #endif
         if (inname == "") 
             throw CanteraError("get_CTML_tree", "file "+file+" not found");
@@ -234,7 +239,7 @@ namespace ctml {
 	  ff = inname;
 	}
 #ifdef DEBUG_PATHS
-       cout << "Attempting to parse xml file " << ff << endl;
+        writelog("Attempting to parse xml file " + ff + "\n");
 #endif
         ifstream fin(ff.c_str());
         if (!fin) {
