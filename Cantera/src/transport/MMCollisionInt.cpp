@@ -440,7 +440,7 @@ namespace Cantera {
     {
         int i, n = m_nmax - m_nmin + 1;
         int ndeg=0;
-        char s[100];
+        //char s[100];
         string indent = "    ";
         vector_fp values(n);
         doublereal rmserr;
