@@ -3,6 +3,7 @@
 extern "C" {
 #endif
 #include "f2c.h"
+#include "stdio.h"
 
 /* Subroutine */ int xerbla_(char *srname, integer *info)
 {
