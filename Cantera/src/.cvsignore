@@ -1,2 +1,3 @@
 Makefile
 ctdir.h
+.depends
