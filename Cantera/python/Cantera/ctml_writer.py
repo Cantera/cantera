@@ -13,6 +13,17 @@
 
 """
 
+##########################################
+#
+# $Author$
+# $Revision$
+# $Date$
+# $Log$
+# Revision 1.14  2003-08-16 20:17:21  dggoodwin
+# changed handling of reaction pre-exponential units to write converted value to CTML, rather than pass original value with a units string
+#
+#
+###########################################
 from Cantera import CanteraError
 from Cantera import GasConstant
 from Cantera.XML import XML_Node
@@ -35,6 +46,10 @@ _umol = 'kmol'
 _umass = 'kg'
 _utime = 's'
 _ue = 'J/kmol'
+
+_length = {'cm':0.01, 'm':1.0, 'mm':0.001}
+_moles = {'kmol':1.0, 'mol':0.001, 'molec':1.0/6.023e26}
+_time = {'s':1.0, 'min':60.0, 'hr':3600.0}
 
 # default std state pressure
 _pref = 1.0e5    # 1 bar
@@ -175,16 +190,6 @@ def addFloat(x, nm, val, fmt=''):
     
 def getAtomicComp(atoms):
     if type(atoms) == types.DictType: return atoms
-    a = atoms.replace(',',' ')
-    toks = a.split()
-    d = {}
-    for t in toks:
-        b = t.split(':')
-        d[b[0]] = int(b[1])
-    return d
-
-def getEfficiencies(e):
-    if type(e) == types.DictType: return e
     a = atoms.replace(',',' ')
     toks = a.split()
     d = {}
@@ -398,10 +403,19 @@ class Arrhenius(writer):
     def __init__(self,
                  A = 0.0,
                  n = 0.0,
-                 E = 0.0):
+                 E = 0.0,
+                 coverage = []):
         self._c = [A, n, E]
+        if coverage:
+            if type(coverage[0] == types.StringType):
+                self._cov = [coverage]
+            else:
+                self._cov = coverage
+        else:
+            self._cov = None
+
         
-    def build(self, p, units = '', gas_species = [], name = ''):
+    def build(self, p, units_factor = 1.0, gas_species = [], name = ''):
         if self._c[0] < 0.0:
             e = _handle_error['negative_A']
             if e == 'skip': return
@@ -414,23 +428,44 @@ class Arrhenius(writer):
                 
         a = p.addChild('Arrhenius')
         if name: a['name'] = name
-        if isnum(self._c[0]):
-            addFloat(a,'A', (self._c[0], units), fmt = '%14.6E')
-        else:
-            addFloat(a,'A',self._c[0], fmt = '%14.6E')
+        addFloat(a,'A',self._c[0]*units_factor, fmt = '%14.6E')
+##         if isnum(self._c[0]):
+##             addFloat(a,'A', (self._c[0], units), fmt = '%14.6E')
+##         else:
+##             addFloat(a,'A',self._c[0], fmt = '%14.6E')
         a.addChild('b',`self._c[1]`)
         if isnum(self._c[2]):
             addFloat(a,'E',(self._c[2],_ue), fmt = '%f')
         else:
             addFloat(a,'E',self._c[2], fmt = '%f')
+            
+        if self._cov:
+            for cov in self._cov:
+                c = a.addChild('coverage')
+                c['species'] = cov[0]
+                addFloat(c, 'a', cov[1], fmt = '%f')
+                c.addChild('m', `cov[2]`)
+                if isnum(cov[3]):
+                    addFloat(c, 'e',(cov[3],_ue), fmt = '%f')
+                else:
+                    addFloat(c, 'e', cov[3], fmt = '%f')                
                      
 
 class stick(writer):
     def __init__(self,
                  A = 0.0,
                  n = 0.0,
-                 E = 0.0):
+                 E = 0.0,
+                 coverage = []):
         self._c = [A, n, E]
+        if coverage:
+            if type(coverage[0] == types.StringType):
+                self._cov = [coverage]
+            else:
+                self._cov = coverage
+        else:
+            self._cov = None
+            
         self._sp = species
         
     def build(self, p, units = '', gas_species = [], name = ''):
@@ -446,18 +481,40 @@ class stick(writer):
             addFloat(a,'E',(self._c[2],_ue), fmt = '%f')
         else:
             addFloat(a,'E',self._c[2], fmt = '%f')
+            
+        if self._cov:
+            for cov in self._cov:
+                c = a.addChild('coverage')
+                c['species'] = cov[0]
+                addFloat(c, 'a', cov[1], fmt = '%f')
+                c.addChild('m', `cov[2]`)
+                if isnum(cov[3]):
+                    addFloat(c, 'e',(cov[3],_ue), fmt = '%f')
+                else:
+                    addFloat(c, 'e', cov[3], fmt = '%f')
 
-        
+
+def getPairs(s):
+    toks = s.split()
+    m = {}
+    for t in toks:
+        key, val = t.split(':')
+        m[key] = float(val)
+    return m
+    
 class reaction(writer):
     def __init__(self,
                  equation = '',
                  kf = None,
                  id = '',
+                 order = '',
                  options = []
                  ):
 
         self._id = id
         self._e = equation
+        self._order = order
+        
         if type(options) == types.StringType:
             self._options = [options]
         else:
@@ -474,6 +531,16 @@ class reaction(writer):
                 break
         self._r = getReactionSpecies(r)
         self._p = getReactionSpecies(p)
+
+        self._rxnorder = self._r
+        if self._order:
+            ord = getPairs(self._order)
+            for o in ord.keys():
+                if self._rxnorder.has_key(o):
+                    self._rxnorder[o] = ord[o]
+                else:
+                    raise CanteraError("order specified for non-reactant: "+o)
+            
         self._kf = kf
         self._igspecies = []
         self._type = ''
@@ -498,10 +565,9 @@ class reaction(writer):
         mdim = 0
         ldim = 0
         str = ''
-
             
         for s in self._r.keys():
-            ns = self._r[s]
+            ns = self._rxnorder[s]
             nm = -999
             nl = -999
 
@@ -536,6 +602,9 @@ class reaction(writer):
         ee = self._e.replace('<','[')
         ee = ee.replace('>',']')
         r.addChild('equation',ee)
+
+        if self._order:
+            r.addChild('order',self._order)
                 
 
         # adjust the moles and length powers based on the dimensions of
@@ -568,17 +637,20 @@ class reaction(writer):
             ldim -= 3
             
         for kf in self._kf:
+
+            unit_fctr = (math.pow(_length[_ulen], -ldim) *
+                         math.pow(_moles[_umol], -mdim) / _time[_utime])
             
             # compute the pre-exponential units string, and if it begins with a
             # dash, remove it.
-            ku = ufmt(_ulen,-ldim) + ufmt(_umol,-mdim) + ufmt('s',-1)
-            if ku[0] == '-': ku = ku[1:]
+            #ku = ufmt(_ulen,-ldim) + ufmt(_umol,-mdim) + ufmt('s',-1)
+            #if ku[0] == '-': ku = ku[1:]
 
             if type(kf) == types.InstanceType:
                 k = kf
             else:
                 k = Arrhenius(A = kf[0], n = kf[1], E = kf[2])
-            k.build(kfnode, units = ku, gas_species = self._igspecies, name = nm)
+            k.build(kfnode, unit_fctr, gas_species = self._igspecies, name = nm)
 
             # set values for low-pressure rate coeff if falloff rxn
             mdim += 1
@@ -607,7 +679,7 @@ class three_body_reaction(reaction):
                  options = []
                  ):
 
-        reaction.__init__(self, equation, kf, id, options)
+        reaction.__init__(self, equation, kf, id, '', options)
         self._type = 'threeBody'
         self._effm = 1.0
         self._eff = efficiencies
@@ -646,7 +718,7 @@ class falloff_reaction(reaction):
                  ):
 
         kf2 = (kf, kf0)        
-        reaction.__init__(self, equation, kf2, id, options)
+        reaction.__init__(self, equation, kf2, id, '', options)
         self._type = 'falloff'
         # use a Lindemann falloff function by default
         self._falloff = falloff
@@ -697,14 +769,16 @@ class surface_reaction(reaction):
                  kf = None,
                  stick = None,
                  id = '',
+                 order = '',                 
                  options = []):
         if stick:
-            reaction.__init__(self, equation, stick, id, options)
+            reaction.__init__(self, equation, stick, id, order, options)
         else:
-            reaction.__init__(self, equation, kf, id, options)
+            reaction.__init__(self, equation, kf, id, order, options)
         self._type = 'surface'
 
-#--------------            
+
+#--------------     
 
 
 class state:
