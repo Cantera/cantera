@@ -109,7 +109,7 @@ namespace Cantera {
      */
     void Sim1D::restore(string fname, string id) {
         ifstream s(fname.c_str());
-        char buf[100];
+        //char buf[100];
         if (!s) 
             throw CanteraError("Sim1D::restore",
                 "could not open input file "+fname);
@@ -351,7 +351,7 @@ namespace Cantera {
         int gridstart = 0, gridsize;
         for (n = 0; n < m_nd; n++) {
             Domain1D& d = domain(n);
-            Refiner& r = d.refiner();
+            //            Refiner& r = d.refiner();
             gridsize = dsize[n]; // d.nPoints() + r.nNewPoints();
             d.setupGrid(gridsize, znew.begin() + gridstart);
             gridstart += gridsize;

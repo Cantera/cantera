@@ -123,7 +123,7 @@ namespace Cantera {
                 
                     dmax = m_slope*(vmax - vmin) + m_thresh;
                     for (j = 0; j < n-1; j++) {
-                        r = abs(v[j+1] - v[j])/dmax;
+                        r = fabs(v[j+1] - v[j])/dmax;
                         if (r > 1.0) {
                             m_loc[j] = 1;
                             m_c[name] = 1;
@@ -148,7 +148,7 @@ namespace Cantera {
                     // adjacent points.
                     dmax = m_curve*(smax - smin); // + 0.5*m_curve*(smax + smin);
                     for (j = 0; j < n-2; j++) {
-                        r = abs(s[j+1] - s[j]) / (dmax + m_thresh/dz[j]);
+                        r = fabs(s[j+1] - s[j]) / (dmax + m_thresh/dz[j]);
                         if (r > 1.0) {
                             m_c[name] = 1;
                             m_loc[j] = 1;

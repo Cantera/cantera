@@ -352,7 +352,7 @@ namespace Cantera {
 
         r[0] = x[0];
         diag[0] = 0;
-        int nc, n;
+        int nc;
 
         if (m_flow_right) {
             nc = m_flow_right->nComponents();
