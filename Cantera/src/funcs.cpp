@@ -7,6 +7,8 @@
 #endif
 
 #include <vector>
+#include <algorithm>
+
 using namespace std;
 
 #include "ct_defs.h"
