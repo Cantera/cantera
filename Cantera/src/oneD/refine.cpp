@@ -186,7 +186,7 @@ namespace Cantera {
 
         
 
-done:
+        //done:
         //m_did_analysis = true;
         return m_loc.size();
     }

@@ -89,9 +89,7 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             for (k = 0; k < sz; k++) {
                 ptrs[k] = int(dom_ids[k]);
             }
-            writelog("calling sim1D_new\n");
             indx = sim1D_new(sz, ptrs);
-            writelog("ret sim1D_new\n");
             delete[] ptrs;
             break;
 

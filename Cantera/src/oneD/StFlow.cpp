@@ -1065,7 +1065,7 @@ namespace Cantera {
         int nd = d.size();
 
         vector_fp x;
-        int n, np, j, ks;
+        int n, np = 0, j, ks;
         string nm;
         bool readgrid = false, wrote_header = false;
         for (n = 0; n < nd; n++) {

@@ -120,10 +120,10 @@ namespace Cantera {
         for (n = 0; n < sz; n++) {
             step[n] = -step[n];
         }
-        try {
+        //try {
             jac.solve(sz, step, step);
-        }
-        catch (CanteraError) {
+            //}
+            //catch (CanteraError) {
 #undef DEBUG_STEP
 #ifdef DEBUG_STEP
         bool ok = false;
@@ -140,9 +140,8 @@ namespace Cantera {
             //if (!ok) throw "not ok";
         }
 #endif
-        writelog("size = "+int2str(sz)+"\n");
-        throw CanteraError("step","step error");
-        }
+        //throw CanteraError("step","step error");
+        //}
 
     }
 
