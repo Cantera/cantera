@@ -11,7 +11,9 @@
 
 #include <iostream>
 #include <string>
-//#include <sstream>
+#ifdef USE_STRINGSTREAM
+#include <sstream>
+#endif
 using namespace std;
 
 #include "CKReader.h"
@@ -378,6 +380,12 @@ namespace ctml {
         map<string, trdata> indx;
 	string rest;
 	while (! s.eof()) {
+	  /*
+	   * HKM Note: the USE_STRINGSTREAM block works for files
+	   * with comments in them. The other block gets hung up
+	   * somehow. Should probably default to the USE_STRINGSTREAM
+	   * option.
+	   */
 #ifdef USE_STRINGSTREAM
 	  /*
 	   * Read a line from the file
