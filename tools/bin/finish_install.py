@@ -22,6 +22,7 @@ if pycmd <> 'python':
 
 ctloc = '-'
 warn = ''
+warn2 = ''
 if localinst:
     try:
         v = sys.version_info
@@ -41,10 +42,11 @@ if localinst:
 """
         except:
             pass
+                
         sys.path.append(ctloc)
         f.write('PYTHONPATH='+ctloc+':$PYTHONPATH\nexport PYTHONPATH\n')
     except:
-        pass
+        print 'error'
 f.close()
 
 f = open(bindir+'/mixmaster.py','w')
@@ -88,6 +90,16 @@ if ctpath <> "-":
     Python package    """+ctpath
     if warn <> '':
         print warn
+else:
+    print """
+ ######################################################################
+    Warning: the Cantera Python package is not installed. If you
+    intentionally skipped it, ignore this message. Otherwise, type
+    'make python' and/or 'make python-install' and look for error messages.
+    Note that you must first install the 'Numeric' package before installing
+    the Cantera package.
+ ######################################################################            
+"""
 
 print """
 
