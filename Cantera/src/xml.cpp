@@ -253,10 +253,10 @@ namespace Cantera {
         }
         else {
 #ifdef DEBUG_HKM
-	  cout << "tag fed to parseTag = " << tag << endl;
-	  if (tag == "standardConc model=\"molar volume\" /") {
-	    cout << "we are here" << endl;
-	  }
+	  //cout << "tag fed to parseTag = " << tag << endl;
+	  //if (tag == "standardConc model=\"molar volume\" /") {
+	  //  cout << "we are here" << endl;
+	  //}
 #endif
             parseTag(tag, name, attribs);
             return name;
@@ -547,13 +547,13 @@ namespace Cantera {
         string cname;
         map<string,XML_Node*>::const_iterator i;
 #ifdef DEBUG_HKM
-	if (loc == "elementArray") {
-	  i =  m_childindex.begin();
-	  for ( ; i != m_childindex.end(); i++) {
-	    XML_Node*ccc = i->second;
-	    cout << i->first << "  " << ccc->name() << endl;
-	  }
-	}
+	//if (loc == "elementArray") {
+	//  i =  m_childindex.begin();
+	//  for ( ; i != m_childindex.end(); i++) {
+	//    XML_Node*ccc = i->second;
+	//    cout << i->first << "  " << ccc->name() << endl;
+	//  }
+	//}
 #endif
         while (1) {
             iloc = loc.find('/');
@@ -664,10 +664,10 @@ namespace Cantera {
     XML_Node* find_XML(string src, XML_Node* root, string id, string loc, 
         string name) {
 #ifdef DEBUG_HKM
-        cout << "find_XML src = " << src << endl;
-        cout << "find_XML id  = " << id << endl;
-        cout << "find_XML loc = " << loc << endl;
-        cout << "find_XML name = " << name << endl;
+       // cout << "find_XML src = " << src << endl;
+       // cout << "find_XML id  = " << id << endl;
+       // cout << "find_XML loc = " << loc << endl;
+       // cout << "find_XML name = " << name << endl;
 #endif
         string file, id2;
         split(src, file, id2);
