@@ -89,7 +89,7 @@ namespace ctml {
         catch (...) {
             ierr = -10;
         }
-        char line[90];
+        //char line[90];
         //if (ierr != 0) {
         try {
             char ch;

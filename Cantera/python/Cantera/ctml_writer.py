@@ -25,7 +25,9 @@ THERMO = 40
 
 # dictionary maps error conditions -> action
 _handle_error = {}
-
+_handle_error['undeclared_element'] = 'error'
+_handle_error['undeclared_species'] = 'error'
+_handle_error['negative_A'] = 'error'
 
 # default units
 _ulen = 'm' 
@@ -39,6 +41,7 @@ _pref = 1.0e5    # 1 bar
 
 _name = 'noname'
 
+# these lists store top-level entries
 _species = []
 _speciesnames = []
 _phases = []

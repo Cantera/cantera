@@ -255,8 +255,8 @@
   </speciesData>
   <reactionData id="reaction_data">
 
-    <!--    reaction reaction_0001     -->
-    <reaction id="reaction_0001" reversible="yes">
+    <!--    reaction 0001     -->
+    <reaction id="0001" reversible="yes">
       <equation>SIH4 + H [=] SIH3 + H2</equation>
       <rateCoeff>
         <Arrhenius>
@@ -269,8 +269,8 @@
       <products>H2:1 SIH3:1</products>
     </reaction>
 
-    <!--    reaction reaction_0002     -->
-    <reaction id="reaction_0002" reversible="yes" type="threeBody">
+    <!--    reaction 0002     -->
+    <reaction id="0002" reversible="yes" type="threeBody">
       <equation>SIH4 + M [=] SIH3 + H + M</equation>
       <rateCoeff>
         <Arrhenius>
@@ -283,8 +283,8 @@
       <products>H:1 SIH3:1</products>
     </reaction>
 
-    <!--    reaction reaction_0003     -->
-    <reaction id="reaction_0003" reversible="yes">
+    <!--    reaction 0003     -->
+    <reaction id="0003" reversible="yes">
       <equation>SIH3 + H [=] SIH2 + H2</equation>
       <rateCoeff>
         <Arrhenius>
@@ -297,8 +297,8 @@
       <products>H2:1 SIH2:1</products>
     </reaction>
 
-    <!--    reaction reaction_0004     -->
-    <reaction id="reaction_0004" reversible="yes" type="threeBody">
+    <!--    reaction 0004     -->
+    <reaction id="0004" reversible="yes" type="threeBody">
       <equation>SI + SI + M [=] SI2 + M</equation>
       <rateCoeff>
         <Arrhenius>
@@ -311,8 +311,8 @@
       <products>SI2:1</products>
     </reaction>
 
-    <!--    reaction reaction_0005     -->
-    <reaction id="reaction_0005" reversible="yes">
+    <!--    reaction 0005     -->
+    <reaction id="0005" reversible="yes">
       <equation>SIH4 + SIH2 [=] H3SISIH + H2</equation>
       <rateCoeff>
         <Arrhenius>
@@ -325,8 +325,8 @@
       <products>H2:1 H3SISIH:1</products>
     </reaction>
 
-    <!--    reaction reaction_0006     -->
-    <reaction id="reaction_0006" reversible="yes">
+    <!--    reaction 0006     -->
+    <reaction id="0006" reversible="yes">
       <equation>SIH + H2 [=] SIH2 + H</equation>
       <rateCoeff>
         <Arrhenius>
@@ -339,8 +339,8 @@
       <products>H:1 SIH2:1</products>
     </reaction>
 
-    <!--    reaction reaction_0007     -->
-    <reaction id="reaction_0007" reversible="yes">
+    <!--    reaction 0007     -->
+    <reaction id="0007" reversible="yes">
       <equation>SIH + SIH4 [=] H3SISIH + H</equation>
       <rateCoeff>
         <Arrhenius>
@@ -353,8 +353,8 @@
       <products>H:1 H3SISIH:1</products>
     </reaction>
 
-    <!--    reaction reaction_0008     -->
-    <reaction id="reaction_0008" reversible="yes">
+    <!--    reaction 0008     -->
+    <reaction id="0008" reversible="yes">
       <equation>SI + H2 [=] SIH + H</equation>
       <rateCoeff>
         <Arrhenius>
@@ -367,8 +367,8 @@
       <products>H:1 SIH:1</products>
     </reaction>
 
-    <!--    reaction reaction_0009     -->
-    <reaction id="reaction_0009" reversible="yes" type="falloff">
+    <!--    reaction 0009     -->
+    <reaction id="0009" reversible="yes" type="falloff">
       <equation>SIH4 (+ M) [=] SIH2 + H2 (+ M)</equation>
       <rateCoeff>
         <Arrhenius>
@@ -388,8 +388,8 @@
       <products>H2:1 SIH2:1</products>
     </reaction>
 
-    <!--    reaction reaction_0010     -->
-    <reaction id="reaction_0010" reversible="yes" type="falloff">
+    <!--    reaction 0010     -->
+    <reaction id="0010" reversible="yes" type="falloff">
       <equation>H3SISIH (+ M) [=] H2SISIH2 (+ M)</equation>
       <rateCoeff>
         <Arrhenius>
@@ -409,8 +409,8 @@
       <products>H2SISIH2:1</products>
     </reaction>
 
-    <!--    reaction reaction_0011     -->
-    <reaction id="reaction_0011" reversible="yes" type="falloff">
+    <!--    reaction 0011     -->
+    <reaction id="0011" reversible="yes" type="falloff">
       <equation>SI3H8 (+ M) [=] SIH4 + H3SISIH (+ M)</equation>
       <rateCoeff>
         <Arrhenius>
@@ -430,8 +430,8 @@
       <products>SIH4:1 H3SISIH:1</products>
     </reaction>
 
-    <!--    reaction reaction_0012     -->
-    <reaction id="reaction_0012" reversible="yes" type="falloff">
+    <!--    reaction 0012     -->
+    <reaction id="0012" reversible="yes" type="falloff">
       <equation>SI3H8 (+ M) [=] SIH2 + SI2H6 (+ M)</equation>
       <rateCoeff>
         <Arrhenius>
@@ -451,8 +451,8 @@
       <products>SI2H6:1 SIH2:1</products>
     </reaction>
 
-    <!--    reaction reaction_0013     -->
-    <reaction id="reaction_0013" reversible="yes" type="falloff">
+    <!--    reaction 0013     -->
+    <reaction id="0013" reversible="yes" type="falloff">
       <equation>SI2H6 (+ M) [=] H2 + H3SISIH (+ M)</equation>
       <rateCoeff>
         <Arrhenius>
@@ -472,8 +472,8 @@
       <products>H2:1 H3SISIH:1</products>
     </reaction>
 
-    <!--    reaction reaction_0014     -->
-    <reaction id="reaction_0014" reversible="yes" type="falloff">
+    <!--    reaction 0014     -->
+    <reaction id="0014" reversible="yes" type="falloff">
       <equation>SI2H6 (+ M) [=] SIH4 + SIH2 (+ M)</equation>
       <rateCoeff>
         <Arrhenius>

@@ -215,8 +215,8 @@
   </speciesData>
   <reactionData id="reaction_data">
 
-    <!--    reaction reaction_0001     -->
-    <reaction id="reaction_0001" reversible="yes" type="threeBody">
+    <!--    reaction 0001     -->
+    <reaction id="0001" reversible="yes" type="threeBody">
       <equation>2 O + M [=] O2 + M</equation>
       <rateCoeff>
         <Arrhenius>
@@ -230,8 +230,8 @@
       <products>O2:1</products>
     </reaction>
 
-    <!--    reaction reaction_0002     -->
-    <reaction id="reaction_0002" reversible="yes">
+    <!--    reaction 0002     -->
+    <reaction id="0002" reversible="yes">
       <equation>N + NO [=] N2 + O</equation>
       <rateCoeff>
         <Arrhenius>
@@ -244,8 +244,8 @@
       <products>N2:1 O:1</products>
     </reaction>
 
-    <!--    reaction reaction_0003     -->
-    <reaction id="reaction_0003" reversible="yes">
+    <!--    reaction 0003     -->
+    <reaction id="0003" reversible="yes">
       <equation>N + O2 [=] NO + O</equation>
       <rateCoeff>
         <Arrhenius>
@@ -258,8 +258,8 @@
       <products>O:1 NO:1</products>
     </reaction>
 
-    <!--    reaction reaction_0004     -->
-    <reaction id="reaction_0004" reversible="yes">
+    <!--    reaction 0004     -->
+    <reaction id="0004" reversible="yes">
       <equation>N2O + O [=] N2 + O2</equation>
       <rateCoeff>
         <Arrhenius>
@@ -272,8 +272,8 @@
       <products>N2:1 O2:1</products>
     </reaction>
 
-    <!--    reaction reaction_0005     -->
-    <reaction id="reaction_0005" reversible="yes">
+    <!--    reaction 0005     -->
+    <reaction id="0005" reversible="yes">
       <equation>N2O + O [=] 2 NO</equation>
       <rateCoeff>
         <Arrhenius>
@@ -286,8 +286,8 @@
       <products>NO:2</products>
     </reaction>
 
-    <!--    reaction reaction_0006     -->
-    <reaction id="reaction_0006" reversible="yes" type="falloff">
+    <!--    reaction 0006     -->
+    <reaction id="0006" reversible="yes" type="falloff">
       <equation>N2O (+ M) [=] N2 + O (+ M)</equation>
       <rateCoeff>
         <Arrhenius>
@@ -307,8 +307,8 @@
       <products>N2:1 O:1</products>
     </reaction>
 
-    <!--    reaction reaction_0007     -->
-    <reaction id="reaction_0007" reversible="yes" type="threeBody">
+    <!--    reaction 0007     -->
+    <reaction id="0007" reversible="yes" type="threeBody">
       <equation>NO + O + M [=] NO2 + M</equation>
       <rateCoeff>
         <Arrhenius>
@@ -322,8 +322,8 @@
       <products>NO2:1</products>
     </reaction>
 
-    <!--    reaction reaction_0008     -->
-    <reaction id="reaction_0008" reversible="yes">
+    <!--    reaction 0008     -->
+    <reaction id="0008" reversible="yes">
       <equation>NO2 + O [=] NO + O2</equation>
       <rateCoeff>
         <Arrhenius>
