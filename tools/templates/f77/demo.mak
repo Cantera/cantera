@@ -50,10 +50,10 @@ CXX_FLAGS = -O0 -Wall
 EXT_LIBS =  -loneD -lzeroD -ltransport -lconverters -lcantera -lrecipes -lcvode -lctlapack -lctmath -lctblas 
 
 # the directory where the Cantera libraries are located
-CANTERA_LIBDIR=/usr/local/lib/cantera
+CANTERA_LIBDIR=/Users/dgg/inst/lib/cantera
 
 # the directory where Cantera include files may be found.
-CANTERA_INCDIR=/usr/local/include/cantera
+CANTERA_INCDIR=/Users/dgg/inst/include/cantera
 
 # flags passed to the C++ compiler/linker for the linking step
 LCXX_FLAGS = -L$(CANTERA_LIBDIR) -O0 -Wall
