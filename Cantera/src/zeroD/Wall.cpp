@@ -71,7 +71,7 @@ namespace Cantera {
 
     /**
      * The heat flux is given by 
-     * \f[ Q = h A (T_{left} - T_{right}) + G(t) \f]
+     * \f[ Q = h A (T_{left} - T_{right}) + A G(t) \f]
      * where h is the heat transfer coefficient, and 
      * \f$ G(t) \f$ is a specified function of time.
      */

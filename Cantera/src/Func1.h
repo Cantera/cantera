@@ -23,6 +23,7 @@ namespace Cantera {
     const int FourierFuncType = 1;
     const int PolyFuncType = 2;
     const int ArrheniusFuncType = 3;
+    const int GaussianFuncType = 4;
     const int SumFuncType = 20;
     const int DiffFuncType = 25;
     const int ProdFuncType = 30;
@@ -40,6 +41,24 @@ namespace Cantera {
         virtual doublereal eval(doublereal t) { return 0.0; }
     protected:
         int m_n;
+    private:
+    };
+
+
+    class Gaussian : public Func1 {
+    public:
+        Gaussian(double A, double t0, double tau) {
+            m_A = A;
+            m_t0 = t0;
+            m_tau = tau;
+        }
+        virtual ~Gaussian() {}
+        virtual doublereal eval(doublereal t) {
+            doublereal x = (t - m_t0)/m_tau;
+            return m_A*exp(-x*x);
+        }
+    protected:
+        doublereal m_A, m_t0, m_tau;
     private:
     };
 

@@ -41,6 +41,12 @@ extern "C" {
                 r = new Fourier1(n, params[n+1], params[0], params + 1, 
                     params + n + 2);
             }
+            else if (type == GaussianFuncType) {
+                if (lenp < 3) 
+                    throw CanteraError("func_new", 
+                        "not enough Gaussian coefficients");
+                r = new Gaussian(params[0], params[1], params[2]);
+            }
             else if (type == PolyFuncType) {
                 if (lenp < n + 1) 
                     throw CanteraError("func_new", 

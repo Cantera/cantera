@@ -83,7 +83,13 @@ class Polynomial(Func1):
         Func1.__init__(self, 2, len(coeffs)-1, coeffs)
 
 
-
+class Gaussian(Func1):
+    """A Gaussian pulse.
+    """
+    def __init__(self, A = 0.0, t0 = 0.0, FWHM = 0.0):
+        coeffs = array([A, t0, 0.5*FWHM], 'd')
+        Func1.__init__(self, 4, 0, coeffs)
+        
 class Fourier(Func1):
     """
     Fourier series.
