@@ -363,7 +363,7 @@
 
     <!--   reaction 0015    -->
     <reaction id="0015" reversible="yes" type="surface">
-      <equation>c6** + H   [=] c6*H</equation>
+      <equation>c6** + H   [=] c6H*</equation>
       <rateCoeff>
         <Arrhenius>
           <A>  1.000000E+10</A>
@@ -372,7 +372,7 @@
         </Arrhenius>
       </rateCoeff>
       <reactants>H:1 c6**:1</reactants>
-      <products>c6*H:1</products>
+      <products>c6H*:1</products>
     </reaction>
 
     <!--   reaction 0016    -->
@@ -391,6 +391,20 @@
 
     <!--   reaction 0017    -->
     <reaction id="0017" reversible="yes" type="surface">
+      <equation>c6** + H   [=] c6*H</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>  1.000000E+10</A>
+          <b>0.0</b>
+          <E units="kcal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H:1 c6**:1</reactants>
+      <products>c6*H:1</products>
+    </reaction>
+
+    <!--   reaction 0018    -->
+    <reaction id="0018" reversible="yes" type="surface">
       <equation>c6** + CH3 [=] c6*M</equation>
       <rateCoeff>
         <Arrhenius>
@@ -403,8 +417,8 @@
       <products>c6*M:1</products>
     </reaction>
 
-    <!--   reaction 0018    -->
-    <reaction id="0018" reversible="yes" type="surface">
+    <!--   reaction 0019    -->
+    <reaction id="0019" reversible="yes" type="surface">
       <equation>c6H*       [=] c6*H</equation>
       <rateCoeff>
         <Arrhenius>
@@ -417,8 +431,8 @@
       <products>c6*H:1</products>
     </reaction>
 
-    <!--   reaction 0019    -->
-    <reaction id="0019" reversible="yes" type="surface">
+    <!--   reaction 0020    -->
+    <reaction id="0020" reversible="yes" type="surface">
       <equation>c6B       [=] c6HH + C(d)</equation>
       <rateCoeff>
         <Arrhenius>

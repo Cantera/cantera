@@ -96,8 +96,9 @@ surface_reaction( 'c6*M + H   <=> c6B + H2',        [2.8E7,  2.0, 7.7]) #l
 surface_reaction( 'c6HH + H   <=> c6*H + H2',       [1.3E14, 0.0, 7.3]) #m
 surface_reaction( 'c6*H + H   <=> c6HH',            [1.0E13, 0.0, 0.0]) #m
 surface_reaction( 'c6H* + H   <=> c6** + H2',       [1.3E14, 0.0, 7.3]) #o
-surface_reaction( 'c6** + H   <=> c6*H',            [1.0E13, 0.0, 0.0]) #p
+surface_reaction( 'c6** + H   <=> c6H*',            [1.0E13, 0.0, 0.0]) #p
 surface_reaction( 'c6*H + H   <=> c6** + H2',       [4.5E6,  2.0, 5.0]) #q
+surface_reaction( 'c6** + H   <=> c6*H',            [1.0E13, 0.0, 0.0]) #r
 surface_reaction( 'c6** + CH3 <=> c6*M',            [5.0E12, 0.0, 0.0]) #s
 surface_reaction( 'c6H*       <=> c6*H',            [1.0E8,  0.0, 0.0]) #t
 
