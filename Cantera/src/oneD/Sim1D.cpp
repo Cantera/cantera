@@ -133,7 +133,7 @@ namespace Cantera {
                 sz += domain(m).nComponents();
             }
             else {
-                XML_Node& node = *d;
+                const XML_Node& node = *d;
                 xd.push_back(d);
                 np = intValue(node["points"]);
                 nv = intValue(node["components"]);

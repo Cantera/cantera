@@ -199,7 +199,7 @@ namespace Cantera {
         void restore(int job, string fname, string id, int& size_z, 
             doublereal* z, int& size_soln, doublereal* soln);
 
-        virtual void restore(XML_Node& dom, doublereal* soln);
+        virtual void restore(const XML_Node& dom, doublereal* soln);
 
         // overloaded in subclasses
         virtual string flowType() { return "<none>"; }

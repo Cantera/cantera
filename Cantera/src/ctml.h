@@ -71,24 +71,24 @@ namespace ctml {
         string val, 
         string type="");
 
-    void getFloatArray(XML_Node& node, 
+    void getFloatArray(const XML_Node& node, 
         vector_fp& v, bool convert=true);
 
-    void getStringArray(XML_Node& node, vector<string>& v);
-    void getMap(XML_Node& node, map<string, string>& m);
-    void getPairs(XML_Node& node, vector<string>& key, vector<string>& val);
+    void getStringArray(const XML_Node& node, vector<string>& v);
+    void getMap(const XML_Node& node, map<string, string>& m);
+    void getPairs(const XML_Node& node, vector<string>& key, vector<string>& val);
 
-    void getIntegers(XML_Node& node, map<string,int>& v);
-    void getFloats(XML_Node& node, map<string,double>& v, bool convert=true);
-    doublereal getFloat(XML_Node& parent, string name, string type="");
-    void getStrings(XML_Node& node, map<string,string>& v);
-    void getFunction(XML_Node& node, string& type, doublereal& xmin,
+    void getIntegers(const XML_Node& node, map<string,int>& v);
+    void getFloats(const XML_Node& node, map<string,double>& v, bool convert=true);
+    doublereal getFloat(const XML_Node& parent, string name, string type="");
+    void getStrings(const XML_Node& node, map<string,string>& v);
+    void getFunction(const XML_Node& node, string& type, doublereal& xmin,
         doublereal& xmax, vector_fp& coeffs);
     XML_Node* getByTitle(XML_Node& node, string title);
     void getString(XML_Node& node, string title, string& val, 
         string& type);
 
-    string getString(XML_Node& parent, string name);
+    string getString(const XML_Node& parent, string name);
 
     // these are defined in ct2ctml.cpp
     void get_CTML_Tree(XML_Node*, string file);

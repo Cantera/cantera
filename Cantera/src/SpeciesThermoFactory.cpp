@@ -35,12 +35,12 @@ namespace Cantera {
 
     static void getSpeciesThermoTypes(XML_Node* node, 
         int& has_nasa, int& has_shomate, int& has_simple) {
-        XML_Node& sparray = *node;
+        const XML_Node& sparray = *node;
         vector<XML_Node*> sp;
         sparray.getChildren("species",sp);
         int ns = sp.size();
         for (int n = 0; n < ns; n++) {
-            XML_Node& th = sp[n]->child("thermo");
+            const XML_Node& th = sp[n]->child("thermo");
             if (th.hasChild("NASA")) has_nasa = 1;
             if (th.hasChild("Shomate")) has_shomate = 1;
             if (th.hasChild("const_cp")) has_simple = 1;

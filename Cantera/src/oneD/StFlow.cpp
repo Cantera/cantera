@@ -1039,12 +1039,12 @@ namespace Cantera {
         s.close();
         int k;
 
-        XML_Node* f = root.findID(id);
+        const XML_Node* f = root.findID(id);
         if (!f) {
             throw CanteraError("StFlow::restore","No solution with id = "+id);
         }
         
-        XML_Node& flow = f->child("flowfield");
+        const XML_Node& flow = f->child("flowfield");
         f = &flow;
 
         //if (f->name() != "flowfield") {
@@ -1056,7 +1056,7 @@ namespace Cantera {
         f->getChildren("string",str);
         int nstr = str.size();
         for (int istr = 0; istr < nstr; istr++) {
-            XML_Node& nd = *str[istr];
+            const XML_Node& nd = *str[istr];
             writelog(nd["title"]+": "+nd.value()+"\n");
         }
 
@@ -1069,7 +1069,7 @@ namespace Cantera {
         string nm;
         bool readgrid = false, wrote_header = false;
         for (n = 0; n < nd; n++) {
-            XML_Node& fa = *d[n];
+            const XML_Node& fa = *d[n];
             nm = fa["title"];
             if (nm == "z") {
                 getFloatArray(fa,x,false);
@@ -1103,7 +1103,7 @@ namespace Cantera {
 
         writelog("Importing datasets:\n");
         for (n = 0; n < nd; n++) {
-            XML_Node& fa = *d[n];
+            const XML_Node& fa = *d[n];
             nm = fa["title"];
             getFloatArray(fa,x,false);
             if (nm == "u") {
@@ -1184,7 +1184,7 @@ namespace Cantera {
 
 
 
-    void StFlow::restore(XML_Node& dom, doublereal* soln) {
+    void StFlow::restore(const XML_Node& dom, doublereal* soln) {
 
         vector<string> ignored;
         int nsp = m_thermo->nSpecies();
@@ -1194,7 +1194,7 @@ namespace Cantera {
         dom.getChildren("string",str);
         int nstr = str.size();
         for (int istr = 0; istr < nstr; istr++) {
-            XML_Node& nd = *str[istr];
+            const XML_Node& nd = *str[istr];
             writelog(nd["title"]+": "+nd.value()+"\n");
         }
 
@@ -1212,7 +1212,7 @@ namespace Cantera {
         string nm;
         bool readgrid = false, wrote_header = false;
         for (n = 0; n < nd; n++) {
-            XML_Node& fa = *d[n];
+            const XML_Node& fa = *d[n];
             nm = fa["title"];
             if (nm == "z") {
                 getFloatArray(fa,x,false);
@@ -1232,7 +1232,7 @@ namespace Cantera {
 
         writelog("Importing datasets:\n");
         for (n = 0; n < nd; n++) {
-            XML_Node& fa = *d[n];
+            const XML_Node& fa = *d[n];
             nm = fa["title"];
             getFloatArray(fa,x,false);
             if (nm == "u") {

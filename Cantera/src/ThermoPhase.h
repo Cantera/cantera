@@ -90,11 +90,11 @@ namespace Cantera {
         void setIndex(int m) { m_index = m; }
 
 
-        void saveSpeciesData(XML_Node* data) {
+        void saveSpeciesData(const XML_Node* data) {
             m_speciesData = data;
         }
 
-        XML_Node* speciesData() { return m_speciesData; }
+        const XML_Node* speciesData() { return m_speciesData; }
 
 
         /**
@@ -634,7 +634,7 @@ namespace Cantera {
         /// Pointer to the species thermodynamic property manager
         SpeciesThermo* m_spthermo;
 
-        XML_Node* m_speciesData;
+        const XML_Node* m_speciesData;
 
         /// Index number
         int m_index;
