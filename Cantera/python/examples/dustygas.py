@@ -26,5 +26,13 @@ d.set(porosity = 0.2, tortuosity = 4.0,
       pore_radius = 1.5e-7, diameter = 1.5e-6)  # lengths in meters
 
 # print the multicomponent diffusion coefficients
-print d.multiDiffCoeffs()
+#print d.multiDiffCoeffs()
 
+# compute molar species fluxes
+state1 = g.saveState()
+
+g.set(P = 1.2*OneAtm)
+state2 = g.saveState()
+delta = 0.001
+
+print d.molarFluxes(state1, state1, delta)

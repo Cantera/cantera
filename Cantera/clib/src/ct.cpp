@@ -78,7 +78,10 @@ extern "C" {
     }
 
     int DLL_EXPORT phase_setTemperature(int n, double t) {
-        ph(n)->setTemperature(t);
+        try {
+            ph(n)->setTemperature(t);
+        }
+        catch(CanteraError) {return -1;}
         return 0;
     }
 
@@ -545,7 +548,10 @@ extern "C" {
     }
 
     double DLL_EXPORT th_satTemperature(int n, double p) {
-        return purefluid(n)->satTemperature(p);
+        try {
+            return purefluid(n)->satTemperature(p);
+        }
+        catch (CanteraError) { return DERR; }
     }
 
     double DLL_EXPORT th_satPressure(int n, double t) {
@@ -902,6 +908,15 @@ extern "C" {
         catch (CanteraError) { return -1; }
     }
 
+    int DLL_EXPORT trans_getMolarFluxes(int n, const double* state1,
+        const double* state2, double delta, double* fluxes) {
+        try { 
+            trans(n)->getMolarFluxes(state1, state2, delta, fluxes); 
+            return 0;
+        }
+        catch (CanteraError) { return -1; }
+    }
+
     //-------------------- Functions ---------------------------
 
     int DLL_EXPORT import_phase(int nth, int nxml, char* id) {
@@ -957,6 +972,11 @@ extern "C" {
             buf[min(n, buflen-1)] = '\0';
         }
         return int(e.size());
+    }
+
+    int DLL_EXPORT showCanteraErrors() {
+        showErrors();
+        return 0;
     }
 
     int DLL_EXPORT addCanteraDirectory(int buflen, char* buf) {

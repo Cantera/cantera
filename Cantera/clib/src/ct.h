@@ -131,6 +131,8 @@ extern "C" {
     int DLL_IMPORT trans_getBinDiffCoeffs(int n, int ld, double* d);
     int DLL_IMPORT trans_getMultiDiffCoeffs(int n, int ld, double* d);
     int DLL_IMPORT trans_setParameters(int n, int type, int k, double* d);
+    int DLL_IMPORT trans_getMolarFluxes(int n, const double* state1,
+        const double* state2, double delta, double* fluxes);
 
     int DLL_IMPORT import_phase(int nth, int nxml, char* id);
     int DLL_IMPORT import_kinetics(int nxml, char* id, 
@@ -138,6 +140,7 @@ extern "C" {
     int DLL_IMPORT import_from_file(int nth, int nkin, char* fname, char* db, 
         char* id, int validate, double threshold);
     int DLL_IMPORT getCanteraError(int buflen, char* buf);
+    int DLL_IMPORT showCanteraErrors();
     int DLL_IMPORT addCanteraDirectory(int buflen, char* buf);
     int DLL_IMPORT clearStorage();
     int DLL_IMPORT delPhase(int n);

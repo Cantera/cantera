@@ -129,11 +129,11 @@ namespace tpx {
     
     double TolAbsH = 0.0001;                       // J/kg
     double TolAbsU = 0.0001;
-    double TolAbsS = 1.e-6;
+    double TolAbsS = 1.e-7;
     double TolAbsP = 0.000;                      // Pa
-    double TolAbsV = 1.e-7;
+    double TolAbsV = 1.e-8;
     double TolAbsT = 1.e-3;
-    double TolRel = 3.e-7;
+    double TolRel = 3.e-8;
     
     void Substance::Set(int XY, double x0, double y0) {
 	double temp;

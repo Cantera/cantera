@@ -13,6 +13,9 @@ namespace Cantera {
         public IdealGasPhase, public GasKinetics
     {
     public:
+
+        IdealGasMix() : m_ok(false), m_r(0) {}
+
         IdealGasMix(string infile, string id="") : m_ok(false), m_r(0) {
             
         m_r = get_XML_File(infile); 

@@ -29,7 +29,6 @@ namespace Cantera {
             m_ok = true;
         }
 
-
         virtual ~Interface() {}
 
         bool operator!() { return !m_ok;}
@@ -41,6 +40,12 @@ namespace Cantera {
 
     private:
     };
+
+    inline Interface* importInterface(string infile, string id, 
+        vector<ThermoPhase*> phases) {
+        return new Interface(infile, id, phases);
+    }
+
 }
 
 

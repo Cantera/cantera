@@ -7,6 +7,7 @@
 #include "Nitrogen.h"
 #include "Oxygen.h"
 #include "Water.h"
+#include "RedlichKwong.h"
 // #include "lk.h"
 
 #endif
