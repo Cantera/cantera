@@ -9,7 +9,7 @@
 
 #######################################################################
 #
-#           Unix / Linux / Cygwin / Mac OS X  Configuration File
+#           Cantera Configuration File
 #
 #  Edit this file to control how Cantera is built. Parameters can be set
 #  here, or alternatively environment variables may be set before calling
@@ -22,6 +22,21 @@
 #######################################################################
 
 CANTERA_VERSION=${CANTERA_VERSION:="1.5.3"}
+
+#----------------------------------------------------------------------
+#         MS-Windows Options
+#----------------------------------------------------------------------
+#
+#  These options only need to be set if you are building Cantera on 
+#  a Windows PC. 
+# 
+#  On a PC running MS-Windows, Cantera can be built either using
+#  Microsoft Visual Studio, with the Visual C++ and Visual Fortran
+#  compilers, or using the cygwin g++ and g77 compilers. If you plan to
+#  build the Python and/or MATLAB interfaces, set this to "y".  On the
+#  other hand, if you plan to compile your own applications using the
+#  cygwin unix-like environment, then set this to "n".
+USE_VISUAL_STUDIO=${USE_VISUAL_STUDIO}:="y"}
 
 
 #----------------------------------------------------------------------
