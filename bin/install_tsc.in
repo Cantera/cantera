@@ -11,7 +11,13 @@ if test $# -ne 2 ; then
 fi
 lh=$1
 INCDIR=$2
-th=$(INCDIR)/"$${lh}"  ; 
+#
+# If the destination directory doesn't exist yet, create it
+#
+if test ! -d $INCDIR ; then
+   @INSTALL@ -d $INCDIR
+fi
+th="${INCDIR}"/"${lh}"  ; 
 if test ! -f "${lh}" ; then
   echo 'install_ts ERROR: the file, ' ${lh} ', does not exist' 
   exit -1
