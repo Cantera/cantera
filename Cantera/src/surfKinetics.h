@@ -24,7 +24,7 @@
 
 #include "utilities.h"
 #include "RateCoeffMgr.h"
-#include "surfacePhase.h"
+#include "SurfPhase.h"
 
 namespace Cantera {
 
