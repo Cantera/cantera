@@ -222,7 +222,9 @@ namespace Cantera {
             //   m_kdata->m_ropnet.begin(), net);
             //m_reactantStoich.decrementSpecies(
             //   m_kdata->m_ropnet.begin(), net);
-            m_rxnstoich.getNetProductionRates(m_kk, m_kdata->m_ropnet.begin(), net); 
+            m_rxnstoich.getNetProductionRates(m_kk, 
+					      m_kdata->m_ropnet.begin(),
+					      net); 
         }
 
         //@}
@@ -276,7 +278,8 @@ namespace Cantera {
 
 
         virtual void getFwdRateConstants(doublereal* kfwd);
-        virtual void getRevRateConstants(doublereal* krev, bool doIrreversible = false);
+        virtual void getRevRateConstants(doublereal* krev, 
+					 bool doIrreversible = false);
 	virtual void getActivationEnergies(doublereal *E);
 
 	//@}
@@ -366,7 +369,24 @@ namespace Cantera {
 
         vector<int>                         m_rxntype;
 
+	/**
+	 *  m_rrxn is a vector of maps. m_rrxn has a length
+	 *  equal to the total number of species in the kinetics
+	 *  object. For each species, there exists a map, with the 
+	 *  reaction number being the key, and the
+	 *  reactant stoichiometric coefficient being the value.
+	 *  HKM -> mutable because search sometimes creates extra
+	 *         entries. To be fixed in future...
+	 */
         mutable vector<map<int, doublereal> >     m_rrxn;
+
+	/**
+	 *  m_rrxn is a vector of maps. m_rrxn has a length
+	 *  equal to the total number of species in the kinetics
+	 *  object. For each species, there exists a map, with the 
+	 *  reaction number being the key, and the
+	 *  product stoichiometric coefficient being the value.
+	 */
         mutable vector<map<int, doublereal> >     m_prxn;
 
 

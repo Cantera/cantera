@@ -496,12 +496,20 @@ namespace Cantera {
 
         
     void InterfaceKinetics::installReagents(const ReactionData& r) {
-            
-        m_kdata->m_ropf.push_back(0.0);     // extend by one for new rxn
+
+	int n, ns, m;        
+	/*
+	 * extend temporary storage by one for this rxn.
+	 */
+        m_kdata->m_ropf.push_back(0.0);
         m_kdata->m_ropr.push_back(0.0);
         m_kdata->m_ropnet.push_back(0.0);
-        int n, ns, m;
+        m_kdata->m_rkcn.push_back(0.0);
 
+	/*
+	 * Obtain the current reaction index for the reaction that we
+	 * are adding. The first reaction is labeled 0.
+	 */
         int rnum = reactionNumber();
 
         // vectors rk and pk are lists of species numbers, with
@@ -511,46 +519,64 @@ namespace Cantera {
         // faster method 'multiply' can be used to compute the rate of
         // progress instead of 'power'.
 
-        // Note that this procedure is used for global reactions also. 
-        // The 
-
         vector_int rk;
         int nr = r.reactants.size();
         for (n = 0; n < nr; n++) {
             ns = r.rstoich[n];
+	    /*
+	     * Add to m_rrxn. m_rrxn is a vector of maps. m_rrxn has a length
+	     * equal to the total number of species for each species, there
+	     * exists a map, with the reaction number being the key, and the
+	     * reactant stoichiometric coefficient being the value.
+	     */
             m_rrxn[r.reactants[n]][rnum] = ns;
             for (m = 0; m < ns; m++) {
                 rk.push_back(r.reactants[n]);
             }
         }
+	/*
+	 * Now that we have rk[], we add it into the vector<vector_int> m_reactants
+	 * in the rnum index spot. Thus m_reactants[rnum] yields a vector
+	 * of reactants for the rnum'th reaction
+	 */
         m_reactants.push_back(rk);
         
         vector_int pk;
         int np = r.products.size();
         for (n = 0; n < np; n++) {
             ns = r.pstoich[n];
+	    /*
+	     * Add to m_prxn. m_prxn is a vector of maps. m_prxn has a length
+	     * equal to the total number of species for each species, there
+	     * exists a map, with the reaction number being the key, and the
+	     * product stoichiometric coefficient being the value.
+	     */
             m_prxn[r.products[n]][rnum] = ns;
             for (m = 0; m < ns; m++) {
                 pk.push_back(r.products[n]);
             }
         }
+	/*
+	 * Now that we have pk[], we add it into the vector<vector_int> m_products
+	 * in the rnum index spot. Thus m_products[rnum] yields a vector
+	 * of products for the rnum'th reaction
+	 */
         m_products.push_back(pk);
-
-        m_kdata->m_rkcn.push_back(0.0);
-
+	/*
+	 * Add this reaction to the stoichiometric coefficient manager. This
+	 * calculates rates of species production from reaction rates of 
+	 * progress.
+	 */
         m_rxnstoich.add( reactionNumber(), r);
-
-        //m_reactantStoich.add( reactionNumber(), rk);
-
+	/*
+	 * register reaction in lists of reversible and irreversible rxns.
+	 */
         if (r.reversible) {
-            //  m_revProductStoich.add(reactionNumber(), pk);
-            m_revindex.push_back(reactionNumber());
-            m_nrev++;
-        }
-        else {
-            //m_irrevProductStoich.add(reactionNumber(), pk);
-            m_irrev.push_back( reactionNumber() );
-            m_nirrev++;
+	    m_revindex.push_back(reactionNumber());
+	    m_nrev++;
+        } else {
+	    m_irrev.push_back( reactionNumber() );
+	    m_nirrev++;
         }        
     }
 
