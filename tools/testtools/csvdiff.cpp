@@ -370,6 +370,7 @@ read_colTitle(FILE *fp,  char ****ColMLNames_ptr, int  nColTitleLines, int nCol)
        int ncolsFound = breakStrCommas(scanLine, strlets, nCol);
        ColMLNames[i] = mdp_alloc_VecFixedStrings(nCol, MAX_TOKEN_STR_LN+1);
        for (j = 0; j < ncolsFound; j++) {
+	 strip(strlets[j]);
 	 strcpy(ColMLNames[i][j], strlets[j]);
        }
      }
@@ -596,10 +597,23 @@ int main(int argc, char *argv[])
   read_title(fp1, &title1, nTitleLines1);
   read_title(fp2, &title2, nTitleLines2);
 
-  if (strcmp(title1[0], title2[0]) != 0) {
-    printf("Titles differ:\n\t\"%s\"\n\t\"%s\"\n", title1[0], title2[0]);
-  } else if (Debug_Flag) {
-    printf("Title for each file: \"%s\"\n", title1[0]);
+  if (nTitleLines1 > 0 && nTitleLines2 > 0) {
+    if (strcmp(title1[0], title2[0]) != 0) {
+      printf("Titles differ:\n\t\"%s\"\n\t\"%s\"\n", title1[0], title2[0]);
+    } else if (Debug_Flag) {
+      printf("Title for each file: \"%s\"\n", title1[0]);
+    }
+  } else {
+    if (nTitleLines1 != nTitleLines2) {
+      if (nTitleLines1) {
+	printf("Titles differ: title for first file: \"%s\"\n", 
+	       title1[0]);
+      }
+      if (nTitleLines2) {
+	printf("Titles differ: title for second file: \"%s\"\n", 
+	       title2[0]);
+      }
+    }
   }
 
   /*
