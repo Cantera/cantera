@@ -48,7 +48,7 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
 
 LIB_NAME=libfct.a
 
-FTLIB = @buildlib@/$(LIB_NAME).a
+FTLIB = @buildlib@/$(LIB_NAME)
  
 lib: $(OBJS) $(LIB_DEPS)
 	$(RM)     $(FTLIB)
