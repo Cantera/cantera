@@ -157,6 +157,10 @@ finish-install:
 	@INSTALL@ Cantera/fortran/f77demos/f77demos.mak @ct_demodir@/f77/Makefile
 	chown -R @username@ @ct_demodir@/f77
 
+	rm -f @prefix@/cantera/demos
+	rm -f @prefix@/cantera/data
+	rm -f @prefix@/cantera/templates
+	rm -f @prefix@/cantera/tutorials
 	ln -s @ct_demodir@ @prefix@/cantera/demos
 	ln -s @ct_datadir@ @prefix@/cantera/data
 	ln -s @ct_templdir@ @prefix@/cantera/templates
