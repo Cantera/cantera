@@ -22,8 +22,6 @@
 using namespace std;
 
 #include "ct_defs.h"
-//#include "ctlapack.h"
-//#include "utilities.h"
 #include "Array.h"
 
 namespace Cantera { 

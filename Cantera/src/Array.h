@@ -16,10 +16,6 @@
 #ifndef CT_ARRAY_H
 #define CT_ARRAY_H
 
-#include <iostream>
-#include <vector>
-using namespace std;
-
 #include "ct_defs.h"
 #include "ctexceptions.h"
 #include "stringUtils.h"
@@ -180,7 +176,7 @@ namespace Cantera {
 
 
 	/// Return a pointer to the top of column j, columns are contiguous
-	//  in memory
+	/// in memory
 	doublereal * ptrColumn(int j) { return &(m_data[m_nrows*j]); }
 
     protected:
