@@ -520,7 +520,7 @@ class reaction(writer):
         mdim = 0
         ldim = 0
         str = ''
-            
+
         for s in self._r.keys():
             ns = self._rxnorder[s]
             nm = -999
@@ -1187,7 +1187,10 @@ if __name__ == "__main__":
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.20  2003-09-22 13:14:34  dggoodwin
+# Revision 1.21  2003-10-14 06:48:07  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.20  2003/09/22 13:14:34  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.19  2003/08/26 03:39:02  dggoodwin
