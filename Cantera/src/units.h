@@ -106,7 +106,7 @@ namespace Cantera {
                     throw CanteraError("toSI","unknown unit: "+tsub);
                 if (action == '-') f *= fctr;
                 else if (action == '/') f /= fctr;
-                if (k < 0) break;
+                if (k == string::npos) break;
                 action = u[k];
                 u = u.substr(k+1,u.size());
             }

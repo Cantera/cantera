@@ -86,14 +86,14 @@ namespace Cantera {
         string name, num, nm;
         do {
             ibegin = s.find_first_not_of(", ;\n\t");
-			if (ibegin != string::npos) {
+            if (ibegin != string::npos) {
                 s = s.substr(ibegin,s.size());
                 icolon = s.find(':');
                 iend = s.find_first_of(", ;\n\t");
                 //icomma = s.find(',');
-                if (icolon > 0) {
+                if (icolon != string::npos) {
                     name = s.substr(0, icolon);
-                    if (iend > 0) {
+                    if (iend != string::npos) {
                         num = s.substr(icolon+1, iend-icolon);
                         s = s.substr(iend+1, s.size());
                     }
