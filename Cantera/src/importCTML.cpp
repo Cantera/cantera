@@ -775,11 +775,11 @@ namespace Cantera {
             rxns.getChildren("include",incl);
             int ninc = incl.size();
 
+            vector<XML_Node*> allrxns;
+            rdata->getChildren("reaction",allrxns);
+            nrxns = allrxns.size();
             // if no 'include' directive, then include all reactions
             if (ninc == 0) {
-                vector<XML_Node*> allrxns;
-                rdata->getChildren("reaction",allrxns);
-                nrxns = allrxns.size();
                 for (i = 0; i < nrxns; i++) {
                     XML_Node* r = allrxns[i];
                     if (r) {
@@ -790,25 +790,40 @@ namespace Cantera {
             }
             else {
                 for (int nii = 0; nii < ninc; nii++) {
-                    nrxns = 0;
                     XML_Node& ii = *incl[nii];
-                    vector<string> rxn_ids;
-                    string pref = ii["prefix"];
-                    int imin = atoi(ii["min"].c_str());
-                    int imax = atoi(ii["max"].c_str());
-                    if (imin != 0 && imax != 0) {
-                        nrxns = imax - imin + 1;
-                        for (int nn=0; nn<nrxns; nn++) {
-                            rxn_ids.push_back(pref+int2str(imin+nn));
-                        }
-                    }
-                    
+                    //vector<string> rxn_ids;
+                    //string pref = ii["prefix"];
+                    //int imin = atoi(ii["min"].c_str());
+                    //int imax = atoi(ii["max"].c_str());
+                    string imin = ii["min"];
+                    string imax = ii["max"];
                     for (i = 0; i < nrxns; i++) {
-                        XML_Node* r = rdata->findID(rxn_ids[i],1);
+                        XML_Node* r = allrxns[i];
+                        string rxid;
                         if (r) {
-                            if (installReaction(itot, *r, &kin, 
-                                    default_phase, rxnrule)) ++itot;
+                            rxid = (*r)["id"];
+                            cout << rxid << "   " << imin  << "   " << imax << endl;
+                            cout << (rxid >= imin) << "   " << (rxid <= imax) << endl;
+                            if ((rxid >= imin) && (rxid <= imax)) {
+                                if (installReaction(itot, *r, &kin, 
+                                        default_phase, rxnrule)) ++itot;
+                            }
                         }
+
+//                     if (imin != 0 && imax != 0) {
+//                         nrxns = imax - imin + 1;
+//                         for (int nn=0; nn<nrxns; nn++) {
+//                             rxn_ids.push_back(pref+int2str(imin+nn));
+//                         }
+//                     }
+                    
+//                     for (i = 0; i < nrxns; i++) {
+//                         XML_Node* r = rdata->findID(rxn_ids[i],1);
+//                         if (r) {
+//                             if (installReaction(itot, *r, &kin, 
+//                                     default_phase, rxnrule)) ++itot;
+//                         }
+//                     }
                     }
                 }
             }

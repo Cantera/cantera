@@ -34,15 +34,6 @@ fi
 fi
 
 echo "Cantera will be installed in ${prefix}"
-if test ! -w ${prefix}; then
-echo "checking for write-access... no"
-echo
-echo "****  Since you do not have write-access to ${prefix}, you will need to"
-echo "****  run the 'make install' step as super-user."
-echo 
-else
-echo "checking for write-access... yes"
-fi
 
 AC_SUBST(prefix)
 AC_SUBST(local_inst)
@@ -263,8 +254,8 @@ else
   echo 
   echo "********************************************************************"
   echo "Configuration error. Python is required to build Cantera, but it"
-  echo "cannot be found. Set environment variable PYTHON_CMD to the command to"
-  echo "run the Python interpreter on your system, and run configure again."
+  echo "cannot be found. Set environment variable PYTHON_CMD to the full path to"
+  echo "the Python interpreter on your system, and run configure again."
   echo "********************************************************************"
   exit 1
 fi

@@ -17,6 +17,7 @@ namespace Cantera {
             }
             else 
                 ss += ch;
+            if (ch == '\'') ss += ch;
             n++;
             ch = s[n];
         }

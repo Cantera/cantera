@@ -1297,8 +1297,8 @@ else
   echo
   echo "********************************************************************"
   echo "Configuration error. Python is required to build Cantera, but it"
-  echo "cannot be found. Set environment variable PYTHON_CMD to the command to"
-  echo "run the Python interpreter on your system, and run configure again."
+  echo "cannot be found. Set environment variable PYTHON_CMD to the full path to"
+  echo "the Python interpreter on your system, and run configure again."
   echo "********************************************************************"
   exit 1
 fi

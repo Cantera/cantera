@@ -24,5 +24,5 @@ function t = step(r, tout)
 %
 %    See also: Reactor/advance
 %
-t = reactormethods(21, reactor_hndl(r), tend);
+t = reactormethods(21, reactor_hndl(r), tout);
 

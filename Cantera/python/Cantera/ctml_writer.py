@@ -744,7 +744,7 @@ class phase(writer):
             rtoks = r[1].split()
             if rtoks[0] <> 'all':
                 i = ra.addChild('include')
-                i['prefix'] = 'reaction_'
+                #i['prefix'] = 'reaction_'
                 i['min'] = rtoks[0]
                 if len(rtoks) > 2 and (rtoks[1] == 'to' or rtoks[1] == '-'):
                     i['max'] = rtoks[2]
@@ -835,7 +835,8 @@ class pure_solid(phase):
         if self._tr:
             t = ph.addChild('transport')
             t['model'] = self._tr
-        
+        k = ph.addChild("kinetics")
+        k['model'] = 'none'        
 
 class ideal_interface(phase):
     """An ideal interface."""

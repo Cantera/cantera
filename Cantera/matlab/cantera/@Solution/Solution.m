@@ -43,6 +43,7 @@ elseif isa(x,'XML_Node')
 else
   doc = XML_Node('doc');
   build(doc, x, 1);
+  write(doc,'xp.out');
   xp = child(doc,'ctml/phase');
 end
 t = ThermoPhase(xp);

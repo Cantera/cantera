@@ -40,6 +40,5 @@ def importInterface(file = '', name = '', phases = []):
         src = file+'#'+name
     else:
         src = file
-    print phases
     return Interface.Interface(src = src, root = root, phases = phases)    
     
