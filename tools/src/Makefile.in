@@ -1,6 +1,6 @@
 #/bin/sh
 
-LIBDIR = @ctroot@/build/lib
+LIBDIR = @buildlib@
 INCDIR = -I@ctroot@/Cantera/src
 BINDIR = @ctroot@/bin
 build_ck = @BUILD_CK@
