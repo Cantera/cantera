@@ -343,13 +343,14 @@ AC_DEFINE_UNQUOTED(PYTHON_EXE,"$PYTHON_CMD")
 #     Matlab Interface
 #
 BUILD_MATLAB=0
-#if test "$BUILD_MATLAB_TOOLBOX" != "n"; then 
-#  if test -z "$MATLAB_CMD"; then
-#    AC_PATH_PROG(MATLAB_CMD, matlab, "none")
-#    if test "$MATLAB_CMD" != "none"; then BUILD_MATLAB=1; BUILD_CLIB=1; fi
-#  fi
-#fi
+if test "$BUILD_MATLAB_TOOLBOX" != "n"; then 
+  if test -z "$MATLAB_CMD"; then
+    AC_PATH_PROG(MATLAB_CMD, matlab, "none")
+    if test "$MATLAB_CMD" != "none"; then BUILD_MATLAB=1; BUILD_CLIB=1; fi
+  fi
+fi
 AC_SUBST(BUILD_MATLAB)
+AC_SUBST(MATLAB_CMD)
 AC_SUBST(BUILD_CLIB)
 
 #-------------------------------------------------
