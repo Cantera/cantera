@@ -182,6 +182,8 @@ namespace Cantera {
 
         /**
          * Pressure. Units: Pa. 
+	 *     Returns the thermodynamic pressure -> must be reimplemented
+	 *     in inherited classes.
          */
         virtual doublereal pressure() const {
             return err("pressure");
@@ -190,6 +192,8 @@ namespace Cantera {
 
         /**
          * Set the pressure. Units: Pa. 
+	 *     Sets the thermodynamic pressure -> must be reimplemented
+	 *     in inherited classes.
          */
         virtual void setPressure(doublereal p) {
             err("setPressure");
@@ -203,11 +207,14 @@ namespace Cantera {
          * presence of external gravitation or electric fields. These
          * methods allow specifying a potential energy for individual
          * species.
+	 * @{
          */
 
         /**
          * Set the potential energy of species k to pe.
          * Units: J/kmol.
+	 * This function must be reimplemented in inherited classes
+	 * of ThermoPhase.
          */
         virtual void setPotentialEnergy(int k, doublereal pe) {
             err("setPotentialEnergy");
@@ -216,6 +223,8 @@ namespace Cantera {
         /**
          * Get the potential energy of species k.
          * Units: J/kmol.
+	 * This function must be reimplemented in inherited classes
+	 * of ThermoPhase.
          */
         virtual doublereal potentialEnergy(int k) const {
             return err("potentialEnergy");
@@ -232,11 +241,12 @@ namespace Cantera {
          * @}
          * @name Chemical Potentials and Activities
          *
-         * The activity \f$ a_k \f$ of a species in solution is
+         * The activity \f$a_k\f$ of a species in solution is
          * related to the chemical potential by \f[ \mu_k = \mu_k^0(T)
          * + \hat R T \log a_k. \f] The quantity \f$\mu_k^0(T)\f$ is
          * the chemical potential at unit activity, which depends only
-         * on temperature.  @{
+         * on temperature.
+	 * @{
          */
 
         /**
@@ -246,6 +256,10 @@ namespace Cantera {
          * defined below.  These generalized concentrations are used
          * by kinetics manager classes to compute the forward and
          * reverse rates of elementary reactions.
+	 *
+	 * @param c Array of generalized concentrations. The 
+	 *           units depend upon the implementation of the
+	 *           reaction rate expressions within the phase.
          */
         virtual void getActivityConcentrations(doublereal* c) const {
             err("getActivityConcentrations");
@@ -326,7 +340,7 @@ namespace Cantera {
         //@}
 
         /**
-         * Get the nondimensional Gibbs functions for the pure species
+         * Get the nondimensional Enthalpy functions for the pure species
          * at the current T and P.
          */
         virtual void getEnthalpy_RT(doublereal* hrt) const {
@@ -335,7 +349,7 @@ namespace Cantera {
 
 
         /**
-         * Get the nondimensional Gibbs functions for the pure species
+         * Get the nondimensional Entropies for the pure species
          * at the current T and P.
          */
         virtual void getEntropy_R(doublereal* sr) const {
@@ -448,7 +462,13 @@ namespace Cantera {
             compositionMap xx;
             int kk = nSpecies();
             for (int k = 0; k < kk; k++) xx[speciesName(k)] = -1.0;
-            parseCompString(x, xx);
+	    try {
+	      parseCompString(x, xx);
+	    }
+            catch (CanteraError) {
+	      throw CanteraError("setState_TPX",
+				 "Unknown species in composition map: "+ x);
+	    }
             setMoleFractionsByName(xx); setTemperature(t); setPressure(p);
         }        
 
@@ -554,7 +574,10 @@ namespace Cantera {
          */
         SpeciesThermo& speciesThermo() { return *m_spthermo; }
 
-
+	/**
+	 * Returns the reference pressure in Pa. This function is a wrapper
+	 * that calls the species thermo refPressure function.
+	 */
         doublereal refPressure() const {
             return m_spthermo->refPressure();
         }
