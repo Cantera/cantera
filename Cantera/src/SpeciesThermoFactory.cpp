@@ -20,7 +20,7 @@
 #include "SpeciesThermo.h"
 #include "NasaThermo.h"
 #include "ShomateThermo.h"
-#include "PolyThermoMgr.h"
+//#include "PolyThermoMgr.h"
 #include "SimpleThermo.h"
 
 #include "SpeciesThermoMgr.h"

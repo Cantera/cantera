@@ -20,7 +20,7 @@
 #include "../IdealGasPhase.h"
 #include "../Kinetics.h"
 #include "../funcs.h"
-#include "../flowBoundaries.h"
+//#include "../flowBoundaries.h"
 
 
 namespace Cantera {
@@ -443,7 +443,7 @@ namespace Cantera {
         vector_fp m_zfix;
         vector_fp m_tfix;
 
-        vector<FlowBdry::Boundary*>  m_boundary;
+        //        vector<FlowBdry::Boundary*>  m_boundary;
 
         doublereal m_efctr;
 

@@ -125,7 +125,7 @@ namespace Cantera {
     {
         m_type = cFlowType;
 
-        m_boundary.resize(2,0);
+        //m_boundary.resize(2,0);
 
         m_points = points;
         m_thermo = ph;

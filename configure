@@ -106,7 +106,7 @@ PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"}
 # Matlab script. If this is set to "y" but Matlab is not found, the
 # Matlab toolbox will not be built.
 
-BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
+BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="n"}
 
 
 
@@ -114,7 +114,6 @@ BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
 
 # Set this to "y" if you want to build the Fortran 90/95 interface. 
 # A Fortran 90/95 compiler is required.
-# UNDER DEVELOPMENT - UNSTABLE!!
 
 BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="y"}
 
@@ -267,10 +266,6 @@ F77=${F77:=g77}
 # Fortran 77 compiler flags. Note that these may be specified separately 
 # from the options for the Fortran 90/95 compiler (if any).
 FFLAGS=${FFLAGS:='-O2'}
-
-# additional flags required to compile fixed-format F77 procedures
-# in the 'ext' directory
-#F77FLAGS=${F77FLAGS:='-w -dusty -fixed -save'}
 
 # the additional Fortran flags required for linking, if any
 #LFORT_FLAGS="-lF77 -lFI77"
