@@ -167,7 +167,7 @@ namespace Cantera {
 
     protected:
 
-        int m_kk, m_mm;
+        int m_mm;
         doublereal m_tmin, m_tmax, m_p0;
 
         mutable doublereal     m_tlast;
