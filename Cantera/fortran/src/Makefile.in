@@ -78,7 +78,6 @@ FTLIB = @buildlib@/$(LIB_NAME)
 $(FTLIB): $(MODFILES) $(USER_MODULE_OBJS) $(CXX_OBJS) $(LIB_DEPS)
 	$(RM)     $(FTLIB)
 	@ARCHIVE@ $(FTLIB) $(OBJS) 
-	cp -f $(MODFILES) $(MODULE_DIR)
 
 clean:
 	$(RM) $(OBJS) $(FTLIB) $(MODFILES)

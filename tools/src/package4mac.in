@@ -24,8 +24,17 @@ $INSTALL -d $RESDIR
 $INSTALL -d $NUMPYDIR/Numeric
 $INSTALL -d $NUMRESDIR
 
+rm -r -f $CTDIR/*
+rm -r -f $PYDIR/*
+rm -r -f $RESDIR/*
+rm -r -f $NUMPYDIR/*
+rm -r -f $NUMRESDIR/*
+
 cp -R -f $instdir/* $CTDIR
 chmod +x $CTDIR/bin/*
+rm -r -f $CTDIR/lib
+
+cp -R -f $PKGDIR/apps/* $CTDIR
 
 cp -R -f $pylibdir/Cantera/* $PYDIR/Cantera
 cp -R -f $pylibdir/MixMaster/* $PYDIR/MixMaster
@@ -38,3 +47,4 @@ cp -f @ctroot@/License.rtf $RESDIR
 
 cp -R -f $pylibdir/Numeric/* $NUMPYDIR/Numeric
 cp -f $pylibdir/Numeric.pth $NUMPYDIR
+
