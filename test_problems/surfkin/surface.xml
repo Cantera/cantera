@@ -8,7 +8,7 @@
     <thermo model="Surface">
        <site_density>1.0e-9</site_density>
     </thermo>
-    <elementArray datasrc="elements.xml"> H  C</elementArray>
+    <elementArray datasrc="elements.xml"> O H  C</elementArray>
     <speciesArray datasrc="#surf_species_data">
      surf-* surf-H
     </speciesArray>
