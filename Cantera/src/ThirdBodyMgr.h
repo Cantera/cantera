@@ -32,7 +32,8 @@ namespace Cantera {
             doublereal dflt=1.0) {
             m_n++;
             m_reaction_index.push_back( rxnNumber );
-            m_concm.push_back( _E( enhanced.size(), enhanced, dflt ) );
+            m_concm.push_back( _E(static_cast<int>(enhanced.size()),
+			                      enhanced, dflt ) );
         }
         
         void update(const vector_fp& conc, doublereal ctot, workPtr work) {

@@ -466,20 +466,20 @@ namespace Cantera {
       m_n[rxn] = k.size();
       switch (k.size()) {
       case 1:
-	m_loc[rxn] = m_c1_list.size();
+	m_loc[rxn] = static_cast<int>(m_c1_list.size());
 	m_c1_list.push_back(C1(rxn, k[0], order[0])); 
 	break; 
       case 2:
-	m_loc[rxn] = m_c2_list.size();  
+	m_loc[rxn] = static_cast<int>(m_c2_list.size());  
 	m_c2_list.push_back(C2(rxn, k[0], k[1], order[0], order[1])); 
 	break; 
       case 3:
-	m_loc[rxn] = m_c3_list.size();  
+	m_loc[rxn] = static_cast<int>(m_c3_list.size());  
 	m_c3_list.push_back(C3(rxn, k[0], k[1], k[2], 
 			       order[0], order[1], order[2])); 
 	break; 
       default:
-	m_loc[rxn] = m_cn_list.size(); 
+	m_loc[rxn] = static_cast<int>(m_cn_list.size()); 
 	m_cn_list.push_back(C_AnyN(rxn, k, order));
       }
     }

@@ -63,7 +63,7 @@ namespace Cantera {
                 m_high.push_back(v);
                 m_low.push_back(v);
                 m_tmid.push_back(c[0]);
-                m_index[imid] = igrp = m_high.size();
+                m_index[imid] = igrp = static_cast<int>(m_high.size());
                 m_ngroups++;
             }
             doublereal tlow  = minTemp;

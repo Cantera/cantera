@@ -61,7 +61,7 @@ namespace Cantera {
                 if (c[i] != 0.0 || R::alwaysComputeRate() ) {
                     m_rxn.push_back(rxnNumber);
                     m_rates.push_back(R(m, c));
-                    return m_rates.size() - 1;
+                    return static_cast<int>(m_rates.size()) - 1;
                 }
             }
             return -1;

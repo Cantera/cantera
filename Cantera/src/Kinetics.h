@@ -84,9 +84,9 @@ namespace Cantera {
 
         /**
          * The number of phases defined within the kinetics
-	 * object.
+	     * object.
          */  
-        int nPhases() const { return m_thermo.size(); }	
+        int nPhases() const { return static_cast<int>(m_thermo.size()); }	
 
 	/**
 	 * Return the phase index of a phase in the list of phases
@@ -215,7 +215,7 @@ namespace Cantera {
 	 *   - If no match is found in any phase, the value -2 is returned.
 	 */
         int kineticsSpeciesIndex(string nm, string ph = "<any>") const {
-	  int np = m_thermo.size();
+	  int np = static_cast<int>(m_thermo.size());
 	  int k;
 	  string id;
 	  for (int n = 0; n < np; n++) {
@@ -244,7 +244,7 @@ namespace Cantera {
 	 * Will throw an error if the species string doesn't match.
 	 */
         thermo_t& speciesPhase(string nm) {
-            int np = m_thermo.size();
+            int np = static_cast<int>(m_thermo.size());
             int k;
             string id;
             for (int n = 0; n < np; n++) {

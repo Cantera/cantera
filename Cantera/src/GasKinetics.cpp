@@ -611,9 +611,12 @@ namespace Cantera {
     void GasKinetics::finalize() {
         if (!m_finalized) {
             int i, j, nr, np;
-            m_kdata->falloff_work.resize(m_falloffn.workSize());
-            m_kdata->concm_3b_values.resize(m_3b_concm.workSize());
-            m_kdata->concm_falloff_values.resize(m_falloff_concm.workSize());
+            m_kdata->falloff_work.resize(
+				static_cast<ctvector_fp::size_t>(m_falloffn.workSize()));
+            m_kdata->concm_3b_values.resize(
+				static_cast<ctvector_fp::size_t>(m_3b_concm.workSize()));
+            m_kdata->concm_falloff_values.resize(
+				static_cast<ctvector_fp::size_t>(m_falloff_concm.workSize()));
 
             for (i = 0; i < m_ii; i++) {
                 nr = m_reactants[i].size();
