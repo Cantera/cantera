@@ -2,6 +2,7 @@
 #define TPX_RK_H
 
 #include "Sub.h"
+#include <math.h>
 
 namespace tpx {
 
