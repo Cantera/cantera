@@ -156,6 +156,15 @@ class ReactorBase:
         self._contents.setMassFractions(y)
         return self._contents.moleFractions()
 
+    def moleFraction(self, k):
+        """Mole fraction of species k."""
+        if type(k) == types.StringType:
+            kk = self._contents.speciesIndex(k)
+        else:
+            kk = k
+        x = self.moleFractions()
+        return x[kk]
+        
     def inlets(self):
         """Return the list of flow devices installed on inlets to this reactor."""        
         return self._inlets
@@ -197,7 +206,7 @@ class ReactorBase:
     
 
 _reactorcount = 0
-_reserviorcount = 0
+_reservoircount = 0
 
 class Reactor(ReactorBase):
     """
@@ -326,14 +335,16 @@ class MassFlowController(FlowDevice):
 _valvecount = 0
 
 class Valve(FlowDevice):
-    def __init__(self, upstream=None, downstream=None, name='', verbose=0):
+    def __init__(self, upstream=None, downstream=None,
+                 name='', K = 0.0, verbose=0):
         global _valvecount
         if name == '':
             name = 'Valve_'+`_valvecount`
         _valvecount += 1
         FlowDevice.__init__(self,3,name,verbose)
         if upstream and downstream:
-            self.install(upstream, downstream)                
+            self.install(upstream, downstream)
+        self.setValveCoeff(K)
 
     def setValveCoeff(self, v):
         vv = zeros(1,'d')
