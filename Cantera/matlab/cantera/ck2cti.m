@@ -37,7 +37,13 @@ end
 iok = system([prog,' -i ',infile,' -t ',thermo,' -tr ',transport, ...
 	      ' -id ',idtag,' > ',outfile]);
 if iok
-  error(['Error occurred while running ck2cti. Check file ck2cti.log' ...
+  ierr2 = system([prog,' > log'])
+  if ierr2
+    error(['Program ck2cti is not found at ',prog,['. Edit file' ...
+		    [' ctbin.m to point to the Cantera bin directory.']]])
+  else
+    error(['Error occurred while running ck2cti. Check file ck2cti.log' ...
 	 ' for error messages.']);
+  end
 end
 f = outfile;

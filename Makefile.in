@@ -12,6 +12,7 @@ ct = $(export_dir)/cantera-$(version)
 build_ck = @BUILD_CK@
 build_clib = @BUILD_CLIB@
 build_python = @BUILD_PYTHON@
+build_f90 = @BUILD_F90@
 build_matlab = @BUILD_MATLAB@
 build_particles = @BUILD_PARTICLES@
 os_is_win = @OS_IS_WIN@
@@ -65,7 +66,11 @@ ifeq ($(do_ranlib),1)
 endif
 
 fortran:
+ifeq ($(build_f90),1)
 	cd Cantera/fortran/src; @MAKE@
+else
+	@echo skipping building the Fortran 90/95 interface
+endif
 
 cxxlib: 
 	cd Cantera/cxx/src; @MAKE@

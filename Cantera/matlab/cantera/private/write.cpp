@@ -27,5 +27,9 @@ namespace Cantera {
         std::string err = "error("+msg+");";
         mexEvalString(err.c_str());
     }
+
+    int userInterface() {
+        return 1;
+    }
     
 }

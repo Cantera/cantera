@@ -1775,7 +1775,7 @@ fi
 
 
 BUILD_F90=0
-if test "$BUILD_F90_INTERFACE" != "n"; then
+if test "x$BUILD_F90_INTERFACE" = "xy"; then
   BUILD_F90=1
 fi
 
@@ -3915,7 +3915,7 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        ac_config_files="$ac_config_files ../Cantera/Makefile ../Cantera/src/Makefile ../Cantera/src/zeroD/Makefile ../Cantera/src/oneD/Makefile ../Cantera/src/converters/Makefile ../Cantera/src/transport/Makefile ../Cantera/clib/src/Makefile ../Cantera/fortran/src/Makefile ../Cantera/fortran/f77demos/f77demos.mak ../Cantera/fortran/f77demos/isentropic.dsp ../Cantera/matlab/Makefile ../Cantera/matlab/setup_matlab.py ../Cantera/matlab/setup_winmatlab.py ../Cantera/python/Makefile ../Cantera/python/setup.py ../Cantera/cxx/Makefile ../Cantera/cxx/src/Makefile ../Cantera/cxx/demos/Makefile ../Cantera/user/Makefile ../Cantera/python/src/Makefile ../ext/lapack/Makefile ../ext/blas/Makefile ../ext/cvode/Makefile ../ext/math/Makefile ../ext/tpx/Makefile ../ext/Makefile ../ext/recipes/Makefile ../examples/Makefile ../examples/cxx/Makefile ../Makefile ../tools/Makefile ../tools/src/Makefile ../tools/src/sample.mak ../tools/src/finish_install.py ../tools/src/package4mac ../tools/templates/f77/demo.mak ../tools/templates/cxx/demo.mak ../tools/testtools/Makefile ../data/inputs/Makefile ../test_problems/Makefile ../test_problems/cxx_ex/Makefile ../test_problems/silane_equil/Makefile ../test_problems/surfkin/Makefile ../test_problems/diamondSurf/Makefile"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ac_config_files="$ac_config_files ../Cantera/Makefile ../Cantera/src/Makefile ../Cantera/src/zeroD/Makefile ../Cantera/src/oneD/Makefile ../Cantera/src/converters/Makefile ../Cantera/src/transport/Makefile ../Cantera/clib/src/Makefile ../Cantera/fortran/src/Makefile ../Cantera/fortran/f77demos/f77demos.mak ../Cantera/fortran/f77demos/isentropic.dsp ../Cantera/matlab/Makefile ../Cantera/matlab/setup_matlab.py ../Cantera/matlab/setup_winmatlab.py ../Cantera/python/Makefile ../Cantera/python/setup.py ../Cantera/cxx/Makefile ../Cantera/cxx/src/Makefile ../Cantera/cxx/demos/Makefile ../Cantera/user/Makefile ../Cantera/python/src/Makefile ../ext/lapack/Makefile ../ext/blas/Makefile ../ext/cvode/Makefile ../ext/math/Makefile ../ext/tpx/Makefile ../ext/Makefile ../ext/recipes/Makefile ../examples/Makefile ../examples/cxx/Makefile ../Makefile ../tools/Makefile ../tools/src/Makefile ../tools/src/sample.mak ../tools/src/finish_install.py ../tools/src/package4mac ../tools/templates/f77/demo.mak ../tools/templates/cxx/demo.mak ../tools/testtools/Makefile ../data/inputs/Makefile ../test_problems/Makefile ../test_problems/cxx_ex/Makefile ../test_problems/silane_equil/Makefile ../test_problems/surfkin/Makefile ../test_problems/diamondSurf/Makefile ../test_problems/ck2cti_test/runtest ../test_problems/ck2cti_test/Makefile"
 
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
@@ -4431,6 +4431,8 @@ do
   "../test_problems/silane_equil/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../test_problems/silane_equil/Makefile" ;;
   "../test_problems/surfkin/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../test_problems/surfkin/Makefile" ;;
   "../test_problems/diamondSurf/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../test_problems/diamondSurf/Makefile" ;;
+  "../test_problems/ck2cti_test/runtest" ) CONFIG_FILES="$CONFIG_FILES ../test_problems/ck2cti_test/runtest" ;;
+  "../test_problems/ck2cti_test/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../test_problems/ck2cti_test/Makefile" ;;
   "../config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS ../config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -5085,6 +5087,10 @@ fi
 if test "x${OS_IS_WIN}" = "x1"; then
 cp -f ../config.h ../Cantera/src
 fi
+if test -f "../test_problems/ck2cti_test/runtest"; then
+  chmod +x ../test_problems/ck2cti_test/runtest
+fi
+
 echo
 if test "x${OS_IS_WIN}" = "x0"; then
 echo "Now type '${MAKE}' to build Cantera"

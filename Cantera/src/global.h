@@ -95,6 +95,8 @@ namespace Cantera {
     /// version calls Matlab function error().
     void error(const string& msg);
 
+    /// returns 1 for MATLAB, 2 for Python, and 0 for C++ or Fortran.
+    int userInterface();
 
     /**
      * Return the conversion factor to convert unit string 'unit' to

@@ -48,4 +48,9 @@ namespace Cantera {
         cerr << msg << endl;
         exit(-1);
     }
+
+    int userInterface() {
+        return 0;
+    }
+
 }

@@ -109,6 +109,16 @@ PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"}
 BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="y"}
 
 
+
+#----------- Fortran 90/95 --------------------------------------------------
+
+# Set this to "y" if you want to build the Fortran 90/95 interface. 
+# A Fortran 90/95 compiler is required.
+# UNDER DEVELOPMENT - UNSTABLE!!
+
+BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="n"}
+
+
 #----------------------------------------------------------------------
 #         Customizations / Extensions
 #

@@ -26,4 +26,8 @@ namespace Cantera {
         string err = "raise \""+msg+"\"";
         PyRun_SimpleString((char *)err.c_str());
     }
+
+    int userInterface() {
+        return 2;
+    }
 }
