@@ -16,7 +16,8 @@ OBJDIR = .
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) 
 
 # Temporarily removed 'filter.o', since it was causing a compile error on Mac OS X.
-OBJS = ck2ctml.o atomicWeightDB.o CKParser.o CKReader.o Reaction.o ckr_utils.o thermoFunctions.o writelog.o ck2ct.o
+OBJS = ck2ctml.o atomicWeightDB.o CKParser.o CKReader.o Reaction.o ckr_utils.o \
+        thermoFunctions.o writelog.o ck2ct.o 
 
 CXX_INCLUDES = -I. -I..
 CONV_LIB = @buildlib@/libconverters.a
