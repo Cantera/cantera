@@ -12,10 +12,13 @@ ac_sys_system=`uname -s`
 ac_sys_release=`uname -r`
 
 AC_PREFIX_DEFAULT([/usr/local])
+local_inst=1
 if test "x${prefix}" = "xNONE"; then
          prefix=${ac_default_prefix}
-         AC_SUBST(prefix)
+         local_inst=0
 fi
+AC_SUBST(prefix)
+AC_SUBST(local_inst)
 CANTERA_LIBDIR=$prefix/lib/cantera
 CANTERA_INCDIR=$prefix/include/cantera
 
@@ -28,21 +31,8 @@ AC_SUBST(ctroot)
 
 AC_CANONICAL_SYSTEM()
 
-buildlib=$ctroot/build/lib
+buildlib=$ctroot/build/lib/$target
 AC_SUBST(buildlib)
-
-#case "$target" in
-#mips-sgi-irix*.*) 
-#  if test -z "$CXX"; then CXX=CC; fi
-#  if test -z "$F77"; then F77=f77; fi
-#  if test -z "$F90"; then F90=f90; fi
-#  if test -z "$CC"; then CC=cc; fi
-#  if test -z "$FFLAGS"; then FFLAGS='-O2 -static'; fi
-#  if test -z "$CXX_DEPENDS"; then CXX_DEPENDS='-M'; fi
-#  if test -z "$CXXFLAGS"; then CXXFLAGS='-O2 -ptused -LANG:std'; fi;;
-#esac
-
-#if test -z "$CXXFLAGS"; then CXXFLAGS='-O2'; fi
 
 if test -z "$MAKE"; then MAKE='make'; fi
 AC_SUBST(MAKE)
@@ -390,6 +380,7 @@ AC_OUTPUT(../Cantera/Makefile \
 	  ../Cantera/clib/src/Makefile \
 	  ../Cantera/matlab/Makefile \
 	  ../Cantera/python/Makefile \
+          ../Cantera/python/setup.py \
 	  ../Cantera/cxx/Makefile \
 	  ../Cantera/python/src/Makefile \
           ../ext/lapack/Makefile \
