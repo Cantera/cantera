@@ -108,8 +108,8 @@ namespace Cantera {
                 smax = *max_element(s.begin(), s.end());
 
                 // max absolute values of v and s
-                aa = fmaxx(abs(vmax), abs(vmin));
-                ss = fmaxx(abs(smax), abs(smin));
+                aa = fmaxx(fabs(vmax), fabs(vmin));
+                ss = fmaxx(fabs(smax), fabs(smin));
 
                 // refine based on component i only if the range of v is
                 // greater than a fraction 'min_range' of max |v|. This
@@ -127,7 +127,7 @@ namespace Cantera {
                         if (r > 1.0) {
                             m_loc[j] = 1;
                             m_c[name] = 1;
-                            if (m_loc.size() + n > m_npmax) goto done;
+                            if (int(m_loc.size()) + n > m_npmax) goto done;
                         }
                         if (r >= 0.0) {
                             m_keep[j] = 1;
@@ -153,7 +153,7 @@ namespace Cantera {
                             m_c[name] = 1;
                             m_loc[j] = 1;
                             m_loc[j+1] = 1;
-                            if (m_loc.size() + n > m_npmax) goto done;
+                            if (int(m_loc.size()) + n > m_npmax) goto done;
                         }
                         if (r >= 0.0) {
                             m_keep[j+1] = 1;
