@@ -3,7 +3,7 @@
 #
 
 temp_success="1"
-/bin/rm  -f eq1.csv  tr1.csv tr2.csv  kin1.csv  kin2.csv
+/bin/rm  -f output.txt outputa.txt
 
 #################################################################
 #
@@ -19,8 +19,8 @@ then
   echo "silane_equil returned with bad status, $retnStat, check output"
 fi
 
-
-diff output.txt output_blessed.txt > diff_test.out
+../../bin/exp3to2.sh output.txt > outputa.txt
+diff -w outputa.txt output_blessed.txt > diff_test.out
 retnStat=$?
 if [ $retnStat = "0" ]
 then

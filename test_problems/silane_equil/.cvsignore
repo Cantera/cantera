@@ -5,3 +5,6 @@ silane_equil
 csvCode.txt
 *.d
 .depends
+outputa.txt
+silane_equil.ilk
+silane_equil.pdb
