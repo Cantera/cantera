@@ -1,23 +1,50 @@
-import sys, os
+import sys, os, string
 prefix = sys.argv[1]
 pycmd = sys.argv[2]
-if prefix == '-': prefix = '/usr/local'
+localinst = 1
+if prefix == '-':
+    prefix = '/usr/local'
+    
+if prefix == '/usr/local':
+    localinst = 0
 
 bindir = prefix+'/bin'
 libdir = prefix+'/lib/cantera'
 hdrdir = prefix+'/include/cantera'
 
-f = open(prefix+'/cantera/cantera_init','w')
+f = open(prefix+'/cantera/setup_cantera','w')
 f.write('#!/bin/sh\n')
-libpath = os.getenv('LD_LIBRARY_PATH')
-if libpath:
-    f.write('LD_LIBRARY_PATH='+libdir+':'+libpath+'\n')
-else:
-    f.write('LD_LIBRARY_PATH='+libdir+'\n')    
-f.write('PATH='+bindir+':$PATH\n')
-f.write('PYTHON_CMD='+pycmd+'\n')
+f.write('LD_LIBRARY_PATH='+libdir+':$LD_LIBRARY_PATH\nexport LD_LIBRARY_PATH\n')
+f.write('PATH='+bindir+':$PATH\nexport PATH\n')
+f.write('PYTHON_CMD='+pycmd+'\nexport PYTHON_CMD\n')
 if pycmd <> 'python':
     f.write('alias ctpython='+pycmd+'\n')
+
+ctloc = '-'
+warn = ''
+if localinst:
+    #try:
+        v = sys.version_info
+        ctloc = prefix+'/lib/python'+`v[0]`+'.'+`v[1]`+'/site-packages'
+        try:
+            import Cantera
+            ctpath = Cantera.__path__[0]
+            if ctpath <> ctloc:
+                warn = """
+ ######################################################################
+    Warning: the Cantera Python package is already installed at
+    """+ctpath+""". The newly-installed package at
+    """+ctloc+"""/Cantera
+    cannot be accessed until the existing one is removed.
+ ######################################################################
+
+"""
+        except:
+            pass
+        sys.path.append(ctloc)
+        f.write('PYTHONPATH='+ctloc+':$PYTHONPATH\nexport PYTHONPATH\n')
+    #except:
+    #    pass
 f.close()
 
 f = open(bindir+'/mixmaster.py','w')
@@ -50,12 +77,15 @@ File locations:
 if ctpath <> "-":
     print """
     Python package    """+ctpath
+    if warn <> '':
+        print warn
+
 print """
-    A shell script 'cantera_init' has been written that configures the
-    environment for Cantera. It may be found in
-    """+prefix+"""/cantera. It is recommended that you run this script
-    before using Cantera, or include its contents in your shell login
-    script.
-    """
+
+    setup script      """+prefix+"""/cantera/setup_cantera
+    
+    The setup script configures the environment for Cantera. It is
+    recommended that you run this script before using Cantera, or
+    include its contents in your shell login script.  """
 
     
