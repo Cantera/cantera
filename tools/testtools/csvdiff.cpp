@@ -36,7 +36,15 @@
 #include <math.h>
 #include <float.h>
 #include <limits.h>
+#include "../../config.h"
+#ifndef WINMSVC
 #include <unistd.h>
+#else
+#include <string>
+#endif
+using namespace std;
+
+
 
 #if defined(__CYGWIN__)
 #include <getopt.h>
@@ -65,6 +73,62 @@ double gatol = 1.0E-9;
  * First iteration towards getting this variable
  */
 int Max_Input_Str_Ln = MAX_INPUT_STR_LN;
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+
+#ifdef WINMSVC
+/*
+ * Windows doesn't have getopt(). This is an incomplete version that
+ * does enough to handle required functionality.
+ */
+int optind = -1;
+
+int getopt(int argc, char **argv, const char *) {
+    static int currArg = 1;
+    string tok;
+    static int charPos = 0;
+    int rc = -1;
+    if (currArg >= argc) {
+      return -rc;
+    }
+    tok = string(argv[currArg]);
+    size_t len = strlen(tok.c_str());
+    if (charPos == 0) {
+      bool found = false;
+      do {
+	tok = string(argv[currArg]);
+	len = strlen(tok.c_str());
+	if (len > 1 && tok[0] == '-') {
+	  found = true;
+	  charPos = 1;
+	  if (len > 2 && tok[1] == '-') {
+	    charPos = 2;
+	  }
+	} else {
+	  if (optind == -1) {
+	    optind = currArg;
+	  }
+	}
+	if (!found) {
+	  if (currArg < (argc-1)) {
+	    currArg++;
+	  } else {
+	    return -1;
+	  }
+	}
+      } while (!found);
+    }
+ 
+    rc = tok[charPos];
+    if (charPos < static_cast<int>(len - 1)) {
+      charPos++;
+    } else {
+      charPos = 0;
+    }
+    return rc;
+}
+#endif
 
 /*****************************************************************************/
 /*****************************************************************************/
