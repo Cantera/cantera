@@ -35,6 +35,7 @@ using namespace ct;
 
 #ifdef WIN32
 #define TYPENAME_KEYWORD
+#pragma warning(disable:4267)
 #else
 #define TYPENAME_KEYWORD typename
 #endif

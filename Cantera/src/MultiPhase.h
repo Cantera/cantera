@@ -169,7 +169,7 @@ namespace Cantera {
 
         /// Return a const reference to phase n.
         //const phase_t& phase(index_t n) const {
-            //            if (!m_init) init();
+	  //            if (!m_init) init();
         //  m_phase[n]->setState_TPX(m_temp, 
         //      m_press, m_moleFractions.begin() + m_spstart[n]);
         //  return *m_phase[n];

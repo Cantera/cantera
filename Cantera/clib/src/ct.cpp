@@ -978,7 +978,7 @@ extern "C" {
 
     int DLL_EXPORT showCanteraErrors() {
         showErrors();
-        return 0;
+        return 0; 
     }
 
     int DLL_EXPORT addCanteraDirectory(int buflen, char* buf) {

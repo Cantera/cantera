@@ -463,7 +463,7 @@ namespace Cantera {
      *         a power law expression involving the species vector.
      */
     void add(int rxn, const vector_int& k, const vector_fp& order) {
-      m_n[rxn] = k.size();
+      m_n[rxn] = static_cast<int>(k.size());
       switch (k.size()) {
       case 1:
 	m_loc[rxn] = static_cast<int>(m_c1_list.size());

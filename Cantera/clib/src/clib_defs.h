@@ -6,6 +6,7 @@
 #define DLL_IMPORT __declspec(dllimport)
 #define DLL_EXPORT __declspec(dllexport)
 #pragma warning(disable:4786)
+#pragma warning(disable:4267)
 #pragma warning(disable:4503)
 #else
 #define DLL_EXPORT

@@ -3,7 +3,7 @@
  *  Implementation file for class Constituents
  */
 
-/*  $Author$
+/*  $Author$ 
  *  $Date$
  *  $Revision$
  *

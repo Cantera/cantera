@@ -1,6 +1,6 @@
 from distutils.core import setup, Extension
 
-libdir = ['C:/cygwin/home/Dave/dv/sf/cantera/build/lib/i686-pc-win32']
+libdir = ['../../build/lib/i686-pc-win32']
     
 setup(name="Cantera",
           version="1.5.4",
