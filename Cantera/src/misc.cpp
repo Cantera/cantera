@@ -277,7 +277,8 @@ namespace Cantera {
 	//
 	// add a default data location for Mac OS X
 	//
-	dirs.push_back("/Applications/Cantera/Data");
+        if (DARWIN == 1)
+            dirs.push_back("/Applications/Cantera/Data");
 #endif
 
 	//
