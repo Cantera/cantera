@@ -86,7 +86,7 @@ namespace Cantera {
             vector_fp chigh(7);
             copy(c + 8, c + 15, chigh.begin());
 
-            //checkContinuity(tmid, clow, chigh.begin());
+            checkContinuity(tmid, clow, chigh.begin());
 
             m_high[igrp-1].push_back(NasaPoly1(index, tmid, thigh, 
                                          pref, chigh.begin()));
@@ -191,34 +191,9 @@ namespace Cantera {
 
     private:
 
-
-        /// Check the continuity of properties at the midpoint
-        /// temperature, and adjust the high-T coefficients to
-        /// make the properties exactly continuous at Tmid.
+        // see SpeciesThermoFactory.cpp for the definition
         void checkContinuity(double tmid, const doublereal* clow,
-            doublereal* chigh) {
-
-            // heat capacity
-            doublereal cplow = poly4(tmid, clow+2);
-            doublereal cphigh = poly4(tmid, chigh+2);
-            doublereal delta = cplow - cphigh;
-            if (fabs(delta/cplow) > 0.001) {
-                writelog("WARNING: discontinuity in cp/R detected at Tmid = "
-                    +fp2str(tmid)+"\n");
-                writelog("  Adjusting high-temperature coefficient to fix.\n");
-            }
-            chigh[2] += cplow - cphigh;
-
-            // enthalpy
-            doublereal hrtlow = enthalpy_RT(tmid, clow);
-            doublereal hrthigh = enthalpy_RT(tmid, chigh);
-            chigh[0] += tmid*(hrtlow - hrthigh);
-
-            // entropy
-            doublereal srlow = entropy_R(tmid, clow);
-            doublereal srhigh = entropy_R(tmid, chigh);
-            chigh[1] += srlow - srhigh;
-        }
+            doublereal* chigh);
 
         /// for internal use by checkContinuity
         doublereal enthalpy_RT(double t, const doublereal* c) {
@@ -241,7 +216,10 @@ namespace Cantera {
 #endif
 
 // $Log$
-// Revision 1.4  2004-04-23 19:03:22  dggoodwin
+// Revision 1.5  2004-04-24 12:53:00  dggoodwin
+// *** empty log message ***
+//
+// Revision 1.4  2004/04/23 19:03:22  dggoodwin
 // *** empty log message ***
 //
 // Revision 1.3  2004/04/22 21:44:36  dggoodwin

@@ -117,4 +117,48 @@ namespace Cantera {
         }
     }
 
+
+        /// Check the continuity of properties at the midpoint
+        /// temperature, and adjust the high-T coefficients to
+        /// make the properties exactly continuous at Tmid.
+    void NasaThermo::checkContinuity(double tmid, const doublereal* clow,
+            doublereal* chigh) {
+
+            // heat capacity
+            doublereal cplow = poly4(tmid, clow+2);
+            doublereal cphigh = poly4(tmid, chigh+2);
+            doublereal delta = cplow - cphigh;
+            if (fabs(delta/cplow) > 0.001) {
+                writelog("\n**** WARNING ****\nDiscontinuity in cp/R detected at Tmid = "
+                    +fp2str(tmid)+"\n");
+                writelog("\tValue computed using low-temperature polynomial:  "+fp2str(cplow)+".\n");
+                writelog("\tValue computed using high-temperature polynomial: "+fp2str(cphigh)+".\n");
+            }
+            //chigh[2] += cplow - cphigh;
+
+            // enthalpy
+            doublereal hrtlow = enthalpy_RT(tmid, clow);
+            doublereal hrthigh = enthalpy_RT(tmid, chigh);
+            delta = hrtlow - hrthigh;
+            //            chigh[0] += tmid*(hrtlow - hrthigh);
+            if (fabs(delta/hrtlow) > 0.001) {
+                writelog("\n**** WARNING ****\nDiscontinuity in h/RT detected at Tmid = "
+                    +fp2str(tmid)+"\n");
+                writelog("\tValue computed using low-temperature polynomial:  "+fp2str(hrtlow)+".\n");
+                writelog("\tValue computed using high-temperature polynomial: "+fp2str(hrthigh)+".\n");
+            }
+
+            // entropy
+            doublereal srlow = entropy_R(tmid, clow);
+            doublereal srhigh = entropy_R(tmid, chigh);
+            //chigh[1] += srlow - srhigh;
+            delta = srlow - srhigh;
+            if (fabs(delta/srlow) > 0.001) {
+                writelog("\n**** WARNING ****\nDiscontinuity in s/R detected at Tmid = "
+                    +fp2str(tmid)+"\n");
+                writelog("\tValue computed using low-temperature polynomial:  "+fp2str(srlow)+".\n");
+                writelog("\tValue computed using high-temperature polynomial: "+fp2str(srhigh)+".\n");
+            }
+        }
+
 }
