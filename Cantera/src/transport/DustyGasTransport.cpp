@@ -60,6 +60,23 @@ namespace Cantera {
           m_gastran(0)
     {}
 
+        void DustyGasTransport::setParameters(int type, int k, doublereal* p) {
+            switch(type) {
+            case 0:
+                setPorosity(p[0]); break;
+            case 1:
+                setTortuosity(p[0]); break;
+            case 2:
+                setMeanPoreRadius(p[0]); break;
+            case 3:
+                setMeanParticleDiameter(p[0]); break;
+            case 4:
+                setPermeability(p[0]); break;
+            default:
+                throw CanteraError("DustyGasTransport::init",
+                    "unknown parameter");
+            }
+        }
 
     void DustyGasTransport::initialize(ThermoPhase* phase, Transport* gastr) {
 

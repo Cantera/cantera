@@ -7,7 +7,7 @@
 ########################################################################
 
 export_dir = $(HOME)/sfdist
-version = 1.4
+version = 1.5.1
 ct = $(export_dir)/cantera-$(version)
 build_ck = @BUILD_CK@
 build_clib = @BUILD_CLIB@
@@ -17,7 +17,6 @@ os_is_win = @OS_IS_WIN@
 
 LIBDIR=@LIB_DIR@
 
-# removed utils temporarily
 all: kernel cxxlib hdr-collect clib python matlab utils
 
 win: python matlab
@@ -185,21 +184,15 @@ depends:
 
 export:
 	@INSTALL@ -d $(export_dir)
-	if (test -d $(ct)); then rm -r -f $(ct); fi
+	if (test -d $(export_dir)/cantera); then rm -r -f $(export_dir)/cantera; fi
 	cd $(export_dir); cvs export  -D 1/01/2010 cantera
-	cd $(export-dir); mv cantera $(ct)
-	cd $(ct); rm -r -f Cantera/matlab/cantera/@Thermo
+	cd $(export_dir); mv cantera cantera-$(version)
 
 pack: export
 	(cd $(export_dir); \
           rm -f cantera-$(version).tar.gz; \
           tar cvf cantera-$(version).tar cantera-$(version)/*; \
 	  gzip cantera-$(version).tar)
-
-post: pack
-	(cd $(export_dir); \
-	$(HOME)/ctpost cantera-$(version).tar.gz 1.3.5/src)
-
 
 info:
 	echo '#define CANTERA_ROOT "@prefix@/cantera"' > include/ctdir.h

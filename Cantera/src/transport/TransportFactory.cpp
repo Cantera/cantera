@@ -245,10 +245,10 @@ namespace Cantera {
             tr->setThermo(*phase);
             break;
         case cDustyGasTransport:
-            tr = new DustyGasTransport;
-            gastr = new MixTransport;
-            dtr = (DustyGasTransport*)tr;
-            dtr->initialize(phase, gastr);
+	  tr = new DustyGasTransport;
+	  gastr = new MixTransport;
+	  dtr = (DustyGasTransport*)tr;
+	  dtr->initialize(phase, gastr);
             break;
         default:
             throw CanteraError("newTransport","unknown transport model");

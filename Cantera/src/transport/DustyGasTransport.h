@@ -43,30 +43,17 @@ namespace Cantera {
     public:
 
 
+        /// default constructor
+      DustyGasTransport(thermo_t* thermo=0);
         virtual ~DustyGasTransport() {}
 
         // overloaded base class methods
         virtual int model() { return cDustyGasTransport; }
 
-        virtual void setParameters(int type, int k, doublereal* p) {
-            switch(type) {
-            case 0:
-                setPorosity(p[0]); break;
-            case 1:
-                setTortuosity(p[0]); break;
-            case 2:
-                setMeanPoreRadius(p[0]); break;
-            case 3:
-                setMeanParticleDiameter(p[0]); break;
-            case 4:
-                setPermeability(p[0]); break;
-            default:
-                throw CanteraError("DustyGasTransport::init",
-                    "unknown parameter");
-            }
-        }
+        virtual void setParameters(int type, int k, doublereal* p);
 
-        virtual void getBinaryDiffCoeffs(int ld, doublereal* d);
+
+        //virtual void getBinaryDiffCoeffs(int ld, doublereal* d);
         virtual void getMultiDiffCoeffs(int ld, doublereal* d);
 
 
@@ -103,7 +90,6 @@ namespace Cantera {
         /**
          * @internal
          */
-        virtual bool init(TransportParams& tr);
 
         void updateTransport_T();
         void updateTransport_C();
@@ -116,8 +102,6 @@ namespace Cantera {
         void updateMultiDiffCoeffs();
         void updateKnudsenDiffCoeffs();
         void eval_H_matrix();
-        /// default constructor
-        DustyGasTransport(thermo_t* thermo=0);
         void initialize(ThermoPhase* phase, Transport* gastr);
     private:
 

@@ -264,8 +264,8 @@ namespace Cantera {
             CVDiag(m_cvode_mem);
         }
         else if (m_type == GMRES) {
-            CVSpgmr(m_cvode_mem, NONE, MODIFIED_GS, 0, 0.0,
-                NULL, NULL, NULL);
+	  CVSpgmr(m_cvode_mem, NONE, MODIFIED_GS, 0, 0.0,
+	    NULL, NULL, NULL);
         }
         else {
             throw CVodeErr("unsupported option");
