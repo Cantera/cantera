@@ -16,7 +16,7 @@ OBJDIR = .
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
 # stirred reactors
-OBJS    = Reactor.o ReactorBase.o FlowDevice.o Wall.o
+OBJS    = Reactor.o ReactorBase.o FlowDevice.o Wall.o ReactorNet.o
 
 CXX_INCLUDES = -I..
 ZEROD_LIB = @buildlib@/libzeroD.a

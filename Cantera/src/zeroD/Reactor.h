@@ -127,52 +127,52 @@ namespace Cantera {
             m_maxstep = maxstep;
         }
 
-        /**
-         * Set the reactor surface area [m$^2$]. Can be changed at any time.
-         */
-        void setArea(doublereal area) {
-            m_area = area;
-        }
+ //        /**
+//          * Set the reactor surface area [m$^2$]. Can be changed at any time.
+//          */
+//         void setArea(doublereal area) {
+//             m_area = area;
+//         }
 
-        /**
-         * Set the external temperature \f$ T_0 \f$ 
-         * used for heat loss calculations.
-         * The heat loss rate is calculated from
-         * \f[
-         * \dot Q_{out} = h A (T - T_0) + \epsilon A (T^4 - T_{0,R}^4).
-         * \f]
-         * @see setArea, setEmissivity, setExtRadTemp
-         */
-        void setExtTemp(doublereal ts) {
-            m_ext_temp = ts;
-            if (!m_trad_set) m_ext_temp4 = ts*ts*ts*ts;
-        }
+//         /**
+//          * Set the external temperature \f$ T_0 \f$ 
+//          * used for heat loss calculations.
+//          * The heat loss rate is calculated from
+//          * \f[
+//          * \dot Q_{out} = h A (T - T_0) + \epsilon A (T^4 - T_{0,R}^4).
+//          * \f]
+//          * @see setArea, setEmissivity, setExtRadTemp
+//          */
+//         void setExtTemp(doublereal ts) {
+//             m_ext_temp = ts;
+//             if (!m_trad_set) m_ext_temp4 = ts*ts*ts*ts;
+//         }
 
-        /**
-         * Set the external temperature for radiation. By default, this
-         * is the same as the temperature set by setExtTemp. But if 
-         * setExtRadTemp is called, then subsequent of calls to 
-         * setExtTemp do not modify the value set here.
-         */
-        void setExtRadTemp(doublereal tr) {        
-            m_ext_temp4 = tr*tr*tr*tr;
-        }
+//         /**
+//          * Set the external temperature for radiation. By default, this
+//          * is the same as the temperature set by setExtTemp. But if 
+//          * setExtRadTemp is called, then subsequent of calls to 
+//          * setExtTemp do not modify the value set here.
+//          */
+//         void setExtRadTemp(doublereal tr) {        
+//             m_ext_temp4 = tr*tr*tr*tr;
+//         }
 
-        void setHeatTransferCoeff(doublereal h) {
-            m_h = h;
-        }
+//         void setHeatTransferCoeff(doublereal h) {
+//             m_h = h;
+//         }
 
-        void setVDotCoeff(doublereal k) {
-            m_kv = k;
-        }
+//         void setVDotCoeff(doublereal k) {
+//             m_kv = k;
+//         }
 
-        void setEmissivity(doublereal emis) {
-            m_emis = emis;
-        }
+//         void setEmissivity(doublereal emis) {
+//             m_emis = emis;
+//         }
 
-        void setExtPressure(doublereal p0) {
-            m_p0 = p0;
-        }
+//         void setExtPressure(doublereal p0) {
+//             m_p0 = p0;
+//         }
 
         void disableChemistry() { m_chem = false; }
         void enableChemistry() { m_chem = true; }
@@ -205,7 +205,7 @@ namespace Cantera {
         //-----------------------------------------------------
 
         virtual void initialize(doublereal t0 = 0.0);
-
+	void evalEqs(doublereal t, doublereal* y, doublereal* ydot);
 
         /**
          * @name Methods to specify simulation options.
@@ -267,9 +267,9 @@ namespace Cantera {
          * vector y.
          */
 
-    protected:
-
         virtual void updateState(doublereal* y);
+
+    protected:
         
         Kinetics*   m_kin;
         //        ReactorBase*     m_env;
@@ -279,14 +279,14 @@ namespace Cantera {
         doublereal m_temp_atol;      // tolerance on T
         doublereal m_maxstep;        // max step size
         doublereal m_vdot, m_Q;
-        doublereal m_emis, m_h, m_area;
-        doublereal m_ext_temp, m_ext_temp4;
-        doublereal m_kv, m_p0;
+        //        doublereal m_emis, m_h, m_area;
+        //doublereal m_ext_temp, m_ext_temp4;
+        //doublereal m_kv, m_p0;
         vector_fp m_atol;
         doublereal m_rtol;
         vector_fp m_work;
         vector_fp m_sdot;            // surface production rates
-        bool m_trad_set;
+        //bool m_trad_set;
         bool m_chem;
         bool m_energy;
         int m_nv;

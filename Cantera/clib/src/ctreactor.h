@@ -35,6 +35,15 @@ extern "C" {
     //int DLL_IMPORT reactor_setExtPressure(int i, double p);
     //int DLL_IMPORT reactor_setEnergy(int i, int eflag);
 
+    int DLL_IMPORT reactornet_new();
+    int DLL_IMPORT reactornet_del(int i);
+    int DLL_IMPORT reactornet_copy(int i);
+    int DLL_IMPORT reactornet_assign(int i, int j);
+    int DLL_IMPORT reactornet_setInitialTime(int i, double t);
+    int DLL_IMPORT reactornet_addreactor(int i, int n);
+    int DLL_IMPORT reactornet_advance(int i, double t);
+    double DLL_IMPORT reactornet_step(int i, double t);
+
     int DLL_IMPORT flowdev_new(int type);
     int DLL_IMPORT flowdev_del(int i);
     //int DLL_IMPORT flowdev_copy(int i);

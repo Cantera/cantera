@@ -31,19 +31,12 @@ namespace Cantera {
                          m_maxstep(0.0),
                          m_vdot(0.0), 
                          m_Q(0.0), 
-                         m_emis(0.0), 
-                         m_h(0.0),
-                         m_area(1.0), 
-                         m_ext_temp(0.0), 
-                         m_ext_temp4(0.0),
-                         m_kv(0.0), 
-                         m_p0(OneAtm), 
                          m_rtol(1.e-9),
-                         m_trad_set(false),
                          m_chem(true),
                          m_energy(true)
     {
         m_integ = new CVodeInt;
+
         // use backward differencing, with a full Jacobian computed
         // numerically, and use a Newton linear iterator
         m_integ->setMethod(BDF_Method);
@@ -138,6 +131,7 @@ namespace Cantera {
 
         // The components of y are the total internal energy,
         // the total volume, and the mass of each species.
+
         // Set the mass fractions and  density of the mixture.
 
         doublereal u   = y[0];
@@ -180,18 +174,24 @@ namespace Cantera {
         m_enthalpy = m_thermo->enthalpy_mass();
         m_pressure = m_thermo->pressure();
         m_intEnergy = m_thermo->intEnergy_mass();
+
     }
 
 
+    void Reactor::eval(doublereal time, doublereal* y, doublereal* ydot) 
+    {
+        updateState(y);          // synchronize the reactor state with y
+        evalEqs(time, y, ydot);
+    }
 
     /**
      * Called by the integrator to evaluate ydot given y at time 'time'.
      */
-    void Reactor::eval(doublereal time, doublereal* y, doublereal* ydot) 
+    void Reactor::evalEqs(doublereal time, doublereal* y, doublereal* ydot) 
     {
         int i, k, nk;
         m_time = time;
-        updateState(y);          // synchronize the reactor state with y
+        //        updateState(y);          // synchronize the reactor state with y
 
         m_vdot = 0.0;
         m_Q    = 0.0;

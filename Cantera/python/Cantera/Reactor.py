@@ -10,7 +10,6 @@ import types
 class ReactorBase:
     """Base class for reactors.""" 
 
-
     def __init__(self, contents = None, type = -1):
         """
         Create a new ReactorBase instance. If 'contents' is specified,
@@ -22,18 +21,14 @@ class ReactorBase:
         if contents:
             self.insert(contents)
 
-
     def __del__(self):
         """Delete the reactor instance."""
         _cantera.reactor_del(self.__reactor_id)
 
-
     def reactor_id(self):
-        """
-        The integer index used to access the kernel reactor object.
-        """
+        """The integer index used to access the kernel reactor
+        object. For internal use.  """
         return self.__reactor_id
-
     
     def insert(self, contents):
         """
@@ -41,12 +36,14 @@ class ReactorBase:
         thermodynamic properties and kinetic rates.
         """
         self.contents = contents
-        self.setThermoMgr(contents)
-        self.setKineticsMgr(contents)
+        _cantera.reactor_setThermoMgr(self.__reactor_id, contents._phase_id)
+        _cantera.reactor_setKineticsMgr(self.__reactor_id, contents.ckin)
+        #self.setThermoMgr(contents)
+        #self.setKineticsMgr(contents)
         
     def setInitialTime(self, t0):
         """Set the initial time. Restarts integration from this time
-        using the current state as the initial condition. Default: 0.0 s"""
+        using the current state as the initial condition. weDefault: 0.0 s"""
         _cantera.reactor_setInitialTime(self.__reactor_id, t0)
 
     def setInitialVolume(self, t0):
@@ -54,6 +51,8 @@ class ReactorBase:
         _cantera.reactor_setInitialVolume(self.__reactor_id, t0)
 
     def setEnergy(self, e):
+        """Turn the energy equation on or off. If off, the reactor
+        temperature is held constant."""
         ie = 1
         if e == 'off':
             ie = 0
@@ -68,7 +67,7 @@ class ReactorBase:
         return _cantera.reactor_density(self.__reactor_id)
 
     def volume(self):
-        """Reactor volume [m^3]."""
+        """Volume [m^3]."""
         return _cantera.reactor_volume(self.__reactor_id)            
 
     def time(self):
@@ -93,21 +92,14 @@ class ReactorBase:
 
     def advance(self, time):
         """Advance the state of the reactor in time from the current
-        time to time 'time'."""
+        time to time 'time'. Note: this method is deprecated. See class ReactorNet."""
         return _cantera.reactor_advance(self.__reactor_id, time)
 
     def step(self, time):
         """Advance the state of the reactor in time from the current
-        time to time 'time'."""
+        time to time 'time'. Note: this method is deprecated. See class ReactorNet."""
         return _cantera.reactor_step(self.__reactor_id, time)    
     
-    def setThermoMgr(self, th):
-        _cantera.reactor_setThermoMgr(self.__reactor_id, th._phase_id)
-
-    def setKineticsMgr(self, kin):
-        _cantera.reactor_setKineticsMgr(self.__reactor_id, kin.ckin)
-        #self.setThermoMgr(kin.thrm)
-
     def massFraction(self, k):
         """Mass fraction of species k."""
         if type(k) == types.StringType:
@@ -199,12 +191,6 @@ class FlowDevice:
         """
         return _cantera.flowdev_setpoint(self.__fdev_id)
 
-##     def reset(self):
-##         """
-##         Reset the flow controller. Only necessary for pressure regulators.
-##         """
-##         _cantera.flowdev_reset(self.__fdev_id)                
-
     def install(self, upstream, downstream):
         """
         Install the device between the upstream and downstream
@@ -212,27 +198,11 @@ class FlowDevice:
         """
         _cantera.flowdev_install(self.__fdev_id, upstream.reactor_id(),
                                   downstream.reactor_id())
-##        self.reset()
-
-##     def setGains(self, gains):
-##         g = array(gains,'d')
-##         n = len(g)
-##         _cantera.flowdev_setGains(self.__fdev_id, n, g)
-
-##     def getGains(self):
-##         n = 4
-##         return _cantera.flowdev_getGains(self.__fdev_id, n)
-
     def setParameters(self, c):
         params = array(c,'d')
         n = len(params)
         return _cantera.flowdev_setParameters(self.__fdev_id, n, params)    
 
-##     def maxError(self):
-##         return _cantera.flowdev_maxError(self.__fdev_id)
-
-##     def update(self):
-##         _cantera.flowdev_update(self.__fdev_id)
         
         
 class MassFlowController(FlowDevice):
@@ -244,15 +214,6 @@ class MassFlowController(FlowDevice):
     def setMassFlowRate(self, mdot):
         self.setSetpoint(mdot)
 
-
-## class PressureRegulator(FlowDevice):
-##     def __init__(self, upstream=None, downstream=None):
-##         FlowDevice.__init__(self,2)
-##         if upstream and downstream:
-##             self.install(upstream, downstream)        
-
-##     def setPressure(self, p):
-##         self.setSetpoint(p)
 
 
 class Valve(FlowDevice):
@@ -345,6 +306,7 @@ class Wall:
                                right.reactor_id())
 
     def setKinetics(self, left, right):
+        """Specify surface reaction mechanisms for the left and right sides of the wall."""
         ileft = 0
         iright = 0
         if left:

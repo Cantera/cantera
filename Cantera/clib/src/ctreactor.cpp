@@ -1,6 +1,7 @@
 
 // Cantera includes
 #include "zeroD/Reactor.h"
+#include "zeroD/ReactorNet.h"
 #include "zeroD/Reservoir.h"
 #include "zeroD/Wall.h"
 #include "zeroD/flowControllers.h"
@@ -22,15 +23,21 @@
 #define DERR -999.999
 
 typedef ReactorBase reactor_t;
-typedef FlowDevice flowdev_t;
-typedef Wall wall_t;
+typedef ReactorNet  reactornet_t;
+typedef FlowDevice  flowdev_t;
+typedef Wall        wall_t;
 
 Cabinet<reactor_t>*    Cabinet<reactor_t>::__storage = 0;
+Cabinet<reactornet_t>*    Cabinet<reactornet_t>::__storage = 0;
 Cabinet<flowdev_t>*    Cabinet<flowdev_t>::__storage = 0;
 Cabinet<wall_t>*       Cabinet<wall_t>::__storage = 0;
 
 inline reactor_t* _reactor(int i) {
     return Cabinet<reactor_t>::cabinet()->item(i);
+}
+
+inline reactornet_t* _reactornet(int i) {
+    return Cabinet<reactornet_t>::cabinet()->item(i);
 }
 
 inline flowdev_t* _flowdev(int i) {
@@ -158,46 +165,94 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT reactor_setArea(int i, double a) {
-        reactor_t* r = _reactor(i);
-        if (r->type() == ReactorType) ((Reactor*)r)->setArea(a);
+//     int DLL_EXPORT reactor_setArea(int i, double a) {
+//         reactor_t* r = _reactor(i);
+//         if (r->type() == ReactorType) ((Reactor*)r)->setArea(a);
+//         return 0;
+//     }
+
+//     int DLL_EXPORT reactor_setExtTemp(int i, double t) {
+//         reactor_t* r = _reactor(i);
+//         if (r->type() == ReactorType) ((Reactor*)r)->setExtTemp(t);
+//         return 0;
+//     }
+
+//     int DLL_EXPORT reactor_setExtRadTemp(int i, double t) {
+//         reactor_t* r = _reactor(i);
+//         if (r->type() == ReactorType) ((Reactor*)r)->setExtRadTemp(t);
+//         return 0;
+//     }
+
+//     int DLL_EXPORT reactor_setVDotCoeff(int i, double v) {
+//         reactor_t* r = _reactor(i);
+//         if (r->type() == ReactorType) ((Reactor*)r)->setVDotCoeff(v);
+//         return 0;
+//     }
+
+//     int DLL_EXPORT reactor_setHeatTransferCoeff(int i, double h) {
+//         reactor_t* r = _reactor(i);
+//         if (r->type() == ReactorType) ((Reactor*)r)->setHeatTransferCoeff(h);
+//         return 0;
+//     }
+
+//     int DLL_EXPORT reactor_setEmissivity(int i, double eps) {
+//         reactor_t* r = _reactor(i);
+//         if (r->type() == ReactorType) ((Reactor*)r)->setEmissivity(eps);
+//         return 0;
+//     }
+
+//     int DLL_EXPORT reactor_setExtPressure(int i, double p) {
+//         reactor_t* r = _reactor(i);
+//         if (r->type() == ReactorType) ((Reactor*)r)->setExtPressure(p);
+//         return 0;
+//     }
+
+
+    // reactor networks
+
+    int DLL_EXPORT reactornet_new() {
+        ReactorNet* r = new ReactorNet();
+        return Cabinet<reactornet_t>::cabinet()->add(r);
+    }
+
+    int DLL_EXPORT reactornet_del(int i) {
+        try {
+            Cabinet<reactornet_t>::cabinet()->del(i);
+            return 0;
+        }
+        catch (...) {
+            return -1;
+        }
+    }
+
+    int DLL_EXPORT reactornet_copy(int i) {
+        return Cabinet<reactornet_t>::cabinet()->newCopy(i);
+    }
+
+    int DLL_EXPORT reactornet_assign(int i, int j) {
+        return Cabinet<reactornet_t>::cabinet()->assign(i,j);
+    }
+
+    int DLL_EXPORT reactornet_setInitialTime(int i, double t) {
+        _reactornet(i)->setInitialTime(t);
         return 0;
     }
 
-    int DLL_EXPORT reactor_setExtTemp(int i, double t) {
-        reactor_t* r = _reactor(i);
-        if (r->type() == ReactorType) ((Reactor*)r)->setExtTemp(t);
+    int DLL_EXPORT reactornet_addreactor(int i, int n) {
+        _reactornet(i)->addReactor(_reactor(n));
         return 0;
     }
 
-    int DLL_EXPORT reactor_setExtRadTemp(int i, double t) {
-        reactor_t* r = _reactor(i);
-        if (r->type() == ReactorType) ((Reactor*)r)->setExtRadTemp(t);
-        return 0;
+    int DLL_EXPORT reactornet_advance(int i, double t) {
+        try {
+            _reactornet(i)->advance(t);
+            return 0;
+        }
+        catch (CanteraError) {return -1;}
     }
 
-    int DLL_EXPORT reactor_setVDotCoeff(int i, double v) {
-        reactor_t* r = _reactor(i);
-        if (r->type() == ReactorType) ((Reactor*)r)->setVDotCoeff(v);
-        return 0;
-    }
-
-    int DLL_EXPORT reactor_setHeatTransferCoeff(int i, double h) {
-        reactor_t* r = _reactor(i);
-        if (r->type() == ReactorType) ((Reactor*)r)->setHeatTransferCoeff(h);
-        return 0;
-    }
-
-    int DLL_EXPORT reactor_setEmissivity(int i, double eps) {
-        reactor_t* r = _reactor(i);
-        if (r->type() == ReactorType) ((Reactor*)r)->setEmissivity(eps);
-        return 0;
-    }
-
-    int DLL_EXPORT reactor_setExtPressure(int i, double p) {
-        reactor_t* r = _reactor(i);
-        if (r->type() == ReactorType) ((Reactor*)r)->setExtPressure(p);
-        return 0;
+    double DLL_EXPORT reactornet_step(int i, double t) {
+        return _reactornet(i)->step(t);
     }
 
 

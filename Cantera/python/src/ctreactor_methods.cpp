@@ -450,3 +450,65 @@ py_wall_ready(PyObject *self, PyObject *args)
 }
 
 
+static PyObject*
+py_reactornet_new(PyObject *self, PyObject *args)
+{
+    int n = reactornet_new();
+    return Py_BuildValue("i",n);
+}
+
+static PyObject*
+py_reactornet_del(PyObject *self, PyObject *args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:reactornet_del", &n))
+        return NULL;
+    int iok = reactornet_del(n);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_reactornet_setInitialTime(PyObject *self, PyObject *args)
+{
+    int n;
+    double t;
+    if (!PyArg_ParseTuple(args, "id:reactornet_setInitialTime", &n, &t))
+        return NULL;
+    int iok = reactornet_setInitialTime(n, t);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_reactornet_addreactor(PyObject *self, PyObject *args)
+{
+    int n, m;
+    if (!PyArg_ParseTuple(args, "ii:reactornet_addreactor", &n, &m))
+        return NULL;
+    int iok = reactornet_addreactor(n, m);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_reactornet_advance(PyObject *self, PyObject *args)
+{
+    int n;
+    double t;
+    if (!PyArg_ParseTuple(args, "id:reactornet_advance", &n, &t))
+        return NULL;
+    int iok = reactornet_advance(n, t);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_reactornet_step(PyObject *self, PyObject *args)
+{
+    int n;
+    double t;
+    if (!PyArg_ParseTuple(args, "id:reactornet_step", &n, &t))
+        return NULL;
+    return Py_BuildValue("d",reactornet_step(n, t));
+}
