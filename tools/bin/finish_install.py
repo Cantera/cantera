@@ -58,7 +58,12 @@ try:
     ctpath = Cantera.__path__[0]
 except:
     ctpath = "-"
-    
+
+fm = open(prefix+"/cantera/ctpath.m","w")
+fm.write("""path(path,'"""+prefix+"""/matlab/toolbox/cantera/cantera')\n""")
+fm.write("""path(path,'"""+prefix+"""/matlab/toolbox/cantera/cantera/1D')\n""")
+fm.close()
+
 print """
 
 Cantera has been successfully installed.
@@ -73,7 +78,11 @@ File locations:
     
     Matlab toolbox    """+prefix+"""/matlab/toolbox/cantera/cantera
     Matlab demos      """+prefix+"""/matlab/toolbox/cantera/cantera-demos
-    Matlab tutorials  """+prefix+"""/matlab/toolbox/cantera/cantera-tutorials"""
+    Matlab tutorials  """+prefix+"""/matlab/toolbox/cantera/cantera-tutorials
+
+    An m-file to set the correct matlab path for Cantera
+    is at """+prefix+"""/cantera/ctpath.m"""
+    
 if ctpath <> "-":
     print """
     Python package    """+ctpath
