@@ -6,7 +6,10 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.8  2004-07-02 17:34:13  hkmoffa
+// Revision 1.9  2004-07-14 11:24:13  dggoodwin
+// *** empty log message ***
+//
+// Revision 1.8  2004/07/02 17:34:13  hkmoffa
 // Eliminated warnings due to signed and unsigned comparisons.
 //
 // Revision 1.7  2004/07/02 17:27:01  hkmoffa
@@ -301,13 +304,19 @@ namespace ckr {
 
         comment = "";
         string line;
-        //getline(f, line, dm);
+
         line = "";
         char ch;
         while (1 > 0) {
             f.get(ch);
             if (!f || f.eof()) break;
-            if (ch == '\n' || ch == char10) break;
+
+            // convert tabs to spaces
+            if (ch == '\t') ch = ' ';
+
+            // if an end-of-line character is seen, then break.
+            // Check for all common end-of-line characters.
+            if (ch == '\n' || ch == char10 || ch == char13) break;
             if (isprint(ch)) line += ch;
         }
 		string::size_type icom = line.find(commentChar);
@@ -986,6 +995,7 @@ next:
 
                 else if ((mloc = sleft.find("+M"), mloc >= 0) ||
                     (mloc = sleft.find("+m"), mloc >= 0)) {
+
                     if (static_cast<int>(mloc) ==
 			static_cast<int>(sleft.size()) - 2) {
                         rxn.isThreeBodyRxn = true;
@@ -1060,8 +1070,10 @@ next:
 
                 else if ((mloc = sright.find("+M"), mloc >= 0) ||
                     (mloc = sright.find("+m"), mloc >= 0)) {
+
                     if (static_cast<int>(mloc) == 
 			static_cast<int>(sright.size()) - 2) {
+
                         if (rxn.type == Falloff) 
                             throw CK_SyntaxError(*m_log, 
                                 "mismatched +M or (+M)", m_line);

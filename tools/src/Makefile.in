@@ -6,10 +6,10 @@ BINDIR = @buildbin@
 build_ck = @BUILD_CK@
 
 LCXX_FLAGS = -L$(LIBDIR)  @CXXFLAGS@
-LOCAL_LIBS = -lcantera @math_libs@ @LAPACK_LIBRARY@ @BLAS_LIBRARY@ -lctcxx 
+LOCAL_LIBS = -lcantera -lctcxx 
+#LOCAL_LIBS = -lcantera @math_libs@ @BLAS_LAPACK_LIBS@ -lctcxx 
 
 LCXX_END_LIBS = @LCXX_END_LIBS@
-#OBJS = ck2cti.o
 
 OBJS = ck2cti.o cti2ctml.o
 

@@ -55,7 +55,7 @@ EVERYTHING = $(KINETICS) $(HETEROKIN) $(ELECTROCHEM) $(EQUIL) $(CK) \
              $(TRANSPORT) $(REACTOR) $(RPATH) $(SOLVERS) $(FLOW1D)
 
 
-PCH = ct_defs.h.gch utilities.h.gch ThermoPhase.h.gch Kinetic.h.gch
+PCH = ct_defs.h.gch utilities.h.gch ThermoPhase.h.gch Kinetics.h.gch
 
 all:  config.h $(PCH) @KERNEL@ lib
 

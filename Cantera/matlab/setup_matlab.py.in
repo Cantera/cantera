@@ -2,7 +2,7 @@
 import sys
 
 bindir = '@ct_bindir@'
-libdir = '@buildlib@'
+libdir = '-L @buildlib@ @LOCAL_LIB_DIRS@'
 incdir = '@buildinc@'
 libs   = '-lclib @LOCAL_LIBS@ @LIBS@ @FLIBS@'
 
@@ -21,7 +21,7 @@ mex private/ctmethods.cpp private/ctfunctions.cpp ...
     private/wallmethods.cpp private/flowdevicemethods.cpp ...
     private/funcmethods.cpp ...
     private/onedimmethods.cpp private/surfmethods.cpp private/write.cpp ...
-"""+'-I'+incdir+'     -L'+libdir+' '+libs+'\n'+"""disp('done.');
+"""+'-I'+incdir+'     '+libdir+' '+libs+'\n'+"""disp('done.');
 """)
 fb.close()
 

@@ -45,7 +45,7 @@ CANTERA_LIBS =
 CANTERA_INCDIR=@ctroot@/build/include
 
 # flags passed to the C++ compiler/linker for the linking step
-LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
+LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIR@ @CXXFLAGS@
 
 # how to compile C++ source files to object files
 .@CXX_EXT@.@OBJ_EXT@:

@@ -6,8 +6,14 @@ libdir = '@buildlib@'
 incdir = '@buildinc@'
 dflibdir = '@CVF_LIBDIR@'
 
+bllibstr = "@BLAS_LAPACK_LIBS@"
+bllibs = bllibstr.replace('-l',' ')
+bllist = bllibs.split()
+
+bldir = "@BLAS_LAPACK_DIR@"
+
 libs = ['clib', 'oneD', 'zeroD', 'transport', 'cantera', 'recipes',
-        'cvode', 'ctlapack', 'ctmath', 'ctblas', 'tpx']
+        'cvode', 'ctmath', 'tpx']
 
 f = open('setup.m','w')
 f.write('cd cantera\nbuild_cantera\nexit\n')
@@ -32,6 +38,13 @@ fb.write(s)
 fb.write('    "'+dflibdir+'/dformd.lib" ...\n')
 fb.write('    "'+dflibdir+'/dfconsol.lib" ...\n')
 fb.write('    "'+dflibdir+'/dfport.lib" \n')
+
+if bllist:
+    s = ''
+    for lib in bllist:
+        s += '    '+bldir+'/'+lib+'.lib ...\n'
+    fb.write(s)
+
 fb.close()
 
 fp = open('cantera/ctbin.m','w')

@@ -271,7 +271,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_unique_file="Cantera.README"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CVF_LIBDIR local_inst local_python_inst python_prefix ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir CANTERA_LIBDIR CANTERA_INCDIR CT_TOOLS_BIN CANTERA_BINDIR CANTERA_EXAMPLES_DIR CANTERA_DATADIR build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE ARCHIVE DO_RANLIB RANLIB SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR LAPACK_LIBRARY build_lapack BLAS_LIBRARY build_blas LOCAL_LIBS CANTERA_PARTICLES_DIR BUILD_PARTICLES CT_SHARED_LIB BUILD_F90 PYTHON_CMD WIN_PYTHON_CMD BUILD_PYTHON MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC F77 FFLAGS ac_ct_F77 FLIBS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CVF_LIBDIR local_inst local_python_inst python_prefix ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir CANTERA_LIBDIR CANTERA_INCDIR CT_TOOLS_BIN CANTERA_BINDIR CANTERA_EXAMPLES_DIR CANTERA_DATADIR build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE ARCHIVE DO_RANLIB RANLIB SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE KERNEL BUILD_CK LIB_DIR build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR LOCAL_LIB_DIRS LOCAL_LIBS CANTERA_PARTICLES_DIR BUILD_PARTICLES CT_SHARED_LIB BUILD_F90 PYTHON_CMD WIN_PYTHON_CMD BUILD_PYTHON MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC F77 FFLAGS ac_ct_F77 FLIBS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1578,7 +1578,6 @@ KERNEL='base'
 BUILD_CK=
 
 NEED_CKREADER=
-NEED_BLAS=
 NEED_LAPACK=
 NEED_RECIPES=
 NEED_MATH=
@@ -1593,14 +1592,12 @@ if test "$ENABLE_KINETICS" = "y"; then KERNEL=$KERNEL' 'kinetics; fi
 
 if test "$ENABLE_CK" = "y"
 then
-#KERNEL=$KERNEL' 'ck
 BUILD_CK=1
 NEED_CKREADER=1
 fi
 
 if test "$ENABLE_TRANSPORT" = "y"
 then KERNEL=$KERNEL' 'trprops
-NEED_BLAS=1
 NEED_LAPACK=1
 NEED_MATH=1
 NEED_TRANSPORT=1
@@ -1608,7 +1605,6 @@ fi
 
 if test "$ENABLE_EQUIL" = "y"
 then KERNEL=$KERNEL' 'equil
-NEED_BLAS=1
 NEED_LAPACK=1
 NEED_RECIPES=1
 fi
@@ -1627,7 +1623,6 @@ fi
 
 if test "$ENABLE_FLOW1D" = "y"
 then KERNEL=$KERNEL' 'flow1D
-NEED_BLAS=1
 NEED_LAPACK=1
 NEED_MATH=1
 NEED_ONED=1
@@ -1658,12 +1653,21 @@ fi
 # supplied libraries
 
 build_lapack=0
-if test -z "$LAPACK_LIBRARY"; then LAPACK_LIBRARY=-lctlapack; build_lapack=1; fi
-
-
-
 build_blas=0
-if test -z "$BLAS_LIBRARY"; then BLAS_LIBRARY=-lctblas; build_blas=1; fi
+if test -z "$BLAS_LAPACK_LIBS"
+then BLAS_LAPACK_LIBS="-lctlapack -lctblas"
+build_blas=1
+build_lapack=1
+fi
+
+# if test -z "$LAPACK_LIBRARY"; then LAPACK_LIBRARY=-lctlapack; build_lapack=1; fi
+# AC_SUBST(LAPACK_LIBRARY)
+
+
+# build_blas=0
+# if test -z "$BLAS_LIBRARY"; then BLAS_LIBRARY=-lctblas; build_blas=1; fi
+# AC_SUBST(BLAS_LIBRARY)
+
 
 
 
@@ -1697,20 +1701,23 @@ then LOCAL_LIBS=$LOCAL_LIBS' '-lcvode
 fi
 
 if test -n "$NEED_LAPACK"
-then LOCAL_LIBS=$LOCAL_LIBS' '$LAPACK_LIBRARY
+then LOCAL_LIBS=$LOCAL_LIBS' '$BLAS_LAPACK_LIBS
 fi
 
 if test -n "$NEED_MATH"
 then LOCAL_LIBS=$LOCAL_LIBS' '-lctmath
 fi
 
-if test -n "$NEED_BLAS"
-then LOCAL_LIBS=$LOCAL_LIBS' '$BLAS_LIBRARY
-fi
-
 if test -n "$NEED_TPX"
 then LOCAL_LIBS=$LOCAL_LIBS' '-ltpx
 fi
+
+LOCAL_LIB_DIRS=
+if test -n "$BLAS_LAPACK_DIR"
+then LOCAL_LIB_DIRS=$LOCAL_LIB_DIRS' -L'$BLAS_LAPACK_DIR
+fi
+
+
 
 
 
@@ -3355,7 +3362,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3358:" \
+echo "$as_me:3365:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3532,7 +3539,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3535: \"$ac_link\") >&5
+(eval echo $as_me:3542: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3612,7 +3619,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3615: \"$ac_link\") >&5
+(eval echo $as_me:3622: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4535,10 +4542,11 @@ s,@INCL_USER_CODE@,$INCL_USER_CODE,;t t
 s,@KERNEL@,$KERNEL,;t t
 s,@BUILD_CK@,$BUILD_CK,;t t
 s,@LIB_DIR@,$LIB_DIR,;t t
-s,@LAPACK_LIBRARY@,$LAPACK_LIBRARY,;t t
 s,@build_lapack@,$build_lapack,;t t
-s,@BLAS_LIBRARY@,$BLAS_LIBRARY,;t t
 s,@build_blas@,$build_blas,;t t
+s,@BLAS_LAPACK_LIBS@,$BLAS_LAPACK_LIBS,;t t
+s,@BLAS_LAPACK_DIR@,$BLAS_LAPACK_DIR,;t t
+s,@LOCAL_LIB_DIRS@,$LOCAL_LIB_DIRS,;t t
 s,@LOCAL_LIBS@,$LOCAL_LIBS,;t t
 s,@CANTERA_PARTICLES_DIR@,$CANTERA_PARTICLES_DIR,;t t
 s,@BUILD_PARTICLES@,$BUILD_PARTICLES,;t t

@@ -176,14 +176,16 @@ ENABLE_TPX='y'
 #-----------------------------------------------------------------
 #
 # Cantera comes with Fortran versions of those parts of BLAS and
-# LAPACK it requires. But if you have another version of BLAS and/or
-# LAPACK you'd like to use, uncomment one or both of the following
-# lines, and enter here the string that should be added to the link
-# command to link to it.
-#
-# BLAS_LIBRARY=-lblas
-#
-# LAPACK_LIBRARY=-llapack
+# LAPACK it requires. But performance *may* be better if you use a
+# version of these libraries optimized for your machine hardware. If
+# you want to use your own libraries, set BLAS_LAPACK_LIBS to the
+# string that should be passed to the linker to link to these
+# libraries, and set BLAS_LAPACK_DIR to the directory where these
+# libraries are located. Otherwise, leave these lines commented out.
+
+# BLAS_LAPACK_LIBS='-llapack -lf77blas -lcblas -latlas'
+# BLAS_LAPACK_DIR='/usr/lib/atlas'
+
 #
 # The options below do not need to be set if you are using the default
 # libraries.
@@ -216,7 +218,7 @@ CC=${CC:=gcc}
 CXXFLAGS=${CXXFLAGS:="-O2 -Wall"}
 
 # the C++ flags required for linking
-#LCXX_FLAGS=
+LCXX_FLAGS="-L /usr/lib/atlas"
 
 # Ending libraries to tack onto the linking of all C++ programs
 LCXX_END_LIBS=${LCXX_END_LIBS:="-lm"}
@@ -304,7 +306,8 @@ export CANTERA_VERSION
 export USER_SRC_DIR
 export ARCHIVE
 export RANLIB
-export BLAS_LIBRARY
+export BLAS_LAPACK_LIBS
+export BLAS_LAPACK_DIR
 export BUILD_F90
 export BUILD_FORTRAN_90_INTERFACE
 export PYTHON_PACKAGE
@@ -332,7 +335,6 @@ export F77_EXT
 export F90
 export F90_EXT
 export FFLAGS
-export LAPACK_LIBRARY
 export LAPACK_NAMES
 export LCXX_FLAGS
 export LCXX_END_LIBS

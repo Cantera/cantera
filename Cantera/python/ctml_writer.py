@@ -15,6 +15,8 @@
 import string
 
 class CTI_Error:
+    """Exception raised if an error is encountered while
+    parsing the input file."""
     def __init__(self, msg):
         print '\n\n***** Error parsing input file *****\n\n'
         print msg
@@ -53,8 +55,10 @@ class XMLnode:
         called to create the root element. Method addChild calls this
         constructor to create the new child node."""
 
-        # convert value to string
         self._name = name
+
+        # convert 'value' to a string if it is not already, and
+        # strip leading whitespace        
         if type(value) <> types.StringType:
             self._value = string.lstrip(`value`)
         else:
@@ -69,7 +73,6 @@ class XMLnode:
         """The tag name of the node."""
         return self._name
 
-
     def nChildren(self):
         """Number of child elements."""
         return len(self._children)
@@ -77,7 +80,12 @@ class XMLnode:
     def addChild(self, name, value=""):
         """Add a child with tag 'name', and set its value if the value
         parameter is supplied."""
+        
+        # create a new node for the child
         c = XMLnode(name = name, value = value)
+        
+        # add it to the list of children, and to the dictionary
+        # of children
         self._children.append(c)
         self._childmap[name] = c
         return c
@@ -1508,7 +1516,10 @@ validate()
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.3  2004-06-09 01:02:31  dggoodwin
+# Revision 1.4  2004-07-14 11:24:13  dggoodwin
+# *** empty log message ***
+#
+# Revision 1.3  2004/06/09 01:02:31  dggoodwin
 # *** empty log message ***
 #
 # Revision 1.2  2004/06/04 06:05:31  dggoodwin

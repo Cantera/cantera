@@ -3,15 +3,24 @@ try:
     from distutils.core import setup, Extension
 except:
     print 'could not import distutils. Will try anyway...'
-    #sys.exit(0)
     
 libs = []
 platform = sys.platform
 
+bllibstr = "@BLAS_LAPACK_LIBS@"
+bllibs = bllibstr.replace('-l',' ')
+bllist = bllibs.split()
+
+bldirstr = "@LOCAL_LIB_DIRS@"
+bldirs = bldirstr.replace('-L',' ')
+dirlist = bldirs.split()
+libdir = ['@buildlib@']
+for d in dirlist:
+    libdir.append(d)
+
 if platform == "win32":
     libs = ["clib", "zeroD","oneD","transport",
-            "cantera","recipes","ctlapack",
-            "ctblas", "ctmath", "cvode", "tpx"]
+            "cantera","recipes"] + bllist + ["ctmath", "cvode", "tpx"]
 else:
     
     # The library 'g2c' is needed if the g77 Fortran compiler is
@@ -20,8 +29,9 @@ else:
     # compiler is used, add the appropriate libraries here.
     
     libs = ["clib", "zeroD","oneD","transport",
-            "cantera","recipes","ctlapack",
-            "ctblas", "ctmath", "cvode", "tpx", "stdc++", "g2c", "m"]
+            "cantera","recipes"] + bllist + ["ctmath", "cvode", "tpx",
+                                             "stdc++", "g2c", "m"]
+
 
 if @BUILD_PYTHON@ == 2:
     
@@ -40,7 +50,7 @@ if @BUILD_PYTHON@ == 2:
                                   ["src/pycantera.cpp", "src/writelog.cpp"],
                                   include_dirs=["../../build/include",
                                                 "src", "../clib/src"],
-                                  library_dirs = ["@buildlib@"],
+                                  library_dirs = libdir,
                                   libraries = libs)
                         ],
           )

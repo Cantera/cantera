@@ -26,9 +26,6 @@ CANTERA_INCDIR=../../src
 
 CXX_INCLUDES = -I$(CANTERA_INCDIR)  
 
-# flags passed to the C++ compiler/linker for the linking step
-LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
-
 # how to compile C++ source files to object files
 .@CXX_EXT@.@OBJ_EXT@:
 	$(CXX) -c $< $(CXX_INCLUDES) $(CXX_FLAGS)
