@@ -1,10 +1,5 @@
-!
-!     Replace this sample main program with your program
-!
-!     This program uses functions defined in demo_ftnlib.cpp to create
-!     an ideal gas mixture and print some its properties. 
-!
-!     For a C++ version of this program, type 'ctnew -cxx'.
+! This program illustrates using Cantera in Fortran 90 to compute
+! thermodynamic, kinetic, and transport properties of a gas mixture.
 !
 program main
 
@@ -12,6 +7,7 @@ program main
   use cantera
 
   implicit none
+
   ! objects representing phases of matter have type 'phase_t'
   type(phase_t) gas
   integer nsp, nrxns
@@ -62,7 +58,7 @@ subroutine demo(gas, MAXSP, MAXRXNS)
 
   character*80 eq
   character*20 name
-  double precision :: t, p, dnu, dlam
+  double precision :: dnu, dlam
   integer :: i, irxns, nsp, k
 
   write(*,*) 'Initial state properties:'
