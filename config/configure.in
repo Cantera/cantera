@@ -527,8 +527,14 @@ fi
 
 WIN_PYTHON_CMD=python
 if test $BUILD_PYTHON -gt 0; then
-  if test "$PYTHON_CMD" = "default"; then 
+  if test "$PYTHON_CMD" = "default" -o \
+          "$PYTHON_CMD"x = "x"; then
     AC_PATH_PROGS(PYTHON_CMD, python2 python, "none")
+    if test "$PYTHON_CMD" = "none" ; then
+      echo "ERROR: python requested, but no python executable found!"
+    else
+      echo "Python command set to " $PYTHON_CMD
+    fi
     if test "x$OS_IS_WIN" = "x1"; then
       AC_PATH_PROGS(WIN_PYTHON_CMD, python, "none")
       WIN_PYTHON_CMD=`cygpath -a -m "$WIN_PYTHON_CMD"` 
