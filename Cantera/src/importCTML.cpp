@@ -1242,6 +1242,23 @@ next:
 
     /**
      * Import a reaction mechanism for a phase or an interface.
+     *
+     * @param phase This is an xml node containing a description
+     *              of a phase. Within the phase is a XML element
+     *              called reactionArray containing the location
+     *              of the description of the reactions that make
+     *              up the kinetics object. 
+     *              Also within the phase is an XML element called
+     *              phaseArray containing a listing of other phases
+     *              that participate in the kinetics mechanism.
+     *
+     * @param th    This is a list of ThermoPhase pointers containing
+     *              the phases that participate in the kinetics
+     *              reactions. 
+     *
+     * @param k     This is a pointer to the kinetics manager class
+     *              that will be initialized with a kinetics 
+     *              mechanism.
      */
     bool importKinetics(const XML_Node& phase, vector<ThermoPhase*> th, 
         Kinetics* k) {
@@ -1270,7 +1287,6 @@ next:
         phase_ids.push_back(default_phase);
             
         int np = phase_ids.size();
-
         int nt = th.size();
 
         // for each referenced phase, attempt to find its id among those
@@ -1313,7 +1329,8 @@ next:
      }
 
     /**
-     * Build a single-phase solution.
+     * Build a single-phase  ThermoPhase object with associated kinetics
+     * mechanism.
      */
     bool buildSolutionFromXML(XML_Node& root, string id, string nm, 
         ThermoPhase* th, Kinetics* k) {
