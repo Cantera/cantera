@@ -66,7 +66,7 @@ namespace Cantera {
          */
         void integrate(doublereal t0, doublereal t1) {
             m_integ->reinitialize(t0, *this);
-            m_integ->setMaxStep(t1 - t0);
+            m_integ->setMaxStepSize(t1 - t0);
             m_rho = m_thermo->density();
             m_integ->integrate(t1);
             updateState(m_integ->solution());
