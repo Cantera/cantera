@@ -44,25 +44,26 @@ namespace Cantera {
     public:
         Application() : linelen(0), stop_on_error(false),
 #ifdef WIN32
-                        tmp_dir(".") {
+                        tmp_dir(".") 
 #else
-                        tmp_dir("/tmp") {
+            tmp_dir("/tmp") 
 #endif
-                            char* tmpdir = getenv("TMP");
-                            if (tmpdir == 0) 
-                                tmpdir = getenv("TEMP");
-                            if (tmpdir != 0)
-                                tmp_dir = string(tmpdir);
-                        }
+            {
+                char* tmpdir = getenv("TMP");
+                if (tmpdir == 0) 
+                    tmpdir = getenv("TEMP");
+                if (tmpdir != 0)
+                    tmp_dir = string(tmpdir);
+            }
 
         virtual ~Application() {
-	    map<string, XML_Node*>::iterator pos;
-	    for (pos = xmlfiles.begin(); pos != xmlfiles.end(); ++pos) {
+            map<string, XML_Node*>::iterator pos;
+            for (pos = xmlfiles.begin(); pos != xmlfiles.end(); ++pos) {
                 pos->second->unlock();
                 delete pos->second;
                 pos->second = 0;
-	    }
-	}
+            }
+        }
         vector<string> inputDirs;
         vector<string> errorMessage;
         vector<string> warning;
@@ -74,8 +75,8 @@ namespace Cantera {
         string tmp_dir;
         map<string, XML_Node*> xmlfiles;
     };
-
-
+        
+            
     /// Returns a pointer to the one and only instance of Application
     Application* app();
 
@@ -94,14 +95,14 @@ namespace Cantera {
      * to be done.
      */
     void appdelete() {
-	if (__app) {
-	  delete __app;
-	  __app = 0;
-	}
-	SpeciesThermoFactory::deleteFactory();
-	ThermoFactory::deleteFactory();
-	FalloffFactory::deleteFalloffFactory();
-	Unit::deleteUnit();
+        if (__app) {
+            delete __app;
+            __app = 0;
+        }
+        SpeciesThermoFactory::deleteFactory();
+        ThermoFactory::deleteFactory();
+        FalloffFactory::deleteFalloffFactory();
+        Unit::deleteUnit();
     }
 
     Application* app() {
@@ -113,14 +114,14 @@ namespace Cantera {
     }
 
     XML_Node* get_XML_File(string file) {
-	string path = findInputFile(file);
-	string ff = path;
+        string path = findInputFile(file);
+        string ff = path;
         if (app()->xmlfiles.find(path) 
             == app()->xmlfiles.end()) {
             /*
              * Check whether or not the file is XML. If not, it will
              * be first processed with the preprocessor. We determine
-	     * whether it is an XML file by looking at the file extension.
+             * whether it is an XML file by looking at the file extension.
              */
             string::size_type idot = path.rfind('.');
             string ext;
@@ -131,67 +132,67 @@ namespace Cantera {
                 idot = path.size();
             }
             if (ext != ".xml" && ext != ".ctml") {
-	      /*
-	       * We will assume that we are trying to open a cti file.
-	       * First, determine the name of the xml file, ff, derived from
-	       * the cti file.
-               * In all cases, we will write the xml file to the current
-               * directory.
-	       */
-	      string::size_type islash = path.rfind('/');
-	      if (islash != string::npos) 
-		  ff = string("./")+path.substr(islash+1,idot-islash - 1) + ".xml";
-	      else {
-		  ff = string("./")+path.substr(0,idot) + ".xml";
-              }
+                /*
+                 * We will assume that we are trying to open a cti file.
+                 * First, determine the name of the xml file, ff, derived from
+                 * the cti file.
+                 * In all cases, we will write the xml file to the current
+                 * directory.
+                 */
+                string::size_type islash = path.rfind('/');
+                if (islash != string::npos) 
+                    ff = string("./")+path.substr(islash+1,idot-islash - 1) + ".xml";
+                else {
+                    ff = string("./")+path.substr(0,idot) + ".xml";
+                }
 #ifdef DEBUG_PATHS
-              cout << "get_XML_File(): Expected location of xml file = "
-                   << ff << endl;
+                cout << "get_XML_File(): Expected location of xml file = "
+                     << ff << endl;
 #endif
-	      /*
-	       * Do a search of the existing XML trees to determine if we have
-	       * already processed this file. If we have, return a pointer to
-	       * the processed xml tree.
-	       */
-	      if (app()->xmlfiles.find(ff) != app()->xmlfiles.end()) {
+                /*
+                 * Do a search of the existing XML trees to determine if we have
+                 * already processed this file. If we have, return a pointer to
+                 * the processed xml tree.
+                 */
+                if (app()->xmlfiles.find(ff) != app()->xmlfiles.end()) {
 #ifdef DEBUG_PATHS
-                cout << "get_XML_File(): File, " << ff << ", was previously read."
-                     << " Retrieving the storred xml tree." << endl;
+                    cout << "get_XML_File(): File, " << ff << ", was previously read."
+                         << " Retrieving the storred xml tree." << endl;
 #endif
-		return __app->xmlfiles[ff];	  
-	      }
-	      /*
-	       * Ok, we didn't find the processed XML tree. Do the conversion
-	       * to xml, possibly overwriting the file, ff, in the process.
-	       */
-	      ctml::ct2ctml(path.c_str());
+                    return __app->xmlfiles[ff];	  
+                }
+                /*
+                 * Ok, we didn't find the processed XML tree. Do the conversion
+                 * to xml, possibly overwriting the file, ff, in the process.
+                 */
+                ctml::ct2ctml(path.c_str());
             }
             else {
                 ff = path;
             }
-	    /*
-	     * Take the XML file ff, open it, and process it, creating an
-	     * XML tree, and then adding an entry in the map. We will store
-	     * the absolute pathname as the key for this map.
-	     */
+            /*
+             * Take the XML file ff, open it, and process it, creating an
+             * XML tree, and then adding an entry in the map. We will store
+             * the absolute pathname as the key for this map.
+             */
             ifstream s(ff.c_str());
             XML_Node* x = new XML_Node("doc");
             if (s) {
-	      x->build(s);
-              x->lock();
-	      __app->xmlfiles[ff] = x;
+                x->build(s);
+                x->lock();
+                __app->xmlfiles[ff] = x;
             }
             else {
-              string estring = "cannot open "+ff+" for reading.";
-              estring += "Note, this error indicates a possible configuration problem."; 
-	      throw CanteraError("get_XML_File", estring);
-	    }
+                string estring = "cannot open "+ff+" for reading.";
+                estring += "Note, this error indicates a possible configuration problem."; 
+                throw CanteraError("get_XML_File", estring);
+            }
         }
-	/*
-	 * Return the XML node pointer. At this point, we are sure that the
-	 * lookup operation in the return statement will return a valid
-	 * pointer. 
-	 */
+        /*
+         * Return the XML node pointer. At this point, we are sure that the
+         * lookup operation in the return statement will return a valid
+         * pointer. 
+         */
         return __app->xmlfiles[ff];
     }
 
@@ -217,8 +218,8 @@ namespace Cantera {
     string tmpDir() { appinit(); return app()->tmp_dir; }
 
     int nErrors() {
-		return static_cast<int>(app()->errorMessage.size());
-	}
+        return static_cast<int>(app()->errorMessage.size());
+    }
 
     void popError() {
         appinit();
@@ -236,7 +237,7 @@ namespace Cantera {
                 "                Cantera Error!                  \n"
                 "************************************************\n\n";
             return head+string("\nProcedure: ")+__app->errorRoutine.back()
-		+string("\nError:   ")+__app->errorMessage.back();
+                +string("\nError:   ")+__app->errorMessage.back();
         }
         else
             return "<no Cantera error>";
@@ -272,8 +273,8 @@ namespace Cantera {
         int j;
         for (j = 0; j < i; j++) {
             writelog("\n");
-            writelog(string("Procedure: ")+ __app->errorRoutine[j]+"\n");
-            writelog(string("Error:     ")+__app->errorMessage[j]+"\n");
+            writelog(string("Procedure: ")+ __app->errorRoutine[j]+" \n");
+            writelog(string("Error:     ")+__app->errorMessage[j]+" \n");
         } 
         writelog("\n\n");
         __app->errorMessage.clear();
@@ -300,13 +301,13 @@ namespace Cantera {
 
 #ifdef WIN32
         //
-	// Under Windows, the Cantera setup utility puts data files in
-	// a directory 'Cantera\data' below the one the environment
-	// variable COMMONPROGRAMFILES points to. (This is usually
-	// C:\Program Files\Common Files.) If this environment
-	// variable is defined, then this directory is assumed to
-	// exist and is added to the search path.
-	//
+        // Under Windows, the Cantera setup utility puts data files in
+        // a directory 'Cantera\data' below the one the environment
+        // variable COMMONPROGRAMFILES points to. (This is usually
+        // C:\Program Files\Common Files.) If this environment
+        // variable is defined, then this directory is assumed to
+        // exist and is added to the search path.
+        //
         const char* comfiles = getenv("COMMONPROGRAMFILES");
         if (comfiles != 0) {
             string cfiles = string(comfiles);
@@ -324,17 +325,17 @@ namespace Cantera {
 #endif
 
 #ifdef DARWIN
-	//
-	// add a default data location for Mac OS X
-	//
+        //
+        // add a default data location for Mac OS X
+        //
         if (DARWIN == 1)
             dirs.push_back("/Applications/Cantera/data");
 #endif
 
-	//
-	// if environment variable CANTERA_DATA is defined, then add
-	// it to the search path
-	//
+        //
+        // if environment variable CANTERA_DATA is defined, then add
+        // it to the search path
+        //
         if (getenv("CANTERA_DATA") != 0) {
             string datadir = string(getenv("CANTERA_DATA"));
             dirs.push_back(datadir);
@@ -345,8 +346,8 @@ namespace Cantera {
         // specified by the 'prefix' option to 'configure', or else to
         // /usr/local/cantera. 
 #ifdef CANTERA_DATA
-	string datadir = string(CANTERA_DATA);
-	dirs.push_back(datadir);
+        string datadir = string(CANTERA_DATA);
+        dirs.push_back(datadir);
 #endif
     }
 
@@ -385,14 +386,14 @@ namespace Cantera {
      */
     string findInputFile(string name) {
         appinit();
-	string::size_type islash = name.find('/');
-	string::size_type ibslash = name.find('\\');
+        string::size_type islash = name.find('/');
+        string::size_type ibslash = name.find('\\');
         string inname;
         vector<string>& dirs = __app->inputDirs;
         if (dirs.size() == 0) setDefaultDirectories();
 
         int nd;
-	if (islash == string::npos && ibslash == string::npos) {
+        if (islash == string::npos && ibslash == string::npos) {
             nd = static_cast<int>(dirs.size());
             int i;
             inname = "";
@@ -406,7 +407,7 @@ namespace Cantera {
             }
             string msg;
             msg = "\nInput file " + name 
-                 + " not found in director";
+                  + " not found in director";
             msg += (nd == 1 ? "y " : "ies ");
             for (i = 0; i < nd; i++) {
                 msg += "\n'" + dirs[i] + "'";
@@ -452,6 +453,21 @@ namespace Cantera {
 #endif
         }
     }
+
+
+    /// exceptions
+
+    CanteraError::CanteraError(string proc, string msg) {
+        setError(proc, msg);
+    }
+    
+    ArraySizeError::ArraySizeError(string proc, int sz, int reqd) :
+        CanteraError(proc, "Array size ("+int2str(sz)+
+            ") too small. Must be at least "+int2str(reqd)) {}
+
+    ElementRangeError::ElementRangeError(string func, int m, int mmax) :
+        CanteraError(func, "Element index " + int2str(m) + 
+            " outside valid range of 0 to " + int2str(mmax-1)) {}
 }
 
 
