@@ -3,3 +3,5 @@ ctsetup
 cxx_examples
 validate
 csvdiff
+*.ilk
+*.pdb
