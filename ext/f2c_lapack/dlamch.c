@@ -2,6 +2,7 @@
 extern "C" {
 #endif
 #include "f2c.h"
+#include "stdio.h"
 
 doublereal dlamch_(char *cmach)
 {
