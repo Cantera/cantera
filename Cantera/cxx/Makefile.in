@@ -14,7 +14,8 @@ build_python=@BUILD_PYTHON@
 build_particles=@BUILD_PARTICLES@
 
 all:
-	cd src; @MAKE@
+	@INSTALL@ include/*.h ../../build/include/cantera
+	cd src;   @MAKE@
 	cd demos; @MAKE@
 
 clean:
