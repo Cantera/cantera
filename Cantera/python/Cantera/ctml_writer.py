@@ -187,7 +187,7 @@ class species(writer):
     
     def __init__(self,
                  name = 'missing name!',
-                 atoms = 'missing atoms!',
+                 atoms = '',
                  comment = '',
                  thermo = None,
                  transport = None,
@@ -293,7 +293,7 @@ class const_cp(thermo):
     """Constant specific heat."""
     
     def __init__(self, tmax = -1.0, tmin = -1.0,
-                 t0 = 0.0, cp0 = 0.0, h0 = 0.0, s0 = 0.0):
+                 t0 = 298.15, cp0 = 0.0, h0 = 0.0, s0 = 0.0):
         self._t = [tmin, tmax]
         self._c = [t0, h0, s0, cp0]
         
@@ -364,22 +364,14 @@ class sticking_prob(writer):
         self._sp = species
         
     def build(self, p):
-        ig = ideal_gas()
-        for ph in _phases:
-            if ph.has_species(self._sp):
-                if ph._eos.__class__ == ig.__class__:
-                    pass
-                else:
-                    raise ('sticking probabilities only implemented for '
-                           +'species in ideal gas mixtures')
-                
         a = p.addChild('Stick')
+        a['species'] = self._sp
         addFloat(a,'A',self._c[0],fmt = '%14.6E')
         a.addChild('n',`self._c[1]`)
-        if type(self._c[2]) == types.FloatType:
-            addFloat(a,'E',(self._c[2],_ue))
+        if isnum(self._c[2]):
+            addFloat(a,'E',(self._c[2],_ue), fmt = '%f')
         else:
-            addFloat(a,'E',self._c[2])                
+            addFloat(a,'E',self._c[2], fmt = '%f')                
 
         
 class reaction(writer):
@@ -404,6 +396,7 @@ class reaction(writer):
         self._r = getReactionSpecies(r)
         self._p = getReactionSpecies(p)
         self._kf = kf
+        self._igspecies = []
         self._type = ''
         _reactions.append(self)
 
@@ -420,7 +413,7 @@ class reaction(writer):
                 nstr = '0'+`self._num`                
             else:
                 nstr = `self._num`
-            id = 'reaction_'+nstr
+            id = nstr
         p.addComment("   reaction "+id+"    ")                
         r = p.addChild('reaction')
         r['id'] = id
@@ -447,6 +440,8 @@ class reaction(writer):
             for ph in _phases:
                 if ph.has_species(s):
                     nm, nl = ph.conc_dim()
+                    if ph.is_ideal_gas():
+                        self._igspecies.append(s)
                     break
             if nm < 0:
                 print self._r
@@ -477,6 +472,8 @@ class reaction(writer):
         kfnode = r.addChild('rateCoeff')
         if self._type == '':
             self._kf = [self._kf]
+        elif self._type == 'surface':
+            self._kf = [self._kf]            
         elif self._type == 'threeBody':
             self._kf = [self._kf]
             mdim += 1
@@ -602,6 +599,15 @@ class falloff_reaction(reaction):
             self._falloff.build(kfnode)
 
 
+class surface_reaction(reaction):
+
+    def __init__(self,
+                 equation = '',
+                 kf = None,
+                 id = ''):
+        reaction.__init__(self, equation, kf, id)
+        self._type = 'surface'
+
 #--------------            
 
 
@@ -609,15 +615,15 @@ class state:
     def __init__(self,
                  temperature = None,
                  pressure = None,
-                 moleFractions = None,
-                 massFractions = None,
+                 mole_fractions = None,
+                 mass_fractions = None,
                  density = None,
                  coverages = None):
         self._t = temperature
         self._p = pressure
         self._rho = density
-        self._x = moleFractions
-        self._y = massFractions
+        self._x = mole_fractions
+        self._y = mass_fractions
         self._c = coverages
         
     def build(self, ph):
@@ -627,7 +633,7 @@ class state:
         if self._rho: addFloat(st, 'density', self._rho)
         if self._x: st.addChild('moleFractions', self._x)
         if self._y: st.addChild('massFractions', self._y)
-        if self._c: st.addChild('moleFractions', self._c)
+        if self._c: st.addChild('coverages', self._c)
     
 
 class phase(writer):
@@ -696,7 +702,9 @@ class phase(writer):
         global _phases
         _phases.append(self)
 
-
+    def is_ideal_gas(self):
+        return 0
+    
     def is_pure(self):
         return 0
     
@@ -777,7 +785,7 @@ class ideal_gas(phase):
                  species = '',
                  reactions = 'none',
                  kinetics = 'GasKinetics',
-                 transport = 'Mix',
+                 transport = 'None',
                  initial_state = None):
         
         phase.__init__(self, name, 3, elements, species, reactions,
@@ -795,10 +803,78 @@ class ideal_gas(phase):
         k['model'] = self._kin
         t = ph.addChild('transport')
         t['model'] = self._tr
+
+    def is_ideal_gas(self):
+        return 1
+    
+class pure_solid(phase):
+    """A pure solid."""
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 density = -1.0,
+                 transport = 'None',
+                 initial_state = None):
         
+        phase.__init__(self, name, 3, elements, species, 'none',
+                       initial_state)
+        self._dens = density
+        self._pure = 1
+        if self._dens < 0.0:
+            raise 'density must be specified.'        
+        self._pure = 0
+        self._tr = transport
+
+        
+    def build(self, p):
+        ph = phase.build(self, p)
+        e = ph.addChild("thermo")
+        e['model'] = 'SolidCompound'
+        addFloat(e, 'density', self._dens)
+        if self._tr:
+            t = ph.addChild('transport')
+            t['model'] = self._tr
         
 
-    
+class ideal_interface(phase):
+    """An ideal interface."""
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 reactions = 'none',
+                 site_density = 0.0,
+                 phases = [],
+                 kinetics = 'Interface',
+                 transport = 'None',
+                 initial_state = None):
+
+        self._type = 'surface'
+        phase.__init__(self, name, 2, elements, species, reactions,
+                       initial_state)
+        self._pure = 0
+        self._kin = kinetics
+        self._tr = transport
+        self._phases = phases
+        self._sitedens = site_density
+        
+    def build(self, p):
+        ph = phase.build(self, p)
+        e = ph.addChild("thermo")
+        e['model'] = 'Surface'
+        addFloat(e, 'site_density',self._sitedens)
+        k = ph.addChild("kinetics")
+        k['model'] = self._kin
+        t = ph.addChild('transport')
+        t['model'] = self._tr
+        p = ph.addChild('phaseArray',self._phases)
+
+
+    def conc_dim(self):
+        return (1, -2)
+
+        
 #------------------ equations of state --------------------------
 
 class eos(writer):

@@ -504,7 +504,10 @@ extern "C" {
                 }
             }
             Kinetics* kin = newKineticsMgr(*x, phases);
-            return Storage::storage()->addKinetics(kin);
+            if (kin)
+                return Storage::storage()->addKinetics(kin);
+            else
+                return 0;
         }
         catch (CanteraError) { return -1; }
     }

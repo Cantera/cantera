@@ -23,11 +23,15 @@ py_xml_del(PyObject *self, PyObject *args)
 static PyObject*
 py_xml_build(PyObject *self, PyObject *args)
 {
-    int n;
+    int n, pre;
     char* file;
-    if (!PyArg_ParseTuple(args, "is:xml_build", &n, &file))
+    if (!PyArg_ParseTuple(args, "isi:xml_build", &n, &file, &pre))
         return NULL;
-    int iok = xml_build(n, file);
+    int iok;
+    if (pre > 0) 
+        iok = xml_preprocess_and_build(n, file);
+    else
+        iok = xml_build(n, file);
     if (iok < 0) return reportError(iok);
     return Py_BuildValue("i",0);
 }

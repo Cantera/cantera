@@ -41,7 +41,8 @@ if isa(x,'Solution')
 elseif isa(x,'XML_Node')
   xp = x;
 else
-  doc = XML_Node('doc', x);
+  doc = XML_Node('doc');
+  build(doc, x, 1);
   xp = child(doc,'ctml/phase');
 end
 t = ThermoPhase(xp);

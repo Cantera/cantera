@@ -10,6 +10,7 @@ extern "C" {
     int DLL_IMPORT xml_copy(int i);
     int DLL_IMPORT xml_assign(int i, int j);
     int DLL_IMPORT xml_build(int i, const char* file);
+    int DLL_IMPORT xml_preprocess_and_build(int i, const char* file);
     int DLL_IMPORT xml_attrib(int i, const char* key, char* value);
     int DLL_IMPORT xml_addAttrib(int i, const char* key, const char* value);
     int DLL_IMPORT xml_addComment(int i, const char* comment);

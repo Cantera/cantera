@@ -103,7 +103,10 @@ void xmlmethods( int nlhs, mxArray *plhs[],
                 j = getInt(prhs[3]);
                 iok = xml_removeChild(i, j);
                 break;
-
+        case 15:
+            file = getString(prhs[3]);
+            iok = xml_preprocess_and_build(i, file);
+            break;
             default:
                 mexErrMsgTxt("unknown job parameter");
             }

@@ -1,6 +1,7 @@
 
 // Cantera includes
 #include "ctml.h"
+#include "importCTML.h"
 
 #include "Cabinet.h"
 #include "Storage.h"
@@ -28,8 +29,10 @@ extern "C" {
 
     int DLL_EXPORT xml_new(const char* name = 0) {
         XML_Node* x;
-        if (!name) x = new XML_Node;
-        else x = new XML_Node(string(name));
+        if (!name) 
+            x = new XML_Node;
+        else 
+            x = new XML_Node(string(name));
         return Cabinet<XML_Node>::cabinet()->add(x);
     }
 
@@ -61,6 +64,14 @@ extern "C" {
             }
             _xml(i)->build(f);
             f.close();
+            return 0;
+        }
+        catch (CanteraError) { return -1; }
+    }
+
+    int DLL_EXPORT xml_preprocess_and_build(int i, const char* file) {
+        try {
+            get_CTML_Tree(_xml(i), string(file));
             return 0;
         }
         catch (CanteraError) { return -1; }

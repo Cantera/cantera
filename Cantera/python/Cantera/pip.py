@@ -22,8 +22,10 @@ write()
     fo.write(txt)
     fo.close()
     cmd = sys.executable+' '+fname+' '+name+' '+base
-    os.system(cmd)
+    err = os.system(cmd)
     os.remove(fname)
+    if err:
+        sys.exit(-1)
 
 
 

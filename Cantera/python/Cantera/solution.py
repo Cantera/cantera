@@ -37,26 +37,20 @@ class Solution(ThermoPhase, Kinetics, Transport):
         self.verbose = 1
         fn = src.split('#')
         id = ""
-        if len(fn) > 1: id = fn[1]
-        fn = fn[0]
+        if len(fn) > 1:
+            id = fn[1]
+            fn = fn[0]
             
         fname = os.path.basename(fn)
         ff = os.path.splitext(fname)
-        if ff[1] <> '.xml' and ff[1] <> '.ctml':
-            #if ff[1] == '.py' or ff[1] == '.in':
-            from Cantera import pip
-            pip.process(fname)                
-            #else:
-            #    ctmodule.ck2ctml(src, thermo_db, transport_db, ff[0]+'.xml',
-            #                     ff[0])
-            src = ff[0]+'.xml'
-        
-        # get the 'phase' element
 
+        if src and not root:
+            root = XML.XML_Node(name = 'doc', src = fn, preprocess = 1)
+            
         if id:
-            s = XML.find_XML(src=src, root=root, id=id)
+            s = root.child(id = id)
         else:
-            s = XML.find_XML(src=src, root=root, name="phase")        
+            s = root.child(name = "phase")
 
         # get the equation of state model
         ThermoPhase.__init__(self, xml_phase=s)
@@ -68,8 +62,6 @@ class Solution(ThermoPhase, Kinetics, Transport):
         Transport.__init__(self, xml_phase=s, phase=self,
                            model = transport, loglevel=4)
         
-        #self.setState_TP(300.0, OneAtm)
-
 
     def __repr__(self):
         return _cantera.phase_report(self._phase_id, self.verbose)

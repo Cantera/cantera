@@ -20,18 +20,25 @@ class Interface(SurfacePhase, Kinetics):
         self._owner = 0
         self.verbose = 1
 
-        fn = string.split(src,'#')
-        fn = fn[0]
+        fn = src.split('#')
         id = ""
-        if len(fn) > 1: id = fn[1]        
+        if len(fn) > 1:
+            id = fn[1]        
+            fn = fn[0]
         fname = os.path.basename(fn)
         ff = os.path.splitext(fname)
         
         # get the 'phase' element
+
+        if src and not root:
+            root = XML.XML_Node(name = 'doc', src = fn, preprocess = 1)
+            
         if id:
-            s = XML.find_XML(src=src, root=root, id=id)
+            s = root.child(id = id)            
+            #s = XML.find_XML(src=src, root=root, id=id)
         else:
-            s = XML.find_XML(src=src, root=root, name="phase")                
+            s = root.child(name = "phase")            
+            #s = XML.find_XML(src=src, root=root, name="phase")                
 
         # get the equation of state model
         SurfacePhase.__init__(self, xml_phase=s)
