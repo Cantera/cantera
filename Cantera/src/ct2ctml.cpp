@@ -42,10 +42,10 @@ namespace ctml {
     }
 
     static bool checkPython() {
-        string path = tmpDir() + "/check.py";
+        string path = tmpDir() + "/.check.py";
         ofstream f(path.c_str());
         if (!f) {
-            throw CanteraError("checkPython","cannot write to "+tmpDir());
+            throw CanteraError("checkPython","cannot open "+path+" for writing);
         }
         f << "from Cantera import *\n";
         f.close();
