@@ -5,7 +5,7 @@
  *  Chemical equilibrium. 
  *  Implementation file for class ChemEquil
  *
- *  $Author$
+ *  $Author$ 
  *  $Date$
  *  $Revision$
  *
