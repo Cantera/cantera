@@ -42,9 +42,11 @@ extern "C" {
         const doublereal* y, const doublereal* yprime,
         const doublereal* cj, doublereal* delta, 
         integer* ires, doublereal* rpar, integer* ipar) {
-        void* hndl = (void*)ipar[0];
+		void **iddres_res = reinterpret_cast<void **>(&(ipar[0]));
+		void *hndl = *iddres_res;
         Cantera::ResidEval* f = (Cantera::ResidEval*)hndl;
-        f->evalResid(*t, y, yprime, delta);
+		double delta_t = 0.0;
+        f->evalResid(*t, delta_t, y, yprime, delta);
     }
 
     static void ddaspk_jac() {}
@@ -84,7 +86,9 @@ namespace Cantera {
         m_iwork.resize(20);  //  "
         m_ipar.resize(2);
         m_rpar.resize(2);
-        m_ipar[0] = integer((void*)(&m_resid));
+		void *iddr = static_cast<void *>(&m_resid);
+		void **iddr_ipar = reinterpret_cast<void **>(&(m_ipar[0]));
+		*iddr_ipar = iddr;
         setTolerances(1.e-7, 1.e-15);
     }
 
