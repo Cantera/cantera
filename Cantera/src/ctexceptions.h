@@ -11,8 +11,11 @@
 #ifndef CT_CTEXCEPTIONS_H
 #define CT_CTEXCEPTIONS_H
 
-#include "global.h"
-#include "stringUtils.h"
+//#include "global.h"
+//#include "stringUtils.h"
+
+#include <string>
+using namespace std;
 
 namespace Cantera {
 
@@ -22,32 +25,19 @@ namespace Cantera {
     class CanteraError {
     public:
         CanteraError() {}
-        CanteraError(string proc, string msg) {
-            setError(proc, msg);
-            //m_msg = msg;
-        }
+        CanteraError(string proc, string msg);
         virtual ~CanteraError(){}
-        //string errorMessage() { return m_msg; }
-        //void append(string msg) { m_msg += msg; }
-        //void saveError(string procedure) {
-        //    setError(procedure, m_msg);
-        //    m_msg = "";
-        //}
     protected:
-        //string m_msg;
     };
 
     class ArraySizeError : public CanteraError {
     public:
-        ArraySizeError(string proc, int sz, int reqd) :
-            CanteraError(proc, "Array size ("+int2str(sz)+") too small. Must be at least "+int2str(reqd)) {}
+        ArraySizeError(string proc, int sz, int reqd);
     };
 
     class ElementRangeError : public CanteraError {
     public:
-        ElementRangeError(string func, int m, int mmax) :
-            CanteraError(func, "Element index " + int2str(m) + 
-                " outside valid range of 0 to " + int2str(mmax-1)) {}
+        ElementRangeError(string func, int m, int mmax);
     };
 
 
