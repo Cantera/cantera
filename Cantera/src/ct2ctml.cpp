@@ -120,7 +120,8 @@ namespace ctml {
 #ifdef WIN32
         string cmd = pypath() + " " + path + "> ct2ctml.log 2>&1";
 #else
-        string cmd = pypath() + " " + path + " &> ct2ctml.log";
+        string cmd = "sleep " + sleep() + "; " + pypath() + 
+                     " " + path + " &> ct2ctml.log";
 #endif
 #ifdef DEBUG_PATHS
         writelog("ct2ctml: executing the command " + cmd + "\n");
