@@ -217,8 +217,9 @@ namespace ctml {
      */
     doublereal getFloat(XML_Node& parent, string name, string type) {
         if (!parent.hasChild(name)) 
-            throw CanteraError("getFloat",
-                "no child element named "+name);
+            throw CanteraError("getFloat (called from XML Node \"" +
+			       parent.name() + "\"): ",
+			       "no child XML element named " + name);
         XML_Node& node = parent.child(name);
         doublereal x, x0, x1, fctr = 1.0;
         string units, vmin, vmax;
