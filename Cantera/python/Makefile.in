@@ -65,7 +65,7 @@ minbuild:
 
 install:
 ifeq (@local_python_inst@,1)
-	(@PYTHON_CMD@ setup.py install --prefix="@python_prefix@")
+	(@PYTHON_CMD@ setup.py install --prefix="@python_win_prefix@")
 else
 	(@PYTHON_CMD@ setup.py install)
 endif
