@@ -88,11 +88,12 @@ namespace Cantera {
     
     //-----------------------------
 
+    // changed upper limit to 500 from 1.0e10  dgg 5/21/04
     double MMCollisionInt::tstar[39] = {
         0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0,
         1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 3.5, 4.0,
         5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0,
-        18.0, 20.0, 25.0, 30.0, 35.0, 40.0, 50.0, 75.0, 100.0, 1.e10};
+        18.0, 20.0, 25.0, 30.0, 35.0, 40.0, 50.0, 75.0, 100.0, 500.0};
 
     double MMCollisionInt::astar_table[39*8] = {
         1.0065, 1.0840, 1.0840, 1.0840, 1.0840, 1.0840, 1.0840, 1.0840,
@@ -235,7 +236,8 @@ namespace Cantera {
             if (tsmax > tstar[n+1]) m_nmax = n+1;
         }
         if (m_nmin < 0 || m_nmin >= 36 || m_nmax < 0 || m_nmax > 36) {
-			m_nmin = 0;
+            m_nmin = 0;
+            m_nmax = 36;
         }
         m_xml->XML_item(logfile, "Tstar_min", tstar[m_nmin + 1]);
         m_xml->XML_item(logfile, "Tstar_max", tstar[m_nmax + 1]);
@@ -475,20 +477,20 @@ namespace Cantera {
             m_xml->XML_writeVector(logfile, indent, "astar", degree+1, a);
             if (rmserr > 0.01) {
                 sprintf(p, "Warning: RMS error = %12.6g for A* fit", rmserr);
-                m_xml->XML_comment(logfile, s);
+                m_xml->XML_comment(logfile, p);
             }
 
             m_xml->XML_writeVector(logfile, indent, "bstar", degree+1, b);
             if (rmserr > 0.01) { 
                 sprintf(p, "Warning: RMS error = %12.6g for B* fit", rmserr);
-                m_xml->XML_comment(logfile, s);
+                m_xml->XML_comment(logfile, p);
             }
 
             m_xml->XML_writeVector(logfile, indent, "cstar", degree+1, c);
 
             if (rmserr > 0.01) { 
                 sprintf(p, "Warning: RMS error = %12.6g for C* fit", rmserr);
-                m_xml->XML_comment(logfile, s);
+                m_xml->XML_comment(logfile, p);
             }
             m_xml->XML_close(logfile, "tstar_fit");
         }
