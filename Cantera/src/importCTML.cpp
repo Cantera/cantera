@@ -348,7 +348,7 @@ namespace Cantera {
         vector<string> key, val;
         getPairs(rg, key, val);
 
-        int ns = key.size();
+        int ns = static_cast<int>(key.size());
 
 	/*
 	 * Loop over each of the pairs and process them
@@ -400,7 +400,7 @@ namespace Cantera {
         if (rp == 1 && rxn.hasChild("order")) {
             vector<XML_Node*> ord;
             rxn.getChildren("order",ord);
-            int norder = ord.size();
+            int norder = static_cast<int>(ord.size());
             int loc;
             doublereal forder;
             for (int nn = 0; nn < norder; nn++) {
@@ -504,7 +504,7 @@ namespace Cantera {
         thermo_t& surfphase, ReactionData& rdata) {
         vector<XML_Node*> cov;
         node.getChildren("coverage", cov);
-        int k, nc = cov.size();
+        int k, nc = static_cast<int>(cov.size());
         doublereal e;
         string spname;
         if (nc > 0) {
@@ -529,7 +529,7 @@ namespace Cantera {
         vector<string> p;
         getStringArray(f,p);
         vector_fp c;
-        int np = p.size();
+        int np = static_cast<int>(p.size());
         for (int n = 0; n < np; n++) {
             c.push_back(fpValue(p[n]));
         }
@@ -556,7 +556,7 @@ namespace Cantera {
 
         vector<string> key, val;
         getPairs(eff, key, val);
-        int ne = key.size();
+        int ne = static_cast<int>(key.size());
         string nm;
         string phse = kin.thermo(0).id();
         int n, k;
@@ -781,7 +781,7 @@ namespace Cantera {
         XML_Node* db = 0;
         vector<XML_Node*> sparrays;
         phase.getChildren("speciesArray", sparrays);
-        int jsp, nspa = sparrays.size();
+        int jsp, nspa = static_cast<int>(sparrays.size());
         vector<XML_Node*> dbases;
         vector_int sprule(nspa,0);
 
@@ -846,14 +846,14 @@ namespace Cantera {
             // Get the array of species name strings.
             vector<string> spnames;
             getStringArray(species, spnames);
-            int nsp = spnames.size();
+            int nsp = static_cast<int>(spnames.size());
 
             // if 'all' is specified, then add all species 
             // defined in this database to the phase
             if (nsp == 1 && spnames[0] == "all") {
                 vector<XML_Node*> allsp;
                 db->getChildren("species",allsp);
-                nsp = allsp.size();
+                nsp = static_cast<int>(allsp.size());
                 spnames.resize(nsp);
                 for (int nn = 0; nn < nsp; nn++) {
 		  spnames[nn] = (*allsp[nn])["name"];
@@ -992,7 +992,7 @@ next:
         else
             eqn = "<no equation>";
 
-        eqlen = eqn.size();
+        eqlen = static_cast<int>(eqn.size());
         for (nn = 0; nn < eqlen; nn++) {
             if (eqn[nn] == '[') eqn[nn] = '<';
             if (eqn[nn] == ']') eqn[nn] = '>';
@@ -1080,7 +1080,7 @@ next:
             for (nn = 0; nn < np; nn++) {
                 rxnstoich[rdata.products[nn]+1] += rdata.pstoich[nn];
             }
-            int nrxns = _reactiondata.size();
+            int nrxns = static_cast<int>(_reactiondata.size());
             for (nn = 0; nn < nrxns; nn++) {
                 if ((int(rdata.reactants.size()) == _nr[nn]) 
                     && (rdata.reactionType == _typ[nn])) {
@@ -1168,7 +1168,7 @@ next:
 	 * end result being purely additive.
 	 */
         p.getChildren("reactionArray",rarrays);
-        int na = rarrays.size();
+        int na = static_cast<int>(rarrays.size());
         if (na == 0) return false;
         for (int n = 0; n < na; n++) {
 	  /*
@@ -1212,11 +1212,11 @@ next:
 	   */
 	  vector<XML_Node*> incl;
 	  rxns.getChildren("include",incl);
-	  int ninc = incl.size();
+	  int ninc = static_cast<int>(incl.size());
 
 	  vector<XML_Node*> allrxns;
 	  rdata->getChildren("reaction",allrxns);
-	  nrxns = allrxns.size();
+	  nrxns = static_cast<int>(allrxns.size());
 	  // if no 'include' directive, then include all reactions
 	  if (ninc == 0) {
 	    for (i = 0; i < nrxns; i++) {
@@ -1328,8 +1328,8 @@ next:
         }
         phase_ids.push_back(default_phase);
             
-        int np = phase_ids.size();
-        int nt = th.size();
+        int np = static_cast<int>(phase_ids.size());
+        int nt = static_cast<int>(th.size());
 
         // for each referenced phase, attempt to find its id among those
         // phases specified. 

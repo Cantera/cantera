@@ -65,7 +65,7 @@ namespace Cantera {
 
 
         /// Total number of paths to or from this node 
-        int nPaths() const { return m_paths.size(); }
+        int nPaths() const { return static_cast<int>(m_paths.size()); }
 
         /// add a path to or from this node
         void addPath(Path* path);
@@ -122,7 +122,9 @@ namespace Cantera {
         void setFlow(doublereal v) { m_total = v; }
 
         ///  Number of reactions contributing to this path
-        int nReactions() { return m_rxn.size(); }
+        int nReactions() { 
+			return static_cast<int>(m_rxn.size()); 
+		}
 
         ///  Map from reaction number to flow from that reaction in this path.
         const rxn_path_map& reactionMap() { return m_rxn; }
@@ -173,8 +175,8 @@ namespace Cantera {
         SpeciesNode* node(int k) { return m_nodes[k]; }
         Path* path(int k1, int k2) { return m_paths[k1][k2]; }
         Path* path(int n) { return m_pathlist[n]; }
-        int nPaths() { return m_pathlist.size(); }
-        int nNodes() { return m_nodes.size(); }
+        int nPaths() { return static_cast<int>(m_pathlist.size()); }
+        int nNodes() { return static_cast<int>(m_nodes.size()); }
 
         void addNode(int k, string nm, doublereal x = 0.0);
 
@@ -186,11 +188,11 @@ namespace Cantera {
         void include(string name) { m_include.push_back(name); }
         void exclude(string name) { m_exclude.push_back(name); }
         void include(vector<string>& names) { 
-            int n = names.size();
+            int n = static_cast<int>(names.size());
             for (int i = 0; i < n; i++) m_include.push_back(names[i]);
         }
         void exclude(vector<string>& names) { 
-            int n = names.size();
+            int n = static_cast<int>(names.size());
             for (int i = 0; i < n; i++) m_exclude.push_back(names[i]);
         }
         vector<string>& included() { return m_include; }

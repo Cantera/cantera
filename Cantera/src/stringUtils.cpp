@@ -37,7 +37,7 @@ namespace Cantera {
     }
 
     string lowercase(string s) {
-        int n = s.size();
+        int n = static_cast<int>(s.size());
         string lc(s);
         for (int i = 0; i < n; i++) lc[i] = tolower(s[i]);
         return lc;
@@ -49,7 +49,7 @@ namespace Cantera {
     string stripws(string s) {
         int i;
         bool sempty = true;
-        int n = s.size();
+        int n = static_cast<int>(s.size());
         string ss = "";
         for (i = 0; i < n; i++) {
             if (s[i] != ' ' && isprint(s[i])) {
@@ -66,7 +66,7 @@ namespace Cantera {
      */
     string stripnonprint(string s) {
         int i;
-        int n = s.size();
+        int n = static_cast<int>(s.size());
         string ss = "";
         for (i = 0; i < n; i++) {
             if (isprint(s[i])) {
@@ -82,11 +82,11 @@ namespace Cantera {
      */
     void parseCompString(const string ss, compositionMap& x) {
         string s = ss;
-        int icolon, ibegin, iend;
+		string::size_type icolon, ibegin, iend;
         string name, num, nm;
         do {
             ibegin = s.find_first_not_of(", ;\n\t");
-            if (ibegin >= 0) {
+			if (ibegin != string::npos) {
                 s = s.substr(ibegin,s.size());
                 icolon = s.find(':');
                 iend = s.find_first_of(", ;\n\t");
@@ -115,7 +115,7 @@ namespace Cantera {
     }
 
     int fillArrayFromString(const string& str, doublereal* a, char delim) {
-        int iloc;
+		string::size_type iloc;
         int count = 0;
         string num, s;
         s = str;
