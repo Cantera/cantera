@@ -150,9 +150,10 @@ namespace Cantera {
     void SurfPhase::
     setCoverages(const doublereal* theta) {
         double sum = 0.0;
-        for (int k = 0; k < m_kk; k++) sum += theta[k];
+        int k;
+        for (k = 0; k < m_kk; k++) sum += theta[k];
 
-        for (int k = 0; k < m_kk; k++) {
+        for (k = 0; k < m_kk; k++) {
             m_work[k] = m_n0*theta[k]/(sum*size(k));
         }
 	/*
