@@ -61,7 +61,7 @@ namespace ct {
 
     ctvector_fp ctvector_fp::operator=(const ctvector_fp& x) {
         if (this == &x) return *this;
-        delete[] _data;
+        if (_data) delete[] _data;
         if (x._alloc > 0) {
             _data = new value_type[x._alloc];
             copy(x._data, x._data + x._alloc, _data);
@@ -75,7 +75,7 @@ namespace ct {
     }
 
     ctvector_fp::~ctvector_fp() {
-        delete[] _data;
+        if (_data) delete[] _data;
         _data = 0;
     }
 
@@ -83,8 +83,10 @@ namespace ct {
         size_t new_alloc = n+1;
         value_type* newdata = new value_type[new_alloc];
         size_t datalen = (n > _size ? _size : n);
-        copy(_data, _data + datalen, newdata);
-        delete[] _data;
+	if (_data) {
+	  copy(_data, _data + datalen, newdata);
+	}
+        if (_data) delete[] _data;
         _data = newdata;
         _alloc = new_alloc;
         _size = n;
@@ -95,8 +97,10 @@ namespace ct {
         value_type* newdata = new value_type[new_alloc];
         fill(newdata, newdata + new_alloc, v0);
         size_t datalen = (n > _size ? _size : n);
-        copy(_data, _data + datalen, newdata);
-        delete[] _data;
+	if (_data) {
+	  copy(_data, _data + datalen, newdata);
+	}
+        if (_data) delete[] _data;
         _data = newdata;
         _alloc = new_alloc;
         _size = n;
@@ -158,7 +162,9 @@ namespace ct {
         size_t new_alloc = n+1;
         value_type* newdata = new value_type[new_alloc];
         size_t datalen = (n > _size ? _size : n);
-        copy(_data, _data + datalen, newdata);
+	if (_data) {
+	  copy(_data, _data + datalen, newdata);
+	}
         if (_alloc > 0) delete[] _data;
         _data = newdata;
         _alloc = new_alloc;
@@ -170,7 +176,9 @@ namespace ct {
         value_type* newdata = new value_type[new_alloc];
         fill(newdata, newdata + new_alloc, v0);
         size_t datalen = (n > _size ? _size : n);
-        copy(_data, _data + datalen, newdata);
+	if (_data) {
+	  copy(_data, _data + datalen, newdata);
+	}
         if (_alloc > 0) delete[] _data;
         _data = newdata;
         _alloc = new_alloc;
