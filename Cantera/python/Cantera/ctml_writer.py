@@ -993,7 +993,7 @@ class pure_solid(phase):
         ph = phase.build(self, p)
         e = ph.addChild("thermo")
         e['model'] = 'SolidCompound'
-        addFloat(e, 'density', self._dens, defunit = _umass+'/'+_ulen+'3')
+        addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
         if self._tr:
             t = ph.addChild('transport')
             t['model'] = self._tr
@@ -1200,7 +1200,10 @@ if __name__ == "__main__":
 # $Revision$
 # $Date$
 # $Log$
-# Revision 1.15  2003-08-18 05:05:02  dggoodwin
+# Revision 1.16  2003-08-19 22:02:01  hkmoffa
+# Fixed an error in an argument list
+#
+# Revision 1.15  2003/08/18 05:05:02  dggoodwin
 # added support for specified reaction order, sticking coefficients,
 # coverage dependence of rate coefficients; fixed error where site_density
 # was not being converted to SI.
