@@ -57,8 +57,8 @@ tools-install:
 	cd tools; @MAKE@ install
 
 hdr-install:
-	@INSTALL@ -d @prefix@/include/cantera
-	cp -r -f build/include/cantera @prefix@/include/cantera
+	@INSTALL@ -d @prefix@/include
+	cp -r -f build/include/cantera @prefix@/include
 
 hdr-collect:
 	@INSTALL@ -d build/include/cantera

@@ -32,7 +32,7 @@ using namespace std;
 
 namespace Cantera {
 
-    int _equilflag(char* xy);
+    int _equilflag(const char* xy);
 
     /**
      *  Chemical equilibrium options. Used internally by class ChemEquil.
@@ -163,7 +163,7 @@ namespace Cantera {
      * determines the two properties that will be held fixed in the
      * calculation.
      */
-    inline void equilibrate(thermo_t& s, char* XY) {
+    inline void equilibrate(thermo_t& s, const char* XY) {
         ChemEquil e;
         e.equilibrate(s,_equilflag(XY));
     }

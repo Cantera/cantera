@@ -33,7 +33,7 @@ using namespace std;
 
 namespace Cantera {
 
-    int _equilflag(char* xy) {
+    int _equilflag(const char* xy) {
         string flag = string(xy);
         if (flag == "TP") return TP;
         else if (flag == "TV") return TV;
