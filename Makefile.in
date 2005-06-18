@@ -151,6 +151,8 @@ ifeq ($(build_python),2)
 	@INSTALL@ -d @ct_demodir@/python/flames
 	@INSTALL@ Cantera/python/examples/flames/*.py \
                 @ct_demodir@/python/flames
+	@INSTALL@ Cantera/python/examples/flames/*.cti \
+                @ct_demodir@/python/flames
 	@INSTALL@ -d @ct_demodir@/python/kinetics
 	@INSTALL@ Cantera/python/examples/kinetics/*.py \
                 @ct_demodir@/python/kinetics
