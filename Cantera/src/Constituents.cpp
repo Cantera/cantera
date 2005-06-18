@@ -146,6 +146,17 @@ namespace Cantera {
       return m_Elements->atomicWeights();
     }
 
+
+    /********************************************************************
+     *
+     * atomicNumber
+     *
+     * Return the atomic number of element m.
+     */
+    int Constituents::atomicNumber(int m) const {
+      return m_Elements->atomicNumber(m);
+    }
+
 #ifdef INCL_DEPRECATED_METHODS   
     /********************************************************************
      * element():

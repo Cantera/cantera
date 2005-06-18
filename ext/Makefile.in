@@ -15,8 +15,10 @@ LIBS = blas/libctblas.a lapack/libctlapack.a math/libctmath.a \
        recipes/librecipes.a cvode/libcvode.a tpx/libtpx.a
  
 all: 
+	(if test -d "f2c_libs" ; then  \
+            cd f2c_libs ; @MAKE@ ; \
+         fi)
 ifeq ($(BUILD_WITH_F2C),1)
-	cd f2c_libs; @MAKE@
 ifeq ($(BUILD_LAPACK),1)
 	cd f2c_lapack; @MAKE@
 else

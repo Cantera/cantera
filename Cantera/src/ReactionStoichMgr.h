@@ -90,8 +90,8 @@ namespace Cantera {
      *   - reactants: (2, 2)   [ note repeated index ]
      *   - products:  (1)
      * 
-     * @param rxn Reaction number. This number will be used as the index into the
-     * rate of progess vector in the methods below. 
+     * @param rxn Reaction number. This number will be used as the index 
+     * into the rate of progess vector in the methods below. 
      * @param reactants vector of integer reactant indices
      * @param products vector of integer product indices
      * @param reversible true if the reaction is reversible, false otherwise
@@ -225,7 +225,6 @@ namespace Cantera {
       StoichManagerN*  m_revproducts;
       StoichManagerN*  m_irrevproducts;
       StoichManagerN*  m_global;
-
   };
 }
 

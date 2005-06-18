@@ -47,7 +47,7 @@ namespace Cantera {
 	     * throw an error condition. 
 	     */
             if (rateType != R::type()) 
-                throw CanteraError("InterfaceKinetics::install",
+                throw CanteraError("Rate1::install",
                     "incorrect rate coefficient type: "+int2str(rateType));
 
             // if any coefficient other than the first is non-zero, or

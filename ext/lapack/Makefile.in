@@ -3,10 +3,12 @@
 #
 #/bin/sh
 
+.SUFFIXES :
+.SUFFIXES : .f .o
+
 LAPACKLIB = @buildlib@/libctlapack.a
 
-SUFFIXES=
-SUFFIXES= .f .o
+do_ranlib = @DO_RANLIB@
 
 F_FLAGS = @FFLAGS@ @F77FLAGS@
 
@@ -69,6 +71,9 @@ all: $(LAPACKLIB)
 
 $(LAPACKLIB):  $(OBJS)
 	@ARCHIVE@ $(LAPACKLIB) $(OBJS) > /dev/null
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(LAPACKLIB)
+endif
 
 %.o : %.f
 	@F77@ -c $<  $(F77_INCLUDES) $(F_FLAGS) 

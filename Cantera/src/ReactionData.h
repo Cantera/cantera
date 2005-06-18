@@ -43,8 +43,8 @@ namespace Cantera {
         vector_int reactants;
         vector_int products;
         vector_fp order;
-        vector_int rstoich;
-        vector_int pstoich;
+        vector_fp rstoich;
+        vector_fp pstoich;
         vector<grouplist_t> rgroups;
         vector<grouplist_t> pgroups;
         map<int, doublereal> thirdBodyEfficiencies;

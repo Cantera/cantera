@@ -16,7 +16,7 @@
 #ifndef CT_METALPHASE_H
 #define CT_METALPHASE_H
 
-//#include "ct_defs.h"
+
 #include "mix_defs.h"
 #include "ThermoPhase.h"
 #include "SpeciesThermo.h"
@@ -26,7 +26,7 @@ namespace Cantera {
     /**
      * @ingroup thermoprops
      *
-     * Class MetalPhase represents electrons in a metal.
+     * Class MetalPhase represents electrons in a metal. 
      *
      */
     class MetalPhase : public ThermoPhase  {
@@ -37,9 +37,8 @@ namespace Cantera {
 
         virtual ~MetalPhase() {}
 
-        /**
-         * Equation of state flag.
-         */
+        // Overloaded methoods of class ThermoPhase
+
         virtual int eosType() const { return cMetal; }
 
         virtual doublereal enthalpy_mole() const { return 0.0; }
@@ -49,16 +48,22 @@ namespace Cantera {
         virtual doublereal cp_mole() const { return 0.0; }
         virtual doublereal cv_mole() const { return 0.0; }
 
+        virtual void setPressure(doublereal pres) { m_press = pres; }
+        virtual doublereal  pressure() const { return m_press; }
+ 
         virtual void getChemPotentials(doublereal* mu) const {
-            mu[0] = 0.0;
+            int n, nsp = nSpecies();
+            for (n = 0; n < nsp; n++) mu[n] = 0.0;
         }
 
         virtual void getStandardChemPotentials(doublereal* mu0) const {
-            mu0[0] = 0.0;
+            int n, nsp = nSpecies();
+            for (n = 0; n < nsp; n++) mu0[n] = 0.0;
         }
 
         virtual void getActivityConcentrations(doublereal* c) const {
-            c[0] = 1.0;
+            int n, nsp = nSpecies();
+            for (n = 0; n < nsp; n++) c[n] = 1.0;
         }
 
          virtual doublereal standardConcentration(int k=0) const {
@@ -69,10 +74,16 @@ namespace Cantera {
              return 0.0;
         }
 
+        virtual void setParametersFromXML(const XML_Node& eosdata) {
+            eosdata.require("model","Metal");
+            doublereal rho = getFloat(eosdata, "density", "-");
+            setDensity(rho);
+        }
+
     protected:
 
     private:
-
+        doublereal m_press;
     };
 }
         

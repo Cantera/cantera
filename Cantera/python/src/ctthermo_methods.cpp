@@ -1,4 +1,4 @@
-
+ 
 static PyObject *
 ct_newThermoFromXML(PyObject *self, PyObject *args)
 {
@@ -232,11 +232,16 @@ thermo_equil(PyObject *self, PyObject *args)
     int iok = -2;
     int th;
     int XY;
-    
-    if (!PyArg_ParseTuple(args, "ii:thermo_equil", &th, &XY)) 
+    int solver;
+    double rtol;
+    int maxsteps;
+    int loglevel;
+
+    if (!PyArg_ParseTuple(args, "iiidii:thermo_equil", &th, &XY, 
+            &solver, &rtol, &maxsteps, &loglevel)) 
         return NULL;
 
-    iok = th_equil(th, XY);
+    iok = th_equil(th, XY, solver, rtol, maxsteps, loglevel);
     if (iok >= 0) 
         return Py_BuildValue("i",iok);
     if (iok == -1) return reportCanteraError();

@@ -3,7 +3,7 @@
 #include "ReactorBase.h"
 #include "../Func1.h"
 
-namespace Cantera {
+namespace CanteraZeroD {
 
     bool FlowDevice::install(ReactorBase& in, ReactorBase& out) {
         if (m_in || m_out) return false;

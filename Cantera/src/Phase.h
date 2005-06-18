@@ -43,7 +43,8 @@ namespace Cantera {
 
         /// Default constructor.
         Phase() : m_kk(-1), m_ndim(3), m_index(-1), 
-                  m_xml(new XML_Node("phase")), m_id("<phase>") {}
+                  m_xml(new XML_Node("phase")), 
+                  m_id("<phase>"), m_name("") {}
 
         /// Destructor.
         virtual ~Phase(){ 
@@ -54,6 +55,10 @@ namespace Cantera {
         XML_Node& xml() { return *m_xml; }
         string id() const { return m_id; }
         void setID(string id) {m_id = id;} 
+
+        string name() const { return m_name; }
+        void setName(string nm) { m_name = nm; }
+
         int index() const { return m_index; }
         void setIndex(int m) { m_index = m; }
 
@@ -106,6 +111,9 @@ namespace Cantera {
 
         /** Set the temperature (K), density (kg/m^3), and mass fractions. */
         void setState_TRY(doublereal t, doublereal dens, compositionMap& y);
+
+        /** Set the temperature (K), molar density (kmol/m^3), and mole fractions. */
+        void setState_TNX(doublereal t, doublereal n, const doublereal* x);
     
         /** Set the temperature (K) and density (kg/m^3) */
         void setState_TR(doublereal t, doublereal rho);
@@ -201,6 +209,7 @@ namespace Cantera {
         vector_fp m_data;
         XML_Node* m_xml;
         string m_id;
+        string m_name;
     };
 
     typedef Phase phase_t;

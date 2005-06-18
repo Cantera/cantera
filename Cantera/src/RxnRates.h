@@ -36,9 +36,10 @@ namespace Cantera {
             return m_logA + m_b*logT - m_E*recipT;
         }
 
-        doublereal update_dT(doublereal logT, doublereal recipT) const {
-            return recipT*(m_b + m_E*recipT);
-        }
+        /// no longer used
+        //doublereal update_dT(doublereal logT, doublereal recipT) const {
+        //    return recipT*(m_b + m_E*recipT);
+        //}
         
         void writeUpdateRHS(ostream& s) const {
             s << " exp(" << m_logA;
@@ -84,9 +85,9 @@ namespace Cantera {
             return log(fexp);
         }
 
-        doublereal update_dT(doublereal logT, doublereal recipT) const {
-            throw CanteraError("ArrheniusSum::update_dT","not implemented.");
-        }
+        //        doublereal update_dT(doublereal logT, doublereal recipT) const {
+        //    throw CanteraError("ArrheniusSum::update_dT","not implemented.");
+        //}
         
         void writeUpdateRHS(ostream& s) const {
             ;

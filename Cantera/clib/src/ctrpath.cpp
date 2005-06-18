@@ -10,8 +10,8 @@
 
 
 // Cantera includes
-#include "ReactionPath.h"
 
+#include "ReactionPath.h"
 #include "Cabinet.h"
 #include "Storage.h"
 
@@ -22,8 +22,10 @@
 typedef ReactionPathDiagram diag_t;
 typedef ReactionPathBuilder builder_t;
 
-Cabinet<ReactionPathDiagram>*   Cabinet<ReactionPathDiagram>::__storage = 0;
-Cabinet<builder_t>*             Cabinet<builder_t>::__storage = 0;
+
+template<> Cabinet<ReactionPathDiagram>*   Cabinet<ReactionPathDiagram>::__storage = 0;
+
+template<> Cabinet<builder_t>*             Cabinet<builder_t>::__storage = 0;
 
 inline ReactionPathDiagram* _diag(int i) {
     return Cabinet<ReactionPathDiagram>::cabinet()->item(i);

@@ -83,4 +83,8 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 //--------------------- compile options ----------------------------
 /* #define USE_PCH 1 */
 
+#define WITH_METAL
+#define WITH_STOICH_SUBSTANCE
+#define WITH_PURE_FLUIDS
+
 #endif

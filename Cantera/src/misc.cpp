@@ -1,11 +1,7 @@
 /**
  *  @file misc.cpp
- */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
+ *
+ *  
  */
 
 #ifdef WIN32
@@ -24,9 +20,7 @@
 #include "FalloffFactory.h"
 #include "logger.h"
 
-//#ifndef WIN32
-//#include "ctdir.h"
-//#endif
+#undef DEBUG_PATHS
 
 #include <fstream>
 using namespace std;
@@ -44,24 +38,31 @@ namespace Cantera {
     class Application {
     public:
         Application() : linelen(0), stop_on_error(false),
-                        //#ifdef WIN32
                         tmp_dir("."), sleep("1") 
-            //#else
-            //tmp_dir(".") 
-            //#endif
             {
+                // if TMP or TEMP is set, use it for the temporary
+                // directory
                 char* tmpdir = getenv("TMP");
                 if (tmpdir == 0) 
                     tmpdir = getenv("TEMP");
                 if (tmpdir != 0)
                     tmp_dir = string(tmpdir);
+
+                // if SLEEP is set, use it as the sleep time
                 char* sleepstr = getenv("SLEEP");
                 if (sleepstr != 0) {
                     sleep = string(sleepstr);
                 }
+
+                // install a default logwriter that writes to standard
+                // output / standard error
                 logwriter = new Logger();
+                xmllog = 0; 
+                current = 0;
             }
 
+        /// Delete any open XML trees, the logwriter, and
+        /// the XML log, if any.
         virtual ~Application() {
             map<string, XML_Node*>::iterator pos;
             for (pos = xmlfiles.begin(); pos != xmlfiles.end(); ++pos) {
@@ -69,8 +70,13 @@ namespace Cantera {
                 delete pos->second;
                 pos->second = 0;
             }
+            delete logwriter;
+            if (xmllog) {
+                delete xmllog;
+            }
         }
-        vector<string> inputDirs;
+
+        vector<string> inputDirs; 
         vector<string> errorMessage;
         vector<string> warning;
         vector<string> errorRoutine;
@@ -82,16 +88,19 @@ namespace Cantera {
         map<string, XML_Node*> xmlfiles;
         string sleep;
         Logger* logwriter;
+        XML_Node *xmllog, *current;
     };
         
     
             
-    /// Returns a pointer to the one and only instance of Application
+    /// Return a pointer to the one and only instance of class Application
     Application* app();
 
     void setDefaultDirectories();
 
+    /// Pointer to the single Application instance
     static Application* __app = 0;
+
     Unit* Unit::__u = 0;
 
     static void appinit() {
@@ -99,9 +108,8 @@ namespace Cantera {
     }
 
     /**
-     * This function deletes the global information. It should be called
-     * at the end of the application, especially if leak checking is
-     * to be done.
+     * Delete all global data.  It should be called at the end of the
+     * application if leak checking is to be done.
      */
     void appdelete() {
         if (__app) {
@@ -318,9 +326,37 @@ namespace Cantera {
         __app->errorRoutine.push_back(r);
     }
 
-
+    /// @defgroup inputfiles Input File Handling
+    /// The properties of phases and interfaces are specified in 
+    /// text files. These procedures handle various aspects of reading
+    /// these files.
+    
     /**
-     * Set the default directories for input data files. 
+     * Set the default directories for input files. Cantera searches
+     * for input files along a path that includes platform-specific
+     * default locations, and possibly user-specified locations.  This
+     * function installs the platform-specific directories on the
+     * search path. It is invoked at startup by appinit(), and never
+     * should need to be called by user programs.
+     *
+     * The current directory (".") is always searched first. Then, on
+     * Windows platforms, if environment variable COMMONPROGRAMFILES
+     * is set (which it should be on Win XP or Win 2000), then
+     * directories under this one will be added to the search
+     * path. The Cantera Windows installer installs data files to this
+     * location.
+     * 
+     * On the Mac, directory '/Applications/Cantera/data' is added to the
+     * search path. 
+     * 
+     * On any platform, if environment variable CANTERA_DATA is set to a 
+     * directory name, then this directory is added to the search path. 
+     *
+     * Finally, the location where the data files were installed when
+     * Cantera was built is added to the search path.
+     * 
+     * Additional directories may be added by calling function addDirectory.
+     * @ingroup inputfiles
      */
     void setDefaultDirectories() {
         appinit();
@@ -384,7 +420,8 @@ namespace Cantera {
 
 
 
-
+    /// Add a directory to the input file search path.
+    /// @ingroup inputfiles
     void addDirectory(string dir) {
         appinit();
         if (__app->inputDirs.size() == 0) setDefaultDirectories();
@@ -398,9 +435,7 @@ namespace Cantera {
         __app->inputDirs.push_back(stripnonprint(dir));
     }
 
-    /**
-     *  findInputFile():
-     *
+    /*!    
      *    This routine will search for a file in the default
      *    locations specified for the application.
      *    See the routine setDefaultDirectories() listed above.
@@ -413,8 +448,8 @@ namespace Cantera {
      *    The presence of the file is determined by whether the file
      *    can be opened for reading by the current user.
      *
-     *    Return
-     *    -------
+     *    \return
+     *    
      *      The absolute path name of the first matching
      *      file is returned. If a relative path name
      *      is indicated, the relative path name is returned.
@@ -464,26 +499,6 @@ namespace Cantera {
         }
     }
 
-    void writelog(const string& msg) {
-        app()->logwriter->write(msg);
-    }
-
-    void error(const string& msg) {
-        app()->logwriter->error(msg);
-    }
-
-    int userInterface() {
-        return app()->logwriter->env();
-    }
-
-    void setLogger(Logger* logwriter) {
-        appinit();
-        delete __app->logwriter;
-        __app->logwriter = logwriter;
-    }
-
-    void writelog(const char* msg) {writelog(string(msg));}
-
     doublereal toSI(string unit) {
         doublereal f = Unit::units()->toSI(unit);
         if (f) return f;
@@ -511,7 +526,7 @@ namespace Cantera {
     }
 
 
-    /// exceptions
+    // exceptions
 
     CanteraError::CanteraError(string proc, string msg) {
         setError(proc, msg);
@@ -524,6 +539,197 @@ namespace Cantera {
     ElementRangeError::ElementRangeError(string func, int m, int mmax) :
         CanteraError(func, "Element index " + int2str(m) + 
             " outside valid range of 0 to " + int2str(mmax-1)) {}
-}
 
+
+
+    ///////////////////////////////////////////////////////////
+    //
+    //  Warnings 
+    //
+    //////////////////////////////////////////////////////////
+
+    /// Print a warning when a deprecated method is called.
+    /// @param classnm Class the method belongs to
+    /// @param oldnm Name of the deprecated method
+    /// @param newnm Name of the method users should use instead
+    void deprecatedMethod(string classnm, string oldnm, string newnm) {
+        writelog(">>>> WARNING: method "+oldnm+" of class "+classnm
+            +" is deprecated.\n");
+        writelog("         Use method "+newnm+" instead.\n");
+        writelog("         (If you want to rescue this method from deprecated\n");
+        writelog("         status, see http://www.cantera.org/deprecated.html)");
+    }
+
+
+    /// @defgroup logs Diagnostic Output
+    ///
+    /// Writing diagnostic information to the screen or to a file.
+    /// It is often useful to be able to write diagnostic messages to
+    /// the screen or to a file. Cantera provides two sets of
+    /// procedures for this purpose. The first set is designed to
+    /// write text messages to the screen to document the progress of
+    /// a complex calculation, such as a flame simulation.The second
+    /// set writes nested lists in HTML format. This is useful to
+    /// print debugging output for a complex calculation that calls
+    /// many different procedures.
+
+
+    /// @defgroup textlogs Writing messages to the screen
+    /// @ingroup logs
+
+    /// Write a message to the screen. The string may be of any
+    /// length, and may contain end-of-line characters. This method is
+    /// used throughout Cantera to write log messages. It can also be
+    /// called by user programs.  The advantage of using writelog over
+    /// writing directly to the standard output is that messages
+    /// written with writelog will display correctly even when Cantera
+    /// is used from MATLAB or other application that do not have a
+    /// standard output stream. @ingroup textlogs
+    void writelog(const string& msg) {
+        app()->logwriter->write(msg);
+    }
+
+    /// test
+    /// @ingroup textlogs
+    void writelog(const char* msg) {writelog(string(msg));}
+
+    /// Write an error message and terminate execution. test.
+    /// @ingroup textlogs
+    void error(const string& msg) {
+        app()->logwriter->error(msg);
+    }
+
+    /// test
+    /// @ingroup textlogs
+    int userInterface() {
+        return app()->logwriter->env();
+    }
+
+    /// Install a logger. Called by the language interfaces to install an
+    /// appropriate logger. 
+    /// @see Logger.
+    /// @ingroup textlogs
+    void setLogger(Logger* logwriter) {
+        appinit();
+        delete __app->logwriter;
+        __app->logwriter = logwriter;
+    }
+
+
+
+    /////////////////////////////////////////////////////////////////
+    /// 
+    /// @defgroup HTML_logs Writing HTML Logfiles
+    /// @ingroup logs
+    /// 
+    ///  These functions are designed to allow writing HTML diagnostic
+    ///  messages in a manner that allows users to control how much
+    ///  diagnostic output to print. It works like this: Suppose you
+    ///  have function A that invokes function B that invokes function
+    ///  C. You want to be able to print diagnostic messages just from
+    ///  function A, or from A and B, or from A, B, and C, or to turn
+    ///  off printing diagnostic messages altogether. All you need to
+    ///  do is to pass into each function the parameter loglevel, and
+    ///  when calling other functions decrement the value of
+    ///  logvalue. Since the procedures that print HTML log output only
+    ///  do so if loglevel > 0, the initial value of loglevel controls
+    ///  how deeply nested the log messages will be. For an example of
+    ///  how to do this, see files MultiPhase.cpp and
+    ///  MultiPhaseEquil.cpp.
+    ///
+    //////////////////////////////////////////////////////////////////
+
+
+    /// Create a new group for log messages.  Usually this is called
+    /// upon entering the function, with the title parameter equal to
+    /// the name of the function or method. Subsequent messages
+    /// written with addLogEntry will appear grouped under this
+    /// heading, until endLogGroup() is called.
+    /// @ingroup HTML_logs
+    void beginLogGroup(string title, int loglevel) {
+        if (loglevel <= 0) return;
+        appinit();
+        if (__app->xmllog == 0) {
+            __app->xmllog = new XML_Node("html");
+            __app->current = &__app->xmllog->addChild("ul");
+        }
+        __app->current = &__app->current->addChild("li",title);
+        __app->current = &__app->current->addChild("ul");
+    }
+
+    /// Add an entry to the log file. Entries appear in the form "tag:
+    /// value".
+    /// @ingroup HTML_logs
+    void addLogEntry(string tag, string value, int loglevel) {
+        if (loglevel <= 0) return;
+        __app->current->addChild("li",tag+": "+value);
+    }
+
+    /// Close the current group of log messages. This is typically
+    /// called just before leaving a function or method, to close the
+    /// group of messages that were output from this
+    /// function. Subsequent messages written with addLogEntry will
+    /// appear at the next-higher level in the outline, unless
+    /// beginLogGroup is called first to create a new group.  
+    /// @ingroup HTML_logs
+    void endLogGroup(int loglevel) {
+        if (loglevel <= 0) return;
+        __app->current = __app->current->parent();
+        __app->current = __app->current->parent();
+    }
+
+
+    /// Write the HTML log file. Log entries are stored in memory in
+    /// an XML tree until this function is called, which writes the
+    /// tree to a file and clears the entries stored in memory.  The
+    /// output file will have the name specified in the 'file'
+    /// argument.  If this argument has no extension, the extension
+    /// '.html' will be appended. Also, if the file already exists, an
+    /// integer will be appended to the name so that no existing log
+    /// file will be overwritten.  will be appended to the name.
+    /// @ingroup HTML_logs
+    void write_logfile(string file) {
+        string::size_type idot = file.rfind('.');
+        string ext = "";
+        string nm = file;
+        if (idot != string::npos) {
+            ext = file.substr(idot, file.size());
+            nm = file.substr(0,idot);
+        }
+        else {
+            ext = ".html";
+            nm = file;
+        }
+
+        // see if file exists. If it does, find an integer that
+        // can be appended to the name to create the name of a file
+        // that does not exist.
+        string fname = nm + ext;
+        ifstream f(fname.c_str());
+        if (f) {
+            int n = 0;
+            while (1 > 0) {
+                n++;
+                fname = nm + int2str(n) + ext;
+                ifstream f(fname.c_str());
+                if (!f) break;
+            }
+        }
+
+        // Now we have a file name that does not correspond to any 
+        // existing file. Open it as an output stream, and dump the 
+        // XML (HTML) tree to it.
+        if (__app->xmllog) {
+            ofstream f(fname.c_str());
+            // go to the top of the tree, and write it all.
+            __app->xmllog->root().write(f);
+            f.close();
+            writelog("Log file " + fname + " written.\n");
+            delete __app->xmllog;
+            __app->xmllog = 0;
+            __app->current = 0;
+        }
+    }
+    /// 
+}
 

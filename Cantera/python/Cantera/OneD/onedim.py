@@ -371,12 +371,12 @@ class AxisymmetricFlow(Domain1D):
     allowed, as well as arbitrary variation of the transport
     properties.
     """
-    def __init__(self, id = 'axisymmetric_flow', gas = None):
+    def __init__(self, id = 'axisymmetric_flow', gas = None, type = 1):
         Domain1D.__init__(self)
         iph = gas.thermo_hndl()
         ikin = gas.kinetics_hndl()
         itr = gas.transport_hndl()
-        self._hndl = _cantera.stflow_new(iph, ikin, itr)
+        self._hndl = _cantera.stflow_new(iph, ikin, itr, type)
         if id: self.setID(id)
         self._p = -1.0
         self.setPressure(gas.pressure())
@@ -676,6 +676,10 @@ class Stack:
         """Set the maximum and minimum time steps."""
         return _cantera.sim1D_setTimeStepLimits(self._hndl, tsmin, tsmax)
 
+    def setFixedTemperature(self, temp):
+        """This is a temporary fix."""
+        _cantera.sim1D_setFixedTemperature(self._hndl, temp)
+        
 def clearDomains():
     """Clear all domains."""
     _cantera.domain_clear()

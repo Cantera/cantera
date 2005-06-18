@@ -44,6 +44,8 @@ namespace Cantera {
             if (m_enamemap[ename] == 0) {
                 m_enamemap[ename] = m_nel + 1;
                 m_enames.push_back(ename);
+                m_atomicNumber.push_back(p->atomicNumber(m));
+                if (ename == "E" || ename == "e") m_eloc = m_nel;
                 m_nel++;
             }
         }
@@ -92,6 +94,18 @@ namespace Cantera {
             }
         }
 
+        if (m_eloc >= 0) {
+            doublereal esum;
+            for (k = 0; k < m_nsp; k++) {
+                esum = 0.0;
+                for (m = 0; m < m_nel; m++) {
+                    if (int(m) != m_eloc)
+                        esum += m_atoms(m,k) * m_atomicNumber[m];
+                }
+                //m_atoms(m_eloc, k) += esum;
+            }
+        }
+
         /// set the initial composition within each phase to the
         /// mole fractions stored in the phase objects
         m_init = true;
@@ -116,12 +130,12 @@ namespace Cantera {
         return m_moles[ip]*m_moleFractions[k];
     }
 
-
     /// Total moles of element m, summed over all
     /// phases
     doublereal MultiPhase::elementMoles(index_t m) {
         doublereal sum = 0.0, phasesum;
         index_t i, k = 0, ik, nsp;
+        if (!m_init) init();
         for (i = 0; i < m_np; i++) {
             phasesum = 0.0;
             nsp = m_phase[i]->nSpecies();
@@ -133,6 +147,28 @@ namespace Cantera {
         }
         return sum;
     }
+
+    /// Total charge, summed over all phases
+    doublereal MultiPhase::charge() {
+        doublereal sum = 0.0;
+        index_t i;
+        for (i = 0; i < m_np; i++) {
+            sum += phaseCharge(i);
+        }
+        return sum;
+    }
+
+    /// Charge of one phase
+    doublereal MultiPhase::phaseCharge(index_t p) {
+        doublereal phasesum = 0.0;
+        int ik, k, nsp = m_phase[p]->nSpecies();
+        for (ik = 0; ik < nsp; ik++) {
+            k = speciesIndex(ik, p);
+            phasesum += m_phase[p]->charge(ik)*m_moleFractions[k];
+        }
+        return Faraday*phasesum*m_moles[p];
+    }
+
 
     /// Chemical potentials. Write into array \c mu the chemical
     /// potentials of all species [J/kmol].
@@ -188,6 +224,33 @@ namespace Cantera {
         return sum;
     }
 
+    doublereal MultiPhase::enthalpy() {
+        index_t i;
+        doublereal sum = 0.0;
+        updatePhases();
+        for (i = 0; i < m_np; i++) 
+            sum += m_phase[i]->enthalpy_mole() * m_moles[i];
+        return sum;
+    }
+
+    doublereal MultiPhase::entropy() {
+        index_t i;
+        doublereal sum = 0.0;
+        updatePhases();
+        for (i = 0; i < m_np; i++) 
+            sum += m_phase[i]->entropy_mole() * m_moles[i];
+        return sum;
+    }
+
+    doublereal MultiPhase::cp() {
+        index_t i;
+        doublereal sum = 0.0;
+        updatePhases();
+        for (i = 0; i < m_np; i++) 
+            sum += m_phase[i]->cp_mole() * m_moles[i];
+        return sum;
+    }
+
     void MultiPhase::updateMoleFractions() {
         if (!m_init) init();
         // save the current mole fractions for each phase
@@ -205,6 +268,7 @@ namespace Cantera {
     }
 
     void MultiPhase::setMolesByName(compositionMap& xMap) {
+        if (!m_init) init();
         int kk = nSpecies();
         doublereal x;
         vector_fp mf(kk, 0.0);
@@ -217,6 +281,7 @@ namespace Cantera {
 
     void MultiPhase::setMolesByName(const string& x) {
         compositionMap xx;
+        if (!m_init) init();
         int kk = nSpecies();
         for (int k = 0; k < kk; k++) { 
             xx[speciesName(k)] = -1.0;
@@ -250,6 +315,15 @@ namespace Cantera {
         }
     }
 
+    doublereal MultiPhase::volume() {
+        int i;
+        doublereal sum = 0;
+        for (i = 0; i < int(m_np); i++) {
+            sum += m_moles[i]/m_phase[i]->molarDensity();
+        }
+        return sum;
+    }
+
     void MultiPhase::updatePhases() {
         if (!m_init) init();
         index_t p, nsp, loc = 0;
@@ -265,13 +339,204 @@ namespace Cantera {
     }            
 
     doublereal MultiPhase::equilibrate(int XY, doublereal err, 
-        int maxsteps) {
-        init();
-        if (m_equil == 0) {
-            m_equil = new MultiPhaseEquil(this);
-        }
-        return m_equil->equilibrate(XY, err, maxsteps);
-    }
+        int maxsteps, int maxiter, int loglevel) {
+        doublereal error;
+        bool strt = false;
+        doublereal dt;
+        doublereal h0;
+        int n;
+        bool start, once;
+        doublereal ferr, hnow, herr = 1.0;
+        doublereal Tlow = -1.0, Thigh = -1.0;
+        doublereal hlow = 0.0, hhigh = 0.0, slope, tnew;
+        doublereal dta, dtmax;
 
+        if (!m_init) init();
+        if (loglevel > 0) {
+            beginLogGroup("MultiPhase::equilibrate");
+        }
+        if (XY == TP) {
+            if (loglevel > 0) {
+                addLogEntry("problem type","fixed T,P");
+            }
+            MultiPhaseEquil e(this);
+            error = e.equilibrate(XY, err, maxsteps, loglevel-1);
+            if (loglevel > 0)  e.printInfo();
+            goto done;
+        }
+        else if (XY == HP) {
+            dt = 1.0e2;
+            h0 = enthalpy();
+            start = true;
+            Tlow = 1.0;
+            Thigh = 1.0e4;
+            hlow = 0.0;
+            hhigh = 0.0;
+            once = true;
+            if (loglevel > 0) {
+                addLogEntry("problem type","fixed H,P");
+                addLogEntry("H target",fp2str(h0));
+            }
+            ferr = 0.1;
+            for (n = 0; n < maxiter; n++) {
+                MultiPhaseEquil e(this, start);
+                start = false;
+                if (loglevel > 1) {
+                    beginLogGroup("iteration "+int2str(n));
+                }
+                try {
+                    error = e.equilibrate(TP, err, maxsteps, loglevel-1);
+
+                    hnow = enthalpy();
+                    if (hnow < h0) {
+                        if (m_temp > Tlow) Tlow = m_temp;
+                    }
+                    else {
+                        if (m_temp < Thigh) Thigh = m_temp;
+                    }
+                    herr = fabs((h0 - hnow)/h0);
+                    if (loglevel > 1) {
+                        addLogEntry("T",fp2str(temperature()));
+                        addLogEntry("H",fp2str(hnow));
+                        addLogEntry("H rel error",fp2str(herr));
+                        endLogGroup();
+                    }
+                    dt = (h0 - hnow)/cp();
+                    dtmax = fminn(500.0,0.5*(Thigh - Tlow));
+                    dta = fabs(dt);
+                    if (dta > dtmax) dt *= dtmax/dta;
+                    if (herr < err || dta < 1.0e-4) {
+                        if (loglevel > 0) {
+                            addLogEntry("T iterations",int2str(n));
+                            addLogEntry("Final T",fp2str(temperature()));
+                            addLogEntry("H rel error",fp2str(herr));
+                        }
+                        goto done;
+                    }
+                    tnew = m_temp + dt;
+                    setTemperature(tnew);
+                    if (dta < 100.0) strt = false;
+//                     if (Thigh > 0.0 && Tlow > 0.0) {
+//                         slope = (hhigh - hlow)/(Thigh - Tlow);
+//                         setTemperature(0.5*(Tlow + Thigh)); //(h0 - hlow)/slope);
+//                     }
+//                     else if (Tlow > 0.0) 
+//                         setTemperature(m_temp + dt);
+//                     else  
+//                         setTemperature(m_temp - dt);
+                }
+                catch (CanteraError e) {
+                    if (!strt) {
+                        if (loglevel > 0) 
+                            addLogEntry("no convergence","setting strt to True");
+                        strt = true;
+                    }
+                    else {
+                        tnew = 0.5*(m_temp + Thigh);
+                        setTemperature(tnew);
+                        if (loglevel > 0) 
+                            addLogEntry("no convergence",
+                                "trying T = "+fp2str(m_temp));
+                            
+                    }
+
+                    //                    else {
+                    //    if (loglevel > 0) 
+                    //        addLogEntry("no convergence","throwing exception");
+                    //    throw e;
+                    //}
+                }
+            }
+            throw CanteraError("MultiPhase::equilibrate",
+                "No convergence for T");
+        }
+        else if (XY == SP) {
+            if (loglevel > 0) {
+                addLogEntry("problem type","fixed S,P");
+            }
+            doublereal dt = 1.0e3;
+            doublereal s0 = entropy();
+            int n;
+            bool start = true;
+            doublereal ferr, snow, serr, tnew;
+            for (n = 0; n < maxiter; n++) {
+                MultiPhaseEquil e(this, start);
+                ferr = 0.1;
+                start = false;
+                if (fabs(dt) < 1.0) ferr = err;
+                if (loglevel > 1) {
+                    beginLogGroup("iteration "+int2str(n));
+                }
+                error = e.equilibrate(TP, ferr, maxsteps, loglevel-1);
+                snow = entropy();
+                tnew = exp(0.5*(s0 - snow)/cp())*temperature();
+                serr = fabs((s0 - snow)/s0);
+                if (loglevel > 1) {
+                    addLogEntry("T",fp2str(temperature()));
+                    addLogEntry("S rel error",fp2str(serr));
+                    endLogGroup();
+                }
+                if (serr < err) {
+                    if (loglevel > 0) {
+                        addLogEntry("T iterations",int2str(n));
+                        addLogEntry("Final T",fp2str(temperature()));
+                        addLogEntry("S rel error",fp2str(serr));
+                    }
+                    goto done;
+                }
+                setTemperature(tnew);
+            }
+        }
+        else if (XY == TV) {
+            if (loglevel > 0) {
+                addLogEntry("problem type","fixed T, V");
+            }
+            doublereal dt = 1.0e3;
+            doublereal v0 = volume();
+            doublereal dVdP;
+            int n;
+            bool start = true;
+            doublereal error, ferr, vnow, pnow, verr, tnew;
+            for (n = 0; n < maxiter; n++) {
+                pnow = pressure();
+                MultiPhaseEquil e(this, start);
+                start = false;
+                if (loglevel > 1) {
+                    beginLogGroup("iteration "+int2str(n));
+                }
+                error = e.equilibrate(TP, err, maxsteps, loglevel-1);
+                vnow = volume();
+                verr = fabs((v0 - vnow)/v0);
+                if (loglevel > 1) {
+                    addLogEntry("P",fp2str(pressure()));
+                    addLogEntry("V rel error",fp2str(verr));
+                    endLogGroup();
+                }
+                if (verr < err) {
+                    if (loglevel > 0) {
+                        addLogEntry("P iterations",int2str(n));
+                        addLogEntry("Final P",fp2str(pressure()));
+                        addLogEntry("V rel error",fp2str(verr));
+                    }
+                    goto done;
+                }
+                // find dV/dP
+                setPressure(pnow*1.01);
+                dVdP = (volume() - vnow)/(0.01*pnow);
+                setPressure(pnow + 0.5*(v0 - vnow)/dVdP);
+            }
+        }
+
+        else {
+            if (loglevel > 0)  endLogGroup();
+            throw CanteraError("MultiPhase::equilibrate","unknown option");
+        }
+        return -1.0;
+done:
+        if (loglevel > 0)  {
+            endLogGroup();
+        }
+        return err;
+    }
 }
 

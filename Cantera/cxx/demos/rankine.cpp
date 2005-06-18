@@ -71,6 +71,7 @@ int openRankine(int np, void* p) {
 
     double heat_in = h["3"] - h["2"];
     double efficiency = work/heat_in;
+
     cout << "efficiency = " << efficiency << endl;
 #ifdef WIN32
 #ifndef CXX_DEMO

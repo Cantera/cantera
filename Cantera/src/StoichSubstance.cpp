@@ -44,6 +44,13 @@ namespace Cantera {
         }
     }
 
+    void StoichSubstance::
+    getUnitsStandardConc(double *uA, int k, int sizeUA) {
+	for (int i = 0; i < sizeUA; i++) {
+	  uA[i] = 0.0;
+	}
+    }
+
     void StoichSubstance::setParameters(int n, double * c) {
         double rho = c[0];
         setDensity(rho);

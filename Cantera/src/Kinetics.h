@@ -1,9 +1,6 @@
 /**
  * @file Kinetics.h
  *
- * $Author$
- * $Revision$
- * $Date$
  */
 
 // Copyright 2001-2004  California Institute of Technology
@@ -24,17 +21,112 @@ namespace Cantera {
     // forward references
     class ReactionData;
 
-
+    /// @defgroup kineticsmgr Kinetics Managers 
+    /// @section kinmodman Models and Managers
+    /// 
+    /// A kinetics manager is a C++ class that implements a kinetics
+    /// model, which is a set of mathematical equation describing how
+    /// various kinetic quanities are to be computed -- reaction
+    /// rates, species production rates, etc. Many different kinetics
+    /// models might be defined to handle different types of kinetic
+    /// processes. For example, one kinetics model might use
+    /// expressions valid for elementary reactions in ideal gas
+    /// mixtures. It might, for example, require the reaction orders
+    /// to be integral and equal to the forward stoichiometric
+    /// coefficients, require that each reaction be reversible with a
+    /// reverse rate satisfying detailed balance, include
+    /// pressure-dependent unimolecular reactions, etc. Another
+    /// kinetics model might be designed for heterogeneous chemistry
+    /// at interfaces, and might allow empirical reaction orders,
+    /// coverage-dependent activation energies, irreversible
+    /// reactions, and include effects of potential differences across
+    /// the interface on reaction rates.
     ///
+    /// A kinetics manager implements a kinetics model. Since the
+    /// model equations may be complex and expensive to evaluate, a
+    /// kinetics manager may adopt various strategies to 'manage' the
+    /// computation and evaluate the expressions efficiently. For
+    /// example, if there are rate coefficients or other quantities
+    /// that depend only on temperature, a manager class may choose to
+    /// store these quantities internally, and re-evaluate them only
+    /// when the temperature has actually changed. Or a manager
+    /// designed for use with reaction mechanisms with a few repeated
+    /// activation energies might precompute the terms \f$ exp(-E/RT)
+    /// \f$, instead of evaluating the exponential repeatedly for each
+    /// reaction. There are many other possible 'management styles',
+    /// each of which might be better suited to some reaction
+    /// mechanisms than others. 
+    ///
+    /// But however a manager structures the internal computation, the
+    /// tasks the manager class must perform are, for the most part,
+    /// the same. It must be able to compute reaction rates, species
+    /// production rates, equilibrium constants, etc. Therefore, all
+    /// kinetics manager classes should have a common set of public
+    /// methods, but differ in how they implement these methods.
+    ///
+    /// All kinetics manager classes derive from a common base class
+    /// (class Kinetics).  The primary purpose of class Kinetics is to
+    /// define the common public interface for the family of kinetics
+    /// managers. For example, Kinetics defines a method
+    /// getNetProductionRates that every family member is required to
+    /// implement. The details of how it is implemented are left to
+    /// the individual manager, but the end result must be that the
+    /// net production rates for each species are written to an output
+    /// array.
+    ///
+    /// A kinetics manager computes reaction rates of progress,
+    /// species production rates, equilibrium constants, and similar
+    /// quantities for a reaction mechanism. All kinetics manager
+    /// classes derive from class Kinetics, which defines a common
+    /// public interface for all kinetics managers. Each derived class
+    /// overloads the virtual methods of Kinetics to implement a
+    /// particular kinetics model.
+    ///
+    /// For example, class GasKinetics implements reaction rate
+    /// expressions appropriate for homogeneous reactions in ideal gas
+    /// mixtures, and class InterfaceKinetics implements expressions
+    /// appropriate for heterogeneous mechanisms at interfaces,
+    /// including how to handle reactions involving charged species of
+    /// phases with different electric potentials --- something that
+    /// class GasKinetics doesn't deal with at all.
+    ///
+    /// Kinetics managers may be also created that hard-wire a
+    /// particular reaction mechanism in C++ code. This can often
+    /// result in faster performance. An example of this is the
+    /// kinetics manager GRI30_Kinetics that hard-wires the rate
+    /// expressions for the natural gas combustion mechanism GRI-3.0.
+    ///
+    /// Many of the methods of class Kinetics write into arrays the
+    /// values of some quantity for each species, for example the net
+    /// production rate.  These methods always write the results into
+    /// flat arrays, ordered by phase in the order the phase was
+    /// added, and within a phase in the order the species were added
+    /// to the phase (which is the same ordering as in the input
+    /// file). Example: suppose a heterogeneous mechanism involves
+    /// three phases -- a bulk phase 'a', another bulk phase 'b', and
+    /// the surface phase 'a:b' at the a/b interface. Phase 'a'
+    /// contains 12 species, phase 'b' contains 3, and at the
+    /// interface there are 5 adsorbed species defined in phase
+    /// 'a:b'. Then methods like getNetProductionRates(doublereal* net) 
+    /// will write and output array of length 20, beginning at the location
+    /// pointed to by 'net'. The first 12 values will be the net production 
+    /// rates for all 12 species of phase 'a' (even if some do not participate 
+    /// in the reactions), the next 3 will be for phase 'b', and finally the 
+    /// net production rates for the surface species will occupy the last 
+    /// 5 locations.
+
+
     /// Public interface for kinetics managers. This class serves as a
     /// base class to derive 'kinetics managers', which are classes
     /// that manage homogeneous chemistry within one phase, or
-    /// heterogeneous chemistry at one interface.
-    ///
+    /// heterogeneous chemistry at one interface. The virtual methods
+    /// of this class are meant to be overloaded in subclasses. The
+    /// non-virtual methods perform generic functions and are
+    /// implemented in Kinetics. They should not be overloaded. Only
+    /// those methods required by a subclass need to be overloaded;
+    /// the rest will throw exceptions if called.  @ingroup kinetics
+    /// @ingroup kineticsmgr
 
-    // Note: Implementations for methods not implemented here may be
-    // found in KineticsFactory.cpp
- 
     class Kinetics {
 
     public:
@@ -47,33 +139,21 @@ namespace Cantera {
 	 */
 	//@{
 
-        /// Constructors.
-        Kinetics() : m_ii(0), m_thermo(0), m_index(-1), m_surfphase(-1) {}
+        /// Default constructor.
+        Kinetics();
 
-	/**
-	 * This Constructor initializes with a starting phase.
-	 */
-        Kinetics(thermo_t* thermo) 
-            : m_ii(0), m_index(-1), m_surfphase(-1) {
-            if (thermo) {
-                addPhase(*thermo);
-            }
-        }
+        /// This Constructor initializes with a starting phase.
+        /// @deprecated
+        Kinetics(thermo_t* thermo);
 
-        /// Destructor. Does nothing.
-        virtual ~Kinetics() {}
+        /// Destructor. 
+        virtual ~Kinetics();
 
-        /// For internal use.
-        int index(){ return m_index; }
-        void setIndex(int index) { m_index = index; }
-
-
-	/**
-	 *  Identifies the subclass of the Kinetics manager type.
-	 *  These are listed in mix_defs.h.
-	 */
+        ///  Identifies the kinetics manager type.  Each class derived
+        ///  from Kinetics should overload this method to return a
+        ///  unique integer. Standard values are defined in file
+        ///  mix_defs.h.
         virtual int type() { return 0; }
-
 
         /// Number of reactions in the reaction mechanism
         int nReactions() const {return m_ii;}
@@ -87,24 +167,23 @@ namespace Cantera {
         //@{
 
         /**
-         * The number of phases defined within the kinetics
-	     * object.
+         * The number of phases participating in the reaction
+         * mechanism. For a homogeneous reaction mechanism, this will
+         * always return 1, but for a heterogeneous mechanism it will
+         * return the total number of phases in the mechanism.
          */  
-        int nPhases() const { return static_cast<int>(m_thermo.size()); }	
+        int nPhases() const { return static_cast<int>(m_thermo.size()); }
 
 	/**
 	 * Return the phase index of a phase in the list of phases
 	 * defined within the object.
 	 *
-	 *  Input
-	 * ----------
-	 *  ph = string name of the phase
+	 *  @param ph string name of the phase
 	 *
 	 * If a -1 is returned, then the phase is not defined in
 	 * the Kinetics object.
-	 * (HKM -> unfound object will create another entry in the
+	 * @todo (HKM -> unfound object will create another entry in the
 	 *  map, suggest rewriting this function)
-         * @todo rewrite.
 	 */
         int phaseIndex(string ph) { return m_phaseindex[ph] - 1; }
 
@@ -115,6 +194,19 @@ namespace Cantera {
 	 * mechanisms, this reurns -1.
 	 */
         int surfacePhaseIndex() { return m_surfphase; }
+
+        /**
+         * Phase where the reactions occur. For heterogeneous
+         * mechanisms, one of the phases in the list of phases
+         * represents the 2D interface or 1D edge at which the
+         * reactions take place. This method returns the index of the
+         * phase with the smallest spatial dimension (1, 2, or 3)
+         * among the list of phases.  If there is more than one, the
+         * index of the first one is returned. For homogeneous
+         * mechanisms, the value 0 is returned.
+         */
+        int reactionPhaseIndex() { return m_rxnphase; }
+
 
 	/**
 	 * This method returns a reference to the nth ThermoPhase
@@ -133,8 +225,14 @@ namespace Cantera {
 	 * It is typically used so that member functions of the
 	 * ThermoPhase may be called. @deprecated This method is redundant.
 	 */
-        thermo_t& phase(int n=0) { return *m_thermo[n]; }
-        const thermo_t& phase(int n=0) const { return *m_thermo[n]; }
+        thermo_t& phase(int n=0) { 
+            deprecatedMethod("Kinetics","phase","thermo");
+            return *m_thermo[n]; 
+        }
+        const thermo_t& phase(int n=0) const { 
+            deprecatedMethod("Kinetics","phase","thermo");
+            return *m_thermo[n]; 
+        }
 
         /**
 	 * The total number of species in all phases participating in
@@ -151,13 +249,15 @@ namespace Cantera {
 
 	/**
 	 * Returns the starting index of the species in the nth phase
-	 * associated with the reaction mechanism. @deprecated. Can be
-         * replaced by kineticsSpeciesIndex(0,n).
+	 * associated with the reaction mechanism.
 	 *
 	 * @param n Return the index of first species in the nth phase
 	 *          associated with the reaction mechanism.
 	 */
-        int start(int n) { return m_start[n]; }
+        int start(int n) { 
+            deprecatedMethod("Kinetics","start","kineticsSpeciesIndex(0,n)");
+            return m_start[n]; 
+        }
 
 
 	/**
@@ -285,6 +385,24 @@ namespace Cantera {
              err("getEquilibriumConstants");
          }
 
+        /**
+         * Change in species properties. Given an array of molar species 
+         * property values \f$ z_k, k = 1, \dots, K \f$, return the 
+         * array of reaction values
+         * \f[
+         * \Delta Z_i = \sum_k \nu_{k,i} z_k, i = 1, \dots, I.
+         * \f] 
+         * For example, if this method is called with the array of
+         * standard-state molar Gibbs free energies for the species,
+         * then the values returned in array \c deltaProperty would be
+         * the standard-state Gibbs free energies of reaction for each
+         * reaction.
+         */
+        virtual void getReactionDelta(const doublereal* property,
+            doublereal* deltaProperty) {
+            err("getReactionDelta");
+        }
+
 	/**
 	 * Return the vector of values for the reaction gibbs free
 	 * energy change.  These values depend upon the concentration
@@ -362,7 +480,7 @@ namespace Cantera {
          * Species creation rates [kmol/m^3 or kmol/m^2]. Return the
          * species creation rates in array cdot, which must be
          * dimensioned at least as large as the total number of
-         * species. @see nTotalSpecies.
+         * species in all phases. @see nTotalSpecies.
          *  
          */ 
         virtual void getCreationRates(doublereal* cdot) {
@@ -521,16 +639,24 @@ namespace Cantera {
         void addPhase(thermo_t& thermo);
 
         /**
-         * Prepare the class for the addition of reactions. This function
-	 * must be called after instantiation of the class, but before
-	 * any reactions are actually added to the mechanism.
+         * Prepare the class for the addition of reactions. This
+	 * method is called by function importKinetics after all
+	 * phases have been added but before any reactions have
+	 * been. The base class method does nothing, but derived
+	 * classes may use this to perform any initialization
+	 * (allocating arrays, etc.) that requires knowing the phases
+	 * and species, but before any reactions are added.
          */
         virtual void init() {}
 
         /**
-	 * Finish adding reactions and prepare for use. This function
-	 * must be called after all reactions are entered into the mechanism
-	 * and before the mechanism is used to calculate reaction rates. 
+	 * Finish adding reactions and prepare for use. This method is
+	 * called by function importKinetics after all reactions have
+	 * been entered into the mechanism and before the mechanism is
+	 * used to calculate reaction rates. The base class method
+	 * does nothing, but derived classes may use this to perform
+	 * any initialization (allocating arrays, etc.) that must be
+	 * done after the reactions are entered.
 	 */
         virtual void finalize() {}
 
@@ -552,12 +678,18 @@ namespace Cantera {
 	    return m_dummygroups;
 	}
 
+
 	//@}
         /**
          * @name Altering Reaction Rates
          *
          * These methods alter reaction rates. They are designed
-         * primarily for carrying out sensitivity analysis.
+         * primarily for carrying out sensitivity analysis, but may be
+         * used for any purpose requiring dynamic alteration of rate
+         * constants.  For each reaction, a real-valued multiplier may
+         * be defined that multiplies the reaction rate
+         * coefficient. The multiplier may be set to zero to
+         * completely remove a reaction from the mechanism.
          */
         //@{
 
@@ -577,31 +709,41 @@ namespace Cantera {
 
 	/**
 	 * Returns true if the kinetics manager has been properly
-	 * initialized and finalized.
+	 * initialized and finalized. 
 	 */
         virtual bool ready() const {
 	    return false;
 	}
 
 
+        /** 
+         * Extract from array \c data the portion pertaining to phase \c phase.
+         */
+        void selectPhase(const doublereal* data, const thermo_t* phase,
+            doublereal* phase_data);
+
+
+        /// For internal use. May be removed in a future release.
+        int index(){ return m_index; }
+        void setIndex(int index) { m_index = index; }
+
+
     protected:
 
-	/**
-	 * m_ii is the number of reactions in the mechanism
-	 */
+	
+        /// Number of reactions in the mechanism
         int m_ii;
-
-	/**
-	 * m_perturb is a vector of perturbation factors for each
-	 * reaction's rate of progress vector. It is initialized to one.
-	 */
+	
+        /// Vector of perturbation factors for each reaction's rate of
+        /// progress vector. It is initialized to one.
+        ///
         vector_fp m_perturb;
 
 	/**
 	 * This is a vector of vectors containing the reactants for
 	 * each reaction. The outer vector is over the number of
 	 * reactions, m_ii.  The inner vector is a list of species
-	 * indicises. If the stoichiometric coefficient for a reactant
+	 * indices. If the stoichiometric coefficient for a reactant
 	 * is greater than one, then the reactant is listed
 	 * contiguously in the vector a number of times equal to its
 	 * stoichiometric coefficient.
@@ -612,22 +754,23 @@ namespace Cantera {
 	 * This is a vector of vectors containing the products for
 	 * each reaction. The outer vector is over the number of
 	 * reactions, m_ii.  The inner vector is a list of species
-	 * indecises. If the stoichiometric coefficient for a product
-	 * is greater than one, then the reactant is listed
-	 * contiguously in the vector a number of times equal to its
-	 * stoichiometric coefficient.
+	 * indeces. If the stoichiometric coefficient for a product is
+	 * greater than one, then the reactant is listed contiguously
+	 * in the vector a number of times equal to its stoichiometric
+	 * coefficient.
 	 */
         vector<vector_int> m_products;
 
 	/**
-	 * m_thermo is a vector of pointers to ThermoPhase objects. For 
-	 * homogeneous kinetics applications, this vector will only
-	 * consist of one entry. For interfacial reactions, this vector
-	 * will consist of multiple entries; some of them will be surface
-	 * phases, and the other ones will be bulk phases. 
-	 * The order that the objects are listed determines the order in
-	 * which the species comprising each phase are listed in the
-	 * source term vector, originating from the reaction mechanism.
+	 * m_thermo is a vector of pointers to ThermoPhase
+	 * objects. For homogeneous kinetics applications, this vector
+	 * will only have one entry. For interfacial reactions, this
+	 * vector will consist of multiple entries; some of them will
+	 * be surface phases, and the other ones will be bulk phases.
+	 * The order that the objects are listed determines the order
+	 * in which the species comprising each phase are listed in
+	 * the source term vector, originating from the reaction
+	 * mechanism.
 	 */
         vector<thermo_t*> m_thermo;
 
@@ -654,6 +797,13 @@ namespace Cantera {
 	 */
         int m_surfphase;
 
+        /**
+         * Index in the list of phases of the one phase where the reactions
+         * occur.
+         */
+        int m_rxnphase;
+
+
     private:
 
         vector<grouplist_t> m_dummygroups;
@@ -661,7 +811,9 @@ namespace Cantera {
 
     };
 
+
     typedef Kinetics kinetics_t;
+
 }
 
 

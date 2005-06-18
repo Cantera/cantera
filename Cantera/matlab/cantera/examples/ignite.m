@@ -90,7 +90,7 @@ for j = 1:n
   pv(5:end,j) = y;
 end
 
-% plot the temperature and OH mole fractions.
+% plot the temperature and OH mass fractions.
 figure(1);
 plot(pv(1,:),pv(2,:));
 xlabel('time');
@@ -101,5 +101,5 @@ figure(2);
 ioh = speciesIndex(gas,'OH');
 plot(pv(1,:),pv(4+ioh,:));
 xlabel('time');
-ylabel('Mole Fraction');
-title('OH Mole Fraction');
+ylabel('Mass Fraction');
+title('OH Mass Fraction');

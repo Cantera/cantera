@@ -15,6 +15,7 @@ SRCS = cantera/private/ctmethods.cpp \
        cantera/private/xmlmethods.cpp \
        cantera/private/phasemethods.cpp \
        cantera/private/thermomethods.cpp \
+       cantera/private/mixturemethods.cpp \
        cantera/private/kineticsmethods.cpp \
        cantera/private/transportmethods.cpp \
        cantera/private/reactormethods.cpp \
@@ -23,7 +24,8 @@ SRCS = cantera/private/ctmethods.cpp \
        cantera/private/flowdevicemethods.cpp \
        cantera/private/onedimmethods.cpp \
        cantera/private/surfmethods.cpp \
-       cantera/private/funcmethods.cpp
+       cantera/private/funcmethods.cpp \
+       cantera/private/write.cpp
 
 
 CANTERA_LIBDIR=@buildlib@
@@ -32,7 +34,9 @@ os_is_win=@OS_IS_WIN@
 ifeq ($(os_is_win),0)
 LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
            $(CANTERA_LIBDIR)/liboneD.a \
-           $(CANTERA_LIBDIR)/libtransport.a 
+           $(CANTERA_LIBDIR)/libtransport.a \
+           $(CANTERA_LIBDIR)/libclib.a \
+           $(CANTERA_LIBDIR)/libconverters.a 
 else
 LIB_DEPS = $(CANTERA_LIBDIR)/cantera.lib $(CANTERA_LIBDIR)/zeroD.lib \
            $(CANTERA_LIBDIR)/oneD.lib \
@@ -60,6 +64,7 @@ install:
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera-demos
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@ThermoPhase/private
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Mixture/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Kinetics/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Transport/private
 	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera/@Interface/private
@@ -95,6 +100,10 @@ install:
             *.m @prefix@/matlab/toolbox/cantera/cantera/@Interface
 	cd cantera/@Interface/private; @INSTALL@ *.m \
             @prefix@/matlab/toolbox/cantera/cantera/@Interface/private
+	cd cantera/@Mixture; @INSTALL@ \
+            *.m @prefix@/matlab/toolbox/cantera/cantera/@Mixture
+	cd cantera/@Mixture/private; @INSTALL@ *.m \
+            @prefix@/matlab/toolbox/cantera/cantera/@Mixture/private
 	cd cantera/@XML_Node; @INSTALL@ *.m \
             @prefix@/matlab/toolbox/cantera/cantera/@XML_Node
 	cd cantera/@Reactor; @INSTALL@ *.m \
@@ -127,6 +136,12 @@ install:
             @prefix@/matlab/toolbox/cantera/cantera/1D/@Stack
 	cd cantera/1D/@Stack/private; @INSTALL@ *.m \
             @prefix@/matlab/toolbox/cantera/cantera/1D/@Stack/private
+	@INSTALL@ -d @ct_demodir@/matlab
+	@INSTALL@ cantera/examples/*.m @ct_demodir@/matlab
+	@INSTALL@ -d @ct_tutdir@/matlab
+	@INSTALL@ cantera/tutorial/*.m @ct_tutdir@/matlab
+	chown -R @username@ @ct_demodir@/matlab
+	chown -R @username@ @ct_tutdir@/matlab
 
 
 clean:
@@ -149,6 +164,9 @@ endif
 
 run-demo:
 	(cd @ct_dir@; matlab -nojvm -nosplash -r cantera_demos)
+
+test-demo:
+	(cd @ct_dir@/demos/matlab; matlab -nojvm -nosplash -r test_demos)
 
 # end of file
 

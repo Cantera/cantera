@@ -24,17 +24,16 @@
 #include "../Func1.h"
 
 namespace Cantera {
-
-    // forward references
-    class ReactorBase; 
     class Kinetics;
     class Func1;
     class SurfPhase;
+}
+using namespace Cantera;
 
-    //    const int Rigid_Type = 1;
-    //    const int Flexible_Type = 2;
+namespace CanteraZeroD {
 
-    
+    // forward references
+    class ReactorBase;
 
     class Wall {
 

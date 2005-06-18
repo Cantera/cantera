@@ -57,48 +57,68 @@ int showHelp() {
          << "    -tr <transport database> \n"
          << "    -id  <identifier> \n"
          << "    -d  print debugging output \n\n"
+         << "    -v  validate the input file \n\n"
          << "The results are written to the standard output.\n";
     return 0;
 }
+
+string getp(int& i, int argc, char** args) {
+    string a="--";
+    if (i < argc-1) {
+        a = string(args[i+1]);
+    }
+    if (a[0] == '-') {
+        a = "<missing>";
+    }
+    else {
+        i += 1;
+    }
+    return a;
+}
+
 
 int main(int argc, char** argv) {
     string infile="chem.inp", dbfile="", trfile="", logfile;
     string idtag = "gas";
     bool debug = false;
+    bool validate = false;
     int i=1;
     if (argc == 1) return showHelp();
  
     while (i < argc) {
         string arg = string(argv[i]);
-        if (i < argc-1) {
-            if (arg == "-i") {
-                infile = argv[i+1];
-                ++i;
-            }
-            else if (arg == "-t") {
-                dbfile = argv[i+1];
-                ++i;
-            }
-            else if (arg == "-tr") {
-                trfile = argv[i+1];
-                ++i;
-            }
-            else if (arg == "-id") {
-                idtag = argv[i+1];
-            }
+        if (arg == "-i") {
+            infile = getp(i,argc,argv);
+        }
+        else if (arg == "-t") {
+            dbfile = getp(i,argc,argv);;
+        }
+        else if (arg == "-tr") {
+            trfile = getp(i,argc,argv);
+        }
+        else if (arg == "-id") {
+            idtag = getp(i,argc,argv);
         }
         else if (arg == "-d") {
             debug = true;
             cout << "### DEBUG MODE ###" << endl;
         }
+        else if (arg == "-v") {
+            validate = true;
+            cout << "### VALIDATION ENABLED ###" << endl;
+        }
         else if (arg == "-h" || argc < 3) {
             return showHelp(); 
+        }
+        else {
+            cout << "unknown option:" << arg << endl;
+            exit(-1);
         }
         ++i;
     }
 
     int ierr = pip::convert_ck(infile.c_str(), dbfile.c_str(), trfile.c_str(), 
-        idtag.c_str(), debug);
+        idtag.c_str(), debug, validate);
 
     if (ierr < 0) {
         showErrors(cerr);

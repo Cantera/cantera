@@ -6,6 +6,7 @@ namespace std{}
 using namespace std;
 
 // definitions
+#define CANTERA_APP
 #include "kernel/ct_defs.h"
 
 // some useful functions
@@ -13,6 +14,9 @@ using namespace std;
 
 // the CanteraError exception class
 #include "kernel/ctexceptions.h"
+
+//
+#include "kernel/importCTML.h"
 
 using namespace Cantera;
 

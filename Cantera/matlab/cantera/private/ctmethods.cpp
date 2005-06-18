@@ -9,8 +9,8 @@
  * class is indicated by the first parameter in the call from MATLAB.
  */
 
-#include "mex.h"
 #include "../../../clib/src/ct.h"
+#include "mex.h"
 #include "ctmatutils.h"
 #include "mllogger.h"
 #include "../../../src/global.h"
@@ -32,6 +32,7 @@ const int FLOWDEVICE_CLASS = 80;
 const int ONEDIM_CLASS = 90;
 const int SURF_CLASS = 100;
 const int FUNC_CLASS = 110;
+const int MIXTURE_CLASS = 120;
 
 void ctfunctions( int nlhs, mxArray *plhs[], int nrhs, 
     const mxArray *prhs[] );
@@ -43,6 +44,9 @@ void thermomethods( int nlhs, mxArray *plhs[], int nrhs,
     const mxArray *prhs[] );
 
 void phasemethods( int nlhs, mxArray *plhs[], int nrhs, 
+    const mxArray *prhs[] );
+
+void mixturemethods( int nlhs, mxArray *plhs[], int nrhs, 
     const mxArray *prhs[] );
 
 void surfmethods( int nlhs, mxArray *plhs[], int nrhs, 
@@ -106,6 +110,8 @@ extern "C" {
             thermomethods(nlhs, plhs, nrhs, prhs); break;
         case PHASE_CLASS:
             phasemethods(nlhs, plhs, nrhs, prhs); break;
+        case MIXTURE_CLASS:
+            mixturemethods(nlhs, plhs, nrhs, prhs); break;
         case KINETICS_CLASS:
             kineticsmethods(nlhs, plhs, nrhs, prhs); break;
         case TRANSPORT_CLASS:

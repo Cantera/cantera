@@ -39,7 +39,7 @@ namespace Cantera {
      */    
     InterfaceKinetics::
     InterfaceKinetics(thermo_t* thermo) :
-        Kinetics(thermo),
+        Kinetics(),
         m_kk(0), 
         m_redo_rates(false),
         m_nirrev(0), 
@@ -49,6 +49,7 @@ namespace Cantera {
         m_finalized(false),
         m_has_coverage_dependence(false)
     {
+        if (thermo != 0) addPhase(*thermo);
         m_kdata = new InterfaceKineticsData;
         m_kdata->m_temp = 0.0;
     }
@@ -177,30 +178,40 @@ namespace Cantera {
         int i, irxn;
         vector_fp dmu(nTotalSpecies(), 0.0);
         vector_fp rmu(nReactions(), 0.0);
+        vector_fp frop(nReactions(), 0.0);
+        vector_fp rrop(nReactions(), 0.0);
+        vector_fp netrop(nReactions(), 0.0);
         if (m_nrev > 0) {
-
+            doublereal rt = GasConstant*thermo(0).temperature();
+            cout << "T = " << thermo(0).temperature() << " " << rt << endl;
             int n, nsp, k, ik=0;
             //doublereal rt = GasConstant*thermo(0).temperature();
             //            doublereal rrt = 1.0/rt;
             int np = nPhases();
+            doublereal delta;
             for (n = 0; n < np; n++) {
                 thermo(n).getChemPotentials(dmu.begin() + m_start[n]);
                 nsp = thermo(n).nSpecies();
                 for (k = 0; k < nsp; k++) {
-                    dmu[ik] += Faraday * m_phi[n] * thermo(n).charge(k);
-                    cout << thermo(n).speciesName(k) << "   " << dmu[ik] << endl;
+                    delta = Faraday * m_phi[n] * thermo(n).charge(k);
+                    cout << thermo(n).speciesName(k) << "   " << (delta+dmu[ik])/rt << " " << dmu[ik]/rt << endl;
+                    dmu[ik] += delta;
                     ik++;
                 }
             }
 
             // compute Delta mu^ for all reversible reactions
-            //m_reactantStoich.decrementReactions(dmu.begin(), rmu.begin()); 
-            //m_revProductStoich.incrementReactions(dmu.begin(), rmu.begin());
             m_rxnstoich.getRevReactionDelta(m_ii, dmu.begin(), rmu.begin());
-
+            getFwdRatesOfProgress(frop.begin());
+            getRevRatesOfProgress(rrop.begin());
+            getNetRatesOfProgress(netrop.begin());
             for (i = 0; i < m_nrev; i++) {
                 irxn = m_revindex[i];
-                cout << "Reaction " << reactionString(irxn) << "  " << rmu[irxn] << endl;
+                cout << "Reaction " << reactionString(irxn) 
+                     << "  " << rmu[irxn]/rt << endl;
+                printf("%12.6e  %12.6e  %12.6e  %12.6e \n", 
+                    frop[irxn], rrop[irxn], netrop[irxn], 
+                    netrop[irxn]/(frop[irxn] + rrop[irxn]));
             }
         }
     }
@@ -280,8 +291,19 @@ namespace Cantera {
             eamod = 0.5*m_rwork[i];
             if (eamod != 0.0 && m_E[i] != 0.0) {
                 ea = GasConstant * m_E[i];
-                if (eamod + ea < 0.0) eamod = -ea;
+                if (eamod + ea < 0.0) {
+                    eamod = -ea;
+                    writelog("warning: modified E < 0.\n");
+                }
                 kf[i] *= exp(-eamod*rrt);
+                if (kf[i] == 0.0) {
+                    for (n = 0; n < np; n++) {
+                        cout << "phi " << n << "  " << thermo(n).electricPotential() << "  " << m_phi[n] << endl;
+                    }
+                    cout << "Zero rate coeff." << endl;
+                    cout << "eamod = " << eamod << " " << eamod*rrt << endl;
+                    cout << eamod/Faraday << endl;
+                }
             }
         }
     }
@@ -582,43 +604,7 @@ namespace Cantera {
     void InterfaceKinetics::
     addReaction(const ReactionData& r) {
 
-        //        int nr = r.reactants.size();
-
-        // a global reaction is identified as one with 
-        // a reactant stoichiometric coefficient not equal 
-        // to the molecularity for some reactant
-//         bool isglobal = false;
-//         for (int n = 0; n < nr; n++) {
-//            if (r.rstoich[n] != int(r.order[n])) {
-//                isglobal = true; break;
-//            }
-//         }
-        // if (isglobal)
-        //     addGlobalReaction(r);
-        //else
-
-        //        if (r.global) 
-        //    cout << r.equation << " is global " << endl;
-
         addElementaryReaction(r);
-
-        //if (r.global) {
-        //    int nr = r.order.size();
-        //    vector_fp ordr(nr);
-        //    for (int n = 0; n < nr; n++) {
-        //        ordr[n] = r.order[n] - r.rstoich[n];
-                //      cout << r.reactants[n] << "  " << r.order[n] << "  " << ordr[n] << endl;
-        //  }
-            //m_globalReactantStoich.add( reactionNumber(),
-            //    r.reactants, ordr);
-            //}
-
-//         if (r.reactionType == ELEMENTARY_RXN)      
-//             addElementaryReaction(r);
-//         if (r.reactionType == SURFACE_RXN)      
-//             addElementaryReaction(r);
-//         else if (r.reactionType == GLOBAL_RXN)     
-//             addGlobalReaction(r);
 
         // operations common to all reaction types
         installReagents( r );

@@ -237,16 +237,18 @@ namespace Cantera {
         fill(r, r + m_size, 0.0);
         fill(m_mask.begin(), m_mask.end(), 0);
         if (rdt < 0.0) rdt = m_rdt;
-
+        int nn;
         vector<Domain1D*>::iterator d; 
 
         // iterate over the bulk domains first
-        for (d = m_bulk.begin(); d != m_bulk.end(); ++d)
+        for (d = m_bulk.begin(); d != m_bulk.end(); ++d) {
             (*d)->eval(j, x, r, m_mask.begin(), rdt);
+        }
 
         // then over the connector domains
-        for (d = m_connect.begin(); d != m_connect.end(); ++d)
+        for (d = m_connect.begin(); d != m_connect.end(); ++d) {
             (*d)->eval(j, x, r, m_mask.begin(), rdt);
+        }
 
         // increment counter and time
         if (count) {

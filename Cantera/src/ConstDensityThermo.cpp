@@ -16,8 +16,56 @@
 
 namespace Cantera {
 
+    int ConstDensityThermo::
+    eosType() const { return cIncompressible; }
+
+    doublereal ConstDensityThermo::enthalpy_mole() const {
+        doublereal p0 = m_spthermo->refPressure();
+        return GasConstant * temperature() * 
+            mean_X(enthalpy_RT().begin()) 
+            + (pressure() - p0)/molarDensity();
+    }
+
+    doublereal ConstDensityThermo::intEnergy_mole() const {
+        doublereal p0 = m_spthermo->refPressure();
+        return GasConstant * temperature() * 
+            mean_X(enthalpy_RT().begin()) 
+            - p0/molarDensity();
+    }
+
+    doublereal ConstDensityThermo::entropy_mole() const {
+        return GasConstant * (mean_X(entropy_R().begin()) -
+            sum_xlogx());
+    }
+
+    doublereal ConstDensityThermo::gibbs_mole() const {
+        return enthalpy_mole() - temperature() * entropy_mole();
+    }
+
+    doublereal ConstDensityThermo::cp_mole() const {
+        return GasConstant * mean_X(cp_R().begin());
+    }
+
+    doublereal ConstDensityThermo::cv_mole() const {
+        return cp_mole();
+    }
+
+    doublereal ConstDensityThermo::pressure() const {
+        return m_press;
+    }
+
+    void ConstDensityThermo::setPressure(doublereal p) {
+        m_press = p;
+    }
+
     void ConstDensityThermo::getActivityConcentrations(doublereal* c) const {
         getConcentrations(c);
+    }
+
+    void ConstDensityThermo::getActivityCoefficients(doublereal* ac) const {
+        for (int k = 0; k < m_kk; k++) {
+	  ac[k] = 1.0;
+	}
     }
 
     doublereal ConstDensityThermo::standardConcentration(int k) const {
@@ -39,6 +87,7 @@ namespace Cantera {
             mu[k] = rt*(g_RT[k] + log(xx)) + vdp;
         }
     }
+
 
     void ConstDensityThermo::getStandardChemPotentials(doublereal* mu0) const {
         getPureGibbs(mu0);
@@ -64,34 +113,8 @@ namespace Cantera {
     }
 
 
-    /** 
-     * Set mixture to an equilibrium state consistent with specified 
-     * element potentials and temperature.
-     *
-     * @param lambda_RT vector of non-dimensional element potentials
-     * \f[ \lambda_m/RT \f].
-     * @param t temperature in K.
-     * @param work. Temporary work space. Must be dimensioned at least
-     * as large as the number of species. 
-     *
-     */
-    void ConstDensityThermo::setToEquilState(const doublereal* lambda_RT) 
-    {
+    void ConstDensityThermo::setToEquilState(const doublereal* lambda_RT) {
         throw CanteraError("setToEquilState","not yet impl.");
-        //const array_fp& grt = gibbs_RT();
-
-        // set the pressure and composition to be consistent with
-        // the temperature, 
- //        doublereal pres = 0.0;
-//         for (int k = 0; k < m_kk; k++) {
-//             m_pp[k] = -grt[k];
-//             for (int m = 0; m < m_mm; m++) 
-//                 m_pp[k] += phase().nAtoms(k,m)*lambda_RT[m];
-//             m_pp[k] = m_p0 * exp(m_pp[k]);
-//             pres += m_pp[k];
-//         }
-//         // set state
-//         setState_PX(pres, m_pp.begin());
     }
 
     void ConstDensityThermo::_updateThermo() const {
@@ -100,12 +123,8 @@ namespace Cantera {
             m_spthermo->update(tnow, m_cp0_R.begin(), m_h0_RT.begin(), 
                 m_s0_R.begin());
             m_tlast = tnow;
-            //            doublereal rrt = 1.0 / (GasConstant * tnow);
             int k;
-            //doublereal deltaE;
             for (k = 0; k < m_kk; k++) {
-                //deltaE = rrt * m_pe[k];
-                //m_h0_RT[k] += deltaE;
                 m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
             }
             m_tlast = tnow;

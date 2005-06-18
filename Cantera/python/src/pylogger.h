@@ -11,6 +11,8 @@ static std::string ss = "print \"\"\" ";
 
 namespace Cantera {
 
+    /// Logger for Python.
+    /// @ingroup textlogs
     class Py_Logger : public Logger {
     public:
         Py_Logger() {}

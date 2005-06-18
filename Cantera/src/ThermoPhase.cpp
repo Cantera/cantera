@@ -96,8 +96,11 @@ namespace Cantera {
         doublereal tol) {
         doublereal dt;
         setPressure(p);
+
+        // Newton iteration
         for (int n = 0; n < 50; n++) {
             dt = (h - enthalpy_mass())/cp_mass();
+            // limit step size to 100 K
             if (dt > 100.0) dt = 100.0;
             else if (dt < -100.0) dt = -100.0; 
             setState_TP(temperature() + dt, p);
@@ -105,7 +108,7 @@ namespace Cantera {
                 return;
             }
         }
-        throw CanteraError("setState_HP","no convergence. dt = " + fp2str(dt));
+        throw CanteraError("setState_HP","No convergence. dt = " + fp2str(dt));
     }
 
     void ThermoPhase::setState_UV(doublereal u, doublereal v, 

@@ -14,6 +14,7 @@ namespace Cantera {
      */           
     string report(const ThermoPhase& th, bool show_thermo) {
 
+        try {
         char p[200];
         string s = "";
 
@@ -71,6 +72,10 @@ namespace Cantera {
                 s += p;
         }
         return s;
+        }
+        catch (CanteraError) {
+            return string("<error>");
+        }
     }
 
     /**

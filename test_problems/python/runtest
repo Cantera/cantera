@@ -90,6 +90,21 @@ else
   temp_success="0"
 fi
 
+#################################################################
+#
+#################################################################
+$PYTHON_CMD frac.py > frac_test.out
+diff -w frac_test.out frac_blessed.out > diff_test.out
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful diff comparison on frac test"
+else
+  echo "unsuccessful diff comparison on frac test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+fi
+
 if [ $temp_success = "1" ]
 then
   echo 'Python csv test PASSED!'

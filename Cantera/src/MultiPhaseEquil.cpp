@@ -2,10 +2,22 @@
 #include "MultiPhase.h"
 #include "sort.h"
 #include "recipes.h"
+#include "global.h"
 
 #include <math.h>
 #include <iostream>
 using namespace std;
+
+#if DARWIN == 1
+#define ISNAN __isnand
+#else
+#ifdef WIN32
+#include <float.h>
+#define ISNAN _isnan
+#else
+#define ISNAN isnan
+#endif
+#endif
 
 #undef DEBUG_MULTIPHASE_EQUIL
 
@@ -35,7 +47,7 @@ namespace Cantera {
     /// Constructor. Construct a multiphase equilibrium manager for 
     /// a multiphase mixture.
     /// @param mix Pointer to a multiphase mixture object. 
-    MultiPhaseEquil::MultiPhaseEquil(mix_t* mix) : m_mix(mix)
+    MultiPhaseEquil::MultiPhaseEquil(mix_t* mix, bool start) : m_mix(mix)
     {
         // the multi-phase mixture
         m_mix = mix;
@@ -50,22 +62,50 @@ namespace Cantera {
         index_t m, k;
         m_nel = 0;
         m_nsp = 0;
+        m_eloc = 1000;
         m_incl_species.resize(m_nsp_mix,1);
         m_incl_element.resize(m_nel_mix,1);
         for (m = 0; m < m_nel_mix; m++) {
+            string enm = mix->elementName(m);
+            if (enm == "E" || enm == "e") m_eloc = m;
             if (m_mix->elementMoles(m) <= 0.0) {
-                m_incl_element[m] = 0;
-                for (k = 0; k < m_nsp_mix; k++) {
-                    if (m_mix->nAtoms(k,m) != 0.0) {
-                        m_incl_species[k] = 0;
+                if (m != m_eloc) {
+                    m_incl_element[m] = 0;
+                    for (k = 0; k < m_nsp_mix; k++) {
+                        if (m_mix->nAtoms(k,m) != 0.0) {
+                            m_incl_species[k] = 0;
+                        }
                     }
                 }
             }
         }
+        
+        if (m_eloc < m_nel_mix) {
+            m_element.push_back(m_eloc);
+            m_nel++;
+        }
+
         for (m = 0; m < m_nel_mix; m++) {
-            if (m_incl_element[m] == 1) {
+            if (m_incl_element[m] == 1 && m != m_eloc) {
                 m_nel++;
                 m_element.push_back(m);
+            }
+        }
+
+        index_t ip;
+        for (k = 0; k < m_nsp_mix; k++) {
+            ip = m_mix->speciesPhaseIndex(k);
+            if (!m_mix->solutionSpecies(k) && 
+                !m_mix->tempOK(ip)) {
+                m_incl_species[k] = 0;
+                if (m_mix->speciesMoles(k) > 0.0) {
+                    throw CanteraError("MultiPhaseEquil",
+                        "condensed-phase species"+ m_mix->speciesName(k) 
+                        + " is excluded since its thermo properties are \n"
+                        "not valid at this temperature, but it has "
+                        "non-zero moles in the initial state.");
+                }
+                //cout << "excluding species " << m_mix->speciesName(k) << endl;
             }
         }
         for (k = 0; k < m_nsp_mix; k++) {
@@ -88,6 +128,9 @@ namespace Cantera {
         index_t ik;
         for (ik = 0; ik < m_nsp; ik++) {
             m_moles[ik] = m_mix->speciesMoles(m_species[ik]);
+            //if (ISNAN(m_moles[ik])) {
+            //        writelog("moles "+int2str(ik)+" initialized to nan \n");
+            //}
         }
 
         // Delta G / RT for each reaction
@@ -100,21 +143,25 @@ namespace Cantera {
         m_N.resize(m_nsp, m_nsp - m_nel);
         m_order.resize(m_nsp, 0);
 
-        setInitialMoles();
+        if (start)
+            setInitialMoles();
         computeN();
 
         // make sure the components are non-zero
-        for (k = 0; k < m_nel; k++) {                
-            if (m_moles[m_order[k]] <= 0.0) {
-                m_moles[m_order[k]] = 1.0e-17;
-            }
-        }
+        //for (k = 0; k < m_nel; k++) {                
+        //    if (m_moles[m_order[k]] <= 0.0) {
+        //        m_moles[m_order[k]] = 1.0e-17;
+        //    }
+        //}
         vector_fp dxi(m_nsp - m_nel, 1.0e-20);
         multiply(m_N, dxi.begin(), m_work.begin());
         unsort(m_work);
-        
+
         for (k = 0; k < m_nsp; k++) {
             m_moles[k] += m_work[k];
+            //if (ISNAN(m_moles[k])) {
+            //        writelog("moles "+int2str(k)+" is nan  2. \n");
+            // }
             m_lastmoles[k] = m_moles[k];
             if (m_mix->solutionSpecies(m_species[k])) 
                 m_dsoln.push_back(1);
@@ -123,6 +170,46 @@ namespace Cantera {
         }
         m_force = false; 
         setMoles();
+        }
+
+    doublereal MultiPhaseEquil::equilibrate(int XY, doublereal err, 
+        int maxsteps, int loglevel) {
+        int i;
+        m_iter = 0;
+        if (loglevel > 0)
+            beginLogGroup("MultiPhaseEquil::equilibrate");
+
+        for (i = 0; i < maxsteps; i++) {
+            stepComposition(loglevel - 1);
+            if (loglevel > 1) {
+                beginLogGroup("iteration "+int2str(i));
+                addLogEntry("error",fp2str(error()));
+                endLogGroup();
+            }
+            printInfo();
+            if (error() == 0.0) {
+                write_logfile("equil_err.html");
+                Cantera::error("stopping");
+            }
+            if (error() < err) break;
+        }        
+        if (i >= maxsteps) {
+            if (loglevel > 0) {
+                addLogEntry("Error","no convergence in "+int2str(maxsteps)
+                    +" iterations");
+                printInfo();
+            }
+            throw CanteraError("MultiPhaseEquil::equilibrate",
+                "no convergence in " + int2str(maxsteps) + 
+                " iterations. Error = " + fp2str(error()));
+        }
+        if (loglevel > 0) {
+            addLogEntry("iterations",int2str(iterations()));
+            addLogEntry("error tolerance",fp2str(err));
+            addLogEntry("error",fp2str(error()));
+            endLogGroup();
+        }
+        return error();
     }
 
     void MultiPhaseEquil::setMoles() {
@@ -193,6 +280,9 @@ namespace Cantera {
             for (int k = 0; k < int(m_nsp); k++) { 
                 if (ip == ksp) {
                     m_moles[k] = aa(n+1, 0);
+                    //if (ISNAN(m_moles[k])) {
+                    //    writelog("moles "+int2str(k)+" is nan  3. \n");
+                    //}
                 }
                 ksp++;
             }
@@ -252,6 +342,13 @@ namespace Cantera {
         index_t nColumns = m_nsp;
         doublereal fctr;
 
+#ifdef DEBUG_MULTIPHASE_EQUIL
+        cout << "most abundant:" << endl;
+        for (m = 0; m < nRows; m++) {
+            cout << m_mix->speciesName(m_species[m_order[m]]) << "  " << m_moles[m_order[m]] << endl;
+        }
+#endif
+
         // set up the atomic composition matrix
         for (m = 0; m < nRows; m++) {
             for (k = 0; k < nColumns; k++) {
@@ -263,23 +360,33 @@ namespace Cantera {
         for (m = 0; m < nRows; m++) {
             // if a pivot is zero, exchange columns
             if (m_A(m,m) == 0.0) {
+                doublereal maxmoles = -999.0;
+                index_t kmax = 0;
                 for (k = m+1; k < nColumns; k++) {
                     if (m_A(m,k) != 0.0) {
-                        for (n = 0; n < int(nRows); n++) {
-                            tmp = m_A(n,m);
-                            m_A(n, m) = m_A(n, k);
-                            m_A(n, k) = tmp;
+                        if (fabs(m_moles[m_order[k]]) > maxmoles) {
+                            kmax = k;
+                            maxmoles = fabs(m_moles[m_order[k]]);
                         }
-                        // exchange the species labels on the columns
-                        itmp = m_order[m];
-                        m_order[m] = m_order[k];
-                        m_order[k] = itmp;
-                        break;
                     }
                 }
+                for (n = 0; n < int(nRows); n++) {
+                    tmp = m_A(n,m);
+                    m_A(n, m) = m_A(n, kmax);
+                    m_A(n, kmax) = tmp;
+                        }
+                // exchange the species labels on the columns
+#ifdef DEBUG_MULTIPHASE_EQUIL
+                cout << "in row " << m << ", pivot is zero" << endl;
+                cout << "exchanging " << m_mix->speciesName(m_species[m_order[m]]) << " for " << m_mix->speciesName(m_species[m_order[kmax]]) << endl; 
+#endif
+                itmp = m_order[m];
+                m_order[m] = m_order[kmax];
+                m_order[kmax] = itmp;
+            
                 // throw an exception if the entire row is zero
-                if (k >= m_nsp) 
-                    throw CanteraError("getComponents","all zeros!");
+                //    if (k >= m_nsp) 
+                //    throw CanteraError("getComponents","all zeros!");
             }
 
             // scale row m so that the diagonal element is unity
@@ -316,7 +423,7 @@ namespace Cantera {
         // check
         bool ok = true;
         for (m = 0; m < nRows; m++) {
-            cout << m_mix->speciesName(m_species[m_order[m]]) << endl;
+            cout << m_mix->speciesName(m_species[m_order[m]]) << "  " << m_moles[m_order[m]] << endl;
             if (m_A(m,m) != 1.0) ok = false;
             for (n = 0; n < nRows; n++) {
                 if (n != m && fabs(m_A(m,n)) > TINY)
@@ -374,22 +481,30 @@ namespace Cantera {
 
     void MultiPhaseEquil::printInfo() {
         index_t m, ik, k;
-        cout << "components: " << endl;
+        beginLogGroup("info");
+        beginLogGroup("components");
         for (m = 0; m < m_nel; m++) {
             ik = m_order[m];
             k = m_species[ik];
-            cout << m_mix->speciesName(k) << " " << m_moles[ik] << endl;
+            addLogEntry("m, k, ik",int2str(m)+int2str(k)+int2str(ik));
+            addLogEntry(m_mix->speciesName(k), fp2str(m_moles[ik]));
         }
-        cout << "non-components: " << endl;
+        endLogGroup();
+        beginLogGroup("non-components");
         for (m = m_nel; m < m_nsp; m++) {
             ik = m_order[m];
             k = m_species[ik];
-            cout << m_mix->speciesName(k) << " " << m_moles[ik] << endl;
+            addLogEntry("m, k, ik",int2str(m)+int2str(k)+int2str(ik));
+            addLogEntry(m_mix->speciesName(k), fp2str(m_moles[ik]));
         }
-        cout << "Error = " << error() << endl;
+        endLogGroup();
+        addLogEntry("Error",fp2str(error()));
+        beginLogGroup("Delta G / RT");
         for (k = 0; k < m_nsp - m_nel; k++) {
-            cout << reactionString(k) << "  " << m_deltaG_RT[k] << endl;
+            addLogEntry(reactionString(k), fp2str(m_deltaG_RT[k]));
         }
+        endLogGroup();
+        endLogGroup();
     }
 
     /// Return a string specifying the jth reaction. 
@@ -423,6 +538,15 @@ namespace Cantera {
             k = m_order[ik];
             m_lastmoles[k] = m_moles[k];
             m_moles[k] += omega * deltaN[k];
+            //if (ISNAN(omega)) {
+            //        writelog("omega is nan\n");
+            //}            
+            //if (ISNAN(deltaN[k])) {
+            //     writelog("deltaN["+int2str(k)=" is nan\n");
+            //}            
+            //if (ISNAN(m_moles[k])) {
+            //        writelog("moles "+int2str(k)+" is nan  4. \n");
+            //}
         }
 
         for (ik = m_nel; ik < m_nsp; ik++) {
@@ -430,10 +554,16 @@ namespace Cantera {
             m_lastmoles[k] = m_moles[k];
             if (m_majorsp[k]) {
                 m_moles[k] += omega * deltaN[k];
-                if (m_moles[k] < 0.0) m_moles[k] = 0.0;
+                //if (ISNAN(m_moles[k])) {
+                //    writelog("moles "+int2str(k)+" is nan  5. \n");
+                //}
+                //if (m_moles[k] < 0.0) m_moles[k] = 0.0;
             }
             else {
                 m_moles[k] = fabs(m_moles[k])*fminn(10.0, exp(-m_deltaG_RT[ik - m_nel]));
+                //if (ISNAN(m_moles[k])) {
+                //    writelog("moles "+int2str(k)+" is nan  6. \n");
+                //}
             }
         }
         setMoles();
@@ -442,7 +572,9 @@ namespace Cantera {
     /// Take one step in composition, given the gradient of G at the
     /// starting point, and a vector of reaction steps dxi. 
     doublereal MultiPhaseEquil::
-    stepComposition() {
+    stepComposition(int loglevel) {
+
+        if (loglevel > 0) beginLogGroup("MultiPhaseEquil::stepComposition");
 
         m_iter++;
         index_t ik, j, k = 0;
@@ -462,6 +594,12 @@ namespace Cantera {
             k = m_order[ik];
             for (j = 0; j < m_nsp - m_nel; j++) {
                 m_work[ik] += m_N(ik, j) * m_dxi[j];
+#ifdef DEBUG_MULTIPHASE_EQUIL
+                if (m_work[ik] < -999.0) {
+                    cout << ik << "  " << m_work[ik] << " " << m_N(ik,j) << " " << m_dxi[j] << endl;
+                    cout << reactionString(j) << endl;
+                }
+#endif
             }
         }
 
@@ -497,10 +635,10 @@ namespace Cantera {
                             cout << m_mix->speciesName(m_species[k]) << " results in "
                                  << " omega = " << omegamax << endl;
                             //cout << m_moles[k] << "  " << m_work[k] << endl;
-                            if (ik < m_nel) cout << "component" << endl;
+                            if (ik < m_nel) cout << "(component)" << endl;
                             index_t nk;
                             for (nk = 0; nk < m_nel; nk++) {
-                                cout << "component " << m_mix->speciesName(m_species[m_order[nk]]) << "  " << m_moles[m_order[nk]] << endl;
+                                cout << "component: " << m_mix->speciesName(m_species[m_order[nk]]) << "  " << m_moles[m_order[nk]] << endl;
                             }
 #endif
                         }
@@ -515,7 +653,7 @@ namespace Cantera {
                 if (m_work[k] < 0.0 && m_moles[k] > 0.0) {
                     omax = -m_moles[k]/m_work[k];
                     if (omax < omegamax) {
-                        omegamax = omax*1.000001;
+                        omegamax = omax; //*1.000001;
                         if (omegamax < 1.0e-5) {
                             m_force = true;
 #ifdef DEBUG_MULTIPHASE_EQUIL
@@ -527,6 +665,10 @@ namespace Cantera {
                         }
                     }
                 }
+                if (loglevel > 0 && m_moles[k] < -SmallNumber) {
+                    addLogEntry("Negative moles for "
+                        +m_mix->speciesName(m_species[k]), fp2str(m_moles[k]));
+                }
                 m_majorsp[k] = true;
             }
         }
@@ -537,7 +679,7 @@ namespace Cantera {
         // compute the gradient of G at this new position in the
         // current direction. If it is positive, then we have overshot
         // the minimum. In this case, interpolate back.
-        doublereal not_mu = 1.0e8;
+        doublereal not_mu = 1.0e12;
         m_mix->getValidChemPotentials(not_mu, m_mu.begin());
         doublereal grad1 = 0.0;
         for (k = 0; k < m_nsp; k++) {
@@ -551,6 +693,7 @@ namespace Cantera {
             for (k = 0; k < m_nsp; k++) m_moles[k] = m_lastmoles[k];
             step(omega, m_work);
         }
+        if (loglevel > 0) endLogGroup();
         return omega;
     }
 
@@ -560,14 +703,14 @@ namespace Cantera {
     doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi) {
 
         index_t j, k, ik, kc, ip;
-        doublereal stoich, nmoles, csum, term1, fctr;
+        doublereal stoich, nmoles, csum, term1, fctr, rfctr;
         vector_fp nu;
         const doublereal TINY = 1.0e-20;
         doublereal grad = 0.0;
 
         dxi.resize(m_nsp - m_nel);
         computeN();
-        doublereal not_mu = 1.0e8;
+        doublereal not_mu = 1.0e12;
         m_mix->getValidChemPotentials(not_mu, m_mu.begin());
 
         for (j = 0; j < m_nsp - m_nel; j++) {
@@ -594,7 +737,7 @@ namespace Cantera {
                     fctr = 0.0;
                 }
                 else {
-                    fctr = 0.05;
+                    fctr = 0.5;
                 }
             }
             else if (!m_solnrxn[j]) {
@@ -632,7 +775,15 @@ namespace Cantera {
                         sum -= psum / (fabs(m_mix->phaseMoles(ip)) + TINY);
                     }
                 }
-                fctr = 1.0/(term1 + csum + sum);
+                rfctr = term1 + csum + sum;
+                if (fabs(rfctr) < TINY) 
+                    fctr = 1.0;
+                else
+                    fctr = 1.0/(term1 + csum + sum);
+                if (fctr < -999.0 || fctr > 999.0) {
+                    cout << "fctr, term1, csum, sum = " << fctr << " " << term1 << " " << csum << " " << sum << endl;
+                    cout << reactionString(j) << endl;
+                }
             }
             dxi[j] = -fctr*dg_rt;
             index_t m;
@@ -672,7 +823,7 @@ namespace Cantera {
         for (m = 0; m < m_nel; m++) {
             for (ik = 0; ik < m_nsp; ik++) {
                 k = m_sortindex[ik];
-                if (m_mix->nAtoms(m_species[k],m_element[m]) > 0) break;
+                if (m_mix->nAtoms(m_species[k],m_element[m]) != 0) break;
             }
             ok = false;
             for (ij = 0; ij < m_nel; ij++) {
@@ -688,15 +839,18 @@ namespace Cantera {
 
     doublereal MultiPhaseEquil::error() {
         index_t j, ik, k, maxj;
+        bool exists = false;
         doublereal err, maxerr = 0.0;
         for (j = 0; j < m_nsp - m_nel; j++) {
             ik = j + m_nel;
             k = m_order[ik];
-            if (m_dsoln[k] == 0 && m_moles[k] <= 0.0) {
+            if (m_dsoln[k] > 0 && fabs(m_moles[k]) <= SmallNumber) err = 0.0;
+            else if (m_dsoln[k] == 0 && m_moles[k] <= 0.0) {
                 if (m_deltaG_RT[j] >= 0.0) err = 0.0;
-                else err = 1.0;
+                else err = fabs(m_deltaG_RT[j]);//1.0;
             }
             else {
+                exists = true;
                 err = fabs(m_deltaG_RT[j]);
             }
             if (err > maxerr) {
@@ -704,7 +858,7 @@ namespace Cantera {
                 maxj = j;
             }
         }
+
         return maxerr;
     }
-
 }

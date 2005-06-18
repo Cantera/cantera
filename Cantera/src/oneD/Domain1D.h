@@ -450,15 +450,13 @@ namespace Cantera {
          * not need to be overloaded.
          */ 
         virtual void _finalize(const doublereal* x) {}
-        //throw CanteraError("Domain1D::_finalize",
-        //      "base class method _finalize called!");
-        //}
 
-		//added by Karl Meredith
-		doublereal m_zfixed;
-		doublereal m_tfixed;
+        //added by Karl Meredith
+        doublereal m_zfixed;
+        doublereal m_tfixed;
+        
+        bool m_adiabatic;
 
-		bool m_adiabatic;
     protected:
 
         doublereal m_rdt;

@@ -19,7 +19,7 @@ OBJS = examples.o kinetics_example1.o kinetics_example2.o \
 
 # additional flags to be passed to the linker. If your program
 # requires other external libraries, put them here
-LINK_OPTIONS = 
+LINK_OPTIONS = @EXTRA_LINK@
 
 
 #############################################################################

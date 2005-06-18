@@ -21,27 +21,6 @@
 
 namespace Cantera {
 
-//     ImplicitSurfChem::ImplicitSurfChem(InterfaceKinetics& kin) 
-//         : FuncEval(), m_kin(&kin), m_integ(0),
-//           m_atol(1.e-14), m_rtol(1.e-7), m_maxstep(0.0)
-//     {
-//         m_integ = new CVodeInt;
-//         m_surfindex = kin.surfacePhaseIndex();
-//         if (m_surfindex < 0) 
-//             throw CanteraError("ImplicitSurfChem","kinetics manager contains no surface phase");
-//         m_surf = (SurfPhase*)&kin.thermo(m_surfindex);;
-
-//         // use backward differencing, with a full Jacobian computed
-//         // numerically, and use a Newton linear iterator
-
-//         m_integ->setMethod(BDF_Method);
-//         m_integ->setProblemType(DENSE + NOJAC);
-//         m_integ->setIterator(Newton_Iter);
-//         m_nsp = m_surf->nSpecies();
-//         m_work.resize(m_kin->nTotalSpecies());
-//     }
-
-
     ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) 
         : FuncEval(),  m_nv(0), m_integ(0), 
           m_atol(1.e-14), m_rtol(1.e-7), m_maxstep(0.0)
@@ -117,7 +96,7 @@ namespace Cantera {
         for (int n = 0; n < m_nsurf; n++) {
             rs0 = 1.0/m_surf[n]->siteDensity();
             m_kin[n]->getNetProductionRates(m_work.begin());
-            kstart = m_kin[n]->start(m_surfindex[n]);
+            kstart = m_kin[n]->kineticsSpeciesIndex(0,m_surfindex[n]);
             sum = 0.0;
             loc = 0;
             for (k = 1; k < m_nsp[n]; k++) {

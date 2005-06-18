@@ -1,10 +1,9 @@
 #/bin/sh
 
-SUFFIXES=
-SUFFIXES= .cpp .d .o
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o
 
-OBJDIR = .
-
+do_ranlib = @DO_RANLIB@
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
 COBJS = Methane.o Nitrogen.o Oxygen.o Water.o Hydrogen.o RedlichKwong.o \
@@ -31,6 +30,9 @@ all:  $(TPLIB)
 
 $(TPLIB): $(COBJS) $(FOBJS)
 	@ARCHIVE@ $(TPLIB) $(COBJS) $(FOBJS) > /dev/null
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(TPLIB)
+endif
 
 clean:
 	$(RM) $(COBJS) $(FOBJS) *~ *.d .depends

@@ -6,7 +6,7 @@ Physical Constants
 OneAtm = 101325.0
 
 # The ideal gas constant in J/kmo-K
-GasConstant = 8314.0
+GasConstant = 8314.47215
 
 # Avogadro's Number, /kmol
 Avogadro = 6.022136736e26

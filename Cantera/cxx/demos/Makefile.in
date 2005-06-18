@@ -16,7 +16,7 @@ OBJS = demos.o
 
 # additional flags to be passed to the linker. If your program
 # requires other external libraries, put them here
-LINK_OPTIONS = 
+LINK_OPTIONS = @EXTRA_LINK@
 
 #############################################################################
 
@@ -53,6 +53,8 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
 
 PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
+DEPENDS = $(OBJS:.o=.d)
+
 all: $(PROGRAM)
 
 $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a
@@ -71,8 +73,11 @@ install:
 	@INSTALL@ Makefile.install @ct_demodir@/cxx/Makefile
 	chown -R @username@ @ct_demodir@/cxx
 
+depends: $(DEPENDS)
+	cat *.d > .depends
+	$(RM) $(DEPENDS) 
 
 clean:
-	$(RM) $(OBJS) $(PROGRAM)
+	$(RM) $(OBJS) $(PROGRAM) .depends
 	../../../bin/rm_cvsignore
 

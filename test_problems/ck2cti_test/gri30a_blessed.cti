@@ -988,1107 +988,1107 @@ species(name = "CH3CHO",
 #-------------------------------------------------------------------------------
 
 #  Reaction 1
-three_body_reaction( "2 O + M <=> O2 + M",   [1.20000E+17, -1, 0],
+three_body_reaction( "2 O + M <=> O2 + M",  [1.20000E+17, -1, 0],
          efficiencies = " AR:0.83  C2H6:3  CH4:2  CO:1.75  CO2:3.6  H2:2.4  H2O:15.4 ")
 
 #  Reaction 2
-three_body_reaction( "O + H + M <=> OH + M",   [5.00000E+17, -1, 0],
+three_body_reaction( "O + H + M <=> OH + M",  [5.00000E+17, -1, 0],
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 3
-reaction( "O + H2 <=> H + OH",   [3.87000E+04, 2.7, 6260])
+reaction(  "O + H2 <=> H + OH",  [3.87000E+04, 2.7, 6260])
 
 #  Reaction 4
-reaction( "O + HO2 <=> OH + O2",   [2.00000E+13, 0, 0])
+reaction(  "O + HO2 <=> OH + O2",  [2.00000E+13, 0, 0])
 
 #  Reaction 5
-reaction( "O + H2O2 <=> OH + HO2",   [9.63000E+06, 2, 4000])
+reaction(  "O + H2O2 <=> OH + HO2",  [9.63000E+06, 2, 4000])
 
 #  Reaction 6
-reaction( "O + CH <=> H + CO",   [5.70000E+13, 0, 0])
+reaction(  "O + CH <=> H + CO",  [5.70000E+13, 0, 0])
 
 #  Reaction 7
-reaction( "O + CH2 <=> H + HCO",   [8.00000E+13, 0, 0])
+reaction(  "O + CH2 <=> H + HCO",  [8.00000E+13, 0, 0])
 
 #  Reaction 8
-reaction( "O + CH2(S) <=> H2 + CO",   [1.50000E+13, 0, 0])
+reaction(  "O + CH2(S) <=> H2 + CO",  [1.50000E+13, 0, 0])
 
 #  Reaction 9
-reaction( "O + CH2(S) <=> H + HCO",   [1.50000E+13, 0, 0])
+reaction(  "O + CH2(S) <=> H + HCO",  [1.50000E+13, 0, 0])
 
 #  Reaction 10
-reaction( "O + CH3 <=> H + CH2O",   [5.06000E+13, 0, 0])
+reaction(  "O + CH3 <=> H + CH2O",  [5.06000E+13, 0, 0])
 
 #  Reaction 11
-reaction( "O + CH4 <=> OH + CH3",   [1.02000E+09, 1.5, 8600])
+reaction(  "O + CH4 <=> OH + CH3",  [1.02000E+09, 1.5, 8600])
 
 #  Reaction 12
-falloff_reaction( "O + CO (+ M) <=> CO2 (+ M)", 
+falloff_reaction( "O + CO (+ M) <=> CO2 (+ M)",
          kf = [1.80000E+10, 0, 2385],
          kf0   = [6.02000E+14, 0, 3000],
          efficiencies = " AR:0.5  C2H6:3  CH4:2  CO:1.5  CO2:3.5  H2:2  H2O:6  O2:6 ")
 
 #  Reaction 13
-reaction( "O + HCO <=> OH + CO",   [3.00000E+13, 0, 0])
+reaction(  "O + HCO <=> OH + CO",  [3.00000E+13, 0, 0])
 
 #  Reaction 14
-reaction( "O + HCO <=> H + CO2",   [3.00000E+13, 0, 0])
+reaction(  "O + HCO <=> H + CO2",  [3.00000E+13, 0, 0])
 
 #  Reaction 15
-reaction( "O + CH2O <=> OH + HCO",   [3.90000E+13, 0, 3540])
+reaction(  "O + CH2O <=> OH + HCO",  [3.90000E+13, 0, 3540])
 
 #  Reaction 16
-reaction( "O + CH2OH <=> OH + CH2O",   [1.00000E+13, 0, 0])
+reaction(  "O + CH2OH <=> OH + CH2O",  [1.00000E+13, 0, 0])
 
 #  Reaction 17
-reaction( "O + CH3O <=> OH + CH2O",   [1.00000E+13, 0, 0])
+reaction(  "O + CH3O <=> OH + CH2O",  [1.00000E+13, 0, 0])
 
 #  Reaction 18
-reaction( "O + CH3OH <=> OH + CH2OH",   [3.88000E+05, 2.5, 3100])
+reaction(  "O + CH3OH <=> OH + CH2OH",  [3.88000E+05, 2.5, 3100])
 
 #  Reaction 19
-reaction( "O + CH3OH <=> OH + CH3O",   [1.30000E+05, 2.5, 5000])
+reaction(  "O + CH3OH <=> OH + CH3O",  [1.30000E+05, 2.5, 5000])
 
 #  Reaction 20
-reaction( "O + C2H <=> CH + CO",   [5.00000E+13, 0, 0])
+reaction(  "O + C2H <=> CH + CO",  [5.00000E+13, 0, 0])
 
 #  Reaction 21
-reaction( "O + C2H2 <=> H + HCCO",   [1.35000E+07, 2, 1900])
+reaction(  "O + C2H2 <=> H + HCCO",  [1.35000E+07, 2, 1900])
 
 #  Reaction 22
-reaction( "O + C2H2 <=> OH + C2H",   [4.60000E+19, -1.41, 28950])
+reaction(  "O + C2H2 <=> OH + C2H",  [4.60000E+19, -1.41, 28950])
 
 #  Reaction 23
-reaction( "O + C2H2 <=> CO + CH2",   [6.94000E+06, 2, 1900])
+reaction(  "O + C2H2 <=> CO + CH2",  [6.94000E+06, 2, 1900])
 
 #  Reaction 24
-reaction( "O + C2H3 <=> H + CH2CO",   [3.00000E+13, 0, 0])
+reaction(  "O + C2H3 <=> H + CH2CO",  [3.00000E+13, 0, 0])
 
 #  Reaction 25
-reaction( "O + C2H4 <=> CH3 + HCO",   [1.25000E+07, 1.83, 220])
+reaction(  "O + C2H4 <=> CH3 + HCO",  [1.25000E+07, 1.83, 220])
 
 #  Reaction 26
-reaction( "O + C2H5 <=> CH3 + CH2O",   [2.24000E+13, 0, 0])
+reaction(  "O + C2H5 <=> CH3 + CH2O",  [2.24000E+13, 0, 0])
 
 #  Reaction 27
-reaction( "O + C2H6 <=> OH + C2H5",   [8.98000E+07, 1.92, 5690])
+reaction(  "O + C2H6 <=> OH + C2H5",  [8.98000E+07, 1.92, 5690])
 
 #  Reaction 28
-reaction( "O + HCCO <=> H + 2 CO",   [1.00000E+14, 0, 0])
+reaction(  "O + HCCO <=> H + 2 CO",  [1.00000E+14, 0, 0])
 
 #  Reaction 29
-reaction( "O + CH2CO <=> OH + HCCO",   [1.00000E+13, 0, 8000])
+reaction(  "O + CH2CO <=> OH + HCCO",  [1.00000E+13, 0, 8000])
 
 #  Reaction 30
-reaction( "O + CH2CO <=> CH2 + CO2",   [1.75000E+12, 0, 1350])
+reaction(  "O + CH2CO <=> CH2 + CO2",  [1.75000E+12, 0, 1350])
 
 #  Reaction 31
-reaction( "O2 + CO <=> O + CO2",   [2.50000E+12, 0, 47800])
+reaction(  "O2 + CO <=> O + CO2",  [2.50000E+12, 0, 47800])
 
 #  Reaction 32
-reaction( "O2 + CH2O <=> HO2 + HCO",   [1.00000E+14, 0, 40000])
+reaction(  "O2 + CH2O <=> HO2 + HCO",  [1.00000E+14, 0, 40000])
 
 #  Reaction 33
-three_body_reaction( "H + O2 + M <=> HO2 + M",   [2.80000E+18, -0.86, 0],
+three_body_reaction( "H + O2 + M <=> HO2 + M",  [2.80000E+18, -0.86, 0],
          efficiencies = " AR:0  C2H6:1.5  CO:0.75  CO2:1.5  H2O:0  N2:0  O2:0 ")
 
 #  Reaction 34
-reaction( "H + 2 O2 <=> HO2 + O2",   [2.08000E+19, -1.24, 0])
+reaction(  "H + 2 O2 <=> HO2 + O2",  [2.08000E+19, -1.24, 0])
 
 #  Reaction 35
-reaction( "H + O2 + H2O <=> HO2 + H2O",   [1.12600E+19, -0.76, 0])
+reaction(  "H + O2 + H2O <=> HO2 + H2O",  [1.12600E+19, -0.76, 0])
 
 #  Reaction 36
-reaction( "H + O2 + N2 <=> HO2 + N2",   [2.60000E+19, -1.24, 0])
+reaction(  "H + O2 + N2 <=> HO2 + N2",  [2.60000E+19, -1.24, 0])
 
 #  Reaction 37
-reaction( "H + O2 + AR <=> HO2 + AR",   [7.00000E+17, -0.8, 0])
+reaction(  "H + O2 + AR <=> HO2 + AR",  [7.00000E+17, -0.8, 0])
 
 #  Reaction 38
-reaction( "H + O2 <=> O + OH",   [2.65000E+16, -0.6707, 17041])
+reaction(  "H + O2 <=> O + OH",  [2.65000E+16, -0.6707, 17041])
 
 #  Reaction 39
-three_body_reaction( "2 H + M <=> H2 + M",   [1.00000E+18, -1, 0],
+three_body_reaction( "2 H + M <=> H2 + M",  [1.00000E+18, -1, 0],
          efficiencies = " AR:0.63  C2H6:3  CH4:2  CO2:0  H2:0  H2O:0 ")
 
 #  Reaction 40
-reaction( "2 H + H2 <=> 2 H2",   [9.00000E+16, -0.6, 0])
+reaction(  "2 H + H2 <=> 2 H2",  [9.00000E+16, -0.6, 0])
 
 #  Reaction 41
-reaction( "2 H + H2O <=> H2 + H2O",   [6.00000E+19, -1.25, 0])
+reaction(  "2 H + H2O <=> H2 + H2O",  [6.00000E+19, -1.25, 0])
 
 #  Reaction 42
-reaction( "2 H + CO2 <=> H2 + CO2",   [5.50000E+20, -2, 0])
+reaction(  "2 H + CO2 <=> H2 + CO2",  [5.50000E+20, -2, 0])
 
 #  Reaction 43
-three_body_reaction( "H + OH + M <=> H2O + M",   [2.20000E+22, -2, 0],
+three_body_reaction( "H + OH + M <=> H2O + M",  [2.20000E+22, -2, 0],
          efficiencies = " AR:0.38  C2H6:3  CH4:2  H2:0.73  H2O:3.65 ")
 
 #  Reaction 44
-reaction( "H + HO2 <=> O + H2O",   [3.97000E+12, 0, 671])
+reaction(  "H + HO2 <=> O + H2O",  [3.97000E+12, 0, 671])
 
 #  Reaction 45
-reaction( "H + HO2 <=> O2 + H2",   [4.48000E+13, 0, 1068])
+reaction(  "H + HO2 <=> O2 + H2",  [4.48000E+13, 0, 1068])
 
 #  Reaction 46
-reaction( "H + HO2 <=> 2 OH",   [8.40000E+13, 0, 635])
+reaction(  "H + HO2 <=> 2 OH",  [8.40000E+13, 0, 635])
 
 #  Reaction 47
-reaction( "H + H2O2 <=> HO2 + H2",   [1.21000E+07, 2, 5200])
+reaction(  "H + H2O2 <=> HO2 + H2",  [1.21000E+07, 2, 5200])
 
 #  Reaction 48
-reaction( "H + H2O2 <=> OH + H2O",   [1.00000E+13, 0, 3600])
+reaction(  "H + H2O2 <=> OH + H2O",  [1.00000E+13, 0, 3600])
 
 #  Reaction 49
-reaction( "H + CH <=> C + H2",   [1.65000E+14, 0, 0])
+reaction(  "H + CH <=> C + H2",  [1.65000E+14, 0, 0])
 
 #  Reaction 50
-falloff_reaction( "H + CH2 (+ M) <=> CH3 (+ M)", 
+falloff_reaction( "H + CH2 (+ M) <=> CH3 (+ M)",
          kf = [6.00000E+14, 0, 0],
          kf0   = [1.04000E+26, -2.76, 1600],
          falloff = Troe(A = 0.562, T3 = 91, T1 = 5836, T2 = 8552),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 51
-reaction( "H + CH2(S) <=> CH + H2",   [3.00000E+13, 0, 0])
+reaction(  "H + CH2(S) <=> CH + H2",  [3.00000E+13, 0, 0])
 
 #  Reaction 52
-falloff_reaction( "H + CH3 (+ M) <=> CH4 (+ M)", 
+falloff_reaction( "H + CH3 (+ M) <=> CH4 (+ M)",
          kf = [1.39000E+16, -0.534, 536],
          kf0   = [2.62000E+33, -4.76, 2440],
          falloff = Troe(A = 0.783, T3 = 74, T1 = 2941, T2 = 6964),
          efficiencies = " AR:0.7  C2H6:3  CH4:3  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 53
-reaction( "H + CH4 <=> CH3 + H2",   [6.60000E+08, 1.62, 10840])
+reaction(  "H + CH4 <=> CH3 + H2",  [6.60000E+08, 1.62, 10840])
 
 #  Reaction 54
-falloff_reaction( "H + HCO (+ M) <=> CH2O (+ M)", 
+falloff_reaction( "H + HCO (+ M) <=> CH2O (+ M)",
          kf = [1.09000E+12, 0.48, -260],
          kf0   = [2.47000E+24, -2.57, 425],
          falloff = Troe(A = 0.7824, T3 = 271, T1 = 2755, T2 = 6570),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 55
-reaction( "H + HCO <=> H2 + CO",   [7.34000E+13, 0, 0])
+reaction(  "H + HCO <=> H2 + CO",  [7.34000E+13, 0, 0])
 
 #  Reaction 56
-falloff_reaction( "H + CH2O (+ M) <=> CH2OH (+ M)", 
+falloff_reaction( "H + CH2O (+ M) <=> CH2OH (+ M)",
          kf = [5.40000E+11, 0.454, 3600],
          kf0   = [1.27000E+32, -4.82, 6530],
          falloff = Troe(A = 0.7187, T3 = 103, T1 = 1291, T2 = 4160),
          efficiencies = " C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 57
-falloff_reaction( "H + CH2O (+ M) <=> CH3O (+ M)", 
+falloff_reaction( "H + CH2O (+ M) <=> CH3O (+ M)",
          kf = [5.40000E+11, 0.454, 2600],
          kf0   = [2.20000E+30, -4.8, 5560],
          falloff = Troe(A = 0.758, T3 = 94, T1 = 1555, T2 = 4200),
          efficiencies = " C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 58
-reaction( "H + CH2O <=> HCO + H2",   [5.74000E+07, 1.9, 2742])
+reaction(  "H + CH2O <=> HCO + H2",  [5.74000E+07, 1.9, 2742])
 
 #  Reaction 59
-falloff_reaction( "H + CH2OH (+ M) <=> CH3OH (+ M)", 
+falloff_reaction( "H + CH2OH (+ M) <=> CH3OH (+ M)",
          kf = [1.05500E+12, 0.5, 86],
          kf0   = [4.36000E+31, -4.65, 5080],
          falloff = Troe(A = 0.6, T3 = 100, T1 = 90000, T2 = 10000),
          efficiencies = " C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 60
-reaction( "H + CH2OH <=> H2 + CH2O",   [2.00000E+13, 0, 0])
+reaction(  "H + CH2OH <=> H2 + CH2O",  [2.00000E+13, 0, 0])
 
 #  Reaction 61
-reaction( "H + CH2OH <=> OH + CH3",   [1.65000E+11, 0.65, -284])
+reaction(  "H + CH2OH <=> OH + CH3",  [1.65000E+11, 0.65, -284])
 
 #  Reaction 62
-reaction( "H + CH2OH <=> CH2(S) + H2O",   [3.28000E+13, -0.09, 610])
+reaction(  "H + CH2OH <=> CH2(S) + H2O",  [3.28000E+13, -0.09, 610])
 
 #  Reaction 63
-falloff_reaction( "H + CH3O (+ M) <=> CH3OH (+ M)", 
+falloff_reaction( "H + CH3O (+ M) <=> CH3OH (+ M)",
          kf = [2.43000E+12, 0.515, 50],
          kf0   = [4.66000E+41, -7.44, 14080],
          falloff = Troe(A = 0.7, T3 = 100, T1 = 90000, T2 = 10000),
          efficiencies = " C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 64
-reaction( "H + CH3O <=> H + CH2OH",   [4.15000E+07, 1.63, 1924])
+reaction(  "H + CH3O <=> H + CH2OH",  [4.15000E+07, 1.63, 1924])
 
 #  Reaction 65
-reaction( "H + CH3O <=> H2 + CH2O",   [2.00000E+13, 0, 0])
+reaction(  "H + CH3O <=> H2 + CH2O",  [2.00000E+13, 0, 0])
 
 #  Reaction 66
-reaction( "H + CH3O <=> OH + CH3",   [1.50000E+12, 0.5, -110])
+reaction(  "H + CH3O <=> OH + CH3",  [1.50000E+12, 0.5, -110])
 
 #  Reaction 67
-reaction( "H + CH3O <=> CH2(S) + H2O",   [2.62000E+14, -0.23, 1070])
+reaction(  "H + CH3O <=> CH2(S) + H2O",  [2.62000E+14, -0.23, 1070])
 
 #  Reaction 68
-reaction( "H + CH3OH <=> CH2OH + H2",   [1.70000E+07, 2.1, 4870])
+reaction(  "H + CH3OH <=> CH2OH + H2",  [1.70000E+07, 2.1, 4870])
 
 #  Reaction 69
-reaction( "H + CH3OH <=> CH3O + H2",   [4.20000E+06, 2.1, 4870])
+reaction(  "H + CH3OH <=> CH3O + H2",  [4.20000E+06, 2.1, 4870])
 
 #  Reaction 70
-falloff_reaction( "H + C2H (+ M) <=> C2H2 (+ M)", 
+falloff_reaction( "H + C2H (+ M) <=> C2H2 (+ M)",
          kf = [1.00000E+17, -1, 0],
          kf0   = [3.75000E+33, -4.8, 1900],
          falloff = Troe(A = 0.6464, T3 = 132, T1 = 1315, T2 = 5566),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 71
-falloff_reaction( "H + C2H2 (+ M) <=> C2H3 (+ M)", 
+falloff_reaction( "H + C2H2 (+ M) <=> C2H3 (+ M)",
          kf = [5.60000E+12, 0, 2400],
          kf0   = [3.80000E+40, -7.27, 7220],
          falloff = Troe(A = 0.7507, T3 = 98.5, T1 = 1302, T2 = 4167),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 72
-falloff_reaction( "H + C2H3 (+ M) <=> C2H4 (+ M)", 
+falloff_reaction( "H + C2H3 (+ M) <=> C2H4 (+ M)",
          kf = [6.08000E+12, 0.27, 280],
          kf0   = [1.40000E+30, -3.86, 3320],
          falloff = Troe(A = 0.782, T3 = 207.5, T1 = 2663, T2 = 6095),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 73
-reaction( "H + C2H3 <=> H2 + C2H2",   [3.00000E+13, 0, 0])
+reaction(  "H + C2H3 <=> H2 + C2H2",  [3.00000E+13, 0, 0])
 
 #  Reaction 74
-falloff_reaction( "H + C2H4 (+ M) <=> C2H5 (+ M)", 
+falloff_reaction( "H + C2H4 (+ M) <=> C2H5 (+ M)",
          kf = [5.40000E+11, 0.454, 1820],
          kf0   = [6.00000E+41, -7.62, 6970],
          falloff = Troe(A = 0.9753, T3 = 210, T1 = 984, T2 = 4374),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 75
-reaction( "H + C2H4 <=> C2H3 + H2",   [1.32500E+06, 2.53, 12240])
+reaction(  "H + C2H4 <=> C2H3 + H2",  [1.32500E+06, 2.53, 12240])
 
 #  Reaction 76
-falloff_reaction( "H + C2H5 (+ M) <=> C2H6 (+ M)", 
+falloff_reaction( "H + C2H5 (+ M) <=> C2H6 (+ M)",
          kf = [5.21000E+17, -0.99, 1580],
          kf0   = [1.99000E+41, -7.08, 6685],
          falloff = Troe(A = 0.8422, T3 = 125, T1 = 2219, T2 = 6882),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 77
-reaction( "H + C2H5 <=> H2 + C2H4",   [2.00000E+12, 0, 0])
+reaction(  "H + C2H5 <=> H2 + C2H4",  [2.00000E+12, 0, 0])
 
 #  Reaction 78
-reaction( "H + C2H6 <=> C2H5 + H2",   [1.15000E+08, 1.9, 7530])
+reaction(  "H + C2H6 <=> C2H5 + H2",  [1.15000E+08, 1.9, 7530])
 
 #  Reaction 79
-reaction( "H + HCCO <=> CH2(S) + CO",   [1.00000E+14, 0, 0])
+reaction(  "H + HCCO <=> CH2(S) + CO",  [1.00000E+14, 0, 0])
 
 #  Reaction 80
-reaction( "H + CH2CO <=> HCCO + H2",   [5.00000E+13, 0, 8000])
+reaction(  "H + CH2CO <=> HCCO + H2",  [5.00000E+13, 0, 8000])
 
 #  Reaction 81
-reaction( "H + CH2CO <=> CH3 + CO",   [1.13000E+13, 0, 3428])
+reaction(  "H + CH2CO <=> CH3 + CO",  [1.13000E+13, 0, 3428])
 
 #  Reaction 82
-reaction( "H + HCCOH <=> H + CH2CO",   [1.00000E+13, 0, 0])
+reaction(  "H + HCCOH <=> H + CH2CO",  [1.00000E+13, 0, 0])
 
 #  Reaction 83
-falloff_reaction( "H2 + CO (+ M) <=> CH2O (+ M)", 
+falloff_reaction( "H2 + CO (+ M) <=> CH2O (+ M)",
          kf = [4.30000E+07, 1.5, 79600],
          kf0   = [5.07000E+27, -3.42, 84350],
          falloff = Troe(A = 0.932, T3 = 197, T1 = 1540, T2 = 10300),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 84
-reaction( "OH + H2 <=> H + H2O",   [2.16000E+08, 1.51, 3430])
+reaction(  "OH + H2 <=> H + H2O",  [2.16000E+08, 1.51, 3430])
 
 #  Reaction 85
-falloff_reaction( "2 OH (+ M) <=> H2O2 (+ M)", 
+falloff_reaction( "2 OH (+ M) <=> H2O2 (+ M)",
          kf = [7.40000E+13, -0.37, 0],
          kf0   = [2.30000E+18, -0.9, -1700],
          falloff = Troe(A = 0.7346, T3 = 94, T1 = 1756, T2 = 5182),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 86
-reaction( "2 OH <=> O + H2O",   [3.57000E+04, 2.4, -2110])
+reaction(  "2 OH <=> O + H2O",  [3.57000E+04, 2.4, -2110])
 
 #  Reaction 87
-reaction( "OH + HO2 <=> O2 + H2O",   [1.45000E+13, 0, -500],
-         options = 'duplicate')
+reaction(  "OH + HO2 <=> O2 + H2O",  [1.45000E+13, 0, -500],
+         options = ["duplicate"])
 
 #  Reaction 88
-reaction( "OH + H2O2 <=> HO2 + H2O",   [2.00000E+12, 0, 427],
-         options = 'duplicate')
+reaction(  "OH + H2O2 <=> HO2 + H2O",  [2.00000E+12, 0, 427],
+         options = ["duplicate"])
 
 #  Reaction 89
-reaction( "OH + H2O2 <=> HO2 + H2O",   [1.70000E+18, 0, 29410],
-         options = 'duplicate')
+reaction(  "OH + H2O2 <=> HO2 + H2O",  [1.70000E+18, 0, 29410],
+         options = ["duplicate"])
 
 #  Reaction 90
-reaction( "OH + C <=> H + CO",   [5.00000E+13, 0, 0])
+reaction(  "OH + C <=> H + CO",  [5.00000E+13, 0, 0])
 
 #  Reaction 91
-reaction( "OH + CH <=> H + HCO",   [3.00000E+13, 0, 0])
+reaction(  "OH + CH <=> H + HCO",  [3.00000E+13, 0, 0])
 
 #  Reaction 92
-reaction( "OH + CH2 <=> H + CH2O",   [2.00000E+13, 0, 0])
+reaction(  "OH + CH2 <=> H + CH2O",  [2.00000E+13, 0, 0])
 
 #  Reaction 93
-reaction( "OH + CH2 <=> CH + H2O",   [1.13000E+07, 2, 3000])
+reaction(  "OH + CH2 <=> CH + H2O",  [1.13000E+07, 2, 3000])
 
 #  Reaction 94
-reaction( "OH + CH2(S) <=> H + CH2O",   [3.00000E+13, 0, 0])
+reaction(  "OH + CH2(S) <=> H + CH2O",  [3.00000E+13, 0, 0])
 
 #  Reaction 95
-falloff_reaction( "OH + CH3 (+ M) <=> CH3OH (+ M)", 
+falloff_reaction( "OH + CH3 (+ M) <=> CH3OH (+ M)",
          kf = [2.79000E+18, -1.43, 1330],
          kf0   = [4.00000E+36, -5.92, 3140],
          falloff = Troe(A = 0.412, T3 = 195, T1 = 5900, T2 = 6394),
          efficiencies = " C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 96
-reaction( "OH + CH3 <=> CH2 + H2O",   [5.60000E+07, 1.6, 5420])
+reaction(  "OH + CH3 <=> CH2 + H2O",  [5.60000E+07, 1.6, 5420])
 
 #  Reaction 97
-reaction( "OH + CH3 <=> CH2(S) + H2O",   [6.44000E+17, -1.34, 1417])
+reaction(  "OH + CH3 <=> CH2(S) + H2O",  [6.44000E+17, -1.34, 1417])
 
 #  Reaction 98
-reaction( "OH + CH4 <=> CH3 + H2O",   [1.00000E+08, 1.6, 3120])
+reaction(  "OH + CH4 <=> CH3 + H2O",  [1.00000E+08, 1.6, 3120])
 
 #  Reaction 99
-reaction( "OH + CO <=> H + CO2",   [4.76000E+07, 1.228, 70])
+reaction(  "OH + CO <=> H + CO2",  [4.76000E+07, 1.228, 70])
 
 #  Reaction 100
-reaction( "OH + HCO <=> H2O + CO",   [5.00000E+13, 0, 0])
+reaction(  "OH + HCO <=> H2O + CO",  [5.00000E+13, 0, 0])
 
 #  Reaction 101
-reaction( "OH + CH2O <=> HCO + H2O",   [3.43000E+09, 1.18, -447])
+reaction(  "OH + CH2O <=> HCO + H2O",  [3.43000E+09, 1.18, -447])
 
 #  Reaction 102
-reaction( "OH + CH2OH <=> H2O + CH2O",   [5.00000E+12, 0, 0])
+reaction(  "OH + CH2OH <=> H2O + CH2O",  [5.00000E+12, 0, 0])
 
 #  Reaction 103
-reaction( "OH + CH3O <=> H2O + CH2O",   [5.00000E+12, 0, 0])
+reaction(  "OH + CH3O <=> H2O + CH2O",  [5.00000E+12, 0, 0])
 
 #  Reaction 104
-reaction( "OH + CH3OH <=> CH2OH + H2O",   [1.44000E+06, 2, -840])
+reaction(  "OH + CH3OH <=> CH2OH + H2O",  [1.44000E+06, 2, -840])
 
 #  Reaction 105
-reaction( "OH + CH3OH <=> CH3O + H2O",   [6.30000E+06, 2, 1500])
+reaction(  "OH + CH3OH <=> CH3O + H2O",  [6.30000E+06, 2, 1500])
 
 #  Reaction 106
-reaction( "OH + C2H <=> H + HCCO",   [2.00000E+13, 0, 0])
+reaction(  "OH + C2H <=> H + HCCO",  [2.00000E+13, 0, 0])
 
 #  Reaction 107
-reaction( "OH + C2H2 <=> H + CH2CO",   [2.18000E-04, 4.5, -1000])
+reaction(  "OH + C2H2 <=> H + CH2CO",  [2.18000E-04, 4.5, -1000])
 
 #  Reaction 108
-reaction( "OH + C2H2 <=> H + HCCOH",   [5.04000E+05, 2.3, 13500])
+reaction(  "OH + C2H2 <=> H + HCCOH",  [5.04000E+05, 2.3, 13500])
 
 #  Reaction 109
-reaction( "OH + C2H2 <=> C2H + H2O",   [3.37000E+07, 2, 14000])
+reaction(  "OH + C2H2 <=> C2H + H2O",  [3.37000E+07, 2, 14000])
 
 #  Reaction 110
-reaction( "OH + C2H2 <=> CH3 + CO",   [4.83000E-04, 4, -2000])
+reaction(  "OH + C2H2 <=> CH3 + CO",  [4.83000E-04, 4, -2000])
 
 #  Reaction 111
-reaction( "OH + C2H3 <=> H2O + C2H2",   [5.00000E+12, 0, 0])
+reaction(  "OH + C2H3 <=> H2O + C2H2",  [5.00000E+12, 0, 0])
 
 #  Reaction 112
-reaction( "OH + C2H4 <=> C2H3 + H2O",   [3.60000E+06, 2, 2500])
+reaction(  "OH + C2H4 <=> C2H3 + H2O",  [3.60000E+06, 2, 2500])
 
 #  Reaction 113
-reaction( "OH + C2H6 <=> C2H5 + H2O",   [3.54000E+06, 2.12, 870])
+reaction(  "OH + C2H6 <=> C2H5 + H2O",  [3.54000E+06, 2.12, 870])
 
 #  Reaction 114
-reaction( "OH + CH2CO <=> HCCO + H2O",   [7.50000E+12, 0, 2000])
+reaction(  "OH + CH2CO <=> HCCO + H2O",  [7.50000E+12, 0, 2000])
 
 #  Reaction 115
-reaction( "2 HO2 <=> O2 + H2O2",   [1.30000E+11, 0, -1630],
-         options = 'duplicate')
+reaction(  "2 HO2 <=> O2 + H2O2",  [1.30000E+11, 0, -1630],
+         options = ["duplicate"])
 
 #  Reaction 116
-reaction( "2 HO2 <=> O2 + H2O2",   [4.20000E+14, 0, 12000],
-         options = 'duplicate')
+reaction(  "2 HO2 <=> O2 + H2O2",  [4.20000E+14, 0, 12000],
+         options = ["duplicate"])
 
 #  Reaction 117
-reaction( "HO2 + CH2 <=> OH + CH2O",   [2.00000E+13, 0, 0])
+reaction(  "HO2 + CH2 <=> OH + CH2O",  [2.00000E+13, 0, 0])
 
 #  Reaction 118
-reaction( "HO2 + CH3 <=> O2 + CH4",   [1.00000E+12, 0, 0])
+reaction(  "HO2 + CH3 <=> O2 + CH4",  [1.00000E+12, 0, 0])
 
 #  Reaction 119
-reaction( "HO2 + CH3 <=> OH + CH3O",   [3.78000E+13, 0, 0])
+reaction(  "HO2 + CH3 <=> OH + CH3O",  [3.78000E+13, 0, 0])
 
 #  Reaction 120
-reaction( "HO2 + CO <=> OH + CO2",   [1.50000E+14, 0, 23600])
+reaction(  "HO2 + CO <=> OH + CO2",  [1.50000E+14, 0, 23600])
 
 #  Reaction 121
-reaction( "HO2 + CH2O <=> HCO + H2O2",   [5.60000E+06, 2, 12000])
+reaction(  "HO2 + CH2O <=> HCO + H2O2",  [5.60000E+06, 2, 12000])
 
 #  Reaction 122
-reaction( "C + O2 <=> O + CO",   [5.80000E+13, 0, 576])
+reaction(  "C + O2 <=> O + CO",  [5.80000E+13, 0, 576])
 
 #  Reaction 123
-reaction( "C + CH2 <=> H + C2H",   [5.00000E+13, 0, 0])
+reaction(  "C + CH2 <=> H + C2H",  [5.00000E+13, 0, 0])
 
 #  Reaction 124
-reaction( "C + CH3 <=> H + C2H2",   [5.00000E+13, 0, 0])
+reaction(  "C + CH3 <=> H + C2H2",  [5.00000E+13, 0, 0])
 
 #  Reaction 125
-reaction( "CH + O2 <=> O + HCO",   [6.71000E+13, 0, 0])
+reaction(  "CH + O2 <=> O + HCO",  [6.71000E+13, 0, 0])
 
 #  Reaction 126
-reaction( "CH + H2 <=> H + CH2",   [1.08000E+14, 0, 3110])
+reaction(  "CH + H2 <=> H + CH2",  [1.08000E+14, 0, 3110])
 
 #  Reaction 127
-reaction( "CH + H2O <=> H + CH2O",   [5.71000E+12, 0, -755])
+reaction(  "CH + H2O <=> H + CH2O",  [5.71000E+12, 0, -755])
 
 #  Reaction 128
-reaction( "CH + CH2 <=> H + C2H2",   [4.00000E+13, 0, 0])
+reaction(  "CH + CH2 <=> H + C2H2",  [4.00000E+13, 0, 0])
 
 #  Reaction 129
-reaction( "CH + CH3 <=> H + C2H3",   [3.00000E+13, 0, 0])
+reaction(  "CH + CH3 <=> H + C2H3",  [3.00000E+13, 0, 0])
 
 #  Reaction 130
-reaction( "CH + CH4 <=> H + C2H4",   [6.00000E+13, 0, 0])
+reaction(  "CH + CH4 <=> H + C2H4",  [6.00000E+13, 0, 0])
 
 #  Reaction 131
-falloff_reaction( "CH + CO (+ M) <=> HCCO (+ M)", 
+falloff_reaction( "CH + CO (+ M) <=> HCCO (+ M)",
          kf = [5.00000E+13, 0, 0],
          kf0   = [2.69000E+28, -3.74, 1936],
          falloff = Troe(A = 0.5757, T3 = 237, T1 = 1652, T2 = 5069),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 132
-reaction( "CH + CO2 <=> HCO + CO",   [1.90000E+14, 0, 15792])
+reaction(  "CH + CO2 <=> HCO + CO",  [1.90000E+14, 0, 15792])
 
 #  Reaction 133
-reaction( "CH + CH2O <=> H + CH2CO",   [9.46000E+13, 0, -515])
+reaction(  "CH + CH2O <=> H + CH2CO",  [9.46000E+13, 0, -515])
 
 #  Reaction 134
-reaction( "CH + HCCO <=> CO + C2H2",   [5.00000E+13, 0, 0])
+reaction(  "CH + HCCO <=> CO + C2H2",  [5.00000E+13, 0, 0])
 
 #  Reaction 135
-reaction( "CH2 + O2 => OH + H + CO",   [5.00000E+12, 0, 1500])
+reaction(  "CH2 + O2 => OH + H + CO",  [5.00000E+12, 0, 1500])
 
 #  Reaction 136
-reaction( "CH2 + H2 <=> H + CH3",   [5.00000E+05, 2, 7230])
+reaction(  "CH2 + H2 <=> H + CH3",  [5.00000E+05, 2, 7230])
 
 #  Reaction 137
-reaction( "2 CH2 <=> H2 + C2H2",   [1.60000E+15, 0, 11944])
+reaction(  "2 CH2 <=> H2 + C2H2",  [1.60000E+15, 0, 11944])
 
 #  Reaction 138
-reaction( "CH2 + CH3 <=> H + C2H4",   [4.00000E+13, 0, 0])
+reaction(  "CH2 + CH3 <=> H + C2H4",  [4.00000E+13, 0, 0])
 
 #  Reaction 139
-reaction( "CH2 + CH4 <=> 2 CH3",   [2.46000E+06, 2, 8270])
+reaction(  "CH2 + CH4 <=> 2 CH3",  [2.46000E+06, 2, 8270])
 
 #  Reaction 140
-falloff_reaction( "CH2 + CO (+ M) <=> CH2CO (+ M)", 
+falloff_reaction( "CH2 + CO (+ M) <=> CH2CO (+ M)",
          kf = [8.10000E+11, 0.5, 4510],
          kf0   = [2.69000E+33, -5.11, 7095],
          falloff = Troe(A = 0.5907, T3 = 275, T1 = 1226, T2 = 5185),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 141
-reaction( "CH2 + HCCO <=> C2H3 + CO",   [3.00000E+13, 0, 0])
+reaction(  "CH2 + HCCO <=> C2H3 + CO",  [3.00000E+13, 0, 0])
 
 #  Reaction 142
-reaction( "CH2(S) + N2 <=> CH2 + N2",   [1.50000E+13, 0, 600])
+reaction(  "CH2(S) + N2 <=> CH2 + N2",  [1.50000E+13, 0, 600])
 
 #  Reaction 143
-reaction( "CH2(S) + AR <=> CH2 + AR",   [9.00000E+12, 0, 600])
+reaction(  "CH2(S) + AR <=> CH2 + AR",  [9.00000E+12, 0, 600])
 
 #  Reaction 144
-reaction( "CH2(S) + O2 <=> H + OH + CO",   [2.80000E+13, 0, 0])
+reaction(  "CH2(S) + O2 <=> H + OH + CO",  [2.80000E+13, 0, 0])
 
 #  Reaction 145
-reaction( "CH2(S) + O2 <=> CO + H2O",   [1.20000E+13, 0, 0])
+reaction(  "CH2(S) + O2 <=> CO + H2O",  [1.20000E+13, 0, 0])
 
 #  Reaction 146
-reaction( "CH2(S) + H2 <=> CH3 + H",   [7.00000E+13, 0, 0])
+reaction(  "CH2(S) + H2 <=> CH3 + H",  [7.00000E+13, 0, 0])
 
 #  Reaction 147
-falloff_reaction( "CH2(S) + H2O (+ M) <=> CH3OH (+ M)", 
+falloff_reaction( "CH2(S) + H2O (+ M) <=> CH3OH (+ M)",
          kf = [4.82000E+17, -1.16, 1145],
          kf0   = [1.88000E+38, -6.36, 5040],
          falloff = Troe(A = 0.6027, T3 = 208, T1 = 3922, T2 = 10180),
          efficiencies = " C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 148
-reaction( "CH2(S) + H2O <=> CH2 + H2O",   [3.00000E+13, 0, 0])
+reaction(  "CH2(S) + H2O <=> CH2 + H2O",  [3.00000E+13, 0, 0])
 
 #  Reaction 149
-reaction( "CH2(S) + CH3 <=> H + C2H4",   [1.20000E+13, 0, -570])
+reaction(  "CH2(S) + CH3 <=> H + C2H4",  [1.20000E+13, 0, -570])
 
 #  Reaction 150
-reaction( "CH2(S) + CH4 <=> 2 CH3",   [1.60000E+13, 0, -570])
+reaction(  "CH2(S) + CH4 <=> 2 CH3",  [1.60000E+13, 0, -570])
 
 #  Reaction 151
-reaction( "CH2(S) + CO <=> CH2 + CO",   [9.00000E+12, 0, 0])
+reaction(  "CH2(S) + CO <=> CH2 + CO",  [9.00000E+12, 0, 0])
 
 #  Reaction 152
-reaction( "CH2(S) + CO2 <=> CH2 + CO2",   [7.00000E+12, 0, 0])
+reaction(  "CH2(S) + CO2 <=> CH2 + CO2",  [7.00000E+12, 0, 0])
 
 #  Reaction 153
-reaction( "CH2(S) + CO2 <=> CO + CH2O",   [1.40000E+13, 0, 0])
+reaction(  "CH2(S) + CO2 <=> CO + CH2O",  [1.40000E+13, 0, 0])
 
 #  Reaction 154
-reaction( "CH2(S) + C2H6 <=> CH3 + C2H5",   [4.00000E+13, 0, -550])
+reaction(  "CH2(S) + C2H6 <=> CH3 + C2H5",  [4.00000E+13, 0, -550])
 
 #  Reaction 155
-reaction( "CH3 + O2 <=> O + CH3O",   [3.56000E+13, 0, 30480])
+reaction(  "CH3 + O2 <=> O + CH3O",  [3.56000E+13, 0, 30480])
 
 #  Reaction 156
-reaction( "CH3 + O2 <=> OH + CH2O",   [2.31000E+12, 0, 20315])
+reaction(  "CH3 + O2 <=> OH + CH2O",  [2.31000E+12, 0, 20315])
 
 #  Reaction 157
-reaction( "CH3 + H2O2 <=> HO2 + CH4",   [2.45000E+04, 2.47, 5180])
+reaction(  "CH3 + H2O2 <=> HO2 + CH4",  [2.45000E+04, 2.47, 5180])
 
 #  Reaction 158
-falloff_reaction( "2 CH3 (+ M) <=> C2H6 (+ M)", 
+falloff_reaction( "2 CH3 (+ M) <=> C2H6 (+ M)",
          kf = [6.77000E+16, -1.18, 654],
          kf0   = [3.40000E+41, -7.03, 2762],
          falloff = Troe(A = 0.619, T3 = 73.2, T1 = 1180, T2 = 9999),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 159
-reaction( "2 CH3 <=> H + C2H5",   [6.84000E+12, 0.1, 10600])
+reaction(  "2 CH3 <=> H + C2H5",  [6.84000E+12, 0.1, 10600])
 
 #  Reaction 160
-reaction( "CH3 + HCO <=> CH4 + CO",   [2.64800E+13, 0, 0])
+reaction(  "CH3 + HCO <=> CH4 + CO",  [2.64800E+13, 0, 0])
 
 #  Reaction 161
-reaction( "CH3 + CH2O <=> HCO + CH4",   [3.32000E+03, 2.81, 5860])
+reaction(  "CH3 + CH2O <=> HCO + CH4",  [3.32000E+03, 2.81, 5860])
 
 #  Reaction 162
-reaction( "CH3 + CH3OH <=> CH2OH + CH4",   [3.00000E+07, 1.5, 9940])
+reaction(  "CH3 + CH3OH <=> CH2OH + CH4",  [3.00000E+07, 1.5, 9940])
 
 #  Reaction 163
-reaction( "CH3 + CH3OH <=> CH3O + CH4",   [1.00000E+07, 1.5, 9940])
+reaction(  "CH3 + CH3OH <=> CH3O + CH4",  [1.00000E+07, 1.5, 9940])
 
 #  Reaction 164
-reaction( "CH3 + C2H4 <=> C2H3 + CH4",   [2.27000E+05, 2, 9200])
+reaction(  "CH3 + C2H4 <=> C2H3 + CH4",  [2.27000E+05, 2, 9200])
 
 #  Reaction 165
-reaction( "CH3 + C2H6 <=> C2H5 + CH4",   [6.14000E+06, 1.74, 10450])
+reaction(  "CH3 + C2H6 <=> C2H5 + CH4",  [6.14000E+06, 1.74, 10450])
 
 #  Reaction 166
-reaction( "HCO + H2O <=> H + CO + H2O",   [1.50000E+18, -1, 17000])
+reaction(  "HCO + H2O <=> H + CO + H2O",  [1.50000E+18, -1, 17000])
 
 #  Reaction 167
-three_body_reaction( "HCO + M <=> H + CO + M",   [1.87000E+17, -1, 17000],
+three_body_reaction( "HCO + M <=> H + CO + M",  [1.87000E+17, -1, 17000],
          efficiencies = " C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:0 ")
 
 #  Reaction 168
-reaction( "HCO + O2 <=> HO2 + CO",   [1.34500E+13, 0, 400])
+reaction(  "HCO + O2 <=> HO2 + CO",  [1.34500E+13, 0, 400])
 
 #  Reaction 169
-reaction( "CH2OH + O2 <=> HO2 + CH2O",   [1.80000E+13, 0, 900])
+reaction(  "CH2OH + O2 <=> HO2 + CH2O",  [1.80000E+13, 0, 900])
 
 #  Reaction 170
-reaction( "CH3O + O2 <=> HO2 + CH2O",   [4.28000E-13, 7.6, -3530])
+reaction(  "CH3O + O2 <=> HO2 + CH2O",  [4.28000E-13, 7.6, -3530])
 
 #  Reaction 171
-reaction( "C2H + O2 <=> HCO + CO",   [1.00000E+13, 0, -755])
+reaction(  "C2H + O2 <=> HCO + CO",  [1.00000E+13, 0, -755])
 
 #  Reaction 172
-reaction( "C2H + H2 <=> H + C2H2",   [5.68000E+10, 0.9, 1993])
+reaction(  "C2H + H2 <=> H + C2H2",  [5.68000E+10, 0.9, 1993])
 
 #  Reaction 173
-reaction( "C2H3 + O2 <=> HCO + CH2O",   [4.58000E+16, -1.39, 1015])
+reaction(  "C2H3 + O2 <=> HCO + CH2O",  [4.58000E+16, -1.39, 1015])
 
 #  Reaction 174
-falloff_reaction( "C2H4 (+ M) <=> H2 + C2H2 (+ M)", 
+falloff_reaction( "C2H4 (+ M) <=> H2 + C2H2 (+ M)",
          kf = [8.00000E+12, 0.44, 86770],
          kf0   = [1.58000E+51, -9.3, 97800],
          falloff = Troe(A = 0.7345, T3 = 180, T1 = 1035, T2 = 5417),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 175
-reaction( "C2H5 + O2 <=> HO2 + C2H4",   [8.40000E+11, 0, 3875])
+reaction(  "C2H5 + O2 <=> HO2 + C2H4",  [8.40000E+11, 0, 3875])
 
 #  Reaction 176
-reaction( "HCCO + O2 <=> OH + 2 CO",   [3.20000E+12, 0, 854])
+reaction(  "HCCO + O2 <=> OH + 2 CO",  [3.20000E+12, 0, 854])
 
 #  Reaction 177
-reaction( "2 HCCO <=> 2 CO + C2H2",   [1.00000E+13, 0, 0])
+reaction(  "2 HCCO <=> 2 CO + C2H2",  [1.00000E+13, 0, 0])
 
 #  Reaction 178
-reaction( "N + NO <=> N2 + O",   [2.70000E+13, 0, 355])
+reaction(  "N + NO <=> N2 + O",  [2.70000E+13, 0, 355])
 
 #  Reaction 179
-reaction( "N + O2 <=> NO + O",   [9.00000E+09, 1, 6500])
+reaction(  "N + O2 <=> NO + O",  [9.00000E+09, 1, 6500])
 
 #  Reaction 180
-reaction( "N + OH <=> NO + H",   [3.36000E+13, 0, 385])
+reaction(  "N + OH <=> NO + H",  [3.36000E+13, 0, 385])
 
 #  Reaction 181
-reaction( "N2O + O <=> N2 + O2",   [1.40000E+12, 0, 10810])
+reaction(  "N2O + O <=> N2 + O2",  [1.40000E+12, 0, 10810])
 
 #  Reaction 182
-reaction( "N2O + O <=> 2 NO",   [2.90000E+13, 0, 23150])
+reaction(  "N2O + O <=> 2 NO",  [2.90000E+13, 0, 23150])
 
 #  Reaction 183
-reaction( "N2O + H <=> N2 + OH",   [3.87000E+14, 0, 18880])
+reaction(  "N2O + H <=> N2 + OH",  [3.87000E+14, 0, 18880])
 
 #  Reaction 184
-reaction( "N2O + OH <=> N2 + HO2",   [2.00000E+12, 0, 21060])
+reaction(  "N2O + OH <=> N2 + HO2",  [2.00000E+12, 0, 21060])
 
 #  Reaction 185
-falloff_reaction( "N2O (+ M) <=> N2 + O (+ M)", 
+falloff_reaction( "N2O (+ M) <=> N2 + O (+ M)",
          kf = [7.91000E+10, 0, 56020],
          kf0   = [6.37000E+14, 0, 56640],
          efficiencies = " AR:0.625  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 186
-reaction( "HO2 + NO <=> NO2 + OH",   [2.11000E+12, 0, -480])
+reaction(  "HO2 + NO <=> NO2 + OH",  [2.11000E+12, 0, -480])
 
 #  Reaction 187
-three_body_reaction( "NO + O + M <=> NO2 + M",   [1.06000E+20, -1.41, 0],
+three_body_reaction( "NO + O + M <=> NO2 + M",  [1.06000E+20, -1.41, 0],
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 188
-reaction( "NO2 + O <=> NO + O2",   [3.90000E+12, 0, -240])
+reaction(  "NO2 + O <=> NO + O2",  [3.90000E+12, 0, -240])
 
 #  Reaction 189
-reaction( "NO2 + H <=> NO + OH",   [1.32000E+14, 0, 360])
+reaction(  "NO2 + H <=> NO + OH",  [1.32000E+14, 0, 360])
 
 #  Reaction 190
-reaction( "NH + O <=> NO + H",   [4.00000E+13, 0, 0])
+reaction(  "NH + O <=> NO + H",  [4.00000E+13, 0, 0])
 
 #  Reaction 191
-reaction( "NH + H <=> N + H2",   [3.20000E+13, 0, 330])
+reaction(  "NH + H <=> N + H2",  [3.20000E+13, 0, 330])
 
 #  Reaction 192
-reaction( "NH + OH <=> HNO + H",   [2.00000E+13, 0, 0])
+reaction(  "NH + OH <=> HNO + H",  [2.00000E+13, 0, 0])
 
 #  Reaction 193
-reaction( "NH + OH <=> N + H2O",   [2.00000E+09, 1.2, 0])
+reaction(  "NH + OH <=> N + H2O",  [2.00000E+09, 1.2, 0])
 
 #  Reaction 194
-reaction( "NH + O2 <=> HNO + O",   [4.61000E+05, 2, 6500])
+reaction(  "NH + O2 <=> HNO + O",  [4.61000E+05, 2, 6500])
 
 #  Reaction 195
-reaction( "NH + O2 <=> NO + OH",   [1.28000E+06, 1.5, 100])
+reaction(  "NH + O2 <=> NO + OH",  [1.28000E+06, 1.5, 100])
 
 #  Reaction 196
-reaction( "NH + N <=> N2 + H",   [1.50000E+13, 0, 0])
+reaction(  "NH + N <=> N2 + H",  [1.50000E+13, 0, 0])
 
 #  Reaction 197
-reaction( "NH + H2O <=> HNO + H2",   [2.00000E+13, 0, 13850])
+reaction(  "NH + H2O <=> HNO + H2",  [2.00000E+13, 0, 13850])
 
 #  Reaction 198
-reaction( "NH + NO <=> N2 + OH",   [2.16000E+13, -0.23, 0])
+reaction(  "NH + NO <=> N2 + OH",  [2.16000E+13, -0.23, 0])
 
 #  Reaction 199
-reaction( "NH + NO <=> N2O + H",   [3.65000E+14, -0.45, 0])
+reaction(  "NH + NO <=> N2O + H",  [3.65000E+14, -0.45, 0])
 
 #  Reaction 200
-reaction( "NH2 + O <=> OH + NH",   [3.00000E+12, 0, 0])
+reaction(  "NH2 + O <=> OH + NH",  [3.00000E+12, 0, 0])
 
 #  Reaction 201
-reaction( "NH2 + O <=> H + HNO",   [3.90000E+13, 0, 0])
+reaction(  "NH2 + O <=> H + HNO",  [3.90000E+13, 0, 0])
 
 #  Reaction 202
-reaction( "NH2 + H <=> NH + H2",   [4.00000E+13, 0, 3650])
+reaction(  "NH2 + H <=> NH + H2",  [4.00000E+13, 0, 3650])
 
 #  Reaction 203
-reaction( "NH2 + OH <=> NH + H2O",   [9.00000E+07, 1.5, -460])
+reaction(  "NH2 + OH <=> NH + H2O",  [9.00000E+07, 1.5, -460])
 
 #  Reaction 204
-reaction( "NNH <=> N2 + H",   [3.30000E+08, 0, 0])
+reaction(  "NNH <=> N2 + H",  [3.30000E+08, 0, 0])
 
 #  Reaction 205
-three_body_reaction( "NNH + M <=> N2 + H + M",   [1.30000E+14, -0.11, 4980],
+three_body_reaction( "NNH + M <=> N2 + H + M",  [1.30000E+14, -0.11, 4980],
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 206
-reaction( "NNH + O2 <=> HO2 + N2",   [5.00000E+12, 0, 0])
+reaction(  "NNH + O2 <=> HO2 + N2",  [5.00000E+12, 0, 0])
 
 #  Reaction 207
-reaction( "NNH + O <=> OH + N2",   [2.50000E+13, 0, 0])
+reaction(  "NNH + O <=> OH + N2",  [2.50000E+13, 0, 0])
 
 #  Reaction 208
-reaction( "NNH + O <=> NH + NO",   [7.00000E+13, 0, 0])
+reaction(  "NNH + O <=> NH + NO",  [7.00000E+13, 0, 0])
 
 #  Reaction 209
-reaction( "NNH + H <=> H2 + N2",   [5.00000E+13, 0, 0])
+reaction(  "NNH + H <=> H2 + N2",  [5.00000E+13, 0, 0])
 
 #  Reaction 210
-reaction( "NNH + OH <=> H2O + N2",   [2.00000E+13, 0, 0])
+reaction(  "NNH + OH <=> H2O + N2",  [2.00000E+13, 0, 0])
 
 #  Reaction 211
-reaction( "NNH + CH3 <=> CH4 + N2",   [2.50000E+13, 0, 0])
+reaction(  "NNH + CH3 <=> CH4 + N2",  [2.50000E+13, 0, 0])
 
 #  Reaction 212
-three_body_reaction( "H + NO + M <=> HNO + M",   [4.48000E+19, -1.32, 740],
+three_body_reaction( "H + NO + M <=> HNO + M",  [4.48000E+19, -1.32, 740],
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 213
-reaction( "HNO + O <=> NO + OH",   [2.50000E+13, 0, 0])
+reaction(  "HNO + O <=> NO + OH",  [2.50000E+13, 0, 0])
 
 #  Reaction 214
-reaction( "HNO + H <=> H2 + NO",   [9.00000E+11, 0.72, 660])
+reaction(  "HNO + H <=> H2 + NO",  [9.00000E+11, 0.72, 660])
 
 #  Reaction 215
-reaction( "HNO + OH <=> NO + H2O",   [1.30000E+07, 1.9, -950])
+reaction(  "HNO + OH <=> NO + H2O",  [1.30000E+07, 1.9, -950])
 
 #  Reaction 216
-reaction( "HNO + O2 <=> HO2 + NO",   [1.00000E+13, 0, 13000])
+reaction(  "HNO + O2 <=> HO2 + NO",  [1.00000E+13, 0, 13000])
 
 #  Reaction 217
-reaction( "CN + O <=> CO + N",   [7.70000E+13, 0, 0])
+reaction(  "CN + O <=> CO + N",  [7.70000E+13, 0, 0])
 
 #  Reaction 218
-reaction( "CN + OH <=> NCO + H",   [4.00000E+13, 0, 0])
+reaction(  "CN + OH <=> NCO + H",  [4.00000E+13, 0, 0])
 
 #  Reaction 219
-reaction( "CN + H2O <=> HCN + OH",   [8.00000E+12, 0, 7460])
+reaction(  "CN + H2O <=> HCN + OH",  [8.00000E+12, 0, 7460])
 
 #  Reaction 220
-reaction( "CN + O2 <=> NCO + O",   [6.14000E+12, 0, -440])
+reaction(  "CN + O2 <=> NCO + O",  [6.14000E+12, 0, -440])
 
 #  Reaction 221
-reaction( "CN + H2 <=> HCN + H",   [2.95000E+05, 2.45, 2240])
+reaction(  "CN + H2 <=> HCN + H",  [2.95000E+05, 2.45, 2240])
 
 #  Reaction 222
-reaction( "NCO + O <=> NO + CO",   [2.35000E+13, 0, 0])
+reaction(  "NCO + O <=> NO + CO",  [2.35000E+13, 0, 0])
 
 #  Reaction 223
-reaction( "NCO + H <=> NH + CO",   [5.40000E+13, 0, 0])
+reaction(  "NCO + H <=> NH + CO",  [5.40000E+13, 0, 0])
 
 #  Reaction 224
-reaction( "NCO + OH <=> NO + H + CO",   [2.50000E+12, 0, 0])
+reaction(  "NCO + OH <=> NO + H + CO",  [2.50000E+12, 0, 0])
 
 #  Reaction 225
-reaction( "NCO + N <=> N2 + CO",   [2.00000E+13, 0, 0])
+reaction(  "NCO + N <=> N2 + CO",  [2.00000E+13, 0, 0])
 
 #  Reaction 226
-reaction( "NCO + O2 <=> NO + CO2",   [2.00000E+12, 0, 20000])
+reaction(  "NCO + O2 <=> NO + CO2",  [2.00000E+12, 0, 20000])
 
 #  Reaction 227
-three_body_reaction( "NCO + M <=> N + CO + M",   [3.10000E+14, 0, 54050],
+three_body_reaction( "NCO + M <=> N + CO + M",  [3.10000E+14, 0, 54050],
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 228
-reaction( "NCO + NO <=> N2O + CO",   [1.90000E+17, -1.52, 740])
+reaction(  "NCO + NO <=> N2O + CO",  [1.90000E+17, -1.52, 740])
 
 #  Reaction 229
-reaction( "NCO + NO <=> N2 + CO2",   [3.80000E+18, -2, 800])
+reaction(  "NCO + NO <=> N2 + CO2",  [3.80000E+18, -2, 800])
 
 #  Reaction 230
-three_body_reaction( "HCN + M <=> H + CN + M",   [1.04000E+29, -3.3, 126600],
+three_body_reaction( "HCN + M <=> H + CN + M",  [1.04000E+29, -3.3, 126600],
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 231
-reaction( "HCN + O <=> NCO + H",   [2.03000E+04, 2.64, 4980])
+reaction(  "HCN + O <=> NCO + H",  [2.03000E+04, 2.64, 4980])
 
 #  Reaction 232
-reaction( "HCN + O <=> NH + CO",   [5.07000E+03, 2.64, 4980])
+reaction(  "HCN + O <=> NH + CO",  [5.07000E+03, 2.64, 4980])
 
 #  Reaction 233
-reaction( "HCN + O <=> CN + OH",   [3.91000E+09, 1.58, 26600])
+reaction(  "HCN + O <=> CN + OH",  [3.91000E+09, 1.58, 26600])
 
 #  Reaction 234
-reaction( "HCN + OH <=> HOCN + H",   [1.10000E+06, 2.03, 13370])
+reaction(  "HCN + OH <=> HOCN + H",  [1.10000E+06, 2.03, 13370])
 
 #  Reaction 235
-reaction( "HCN + OH <=> HNCO + H",   [4.40000E+03, 2.26, 6400])
+reaction(  "HCN + OH <=> HNCO + H",  [4.40000E+03, 2.26, 6400])
 
 #  Reaction 236
-reaction( "HCN + OH <=> NH2 + CO",   [1.60000E+02, 2.56, 9000])
+reaction(  "HCN + OH <=> NH2 + CO",  [1.60000E+02, 2.56, 9000])
 
 #  Reaction 237
-falloff_reaction( "H + HCN (+ M) <=> H2CN (+ M)", 
+falloff_reaction( "H + HCN (+ M) <=> H2CN (+ M)",
          kf = [3.30000E+13, 0, 0],
          kf0   = [1.40000E+26, -3.4, 1900],
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 238
-reaction( "H2CN + N <=> N2 + CH2",   [6.00000E+13, 0, 400])
+reaction(  "H2CN + N <=> N2 + CH2",  [6.00000E+13, 0, 400])
 
 #  Reaction 239
-reaction( "C + N2 <=> CN + N",   [6.30000E+13, 0, 46020])
+reaction(  "C + N2 <=> CN + N",  [6.30000E+13, 0, 46020])
 
 #  Reaction 240
-reaction( "CH + N2 <=> HCN + N",   [3.12000E+09, 0.88, 20130])
+reaction(  "CH + N2 <=> HCN + N",  [3.12000E+09, 0.88, 20130])
 
 #  Reaction 241
-falloff_reaction( "CH + N2 (+ M) <=> HCNN (+ M)", 
+falloff_reaction( "CH + N2 (+ M) <=> HCNN (+ M)",
          kf = [3.10000E+12, 0.15, 0],
          kf0   = [1.30000E+25, -3.16, 740],
          falloff = Troe(A = 0.667, T3 = 235, T1 = 2117, T2 = 4536),
          efficiencies = " AR:1  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 242
-reaction( "CH2 + N2 <=> HCN + NH",   [1.00000E+13, 0, 74000])
+reaction(  "CH2 + N2 <=> HCN + NH",  [1.00000E+13, 0, 74000])
 
 #  Reaction 243
-reaction( "CH2(S) + N2 <=> NH + HCN",   [1.00000E+11, 0, 65000])
+reaction(  "CH2(S) + N2 <=> NH + HCN",  [1.00000E+11, 0, 65000])
 
 #  Reaction 244
-reaction( "C + NO <=> CN + O",   [1.90000E+13, 0, 0])
+reaction(  "C + NO <=> CN + O",  [1.90000E+13, 0, 0])
 
 #  Reaction 245
-reaction( "C + NO <=> CO + N",   [2.90000E+13, 0, 0])
+reaction(  "C + NO <=> CO + N",  [2.90000E+13, 0, 0])
 
 #  Reaction 246
-reaction( "CH + NO <=> HCN + O",   [4.10000E+13, 0, 0])
+reaction(  "CH + NO <=> HCN + O",  [4.10000E+13, 0, 0])
 
 #  Reaction 247
-reaction( "CH + NO <=> H + NCO",   [1.62000E+13, 0, 0])
+reaction(  "CH + NO <=> H + NCO",  [1.62000E+13, 0, 0])
 
 #  Reaction 248
-reaction( "CH + NO <=> N + HCO",   [2.46000E+13, 0, 0])
+reaction(  "CH + NO <=> N + HCO",  [2.46000E+13, 0, 0])
 
 #  Reaction 249
-reaction( "CH2 + NO <=> H + HNCO",   [3.10000E+17, -1.38, 1270])
+reaction(  "CH2 + NO <=> H + HNCO",  [3.10000E+17, -1.38, 1270])
 
 #  Reaction 250
-reaction( "CH2 + NO <=> OH + HCN",   [2.90000E+14, -0.69, 760])
+reaction(  "CH2 + NO <=> OH + HCN",  [2.90000E+14, -0.69, 760])
 
 #  Reaction 251
-reaction( "CH2 + NO <=> H + HCNO",   [3.80000E+13, -0.36, 580])
+reaction(  "CH2 + NO <=> H + HCNO",  [3.80000E+13, -0.36, 580])
 
 #  Reaction 252
-reaction( "CH2(S) + NO <=> H + HNCO",   [3.10000E+17, -1.38, 1270])
+reaction(  "CH2(S) + NO <=> H + HNCO",  [3.10000E+17, -1.38, 1270])
 
 #  Reaction 253
-reaction( "CH2(S) + NO <=> OH + HCN",   [2.90000E+14, -0.69, 760])
+reaction(  "CH2(S) + NO <=> OH + HCN",  [2.90000E+14, -0.69, 760])
 
 #  Reaction 254
-reaction( "CH2(S) + NO <=> H + HCNO",   [3.80000E+13, -0.36, 580])
+reaction(  "CH2(S) + NO <=> H + HCNO",  [3.80000E+13, -0.36, 580])
 
 #  Reaction 255
-reaction( "CH3 + NO <=> HCN + H2O",   [9.60000E+13, 0, 28800])
+reaction(  "CH3 + NO <=> HCN + H2O",  [9.60000E+13, 0, 28800])
 
 #  Reaction 256
-reaction( "CH3 + NO <=> H2CN + OH",   [1.00000E+12, 0, 21750])
+reaction(  "CH3 + NO <=> H2CN + OH",  [1.00000E+12, 0, 21750])
 
 #  Reaction 257
-reaction( "HCNN + O <=> CO + H + N2",   [2.20000E+13, 0, 0])
+reaction(  "HCNN + O <=> CO + H + N2",  [2.20000E+13, 0, 0])
 
 #  Reaction 258
-reaction( "HCNN + O <=> HCN + NO",   [2.00000E+12, 0, 0])
+reaction(  "HCNN + O <=> HCN + NO",  [2.00000E+12, 0, 0])
 
 #  Reaction 259
-reaction( "HCNN + O2 <=> O + HCO + N2",   [1.20000E+13, 0, 0])
+reaction(  "HCNN + O2 <=> O + HCO + N2",  [1.20000E+13, 0, 0])
 
 #  Reaction 260
-reaction( "HCNN + OH <=> H + HCO + N2",   [1.20000E+13, 0, 0])
+reaction(  "HCNN + OH <=> H + HCO + N2",  [1.20000E+13, 0, 0])
 
 #  Reaction 261
-reaction( "HCNN + H <=> CH2 + N2",   [1.00000E+14, 0, 0])
+reaction(  "HCNN + H <=> CH2 + N2",  [1.00000E+14, 0, 0])
 
 #  Reaction 262
-reaction( "HNCO + O <=> NH + CO2",   [9.80000E+07, 1.41, 8500])
+reaction(  "HNCO + O <=> NH + CO2",  [9.80000E+07, 1.41, 8500])
 
 #  Reaction 263
-reaction( "HNCO + O <=> HNO + CO",   [1.50000E+08, 1.57, 44000])
+reaction(  "HNCO + O <=> HNO + CO",  [1.50000E+08, 1.57, 44000])
 
 #  Reaction 264
-reaction( "HNCO + O <=> NCO + OH",   [2.20000E+06, 2.11, 11400])
+reaction(  "HNCO + O <=> NCO + OH",  [2.20000E+06, 2.11, 11400])
 
 #  Reaction 265
-reaction( "HNCO + H <=> NH2 + CO",   [2.25000E+07, 1.7, 3800])
+reaction(  "HNCO + H <=> NH2 + CO",  [2.25000E+07, 1.7, 3800])
 
 #  Reaction 266
-reaction( "HNCO + H <=> H2 + NCO",   [1.05000E+05, 2.5, 13300])
+reaction(  "HNCO + H <=> H2 + NCO",  [1.05000E+05, 2.5, 13300])
 
 #  Reaction 267
-reaction( "HNCO + OH <=> NCO + H2O",   [3.30000E+07, 1.5, 3600])
+reaction(  "HNCO + OH <=> NCO + H2O",  [3.30000E+07, 1.5, 3600])
 
 #  Reaction 268
-reaction( "HNCO + OH <=> NH2 + CO2",   [3.30000E+06, 1.5, 3600])
+reaction(  "HNCO + OH <=> NH2 + CO2",  [3.30000E+06, 1.5, 3600])
 
 #  Reaction 269
-three_body_reaction( "HNCO + M <=> NH + CO + M",   [1.18000E+16, 0, 84720],
+three_body_reaction( "HNCO + M <=> NH + CO + M",  [1.18000E+16, 0, 84720],
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 270
-reaction( "HCNO + H <=> H + HNCO",   [2.10000E+15, -0.69, 2850])
+reaction(  "HCNO + H <=> H + HNCO",  [2.10000E+15, -0.69, 2850])
 
 #  Reaction 271
-reaction( "HCNO + H <=> OH + HCN",   [2.70000E+11, 0.18, 2120])
+reaction(  "HCNO + H <=> OH + HCN",  [2.70000E+11, 0.18, 2120])
 
 #  Reaction 272
-reaction( "HCNO + H <=> NH2 + CO",   [1.70000E+14, -0.75, 2890])
+reaction(  "HCNO + H <=> NH2 + CO",  [1.70000E+14, -0.75, 2890])
 
 #  Reaction 273
-reaction( "HOCN + H <=> H + HNCO",   [2.00000E+07, 2, 2000])
+reaction(  "HOCN + H <=> H + HNCO",  [2.00000E+07, 2, 2000])
 
 #  Reaction 274
-reaction( "HCCO + NO <=> HCNO + CO",   [9.00000E+12, 0, 0])
+reaction(  "HCCO + NO <=> HCNO + CO",  [9.00000E+12, 0, 0])
 
 #  Reaction 275
-reaction( "CH3 + N <=> H2CN + H",   [6.10000E+14, -0.31, 290])
+reaction(  "CH3 + N <=> H2CN + H",  [6.10000E+14, -0.31, 290])
 
 #  Reaction 276
-reaction( "CH3 + N <=> HCN + H2",   [3.70000E+12, 0.15, -90])
+reaction(  "CH3 + N <=> HCN + H2",  [3.70000E+12, 0.15, -90])
 
 #  Reaction 277
-reaction( "NH3 + H <=> NH2 + H2",   [5.40000E+05, 2.4, 9915])
+reaction(  "NH3 + H <=> NH2 + H2",  [5.40000E+05, 2.4, 9915])
 
 #  Reaction 278
-reaction( "NH3 + OH <=> NH2 + H2O",   [5.00000E+07, 1.6, 955])
+reaction(  "NH3 + OH <=> NH2 + H2O",  [5.00000E+07, 1.6, 955])
 
 #  Reaction 279
-reaction( "NH3 + O <=> NH2 + OH",   [9.40000E+06, 1.94, 6460])
+reaction(  "NH3 + O <=> NH2 + OH",  [9.40000E+06, 1.94, 6460])
 
 #  Reaction 280
-reaction( "NH + CO2 <=> HNO + CO",   [1.00000E+13, 0, 14350])
+reaction(  "NH + CO2 <=> HNO + CO",  [1.00000E+13, 0, 14350])
 
 #  Reaction 281
-reaction( "CN + NO2 <=> NCO + NO",   [6.16000E+15, -0.752, 345])
+reaction(  "CN + NO2 <=> NCO + NO",  [6.16000E+15, -0.752, 345])
 
 #  Reaction 282
-reaction( "NCO + NO2 <=> N2O + CO2",   [3.25000E+12, 0, -705])
+reaction(  "NCO + NO2 <=> N2O + CO2",  [3.25000E+12, 0, -705])
 
 #  Reaction 283
-reaction( "N + CO2 <=> NO + CO",   [3.00000E+12, 0, 11300])
+reaction(  "N + CO2 <=> NO + CO",  [3.00000E+12, 0, 11300])
 
 #  Reaction 284
-reaction( "O + CH3 => H + H2 + CO",   [3.37000E+13, 0, 0])
+reaction(  "O + CH3 => H + H2 + CO",  [3.37000E+13, 0, 0])
 
 #  Reaction 285
-reaction( "O + C2H4 <=> H + CH2CHO",   [6.70000E+06, 1.83, 220])
+reaction(  "O + C2H4 <=> H + CH2CHO",  [6.70000E+06, 1.83, 220])
 
 #  Reaction 286
-reaction( "O + C2H5 <=> H + CH3CHO",   [1.09600E+14, 0, 0])
+reaction(  "O + C2H5 <=> H + CH3CHO",  [1.09600E+14, 0, 0])
 
 #  Reaction 287
-reaction( "OH + HO2 <=> O2 + H2O",   [5.00000E+15, 0, 17330],
-         options = 'duplicate')
+reaction(  "OH + HO2 <=> O2 + H2O",  [5.00000E+15, 0, 17330],
+         options = ["duplicate"])
 
 #  Reaction 288
-reaction( "OH + CH3 => H2 + CH2O",   [8.00000E+09, 0.5, -1755])
+reaction(  "OH + CH3 => H2 + CH2O",  [8.00000E+09, 0.5, -1755])
 
 #  Reaction 289
-falloff_reaction( "CH + H2 (+ M) <=> CH3 (+ M)", 
+falloff_reaction( "CH + H2 (+ M) <=> CH3 (+ M)",
          kf = [1.97000E+12, 0.43, -370],
          kf0   = [4.82000E+25, -2.8, 590],
          falloff = Troe(A = 0.578, T3 = 122, T1 = 2535, T2 = 9365),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 290
-reaction( "CH2 + O2 => 2 H + CO2",   [5.80000E+12, 0, 1500])
+reaction(  "CH2 + O2 => 2 H + CO2",  [5.80000E+12, 0, 1500])
 
 #  Reaction 291
-reaction( "CH2 + O2 <=> O + CH2O",   [2.40000E+12, 0, 1500])
+reaction(  "CH2 + O2 <=> O + CH2O",  [2.40000E+12, 0, 1500])
 
 #  Reaction 292
-reaction( "CH2 + CH2 => 2 H + C2H2",   [2.00000E+14, 0, 10989])
+reaction(  "CH2 + CH2 => 2 H + C2H2",  [2.00000E+14, 0, 10989])
 
 #  Reaction 293
-reaction( "CH2(S) + H2O => H2 + CH2O",   [6.82000E+10, 0.25, -935])
+reaction(  "CH2(S) + H2O => H2 + CH2O",  [6.82000E+10, 0.25, -935])
 
 #  Reaction 294
-reaction( "C2H3 + O2 <=> O + CH2CHO",   [3.03000E+11, 0.29, 11])
+reaction(  "C2H3 + O2 <=> O + CH2CHO",  [3.03000E+11, 0.29, 11])
 
 #  Reaction 295
-reaction( "C2H3 + O2 <=> HO2 + C2H2",   [1.33700E+06, 1.61, -384])
+reaction(  "C2H3 + O2 <=> HO2 + C2H2",  [1.33700E+06, 1.61, -384])
 
 #  Reaction 296
-reaction( "O + CH3CHO <=> OH + CH2CHO",   [5.84000E+12, 0, 1808])
+reaction(  "O + CH3CHO <=> OH + CH2CHO",  [5.84000E+12, 0, 1808])
 
 #  Reaction 297
-reaction( "O + CH3CHO => OH + CH3 + CO",   [5.84000E+12, 0, 1808])
+reaction(  "O + CH3CHO => OH + CH3 + CO",  [5.84000E+12, 0, 1808])
 
 #  Reaction 298
-reaction( "O2 + CH3CHO => HO2 + CH3 + CO",   [3.01000E+13, 0, 39150])
+reaction(  "O2 + CH3CHO => HO2 + CH3 + CO",  [3.01000E+13, 0, 39150])
 
 #  Reaction 299
-reaction( "H + CH3CHO <=> CH2CHO + H2",   [2.05000E+09, 1.16, 2405])
+reaction(  "H + CH3CHO <=> CH2CHO + H2",  [2.05000E+09, 1.16, 2405])
 
 #  Reaction 300
-reaction( "H + CH3CHO => CH3 + H2 + CO",   [2.05000E+09, 1.16, 2405])
+reaction(  "H + CH3CHO => CH3 + H2 + CO",  [2.05000E+09, 1.16, 2405])
 
 #  Reaction 301
-reaction( "OH + CH3CHO => CH3 + H2O + CO",   [2.34300E+10, 0.73, -1113])
+reaction(  "OH + CH3CHO => CH3 + H2O + CO",  [2.34300E+10, 0.73, -1113])
 
 #  Reaction 302
-reaction( "HO2 + CH3CHO => CH3 + H2O2 + CO",   [3.01000E+12, 0, 11923])
+reaction(  "HO2 + CH3CHO => CH3 + H2O2 + CO",  [3.01000E+12, 0, 11923])
 
 #  Reaction 303
-reaction( "CH3 + CH3CHO => CH3 + CH4 + CO",   [2.72000E+06, 1.77, 5920])
+reaction(  "CH3 + CH3CHO => CH3 + CH4 + CO",  [2.72000E+06, 1.77, 5920])
 
 #  Reaction 304
-falloff_reaction( "H + CH2CO (+ M) <=> CH2CHO (+ M)", 
+falloff_reaction( "H + CH2CO (+ M) <=> CH2CHO (+ M)",
          kf = [4.86500E+11, 0.422, -1755],
          kf0   = [1.01200E+42, -7.63, 3854],
          falloff = Troe(A = 0.465, T3 = 201, T1 = 1773, T2 = 5333),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 305
-reaction( "O + CH2CHO => H + CH2 + CO2",   [1.50000E+14, 0, 0])
+reaction(  "O + CH2CHO => H + CH2 + CO2",  [1.50000E+14, 0, 0])
 
 #  Reaction 306
-reaction( "O2 + CH2CHO => OH + CO + CH2O",   [1.81000E+10, 0, 0])
+reaction(  "O2 + CH2CHO => OH + CO + CH2O",  [1.81000E+10, 0, 0])
 
 #  Reaction 307
-reaction( "O2 + CH2CHO => OH + 2 HCO",   [2.35000E+10, 0, 0])
+reaction(  "O2 + CH2CHO => OH + 2 HCO",  [2.35000E+10, 0, 0])
 
 #  Reaction 308
-reaction( "H + CH2CHO <=> CH3 + HCO",   [2.20000E+13, 0, 0])
+reaction(  "H + CH2CHO <=> CH3 + HCO",  [2.20000E+13, 0, 0])
 
 #  Reaction 309
-reaction( "H + CH2CHO <=> CH2CO + H2",   [1.10000E+13, 0, 0])
+reaction(  "H + CH2CHO <=> CH2CO + H2",  [1.10000E+13, 0, 0])
 
 #  Reaction 310
-reaction( "OH + CH2CHO <=> H2O + CH2CO",   [1.20000E+13, 0, 0])
+reaction(  "OH + CH2CHO <=> H2O + CH2CO",  [1.20000E+13, 0, 0])
 
 #  Reaction 311
-reaction( "OH + CH2CHO <=> HCO + CH2OH",   [3.01000E+13, 0, 0])
+reaction(  "OH + CH2CHO <=> HCO + CH2OH",  [3.01000E+13, 0, 0])
 
 #  Reaction 312
-falloff_reaction( "CH3 + C2H5 (+ M) <=> C3H8 (+ M)", 
+falloff_reaction( "CH3 + C2H5 (+ M) <=> C3H8 (+ M)",
          kf = [9.43000E+12, 0, 0],
          kf0   = [2.71000E+74, -16.82, 13065],
          falloff = Troe(A = 0.1527, T3 = 291, T1 = 2742, T2 = 7748),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 313
-reaction( "O + C3H8 <=> OH + C3H7",   [1.93000E+05, 2.68, 3716])
+reaction(  "O + C3H8 <=> OH + C3H7",  [1.93000E+05, 2.68, 3716])
 
 #  Reaction 314
-reaction( "H + C3H8 <=> C3H7 + H2",   [1.32000E+06, 2.54, 6756])
+reaction(  "H + C3H8 <=> C3H7 + H2",  [1.32000E+06, 2.54, 6756])
 
 #  Reaction 315
-reaction( "OH + C3H8 <=> C3H7 + H2O",   [3.16000E+07, 1.8, 934])
+reaction(  "OH + C3H8 <=> C3H7 + H2O",  [3.16000E+07, 1.8, 934])
 
 #  Reaction 316
-reaction( "C3H7 + H2O2 <=> HO2 + C3H8",   [3.78000E+02, 2.72, 1500])
+reaction(  "C3H7 + H2O2 <=> HO2 + C3H8",  [3.78000E+02, 2.72, 1500])
 
 #  Reaction 317
-reaction( "CH3 + C3H8 <=> C3H7 + CH4",   [9.03000E-01, 3.65, 7154])
+reaction(  "CH3 + C3H8 <=> C3H7 + CH4",  [9.03000E-01, 3.65, 7154])
 
 #  Reaction 318
-falloff_reaction( "CH3 + C2H4 (+ M) <=> C3H7 (+ M)", 
+falloff_reaction( "CH3 + C2H4 (+ M) <=> C3H7 (+ M)",
          kf = [2.55000E+06, 1.6, 5700],
          kf0   = [3.00000E+63, -14.6, 18170],
          falloff = Troe(A = 0.1894, T3 = 277, T1 = 8748, T2 = 7891),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 319
-reaction( "O + C3H7 <=> C2H5 + CH2O",   [9.64000E+13, 0, 0])
+reaction(  "O + C3H7 <=> C2H5 + CH2O",  [9.64000E+13, 0, 0])
 
 #  Reaction 320
-falloff_reaction( "H + C3H7 (+ M) <=> C3H8 (+ M)", 
+falloff_reaction( "H + C3H7 (+ M) <=> C3H8 (+ M)",
          kf = [3.61300E+13, 0, 0],
          kf0   = [4.42000E+61, -13.545, 11357],
          falloff = Troe(A = 0.315, T3 = 369, T1 = 3285, T2 = 6667),
          efficiencies = " AR:0.7  C2H6:3  CH4:2  CO:1.5  CO2:2  H2:2  H2O:6 ")
 
 #  Reaction 321
-reaction( "H + C3H7 <=> CH3 + C2H5",   [4.06000E+06, 2.19, 890])
+reaction(  "H + C3H7 <=> CH3 + C2H5",  [4.06000E+06, 2.19, 890])
 
 #  Reaction 322
-reaction( "OH + C3H7 <=> C2H5 + CH2OH",   [2.41000E+13, 0, 0])
+reaction(  "OH + C3H7 <=> C2H5 + CH2OH",  [2.41000E+13, 0, 0])
 
 #  Reaction 323
-reaction( "HO2 + C3H7 <=> O2 + C3H8",   [2.55000E+10, 0.255, -943])
+reaction(  "HO2 + C3H7 <=> O2 + C3H8",  [2.55000E+10, 0.255, -943])
 
 #  Reaction 324
-reaction( "HO2 + C3H7 => OH + C2H5 + CH2O",   [2.41000E+13, 0, 0])
+reaction(  "HO2 + C3H7 => OH + C2H5 + CH2O",  [2.41000E+13, 0, 0])
 
 #  Reaction 325
-reaction( "CH3 + C3H7 <=> 2 C2H5",   [1.92700E+13, -0.32, 0])
+reaction(  "CH3 + C3H7 <=> 2 C2H5",  [1.92700E+13, -0.32, 0])

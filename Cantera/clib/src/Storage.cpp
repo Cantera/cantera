@@ -30,7 +30,15 @@ int Storage::addThermo(thermo_t* th) {
     __thtable.push_back(th);
     int n = static_cast<int>(__thtable.size()) - 1;
     th->setIndex(n);
-    __thmap[th->id()] = n;
+    //string id = th->id();
+    //if (__thmap.count(id) == 0) {
+    //    __thmap[id] = n;
+    //    th->setID(id);
+    //}
+    //else {
+    //    throw CanteraError("Storage::addThermo","id already used");
+    //    return -1;
+    //}
     return n;
 }
 

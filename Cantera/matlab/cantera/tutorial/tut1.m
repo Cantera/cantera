@@ -11,70 +11,77 @@ help tut1
 
 gas1 = GRI30
 
-% If you have successfully installed the Cantera toolbox, 
-% you should see something like this:
-%
-%
-%       temperature                  300  K
-%       pressure                  101325  Pa
-%       density                 0.081896  kg/m^3
-%       mean mol. weight         2.01594  amu
-%
-%                           X                 Y   
-%                     -------------     ------------ 
-%                H2   1.000000e+000     1.000000e+000
-%                 H   0.000000e+000     0.000000e+000
-%                 O   0.000000e+000     0.000000e+000
-%                O2   0.000000e+000     0.000000e+000
-%                OH   0.000000e+000     0.000000e+000
-%               H2O   0.000000e+000     0.000000e+000
-%               HO2   0.000000e+000     0.000000e+000
-%              H2O2   0.000000e+000     0.000000e+000
-%                 C   0.000000e+000     0.000000e+000
-%                CH   0.000000e+000     0.000000e+000
-%               CH2   0.000000e+000     0.000000e+000
-%            CH2(S)   0.000000e+000     0.000000e+000
-%               CH3   0.000000e+000     0.000000e+000
-%               CH4   0.000000e+000     0.000000e+000
-%                CO   0.000000e+000     0.000000e+000
-%               CO2   0.000000e+000     0.000000e+000
-%               HCO   0.000000e+000     0.000000e+000
-%              CH2O   0.000000e+000     0.000000e+000
-%             CH2OH   0.000000e+000     0.000000e+000
-%              CH3O   0.000000e+000     0.000000e+000
-%             CH3OH   0.000000e+000     0.000000e+000
-%               C2H   0.000000e+000     0.000000e+000
-%              C2H2   0.000000e+000     0.000000e+000
-%              C2H3   0.000000e+000     0.000000e+000
-%              C2H4   0.000000e+000     0.000000e+000
-%              C2H5   0.000000e+000     0.000000e+000
-%              C2H6   0.000000e+000     0.000000e+000
-%              HCCO   0.000000e+000     0.000000e+000
-%             CH2CO   0.000000e+000     0.000000e+000
-%             HCCOH   0.000000e+000     0.000000e+000
-%                 N   0.000000e+000     0.000000e+000
-%                NH   0.000000e+000     0.000000e+000
-%               NH2   0.000000e+000     0.000000e+000
-%               NH3   0.000000e+000     0.000000e+000
-%               NNH   0.000000e+000     0.000000e+000
-%                NO   0.000000e+000     0.000000e+000
-%               NO2   0.000000e+000     0.000000e+000
-%               N2O   0.000000e+000     0.000000e+000
-%               HNO   0.000000e+000     0.000000e+000
-%                CN   0.000000e+000     0.000000e+000
-%               HCN   0.000000e+000     0.000000e+000
-%              H2CN   0.000000e+000     0.000000e+000
-%              HCNN   0.000000e+000     0.000000e+000
-%              HCNO   0.000000e+000     0.000000e+000
-%              HOCN   0.000000e+000     0.000000e+000
-%              HNCO   0.000000e+000     0.000000e+000
-%               NCO   0.000000e+000     0.000000e+000
-%                N2   0.000000e+000     0.000000e+000
-%                AR   0.000000e+000     0.000000e+000
-%              C3H7   0.000000e+000     0.000000e+000
-%              C3H8   0.000000e+000     0.000000e+000
-%            CH2CHO   0.000000e+000     0.000000e+000
-%            CH3CHO   0.000000e+000     0.000000e+000
+% If you have successfully installed the Cantera toolbox, you should
+%see something like this:
+%         temperature             300  K
+%            pressure          101325  Pa
+%             density        0.081889  kg/m^3
+%    mean mol. weight         2.01588  amu
+%   
+%                            1 kg            1 kmol
+%                         -----------      ------------
+%            enthalpy         26470.1        5.336e+04     J
+%     internal energy    -1.21088e+06       -2.441e+06     J
+%             entropy           64914        1.309e+05     J/K
+%      Gibbs function    -1.94477e+07        -3.92e+07     J
+%   heat capacity c_p         14311.8        2.885e+04     J/K
+%   heat capacity c_v         10187.3        2.054e+04     J/K
+%   
+%                             X                 Y          Chem. Pot. / RT    
+%                       -------------     ------------     ------------
+%                  H2              1                1         -15.7173
+%                   H              0                0     
+%                   O              0                0     
+%                  O2              0                0     
+%                  OH              0                0     
+%                 H2O              0                0     
+%                 HO2              0                0     
+%                H2O2              0                0     
+%                   C              0                0     
+%                  CH              0                0     
+%                 CH2              0                0     
+%              CH2(S)              0                0     
+%                 CH3              0                0     
+%                 CH4              0                0     
+%                  CO              0                0     
+%                 CO2              0                0     
+%                 HCO              0                0     
+%                CH2O              0                0     
+%               CH2OH              0                0     
+%                CH3O              0                0     
+%               CH3OH              0                0     
+%                 C2H              0                0     
+%                C2H2              0                0     
+%                C2H3              0                0     
+%                C2H4              0                0     
+%                C2H5              0                0     
+%                C2H6              0                0     
+%                HCCO              0                0     
+%               CH2CO              0                0     
+%               HCCOH              0                0     
+%                   N              0                0     
+%                  NH              0                0     
+%                 NH2              0                0     
+%                 NH3              0                0     
+%                 NNH              0                0     
+%                  NO              0                0     
+%                 NO2              0                0     
+%                 N2O              0                0     
+%                 HNO              0                0     
+%                  CN              0                0     
+%                 HCN              0                0     
+%                H2CN              0                0     
+%                HCNN              0                0     
+%                HCNO              0                0     
+%                HOCN              0                0     
+%                HNCO              0                0     
+%                 NCO              0                0     
+%                  N2              0                0     
+%                  AR              0                0     
+%                C3H7              0                0     
+%                C3H8              0                0     
+%              CH2CHO              0                0     
+%              CH3CHO              0                0     
 %
 % What you have just done is to create an object ("gas1") that
 % implements GRI-Mech 3.0, the 53-species, 325-reaction natural gas
@@ -101,7 +108,7 @@ gas1 = GRI30
 %  Setting the state
 %  -----------------
 
-% The state of the object can easily be changed. For example,
+% The state of the object can be easily changed. For example,
 
 setTemperature(gas1, 1200)
 
@@ -141,14 +148,14 @@ setTemperature(gas1, 1200)
 % on an object. In MATLAB, methods take the object as the first
 % argument.)
 
-set(gas1, 'Temperature', 900.0, 'Pressure', 1.e5)
+set(gas1, 'Temperature', 900.0, 'Pressure', 1.e5);
 
 % This statement sets both temperature and pressure at the same
 % time. Any number of property/value pairs can be specified in a
 % call to 'set'. For example, the following sets the mole fractions
 % too:
 set(gas1, 'Temperature', 900.0, 'Pressure', 1.e5, 'MoleFractions', ...
-	  'CH4:1,O2:2,N2:7.52')
+	  'CH4:1,O2:2,N2:7.52');
 
 % The 'set' method also accepts abbreviated property names:
 
@@ -156,17 +163,75 @@ set(gas1,'T',900.0,'P',1.e5,'X','CH4:1,O2:2,N2:7.52')
 
 % Either version results in
 %
-%       temperature                  900  K
-%       pressure                  100000  Pa
-%       density                   0.3693  kg/m^3
-%       mean mol. weight         27.6332  amu
-%
-%                           X                 Y   
-%                     -------------     ------------ 
-%                O2   1.901141e-001     2.201489e-001
-%               CH4   9.505703e-002     5.518732e-002
-%                N2   7.148289e-001     7.246638e-001
-%
+%         temperature             900  K
+%            pressure          100000  Pa
+%             density        0.369279  kg/m^3
+%    mean mol. weight         27.6332  amu
+%   
+%                            1 kg            1 kmol
+%                         -----------      ------------
+%            enthalpy          455660        1.259e+07     J
+%     internal energy          184862        5.108e+06     J
+%             entropy         8529.31        2.357e+05     J/K
+%      Gibbs function    -7.22072e+06       -1.995e+08     J
+%   heat capacity c_p          1304.4        3.604e+04     J/K
+%   heat capacity c_v         1003.52        2.773e+04     J/K
+%   
+%                             X                 Y          Chem. Pot. / RT    
+%                       -------------     ------------     ------------
+%                  H2              0                0     
+%                   H              0                0     
+%                   O              0                0     
+%                  O2       0.190114         0.220149         -27.9596
+%                  OH              0                0     
+%                 H2O              0                0     
+%                 HO2              0                0     
+%                H2O2              0                0     
+%                   C              0                0     
+%                  CH              0                0     
+%                 CH2              0                0     
+%              CH2(S)              0                0     
+%                 CH3              0                0     
+%                 CH4       0.095057        0.0551863         -37.0813
+%                  CO              0                0     
+%                 CO2              0                0     
+%                 HCO              0                0     
+%                CH2O              0                0     
+%               CH2OH              0                0     
+%                CH3O              0                0     
+%               CH3OH              0                0     
+%                 C2H              0                0     
+%                C2H2              0                0     
+%                C2H3              0                0     
+%                C2H4              0                0     
+%                C2H5              0                0     
+%                C2H6              0                0     
+%                HCCO              0                0     
+%               CH2CO              0                0     
+%               HCCOH              0                0     
+%                   N              0                0     
+%                  NH              0                0     
+%                 NH2              0                0     
+%                 NH3              0                0     
+%                 NNH              0                0     
+%                  NO              0                0     
+%                 NO2              0                0     
+%                 N2O              0                0     
+%                 HNO              0                0     
+%                  CN              0                0     
+%                 HCN              0                0     
+%                H2CN              0                0     
+%                HCNN              0                0     
+%                HCNO              0                0     
+%                HOCN              0                0     
+%                HNCO              0                0     
+%                 NCO              0                0     
+%                  N2       0.714829         0.724665          -24.935
+%                  AR              0                0     
+%                C3H7              0                0     
+%                C3H8              0                0     
+%              CH2CHO              0                0     
+%              CH3CHO              0                0     
 
 % Other properties may also be set using 'set', including some that
 % can't be set individually. The following property pairs may be

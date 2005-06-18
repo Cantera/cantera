@@ -980,7 +980,7 @@ namespace Cantera {
         }
 
         // internal heat capacities
-        const array_fp& cp = ((IdealGasPhase*)m_thermo)->cp_R();
+        const array_fp& cp = ((IdealGasPhase*)m_thermo)->cp_R_ref();
         for (k = 0; k < m_nsp; k++) m_cinternal[k] = cp[k] - 2.5;
     }
 

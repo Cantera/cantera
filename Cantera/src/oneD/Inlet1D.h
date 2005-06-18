@@ -126,21 +126,21 @@ namespace Cantera {
             return m_V0;
         }
 
-        virtual void showSolution(ostream& s, const doublereal* x) {
-            s << "-------------------  Inlet " << domainIndex() << " ------------------- " << endl;
-            s << "  mdot:        " << m_mdot << " kg/m^2/s" << "   " << x[0] << endl;
-            s << "  temperature: " << m_temp << " K" << "    " << x[1] << endl;
-            if (m_flow) {
-                s << "  mass fractions: " << endl;
-                for (int k = 0; k < m_flow->phase().nSpecies(); k++) {
-                    if (m_yin[k] != 0.0) {
-                        s << "      " << m_flow->phase().speciesName(k) 
-                          << "  " << m_yin[k] << endl;
-                    }
-                }
-            }
-            s << endl;
-        }
+//         virtual void showSolution(ostream& s, const doublereal* x) {
+//             s << "-------------------  Inlet " << domainIndex() << " ------------------- " << endl;
+//             s << "  mdot:        " << m_mdot << " kg/m^2/s" << "   " << x[0] << endl;
+//             s << "  temperature: " << m_temp << " K" << "    " << x[1] << endl;
+//             if (m_flow) {
+//                 s << "  mass fractions: " << endl;
+//                 for (int k = 0; k < m_flow->phase().nSpecies(); k++) {
+//                     if (m_yin[k] != 0.0) {
+//                         s << "      " << m_flow->phase().speciesName(k) 
+//                           << "  " << m_yin[k] << endl;
+//                     }
+//                 }
+//             }
+//             s << endl;
+//         }
 
         virtual void showSolution(const doublereal* x) {
             char buf[80];
@@ -166,10 +166,7 @@ namespace Cantera {
             x[1] = m_temp;
         }
 
-        virtual void _finalize(const doublereal* x) {
-            ;//m_mdot = x[0];
-            //m_temp = x[1];
-        }
+        virtual void _finalize(const doublereal* x) {}
 
         virtual void setMoleFractions(string xin);
         virtual void setMoleFractions(doublereal* xin);
@@ -453,55 +450,5 @@ namespace Cantera {
     };
 
 }
-
-// //     };
-
-
-
-// //     /////////////////////////////////////////////////////////////
-// //     //
-// //     // surf1D
-// //     //
-// //     ////////////////////////////////////////////////////////////
-// // #ifdef WITH_CHEMSURF
-
-// //     class ChemSurf1D : public Bdry1D {
-
-// //     public:
-
-// //         ChemSurf1D(InterfaceKinetics* skin = 0) {
-// //             m_type = cSurfType;
-// //             m_kin = 0;
-// //             m_sphase = 0;
-// //             m_nsp = 0;
-// //             if (skin) setKinetics(skin);
-// //         }
-// //         virtual ~ChemSurf1D(){}
-
-// //         void setKinetics(InterfaceKinetics* kin);
-
-// //         virtual string componentName(int n) const;
-// //         virtual void init();
-
-// //         virtual void eval(int jg, doublereal* xg, doublereal* rg, 
-// //             integer* diagg, doublereal rdt);
-
-// //         virtual void save(XML_Node& o, doublereal* soln);
-                
-// //     protected:
-
-// //         int m_ilr, m_nsp;
-//         InterfaceKinetics* m_kin;
-//         SurfPhase* m_sphase;
-//         vector_fp m_work;
-//         const doublereal *m_molwt_right, *m_molwt_left; 
-//         int m_start_surf;
-//         vector<ThermoPhase*> m_bulk;
-//         vector<int> m_nbulk;
-//         int m_nsurf;
-//         vector_fp m_mult;
-//         vector<bool> m_do_surf_species;
-//         vector_fp m_fixed_cov;
-//     };
 
 #endif

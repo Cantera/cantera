@@ -22,8 +22,6 @@
 
 #include "utilities.h"
 
-//#include "StoichManager.h"
-
 #include "ReactionStoichMgr.h"
 #include "ThirdBodyMgr.h"
 #include "FalloffMgr.h"
@@ -46,14 +44,15 @@ namespace Cantera {
     class GasKineticsData {
     public:
         GasKineticsData() :
-	    m_logp0(0.0),
-	    m_logc0(0.0),
+	    m_logp_ref(0.0),
+	    m_logc_ref(0.0),
+	    m_logStandConc(0.0),
             m_ROP_ok(false), 
             m_temp(0.0)
             {}
         virtual ~GasKineticsData(){}
 
-        doublereal m_logp0, m_logc0;
+        doublereal m_logp_ref, m_logc_ref, m_logStandConc;
         array_fp m_ropf, m_ropr, m_ropnet;
         array_fp m_rfn_low, m_rfn_high;
         bool m_ROP_ok;
@@ -70,8 +69,8 @@ namespace Cantera {
     /**
      * Kinetics manager for elementary gas-phase chemistry. This
      * kinetics manager implements standard mass-action reaction rate
-     * expressions for low-density gases. It assumes that all
-     * stoichiometric coefficients are integers.
+     * expressions for low-density gases.
+     * @ingroup kinetics
      */
 
     class GasKinetics : public Kinetics {
@@ -398,9 +397,6 @@ namespace Cantera {
 
         vector_int m_dn;
         vector_int m_revindex;
-
-        map<int, map<int, doublereal> >  m_rstoich;
-        map<int, map<int, doublereal> >  m_pstoich;
 
         vector<string> m_rxneqn;
 

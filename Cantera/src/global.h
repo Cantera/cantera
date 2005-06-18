@@ -1,9 +1,10 @@
 /**
  * @file global.h
  *
- * These functions handle various utility functions, and store some parameters in 
+ * These functions handle various utility functions, and store 
+ * some parameters in 
  * global storage that are accessible at all times. 
-8
+ *  
  */
 
 /* $Author$
@@ -36,14 +37,15 @@ namespace Cantera {
     /// Print the error messages to stream f
     void showErrors(ostream& f);
 
+    /// Print the error messages using function writelog.
     void showErrors();
 
     /// Discard the last error message
     void popError();
 
+    /// Find an input file.
     string findInputFile(string name);
 
-    /// Add a directory to the search path
     void addDirectory(string dir);
 
     void appdelete();
@@ -51,59 +53,48 @@ namespace Cantera {
     /// The root directory where Cantera is installed
     string canteraRoot();
 
-    /// Set the temporary file directory. Default: /tmp.
+    /// Set the temporary file directory. The default is to use the 
+    /// directory specified by enviroment variable TMP or TEMP. If neither 
+    /// of these are defined, then the current working directory will be 
+    /// used for temporary files. Call this function to specify some other
+    /// place to put temporary files.
     void setTmpDir(string tmp);
 
     /// The directory where temporary files may be created
     string tmpDir();
 
+    /// Delay time in seconds.
     string sleep();
 
-    /**
-     * Write a diagnostic message to standard output.
-     *
-     * There are several versions of function writelog, each designed
-     * for a particular environment.  One version is designed for use
-     * in C++ programs, or in any environment where messages can be
-     * written to the standard output stream. Other versions are
-     * written specifically for Matlab and for Python, which call
-     * Matlab or Python functions, respectively, to display the
-     * message.  This is particularly important for Matlab, since
-     * everything written to the standard output simply
-     * disappears. For Python, the messages show up, but are not in
-     * the right order if Python scripts also print output. Hence the
-     * need for separate versions.
-     *
-     * The C++ version may be linked to an application by linking in
-     * the library libctcxx.a (-lctcxx). The Python and Matlab
-     * interfaces do not link this library, and instead link to their
-     * own versions of writelog.
-     */ 
-
     void writelog(const string& msg);
+
     void writelog(const char* msg);
 
-    /// write an error message and quit. Like writelog, this is
-    /// specific to each environment. The C++ version calls exit(),
-    /// the Python version throws a Python exception, and the Matlab
-    /// version calls Matlab function error().
     void error(const string& msg);
 
-    /// returns 1 for MATLAB, 2 for Python, and 0 for C++ or Fortran.
+    // returns 1 for MATLAB, 2 for Python, and 0 for C++ or Fortran.
     int userInterface();
 
     void setLogger(Logger* logwriter);
 
-    /**
-     * Return the conversion factor to convert unit string 'unit' to
-     * SI units.
-     */ 
+    /// Return the conversion factor to convert unit string 'unit' to
+    /// SI units.
     doublereal toSI(string unit);
-    doublereal actEnergyToSI(string unit);
-    //
 
+    /// Return the conversion factor to convert activation energy unit
+    /// string 'unit' to Kelvin.
+    doublereal actEnergyToSI(string unit);
+
+    /// Return a pointer to the XML tree for a Cantera input file. 
     XML_Node* get_XML_File(string file);
+
+    /// Close a Cantera input file.
     void close_XML_File(string file);
+
+    void beginLogGroup(string title, int loglevel=1);
+    void addLogEntry(string tag, string value, int loglevel=1);
+    void endLogGroup(int loglevel=1);
+    void write_logfile(string file = "log.html");
 }
 
 #endif

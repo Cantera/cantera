@@ -9,6 +9,8 @@
 .SUFFIXES :
 .SUFFIXES : .c .o .d
 
+do_ranlib = @DO_RANLIB@
+
 # the directory where the Cantera libraries are located
 CANTERA_LIBDIR=@buildlib@
 
@@ -105,7 +107,9 @@ DEPENDS=$(OBJS:.o=.d)
 
 $(LAPACKLIB):  $(OBJS)
 	@ARCHIVE@ $(LAPACKLIB) $(OBJS) > /dev/null
-
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(LAPACKLIB)
+endif
 # ------------------------------------------------
 # Utility Targets
 
@@ -115,7 +119,7 @@ clean:
 
 # depends target
 depends:
-	$(RM) *.d .dependsd
+	$(RM) *.d .depends
 	@MAKE@ .depends
 
 .depends: $(DEPENDS)

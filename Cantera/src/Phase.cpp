@@ -96,6 +96,11 @@ namespace Cantera {
             setMoleFractions(x); setTemperature(t); setDensity(dens);
         }
 
+        void Phase::setState_TNX(doublereal t, doublereal n, 
+            const doublereal* x) {
+            setMoleFractions(x); setTemperature(t); setMolarDensity(n);
+        }
+
         /** Set the temperature (K), density (kg/m^3), and mole fractions. */
         void Phase::setState_TRX(doublereal t, doublereal dens, 
             compositionMap& x) {

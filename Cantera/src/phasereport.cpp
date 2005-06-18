@@ -18,8 +18,12 @@ namespace Cantera {
 
         char p[200];
         string s = "";
-
-        sprintf(p, "\n       temperature    %12.6g  K\n", th.temperature());
+        try {
+            if (th.name() != "") {
+                sprintf(p, " \n  %s:\n", th.name().c_str());
+                s += p;
+            }
+        sprintf(p, " \n       temperature    %12.6g  K\n", th.temperature());
         s += p;
         sprintf(p, "          pressure    %12.6g  Pa\n", th.pressure());
         s += p;
@@ -34,9 +38,13 @@ namespace Cantera {
                 s += p;
                 //}
         }
-
+        doublereal phi = th.electricPotential();
+        if (phi != 0.0) {
+            sprintf(p, "         potential    %12.6g  V\n", phi);
+            s += p;
+        }
         if (show_thermo) {
-        sprintf(p, "\n");
+        sprintf(p, " \n");
         s += p;
         sprintf(p, "                          1 kg            1 kmol\n");
         s += p;
@@ -74,20 +82,26 @@ namespace Cantera {
         if (th.nSpecies() > 1) {
 
             if (show_thermo) {
-                sprintf(p, "\n                           X     "
+                sprintf(p, " \n                           X     "
                     "            Y          Chem. Pot. / RT    \n");
                 s += p;
                 sprintf(p, "                     -------------     "
                     "------------     ------------\n");
                 s += p;
                 for (k = 0; k < kk; k++) {
-                    sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n", 
-                        th.speciesName(k).c_str(), x[k], y[k], mu[k]/rt);
+                    if (x[k] > SmallNumber) {
+                        sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n", 
+                            th.speciesName(k).c_str(), x[k], y[k], mu[k]/rt);
+                    }
+                    else {
+                        sprintf(p, "%18s   %12.6g     %12.6g     \n", 
+                            th.speciesName(k).c_str(), x[k], y[k]);
+                    }
                     s += p;
                 }
             }
             else {
-                sprintf(p, "\n                           X"
+                sprintf(p, " \n                           X"
                     "Y\n");
                 s += p;
                 sprintf(p, "                     -------------"
@@ -100,7 +114,16 @@ namespace Cantera {
                 }
             }
         }
+        }
+        catch (CanteraError) {
+            ;
+        }
         return s;
+    }
+
+    void writephase(const ThermoPhase& th, bool show_thermo) {
+        string s = report(th, show_thermo);
+        writelog(s+"\n");
     }
 
     /**

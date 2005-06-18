@@ -49,7 +49,7 @@ namespace Cantera {
 
 
         /**
-         * @name Molar Thermodynamic Properties
+         * @name Molar Thermodynamic Properties of the Solution ------------------------------
          * @{
          */
 
@@ -67,7 +67,7 @@ namespace Cantera {
          */
         virtual doublereal enthalpy_mole() const {
             return GasConstant * temperature() * 
-                mean_X(enthalpy_RT().begin());
+                mean_X(enthalpy_RT_ref().begin());
         }
 
         /**
@@ -76,16 +76,15 @@ namespace Cantera {
          * \hat u(T) = \sum_k X_k \hat h^0_k(T) - \hat R T,
          * \f]
          * and is a function only of temperature.
-         * The standard-state pure-species enthalpies 
+         * The reference-state pure-species enthalpies 
          * \f$ \hat h^0_k(T) \f$ are computed by the species thermodynamic 
          * property manager.
          * @see SpeciesThermo
          */
         virtual doublereal intEnergy_mole() const {
             return GasConstant * temperature()
-                * ( mean_X(enthalpy_RT().begin()) - 1.0);
+                * ( mean_X(enthalpy_RT_ref().begin()) - 1.0);
         }
-
 
         /**
          * Molar entropy. Units: J/kmol/K.
@@ -93,17 +92,20 @@ namespace Cantera {
          * \f[
          * \hat s(T, P) = \sum_k X_k \hat s^0_k(T) - \hat R \log (P/P^0).
          * \f]
-         * The standard-state pure-species entropies 
+         * The reference-state pure-species entropies 
          * \f$ \hat s^0_k(T) \f$ are computed by the species thermodynamic 
          * property manager.
          * @see SpeciesThermo
          */
         virtual doublereal entropy_mole() const {
-            return GasConstant * (mean_X(entropy_R().begin()) -
+            return GasConstant * (mean_X(entropy_R_ref().begin()) -
                 sum_xlogx() - log(pressure()/m_spthermo->refPressure()));
         }
 
-
+        /**
+         * Molar Gibbs free Energy for an ideal gas.
+         * Units =  J/kmol.
+         */
         virtual doublereal gibbs_mole() const {
             return enthalpy_mole() - temperature() * entropy_mole();
         }
@@ -115,13 +117,13 @@ namespace Cantera {
          * \f[
          * \hat c_p(t) = \sum_k \hat c^0_{p,k}(T).
          * \f]
-         * The standard-state pure-species heat capacities  
+         * The reference-state pure-species heat capacities  
          * \f$ \hat c^0_{p,k}(T) \f$ are computed by the species thermodynamic 
          * property manager.
          * @see SpeciesThermo
          */
         virtual doublereal cp_mole() const {
-            return GasConstant * mean_X(cp_R().begin());
+            return GasConstant * mean_X(cp_R_ref().begin());
         }
 
         /**
@@ -135,9 +137,8 @@ namespace Cantera {
 
         //@}
 
-
         /**
-         * @name Mechanical Equation of State
+         * @name Mechanical Equation of State ------------------------------------------------
          * @{
          */
 
@@ -162,133 +163,267 @@ namespace Cantera {
                 /(GasConstant * temperature()));
         }
 
-        //@}
-
-
-        virtual void getChemPotentials(doublereal* mu) const;
-
-        virtual void getStandardChemPotentials(doublereal* mu0) const {
-            getPureGibbs(mu0);
+        virtual doublereal isothermalCompressibility() const {
+            return -1.0/pressure();
         }
 
-        /**
+        virtual doublereal thermalExpansionCoeff() const {
+            return 1.0/temperature();
+        }
+
+        //@}
+	/**
+	 * @name Chemical Potentials and Activities ------------------------------------------
+	 *     
+	 *
+         * The activity \f$a_k\f$ of a species in solution is
+         * related to the chemical potential by 
+	 * \f[
+	 *  \mu_k(T,P,X_k) = \mu_k^0(T,P)
+         * + \hat R T \log a_k.
+	 *  \f] 
+	 * The quantity \f$\mu_k^0(T,P)\f$ is
+         * the standard state chemical potential at unit activity.
+	 * It may depend on the pressure and the temperature. However,
+	 * it may not depend on the mole fractions of the species 
+	 * in the solution.
+	 *
+	 * The activities are related to the generalized 
+	 * concentrations, \f$\tilde C_k\f$, and standard 
+	 * concentrations, \f$C^0_k\f$, by the following formula:
+	 *
+	 *  \f[
+	 *  a_k = \frac{\tilde C_k}{C^0_k} 
+	 *  \f] 
+	 * The generalized concentrations are used in the kinetics classes
+	 * to describe the rates of progress of reactions involving the
+	 * species. Their formulation depends upons the specification
+	 * of the rate constants for reaction, especially the units used
+	 * in specifying the rate constants. The bridge between the
+	 * thermodynamic equilibrium expressions that use a_k and the
+	 * kinetics expressions which use the generalized concentrations
+	 * is provided by the multiplicative factor of the 
+	 * standard concentrations. 
+	 * @{
+	 */
+
+	/**
          * This method returns the array of generalized
          * concentrations.  For an ideal gas mixture, these are simply
          * the actual concentrations.
          */
         virtual void getActivityConcentrations(doublereal* c) const {
             getConcentrations(c);
-            //for (int k = 0; k < m_kk; k++) if (c[k] < 0.0) c[k] = 0.0;
         }
 
-        /**
+	/**
          * The standard concentration. This is defined as the concentration 
          * by which the generalized concentration is normalized to produce 
          * the activity. Since the activity for an ideal gas mixture is 
          * simply the mole fraction, the standard concentration is 
-         * \f$ P^0/\hat R T \f$.
+         * \f$ P / R T \f$.
          */ 
          virtual doublereal standardConcentration(int k=0) const {
-            return m_p0/(GasConstant * temperature());
+	     double p = pressure();
+	     return p/(GasConstant * temperature());
         }
 
+	/**
+	 * Returns the natural logarithm of the standard 
+	 * concentration of the kth species
+	 */
          virtual doublereal logStandardConc(int k=0) const {
              _updateThermo();
-            return m_logc0;
+	     double p = pressure();
+	     double lc = log (p / (GasConstant * temperature()));
+	     return lc;
         }
 
-        virtual void getPartialMolarEnthalpies(doublereal* hbar) const {
-            const array_fp& _h = enthalpy_RT();
-            doublereal rt = GasConstant * temperature();
-            scale(_h.begin(), _h.end(), hbar, rt);
-        }
+	/** 
+         * Get the array of non-dimensional activity coefficients at
+	 * the current solution temperature, pressure, and
+	 * solution concentration. 
+         *  For ideal gases, the activity coefficients are all equal
+         *  to one.
+         */
+        virtual void getActivityCoefficients(doublereal* ac) const;
 
-        virtual void getPureGibbs(doublereal* gpure) const {
-            const array_fp& gibbsrt = gibbs_RT();
-            scale(gibbsrt.begin(), gibbsrt.end(), gpure, _RT());
-        }
+        /**
+	 *  Get the array of chemical potentials at unit activity \f$
+         * \mu^0_k \f$ at the current temperature and pressure of the
+	 *  solution.
+         *  These are the standard state chemical potentials.
+         */
+        virtual void getStandardChemPotentials(doublereal* muStar) const;
 
-        void getEnthalpy_RT(doublereal* hrt) const {
-            const array_fp& _h = enthalpy_RT();
-            copy(_h.begin(), _h.end(), hrt);
-        }
+  
+       //@}
+        /// @name Partial Molar Properties of the Solution ----------------------------------
+        //@{
 
-        void getEntropy_R(doublereal* sr) const {
-            const array_fp& _s = entropy_R();
-            copy(_s.begin(), _s.end(), sr);
-        }
+        /**
+         * Get the species chemical potentials. Units: J/kmol.
+	 *
+	 * This function returns a vector of chemical potentials of the 
+	 * species in solution at the current temperature, pressure
+	 * and mole fraction of the solution.
+         */
+        virtual void getChemPotentials(doublereal* mu) const;
+ 
+	/**
+	 * Get the array of partial molar enthalpies
+	 * units = J / kmol
+	 */
+        virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
 
-        virtual void getGibbs_RT(doublereal* grt) const {
-            const array_fp& gibbsrt = gibbs_RT();
-            copy(gibbsrt.begin(), gibbsrt.end(), grt);
-        }
+        /**
+         * Returns an array of partial molar entropies of the species in the
+	 * solution. Units: J/kmol.
+         */
+        virtual void getPartialMolarEntropies(doublereal* sbar) const;
 
-        void getCp_R(doublereal* cpr) const {
-            const array_fp& _cpr = cp_R();
-            copy(_cpr.begin(), _cpr.end(), cpr);
-        }
+	/**
+	 * Get the array of partial molar volumes
+	 * units = m^3 / kmol
+	 */
+	virtual void getPartialMolarVolumes(doublereal* vbar) const;
+
+        //@}
+        /// @name  Properties of the Standard State of the Species in the Solution ----------
+        //@{
+
+        /**
+         * Get the nondimensional Enthalpy functions for the species
+         * at their standard states at the current
+	 *  <I>T</I> and <I>P</I> of the solution.
+         */
+        virtual void getEnthalpy_RT(doublereal* hrt) const;
+
+        /**
+         * Get the array of nondimensional Enthalpy functions for the 
+	 * standard state species
+         * at the current <I>T</I> and <I>P</I> of the solution.
+         */
+        virtual void getEntropy_R(doublereal* sr) const;
+
+        /**
+         * Get the nondimensional gibbs function for the species
+         * standard states at the current T and P of the solution.
+         */
+        virtual void getGibbs_RT(doublereal* grt) const;
+
+	/**
+	 * Get the Gibbs functions for the pure species
+         * at the current <I>T</I> and <I>P</I> of the solution.
+	 */
+	virtual void getPureGibbs(doublereal* gpure) const;
+
+        /**
+         * Get the nondimensional heat capacity at constant pressure
+	 * function for the species
+         * standard states at the current T and P of the solution.
+         */
+        virtual void getCp_R(doublereal* cpr) const;
+
+	//@}
+        /// @name Thermodynamic Values for the Species Reference States ---------------------
+	//@{
+
+	/**
+	 *  Returns the vector of nondimensional
+	 *  enthalpies of the reference state at the current temperature
+	 *  and reference presssure for the species
+	 */
+        virtual void getEnthalpy_RT_ref(doublereal *hrt) const;
+	/**
+	 *  Returns the vector of nondimensional
+	 *  enthalpies of the reference state at the current temperature
+	 *  and reference pressure for the species.
+	 */
+        virtual void getGibbs_RT_ref(doublereal *grt) const;
+
+	/**
+	 *  Returns the vector of the 
+	 *  gibbs function of the reference state at the current temperature
+	 *  and reference pressure for the species.
+	 *  units = J/kmol
+	 */
+        virtual void getGibbs_ref(doublereal *g) const;
+
+	/**
+	 *  Returns the vector of nondimensional
+	 *  entropies of the reference state at the current temperature
+	 *  and reference pressure for the species.
+	 */
+        virtual void getEntropy_R_ref(doublereal *er) const;
+
+	/**
+	 *  Returns the vector of nondimensional
+	 *  constant pressure heat capacities of the reference state
+	 *  at the current temperature and reference pressure
+	 *  for the species.
+	 */
+        virtual void  getCp_R_ref(doublereal *cprt) const;
 
 
-        virtual doublereal isothermalCompressibility() {
-            return -1.0/pressure();
-        }
+	//@}
+        /// @name New Methods Defined Here  -------------------------------------------------
+	//@{
 
-        virtual doublereal thermalExpansionCoeff() {
-            return 1.0/temperature();
-        }
-
-        // new methods defined here
-
-        const array_fp& enthalpy_RT() const {
+        const array_fp& enthalpy_RT_ref() const {
             _updateThermo();
             return m_h0_RT;
         }
 
-        const array_fp& gibbs_RT() const {
+        const array_fp& gibbs_RT_ref() const {
             _updateThermo();
             return m_g0_RT;
         }
 
-        const array_fp& expGibbs_RT() const {
+        const array_fp& expGibbs_RT_ref() const {
             _updateThermo();
             int k;
             for (k = 0; k != m_kk; k++) m_expg0_RT[k] = exp(m_g0_RT[k]);
             return m_expg0_RT;
         }
 
-        const array_fp& entropy_R() const {
+        const array_fp& entropy_R_ref() const {
             _updateThermo();
             return m_s0_R;
         }
 
-        const array_fp& cp_R() const {
+        const array_fp& cp_R_ref() const {
             _updateThermo();
             return m_cp0_R;
         }
 
-        virtual void setPotentialEnergy(int k, doublereal pe) {
-            m_pe[k] = pe;
-            _updateThermo();
-        }
+//         virtual void setPotentialEnergy(int k, doublereal pe) {
+//             m_pe[k] = pe;
+//             _updateThermo();
+//         }
 
-        virtual doublereal potentialEnergy(int k) const {
-            return m_pe[k];
-        }
+//         virtual doublereal potentialEnergy(int k) const {
+//             return m_pe[k];
+//         }
 
         virtual void initThermo();
 
 
-    /** 
-     * Set mixture to an equilibrium state consistent with specified 
-     * element potentials and temperature.
-     *
-     * @param lambda_RT vector of non-dimensional element potentials
-     * \f[ \lambda_m/RT \f].
-     * @param t temperature in K.
-     * @param work. Temporary work space. Must be dimensioned at least
-     * as large as the number of species. 
-     *
-     */
+	/** 
+         * @internal
+         * @name Chemical Equilibrium
+         * @{
+	 * 
+	 * Set mixture to an equilibrium state consistent with specified 
+	 * element potentials and temperature.
+	 *
+	 * @param lambda_RT vector of non-dimensional element potentials
+	 * \f[ \lambda_m/RT \f].
+	 * @param t temperature in K.
+	 * @param work. Temporary work space. Must be dimensioned at least
+	 * as large as the number of species. 
+	 *
+	 */
         virtual void setToEquilState(const doublereal* lambda_RT);
 
 

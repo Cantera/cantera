@@ -1,7 +1,7 @@
 #include "ReactorNet.h"
 #include "../CVode.h"
 
-namespace Cantera {
+namespace CanteraZeroD {
 
     ReactorNet::ReactorNet() : FuncEval(), m_nr(0), m_nreactors(0),
                                m_integ(0), m_time(0.0), m_init(false), 

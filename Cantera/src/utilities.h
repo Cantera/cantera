@@ -14,7 +14,8 @@
 namespace Cantera {
 
     /**
-     * Maximum of i and j.
+     * Maximum of i and j. If \a i and \a j have different types, \a j
+     * is converted to the type of \a i before the comparison.
      */
     template<class T, class S>
     inline T max(T i, S j) {
@@ -22,7 +23,8 @@ namespace Cantera {
     }
 
     /**
-     * Minimum of i and j.
+     * Minimum of i and j. If \a i and \a j have different types, \a j
+     * is converted to the type of \a i before the comparison.
      */
     template<class T, class S>
     inline T min(T i, S j) {
@@ -31,8 +33,8 @@ namespace Cantera {
 
     /**
      * Inner product of two vectors of length 4. 
-     * If either \i x
-     * or \i y has length greater than 4, only the first 4 elements
+     * If either \a x
+     * or \a y has length greater than 4, only the first 4 elements
      * will be used.
      */
     template<class V>
@@ -42,8 +44,8 @@ namespace Cantera {
 
     /**
      * Inner product of two vectors of length 5.
-     * If either \i x
-     * or \i y has length greater than 5, only the first 5 elements
+     * If either \a x
+     * or \a y has length greater than 5, only the first 5 elements
      * will be used.
      */
     template<class V>
@@ -54,8 +56,8 @@ namespace Cantera {
 
     /**
      * Inner product of two vectors of length 6.
-     * If either \i x
-     * or \i y has length greater than 6, only the first 6 elements
+     * If either \a x
+     * or \a y has length greater than 6, only the first 6 elements
      * will be used.
      */
     template<class V>
@@ -90,6 +92,13 @@ namespace Cantera {
             *__out = scale_factor * *__begin;
     }
 
+    template<class _InputIter, class _OutputIter, class S>
+    inline void increment_scale(_InputIter __begin, _InputIter __end, 
+        _OutputIter __out, S scale_factor) {
+        for (; __begin != __end; ++__begin, ++__out) 
+            *__out += scale_factor * *__begin;
+    }
+
     /**
      * Multiply each entry in x by the corresponding entry in y.
      */
@@ -101,7 +110,7 @@ namespace Cantera {
 
 
     /**
-     * Invoke method 'resize' with argument \i m for a sequence of objects.
+     * Invoke method 'resize' with argument \a m for a sequence of objects.
      */
     template<class _InputIter>
     inline void _resize_each(int m, _InputIter __begin, _InputIter __end) {
@@ -130,7 +139,7 @@ namespace Cantera {
     }
 
     /**
-     * Divide each element of \i x by the corresponding element of \i y.
+     * Divide each element of \a x by the corresponding element of \a y.
      */
     template<class _InputIter, class _OutputIter>   
     inline void divide_each(_OutputIter x_begin, _OutputIter x_end, 
@@ -139,7 +148,7 @@ namespace Cantera {
     }
 
     /**
-     * Increment each entry in \i x by the corresponding entry in \i y.
+     * Increment each entry in \a x by the corresponding entry in \a y.
      */
     template<class _InputIter, class _OutputIter>   
     inline void sum_each(_OutputIter x_begin, _OutputIter x_end, 
@@ -168,25 +177,42 @@ namespace Cantera {
     }
 
     /**
-     * Multiply selected values in a sequence by . x[indx[i]] *= m[i] 
+     * Multiply selected elements in an array by a contiguous 
+     * sequence of multipliers. 
+     * Example:
      * \code
-     * vector<double> multipliers(3), data(20);
-     * vector<int> index(3);
+     * double multipliers[] = {8.9, -2.0, 5.6};
+     * int index[] = {7, 4, 13};
+     * vector_fp data(20);
      * ...
-     * _scatter_mult(multipliers.begin(), multipliers.end(), data.begin(),
-     *               index.begin());
+     * // multiply elements 7, 4, and 13 in data by multipliers
+     * _scatter_mult(multipliers, multipliers + 3, data.begin(),
+     *               index);
      * \endcode
      */
     
     template<class _InputIter, class _RandAccessIter, class _IndexIter>
-    inline void _scatter_mult(_InputIter __begin, _InputIter __end, 
-        _RandAccessIter __result, _IndexIter __index) {
-	for (; __begin != __end; ++__begin, ++__index) {
-            *(__result + *__index) *= *__begin;
+    inline void _scatter_mult(_InputIter __mult_begin, _InputIter __mult_end, 
+        _RandAccessIter __data, _IndexIter __index) {
+	for (; __mult_begin != __mult_end; ++__mult_begin, ++__index) {
+            *(__data + *__index) *= *__mult_begin;
 	}
     }
 
-
+    /**
+     * Divide selected elements in an array by a contiguous 
+     * sequence of divisors.
+     * Example: 
+     * \code
+     * double divisors[] = {8.9, -2.0, 5.6};
+     * int index[] = {7, 4, 13};
+     * vector_fp data(20);
+     * ...
+     * // divide elements 7, 4, and 13 in data by divisors
+     * _scatter_divide(divisors, divisors + 3, data.begin(),
+     *               index);
+     * \endcode
+     */
     template<class _InputIter, class _OutputIter, class _IndexIter>
     inline void _scatter_divide(_InputIter __begin, _InputIter __end, 
         _OutputIter __result, _IndexIter __index) {
@@ -195,6 +221,10 @@ namespace Cantera {
 	}
     }
 
+    /**
+     * Compute \f[ \sum_k x_k \log x_k. \f]. A small number (1.0E-20)
+     * is added before taking the log.
+     */ 
     template<class _InputIter>  
     inline doublereal _sum_xlogx(_InputIter __begin, _InputIter __end) {
 	doublereal sum = 0.0;
@@ -202,8 +232,12 @@ namespace Cantera {
             sum += (*__begin) * log(*__begin + Tiny);
 	}
 	return sum;
-    }    
+    }
 
+    /**
+     * Compute \f[ \sum_k x_k \log Q_k. \f]. A small number (1.0E-20)
+     * is added before taking the log.
+     */ 
     template<class _InputIter1, class _InputIter2>  
     inline doublereal _sum_xlogQ(_InputIter1 __begin, _InputIter1 __end,
                _InputIter2 _Q_begin) {

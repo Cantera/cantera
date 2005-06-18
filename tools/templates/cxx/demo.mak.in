@@ -21,7 +21,7 @@ OBJS = demo.o
 
 # additional flags to be passed to the linker. If your program
 # requires other external libraries, put them here
-LINK_OPTIONS = @LCXX_FLAGS@
+LINK_OPTIONS = @LCXX_FLAGS@ @EXTRA_LINK@
 
 #---------------------------------------------------------------------------
 # You probably don't need to edit anything below.
@@ -34,6 +34,9 @@ CXX_FLAGS = @CXXFLAGS@
 
 # external libraries
 EXT_LIBS = @LOCAL_LIBS@ -lctcxx
+
+# Ending C++ linking libraries
+LCXX_END_LIBS = @LCXX_END_LIBS@
 
 # the directory where the Cantera libraries are located
 CANTERA_LIBDIR=@ct_libdir@
@@ -55,7 +58,9 @@ DEPENDS = $(OBJS:.o=.d)
 all: $(PROGRAM)
 
 $(PROGRAM): $(OBJS)
-	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXXFLAGS) $(CANTERA_LIBS) $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ @FLIBS@
+	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXXFLAGS)\
+        $(CANTERA_LIBS) $(LINK_OPTIONS) $(EXT_LIBS) \
+         @LIBS@ @FLIBS@  $(LCXX_END_LIBS)
 
 %.d:
 	g++ -MM -I$(CANTERA_INCDIR) $*.cpp > $*.d

@@ -4,14 +4,12 @@
 """
 
 import types
+import _cantera
 from constants import *
 from exceptions import *
 from gases import *
 from set import set
 from importFromFile import *
-
-from mixture import Mixture
-from num import *
 
 def writeCSV(f, list):
     """
@@ -40,17 +38,25 @@ def table(keys, values):
 
 def getCanteraError():
     """Return the Cantera error message, if any."""
-    import _cantera
     return _cantera.get_Cantera_Error() 
 
 def refCount(a):
     """Return the reference count for an object."""
-    import _cantera
     return _cantera.ct_refcnt(a)
 
 def addDirectory(dir):
     """Add a directory to search for Cantera data files."""
-    import _cantera
     return _cantera.ct_addDirectory(dir)
 
+def writeLogFile(file):
+    return _cantera.ct_writelogfile(file)
+
+# workaround for case problems in CVS repository file Mixture.py. On some
+# systems it appears as mixture.py, and on others as Mixture.py
+try:
+    from Mixture import Mixture
+except:
+    from mixture import Mixture
+    
+from num import *
 

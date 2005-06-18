@@ -55,7 +55,7 @@ class BurnerFlame(Stack):
         t0 = self.burner.temperature()
         
         # get adiabatic flame temperature and composition
-        gas.equilibrate('HP')
+        gas.equilibrate('HP',solver=1)
         teq = gas.temperature()
         yeq = gas.massFractions()
         u1 = self.burner.mdot()/gas.density()

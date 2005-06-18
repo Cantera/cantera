@@ -1,11 +1,14 @@
 # $License$
 #
+# $Id$
+#
 #/bin/sh
+.SUFFIXES :
+.SUFFIXES : .f .d .o
 
 LIB = @buildlib@/librecipes.a
 
-SUFFIXES=
-SUFFIXES= .f .d .o
+do_ranlib = @DO_RANLIB@
 
 F_FLAGS = @FFLAGS@ @F77FLAGS@
 
@@ -17,6 +20,9 @@ all:  $(LIB)
 
 $(LIB): $(OBJS)
 	@ARCHIVE@ $(LIB) $(OBJS) > /dev/null
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(LIB)
+endif
 
 %.o : %.f
 	@F77@ -c $< $(F_FLAGS)

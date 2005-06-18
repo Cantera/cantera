@@ -96,4 +96,10 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 //--------------------- compile options ----------------------------
 #undef USE_PCH
 
+//--------------------- optional phase models ----------------------
+#undef WITH_METAL
+#undef WITH_LATTICE_SOLID
+#undef WITH_STOICH_SUBSTANCE
+#undef WITH_PURE_FLUIDS
+
 #endif

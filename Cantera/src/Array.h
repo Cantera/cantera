@@ -174,7 +174,6 @@ namespace Cantera {
         /// Return a const reference to the data vector
         const vector_fp& data() const { return m_data; }
 
-
 	/// Return a pointer to the top of column j, columns are contiguous
 	/// in memory
 	doublereal * ptrColumn(int j) { return &(m_data[m_nrows*j]); }

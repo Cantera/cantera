@@ -2,7 +2,7 @@
 #define CTC_CT_H
 
 #include "clib_defs.h"
-#include "../../../config.h"
+#include "../../src/config.h"
 
 extern "C" {
 
@@ -13,6 +13,7 @@ extern "C" {
     double DLL_IMPORT phase_density(int n);
     int DLL_IMPORT phase_setDensity(int n, double rho);
     double DLL_IMPORT phase_molarDensity(int n);
+    int DLL_IMPORT phase_setMolarDensity(int n, double ndens);
     double DLL_IMPORT phase_meanMolecularWeight(int n);
     double DLL_IMPORT phase_moleFraction(int n, int k);
     double DLL_IMPORT phase_massFraction(int n, int k);
@@ -28,10 +29,14 @@ extern "C" {
     int DLL_IMPORT phase_getMolecularWeights(int n, int lenm, double* mw);
     int DLL_IMPORT phase_getElementName(int n, int k, int lennm, char* nm);
     int DLL_IMPORT phase_getSpeciesName(int n, int m, int lennm, char* nm);
+    int DLL_IMPORT phase_getName(int n, int lennm, char* nm);
+    int DLL_IMPORT phase_setName(int n, const char* nm);
     int DLL_IMPORT phase_elementIndex(int n, char* nm);
     int DLL_IMPORT phase_speciesIndex(int n, char* nm);
     int DLL_IMPORT phase_report(int nth, 
         int ibuf, char* buf, int show_thermo);
+    int DLL_EXPORT write_phase(int nth, int show_thermo);
+
     double DLL_IMPORT phase_nAtoms(int n, int k, int m);
 
     int DLL_IMPORT phase_addElement(int n, char* name, double weight);
@@ -75,7 +80,8 @@ extern "C" {
     int DLL_IMPORT th_set_UV(int n, double* vals);
     int DLL_IMPORT th_set_SV(int n, double* vals);
     int DLL_IMPORT th_set_SP(int n, double* vals);
-    int DLL_IMPORT th_equil(int n, int XY);
+    int DLL_IMPORT th_equil(int n, int XY, int solver,
+        double rtol, int maxsteps, int loglevel);
     
 #ifdef INCL_PURE_FLUIDS
     double DLL_IMPORT th_critTemperature(int n);
@@ -153,7 +159,8 @@ extern "C" {
         int ith, int ikin);
 
     int DLL_IMPORT ck_to_cti(char* in_file, char* db_file,
-        char* tr_file, char* id_tag);
+        char* tr_file, char* id_tag, int debug, int validate);
+    int DLL_IMPORT writelogfile(char* logfile);
 }
 
 #endif

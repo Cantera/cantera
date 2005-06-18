@@ -2,7 +2,9 @@
  *  @file BandMatrix.h 
  *
  *  Banded matrices.
- *
+ */
+
+/*
  *  $Author$
  *  $Revision$
  *  $Date$
@@ -33,7 +35,7 @@ namespace Cantera {
 
         /// copy constructor
         BandMatrix(const BandMatrix& y);
-
+        
         /// Destructor. Does nothing.
         virtual ~BandMatrix(){}
 
@@ -55,6 +57,9 @@ namespace Cantera {
             return value(i,j);
         }
 
+        /// Return a reference to element (i,j). Since this method may 
+        /// alter the element value, it may need to be refactored, so 
+        /// the flag m_factored is set to false.
         doublereal& value( int i, int j) {
             m_factored = false;
             if (i < j - m_ku || i > j + m_kl) {
@@ -64,26 +69,36 @@ namespace Cantera {
             return data[index(i,j)];
         }
 
+        /// Return the value of element (i,j). This method does not
+        /// alter the array.
         doublereal value( int i, int j) const {
             if (i < j - m_ku || i > j + m_kl) return 0.0;
             return data[index(i,j)];
         }
 
+        /// Return the location in the internal 1D array corresponding to 
+        /// the (i,j) element in the banded array.
         int index(int i, int j) const {
             int rw = m_kl + m_ku + i - j;
             return (2*m_kl + m_ku + 1)*j + rw;
         }
             
+        /// Return the value of the (i,j) element for (i,j) within the 
+        /// bandwidth. For efficiency, this method does not check that
+        /// (i,j) are within the bandwidth; it is up to the calling
+        /// program to insure that this is true. 
         doublereal _value(int i, int j) const {
             return data[index(i,j)];
         }
 
         /// Number of rows
         int nRows() const { return m_n; }
+        /// @deprecated Redundant.
         int rows() const { return m_n; }
 
         /// Number of columns
         int nColumns() const { return m_n; }
+        /// @deprecated Redundant.
         int columns() const { return m_n; }
 
         /// Number of subdiagonals

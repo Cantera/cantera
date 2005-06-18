@@ -11,7 +11,6 @@
 
 build_f90=@BUILD_F90@
 build_python=@BUILD_PYTHON@
-build_particles=@BUILD_PARTICLES@
 build_matlab = @BUILD_MATLAB@
 
 all:
@@ -20,9 +19,6 @@ all:
 	cd clib/src; @MAKE@
 ifeq ($(build_f90),1)
 	cd fortran/src; @MAKE@
-endif
-ifeq ($(build_particles),1)
-	cd cads; @MAKE@
 endif
 
 clean:

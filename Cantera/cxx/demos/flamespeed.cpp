@@ -78,7 +78,8 @@ int flamespeed(int np, void* p) {
 
     //-------- step 1: create the flow -------------
 
-    AxiStagnFlow flow(&gas);
+    //AxiStagnFlow flow(&gas);
+    FreeFlame flow(&gas);
 
     // create an initial grid
     int nz=5;
@@ -123,7 +124,7 @@ int flamespeed(int np, void* p) {
     domains.push_back(&flow);
     domains.push_back(&outlet);
 
-    OneDim flamesim(domains);
+    //    OneDim flamesim(domains);
 
     Sim1D flame(domains);
 
@@ -172,9 +173,9 @@ int flamespeed(int np, void* p) {
     bool refine_grid = true;
 
     /* Solve species*/
-    flow.fixTemperature();
-    refine_grid=false;
-    flame.solve(loglevel,refine_grid);
+    //flow.fixTemperature();
+    //refine_grid=false;
+    //flame.solve(loglevel,refine_grid);
 
     /* Solve freely propagating flame*/
 
@@ -183,12 +184,14 @@ int flamespeed(int np, void* p) {
        location will then be fixed for remainder of
        calculation.*/
 
-
-    flow.solveEnergyEqn();
-    refine_grid=true;
+    flow.fixTemperature();
+    refine_grid=false;
     flame.setFixedTemperature(900.0);
-    flame.setAdiabaticFlame();
-    flame.solve(loglevel=1,refine_grid);
+    //    flame.setAdiabaticFlame();
+    flame.solve(loglevel,refine_grid);
+    refine_grid = true;
+    flow.solveEnergyEqn();
+    flame.solve(loglevel,refine_grid);
 
     int np=flow.nPoints();
     vector<doublereal> zvec,Tvec,COvec,CO2vec,Uvec;

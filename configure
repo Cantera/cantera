@@ -1,10 +1,5 @@
 #!/bin/sh
 #
-# $Source$
-# $Author$
-# $Revision$
-# $Date$
-#
 #######################################################################
 #
 #           Cantera Configuration File
@@ -34,45 +29,12 @@ CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
 
 
 #----------------------------------------------------------------------
-#         MS-Windows Options
-#----------------------------------------------------------------------
-#
-#  These options only need to be set if you are building Cantera on 
-#  a Windows PC. 
-#
-#  Cantera will be installed by default in c:\cantera. Change this to
-#  install it somewhere else. Use forward slashes in the path name.
-CANTERA_INSTALL_DIR=${CANTERA_INSTALL_DIR:="c:/cantera"}
- 
-#  On a PC running MS-Windows, Cantera can be built either using
-#  Microsoft Visual Studio, with the Visual C++ and (optionally)
-#  Visual Fortran compilers, or using the linux-like cygwin
-#  environment with the g++ and g77 compilers. Set this to "y" to use
-#  Visual Studio.
-USE_VISUAL_STUDIO=${USE_VISUAL_STUDIO:="y"}
-
-#  If you are using Visual Studio, set this to the location of the
-# directory containing the Fortran libraries. This is only needed to
-# build the Matlab interface. 
-FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
-
-#
-# If you are using Visual Studio, set this variable to indicates 
-# whether you want to use DLL's. Note you need this for MSVCv7.0
-# but this is turned off for MSVCv6.0
-# USE_DLL=yes
-
-#----------------------------------------------------------------------
 #         Language Interfaces
 #----------------------------------------------------------------------
 #
 # Cantera has several programming language interfaces. Select the ones
 # you want to build. The default is to try to build all language
-# interfaces.  The Python interface will be built by default, the
-# MATLAB interface will too if MATLAB is found, the Fortran 90/95
-# interface will be built if a Fortran 90/95 compiler is found on your
-# system. You can customize these defaults by setting parameters in
-# this section.
+# interfaces.
 #
 #
 #----------------- Python --------------------------------------------
@@ -85,17 +47,19 @@ FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
 # Cantera.
 #
 # If you plan to work in Python, or you want to use the graphical
-# MixMaster application, then you need the Cantera Python Package. If,
-# on the other hand, you will only use Cantera from some other
-# language (e.g. MATLAB or Fortran 90/95) and only need Python to
-# process .cti files, then you only need a minimal subset of the
+# MixMaster application, then you need the full Cantera Python
+# Package. If, on the other hand, you will only use Cantera from some
+# other language (e.g. MATLAB or Fortran 90/95) and only need Python
+# to process .cti files, then you only need a minimal subset of the
 # package (actually, only one file).
 
-# Set PYTHON_PACKAGE to one of these two strings:
+# Set PYTHON_PACKAGE to one of these three strings:
 #    full      install everything needed to use Cantera from Python
 #    minimal   install only enough to process .cti files
+#    default   try to do a full installation, but fall back to a minimal
+#              one in case of errors
 
-PYTHON_PACKAGE=${PYTHON_PACKAGE:="full"}
+PYTHON_PACKAGE=${PYTHON_PACKAGE:="default"}
 
 
 # Cantera needs to know where to find the Python interpreter.  If
@@ -107,9 +71,19 @@ PYTHON_CMD=${PYTHON_CMD:="default"}
 
 # The Cantera Python interface can be built with either the numarray
 # or Numeric packages. Set this to "y" to use Numeric, or anything
-# else to use numarray.
-USE_NUMERIC=${USE_NUMERIC:="n"}
- 
+# else to use numarray. Using numarray is preferred.
+USE_NUMERIC=${USE_NUMERIC:="default"}
+
+# If numarray was installed using the --home option, set this to the
+# home directory for numarray.
+# NUMARRAY_HOME=${NUMARRAY_HOME:="$HOME/python_modules"}
+
+# If you want to install the Cantera Python package somewhere other
+# than the default 'site-packages' directory within the Python library
+# directory, then set this to the desired directory. This is useful when
+# you do not have write access to the Python library directory. 
+# CANTERA_PYTHON_HOME=${CANTERA_PYTHON_HOME:="$HOME/python_modules"}
+  
 # Set this to 'y' when site packages must be put in system directories
 # but Cantera tutorials must be put in user space.  An alternative to
 # doing this is to put everything in user space by running this script
@@ -119,6 +93,7 @@ USE_NUMERIC=${USE_NUMERIC:="n"}
 SET_PYTHON_SITE_PACKAGE_TOPDIR=${SET_PYTHON_SITE_PACKAGE_TOPDIR:="n"}
 
 PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"} 
+
 
 
 #----------- MATLAB --------------------------------------------------
@@ -136,7 +111,6 @@ PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"}
 #
 # Note that you may need to run 'mex -setup' within MATLAB to
 # configure it for your C++ compiler before running this script.
-
 BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="default"}
 
                                                                   
@@ -153,18 +127,19 @@ BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="default"}
 #      "n"          Do not build the Fortran 90/95 interface, even if a 
 #                   Fortran 90/95 compiler is installed.
 
-BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="n"}
+BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="default"}
 
-
-# The Fortran 90/95 compiler. 
-F90=${F90:=f95}
+# The Fortran 90/95 compiler. If set to "default", the script will
+# look for a Fortran 90/95 compiler on your system by the name of
+# "f95", "gfortran", or "g95".
+F90=${F90:="default"}
 
 # Compiler option flags for the Fortran 90/95 compiler. If you are
 # using the Absoft or the NAG compiler, additional options specific to
 # these compilers will be added automatically, and you do not need to
 # specify them here.  Otherwise, add any required compiler-specific
 # flags here.
-F90FLAGS=${F90FLAGS:='-O2'}
+F90FLAGS=${F90FLAGS:='-O3 -g'}
 
 
 #----------------------------------------------------------------------
@@ -201,10 +176,16 @@ USER_SRC_DIR="Cantera/user"  # don't change this
 # thermodynamic properties 
 ENABLE_THERMO='y'
 
+# optional phase types. These 
+WITH_LATTICE_SOLID='y'
+WITH_METAL='y'
+WITH_STOICH_SUBSTANCE='y'
+WITH_PURE_FLUIDS='y'
+
 # if set to 'y', the ck2cti program that converts Chemkin input files
 # to Cantera format will be built. If you don't use Chemkin format
 # files, or if you run ck2cti on some other machine, you can set this to 'n'. 
-ENABLE_CK='y'              
+ENABLE_CK='y'
 
 # homogeneous and heterogeneous kinetics
 ENABLE_KINETICS='y'
@@ -248,7 +229,8 @@ ENABLE_TPX='y'
 # (The settings shown here are appropriate if you are using the ATLAS
 # libraries.)
 #
-#BLAS_LAPACK_LIBS='-llapack -lf77blas -lcblas -latlas'
+#BLAS_LAPACK_LIBS='-llapack -lblas'
+#'-llapack -lf77blas -lcblas -latlas'
 #BLAS_LAPACK_DIR='/usr/lib'
 #
 #
@@ -279,11 +261,11 @@ CXX=${CXX:=g++}
 CC=${CC:=gcc}
 
 # C++ compiler flags
-CXXFLAGS=${CXXFLAGS:="-O2 -g -Wall"}
+CXXFLAGS=${CXXFLAGS:="-O3 -Wall"}
 
 # the C++ flags required for linking. Uncomment if additional flags
 # need to be passed to the linker.
-#LCXX_FLAGS="-framework vecLib"   
+#LCXX_FLAGS="-framework Accelerate"   
 
 # Ending libraries to tack onto the linking of all C++ programs
 LCXX_END_LIBS=${LCXX_END_LIBS:="-lm"}
@@ -323,11 +305,11 @@ F77=${F77:=g77}
 
 # Fortran 77 compiler flags. Note that the Fortran compiler flags must be set
 # to produce object code compatible with the C/C++ compiler you are using.
-FFLAGS=${FFLAGS:='-O2 -g'}
+FFLAGS=${FFLAGS:='-O3 -g'}
 
 # the additional Fortran flags required for linking, if any. Leave commented
 # out if no additional flags are required.
-#LFORT_FLAGS="-lF77 -lFI77"
+LFORT_FLAGS="-lcc_dynamic"
 
 
 #------------------------------------------------------
@@ -361,8 +343,7 @@ CT_SHARED_LIB=${CT_SHARED_LIB:=clib}
 RPFONT=${RPFONT:="Helvetica"}
 
  
-CANTERA_VERSION=${CANTERA_VERSION:="1.5.5r3"}
-
+CANTERA_VERSION=${CANTERA_VERSION:="1.6.0"}
 
 #-----------------------------------------------------------------------
 #------------------- don't change anything below!! ---------------------
@@ -426,6 +407,13 @@ export USE_VISUAL_STUDIO
 export FORTRAN_LIB_DIR
 export CANTERA_INSTALL_DIR
 export USE_NUMERIC
+export NUMARRAY_HOME
+export CANTERA_PYTHON_HOME
+
+export WITH_LATTICE_SOLID
+export WITH_METAL
+export WITH_STOICH_SUBSTANCE
+export WITH_PURE_FLUIDS
 
 cd config
 chmod +x ./configure 
@@ -446,5 +434,40 @@ fi
 # run the configure command in the config directory
 #
 ./configure $CCPREFIX $1 $2 $3 $4
+
+#-------------- deprecated options ------------------------------------
+#
+#----------------------------------------------------------------------
+#         MS-Windows Options
+#----------------------------------------------------------------------
+#
+#  These options only need to be set if you are building Cantera on 
+#  a Windows PC. 
+#
+#  NOTE: These options are now deprecated. You should build Cantera
+#  using Visual Studio .NET on Windows PCs, and not use this script
+#  unless you are doing a unix-like build using cygwin.
+#
+#  Cantera will be installed by default in c:\cantera. Change this to
+#  install it somewhere else. Use forward slashes in the path name.
+#CANTERA_INSTALL_DIR=${CANTERA_INSTALL_DIR:="c:/cantera"}
+ 
+#  On a PC running MS-Windows, Cantera can be built either using
+#  Microsoft Visual Studio, with the Visual C++ and (optionally)
+#  Visual Fortran compilers, or using the linux-like cygwin
+#  environment with the g++ and g77 compilers. Set this to "y" to use
+#  Visual Studio.
+#USE_VISUAL_STUDIO=${USE_VISUAL_STUDIO:="y"}
+
+#  If you are using Visual Studio, set this to the location of the
+# directory containing the Fortran libraries. This is only needed to
+# build the Matlab interface. 
+#FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
+
+#
+# If you are using Visual Studio, set this variable to indicates 
+# whether you want to use DLL's. Note you need this for MSVCv7.0
+# but this is turned off for MSVCv6.0
+# USE_DLL=yes
 
 

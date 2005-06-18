@@ -13,18 +13,19 @@ namespace Cantera {
     // species thermo types
     const int cNASA = 1;
     const int cShomate = 2;
+    const int cNASA96 = 3;
 
     /**
      * Equation of state types:
      *
-     *     These types are used in the member function eosType()
-     *  of the virtual base class ThermoPhase. They are used to
-     *  distinguish different types of equation of states. And,
-     *  they may be used for upcasting from the ThermoPhase class.
-     *  Their id's should be distinct.
+     *  These types are used in the member function eosType() of
+     *  the virtual base class ThermoPhase. They are used to
+     *  distinguish different types of equation of states. Also, they
+     *  may be used for upcasting from the ThermoPhase class.  Their
+     *  id's should be distinct.
      *
      *  Users who wish to define their own equation of states which
-     *  inherit from ThermoPhase should define a unique id which
+     *  derive from ThermoPhase should define a unique id which
      *  doesn't conflict with those listed below. The Cantera Kernel
      *  however, will not be know about the class and will therefore
      *  not be able to initialize the class within its "factory"
@@ -32,14 +33,20 @@ namespace Cantera {
      */
     const int cIdealGas = 1;       //  IdealGasPhase in IdealGasPhase.h
     const int cIncompressible = 2; //  ConstDensityThermo in ConstDensityThermo.h
-    const int cSurf = 3;           //  SurfPhase in SurfPhase.h 
+    /// A surface phase. Used by class SurfPhase.
+    const int cSurf = 3;           
+
+    /// A metal phase. 
     const int cMetal = 4;          //  MetalPhase in MetalPhase.h
     //    const int cSolidCompound = 5;  //  SolidCompound in SolidCompound.h
     const int cStoichSubstance = 5; // StoichSubstance.h
-    
+
+    const int cLatticeSolid = 20; // LatticeSolidPhase.h
+
     // pure fluids with liquid/vapor eqs of state
     const int cPureFluid = 10;
-    
+
+    /// An edge between two 2D surfaces    
     const int cEdge = 6;
 
     // kinetic manager types

@@ -102,5 +102,5 @@ figure(2);
 ioh = speciesIndex(gas,'OH');
 plot(pv(1,:),pv(4+ioh,:));
 xlabel('time');
-ylabel('Mole Fraction');
-title('OH Mole Fraction');
+ylabel('Mass Fraction');
+title('OH Mass Fraction');

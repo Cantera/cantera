@@ -25,9 +25,15 @@ namespace Cantera {
 
 
     /**
-     *  A viewer for 2D arrays stored in column-major
-     *  (Fortran-compatible) form. This class is simply an interface
-     *  to data stored in an external array.
+     *  An interface for 2D arrays stored in column-major
+     *  (Fortran-compatible) form. This class is designed for
+     *  situations when you have a Fortran-compatible 2D array that
+     *  you want to be able to easily get/set individual elements or
+     *  entire rows or columns.  Instances of ArrayViewer store only a
+     *  pointer to the first element in the array; no copy is made of
+     *  the array.  @todo This class should probably be renamed, since
+     *  it not only views, but also can modify, array elements. This
+     *  class is hardly used; candidate for removal.
      */
     class ArrayViewer {
 
@@ -38,7 +44,7 @@ namespace Cantera {
 
 
         /**
-         * Default constructor. Create an empty array.
+         * Default constructor. Create an empty array viewer.
          */
         ArrayViewer() : m_nrows(0), m_ncols(0) { data = 0; }
 
@@ -91,7 +97,10 @@ namespace Cantera {
         doublereal& operator()( int i, int j) {return value(i,j);}
         doublereal operator() ( int i, int j) const {return value(i,j);}
 
+        /// Return a reference to the (i,j) array element.
         doublereal& value( int i, int j) {return data[m_nrows*j + i];}
+
+        /// Return the value of the (i,j) array element.
         doublereal value( int i, int j) const {return data[m_nrows*j + i];}
 
         /// Number of rows
@@ -126,10 +135,12 @@ namespace Cantera {
         return s;
     }
 
+    /// Multiply the array by a constant.
     inline void operator*=(ArrayViewer& m, doublereal a) {
         scale(m.begin(), m.end(), m.begin(), a);
     }
 
+    /// Increment the entire array by a constant.
     inline void operator+=(ArrayViewer& x, const ArrayViewer& y) {
         sum_each(x.begin(), x.end(), y.begin());
     }

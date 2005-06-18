@@ -35,8 +35,14 @@ namespace Cantera {
 
     public:
 
+        /// Constructor.
         SurfPhase(doublereal n0 = 0.0);
+
+        /// Destructor.
         virtual ~SurfPhase();
+
+        //----- reimplimented methods of class ThermoPhase ------
+
         virtual int eosType() const { return cSurf; }
         virtual doublereal enthalpy_mole() const;
         virtual doublereal intEnergy_mole() const;
@@ -53,24 +59,20 @@ namespace Cantera {
         void setPotentialEnergy(int k, doublereal pe);
         doublereal potentialEnergy(int k) {return m_pe[k];}
         void setSiteDensity(doublereal n0);
-        //void setElectricPotential(doublereal V);
 
         void getEnthalpy_RT(doublereal* hrt) const;
         void getEntropy_R(doublereal* sr) const;
 
-	/**
-         * Pressure. Units: Pa.
-         */ 
         virtual doublereal pressure() const {
             return m_press;
         }
-	
-        /**
-         * Set the pressure at constant temperature. Units: Pa.
-         */
+
         virtual void setPressure(doublereal p) {
             m_press = p;
         }
+
+
+        //------- new methods defined in this class ----------
 
         /**
          * Set the surface site fractions to a specified 
@@ -86,8 +88,24 @@ namespace Cantera {
 	 *                 This is a dimensionless quantity.
          */
         void setCoverages(const doublereal* theta);
+
+        /**
+         * Set the coverages without normalizing them to sum to 1.0.
+         * This may be used when the normalization condition is part
+         * of the system of equations being solved.
+         */
         void setCoveragesNoNorm(const doublereal* theta);
+
+        /**
+         * Set the coverages from a string of colon-separated
+         * name:value pairs.
+         */
         void setCoveragesByName(string cov);
+
+        /**
+         * Get the coverages. Array theta must be at least as long as
+         * the number of species.
+         */
         void getCoverages(doublereal* theta) const;
 
     protected:

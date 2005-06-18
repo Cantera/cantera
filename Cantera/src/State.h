@@ -24,15 +24,22 @@
 namespace Cantera {
 
     /**
-     * Manages the thermodynamic state. Class State manages the
-     * thermodynamic state of a multi-species solution. It holds
-     * values for the temperature, mass density, and mean molecular
-     * weight, and a vector of species mass fractions. For efficiency
-     * in mass/mole conversion, the vector of mass fractions divided
-     * by molecular weight \f$ Y_k/M_k \f$ is also stored.
+     * Manages the thermodynamic state. Class State stores just enough
+     * information about a multicomponent solution to specify its
+     * intensive thermodynamic state.  It stores values for the
+     * temperature, mass density, and an array of species mass
+     * fractions. It also stores an array of species molecular
+     * weights, which are used to convert between mole and mass
+     * representations of the composition. These are the \e only
+     * properties of the species that class State knows about.  For
+     * efficiency in mass/mole conversion, the vector of mass
+     * fractions divided by molecular weight \f$ Y_k/M_k \f$ is also
+     * stored.
      *
      * Class State is not usually used directly in application
-     * programs. Its primary use is as a base class for class Phase.
+     * programs. Its primary use is as a base class for class
+     * Phase. Class State has no virtual methods, and none of its
+     * methods are meant to be overloaded.
      */
 
     class State {
@@ -50,11 +57,21 @@ namespace Cantera {
          */
 	virtual ~State();
 
-        /**
-         * Return a read-only reference to the array of molecular
-         * weights.
-         */
+
+        /// @name Species Information
+        /// The only thing class State knows about the species is their
+        /// molecular weights.
+        //@{        
+
+         /// Return a read-only reference to the array of molecular
+         /// weights.
         const array_fp& molecularWeights() const { return m_molwts; }
+
+
+        //@}
+        /// @name Composition
+        //@{
+
 
 	/**
          * Get the species mole fractions.
@@ -89,7 +106,7 @@ namespace Cantera {
         /**
          * Get the species mass fractions.  
          * @param y On return, y
-         * contains the mass fractions. Array \i y must have a length
+         * contains the mass fractions. Array \a y must have a length
          * greater than or equal to the number of species.
          */
 	void getMassFractions(doublereal* y) const;
@@ -115,12 +132,42 @@ namespace Cantera {
 
         /**
          * Get the species concentrations (kmol/m^3).  
-         * @param c On return, \i c contains the concentrations. 
-         * Array \i c must have a length greater than or equal to 
+         * @param c On return, \a c contains the concentrations. 
+         * Array \a c must have a length greater than or equal to 
          * the number of species.
          */
 	void getConcentrations(doublereal* c) const;
 
+	/**
+	 * Set the concentrations to the specified values within the
+	 * phase. 
+	 *
+	 * @param c The input vector to this routine is in dimensional
+	 *        units. For volumetric phases c[k] is the
+	 *        concentration of the kth species in kmol/m3.
+	 *        For surface phases, c[k] is the concentration
+	 *        in kmol/m2. The length of the vector is the number
+	 *        of species in the phase.
+	 */
+	void setConcentrations(const doublereal* c);
+
+	/**
+	 * Returns a pointer to the start of the massFraction array
+	 */
+        const doublereal* massFractions() const { return m_y.begin(); }
+
+	/**
+	 * Returns a pointer to the start of the moleFraction/MW array.
+	 * This array is the array of mole fractions, each divided by
+	 * the mean molecular weight.
+	 */
+	const doublereal* moleFractdivMMW() const { return m_ym.begin();}
+
+
+        //@}
+
+        /// @name Mean Properties
+        //@{
 	/**
          * Evaluate the mole-fraction-weighted mean of Q:
          * \f[ \sum_k X_k Q_k. \f]
@@ -149,65 +196,43 @@ namespace Cantera {
 
 	/// Evaluate \f$ \sum_k X_k \log Q_k \f$.
 	doublereal sum_xlogQ(doublereal* Q) const;
+        //@}
 
-	/// Temperature. Units: K.
+        /// @name Thermodynamic Properties
+        /// Class State only stores enough thermodynamic data to
+        /// specify the state. In addition to composition information, 
+        /// it stores the temperature and
+        /// mass density. 
+        //@{
+
+	/// Temperature (K).
 	doublereal temperature() const { return m_temp; }
 
-	/// Density. Units: kg/m^3.
+	/// Density (kg/m^3).
 	doublereal density() const { return m_dens; }
 
-	/// Molar density. Units: kmol/m^3.
+	/// Molar density (kmol/m^3).
 	doublereal molarDensity() const { 
             return m_dens/meanMolecularWeight(); 
         }
 
-	/// Set the density to value rho (kg/m^3).
-	void setDensity(doublereal rho) {
-            m_dens = rho;
+	/// Set the density (kg/m^3).
+	void setDensity(doublereal density) {
+            m_dens = density;
         }
 
-	/// Set the molar density to value n (kmol/m^3).
-	void setMolarDensity(doublereal n) {
-            m_dens = n*meanMolecularWeight();
+	/// Set the molar density (kmol/m^3).
+	void setMolarDensity(doublereal molarDensity) {
+            m_dens = molarDensity*meanMolecularWeight();
         }
 
-	/// Set the temperature to value temp (K).
+	/// Set the temperature (K).
 	void setTemperature(doublereal temp) {
             m_temp = temp;
         }
+        //@}
 
-	/**
-	 * Set the concentrations to the specified values within the
-	 * phase. This is the MAIN function for internally setting
-	 * the composition of a phase. It sets all of the internal
-	 * parameters within the state object except the temperature. 
-         * These are:
-	 *    m_dens = density of state
-	 *    m_ym[k] = mole fraction of species k / MolecWeight species k
-	 *    m_y[k] = Mass fractions of species k
-	 *    m_mmw = mean molecular weight of mixture
-	 *
-	 * @param The input vector to this routine is in dimensional
-	 *        units. For volumetric phases c[k] is the
-	 *        concentration of the kth species in kmol/m3.
-	 *        For surface phases, c[k] is the concentration
-	 *        in kmol/m2. The length of the vector is the number
-	 *        of species in the phase.
-	 */
-	void setConcentrations(const doublereal* c);
-
-	/**
-	 * Returns a pointer to the start of the massFraction array
-	 */
-        const doublereal* massFractions() const { return m_y.begin(); }
-
-	/**
-	 * Returns a pointer to the start of the moleFraction/MW array.
-	 * This array is the array of mole fractions, each divided by
-	 * the mean molecular weight.
-	 */
-	const doublereal* moleFractdivMMW() const { return m_ym.begin();}
-
+        /// True if species 
         bool ready() const { return (m_kk > 0); }
 
 

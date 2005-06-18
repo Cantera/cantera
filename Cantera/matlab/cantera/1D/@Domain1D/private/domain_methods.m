@@ -10,4 +10,6 @@ elseif nargin == 5
   v = ctmethods(90, n, job, a, b, c);  
 elseif nargin == 6
   v = ctmethods(90, n, job, a, b, c, d); 
+elseif nargin == 7
+  v = ctmethods(90, n, job, a, b, c, d, e);   
 end

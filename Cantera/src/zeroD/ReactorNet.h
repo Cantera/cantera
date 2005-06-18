@@ -22,7 +22,7 @@
 #include "../FuncEval.h"
 #include "../CVode.h"
 
-namespace Cantera {
+namespace CanteraZeroD {
 
 
     class ReactorNet : public FuncEval {

@@ -20,7 +20,10 @@
 
 #include "../ThermoPhase.h"
 
-namespace Cantera {
+using namespace Cantera;
+
+/// Namespace for classes implementing zero-dimensional reactor networks. 
+namespace CanteraZeroD {
 
 //    typedef Thermo   thermo_t;
 

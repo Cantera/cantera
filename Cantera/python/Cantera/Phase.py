@@ -12,6 +12,14 @@ from exceptions import CanteraError
 
 __revision__ = "$Id$"
 
+# return true is x is a sequence
+def _isseq(n, x):
+    try:
+        y = x[n-1]
+        return 1
+    except:
+        return 0
+    
 class Phase:
 
     """Phases of matter.
@@ -224,6 +232,10 @@ class Phase:
     def setDensity(self, rho):
         """Set the density [kg/m3]."""
         _cantera.phase_setfp(self._phase_id,2,rho)
+
+    def setMolarDensity(self, n):
+        """Set the density [kmol/m3]."""
+        _cantera.phase_setfp(self._phase_id,3,n)        
         
     def setMoleFractions(self, x, norm = 1):
         """Set the mole fractions.
@@ -241,9 +253,11 @@ class Phase:
         """
         if type(x) == types.StringType:
             _cantera.phase_setstring(self._phase_id,1,x)
-        else:
+        elif _isseq(self.nSpecies(), x): 
             _cantera.phase_setarray(self._phase_id,1,norm,asarray(x))
-
+        else:
+            raise CanteraError('mole fractions must be a string or array')
+        
             
     def setMassFractions(self, x, norm = 1):
         """Set the mass fractions.
@@ -251,8 +265,11 @@ class Phase:
         """
         if type(x) == types.StringType:
             _cantera.phase_setstring(self._phase_id,2,x)
-        else:        
-            _cantera.phase_setarray(self._phase_id,2,norm,asarray(x))        
+        elif _isseq(self.nSpecies(), x):
+            _cantera.phase_setarray(self._phase_id,2,norm,asarray(x))
+        else:
+            raise CanteraError('mass fractions must be a string or array')
+        
         
     def setState_TRX(self, t, rho, x):
         """Set the temperature, density, and mole fractions. The mole
@@ -263,6 +280,16 @@ class Phase:
         self.setTemperature(t)
         self.setMoleFractions(x)
         self.setDensity(rho)
+
+    def setState_TNX(self, t, n, x):
+        """Set the temperature, molardensity, and mole fractions. The mole
+        fractions may be entered as a string or array,
+        >>> ph.setState_TNX(600.0, 2.0e-3, 'CH4:0.4, O2:0.6')
+        """
+        
+        self.setTemperature(t)
+        self.setMoleFractions(x)
+        self.setMolarDensity(n)        
 
     def setState_TRY(self, t, rho, y):
         """Set the temperature, density, and mass fractions."""        
@@ -293,7 +320,7 @@ class Phase:
                 fs.append(f[k])
             return asarray(fs)
         else:
-            return f
+            return asarray(f)
 
     def selectElements(self, f, elements):
         """Given an array 'f' of floating-point element properties,
@@ -310,5 +337,5 @@ class Phase:
                 fs.append(f[k])
             return asarray(fs)
         else:
-            return f
+            return asarray(f)
 

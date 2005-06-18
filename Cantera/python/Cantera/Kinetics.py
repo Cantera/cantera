@@ -52,17 +52,16 @@ class Kinetics:
             p4 = phases[4].thermophase()
         if np >= 6:
             raise CanteraError("a maximum of 4 neighbor phases allowed")
-        
+
         self.ckin = _cantera.KineticsFromXML(xml_phase,
                                                  p0, p1, p2, p3, p4)
         
         for nn in range(self._np):
-                p = self.phase(nn)
+                p = phases[nn] # self.phase(nn)
                 self._phnum[p.thermophase()] = nn
                 self._end.append(self._end[-1]+p.nSpecies())
                 for k in range(p.nSpecies()):
                     self._sp.append(p.speciesName(k))
-
         
     def __del__(self):
         self.clear()
@@ -141,7 +140,10 @@ class Kinetics:
             nur = _cantera.kin_rstoichcoeff(self.ckin,k,i)
             if nur <> 0.0:
                 if nur <> 1.0:
-                    s += `int(nur)`+' '
+                    if nur <> round(nur):
+                        s += `nur`+' '
+                    else:
+                        s += `int(nur)`+' '
                 s += self._sp[k]+' + '
         s = s[:-2]
         if self.isReversible(i):
@@ -152,7 +154,10 @@ class Kinetics:
             nup = _cantera.kin_pstoichcoeff(self.ckin,k,i)
             if nup <> 0.0:
                 if nup <> 1.0:
-                    s += `int(nup)`+' '
+                    if nup <> round(nup):
+                        s += `nup`+' '
+                    else:                    
+                        s += `int(nup)`+' '
                 s += self._sp[k]+' + '
         s = s[:-2]
         return s

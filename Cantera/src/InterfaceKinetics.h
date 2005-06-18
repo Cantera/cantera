@@ -58,8 +58,9 @@ namespace Cantera {
 
 
     ///
-    ///  A kinetics manager for heterogeneous reaction mechanisms. The reactions are
-    ///  assumed to occur at a 2D interface between two 3D phases.
+    ///  A kinetics manager for heterogeneous reaction mechanisms. The
+    ///  reactions are assumed to occur at a 2D interface between two
+    ///  3D phases.
     ///
     class InterfaceKinetics : public Kinetics {
 
@@ -81,16 +82,7 @@ namespace Cantera {
         /// Destructor.
         virtual ~InterfaceKinetics();
 
-	/**
-	 * Identifies the subclass of the Kinetics manager type.
-	 * These are listed in mix_defs.h.
-	 */
         virtual int ID() { return cInterfaceKinetics; }
-
-	/**
-	 * Identifies the subclass of the kinetics manager type.
-	 * These are listed in mix_defs.h.
-	 */
         virtual int type() { return cInterfaceKinetics; }
 
 	/**
@@ -100,10 +92,11 @@ namespace Cantera {
 	 * @param n phase Index in this kinetics object. 
 	 * @param V Electric potential (volts)
 	 */
-        void setElectricPotential(int n, doublereal V) {
-            thermo(n).setElectricPotential(V);
-            m_redo_rates = true;
-	}
+//         void setElectricPotential(int n, doublereal V) {
+//             thermo(n).setElectricPotential(V);
+//             m_redo_rates = true;
+// 	}
+
 
         ///
         ///  @name Reaction Rates Of Progress
@@ -111,49 +104,21 @@ namespace Cantera {
         //@{ 
 
 
-        /**
-         * Forward rates of progress.
-         * Return the forward rates of progress in array fwdROP, which
-         * must be dimensioned at least as large as the total number
-         * of reactions.
-	 *  Units are kmol/m2/s
-         */
         virtual void getFwdRatesOfProgress(doublereal* fwdROP) { 
             updateROP(); 
             copy(m_kdata->m_ropf.begin(), m_kdata->m_ropf.end(), fwdROP);
         }
 
-
-	/**
-         * Reverse rates of progress.
-         * Return the reverse rates of progress in array revROP, which
-         * must be dimensioned at least as large as the total number
-         * of reactions.
-	 *  Units are kmol/m2/s
-         */
         virtual void getRevRatesOfProgress(doublereal* revROP) { 
             updateROP(); 
             copy(m_kdata->m_ropr.begin(), m_kdata->m_ropr.end(), revROP);
         }
 
-	/**
-         * Net rates of progress.  Return the net (forward - reverse)
-         * rates of progress in array netROP, which must be
-         * dimensioned at least as large as the total number of
-         * reactions.
-	 *  Units are kmol/m2/s
-         */
         virtual void getNetRatesOfProgress(doublereal* netROP) { 
             updateROP(); 
             copy(m_kdata->m_ropnet.begin(), m_kdata->m_ropnet.end(), netROP);
         }
 
-        /**
-         * Equilibrium constants. Return the equilibrium constants of
-         * the reactions in concentration units in array kc, which
-         * must be dimensioned at least as large as the total number
-         * of reactions.
-         */
 	virtual void getEquilibriumConstants(doublereal* kc);
 
 
@@ -228,13 +193,6 @@ namespace Cantera {
             updateROP();
             m_rxnstoich.getCreationRates(m_kk, m_kdata->m_ropf.begin(), 
                 m_kdata->m_ropr.begin(), cdot); 
-            //fill(cdot, cdot + m_kk, 0.0);
-            //m_revProductStoich.incrementSpecies(
-            //    m_kdata->m_ropf.begin(), cdot);
-            //m_irrevProductStoich.incrementSpecies(
-            //    m_kdata->m_ropf.begin(), cdot);
-            //m_reactantStoich.incrementSpecies(
-            //    m_kdata->m_ropr.begin(), cdot);
         }
 
         /**
@@ -249,11 +207,6 @@ namespace Cantera {
             updateROP();
             m_rxnstoich.getDestructionRates(m_kk, m_kdata->m_ropf.begin(), 
                 m_kdata->m_ropr.begin(), ddot); 
-            //            fill(ddot, ddot + m_kk, 0.0);
-            //m_revProductStoich.incrementSpecies(
-            //    m_kdata->m_ropr.begin(), ddot);
-            //m_reactantStoich.incrementSpecies(
-            //    m_kdata->m_ropf.begin(), ddot);
         }
 
 	/**
@@ -265,14 +218,7 @@ namespace Cantera {
          */ 
         virtual void getNetProductionRates(doublereal* net) {
             updateROP();
-            //fill(net, net + m_kk, 0.0);
-            //m_revProductStoich.incrementSpecies(
-            //   m_kdata->m_ropnet.begin(), net);
-            //m_irrevProductStoich.incrementSpecies(
-            //   m_kdata->m_ropnet.begin(), net);
-            //m_reactantStoich.decrementSpecies(
-            //   m_kdata->m_ropnet.begin(), net);
-            m_rxnstoich.getNetProductionRates(m_kk, 
+             m_rxnstoich.getNetProductionRates(m_kk, 
 					      m_kdata->m_ropnet.begin(),
 					      net); 
         }

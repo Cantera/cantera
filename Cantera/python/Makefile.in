@@ -15,7 +15,10 @@ python_site_package_topdir=@python_prefix@
 CANTERA_LIBDIR= @buildlib@
 LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
            $(CANTERA_LIBDIR)/liboneD.a \
-           $(CANTERA_LIBDIR)/libtransport.a
+           $(CANTERA_LIBDIR)/libtransport.a \
+           $(CANTERA_LIBDIR)/libclib.a \
+           $(CANTERA_LIBDIR)/libconverters.a 
+
 WIN_LIB_DEPS = $(CANTERA_LIBDIR)/cantera.lib $(CANTERA_LIBDIR)/zeroD.lib \
            $(CANTERA_LIBDIR)/oneD.lib \
            $(CANTERA_LIBDIR)/transport.lib
@@ -40,7 +43,7 @@ all: _build
 
 win: _winbuild
 
-_build: $(SRCS) $(LIB_DEPS)
+_build: $(SRCS) $(LIB_DEPS) Makefile
 	touch src/pycantera.cpp 
 	(CXX=@CXX@; export CXX; CC=@CC@; export CC; @PYTHON_CMD@ setup.py build)
 	echo 'ok' > _build

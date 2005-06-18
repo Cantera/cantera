@@ -16,7 +16,7 @@ namespace Cantera {
         typedef size_t           index_t;
         typedef DenseMatrix      matrix_t;
 
-        MultiPhaseEquil(mix_t* mix);
+        MultiPhaseEquil(mix_t* mix, bool start=true);
 
         virtual ~MultiPhaseEquil() {}
 
@@ -37,31 +37,18 @@ namespace Cantera {
         int iterations() { return m_iter; }
 
         doublereal equilibrate(int XY, doublereal err = 1.0e-9, 
-            int maxsteps = 1000) {
-            int i;
-            m_iter = 0;
-            for (i = 0; i < maxsteps; i++) {
-                stepComposition();
-                if (error() < err) break;
-            }            
-            if (i >= maxsteps) {
-                printInfo();
-                throw CanteraError("MultiPhaseEquil::equilibrate",
-                    "no convergence in " + int2str(maxsteps) + 
-                    " iterations. Error = " + fp2str(error()));
-            }
-            return error();
-        }
+            int maxsteps = 1000, int loglevel=0);
 
         string reactionString(index_t j);
         doublereal error();
         void printInfo();
+
     protected:
 
         void getComponents(const vector_int& order);
         int setInitialMoles();
         void computeN();
-        doublereal stepComposition();
+        doublereal stepComposition(int loglevel);
         void sort(vector_fp& x);
         void unsort(vector_fp& x);
         void step(doublereal omega, vector_fp& deltaN);
@@ -70,6 +57,7 @@ namespace Cantera {
 
         index_t m_nel_mix, m_nsp_mix, m_np;
         index_t m_nel, m_nsp;
+        index_t m_eloc;
         int m_iter;
         mix_t* m_mix;
         doublereal m_press, m_temp;
@@ -98,11 +86,16 @@ namespace Cantera {
      * calculation.
      */
     inline doublereal equilibrate(MultiPhase& s, int XY, 
-        doublereal tol = 1.0e-9, int maxsteps = 1000) {
+        doublereal tol = 1.0e-9, int maxsteps = 1000, int loglevel = 0) {
         s.init();
-        MultiPhaseEquil e(&s);
-        if (XY == TP) 
-            return e.equilibrate(XY, tol, maxsteps);
+        //MultiPhaseEquil e(&s);
+        if (XY == TP || XY == HP) {
+            double err = s.equilibrate(XY, tol, maxsteps, maxsteps, loglevel);
+            if (loglevel > 0) {
+                write_logfile("equilibrate.html");
+            }
+            return err;
+        }
         else {
             throw CanteraError("equilibrate","only fixed T, P supported");
             return -1.0;
@@ -115,8 +108,8 @@ namespace Cantera {
      * calculation.
      */
     inline doublereal equilibrate(MultiPhase& s, const char* XY,
-        doublereal tol = 1.0e-9, int maxsteps = 1000) {
-        return equilibrate(s,_equilflag(XY), tol, maxsteps);
+        doublereal tol = 1.0e-9, int maxsteps = 1000, int loglevel = 0) {
+        return equilibrate(s,_equilflag(XY), tol, maxsteps, loglevel);
     }
 }
 

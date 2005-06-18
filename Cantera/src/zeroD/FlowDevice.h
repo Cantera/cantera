@@ -19,9 +19,14 @@
 #include "../ct_defs.h"
 
 namespace Cantera {
+    class Func1;
+}
+using namespace Cantera;
+
+namespace CanteraZeroD {
 
     class ReactorBase;  // forward reference
-    class Func1;
+
 
     const int MFC_Type = 1;
     const int PressureController_Type = 2;
@@ -151,14 +156,14 @@ namespace Cantera {
             copy(coeffs, coeffs + n, m_coeffs.begin());
         }
 
-        void setFunction(Func1* f);
+        void setFunction(Cantera::Func1* f);
         void setMassFlowRate(doublereal mdot) {m_mdot = mdot;}
 
 
     protected:
 
         doublereal m_mdot;
-        Func1* m_func;
+        Cantera::Func1* m_func;
         vector_fp m_coeffs;
         int m_type;
 

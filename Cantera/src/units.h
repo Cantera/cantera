@@ -1,7 +1,7 @@
 /**
  * @file units.h
  *
- * Unit conversions.
+ * Unit conversions. This header is included only by file misc.cpp.
  */
 
 #ifndef CT_UNITS_H
@@ -46,6 +46,9 @@ namespace Cantera {
         /**
          * Return the multiplier required to convert a dimensional quantity 
          * with units specified by string 'units' to SI units.
+         * The list of recognized units is storred as a stl map
+         *  <string, doublereal>called  m_u[] and m_act_u for activity
+         * coefficients. These maps are initialized with likely values.
          */
         doublereal toSI(string units) {
 
@@ -115,7 +118,9 @@ namespace Cantera {
 
     private:
 
+        /// pointer to the single instance of Unit
         static Unit* __u;
+
         map<string, doublereal> m_u;
         map<string, doublereal> m_act_u;
 
@@ -127,7 +132,10 @@ namespace Cantera {
             m_u["km"]   = 1.0e3;
             m_u["mm"]   = 1.0e-3;
             m_u["micron"]   = 1.0e-6;
+            m_u["nm"]   = 1.0e-9;
             m_u["A"]   = 1.0e-10;
+            m_u["Angstrom"]   = 1.0e-10;
+            m_u["Angstroms"]   = 1.0e-10;
 
             // energy
             m_u["J"]        = 1.0;
@@ -163,6 +171,8 @@ namespace Cantera {
 
             m_act_u["eV"] = m_u["eV"]/m_u["molec"];
             m_act_u["K"] =  GasConstant;
+            m_act_u["Kelvin"] =  GasConstant;
+            m_act_u["Dimensionless"] =  (GasConstant * 273.15);
         }
     };
 }

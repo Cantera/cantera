@@ -8,37 +8,53 @@
 #
 ###############################################################
 
-SUFFIXES=
-SUFFIXES= .cpp .d .o
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o
 
-OBJDIR = .
-
+INCDIR = ../../../build/include/cantera/kernel/oneD
+INSTALL_TSC = ../../../bin/install_tsc                      
+do_ranlib = @DO_RANLIB@
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
+CXX_INCLUDES = -I..
 
 # stirred reactors
-OBJS    = MultiJac.o MultiNewton.o newton_utils.o OneDim.o StFlow.o boundaries1D.o refine.o Sim1D.o 
+OBJS    = MultiJac.o MultiNewton.o newton_utils.o OneDim.o\
+          StFlow.o boundaries1D.o refine.o Sim1D.o 
+ONED_H  = Inlet1D.h   MultiJac.h  Sim1D.h         StFlow.h \
+          Surf1D.h    Domain1D.h  MultiNewton.h   OneDim.h \
+          Resid1D.h   Solid1D.h   refine.h
 
-CXX_INCLUDES = -I..
 ONED_LIB = @buildlib@/liboneD.a
 
 DEPENDS = $(OBJS:.o=.d)
 
 %.d:
-	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
+	g++ -MM @CXXFLAGS@ $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
 	@CXX@ -c $< @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES)
 
-.f.o:
-	@F77@ -c $< $(F77_FLAGS) 
-
 all: $(ONED_LIB)
+	@(@INSTALL@ -d $(INCDIR))
+	@(for lh in $(ONED_H) ; do \
+          $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
+        done)
 
 $(ONED_LIB): $(OBJS)
 	@ARCHIVE@ $(ONED_LIB) $(OBJS) > /dev/null
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(ONED_LIB)
+endif
 
-clean:
-	$(RM) *.o *~ $(ONED_LIB)
+clean:        
+	@(for lh in $(ONED_H) ; do \
+            th=$(INCDIR)/"$${lh}" ; \
+            if test -f "$${th}" ; then \
+              $(RM) "$${th}"  ; \
+              echo "$(RM) $${th}" ; \
+            fi \
+          done)
+	$(RM) *.o *~ $(ONED_LIB) .depends
 
 depends: $(DEPENDS)
 	cat *.d > .depends

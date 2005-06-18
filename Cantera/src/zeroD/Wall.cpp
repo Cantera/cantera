@@ -5,7 +5,7 @@
 #include "../InterfaceKinetics.h"
 #include "../SurfPhase.h"
 
-namespace Cantera {
+namespace CanteraZeroD {
 
         
     Wall::Wall() : m_left(0), m_right(0),  

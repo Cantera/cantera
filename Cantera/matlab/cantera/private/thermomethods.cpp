@@ -6,9 +6,9 @@
 static void thermoset( int nlhs, mxArray *plhs[],
     int nrhs, const mxArray *prhs[] ) {
 
-    if (nrhs != 4) {
-        mexErrMsgTxt("wrong number of input parameters.");
-    }
+    //if (nrhs != 4) {
+    //    mexErrMsgTxt("wrong number of input parameters.");
+    //}
     int ierr = 0;
     double vv;
     int th = getInt(prhs[1]);
@@ -60,8 +60,12 @@ static void thermoset( int nlhs, mxArray *plhs[],
 
     // equilibrate
     else if (job == 50) {
-        int xy = int(*ptr);
-        ierr = th_equil(th, xy);
+        int xy = getInt(prhs[3]); //int(*ptr);
+        int solver = getInt(prhs[4]);
+        double rtol = getDouble(prhs[5]);
+        int maxsteps = getInt(prhs[6]);
+        int loglevel = getInt(prhs[7]);
+        ierr = th_equil(th, xy, solver, rtol, maxsteps, loglevel);
     }
     if (ierr < 0) reportError();
 

@@ -3,7 +3,7 @@
 #
 BINDIR=@buildbin@
 CK2CTI=$BINDIR/ck2cti
-$CK2CTI -i ./gri30.inp -id gri30 -tr ./gri30_tran.dat > gri30.cti
+$CK2CTI -i ./gri30.inp -id gri30 -tr ./gri30_tran.dat 
 #
 # strip out variably dated stuff
 #

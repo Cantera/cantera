@@ -9,16 +9,21 @@
 ###############################################################
 
 
-SUFFIXES=
-SUFFIXES= .cpp .d .o
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o
+
+INSTALL_TSC = ../../../bin/install_tsc
+do_ranlib = @DO_RANLIB@
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
 OBJS = ct.o Storage.o ctsurf.o ctrpath.o \
        ctreactor.o ctfunc.o ctxml.o ctonedim.o ctmultiphase.o
+CLIB_H= Cabinet.h    ctreactor.h  clib_defs.h  ctfunc.h \
+        ctnum.h ctsurf.h  ct.h   ctrpath.h      Storage.h \
+        ctbdry.h    ctonedim.h    ctxml.h   ctmultiphase.h  ctstagn.h   
 
 DEPENDS = $(OBJS:.o=.d)
-
 
 # Fortran libraries
 FORT_LIBS = @FLIBS@
@@ -67,14 +72,24 @@ ifeq ($(shared_ctlib),1)
                 @SHARED@ $(LINK_OPTIONS) \
                 $(EXT_LIBS) @LIBS@ $(FORT_LIBS)
 else
-	@ARCHIVE@ $(CTLIB) $(OBJS) 
+	@ARCHIVE@ $(CTLIB) $(OBJS)
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(CTLIB)
+endif
 endif
 
 clean:
 	$(RM) $(OBJS) $(CTLIB)
 
 install:
-	@INSTALL@ $(CTLIB) @prefix@/lib/cantera
+	@INSTALL@ -d @ct_libdir@
+	@INSTALL@ -m 644 $(CTLIB) @ct_libdir@
+ifeq ($(do_ranlib),1)
+ifeq ($(shared_ctlib),0)
+	@RANLIB@ @ct_libdir@/$(LIB_NAME).a
+endif
+endif
+
 
 win-install:
 	@INSTALL@ ../../../lib/clib.lib @prefix@/lib/cantera

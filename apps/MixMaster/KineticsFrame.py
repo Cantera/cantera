@@ -10,6 +10,20 @@ _CUTOFF = 1.e-15
 _ATOL = 1.e-15
 _RTOL = 1.e-7
 
+def showsvg():
+	f = open('_rp_svg.html','w')
+	f.write('<embed src="rxnpath.svg" name="rxnpath" height=500\n')
+	f.write('type="image/svg-xml" pluginspage="http://www.adobe.com/svg/viewer/install/">\n')
+	f.close()
+	webbrowser.open('file:///'+os.getcwd()+'/_rp_svg.html')
+
+def showpng():
+	f = open('_rp_png.html','w')
+	f.write('<img src="rxnpath.png" height=500/>\n')
+	f.close()
+	webbrowser.open('file:///'+os.getcwd()+'/_rp_png.html')	
+
+
 class KineticsFrame(Frame):
 	def __init__(self,master):
 		Frame.__init__(self,master)
@@ -171,10 +185,16 @@ class ReactionKineticsFrame(Frame):
 		self.top = top
 		self.g = self.top.mix.g		
 		nr = self.g.nReactions()
-		self.eqs=Text(self,width=40,height=nr)
+		self.eqs=Text(self,width=40,height=30)
 		self.data = []
+		self.start = DoubleVar()
+		if nr > 30:
+			self.end = self.start.get()+30
+		else:
+			self.end = self.start.get()+nr
+			
 		for i in range(4):
-			self.data.append(Text(self,width=15,height=nr))
+			self.data.append(Text(self,width=15,height=30))
 
 		for n in range(nr):
 			s = self.g.reactionEqn(n)
@@ -187,16 +207,41 @@ class ReactionKineticsFrame(Frame):
 		Label(self, text='Rev ROP').grid(column=2,row=0,sticky=W+E+N)
 		Label(self, text='Net ROP').grid(column=3,row=0,sticky=W+E+N)
 		Label(self, text='Kp').grid(column=4,row=0,sticky=W+E+N)
-#		Button(self, text='View Reaction Paths', command=self.viewRxnPaths).grid(column=0,row=2,sticky=W+E+N)
+
+		self.scfr = Frame(self)
+		self.scfr.config(relief=GROOVE,bd=4)
+
+## 		self.sc = Scrollbar(self.scfr,command=self.show,
+## 				variable = self.start,
+## 				orient='horizontal',length=400)
+		self.sc = Scale(self.scfr,command=self.show,
+				variable=self.start,
+				orient='vertical',length=400)
+#		self.sc.config(cnf={'from':0,'to':nr},variable = self.start)
+		#self.sc.bind('<Any-Enter>',self.couple)
+		#self.scfr.bind('<Any-Leave>',self.decouple)      
+		self.sc.pack(side=RIGHT,fill=Y)
+		self.scfr.grid(row=0,column=6,rowspan=10,sticky=N+E+W)
 		self.grid(column=0,row=0)
+
                 self.hide()
 
+## 	def decouple(self,event=None):
+## 		d = DoubleVar()
+## 		xx = self.start.get()
+## 		d.set(xx)
+## 		self.sc.config(variable = d)
+      
+## 	def couple(self,event=None):
+## 		self.sc.config(variable = self.start)
+      
 	def hide(self):
 #		self.vis.set(0)
 		self.master.withdraw()
 		
-	def show(self):
+	def show(self,e=None,b=None,c=None):
 		v = self.vis.get()
+		print e,b,c
 		#if v == 0:
 		#	self.hide()
 		#	return
@@ -209,8 +254,13 @@ class ReactionKineticsFrame(Frame):
 		self.data[0].delete(1.0,END)
 		self.data[1].delete(1.0,END)
 		self.data[2].delete(1.0,END)				
-		self.data[3].delete(1.0,END)		
-		for n in range(nr):
+		self.data[3].delete(1.0,END)
+		self.eqs.delete(1.0,END)
+
+		n0 = int(self.start.get())
+		nn = nr - n0
+		if nn > 30: nn = 30
+		for n in range(n0, nn+n0):
 			s = '%12.5e \n' % (frop[n],)
 			self.data[0].insert(END,s)
 			s = '%12.5e \n' % (rrop[n],)			
@@ -218,8 +268,8 @@ class ReactionKineticsFrame(Frame):
 			s = '%12.5e \n' % (frop[n] - rrop[n],)
 			self.data[2].insert(END,s)
 			s = '%12.5e \n' % (kp[n],)
-			self.data[3].insert(END,s)			
-		
+			self.data[3].insert(END,s)
+			self.eqs.insert(END, self.g.reactionEqn(n)+'\n')
 
 class ReactionPathFrame(Frame):
 
@@ -275,11 +325,12 @@ class ReactionPathFrame(Frame):
 		self.b = rxnpath.PathBuilder(self.g)
 
 		self.fmt = StringVar()
-		self.fmt.set('gif')
+		self.fmt.set('svg')
 		i = 1
 		fmtframe = Frame(self)
 		fmtframe.config(relief=GROOVE, bd=4)		
 		self.browser = IntVar()
+		self.browser.set(1)
 		Checkbutton(fmtframe, text = 'Display in Web Browser',
 			    variable=self.browser,
 			    command=self.show).grid(column=0,columnspan=6,row=0)				
@@ -338,7 +389,11 @@ class ReactionPathFrame(Frame):
 		if self.browser.get() == 1:
 			fmt = self.fmt.get()
 			os.system('dot -T'+fmt+' rxnpath.dot > rxnpath.'+fmt)
-			webbrowser.open('file:///'+os.getcwd()+'/rxnpath.'+fmt)
+			if fmt == 'svg': showsvg()
+			elif fmt == 'png': showpng()
+			else:
+				path = 'file:///'+os.getcwd()+'/rxnpath.'+fmt
+				webbrowser.open(path)
 			try:
 				self.cv.delete(self.image)
 			except:
@@ -346,14 +401,18 @@ class ReactionPathFrame(Frame):
 			self.cv.configure(width=0, height=0)			
 		else:
 			os.system(self.dot.get())
-			self.rp = PhotoImage(file='rxnpath.gif')
+			self.rp = None
 			try:
 				self.cv.delete(self.image)
 			except:
 				pass
-			self.cv.configure(width=self.rp.width(),
-					  height=self.rp.height())
-			
-			self.image = self.cv.create_image(0,0,anchor=NW,
-							  image=self.rp)
+			try:
+				self.rp = PhotoImage(file='rxnpath.gif')
+				self.cv.configure(width=self.rp.width(),
+						  height=self.rp.height())
+				
+				self.image = self.cv.create_image(0,0,anchor=NW,
+								  image=self.rp)
+			except:
+				pass
 		

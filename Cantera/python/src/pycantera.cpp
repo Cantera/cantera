@@ -11,7 +11,7 @@
 #pragma warning(disable:4503)
 #endif
 
-#include "../../../config.h"
+#include "../../src/config.h"
 
 #include "Python.h"
 
@@ -42,7 +42,7 @@ static PyObject *ErrorObject;
 
 #include "ctphase_methods.cpp"
 #include "ctthermo_methods.cpp"
-#include "ctkinetics_methods.cpp"
+#include "ctkinetics_methods.cpp"  
 #include "cttransport_methods.cpp"
 #include "ctxml_methods.cpp"
 #include "ctfuncs.cpp"
@@ -84,6 +84,11 @@ extern "C" {
         d = PyModule_GetDict(m);
         ErrorObject = PyErr_NewException("cantera.error", NULL, NULL);
         PyDict_SetItemString(d, "error", ErrorObject);
+#ifdef HAS_NUMERIC
+        PyDict_SetItemString(d, "nummod",PyString_FromString("Numeric"));
+#else
+        PyDict_SetItemString(d, "nummod",PyString_FromString("numarray"));
+#endif
     }
 
 }

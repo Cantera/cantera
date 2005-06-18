@@ -14,8 +14,8 @@
 %
 
 help catcomb;
-disp('press any key to start the simulation');
-pause;
+%disp('press any key to start the simulation');
+%pause;
 
 clear all;
 cleanup;

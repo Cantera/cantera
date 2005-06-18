@@ -23,6 +23,7 @@
 # the C compiler
 CC = @CC@
 SHELL = /bin/sh
+do_ranlib = @DO_RANLIB@
 
 CFLAGS = @CXXFLAGS@ $(CXX_OPT)
 
@@ -89,7 +90,9 @@ all: f2c.h signal1.h sysdep1.h $(F2C_LIB) $(F2C_H)
 
 $(F2C_LIB): $(OFILES)
 	ar r $(F2C_LIB) $?
-	-ranlib  $(F2C_LIB)
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(F2C_LIB)
+endif
 
 $(F2C_H): f2c.h
 	@INSTALL@ -d $(BUILDINCDIR)

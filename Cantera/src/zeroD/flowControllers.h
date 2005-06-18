@@ -24,7 +24,7 @@
 //#include "PID_Controller.h"
 #include "../Func1.h"
 
-namespace Cantera {
+namespace CanteraZeroD {
 
 
     /**

@@ -13,6 +13,7 @@
 
 INCDIR = ../../../build/include/cantera/kernel/transport
 INSTALL_TSC = ../../../bin/install_tsc
+do_ranlib = @DO_RANLIB@
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
@@ -29,6 +30,7 @@ LIB = @buildlib@/libtransport.a
 DEPENDS = $(OBJS:.o=.d)
 
 all: $(LIB)
+	@(@INSTALL@ -d $(INCDIR))
 	@(for lh in $(TRAN_H) ; do \
 	  $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
 	done)
@@ -40,6 +42,9 @@ all: $(LIB)
 
 $(LIB): $(OBJS) $(TRAN_H)
 	@ARCHIVE@ $(LIB) $(OBJS) > /dev/null
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(LIB)
+endif
 
 clean:
 	@(for lh in $(TRAN_H) ; do \
@@ -53,7 +58,7 @@ clean:
 	    $(RM) $(LIB) ; \
             echo "$(RM) $(LIB)" ; \
           fi)
-	$(RM) *.o *~ 
+	$(RM) *.o *~  .depends
 
 depends: $(DEPENDS)
 	cat *.d > .depends

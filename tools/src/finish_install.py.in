@@ -11,6 +11,8 @@ datadir = '@ct_datadir@'
 templdir = '@ct_templdir@'
 ctdir = '@ct_dir@'
 home = '@homedir@'
+isdarwin = '@OS_IS_DARWIN@'
+numarray_home = '@NUMARRAY_HOME@'
 
 f = open(home+'/setup_cantera','w')
 f.write('#!/bin/sh\n')
@@ -43,17 +45,25 @@ if localinst:
 """
         except:
             pass
-                
-        sys.path.append(ctloc)
-        f.write('PYTHONPATH='+ctloc+':$PYTHONPATH\nexport PYTHONPATH\n')
+
+        pypath = ctloc
+        if numarray_home <> '':
+            pypath += ':'+numarray_home+'/lib/python'
+            
+        sys.path.append(pypath)
+        f.write('PYTHONPATH='+pypath+':$PYTHONPATH\nexport PYTHONPATH\n')
     except:
         print 'error'
 f.close()
 
 # write the script to run MixMaster
 f = open(bindir+'/mixmaster','w')
-f.write('#!/bin/sh\n'+pycmd+"""w -c 'from MixMaster import MixMaster; MixMaster()'
-""")
+if isdarwin == '1':
+    f.write('#!/bin/sh\n'+pycmd+"""w -c 'from MixMaster import MixMaster; MixMaster()'
+    """)
+else:
+    f.write('#!/bin/sh\n'+pycmd+""" -c 'from MixMaster import MixMaster; MixMaster()'
+    """)
 f.close()
 
 
@@ -118,7 +128,7 @@ else:
     Warning: the Cantera Python package is not installed. If you
     intentionally skipped it, ignore this message. Otherwise, type
     'make python' and/or 'make python-install' and look for error messages.
-    Note that you must first install the 'Numeric' package before installing
+    Note that you must first install the 'numarray' package before installing
     the Cantera package.
  ######################################################################            
 """

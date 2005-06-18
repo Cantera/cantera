@@ -23,7 +23,7 @@ out = ode15s(@conuv,tel,y0,options,gas,mw);
 disp(['CPU time = ' num2str(cputime - t0)]);
 
 if nargout == 0
-   % plot the temperature and OH mole fractions.
+   % plot the temperature and OH mass fractions.
    figure(1);
    plot(out.x,out.y(1,:));
    xlabel('time');
@@ -34,7 +34,7 @@ if nargout == 0
    ioh = speciesIndex(gas,'OH');
    plot(out.x,out.y(1+ioh,:));
    xlabel('time');
-   ylabel('Mole Fraction');
-   title('OH Mole Fraction');   
+   ylabel('Mass Fraction');
+   title('OH Mass Fraction');   
    
 end

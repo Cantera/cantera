@@ -19,6 +19,8 @@
 #
 # Modify the COMPILER and OPTS variables as needed.
 #
+do_ranlib = @DO_RANLIB@
+
 all: @buildlib@/libcvode.a
    
 COMPILER = @CC@
@@ -33,6 +35,9 @@ OBJS = source/cvode.o source/cvdense.o source/dense.o source/cvband.o \
 @buildlib@/libcvode.a: $(OBJS)
 	$(RM) @buildlib@/libcvode.a
 	(ar rcv @buildlib@/libcvode.a $(OBJS))
+ifeq ($(do_ranlib),1)
+	@RANLIB@ @buildlib@/libcvode.a
+endif
 
 source/cvode.o: source/cvode.c include/cvode.h include/llnltyps.h \
                 include/nvector.h include/llnlmath.h

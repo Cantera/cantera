@@ -230,7 +230,13 @@ namespace Cantera {
         f_eps = xi*xi;
     }
 
-
+    /**
+     * TransportFactory(): default constructor
+     *     
+     *   The default constructor for this class sets up 
+     *   m_models[], a mapping between the string name
+     *   for a transport model and the integer name.
+     */
     TransportFactory::TransportFactory() : m_integrals(0) {
         m_models["Mix"] = cMixtureAveraged;
         m_models["Multi"] = cMulticomponent;
@@ -241,7 +247,6 @@ namespace Cantera {
         m_models["User"] = cUserTransport;
         m_models["None"] = 0;
     }
-
 
      /**
       * Destructor 
@@ -760,7 +765,7 @@ namespace Cantera {
                 t = tr.tmin + dt*n;
 
                 tr.thermo->setTemperature(t);
-                cp_R = ((IdealGasPhase*)tr.thermo)->cp_R()[k];
+                cp_R = ((IdealGasPhase*)tr.thermo)->cp_R_ref()[k];
 
                 tstar = Boltzmann * t/ tr.eps[k];
                 sqrt_T = sqrt(t);

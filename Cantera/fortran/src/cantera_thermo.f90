@@ -10,6 +10,7 @@ module cantera_thermo
     integer :: err
     integer :: nel
     integer :: nsp
+    integer :: nrxn
   end type phase_t
 
 ! these definitions are for use with the equilibrate function.
@@ -43,6 +44,7 @@ contains
          self%thermo_id = newthermofromxml(xml_phase%xml_id)
          self%nel = phase_nelements(self%thermo_id)
          self%nsp = phase_nspecies(self%thermo_id)
+         self%nrxn = 0
          self%err = 0
       else
          call cantera_error('newThermoPhase','xml_phase or id must be specified.')

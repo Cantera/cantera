@@ -250,6 +250,8 @@ namespace Cantera {
             return m_rho[j];
         }
 
+        virtual bool fixed_mdot() { return true; }
+        void setViscosityFlag(bool dovisc) { m_dovisc = dovisc; }
 
     protected:
 
@@ -384,6 +386,7 @@ namespace Cantera {
 
         void updateDiffFluxes(const doublereal* x, int j0, int j1);
 
+
         //---------------------------------------------------------
         //
         //             member data
@@ -453,16 +456,14 @@ namespace Cantera {
         vector_fp m_zfix;
         vector_fp m_tfix;
 
-        //        vector<FlowBdry::Boundary*>  m_boundary;
-
         doublereal m_efctr;
-
+        bool m_dovisc;
+        void updateTransport(doublereal* x,int j0, int j1);
 
     private:
-
         vector_fp m_ybar;
-    };
 
+    };
 
 
     /**
@@ -471,17 +472,29 @@ namespace Cantera {
     class AxiStagnFlow : public StFlow {
     public:
         AxiStagnFlow(igthermo_t* ph = 0, int nsp = 1, int points = 1) :
-            StFlow(ph, nsp, points) {
-        }
+            StFlow(ph, nsp, points) { m_dovisc = true; }
         virtual ~AxiStagnFlow() {}
         virtual void eval(int j, doublereal* x, doublereal* r, 
             integer* mask, doublereal rdt);
         virtual string flowType() { return "Axisymmetric Stagnation"; }
-    private:
-        void updateTransport(doublereal* x,int j0, int j1);
+    };
+
+    /**
+     * A class for freely-propagating premixed flames. 
+     */
+    class FreeFlame : public StFlow {
+    public:
+        FreeFlame(igthermo_t* ph = 0, int nsp = 1, int points = 1) :
+            StFlow(ph, nsp, points) { m_dovisc = false; }
+        virtual ~FreeFlame() {}
+        virtual void eval(int j, doublereal* x, doublereal* r, 
+            integer* mask, doublereal rdt);
+        virtual string flowType() { return "Free Flame"; }
+        virtual bool fixed_mdot() { return false; }
     };
 
 
+    /*
     class OneDFlow : public StFlow {
     public:
         OneDFlow(igthermo_t* ph = 0, int nsp = 1, int points = 1) :
@@ -498,6 +511,7 @@ namespace Cantera {
     private:
         void updateTransport(doublereal* x,int j0, int j1);
     };
+    */
 
     void importSolution(doublereal* oldSoln, igthermo_t& oldmech,
         doublereal* newSoln, igthermo_t& newmech);

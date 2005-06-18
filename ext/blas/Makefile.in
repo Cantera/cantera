@@ -1,7 +1,9 @@
+#/bin/sh
 # $License$
 #
-#/bin/sh
-
+# $Id$
+#
+do_ranlib = @DO_RANLIB@                                                                                                                     
 BLASLIB = @buildlib@/libctblas.a
 
 SUFFIXES=
@@ -58,6 +60,9 @@ xerbla.o
 
 $(BLASLIB):  $(OBJS)
 	@ARCHIVE@ $(BLASLIB) $(OBJS) > /dev/null
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(ZEROD_LIB)
+endif
 
 %.o : %.f
 	@F77@ -c $< $(F_FLAGS) 

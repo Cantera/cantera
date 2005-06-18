@@ -265,11 +265,12 @@ py_mix_equilibrate(PyObject *self, PyObject *args)
     int i;
     char* XY;
     double err;
-    int maxiter;
-    if (!PyArg_ParseTuple(args, "isdi:mix_equilibrate", &i, &XY, &err, &maxiter)) 
+    int maxsteps, maxiter, loglevel;
+    if (!PyArg_ParseTuple(args, "isdiii:mix_equilibrate", &i, &XY, &err, 
+            &maxsteps, &maxiter, &loglevel)) 
         return NULL;
         
-    _val = mix_equilibrate(i,XY,err,maxiter); 
+    _val = mix_equilibrate(i,XY,err,maxsteps,maxiter,loglevel); 
     if (int(_val) < -900) return reportCanteraError();
     return Py_BuildValue("d",_val);
 }

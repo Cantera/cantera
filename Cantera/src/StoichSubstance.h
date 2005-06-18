@@ -43,6 +43,12 @@ namespace Cantera {
 
         virtual ~StoichSubstance() {}
 
+	/**
+         *   
+         * @name  Utilities  
+         * @{
+         */
+
         /**
          * Equation of state flag. Returns the value cStoichSubstance,
          * defined in mix_defs.h.
@@ -51,7 +57,8 @@ namespace Cantera {
 
 
         /**
-         * @name Molar Thermodynamic Properties
+	 * @}
+         * @name Molar Thermodynamic Properties of the Solution ---------
          * @{
          */
 
@@ -92,6 +99,10 @@ namespace Cantera {
         }
 
 
+	/**
+	 * Molar gibbs Function. Units: J/kmol. This is determined
+	 * from the molar enthalpy and entropy functions.
+	 */
         virtual doublereal gibbs_mole() const {
             return enthalpy_mole() - temperature() * entropy_mole();
         }
@@ -145,25 +156,10 @@ namespace Cantera {
 
         //@}
 
-
-        /**
-         * For a stoichiometric substance, there is only one species. 
-         * This method returns the molar gibbs function in the
-         * first element of array \c mu.
+	/**
+         * @name Chemical Potentials and Activities
+	 *@{
          */
-        virtual void getChemPotentials(doublereal* mu) const {
-            mu[0] = gibbs_mole();
-        }
-
-        /**
-         * For a stoichiometric substance, there is no activity term in 
-         * the chemical potential expression, and therefore the
-         * standard chemical potential and the chemical potential
-         * are both equal to the molar Gibbs function.
-         */
-        virtual void getStandardChemPotentials(doublereal* mu0) const {
-            mu0[0] = gibbs_mole();
-        }
 
         /**
          * This method returns the array of generalized
@@ -183,9 +179,163 @@ namespace Cantera {
              return 1.0;
         }
 
+        /**
+	 * Returns the natural logarithm of the standard 
+	 * concentration of the kth species
+	 */
          virtual doublereal logStandardConc(int k=0) const {
             return 0.0;
         }
+
+        /**
+	 * Get the array of chemical potentials at unit activity 
+         * \f$ \mu^0_k \f$.
+	 *
+         * For a stoichiometric substance, there is no activity term in 
+         * the chemical potential expression, and therefore the
+         * standard chemical potential and the chemical potential
+         * are both equal to the molar Gibbs function.
+         */
+        virtual void getStandardChemPotentials(doublereal* mu0) const {
+            mu0[0] = gibbs_mole();
+        }
+
+	/**
+	 * Returns the units of the standard and generalized
+	 * concentrations Note they have the same units, as their
+	 * ratio is defined to be equal to the activity of the kth
+	 * species in the solution, which is unitless.
+	 *
+	 * This routine is used in print out applications where the
+	 * units are needed. Usually, MKS units are assumed throughout
+	 * the program and in the XML input files.
+	 *
+	 *  uA[0] = kmol units - default  = 0
+	 *  uA[1] = m    units - default  = 0
+	 *  uA[2] = kg   units - default  = 0;
+	 *  uA[3] = Pa(pressure) units - default = 0;
+	 *  uA[4] = Temperature units - default = 0;
+	 *  uA[5] = time units - default = 0
+	 */
+	virtual void getUnitsStandardConc(double *uA, int k = 0,
+					  int sizeUA = 6);
+
+
+	//@}
+        /// @name  Partial Molar Properties of the Solution ----------------------------------
+        //@{
+
+
+        /** 
+         * Get the array of non-dimensional chemical potentials 
+         * \f$ \mu_k / \hat R T \f$.
+         */
+        virtual void getChemPotentials_RT(doublereal* mu) const {
+            mu[0] = gibbs_mole() / (GasConstant * temperature());
+        }
+
+	/**
+         * For a stoichiometric substance, there is only one species. 
+         * This method returns the molar gibbs function in the
+         * first element of array \c mu.
+         */
+        virtual void getChemPotentials(doublereal* mu) const {
+            mu[0] = gibbs_mole();
+        }
+
+        /**
+         * Get the species electrochemical potentials. Units: J/kmol.
+         * This method adds a term \f$ Fz_k \phi_k \f$ to the 
+         * to each chemical potential.
+         */
+        void getElectrochemPotentials(doublereal* mu) const {
+	    getChemPotentials(mu);
+	}
+
+	/**
+	 * Returns an array of partial molar enthalpies for the species
+	 * in the mixture.
+	 * Units (J/kmol)
+         */
+        virtual void getPartialMolarEnthalpies(doublereal* hbar) const {
+	    hbar[0] = enthalpy_mole();
+        }
+
+	/**
+         * Returns an array of partial molar entropies of the species in the
+	 * solution. Units: J/kmol/K.
+         */
+        virtual void getPartialMolarEntropies(doublereal* sbar) const {
+	    sbar[0] = entropy_mole();
+        }
+
+	/**
+         * returns an array of partial molar volumes of the species
+	 * in the solution. Units: m^3 kmol-1.
+         */
+        virtual void getPartialMolarVolumes(doublereal* vbar) const {
+	    vbar[0] = 1.0 / molarDensity();
+        }
+
+
+      //@}
+        /// @name  Properties of the Standard State of the Species in the Solution -------------------------------------
+        //@{
+       /**
+         * Get the nondimensional Enthalpy functions for the species
+         * at their standard states at the current 
+	 * <I>T</I> and <I>P</I> of the solution.
+         */
+        virtual void getEnthalpy_RT(doublereal* hrt) const {
+            hrt[0] = enthalpy_mole() / (GasConstant * temperature());
+        }
+
+
+	//@}
+        /// @name Thermodynamic Values for the Species Reference States --------------------
+	//@{
+
+	/**
+	 *  Returns the vector of nondimensional
+	 *  enthalpies of the reference state at the current temperature
+	 *  of the solution and the reference pressure for the species. 
+	 */
+        virtual void getEnthalpy_RT_ref(doublereal *hrt) const {
+	    _updateThermo();
+	    hrt[0] = m_h0_RT[0];
+	}
+
+	/**
+	 *  Returns the vector of nondimensional
+	 *  enthalpies of the reference state at the current temperature
+	 *  of the solution and the reference pressure for the species.
+	 */
+        virtual void getGibbs_RT_ref(doublereal *grt) const {
+	    _updateThermo();
+	    grt[0] = m_h0_RT[0] - m_s0_R[0];
+        }
+
+	/**
+	 *  Returns the vector of the 
+	 *  gibbs function of the reference state at the current temperature
+	 *  of the solution and the reference pressure for the species.
+	 *  units = J/kmol
+	 */
+        virtual void  getGibbs_ref(doublereal *g) const {
+	    getGibbs_RT_ref(g);
+	    g[0] *= GasConstant * temperature();
+        }
+
+	/**
+	 *  Returns the vector of nondimensional
+	 *  entropies of the reference state at the current temperature
+	 *  of the solution and the reference pressure for the species.
+	 */
+        virtual void getEntropy_R_ref(doublereal *er) const {
+	    _updateThermo();
+            er[0] = m_s0_R[0];
+	}
+
 
         virtual void initThermo();
 

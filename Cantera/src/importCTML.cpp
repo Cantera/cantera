@@ -265,7 +265,8 @@ namespace Cantera {
 	for (index = 0; index < np; index++) {
             kp = rdata.products[index];
             n = kin.speciesPhaseIndex(kp);
-            klocal = kp - kin.start(n);
+            //klocal = kp - kin.start(n);
+            klocal = kp - kin.kineticsSpeciesIndex(0,n);
             kstoich = rdata.pstoich[index];
             const ThermoPhase& ph = kin.speciesPhase(kp);
             nel = ph.nElements();
@@ -278,7 +279,8 @@ namespace Cantera {
 	for (index = 0; index < nr; index++) {
             kr = rdata.reactants[index];
             n = kin.speciesPhaseIndex(kr);
-            klocal = kr - kin.start(n);
+            //klocal = kr - kin.start(n);
+            klocal = kr - kin.kineticsSpeciesIndex(0,n);
             kstoich = rdata.rstoich[index];
             const ThermoPhase& ph = kin.speciesPhase(kr);
             nel = ph.nElements();
@@ -338,7 +340,7 @@ namespace Cantera {
      */
     static bool getReagents(const XML_Node& rxn, kinetics_t& kin, int rp,
         string default_phase, 
-        vector_int& spnum, vector_int& stoich, vector_fp& order,
+        vector_int& spnum, vector_fp& stoich, vector_fp& order,
         int rule) {
 
         string rptype;
@@ -366,8 +368,8 @@ namespace Cantera {
 	/*
 	 * Loop over each of the pairs and process them
 	 */
-        int stch, isp;
-        doublereal ord;
+        int isp;
+        doublereal ord, stch;
         string ph, sp;
         map<string, int> speciesMap;
         for (int n = 0; n < ns; n++) {
@@ -397,7 +399,7 @@ namespace Cantera {
 	     * specified species.
 	     */
             spnum.push_back(isp);
-            stch = atoi(val[n].c_str());
+            stch = atof(val[n].c_str());
             stoich.push_back(stch);
             ord = doublereal(stch);
             order.push_back(ord);

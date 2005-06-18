@@ -67,18 +67,33 @@ ct_addDirectory(PyObject *self, PyObject *args)
 //        return Py_BuildValue("s","");
 //}
 
-// static PyObject *
-// ct_ck2cti(PyObject *self, PyObject *args)
-// {
-//     int iok;
-//     char *infile, *thermo, *tran, *idtag;
-//     if (!PyArg_ParseTuple(args, "ssss:ck2cti", &infile, 
-//             &thermo, &tran, &idtag)) 
-//         return NULL;
-//     iok = ck_to_cti(infile, thermo, tran, idtag);
-//     if (iok == -1) { return reportCanteraError();}
-//     return Py_BuildValue("i",iok); 
-// }
+static PyObject *
+ct_ck2cti(PyObject *self, PyObject *args)
+{
+    int iok;
+    char *infile, *thermo, *tran, *idtag;
+    int debug, validate;
+    if (!PyArg_ParseTuple(args, "ssssii:ck2cti", &infile, 
+            &thermo, &tran, &idtag, &debug, &validate)) 
+        return NULL;
+    iok = ck_to_cti(infile, thermo, tran, idtag, debug, validate);
+    if (iok == -1) { return reportCanteraError();}
+    return Py_BuildValue("i",iok); 
+}
+
+static PyObject *
+ct_writelogfile(PyObject *self, PyObject *args)
+{
+    int iok;
+    char *logfile;
+    if (!PyArg_ParseTuple(args, "s:ck2cti", &logfile))
+        return NULL;
+    iok = writelogfile(logfile);
+    if (iok == -1) { return reportCanteraError();}
+    return Py_BuildValue("i",iok); 
+}
+
+
 
 
 

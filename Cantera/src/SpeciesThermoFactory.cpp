@@ -2,12 +2,6 @@
  *  @file SpeciesThermoFactory.cpp
  */
 
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 
@@ -223,9 +217,70 @@ namespace Cantera {
         sp.install(speciesName, k, NASA, c.begin(), tmin, tmax, p0);
     }
 
+#ifdef INCL_NASA96
 
     /** 
-     * Install a NASA polynomial thermodynamic property
+     * Install a NASA96 polynomial thermodynamic property
+     * parameterization for species k into a SpeciesThermo instance.
+     */
+    static void installNasa96ThermoFromXML(string speciesName,
+        SpeciesThermo& sp, int k, 
+        const XML_Node* f0ptr, const XML_Node* f1ptr) {
+        doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
+
+        const XML_Node& f0 = *f0ptr;
+        bool dualRange = false;
+        if (f1ptr) {dualRange = true;}
+        tmin0 = fpValue(f0["Tmin"]);
+        tmax0 = fpValue(f0["Tmax"]);
+        tmin1 = tmax0;
+        tmax1 = tmin1 + 0.0001;
+        if (dualRange) {
+            tmin1 = fpValue((*f1ptr)["Tmin"]);
+            tmax1 = fpValue((*f1ptr)["Tmax"]);
+        }
+
+        vector_fp c0, c1;
+        if (fabs(tmax0 - tmin1) < 0.01) {
+            tmin = tmin0;
+            tmid = tmax0;
+            tmax = tmax1;
+            getFloatArray(f0.child("floatArray"), c0, false);
+            if (dualRange)
+                getFloatArray(f1ptr->child("floatArray"), c1, false);
+            else {
+                c1.resize(7,0.0);
+                copy(c0.begin(), c0.end(), c1.begin());
+            }
+        }
+        else if (fabs(tmax1 - tmin0) < 0.01) {
+            tmin = tmin1;
+            tmid = tmax1;
+            tmax = tmax0;
+            getFloatArray(f1ptr->child("floatArray"), c0, false);
+            getFloatArray(f0.child("floatArray"), c1, false);
+        }
+        else {
+            throw CanteraError("installNasaThermo",
+			       "non-continuous temperature ranges.");
+        }
+        array_fp c(15);
+        c[0] = tmid;
+        doublereal p0 = OneAtm;
+        c[1] = c0[5];
+        c[2] = c0[6];
+        copy(c0.begin(), c0.begin()+5, c.begin() + 3);
+        c[8] = c1[5];
+        c[9] = c1[6];
+        copy(c1.begin(), c1.begin()+5, c.begin() + 10);
+        sp.install(speciesName, k, NASA, c.begin(), tmin, tmax, p0);
+    }
+
+#endif
+
+
+    /** 
+     * Install a Shomate polynomial thermodynamic property
      * parameterization for species k.
      */
     static void installShomateThermoFromXML(string speciesName, 

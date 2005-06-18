@@ -22,15 +22,17 @@
 #define ERR -999
 #define DERR -999.999
 
+using namespace CanteraZeroD;
+
 typedef ReactorBase reactor_t;
 typedef ReactorNet  reactornet_t;
 typedef FlowDevice  flowdev_t;
 typedef Wall        wall_t;
 
-Cabinet<reactor_t>*    Cabinet<reactor_t>::__storage = 0;
-Cabinet<reactornet_t>*    Cabinet<reactornet_t>::__storage = 0;
-Cabinet<flowdev_t>*    Cabinet<flowdev_t>::__storage = 0;
-Cabinet<wall_t>*       Cabinet<wall_t>::__storage = 0;
+template<> Cabinet<reactor_t>*    Cabinet<reactor_t>::__storage = 0;
+template<> Cabinet<reactornet_t>*    Cabinet<reactornet_t>::__storage = 0;
+template<> Cabinet<flowdev_t>*    Cabinet<flowdev_t>::__storage = 0;
+template<> Cabinet<wall_t>*       Cabinet<wall_t>::__storage = 0;
 
 inline reactor_t* _reactor(int i) {
     return Cabinet<reactor_t>::cabinet()->item(i);

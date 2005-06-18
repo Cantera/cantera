@@ -4,12 +4,16 @@
 # $Revision$
 # $Date$
 #
+
+.SUFFIXES :
+.SUFFIXES : .f .d .o .cpp
+
+do_ranlib = @DO_RANLIB@
+
 LIB = @buildlib@/libctmath.a
 
 all: $(LIB)
 
-.SUFFIXES :
-.SUFFIXES : .f .d .o .cpp
 
 F_FLAGS = @FFLAGS@ @F77FLAGS@
 
@@ -40,7 +44,9 @@ all = $(LIB)
 
 $(LIB):  $(OBJS)
 	@ARCHIVE@ $(LIB) $(OBJS) > /dev/null
-
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(LIB)
+endif
 %.o : %.cpp
 	@CXX@ -c $< @DEFS@  @CXXFLAGS@ $(INCLUDES)
 

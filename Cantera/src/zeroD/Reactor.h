@@ -23,7 +23,7 @@
 
 #define INCL_REACTOR_INTEG
 
-namespace Cantera {
+namespace CanteraZeroD {
 
     /**
      * Class Reactor is a general-purpose class for stirred

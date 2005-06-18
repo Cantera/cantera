@@ -23,11 +23,12 @@ SHARED_CTLIB=0
 OS_IS_DARWIN=0
 OS_IS_WIN=0
 OS_IS_CYGWIN=0
+EXTRA_LINK=""
 
 mex_ext=mexglx
 
 case $ac_sys_system in
-  Darwin*)  OS_IS_DARWIN=1; mex_ext=mexmac;;
+  Darwin*)  OS_IS_DARWIN=1; EXTRA_LINK="-framework Accelerate"; mex_ext=mexmac;;
   CYGWIN*) OS_IS_CYGWIN=1; mex_ext=dll;;
 esac
 
@@ -67,16 +68,6 @@ if test "x${prefix}" = "xNONE"; then
 	   #${ac_default_prefix}
          fi
          local_inst=0
-#	 if test ! -d ${prefix}; then
-#  echo 
-#  echo "********************************************************************"
-#  echo "Installation directory ${prefix} does not exist. Either create it and"
-#  echo "re-run configure, or specify another installation directory using the"
-#  echo "prefix option:"
-#  echo "    ./configure --prefix=<installation_directory>"
-#  echo "********************************************************************"
-#  exit 1       
-#fi
 fi
 
 if test "x${OS_IS_WIN}" = "x1"; then
@@ -86,6 +77,7 @@ echo "Cantera will be installed in ${prefix}"
 AC_SUBST(prefix)
 
 AC_SUBST(local_inst)
+
 
 #
 # Determination of Python site-package directory location
@@ -158,7 +150,7 @@ if test "x${OS_IS_DARWIN}" = "x1"; then
 COMPACT_INSTALL=1
 fi
 
-if test -n $COMPACT_INSTALL; then
+if test $COMPACT_INSTALL -gt 0; then
 ct_libdir=${prefix}/lib/${ctversion}
 ct_datadir=${prefix}/data
 ct_demodir=${prefix}/demos
@@ -183,22 +175,7 @@ AC_SUBST(ct_docdir)
 AC_SUBST(ct_dir)
 AC_SUBST(COMPACT_INSTALL)
 
-#
-#    Cantera directory structure
-#
-#if test -z "$CANTERA_ROOT"; then CANTERA_ROOT=$prefix/cantera; fi
-#AC_SUBST(CANTERA_LIBDIR)
-#AC_SUBST(CANTERA_INCDIR)
-#if test -z "$CT_TOOLS_BIN"; then CT_TOOLS_BIN=$CANTERA_ROOT/tools/bin; fi
-#AC_SUBST(CT_TOOLS_BIN)
-#AC_SUBST(CANTERA_BINDIR)
-#if test -z "$CANTERA_EXAMPLES_DIR"; then CANTERA_EXAMPLES_DIR=$CANTERA_ROOT/examples; fi
-#AC_SUBST(CANTERA_EXAMPLES_DIR)
-#AC_SUBST(CANTERA_DATADIR)
-
-
 AC_CANONICAL_SYSTEM()
-
 # the root of the source tree
 ctroot=`(cd ..;pwd)`
 builddir=$target
@@ -284,6 +261,7 @@ AC_SUBST(INCL_USER_CODE)
 #  The Cantera Kernel
 #########################################################
 KERNEL='base'
+KERNEL_OBJ='$(BASE_OBJ)'
 BUILD_CK=
 
 NEED_CKREADER=
@@ -297,58 +275,93 @@ NEED_TRANSPORT=
 NEED_ZEROD=
 NEED_ONED=
 
-if test "$ENABLE_THERMO" = "y"; then KERNEL=$KERNEL' 'thermo; fi
-if test "$ENABLE_KINETICS" = "y"; then KERNEL=$KERNEL' 'kinetics; fi
-
-if test "$ENABLE_CK" = "y"
-then 
-BUILD_CK=1
-NEED_CKREADER=1
+if test "$ENABLE_THERMO" = "y"; then 
+  KERNEL=$KERNEL' 'thermo; 
+  KERNEL_OBJ=$KERNEL_OBJ' $(THERMO_OBJ)'
 fi
 
-if test "$ENABLE_TRANSPORT" = "y"
-then KERNEL=$KERNEL' 'trprops
-NEED_LAPACK=1
-NEED_MATH=1
-NEED_TRANSPORT=1
+if test "$WITH_METAL" = "y"; then
+  AC_DEFINE(WITH_METAL)
+  hdrs=$hdrs' MetalPhase.h'
+fi
+if test "$WITH_STOICH_SUBSTANCE" = "y"; then
+  AC_DEFINE(WITH_STOICH_SUBSTANCE)
+  hdrs=$hdrs' StoichSubstance.h'
+  objs=$objs' StoichSubstance.o'
+fi
+if test "$WITH_PURE_FLUIDS" = "y"; then
+  AC_DEFINE(WITH_PURE_FLUIDS)
+  hdrs=$hdrs' PureFluidPhase.h'
+  objs=$objs' PureFluidPhase.o'
+fi
+if test "$WITH_LATTICE_SOLID" = "y"; then
+  AC_DEFINE(WITH_LATTICE_SOLID)
+  hdrs=$hdrs' LatticeSolidPhase.h'
+  objs=$objs' LatticeSolidPhase.o'
+fi  
+phase_object_files=$objs
+phase_header_files=$hdrs
+AC_SUBST(phase_object_files)
+AC_SUBST(phase_header_files)
+
+if test "$ENABLE_KINETICS" = "y"; then 
+  KERNEL=$KERNEL' 'kinetics; 
+  KERNEL_OBJ=$KERNEL_OBJ' $(KINETICS_OBJ) $(HETEROKIN_OBJ)'
 fi
 
-if test "$ENABLE_EQUIL" = "y"
-then KERNEL=$KERNEL' 'equil
-NEED_LAPACK=1
-NEED_RECIPES=1
+if test "$ENABLE_CK" = "y" ; then
+  BUILD_CK=1
+  NEED_CKREADER=1
+  KERNEL=$KERNEL' 'ck 
 fi
 
-if test "$ENABLE_REACTORS" = "y"
-then KERNEL=$KERNEL' 'reactor
-NEED_CVODE=1
-NEED_ZEROD=1
+if test "$ENABLE_TRANSPORT" = "y" ; then
+  KERNEL=$KERNEL' 'trprops
+  NEED_LAPACK=1
+  NEED_MATH=1
+  NEED_TRANSPORT=1
 fi
 
-if test "$ENABLE_SOLVERS" = "y"
-then KERNEL=$KERNEL' 'solvers
-NEED_CVODE=1
-NEED_MATH=1
+if test "$ENABLE_EQUIL" = "y" ; then 
+  KERNEL=$KERNEL' 'equil
+  KERNEL_OBJ=$KERNEL_OBJ' $(EQUIL_OBJ)'
+  NEED_LAPACK=1
+  NEED_RECIPES=1
 fi
 
-if test "$ENABLE_FLOW1D" = "y"
-then KERNEL=$KERNEL' 'flow1D
-NEED_LAPACK=1
-NEED_MATH=1
-NEED_ONED=1
+if test "$ENABLE_REACTORS" = "y" ; then
+  KERNEL=$KERNEL' 'reactor
+  NEED_CVODE=1
+  NEED_ZEROD=1
 fi
 
-if test "$ENABLE_RXNPATH" = "y"
-then KERNEL=$KERNEL' 'rpath
+if test "$ENABLE_SOLVERS" = "y" ; then
+  KERNEL=$KERNEL' 'solvers
+  KERNEL_OBJ=$KERNEL_OBJ' $(SOLVERS_OBJ)'
+  NEED_CVODE=1
+  NEED_MATH=1
 fi
 
-if test "$ENABLE_TPX" = "y"
-then KERNEL=$KERNEL' 'tpx
-NEED_TPX=1
-AC_DEFINE(INCL_PURE_FLUIDS)
+if test "$ENABLE_FLOW1D" = "y" ; then 
+  KERNEL=$KERNEL' 'flow1D
+  NEED_LAPACK=1
+  NEED_MATH=1
+  NEED_ONED=1
+fi
+
+if test "$ENABLE_RXNPATH" = "y" ; then
+  KERNEL=$KERNEL' 'rpath
+  KERNEL_OBJ=$KERNEL_OBJ' $(RPATH_OBJ)'
+fi
+
+if test "$ENABLE_TPX" = "y" ; then 
+  KERNEL=$KERNEL' 'tpx
+  NEED_TPX=1
+  AC_DEFINE(INCL_PURE_FLUIDS)
 fi
 
 AC_SUBST(KERNEL)
+AC_SUBST(KERNEL_OBJ)
 AC_SUBST(BUILD_CK)
 AC_SUBST(LIB_DIR)
 
@@ -359,13 +372,16 @@ AC_SUBST(LIB_DIR)
 # if lapack and blas libraries have been specified, then skip building the
 # supplied libraries
 
+
 build_lapack=0
 build_blas=0
-if test -z "$BLAS_LAPACK_LIBS"
-then BLAS_LAPACK_LIBS="-lctlapack -lctblas"
-BLAS_LAPACK_DIR="$buildlib"
-build_blas=1
-build_lapack=1
+if test -z "$BLAS_LAPACK_LIBS"; then
+  if test "x$OS_IS_DARWIN" = "x0"; then 
+    BLAS_LAPACK_LIBS="-lctlapack -lctblas"
+    BLAS_LAPACK_DIR="$buildlib"
+    build_blas=1
+    build_lapack=1
+  fi
 fi
 
 AC_SUBST(build_lapack)
@@ -393,6 +409,7 @@ if test -n $BUILD_WITH_F2C ; then
     fi
   fi
 fi
+
 #
 # Determine if you need the f2c library at link time
 # -> Note, Linux systems already have the g2c library
@@ -453,6 +470,15 @@ fi
 
 if test -n "$NEED_F2C"
 then LOCAL_LIBS=$LOCAL_LIBS' '-lctf2c
+else
+  case $ac_sys_system in
+    Linux)    LOCAL_LIBS=$LOCAL_LIBS' '-lg2c;;
+    Darwin*)  LOCAL_LIBS=$LOCAL_LIBS' '-lg2c;;
+  esac
+fi
+
+if test -n "$NEED_CKREADER"
+then LOCAL_LIBS=$LOCAL_LIBS' '-lconverters
 fi
 
 LOCAL_LIB_DIRS=
@@ -463,30 +489,6 @@ fi
 AC_SUBST(LOCAL_LIB_DIRS)
 AC_SUBST(LOCAL_LIBS)
 
-
-#--------------------------------------------------
-# Particle Library interface
-#--------------------------------------------------
-BUILD_PARTICLES=0
-
-if test "$ENABLE_PARTICLES" = "y"
-then 
-BUILD_PARTICLES=1
-NEED_PARTICLES=1
-if test -z "$CANTERA_PARTICLES_DIR"
-then
-  if test -z "$PARTICLES_DIR"
-  then
-    CANTERA_PARTICLES_DIR=$CANTERA_ROOT/Cantera/cads
-  else
-    CANTERA_PARTICLES_DIR=$CANTERA_ROOT/$PARTICLES_DIR
-  fi
-fi
-AC_SUBST(CANTERA_PARTICLES_DIR)
-CXXFLAGS="$CXXFLAGS -DHAVE_PARTICLES -I$CANTERA_PARTICLES_DIR/src"
-fi
-
-AC_SUBST(BUILD_PARTICLES)
 #-------------------------------------------------
 #      Language Interfaces
 #-------------------------------------------------
@@ -498,15 +500,9 @@ AC_SUBST(CT_SHARED_LIB)
 #   Before turning on this interface, we do a rudimentary check
 #   to make sure that the F90 compiler can be found 
 #
-BUILD_F90=0
-if test "x$BUILD_F90_INTERFACE" = "xy"; then
-  BUILD_F90=1
-#  AC_CHECK_PROG(foundF90, $F90, yes, no)
-#  if test x$foundF90 = "xno" ; then
-#    echo 'Did not find the Fortran 90 compiler, '$F90 
-#    echo "     -> Turning off F90 interface even though it was requested" 
-#    BUILD_F90=0
-#  fi
+BUILD_F90=1
+if test "x$BUILD_F90_INTERFACE" = "xn"; then
+  BUILD_F90=0
 fi
 
 if test "x$F77FLAGS" = "x"; then
@@ -515,63 +511,65 @@ fi
 AC_SUBST(F77FLAGS)
 
 BUILD_CLIB=1
-#       
+
+
+
+#----------------------------------------------------------------       
 #     Python Interface
-#
+#----------------------------------------------------------------
+
 BUILD_PYTHON=0
 if test "x$PYTHON_PACKAGE" = "xfull"; then
+   BUILD_PYTHON=2
+elif test "x$PYTHON_PACKAGE" = "xdefault"; then
    BUILD_PYTHON=2
 elif test "x$PYTHON_PACKAGE" = "xminimal"; then
    BUILD_PYTHON=1
 fi
 
-WIN_PYTHON_CMD=python
-if test $BUILD_PYTHON -gt 0; then
-  if test "$PYTHON_CMD" = "default" -o \
-          "$PYTHON_CMD"x = "x"; then
+if test "$PYTHON_CMD" = "default" -o \
+        "$PYTHON_CMD"x = "x"; then
     AC_PATH_PROGS(PYTHON_CMD, python2 python, "none")
-    if test "$PYTHON_CMD" = "none" ; then
-      echo "ERROR: python requested, but no python executable found!"
+    if test "$PYTHON_CMD" = "none"; then
+     echo 
+     echo "********************************************************************"
+     echo "Configuration error. Python is required to build Cantera, but it"
+     echo "cannot be found. Set environment variable PYTHON_CMD to the full path to"
+     echo "the Python interpreter on your system, and run configure again."
+     echo "********************************************************************"
+     exit 1
     else
-      echo "Python command set to " $PYTHON_CMD
+      echo "Python command set by configure to " $PYTHON_CMD
     fi
-    if test "x$OS_IS_WIN" = "x1"; then
-      AC_PATH_PROGS(WIN_PYTHON_CMD, python, "none")
-      WIN_PYTHON_CMD=`cygpath -a -m "$WIN_PYTHON_CMD"` 
-      echo "Windows Python command: $WIN_PYTHON_CMD"
-    fi 
-  else
-    echo "Python command preset to $PYTHON_CMD"
-    if test "x$OS_IS_WIN" = "x1"; then
-      WIN_PYTHON_CMD=`cygpath -a -m "$PYTHON_CMD"`
-      echo "Windows Python Command set to $WIN_PYTHON_CMD"
-    fi
-  fi
-
-  if test "$PYTHON_CMD" = "none"; then
-    echo 
-    echo "********************************************************************"
-    echo "Configuration error. Python is required to build Cantera, but it"
-    echo "cannot be found. Set environment variable PYTHON_CMD to the full path to"
-    echo "the Python interpreter on your system, and run configure again."
-    echo "********************************************************************"
-    exit 1
-  fi
 else
-  PYTHON_CMD=none
-  WIN_PYTHON_CMD=none
+    echo "Python command preset to $PYTHON_CMD"
 fi
+
 
 AC_SUBST(BUILD_PYTHON)
-if test "x$OS_IS_WIN" = "x1"; then
-AC_DEFINE_UNQUOTED(PYTHON_EXE,"$WIN_PYTHON_CMD")
-else
 AC_DEFINE_UNQUOTED(PYTHON_EXE,"$PYTHON_CMD")
-fi
 
 if test "$USE_NUMERIC" = "y"; then
 AC_DEFINE(HAS_NUMERIC)
 fi
+
+NUMARRAY_INC_DIR=""
+if test -n "$NUMARRAY_HOME"; then
+NUMARRAY_INC_DIR="$NUMARRAY_HOME/include/python"
+fi
+AC_SUBST(NUMARRAY_INC_DIR)
+AC_SUBST(NUMARRAY_HOME)
+AC_SUBST(CANTERA_PYTHON_HOME)
+
+#--------------------------
+# CVS Tag
+#--------------------------
+CVSTAG=`${PYTHON_CMD} ../tools/src/findtag.py ..`
+if test "x$CVSTAG" = "x"; then
+CVSTAG="HEAD"
+fi
+AC_SUBST(CVSTAG)
+
 
 #       
 #     Matlab Interface
@@ -647,27 +645,47 @@ AC_MSG_RESULT(${has_sstream})
 #     Fortran
 #---------------------------------
 
-# if test -z $build_with_f2c; then
-AC_PROG_F77()
+if test x"$build_with_f2c" = "x0"; then
+  AC_PROG_F77()
 
 # if G77 is defined, then add a flag to turn off adding a second underscore
 # to procedures that have an underscore in the name
-if test -n "$G77"; then
-  FFLAGS=$FFLAGS' -fno-second-underscore'
-#fi
+  if test -n "$G77"; then
+    FFLAGS=$FFLAGS' -fno-second-underscore'
+  fi
 
 dnl Checks for libraries.
 AC_F77_LIBRARY_LDFLAGS()
+
 override_f77_libs=0;
 case $ac_sys_system in
-  Darwin*)  FLIBS='-lstdc++ -lg2c'; override_f77_libs=1; SHARED_CTLIB=0;;
+  Darwin*)  FLIBS='-lstdc++ -lg2c -lcc_dynamic'; override_f77_libs=1; SHARED_CTLIB=0;;
 esac
 
-if test -n $override_f77_libs; then
+if test $override_f77_libs -gt 0; then
   echo The Fortran 77 libraries on this platform are not correctly determined by 
   echo the configuration process. They are being manually set to 
   echo     FLIBS = $FLIBS
 fi
+
+fi
+
+#--------------------------------------------
+
+
+if test -n ${BUILD_F90}; then
+  echo F90 = $F90
+  if test "$F90" = "default" -o \
+          "$F90"x = "x"; then
+    AC_PATH_PROGS(F90, f95 gfortran g95, "none")
+    if test "$F90" = "none" ; then
+      echo "ERROR: Fortran 90 requested, but no Fortran 90/95 compiler found!"
+    else
+      echo "Fortran compiler set to " $F90
+    fi
+  else
+    echo "Fortran 90/95 compiler preset to $F90"
+  fi
 fi
 
 has_f90=no
@@ -693,6 +711,24 @@ EOF
     f90type=unknown
   fi
 #
+  msg=`${F90} --version &> f90out`
+  isgfortran=`grep -c 'GNU Fortran 95' f90out`
+  if test "x${isgfortran}" != "x0"; then 
+    f90type="gfortran"
+    f90opts="-fno-second-underscore -I. -I${ct_incdir}"
+    f90buildopts="-fno-second-underscore -I."
+  fi
+
+  isg95=`grep -c 'G95' f90out`
+  if test "x${isg95}" != "x0"; then 
+    f90type="g95"
+    f90opts="-fno-second-underscore -I. -I${ct_incdir}"
+    f90buildopts="-fno-second-underscore -I."
+    case $ac_sys_system in
+      Darwin*)  FLIBS='-lg2c -lcc_dynamic';;
+    esac
+  fi
+
   msg=`${F90} -V &> f90out`
   isnag=`grep -c NAGWare f90out`
   if test "x${isnag}" != "x0"; then 
@@ -781,6 +817,9 @@ fi
 # Set info about shared libraries.
 AC_SUBST(SO)
 AC_SUBST(LDSHARED)
+
+AC_SUBST(EXTRA_LINK)
+
 # SO is the extension of shared libraries `(including the dot!)
 # -- usually .so, .sl on HP-UX, .dll on Cygwin
 AC_MSG_CHECKING(SO)

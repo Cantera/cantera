@@ -19,14 +19,15 @@ extern "C" {
     int DLL_IMPORT mix_setPressure(int i, double p);
     double DLL_IMPORT mix_pressure(int i);
     double DLL_IMPORT mix_nAtoms(int i, int k, int m);
+    double DLL_IMPORT mix_nPhases(int i);
     double DLL_IMPORT mix_phaseMoles(int i, int n);
     int DLL_IMPORT mix_setPhaseMoles(int i, int n, double v);
     int DLL_IMPORT mix_setMoles(int i, int nlen, double* n);
-        int DLL_IMPORT mix_setMolesByName(int i, char* n);
+    int DLL_IMPORT mix_setMolesByName(int i, char* n);
     double DLL_IMPORT mix_speciesMoles(int i, int k);
     double DLL_IMPORT mix_elementMoles(int i, int m);
     double DLL_IMPORT mix_equilibrate(int i, char* XY, 
-        double err, int maxiter);
+        double err, int maxsteps, int maxiter, int loglevel);
     int DLL_IMPORT mix_getChemPotentials(int i, int lenmu, double* mu);
 }
 #endif

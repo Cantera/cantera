@@ -15,7 +15,7 @@
         int status, buflen;
         char* input_buf;
         double* ptr;
-        int n, nsp, mjob;
+        int n, nsp, mjob, show_thermo;
 
         // methods to set attributes
         if (job < 0) {
@@ -93,6 +93,9 @@
                     case 31:
                         iok = phase_setMassFractionsByName(ph, input_buf);
                         break;
+                    case 32:
+                        iok = phase_setName(ph, input_buf);
+                        break;
                     default:
                         mexErrMsgTxt("what?");
                     }   
@@ -135,6 +138,10 @@
                 k = getInt(prhs[3]);
                 m = getInt(prhs[4]);
                 vv = phase_nAtoms(ph,k-1,m-1); break;
+            case 15:
+                show_thermo = getInt(prhs[3]);
+                vv = write_phase(ph,show_thermo); 
+                break;
             default:
                 ok = false;
             }
@@ -227,6 +234,11 @@
                 buflen = 40;
                 output_buf = (char*)mxCalloc(buflen, sizeof(char));
                 iok = phase_getElementName(ph, mel-1, buflen, output_buf);
+                break;
+            case 42:
+                buflen = 40;
+                output_buf = (char*)mxCalloc(buflen, sizeof(char));
+                iok = phase_getName(ph, buflen, output_buf);
                 break;
             default:
                 iok = -1;

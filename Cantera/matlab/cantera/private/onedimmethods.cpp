@@ -27,17 +27,18 @@ void onedimmethods( int nlhs, mxArray *plhs[],
 
     int idom, icomp, localPoint;
     if (job < 10) {
-        int ph, kin, tr, nd, sz, k, *ptrs;
+        int ph, kin, tr, itype, nd, sz, k, *ptrs;
 
         switch (job) {
 
             // construct a new stagnation flow instance
         case 1:
-            checkNArgs(6, nrhs);
+            checkNArgs(7, nrhs);
             ph = getInt(prhs[3]);
             kin = getInt(prhs[4]);
             tr = getInt(prhs[5]);
-            indx = stflow_new(ph, kin, tr);
+            itype = getInt(prhs[6]);
+            indx = stflow_new(ph, kin, tr, itype);
             break;
 
             // construct a new Inlet1D instance
@@ -97,6 +98,12 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             //writelog("deleting ptrs\n");
             delete[] ptrs;
             //writelog("done\n");
+            break;
+
+            // construct a new OutletRes1D instance
+        case -2:
+            checkNArgs(3,nrhs);
+            indx = outletres_new();
             break;
 
         default:

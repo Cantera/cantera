@@ -8,7 +8,13 @@
  *  $Revision$
  *
  *  $Log$
- *  Revision 1.6  2004-06-09 00:59:24  dggoodwin
+ *  Revision 1.7  2005-06-18 17:01:08  dggoodwin
+ *  Prerelease_1_6_0_branch merged into trunk
+ *
+ *  Revision 1.6.2.1  2005/01/24 15:09:11  dggoodwin
+ *  *** empty log message ***
+ *
+ *  Revision 1.6  2004/06/09 00:59:24  dggoodwin
  *  moved functions to read XML input files out of importCTML.cpp and into specific classes
  *
  *  Revision 1.5  2003/11/12 18:58:17  dggoodwin
@@ -99,6 +105,8 @@ namespace Cantera {
       /// Atomic weight of element m. 
       doublereal atomicWeight(int m) const;
 
+      /// Atomic number of element m. 
+      int atomicNumber(int m) const;
 
       /// Return a read-only reference to the vector of element names.
       const vector<string>& elementNames() const;

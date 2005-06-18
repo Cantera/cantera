@@ -11,7 +11,7 @@ help tut4
 % 'equilibrate' method.
 %
 g = GRI30;
-set(g,'T',300.0,'P',oneatm,'X','CH4:0.95,O2:2,N2:7.52')
+set(g,'T',1200.0,'P',oneatm,'X','CH4:0.95,O2:2,N2:7.52')
 equilibrate(g,'TP')
 
 % The above statement sets the state of object 'g' to the state of
@@ -19,21 +19,26 @@ equilibrate(g,'TP')
 % fixed. Alternatively, the specific enthalpy and pressure can be held
 % fixed:
 
-set(g,'T',300.0,'P',oneatm,'X','CH4:0.95,O2:2.0,N2:7.52');
+disp('fixed H and P:');
+set(g,'T',1200.0,'P',oneatm,'X','CH4:0.95,O2:2.0,N2:7.52');
 equilibrate(g,'HP')
+
 
 % Other options are
 %     'UV'   fixed specific internal energy and specific volume
 %     'SV'   fixed specific entropy and specific volume
 %     'SP'   fixed specific entropy and pressure
 
-set(g,'T',300.0,'P',oneatm,'X','CH4:0.95,O2:2,N2:7.52');
+disp('fixed U and V:');
+set(g,'T',1200.0,'P',oneatm,'X','CH4:0.95,O2:2,N2:7.52');
 equilibrate(g,'UV')
 
-set(g,'T',300.0,'P',oneatm,'X','CH4:0.95,O2:2,N2:7.52');
+disp('fixed S and V:');
+set(g,'T',1200.0,'P',oneatm,'X','CH4:0.95,O2:2,N2:7.52');
 equilibrate(g,'SV')
 
-set(g,'T',300.0,'P',oneatm,'X','CH4:0.95,O2:2,N2:7.52');
+disp('fixed S and P:');
+set(g,'T',1200.0,'P',oneatm,'X','CH4:0.95,O2:2,N2:7.52');
 equilibrate(g,'SP')
 
 % How can you tell if 'equilibrate' has correctly found the

@@ -32,7 +32,7 @@ if nargout == 0
    ioh = speciesIndex(gas,'OH');
    plot(out.x,out.y(1+ioh,:));
    xlabel('time');
-   ylabel('Mole Fraction');
-   title('OH Mole Fraction');   
+   ylabel('Mass Fraction');
+   title('OH Mass Fraction');   
    
 end

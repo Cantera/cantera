@@ -30,7 +30,7 @@ static void printUsage()
 
 }
 
-
+#include "Cantera.h"
 #include "kernel/ct_defs.h"
 #include "kernel/ctml.h"
 #include "kernel/GasKinetics.h"

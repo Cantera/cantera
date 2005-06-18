@@ -5,10 +5,6 @@
  *  Chemical equilibrium. 
  *  Implementation file for class ChemEquil
  *
- *  $Author$ 
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2001 California Institute of Technology
  *
  */
@@ -221,7 +217,7 @@ namespace Cantera {
         
         // first column contains fixed element moles
         for (m = 0; m < mm; m++) {
-            aa(m+1,0) = elementMoles[m] + 0.01;
+            aa(m+1,0) = elementMoles[m]; // + 0.01;
         }
 
         // get the array of non-dimensional Gibbs functions for the pure 
@@ -517,7 +513,7 @@ namespace Cantera {
         vector_fp below(nvar);
 
         for (m = 0; m < mm; m++) {
-            above[m] = 30.0;
+            above[m] = 200.0; // 30.0;
             below[m] = -2000.0;
             if (elMoles[m] < Cutoff && m != m_eloc) x[m] = -1000.0;
             //if (m == m_eloc) x[m] = -10.0;
@@ -591,10 +587,10 @@ namespace Cantera {
             newval = x[m] + res_trial[m];
             if (newval > above[m]) {
                 fctr = fmaxx( 0.0, fminn( fctr, 
-                    0.4*(above[m] - x[m])/(newval - x[m])));
+                    0.8*(above[m] - x[m])/(newval - x[m])));
             }
             else if (newval < below[m]) {
-                fctr = fminn(fctr, 0.4*(x[m] - below[m])/(x[m] - newval));
+                fctr = fminn(fctr, 0.8*(x[m] - below[m])/(x[m] - newval));
             }
         }
 

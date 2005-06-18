@@ -29,7 +29,8 @@ namespace Cantera {
         /// Constructor. The constructor takes no arguments, since
         /// phases are added using method addPhase.
         MultiPhase() : m_temp(0.0), m_press(0.0), 
-                       m_nel(0), m_nsp(0), m_init(false), m_equil(0) {}
+                       m_nel(0), m_nsp(0), m_init(false), m_eloc(-1), 
+                       m_equil(0) {}
 
         /// Destructor. Does nothing. Class MultiPhase does not take 
         /// "ownership" (i.e. responsibility for destroying) the
@@ -87,6 +88,10 @@ namespace Cantera {
             return m_spstart[p] + k;
         }
 
+
+        doublereal charge();
+        doublereal phaseCharge(index_t p);
+
         /// Total moles of element m, summed over all
         /// phases
         doublereal elementMoles(index_t m);
@@ -95,6 +100,10 @@ namespace Cantera {
         /// potentials of all species [J/kmol].
         void getChemPotentials(doublereal* mu);
 
+        /// Valid chemical potentials. Write into array \c mu the
+        /// chemical potentials of all species with thermo data valid
+        /// for the current temperature [J/kmol]. For other species,
+        /// set the chemical potential to the value \c not_mu.
         void getValidChemPotentials(doublereal not_mu, doublereal* mu);
 
         /// Chemical potentials. Write into array \c mu the chemical
@@ -107,7 +116,7 @@ namespace Cantera {
         }
 
         doublereal equilibrate(int XY, doublereal err = 1.0e-9, 
-            int maxsteps = 1000);
+            int maxsteps = 1000, int maxiter = 200, int loglevel = 0);
 
 
         /// Set the temperature [K].
@@ -120,12 +129,17 @@ namespace Cantera {
             return m_press;
         }
 
+        doublereal volume();
+
         void setPressure(doublereal P) {
             m_press = P;
             updatePhases();
         }
 
+        doublereal enthalpy();
+        doublereal entropy();
         doublereal gibbs();
+        doublereal cp();
 
         index_t nPhases() {
             return m_np;
@@ -169,6 +183,7 @@ namespace Cantera {
         vector_int m_spphase;
         vector_int m_spstart;
         vector<string> m_enames;
+        vector_int m_atomicNumber;
         vector<string> m_snames;
         map<string, int> m_enamemap;
         index_t  m_np;
@@ -177,6 +192,7 @@ namespace Cantera {
         index_t m_nel; 
         index_t m_nsp;
         bool m_init;
+        int m_eloc;
         vector<bool> m_temp_OK;
         MultiPhaseEquil* m_equil;
     };

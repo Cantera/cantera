@@ -1,14 +1,356 @@
-2005-01-22 04:48  dggoodwin
+2005-05-22 14:07  dggoodwin
 
-	* win32/vc7/: SetupCantera/SetupCantera.vdproj,
-	  cantera/cantera.vcproj, ck2cti/ck2cti.vcproj,
-	  converters/converters.vcproj, ctmatlab/ctmatlab.vcproj,
-	  ctpython/ctpython.vcproj, cvode/cvode.vcproj,
-	  cxxutils/cxxutils.vcproj, f2c_blas/f2c_blas.vcproj,
-	  f2c_lapack/f2c_lapack.vcproj, f2c_libs/f2c_libs.vcproj,
-	  f2c_math/f2c_math.vcproj, f2c_recipes/f2c_recipes.vcproj,
-	  oneD/oneD.vcproj, tpx/tpx.vcproj, transport/transport.vcproj,
-	  zeroD/zeroD.vcproj: added hfc134a to Cantera
+	* test_problems/python/: frac.cti, frac.py, frac_blessed.out,
+	  runtest: fractional stoichiometric coefficient test
+
+2005-05-22 13:38  dggoodwin
+
+	* Cantera/src/GasKinetics.cpp, Cantera/src/GasKinetics.h,
+	  Cantera/src/ReactionStoichMgr.cpp,
+	  Cantera/src/SpeciesThermoFactory.cpp,
+	  Cantera/src/StoichManager.h, Cantera/src/ct2ctml.cpp,
+	  Cantera/src/mix_defs.h, configure, Cantera/clib/src/ct.cpp,
+	  Cantera/clib/src/ct.h, Cantera/clib/src/ctmultiphase.cpp,
+	  Cantera/clib/src/ctmultiphase.h,
+	  Cantera/fortran/src/cantera_kinetics.f90,
+	  Cantera/fortran/src/cantera_thermo.f90,
+	  Cantera/matlab/Makefile.in, Cantera/matlab/setup_matlab.py.in,
+	  Cantera/matlab/cantera/@ThermoPhase/name.m,
+	  Cantera/matlab/cantera/private/ctmethods.cpp,
+	  Cantera/matlab/cantera/private/phasemethods.cpp,
+	  Cantera/matlab/cantera/private/thermomethods.cpp,
+	  Cantera/matlab/cantera/private/write.cpp,
+	  Cantera/python/Cantera/Kinetics.py,
+	  Cantera/python/Cantera/Mixture.py,
+	  Cantera/python/Cantera/ThermoPhase.py,
+	  Cantera/python/Cantera/mixture.py,
+	  Cantera/python/src/ctthermo_methods.cpp,
+	  tools/doc/doxyinput/Cantera.txt, tools/doc/doxyinput/ctnew.txt,
+	  tools/doc/doxyinput/demo1a.cpp, tools/doc/doxyinput/introcxx.txt:
+	  support for fractional stoichiometric coefficients
+
+2005-05-19 15:15  hkmoffa
+
+	* Cantera/src/units.h: Added in more units:   nm
+	  nanometers   Angstrom   Angstroms Activation Energy Units:
+	  Kelvin	  (GasConstant)   Dimensionless   (273.15 *
+	  GasConstant)
+
+	      -> specification of dimensionless gibbs free energies is
+	  common
+		 in electrochemistry. However, you have to multiply by the
+		 current temperature to convert correctly here.
+
+2005-05-01 06:58  dggoodwin
+
+	* Cantera/src/: Array.h, ArrayViewer.h, BandMatrix.h, ChemEquil.h,
+	  Kinetics.h, MultiPhase.cpp, MultiPhase.h, MultiPhaseEquil.cpp,
+	  MultiPhaseEquil.h, ReactionData.h, ReactionStoichMgr.cpp,
+	  ReactionStoichMgr.h, StoichManager.h, ct_defs.h, ctml.cpp,
+	  global.h, importCTML.cpp, phasereport.cpp: added support for
+	  non-integral product stoichiometric coefficients
+
+2005-04-23 10:14  dggoodwin
+
+	* Cantera/matlab/cantera/@Mixture/: Mixture.m, addPhase.m,
+	  mix_hndl.m, nPhases.m, private/mixturemethods.m: initial import
+
+2005-04-23 10:12  dggoodwin
+
+	* Cantera/matlab/cantera/@ThermoPhase/: equilibrate.m, name.m,
+	  setName.m, private/thermo_set.m: added name and setName methods
+
+2005-04-22 19:42  dggoodwin
+
+	* Cantera/matlab/cantera/examples/: ignite.m, ignite2.m, ignite3.m,
+	  ignite_hp.m, ignite_uv.m: corrected plot labels to be mass,
+	  rather than mole, fractions
+
+2005-04-17 08:48  hkmoffa
+
+	* Cantera/src/global.h: Added cvs id information.
+
+2005-04-15 12:47  hkmoffa
+
+	* ext/Makefile.in: Changed the Makefile to always make f2c_libs.
+	  Applications may have use of this even if Cantera doesn't
+	  actually use f2c.
+
+2005-04-15 12:01  hkmoffa
+
+	* Cantera/cxx/demos/kinetics1.cpp: Added in the cantera/Cantera.h
+	  include file. It seemed to need it to compile in the demo
+	  directory of the install directory.
+
+2005-04-13 04:17  dggoodwin
+
+	* Cantera/python/examples/: equilibrium/adiabatic.py,
+	  equilibrium/plotting.py, flames/flame1.py, flames/flame2.py,
+	  flames/stflame1.py, kinetics/ratecoeffs.py: updated examples
+
+2005-04-06 17:03  dggoodwin
+
+	* Cantera/matlab/cantera/buildwin.m: minor changes to SetupCantera
+
+2005-04-01 20:37  dggoodwin
+
+	* Cantera/python/Cantera/constants.py: changed GasConstant to 1999
+	  CODATA value
+
+2005-04-01 06:29  dggoodwin
+
+	* tools/doc/: Cantera.cfg, doxyinput/Cantera.txt,
+	  doxyinput/build.txt, doxyinput/ctnew.txt,
+	  doxyinput/cxx-headers.txt, doxyinput/demo.cpp,
+	  doxyinput/demo1.cpp, doxyinput/demo1a.cpp,
+	  doxyinput/demoequil.cpp, doxyinput/equildemo.txt,
+	  doxyinput/ex1.cpp, doxyinput/except.cpp,
+	  doxyinput/exceptions.txt, doxyinput/introcxx.txt,
+	  doxyinput/languages.txt, doxyinput/thermo.txt,
+	  doxyinput/thermodemo.cpp, doxyinput/thermodemo.txt: new doxygen
+	  files
+
+2005-03-31 17:10  dggoodwin
+
+	* Cantera/src/: IdealGasPhase.h, State.h, ThermoPhase.h, misc.cpp,
+	  utilities.h: updated comments
+
+2005-03-30 09:33  hkmoffa
+
+	* Cantera/src/ThermoPhase.h: Fixed a comment section that
+	  incorrectly identified a function as returning a Gibbs energy
+	  when it actually returned a Heat capacity.
+
+2005-03-30 08:03  hkmoffa
+
+	* Makefile.in: Took residual particle Makefile stuff out of this
+	  file.
+
+2005-03-30 08:02  hkmoffa
+
+	* Cantera/Makefile.in: Took residual particle configure stuff out
+	  of this file.
+
+2005-03-30 08:00  hkmoffa
+
+	* config/configure.in: Took residual particle stuff out of this
+	  file.
+
+2005-03-23 12:54  hkmoffa
+
+	* Cantera/src/.cvsignore: Added *.d
+
+2005-03-09 12:48  dggoodwin
+
+	* Cantera/python/ctml_writer.py: added support for fractional
+	  product stoichiometric coefficients in global irreversible
+	  reactions
+
+2005-03-05 07:43  dggoodwin
+
+	* Cantera/src/: LatticeSolidPhase.h, LatticeSolidPhase.cpp: initial
+	  import
+
+2005-02-25 04:48  dggoodwin
+
+	* Makefile.in, config/configure, config/configure.in: g95 changes
+
+2005-02-24 19:52  dggoodwin
+
+	* Makefile.in, Cantera/python/setup.py.in, config/configure,
+	  config/configure.in, tools/src/finish_install.py.in: minor
+	  cleanup
+
+2005-02-24 11:01  dggoodwin
+
+	* Cantera/src/converters/ck2ct.cpp: minor cleanup
+
+2005-02-24 11:01  dggoodwin
+
+	* Cantera/src/config.h: added check for CANTERA_APP
+
+2005-02-24 11:01  dggoodwin
+
+	* Cantera/cxx/include/Cantera.h: added definition of CANTERA_APP,
+	  which is used in Cantera/src/config.h to control where to find
+	  the config file
+
+2005-02-24 10:59  dggoodwin
+
+	* test_problems/: diamondSurf/runDiamond.cpp,
+	  silane_equil/silane_equil.cpp: added #include for file Cantera.h
+
+2005-02-24 10:59  dggoodwin
+
+	* test_problems/silane_equil/output_blessed.txt: changed output
+	  format
+
+2005-02-24 08:54  dggoodwin
+
+	* tools/src/findtag.py: initial import
+
+2005-02-17 09:35  dggoodwin
+
+	* apps/MixMaster/: Mix.py, ThermoFrame.py, ThermoProp.py: minor
+	  changes
+
+2005-02-17 08:25  dggoodwin
+
+	* apps/MixMaster/KineticsFrame.py: added scrollbar to reaction
+	  window
+
+2005-02-16 22:12  dggoodwin
+
+	* apps/MixMaster/KineticsFrame.py: changed default reaction path
+	  diagram format to SVG
+
+2005-02-10 00:15  dggoodwin
+
+	* Cantera/src/Makefile.in: minor win32 bug fixes
+
+2005-02-10 00:10  dggoodwin
+
+	* Cantera/: clib/src/ct.h, matlab/cantera/buildwin.m,
+	  matlab/cantera/private/ctmethods.cpp, python/src/pycantera.cpp,
+	  src/MultiPhase.cpp, src/config.h, src/converters/ck2ct.cpp: minor
+	  win32 bug fixes
+
+2005-02-09 02:26  dggoodwin
+
+	* Makefile.in, configure, Cantera/clib/src/ct.cpp,
+	  Cantera/clib/src/ct.h, Cantera/python/Cantera/Mixture.py,
+	  Cantera/python/Cantera/__init__.py,
+	  Cantera/python/Cantera/mixture.py,
+	  Cantera/python/examples/equilibrium/adiabatic.py,
+	  Cantera/python/examples/equilibrium/plotting.py,
+	  Cantera/python/src/ctfuncs.cpp,
+	  Cantera/python/src/ctthermo_methods.cpp,
+	  Cantera/python/src/methods.h, Cantera/python/src/pycantera.cpp,
+	  Cantera/python/src/pyutils.h, tools/src/package4mac.in: support
+	  for HTML log files.
+
+2005-02-09 02:23  dggoodwin
+
+	* Cantera/src/: MultiPhase.cpp, MultiPhaseEquil.cpp, misc.cpp:
+	  support for HTML log files.
+
+2005-02-08 08:52  dggoodwin
+
+	* config/: configure, configure.in: corrected error in g95 options
+
+2005-02-03 13:44  dggoodwin
+
+	* Cantera/python/examples/equilibrium/adiabatic.py: initial import
+
+2005-02-02 12:07  dggoodwin
+
+	* test_problems/ck2cti_test/runtest.in: minor output format change
+
+2005-02-02 11:59  dggoodwin
+
+	* test_problems/ck2cti_test/gri30a_blessed.cti: minor output format
+	  change
+
+2005-02-02 11:37  dggoodwin
+
+	* Cantera/src/config.h: not needed in repository
+
+2005-02-02 11:10  dggoodwin
+
+	* Cantera/: clib/src/Cabinet.h, clib/src/ctfunc.cpp,
+	  clib/src/ctmultiphase.cpp, clib/src/ctonedim.cpp,
+	  clib/src/ctreactor.cpp, clib/src/ctrpath.cpp, clib/src/ctxml.cpp,
+	  src/config.h: added template<>
+
+2005-02-01 15:27  dggoodwin
+
+	* Cantera/python/: Makefile.in, Cantera/Phase.py, Cantera/num.py,
+	  src/pycantera.cpp: changed numarray/Numeric selection to avoid
+	  importing the wrong module
+
+2005-02-01 07:22  dggoodwin
+
+	* Cantera/python/src/: cantera.def, ct.def, ctflow.def,
+	  ctkinetics.def, ctnumerics.def, ctphase.def, ctphase_methods.cpp,
+	  ctsurf.def, ctthermo.def, cttransport.def: removed unused files
+
+2005-01-31 10:54  dggoodwin
+
+	* Cantera/matlab/: Makefile.in, cantera/ck2cti.m,
+	  cantera/private/ctfunctions.cpp: added support for ck2cti without
+	  requiring external program
+
+2005-01-31 04:20  dggoodwin
+
+	* Cantera/python/Cantera/ck2cti.py: initial import
+
+2005-01-31 04:18  dggoodwin
+
+	* Cantera/: clib/src/ct.cpp, clib/src/ct.h,
+	  clib/src/ctmultiphase.cpp, clib/src/ctmultiphase.h,
+	  python/Makefile.in, python/setup.py.in,
+	  python/Cantera/Mixture.py, python/Cantera/mixture.py,
+	  python/src/ctfuncs.cpp, python/src/ctmultiphase_methods.cpp,
+	  python/src/methods.h: added function ck2cti
+
+2005-01-31 04:18  dggoodwin
+
+	* Cantera/src/converters/ck2ct.cpp: printf and stream i/o changed
+	  to fprintf to allow writing cti file to a file rather than to the
+	  standard output
+
+2005-01-31 04:16  dggoodwin
+
+	* Cantera/src/phasereport.cpp: only print mu for non-zero species
+
+2005-01-28 18:57  dggoodwin
+
+	* Cantera/clib/src/: Storage.cpp, ct.cpp: corrected a problem with
+	  phases with identical names
+
+2005-01-28 18:46  dggoodwin
+
+	* Cantera/python/Cantera/Kinetics.py: corrected a problem with
+	  phases with identical names
+
+2005-01-24 19:48  dggoodwin
+
+	* ext/: f2c_lapack/Makefile.in, f2c_math/.cvsignore: added files to
+	  .cvsignore
+
+2005-01-24 19:41  dggoodwin
+
+	* ChangeLog, Makefile.in, configure, Cantera/cxx/demos/Makefile.in,
+	  Cantera/cxx/demos/demos.cpp, Cantera/cxx/demos/flamespeed.cpp,
+	  Cantera/cxx/demos/kin1_blessed.csv,
+	  Cantera/cxx/demos/kin1_blessed.dat,
+	  Cantera/cxx/demos/kinetics1.cpp, Cantera/cxx/demos/rankine.cpp,
+	  Cantera/python/Cantera/liquidvapor.py, Cantera/src/config.h,
+	  Cantera/src/misc.cpp, Cantera/src/phasereport.cpp,
+	  bin/mixmaster.py, config/configure, config/configure.in,
+	  data/inputs/liquidvapor.cti, ext/tpx/.depends,
+	  ext/tpx/HFC134a.cpp, ext/tpx/HFC134a.h, ext/tpx/Makefile.in,
+	  ext/tpx/subs.h, ext/tpx/utils.cpp, tools/bin/erase: fixed problem
+	  with dependencies for ck2cti
+
+2005-01-24 19:38  dggoodwin
+
+	* tools/src/ck2cti.cpp, Cantera/src/converters/ck2ct.cpp,
+	  Cantera/src/converters/ck2ct.h: added validate option
+
+2005-01-24 07:06  dggoodwin
+
+	* Makefile.in, configure, Cantera/cxx/demos/Makefile.in,
+	  Cantera/cxx/demos/demos.cpp, Cantera/cxx/demos/flamespeed.cpp,
+	  Cantera/cxx/demos/kinetics1.cpp, Cantera/cxx/demos/rankine.cpp,
+	  Cantera/src/config.h, Cantera/src/misc.cpp, ext/tpx/.depends,
+	  ext/tpx/utils.cpp, tools/bin/erase: changed C++ demos
+
+2005-01-24 03:32  dggoodwin
+
+	* Cantera/cxx/demos/: Makefile.in, demos.cpp, flamespeed.cpp,
+	  kin1_blessed.csv, kin1_blessed.dat, kinetics1.cpp, rankine.cpp:
+	  added program demo to run all demos
 
 2005-01-19 13:22  dggoodwin
 
@@ -162,20 +504,6 @@
 
 	* data/inputs/: graphite.cti, water.cti: added water.cti
 
-2005-01-07 17:10  dggoodwin
-
-	* win32/vc7/: cantera/cantera.vcproj, config_h/config_h.vcproj:
-	  added a file to project cantera
-
-2005-01-07 16:59  dggoodwin
-
-	* win32/vc7/config_h/config_h.vcproj: added project config_h
-
-2005-01-07 16:29  dggoodwin
-
-	* win32/vc7/demos/: CanteraDemos.sln, Rankine.vcproj: added project
-	  rankine
-
 2005-01-07 02:26  dggoodwin
 
 	* Cantera/: clib/src/ct.cpp, clib/src/ct.h,
@@ -287,50 +615,6 @@
 	* ext/tpx/Sub.cpp: fixed problem with starting guess for T in Tsat
 	  that caused an exception with T > Tcrit on entry
 
-2005-01-04 17:04  hkmoffa
-
-	* win32/vc7/cvode/.cvsignore: Added a directory name
-
-2005-01-04 17:03  hkmoffa
-
-	* win32/vc7/.cvsignore: added a file name
-
-2005-01-04 17:01  hkmoffa
-
-	* win32/vc7/: transport/.cvsignore, oneD/.cvsignore: Added a
-	  directory
-
-2005-01-04 17:00  hkmoffa
-
-	* win32/vc7/SetupCantera/.cvsignore: Adding the .cvsignore file
-
-2005-01-04 16:58  hkmoffa
-
-	* win32/vc7/clib/: .cvsignore, clib.vcproj: Changed the library
-	  paths in the Debug and Release versions.
-
-2005-01-04 16:54  hkmoffa
-
-	* win32/vc7/ctmatlab/: .cvsignore, runmlab.cmd: changed forward
-	  slashes into backslashes.
-
-2005-01-04 16:46  hkmoffa
-
-	* win32/vc7/ctpython/: .cvsignore, ctpython.vcproj, runpython.cmd:
-	  changed runpython.cmd to use backslashes.
-
-2005-01-04 14:28  hkmoffa
-
-	* win32/vc7/SetupCantera/SetupCantera.vdproj: Changed LF's to
-	  CR-LF's in the entire file. mcvc++ was having trouble reading the
-	  file with just LF's.
-
-2005-01-04 14:23  hkmoffa
-
-	* win32/vc7/SetupCantera/SetupCantera.vdproj: Changed LF's into
-	  CR-LF's in this file. This was causing msvc++ not to be able to
-	  load the file, at least for me.
-
 2005-01-04 12:32  hkmoffa
 
 	* Cantera/src/transport/Makefile.in: New Makefile Format:
@@ -359,11 +643,6 @@
 2004-12-15 22:56  dggoodwin
 
 	* Cantera/src/MultiPhase.cpp: initial import
-
-2004-12-13 10:38  dggoodwin
-
-	* win32/vc7/demos/: CanteraDemos.sln, ReadMe.txt, demo.vcproj:
-	  initial import
 
 2004-12-13 06:58  dggoodwin
 
@@ -430,25 +709,6 @@
 	* Cantera/src/importCTML.cpp: changed buildSolutionFromXML to use
 	  get_XML_NameID instead of get_XML_Node
 
-2004-11-15 14:07  hkmoffa
-
-	* win32/vc7/ck2cti/ck2cti.vcproj: use debug libraries on debug
-	  version.
-
-2004-11-15 14:05  hkmoffa
-
-	* win32/vc7/diamondSurf/diamondSurf.vcproj: ignored msvct default
-	  library
-
-2004-11-15 14:03  hkmoffa
-
-	* win32/vc7/cantera/cantera.vcproj: Dos format
-
-2004-11-15 13:41  hkmoffa
-
-	* win32/vc7/clib/clib.vcproj: For the debug dll, you have to
-	  compile with debug libraries.
-
 2004-11-15 12:52  hkmoffa
 
 	* Cantera/clib/src/ct.cpp: Added a static_cast.
@@ -501,10 +761,6 @@
 
 	* bin/install_tsc.in: Check for destination directory existing.
 
-2004-10-16 04:09  dggoodwin
-
-	* win32/vc7/SetupCantera/SetupCantera.vdproj: initial import
-
 2004-10-16 03:12  dggoodwin
 
 	* Cantera/python/winsetup.py: initial import
@@ -521,34 +777,6 @@
 2004-10-13 21:24  dggoodwin
 
 	* tools/src/: package4mac.in, postflight: Mac install script
-
-2004-10-12 06:56  dggoodwin
-
-	* win32/vc7/: cantera.sln, cantera_examples.sln,
-	  cantera/cantera.vcproj, ck2cti/ck2cti.vcproj, clib/clib.vcproj,
-	  converters/converters.vcproj, cti2ctml/cti2ctml.vcproj,
-	  cvode/cvode.vcproj, cxxutils/cxxutils.vcproj,
-	  f2c_blas/f2c_blas.vcproj, f2c_lapack/f2c_lapack.vcproj,
-	  f2c_libs/f2c_libs.vcproj, f2c_math/f2c_math.vcproj,
-	  f2c_recipes/f2c_recipes.vcproj, oneD/oneD.vcproj,
-	  silane_equil/silane_equil.vcproj, tpx/tpx.vcproj,
-	  transport/transport.vcproj, zeroD/zeroD.vcproj: added ctpython,
-	  changed c libs to multithreaded DLL, changed properties for
-	  release version
-
-2004-10-12 06:55  dggoodwin
-
-	* win32/vc7/ctpython/: ctpython.vcproj, runpython.cmd: files to
-	  build the Python interface within Visual Studio
-
-2004-10-11 07:36  dggoodwin
-
-	* win32/vc7/: cantera.sln, cantera/cantera.vcproj,
-	  cvode/cvode.vcproj, f2c_arithchk/f2c_arithchk.vcproj,
-	  f2c_blas/f2c_blas.vcproj, f2c_lapack/f2c_lapack.vcproj,
-	  f2c_libs/f2c_libs.vcproj, f2c_math/f2c_math.vcproj,
-	  f2c_recipes/f2c_recipes.vcproj, tpx/tpx.vcproj,
-	  transport/transport.vcproj: bug fixes
 
 2004-10-10 13:46  dggoodwin
 
@@ -735,11 +963,6 @@
 	  "default", if unspecified. Then, this default is treated in
 	  config/configure with special code.
 
-2004-09-24 13:35  hkmoffa
-
-	* win32/vc7/configure.vc++: Added the USE_DLL environmental
-	  variable.
-
 2004-09-24 13:16  hkmoffa
 
 	* Makefile.in, configure: Added USE_DLL variable and its controls.
@@ -755,11 +978,6 @@
 	* Cantera/python/Makefile.in: took care of problem with clib.dll
 	  for MSVC6.0
 
-2004-09-24 10:24  hkmoffa
-
-	* win32/README: Added another step, involving setting up paths and
-	  environmental variables.
-
 2004-09-20 03:18  dggoodwin
 
 	* Cantera/src/: EdgeKinetics.cpp, EdgeKinetics.h, ReactionData.h,
@@ -770,10 +988,6 @@
 
 	* Makefile.in: Added dll install
 
-2004-09-16 15:07  hkmoffa
-
-	* win32/README: Added another step.
-
 2004-09-16 14:43  hkmoffa
 
 	* test_problems/python/runtest: Fixed an error in the default
@@ -782,19 +996,6 @@
 2004-09-16 10:57  hkmoffa
 
 	* tools/src/ck2cti.cpp: Added an id string.
-
-2004-09-16 10:54  hkmoffa
-
-	* win32/vc7/cantera.sln: Added a few more dependencies to sln file.
-
-2004-09-16 10:54  hkmoffa
-
-	* win32/vc7/ck2cti/ck2cti.vcproj: Fixed an error.
-
-2004-09-16 10:53  hkmoffa
-
-	* win32/vc7/cvode/cvode.vcproj: Changed an absolute pathname into a
-	  relative pathname.
 
 2004-09-16 10:52  hkmoffa
 
@@ -823,14 +1024,6 @@
 	* Cantera/src/converters/ck2ct.cpp: Took out a print statement that
 	  was causing a test to fail.
 
-2004-09-02 13:57  hkmoffa
-
-	* win32/vc7/configure.vc++: Took out HKM comments
-
-2004-09-02 13:48  hkmoffa
-
-	* win32/README: Added a cd command.
-
 2004-08-28 09:13  dggoodwin
 
 	* tools/bin/erase: script to remove a file from the repository
@@ -857,17 +1050,6 @@
 
 	* bin/.cvsignore: added some windows tmp files
 
-2004-08-27 13:29  hkmoffa
-
-	* win32/README: Added detailed instructions for vc7
-
-2004-08-27 13:26  hkmoffa
-
-	* win32/vc7/: .cvsignore, cantera.sln, cantera_examples.sln,
-	  csvdiff/.cvsignore, csvdiff/csvdiff.vcproj,
-	  cxx_examples/.cvsignore, cxx_examples/cxx_examples.vcproj: Second
-	  generation of vc7 port.
-
 2004-08-27 13:21  hkmoffa
 
 	* test_problems/python/runtest: Currently, linux and MSVC are
@@ -887,10 +1069,6 @@
 2004-08-27 09:45  hkmoffa
 
 	* config/configure.in: Added a default 0 to BUILD_PARTICLES value
-
-2004-08-27 08:42  hkmoffa
-
-	* win32/vc7/configure.vc++: Initial commit
 
 2004-08-10 13:39  hkmoffa
 
@@ -974,29 +1152,6 @@
 
 	* ext/f2c_lapack/dlamch.c: Added a stdio.h reference.
 
-2004-08-09 17:18  hkmoffa
-
-	* win32/vc7/: .cvsignore, cantera.sln, cantera/.cvsignore,
-	  cantera/cantera.vcproj, ck2cti/.cvsignore, ck2cti/ck2cti.vcproj,
-	  clib/.cvsignore, clib/clib.vcproj, converters/.cvsignore,
-	  converters/converters.vcproj, cti2ctml/.cvsignore,
-	  cti2ctml/cti2ctml.vcproj, cvode/.cvsignore, cvode/cvode.vcproj,
-	  cxxutils/.cvsignore, cxxutils/cxxutils.vcproj,
-	  diamondSurf/.cvsignore, diamondSurf/diamondSurf.vcproj,
-	  f2c_arithchk/.cvsignore, f2c_arithchk/f2c_arithchk.vcproj,
-	  f2c_blas/.cvsignore, f2c_blas/f2c_blas.vcproj,
-	  f2c_lapack/.cvsignore, f2c_lapack/f2c_lapack.vcproj,
-	  f2c_libs/.cvsignore, f2c_libs/f2c_libs.vcproj,
-	  f2c_math/.cvsignore, f2c_math/f2c_math.vcproj,
-	  f2c_recipes/.cvsignore, f2c_recipes/f2c_recipes.vcproj,
-	  oneD/.cvsignore, oneD/oneD.vcproj, pycantera/.cvsignore,
-	  pycantera/pycantera.vcproj, silane_equil/.cvsignore,
-	  silane_equil/silane_equil.vcproj, surfkin/.cvsignore,
-	  surfkin/surfkin.vcproj, tpx/.cvsignore, tpx/tpx.vcproj,
-	  transport/.cvsignore, transport/transport.vcproj,
-	  zeroD/.cvsignore, zeroD/zeroD.vcproj: First commit of vc7 project
-	  files.
-
 2004-08-09 16:58  hkmoffa
 
 	* test_problems/silane_equil/: .cvsignore, runtest: MSVS
@@ -1064,18 +1219,6 @@
 	  Cantera/src/ctvector.cpp, Cantera/src/ctvector.h,
 	  Cantera/src/misc.cpp, config/configure, config/configure.in,
 	  ext/math/fdump.f: improvements to the configuration process
-
-2004-08-06 16:29  hkmoffa
-
-	* win32/vc6/: cantera.dsw, all/all.dsp, blas/blas.dsp,
-	  cantera/cantera.dsp, cantera_examples/cantera_examples.dsw,
-	  ck2cti/ck2cti.dsp, ckreader/ckreader.dsp, clib/clib.dsp,
-	  converters/converters.dsp, ct/ct.dsp, ctmath/ctmath.dsp,
-	  ctsetup/ctsetup.dsp, cvode/cvode.dsp, cxxutils/cxxutils.dsp,
-	  cxxutils/cxxutils.mak, lapack/lapack.dsp, oneD/oneD.dsp,
-	  recipes/recipes.dsp, tpx/tpx.dsp, tpx/tpx.mak,
-	  transport/transport.dsp, zeroD/zeroD.dsp: Duplicating existing
-	  structure in the new module. However, it's one directory deeper.
 
 2004-08-06 16:09  hkmoffa
 
@@ -1345,14 +1488,6 @@
 
 	* Cantera/src/: IdealGasThermo.cpp, ImplicitChem.cpp, Makefile.in,
 	  SolidCompound.cpp, importSurfChem.cpp, surfKinetics.cpp: cleanup
-
-2004-08-03 02:18  dggoodwin
-
-	* win32/README: Initial revision
-
-2004-08-03 02:18  dggoodwin
-
-	* win32/README: initial import
 
 2004-08-03 02:09  dggoodwin
 
@@ -1872,8 +2007,7 @@
 	* Cantera/matlab/cantera/: @Reactor/private/reactormethods.cpp,
 	  @Transport/private/newTransport.cpp,
 	  @Transport/private/trans_methods.cpp,
-	  @Wall/private/wallmethods.cpp, @XML_Node/private/newxml.cpp,
-	  @XML_Node/private/xmlmethods.cpp: removed unused files
+	  @Wall/private/wallmethods.cpp: removed unused files
 
 2004-05-23 17:05  dggoodwin
 
@@ -2438,10 +2572,6 @@
 
 	* Cantera/python/Cantera/ctml_writer.py: added capability to have
 	  species names with embedded commas
-
-2003-10-24 03:11  dggoodwin
-
-	* tools/doc/html/banner4.jpg: initial import
 
 2003-10-21 17:33  dggoodwin
 
@@ -3495,8 +3625,6 @@
 	  Cantera/matlab/cantera/@XML_Node/hndl.m,
 	  Cantera/matlab/cantera/@XML_Node/value.m,
 	  Cantera/matlab/cantera/@XML_Node/write.m,
-	  Cantera/matlab/cantera/@XML_Node/private/newxml.cpp,
-	  Cantera/matlab/cantera/@XML_Node/private/xmlmethods.cpp,
 	  Cantera/matlab/cantera/examples/equil.m,
 	  Cantera/matlab/cantera/examples/ignite.m,
 	  Cantera/matlab/cantera/examples/ignite2.m,
@@ -3848,13 +3976,8 @@
 	  include/README, include/config.h, include/core.h, include/ctml.h,
 	  include/equilibrium.h, include/ftn_defs.h, include/integrators.h,
 	  include/kinetics.h, include/numerics.h, include/onedim.h,
-	  include/surface.h, include/transport.h,
-	  include/fortran/ctfdevmod.f, include/fortran/ctkineticsmod.f,
-	  include/fortran/ctmixturemod.f, include/fortran/ctmod.f,
-	  include/fortran/ctreactormod.f, include/fortran/ctthermomod.f,
-	  include/fortran/cttransportmod.f, include/fortran/ctutilsmod.f,
-	  lib/README, test_problems/.cvsignore, test_problems/Makefile.in,
-	  test_problems/cxx_ex/.cvsignore,
+	  include/surface.h, include/transport.h, test_problems/.cvsignore,
+	  test_problems/Makefile.in, test_problems/cxx_ex/.cvsignore,
 	  test_problems/cxx_ex/eq1_blessed.csv,
 	  test_problems/cxx_ex/eq1_blessed.dat,
 	  test_problems/cxx_ex/gri30.inp, test_problems/cxx_ex/gri30.xml,
@@ -4092,8 +4215,6 @@
 	  Cantera/matlab/cantera/@XML_Node/hndl.m,
 	  Cantera/matlab/cantera/@XML_Node/value.m,
 	  Cantera/matlab/cantera/@XML_Node/write.m,
-	  Cantera/matlab/cantera/@XML_Node/private/newxml.cpp,
-	  Cantera/matlab/cantera/@XML_Node/private/xmlmethods.cpp,
 	  Cantera/matlab/cantera/examples/equil.m,
 	  Cantera/matlab/cantera/examples/ignite.m,
 	  Cantera/matlab/cantera/examples/ignite2.m,
@@ -4445,13 +4566,8 @@
 	  include/README, include/config.h, include/core.h, include/ctml.h,
 	  include/equilibrium.h, include/ftn_defs.h, include/integrators.h,
 	  include/kinetics.h, include/numerics.h, include/onedim.h,
-	  include/surface.h, include/transport.h,
-	  include/fortran/ctfdevmod.f, include/fortran/ctkineticsmod.f,
-	  include/fortran/ctmixturemod.f, include/fortran/ctmod.f,
-	  include/fortran/ctreactormod.f, include/fortran/ctthermomod.f,
-	  include/fortran/cttransportmod.f, include/fortran/ctutilsmod.f,
-	  lib/README, test_problems/.cvsignore, test_problems/Makefile.in,
-	  test_problems/cxx_ex/.cvsignore,
+	  include/surface.h, include/transport.h, test_problems/.cvsignore,
+	  test_problems/Makefile.in, test_problems/cxx_ex/.cvsignore,
 	  test_problems/cxx_ex/eq1_blessed.csv,
 	  test_problems/cxx_ex/eq1_blessed.dat,
 	  test_problems/cxx_ex/gri30.inp, test_problems/cxx_ex/gri30.xml,

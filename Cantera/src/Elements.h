@@ -49,6 +49,9 @@ namespace Cantera {
         /// Atomic weight of element m. 
         doublereal atomicWeight(int m) const { return m_atomicWeights[m]; }
 
+        /// Atomic number of element m. 
+        int atomicNumber(int m) const { return m_atomicNumbers[m]; }
+
         /// vector of element atomic weights
         const vector_fp& atomicWeights() const { return m_atomicWeights; }
 
@@ -99,7 +102,7 @@ namespace Cantera {
 	 * This is accomplished via a string match on symbol.
 	 */
 	void addUniqueElement(const string& symbol, 
-			      doublereal weight = -12345.0);
+            doublereal weight = -12345.0, int atomicNumber = 0);
         void addUniqueElement(const XML_Node& e);
 
         void addElementsFromXML(const XML_Node& phase);
@@ -152,6 +155,12 @@ namespace Cantera {
 	 *   units = kg / kmol
 	 */
         vector_fp                      m_atomicWeights;
+
+	/**
+	 *  Vector of element atomic numbers:
+	 *
+	 */
+        vector_int                      m_atomicNumbers;
 	
 	/** Vector of strings containing the names of the elements
 	 *        

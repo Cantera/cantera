@@ -21,7 +21,7 @@
 #include <iostream>
 #include "ReactorBase.h"
 
-namespace Cantera {
+namespace CanteraZeroD {
 
     class Reservoir : public ReactorBase {
 

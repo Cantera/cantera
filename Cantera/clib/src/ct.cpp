@@ -59,7 +59,10 @@ inline int nThermo() {
     return Storage::storage()->nThermo();
 }
 
- 
+namespace Cantera {
+    void writephase(const ThermoPhase& th, bool show_thermo);
+}
+
 /**
  * Exported functions.
  */
@@ -99,6 +102,12 @@ extern "C" {
 
     doublereal DLL_EXPORT phase_molarDensity(int n) {
         return ph(n)->molarDensity();
+    }
+
+    int DLL_EXPORT phase_setMolarDensity(int n, double ndens) {
+        if (ndens < 0.0) return -1;
+        ph(n)->setMolarDensity(ndens);
+        return 0;
     }
 
     doublereal DLL_EXPORT phase_meanMolecularWeight(int n) {
@@ -221,6 +230,20 @@ extern "C" {
         }
         else
             return -10;
+    }
+
+    int DLL_EXPORT phase_getName(int n, int lennm, char* nm) {
+        string name = ph(n)->name();
+        int lout = min(lennm,name.size());
+        copy(name.c_str(), name.c_str() + lout, nm);
+        nm[lout] = '\0';
+        return 0;
+    }
+
+    int DLL_EXPORT phase_setName(int n, const char* nm) {
+        string name = string(nm);
+        ph(n)->setName(name);
+        return 0;
     }
 
     int DLL_EXPORT phase_getSpeciesName(int n, int k, int lennm, char* nm) {
@@ -402,7 +425,7 @@ extern "C" {
         thermo_t* thrm = th(n);
         int nel = thrm->nElements();
         if (lenm >= nel) {
-            equilibrate(*thrm, "TP");
+            equilibrate(*thrm, "TP", 0);
             thrm->getElementPotentials(lambda);
             return 0;
         }
@@ -464,9 +487,11 @@ extern "C" {
         catch (CanteraError) {return -1;}
     }
 
-    int DLL_EXPORT th_equil(int n, int XY) {
+    int DLL_EXPORT th_equil(int n, int XY, int solver, 
+        double rtol, int maxsteps, int loglevel) {
         try { 
-            equilibrate(*th(n), XY); return 0; 
+            equilibrate(*th(n), XY, solver, rtol, maxsteps, 
+                loglevel); return 0; 
         }
         catch (CanteraError) {return -1;}
     }
@@ -629,7 +654,7 @@ extern "C" {
     }
 
     int DLL_EXPORT kin_start(int n, int p) {
-        return kin(n)->start(p);
+        return kin(n)->kineticsSpeciesIndex(0,p);
     }
 
     int DLL_EXPORT kin_speciesIndex(int n, const char* nm, const char* ph) {
@@ -848,7 +873,8 @@ extern "C" {
     }
 
     int DLL_EXPORT kin_phase(int n, int i) {
-        return thermo_index(kin(n)->thermo(i).id());
+        return kin(n)->thermo(i).index();
+        //        return thermo_index(kin(n)->thermo(i).id());
     }
 
     int DLL_EXPORT kin_getEquilibriumConstants(int n, int len, double* kc) {
@@ -1005,6 +1031,15 @@ extern "C" {
         catch (CanteraError) { return -1; }
     }
 
+    int DLL_EXPORT write_phase(int nth, int show_thermo) {
+        try {
+            bool stherm = (show_thermo != 0);
+            writephase(*th(nth), stherm);
+            return 0;
+        }
+        catch (CanteraError) { return -1; }
+    }
+
     int DLL_EXPORT getCanteraError(int buflen, char* buf) {
         string e; 
         e = lastErrorMessage();
@@ -1104,9 +1139,18 @@ extern "C" {
     }
 
 
-//    int DLL_EXPORT ck_to_cti(char* in_file, char* db_file,
-//        char* tr_file, char* id_tag) {
-//        return pip::convert_ck(in_file, db_file, tr_file, id_tag);
-//    }
+    int DLL_EXPORT ck_to_cti(char* in_file, char* db_file,
+        char* tr_file, char* id_tag, int debug, int validate) {
+        bool dbg = (debug != 0);
+        bool val = (validate != 0);
+        return pip::convert_ck(in_file, db_file, tr_file, id_tag, dbg, val);
+    }
+
+
+    int DLL_EXPORT writelogfile(char* logfile) {
+        write_logfile(string(logfile));
+        return 0;
+    }
+
 
 }

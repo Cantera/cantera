@@ -12,7 +12,7 @@
 #include <iostream>
 #include <string>
 
-#include "../../../config.h"
+#include "../config.h"
 
 #ifdef HAS_SSTREAM
 #include <sstream>
@@ -111,25 +111,25 @@ namespace pip {
 
 
     // add a NASA polynomial parameterization
-    static void addNASA(  
+    static void addNASA(FILE* f,   
         const vector_fp& low, const vector_fp& high,  
         doublereal minx, doublereal midx, 
         doublereal maxx) {
 
-        printf("    thermo = (\n");
-        printf("       NASA( [%8.2f, %8.2f], ", minx, midx);
-        printf("[%17.9E, %17.9E, \n", low[0], low[1]);
-        printf("              %17.9E, %17.9E, %17.9E,\n", low[2], low[3], low[4]);
-        printf("              %17.9E, %17.9E] ),\n", low[5], low[6]);
-        printf("       NASA( [%8.2f, %8.2f], ", midx, maxx);
-        printf("[%17.9E, %17.9E, \n", high[0], high[1]);
-        printf("              %17.9E, %17.9E, %17.9E,\n", high[2], high[3], high[4]);
-        printf("              %17.9E, %17.9E] )\n", high[5], high[6]);
-        printf("             )");
+        fprintf(f,"    thermo = (\n");
+        fprintf(f,"       NASA( [%8.2f, %8.2f], ", minx, midx);
+        fprintf(f,"[%17.9E, %17.9E, \n", low[0], low[1]);
+        fprintf(f,"              %17.9E, %17.9E, %17.9E,\n", low[2], low[3], low[4]);
+        fprintf(f,"              %17.9E, %17.9E] ),\n", low[5], low[6]);
+        fprintf(f,"       NASA( [%8.2f, %8.2f], ", midx, maxx);
+        fprintf(f,"[%17.9E, %17.9E, \n", high[0], high[1]);
+        fprintf(f,"              %17.9E, %17.9E, %17.9E,\n", high[2], high[3], high[4]);
+        fprintf(f,"              %17.9E, %17.9E] )\n", high[5], high[6]);
+        fprintf(f,"             )");
     }
 
 
-    static void addTransportParams(string name) {
+    static void addTransportParams(FILE* f, string name) {
 
         trdata td;
         if (_with_transport && _trmap.find(name) != _trmap.end()) {
@@ -140,47 +140,47 @@ namespace pip {
                 "no transport data for species "+name);
         }
 
-        printf(",\n    transport = gas_transport(\n");
+        fprintf(f,",\n    transport = gas_transport(\n");
         int geom = td.geom;
         switch (geom) {
-        case 0: printf("                     geom = \"atom\",\n"); break;
-        case 1: printf("                     geom = \"linear\",\n"); break;
-        case 2: printf("                     geom = \"nonlinear\",\n"); break;
+        case 0: fprintf(f,"                     geom = \"atom\",\n"); break;
+        case 1: fprintf(f,"                     geom = \"linear\",\n"); break;
+        case 2: fprintf(f,"                     geom = \"nonlinear\",\n"); break;
         }
-        printf("                     diam = %8.2f,\n",td.diam);
-        printf("                     well_depth = %8.2f",td.welldepth);
+        fprintf(f,"                     diam = %8.2f,\n",td.diam);
+        fprintf(f,"                     well_depth = %8.2f",td.welldepth);
         if (td.polar != 0.0)
-            printf(",\n                     polar = %8.2f",td.polar);
+            fprintf(f,",\n                     polar = %8.2f",td.polar);
         if (td.dipole != 0.0)
-            printf(",\n                     dipole = %8.2f",td.dipole);
+            fprintf(f,",\n                     dipole = %8.2f",td.dipole);
         if (td.rot != 0.0)
-            printf(",\n                     rot_relax = %8.2f",td.rot);
-        printf(")");
+            fprintf(f,",\n                     rot_relax = %8.2f",td.rot);
+        fprintf(f,")");
     }
 
 
-    static void addFalloff(string type, 
+    static void addFalloff(FILE* f, string type, 
         const vector_fp& params) {
         if (type == "Troe") {
-            cout << ",\n         falloff = Troe(A = " 
-                 << fp2str(params[0]) << ", T3 = "
-                 << fp2str(params[1]) << ", T1 = "
-                 << fp2str(params[2]);
+            fprintf(f, (",\n         falloff = Troe(A = " 
+                + fp2str(params[0]) + ", T3 = "
+                + fp2str(params[1]) + ", T1 = "
+                    + fp2str(params[2])).c_str());
             if (params.size() >= 4) {
-                cout << ", T2 = " << fp2str(params[3]);
+                fprintf(f, (", T2 = " + fp2str(params[3])).c_str());
             }
-            cout << ")";
+            fprintf(f, ")");
         }
         else if (type == "SRI") {
-            cout << ",\n         falloff = SRI(A = " 
-                 << fp2str(params[0]) << ", B = "
-                 << fp2str(params[1]) << ", C = "
-                 << fp2str(params[2]);
+            fprintf(f, (",\n         falloff = SRI(A = " 
+                    + fp2str(params[0]) + ", B = "
+                    + fp2str(params[1]) + ", C = "
+                    + fp2str(params[2])).c_str());
             if (params.size() >= 5) {
-                cout << ", D = " << fp2str(params[3])
-                     << ", E = " << fp2str(params[4]);
+                fprintf(f,  (", D = " + fp2str(params[3])
+                        + ", E = " + fp2str(params[4])).c_str());
             }
-            cout << ")";
+            fprintf(f,  ")");
         }
     }
 
@@ -188,9 +188,9 @@ namespace pip {
      * addSpecies():
      *
      */
-    static void addSpecies(string idtag, const ckr::Species& sp) {
+    static void addSpecies(FILE* f, string idtag, const ckr::Species& sp) {
         string spname = sp.name;
-        printf("\nspecies(name = \"%s\",\n",spname.c_str());
+        fprintf(f,"\nspecies(name = \"%s\",\n",spname.c_str());
         int nel = static_cast<int>(sp.elements.size());
         int m, num;
         string nm, str="";
@@ -220,54 +220,58 @@ namespace pip {
           if (nm == "E") charge = -sp.elements[m].number;
         }
 
-        printf("    atoms = \"%s\",\n", str.c_str());
-        addNASA(sp.lowCoeffs, sp.highCoeffs, 
+        fprintf(f,"    atoms = \"%s\",\n", str.c_str());
+        addNASA(f, sp.lowCoeffs, sp.highCoeffs, 
             sp.tlow, sp.tmid, sp.thigh);
 
         if (_with_transport)
-            addTransportParams(sp.name);
-        if (sp.id != "") printf(",\n    note = \"%s\"", sp.id.c_str());
-        printf("\n       )\n");
+            addTransportParams(f, sp.name);
+        if (sp.id != "") fprintf(f,",\n    note = \"%s\"", sp.id.c_str());
+        fprintf(f,"\n       )\n");
     }
 
 
-    static void addReaction(string idtag, int i,
+    static void addReaction(FILE* f, string idtag, int i,
         const ckr::Reaction& rxn,
         const ckr::ReactionUnits& runits, doublereal version) {
 
-        cout << "\n#  Reaction " << i+1 << endl;
+        fprintf(f,  ("\n#  Reaction " + int2str(i+1) + "\n").c_str());
         int nc = static_cast<int>(rxn.comment.size());
+        vector<string> options;
+
         for (int nn = 0; nn < nc; nn++) 
-            if (rxn.comment[nn] != "") cout << "# " << rxn.comment[nn] << endl;
+            if (rxn.comment[nn] != "") fprintf(f,  "# %s \n", 
+                rxn.comment[nn].c_str());
+
         string eqn = ckr::reactionEquation(rxn);
 
         if (rxn.isThreeBodyRxn) 
-            cout << "three_body_reaction( \"" << eqn << "\", ";
+            fprintf(f,  "three_body_reaction( \"%s\",", eqn.c_str());
         else if (rxn.isFalloffRxn)
-            cout << "falloff_reaction( \"" << eqn << "\", ";
+            fprintf(f,  "falloff_reaction( \"%s\",", eqn.c_str());
         else
-            cout << "reaction( \"" << eqn << "\", ";
+            fprintf(f,  "reaction(  \"%s\",", eqn.c_str());
 
         if (rxn.isFalloffRxn) {
 
             if (rxn.kf.type == ckr::Arrhenius) {
-                printf("\n         kf = [%10.5E, %g, %g]", rxn.kf.A, rxn.kf.n, rxn.kf.E);
+                fprintf(f,"\n         kf = [%10.5E, %g, %g]", rxn.kf.A, rxn.kf.n, rxn.kf.E);
             }
             if (rxn.kf_aux.type == ckr::Arrhenius) {
-                printf(",\n         kf0   = [%10.5E, %g, %g]", rxn.kf_aux.A, rxn.kf_aux.n, rxn.kf_aux.E);
+                fprintf(f,",\n         kf0   = [%10.5E, %g, %g]", rxn.kf_aux.A, rxn.kf_aux.n, rxn.kf_aux.E);
             }
             if (rxn.falloffType == ckr::Lindemann)
-                addFalloff("Lindemann",rxn.falloffParameters);
+                addFalloff(f, "Lindemann",rxn.falloffParameters);
             else if (rxn.falloffType == ckr::Troe)
-                addFalloff("Troe",rxn.falloffParameters);
+                addFalloff(f, "Troe",rxn.falloffParameters);
             else if (rxn.falloffType == ckr::SRI)
-                addFalloff("SRI",rxn.falloffParameters);
+                addFalloff(f, "SRI",rxn.falloffParameters);
             else 
                 throw CanteraError("addReaction","unknown falloff type");
         }
         else {
             if (rxn.kf.type == ckr::Arrhenius) {
-                printf("  [%10.5E, %g, %g]", rxn.kf.A, rxn.kf.n, rxn.kf.E);
+                fprintf(f,"  [%10.5E, %g, %g]", rxn.kf.A, rxn.kf.n, rxn.kf.E);
             }
         }
 
@@ -284,34 +288,48 @@ namespace pip {
                 for (; b != e; ++b) {
                     estr += " "+b->first+":"+fp2str(b->second)+" ";
                 }
-                cout << ",\n         efficiencies = \"" << estr << "\"";
+                fprintf(f,  ",\n         efficiencies = \"%s\"", estr.c_str());
             }
         }
-        if (rxn.isDuplicate) {
-            cout << ",\n         options = \'duplicate\'";
+        if (rxn.kf.A <= 0.0) {
+            options.push_back("negative_A");
         }
-    cout << ")" << endl;
+        if (rxn.isDuplicate) {
+            options.push_back("duplicate");
+        }
+        int nopt = options.size();
+        if (nopt > 0) {
+            fprintf(f,  ",\n         options = [");
+            int n;
+            for (n = 0; n < nopt; n++) {
+                fprintf(f,  "\"%s\"", options[n].c_str());
+                if (n < nopt-1) fprintf(f,  ", ");
+            }
+            fprintf(f,  "]");
+        }
+        fprintf(f,  ")\n");
     }
 
-    void writeline() {
-        cout << "#-------------------------------------------------------------------------------" << endl;
+    void writeline(FILE* f) {
+        fprintf(f,  "#-------------------------------------------------------------------------------\n");
     }
 
     /*!
-     * This routine is the main routine. It
+     * This routine is the main routine. 
      * 
-     * @param r reference to a ckreader object that has already read a chemkin formatted
-     *          mechanism. This is the input to the routine.
+     * @param r reference to a ckreader object that has already 
+     * read a chemkin formatted mechanism. This is the input to the routine.
+     *
      * @param root Reference to the root node of an XML description of the
      *             mechanism. The node will be filled up with the description
      *             of the mechanism. This is the output to the routine.
      */
-    void ck2ct(string idtag, ckr::CKReader& r, bool hastransport) {
+    void ck2ct(FILE* f, string idtag, ckr::CKReader& r, bool hastransport) {
 
         popError();
         doublereal version = 1.0;
 
-        cout << "units(length = \"cm\", time = \"s\", quantity = \"mol\", ";
+        fprintf(f,  "units(length = \"cm\", time = \"s\", quantity = \"mol\", ");
         string e_unit;
         int eunit = r.units.ActEnergy;
         if (eunit == ckr::Cal_per_Mole)
@@ -326,10 +344,10 @@ namespace pip {
             e_unit = "K";
         else if (eunit == ckr::Electron_Volts)
             e_unit = "eV";
-        cout << "act_energy = " << "\"" << e_unit << "\")\n\n";
+        fprintf(f,  "act_energy = \"%s\")\n\n", e_unit.c_str());
 
 
-        printf("\nideal_gas(name = \"%s\",\n",idtag.c_str());
+        fprintf(f,"\nideal_gas(name = \"%s\",\n",idtag.c_str());
 
         string enames;
         int nel = static_cast<int>(r.elements.size());
@@ -342,9 +360,8 @@ namespace pip {
             if (elnm.size() == 2) elnm[1] = tolower(elnm[1]);
             emap[r.elements[i].name] = elnm;
             enames += " "+elnm+" ";
-            //addElement(earray, idtag, r.elements[i]);
         }
-        printf("      elements = \"%s\",\n",enames.c_str());
+        fprintf(f,"      elements = \"%s\",\n",enames.c_str());
 
         string spnames = "";
         int nsp = static_cast<int>(r.species.size());
@@ -352,28 +369,28 @@ namespace pip {
             spnames += " "+r.species[i].name+" ";
             if ((i+1) % 10 == 0) spnames += "\n                  ";
         }
-        printf("      species = \"\"\"%s\"\"\",\n", spnames.c_str());
-        printf("      reactions = \"all\",\n");
+        fprintf(f,"      species = \"\"\"%s\"\"\",\n", spnames.c_str());
+        fprintf(f,"      reactions = \"all\",\n");
         if (hastransport) {
-            printf("      transport = \"Mix\",\n");
+            fprintf(f,"      transport = \"Mix\",\n");
         } 
-        printf("      initial_state = state(temperature = 300.0,\n");
-        printf("                        pressure = OneAtm)");
-        cout << "    )" << endl;
+        fprintf(f,"      initial_state = state(temperature = 300.0,\n");
+        fprintf(f,"                        pressure = OneAtm)");
+        fprintf(f,  "    )\n");
 
-        cout << "\n\n\n";
-        writeline();
-        cout << "#  Species data \n";
-        writeline();
+        fprintf(f,  "\n\n\n");
+        writeline(f);
+        fprintf(f,  "#  Species data \n");
+        writeline(f);
 
         for (i = 0; i < nsp; i++) {
-            addSpecies(idtag, r.species[i]);
+            addSpecies(f, idtag, r.species[i]);
         }
 
-        cout << "\n\n\n";
-        writeline();
-        cout << "#  Reaction data \n";
-        writeline();
+        fprintf(f,  "\n\n\n");
+        writeline(f);
+        fprintf(f,  "#  Reaction data \n");
+        writeline(f);
 
 
         int nrxns = static_cast<int>(r.reactions.size());
@@ -388,12 +405,12 @@ namespace pip {
             // two irreversible reactions.
 
             if (r.reactions[i].krev.A != 0.0) {
-                cout << endl << "# [CK Reaction (+" << i+1 << ")]" << endl;  
-                addReaction(idktag, irxn,
+                fprintf(f,  "\n# [CK Reaction (+%d)]\n",i+1);  
+                addReaction(f, idktag, irxn,
                     ckr::forwardReaction(r.reactions[i]), r.units, version);
                 irxn++;
-                cout << "# [CK Reaction (-" << (i+1) << ")]" << endl;  
-                addReaction(idktag, irxn,  
+                fprintf(f,  "# [CK Reaction (-%d)]\n",i+1);  
+                addReaction(f, idktag, irxn,  
                     ckr::reverseReaction(r.reactions[i]), r.units, version);
                 irxn++;
             }
@@ -402,23 +419,51 @@ namespace pip {
             // not be reversible.
             else { 
                 if (i != irxn) 
-                    cout << endl << "# [CK Reaction (" << (i+1) << ")]" << endl;  
-                addReaction(idktag, irxn, r.reactions[i], 
+                    fprintf(f,  "\n# [CK Reaction (%s)]\n",i+1);  
+                addReaction(f, idktag, irxn, r.reactions[i], 
                     r.units, version);
                 irxn++;
             }
         }
-//         incl.addAttribute("min",1);
-//         incl.addAttribute("max", irxn);
     }
 
 
+    static int fixtext(string infile, string outfile) {
+        ifstream fin(infile.c_str());
+        ofstream fout(outfile.c_str());
+        if (!fout) {
+            throw CanteraError("fixtext","could not open "+outfile+" for writing.");
+        }
+        char ch;
+        char last_eol = ' ';
+        const char char10 = char(10);
+        const char char13 = char(13);
+        string line;
+        while (1 > 0) {
+            line = "";
+            while (1 > 0) {
+                fin.get(ch);
+                if (fin.eof()) break;
+                if (ch == char13 || (ch == char10 
+                        && (last_eol != char13)))  {
+                    last_eol = ch;
+                    break;
+                }
+                if (isprint(ch)) line += ch;
+            }
+            fout << line << endl;
+            if (fin.eof()) break;
+        }
+        fin.close();
+        fout.close();
+        return 0;
+    }
 
     int convert_ck(const char* in_file, const char* db_file,
-        const char* tr_file, const char* id_tag, bool debug) {
+        const char* tr_file, const char* id_tag, bool debug, bool validate) {
         ckr::CKReader r;
 
-        r.validate = true;
+        r.validate = validate;
         r.debug = debug;
         //int i=1;
 
@@ -431,12 +476,38 @@ namespace pip {
         if (dbfile == "-") dbfile = "";
         if (trfile == "-") trfile = "";
 
+        string::size_type idot = infile.rfind('.');
+        string ctifile, ext;
+        if (idot != string::npos) {
+            ext = infile.substr(idot, infile.size());
+            ctifile = infile.substr(0,idot)+".cti";
+        }
+        else {
+            ctifile = infile+".cti";
+        }
+
+        FILE *f = fopen(ctifile.c_str(),"w");
+
         struct tm *newtime;
         time_t aclock;
         ::time( &aclock );              /* Get time in seconds */
         newtime = localtime( &aclock ); /* Convert time to struct tm form */
  
         try {
+
+	  //string tmpinfile = tmpDir()+
+	  //fixtext(infile, tmpinfile);
+
+	  //string tmpdbfile = "";
+	  //string tmptrfile = "";
+	  //if (dbfile != "") {
+	  //    tmpdbfile = tmpDir()+"/.tmp_"+dbfile;
+	  //    fixtext(dbfile, tmpdbfile);
+	  //}
+	  //if (trfile != "") {
+	  //    tmptrfile = tmpDir()+"/.tmp_"+trfile;
+	  //    fixtext(trfile, tmptrfile);
+	  //}
 
             logfile = "ck2cti.log";
             if (!r.read(infile, dbfile, logfile)) {
@@ -445,19 +516,22 @@ namespace pip {
                     + "\nsee file ck2cti.log for more information.\n");
             }
 
-            cout << "#" << endl;
-            cout << "# Generated from file " 
-                 << infile << "\n# by ck2cti on " << asctime(newtime) << "#" << endl;
+            fprintf(f,  "#\n");
+            fprintf(f,  "# Generated from file %s\n# by ck2cti on %s#\n",
+                infile.c_str(), asctime(newtime));
             if (trfile != "") {
-                cout << "# Transport data from file "+trfile+".\n" << endl;
+                fprintf(f,  "# Transport data from file %s.\n\n", 
+                    trfile.c_str());
                 getTransportData(trfile);
             }
             bool hastransport = (trfile != "");
-            ck2ct(idtag, r, hastransport);
+            ck2ct(f, idtag, r, hastransport);
         }
         catch (CanteraError) {
+            fclose(f);
             return -1;
         }
+        fclose(f);
         return 0;
     }
 }

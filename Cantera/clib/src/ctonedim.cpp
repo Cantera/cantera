@@ -28,8 +28,8 @@
 #define DERR -999.999
 
 
-Cabinet<Sim1D>*   Cabinet<Sim1D>::__storage = 0;
-Cabinet<Domain1D>*   Cabinet<Domain1D>::__storage = 0;
+template<> Cabinet<Sim1D>*   Cabinet<Sim1D>::__storage = 0;
+template<> Cabinet<Domain1D>*   Cabinet<Domain1D>::__storage = 0;
 
 
 inline Sim1D* _sim1D(int i) {
@@ -329,14 +329,24 @@ extern "C" {
 
     //------------------ stagnation flow domains --------------------
 
-    int DLL_EXPORT stflow_new(int iph, int ikin, int itr) {
+    int DLL_EXPORT stflow_new(int iph, int ikin, int itr, int itype) {
         try {
             IdealGasPhase* ph = (IdealGasPhase*)_thermo(iph);
-            AxiStagnFlow* x = new AxiStagnFlow(ph, ph->nSpecies(), 2);
-            x->setKinetics(*_kinetics(ikin));
-            x->setTransport(*_transport(itr));
-
-            return Cabinet<Domain1D>::cabinet()->add(x);
+            if (itype == 1) {
+                AxiStagnFlow* x = new AxiStagnFlow(ph, ph->nSpecies(), 2);
+                x->setKinetics(*_kinetics(ikin));
+                x->setTransport(*_transport(itr));
+                return Cabinet<Domain1D>::cabinet()->add(x);
+            }
+            else if (itype == 2) {
+                FreeFlame* x = new FreeFlame(ph, ph->nSpecies(), 2);
+                x->setKinetics(*_kinetics(ikin));
+                x->setTransport(*_transport(itr));
+                return Cabinet<Domain1D>::cabinet()->add(x);
+            }
+            else {
+                return -2;
+            }
         }
         catch (CanteraError) { return -1; }
     }
@@ -597,6 +607,13 @@ extern "C" {
             if (tsmax > 0.0)
                 _sim1D(i)->setMaxTimeStep(tsmax);
             return 0;
+        }
+        catch (CanteraError) { return -1; }
+    }
+
+    int DLL_EXPORT sim1D_setFixedTemperature(int i, double temp) {
+        try {
+            _sim1D(i)->setFixedTemperature(temp);
         }
         catch (CanteraError) { return -1; }
     }

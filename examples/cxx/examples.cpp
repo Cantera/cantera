@@ -8,7 +8,7 @@
 #pragma warning(disable:4503)
 #endif
 
-#define NUM_EXAMPLES 6
+#define NUM_EXAMPLES 5
 
 int kinetics_example1(int job);
 int kinetics_example2(int job);
@@ -20,7 +20,7 @@ int rxnpath_example1(int job);
 typedef int (*exfun)(int n);
  
 int run_example(int n, exfun f, int job = 2) {
-    cout << "\n\n\n\n>>>>>  example " << n+1 << "\n\nDescription:  ";
+    cout << "\n\n\n\n>>>>>  example " << n+1 << "\n\nDescription:  " << endl;
     int i = f(job);
     showErrors(cout);
     return i;

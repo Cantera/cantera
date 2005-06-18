@@ -41,7 +41,7 @@ namespace Cantera {
    * methods into the body of the corresponding StoichManager method,
    * and so there is no performance penalty (unless inlining is turned
    * off).
-   * 
+   *
    * To describe the methods, consider class C3 and suppose an instance
    * is created with reaction number irxn and species numbers k0, k1,
    * and k2.
@@ -114,25 +114,32 @@ namespace Cantera {
 
   public:
 
-    C1( int rxn = 0, int ic0 = 0, doublereal order = 1.0 ) 
-      : m_rxn (rxn),  m_ic0 (ic0), m_order(order) {}
+      C1( int rxn = 0, int ic0 = 0, doublereal order = 1.0 ) 
+          : m_rxn (rxn),  m_ic0 (ic0), m_order(order) {}
+      
+      int data(vector<int>& ic) {
+          ic.resize(3);
+          ic[0] = m_ic0;
+          return m_rxn;
+      }
+      
+      void multiply(const doublereal* input, doublereal* output) const { 
+          *(output + m_rxn) *= *(input + m_ic0); 
+      }
+      void power(const doublereal* input, doublereal* output) const { 
+          output[m_rxn] *= ppow(input[m_ic0], m_order); 
+      }
 
-    int data(vector<int>& ic) {
-      ic.resize(3);
-      ic[0] = m_ic0;
-      return m_rxn;
-    }
+      /**
+       * Add the sum of N specified elements of array 'input'
+       * to element I or array 'output'.
+       */
+      void incrementSpecies(const doublereal* input, 
+          doublereal* output) const { 
+          *(output + m_ic0) += *(input + m_rxn); 
+      }
 
-    void multiply(const doublereal* input, doublereal* output) const { 
-      *(output + m_rxn) *= *(input + m_ic0); 
-    }
-    void power(const doublereal* input, doublereal* output) const { 
-      output[m_rxn] *= ppow(input[m_ic0], m_order); 
-    }
-    void incrementSpecies(const doublereal* input, 
-			  doublereal* output) const { 
-      *(output + m_ic0) += *(input + m_rxn); 
-    }
+
     void decrementSpecies(const doublereal* input, 
 			  doublereal* output) const { 
       *(output + m_ic0) -= *(input + m_rxn); 
@@ -286,16 +293,20 @@ namespace Cantera {
   public:
     C_AnyN() : m_rxn (-1) {}
 
-    C_AnyN( int rxn, const vector_int& ic, const vector_fp& order) 
-      : m_rxn (rxn) {
-      m_n = ic.size();
-      m_ic.resize(m_n);
-      m_order.resize(m_n);
-      for (int n = 0; n < m_n; n++) {
-	m_ic[n] = ic[n];
-	m_order[n] = order[n];
+      C_AnyN( int rxn, const vector_int& ic, const vector_fp& order, 
+          const vector_fp& stoich) 
+          : m_rxn (rxn) {
+          m_n = ic.size();
+          m_ic.resize(m_n);
+          m_order.resize(m_n);
+          m_stoich.resize(m_n);
+          for (int n = 0; n < m_n; n++) {
+              m_ic[n] = ic[n];
+              m_order[n] = order[n];
+              m_stoich[n] = stoich[n];
+              cout << "n, stoich[n] = " << n << " " << stoich[n] << endl;
+          }
       }
-    }
 
     int data(vector<int>& ic) {
       ic.resize(m_n);
@@ -304,37 +315,48 @@ namespace Cantera {
       return m_rxn;
     }
 
-    void power(const doublereal* input, doublereal* output) const {
-      for (int n = 0; n < m_n; n++) output[m_rxn] 
-	*= ppow(input[m_ic[n]],m_order[n]); 
-    }
+      void power(const doublereal* input, doublereal* output) const {
+          for (int n = 0; n < m_n; n++) output[m_rxn] 
+              *= ppow(input[m_ic[n]],m_order[n]); 
+      }
 
-    void multiply(const doublereal* input, doublereal* output) const {
-      for (int n = 0; n < m_n; n++) output[m_rxn] *= input[m_ic[n]]; 
-    }
+      void multiply(const doublereal* input, doublereal* output) const {
+          for (int n = 0; n < m_n; n++) output[m_rxn] *= input[m_ic[n]]; 
+      }
 
-    void incrementSpecies(const doublereal* input, 
+      void incrementSpecies(const doublereal* input, 
 			  doublereal* output) const {
-      doublereal x = input[m_rxn];
-      for (int n = 0; n < m_n; n++) output[m_ic[n]] += x;
-    }
+          doublereal x = input[m_rxn];
+          for (int n = 0; n < m_n; n++) output[m_ic[n]] += m_stoich[n]*x;
+      }
+
     void decrementSpecies(const doublereal* input, 
 			  doublereal* output) const {
       doublereal x = input[m_rxn];
-      for (int n = 0; n < m_n; n++) output[m_ic[n]] -= x;
+      for (int n = 0; n < m_n; n++) output[m_ic[n]] -= m_stoich[n]*x;
     }
-    void incrementReaction(const doublereal* input, 
-			   doublereal* output) const { 
-      for (int n = 0; n < m_n; n++) output[m_rxn] += input[m_ic[n]];
-    }
-    void decrementReaction(const doublereal* input, 
-			   doublereal* output) const { 
-      for (int n = 0; n < m_n; n++) output[m_rxn] -= input[m_ic[n]];
-    }
+
+      /**
+       * Increment R[I] by the sum of N specified elements of array S.
+       */
+      void incrementReaction(const doublereal* input, 
+          doublereal* output) const { 
+          for (int n = 0; n < m_n; n++) output[m_rxn] += m_stoich[n]*input[m_ic[n]];
+      }
+
+      /**
+       * Decrement R[I] by the sum of N specified elements of array S.
+       */
+      void decrementReaction(const doublereal* input, 
+          doublereal* output) const { 
+          for (int n = 0; n < m_n; n++) output[m_rxn] -= m_stoich[n]*input[m_ic[n]];
+      }
+
   private:
-    int m_n, m_rxn, m_ic0, m_ic1, m_ic2;
+    int m_n, m_rxn;
     vector_int m_ic;
     vector_fp m_order;
+      vector_fp m_stoich;
   };
 
 
@@ -443,7 +465,13 @@ namespace Cantera {
      */
     void add(int rxn, const vector_int& k) {
       vector_fp order(k.size(), 1.0);
-      add(rxn, k, order);
+      vector_fp stoich(k.size(), 1.0);
+      add(rxn, k, order, stoich);
+    }
+
+      void add(int rxn, const vector_int& k, const vector_fp& order) {
+      vector_fp stoich(k.size(), 1.0);
+      add(rxn, k, order, stoich);
     }
 
     /**
@@ -459,30 +487,45 @@ namespace Cantera {
      *             These are used as indexes into vectors which have
      *             length n_total_species.
      *  @param order This is a vector of the same length as vector k.
-     *         The order is used for the routine order(), which produces
+     *         The order is used for the routine power(), which produces
      *         a power law expression involving the species vector.
+     *  @param stoich  This is used to handle fractional stoichiometric coefficients
+     *                 on the product side of irreversible reactions.
      */
-    void add(int rxn, const vector_int& k, const vector_fp& order) {
-      m_n[rxn] = static_cast<int>(k.size());
-      switch (k.size()) {
-      case 1:
-	m_loc[rxn] = static_cast<int>(m_c1_list.size());
-	m_c1_list.push_back(C1(rxn, k[0], order[0])); 
-	break; 
-      case 2:
-	m_loc[rxn] = static_cast<int>(m_c2_list.size());  
-	m_c2_list.push_back(C2(rxn, k[0], k[1], order[0], order[1])); 
-	break; 
-      case 3:
-	m_loc[rxn] = static_cast<int>(m_c3_list.size());  
-	m_c3_list.push_back(C3(rxn, k[0], k[1], k[2], 
-			       order[0], order[1], order[2])); 
-	break; 
-      default:
-	m_loc[rxn] = static_cast<int>(m_cn_list.size()); 
-	m_cn_list.push_back(C_AnyN(rxn, k, order));
+      void add(int rxn, const vector_int& k, const vector_fp& order, 
+          const vector_fp& stoich) {
+          m_n[rxn] = static_cast<int>(k.size());
+          int ns = stoich.size();
+          int n;
+          bool frac = false;
+          for (n = 0; n < ns; n++) {
+              if (stoich[n] != 1.0) frac = true;
+          }
+          if (frac) {
+              m_loc[rxn] = static_cast<int>(m_cn_list.size()); 
+              m_cn_list.push_back(C_AnyN(rxn, k, order, stoich));
+          }
+          else {
+              switch (k.size()) {
+              case 1:
+                  m_loc[rxn] = static_cast<int>(m_c1_list.size());
+                  m_c1_list.push_back(C1(rxn, k[0], order[0])); 
+                  break; 
+              case 2:
+                  m_loc[rxn] = static_cast<int>(m_c2_list.size());  
+                  m_c2_list.push_back(C2(rxn, k[0], k[1], order[0], order[1])); 
+                  break; 
+              case 3:
+                  m_loc[rxn] = static_cast<int>(m_c3_list.size());  
+                  m_c3_list.push_back(C3(rxn, k[0], k[1], k[2], 
+                          order[0], order[1], order[2])); 
+                  break; 
+              default:
+                  m_loc[rxn] = static_cast<int>(m_cn_list.size()); 
+                  m_cn_list.push_back(C_AnyN(rxn, k, order, stoich));
+              }
+          }
       }
-    }
     
     void multiply(const doublereal* input, doublereal* output) const {
       _multiply(m_c1_list.begin(), m_c1_list.end(), input, output);

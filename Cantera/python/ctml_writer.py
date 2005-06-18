@@ -199,17 +199,25 @@ _pref = 1.0e5    # 1 bar
 _name = 'noname'
 
 # these lists store top-level entries
+_elements = []
 _species = []
 _speciesnames = []
 _phases = []
 _reactions = []
 _atw = {}
-
+_enames = {}
 
 _valsp = ''
 _valrxn = ''
+_valexport = ''
+_valfmt = ''
 
-
+def export_species(file, fmt = 'CSV'):
+    global _valexport
+    global _valfmt
+    _valexport = file
+    _valfmt = fmt
+    
 def validate(species = 'yes', reactions = 'yes'):
     global _valsp
     global _valrxn
@@ -265,7 +273,12 @@ def write():
     v = x.addChild("validate")
     v["species"] = _valsp
     v["reactions"] = _valrxn
-    
+
+    if _elements:
+        ed = x.addChild("elementData")
+        for e in _elements:
+            e.build(ed)
+            
     for ph in _phases:
         ph.build(x)
     s = species_set(name = _name, species = _species)
@@ -281,6 +294,11 @@ def write():
     else:
         print x
 
+    if _valexport:
+        f = open(_valexport,'w')
+        for s in _species:
+            s.export(f, _valfmt)
+        f.close()
             
 def addFloat(x, nm, val, fmt='', defunits=''):
     """
@@ -320,19 +338,64 @@ def getAtomicComp(atoms):
     return d
 
 def getReactionSpecies(s):
+    """Take a reaction string and return a
+    dictionary mapping species names to stoichiometric
+    coefficients. If any species appears more than once,
+    the returned stoichiometric coefficient is the sum.
+    >>> s = 'CH3 + 3 H + 5.2 O2 + 0.7 H'
+    >>> getReactionSpecies(s)
+    >>> {'CH3':1, 'H':3.7, 'O2':5.2}
+    """
+    
+    # get rid of the '+' signs separating species. Only plus signs
+    # surrounded by spaces are replaced, so that plus signs may be
+    # used in species names (e.g. 'Ar3+')
     toks = s.replace(' + ',' ').split()
     d = {}
-    n = 1
+    n = 1.0
     for t in toks:
-        if t > '0' and t < '9':
-            n = int(t)
-        else:
-            if d.has_key(t):
-                d[t] += n
+        
+        # try to convert the token to a number. 
+        try:
+            n = float(t)
+            if n <= 0.0:
+                raise CTI_Error("zero or negative stoichiometric coefficient:"
+                                +s)
+            
+        #if t > '0' and t < '9':
+        #    n = int(t)
+        #else:
+
+        # token isn't a number, so it must be a species name
+        except:
+            if d.has_key(t):  # already seen this token
+                d[t] += n     # so increment its value by the last
+                              # value of n
             else:
-                d[t] = n
-            n = 1
+                d[t] = n      # first time this token has been seen,
+                              # so set its value to n
+                              
+            n = 1             # reset n to 1.0 for species that do not
+                              # specify a stoichiometric coefficient
     return d
+
+
+class element:
+    def __init__(self, symbol = '',
+                 atomic_mass = 0.01,
+                 atomic_number = 0):
+        self._sym = symbol
+        self._atw = atomic_mass
+        self._num = atomic_number
+        global _elements
+        _elements.append(self)
+
+    def build(self, db):
+        e = db.addChild("element")
+        e["name"] = self._sym
+        e["atomicWt"] = `self._atw`
+        e["atomicNumber"] = `self._num`
+        
 
 class species_set:
     def __init__(self, name = '', species = []):
@@ -384,12 +447,33 @@ class species:
                 #        self.type = SPECIES
         
         global _species
+        global _enames
         _species.append(self)
         global _speciesnames
         if name in _speciesnames:
             raise CTI_Error('species '+name+' multiply defined.')
         _speciesnames.append(name)
-        
+        for e in self._atoms.keys():
+            _enames[e] = 1
+
+    def export(self, f, fmt = 'CSV'):
+        global _enames
+        if fmt == 'CSV':
+            str = self._name+','
+            for e in _enames:
+                if self._atoms.has_key(e):
+                    str += `self._atoms[e]`+','
+                else:
+                    str += '0,'
+            f.write(str)
+            if type(self._thermo) == types.InstanceType:
+                self._thermo.export(f, fmt)
+            else:
+                nt = len(self._thermo)
+                for n in range(nt):
+                    self._thermo[n].export(f, fmt)
+            f.write('\n')
+            
 
     def build(self, p):
         hdr = '    species '+self._name+'    '
@@ -425,6 +509,8 @@ class thermo:
     """Base class for species standard-state thermodynamic properties."""
     def _build(self, p):
         return p.addChild("thermo")
+    def export(self, f, fmt = 'CSV'):
+        pass
 
         
 class NASA(thermo):
@@ -438,7 +524,14 @@ class NASA(thermo):
             raise CTI_Error('NASA coefficient list must have length = 7')
         self._coeffs = coeffs
 
-        
+
+    def export(self, f, fmt='CSV'):
+        if fmt == 'CSV':
+            str = 'NASA,'+`self._t[0]`+','+`self._t[1]`+','
+            for i in  range(7):
+                str += '%17.9E, ' % self._coeffs[i]
+            f.write(str)
+            
     def build(self, t):
         n = t.addChild("NASA")
         n['Tmin'] = `self._t[0]`
@@ -786,7 +879,6 @@ class reaction:
 
             unit_fctr = (math.pow(_length[_ulen], -ldim) *
                          math.pow(_moles[_umol], -mdim) / _time[_utime])
-            
             if type(kf) == types.InstanceType:
                 k = kf
             else:
@@ -1320,6 +1412,64 @@ class incompressible_solid(phase):
         k['model'] = 'none'        
 
 
+class lattice:
+    def __init__(self, name = '', site_density = -1.0,
+                 vacancy_species = ''):
+        self._name = name
+        self._n = site_density
+        self._vac = vacancy_species
+        if name == '':
+            raise CTI_Error('sublattice name must be specified')
+        if site_density < 0.0:
+            raise CTI_Error('sublattice '+name
+                            +' site density must be specified')
+    def build(self,p):
+        lat = p.addChild('Lattice')
+        lat['name'] = self._name
+        addFloat(lat, 'site_density', self._n, defunits = _umol+'/'+_ulen+'3')
+        if self._vac:
+            lat.addChild('vacancy_species',self._vac)
+
+
+class lattice_solid(phase):
+    """A solid crystal consisting of one or more sublattices."""
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 lattices = [],
+                 transport = 'None',
+                 initial_state = None,
+                 options = []):
+        
+        phase.__init__(self, name, 3, elements, species, 'none',
+                       initial_state, options)
+        self._lattices = lattices
+        if lattices == []:
+            raise CTI_Error('One or more sublattices must be specified.')
+        self._pure = 0
+        self._tr = transport
+
+    def conc_dim(self):
+        return (0,0)
+        
+    def build(self, p):
+        ph = phase.build(self, p)
+        e = ph.addChild("thermo")
+        e['model'] = 'LatticeSolid'
+        
+        if self._lattices:
+            lat = e.addChild('LatticeArray')
+            for n in self._lattices:
+                n.build(lat)
+                
+        if self._tr:
+            t = ph.addChild('transport')
+            t['model'] = self._tr
+        k = ph.addChild("kinetics")
+        k['model'] = 'none'        
+
+
 class liquid_vapor(phase):
     """A fluid with a complete liquid/vapor equation of state.
     This entry type selects one of a set of predefined fluids with
@@ -1485,105 +1635,3 @@ if __name__ == "__main__":
     execfile(file)
     write()
     
-
-##########################################
-#
-# $Author$
-# $Revision$
-# $Date$
-# $Log$
-# Revision 1.9  2005-01-08 22:28:01  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.8  2004/12/02 22:11:28  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.7  2004/11/15 02:33:21  dggoodwin
-# changed f90 mod file handling in Makefiles
-#
-# Revision 1.6  2004/09/29 11:00:39  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.5  2004/09/20 10:25:02  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.4  2004/07/14 11:24:13  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.3  2004/06/09 01:02:31  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.2  2004/06/04 06:05:31  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.1  2004/06/02 04:39:09  dggoodwin
-# moved ctml_writer.py out of Cantera package
-#
-# Revision 1.34  2004/05/30 04:02:55  dggoodwin
-# converted to pure python
-#
-# Revision 1.33  2004/04/23 19:03:21  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.32  2004/04/23 16:35:32  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.31  2004/03/12 05:59:59  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.30  2004/02/08 13:25:21  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.29  2004/02/08 13:22:31  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.28  2004/02/08 13:09:10  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.27  2004/02/03 16:42:54  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.26  2004/02/03 03:31:06  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.25  2003/11/24 16:39:33  dggoodwin
-# -
-#
-# Revision 1.24  2003/11/13 12:29:45  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.23  2003/11/12 18:58:15  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.22  2003/11/01 04:48:20  dggoodwin
-# added capability to have species names with embedded commas
-#
-# Revision 1.21  2003/10/14 06:48:07  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.20  2003/09/22 13:14:34  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.19  2003/08/26 03:39:02  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.18  2003/08/21 14:29:53  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.17  2003/08/20 15:35:32  dggoodwin
-# *** empty log message ***
-#
-# Revision 1.16  2003/08/19 22:02:01  hkmoffa
-# Fixed an error in an argument list
-#
-# Revision 1.15  2003/08/18 05:05:02  dggoodwin
-# added support for specified reaction order, sticking coefficients,
-# coverage dependence of rate coefficients; fixed error where site_density
-# was not being converted to SI.
-#
-# Revision 1.14  2003/08/16 20:17:21  dggoodwin
-# changed handling of reaction pre-exponential units to write converted
-# value to CTML, rather than pass original value with a units string
-#
-#
-###########################################

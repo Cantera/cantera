@@ -168,12 +168,17 @@ public:
         }
     }
 
+    /**
+     * Constructor. 
+     */
+    Cabinet(bool canDelete = true) : _can_delete(canDelete) { add(new M); }
+
 private:
 
     /**
      * Constructor. 
      */
-    Cabinet(bool canDelete = true) : _can_delete(canDelete) { add(new M); }
+    //    Cabinet(bool canDelete = true) : _can_delete(canDelete) { add(new M); }
 
 
     /**

@@ -92,20 +92,10 @@ namespace Cantera {
     }
 
 
-    //---------------------- drawline ----------------------------------
-
-    //static void drawline(ostream& s) {
-    //    s << "\n-------------------------------------"
-    //      <<  "------------------------------------------";
-    //}
-
     static void drawline() {
         writelog("\n-------------------------------------"
             "------------------------------------------");
     }
-
-
-    //--------------------- linear interp ------------------------------
 
     StFlow::StFlow(igthermo_t* ph, int nsp, int points) : 
         Domain1D(nsp+4, points),
@@ -125,8 +115,6 @@ namespace Cantera {
 	m_efctr(0.0)
     {
         m_type = cFlowType;
-
-        //m_boundary.resize(2,0);
 
         m_points = points;
         m_thermo = ph;
@@ -242,15 +230,6 @@ namespace Cantera {
     }        
         
 
-/*	void StFlow::init() {
-	
-
-		cout << m_do_energy.begin()<< endl;
-	//	this->_getInitialSoln();
-		cout << "Initializing StFlow\n";
-	}
-
-*/
     void StFlow::setupGrid(int n, const doublereal* z) {        
         resize(n);
         int j;
@@ -468,6 +447,8 @@ namespace Cantera {
                 rsd[index(0,j)] = rho_u(x,j);
                 rsd[index(1,j)] = V(x,j);
                 rsd[index(2,j)] = T(x,j);
+                rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
+                diag[index(c_offset_L, j)] = 0;
                 doublereal sum = 0.0;
                 for (k = 0; k < m_nsp; k++) {
                     sum += Y(x,k,j);
@@ -498,35 +479,12 @@ namespace Cantera {
                 //
                 //------------------------------------------------
 
-                //added by Karl Meredith
-                if(!m_adiabatic){
-                    rsd[index(c_offset_U,j)] = 
-                        -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
-                        -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
-                }
-                else{
-                    //we want mdot to propagate outward from fixed T point.
-                    if(grid(j)>m_zfixed){
-                        rsd[index(c_offset_U,j)] = 
-                            -(rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1]
-                            -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
-                        //algebraic constraint    
-                        diag[index(c_offset_U, j)] = 0;
-                    }
-                    else if(grid(j)==m_zfixed){
-                        rsd[index(c_offset_U,j)] = 0.001*(T(x,j)-m_tfixed);
-                        //algebraic constraint    
-                        diag[index(c_offset_U, j)] = 0;    
-                    }
-                    else if(grid(j)<m_zfixed){
-                        rsd[index(c_offset_U,j)] = 
-                            -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
-                            -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
-                        //algebraic constraint    
-                        diag[index(c_offset_U, j)] = 0;
-                    }
-                }
-                //end of 'added by Karl Meredith'
+                rsd[index(c_offset_U,j)] = 
+                    -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
+                    -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
+
+                //algebraic constraint
+                diag[index(c_offset_U, j)] = 0;
 
 
                 //------------------------------------------------             
@@ -552,7 +510,6 @@ namespace Cantera {
 
                 doublereal convec, diffus;
                 for (k = 0; k < m_nsp; k++) {
-                    //if (m_do_species[k]) {
                     convec = rho_u(x,j)*dYdz(x,k,j);
                     diffus = 2.0*(m_flux(k,j) - m_flux(k,j-1))
                              /(z(j+1) - z(j-1));
@@ -561,7 +518,6 @@ namespace Cantera {
                             - convec - diffus)/m_rho[j]
                         - rdt*(Y(x,k,j) - Y_prev(k,j));
                     diag[index(c_offset_Y + k, j)] = 1;
-                    //}
                 }
 
 
@@ -574,8 +530,9 @@ namespace Cantera {
                     setGas(x,j);
 
                     // heat release term
-                    const vector_fp& h_RT = m_thermo->enthalpy_RT();
-                    const vector_fp& cp_R = m_thermo->cp_R();
+                    const vector_fp& h_RT = m_thermo->enthalpy_RT_ref();
+                    const vector_fp& cp_R = m_thermo->cp_R_ref();
+
                     sum = 0.0;
                     sum2 = 0.0;
                     doublereal flxk;
@@ -599,25 +556,14 @@ namespace Cantera {
                     rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
                     diag[index(c_offset_T, j)] = 1;
                 }
-            }
 
-            // residual equations if the energy or species equations
-            // are disabled
+                // residual equations if the energy equation is disabled
 
-            for (k = 0; k < m_nsp; k++) {
-                if (!m_do_species[k]) {
-                    rsd[index(c_offset_Y+k,j)] = Y(x,k,j) - Y_fixed(k,j);
-                    diag[index(c_offset_Y+k, j)] = 0;
+                if (!m_do_energy[j]) {
+                    rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
+                    diag[index(c_offset_T, j)] = 0;
                 }
-            }
 
-            if (!m_do_energy[j]) {
-                rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
-                diag[index(c_offset_T, j)] = 0;
-            }
-
-            // Propagate lambda from left to right
-            if (j > 0) {
                 rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
                 diag[index(c_offset_L, j)] = 0;
             }
@@ -630,13 +576,13 @@ namespace Cantera {
      * Update the transport properties at grid points in the range
      * from j0 to j1, based on solution x.
      */
-    void AxiStagnFlow::updateTransport(doublereal* x,int j0, int j1) {
+    void StFlow::updateTransport(doublereal* x,int j0, int j1) {
         int j,k,m;
 
         if (m_transport_option == c_Mixav_Transport) {
             for (j = j0; j < j1; j++) {
                 setGasAtMidpoint(x,j);
-                m_visc[j] = m_trans->viscosity();
+                m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
                 m_trans->getMixDiffCoeffs(m_diff.begin() + j*m_nsp);
                 m_tcon[j] = m_trans->thermalConductivity();
             }
@@ -649,7 +595,7 @@ namespace Cantera {
                 dz = m_z[m+1] - m_z[m];
                 wtm = m_thermo->meanMolecularWeight();
 
-                m_visc[m] = m_trans->viscosity();
+                m_visc[m] = (m_dovisc ? m_trans->viscosity() : 0.0);
 
                 m_trans->getMultiDiffCoeffs(m_nsp, 
                     m_multidiff.begin() + mindex(0,0,m));
@@ -671,6 +617,259 @@ namespace Cantera {
                 if (m_do_soret) {
                     m_trans->getThermalDiffCoeffs(m_dthermal.begin() + m*m_nsp);
                 }
+            }
+        }
+    }
+
+
+    //------------------------------------------------------
+
+    /**
+     *  Evaluate the residual function for axisymmetric stagnation
+     *  flow. If jpt is less than zero, the residual function is
+     *  evaluated at all grid points. If jpt >= 0, then the residual
+     *  function is only evaluated at grid points jpt-1, jpt, and
+     *  jpt+1. This option is used to efficiently evaluate the
+     *  Jacobian numerically.
+     *
+     */
+
+    void FreeFlame::eval(int jg, doublereal* xg, 
+        doublereal* rg, integer* diagg, doublereal rdt) {
+
+        // if evaluating a Jacobian, and the global point is outside
+        // the domain of influence for this domain, then skip
+        // evaluating the residual
+        if (jg >=0 && (jg < firstPoint() - 1 || jg > lastPoint() + 1)) return;
+
+        // if evaluating a Jacobian, compute the steady-state residual
+        if (jg >= 0) rdt = 0.0;
+
+        // start of local part of global arrays
+        doublereal* x = xg + loc();
+        doublereal* rsd = rg + loc();
+        integer* diag = diagg + loc();
+        
+        int jmin, jmax, jpt;
+        jpt = jg - firstPoint();
+
+        if (jg < 0) {      // evaluate all points
+            jmin = 0;
+            jmax = m_points - 1;
+        }
+        else {            // evaluate points for Jacobian
+            jmin = max(jpt-1, 0);
+            jmax = min(jpt+1,m_points-1);
+        }
+
+        // properties are computed for grid points from j0 to j1
+        int j0 = max(jmin-1,0);
+        int j1 = min(jmax+1,m_points-1);
+
+
+        int j, k;
+
+
+        //----------------------------------------------------- 
+        //              update properties
+        //-----------------------------------------------------
+
+        // update thermodynamic properties only if a Jacobian is not
+        // being evaluated
+        if (jpt < 0) {
+            updateThermo(x, j0, j1);
+            updateTransport(x, j0, j1);
+        }
+
+        // update the species diffusive mass fluxes whether or not a
+        // Jacobian is being evaluated
+        updateDiffFluxes(x, j0, j1);
+
+
+        //----------------------------------------------------
+        // evaluate the residual equations at all required
+        // grid points
+        //----------------------------------------------------
+
+        doublereal sum, sum2, dtdzj;
+
+        for (j = jmin; j <= jmax; j++) {
+
+
+            //----------------------------------------------
+            //         left boundary
+            //----------------------------------------------
+
+            if (j == 0) {
+
+                // these may be modified by a boundary object
+
+                // Continuity. This propagates information right-to-left,
+                // since rho_u at point 0 is dependent on rho_u at point 1,
+                // but not on mdot from the inlet.  
+                 rsd[index(c_offset_U,0)] = 
+                     -(rho_u(x,1) - rho_u(x,0))/m_dz[0]
+                     -(density(1)*V(x,1) + density(0)*V(x,0));
+
+                 // the inlet (or other) object connected to this one 
+                 // will modify these equations by subtracting its values
+                 // for V, T, and mdot. As a result, these residual equations 
+                 // will force the solution variables to the values for 
+                 // the boundary object
+                 rsd[index(c_offset_V,0)] = V(x,0);
+                 rsd[index(c_offset_T,0)] = T(x,0);
+                 rsd[index(c_offset_L,0)] = -rho_u(x,0);
+
+                 // The default boundary condition for species is zero
+                 // flux
+                 sum = 0.0;
+                 for (k = 0; k < m_nsp; k++) {
+                     sum += Y(x,k,0);
+                     rsd[index(c_offset_Y + k, 0)] =  
+                         -(m_flux(k,0) + rho_u(x,0)* Y(x,k,0));
+                 }
+                 rsd[index(c_offset_Y, 0)] = 1.0 - sum; 
+            }
+
+
+            //----------------------------------------------
+            //
+            //         right boundary
+            //
+            //----------------------------------------------
+
+            else if (j == m_points - 1) {
+
+                 // the boundary object connected to the right of this
+                 // one may modify or replace these equations. The
+                 // default boundary conditions are zero u, V, and T,
+                 // and zero diffusive flux for all species.
+
+                // zero gradient
+                rsd[index(0,j)] = rho_u(x,j) - rho_u(x,j-1);
+                rsd[index(1,j)] = V(x,j);
+                rsd[index(2,j)] = T(x,j) - T(x,j-1);
+                doublereal sum = 0.0;
+                rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
+                diag[index(c_offset_L, j)] = 0;
+                for (k = 0; k < m_nsp; k++) {
+                    sum += Y(x,k,j);
+                    rsd[index(k+4,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
+                }
+                rsd[index(4,j)] = 1.0 - sum;
+                diag[index(4,j)] = 0;
+            }
+
+            //------------------------------------------
+            //     interior points                 
+            //------------------------------------------
+            
+            else {
+
+                //----------------------------------------------
+                //    Continuity equation
+                //----------------------------------------------
+
+                if (grid(j) > m_zfixed){
+                    rsd[index(c_offset_U,j)] = 
+                        - (rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1]
+                        - (density(j-1)*V(x,j-1) + density(j)*V(x,j));
+                }
+
+                else if (grid(j) == m_zfixed){
+                    if (m_do_energy[j]) {
+                        rsd[index(c_offset_U,j)] = (T(x,j) - m_tfixed);
+                    }
+                    else {
+                        rsd[index(c_offset_U,j)] = (rho_u(x,j) 
+                            - m_rho[0]*0.3);
+                    }
+                }
+                else if(grid(j) < m_zfixed){
+                    rsd[index(c_offset_U,j)] = 
+                        - (rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
+                        - (density(j+1)*V(x,j+1) + density(j)*V(x,j));
+                }
+                //algebraic constraint
+                diag[index(c_offset_U, j)] = 0;
+
+                //------------------------------------------------             
+                //    Radial momentum equation
+                //
+                //    \rho u dV/dz + \rho V^2 = d(\mu dV/dz)/dz - lambda
+                //
+                //-------------------------------------------------
+                rsd[index(c_offset_V,j)]
+                    = (shear(x,j) - lambda(x,j) - rho_u(x,j)*dVdz(x,j) 
+                        - m_rho[j]*V(x,j)*V(x,j))/m_rho[j]
+                    - rdt*(V(x,j) - V_prev(j));
+                diag[index(c_offset_V, j)] = 1;
+
+
+                //-------------------------------------------------
+                //    Species equations
+                //                
+                //   \rho u dY_k/dz + dJ_k/dz + M_k\omega_k
+                //
+                //-------------------------------------------------
+                getWdot(x,j);
+
+                doublereal convec, diffus;
+                for (k = 0; k < m_nsp; k++) {
+                    convec = rho_u(x,j)*dYdz(x,k,j);
+                    diffus = 2.0*(m_flux(k,j) - m_flux(k,j-1))
+                             /(z(j+1) - z(j-1));
+                    rsd[index(c_offset_Y + k, j)]   
+                        = (m_wt[k]*(wdot(k,j) ) 
+                            - convec - diffus)/m_rho[j]
+                        - rdt*(Y(x,k,j) - Y_prev(k,j));
+                    diag[index(c_offset_Y + k, j)] = 1;
+                }
+
+
+                //-----------------------------------------------
+                //    energy equation
+                //-----------------------------------------------
+
+                if (m_do_energy[j]) {
+
+                    setGas(x,j);
+
+                    // heat release term
+                    const vector_fp& h_RT = m_thermo->enthalpy_RT_ref();
+                    const vector_fp& cp_R = m_thermo->cp_R_ref();
+
+                    sum = 0.0;
+                    sum2 = 0.0;
+                    doublereal flxk;
+                    for (k = 0; k < m_nsp; k++) {
+                        flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
+                        sum += wdot(k,j)*h_RT[k];
+                        sum2 += flxk*cp_R[k]/m_wt[k];
+                    }
+                    sum *= GasConstant * T(x,j);
+                    dtdzj = dTdz(x,j);
+                    sum2 *= GasConstant * dtdzj;
+
+                    rsd[index(c_offset_T, j)]   = 
+                        - m_cp[j]*rho_u(x,j)*dtdzj 
+                        - divHeatFlux(x,j) - sum - sum2;
+                    rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
+
+                    rsd[index(c_offset_T, j)] = 
+                        rsd[index(c_offset_T, j)] + m_efctr*(T_fixed(j) - T(x,j));
+                    
+                    rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
+                    diag[index(c_offset_T, j)] = 1;
+                }
+                // residual equations if the energy equation is disabled
+                else {
+                    rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
+                    diag[index(c_offset_T, j)] = 0;
+                }
+            
+                rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
+                diag[index(c_offset_L, j)] = 0;
             }
         }
     }

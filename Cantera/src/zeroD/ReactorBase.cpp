@@ -18,7 +18,7 @@
 #include "FlowDevice.h"
 #include "Wall.h"
 
-namespace Cantera {
+namespace CanteraZeroD {
 
     ReactorBase::ReactorBase(string name) : m_nsp(0), 
                                  m_mix(0), 

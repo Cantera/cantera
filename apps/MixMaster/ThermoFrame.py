@@ -21,6 +21,7 @@ class ThermoFrame(Frame):
 		self.config(relief=GROOVE, bd=4)
 		self.top = top
 		self.mix = self.top.mix
+		self.warn = 0
 		self.internal = Frame(self)
 		self.internal.pack(side=LEFT,anchor=N+W,padx=2,pady=2)
 		self.controls=Frame(self.internal)
@@ -69,9 +70,9 @@ class ThermoFrame(Frame):
 		for i in range(len(props)):
 			self.prop.append(ThermoProp(self.entries, self, i, props[i],
 						    0.0, units[i], defaultunit[i]))
-			self.prop[-1].entry.bind("<Any-Leave>",self.setState)
-                self.last2 = self.prop[2]
-                self.last1 = self.prop[3]                
+			#self.prop[-1].entry.bind("<Any-Leave>",self.setState)
+                self.last2 = self.prop[3]
+                self.last1 = self.prop[2]                
 		self.prop[0].checked.set(1)
 		self.prop[0].check()
 		self.prop[1].checked.set(1)
@@ -95,6 +96,10 @@ class ThermoFrame(Frame):
 		self.prop[_ENTROPY].set(self.mix.g.entropy_mass())		
 
 	def setState(self,event=None):
+		if event:
+			self.warn = 0
+		else:
+			self.warn = 1
 		self.top.mixfr.update()
 		i = self.equil.get()
 		optlist = ['frozen','equilibrium']
@@ -131,7 +136,8 @@ class ThermoFrame(Frame):
                     self.mix.set(density = self.prop[_DENSITY].get(),
                                  intEnergy = self.prop[_INTENERGY].get())
 		else:
-			handleError("unsupported property pair")
+			if self.warn > 0:
+				handleError("unsupported property pair")
 
 		self.top.update()
 

@@ -381,7 +381,7 @@ namespace ctml {
                     +v[i]+")");
             }
             key.push_back(v[i].substr(0,icolon));
-            val.push_back(v[i].substr(icolon+1, v.size()));
+            val.push_back(v[i].substr(icolon+1, v[i].size()));
         }
     }
 

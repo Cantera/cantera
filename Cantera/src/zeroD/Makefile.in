@@ -13,6 +13,7 @@
 
 INCDIR = ../../../build/include/cantera/kernel/zeroD
 INSTALL_TSC = ../../../bin/install_tsc
+do_ranlib = @DO_RANLIB@
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
@@ -27,9 +28,10 @@ ZEROD_LIB = @buildlib@/libzeroD.a
 DEPENDS = $(OBJS:.o=.d)
 
 all: $(ZEROD_LIB)
+	@(@INSTALL@ -d $(INCDIR))
 	@(for lh in $(ZEROD_H) ; do \
           $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
-        done)
+	done)
 
 %.d:
 	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
@@ -42,6 +44,9 @@ all: $(ZEROD_LIB)
 
 $(ZEROD_LIB): $(OBJS) $(ZEROD_H)
 	@ARCHIVE@ $(ZEROD_LIB) $(OBJS) > /dev/null
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(ZEROD_LIB)
+endif
 
 clean:
 	@(for lh in $(ZEROD_H) ; do \
@@ -55,7 +60,7 @@ clean:
             $(RM) $(ZEROD_LIB) ; \
             echo "$(RM) $(ZEROD_LIB)" ; \
           fi)
-	$(RM) *.o *~
+	$(RM) *.o *~ .depends
 
 depends: $(DEPENDS)
 	cat *.d > .depends

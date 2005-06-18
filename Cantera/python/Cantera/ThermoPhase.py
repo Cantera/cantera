@@ -269,7 +269,8 @@ class ThermoPhase(Phase):
         """Set the electric potential."""
         _cantera.thermo_setfp(self._phase_id, 6, v, 0);
         
-    def equilibrate(self, XY):
+    def equilibrate(self, XY, solver = 0, rtol = 1.0e-9,
+                    maxsteps = 1000, loglevel = 0):
         """Set to a state of chemical equilibrium holding property pair
         'XY' constant. The pair is specified by a two-letter string,
         which must be one of the set
@@ -279,7 +280,7 @@ class ThermoPhase(Phase):
         """
         ixy = ThermoPhase._equilmap[XY]
         if ixy > 0:
-            _cantera.thermo_equil(self._phase_id, ixy)
+            _cantera.thermo_equil(self._phase_id, ixy, solver, rtol, maxsteps, loglevel)
         else:
             raise 'invalid equilibrium option: '+XY
         

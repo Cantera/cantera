@@ -3,7 +3,9 @@
  *  @file ConstDensityThermo.h
  *
  *  Thermo manager for incompressible substances.
+ */
 
+/*
  *  $Author$
  *  $Date$
  *  $Revision$
@@ -24,7 +26,7 @@
 namespace Cantera {
 
     /**
-     * Overloads the virtual methods of class Thermo to implement the
+     * Overloads the virtual methods of class ThermoPhase to implement the
      * incompressible equation of state.
      */
     class ConstDensityThermo : public ThermoPhase  {
@@ -32,70 +34,25 @@ namespace Cantera {
     public:
 
         ConstDensityThermo() : m_tlast(0.0) {}
-
         virtual ~ConstDensityThermo() {}
 
-        virtual int eosType() const { return cIncompressible; }
+        // overloaded methods of class ThermoPhase
 
-        virtual doublereal enthalpy_mole() const {
-            doublereal p0 = m_spthermo->refPressure();
-            return GasConstant * temperature() * 
-                mean_X(enthalpy_RT().begin()) 
-                + (pressure() - p0)/molarDensity();
-        }
-
-        virtual doublereal intEnergy_mole() const {
-            doublereal p0 = m_spthermo->refPressure();
-            return GasConstant * temperature() * 
-                mean_X(enthalpy_RT().begin()) 
-                - p0/molarDensity();
-        }
-
-        virtual doublereal entropy_mole() const {
-            return GasConstant * (mean_X(entropy_R().begin()) -
-                sum_xlogx());
-        }
-
-        virtual doublereal gibbs_mole() const {
-            return enthalpy_mole() - temperature() * entropy_mole();
-        }
-
-        virtual doublereal cp_mole() const {
-            return GasConstant * mean_X(cp_R().begin());
-        }
-
-        virtual doublereal cv_mole() const {
-            return cp_mole();
-        }
-
-        virtual doublereal pressure() const {
-            return m_press;
-        }
-
-        virtual void setPressure(doublereal p) {
-            m_press = p;
-        }
-
+        virtual int eosType() const;
+        virtual doublereal enthalpy_mole() const;
+        virtual doublereal intEnergy_mole() const;
+        virtual doublereal entropy_mole() const;
+        virtual doublereal gibbs_mole() const;
+        virtual doublereal cp_mole() const;
+        virtual doublereal cv_mole() const;
+        virtual doublereal pressure() const;
+        virtual void setPressure(doublereal p);
         virtual void getActivityConcentrations(doublereal* c) const;
-
+	virtual void getActivityCoefficients(doublereal* ac) const;
         virtual void getChemPotentials(doublereal* mu) const;
         virtual void getStandardChemPotentials(doublereal* mu0) const;
         virtual doublereal standardConcentration(int k=0) const;
         virtual doublereal logStandardConc(int k=0) const;
-
-//         virtual void getPartialMolarEnthalpies(doublereal* hbar) const {
-//             const array_fp& _h = enthalpy_RT();
-//             doublereal rt = GasConstant * _temp();
-//             scale(_h.begin(), _h.end(), hbar, rt);
-//         }
-
-        //virtual void getPartialMolarEntropies(doublereal* sbar) const {
-        //    err("getPartialMolarEntropies");
-        //}
-
-        //virtual void getPartialMolarVolumes(doublereal* vbar) const {
-        //    err("getPartialMolarVolumes");
-        //}
 
         virtual void getPureGibbs(doublereal* gpure) const {
             const array_fp& gibbsrt = gibbs_RT();
@@ -202,8 +159,3 @@ namespace Cantera {
 }
         
 #endif
-
-
-
-
-

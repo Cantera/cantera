@@ -19,7 +19,7 @@
 #define ERR -999
 #define DERR -999.999
 
-Cabinet<XML_Node>*   Cabinet<XML_Node>::__storage = 0;
+template<> Cabinet<XML_Node>*   Cabinet<XML_Node>::__storage = 0;
 
 inline XML_Node* _xml(int i) {
     return Cabinet<XML_Node>::cabinet(false)->item(i);

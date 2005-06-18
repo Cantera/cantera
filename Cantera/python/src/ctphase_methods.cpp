@@ -139,7 +139,7 @@ phase_getarray(PyObject *self, PyObject *args)
             break;
         case 22:
             iok = phase_getMolecularWeights(ph,nsp,xd);
-            break;
+            break; 
         default:
             ;
         }
@@ -222,6 +222,8 @@ phase_setfp(PyObject *self, PyObject *args)
         iok = phase_setTemperature(ph, vv); break; 
     case 2:
         iok = phase_setDensity(ph, vv); break;
+    case 3:
+        iok = phase_setMolarDensity(ph, vv); break;
     default:
         iok = -10; 
     }

@@ -16,7 +16,7 @@
 #pragma warning(disable:4503)
 #endif
 
-namespace Cantera {
+namespace CanteraZeroD {
 
 
     class PID_Controller {

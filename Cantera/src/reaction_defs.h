@@ -1,6 +1,7 @@
 /**
  *  @file reaction_defs.h
  *
+ * This file defines some constants used to specify reaction types.
  */
 
 // Copyright 2001  California Institute of Technology
@@ -41,7 +42,8 @@ namespace Cantera {
      * A chemical activation reaction. For these reactions, the rate falls
      * off as the pressure increases, due to collisional stabilization of
      * a reaction intermediate. Example: Si + SiH4 (+M) <-> Si2H2 + H2
-     * (+M), which competes with Si + SiH4 (+M) <-> Si2H4 (+M).
+     * (+M), which competes with Si + SiH4 (+M) <-> Si2H4 (+M). 
+     * @todo Implement chemical activation reactions.
      */
     const int CHEMACT_RXN    = 8;
 
@@ -50,8 +52,16 @@ namespace Cantera {
      */
     const int SURFACE_RXN    = 20;
 
+    /**
+     * A reaction occurring at a one-dimensional interface between two 
+     * surface phases.
+     */
     const int EDGE_RXN  = 22;
 
+    /**
+     * A global reaction. These may have non-integral reaction orders,
+     * and are not allowed to be reversible.
+     */
     const int GLOBAL_RXN     = 30;
 
     //@}
@@ -60,6 +70,9 @@ namespace Cantera {
      * These types define the supported rate coefficient types for 
      * elementary reactions. Any of these may also be used as the high and
      * low-pressure limits of falloff and chemical activation reactions.
+     *
+     * Note that not all of these are currently implemented!
+     * @todo Finish implementing reaction rate types.
      */
     //@{
     

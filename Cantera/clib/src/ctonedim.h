@@ -45,7 +45,7 @@ extern "C" {
 
     int DLL_IMPORT inlet_setSpreadRate(int i, double v);
 
-    int DLL_IMPORT stflow_new(int iph, int ikin, int itr);
+    int DLL_IMPORT stflow_new(int iph, int ikin, int itr, int itype=1);
     int DLL_IMPORT stflow_setTransport(int i, int itr);
     int DLL_IMPORT stflow_setPressure(int i, double p);
     int DLL_IMPORT stflow_setFixedTempProfile(int i, int n, double* pos, 
@@ -79,7 +79,7 @@ extern "C" {
     int DLL_IMPORT sim1D_setMaxJacAge(int i, int ss_age, int ts_age);
     int DLL_IMPORT sim1D_timeStepFactor(int i, double tfactor);
     int DLL_IMPORT sim1D_setTimeStepLimits(int i, double tsmin, double tsmax);
-
+    int DLL_IMPORT sim1D_setFixedTemperature(int i, double temp);
 }
 
 

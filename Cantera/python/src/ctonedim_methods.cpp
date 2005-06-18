@@ -475,10 +475,11 @@ py_stflow_new(PyObject *self, PyObject *args)
     int iph;
     int ikin;
     int itr;
-    if (!PyArg_ParseTuple(args, "iii:stflow_new", &iph, &ikin, &itr)) 
+    int itype;
+    if (!PyArg_ParseTuple(args, "iiii:stflow_new", &iph, &ikin, &itr, &itype)) 
         return NULL;
         
-    _val = stflow_new(iph,ikin,itr); 
+    _val = stflow_new(iph,ikin,itr,itype); 
     if (int(_val) == -1) return reportCanteraError();
     return Py_BuildValue("i",_val);
 }
@@ -939,6 +940,20 @@ py_sim1D_setTimeStepLimits(PyObject *self, PyObject *args)
         return NULL;
         
     _val = sim1D_setTimeStepLimits(i,tsmin,tsmax); 
+    if (int(_val) == -1) return reportCanteraError();
+    return Py_BuildValue("i",_val);
+}
+
+
+static PyObject *
+py_sim1D_setFixedTemperature(PyObject *self, PyObject *args)
+{
+    int _val;
+    int i;
+    double temp;
+    if (!PyArg_ParseTuple(args, "id:sim1D_setFixedTemperature", &i, &temp)) 
+        return NULL;
+    _val = sim1D_setFixedTemperature(i,temp); 
     if (int(_val) == -1) return reportCanteraError();
     return Py_BuildValue("i",_val);
 }

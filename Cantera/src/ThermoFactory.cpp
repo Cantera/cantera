@@ -19,28 +19,45 @@
 
 #include "SpeciesThermoFactory.h"
 #include "IdealGasPhase.h"
+
+#ifdef WITH_PURE_FLUIDS
 #include "PureFluidPhase.h"
+#endif
+
 #include "ConstDensityThermo.h"
 #include "SurfPhase.h"
 #include "EdgePhase.h"
+
+#ifdef WITH_METAL
 #include "MetalPhase.h"
-//#include "SolidCompound.h"
+#endif
+
+#ifdef WITH_STOICH_SUBSTANCE
 #include "StoichSubstance.h"
+#endif
+
 #include "importCTML.h"
+
+#ifdef WITH_LATTICE_SOLID
+#include "LatticeSolidPhase.h"
+#endif
 
 namespace Cantera {
 
     ThermoFactory* ThermoFactory::__factory = 0;
 
-    static int ntypes = 7;
+    static int ntypes = 8;
     static string _types[] = {"IdealGas", "Incompressible", 
                               "Surface", "Edge", "Metal", "StoichSubstance",
-                              "PureFluid"};
+                              "PureFluid", "LatticeSolid"};
 
     static int _itypes[]   = {cIdealGas, cIncompressible, 
                               cSurf, cEdge, cMetal, cStoichSubstance,
-                              cPureFluid};
+                              cPureFluid, cLatticeSolid};
 
+    /**
+     * This method returns a new instance of a subclass of ThermoPhase
+     */ 
     ThermoPhase* ThermoFactory::newThermoPhase(string model) {
 
         int ieos=-1;
@@ -69,15 +86,25 @@ namespace Cantera {
             th = new EdgePhase;
             break;
 
+#ifdef WITH_METAL
         case cMetal:
             th = new MetalPhase;
             break;
+#endif
 
+#ifdef WITH_STOICH_SUBSTANCE
         case cStoichSubstance:
             th = new StoichSubstance;
             break;
+#endif
 
-#ifdef INCL_PURE_FLUIDS
+#ifdef WITH_LATTICE_SOLID
+        case cLatticeSolid:
+            th = new LatticeSolidPhase;
+            break;
+#endif
+
+#ifdef WITH_PURE_FLUIDS
         case cPureFluid:
             th = new PureFluidPhase;
             break;

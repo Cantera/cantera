@@ -176,8 +176,8 @@
            <E units="kcal/mol">7.300000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>H:1 c6HH:1</reactants>
-      <products>H2:1 c6H*:1</products>
+      <reactants>H:1 c6HH:1.0</reactants>
+      <products>H2:1 c6H*:1.0</products>
     </reaction>
 
     <!-- reaction 0002    -->
@@ -190,8 +190,8 @@
            <E units="kcal/mol">0.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>c6H*:1 H:1</reactants>
-      <products>c6HH:1</products>
+      <reactants>c6H*:1.0 H:1</reactants>
+      <products>c6HH:1.0</products>
     </reaction>
 
     <!-- reaction 0003    -->
@@ -204,8 +204,8 @@
            <E units="kcal/mol">0.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>c6H*:1 CH3:1</reactants>
-      <products>c6HM:1</products>
+      <reactants>c6H*:1.0 CH3:1</reactants>
+      <products>c6HM:1.0</products>
     </reaction>
 
     <!-- reaction 0004    -->
@@ -218,8 +218,8 @@
            <E units="kcal/mol">7.300000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>H:1 c6HM:1</reactants>
-      <products>H2:1 c6*M:1</products>
+      <reactants>H:1 c6HM:1.0</reactants>
+      <products>H2:1 c6*M:1.0</products>
     </reaction>
 
     <!-- reaction 0005    -->
@@ -232,8 +232,8 @@
            <E units="kcal/mol">0.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>H:1 c6*M:1</reactants>
-      <products>c6HM:1</products>
+      <reactants>H:1 c6*M:1.0</reactants>
+      <products>c6HM:1.0</products>
     </reaction>
 
     <!-- reaction 0006    -->
@@ -246,8 +246,8 @@
            <E units="kcal/mol">7.700000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>H:1 c6HM:1</reactants>
-      <products>H2:1 c6HM*:1</products>
+      <reactants>H:1 c6HM:1.0</reactants>
+      <products>H2:1 c6HM*:1.0</products>
     </reaction>
 
     <!-- reaction 0007    -->
@@ -260,8 +260,8 @@
            <E units="kcal/mol">0.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>c6HM*:1 H:1</reactants>
-      <products>c6HM:1</products>
+      <reactants>c6HM*:1.0 H:1</reactants>
+      <products>c6HM:1.0</products>
     </reaction>
 
     <!-- reaction 0008    -->
@@ -274,8 +274,8 @@
            <E units="kcal/mol">0.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>c6HM*:1</reactants>
-      <products>c6*M:1</products>
+      <reactants>c6HM*:1.0</reactants>
+      <products>c6*M:1.0</products>
     </reaction>
 
     <!-- reaction 0009    -->
@@ -288,8 +288,8 @@
            <E units="kcal/mol">0.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>c6HM*:1 H:1</reactants>
-      <products>c6H*:1 CH3:1</products>
+      <reactants>c6HM*:1.0 H:1</reactants>
+      <products>c6H*:1.0 CH3:1</products>
     </reaction>
 
     <!-- reaction 0010    -->
@@ -302,8 +302,8 @@
            <E units="kcal/mol">7.300000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>c6HM*:1 H:1</reactants>
-      <products>H2:1 c6B:1</products>
+      <reactants>c6HM*:1.0 H:1</reactants>
+      <products>H2:1 c6B:1.0</products>
     </reaction>
 
     <!-- reaction 0011    -->
@@ -316,8 +316,8 @@
            <E units="kcal/mol">7.700000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>H:1 c6*M:1</reactants>
-      <products>H2:1 c6B:1</products>
+      <reactants>H:1 c6*M:1.0</reactants>
+      <products>H2:1 c6B:1.0</products>
     </reaction>
 
     <!-- reaction 0012    -->
@@ -330,8 +330,8 @@
            <E units="kcal/mol">7.300000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>H:1 c6HH:1</reactants>
-      <products>H2:1 c6*H:1</products>
+      <reactants>H:1 c6HH:1.0</reactants>
+      <products>H2:1 c6*H:1.0</products>
     </reaction>
 
     <!-- reaction 0013    -->
@@ -344,8 +344,8 @@
            <E units="kcal/mol">0.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>c6*H:1 H:1</reactants>
-      <products>c6HH:1</products>
+      <reactants>c6*H:1.0 H:1</reactants>
+      <products>c6HH:1.0</products>
     </reaction>
 
     <!-- reaction 0014    -->
@@ -358,8 +358,8 @@
            <E units="kcal/mol">7.300000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>c6H*:1 H:1</reactants>
-      <products>H2:1 c6**:1</products>
+      <reactants>c6H*:1.0 H:1</reactants>
+      <products>H2:1 c6**:1.0</products>
     </reaction>
 
     <!-- reaction 0015    -->
@@ -372,8 +372,8 @@
            <E units="kcal/mol">0.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>H:1 c6**:1</reactants>
-      <products>c6H*:1</products>
+      <reactants>H:1 c6**:1.0</reactants>
+      <products>c6H*:1.0</products>
     </reaction>
 
     <!-- reaction 0016    -->
@@ -386,8 +386,8 @@
            <E units="kcal/mol">5.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>c6*H:1 H:1</reactants>
-      <products>H2:1 c6**:1</products>
+      <reactants>c6*H:1.0 H:1</reactants>
+      <products>H2:1 c6**:1.0</products>
     </reaction>
 
     <!-- reaction 0017    -->
@@ -400,8 +400,8 @@
            <E units="kcal/mol">0.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>H:1 c6**:1</reactants>
-      <products>c6*H:1</products>
+      <reactants>H:1 c6**:1.0</reactants>
+      <products>c6*H:1.0</products>
     </reaction>
 
     <!-- reaction 0018    -->
@@ -414,8 +414,8 @@
            <E units="kcal/mol">0.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>CH3:1 c6**:1</reactants>
-      <products>c6*M:1</products>
+      <reactants>CH3:1 c6**:1.0</reactants>
+      <products>c6*M:1.0</products>
     </reaction>
 
     <!-- reaction 0019    -->
@@ -428,8 +428,8 @@
            <E units="kcal/mol">0.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>c6H*:1</reactants>
-      <products>c6*H:1</products>
+      <reactants>c6H*:1.0</reactants>
+      <products>c6*H:1.0</products>
     </reaction>
 
     <!-- reaction 0020    -->
@@ -442,8 +442,8 @@
            <E units="kcal/mol">0.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>c6B:1</reactants>
-      <products>C(d):1 c6HH:1</products>
+      <reactants>c6B:1.0</reactants>
+      <products>C(d):1 c6HH:1.0</products>
     </reaction>
   </reactionData>
 </ctml>

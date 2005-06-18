@@ -11,6 +11,8 @@
 .SUFFIXES :
 .SUFFIXES : .c .d .o
 
+do_ranlib = @DO_RANLIB@
+
 # the directory where the Cantera libraries are located
 CANTERA_LIBDIR=@buildlib@
 
@@ -94,6 +96,9 @@ DEPENDS=$(OBJS:.o=.d)
 # rule to make library
 $(BLASLIB):  $(OBJS)
 	@ARCHIVE@ $(BLASLIB) $(OBJS) > /dev/null
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(BLASLIB)
+endif
 
 
 # ------------------------------------------------

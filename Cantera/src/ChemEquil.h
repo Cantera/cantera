@@ -153,13 +153,15 @@ namespace Cantera {
      * determines the two properties that will be held fixed in the
      * calculation.
      */
-    inline void equilibrate(thermo_t& s, int XY) {
-        if (XY == TP) {
+    inline void equilibrate(thermo_t& s, int XY, int solver = 0,
+        doublereal rtol = 1.0e-9, int maxsteps = 1000, 
+        int loglevel = 0) {
+        if (solver > 0) {
             MultiPhase mix;
             mix.addPhase(&s, 1.0);
             mix.setTemperature(s.temperature());
             mix.setPressure(s.pressure());
-            equilibrate(mix, XY);
+            equilibrate(mix, XY, rtol, maxsteps, loglevel);
         }
         else {
             ChemEquil e;
@@ -173,8 +175,9 @@ namespace Cantera {
      * determines the two properties that will be held fixed in the
      * calculation.
      */
-    inline void equilibrate(thermo_t& s, const char* XY) {
-        equilibrate(s,_equilflag(XY));
+    inline void equilibrate(thermo_t& s, const char* XY,
+        int solver = 0) {
+        equilibrate(s,_equilflag(XY), solver);
     }
 
 }

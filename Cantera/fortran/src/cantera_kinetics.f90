@@ -42,6 +42,7 @@ module cantera_kinetics
          phase%kin_id = newkineticsfromxml(xml_phase%xml_id, phase%thermo_id, &
               missing, missing, missing, missing)
       end if
+      phase%nrxn = kin_nreactions(phase%kin_id)
     end subroutine newKinetics
 
     integer function ctkin_kineticsType(self)
@@ -110,7 +111,7 @@ module cantera_kinetics
     subroutine ctkin_getRevRatesOfProgress(self, revROP)
       implicit none
       type(phase_t), intent(inout) :: self
-      double precision, intent(out) :: revROP(*)
+      double precision, intent(out) :: revROP(self%nrxn)
       self%err = kin_getrevratesofprogress(self%kin_id, revROP)
     end subroutine ctkin_getrevratesofprogress
 

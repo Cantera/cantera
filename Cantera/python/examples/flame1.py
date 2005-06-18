@@ -55,7 +55,7 @@ f.burner.set(massflux = mdot, mole_fractions = comp, temperature = tburner)
 f.set(tol = tol_ss, tol_time = tol_ts)
 f.setMaxJacAge(5, 10)
 f.set(energy = 'off')
-f.init()
+#f.init()
 f.showSolution()
 
 f.solve(loglevel, refine_grid)

@@ -42,7 +42,7 @@ namespace Cantera {
         doublereal T = thermo().temperature();
         if (fabs(T - m_kdata->m_temp) > m_dt_threshold) {
             doublereal logT = log(T);
-            m_kdata->m_logc0 = m_kdata->m_logp0 - logT;
+            m_kdata->m_logc_ref = m_kdata->m_logp_ref - logT;
             update_rates(T, logT, m_kdata->m_rfn.begin());
 
             m_falloff_low_rates.update(T, logT, m_kdata->m_rfn_low.begin()); 
@@ -62,9 +62,10 @@ namespace Cantera {
      */
     void GRI_30_Kinetics::gri30_updateKc() {
         doublereal* rkc = m_kdata->m_rkcn.begin();
-        const doublereal* a = ((IdealGasPhase*)m_thermo[0])->expGibbs_RT().begin();
-        doublereal exp_c0 = exp(m_kdata->m_logc0);
-        update_kc(a, exp_c0, rkc);
+        const doublereal* a = 
+	    ((IdealGasPhase*)m_thermo[0])->expGibbs_RT_ref().begin();
+        doublereal exp_c_ref = exp(m_kdata->m_logc_ref);
+        update_kc(a, exp_c_ref, rkc);
     }
 
 

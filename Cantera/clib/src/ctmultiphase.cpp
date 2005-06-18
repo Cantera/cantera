@@ -21,7 +21,7 @@
 
 typedef MultiPhase  mix_t;
 
-Cabinet<mix_t>*    Cabinet<mix_t>::__storage = 0;
+template<> Cabinet<mix_t>*    Cabinet<mix_t>::__storage = 0;
 
 inline mix_t* _mix(int i) {
     return Cabinet<mix_t>::cabinet()->item(i);
@@ -120,6 +120,10 @@ extern "C" {
             return DERR;
     }
 
+    double DLL_EXPORT mix_nPhases(int i) {
+        return _mix(i)->nPhases();
+    }
+
     doublereal DLL_EXPORT mix_phaseMoles(int i, int n) {
         if (!checkPhase(i, n)) return DERR;
         return _mix(i)->phaseMoles(n);
@@ -146,8 +150,11 @@ extern "C" {
 
 
     int DLL_EXPORT mix_setMolesByName(int i, char* n) {
-        _mix(i)->setMolesByName(string(n));
-        return 0;
+        try {
+            _mix(i)->setMolesByName(string(n));
+            return 0;
+        }
+        catch (CanteraError) { return -1; }
     }
 
     int DLL_EXPORT mix_setTemperature(int i, double t) {
@@ -182,9 +189,10 @@ extern "C" {
 
     
     doublereal DLL_EXPORT mix_equilibrate(int i, char* XY, 
-        doublereal err, int maxiter) { 
+        doublereal err, int maxsteps, int maxiter, int loglevel) { 
         try {
-            return equilibrate(*_mix(i), _equilflag(XY), err, maxiter);
+            return _mix(i)->equilibrate(_equilflag(XY), 
+                err, maxsteps, maxiter, loglevel);
         }
         catch (CanteraError) {
             return DERR;

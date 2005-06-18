@@ -20,7 +20,7 @@ void ctfunctions( int nlhs, mxArray *plhs[],
 {
     int job = getInt(prhs[1]);
         
-    int j, m, iok, id;
+    int j, m, iok, id, dbg, validate;
     char *file, *key, *val;
 
     char *infile, *dbfile, *trfile, *outfile, *idtag;
@@ -31,7 +31,7 @@ void ctfunctions( int nlhs, mxArray *plhs[],
 
         // convert CK file to CTI
     case 1:
-        if (nrhs < 6) {
+        if (nrhs < 8) {
             mexErrMsgTxt("Wrong number of inputs.");
             return;
         } 
@@ -39,8 +39,9 @@ void ctfunctions( int nlhs, mxArray *plhs[],
         dbfile = getString(prhs[3]);
         trfile = getString(prhs[4]);
         idtag = getString(prhs[5]);
-
-        iok = -1; //ck_to_cti(infile, dbfile, trfile, idtag);
+        dbg = getInt(prhs[6]);
+        validate = getInt(prhs[7]);
+        iok = ck_to_cti(infile, dbfile, trfile, idtag, dbg, validate);
         break;  
 
         // get Cantera error

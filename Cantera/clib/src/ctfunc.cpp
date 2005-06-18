@@ -20,7 +20,7 @@ using namespace Cantera;
 
 typedef Func1 func_t;
 
-Cabinet<func_t>*       Cabinet<func_t>::__storage = 0;
+template<> Cabinet<func_t>*       Cabinet<func_t>::__storage = 0;
 
 inline func_t* _func(int i) {
     return Cabinet<func_t>::cabinet()->item(i);

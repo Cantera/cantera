@@ -6,10 +6,11 @@ import _cantera
 import types
 from Cantera.num import zeros, array, asarray
 from exceptions import CanteraError
+from Cantera import writeLogFile
 
 class Mixture:
     """
-    xxx Multiphase mixtures.  Class Mixture represents
+    Multiphase mixtures.  Class Mixture represents
     mixtures of one or more phases of matter.  To construct a mixture,
     supply a list of phases to the constructor, each paired with the
     number of moles for that phase:
@@ -180,14 +181,14 @@ class Mixture:
     def setPhaseMoles(self, n, moles):
         """Set the number of moles of phase n."""
         _cantera.mix_setPhaseMoles(self.__mixid, n, moles)
-    def setMoles(self, moles):
+    def setSpeciesMoles(self, moles):
         """Set the moles of the species [kmol]. The moles may be
         specified either as a string, or as an array. If an array is
         used, it must be dimensioned at least as large as the total
         number of species in the mixture. Note that the species may
         belong to any phase, and unspecified species are set to zero.
 
-        >>> mix.setMoles('C(s):1.0, CH4:2.0, O2:0.2')
+        >>> mix.setSpeciesMoles('C(s):1.0, CH4:2.0, O2:0.2')
 
         """
         if type(moles) == types.StringType:
@@ -197,7 +198,7 @@ class Mixture:
             
     def speciesMoles(self, species = ""):
         """Moles of species k."""
-        moles = array(self.nSpecies(),'d')
+        moles = zeros(self.nSpecies(),'d')
         for k in range(self.nSpecies()):
             moles[k] = _cantera.mix_speciesMoles(self.__mixid, k)
         return self.selectSpecies(moles, species)
@@ -227,30 +228,64 @@ class Mixture:
             else:
                 raise CanteraError("unknown property: "+o)
             
-    def equilibrate(self, XY = "TP", err = 1.0e-9, maxiter = 1000):
+    def equilibrate(self, XY = "TP", err = 1.0e-9,
+                    maxsteps = 1000, maxiter = 200, loglevel = 0):
         """Set the mixture to a state of chemical equilibrium.
 
-        This method uses the VCS algorithm to find the composition
-        that minimizes the total Gibbs free energy of the mixture,
-        subject to element conservation constraints. For a description
-        of the theory, see Smith and Missen, "Chemical Reaction
-        Equilibrium."  The VCS algorithm is implemented in Cantera
-        kernel class MultiPhaseEquil.
+        This method uses a version of the VCS algorithm to find the
+        composition that minimizes the total Gibbs free energy of the
+        mixture, subject to element conservation constraints. For a
+        description of the theory, see Smith and Missen, "Chemical
+        Reaction Equilibrium."  The VCS algorithm is implemented in
+        Cantera kernel class MultiPhaseEquil.
+
+        The VCS algorithm solves for the equilibrium composition for
+        specified temperature and pressure. If any other property pair
+        other than "TP" is specified, then an outer iteration loop is
+        used to adjust T and/or P so that the specified property
+        values are obtained. 
         
         XY - Two-letter string specifying the two properties to hold fixed.
-        Currently, only TP (constant T and P) is implemented. Default: "TP".
+        Currently, 'TP', 'HP', and 'SP' are implemented. Default: 'TP'.
         
         err - Error tolerance. Iteration will continue until (Delta
         mu)/RT is less than this value for each reaction. Default:
-        1.0e-9.
+        1.0e-9. Note that this default is very conservative, and good
+        equilibrium solutions may be obtained with larger error
+        tolerances.
 
-        maxiter - Maximum number of iterations to attempt. Default: 1000.
+        maxsteps - Maximum number of steps to take while solving the
+        equilibrium problem for specified T and P. Default: 1000.
+
+        maxiter - Maximum number of temperature and/or pressure iterations.
+        This is only relevant if a property pair other than (T,P) is
+        specified. Default: 200.
+
+        loglevel - Controls the amount of diagnostic output. If
+        loglevel = 0, no diagnostic output is written. For values > 0,
+        more detailed information is written to the log file as
+        loglevel increases. The default is loglevel = 0.
+
+        The logfile is written in HTML format, and may be viewed with
+        any web browser. The default log file name is
+        "equilibrium_log.html", but if this file exists, the log
+        information will be written to "equilibrium_log{n}.html",
+        where {n} is an integer chosen so that the log file does not
+        already exist. Therefore, if 'equilibrate' is called multiple
+        times, multiple log files will be written, with names
+        "equilibrate_log.html", "equilibrate_log1.html",
+        "equilibrate_log2.html", and so on. Existing log files will
+        not be overwritten.
+        
 
         >>> mix.equilibrate('TP')
         >>> mix.equilibrate('TP', err = 1.0e-6, maxiter = 500)
         
         """
-        return _cantera.mix_equilibrate(self.__mixid, XY, err, maxiter)
+        i = _cantera.mix_equilibrate(self.__mixid, XY, err, maxsteps,
+                                        maxiter, loglevel)
+        if loglevel > 0:
+            writeLogFile("equilibrate_log");
     
     def selectSpecies(self, f, species):
         """Given an array 'f' of floating-point species properties,
@@ -263,12 +298,12 @@ class Mixture:
         sp = []
         if species:
             if type(species) == types.StringType:
-                sp = [sp]
+                sp = [species]
             else:
                 sp = species
             fs = []
             k = 0
-            for s in s:
+            for s in sp:
                 k = self.speciesIndex(s)
                 fs.append(f[k])
             return asarray(fs)

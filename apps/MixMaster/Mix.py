@@ -1,5 +1,6 @@
 from Cantera import GasConstant, OneAtm
-from Cantera.num import zeros
+from Cantera.num import zeros, ones
+from utilities import handleError
 
 def spdict(phase, x):
 	nm = phase.speciesNames()
@@ -96,33 +97,41 @@ class Mix:
 
     def set(self, temperature = None, pressure = None,
             density = None, enthalpy = None,
-            entropy = None, equil = 0):
+            entropy = None, intEnergy = None, equil = 0):
         total_mass = self.totalMass()
         
         if temperature and pressure:
             self.g.setState_TP(temperature, pressure)
             if equil:
-                self.g.equilibrate('TP')
+                self.g.equilibrate('TP',solver=0)
 
         elif temperature and density:
             self.g.setState_TR(temperature, density)
             if equil:
-                self.g.equilibrate('TV')
+                self.g.equilibrate('TV',solver=0)
 
         elif pressure and enthalpy:
             self.g.setState_HP(enthalpy, pressure)
             if equil:
-                self.g.equilibrate('HP')
+                self.g.equilibrate('HP',solver=0)
 		
         elif pressure and entropy:
             self.g.setState_SP(entropy, pressure)
             if equil:
-                self.g.equilibrate('SP')
+                self.g.equilibrate('SP',solver=0)
 
         elif density and entropy:
             self.g.setState_SV(entropy, 1.0/density)
             if equil:
-                self.g.equilibrate('SV')		
+                self.g.equilibrate('SV',solver=0)
+
+        elif density and intEnergy:
+            self.g.setState_UV(intEnergy, 1.0/density)
+            if equil:
+                self.g.equilibrate('UV',solver=0)
+
+#	else:
+#		handleError('unsupported property pair', warning=1)
 		
                 
         total_moles = total_mass/self.g.meanMolecularWeight()

@@ -11,14 +11,32 @@
 
 build_f90=@BUILD_F90@
 build_python=@BUILD_PYTHON@
-build_particles=@BUILD_PARTICLES@
+
+INCDIR = ../../build/include/cantera
+INSTALL_TSC = ../../../bin/install_tsc
+
+CXX_H = Cantera.h  equilibrium.h  IncompressibleSolid.h \
+        kinetics.h onedim.h  surface.h GRI30.h  integrators.h \
+        Metal.h   PureFluid.h   transport.h Edge.h  \
+        IdealGasMix.h  Interface.h    numerics.h  \
+        reactionpaths.h  zerodim.h
 
 all:
-	@INSTALL@ include/*.h ../../build/include/cantera
+	@(cd include ; \
+          for lh in $(CXX_H) ; do \
+          $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
+	done)
 	cd src;   @MAKE@
 	cd demos; @MAKE@
 
 clean:
+	@(for lh in $(CXX_H) ; do \
+            th=$(INCDIR)/"$${lh}" ; \
+            if test -f "$${th}" ; then \
+              $(RM) "$${th}"  ; \
+              echo "$(RM) $${th}" ; \
+            fi \
+          done)
 	cd src; @MAKE@ clean
 	cd demos; @MAKE@ clean
 

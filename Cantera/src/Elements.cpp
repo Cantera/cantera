@@ -352,7 +352,7 @@ namespace Cantera {
      */
 #ifdef USE_DGG_CODE
     void Elements::
-    addUniqueElement(const string& symbol, doublereal weight) 
+    addUniqueElement(const string& symbol, doublereal weight, int atomicNumber) 
     {
         if (m_elementsFrozen) 
             throw ElementsFrozen("addElement");
@@ -370,6 +370,7 @@ namespace Cantera {
         if (i < 0) {
             m_atomicWeights.push_back(weight);
             m_elementNames.push_back(symbol);
+            m_atomicNumbers.push_back(atomicNumber);
             m_mm++;
         } 
         else {
@@ -383,7 +384,8 @@ namespace Cantera {
 
 #else
     void Elements::
-    addUniqueElement(const string& symbol, doublereal weight) 
+    addUniqueElement(const string& symbol, 
+        doublereal weight, int atomicNumber) 
     {
      if (weight == -12345.0) {
 	weight =  LookupWtElements(symbol);
@@ -412,6 +414,7 @@ namespace Cantera {
 	}
 	m_atomicWeights.push_back(weight);
 	m_elementNames.push_back(symbol);
+        m_atomicNumbers.push_back(atomicNumber);
 	m_mm++;
       } else {
 	if (m_atomicWeights[i] != weight) {
@@ -433,9 +436,12 @@ namespace Cantera {
         doublereal weight = 0.0;
         if (e.hasAttrib("atomicWt")) 
             weight = atof(stripws(e["atomicWt"]).c_str());
+        int anum = 0;
+        if (e.hasAttrib("atomicNumber")) 
+            anum = atoi(stripws(e["atomicNumber"]).c_str());
         string symbol = e["name"];
         if (weight != 0.0)
-            addUniqueElement(symbol, weight);
+            addUniqueElement(symbol, weight, anum);
         else
             addUniqueElement(symbol);
     }
@@ -523,14 +529,29 @@ namespace Cantera {
         string element_database = "elements.xml";
         if (elements.hasAttrib("datasrc")) 
             element_database = elements["datasrc"];
+
         XML_Node* doc = get_XML_File(element_database);
         XML_Node* dbe = &doc->child("ctml/elementData");
+
+        XML_Node& root = phase.root();
+        XML_Node* local_db = 0;
+        if (root.child("ctml").hasChild("elementData")) {
+            local_db = &root.child("ctml/elementData");
+        }
 
         int nel = static_cast<int>(enames.size());
         int i;
         string enm;
+        XML_Node* e = 0;
         for (i = 0; i < nel; i++) {
-            XML_Node* e = dbe->findByAttr("name",enames[i]);
+            e = 0;
+            if (local_db) {
+                //writelog("looking in local database.");
+                e = local_db->findByAttr("name",enames[i]);
+                //if (!e) writelog(enames[i]+" not found.");
+            }
+            if (!e)
+                e = dbe->findByAttr("name",enames[i]);
             if (e) {
                 addUniqueElement(*e);
             }
@@ -539,6 +560,7 @@ namespace Cantera {
                     +enames[i]);
             }
         }
+
     }
 
     /***********************************************************************

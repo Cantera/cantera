@@ -7,5 +7,6 @@
 #include "kernel/oneD/Inlet1D.h"
 #include "kernel/oneD/MultiNewton.h"
 #include "kernel/oneD/MultiJac.h"
+#include "kernel/oneD/StFlow.h"
 #endif
 

@@ -86,6 +86,8 @@ static PyMethodDef ct_methods[] = {
     //{"ct_print", ct_print,  METH_VARARGS},
     {"ct_addDirectory", ct_addDirectory, METH_VARARGS},
     {"ct_refcnt", ct_refcnt,  METH_VARARGS},
+    {"ct_ck2cti", ct_ck2cti,  METH_VARARGS},
+    {"ct_writelogfile", ct_writelogfile,  METH_VARARGS},
     //{"readlog", ct_readlog,  METH_VARARGS},
     //{"buildSolutionFromXML", ct_buildSolutionFromXML, METH_VARARGS},
 
@@ -150,6 +152,7 @@ static PyMethodDef ct_methods[] = {
     {"sim1D_setMaxJacAge", py_sim1D_setMaxJacAge, METH_VARARGS},
     {"sim1D_timeStepFactor", py_sim1D_timeStepFactor, METH_VARARGS},
     {"sim1D_setTimeStepLimits", py_sim1D_setTimeStepLimits, METH_VARARGS},
+    {"sim1D_setFixedTemperature", py_sim1D_setFixedTemperature, METH_VARARGS},
 
     {"surf_setsitedensity", py_surf_setsitedensity,  METH_VARARGS},
     {"surf_sitedensity", py_surf_sitedensity,  METH_VARARGS},

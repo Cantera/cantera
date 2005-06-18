@@ -8,21 +8,33 @@
 #
 ###############################################################
 
-SUFFIXES=
-SUFFIXES= .cpp .d .o
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o .h
 
-OBJDIR = .
+INCDIR = ../../../build/include/cantera/kernel/converters
+INSTALL_TSC = ../../../bin/install_tsc
+do_ranlib = @DO_RANLIB@
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) 
 
-# Temporarily removed 'filter.o', since it was causing a compile error on Mac OS X.
 OBJS = atomicWeightDB.o CKParser.o CKReader.o Reaction.o ckr_utils.o \
-        thermoFunctions.o writelog.o ck2ct.o
+       thermoFunctions.o writelog.o ck2ct.o ck2ctml.o
+CONV_H = ck2ctml.h    CKReader.h      thermoFunctions.h \
+         Element.h    Reaction.h      CKParser.h    \
+         ckr_utils.h  RxnSpecies.h    writelog.h \
+         ck2ct.h      ckr_defs.h      Constituent.h   \
+         Species.h
 
 CXX_INCLUDES = -I. -I..
 CONV_LIB = @buildlib@/libconverters.a
 
 DEPENDS = $(OBJS:.o=.d)
+
+all: $(CONV_LIB)
+	@(@INSTALL@ -d $(INCDIR))
+	@(for lh in $(CONV_H) ; do \
+          $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
+        done)
 
 %.d:
 	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
@@ -30,13 +42,21 @@ DEPENDS = $(OBJS:.o=.d)
 .cpp.o:
 	@CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
 
-all: $(CONV_LIB)
-
 $(CONV_LIB): $(OBJS)
 	@ARCHIVE@ $(CONV_LIB) $(OBJS) 
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(CONV_LIB)
+endif
 
 clean:
-	$(RM) *.o *~ $(CONV_LIB)
+	@(for lh in $(CONV_H) ; do \
+            th=$(INCDIR)/"$${lh}" ; \
+            if test -f "$${th}" ; then \
+              $(RM) "$${th}"  ; \
+              echo "$(RM) $${th}" ; \
+            fi \
+          done)
+	$(RM) *.o *~ $(CONV_LIB) .depends
 
 CKParser.o: CKParser.cpp
 	@CXX@ -c CKParser.cpp $(CXX_FLAGS) $(CXX_INCLUDES) -O0

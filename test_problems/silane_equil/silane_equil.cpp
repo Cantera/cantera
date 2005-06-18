@@ -8,7 +8,7 @@
  *
  */
 
-//#include "Cantera.h"
+#include "Cantera.h"
 #include "IdealGasMix.h"
 #include "equilibrium.h"
 
