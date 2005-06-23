@@ -271,7 +271,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_unique_file="Cantera.README"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CVF_LIBDIR USE_CLIB_DLL local_inst local_python_inst python_prefix python_win_prefix ctversion homedir ct_libdir ct_incdir ct_incroot ct_bindir ct_datadir ct_demodir ct_templdir ct_mandir ct_tutdir ct_docdir ct_dir COMPACT_INSTALL build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE ARCHIVE DO_RANLIB RANLIB SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE phase_object_files phase_header_files KERNEL KERNEL_OBJ BUILD_CK LIB_DIR build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR build_with_f2c LOCAL_LIB_DIRS LOCAL_LIBS CT_SHARED_LIB F77FLAGS PYTHON_CMD BUILD_PYTHON NUMARRAY_INC_DIR NUMARRAY_HOME CANTERA_PYTHON_HOME CVSTAG MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC F77 FFLAGS ac_ct_F77 FLIBS F90 BUILD_F90 F90FLAGS F90BUILDFLAGS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED EXTRA_LINK LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CVF_LIBDIR USE_CLIB_DLL local_inst local_python_inst python_prefix python_win_prefix ctversion homedir ct_libdir ct_bindir ct_incdir ct_incroot ct_datadir ct_demodir ct_templdir ct_tutdir ct_docdir ct_dir ct_mandir COMPACT_INSTALL build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE ARCHIVE DO_RANLIB RANLIB SOEXT SHARED PIC LCXX_FLAGS LCXX_END_LIBS USERDIR INCL_USER_CODE phase_object_files phase_header_files KERNEL KERNEL_OBJ BUILD_CK LIB_DIR build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR build_with_f2c LOCAL_LIB_DIRS LOCAL_LIBS CT_SHARED_LIB F77FLAGS PYTHON_CMD BUILD_PYTHON NUMARRAY_INC_DIR NUMARRAY_HOME CANTERA_PYTHON_HOME CVSTAG MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC F77 FFLAGS ac_ct_F77 FLIBS F90 BUILD_F90 F90FLAGS F90BUILDFLAGS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT local_math_libs math_libs SO LDSHARED EXTRA_LINK LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1357,45 +1357,23 @@ ctversion=${CANTERA_VERSION}
 homedir=${HOME}
 
 
-# default is a distributed unix-like installation; these values may be
-# modified below.
-ct_libdir=${prefix}/lib/cantera/${ctversion}
-ct_incdir=${prefix}/include/cantera
-ct_incroot=${prefix}/include
-ct_bindir=${prefix}/bin
-ct_datadir=${prefix}/cantera/${ctversion}/data
-ct_demodir=${prefix}/cantera/${ctversion}/demos
-ct_templdir=${prefix}/cantera/${ctversion}/templates
-ct_tutdir=${prefix}/cantera/${ctversion}/tutorials
-ct_docdir=${prefix}/cantera/${ctversion}/doc
-ct_dir=${prefix}/cantera/${ctversion}
-ct_mandir=${prefix}/share/man
-
 # A compact installation is one in which the $prefix directory
 # contains only Cantera files. It is different than a local
 # installation, in that the Python package is installed with other
 # Python packages and modules in site-packages, rather than with the
 # rest of the Cantera files, as in a local installation.  Therefore,
 # with a compact installation, there is no need to set PYTHONPATH. A
-# compact installation is done on Windows systems and on Mac OS X
-# systems, and a non-compact ("distributed") installation is done by
-# default on other unix/linux systems, unless a local installation is
-# being done.
+# compact installation is done on all machines now by default.
+# This simplifies the installation issues, because now all Cantera
+# installations look the same, except perhaps for the locations
+# of the python packages.
+# An option called, "distributed installations", is no longer
+# supported.
 
-# default is unix-like distributed installation,
-# unless a local installation is being done.
-COMPACT_INSTALL=$local_inst
-
-if test "x${OS_IS_WIN}" = "x1"; then
-COMPACT_INSTALL=1
-fi
-
-if test "x${OS_IS_DARWIN}" = "x1"; then
-COMPACT_INSTALL=1
-fi
-
-if test $COMPACT_INSTALL -gt 0; then
-ct_libdir=${prefix}/lib/${ctversion}
+ct_libdir=${prefix}/lib
+ct_bindir=${prefix}/bin
+ct_incdir=${prefix}/include/cantera
+ct_incroot=${prefix}/include
 ct_datadir=${prefix}/data
 ct_demodir=${prefix}/demos
 ct_templdir=${prefix}/templates
@@ -1403,7 +1381,6 @@ ct_tutdir=${prefix}/tutorials
 ct_docdir=${prefix}/doc
 ct_dir=${prefix}
 ct_mandir=${prefix}
-fi
 
 
 
@@ -1417,6 +1394,7 @@ fi
 
 
 
+COMPACT_INSTALL=1
 
 
 # Make sure we can run config.sub.
@@ -1514,7 +1492,8 @@ if test -z "$username"; then username=$USER; fi
 
 
 
-# the include directory in the 'build' subdirectory. This is required to build the test problems
+# The include directory in the 'build' subdirectory.
+# This is required to build the test problems
 # before Cantera has been installed.
 buildinc=$ctroot/build/include
 
@@ -3453,7 +3432,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3456:" \
+echo "$as_me:3435:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3630,7 +3609,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3633: \"$ac_link\") >&5
+(eval echo $as_me:3612: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3710,7 +3689,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3713: \"$ac_link\") >&5
+(eval echo $as_me:3692: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4748,16 +4727,16 @@ s,@python_win_prefix@,$python_win_prefix,;t t
 s,@ctversion@,$ctversion,;t t
 s,@homedir@,$homedir,;t t
 s,@ct_libdir@,$ct_libdir,;t t
+s,@ct_bindir@,$ct_bindir,;t t
 s,@ct_incdir@,$ct_incdir,;t t
 s,@ct_incroot@,$ct_incroot,;t t
-s,@ct_bindir@,$ct_bindir,;t t
 s,@ct_datadir@,$ct_datadir,;t t
 s,@ct_demodir@,$ct_demodir,;t t
 s,@ct_templdir@,$ct_templdir,;t t
-s,@ct_mandir@,$ct_mandir,;t t
 s,@ct_tutdir@,$ct_tutdir,;t t
 s,@ct_docdir@,$ct_docdir,;t t
 s,@ct_dir@,$ct_dir,;t t
+s,@ct_mandir@,$ct_mandir,;t t
 s,@COMPACT_INSTALL@,$COMPACT_INSTALL,;t t
 s,@build@,$build,;t t
 s,@build_cpu@,$build_cpu,;t t

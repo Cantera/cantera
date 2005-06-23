@@ -113,45 +113,23 @@ AC_SUBST(ctversion)
 homedir=${HOME}
 AC_SUBST(homedir)
 
-# default is a distributed unix-like installation; these values may be
-# modified below.
-ct_libdir=${prefix}/lib/cantera/${ctversion}  
-ct_incdir=${prefix}/include/cantera
-ct_incroot=${prefix}/include
-ct_bindir=${prefix}/bin
-ct_datadir=${prefix}/cantera/${ctversion}/data
-ct_demodir=${prefix}/cantera/${ctversion}/demos
-ct_templdir=${prefix}/cantera/${ctversion}/templates
-ct_tutdir=${prefix}/cantera/${ctversion}/tutorials
-ct_docdir=${prefix}/cantera/${ctversion}/doc
-ct_dir=${prefix}/cantera/${ctversion}
-ct_mandir=${prefix}/share/man
-
 # A compact installation is one in which the $prefix directory
 # contains only Cantera files. It is different than a local
 # installation, in that the Python package is installed with other
 # Python packages and modules in site-packages, rather than with the
 # rest of the Cantera files, as in a local installation.  Therefore,
 # with a compact installation, there is no need to set PYTHONPATH. A
-# compact installation is done on Windows systems and on Mac OS X
-# systems, and a non-compact ("distributed") installation is done by
-# default on other unix/linux systems, unless a local installation is
-# being done.
- 
-# default is unix-like distributed installation,
-# unless a local installation is being done.
-COMPACT_INSTALL=$local_inst
+# compact installation is done on all machines now by default.
+# This simplifies the installation issues, because now all Cantera
+# installations look the same, except perhaps for the locations
+# of the python packages.
+# An option called, "distributed installations", is no longer
+# supported.
 
-if test "x${OS_IS_WIN}" = "x1"; then
-COMPACT_INSTALL=1
-fi
-
-if test "x${OS_IS_DARWIN}" = "x1"; then
-COMPACT_INSTALL=1
-fi
-
-if test $COMPACT_INSTALL -gt 0; then
-ct_libdir=${prefix}/lib/${ctversion}
+ct_libdir=${prefix}/lib
+ct_bindir=${prefix}/bin
+ct_incdir=${prefix}/include/cantera
+ct_incroot=${prefix}/include
 ct_datadir=${prefix}/data
 ct_demodir=${prefix}/demos
 ct_templdir=${prefix}/templates
@@ -159,20 +137,20 @@ ct_tutdir=${prefix}/tutorials
 ct_docdir=${prefix}/doc
 ct_dir=${prefix}
 ct_mandir=${prefix}
-fi
-
 
 AC_SUBST(ct_libdir)
+AC_SUBST(ct_bindir)
 AC_SUBST(ct_incdir)
 AC_SUBST(ct_incroot)
-AC_SUBST(ct_bindir)
 AC_SUBST(ct_datadir)
 AC_SUBST(ct_demodir)
 AC_SUBST(ct_templdir)
-AC_SUBST(ct_mandir)
 AC_SUBST(ct_tutdir)
 AC_SUBST(ct_docdir)
 AC_SUBST(ct_dir)
+AC_SUBST(ct_mandir)
+
+COMPACT_INSTALL=1
 AC_SUBST(COMPACT_INSTALL)
 
 AC_CANONICAL_SYSTEM()
@@ -189,7 +167,8 @@ AC_SUBST(username)
  
 AC_SUBST(ctroot)
 
-# the include directory in the 'build' subdirectory. This is required to build the test problems
+# The include directory in the 'build' subdirectory. 
+# This is required to build the test problems
 # before Cantera has been installed.
 buildinc=$ctroot/build/include
 AC_SUBST(buildinc)
