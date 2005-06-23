@@ -14,6 +14,7 @@ use_dll = @USE_CLIB_DLL@
 
 cvs_tag = @CVSTAG@
 branch = -r $(cvs_tag)
+RMDIRTREE = /bin/rm -r -f
 
 prefix=@prefix@
 
@@ -76,7 +77,7 @@ utils:
 
 kernel-install:
 	@INSTALL@ -d @ct_libdir@
-	rm -f @ct_libdir@/*
+	rm -fR @ct_libdir@/*
 	@INSTALL@ -m 644 @buildlib@/*.a @ct_libdir@
 ifeq ($(do_ranlib),1)
 	@RANLIB@ @ct_libdir@/*.a
@@ -89,7 +90,7 @@ endif
 
 win-kernel-install:
 	@INSTALL@ -d @ct_libdir@
-	rm -f @ct_libdir@/*
+	$(RMDIRTREE) @ct_libdir@/*
 	@INSTALL@ -m 644 @buildlib@/*.lib @ct_libdir@
 ifeq ($(use_dll),1)
 	@INSTALL@ -m 644 @buildlib@/*.dll @ct_libdir@
@@ -194,10 +195,10 @@ ifeq ($(os_is_win),0)
 
 # if not a 'compact' installation, then add some symbolic links for convenience.
 ifeq ($(compact_install),0)
-	rm -fR @prefix@/cantera/demos
-	rm -fR @prefix@/cantera/data
-	rm -fR @prefix@/cantera/templates
-	rm -fR @prefix@/cantera/tutorials
+	$(RMDIRTREE) @prefix@/cantera/demos
+	$(RMDIRTREE) @prefix@/cantera/data
+	$(RMDIRTREE) @prefix@/cantera/templates
+	$(RMDIRTREE) @prefix@/cantera/tutorials
 	ln -s @ct_demodir@ @prefix@/cantera/demos
 	ln -s @ct_datadir@ @prefix@/cantera/data
 	ln -s @ct_templdir@ @prefix@/cantera/templates
@@ -236,17 +237,17 @@ datafiles:
 	cd data/inputs; @MAKE@
 
 uninstall:
-	rm -r -f @ct_incdir@
-	rm -r -f @ct_libdir@
-	rm -r -f @ct_datadir@
-	rm -r -f @ct_demodir@
-	rm -r -f @ct_docdir@
-	rm -r -f @ct_tutdir@
-	rm -r -f @prefix@/matlab/toolbox/cantera
+	$(RMDIRTREE) @ct_incdir@
+	$(RMDIRTREE) @ct_libdir@
+	$(RMDIRTREE) @ct_datadir@
+	$(RMDIRTREE) @ct_demodir@
+	$(RMDIRTREE) @ct_docdir@
+	$(RMDIRTREE) @ct_tutdir@
+	$(RMDIRTREE) @prefix@/matlab/toolbox/cantera
 	cd tools; @MAKE@ uninstall
 
 clean:
-	rm -f *.*~ @buildlib@/*.* build/include/cantera/config.h
+	$(RMDIRTREE) *.*~ @buildlib@/*.* build/include/cantera/config.h
 	cd Cantera; @MAKE@ clean
 	cd tools; @MAKE@ clean
 	cd ext; @MAKE@ clean
