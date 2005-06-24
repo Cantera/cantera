@@ -330,7 +330,7 @@ class ReactionPathFrame(Frame):
 		fmtframe = Frame(self)
 		fmtframe.config(relief=GROOVE, bd=4)		
 		self.browser = IntVar()
-		self.browser.set(1)
+		self.browser.set(0)
 		Checkbutton(fmtframe, text = 'Display in Web Browser',
 			    variable=self.browser,
 			    command=self.show).grid(column=0,columnspan=6,row=0)				
