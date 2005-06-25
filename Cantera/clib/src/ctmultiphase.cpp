@@ -74,9 +74,7 @@ namespace Cantera {
 extern "C" {  
 
     int DLL_EXPORT mix_new() {
-        cout << "in mix_new" << endl;
         mix_t* m = new MultiPhase;
-        cout << "did it" << endl;
         return Cabinet<mix_t>::cabinet()->add(m);
     }
 

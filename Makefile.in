@@ -16,6 +16,9 @@ cvs_tag = @CVSTAG@
 branch = -r $(cvs_tag)
 RMDIRTREE = /bin/rm -r -f
 
+PY_EXAMPLES = equilibrium flames reactors misc liquid_vapor \
+              gasdynamics kinetics surface_chemistry transport
+
 prefix=@prefix@
 
 all:    hdr-collect kernel user cxxlib clib fortran python matlab  \
@@ -143,24 +146,29 @@ python-install:
 ifneq ($(build_python),0)
 	cd Cantera/python; @MAKE@ install
 ifeq ($(build_python),2)
-	@INSTALL@ -d @ct_demodir@/python
-	@INSTALL@ -d @ct_demodir@/python/equilibrium
-	@INSTALL@ Cantera/python/examples/equilibrium/*.py \
-                @ct_demodir@/python/equilibrium
-	@INSTALL@ Cantera/python/examples/equilibrium/*.cti \
-                @ct_demodir@/python/equilibrium
-	@INSTALL@ -d @ct_demodir@/python/flames
-	@INSTALL@ Cantera/python/examples/flames/*.py \
-                @ct_demodir@/python/flames
-	@INSTALL@ Cantera/python/examples/flames/*.cti \
-                @ct_demodir@/python/flames
-	@INSTALL@ -d @ct_demodir@/python/kinetics
-	@INSTALL@ Cantera/python/examples/kinetics/*.py \
-                @ct_demodir@/python/kinetics
+	@(for exdir in $(PY_EXAMPLES) ; do \
+             @INSTALL@ -d @ct_demodir@/python/$${exdir} ; \
+             @INSTALL@ Cantera/python/examples/$${exdir}/*.py \
+                  @ct_demodir@/python/$${exdir} ; \
+        done)
+#	@INSTALL@ -d @ct_demodir@/python
+#	@INSTALL@ -d @ct_demodir@/python/equilibrium
+#	@INSTALL@ Cantera/python/examples/equilibrium/*.py \
+#                @ct_demodir@/python/equilibrium
+#	@INSTALL@ Cantera/python/examples/equilibrium/*.cti \
+#                @ct_demodir@/python/equilibrium
+#	@INSTALL@ -d @ct_demodir@/python/flames
+#	@INSTALL@ Cantera/python/examples/flames/*.py \
+#                @ct_demodir@/python/flames
+#	@INSTALL@ Cantera/python/examples/flames/*.cti \
+#                @ct_demodir@/python/flames
+#	@INSTALL@ -d @ct_demodir@/python/kinetics
+#	@INSTALL@ Cantera/python/examples/kinetics/*.py \
+#                @ct_demodir@/python/kinetics
 #	@INSTALL@ Cantera/python/examples/*.py @ct_demodir@/python
 	@INSTALL@ -d @ct_tutdir@/python
 	@INSTALL@ Cantera/python/tutorial/*.py \
-                @ct_tutdir@/python
+                  @ct_tutdir@/python
 	chown -R @username@ @ct_demodir@/python
 	chown -R @username@ @ct_tutdir@/python
 else

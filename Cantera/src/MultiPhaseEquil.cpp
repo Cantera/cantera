@@ -174,7 +174,7 @@ namespace Cantera {
                 addLogEntry("error",fp2str(error()));
                 endLogGroup();
             }
-            printInfo();
+            if (loglevel > 2) printInfo();
             //if (error() == 0.0) {
             //    write_logfile("equil_err.html");
             //    Cantera::error("stopping");
@@ -185,7 +185,7 @@ namespace Cantera {
             if (loglevel > 0) {
                 addLogEntry("Error","no convergence in "+int2str(maxsteps)
                     +" iterations");
-                printInfo();
+                if (loglevel > 2) printInfo();
                 endLogGroup();
             }
             throw CanteraError("MultiPhaseEquil::equilibrate",
@@ -573,12 +573,6 @@ namespace Cantera {
             k = m_order[ik];
             for (j = 0; j < m_nsp - m_nel; j++) {
                 m_work[ik] += m_N(ik, j) * m_dxi[j];
-#ifdef DEBUG_MULTIPHASE_EQUIL
-                if (m_work[ik] < -999.0) {
-                    cout << ik << "  " << m_work[ik] << " " << m_N(ik,j) << " " << m_dxi[j] << endl;
-                    cout << reactionString(j) << endl;
-                }
-#endif
             }
         }
 
@@ -610,16 +604,6 @@ namespace Cantera {
                         omegamax = omax;
                         if (omegamax < 1.0e-5) {
                             m_force = true;
-#ifdef DEBUG_MULTIPHASE_EQUIL
-                            cout << m_mix->speciesName(m_species[k]) << " results in "
-                                 << " omega = " << omegamax << endl;
-                            //cout << m_moles[k] << "  " << m_work[k] << endl;
-                            if (ik < m_nel) cout << "(component)" << endl;
-                            index_t nk;
-                            for (nk = 0; nk < m_nel; nk++) {
-                                cout << "component: " << m_mix->speciesName(m_species[m_order[nk]]) << "  " << m_moles[m_order[nk]] << endl;
-                            }
-#endif
                         }
                     }
                     m_majorsp[k] = true;
@@ -635,16 +619,10 @@ namespace Cantera {
                         omegamax = omax; //*1.000001;
                         if (omegamax < 1.0e-5) {
                             m_force = true;
-#ifdef DEBUG_MULTIPHASE_EQUIL
-                            cout << m_mix->speciesName(m_species[k]) << " results in "
-                                 << " omega = " << omegamax << endl;
-                            //cout << m_moles[k] << "  " << m_work[k] << endl;
-                            if (ik < m_nel) cout << "component" << endl;
-#endif
                         }
                     }
                 }
-                if (loglevel > 0 && m_moles[k] < -SmallNumber) {
+                if (loglevel > 0 && m_moles[k] < -Tiny) {
                     addLogEntry("Negative moles for "
                         +m_mix->speciesName(m_species[k]), fp2str(m_moles[k]));
                 }
@@ -653,6 +631,7 @@ namespace Cantera {
         }
 
         // now take a step with this scaled omega
+        if (loglevel > 0) addLogEntry("Stepping by ", fp2str(omegamax));
         step(omegamax, m_work);
 
         // compute the gradient of G at this new position in the
@@ -670,6 +649,7 @@ namespace Cantera {
         if (grad1 > 0.0) {
             omega *= fabs(grad0) / (grad1 + fabs(grad0));
             for (k = 0; k < m_nsp; k++) m_moles[k] = m_lastmoles[k];
+            if (loglevel > 0) addLogEntry("Stepped over minimum. Take smaller step ", fp2str(omega));
             step(omega, m_work);
         }
         if (loglevel > 0) endLogGroup();
@@ -827,7 +807,7 @@ namespace Cantera {
 
             // don't require formation reactions for solution species
             // present in trace amounts to be equilibrated
-            if (!isStoichPhase(ik) && fabs(moles(ik)) <= SmallNumber) 
+            if (!isStoichPhase(ik) && fabs(moles(ik)) <= Tiny) 
                 err = 0.0;
 
             // for stoichiometric phase species, no error if not present and 

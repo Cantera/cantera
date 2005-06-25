@@ -405,7 +405,7 @@ namespace Cantera {
             for (n = 0; n < maxiter; n++) {
                 MultiPhaseEquil e(this, strt);
                 start = false;
-                if (loglevel > 1) {
+                if (loglevel > 0) {
                     beginLogGroup("iteration "+int2str(n));
                 }
                 try {
@@ -413,20 +413,24 @@ namespace Cantera {
 
                     hnow = enthalpy();
                     if (hnow < h0) {
-                        if (m_temp > Tlow) Tlow = m_temp;
+                        if (m_temp > Tlow) {
+                            Tlow = m_temp;
+                        }
                     }
                     else {
-                        if (m_temp < Thigh) Thigh = m_temp;
+                        if (m_temp < Thigh) {
+                            Thigh = m_temp;
+                        }
                     }
                     herr = fabs((h0 - hnow)/h0);
-                    if (loglevel > 1) {
+                    if (loglevel > 0) {
                         addLogEntry("T",fp2str(temperature()));
                         addLogEntry("H",fp2str(hnow));
                         addLogEntry("H rel error",fp2str(herr));
                         endLogGroup();
                     }
                     dt = (h0 - hnow)/cp();
-                    dtmax = fminn(500.0,0.5*(Thigh - Tlow));
+                    dtmax = 0.5*(Thigh - Tlow);
                     dta = fabs(dt);
                     if (dta > dtmax) dt *= dtmax/dta;
                     if (herr < err || dta < 1.0e-4) {
@@ -440,14 +444,6 @@ namespace Cantera {
                     tnew = m_temp + dt;
                     setTemperature(tnew);
                     if (dta < 100.0) strt = false;
-//                     if (Thigh > 0.0 && Tlow > 0.0) {
-//                         slope = (hhigh - hlow)/(Thigh - Tlow);
-//                         setTemperature(0.5*(Tlow + Thigh)); //(h0 - hlow)/slope);
-//                     }
-//                     else if (Tlow > 0.0) 
-//                         setTemperature(m_temp + dt);
-//                     else  
-//                         setTemperature(m_temp - dt);
                 }
                 catch (CanteraError e) {
                     if (!strt) {
@@ -463,12 +459,6 @@ namespace Cantera {
                                 "trying T = "+fp2str(m_temp));
                             
                     }
-
-                    //                    else {
-                    //    if (loglevel > 0) 
-                    //        addLogEntry("no convergence","throwing exception");
-                    //    throw e;
-                    //}
                 }
             }
             throw CanteraError("MultiPhase::equilibrate",

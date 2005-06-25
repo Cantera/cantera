@@ -42,7 +42,6 @@ namespace Cantera {
         string reactionString(index_t j);
         doublereal error();
         void printInfo();
-        void finish();
 
     protected:
 
@@ -55,6 +54,7 @@ namespace Cantera {
         void step(doublereal omega, vector_fp& deltaN);
         doublereal computeReactionSteps(vector_fp& dxi);
         void setMoles();
+        void finish();
 
         // moles of the species with sorted index ns
         double moles(int ns) const { return m_moles[m_order[ns]]; }
