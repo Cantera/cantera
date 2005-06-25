@@ -579,9 +579,6 @@ namespace Cantera {
          * Specific entropy. Units: J/kg/K. 
          */
         doublereal entropy_mass() const {
-            //cout << "entropy_mass. " << endl;
-            //cout << "entropy_mole = " << entropy_mole() << endl;
-            //cout << "meanMolecularWeight = " << meanMolecularWeight()<< endl;
             return entropy_mole()/meanMolecularWeight();
         }
 

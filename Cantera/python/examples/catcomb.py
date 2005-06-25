@@ -14,6 +14,7 @@
 
 from Cantera import *
 from Cantera.OneD import *
+#from Cantera.OneD.StagnationFlow import StagnationFlow
 import math
 
 ###############################################################

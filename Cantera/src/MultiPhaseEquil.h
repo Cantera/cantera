@@ -42,6 +42,7 @@ namespace Cantera {
         string reactionString(index_t j);
         doublereal error();
         void printInfo();
+        void finish();
 
     protected:
 
@@ -55,6 +56,12 @@ namespace Cantera {
         doublereal computeReactionSteps(vector_fp& dxi);
         void setMoles();
 
+        // moles of the species with sorted index ns
+        double moles(int ns) const { return m_moles[m_order[ns]]; }
+        double& moles(int ns) { return m_moles[m_order[ns]]; }
+        int solutionSpecies(int n) const { return m_dsoln[m_order[n]]; }
+        bool isStoichPhase(int n) const { return (m_dsoln[m_order[n]] == 0); }
+        
         index_t m_nel_mix, m_nsp_mix, m_np;
         index_t m_nel, m_nsp;
         index_t m_eloc;
@@ -63,7 +70,7 @@ namespace Cantera {
         doublereal m_press, m_temp;
         vector_int m_order;
         matrix_t m_N, m_A;
-        vector_fp m_work, m_work2;
+        vector_fp m_work, m_work2, m_work3;
         vector_fp m_moles, m_lastmoles, m_dxi;
         vector_fp m_deltaG_RT, m_mu;
         vector<bool> m_majorsp;
@@ -71,7 +78,12 @@ namespace Cantera {
         vector_int m_lastsort;
         vector_int m_dsoln;
         vector_int m_incl_element, m_incl_species;
-        vector_int m_species, m_element;
+
+        // Vector of indices for species that are included in the
+        // calculation.  This is used to exclude pure-phase species
+        // with invalid thermo data
+        vector_int m_species;
+        vector_int m_element;
         vector<bool> m_solnrxn;
         bool m_force;
     };

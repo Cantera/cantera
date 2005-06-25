@@ -22,21 +22,20 @@ namespace Cantera {
 
     public:
 
-        typedef size_t       index_t;
-        typedef ThermoPhase  phase_t;
-        typedef DenseMatrix  array_t;
-
         /// Constructor. The constructor takes no arguments, since
         /// phases are added using method addPhase.
-        MultiPhase() : m_temp(0.0), m_press(0.0), 
-                       m_nel(0), m_nsp(0), m_init(false), m_eloc(-1), 
-                       m_equil(0) {}
+        MultiPhase();
 
         /// Destructor. Does nothing. Class MultiPhase does not take 
         /// "ownership" (i.e. responsibility for destroying) the
         /// phase objects.  
         virtual ~MultiPhase() {}
 
+        typedef size_t       index_t;
+        typedef ThermoPhase  phase_t;
+        typedef DenseMatrix  array_t;
+
+ 
         /// Add a phase to the mixture. 
         /// @param p pointer to the phase object
         /// @param moles total number of moles of all species in this phase
@@ -88,6 +87,8 @@ namespace Cantera {
             return m_spstart[p] + k;
         }
 
+        doublereal minTemp();
+        doublereal maxTemp();
 
         doublereal charge();
         doublereal phaseCharge(index_t p);
@@ -104,7 +105,8 @@ namespace Cantera {
         /// chemical potentials of all species with thermo data valid
         /// for the current temperature [J/kmol]. For other species,
         /// set the chemical potential to the value \c not_mu.
-        void getValidChemPotentials(doublereal not_mu, doublereal* mu);
+        void getValidChemPotentials(doublereal not_mu, doublereal* mu,
+            bool standard = false);
 
         /// Chemical potentials. Write into array \c mu the chemical
         /// potentials of all species [J/kmol].
@@ -195,6 +197,7 @@ namespace Cantera {
         int m_eloc;
         vector<bool> m_temp_OK;
         MultiPhaseEquil* m_equil;
+        doublereal m_Tmin, m_Tmax;
     };
 
     inline std::ostream& operator<<(std::ostream& s, Cantera::MultiPhase& x) {

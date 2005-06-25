@@ -201,7 +201,7 @@ namespace Cantera {
     /**
      * Change the grid size. Called after grid refinement.
      */
-    void StFlow::resize(int points) {
+            void StFlow::resize(int points) {
         Domain1D::resize(m_nv, points);
 
         m_rho.resize(m_points, 0.0);
@@ -1044,8 +1044,6 @@ namespace Cantera {
                 writelog("Grid contains "+int2str(np)+
                     " points.\n");
                 readgrid = true;
-
-                // note that setupGrid also resizes the domain.
                 setupGrid(np, x.begin());
             }
         }

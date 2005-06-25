@@ -25,7 +25,7 @@ OBJS = demo.o demo_ftnlib.o
 
 # additional flags to be passed to the linker. If your program
 # requires other external libraries, put them here
-LINK_OPTIONS = @LCXX_FLAGS@
+LINK_OPTIONS = @LCXX_FLAGS@ @EXTRA_LINK@
 
 
 #---------------------------------------------------------------------------

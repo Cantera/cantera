@@ -74,7 +74,9 @@ namespace Cantera {
 extern "C" {  
 
     int DLL_EXPORT mix_new() {
-        mix_t* m = new MultiPhase();
+        cout << "in mix_new" << endl;
+        mix_t* m = new MultiPhase;
+        cout << "did it" << endl;
         return Cabinet<mix_t>::cabinet()->add(m);
     }
 
@@ -98,7 +100,7 @@ extern "C" {
 
     int DLL_EXPORT mix_nElements(int i) {
         return _mix(i)->nElements();
-    }
+     }
 
     int DLL_EXPORT mix_elementIndex(int i, char* name) {
         return _mix(i)->elementIndex(string(name));
@@ -195,6 +197,7 @@ extern "C" {
                 err, maxsteps, maxiter, loglevel);
         }
         catch (CanteraError) {
+            write_logfile("equil_err.html");
             return DERR;
         }
     }

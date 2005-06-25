@@ -304,7 +304,6 @@ namespace Cantera {
               m_ic[n] = ic[n];
               m_order[n] = order[n];
               m_stoich[n] = stoich[n];
-              cout << "n, stoich[n] = " << n << " " << stoich[n] << endl;
           }
       }
 

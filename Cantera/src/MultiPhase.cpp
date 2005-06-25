@@ -7,6 +7,14 @@
 
 namespace Cantera {
 
+
+     MultiPhase::MultiPhase() : m_temp(0.0), m_press(0.0), 
+                    m_nel(0), m_nsp(0), m_init(false), m_eloc(-1), 
+                    m_equil(0), m_Tmin(1.0), m_Tmax(100000.0) {
+     }
+
+
+
     void MultiPhase::
     addPhase(phase_t* p, doublereal moles) {
 
@@ -54,6 +62,15 @@ namespace Cantera {
             m_temp = p->temperature();
             m_press = p->pressure();
         }
+        //cout << "min, max = " << m_Tmin << " " << m_Tmax << endl;
+        if (p->nSpecies() > 1) {
+            double t = p->minTemp();
+            if (t > m_Tmin) m_Tmin = t;
+            t = p->maxTemp();
+            if (t < m_Tmax) m_Tmax = t;
+            //cout << p->name() << " " << t << " " << m_Tmax << endl;
+        }
+
     }
 
 
@@ -184,12 +201,16 @@ namespace Cantera {
     /// Chemical potentials. Write into array \c mu the chemical
     /// potentials of all species [J/kmol].
     void MultiPhase::getValidChemPotentials(doublereal not_mu,
-        doublereal* mu) {
+        doublereal* mu, bool standard) {
         index_t i, loc = 0;
         updatePhases();            
         for (i = 0; i < m_np; i++) {
-            if (tempOK(i) || m_phase[i]->nSpecies() > 1) 
-                m_phase[i]->getChemPotentials(mu + loc);
+            if (tempOK(i) || m_phase[i]->nSpecies() > 1) {
+                if (!standard)
+                    m_phase[i]->getChemPotentials(mu + loc);
+                else
+                    m_phase[i]->getStandardChemPotentials(mu + loc);
+            }
             else
                 fill(mu + loc, mu + loc + m_phase[i]->nSpecies(), not_mu);
             loc += m_phase[i]->nSpecies();
@@ -359,6 +380,7 @@ namespace Cantera {
             if (loglevel > 0) {
                 addLogEntry("problem type","fixed T,P");
             }
+            // create an equilibrium manager 
             MultiPhaseEquil e(this);
             error = e.equilibrate(XY, err, maxsteps, loglevel-1);
             if (loglevel > 0)  e.printInfo();
@@ -368,18 +390,20 @@ namespace Cantera {
             dt = 1.0e2;
             h0 = enthalpy();
             start = true;
-            Tlow = 1.0;
-            Thigh = 1.0e4;
+            Tlow = m_Tmin;      // lower bound on T
+            Thigh = m_Tmax;   // upper bound on T
             hlow = 0.0;
             hhigh = 0.0;
             once = true;
             if (loglevel > 0) {
                 addLogEntry("problem type","fixed H,P");
                 addLogEntry("H target",fp2str(h0));
+                addLogEntry("min T",fp2str(Tlow));
+                addLogEntry("max T",fp2str(Thigh));
             }
             ferr = 0.1;
             for (n = 0; n < maxiter; n++) {
-                MultiPhaseEquil e(this, start);
+                MultiPhaseEquil e(this, strt);
                 start = false;
                 if (loglevel > 1) {
                     beginLogGroup("iteration "+int2str(n));

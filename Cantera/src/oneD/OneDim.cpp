@@ -447,4 +447,13 @@ namespace Cantera {
         s.close();
         writelog("Solution saved to file "+fname+" as solution "+id+".\n");
     }
+
+
+    void Domain1D::setGrid(int n, const doublereal* z) {
+        m_z.resize(n);
+        m_points = n;
+        int j;
+        for (j = 0; j < m_points; j++) m_z[j] = z[j];
+    }
+
 }

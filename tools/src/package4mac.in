@@ -5,8 +5,8 @@ INSTALL='@INSTALL@'
 PYVERSION=2.3
 PKGDIR=$HOME/Packages
 
-ctname=Cantera2
-mixname=MixMaster2
+ctname=Cantera
+mixname=MixMaster
 
 CTDIR=$PKGDIR/Cantera/root_dir/Applications/$ctname
 PYDIR=$PKGDIR/Cantera/root_dir/Library/Python/$PYVERSION

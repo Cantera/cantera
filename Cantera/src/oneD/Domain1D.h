@@ -87,8 +87,9 @@ namespace Cantera {
         }
 
         /** 
-         * Initialize. Base class method does nothing, but may be
-         * overloaded. 
+         * Initialize. This method is called by OneDim::init() for
+         * each domain once at the beginning of a simulation. Base
+         * class method does nothing, but may be overloaded.
          */
         virtual void init(){  }
 
@@ -425,6 +426,7 @@ namespace Cantera {
         doublereal grid(int point) { return m_z[point]; }
 
         virtual void setupGrid(int n, const doublereal* z) {}
+        void setGrid(int n, const doublereal* z);
 
         /**
          * Writes some or all initial solution values into the global
