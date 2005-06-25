@@ -1,5 +1,5 @@
 # This example shows how to create 'functors' - objects that evaluate
-# functions. These are useful for specifying the expansion rate of
+# functions. These are useful for specifying the expansion rate or
 # heat flux at a wall.
 
 from Cantera.Func import *

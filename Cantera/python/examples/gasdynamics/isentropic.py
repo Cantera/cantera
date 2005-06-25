@@ -71,7 +71,7 @@ if __name__ == "__main__":
     print isentropic.__doc__
     data = isentropic()
     try:
-        from matplotlib.matlab import *
+        from pylab import *
         clf
         plot(data[:,1], data[:,0])
         ylabel('Area Ratio')
