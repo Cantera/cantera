@@ -1,7 +1,6 @@
 #include "MultiPhaseEquil.h"
 #include "MultiPhase.h"
 #include "sort.h"
-#include "recipes.h"
 #include "global.h"
 
 #include <math.h>
@@ -18,8 +17,6 @@ using namespace std;
 #define ISNAN isnan
 #endif
 #endif
-
-#undef DEBUG_MULTIPHASE_EQUIL
 
 namespace Cantera {
 
@@ -140,8 +137,9 @@ namespace Cantera {
         m_N.resize(m_nsp, m_nsp - m_nel);
         m_order.resize(m_nsp, 0);
 
-        if (start)
+        if (start) {
             setInitialMoles();
+        }
         computeN();
 
         vector_fp dxi(m_nsp - m_nel, 1.0e-20);
@@ -157,8 +155,9 @@ namespace Cantera {
                 m_dsoln.push_back(0);
         }
         m_force = false; 
-        setMoles();
+        updateMixMoles();
     }
+
 
     doublereal MultiPhaseEquil::equilibrate(int XY, doublereal err, 
         int maxsteps, int loglevel) {
@@ -175,10 +174,6 @@ namespace Cantera {
                 endLogGroup();
             }
             if (loglevel > 2) printInfo();
-            //if (error() == 0.0) {
-            //    write_logfile("equil_err.html");
-            //    Cantera::error("stopping");
-            //}
             if (error() < err) break;
         }
         if (i >= maxsteps) {
@@ -202,8 +197,7 @@ namespace Cantera {
         return error();
     }
 
-    void MultiPhaseEquil::setMoles() {
-        //vector_fp n(m_nsp_mix, 0.0);
+    void MultiPhaseEquil::updateMixMoles() {
         fill(m_work3.begin(), m_work3.end(), 0.0);
         index_t k;
         for (k = 0; k < m_nsp; k++) {
@@ -212,10 +206,10 @@ namespace Cantera {
         m_mix->setMoles(m_work3.begin());
     }
 
-    /// Clean up the composition by setting species with negative mole
-    /// numbers to zero. The solution algorithm can leave some species
-    /// in stoichiometric condensed phases with very small negative
-    /// mole numbers. This method simply sets these to zero.
+    /// Clean up the composition. The solution algorithm can leave
+    /// some species in stoichiometric condensed phases with very
+    /// small negative mole numbers. This method simply sets these to
+    /// zero.
     void MultiPhaseEquil::finish() {
         fill(m_work3.begin(), m_work3.end(), 0.0);
         index_t k;
@@ -226,73 +220,69 @@ namespace Cantera {
     }
 
 
-    /**
-     *  Estimate the initial mole fractions.  Uses the Simplex method
-     *  to estimate the initial number of moles of each species.  The
-     *  linear Gibbs minimization problem is solved, neglecting the
-     *  free energy of mixing terms. This procedure produces a good
-     *  estimate of the low-temperature equilibrium composition.
-     *
-     *  @param s             phase object
-     *  @param elementMoles  vector of elemental moles
-     */
+    /// Extimate the initial mole numbers. This is done by running
+    /// each reaction as far forward or backward as possible, subject
+    /// to the constraint that all mole numbers remain
+    /// non-negative. Reactions for which \f$ \Delta \mu^0 \f$ are
+    /// positive are run in reverse, and ones for which it is negative
+    /// are run in the forward direction. The end result is equivalent
+    /// to solving the linear programming problem of minimizing the
+    /// linear Gibbs function subject to the element and
+    /// non-negativity constraints.
     int MultiPhaseEquil::setInitialMoles() {
-        index_t m, n;
-        doublereal lp = log(m_press/OneAtm);
-        
-        DenseMatrix aa(m_nel+2, m_nsp+1, 0.0);
-        
-        // first column contains fixed element moles
-        for (m = 0; m < m_nel; m++) {
-            aa(m+1,0) = m_mix->elementMoles(m_element[m]);
-        }
+        index_t m, n, ik, j;
 
-        // get the array of non-dimensional Gibbs functions for the pure 
-        // species
-        //m_mix->getStandardChemPotentials(m_mu.begin());
         double not_mu = 1.0e12;
         m_mix->getValidChemPotentials(not_mu, m_mu.begin(), true);
-        
-        int kpp = 0;
-        index_t k, q;
-        doublereal rt = GasConstant * m_temp;
-        for (k = 0; k < m_nsp; k++) {
-            kpp++;
-            aa(0, kpp) =  -m_mu[m_species[k]]/rt;
-            aa(0, kpp) -= m_dsoln[k]*lp;               // ideal gas
-            for (q = 0; q < m_nel; q++)                           
-                aa(q+1, kpp) = -m_mix->nAtoms(m_species[k], m_element[q]);
-        }
+        doublereal dg_rt;
 
-        integer mp = m_nel+2;               // parameters for SIMPLX
-        integer np = m_nsp+1;
-        integer m1 = 0;
-        integer m2 = 0;
-        integer m3 = m_nel;
-        integer icase=0;
-        integer nel = m_nel;
-        integer nsp = m_nsp;
-        vector_int iposv(m_nel);
-        vector_int izrov(m_nsp);
-    
-        //  solve the linear programming problem
+        int idir;
+        double nu;
+        double delta_xi, dxi_min = 1.0e10;
+        bool redo = true;
+        int iter = 0;
+        while (redo) {
 
-        simplx_(&aa(0,0), &nel, &nsp, &mp, &np, &m1, &m2, &m3, 
-            &icase, izrov.begin(), iposv.begin());
-        
-        fill(m_moles.begin(), m_moles.end(), 0.0);
-        for (n = 0; n < m_nel; n++) {
-            int ksp = 0;
-            int ip = iposv[n] - 1;
-            for (int k = 0; k < int(m_nsp); k++) { 
-                if (ip == ksp) {
-                    m_moles[k] = aa(n+1, 0);
+            // choose a set of components based on the current
+            // composition
+            computeN();
+
+            redo = false;
+            iter++;
+            if (iter > 4) break;
+
+            // loop over all reactions
+            for (j = 0; j < m_nsp - m_nel; j++) {
+                dg_rt = 0.0;
+                dxi_min = 1.0e10;
+                for (ik = 0; ik < m_nsp; ik++) {
+                    dg_rt += mu(ik) * m_N(ik,j);
                 }
-                ksp++;
+                // fwd or rev direction
+                idir = (dg_rt < 0.0 ? 1 : -1);
+
+                for (ik = 0; ik < m_nsp; ik++) {
+                    nu = m_N(ik, j);
+                    
+                    // set max change in progress variable by
+                    // non-negativity requirement
+                    if (nu*idir < 0) {
+                        delta_xi = fabs(moles(ik)/nu);
+                        // if a component has nearly zero moles, redo
+                        // with a new set of components
+                        if (delta_xi < SmallNumber && ik < m_nel) redo = true;
+                        if (delta_xi < dxi_min) dxi_min = delta_xi;
+                    }
+                }
+                // step the composition by dxi_min
+                for (ik = 0; ik < m_nsp; ik++) {
+                    moles(ik) += m_N(ik, j) * idir*dxi_min;
+                }
             }
+            // set the moles of the phase objects to match
+            updateMixMoles();
         }
-        setMoles();
-        return icase;
+        return 0;
     }
 
 
@@ -307,30 +297,20 @@ namespace Cantera {
     ///  The constituent species are taken to be the first M species
     ///  in array 'species' that have linearly-independent compositions.
     ///
-    ///  Arguments: 
+    ///  @param order On entry, vector \a order should contain species
+    ///  index numbers in the order of decreasing desirability as a
+    ///  constituent. For example, if it is desired to choose the
+    ///  constituents from among the major species, this array might
+    ///  list species index numbers in decreasing order of mole
+    ///  fraction. If array 'species' does not have length =
+    ///  nSpecies(), then the species will be considered as candidates
+    ///  to be constituents in declaration order, beginning with the
+    ///  first phase added.
     ///
-    ///  On entry, vector species shold contain species index numbers
-    ///  in the order of decreasing desirability as a constituent. For
-    ///  example, if it is desired to choose the constituents from
-    ///  among the major species, this array might list species index
-    ///  numbers in decreasing order of mole fraction. If array
-    ///  'species' does not have length = nSpecies(), then the species
-    ///  will be considered as candidates to be constituents in
-    ///  declaration order, beginning with the first phase added.
-    ///
-    ///  On return, the first M entries of array 'species' contain the index
-    ///  numbers of the constituent species. 
-    ///
-    ///  Matrix nu is an output array that contains the stoichiometric
-    ///  coefficents for a set of K - M formation reactions for the
-    ///  non-constituent species, such that nu(k,i) is the net
-    ///  stoichiometric coefficent of species k in reaction i. Matrix
-    ///  nu will be resized to (K, K-M) and its initial values, if
-    ///  any, will be erased.
-
     void MultiPhaseEquil::getComponents(const vector_int& order) {
         index_t m, k, j;
         int n;
+
         // if the input species array has the wrong size, ignore it
         // and consider the species for constituents in declarationi order.
         if (order.size() != m_nsp) {
@@ -345,13 +325,6 @@ namespace Cantera {
         index_t nRows = m_nel;
         index_t nColumns = m_nsp;
         doublereal fctr;
-
-#ifdef DEBUG_MULTIPHASE_EQUIL
-        cout << "most abundant:" << endl;
-        for (m = 0; m < nRows; m++) {
-            cout << m_mix->speciesName(m_species[m_order[m]]) << "  " << m_moles[m_order[m]] << endl;
-        }
-#endif
 
         // set up the atomic composition matrix
         for (m = 0; m < nRows; m++) {
@@ -380,17 +353,10 @@ namespace Cantera {
                     m_A(n, kmax) = tmp;
                         }
                 // exchange the species labels on the columns
-#ifdef DEBUG_MULTIPHASE_EQUIL
-                cout << "in row " << m << ", pivot is zero" << endl;
-                cout << "exchanging " << m_mix->speciesName(m_species[m_order[m]]) << " for " << m_mix->speciesName(m_species[m_order[kmax]]) << endl; 
-#endif
                 itmp = m_order[m];
                 m_order[m] = m_order[kmax];
                 m_order[kmax] = itmp;
             
-                // throw an exception if the entire row is zero
-                //    if (k >= m_nsp) 
-                //    throw CanteraError("getComponents","all zeros!");
             }
 
             // scale row m so that the diagonal element is unity
@@ -423,23 +389,6 @@ namespace Cantera {
             }
         }
 
-#ifdef DEBUG_MULTIPHASE_EQUIL
-        // check
-        bool ok = true;
-        for (m = 0; m < nRows; m++) {
-            cout << m_mix->speciesName(m_species[m_order[m]]) << "  " << m_moles[m_order[m]] << endl;
-            if (m_A(m,m) != 1.0) ok = false;
-            for (n = 0; n < nRows; n++) {
-                if (n != m && fabs(m_A(m,n)) > TINY)
-                    ok = false;
-            }
-        }
-        if (!ok) {
-            cout << m_A << endl;
-            throw CanteraError("getComponents","error in A matrix");
-        }
-#endif
-
         // create stoichometric coefficient matrix. 
         for (n = 0; n < int(m_nsp); n++) {
             if (n < int(m_nel)) 
@@ -459,17 +408,6 @@ namespace Cantera {
                     if (m_mix->solutionSpecies(m_species[m_order[k]])) 
                         m_solnrxn[j] = true;
             }
-        }
-    }
-
-
-    /// Re-arrange a vector of species properties in sequential form
-    /// into sorted (components first) form.
-    void MultiPhaseEquil::sort(vector_fp& x) {
-        copy(x.begin(), x.end(), m_work2.begin());
-        index_t k;
-        for (k = 0; k < m_nsp; k++) {
-            x[k] = m_work2[m_order[k]];
         }
     }
 
@@ -549,11 +487,13 @@ namespace Cantera {
                 m_moles[k] += omega * deltaN[k];
             }
             else {
-                m_moles[k] = fabs(m_moles[k])*fminn(10.0, exp(-m_deltaG_RT[ik - m_nel]));
+                m_moles[k] = fabs(m_moles[k])*fminn(10.0, 
+                    exp(-m_deltaG_RT[ik - m_nel]));
             }
         }
-        setMoles();
+        updateMixMoles();
     }
+
 
     /// Take one step in composition, given the gradient of G at the
     /// starting point, and a vector of reaction steps dxi. 
@@ -567,14 +507,7 @@ namespace Cantera {
         doublereal grad0 = computeReactionSteps(m_dxi);
 
         // compute the mole fraction changes. 
-        //multiply(m_N, dxi.begin(), m_work.begin());
-        for (ik = 0; ik < m_nsp; ik++) {
-            m_work[ik] = 0.0;
-            k = m_order[ik];
-            for (j = 0; j < m_nsp - m_nel; j++) {
-                m_work[ik] += m_N(ik, j) * m_dxi[j];
-            }
-        }
+        multiply(m_N, m_dxi.begin(), m_work.begin());
 
         // change to sequential form
         unsort(m_work);
@@ -643,7 +576,6 @@ namespace Cantera {
         for (k = 0; k < m_nsp; k++) {
             grad1 += m_work[k] * m_mu[m_species[k]];
         }
-            //        doublereal grad1 = dot(m_work.begin(), m_work.end(), m_work2.begin());
 
         omega = omegamax;
         if (grad1 > 0.0) {
@@ -739,10 +671,6 @@ namespace Cantera {
                     fctr = 1.0;
                 else
                     fctr = 1.0/(term1 + csum + sum);
-                //if (fctr < -999.0 || fctr > 999.0) {
-                //    cout << "fctr, term1, csum, sum = " << fctr << " " << term1 << " " << csum << " " << sum << endl;
-                //    cout << reactionString(j) << endl;
-                //}
             }
             dxi[j] = -fctr*dg_rt;
             index_t m;

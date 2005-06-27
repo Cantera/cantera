@@ -47,13 +47,14 @@ namespace Cantera {
 
         void getComponents(const vector_int& order);
         int setInitialMoles();
+        int setInitialMoles2();
         void computeN();
         doublereal stepComposition(int loglevel);
-        void sort(vector_fp& x);
+        //void sort(vector_fp& x);
         void unsort(vector_fp& x);
         void step(doublereal omega, vector_fp& deltaN);
         doublereal computeReactionSteps(vector_fp& dxi);
-        void setMoles();
+        void updateMixMoles();
         void finish();
 
         // moles of the species with sorted index ns
@@ -61,7 +62,10 @@ namespace Cantera {
         double& moles(int ns) { return m_moles[m_order[ns]]; }
         int solutionSpecies(int n) const { return m_dsoln[m_order[n]]; }
         bool isStoichPhase(int n) const { return (m_dsoln[m_order[n]] == 0); }
-        
+        doublereal mu(int n) const { return m_mu[m_species[m_order[n]]]; }
+        string speciesName(int n) const { return 
+                m_mix->speciesName(m_species[m_order[n]]); }
+
         index_t m_nel_mix, m_nsp_mix, m_np;
         index_t m_nel, m_nsp;
         index_t m_eloc;

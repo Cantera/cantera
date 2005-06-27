@@ -8,12 +8,11 @@
 namespace Cantera {
 
 
+    /// Constructor.
      MultiPhase::MultiPhase() : m_temp(0.0), m_press(0.0), 
                     m_nel(0), m_nsp(0), m_init(false), m_eloc(-1), 
                     m_equil(0), m_Tmin(1.0), m_Tmax(100000.0) {
      }
-
-
 
     void MultiPhase::
     addPhase(phase_t* p, doublereal moles) {
@@ -187,8 +186,6 @@ namespace Cantera {
     }
 
 
-    /// Chemical potentials. Write into array \c mu the chemical
-    /// potentials of all species [J/kmol].
     void MultiPhase::getChemPotentials(doublereal* mu) {
         index_t i, loc = 0;
         updatePhases();            
@@ -198,8 +195,6 @@ namespace Cantera {
         }
     }
 
-    /// Chemical potentials. Write into array \c mu the chemical
-    /// potentials of all species [J/kmol].
     void MultiPhase::getValidChemPotentials(doublereal not_mu,
         doublereal* mu, bool standard) {
         index_t i, loc = 0;
@@ -218,17 +213,6 @@ namespace Cantera {
     }
 
 
-    /// Chemical potentials. Write into array \c mu the chemical
-    /// potentials of all species [J/kmol].
-    void MultiPhase::getStandardChemPotentials(doublereal* mu) {
-        index_t i, loc = 0;
-        updatePhases();
-        for (i = 0; i < m_np; i++) {
-            m_phase[i]->getStandardChemPotentials(mu + loc);
-            loc += m_phase[i]->nSpecies();
-        }
-    }
-
     bool MultiPhase::solutionSpecies(index_t k) {
         if (m_phase[m_spphase[k]]->nSpecies() > 1)
             return true;
@@ -236,7 +220,7 @@ namespace Cantera {
             return false;
     }
 
-    doublereal MultiPhase::gibbs() {
+    doublereal MultiPhase::gibbs() const {
         index_t i;
         doublereal sum = 0.0;
         updatePhases();
@@ -245,7 +229,7 @@ namespace Cantera {
         return sum;
     }
 
-    doublereal MultiPhase::enthalpy() {
+    doublereal MultiPhase::enthalpy() const {
         index_t i;
         doublereal sum = 0.0;
         updatePhases();
@@ -254,7 +238,7 @@ namespace Cantera {
         return sum;
     }
 
-    doublereal MultiPhase::entropy() {
+    doublereal MultiPhase::entropy() const {
         index_t i;
         doublereal sum = 0.0;
         updatePhases();
@@ -263,7 +247,7 @@ namespace Cantera {
         return sum;
     }
 
-    doublereal MultiPhase::cp() {
+    doublereal MultiPhase::cp() const {
         index_t i;
         doublereal sum = 0.0;
         updatePhases();
@@ -345,12 +329,12 @@ namespace Cantera {
         return sum;
     }
 
-    void MultiPhase::updatePhases() {
+    void MultiPhase::updatePhases() const {
         if (!m_init) init();
         index_t p, nsp, loc = 0;
         for (p = 0; p < m_np; p++) {
             nsp = m_phase[p]->nSpecies();
-            doublereal* x = m_moleFractions.begin() + loc;
+            const doublereal* x = m_moleFractions.begin() + loc;
             loc += nsp;
             m_phase[p]->setState_TPX(m_temp, m_press, x);
             m_temp_OK[p] = true;
@@ -383,11 +367,10 @@ namespace Cantera {
             // create an equilibrium manager 
             MultiPhaseEquil e(this);
             error = e.equilibrate(XY, err, maxsteps, loglevel-1);
-            if (loglevel > 0)  e.printInfo();
+            //            if (loglevel > 0)  e.printInfo();
             goto done;
         }
         else if (XY == HP) {
-            dt = 1.0e2;
             h0 = enthalpy();
             start = true;
             Tlow = m_Tmin;      // lower bound on T
@@ -401,9 +384,10 @@ namespace Cantera {
                 addLogEntry("min T",fp2str(Tlow));
                 addLogEntry("max T",fp2str(Thigh));
             }
-            ferr = 0.1;
             for (n = 0; n < maxiter; n++) {
                 MultiPhaseEquil e(this, strt);
+                ferr = 0.1;
+                if (fabs(dt) < 1.0) ferr = err;
                 start = false;
                 if (loglevel > 0) {
                     beginLogGroup("iteration "+int2str(n));
@@ -413,14 +397,10 @@ namespace Cantera {
 
                     hnow = enthalpy();
                     if (hnow < h0) {
-                        if (m_temp > Tlow) {
-                            Tlow = m_temp;
-                        }
+                        if (m_temp > Tlow) Tlow = m_temp;
                     }
                     else {
-                        if (m_temp < Thigh) {
-                            Thigh = m_temp;
-                        }
+                        if (m_temp < Thigh) Thigh = m_temp;
                     }
                     herr = fabs((h0 - hnow)/h0);
                     if (loglevel > 0) {
@@ -443,12 +423,16 @@ namespace Cantera {
                     }
                     tnew = m_temp + dt;
                     setTemperature(tnew);
+
+                    // if the size of Delta T is not too large, use
+                    // the current composition as the starting estimate
                     if (dta < 100.0) strt = false;
                 }
                 catch (CanteraError e) {
                     if (!strt) {
                         if (loglevel > 0) 
-                            addLogEntry("no convergence","setting strt to True");
+                            addLogEntry("no convergence",
+                                "setting strt to True");
                         strt = true;
                     }
                     else {

@@ -22,6 +22,10 @@ namespace Cantera {
 
     public:
 
+        typedef size_t       index_t;
+        typedef ThermoPhase  phase_t;
+        typedef DenseMatrix  array_t;
+
         /// Constructor. The constructor takes no arguments, since
         /// phases are added using method addPhase.
         MultiPhase();
@@ -31,22 +35,27 @@ namespace Cantera {
         /// phase objects.  
         virtual ~MultiPhase() {}
 
-        typedef size_t       index_t;
-        typedef ThermoPhase  phase_t;
-        typedef DenseMatrix  array_t;
-
- 
         /// Add a phase to the mixture. 
         /// @param p pointer to the phase object
         /// @param moles total number of moles of all species in this phase
         void addPhase(phase_t* p, doublereal moles);
 
+        /// Number of elements.
         int nElements() { return int(m_nel); }
+
+        /// Name of element \a m.
         string elementName(int m) { return m_enames[m]; }
+
+        /// Index of element with name \a name.
         int elementIndex(string name) { return m_enamemap[name] - 1;}
         
+        /// Number of species, summed over all phases.
         int nSpecies() { return int(m_nsp); }
+
+        /// Name of species with index \a k. 
         string speciesName(int k) { return m_snames[k]; }
+
+        /// Number of atoms of element \a m in species \a k.
         doublereal nAtoms(int k, int m) {
             if (!m_init) init();
             return m_atoms(m,k); 
@@ -87,36 +96,56 @@ namespace Cantera {
             return m_spstart[p] + k;
         }
 
+        /// Minimum temperature for which all solution phases have
+        /// valid thermo data. Stoichiometric phases are not
+        /// considered, since they may have thermo data only valid for
+        /// conditions for which they are stable.
         doublereal minTemp();
+
+        /// Maximum temperature for which all solution phases have
+        /// valid thermo data. Stoichiometric phases are not
+        /// considered, since they may have thermo data only valid for
+        /// conditions for which they are stable.
         doublereal maxTemp();
 
+        /// Total charge (Coulombs). 
         doublereal charge();
+
+        /// Charge (Coulombs) of phase with index \a p.
         doublereal phaseCharge(index_t p);
 
-        /// Total moles of element m, summed over all
-        /// phases
+        /// Total moles of element \a m, summed over all phases.
         doublereal elementMoles(index_t m);
 
-        /// Chemical potentials. Write into array \c mu the chemical
-        /// potentials of all species [J/kmol].
+        /// Chemical potentials. Write into array \a mu the chemical
+        /// potentials of all species [J/kmol]. The chemical
+        /// potentials are related to the activities by
+        /// \f[ \mu_k = \mu_k^0(T, P) + RT \ln a_k. \f].
         void getChemPotentials(doublereal* mu);
 
-        /// Valid chemical potentials. Write into array \c mu the
+        /// Valid chemical potentials. Write into array \a mu the
         /// chemical potentials of all species with thermo data valid
         /// for the current temperature [J/kmol]. For other species,
-        /// set the chemical potential to the value \c not_mu.
+        /// set the chemical potential to the value \a not_mu. If \a
+        /// standard is set to true, then the values returned are
+        /// standard chemical potentials.
         void getValidChemPotentials(doublereal not_mu, doublereal* mu,
             bool standard = false);
 
-        /// Chemical potentials. Write into array \c mu the chemical
-        /// potentials of all species [J/kmol].
-        void getStandardChemPotentials(doublereal* mu);
-
         /// Temperature [K].
-        doublereal temperature() {
-            return m_temp;
-        }
+        doublereal temperature() { return m_temp; }
 
+        /// Set the mixture to a state of chemical equilibrium.
+        /// @param XY Integer flag specifying properties to hold fixed.
+        /// @param err Error tolerance for \f$\Delta \mu/RT \f$ for
+        /// all reactions. Also used as the relative error tolerance
+        /// for the outer loop.
+        /// @param maxsteps Maximum number of steps to take in solving
+        /// the fixed TP problem.
+        /// @param maxiter Maximum number of "outer" iterations for
+        /// problems holding fixed something other than (T,P).
+        /// @param loglevel Level of diagnostic output, written to a
+        /// file in HTML format.
         doublereal equilibrate(int XY, doublereal err = 1.0e-9, 
             int maxsteps = 1000, int maxiter = 200, int loglevel = 0);
 
@@ -127,26 +156,39 @@ namespace Cantera {
             updatePhases();
         }
 
+        /// Pressure [Pa].
         doublereal pressure() {
             return m_press;
         }
 
+        /// Volume [m^3].
         doublereal volume();
 
+        /// Set the pressure [Pa].
         void setPressure(doublereal P) {
             m_press = P;
             updatePhases();
         }
 
-        doublereal enthalpy();
-        doublereal entropy();
-        doublereal gibbs();
-        doublereal cp();
+        /// Enthalpy [J].
+        doublereal enthalpy() const;
 
+        /// Entropy [J/K].
+        doublereal entropy() const;
+
+        /// Gibbs function [J].
+        doublereal gibbs() const;
+
+        /// Heat capacity at constant pressure [J/K].
+        doublereal cp() const;
+
+        /// Number of phases.
         index_t nPhases() {
             return m_np;
         }
 
+        /// Return true is species \a k is a species in a
+        /// multicomponent solution phase.
         bool solutionSpecies(index_t k);
 
         index_t speciesPhaseIndex(index_t k) {
@@ -157,8 +199,6 @@ namespace Cantera {
             return m_moleFractions[k];
         }
 
-        void updateMoleFractions();
-
         void setPhaseMoleFractions(index_t n, doublereal* x);
 
         void setMolesByName(compositionMap& xMap);
@@ -167,16 +207,22 @@ namespace Cantera {
 
         void setMoles(doublereal* n);
 
+        /// Return true if the phase \a p has valid thermo data for
+        /// the current temperature.
         bool tempOK(index_t p) {
             return m_temp_OK[p];
         }
 
     protected:
 
+        /// update the locally-stored composition to match the current
+        /// compositions of the phase objects.
+        void updateMoleFractions();
+
         /// Set the states of the phase objects to the locally-stored
         /// state.  Note that if individual phases have T and P different
         /// than that stored locally, the phase T and P will be modified.
-        void updatePhases();
+        void updatePhases() const;
             
         vector_fp m_moles;
         vector<phase_t*> m_phase;
@@ -195,7 +241,7 @@ namespace Cantera {
         index_t m_nsp;
         bool m_init;
         int m_eloc;
-        vector<bool> m_temp_OK;
+        mutable vector<bool> m_temp_OK;
         MultiPhaseEquil* m_equil;
         doublereal m_Tmin, m_Tmax;
     };
