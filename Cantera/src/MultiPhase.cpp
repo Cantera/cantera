@@ -1,3 +1,11 @@
+/**
+ * @file MultiPhase.cpp
+ *
+ *  $Author$
+ *  $Date$
+ *  $Revision$
+ */
+
 #include "MultiPhase.h"
 #include "MultiPhaseEquil.h"
 
@@ -329,8 +337,18 @@ namespace Cantera {
         return sum;
     }
 
+    /**
+     * updatePhases() const:
+     *
+     *      This routine take the state information storred in
+     * this current object, and sets the state in the underlying
+     * ThermoPhase objects.
+     *   Currently, this state information is the Temperature
+     * Pressure, and the mole fraction vector. Temperature and
+     * pressure are assumed uniform for all phases.
+     */
     void MultiPhase::updatePhases() const {
-        if (!m_init) init();
+        //if (!m_init) init();
         index_t p, nsp, loc = 0;
         for (p = 0; p < m_np; p++) {
             nsp = m_phase[p]->nSpecies();
@@ -353,7 +371,7 @@ namespace Cantera {
         bool start, once;
         doublereal ferr, hnow, herr = 1.0;
         doublereal Tlow = -1.0, Thigh = -1.0;
-        doublereal hlow = 0.0, hhigh = 0.0, slope, tnew;
+        doublereal hlow = 0.0, hhigh = 0.0, tnew;
         doublereal dta, dtmax;
 
         if (!m_init) init();
@@ -489,12 +507,12 @@ namespace Cantera {
             if (loglevel > 0) {
                 addLogEntry("problem type","fixed T, V");
             }
-            doublereal dt = 1.0e3;
+            //doublereal dt = 1.0e3;
             doublereal v0 = volume();
             doublereal dVdP;
             int n;
             bool start = true;
-            doublereal error, ferr, vnow, pnow, verr, tnew;
+            doublereal error, vnow, pnow, verr;
             for (n = 0; n < maxiter; n++) {
                 pnow = pressure();
                 MultiPhaseEquil e(this, start);
