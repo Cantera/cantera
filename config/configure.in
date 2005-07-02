@@ -652,7 +652,7 @@ fi
 #--------------------------------------------
 
 
-if test -n ${BUILD_F90}; then
+if test  ${BUILD_F90} = "1"; then
   echo F90 = $F90
   if test "$F90" = "default" -o \
           "$F90"x = "x"; then
@@ -672,7 +672,7 @@ f90type=none
 f90_module_dir='-I'
 f90_opts=''
 
-if test -n ${BUILD_F90}; then
+if test ${BUILD_F90} = "1" ; then
   AC_MSG_CHECKING(Fortran 90 compiler ($F90) type)
   cat >> testf90.f90 << EOF
 module mt
