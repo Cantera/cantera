@@ -25,11 +25,11 @@ namespace Cantera {
     /// @section kinmodman Models and Managers
     /// 
     /// A kinetics manager is a C++ class that implements a kinetics
-    /// model, which is a set of mathematical equation describing how
-    /// various kinetic quanities are to be computed -- reaction
-    /// rates, species production rates, etc. Many different kinetics
-    /// models might be defined to handle different types of kinetic
-    /// processes. For example, one kinetics model might use
+    /// model; a kinetics model is a set of mathematical equation
+    /// describing how various kinetic quanities are to be computed --
+    /// reaction rates, species production rates, etc. Many different
+    /// kinetics models might be defined to handle different types of
+    /// kinetic processes. For example, one kinetics model might use
     /// expressions valid for elementary reactions in ideal gas
     /// mixtures. It might, for example, require the reaction orders
     /// to be integral and equal to the forward stoichiometric
@@ -63,16 +63,6 @@ namespace Cantera {
     /// production rates, equilibrium constants, etc. Therefore, all
     /// kinetics manager classes should have a common set of public
     /// methods, but differ in how they implement these methods.
-    ///
-    /// All kinetics manager classes derive from a common base class
-    /// (class Kinetics).  The primary purpose of class Kinetics is to
-    /// define the common public interface for the family of kinetics
-    /// managers. For example, Kinetics defines a method
-    /// getNetProductionRates that every family member is required to
-    /// implement. The details of how it is implemented are left to
-    /// the individual manager, but the end result must be that the
-    /// net production rates for each species are written to an output
-    /// array.
     ///
     /// A kinetics manager computes reaction rates of progress,
     /// species production rates, equilibrium constants, and similar
@@ -142,7 +132,7 @@ namespace Cantera {
         /// Default constructor.
         Kinetics();
 
-        /// This Constructor initializes with a starting phase.
+        /// This constructor initializes with a starting phase.
         /// @deprecated
         Kinetics(thermo_t* thermo);
 
@@ -155,7 +145,7 @@ namespace Cantera {
         ///  mix_defs.h.
         virtual int type() { return 0; }
 
-        /// Number of reactions in the reaction mechanism
+        /// Number of reactions in the reaction mechanism.
         int nReactions() const {return m_ii;}
 
 	//@}
@@ -182,10 +172,15 @@ namespace Cantera {
 	 *
 	 * If a -1 is returned, then the phase is not defined in
 	 * the Kinetics object.
-	 * @todo (HKM -> unfound object will create another entry in the
-	 *  map, suggest rewriting this function)
 	 */
-        int phaseIndex(string ph) { return m_phaseindex[ph] - 1; }
+        int phaseIndex(string ph) { 
+            if (m_phaseindex.find(ph) == m_phaseindex.end()) {
+                return -1;
+            }
+            else {
+                return m_phaseindex[ph] - 1;
+            }
+        }
 
 	/**
 	 * This returns the integer index of the phase which has
@@ -803,6 +798,8 @@ namespace Cantera {
          */
         int m_rxnphase;
 
+        /// number of spatial dimensions of lowest-dimensional phase.
+        int m_mindim;
 
     private:
 

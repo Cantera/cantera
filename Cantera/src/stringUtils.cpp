@@ -102,7 +102,8 @@ namespace Cantera {
                         s = "";
                     }
                     nm = stripws(name);
-                    if (x[nm] == 0.0) {
+                    if (x.find(nm) == x.end()) {
+                        //if (x[nm] == 0.0) {
 		       throw CanteraError("parseCompString",
                                           "unknown species " + nm);
 		    }

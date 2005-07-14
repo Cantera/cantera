@@ -47,7 +47,7 @@ using namespace ct;
  */
 namespace Cantera {
 
-#define CANTERA_VERSION 1.6
+    //#define CANTERA_VERSION 1.6
 
     // use kg-moles, rather than g-moles.
 

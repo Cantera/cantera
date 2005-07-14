@@ -104,16 +104,17 @@ namespace Cantera {
     inline doublereal equilibrate(MultiPhase& s, int XY, 
         doublereal tol = 1.0e-9, int maxsteps = 1000, int loglevel = 0) {
         s.init();
-        //MultiPhaseEquil e(&s);
-        if (XY == TP || XY == HP) {
+        writelog("in equilibrate(MultiPhase, ...)\n");
+        if (XY == TP || XY == HP || XY == SP || XY == TV) {
             double err = s.equilibrate(XY, tol, maxsteps, maxsteps, loglevel);
             if (loglevel > 0) {
+                writelog("writing log file\n");
                 write_logfile("equilibrate.html");
             }
             return err;
         }
         else {
-            throw CanteraError("equilibrate","only fixed T, P supported");
+            throw CanteraError("equilibrate","unsupported option");
             return -1.0;
         }
     }

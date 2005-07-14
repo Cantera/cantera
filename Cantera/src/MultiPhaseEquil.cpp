@@ -735,15 +735,13 @@ namespace Cantera {
 
             // don't require formation reactions for solution species
             // present in trace amounts to be equilibrated
-            if (!isStoichPhase(ik) && fabs(moles(ik)) <= Tiny) 
+            if (!isStoichPhase(ik) && fabs(moles(ik)) <= SmallNumber) 
                 err = 0.0;
 
             // for stoichiometric phase species, no error if not present and 
             // delta G for the formation reaction is positive 
             else if (isStoichPhase(ik) && moles(ik) <= 0.0 && 
                 m_deltaG_RT[j] >= 0.0) err = 0.0;
-            //else err = fabs(m_deltaG_RT[j]);
-            //}
             else {
                 err = fabs(m_deltaG_RT[j]);
             }
@@ -751,7 +749,6 @@ namespace Cantera {
                 maxerr = err;
             }
         }
-
         return maxerr;
     }
 }

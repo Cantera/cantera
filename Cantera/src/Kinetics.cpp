@@ -23,23 +23,22 @@ namespace Cantera {
 
     
     Kinetics::Kinetics() : m_ii(0), m_thermo(0),
-	m_index(-1), m_surfphase(-1) {}
+                           m_index(-1), m_surfphase(-1), m_rxnphase(-1), 
+                           m_mindim(4) {}
 
     Kinetics::Kinetics(thermo_t* thermo) :
 	m_ii(0), 
 	m_index(-1), 
 	m_surfphase(-1) ,
-        m_rxnphase(0)
+        m_rxnphase(0), m_mindim(4)
     {
 	if (thermo) {
 	  addPhase(*thermo);
 	}
         deprecatedMethod("Kinetics","Kinetics(thermo_t*)","Kinetics()");
+        removeAtVersion("Kinetics(thermo_t*)","1.6.0");
     }
 
-    /**
-     *  Destructor. Does nothing.
-     */
     Kinetics::~Kinetics(){}
 
     /**
@@ -189,6 +188,14 @@ namespace Cantera {
 	else {
             m_start.push_back(0);
 	}
+
+        // the phase with lowest dimensionality is assumed to be the
+        // phase/interface at which reactions take place
+        if (thermo.nDim() <= m_mindim) {
+            m_mindim = thermo.nDim();
+            m_rxnphase = nPhases();
+        }
+
 	// there should only be one surface phase
 	int ptype = -100;
 	if (type() == cEdgeKinetics) ptype = cEdge;

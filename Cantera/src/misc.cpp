@@ -561,6 +561,15 @@ namespace Cantera {
     }
 
 
+    void removeAtVersion(string func, string version) {
+        if (version >= "CANTERA_VERSION") {
+            writelog("Removed procedure: "+func+"\n");
+            writelog("Removed in version: "+version+"\n");
+            throw CanteraError("removeAtVersion","procedure has been removed.");
+        }
+    }
+
+
     /// @defgroup logs Diagnostic Output
     ///
     /// Writing diagnostic information to the screen or to a file.
@@ -639,7 +648,6 @@ namespace Cantera {
     ///
     //////////////////////////////////////////////////////////////////
 
-
     /// Create a new group for log messages.  Usually this is called
     /// upon entering the function, with the title parameter equal to
     /// the name of the function or method. Subsequent messages
@@ -689,6 +697,7 @@ namespace Cantera {
     /// file will be overwritten.  will be appended to the name.
     /// @ingroup HTML_logs
     void write_logfile(string file) {
+        if (!__app->xmllog) return;
         string::size_type idot = file.rfind('.');
         string ext = "";
         string nm = file;
@@ -730,6 +739,5 @@ namespace Cantera {
             __app->current = 0;
         }
     }
-    /// 
 }
 

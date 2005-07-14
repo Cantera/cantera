@@ -39,7 +39,7 @@ namespace Cantera {
     };
 
     void deprecatedMethod(string classnm, string oldnm, string newnm);
-
+    void removeAtVersion(string func, string version);
 }
 
 #endif
