@@ -250,25 +250,27 @@ namespace Cantera {
 
 
     /**
-     * This function will check a specific reaction to see if it the
-     * elements balance.
+     * Check a reaction to see if it the elements balance.
      */
     void checkRxnElementBalance(Kinetics& kin, 
-				const ReactionData &rdata) {
+        const ReactionData &rdata, doublereal errorTolerance) {
 	int index, klocal, n, kp, kr, m, nel;
         double kstoich;
+
         map<string, double> bal, balr, balp;
         bal.clear();
         balp.clear();
         balr.clear();
+
 	int np = rdata.products.size();
+
+        // iterate over the products
 	for (index = 0; index < np; index++) {
-            kp = rdata.products[index];
-            n = kin.speciesPhaseIndex(kp);
-            //klocal = kp - kin.start(n);
-            klocal = kp - kin.kineticsSpeciesIndex(0,n);
-            kstoich = rdata.pstoich[index];
-            const ThermoPhase& ph = kin.speciesPhase(kp);
+            kp = rdata.products[index];     // index of the product in 'kin'
+            n = kin.speciesPhaseIndex(kp);  // phase this product belongs to
+            klocal = kp - kin.kineticsSpeciesIndex(0,n); // index within this phase
+            kstoich = rdata.pstoich[index]; // product stoichiometric coeff
+            const ThermoPhase& ph = kin.speciesPhase(kp); 
             nel = ph.nElements();
             for (m = 0; m < nel; m++) {
                 bal[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
@@ -293,8 +295,10 @@ namespace Cantera {
         map<string, double>::iterator b = bal.begin();
         string msg = "\n\tElement    Reactants    Products";
         bool ok = true;
+        doublereal err;
         for (; b != bal.end(); ++b) {
-            if (b->second != 0.0) {
+            err = fabs(b->second/(balr[b->first] + balp[b->first]));
+            if (err > errorTolerance) {
                 ok = false;
                 msg += "\n\t"+b->first+"           "+ fp2str(balr[b->first])
                        +"           "+ fp2str(balp[b->first]);
@@ -949,34 +953,42 @@ next:
 
 
     /**
-     *  Install an individual reaction into the kinetics mechanism
-     *  object, k. The data for the reaction is in the xml_node
-     *  r. In other words, r points directly to an ctml element named
-     *  "reaction". i refers to the number id of the reaction
-     *  in the kinetics object.
-     * other input
-     * ------------ 
-     *  rule = Provides a rule for specifying how to handle reactions
-     *         which involve missing species.
+     *  Install an individual reaction into a kinetics manager. The
+     *  data for the reaction is in the xml_node r. In other words, r
+     *  points directly to a ctml element named "reaction". i refers
+     *  to the number id of the reaction in the kinetics object.
+     * 
+     * @param i Reaction number.
+     * @param r XML_Node containing reaction data.
+     * @param k Kinetics manager to which reaction will be added.
+     * @param default_phase ...
+     * @param rule Rule for handling reactions with missing species 
+     *             (skip or flag as error)
+     * @param validate_rxn If true, check that this reaction is not a 
+     *   duplicate of one already entered, and check that the reaction 
+     *   balances.
      */
     static bool installReaction(int i, const XML_Node& r, Kinetics* k, 
 				string default_phase, int rule,
-				bool check_for_duplicates) {
+				bool validate_rxn) {
 
         Kinetics& kin = *k;
 	/*
 	 *  We use the ReactionData object to store initial values read
 	 *  in from the xml data. Then, when we have collected everything
 	 *  we add the reaction to the kinetics object, k, at the end
-	 * of the routine.
+	 * of the routine. (Someday this may be rewritten to skip building
+         * the ReactionData object).
 	 */
         ReactionData rdata;
-        rdata.reactionType = ELEMENTARY_RXN;
+        rdata.reactionType = ELEMENTARY_RXN;  // default
         vector_int reac, prod;
         string eqn, type;
         int nn, eqlen;
         vector_fp dummy;
 
+        // check to see if the reaction is specified to be a duplicate
+        // of another reaction, or to allow a negative pre-exponential.
         int dup = 0;
         if (r.hasAttrib("duplicate")) dup = 1;
         int negA = 0;
@@ -1001,6 +1013,7 @@ next:
             if (eqn[nn] == ']') eqn[nn] = '>';
         }
 
+
         bool ok;
         // get the reactants
         ok = getReagents(r, kin, 1, default_phase, rdata.reactants, 
@@ -1011,14 +1024,18 @@ next:
 	 */
         ok = ok && getReagents(r, kin, -1, default_phase, rdata.products, 
             rdata.pstoich, dummy, rule);
-        if (!ok) {
-            return false;
-        }
 
+        // if there was a problem getting either the reactants or the products, 
+        // then abort.
+        if (!ok) return false;
+
+        // check whether the reaction is specified to be
+        // reversible. Default is irreversible.
         rdata.reversible = false;
         string isrev = r["reversible"];
         if (isrev == "yes" || isrev == "true")
             rdata.reversible = true;
+
 
         string typ = r["type"];
 
@@ -1070,7 +1087,7 @@ next:
         /*
          * Look for undeclared duplicate reactions.
          */
-        if (check_for_duplicates) {
+        if (validate_rxn) {
             doublereal c = 0.0;
 
             map<int, doublereal> rxnstoich;
@@ -1124,7 +1141,9 @@ next:
 	 * Check to see that the elements balance in the reaction.
 	 * Throw an error if they don't
 	 */
-        checkRxnElementBalance(kin, rdata);
+        
+        if (validate_rxn) 
+            checkRxnElementBalance(kin, rdata);
 	/*
 	 * Ok we have read everything in about the reaction. Add it
 	 * to the kinetics object by calling the Kinetics member function,
