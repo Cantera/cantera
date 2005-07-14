@@ -7,8 +7,6 @@
 
 namespace Cantera {
 
-    class MultiPhaseEquil;
-
     /// A class for multiphase mixtures. The mixture can contain any
     /// number of phases of any type.  All phases have the same
     /// temperature and pressure, and a specified number of moles.
@@ -22,9 +20,11 @@ namespace Cantera {
 
     public:
 
+        // some typedefs for convenience
         typedef size_t       index_t;
         typedef ThermoPhase  phase_t;
         typedef DenseMatrix  array_t;
+        typedef vector<phase_t*> phase_list;
 
         /// Constructor. The constructor takes no arguments, since
         /// phases are added using method addPhase.
@@ -34,6 +34,8 @@ namespace Cantera {
         /// "ownership" (i.e. responsibility for destroying) the
         /// phase objects.  
         virtual ~MultiPhase() {}
+
+        void addPhases(phase_list& phases, const vector_fp& phaseMoles);
 
         /// Add a phase to the mixture. 
         /// @param p pointer to the phase object
@@ -215,6 +217,8 @@ namespace Cantera {
 
     protected:
 
+        // These methods are meant for internal use.
+
         /// update the locally-stored composition to match the current
         /// compositions of the phase objects.
         void updateMoleFractions();
@@ -242,7 +246,6 @@ namespace Cantera {
         bool m_init;
         int m_eloc;
         mutable vector<bool> m_temp_OK;
-        MultiPhaseEquil* m_equil;
         doublereal m_Tmin, m_Tmax;
     };
 

@@ -159,6 +159,7 @@ namespace Cantera {
         if (solver > 0) {
             MultiPhase mix;
             mix.addPhase(&s, 1.0);
+            mix.init();
             mix.setTemperature(s.temperature());
             mix.setPressure(s.pressure());
             equilibrate(mix, XY, rtol, maxsteps, loglevel);
