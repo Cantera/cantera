@@ -33,14 +33,15 @@ except:
     print "ChemEquil solver failed! Try the MultiPhaseEquil solver..."
     
     # Try again. Reset the gas to the initial state
-    gas.set(T = temp, P = OneAtm, X = comp)        
+    gas.set(T = temp, P = OneAtm, X = comp)
 
-    # setting parameter 'solver' to 1 requests that the
-    # MultiPhaseEquil solver be used (specifying 0 would cause
-    # ChemEquil to be used). Some other useful parameters are rtol
-    # (relative error tolerance, default = 1.0e-9), max_steps (default = 1000),
-    # loglevel (default = 0).
-    gas.equilibrate("TP", solver = 1, rtol = 1.0e-10, loglevel = 4)
+    # The MultiPhaseEquil solver is used to equilibrate 'Mixture'
+    # objects, since these may have more than one phase. Here we'll
+    # create a Mixture object containing only the gas. Some other
+    # useful parameters are rtol (relative error tolerance, default =
+    # 1.0e-9), max_steps (default = 1000), loglevel (default = 0).
+    mix = Mixture([(gas,1.0)])
+    mix.equilibrate("TP", loglevel=4)
                     
 # print a summary of the results
 print gas

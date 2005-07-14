@@ -257,6 +257,7 @@ static PyMethodDef ct_methods[] = {
     {"mix_new", py_mix_new, METH_VARARGS},
     {"mix_del", py_mix_del, METH_VARARGS},
     {"mix_addPhase", py_mix_addPhase, METH_VARARGS},
+    {"mix_init", py_mix_init, METH_VARARGS},
     {"mix_nElements", py_mix_nElements, METH_VARARGS},
     {"mix_elementIndex", py_mix_elementIndex, METH_VARARGS},
     {"mix_speciesIndex", py_mix_speciesIndex, METH_VARARGS},

@@ -1353,6 +1353,10 @@ fi
 
 ctversion=${CANTERA_VERSION}
 
+cat >>confdefs.h <<_ACEOF
+#define CANTERA_VERSION $ctversion
+_ACEOF
+
 
 homedir=${HOME}
 
@@ -1829,11 +1833,7 @@ fi
 
 
 
-#
-# Fortran90 Interface
-#   Before turning on this interface, we do a rudimentary check
-#   to make sure that the F90 compiler can be found
-#
+
 BUILD_F90=1
 if test "x$BUILD_F90_INTERFACE" = "xn"; then
   BUILD_F90=0
@@ -3339,7 +3339,7 @@ echo "${ECHO_T}${has_sstream}" >&6
 #     Fortran
 #---------------------------------
 
-if test x"$build_with_f2c" = "x0"; then
+#if test x"$build_with_f2c" = "x0"; then
   ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
 ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
@@ -3860,7 +3860,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 override_f77_libs=0;
 case $ac_sys_system in
-  Darwin*)  FLIBS='-lstdc++ -lg2c -lcc_dynamic'; override_f77_libs=1; SHARED_CTLIB=0;;
+  Darwin*)  FLIBS='-lSystem'; override_f77_libs=1; SHARED_CTLIB=0;;
 esac
 
 if test $override_f77_libs -gt 0; then
@@ -3869,13 +3869,14 @@ if test $override_f77_libs -gt 0; then
   echo     FLIBS = $FLIBS
 fi
 
-fi
+#fi
 
 #--------------------------------------------
 
 
-if test -n ${BUILD_F90}; then
+if test "x${BUILD_F90}" != "x0"; then
   echo F90 = $F90
+  echo BUILD_F90 = $BUILD_F90
   if test "$F90" = "default" -o \
           "$F90"x = "x"; then
     for ac_prog in f95 gfortran g95
@@ -3938,7 +3939,7 @@ f90type=none
 f90_module_dir='-I'
 f90_opts=''
 
-if test -n ${BUILD_F90}; then
+if test "x${BUILD_F90}" != "x0"; then
   echo "$as_me:$LINENO: checking Fortran 90 compiler ($F90) type" >&5
 echo $ECHO_N "checking Fortran 90 compiler ($F90) type... $ECHO_C" >&6
   cat >> testf90.f90 << EOF
@@ -3970,9 +3971,9 @@ EOF
     f90type="g95"
     f90opts="-fno-second-underscore -I. -I${ct_incdir}"
     f90buildopts="-fno-second-underscore -I."
-    case $ac_sys_system in
-      Darwin*)  FLIBS='-lg2c -lcc_dynamic';;
-    esac
+    #case $ac_sys_system in
+    #  Darwin*)  FLIBS='-lg2c -lcc_dynamic';;
+    #esac
   fi
 
   msg=`${F90} -V &> f90out`

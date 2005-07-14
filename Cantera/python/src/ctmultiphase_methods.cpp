@@ -39,6 +39,20 @@ py_mix_addPhase(PyObject *self, PyObject *args)
 
 
 static PyObject *
+py_mix_init(PyObject *self, PyObject *args)
+{
+    int i;
+    int _val;
+    if (!PyArg_ParseTuple(args, "i:mix_init", &i)) 
+        return NULL;
+        
+    _val = mix_init(i); 
+    if (_val < 0) return reportCanteraError();
+    return Py_BuildValue("i",_val);
+}
+
+
+static PyObject *
 py_mix_nElements(PyObject *self, PyObject *args)
 {
     int _val;

@@ -96,6 +96,11 @@ extern "C" {
         return 0;
     }
 
+    int DLL_EXPORT mix_init(int i) {
+        _mix(i)->init();
+        return 0;
+    }
+
     int DLL_EXPORT mix_nElements(int i) {
         return _mix(i)->nElements();
      }

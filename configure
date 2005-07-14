@@ -309,7 +309,7 @@ FFLAGS=${FFLAGS:='-O3 -g'}
 
 # the additional Fortran flags required for linking, if any. Leave commented
 # out if no additional flags are required.
-LFORT_FLAGS="-lcc_dynamic"
+#LFORT_FLAGS="-lcc_dynamic"
 
 
 #------------------------------------------------------

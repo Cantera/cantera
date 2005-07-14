@@ -32,6 +32,7 @@
 #endif
 
 // add any other Cantera header files you need here
+#include <cantera/Cantera.h>
 #include <cantera/IdealGasMix.h>
 
 

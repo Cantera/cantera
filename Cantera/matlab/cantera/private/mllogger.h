@@ -5,6 +5,9 @@
 #include <string>
 #include "../../../src/logger.h"
 
+#include <iostream>
+using namespace std;
+
 static std::string ss = "disp('";
 
 namespace Cantera {

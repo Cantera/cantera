@@ -309,6 +309,8 @@ cf:
 	  gzip cantera-cf.tar; scp cantera-cf.tar.gz dggoodwin@cf-shell.sourceforge.net:cantera.tar.gz)
 	sshcf './runall' &
 
+configure: config/configure.in
+	(cd config; autoconf)
 
 #info:
 #	echo '#define CANTERA_ROOT "@prefix@/cantera"' > include/ctdir.h

@@ -28,7 +28,7 @@ PYTHON_CMD=${FIRSTARG:=PYTHON_CMDA}
 
 #echo $PYTHON_CMD
 
-$PYTHON_CMD ../../Cantera/python/examples/flame1.py > flame1.out
+$PYTHON_CMD ../../Cantera/python/examples/flames/flame1.py > flame1.out
 retnStat=$?
 if [ $retnStat != "0" ]
 then
@@ -36,7 +36,7 @@ then
   echo "flame1.py returned with bad status, $retnStat, check output"
 fi
 
-$PYTHON_CMD ../../Cantera/python/examples/diamond.py > diamond.out
+$PYTHON_CMD ../../Cantera/python/examples/surface_chemistry/diamond.py > diamond.out
 retnStat=$?
 if [ $retnStat != "0" ]
 then

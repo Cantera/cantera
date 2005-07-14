@@ -52,9 +52,13 @@ class Mixture:
                     moles = p[1]
                 except:
                     ph = p
-                    moles = 0
+                    if p == phases[0]:
+                        moles = 1
+                    else:
+                        moles = 0
                 self._addPhase(ph, moles)
                 self._phases.append(ph)
+        _cantera.mix_init(self.__mixid)                
         self.setTemperature(self._phases[0].temperature())
         self.setPressure(self._phases[0].pressure())        
 

@@ -86,7 +86,7 @@ ct_writelogfile(PyObject *self, PyObject *args)
 {
     int iok;
     char *logfile;
-    if (!PyArg_ParseTuple(args, "s:ck2cti", &logfile))
+    if (!PyArg_ParseTuple(args, "s:writelogfile", &logfile))
         return NULL;
     iok = writelogfile(logfile);
     if (iok == -1) { return reportCanteraError();}

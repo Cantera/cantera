@@ -493,7 +493,10 @@ extern "C" {
             equilibrate(*th(n), XY, solver, rtol, maxsteps, 
                 loglevel); return 0; 
         }
-        catch (CanteraError) {return -1;}
+        catch (CanteraError) {
+            cout << "exception caught in th_equil. returning -1." << endl;
+            return -1;
+        }
     }
 
     doublereal DLL_EXPORT th_refPressure(int n) {
@@ -1038,6 +1041,11 @@ extern "C" {
             return 0;
         }
         catch (CanteraError) { return -1; }
+    }
+
+    int DLL_EXPORT write_HTML_log(char* file) {
+        write_logfile(string(file));
+        return 0;
     }
 
     int DLL_EXPORT getCanteraError(int buflen, char* buf) {

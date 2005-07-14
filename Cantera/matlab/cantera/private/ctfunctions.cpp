@@ -5,8 +5,11 @@
 #include "../../../clib/src/ctxml.h"
 #include "ctmatutils.h"
 #include <string.h>
+#include <iostream>
+using namespace std;
 
 void reportError() {
+    write_HTML_log("error_log.html");
     int buflen = 0;
     char* output_buf = 0;
     buflen = getCanteraError(buflen, output_buf) + 1;

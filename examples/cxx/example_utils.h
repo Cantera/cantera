@@ -50,7 +50,7 @@ void plotSoln(string fname, string fmt, string title, const G& gas, const A& sol
 
 inline void writeCanteraHeader(ostream& s) {
     s << endl;
-    s << "     Cantera version " << CANTERA_VERSION << endl;         
+    s << "     Cantera version " << "CANTERA_VERSION" << endl;         
     s << "     Copyright California Institute of Technology, 2002." << endl;
     s << "     http://www.cantera.org" << endl;
     s << endl;

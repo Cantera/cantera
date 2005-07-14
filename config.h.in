@@ -61,6 +61,9 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 #undef DARWIN
 #undef HAS_SSTREAM
 
+// Cantera version
+#undef CANTERA_VERSION
+
 // Identify whether the operating system is cygwin's overlay of
 // windows, with gcc being used as the compiler.
 #undef CYGWIN
@@ -86,6 +89,7 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 //--------------------- Cantera ----------------------------------- 
 
 #undef CANTERA_ROOT
+
 // This data pathway is used to locate a directory where datafiles
 // are to be found. Note, the local directory is always searched
 // as well. 

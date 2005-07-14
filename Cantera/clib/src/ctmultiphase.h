@@ -10,6 +10,7 @@ extern "C" {
     int DLL_IMPORT mix_copy(int i);
     int DLL_IMPORT mix_assign(int i, int j);
     int DLL_IMPORT mix_addPhase(int i, int j, double moles);
+    int DLL_IMPORT mix_init(int i);
     int DLL_IMPORT mix_nElements(int i);
     int DLL_IMPORT mix_elementIndex(int i, char* name);
     int DLL_IMPORT mix_speciesIndex(int i, int k, int p);
