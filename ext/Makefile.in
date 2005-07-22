@@ -12,7 +12,7 @@ BUILD_BLAS=@build_blas@
 BUILD_WITH_F2C=@build_with_f2c@
 
 LIBS = blas/libctblas.a lapack/libctlapack.a math/libctmath.a \
-       recipes/librecipes.a cvode/libcvode.a tpx/libtpx.a
+       cvode/libcvode.a tpx/libtpx.a
  
 all: 
 	(if test -d "f2c_libs" ; then  \
@@ -29,7 +29,7 @@ ifeq ($(BUILD_BLAS),1)
 else
 	cd f2c_blas; @MAKE@ clean
 endif
-	cd f2c_recipes; @MAKE@
+#	cd f2c_recipes; @MAKE@
 	cd f2c_math; @MAKE@
 else
 ifeq ($(BUILD_LAPACK),1)
@@ -42,7 +42,7 @@ ifeq ($(BUILD_BLAS),1)
 else
 	cd blas; @MAKE@ clean
 endif
-	cd recipes; @MAKE@
+#	cd recipes; @MAKE@
 	cd math; @MAKE@
 endif
 	cd cvode; @MAKE@
@@ -51,7 +51,7 @@ endif
 clean:
 	cd lapack; @MAKE@ clean
 	cd blas; @MAKE@ clean
-	cd recipes; @MAKE@ clean
+#	cd recipes; @MAKE@ clean
 	cd cvode; @MAKE@ clean
 	cd math; @MAKE@ clean
 	cd tpx; @MAKE@ clean
@@ -67,9 +67,9 @@ clean:
 	(if test -d "f2c_math" ; then  \
             cd f2c_math ; @MAKE@ clean ; \
          fi)
-	(if test -d "f2c_recipes" ; then  \
-            cd f2c_recipes ; @MAKE@ clean ; \
-         fi)
+#	(if test -d "f2c_recipes" ; then  \
+#            cd f2c_recipes ; @MAKE@ clean ; \
+#         fi)
 
 depends:
 ifeq ($(BUILD_WITH_F2C),1)
@@ -85,13 +85,13 @@ ifeq ($(BUILD_WITH_F2C),1)
 	(if test -d "f2c_math" ; then  \
             cd f2c_math ; @MAKE@ depends ; \
          fi)
-	(if test -d "f2c_recipes" ; then  \
+#	(if test -d "f2c_recipes" ; then  \
             cd f2c_recipes ; @MAKE@ depends ; \
          fi)
 else
 	cd lapack;   @MAKE@ depends
 	cd blas;     @MAKE@ depends
-	cd recipes;  @MAKE@ depends
+#	cd recipes;  @MAKE@ depends
 	cd math;     @MAKE@ depends
 endif
 	cd cvode;    @MAKE@ depends

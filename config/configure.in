@@ -109,7 +109,7 @@ AC_SUBST(python_win_prefix)
 
 ctversion=${CANTERA_VERSION}
 AC_SUBST(ctversion)
-AC_DEFINE_UNQUOTED(CANTERA_VERSION,$ctversion)
+AC_DEFINE_UNQUOTED(CANTERA_VERSION,"$ctversion")
 
 homedir=${HOME}
 AC_SUBST(homedir)
@@ -399,9 +399,10 @@ if test x"$build_with_f2c" = "x1" ; then
   NEED_F2C=1
   case $ac_sys_system in
     Linux)    NEED_F2C= ;;
-    Darwin*)  NEED_F2C= ;;
   esac
 fi
+#     Darwin*)  NEED_F2C= ;;
+
 AC_SUBST(build_with_f2c)
 
 # LOCAL_LIBS:
@@ -453,9 +454,9 @@ then LOCAL_LIBS=$LOCAL_LIBS' '-lctf2c
 else
   case $ac_sys_system in
     Linux)    LOCAL_LIBS=$LOCAL_LIBS' '-lg2c;;
-    Darwin*)  LOCAL_LIBS=$LOCAL_LIBS' '-lg2c;;
   esac
 fi
+#    Darwin*)  LOCAL_LIBS=$LOCAL_LIBS' '-lg2c;;
 
 if test -n "$NEED_CKREADER"
 then LOCAL_LIBS=$LOCAL_LIBS' '-lconverters
