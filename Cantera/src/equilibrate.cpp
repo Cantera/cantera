@@ -5,6 +5,7 @@
  *
  */
 
+#include "equil.h"
 #include "ChemEquil.h"
 #include "MultiPhaseEquil.h"
 
@@ -17,8 +18,8 @@ namespace Cantera {
      * calculation.
      */
     doublereal equilibrate(MultiPhase& s, const char* XY, 
-        doublereal tol = 1.0e-9, int maxsteps = 1000, int maxiter = 100, 
-        int loglevel = -99) {
+        doublereal tol, int maxsteps, int maxiter, 
+        int loglevel) {
 
         beginLogGroup("equilibrate",loglevel);
         addLogEntry("multiphase equilibrate function");
