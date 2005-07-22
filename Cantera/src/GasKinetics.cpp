@@ -47,6 +47,9 @@ namespace Cantera {
         //        m_rxnstoich = new ReactionStoichMgr;
     }
 
+  GasKinetics::
+  ~GasKinetics() {delete m_kdata;}
+
     /**
      * Update temperature-dependent portions of reaction rates and
      * falloff functions.

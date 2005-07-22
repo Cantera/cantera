@@ -84,7 +84,7 @@ namespace Cantera {
         GasKinetics(thermo_t* thermo = 0);
 
         /// Destructor.
-        virtual ~GasKinetics(){delete m_kdata;}
+        virtual ~GasKinetics();
 
         virtual int ID() { return cGasKinetics; }
 

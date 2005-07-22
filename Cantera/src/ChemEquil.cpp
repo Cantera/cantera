@@ -662,7 +662,7 @@ converge:
         double minDamp = 0.0;
         double xTol = 1.e-7;
 
-        static vector_fp res_new(nvar); // fix
+        vector_fp res_new(nvar); // fix
 
         //slope = grad * step;
         slope = dot(grad.begin(), grad.end(), step.begin());
@@ -768,8 +768,10 @@ converge:
         yy = m_p2->value(mix);
         resid[m_mm] = xx/xval - 1.0; 
         resid[m_skip] = yy/yval - 1.0;
-        addLogEntry(m_p1->symbol(), fp2str(xx)+"  ("+fp2str(xval)+")");
-        addLogEntry(m_p2->symbol(), fp2str(yy)+"  ("+fp2str(yval)+")");
+	string xstr = fp2str(xx)+"  ("+fp2str(xval)+")";
+        addLogEntry(m_p1->symbol(), xstr);
+	string ystr = fp2str(yy)+"  ("+fp2str(yval)+")";
+        addLogEntry(m_p2->symbol(), ystr);
         endLogGroup();
     }
 
