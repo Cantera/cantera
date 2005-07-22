@@ -16,12 +16,12 @@
 #pragma warning(disable:4503)
 #endif
 
-#include "Cantera.h"
-#include "zerodim.h"
+#include <cantera/Cantera.h>
+#include <cantera/zerodim.h>
 #include <time.h>
 #include "example_utils.h"
-#include "reactionpaths.h"
-#include "IdealGasMix.h"
+#include <cantera/reactionpaths.h>
+#include <cantera/IdealGasMix.h>
 
 // #include <iostream>
 // using namespace std;

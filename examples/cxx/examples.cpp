@@ -1,5 +1,5 @@
 
-#include "Cantera.h"
+#include <cantera/Cantera.h>
 //#include "ctexceptions.h"
 
 // turn off warnings under Windows
@@ -61,7 +61,6 @@ int main(int argc, char** argv) {
     try {
 
         int i = 0;
-		int job = 2;
         if (example_num == 0) {
             int j;
             for (j = 0; j < NUM_EXAMPLES; j++) {

@@ -16,9 +16,9 @@
 #pragma warning(disable:4503)
 #endif
 
-#include "Cantera.h"
-#include "GRI30.h"
-#include "zerodim.h"
+#include <cantera/Cantera.h>
+#include <cantera/GRI30.h>
+#include <cantera/zerodim.h>
 #include <time.h>
 #include "example_utils.h"
 

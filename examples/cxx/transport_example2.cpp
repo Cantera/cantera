@@ -16,12 +16,12 @@
 #pragma warning(disable:4503)
 #endif
 
-#include "Cantera.h"
-#include "transport.h"
+#include <cantera/Cantera.h>
+#include <cantera/transport.h>
 #include <time.h>
 #include "example_utils.h"
-#include "equilibrium.h"
-#include "IdealGasMix.h"
+#include <cantera/equilibrium.h>
+#include <cantera/IdealGasMix.h>
 
 template<class G, class V>
 void makeTransportDataLabels(const G& gas, V& names) {

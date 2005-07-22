@@ -16,12 +16,12 @@
 #pragma warning(disable:4503)
 #endif
 
-#include "Cantera.h"
+#include <cantera/Cantera.h>
 #include <time.h>
 #include "example_utils.h"
-#include "equilibrium.h"
+#include <cantera/equilibrium.h>
 
-#include "IdealGasMix.h"
+#include <cantera/IdealGasMix.h>
 
 //-------------------------------------------------------------------
 

@@ -1,8 +1,8 @@
 #ifndef CT_EXAMPLE_UTILS_H
 #define CT_EXAMPLE_UTILS_H
 
-#include "kernel/Array.h"
-#include "kernel/plots.h"
+#include <cantera/kernel/Array.h>
+#include <cantera/kernel/plots.h>
 
 // Save the temperature, density, pressure, and mole fractions at one
 // time
@@ -50,7 +50,11 @@ void plotSoln(string fname, string fmt, string title, const G& gas, const A& sol
 
 inline void writeCanteraHeader(ostream& s) {
     s << endl;
-    s << "     Cantera version " << "CANTERA_VERSION" << endl;         
+#ifdef CANTERA_VERSION
+    s << "     Cantera version " << CANTERA_VERSION << endl;        
+#else
+    s << "     ???" << endl;
+#endif
     s << "     Copyright California Institute of Technology, 2002." << endl;
     s << "     http://www.cantera.org" << endl;
     s << endl;
