@@ -57,73 +57,58 @@ void plotEquilSoln(string fname, string fmt, string title, const G& gas,
 
 int equil_example1(int job) {
 
-    try {
-        cout << "Chemical equilibrium." << endl;
-        if (job > 0) {
-            cout << "Equilibrium composition and pressure for a "
-                 << "range of temperatures at constant density." << endl;
-        }
-        if (job <= 1) return 0; 
+    cout << "Chemical equilibrium." << endl;
+    if (job > 0) {
+        cout << "Equilibrium composition and pressure for a "
+             << "range of temperatures at constant density." << endl;
+    }
+    if (job <= 1) return 0; 
 
-        // header
-        writeCanteraHeader(cout);
+    // header
+    writeCanteraHeader(cout);
 
-        // create a gas mixture, and set its state
+    // create a gas mixture, and set its state
 
-        IdealGasMix gas("silane.cti", "silane");
-        int nsp = gas.nSpecies();
+    IdealGasMix gas("silane.cti", "silane");
+    int nsp = gas.nSpecies();
 
-        int ntemps = 50;   // number of temperatures
-        Array2D output(nsp+2, ntemps);
+    int ntemps = 50;   // number of temperatures
+    Array2D output(nsp+2, ntemps);
         
-        // main loop
-        doublereal temp;
-        doublereal thigh = gas.maxTemp();
-        doublereal tlow = 500.0;
-        doublereal dt = (thigh - tlow)/(ntemps);
-        doublereal pres = 0.01*OneAtm;
-        clock_t t0 = clock();
-        for (int i = 0; i < ntemps; i++) {
-            temp = tlow + dt*i;
-            if (temp > gas.maxTemp()) break;
-            gas.setState_TPX(temp, pres, "SIH4:0.01, H2:1.0");
-            try {
-                equilibrate(gas,"TP",-1,1.0e-9,1000,100,10);
-                output(0,i) = temp;
-                output(1,i) = gas.pressure();
-                gas.getMoleFractions(&output(2,i));
-            }
-            catch (CanteraError) {
-                showErrors(cout);
-            }
-            catch (...) {
-                cout << "exception...." << endl;
-            }
-        }
-        clock_t t1 = clock();
+    // main loop
+    doublereal temp;
+    doublereal thigh = gas.maxTemp();
+    doublereal tlow = 500.0;
+    doublereal dt = (thigh - tlow)/(ntemps);
+    doublereal pres = 0.01*OneAtm;
+    clock_t t0 = clock();
+    for (int i = 0; i < ntemps; i++) {
+        temp = tlow + dt*i;
+        if (temp > gas.maxTemp()) break;
+        gas.setState_TPX(temp, pres, "SIH4:0.01, H2:1.0");
 
-        // make a Tecplot data file and an Excel spreadsheet
-        string plotTitle = "equilibrium example 1: "
-                           "chemical equilibrium";
-        plotEquilSoln("eq1.dat", "TEC", plotTitle, gas, output);
-        plotEquilSoln("eq1.csv", "XL", plotTitle, gas, output);
+        equilibrate(gas,"TP");
+        output(0,i) = temp;
+        output(1,i) = gas.pressure();
+        gas.getMoleFractions(&output(2,i));
 
-        // print timing data
-        doublereal tmm = 1.0*(t1 - t0)/CLOCKS_PER_SEC;
-        cout << " time = " << tmm << endl << endl;
-
-        cout << "Output files:" << endl
-             << "  eq1.csv    (Excel CSV file)" << endl
-             << "  eq1.dat    (Tecplot data file)" << endl;
-
-        return 0;
     }
+    clock_t t1 = clock();
 
-    // handle exceptions thrown by Cantera
-    catch (CanteraError) {
-        showErrors(cout);
-        cout << " terminating... " << endl;
-        appdelete();
-        return -1;
-    }
+    // make a Tecplot data file and an Excel spreadsheet
+    string plotTitle = "equilibrium example 1: "
+                       "chemical equilibrium";
+    plotEquilSoln("eq1.dat", "TEC", plotTitle, gas, output);
+    plotEquilSoln("eq1.csv", "XL", plotTitle, gas, output);
+
+    // print timing data
+    doublereal tmm = 1.0*(t1 - t0)/CLOCKS_PER_SEC;
+    cout << " time = " << tmm << endl << endl;
+
+    cout << "Output files:" << endl
+         << "  eq1.csv    (Excel CSV file)" << endl
+         << "  eq1.dat    (Tecplot data file)" << endl;
+
+    return 0;
+
 }
