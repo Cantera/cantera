@@ -27,21 +27,18 @@ FIRSTARG=$1
 PYTHON_CMD=${FIRSTARG:=PYTHON_CMDA}
 
 #echo $PYTHON_CMD
-
+echo " "
+echo "***************************************************"
+echo "        Testing the Cantera Python Interface       "
+echo "***************************************************"
+echo " "
+echo "Testing a flame simulation..."
 $PYTHON_CMD ../../Cantera/python/examples/flames/flame1.py > flame1.out
 retnStat=$?
 if [ $retnStat != "0" ]
 then
   temp_success="0"
   echo "flame1.py returned with bad status, $retnStat, check output"
-fi
-
-$PYTHON_CMD ../../Cantera/python/examples/surface_chemistry/diamond.py > diamond.out
-retnStat=$?
-if [ $retnStat != "0" ]
-then
-  temp_success="0"
-  echo "diamond.py returned with bad status, $retnStat, check output"
 fi
 
 #################################################################
@@ -70,10 +67,20 @@ else
   echo "FAILED" > csvCode.txt
   temp_success="0"
 fi
+echo " "
 
 #################################################################
 #
 #################################################################
+
+echo "Testing surface chemistry..."
+$PYTHON_CMD ../../Cantera/python/examples/surface_chemistry/diamond.py > diamond.out
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "diamond.py returned with bad status, $retnStat, check output"
+fi
 
 $CANTERA_BIN/csvdiff diamond.csv diamond_blessed.csv > diamond_test.out
 retnStat=$?
@@ -89,10 +96,12 @@ else
   echo "FAILED" > csvCode.txt
   temp_success="0"
 fi
+echo 
 
 #################################################################
 #
 #################################################################
+echo "testing handling of fractional product stoichiometric coefficients..."
 $PYTHON_CMD frac.py > frac_test.out
 diff -w frac_test.out frac_blessed.out > diff_test.out
 retnStat=$?
@@ -104,6 +113,7 @@ else
   echo "FAILED" > csvCode.txt
   temp_success="0"
 fi
+echo 
 
 if [ $temp_success = "1" ]
 then
@@ -111,6 +121,7 @@ then
 else
   echo 'Python csv test FAILED!'
 fi
+
 
 #################################################################
 #

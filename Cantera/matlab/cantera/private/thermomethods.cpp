@@ -60,12 +60,13 @@ static void thermoset( int nlhs, mxArray *plhs[],
 
     // equilibrate
     else if (job == 50) {
-        int xy = getInt(prhs[3]); //int(*ptr);
+        char* xy = getString(prhs[3]); //int(*ptr);
         int solver = getInt(prhs[4]);
         double rtol = getDouble(prhs[5]);
         int maxsteps = getInt(prhs[6]);
-        int loglevel = getInt(prhs[7]);
-        ierr = th_equil(th, xy, solver, rtol, maxsteps, loglevel);
+        int maxiter = getInt(prhs[7]);
+        int loglevel = getInt(prhs[8]);
+        ierr = th_equil(th, xy, solver, rtol, maxsteps, maxiter, loglevel);
     }
     if (ierr < 0) reportError();
 

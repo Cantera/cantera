@@ -246,7 +246,7 @@ BUILD_CK=
 
 NEED_CKREADER=
 NEED_LAPACK=
-NEED_RECIPES=
+#NEED_RECIPES=
 NEED_MATH=
 NEED_TPX=
 NEED_F2C=
@@ -306,7 +306,7 @@ if test "$ENABLE_EQUIL" = "y" ; then
   KERNEL=$KERNEL' 'equil
   KERNEL_OBJ=$KERNEL_OBJ' $(EQUIL_OBJ)'
   NEED_LAPACK=1
-  NEED_RECIPES=1
+#  NEED_RECIPES=1
 fi
 
 if test "$ENABLE_REACTORS" = "y" ; then
@@ -428,9 +428,9 @@ fi
 
 LOCAL_LIBS=$LOCAL_LIBS' '-lcantera
 
-if test -n "$NEED_RECIPES"
-then LOCAL_LIBS=$LOCAL_LIBS' '-lrecipes
-fi
+#if test -n "$NEED_RECIPES"
+#then LOCAL_LIBS=$LOCAL_LIBS' '-lrecipes
+#fi
 
 if test -n "$NEED_CVODE"
 then LOCAL_LIBS=$LOCAL_LIBS' '-lcvode
@@ -768,11 +768,11 @@ if test -z "$EXE_EXT"; then EXE_EXT=$EXEEXT; fi
 AC_SUBST(EXE_EXT)
 
 dnl AC_LANG_FORTRAN77
-local_math_libs='-lrecipes -lcvode'
+local_math_libs='-lcvode'
 AC_SUBST(local_math_libs)
 
 
-math_libs='-lrecipes -lcvode -lctmath'
+math_libs='-lcvode -lctmath'
 AC_SUBST(math_libs)
 
 if test "$LAPACK_FTN_TRAILING_UNDERSCORE" = "y"
@@ -845,12 +845,10 @@ AC_OUTPUT(../Cantera/Makefile \
 	  ../ext/math/Makefile \
 	  ../ext/tpx/Makefile \
 	  ../ext/Makefile \
-          ../ext/recipes/Makefile \
           ../ext/f2c_libs/Makefile \
           ../ext/f2c_blas/Makefile \
           ../ext/f2c_lapack/Makefile \
           ../ext/f2c_math/Makefile \
-          ../ext/f2c_recipes/Makefile \
 	  ../examples/Makefile \
           ../examples/cxx/Makefile \
           ../Makefile \

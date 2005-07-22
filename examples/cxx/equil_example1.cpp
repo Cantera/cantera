@@ -88,8 +88,7 @@ int equil_example1(int job) {
             if (temp > gas.maxTemp()) break;
             gas.setState_TPX(temp, pres, "SIH4:0.01, H2:1.0");
             try {
-                // This uses the MultiPhaseEquil solver.
-                equilibrate(gas,TP,1);
+                equilibrate(gas,"TP",-1,1.0e-9,1000,100,10);
                 output(0,i) = temp;
                 output(1,i) = gas.pressure();
                 gas.getMoleFractions(&output(2,i));

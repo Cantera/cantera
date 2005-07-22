@@ -73,7 +73,7 @@ namespace Cantera {
         /// a base class, so this constructor should not be called
         /// explicitly.
         ThermoPhase() : Phase(), m_spthermo(0), m_speciesData(0),
-            m_index(-1), m_phi(0.0) {}
+                        m_index(-1), m_phi(0.0), m_hasElementPotentials(false) {}
 
 
         /// Destructor. Deletes the species thermo manager.
@@ -684,10 +684,12 @@ namespace Cantera {
         // the element potentials to this object
         void setElementPotentials(const vector_fp& lambda) {
             m_lambda = lambda;
+            m_hasElementPotentials = true;
         }
 
         void getElementPotentials(doublereal* lambda) {
-            copy(m_lambda.begin(), m_lambda.end(), lambda);
+            if (m_hasElementPotentials)
+                copy(m_lambda.begin(), m_lambda.end(), lambda);
         }
 
         //@}
@@ -809,7 +811,7 @@ namespace Cantera {
          *
          * @see importCTML.cpp
          */
-        virtual void initThermo() {}
+        virtual void initThermo() { }
 
 
 
@@ -876,6 +878,7 @@ namespace Cantera {
         int m_index;
         doublereal m_phi;
         vector_fp m_lambda;
+        bool m_hasElementPotentials;
 
     private:
 

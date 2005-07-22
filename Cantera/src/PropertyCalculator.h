@@ -15,10 +15,15 @@
 
 namespace Cantera {
 
+    /// Classes used by ChemEquil. These classes are used only by the
+    /// ChemEquil equilibrium solver. Each one returns a particular
+    /// property of the object supplied as the argument.
+    ///
     template<class M>
     class PropertyCalculator {
     public:
         virtual doublereal value(const M& s) =0;
+        virtual string symbol() =0;
     };
 
     template<class M>
@@ -27,6 +32,7 @@ namespace Cantera {
         virtual doublereal value(const M& s) {
             return s.enthalpy_mass();
         }
+        virtual string symbol() { return "H"; }
     };
 
     template<class M>
@@ -35,6 +41,7 @@ namespace Cantera {
         virtual doublereal value(const M& s) {
             return s.entropy_mass();
         }
+        virtual string symbol() { return "S"; }
     };
 
     template<class M>    
@@ -43,6 +50,7 @@ namespace Cantera {
         virtual doublereal value(const M& s) {
             return s.temperature();
         }
+        virtual string symbol() { return "T"; }
     };
 
     template<class M>    
@@ -51,6 +59,7 @@ namespace Cantera {
         virtual doublereal value(const M& s) {
             return s.pressure();
         }
+        virtual string symbol() { return "P"; }
     };
 
     template<class M>    
@@ -59,6 +68,7 @@ namespace Cantera {
         virtual doublereal value(const M& s) {
             return s.density();
         }
+        virtual string symbol() { return "V"; }
     };
 
     template<class M>    
@@ -67,6 +77,7 @@ namespace Cantera {
         virtual doublereal value(const M& s) {
             return s.intEnergy_mass();
         }
+        virtual string symbol() { return "U"; }
     };
 }
 

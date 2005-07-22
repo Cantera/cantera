@@ -91,10 +91,24 @@ namespace Cantera {
     /// Close a Cantera input file.
     void close_XML_File(string file);
 
-    void beginLogGroup(string title, int loglevel=1);
-    void addLogEntry(string tag, string value, int loglevel=1);
-    void endLogGroup(int loglevel=1);
+#ifdef WITH_HTML_LOGS
+    void beginLogGroup(string title, int loglevel=-99);
+    void addLogEntry(string tag, string value);
+    void addLogEntry(string tag, doublereal value);
+    void addLogEntry(string tag, int value);
+    void addLogEntry(string msg);
+    void endLogGroup(string title="");
     void write_logfile(string file = "log.html");
+#else
+    inline void beginLogGroup(string title, int loglevel=-99) {}
+    inline void addLogEntry(string tag, string value) {}
+    inline void addLogEntry(string tag, doublereal value) {}
+    inline void addLogEntry(string tag, int value) {}
+    inline void addLogEntry(string msg) {}
+    inline void endLogGroup(string title="") {}
+    inline void write_logfile(string file = "log.html") {}
+#endif
+
 }
 
 #endif

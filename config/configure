@@ -1589,7 +1589,7 @@ BUILD_CK=
 
 NEED_CKREADER=
 NEED_LAPACK=
-NEED_RECIPES=
+#NEED_RECIPES=
 NEED_MATH=
 NEED_TPX=
 NEED_F2C=
@@ -1661,7 +1661,7 @@ if test "$ENABLE_EQUIL" = "y" ; then
   KERNEL=$KERNEL' 'equil
   KERNEL_OBJ=$KERNEL_OBJ' $(EQUIL_OBJ)'
   NEED_LAPACK=1
-  NEED_RECIPES=1
+#  NEED_RECIPES=1
 fi
 
 if test "$ENABLE_REACTORS" = "y" ; then
@@ -1786,9 +1786,9 @@ fi
 
 LOCAL_LIBS=$LOCAL_LIBS' '-lcantera
 
-if test -n "$NEED_RECIPES"
-then LOCAL_LIBS=$LOCAL_LIBS' '-lrecipes
-fi
+#if test -n "$NEED_RECIPES"
+#then LOCAL_LIBS=$LOCAL_LIBS' '-lrecipes
+#fi
 
 if test -n "$NEED_CVODE"
 then LOCAL_LIBS=$LOCAL_LIBS' '-lcvode
@@ -3875,8 +3875,6 @@ fi
 
 
 if test "x${BUILD_F90}" != "x0"; then
-  echo F90 = $F90
-  echo BUILD_F90 = $BUILD_F90
   if test "$F90" = "default" -o \
           "$F90"x = "x"; then
     for ac_prog in f95 gfortran g95
@@ -4045,11 +4043,11 @@ if test -z "$OBJ_EXT"; then OBJ_EXT=$OBJEXT; fi
 if test -z "$EXE_EXT"; then EXE_EXT=$EXEEXT; fi
 
 
-local_math_libs='-lrecipes -lcvode'
+local_math_libs='-lcvode'
 
 
 
-math_libs='-lrecipes -lcvode -lctmath'
+math_libs='-lcvode -lctmath'
 
 
 if test "$LAPACK_FTN_TRAILING_UNDERSCORE" = "y"
@@ -4108,7 +4106,7 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ac_config_files="$ac_config_files ../Cantera/Makefile ../Cantera/src/Makefile ../Cantera/src/zeroD/Makefile ../Cantera/src/oneD/Makefile ../Cantera/src/converters/Makefile ../Cantera/src/transport/Makefile ../Cantera/clib/src/Makefile ../Cantera/fortran/src/Makefile ../Cantera/fortran/f77demos/f77demos.mak ../Cantera/fortran/f77demos/isentropic.dsp ../Cantera/matlab/Makefile ../Cantera/matlab/setup_matlab.py ../Cantera/matlab/setup_winmatlab.py ../Cantera/python/Makefile ../Cantera/python/setup.py ../Cantera/cxx/Makefile ../Cantera/cxx/src/Makefile ../Cantera/cxx/demos/Makefile ../Cantera/user/Makefile ../Cantera/python/src/Makefile ../ext/lapack/Makefile ../ext/blas/Makefile ../ext/cvode/Makefile ../ext/math/Makefile ../ext/tpx/Makefile ../ext/Makefile ../ext/recipes/Makefile ../ext/f2c_libs/Makefile ../ext/f2c_blas/Makefile ../ext/f2c_lapack/Makefile ../ext/f2c_math/Makefile ../ext/f2c_recipes/Makefile ../examples/Makefile ../examples/cxx/Makefile ../Makefile ../tools/Makefile ../tools/src/Makefile ../tools/src/sample.mak ../tools/src/finish_install.py ../tools/src/package4mac ../tools/templates/f77/demo.mak ../tools/templates/f90/demo.mak ../tools/templates/cxx/demo.mak ../tools/testtools/Makefile ../data/inputs/Makefile ../test_problems/Makefile ../test_problems/cxx_ex/Makefile ../test_problems/silane_equil/Makefile ../test_problems/surfkin/Makefile ../test_problems/diamondSurf/Makefile ../test_problems/ck2cti_test/Makefile ../test_problems/ck2cti_test/runtest ../test_problems/python/Makefile ../bin/install_tsc"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ac_config_files="$ac_config_files ../Cantera/Makefile ../Cantera/src/Makefile ../Cantera/src/zeroD/Makefile ../Cantera/src/oneD/Makefile ../Cantera/src/converters/Makefile ../Cantera/src/transport/Makefile ../Cantera/clib/src/Makefile ../Cantera/fortran/src/Makefile ../Cantera/fortran/f77demos/f77demos.mak ../Cantera/fortran/f77demos/isentropic.dsp ../Cantera/matlab/Makefile ../Cantera/matlab/setup_matlab.py ../Cantera/matlab/setup_winmatlab.py ../Cantera/python/Makefile ../Cantera/python/setup.py ../Cantera/cxx/Makefile ../Cantera/cxx/src/Makefile ../Cantera/cxx/demos/Makefile ../Cantera/user/Makefile ../Cantera/python/src/Makefile ../ext/lapack/Makefile ../ext/blas/Makefile ../ext/cvode/Makefile ../ext/math/Makefile ../ext/tpx/Makefile ../ext/Makefile ../ext/f2c_libs/Makefile ../ext/f2c_blas/Makefile ../ext/f2c_lapack/Makefile ../ext/f2c_math/Makefile ../examples/Makefile ../examples/cxx/Makefile ../Makefile ../tools/Makefile ../tools/src/Makefile ../tools/src/sample.mak ../tools/src/finish_install.py ../tools/src/package4mac ../tools/templates/f77/demo.mak ../tools/templates/f90/demo.mak ../tools/templates/cxx/demo.mak ../tools/testtools/Makefile ../data/inputs/Makefile ../test_problems/Makefile ../test_problems/cxx_ex/Makefile ../test_problems/silane_equil/Makefile ../test_problems/surfkin/Makefile ../test_problems/diamondSurf/Makefile ../test_problems/ck2cti_test/Makefile ../test_problems/ck2cti_test/runtest ../test_problems/python/Makefile ../bin/install_tsc"
 
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
@@ -4606,12 +4604,10 @@ do
   "../ext/math/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../ext/math/Makefile" ;;
   "../ext/tpx/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../ext/tpx/Makefile" ;;
   "../ext/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../ext/Makefile" ;;
-  "../ext/recipes/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../ext/recipes/Makefile" ;;
   "../ext/f2c_libs/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../ext/f2c_libs/Makefile" ;;
   "../ext/f2c_blas/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../ext/f2c_blas/Makefile" ;;
   "../ext/f2c_lapack/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../ext/f2c_lapack/Makefile" ;;
   "../ext/f2c_math/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../ext/f2c_math/Makefile" ;;
-  "../ext/f2c_recipes/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../ext/f2c_recipes/Makefile" ;;
   "../examples/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../examples/Makefile" ;;
   "../examples/cxx/Makefile" ) CONFIG_FILES="$CONFIG_FILES ../examples/cxx/Makefile" ;;
   "../Makefile" ) CONFIG_FILES="$CONFIG_FILES ../Makefile" ;;

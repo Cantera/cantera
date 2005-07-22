@@ -139,7 +139,7 @@ F90=${F90:="default"}
 # these compilers will be added automatically, and you do not need to
 # specify them here.  Otherwise, add any required compiler-specific
 # flags here.
-F90FLAGS=${F90FLAGS:='-O3 -g'}
+F90FLAGS=${F90FLAGS:='-O3'}
 
 
 #----------------------------------------------------------------------
@@ -305,7 +305,7 @@ F77=${F77:=g77}
 
 # Fortran 77 compiler flags. Note that the Fortran compiler flags must be set
 # to produce object code compatible with the C/C++ compiler you are using.
-FFLAGS=${FFLAGS:='-O3 -g'}
+FFLAGS=${FFLAGS:='-O3'}
 
 # the additional Fortran flags required for linking, if any. Leave commented
 # out if no additional flags are required.

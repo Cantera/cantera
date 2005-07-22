@@ -1,4 +1,4 @@
-function i = thermo_set(n, job, a, b, c, d, e) 
+function i = thermo_set(n, job, a, b, c, d, e, f) 
 if nargin == 2
   i = ctmethods(20,n,-job);
 elseif nargin == 3
@@ -11,4 +11,6 @@ elseif nargin == 6
   i = ctmethods(20, n,-job, a, b, c, d);
 elseif nargin == 7
   i = ctmethods(20, n,-job, a, b, c, d, e);  
+elseif nargin == 8
+  i = ctmethods(20, n,-job, a, b, c, d, e, f);  
 end

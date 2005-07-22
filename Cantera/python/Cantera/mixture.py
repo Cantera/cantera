@@ -288,8 +288,6 @@ class Mixture:
         """
         i = _cantera.mix_equilibrate(self.__mixid, XY, err, maxsteps,
                                         maxiter, loglevel)
-        if loglevel > 0:
-            writeLogFile("equilibrate_log");
     
     def selectSpecies(self, f, species):
         """Given an array 'f' of floating-point species properties,

@@ -1,5 +1,6 @@
 
 // Cantera includes
+#include "equil.h"
 #include "MultiPhase.h"
 #include "MultiPhaseEquil.h"
 
@@ -196,11 +197,10 @@ extern "C" {
     doublereal DLL_EXPORT mix_equilibrate(int i, char* XY, 
         doublereal err, int maxsteps, int maxiter, int loglevel) { 
         try {
-            return _mix(i)->equilibrate(_equilflag(XY), 
+            return equilibrate(*_mix(i), XY, 
                 err, maxsteps, maxiter, loglevel);
         }
         catch (CanteraError) {
-            write_logfile("equil_err.html");
             return DERR;
         }
     }

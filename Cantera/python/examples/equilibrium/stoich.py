@@ -27,8 +27,17 @@ gas.set(T = temp, P = OneAtm, X = comp)
 # (ChemEquil) solver...  (This will fail, throwing an exception that
 # will be caught in the 'except' block, where we will try the other
 # solver.)
+
+####################################################################
+# Note: We are setting solver = 0 here to demonstrate the difference
+# between the two solvers. If you do not set 'solver', or set it to a
+# negative value, then ChemEquil will be tried first, and if it fails
+# the MultiPhaseEquil solver will be tried. In most cases this will
+# give the best results.
+####################################################################
+
 try:
-    gas.equilibrate("TP")   
+    gas.equilibrate("TP", solver = 0)       # use the ChemEquil (0) solver   
 except:
     print "ChemEquil solver failed! Try the MultiPhaseEquil solver..."
     
@@ -42,6 +51,9 @@ except:
     # 1.0e-9), max_steps (default = 1000), loglevel (default = 0).
     mix = Mixture([(gas,1.0)])
     mix.equilibrate("TP", loglevel=4)
+
+    # Note: another way to do this is:
+    # gas.equilibrate("TP", solver = 1, loglevel = 4)
                     
 # print a summary of the results
 print gas

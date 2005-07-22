@@ -57,7 +57,7 @@ int flamespeed(int np, void* p) {
     gas.getMassFractions(yin);
 
     try {
-      equilibrate(gas,HP);
+      equilibrate(gas,"HP");
     }
     catch (CanteraError) {
       showErrors(cout);

@@ -16,7 +16,7 @@
 #endif
 
 // Cantera includes
-#include "ChemEquil.h"
+#include "equil.h" //"ChemEquil.h"
 #include "KineticsFactory.h"
 #include "transport/TransportFactory.h"
 #include "ctml.h"
@@ -487,14 +487,13 @@ extern "C" {
         catch (CanteraError) {return -1;}
     }
 
-    int DLL_EXPORT th_equil(int n, int XY, int solver, 
-        double rtol, int maxsteps, int loglevel) {
+    int DLL_EXPORT th_equil(int n, char* XY, int solver, 
+        double rtol, int maxsteps, int maxiter, int loglevel) {
         try { 
             equilibrate(*th(n), XY, solver, rtol, maxsteps, 
-                loglevel); return 0; 
+                maxiter, loglevel); return 0; 
         }
         catch (CanteraError) {
-            cout << "exception caught in th_equil. returning -1." << endl;
             return -1;
         }
     }

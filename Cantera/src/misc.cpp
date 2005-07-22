@@ -57,8 +57,11 @@ namespace Cantera {
                 // install a default logwriter that writes to standard
                 // output / standard error
                 logwriter = new Logger();
+
+                // HTML log files
                 xmllog = 0; 
                 current = 0;
+                loglevel = 0;
             }
 
         /// Delete any open XML trees, the logwriter, and
@@ -72,7 +75,8 @@ namespace Cantera {
             }
             delete logwriter;
             if (xmllog) {
-                delete xmllog;
+                write_logfile("orphan");
+                //delete xmllog;
             }
         }
 
@@ -89,6 +93,9 @@ namespace Cantera {
         string sleep;
         Logger* logwriter;
         XML_Node *xmllog, *current;
+        int loglevel;
+        vector<int> loglevels;
+        vector<string> loggroups;
     };
         
     
@@ -624,7 +631,7 @@ namespace Cantera {
         __app->logwriter = logwriter;
     }
 
-
+#ifdef WITH_HTML_LOGS
 
     /////////////////////////////////////////////////////////////////
     /// 
@@ -638,15 +645,18 @@ namespace Cantera {
     ///  C. You want to be able to print diagnostic messages just from
     ///  function A, or from A and B, or from A, B, and C, or to turn
     ///  off printing diagnostic messages altogether. All you need to
-    ///  do is to pass into each function the parameter loglevel, and
-    ///  when calling other functions decrement the value of
-    ///  logvalue. Since the procedures that print HTML log output only
-    ///  do so if loglevel > 0, the initial value of loglevel controls
-    ///  how deeply nested the log messages will be. For an example of
-    ///  how to do this, see files MultiPhase.cpp and
-    ///  MultiPhaseEquil.cpp.
+    ///  do is call 'beginLogGroup' within function A, and specify a
+    ///  loglevel value. Then in B, call beginLogGroup again, but
+    ///  without an explicit value for loglevel. By default, the
+    ///  current level is decremented by one in beginLogGroup. If it
+    ///  is <= 0, no log messages are written. Thus, if each function
+    ///  begins with beginLogGroup and calls endLogGroup before
+    ///  returning, then setting loglevel = 3 will cause messages from
+    ///  A, B, and C to be written (in nested HTML lists), loglevel =
+    ///  2 results in messages only being written from A and B, etc.
     ///
     //////////////////////////////////////////////////////////////////
+
 
     /// Create a new group for log messages.  Usually this is called
     /// upon entering the function, with the title parameter equal to
@@ -655,22 +665,49 @@ namespace Cantera {
     /// heading, until endLogGroup() is called.
     /// @ingroup HTML_logs
     void beginLogGroup(string title, int loglevel) {
-        if (loglevel <= 0) return;
         appinit();
+        if (loglevel != -99) __app->loglevel = loglevel;
+        else __app->loglevel--;
+        __app->loglevels.push_back(__app->loglevel);
+        __app->loggroups.push_back(title);
+        if (__app->loglevel <= 0) return;
         if (__app->xmllog == 0) {
             __app->xmllog = new XML_Node("html");
             __app->current = &__app->xmllog->addChild("ul");
         }
-        __app->current = &__app->current->addChild("li",title);
+        __app->current = &__app->current->addChild("li","<b>"+title+"</b>");
         __app->current = &__app->current->addChild("ul");
     }
 
     /// Add an entry to the log file. Entries appear in the form "tag:
     /// value".
     /// @ingroup HTML_logs
-    void addLogEntry(string tag, string value, int loglevel) {
-        if (loglevel <= 0) return;
-        __app->current->addChild("li",tag+": "+value);
+    void addLogEntry(string tag, string value) {
+        if (__app->loglevel > 0) 
+            __app->current->addChild("li",tag+": "+value);
+    }
+
+    /// Add an entry to the log file. Entries appear in the form "tag:
+    /// value".
+    /// @ingroup HTML_logs
+    void addLogEntry(string tag, doublereal value) {
+        if (__app->loglevel > 0) 
+            __app->current->addChild("li",tag+": "+fp2str(value));
+    }
+
+    /// Add an entry to the log file. Entries appear in the form "tag:
+    /// value".
+    /// @ingroup HTML_logs
+    void addLogEntry(string tag, int value) {
+        if (__app->loglevel > 0) 
+            __app->current->addChild("li",tag+": "+int2str(value));
+    }
+
+    /// Add an entry to the log file.
+    /// @ingroup HTML_logs
+    void addLogEntry(string msg) {
+        if (__app->loglevel > 0)
+            __app->current->addChild("li",msg);
     }
 
     /// Close the current group of log messages. This is typically
@@ -680,12 +717,26 @@ namespace Cantera {
     /// appear at the next-higher level in the outline, unless
     /// beginLogGroup is called first to create a new group.  
     /// @ingroup HTML_logs
-    void endLogGroup(int loglevel) {
-        if (loglevel <= 0) return;
-        __app->current = __app->current->parent();
-        __app->current = __app->current->parent();
+    void endLogGroup(string title) {
+        if (__app->loglevel > 0) {
+            __app->current = __app->current->parent();
+            __app->current = __app->current->parent();
+        }
+        __app->loglevels.pop_back();
+        __app->loglevel = __app->loglevels.back();
+        if (title != "" && title != __app->loggroups.back()) {
+            writelog("Logfile error."
+                "\n   beginLogGroup: "+ __app->loggroups.back()+
+                "\n   endLogGroup;   "+title+"\n");
+        }
+        if (__app->loggroups.size() == 1) {
+            write_logfile(__app->loggroups.back()+"_log"); 
+            __app->loggroups.clear();
+            __app->loglevels.clear();
+        }
+        else
+            __app->loggroups.pop_back();
     }
-
 
     /// Write the HTML log file. Log entries are stored in memory in
     /// an XML tree until this function is called, which writes the
@@ -739,5 +790,7 @@ namespace Cantera {
             __app->current = 0;
         }
     }
+
+#endif // WITH_HTML_LOGS
 }
 

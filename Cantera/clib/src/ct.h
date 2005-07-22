@@ -80,8 +80,8 @@ extern "C" {
     int DLL_IMPORT th_set_UV(int n, double* vals);
     int DLL_IMPORT th_set_SV(int n, double* vals);
     int DLL_IMPORT th_set_SP(int n, double* vals);
-    int DLL_IMPORT th_equil(int n, int XY, int solver,
-        double rtol, int maxsteps, int loglevel);
+    int DLL_IMPORT th_equil(int n, char* XY, int solver,
+        double rtol, int maxsteps, int maxiter, int loglevel);
     
 #ifdef INCL_PURE_FLUIDS
     double DLL_IMPORT th_critTemperature(int n);

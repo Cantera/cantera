@@ -72,8 +72,8 @@ HETEROKIN    = $(THERMO) $(HETEROKIN_OBJ)
 CK         = $(KINETICS)
 
 # chemical equilibrium
-EQUIL_OBJ  = ChemEquil.o MultiPhaseEquil.o sort.o MultiPhase.o
-EQUIL_H    = ChemEquil.h MultiPhaseEquil.h MultiPhase.h sort.h
+EQUIL_OBJ  = ChemEquil.o MultiPhaseEquil.o sort.o MultiPhase.o equilibrate.o
+EQUIL_H    = ChemEquil.h MultiPhaseEquil.h MultiPhase.h sort.h equil.h
 EQUIL      = $(THERMO) $(EQUIL_OBJ)
 
 # reaction path analysis

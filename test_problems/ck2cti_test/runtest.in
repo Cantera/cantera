@@ -1,6 +1,11 @@
 #!/bin/sh
 # $Id$
 #
+echo " "
+echo "***************************************************"
+echo "        Testing CK2CTI                             "
+echo "***************************************************"
+echo " "
 BINDIR=@buildbin@
 CK2CTI=$BINDIR/ck2cti
 $CK2CTI -i ./gri30.inp -id gri30 -tr ./gri30_tran.dat 
@@ -26,4 +31,5 @@ then
 else
   echo "unsuccessful diff comparison on ck2cti test"
 fi
+echo 
 

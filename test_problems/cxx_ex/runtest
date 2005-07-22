@@ -6,6 +6,11 @@ temp_success="1"
 /bin/rm  -f eq1.csv  tr1.csv tr2.csv  kin1.csv  kin2.csv \
             kin1_blessed_tmp.csv kin2_blessed_tmp.csv
 
+echo " "
+echo "***************************************************"
+echo "        Testing the Cantera C++ Examples           "
+echo "***************************************************"
+echo " "
 #################################################################
 #
 #################################################################
@@ -139,6 +144,8 @@ then
 else
   echo 'cxx_examples csv test FAILED!'
 fi
+
+echo
 
 #################################################################
 #
