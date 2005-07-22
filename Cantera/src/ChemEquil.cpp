@@ -2,8 +2,8 @@
  *
  *  @file ChemEquil.cpp
  *
- *  Chemical equilibrium. 
- *  Implementation file for class ChemEquil
+ *  Chemical equilibrium.  Implementation file for class
+ *  ChemEquil. 
  *
  *  Copyright 2001 California Institute of Technology
  *
@@ -19,16 +19,17 @@ using namespace std;
 
 #include "ChemEquil.h"
 #include "DenseMatrix.h"
-#include "recipes.h"
+
 #include "sort.h"
 #include "PropertyCalculator.h"
 #include "ctexceptions.h"
 #include "vec_functions.h"
 #include "stringUtils.h"
-
+#include "MultiPhase.h"
 
 namespace Cantera {
 
+    /// map property strings to integers
     int _equilflag(const char* xy) {
         string flag = string(xy);
         if (flag == "TP") return TP;
@@ -61,13 +62,13 @@ namespace Cantera {
 
 
     /**
-     *  Prepare for equilibrium calculations with a specified
-     *  mixture.
-     *  @param s  mixture
+     *  Prepare for equilibrium calculations.
+     *  @param s object representing the solution phase.
      */
     void ChemEquil::initialize(thermo_t& s) 
     {
-        // store a pointer to s and some of its properties locally
+        // store a pointer to s and some of its properties locally.
+        // Note: the use of two pointers is a historical artifact.
         m_thermo = &s;
         m_phase = &s;
 
@@ -89,6 +90,7 @@ namespace Cantera {
         m_startSoln.resize(m_mm+1);
         m_grt.resize(m_kk);
         m_mu_RT.resize(m_kk);
+        m_component.resize(m_mm,-2);
 
         // set up elemental composition matrix
         int m, k, mneg = -1;
@@ -97,8 +99,9 @@ namespace Cantera {
             for (k = 0; k < m_kk; k++) {
                 na = m_phase->nAtoms(k,m);
 
-                // handle the case of negative atom numbers (used to 
-                // represent positive ions)
+                // handle the case of negative atom numbers (used to
+                // represent positive ions, where the 'element' is an
+                // electron
                 if (na < 0.0) {
 
                     // if negative atom numbers have already been specified
@@ -145,7 +148,7 @@ namespace Cantera {
     void ChemEquil::setToEquilState(thermo_t& s, 
         const vector_fp& lambda_RT, doublereal t) 
     {
-        // compute the chemical potentials by summing element potentials
+        // construct the chemical potentials by summing element potentials
         fill(m_mu_RT.begin(), m_mu_RT.end(), 0.0);
         for (int k = 0; k < m_kk; k++)
             for (int m = 0; m < m_mm; m++) 
@@ -193,75 +196,43 @@ namespace Cantera {
         for (m = 0; m < m_mm; m++) m_elementmolefracs[m] /= sum;
     }
 
-        
-    /**
-     *  Estimate the initial mole fractions.  Uses the Simplex method
-     *  to estimate the initial number of moles of each species.  The
-     *  linear Gibbs minimization problem is solved, neglecting the
-     *  free energy of mixing terms. This procedure produces a good
-     *  estimate of the low-temperature equilibrium composition.
-     *
-     *  @param s             phase object
-     *  @param elementMoles  vector of elemental moles
-     */
-    int ChemEquil::setInitialMoles(thermo_t& s, 
-        vector_fp& elementMoles) 
-    {
-        int m, n;
-        double pres = s.pressure();
-        double lp = log(pres/m_p0);
-        integer mm = m_phase->nElements();
-        integer kksp = m_phase->nSpecies();
-        
-        DenseMatrix aa(mm+2, kksp+1, 0.0);
-        
-        // first column contains fixed element moles
-        for (m = 0; m < mm; m++) {
-            aa(m+1,0) = elementMoles[m]; // + 0.01;
-        }
+    /// Estimate the initial mole numbers. This version borrows from the
+    /// MultiPhaseEquil solver. 
+    int ChemEquil::setInitialMoles(thermo_t& s) {
+        MultiPhase* mp = 0;
+        MultiPhaseEquil* e = 0;
+        int iok = 0;
+        beginLogGroup("ChemEquil::setInitialMoles");
+        try {
+            mp = new MultiPhase;
+            mp->addPhase(&s, 1.0);
+            mp->init();
+            e = new MultiPhaseEquil(mp, true);
+            e->setInitialMixMoles();
 
-        // get the array of non-dimensional Gibbs functions for the pure 
-        // species
-        s.getGibbs_RT(m_grt.begin());
-        
-        int kpp = 0;
-        for (int k = 0; k < kksp; k++) {
-            kpp++;
-            aa(0, kpp) =  -m_grt[k];
-            aa(0, kpp) -= lp;               // ideal gas
-            for (int q = 0; q < mm; q++)                           
-                aa(q+1, kpp) = -nAtoms(k, q);
-        }
-
-        integer mp = mm+2;               // parameters for SIMPLX
-        integer np = kksp+1;
-        integer m1 = 0;
-        integer m2 = 0;
-        integer m3 = mm;
-        integer icase=0;
-
-        vector_int iposv(mm);
-        vector_int izrov(kksp);
-    
-        //  solve the linear programming problem
-
-        simplx_(&aa(0,0), &mm, &kksp, &mp, &np, &m1, &m2, &m3, 
-            &icase, izrov.begin(), iposv.begin());
-        
-        fill(m_molefractions.begin(), m_molefractions.end(), 0.0);
-        for (n = 0; n < mm; n++) {
-            int ksp = 0;
-            int ip = iposv[n] - 1;
-            for (int k = 0; k < kksp; k++) { 
-                if (ip == ksp) {
-                    m_molefractions[k] = aa(n+1, 0);
-                }
-                ksp++;
+            // store component indices
+            for (int m = 0; m < m_mm; m++) {
+                m_component[m] = e->componentIndex(m);
             }
+            for (int k = 0; k < m_kk; k++) {
+                if (m_phase->moleFraction(k) > 0.0) {
+                    addLogEntry(m_phase->speciesName(k),
+                        m_phase->moleFraction(k));
+                }
+            }
+
+            update(s);
+            delete e;
+            delete mp;
+            iok = 0;
         }
-        s.setState_PX(pres, m_molefractions.begin());
-        update(s);
-        return icase;
+        catch (CanteraError) {
+            delete e;
+            delete mp;
+            iok = -1;
+        }
+        endLogGroup();
+        return iok;
     }
 
  
@@ -271,60 +242,29 @@ namespace Cantera {
     int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda) 
     {
         int k, ksp, m, n;
-        for (k = 0; k < m_kk; k++) {
-            if (m_molefractions[k] > 0.0) {
-                m_molefractions[k] = fmaxx(m_molefractions[k], 0.05);
-            }
-            //else
-            //     m_molefractions[k] = 0.001;
-        }
-        s.setState_PX(s.pressure(), m_molefractions.begin());
+        beginLogGroup("estimateElementPotentials");
+        //for (k = 0; k < m_kk; k++) {
+        //    if (m_molefractions[k] > 0.0) {
+        //        m_molefractions[k] = fmaxx(m_molefractions[k], 0.05);
+        //    }
+        //}
+        //s.setState_PX(s.pressure(), m_molefractions.begin());
 
-        // sort mole fractions
-        vector_fp mol(m_kk, 0.0);
-        vector_int index(m_kk, 0);
-        for (k = 0; k < m_kk; k++) {
-            mol[k] = m_molefractions[k];
-            index[k] = k;
-        }
-        heapsort(mol, index);
 
         DenseMatrix aa(m_mm, m_mm, 0.0);
         vector_fp b(m_mm, -999.0);
-        vector_fp ipvt(m_mm, 0);
-        
-        // find a set of constituents
-        vector_int kc(m_mm, 0);
-        vector_fp tmp(m_mm, 0.0);
+
         vector_fp mu_RT(m_kk, 0.0);
 
         s.getChemPotentials(mu_RT.begin());
         doublereal rrt = 1.0/(GasConstant*m_phase->temperature());
         scale(mu_RT.begin(), mu_RT.end(), mu_RT.begin(), rrt);
-        int j = 0;
-        for (k = m_kk - 1; k >= 0; k--) {
-            ksp = index[k];
-            if ( mol[k] > 0.0 ) {
-                kc[j] = ksp;
-                j++;
-                if (j == m_mm) break;
-            }
-        }
-        //if (j < m_mm) 
-        //    return -1;
-        //throw CanteraError("estimateElementPotentials",
-        //      "too few species (" + int2str(j) + ").");
 
-        for (m = 0; m < j; m++) {
-
+        for (m = 0; m < m_mm; m++) {
             for (n = 0; n < m_mm; n++) {
-                aa(m,n) = nAtoms(kc[m], n);
+                aa(m,n) = nAtoms(m_component[m], n);
             }
-            b[m] = mu_RT[kc[m]];
-        }
-        for (m = j+1; m < m_mm; m++) {
-            aa(m,m) = 1.0;
-            b[m] = lambda[m];
+            b[m] = mu_RT[m_component[m]];
         }
 
         int info;
@@ -332,23 +272,27 @@ namespace Cantera {
             info = solve(aa, b.begin());
         }
         catch (CanteraError) {
-            return -2; 
+            addLogEntry("failed to estimate initial element potentials.");
+            info = -2; 
         }
 
         if (info == 0) {
             for (m = 0; m < m_mm; m++) {
                 lambda[m] = b[m];
+                addLogEntry(m_phase->elementName(m),b[m]);
             }
         }
+        endLogGroup();
         return info;
     }
+
 
 
     /**
      * Equilibrate a phase, holding the elemental composition fixed
      * at the initial vaollue.
      */
-    int ChemEquil::equilibrate(thermo_t& s, int XY) {
+    int ChemEquil::equilibrate(thermo_t& s, const char* XY) {
         vector_fp emol(s.nElements());
         initialize(s);
         update(s);
@@ -356,13 +300,13 @@ namespace Cantera {
             emol.begin());
         return equilibrate(s, XY, emol);
     }
-    
+
 
     /**
      *   compute the equilibrium composition for 2 specified
      *   properties and specified element moles.
      */
-    int ChemEquil::equilibrate(thermo_t& s, int XY, vector_fp& elMoles)
+    int ChemEquil::equilibrate(thermo_t& s, const char* XYstr, vector_fp& elMoles)
     {
         doublereal xval, yval;
         int fail = 0;
@@ -370,34 +314,50 @@ namespace Cantera {
         delete m_p1;
         delete m_p2;
         bool tempFixed = true;
+        int XY = _equilflag(XYstr);
+
+        vector_fp state;
+        s.saveState(state);
+
+        beginLogGroup("ChemEquil::equilibrate");
         initialize(s);
         update(s);
         switch (XY) {
         case TP: case PT:
             m_p1 = new TemperatureCalculator<thermo_t>;
-            m_p2 = new PressureCalculator<thermo_t>; break;
+            m_p2 = new PressureCalculator<thermo_t>;
+            break;
         case HP: case PH:
             tempFixed = false;
             m_p1 = new EnthalpyCalculator<thermo_t>;
-            m_p2 = new PressureCalculator<thermo_t>; break;
+            m_p2 = new PressureCalculator<thermo_t>;
+            break; 
         case SP: case PS:
             tempFixed = false;
             m_p1 = new EntropyCalculator<thermo_t>;
-            m_p2 = new PressureCalculator<thermo_t>; break;
+            m_p2 = new PressureCalculator<thermo_t>;
+            break; 
         case SV: case VS:
             tempFixed = false;
             m_p1 = new EntropyCalculator<thermo_t>;
-            m_p2 = new DensityCalculator<thermo_t>; break;
+            m_p2 = new DensityCalculator<thermo_t>;
+            break; 
         case TV: case VT:
             m_p1 = new TemperatureCalculator<thermo_t>;
-            m_p2 = new DensityCalculator<thermo_t>; break;
+            m_p2 = new DensityCalculator<thermo_t>;
+            break; 
         case UV: case VU:
             tempFixed = false;
             m_p1 = new IntEnergyCalculator<thermo_t>;
-            m_p2 = new DensityCalculator<thermo_t>; break;
+            m_p2 = new DensityCalculator<thermo_t>;
+            break; 
         default:
             throw CanteraError("equilibrate","illegal property pair.");
         }
+
+        addLogEntry("Problem type","fixed "+m_p1->symbol()+", "+m_p2->symbol());
+        addLogEntry(m_p1->symbol(), m_p1->value(s));
+        addLogEntry(m_p2->symbol(), m_p2->value(s));
 
         // If the temperature is one of the specified variables, and
         // it is outside the valid range, throw an exception.
@@ -421,29 +381,32 @@ namespace Cantera {
         vector_fp x(nvar, -102.0);          // solution vector
     
         vector_fp res_trial(nvar);
-        vector_fp elementMol(mm, 0.0);
-        double perturb;
+
         for (m = 0; m < mm; m++) {
             if (m_skip < 0 && elMoles[m] > 0.0 ) m_skip = m;
-#define PERTURB_ELEMENT_MOLES
-#ifdef PERTURB_ELEMENT_MOLES
-            perturb = Cutoff*(1.0 + rand());
-#else
-            perturb = 0.0;
-#endif
-            elementMol[m] = elMoles[m] + perturb;
         }
+
+        // start with a composition with everything non-zero. Note
+        // that since we have already save the target element moles,
+        // changing the composition at this point only affects the
+        // starting point, not the final solution.
+        vector_fp xmm(m_kk,0.0);
+        for (int k = 0; k < m_kk; k++) {
+            xmm[k] = m_phase->moleFraction(k) + Cutoff;
+        }
+        m_phase->setMoleFractions(xmm.begin());
 
         update(s);
 
 
         // loop to estimate T
         if (!tempFixed) {
-            
+
+            beginLogGroup("Initial T Estimate");
+
             doublereal tmax = m_thermo->maxTemp();
             doublereal tmin = m_thermo->minTemp();
             doublereal slope, phigh, plow, pval, dt;
-
 
             // first get the property values at the upper and lower
             // temperature limits. Since p1 (h, s, or u) is monotonic
@@ -451,11 +414,11 @@ namespace Cantera {
             // bounnds (phigh, plow) for p1.
 
             m_phase->setTemperature(tmax);
-            setInitialMoles(s, elementMol);
+            setInitialMoles(s); 
             phigh = m_p1->value(s);
 
             m_phase->setTemperature(tmin);
-            setInitialMoles(s, elementMol);
+            setInitialMoles(s); 
             plow = m_p1->value(s);
 
             // start with T at the midpoint of the range
@@ -466,7 +429,7 @@ namespace Cantera {
             for (int it = 0; it < 5; it++) {
 
                 // set the composition and get p1
-                setInitialMoles(s, elementMol);
+                setInitialMoles(s);
                 pval = m_p1->value(s);
 
 
@@ -493,19 +456,22 @@ namespace Cantera {
 
                 // update the T estimate
                 t0 = tmin + dt;
+                addLogEntry("new T estimate", t0);
+
                 m_phase->setTemperature(t0);
             }
+            endLogGroup(); // initial T estimate
         }
 
-        if (m_lambda[0] == -100.0) {
-            setInitialMoles(s, elementMol);
-            for (int ii = 0; ii < m_mm; ii++) x[ii] = -101.0;
-            estimateElementPotentials(s, x);
-        }
-        else {
-            doublereal rt = GasConstant * m_phase->temperature();
-            for (int ii = 0; ii < m_mm; ii++) x[ii] = m_lambda[ii]/rt;
-        }
+        //if (m_lambda[0] == -100.0) {
+        setInitialMoles(s);
+        for (int ii = 0; ii < m_mm; ii++) x[ii] = -101.0;
+        estimateElementPotentials(s, x);
+        //}
+        //else {
+        //    doublereal rt = GasConstant * m_phase->temperature();
+        //    for (int ii = 0; ii < m_mm; ii++) x[ii] = m_lambda[ii]/rt;
+        //}
 
         x[m_mm] = log(m_phase->temperature());
 
@@ -513,17 +479,16 @@ namespace Cantera {
         vector_fp below(nvar);
 
         for (m = 0; m < mm; m++) {
-            above[m] = 200.0; // 30.0;
+            above[m] = 200.0; 
             below[m] = -2000.0;
             if (elMoles[m] < Cutoff && m != m_eloc) x[m] = -1000.0;
-            //if (m == m_eloc) x[m] = -10.0;
         }
-        above[mm] = log(m_thermo->maxTemp() + 1.0);  //log(1.e4);
-        below[mm] = log(m_thermo->minTemp() - 1.0); //log(10.0);
+        above[mm] = log(m_thermo->maxTemp() + 1.0);
+        below[mm] = log(m_thermo->minTemp() - 1.0);
 
         vector_fp grad(nvar, 0.0);        // gradient of f = F*F/2
         vector_fp oldx(nvar, 0.0);        // old solution
-        vector_fp prevx(nvar, 0.0);       // old solution
+        //vector_fp prevx(nvar, 0.0);       // old solution
         vector_fp oldresid(nvar, 0.0);
         doublereal f, oldf;
 
@@ -549,30 +514,33 @@ namespace Cantera {
 
 
         iter++;
+        if (iter > 1) endLogGroup(); // iteration
+        beginLogGroup("Iteration "+int2str(iter));
 
         // compute the residual and the jacobian using the current
         // solution vector
-        equilResidual(s, x, elMoles, res_trial, XY, xval, yval);
+        equilResidual(s, x, elMoles, res_trial, xval, yval);
+
         f = 0.5*dot(res_trial.begin(), res_trial.end(), res_trial.begin());
-        equilJacobian(s, x, elMoles, jac, XY, xval, yval);
+        addLogEntry("Residual norm", f);
+
+        equilJacobian(s, x, elMoles, jac, xval, yval);
     
         // compute grad f = F*J
         jac.leftMult(res_trial.begin(), grad.begin());
         copy(x.begin(), x.end(), oldx.begin());
-        copy(oldx.begin(), oldx.end(), prevx.begin());
+
         oldf = f;
         scale(res_trial.begin(), res_trial.end(), res_trial.begin(), -1.0);
         try {
             info = solve(jac, res_trial.begin());
         }
         catch (CanteraError) {
-            cout << x << endl;
-            //cout << res_trial << endl;
-            //cout << grad << endl;
-            cout << elMoles << endl;
-            //cout << jac << endl;
+            addLogEntry("Jacobian is singular.");
+            endLogGroup(); // iteration
+            endLogGroup(); // equilibrate
+            s.restoreState(state);
 
-            //cout << "m_skip = " << m_skip << endl;
             throw CanteraError("equilibrate",
                 "Jacobian is singular. \nTry adding more species, "
                 "changing the elemental composition slightly, \nor removing "
@@ -593,15 +561,19 @@ namespace Cantera {
                 fctr = fminn(fctr, 0.8*(x[m] - below[m])/(x[m] - newval));
             }
         }
+        if (fctr != 1.0) addLogEntry("factor to keep solution in bounds",
+            fctr);
 
-        // multiply the step by the scaing factor
+        // multiply the step by the scaling factor
         scale(res_trial.begin(), res_trial.end(), res_trial.begin(), fctr);
 
         if (!dampStep(s, oldx, oldf, grad, res_trial, 
-            x, f, elMoles , XY, xval, yval))
+            x, f, elMoles , xval, yval))
         {
             fail++;
             if (fail > 3) {
+                addLogEntry("dampStep","Failed 3 times. Giving up.");
+                s.restoreState(state);
                 throw CanteraError("equilibrate",
                     "Cannot find an acceptable Newton damping coefficient.");
                 return -4;
@@ -613,24 +585,32 @@ converge:
 
         //  check for convergence.
     
-        equilResidual(s, x, elMoles, res_trial, XY, xval, yval);
+        equilResidual(s, x, elMoles, res_trial, xval, yval);
         f = 0.5*dot(res_trial.begin(), res_trial.end(), res_trial.begin());
         doublereal xx, yy, deltax, deltay;
         xx = m_p1->value(s);
         yy = m_p2->value(s);
         deltax = (xx - xval)/xval;
         deltay = (yy - yval)/yval;
-
-        if (absmax(res_trial.begin(), res_trial.end()) < options.relTolerance 
+        doublereal rmax = absmax(res_trial.begin(), res_trial.end());
+        if (iter > 0 && rmax < options.relTolerance 
             && fabs(deltax) < options.relTolerance 
             && fabs(deltay) < options.relTolerance) {
             options.iterations = iter;
-
+            endLogGroup(); // iteration
             m_lambda.resize(m_mm);
+            beginLogGroup("Converged solution");
+            addLogEntry("Iterations",iter);
+            addLogEntry("Relative error in "+m_p1->symbol(),deltax);
+            addLogEntry("Relative error in "+m_p2->symbol(),deltay);
+            addLogEntry("Max residual",rmax);
+            beginLogGroup("Element potentials");
             doublereal rt = GasConstant*m_thermo->temperature();
             for (m = 0; m < m_mm; m++) {
                 m_lambda[m] = x[m]*rt;
+                addLogEntry("element "+m_phase->elementName(m), fp2str(x[m]));
             }
+            endLogGroup(); // element potentials
 
             if (m_thermo->temperature() > m_thermo->maxTemp() + 1.0 ||
                 m_thermo->temperature() < m_thermo->minTemp() - 1.0 ) {
@@ -639,13 +619,19 @@ converge:
                     "valid range of "+fp2str(m_thermo->minTemp())+" K to "
                     +fp2str(m_thermo->maxTemp())+" K\n");
             }
-            
+            endLogGroup();  // converged solution
+
+            endLogGroup();  // equilibrate
             return 0;
         }
     
         // no convergence
     
         if (iter > options.maxIterations) {
+            addLogEntry("equilibrate","no convergence");
+            endLogGroup(); // iteration
+            endLogGroup(); // equilibrate
+            s.restoreState(state);
             throw CanteraError("equilibrate",
                 "no convergence in "+int2str(options.maxIterations)
                 +" iterations.");
@@ -657,7 +643,7 @@ converge:
 
     int ChemEquil::dampStep(thermo_t& mix, vector_fp& oldx, 
         double oldf, vector_fp& grad, vector_fp& step, vector_fp& x, 
-        double& f, vector_fp& elmols, int XY, double xval, double yval )
+        double& f, vector_fp& elmols, double xval, double yval )
     {
         int nvar = x.size();
     
@@ -696,7 +682,7 @@ converge:
         add_each(x, oldx);
     
 
-        equilResidual(mix, x, elmols, res_new, XY, xval, yval);
+        equilResidual(mix, x, elmols, res_new, xval, yval);
         //f = 0.5*(res_new*res_new);
         f = 0.5*dot(res_new.begin(), res_new.end(), res_new.begin());
         if (damp < minDamp && damp < 1.0)
@@ -748,8 +734,9 @@ converge:
      */
     void ChemEquil::equilResidual(thermo_t& mix, const vector_fp& x, 
         const vector_fp& elmtotal, vector_fp& resid, 
-        int XY, doublereal xval, doublereal yval)
+        doublereal xval, doublereal yval)
     {
+        beginLogGroup("ChemEquil::equilResidual");
         int n;
         doublereal xx, yy;
         doublereal temp = exp(x[m_mm]);
@@ -763,8 +750,9 @@ converge:
             if (elmtotal[n] < Cutoff && n != m_eloc)
                 resid[n] = x[n] + 1000.0;
             else
-                //                resid[n] = elmtotal[n] - elm[n]; // log( (1.0 + elmtotal[n]) / (1.0 + elm[n]) );
                 resid[n] = log( (1.0 + elmtotal[n]) / (1.0 + elm[n]) );
+            addLogEntry(m_phase->elementName(n),fp2str(elm[n])+"  ("
+                +fp2str(elmtotal[n])+")");
         }
         if (m_eloc >= 0) {
             doublereal chrg, sumnet = 0.0, sumabs = 0.0;
@@ -773,12 +761,16 @@ converge:
                 sumnet += chrg;
                 sumabs += fabs(chrg);
             }
+            addLogEntry("net charge",sumnet);
             resid[m_eloc] = sumnet/m_abscharge; // log((1.0 + sumnet/sumabs));
         }
         xx = m_p1->value(mix);
         yy = m_p2->value(mix);
         resid[m_mm] = xx/xval - 1.0; 
-        resid[m_skip] = yy/yval - 1.0; 
+        resid[m_skip] = yy/yval - 1.0;
+        addLogEntry(m_p1->symbol(), fp2str(xx)+"  ("+fp2str(xval)+")");
+        addLogEntry(m_p2->symbol(), fp2str(yy)+"  ("+fp2str(yval)+")");
+        endLogGroup();
     }
 
 
@@ -786,8 +778,10 @@ converge:
 
     void ChemEquil::equilJacobian(thermo_t& mix, vector_fp& x,  
         const vector_fp& elmols, DenseMatrix& jac, 
-        int XY, doublereal xval, doublereal yval)
+        doublereal xval, doublereal yval)
     {
+        beginLogGroup("equilJacobian",0);
+
         int len = x.size();
         vector_fp& r0 = m_jwork1;
         vector_fp& r1 = m_jwork2;
@@ -798,7 +792,7 @@ converge:
         doublereal rdx, dx, xsave;
         doublereal atol = 1.e-10;
     
-        equilResidual(mix, x, elmols, r0, XY, xval, yval);
+        equilResidual(mix, x, elmols, r0, xval, yval);
     
         for (n = 0; n < len; n++)
         {
@@ -812,7 +806,7 @@ converge:
 
             // calculate perturbed residual
         
-            equilResidual(mix, x, elmols, r1, XY, xval, yval);
+            equilResidual(mix, x, elmols, r1, xval, yval);
         
             // compute nth column of Jacobian
         
@@ -821,9 +815,13 @@ converge:
             }        
             x[n] = xsave;
         }
+        endLogGroup();
     }
+
+
+
 
 } // namespace
 
-
+ 
 // $Log: ChemEquil.cpp,v

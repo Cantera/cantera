@@ -412,23 +412,18 @@ namespace Cantera {
         MultiPhaseEquil* e = 0;
 
         if (!m_init) init();
-        if (loglevel > 0) {
-            beginLogGroup("MultiPhase::equilibrate");
-        }
+        beginLogGroup("MultiPhase::equilibrate", loglevel);
+
         if (XY == TP) {
-            if (loglevel > 0) {
-                addLogEntry("problem type","fixed T,P");
-            }
+            addLogEntry("problem type","fixed T,P");
+
             // create an equilibrium manager 
             e = new MultiPhaseEquil(this);
             try {
-                error = e->equilibrate(XY, err, maxsteps, loglevel-1);
+                error = e->equilibrate(XY, err, maxsteps);
             }
             catch (CanteraError err) {
-                if (loglevel > 0) {
-                    endLogGroup();
-                    //write_logfile("equil_err.html");
-                }
+                endLogGroup();
                 delete e;
                 e = 0;
                 throw err;
@@ -440,12 +435,9 @@ namespace Cantera {
             h0 = enthalpy();
             Tlow = 0.5*m_Tmin;      // lower bound on T
             Thigh = 2.0*m_Tmax;     // upper bound on T
-            if (loglevel > 0) {
-                addLogEntry("problem type","fixed H,P");
-                addLogEntry("H target",fp2str(h0));
-                //addLogEntry("min T",fp2str(Tlow));
-                //addLogEntry("max T",fp2str(Thigh));
-            }
+            addLogEntry("problem type","fixed H,P");
+            addLogEntry("H target",fp2str(h0));
+
             for (n = 0; n < maxiter; n++) {
 
                 // if 'strt' is false, the current composition will be used as
@@ -453,11 +445,10 @@ namespace Cantera {
                 e = new MultiPhaseEquil(this, strt);
                 // start with a loose error tolerance, but tighten it as we get 
                 // close to the final temperature
-                if (loglevel > 0) {
-                    beginLogGroup("iteration "+int2str(n));
-                }
+                beginLogGroup("iteration "+int2str(n));
+
                 try {
-                    error = e->equilibrate(TP, err, maxsteps, loglevel-1);
+                    error = e->equilibrate(TP, err, maxsteps);
                     hnow = enthalpy();
                     // the equilibrium enthalpy monotonically increases with T; 
                     // if the current value is below the target, the we know the
@@ -490,22 +481,18 @@ namespace Cantera {
                     }
 
                     herr = fabs((h0 - hnow)/h0);
-                    if (loglevel > 0) {
-                        addLogEntry("T",fp2str(temperature()));
-                        addLogEntry("H",fp2str(hnow));
-                        addLogEntry("H rel error",fp2str(herr));
-                        addLogEntry("lower T bound",fp2str(Tlow));
-                        addLogEntry("upper T bound",fp2str(Thigh));
-                        endLogGroup();
-                    }
+                    addLogEntry("T",fp2str(temperature()));
+                    addLogEntry("H",fp2str(hnow));
+                    addLogEntry("H rel error",fp2str(herr));
+                    addLogEntry("lower T bound",fp2str(Tlow));
+                    addLogEntry("upper T bound",fp2str(Thigh));
+                    endLogGroup(); // iteration
 
 
                     if (herr < err) { // || dta < 1.0e-4) {
-                        if (loglevel > 0) {
-                            addLogEntry("T iterations",int2str(n));
-                            addLogEntry("Final T",fp2str(temperature()));
-                            addLogEntry("H rel error",fp2str(herr));
-                        }
+                        addLogEntry("T iterations",int2str(n));
+                        addLogEntry("Final T",fp2str(temperature()));
+                        addLogEntry("H rel error",fp2str(herr));
                         goto done;
                     }
                     tnew = m_temp + dt;
@@ -521,27 +508,24 @@ namespace Cantera {
 
                 catch (CanteraError err) {
                     if (!strt) {
-                        if (loglevel > 0) 
-                            addLogEntry("no convergence",
-                                "try estimating starting composition");
+                        addLogEntry("no convergence",
+                            "try estimating starting composition");
                         strt = true;
                     }
                     else {
-                        tnew = 0.5*(Tlow + Thigh);
+                        tnew = 0.5*(m_temp + Thigh);
+                        if (fabs(tnew - m_temp) < 1.0) tnew = m_temp + 1.0;
                         setTemperature(tnew);
-                        if (loglevel > 0) 
-                            addLogEntry("no convergence",
-                                "trying T = "+fp2str(m_temp));
+                        addLogEntry("no convergence",
+                            "trying T = "+fp2str(m_temp));
                     }
                     endLogGroup();
                 }
             }
             delete e;
             e = 0;
-            if (loglevel > 0) {
-                addLogEntry("reached max number of T iterations",int2str(maxiter));
-                endLogGroup();
-            }
+            addLogEntry("reached max number of T iterations",int2str(maxiter));
+            endLogGroup();
             throw CanteraError("MultiPhase::equilibrate",
                 "No convergence for T");
         }
@@ -551,22 +535,20 @@ namespace Cantera {
             start = true;
             Tlow = 1.0; // m_Tmin;      // lower bound on T
             Thigh = 1.0e6; // m_Tmax;   // upper bound on T
-            if (loglevel > 0) {
-                addLogEntry("problem type","fixed S,P");
-                addLogEntry("S target",fp2str(s0));
-                addLogEntry("min T",fp2str(Tlow));
-                addLogEntry("max T",fp2str(Thigh));
-            }
+            addLogEntry("problem type","fixed S,P");
+            addLogEntry("S target",fp2str(s0));
+            addLogEntry("min T",fp2str(Tlow));
+            addLogEntry("max T",fp2str(Thigh));
+            
             for (n = 0; n < maxiter; n++) {
                 e = new MultiPhaseEquil(this, strt);
                 ferr = 0.1;
                 if (fabs(dt) < 1.0) ferr = err;
                 //start = false;
-                if (loglevel > 0) {
-                    beginLogGroup("iteration "+int2str(n));
-                }
+                beginLogGroup("iteration "+int2str(n));
+                
                 try {
-                    error = e->equilibrate(TP, err, maxsteps, loglevel-1);
+                    error = e->equilibrate(TP, err, maxsteps);
                     snow = entropy();
                     if (snow < s0) {
                         if (m_temp > Tlow) Tlow = m_temp;
@@ -575,23 +557,20 @@ namespace Cantera {
                         if (m_temp < Thigh) Thigh = m_temp;
                     }
                     serr = fabs((s0 - snow)/s0);
-                    if (loglevel > 0) {
-                        addLogEntry("T",fp2str(temperature()));
-                        addLogEntry("S",fp2str(snow));
-                        addLogEntry("S rel error",fp2str(serr));
-                        endLogGroup();
-                    }
+                    addLogEntry("T",fp2str(temperature()));
+                    addLogEntry("S",fp2str(snow));
+                    addLogEntry("S rel error",fp2str(serr));
+                    endLogGroup();
+                    
                     dt = (s0 - snow)*m_temp/cp();
                     dtmax = 0.5*fabs(Thigh - Tlow);
                     dtmax = (dtmax > 500.0 ? 500.0 : dtmax);
                     dta = fabs(dt);
                     if (dta > dtmax) dt *= dtmax/dta;
                     if (herr < err || dta < 1.0e-4) {
-                        if (loglevel > 0) {
-                            addLogEntry("T iterations",int2str(n));
-                            addLogEntry("Final T",fp2str(temperature()));
-                            addLogEntry("S rel error",fp2str(serr));
-                        }
+                        addLogEntry("T iterations",int2str(n));
+                        addLogEntry("Final T",fp2str(temperature()));
+                        addLogEntry("S rel error",fp2str(serr));
                         goto done;
                     }
                     tnew = m_temp + dt;
@@ -604,17 +583,15 @@ namespace Cantera {
 
                 catch (CanteraError err) {
                     if (!strt) {
-                        if (loglevel > 0) 
-                            addLogEntry("no convergence",
-                                "setting strt to True");
+                        addLogEntry("no convergence",
+                            "setting strt to True");
                         strt = true;
                     }
                     else {
                         tnew = 0.5*(m_temp + Thigh);
                         setTemperature(tnew);
-                        if (loglevel > 0) 
-                            addLogEntry("no convergence",
-                                "trying T = "+fp2str(m_temp));
+                        addLogEntry("no convergence",
+                            "trying T = "+fp2str(m_temp));
                             
                     }
                     endLogGroup();
@@ -622,10 +599,8 @@ namespace Cantera {
             }
             delete e;
             e = 0;
-            if (loglevel > 0) {
-                addLogEntry("reached max number of T iterations",int2str(maxiter));
-                endLogGroup();
-            }
+            addLogEntry("reached max number of T iterations",int2str(maxiter));
+            endLogGroup();
             throw CanteraError("MultiPhase::equilibrate",
                 "No convergence for T");
         }
@@ -691,9 +666,7 @@ namespace Cantera {
 //                 "No convergence for T");
 //         }
         else if (XY == TV) {
-            if (loglevel > 0) {
-                addLogEntry("problem type","fixed T, V");
-            }
+            addLogEntry("problem type","fixed T, V");
             doublereal dt = 1.0e3;
             doublereal v0 = volume();
             doublereal dVdP;
@@ -704,23 +677,19 @@ namespace Cantera {
                 pnow = pressure();
                 MultiPhaseEquil e(this, start);
                 start = false;
-                if (loglevel > 1) {
-                    beginLogGroup("iteration "+int2str(n));
-                }
-                error = e.equilibrate(TP, err, maxsteps, loglevel-1);
+                beginLogGroup("iteration "+int2str(n));
+                
+                error = e.equilibrate(TP, err, maxsteps);
                 vnow = volume();
                 verr = fabs((v0 - vnow)/v0);
-                if (loglevel > 1) {
-                    addLogEntry("P",fp2str(pressure()));
-                    addLogEntry("V rel error",fp2str(verr));
-                    endLogGroup();
-                }
+                addLogEntry("P",fp2str(pressure()));
+                addLogEntry("V rel error",fp2str(verr));
+                endLogGroup();
+                
                 if (verr < err) {
-                    if (loglevel > 0) {
-                        addLogEntry("P iterations",int2str(n));
-                        addLogEntry("Final P",fp2str(pressure()));
-                        addLogEntry("V rel error",fp2str(verr));
-                    }
+                    addLogEntry("P iterations",int2str(n));
+                    addLogEntry("Final P",fp2str(pressure()));
+                    addLogEntry("V rel error",fp2str(verr));
                     goto done;
                 }
                 // find dV/dP
@@ -731,16 +700,14 @@ namespace Cantera {
         }
 
         else {
-            if (loglevel > 0)  endLogGroup();
+            endLogGroup();
             throw CanteraError("MultiPhase::equilibrate","unknown option");
         }
         return -1.0;
 done:
         delete e;
         e = 0;
-        if (loglevel > 0)  {
-            endLogGroup();
-        }
+        endLogGroup();
         return err;
     }
 

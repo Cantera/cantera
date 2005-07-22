@@ -57,7 +57,7 @@ namespace Cantera {
          * Continuation flag. Set true if the calculation should be
          * initialized from the last calculation. Otherwise, the
          * calculation will be started from scratch and the initial
-         * composition and element potentials estimated. (Not Implemented.)
+         * composition and element potentials estimated.
          */
         bool contin;
     };
@@ -66,17 +66,35 @@ namespace Cantera {
     class PropertyCalculator;
 
     /**
-     *  Chemical equilibrium processor. Sets a mixture to a state of
-     *  chemical equilibrium.
-     */
+     * Class ChemEquil implements a chemical equilibrium solver for
+     *  single-phase solutions. It is a "non-stoichiometric" solver in
+     *  the terminology of Smith and Missen, meaning that every
+     *  intermediate state is a valid chemical equilibrium state, but
+     *  does not necessarily satisfy the element constraints. In
+     *  contrast, the solver implemented in class MultiPhaseEquil uses
+     *  a "stoichiometric" algorithm, in which each intermediate state
+     *  satisfies the element constraints but is not a state of
+     *  chemical equilibrium. Non-stoichiometric methods are faster
+     *  when they converge, but stoichiometric ones tend to be more
+     *  robust and can be used also for problems with multiple
+     *  condensed phases.  As expected, the ChemEquil solver is faster
+     *  than MultiPhaseEquil for many single-phase equilibrium
+     *  problems (particularly if there are only a few elements but
+     *  vvery many species), but can be less stable. Problem
+     *  situations include low temperatures where only a few species
+     *  have non-zero mole fractions, precisely stoichiometric
+     *  compositions (e.g. 2 H2 + O2). In general, if speed is
+     *  important, this solver should be tried first, and if it fails
+     *  then use MultiPhaseEquil.
+      */
     class ChemEquil {
 
     public:
         ChemEquil();
         virtual ~ChemEquil();
 
-        int equilibrate(thermo_t& s, int XY = 0);
-        int equilibrate(thermo_t& s, int XY, vector_fp& elMoles);
+        int equilibrate(thermo_t& s, const char* XY);
+        int equilibrate(thermo_t& s, const char* XY, vector_fp& elMoles);
         const vector_fp& elementPotentials() const { return m_lambda; }
 
         /**
@@ -99,22 +117,22 @@ namespace Cantera {
         void setToEquilState(thermo_t& s, 
             const vector_fp& x, doublereal t);
 
-        int setInitialMoles(thermo_t& s, vector_fp& elementMoles);
+        int setInitialMoles(thermo_t& s);
 
         int estimateElementPotentials(thermo_t& s, 
             vector_fp& lambda);
         
         int dampStep(thermo_t& s, vector_fp& oldx, 
             double oldf, vector_fp& grad, vector_fp& step, vector_fp& x, 
-            double& f, vector_fp& elmols, int XY, double xval, double yval );
+            double& f, vector_fp& elmols, double xval, double yval );
 
         void equilResidual(thermo_t& s, const vector_fp& x, 
             const vector_fp& elmtotal, vector_fp& resid, 
-            int XY, double xval, double yval);
+            double xval, double yval);
 
         void equilJacobian(thermo_t& s, vector_fp& x,  
             const vector_fp& elmols, DenseMatrix& jac, 
-            int XY, double xval, double yval);
+            double xval, double yval);
 
         void update(const thermo_t& s);
 
@@ -141,45 +159,8 @@ namespace Cantera {
 
         vector_fp m_grt;
         vector_fp m_mu_RT;
+        vector_int m_component;
     };
-
-
-    //-----------------------------------------------------------
-    //              convenience functions
-    //-----------------------------------------------------------
-
-    /**
-     * Set a mixture to a state of chemical equilibrium. The flag 'XY'
-     * determines the two properties that will be held fixed in the
-     * calculation.
-     */
-    inline void equilibrate(thermo_t& s, int XY, int solver = 0,
-        doublereal rtol = 1.0e-9, int maxsteps = 1000, 
-        int loglevel = 0) {
-        if (solver > 0) {
-            MultiPhase mix;
-            mix.addPhase(&s, 1.0);
-            mix.init();
-            mix.setTemperature(s.temperature());
-            mix.setPressure(s.pressure());
-            equilibrate(mix, XY, rtol, maxsteps, loglevel);
-        }
-        else {
-            ChemEquil e;
-            e.equilibrate(s,XY);
-            s.setElementPotentials(e.elementPotentials());
-        }
-    }
-
-    /**
-     * Set a mixture to a state of chemical equilibrium. The flag 'XY'
-     * determines the two properties that will be held fixed in the
-     * calculation.
-     */
-    inline void equilibrate(thermo_t& s, const char* XY,
-        int solver = 0) {
-        equilibrate(s,_equilflag(XY), solver);
-    }
 
 }
 

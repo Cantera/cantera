@@ -64,7 +64,9 @@ namespace Cantera {
         m_incl_element.resize(m_nel_mix,1);
         for (m = 0; m < m_nel_mix; m++) {
             string enm = mix->elementName(m);
-            if (enm == "E" || enm == "e") m_eloc = m;
+            if (enm == "E" || enm == "e") {
+                m_eloc = m;
+            }
             if (m_mix->elementMoles(m) <= 0.0) {
                 if (m != m_eloc) {
                     m_incl_element[m] = 0;
@@ -163,36 +165,29 @@ namespace Cantera {
         int maxsteps, int loglevel) {
         int i;
         m_iter = 0;
-        if (loglevel > 0)
-            beginLogGroup("MultiPhaseEquil::equilibrate");
+        string iterstr;
+        beginLogGroup("MultiPhaseEquil::equilibrate", loglevel);
 
         for (i = 0; i < maxsteps; i++) {
-            stepComposition(loglevel - 1);
-            if (loglevel > 1) {
-                beginLogGroup("iteration "+int2str(i));
-                addLogEntry("error",fp2str(error()));
-                endLogGroup();
-            }
-            if (loglevel > 2) printInfo();
+            iterstr = "iteration "+int2str(i);
+            beginLogGroup(iterstr);
+            stepComposition();
+            addLogEntry("error",fp2str(error()));
+            endLogGroup(iterstr);
             if (error() < err) break;
         }
         if (i >= maxsteps) {
-            if (loglevel > 0) {
-                addLogEntry("Error","no convergence in "+int2str(maxsteps)
-                    +" iterations");
-                if (loglevel > 2) printInfo();
-                endLogGroup();
-            }
+            addLogEntry("Error","no convergence in "+int2str(maxsteps)
+                +" iterations");
+            endLogGroup("MultiPhaseEquil::equilibrate");
             throw CanteraError("MultiPhaseEquil::equilibrate",
                 "no convergence in " + int2str(maxsteps) + 
                 " iterations. Error = " + fp2str(error()));
         }
-        if (loglevel > 0) {
-            addLogEntry("iterations",int2str(iterations()));
-            addLogEntry("error tolerance",fp2str(err));
-            addLogEntry("error",fp2str(error()));
-            endLogGroup();
-        }
+        addLogEntry("iterations",int2str(iterations()));
+        addLogEntry("error tolerance",fp2str(err));
+        addLogEntry("error",fp2str(error()));
+        endLogGroup("MultiPhaseEquil::equilibrate");
         finish();
         return error();
     }
@@ -282,29 +277,30 @@ namespace Cantera {
             // set the moles of the phase objects to match
             updateMixMoles();
         }
+
         return 0;
     }
 
 
-    ///  This method finds a set of constituent species and a complete
-    ///  set of formation reactions for the non-constituents in terms
-    ///  of the constituents. Note that in most cases, many different
-    ///  constituent sets are possible, and therefore neither the
-    ///  constituents returned by this method nor the formation
+    ///  This method finds a set of component species and a complete
+    ///  set of formation reactions for the non-components in terms of
+    ///  the components. Note that in most cases, many different
+    ///  component sets are possible, and therefore neither the
+    ///  components returned by this method nor the formation
     ///  reactions are unique. The algorithm used here is described in
     ///  Smith and Missen, Chemical Reaction Equilibrium Analysis.
     /// 
-    ///  The constituent species are taken to be the first M species
+    ///  The component species are taken to be the first M species
     ///  in array 'species' that have linearly-independent compositions.
     ///
     ///  @param order On entry, vector \a order should contain species
     ///  index numbers in the order of decreasing desirability as a
-    ///  constituent. For example, if it is desired to choose the
-    ///  constituents from among the major species, this array might
+    ///  component. For example, if it is desired to choose the
+    ///  components from among the major species, this array might
     ///  list species index numbers in decreasing order of mole
     ///  fraction. If array 'species' does not have length =
     ///  nSpecies(), then the species will be considered as candidates
-    ///  to be constituents in declaration order, beginning with the
+    ///  to be components in declaration order, beginning with the
     ///  first phase added.
     ///
     void MultiPhaseEquil::getComponents(const vector_int& order) {
@@ -312,7 +308,7 @@ namespace Cantera {
         int n;
 
         // if the input species array has the wrong size, ignore it
-        // and consider the species for constituents in declarationi order.
+        // and consider the species for components in declarationi order.
         if (order.size() != m_nsp) {
             for (k = 0; k < m_nsp; k++) m_order[k] = k;
         }
@@ -335,8 +331,20 @@ namespace Cantera {
 
         // Do Gauss elimination  
         for (m = 0; m < nRows; m++) {
-            // if a pivot is zero, exchange columns
+
+            // If a pivot is zero, exchange columns.  This occurs when
+            // a species has an elemental composition that is not
+            // linearly independent of the component species that have
+            // already been assigned
             if (m_A(m,m) == 0.0) {
+
+                // First, we need to find a good candidate for a
+                // component species to swap in for the one that has
+                // zero pivot. It must contain element m, be linearly
+                // independent of the components processed so far
+                // (m_A(m,k) != 0), and should be a major species if
+                // possible. We'll choose the species with greatest
+                // mole fraction that satisfies these criteria.
                 doublereal maxmoles = -999.0;
                 index_t kmax = 0;
                 for (k = m+1; k < nColumns; k++) {
@@ -347,11 +355,15 @@ namespace Cantera {
                         }
                     }
                 }
+
+                // Now exchange the column with zero pivot with the 
+                // column for this major species
                 for (n = 0; n < int(nRows); n++) {
                     tmp = m_A(n,m);
                     m_A(n, m) = m_A(n, kmax);
                     m_A(n, kmax) = tmp;
-                        }
+                }
+
                 // exchange the species labels on the columns
                 itmp = m_order[m];
                 m_order[m] = m_order[kmax];
@@ -365,8 +377,8 @@ namespace Cantera {
                 m_A(m,k) *= fctr;
             }
 
-            // subtract A(n,m)/A(m,m) * (row m) from row n, so that 
-            // A(n,m) = 0. 
+            // For all rows below the diagonal, subtract A(n,m)/A(m,m)
+            // * (row m) from row n, so that A(n,m) = 0.
             for (n = int(m+1); n < int(m_nel); n++) {
                 fctr = m_A(n,m)/m_A(m,m);
                 for (k = 0; k < m_nsp; k++) {
@@ -376,8 +388,8 @@ namespace Cantera {
         }
 
 
-        // The left m_nel columns of A are now upper-diagonal. 
-        // Now reduce it to diagonal form by back-solving
+        // The left m_nel columns of A are now upper-diagonal.  Now
+        // reduce the m_nel columns to diagonal form by back-solving
         for (m = nRows-1; m > 0; m--) {
             for (n = m-1; n>= 0; n--) {
                 if (m_A(n,m) != 0.0) {
@@ -411,6 +423,9 @@ namespace Cantera {
         }
     }
 
+
+
+
     /// Re-arrange a vector of species properties in sorted form
     /// (components first) into unsorted, sequential form.
     void MultiPhaseEquil::unsort(vector_fp& x) {
@@ -420,6 +435,7 @@ namespace Cantera {
             x[m_order[k]] = m_work2[k];
         }
     }
+
 
     void MultiPhaseEquil::printInfo() {
         index_t m, ik, k;
@@ -498,9 +514,9 @@ namespace Cantera {
     /// Take one step in composition, given the gradient of G at the
     /// starting point, and a vector of reaction steps dxi. 
     doublereal MultiPhaseEquil::
-    stepComposition(int loglevel) {
+    stepComposition() {
 
-        if (loglevel > 0) beginLogGroup("MultiPhaseEquil::stepComposition");
+        beginLogGroup("MultiPhaseEquil::stepComposition");
 
         m_iter++;
         index_t ik, j, k = 0;
@@ -555,7 +571,7 @@ namespace Cantera {
                         }
                     }
                 }
-                if (loglevel > 0 && m_moles[k] < -Tiny) {
+                if (m_moles[k] < -Tiny) {
                     addLogEntry("Negative moles for "
                         +m_mix->speciesName(m_species[k]), fp2str(m_moles[k]));
                 }
@@ -564,7 +580,7 @@ namespace Cantera {
         }
 
         // now take a step with this scaled omega
-        if (loglevel > 0) addLogEntry("Stepping by ", fp2str(omegamax));
+        addLogEntry("Stepping by ", fp2str(omegamax));
         step(omegamax, m_work);
 
         // compute the gradient of G at this new position in the
@@ -581,10 +597,10 @@ namespace Cantera {
         if (grad1 > 0.0) {
             omega *= fabs(grad0) / (grad1 + fabs(grad0));
             for (k = 0; k < m_nsp; k++) m_moles[k] = m_lastmoles[k];
-            if (loglevel > 0) addLogEntry("Stepped over minimum. Take smaller step ", fp2str(omega));
+            addLogEntry("Stepped over minimum. Take smaller step ", fp2str(omega));
             step(omega, m_work);
         }
-        if (loglevel > 0) endLogGroup();
+        endLogGroup("MultiPhaseEquil::stepComposition");
         return omega;
     }
 

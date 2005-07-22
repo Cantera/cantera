@@ -6,8 +6,6 @@
 
 namespace Cantera {
 
-    int _equilflag(const char* xy);
-
     class MultiPhaseEquil {
 
     public:
@@ -37,19 +35,25 @@ namespace Cantera {
         int iterations() { return m_iter; }
 
         doublereal equilibrate(int XY, doublereal err = 1.0e-9, 
-            int maxsteps = 1000, int loglevel=0);
+            int maxsteps = 1000, int loglevel=-99);
 
         string reactionString(index_t j);
         doublereal error();
         void printInfo();
 
+        void setInitialMixMoles() {
+            setInitialMoles();
+            finish();
+        }
+
+        index_t componentIndex(index_t n) { return m_species[m_order[n]]; }
+
     protected:
 
         void getComponents(const vector_int& order);
         int setInitialMoles();
-        int setInitialMoles2();
         void computeN();
-        doublereal stepComposition(int loglevel);
+        doublereal stepComposition();
         //void sort(vector_fp& x);
         void unsort(vector_fp& x);
         void step(doublereal omega, vector_fp& deltaN);
@@ -92,42 +96,6 @@ namespace Cantera {
         bool m_force;
     };
 
-    //-----------------------------------------------------------
-    //              convenience functions
-    //-----------------------------------------------------------
-
-    /**
-     * Set a mixture to a state of chemical equilibrium. The flag 'XY'
-     * determines the two properties that will be held fixed in the
-     * calculation.
-     */
-    inline doublereal equilibrate(MultiPhase& s, int XY, 
-        doublereal tol = 1.0e-9, int maxsteps = 1000, int loglevel = 0) {
-        s.init();
-        writelog("in equilibrate(MultiPhase, ...)\n");
-        if (XY == TP || XY == HP || XY == SP || XY == TV) {
-            double err = s.equilibrate(XY, tol, maxsteps, maxsteps, loglevel);
-            if (loglevel > 0) {
-                writelog("writing log file\n");
-                write_logfile("equilibrate.html");
-            }
-            return err;
-        }
-        else {
-            throw CanteraError("equilibrate","unsupported option");
-            return -1.0;
-        }
-    }
-
-    /**
-     * Set a mixture to a state of chemical equilibrium. The flag 'XY'
-     * determines the two properties that will be held fixed in the
-     * calculation.
-     */
-    inline doublereal equilibrate(MultiPhase& s, const char* XY,
-        doublereal tol = 1.0e-9, int maxsteps = 1000, int loglevel = 0) {
-        return equilibrate(s,_equilflag(XY), tol, maxsteps, loglevel);
-    }
 }
 
 

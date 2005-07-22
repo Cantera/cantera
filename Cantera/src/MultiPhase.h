@@ -149,7 +149,7 @@ namespace Cantera {
         /// @param loglevel Level of diagnostic output, written to a
         /// file in HTML format.
         doublereal equilibrate(int XY, doublereal err = 1.0e-9, 
-            int maxsteps = 1000, int maxiter = 200, int loglevel = 0);
+            int maxsteps = 1000, int maxiter = 200, int loglevel = -99);
 
 
         /// Set the temperature [K].
