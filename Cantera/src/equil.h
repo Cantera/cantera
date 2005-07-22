@@ -12,11 +12,11 @@ namespace Cantera {
 
     void equilibrate(thermo_t& s, const char* XY,
         int solver = -1, doublereal rtol = 1.0e-9, int maxsteps = 1000, 
-        int maxiter = 100, int loglevel = -99);
+        int maxiter = 100, int loglevel = 0);
 
     doublereal equilibrate(MultiPhase& s, const char* XY,
         doublereal tol = 1.0e-9, int maxsteps = 1000, int maxiter = 100,
-        int loglevel = -99);
+        int loglevel = 0);
 
 }
 
