@@ -37,14 +37,9 @@ if platform == "win32":
             "cantera","recipes"] + bllist + ["ctmath", "cvode", "tpx", "converters"]
 else:
     
-    # The library 'g2c' is needed if the g77 Fortran compiler is
-    # used to compile the Fortran-77 procedures in libraries
-    # 'recipes', 'ctlapack', 'ctblas', and 'ctmath'. If a different
-    # compiler is used, add the appropriate libraries here.
-    
     libs = ["clib", "zeroD","oneD","transport",
-            "cantera","recipes", "converters"] + bllist + ["ctmath", "cvode", "tpx",
-                                             "stdc++", "g2c", "m"]
+            "cantera", "converters"] + bllist + ["ctmath", "cvode", "tpx",
+                                             "stdc++", "ctf2c", "m"]
 
 # values:
 #  0   do nothing
