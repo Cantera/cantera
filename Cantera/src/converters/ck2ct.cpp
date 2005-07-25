@@ -274,7 +274,21 @@ namespace pip {
                 fprintf(f,"  [%10.5E, %g, %g]", rxn.kf.A, rxn.kf.n, rxn.kf.E);
             }
         }
-
+    
+        // reaction orders
+        cout << "checking for rxn orders..." << endl;
+        int nord = static_cast<int>(rxn.fwdOrder.size());
+        cout << nord << endl;
+        if (nord > 0) {
+            cout << "processing order..." << endl;
+            map<string, double>::const_iterator b = rxn.fwdOrder.begin(), 
+                                                e = rxn.fwdOrder.end();
+            string estr = "";
+            for (; b != e; ++b) {
+                estr += " "+b->first+":"+fp2str(b->second)+" ";
+            }
+            fprintf(f,  ",\n         order = \"%s\"", estr.c_str());
+        }
 
         int ne = static_cast<int>(rxn.e3b.size());
         if (rxn.thirdBody != "<none>") {

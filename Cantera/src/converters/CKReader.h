@@ -107,7 +107,7 @@ namespace ckr {
 
 
     bool checkBalance(ostream& f, speciesTable& speciesData, reactionList& r, 
-        vector<int>& unbalanced);
+        vector<int>& unbalanced, double tolerance=1.0e-3);
     bool checkThermo(ostream& f, speciesList& species, double tol);
 
     bool filter(const string& infile, const string& database,

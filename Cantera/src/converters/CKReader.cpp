@@ -227,7 +227,6 @@ bool CKReader::read(const string& inputFile, const string& thermoDatabase,
             for (k = 0; k < nsp; k++) {
                 Species s;
                 s.name = undef[k];
-                cout << k << "  " << s.name << endl;
                 species.push_back(s);
             }
         }
@@ -637,7 +636,7 @@ bool checkThermo(ostream& log, speciesList& sp, double tol) {
      * @todo use reaction number stored in reaction object
      */
     bool checkBalance(ostream& f, speciesTable& speciesData, 
-        reactionList& r, vector<int>& unbalanced) 
+        reactionList& r, vector<int>& unbalanced, double tolerance) 
     {
         int nrxn = static_cast<int>(r.size());
         string rname, pname;
@@ -674,12 +673,15 @@ bool checkThermo(ostream& log, speciesList& sp, double tol) {
                     atoms[elements[m].name] += stoichCoeff * elements[m].number;
                 }
             }
+            double atms;
             getMapKeys(atoms, elementSyms);
             for (m = 0; m < elementSyms.size(); m++) {
-                if (atoms[elementSyms[m]] != 0.0) {
-                    //cout << "unbalanced element: " 
-                    //      << elementSyms[m] << "  " 
-                    //      << atoms[elementSyms[m]] << endl;
+                atms = atoms[elementSyms[m]];
+                if (fabs(atms) > tolerance) {
+                    //if (atoms[elementSyms[m]] != 0.0) {
+                    //                    cout << "Reaction " << i+1 << " has an unbalanced element: " 
+                    //   << elementSyms[m] << "  " 
+                    //   << atoms[elementSyms[m]] << endl;
                     unbalanced.push_back(i+1); break;
                 }
             }
