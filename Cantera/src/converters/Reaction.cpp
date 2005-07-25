@@ -43,6 +43,7 @@ namespace ckr {
         if (this == &b) return *this;
         type = b.type;
         reactants = b.reactants;
+        fwdOrder = b.fwdOrder;
         products = b.products;
         thirdBody = b.thirdBody;
         e3b = b.e3b;

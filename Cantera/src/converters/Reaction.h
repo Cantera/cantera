@@ -139,7 +139,8 @@ namespace ckr {
                                       thirdBody(r.thirdBody), 
                                       number(r.number), 
                                       reactants(r.reactants), 
-                                      products(r.products), 
+                                      fwdOrder(r.fwdOrder),
+                                      products(r.products),
                                       e3b(r.e3b),
                                       kf(r.kf), 
                                       kf_aux(r.kf_aux), 
@@ -186,6 +187,8 @@ namespace ckr {
          */
         vector<RxnSpecies> reactants;
         
+        mutable map<string, double> fwdOrder;
+
         /** 
          * list of species that participate as products,
          * and their stoichiometric coefficients
