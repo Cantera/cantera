@@ -309,7 +309,7 @@ namespace Cantera {
         m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
 
         // do global reactions
-        m_globalReactantStoich.power(m_conc.begin(), ropf.begin());
+        //m_globalReactantStoich.power(m_conc.begin(), ropf.begin());
 
         for (int j = 0; j != m_ii; ++j) {
             ropnet[j] = ropf[j] - ropr[j];

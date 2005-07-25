@@ -100,7 +100,7 @@ reaction( "H2O => 1.4 H + 0.6 OH + 0.2 O2",   [1.0e13, 0.0, 0.0])
 #reaction( "H2O <=> 1.3 H + 0.7 OH + 0.15 O2", [1.0e13, 0.0, 0.0])
 
 # A reaction with fractional reactant stoichiometric
-# coefficients. This is not allowed, and uncommenting this line will
-# result in an error.
-#reaction( "1.4 H + 0.6 OH + 0.2 O2 => H2O",   [1.0e13, 0.0, 0.0])
+# coefficients.
+reaction( "1.4 H + 0.6 OH + 0.2 O2 => H2O",   [1.0e13, 0.0, 0.0],
+          order = "H:0.8 OH:2 O2:1")
 

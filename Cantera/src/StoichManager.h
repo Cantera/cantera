@@ -114,8 +114,8 @@ namespace Cantera {
 
   public:
 
-      C1( int rxn = 0, int ic0 = 0, doublereal order = 1.0 ) 
-          : m_rxn (rxn),  m_ic0 (ic0), m_order(order) {}
+      C1( int rxn = 0, int ic0 = 0)
+          : m_rxn (rxn),  m_ic0 (ic0) {}
       
       int data(vector<int>& ic) {
           ic.resize(3);
@@ -125,9 +125,6 @@ namespace Cantera {
       
       void multiply(const doublereal* input, doublereal* output) const { 
           *(output + m_rxn) *= *(input + m_ic0); 
-      }
-      void power(const doublereal* input, doublereal* output) const { 
-          output[m_rxn] *= ppow(input[m_ic0], m_order); 
       }
 
       /**
@@ -154,7 +151,6 @@ namespace Cantera {
     }
   private:
     int m_rxn, m_ic0;
-    doublereal m_order;
   };
     
 
@@ -165,10 +161,8 @@ namespace Cantera {
    */
   class C2 {
   public:
-    C2( int rxn = 0, int ic0 = 0, int ic1 = 0,
-	doublereal order0 = 1.0, doublereal order1 = 1.0 ) 
-      : m_rxn (rxn), m_ic0 (ic0), m_ic1 (ic1), 
-      m_order0(order0), m_order1(order1) {}
+    C2( int rxn = 0, int ic0 = 0, int ic1 = 0) 
+      : m_rxn (rxn), m_ic0 (ic0), m_ic1 (ic1) {}
 
     int data(vector<int>& ic) {
       ic.resize(2);
@@ -179,11 +173,6 @@ namespace Cantera {
 
     void multiply(const doublereal* input, doublereal* output) const {
       output[m_rxn] *= input[m_ic0] * input[m_ic1]; 
-    }
-
-    void power(const doublereal* input, doublereal* output) const { 
-      output[m_rxn] *= ppow(input[m_ic0],m_order0) * 
-	ppow(input[m_ic1],m_order1); 
     }
 
     void incrementSpecies(const doublereal* input, 
@@ -222,7 +211,6 @@ namespace Cantera {
      * two species.
      */
     int m_ic0, m_ic1;
-    doublereal m_order0, m_order1;
   };
   
 
@@ -250,11 +238,13 @@ namespace Cantera {
       *(output + m_rxn) *= (*(input + m_ic0)) * (*(input + m_ic1)) 
 	* (*(input + m_ic2)); 
     }
-    void power(const doublereal* input, doublereal* output) const { 
-      output[m_rxn] *= ppow(input[m_ic0],m_order0) * 
-	ppow(input[m_ic1],m_order1) * 
-	ppow(input[m_ic2],m_order2);
-    }
+    
+      //void power(const doublereal* input, doublereal* output) const { 
+      //output[m_rxn] *= ppow(input[m_ic0],m_order0) * 
+      //	ppow(input[m_ic1],m_order1) * 
+      //	ppow(input[m_ic2],m_order2);
+      //}
+
     void incrementSpecies(const doublereal* input, 
 			  doublereal* output) const {
       doublereal x = *(input + m_rxn); 
@@ -286,115 +276,124 @@ namespace Cantera {
 
 
   /**
-   * Handles any number of species in a reaction.
+   * Handles any number of species in a reaction, including fractional 
+   * stoichiometric coefficients, and arbitrary reaction orders.
    * @ingroup Stoichiometry
    */
-  class C_AnyN {
-  public:
-    C_AnyN() : m_rxn (-1) {}
+    class C_AnyN {
+    public:
+        C_AnyN() : m_rxn (-1) {}
 
-      C_AnyN( int rxn, const vector_int& ic, const vector_fp& order, 
-          const vector_fp& stoich) 
-          : m_rxn (rxn) {
-          m_n = ic.size();
-          m_ic.resize(m_n);
-          m_order.resize(m_n);
-          m_stoich.resize(m_n);
-          for (int n = 0; n < m_n; n++) {
-              m_ic[n] = ic[n];
-              m_order[n] = order[n];
-              m_stoich[n] = stoich[n];
-          }
-      }
+        C_AnyN( int rxn, const vector_int& ic, const vector_fp& order, 
+            const vector_fp& stoich) 
+            : m_rxn (rxn) {
+            m_n = ic.size();
+            m_ic.resize(m_n);
+            m_order.resize(m_n);
+            m_stoich.resize(m_n);
+            for (int n = 0; n < m_n; n++) {
+                m_ic[n] = ic[n];
+                m_order[n] = order[n];
+                m_stoich[n] = stoich[n];
+            }
+        }
 
-    int data(vector<int>& ic) {
-      ic.resize(m_n);
-      int n;
-      for (n = 0; n < m_n; n++) ic[n] = m_ic[n];
-      return m_rxn;
-    }
+        int data(vector<int>& ic) {
+            ic.resize(m_n);
+            int n;
+            for (n = 0; n < m_n; n++) ic[n] = m_ic[n];
+            return m_rxn;
+        }
+        
+        //void power(const doublereal* input, doublereal* output) const {
+        //    for (int n = 0; n < m_n; n++) output[m_rxn] 
+        //        *= ppow(input[m_ic[n]],m_order[n]); 
+        //}
 
-      void power(const doublereal* input, doublereal* output) const {
-          for (int n = 0; n < m_n; n++) output[m_rxn] 
-              *= ppow(input[m_ic[n]],m_order[n]); 
-      }
+        void multiply(const doublereal* input, doublereal* output) const {
+            for (int n = 0; n < m_n; n++) output[m_rxn] *= 
+                ppow(input[m_ic[n]],m_order[n]); //input[m_ic[n]]; 
+        }
 
-      void multiply(const doublereal* input, doublereal* output) const {
-          for (int n = 0; n < m_n; n++) output[m_rxn] *= input[m_ic[n]]; 
-      }
+        void incrementSpecies(const doublereal* input, 
+            doublereal* output) const {
+            doublereal x = input[m_rxn];
+            for (int n = 0; n < m_n; n++) output[m_ic[n]] += m_stoich[n]*x;
+        }
 
-      void incrementSpecies(const doublereal* input, 
-			  doublereal* output) const {
-          doublereal x = input[m_rxn];
-          for (int n = 0; n < m_n; n++) output[m_ic[n]] += m_stoich[n]*x;
-      }
+        void decrementSpecies(const doublereal* input, 
+            doublereal* output) const {
+            doublereal x = input[m_rxn];
+            for (int n = 0; n < m_n; n++) output[m_ic[n]] -= m_stoich[n]*x;
+        }
 
-    void decrementSpecies(const doublereal* input, 
-			  doublereal* output) const {
-      doublereal x = input[m_rxn];
-      for (int n = 0; n < m_n; n++) output[m_ic[n]] -= m_stoich[n]*x;
-    }
+        /**
+         * Increment R[I] by the sum of N specified elements of array S.
+         */
+        void incrementReaction(const doublereal* input, 
+            doublereal* output) const { 
+            for (int n = 0; n < m_n; n++) output[m_rxn] 
+                += m_stoich[n]*input[m_ic[n]];
+        }
 
-      /**
-       * Increment R[I] by the sum of N specified elements of array S.
-       */
-      void incrementReaction(const doublereal* input, 
-          doublereal* output) const { 
-          for (int n = 0; n < m_n; n++) output[m_rxn] += m_stoich[n]*input[m_ic[n]];
-      }
+        /**
+         * Decrement R[I] by the sum of N specified elements of array S.
+         */
+        void decrementReaction(const doublereal* input, 
+            doublereal* output) const { 
+            for (int n = 0; n < m_n; n++) output[m_rxn] 
+                -= m_stoich[n]*input[m_ic[n]];
+        }
 
-      /**
-       * Decrement R[I] by the sum of N specified elements of array S.
-       */
-      void decrementReaction(const doublereal* input, 
-          doublereal* output) const { 
-          for (int n = 0; n < m_n; n++) output[m_rxn] -= m_stoich[n]*input[m_ic[n]];
-      }
+    private:
+        int m_n, m_rxn;
+        vector_int m_ic;
+        vector_fp m_order;
+        vector_fp m_stoich;
+    };
+    
 
-  private:
-    int m_n, m_rxn;
-    vector_int m_ic;
-    vector_fp m_order;
-      vector_fp m_stoich;
-  };
-
-
-  template<class _InputIter, class Vec1, class Vec2>
+    template<class _InputIter, class Vec1, class Vec2>
     inline static void _multiply(_InputIter __begin, _InputIter __end, 
-				 const Vec1& input, Vec2& output) {
-    for (; __begin != __end; ++__begin) 
-      __begin->multiply(input, output);
-  }
-  template<class _InputIter, class Vec1, class Vec2>
-    inline static void _power(_InputIter __begin, _InputIter __end, 
-			      const Vec1& input, Vec2& output) {
-    for (; __begin != __end; ++__begin) 
-      __begin->power(input, output);
-  }
-  template<class _InputIter, class Vec1, class Vec2>
+        const Vec1& input, Vec2& output) {
+        for (; __begin != __end; ++__begin) 
+            __begin->multiply(input, output);
+    }
+
+    //template<class _InputIter, class Vec1, class Vec2>
+    //inline static void _power(_InputIter __begin, _InputIter __end, 
+    //			      const Vec1& input, Vec2& output) {
+    //for (; __begin != __end; ++__begin) 
+    //  __begin->power(input, output);
+    //}
+
+    template<class _InputIter, class Vec1, class Vec2>
     inline static void _incrementSpecies(_InputIter __begin, 
-					 _InputIter __end, const Vec1& input, Vec2& output) {
-    for (; __begin != __end; ++__begin) 
-      __begin->incrementSpecies(input, output);
-  }
-  template<class _InputIter, class Vec1, class Vec2>
+        _InputIter __end, const Vec1& input, Vec2& output) {
+        for (; __begin != __end; ++__begin) 
+            __begin->incrementSpecies(input, output);
+    }
+
+    template<class _InputIter, class Vec1, class Vec2>
     inline static void _decrementSpecies(_InputIter __begin, 
-					 _InputIter __end, const Vec1& input, Vec2& output) {
-    for (; __begin != __end; ++__begin) 
-      __begin->decrementSpecies(input, output);
-  }
-  template<class _InputIter, class Vec1, class Vec2>
+        _InputIter __end, const Vec1& input, Vec2& output) {
+        for (; __begin != __end; ++__begin) 
+            __begin->decrementSpecies(input, output);
+    }
+
+    template<class _InputIter, class Vec1, class Vec2>
     inline static void _incrementReactions(_InputIter __begin, 
-					   _InputIter __end, const Vec1& input, Vec2& output) {
-    for (; __begin != __end; ++__begin) 
-      __begin->incrementReaction(input, output);
-  }
-  template<class _InputIter, class Vec1, class Vec2>
+        _InputIter __end, const Vec1& input, Vec2& output) {
+        for (; __begin != __end; ++__begin) 
+            __begin->incrementReaction(input, output);
+    }
+
+    template<class _InputIter, class Vec1, class Vec2>
     inline static void _decrementReactions(_InputIter __begin, 
-					   _InputIter __end, const Vec1& input, Vec2& output) {
-    for (; __begin != __end; ++__begin) 
-      __begin->decrementReaction(input, output);
-  }
+        _InputIter __end, const Vec1& input, Vec2& output) {
+        for (; __begin != __end; ++__begin) 
+            __begin->decrementReaction(input, output);
+    }
 
 
     /*
@@ -508,11 +507,11 @@ namespace Cantera {
               switch (k.size()) {
               case 1:
                   m_loc[rxn] = static_cast<int>(m_c1_list.size());
-                  m_c1_list.push_back(C1(rxn, k[0], order[0])); 
+                  m_c1_list.push_back(C1(rxn, k[0])); 
                   break; 
               case 2:
                   m_loc[rxn] = static_cast<int>(m_c2_list.size());  
-                  m_c2_list.push_back(C2(rxn, k[0], k[1], order[0], order[1])); 
+                  m_c2_list.push_back(C2(rxn, k[0], k[1])); 
                   break; 
               case 3:
                   m_loc[rxn] = static_cast<int>(m_c3_list.size());  
@@ -533,12 +532,12 @@ namespace Cantera {
       _multiply(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
-    void power(const doublereal* input, doublereal* output) const {
-      _power(m_c1_list.begin(), m_c1_list.end(), input, output);
-      _power(m_c2_list.begin(), m_c2_list.end(), input, output);
-      _power(m_c3_list.begin(), m_c3_list.end(), input, output);
-      _power(m_cn_list.begin(), m_cn_list.end(), input, output);
-    }
+      //void power(const doublereal* input, doublereal* output) const {
+      //_power(m_c1_list.begin(), m_c1_list.end(), input, output);
+      //_power(m_c2_list.begin(), m_c2_list.end(), input, output);
+      //_power(m_c3_list.begin(), m_c3_list.end(), input, output);
+      //_power(m_cn_list.begin(), m_cn_list.end(), input, output);
+      //}
     
     void incrementSpecies(const doublereal* input, doublereal* output) const {
       _incrementSpecies(m_c1_list.begin(), m_c1_list.end(), input, output);

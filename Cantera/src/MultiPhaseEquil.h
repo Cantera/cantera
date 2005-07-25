@@ -6,6 +6,28 @@
 
 namespace Cantera {
 
+    /**
+     * Multiphase chemical equilibrium solver.  Class MultiPhaseEquil
+     * is designed to be used to set a mixture containing one or more
+     * phases to a state of chemical equilibrium.  It implements the
+     * VCS algorithm, described in Smith and Missen, "Chemical
+     * Reaction Equilibrium." 
+     * 
+     * This class only handles chemical equilibrium at a specified
+     * temperature and pressure. To compute equilibrium holding other
+     * properties fixed, it is necessary to iterate on T and P in an
+     * "outer" loop, until the specified properties have the desired
+     * values. This is done, for example, in method equilibrate of
+     * class MultiPhase.
+     *
+     * This class is primarily meant to be used internally by the
+     * equilibrate method of class MultiPhase, although there is no
+     * reason it cannot be used directly in application programs if
+     * desired.
+     *
+     * @ingroup equil
+     */
+
     class MultiPhaseEquil {
 
     public:

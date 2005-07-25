@@ -225,10 +225,12 @@ else
 endif
 
 example_codes:
-	(cd examples/cxx; @MAKE@)
+	(cd examples/cxx; @MAKE@ clean; @MAKE@)
+	(cd Cantera/cxx/demos; @MAKE@ clean)
 	(cd Cantera/cxx; @MAKE@)
 
 test: example_codes datafiles
+	cd test_problems; @MAKE@ clean
 	cd test_problems; @MAKE@ all
 	cd test_problems; @MAKE@ test
 

@@ -519,13 +519,17 @@ namespace Cantera {
             err("reactantStoichCoeff");
             return -1.0;
         }
-
         /**
          * Stoichiometric coefficient of species k as a product in
          * reaction i.  
          */
         virtual doublereal productStoichCoeff(int k, int i) const { 
             err("productStoichCoeff");
+            return -1.0;
+        }
+
+        virtual doublereal reactantOrder(int k, int i) const {
+            err("reactantOrder");
             return -1.0;
         }
 

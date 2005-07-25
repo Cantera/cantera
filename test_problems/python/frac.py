@@ -3,7 +3,7 @@
 
 from Cantera import *
 gas = importPhase('frac.cti')
-gas.set(T = 2000, P = OneAtm, X = 'H2O:1.0, OH:0.1')
+gas.set(T = 2000, P = OneAtm, X = 'H2O:1.0, OH:0.1, H:0.2, O2:0.3')
 fwd_rop = gas.fwdRatesOfProgress()
 
 cdot = gas.creationRates()
@@ -22,6 +22,23 @@ for k in range(nsp):
                                      cdot[k], cdot[k]/fwd_rop[0])
 
 # print the arrays of reactant and product stoichiometric coefficients
+
+x = gas.moleFractions()
+c = gas.molarDensity() * x
+
+ih2, ih, io, io2, ioh, ih2o = gas.speciesIndex(['H2','H','O','O2','OH','H2O'])
+
+#rxn 2 orders
+order_H = 0.8
+order_OH = 2.0
+order_O2 = 1.0
+
+kf = gas.fwdRateConstants()
+
+cproduct = pow(c[ih],order_H) * pow(c[ioh], order_OH) * pow(c[io2], order_O2)
+print fwd_rop[1], cproduct*kf[1]
+
+
 print gas.reactantStoichCoeffs()
 print gas.productStoichCoeffs()
 

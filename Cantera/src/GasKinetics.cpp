@@ -556,7 +556,8 @@ namespace Cantera {
         int nr = r.reactants.size();
         for (n = 0; n < nr; n++) {
             ns = r.rstoich[n];
-            if (ns != 0) m_rrxn[r.reactants[n]][rnum] += ns;
+            if (r.rstoich[n] != 0.0) 
+                m_rrxn[r.reactants[n]][rnum] += r.rstoich[n];
             for (m = 0; m < ns; m++) {
                 rk.push_back(r.reactants[n]);
             }
@@ -567,7 +568,8 @@ namespace Cantera {
         int np = r.products.size();
         for (n = 0; n < np; n++) {
             ns = r.pstoich[n];
-            if (r.pstoich[n] != 0.0) m_prxn[r.products[n]][rnum] += r.pstoich[n];
+            if (r.pstoich[n] != 0.0) 
+                m_prxn[r.products[n]][rnum] += r.pstoich[n];
             for (m = 0; m < ns; m++) {
                 pk.push_back(r.products[n]);
             }

@@ -66,7 +66,12 @@ namespace Cantera {
     class PropertyCalculator;
 
     /**
-     * Class ChemEquil implements a chemical equilibrium solver for
+     * @defgroup equil Chemical Equilibrium
+     * 
+     */
+
+    /**
+     *  Class ChemEquil implements a chemical equilibrium solver for
      *  single-phase solutions. It is a "non-stoichiometric" solver in
      *  the terminology of Smith and Missen, meaning that every
      *  intermediate state is a valid chemical equilibrium state, but
@@ -86,6 +91,7 @@ namespace Cantera {
      *  compositions (e.g. 2 H2 + O2). In general, if speed is
      *  important, this solver should be tried first, and if it fails
      *  then use MultiPhaseEquil.
+     * @ingroup equil
       */
     class ChemEquil {
 

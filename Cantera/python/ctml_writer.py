@@ -358,8 +358,8 @@ def getReactionSpecies(s):
         # try to convert the token to a number. 
         try:
             n = float(t)
-            if n <= 0.0:
-                raise CTI_Error("zero or negative stoichiometric coefficient:"
+            if n < 0.0:
+                raise CTI_Error("negative stoichiometric coefficient:"
                                 +s)
             
         #if t > '0' and t < '9':
