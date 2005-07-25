@@ -6,7 +6,10 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.16  2005-01-07 10:26:43  dggoodwin
+// Revision 1.17  2005-07-25 03:51:21  dggoodwin
+// now recognizes the FORD keyword
+//
+// Revision 1.16  2005/01/07 10:26:43  dggoodwin
 // merged changes from branch
 //
 // Revision 1.15.2.2  2004/12/18 15:16:13  dggoodwin
@@ -93,19 +96,36 @@ namespace ckr {
 
     extern void getDefaultAtomicWeights(map<string,double>& weights);
 
+    static string d2e(string s) {
+        size_t n;
+        size_t sz = s.size();
+        string r = s;
+        char ch;
+        for (n = 0; n < sz; n++) {
+            ch = s[n];
+            if (ch == 'D') r[n] = 'E';
+            else if (ch == 'd') r[n] = 'e';
+        }
+        return r;
+    }
+
+    static double de_atof(string s) {
+        string r = d2e(s);
+        return atof(r.c_str());
+    }
+
     static double getNumberFromString(string s) {
         bool inexp = false;
         removeWhiteSpace(s);
         int sz = static_cast<int>(s.size());
-
         char ch;
         for (int n = 0; n < sz; n++) {
             ch = s[n];
-            if (!inexp && (ch == 'E' || ch == 'e' || ch == 'd')) 
+            if (!inexp && (ch == 'E' || ch == 'e' || ch == 'D' || ch == 'd')) 
                 inexp = true;
             else if (ch == '+' || ch == '-') {
                 if (n > 0 && (s[n-1] != 'E' && s[n-1] 
-                        != 'e' && s[n-1] != 'd')) {
+                        != 'e' && s[n-1] != 'd' && s[n-1] != 'D')) {
                     return UNDEF;
                 }
             }
@@ -113,7 +133,7 @@ namespace ckr {
                 return UNDEF;
             }
         }
-        return atof(s.c_str());
+        return de_atof(s);
     }
 
     /**
@@ -159,6 +179,60 @@ namespace ckr {
         //}
     }
 
+    static void getSpecies(string s, 
+        int n, vector<RxnSpecies>& species, bool debug, ostream& log) {
+        removeWhiteSpace(s);
+        // break string into substrings at the '+' characters separating
+        // species symbols
+        int i, nn;
+        bool inplus = true;
+        vector<int> pluses;
+        vector<string> sp;
+        for (i = n-1; i >= 0; i--) {
+            if (!inplus && s[i] == '+') {
+                pluses.push_back(i);
+                inplus = true;
+            }
+            else if (inplus && s[i] != '+') {
+                inplus = false;
+            }
+        }
+        pluses.push_back(-1);
+        int np = pluses.size();
+        int loc, nxt;
+        for (nn = 0; nn < np; nn++) {
+            loc = pluses.back();
+            pluses.pop_back();
+            if (nn == np-1) nxt = s.size();
+            else nxt = pluses.back();
+            sp.push_back(s.substr(loc+1,nxt-loc-1));
+        }
+
+        int ns = sp.size();
+        string r, num;
+        int sz, j, strt=0;
+        RxnSpecies ss;
+        for (nn = 0; nn < ns; nn++) {
+            r = sp[nn];
+            sz = r.size();
+            for (j = 0; j < sz; j++) {
+                if (!((r[j] >= '0' && r[j] <= '9') || r[j] == '.')) {
+                    strt = j;
+                    break;
+                }
+            }
+            ss.name = r.substr(strt,sz); 
+            if (strt == 0)
+                ss.number = 1.0;
+            else
+                ss.number = atof(r.substr(0,strt).c_str());
+            species.push_back(ss);
+            if (debug) {
+                log << ss.number << "  " << ss.name << endl;
+            }
+        }
+    }
+
 
     /**
      *  given a string specifying either the reactant or product side of a
@@ -166,7 +240,7 @@ namespace ckr {
      *  containing the species symbols and stoichiometric coefficients.
      *  @todo allow non-integral stoichiometric coefficients
      */
-    static void getSpecies(string s, 
+    static void getSpecies_old(string s, 
         int n, vector<RxnSpecies>& species, bool debug, ostream& log) 
     {
         char* begin = new char[n+1];
@@ -180,14 +254,24 @@ namespace ckr {
         vector<string> syms;
         vector_fp coeffs;
         for (; p != end; p++) {
+
+            // if the previous character was a '+' but this one is not,
+            // then the '+' must be a '+' between species names, not part
+            // of a name (e.g. O++). Replace it with a space.
             if (*p != '+' && inplus) {
                 if (p > begin) *(p - 1) = ' ';
+
+                // if the current character is a number, it must be a
+                // coefficient.
                 if (m = atof(p), m > 0) {
                     *p = ' ';
                     coeffs.push_back(m);
                 }
+                // otherwise, the coefficient is 1.0
                 else
                     coeffs.push_back(1.0);
+
+                // we're not processing a '+' string
                 inplus = false;
             }
             else if (*p == '+')
@@ -433,7 +517,7 @@ next:
                             el.comment = comment;
                             el.index = static_cast<int>(elements.size());
                             if (extractSlashData(toks[i], el.name, wtstr)) {
-                                el.atomicWeight = atof(wtstr.c_str());
+                                el.atomicWeight = de_atof(wtstr);
                                 el.weightFromDB = false;
                             }
                             else {
@@ -597,9 +681,9 @@ next:
             getCKLine(s, comment);
             getTokens(s, static_cast<int>(s.size()), toks);
             if (toks.size() >= 3) {
-                tmin = atof(toks[0].c_str());
-                tmid = atof(toks[1].c_str());
-                tmax = atof(toks[2].c_str());
+                tmin = de_atof(toks[0]);
+                tmid = de_atof(toks[1]);
+                tmax = de_atof(toks[2]);
             }
         
             if (verbose) {
@@ -735,7 +819,7 @@ next:
 	      else elementSym = s.substr(iloc,1);
 	    }
             else if (s[iloc+1] != ' ') elementSym = s.substr(iloc+1,1);
-            atoms = atof(s.substr(iloc+2,3).c_str());
+            atoms = de_atof(s.substr(iloc+2,3));
             addElement(elementSym, atoms, sp, *m_log);
         }
 
@@ -743,18 +827,30 @@ next:
         sp.phase = s[44];
 
         // low, high, and mid temperatures
-        sp.tlow = atof(s.substr(45,10).c_str());
-        sp.thigh = atof(s.substr(55,10).c_str());
+        sp.tlow = de_atof(s.substr(45,10));
+        sp.thigh = de_atof(s.substr(55,10));
 
         if (!m_nasafmt) {
-            sp.tmid = atof(s.substr(65,8).c_str());
+            sp.tmid = de_atof(s.substr(65,8));
 
             // fifth element, if any
             elementSym = "";
             if (s[73] != ' ') elementSym += s[73];
             if (s[74] != ' ') elementSym += s[74];
-            atoms = atof(s.substr(75,3).c_str());
+            atoms = de_atof(s.substr(75,3));
             addElement(elementSym, atoms, sp, *m_log);
+
+            // additional elements, if any
+            elementSym = "";
+            int loc = 80;
+            while (loc < s.size()-9) {
+                elementSym = "";
+                if (s[loc] != ' ') elementSym += s[loc];
+                if (s[loc+1] != ' ') elementSym += s[loc+1];
+                atoms = de_atof(s.substr(loc+2,8));
+                addElement(elementSym, atoms, sp, *m_log);
+                loc += 10;
+            }
         }
 
         //-------------- line 2 ----------------------------
@@ -857,6 +953,8 @@ next:
         }
     
         Reaction rxn;
+        cout << "new rxn, fwdOrder size = " << rxn.fwdOrder.size() << endl;
+
         vector<string> cm;
         bool ok = true;
  
@@ -1072,9 +1170,9 @@ next:
                     throw CK_SyntaxError(*m_log, 
                         "expected 3 Arrhenius parameters", m_line);
                 }
-                rxn.kf.A = atof(toks[ntoks - 3].c_str());
-                rxn.kf.n = atof(toks[ntoks - 2].c_str());
-                rxn.kf.E = atof(toks[ntoks - 1].c_str());
+                rxn.kf.A = de_atof(toks[ntoks - 3]);
+                rxn.kf.n = de_atof(toks[ntoks - 2]);
+                rxn.kf.E = de_atof(toks[ntoks - 1]);
 
                 // 2/10/03: allow negative prefactor but print a warning
                 if (rxn.kf.A < 0.0) 
@@ -1189,9 +1287,9 @@ next:
                                 throw CK_SyntaxError(*m_log, 
                                     "expected 3 low-pressure Arrhenius parameters", m_line);
                             }
-                            rxn.kf_aux.A = atof(klow[0].c_str());
-                            rxn.kf_aux.n = atof(klow[1].c_str());
-                            rxn.kf_aux.E = atof(klow[2].c_str());
+                            rxn.kf_aux.A = de_atof(klow[0]);
+                            rxn.kf_aux.n = de_atof(klow[1]);
+                            rxn.kf_aux.E = de_atof(klow[2]);
                         }
                         else 
                             missingAuxData("LOW");
@@ -1214,7 +1312,7 @@ next:
                             double ff;
                             rxn.falloffType = Troe;
                             for (int jf = 0; jf < nf; jf++) {
-                                ff = atof(falloff[jf].c_str());
+                                ff = de_atof(falloff[jf]);
                                 rxn.falloffParameters.push_back(ff);
                             }
                         }
@@ -1234,7 +1332,7 @@ next:
                             rxn.falloffType = SRI;
                             double ff;
                             for (int jf = 0; jf < nf; jf++) {
-                                ff = atof(falloff[jf].c_str());
+                                ff = de_atof(falloff[jf]);
                                 rxn.falloffParameters.push_back(ff);
                             }
                         }
@@ -1258,9 +1356,9 @@ next:
                                 throw CK_SyntaxError(*m_log, 
                                     "expected 3 Arrhenius parameters", m_line);
                             }                            
-                            rxn.krev.A = atof(krev[0].c_str());
-                            rxn.krev.n = atof(krev[1].c_str());
-                            rxn.krev.E = atof(krev[2].c_str());
+                            rxn.krev.A = de_atof(krev[0]);
+                            rxn.krev.n = de_atof(krev[1]);
+                            rxn.krev.E = de_atof(krev[2]);
                         }
                         else 
                             missingAuxData("REV");
@@ -1284,8 +1382,8 @@ next:
                         rxn.kf.type = LandauTeller;
                         if (hasAuxData) {
                             getTokens(data, static_cast<int>(data.size()), bc);
-                            rxn.kf.B = atof(bc[0].c_str());
-                            rxn.kf.C = atof(bc[1].c_str());
+                            rxn.kf.B = de_atof(bc[0]);
+                            rxn.kf.C = de_atof(bc[1]);
                         }
                         else 
                             missingAuxData("LT");
@@ -1296,8 +1394,8 @@ next:
                         rxn.krev.type = LandauTeller;
                         if (hasAuxData) {
                             getTokens(data, static_cast<int>(data.size()), bc);
-                            rxn.krev.B = atof(bc[0].c_str());
-                            rxn.krev.C = atof(bc[1].c_str());
+                            rxn.krev.B = de_atof(bc[0]);
+                            rxn.krev.C = de_atof(bc[1]);
                         }
                         else 
                             missingAuxData("RLT");
@@ -1310,19 +1408,30 @@ next:
                         rxn.type = ChemAct;
                         if (hasAuxData) {
                             getTokens(data, static_cast<int>(data.size()), khigh);
-                            rxn.kf_aux.A = atof(khigh[0].c_str());
-                            rxn.kf_aux.n = atof(khigh[1].c_str());
-                            rxn.kf_aux.E = atof(khigh[2].c_str());
+                            rxn.kf_aux.A = de_atof(khigh[0]);
+                            rxn.kf_aux.n = de_atof(khigh[1]);
+                            rxn.kf_aux.E = de_atof(khigh[2]);
                         }
                         else 
                             missingAuxData("HIGH");
+                    }
+
+                    else if (match(name,"FORD")) {
+                        vector<string> nmord;
+                        if (hasAuxData) {
+                            getTokens(data, static_cast<int>(data.size()), 
+                                nmord);
+                            rxn.fwdOrder[nmord[0]] = de_atof(nmord[1]);
+                        }
+                        else
+                            missingAuxData("FORD");
                     }
 
                     else if (find(speciesNames.begin(), speciesNames.end(), name) 
                         < speciesNames.end()) {
                         if (hasAuxData) {
                             if (rxn.thirdBody == name || rxn.thirdBody == "M")
-                                rxn.e3b[name] = atof(data.c_str());
+                                rxn.e3b[name] = de_atof(data);
                             else if (rxn.thirdBody == "<none>") {
                                 *m_log << "Error in reaction " << nRxns 
                                        << ": third-body collision efficiencies cannot be specified"
@@ -1347,7 +1456,7 @@ next:
                         getTokens(data, static_cast<int>(data.size()), toks);
                         int ntoks = static_cast<int>(toks.size());
                         for (int itok = 0; itok < ntoks; itok++) {
-                            vals.push_back(atof(toks[itok].c_str()));
+                            vals.push_back(de_atof(toks[itok]));
                         }
                         rxn.otherAuxData[name] = vals;
                     }
