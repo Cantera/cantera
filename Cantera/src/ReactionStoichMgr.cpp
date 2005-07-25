@@ -32,8 +32,8 @@ namespace Cantera {
     m_reactants = new StoichManagerN;
     m_revproducts = new StoichManagerN;
     m_irrevproducts = new StoichManagerN;
-    m_global = new StoichManagerN;
-    
+    //m_global = new StoichManagerN;
+    m_dummy.resize(10,1.0);
   }
 
   // delete the three stoichiometry managers
@@ -41,7 +41,7 @@ namespace Cantera {
     delete m_reactants;
     delete m_revproducts;
     delete m_irrevproducts;
-    delete m_global;
+    //    delete m_global;
   }
 
 
@@ -63,23 +63,29 @@ namespace Cantera {
 
         vector_int rk;
         doublereal frac;
+        bool isfrac = false;
         int n, ns, m, nr = r.reactants.size();
         for (n = 0; n < nr; n++) {
             ns = int(r.rstoich[n]);
             frac = r.rstoich[n] - 1.0*int(r.rstoich[n]);
-            if (frac != 0.0) {
-                throw CanteraError("ReactionStoichMgr::add",
-                    "fractional reactant stoichiometric coefficient not allowed!");
-            }
+            if (frac != 0.0) isfrac = true;
             for (m = 0; m < ns; m++) {
                 rk.push_back(r.reactants[n]);
             }
         }
 
-        m_reactants->add( rxn, rk);
-        
+        // if the reaction has fractional stoichiometric coefficients
+        // or specified reaction orders, then add it in a ma 
+        if (isfrac || r.global || rk.size() > 3) {
+            m_reactants->add(rxn, r.reactants, r.order, r.rstoich);
+        }
+        else {
+            m_reactants->add( rxn, rk);
+        }
+
+
         vector_int pk;
-        bool isfrac = false;
+        isfrac = false;
         int np = r.products.size();
         for (n = 0; n < np; n++) {
             ns = int(r.pstoich[n]);
@@ -90,36 +96,24 @@ namespace Cantera {
             }
         }
 
-        if (isfrac) {            
-            if (r.reversible) {
+        if (r.reversible) {
+            if (isfrac) {
                 throw CanteraError("ReactionStoichMgr::add",
                     "fractional product stoichiometric coefficients only allowed "
                     "\nfor irreversible reactions");
             }
-            else {            
-                cout << "adding fractional reaction" << endl;
-                m_irrevproducts->add(rxn, r.products, r.order, r.pstoich);
+            if (pk.size() > 3) {
+                m_revproducts->add(rxn, r.products, m_dummy, r.pstoich);
+            }
+            else {
+                m_revproducts->add(rxn, pk);
             }
         }
-        else if (r.reversible) {
-            m_revproducts->add(rxn, pk);
+        else if (isfrac || pk.size() > 3) {            
+            m_irrevproducts->add(rxn, r.products, m_dummy, r.pstoich);
         }
         else {   
             m_irrevproducts->add(rxn, pk);
-        }
-
-        // if the reaction is a global one, then add it to the global
-        // stoichiometry manager. The reaction was added to
-        // m_reactants above, but this will compute the rate using
-        // stoichiometric coefficients. The global stoich manager then
-        // corrects this, using orders that are the difference between
-        // the true order and the reactant stoichiometric coefficient.
-        if (r.global) {
-            vector_fp delta_order(nr,0.0);
-            for (n = 0; n < nr; n++) {
-                delta_order[n] = r.order[n] - r.rstoich[n];
-            }
-            m_global->add(rxn, r.reactants, delta_order);
         }
   }
 
@@ -170,7 +164,6 @@ namespace Cantera {
     void ReactionStoichMgr::
     multiplyReactants(const doublereal* c, doublereal* r) {
         m_reactants->multiply(c, r);
-        m_global->power(c, r);
     }
 
     void ReactionStoichMgr::
