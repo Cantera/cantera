@@ -16,14 +16,9 @@
 #include "SurfPhase.h"
 
 #include "ReactionData.h"
-//#include "StoichManager.h"
 #include "RateCoeffMgr.h"
 
 #include "ImplicitSurfChem.h"
-
-//#include <iostream>
-//using namespace std;
-
 
 namespace Cantera {
 
@@ -138,7 +133,7 @@ namespace Cantera {
         vector_fp& m_rkc = m_kdata->m_rkcn;
         fill(m_rkc.begin(), m_rkc.end(), 0.0);
 
-        static vector_fp mu(nTotalSpecies());
+        //static vector_fp mu(nTotalSpecies());
         if (m_nrev > 0) {
 
             int n, nsp, k, ik=0;
@@ -608,7 +603,7 @@ namespace Cantera {
 
         // operations common to all reaction types
         installReagents( r );
-        installGroups(reactionNumber(), r.rgroups, r.pgroups);
+        //installGroups(reactionNumber(), r.rgroups, r.pgroups);
         incrementRxnCount();
         m_rxneqn.push_back(r.equation);
     }
@@ -749,13 +744,13 @@ namespace Cantera {
     }
 
 
-    void InterfaceKinetics::installGroups(int irxn, 
-        const vector<grouplist_t>& r, const vector<grouplist_t>& p) {
-        if (!r.empty()) {
-            m_rgroups[reactionNumber()] = r;
-            m_pgroups[reactionNumber()] = p;
-        }
-    }
+    //void InterfaceKinetics::installGroups(int irxn, 
+    //    const vector<grouplist_t>& r, const vector<grouplist_t>& p) {
+    //    if (!r.empty()) {
+    //        m_rgroups[reactionNumber()] = r;
+    //        m_pgroups[reactionNumber()] = p;
+    //    }
+    //}
 
     /**
      * Prepare the class for the addition of reactions. This function

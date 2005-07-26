@@ -276,11 +276,8 @@ namespace pip {
         }
     
         // reaction orders
-        cout << "checking for rxn orders..." << endl;
         int nord = static_cast<int>(rxn.fwdOrder.size());
-        cout << nord << endl;
         if (nord > 0) {
-            cout << "processing order..." << endl;
             map<string, double>::const_iterator b = rxn.fwdOrder.begin(), 
                                                 e = rxn.fwdOrder.end();
             string estr = "";

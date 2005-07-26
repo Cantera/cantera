@@ -121,36 +121,43 @@ namespace Cantera {
   getCreationRates(int nsp, const doublereal* ropf, 
       const doublereal* ropr, doublereal* c) {
       // zero out the output array
-    fill(c, c + nsp, 0.0);
+      fill(c, c + nsp, 0.0);
     
-    m_revproducts->incrementSpecies(ropf, c);
-    m_irrevproducts->incrementSpecies(ropf, c);
+      // the forward direction creates product species
+      m_revproducts->incrementSpecies(ropf, c);
+      m_irrevproducts->incrementSpecies(ropf, c);
 
-    // the reverse direction creates reactant species
-    m_reactants->incrementSpecies(ropr, c);
+      // the reverse direction creates reactant species
+      m_reactants->incrementSpecies(ropr, c);
   }
 
     void ReactionStoichMgr::
     getDestructionRates(int nsp, const doublereal* ropf, 
         const doublereal* ropr, doublereal* d) {
         fill(d, d + nsp, 0.0);
+        // the reverse direction destroys products in reversible reactions
         m_revproducts->incrementSpecies(ropr, d);
+        // the forward direction destroys reactants
         m_reactants->incrementSpecies(ropf, d);
     }
 
     void ReactionStoichMgr::
     getNetProductionRates(int nsp, const doublereal* ropnet, doublereal* w) {
         fill(w, w + nsp, 0.0);
+        // products are created for positive net rate of progress
         m_revproducts->incrementSpecies(ropnet, w);
         m_irrevproducts->incrementSpecies(ropnet, w);
+        // reactants are destroyed for positive net rate of progress
         m_reactants->decrementSpecies(ropnet, w);
     }
 
     void ReactionStoichMgr::
     getReactionDelta(int nr, const doublereal* g, doublereal* dg) {
         fill(dg, dg + nr, 0.0);
+        // products add 
         m_revproducts->incrementReactions(g, dg);
         m_irrevproducts->incrementReactions(g, dg);
+        // reactants subtract
         m_reactants->decrementReactions(g, dg);
     }
 

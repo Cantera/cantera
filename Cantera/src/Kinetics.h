@@ -668,12 +668,12 @@ namespace Cantera {
 	}
 
         virtual const vector<grouplist_t>& reactantGroups(int i) { 
-	    err("reactantGroups"); 
+	    //err("reactantGroups"); 
 	    return m_dummygroups;
 	}
 
         virtual const vector<grouplist_t>& productGroups(int i) {
-	    err("productGroups"); 
+	    //err("productGroups"); 
 	    return m_dummygroups;
 	}
 

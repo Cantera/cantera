@@ -6,7 +6,10 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.17  2005-07-25 03:51:21  dggoodwin
+// Revision 1.18  2005-07-26 03:56:35  dggoodwin
+// cleanup
+//
+// Revision 1.17  2005/07/25 03:51:21  dggoodwin
 // now recognizes the FORD keyword
 //
 // Revision 1.16  2005/01/07 10:26:43  dggoodwin
@@ -953,7 +956,6 @@ next:
         }
     
         Reaction rxn;
-        cout << "new rxn, fwdOrder size = " << rxn.fwdOrder.size() << endl;
 
         vector<string> cm;
         bool ok = true;

@@ -60,6 +60,7 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // OS X, This used to add some Mac-specific directories to the default
 // data file search path.
 #define DARWIN 0
+#define HAS_SSTREAM
 /* #undef HAS_SSTREAM */
 
 // Identify whether the operating system is cygwin's overlay of

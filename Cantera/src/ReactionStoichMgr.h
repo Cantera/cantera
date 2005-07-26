@@ -224,7 +224,6 @@ namespace Cantera {
       StoichManagerN*  m_reactants;      
       StoichManagerN*  m_revproducts;
       StoichManagerN*  m_irrevproducts;
-      //      StoichManagerN*  m_global;
       vector_fp m_dummy;
   };
 }

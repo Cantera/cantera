@@ -48,7 +48,7 @@ namespace Cantera {
 
         doublereal m_logp0, m_logc0;
         array_fp m_ropf, m_ropr, m_ropnet;
-        array_fp m_rfn_low, m_rfn_high;
+        //array_fp m_rfn_low, m_rfn_high;
         bool m_ROP_ok;
 
         doublereal m_temp, m_logtemp;
@@ -311,10 +311,10 @@ namespace Cantera {
         void updateROP();
 
 
-        const vector<grouplist_t>& reactantGroups(int i)
-            { return m_rgroups[i]; }
-        const vector<grouplist_t>& productGroups(int i)
-            { return m_pgroups[i]; }
+        //const vector<grouplist_t>& reactantGroups(int i)
+        //    { return m_rgroups[i]; }
+        //const vector<grouplist_t>& productGroups(int i)
+        //    { return m_pgroups[i]; }
 
         void _update_rates_T();
         void _update_rates_phi();
@@ -325,6 +325,7 @@ namespace Cantera {
         vector_fp m_grt;
 
     protected:
+
 	/**
 	 * m_kk here is the number of species in all of the phases
 	 * that participate in the kinetics mechanism.
@@ -361,8 +362,8 @@ namespace Cantera {
 	 */
         int m_nrev;
 
-        map<int, vector<grouplist_t> >      m_rgroups;
-        map<int, vector<grouplist_t> >      m_pgroups;
+        //        map<int, vector<grouplist_t> >      m_rgroups;
+        //map<int, vector<grouplist_t> >      m_pgroups;
 
         vector<int>                         m_rxntype;
 
@@ -426,8 +427,8 @@ namespace Cantera {
         void addGlobalReaction(const ReactionData& r);
         void installReagents(const ReactionData& r);
 
-        void installGroups(int irxn, const vector<grouplist_t>& r,
-            const vector<grouplist_t>& p);
+        //void installGroups(int irxn, const vector<grouplist_t>& r,
+        //    const vector<grouplist_t>& p);
         void updateKc();
 
         void registerReaction(int rxnNumber, int type, int loc) {

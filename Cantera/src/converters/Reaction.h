@@ -109,7 +109,10 @@ namespace ckr {
 
 
     /// A class for reactions.
-    
+
+    // Note: if you add data items to this class, be sure to update
+    // the copy constructor and the assignment operator !
+
     class Reaction {
     public:
         
@@ -179,7 +182,6 @@ namespace ckr {
 
         /// Reaction number.
         int number;
-
         
         /** 
          * list of species that participate as reactants,

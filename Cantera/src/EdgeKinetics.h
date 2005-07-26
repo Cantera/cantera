@@ -47,7 +47,7 @@ namespace Cantera {
 
         doublereal m_logp0, m_logc0;
         array_fp m_ropf, m_ropr, m_ropnet;
-        array_fp m_rfn_low, m_rfn_high;
+        //array_fp m_rfn_low, m_rfn_high;
         bool m_ROP_ok;
 
         doublereal m_temp, m_logtemp;
