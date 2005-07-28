@@ -287,8 +287,18 @@ namespace ctml {
         return x;
     }
 
-
-    void getFloatArray(const XML_Node& node, vector_fp& v, bool convert) {
+    /*
+     * getFloatArray():
+     *
+     * Get an array of floats from the XML Node. The argument field 
+     * is assumed to consist of an arbitrary number of comma 
+     * separated floats, with an arbitrary amount of white space
+     * separating each field.
+     *    If the node array has an units attribute field, then
+     * the units are used to convert the floats, iff convert is true.
+     */
+    void getFloatArray(const XML_Node& node, vector_fp& v, bool convert,
+                       string type) {
 	string::size_type icom;
         string numstr;
         if (node.name() != "floatArray") 
@@ -299,16 +309,24 @@ namespace ctml {
         doublereal vmin = Undef, vmax = Undef;
 
         doublereal funit = 1.0;
-        if (node["units"] != "" && convert) {
-            funit = toSI(node["units"]);
-        }
+        /*
+         * Get the attributes field, units, from the XML node
+         */
+        string units = node["units"];
+        if (units != "" && convert) {
+          if (type == "actEnergy" && units != "") {
+            funit = actEnergyToSI(units);
+          } else if (type != "" && units != "") {
+            funit = toSI(units);
+	  }
+	}
 
-        if (node["min"] != "") 
-            vmin = atof(node["min"].c_str());
-        if (node["max"] != "") 
-            vmax = atof(node["max"].c_str());
+	if (node["min"] != "") 
+	    vmin = atof(node["min"].c_str());
+	if (node["max"] != "") 
+	    vmax = atof(node["max"].c_str());
 
-        doublereal vv;
+	  doublereal vv;
         string val = node.value();
         while (1 > 0) {
             icom = val.find(',');
@@ -368,22 +386,167 @@ namespace ctml {
         }
     }
 
+   /**
+     * This function interprets the value portion of an XML element
+     * as a series of "Pairs" separated by white space.
+     * Each pair consists of nonwhite-space characters.
+     * The first ":" found in the pair string is used to separate
+     * the string into two parts. The first part is called the "key"
+     * The second part is called the "val".
+     * String vectors of key[i] and val[i] are returned in the
+     * argument list.
+     * Warning: No spaces are allowed in each pair. Quotes are part
+     *          of the string.
+     *   Example
+     *    <xmlNode> 
+     *        red:112    blue:34
+     *        green:banana
+     *    </xmlNode>
+     * 
+     * Returns:
+     *          key       val
+     *     0:   "red"     "112"
+     *     1:   "blue"    "34"
+     *     2:   "green"   "banana"
+     */
     void getPairs(const XML_Node& node, vector<string>& key, 
 		  vector<string>& val) {
         vector<string> v;
         getStringArray(node, v);
         int n = static_cast<int>(v.size());
-		string::size_type icolon;
+	string::size_type icolon;
         for (int i = 0; i < n; i++) {
             icolon = v[i].find(":");
             if (icolon == string::npos) {
-                throw CanteraError("getMap","missing colon in map entry ("
+                throw CanteraError("getPairs","Missing a colon in the Pair entry ("
                     +v[i]+")");
             }
             key.push_back(v[i].substr(0,icolon));
             val.push_back(v[i].substr(icolon+1, v[i].size()));
         }
     }
+
+    /**
+     * This function interprets the value portion of an XML element
+     * as a series of "Matrix ids and entries" separated by white space.
+     * Each pair consists of nonwhite-space characters.
+     * The first two ":" found in the pair string is used to separate
+     * the string into three parts. The first part is called the first
+     * key. The second part is the second key. Both parts must match
+     * an entry in the keyString1 and keyString2, respectively,
+     * in order to provide a location to
+     * place the object in the matrix.
+     * The third part is called the value. It is expected to be 
+     * a double. It is translated into a double and placed into the
+     * correct location in the matrix.
+     *
+     * Warning: No spaces are allowed in each triplet. Quotes are part
+     *          of the string.
+     *   Example
+     *         keyString = red, blue, black, green
+     *    <xmlNode> 
+     *        red:green:112    
+     *        blue:black:3.3E-23
+     *        
+     *    </xmlNode>
+     * 
+     * Returns:
+     *     retnValues(0, 3) = 112
+     *     retnValues(1, 2) = 3.3E-23
+     */
+    void getMatrixValues(const XML_Node& node,
+			 const vector<string>& keyString1,
+			 const vector<string>& keyString2,
+			 Array2D &retnValues, bool convert,
+                         bool matrixSymmetric) {
+	int szKey1 = keyString1.size();
+	int szKey2 = keyString2.size();
+	int nrow   = retnValues.nRows();
+	int ncol   = retnValues.nColumns();
+	if (szKey1 > nrow) {
+	  throw CanteraError("getMatrixValues", 
+			     "size of key1 greater than numrows");
+	}
+	if (szKey2 > ncol) {
+	  throw CanteraError("getMatrixValues", 
+			     "size of key2 greater than num cols");
+	}
+	if (matrixSymmetric) {
+	  if (nrow != ncol) {
+	    throw CanteraError("getMatrixValues", 
+			       "nrow != ncol for a symmetric matrix");
+	  }
+	}
+
+        /*
+         * Get the attributes field, units, from the XML node
+         * and determine the conversion factor, funit.
+         */
+        doublereal funit = 1.0;
+        string units = node["units"];
+        if (units != "" && convert) {
+          funit = toSI(units);
+	}
+	
+	string key1;
+	string key2;
+	string rmm;
+	string val;
+	vector<string> v;
+        getStringArray(node, v);
+	int icol, irow;
+        int n = static_cast<int>(v.size());
+	string::size_type icolon;
+        for (int i = 0; i < n; i++) {
+            icolon = v[i].find(":");
+            if (icolon == string::npos) {
+	      throw CanteraError("getMatrixValues","Missing two colons ("
+				 +v[i]+")");
+            }
+	    key1 = v[i].substr(0,icolon);
+	    rmm = v[i].substr(icolon+1, v[i].size());
+	    icolon = rmm.find(":");
+	    if (icolon == string::npos) {
+	      throw CanteraError("getMatrixValues","Missing one colon ("
+				 +v[i]+")");
+            }
+	    key2 = rmm.substr(0,icolon);
+	    val = rmm.substr(icolon+1, rmm.size());
+	    icol = -1;
+	    irow = -1;
+	    for (int j = 0; j < szKey1; j++) {
+	      if (key1 == keyString1[j]) {
+		irow = j;
+		break;
+	      }
+	    }
+	    if (irow == -1) {
+	      throw CanteraError("getMatrixValues","Row not matched by string: "
+				 + key1);		
+	    }
+	    for (int j = 0; j < szKey2; j++) {
+	      if (key2 == keyString2[j]) {
+		icol = j;
+		break;
+	      }
+	    }
+	    if (icol == -1) {
+	      throw CanteraError("getMatrixValues","Col not matched by string: "
+				 + key2);	
+	    }
+	    double dval = atofCheck(val.c_str());
+            dval *= funit;
+	    /*
+	     * Finally, insert the value;
+	     */
+	    retnValues(irow, icol) = dval;
+	    if (matrixSymmetric) {
+	      retnValues(icol, irow) = dval;
+	    }
+        }
+
+    }
+
 
     /**
      * This function interprets the value portion of an XML element

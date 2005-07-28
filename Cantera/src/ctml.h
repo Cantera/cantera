@@ -22,6 +22,7 @@
 
 #include "ct_defs.h"
 #include "xml.h"
+#include "Array.h"
 using namespace Cantera;
 
 namespace ctml {
@@ -71,15 +72,22 @@ namespace ctml {
         string val, 
         string type="");
 
-    void getFloatArray(const XML_Node& node, 
-        vector_fp& v, bool convert=true);
+    void getFloatArray(const XML_Node& node, vector_fp& v, 
+                       bool convert=true, string type="");
 
     void getStringArray(const XML_Node& node, vector<string>& v);
     void getMap(const XML_Node& node, map<string, string>& m);
-    void getPairs(const XML_Node& node, vector<string>& key, vector<string>& val);
+    void getPairs(const XML_Node& node, vector<string>& key, 
+		  vector<string>& val);
+    void getMatrixValues(const XML_Node& node, 
+			 const vector<string>& keyString1,
+                         const vector<string>& keyString2,
+                         Array2D &returnValues, bool convert = true,
+                         bool matrixSymmetric = false);
 
     void getIntegers(const XML_Node& node, map<string,int>& v);
-    void getFloats(const XML_Node& node, map<string,double>& v, bool convert=true);
+    void getFloats(const XML_Node& node, map<string,double>& v,
+		   bool convert=true);
     doublereal getFloat(const XML_Node& parent, string name, string type="");
     int getInteger(const XML_Node& parent, string name);
     
