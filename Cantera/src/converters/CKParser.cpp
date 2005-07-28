@@ -6,7 +6,10 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.18  2005-07-26 03:56:35  dggoodwin
+// Revision 1.19  2005-07-28 23:02:44  hkmoffa
+// Got rid of one warning message.
+//
+// Revision 1.18  2005/07/26 03:56:35  dggoodwin
 // cleanup
 //
 // Revision 1.17  2005/07/25 03:51:21  dggoodwin
@@ -49,7 +52,7 @@
 #include "ckr_utils.h"
 #include "writelog.h"
 #include <stdio.h>
-
+//#include "../stringUtils.h"
 
 using namespace std;
 
@@ -114,7 +117,9 @@ namespace ckr {
 
     static double de_atof(string s) {
         string r = d2e(s);
-        return atof(r.c_str());
+	//double rval = Cantera::atofCheck(r.c_str()); 
+        double rval = atof(r.c_str());
+        return rval;
     }
 
     static double getNumberFromString(string s) {
@@ -846,7 +851,7 @@ next:
             // additional elements, if any
             elementSym = "";
             int loc = 80;
-            while (loc < s.size()-9) {
+            while (loc < (int) (s.size()-9)) {
                 elementSym = "";
                 if (s[loc] != ' ') elementSym += s[loc];
                 if (s[loc+1] != ' ') elementSym += s[loc+1];
