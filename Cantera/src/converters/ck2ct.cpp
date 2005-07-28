@@ -430,7 +430,7 @@ namespace pip {
             // not be reversible.
             else { 
                 if (i != irxn) 
-                    fprintf(f,  "\n# [CK Reaction (%s)]\n",i+1);  
+                    fprintf(f,  "\n# [CK Reaction (%d)]\n",i+1);  
                 addReaction(f, idktag, irxn, r.reactions[i], 
                     r.units, version);
                 irxn++;
