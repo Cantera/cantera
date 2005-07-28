@@ -37,6 +37,8 @@ namespace Cantera {
         return atof(stripws(val).c_str());
     }
 
+    int stripLTWScstring(char str[]);
+    double atofCheck(const char *dptr);
 
 }
 

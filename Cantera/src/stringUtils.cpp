@@ -14,6 +14,9 @@
 #include "ct_defs.h"
 #include "ctexceptions.h"
 #include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
 
 namespace Cantera {
 
@@ -178,4 +181,127 @@ namespace Cantera {
         }       
         return logfile;
     }
+
+    /*
+     *     This routine strips off blanks and tabs (only leading and trailing
+     *     characters) in 'str'.  On return, it returns the number of
+     *     characters still included in the string (excluding the null character).
+     *
+     *      Comments are excluded -> All instances of the comment character, '!',
+     *                               are replaced by '\0' thereby terminating
+     *                               the string
+     *
+     *     Parameter list:
+     *
+     *     str == On output 'str' contains the same characters as on
+     *               input except the leading and trailing white space and
+     *               comments have been removed.
+     */
+    int stripLTWScstring(char str[]) {
+	int  i = 0, j = 0;
+	char ch;
+	const char COM_CHAR='\0';
+	/*
+	 *    Quick Returns
+	 */
+	if ((str == 0) || (str[0] == '\0')) return (0);
+
+	/* Find first non-space character character */
+	while(((ch = str[i]) != '\0') && isspace(ch)) i++;
+	
+	/*
+	 * Move real part of str to the front by copying the string
+	 *   - Comments are handled here, by terminating the copy at the
+	 *     first comment indicator, and inserting the null character at
+	 *     that point.
+	 */
+ 
+	while ( (ch = str[j+i]) != '\0' &&
+		(ch != COM_CHAR)) {
+	  str[j] = ch;
+	  j++;
+	}
+	str[j] = '\0';
+	j--;
+	/* Remove trailing white space by inserting a null character */    
+	while( (j != -1 ) && isspace(str[j])) j--;
+	j++;
+	str[j] = '\0';
+	return (j);
+    }
+
+
+    /*
+     * atofCheck is a wrapper around the C stdlib routine atof().
+     * It does quite a bit more error checking than atof() or
+     * strtod(), and is quite a bit more restrictive.
+     *
+     *   First it interprets both E, e, d, and D as exponents.
+     *   atof() only interprets e or E as an exponent character.
+     *
+     *   It only accepts a string as well formed if it consists as a 
+     *   single token. Multiple words will produce an error message
+     *
+     *   It will produce an error for NAN and inf entries as well,
+     *   in contrast to atof() or strtod().
+     *   The user needs to know that a serious numerical issue
+     *   has occurred.
+     *
+     *   It does not accept hexadecimal numbers.
+     *
+     * On any error, it will throw a CanteraError signal.
+     */
+    double atofCheck(const char *dptr) {
+	if (!dptr) {
+	  throw CanteraError("atofCheck", "null pointer to string");
+	}
+	char *eptr = (char *) malloc(strlen(dptr)+1);
+	strcpy(eptr, dptr);
+	int ll = stripLTWScstring(eptr);
+	if (ll == 0) {
+	  throw CanteraError("atofCheck", "string has zero length");
+	}
+	int numDot = 0;
+	int numExp = 0;
+	char ch;
+	int istart = 0;
+	ch = eptr[0];
+	if (ch == '+' || ch == '-') {
+	  istart = 1;
+	}
+	for (int i = istart; i < ll; i++) {
+	  ch = eptr[i];
+	  if (isdigit(ch)) {
+	  } else if (ch == '.') {
+	    numDot++;
+	    if (numDot > 1) {
+	      free(eptr);
+	      throw CanteraError("atofCheck",
+				 "string has more than one .");
+	    }
+	  } else if (ch == 'e' || ch == 'E' || ch == 'd' || ch == 'D') {
+	    numExp++;
+	    eptr[i] = 'E';
+	    if (numExp > 1) {
+	      free(eptr);
+	      throw CanteraError("atofCheck", 
+				 "string has more than one exp char");
+	    }
+	    ch = eptr[i+1];
+	    if (ch == '+' || ch == '-') {
+	      i++;
+	    }
+	  } else {
+	    string hh(dptr);
+	    free(eptr);
+	    throw CanteraError("aotofCheck",
+			       "Trouble processing string, " + hh);
+	  }
+	}
+	double rval = atof(eptr);
+	free(eptr);
+	return rval;
+    }
+
+
 }
