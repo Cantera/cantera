@@ -115,6 +115,7 @@ namespace ctml {
 
     XML_Node* getByTitle(XML_Node& node, string title) {
         XML_Node* s = node.findByAttr("title",title);
+        if (!s) return 0;
         if (s->parent() == &node) return s;
         else return 0;
     }
