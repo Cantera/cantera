@@ -73,10 +73,10 @@ namespace Cantera {
     void State::setMassFractions(const doublereal* y) {
         doublereal norm = 0.0, sum = 0.0;
         int k;
-        cblas_dcopy(m_kk, y, 1, m_y.begin(), 1);
+        //cblas_dcopy(m_kk, y, 1, m_y.begin(), 1);
         for (k = 0; k != m_kk; ++k) {
             norm += y[k];
-            //m_y[k] = y[k];
+            m_y[k] = y[k];
         }
         //scale(y, y + m_kk, m_y.begin(), 1.0/norm);
         scale(m_kk, 1.0/norm, m_y.begin());

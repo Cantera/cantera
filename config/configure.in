@@ -183,7 +183,9 @@ buildbin=$ctroot/build/bin/$builddir
 AC_SUBST(buildbin)
 
 # add definitions to config.h
-AC_DEFINE_UNQUOTED(DARWIN,$OS_IS_DARWIN)
+if test "x${OS_IS_DARWIN}" = "x1"; then
+  AC_DEFINE_UNQUOTED(DARWIN,$OS_IS_DARWIN)
+fi
 if test "x${OS_IS_CYGWIN}" = "x1"; then
   AC_DEFINE_UNQUOTED(CYGWIN,$OS_IS_CYGWIN)
 fi

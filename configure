@@ -76,13 +76,13 @@ USE_NUMERIC=${USE_NUMERIC:="default"}
 
 # If numarray was installed using the --home option, set this to the
 # home directory for numarray.
-#NUMARRAY_HOME=${NUMARRAY_HOME:="$HOME/python_modules"}
+NUMARRAY_HOME=${NUMARRAY_HOME:="$HOME/python_modules"}
 
 # If you want to install the Cantera Python package somewhere other
 # than the default 'site-packages' directory within the Python library
 # directory, then set this to the desired directory. This is useful when
 # you do not have write access to the Python library directory. 
-#CANTERA_PYTHON_HOME=${CANTERA_PYTHON_HOME:="$HOME/python_modules"}
+CANTERA_PYTHON_HOME=${CANTERA_PYTHON_HOME:="$HOME/python_modules"}
   
 # Set this to 'y' when site packages must be put in system directories
 # but Cantera tutorials must be put in user space.  An alternative to
@@ -229,7 +229,7 @@ ENABLE_TPX='y'
 # (The settings shown here are appropriate if you are using the ATLAS
 # libraries.)
 #
-#BLAS_LAPACK_LIBS='-llapack -lblas'
+BLAS_LAPACK_LIBS='-llapack -lblas'
 #'-llapack -lf77blas -lcblas -latlas'
 #BLAS_LAPACK_DIR='/usr/lib'
 #
