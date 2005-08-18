@@ -441,7 +441,11 @@ namespace Cantera {
             for (n = 0; n < maxiter; n++) {
 
                 // if 'strt' is false, the current composition will be used as
-                // the starting estimate; otherwise it will be estimated 
+                // the starting estimate; otherwise it will be estimated
+                //                if (e) {
+                //    cout << "e should be zero, but it is not!" << endl;
+                //    delete e;
+                // }
                 e = new MultiPhaseEquil(this, strt);
                 // start with a loose error tolerance, but tighten it as we get 
                 // close to the final temperature
@@ -521,9 +525,9 @@ namespace Cantera {
                     }
                     endLogGroup();
                 }
+                delete e;
+                e = 0;
             }
-            delete e;
-            e = 0;
             addLogEntry("reached max number of T iterations",int2str(maxiter));
             endLogGroup();
             throw CanteraError("MultiPhase::equilibrate",
@@ -541,6 +545,7 @@ namespace Cantera {
             addLogEntry("max T",fp2str(Thigh));
             
             for (n = 0; n < maxiter; n++) {
+                if (e) delete e;
                 e = new MultiPhaseEquil(this, strt);
                 ferr = 0.1;
                 if (fabs(dt) < 1.0) ferr = err;
@@ -596,9 +601,9 @@ namespace Cantera {
                     }
                     endLogGroup();
                 }
+                delete e;
+                e = 0;
             }
-            delete e;
-            e = 0;
             addLogEntry("reached max number of T iterations",int2str(maxiter));
             endLogGroup();
             throw CanteraError("MultiPhase::equilibrate",

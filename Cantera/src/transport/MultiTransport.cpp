@@ -25,7 +25,7 @@
 
 #include "MultiTransport.h"
 #include "../ctlapack.h"
-#include "../../../ext/math/gmres.h"
+//#include "../../../ext/math/gmres.h"
 
 #include "../DenseMatrix.h"
 #include "../polyfit.h"
@@ -80,7 +80,7 @@ namespace Cantera {
 
     /////////////////////////// constants //////////////////////////
 
-    const doublereal ThreeSixteenths = 3.0/16.0;
+    //    const doublereal ThreeSixteenths = 3.0/16.0;
 
 
 
@@ -182,10 +182,21 @@ namespace Cantera {
         m_rotrelax.resize(m_nsp);
 
         m_phi.resize(m_nsp, m_nsp, 0.0);
+        m_wratjk.resize(m_nsp, m_nsp, 0.0);
+        m_wratkj1.resize(m_nsp, m_nsp, 0.0);
+        int j, k;
+        for (j = 0; j < m_nsp; j++) 
+            for (k = j; k < m_nsp; k++) {
+                m_wratjk(j,k) = sqrt(m_mw[j]/m_mw[k]);
+                m_wratjk(k,j) = sqrt(m_wratjk(j,k));
+                m_wratkj1(j,k) = sqrt(1.0 + m_mw[k]/m_mw[j]);
+            }
+
         m_cinternal.resize(m_nsp);
 
         m_polytempvec.resize(5);
         m_visc.resize(m_nsp);
+        m_sqvisc.resize(m_nsp);
         m_bdiff.resize(m_nsp, m_nsp);
 
         //m_poly.resize(m_nsp);
@@ -225,7 +236,7 @@ namespace Cantera {
 
         // precompute and store log(epsilon_ij/k_B)
         m_log_eps_k.resize(m_nsp, m_nsp);
-        int j;
+        //        int j;
         for (i = 0; i < m_nsp; i++) {
             for (j = i; j < m_nsp; j++) {
                 m_log_eps_k(i,j) = log(tr.epsilon(i,j)/Boltzmann);
@@ -239,7 +250,7 @@ namespace Cantera {
         const doublereal sq298 = sqrt(298.0);
         const doublereal kb298 = Boltzmann * 298.0;
         m_sqrt_eps_k.resize(m_nsp);
-        int k;
+        //int k;
         for (k = 0; k < m_nsp; k++) {
             m_sqrt_eps_k[k] = sqrt(tr.eps[k]/Boltzmann); 
             m_frot_298[k] = Frot( tr.eps[k]/kb298, 
@@ -401,23 +412,26 @@ namespace Cantera {
         // in m_a should provide a good starting guess, so convergence
         // should be fast.
 
-        if (m_gmres) {
-            gmres(m_mgmres, 3*m_nsp, m_Lmatrix, m_b.begin(), 
-                m_a.begin(), m_eps_gmres);
-            m_lmatrix_soln_ok = true;
-            m_l0000_ok = true;            // L matrix not modified by GMRES
-        }
-        else {
+        //if (m_gmres) {
+        //    gmres(m_mgmres, 3*m_nsp, m_Lmatrix, m_b.begin(), 
+        //        m_a.begin(), m_eps_gmres);
+        //    m_lmatrix_soln_ok = true;
+        //    m_l0000_ok = true;            // L matrix not modified by GMRES
+        //}
+        //else {
             copy(m_b.begin(), m_b.end(), m_a.begin());
-            int info = solve(m_Lmatrix, m_a.begin());
-            if (info != 0) {
+            try {
+                int info = solve(m_Lmatrix, m_a.begin());
+            }
+            catch (CanteraError) {
+                //if (info != 0) {
                 throw CanteraError("MultiTransport::solveLMatrixEquation",
                     "error in solving L matrix.");
             }
             m_lmatrix_soln_ok = true;
             m_l0000_ok = false;          
             // L matrix is overwritten with LU decomposition
-        }
+            //}
         m_lmatrix_soln_ok = true;
     }
 
@@ -757,6 +771,7 @@ namespace Cantera {
         m_logt = log(m_temp);
         m_kbt = Boltzmann * m_temp;
         m_sqrt_t = sqrt(m_temp);
+        m_t14 = sqrt(m_sqrt_t);
         m_t32 = m_temp * m_sqrt_t;
         m_sqrt_kbt = sqrt(Boltzmann*m_temp);
 
@@ -872,11 +887,15 @@ namespace Cantera {
         if (m_mode == CK_Mode) {
             for (k = 0; k < m_nsp; k++) {
                 m_visc[k] = exp(dot4(m_polytempvec, m_visccoeffs[k]));
+               m_sqvisc[k] = sqrt(m_visc[k]);
             }
         }
         else {
             for (k = 0; k < m_nsp; k++) {
-                m_visc[k] = m_sqrt_t*dot5(m_polytempvec, m_visccoeffs[k]);
+                //m_visc[k] = m_sqrt_t*dot5(m_polytempvec, m_visccoeffs[k]);
+                // the polynomial fit is done for sqrt(visc/sqrt(T))
+                m_sqvisc[k] = m_t14*dot5(m_polytempvec, m_visccoeffs[k]);
+                m_visc[k] = (m_sqvisc[k]*m_sqvisc[k]);
             }
         }
         m_spvisc_ok = true;
@@ -888,12 +907,11 @@ namespace Cantera {
     void MultiTransport::updateViscosity_T() {
         if (m_visc_tlast == m_thermo->temperature()) return;
         _update_visc_T(); 
-        //m_thermo->update_T(m_update_visc_T);
         m_visc_tlast = m_thermo->temperature();
     }
 
     void MultiTransport::_update_visc_T() {
-        doublereal vratiokj, wratiojk, rootwjk, factor1;
+        doublereal vratiokj, wratiojk, factor1;
 
         updateSpeciesViscosities_T();
 
@@ -903,10 +921,17 @@ namespace Cantera {
             for (k = j; k < m_nsp; k++) {
                 vratiokj = m_visc[k]/m_visc[j];
                 wratiojk = m_mw[j]/m_mw[k];
-                rootwjk = sqrt(wratiojk);
-                factor1 = 1.0 + sqrt(vratiokj * rootwjk);
+                //rootwjk = sqrt(wratiojk);
+                //factor1 = 1.0 + sqrt(vratiokj * rootwjk);
+                //m_phi(k,j) = factor1*factor1 /
+                //             (SqrtEight * sqrt(1.0 + m_mw[k]/m_mw[j]));
+                //m_phi(j,k) = m_phi(k,j)/(vratiokj * wratiojk);
+
+                // Note that m_wratjk(k,j) holds the square root of
+                // m_wratjk(j,k)!
+                factor1 = 1.0 + (m_sqvisc[k]/m_sqvisc[j]) * m_wratjk(k,j);
                 m_phi(k,j) = factor1*factor1 /
-                             (SqrtEight * sqrt(1.0 + m_mw[k]/m_mw[j]));
+                             (SqrtEight * m_wratkj1(j,k)); 
                 m_phi(j,k) = m_phi(k,j)/(vratiokj * wratiojk);
             }
         }

@@ -713,7 +713,7 @@ py_sim1D_setTimeStep(PyObject *self, PyObject *args)
 
     PyArrayObject* nsteps_array = (PyArrayObject*)
       PyArray_ContiguousFromObject(nsteps, PyArray_INT, 1, 1);
-    int* nsteps_data = (int*)nsteps_array->data;
+    integer* nsteps_data = (integer*)nsteps_array->data;
     int nsteps_len = nsteps_array->dimensions[0];
 
     _val = sim1D_setTimeStep(i,stepsize,nsteps_len,nsteps_data);

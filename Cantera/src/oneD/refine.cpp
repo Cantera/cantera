@@ -22,7 +22,7 @@ namespace Cantera {
         return false;
     }
 
-    static void drawline() {
+    static void r_drawline() {
         string s(78,'#');
         s += '\n';
         writelog(s.c_str());
@@ -204,7 +204,7 @@ namespace Cantera {
     void Refiner::show() {
         int nnew = static_cast<int>(m_loc.size());
         if (nnew > 0) {
-            drawline();
+            r_drawline();
             writelog(string("Refining grid in ") + 
                 m_domain->id()+".\n"
                 +"    New points inserted after grid points ");

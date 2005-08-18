@@ -58,7 +58,7 @@ namespace Cantera {
         bool m_ROP_ok;
 
         doublereal m_temp;
-        vector_fp m_rfn;
+        vector_fp  m_rfn;
         vector_fp falloff_work;
         vector_fp concm_3b_values;
         vector_fp concm_falloff_values;
@@ -218,7 +218,7 @@ namespace Cantera {
 #ifdef HWMECH
             get_wdot(m_kdata->m_ropnet.begin(), net);
 #else
-            m_rxnstoich.getNetProductionRates(m_kk, m_kdata->m_ropnet.begin(), net); 
+            m_rxnstoich->getNetProductionRates(m_kk, m_kdata->m_ropnet.begin(), net); 
             //fill(net, net + m_kk, 0.0);
             //m_revProductStoich.incrementSpecies(
             //    m_kdata->m_ropnet.begin(), net);
@@ -238,7 +238,7 @@ namespace Cantera {
          */ 
         virtual void getCreationRates(doublereal* cdot) {
             updateROP();
-            m_rxnstoich.getCreationRates(m_kk, m_kdata->m_ropf.begin(), 
+            m_rxnstoich->getCreationRates(m_kk, m_kdata->m_ropf.begin(), 
                 m_kdata->m_ropr.begin(), cdot); 
             //fill(cdot, cdot + m_kk, 0.0);
             //m_revProductStoich.incrementSpecies(
@@ -258,7 +258,7 @@ namespace Cantera {
          */ 
         virtual void getDestructionRates(doublereal* ddot) {
             updateROP();
-            m_rxnstoich.getDestructionRates(m_kk, m_kdata->m_ropf.begin(), 
+            m_rxnstoich->getDestructionRates(m_kk, m_kdata->m_ropf.begin(), 
                 m_kdata->m_ropr.begin(), ddot); 
             //            fill(ddot, ddot + m_kk, 0.0);
             //m_revProductStoich.incrementSpecies(
@@ -380,7 +380,7 @@ namespace Cantera {
         //StoichManagerN                      m_revProductStoich;
         //StoichManagerN                      m_irrevProductStoich;
 
-        ReactionStoichMgr                   m_rxnstoich;
+        ReactionStoichMgr*                   m_rxnstoich;
 
         vector<int>                         m_fwdOrder;
 

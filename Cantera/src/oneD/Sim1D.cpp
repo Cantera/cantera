@@ -13,7 +13,7 @@
 namespace Cantera {
 
 
-    static void drawline() {
+    static void sim1D_drawline() {
         string s(78,'.');
         s += '\n';
         writelog(s.c_str());
@@ -250,7 +250,7 @@ namespace Cantera {
                     
                 try {
                     if (loglevel > 0) {
-                        drawline();
+                        sim1D_drawline();
                         writelog("\nAttempt Newton solution of steady-state problem...");
                     }
                     newtonSolve(loglevel-1);
@@ -276,7 +276,7 @@ namespace Cantera {
                     char buf[100];
                     if (loglevel > 0) {
                         writelog("    failure. \n\n");
-                        drawline();
+                        sim1D_drawline();
                         //                    }
                         //if (loglevel == 1) 
                         writelog("Take "+int2str(nsteps)+

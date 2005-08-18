@@ -17,6 +17,10 @@ extern "C" {
     int DLL_IMPORT mix_nSpecies(int i);
     int DLL_IMPORT mix_setTemperature(int i, double t);
     double DLL_IMPORT mix_temperature(int i);
+    double DLL_IMPORT mix_minTemp(int i);
+    double DLL_IMPORT mix_maxTemp(int i);
+    double DLL_IMPORT mix_charge(int i);
+    double DLL_IMPORT mix_phaseCharge(int i, int p);
     int DLL_IMPORT mix_setPressure(int i, double p);
     double DLL_IMPORT mix_pressure(int i);
     double DLL_IMPORT mix_nAtoms(int i, int k, int m);
@@ -30,5 +34,19 @@ extern "C" {
     double DLL_IMPORT mix_equilibrate(int i, char* XY, 
         double err, int maxsteps, int maxiter, int loglevel);
     int DLL_IMPORT mix_getChemPotentials(int i, int lenmu, double* mu);
+    int DLL_IMPORT mix_getValidChemPotentials(int i, double bad_mu, 
+        int standard, int lenmu, double* mu);
+
+    double DLL_IMPORT mix_enthalpy(int i);
+    double DLL_IMPORT mix_entropy(int i);
+    double DLL_IMPORT mix_gibbs(int i);
+    double DLL_IMPORT mix_cp(int i);
+    double DLL_IMPORT mix_volume(int i);
+
+    int DLL_IMPORT mix_speciesPhaseIndex(int k);
+    double DLL_IMPORT mix_moleFraction(int k);
+
+
+
 }
 #endif

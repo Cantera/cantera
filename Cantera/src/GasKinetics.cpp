@@ -21,6 +21,8 @@
 #include "ThirdBodyMgr.h"
 #include "RateCoeffMgr.h"
 
+//#include "../user/grirxnstoich.h"
+
 #include <iostream>
 using namespace std;
 
@@ -44,11 +46,11 @@ namespace Cantera {
         if (thermo != 0) addPhase(*thermo);
         m_kdata = new GasKineticsData;
         m_kdata->m_temp = 0.0;
-        //        m_rxnstoich = new ReactionStoichMgr;
+        m_rxnstoich = new ReactionStoichMgr;
     }
 
   GasKinetics::
-  ~GasKinetics() {delete m_kdata;}
+  ~GasKinetics() {delete m_kdata; delete m_rxnstoich;}
 
     /**
      * Update temperature-dependent portions of reaction rates and
@@ -103,7 +105,7 @@ namespace Cantera {
         fill(m_rkc.begin(), m_rkc.end(), 0.0);
 
         // compute Delta G^0 for all reversible reactions
-        m_rxnstoich.getRevReactionDelta(m_ii, m_grt.begin(), m_rkc.begin());
+        m_rxnstoich->getRevReactionDelta(m_ii, m_grt.begin(), m_rkc.begin());
  
         doublereal logStandConc = m_kdata->m_logStandConc;
         doublereal rrt = 1.0/(GasConstant * thermo().temperature());
@@ -130,7 +132,7 @@ namespace Cantera {
         fill(rkc.begin(), rkc.end(), 0.0);
         
         // compute Delta G^0 for all reactions
-        m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), rkc.begin());
+        m_rxnstoich->getReactionDelta(m_ii, m_grt.begin(), rkc.begin());
  
         doublereal logStandConc = m_kdata->m_logStandConc;
         doublereal rrt = 1.0/(GasConstant * thermo().temperature());
@@ -160,7 +162,7 @@ namespace Cantera {
 	 * Use the stoichiometric manager to find deltaG for each
 	 * reaction.
 	 */
-	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaG);
+	m_rxnstoich->getReactionDelta(m_ii, m_grt.begin(), deltaG);
     }
     
     /**
@@ -184,7 +186,7 @@ namespace Cantera {
 	 * Use the stoichiometric manager to find deltaG for each
 	 * reaction.
 	 */
-	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaH);
+	m_rxnstoich->getReactionDelta(m_ii, m_grt.begin(), deltaH);
     }
 
     /************************************************************************
@@ -208,7 +210,7 @@ namespace Cantera {
 	 * Use the stoichiometric manager to find deltaS for each
 	 * reaction.
 	 */
-	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaS);
+	m_rxnstoich->getReactionDelta(m_ii, m_grt.begin(), deltaS);
     }
 
     /**
@@ -234,7 +236,7 @@ namespace Cantera {
 	 * Use the stoichiometric manager to find deltaG for each
 	 * reaction.
 	 */
-	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaG);
+	m_rxnstoich->getReactionDelta(m_ii, m_grt.begin(), deltaG);
     }
 
     /**
@@ -264,7 +266,7 @@ namespace Cantera {
 	 * Use the stoichiometric manager to find deltaG for each
 	 * reaction.
 	 */
-	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaH);
+	m_rxnstoich->getReactionDelta(m_ii, m_grt.begin(), deltaH);
     }
 
     /*********************************************************************
@@ -293,7 +295,7 @@ namespace Cantera {
 	 * Use the stoichiometric manager to find deltaS for each
 	 * reaction.
 	 */
-	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaS);
+	m_rxnstoich->getReactionDelta(m_ii, m_grt.begin(), deltaS);
     }
 
     void GasKinetics::processFalloffReactions() {
@@ -356,12 +358,12 @@ namespace Cantera {
         multiply_each(ropr.begin(), ropr.end(), m_rkc.begin());
 
         // multiply ropf by concentration products
-        m_rxnstoich.multiplyReactants(m_conc.begin(), ropf.begin()); 
+        m_rxnstoich->multiplyReactants(m_conc.begin(), ropf.begin()); 
         //m_reactantStoich.multiply(m_conc.begin(), ropf.begin()); 
 
         // for reversible reactions, multiply ropr by concentration
         // products
-        m_rxnstoich.multiplyRevProducts(m_conc.begin(), ropr.begin()); 
+        m_rxnstoich->multiplyRevProducts(m_conc.begin(), ropr.begin()); 
         //m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
 
         for (int j = 0; j != m_ii; ++j) {
@@ -578,7 +580,7 @@ namespace Cantera {
 
         m_kdata->m_rkcn.push_back(0.0);
 
-        m_rxnstoich.add(reactionNumber(), r);
+        m_rxnstoich->add(reactionNumber(), r);
 
         if (r.reversible) {
             m_dn.push_back(pk.size() - rk.size());
@@ -632,6 +634,7 @@ namespace Cantera {
 //                     m_pstoich[i][m_products[i][j]]++;
 //                 }
 //             }
+            //m_rxnstoich->write("c.cpp");
             m_finalized = true;
         }
     }

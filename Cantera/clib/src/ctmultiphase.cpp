@@ -173,6 +173,23 @@ extern "C" {
         return _mix(i)->temperature();
     }
 
+    doublereal DLL_EXPORT mix_minTemp(int i) {
+        return _mix(i)->minTemp();
+    }
+
+    doublereal DLL_EXPORT mix_maxTemp(int i) {
+        return _mix(i)->maxTemp();
+    }
+
+    doublereal DLL_EXPORT mix_charge(int i) {
+        return _mix(i)->charge();
+    }
+
+    doublereal DLL_EXPORT mix_phaseCharge(int i, int p) {
+        if (!checkPhase(i,p)) return DERR;
+        return _mix(i)->phaseCharge(p);
+    }
+
     int DLL_EXPORT mix_setPressure(int i, double p) {
         if (p < 0.0) return -1;
         _mix(i)->setPressure(p);
@@ -215,6 +232,49 @@ extern "C" {
         catch (CanteraError) {
             return -1;
         }
+    }
+
+    int DLL_EXPORT mix_getValidChemPotentials(int i, double bad_mu, 
+        int standard, int lenmu, double* mu) {
+        bool st = (standard == 1);
+        try {
+            if (lenmu < _mix(i)->nSpecies()) 
+                throw CanteraError("getChemPotentials","array too small");
+            _mix(i)->getValidChemPotentials(bad_mu, mu, st);
+            return 0;
+        }
+        catch (CanteraError) {
+            return -1;
+        }
+    }
+
+    double DLL_EXPORT mix_enthalpy(int i)  {
+        return _mix(i)->enthalpy();
+    }
+
+    double DLL_EXPORT mix_entropy(int i)  {
+        return _mix(i)->entropy();
+    }
+        
+
+    double DLL_EXPORT mix_gibbs(int i) {
+        return _mix(i)->gibbs();
+    }
+
+    double DLL_EXPORT mix_cp(int i) {
+        return _mix(i)->cp();
+    }
+
+    double DLL_EXPORT mix_volume(int i) {
+        return _mix(i)->volume();
+    }
+
+    int DLL_EXPORT mix_speciesPhaseIndex(int i, int k) {
+        return _mix(i)->speciesPhaseIndex(k);
+    }
+
+    double DLL_EXPORT mix_moleFraction(int i, int k) {
+        return _mix(i)->moleFraction(k);
     }
 
 }

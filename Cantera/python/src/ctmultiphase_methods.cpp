@@ -136,6 +136,63 @@ py_mix_setTemperature(PyObject *self, PyObject *args)
 
 
 static PyObject *
+py_mix_minTemp(PyObject *self, PyObject *args)
+{
+    double _val;
+    int i;
+    if (!PyArg_ParseTuple(args, "i:mix_minTemp", &i)) 
+        return NULL;
+        
+    _val = mix_minTemp(i); 
+    if (int(_val) == -1) return reportCanteraError();
+    return Py_BuildValue("d",_val);
+}
+
+
+static PyObject *
+py_mix_maxTemp(PyObject *self, PyObject *args)
+{
+    double _val;
+    int i;
+    if (!PyArg_ParseTuple(args, "i:mix_maxTemp", &i)) 
+        return NULL;
+        
+    _val = mix_maxTemp(i); 
+    if (int(_val) == -1) return reportCanteraError();
+    return Py_BuildValue("d",_val);
+}
+
+
+static PyObject *
+py_mix_charge(PyObject *self, PyObject *args)
+{
+    double _val;
+    int i;
+    if (!PyArg_ParseTuple(args, "i:mix_charge", &i)) 
+        return NULL;
+        
+    _val = mix_charge(i); 
+    if (int(_val) == -1) return reportCanteraError();
+    return Py_BuildValue("d",_val);
+}
+
+
+static PyObject *
+py_mix_phaseCharge(PyObject *self, PyObject *args)
+{
+    double _val;
+    int i;
+    int p;
+    if (!PyArg_ParseTuple(args, "ii:mix_phaseCharge", &i, &p)) 
+        return NULL;
+        
+    _val = mix_phaseCharge(i,p); 
+    if (int(_val) == -1) return reportCanteraError();
+    return Py_BuildValue("d",_val);
+}
+
+
+static PyObject *
 py_mix_temperature(PyObject *self, PyObject *args)
 {
     double _val;

@@ -721,7 +721,7 @@ namespace Cantera {
     }
 
 
-    void XML_Node::require(string a, string v) const {
+    void XML_Node::_require(string a, string v) const {
         if (hasAttrib(a)) {
             if (attrib(a) == v) return;
         }

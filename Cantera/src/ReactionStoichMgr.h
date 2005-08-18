@@ -96,7 +96,7 @@ namespace Cantera {
      * @param products vector of integer product indices
      * @param reversible true if the reaction is reversible, false otherwise
      */
-    void add(int rxn, const vector_int& reactants, const vector_int& products,
+    virtual void add(int rxn, const vector_int& reactants, const vector_int& products,
 	     bool reversible); 
 
     /**
@@ -116,7 +116,7 @@ namespace Cantera {
       //	     bool reversible, const vector_fp& fwdOrder);
 
 
-      void add(int rxn, const ReactionData& r);
+      virtual void add(int rxn, const ReactionData& r);
 
     /**
      * Species creation rates. 
@@ -127,7 +127,7 @@ namespace Cantera {
      *  C = N_p Q_f  + N_r Q_r.
      * \f]
      */
-    void getCreationRates(int nSpecies, 
+     virtual void getCreationRates(int nSpecies, 
 			  const doublereal* fwdRatesOfProgress, 
 			  const doublereal* revRatesOfProgress, 
 			  doublereal* creationRates);
@@ -144,7 +144,7 @@ namespace Cantera {
      * Note that the stoichiometric coefficient matrices are very sparse, integer
      * matrices. 
      */
-    void getDestructionRates(int nSpecies, 
+     virtual void getDestructionRates(int nSpecies, 
 			     const doublereal* fwdRatesOfProgress, 
 			     const doublereal* revRatesOfProgress, 
 			     doublereal* destructionRates);
@@ -164,7 +164,7 @@ namespace Cantera {
      *  W = (N_r - N_p) Q_{\rm net},
      * \f]
      */
-    void getNetProductionRates(int nsp, const doublereal* ropnet, doublereal* w);
+      virtual void getNetProductionRates(int nsp, const doublereal* ropnet, doublereal* w);
 
 
 
@@ -176,7 +176,7 @@ namespace Cantera {
      * and array 'dg' must have a length as great as the total
      * number of reactions.
      */
-    void getReactionDelta(int nReactions, 
+      virtual void getReactionDelta(int nReactions, 
 			  const doublereal* g, 
 			  doublereal* dg);
 
@@ -193,7 +193,7 @@ namespace Cantera {
      * calculating reveerse rate coefficients from thermochemistry
      * for reversible reactions.
      */
-    void getRevReactionDelta(int nr, const doublereal* g, doublereal* dg);
+      virtual void getRevReactionDelta(int nr, const doublereal* g, doublereal* dg);
 
 
     /** 
@@ -204,7 +204,7 @@ namespace Cantera {
      * \f]
      * Here \f$ o_{k,i} \f$ is the reaction order of species k in reaction i.
      */
-    void multiplyReactants(const doublereal* C, doublereal* R);
+      virtual void multiplyReactants(const doublereal* C, doublereal* R);
 
 
     /** 
@@ -216,15 +216,25 @@ namespace Cantera {
      * Here \f$ \nu^{(p)}_{k,i} \f$ is the product stoichiometric coefficient
      * of species k in reaction i.
      */
-    void multiplyRevProducts(const doublereal* c, doublereal* r);
+        virtual void multiplyRevProducts(const doublereal* c, doublereal* r);
 
+       virtual void write(string filename);
 
   protected:
 
+      void writeCreationRates(ostream& f);
+      void writeDestructionRates(ostream& f);
+      void writeNetProductionRates(ostream& f);
+      void writeMultiplyReactants(ostream& f);
+      void writeMultiplyRevProducts(ostream& f);
       StoichManagerN*  m_reactants;      
       StoichManagerN*  m_revproducts;
       StoichManagerN*  m_irrevproducts;
       vector_fp m_dummy;
+
+#ifdef INCL_STOICH_WRITER
+      StoichWriter* m_rwriter;
+#endif
   };
 }
 

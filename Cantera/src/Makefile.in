@@ -160,7 +160,7 @@ flow1D:
 	cd oneD;  @MAKE@
 
 CXX_LIBS = @LIBS@
-CXX_INCLUDES = -I.
+CXX_INCLUDES = @CXX_INCLUDES@ -I.
 CANTERA_LIB = @buildlib@/libcantera.a
 
 DEPENDS = $(ALL_OBJ:.o=.d)
@@ -172,7 +172,7 @@ ALL_H = $(BASE_H) $(THERMO_H) $(KINETICS_H) $(HETEROKIN_H) \
 	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
-	@CXX@ -c $< $(CXX_FLAGS) 
+	@CXX@ -c $< $(CXX_INCLUDES) $(CXX_FLAGS) 
 
 lib:  $(OBJ_LIB)
 	$(RM)     $(CANTERA_LIB)

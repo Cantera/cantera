@@ -19,7 +19,9 @@
 #include "ctexceptions.h"
 #include "stringUtils.h"
 #include "State.h"
-
+#ifdef DARWIN
+#include <Accelerate.h>
+#endif
 namespace Cantera {
 
     State::State() : m_kk(0), m_temp(0.0), m_dens(0.001), m_mmw(0.0) {}
@@ -71,10 +73,14 @@ namespace Cantera {
     void State::setMassFractions(const doublereal* y) {
         doublereal norm = 0.0, sum = 0.0;
         int k;
+        cblas_dcopy(m_kk, y, 1, m_y.begin(), 1);
         for (k = 0; k != m_kk; ++k) {
             norm += y[k];
+            //m_y[k] = y[k];
         }
-        scale(y, y + m_kk, m_y.begin(), 1.0/norm);
+        //scale(y, y + m_kk, m_y.begin(), 1.0/norm);
+        scale(m_kk, 1.0/norm, m_y.begin());
+
         for (k = 0; k != m_kk; ++k) {
             m_ym[k] = m_y[k] * m_rmolwts[k];
             sum += m_ym[k];
@@ -118,6 +124,7 @@ namespace Cantera {
     }
 
     void State::getConcentrations(doublereal* c) const {
+        //ct_dscal(m_kk, m_dens, m_ym.begin(), 1);
         scale(m_ym.begin(), m_ym.end(), c, m_dens);
     }
 
@@ -130,6 +137,7 @@ namespace Cantera {
     }
 
     void State::getMoleFractions(doublereal* x) const {
+        //ct_dscal(m_kk, m_mmw, m_ym.begin(), 1);
         scale(m_ym.begin(), m_ym.end(), x, m_mmw);
     }
 
@@ -161,27 +169,3 @@ namespace Cantera {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

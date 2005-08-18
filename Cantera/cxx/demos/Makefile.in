@@ -27,7 +27,7 @@ FORT_LIBS = @FLIBS@
 CXX = @CXX@
 
 # C++ compile flags
-CXX_FLAGS = @CXXFLAGS@
+CXX_FLAGS = @CXXFLAGS@ @CXX_INCLUDES@
 
 # external libraries
 EXT_LIBS = @LOCAL_LIBS@ -lctcxx

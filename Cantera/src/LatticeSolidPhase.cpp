@@ -116,7 +116,7 @@ namespace Cantera {
     }
 
     void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata) {
-        eosdata.require("model","LatticeSolid");
+        eosdata._require("model","LatticeSolid");
         XML_Node& la = eosdata.child("LatticeArray");
         vector<XML_Node*> lattices;
         la.getChildren("Lattice",lattices);

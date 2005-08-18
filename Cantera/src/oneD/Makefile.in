@@ -15,11 +15,12 @@ INCDIR = ../../../build/include/cantera/kernel/oneD
 INSTALL_TSC = ../../../bin/install_tsc                      
 do_ranlib = @DO_RANLIB@
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
-CXX_INCLUDES = -I..
+CXX_INCLUDES = -I.. @CXX_INCLUDES@
 
 # stirred reactors
-OBJS    = MultiJac.o MultiNewton.o newton_utils.o OneDim.o\
-          StFlow.o boundaries1D.o refine.o Sim1D.o 
+OBJS    = oneD_files.o
+#MultiJac.o MultiNewton.o newton_utils.o OneDim.o\
+#          StFlow.o boundaries1D.o refine.o Sim1D.o 
 ONED_H  = Inlet1D.h   MultiJac.h  Sim1D.h         StFlow.h \
           Surf1D.h    Domain1D.h  MultiNewton.h   OneDim.h \
           Resid1D.h   Solid1D.h   refine.h

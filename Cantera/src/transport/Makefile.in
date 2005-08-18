@@ -18,13 +18,14 @@ do_ranlib = @DO_RANLIB@
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
 # Transport Object Files
-OBJS    = TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.o \
-          SolidTransport.o DustyGasTransport.o
+OBJS    = transport_files.o 
+#TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.o \
+#          SolidTransport.o DustyGasTransport.o
 TRAN_H  =  TransportFactory.h MultiTransport.h MixTransport.h \
            MMCollisionInt.h  SolidTransport.h DustyGasTransport.h \
            TransportBase.h L_matrix.h FtnTransport.h TransportParams.h
 
-CXX_INCLUDES = -I..
+CXX_INCLUDES = -I.. @CXX_INCLUDES@
 LIB = @buildlib@/libtransport.a
 
 DEPENDS = $(OBJS:.o=.d)

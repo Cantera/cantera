@@ -11,6 +11,10 @@
 
 #include "ct_defs.h"
 
+#ifdef DARWINNN
+#include <Accelerate.h>
+#endif
+
 namespace Cantera {
 
     /**
@@ -246,6 +250,14 @@ namespace Cantera {
             sum += (*__begin) * log(*_Q_begin + Tiny);
 	}
 	return sum;
+    }
+
+    inline void scale(int N, double alpha, double* x) {
+        //#ifdef DARWINNNN
+        //cblas_dscal(N, alpha, x, 1);
+        //#else
+        scale(x, x+N, x, alpha);
+        //#endif
     }
 
 }

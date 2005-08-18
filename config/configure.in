@@ -28,7 +28,10 @@ EXTRA_LINK=""
 mex_ext=mexglx
 
 case $ac_sys_system in
-  Darwin*)  OS_IS_DARWIN=1; EXTRA_LINK="-framework Accelerate"; mex_ext=mexmac;;
+  Darwin*)  OS_IS_DARWIN=1; 
+            EXTRA_LINK="-framework Accelerate";
+            CXX_INCLUDES="$CXX_INCLUDES -I/System/Library/Frameworks/Accelerate.framework/Headers"
+            mex_ext=mexmac;;
   CYGWIN*) OS_IS_CYGWIN=1; mex_ext=dll;;
 esac
 
@@ -227,6 +230,8 @@ AC_SUBST(LCXX_FLAGS)
 
 #if test -z "$LCXX_END_LIBS"; then LCXX_END_LIBS='-lm'; fi
 AC_SUBST(LCXX_END_LIBS)
+
+AC_SUBST(CXX_INCLUDES)
 
 #########################################################
 #  User Code

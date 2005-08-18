@@ -92,7 +92,7 @@ namespace Cantera {
     }
 
 
-    static void drawline() {
+        static void st_drawline() {
         writelog("\n-------------------------------------"
             "------------------------------------------");
     }
@@ -890,14 +890,14 @@ namespace Cantera {
         sprintf(buf, "    Pressure:  %10.4g Pa \n", m_press);
         writelog(buf);
         for (i = 0; i < nn; i++) {
-            drawline();
+            st_drawline();
             sprintf(buf, "\n        z   ");
             writelog(buf);
             for (n = 0; n < 5; n++) { 
                 sprintf(buf, " %10s ",componentName(i*5 + n).c_str());
                 writelog(buf);
             }
-            drawline();
+            st_drawline();
             for (j = 0; j < m_points; j++) {
                 sprintf(buf, "\n %10.4g ",m_z[j]);
                 writelog(buf);
@@ -909,14 +909,14 @@ namespace Cantera {
             writelog("\n");
         }
         int nrem = m_nv - 5*nn;
-        drawline();
+        st_drawline();
         sprintf(buf, "\n        z   ");
         writelog(buf);
         for (n = 0; n < nrem; n++) {
             sprintf(buf, " %10s ", componentName(nn*5 + n).c_str());
             writelog(buf);
         }
-        drawline();
+        st_drawline();
         for (j = 0; j < m_points; j++) {
             sprintf(buf, "\n %10.4g ",m_z[j]);
             writelog(buf);

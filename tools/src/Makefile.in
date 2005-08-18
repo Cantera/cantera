@@ -9,7 +9,7 @@ LCXX_FLAGS = -L$(LIBDIR)  @CXXFLAGS@
 LOCAL_LIBS = -lcantera -ltpx -lctcxx 
 #LOCAL_LIBS = -lcantera @math_libs@ @BLAS_LAPACK_LIBS@ -lctcxx 
 
-LCXX_END_LIBS = @LCXX_END_LIBS@
+LCXX_END_LIBS = @LCXX_END_LIBS@ @EXTRA_LINK@
 
 OBJS = ck2cti.o cti2ctml.o fixtext.o
 

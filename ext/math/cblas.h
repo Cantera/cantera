@@ -203,8 +203,8 @@ void dswap_( const int *n, double *x, const int *incx, double *y,
 	     const int *incy );
 
 // x <= a*x
-extern "C"
-void dscal_( const int *n, const double *alpha, double *x, const int *incx );
+//extern "C"
+//void dscal_( const int *n, const double *alpha, double *x, const int *incx );
 
 
 // y <= x

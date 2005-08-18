@@ -182,6 +182,23 @@ namespace Cantera {
         return logfile;
     }
 
+    string wrapString(const string& s, int len) {
+        int nc = s.size();
+        int n, count=0;
+        string r;
+        for (n = 0; n < nc; n++) {
+            if (s[n] == '\n') count = 0;
+            else count++;
+            if (count > len && s[n] == ' ') {
+                r += "\n     ";
+                count = 0;
+            }
+            r += s[n];
+        }
+        return r;
+    }
+
+
     /*
      *     This routine strips off blanks and tabs (only leading and trailing
      *     characters) in 'str'.  On return, it returns the number of
@@ -302,6 +319,5 @@ namespace Cantera {
 	free(eptr);
 	return rval;
     }
-
 
 }

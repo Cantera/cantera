@@ -108,7 +108,7 @@ namespace Cantera {
         if (info != 0) 
             throw CanteraError("DenseMatrix::leaseSquares",
                 "DGELSS returned INFO = "+int2str(info));
-        return 0;
+        return 0; 
     }
 #endif
 

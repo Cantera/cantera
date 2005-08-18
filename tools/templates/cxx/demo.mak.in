@@ -30,7 +30,7 @@ LINK_OPTIONS = @LCXX_FLAGS@ @EXTRA_LINK@
 CXX = @CXX@
 
 # C++ compile flags
-CXX_FLAGS = @CXXFLAGS@
+CXX_FLAGS = @CXXFLAGS@ @CXX_INCLUDES@
 
 # external libraries
 EXT_LIBS = @LOCAL_LIBS@ -lctcxx

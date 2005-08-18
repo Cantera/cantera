@@ -114,6 +114,7 @@ namespace Cantera {
         // property values
         DenseMatrix                  m_bdiff;
         vector_fp                    m_visc;
+        vector_fp                    m_sqvisc;
         vector_fp                    m_cond;
 
         array_fp                    m_molefracs;
@@ -129,6 +130,7 @@ namespace Cantera {
         DenseMatrix          m_om22;
 
         DenseMatrix m_phi;            // viscosity weighting functions
+        DenseMatrix m_wratjk, m_wratkj1;
 
         vector_fp   m_zrot;
         vector_fp   m_crot;
@@ -137,7 +139,7 @@ namespace Cantera {
 	vector_fp   m_alpha;
 	vector_fp   m_dipoleDiag;
 
-        doublereal m_temp, m_logt, m_kbt, m_t32;
+        doublereal m_temp, m_logt, m_kbt, m_t14, m_t32;
         doublereal m_sqrt_kbt, m_sqrt_t;
 
         vector_fp  m_sqrt_eps_k;

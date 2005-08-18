@@ -82,9 +82,19 @@ namespace Cantera {
 	}
 
         m_phi.resize(m_nsp, m_nsp, 0.0);
-
+        m_wratjk.resize(m_nsp, m_nsp, 0.0);
+        m_wratkj1.resize(m_nsp, m_nsp, 0.0);
+        int j, k;
+        for (j = 0; j < m_nsp; j++) 
+            for (k = j; k < m_nsp; k++) {
+                m_wratjk(j,k) = sqrt(m_mw[j]/m_mw[k]);
+                m_wratjk(k,j) = sqrt(m_wratjk(j,k));
+                m_wratkj1(j,k) = sqrt(1.0 + m_mw[k]/m_mw[j]);
+            }
+    
         m_polytempvec.resize(5);
         m_visc.resize(m_nsp);
+        m_sqvisc.resize(m_nsp);
         m_cond.resize(m_nsp);
         m_bdiff.resize(m_nsp, m_nsp);
 
@@ -135,18 +145,15 @@ namespace Cantera {
 
         if (m_viscmix_ok) return m_viscmix;
 
-        doublereal vismix = 0.0, denom;
-        int k, j;
-
+        doublereal vismix = 0.0;
+        int k;
         // update m_visc and m_phi if necessary
         if (!m_viscwt_ok) updateViscosity_T();
 
+        multiply(m_phi, m_molefracs.begin(), m_spwork.begin());
+
         for (k = 0; k < m_nsp; k++) {
-            denom = 0.0;
-            for (j = 0; j < m_nsp; j++) {
-                denom += m_phi(k,j) * m_molefracs[j];
-            }
-            vismix += m_molefracs[k] * m_visc[k]/denom;
+            vismix += m_molefracs[k] * m_visc[k]/m_spwork[k]; //denom;
         }
         m_viscmix = vismix;
         return vismix;
@@ -322,6 +329,7 @@ namespace Cantera {
         m_logt = log(m_temp);
         m_kbt = Boltzmann * m_temp;
         m_sqrt_t = sqrt(m_temp);
+        m_t14 = sqrt(m_sqrt_t);
         m_t32 = m_temp * m_sqrt_t;
         m_sqrt_kbt = sqrt(Boltzmann*m_temp);
 
@@ -438,13 +446,16 @@ namespace Cantera {
 
         int k;
         if (m_mode == CK_Mode) {
-            for (k = 0; k < m_nsp; k++) {
-                m_visc[k] = exp(dot4(m_polytempvec, m_visccoeffs[k]));
-            }
+           for (k = 0; k < m_nsp; k++) {
+               m_visc[k] = exp(dot4(m_polytempvec, m_visccoeffs[k]));
+               m_sqvisc[k] = sqrt(m_visc[k]);
+           }
         }
         else {
             for (k = 0; k < m_nsp; k++) {
-                m_visc[k] = m_sqrt_t*dot5(m_polytempvec, m_visccoeffs[k]);
+                // the polynomial fit is done for sqrt(visc/sqrt(T))
+                m_sqvisc[k] = m_t14*dot5(m_polytempvec, m_visccoeffs[k]);
+                m_visc[k] = (m_sqvisc[k]*m_sqvisc[k]);
             }
         }
         m_spvisc_ok = true;
@@ -458,7 +469,7 @@ namespace Cantera {
      * The flag m_visc_ok is set to true.
      */
     void MixTransport::updateViscosity_T() {
-        doublereal vratiokj, wratiojk, rootwjk, factor1;
+        doublereal vratiokj, wratiojk, factor1;
 
         if (!m_spvisc_ok) updateSpeciesViscosities();
 
@@ -468,10 +479,12 @@ namespace Cantera {
             for (k = j; k < m_nsp; k++) {
                 vratiokj = m_visc[k]/m_visc[j];
                 wratiojk = m_mw[j]/m_mw[k];
-                rootwjk = sqrt(wratiojk);
-                factor1 = 1.0 + sqrt(vratiokj * rootwjk);
+
+                // Note that m_wratjk(k,j) holds the square root of
+                // m_wratjk(j,k)!
+                factor1 = 1.0 + (m_sqvisc[k]/m_sqvisc[j]) * m_wratjk(k,j);
                 m_phi(k,j) = factor1*factor1 /
-                             (SqrtEight * sqrt(1.0 + m_mw[k]/m_mw[j]));
+                             (SqrtEight * m_wratkj1(j,k)); 
                 m_phi(j,k) = m_phi(k,j)/(vratiokj * wratiojk);
             }
         }

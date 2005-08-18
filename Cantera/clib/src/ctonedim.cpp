@@ -483,7 +483,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT sim1D_setTimeStep(int i, double stepsize, int ns, int* nsteps) {
+    int DLL_EXPORT sim1D_setTimeStep(int i, double stepsize, int ns, integer* nsteps) {
         try {
             _sim1D(i)->setTimeStep(stepsize, ns, nsteps);
             return 0;

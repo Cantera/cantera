@@ -12,7 +12,10 @@
 #ifndef CT_CTLAPACK_H
 #define CT_CTLAPACK_H
 
+#ifdef DARWIN
 #undef USE_CBLAS
+#undef NO_FTN_STRING_LEN_AT_END
+#endif
 
 #include "ct_defs.h"
 
@@ -30,6 +33,8 @@
 #define _DGBTRF_  dgbtrf
 #define _DGBTRS_  dgbtrs
 
+#define _DSCAL_   dscal
+
 #else
 
 #define _DGEMV_   dgemv_
@@ -41,20 +46,26 @@
 #define _DGBTRF_  dgbtrf_
 #define _DGBTRS_  dgbtrs_
 
+#define _DSCAL_   dscal_
+
 #endif
 
 
 namespace ctlapack {
-
     typedef enum {Transpose = 1, NoTranspose = 0} transpose_t;
     typedef enum {ColMajor = 1, RowMajor = 0} storage_t;
 }
 const char no_yes[2] = {'N', 'T'};
 
-//const CBLAS_ORDER cblasOrder[2] = { CblasRowMajor, CblasColMajor };
-//const CBLAS_TRANSPOSE cblasTrans[2] = { CblasNoTrans, CblasTrans };
+#ifdef USE_CBLAS
+#include <Accelerate.h>
+const CBLAS_ORDER cblasOrder[2] = { CblasRowMajor, CblasColMajor };
+const CBLAS_TRANSPOSE cblasTrans[2] = { CblasNoTrans, CblasTrans };
+#endif
 
-
+//#ifdef DARWIN
+//#include <Accelerate.h>
+//#else
 
 // C interfaces for Fortran Lapack routines 
 extern "C" {
@@ -120,7 +131,11 @@ extern "C" {
         doublereal *b, integer *ldb, integer *info);
 #endif
 
+    int _DSCAL_(integer *n, doublereal *da, doublereal *dx, integer *incx);
+void cblas_dscal(const int N, const double alpha, double *X, const int incX);
+
 }
+//#endif
 
 namespace Cantera {
 
@@ -130,10 +145,6 @@ namespace Cantera {
         const doublereal* x, int incX, doublereal beta, 
         doublereal* y, int incY) 
     {
-        //#ifdef HAVE_INTEL_MKL
-        //cblas_dgemv(cblasOrder[storage], cblasTrans[trans], m, n, alpha, 
-        //    a, lda, x, incX, beta, y, incY);
-        //#else
 #ifdef USE_CBLAS
         cblas_dgemv(cblasOrder[storage], cblasTrans[trans], m, n, alpha, 
             a, lda, x, incX, beta, y, incY);
@@ -141,14 +152,20 @@ namespace Cantera {
         integer f_m = m, f_n = n, f_lda = lda, f_incX = incX, f_incY = incY;
         doublereal f_alpha = alpha, f_beta = beta;
         ftnlen trsize = 1;
+#ifdef NO_FTN_STRING_LEN_AT_END
+        _DGEMV_(&no_yes[trans], &f_m, &f_n, &f_alpha, a,
+            &f_lda, x, &f_incX, &f_beta, y, &f_incY);
+#else
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
         _DGEMV_(&no_yes[trans], &f_m, &f_n, &f_alpha, a,
             &f_lda, x, &f_incX, &f_beta, y, &f_incY, trsize);
 #else
         _DGEMV_(&no_yes[trans], trsize, &f_m, &f_n, &f_alpha, a,
             &f_lda, x, &f_incX, &f_beta, y, &f_incY);
+#endif 
 #endif
 #endif
+
     }
         
 
@@ -176,6 +193,10 @@ namespace Cantera {
         integer f_n = n, f_kl = kl, f_ku = ku, f_nrhs = nrhs, f_lda = lda,
                f_ldb = ldb, f_info = info;
         char tr = no_yes[trans];
+#ifdef NO_FTN_STRING_LEN_AT_END
+        _DGBTRS_(&tr, &f_n, &f_kl, &f_ku, &f_nrhs, a, &f_lda, ipiv, 
+            b, &f_ldb, &f_info);
+#else
         ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
         _DGBTRS_(&tr, &f_n, &f_kl, &f_ku, &f_nrhs, a, &f_lda, ipiv, 
@@ -183,6 +204,7 @@ namespace Cantera {
 #else
         _DGBTRS_(&tr, trsize, &f_n, &f_kl, &f_ku, &f_nrhs, a, &f_lda, ipiv, 
             b, &f_ldb, &f_info);
+#endif
 #endif
         info = f_info;
     }
@@ -205,6 +227,10 @@ namespace Cantera {
                f_info = info;
         char tr = no_yes[trans];
 
+#ifdef NO_FTN_STRING_LEN_AT_END
+        _DGETRS_(&tr, &f_n, &f_nrhs, a, &f_lda, ipiv, b, &f_ldb, 
+            &f_info);
+#else
         ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
         _DGETRS_(&tr, &f_n, &f_nrhs, a, &f_lda, ipiv, b, &f_ldb, 
@@ -212,6 +238,7 @@ namespace Cantera {
 #else
         _DGETRS_(&tr, trsize, &f_n, &f_nrhs, a, &f_lda, ipiv, b, &f_ldb, 
             &f_info);
+#endif
 #endif
         info = f_info;
     }
@@ -236,6 +263,13 @@ namespace Cantera {
         rank = f_rank;
     }
 
+    inline void ct_dscal(int n, doublereal da, doublereal* dx, int incx) {
+        //integer f_n = n, f_incx = incx;
+        //_DSCAL_(&f_n, &da, dx, &f_incx);
+        cblas_dscal(n, da, dx, incx);
+
+    }
+ 
 
 }
 

@@ -102,13 +102,13 @@ namespace Cantera {
         /// valid thermo data. Stoichiometric phases are not
         /// considered, since they may have thermo data only valid for
         /// conditions for which they are stable.
-        doublereal minTemp();
+        doublereal minTemp() { return m_Tmin; }
 
         /// Maximum temperature for which all solution phases have
         /// valid thermo data. Stoichiometric phases are not
         /// considered, since they may have thermo data only valid for
         /// conditions for which they are stable.
-        doublereal maxTemp();
+        doublereal maxTemp() { return m_Tmax; }
 
         /// Total charge (Coulombs). 
         doublereal charge();

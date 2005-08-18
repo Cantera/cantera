@@ -241,7 +241,7 @@ namespace Cantera {
 
     void SurfPhase::
     setParametersFromXML(const XML_Node& eosdata) {
-        eosdata.require("model","Surface");
+        eosdata._require("model","Surface");
         doublereal n = getFloat(eosdata, "site_density", "-");
         if (n <= 0.0) 
             throw CanteraError("SurfPhase::setParametersFromXML",
@@ -271,7 +271,7 @@ namespace Cantera {
 
     void EdgePhase::
     setParametersFromXML(const XML_Node& eosdata) {
-        eosdata.require("model","Edge");
+        eosdata._require("model","Edge");
         doublereal n = getFloat(eosdata, "site_density", "-");
         if (n <= 0.0) 
             throw CanteraError("EdgePhase::setParametersFromXML",

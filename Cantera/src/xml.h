@@ -13,8 +13,8 @@
 
 // Copyright 2001  California Institute of Technology
 
-#ifndef CT_XML
-#define CT_XML
+#ifndef CT_XML_H
+#define CT_XML_H
 
 #include <string>
 #include <vector>
@@ -131,7 +131,9 @@ namespace Cantera {
         int nChildren() const { return m_nchildren; }
 
         void build(istream& f);
-        void require(string a, string v) const;
+
+        void _require(string a, string v) const;
+
 	/**
 	 * This routine carries out a search for an XML node based
 	 * on both the xml element name and the attribute ID.

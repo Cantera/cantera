@@ -129,6 +129,10 @@ namespace Cantera {
     typedef ct::ctvector_fp            vector_fp;
     typedef ct::ctvector_int           array_int;
     typedef ct::ctvector_int           vector_int;
+    //typedef std::valarray<double>            array_fp;
+    //typedef std::valarray<double>            vector_fp;
+    //typedef std::valarray<int>           array_int;
+    //typedef std::valarray<int>           vector_int;
     typedef vector_int         group_t;
     typedef std::vector<group_t>    grouplist_t;
  

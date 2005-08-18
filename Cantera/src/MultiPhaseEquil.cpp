@@ -228,6 +228,8 @@ namespace Cantera {
         index_t m, n, ik, j;
 
         double not_mu = 1.0e12;
+        beginLogGroup("MultiPhaseEquil::setInitialMoles");
+
         m_mix->getValidChemPotentials(not_mu, m_mu.begin(), true);
         doublereal dg_rt;
 
@@ -241,7 +243,7 @@ namespace Cantera {
             // choose a set of components based on the current
             // composition
             computeN();
-
+            addLogEntry("iteration",iter);
             redo = false;
             iter++;
             if (iter > 4) break;
@@ -265,7 +267,10 @@ namespace Cantera {
                         delta_xi = fabs(moles(ik)/nu);
                         // if a component has nearly zero moles, redo
                         // with a new set of components
-                        if (delta_xi < SmallNumber && ik < m_nel) redo = true;
+                        if (!redo && delta_xi < 1.0e-10 && ik < m_nel) {
+                            addLogEntry("component too small",speciesName(ik));
+                            redo = true;
+                        }
                         if (delta_xi < dxi_min) dxi_min = delta_xi;
                     }
                 }
@@ -277,7 +282,10 @@ namespace Cantera {
             // set the moles of the phase objects to match
             updateMixMoles();
         }
+        for (ik = 0; ik < m_nsp; ik++) 
+            if (moles(ik) != 0.0) addLogEntry(speciesName(ik), moles(ik));
 
+        endLogGroup("MultiPhaseEquil::setInitialMoles");
         return 0;
     }
 
@@ -446,21 +454,21 @@ namespace Cantera {
             k = m_species[ik];
             addLogEntry(m_mix->speciesName(k), fp2str(m_moles[ik]));
         }
-        endLogGroup();
+        endLogGroup("components");
         beginLogGroup("non-components");
         for (m = m_nel; m < m_nsp; m++) {
             ik = m_order[m];
             k = m_species[ik];
             addLogEntry(m_mix->speciesName(k), fp2str(m_moles[ik]));
         }
-        endLogGroup();
+        endLogGroup("non-components");
         addLogEntry("Error",fp2str(error()));
         beginLogGroup("Delta G / RT");
         for (k = 0; k < m_nsp - m_nel; k++) {
             addLogEntry(reactionString(k), fp2str(m_deltaG_RT[k]));
         }
-        endLogGroup();
-        endLogGroup();
+        endLogGroup("Delta G / RT");
+        endLogGroup("info");
     }
 
     /// Return a string specifying the jth reaction. 
@@ -582,7 +590,6 @@ namespace Cantera {
         // now take a step with this scaled omega
         addLogEntry("Stepping by ", fp2str(omegamax));
         step(omegamax, m_work);
-
         // compute the gradient of G at this new position in the
         // current direction. If it is positive, then we have overshot
         // the minimum. In this case, interpolate back.
@@ -600,6 +607,7 @@ namespace Cantera {
             addLogEntry("Stepped over minimum. Take smaller step ", fp2str(omega));
             step(omega, m_work);
         }
+        printInfo(); 
         endLogGroup("MultiPhaseEquil::stepComposition");
         return omega;
     }

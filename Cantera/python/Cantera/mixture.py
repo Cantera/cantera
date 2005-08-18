@@ -84,6 +84,10 @@ class Mixture:
         """Total number of phases defined for the mixture."""
         return len(self._phases)
 
+    def phase(self, n):
+        """Return the object representing the nth phase in the mixture."""
+        return self._phases[n]
+    
     def phaseName(self, n):
         """Name of phase n."""
         return self._phases[n].name()
@@ -162,16 +166,40 @@ class Mixture:
         """Set the temperature [K]. The temperatures of all phases are
         set to this value, holding the pressure fixed."""
         return _cantera.mix_setTemperature(self.__mixid, t)
+    
     def temperature(self):
         """The temperature [K]."""
         return _cantera.mix_temperature(self.__mixid)
+    
+    def minTemp(self):
+        """The minimum temperature for which all species in
+        multi-species solutions have valid thermo data. Stoichiometric
+        phases are not considered in determining minTemp.  """
+        return _cantera.mix_minTemp(self._mixid)
+    
+    def maxTemp(self):
+        """The maximum temperature for which all species in
+        multi-species solutions have valid thermo data. Stoichiometric
+        phases are not considered in determining maxTemp.  """        
+        return _cantera.mix_maxTemp(self._index)
+    
+    def charge(self):
+        """The total charge in Coulombs, summed over all phases."""
+        return _cantera.mix_charge(self._index)
+    
+    def phaseCharge(self, p):
+        """The charge of phase p (Coulombs)."""
+        return _cantera.mix_phaseCharge(self._index, p)
+    
     def setPressure(self, p):
         """Set the pressure [Pa]. The pressures of all phases are set
         to the specified value, holding the temperature fixed."""
         return _cantera.mix_setPressure(self.__mixid, p)
+    
     def pressure(self):
         """The pressure [Pa]."""
-        return _cantera.mix_pressure(self.__mixid)    
+        return _cantera.mix_pressure(self.__mixid)
+    
     def phaseMoles(self, n = -1):
         """Moles of phase n."""
         if n == -1:
@@ -182,9 +210,11 @@ class Mixture:
             return moles
         else:   
             return _cantera.mix_phaseMoles(self.__mixid, n)
+        
     def setPhaseMoles(self, n, moles):
         """Set the number of moles of phase n."""
         _cantera.mix_setPhaseMoles(self.__mixid, n, moles)
+        
     def setSpeciesMoles(self, moles):
         """Set the moles of the species [kmol]. The moles may be
         specified either as a string, or as an array. If an array is

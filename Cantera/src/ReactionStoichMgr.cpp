@@ -32,7 +32,9 @@ namespace Cantera {
     m_reactants = new StoichManagerN;
     m_revproducts = new StoichManagerN;
     m_irrevproducts = new StoichManagerN;
-    //m_global = new StoichManagerN;
+#ifdef INCL_STOICH_WRITER
+    m_rwriter = new StoichWriter;
+#endif
     m_dummy.resize(10,1.0);
   }
 
@@ -42,6 +44,9 @@ namespace Cantera {
     delete m_revproducts;
     delete m_irrevproducts;
     //    delete m_global;
+#ifdef INCL_STOICH_WRITER
+    delete m_rwriter;
+#endif
   }
 
 
@@ -78,11 +83,16 @@ namespace Cantera {
         // or specified reaction orders, then add it in a ma 
         if (isfrac || r.global || rk.size() > 3) {
             m_reactants->add(rxn, r.reactants, r.order, r.rstoich);
+#ifdef INCL_STOICH_WRITER
+            if (m_rwriter) m_rwriter->add(rxn, r.reactants, r.order, r.rstoich);
+#endif
         }
         else {
             m_reactants->add( rxn, rk);
+#ifdef INCL_STOICH_WRITER
+            if (m_rwriter) m_rwriter->add(rxn, rk);
+#endif
         }
-
 
         vector_int pk;
         isfrac = false;
@@ -177,4 +187,93 @@ namespace Cantera {
     multiplyRevProducts(const doublereal* c, doublereal* r) {
         m_revproducts->multiply(c, r);
     }
+
+    
+    void ReactionStoichMgr::
+    write(string filename) {
+        ofstream f(filename.c_str());
+        f << "namespace mech {" << endl;
+        writeCreationRates(f);
+        writeDestructionRates(f);
+        writeNetProductionRates(f);
+        writeMultiplyReactants(f);
+        writeMultiplyRevProducts(f);
+        f << "} // namespace mech" << endl;
+        f.close();
+    }
+
+    void ReactionStoichMgr::
+    writeCreationRates(ostream& f) {
+        f << "    void getCreationRates(const doublereal* rf, const doublereal* rb," << endl;
+        f << "          doublereal* c) {" << endl;
+        map<int, string> out;
+        m_revproducts->writeIncrementSpecies("rf",out);
+        m_irrevproducts->writeIncrementSpecies("rf",out);
+        m_reactants->writeIncrementSpecies("rb",out);
+        map<int, string>::iterator b;
+        for (b = out.begin(); b != out.end(); ++b) {
+            string rhs = wrapString(b->second);
+            rhs[1] = '=';
+            f << "     c[" << b->first << "] " << rhs << ";" << endl;
+        }
+        f << "    }" << endl << endl << endl;
+    }  
+
+    void ReactionStoichMgr::
+    writeDestructionRates(ostream& f) {
+        f << "    void getDestructionRates(const doublereal* rf, const doublereal* rb," << endl;
+        f << "          doublereal* d) {" << endl;
+        map<int, string> out;
+        m_revproducts->writeIncrementSpecies("rb",out);
+        m_reactants->writeIncrementSpecies("rf",out);
+        map<int, string>::iterator b;
+        for (b = out.begin(); b != out.end(); ++b) {
+            string rhs = wrapString(b->second);
+            rhs[1] = '=';
+            f << "     d[" << b->first << "] " << rhs << ";" << endl;
+        }
+        f << "    }" << endl << endl << endl;
+    }
+
+    void ReactionStoichMgr::
+    writeNetProductionRates(ostream& f) {
+        f << "    void getNetProductionRates(const doublereal* r, doublereal* w) {" << endl;
+        map<int, string> out;
+        m_revproducts->writeIncrementSpecies("r",out);
+        m_irrevproducts->writeIncrementSpecies("r",out);
+        m_reactants->writeDecrementSpecies("r",out);
+        map<int, string>::iterator b;
+        for (b = out.begin(); b != out.end(); ++b) {
+            string rhs = wrapString(b->second);
+            rhs[1] = '=';
+            f << "     w[" << b->first << "] " << rhs << ";" << endl;
+        }
+        f << "    }" << endl << endl << endl;
+    }
+
+    void ReactionStoichMgr::
+    writeMultiplyReactants(ostream& f) {
+        f << "    void multiplyReactants(const doublereal* c, doublereal* r) {" << endl;
+        map<int, string> out;
+        m_reactants->writeMultiply("c",out);
+        map<int, string>::iterator b;
+        for (b = out.begin(); b != out.end(); ++b) {
+            string rhs = b->second;
+            f << "      r[" << b->first << "] *= " << rhs << ";" << endl;
+        }
+        f << "    }" << endl << endl << endl;
+    }  
+
+    void ReactionStoichMgr::
+    writeMultiplyRevProducts(ostream& f) {
+        f << "    void multiplyRevProducts(const doublereal* c, doublereal* r) {" << endl;
+        map<int, string> out;
+        m_revproducts->writeMultiply("c",out);
+        map<int, string>::iterator b;
+        for (b = out.begin(); b != out.end(); ++b) {
+            string rhs = b->second;
+            f << "      r[" << b->first << "] *= " << rhs << ";" << endl;
+        }
+        f << "    }" << endl << endl << endl;
+    }  
 }

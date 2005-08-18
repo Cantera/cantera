@@ -19,8 +19,8 @@
 #pragma warning(disable:4503)
 #endif
 
-#include <vector>
-#include <math.h>
+//#include <vector>
+//#include <math.h>
 
 using namespace std;
 

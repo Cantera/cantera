@@ -64,7 +64,7 @@ namespace Cantera {
 
     void ConstDensityThermo::getActivityCoefficients(doublereal* ac) const {
         for (int k = 0; k < m_kk; k++) {
-	  ac[k] = 1.0;
+ 	  ac[k] = 1.0;
 	}
     }
 
@@ -132,7 +132,7 @@ namespace Cantera {
     }
 
     void ConstDensityThermo::setParametersFromXML(const XML_Node& eosdata) {
-        eosdata.require("model","Incompressible");
+        eosdata._require("model","Incompressible");
         doublereal rho = getFloat(eosdata, "density", "-");
         setDensity(rho);
     }

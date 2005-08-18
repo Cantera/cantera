@@ -22,8 +22,55 @@ namespace Cantera {
      * Note: these classes are designed for internal use in class
      * ReactionStoichManager.
      * 
+     * The classes defined here implement simple operations that are
+     * used by class ReactionStoichManager to compute things like
+     * rates of progress, species production rates, etc. In general, a
+     * reaction mechanism may involve many species and many reactions,
+     * but any given reaction typically only involves a few species as
+     * reactants, and a few as products. Therefore, the matrix of
+     * stoichiometric coefficients is very sparse. Not only is it
+     * sparse, but the non-zero matrix elements often have the value
+     * 1, and in many cases no more than three coefficients are
+     * non-zero for the reactants and/or the products.
+     *
+
+     * For the present purposes, we will consider each direction of a
+     * reversible reaction to be a separate reaction. We often need to
+     * compute quantities that can formally be written as a matrix
+     * product of a stoichiometric coefficient matrix and a vector of
+     * reaction rates. For example, the species creation rates are
+     * given by
+     * \f[
+     *  \dot C_k = \sum_k \nu^{(p)}_{k,i} R_i
+     * \f]
+     * where \f$ \nu^{(p)_{k,i}}$ is the product-side stoichiometric
+     * coefficient of species \a k in reaction \a i.
+     * This could be done be straightforward matrix multiplication, but would be inefficient, since most of the matrix elements of \f$ \nu^{(p)}_{k,i} \f$ are zero. We could do better by using sparse-matrix algorithms to compute this product. 
+
+If the reactions are general ones, with non-integral stoichiometric
+coefficients, this is about as good as we can do. But we are
+particularly concerned here with the performance for very large
+reaction mechanisms, which are usually composed of elementary
+reactions, which have integral stoichiometric
+coefficients. Furthermore, very few elementary reactions involve more
+than 3 product or reactant molecules. This means that instead of
+
+
+But we can do even better if we take account of the special structure
+of this matrix for elementary reactions. 
+
+involve three or fewer product molecules (or reactant molecules).
+
+     * To take advantage of this structure, reactions are divided int
+These classes are
+     * designed to take advantage of this sparse structure when
+     * computing quantities that can be written as matrix multiplies
+
+They are designed to explicitly unroll loops over species or reactions for
+
      * Operations on reactions that require knowing the reaction
-     * stoichiometry.  This module consists of class StoichManager, and
+     * stoichiometry.  
+     * This module consists of class StoichManager, and
      * classes C1, C2, and C3.  Classes C1, C2, and C3 handle operations
      * involving one, two, or three species, respectively, in a
      * reaction. Instances are instantiated with a reaction number, and n
@@ -101,6 +148,9 @@ namespace Cantera {
             return 0.0;
     }
 
+    inline static string fmt(string r, int n) { return r + "[" + int2str(n) + "]"; }
+
+
     /**
      * Handles one species in a reaction.
      * @ingroup Stoichiometry
@@ -139,6 +189,28 @@ namespace Cantera {
             R[m_rxn] -= S[m_ic0];
         }
 
+        int rxnNumber() const { return m_rxn; }
+        int speciesIndex(int n) const { return m_ic0; }
+        int nSpecies() { return 1;}
+        
+        void writeMultiply(string r, map<int, string>& out) {
+            out[m_rxn] = fmt(r, m_ic0);
+        }
+
+        void writeIncrementReaction(string r, map<int, string>& out) {
+            out[m_rxn] += " + "+fmt(r, m_ic0);
+        }
+        void writeDecrementReaction(string r, map<int, string>& out) {
+            out[m_rxn] += " - "+fmt(r, m_ic0);
+        }
+
+        void writeIncrementSpecies(string r, map<int, string>& out) {
+            out[m_ic0] += " + "+fmt(r, m_rxn);
+        }
+        void writeDecrementSpecies(string r, map<int, string>& out) {
+            out[m_ic0] += " - "+fmt(r, m_rxn);
+        }
+        
     private:
         int m_rxn, m_ic0;
     };
@@ -183,33 +255,30 @@ namespace Cantera {
             R[m_rxn] -= (S[m_ic0] + S[m_ic1]);
         }
 
-        //     void multiply(const doublereal* input, doublereal* output) const {
-        //       output[m_rxn] *= input[m_ic0] * input[m_ic1]; 
-        //     }
+        int rxnNumber() const { return m_rxn; }
+        int speciesIndex(int n) const { return (n == 0 ? m_ic0 : m_ic1); }
+        int nSpecies() { return 2;}
 
-        //     void incrementSpecies(const doublereal* input, 
-        // 			  doublereal* output) const {
-        //       doublereal x = input[m_rxn]; 
-        //       output[m_ic0] += x;
-        //       output[m_ic1] += x;
-        //     }
+        void writeMultiply(string r, map<int, string>& out) {
+            out[m_rxn] = fmt(r, m_ic0) + " * " + fmt(r, m_ic1);
+        }
+        void writeIncrementReaction(string r, map<int, string>& out) {
+            out[m_rxn] += " + "+fmt(r, m_ic0)+" + "+fmt(r, m_ic1);
+        }
+        void writeDecrementReaction(string r, map<int, string>& out) {
+            out[m_rxn] += " - "+fmt(r, m_ic0)+" - "+fmt(r, m_ic1);
+        }
 
-        //     void decrementSpecies(const doublereal* input, 
-        // 			  doublereal* output) const {
-        //       doublereal x = input[m_rxn]; 
-        //       output[m_ic0] -= x;
-        //       output[m_ic1] -= x; 
-        //     }
-
-        //     void incrementReaction(const doublereal* input, 
-        // 			   doublereal* output) const { 
-        //       *(output + m_rxn) += *(input + m_ic0) + *(input + m_ic1); 
-        //     }
-
-        //     void decrementReaction(const doublereal* input, 
-        // 			   doublereal* output) const { 
-        //       *(output + m_rxn) -= (*(input + m_ic0) + *(input + m_ic1)); 
-        //     }
+        void writeIncrementSpecies(string r, map<int, string>& out) {
+            string s = " + "+fmt(r, m_rxn);
+            out[m_ic0] += s; 
+            out[m_ic1] += s; 
+        }
+        void writeDecrementSpecies(string r, map<int, string>& out) {
+            string s = " - "+fmt(r, m_rxn);
+            out[m_ic0] += s; 
+            out[m_ic1] += s; 
+        }
 
     private:
 
@@ -267,35 +336,31 @@ namespace Cantera {
             R[m_rxn] -= (S[m_ic0] + S[m_ic1] + S[m_ic2]);
         }
 
- //        void multiply(const doublereal* input, doublereal* output) const { 
-//             *(output + m_rxn) *= (*(input + m_ic0)) * (*(input + m_ic1)) 
-//                                  * (*(input + m_ic2)); 
-//         }
-    
-//         void incrementSpecies(const doublereal* input, 
-//             doublereal* output) const {
-//             doublereal x = *(input + m_rxn); 
-//             *(output + m_ic0) += x;
-//             *(output + m_ic1) += x;
-//             *(output + m_ic2) += x;
-//         }
-//         void decrementSpecies(const doublereal* input, 
-//             doublereal* output) const {
-//             doublereal x = *(input + m_rxn); 
-//             *(output + m_ic0) -= x;
-//             *(output + m_ic1) -= x; 
-//             *(output + m_ic2) -= x; 
-//         }
-//         void incrementReaction(const doublereal* input, 
-//             doublereal* output) const { 
-//             *(output + m_rxn) += *(input + m_ic0) + *(input + m_ic1) 
-//                                  + *(input + m_ic2); 
-//         }
-//         void decrementReaction(const doublereal* input, 
-//             doublereal* output) const { 
-//             *(output + m_rxn) -= (*(input + m_ic0) + *(input + m_ic1) 
-//                 + *(input + m_ic2)); 
-//         }
+        int rxnNumber() const { return m_rxn; }
+        int speciesIndex(int n) const { return (n == 0 ? m_ic0 : (n == 1 ? m_ic1 : m_ic2)); }
+        int nSpecies() { return 3;}
+
+        void writeMultiply(string r, map<int, string>& out) {
+            out[m_rxn] = fmt(r, m_ic0) + " * " + fmt(r, m_ic1) + " * " + fmt(r, m_ic2);
+        }
+        void writeIncrementReaction(string r, map<int, string>& out) {
+            out[m_rxn] += " + "+fmt(r, m_ic0)+" + "+fmt(r, m_ic1)+" + "+fmt(r, m_ic2);
+        }
+        void writeDecrementReaction(string r, map<int, string>& out) {
+            out[m_rxn] += " - "+fmt(r, m_ic0)+" - "+fmt(r, m_ic1)+" - "+fmt(r, m_ic2);
+        }
+        void writeIncrementSpecies(string r, map<int, string>& out) {
+            string s = " + "+fmt(r, m_rxn);
+            out[m_ic0] += s; 
+            out[m_ic1] += s; 
+            out[m_ic2] += s; 
+        }
+        void writeDecrementSpecies(string r, map<int, string>& out) {
+            string s = " - "+fmt(r, m_rxn);
+            out[m_ic0] += s; 
+            out[m_ic1] += s;
+            out[m_ic2] += s;  
+        }
     private:
         int m_rxn, m_ic0, m_ic1, m_ic2;    
     };
@@ -331,10 +396,9 @@ namespace Cantera {
             return m_rxn;
         }
         
-        //void power(const doublereal* input, doublereal* output) const {
-        //    for (int n = 0; n < m_n; n++) output[m_rxn] 
-        //        *= ppow(input[m_ic[n]],m_order[n]); 
-        //}
+        doublereal order(int n) const {return m_order[n];}
+        doublereal stoich(int n) const {return m_stoich[n];}
+        int speciesIndex(int n) const {return m_ic[n];}
 
         void multiply(const doublereal* input, doublereal* output) const {
             for (int n = 0; n < m_n; n++) output[m_rxn] *= 
@@ -363,6 +427,46 @@ namespace Cantera {
             doublereal* output) const { 
             for (int n = 0; n < m_n; n++) output[m_rxn] 
                 -= m_stoich[n]*input[m_ic[n]];
+        }
+
+        void writeMultiply(string r, map<int, string>& out) {
+            int n;
+            out[m_rxn] = "";
+            for (n = 0; n < m_n; n++) {
+                if (m_order[n] == 1.0)
+                    out[m_rxn] += fmt(r, m_ic[n]);
+                else
+                    out[m_rxn] += "pow("+fmt(r, m_ic[n])+","+fp2str(m_order[n])+")";
+                if (n < m_n-1)
+                    out[m_rxn] += " * ";
+            }
+        }
+        void writeIncrementReaction(string r, map<int, string>& out) {
+            int n;
+            for (n = 0; n < m_n; n++) {
+                out[m_rxn] += " + "+fp2str(m_stoich[n]) + "*" + fmt(r, m_ic[n]);
+            }
+        }
+        void writeDecrementReaction(string r, map<int, string>& out) {
+            int n;
+            for (n = 0; n < m_n; n++) {
+                out[m_rxn] += " - "+fp2str(m_stoich[n]) + "*" + fmt(r, m_ic[n]);
+            }
+        }
+        void writeIncrementSpecies(string r, map<int, string>& out) {
+            string s = fmt(r, m_rxn);
+            int n;
+            for (n = 0; n < m_n; n++) {
+                out[m_ic[n]] += " + "+fp2str(m_stoich[n]) + "*" + s;
+            }
+        }
+
+        void writeDecrementSpecies(string r, map<int, string>& out) {
+            string s = fmt(r, m_rxn);
+            int n;
+            for (n = 0; n < m_n; n++) {
+                out[m_ic[n]] += " - "+fp2str(m_stoich[n]) + "*" + s;
+            }
         }
 
     private:
@@ -408,6 +512,36 @@ namespace Cantera {
             __begin->decrementReaction(input, output);
     }
 
+
+    template<class _InputIter>
+    inline static void _writeIncrementSpecies(_InputIter __begin, _InputIter __end, string r, 
+        map<int, string>& out) {
+        for (; __begin != __end; ++__begin) __begin->writeIncrementSpecies(r, out);
+    }
+
+    template<class _InputIter>
+    inline static void _writeDecrementSpecies(_InputIter __begin, _InputIter __end, string r, 
+        map<int, string>& out) {
+        for (; __begin != __end; ++__begin) __begin->writeDecrementSpecies(r, out);
+    }
+
+    template<class _InputIter>
+    inline static void _writeIncrementReaction(_InputIter __begin, _InputIter __end, string r, 
+        map<int, string>& out) {
+        for (; __begin != __end; ++__begin) __begin->writeIncrementReaction(r, out);
+    }
+
+    template<class _InputIter>
+    inline static void _writeDecrementReaction(_InputIter __begin, _InputIter __end, string r, 
+        map<int, string>& out) {
+        for (; __begin != __end; ++__begin) __begin->writeDecrementReaction(r, out);
+    }
+
+    template<class _InputIter>
+    inline static void _writeMultiply(_InputIter __begin, _InputIter __end, string r, 
+        map<int, string>& out) {
+        for (; __begin != __end; ++__begin) __begin->writeMultiply(r, out);
+    }
 
     /*
      * This class handles operations involving the stoichiometric
@@ -572,6 +706,42 @@ namespace Cantera {
             _decrementReactions(m_cn_list.begin(), m_cn_list.end(), input, output);
         }
  
+        void writeIncrementSpecies(string r, map<int, string>& out) {
+            _writeIncrementSpecies(m_c1_list.begin(), m_c1_list.end(), r, out);
+            _writeIncrementSpecies(m_c2_list.begin(), m_c2_list.end(), r, out);
+            _writeIncrementSpecies(m_c3_list.begin(), m_c3_list.end(), r, out);
+            _writeIncrementSpecies(m_cn_list.begin(), m_cn_list.end(), r, out);
+        }
+
+        void writeDecrementSpecies(string r, map<int, string>& out) {
+            _writeDecrementSpecies(m_c1_list.begin(), m_c1_list.end(), r, out);
+            _writeDecrementSpecies(m_c2_list.begin(), m_c2_list.end(), r, out);
+            _writeDecrementSpecies(m_c3_list.begin(), m_c3_list.end(), r, out);
+            _writeDecrementSpecies(m_cn_list.begin(), m_cn_list.end(), r, out);
+        }
+
+        void writeIncrementReaction(string r, map<int, string>& out) {
+            _writeIncrementReaction(m_c1_list.begin(), m_c1_list.end(), r, out);
+            _writeIncrementReaction(m_c2_list.begin(), m_c2_list.end(), r, out);
+            _writeIncrementReaction(m_c3_list.begin(), m_c3_list.end(), r, out);
+            _writeIncrementReaction(m_cn_list.begin(), m_cn_list.end(), r, out);
+        }
+
+        void writeDecrementReaction(string r, map<int, string>& out) {
+            _writeDecrementReaction(m_c1_list.begin(), m_c1_list.end(), r, out);
+            _writeDecrementReaction(m_c2_list.begin(), m_c2_list.end(), r, out);
+            _writeDecrementReaction(m_c3_list.begin(), m_c3_list.end(), r, out);
+            _writeDecrementReaction(m_cn_list.begin(), m_cn_list.end(), r, out);
+        }
+
+        void writeMultiply(string r, map<int, string>& out) {
+            _writeMultiply(m_c1_list.begin(), m_c1_list.end(), r, out);
+            _writeMultiply(m_c2_list.begin(), m_c2_list.end(), r, out);
+            _writeMultiply(m_c3_list.begin(), m_c3_list.end(), r, out);
+            _writeMultiply(m_cn_list.begin(), m_cn_list.end(), r, out);
+        }
+
+
     private:
 
         vector<C1>     m_c1_list;
@@ -590,7 +760,7 @@ namespace Cantera {
         map<int, int>  m_loc;
     };
 
-
+#undef INCL_STOICH_WRITER
 #ifdef INCL_STOICH_WRITER
 
     class StoichWriter {
@@ -610,15 +780,33 @@ namespace Cantera {
             }
         }
 
-        void writeIncSpec(ostream& s, int nsp) {
-            int k; 
-            for (k = 0; k < nsp; k++) {
-                s << "out[" << k << "] = " << m_is[k] << ";" << endl;
+        void add(int rxn, const vector_int& k, const vector_fp& order, 
+            const vector_fp& stoich) {
+            int n, nn = k.size();
+            string s;
+            for (n = 0; n < nn; n++) {
+                if (order[n] == 1.0) 
+                    m_mult[rxn] += "*c[" + int2str(k[n]) + "]";
+                else 
+                    m_mult[rxn] += "*pow(c[" _ int2str(k[n]) + "],"+fp2str(order[n])+")";
+                if (stoich[n] == 1.0) {
+                    m_is[k[n]] += " + r[" + int2str(rxn) + "]";
+                    m_ds[k[n]] += " - r[" + int2str(rxn) + "]";
+                    m_ir[rxn] += " + g[" + int2str(k[n]) + "]";
+                    m_dr[rxn] += " - g[" + int2str(k[n]) + "]";
+                }
+                else {
+                    s = fp2str(stoich[n]);
+                    m_is[k[n]] += " + "+s+"*r[" + int2str(rxn) + "]";
+                    m_ds[k[n]] += " - "+s+"*r[" + int2str(rxn) + "]";
+                    m_ir[rxn] += " + "+s+"*g[" + int2str(k[n]) + "]";
+                    m_dr[rxn] += " - "+s+"*g[" + int2str(k[n]) + "]";
+                }
             }
         }
 
         string mult(int rxn) { return m_mult[rxn]; }
-        string incrSpec(int k) { return m_is[k]; }
+        string incrSpec(int k, string) { return m_is[k]; }
         string decrSpec(int k) { return m_ds[k]; }
         string incrRxn(int rxn) { return m_ir[rxn]; }    
         string decrRxn(int rxn) { return m_dr[rxn]; }
@@ -632,3 +820,4 @@ namespace Cantera {
 }
 
 #endif
+

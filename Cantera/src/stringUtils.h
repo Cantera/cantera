@@ -36,6 +36,7 @@ namespace Cantera {
     inline doublereal fpValue(string val) {
         return atof(stripws(val).c_str());
     }
+    string wrapString(const string& s, int len=70);
 
     int stripLTWScstring(char str[]);
     double atofCheck(const char *dptr);

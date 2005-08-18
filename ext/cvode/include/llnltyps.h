@@ -76,8 +76,7 @@ extern "C" {
  ******************************************************************/
 
 typedef double real;
-
-/* typedef long integer;    dgg */
+    //typedef long int integer;
 typedef int integer;
 
 #define LLNL_FLOAT  0

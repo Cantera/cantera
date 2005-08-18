@@ -728,8 +728,11 @@ namespace Cantera {
             writelog("Logfile error."
                 "\n   beginLogGroup: "+ __app->loggroups.back()+
                 "\n   endLogGroup;   "+title+"\n");
+            write_logfile("logerror"); 
+            __app->loggroups.clear();
+            __app->loglevels.clear();
         }
-        if (__app->loggroups.size() == 1) {
+        else if (__app->loggroups.size() == 1) {
             write_logfile(__app->loggroups.back()+"_log"); 
             __app->loggroups.clear();
             __app->loglevels.clear();

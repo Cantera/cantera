@@ -26,7 +26,7 @@ namespace Cantera {
      * considers one domain.
      */ 
     doublereal bound_step(const doublereal* x, const doublereal* step, 
-        Domain1D& r, int loglevel=0) {
+        Domain1D& r, int loglevel) {
 
         char buf[100];
         int np = r.nPoints();

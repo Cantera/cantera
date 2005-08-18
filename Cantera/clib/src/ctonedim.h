@@ -2,6 +2,7 @@
 #define CTC_ONEDIM_H
 
 #include "clib_defs.h"
+#include "../../src/config.h"
 
 extern "C" {
 
@@ -61,7 +62,7 @@ extern "C" {
         int np, double* pos, int nv, double* v);
     int DLL_IMPORT sim1D_setFlatProfile(int i, int dom, int comp, double v);
     int DLL_IMPORT sim1D_showSolution(int i, char* fname);
-    int DLL_IMPORT sim1D_setTimeStep(int i, double stepsize, int ns, int* nsteps);
+    int DLL_IMPORT sim1D_setTimeStep(int i, double stepsize, int ns, integer* nsteps);
     int DLL_IMPORT sim1D_getInitialSoln(int i);
     int DLL_IMPORT sim1D_solve(int i, int loglevel, int refine_grid);
     int DLL_IMPORT sim1D_refine(int i, int loglevel);

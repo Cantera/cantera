@@ -808,7 +808,21 @@ namespace Cantera {
                     w2[n] = -1.0;
                 }
                 else {
-                    spvisc[n] = visc/sqrt_T;
+                    // the viscosity should be proportional
+                    // approximately to sqrt(T); therefore,
+                    // visc/sqrt(T) should have only a weak
+                    // temperature dependence. And since the mixture
+                    // rule requires the square root of the
+                    // pure-species viscosity, fit the square root of
+                    // (visc/sqrt(T)) to avoid having to compute
+                    // square roots in the mixture rule.
+                    spvisc[n] = sqrt(visc/sqrt_T);
+
+                    // the pure-species conductivity scales
+                    // approximately with sqrt(T). Unlike the
+                    // viscosity, there is no reason here to fit the
+                    // square root, since a different mixture rule is
+                    // used.
                     spcond[n] = cond/sqrt_T;
                     w[n] = 1.0/(spvisc[n]*spvisc[n]);
                     w2[n] = 1.0/(spcond[n]*spcond[n]);
@@ -827,8 +841,8 @@ namespace Cantera {
                 }
                 else {
                     sqrt_T = exp(0.5*tlog[n]);
-                    val = sqrt_T * spvisc[n];
-                    fit = sqrt_T * poly4(tlog[n], c.begin());
+                    val = sqrt_T * pow(spvisc[n],2);
+                    fit = sqrt_T * pow(poly4(tlog[n], c.begin()),2);
                 }
                 err = fit - val;
                 relerr = err/val;
