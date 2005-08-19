@@ -22,9 +22,8 @@
 //#include <vector>
 //#include <math.h>
 
-using namespace std;
-
 #include "MultiJac.h"
+using namespace std;
 
 namespace Cantera {
 

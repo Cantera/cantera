@@ -36,15 +36,16 @@ namespace Cantera {
     class Logger {
     public:
 
-        Logger() {}
-        virtual ~Logger() {}
+      Logger() {}
+      virtual ~Logger() {}
 
-        /// Write a log message. The default behavior is to write to
-        /// the standard output. Note that no end-of-line character is
-        /// appended to the message, and so if one is desired it must
-        /// be included in the string.
-        virtual void write(const string& msg) {
-            cout << msg;
+      /// Write a log message. The default behavior is to write to
+      /// the standard output. Note that no end-of-line character is
+      /// appended to the message, and so if one is desired it must
+      /// be included in the string.
+	  
+	virtual void write(const string& msg) {
+	  cout << msg;
         }
 
         /// Write an error message and quit. The default behavior is
@@ -55,7 +56,7 @@ namespace Cantera {
         /// terminate the application Cantera is invoked from (MATLAB,
         /// Excel, etc.) If this is not desired, then derive a class
         /// and reimplement this method.
-        virtual void error(const string& msg) {
+	    virtual void error(const string& msg) {
             cerr << msg << endl;
             exit(-1);
         }

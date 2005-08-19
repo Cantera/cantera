@@ -59,7 +59,7 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // The configure script defines this if the operatiing system is Mac
 // OS X, This used to add some Mac-specific directories to the default
 // data file search path.
-#define DARWIN 0
+/* #undef DARWIN */
 #define HAS_SSTREAM
 /* #undef HAS_SSTREAM */
 

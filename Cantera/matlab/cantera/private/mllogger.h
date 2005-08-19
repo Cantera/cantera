@@ -8,7 +8,7 @@
 #include <iostream>
 using namespace std;
 
-static std::string ss = "disp('";
+static string ss = "disp(' ";
 
 namespace Cantera {
 
@@ -18,14 +18,15 @@ namespace Cantera {
         virtual ~ML_Logger() {}
 
 
-        virtual void write(const std::string& s) {
+        virtual void write(const string& s) {
             char ch = s[0];
             int n = 0;
             while (ch != '\0') {
                 if (ch =='\n') {
                     ss += "');";
+
                     mexEvalString(ss.c_str());
-                    ss = "disp('";
+                    ss = "disp(' ";
                 }
                 else 
                     ss += ch;
@@ -36,8 +37,8 @@ namespace Cantera {
         }
 
 
-        virtual void error(const std::string& msg) {
-            std::string err = "error("+msg+");";
+        virtual void error(const string& msg) {
+            string err = "error("+msg+");";
             mexEvalString(err.c_str());
         }
 

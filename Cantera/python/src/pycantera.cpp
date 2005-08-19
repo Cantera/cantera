@@ -62,7 +62,7 @@ static PyObject *ErrorObject;
 
 #include "methods.h"
 #include "pylogger.h"
-#include "../../src/global.h"
+//#include "../../src/global.h"
 extern "C" {
 
     /* Initialization function for the module */

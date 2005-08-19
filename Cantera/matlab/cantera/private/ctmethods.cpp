@@ -13,7 +13,7 @@
 #include "mex.h"
 #include "ctmatutils.h"
 #include "mllogger.h"
-#include "../../../src/global.h"
+//#include "../../../src/global.h"
 
 namespace Cantera {
     void setMatlabMode(bool m);
@@ -81,7 +81,7 @@ static Cantera::ML_Logger* _logger = 0;
 void initLogger() {
     if (!_logger) {
         _logger = new Cantera::ML_Logger;
-        Cantera::setLogger(_logger);
+        setLogWriter(_logger);
     }
 }
 
@@ -94,11 +94,11 @@ extern "C" {
 
         // create a log writer for error messages if this is the
         // first MATLAB function call
-        initLogger();
+        initLogger();      
 
         // flag specifying the class
         int iclass = getInt(prhs[0]);
-        
+
         // Hand off to the appropriate routine, based on the
         // value of the first parameter
         switch (iclass) {

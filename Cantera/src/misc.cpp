@@ -57,7 +57,6 @@ namespace Cantera {
                 // install a default logwriter that writes to standard
                 // output / standard error
                 logwriter = new Logger();
-
                 // HTML log files
                 xmllog = 0; 
                 current = 0;
@@ -111,7 +110,9 @@ namespace Cantera {
     Unit* Unit::__u = 0;
 
     static void appinit() {
-        if (__app == 0) __app = new Application;
+      if (__app == 0) {
+	__app = new Application;
+      }
     }
 
     /**
@@ -618,6 +619,7 @@ namespace Cantera {
     /// test
     /// @ingroup textlogs
     int userInterface() {
+      appinit();
         return app()->logwriter->env();
     }
 
