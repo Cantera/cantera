@@ -897,12 +897,11 @@ fi
 
 echo
 if test "x${OS_IS_WIN}" = "x0"; then
-echo "Now type '${MAKE}' to build Cantera"
-#else
-#echo "Now start Visual Studio, open workspace 'win32/cantera.dsw',"
-#echo "and build project 'all'. When this finishes, come back here and "
-#echo "type 'make win' to make the Python and/or MATLAB interfaces."
-#fi 
+  echo "Now type '${MAKE}' to build Cantera"
+#  else
+#  echo "Now start Visual Studio, open workspace 'win32/cantera.dsw',"
+#  echo "and build project 'all'. When this finishes, come back here and "
+#  echo "type 'make win' to make the Python and/or MATLAB interfaces."
+fi 
 echo  
-# $Log: configure.in,v
 
