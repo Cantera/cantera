@@ -229,7 +229,7 @@ ENABLE_TPX='y'
 # (The settings shown here are appropriate if you are using the ATLAS
 # libraries.)
 #
-BLAS_LAPACK_LIBS='-llapack -lblas'
+#BLAS_LAPACK_LIBS='-llapack -lblas'
 #'-llapack -lf77blas -lcblas -latlas'
 #BLAS_LAPACK_DIR='/usr/lib'
 #
@@ -246,7 +246,6 @@ LAPACK_FTN_TRAILING_UNDERSCORE='y'
 
 # Currently this must be set to 'y'.
 LAPACK_FTN_STRING_LEN_AT_END='y'
-
 
 #------------------------------------------------------------------
 #       C++ compiler options
