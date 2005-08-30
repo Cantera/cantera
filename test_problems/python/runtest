@@ -101,7 +101,7 @@ echo
 #################################################################
 #
 #################################################################
-echo "testing handling of fractional product stoichiometric coefficients..."
+echo "Testing handling of fractional product stoichiometric coefficients..."
 $PYTHON_CMD frac.py > frac_test.out
 diff -w frac_test.out frac_blessed.out > diff_test.out
 retnStat=$?

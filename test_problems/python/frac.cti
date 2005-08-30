@@ -101,6 +101,6 @@ reaction( "H2O => 1.4 H + 0.6 OH + 0.2 O2",   [1.0e13, 0.0, 0.0])
 
 # A reaction with fractional reactant stoichiometric
 # coefficients.
-reaction( "1.4 H + 0.6 OH + 0.2 O2 => H2O",   [1.0e13, 0.0, 0.0],
-          order = "H:0.8 OH:2 O2:1")
+reaction( "0.7 H2 + 0.6 OH + 0.2 O2 => H2O",   [1.0e13, 0.0, 0.0],
+          order = "H2:0.8 OH:2 O2:1")
 
