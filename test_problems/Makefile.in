@@ -8,14 +8,14 @@ test_python=@BUILD_PYTHON@
 
 all:
 	cd cxx_ex;       @MAKE@ all
-	cd silane_equil; @MAKE@ all
+#	cd silane_equil; @MAKE@ all
 	cd surfkin;      @MAKE@ all
 	cd diamondSurf;  @MAKE@ all
 	cd ck2cti_test;  @MAKE@ all
 
 test:
 	cd cxx_ex;       @MAKE@ test
-	cd silane_equil; @MAKE@ test
+#	cd silane_equil; @MAKE@ test
 	cd surfkin;      @MAKE@ test
 	cd diamondSurf;  @MAKE@ test
 	cd ck2cti_test;  @MAKE@ test
@@ -26,7 +26,7 @@ endif
 clean:
 	$(RM) *.*~ 
 	cd cxx_ex;       @MAKE@ clean
-	cd silane_equil; @MAKE@ clean
+#	cd silane_equil; @MAKE@ clean
 	cd surfkin;      @MAKE@ clean
 	cd diamondSurf;  @MAKE@ clean
 	cd ck2cti_test;  @MAKE@ clean
@@ -36,7 +36,7 @@ endif
 
 depends:
 	cd cxx_ex;       @MAKE@ depends
-	cd silane_equil; @MAKE@ depends
+#	cd silane_equil; @MAKE@ depends
 	cd surfkin;      @MAKE@ depends
 	cd diamondSurf;  @MAKE@ depends
 	cd ck2cti_test;  @MAKE@ depends
