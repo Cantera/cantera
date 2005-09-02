@@ -8,6 +8,7 @@ echo "***************************************************"
 echo " "
 BINDIR=@buildbin@
 CK2CTI=$BINDIR/ck2cti
+echo "Test 1: Converting file gri30.inp..."
 $CK2CTI -i ./gri30.inp -id gri30 -tr ./gri30_tran.dat 
 #
 # strip out variably dated stuff
@@ -27,9 +28,38 @@ retnStat=$?
 #
 if [ $retnStat = "0" ]
 then
-  echo "successful diff comparison on ck2cti test"
+  echo "successful diff comparison on ck2cti test (gri30.inp)"
 else
-  echo "unsuccessful diff comparison on ck2cti test"
+  echo "unsuccessful diff comparison on ck2cti test (gri30.inp)"
+fi
+echo 
+echo "Test 2: Converting file soot.inp..."
+echo "   This tests handling of extensions to the Chemkin input file format"
+echo "   to handle very large molecules and non-integral stoichiometric"
+echo "   coefficients..."
+echo 
+$CK2CTI -i ./soot.inp -id soot -t ./therm_soot.dat 
+#
+# strip out variably dated stuff
+#
+cat soot.cti | sed '1,5s/^#.*$/#/' > soota.cti
+#
+# Change all 3 character exponent expressions starting with 0
+# into 2 character exponent expressions
+# (MSVC++ defaults to 3, and I can't figure out how to change
+#  this behavior).
+#
+../../bin/exp3to2.sh soota.cti > sootb.cti
+#
+#
+diff sootb.cti soot_blessed.cti > diff_soot.out
+retnStat=$?
+#
+if [ $retnStat = "0" ]
+then
+  echo "successful diff comparison on ck2cti test (soot.inp)"
+else
+  echo "unsuccessful diff comparison on ck2cti test (soot.inp)"
 fi
 echo 
 
