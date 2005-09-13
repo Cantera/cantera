@@ -47,38 +47,65 @@ using namespace ct;
  */
 namespace Cantera {
 
-    //#define CANTERA_VERSION 1.6
+    const doublereal Pi = 3.1415926;
+    const doublereal SqrtPi = sqrt(Pi);
 
     // use kg-moles, rather than g-moles.
-
+    // Note: this constant is a relic of old versions,
+    // and appears to be no longer used anywhere.
     const doublereal CtMoles_per_mole = 1.e-3;       // kmol
+
+    /// @name Physical Constants
+    //@{
+
     /// Avogadro's Number
     const doublereal Avogadro = 6.022136736e26;
 
     //const doublereal GasConstant = 8314.0;
 
     /// Universal Gas Constant. 1999 CODATA value.
-    const doublereal GasConstant = 8314.47215;
+    const doublereal GasConstant = 8314.47215; // J/kmol/K
 
     const doublereal logGasConstant = 9.025752908;
 
     /// One atmosphere
     const doublereal OneAtm = 1.01325e5;             // Pa
+
     /// Universal gas constant in cal/mol/K
     const doublereal GasConst_cal_mol_K = 1.987;
+
     /// Boltzmann's constant
     const doublereal Boltzmann = GasConstant / Avogadro;
+
     /// Planck's constant
-    const doublereal Planck = 6.6262e-34;           // J-s
+    const doublereal Planck = 6.626068e-34;           // J-s
+    const doublereal Planck_bar = 1.05457148e-34;    // m2-kg/s
+
     /// log(k/h)
     const doublereal logBoltz_Planck = 23.7599032;  // ln(k_B/h)
     /// Stefan-Boltzmann constant
     const doublereal StefanBoltz = 5.67e-8;
-    const doublereal ElectronCharge = 1.602e-19;
+
+    /// @name Electron Properties
+    //@{
+    const doublereal ElectronCharge = 1.602e-19; // C
+    const doublereal ElectronMass = 9.10938188e-31; // kg
     const doublereal Faraday = ElectronCharge * Avogadro;
-    const doublereal epsilon_0 = 8.85e-12;  // farads / m
-    const doublereal Pi = 3.1415926;
-    const doublereal SqrtPi = sqrt(Pi);
+    //@}
+
+    /// @name Electromagnetism
+    /// Cantera uses the MKS unit system.
+    //@{
+
+    /// Permittivity of free space \f$ \epsilon_0 \f$ in F/m.
+    const doublereal epsilon_0 = 8.8542e-12;  // Farads/m = C^2/N/m^2
+
+    /// Permeability of free space \f$ \mu_0 \f$ in N/A^2.
+    const doublereal permeability_0 = 4.0e-7*Pi; // N/A^2
+
+    //@}
+
+    //@} 
 
     const doublereal OneThird = 1.0/3.0;
     const doublereal FiveSixteenths = 5.0/16.0;

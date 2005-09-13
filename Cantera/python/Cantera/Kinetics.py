@@ -8,7 +8,6 @@ from Cantera.XML import XML_Node
 from Cantera.num import zeros
 import _cantera
 
-
 class Kinetics:
     """
     Kinetics managers. Instances of class Kinetics are responsible for
@@ -141,7 +140,7 @@ class Kinetics:
             if nur <> 0.0:
                 if nur <> 1.0:
                     if nur <> round(nur):
-                        s += `nur`+' '
+                        s += str(nur)+' '
                     else:
                         s += `int(nur)`+' '
                 s += self._sp[k]+' + '
@@ -155,7 +154,7 @@ class Kinetics:
             if nup <> 0.0:
                 if nup <> 1.0:
                     if nup <> round(nup):
-                        s += `nup`+' '
+                        s += str(nup)+' '
                     else:                    
                         s += `int(nup)`+' '
                 s += self._sp[k]+' + '

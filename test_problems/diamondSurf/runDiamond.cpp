@@ -1,14 +1,15 @@
 /**
- *  @file example2.cpp
+ *  @file runDiamond.cpp
  *
  */
 
 //  Example 
 //
-//  Read a mechanism and a thermodynamics file for the 
-//  class IdealSolidSolnPhase in order to test that it's
-//  working correctly
-//
+// Note that this example needs updating. It works fine, but is
+// written in a way that is less than transparent or
+// user-friendly. This could be rewritten using class Interface to
+// make things simpler.
+
 
 #include <iostream>
 #include <string>

@@ -40,7 +40,13 @@ if [ $retnStat = "1" ]
 then
   echo "successful csv comparison on eq1 test"
 else
+  echo "########################################################"
   echo "unsuccessful csv comparison on eq1 test"
+  echo "   For more information, see files:"
+  echo "       test_problems/cxx_ex/eq1_test.out"
+  echo "       test_problems/cxx_ex/eq1.csv"
+  echo "       test_problems/cxx_ex/eq1_blessed.csv"
+  echo "########################################################"
   echo "FAILED" > csvCode.txt
   temp_success="0"
 fi
@@ -59,7 +65,13 @@ then
     echo "PASSED" > csvCode.txt
   fi
 else
+  echo "########################################################"
   echo "unsuccessful csv comparison on tr1 test"
+  echo "   For more information, see files:"
+  echo "       test_problems/cxx_ex/tr1_test.out"
+  echo "       test_problems/cxx_ex/tr1.csv"
+  echo "       test_problems/cxx_ex/tr1_blessed.csv"
+  echo "########################################################"
   echo "FAILED" > csvCode.txt
   temp_success="0"
 fi
@@ -78,7 +90,13 @@ then
     echo "PASSED" > csvCode.txt
   fi
 else
+  echo "########################################################"
   echo "unsuccessful csv comparison on tr2 test"
+  echo "   For more information, see files:"
+  echo "       test_problems/cxx_ex/tr2_test.out"
+  echo "       test_problems/cxx_ex/tr2.csv"
+  echo "       test_problems/cxx_ex/tr2_blessed.csv"
+  echo "########################################################"
   echo "FAILED" > csvCode.txt
   temp_success="0"
 fi
@@ -106,7 +124,13 @@ then
     echo "PASSED" > csvCode.txt
   fi
 else
+  echo "########################################################"
   echo "unsuccessful csv comparison on kin1 test"
+  echo "   For more information, see files:"
+  echo "       test_problems/cxx_ex/kin1_test.out"
+  echo "       test_problems/cxx_ex/kin1.csv"
+  echo "       test_problems/cxx_ex/kin1_blessed_tmp.csv"
+  echo "########################################################"
   echo "FAILED" > csvCode.txt
   temp_success="0"
 fi
@@ -134,7 +158,13 @@ then
     echo "PASSED" > csvCode.txt
   fi
 else
+  echo "########################################################"
   echo "unsuccessful csv comparison on kin2 test"
+  echo "   For more information, see files:"
+  echo "       test_problems/cxx_ex/kin2_test.out"
+  echo "       test_problems/cxx_ex/kin2.csv"
+  echo "       test_problems/cxx_ex/kin2_blessed_tmp.csv"
+  echo "########################################################"
   echo "FAILED" > csvCode.txt
   temp_success="0"
 fi

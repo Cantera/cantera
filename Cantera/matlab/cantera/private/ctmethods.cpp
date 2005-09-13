@@ -13,11 +13,6 @@
 #include "mex.h"
 #include "ctmatutils.h"
 #include "mllogger.h"
-//#include "../../../src/global.h"
-
-namespace Cantera {
-    void setMatlabMode(bool m);
-}
 
 const int NO_CLASS = 0;
 const int XML_CLASS = 10;
