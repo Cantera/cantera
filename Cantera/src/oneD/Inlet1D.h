@@ -202,6 +202,7 @@ namespace Cantera {
         virtual ~Empty1D(){}
 
         virtual string componentName(int n) const;
+        virtual void showSolution(const doublereal* x) {}
 
         virtual void init();
 

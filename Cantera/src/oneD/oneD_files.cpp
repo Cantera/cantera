@@ -6,3 +6,4 @@
 #include "boundaries1D.cpp"
 #include "refine.cpp" 
 #include "Sim1D.cpp" 
+#include "Domain1D.cpp"

@@ -186,15 +186,18 @@ namespace Cantera {
 
     void Sim1D::showSolution(ostream& s) {
         for (int n = 0; n < m_nd; n++) {
-            domain(n).showSolution(s, m_x.begin() + start(n));
+            if (domain(n).domainType() != cEmptyType)
+                domain(n).showSolution(s, m_x.begin() + start(n));
         }
     }
 
     void Sim1D::showSolution() {
         for (int n = 0; n < m_nd; n++) {
-            writelog("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> "+domain(n).id()
-                       +" <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n");
-            domain(n).showSolution(m_x.begin() + start(n));
+            if (domain(n).domainType() != cEmptyType) {
+                writelog("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> "+domain(n).id()
+                    +" <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n");
+                domain(n).showSolution(m_x.begin() + start(n));
+            }
         }
     }
 

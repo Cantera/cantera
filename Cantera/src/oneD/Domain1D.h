@@ -102,12 +102,16 @@ namespace Cantera {
          * actions required to resize the domain.
          */
         virtual void resize(int nv, int np) {
+            // if the number of components is being changed, then a
+            // new grid refiner is required.
             if (nv != m_nv || !m_refiner) {
                 m_nv = nv;
                 delete m_refiner;
                 m_refiner = new Refiner(*this);
             }
             m_nv = nv;
+            m_td.resize(m_nv, 1);
+            m_name.resize(m_nv,"");
             m_max.resize(m_nv, 0.0);
             m_min.resize(m_nv, 0.0);
             m_rtol_ss.resize(m_nv, 1.0e-8);
@@ -120,6 +124,7 @@ namespace Cantera {
             locate();
         }
 
+        /// Return a reference to the grid refiner.
         Refiner& refiner() { return *m_refiner; }
 
         /// Number of components at each grid point.
@@ -130,9 +135,19 @@ namespace Cantera {
 
         /// Name of the nth component. May be overloaded.
         virtual string componentName(int n) const { 
-            return "component " + int2str(n); 
+            if (m_name[n] != "") return m_name[n];
+            else return "component " + int2str(n); 
         }
 
+        void setComponentName(int n, string name) {
+            m_name[n] = name;
+        }
+
+        void setComponentType(int n, int ctype) {
+            if (ctype == 0) setAlgebraic(n);
+        }
+
+        /// index of component with name \a name.
         int componentIndex(string name) {
             int nc = nComponents();
             for (int n = 0; n < nc; n++) {
@@ -160,60 +175,23 @@ namespace Cantera {
             m_max[n] = upper;
         }
 
+        /// set the error tolerances for all solution components. 
         void setTolerances(int nr, const doublereal* rtol, 
-            int na, const doublereal* atol, int ts = 0) {
-            if (nr < m_nv || na < m_nv)
-                throw CanteraError("Domain1D::setTolerances",
-                    "wrong array size for solution error tolerances. "
-                    "Size should be at least "+int2str(m_nv));
-            if (ts >= 0) {
-                copy(rtol, rtol + m_nv, m_rtol_ss.begin());
-                copy(atol, atol + m_nv, m_atol_ss.begin());
-            }
-            if (ts <= 0) {
-                copy(rtol, rtol + m_nv, m_rtol_ts.begin());
-                copy(atol, atol + m_nv, m_atol_ts.begin());
-            }
-        }
+            int na, const doublereal* atol, int ts = 0);
 
-        void setTolerances(int n, doublereal rtol, doublereal atol, int ts = 0) {
-            if (ts >= 0) {
-                m_rtol_ss[n] = rtol;
-                m_atol_ss[n] = atol;
-            }
-            if (ts <= 0) {
-                m_rtol_ts[n] = rtol;
-                m_atol_ts[n] = atol;
-            }
-        }
+        /// set the error tolerances for solution component \a n.
+        void setTolerances(int n, doublereal rtol, doublereal atol, int ts = 0);
 
         //added by Karl Meredith
-        void setTolerances(doublereal rtol, doublereal atol,int ts=0) {
-            for (int n=0;n<m_nv;n++){
-                if(ts>=0) {
-                    m_rtol_ss[n] = rtol;
-                    m_atol_ss[n] = atol;
-                }
-                if (ts <= 0) {
-                    m_rtol_ts[n] = rtol;
-                    m_atol_ts[n] = atol;
-                }
-            }
-        }
+        /// set scalar error tolerances. All solution components will
+        /// have the same relative and absolute error tolerances.
+        void setTolerances(doublereal rtol, doublereal atol,int ts=0);
+
         //added by Karl Meredith
-        void setTolerancesTS(doublereal rtol, doublereal atol) {
-            for (int n=0;n<m_nv;n++){
-                m_rtol_ts[n] = rtol;
-                m_atol_ts[n] = atol;
-            }
-        }
+        void setTolerancesTS(doublereal rtol, doublereal atol);
+
         //added by Karl Meredith
-        void setTolerancesSS(doublereal rtol, doublereal atol) {
-            for (int n=0;n<m_nv;n++){
-                m_rtol_ss[n] = rtol;
-                m_atol_ss[n] = atol;
-            }
-        }
+        void setTolerancesSS(doublereal rtol, doublereal atol);
 				
         /// Relative tolerance of the nth component.
         doublereal rtol(int n) { return (m_rdt == 0.0 ? m_rtol_ss[n] : m_rtol_ts[n]); }
@@ -271,10 +249,14 @@ namespace Cantera {
          * evaluate the residual function at all points.
          */         
         virtual void eval(int j, doublereal* x, doublereal* r, 
-            integer* mask, doublereal rdt=0.0) {
-            throw CanteraError("Domain1D::eval",
-                "residual function not defined.");
+            integer* mask, doublereal rdt=0.0);
+
+        virtual doublereal residual(doublereal* x, int n, int j) {
+            throw CanteraError("Domain1D::residual","residual function must be overloaded in derived class");
         }
+
+        int timeDerivativeFlag(int n) { return m_td[n];}
+        void setAlgebraic(int n) { m_td[n] = 0; }
 
         /**
          * Does nothing.
@@ -284,7 +266,7 @@ namespace Cantera {
         doublereal time() const { return m_time;}
         void incrementTime(doublereal dt) { m_time += dt; }
         size_t index(int n, int j) const { return m_nv*j + n; }
-        doublereal value(doublereal* x, int n, int j) const {
+        doublereal value(const doublereal* x, int n, int j) const {
             return x[index(n,j)];
         }
 
@@ -396,7 +378,7 @@ namespace Cantera {
         virtual void getTransientMask(integer* mask){}
 
         virtual void showSolution(ostream& s, const doublereal* x) {}
-        virtual void showSolution(const doublereal* x) {}
+        virtual void showSolution(const doublereal* x);
 
         virtual void restore(const XML_Node& dom, doublereal* soln) {}
 
@@ -425,7 +407,8 @@ namespace Cantera {
         const vector_fp& grid() const { return m_z; }
         doublereal grid(int point) { return m_z[point]; }
 
-        virtual void setupGrid(int n, const doublereal* z) {}
+        virtual void setupGrid(int n, const doublereal* z);
+
         void setGrid(int n, const doublereal* z);
 
         /**
@@ -436,10 +419,12 @@ namespace Cantera {
          * prior to installing this domain into the container to be
          * written to the global solution vector.
          */
-        virtual void _getInitialSoln(doublereal* x) {
-            throw CanteraError("Domain1D::_getInitialSoln",
-                "base class method _getInitialSoln called!");
-        }
+        virtual void _getInitialSoln(doublereal* x);
+
+        /**
+         * Initial value of solution component \a n at grid point \a j.
+         */
+        virtual doublereal initialValue(int n, int j);
 
         /**
          * In some cases, a domain may need to set parameters that
@@ -479,8 +464,8 @@ namespace Cantera {
         Domain1D *m_left, *m_right;
         string m_id, m_desc;
         Refiner* m_refiner;
-
-
+        vector_int m_td;
+        vector<string> m_name;
 
     private:
 
