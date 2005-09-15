@@ -1,6 +1,10 @@
 # An equilibrium example with charged species in the gas phase
 # and multiple condensed phases. 
 
+# Note: This example runs fine on Mac and linux platforms, but
+# encounters some convergence difficulties under Windows. The reasons
+# for this are not currently known.
+
 from Cantera import *
 
 # create objects representing the gas phase and the condensed
