@@ -20,7 +20,7 @@ initial_grid = [0.0, 0.001, 0.01, 0.02, 0.029, 0.03] # m
 
 tol_ss    = [1.0e-5, 1.0e-9]        # [rtol atol] for steady-state
                                     # problem
-tol_ts    = [1.0e-5, 1.0e-4]        # [rtol atol] for time stepping
+tol_ts    = [1.0e-5, 1.0e-9]        # [rtol atol] for time stepping
 
 loglevel  = 1                       # amount of diagnostic output (0
                                     # to 5)
