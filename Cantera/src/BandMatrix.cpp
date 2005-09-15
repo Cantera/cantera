@@ -20,7 +20,8 @@
 #include "ctlapack.h"
 #include "utilities.h"
 #include "ctexceptions.h"
-
+#include "stringUtils.h"
+#include "global.h"
 
 namespace Cantera {
 
@@ -136,12 +137,14 @@ namespace Cantera {
         }
         else {
 	  m_factored = false;
-	  ofstream fout("bandmatrix.csv");
-	  fout << *this << endl;
-	  fout.close();
-	  //throw CanteraError("BandMatrix::factor",
-	  //    "DGBTRF returned info = "+int2str(info)+".\n"
-	  //    +"Matrix written to file bandmatrix.csv\n");
+          ofstream fout("bandmatrix.csv");
+          fout << *this << endl;
+          fout.close();
+          error("DGBTRF returned info = "+int2str(info)+".\n"
+              +"Matrix written to file bandmatrix.csv\n");
+              //throw CanteraError("BandMatrix::factor",
+              //    "DGBTRF returned info = "+int2str(info)+".\n"
+              //    +"Matrix written to file bandmatrix.csv\n");
         }
 	return info;
     }
@@ -192,9 +195,9 @@ namespace Cantera {
             ofstream fout("bandmatrix.csv");
             fout << *this << endl;
             fout.close();
-        //    throw CanteraError("BandMatrix::solve",
-        //        "DGBTRS returned info = "+int2str(info)+".\n"
-        //        +"Matrix written to file bandmatrix.csv\n");
+            throw CanteraError("BandMatrix::solve",
+                "DGBTRS returned info = "+int2str(info)+".\n"
+                +"Matrix written to file bandmatrix.csv\n");
         }
 	return info;
     }
@@ -204,11 +207,11 @@ namespace Cantera {
         int nc = m.columns();
         int i,j;
         for (i = 0; i < nr; i++) {
-            s << "Row " << i+1 << ": ";
+            //s << "Row " << i+1 << ": ";
             for (j = 0; j < nc; j++) {
                 s << m(i,j) << ", ";
             }
-            s << endl << endl;
+            s << endl;
         }
         return s;
     }
