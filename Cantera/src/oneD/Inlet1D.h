@@ -75,6 +75,8 @@ namespace Cantera {
             writelog("Bdry1D::_getInitialSoln called!\n");
         }
 
+        virtual void setupGrid(int n, const doublereal* z) {}
+
     protected:
 
         void _init(int n);
