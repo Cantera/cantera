@@ -142,10 +142,10 @@ namespace Cantera {
 	    int pt = offset/dom.nComponents();
 	    int comp = offset - pt*dom.nComponents();
 	    throw CanteraError("MultiNewton::step",
-			       "Jacobian is singular for domain "+
-			       dom.id() + ", component "
-			       +dom.componentName(comp)+" at point "
-			       +int2str(pt)+"\nsee file bandmatrix.csv\n");
+                "Jacobian is singular for domain "+
+                dom.id() + ", component "
+                +dom.componentName(comp)+" at point "
+                +int2str(pt)+"\n(Matrix row "+int2str(iok)+") \nsee file bandmatrix.csv\n");
 	  }
 	  else if (iok < 0)   
 	    throw CanteraError("MultiNewton::step",

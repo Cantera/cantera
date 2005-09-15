@@ -233,7 +233,7 @@ namespace Cantera {
 
         void integrateChem(doublereal* x,doublereal dt);
 
-        void resize(int points);
+        void resize(int components, int points);
 
         virtual void setFixedPoint(int j0, doublereal t0){}
 

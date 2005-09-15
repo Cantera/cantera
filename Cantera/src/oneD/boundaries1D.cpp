@@ -403,7 +403,7 @@ namespace Cantera {
 
     string Outlet1D::componentName(int n) const { 
         switch (n) {
-        case 0: return "dummy"; break;
+        case 0: return "outlet dummy"; break;
         default: return "<unknown>";
         }
     }

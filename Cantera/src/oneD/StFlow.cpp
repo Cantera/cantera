@@ -201,9 +201,8 @@ namespace Cantera {
     /**
      * Change the grid size. Called after grid refinement.
      */
-            void StFlow::resize(int points) {
-        Domain1D::resize(m_nv, points);
-
+    void StFlow::resize(int ncomponents, int points) {
+        Domain1D::resize(ncomponents, points);
         m_rho.resize(m_points, 0.0);
         m_wtm.resize(m_points, 0.0);
         m_cp.resize(m_points, 0.0);
@@ -230,8 +229,8 @@ namespace Cantera {
     }        
         
 
-    void StFlow::setupGrid(int n, const doublereal* z) {        
-        resize(n);
+    void StFlow::setupGrid(int n, const doublereal* z) {
+        resize(m_nv, n);
         int j;
 
         m_z[0] = z[0];

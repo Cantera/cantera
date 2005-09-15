@@ -65,7 +65,7 @@ namespace Cantera {
             m_atol_ss[n] = atol;
         }
     }
-
+    
     void Domain1D::
     eval(int jg, doublereal* xg, doublereal* rg, 
         integer* mask, doublereal rdt) {
@@ -108,24 +108,27 @@ namespace Cantera {
             }
         }
     }
-
+    
 
     // called to set up initial grid, and after grid refinement
     void Domain1D::setupGrid(int n, const doublereal* z) {
-        resize(m_nv, n);
-        int j;
-        for (j = 0; j < m_points; j++) m_z[j] = z[j];
+        if (n > 1) {
+            resize(m_nv, n);
+            int j;
+            for (j = 0; j < m_points; j++) m_z[j] = z[j];
+        }
     }
-
+    
 
     void drawline() {
         writelog("\n-------------------------------------"
             "------------------------------------------");
     }
-
+    
+    
     /**
      * Print the solution.
-     */    
+     */
     void Domain1D::showSolution(const doublereal* x) {
         int nn = m_nv/5;
         int i, j, n;
@@ -173,6 +176,7 @@ namespace Cantera {
         writelog("\n");
     }
 
+    
     // initial solution
     void Domain1D::_getInitialSoln(doublereal* x) {
         for (int j = 0; j < m_points; j++) {
@@ -186,5 +190,6 @@ namespace Cantera {
         throw CanteraError("Domain1D::initialValue",
             "base class method called!");
     }
+    
 
 } // namespace
