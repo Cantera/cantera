@@ -16,7 +16,7 @@ using namespace std;
 
 int main() {
     char ch;
-    char last_eol = ' ';
+    char last_eol=' ';
     const char char10 = char(10);
     const char char13 = char(13);
     string line;
@@ -31,8 +31,10 @@ int main() {
                 break;
             }
             if (isprint(ch)) line += ch;
+            if (ch == '\t') {line += ' '; line += ' '; line += ' '; line += ' ';}
         }
         cout << line << endl;
         if (cin.eof()) break;
     }
 }
+

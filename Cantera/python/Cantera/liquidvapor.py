@@ -23,3 +23,10 @@ def Oxygen():
 
 def HFC134a():
     return importPhase('liquidvapor.cti','hfc134a')
+
+def CarbonDioxide():
+    return importPhase('liquidvapor.cti','carbondioxide')
+
+def Heptane():
+    return importPhase('liquidvapor.cti','heptane')
+
