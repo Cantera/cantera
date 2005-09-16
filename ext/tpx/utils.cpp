@@ -26,6 +26,10 @@ namespace tpx {
             return new HFC134a;
         else if (lcname == "rk") 
             return new RedlichKwong;
+        else if (lcname == "carbondioxide") 
+            return new CarbonDioxide;
+        else if (lcname == "heptane") 
+            return new Heptane;
         else
             return 0;
     }
@@ -33,20 +37,25 @@ namespace tpx {
     Substance * GetSub(int isub) {
         if (isub == 0)
             return new water;
- 	else if (isub == 1)
+     else if (isub == 1)
             return new nitrogen;
- 	else if (isub == 2)
+     else if (isub == 2)
             return new methane;
- 	else if (isub == 3)
+     else if (isub == 3)
             return new hydrogen;
- 	else if (isub == 4)
+     else if (isub == 4)
             return new oxygen;
-        else if (isub == 5)
+    else if (isub == 5)
             return new HFC134a;
-        else if (isub == 6)
+    else if (isub == 6)
             return new RedlichKwong;
-  	else
+    else if (isub == 7)
+            return new CarbonDioxide;
+    else if (isub == 8)
+            return new Heptane;
+      else
             return 0;
-	}
+    }
 
 }
+

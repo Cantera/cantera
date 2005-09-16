@@ -1,6 +1,8 @@
 #ifndef TPX_SUBS_H
 #define TPX_SUBS_H
 
+#include "CarbonDioxide.h"
+#include "Heptane.h"
 #include "HFC134a.h"
 #include "Hydrogen.h"
 #include "Methane.h"
@@ -11,3 +13,4 @@
 // #include "lk.h"
 
 #endif
+

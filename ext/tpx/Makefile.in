@@ -7,7 +7,7 @@ do_ranlib = @DO_RANLIB@
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
 COBJS = Methane.o Nitrogen.o Oxygen.o Water.o Hydrogen.o RedlichKwong.o \
-        lk.o Sub.o utils.o HFC134a.o
+        CarbonDioxide.o Heptane.o lk.o Sub.o utils.o HFC134a.o
 
 FOBJS = 
 
