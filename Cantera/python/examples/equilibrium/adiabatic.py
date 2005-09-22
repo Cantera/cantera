@@ -86,7 +86,7 @@ for i in range(npoints):
 
 csvfile = 'adiabatic.csv'
 f = open(csvfile,'w')
-writeCSV(f,['T (K)']+mix.speciesNames())
+writeCSV(f,['phi','T (K)']+mix.speciesNames())
 for n in range(npoints):
     writeCSV(f,[phi[n], tad[n]]+list(xeq[:,n]))
 f.close()
