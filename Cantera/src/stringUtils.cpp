@@ -46,22 +46,29 @@ namespace Cantera {
         return lc;
     }
 
+    static int firstChar(string s) {
+        int i;
+        int n = static_cast<int>(s.size());
+        for (i = 0; i < n; i++) 
+            if (s[i] != ' ' && isprint(s[i])) break;
+        return i;
+    }
+
+    static int lastChar(string s) {
+        int i;
+        int n = static_cast<int>(s.size());
+        for (i = n-1; i >= 0; i--) 
+            if (s[i] != ' ' && isprint(s[i])) break;
+        return i;
+    }
+
     /** 
-     * Strip white space.
+     * Strip leading and trailing white space.
      */
     string stripws(string s) {
-        int i;
-        bool sempty = true;
-        int n = static_cast<int>(s.size());
-        string ss = "";
-        for (i = 0; i < n; i++) {
-            if (s[i] != ' ' && isprint(s[i])) {
-                ss += s[i];
-                sempty = false;
-            }
-            else if (!sempty) break;
-        }
-        return ss;
+        int ifirst = firstChar(s);
+        int ilast = lastChar(s);
+        return s.substr(ifirst, ilast - ifirst + 1); 
     }
 
     /** 
