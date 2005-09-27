@@ -6,8 +6,8 @@
  * Simple vector classes. Classes ctvector_fp and ctvector_int are
  * designed to be wrappers around double* and int* arrays,
  * respectively.  They provide a few convenient methods that function
- * like those of std::vector<T>, but unlike the STL classes explicitly
- * allow accessing a pointer to the underlying data array.
+ * like those of std::vector<T>, but unlike the STL classes, they
+ * explicitly allow accessing a pointer to the underlying data array.
  */
   
 #include <math.h>
@@ -15,7 +15,6 @@
 #include <iostream>
 using namespace std;
 #include "ctvector.h"
-//using namespace ct;
 
 namespace ct {
 

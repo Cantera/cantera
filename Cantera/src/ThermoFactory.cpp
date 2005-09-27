@@ -67,7 +67,7 @@ namespace Cantera {
         }
 
         ThermoPhase* th=0;
-        map<string, double> d;
+        //        map<string, double> d;
         switch (ieos) {
 
         case cIdealGas:

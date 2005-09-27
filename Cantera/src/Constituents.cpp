@@ -23,17 +23,7 @@ using namespace std;
 
 namespace Cantera {
 
-    //class ElementsFrozen : public CanteraError {
-    //public:
-    //    ElementsFrozen(string func) 
-    //        : CanteraError(func,
-    //            "elements cannot be added after species.") {}
-    //};
-
-    /********************************************************************
-     *
-     * Constituents():
-     *
+    /**
      *  Constructor sets all base variable types to zero. Also, it
      *  sets the pointer to the Elements object for this object to the
      *  default value of BaseElements. If the BaseElements Elements
@@ -60,44 +50,17 @@ namespace Cantera {
     Constituents::Constituents(Elements* ptr_Elements) :
         m_kk(0),
         m_speciesFrozen(false) ,
-        m_Elements(ptr_Elements)
-    {
-      /*
-       * Check to see that m_Elements is non-null.
-       */
-      if (!m_Elements) {
-          m_Elements = new Elements();
-      }
+        m_Elements(ptr_Elements) {
 
-//         /*
-//          * Check to see if the default Elements Object has been
-//          * created. If it hasn't, create it.
-//          */
-//         if (Elements::Global_Elements_List.size() == 0) {
-//           Elements::Global_Elements_List.push_back(new Elements());
-//         }
-//         /*
-//          * Assign the default Elements object as the
-//          * Constituents's Elements object
-//          */
-//         m_Elements = Elements::Global_Elements_List[0];
-//      }
+      if (!m_Elements) m_Elements = new Elements();
 
-      /*
-       * Register subscription to Elements object whether or not we
-       * created it here.
-       */
+      // Register subscription to Elements object whether or not we
+      // created it here.
       m_Elements->subscribe();
     }
 
-    /********************************************************************
-     *
-     * ~Constituents():
-     *
-     * Destructor For Constituents class.
-     *
-     *  When the Elements subscription list hits zero, we delete the
-     *  Elements object from here.
+    /**
+     * Destructor.
      */
     Constituents::~Constituents()
     {
@@ -123,21 +86,15 @@ namespace Cantera {
     int Constituents::nElements() const { return m_Elements->nElements(); }
 
 
-    /********************************************************************
-     *
-     * atomicWeight
-     *
+    /** 
      * Return the Atomic weight of element m.
-     *  units = Kg / Kmol
+     * units = Kg / Kmol
      */
     doublereal Constituents::atomicWeight(int m) const {
       return m_Elements->atomicWeight(m);
     }
 
-    /*******************************************************************
-     *
-     * atomicWeights()
-     *
+    /**
      *  returns a reference to the vector of atomic weights pertinent
      *  to this constituents object
      *  units = kg / Kmol
@@ -147,44 +104,22 @@ namespace Cantera {
     }
 
 
-    /********************************************************************
-     *
-     * atomicNumber
-     *
+    /**
      * Return the atomic number of element m.
      */
     int Constituents::atomicNumber(int m) const {
       return m_Elements->atomicNumber(m);
     }
 
-#ifdef INCL_DEPRECATED_METHODS   
-    /********************************************************************
-     * element():
-     *
-     * Returns an ElementData struct that contains the parameters for
-     * element m.
-     *
-     * -> Passthrough to the Element lvl.
-     */
-    ElementData Constituents::element(int m) const {
-      return (m_Elements->element(m));
-    }
-#endif
 
-    /*******************************************************************
-     *
-     * addElement():
-     *
+    /**
      * Add an element to the set.
      * @param symbol  symbol string
-     * Optional:
      * @param weight  atomic weight in kg/mol.
-     *
      *
      * If weight is not given, then a lookup is performed in the
      * element object
      *
-     * -> Passthrough to the Element lvl.
      */
     void Constituents::
     addElement(const string& symbol, doublereal weight)
@@ -198,16 +133,13 @@ namespace Cantera {
       m_Elements->addElement(e);
     }
 
-    /*******************************************************************
-     *
-     *  addUniqueElement():
-     *
+
+    /**
      * Add a unique element to the set. A check on the symbol is made
      * If the symbol is already an element, then a new element is
      * not created.
      *
      * @param symbol  symbol string
-     * Optional:
      * @param weight  atomic weight in kg/mol.
      *
      * If weight is not given, then a lookup is performed in the
@@ -231,33 +163,24 @@ namespace Cantera {
         m_Elements->addElementsFromXML(phase);
     }
 
-    /*******************************************************************
-     *
-     * freezeElements()
-     *
+    /**
      * -> Passthrough to the Element lvl.
      */
     void Constituents::freezeElements() {
       m_Elements->freezeElements();
     }
 
-    /*******************************************************************
-     *
-     * elementsFrozen()
-     *
+    /**
      * -> Passthrough to the Element lvl.
      */
     bool Constituents::elementsFrozen() {
       return m_Elements->elementsFrozen(); 
     }
 
-    /*******************************************************************
-     *
-     * elementIndex():
-     *
-     * Index of element named \c name. The index is an integer
+    /**
+     * Index of element named \a name. The index is an integer
      * assigned to each element in the order it was added,
-     * beginning with 0 for the first element.  If \c name is not
+     * beginning with 0 for the first element.  If \a name is not
      * the name of an element in the set, then the value -1 is
      * returned.
      *
@@ -481,7 +404,8 @@ namespace Cantera {
       return m_speciesNames;
     }
 
-    /**********************************************************************
+
+    /**
      *
      * ready():
      *   True if both elements and species have been frozen
@@ -490,7 +414,7 @@ namespace Cantera {
       return (m_Elements->elementsFrozen() && m_speciesFrozen);
     }
 
-    /**********************************************************************
+    /**
      *
      * nAtoms()
      *
@@ -506,7 +430,7 @@ namespace Cantera {
       return m_speciesComp[m_mm * k + m];
     }
 
-    /*********************************************************************
+    /**
      *
      * getAtoms()
      *

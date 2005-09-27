@@ -156,10 +156,6 @@ namespace Cantera {
     typedef ct::ctvector_fp            vector_fp;
     typedef ct::ctvector_int           array_int;
     typedef ct::ctvector_int           vector_int;
-    //typedef std::valarray<double>            array_fp;
-    //typedef std::valarray<double>            vector_fp;
-    //typedef std::valarray<int>           array_int;
-    //typedef std::valarray<int>           vector_int;
     typedef vector_int         group_t;
     typedef std::vector<group_t>    grouplist_t;
  
@@ -167,26 +163,11 @@ namespace Cantera {
     typedef vector_fp::const_iterator const_workPtr;
 
 
-    template<class A, class B>
-    inline doublereal operator*(const vector<A>& u, const vector<B>& v) {
-        return inner_product(u.begin(), u.end(), v.begin(), 0.0);
-    }
+    //    template<class A, class B>
+    //inline doublereal operator*(const vector<A>& u, const vector<B>& v) {
+    //    return inner_product(u.begin(), u.end(), v.begin(), 0.0);
+    // }
 
-    //    inline ostream& operator<<(ostream& s, const vector_fp& v) {
-    //    return ct::operator<<(s, v);
-    //}
-
-//     template<class A>
-//     inline ostream& operator<<(ostream& s, const vector<A>& v) {
-//         int n = v.size();
-//         s << "<";
-//         for (int i = 0; i < n; i++) {
-//             s << v[i];
-//             if (i < n-1) s << ", ";
-//         }
-//         s << ">";
-//         return s;
-//     }
 
 }  // namespace
 

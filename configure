@@ -175,13 +175,15 @@ USER_SRC_DIR="Cantera/user"  # don't change this
 
 # thermodynamic properties 
 ENABLE_THERMO='y'
+######################################################################
+# optional phase types. These may not be needed by all users. Set them
+# to 'n' to omit them from the kernel.
 
-# optional phase types. These 
 WITH_LATTICE_SOLID='y'
-WITH_METAL='y'
-WITH_STOICH_SUBSTANCE='y'
+WITH_METAL='y' 
+WITH_STOICH_SUBSTANCE='y' 
 WITH_PURE_FLUIDS='y'
-
+######################################################################
 # if set to 'y', the ck2cti program that converts Chemkin input files
 # to Cantera format will be built. If you don't use Chemkin format
 # files, or if you run ck2cti on some other machine, you can set this to 'n'. 
