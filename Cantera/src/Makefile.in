@@ -32,7 +32,7 @@ BASE_OBJ   = State.o Elements.o Constituents.o stringUtils.o misc.o \
 BASE_H     = State.h Elements.h Constituents.h stringUtils.h global.h \
              importCTML.h plots.h xml.h Phase.h DenseMatrix.h ctml.h \
              funcs.h ctvector.h ct_defs.h Array.h PropertyCalculator.h \
-             ctexceptions.h ctlapack.h units.h recipes.h mix_defs.h\
+             ctexceptions.h ctlapack.h units.h mix_defs.h\
              utilities.h vec_functions.h XML_Writer.h diagnostics.h \
              config.h
 BASE       = $(BASE_OBJ)
