@@ -198,7 +198,7 @@ double Heptane::up() {
 
    sum += G[0]*log(T/To);   
 
-   for (i=0; i<=6; i++) {
+   for (int i=0; i<=6; i++) {
       sum += (C(i, Tinverse, T2inverse, T3inverse, T4inverse) - T*Cprime(i,T2inverse, T3inverse, T4inverse))*I(i,egrho, Gamma);   
    }
     

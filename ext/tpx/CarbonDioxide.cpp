@@ -239,7 +239,7 @@ double CarbonDioxide::up() {
       sum += G[i]*(pow(T,i) - pow(To,i))/double(i);
 
 
-   for (i=0; i<=6; i++) {
+   for (int i=0; i<=6; i++) {
        sum += I(i,egrho, Gamma) *
            ( C(i, Tinverse, T2inverse, T3inverse, T4inverse) - T*Cprime(i,T2inverse, T3inverse, T4inverse) );   
    }
