@@ -57,19 +57,19 @@ if test "x${OS_IS_WIN}" = "x1"; then
 fi
 AC_SUBST(USE_CLIB_DLL)
 
-prdef="/usr/local"
+prdef="/usr/local/cantera"
 if test "x$OS_IS_DARWIN" = "x1"; then prdef="/Applications/Cantera"; fi
 #AC_PREFIX_DEFAULT([$prdef])
 
 local_inst=1
 if test "x${prefix}" = "xNONE"; then
-         if test "x${OS_IS_CYGWIN}" = "x1" -o "x${OS_IS_WIN}" = "x1" ; then
-           prefix=${CANTERA_INSTALL_DIR}
+         #if test "x${OS_IS_CYGWIN}" = "x1" -o "x${OS_IS_WIN}" = "x1" ; then
+         #  prefix=${CANTERA_INSTALL_DIR}
            # mkdir ${prefix}
-         else
+         #else
            prefix=${prdef}
 	   #${ac_default_prefix}
-         fi
+         #fi
          local_inst=0
 fi
 

@@ -25,7 +25,7 @@
 # If you define this to be <prefix>, then instead of running this
 # script as ./configure --prefix=<prefix> you can just run it as
 # ./configure
-CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
+CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:="/usr/local/cantera"}
 
 
 #----------------------------------------------------------------------
