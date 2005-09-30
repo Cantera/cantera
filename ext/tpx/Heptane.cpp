@@ -192,13 +192,13 @@ double Heptane::up() {
    double egrho = exp(-Gamma*Rho*Rho);
 
    double sum = 0.0;
-
-   for (int i=1; i<=5; i++)
+   int i;
+   for (i=1; i<=5; i++)
       sum += G[i]*(pow(T,i) - pow(To,i))/double(i);
 
    sum += G[0]*log(T/To);   
 
-   for (int i=0; i<=6; i++) {
+   for (i=0; i<=6; i++) {
       sum += (C(i, Tinverse, T2inverse, T3inverse, T4inverse) - T*Cprime(i,T2inverse, T3inverse, T4inverse))*I(i,egrho, Gamma);   
    }
     

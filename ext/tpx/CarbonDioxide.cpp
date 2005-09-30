@@ -235,11 +235,12 @@ double CarbonDioxide::up() {
 
    // Equation C-6 integrated   
    sum += G[0]*log(T/To);
-   for (int i=1; i<=5; i++)
+   int i;
+   for (i=1; i<=5; i++)
       sum += G[i]*(pow(T,i) - pow(To,i))/double(i);
 
 
-   for (int i=0; i<=6; i++) {
+   for (i=0; i<=6; i++) {
        sum += I(i,egrho, Gamma) *
            ( C(i, Tinverse, T2inverse, T3inverse, T4inverse) - T*Cprime(i,T2inverse, T3inverse, T4inverse) );   
    }
