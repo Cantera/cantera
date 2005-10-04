@@ -720,7 +720,13 @@ namespace Cantera {
 	}
     }
 
-
+    /**
+     * _require() 
+     *    Require that the current xml node have an attribute named
+     *    by the first argument, a, and that this attribute have the
+     *    the string value listed in the second argument, v.
+     *    If not, throw a CanteraError exception.
+     */
     void XML_Node::_require(string a, string v) const {
         if (hasAttrib(a)) {
             if (attrib(a) == v) return;
