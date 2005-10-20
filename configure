@@ -183,6 +183,10 @@ WITH_LATTICE_SOLID='y'
 WITH_METAL='y' 
 WITH_STOICH_SUBSTANCE='y' 
 WITH_PURE_FLUIDS='y'
+
+# Enable expanded electrochemistry capabilities, include thermo
+# models for electrolyte solutions
+WITH_ELECTROLYTES='n'
 ######################################################################
 # if set to 'y', the ck2cti program that converts Chemkin input files
 # to Cantera format will be built. If you don't use Chemkin format
@@ -213,7 +217,6 @@ ENABLE_RXNPATH='y'
 # non-ideal pure substance models for a few fluids imported from the
 # 'TPX' package. (http://adam.caltech.edu/software/tpx)
 ENABLE_TPX='y'     
-		
 
     
 #----------------------------------------------------------------- 
@@ -414,6 +417,7 @@ export WITH_LATTICE_SOLID
 export WITH_METAL
 export WITH_STOICH_SUBSTANCE
 export WITH_PURE_FLUIDS
+export WITH_ELECTROLYTES
 
 cd config
 chmod +x ./configure 
