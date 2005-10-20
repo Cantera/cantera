@@ -100,7 +100,7 @@ PCH =
 
 PCHGCH = $(PCH:.h=.h.gch)
 
-all:  .depends $(PCHGCH) @KERNEL@ $(CANTERA_LIB)
+all:  .depends $(PCHGCH) @KERNEL@ $(CANTERA_LIB) cathermo
 
 %.h.gch : %.h
 ifeq (@precompile_headers@,yes)
@@ -118,6 +118,11 @@ thermo: $(THERMO)
 	@(for lh in $(THERMO_H) ; do \
              $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
           done)
+
+cathermo:
+ifeq (@COMPILE_CATHERMO@, 1)
+	cd thermo; @MAKE@ all
+endif
 
 kinetics: $(KINETICS) $(HETEROKIN)
 	@(for lh in $(KINETICS_H) ; do \
@@ -203,6 +208,7 @@ clean:
 	cd oneD;  @MAKE@ clean
 	cd converters; @MAKE@ clean
 	cd transport; @MAKE@ clean
+	cd thermo; @MAKE@ clean
 
 depends: $(DEPENDS)
 	cat *.d > .depends
@@ -211,6 +217,9 @@ depends: $(DEPENDS)
 	cd zeroD; @MAKE@ depends
 	cd converters; @MAKE@ depends
 	cd transport; @MAKE@ depends
+ifeq (@COMPILE_CATHERMO@, 1)
+	cd thermo; @MAKE@ depends
+endif
 
 .depends: $(DEPENDS) Makefile
 	cat *.d > .depends
