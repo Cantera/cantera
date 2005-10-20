@@ -291,6 +291,13 @@ phase_header_files=$hdrs
 AC_SUBST(phase_object_files)
 AC_SUBST(phase_header_files)
 
+COMPILE_CATHERMO=0
+if test "$WITH_ELECTROLYTES" = "y"; then
+   AC_DEFINE(WITH_ELECTROLYTES)
+   COMPILE_CATHERMO=1 
+fi
+AC_SUBST(COMPILE_CATHERMO)
+
 if test "$ENABLE_KINETICS" = "y"; then 
   KERNEL=$KERNEL' 'kinetics; 
   KERNEL_OBJ=$KERNEL_OBJ' $(KINETICS_OBJ) $(HETEROKIN_OBJ)'
@@ -833,6 +840,7 @@ AC_OUTPUT(../Cantera/Makefile \
 	  ../Cantera/src/oneD/Makefile \
 	  ../Cantera/src/converters/Makefile \
 	  ../Cantera/src/transport/Makefile \
+	  ../Cantera/src/thermo/Makefile \
 	  ../Cantera/clib/src/Makefile \
 	  ../Cantera/fortran/src/Makefile \
 	  ../Cantera/fortran/f77demos/f77demos.mak \
