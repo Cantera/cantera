@@ -87,7 +87,8 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 #undef HAS_NUMERIC
 
 //--------------------- Cantera ----------------------------------- 
-
+// This is the data pathway used to locate the top of the 
+// build directory.
 #undef CANTERA_ROOT
 
 // This data pathway is used to locate a directory where datafiles
@@ -107,5 +108,6 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 #undef WITH_LATTICE_SOLID
 #undef WITH_STOICH_SUBSTANCE
 #undef WITH_PURE_FLUIDS
+#undef WITH_ELECTROLYTES
 
 #endif
