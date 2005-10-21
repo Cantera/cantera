@@ -7,35 +7,6 @@
  *  $Date$
  *  $Revision$
  *
- *  $Log$
- *  Revision 1.8  2005-10-21 18:23:08  hkmoffa
- *  Added a copy constructor and an assignment operator.
- *
- *  Revision 1.7  2005/06/18 17:01:08  dggoodwin
- *  Prerelease_1_6_0_branch merged into trunk
- *
- *  Revision 1.6.2.1  2005/01/24 15:09:11  dggoodwin
- *  *** empty log message ***
- *
- *  Revision 1.6  2004/06/09 00:59:24  dggoodwin
- *  moved functions to read XML input files out of importCTML.cpp and into specific classes
- *
- *  Revision 1.5  2003/11/12 18:58:17  dggoodwin
- *  *** empty log message ***
- *
- *  Revision 1.4  2003/09/03 18:15:50  hkmoffa
- *  Added a vector get for the atoms in a species.
- *
- *  Revision 1.3  2003/07/21 16:02:53  hkmoffa
- *  Took out a double nested @name that gave a warning to doxygen
- *
- *  Revision 1.1.1.1  2003/04/14 17:57:51  dggoodwin
- *  Initial import.
- *
- *  Revision 1.24  2002/12/19 15:19:32  dgg
- *  added log block, replaced include statement for Elements.h with
- *  forward reference for Elements class
- *
  */
 
 //  Copyright 2001  California Institute of Technology
@@ -97,11 +68,11 @@ namespace Cantera {
         Constituents& operator=(const Constituents& right);
 
 	/// @name Element Information
-	//@{
+	// @{
         
 	/// Name of the element with index m.
 	///   This is a passthrough routine to the Element object.
-	///   @param m  @{ Element index. @}
+	///   \param m  Element index. 
 	///   \exception If m < 0 or m >= nElements(), the
 	///          exception, ElementRangeError, is thrown.
 	string elementName(int m) const;
@@ -111,7 +82,7 @@ namespace Cantera {
 	/// The index is an integer
 	/// assigned to each element in the order it was added,
 	/// beginning with 0 for the first element. 
-	/// @param name @{ name of the element @}
+	/// @param name  name of the element 
 	///
 	/// If 'name' is not
 	/// the name of an element in the set, then the value -1 is
@@ -135,8 +106,8 @@ namespace Cantera {
 
 	/// Number of elements.
 	int nElements() const;
-
-	//@}
+       
+	// @}
 
 
 
