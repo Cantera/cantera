@@ -1,11 +1,16 @@
 /**
  *  @file reaction_defs.h
- *
  * This file defines some constants used to specify reaction types.
+ */
+  
+/*
+ *  $Author$
+ *  $Date$
+ *  $Revision$
+ *
  */
 
 // Copyright 2001  California Institute of Technology
-
 
 #ifndef CT_RXN_DEFS_H
 #define CT_RXN_DEFS_H
