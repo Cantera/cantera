@@ -60,7 +60,10 @@ namespace Cantera {
     }
 
     /**
-     * Destructor.
+     * Destructor for class Constituents.
+     *
+     *  Some cleanup of of the Global_Elements_List array is
+     *  effected by unsubscribing to m_Elements.
      */
     Constituents::~Constituents()
     {
@@ -170,14 +173,14 @@ namespace Cantera {
       m_Elements->freezeElements();
     }
 
-    /**
+    /*
      * -> Passthrough to the Element lvl.
      */
     bool Constituents::elementsFrozen() {
       return m_Elements->elementsFrozen(); 
     }
 
-    /**
+    /*
      * Index of element named \a name. The index is an integer
      * assigned to each element in the order it was added,
      * beginning with 0 for the first element.  If \a name is not
@@ -191,15 +194,13 @@ namespace Cantera {
       return (m_Elements->elementIndex(name));
     }
 
-    /*******************************************************************
-     *
-     * elementName():
-     *
-     * Name of the element with index \c m.  @param m Element
-     * index. If m < 0 or m >= nElements() an exception is thrown.
-     *
-     *
-     * -> Passthrough to the Element lvl.
+    /*
+     * Name of the element with index m. 
+     *    
+     *   This is a passthrough routine to the Element object.
+     *   @param m  @{ Element index. @}
+     *   \exception If m < 0 or m >= nElements(), the
+     *              exception, ElementRangeError, is thrown.
      */
     string Constituents::elementName(int m) const {
       return (m_Elements->elementName(m));
@@ -444,5 +445,49 @@ namespace Cantera {
 	  atomArray[m] = (double) m_speciesComp[m_mm * k + m];
 	}
     }
+
+    /**
+     * This copy constructor just calls the assignment operator
+     * for this class.
+     * The assignment operator does a deep copy.
+     */
+    Constituents::Constituents(const Constituents& right) {
+	*this = right;
+    }
+
+    /**
+     *  Assignment operator for the Constituents class.
+     *  Right now we pretty much do a straight uncomplicated
+     *  copy of all of the protected data.
+     */
+    Constituents& Constituents::operator=(const Constituents& right) {
+	/*
+	 * Check for self assignment.
+	 */
+	if (this == &right) return *this;
+	/*
+	 * We do a straight assignment operator on all of the
+	 * data. The vectors are copied.
+	 */
+	m_kk             = right.m_kk;
+	m_weight         = right.m_weight;
+	m_speciesFrozen  = right.m_speciesFrozen;
+	if (m_Elements) {
+	  m_Elements->unsubscribe();
+	}
+	m_Elements       = right.m_Elements;
+	if (m_Elements) {
+	  m_Elements->subscribe();
+	}
+	m_speciesNames   = right.m_speciesNames;
+	m_speciesComp    = right.m_speciesComp;
+	m_speciesCharge  = right.m_speciesCharge;
+	m_speciesSize    = right.m_speciesSize;
+	/*
+	 * Return the reference to the current object
+	 */
+	return *this;
+    }
+
 
 }

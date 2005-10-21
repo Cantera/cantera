@@ -8,7 +8,10 @@
  *  $Revision$
  *
  *  $Log$
- *  Revision 1.7  2005-06-18 17:01:08  dggoodwin
+ *  Revision 1.8  2005-10-21 18:23:08  hkmoffa
+ *  Added a copy constructor and an assignment operator.
+ *
+ *  Revision 1.7  2005/06/18 17:01:08  dggoodwin
  *  Prerelease_1_6_0_branch merged into trunk
  *
  *  Revision 1.6.2.1  2005/01/24 15:09:11  dggoodwin
@@ -80,46 +83,60 @@ namespace Cantera {
 
     public:
 
-      /// Constructor.
-      Constituents(Elements* ptr_Elements = 0);
+	/// Constructor.
+	Constituents(Elements* ptr_Elements = 0);
 
-      /// Destructor. 
-      ~Constituents();
+	/// Destructor. 
+	~Constituents();
 
-      /// @name Element Information
-      //@{
+	///  This copy constructor just calls the assignment operator
+	///  for this class.
+        Constituents(const Constituents& right);
+
+	/// Assignment operator
+        Constituents& operator=(const Constituents& right);
+
+	/// @name Element Information
+	//@{
         
-      /// Name of the element with index m.  @param m Element
-      /// index. If m < 0 or m >= nElements() an exception is thrown.
-      string elementName(int m) const;
+	/// Name of the element with index m.
+	///   This is a passthrough routine to the Element object.
+	///   @param m  @{ Element index. @}
+	///   \exception If m < 0 or m >= nElements(), the
+	///          exception, ElementRangeError, is thrown.
+	string elementName(int m) const;
 
 
-      /// Index of element named 'name'. The index is an integer
-      /// assigned to each element in the order it was added,
-      /// beginning with 0 for the first element.  If 'name' is not
-      /// the name of an element in the set, then the value -1 is
-      /// returned.
-      int elementIndex(string name) const;
+	/// Index of element named 'name'.
+	/// The index is an integer
+	/// assigned to each element in the order it was added,
+	/// beginning with 0 for the first element. 
+	/// @param name @{ name of the element @}
+	///
+	/// If 'name' is not
+	/// the name of an element in the set, then the value -1 is
+	/// returned.
+	int elementIndex(string name) const;
 
 
-      /// Atomic weight of element m. 
-      doublereal atomicWeight(int m) const;
+	/// Atomic weight of element m. 
+	doublereal atomicWeight(int m) const;
 
-      /// Atomic number of element m. 
-      int atomicNumber(int m) const;
+	/// Atomic number of element m. 
+	int atomicNumber(int m) const;
 
-      /// Return a read-only reference to the vector of element names.
-      const vector<string>& elementNames() const;
-
-
-      /// Return a read-only reference to the vector of atomic weights.
-      const array_fp& atomicWeights() const;
+	/// Return a read-only reference to the vector of element names.
+	const vector<string>& elementNames() const;
 
 
-      /// Number of elements.
-      int nElements() const;
+	/// Return a read-only reference to the vector of atomic weights.
+	const array_fp& atomicWeights() const;
 
-      //@}
+
+	/// Number of elements.
+	int nElements() const;
+
+	//@}
 
 
 
@@ -253,9 +270,6 @@ namespace Cantera {
 	 */
 	void getAtoms(int k, double *atomArray) const;
 
-	/// Copy constructor and assignment operator
-        Constituents::Constituents(const Constituents& right);
-        Constituents& operator=(const Constituents& right);
 
     protected:
     
