@@ -149,6 +149,18 @@ namespace Cantera {
     }
 
     /**
+     *  Returns the vector of nondimensional
+     *  internal Energies of the standard state at the current temperature
+     *  and pressure of the solution for each species.
+     */
+    void IdealGasPhase::getIntEnergy_RT(doublereal *urt) const {
+	const array_fp& _h = enthalpy_RT_ref();
+	for (int k = 0; k < m_kk; k++) {
+	  urt[k] = _h[k] - 1.0;
+	}
+    }
+    
+    /**
      * Get the nondimensional heat capacity at constant pressure
      * function for the species
      * standard states at the current T and P of the solution.
@@ -200,6 +212,18 @@ namespace Cantera {
     void IdealGasPhase::getEntropy_R_ref(doublereal *er) const {
 	const array_fp& _s = entropy_R_ref();
 	copy(_s.begin(), _s.end(), er);
+    }
+
+    /**
+     *  Returns the vector of nondimensional
+     *  internal Energies of the reference state at the current temperature
+     *  of the solution and the reference pressure for each species.
+     */
+    void IdealGasPhase::getIntEnergy_RT_ref(doublereal *urt) const {
+	const array_fp& _h = enthalpy_RT_ref();
+	for (int k = 0; k < m_kk; k++) {
+	  urt[k] = _h[k] - 1.0;
+	}
     }
 
     /**

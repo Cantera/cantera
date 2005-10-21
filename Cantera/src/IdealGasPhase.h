@@ -318,6 +318,13 @@ namespace Cantera {
 	 */
 	virtual void getPureGibbs(doublereal* gpure) const;
 
+	/**
+	 *  Returns the vector of nondimensional
+         *  internal Energies of the standard state at the current temperature
+         *  and pressure of the solution for each species.
+         */
+        virtual void getIntEnergy_RT(doublereal *urt) const;
+
         /**
          * Get the nondimensional heat capacity at constant pressure
 	 * function for the species
@@ -357,6 +364,12 @@ namespace Cantera {
 	 */
         virtual void getEntropy_R_ref(doublereal *er) const;
 
+	/**
+	 *  Returns the vector of nondimensional
+         *  internal Energies of the reference state at the current temperature
+         *  of the solution and the reference pressure for each species.
+         */
+        virtual void getIntEnergy_RT_ref(doublereal *urt) const;
 	/**
 	 *  Returns the vector of nondimensional
 	 *  constant pressure heat capacities of the reference state
