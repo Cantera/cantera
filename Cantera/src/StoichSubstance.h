@@ -29,6 +29,7 @@ namespace Cantera {
      *
      * Class StoichSubstance represents a stoichiometric (fixed composition) 
      * incompressible substance.
+     * \nosubgrouping
      *
      */
     class StoichSubstance : public ThermoPhase {
@@ -329,6 +330,10 @@ namespace Cantera {
 	 *  Returns the vector of nondimensional
 	 *  enthalpies of the reference state at the current temperature
 	 *  of the solution and the reference pressure for the species. 
+	 *
+	 *  This function fills in its one entry in hrt[] by calling
+	 *  the underlying species thermo function for the 
+	 *  dimensionless enthalpy.
 	 */
         virtual void getEnthalpy_RT_ref(doublereal *hrt) const {
 	    _updateThermo();
@@ -339,6 +344,11 @@ namespace Cantera {
 	 *  Returns the vector of nondimensional
 	 *  enthalpies of the reference state at the current temperature
 	 *  of the solution and the reference pressure for the species.
+	 *
+	 *  This function fills in its one entry in hrt[] by calling
+	 *  the underlying species thermo function for the 
+	 *  dimensionless gibbs free energy, calculated from the
+	 *  dimensionless enthalpy and entropy.
 	 */
         virtual void getGibbs_RT_ref(doublereal *grt) const {
 	    _updateThermo();
@@ -350,6 +360,11 @@ namespace Cantera {
 	 *  gibbs function of the reference state at the current temperature
 	 *  of the solution and the reference pressure for the species.
 	 *  units = J/kmol
+	 *
+	 *  This function fills in its one entry in g[] by calling
+	 *  the underlying species thermo functions for the 
+	 *  gibbs free energy, calculated from enthalpy and the
+	 *  entropy, and the multiplying by RT.
 	 */
         virtual void  getGibbs_ref(doublereal *g) const {
 	    getGibbs_RT_ref(g);
@@ -360,6 +375,10 @@ namespace Cantera {
 	 *  Returns the vector of nondimensional
 	 *  entropies of the reference state at the current temperature
 	 *  of the solution and the reference pressure for the species.
+	 *
+	 *  This function fills in its one entry in hrt[] by calling
+	 *  the underlying species thermo function for the 
+	 *  dimensionless entropy.
 	 */
         virtual void getEntropy_R_ref(doublereal *er) const {
 	    _updateThermo();
