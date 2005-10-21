@@ -22,6 +22,9 @@
 
 namespace Cantera {
 
+    const int    cAC_CONVENTION_MOLAR    = 0;
+    const int    cAC_CONVENTION_MOLALITY = 1;
+
     class XML_Node;
 
 
@@ -194,7 +197,6 @@ namespace Cantera {
             err("setPressure");
         }
 
-
         /**
          * The isothermal compressibility. Units: 1/Pa.
          * The isothermal compressibility is defined as
@@ -206,7 +208,6 @@ namespace Cantera {
         virtual doublereal isothermalCompressibility() const {
             err("isothermalCompressibility"); return -1.0;
         }
-
 
         /**
          * The volumetric thermal expansion coefficient. Units: 1/K.
@@ -235,29 +236,6 @@ namespace Cantera {
          //@{
          */
 
-//         /**
-//          * Set the potential energy of species k to pe.
-//          * Units: J/kmol.
-// 	 * This function must be reimplemented in inherited classes
-// 	 * of ThermoPhase.
-//          @deprecated
-//          */
-//         virtual void setPotentialEnergy(int k, doublereal pe) {
-//             deprecatedMethod("ThermoPhase","setPotentialEnergy","none");
-//             err("setPotentialEnergy");
-//         }
-
-//         /**
-//          * Get the potential energy of species k.
-//          * Units: J/kmol.
-// 	 * This function must be reimplemented in inherited classes
-// 	 * of ThermoPhase.
-//          * @deprecated
-//          */
-//         virtual doublereal potentialEnergy(int k) const {
-//             deprecatedMethod("ThermoPhase","potentialEnergy","none");
-//             return err("potentialEnergy");
-//         }
 
         /**
          * Set the electric potential of this phase (V).
@@ -274,17 +252,38 @@ namespace Cantera {
 
         /**
          * @}
-         * @name Chemical Potentials and Activities
+         * @name Activities, Standard States, and Activity Concentrations
          *
          * The activity \f$a_k\f$ of a species in solution is related
          * to the chemical potential by \f[ \mu_k = \mu_k^0(T,P) +
          * \hat R T \log a_k. \f] The quantity \f$\mu_k^0(T,P)\f$ is
-         * the chemical potential at unit activity, which depends on
-         * temperature and pressure, but not on composition. The
+         * the standard chemical potential at unit activity, 
+	 * which depends on  temperature and pressure, 
+	 * but not on composition. The
          * activity is dimensionless.
          * @{
          */
 
+	/**
+	 * This method returns the convention used in specification
+	 * of the activities, of which there are currently two, molar-
+	 * and molality-based conventions.
+	 *
+	 * Currently, there are two activity conventions:
+	 *  - Molar-based activities
+	 *       Unit activity of species at either a hypothetical pure
+	 *       solution of the species or at a hypothetical
+	 *       pure ideal solution at infinite dilution
+	 *   cAC_CONVENTION_MOLAR 0
+	 *      - default
+	 *  
+	 *  - Molality-based acvtivities
+	 *       (unit activity of solutes at a hypothetical 1 molal
+	 *        solution referenced to infinite dilution at all
+	 *        pressures and temperatures).
+	 *   cAC_CONVENTION_MOLALITY 1
+	 */
+	virtual int activityConvention() const;
 
         /**
          * This method returns an array of generalized concentrations
@@ -401,10 +400,14 @@ namespace Cantera {
             }
         }
 
+	/*
+	 * Return a vector of activities.
+	 */
         void getActivities(doublereal* a);
 
 	/**
-         * Get the array of non-dimensional activity coefficients at
+         * Get the array of non-dimensional molar-based
+	 * activity coefficients at
          * the current solution temperature, pressure, and
          * solution concentration.
          */
@@ -415,7 +418,6 @@ namespace Cantera {
               err("getActivityCoefficients");
             }
         }
-
 
         /**
          * Get the species partial molar enthalpies. Units: J/kmol.
@@ -429,6 +431,13 @@ namespace Cantera {
          */
         virtual void getPartialMolarEntropies(doublereal* sbar) const {
             err("getPartialMolarEntropies");
+        }
+
+        /**
+         * Get the species partial molar enthalpies. Units: J/kmol.
+         */
+        virtual void getPartialMolarIntEnergies(doublereal* ubar) const {
+            err("getPartialMolarIntEnergies");
         }
 
         /**
@@ -477,13 +486,22 @@ namespace Cantera {
             err("getPureGibbs");
         }
 
+	/**
+	 *  Returns the vector of nondimensional
+         *  internal Energies of the standard state at the current temperature
+         *  and pressure of the solution for each species.
+         */
+        virtual void getIntEnergy_RT(doublereal *urt) const {
+            err("getIntEnergy_RT");
+        }
+
         /**
          * Get the nondimensional Heat Capacities at constant
          * pressure for the standard state of the species 
          * at the current T and P. 
          */
         virtual void getCp_R(doublereal* cpr) const {
-            err("getCp_RT");
+            err("getCp_R");
         }
 
 	/**
@@ -507,7 +525,7 @@ namespace Cantera {
          *  of the solution and the reference pressure for the species.
          */
         virtual void getEnthalpy_RT_ref(doublereal *hrt) const {
-            err("enthalpy_RT_ref");
+            err("getEnthalpy_RT_ref");
         }
      
         /**
@@ -516,7 +534,7 @@ namespace Cantera {
          *  of the solution and the reference pressure for the species.
          */
         virtual void getGibbs_RT_ref(doublereal *grt) const {
-            err("gibbs_RT_ref");
+            err("getGibbs_RT_ref");
         }
                    
         /**
@@ -525,27 +543,36 @@ namespace Cantera {
          *  of the solution and the reference pressure for the species.
          *  units = J/kmol
          */
-        virtual void  getGibbs_ref(doublereal *g) const {
-            err("gibbs_ref");
+        virtual void getGibbs_ref(doublereal *g) const {
+            err("getGibbs_ref");
         }
       
         /**
          *  Returns the vector of nondimensional
          *  entropies of the reference state at the current temperature
-         *  of the solution and the reference pressure for the species.
+         *  of the solution and the reference pressure for each species.
          */
         virtual void getEntropy_R_ref(doublereal *er) const {
-            err("entropy_R_ref");
+            err("getEntropy_R_ref");
+        }
+
+	/**
+	 *  Returns the vector of nondimensional
+         *  internal Energies of the reference state at the current temperature
+         *  of the solution and the reference pressure for each species.
+         */
+        virtual void getIntEnergy_RT_ref(doublereal *urt) const {
+            err("getIntEnergy_RT_ref");
         }
                  
         /**
          *  Returns the vector of nondimensional
          *  constant pressure heat capacities of the reference state
          *  at the current temperature of the solution
-         *  and reference pressure for the species.
+         *  and reference pressure for each species.
          */
         virtual void getCp_R_ref(doublereal *cprt) const {
-            err("cp_R_ref()");
+            err("getCp_R_ref()");
         }
 
 
@@ -557,6 +584,7 @@ namespace Cantera {
         //////////////////////////////////////////////////////
 
         /**
+         * @}
          * @name Specific Properties
          * @{
          */
@@ -693,11 +721,8 @@ namespace Cantera {
         }
 
         //@}
-    
-
         //---------------------------------------------------------
-
-        /// @name Critical state properties.
+        /// @name Critical State Properties.
         /// These methods are only implemented by some subclasses, and may 
         /// be moved out of ThermoPhase at a later date.
         
@@ -872,6 +897,10 @@ namespace Cantera {
         /// Pointer to the species thermodynamic property manager
         SpeciesThermo* m_spthermo;
 
+        /// Pointer to  the XML tree containing the species
+        /// data for this phase. This is used to access data needed to
+        /// construct the transport manager and other properties
+        /// later in the initialization process.
         const XML_Node* m_speciesData;
 
         /// Index number

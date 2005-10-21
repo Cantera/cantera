@@ -23,6 +23,10 @@
 
 namespace Cantera {
 
+    int ThermoPhase::activityConvention() const {
+	return cAC_CONVENTION_MOLAR;
+    }
+
     void ThermoPhase::getActivities(doublereal* a) {
         getActivityConcentrations(a);
         int nsp = nSpecies();
@@ -230,7 +234,3 @@ namespace Cantera {
     }
 
 }
-
-
-
-
