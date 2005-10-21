@@ -1,7 +1,8 @@
 /**
  *
  *  @file IdealGasPhase.h
- *
+ *   
+ *   ThermoPhase object for the ideal gas equation of state.
  */
 
 /*  $Author$
@@ -25,13 +26,13 @@
 namespace Cantera {
 
     /**
-     * @ingroup thermoprops
-     *
      * Class IdealGasPhase represents low-density gases that obey the
-     * ideal gas equation of state. It derives from class ThermoPhase,
+     * ideal gas equation of state. 
+     *
+     * IdealGasPhase derives from class ThermoPhase,
      * and overloads the virtual methods defined there with ones that
      * use expressions appropriate for ideal gas mixtures.
-     *
+     * @ingroup thermoprops
      */
     class IdealGasPhase : public ThermoPhase  {
 
@@ -63,7 +64,7 @@ namespace Cantera {
          * The standard-state pure-species enthalpies 
          * \f$ \hat h^0_k(T) \f$ are computed by the species thermodynamic 
          * property manager.
-         * @see SpeciesThermo
+         * \see SpeciesThermo
          */
         virtual doublereal enthalpy_mole() const {
             return GasConstant * temperature() * 
@@ -410,14 +411,7 @@ namespace Cantera {
             return m_cp0_R;
         }
 
-//         virtual void setPotentialEnergy(int k, doublereal pe) {
-//             m_pe[k] = pe;
-//             _updateThermo();
-//         }
-
-//         virtual doublereal potentialEnergy(int k) const {
-//             return m_pe[k];
-//         }
+	// @}
 
         virtual void initThermo();
 
@@ -439,6 +433,7 @@ namespace Cantera {
 	 */
         virtual void setToEquilState(const doublereal* lambda_RT);
 
+	// @}
 
 
     protected:
