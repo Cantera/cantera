@@ -1,5 +1,13 @@
 /**
  * @file ctexceptions.h
+ *
+ *   THis contains 
+ */
+
+/*
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 // Copyright 2001  California Institute of Technology
@@ -15,8 +23,25 @@ using namespace std;
 
 namespace Cantera {
 
+    /** 
+     * @defgroup errorhandling Error Handling
+     *
+     *  These classes and related functions are used to handle errors
+     *  and unknown events within Cantera.
+     * 
+     *  The general idea is that exceptions are thrown using the common
+     *  base class called CanteraError. Derived types of CanteraError
+     *  characterize what type of error is thrown. A list of all
+     *  of these errors is kept in the Application class. 
+     *
+     *  Any exceptions which are not caught cause a fatal error exit
+     *  from the program.  
+     */
+    
     /**
      * Base class for exceptions thrown by Cantera classes.
+     *
+     * @ingroup errorhandling
      */
     class CanteraError {
     public:
@@ -27,6 +52,7 @@ namespace Cantera {
     };
 
     /// Array size error.
+    /// 
     class ArraySizeError : public CanteraError {
     public:
         ArraySizeError(string proc, int sz, int reqd);
@@ -37,7 +63,7 @@ namespace Cantera {
     public:
         ElementRangeError(string func, int m, int mmax);
     };
-
+    
     void deprecatedMethod(string classnm, string oldnm, string newnm);
     void removeAtVersion(string func, string version);
 }
