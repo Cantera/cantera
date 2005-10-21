@@ -1,6 +1,9 @@
 /**
  * @file Kinetics.h
  *
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 // Copyright 2001-2004  California Institute of Technology
@@ -472,7 +475,7 @@ namespace Cantera {
         //@{
 
         /**
-         * Species creation rates [kmol/m^3 or kmol/m^2]. Return the
+         * Species creation rates [kmol/m^3/s or kmol/m^2/s]. Return the
          * species creation rates in array cdot, which must be
          * dimensioned at least as large as the total number of
          * species in all phases. @see nTotalSpecies.
@@ -483,7 +486,7 @@ namespace Cantera {
         }
 
         /**
-         * Species destruction rates [kmol/m^3 or kmol/m^2]. Return
+         * Species destruction rates [kmol/m^3/s or kmol/m^2/s]. Return
          * the species destruction rates in array ddot, which must be
          * dimensioned at least as large as the total number of
          * species. @see nTotalSpecies.
@@ -494,7 +497,7 @@ namespace Cantera {
         }
 
         /**
-         * Species net production rates [kmol/m^3 or kmol/m^2]. Return
+         * Species net production rates [kmol/m^3/s or kmol/m^2/s]. Return
          * the species net production rates (creation - destruction)
          * in array wdot, which must be dimensioned at least as large
          * as the total number of species. @see nTotalSpecies.
