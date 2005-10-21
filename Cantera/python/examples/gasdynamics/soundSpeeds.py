@@ -3,11 +3,13 @@ import math
 
 def equilSoundSpeeds(gas):
 
-    """Returns the equilibrium and frozen sound speeds for a gas.  The
-    gas is first set to an equilibrium state, since otherwise the
-    equilibrium sound speed is not defined. Therefore, both sound
-    speeds are for a gas with an equilibrium composition - not the
-    composition of the gas object on entry."""
+    """Returns a tuple containing the equilibrium and frozen sound
+    speeds for a gas with an equilibrium composition.  The gas is
+    first set to an equilibrium state at the temperature and pressure
+    of the gas, since otherwise the equilibrium sound speed is not
+    defined.
+
+    """
 
     # set the gas to equilibrium at its current T and P
     gas.equilibrate('TP')
@@ -17,12 +19,12 @@ def equilSoundSpeeds(gas):
     p0 = gas.pressure()
     r0 = gas.density()
 
-    # perturb density
+    # perturb the density
     r1 = r0*1.0001
 
     # set the gas to a state with the same entropy and composition but
     # the perturbed density
-    gas.setState_SV(s0, 1.0/r1)
+    gas.set(S = s0, V = 1.0/r1)
 
     # save the pressure for this case for the frozen sound speed
     pfrozen = gas.pressure()
@@ -32,7 +34,10 @@ def equilSoundSpeeds(gas):
 
     p1 = gas.pressure()
 
+    # equilibrium sound speed
     aequil = math.sqrt((p1 - p0)/(r1 - r0));
+
+    # frozen sound speed
     afrozen = math.sqrt((pfrozen - p0)/(r1 - r0));    
     return (aequil, afrozen)
 
