@@ -523,6 +523,9 @@ namespace Cantera {
          *  Returns the vector of nondimensional
          *  enthalpies of the reference state at the current temperature
          *  of the solution and the reference pressure for the species.
+         *
+         *  This base function will throw a CanteraException unless
+         *  it is overwritten in a derived class.
          */
         virtual void getEnthalpy_RT_ref(doublereal *hrt) const {
             err("getEnthalpy_RT_ref");
