@@ -142,11 +142,12 @@ namespace Cantera {
             m_u["kJ"]       = 1.0e3;
             m_u["cal"]      = 4.184;
             m_u["kcal"]     = 4184.0;
-            m_u["eV"]       = 1.602e-19;
+            m_u["eV"]       = 1.60217733e-19;
 
             // quantity
             m_u["mol"]      = 1.0e-3;
-            m_u["mole"]      = 1.0e-3;
+            m_u["gmol"]     = 1.0e-3;
+            m_u["mole"]     = 1.0e-3;
             m_u["kmol"]     = 1.0;
             m_u["molec"]    = 1.0/Avogadro;
 
