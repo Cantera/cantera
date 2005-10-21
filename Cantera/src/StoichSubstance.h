@@ -2,6 +2,8 @@
  *
  *  @file StoichSubstance.h
  *
+ * This file contains the class declarations for the StoichSubstance
+ * ThermoPhase class.
  */
 
 /*  $Author$
@@ -288,6 +290,34 @@ namespace Cantera {
          */
         virtual void getEnthalpy_RT(doublereal* hrt) const {
             hrt[0] = enthalpy_mole() / (GasConstant * temperature());
+        }
+
+
+        /**
+	 * Get the array of nondimensional Enthalpy functions for the
+         * standard state species
+         * at the current <I>T</I> and <I>P</I> of the solution.
+         */
+        virtual void getEntropy_R(doublereal* sr) const {
+            sr[0] = entropy_mole() / GasConstant;
+        }
+
+	/**
+         * Get the nondimensional Gibbs functions for the species
+         * at their standard states of solution at the current T and P
+         * of the solution.
+         */
+        virtual void getGibbs_RT(doublereal* grt) const {
+          grt[0] =  gibbs_mole() / (GasConstant * temperature());
+        }
+
+	/**
+         * Get the nondimensional Heat Capacities at constant
+         * pressure for the standard state of the species 
+         * at the current T and P. 
+         */
+        virtual void getCp_R(doublereal* cpr) const {
+            cpr[0] = cp_mole() / GasConstant;
         }
 
 
