@@ -79,7 +79,7 @@ namespace Cantera {
             }
         }
 
-        vector<string> inputDirs; 
+        vector<string> inputDirs;
         vector<string> errorMessage;
         vector<string> warning;
         vector<string> errorRoutine;
@@ -264,18 +264,35 @@ namespace Cantera {
     string tmpDir() { appinit(); return app()->tmp_dir; }
     string sleep() { appinit(); return app()->sleep; }
 
+    /**
+     * Returns the number of error messages.
+     * \ingroup errorhandling
+     */
     int nErrors() {
         return static_cast<int>(app()->errorMessage.size());
     }
 
+    /**
+     * popError eliminates the last error message that Cantera
+     * has saved. Cantera saves a stack of exceptions that it
+     * has caught in the Application class. This routine eliminates
+     * the last exception to be added to that stack.
+     * \ingroup errorhandling
+     */
     void popError() {
         appinit();
         if (nErrors() > 0) {
-            __app->errorMessage.pop_back();
-            __app->errorRoutine.pop_back();
+	  __app->errorMessage.pop_back();
+	  __app->errorRoutine.pop_back();
         }
     }
 
+    /**
+     * Retrieve the last error message.
+     * This routine will retrieve the last error message and return
+     * it in the return string.
+     * \ingroup errorhandling
+     */
     string lastErrorMessage() {
         appinit();
         if (nErrors() > 0) {
@@ -286,10 +303,19 @@ namespace Cantera {
             return head+string("\nProcedure: ")+__app->errorRoutine.back()
                 +string("\nError:   ")+__app->errorMessage.back();
         }
-        else
-            return "<no Cantera error>";
+        else {
+	  return "<no Cantera error>";
+	}
     }
 
+    /**
+     * Write out to ostream, f, all of the saved error messages.
+     * Cantera saves a stack of exceptions that it
+     * has caught in the Application class. This routine writes
+     * out all of the error messages to ostream f, and then
+     * clears them from internal storage.
+     * \ingroup errorhandling
+     */
     void showErrors(ostream& f) {
         appinit(); 
         int i = static_cast<int>(__app->errorMessage.size());
@@ -297,7 +323,8 @@ namespace Cantera {
         f << endl << endl;
         f << "************************************************" << endl;
         f << "                   Cantera Error!                  " << endl;
-        f << "************************************************" << endl << endl;
+        f << "************************************************" << endl
+	  << endl;
         int j;
         for (j = 0; j < i; j++) {
             f << endl;
@@ -309,6 +336,14 @@ namespace Cantera {
         __app->errorRoutine.clear();
     }
 
+    /**
+     * Write out all of the saved error messages to the log device.
+     * Cantera saves a stack of exceptions that it
+     * has caught in the Application class. This routine writes
+     * out all of the error messages to the log, usually stdout,
+     *  and then clears them from internal storage.
+     * \ingroup errorhandling
+     */
     void showErrors() {
         appinit(); 
         int i = static_cast<int>(__app->errorMessage.size());
@@ -328,6 +363,14 @@ namespace Cantera {
         __app->errorRoutine.clear();
     }
 
+    /**
+     * Set an error condition in the application class without 
+     * throwing an exception.
+     * This routine adds an error message to the end of the stack
+     * of errors that Cantera accumulates in the Application
+     * class.
+     * \ingroup errorhandling
+     */
     void setError(string r, string msg) {
         appinit();
         __app->errorMessage.push_back(msg);
