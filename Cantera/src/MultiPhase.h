@@ -1,3 +1,10 @@
+/**
+ * @file MultiPhase.h
+ *
+ *  $Author$
+ *  $Date$
+ *  $Revision$
+ */
 #ifndef CT_MULTIPHASE_H
 #define CT_MULTIPHASE_H
 
