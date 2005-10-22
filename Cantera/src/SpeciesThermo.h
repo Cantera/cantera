@@ -64,14 +64,18 @@ namespace Cantera {
          * parameterization. 
          * @see speciesThermoTypes.h 
          */
-        virtual void install(string name, int index, int type, const doublereal* c, 
-            doublereal minTemp, doublereal maxTemp, doublereal refPressure)=0;
+        virtual void install(string name, int index, int type, 
+			     const doublereal* c, 
+			     doublereal minTemp,
+			     doublereal maxTemp,
+			     doublereal refPressure)=0;
 
         /**
          * Compute the standard-state properties for all species.
          * Given temperature T in K, this method updates the values of
          * the non-dimensional heat capacity at constant pressure,
-         * enthalpy, and entropy.
+         * enthalpy, and entropy, at the reference pressure Pref
+         * of each of the standard states.
          */
         virtual void update(doublereal T, 
             doublereal* cp_R, 
@@ -79,7 +83,7 @@ namespace Cantera {
             doublereal* s_R) const=0;
 
         /**
-         * Like update, but only updates the species k.
+         * Like update(), but only updates the single species k.
          */
         virtual void update_one(int k, doublereal T, 
             doublereal* cp_R, 
@@ -107,10 +111,17 @@ namespace Cantera {
         virtual doublereal maxTemp(int k=-1) const =0;
 
         /**
-         * The standard-state pressure. All parameterizations must be
-         * for the same standard-state pressure.
+         * The reference-state pressure for species k.
+         *
+         * returns the reference state pressure in Pascals for
+         * species k. If k is left out of the argument list,
+         * it returns the reference state pressure for the first
+         * species.
+         * Note that some SpeciesThermo implementations, such
+         * as those for ideal gases, require that all species
+         * in the same phase have the same reference state pressures.
          */
-        virtual doublereal refPressure() const =0;
+        virtual doublereal refPressure(int k=-1) const =0;
 
 	/**
          * This utility function reports the type of parameterization

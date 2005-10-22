@@ -65,7 +65,8 @@ namespace Cantera {
          * - c[1] - c[7]   coefficients for low T range
          * - c[8] - c[14]  coefficients for high T range
          */
-        virtual void install(string name, int index, int type, const doublereal* c, 
+        virtual void install(string name, int index, int type, 
+			     const doublereal* c, 
 			     doublereal minTemp, doublereal maxTemp,
 			     doublereal refPressure) { 
 
@@ -184,7 +185,9 @@ namespace Cantera {
                 return m_thigh[k];
         }
 
-        virtual doublereal refPressure() const {return m_p0;}
+        virtual doublereal refPressure(int k = -1) const {
+            return m_p0;
+        }
 
 	/**
          * This utility function reports the type of parameterization
@@ -211,19 +214,25 @@ namespace Cantera {
 	      const vector<NasaPoly1> &mhg = m_high[grp-1];
 	      const NasaPoly1 *lowPoly  = &(mlg[pos]);
 	      const NasaPoly1 *highPoly = &(mhg[pos]);
-
+	      int itype = NASA;
 	      doublereal tmid = lowPoly->maxTemp();
 	      c[0] = tmid;
 	      int n;
 	      double ttemp;
-	      lowPoly->reportParameters(n, minTemp, ttemp, refPressure,
+	      lowPoly->reportParameters(n, itype, minTemp, ttemp, refPressure,
 					c + 1);
 	      if (n != index) {
 		throw CanteraError("  ", "confused");
 	      }
-	      highPoly->reportParameters(n, ttemp, maxTemp, refPressure,
+	      if (itype != NASA1) {
+		throw CanteraError("  ", "confused");
+	      }
+	      highPoly->reportParameters(n, itype, ttemp, maxTemp, refPressure,
 					c + 8);
 	      if (n != index) {
+		throw CanteraError("  ", "confused");
+	      }
+	      if (itype != NASA1) {
 		throw CanteraError("  ", "confused");
 	      }
 	    } else {

@@ -104,14 +104,19 @@ namespace Cantera {
 	SpeciesThermoDuo() {}
         virtual ~SpeciesThermoDuo(){}
                 
-	virtual void install(string name, int sp, int type, const doublereal* c,
-            doublereal minTemp, doublereal maxTemp, doublereal refPressure) {
+	virtual void install(string name, int sp, int type,
+			     const doublereal* c,
+			     doublereal minTemp,
+			     doublereal maxTemp, 
+			     doublereal refPressure) {
             m_p0 = refPressure;
             if (type == m_thermo1.ID) {
-                m_thermo1.install(name, sp, 0, c, minTemp, maxTemp, refPressure);
+                m_thermo1.install(name, sp, 0, c, minTemp, maxTemp,
+				  refPressure);
 		speciesToType[sp] = m_thermo1.ID;
             } else if (type == m_thermo2.ID) {
-                m_thermo2.install(name, sp, 0, c, minTemp, maxTemp, refPressure);
+                m_thermo2.install(name, sp, 0, c, minTemp, maxTemp,
+				  refPressure);
 		speciesToType[sp] = m_thermo2.ID;
             } else {
                 throw UnknownSpeciesThermo("SpeciesThermoDuo:install",type);
@@ -136,7 +141,7 @@ namespace Cantera {
             return (tm1 < tm2 ? tm1 : tm2);
         }                        
 
-        virtual doublereal refPressure() const {
+        virtual doublereal refPressure(int k = -1) const {
             return m_p0;
         }
 
@@ -158,7 +163,7 @@ namespace Cantera {
 	    if (ctype == m_thermo1.ID) {
 	      m_thermo1.reportParams(index, type, c, minTemp, maxTemp, 
 				     refPressure);
-	    } else if (ctype == m_thermo1.ID) {
+	    } else if (ctype == m_thermo2.ID) {
 	      m_thermo2.reportParams(index, type, c, minTemp, maxTemp, 
 				     refPressure);
 	    } else {
@@ -225,7 +230,7 @@ namespace Cantera {
                 return m_thermo[k].maxTemp();
         }                        
 
-        virtual doublereal refPressure() const {
+        virtual doublereal refPressure(int k = -1) const {
             return m_pref;
         }
 

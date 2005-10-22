@@ -16,6 +16,8 @@
 #include "ShomateThermo.h"
 //#include "PolyThermoMgr.h"
 #include "SimpleThermo.h"
+#include "GeneralSpeciesThermo.h"
+#include "Mu0Poly.h"
 
 #include "SpeciesThermoMgr.h"
 #include "speciesThermoTypes.h"
@@ -31,7 +33,8 @@ namespace Cantera {
 
 
     static void getSpeciesThermoTypes(XML_Node* node, 
-        int& has_nasa, int& has_shomate, int& has_simple) {
+				      int& has_nasa, int& has_shomate, int& has_simple,
+				      int &has_other) {
         const XML_Node& sparray = *node;
         vector<XML_Node*> sp;
         sparray.getChildren("species",sp);
@@ -44,10 +47,11 @@ namespace Cantera {
             if (th.hasChild("Shomate")) has_shomate = 1;
             if (th.hasChild("const_cp")) has_simple = 1;
             if (th.hasChild("poly")) {
-                if (th.child("poly")["order"] == "1") has_simple = 1;
-                else throw CanteraError("newSpeciesThermo",
-                    "poly with order > 1 not yet supported");
+	      if (th.child("poly")["order"] == "1") has_simple = 1;
+	      else throw CanteraError("newSpeciesThermo",
+				      "poly with order > 1 not yet supported");
             }
+	    if (th.hasChild("Mu0")) has_other = 1;
 	  } else {
 	    throw UnknownSpeciesThermoModel("getSpeciesThermoTypes:",
 					    spNode->attrib("name"), "missing");
@@ -61,8 +65,15 @@ namespace Cantera {
      * specified in a CTML phase specification.
      */
     SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(XML_Node* node) {
-        int inasa = 0, ishomate = 0, isimple = 0;
-        getSpeciesThermoTypes(node, inasa, ishomate, isimple);
+        int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
+	try {
+	  getSpeciesThermoTypes(node, inasa, ishomate, isimple, iother);
+	} catch (UnknownSpeciesThermoModel) {
+	  iother = 1;
+	}
+	if (iother) {
+	  return new GeneralSpeciesThermo();
+	}
         return newSpeciesThermo(NASA*inasa
             + SHOMATE*ishomate + SIMPLE*isimple);
     }
@@ -70,10 +81,17 @@ namespace Cantera {
     SpeciesThermo* SpeciesThermoFactory::
     newSpeciesThermo(vector<XML_Node*> nodes) {
         int n = static_cast<int>(nodes.size());
-        int inasa = 0, ishomate = 0, isimple = 0;
+        int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
         for (int j = 0; j < n; j++) {
-            getSpeciesThermoTypes(nodes[j], inasa, ishomate, isimple);
+	  try {
+            getSpeciesThermoTypes(nodes[j], inasa, ishomate, isimple, iother);
+	  } catch (UnknownSpeciesThermoModel) {
+	    iother = 1;
+	  }
         }
+	if (iother) {
+	  return new GeneralSpeciesThermo();
+	}
         return newSpeciesThermo(NASA*inasa
             + SHOMATE*ishomate + SIMPLE*isimple);
     }
@@ -82,14 +100,18 @@ namespace Cantera {
     SpeciesThermo* SpeciesThermoFactory::
     newSpeciesThermoOpt(vector<XML_Node*> nodes) {
         int n = static_cast<int>(nodes.size());
-        int inasa = 0, ishomate = 0, isimple = 0;
+        int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
         for (int j = 0; j < n; j++) {
 	  try {
-            getSpeciesThermoTypes(nodes[j], inasa, ishomate, isimple);
+            getSpeciesThermoTypes(nodes[j], inasa, ishomate, isimple, iother);
 	  } catch (UnknownSpeciesThermoModel) {
-
+	    iother = 1;
+	    popError();
 	  }
         }
+	if (iother) {
+	  return new GeneralSpeciesThermo();
+	}
         return newSpeciesThermo(NASA*inasa
             + SHOMATE*ishomate + SIMPLE*isimple);
     }
@@ -98,7 +120,6 @@ namespace Cantera {
     SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(int type) {
         
         switch (type) {
-
         case NASA:
             return new NasaThermo;
         case SHOMATE:
@@ -308,8 +329,10 @@ namespace Cantera {
             getFloatArray(f0.child("floatArray"), c0, false);
             if (dualRange)
                 getFloatArray(f1ptr->child("floatArray"), c1, false);
-            else
-                c1.resize(7,0.0);
+            else {
+	      c1.resize(7,0.0);
+	      copy(c0.begin(), c0.begin()+7, c1.begin());
+	    }
         }
         else if (fabs(tmax1 - tmin0) < 0.01) {
             tmin = tmin1;
@@ -385,6 +408,9 @@ namespace Cantera {
             else if (f->name() == "NASA") {
                 installNasaThermoFromXML(s["name"], spthermo, k, f, 0);
             }
+	    else if (f->name() == "Mu0") {
+	      installMu0ThermoFromXML(s["name"], spthermo, k, f);
+	    }
             else {
                 throw UnknownSpeciesThermoModel("installSpecies", 
 						s["name"], f->name());

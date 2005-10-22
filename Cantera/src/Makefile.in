@@ -39,13 +39,16 @@ BASE       = $(BASE_OBJ)
 
 # thermodynamic properties
 THERMO_OBJ = ThermoPhase.o IdealGasPhase.o ConstDensityThermo.o \
-             SpeciesThermoFactory.o \
+             SpeciesThermoFactory.o ConstCpPoly.o \
+             Mu0Poly.o GeneralSpeciesThermo.o \
              ThermoFactory.o @phase_object_files@
 
 THERMO_H   = ThermoPhase.h IdealGasPhase.h ConstDensityThermo.h \
-             SpeciesThermoFactory.h \
-             ThermoFactory.h NasaPoly1.h NasaThermo.h ShomateThermo.h \
-             ShomatePoly.h SimpleThermo.h SpeciesThermoMgr.h \
+             SpeciesThermoFactory.h ThermoFactory.h \
+             NasaPoly1.h NasaPoly2.h NasaThermo.h \
+             ShomateThermo.h ShomatePoly.h ConstCpPoly.h\
+             SimpleThermo.h SpeciesThermoMgr.h \
+             GeneralSpeciesThermo.h Mu0Poly.h \
              speciesThermoTypes.h SpeciesThermo.h SurfPhase.h \
              EdgePhase.h polyfit.h  Func1.h \
              FuncEval.h StoichManager.h @phase_header_files@

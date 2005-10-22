@@ -10,11 +10,19 @@
  *
  *  \f[ S = A*ln(t) + B*t + C*t^2/2 + D*t^3/3 - E/(2*t^2) + G \f]
  *
- *    - Cp = heat capacity (J/mol*K)
- *    - H = standard enthalpy (kJ/mol)
- *    - \f$ \Delta_f H_298.15 \f$ = enthalpy of formation at 298.15 K (kJ/mol)
- *    - S = standard entropy (J/mol*K)
+ *    - Cp = heat capacity (J/gmol*K)
+ *    - H = standard enthalpy (kJ/gmol)
+ *    - \f$ \Delta_f H_298.15 \f$ = enthalpy of formation at 298.15 K (kJ/gmol)
+ *    - S = standard entropy (J/gmol*K)
  *    - t = temperature (K) / 1000.
+ *
+ *  Note, the polynomial data (i.e., A, ... , G) is entered in dimensional form.
+ *  This is in contrast to the NASA database polynomials which are entered in 
+ *  nondimensional form (i.e., NASA parameterizes C_p/R, while Shomate
+ *  parameterizes C_p assuming units of J/gmol*K - and kJ/gmol*K for H).
+ *  Note, also that the H - H_298.15 equation has units of kJ/gmol, because of
+ *  the implicit integration of (t = T 1000), which provides a 
+ *  multiplier of 1000 to the Enthalpy equation.
  *
  */
 
@@ -54,8 +62,10 @@ namespace Cantera {
          * in the same units as used in the NIST Chemistry WebBook.
          *
          */
-        virtual void install(string name, int index, int type, const doublereal* c,
-            doublereal minTemp, doublereal maxTemp, doublereal refPressure) {
+        virtual void install(string name, int index, int type, 
+			     const doublereal* c,
+			     doublereal minTemp, doublereal maxTemp, 
+			     doublereal refPressure) {
             int imid = int(c[0]);       // midpoint temp converted to integer
             int igrp = m_index[imid];   // has this value been seen before?
             if (igrp == 0) {            // if not, prepare new group
@@ -139,7 +149,7 @@ namespace Cantera {
                     _end    = m_low[i].end();
                 }
                 for (; _begin != _end; ++_begin) {
-                    _begin->updateProperties(m_t.begin(), cp_R, h_RT, s_R);
+                  _begin->updateProperties(m_t.begin(), cp_R, h_RT, s_R);
                 }
             }
         }
@@ -158,7 +168,9 @@ namespace Cantera {
                 return m_thigh[k];
         }
 
-        virtual doublereal refPressure() const {return m_p0;}
+        virtual doublereal refPressure(int k=-1) const {
+            return m_p0;
+        }
 
 	virtual int reportType(int index) const { return SHOMATE; }
 
@@ -174,9 +186,10 @@ namespace Cantera {
 				  doublereal &maxTemp, 
 				  doublereal &refPressure) {
 	    type = reportType(index);
-	    if (type == NASA) {
+	    if (type == SHOMATE) {
 	      int grp = m_group_map[index];
 	      int pos = m_posInGroup_map[index];
+	      int itype = SHOMATE;
 	      const vector<ShomatePoly> &mlg = m_low[grp-1];
 	      const vector<ShomatePoly> &mhg = m_high[grp-1];
 	      const ShomatePoly *lowPoly  = &(mlg[pos]);
@@ -185,14 +198,20 @@ namespace Cantera {
 	      c[0] = tmid;
 	      int n;
 	      double ttemp;
-	      lowPoly->reportParameters(n, minTemp, ttemp, refPressure,
+	      lowPoly->reportParameters(n, itype, minTemp, ttemp, refPressure,
 					c + 1);
 	      if (n != index) {
 		throw CanteraError("  ", "confused");
 	      }
-	      highPoly->reportParameters(n, ttemp, maxTemp, refPressure,
-					c + 8);
+	      if (itype != SHOMATE && itype != SHOMATE1) {
+		throw CanteraError("  ", "confused");
+	      }
+	      highPoly->reportParameters(n, itype,  ttemp, maxTemp,
+					 refPressure, c + 8);
 	      if (n != index) {
+		throw CanteraError("  ", "confused");
+	      }
+	      if (itype != SHOMATE && itype != SHOMATE1) {
 		throw CanteraError("  ", "confused");
 	      }
 	    } else {

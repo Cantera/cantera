@@ -20,14 +20,22 @@
 
 // NASA Polynomials
 #define NASA 4
+#define NASA2 4
 
 // Shomate Polynomials used in NIST database
 #define SHOMATE 8
+#define SHOMATE2 8
 
 // Tiger Polynomials
 #define TIGER 16
 
 #define SIMPLE 32
+
+#define MU0_INTERP 64
+
+#define SHOMATE1 128
+
+#define NASA1  256
 
 #include "ct_defs.h"
 

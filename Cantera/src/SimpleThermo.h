@@ -27,7 +27,8 @@ namespace Cantera {
 
         virtual ~SimpleThermo() {}
 
-        virtual void install(string name, int index, int type, const doublereal* c,
+        virtual void install(string name, int index, int type, 
+			     const doublereal* c,
             doublereal minTemp, doublereal maxTemp, doublereal refPressure) {
             m_logt0.push_back(log(c[0]));
             m_t0.push_back(c[0]);
@@ -80,7 +81,7 @@ namespace Cantera {
                 return m_thigh[k];
         }
 
-        virtual doublereal refPressure() const {return m_p0;}
+        virtual doublereal refPressure(int k=-1) const {return m_p0;}
 
 	virtual int reportType(int index) const { return SIMPLE; }
 
