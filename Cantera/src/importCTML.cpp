@@ -466,8 +466,21 @@ namespace Cantera {
     }                
 
     /**
-     * getStick() processes the element called Stick that specifies
-     * sticking coefficients.
+     * getStick() processes the XML element called Stick that specifies
+     * the sticking coefficient reaction. This routine will 
+     * translate the sticking coefficient value into a "normal"
+     * rate constant for the surface reaction.
+     *
+     *  Output
+     * -----------
+     * Output is the normal Arrhenius expressions for a surface
+     * reaction rate constant.
+     * 
+     *   A - units such that rate of rxn has kmol/m^2/s when
+     *       A is multiplied by activity concentrations of 
+     *       reactants in the normal manner.
+     *   n - unitless
+     *   E - Units 1/Kelvin
      */
     static void getStick(const XML_Node& node, Kinetics& kin,
         ReactionData& r, doublereal& A, doublereal& b, doublereal& E) {
@@ -476,11 +489,21 @@ namespace Cantera {
         int np = 0;
         doublereal f = 1.0;
         doublereal order;
-
+	/*
+	 * species is the name of the special reactant whose surface
+	 * flux rate will be calculated.
+	 *      isp = species # in the local phase
+	 *      ispKinetics = species # in the kinetics object
+	 *      ispPhaseIndex = phase # of the special species
+	 */
         string spname = node["species"];
         ThermoPhase& th = kin.speciesPhase(spname);
-        int isp = th.speciesIndex(spname);
-        double mw = th.molecularWeights()[isp];
+	int isp = th.speciesIndex(spname);
+	int ispKinetics = kin.kineticsSpeciesIndex(spname);
+	int ispPhaseIndex = kin.speciesPhaseIndex(ispKinetics);
+  
+        double ispMW = th.molecularWeights()[isp];
+	double sc;
 
         // loop over the reactants
         for (int n = 0; n < nr; n++) {
@@ -488,8 +511,8 @@ namespace Cantera {
             order = r.order[n];    // stoich coeff
 
             // get the phase species k belongs to
-            np = kin.speciesPhaseIndex(k);  
-            const ThermoPhase& p = kin.thermo(np); 
+            np = kin.speciesPhaseIndex(k);
+            const ThermoPhase& p = kin.thermo(np);
 
             // get the local index of species k in this phase
             klocal = p.speciesIndex(kin.kineticsSpeciesName(k));
@@ -500,19 +523,33 @@ namespace Cantera {
             // to coverages used in the sticking probability
             // expression
             if (p.eosType() == cSurf || p.eosType() == cEdge) {
-                f /= pow(p.standardConcentration(klocal), order);
+	      sc = p.standardConcentration(klocal);
+	      f /= pow(sc, order);
             }   
-            // otherwise, increment the counter of bulk species
-            else 
-                not_surf++;
+            // Otherwise:
+            else {
+	      // We only allow one species to be in the phase
+	      // containing the special sticking coefficient
+	      // species.
+	      if (ispPhaseIndex == np) {
+		not_surf++;
+	      } 
+	      // Other bulk phase species on the other side
+	      // of ther interface are treated like surface
+	      // species.
+	      else {
+		sc = p.standardConcentration(klocal);
+		f /= pow(sc, order);
+	      }
+	    }
         }
         if (not_surf != 1) {
             throw CanteraError("getStick",
                 "reaction probabilities can only be used in "
-                "reactions with exactly 1 bulk species.");
+                "reactions with exactly 1 gas/liquid species.");
         }
 
-        doublereal cbar = sqrt(8.0*GasConstant/(Pi*mw));
+        doublereal cbar = sqrt(8.0*GasConstant/(Pi*ispMW));
         A = 0.25 * getFloat(node, "A", "-") * cbar * f;
         b = getFloat(node, "b") + 0.5;
         E = getFloat(node, "E", "actEnergy");
