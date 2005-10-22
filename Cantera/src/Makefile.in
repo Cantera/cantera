@@ -48,6 +48,7 @@ THERMO_H   = ThermoPhase.h IdealGasPhase.h ConstDensityThermo.h \
              NasaPoly1.h NasaPoly2.h NasaThermo.h \
              ShomateThermo.h ShomatePoly.h ConstCpPoly.h\
              SimpleThermo.h SpeciesThermoMgr.h \
+             SpeciesThermoInterpType.h \
              GeneralSpeciesThermo.h Mu0Poly.h \
              speciesThermoTypes.h SpeciesThermo.h SurfPhase.h \
              EdgePhase.h polyfit.h  Func1.h \
