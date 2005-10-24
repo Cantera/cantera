@@ -135,7 +135,7 @@ namespace Cantera {
 
         /**
          * @} 
-         * @name  Molar Thermodynamic Properties 
+         * @name  Molar Thermodynamic Properties of the Solution
          * @{
          */
 
@@ -330,16 +330,6 @@ namespace Cantera {
              return -1.0;
          }
 
-        /**
-         * Get the array of chemical potentials at unit activity These
-         * are the standard state chemical potentials \f$ \mu^0_k(T,P)
-         * \f$.. The values are evaluated at the current
-         * temperature and pressure.
-         */
-        virtual void getStandardChemPotentials(doublereal* mu) const {
-            err("getStandardChemPotentials");
-        }
-
 	/**
 	 * Returns the units of the standard and generalized
 	 * concentrations. Note they have the same units, as their
@@ -362,9 +352,16 @@ namespace Cantera {
 					  int sizeUA = 6);
 
 	/*
-	 * Return a vector of activities.
+         * Get the array of non-dimensional activities at
+         * the current solution temperature, pressure, and
+         * solution concentration.
+	 *
+	 * We resolve this function at this level by calling
+	 * on the activityConcentration function. However, 
+	 * derived classes may want to override this default
+	 * implementation.
 	 */
-        void getActivities(doublereal* a);
+        virtual void getActivities(doublereal* a);
 
 	/**
          * Get the array of non-dimensional molar-based
@@ -447,8 +444,19 @@ namespace Cantera {
         }
 
         //@}
-        /// @name  Properties of the Standard State of the Species in the Solution 
+        /// @name Properties of the Standard State of the Species in the Solution 
         //@{
+
+	/**
+         * Get the array of chemical potentials at unit activity.
+	 * These
+         * are the standard state chemical potentials \f$ \mu^0_k(T,P)
+         * \f$.. The values are evaluated at the current
+         * temperature and pressure.
+         */
+        virtual void getStandardChemPotentials(doublereal* mu) const {
+            err("getStandardChemPotentials");
+        }
 
         /**
 	 * Get the nondimensional Enthalpy functions for the species
@@ -513,8 +521,7 @@ namespace Cantera {
             err("getStandardVolumes");
         }
 
-
-       //@}
+	//@}
         /// @name Thermodynamic Values for the Species Reference States 
         //@{
 
