@@ -1,0 +1,319 @@
+/**
+ *  @file CVodeInt.cpp
+ *
+ */
+
+// Copyright 2001  California Institute of Technology
+
+#include "CVodesIntegrator.h"
+#include <iostream>
+using namespace std;
+
+
+// sundials includes
+#include <sundialstypes.h>
+#include <sundialsmath.h>
+#include <cvodes.h>
+#include <cvdense.h>
+#include <cvdiag.h>
+#include <cvspgmr.h>
+#include <nvector.h>
+#include <nvector_serial.h>
+
+inline static N_Vector nv(void* x) {
+    return reinterpret_cast<N_Vector>(x);
+}
+
+extern "C" {
+
+    /**
+     *  Function called by cvodes to evaluate ydot given y.  The cvode
+     *  integrator allows passing in a void* pointer to access
+     *  external data. This pointer is cast to a pointer to a instance
+     *  of class FuncEval. The equations to be integrated should be
+     *  specified by deriving a class from FuncEval that evaluates the
+     *  desired equations.
+     *  @ingroup odeGroup
+     */
+    static void cvodes_rhs(realtype t, N_Vector y, N_Vector ydot, 
+        void *f_data) {
+        double* ydata = NV_DATA_S(y); //N_VDATA(y);
+        double* ydotdata = NV_DATA_S(ydot); //N_VDATA(ydot);
+        Cantera::FuncEval* f = (Cantera::FuncEval*)f_data;
+        f->eval(t, ydata, ydotdata, NULL);
+    }
+
+}
+
+namespace Cantera {
+
+
+    /**
+     *  Constructor. Default settings: dense jacobian, no user-supplied
+     *  Jacobian function, Newton iteration.
+     */
+    CVodesIntegrator::CVodesIntegrator() : m_neq(0), 
+                           m_cvode_mem(0), 
+                           m_t0(0.0), 
+                           m_y(0), 
+                           m_abstol(0), 
+                           m_type(DENSE+NOJAC), 
+                           m_itol(CV_SS), 
+                           m_method(CV_BDF), 
+                           m_iter(CV_NEWTON), 
+                           m_maxord(0),
+                           m_reltol(1.e-9), 
+                           m_abstols(1.e-15), 
+                           m_nabs(0), 
+                           m_hmax(0.0),
+                           m_maxsteps(20000)
+    {
+        //m_ropt.resize(OPT_SIZE,0.0);
+        //m_iopt = new long[OPT_SIZE];
+        //fill(m_iopt, m_iopt+OPT_SIZE,0);
+    }
+
+
+    /// Destructor.
+    CVodesIntegrator::~CVodesIntegrator()
+    {   
+      if (m_cvode_mem) CVodeFree(m_cvode_mem);
+      if (m_y) N_VDestroy_Serial(nv(m_y)); //N_VFree(nv(m_y));
+      if (m_abstol) N_VDestroy_Serial(nv(m_abstol)); //N_VFree(nv(m_abstol));
+      //delete[] m_iopt;
+    }
+    
+    double& CVodesIntegrator::solution(int k){ 
+        return NV_Ith_S(nv(m_y),k);
+    }
+ 
+    double* CVodesIntegrator::solution(){ return NV_DATA_S(nv(m_y)); 
+    }
+
+    void CVodesIntegrator::setTolerances(double reltol, int n, double* abstol) {
+        m_itol = CV_SV;
+        m_nabs = n;
+        if (n != m_neq) {
+            if (m_abstol) N_VDestroy_Serial(nv(m_abstol));
+            m_abstol = reinterpret_cast<void*>(N_VNew_Serial(n));
+        }
+        for (int i=0; i<n; i++) {
+            NV_Ith_S(nv(m_abstol), i) = abstol[i];
+        }
+        m_reltol = reltol; 
+    }
+
+    void CVodesIntegrator::setTolerances(double reltol, double abstol) {
+        m_itol = CV_SS;
+        m_reltol = reltol; 
+        m_abstols = abstol;
+    }
+
+    void CVodesIntegrator::setProblemType(int probtype) {
+      m_type = probtype;
+    }
+
+    void CVodesIntegrator::setMethod(MethodType t) {
+        if (t == BDF_Method) 
+            m_method = CV_BDF;
+        else if (t == Adams_Method) 
+            m_method = CV_ADAMS;
+        else 
+            throw CVodesErr("unknown method");
+    }
+
+    void CVodesIntegrator::setMaxStepSize(doublereal hmax) {
+        m_hmax = hmax;
+        if (m_cvode_mem)
+            CVodeSetMaxStep(m_cvode_mem, hmax);
+        //m_ropt[HMAX] = hmax;
+    }
+
+    void CVodesIntegrator::setMinStepSize(doublereal hmin) {
+        m_hmin = hmin;
+        if (m_cvode_mem)
+            CVodeSetMinStep(m_cvode_mem, hmin);
+        //m_ropt[HMIN] = hmin;
+    }
+
+    void CVodesIntegrator::setMaxSteps(int nmax) {
+        m_maxsteps = nmax;
+        if (m_cvode_mem)
+            CVodeSetMaxNumSteps(m_cvode_mem, m_maxsteps);
+    }
+
+    void CVodesIntegrator::setIterator(IterType t) {
+        if (t == Newton_Iter) 
+            m_iter = CV_NEWTON;
+        else if (t == Functional_Iter) 
+            m_iter = CV_FUNCTIONAL;
+        else 
+            throw CVodesErr("unknown iterator");
+    }
+
+    void CVodesIntegrator::initialize(double t0, FuncEval& func) 
+    {
+        m_neq = func.neq();
+        m_t0  = t0;
+
+        if (m_y) {
+            N_VDestroy_Serial(nv(m_y));    // free solution vector if already allocated
+        }
+        m_y = reinterpret_cast<void*>(N_VNew_Serial(m_neq));   // allocate solution vector
+        for (int i=0; i<m_neq; i++) {
+            NV_Ith_S(nv(m_y), i) = 0.0;
+        }
+        // check abs tolerance array size
+        if (m_itol == CV_SV && m_nabs < m_neq) 
+            throw CVodesErr("not enough absolute tolerance values specified.");
+        func.getInitialConditions(m_t0, m_neq, NV_DATA_S(nv(m_y)));
+
+        //m_iopt[MXSTEP] = m_maxsteps;
+        //m_iopt[MAXORD] = m_maxord;
+        //m_ropt[HMAX]   = m_hmax;
+
+        if (m_cvode_mem) CVodeFree(m_cvode_mem);
+
+        m_cvode_mem = CVodeCreate(m_method, m_iter);
+        if (!m_cvode_mem) throw CVodesErr("CVodeCreate failed.");
+
+        int flag = 0;
+        if (m_itol == CV_SV) {
+            // vector atol
+            flag = CVodeMalloc(m_cvode_mem, cvodes_rhs, m_t0, nv(m_y), m_itol,
+                m_reltol, nv(m_abstol));
+            //m_cvode_mem = CVodeMalloc(m_neq, cvode_rhs, m_t0, nv(m_y), m_method, 
+            //   m_iter, m_itol, &m_reltol,
+            //   nv(m_abstol), m_data, NULL, TRUE, m_iopt, 
+            //   m_ropt.begin(), NULL);
+        }
+        else {
+            // scalar atol
+            flag = CVodeMalloc(m_cvode_mem, cvodes_rhs, m_t0, nv(m_y), m_itol,
+                m_reltol, &m_abstols);
+            //m_cvode_mem = CVodeMalloc(m_neq, cvode_rhs, m_t0, nv(m_y), m_method, 
+            //      m_iter, m_itol, &m_reltol,
+            //      &m_abstols, m_data, NULL, TRUE, m_iopt, 
+            //      m_ropt.begin(), NULL);
+        }
+        if (flag == CV_MEM_FAIL) {
+            throw CVodesErr("Memory allocation failed.");
+        }
+        else if (flag == CV_ILL_INPUT) {
+            throw CVodesErr("Illegal value for CVodeMalloc input argument.");
+        }
+
+
+        if (m_type == DENSE + NOJAC) {
+            long int N = m_neq;
+            CVDense(m_cvode_mem, N);
+        }
+        else if (m_type == DIAG) {
+            CVDiag(m_cvode_mem);
+        }
+        else if (m_type == GMRES) {
+            CVSpgmr(m_cvode_mem, PREC_NONE, 0);
+        }
+        else {
+            throw CVodesErr("unsupported option");
+        }
+
+        // pass a pointer to func in m_data 
+        m_data = (void*)&func;
+        flag = CVodeSetFdata(m_cvode_mem, m_data);
+        if (flag != CV_SUCCESS) 
+            throw CVodesErr("CVodeSetFdata failed.");
+
+        // set options
+        if (m_maxord > 0)
+            flag = CVodeSetMaxOrd(m_cvode_mem, m_maxord);
+        if (m_maxsteps > 0)
+            flag = CVodeSetMaxNumSteps(m_cvode_mem, m_maxsteps);
+        if (m_hmax > 0)
+            flag = CVodeSetMaxStep(m_cvode_mem, m_hmax);
+    }
+
+
+    void CVodesIntegrator::reinitialize(double t0, FuncEval& func) 
+    {
+        m_t0  = t0;
+        func.getInitialConditions(m_t0, m_neq, NV_DATA_S(nv(m_y)));
+
+        // set options
+        //        m_iopt[MXSTEP] = m_maxsteps;
+        //m_iopt[MAXORD] = m_maxord;
+        //m_ropt[HMAX]   = m_hmax;
+
+        //if (m_cvode_mem) CVodeFree(m_cvode_mem);
+
+        int result;
+        if (m_itol == CV_SV) {
+            result = CVodeReInit(m_cvode_mem, cvodes_rhs, m_t0, nv(m_y), 
+                m_itol, m_reltol,
+                nv(m_abstol));
+        }
+        else {
+            result = CVodeReInit(m_cvode_mem, cvodes_rhs, m_t0, nv(m_y),
+                m_itol, m_reltol,
+                &m_abstols);
+        }
+
+        if (result != 0) throw CVodesErr("CVReInit failed.");
+
+        if (m_type == DENSE + NOJAC) {
+            long int N = m_neq;
+            CVDense(m_cvode_mem, N);
+        }
+        else if (m_type == DIAG) {
+            CVDiag(m_cvode_mem);
+        }
+        else if (m_type == GMRES) {
+            CVSpgmr(m_cvode_mem, PREC_NONE, 0);
+        }
+        else {
+            throw CVodesErr("unsupported option");
+        }
+
+        // pass a pointer to func in m_data 
+        m_data = (void*)&func;
+        long int flag = CVodeSetFdata(m_cvode_mem, m_data);
+        if (flag != CV_SUCCESS) 
+            throw CVodesErr("CVodeSetFdata failed.");
+
+        // set options
+        if (m_maxord > 0)
+            flag = CVodeSetMaxOrd(m_cvode_mem, m_maxord);
+        if (m_maxsteps > 0)
+            flag = CVodeSetMaxNumSteps(m_cvode_mem, m_maxsteps);
+        if (m_hmax > 0)
+            flag = CVodeSetMaxStep(m_cvode_mem, m_hmax);
+    }
+
+    void CVodesIntegrator::integrate(double tout)
+    {
+        double t;
+        int flag;
+	flag = CVode(m_cvode_mem, tout, nv(m_y), &t, CV_NORMAL);
+	if (flag != CV_SUCCESS) 
+	  throw CVodesErr(" CVodes error encountered.");
+      }
+
+    double CVodesIntegrator::step(double tout)
+    {
+        double t;
+        int flag;
+	flag = CVode(m_cvode_mem, tout, nv(m_y), &t, CV_ONE_STEP);
+	if (flag != CV_SUCCESS) 
+	  throw CVodesErr(" CVodes error encountered.");
+        return t;
+      }
+
+    int CVodesIntegrator::nEvals() const {
+        long int ne;
+        return CVodeGetNumRhsEvals(m_cvode_mem, &ne);
+        return ne;
+        //return m_iopt[NFE]; 
+    }
+}
+
+
