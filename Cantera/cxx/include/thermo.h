@@ -10,5 +10,6 @@
 #define CT_THERMO_INCL
 
 #include "kernel/thermo/SingleSpeciesTP.h"
+#include "kernel/thermo/StoichSubstanceSSTP.h"
 
 #endif
