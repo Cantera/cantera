@@ -30,7 +30,12 @@ namespace Cantera {
      *   class constructor
      */
     SingleSpeciesTP::SingleSpeciesTP() :
-	ThermoPhase()
+	ThermoPhase(),
+	m_tmin(0.0),
+	m_tmax(0.0),
+	m_press(OneAtm),
+	m_p0(OneAtm),
+	m_tlast(-1.0) 
     {
     }
 
@@ -281,6 +286,52 @@ namespace Cantera {
      * ---- Thermodynamic Values for the Species Reference States -------
      */
 
+
+    /**
+     *  Returns the vector of nondimensional
+     *  enthalpies of the reference state at the current temperature
+     *  of the solution and the reference pressure for the species.
+     *
+     * 
+     */
+    void SingleSpeciesTP::getEnthalpy_RT_ref(doublereal *hrt) const {
+	_updateThermo();
+	hrt[0] = m_h0_RT[0];
+    }
+
+
+    /**
+     *  Returns the vector of nondimensional
+     *  enthalpies of the reference state at the current temperature
+     *  of the solution and the reference pressure for the species.
+     */
+    void SingleSpeciesTP::getGibbs_RT_ref(doublereal *grt) const {
+	_updateThermo();
+	grt[0] = m_h0_RT[0] - m_s0_R[0];
+    }
+
+    /**
+     *  Returns the vector of the 
+     *  gibbs function of the reference state at the current temperature
+     *  of the solution and the reference pressure for the species.
+     *  units = J/kmol
+     */
+    void SingleSpeciesTP::getGibbs_ref(doublereal *g) const {
+	getGibbs_RT_ref(g);
+	g[0] *= GasConstant * temperature();
+    }
+       
+    /**
+     *  Returns the vector of nondimensional
+     *  entropies of the reference state at the current temperature
+     *  of the solution and the reference pressure for the species.
+     */
+    void SingleSpeciesTP::getEntropy_R_ref(doublereal *er) const {
+      _updateThermo();
+      er[0] = m_s0_R[0];
+    }
+
+
     /*
      * ------------------ Setting the State ------------------------
      */
@@ -473,6 +524,23 @@ namespace Cantera {
 	 * Call the base class initThermo object.
 	 */
 	ThermoPhase::initThermo();
+    }
+
+
+    /**
+     * _updateThermo():
+     * 
+     *        This crucial internal routine calls the species thermo
+     *        update program to calculate new species Cp0, H0, and
+     *        S0 whenever the temperature has changed.
+     */
+    void SingleSpeciesTP::_updateThermo() const {
+        doublereal tnow = temperature();
+        if (m_tlast != tnow) {
+	  m_spthermo->update(tnow, m_cp0_R.begin(), m_h0_RT.begin(), 
+			     m_s0_R.begin());
+	  m_tlast = tnow;
+        }
     }
 
 }

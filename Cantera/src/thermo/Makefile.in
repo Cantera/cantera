@@ -18,8 +18,8 @@ do_ranlib = @DO_RANLIB@
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
 # Extended Cantera Thermodynamics Object Files
-CATHERMO_OBJ = SingleSpeciesTP.o
-CATHERMO_H   = SingleSpeciesTP.h
+CATHERMO_OBJ = SingleSpeciesTP.o StoichSubstanceSSTP.o
+CATHERMO_H   = SingleSpeciesTP.h StoichSubstanceSSTP.h
 
 CXX_INCLUDES = -I.. @CXX_INCLUDES@
 LIB = @buildlib@/libcaThermo.a

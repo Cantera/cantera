@@ -27,14 +27,9 @@
 
 namespace Cantera {
 
-
     /**
-     * @defgroup thermoprops Thermodynamic Properties
+     * @ingroup thermoprops
      *
-     * These classes are used to compute thermodynamic properties.
-     */
-
-    /**
      *  The SingleSpeciesTP class is a filter class for ThermoPhase.
      *  What it does is to simplify the construction of ThermoPhase
      *  objects by assuming that the phase consists of one and 
@@ -43,7 +38,8 @@ namespace Cantera {
      *  thermodynamic functions or the equation of state of the
      *  phase. Therefore it's an incomplete description of
      *  the thermodynamics. The complete description must be
-     *  made in a derived class.
+     *  made in a derived class of SingleSpeciesTP.
+     *  \nosubgrouping
      */
     class SingleSpeciesTP : public ThermoPhase {
 
@@ -57,28 +53,29 @@ namespace Cantera {
 
         /**
          *   
-         * @name  Utilities  
+         * @name  Information Methods  
          * @{
          */
 
         /** 
-         * Equation of state type flag. The base class returns
-         * zero. Subclasses should define this to return a unique
-         * non-zero value. Constants defined for this purpose are
-         * listed in mix_defs.h.
+         * Returns the equation of state type flag.
+	 * This is a modified base class.
+	 * Therefore, if not overridden in derivied classes,
+	 * this call will throw an exception.
          */
         virtual int eosType() const;
 
         /**
          * @} 
-         * @name  Molar Thermodynamic Properties 
+         * @name  Molar Thermodynamic Properties of the Solution
+	 *
+	 *  These functions are resolved at this level, by reference
+	 *  to the partial molar functions and standard state
+	 *  functions for species 0. Derived classes don't need
+	 *  to supply entries for these functions.
          * @{
          */
 
-	/*
-	 * These functions are resolved at this level, by reference
-	 * to the partial molar functions
-	 */
          /// Molar enthalpy. Units: J/kmol. 
 	doublereal enthalpy_mole() const;
 
@@ -147,6 +144,16 @@ namespace Cantera {
             err("thermalExpansionCoeff()"); return -1.0;
         }
 
+	/**
+         * @} 
+         * @name Electric Potential
+         * 
+         * The phase may be at some non-zero electrical
+	 * potential. These methods set or get the value of the
+	 * electric potential.
+	 */
+         //@{
+
         /**
          * @} 
          * @name Potential Energy
@@ -180,7 +187,7 @@ namespace Cantera {
 
         /**
          * @}
-         * @name Activities and Activity Concentrations
+         * @name Activities, Standard State, and Activity Concentrations
          *
          * The activity \f$a_k\f$ of a species in solution is
          * related to the chemical potential by \f[ \mu_k = \mu_k^0(T)
@@ -257,8 +264,10 @@ namespace Cantera {
          * Get the array of non-dimensional activities at
          * the current solution temperature, pressure, and
          * solution concentration.
+	 *
+	 * We redefine this function to just return 1.0 here.
          */
-        void getActivities(doublereal* a) {
+        virtual void getActivities(doublereal* a) {
 	    a[0] = 1.0;
 	}
 
@@ -276,20 +285,18 @@ namespace Cantera {
         }    
 
         //@}
-        /// @name  Partial Molar Properties of the Solution -----------------
+        /// @name  Partial Molar Properties of the Solution
+	///
+	///  These functions are resolved at this level, by reference
+	///  to the partial molar functions and standard state
+	///  functions for species 0. Derived classes don't need
+	///  to supply entries for these functions.
         //@{
 
 	/*
-	 * These functions are all resolved here, to point to the
-	 * standard state functions.
+	 * These functions are all resolved here to point to the
+	 * standard state functions for species 0
 	 */
-
-	/**
-         * Get the species chemical potentials in the solution
-	 * These are partial molar Gibbs free energies.
-	 * Units: J/kmol.
-         */
-        void getChemPotentials(doublereal* mu) const;
 
 	/**
          * Get the array of non-dimensional species chemical potentials
@@ -298,6 +305,13 @@ namespace Cantera {
 	 * Units: unitless
          */
         void getChemPotentials_RT(doublereal* mu) const;
+
+	/**
+         * Get the species chemical potentials in the solution
+	 * These are partial molar Gibbs free energies.
+	 * Units: J/kmol.
+         */
+        void getChemPotentials(doublereal* mu) const;
 
 	/**
          * Get the species electrochemical potentials. Units: J/kmol.
@@ -331,13 +345,18 @@ namespace Cantera {
         void getPartialMolarVolumes(doublereal* vbar) const;
 
         //@}
-        /// @name  Properties of the Standard State of the Species in the Solution -------------------------------------
+        /// @name  Properties of the Standard State of the Species in the Solution
+	/// These functions are the primary way real properties are
+	/// supplied to derived thermodynamics classes of SingleSpeciesTP.
+	/// These functions must be supplied in derived classes. They
+	/// are not resolved at the SingleSpeciesTP level.
         //@{
 
-        /**
-         * Get the array of chemical potentials at unit activity 
+	/**
+         * Get the array of chemical potentials at unit activity.
          * These are the standard state chemical potentials. 
-         * \f$ \mu^0_k \f$.
+         * \f$ \mu^0_k(T,P) \f$. The values are evaluated at the current
+         * temperature and pressure.
          */
         virtual void getStandardChemPotentials(doublereal* mu) const {
             err("getStandardChemPotentials");
@@ -406,7 +425,14 @@ namespace Cantera {
 
 
        //@}
-        /// @name Thermodynamic Values for the Species Reference States --------------------
+        /// @name Thermodynamic Values for the Species Reference State
+	///
+	/// Almost all functions in this group are resolved by this
+	/// class. It is assumed that the m_spthermo species thermo
+	/// pointer is populated and yields the reference state.
+	/// The internal energy function is not given by this
+	/// class, since it would involve a specification of the
+	/// equation of state.
         //@{
 
 	/**
@@ -414,18 +440,14 @@ namespace Cantera {
          *  enthalpies of the reference state at the current temperature
          *  of the solution and the reference pressure for the species.
          */
-        virtual void getEnthalpy_RT_ref(doublereal *hrt) const {
-            err("enthalpy_RT_ref");
-        }
+        virtual void getEnthalpy_RT_ref(doublereal *hrt) const;
      
         /**
          *  Returns the vector of nondimensional
          *  enthalpies of the reference state at the current temperature
          *  of the solution and the reference pressure for the species.
          */
-        virtual void getGibbs_RT_ref(doublereal *grt) const {
-            err("gibbs_RT_ref");
-        }
+        virtual void getGibbs_RT_ref(doublereal *grt) const;
                    
         /**
          *  Returns the vector of the
@@ -433,18 +455,14 @@ namespace Cantera {
          *  of the solution and the reference pressure for the species.
          *  units = J/kmol
          */
-        virtual void  getGibbs_ref(doublereal *g) const {
-            err("gibbs_ref");
-        }
+        virtual void  getGibbs_ref(doublereal *g) const;
       
         /**
          *  Returns the vector of nondimensional
          *  entropies of the reference state at the current temperature
          *  of the solution and the reference pressure for the species.
          */
-        virtual void getEntropy_R_ref(doublereal *er) const {
-            err("entropy_R_ref");
-        }
+        virtual void getEntropy_R_ref(doublereal *er) const;
                  
         /**
          *  Returns the vector of nondimensional
@@ -452,9 +470,7 @@ namespace Cantera {
          *  at the current temperature of the solution
          *  and reference pressure for the species.
          */
-        virtual void getCp_R_ref(doublereal *cprt) const {
-            err("cp_R_ref()");
-        }
+        virtual void getCp_R_ref(doublereal *cprt) const;
 
         /**
          * @name Setting the State
@@ -619,12 +635,25 @@ namespace Cantera {
         virtual void initThermo();
 
 
+   protected:
 
-            
+
+        doublereal m_tmin, m_tmax, m_press, m_p0;
+
+	/**
+	 * Last temperature used to evaluate the thermodynamic
+	 * polynomial.
+	 */
+        mutable doublereal     m_tlast;
+        mutable array_fp       m_h0_RT;
+        mutable array_fp       m_cp0_R;
+        mutable array_fp       m_s0_R;
+
     protected:
 
-    private:
+        void _updateThermo() const;
 
+    private:
         doublereal err(string msg) const;
 
     };
@@ -632,8 +661,6 @@ namespace Cantera {
 }
         
 #endif
-
-
 
 
 
