@@ -361,6 +361,24 @@ namespace Cantera {
 	virtual void getUnitsStandardConc(double *uA, int k = 0,
 					  int sizeUA = 6);
 
+	/*
+	 * Return a vector of activities.
+	 */
+        void getActivities(doublereal* a);
+
+	/**
+         * Get the array of non-dimensional molar-based
+	 * activity coefficients at
+         * the current solution temperature, pressure, and
+         * solution concentration.
+         */
+        virtual void getActivityCoefficients(doublereal* ac) const {
+            if (m_kk == 1) {
+              ac[0] = 1.0;
+            } else {
+              err("getActivityCoefficients");
+            }
+        }
 
         //@}
         /// @name  Partial Molar Properties of the Solution
@@ -397,25 +415,6 @@ namespace Cantera {
             double ve = Faraday * electricPotential();
             for (int k = 0; k < m_kk; k++) {
                 mu[k] += ve*charge(k);
-            }
-        }
-
-	/*
-	 * Return a vector of activities.
-	 */
-        void getActivities(doublereal* a);
-
-	/**
-         * Get the array of non-dimensional molar-based
-	 * activity coefficients at
-         * the current solution temperature, pressure, and
-         * solution concentration.
-         */
-        virtual void getActivityCoefficients(doublereal* ac) const {
-            if (m_kk == 1) {
-              ac[0] = 1.0;
-            } else {
-              err("getActivityCoefficients");
             }
         }
 
