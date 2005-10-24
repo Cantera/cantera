@@ -24,7 +24,10 @@
 namespace Cantera {
 
     /**
-     * Manages the thermodynamic state. Class State stores just enough
+     * Manages the independent variables of temperature, mass
+     * density, and mass/mole species fraction that define the
+     * thermodynamic state. 
+     * Class State stores just enough
      * information about a multicomponent solution to specify its
      * intensive thermodynamic state.  It stores values for the
      * temperature, mass density, and an array of species mass
@@ -56,6 +59,16 @@ namespace Cantera {
          * class, the destructor does nothing.
          */
 	virtual ~State();
+
+	/**
+	 * Copy Constructor for the State Class
+	 */
+	State(const State& right);
+
+	/**
+	 * Assignment operator for the state class.
+	 */
+        State& operator=(const State& right);
 
 
         /// @name Species Information

@@ -28,6 +28,41 @@ namespace Cantera {
 
     State::~State() {}
 
+    State::State(const State& right) : 
+	m_kk(0),
+	m_temp(0.0),
+	m_dens(0.001), 
+	m_mmw(0.0) {
+	/*
+	 * Call the assignment operator.
+	 */
+	*this = operator=(right);
+    }
+
+    /*
+     * Assignment operator for the State Class
+     */
+    State& State::operator=(const State& right) {
+	/*
+	 * Check for self assignment.
+	 */
+	if (this == &right) return *this;
+	/*
+	 * We do a straight assignment operator on all of the
+	 * data. The vectors are copied.
+	 */
+	m_temp           = right.m_temp;
+	m_dens           = right.m_dens;
+	m_mmw            = right.m_mmw;
+	m_y              = right.m_y;
+	m_molwts         = right.m_molwts;
+	m_rmolwts        = right.m_rmolwts;
+	/*
+	 * Return the reference to the current object
+	 */
+	return *this;
+    }
+
     doublereal State::moleFraction(int k) const {
         if (k >= 0 && k < m_kk) {
             return m_ym[k] * m_mmw;
