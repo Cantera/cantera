@@ -19,6 +19,9 @@ namespace Cantera {
 
     public:
     
+        SpeciesThermoInterpType() {};
+        virtual ~SpeciesThermoInterpType() {};
+
         virtual SpeciesThermoInterpType * 
           duplMyselfAsSpeciesThermoInterpType() const = 0;
        

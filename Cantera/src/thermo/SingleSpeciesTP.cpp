@@ -331,7 +331,7 @@ namespace Cantera {
       er[0] = m_s0_R[0];
     }
 
-  /**
+    /**
      * Get the nondimensional Gibbs functions for the standard
      * state of the species at the current T and reference pressure
      * for the species.
@@ -340,7 +340,6 @@ namespace Cantera {
 	_updateThermo();
 	cpr[0] = m_cp0_R[0];
     }
-
 
     /*
      * ------------------ Setting the State ------------------------

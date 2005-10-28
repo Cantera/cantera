@@ -55,7 +55,7 @@ namespace Cantera {
 	for (int k = 0; k < m_kk; k++) {
 	  SpeciesThermoInterpType *sp = m_sp[k];
 	  if (sp) {
-	    delete (sp);
+	    delete sp;
 	    m_sp[k] = 0;
 	  }
 	}
