@@ -241,7 +241,7 @@ namespace Cantera {
      */
     int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda) 
     {
-        int k, ksp, m, n;
+        int m, n;
         beginLogGroup("estimateElementPotentials");
         //for (k = 0; k < m_kk; k++) {
         //    if (m_molefractions[k] > 0.0) {
