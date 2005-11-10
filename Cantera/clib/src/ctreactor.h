@@ -25,6 +25,9 @@ extern "C" {
     double DLL_IMPORT reactor_intEnergy_mass(int i);
     double DLL_IMPORT reactor_pressure(int i);
     double DLL_IMPORT reactor_massFraction(int i, int k);
+    int DLL_IMPORT reactor_nSensParams(int i);
+    int DLL_IMPORT reactor_addSensitivityReaction(int i, int rxn);
+    int DLL_IMPORT flowReactor_setMassFlowRate(int i, double mdot);
 
     int DLL_IMPORT reactornet_new();
     int DLL_IMPORT reactornet_del(int i);
@@ -33,12 +36,14 @@ extern "C" {
     int DLL_IMPORT reactornet_setInitialTime(int i, double t);
     int DLL_IMPORT reactornet_setMaxTimeStep(int i, double maxstep);
     int DLL_IMPORT reactornet_setTolerances(int i, double rtol, double atol);
+    int DLL_IMPORT reactornet_setSensitivityTolerances(int i, double rtol, double atol);
     int DLL_IMPORT reactornet_addreactor(int i, int n);
     int DLL_IMPORT reactornet_advance(int i, double t);
     double DLL_IMPORT reactornet_step(int i, double t);
     double DLL_IMPORT reactornet_time(int i);
     double DLL_IMPORT reactornet_rtol(int i);
     double DLL_IMPORT reactornet_atol(int i);
+    double DLL_IMPORT reactornet_sensitivity(int i, char* v, int p, int r);
 
     int DLL_IMPORT flowdev_new(int type);
     int DLL_IMPORT flowdev_del(int i);
@@ -67,6 +72,7 @@ extern "C" {
      int DLL_IMPORT wall_setVelocity(int i, int n);
     int DLL_IMPORT wall_setEmissivity(int i, double epsilon);
      int DLL_IMPORT wall_ready(int i);
+    int DLL_IMPORT wall_addSensitivityReaction(int i, int lr, int rxn);
 
 }
 

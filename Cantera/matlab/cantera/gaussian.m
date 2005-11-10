@@ -1,13 +1,16 @@
-function g = gaussian(A, x0, FWHM)
-% POLY - create a Gaussian Func instance
-%        
-%       gaussian(A, x0, FWHM)
-%       
-%          A     - value at x = x0
-%          x0    - location of maximum
-%          FWHM  - full width at half-maximum
+function g = gaussian(peak, center, width)
 %
-g = Func('gaussian', 0, [A x0 FWHM]);
+% GAUSSIAN - create a Gaussian Func instance
+%        
+%       gaussian(peak, center, width)
+%       
+%          peak      - the peak value
+%          center    - value of x at which the peak is located
+%          width     - full width at half-maximum. The value of the
+%                      function at center +/- (width)/2 is one-half 
+%                      the peak value.
+%
+g = Func('gaussian', 0, [peak, center, width]);
 
 
 

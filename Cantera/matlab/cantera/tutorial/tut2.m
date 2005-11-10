@@ -60,8 +60,8 @@ msg = sprintf('time to create gas1b: %f', cputime - t0)
 % If for some reason Cantera has difficulty finding where these files
 % are on your system, set environment variable CANTERA_DATA to the
 % directory where they are located. Alternatively, you can call function
-% addDirectory to add a directory to the Cantera search path:
-addDirectory('/usr/local/cantera/my_data_files');
+% adddir to add a directory to the Cantera search path:
+adddir('/usr/local/cantera/my_data_files');
 
 % Cantera input files are plain text files, and can be created with
 % any text editor. See the document 'Defining Phases and Interfaces'
@@ -121,7 +121,7 @@ diamonnd_surf2 = importInterface('diamond.xml','diamond_100',...
 %
 % Here's an example of how to use it:
 %
-% ck2cti -i mech.inp -t therm.dat -tr tran.dat -id mymech > mech.cti
+% ck2cti -i mech.inp -t therm.dat -tr tran.dat -id mymech 
 %
 
 clear all

@@ -10,6 +10,7 @@
 BUILD_LAPACK=@build_lapack@
 BUILD_BLAS=@build_blas@
 BUILD_WITH_F2C=@build_with_f2c@
+USE_SUNDIALS=@use_sundials@
 
 LIBS = blas/libctblas.a lapack/libctlapack.a math/libctmath.a \
        cvode/libcvode.a tpx/libtpx.a
@@ -45,7 +46,9 @@ endif
 #	cd recipes; @MAKE@
 	cd math; @MAKE@
 endif
+ifeq ($(USE_SUNDIALS),0)
 	cd cvode; @MAKE@
+endif
 	cd tpx;   @MAKE@
 
 clean:

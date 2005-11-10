@@ -79,6 +79,48 @@ py_reactor_setKineticsMgr(PyObject *self, PyObject *args)
     return Py_BuildValue("i",0);
 }
 
+static PyObject *
+py_reactor_nSensParams(PyObject *self, PyObject *args)
+{
+    int _val;
+    int i;
+    if (!PyArg_ParseTuple(args, "i:reactor_nSensParams", &i)) 
+        return NULL;
+        
+    _val = reactor_nSensParams(i); 
+    return Py_BuildValue("i",_val);
+}
+
+
+static PyObject *
+py_reactor_addSensitivityReaction(PyObject *self, PyObject *args)
+{
+    int _val;
+    int i;
+    int rxn;
+    if (!PyArg_ParseTuple(args, "ii:reactor_addSensitivityReaction", &i, &rxn)) 
+        return NULL;
+        
+    _val = reactor_addSensitivityReaction(i,rxn); 
+    if (int(_val) == -1) return reportCanteraError();
+    return Py_BuildValue("i",_val);
+}
+
+static PyObject *
+py_flowReactor_setMassFlowRate(PyObject *self, PyObject *args)
+{
+    int _val;
+    int i;
+    double mdot;
+    if (!PyArg_ParseTuple(args, "id:flowReactor_setMassFlowRate", &i, &mdot)) 
+        return NULL;
+        
+    _val = flowReactor_setMassFlowRate(i,mdot); 
+    if (int(_val) == -1) return reportCanteraError();
+    return Py_BuildValue("i",_val);
+}
+
+
 // static PyObject*
 // py_reactor_advance(PyObject *self, PyObject *args)
 // {
@@ -191,6 +233,7 @@ py_reactor_massFraction(PyObject *self, PyObject *args)
     double y = reactor_massFraction(n, k);
     return Py_BuildValue("d",y);
 }
+
 
 static PyObject*
 py_flowdev_new(PyObject *self, PyObject *args)
@@ -473,6 +516,20 @@ py_wall_ready(PyObject *self, PyObject *args)
     return Py_BuildValue("i",0);
 }
 
+static PyObject *
+py_wall_addSensitivityReaction(PyObject *self, PyObject *args)
+{
+    int _val;
+    int i;
+    int lr;
+    int rxn;
+    if (!PyArg_ParseTuple(args, "iii:wall_addSensitivityReaction", &i, &lr, &rxn)) 
+        return NULL;
+        
+    _val = wall_addSensitivityReaction(i,lr,rxn); 
+    if (int(_val) == -1) return reportCanteraError();
+    return Py_BuildValue("i",_val);
+}
 
 static PyObject*
 py_reactornet_new(PyObject *self, PyObject *args)
@@ -500,6 +557,18 @@ py_reactornet_setTolerances(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "idd:reactornet_setTolerances", &n, &rtol, &atol))
         return NULL;
     int iok = reactornet_setTolerances(n, rtol, atol);
+    if (iok < 0) return reportError(iok);
+    return Py_BuildValue("i",0);
+}
+
+static PyObject*
+py_reactornet_setSensitivityTolerances(PyObject *self, PyObject *args)
+{
+    int n;
+    double rtol, atol;
+    if (!PyArg_ParseTuple(args, "idd:reactornet_setSensitivityTolerances", &n, &rtol, &atol))
+        return NULL;
+    int iok = reactornet_setSensitivityTolerances(n, rtol, atol);
     if (iok < 0) return reportError(iok);
     return Py_BuildValue("i",0);
 }
@@ -558,3 +627,45 @@ py_reactornet_step(PyObject *self, PyObject *args)
         return NULL;
     return Py_BuildValue("d",reactornet_step(n, t));
 }
+
+
+static PyObject *
+py_reactornet_rtol(PyObject *self, PyObject *args)
+{
+    double _val;
+    int i;
+    if (!PyArg_ParseTuple(args, "i:reactornet_rtol", &i)) 
+        return NULL;
+        
+    _val = reactornet_rtol(i); 
+    return Py_BuildValue("d",_val);
+}
+
+
+static PyObject *
+py_reactornet_atol(PyObject *self, PyObject *args)
+{
+    double _val;
+    int i;
+    if (!PyArg_ParseTuple(args, "i:reactornet_atol", &i)) 
+        return NULL;
+        
+    _val = reactornet_atol(i); 
+    return Py_BuildValue("d",_val);
+}
+
+
+static PyObject *
+py_reactornet_sensitivity(PyObject *self, PyObject *args)
+{
+    double _val;
+    int i;
+    char* v;
+    int p, r;
+    if (!PyArg_ParseTuple(args, "isii:reactornet_sensitivity", &i, &v, &p, &r)) 
+        return NULL;
+        
+    _val = reactornet_sensitivity(i,v,p,r); 
+    return Py_BuildValue("d",_val);
+}
+

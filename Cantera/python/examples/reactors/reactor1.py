@@ -46,7 +46,7 @@ for n in range(100):
 args = sys.argv
 if len(args) > 1 and args[1] == '-plot':
     try:
-        from matplotlib.matlab import *
+        from matplotlib.pylab import *
         clf
         subplot(2,2,1)
         plot(tim,data[:,0])

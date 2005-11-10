@@ -12,20 +12,20 @@ g = GRI30
 
 class(g)
 
-% This tells you that g belongs to a class called 'solution'. To find
+% This tells you that g belongs to a class called 'Solution'. To find
 % the methods for this class, type
 
-methods solution
+methods Solution
 
 % This command returns only a few method names. These are the ones
 % directly defined in this class. But solution inherits many other
 % methods from base classes. To see all of its methods, type
 
-methods solution -full
+methods Solution -full
 
 % Now a long list is printed, along with a specification of the class
 % the method is inherited from. For example, 'setPressure' is
-% inherited from a class 'thermophase'. Don't be concerned at this
+% inherited from a class 'ThermoPhase'. Don't be concerned at this
 % point about what these base classes are - we'll come back to them
 % later.
 

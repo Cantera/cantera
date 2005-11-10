@@ -1,6 +1,7 @@
 
 // Cantera includes
 #include "zeroD/Reactor.h"
+#include "zeroD/FlowReactor.h"
 #include "zeroD/ReactorNet.h"
 #include "zeroD/Reservoir.h"
 #include "zeroD/Wall.h"
@@ -167,6 +168,28 @@ extern "C" {
         return 0;
     }
 
+    int DLL_EXPORT flowReactor_setMassFlowRate(int i, double mdot) {
+        reactor_t* r = _reactor(i);
+        if (r->type() == ReactorType) ((FlowReactor*)r)->setMassFlowRate(mdot);
+        return 0;
+    }
+
+    int DLL_EXPORT reactor_nSensParams(int i) {
+        reactor_t* r = _reactor(i);
+        if (r->type() >= ReactorType) 
+            return ((Reactor*)r)->nSensParams();
+        else {
+            cout << "type problem..." << r->type() << endl;
+            return 0;
+        }
+    }
+ 
+    int DLL_EXPORT reactor_addSensitivityReaction(int i, int rxn) {
+        reactor_t* r = _reactor(i);
+        ((Reactor*)r)->addSensitivityReaction(rxn);
+        return 0;
+    }
+
 
     // reactor networks
 
@@ -205,6 +228,11 @@ extern "C" {
 
     int DLL_EXPORT reactornet_setTolerances(int i, double rtol, double atol) {
         _reactornet(i)->setTolerances(rtol, atol);
+        return 0;
+    }
+
+    int DLL_EXPORT reactornet_setSensitivityTolerances(int i, double rtol, double atol) {
+        _reactornet(i)->setSensitivityTolerances(rtol, atol);
         return 0;
     }
 
@@ -247,6 +275,9 @@ extern "C" {
         return _reactornet(i)->atol();
     }
 
+    double DLL_EXPORT reactornet_sensitivity(int i, char* v, int p, int r) {
+        return _reactornet(i)->sensitivity(v, p, r);
+    }
 
 
     // flow devices
@@ -405,5 +436,11 @@ extern "C" {
         if (_wall(i)->ready()) return 1;
         else return 0;
     }
+
+    int DLL_EXPORT wall_addSensitivityReaction(int i, int lr, int rxn) {
+        _wall(i)->addSensitivityReaction(lr, rxn);
+        return 0;
+    }
+
 
 }

@@ -59,19 +59,13 @@ AC_SUBST(USE_CLIB_DLL)
 
 prdef="/usr/local/cantera"
 if test "x$OS_IS_DARWIN" = "x1"; then prdef="/Applications/Cantera"; fi
-#AC_PREFIX_DEFAULT([$prdef])
 
 local_inst=1
 if test "x${prefix}" = "xNONE"; then
-         #if test "x${OS_IS_CYGWIN}" = "x1" -o "x${OS_IS_WIN}" = "x1" ; then
-         #  prefix=${CANTERA_INSTALL_DIR}
-           # mkdir ${prefix}
-         #else
-           prefix=${prdef}
-	   #${ac_default_prefix}
-         #fi
-         local_inst=0
+   prefix=${prdef}
+   local_inst=0
 fi
+exec_prefix=${prefix}
 
 if test "x${OS_IS_WIN}" = "x1"; then
   prefix=`cygpath -a -m "${prefix}" `
@@ -80,7 +74,6 @@ echo "Cantera will be installed in ${prefix}"
 AC_SUBST(prefix)
 
 AC_SUBST(local_inst)
-
 
 #
 # Determination of Python site-package directory location
@@ -244,6 +237,20 @@ if test -n "$USER_SRC_DIR"; then USERDIR=$USER_SRC_DIR; INCL_USER_CODE=1; fi
 AC_SUBST(USERDIR)
 AC_SUBST(INCL_USER_CODE)
 
+use_sundials=0
+sundials_inc=
+CVODE_LIBS='-lcvode'
+if test "x$USE_SUNDIALS" = "xy"; then
+use_sundials=1
+AC_DEFINE(HAS_SUNDIALS)
+CVODE_LIBS='-lsundials_cvodes -lsundials_shared -lsundials_nvecserial' 
+sundials_include='-I '${SUNDIALS_HOME}/include
+fi
+AC_SUBST(use_sundials)
+AC_SUBST(CVODE_LIBS)
+AC_SUBST(sundials_include)
+
+
 #########################################################
 #  The Cantera Kernel
 #########################################################
@@ -359,6 +366,7 @@ AC_SUBST(KERNEL_OBJ)
 AC_SUBST(BUILD_CK)
 AC_SUBST(LIB_DIR)
 
+
 ########################################################
 # BLAS and LAPACK
 ########################################################
@@ -447,8 +455,8 @@ LOCAL_LIBS=$LOCAL_LIBS' '-lcantera
 #then LOCAL_LIBS=$LOCAL_LIBS' '-lrecipes
 #fi
 
-if test -n "$NEED_CVODE"
-then LOCAL_LIBS=$LOCAL_LIBS' '-lcvode
+if test -n "$NEED_CVODE"; then 
+LOCAL_LIBS=$LOCAL_LIBS' '$CVODE_LIBS
 fi
 
 if test -n "$NEED_LAPACK"
@@ -480,6 +488,14 @@ LOCAL_LIB_DIRS=
 if test -n "$BLAS_LAPACK_DIR"
 then LOCAL_LIB_DIRS=$LOCAL_LIB_DIRS' -L'$BLAS_LAPACK_DIR
 fi
+
+
+if test -n "$SUNDIALS_HOME"
+then LOCAL_LIB_DIRS=$LOCAL_LIB_DIRS' -L'$SUNDIALS_HOME/lib
+fi
+echo $SUNDIALS_HOME
+echo $LOCAL_LIB_DIRS
+
 
 AC_SUBST(LOCAL_LIB_DIRS)
 AC_SUBST(LOCAL_LIBS)
@@ -783,8 +799,8 @@ if test -z "$EXE_EXT"; then EXE_EXT=$EXEEXT; fi
 AC_SUBST(EXE_EXT)
 
 dnl AC_LANG_FORTRAN77
-local_math_libs='-lcvode'
-AC_SUBST(local_math_libs)
+#local_math_libs='-lcvode'
+#AC_SUBST(local_math_libs)
 
 
 math_libs='-lcvode -lctmath'

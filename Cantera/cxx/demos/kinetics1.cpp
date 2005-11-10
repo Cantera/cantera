@@ -53,6 +53,8 @@ int kinetics1(int np, void* p) {
     r.insert(gas);
     env.insert(gas);
 
+    r.addHomogenRxnSens(0);
+
     // create a wall between the reactor and the environment
     Wall w;
     w.install(r,env);
@@ -76,11 +78,16 @@ int kinetics1(int np, void* p) {
     Array2D soln(nsp+4, 1);
     saveSoln(0, 0.0, gas, soln);
 
+    // create a container object to run the simulation
+    // and add the reactor to it
+    ReactorNet sim;
+    sim.addReactor(&r);
+
     // main loop
     clock_t t0 = clock();        // save start time
     for (int i = 1; i <= nsteps; i++) {
         tm = i*dt;
-        r.advance(tm);
+        sim.advance(tm);
         cout << "time = " << tm << " s" << endl;
         saveSoln(tm, gas, soln);
     }
@@ -98,8 +105,8 @@ int kinetics1(int np, void* p) {
     cout << " Tfinal = " << r.temperature() << endl;
     cout << " time = " << tmm << endl;
     cout << " number of residual function evaluations = " 
-         << r.integrator().nEvals() << endl;
-    cout << " time per evaluation = " << tmm/r.integrator().nEvals() 
+         << sim.integrator().nEvals() << endl;
+    cout << " time per evaluation = " << tmm/sim.integrator().nEvals() 
          << endl << endl;
     cout << "Output files:" << endl
          << "  kin1.csv    (Excel CSV file)" << endl

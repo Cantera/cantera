@@ -31,6 +31,9 @@ namespace Cantera {
 
     public:
 
+        FuncEval() {}
+        virtual ~FuncEval() {}
+
         /**
          * Evaluate the right-hand-side function. Called by the
          * integrator.

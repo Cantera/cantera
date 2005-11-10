@@ -22,6 +22,10 @@ bllibstr = "@BLAS_LAPACK_LIBS@"
 bllibs = bllibstr.replace('-l',' ')
 bllist = bllibs.split()
 
+cvlibstr = "@CVODE_LIBS@"
+cvlibs = cvlibstr.replace('-l',' ')
+cvlist = cvlibs.split()
+
 extra_link = "@EXTRA_LINK@"
 linkargs = extra_link.split()    
 
@@ -34,11 +38,11 @@ for d in dirlist:
 
 if platform == "win32":
     libs = ["clib", "zeroD","oneD","transport",
-            "cantera","recipes"] + bllist + ["ctmath", "cvode", "tpx", "converters"]
+            "cantera","recipes"] + bllist + cvlist + ["ctmath", "tpx", "converters"]
 else:
     
     libs = ["clib", "zeroD","oneD","transport",
-            "cantera", "converters"] + bllist + ["ctmath", "cvode", "tpx",
+            "cantera", "converters"] + bllist + cvlist + ["ctmath", "tpx",
                                              "stdc++", "ctf2c", "m"]
 
 # values:

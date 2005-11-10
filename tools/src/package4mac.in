@@ -20,6 +20,7 @@ NUMARRAYRESDIR=$PKGDIR/numarray/resources_dir
 
 # where Cantera has been installed
 instdir=/Applications/Cantera
+
 pylibdir=/Library/Python/$PYVERSION
 
 $INSTALL -d $CTDIR

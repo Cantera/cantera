@@ -22,9 +22,13 @@ void funcmethods( int nlhs, mxArray *plhs[],
             int lenp = msize*nsize;
             nn = func_new(type, n, lenp, ptr);
         }
-        else {
+        else if (type < 45) {
             int m = getInt(prhs[4]);
             nn = func_new(type, n, m, ptr);
+        }
+        else {
+            ptr = mxGetPr(prhs[4]);
+            nn = func_new(type, n, 0, ptr);
         }
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         double *h = mxGetPr(plhs[0]);

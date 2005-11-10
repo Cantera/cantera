@@ -1,5 +1,31 @@
 function x = Func(typ, n, p)
 %
+% Func - a class for functors.
+% 
+% A functor is an object that behaves like a function. Cantera
+% defines a set of functors to use to create arbitrary functions to
+% specify things like heat fluxes, piston speeds, etc., in reactor
+% network simulations. Of course, they can be used for other things
+% too. 
+%
+% The main feature of a functor class is that it overloads the '()'
+% operator to evaluate the function. For example, suppose object
+% 'f' is a functor that evaluates the polynomial '2x^2 - 3x +
+% 1'. Then writing 'f(2)' would cause the method that evaluates the
+% function to be invoked, and would pass it the argument '2'. The
+% return value would of course be 3.
+%
+% The types of functors you can create in Cantera are these:
+% 1. A polynomial
+% 2. A Fourier series
+% 3. A sum of Arrhenius terms
+% 4. A Gaussian.
+% You can also create composite functors by adding, multiplying, or
+% dividing these basic functors, or other composite functors.
+%
+% Note: this MATLAB class shadows the underlying C++ Cantera class
+% "Func1". See the Cantera C++ documentation for more details.
+%
 if ~isa(typ, 'char')
   error('Function type must be a string')
 end
@@ -15,11 +41,18 @@ elseif strcmp(typ,'fourier')
   itype = 1;
 elseif strcmp(typ,'arrhenius')
   itype = 3;
+elseif strcmp(typ,'gaussian')
+  itype = 4;  
 end
 
 if itype > 0
   x.coeffs = p;
   x.index = funcmethods(0,itype,n,p);  
+elseif strcmp(typ,'periodic')
+  itype = 50;    
+  x.f1 = n;
+  x.coeffs = p;
+  x.index = funcmethods(0,itype,n.index,p);
 else
   if strcmp(typ,'sum')
     itype = 20;

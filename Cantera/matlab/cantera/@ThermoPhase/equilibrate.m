@@ -9,7 +9,7 @@ function a = equilibrate(a, xy, solver, rtol, maxsteps, maxiter, loglevel)
 %        solver -- specifies the equilibrium solver to use. If solver
 %        = 0, a fast solver using the element potential method will be
 %        used. If solver > 0, a slower but more robust Gibbs
-%        minimization solver will be used. If solver < 0 or
+%        minimization solver will be used. If solver < 0 or is
 %        unspecified, the fast solver will be tried first, then if it
 %        fails the other will be tried.
 %  
@@ -25,8 +25,9 @@ function a = equilibrate(a, xy, solver, rtol, maxsteps, maxiter, loglevel)
 %        loglevel -- set to a value > 0 to write diagnostic output to
 %        a file in HTML format. Larger values generate more detailed
 %        information. The file will be named 'equilibrate_log.html.'
-%        Subsequent files will be named 'equillibrate_log1.html',
-%        etc., so that log files are not overwritten.
+%        Subsequent files will be named 'equilibrate_log1.html',
+%        'equilibrate_log2.html', etc., so that log files are not
+%        overwritten.
 %          
 %
 

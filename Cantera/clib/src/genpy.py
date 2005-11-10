@@ -41,7 +41,13 @@ py_"""+name+"""(PyObject *self, PyObject *args)
     """+rtype+""" _val;"""
 
     global _class, _newclass
-    cls, func = name.split('_')
+    toks = name.split('_')    
+    cls = toks[0]
+    if len(toks) == 2:
+        func = toks[1]
+    else:
+        func = toks[1] + toks[2]
+        
     if cls != _class:
         _class = cls
         _newclass = 1
@@ -135,7 +141,14 @@ def writepyclass(f, name, args):
         f.write("    def __init__(self):\n")
         f.write("        pass\n");
         _newclass = 0
-    cls, nm = name.split('_')
+
+    toks = name.split('_')    
+    cls = toks[0]
+    if len(toks) == 2:
+        nm = toks[1]
+    else:
+        nm = toks[1] + toks[2]
+        
     f.write('    def '+nm+'(self')
     for a in args[1:]:
         f.write(', '+a[1])

@@ -191,7 +191,7 @@ set(inlt,'X',comp2);
 setRefineCriteria(sim1D, 2, 100.0, 0.15, 0.2);
 
 % solve the problem for the final time
-solve(sim1D, loglevel, refine_grid); %refine_grid);
+solve(sim1D, loglevel, refine_grid); 
 
 % show the solution
 sim1D

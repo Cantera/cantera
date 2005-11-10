@@ -4,8 +4,10 @@ Zero-dimensional reactors.
 
 import _cantera
 from Cantera.num import array, zeros
+from Cantera.exceptions import CanteraError
 import types
 
+_ilr = {'left':0, 'right':1, 'unknown':-1}
 
 class ReactorBase:
     """Base class for reactors and reservoirs.
@@ -38,6 +40,7 @@ class ReactorBase:
         self._reservoirs = []
         self._name = name
         self._verbose = verbose
+        self._paramid = []
         self.insert(contents)
         self._setInitialVolume(volume)
         self._setEnergy(energy)
@@ -296,6 +299,29 @@ class ReactorBase:
         return self._contents
     
 
+    def nSensParams(self):
+        """Number of sensitivity parameters for this reactor."""
+        return _cantera.reactor_nSensParams(self.__reactor_id)
+
+    def addSensitivityReaction(self, reactions = []):
+        if len(reactions) == 0:
+            nr = self._contents.nReactions()
+            for n in range(nr):
+                self._paramid.append(self._contents.reactionEqn(n))
+                _cantera.reactor_addSensitivityReaction(self.__reactor_id,
+                                                   n)
+        else:
+            for n in reactions:
+                self._paramid.append(self._contents.reactionEqn(n))
+                _cantera.reactor_addSensitivityReaction(self.__reactor_id,
+                                                   n)
+
+    def sensParamName(self, n = -1):
+        if n < 0:
+            return self._paramid
+        else:
+            return self._paramid[n]
+        
 _reactorcount = 0
 _reservoircount = 0
 
@@ -812,6 +838,8 @@ class Wall:
 
         self.setKinetics(kinetics[0],kinetics[1])
 
+        self._paramid = []
+        
     def __del__(self):
         """ Delete the Wall instance. This method is called
         automatically when no Python object stores a reference to this
@@ -910,11 +938,21 @@ class Wall:
         ileft = 0
         iright = 0
         if left:
-            ileft = left.kin_index()
+            ileft = left.kinetics_hndl()
         if right:
-            iright = right.kin_index()
+            iright = right.kinetics_hndl()
+        self._leftkin = left
+        self._rightkin = right
         _cantera.wall_setkinetics(self.__wall_id, ileft, iright)
-                                  
+
+    def kinetics(self, side = 'left'):
+        if side == 'left':
+            return self._leftkin
+        elif side == 'right':
+            return self._rightkin
+        else:
+            raise CanteraError("side must be 'left' or 'right'")
+        
     def set(self, **p):
         """Set various wall parameters: 'A', 'U', 'K', 'Q'. 'velocity'.
         These have the same meanings as in the constructor.
@@ -936,6 +974,21 @@ class Wall:
                 raise 'unknown parameter: ',item
                 
 
+    def addSensitivityReaction(self, side = 'unknown', reactions = []):
+        k = self.kinetics(side)
+        if len(reactions) == 0:
+            nr = k.nReactions()
+            for n in range(nr):
+                self._paramid.append(k.reactionEqn(n))
+                _cantera.wall_addSensitivityReaction(self.__wall_id,
+                                                     _ilr[side], n)
+        else:
+            for n in reactions:
+                self._paramid.append(k.reactionEqn(n))
+                _cantera.wall_addSensitivityReaction(self.__wall_id,
+                                                     _ilr[side], n)
+    
+                
 class ReactorNet:
     
     """Networks of reactors. ReactorNet objects are used to
@@ -995,10 +1048,12 @@ class ReactorNet:
         """The current time [s]."""
         return _cantera.reactornet_time(self.__reactornet_id)
 
-    def setTolerances(self, rtol = 1.0e-9, atol = 1.0e-20):
+    def setTolerances(self, rtol = 1.0e-9,
+                      atol = 1.0e-20, rtolsens= -1.0, atolsens = -1.0):
         """Set the relative and absolute error tolerances used in
         integrating the reactor equations."""
         _cantera.reactornet_setTolerances(self.__reactornet_id, rtol, atol)
+        _cantera.reactornet_setSensitivityTolerances(self.__reactornet_id, rtolsens, atolsens)        
         
     def advance(self, time):
         """Advance the state of the reactor network in time from the current
@@ -1011,5 +1066,54 @@ class ReactorNet:
         return _cantera.reactornet_step(self.__reactornet_id, time)    
 
     def reactors(self):
+        """Return the list of reactors in the network."""
         return self._reactors
+
+    def nSensParams(self):
+        """Number of sensitivity parameters."""
+        sum = 0
+        for r in self._reactors:
+            sum += r.nSensParams()
+        return sum
+    
+    def sensitivity(self, component = '', parameter = -1, reactor = ''):
+
+        """Sensitivity of solution component 'component' with respect
+        to one or more parameters.
+
+        component -- name of the species or other variable for which
+        sensitivity information is desired.
+
+        parameter -- single integer or sequence of integers specifying
+        the parameters. The parameters are numbered from zero,
+        beginning with the parameters for the first reactor and
+        continuing through those for the last reactor in the
+        network. If omitted, the sensitivity with respect to all
+        parameters will be returned.
+
+        reactor -- reactor containing the desired component.
+
+    
+        """
+        
+        n = 0
+        if reactor <> '':
+            for reac in self._reactors:
+                if reac.name() == reactor:
+                    break
+                else:
+                    n = n+1
+        np = self.nSensParams()
+        if parameter >= 0 and parameter < np:
+            return _cantera.reactornet_sensitivity(self.__reactornet_id,
+                                                   component, parameter, n)
+        elif parameter == -1:
+            s = []
+            for m in range(np):
+                s.append(_cantera.reactornet_sensitivity(self.__reactornet_id,
+                                                         component, m, n))
+            return s
+        else:
+            raise CanteraError("sensitivity requested for illegal parameter number:"+`parameter`)
+        
     

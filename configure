@@ -25,7 +25,7 @@
 # If you define this to be <prefix>, then instead of running this
 # script as ./configure --prefix=<prefix> you can just run it as
 # ./configure
-CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:="/usr/local/cantera"}
+CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
 
 
 #----------------------------------------------------------------------
@@ -186,7 +186,7 @@ WITH_PURE_FLUIDS='y'
 
 # Enable expanded electrochemistry capabilities, include thermo
 # models for electrolyte solutions
-WITH_ELECTROLYTES='n'
+WITH_ELECTROLYTES='y'
 ######################################################################
 # if set to 'y', the ck2cti program that converts Chemkin input files
 # to Cantera format will be built. If you don't use Chemkin format
@@ -217,8 +217,29 @@ ENABLE_RXNPATH='y'
 # non-ideal pure substance models for a few fluids imported from the
 # 'TPX' package. (http://adam.caltech.edu/software/tpx)
 ENABLE_TPX='y'     
+		
+#-----------------------------------------------------------------
+#         CVODE / CVODES
+#-----------------------------------------------------------------
+# 
+# Cantera uses the CVODE ODE integrator to time-integrate reactor
+# network ODE's and for various other purposes. An older version of
+# CVODE comes with Cantera, but it is possible to use the latest
+# version as well, which now supports sensitivity analysis (CVODES).
+# CVODES is a part of the 'sundials' package from Lawrence Livermore
+# National Laboratory. Due to its size, sundials is not distributed
+# with Cantera, but it is free software that may be downloaded and
+# installed separately. If you have sundials, set USE_SUNDIALS to 'y',
+# and set SUNDIALS_HOME to the directory where you have installed
+# sundials. Note that sensitivity analysis with Cantera requires use
+# of sundials.
+#
+# See: http://www.llnl.gov/CASC/sundials
+#
+USE_SUNDIALS='y'
+SUNDIALS_HOME='/usr/local/sundials'
 
-    
+
 #----------------------------------------------------------------- 
 #         BLAS and LAPACK
 #-----------------------------------------------------------------
@@ -265,7 +286,7 @@ CXX=${CXX:=g++}
 CC=${CC:=gcc}
 
 # C++ compiler flags
-CXXFLAGS=${CXXFLAGS:="-O3 -g -Wall"}
+CXXFLAGS=${CXXFLAGS:="-O3 -Wall"}
 
 # the C++ flags required for linking. Uncomment if additional flags
 # need to be passed to the linker.
@@ -412,6 +433,8 @@ export CANTERA_INSTALL_DIR
 export USE_NUMERIC
 export NUMARRAY_HOME
 export CANTERA_PYTHON_HOME
+export USE_SUNDIALS
+export SUNDIALS_HOME
 
 export WITH_LATTICE_SOLID
 export WITH_METAL
@@ -438,6 +461,7 @@ fi
 # run the configure command in the config directory
 #
 ./configure $CCPREFIX $1 $2 $3 $4
+
 
 #-------------- deprecated options ------------------------------------
 #

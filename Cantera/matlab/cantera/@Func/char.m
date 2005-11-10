@@ -44,9 +44,12 @@ else
       end
       d = d - 1;
     end
+  elseif strcmp(p.typ,'gaussian')
+    s = num2str(p.coeffs(1));
+    s = ['Gaussian(' num2str(p.coeffs(1)) ',' ...
+	 num2str(p.coeffs(2)) ',' ...
+	 num2str(p.coeffs(3)) ')'];
   else
-    print 'char not yet implemented';
-  end
+    s = ['*** char not yet implemented for' p.typ ' ***'];
+  end    
 end
-
-

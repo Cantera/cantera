@@ -12,6 +12,7 @@
 
 #define DEV_EQUIL  
 
+#undef DEBUG_MODE
 
 //------------------------ Fortran settings -------------------//
 
@@ -41,6 +42,8 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // For linux and most unix systems, this is the case.
 #define FTN_TRAILING_UNDERSCORE
 
+
+#undef HAS_SUNDIALS
 
 //-------- LAPACK / BLAS ---------
 
