@@ -25,10 +25,6 @@
 using namespace std;
 
 
-#ifdef HAVE_INTEL_MKL
-#include "mkl_vml.h"
-#endif
-
 namespace Cantera {
 
     /**
@@ -44,11 +40,9 @@ namespace Cantera {
             doublereal logT = log(T);
             m_kdata->m_logc_ref = m_kdata->m_logp_ref - logT;
             update_rates(T, logT, m_kdata->m_rfn.begin());
-
-            m_falloff_low_rates.update(T, logT, m_kdata->m_rfn_low.begin()); 
+            m_falloff_low_rates.update(T, logT, m_kdata->m_rfn_low.begin());
             m_falloff_high_rates.update(T, logT, m_kdata->m_rfn_high.begin());
             m_falloffn.updateTemp(T, m_kdata->falloff_work.begin());
-
             m_kdata->m_temp = T;
             gri30_updateKc();
             m_kdata->m_ROP_ok = false;

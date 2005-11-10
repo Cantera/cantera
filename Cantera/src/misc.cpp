@@ -772,10 +772,11 @@ namespace Cantera {
         if (title != "" && title != __app->loggroups.back()) {
             writelog("Logfile error."
                 "\n   beginLogGroup: "+ __app->loggroups.back()+
-                "\n   endLogGroup;   "+title+"\n");
+                "\n   endLogGroup:   "+title+"\n");
+            cout << "calling write_logfile..." << endl;
             write_logfile("logerror"); 
-            __app->loggroups.clear();
-            __app->loglevels.clear();
+            //__app->loggroups.clear();
+            //__app->loglevels.clear();
         }
         else if (__app->loggroups.size() == 1) {
             write_logfile(__app->loggroups.back()+"_log"); 
@@ -796,7 +797,9 @@ namespace Cantera {
     /// file will be overwritten.  will be appended to the name.
     /// @ingroup HTML_logs
     void write_logfile(string file) {
-        if (!__app->xmllog) return;
+        if (!__app->xmllog) {
+            return;
+        }
         string::size_type idot = file.rfind('.');
         string ext = "";
         string nm = file;
@@ -827,6 +830,7 @@ namespace Cantera {
         // Now we have a file name that does not correspond to any 
         // existing file. Open it as an output stream, and dump the 
         // XML (HTML) tree to it.
+
         if (__app->xmllog) {
             ofstream f(fname.c_str());
             // go to the top of the tree, and write it all.

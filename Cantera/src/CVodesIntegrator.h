@@ -23,7 +23,12 @@
 #include "ctexceptions.h"
 #include "ct_defs.h"
 
+#include <nvector.h>
+#include <nvector_serial.h>
+
 namespace Cantera {
+
+    class FuncData;
 
     /**
      * Exception thrown when a CVODES error is encountered.
@@ -49,6 +54,7 @@ namespace Cantera {
         virtual ~CVodesIntegrator();
         virtual void setTolerances(double reltol, int n, double* abstol);
         virtual void setTolerances(double reltol, double abstol);
+        virtual void setSensitivityTolerances(double reltol, double abstol);
         virtual void setProblemType(int probtype);
         virtual void initialize(double t0, FuncEval& func);
         virtual void reinitialize(double t0, FuncEval& func);
@@ -65,7 +71,12 @@ namespace Cantera {
         virtual void setMinStepSize(double hmin);
         virtual void setMaxSteps(int nmax);
 
+        virtual int nSensParams() { return m_np; }
+        virtual double sensitivity(int k, int p);
+
     private:
+
+        void sensInit(double t0, FuncEval& func);
 
 	int m_neq;
         void* m_cvode_mem;
@@ -78,10 +89,14 @@ namespace Cantera {
         int m_maxord;
         double m_reltol;
         double m_abstols;
+        double m_reltolsens, m_abstolsens;
         int m_nabs;
         double m_hmax, m_hmin;
         int m_maxsteps;
-        void* m_data;
+        FuncData* m_fdata;
+        N_Vector*  m_yS;
+        int m_np;
+
     };
 
 }    // namespace

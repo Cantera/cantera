@@ -252,6 +252,7 @@ namespace Cantera {
         void writeGroup(ostream& out, const Group& g);
 
     protected:
+        void findElements(Kinetics& kin);
 
         int m_nr;
         int m_ns;
@@ -268,6 +269,8 @@ namespace Cantera {
         //        map<int, int> m_warn;
         map<int, map<int, map<int, Group> > >  m_transfer;
         vector<bool> m_determinate;
+        Array2D m_atoms;
+        map<string,int> m_enamemap;
     };
 
 }

@@ -352,6 +352,7 @@ namespace Cantera {
             m_p2 = new DensityCalculator<thermo_t>;
             break; 
         default:
+            endLogGroup();
             throw CanteraError("equilibrate","illegal property pair.");
         }
 
@@ -364,6 +365,7 @@ namespace Cantera {
         if (tempFixed) {
             double tfixed = s.temperature();
             if (tfixed > s.maxTemp() + 1.0 || tfixed < s.minTemp() - 1.0) {
+                endLogGroup();
                 throw CanteraError("ChemEquil","Specified temperature ("
                     +fp2str(m_thermo->temperature())+" K) outside "
                     "valid range of "+fp2str(m_thermo->minTemp())+" K to "
@@ -573,6 +575,8 @@ namespace Cantera {
             fail++;
             if (fail > 3) {
                 addLogEntry("dampStep","Failed 3 times. Giving up.");
+                endLogGroup(); // iteration
+                endLogGroup(); // equilibrate
                 s.restoreState(state);
                 throw CanteraError("equilibrate",
                     "Cannot find an acceptable Newton damping coefficient.");

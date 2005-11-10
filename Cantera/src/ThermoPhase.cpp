@@ -123,13 +123,14 @@ namespace Cantera {
             dt = (u - intEnergy_mass())/cv_mass();
             if (dt > 100.0) dt = 100.0;
             else if (dt < -100.0) dt = -100.0;
-            setTemperature(temperature() + dt);
+            setTemperature(temperature() + 0.5*dt);
             if (fabs(dt) < tol) {
                 return;
             }
         }
         throw CanteraError("setState_UV",
             "no convergence. dt = " + fp2str(dt)+"\n"
+            +"tol = "+fp2str(tol)+"\n"
             +"u = "+fp2str(u)+" v = "+fp2str(v)+"\n");
     }
 

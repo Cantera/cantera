@@ -86,8 +86,10 @@ namespace Cantera {
          */
         void updateTemp(doublereal t, workPtr work) {
             int i;
-            for (i = 0; i < m_n; i++) m_falloff[i]->updateTemp(t, 
-                work + m_offset[i]);
+            for (i = 0; i < m_n; i++) {
+                m_falloff[i]->updateTemp(t, 
+                    work + m_offset[i]);
+            }
         }
 
         /**

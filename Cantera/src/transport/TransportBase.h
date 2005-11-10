@@ -34,6 +34,7 @@ namespace Cantera {
     const int cUserTransport       = 500;
     const int cFtnTransport        = 600;
 
+    // forward reference
     class XML_Writer;
 
 
@@ -143,16 +144,26 @@ namespace Cantera {
 
         /** 
          * Get the molar fluxes [kmol/m^2/s], given the thermodynamic
-         * state at two nearby points.  @param state1 Array of
-         * temperature, density, and mass fractions for state 1.
+         * state at two nearby points. 
+         * @param state1 Array of temperature, density, and mass
+         * fractions for state 1.
          * @param state2 Array of temperature, density, and mass
-         * fractions for state 2.  @param delta Distance from state 1
-         * to state 2 (m).
+         * fractions for state 2.  
+         * @param delta Distance from state 1 to state 2 (m).
          */ 
         virtual void getMolarFluxes(const doublereal* state1,
             const doublereal* state2, doublereal delta, 
             doublereal* fluxes) { err("getMolarFluxes"); }
 
+        /** 
+         * Get the mass fluxes [kg/m^2/s], given the thermodynamic
+         * state at two nearby points. 
+         * @param state1 Array of temperature, density, and mass
+         * fractions for state 1.
+         * @param state2 Array of temperature, density, and mass
+         * fractions for state 2.  
+         * @param delta Distance from state 1 to state 2 (m).
+         */ 
         virtual void getMassFluxes(const doublereal* state1,
             const doublereal* state2, doublereal delta, 
             doublereal* fluxes) { err("getMassFluxes"); }

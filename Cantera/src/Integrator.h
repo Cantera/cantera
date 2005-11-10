@@ -85,6 +85,9 @@ namespace Cantera {
         virtual void setTolerances(doublereal reltol, doublereal abstol)
             { warn("setTolerances"); }
 
+        virtual void setSensitivityTolerances(doublereal reltol, doublereal abstol)
+            { warn("setSensitivityTolerances"); }
+
         /**
          * Set problem type.
          */
@@ -157,6 +160,13 @@ namespace Cantera {
         virtual void setMaxSteps(int nmax) 
             { warn("setMaxStep"); }
 
+        virtual int nSensParams() 
+            { warn("nSensParams()"); return 0; }
+
+        virtual double sensitivity(int k, int p) { 
+            warn("sensitivity"); return 0.0;
+        }
+        
     private:
 
         doublereal m_dummy;
@@ -166,6 +176,9 @@ namespace Cantera {
         }
 
     };
+
+    // defined in ODE_integrators.cpp
+    Integrator* newIntegrator(string itype);
 
 }    // namespace
 

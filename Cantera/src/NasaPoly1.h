@@ -13,6 +13,7 @@
 #ifndef CT_NASAPOLY1_H
 #define CT_NASAPOLY1_H
 
+#include "global.h"
 #include "SpeciesThermoInterpType.h"
 
 namespace Cantera {
@@ -136,6 +137,8 @@ namespace Cantera {
             cp_R[m_index] = cp;
             h_RT[m_index] = h;
             s_R[m_index] = s;
+            //writelog("NASA1: for species "+int2str(m_index)+", h_RT = "+
+            //    fp2str(h)+"\n");
         }
 
 	/**

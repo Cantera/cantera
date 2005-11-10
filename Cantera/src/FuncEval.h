@@ -37,8 +37,9 @@ namespace Cantera {
          * @param t time. (input)
          * @param y solution vector. (input)
          * @param ydot rate of change of solution vector. (output)
+         * @param p parameter vector
          */
-	virtual void eval(double t, double* y, double* ydot)=0;
+	virtual void eval(double t, double* y, double* ydot, double* p)=0;
 
         /**
          * Fill the solution vector with the initial conditions 
@@ -48,6 +49,9 @@ namespace Cantera {
 
         /** Number of equations. */
         virtual int neq()=0;
+
+        /// Number of parameters.
+        virtual int nparams() { return 0; }
 
     protected:
 

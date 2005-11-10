@@ -7,19 +7,19 @@
 #include "CVode.cpp"
 #endif
 
-// namespace Cantera {
+namespace Cantera {
 
-//     Integrator* newIntegrator(string itype) {
-//         if (itype == "CVODE") {
-// #ifdef HAS_SUNDIALS
-//             return new CVodesIntegrator();
-// #else
-//             return new CVodeInt();
-// #endif
-//         }
-//         else {
-//             throw CanteraError("newIntegrator",
-//                 "unknown ODE integrator: "+itype);
-//         }
-//     }
-// }
+    Integrator* newIntegrator(string itype) {
+        if (itype == "CVODE") {
+#ifdef HAS_SUNDIALS
+            return new CVodesIntegrator();
+#else
+            return new CVodeInt();
+#endif
+        }
+        else {
+            throw CanteraError("newIntegrator",
+                "unknown ODE integrator: "+itype);
+        }
+    }
+}

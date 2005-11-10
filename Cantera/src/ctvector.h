@@ -22,6 +22,10 @@
 #include <iostream>
 #include "config.h"
 
+#ifdef DEBUG_MODE
+#include "ctexceptions.h"
+#endif
+
 namespace ct {
 
     /**
@@ -44,7 +48,13 @@ namespace ct {
         ctvector_fp operator=(const ctvector_fp& x);
         virtual ~ctvector_fp();
 
-        value_type operator[](size_t n) const { return _data[n]; }
+        value_type operator[](size_t n) const {
+#ifdef DEBUG_MODE
+            if (n < 0 || n >= _size)
+                throw CanteraError("ctvector_fp","index out of range");
+#endif
+            return _data[n]; 
+        }
         value_type& operator[](size_t n) { return _data[n]; }
 
         void resize(size_t n);

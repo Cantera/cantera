@@ -16,7 +16,7 @@
 #endif
 
 #include "ImplicitChem.h"
-#include "CVode.h"
+#include "Integrator.h"
 
 namespace Cantera {
 
@@ -24,7 +24,7 @@ namespace Cantera {
         : FuncEval(), m_kin(&kin), m_thermo(&therm), m_integ(0),
           m_atol(1.e-15), m_rtol(1.e-7), m_maxstep(0.0), m_energy(false)
     {
-        m_integ = new CVodeInt;
+        m_integ = newIntegrator("CVODE"); //CVodeInt;
         //m_mix = &kin.phase();
         m_wt = m_thermo->molecularWeights();
 
@@ -74,7 +74,8 @@ namespace Cantera {
     /**
      * Called by the integrator to evaluate ydot given y at time 'time'.
      */
-    void ImplicitChem::eval(doublereal time, doublereal* y, doublereal* ydot) 
+    void ImplicitChem::eval(doublereal time, doublereal* y, 
+        doublereal* ydot, doublereal* p) 
     {
         updateState(y);   // synchronize the mixture state with y
         m_thermo->setPressure(m_press);

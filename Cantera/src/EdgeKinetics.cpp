@@ -263,7 +263,10 @@ namespace Cantera {
             //cout << "i, beta = " << i << " " << m_beta[i] << endl;
             if (eamod != 0.0 && m_E[i] != 0.0) {
                 ea = GasConstant * m_E[i];
-                if (eamod + ea < 0.0) eamod = -ea;
+                if (eamod + ea < 0.0) {
+                    writelog("Warning: act energy mod too large");
+                    eamod = -ea;
+                }
                 kf[irxn] *= exp(-eamod*rrt);
             }
         }

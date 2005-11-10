@@ -534,7 +534,6 @@ namespace Cantera {
                 "No convergence for T");
         }
         else if (XY == SP) {
-            writelog("SP\n");
             s0 = entropy();
             start = true;
             Tlow = 1.0; // m_Tmin;      // lower bound on T
@@ -609,7 +608,6 @@ namespace Cantera {
             throw CanteraError("MultiPhase::equilibrate",
                 "No convergence for T");
         }
-
 
 //         else if (XY == SP) {
 //             if (loglevel > 0) {

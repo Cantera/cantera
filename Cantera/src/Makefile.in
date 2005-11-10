@@ -18,6 +18,8 @@ CANTERA_LIB = @buildlib@/libcantera.a
 CXX_FLAGS   = @CXXFLAGS@ $(CXX_OPT) $(LOCAL_DEFNS)
 EXT         = ../../ext
 do_ranlib = @DO_RANLIB@
+USE_SUNDIALS = @use_sundials@
+SUNDIALS_INC = @sundials_include@
 
 #----------------------
 #  kernel components
@@ -87,8 +89,8 @@ RPATH      = $(RPATH_OBJ)
 
 
 # solvers
-SOLVERS_OBJ = CVode.o  BandMatrix.o
-SOLVERS_H   = CVode.h  BandMatrix.h Integrator.h
+SOLVERS_OBJ = ODE_integrators.o  BandMatrix.o
+SOLVERS_H   = BandMatrix.h Integrator.h
 SOLVERS    = $(SOLVERS_OBJ)
 
 # 1D flow models
@@ -182,6 +184,9 @@ ALL_H = $(BASE_H) $(THERMO_H) $(KINETICS_H) $(HETEROKIN_H) \
 
 .cpp.o:
 	@CXX@ -c $< $(CXX_INCLUDES) $(CXX_FLAGS) 
+
+ODE_integrators.o:
+	@CXX@ -c ODE_integrators.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) $(CXX_FLAGS) 
 
 lib:  $(OBJ_LIB)
 	$(RM)     $(CANTERA_LIB)

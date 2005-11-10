@@ -62,7 +62,7 @@ namespace Cantera {
 
     /**
      * Compute the mobilities of the species from the diffusion coefficients, 
-     * usind the Einstein relation.
+     * using the Einstein relation.
      */
     void SolidTransport::getMobilities(doublereal* mobil) {
         int k;

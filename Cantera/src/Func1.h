@@ -32,20 +32,30 @@ namespace Cantera {
 
     /**
      * Base class for 'functor' classes that evaluate a function of
-     * one variable.
+     * one variable. 
      */
     class Func1 {
     public:
         Func1() {}
         virtual ~Func1() {}
+        /// Calls method eval to evaluate the function
         doublereal operator()(doublereal t) { return eval(t); }
+        /// Evaluate the function.
         virtual doublereal eval(doublereal t) { return 0.0; }
-    protected:
-        int m_n;
     private:
     };
 
 
+    /**
+     * A Gaussian. 
+     * \f[
+     * f(t) = A e^{-[(t - t_0)/\tau]^2}
+     * \f]
+     * where \f[ \tau = \frac{fwhm}{2\sqrt{\ln 2}} \f]
+     * @param A peak value
+     * @param t0 offset
+     * @param fwhm full width at half max  
+     */
     class Gaussian : public Func1 {
     public:
         Gaussian(double A, double t0, double fwhm) {
@@ -86,23 +96,6 @@ namespace Cantera {
             return r;
         }
 
-//         virtual string show(doublereal t) {
-//             int n;
-//             string s = "";
-//             doublereal r = m_c[m_n-1];
-//             for (n = m_n-1; n >= 0; n--) {
-//                 s += fp2str(m_c[n]);
-//                 if (n > 0) s += "*x";
-//                 if (n > 1) s += "^"+int2str(n);
-//                 if (n > 0) {
-//                     if (m_c[n] < 0.0) s += " - ";
-//                     else 
-//                 r *= t;
-//                 r += m_c[m_n - n - 1];
-//             }
-//             return r;
-//         }            
-
     protected:
         int m_n;
         vector_fp m_c;
@@ -110,7 +103,12 @@ namespace Cantera {
 
 
     /**
-     * Fourier cosine/sin series.
+     * Fourier cosine/sine series.
+     * 
+     * \f[
+     * f(t) = \frac{A_0}{2} + 
+     * \sum_{n=1}^N A_n \cos (n \omega t) + B_n \sin (n \omega t)
+     * \f]
      */
     class Fourier1 : public Func1 {
     public:
@@ -146,6 +144,9 @@ namespace Cantera {
 
     /**
      * Sum of Arrhenius terms.
+     * \f[
+     * f(T) = \sum_{n=1}^N A_n T^b_n \exp(-E_n/T)
+     * \f]
      */
     class Arrhenius1 : public Func1 {
     public:

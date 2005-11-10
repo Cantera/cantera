@@ -17,7 +17,7 @@
 #endif
 
 #include "FuncEval.h"
-#include "CVode.h"
+#include "Integrator.h"
 #include "Kinetics.h"
 #include "ThermoPhase.h"
 
@@ -83,7 +83,8 @@ namespace Cantera {
 
         // overloaded methods of class FuncEval
         virtual int neq() { return m_nsp; }
-	virtual void eval(doublereal t, doublereal* y, doublereal* ydot);
+	virtual void eval(doublereal t, doublereal* y, doublereal* ydot,
+            doublereal* p);
         virtual void getInitialConditions(doublereal t0, size_t leny, 
             doublereal* y);
 

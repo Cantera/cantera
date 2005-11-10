@@ -1,11 +1,13 @@
 /**
- *  @file CVodeInt.cpp
+ *  @file CVodesIntegrator.cpp
  *
  */
 
 // Copyright 2001  California Institute of Technology
 
 #include "CVodesIntegrator.h"
+#include "stringUtils.h"
+
 #include <iostream>
 using namespace std;
 
@@ -24,6 +26,21 @@ inline static N_Vector nv(void* x) {
     return reinterpret_cast<N_Vector>(x);
 }
 
+namespace Cantera {
+    
+    class FuncData {
+    public:
+        FuncData(FuncEval* f, int npar = 0) {
+            m_pars.resize(npar, 1.0);
+            m_func = f;
+        }
+        virtual ~FuncData() {}
+        vector_fp m_pars;
+        FuncEval* m_func;
+    };
+}
+
+        
 extern "C" {
 
     /**
@@ -39,8 +56,18 @@ extern "C" {
         void *f_data) {
         double* ydata = NV_DATA_S(y); //N_VDATA(y);
         double* ydotdata = NV_DATA_S(ydot); //N_VDATA(ydot);
-        Cantera::FuncEval* f = (Cantera::FuncEval*)f_data;
-        f->eval(t, ydata, ydotdata, NULL);
+        Cantera::FuncData* d = (Cantera::FuncData*)f_data;
+        Cantera::FuncEval* f = d->m_func;
+        //try {
+            if (d->m_pars.size() == 0)
+                f->eval(t, ydata, ydotdata, NULL);
+            else
+                f->eval(t, ydata, ydotdata, d->m_pars.begin());
+            //}
+            //catch (...) {
+            //Cantera::showErrors();
+            //Cantera::error("Teminating execution");
+            //}
     }
 
 }
@@ -64,9 +91,11 @@ namespace Cantera {
                            m_maxord(0),
                            m_reltol(1.e-9), 
                            m_abstols(1.e-15), 
+                                           m_reltolsens(1.0e-5),
+                                           m_abstolsens(1.0e-4),
                            m_nabs(0), 
                            m_hmax(0.0),
-                           m_maxsteps(20000)
+                                           m_maxsteps(20000), m_np(0)
     {
         //m_ropt.resize(OPT_SIZE,0.0);
         //m_iopt = new long[OPT_SIZE];
@@ -77,9 +106,15 @@ namespace Cantera {
     /// Destructor.
     CVodesIntegrator::~CVodesIntegrator()
     {   
-      if (m_cvode_mem) CVodeFree(m_cvode_mem);
+        if (m_cvode_mem) {
+            if (m_np > 0) 
+                CVodeSensFree(m_cvode_mem);
+            CVodeFree(m_cvode_mem);
+        }
       if (m_y) N_VDestroy_Serial(nv(m_y)); //N_VFree(nv(m_y));
       if (m_abstol) N_VDestroy_Serial(nv(m_abstol)); //N_VFree(nv(m_abstol));
+      delete m_fdata;
+
       //delete[] m_iopt;
     }
     
@@ -107,6 +142,11 @@ namespace Cantera {
         m_itol = CV_SS;
         m_reltol = reltol; 
         m_abstols = abstol;
+    }
+
+    void CVodesIntegrator::setSensitivityTolerances(double reltol, double abstol) {
+        m_reltolsens = reltol; 
+        m_abstolsens = abstol;
     }
 
     void CVodesIntegrator::setProblemType(int probtype) {
@@ -151,6 +191,29 @@ namespace Cantera {
             throw CVodesErr("unknown iterator");
     }
 
+    void CVodesIntegrator::sensInit(double t0, FuncEval& func) {
+        m_np = func.nparams();
+        long int nv = func.neq();
+
+        doublereal* data;
+        int n, j;
+        m_yS = N_VNewVectorArray_Serial(m_np, nv);
+        for (n = 0; n < m_np; n++) {
+            data = NV_DATA_S(m_yS[n]);
+            for (j = 0; j < nv; j++) {
+                data[j] =0.0;
+            }
+        }
+        int flag;
+        flag = CVodeSensMalloc(m_cvode_mem, m_np, CV_STAGGERED, m_yS);
+        if (flag != CV_SUCCESS) 
+            throw CVodesErr("Error in CVodeSensMalloc");
+        vector_fp atol(m_np, m_abstolsens);
+        double rtol = m_reltolsens;
+        cout << "atol = " << atol[0] << " " << atol[m_np-1] << endl;
+        flag = CVodeSetSensTolerances(m_cvode_mem, CV_SS, rtol, atol.begin());
+    }
+
     void CVodesIntegrator::initialize(double t0, FuncEval& func) 
     {
         m_neq = func.neq();
@@ -166,11 +229,13 @@ namespace Cantera {
         // check abs tolerance array size
         if (m_itol == CV_SV && m_nabs < m_neq) 
             throw CVodesErr("not enough absolute tolerance values specified.");
-        func.getInitialConditions(m_t0, m_neq, NV_DATA_S(nv(m_y)));
-
-        //m_iopt[MXSTEP] = m_maxsteps;
-        //m_iopt[MAXORD] = m_maxord;
-        //m_ropt[HMAX]   = m_hmax;
+        //try {
+            func.getInitialConditions(m_t0, m_neq, NV_DATA_S(nv(m_y)));
+            //}
+            //catch (CanteraError) {
+            //showErrors();
+            //error("Teminating execution");
+            // }
 
         if (m_cvode_mem) CVodeFree(m_cvode_mem);
 
@@ -196,12 +261,17 @@ namespace Cantera {
             //      &m_abstols, m_data, NULL, TRUE, m_iopt, 
             //      m_ropt.begin(), NULL);
         }
-        if (flag == CV_MEM_FAIL) {
-            throw CVodesErr("Memory allocation failed.");
+        if (flag != CV_SUCCESS) {
+            if (flag == CV_MEM_FAIL) {
+                throw CVodesErr("Memory allocation failed.");
+            }
+            else if (flag == CV_ILL_INPUT) {
+                throw CVodesErr("Illegal value for CVodeMalloc input argument.");
+            }
+            else 
+                throw CVodesErr("CVodeMalloc failed.");
         }
-        else if (flag == CV_ILL_INPUT) {
-            throw CVodesErr("Illegal value for CVodeMalloc input argument.");
-        }
+        cout << "returned from CVodeMalloc. m_cvode_mem = " << m_cvode_mem << endl;
 
 
         if (m_type == DENSE + NOJAC) {
@@ -219,10 +289,19 @@ namespace Cantera {
         }
 
         // pass a pointer to func in m_data 
-        m_data = (void*)&func;
-        flag = CVodeSetFdata(m_cvode_mem, m_data);
+        m_fdata = new FuncData(&func, func.nparams());
+
+        //m_data = (void*)&func;
+
+        flag = CVodeSetFdata(m_cvode_mem, (void*)m_fdata);
         if (flag != CV_SUCCESS) 
             throw CVodesErr("CVodeSetFdata failed.");
+
+        if (func.nparams() > 0) {
+            sensInit(t0, func);
+            flag = CVodeSetSensParams(m_cvode_mem, m_fdata->m_pars.begin(), 
+                NULL, NULL);
+        }
 
         // set options
         if (m_maxord > 0)
@@ -237,16 +316,15 @@ namespace Cantera {
     void CVodesIntegrator::reinitialize(double t0, FuncEval& func) 
     {
         m_t0  = t0;
-        func.getInitialConditions(m_t0, m_neq, NV_DATA_S(nv(m_y)));
+        //try {
+            func.getInitialConditions(m_t0, m_neq, NV_DATA_S(nv(m_y)));
+            //}
+            //catch (CanteraError) {
+            //showErrors();
+            //error("Teminating execution");
+            //}
 
-        // set options
-        //        m_iopt[MXSTEP] = m_maxsteps;
-        //m_iopt[MAXORD] = m_maxord;
-        //m_ropt[HMAX]   = m_hmax;
-
-        //if (m_cvode_mem) CVodeFree(m_cvode_mem);
-
-        int result;
+        int result, flag;
         if (m_itol == CV_SV) {
             result = CVodeReInit(m_cvode_mem, cvodes_rhs, m_t0, nv(m_y), 
                 m_itol, m_reltol,
@@ -257,8 +335,8 @@ namespace Cantera {
                 m_itol, m_reltol,
                 &m_abstols);
         }
-
-        if (result != 0) throw CVodesErr("CVReInit failed.");
+        cout << "returned from CVodeReInit. m_cvode_mem = " << m_cvode_mem << endl;
+        if (result != CV_SUCCESS) throw CVodesErr("CVReInit failed. result = "+int2str(result));
 
         if (m_type == DENSE + NOJAC) {
             long int N = m_neq;
@@ -274,11 +352,6 @@ namespace Cantera {
             throw CVodesErr("unsupported option");
         }
 
-        // pass a pointer to func in m_data 
-        m_data = (void*)&func;
-        long int flag = CVodeSetFdata(m_cvode_mem, m_data);
-        if (flag != CV_SUCCESS) 
-            throw CVodesErr("CVodeSetFdata failed.");
 
         // set options
         if (m_maxord > 0)
@@ -296,7 +369,10 @@ namespace Cantera {
 	flag = CVode(m_cvode_mem, tout, nv(m_y), &t, CV_NORMAL);
 	if (flag != CV_SUCCESS) 
 	  throw CVodesErr(" CVodes error encountered.");
-      }
+        if (m_np > 0) {
+            CVodeGetSens(m_cvode_mem, tout, m_yS);
+        }
+    }
 
     double CVodesIntegrator::step(double tout)
     {
@@ -310,9 +386,17 @@ namespace Cantera {
 
     int CVodesIntegrator::nEvals() const {
         long int ne;
-        return CVodeGetNumRhsEvals(m_cvode_mem, &ne);
+        CVodeGetNumRhsEvals(m_cvode_mem, &ne);
         return ne;
         //return m_iopt[NFE]; 
+    }
+
+    double CVodesIntegrator::sensitivity(int k, int p) {
+        if (k < 0 || k >= m_neq) 
+            throw CVodesErr("sensitivity: k out of range ("+int2str(p)+")");
+        if (p < 0 || p >= m_np)
+            throw CVodesErr("sensitivity: p out of range ("+int2str(p)+")");
+        return NV_Ith_S(m_yS[p],k); 
     }
 }
 

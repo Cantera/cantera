@@ -17,7 +17,8 @@
 #endif
 
 #include "ImplicitSurfChem.h"
-#include "CVode.h"
+
+#include "Integrator.h"
 
 namespace Cantera {
 
@@ -41,7 +42,7 @@ namespace Cantera {
             nt = k[n]->nTotalSpecies();
             if (nt > ntmax) ntmax = nt;
         }
-        m_integ = new CVodeInt;
+        m_integ = newIntegrator("CVODE");// CVodeInt;
 
         // use backward differencing, with a full Jacobian computed
         // numerically, and use a Newton linear iterator
@@ -88,12 +89,13 @@ namespace Cantera {
      * Called by the integrator to evaluate ydot given y at time 'time'.
      */
     void ImplicitSurfChem::eval(doublereal time, doublereal* y, 
-        doublereal* ydot) 
+        doublereal* ydot, doublereal* p) 
     {
+        int n;
         updateState(y);   // synchronize the surface state(s) with y
         doublereal rs0, sum;
         int loc, k, kstart;
-        for (int n = 0; n < m_nsurf; n++) {
+        for (n = 0; n < m_nsurf; n++) {
             rs0 = 1.0/m_surf[n]->siteDensity();
             m_kin[n]->getNetProductionRates(m_work.begin());
             kstart = m_kin[n]->kineticsSpeciesIndex(0,m_surfindex[n]);

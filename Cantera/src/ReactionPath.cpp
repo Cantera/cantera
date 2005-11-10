@@ -450,7 +450,7 @@ namespace Cantera {
             }
         }
         s << " label = " << "\"" << "Scale = " 
-          << flmax << "\";" << endl; //\\l\\l created with Cantera (www.cantera.org)\\l\";"
+          << flmax << "\\l " << title << "\";" << endl; //created with Cantera (www.cantera.org)\\l\";"
         s  << " fontname = \""+m_font+"\";" << endl << "}" << endl;
     }
 
@@ -658,21 +658,72 @@ namespace Cantera {
         g.fmt(out, m_elementSymbols);
     }
 
+    void ReactionPathBuilder::findElements(Kinetics& kin) {
+
+        string ename;
+        m_enamemap.clear();
+        m_nel = 0;
+        int i, np = kin.nPhases();
+        ThermoPhase* p;
+        map<string, int> enamemap;
+        for (i = 0; i < np; i++) {
+            p = &kin.thermo(i);
+            // iterate over the elements in this phase
+            int m, nel = p->nElements();
+            for (m = 0; m < nel; m++) {
+                ename = p->elementName(m);
+
+                // if no entry is found for this element name, then
+                // it is a new element. In this case, add the name
+                // to the list of names, increment the element count, 
+                // and add an entry to the name->(index+1) map.
+                if (m_enamemap.find(ename) == m_enamemap.end()) {
+                    m_enamemap[ename] = m_nel + 1;
+                    m_elementSymbols.push_back(ename);
+                    m_nel++;
+                }
+            }
+        }
+        m_atoms.resize(kin.nTotalSpecies(), m_nel, 0.0);
+        string sym;
+        int k, ip, nsp, mlocal, kp, m;
+        // iterate over the elements
+        for (m = 0; m < m_nel; m++) {
+            sym = m_elementSymbols[m];
+            k = 0;
+            // iterate over the phases
+            for (ip = 0; ip < np; ip++) {
+                phase_t* p = &kin.thermo(ip);
+                nsp = p->nSpecies();
+                mlocal = p->elementIndex(sym);    
+                for (kp = 0; kp < nsp; kp++) {
+                    if (mlocal >= 0) {
+                        m_atoms(k, m) = p->nAtoms(kp, mlocal);
+                    }
+                    k++;
+                }
+            }
+        }
+    }
+
+
+
     int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin) {
         //m_warn.clear();
         m_transfer.clear();
 
-        const Kinetics::thermo_t& ph = kin.thermo();
-
-        m_nel = ph.nElements();
-        m_ns = ph.nSpecies();
-        m_nr = kin.nReactions();
+        //const Kinetics::thermo_t& ph = kin.thermo();
 
         m_elementSymbols.clear();
+        findElements(kin);
+        //m_nel = ph.nElements();
+        m_ns = kin.nTotalSpecies(); //ph.nSpecies();
+        m_nr = kin.nReactions();
+
         int m, i;
-        for (m = 0; m < m_nel; m++) {
-            m_elementSymbols.push_back(ph.elementName(m));
-        }
+        //for (m = 0; m < m_nel; m++) {
+        //    m_elementSymbols.push_back(ph.elementName(m));
+        //}
 
         // all reactants / products, even ones appearing on both sides
         // of the reaction
@@ -736,7 +787,7 @@ namespace Cantera {
             for (n = 0; n < nrnet; n++) {
                 k = m_reac[i][n];
                 for (int m = 0; m < m_nel; m++) {
-                    m_elatoms(m,i) += ph.nAtoms(k,m);
+                    m_elatoms(m,i) += m_atoms(k,m); //ph.nAtoms(k,m);
                 }
             }            
         }
@@ -746,7 +797,7 @@ namespace Cantera {
         m_sgroup.resize(m_ns);
         int j;
         for (j = 0; j < m_ns; j++) {
-            for (int m = 0; m < m_nel; m++) comp[m] = int(ph.nAtoms(j,m));
+            for (int m = 0; m < m_nel; m++) comp[m] = int(m_atoms(j,m)); //ph.nAtoms(j,m));
             m_sgroup[j] = Group(comp);
         }
 
@@ -768,10 +819,11 @@ namespace Cantera {
                 nar = 0;
                 nap = 0;
                 for (j = 0;  j < nr; j++) {
-                    if (ph.nAtoms(m_reac[i][j],m) > 0) nar++;
+                    //                    if (ph.nAtoms(m_reac[i][j],m) > 0) nar++;
+                    if (m_atoms(m_reac[i][j],m) > 0) nar++;
                 }
                 for (j = 0;  j < np; j++) {
-                    if (ph.nAtoms(m_prod[i][j],m) > 0) nap++;
+                    if (m_atoms(m_prod[i][j],m) > 0) nap++;
                 }
                 if (nar > 1 && nap > 1) {
                     m_determinate[i] = false; break;
@@ -812,19 +864,19 @@ namespace Cantera {
         doublereal threshold = 0.0;
         bool fwd_incl, rev_incl, force_incl;
 
-        const Kinetics::thermo_t& ph = s.thermo();
-        int m = ph.elementIndex(element);
+        //        const Kinetics::thermo_t& ph = s.thermo();
+        int m = m_enamemap[element]-1; //ph.elementIndex(element);
 
         r.element = element;
         if (m < 0) return -1;
         
         //int k;
-        int kk = ph.nSpecies();
+        int kk = s.nTotalSpecies();
 
         s.getFwdRatesOfProgress(m_ropf.begin());
         s.getRevRatesOfProgress(m_ropr.begin());
 
-        ph.getMoleFractions(m_x.begin());
+        //ph.getMoleFractions(m_x.begin());
 
         //doublereal sum = 0.0;
         //for (k = 0; k < kk; k++) {
@@ -869,7 +921,7 @@ namespace Cantera {
                         revlabel = "";
                         for (l = 0; l < np; l++) {
                             if (l != kp) 
-                                revlabel += " + "+ ph.speciesName(m_prod[i][l]);
+                                revlabel += " + "+ s.kineticsSpeciesName(m_prod[i][l]);
                         }
                         if (s.reactionType(i) == THREE_BODY_RXN)
                             revlabel += " + M "; 
@@ -882,8 +934,8 @@ namespace Cantera {
                         // element m, and both are allowed to appear in
                         // the diagram
 
-                        if ((kkr != kkp) && (ph.nAtoms(kkr,m) > 0 
-                            &&  ph.nAtoms(kkp,m) > 0)
+                        if ((kkr != kkp) && (m_atoms(kkr,m) > 0 
+                            &&  m_atoms(kkp,m) > 0)
                             && status[kkr] >= 0 && status[kkp] >= 0) 
                         {
 
@@ -894,8 +946,8 @@ namespace Cantera {
                             // reactant species was the source of a
                             // given m-atom in the product
  
-                            if ( (ph.nAtoms(kkp,m) < m_elatoms(m, i)) && 
-                                (ph.nAtoms(kkr,m) < m_elatoms(m, i)) ) 
+                            if ( (m_atoms(kkp,m) < m_elatoms(m, i)) && 
+                                (m_atoms(kkr,m) < m_elatoms(m, i)) ) 
                             {
                                 map<int, map<int, Group> >& g = m_transfer[i];
                                 if (g.empty()) {
@@ -926,7 +978,7 @@ namespace Cantera {
                             // the same expression.
 
                             else {
-                                f = ph.nAtoms(kkp,m) * ph.nAtoms(kkr,m) / m_elatoms(m, i);
+                                f = m_atoms(kkp,m) * m_atoms(kkr,m) / m_elatoms(m, i);
                             }
 
                             fwd = ropf*f;
@@ -940,10 +992,10 @@ namespace Cantera {
                             if (fwd_incl || rev_incl) 
                             {
                                 if (!r.hasNode(kkr)) {
-                                    r.addNode(kkr, ph.speciesName(kkr), m_x[kkr]);
+                                    r.addNode(kkr, s.kineticsSpeciesName(kkr), m_x[kkr]);
                                 }
                                 if (!r.hasNode(kkp)) {
-                                    r.addNode(kkp, ph.speciesName(kkp), m_x[kkp]);
+                                    r.addNode(kkp, s.kineticsSpeciesName(kkp), m_x[kkp]);
                                 }
                             }
                             if (fwd_incl) {

@@ -40,7 +40,7 @@ extern "C" {
         double* ydata = N_VDATA(y);
         double* ydotdata = N_VDATA(ydot);
         Cantera::FuncEval* f = (Cantera::FuncEval*)f_data;
-        f->eval(t, ydata, ydotdata);
+        f->eval(t, ydata, ydotdata, NULL);
     }
 
 
@@ -71,7 +71,7 @@ extern "C" {
             dy = 1.0/ewtdata[j];
             ydata[j] = ysave + dy;
             dy = ydata[j] - ysave;
-            func->eval(t, ydata, ydot);
+            func->eval(t, ydata, ydot, NULL);
             for (i=0; i < N; i++) {
                 col_j[i] = (ydot[i] - fydata[i])/dy;
             }
@@ -212,6 +212,8 @@ namespace Cantera {
                 m_iter, m_itol, &m_reltol,
                 &m_abstols, m_data, NULL, TRUE, m_iopt, 
                 m_ropt.begin(), NULL);
+            cout << "m_reltol = " << m_reltol << endl;
+            cout << "m_abstols = " << m_abstols << endl;
         }
 
         if (!m_cvode_mem) throw CVodeErr("CVodeMalloc failed.");

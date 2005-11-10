@@ -72,6 +72,7 @@ namespace Cantera {
 	  iother = 1;
 	}
 	if (iother) {
+            writelog("returning new GeneralSpeciesThermo");
 	  return new GeneralSpeciesThermo();
 	}
         return newSpeciesThermo(NASA*inasa
@@ -90,6 +91,7 @@ namespace Cantera {
 	  }
         }
 	if (iother) {
+            writelog("returning new GeneralSpeciesThermo");
 	  return new GeneralSpeciesThermo();
 	}
         return newSpeciesThermo(NASA*inasa
@@ -110,6 +112,7 @@ namespace Cantera {
 	  }
         }
 	if (iother) {
+            writelog("returning new GeneralSpeciesThermo");
 	  return new GeneralSpeciesThermo();
 	}
         return newSpeciesThermo(NASA*inasa

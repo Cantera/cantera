@@ -17,6 +17,7 @@
 #include "NasaPoly1.h"
 #include "speciesThermoTypes.h"
 #include "polyfit.h"
+#include "global.h"
 
 namespace Cantera {
 
@@ -70,6 +71,8 @@ namespace Cantera {
 			     doublereal minTemp, doublereal maxTemp,
 			     doublereal refPressure) { 
 
+            //writelog("installing NASA thermo for species "+name+"\n");
+            //writelog(" index = "+int2str(index)+"\n");
             int imid = int(c[0]);       // midpoint temp converted to integer
             int igrp = m_index[imid];   // has this value been seen before?
             if (igrp == 0) {            // if not, prepare new group
