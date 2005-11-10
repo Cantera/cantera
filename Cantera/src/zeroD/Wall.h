@@ -135,6 +135,24 @@ namespace CanteraZeroD {
         void syncCoverages(int leftright);
 
 
+        int nSensParams(int lr) const { 
+            if (lr == 0) 
+                return m_pleft.size();
+            else
+                return m_pright.size();
+        }
+        void addSensitivityReaction(int leftright, int rxn);
+        string sensitivityParamID(int leftright, int p) { 
+            if (leftright == 0)
+                return m_pname_left[p]; 
+            else 
+                return m_pname_right[p];
+        }
+        void setSensitivityParameters(int lr, double* params);
+        void resetSensitivityParameters(int lr);
+        
+        //        int componentIndex(string nm) const;
+
     protected:
 
         //vector_fp m_coeffs;
@@ -149,6 +167,10 @@ namespace CanteraZeroD {
         Func1 *m_vf;
         Func1 *m_qf;
         vector_fp m_leftcov, m_rightcov;
+
+        vector_int m_pleft, m_pright;
+        vector_fp m_leftmult_save, m_rightmult_save;
+        vector<string> m_pname_left, m_pname_right;
 
     private:
 

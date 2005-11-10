@@ -20,7 +20,7 @@
 
 #include "Reactor.h"
 #include "../FuncEval.h"
-#include "../CVode.h"
+#include "../Integrator.h"
 
 namespace CanteraZeroD {
 
@@ -59,6 +59,12 @@ namespace CanteraZeroD {
             m_init = false;
         }
 
+        void setSensitivityTolerances(doublereal rtol, doublereal atol) {
+            if (rtol >= 0.0) m_rtolsens = rtol;
+            if (atol >= 0.0) m_atolsens = atol;
+            m_init = false;
+        }
+
         /// Current value of the simulation time.
         doublereal time() { return m_time; }
 
@@ -92,20 +98,33 @@ namespace CanteraZeroD {
             return *m_r[n];
         }
 
+        void setVerbose(bool v = true) { m_verbose = v; }
 
         /// Return a reference to the integrator.
         Integrator& integrator() { return *m_integ; }
 
         void updateState(doublereal* y);
 
+        double sensitivity(int k, int p) {
+            return m_integ->sensitivity(k, p)/m_integ->solution(k);
+        }
+
+        double sensitivity(string species, int p, int reactor=0) {
+            int k = globalComponentIndex(species, reactor);
+            return sensitivity(k, p);
+        }
+
         //-----------------------------------------------------
 
         // overloaded methods of class FuncEval
         virtual int neq() { return m_nv; }
-	virtual void eval(doublereal t, doublereal* y, doublereal* ydot);
+	virtual void eval(doublereal t, doublereal* y, 
+            doublereal* ydot, doublereal* p);
         virtual void getInitialConditions(doublereal t0, size_t leny, 
             doublereal* y);
+        virtual int nparams() { return m_ntotpar; }
 
+        int globalComponentIndex(string species, int reactor=0);
 
     protected:
 
@@ -119,10 +138,12 @@ namespace CanteraZeroD {
         int m_nv;
         vector_int m_size;
         vector_fp m_atol;
-        doublereal m_rtol;
-        doublereal m_atols;
+        doublereal m_rtol, m_rtolsens;
+        doublereal m_atols, m_atolsens;
         doublereal m_maxstep;
         bool m_verbose;
+        int m_ntotpar;
+        vector_int m_nparams;
 
     private:
 

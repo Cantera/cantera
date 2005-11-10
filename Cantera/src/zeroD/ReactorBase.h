@@ -32,6 +32,7 @@ namespace CanteraZeroD {
 
     const int ReactorType = 1;
     const int ReservoirType = 2;
+    const int FlowReactorType = 3;
 
     /**
      * Base class for stirred reactors. 
@@ -144,6 +145,8 @@ namespace CanteraZeroD {
             writelog("Error: "+msg);
             return 1;
         }
+
+        //    virtual void addSensitivityParam(int stype, int i) {}
 
     protected:
  

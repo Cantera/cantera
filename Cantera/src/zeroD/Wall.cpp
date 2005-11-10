@@ -114,4 +114,58 @@ namespace CanteraZeroD {
         else
             m_surf[1]->setCoverages(m_rightcov.begin());
     }
-}        
+
+    void Wall::addSensitivityReaction(int leftright, int rxn) {
+        if (rxn < 0 || rxn >= m_chem[leftright]->nReactions()) 
+            throw CanteraError("Wall::addSensitivityReaction",
+                "Reaction number out of range ("+int2str(rxn)+")");
+        if (leftright == 0) {
+            m_pleft.push_back(rxn);
+            m_leftmult_save.push_back(1.0);
+            m_pname_left.push_back(m_chem[0]->reactionString(rxn));
+        }
+        else {
+            m_pright.push_back(rxn);
+            m_rightmult_save.push_back(1.0);
+            m_pname_right.push_back(m_chem[1]->reactionString(rxn));
+        }
+    }
+
+    void Wall::setSensitivityParameters(int lr, double* params) {
+        // process sensitivity parameters
+        int n, npar;
+        if (lr == 0) {
+            npar = m_pleft.size();
+            for (n = 0; n < npar; n++) {
+                m_leftmult_save[n] = m_chem[0]->multiplier(m_pleft[n]);
+                m_chem[0]->setMultiplier(m_pleft[n], 
+                    m_leftmult_save[n]*params[n]);
+            }
+        }
+        else {
+            npar = m_pright.size();
+            for (n = 0; n < npar; n++) {
+                m_rightmult_save[n] = m_chem[1]->multiplier(m_pright[n]);
+                m_chem[1]->setMultiplier(m_pright[n], 
+                    m_rightmult_save[n]*params[n]);
+            }            
+        }
+    }
+
+    void Wall::resetSensitivityParameters(int lr) {
+        int n, npar;
+        if (lr == 0) {
+            npar = m_pleft.size();
+            for (n = 0; n < npar; n++) {
+                m_chem[0]->setMultiplier(m_pleft[n], m_leftmult_save[n]);
+            }
+        }
+        else {
+            npar = m_pright.size();
+            for (n = 0; n < npar; n++) {
+                m_chem[1]->setMultiplier(m_pright[n], 
+                    m_rightmult_save[n]);
+            }            
+        }
+    }
+}

@@ -7,7 +7,7 @@
  */
 
 // Copyright 2001  California Institute of Technology
-
+ 
 #ifndef CT_REACTOR_H
 #define CT_REACTOR_H
 
@@ -18,10 +18,10 @@
 
 #include "ReactorBase.h"
 #include "../FuncEval.h"
-#include "../CVode.h"
+#include "../Integrator.h"
 #include "../Kinetics.h"
 
-#define INCL_REACTOR_INTEG
+#undef INCL_REACTOR_INTEG
 
 namespace CanteraZeroD {
 
@@ -57,16 +57,17 @@ namespace CanteraZeroD {
      * flow rate. Class FuncEval is the class used to define a system
      * of ODE's to be integrated.
      */
-
+#ifdef INCL_REACTOR_INTEG
     class Reactor : public ReactorBase, public FuncEval {
-
+#else
+    class Reactor : public ReactorBase {
+#endif
     public:
 
         /**
          * Default constructor.
          */
         Reactor();
-
 
         /**
          * Destructor. Deletes the integrator.
@@ -137,12 +138,14 @@ namespace CanteraZeroD {
             if (m_kin->nReactions() == 0) disableChemistry();
         }
 
+#ifdef INCL_REACTOR_INTEG
         /**
          * Set the maximum step size for integration.
          */
         void setMaxStep(doublereal maxstep) {
             m_maxstep = maxstep;
         }
+#endif
 
         void disableChemistry() { m_chem = false; }
         void enableChemistry() { m_chem = true; }
@@ -153,29 +156,33 @@ namespace CanteraZeroD {
             else m_energy = false;
         } 
 
+
         //-----------------------------------------------------
 
         /** @name References to internal objects */
         //@{
-
+#ifdef INCL_REACTOR_INTEG
         /// Return a reference to the integrator.
         Integrator& integrator() { return *m_integ; }
 
         //@}
-
+#endif
 
         //-----------------------------------------------------
 
         // overloaded methods of class FuncEval
         virtual int neq() { return m_nv; }
+#ifdef INCL_REACTOR_INTEG
 	virtual void eval(doublereal t, doublereal* y, doublereal* ydot);
+#endif
         virtual void getInitialConditions(doublereal t0, size_t leny, 
             doublereal* y);
+
 
         //-----------------------------------------------------
 
         virtual void initialize(doublereal t0 = 0.0);
-	void evalEqs(doublereal t, doublereal* y, doublereal* ydot);
+	virtual void evalEqs(doublereal t, doublereal* y, doublereal* ydot, doublereal* params);
 
         /**
          * Set the mixture to a state consistent with solution
@@ -184,11 +191,24 @@ namespace CanteraZeroD {
 
         virtual void updateState(doublereal* y);
 
+        //        virtual void addSensitivityParam(int stype, int i);
+
+
+
+        virtual int nSensParams();
+        virtual void addSensitivityReaction(int rxn);
+
+        virtual string sensParamID(int p) { return m_pname[p]; }
+
+        //        virtual string component(int k) const;
+        virtual int componentIndex(string nm) const;
+
     protected:
         
         Kinetics*   m_kin;
-
+#ifdef INCL_REACTOR_INTEG
         Integrator* m_integ;         // pointer to integrator
+#endif
         doublereal m_temp_atol;      // tolerance on T
         doublereal m_maxstep;        // max step size
         doublereal m_vdot, m_Q;
@@ -199,6 +219,12 @@ namespace CanteraZeroD {
         bool m_chem;
         bool m_energy;
         int m_nv;
+
+        int m_nsens;
+        vector_int m_pnum;
+        vector<string> m_pname;
+        vector_int m_nsens_wall;
+        vector_fp m_mult_save;
 
     private:
     };

@@ -13,7 +13,7 @@
 #endif
 
 #include "Reactor.h"
-#include "../CVode.h"
+//#include "../CVode.h"
 #include "FlowDevice.h"
 #include "Wall.h"
 #include "../InterfaceKinetics.h"
@@ -26,7 +26,9 @@ namespace CanteraZeroD {
     doublereal quadInterp(doublereal x0, doublereal* x, doublereal* y);
 
     Reactor::Reactor() : ReactorBase(), 
+#ifdef INCL_REACTOR_INTEG
                          FuncEval(),
+#endif
                          m_kin(0),
                          m_temp_atol(1.e-11), 
                          m_maxstep(0.0),
@@ -34,7 +36,7 @@ namespace CanteraZeroD {
                          m_Q(0.0), 
                          m_rtol(1.e-9),
                          m_chem(true),
-                         m_energy(true)
+                         m_energy(true), m_nsens(-1)
     {
 #ifdef INCL_REACTOR_INTEG
         m_integ = new CVodeInt;
@@ -46,7 +48,6 @@ namespace CanteraZeroD {
         m_integ->setIterator(Newton_Iter);
 #endif
     }
-
 
     // overloaded method of FuncEval. Called by the integrator to
     // get the initial conditions.
@@ -89,7 +90,6 @@ namespace CanteraZeroD {
         }
     }
 
-
     /*
      *  Must be called before calling method 'advance'
      */
@@ -111,8 +111,8 @@ namespace CanteraZeroD {
         m_pressure = m_thermo->pressure();
         m_intEnergy = m_thermo->intEnergy_mass();
 
-        int nt = 0, maxnt = 0;
-        for (int m = 0; m < m_nwalls; m++) {
+        int m, nt = 0, maxnt = 0;
+        for (m = 0; m < m_nwalls; m++) {
             if (m_wall[m]->kinetics(m_lr[m])) {
                 nt = m_wall[m]->kinetics(m_lr[m])->nTotalSpecies();
                 if (nt > maxnt) maxnt = nt;
@@ -127,10 +127,23 @@ namespace CanteraZeroD {
             }   
         }
         m_work.resize(maxnt);
-
         m_init = true;
     }
     
+    int Reactor::nSensParams() {
+        if (m_nsens < 0) {
+            // determine the number of sensitivity parameters
+            int m, ns;
+            m_nsens = m_pnum.size();
+            for (m = 0; m < m_nwalls; m++) {
+                ns = m_wall[m]->nSensParams(m_lr[m]);
+                m_nsens_wall.push_back(ns);
+                m_nsens += ns;
+            }
+        }
+        return m_nsens;
+    }
+
     void Reactor::updateState(doublereal* y) {
 
         phase_t& mix = *m_mix;  // define for readability
@@ -139,6 +152,7 @@ namespace CanteraZeroD {
         // the total volume, and the mass of each species.
 
         // Set the mass fractions and  density of the mixture.
+
 
         doublereal u   = y[0];
         m_vol          = y[1];
@@ -176,21 +190,45 @@ namespace CanteraZeroD {
         m_mix->saveState(m_state);
     }
 
-
+#ifdef INCL_REACTOR_INTEG
     void Reactor::eval(doublereal time, doublereal* y, doublereal* ydot) 
     {
         updateState(y);          // synchronize the reactor state with y
         evalEqs(time, y, ydot);
     }
+#endif
 
     /*
      * Called by the integrator to evaluate ydot given y at time 'time'.
      */
-    void Reactor::evalEqs(doublereal time, doublereal* y, doublereal* ydot) 
+    void Reactor::evalEqs(doublereal time, doublereal* y, 
+        doublereal* ydot, doublereal* params) 
     {
         int i, k, nk;
         m_time = time;
         m_mix->restoreState(m_state);
+
+        Kinetics* kin;
+        int m, n, npar, ploc;
+        double mult;
+        // process sensitivity parameters
+        if (params) {
+            
+            npar = m_pnum.size();
+            for (n = 0; n < npar; n++) {
+                //m_mult_save[n] = m_kin->multiplier(m_pnum[n]);
+                mult = m_kin->multiplier(m_pnum[n]);
+                m_kin->setMultiplier(m_pnum[n], mult*params[n]);
+                //                m_kin->setMultiplier(m_pnum[n], m_mult_save[n]*params[n]);
+            }
+            ploc = npar;
+            for (m = 0; m < m_nwalls; m++) {
+                if (m_nsens_wall[m] > 0) {
+                    m_wall[m]->setSensitivityParameters(m_lr[m], params + ploc);
+                    ploc += m_nsens_wall[m];
+                }
+            }
+        }
 
         //        updateState(y);          // synchronize the reactor state with y
 
@@ -199,7 +237,7 @@ namespace CanteraZeroD {
 
         // compute wall terms
         doublereal vdot, rs0, sum, wallarea;
-        Kinetics* kin;
+        //        Kinetics* kin;
         SurfPhase* surf;
         int lr, ns, loc = m_nsp+2, surfloc;
         fill(m_sdot.begin(), m_sdot.end(), 0.0);
@@ -242,8 +280,6 @@ namespace CanteraZeroD {
          *             - \dot m_{out} Y_{k} + A \dot s_k.
          */
         const doublereal* mw = m_mix->molecularWeights().begin();
-
-        int n;
         if (m_chem) {
             m_kin->getNetProductionRates(ydot+2);   // "omega dot"
         }
@@ -268,7 +304,7 @@ namespace CanteraZeroD {
             ydot[0] = - m_thermo->pressure() * m_vdot - m_Q;
         }
         else {
-            ydot[0] = 0.0;    
+            ydot[0] = 0.0;
         }
 
         // add terms for open system
@@ -287,10 +323,7 @@ namespace CanteraZeroD {
                     ydot[2+n] -= mdot_out * mf[n];
                 }
                 if (m_energy) {
-                    //                    cout << "before = " << ydot[0] << endl;
                     ydot[0] -= mdot_out * enthalpy;
-                    //cout << mdot_out << " " << enthalpy << endl;
-                    //cout << "after = " << ydot[0] << endl;
                 }
             }
 
@@ -308,5 +341,59 @@ namespace CanteraZeroD {
                 }
             }
         }
+
+        // reset sensitivity parameters
+        if (params) {
+            npar = m_pnum.size();
+            for (n = 0; n < npar; n++) {
+                mult = m_kin->multiplier(m_pnum[n]);
+                m_kin->setMultiplier(m_pnum[n], mult/params[n]);
+                //m_kin->setMultiplier(m_pnum[n], m_mult_save[n]);
+            }
+            ploc = npar;
+            for (m = 0; m < m_nwalls; m++) {
+                if (m_nsens_wall[m] > 0) {
+                    m_wall[m]->resetSensitivityParameters(m_lr[m]);
+                    ploc += m_nsens_wall[m];
+                }
+            }
+        }
     }
+
+    void Reactor::addSensitivityReaction(int rxn) {
+        m_pnum.push_back(rxn);
+        m_pname.push_back(name()+": "+m_kin->reactionString(rxn));
+        m_mult_save.push_back(1.0);
+        if (rxn < 0 || rxn >= m_kin->nReactions()) 
+            throw CanteraError("Reactor::addSensitivityReaction",
+                "Reaction number out of range ("+int2str(rxn)+")");
+    }
+
+
+    int Reactor::componentIndex(string nm) const {
+        if (nm == "U") return 0;
+        if (nm == "V") return 1;
+        // check for a gas species name
+        int k = m_mix->speciesIndex(nm);
+        if (k >= 0) return k + 2;
+
+        // check for a wall species
+        int walloffset = 0, kp = 0;
+        thermo_t* th;
+        for (int m = 0; m < m_nwalls; m++) {
+            if (m_wall[m]->kinetics(m_lr[m])) {
+                kp = m_wall[m]->kinetics(m_lr[m])->reactionPhaseIndex();
+                th = &m_wall[m]->kinetics(m_lr[m])->thermo(kp);
+                k = th->speciesIndex(nm);
+                if (k >= 0) {
+                    return k + 2 + m_nsp + walloffset;
+                }
+                else {
+                    walloffset += th->nSpecies();
+                }
+            }   
+        }
+        return -1;
+    }
+
 }
