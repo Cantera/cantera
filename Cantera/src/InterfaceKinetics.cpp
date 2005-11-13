@@ -291,14 +291,14 @@ namespace Cantera {
                     writelog("warning: modified E < 0.\n");
                 }
                 kf[i] *= exp(-eamod*rrt);
-                if (kf[i] == 0.0) {
-                    for (n = 0; n < np; n++) {
-                        cout << "phi " << n << "  " << thermo(n).electricPotential() << "  " << m_phi[n] << endl;
-                    }
-                    cout << "Zero rate coeff." << endl;
-                    cout << "eamod = " << eamod << " " << eamod*rrt << endl;
-                    cout << eamod/Faraday << endl;
-                }
+//                 if (kf[i] == 0.0) {
+//                     for (n = 0; n < np; n++) {
+//                         cout << "phi " << n << "  " << thermo(n).electricPotential() << "  " << m_phi[n] << endl;
+//                     }
+//                     cout << "Zero rate coeff." << endl;
+//                     cout << "eamod = " << eamod << " " << eamod*rrt << endl;
+//                     cout << eamod/Faraday << endl;
+//                 }
             }
         }
     }

@@ -210,7 +210,6 @@ namespace Cantera {
             throw CVodesErr("Error in CVodeSensMalloc");
         vector_fp atol(m_np, m_abstolsens);
         double rtol = m_reltolsens;
-        cout << "atol = " << atol[0] << " " << atol[m_np-1] << endl;
         flag = CVodeSetSensTolerances(m_cvode_mem, CV_SS, rtol, atol.begin());
     }
 
@@ -271,7 +270,6 @@ namespace Cantera {
             else 
                 throw CVodesErr("CVodeMalloc failed.");
         }
-        cout << "returned from CVodeMalloc. m_cvode_mem = " << m_cvode_mem << endl;
 
 
         if (m_type == DENSE + NOJAC) {
@@ -335,8 +333,8 @@ namespace Cantera {
                 m_itol, m_reltol,
                 &m_abstols);
         }
-        cout << "returned from CVodeReInit. m_cvode_mem = " << m_cvode_mem << endl;
-        if (result != CV_SUCCESS) throw CVodesErr("CVReInit failed. result = "+int2str(result));
+        if (result != CV_SUCCESS) 
+            throw CVodesErr("CVReInit failed. result = "+int2str(result));
 
         if (m_type == DENSE + NOJAC) {
             long int N = m_neq;

@@ -773,7 +773,6 @@ namespace Cantera {
             writelog("Logfile error."
                 "\n   beginLogGroup: "+ __app->loggroups.back()+
                 "\n   endLogGroup:   "+title+"\n");
-            cout << "calling write_logfile..." << endl;
             write_logfile("logerror"); 
             //__app->loggroups.clear();
             //__app->loglevels.clear();
