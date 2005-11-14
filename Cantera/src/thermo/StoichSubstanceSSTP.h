@@ -108,7 +108,6 @@ namespace Cantera {
          */
         virtual doublereal thermalExpansionCoeff() const ;
 
-        //@}
 
 	/**
 	 * @}
