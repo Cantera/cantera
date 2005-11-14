@@ -84,6 +84,33 @@ namespace Cantera {
             delete m_spthermo;
         }
 
+	/**
+	 * Copy Constructor for the thermophase object. 
+	 *
+	 * Currently, this is not fully implemented. If called it will
+	 * throw an exception.
+	 */
+	ThermoPhase(const ThermoPhase &);
+
+	/**
+	 * Assignment operator
+	 *
+	 *  This is NOT a virtual function.
+	 */
+	ThermoPhase& operator=(const ThermoPhase &right);
+
+	/**
+	 * Duplication routine for objects which inherit from 
+	 * ThermoPhase.
+	 *
+	 *  This virtual routine can be used to duplicate thermophase objects
+	 *  inherited from ThermoPhase even if the application only has
+	 *  a pointer to ThermoPhase to work with.
+	 * 
+	 *  Currently, this is not fully implemented. If called, an
+	 *  exception will be called.
+	 */
+	virtual ThermoPhase *duplMyselfAsThermoPhase();
 
         /**
          *   
@@ -831,6 +858,56 @@ namespace Cantera {
          */
         SpeciesThermo& speciesThermo() { return *m_spthermo; }
 
+	/**
+	 * @internal
+	 * Initialization of a ThermoPhase object using an
+	 * ctml file.
+	 *
+	 *   This routine is a precursor to initThermoXML(XML_Node*)
+	 *   routine, which does most of the work.
+	 *   Here we read extra information about the XML description
+	 *   of a phase. Regular information about elements and species
+	 *   and their reference state thermodynamic information
+	 *   have already been read at this point.
+	 *   For example, we do not need to call this function for
+	 *   ideal gas equations of state.
+	 *
+	 * @param inputfile XML file containing the description of the
+	 *        phase
+	 *
+	 * @param id  Optional parameter identifying the name of the
+	 *            phase. If none is given, the first XML
+	 *            phase element encountered will be used.
+	 */
+	virtual void initThermoFile(string inputFile, string id);
+
+
+	/**
+	 * @internal
+	 *   Import and initialize a ThermoPhase object 
+	 *   using an XML tree.
+	 *   Here we read extra information about the XML description
+	 *   of a phase. Regular information about elements and species
+	 *   and their reference state thermodynamic information
+	 *   have already been read at this point.
+	 *   For example, we do not need to call this function for
+	 *   ideal gas equations of state.
+	 *   This function is called after the elements and the
+	 *   species are initialized with default ideal solution
+	 *   level data.
+	 *
+	 * @param phaseNode This object must be the phase node of a
+	 *             complete XML tree
+	 *             description of the phase, including all of the
+	 *             species data. In other words while "phase" must
+	 *             point to an XML phase object, it must have
+	 *             sibling nodes "speciesData" that describe
+	 *             the species in the phase.
+	 * @param id   ID of the phase. If nonnull, a check is done
+	 *             to see if phaseNode is pointing to the phase
+	 *             with the correct id. 
+	 */
+	virtual void initThermoXML(XML_Node& phaseNode, string id);
 
         /**
          * @internal Initialize. This method is provided to allow
@@ -845,8 +922,7 @@ namespace Cantera {
          *
          * @see importCTML.cpp
          */
-        virtual void initThermo() { }
-
+        virtual void initThermo();
 
 
         // The following methods are used by the clib interface
@@ -889,12 +965,25 @@ namespace Cantera {
          * file importCTML.cpp when processing a phase definition in
          * an input file. It should be overloaded in subclasses to set
          * any parameters that are specific to that particular phase
-         * model. 
+         * model. Note, this method is called before the phase is
+	 * initialzed with elements and/or species.
          *   
          * @param eosdata An XML_Node object corresponding to
          * the "thermo" entry for this phase in the input file.
          */
         virtual void setParametersFromXML(const XML_Node& eosdata) {}
+
+	/**
+	 * Set the initial state of the phase to the conditions 
+	 * specified in the state XML element.
+	 *
+	 * This method sets the temperature, pressure, and mole 
+	 * fraction vector to a set default value.
+	 *
+	 *@ param state AN XML_Node object corresponding to
+	 *              the "state" entry for this phase in the
+	 *              input file.
+	 */
         virtual void setStateFromXML(const XML_Node& state);
 
 

@@ -22,6 +22,81 @@
 
 
 namespace Cantera {
+    /**
+     * Copy Constructor for the ThermoPhase object. 
+     *
+     * Currently, this is implemented, but not tested. If called it will
+     * throw an exception until fully tested.
+     */
+    ThermoPhase::ThermoPhase(const ThermoPhase &right)  :
+	Phase(),
+	m_spthermo(0), 
+	m_speciesData(0),
+	m_index(-1),
+	m_phi(0.0), 
+	m_hasElementPotentials(false)
+    {
+	/*
+	 * Call the assignment operator
+	 */
+	*this = operator=(right);
+    }
+
+    /*
+     * operator=()
+     *
+     *  Note this stuff will not work until the underlying phase
+     *  has a working assignment operator
+     */
+    ThermoPhase& ThermoPhase::
+    operator=(const ThermoPhase &right) {
+	/*
+         * Check for self assignment.
+         */
+        if (this == &right) return *this;
+
+	(void)Phase::operator=(right);
+
+	/*
+	 * Pointer to the species thermodynamic property manager
+	 * We own this, so we need to do a deep copy
+	 */
+	if (m_spthermo) {
+	  delete m_spthermo;
+	}
+        //m_spthermo = (right.m_spthermo)->duplMyselfAsSpeciesThermo();
+	throw CanteraError("ThermoPhase assignment", "not implemented");
+
+        /// Pointer to  the XML tree containing the species
+        /// data for this phase. This is used to access data needed to
+        /// construct the transport manager and other properties
+        /// later in the initialization process.
+        m_speciesData = right.m_speciesData;
+
+      
+	m_index = right.m_index;
+        m_phi = right.m_phi;
+	m_lambda = right.m_lambda;
+	m_hasElementPotentials = right.m_hasElementPotentials;
+
+	return *this;
+    }
+
+    /*
+     * Duplication routine for objects which inherit from 
+     * ThermoPhase.
+     *
+     *  This virtual routine can be used to duplicate thermophase objects
+     *  inherited from ThermoPhase even if the application only has
+     *  a pointer to ThermoPhase to work with.
+     * 
+     *  Currently, this is not fully implemented. If called, an
+     *  exception will be called by the ThermoPhase copy constructor.
+     */
+    ThermoPhase *ThermoPhase::duplMyselfAsThermoPhase() {
+	ThermoPhase* tp = new ThermoPhase(*this);
+	return tp;
+    }
 
     int ThermoPhase::activityConvention() const {
 	return cAC_CONVENTION_MOLAR;
@@ -205,8 +280,100 @@ namespace Cantera {
 	}
     }
 
+    /*
+     * initThermoFile():
+     *
+     * Initialization of a Debye-Huckel phase using an
+     * xml file.
+     *
+     * This routine is a precursor to initThermoXML(XML_Node*)
+     * routine, which does most of the work. 
+     *
+     * @param infile XML file containing the description of the
+     *        phase
+     *
+     * @param id  Optional parameter identifying the name of the
+     *            phase. If none is given, the first XML
+     *            phase element will be used.
+     */
+    void ThermoPhase::initThermoFile(string inputFile, string id) {
 
+	if (inputFile.size() == 0) {
+	  throw CanteraError("ThermoPhase::initThermoFile",
+			     "input file is null");
+	}
+	string path = findInputFile(inputFile);
+	ifstream fin(path.c_str());
+	if (!fin) {
+	  throw CanteraError("initThermoFile","could not open "
+			     +path+" for reading.");
+	}
+	/*
+	 * The phase object automatically constructs an XML object.
+	 * Use this object to store information.
+	 */
+	XML_Node &phaseNode_XML = xml();
+        XML_Node *fxml = new XML_Node();
+	fxml->build(fin);
+	XML_Node *fxml_phase = findXMLPhase(fxml, id);
+	if (!fxml_phase) {
+	  throw CanteraError("ThermoPhase::initThermo",
+			     "ERROR: Can not find phase named " +
+			     id + " in file named " + inputFile);
+	}
+	fxml_phase->copy(&phaseNode_XML);	
+	initThermoXML(*fxml_phase, id);
+	delete fxml;
+    }
 
+    /*
+     *   Import and initialize a ThermoPhase
+     *   object
+     *
+     * @param phaseNode This object must be the phase node of a
+     *             complete XML tree
+     *             description of the phase, including all of the
+     *             species data. In other words while "phase" must
+     *             point to an XML phase object, it must have
+     *             sibling nodes "speciesData" that describe
+     *             the species in the phase.
+     * @param id   ID of the phase. If nonnull, a check is done
+     *             to see if phaseNode is pointing to the phase
+     *             with the correct id. 
+     */
+    void ThermoPhase::initThermoXML(XML_Node& phaseNode, string id) {
+	/*
+	 * The default implementation just calls initThermo();
+	 */
+	initThermo();
+	/*
+	 * and sets the state
+	 */
+	if (phaseNode.hasChild("state")) {
+	  XML_Node& stateNode = phaseNode.child("state");
+	  setStateFromXML(stateNode);
+	}
+    }
+
+    /*
+     * Initialize. 
+     *
+     * This method is provided to allow
+     * subclasses to perform any initialization required after all
+     * species have been added. For example, it might be used to
+     * resize internal work arrays that must have an entry for
+     * each species.  The base class implementation does nothing,
+     * and subclasses that do not require initialization do not
+     * need to overload this method.  When importing a CTML phase
+     * description, this method is called just prior to returning
+     * from function importPhase.
+     *
+     * @see importCTML.cpp
+     */
+    void ThermoPhase::initThermo() {
+
+    }
+    
     /**
      * Set the thermodynamic state.
      */
