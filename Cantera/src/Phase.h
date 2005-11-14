@@ -51,6 +51,16 @@ namespace Cantera {
 	    delete m_xml;
 	    m_xml = 0;
 	}
+
+	/**
+	 * Copy Constructor
+	 */
+	Phase(const Phase &c);
+
+	/**
+	 * Assignment operator
+	 */
+	const Phase &operator=(const Phase &c);
         
         XML_Node& xml() { return *m_xml; }
         string id() const { return m_id; }

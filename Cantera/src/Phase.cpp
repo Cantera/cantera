@@ -16,6 +16,67 @@
 
 namespace Cantera {    
 
+
+    /*
+     * Copy Constructor
+     *
+     * This function just does the default initialization, and
+     * then calls the assignment operator.
+     */
+    Phase::Phase(const Phase &right) :
+	m_kk(-1),
+	m_ndim(3),
+	m_index(-1), 
+	m_xml(new XML_Node("phase")), 
+	m_id("<phase>"),
+	m_name("") 
+    {
+	/*
+         * Call the assignment operator.
+         */
+        *this = operator=(right);
+    }
+    
+    /*
+     * Assignment operator
+     *
+     * This operation is sort of complicated. We have to
+     * call the assignment operator for the Constituents and
+     * State operators that Phase inherits from. Then,
+     * we have to copy our own data, making sure to do a 
+     * deep copy on the XML_Node data owned by this object.
+     */
+    const Phase &Phase::operator=(const Phase &right) {
+	/*
+         * Check for self assignment.
+         */
+        if (this == &right) return *this;
+	/*
+	 * Now call the inherited-classes assignment operators.
+	 */
+	(void) Constituents::operator=(right);
+	(void) State::operator=(right);
+	/*
+	 * Handle its own data
+	 */
+	m_kk    = right.m_kk;
+	m_ndim  = right.m_ndim;
+	m_index = right.m_index;
+	m_data  = right.m_data;
+	/*
+	 * This is a little complicated. -> Because we delete m_xml
+	 * in the destructor, we own m_xml completely, and we need
+	 * to have our own individual copies of the XML data tree
+	 * in each object
+	 */
+	m_xml   = new XML_Node(*(right.m_xml));
+	m_id    = right.m_id;
+	m_name  = right.m_name;
+
+	return *this;
+    }
+    
+
         void Phase::saveState(vector_fp& state) const {
             state.resize(nSpecies() + 2);
             saveState(state.size(),state.begin());
