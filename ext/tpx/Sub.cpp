@@ -369,8 +369,6 @@ namespace tpx {
     }
 
     double Substance::vprop(int ijob) {
-        //cout << "vprop: T, Rho = " << T << " " << Rho << endl; 
-        //cout << "entropy = " << sp() << endl;
 	switch (ijob) {
 	case EvalH: return hp();
 	case EvalS: return sp();
@@ -400,6 +398,7 @@ namespace tpx {
             T = Tsat(psat);
 	}
 	else {
+            throw TPX_Error("Substance::Lever","general error");
             set_Err(GenError);
             return GenError;
 	}
@@ -444,6 +443,11 @@ namespace tpx {
             t_here = T;
             v_here = 1.0/Rho;
 	}
+	else if (Rho == Undef) {  // new object, try to pick
+            Set(TV,T,Vcrit()*1.1);   // "reasonable" starting point
+            t_here = T;
+            v_here = 1.0/Rho;
+	}
 	else {
             v_here = v_save;
             t_here = t_save;
@@ -460,9 +464,6 @@ namespace tpx {
             y_here = prop(ify);
             err_x = fabs(X - x_here);
             err_y = fabs(Y - y_here);
-            //            cout << "set_xy: " << x_here << "  " << y_here << endl;
-            //cout << err_x << "  " << err_y << endl;
-            //cout << X << "  " << Y << endl;
 
             if ((err_x < atx + rtx*Xa) && (err_y < aty + rty*Ya)) break;
             
@@ -508,7 +509,6 @@ namespace tpx {
             Set(TV, t_here, v_here);
             LoopCount++;
             if (LoopCount > 200) {
-                //cout << "set_xy... no converge " << endl;
                 throw TPX_Error("Substance::set_xy","no convergence");
                 set_Err(NoConverge); 
                 break;
@@ -571,7 +571,6 @@ namespace tpx {
 	dvs2 = 0.7*Vcrit();
 	int LoopCount = 0;
 	
-        //cout << "entering set_TPp with Rho = " << Rho << endl;
 	double v_save = 1.0/Rho;
 	set_T(Temp);
 	v_here = vp();
@@ -579,22 +578,17 @@ namespace tpx {
 	// loop
 	
 	while(P_here = Pp(), fabs(Pressure - P_here) >= ErrP*Pressure) {
-            //cout << "P_here, P, Rho = " 
-            //     << P_here << " " << Pressure << " " << Rho << endl;
             if (P_here < 0.0) {
-                //cout << "neg P_here, calling Bracket" << endl;
                 BracketSlope(Pressure);
             }
             else {
                 dv = 0.001*v_here;
                 if (v_here <= Vcrit()) {
                     dv *= -1.0;
-                    //cout << "v_here less than Vcrit " << endl;
                 }
                 Set(TV, Temp, v_here+dv);
                 dpdv = (Pp() - P_here)/dv;
                 if (dpdv > 0.0) {
-                    //cout << "dpdv > 0" << endl;
                     BracketSlope(Pressure);
                 }
                 else {
@@ -604,10 +598,10 @@ namespace tpx {
                         Vmax = v_here;
                     if (v_here == Vmin) Pmin = P_here;
                     if (v_here == Vmax) Pmax = P_here;
-                    //cout << "Vmin, Pmin = " << Vmin << " " << Pmin << endl;
-                    //cout << "Vmax, Pmax = " << Vmax << " " << Pmax << endl;
-                    if (Vmin >= Vmax) 
+                    if (Vmin >= Vmax) {
+                        throw TPX_Error("Substance::set_TPp","Vmin >= Vmax");
                         set_Err(GenError); 
+                    }
                     else if ((Vmin > 0.0) && (Vmax < Big)) kbr = 1;
                     dvbf = 1.0;
                     if (dpdv == 0.0) {
@@ -630,9 +624,7 @@ namespace tpx {
             dva = fabs(dv);
             if (dva > dvm) dv *= dvm/dva;
             v_here += dv;
-            //cout << "v_here, dv = " << v_here << " " << dv << endl;
             if (dv == 0.0) {
-                //cout << "setTPp dv=0 ... no converge " << endl;
                 throw TPX_Error("Substance::set_TPp","dv = 0 and no convergence");
                 set_Err(NoConverge); 
                 return;
@@ -640,7 +632,6 @@ namespace tpx {
             Set(TV, Temp, v_here);
             LoopCount++;
             if (LoopCount > 100) {       
-                //cout << "setTPp... no converge " << endl;
                 Set(TV, Temp, v_save);
                 throw TPX_Error("Substance::set_TPp",string("no convergence for ")
                     +"P* = "+fp2str(Pressure/Pcrit())+". V* = "
