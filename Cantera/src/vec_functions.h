@@ -72,7 +72,7 @@ namespace Cantera {
      */
     template<class T>
     inline doublereal dot_ratio(const T& x, const T& y) {
-        return __dot_ratio(x.begin(), x.end(), y.begin(), 0.0);
+        return _dot_ratio(x.begin(), x.end(), y.begin(), 0.0);
     }
 
     /**
@@ -84,11 +84,11 @@ namespace Cantera {
             x.begin(), plus<TYPENAME_KEYWORD T::value_type>());
     }
 
-    template<class _InputIter, class S>
-    inline doublereal __dot_ratio(_InputIter __x_begin, _InputIter __x_end, 
-        _InputIter __y_begin, S start_value) {
-        for (; __x_begin != __x_end; ++__x_begin, ++__y_begin)
-            start_value += *__x_begin / *__y_begin;
+    template<class InputIter, class S>
+    inline doublereal _dot_ratio(InputIter x_begin, InputIter x_end, 
+        InputIter y_begin, S start_value) {
+        for (; x_begin != x_end; ++x_begin, ++y_begin)
+            start_value += *x_begin / *y_begin;
         return start_value;
     }
 

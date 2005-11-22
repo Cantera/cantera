@@ -44,7 +44,7 @@ namespace Cantera {
         }
 
         void multiply(doublereal* output, const_workPtr work) {
-            _scatter_mult(work, work + m_n, 
+            scatter_mult(work, work + m_n, 
                 output, m_reaction_index.begin());
         }
 

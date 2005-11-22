@@ -53,7 +53,7 @@ int kinetics1(int np, void* p) {
     r.insert(gas);
     env.insert(gas);
 
-    r.addHomogenRxnSens(0);
+    //r.addHomogenRxnSens(0);
 
     // create a wall between the reactor and the environment
     Wall w;

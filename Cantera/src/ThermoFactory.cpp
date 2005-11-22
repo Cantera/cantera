@@ -44,7 +44,7 @@
 
 namespace Cantera {
 
-    ThermoFactory* ThermoFactory::__factory = 0;
+    ThermoFactory* ThermoFactory::s_factory = 0;
 
     static int ntypes = 8;
     static string _types[] = {"IdealGas", "Incompressible", 

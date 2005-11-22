@@ -5,7 +5,7 @@ INCDIR = -I@ctroot@/Cantera/src
 BINDIR = @buildbin@
 build_ck = @BUILD_CK@
 
-LCXX_FLAGS = -L$(LIBDIR)  @CXXFLAGS@
+LCXX_FLAGS = -L$(LIBDIR)  @LOCAL_LIB_DIRS@ @CXXFLAGS@
 LOCAL_LIBS = -lcantera -ltpx -lctcxx 
 #LOCAL_LIBS = -lcantera @math_libs@ @BLAS_LAPACK_LIBS@ -lctcxx 
 

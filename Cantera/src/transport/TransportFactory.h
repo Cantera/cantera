@@ -91,10 +91,10 @@ namespace Cantera {
          * @endcode
          */
         static TransportFactory* factory() {
-	  if (!__factory) {
-	      __factory = new TransportFactory();
+	  if (!s_factory) {
+	      s_factory = new TransportFactory();
 	    }
-            return __factory;
+            return s_factory;
         }
 
 	/**
@@ -124,7 +124,7 @@ namespace Cantera {
 
     private:
 
-        static TransportFactory* __factory;
+        static TransportFactory* s_factory;
 
         // The constructor is private; use static method factory() to
         // get a pointer to a factory instance
@@ -191,7 +191,7 @@ namespace Cantera {
         }
         Transport* ptr = f->newTransport(transportModel, thermo, loglevel);
 	/*
-	 * Note: We delete the static __factory instance here, instead of in
+	 * Note: We delete the static s_factory instance here, instead of in
 	 *       appdelete() in misc.cpp, to avoid linking problems involving
 	 *       the need for multiple cantera and transport library statements
 	 *       for applications that don't have transport in them.

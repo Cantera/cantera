@@ -25,7 +25,7 @@
 
 namespace Cantera {
 
-    KineticsFactory* KineticsFactory::__factory = 0;
+    KineticsFactory* KineticsFactory::s_factory = 0;
 
     static int ntypes = 5;
     static string _types[] = {"none", "GasKinetics", "GRI30", "Interface", "Edge"};

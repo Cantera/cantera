@@ -44,7 +44,7 @@
 
 namespace Cantera {
 
-    TransportFactory* TransportFactory::__factory = 0;
+    TransportFactory* TransportFactory::s_factory = 0;
 
     
     ////////////////////////// exceptions /////////////////////////
@@ -268,9 +268,9 @@ namespace Cantera {
       * This static function deletes the statically allocated instance.
       */
     void TransportFactory::deleteTransportFactory() {
-	if (__factory) {
-	  delete __factory;
-	  __factory = 0;
+	if (s_factory) {
+	  delete s_factory;
+	  s_factory = 0;
 	}
     }
 

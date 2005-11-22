@@ -73,9 +73,9 @@ namespace Cantera {
     /**
      * Inner product.
      */
-    template<class _InputIter, class _InputIter2>
-    inline doublereal dot(_InputIter x_begin, _InputIter x_end, 
-        _InputIter2 y_begin) {
+    template<class InputIter, class InputIter2>
+    inline doublereal dot(InputIter x_begin, InputIter x_end, 
+        InputIter2 y_begin) {
         doublereal sum = 0.0;
         for(; x_begin != x_end; ++x_begin, ++y_begin) 
             sum += *x_begin * *y_begin;
@@ -89,26 +89,26 @@ namespace Cantera {
      * scale(in.begin(), in.end(), out.begin(), factor);
      * \endcode 
      */ 
-    template<class _InputIter, class _OutputIter, class S>
-    inline void scale(_InputIter __begin, _InputIter __end, 
-        _OutputIter __out, S scale_factor) {
-        for (; __begin != __end; ++__begin, ++__out) 
-            *__out = scale_factor * *__begin;
+    template<class InputIter, class OutputIter, class S>
+    inline void scale(InputIter begin, InputIter end, 
+        OutputIter out, S scale_factor) {
+        for (; begin != end; ++begin, ++out) 
+            *out = scale_factor * *begin;
     }
 
-    template<class _InputIter, class _OutputIter, class S>
-    inline void increment_scale(_InputIter __begin, _InputIter __end, 
-        _OutputIter __out, S scale_factor) {
-        for (; __begin != __end; ++__begin, ++__out) 
-            *__out += scale_factor * *__begin;
+    template<class InputIter, class OutputIter, class S>
+    inline void increment_scale(InputIter begin, InputIter end, 
+        OutputIter out, S scale_factor) {
+        for (; begin != end; ++begin, ++out) 
+            *out += scale_factor * *begin;
     }
 
     /**
      * Multiply each entry in x by the corresponding entry in y.
      */
-    template<class _InputIter, class _OutputIter>   
-    inline void multiply_each(_OutputIter x_begin, _OutputIter x_end, 
-        _InputIter y_begin) {
+    template<class InputIter, class OutputIter>   
+    inline void multiply_each(OutputIter x_begin, OutputIter x_end, 
+        InputIter y_begin) {
         for(; x_begin != x_end; ++x_begin, ++y_begin) *x_begin *= *y_begin;
     }
 
@@ -116,47 +116,47 @@ namespace Cantera {
     /**
      * Invoke method 'resize' with argument \a m for a sequence of objects.
      */
-    template<class _InputIter>
-    inline void _resize_each(int m, _InputIter __begin, _InputIter __end) {
-        for(; __begin != __end; ++__begin) __begin->resize(m);
+    template<class InputIter>
+    inline void resize_each(int m, InputIter begin, InputIter end) {
+        for(; begin != end; ++begin) begin->resize(m);
     }
 
     /**
      * The maximum absolute value.
      */
-    template<class _InputIter>
-    inline doublereal absmax(_InputIter __begin, _InputIter __end) {
+    template<class InputIter>
+    inline doublereal absmax(InputIter begin, InputIter end) {
         doublereal amax = 0.0;
-        for(; __begin != __end; ++__begin) 
-            if (fabs(*__begin) > amax) amax = fabs(*__begin);
+        for(; begin != end; ++begin) 
+            if (fabs(*begin) > amax) amax = fabs(*begin);
         return amax;
     }
 
     /**
      * Normalize the values in a sequence, such that they sum to 1.0.
      */
-    template<class _InputIter, class _OutputIter>
-    inline void normalize(_InputIter __begin, _InputIter __end, 
-        _OutputIter __out) {
-        doublereal sum = accumulate(__begin, __end, 0.0);
-        for (; __begin != __end; ++__begin, ++__out) *__out = *__begin/sum;
+    template<class InputIter, class OutputIter>
+    inline void normalize(InputIter begin, InputIter end, 
+        OutputIter out) {
+        doublereal sum = accumulate(begin, end, 0.0);
+        for (; begin != end; ++begin, ++out) *out = *begin/sum;
     }
 
     /**
      * Divide each element of \a x by the corresponding element of \a y.
      */
-    template<class _InputIter, class _OutputIter>   
-    inline void divide_each(_OutputIter x_begin, _OutputIter x_end, 
-        _InputIter y_begin) {
+    template<class InputIter, class OutputIter>   
+    inline void divide_each(OutputIter x_begin, OutputIter x_end, 
+        InputIter y_begin) {
         for(; x_begin != x_end; ++x_begin, ++y_begin) *x_begin /= *y_begin;
     }
 
     /**
      * Increment each entry in \a x by the corresponding entry in \a y.
      */
-    template<class _InputIter, class _OutputIter>   
-    inline void sum_each(_OutputIter x_begin, _OutputIter x_end, 
-        _InputIter y_begin) {
+    template<class InputIter, class OutputIter>   
+    inline void sum_each(OutputIter x_begin, OutputIter x_end, 
+        InputIter y_begin) {
         for(; x_begin != x_end; ++x_begin, ++y_begin) *x_begin += *y_begin;
     }
 
@@ -169,14 +169,14 @@ namespace Cantera {
      *  index[0] = 9;
      *  index[1] = 2;
      *  index[3] = 16; 
-     *  _scatter_copy(x.begin(), x.end(), y.begin(), index.begin());
+     *  scatter_copy(x.begin(), x.end(), y.begin(), index.begin());
      *  \endcode
      */
-    template<class _InputIter, class _OutputIter, class _IndexIter>
-    inline void _scatter_copy(_InputIter __begin, _InputIter __end, 
-        _OutputIter __result, _IndexIter __index) {
-        for (; __begin != __end; ++__begin, ++__index) {
-            *(__result + *__index) = *__begin;
+    template<class InputIter, class OutputIter, class IndexIter>
+    inline void scatter_copy(InputIter begin, InputIter end, 
+        OutputIter result, IndexIter index) {
+        for (; begin != end; ++begin, ++index) {
+            *(result + *index) = *begin;
         }
     }
 
@@ -190,16 +190,16 @@ namespace Cantera {
      * vector_fp data(20);
      * ...
      * // multiply elements 7, 4, and 13 in data by multipliers
-     * _scatter_mult(multipliers, multipliers + 3, data.begin(),
+     * scatter_mult(multipliers, multipliers + 3, data.begin(),
      *               index);
      * \endcode
      */
     
-    template<class _InputIter, class _RandAccessIter, class _IndexIter>
-    inline void _scatter_mult(_InputIter __mult_begin, _InputIter __mult_end, 
-        _RandAccessIter __data, _IndexIter __index) {
-	for (; __mult_begin != __mult_end; ++__mult_begin, ++__index) {
-            *(__data + *__index) *= *__mult_begin;
+    template<class InputIter, class RandAccessIter, class IndexIter>
+    inline void scatter_mult(InputIter mult_begin, InputIter mult_end, 
+        RandAccessIter data, IndexIter index) {
+	for (; mult_begin != mult_end; ++mult_begin, ++index) {
+            *(data + *index) *= *mult_begin;
 	}
     }
 
@@ -213,15 +213,15 @@ namespace Cantera {
      * vector_fp data(20);
      * ...
      * // divide elements 7, 4, and 13 in data by divisors
-     * _scatter_divide(divisors, divisors + 3, data.begin(),
+     * scatter_divide(divisors, divisors + 3, data.begin(),
      *               index);
      * \endcode
      */
-    template<class _InputIter, class _OutputIter, class _IndexIter>
-    inline void _scatter_divide(_InputIter __begin, _InputIter __end, 
-        _OutputIter __result, _IndexIter __index) {
-	for (; __begin != __end; ++__begin, ++__index) {
-            *(__result + *__index) /= *__begin;
+    template<class InputIter, class OutputIter, class IndexIter>
+    inline void scatter_divide(InputIter begin, InputIter end, 
+        OutputIter result, IndexIter index) {
+	for (; begin != end; ++begin, ++index) {
+            *(result + *index) /= *begin;
 	}
     }
 
@@ -229,11 +229,11 @@ namespace Cantera {
      * Compute \f[ \sum_k x_k \log x_k. \f]. A small number (1.0E-20)
      * is added before taking the log.
      */ 
-    template<class _InputIter>  
-    inline doublereal _sum_xlogx(_InputIter __begin, _InputIter __end) {
+    template<class InputIter>  
+    inline doublereal sum_xlogx(InputIter begin, InputIter end) {
 	doublereal sum = 0.0;
-	for (; __begin != __end; ++__begin) {
-            sum += (*__begin) * log(*__begin + Tiny);
+	for (; begin != end; ++begin) {
+            sum += (*begin) * log(*begin + Tiny);
 	}
 	return sum;
     }
@@ -242,12 +242,12 @@ namespace Cantera {
      * Compute \f[ \sum_k x_k \log Q_k. \f]. A small number (1.0E-20)
      * is added before taking the log.
      */ 
-    template<class _InputIter1, class _InputIter2>  
-    inline doublereal _sum_xlogQ(_InputIter1 __begin, _InputIter1 __end,
-               _InputIter2 _Q_begin) {
+    template<class InputIter1, class InputIter2>  
+    inline doublereal sum_xlogQ(InputIter1 begin, InputIter1 end,
+               InputIter2 Q_begin) {
 	doublereal sum = 0.0;
-	for (; __begin != __end; ++__begin, ++_Q_begin) {
-            sum += (*__begin) * log(*_Q_begin + Tiny);
+	for (; begin != end; ++begin, ++Q_begin) {
+            sum += (*begin) * log(*Q_begin + Tiny);
 	}
 	return sum;
     }

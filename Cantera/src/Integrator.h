@@ -86,7 +86,7 @@ namespace Cantera {
             { warn("setTolerances"); }
 
         virtual void setSensitivityTolerances(doublereal reltol, doublereal abstol)
-            { warn("setSensitivityTolerances"); }
+            {}//            { warn("setSensitivityTolerances"); }
 
         /**
          * Set problem type.

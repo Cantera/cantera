@@ -20,7 +20,7 @@
 
 namespace Cantera {
 
-    FalloffFactory* FalloffFactory::__factory = 0;
+    FalloffFactory* FalloffFactory::s_factory = 0;
 
     /**
      * The 3-parameter Troe falloff parameterization. 

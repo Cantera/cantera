@@ -477,70 +477,70 @@ They are designed to explicitly unroll loops over species or reactions for
     };
     
 
-    template<class _InputIter, class Vec1, class Vec2>
-    inline static void _multiply(_InputIter __begin, _InputIter __end, 
+    template<class InputIter, class Vec1, class Vec2>
+    inline static void _multiply(InputIter begin, InputIter end, 
         const Vec1& input, Vec2& output) {
-        for (; __begin != __end; ++__begin) 
-            __begin->multiply(input, output);
+        for (; begin != end; ++begin) 
+            begin->multiply(input, output);
     }
 
-    template<class _InputIter, class Vec1, class Vec2>
-    inline static void _incrementSpecies(_InputIter __begin, 
-        _InputIter __end, const Vec1& input, Vec2& output) {
-        for (; __begin != __end; ++__begin) 
-            __begin->incrementSpecies(input, output);
+    template<class InputIter, class Vec1, class Vec2>
+    inline static void _incrementSpecies(InputIter begin, 
+        InputIter end, const Vec1& input, Vec2& output) {
+        for (; begin != end; ++begin) 
+            begin->incrementSpecies(input, output);
     }
 
-    template<class _InputIter, class Vec1, class Vec2>
-    inline static void _decrementSpecies(_InputIter __begin, 
-        _InputIter __end, const Vec1& input, Vec2& output) {
-        for (; __begin != __end; ++__begin) 
-            __begin->decrementSpecies(input, output);
+    template<class InputIter, class Vec1, class Vec2>
+    inline static void _decrementSpecies(InputIter begin, 
+        InputIter end, const Vec1& input, Vec2& output) {
+        for (; begin != end; ++begin) 
+            begin->decrementSpecies(input, output);
     }
 
-    template<class _InputIter, class Vec1, class Vec2>
-    inline static void _incrementReactions(_InputIter __begin, 
-        _InputIter __end, const Vec1& input, Vec2& output) {
-        for (; __begin != __end; ++__begin) 
-            __begin->incrementReaction(input, output);
+    template<class InputIter, class Vec1, class Vec2>
+    inline static void _incrementReactions(InputIter begin, 
+        InputIter end, const Vec1& input, Vec2& output) {
+        for (; begin != end; ++begin) 
+            begin->incrementReaction(input, output);
     }
 
-    template<class _InputIter, class Vec1, class Vec2>
-    inline static void _decrementReactions(_InputIter __begin, 
-        _InputIter __end, const Vec1& input, Vec2& output) {
-        for (; __begin != __end; ++__begin) 
-            __begin->decrementReaction(input, output);
+    template<class InputIter, class Vec1, class Vec2>
+    inline static void _decrementReactions(InputIter begin, 
+        InputIter end, const Vec1& input, Vec2& output) {
+        for (; begin != end; ++begin) 
+            begin->decrementReaction(input, output);
     }
 
 
-    template<class _InputIter>
-    inline static void _writeIncrementSpecies(_InputIter __begin, _InputIter __end, string r, 
+    template<class InputIter>
+    inline static void _writeIncrementSpecies(InputIter begin, InputIter end, string r, 
         map<int, string>& out) {
-        for (; __begin != __end; ++__begin) __begin->writeIncrementSpecies(r, out);
+        for (; begin != end; ++begin) begin->writeIncrementSpecies(r, out);
     }
 
-    template<class _InputIter>
-    inline static void _writeDecrementSpecies(_InputIter __begin, _InputIter __end, string r, 
+    template<class InputIter>
+    inline static void _writeDecrementSpecies(InputIter begin, InputIter end, string r, 
         map<int, string>& out) {
-        for (; __begin != __end; ++__begin) __begin->writeDecrementSpecies(r, out);
+        for (; begin != end; ++begin) begin->writeDecrementSpecies(r, out);
     }
 
-    template<class _InputIter>
-    inline static void _writeIncrementReaction(_InputIter __begin, _InputIter __end, string r, 
+    template<class InputIter>
+    inline static void _writeIncrementReaction(InputIter begin, InputIter end, string r, 
         map<int, string>& out) {
-        for (; __begin != __end; ++__begin) __begin->writeIncrementReaction(r, out);
+        for (; begin != end; ++begin) begin->writeIncrementReaction(r, out);
     }
 
-    template<class _InputIter>
-    inline static void _writeDecrementReaction(_InputIter __begin, _InputIter __end, string r, 
+    template<class InputIter>
+    inline static void _writeDecrementReaction(InputIter begin, InputIter end, string r, 
         map<int, string>& out) {
-        for (; __begin != __end; ++__begin) __begin->writeDecrementReaction(r, out);
+        for (; begin != end; ++begin) begin->writeDecrementReaction(r, out);
     }
 
-    template<class _InputIter>
-    inline static void _writeMultiply(_InputIter __begin, _InputIter __end, string r, 
+    template<class InputIter>
+    inline static void _writeMultiply(InputIter begin, InputIter end, string r, 
         map<int, string>& out) {
-        for (; __begin != __end; ++__begin) __begin->writeMultiply(r, out);
+        for (; begin != end; ++begin) begin->writeMultiply(r, out);
     }
 
     /*

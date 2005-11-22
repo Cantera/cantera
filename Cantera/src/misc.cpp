@@ -105,13 +105,13 @@ namespace Cantera {
     void setDefaultDirectories();
 
     /// Pointer to the single Application instance
-    static Application* __app = 0;
+    static Application* s_app = 0;
 
-    Unit* Unit::__u = 0;
+    Unit* Unit::s_u = 0;
 
     static void appinit() {
-      if (__app == 0) {
-	__app = new Application;
+      if (s_app == 0) {
+	s_app = new Application;
       }
     }
 
@@ -120,9 +120,9 @@ namespace Cantera {
      * application if leak checking is to be done.
      */
     void appdelete() {
-        if (__app) {
-            delete __app;
-            __app = 0;
+        if (s_app) {
+            delete s_app;
+            s_app = 0;
         }
         SpeciesThermoFactory::deleteFactory();
         ThermoFactory::deleteFactory();
@@ -131,11 +131,11 @@ namespace Cantera {
     }
 
     Application* app() {
-        if (__app == 0) {
-            __app = new Application;
+        if (s_app == 0) {
+            s_app = new Application;
             setDefaultDirectories();
         }
-        return __app;
+        return s_app;
     }
 
 
@@ -205,7 +205,7 @@ namespace Cantera {
                     cout << "get_XML_File(): File, " << ff << ", was previously read."
                          << " Retrieving the storred xml tree." << endl;
 #endif
-                    return __app->xmlfiles[ff];	  
+                    return s_app->xmlfiles[ff];	  
                 }
                 /*
                  * Ok, we didn't find the processed XML tree. Do the conversion
@@ -226,7 +226,7 @@ namespace Cantera {
             if (s) {
                 x->build(s);
                 x->lock();
-                __app->xmlfiles[ff] = x;
+                s_app->xmlfiles[ff] = x;
             }
             else {
                 string estring = "cannot open "+ff+" for reading.";
@@ -239,7 +239,7 @@ namespace Cantera {
          * lookup operation in the return statement will return a valid
          * pointer. 
          */
-        return __app->xmlfiles[ff];
+        return s_app->xmlfiles[ff];
     }
 
     void close_XML_File(string file) {
@@ -249,14 +249,14 @@ namespace Cantera {
             for(; b != e; ++b) {
                 b->second->unlock();
                 delete b->second;
-                __app->xmlfiles.erase(b->first);
+                s_app->xmlfiles.erase(b->first);
             }
         }
         else if (app()->xmlfiles.find(file) 
             != app()->xmlfiles.end()) {
-            __app->xmlfiles[file]->unlock();
-            delete __app->xmlfiles[file];
-            __app->xmlfiles.erase(file);
+            s_app->xmlfiles[file]->unlock();
+            delete s_app->xmlfiles[file];
+            s_app->xmlfiles.erase(file);
         }
     }
 
@@ -282,8 +282,8 @@ namespace Cantera {
     void popError() {
         appinit();
         if (nErrors() > 0) {
-	  __app->errorMessage.pop_back();
-	  __app->errorRoutine.pop_back();
+	  s_app->errorMessage.pop_back();
+	  s_app->errorRoutine.pop_back();
         }
     }
 
@@ -300,8 +300,8 @@ namespace Cantera {
                 "\n\n************************************************\n"
                 "                Cantera Error!                  \n"
                 "************************************************\n\n";
-            return head+string("\nProcedure: ")+__app->errorRoutine.back()
-                +string("\nError:   ")+__app->errorMessage.back();
+            return head+string("\nProcedure: ")+s_app->errorRoutine.back()
+                +string("\nError:   ")+s_app->errorMessage.back();
         }
         else {
 	  return "<no Cantera error>";
@@ -318,7 +318,7 @@ namespace Cantera {
      */
     void showErrors(ostream& f) {
         appinit(); 
-        int i = static_cast<int>(__app->errorMessage.size());
+        int i = static_cast<int>(s_app->errorMessage.size());
         if (i == 0) return;
         f << endl << endl;
         f << "************************************************" << endl;
@@ -328,12 +328,12 @@ namespace Cantera {
         int j;
         for (j = 0; j < i; j++) {
             f << endl;
-            f << "Procedure: " << __app->errorRoutine[j] << endl;
-            f << "Error:     " << __app->errorMessage[j] << endl;
+            f << "Procedure: " << s_app->errorRoutine[j] << endl;
+            f << "Error:     " << s_app->errorMessage[j] << endl;
         } 
         f << endl << endl;
-        __app->errorMessage.clear();
-        __app->errorRoutine.clear();
+        s_app->errorMessage.clear();
+        s_app->errorRoutine.clear();
     }
 
     /**
@@ -346,7 +346,7 @@ namespace Cantera {
      */
     void showErrors() {
         appinit(); 
-        int i = static_cast<int>(__app->errorMessage.size());
+        int i = static_cast<int>(s_app->errorMessage.size());
         if (i == 0) return;
         writelog("\n\n");
         writelog("************************************************\n");
@@ -355,12 +355,12 @@ namespace Cantera {
         int j;
         for (j = 0; j < i; j++) {
             writelog("\n");
-            writelog(string("Procedure: ")+ __app->errorRoutine[j]+" \n");
-            writelog(string("Error:     ")+__app->errorMessage[j]+" \n");
+            writelog(string("Procedure: ")+ s_app->errorRoutine[j]+" \n");
+            writelog(string("Error:     ")+s_app->errorMessage[j]+" \n");
         } 
         writelog("\n\n");
-        __app->errorMessage.clear();
-        __app->errorRoutine.clear();
+        s_app->errorMessage.clear();
+        s_app->errorRoutine.clear();
     }
 
     /**
@@ -373,8 +373,8 @@ namespace Cantera {
      */
     void setError(string r, string msg) {
         appinit();
-        __app->errorMessage.push_back(msg);
-        __app->errorRoutine.push_back(r);
+        s_app->errorMessage.push_back(msg);
+        s_app->errorRoutine.push_back(r);
     }
 
     /// @defgroup inputfiles Input File Handling
@@ -411,7 +411,7 @@ namespace Cantera {
      */
     void setDefaultDirectories() {
         appinit();
-        vector<string>& dirs = __app->inputDirs;
+        vector<string>& dirs = s_app->inputDirs;
 
         // always look in the local directory first
         dirs.push_back(".");
@@ -475,15 +475,15 @@ namespace Cantera {
     /// @ingroup inputfiles
     void addDirectory(string dir) {
         appinit();
-        if (__app->inputDirs.size() == 0) setDefaultDirectories();
+        if (s_app->inputDirs.size() == 0) setDefaultDirectories();
         string d = stripnonprint(dir);
-        size_t m, n = __app->inputDirs.size();
+        size_t m, n = s_app->inputDirs.size();
 
         // don't add if already present
         for (m = 0; m < n; m++)
-            if (d == __app->inputDirs[m]) return;
+            if (d == s_app->inputDirs[m]) return;
 
-        __app->inputDirs.push_back(stripnonprint(dir));
+        s_app->inputDirs.push_back(stripnonprint(dir));
     }
 
     /*!    
@@ -513,7 +513,7 @@ namespace Cantera {
         string::size_type islash = name.find('/');
         string::size_type ibslash = name.find('\\');
         string inname;
-        vector<string>& dirs = __app->inputDirs;
+        vector<string>& dirs = s_app->inputDirs;
         if (dirs.size() == 0) setDefaultDirectories();
 
         int nd;
@@ -672,8 +672,8 @@ namespace Cantera {
     /// @ingroup textlogs
     void setLogger(Logger* logwriter) {
         appinit();
-        delete __app->logwriter;
-        __app->logwriter = logwriter;
+        delete s_app->logwriter;
+        s_app->logwriter = logwriter;
     }
 
 #ifdef WITH_HTML_LOGS
@@ -711,48 +711,48 @@ namespace Cantera {
     /// @ingroup HTML_logs
     void beginLogGroup(string title, int loglevel) {
         appinit();
-        if (loglevel != -99) __app->loglevel = loglevel;
-        else __app->loglevel--;
-        __app->loglevels.push_back(__app->loglevel);
-        __app->loggroups.push_back(title);
-        if (__app->loglevel <= 0) return;
-        if (__app->xmllog == 0) {
-            __app->xmllog = new XML_Node("html");
-            __app->current = &__app->xmllog->addChild("ul");
+        if (loglevel != -99) s_app->loglevel = loglevel;
+        else s_app->loglevel--;
+        s_app->loglevels.push_back(s_app->loglevel);
+        s_app->loggroups.push_back(title);
+        if (s_app->loglevel <= 0) return;
+        if (s_app->xmllog == 0) {
+            s_app->xmllog = new XML_Node("html");
+            s_app->current = &s_app->xmllog->addChild("ul");
         }
-        __app->current = &__app->current->addChild("li","<b>"+title+"</b>");
-        __app->current = &__app->current->addChild("ul");
+        s_app->current = &s_app->current->addChild("li","<b>"+title+"</b>");
+        s_app->current = &s_app->current->addChild("ul");
     }
 
     /// Add an entry to the log file. Entries appear in the form "tag:
     /// value".
     /// @ingroup HTML_logs
     void addLogEntry(string tag, string value) {
-        if (__app->loglevel > 0) 
-            __app->current->addChild("li",tag+": "+value);
+        if (s_app->loglevel > 0) 
+            s_app->current->addChild("li",tag+": "+value);
     }
 
     /// Add an entry to the log file. Entries appear in the form "tag:
     /// value".
     /// @ingroup HTML_logs
     void addLogEntry(string tag, doublereal value) {
-        if (__app->loglevel > 0) 
-            __app->current->addChild("li",tag+": "+fp2str(value));
+        if (s_app->loglevel > 0) 
+            s_app->current->addChild("li",tag+": "+fp2str(value));
     }
 
     /// Add an entry to the log file. Entries appear in the form "tag:
     /// value".
     /// @ingroup HTML_logs
     void addLogEntry(string tag, int value) {
-        if (__app->loglevel > 0) 
-            __app->current->addChild("li",tag+": "+int2str(value));
+        if (s_app->loglevel > 0) 
+            s_app->current->addChild("li",tag+": "+int2str(value));
     }
 
     /// Add an entry to the log file.
     /// @ingroup HTML_logs
     void addLogEntry(string msg) {
-        if (__app->loglevel > 0)
-            __app->current->addChild("li",msg);
+        if (s_app->loglevel > 0)
+            s_app->current->addChild("li",msg);
     }
 
     /// Close the current group of log messages. This is typically
@@ -763,27 +763,27 @@ namespace Cantera {
     /// beginLogGroup is called first to create a new group.  
     /// @ingroup HTML_logs
     void endLogGroup(string title) {
-        if (__app->loglevel > 0) {
-            __app->current = __app->current->parent();
-            __app->current = __app->current->parent();
+        if (s_app->loglevel > 0) {
+            s_app->current = s_app->current->parent();
+            s_app->current = s_app->current->parent();
         }
-        __app->loglevels.pop_back();
-        __app->loglevel = __app->loglevels.back();
-        if (title != "" && title != __app->loggroups.back()) {
+        s_app->loglevels.pop_back();
+        s_app->loglevel = s_app->loglevels.back();
+        if (title != "" && title != s_app->loggroups.back()) {
             writelog("Logfile error."
-                "\n   beginLogGroup: "+ __app->loggroups.back()+
+                "\n   beginLogGroup: "+ s_app->loggroups.back()+
                 "\n   endLogGroup:   "+title+"\n");
             write_logfile("logerror"); 
-            //__app->loggroups.clear();
-            //__app->loglevels.clear();
+            //s_app->loggroups.clear();
+            //s_app->loglevels.clear();
         }
-        else if (__app->loggroups.size() == 1) {
-            write_logfile(__app->loggroups.back()+"_log"); 
-            __app->loggroups.clear();
-            __app->loglevels.clear();
+        else if (s_app->loggroups.size() == 1) {
+            write_logfile(s_app->loggroups.back()+"_log"); 
+            s_app->loggroups.clear();
+            s_app->loglevels.clear();
         }
         else
-            __app->loggroups.pop_back();
+            s_app->loggroups.pop_back();
     }
 
     /// Write the HTML log file. Log entries are stored in memory in
@@ -796,7 +796,7 @@ namespace Cantera {
     /// file will be overwritten.  will be appended to the name.
     /// @ingroup HTML_logs
     void write_logfile(string file) {
-        if (!__app->xmllog) {
+        if (!s_app->xmllog) {
             return;
         }
         string::size_type idot = file.rfind('.');
@@ -830,15 +830,15 @@ namespace Cantera {
         // existing file. Open it as an output stream, and dump the 
         // XML (HTML) tree to it.
 
-        if (__app->xmllog) {
+        if (s_app->xmllog) {
             ofstream f(fname.c_str());
             // go to the top of the tree, and write it all.
-            __app->xmllog->root().write(f);
+            s_app->xmllog->root().write(f);
             f.close();
             writelog("Log file " + fname + " written.\n");
-            delete __app->xmllog;
-            __app->xmllog = 0;
-            __app->current = 0;
+            delete s_app->xmllog;
+            s_app->xmllog = 0;
+            s_app->current = 0;
         }
     }
 

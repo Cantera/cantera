@@ -135,11 +135,11 @@ namespace Cantera {
     }
 
     doublereal State::sum_xlogx() const {
-        return m_mmw*_sum_xlogx(m_ym.begin(), m_ym.end()) + log(m_mmw);
+        return m_mmw* Cantera::sum_xlogx(m_ym.begin(), m_ym.end()) + log(m_mmw);
     }
 
     doublereal State::sum_xlogQ(doublereal* Q) const {
-        return m_mmw * _sum_xlogQ(m_ym.begin(), m_ym.end(), Q);
+        return m_mmw * Cantera::sum_xlogQ(m_ym.begin(), m_ym.end(), Q);
     }
 
     void State::setConcentrations(const doublereal* c) {

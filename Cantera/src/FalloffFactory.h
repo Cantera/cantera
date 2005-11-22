@@ -97,14 +97,14 @@ namespace Cantera {
          * to the existing factory is returned.
          */  
         static FalloffFactory* factory() { 
-            if (!__factory) __factory = new FalloffFactory;
-            return __factory;
+            if (!s_factory) s_factory = new FalloffFactory;
+            return s_factory;
         }
 
 	static void deleteFalloffFactory() {
-	    if (__factory) {
-	      delete __factory;
-	      __factory = 0;
+	    if (s_factory) {
+	      delete s_factory;
+	      s_factory = 0;
 	    }
 	}
 
@@ -127,7 +127,7 @@ namespace Cantera {
         virtual Falloff* newFalloff(int type, const vector_fp& c);
 
     private:
-        static FalloffFactory* __factory;
+        static FalloffFactory* s_factory;
         FalloffFactory(){}
     };
 

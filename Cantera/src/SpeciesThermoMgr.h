@@ -55,10 +55,10 @@ namespace Cantera {
      * 'maxTemp()', and returns the smallest 'maxTemp' value.
     */
     template<class _InputIter>
-    doublereal _maxTemp(_InputIter __begin, _InputIter __end) {
+    doublereal _maxTemp(_InputIter begin, _InputIter end) {
         doublereal _maxT = 1.e10;
-        for (; __begin != __end; ++__begin)
-            _maxT = fminn(_maxT, __begin->maxTemp());
+        for (; begin != end; ++begin)
+            _maxT = fminn(_maxT, begin->maxTemp());
         return _maxT;
     }
 

@@ -16,14 +16,14 @@ namespace Cantera {
     public:
 
         static Unit* units() {
-            if (!__u) __u = new Unit;
-            return __u;
+            if (!s_u) s_u = new Unit;
+            return s_u;
         }
 
 	static void deleteUnit() {
-	    if (__u) {
-	      delete __u;
-	      __u = 0;
+	    if (s_u) {
+	      delete s_u;
+	      s_u = 0;
 	    }
 	}
 
@@ -119,7 +119,7 @@ namespace Cantera {
     private:
 
         /// pointer to the single instance of Unit
-        static Unit* __u;
+        static Unit* s_u;
 
         map<string, doublereal> m_u;
         map<string, doublereal> m_act_u;

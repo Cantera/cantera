@@ -38,13 +38,13 @@ namespace Cantera {
     public:
 
         static KineticsFactory* factory() {
-            if (!__factory) __factory = new KineticsFactory;
-            return __factory;
+            if (!s_factory) s_factory = new KineticsFactory;
+            return s_factory;
         }
 
         virtual ~KineticsFactory() {
-            delete __factory;
-            __factory = 0;
+            delete s_factory;
+            s_factory = 0;
         }
 
         /**
@@ -57,7 +57,7 @@ namespace Cantera {
 
     private:
 
-        static KineticsFactory* __factory;
+        static KineticsFactory* s_factory;
         KineticsFactory(){}
     };
 

@@ -320,7 +320,7 @@ namespace Cantera {
             pr[i] *= m_rf_high[i]; 
         }
 
-        _scatter_copy(pr.begin(), pr.begin() + m_nfall, 
+        scatter_copy(pr.begin(), pr.begin() + m_nfall, 
             ropf.begin(), m_fallindx.begin());
     }
 

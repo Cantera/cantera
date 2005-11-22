@@ -29,7 +29,7 @@ using namespace ctml;
 
 namespace Cantera {
 
-    SpeciesThermoFactory* SpeciesThermoFactory::__factory = 0;
+    SpeciesThermoFactory* SpeciesThermoFactory::s_factory = 0;
 
 
     static void getSpeciesThermoTypes(XML_Node* node, 

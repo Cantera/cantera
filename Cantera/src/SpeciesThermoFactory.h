@@ -45,13 +45,13 @@ namespace Cantera {
     public:
 
         static SpeciesThermoFactory* factory() {
-            if (!__factory) __factory = new SpeciesThermoFactory;
-            return __factory;
+            if (!s_factory) s_factory = new SpeciesThermoFactory;
+            return s_factory;
         }
 	static void deleteFactory() {
-	    if (__factory) {
-	      delete __factory;
-	      __factory = 0;
+	    if (s_factory) {
+	      delete s_factory;
+	      s_factory = 0;
 	    }
 	}
 	
@@ -78,7 +78,7 @@ namespace Cantera {
             SpeciesThermo& spthermo);
 
     private:
-        static SpeciesThermoFactory* __factory;
+        static SpeciesThermoFactory* s_factory;
         SpeciesThermoFactory(){}
     };
 
