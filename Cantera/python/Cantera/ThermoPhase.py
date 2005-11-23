@@ -344,7 +344,7 @@ class ThermoPhase(Phase):
 
     def restoreState(self, s):
         """Restore the state to that stored in array s."""
-        self.setState_TRY(state[0], state[1], state[2:])
+        self.setState_TRY(s[0], s[1], s[2:])
         
     def thermophase(self):
         """Return the integer index that is used to
