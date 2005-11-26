@@ -88,7 +88,7 @@ namespace CanteraZeroD {
         //@}
 
         void addReactor(ReactorBase* r) {
-            if (r->type() == ReactorType) {
+            if (r->type() >= ReactorType) {
                 m_r.push_back(r);
                 m_nr++;
             }

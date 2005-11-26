@@ -30,8 +30,8 @@ namespace CanteraZeroD {
     class FlowDevice;
     class Wall;
 
-    const int ReactorType = 1;
-    const int ReservoirType = 2;
+    const int ReservoirType = 1;
+    const int ReactorType = 2;
     const int FlowReactorType = 3;
 
     /**

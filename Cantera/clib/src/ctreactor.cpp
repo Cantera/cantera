@@ -72,6 +72,8 @@ extern "C" {
         reactor_t* r=0;
         if (type == ReactorType)
             r = new Reactor();
+        else if (type == FlowReactorType)
+            r = new FlowReactor();
         else if (type == ReservoirType)
             r = new Reservoir();
         else 

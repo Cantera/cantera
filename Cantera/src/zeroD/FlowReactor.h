@@ -21,8 +21,8 @@
 namespace CanteraZeroD {
 
     /**
+     * Adiabatic, reversible flow in a constant-area duct.
      */
-
     class FlowReactor : public Reactor {
 
     public:

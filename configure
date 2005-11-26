@@ -245,15 +245,12 @@ SUNDIALS_HOME='/usr/local/sundials'
 #-----------------------------------------------------------------
 #
 # Cantera comes with Fortran versions of those parts of BLAS and
-# LAPACK it requires. But performance *may* be better if you use a
+# LAPACK it requires. But performance may be better if you use a
 # version of these libraries optimized for your machine hardware. If
 # you want to use your own libraries, set BLAS_LAPACK_LIBS to the
 # string that should be passed to the linker to link to these
 # libraries, and set BLAS_LAPACK_DIR to the directory where these
 # libraries are located. Otherwise, leave these lines commented out.
-#
-# (The settings shown here are appropriate if you are using the ATLAS
-# libraries.)
 #
 #BLAS_LAPACK_LIBS='-llapack -lblas'
 #'-llapack -lf77blas -lcblas -latlas'
@@ -278,7 +275,6 @@ LAPACK_FTN_STRING_LEN_AT_END='y'
 #------------------------------------------------------------------
 
 # the C++ compiler to use.
-#
 CXX=${CXX:=g++}
 
 # the C compiler to use. This is only used to compile CVODE and
@@ -286,7 +282,7 @@ CXX=${CXX:=g++}
 CC=${CC:=gcc}
 
 # C++ compiler flags
-CXXFLAGS=${CXXFLAGS:="-O3 -Wall"}
+CXXFLAGS=${CXXFLAGS:="-O0 -g -Wall"}
 
 # the C++ flags required for linking. Uncomment if additional flags
 # need to be passed to the linker.
@@ -427,7 +423,6 @@ export SHARED
 export SOEXT
 export MAKE
 export RPFONT
-export USE_VISUAL_STUDIO
 export FORTRAN_LIB_DIR
 export CANTERA_INSTALL_DIR
 export USE_NUMERIC
@@ -463,39 +458,5 @@ fi
 ./configure $CCPREFIX $1 $2 $3 $4
 
 
-#-------------- deprecated options ------------------------------------
-#
-#----------------------------------------------------------------------
-#         MS-Windows Options
-#----------------------------------------------------------------------
-#
-#  These options only need to be set if you are building Cantera on 
-#  a Windows PC. 
-#
-#  NOTE: These options are now deprecated. You should build Cantera
-#  using Visual Studio .NET on Windows PCs, and not use this script
-#  unless you are doing a unix-like build using cygwin.
-#
-#  Cantera will be installed by default in c:\cantera. Change this to
-#  install it somewhere else. Use forward slashes in the path name.
-#CANTERA_INSTALL_DIR=${CANTERA_INSTALL_DIR:="c:/cantera"}
- 
-#  On a PC running MS-Windows, Cantera can be built either using
-#  Microsoft Visual Studio, with the Visual C++ and (optionally)
-#  Visual Fortran compilers, or using the linux-like cygwin
-#  environment with the g++ and g77 compilers. Set this to "y" to use
-#  Visual Studio.
-#USE_VISUAL_STUDIO=${USE_VISUAL_STUDIO:="y"}
-
-#  If you are using Visual Studio, set this to the location of the
-# directory containing the Fortran libraries. This is only needed to
-# build the Matlab interface. 
-#FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
-
-#
-# If you are using Visual Studio, set this variable to indicates 
-# whether you want to use DLL's. Note you need this for MSVCv7.0
-# but this is turned off for MSVCv6.0
-# USE_DLL=yes
 
 

@@ -111,8 +111,8 @@ namespace Cantera {
                 CVodeSensFree(m_cvode_mem);
             CVodeFree(m_cvode_mem);
         }
-      if (m_y) N_VDestroy_Serial(nv(m_y)); //N_VFree(nv(m_y));
-      if (m_abstol) N_VDestroy_Serial(nv(m_abstol)); //N_VFree(nv(m_abstol));
+      if (m_y) N_VDestroy_Serial(nv(m_y));
+      if (m_abstol) N_VDestroy_Serial(nv(m_abstol));
       delete m_fdata;
 
       //delete[] m_iopt;
@@ -166,14 +166,12 @@ namespace Cantera {
         m_hmax = hmax;
         if (m_cvode_mem)
             CVodeSetMaxStep(m_cvode_mem, hmax);
-        //m_ropt[HMAX] = hmax;
     }
 
     void CVodesIntegrator::setMinStepSize(doublereal hmin) {
         m_hmin = hmin;
         if (m_cvode_mem)
             CVodeSetMinStep(m_cvode_mem, hmin);
-        //m_ropt[HMIN] = hmin;
     }
 
     void CVodesIntegrator::setMaxSteps(int nmax) {
@@ -228,16 +226,10 @@ namespace Cantera {
         // check abs tolerance array size
         if (m_itol == CV_SV && m_nabs < m_neq) 
             throw CVodesErr("not enough absolute tolerance values specified.");
-        //try {
-            func.getInitialConditions(m_t0, m_neq, NV_DATA_S(nv(m_y)));
-            //}
-            //catch (CanteraError) {
-            //showErrors();
-            //error("Teminating execution");
-            // }
+
+        func.getInitialConditions(m_t0, m_neq, NV_DATA_S(nv(m_y)));
 
         if (m_cvode_mem) CVodeFree(m_cvode_mem);
-
         m_cvode_mem = CVodeCreate(m_method, m_iter);
         if (!m_cvode_mem) throw CVodesErr("CVodeCreate failed.");
 
@@ -246,19 +238,11 @@ namespace Cantera {
             // vector atol
             flag = CVodeMalloc(m_cvode_mem, cvodes_rhs, m_t0, nv(m_y), m_itol,
                 m_reltol, nv(m_abstol));
-            //m_cvode_mem = CVodeMalloc(m_neq, cvode_rhs, m_t0, nv(m_y), m_method, 
-            //   m_iter, m_itol, &m_reltol,
-            //   nv(m_abstol), m_data, NULL, TRUE, m_iopt, 
-            //   m_ropt.begin(), NULL);
         }
         else {
             // scalar atol
             flag = CVodeMalloc(m_cvode_mem, cvodes_rhs, m_t0, nv(m_y), m_itol,
                 m_reltol, &m_abstols);
-            //m_cvode_mem = CVodeMalloc(m_neq, cvode_rhs, m_t0, nv(m_y), m_method, 
-            //      m_iter, m_itol, &m_reltol,
-            //      &m_abstols, m_data, NULL, TRUE, m_iopt, 
-            //      m_ropt.begin(), NULL);
         }
         if (flag != CV_SUCCESS) {
             if (flag == CV_MEM_FAIL) {
