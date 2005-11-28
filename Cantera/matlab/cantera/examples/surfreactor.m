@@ -48,10 +48,12 @@ setHeatTransferCoeff(w,1.0e1);  % W/m2/K
 setExpansionRateCoeff(w, 1.0e2);
 
 network = ReactorNet({r});
+% setTolerances(network, 1.0e-8, 1.0e-12);
 
 t = 0;
 dt = 0.1;
 t0 = cputime;
+p0 = pressure(r);
 names = {'CH4','CO','CO2','H2O'};
 x = zeros([100 4]);
 for n = 1:100
@@ -59,7 +61,7 @@ for n = 1:100
   advance(network, t);
   tim(n) = t;
   temp(n) = temperature(r);  
-  pres(n) = pressure(r);
+  pres(n) = pressure(r) - p0;
   cov(n,:) = coverages(surf)'; 
   x(n,:) = moleFraction(gas,names);
 end
@@ -72,8 +74,9 @@ xlabel('Time (s)');
 ylabel('Temperature (K)');
 subplot(2,2,2);
 plot(tim,pres);
+axis([0 5 -0.1 0.1]);
 xlabel('Time (s)');
-ylabel('Pressure (Pa)');
+ylabel('Delta Pressure (Pa)');
 subplot(2,2,3);
 semilogy(tim,cov);
 xlabel('Time (s)');

@@ -91,6 +91,15 @@ namespace CanteraZeroD {
             if (r->type() >= ReactorType) {
                 m_r.push_back(r);
                 m_nr++;
+                if (m_verbose) {
+                    writelog("Adding reactor "+r->name()+"\n");
+                }
+            }
+            else {
+                if (m_verbose) {
+                    writelog("Not adding reactor "+r->name()+
+                        ", since type = "+int2str(r->type()));
+                }
             }
         }
 

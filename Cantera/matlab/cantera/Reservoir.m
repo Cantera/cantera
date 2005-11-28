@@ -16,6 +16,6 @@ function r = Reservoir(contents)
 %   See also: Reactor
 %
 if nargin == 0
-  contents = 0
+  contents = 0;
 end
-r = Reactor(contents, 2);
+r = Reactor(contents, 1);

@@ -81,7 +81,7 @@ f = sqrt(a/(2.0*diff(ioxidizer)));
 
 x0 = massFlux(left)*dz/(massFlux(left) + massFlux(right));
 
-nz = nPoints(flow)
+nz = nPoints(flow);
 for j = 1:nz
   x = zz(j);
   zeta = f*(x - x0);

@@ -16,7 +16,7 @@ if nargin == 5
 end
 
 if strcmp(component,'default')
-  nc = nComponents(d)
+  nc = nComponents(d);
   for ii = 1:nc
     domain_methods(d.dom_id, 52, ii, rtol, atol, ityp);
   end

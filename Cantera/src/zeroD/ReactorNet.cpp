@@ -32,6 +32,9 @@ namespace CanteraZeroD {
         if (m_verbose) {
             writelog("Initializing reactor network.\n");
         }
+        if (m_nr == 0) 
+            throw CanteraError("ReactorNet::initialize",
+                "no reactors in network!");
         for (n = 0; n < m_nr; n++) {
             if (m_r[n]->type() >= ReactorType) {
                 m_r[n]->initialize(t0);

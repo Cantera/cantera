@@ -29,8 +29,8 @@ class ReactorBase:
                  type = -1, verbose = 0):
         """
         See class 'Reactor' for a description of the constructor parameters.
-        The 'type' parameter specifies whether a Reactor (type = 1) or
-        Reservoir (type = 2) will be created.
+        The 'type' parameter specifies whether a Reactor (type = 2) or
+        Reservoir (type = 1) will be created.
         """
         self.__reactor_id = _cantera.reactor_new(type)
         self._type = type
@@ -245,21 +245,21 @@ class ReactorBase:
         """For internal use. Store a reference to 'inlet'
         so that it will not be deleted before this object."""        
         self._inlets.append(inlet)
-        if self._type == 1 and other._type == 2:
+        if self._type == 2 and other._type == 1:
             self._reservoirs.append(other)        
 
     def _addOutlet(self, outlet, other):
         """For internal use. Store a reference to 'outlet'
         so that it will not be deleted before this object."""        
         self._outlets.append(outlet)
-        if self._type == 1 and other._type == 2:
+        if self._type == 2 and other._type == 1:
             self._reservoirs.append(other)        
 
     def _addWall(self, wall, other):
         """For internal use. Store a reference to 'wall'
         so that it will not be deleted before this object."""
         self._walls.append(wall)
-        if self._type == 1 and other._type == 2:
+        if self._type == 2 and other._type == 1:
             self._reservoirs.append(other)
 
     def syncContents(self):
@@ -374,7 +374,7 @@ class Reactor(ReactorBase):
         _reactorcount += 1
         ReactorBase.__init__(self, contents = contents, name = name,
                              volume = volume, energy = energy,
-                             verbose = verbose, type = 1)
+                             verbose = verbose, type = 2)
 
 
 
@@ -454,7 +454,7 @@ class Reservoir(ReactorBase):
             name = 'Reservoir_'+`_reservoircount`
         _reservoircount += 1
         ReactorBase.__init__(self, contents = contents,
-                             name = name, verbose = verbose, type = 2)
+                             name = name, verbose = verbose, type = 1)
             
     def advance(self, time):
         """Deprecated. Do nothing."""

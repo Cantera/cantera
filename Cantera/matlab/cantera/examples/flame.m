@@ -31,11 +31,11 @@ if ~isFlow(flow)
   error('flow object of wrong type.');
 end
 
-flametype = 0
+flametype = 0;
 if isSurface(right)
-  flametype = 1
+  flametype = 1;
 elseif isInlet(right)
-  flametype = 3
+  flametype = 3;
 end
 
 

@@ -13,9 +13,9 @@ function x = Reactor(contents, typ)
 %
 if nargin == 0
   contents = 0;
-  typ = 1;
+  typ = 2;
 elseif nargin == 1
-  typ = 1;
+  typ = 2;
 elseif nargin > 2
   error('too many arguments');
 end

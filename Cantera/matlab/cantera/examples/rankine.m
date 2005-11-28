@@ -1,5 +1,12 @@
 function [work, efficiency] = rankine(t1, p2, eta_pump, ...
 				      eta_turbine)
+%
+% RANKINE
+%
+% This example computes the efficiency of a simple vapor power
+% cycle. 
+%
+help rankine
 
 % create an object representing water
 w = Water;
@@ -23,12 +30,12 @@ s3 = entropy_mass(w);
 heat_added = h3 - h2;
 
 % expand adiabatically back to the initial pressure
-work = expand(w, p1, eta_turbine);
+work = expand(w, p1, eta_turbine)
 h4 = enthalpy_mass(w);
 x4 = vaporFraction(w);
 
 % compute the efficiency
-efficiency = (work - pump_work)/heat_added;
+efficiency = (work - pump_work)/heat_added
 
 
 

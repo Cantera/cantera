@@ -99,7 +99,7 @@ print 'Directory: '+os.getcwd()
 args = sys.argv
 if len(args) > 1 and args[1] == '-plot':
     try:    
-        from matplotlib.matlab import *
+        from matplotlib.pylab import *
         clf
         subplot(2,2,1)
         plot(tm, temp[:,0],'g-',tm, temp[:,1],'b-')
