@@ -130,7 +130,7 @@ namespace Cantera {
         }
 #endif
 
-        try {
+        //try {
 	  iok = jac.solve(sz, step, step);
 	  if (iok > 0) {
 	    iok--;
@@ -150,10 +150,10 @@ namespace Cantera {
 	  else if (iok < 0)   
 	    throw CanteraError("MultiNewton::step",
 				 "iok = "+int2str(iok));
-	}
-        catch (CanteraError) {
-	  showErrors(cout);
-	}
+          //}
+          //catch (CanteraError) {
+	  //showErrors(cout);
+          //}
 
 #ifdef DEBUG_STEP
         bool ok = false;

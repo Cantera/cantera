@@ -55,7 +55,7 @@ namespace Cantera {
             m_jstart(0),
             m_left(0), 
             m_right(0),
-            m_refiner(0), m_id("-"), m_desc("-") {
+            m_refiner(0), m_id("-"), m_desc("-"), m_rdt(0.0) {
             resize(nv, points);
         }
 

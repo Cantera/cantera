@@ -10,8 +10,6 @@
 % The catalytic combustion mechanism is from Deutschman et al., 26th
 % Symp. (Intl.) on Combustion,1996 pp. 1747-1754
 %
-% On a Mac G4, this example takes about 20 sec.
-%
 
 help catcomb;
 %disp('press any key to start the simulation');
@@ -47,7 +45,7 @@ initial_grid = [0.0 0.02 0.04 0.06 0.08 0.1];  % m
 
 
 % numerical parameters
-tol_ss    = [1.0e-5 1.0e-9];       % [rtol atol] for steady-state problem
+tol_ss    = [1.0e-8 1.0e-14];       % [rtol atol] for steady-state problem
 tol_ts    = [1.0e-4 1.0e-9];       % [rtol atol] for time stepping
 
 loglevel  = 1;                      % amount of diagnostic output
