@@ -1,5 +1,5 @@
 #include "ReactorNet.h"
-#include "Integrator.h"
+#include "../Integrator.h"
 
 namespace CanteraZeroD {
 
