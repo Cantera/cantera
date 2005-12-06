@@ -241,13 +241,15 @@ use_sundials=0
 sundials_inc=
 CVODE_LIBS='-lcvode'
 
-AC_LANG_C
+ldsave=$LDFLAGS
+LDFLAGS='-L'$SUNDIALS_HOME/lib' '$ldsave
+
+AC_CHECK_LIB(sundials_cvodes, CVodeCreate, [use_sundials=1], [use_sundials=0],\
+[-lsundials_shared -lsundials_nvecserial -lm])
+
+LDFLAGS=$ldsave
 
 if test "x$USE_SUNDIALS" = "xy"; then
-ldsave=$LDFLAGS
-LDFLAGS='-L'${SUNDIALS_HOME}/lib' '$ldsave
-AC_CHECK_LIB(sundials_cvodes, CVodeCreate, [use_sundials=1;], [use_sundials=0;],[-lsundials_shared -lsundials_nvecserial])
-LDFLAGS=$ldsave
 if test use_sundials=1; then
 AC_DEFINE(HAS_SUNDIALS)
 CVODE_LIBS='-lsundials_cvodes -lsundials_shared -lsundials_nvecserial' 
@@ -756,7 +758,7 @@ EOF
     f90opts="-p. -p${ct_incdir} -s -YEXT_NAMES=LCS -YEXT_SFX=_ -YCFRL=1"
     f90buildopts="-p. -s -YEXT_NAMES=LCS -YEXT_SFX=_ -YCFRL=1"
   fi
-  rm -f testf90.f90 f90out
+  rm -f testf90.f90
   AC_MSG_RESULT(${f90type})
   if test -n $BUILD_F90; then
     if test "x${has_f90}" = "xno"; then
@@ -778,6 +780,7 @@ AC_SUBST(F90BUILDFLAGS)
 AC_OBJEXT
 AC_EXEEXT
 
+echo "objext = " $OBJEXT
 
 AC_SUBST(precompile_headers)
 AC_SUBST(CXX_DEPENDS)
@@ -798,7 +801,7 @@ AC_LANG_CPLUSPLUS
 if test -z "$CXX_EXT"; then CXX_EXT=cpp; fi
 AC_SUBST(CXX_EXT)
 
-if test -z "$OBJ_EXT"; then OBJ_EXT=$OBJEXT; fi
+if test -z "$OBJ_EXT"; then OBJ_EXT='o'; fi
 AC_SUBST(OBJ_EXT)
 
 if test -z "$EXE_EXT"; then EXE_EXT=$EXEEXT; fi
