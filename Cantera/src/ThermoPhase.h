@@ -709,19 +709,19 @@ namespace Cantera {
 
         /** Set the specific enthalpy (J/kg) and pressure (Pa). */
         virtual void setState_HP(doublereal h, doublereal p, 
-            doublereal tol = 1.e-8);
+            doublereal tol = 1.e-4);
 
         /** Set the specific enthalpy (J/kg) and specific volume (m^3/kg). */
         virtual void setState_UV(doublereal u, doublereal v, 
-            doublereal tol = 1.e-8);
+            doublereal tol = 1.e-4);
 
         /** Set the specific entropy (J/kg/K) and pressure (Pa). */
         virtual void setState_SP(doublereal s, doublereal p, 
-            doublereal tol = 1.e-8);
+            doublereal tol = 1.e-4);
 
         /** Set the specific entropy (J/kg/K) and specific volume (m^3/kg). */
         virtual void setState_SV(doublereal s, doublereal v, 
-            doublereal tol = 1.e-8);
+            doublereal tol = 1.e-4);
 
         //@}
 

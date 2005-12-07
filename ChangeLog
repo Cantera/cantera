@@ -1,3 +1,121 @@
+2005-12-05 10:36  dggoodwin
+
+	* Cantera/: matlab/cantera/examples/catcomb.m,
+	  python/Cantera/OneD/onedim.py, src/oneD/Domain1D.h,
+	  src/oneD/MultiNewton.cpp: minor changes
+
+2005-11-26 08:08  dggoodwin
+
+	* configure, Cantera/clib/src/ctreactor.cpp,
+	  Cantera/python/Cantera/Reactor.py,
+	  Cantera/src/CVodesIntegrator.cpp,
+	  Cantera/src/zeroD/FlowReactor.h, Cantera/src/zeroD/ReactorBase.h,
+	  Cantera/src/zeroD/ReactorNet.cpp, Cantera/src/zeroD/ReactorNet.h,
+	  config/configure, config/configure.in,
+	  tools/templates/f77/demo.mak.in, tools/templates/f90/demo.mak.in:
+	  misc minor fixes
+
+2005-11-22 17:19  dggoodwin
+
+	* Cantera/python/Cantera/ThermoPhase.py: fixed error in
+	  restoreState
+
+2005-11-22 09:59  dggoodwin
+
+	* Cantera/cxx/demos/kinetics1.cpp, Cantera/src/FalloffFactory.cpp,
+	  Cantera/src/FalloffFactory.h, Cantera/src/GasKinetics.cpp,
+	  Cantera/src/Integrator.h, Cantera/src/KineticsFactory.cpp,
+	  Cantera/src/KineticsFactory.h,
+	  Cantera/src/SpeciesThermoFactory.cpp,
+	  Cantera/src/SpeciesThermoFactory.h,
+	  Cantera/src/SpeciesThermoMgr.h, Cantera/src/State.cpp,
+	  Cantera/src/StoichManager.h, Cantera/src/ThermoFactory.cpp,
+	  Cantera/src/ThermoFactory.h, Cantera/src/ThirdBodyMgr.h,
+	  Cantera/src/misc.cpp, Cantera/src/units.h,
+	  Cantera/src/utilities.h, Cantera/src/vec_functions.h,
+	  Cantera/src/transport/TransportFactory.cpp,
+	  Cantera/src/transport/TransportFactory.h,
+	  test_problems/silane_equil/Makefile.in,
+	  test_problems/surfkin/Makefile.in, tools/src/Makefile.in,
+	  tools/src/ctlibsample.mak.in, tools/src/sample.mak.in,
+	  tools/src/sample_f90.mak.in, tools/testtools/Makefile.in: changed
+	  some variable names to eliminate leading ddouble (and some
+	  single) underscores
+
+2005-11-22 05:23  dggoodwin
+
+	* win32/vc7/cantera/cantera.vcproj: updated
+
+2005-11-18 00:21  dggoodwin
+
+	* ext/tpx/Sub.cpp: added check in set_xy for density == Undef but T
+	  != Undef. Failure to check for this condition had resulted in
+	  convergence to the wrong root for Hydrogen.
+
+2005-11-14 10:49  hkmoffa
+
+	* Cantera/src/thermo/: Makefile.in, MolalityVPSSTP.cpp,
+	  MolalityVPSSTP.h, StoichSubstanceSSTP.h, VPStandardStateTP.cpp,
+	  VPStandardStateTP.h: Added a few more files to handle liquid
+	  electrochemistry thermo.
+
+2005-11-14 10:47  hkmoffa
+
+	* Cantera/src/: ThermoPhase.h, ThermoPhase.cpp: Added two sets of
+	  functions   One, InitThermoFromXML() and InitThermoFromFile()
+	  initializes ThermoPhase objects from XML data trees.	 The second
+	  set, which is incomplete, works to create a duplication
+	  capability for ThermoPhase objects, using the function,
+	  duplMyselfAsThermoPhase().
+
+2005-11-14 10:41  hkmoffa
+
+	* Cantera/src/: Phase.cpp, Phase.h: Addec copy constructor and
+	  assignment operator.
+
+2005-11-13 03:15  dggoodwin
+
+	* Cantera/src/: CVodesIntegrator.cpp, InterfaceKinetics.cpp,
+	  misc.cpp: removed some diagnostic output
+
+2005-11-10 07:06  dggoodwin
+
+	* Cantera/src/: CVode.cpp, CVodesIntegrator.cpp,
+	  CVodesIntegrator.h, ChemEquil.cpp, EdgeKinetics.cpp,
+	  FalloffMgr.h, Func1.h, FuncEval.h, GRI_30_Kinetics.cpp,
+	  ImplicitChem.cpp, ImplicitChem.h, ImplicitSurfChem.cpp,
+	  ImplicitSurfChem.h, Integrator.h, Makefile.in, MultiPhase.cpp,
+	  NasaPoly1.h, NasaThermo.h, ODE_integrators.cpp, ReactionPath.cpp,
+	  ReactionPath.h, SpeciesThermoFactory.cpp, ThermoPhase.cpp,
+	  ctvector.h, misc.cpp, transport/SolidTransport.cpp,
+	  transport/TransportBase.h: support for sensitivity analysis
+
+2005-11-10 07:02  dggoodwin
+
+	* Cantera/src/zeroD/: FlowReactor.h, FlowReactor.cpp: initial
+	  import
+
+2005-10-31 08:29  dggoodwin
+
+	* Cantera/src/SimpleThermo.h: corrected bug that caused problems if
+	  this SpeciesThermo manager was used in conjunction with another
+	  one (e.g. NASA).
+
+2005-10-31 08:06  hkmoffa
+
+	* Cantera/src/ChemEquil.cpp: Eliminated 2 unused variables.
+
+2005-10-28 21:22  dggoodwin
+
+	* Cantera/matlab/cantera/gaussian.m: initial import
+
+2005-10-28 16:16  hkmoffa
+
+	* Cantera/src/: GeneralSpeciesThermo.cpp,
+	  SpeciesThermoInterpType.h, thermo/SingleSpeciesTP.cpp: Added a
+	  virtual destructor for SpeciesThermoInterpType.h. Without it,
+	  there is a memory leak.
+
 2005-10-24 15:13  hkmoffa
 
 	* Cantera/src/thermo/SingleSpeciesTP.cpp: Forgot the member

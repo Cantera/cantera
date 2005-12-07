@@ -241,21 +241,30 @@ use_sundials=0
 sundials_inc=
 CVODE_LIBS='-lcvode'
 
+if test "$USE_SUNDIALS" = "default"; then
 ldsave=$LDFLAGS
 LDFLAGS='-L'$SUNDIALS_HOME/lib' '$ldsave
+fi
 
 AC_CHECK_LIB(sundials_cvodes, CVodeCreate, [use_sundials=1], [use_sundials=0],\
 [-lsundials_shared -lsundials_nvecserial -lm])
 
-LDFLAGS=$ldsave
-
 if test "x$USE_SUNDIALS" = "xy"; then
-if test use_sundials=1; then
+use_sundials=1
+fi
+
+if test ${use_sundials} = 1; then
 AC_DEFINE(HAS_SUNDIALS)
+echo "using CVODES from SUNDIALS... Sensitivity analysis enabled."
 CVODE_LIBS='-lsundials_cvodes -lsundials_shared -lsundials_nvecserial' 
 sundials_include='-I'${SUNDIALS_HOME}/include
 fi
+
+if test ${use_sundials} = 0; then
+echo "using CVODE... Sensitivity analysis disabled."
+echo "-> To enable sensitivity analysis, install the SUNDIALS package with CVODES."
 fi
+
 AC_SUBST(use_sundials)
 AC_SUBST(CVODE_LIBS)
 AC_SUBST(sundials_include)
@@ -775,12 +784,8 @@ AC_SUBST(F90)
 AC_SUBST(F90FLAGS)
 AC_SUBST(F90BUILDFLAGS)
 
-
-
 AC_OBJEXT
 AC_EXEEXT
-
-echo "objext = " $OBJEXT
 
 AC_SUBST(precompile_headers)
 AC_SUBST(CXX_DEPENDS)

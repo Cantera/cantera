@@ -227,16 +227,18 @@ ENABLE_TPX='y'
 # CVODE comes with Cantera, but it is possible to use the latest
 # version as well, which now supports sensitivity analysis (CVODES).
 # CVODES is a part of the 'sundials' package from Lawrence Livermore
-# National Laboratory. Due to its size, sundials is not distributed
-# with Cantera, but it is free software that may be downloaded and
-# installed separately. If you have sundials, set USE_SUNDIALS to 'y',
-# and set SUNDIALS_HOME to the directory where you have installed
-# sundials. Note that sensitivity analysis with Cantera requires use
-# of sundials.
+# National Laboratory. Sundials is not distributed with Cantera, but
+# it is free software that may be downloaded and installed
+# separately. If you have sundials, set SUNDIALS_HOME to the directory
+# where it is installed, or else put the sundials libraries on the
+# library path.  If you leave USE_SUNDIALS = 'default', then it will
+# be used if you have it, and if not the older CVODE will be used. Or
+# set USE_SUNDIALS to 'y' or 'n' to force using it or not.  Note that
+# sensitivity analysis with Cantera requires use of sundials.
 #
 # See: http://www.llnl.gov/CASC/sundials
 #
-USE_SUNDIALS='y'
+USE_SUNDIALS='default'
 SUNDIALS_HOME='/usr/local/sundials'
 
 

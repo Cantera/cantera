@@ -70,6 +70,9 @@ namespace Cantera {
          */
         const int domainIndex() { return m_index; }
 
+        /**
+         * True if the domain is a connector domain.
+         */
         bool isConnector() { return (m_type >= cConnectorType); }
 
         /**

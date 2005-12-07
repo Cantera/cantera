@@ -198,10 +198,11 @@ namespace Cantera {
             dt = (u - intEnergy_mass())/cv_mass();
             if (dt > 100.0) dt = 100.0;
             else if (dt < -100.0) dt = -100.0;
-            setTemperature(temperature() + 0.5*dt);
             if (fabs(dt) < tol) {
+                setTemperature(temperature() + dt);
                 return;
             }
+            setTemperature(temperature() + 0.5*dt);
         }
         throw CanteraError("setState_UV",
             "no convergence. dt = " + fp2str(dt)+"\n"
@@ -217,10 +218,11 @@ namespace Cantera {
             dt = (s - entropy_mass())*temperature()/cp_mass();
             if (dt > 100.0) dt = 100.0;
             else if (dt < -100.0) dt = -100.0; 
-            setState_TP(temperature() + dt, p);
             if (fabs(dt) < tol) {
+                setState_TP(temperature() + dt, p);
                 return;
             }
+            setState_TP(temperature() + 0.5*dt, p);
         }
         throw CanteraError("setState_SP","no convergence. dt = " + fp2str(dt));
     }
@@ -233,10 +235,11 @@ namespace Cantera {
             dt = (s - entropy_mass())*temperature()/cv_mass();
             if (dt > 100.0) dt = 100.0;
             else if (dt < -100.0) dt = -100.0; 
-            setTemperature(temperature() + dt);
             if (fabs(dt) < tol) {
+                setTemperature(temperature() + dt);
                 return;
             }
+            setTemperature(temperature() + 0.5*dt);
         }
         throw CanteraError("setState_SV","no convergence. dt = " + fp2str(dt));
     }

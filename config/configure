@@ -1584,8 +1584,10 @@ use_sundials=0
 sundials_inc=
 CVODE_LIBS='-lcvode'
 
+if test "$USE_SUNDIALS" = "default"; then
 ldsave=$LDFLAGS
 LDFLAGS='-L'$SUNDIALS_HOME/lib' '$ldsave
+fi
 
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -2518,18 +2520,25 @@ else
 fi
 
 
-LDFLAGS=$ldsave
-
 if test "x$USE_SUNDIALS" = "xy"; then
-if test use_sundials=1; then
+use_sundials=1
+fi
+
+if test ${use_sundials} = 1; then
 cat >>confdefs.h <<\_ACEOF
 #define HAS_SUNDIALS 1
 _ACEOF
 
+echo "using CVODES from SUNDIALS... Sensitivity analysis enabled."
 CVODE_LIBS='-lsundials_cvodes -lsundials_shared -lsundials_nvecserial'
 sundials_include='-I'${SUNDIALS_HOME}/include
 fi
+
+if test ${use_sundials} = 0; then
+echo "using CVODE... Sensitivity analysis disabled."
+echo "-> To enable sensitivity analysis, install the SUNDIALS package with CVODES."
 fi
+
 
 
 
@@ -4202,7 +4211,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:4205:" \
+echo "$as_me:4214:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -4379,7 +4388,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:4382: \"$ac_link\") >&5
+(eval echo $as_me:4391: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4459,7 +4468,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:4462: \"$ac_link\") >&5
+(eval echo $as_me:4471: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4779,10 +4788,6 @@ F90BUILDFLAGS=${f90buildopts}' '${savef90flags}
 
 
 
-
-
-
-echo "objext = " $OBJEXT
 
 
 

@@ -166,7 +166,7 @@ namespace CanteraZeroD {
         mix.setTemperature(temp);
 
         if (m_energy) {
-            m_thermo->setState_UV(u/mass,m_vol/mass); 
+            m_thermo->setState_UV(u/mass,m_vol/mass,1.0e-4); 
             temp = mix.temperature(); //mix.setTemperature(temp);
         }
         //m_state[0] = temp;
