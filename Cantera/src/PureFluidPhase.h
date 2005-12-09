@@ -16,7 +16,7 @@
 
 #include "ThermoPhase.h"
 
-#ifdef INCL_PURE_FLUIDS
+#ifdef WITH_PURE_FLUIDS
 
 #include "mix_defs.h"
 

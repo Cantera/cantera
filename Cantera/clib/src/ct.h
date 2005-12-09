@@ -83,7 +83,6 @@ extern "C" {
     int DLL_IMPORT th_equil(int n, char* XY, int solver,
         double rtol, int maxsteps, int maxiter, int loglevel);
     
-#ifdef INCL_PURE_FLUIDS
     double DLL_IMPORT th_critTemperature(int n);
     double DLL_IMPORT th_critPressure(int n);
     double DLL_IMPORT th_critDensity(int n);
@@ -92,7 +91,6 @@ extern "C" {
     double DLL_IMPORT th_satPressure(int n, double t);
     int DLL_IMPORT th_setState_Psat(int n, double p, double x);
     int DLL_IMPORT th_setState_Tsat(int n, double t, double x);
-#endif
 
     int DLL_IMPORT newKineticsFromXML(int mxml, int iphase, 
         int neighbor1=-1, int neighbor2=-1, int neighbor3=-1,

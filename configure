@@ -139,7 +139,7 @@ F90=${F90:="default"}
 # these compilers will be added automatically, and you do not need to
 # specify them here.  Otherwise, add any required compiler-specific
 # flags here.
-F90FLAGS=${F90FLAGS:='-O3 -g'}
+F90FLAGS=${F90FLAGS:='-O0 -g'}
 
 
 #----------------------------------------------------------------------
@@ -186,7 +186,7 @@ WITH_PURE_FLUIDS='y'
 
 # Enable expanded electrochemistry capabilities, include thermo
 # models for electrolyte solutions
-WITH_ELECTROLYTES='y'
+WITH_ELECTROLYTES='n'
 ######################################################################
 # if set to 'y', the ck2cti program that converts Chemkin input files
 # to Cantera format will be built. If you don't use Chemkin format
@@ -214,10 +214,6 @@ ENABLE_SOLVERS='y'
 # reaction path analysis
 ENABLE_RXNPATH='y'         
 
-# non-ideal pure substance models for a few fluids imported from the
-# 'TPX' package. (http://adam.caltech.edu/software/tpx)
-ENABLE_TPX='y'     
-		
 #-----------------------------------------------------------------
 #         CVODE / CVODES
 #-----------------------------------------------------------------
@@ -284,7 +280,7 @@ CXX=${CXX:=g++}
 CC=${CC:=gcc}
 
 # C++ compiler flags
-CXXFLAGS=${CXXFLAGS:="-O3 -Wall"}
+CXXFLAGS=${CXXFLAGS:="-O0 -Wall"}
 
 # the C++ flags required for linking. Uncomment if additional flags
 # need to be passed to the linker.

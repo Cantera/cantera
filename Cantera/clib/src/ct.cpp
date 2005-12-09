@@ -34,7 +34,7 @@ inline XML_Node* _xml(int i) {
 }
 
 
-#ifdef INCL_PURE_FLUID
+#ifdef WITH_PURE_FLUIDS
 static PureFluidPhase* purefluid(int n) {
     try {
         ThermoPhase* tp = th(n);
@@ -49,9 +49,33 @@ static PureFluidPhase* purefluid(int n) {
         return 0;
     }
 }
+
+static double pfprop(int n, int i, double v=0.0, double x=0.0) {
+    PureFluidPhase* p = purefluid(n);
+    if (p) {
+        switch(i) {
+        case 0: return p->critTemperature();
+        case 1: return p->critPressure();
+        case 2: return p->critDensity();
+        case 3: return p->vaporFraction();
+        case 4: return p->satTemperature(v);
+        case 5: return p->satPressure(v);
+        case 6: p->setState_Psat(v, x); return 0.0;
+        case 7: p->setState_Tsat(v, x); return 0.0;
+        }
+    }
+    else 
+        return DERR;
+}
+        
+
 #else
+
 static ThermoPhase* purefluid(int n) {
     return th(n);
+}
+static double pfprop(int n, int i, double v=0.0, double x=0.0) {
+    return DERR;
 }
 #endif
 
@@ -559,9 +583,10 @@ extern "C" {
     }
 
     //-------------- pure fluids ---------------//
+#ifdef WITH_PURE_FLUIDS
 
     double DLL_EXPORT th_critTemperature(int n) {
-        return purefluid(n)->critTemperature();
+        return pfprop(n,0);
     }
 
     double DLL_EXPORT th_critPressure(int n) {
@@ -605,6 +630,40 @@ extern "C" {
         }
         catch (CanteraError) { return -1; }
     }
+#else
+
+    double DLL_EXPORT th_critTemperature(int n) {
+        return DERR;
+    }
+
+    double DLL_EXPORT th_critPressure(int n) {
+        return DERR;
+    }
+
+    double DLL_EXPORT th_critDensity(int n) {
+        return DERR;
+    }
+
+    double DLL_EXPORT th_vaporFraction(int n) {
+        return DERR;
+    }
+
+    double DLL_EXPORT th_satTemperature(int n, double p) {
+        return DERR;
+    }
+
+    double DLL_EXPORT th_satPressure(int n, double t) {
+        return DERR;
+    }
+
+    int DLL_EXPORT th_setState_Psat(int n, double p, double x) {
+        return DERR;
+    }
+
+    int DLL_EXPORT th_setState_Tsat(int n, double t, double x) {
+        return DERR;
+    }
+#endif
 
 
     

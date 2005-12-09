@@ -6,7 +6,10 @@
 // Copyright 2001  California Institute of Technology
 //
 // $Log$
-// Revision 1.19  2005-07-28 23:02:44  hkmoffa
+// Revision 1.20  2005-12-09 17:49:34  dggoodwin
+// removed critical and saturation properties from ThermoPhase
+//
+// Revision 1.19  2005/07/28 23:02:44  hkmoffa
 // Got rid of one warning message.
 //
 // Revision 1.18  2005/07/26 03:56:35  dggoodwin
@@ -181,10 +184,6 @@ namespace ckr {
             throw CK_SyntaxError(log, 
                 "error reading Tmin, Tmid, or Tmax");
         }
-        //if (tmin > tmid || tmid > tmax) {
-        //    throw CK_SyntaxError(log, 
-        //        "condition Tmin <= Tmid <= Tmax violated");
-        //}
     }
 
     static void getSpecies(string s, 
@@ -240,65 +239,6 @@ namespace ckr {
             }
         }
     }
-
-
-    /**
-     *  given a string specifying either the reactant or product side of a
-     *  reaction equation, construct a list of RxnSpecies objects
-     *  containing the species symbols and stoichiometric coefficients.
-     *  @todo allow non-integral stoichiometric coefficients
-     */
-    static void getSpecies_old(string s, 
-        int n, vector<RxnSpecies>& species, bool debug, ostream& log) 
-    {
-        char* begin = new char[n+1];
-        copy(s.begin(), s.end(), begin);
-        begin[n] = '\0';
-        char* end = begin + n;
-        char* p = begin;
-        bool inplus = true;
-        double m;
-        species.clear();
-        vector<string> syms;
-        vector_fp coeffs;
-        for (; p != end; p++) {
-
-            // if the previous character was a '+' but this one is not,
-            // then the '+' must be a '+' between species names, not part
-            // of a name (e.g. O++). Replace it with a space.
-            if (*p != '+' && inplus) {
-                if (p > begin) *(p - 1) = ' ';
-
-                // if the current character is a number, it must be a
-                // coefficient.
-                if (m = atof(p), m > 0) {
-                    *p = ' ';
-                    coeffs.push_back(m);
-                }
-                // otherwise, the coefficient is 1.0
-                else
-                    coeffs.push_back(1.0);
-
-                // we're not processing a '+' string
-                inplus = false;
-            }
-            else if (*p == '+')
-                inplus = true;
-        }
-        string str = string(begin);
-        getTokens(str, n, syms);
-        RxnSpecies ss;
-        unsigned int j;
-        for (j = 0; j < syms.size(); j++) {
-            ss.name = syms[j];
-            ss.number = coeffs[j];
-            species.push_back(ss);
-            if (debug) {
-                log << ss.number << "  " << ss.name << endl;
-            }
-        }
-    }
-
 
 
     /**

@@ -6,6 +6,7 @@
 #endif
 
 #include "ThermoPhase.h"
+#include "PureFluidPhase.h"
 #include <stdio.h>
 #include "mix_defs.h"
 
@@ -31,13 +32,16 @@ namespace Cantera {
         s += p;
         sprintf(p, "  mean mol. weight    %12.6g  amu\n", th.meanMolecularWeight());
         s += p;
+#ifdef WITH_PURE_FLUIDS
         if (th.eosType() == cPureFluid) {
+            double xx = ((PureFluidPhase*)(&th))->vaporFraction();
             // if (th.temperature() < th.critTemperature()) {
-                sprintf(p, "    vapor fraction    %12.6g \n", 
-                    th.vaporFraction());
+            sprintf(p, "    vapor fraction    %12.6g \n", 
+                xx); //th.vaporFraction());
                 s += p;
                 //}
         }
+#endif
         doublereal phi = th.electricPotential();
         if (phi != 0.0) {
             sprintf(p, "         potential    %12.6g  V\n", phi);

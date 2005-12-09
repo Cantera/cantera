@@ -306,33 +306,6 @@ class ThermoPhase(Phase):
                               rtol, maxsteps, maxiter, loglevel)
         
 
-    def critTemperature(self):
-        """Critical temperature [K]."""
-        return _cantera.thermo_getfp(self._phase_id,50)
-
-    def critPressure(self):
-        """Critical pressure [Pa]."""
-        return _cantera.thermo_getfp(self._phase_id,51)
-
-    def critDensity(self):
-        """Critical density [kg/m3]."""
-        return _cantera.thermo_getfp(self._phase_id,52)
-
-    def vaporFraction(self):
-        """Vapor fraction."""
-        return _cantera.thermo_getfp(self._phase_id,53)
-
-    def setState_Psat(self, p, vaporFraction):
-        """Set the state of a saturated liquid/vapor mixture by
-        specifying the pressure and vapor fraction."""
-        _cantera.thermo_setfp(self._phase_id,8, p, vaporFraction)
-
-    def setState_Tsat(self, t, vaporFraction):
-        """Set the state of a saturated liquid/vapor mixture by
-        specifying the temperature and vapor fraction."""        
-        _cantera.thermo_setfp(self._phase_id,7, t, vaporFraction)        
-        
-
     def saveState(self):
         """Return an array with state information that can later be
         used to restore the state."""

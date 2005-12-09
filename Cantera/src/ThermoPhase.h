@@ -757,6 +757,8 @@ namespace Cantera {
         }
 
         //@}
+
+        /*
         //---------------------------------------------------------
         /// @name Critical State Properties.
         /// These methods are only implemented by some subclasses, and may 
@@ -805,6 +807,7 @@ namespace Cantera {
         virtual void setState_Psat(doublereal p, doublereal x) {
             err("setState_sat"); 
         }
+        */
 
         //@}
 
