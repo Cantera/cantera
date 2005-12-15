@@ -139,6 +139,10 @@ namespace Cantera {
         for (i = 0; i < m_ii; i++) {
             kc[i] = exp(-rkc[i]*rrt + m_dn[i]*logStandConc);
         }
+
+        // force an update of T-dependent properties, so that m_rkcn will
+        // be updated before it is used next.
+        m_kdata->m_temp = 0.0;
     }
 
     /**
@@ -440,7 +444,7 @@ namespace Cantera {
 	   */
 	  const vector_fp& m_rkc = m_kdata->m_rkcn;
 	  for (int i = 0; i < m_ii; i++) {
-	    krev[i] *= m_rkc[i];
+              krev[i] *= m_rkc[i];
 	  }
 	}
     }
