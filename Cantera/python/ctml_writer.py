@@ -423,7 +423,8 @@ class species:
                  note = '',
                  thermo = None,
                  transport = None,
-                 charge = -999):
+                 charge = -999,
+                 size = 1.0):
         self._name = name
         self._atoms = getAtomicComp(atoms)
 
@@ -444,7 +445,7 @@ class species:
                     raise CTI_Error('specified charge inconsistent with number of electrons')
             else:
                 self._charge = chrg
-                #        self.type = SPECIES
+        self._size = size
         
         global _species
         global _enames
@@ -488,6 +489,8 @@ class species:
             s.addChild("note",self._comment)
         if self._charge <> -999:
             s.addChild("charge",self._charge)
+        if self._size <> 1.0:
+            s.addChild("size",self._size)            
         if self._thermo:
             t = s.addChild("thermo")
             if type(self._thermo) == types.InstanceType:
