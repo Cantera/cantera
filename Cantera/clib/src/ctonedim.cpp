@@ -617,6 +617,7 @@ extern "C" {
     int DLL_EXPORT sim1D_setFixedTemperature(int i, double temp) {
         try {
             _sim1D(i)->setFixedTemperature(temp);
+            return 0;
         }
         catch (CanteraError) { return -1; }
     }
