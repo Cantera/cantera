@@ -64,8 +64,7 @@ static double pfprop(int n, int i, double v=0.0, double x=0.0) {
         case 7: p->setState_Tsat(v, x); return 0.0;
         }
     }
-    else 
-        return DERR;
+    return DERR;
 }
         
 
