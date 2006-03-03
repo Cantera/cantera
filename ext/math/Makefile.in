@@ -20,7 +20,7 @@ F_FLAGS = @FFLAGS@ @F77FLAGS@
 OBJS = \
 mach.o \
 ddaspk.o \
-dgbefa.o \
+dgbfa.o \
 dgbsl.o \
 dgefa.o \
 dgesl.o \
