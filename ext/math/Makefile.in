@@ -15,7 +15,7 @@ LIB = @buildlib@/libctmath.a
 all: $(LIB)
 
 
-F_FLAGS = @FFLAGS@ @F77FLAGS@
+F_FLAGS = @FFLAGS@ 
 
 OBJS = \
 mach.o \
