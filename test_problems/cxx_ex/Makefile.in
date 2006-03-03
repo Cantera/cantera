@@ -5,7 +5,7 @@
 #
 #
 all:
-
+	(cd ../../examples/cxx ; gmake )
 test:
 	./runtest
 
