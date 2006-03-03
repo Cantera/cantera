@@ -53,8 +53,8 @@ namespace Cantera {
             mu[0] = gibbs_mole();
         }
 
-        virtual doublereal isothermalCompressibility();
-        virtual doublereal thermalExpansionCoeff();
+        virtual doublereal isothermalCompressibility() const;
+        virtual doublereal thermalExpansionCoeff() const;
 
         tpx::Substance& TPX_Substance();
 

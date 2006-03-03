@@ -142,11 +142,11 @@ namespace Cantera {
     }
 
 
-    doublereal PureFluidPhase::isothermalCompressibility() {
+    doublereal PureFluidPhase::isothermalCompressibility() const {
         return m_sub->isothermalCompressibility();
     }
 
-    doublereal PureFluidPhase::thermalExpansionCoeff() {
+    doublereal PureFluidPhase::thermalExpansionCoeff() const {
         return m_sub->thermalExpansionCoeff();
     }
 
