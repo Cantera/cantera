@@ -169,8 +169,12 @@ namespace tpx {
     double HFC134a::Vcrit() {return 1.0/511.95;}
     double HFC134a::Tmin() {return Tmn;}
     double HFC134a::Tmax() {return Tmx;}
-    char * HFC134a::name() {return "HFC-134a";}
-    char * HFC134a::formula() {return "C2F4H2";}
+    char * HFC134a::name() {
+      return (char *) m_name.c_str();
+    }
+    char * HFC134a::formula() {
+      return (char *) m_formula.c_str();
+    }
     double HFC134a::MolWt() {return M;}
 
 }

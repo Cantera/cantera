@@ -204,8 +204,8 @@ double oxygen::ldens(){
  double oxygen::Vcrit() {return 1.0/Roc;}
  double oxygen::Tmin() {return Tmn;}
  double oxygen::Tmax() {return Tmx;}
- char * oxygen::name() {return "oxygen";}
- char * oxygen::formula() {return "O2";}
+ char * oxygen::name() {return (char *) m_name.c_str();}
+ char * oxygen::formula() {return (char *) m_formula.c_str();}
  double oxygen::MolWt() {return M;}
 
 }

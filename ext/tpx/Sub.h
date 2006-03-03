@@ -200,6 +200,8 @@ namespace tpx {
 	int Err;
         double m_energy_offset;
         double m_entropy_offset;
+        string m_name;
+        string m_formula;
 
         //	virtual double Xm(int k) { return 1.0;}
         //virtual int Species() { return 1;}

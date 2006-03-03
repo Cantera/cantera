@@ -7,7 +7,10 @@ namespace tpx {
 
 class hydrogen : public Substance{
 public:
-	hydrogen(){}
+	hydrogen(){
+          m_name = "hydrogen";
+          m_formula = "H2";
+        }
         virtual ~hydrogen() {}
 
 	double MolWt();

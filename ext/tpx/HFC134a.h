@@ -6,7 +6,10 @@
 namespace tpx {
     class HFC134a : public Substance {
     public:
-	HFC134a(){}
+	HFC134a(){
+          m_name = "HFC-134a";
+          m_formula = "C2F4H2";
+        }
         ~HFC134a(){}
 
 	double MolWt();

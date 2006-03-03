@@ -7,7 +7,10 @@ namespace tpx {
 
     class methane : public Substance{
     public:
-        methane(){}
+        methane() {
+          m_name = "methane";
+          m_formula = "CH4";
+        }
         virtual ~methane() {}
 
         double MolWt();

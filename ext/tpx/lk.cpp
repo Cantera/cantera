@@ -130,7 +130,11 @@ namespace tpx {
     double leekesler::Vcrit() {return 0.2901*8314.3*Tcr/(Pcr*Mw);}
     double leekesler::Tmin() {return -100.0;}
     double leekesler::Tmax() {return 10000.0;}
-    char * leekesler::name() {return "Lee-Kesler";}
-    char * leekesler::formula() {return "---";}
+    char * leekesler::name() {
+        return (char *) m_name.c_str();
+    }
+    char * leekesler::formula() {
+        return (char *) m_formula.c_str();
+    }
     double leekesler::MolWt() {return Mw;}
 }

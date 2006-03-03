@@ -215,7 +215,7 @@ namespace tpx {
     double nitrogen::Vcrit() {return 1.0/Roc;}
     double nitrogen::Tmin() {return Tmn;}
     double nitrogen::Tmax() {return Tmx;}
-    char * nitrogen::name() {return "nitrogen";}
-    char * nitrogen::formula() {return "N2";}
+    char * nitrogen::name() {return (char *) m_name.c_str();}
+    char * nitrogen::formula() {return (char *) m_formula.c_str();}
     double nitrogen::MolWt() {return M;}    
 }

@@ -351,8 +351,12 @@ double CarbonDioxide::Pcrit() {return Pc;}
 double CarbonDioxide::Vcrit() {return 1.0/Roc;}
 double CarbonDioxide::Tmin() {return Tmn;}
 double CarbonDioxide::Tmax() {return Tmx;}
-char * CarbonDioxide::name() {return "CarbonDioxide";}
-char * CarbonDioxide::formula() {return "CO2";}
+char * CarbonDioxide::name() {
+ return (char *) m_name.c_str() ;
+}
+char * CarbonDioxide::formula() {
+  return (char *) m_formula.c_str();
+}
 double CarbonDioxide::MolWt() {return M;}
 
 }

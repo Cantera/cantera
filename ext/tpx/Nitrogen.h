@@ -8,7 +8,10 @@ namespace tpx {
 
     class nitrogen : public Substance{
     public:
-        nitrogen() {}
+        nitrogen() { 
+         m_name = "nitrogen";
+         m_formula = "N2";
+        }	
         virtual ~nitrogen() {}
 
         double MolWt();

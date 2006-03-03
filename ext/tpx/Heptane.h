@@ -18,7 +18,10 @@ namespace tpx {
 
 class Heptane : public Substance{
 public:
-    Heptane(){}
+    Heptane(){
+      m_name = "Heptane";
+      m_formula = "C7H16";
+    }
         virtual ~Heptane() {}
 
     double MolWt();

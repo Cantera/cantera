@@ -251,8 +251,12 @@ return exp(result)*Pt;
  double hydrogen::Vcrit() {return 1.0/Roc;}
  double hydrogen::Tmin() {return Tmn;}
  double hydrogen::Tmax() {return Tmx;}
- char * hydrogen::name() {return "hydrogen";}
- char * hydrogen::formula() {return "H2";}
+ char * hydrogen::name() {
+   return (char *) m_name.c_str();
+ }
+ char * hydrogen::formula() {
+   return (char *) m_formula.c_str();
+ }
  double hydrogen::MolWt() {return M;}
 
 }

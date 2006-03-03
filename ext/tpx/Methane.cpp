@@ -205,8 +205,12 @@ return result;
  double methane::Vcrit() {return 1.0/Roc;}
  double methane::Tmin() {return Tmn;}
  double methane::Tmax() {return Tmx;}
- char * methane::name() {return "methane";}
- char * methane::formula() {return "CH4";}
+ char * methane::name() {
+    return (char *) m_name.c_str();
+ }
+ char * methane::formula() {
+    return (char *) m_formula.c_str();
+ }
  double methane::MolWt() {return M;}
 
 }

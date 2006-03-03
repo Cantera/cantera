@@ -17,8 +17,11 @@ namespace tpx {
 
 class CarbonDioxide : public Substance{
 public:
-    CarbonDioxide(){}
-        virtual ~CarbonDioxide() {}
+    CarbonDioxide() {
+      m_name="CarbonDioxide";
+      m_formula="CO2";
+     }
+    virtual ~CarbonDioxide() {}
 
     double MolWt();
     double Tcrit();

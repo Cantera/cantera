@@ -7,7 +7,10 @@ namespace tpx {
 
 class water : public Substance{
 public:
-	water() {}
+	water() {
+          m_name = "water";
+          m_formula = "H2O";
+         }
         ~water() {}
 
 	double MolWt();

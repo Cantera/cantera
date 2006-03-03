@@ -14,6 +14,8 @@ namespace tpx {
 
 	RedlichKwong() : Substance() {
             setParameters(1.0, 1.0, 1.0);
+            m_name = "Redlich-Kwong";
+            m_formula = "-";
         }
 
         void setParameters(double Tc, double Pc, double MolWt) {
@@ -38,8 +40,8 @@ namespace tpx {
 	double Vcrit() {return 0.3592725*GasConstant*T/(m_mw*m_pcrit);}
 	double Tmin() {return 0.0;}
 	double Tmax() {return 1.0e10;}
-	char * name() {return "Redlich-Kwong";}
-	char * formula() {return "-";}
+	char * name() {return (char *) m_name.c_str() ; }
+	char * formula() {return (char *) m_formula.c_str() ; }
 	
 	double Pp();
 	double up();

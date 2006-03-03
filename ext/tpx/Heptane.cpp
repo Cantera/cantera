@@ -305,7 +305,11 @@ double Heptane::Pcrit() {return Pc;}
 double Heptane::Vcrit() {return 1.0/Roc;}
 double Heptane::Tmin() {return Tmn;}
 double Heptane::Tmax() {return Tmx;}
-char * Heptane::name() {return "Heptane";}
-char * Heptane::formula() {return "C7H16";}
+char * Heptane::name() {
+return (char *) m_name.c_str();
+}
+char * Heptane::formula() {
+return (char *) m_formula.c_str();
+}
 double Heptane::MolWt() {return M;}
 }
