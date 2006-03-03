@@ -62,7 +62,10 @@ cproduct = pow(c[ih2],order_H2) * pow(c[ioh], order_OH) * pow(c[io2], order_O2)
 print '\nFwd rate of progress, kf*concentration product, difference:'
 r1 = fwd_rop[1]
 r2 = cproduct*kf[1]
-print r1, r2, (r1 - r2)/(r1 + r2)
+diff12 = (r1 - r2)/(r1 + r2)
+if (abs(diff12) < 1.0E-10) :
+    diff12 = 0.0 
+print r1, r2, diff12
 print
 print 'Reactant stoichiometric coefficients:'
 print gas.reactantStoichCoeffs()

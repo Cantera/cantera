@@ -1,6 +1,11 @@
 #!/bin/sh
 #
 #
+if test "$#" -ge "2" ; then
+  echo "runtest ERROR: program requires one argument."
+  echo "        runtest PYTHON_CMD"
+  exit 0
+fi
 
 temp_success="1"
 /bin/rm  -f diamond.csv flame1.csv flame1_blessed_tmp.csv \
@@ -24,12 +29,28 @@ else
   PYTHON_CMDA=$PYTHONHOME/bin/python
 fi
 FIRSTARG=$1
-PYTHON_CMD=${FIRSTARG:=PYTHON_CMDA}
+PYTHON_CMD=${FIRSTARG:=$PYTHON_CMDA}
+
+#
+# Check to see whether the python executable exists in the
+# current user path
+#
+locThere=`which $PYTHON_CMD 2>&1`
+isThere=$?
+if test "$isThere" != "0" ; then
+  echo 'Can not find the python executable: ' $PYTHON_CMD
+  echo ' '
+  echo $locThere
+  exit 1
+fi
+pVersion=`$PYTHON_CMD -V 2>&1`
 
 #echo $PYTHON_CMD
 echo " "
 echo "***************************************************"
 echo "        Testing the Cantera Python Interface       "
+echo "        python executable: " $locThere
+echo "        Python version:    " $pVersion
 echo "***************************************************"
 echo " "
 echo "Testing a flame simulation..."
