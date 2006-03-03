@@ -9,7 +9,7 @@ BLASLIB = @buildlib@/libctblas.a
 SUFFIXES=
 SUFFIXES= .f .o
 
-F_FLAGS = @FFLAGS@ @F77FLAGS@
+F_FLAGS = @FFLAGS@ 
 
 OBJS = \
 dasum.o \
