@@ -58,6 +58,9 @@ clean:
             echo "$(RM) $(LIB)" ; \
           fi)
 	$(RM) *.o *~  .depends
+	(if test -d SunWS_cache ; then \
+           $(RM) -rf SunWS_cache ; \
+         fi )
 
 depends: $(DEPENDS)
 	cat *.d > .depends
