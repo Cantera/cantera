@@ -10,7 +10,7 @@ LAPACKLIB = @buildlib@/libctlapack.a
 
 do_ranlib = @DO_RANLIB@
 
-F_FLAGS = @FFLAGS@ @F77FLAGS@
+F_FLAGS = @FFLAGS@ 
 
 OBJS = \
 dbdsqr.o \
