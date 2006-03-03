@@ -31,6 +31,14 @@ static void printUsage()
 
 }
 
+#ifdef SRCDIRTREE
+#include "ct_defs.h"
+#include "ctml.h"
+#include "GasKinetics.h"
+#include "importCTML.h"
+#include "ThermoPhase.h"
+#include "InterfaceKinetics.h"
+#else
 #include "Cantera.h"
 #include "kernel/ct_defs.h"
 #include "kernel/ctml.h"
@@ -38,6 +46,7 @@ static void printUsage()
 #include "kernel/importCTML.h"
 #include "kernel/ThermoPhase.h"
 #include "kernel/InterfaceKinetics.h"
+#endif
 
 using namespace Cantera;
 
