@@ -1,12 +1,18 @@
-//
-//     Replace this sample main program with your program
-//
-//
-
+/*
+ * $Id$
+ *
+ *  Sample program that solves an implicit problem for surface
+ *  site fractions.
+ */
+#ifdef SRCDIRTREE
+#include "ct_defs.h"
+#include "../silane_equil/IdealGasMix.h"
+#include "Interface.h"
+#else
 #include "Cantera.h"
 #include "IdealGasMix.h"
 #include "Interface.h"
-
+#endif
 using namespace Cantera;
 
 int main() {

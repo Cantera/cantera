@@ -1,11 +1,19 @@
-#ifndef CXX_INTERFACE
-#define CXX_INTERFACE
+/*
+ * $Id$
+ */
+#ifndef CXX_INTERFACE_H
+#define CXX_INTERFACE_H
 
 #include <string>
-
+#ifdef SRCDIRTREE
+#include "SurfPhase.h"
+#include "InterfaceKinetics.h"
+#include "importCTML.h"
+#else
 #include "kernel/SurfPhase.h"
 #include "kernel/InterfaceKinetics.h"
 #include "kernel/importCTML.h"
+#endif
 
 namespace Cantera {
 
