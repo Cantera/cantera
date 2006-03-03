@@ -185,8 +185,8 @@ namespace Cantera {
         void linkNodes(int k1, int k2, int rxn, doublereal value,
             string legend = "");
 
-        void include(string name) { m_include.push_back(name); }
-        void exclude(string name) { m_exclude.push_back(name); }
+        void include(string aaname) { m_include.push_back(aaname); }
+        void exclude(string aaname) { m_exclude.push_back(aaname); }
         void include(vector<string>& names) { 
             int n = static_cast<int>(names.size());
             for (int i = 0; i < n; i++) m_include.push_back(names[i]);
