@@ -8,6 +8,7 @@ echo "***************************************************"
 echo " "
 BINDIR=@buildbin@
 CK2CTI=$BINDIR/ck2cti
+/bin/rm  -f gri30.cti gri30a.cti gri30b.cti
 echo "...Test 1: Converting file gri30.inp..."
 $CK2CTI -i ./gri30.inp -id gri30 -tr ./gri30_tran.dat 
 #
@@ -38,6 +39,7 @@ else
   echo "       test_problems/ck2cti_test/gri30a_blessed.cti"
   echo "########################################################"
 fi
+/bin/rm -f soot.cti soota.cti sootb.cti
 echo 
 echo "...Test 2: Converting file soot.inp..."
 echo "   This tests handling of extensions to the Chemkin input file format"
