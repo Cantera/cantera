@@ -23,13 +23,13 @@ SHARED_CTLIB=0
 OS_IS_DARWIN=0
 OS_IS_WIN=0
 OS_IS_CYGWIN=0
-EXTRA_LINK=""
+EXTRA_LINK=${EXTRA_LINK:=""}
 
 mex_ext=mexglx
 
 case $ac_sys_system in
-  Darwin*)  OS_IS_DARWIN=1; 
-            EXTRA_LINK="-framework Accelerate";
+  Darwin*)  OS_IS_DARWIN=1
+            EXTRA_LINK="-framework Accelerate "$EXTRA_LINK
             CXX_INCLUDES="$CXX_INCLUDES -I/System/Library/Frameworks/Accelerate.framework/Headers"
             mex_ext=mexmac;;
   CYGWIN*) OS_IS_CYGWIN=1; mex_ext=dll;;
@@ -837,7 +837,10 @@ fi
 # Set info about shared libraries.
 AC_SUBST(SO)
 AC_SUBST(LDSHARED)
-
+#
+# This command is used in the the linking statement
+# of the shared libraries used to communicate with python.
+#
 AC_SUBST(EXTRA_LINK)
 
 # SO is the extension of shared libraries `(including the dot!)
