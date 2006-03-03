@@ -179,7 +179,7 @@ namespace Cantera {
         }
     }
 
-    void ReactionPathDiagram::findMajorPaths(doublereal threshold, int lda, 
+    void ReactionPathDiagram::findMajorPaths(doublereal athreshold, int lda, 
         doublereal* a) {
         int nn = nNodes();
         int n, m, k1, k2;
@@ -197,7 +197,7 @@ namespace Cantera {
                 k1 = m_speciesNumber[n];
                 k2 = m_speciesNumber[m];
                 fl = fabs(netFlow(k1,k2));
-                if (fl > threshold*netmax) 
+                if (fl > athreshold*netmax) 
                     a[lda*k1 + k2] = 1;
             }
         }
