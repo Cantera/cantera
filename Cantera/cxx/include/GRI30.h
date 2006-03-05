@@ -24,7 +24,7 @@ namespace Cantera {
         virtual ~GRI30() {}
 
         bool operator!() { return !m_ok;}
-        bool ready() { return m_ok; }
+        bool ready() const { return m_ok; }
         friend ostream& operator<<(ostream& s, GRI30& mix) {
             string r = report(mix, true);
             s << r;
