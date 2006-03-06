@@ -23,7 +23,7 @@ CANTERA_BIN=${CANTERA_BIN:=../../bin}
 # Try to create a default python executable location if no
 # argument to runtest is supplied.
 #
-if test -z $PYTHONHOME ; then
+if test -z "$PYTHONHOME" ; then
   PYTHON_CMDA=python
 else
   PYTHON_CMDA=$PYTHONHOME/bin/python
