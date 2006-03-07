@@ -15,9 +15,8 @@ using namespace std;
 
 namespace Cantera {
 
-
     template<class M>
-    static bool has_key(const M& m, int j) {
+    bool has_key(const M& m, int j) {
         if (m.find(j) != m.end()) return true;
         return false;
     }
