@@ -321,7 +321,7 @@ namespace Cantera {
 
         virtual void getTransientMask(integer* mask){}
 
-        virtual void showSolution(ostream& s, const doublereal* x) {}
+        virtual void showSolution_s(ostream& s, const doublereal* x) {}
 
         doublereal z(int jlocal) const {
             return m_z[jlocal];

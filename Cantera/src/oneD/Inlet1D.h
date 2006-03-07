@@ -128,7 +128,7 @@ namespace Cantera {
             return m_V0;
         }
 
-//         virtual void showSolution(ostream& s, const doublereal* x) {
+//         virtual void showSolution_s(ostream& s, const doublereal* x) {
 //             s << "-------------------  Inlet " << domainIndex() << " ------------------- " << endl;
 //             s << "  mdot:        " << m_mdot << " kg/m^2/s" << "   " << x[0] << endl;
 //             s << "  temperature: " << m_temp << " K" << "    " << x[1] << endl;
@@ -178,7 +178,7 @@ namespace Cantera {
         virtual void eval(int jg, doublereal* xg, doublereal* rg, 
             integer* diagg, doublereal rdt);
         virtual void save(XML_Node& o, doublereal* soln);
-        virtual void restore(XML_Node& dom, doublereal* soln);    
+        virtual void restore(const XML_Node& dom, doublereal* soln);    
 
     protected:
 
@@ -212,7 +212,7 @@ namespace Cantera {
             integer* diagg, doublereal rdt);
 
         virtual void save(XML_Node& o, doublereal* soln);
-        virtual void restore(XML_Node& dom, doublereal* soln);    
+        virtual void restore(const XML_Node& dom, doublereal* soln);    
         virtual void _finalize(const doublereal* x) {}
         virtual void _getInitialSoln(doublereal* x) {
             x[0] = 0.0;
@@ -243,7 +243,7 @@ namespace Cantera {
             integer* diagg, doublereal rdt);
 
         virtual void save(XML_Node& o, doublereal* soln);
-        virtual void restore(XML_Node& dom, doublereal* soln);    
+        virtual void restore(const XML_Node& dom, doublereal* soln);    
         virtual void _finalize(const doublereal* x) {
             ; //m_temp = x[0];
         }
@@ -275,7 +275,7 @@ namespace Cantera {
             integer* diagg, doublereal rdt);
 
         virtual void save(XML_Node& o, doublereal* soln);
-        virtual void restore(XML_Node& dom, doublereal* soln);    
+        virtual void restore(const XML_Node& dom, doublereal* soln);    
         virtual void _finalize(const doublereal* x) {
             ; //m_temp = x[0];
         }
@@ -322,7 +322,7 @@ namespace Cantera {
         virtual void eval(int jg, doublereal* xg, doublereal* rg, 
             integer* diagg, doublereal rdt);
         virtual void save(XML_Node& o, doublereal* soln);
-        virtual void restore(XML_Node& dom, doublereal* soln);    
+        virtual void restore(const XML_Node& dom, doublereal* soln);    
 
     protected:
 
@@ -356,7 +356,7 @@ namespace Cantera {
             integer* diagg, doublereal rdt);
 
         virtual void save(XML_Node& o, doublereal* soln);
-        virtual void restore(XML_Node& dom, doublereal* soln);    
+        virtual void restore(const XML_Node& dom, doublereal* soln);    
 
         virtual void _getInitialSoln(doublereal* x) {
             x[0] = m_temp;
@@ -366,7 +366,7 @@ namespace Cantera {
             ; //m_temp = x[0];
         }
 
-        virtual void showSolution(ostream& s, const doublereal* x) {
+        virtual void showSolution_s(ostream& s, const doublereal* x) {
             s << "-------------------  Surface " << domainIndex() << " ------------------- " << endl;
             s << "  temperature: " << m_temp << " K" << "    " << x[0] << endl;
         }
@@ -416,7 +416,7 @@ namespace Cantera {
             integer* diagg, doublereal rdt);
 
         virtual void save(XML_Node& o, doublereal* soln);
-        virtual void restore(XML_Node& dom, doublereal* soln);    
+        virtual void restore(const XML_Node& dom, doublereal* soln);    
 
         virtual void _getInitialSoln(doublereal* x) {
             x[0] = m_temp;

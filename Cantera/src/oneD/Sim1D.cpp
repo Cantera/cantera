@@ -187,7 +187,7 @@ namespace Cantera {
     void Sim1D::showSolution(ostream& s) {
         for (int n = 0; n < m_nd; n++) {
             if (domain(n).domainType() != cEmptyType)
-                domain(n).showSolution(s, m_x.begin() + start(n));
+                domain(n).showSolution_s(s, m_x.begin() + start(n));
         }
     }
 

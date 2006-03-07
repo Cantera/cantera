@@ -108,7 +108,8 @@ namespace Cantera {
 
         
         /// @todo remove? may be unused
-        virtual void setState(int point, const doublereal* state) {
+        virtual void setState(int point, const doublereal* state,
+                              doublereal *x) {
             setTemperature(point, state[2]);
             int k;
             for (k = 0; k < m_nsp; k++) {

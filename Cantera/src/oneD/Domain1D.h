@@ -380,7 +380,7 @@ namespace Cantera {
 
         virtual void getTransientMask(integer* mask){}
 
-        virtual void showSolution(ostream& s, const doublereal* x) {}
+        virtual void showSolution_s(ostream& s, const doublereal* x) {}
         virtual void showSolution(const doublereal* x);
 
         virtual void restore(const XML_Node& dom, doublereal* soln) {}
