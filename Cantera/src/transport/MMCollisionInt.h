@@ -60,16 +60,16 @@ namespace Cantera {
             doublereal tsmax, int loglevel = 0);
 
         doublereal omega22(double ts, double deltastar);
-        doublereal astar(double tstar, double deltastar);
-        doublereal bstar(double tstar, double deltastar);
-        doublereal cstar(double tstar, double deltastar);
+        doublereal astar(double ts, double deltastar);
+        doublereal bstar(double ts, double deltastar);
+        doublereal cstar(double ts, double deltastar);
 
         void fit(ostream& logfile, int degree, doublereal deltastar,
             doublereal* astar, doublereal* bstar, doublereal* cstar);
 
         void fit_omega22(ostream& logfile, int degree, doublereal deltastar, doublereal* om22);
-        doublereal omega11(double tstar, double deltastar) {
-            return omega22(tstar, deltastar)/astar(tstar, deltastar); 
+        doublereal omega11(double ts, double deltastar) {
+            return omega22(ts, deltastar)/astar(ts, deltastar); 
         }    
 
     private:
