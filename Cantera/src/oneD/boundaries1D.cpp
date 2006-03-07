@@ -253,7 +253,7 @@ namespace Cantera {
     }
              
     void Inlet1D::
-    restore(XML_Node& dom, doublereal* soln) {
+    restore(const XML_Node& dom, doublereal* soln) {
         //map<string, double> x;
         //getFloats(dom, x);
         soln[0] = getFloat(dom, "mdot", "massflowrate"); // x["mdot"];
@@ -312,7 +312,7 @@ namespace Cantera {
     }
 
     void Empty1D::
-    restore(XML_Node& dom, doublereal* soln) {
+    restore(const XML_Node& dom, doublereal* soln) {
         resize(1,1);
     }
 
@@ -392,7 +392,7 @@ namespace Cantera {
     }
 
     void Symm1D::
-    restore(XML_Node& dom, doublereal* soln) {
+    restore(const XML_Node& dom, doublereal* soln) {
         resize(1,1);
     }
 
@@ -487,7 +487,7 @@ namespace Cantera {
     }
 
     void Outlet1D::
-    restore(XML_Node& dom, doublereal* soln) {
+    restore(const XML_Node& dom, doublereal* soln) {
         resize(1,1);
     }
 
@@ -624,7 +624,7 @@ namespace Cantera {
     }
 
     void OutletRes1D::
-    restore(XML_Node& dom, doublereal* soln) {
+    restore(const XML_Node& dom, doublereal* soln) {
         resize(1,1);
     }
 
@@ -703,7 +703,7 @@ namespace Cantera {
     }
 
     void Surf1D::
-    restore(XML_Node& dom, doublereal* soln) {
+    restore(const XML_Node& dom, doublereal* soln) {
         map<string, double> x;
         getFloats(dom, x);
         soln[0] = x["temperature"];
@@ -863,7 +863,7 @@ namespace Cantera {
     }
 
     void ReactingSurf1D::
-    restore(XML_Node& dom, doublereal* soln) {
+    restore(const XML_Node& dom, doublereal* soln) {
         map<string, double> x;
         getFloats(dom, x);
         soln[0] = x["temperature"];
