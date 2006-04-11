@@ -159,7 +159,6 @@ namespace Cantera {
     }
 
     void State::getConcentrations(doublereal* c) const {
-        //ct_dscal(m_kk, m_dens, m_ym.begin(), 1);
         scale(m_ym.begin(), m_ym.end(), c, m_dens);
     }
 
@@ -172,7 +171,6 @@ namespace Cantera {
     }
 
     void State::getMoleFractions(doublereal* x) const {
-        //ct_dscal(m_kk, m_mmw, m_ym.begin(), 1);
         scale(m_ym.begin(), m_ym.end(), x, m_mmw);
     }
 

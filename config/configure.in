@@ -421,7 +421,7 @@ if test "$ENABLE_RXNPATH" = "y" ; then
   KERNEL_OBJ=$KERNEL_OBJ' $(RPATH_OBJ)'
 fi
 
-if test "$ENABLE_TPX" = "y" ; then 
+if test "$WITH_PURE_FLUIDS" = "y" ; then 
   KERNEL=$KERNEL' 'tpx
   NEED_TPX=1
   AC_DEFINE(INCL_PURE_FLUIDS)

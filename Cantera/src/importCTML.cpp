@@ -250,7 +250,7 @@ namespace Cantera {
 
 
     /**
-     * Check a reaction to see if it the elements balance.
+     * Check a reaction to see if the elements balance.
      */
     void checkRxnElementBalance(Kinetics& kin, 
         const ReactionData &rdata, doublereal errorTolerance) {

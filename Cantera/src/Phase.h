@@ -195,17 +195,17 @@ namespace Cantera {
     protected:
 
 	/**
-	 * m_kk = Number of species in the phase.
-	 * @internal m_kk is a member of both the State and Constituents classes.
-	 *    Therefore, to avoid multiple inheritance problems, we need to 
-	 *    restate it in here, so that the declarations in the two base classes
-	 *    become hidden.
+	 * m_kk = Number of species in the phase.  @internal m_kk is a
+	 * member of both the State and Constituents classes.
+	 * Therefore, to avoid multiple inheritance problems, we need
+	 * to restate it in here, so that the declarations in the two
+	 * base classes become hidden.
 	 */
 	int m_kk;
 	/**
-	 * m_ndim is the dimensionality of the phase. 
-	 * Volumetric phases have dimensionality 3 and surface phases
-	 * have dimensionality 2.
+	 * m_ndim is the dimensionality of the phase.  Volumetric
+	 * phases have dimensionality 3 and surface phases have
+	 * dimensionality 2.
 	 */
         int m_ndim;
 	/**

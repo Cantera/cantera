@@ -27,7 +27,8 @@ namespace Cantera {
     /// for this species in the reaction. 
     /// @param first  if this is false, then a " + " string will be
     /// added to the beginning of the string.
-    /// @param nu  Stoichiometric coefficient. May be positive or negative.
+    /// @param nu  Stoichiometric coefficient. May be positive or negative. The
+    /// absolute value will be used in the string. 
     /// @param sym Species chemical symbol.
     /// 
     static string coeffString(bool first, doublereal nu, string sym) {
@@ -41,13 +42,16 @@ namespace Cantera {
     }
 
 
-    /// Constructor. Construct a multiphase equilibrium manager for 
-    /// a multiphase mixture.
-    /// @param mix Pointer to a multiphase mixture object. 
+    /// Constructor. Construct a multiphase equilibrium manager for a
+    /// multiphase mixture.
+    /// @param mix Pointer to a multiphase mixture object.
+    /// @param start If true, the initial composition will be
+    /// determined by a linear Gibbs minimization, otherwise the
+    /// initial mixture composition will be used.
     MultiPhaseEquil::MultiPhaseEquil(mix_t* mix, bool start) : m_mix(mix)
     {
         // the multi-phase mixture
-        m_mix = mix;
+        //        m_mix = mix;
 
         // store some mixture parameters locally
         m_nel_mix = mix->nElements();
@@ -64,9 +68,17 @@ namespace Cantera {
         m_incl_element.resize(m_nel_mix,1);
         for (m = 0; m < m_nel_mix; m++) {
             string enm = mix->elementName(m);
+            // element 'E' or 'e' represents an electron; this
+            // requires special handling, so save its index
+            // for later use
             if (enm == "E" || enm == "e") {
                 m_eloc = m;
             }
+            // if an element other than electrons is not present in
+            // the mixture, then exclude it and all species containing
+            // it from the calculation. Electrons are a special case,
+            // since a species can have a negative number of 'atoms'
+            // of electrons (positive ions).
             if (m_mix->elementMoles(m) <= 0.0) {
                 if (m != m_eloc) {
                     m_incl_element[m] = 0;
@@ -79,11 +91,13 @@ namespace Cantera {
             }
         }
         
+        // Now build the list of elements to be included, starting with
+        // electrons, if they are present.
         if (m_eloc < m_nel_mix) {
             m_element.push_back(m_eloc);
             m_nel++;
         }
-
+        // add the included elements other than electrons
         for (m = 0; m < m_nel_mix; m++) {
             if (m_incl_element[m] == 1 && m != m_eloc) {
                 m_nel++;
@@ -91,6 +105,17 @@ namespace Cantera {
             }
         }
 
+        // include pure single-constituent phases only if their thermo
+        // data are valid for this temperature. This is necessary,
+        // since some thermo polynomial fits are done only for a
+        // limited temperature range. For example, using the NASA
+        // polynomial fits for solid ice and liquid water, if this
+        // were not done the calculation would predict solid ice to be
+        // present far above its melting point, since the thermo
+        // polynomial fits only extend to 273.15 K, and give
+        // unphysical results above this temperature, leading
+        // (incorrectly) to Gibbs free energies at high temperature
+        // lower than for liquid water.
         index_t ip;
         for (k = 0; k < m_nsp_mix; k++) {
             ip = m_mix->speciesPhaseIndex(k);
@@ -106,6 +131,9 @@ namespace Cantera {
                 }
             }
         }
+
+        // Now build the list of all species to be included in the
+        // calculation.
         for (k = 0; k < m_nsp_mix; k++) {
             if (m_incl_species[k] ==1) {
                 m_nsp++;
@@ -124,6 +152,7 @@ namespace Cantera {
         m_lastmoles.resize(m_nsp);
         m_dxi.resize(m_nsp - m_nel);
 
+        // initialize the mole numbers to the mixture composition
         index_t ik;
         for (ik = 0; ik < m_nsp; ik++) {
             m_moles[ik] = m_mix->speciesMoles(m_species[ik]);
@@ -131,6 +160,7 @@ namespace Cantera {
 
         // Delta G / RT for each reaction
         m_deltaG_RT.resize(m_nsp - m_nel, 0.0);
+
         m_majorsp.resize(m_nsp);
         m_sortindex.resize(m_nsp,0);
         m_lastsort.resize(m_nel);
@@ -139,11 +169,17 @@ namespace Cantera {
         m_N.resize(m_nsp, m_nsp - m_nel);
         m_order.resize(m_nsp, 0);
 
+        // if the 'start' flag is set, estimate the initial mole
+        // numbers by doing a linear Gibbs minimization. In this case,
+        // only the elemental composition of the initial mixture state
+        // matters.
         if (start) {
             setInitialMoles();
         }
         computeN();
 
+        // Take a very small step in composition space, so that no
+        // species has precisely zero moles.
         vector_fp dxi(m_nsp - m_nel, 1.0e-20);
         multiply(m_N, dxi.begin(), m_work.begin());
         unsort(m_work);
@@ -158,6 +194,11 @@ namespace Cantera {
         }
         m_force = false; 
         updateMixMoles();
+
+        // At this point, the instance has been created, the species
+        // to be included have been determined, and an initial
+        // composition has been selected that has all non-zero mole
+        // numbers for the included species.
     }
 
 

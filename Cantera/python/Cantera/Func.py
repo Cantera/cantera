@@ -34,10 +34,10 @@ class Func1:
     
     def __init__(self, typ, n, coeffs=[]):
         """
-        The constructor is meant to be called from constructors of
-        subclasses of Func1.
-        See: Polynomial, Gaussian, Arrhenius, Fourier, Const, PeriodicFunction
-        """
+        The constructor is
+        meant to be called from constructors of subclasses of Func1.
+        See: Polynomial, Gaussian, Arrhenius, Fourier, Const,
+        PeriodicFunction """
         self.n = n
         self.coeffs = asarray(coeffs,'d')
         self._func_id = _cantera.func_new(typ, n, self.coeffs)
@@ -54,17 +54,25 @@ class Func1:
         """Overloads operator '+'
 
         Returns a new function self(t) + other(t)"""
+
+        # if 'other' is a number, then create a 'Const' functor for
+        # it.
         if type(other) == types.FloatType:
             return SumFunction(self, Const(other))
+        
         return SumFunction(self, other)
+
     
     def __radd__(self, other):
         """Overloads operator '+'
 
-        Returns a new function other(t) + self(t)"""        
+        Returns a new function other(t) + self(t)"""
+        # if 'other' is a number, then create a 'Const' functor for
+        # it.        
         if type(other) == types.FloatType:
             return SumFunction(Const(other),self)        
         return SumFunction(other, self)
+
 
     def __mul__(self, other):
         """Overloads operator '*'
@@ -102,9 +110,12 @@ class Polynomial(Func1):
     \f[
     f(t) = \sum_{n = 0}^N a_n t^n.
     \f]
-    The coefficients are supplied as a list, beginning with \f$a_N\f$ and ending with \f$a_0\f$.
+    The coefficients are supplied as a list, beginning with
+    \f$a_N\f$ and ending with \f$a_0\f$.
+    
     >>> p1 = Polynomial([1.0, -2.0, 3.0])   #    3t^2 - 2t + 1
     >>> p2 = Polynomial([6.0, 8.0])         #    8t + 6
+
     """
     def __init__(self, coeffs=[]):
         """
@@ -112,6 +123,7 @@ class Polynomial(Func1):
         """
         Func1.__init__(self, 2, len(coeffs)-1, coeffs)
 
+            
 
 class Gaussian(Func1):
     """A Gaussian pulse. Instances of class 'Gaussian' evaluate 
@@ -257,27 +269,36 @@ class SumFunction(Func1):
         self._func_id = _cantera.func_newcombo(20, f1.func_id(), f2.func_id())
 
 class ProdFunction(Func1):
-    """Product of two functions.
-    Instances of class ProdFunction evaluate the product of two supplied functors.
-    It is not necessary to explicitly create an instance of 'ProdFunction', since 
-    the multiplication operator of the base class is overloaded to return a 'ProdFunction'
-    instance.
+
+    """Product of two functions.  Instances of class ProdFunction
+    evaluate the product of two supplied functors.  It is not
+    necessary to explicitly create an instance of 'ProdFunction',
+    since the multiplication operator of the base class is overloaded
+    to return a 'ProdFunction' instance.
+    
     >>> f1 = Polynomial([2.0, 1.0])
     >>> f2 = Polynomial([3.0, -5.0])
     >>> f3 = f1 * f2     # functor to evaluate (2t + 1)*(3t - 5)
-    In this example, object 'f3' is a functor of class'ProdFunction' that calls f1 and f2
-    and returns their product.
-    """    
+
+    In this example, object 'f3' is a functor of class'ProdFunction'
+    that calls f1 and f2 and returns their product.  """
+    
     def __init__(self, f1, f2):
-        """
-        f1 - first functor.
-        
+        """ f1 - first functor.
         f2 - second functor.
-        """        
-        self.f1 = f1
-        self.f2 = f2        
+        """
+        if type(f1) == types.FloatType:
+            self.f1 = Const(f1)
+        else:
+            self.f1 = f1
+        if type(f2) == types.FloatType:
+            self.f2 = Const(f2)
+        else:
+            self.f2 = f2            
+
         self.n = -1
-        self._func_id = _cantera.func_newcombo(30, f1.func_id(), f2.func_id())
+        self._func_id = _cantera.func_newcombo(30, self.f1.func_id(), self.f2.func_id())
+
 
 class RatioFunction(Func1):
     """Ratio of two functions.

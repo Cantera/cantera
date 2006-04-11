@@ -24,18 +24,16 @@
 namespace Cantera {
 
     /**
-     * Manages the independent variables of temperature, mass
-     * density, and mass/mole species fraction that define the
-     * thermodynamic state. 
-     * Class State stores just enough
-     * information about a multicomponent solution to specify its
-     * intensive thermodynamic state.  It stores values for the
-     * temperature, mass density, and an array of species mass
-     * fractions. It also stores an array of species molecular
-     * weights, which are used to convert between mole and mass
-     * representations of the composition. These are the \e only
-     * properties of the species that class State knows about.  For
-     * efficiency in mass/mole conversion, the vector of mass
+     * Manages the independent variables of temperature, mass density,
+     * and mass/mole species fraction that define the thermodynamic
+     * state.  Class State stores just enough information about a
+     * multicomponent solution to specify its intensive thermodynamic
+     * state.  It stores values for the temperature, mass density, and
+     * an array of species mass fractions. It also stores an array of
+     * species molecular weights, which are used to convert between
+     * mole and mass representations of the composition. These are the
+     * \e only properties of the species that class State knows about.
+     * For efficiency in mass/mole conversion, the vector of mass
      * fractions divided by molecular weight \f$ Y_k/M_k \f$ is also
      * stored.
      *
