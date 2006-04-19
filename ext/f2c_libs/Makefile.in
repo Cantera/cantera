@@ -36,7 +36,7 @@ F2C_H   = $(BUILDINCDIR)/f2c.h
 # compile, then strip unnecessary symbols
 .c.o: f2c.h
 	$(CC) -c -DSkip_f2c_Undefs $(CFLAGS) $*.c
-	ld -r -x -o $*.xxx $*.o
+	ld @ldemulationarg@ -r -x -o $*.xxx $*.o
 	mv $*.xxx $*.o
 
 ## Under Solaris (and other systems that do not understand ld -x),
