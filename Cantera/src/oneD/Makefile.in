@@ -19,7 +19,7 @@ CXX_INCLUDES = -I.. @CXX_INCLUDES@
 
 # stirred reactors
 OBJS    = MultiJac.o MultiNewton.o newton_utils.o OneDim.o\
-          StFlow.o boundaries1D.o refine.o Sim1D.o 
+          StFlow.o boundaries1D.o refine.o Sim1D.o Domain1D.o
 ONED_H  = Inlet1D.h   MultiJac.h  Sim1D.h         StFlow.h \
           Surf1D.h    Domain1D.h  MultiNewton.h   OneDim.h \
           Resid1D.h   Solid1D.h   refine.h
