@@ -17,16 +17,16 @@ AC_DEFINE(NDEBUG)
 
 ac_sys_system=`uname -s`
 ac_sys_release=`uname -r`
-sys_hardware=`uname -i`
+sys_hardware='unknown'
 
 #
 # Determine the number of hardware bits in the system
-#
 #
 # BITHARDWARE is the default number of compilation bits in pointers
 #
 case $ac_sys_system in
   Linux* )
+       sys_harware=`uname -i`
        echo 'linux ' $sys_hardware
        case $sys_hardware in
           x86_64 )  BITHARDWARE=64 ;;
@@ -48,8 +48,8 @@ if test $BITCOMPILE != $BITHARDWARE ; then
   BITCHANGE='y'
 fi
 
-echo 'BITHARDWARE= ' $BITHARDWARE
-echo 'BITCOMPILE= ' $BITCOMPILE
+# echo 'BITHARDWARE= ' $BITHARDWARE
+# echo 'BITCOMPILE= ' $BITCOMPILE
 AC_SUBST(BITCOMPILE)
 AC_SUBST(BITHARDWARE)
 AC_SUBST(BITCHANGE)
@@ -86,7 +86,7 @@ if test "x${OS_IS_CYGWIN}" = "x1"; then
 fi
 AC_SUBST(CVF_LIBDIR)
 
-echo "ldemulationarg = " $ldemulationarg
+#echo "ldemulationarg = " $ldemulationarg
 AC_SUBST(ldemulationarg)
 
 #
