@@ -137,7 +137,7 @@ namespace Cantera {
 
         /// This constructor initializes with a starting phase.
         /// @deprecated
-        Kinetics(thermo_t* thermo);
+        //        Kinetics(thermo_t* thermo);
 
         /// Destructor. 
         virtual ~Kinetics();

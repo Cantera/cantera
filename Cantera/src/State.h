@@ -2,7 +2,7 @@
  *
  *  @file State.h
  *
- *  This file implements class State.
+ *  This is the header file for class State.
  */
 
 /*
@@ -25,7 +25,7 @@ namespace Cantera {
 
     /**
      * Manages the independent variables of temperature, mass density,
-     * and mass/mole species fraction that define the thermodynamic
+     * and species mass/mole fraction that define the thermodynamic
      * state.  Class State stores just enough information about a
      * multicomponent solution to specify its intensive thermodynamic
      * state.  It stores values for the temperature, mass density, and
@@ -70,6 +70,7 @@ namespace Cantera {
 
 
         /// @name Species Information
+        ///
         /// The only thing class State knows about the species is their
         /// molecular weights.
         //@{        
@@ -83,7 +84,6 @@ namespace Cantera {
         /// @name Composition
         //@{
 
-
 	/**
          * Get the species mole fractions.
          * @param x On return, x contains the mole fractions. Must have a
@@ -93,7 +93,9 @@ namespace Cantera {
 
 
         /// The mole fraction of species k. If k is ouside the valid
-        /// range, an exception will be thrown.
+        /// range, an exception will be thrown. Note that it is
+        /// somewhat more efficent to call getMoleFractions if the
+        /// mole fractions of all species are desired.
         doublereal moleFraction(int k) const;
 
 	/**
@@ -118,12 +120,14 @@ namespace Cantera {
          * Get the species mass fractions.  
          * @param y On return, y
          * contains the mass fractions. Array \a y must have a length
-         * greater than or equal to the number of species.
+         * greater than or equal to the number of species. 
          */
 	void getMassFractions(doublereal* y) const;
 
         /// Mass fraction of species k. If k is outside the valid
-        /// range, an exception will be thrown.
+        /// range, an exception will be thrown. Note that it is
+        /// somewhat more efficent to call getMassFractions if the
+        /// mass fractions of all species are desired.
         doublereal massFraction(int k) const;
 
 	/**
@@ -137,15 +141,18 @@ namespace Cantera {
 
 	/**
          * Set the mass fractions to the specified values without
-         * normalizing.
+         * normalizing. This is useful when the normalization
+         * condition is being handled by some other means, for example
+         * by a constraint equation as part of a larger set of
+         * equations. 
          */
 	void setMassFractions_NoNorm(const doublereal* y);
 
         /**
-         * Get the species concentrations (kmol/m^3).  
-         * @param c On return, \a c contains the concentrations. 
-         * Array \a c must have a length greater than or equal to 
-         * the number of species.
+         * Get the species concentrations (kmol/m^3).  @param c On
+         * return, \a c contains the concentrations for all species.
+         * Array \a c must have a length greater than or equal to the
+         * number of species.
          */
 	void getConcentrations(doublereal* c) const;
 
@@ -163,16 +170,17 @@ namespace Cantera {
 	void setConcentrations(const doublereal* c);
 
 	/**
-	 * Returns a pointer to the start of the massFraction array
+	 * Returns a read-only pointer to the start of the
+	 * massFraction array
 	 */
         const doublereal* massFractions() const { return m_y.begin(); }
 
 	/**
-	 * Returns a pointer to the start of the moleFraction/MW array.
-	 * This array is the array of mole fractions, each divided by
-	 * the mean molecular weight.
+	 * Returns a read-only pointer to the start of the
+	 * moleFraction/MW array.  This array is the array of mole
+	 * fractions, each divided by the mean molecular weight.
 	 */
-	const doublereal* moleFractdivMMW() const { return m_ym.begin();}
+        const doublereal* moleFractdivMMW() const { return m_ym.begin();}
 
 
         //@}
@@ -279,7 +287,7 @@ namespace Cantera {
         doublereal m_temp;
 
 	/**
-	 * Density -> this is an independent variable except in
+	 * Density.   This is an independent variable except in
 	 *            the incompressible degenerate case. Thus,
 	 *            the pressure is determined from this variable
 	 *            not the other way round.
@@ -291,7 +299,6 @@ namespace Cantera {
 	 * m_mmw is the mean molecular weight of the mixture
 	 * (kg kmol-1)
 	 */
-
         doublereal m_mmw;
         
 	/**

@@ -63,14 +63,8 @@ namespace Cantera {
         /**
 	 * Constructor 
 	 *
-	 * @param thermo The optional parameter may be used to initialize
-	 *               the object with one ThermoPhase object.
-	 *               HKM Note -> Since the interface kinetics
-	 *               object will probably require multiple thermophase
-	 *               objects, this is probably not a good idea
-	 *               to have this parameter.
 	 */
-        EdgeKinetics(thermo_t* thermo = 0);
+        EdgeKinetics();
 
         /// Destructor.
         virtual ~EdgeKinetics();

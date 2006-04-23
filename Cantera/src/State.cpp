@@ -19,9 +19,11 @@
 #include "ctexceptions.h"
 #include "stringUtils.h"
 #include "State.h"
+
 #ifdef DARWIN
 #include <Accelerate.h>
 #endif
+
 namespace Cantera {
 
     State::State() : m_kk(0), m_temp(0.0), m_dens(0.001), m_mmw(0.0) {}

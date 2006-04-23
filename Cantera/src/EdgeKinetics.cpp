@@ -29,15 +29,10 @@ namespace Cantera {
 
     /**
      * Construct an empty EdgeKinetics reaction mechanism.
-     *  @param thermo This is an optional parameter that may be
-     *         used to initialize the inherited Kinetics class with
-     *         one ThermoPhase class object -> in other words it's
-     *         useful for initialization of homogeneous kinetics 
-     *         mechanisms.
      */    
     EdgeKinetics::
-    EdgeKinetics(thermo_t* thermo) :
-        Kinetics(thermo),
+    EdgeKinetics() :
+        Kinetics(),
         m_kk(0), 
         m_redo_rates(false),
         m_nirrev(0), 

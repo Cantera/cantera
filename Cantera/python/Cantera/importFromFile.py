@@ -5,6 +5,7 @@ application programs."""
 
 import solution
 import Interface
+import Edge
 import XML
 
 __revision__ = "$Id$"
@@ -52,4 +53,12 @@ def importInterface(file, name = '', phases = []):
     else:
         src = file
     return Interface.Interface(src = src, phases = phases)    
+
+
+def importEdge(file, name = '', surfaces = []):
+    if name:
+        src = file+'#'+name
+    else:
+        src = file
+    return Edge.Edge(src = src, surfaces = surfaces)    
     

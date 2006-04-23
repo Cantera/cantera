@@ -26,6 +26,7 @@ namespace Cantera {
                            m_index(-1), m_surfphase(-1), m_rxnphase(-1), 
                            m_mindim(4) {}
 
+    /*
     Kinetics::Kinetics(thermo_t* thermo) :
 	m_ii(0), 
 	m_index(-1), 
@@ -38,6 +39,7 @@ namespace Cantera {
         deprecatedMethod("Kinetics","Kinetics(thermo_t*)","Kinetics()");
         removeAtVersion("Kinetics(thermo_t*)","1.6.0");
     }
+    */
 
     Kinetics::~Kinetics(){}
 

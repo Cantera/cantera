@@ -42,4 +42,8 @@ class SurfacePhase(ThermoPhase):
         return _cantera.surf_getconcentrations(self._phase_id)
 
 
-    
+class EdgePhase(SurfacePhase):
+    """A one-dimensonal edge."""
+
+    def __init__(self, xml_phase=None, index=-1):
+        SurfacePhase.__init__(self, xml_phase=xml_phase, index=index)
