@@ -131,9 +131,12 @@ namespace Cantera {
          * Evaluate a*x + y.
          */
         void axpy(doublereal a, const Array2D& x, const Array2D& y) {
-            const doublereal* xb = x.begin();
-            const doublereal* yb = y.begin();
-            doublereal* b = begin();
+            //const doublereal* xb = x.begin();
+            //const doublereal* yb = y.begin();
+            //doublereal* b = begin();
+            iterator b = begin();
+            const_iterator xb = x.begin();
+            const_iterator yb = y.begin();
             for (; b != end(); ++b, ++xb, ++yb)  *b = a*(*xb) + *yb;
         }
 
