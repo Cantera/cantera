@@ -212,8 +212,6 @@ namespace Cantera {
                 m_iter, m_itol, &m_reltol,
                 &m_abstols, m_data, NULL, TRUE, m_iopt, 
                 m_ropt.begin(), NULL);
-            cout << "m_reltol = " << m_reltol << endl;
-            cout << "m_abstols = " << m_abstols << endl;
         }
 
         if (!m_cvode_mem) throw CVodeErr("CVodeMalloc failed.");
