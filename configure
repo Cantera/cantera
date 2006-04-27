@@ -186,7 +186,7 @@ WITH_PURE_FLUIDS='y'
 
 # Enable expanded electrochemistry capabilities, include thermo
 # models for electrolyte solutions
-WITH_ELECTROLYTES='n'
+WITH_ELECTROLYTES=${WITH_ELECTROLYTES:="n"}
 ######################################################################
 # if set to 'y', the ck2cti program that converts Chemkin input files
 # to Cantera format will be built. If you don't use Chemkin format
