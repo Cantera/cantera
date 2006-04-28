@@ -223,9 +223,9 @@ namespace Cantera {
 		 b.m_coeff.begin() + 15,
 		 m_coeff.begin());
 	    msp_low  = new ShomatePoly(m_index, m_lowT, m_midT, 
-				       m_Pref, m_coeff.begin()+1);
+				       m_Pref, &m_coeff[1]);
 	    msp_high = new ShomatePoly(m_index, m_midT, m_highT, 
-				       m_Pref, m_coeff.begin()+8);
+				       m_Pref, &m_coeff[8]);
 	}
 
 	ShomatePoly2& operator=(const ShomatePoly2& b) {
@@ -241,9 +241,9 @@ namespace Cantera {
 	      if (msp_low) delete msp_low;
 	      if (msp_high) delete msp_high;
 	      msp_low  = new ShomatePoly(m_index, m_lowT, m_midT, 
-					 m_Pref, m_coeff.begin()+1);
+					 m_Pref, &m_coeff[1]);
 	      msp_high = new ShomatePoly(m_index, m_midT, m_highT, 
-					 m_Pref, m_coeff.begin()+8);
+					 m_Pref, &m_coeff[8]);
 	    }
 	    return *this;
 	}

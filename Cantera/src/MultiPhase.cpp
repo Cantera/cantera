@@ -157,7 +157,7 @@ namespace Cantera {
     MultiPhase::phase_t& MultiPhase::phase(index_t n) {
         if (!m_init) init();
         m_phase[n]->setState_TPX(m_temp, m_press, 
-            m_moleFractions.begin() + m_spstart[n]);
+            DATA_PTR(m_moleFractions) + m_spstart[n]);
         return *m_phase[n];
     }
 
@@ -335,7 +335,7 @@ namespace Cantera {
             x = xMap[speciesName(k)];
             if (x > 0.0) moles[k] = x;
         }
-        setMoles(moles.begin());
+        setMoles(DATA_PTR(moles));
     }
 
 
@@ -377,7 +377,7 @@ namespace Cantera {
             m_moles[ip] = phasemoles;
             if (nsp > 1) {
                 p->setState_TPX(m_temp, m_press, n + loc);
-                p->getMoleFractions(m_moleFractions.begin() + loc);
+                p->getMoleFractions(DATA_PTR(m_moleFractions) + loc);
             }
             else {
                 m_moleFractions[loc] = 1.0;
@@ -403,12 +403,12 @@ namespace Cantera {
         doublereal dt;
         doublereal h0;
         int n;
-        bool start, once;
+        bool start;
         doublereal ferr, hnow, herr = 1.0;
         doublereal snow, serr = 1.0, s0;
         doublereal Tlow = -1.0, Thigh = -1.0;
         doublereal Hlow = Undef, Hhigh = Undef, tnew;
-        doublereal dta, dtmax, cpb;
+        doublereal dta=0.0, dtmax, cpb;
         MultiPhaseEquil* e = 0;
 
         if (!m_init) init();
@@ -670,12 +670,12 @@ namespace Cantera {
 //         }
         else if (XY == TV) {
             addLogEntry("problem type","fixed T, V");
-            doublereal dt = 1.0e3;
+            //            doublereal dt = 1.0e3;
             doublereal v0 = volume();
             doublereal dVdP;
             int n;
             bool start = true;
-            doublereal error, ferr, vnow, pnow, verr, tnew;
+            doublereal error, vnow, pnow, verr;
             for (n = 0; n < maxiter; n++) {
                 pnow = pressure();
                 MultiPhaseEquil e(this, start);
@@ -728,7 +728,7 @@ done:
         index_t ip, loc = 0;
         for (ip = 0; ip < m_np; ip++) {
             phase_t* p = m_phase[ip];
-            p->getMoleFractions(m_moleFractions.begin() + loc);
+            p->getMoleFractions(DATA_PTR(m_moleFractions) + loc);
             loc += p->nSpecies();
         }
     }
@@ -742,7 +742,7 @@ done:
         index_t p, nsp, loc = 0;
         for (p = 0; p < m_np; p++) {
             nsp = m_phase[p]->nSpecies();
-            const doublereal* x = m_moleFractions.begin() + loc;
+            const doublereal* x = DATA_PTR(m_moleFractions) + loc;
             loc += nsp;
             m_phase[p]->setState_TPX(m_temp, m_press, x);
             m_temp_OK[p] = true;

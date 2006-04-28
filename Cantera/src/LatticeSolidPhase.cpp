@@ -21,19 +21,19 @@ namespace Cantera {
     enthalpy_mole() const {
         doublereal p0 = m_spthermo->refPressure();
         return GasConstant * temperature() * 
-            mean_X(enthalpy_RT().begin()) 
+            mean_X(&enthalpy_RT()[0]) 
             + (pressure() - p0)/molarDensity();
     }
 
     doublereal LatticeSolidPhase::intEnergy_mole() const {
         doublereal p0 = m_spthermo->refPressure();
         return GasConstant * temperature() * 
-            mean_X(enthalpy_RT().begin()) 
+            mean_X(&enthalpy_RT()[0]) 
             - p0/molarDensity();
     }
 
     doublereal LatticeSolidPhase::entropy_mole() const {
-        return GasConstant * (mean_X(entropy_R().begin()) -
+        return GasConstant * (mean_X(&entropy_R()[0]) -
             sum_xlogx());
     }
 
@@ -42,7 +42,7 @@ namespace Cantera {
     }
 
     doublereal LatticeSolidPhase::cp_mole() const {
-        return GasConstant * mean_X(cp_R().begin());
+        return GasConstant * mean_X(&cp_R()[0]);
     }
 
     void LatticeSolidPhase::getActivityConcentrations(doublereal* c) const {
@@ -104,8 +104,8 @@ namespace Cantera {
                 +fp2str(m_molar_density)+" to "+fp2str(molarDensity()));
         }
         if (m_tlast != tnow) {
-            m_spthermo->update(tnow, m_cp0_R.begin(), m_h0_RT.begin(), 
-                m_s0_R.begin());
+            m_spthermo->update(tnow, &m_cp0_R[0], &m_h0_RT[0], 
+                &m_s0_R[0]);
             m_tlast = tnow;
             int k;
             for (k = 0; k < m_kk; k++) {

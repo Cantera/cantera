@@ -68,7 +68,7 @@ namespace Cantera {
          */
         virtual doublereal enthalpy_mole() const {
             return GasConstant * temperature() * 
-                mean_X(enthalpy_RT_ref().begin());
+                mean_X(&enthalpy_RT_ref()[0]);
         }
 
         /**
@@ -84,7 +84,7 @@ namespace Cantera {
          */
         virtual doublereal intEnergy_mole() const {
             return GasConstant * temperature()
-                * ( mean_X(enthalpy_RT_ref().begin()) - 1.0);
+                * ( mean_X(&enthalpy_RT_ref()[0]) - 1.0);
         }
 
         /**
@@ -99,7 +99,7 @@ namespace Cantera {
          * @see SpeciesThermo
          */
         virtual doublereal entropy_mole() const {
-            return GasConstant * (mean_X(entropy_R_ref().begin()) -
+            return GasConstant * (mean_X(&entropy_R_ref()[0]) -
                 sum_xlogx() - log(pressure()/m_spthermo->refPressure()));
         }
 
@@ -124,7 +124,7 @@ namespace Cantera {
          * @see SpeciesThermo
          */
         virtual doublereal cp_mole() const {
-            return GasConstant * mean_X(cp_R_ref().begin());
+            return GasConstant * mean_X(&cp_R_ref()[0]);
         }
 
         /**

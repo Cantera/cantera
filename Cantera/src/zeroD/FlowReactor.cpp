@@ -108,7 +108,7 @@ namespace CanteraZeroD {
         ydot[1] = m_fctr*(m_speed0 - m_mix->density()*m_speed/m_rho0);
 
         /* species equations */
-        const doublereal* mw = m_mix->molecularWeights().begin();
+        const doublereal* mw = DATA_PTR(m_mix->molecularWeights());
 
         if (m_chem) {
             m_kin->getNetProductionRates(ydot+2);   // "omega dot"

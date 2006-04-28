@@ -67,15 +67,15 @@ namespace Cantera {
     _update_rates_T() {
         _update_rates_phi();
         if (m_has_coverage_dependence) {
-            m_surf->getCoverages(m_conc.begin());
-            m_rates.update_C(m_conc.begin());
+            m_surf->getCoverages(DATA_PTR(m_conc));
+            m_rates.update_C(DATA_PTR(m_conc));
             m_redo_rates = true;
         }
         doublereal T = thermo(surfacePhaseIndex()).temperature();
         if (T != m_kdata->m_temp || m_redo_rates) {
             m_kdata->m_logtemp = log(T);
-            m_rates.update(T, m_kdata->m_logtemp, m_kdata->m_rfn.begin());
-            applyButlerVolmerCorrection(m_kdata->m_rfn.begin());
+            m_rates.update(T, m_kdata->m_logtemp, DATA_PTR(m_kdata->m_rfn));
+            applyButlerVolmerCorrection(DATA_PTR(m_kdata->m_rfn));
             m_kdata->m_temp = T;
             updateKc();
             m_kdata->m_ROP_ok = false;
@@ -116,7 +116,7 @@ namespace Cantera {
 	   * are integer indecises for that vector denoting the start of the
 	   * species for each phase.
 	   */
-	  thermo(n).getActivityConcentrations(m_conc.begin() + m_start[n]);
+            thermo(n).getActivityConcentrations(DATA_PTR(m_conc) + m_start[n]);
         }
         m_kdata->m_ROP_ok = false;
     }
@@ -141,7 +141,7 @@ namespace Cantera {
             doublereal rrt = 1.0/rt;
             int np = nPhases();
             for (n = 0; n < np; n++) {
-                thermo(n).getStandardChemPotentials(m_mu0.begin() + m_start[n]);
+                thermo(n).getStandardChemPotentials(DATA_PTR(m_mu0) + m_start[n]);
                 nsp = thermo(n).nSpecies();
                 for (k = 0; k < nsp; k++) {
                     m_mu0[ik] -= rt*thermo(n).logStandardConc(k);
@@ -153,7 +153,8 @@ namespace Cantera {
             // compute Delta mu^0 for all reversible reactions
             //m_reactantStoich.decrementReactions(m_mu0.begin(), m_rkc.begin()); 
             //m_revProductStoich.incrementReactions(m_mu0.begin(), m_rkc.begin());
-            m_rxnstoich.getRevReactionDelta(m_ii, m_mu0.begin(), m_rkc.begin());
+            m_rxnstoich.getRevReactionDelta(m_ii, DATA_PTR(m_mu0), 
+                DATA_PTR(m_rkc));
 
             for (i = 0; i < m_nrev; i++) {
                 irxn = m_revindex[i];
@@ -185,7 +186,7 @@ namespace Cantera {
             int np = nPhases();
             doublereal delta;
             for (n = 0; n < np; n++) {
-                thermo(n).getChemPotentials(dmu.begin() + m_start[n]);
+                thermo(n).getChemPotentials(DATA_PTR(dmu) + m_start[n]);
                 nsp = thermo(n).nSpecies();
                 for (k = 0; k < nsp; k++) {
                     delta = Faraday * m_phi[n] * thermo(n).charge(k);
@@ -196,10 +197,10 @@ namespace Cantera {
             }
 
             // compute Delta mu^ for all reversible reactions
-            m_rxnstoich.getRevReactionDelta(m_ii, dmu.begin(), rmu.begin());
-            getFwdRatesOfProgress(frop.begin());
-            getRevRatesOfProgress(rrop.begin());
-            getNetRatesOfProgress(netrop.begin());
+            m_rxnstoich.getRevReactionDelta(m_ii, DATA_PTR(dmu), DATA_PTR(rmu));
+            getFwdRatesOfProgress(DATA_PTR(frop));
+            getRevRatesOfProgress(DATA_PTR(rrop));
+            getNetRatesOfProgress(DATA_PTR(netrop));
             for (i = 0; i < m_nrev; i++) {
                 irxn = m_revindex[i];
                 cout << "Reaction " << reactionString(irxn) 
@@ -224,7 +225,7 @@ namespace Cantera {
         doublereal rrt = 1.0/rt;
         int np = nPhases();
         for (n = 0; n < np; n++) {
-            thermo(n).getStandardChemPotentials(m_mu0.begin() + m_start[n]);
+            thermo(n).getStandardChemPotentials(DATA_PTR(m_mu0) + m_start[n]);
             nsp = thermo(n).nSpecies();
             for (k = 0; k < nsp; k++) {
                 m_mu0[ik] -= rt*thermo(n).logStandardConc(k);
@@ -238,7 +239,7 @@ namespace Cantera {
         //m_reactantStoich.decrementReactions(m_mu0.begin(), kc); 
         //m_revProductStoich.incrementReactions(m_mu0.begin(), kc);
         //m_irrevProductStoich.incrementReactions(m_mu0.begin(), kc);
-        m_rxnstoich.getReactionDelta(m_ii, m_mu0.begin(), kc);
+        m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_mu0), kc);
 
         for (i = 0; i < m_ii; i++) {
             kc[i] = exp(-kc[i]*rrt);
@@ -275,7 +276,8 @@ namespace Cantera {
         //m_reactantStoich.decrementReactions(m_pot.begin(), m_rwork.begin()); 
         //m_revProductStoich.incrementReactions(m_pot.begin(), m_rwork.begin());
         //m_irrevProductStoich.incrementReactions(m_pot.begin(), m_rwork.begin());
-        m_rxnstoich.getReactionDelta(m_ii, m_pot.begin(), m_rwork.begin());
+        m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_pot), 
+            DATA_PTR(m_rwork));
 
         // modify the reaction rates. Only modify those with a
         // non-zero activation energy, and do not decrease the
@@ -333,7 +335,7 @@ namespace Cantera {
     void InterfaceKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible) {
         getFwdRateConstants(krev);
         if (doIrreversible) {
-	  doublereal *tmpKc = m_kdata->m_ropnet.begin();
+            doublereal *tmpKc = DATA_PTR(m_kdata->m_ropnet);
 	  getEquilibriumConstants(tmpKc);
 	  for (int i = 0; i < m_ii; i++) {
 	    krev[i] /=  tmpKc[i];
@@ -382,12 +384,13 @@ namespace Cantera {
         multiply_each(ropr.begin(), ropr.end(), m_rkc.begin());
 
         // multiply ropf by concentration products
-        m_rxnstoich.multiplyReactants(m_conc.begin(), ropf.begin()); 
+        m_rxnstoich.multiplyReactants(DATA_PTR(m_conc), DATA_PTR(ropf)); 
         //m_reactantStoich.multiply(m_conc.begin(), ropf.begin()); 
 
         // for reversible reactions, multiply ropr by concentration
         // products
-        m_rxnstoich.multiplyRevProducts(m_conc.begin(), ropr.begin()); 
+        m_rxnstoich.multiplyRevProducts(DATA_PTR(m_conc), 
+            DATA_PTR(ropr)); 
         //m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
 
         // do global reactions
@@ -420,13 +423,13 @@ namespace Cantera {
         int np = nPhases();
         int n;
         for (n = 0; n < np; n++) {
-            thermo(n).getChemPotentials(m_grt.begin() + m_start[n]);
+            thermo(n).getChemPotentials(DATA_PTR(m_grt) + m_start[n]);
         }
 	/*
 	 * Use the stoichiometric manager to find deltaG for each
 	 * reaction.
 	 */
-	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaG);
+	m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaG);
     }
     
     /**
@@ -448,13 +451,13 @@ namespace Cantera {
         int np = nPhases();
         int n;
         for (n = 0; n < np; n++) {
-            thermo(n).getPartialMolarEnthalpies(m_grt.begin() + m_start[n]);
+            thermo(n).getPartialMolarEnthalpies(DATA_PTR(m_grt) + m_start[n]);
         }
 	/*
 	 * Use the stoichiometric manager to find deltaG for each
 	 * reaction.
 	 */
-	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaH);
+	m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaH);
     }
 
     /************************************************************************
@@ -476,13 +479,13 @@ namespace Cantera {
         int np = nPhases();
         int n;
         for (n = 0; n < np; n++) {
-            thermo(n).getPartialMolarEntropies(m_grt.begin() + m_start[n]);
+            thermo(n).getPartialMolarEntropies(DATA_PTR(m_grt) + m_start[n]);
         }
 	/*
 	 * Use the stoichiometric manager to find deltaS for each
 	 * reaction.
 	 */
-	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaS);
+	m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaS);
     }
 
     /**
@@ -506,13 +509,13 @@ namespace Cantera {
         int np = nPhases();
         int n;
         for (n = 0; n < np; n++) {
-            thermo(n).getStandardChemPotentials(m_grt.begin() + m_start[n]);
+            thermo(n).getStandardChemPotentials(DATA_PTR(m_grt) + m_start[n]);
         }
 	/*
 	 * Use the stoichiometric manager to find deltaG for each
 	 * reaction.
 	 */
-	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaG);
+	m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaG);
     }
 
     /**
@@ -536,7 +539,7 @@ namespace Cantera {
         int np = nPhases();
         int n;
         for (n = 0; n < np; n++) {
-            thermo(n).getEnthalpy_RT(m_grt.begin() + m_start[n]);
+            thermo(n).getEnthalpy_RT(DATA_PTR(m_grt) + m_start[n]);
         }
 	doublereal RT = thermo().temperature() * GasConstant;
 	for (int k = 0; k < m_kk; k++) {
@@ -546,7 +549,7 @@ namespace Cantera {
 	 * Use the stoichiometric manager to find deltaG for each
 	 * reaction.
 	 */
-	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaH);
+	m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaH);
     }
 
     /*********************************************************************
@@ -569,7 +572,7 @@ namespace Cantera {
         int np = nPhases();
         int n;
         for (n = 0; n < np; n++) {
-            thermo(n).getEntropy_R(m_grt.begin() + m_start[n]);
+            thermo(n).getEntropy_R(DATA_PTR(m_grt) + m_start[n]);
         }
 	doublereal R = GasConstant;
 	for (int k = 0; k < m_kk; k++) {
@@ -579,7 +582,7 @@ namespace Cantera {
 	 * Use the stoichiometric manager to find deltaS for each
 	 * reaction.
 	 */
-	m_rxnstoich.getReactionDelta(m_ii, m_grt.begin(), deltaS);
+	m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaS);
     }
 
 
@@ -621,7 +624,7 @@ namespace Cantera {
         for (int m = 0; m < ncov; m++) rp.push_back(r.cov[m]);
         iloc = m_rates.install( reactionNumber(),
             r.rateCoeffType, rp.size(), 
-            rp.begin() );
+            DATA_PTR(rp) );
         // store activation energy
         m_E.push_back(r.rateCoeffParameters[2]);
         // add constant term to rate coeff value vector

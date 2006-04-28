@@ -252,7 +252,8 @@ namespace Cantera {
 	return sum;
     }
 
-    inline void scale(int N, double alpha, double* x) {
+    template<class OutputIter>
+    inline void scale(int N, double alpha, OutputIter x) {
         //#ifdef DARWINNNN
         //cblas_dscal(N, alpha, x, 1);
         //#else

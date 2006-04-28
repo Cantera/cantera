@@ -216,9 +216,9 @@ namespace Cantera {
         virtual void getNetProductionRates(doublereal* net) {
             updateROP();
 #ifdef HWMECH
-            get_wdot(m_kdata->m_ropnet.begin(), net);
+            get_wdot(&m_kdata->m_ropnet[0], net);
 #else
-            m_rxnstoich->getNetProductionRates(m_kk, m_kdata->m_ropnet.begin(), net); 
+            m_rxnstoich->getNetProductionRates(m_kk, &m_kdata->m_ropnet[0], net); 
             //fill(net, net + m_kk, 0.0);
             //m_revProductStoich.incrementSpecies(
             //    m_kdata->m_ropnet.begin(), net);
@@ -238,8 +238,8 @@ namespace Cantera {
          */ 
         virtual void getCreationRates(doublereal* cdot) {
             updateROP();
-            m_rxnstoich->getCreationRates(m_kk, m_kdata->m_ropf.begin(), 
-                m_kdata->m_ropr.begin(), cdot); 
+            m_rxnstoich->getCreationRates(m_kk, &m_kdata->m_ropf[0], 
+                &m_kdata->m_ropr[0], cdot); 
             //fill(cdot, cdot + m_kk, 0.0);
             //m_revProductStoich.incrementSpecies(
             //    m_kdata->m_ropf.begin(), cdot);
@@ -258,8 +258,8 @@ namespace Cantera {
          */ 
         virtual void getDestructionRates(doublereal* ddot) {
             updateROP();
-            m_rxnstoich->getDestructionRates(m_kk, m_kdata->m_ropf.begin(), 
-                m_kdata->m_ropr.begin(), ddot); 
+            m_rxnstoich->getDestructionRates(m_kk, &m_kdata->m_ropf[0], 
+                &m_kdata->m_ropr[0], ddot); 
             //            fill(ddot, ddot + m_kk, 0.0);
             //m_revProductStoich.incrementSpecies(
             //    m_kdata->m_ropr.begin(), ddot);

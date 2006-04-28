@@ -41,7 +41,8 @@ namespace Cantera {
             return fpts[0];
         if (x >= xpts.back()) 
             return fpts.back();
-        const doublereal* loc = lower_bound(xpts.begin(), xpts.end(), x);
+        vector_fp::const_iterator loc = 
+            lower_bound(xpts.begin(), xpts.end(), x);
         int iloc = int(loc - xpts.begin()) - 1;
         doublereal ff = fpts[iloc] + 
             (x - xpts[iloc])*(fpts[iloc + 1] 
@@ -63,14 +64,14 @@ namespace Cantera {
         vector_fp coeffs(n+1, 0.0);
         doublereal zer = 0.0;
 
-        dpolft_(&nn, x, y, w, &mdeg, &ndg, &epss, coeffs.begin(), 
-            &ierr, awork.begin());
+        dpolft_(&nn, x, y, w, &mdeg, &ndg, &epss, &coeffs[0],
+            &ierr, &awork[0]);
         if (ierr != 1) throw CanteraError("polyfit",
             "DPOLFT returned error code IERR = " + int2str(ierr) + 
             "while attempting to fit " + int2str(n) + " data points "
             + "to a polynomial of degree " + int2str(maxdeg));
         ndeg = ndg;
-        dpcoef_(&ndg, &zer, r, awork.begin());
+        dpcoef_(&ndg, &zer, r, &awork[0]);
         return epss;
     }   
 

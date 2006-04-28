@@ -46,7 +46,7 @@ namespace Cantera {
     enthalpy_mole() const {
         if (m_n0 <= 0.0) return 0.0; 
         _updateThermo();
-        return mean_X(m_h0.begin());
+        return mean_X(DATA_PTR(m_h0));
     }
 
     SurfPhase::
@@ -71,7 +71,7 @@ namespace Cantera {
         _updateThermo();
         copy(m_mu0.begin(), m_mu0.end(), mu);
         int k;
-        getActivityConcentrations(m_work.begin());
+        getActivityConcentrations(DATA_PTR(m_work));
         for (k = 0; k < m_kk; k++) {
             mu[k] += GasConstant * temperature() * (log(m_work[k]) - logStandardConc(k));
         } 
@@ -128,7 +128,7 @@ namespace Cantera {
         m_pe.resize(m_kk, 0.0);
         vector_fp cov(m_kk, 0.0);
         cov[0] = 1.0;
-        setCoverages(cov.begin());
+        setCoverages(DATA_PTR(cov));
         m_logsize.resize(m_kk);
         for (int k = 0; k < m_kk; k++) 
             m_logsize[k] = log(size(k));
@@ -178,7 +178,7 @@ namespace Cantera {
 	 * Call the State:: class function
 	 * setConcentrations.
 	 */
-        setConcentrations(m_work.begin());
+        setConcentrations(DATA_PTR(m_work));
     }
 
     void SurfPhase::
@@ -190,7 +190,7 @@ namespace Cantera {
 	 * Call the State:: class function
 	 * setConcentrations.
 	 */
-        setConcentrations(m_work.begin());
+        setConcentrations(DATA_PTR(m_work));
     }
 
     void SurfPhase::
@@ -216,7 +216,7 @@ namespace Cantera {
             c = cc[speciesName(k)];
             if (c > 0.0) cv[k] = c;
         }
-        setCoverages(cv.begin());
+        setCoverages(DATA_PTR(cv));
     }
 
 
@@ -224,8 +224,8 @@ namespace Cantera {
     _updateThermo(bool force) const {
         doublereal tnow = temperature();
         if (m_tlast != tnow || force) {
-            m_spthermo->update(tnow, m_cp0.begin(), m_h0.begin(), 
-                m_s0.begin());
+            m_spthermo->update(tnow, DATA_PTR(m_cp0), DATA_PTR(m_h0), 
+                DATA_PTR(m_s0));
             m_tlast = tnow;
             doublereal rt = GasConstant * tnow;
             int k;

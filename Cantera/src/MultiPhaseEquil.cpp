@@ -181,7 +181,7 @@ namespace Cantera {
         // Take a very small step in composition space, so that no
         // species has precisely zero moles.
         vector_fp dxi(m_nsp - m_nel, 1.0e-20);
-        multiply(m_N, dxi.begin(), m_work.begin());
+        multiply(m_N, DATA_PTR(dxi), DATA_PTR(m_work));
         unsort(m_work);
 
         for (k = 0; k < m_nsp; k++) {
@@ -239,7 +239,7 @@ namespace Cantera {
         for (k = 0; k < m_nsp; k++) {
             m_work3[m_species[k]] = m_moles[k];
         }
-        m_mix->setMoles(m_work3.begin());
+        m_mix->setMoles(DATA_PTR(m_work3));
     }
 
     /// Clean up the composition. The solution algorithm can leave
@@ -252,7 +252,7 @@ namespace Cantera {
         for (k = 0; k < m_nsp; k++) {
             m_work3[m_species[k]] = (m_moles[k] > 0.0 ? m_moles[k] : 0.0);
         }
-        m_mix->setMoles(m_work3.begin());
+        m_mix->setMoles(DATA_PTR(m_work3));
     }
 
 
@@ -266,12 +266,12 @@ namespace Cantera {
     /// linear Gibbs function subject to the element and
     /// non-negativity constraints.
     int MultiPhaseEquil::setInitialMoles() {
-        index_t m, n, ik, j;
+        index_t ik, j;
 
         double not_mu = 1.0e12;
         beginLogGroup("MultiPhaseEquil::setInitialMoles");
 
-        m_mix->getValidChemPotentials(not_mu, m_mu.begin(), true);
+        m_mix->getValidChemPotentials(not_mu, DATA_PTR(m_mu), true);
         doublereal dg_rt;
 
         int idir;
@@ -568,11 +568,11 @@ namespace Cantera {
         beginLogGroup("MultiPhaseEquil::stepComposition");
 
         m_iter++;
-        index_t ik, j, k = 0;
+        index_t ik, k = 0;
         doublereal grad0 = computeReactionSteps(m_dxi);
 
         // compute the mole fraction changes. 
-        multiply(m_N, m_dxi.begin(), m_work.begin());
+        multiply(m_N, DATA_PTR(m_dxi), DATA_PTR(m_work));
 
         // change to sequential form
         unsort(m_work);
@@ -635,7 +635,7 @@ namespace Cantera {
         // current direction. If it is positive, then we have overshot
         // the minimum. In this case, interpolate back.
         doublereal not_mu = 1.0e12;
-        m_mix->getValidChemPotentials(not_mu, m_mu.begin()); 
+        m_mix->getValidChemPotentials(not_mu, DATA_PTR(m_mu)); 
         doublereal grad1 = 0.0;
         for (k = 0; k < m_nsp; k++) {
             grad1 += m_work[k] * m_mu[m_species[k]];
@@ -667,7 +667,7 @@ namespace Cantera {
         dxi.resize(m_nsp - m_nel);
         computeN();
         doublereal not_mu = 1.0e12;
-        m_mix->getValidChemPotentials(not_mu, m_mu.begin());
+        m_mix->getValidChemPotentials(not_mu, DATA_PTR(m_mu));
 
         for (j = 0; j < m_nsp - m_nel; j++) {
 

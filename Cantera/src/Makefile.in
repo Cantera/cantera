@@ -28,12 +28,12 @@ SUNDIALS_INC = @sundials_include@
 # basic components always needed
 BASE_OBJ   = State.o Elements.o Constituents.o stringUtils.o misc.o \
              importCTML.o plots.o \
-             xml.o Phase.o DenseMatrix.o ctml.o funcs.o ctvector.o \
+             xml.o Phase.o DenseMatrix.o ctml.o funcs.o \
              phasereport.o ct2ctml.o
 
 BASE_H     = State.h Elements.h Constituents.h stringUtils.h global.h \
              importCTML.h plots.h xml.h Phase.h DenseMatrix.h ctml.h \
-             funcs.h ctvector.h ct_defs.h Array.h PropertyCalculator.h \
+             funcs.h ct_defs.h Array.h PropertyCalculator.h \
              ctexceptions.h ctlapack.h units.h mix_defs.h\
              utilities.h vec_functions.h XML_Writer.h diagnostics.h \
              config.h

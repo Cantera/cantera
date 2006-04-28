@@ -109,7 +109,7 @@ namespace Cantera {
         int n,m;
 
         // get the gaseous binary diffusion coefficients
-        m_gastran->getBinaryDiffCoeffs(m_nsp, m_d.begin());
+        m_gastran->getBinaryDiffCoeffs(m_nsp, m_d.ptrColumn(0));
         doublereal por2tort = m_porosity / m_tortuosity;
         for (n = 0; n < m_nsp; n++) 
             for (m = 0; m < m_nsp; m++) 
@@ -177,8 +177,8 @@ namespace Cantera {
         const doublereal* state2, double delta, double* fluxes) {
         int k;
         doublereal conc1, conc2;
-        doublereal* cbar = m_spwork.begin();
-        doublereal* gradc = m_spwork2.begin();
+        doublereal* cbar = DATA_PTR(m_spwork);
+        doublereal* gradc = DATA_PTR(m_spwork2);
         doublereal t1 = state1[0];
         doublereal t2 = state2[0];
         doublereal rho1 = state1[1];
@@ -268,7 +268,7 @@ namespace Cantera {
 
     void DustyGasTransport::updateTransport_C()  
     {
-        m_thermo->getMoleFractions(m_x.begin());
+        m_thermo->getMoleFractions(DATA_PTR(m_x));
 
         // add an offset to avoid a pure species condition
         // (check - this may be unnecessary)

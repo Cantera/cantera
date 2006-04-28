@@ -160,7 +160,7 @@ namespace Cantera {
         // call the phase-specific method to set the phase to the
         // equilibrium state with the specified species chemical
         // potentials.
-        s.setToEquilState(m_mu_RT.begin());
+        s.setToEquilState(DATA_PTR(m_mu_RT));
         update(s);
     }
 
@@ -172,7 +172,7 @@ namespace Cantera {
     void ChemEquil::update(const thermo_t& s) {
 
         // get the mole fractions, temperature, and density
-        m_phase->getMoleFractions(m_molefractions.begin());
+        m_phase->getMoleFractions(DATA_PTR(m_molefractions));
         m_temp = m_phase->temperature();
         m_dens = m_phase->density();
 
@@ -256,7 +256,7 @@ namespace Cantera {
 
         vector_fp mu_RT(m_kk, 0.0);
 
-        s.getChemPotentials(mu_RT.begin());
+        s.getChemPotentials(DATA_PTR(mu_RT));
         doublereal rrt = 1.0/(GasConstant*m_phase->temperature());
         scale(mu_RT.begin(), mu_RT.end(), mu_RT.begin(), rrt);
 
@@ -269,7 +269,7 @@ namespace Cantera {
 
         int info;
         try {
-            info = solve(aa, b.begin());
+            info = solve(aa, DATA_PTR(b));
         }
         catch (CanteraError) {
             addLogEntry("failed to estimate initial element potentials.");
@@ -396,7 +396,7 @@ namespace Cantera {
         for (int k = 0; k < m_kk; k++) {
             xmm[k] = m_phase->moleFraction(k) + Cutoff;
         }
-        m_phase->setMoleFractions(xmm.begin());
+        m_phase->setMoleFractions(DATA_PTR(xmm));
 
         update(s);
 
@@ -529,13 +529,13 @@ namespace Cantera {
         equilJacobian(s, x, elMoles, jac, xval, yval);
     
         // compute grad f = F*J
-        jac.leftMult(res_trial.begin(), grad.begin());
+        jac.leftMult(DATA_PTR(res_trial), DATA_PTR(grad));
         copy(x.begin(), x.end(), oldx.begin());
 
         oldf = f;
         scale(res_trial.begin(), res_trial.end(), res_trial.begin(), -1.0);
         try {
-            info = solve(jac, res_trial.begin());
+            info = solve(jac, DATA_PTR(res_trial));
         }
         catch (CanteraError) {
             addLogEntry("Jacobian is singular.");

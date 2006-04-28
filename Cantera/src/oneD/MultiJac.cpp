@@ -84,7 +84,7 @@ namespace Cantera {
                 rdx = 1.0/dx;
 
                 // calculate perturbed residual
-                m_resid->eval(j, x0, m_r1.begin(), rdt, 0);
+                m_resid->eval(j, x0, DATA_PTR(m_r1), rdt, 0);
 
                 // compute nth column of Jacobian
                 for (i = j - 1; i <= j+1; i++) {

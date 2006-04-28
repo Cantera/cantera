@@ -46,7 +46,8 @@ namespace Cantera {
          * @param points  Number of grid points.
          */
         Domain1D(int nv=1, int points=1, 
-            doublereal time = 0.0) : 
+            doublereal time = 0.0) :
+            m_rdt(0.0),  
             m_time(time),
             m_container(0), 
             m_index(-1),
@@ -55,7 +56,8 @@ namespace Cantera {
             m_jstart(0),
             m_left(0), 
             m_right(0),
-            m_refiner(0), m_id("-"), m_desc("-"), m_rdt(0.0) {
+            m_id("-"), m_desc("-"),
+            m_refiner(0) {
             resize(nv, points);
         }
 

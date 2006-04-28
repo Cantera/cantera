@@ -202,7 +202,7 @@ namespace Cantera {
         if (!m_jac_ok) {
             eval(-1, x, xnew, 0.0, 0);
             m_jac->eval(x, xnew, 0.0);
-            m_jac->updateTransient(m_rdt, m_mask.begin());
+            m_jac->updateTransient(m_rdt, DATA_PTR(m_mask));
             m_jac_ok = true;
         }
         int m = m_newt->solve(x, xnew, *this, *m_jac, loglevel);
@@ -237,17 +237,17 @@ namespace Cantera {
         fill(r, r + m_size, 0.0);
         fill(m_mask.begin(), m_mask.end(), 0);
         if (rdt < 0.0) rdt = m_rdt;
-        int nn;
+        //        int nn;
         vector<Domain1D*>::iterator d; 
 
         // iterate over the bulk domains first
         for (d = m_bulk.begin(); d != m_bulk.end(); ++d) {
-            (*d)->eval(j, x, r, m_mask.begin(), rdt);
+            (*d)->eval(j, x, r, DATA_PTR(m_mask), rdt);
         }
 
         // then over the connector domains
         for (d = m_connect.begin(); d != m_connect.end(); ++d) {
-            (*d)->eval(j, x, r, m_mask.begin(), rdt);
+            (*d)->eval(j, x, r, DATA_PTR(m_mask), rdt);
         }
 
         // increment counter and time
@@ -283,7 +283,7 @@ namespace Cantera {
         // if the stepsize has changed, then update the transient
         // part of the Jacobian
         if (fabs(rdt_old - m_rdt) > Tiny) {
-            m_jac->updateTransient(m_rdt, m_mask.begin());
+            m_jac->updateTransient(m_rdt, DATA_PTR(m_mask));
         }
 
         // iterate over all domains, preparing each one to begin
@@ -303,7 +303,7 @@ namespace Cantera {
      */
     void OneDim::setSteadyMode() {
         m_rdt = 0.0;
-        m_jac->updateTransient(m_rdt, m_mask.begin());
+        m_jac->updateTransient(m_rdt, DATA_PTR(m_mask));
     }
 
     /**

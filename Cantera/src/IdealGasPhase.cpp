@@ -275,7 +275,7 @@ namespace Cantera {
             pres += m_pp[k];
         }
         // set state
-        setState_PX(pres, m_pp.begin());
+        setState_PX(pres, &m_pp[0]);
     }
 
 
@@ -288,8 +288,8 @@ namespace Cantera {
         // If the temperature has changed since the last time these
         // properties were computed, recompute them.
         if (m_tlast != tnow) {
-            m_spthermo->update(tnow, m_cp0_R.begin(), m_h0_RT.begin(), 
-                m_s0_R.begin());
+            m_spthermo->update(tnow, &m_cp0_R[0], &m_h0_RT[0], 
+                &m_s0_R[0]);
             m_tlast = tnow;
 
             // update the species Gibbs functions

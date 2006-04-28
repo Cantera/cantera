@@ -30,8 +30,10 @@
 
 using namespace std;
 
-#include "ctvector.h"
-using namespace ct;
+//#include "ctvector.h"
+//using namespace ct;
+
+#define DATA_PTR(vec) &vec[0]
 
 #ifdef WIN32
 #define TYPENAME_KEYWORD
@@ -152,15 +154,23 @@ namespace Cantera {
 
     // typedefs
     typedef std::map<string, doublereal> compositionMap;
+#define USE_STL_VECTOR
+#ifdef USE_STL_VECTOR
+    typedef std::vector<double>            array_fp;
+    typedef std::vector<double>            vector_fp;
+    typedef std::vector<int>           array_int;
+    typedef std::vector<int>           vector_int;
+#else
     typedef ct::ctvector_fp            array_fp;
     typedef ct::ctvector_fp            vector_fp;
     typedef ct::ctvector_int           array_int;
     typedef ct::ctvector_int           vector_int;
+#endif
     typedef vector_int         group_t;
     typedef std::vector<group_t>    grouplist_t;
  
-    typedef vector_fp::iterator workPtr;
-    typedef vector_fp::const_iterator const_workPtr;
+    typedef doublereal* workPtr;
+    typedef const doublereal* const_workPtr;
 
 
     //    template<class A, class B>

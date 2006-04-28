@@ -136,7 +136,7 @@ namespace CanteraZeroD {
         doublereal intEnergy_mass() const { return m_intEnergy; }
         doublereal pressure() const { return m_pressure; }
         doublereal mass() const { return m_vol * density(); }
-        const doublereal* massFractions() const { return m_state.begin() + 2; }
+        const doublereal* massFractions() const { return DATA_PTR(m_state) + 2; }
         doublereal massFraction(int k) const { return m_state[k+2]; }
 
         //@}

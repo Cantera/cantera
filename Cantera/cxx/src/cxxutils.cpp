@@ -57,8 +57,8 @@ namespace Cantera {
         int kk = th.nSpecies();
         array_fp x(kk);
         array_fp y(kk);
-        th.getMoleFractions(x.begin());
-        th.getMassFractions(y.begin());
+        th.getMoleFractions(DATA_PTR(x));
+        th.getMassFractions(DATA_PTR(y));
 
         int k;
 
@@ -90,9 +90,9 @@ namespace Cantera {
         int kk = mix.nSpecies();
         array_fp zz(kk);
         switch (xyc) {
-        case 0: mix.getMoleFractions(zz.begin()); break;
-        case 1: mix.getMassFractions(zz.begin()); break;
-        case 2: mix.getConcentrations(zz.begin()); break;
+        case 0: mix.getMoleFractions(DATA_PTR(zz)); break;
+        case 1: mix.getMassFractions(DATA_PTR(zz)); break;
+        case 2: mix.getConcentrations(DATA_PTR(zz)); break;
         default: return "error: xyc must be 0, 1, or 2";
         }
 

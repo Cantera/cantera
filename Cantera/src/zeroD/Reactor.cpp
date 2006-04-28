@@ -103,7 +103,7 @@ namespace CanteraZeroD {
 #ifdef INCL_REACTOR_INTEG
         m_atol.resize(neq());
         fill(m_atol.begin(), m_atol.end(), 1.e-15);
-        m_integ->setTolerances(m_rtol, neq(), m_atol.begin());
+        m_integ->setTolerances(m_rtol, neq(), DATA_PTR(m_atol));
         m_integ->setMaxStepSize(m_maxstep);
         m_integ->initialize(t0, *this);
 #endif
@@ -254,7 +254,7 @@ namespace CanteraZeroD {
                 sum = 0.0;
                 surf->setTemperature(m_state[0]);
                 m_wall[i]->syncCoverages(m_lr[i]);
-                kin->getNetProductionRates(m_work.begin());
+                kin->getNetProductionRates(DATA_PTR(m_work));
                 ns = kin->surfacePhaseIndex();
                 surfloc = kin->kineticsSpeciesIndex(0,ns);
                 for (k = 1; k < nk; k++) {
@@ -279,7 +279,7 @@ namespace CanteraZeroD {
          *  \dot M_k = \hat W_k \dot\omega_k + \dot m_{in} Y_{k,in}
          *             - \dot m_{out} Y_{k} + A \dot s_k.
          */
-        const doublereal* mw = m_mix->molecularWeights().begin();
+        const doublereal* mw = DATA_PTR(m_mix->molecularWeights());
         if (m_chem) {
             m_kin->getNetProductionRates(ydot+2);   // "omega dot"
         }

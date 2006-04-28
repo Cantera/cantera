@@ -238,7 +238,7 @@ namespace Cantera {
 	if (s.hasChild("size")) sz = getFloat(s, "size");
 
         // add the species to phase p.
-	p.addUniqueSpecies(s["name"], ecomp.begin(), chrg, sz);
+	p.addUniqueSpecies(s["name"], &ecomp[0], chrg, sz);
 
         // install the thermo parameterization for this species into
         // the species thermo manager for phase p.

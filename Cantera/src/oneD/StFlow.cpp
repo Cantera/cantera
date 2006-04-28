@@ -176,14 +176,14 @@ namespace Cantera {
             vmin[4+k] = -1.0e-5;
             vmax[4+k] = 1.0e5;
         }
-        setBounds(vmin.size(), vmin.begin(), vmax.size(), vmax.begin());
+        setBounds(vmin.size(), DATA_PTR(vmin), vmax.size(), DATA_PTR(vmax));
 
 
         //-------------------- default error tolerances ----------------
         vector_fp rtol(m_nv, 1.0e-8);
         vector_fp atol(m_nv, 1.0e-15);
-        setTolerances(rtol.size(), rtol.begin(), atol.size(), atol.begin(),false);
-        setTolerances(rtol.size(), rtol.begin(), atol.size(), atol.begin(),true);
+        setTolerances(rtol.size(), DATA_PTR(rtol), atol.size(), DATA_PTR(atol),false);
+        setTolerances(rtol.size(), DATA_PTR(rtol), atol.size(), DATA_PTR(atol),true);
 
         //-------------------- grid refinement -------------------------
         m_refiner->setActive(0, false);
@@ -193,7 +193,7 @@ namespace Cantera {
 
         vector_fp gr;
         for (int ng = 0; ng < m_points; ng++) gr.push_back(1.0*ng/m_points);
-        setupGrid(m_points, gr.begin());
+        setupGrid(m_points, DATA_PTR(gr));
         setID("stagnation flow");
     }
 
@@ -289,7 +289,7 @@ namespace Cantera {
         const doublereal* yyjp = x + m_nv*(j+1) + c_offset_Y;
         for (int k = 0; k < m_nsp; k++)
             m_ybar[k] = 0.5*(yyj[k] + yyjp[k]);
-        m_thermo->setMassFractions_NoNorm(m_ybar.begin());
+        m_thermo->setMassFractions_NoNorm(DATA_PTR(m_ybar));
         m_thermo->setPressure(m_press);
     }
 
@@ -582,7 +582,7 @@ namespace Cantera {
             for (j = j0; j < j1; j++) {
                 setGasAtMidpoint(x,j);
                 m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
-                m_trans->getMixDiffCoeffs(m_diff.begin() + j*m_nsp);
+                m_trans->getMixDiffCoeffs(DATA_PTR(m_diff) + j*m_nsp);
                 m_tcon[j] = m_trans->thermalConductivity();
             }
         }
@@ -597,7 +597,7 @@ namespace Cantera {
                 m_visc[m] = (m_dovisc ? m_trans->viscosity() : 0.0);
 
                 m_trans->getMultiDiffCoeffs(m_nsp, 
-                    m_multidiff.begin() + mindex(0,0,m));
+                    DATA_PTR(m_multidiff) + mindex(0,0,m));
 
                 for (k = 0; k < m_nsp; k++) {
                     sum = 0.0;
@@ -614,7 +614,7 @@ namespace Cantera {
 
                 m_tcon[m] = m_trans->thermalConductivity();
                 if (m_do_soret) {
-                    m_trans->getThermalDiffCoeffs(m_dthermal.begin() + m*m_nsp);
+                    m_trans->getThermalDiffCoeffs(m_dthermal.ptrColumn(0) + m*m_nsp);
                 }
             }
         }
@@ -1043,7 +1043,7 @@ namespace Cantera {
                 writelog("Grid contains "+int2str(np)+
                     " points.\n");
                 readgrid = true;
-                setupGrid(np, x.begin());
+                setupGrid(np, DATA_PTR(x));
             }
         }
         if (!readgrid) {
@@ -1157,27 +1157,27 @@ namespace Cantera {
         if (m_desc != "") addString(flow,"description",m_desc);
         XML_Node& gv = flow.addChild("grid_data");
         addFloat(flow, "pressure", m_press, "Pa", "pressure"); 
-        addFloatArray(gv,"z",m_z.size(),m_z.begin(),
+        addFloatArray(gv,"z",m_z.size(),DATA_PTR(m_z),
             "m","length");
 		vector_fp x(static_cast<size_t>(soln.nColumns()));
 
-        soln.getRow(0,x.begin());
-        addFloatArray(gv,"u",x.size(),x.begin(),"m/s","velocity");
+                soln.getRow(0,DATA_PTR(x));
+                addFloatArray(gv,"u",x.size(),DATA_PTR(x),"m/s","velocity");
 
-        soln.getRow(1,x.begin());
+        soln.getRow(1,DATA_PTR(x));
         addFloatArray(gv,"V",
-            x.size(),x.begin(),"1/s","rate");
+            x.size(),DATA_PTR(x),"1/s","rate");
 
-        soln.getRow(2,x.begin());
-        addFloatArray(gv,"T",x.size(),x.begin(),"K","temperature",0.0);
+        soln.getRow(2,DATA_PTR(x));
+        addFloatArray(gv,"T",x.size(),DATA_PTR(x),"K","temperature",0.0);
 
-        soln.getRow(3,x.begin());
-        addFloatArray(gv,"L",x.size(),x.begin(),"N/m^4");
+        soln.getRow(3,DATA_PTR(x));
+        addFloatArray(gv,"L",x.size(),DATA_PTR(x),"N/m^4");
 
         for (k = 0; k < m_nsp; k++) {
-            soln.getRow(4+k,x.begin());
+            soln.getRow(4+k,DATA_PTR(x));
             addFloatArray(gv,m_thermo->speciesName(k),
-                x.size(),x.begin(),"","massFraction",0.0,1.0);
+                x.size(),DATA_PTR(x),"","massFraction",0.0,1.0);
         }
     }
 

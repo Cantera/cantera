@@ -160,11 +160,11 @@ namespace Cantera {
             updateROP();
             fill(cdot, cdot + m_kk, 0.0);
             m_revProductStoich.incrementSpecies(
-                m_kdata->m_ropf.begin(), cdot);
+                &m_kdata->m_ropf[0], cdot);
             m_irrevProductStoich.incrementSpecies(
-                m_kdata->m_ropf.begin(), cdot);
+                &m_kdata->m_ropf[0], cdot);
             m_reactantStoich.incrementSpecies(
-                m_kdata->m_ropr.begin(), cdot);
+                &m_kdata->m_ropr[0], cdot);
         }
 
         /**
@@ -179,9 +179,9 @@ namespace Cantera {
             updateROP();
             fill(ddot, ddot + m_kk, 0.0);
             m_revProductStoich.incrementSpecies(
-                m_kdata->m_ropr.begin(), ddot);
+                &m_kdata->m_ropr[0], ddot);
             m_reactantStoich.incrementSpecies(
-                m_kdata->m_ropf.begin(), ddot);
+                &m_kdata->m_ropf[0], ddot);
         }
 
 	/**
@@ -195,11 +195,11 @@ namespace Cantera {
             updateROP();
             fill(net, net + m_kk, 0.0);
             m_revProductStoich.incrementSpecies(
-                m_kdata->m_ropnet.begin(), net);
+                &m_kdata->m_ropnet[0], net);
             m_irrevProductStoich.incrementSpecies(
-                m_kdata->m_ropnet.begin(), net);
+                &m_kdata->m_ropnet[0], net);
             m_reactantStoich.decrementSpecies(
-                m_kdata->m_ropnet.begin(), net);
+                &m_kdata->m_ropnet[0], net);
         }
 
         //@}

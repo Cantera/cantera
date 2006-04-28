@@ -169,7 +169,7 @@ namespace Cantera {
     }
 
     doublereal State::mean_Y(const doublereal* Q) const {
-        return dot(m_ym.begin(), m_ym.end(), Q);
+        return dot(m_y.begin(), m_y.end(), Q);
     }
 
     void State::getMoleFractions(doublereal* x) const {

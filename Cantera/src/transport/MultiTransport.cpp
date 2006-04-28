@@ -117,12 +117,12 @@ namespace Cantera {
             integer n2 = 2*n;
             integer n3 = 3*n;
             ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, n, n2, 1.0, 
-                data().begin(), static_cast<int>(nRows()), b, 1, 0.0, prod, 1);
+                DATA_PTR(data()), static_cast<int>(nRows()), b, 1, 0.0, prod, 1);
             ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, n, n3, 1.0, 
-                data().begin() + n, static_cast<int>(nRows()), 
+                DATA_PTR(data()) + n, static_cast<int>(nRows()), 
 				b, 1, 0.0, prod+n, 1);
             ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, n, n, 1.0, 
-                data().begin() + n*n3 + n2, static_cast<int>(nRows()), 
+                DATA_PTR(data()) + n*n3 + n2, static_cast<int>(nRows()), 
 				b + n, 1, 0.0, prod+n2, 1);
             for (int i = 0; i < n; i++)
                 prod[i + n2] += b[i + n2] * value(i + n2, i + n2);
@@ -397,15 +397,15 @@ namespace Cantera {
         
         m_Lmatrix.resize(3*m_nsp, 3*m_nsp, 0.0);
 
-        eval_L0000(m_molefracs.begin());
-        eval_L0010(m_molefracs.begin());
+        eval_L0000(DATA_PTR(m_molefracs));
+        eval_L0010(DATA_PTR(m_molefracs));
         eval_L0001();
         eval_L1000();
-        eval_L1010(m_molefracs.begin());
-        eval_L1001(m_molefracs.begin());
+        eval_L1010(DATA_PTR(m_molefracs));
+        eval_L1001(DATA_PTR(m_molefracs));
         eval_L0100();
         eval_L0110();
-        eval_L0101(m_molefracs.begin());
+        eval_L0101(DATA_PTR(m_molefracs));
 
 
         // Solve it using GMRES or LU decomposition. The last solution
@@ -421,7 +421,7 @@ namespace Cantera {
         //else {
             copy(m_b.begin(), m_b.end(), m_a.begin());
             try {
-                int info = solve(m_Lmatrix, m_a.begin());
+                solve(m_Lmatrix, DATA_PTR(m_a));
             }
             catch (CanteraError) {
                 //if (info != 0) {
@@ -456,7 +456,7 @@ namespace Cantera {
         for (i = 0; i < ndim; i++) {
             if (grad_T[i] != 0.0) addThermalDiffusion = true;
         }
-        if (addThermalDiffusion) getThermalDiffCoeffs(m_spwork.begin());
+        if (addThermalDiffusion) getThermalDiffCoeffs(DATA_PTR(m_spwork));
 
         const doublereal* y = m_thermo->massFractions();
         doublereal rho = m_thermo->density();
@@ -510,14 +510,14 @@ namespace Cantera {
         // use LAPACK to solve the equations
         int info=0;
         ct_dgetrf(static_cast<int>(m_aa.nRows()), 
-			      static_cast<int>(m_aa.nColumns()), m_aa.begin(),
+			      static_cast<int>(m_aa.nColumns()), m_aa.ptrColumn(0),
 				  static_cast<int>(m_aa.nRows()), 
-            m_aa.ipiv().begin(), info);
+            &m_aa.ipiv()[0], info);
         if (info == 0) { 
             ct_dgetrs(ctlapack::NoTranspose, 
 					  static_cast<int>(m_aa.nRows()), ndim, 
-                m_aa.begin(), static_cast<int>(m_aa.nRows()), 
-                m_aa.ipiv().begin(), fluxes, ldf, info);
+                m_aa.ptrColumn(0), static_cast<int>(m_aa.nRows()), 
+                &m_aa.ipiv()[0], fluxes, ldf, info);
             if (info != 0) info += 100;
         }
         else 
@@ -558,9 +558,9 @@ namespace Cantera {
         const doublereal* state2, doublereal delta, 
         doublereal* fluxes) {
 
-        double* x1 = m_spwork1.begin();
-        double* x2 = m_spwork2.begin();
-        double* x3 = m_spwork3.begin();
+        double* x1 = DATA_PTR(m_spwork1);
+        double* x2 = DATA_PTR(m_spwork2);
+        double* x3 = DATA_PTR(m_spwork3);
         int n, nsp = m_thermo->nSpecies();
         m_thermo->restoreState(nsp+2, state1);
         double p1 = m_thermo->pressure();
@@ -580,7 +580,7 @@ namespace Cantera {
             x3[n] = 0.5*(x1[n] + x2[n]);
         }
         m_thermo->setState_TPX(t, p, x3);
-        m_thermo->getMoleFractions(m_molefracs.begin());
+        m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
 
 
         // update the binary diffusion coefficients if necessary
@@ -595,7 +595,7 @@ namespace Cantera {
         bool addThermalDiffusion = false;
         if (state1[0] != state2[0]) {
             addThermalDiffusion = true;
-            getThermalDiffCoeffs(m_spwork.begin());
+            getThermalDiffCoeffs(DATA_PTR(m_spwork));
         }
 
         const doublereal* y = m_thermo->massFractions();
@@ -636,11 +636,11 @@ namespace Cantera {
         int nr = m_aa.nRows();
         int nc = m_aa.nColumns();
 
-        ct_dgetrf(nr, nc, m_aa.begin(), nr, m_aa.ipiv().begin(), info);
+        ct_dgetrf(nr, nc, m_aa.ptrColumn(0), nr, &m_aa.ipiv()[0], info);
         if (info == 0) { 
             int ndim = 1;
             ct_dgetrs(ctlapack::NoTranspose, nr, ndim, 
-                m_aa.begin(), nr, m_aa.ipiv().begin(), fluxes, nr, info);
+                m_aa.ptrColumn(0), nr, &m_aa.ipiv()[0], fluxes, nr, info);
             if (info != 0) 
                 throw CanteraError("MultiTransport::getMassFluxes",
                     "Error in DGETRS. Info = "+int2str(info));
@@ -690,7 +690,7 @@ namespace Cantera {
 
         // evaluate L0000 if the temperature or concentrations have
         // changed since it was last evaluated.
-        if (!m_l0000_ok) eval_L0000(m_molefracs.begin());
+        if (!m_l0000_ok) eval_L0000(DATA_PTR(m_molefracs));
         
         // invert L00,00
         int ierr = invert(m_Lmatrix, m_nsp);
@@ -804,7 +804,7 @@ namespace Cantera {
         // fraction array.
         m_l0000_ok = false;
         m_lmatrix_soln_ok = false;
-        m_thermo->getMoleFractions(m_molefracs.begin());
+        m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
 
 
         // add an offset to avoid a pure species condition
@@ -967,16 +967,16 @@ namespace Cantera {
                 z = m_logt - m_log_eps_k(i,j);
                 ipoly = m_poly[i][j];
                 if (m_mode == CK_Mode) {
-                    m_om22(i,j) = poly6(z, m_om22_poly[ipoly].begin());
-                    m_astar(i,j) = poly6(z, m_astar_poly[ipoly].begin());
-                    m_bstar(i,j) = poly6(z, m_bstar_poly[ipoly].begin());
-                    m_cstar(i,j) = poly6(z, m_cstar_poly[ipoly].begin());
+                    m_om22(i,j) = poly6(z, DATA_PTR(m_om22_poly[ipoly]));
+                    m_astar(i,j) = poly6(z, DATA_PTR(m_astar_poly[ipoly]));
+                    m_bstar(i,j) = poly6(z, DATA_PTR(m_bstar_poly[ipoly]));
+                    m_cstar(i,j) = poly6(z, DATA_PTR(m_cstar_poly[ipoly]));
                 }
                 else {
-                    m_om22(i,j) = poly8(z, m_om22_poly[ipoly].begin());
-                    m_astar(i,j) = poly8(z, m_astar_poly[ipoly].begin());
-                    m_bstar(i,j) = poly8(z, m_bstar_poly[ipoly].begin());
-                    m_cstar(i,j) = poly8(z, m_cstar_poly[ipoly].begin());
+                    m_om22(i,j) = poly8(z, DATA_PTR(m_om22_poly[ipoly]));
+                    m_astar(i,j) = poly8(z, DATA_PTR(m_astar_poly[ipoly]));
+                    m_bstar(i,j) = poly8(z, DATA_PTR(m_bstar_poly[ipoly]));
+                    m_cstar(i,j) = poly8(z, DATA_PTR(m_cstar_poly[ipoly]));
                 }
                 m_om22(j,i)  = m_om22(i,j);
                 m_astar(j,i) = m_astar(i,j);

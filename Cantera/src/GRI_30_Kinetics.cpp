@@ -39,10 +39,10 @@ namespace Cantera {
         if (fabs(T - m_kdata->m_temp) > m_dt_threshold) {
             doublereal logT = log(T);
             m_kdata->m_logc_ref = m_kdata->m_logp_ref - logT;
-            update_rates(T, logT, m_kdata->m_rfn.begin());
-            m_falloff_low_rates.update(T, logT, m_kdata->m_rfn_low.begin());
-            m_falloff_high_rates.update(T, logT, m_kdata->m_rfn_high.begin());
-            m_falloffn.updateTemp(T, m_kdata->falloff_work.begin());
+            update_rates(T, logT, &m_kdata->m_rfn[0]);
+            m_falloff_low_rates.update(T, logT, &m_kdata->m_rfn_low[0]);
+            m_falloff_high_rates.update(T, logT, &m_kdata->m_rfn_high[0]);
+            m_falloffn.updateTemp(T, &m_kdata->falloff_work[0]);
             m_kdata->m_temp = T;
             gri30_updateKc();
             m_kdata->m_ROP_ok = false;
@@ -55,9 +55,9 @@ namespace Cantera {
      * @todo This formulation assumes an ideal gas. 
      */
     void GRI_30_Kinetics::gri30_updateKc() {
-        doublereal* rkc = m_kdata->m_rkcn.begin();
+        doublereal* rkc = &m_kdata->m_rkcn[0];
         const doublereal* a = 
-	    ((IdealGasPhase*)m_thermo[0])->expGibbs_RT_ref().begin();
+	    &((IdealGasPhase*)m_thermo[0])->expGibbs_RT_ref()[0];
         doublereal exp_c_ref = exp(m_kdata->m_logc_ref);
         update_kc(a, exp_c_ref, rkc);
     }
@@ -76,10 +76,10 @@ namespace Cantera {
         array_fp& ropnet = m_kdata->m_ropnet;
 
         copy(rf.begin(), rf.end(), ropf.begin());
-        m_3b_concm.multiply( ropf.begin(), m_kdata->concm_3b_values.begin() );
+        m_3b_concm.multiply( &ropf[0], &m_kdata->concm_3b_values[0] );
         processFalloffReactions();
         multiply_each(ropf.begin(), ropf.end(), m_perturb.begin());
-        eval_ropnet(m_conc.begin(), ropf.begin(), rkc.begin(), ropnet.begin());
+        eval_ropnet(&m_conc[0], &ropf[0], &rkc[0], &ropnet[0]);
         m_kdata->m_ROP_ok = true;
     }
 

@@ -873,8 +873,8 @@ namespace Cantera {
         //int k;
         int kk = s.nTotalSpecies();
 
-        s.getFwdRatesOfProgress(m_ropf.begin());
-        s.getRevRatesOfProgress(m_ropr.begin());
+        s.getFwdRatesOfProgress(DATA_PTR(m_ropf));
+        s.getRevRatesOfProgress(DATA_PTR(m_ropr));
 
         //ph.getMoleFractions(m_x.begin());
 

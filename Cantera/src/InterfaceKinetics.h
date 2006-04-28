@@ -191,8 +191,8 @@ namespace Cantera {
          */ 
         virtual void getCreationRates(doublereal* cdot) {
             updateROP();
-            m_rxnstoich.getCreationRates(m_kk, m_kdata->m_ropf.begin(), 
-                m_kdata->m_ropr.begin(), cdot); 
+            m_rxnstoich.getCreationRates(m_kk, &m_kdata->m_ropf[0], 
+                &m_kdata->m_ropr[0], cdot); 
         }
 
         /**
@@ -205,8 +205,8 @@ namespace Cantera {
          */ 
         virtual void getDestructionRates(doublereal* ddot) {
             updateROP();
-            m_rxnstoich.getDestructionRates(m_kk, m_kdata->m_ropf.begin(), 
-                m_kdata->m_ropr.begin(), ddot); 
+            m_rxnstoich.getDestructionRates(m_kk, &m_kdata->m_ropf[0], 
+                &m_kdata->m_ropr[0], ddot); 
         }
 
 	/**
@@ -219,7 +219,7 @@ namespace Cantera {
         virtual void getNetProductionRates(doublereal* net) {
             updateROP();
              m_rxnstoich.getNetProductionRates(m_kk, 
-					      m_kdata->m_ropnet.begin(),
+					      &m_kdata->m_ropnet[0],
 					      net); 
         }
 

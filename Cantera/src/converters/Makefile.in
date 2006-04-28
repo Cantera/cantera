@@ -18,8 +18,9 @@ do_ranlib = @DO_RANLIB@
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) 
 
 OBJS = atomicWeightDB.o CKParser.o CKReader.o Reaction.o ckr_utils.o \
-       thermoFunctions.o writelog.o ck2ct.o ck2ctml.o
-CONV_H = ck2ctml.h    CKReader.h      thermoFunctions.h \
+       thermoFunctions.o writelog.o ck2ct.o 
+# ck2ctml.o
+CONV_H = CKReader.h      thermoFunctions.h \
          Element.h    Reaction.h      CKParser.h    \
          ckr_utils.h  RxnSpecies.h    writelog.h \
          ck2ct.h      ckr_defs.h      Constituent.h   \

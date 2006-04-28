@@ -150,7 +150,7 @@ namespace Cantera {
         // update m_visc and m_phi if necessary
         if (!m_viscwt_ok) updateViscosity_T();
 
-        multiply(m_phi, m_molefracs.begin(), m_spwork.begin());
+        multiply(m_phi, DATA_PTR(m_molefracs), DATA_PTR(m_spwork));
 
         for (k = 0; k < m_nsp; k++) {
             vismix += m_molefracs[k] * m_visc[k]/m_spwork[k]; //denom;
@@ -182,7 +182,7 @@ namespace Cantera {
 
     void MixTransport::getMobilities(doublereal* mobil) {
         int k;
-        getMixDiffCoeffs(m_spwork.begin());
+        getMixDiffCoeffs(DATA_PTR(m_spwork));
         doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
         for (k = 0; k < m_nsp; k++) {
             mobil[k] = c1 * m_spwork[k] * m_thermo->charge(k);
@@ -250,7 +250,7 @@ namespace Cantera {
         update_T();
         update_C();
 
-        getMixDiffCoeffs(m_spwork.begin());
+        getMixDiffCoeffs(DATA_PTR(m_spwork));
 
         const array_fp& mw = m_thermo->molecularWeights();
         const doublereal* y  = m_thermo->massFractions();
@@ -367,7 +367,7 @@ namespace Cantera {
         m_diffmix_ok = false;
         m_condmix_ok = false;
 
-        m_thermo->getMoleFractions(m_molefracs.begin());
+        m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
 
         // add an offset to avoid a pure species condition
         int k;

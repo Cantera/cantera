@@ -79,7 +79,7 @@ namespace Cantera {
 
         void Phase::saveState(vector_fp& state) const {
             state.resize(nSpecies() + 2);
-            saveState(state.size(),state.begin());
+            saveState(state.size(),&state[0]);
         }
         void Phase::saveState(int lenstate, doublereal* state) const {
             state[0] = temperature();
@@ -88,7 +88,7 @@ namespace Cantera {
         }
 
         void Phase::restoreState(const vector_fp& state) {
-            restoreState(state.size(),state.begin());
+            restoreState(state.size(),&state[0]);
         }
 
         void Phase::restoreState(int lenstate, const doublereal* state) {
@@ -111,7 +111,7 @@ namespace Cantera {
                 x = xMap[speciesName(k)];
                 if (x > 0.0) mf[k] = x;
             }
-            setMoleFractions(mf.begin());
+            setMoleFractions(&mf[0]);
         }
 
         void Phase::setMoleFractionsByName(const string& x) {
@@ -138,7 +138,7 @@ namespace Cantera {
                 y = yMap[speciesName(k)];
                 if (y > 0.0) mf[k] = y;
             }
-            setMassFractions(mf.begin());
+            setMassFractions(&mf[0]);
         }
 
         void Phase::setMassFractionsByName(const string& y) {
@@ -304,7 +304,7 @@ namespace Cantera {
             m_data[1] = 0.001;
             m_data[2] = 1.0;
 
-            setState_TRY(300.0, density(), m_data.begin() + 2);
+            setState_TRY(300.0, density(), &m_data[2]);
 
             m_kk = nSpecies();
 	} 

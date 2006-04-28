@@ -98,7 +98,7 @@ namespace Cantera {
         m_xstr = xin;
         if (m_flow) {
             m_flow->phase().setMoleFractionsByName(xin);
-            m_flow->phase().getMassFractions(m_yin.begin());
+            m_flow->phase().getMassFractions(DATA_PTR(m_yin));
             needJacUpdate();
         }
     }
@@ -107,7 +107,7 @@ namespace Cantera {
     setMoleFractions(doublereal* xin) {
         if (m_flow) {
             m_flow->phase().setMoleFractions(xin);
-            m_flow->phase().getMassFractions(m_yin.begin());
+            m_flow->phase().getMassFractions(DATA_PTR(m_yin));
             needJacUpdate();
         }
     }
@@ -134,7 +134,7 @@ namespace Cantera {
         // set tolerances
         vector_fp rtol(2, 1e-4);
         vector_fp atol(2, 1.e-5);
-        setTolerances(2, rtol.begin(), 2, atol.begin());
+        setTolerances(2, DATA_PTR(rtol), 2, DATA_PTR(atol));
 
         // if a flow domain is present on the left, then this must be
         // a right inlet. Note that an inlet object can only be a
@@ -504,7 +504,7 @@ namespace Cantera {
         m_xstr = xres;
         if (m_flow) {
             m_flow->phase().setMoleFractionsByName(xres);
-            m_flow->phase().getMassFractions(m_yres.begin());
+            m_flow->phase().getMassFractions(DATA_PTR(m_yres));
             needJacUpdate();
         }
     }
@@ -513,7 +513,7 @@ namespace Cantera {
     setMoleFractions(doublereal* xres) {
         if (m_flow) {
             m_flow->phase().setMoleFractions(xres);
-            m_flow->phase().getMassFractions(m_yres.begin());
+            m_flow->phase().getMassFractions(DATA_PTR(m_yres));
             needJacUpdate();
         }
     }
@@ -747,14 +747,14 @@ namespace Cantera {
             lower[n+1] = -1.0e-5;
             upper[n+1] = 2.0;
         }
-        setBounds(m_nv, lower.begin(), m_nv, upper.begin());
+        setBounds(m_nv, DATA_PTR(lower), m_nv, DATA_PTR(upper));
         vector_fp rtol(m_nv), atol(m_nv);
         for (n = 0; n < m_nv; n++) {
             rtol[n] = 1.0e-5;
             atol[n] = 1.0e-9;
         }
         atol[0] = 1.0e-4;
-        setTolerances(m_nv, rtol.begin(), m_nv, atol.begin());
+        setTolerances(m_nv, DATA_PTR(rtol), m_nv, DATA_PTR(atol));
     }
 
 
@@ -780,7 +780,7 @@ namespace Cantera {
             sum += x[k+1];
         }
         m_sphase->setTemperature(x[0]);
-        m_sphase->setCoverages(m_work.begin());
+        m_sphase->setCoverages(DATA_PTR(m_work));
         //m_kin->advanceCoverages(1.0);
         //m_sphase->getCoverages(m_fixed_cov.begin());
 
@@ -800,7 +800,7 @@ namespace Cantera {
             m_flow_right->setGas(xg + rightloc, 0);
         }
 
-        m_kin->getNetProductionRates(m_work.begin());
+        m_kin->getNetProductionRates(DATA_PTR(m_work));
         doublereal rs0 = 1.0/m_sphase->siteDensity();
             
         //scale(m_work.begin(), m_work.end(), m_work.begin(), m_mult[0]);
@@ -838,7 +838,7 @@ namespace Cantera {
         int nc;
         if (m_flow_left) {
             nc = m_flow_left->nComponents();
-            const doublereal* mwleft = m_phase_left->molecularWeights().begin();
+            const doublereal* mwleft = DATA_PTR(m_phase_left->molecularWeights());
             rb =r - nc;
             xb = x - nc;
             rb[2] = xb[2] - x[0];            // specified T

@@ -173,14 +173,14 @@ namespace Cantera {
 	 * Returns a read-only pointer to the start of the
 	 * massFraction array
 	 */
-        const doublereal* massFractions() const { return m_y.begin(); }
+        const doublereal* massFractions() const { return &m_y[0]; }
 
 	/**
 	 * Returns a read-only pointer to the start of the
 	 * moleFraction/MW array.  This array is the array of mole
 	 * fractions, each divided by the mean molecular weight.
 	 */
-        const doublereal* moleFractdivMMW() const { return m_ym.begin();}
+        const doublereal* moleFractdivMMW() const { return &m_ym[0];}
 
 
         //@}

@@ -129,7 +129,7 @@ namespace Cantera {
         int info=0;
         copy(data.begin(), data.end(), ludata.begin());
         ct_dgbtrf(rows(), columns(), nSubDiagonals(), nSuperDiagonals(), 
-            ludata.begin(), ldim(), ipiv().begin(), info);
+            DATA_PTR(ludata), ldim(), DATA_PTR(ipiv()), info);
 
         // if info = 0, LU decomp succeeded. 
         if (info == 0) {
@@ -187,8 +187,8 @@ namespace Cantera {
         if (!m_factored) info = factor();
 	if (info == 0)
 	  ct_dgbtrs(ctlapack::NoTranspose, columns(), nSubDiagonals(), 
-		    nSuperDiagonals(), 1, ludata.begin(), ldim(), 
-		    ipiv().begin(), b, columns(), info);
+              nSuperDiagonals(), 1, DATA_PTR(ludata), ldim(), 
+              DATA_PTR(ipiv()), b, columns(), info);
 
         // error handling
         if (info != 0) {

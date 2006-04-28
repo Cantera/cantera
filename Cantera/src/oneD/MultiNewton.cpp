@@ -324,7 +324,7 @@ namespace Cantera {
             if (forceNewJac) {
                 r.eval(-1, x, stp, 0.0, 0);
                 jac.eval(x, stp, 0.0);
-                jac.updateTransient(rdt, r.transientMask().begin());
+                jac.updateTransient(rdt, DATA_PTR(r.transientMask()));
                 forceNewJac = false;
             }
 

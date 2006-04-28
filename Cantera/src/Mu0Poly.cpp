@@ -399,7 +399,7 @@ namespace Cantera {
 	  c[2+i*2+1] = cValues[i];
 	}
       
-        sp.install(speciesName, k, MU0_INTERP, c.begin(), tmin, tmax, pref);
+        sp.install(speciesName, k, MU0_INTERP, &c[0], tmin, tmax, pref);
     }
 }
 

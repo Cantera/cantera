@@ -20,7 +20,7 @@
 #include "MixTransport.h"
 #include "SolidTransport.h"
 #include "DustyGasTransport.h"
-#include "FtnTransport.h"
+//#include "FtnTransport.h"
 
 #include "TransportFactory.h"
 
@@ -482,7 +482,7 @@ namespace Cantera {
     void TransportFactory::fitCollisionIntegrals(ostream& logfile, 
                     TransportParams& tr) {
 
-        doublereal* dptr;
+        vector_fp::iterator dptr;
         doublereal dstar;
         int nsp = tr.nsp;
         int mode = tr.mode;
@@ -519,9 +519,9 @@ namespace Cantera {
                     vector_fp ca(degree+1), cb(degree+1), cc(degree+1);
                     vector_fp co22(degree+1);
                     m_integrals->fit(logfile, degree, dstar,  
-                        ca.begin(), cb.begin(), cc.begin());
+                        DATA_PTR(ca), DATA_PTR(cb), DATA_PTR(cc));
                     m_integrals->fit_omega22(logfile, degree, dstar,
-                        co22.begin());
+                        DATA_PTR(co22));
                     tr.omega22_poly.push_back(co22);
                     tr.astar_poly.push_back(ca);
                     tr.bstar_poly.push_back(cb);
@@ -828,21 +828,21 @@ namespace Cantera {
                     w2[n] = 1.0/(spcond[n]*spcond[n]);
                 }
             }
-            polyfit(np, tlog.begin(), spvisc.begin(), 
-                w.begin(), degree, ndeg, 0.0, c.begin());
-            polyfit(np, tlog.begin(), spcond.begin(), 
-                w.begin(), degree, ndeg, 0.0, c2.begin());
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(spvisc), 
+                DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(spcond), 
+                DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c2));
 
             // evaluate max fit errors for viscosity
             for (n = 0; n < np; n++) {
                 if (mode == CK_Mode) {
                     val = exp(spvisc[n]);
-                    fit = exp(poly3(tlog[n], c.begin())); 
+                    fit = exp(poly3(tlog[n], DATA_PTR(c))); 
                 }
                 else {
                     sqrt_T = exp(0.5*tlog[n]);
                     val = sqrt_T * pow(spvisc[n],2);
-                    fit = sqrt_T * pow(poly4(tlog[n], c.begin()),2);
+                    fit = sqrt_T * pow(poly4(tlog[n], DATA_PTR(c)),2);
                 }
                 err = fit - val;
                 relerr = err/val;
@@ -854,12 +854,12 @@ namespace Cantera {
             for (n = 0; n < np; n++) {
                 if (mode == CK_Mode) {
                     val = exp(spcond[n]);
-                    fit = exp(poly3(tlog[n], c2.begin())); 
+                    fit = exp(poly3(tlog[n], DATA_PTR(c2))); 
                 }
                 else {
                     sqrt_T = exp(0.5*tlog[n]);
                     val = sqrt_T * spcond[n];
-                    fit = sqrt_T * poly4(tlog[n], c2.begin());
+                    fit = sqrt_T * poly4(tlog[n], DATA_PTR(c2));
                 }
                 err = fit - val;
                 relerr = err/val;
@@ -871,7 +871,7 @@ namespace Cantera {
 
             if (tr.log_level >= 2) {
                 tr.xml->XML_writeVector(logfile, "    ", tr.thermo->speciesName(k), 
-                    c.size(), c.begin());
+                    c.size(), DATA_PTR(c));
             }
         }
 
@@ -895,7 +895,7 @@ namespace Cantera {
         if (tr.log_level >= 2) 
             for (k = 0; k < tr.nsp; k++) {
                 tr.xml->XML_writeVector(logfile, "    ", tr.thermo->speciesName(k), 
-                    degree+1, tr.condcoeffs[k].begin());
+                    degree+1, DATA_PTR(tr.condcoeffs[k]));
             }            
         sprintf(s, "Maximum conductivity absolute error:  %12.6g", mxerr_cond);
         tr.xml->XML_comment(logfile,s);
@@ -954,20 +954,20 @@ namespace Cantera {
                         w[n] = 1.0/(diff[n]*diff[n]);
                     }
                 }
-                polyfit(np, tlog.begin(), diff.begin(), 
-                    w.begin(), degree, ndeg, 0.0, c.begin());
+                polyfit(np, DATA_PTR(tlog), DATA_PTR(diff), 
+                    DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
 
                 doublereal pre;
                 for (n = 0; n < np; n++) {
                     if (mode == CK_Mode) {
                         val = exp(diff[n]);
-                        fit = exp(poly3(tlog[n], c.begin())); 
+                        fit = exp(poly3(tlog[n], DATA_PTR(c))); 
                     }
                     else {
                         t = exp(tlog[n]);
                         pre = pow(t, 1.5);
                         val = pre * diff[n];
-                        fit = pre * poly4(tlog[n], c.begin());
+                        fit = pre * poly4(tlog[n], DATA_PTR(c));
                     }
                     err = fit - val;
                     relerr = err/val;
@@ -977,7 +977,7 @@ namespace Cantera {
                 tr.diffcoeffs.push_back(c);
                 if (tr.log_level >= 2)
                     tr.xml->XML_writeVector(logfile, "    ", tr.thermo->speciesName(k)
-                        + "__"+tr.thermo->speciesName(j), c.size(), c.begin());
+                        + "__"+tr.thermo->speciesName(j), c.size(), DATA_PTR(c));
             }
         }
         sprintf(s,"Maximum binary diffusion coefficient absolute error:"

@@ -75,7 +75,7 @@ namespace Cantera {
         void showSolution(ostream& s);
         void showSolution();
 
-        const doublereal* solution() { return m_x.begin(); }
+        const doublereal* solution() { return DATA_PTR(m_x); }
 
         void setTimeStep(doublereal stepsize, int n, integer* tsteps);
 
@@ -84,7 +84,7 @@ namespace Cantera {
         void solve(int loglevel = 0, bool refine_grid = true);
 
         void eval(doublereal rdt=-1.0, int count = 1) {
-            OneDim::eval(-1, m_x.begin(), m_xnew.begin(), rdt, count);
+            OneDim::eval(-1, DATA_PTR(m_x), DATA_PTR(m_xnew), rdt, count);
         }
 
         /// Refine the grid in all domains.
@@ -104,10 +104,10 @@ namespace Cantera {
         void getInitialSoln();
 
         void setSolution(const doublereal* soln) {
-            copy(soln, soln + m_x.size(), m_x.begin());
+            copy(soln, soln + m_x.size(), DATA_PTR(m_x));
         }
 
-        const doublereal* solution() const { return m_x.begin(); }
+        const doublereal* solution() const { return DATA_PTR(m_x); }
 
     protected:
 

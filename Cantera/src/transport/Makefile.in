@@ -22,7 +22,7 @@ OBJS    = TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.o \
           SolidTransport.o DustyGasTransport.o
 TRAN_H  =  TransportFactory.h MultiTransport.h MixTransport.h \
            MMCollisionInt.h  SolidTransport.h DustyGasTransport.h \
-           TransportBase.h L_matrix.h FtnTransport.h TransportParams.h
+           TransportBase.h L_matrix.h TransportParams.h
 
 CXX_INCLUDES = -I.. @CXX_INCLUDES@
 LIB = @buildlib@/libtransport.a

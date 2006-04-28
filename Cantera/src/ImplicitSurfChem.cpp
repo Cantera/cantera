@@ -97,7 +97,7 @@ namespace Cantera {
         int loc, k, kstart;
         for (n = 0; n < m_nsurf; n++) {
             rs0 = 1.0/m_surf[n]->siteDensity();
-            m_kin[n]->getNetProductionRates(m_work.begin());
+            m_kin[n]->getNetProductionRates(DATA_PTR(m_work));
             kstart = m_kin[n]->kineticsSpeciesIndex(0,m_surfindex[n]);
             sum = 0.0;
             loc = 0;

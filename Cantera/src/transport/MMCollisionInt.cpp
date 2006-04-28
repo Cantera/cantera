@@ -262,36 +262,36 @@ namespace Cantera {
             m_logTemp[i] = log(tstar[i+1]);
             vector_fp c(DeltaDegree+1);
 
-            rmserr = fitDelta(0, i, DeltaDegree, c.begin()); 
+            rmserr = fitDelta(0, i, DeltaDegree, DATA_PTR(c)); 
             if (log_level > 3) {
                 sprintf(p, " Tstar=\"%12.6g\"", tstar[i+1]); 
                 m_xml->XML_open(logfile, "dstar_fit", p);
                 m_xml->XML_item(logfile, "Tstar", tstar[i+1]);
                 m_xml->XML_writeVector(logfile, indent, "omega22", 
-                    c.size(), c.begin()); 
+                    c.size(), DATA_PTR(c)); 
             }
             m_o22poly.push_back(c);
             if (rmserr > e22) e22 = rmserr;
 
-            rmserr = fitDelta(1, i, DeltaDegree, c.begin());
+            rmserr = fitDelta(1, i, DeltaDegree, DATA_PTR(c));
             m_apoly.push_back(c);
             if (log_level > 3)
                 m_xml->XML_writeVector(logfile, indent, "astar", 
-                    c.size(), c.begin());
+                    c.size(), DATA_PTR(c));
             if (rmserr > ea) ea = rmserr;
 
-            rmserr = fitDelta(2, i, DeltaDegree, c.begin());
+            rmserr = fitDelta(2, i, DeltaDegree, DATA_PTR(c));
             m_bpoly.push_back(c);
             if (log_level > 3)
                 m_xml->XML_writeVector(logfile, indent, "bstar", 
-                    c.size(), c.begin());
+                    c.size(), DATA_PTR(c));
             if (rmserr > eb) eb = rmserr;
 
-            rmserr = fitDelta(3, i, DeltaDegree, c.begin());
+            rmserr = fitDelta(3, i, DeltaDegree, DATA_PTR(c));
             m_cpoly.push_back(c);
             if (log_level > 3)
                 m_xml->XML_writeVector(logfile, indent, "cstar", 
-                    c.size(), c.begin());
+                    c.size(), DATA_PTR(c));
             if (rmserr > ec) ec = rmserr;
 
             if (log_level > 3)
@@ -329,7 +329,7 @@ namespace Cantera {
             return 0.0;
         }
         w[0] = -1.0;
-        return polyfit(8, delta, begin, w.begin(), degree, ndeg, 0.0, c);
+        return polyfit(8, delta, begin, DATA_PTR(w), degree, ndeg, 0.0, c);
     }
 
     doublereal MMCollisionInt::omega22(double ts, double deltastar) {
@@ -346,9 +346,10 @@ namespace Cantera {
             vector_fp values(3);
             for (i = i1; i < i2; i++) {
                 if (deltastar == 0.0) values[i-i1] = omega22_table[8*i];
-                else values[i-i1] = poly5(deltastar, m_o22poly[i].begin());
+                else values[i-i1] = poly5(deltastar, DATA_PTR(m_o22poly[i]));
             }
-            return quadInterp(log(ts), m_logTemp.begin() + i1, values.begin());
+            return quadInterp(log(ts), DATA_PTR(m_logTemp) 
+                + i1, DATA_PTR(values));
     }
 
     doublereal MMCollisionInt::astar(double ts, double deltastar) {
@@ -365,9 +366,10 @@ namespace Cantera {
             vector_fp values(3);
             for (i = i1; i < i2; i++) {
                 if (deltastar == 0.0) values[i-i1] = astar_table[8*(i + 1)];
-                else values[i-i1] = poly5(deltastar, m_apoly[i].begin());
+                else values[i-i1] = poly5(deltastar, DATA_PTR(m_apoly[i]));
             }
-            return quadInterp(log(ts), m_logTemp.begin() + i1, values.begin());
+            return quadInterp(log(ts), DATA_PTR(m_logTemp) 
+                + i1, DATA_PTR(values));
         }
 
 
@@ -385,9 +387,10 @@ namespace Cantera {
             vector_fp values(3);
             for (i = i1; i < i2; i++) {
                 if (deltastar == 0.0) values[i-i1] = bstar_table[8*(i + 1)];
-                else values[i-i1] = poly5(deltastar, m_bpoly[i].begin());
+                else values[i-i1] = poly5(deltastar, DATA_PTR(m_bpoly[i]));
             }
-            return quadInterp(log(ts), m_logTemp.begin() + i1, values.begin());
+            return quadInterp(log(ts), DATA_PTR(m_logTemp) + i1, 
+                DATA_PTR(values));
         }
 
 
@@ -405,10 +408,10 @@ namespace Cantera {
             vector_fp values(3);
             for (i = i1; i < i2; i++) {
                 if (deltastar == 0.0) values[i-i1] = cstar_table[8*(i + 1)];
-                else values[i-i1] = poly5(deltastar, m_cpoly[i].begin());
+                else values[i-i1] = poly5(deltastar, DATA_PTR(m_cpoly[i]));
             }
-            return quadInterp(log(ts), m_logTemp.begin() + i1, 
-                values.begin());        }
+            return quadInterp(log(ts), DATA_PTR(m_logTemp) + i1, 
+                DATA_PTR(values));        }
 
 
     void MMCollisionInt::fit_omega22(ostream& logfile, int degree, 
@@ -421,14 +424,14 @@ namespace Cantera {
         vector_fp values(n);
         doublereal rmserr;
         vector_fp w(n);
-        doublereal* logT = m_logTemp.begin() + m_nmin;
+        doublereal* logT = DATA_PTR(m_logTemp) + m_nmin;
         for (i = 0; i < n; i++) {
             if (deltastar == 0.0) values[i] = omega22_table[8*(i + m_nmin)];
-            else values[i] = poly5(deltastar, m_o22poly[i+m_nmin].begin());
+            else values[i] = poly5(deltastar, DATA_PTR(m_o22poly[i+m_nmin]));
         }
         w[0]= -1.0;
-        rmserr = polyfit(n, logT, values.begin(), 
-            w.begin(), degree, ndeg, 0.0, o22);
+        rmserr = polyfit(n, logT, DATA_PTR(values), 
+            DATA_PTR(w), degree, ndeg, 0.0, o22);
         if (rmserr > 0.01) {
             char p[100];
             sprintf(p, "Warning: RMS error = %12.6g in omega_22 fit with delta* = %12.6g\n", rmserr, deltastar);
@@ -446,30 +449,30 @@ namespace Cantera {
         vector_fp values(n);
         doublereal rmserr;
         vector_fp w(n);
-        doublereal* logT = m_logTemp.begin() + m_nmin;
+        doublereal* logT = DATA_PTR(m_logTemp) + m_nmin;
         for (i = 0; i < n; i++) {
             if (deltastar == 0.0) values[i] = astar_table[8*(i + m_nmin + 1)];
-            else values[i] = poly5(deltastar, m_apoly[i+m_nmin].begin());
+            else values[i] = poly5(deltastar, DATA_PTR(m_apoly[i+m_nmin]));
         }
         w[0]= -1.0;
-        rmserr = polyfit(n, logT, values.begin(), 
-            w.begin(), degree, ndeg, 0.0, a);
+        rmserr = polyfit(n, logT, DATA_PTR(values), 
+            DATA_PTR(w), degree, ndeg, 0.0, a);
         
         for (i = 0; i < n; i++) {
             if (deltastar == 0.0) values[i] = bstar_table[8*(i + m_nmin + 1)];
-            else values[i] = poly5(deltastar, m_bpoly[i+m_nmin].begin());
+            else values[i] = poly5(deltastar, DATA_PTR(m_bpoly[i+m_nmin]));
         }
         w[0]= -1.0;
-        rmserr = polyfit(n, logT, values.begin(), 
-            w.begin(), degree, ndeg, 0.0, b);
+        rmserr = polyfit(n, logT, DATA_PTR(values), 
+            DATA_PTR(w), degree, ndeg, 0.0, b);
 
         for (i = 0; i < n; i++) {
             if (deltastar == 0.0) values[i] = cstar_table[8*(i + m_nmin + 1)];
-            else values[i] = poly5(deltastar, m_cpoly[i+m_nmin].begin());
+            else values[i] = poly5(deltastar, DATA_PTR(m_cpoly[i+m_nmin]));
         }
         w[0]= -1.0;
-        rmserr = polyfit(n, logT, values.begin(), 
-            w.begin(), degree, ndeg, 0.0, c);
+        rmserr = polyfit(n, logT, DATA_PTR(values), 
+            DATA_PTR(w), degree, ndeg, 0.0, c);
 
         if (m_loglevel > 2) {
             char p[100];

@@ -38,8 +38,8 @@ namespace Cantera {
     void StoichSubstance::_updateThermo() const {
         doublereal tnow = temperature();
         if (m_tlast != tnow) {
-            m_spthermo->update(tnow, m_cp0_R.begin(), m_h0_RT.begin(), 
-                m_s0_R.begin());
+            m_spthermo->update(tnow, &m_cp0_R[0], &m_h0_RT[0], 
+                &m_s0_R[0]);
             m_tlast = tnow;
         }
     }

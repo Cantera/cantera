@@ -62,7 +62,7 @@ namespace CanteraZeroD {
 
         m_atol.resize(neq());
         fill(m_atol.begin(), m_atol.end(), m_atols);
-        m_integ->setTolerances(m_rtol, neq(), m_atol.begin());
+        m_integ->setTolerances(m_rtol, neq(), DATA_PTR(m_atol));
         m_integ->setSensitivityTolerances(m_rtolsens, m_atolsens);
         m_integ->setMaxStepSize(m_maxstep);
         if (m_verbose) {

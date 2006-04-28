@@ -74,9 +74,9 @@ namespace Cantera {
             copy(coeffs, coeffs + 15, m_coeff.begin());
 	    m_midT = coeffs[0];
 	    mnp_low  = new NasaPoly1(m_index, m_lowT, m_midT,
-				     m_Pref, m_coeff.begin()+1);
+				     m_Pref, &m_coeff[1]);
 	    mnp_high = new NasaPoly1(m_index, m_midT, m_highT,
-				     m_Pref, m_coeff.begin()+8);
+				     m_Pref, &m_coeff[8]);
         }
 
 	NasaPoly2(const NasaPoly2& b) :
@@ -93,9 +93,9 @@ namespace Cantera {
 		 b.m_coeff.begin() + 15,
 		 m_coeff.begin());
 	    mnp_low  = new NasaPoly1(m_index, m_lowT, m_midT,
-				     m_Pref, m_coeff.begin()+1);
+				     m_Pref, &m_coeff[1]);
 	    mnp_high = new NasaPoly1(m_index, m_midT, m_highT,
-				     m_Pref, m_coeff.begin()+8);
+				     m_Pref, &m_coeff[8]);
 	}
 
 	NasaPoly2& operator=(const NasaPoly2& b) {
@@ -111,9 +111,9 @@ namespace Cantera {
 	      if (mnp_low) delete mnp_low;
 	      if (mnp_high) delete mnp_high;
 	      mnp_low  = new NasaPoly1(m_index, m_lowT, m_midT, 
-				       m_Pref, m_coeff.begin()+1);
+				       m_Pref, &m_coeff[1]);
 	      mnp_high = new NasaPoly1(m_index, m_midT, m_highT, 
-				       m_Pref, m_coeff.begin()+8);
+				       m_Pref, &m_coeff[8]);
 	    }
 	    return *this;
 	}

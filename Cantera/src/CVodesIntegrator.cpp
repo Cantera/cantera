@@ -62,7 +62,7 @@ extern "C" {
             if (d->m_pars.size() == 0)
                 f->eval(t, ydata, ydotdata, NULL);
             else
-                f->eval(t, ydata, ydotdata, d->m_pars.begin());
+                f->eval(t, ydata, ydotdata, DATA_PTR(d->m_pars));
             //}
             //catch (...) {
             //Cantera::showErrors();
@@ -208,7 +208,7 @@ namespace Cantera {
             throw CVodesErr("Error in CVodeSensMalloc");
         vector_fp atol(m_np, m_abstolsens);
         double rtol = m_reltolsens;
-        flag = CVodeSetSensTolerances(m_cvode_mem, CV_SS, rtol, atol.begin());
+        flag = CVodeSetSensTolerances(m_cvode_mem, CV_SS, rtol, DATA_PTR(atol));
     }
 
     void CVodesIntegrator::initialize(double t0, FuncEval& func) 
@@ -281,7 +281,7 @@ namespace Cantera {
 
         if (func.nparams() > 0) {
             sensInit(t0, func);
-            flag = CVodeSetSensParams(m_cvode_mem, m_fdata->m_pars.begin(), 
+            flag = CVodeSetSensParams(m_cvode_mem, DATA_PTR(m_fdata->m_pars), 
                 NULL, NULL);
         }
 

@@ -238,7 +238,7 @@ namespace Cantera {
         c[8] = c1[5];
         c[9] = c1[6];
         copy(c1.begin(), c1.begin()+5, c.begin() + 10);
-        sp.install(speciesName, k, NASA, c.begin(), tmin, tmax, p0);
+        sp.install(speciesName, k, NASA, &c[0], tmin, tmax, p0);
     }
 
 #ifdef INCL_NASA96
@@ -297,7 +297,7 @@ namespace Cantera {
         c[8] = c1[5];
         c[9] = c1[6];
         copy(c1.begin(), c1.begin()+5, c.begin() + 10);
-        sp.install(speciesName, k, NASA, c.begin(), tmin, tmax, p0);
+        sp.install(speciesName, k, NASA, &c[0], tmin, tmax, p0);
     }
 
 #endif
@@ -353,7 +353,7 @@ namespace Cantera {
         doublereal p0 = OneAtm;
         copy(c0.begin(), c0.begin()+7, c.begin() + 1);
         copy(c1.begin(), c1.begin()+7, c.begin() + 8);
-        sp.install(speciesName, k, SHOMATE, c.begin(), tmin, tmax, p0);
+        sp.install(speciesName, k, SHOMATE, &c[0], tmin, tmax, p0);
     }
 
 
@@ -376,7 +376,7 @@ namespace Cantera {
         c[2] = getFloat(f, "s0", "-");
         c[3] = getFloat(f, "cp0", "-");
         doublereal p0 = OneAtm;
-        sp.install(speciesName, k, SIMPLE, c.begin(), tmin, tmax, p0);
+        sp.install(speciesName, k, SIMPLE, &c[0], tmin, tmax, p0);
     }
 
     /**

@@ -205,13 +205,13 @@ namespace Cantera {
             m_cvode_mem = CVodeMalloc(m_neq, cvode_rhs, m_t0, nv(m_y), m_method, 
                 m_iter, m_itol, &m_reltol,
                 nv(m_abstol), m_data, NULL, TRUE, m_iopt, 
-                m_ropt.begin(), NULL);
+                DATA_PTR(m_ropt), NULL);
         }
         else {
             m_cvode_mem = CVodeMalloc(m_neq, cvode_rhs, m_t0, nv(m_y), m_method, 
                 m_iter, m_itol, &m_reltol,
                 &m_abstols, m_data, NULL, TRUE, m_iopt, 
-                m_ropt.begin(), NULL);
+                DATA_PTR(m_ropt), NULL);
         }
 
         if (!m_cvode_mem) throw CVodeErr("CVodeMalloc failed.");
@@ -254,13 +254,13 @@ namespace Cantera {
             result = CVReInit(m_cvode_mem, cvode_rhs, m_t0, nv(m_y), m_method, 
                 m_iter, m_itol, &m_reltol,
                 nv(m_abstol), m_data, NULL, TRUE, m_iopt, 
-                m_ropt.begin(), NULL);
+                DATA_PTR(m_ropt), NULL);
         }
         else {
             result = CVReInit(m_cvode_mem, cvode_rhs, m_t0, nv(m_y), m_method, 
                 m_iter, m_itol, &m_reltol,
                 &m_abstols, m_data, NULL, TRUE, m_iopt, 
-                m_ropt.begin(), NULL);
+                DATA_PTR(m_ropt), NULL);
         }
 
         if (result != 0) throw CVodeErr("CVReInit failed.");

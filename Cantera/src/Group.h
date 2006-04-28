@@ -13,7 +13,6 @@
 #define CT_RXNPATH_GROUP
 
 #include "ct_defs.h"
-#include "ctvector.h"
 
 using namespace std;
 namespace Cantera {
@@ -123,7 +122,7 @@ namespace Cantera {
                                         const Group& g);
 
     private:
-		ctvector_int m_comp;
+        vector_int m_comp;
         int m_sign;
     };
 

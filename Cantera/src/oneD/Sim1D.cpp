@@ -32,7 +32,7 @@ namespace Cantera {
         m_x.resize(size(), 0.0);
         m_xnew.resize(size(), 0.0);
         for (int n = 0; n < m_nd; n++) {
-            domain(n)._getInitialSoln(m_x.begin() + start(n));
+            domain(n)._getInitialSoln(DATA_PTR(m_x) + start(n));
 			domain(n).m_adiabatic=false;
         }
 
@@ -126,7 +126,7 @@ namespace Cantera {
 
 
     void Sim1D::save(string fname, string id, string desc) {
-        OneDim::save(fname, id, desc, m_x.begin());
+        OneDim::save(fname, id, desc, DATA_PTR(m_x));
     }
 
     /**
@@ -169,7 +169,7 @@ namespace Cantera {
         m_xnew.resize(sz);
         for (m = 0; m < m_nd; m++) {
             if (xd[m]) {
-                domain(m).restore(*xd[m], m_x.begin() + domain(m).loc());
+                domain(m).restore(*xd[m], DATA_PTR(m_x) + domain(m).loc());
             }
         }
         resize();
@@ -187,7 +187,7 @@ namespace Cantera {
     void Sim1D::showSolution(ostream& s) {
         for (int n = 0; n < m_nd; n++) {
             if (domain(n).domainType() != cEmptyType)
-                domain(n).showSolution_s(s, m_x.begin() + start(n));
+                domain(n).showSolution_s(s, DATA_PTR(m_x) + start(n));
         }
     }
 
@@ -196,20 +196,20 @@ namespace Cantera {
             if (domain(n).domainType() != cEmptyType) {
                 writelog("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> "+domain(n).id()
                     +" <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n");
-                domain(n).showSolution(m_x.begin() + start(n));
+                domain(n).showSolution(DATA_PTR(m_x) + start(n));
             }
         }
     }
 
     void Sim1D::getInitialSoln() {
         for (int n = 0; n < m_nd; n++) {
-            domain(n)._getInitialSoln(m_x.begin() + start(n));
+            domain(n)._getInitialSoln(DATA_PTR(m_x) + start(n));
         }
     }
 
     void Sim1D::finalize() {
         for (int n = 0; n < m_nd; n++) {
-            domain(n)._finalize(m_x.begin() + start(n));
+            domain(n)._finalize(DATA_PTR(m_x) + start(n));
         }
     }
 
@@ -222,7 +222,7 @@ namespace Cantera {
 
 
     void Sim1D::newtonSolve(int loglevel) {
-        int m = OneDim::solve(m_x.begin(), m_xnew.begin(), loglevel);
+        int m = OneDim::solve(DATA_PTR(m_x), DATA_PTR(m_xnew), loglevel);
         if (m >= 0) 
             copy(m_xnew.begin(), m_xnew.end(), m_x.begin());
         else if (m > -10)
@@ -285,11 +285,11 @@ namespace Cantera {
                         writelog("Take "+int2str(nsteps)+
                             " timesteps   ");
                     }
-                    dt = timeStep(nsteps, dt, m_x.begin(), m_xnew.begin(), 
+                    dt = timeStep(nsteps, dt, DATA_PTR(m_x), DATA_PTR(m_xnew), 
                         loglevel-1);
                     if (loglevel == 1) {
                         sprintf(buf, " %10.4g %10.4g \n", dt, 
-                            log10(ssnorm(m_x.begin(), m_xnew.begin())));
+                            log10(ssnorm(DATA_PTR(m_x), DATA_PTR(m_xnew))));
                         writelog(buf);
                     }
                     istep++;
@@ -336,7 +336,7 @@ namespace Cantera {
 
             // determine where new points are needed
             ianalyze = r.analyze(d.grid().size(), 
-                d.grid().begin(), m_x.begin() + start(n));
+                DATA_PTR(d.grid()), DATA_PTR(m_x) + start(n));
             if (ianalyze < 0) return ianalyze;
 
             if (loglevel > 0) { r.show(); }
@@ -396,7 +396,7 @@ namespace Cantera {
             Domain1D& d = domain(n);
             //            Refiner& r = d.refiner();
             gridsize = dsize[n]; // d.nPoints() + r.nNewPoints();
-            d.setupGrid(gridsize, znew.begin() + gridstart);
+            d.setupGrid(gridsize, DATA_PTR(znew) + gridstart);
             gridstart += gridsize;
         }
 
@@ -424,7 +424,7 @@ namespace Cantera {
         vector_fp znew, xnew;
         doublereal xmid;
         doublereal zfixed,interp_factor;
-        doublereal z1,z2,t1,t2;
+        doublereal z1 = 0.0, z2 = 0.0, t1,t2;
         int strt, n, m, i;
         int m1,m2;
         vector_int dsize;
@@ -508,7 +508,7 @@ namespace Cantera {
             Domain1D& d = domain(n);
             //            Refiner& r = d.refiner();
             gridsize = dsize[n]; // d.nPoints() + r.nNewPoints();
-            d.setupGrid(gridsize, znew.begin() + gridstart);
+            d.setupGrid(gridsize, DATA_PTR(znew) + gridstart);
             gridstart += gridsize;
         }
         

@@ -96,10 +96,10 @@ namespace Cantera {
             vector_fp chigh(7);
             copy(c + 8, c + 15, chigh.begin());
 
-            checkContinuity(name, tmid, clow, chigh.begin());
+            checkContinuity(name, tmid, clow, &chigh[0]);
 
             m_high[igrp-1].push_back(NasaPoly1(index, tmid, thigh, 
-                                         pref, chigh.begin()));
+                                         pref, &chigh[0]));
             m_low[igrp-1].push_back(NasaPoly1(index, tlow, tmid, 
                                         pref, clow));
 
@@ -130,11 +130,11 @@ namespace Cantera {
 
             doublereal tmid = nlow->maxTemp();
             if (t < tmid) {
-	      nlow->updateProperties(m_t.begin(), cp_R, h_RT, s_R);
+	      nlow->updateProperties(&m_t[0], cp_R, h_RT, s_R);
 	    } else {
 	      const vector<NasaPoly1> &mhg = m_high[grp-1];
 	      const NasaPoly1 *nhigh = &(mhg[pos]);
-	      nhigh->updateProperties(m_t.begin(), cp_R, h_RT, s_R);
+	      nhigh->updateProperties(&m_t[0], cp_R, h_RT, s_R);
 	    }
         }
 
@@ -163,7 +163,7 @@ namespace Cantera {
                     _end    = m_low[i].end();
                 }
                 for (; _begin != _end; ++_begin) 
-                    _begin->updateProperties(m_t.begin(), cp_R, h_RT, s_R);
+                    _begin->updateProperties(&m_t[0], cp_R, h_RT, s_R);
             }
         }
                 

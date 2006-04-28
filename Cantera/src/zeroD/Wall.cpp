@@ -42,7 +42,7 @@ namespace CanteraZeroD {
                 m_surf[0] = (SurfPhase*)&left->thermo(ileft);
                 m_nsp[0] = m_surf[0]->nSpecies();
                 m_leftcov.resize(m_nsp[0]);
-                m_surf[0]->getCoverages(m_leftcov.begin());
+                m_surf[0]->getCoverages(DATA_PTR(m_leftcov));
             }
         }
         if (right) {
@@ -51,7 +51,7 @@ namespace CanteraZeroD {
                 m_surf[1] = (SurfPhase*)&right->thermo(iright);
                 m_nsp[1] = m_surf[1]->nSpecies();
                 m_rightcov.resize(m_nsp[1]);
-                m_surf[1]->getCoverages(m_rightcov.begin());
+                m_surf[1]->getCoverages(DATA_PTR(m_rightcov));
             }
         }
         if (ileft < 0 || iright < 0) {
@@ -110,9 +110,9 @@ namespace CanteraZeroD {
 
     void Wall::syncCoverages(int leftright) {
         if (leftright == 0)
-            m_surf[0]->setCoverages(m_leftcov.begin());
+            m_surf[0]->setCoverages(DATA_PTR(m_leftcov));
         else
-            m_surf[1]->setCoverages(m_rightcov.begin());
+            m_surf[1]->setCoverages(DATA_PTR(m_rightcov));
     }
 
     void Wall::addSensitivityReaction(int leftright, int rxn) {

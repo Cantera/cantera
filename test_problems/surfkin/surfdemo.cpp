@@ -28,9 +28,9 @@ int main() {
         vector_fp cov;
         cov.push_back(0.8);
         cov.push_back(0.2);
-        surf.setCoverages(cov.begin());
+        surf.setCoverages(DATA_PTR(cov));
         vector_fp wdot(gas.nSpecies() + surf.nSpecies());
-        surf.getNetProductionRates(wdot.begin());
+        surf.getNetProductionRates(DATA_PTR(wdot));
         int k;
         for (k = 0; k < gas.nSpecies(); k++)
             cout << gas.speciesName(k) << "   " << wdot[k] << endl;

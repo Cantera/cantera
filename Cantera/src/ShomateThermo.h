@@ -117,11 +117,11 @@ namespace Cantera {
 
             doublereal tmid = nlow->maxTemp();
             if (t < tmid) {
-	      nlow->updateProperties(m_t.begin(), cp_R, h_RT, s_R);
+	      nlow->updateProperties(&m_t[0], cp_R, h_RT, s_R);
             } else {
 	      const vector<ShomatePoly> &mhg = m_high[grp-1];
 	      const ShomatePoly *nhigh = &(mhg[pos]);
-	      nhigh->updateProperties(m_t.begin(), cp_R, h_RT, s_R);
+	      nhigh->updateProperties(&m_t[0], cp_R, h_RT, s_R);
 	    }
         }
 
@@ -149,7 +149,7 @@ namespace Cantera {
                     _end    = m_low[i].end();
                 }
                 for (; _begin != _end; ++_begin) {
-                  _begin->updateProperties(m_t.begin(), cp_R, h_RT, s_R);
+                  _begin->updateProperties(&m_t[0], cp_R, h_RT, s_R);
                 }
             }
         }

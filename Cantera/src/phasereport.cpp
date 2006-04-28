@@ -78,9 +78,9 @@ namespace Cantera {
         array_fp x(kk);
         array_fp y(kk);
         array_fp mu(kk);
-        th.getMoleFractions(x.begin());
-        th.getMassFractions(y.begin());
-        th.getChemPotentials(mu.begin());
+        th.getMoleFractions(&x[0]);
+        th.getMassFractions(&y[0]);
+        th.getChemPotentials(&mu[0]);
         doublereal rt = GasConstant * th.temperature(); 
         int k;
         if (th.nSpecies() > 1) {
@@ -142,9 +142,9 @@ namespace Cantera {
         int kk = mix.nSpecies();
         array_fp zz(kk);
         switch (xyc) {
-        case 0: mix.getMoleFractions(zz.begin()); break;
-        case 1: mix.getMassFractions(zz.begin()); break;
-        case 2: mix.getConcentrations(zz.begin()); break;
+        case 0: mix.getMoleFractions(&zz[0]); break;
+        case 1: mix.getMassFractions(&zz[0]); break;
+        case 2: mix.getConcentrations(&zz[0]); break;
         default: return "error: xyc must be 0, 1, or 2";
         }
 

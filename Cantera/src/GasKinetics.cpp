@@ -69,10 +69,10 @@ namespace Cantera {
         if (fabs(T - m_kdata->m_temp) > 0.0) { // m_dt_threshold) {
             doublereal logT = log(T);
             //m_kdata->m_logp0 - logT;
-            m_rates.update(T, logT, m_kdata->m_rfn.begin());
-            m_falloff_low_rates.update(T, logT, m_kdata->m_rfn_low.begin()); 
-            m_falloff_high_rates.update(T, logT, m_kdata->m_rfn_high.begin());
-            m_falloffn.updateTemp(T, m_kdata->falloff_work.begin());
+            m_rates.update(T, logT, &m_kdata->m_rfn[0]);
+            m_falloff_low_rates.update(T, logT, &m_kdata->m_rfn_low[0]); 
+            m_falloff_high_rates.update(T, logT, &m_kdata->m_rfn_high[0]);
+            m_falloffn.updateTemp(T, &m_kdata->falloff_work[0]);
             m_kdata->m_temp = T;
             updateKc();
             m_kdata->m_ROP_ok = false;
@@ -86,11 +86,11 @@ namespace Cantera {
      */         
     void GasKinetics::
     _update_rates_C() {
-        thermo().getActivityConcentrations(m_conc.begin());
+        thermo().getActivityConcentrations(&m_conc[0]);
         doublereal ctot = thermo().molarDensity();
-        m_3b_concm.update(m_conc, ctot, m_kdata->concm_3b_values.begin());
+        m_3b_concm.update(m_conc, ctot, &m_kdata->concm_3b_values[0]);
         m_falloff_concm.update(m_conc, ctot, 
-            m_kdata->concm_falloff_values.begin());
+            &m_kdata->concm_falloff_values[0]);
         m_kdata->m_ROP_ok = false;
     }
 
@@ -101,11 +101,11 @@ namespace Cantera {
         int i, irxn;
         vector_fp& m_rkc = m_kdata->m_rkcn;
         
-        thermo().getStandardChemPotentials(m_grt.begin());
+        thermo().getStandardChemPotentials(&m_grt[0]);
         fill(m_rkc.begin(), m_rkc.end(), 0.0);
 
         // compute Delta G^0 for all reversible reactions
-        m_rxnstoich->getRevReactionDelta(m_ii, m_grt.begin(), m_rkc.begin());
+        m_rxnstoich->getRevReactionDelta(m_ii, &m_grt[0], &m_rkc[0]);
  
         doublereal logStandConc = m_kdata->m_logStandConc;
         doublereal rrt = 1.0/(GasConstant * thermo().temperature());
@@ -128,11 +128,11 @@ namespace Cantera {
         _update_rates_T();
         vector_fp& rkc = m_kdata->m_rkcn;
         //thermo().getGibbs_RT(m_grt.begin());
-        thermo().getStandardChemPotentials(m_grt.begin());
+        thermo().getStandardChemPotentials(&m_grt[0]);
         fill(rkc.begin(), rkc.end(), 0.0);
         
         // compute Delta G^0 for all reactions
-        m_rxnstoich->getReactionDelta(m_ii, m_grt.begin(), rkc.begin());
+        m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], &rkc[0]);
  
         doublereal logStandConc = m_kdata->m_logStandConc;
         doublereal rrt = 1.0/(GasConstant * thermo().temperature());
@@ -161,12 +161,12 @@ namespace Cantera {
 	 * Get the chemical potentials of the species in the 
 	 * ideal gas solution.
 	 */
-	thermo().getChemPotentials(m_grt.begin());
+	thermo().getChemPotentials(&m_grt[0]);
 	/*
 	 * Use the stoichiometric manager to find deltaG for each
 	 * reaction.
 	 */
-	m_rxnstoich->getReactionDelta(m_ii, m_grt.begin(), deltaG);
+	m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaG);
     }
     
     /**
@@ -185,12 +185,12 @@ namespace Cantera {
 	 * Get the partial molar enthalpy of all species in the 
 	 * ideal gas.
 	 */
-	thermo().getPartialMolarEnthalpies(m_grt.begin());
+	thermo().getPartialMolarEnthalpies(&m_grt[0]);
 	/*
 	 * Use the stoichiometric manager to find deltaG for each
 	 * reaction.
 	 */
-	m_rxnstoich->getReactionDelta(m_ii, m_grt.begin(), deltaH);
+	m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaH);
     }
 
     /************************************************************************
@@ -209,12 +209,12 @@ namespace Cantera {
 	 * Get the partial molar entropy of all species in the
 	 * solid solution.
 	 */
-	thermo().getPartialMolarEntropies(m_grt.begin());
+	thermo().getPartialMolarEntropies(&m_grt[0]);
 	/*
 	 * Use the stoichiometric manager to find deltaS for each
 	 * reaction.
 	 */
-	m_rxnstoich->getReactionDelta(m_ii, m_grt.begin(), deltaS);
+	m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaS);
     }
 
     /**
@@ -235,12 +235,12 @@ namespace Cantera {
 	 *  We define these here as the chemical potentials of the pure
 	 *  species at the temperature and pressure of the solution.
 	 */
-        thermo().getStandardChemPotentials(m_grt.begin());
+        thermo().getStandardChemPotentials(&m_grt[0]);
 	/*
 	 * Use the stoichiometric manager to find deltaG for each
 	 * reaction.
 	 */
-	m_rxnstoich->getReactionDelta(m_ii, m_grt.begin(), deltaG);
+	m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaG);
     }
 
     /**
@@ -261,7 +261,7 @@ namespace Cantera {
 	 *  We define these here as the enthalpies of the pure
 	 *  species at the temperature and pressure of the solution.
 	 */
-	thermo().getEnthalpy_RT(m_grt.begin());
+	thermo().getEnthalpy_RT(&m_grt[0]);
 	doublereal RT = thermo().temperature() * GasConstant;
 	for (int k = 0; k < m_kk; k++) {
 	  m_grt[k] *= RT;
@@ -270,7 +270,7 @@ namespace Cantera {
 	 * Use the stoichiometric manager to find deltaG for each
 	 * reaction.
 	 */
-	m_rxnstoich->getReactionDelta(m_ii, m_grt.begin(), deltaH);
+	m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaH);
     }
 
     /*********************************************************************
@@ -290,7 +290,7 @@ namespace Cantera {
 	 *  We define these here as the entropies of the pure
 	 *  species at the temperature and pressure of the solution.
 	 */
-	thermo().getEntropy_R(m_grt.begin());
+	thermo().getEntropy_R(&m_grt[0]);
 	doublereal R = GasConstant;
 	for (int k = 0; k < m_kk; k++) {
 	  m_grt[k] *= R;
@@ -299,7 +299,7 @@ namespace Cantera {
 	 * Use the stoichiometric manager to find deltaS for each
 	 * reaction.
 	 */
-	m_rxnstoich->getReactionDelta(m_ii, m_grt.begin(), deltaS);
+	m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaS);
     }
 
     void GasKinetics::processFalloffReactions() {
@@ -318,7 +318,7 @@ namespace Cantera {
             pr[i] = fc[i] * m_rf_low[i] / m_rf_high[i];
         }
 
-        m_falloffn.pr_to_falloff( pr.begin(), m_kdata->falloff_work.begin() );
+        m_falloffn.pr_to_falloff( &pr[0], &m_kdata->falloff_work[0] );
         
         for (i = 0; i < m_nfall; i++) {
             pr[i] *= m_rf_high[i]; 
@@ -346,7 +346,7 @@ namespace Cantera {
         copy(rf.begin(), rf.end(), ropf.begin());
 
         // multiply ropf by enhanced 3b conc for all 3b rxns
-        m_3b_concm.multiply( ropf.begin(), m_kdata->concm_3b_values.begin() );
+        m_3b_concm.multiply( &ropf[0], &m_kdata->concm_3b_values[0] );
 
         processFalloffReactions();
 
@@ -362,12 +362,12 @@ namespace Cantera {
         multiply_each(ropr.begin(), ropr.end(), m_rkc.begin());
 
         // multiply ropf by concentration products
-        m_rxnstoich->multiplyReactants(m_conc.begin(), ropf.begin()); 
+        m_rxnstoich->multiplyReactants(&m_conc[0], &ropf[0]); 
         //m_reactantStoich.multiply(m_conc.begin(), ropf.begin()); 
 
         // for reversible reactions, multiply ropr by concentration
         // products
-        m_rxnstoich->multiplyRevProducts(m_conc.begin(), ropr.begin()); 
+        m_rxnstoich->multiplyRevProducts(&m_conc[0], &ropr[0]); 
         //m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
 
         for (int j = 0; j != m_ii; ++j) {
@@ -396,7 +396,7 @@ namespace Cantera {
         copy(rf.begin(), rf.end(), ropf.begin());
 
         // multiply ropf by enhanced 3b conc for all 3b rxns
-        m_3b_concm.multiply(ropf.begin(), m_kdata->concm_3b_values.begin() );
+        m_3b_concm.multiply(&ropf[0], &m_kdata->concm_3b_values[0] );
 
 	/*
 	 * This routine is hardcoded to replace some of the values
@@ -433,7 +433,7 @@ namespace Cantera {
         getFwdRateConstants(krev);
 
 	if (doIrreversible) {
-	  doublereal *tmpKc = m_kdata->m_ropnet.begin();
+	  doublereal *tmpKc = &m_kdata->m_ropnet[0];
 	  getEquilibriumConstants(tmpKc);
 	  for (int i = 0; i < m_ii; i++) {
 	    krev[i] /=  tmpKc[i];
@@ -472,11 +472,11 @@ namespace Cantera {
         int iloc = m_falloff_high_rates.install(m_nfall,
 						r.rateCoeffType,
 					        r.rateCoeffParameters.size(),
-					        r.rateCoeffParameters.begin() );     
+					        &r.rateCoeffParameters[0] );     
     
         m_falloff_low_rates.install( m_nfall, 
             r.rateCoeffType, r.auxRateCoeffParameters.size(), 
-            r.auxRateCoeffParameters.begin() );
+            DATA_PTR(r.auxRateCoeffParameters) );
                 
         // add constant terms to high and low rate
         // coeff value vectors
@@ -517,7 +517,7 @@ namespace Cantera {
         // install rate coeff calculator
         iloc = m_rates.install( reactionNumber(),
             r.rateCoeffType, r.rateCoeffParameters.size(), 
-            r.rateCoeffParameters.begin() );
+            DATA_PTR(r.rateCoeffParameters) );
 
         // add constant term to rate coeff value vector
         m_kdata->m_rfn.push_back(r.rateCoeffParameters[0]);                
@@ -535,7 +535,7 @@ namespace Cantera {
         // install rate coeff calculator
         iloc = m_rates.install( reactionNumber(),
             r.rateCoeffType, r.rateCoeffParameters.size(),
-            r.rateCoeffParameters.begin() );
+            DATA_PTR(r.rateCoeffParameters) );
 
         // add constant term to rate coeff value vector
         m_kdata->m_rfn.push_back(r.rateCoeffParameters[0]);                

@@ -16,13 +16,13 @@
 #include <vector>
 using namespace std;
 
-#include "../ctvector.h"
+//#include "../ctvector.h"
 
 /// the namespace for the CKReader packaage
 namespace ckr {
 
-    typedef ct::ctvector_fp vector_fp;
-    typedef ct::ctvector_int vector_int;
+    typedef vector<double> vector_fp;
+    typedef vector<double> vector_int;
     //typedef vector<double> vector_fp;
 
     // exceptions

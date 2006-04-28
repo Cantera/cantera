@@ -50,7 +50,7 @@ int flamespeed(int np, void* p) {
       else{ x[k]=0.0; }
     }
 
-    gas.setState_TPX(temp,pressure,x.begin());
+    gas.setState_TPX(temp,pressure,DATA_PTR(x));
     doublereal rho_in=gas.density();
 
     double *yin=new double[nsp];
@@ -107,7 +107,7 @@ int flamespeed(int np, void* p) {
 
     Inlet1D inlet;
 
-    inlet.setMoleFractions(x.begin());
+    inlet.setMoleFractions(DATA_PTR(x));
     doublereal mdot=uin*rho_in;
     inlet.setMdot(mdot);
     inlet.setTemperature(temp);
@@ -155,7 +155,7 @@ int flamespeed(int np, void* p) {
       flame.setInitialGuess(gas.speciesName(i),locs,value);
     }
 
-    inlet.setMoleFractions(x.begin());
+    inlet.setMoleFractions(DATA_PTR(x));
     inlet.setMdot(mdot);
     inlet.setTemperature(temp);
 
