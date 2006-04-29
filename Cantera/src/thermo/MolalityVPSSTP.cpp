@@ -211,13 +211,13 @@ namespace Cantera {
 	    m_molalities[k] *= tmp;
 	  }
 	}
-	setMoleFractions(m_molalities.begin());
+	setMoleFractions(DATA_PTR(m_molalities));
 	/*
 	 * Essentially we don't trust the input: We calculate
 	 * the molalities from the mole fractions that we 
 	 * just obtained.
 	 */
-	getMolalities(m_molalities.begin());
+	getMolalities(DATA_PTR(m_molalities));
     }
 
     /*
@@ -235,7 +235,7 @@ namespace Cantera {
 	 * Get a vector of mole fractions
 	 */
 	vector_fp mf(kk, 0.0);
-	getMoleFractions(mf.begin());
+	getMoleFractions(DATA_PTR(mf));
 	double xmolS = mf[m_indexSolvent];
 	double xmolSmin = max(xmolS, m_xmolSolventMIN);
 	compositionMap::iterator p;
@@ -300,13 +300,13 @@ namespace Cantera {
 	for (int k = 0; k < kk; k++) {
 	  mf[k] *= sum;
 	}
-	setMoleFractions(mf.begin());
+	setMoleFractions(DATA_PTR(mf));
 	/*
 	 * After we formally set the mole fractions, we
 	 * calculate the molalities again and store it in
 	 * this object.
 	 */
-	getMolalities(m_molalities.begin());
+	getMolalities(DATA_PTR(m_molalities));
     }
 
     /*
@@ -330,7 +330,7 @@ namespace Cantera {
      * species.
      */
     void MolalityVPSSTP::updateMolalities() const {
-	getMolalities(m_molalities.begin());
+	getMolalities(DATA_PTR(m_molalities));
     }
 
 
@@ -405,7 +405,7 @@ namespace Cantera {
      */
     doublereal MolalityVPSSTP::osmoticCoefficient() const {
 	vector_fp act(m_kk);
-	getActivities(act.begin());
+	getActivities(DATA_PTR(act));
 	double sum = 0;
 	for (int k = 0; k < m_kk; k++) {
 	  if (k != m_indexSolvent) {

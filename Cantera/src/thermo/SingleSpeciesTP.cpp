@@ -546,8 +546,8 @@ namespace Cantera {
     void SingleSpeciesTP::_updateThermo() const {
         doublereal tnow = temperature();
         if (m_tlast != tnow) {
-	  m_spthermo->update(tnow, m_cp0_R.begin(), m_h0_RT.begin(), 
-			     m_s0_R.begin());
+            m_spthermo->update(tnow, DATA_PTR(m_cp0_R), DATA_PTR(m_h0_RT), 
+                DATA_PTR(m_s0_R));
 	  m_tlast = tnow;
         }
     }

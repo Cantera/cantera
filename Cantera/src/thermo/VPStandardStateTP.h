@@ -35,13 +35,12 @@ namespace Cantera {
      *  In addition support for the molality unit scale is provided.
      *
      *   Currently, it really is just a shell. The ThermoPhase object
-     *   itself is based around the general concepts of 
+     *   itself is based around the general concepts of
      *   VPStandardStateTP. Therefore, there really isn't much going
-     *   on here. 
-     *   However, this may change. The ThermoPhase object itself 
-     *   could change. Additionally, this object may revolve around
-     *   the molality unit scale in the near future. We will have to see
-     *   how things fare.
+     *   on here.  However, this may change. The ThermoPhase object
+     *   itself could change. Additionally, this object may revolve
+     *   around the molality unit scale in the near future. We will
+     *   have to see how things fare.
      */
 
     class VPStandardStateTP : public ThermoPhase {
@@ -56,6 +55,7 @@ namespace Cantera {
 
 	/// Assignment operator
 	VPStandardStateTP& operator=(const VPStandardStateTP &);
+
         /// Destructor. 
         virtual ~VPStandardStateTP();
 

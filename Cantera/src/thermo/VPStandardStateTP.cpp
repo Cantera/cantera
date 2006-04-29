@@ -285,8 +285,8 @@ namespace Cantera {
     void VPStandardStateTP::_updateRefStateThermo() const {
         doublereal tnow = temperature();
         if (m_tlast != tnow) {
-	  m_spthermo->update(tnow, m_cp0_R.begin(), m_h0_RT.begin(),
-			     m_s0_R.begin());
+            m_spthermo->update(tnow, DATA_PTR(m_cp0_R), DATA_PTR(m_h0_RT),
+                DATA_PTR(m_s0_R));
 	  m_tlast = tnow;
 	  for (int k = 0; k < m_kk; k++) {
 	    m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];

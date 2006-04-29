@@ -3,10 +3,9 @@
  *
  * Header file for a derived class of ThermoPhase that handles
  * variable pressure standard state methods for calculating
- * thermodynamic properties that are further based upon 
- * activities based on the molality scale.
- * These include most of the
- * methods for calculating liquid electrolyte thermodynamics.
+ * thermodynamic properties that are further based upon activities
+ * based on the molality scale.  These include most of the methods for
+ * calculating liquid electrolyte thermodynamics.
  */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
@@ -31,12 +30,11 @@ namespace Cantera {
      */
 
     /**
-     * MolalityVPSSTP is  a derived class of ThermoPhase that handles
+     * MolalityVPSSTP is a derived class of ThermoPhase that handles
      * variable pressure standard state methods for calculating
-     * thermodynamic properties that are further based upon 
-     * activities based on the molality scale.
-     * These include most of the
-     * methods for calculating liquid electrolyte thermodynamics.
+     * thermodynamic properties that are further based upon activities
+     * based on the molality scale.  These include most of the methods
+     * for calculating liquid electrolyte thermodynamics.
      */
     class MolalityVPSSTP : public VPStandardStateTP  {
 
