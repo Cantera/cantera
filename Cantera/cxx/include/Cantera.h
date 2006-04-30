@@ -18,6 +18,9 @@ using namespace std;
 //
 #include "kernel/importCTML.h"
 
+// The Cantera logger class
+#include "kernel/logger.h"
+
 using namespace Cantera;
 
 #endif
