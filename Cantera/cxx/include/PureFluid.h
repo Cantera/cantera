@@ -34,7 +34,7 @@ namespace Cantera {
         virtual ~PureFluid() {}
 
         bool operator!() { return !m_ok;}
-        bool ready() { return m_ok; }
+        bool ready() const { return m_ok; }
         friend ostream& operator<<(ostream& s, PureFluid& mix) {
             string r = report(mix, true);
             s << r;

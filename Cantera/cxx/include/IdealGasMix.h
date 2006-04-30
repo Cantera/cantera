@@ -33,7 +33,7 @@ namespace Cantera {
         virtual ~IdealGasMix() {}
 
         bool operator!() { return !m_ok;}
-        bool ready() { return m_ok; }
+        bool ready() const { return m_ok; }
         friend ostream& operator<<(ostream& s, IdealGasMix& mix) {
             string r = report(mix, true);
             s << r;
