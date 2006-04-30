@@ -104,17 +104,8 @@ endif
 clean:
 	$(RM) $(OBJS) $(PROGRAM)
 	../../bin/rm_cvsignore
-
-
-
-
-
-
-
-
-
-
-
+	(if test -d SunWS_cache ; then \
+           $(RM) -rf SunWS_cache ;  fi )
 
 
 
