@@ -1,3 +1,4 @@
+#!/usr/local/bin/python
 """
  Cantera .cti input file processor
 

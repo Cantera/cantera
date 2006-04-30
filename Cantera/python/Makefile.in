@@ -43,9 +43,14 @@ all: _build
 
 win: _winbuild
 
-_build: $(SRCS) $(LIB_DEPS) Makefile
+#
+# HKM -> Python seems to want to compile C++ code with the CC compiler.
+#        The fix is to assign the CC compiler to the CXX compiler. 
+#        the double quotes are needed if the CXX variable is multi-token.
+#
+_build: $(SRCS) $(LIB_DEPS) Makefile setup.py
 	touch src/pycantera.cpp 
-	(CXX="@CXX@"; export CXX; CC="@CC@"; export CC; @PYTHON_CMD@ setup.py build)
+	(CXX="@CXX@"; export CXX; CC="@CXX@"; export CC; @PYTHON_CMD@ setup.py build)
 	echo 'ok' > _build
 
 #

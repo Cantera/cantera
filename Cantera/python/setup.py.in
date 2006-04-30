@@ -36,14 +36,23 @@ libdir = ['@buildlib@']
 for d in dirlist:
     libdir.append(d)
 
+endlibstr1 = "@LCXX_END_LIBS@"
+endlib1 = endlibstr1.replace('-l', ' ')
+endlib = endlib1.split()
+
 if platform == "win32":
     libs = ["clib", "zeroD","oneD","transport",
             "cantera","recipes"] + bllist + cvlist + ["ctmath", "tpx", "converters"]
 else:
     
     libs = ["clib", "zeroD","oneD","transport",
-            "cantera", "converters"] + bllist + cvlist + ["ctmath", "tpx",
-                                             "stdc++", "ctf2c", "m"]
+            "cantera", "converters"] + bllist + cvlist + ["ctmath", "tpx"]
+                                          
+    if @build_with_f2c@ == 1:
+         libs.append("ctf2c")
+    for d in endlib:
+          libs.append(d) 
+
 
 # values:
 #  0   do nothing
