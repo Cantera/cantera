@@ -420,13 +420,17 @@ namespace Cantera {
         m_kdata->m_ropr.push_back(0.0);
         m_kdata->m_ropnet.push_back(0.0);
         int n, ns, m;
-
+	doublereal nsFlt;
         int rnum = reactionNumber();
 
         vector_int rk;
         int nr = r.reactants.size();
         for (n = 0; n < nr; n++) {
-            ns = r.rstoich[n];
+            nsFlt = r.rstoich[n];
+	    ns = (int) nsFlt;
+	    if ((doublereal) ns != nsFlt) {
+	      if (ns < 1) ns = 1;
+	    }
             m_rrxn[r.reactants[n]][rnum] = ns;
             for (m = 0; m < ns; m++) {
                 rk.push_back(r.reactants[n]);
@@ -437,7 +441,11 @@ namespace Cantera {
         vector_int pk;
         int np = r.products.size();
         for (n = 0; n < np; n++) {
-            ns = r.pstoich[n];
+            nsFlt = r.pstoich[n];
+	    ns = (int) nsFlt;
+	    if ((doublereal) ns != nsFlt) {
+	      if (ns < 1) ns = 1;
+	    }
             m_prxn[r.products[n]][rnum] = ns;
             for (m = 0; m < ns; m++) {
                 pk.push_back(r.products[n]);

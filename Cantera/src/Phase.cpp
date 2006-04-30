@@ -79,7 +79,7 @@ namespace Cantera {
 
         void Phase::saveState(vector_fp& state) const {
             state.resize(nSpecies() + 2);
-            saveState(state.size(),&state[0]);
+            saveState(state.size(),&(state[0]));
         }
         void Phase::saveState(int lenstate, doublereal* state) const {
             state[0] = temperature();

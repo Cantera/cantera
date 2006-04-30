@@ -663,7 +663,8 @@ namespace Cantera {
         
     void InterfaceKinetics::installReagents(const ReactionData& r) {
 
-	int n, ns, m;        
+	int n, ns, m; 
+	doublereal nsFlt;
 	/*
 	 * extend temporary storage by one for this rxn.
 	 */
@@ -688,7 +689,11 @@ namespace Cantera {
         vector_int rk;
         int nr = r.reactants.size();
         for (n = 0; n < nr; n++) {
-            ns = r.rstoich[n];
+            nsFlt = r.rstoich[n];
+	    ns = (int) nsFlt;
+	    if ((doublereal) ns != nsFlt) {
+	      if (ns < 1) ns = 1;
+	    }
 	    /*
 	     * Add to m_rrxn. m_rrxn is a vector of maps. m_rrxn has a length
 	     * equal to the total number of species for each species, there
@@ -710,7 +715,11 @@ namespace Cantera {
         vector_int pk;
         int np = r.products.size();
         for (n = 0; n < np; n++) {
-            ns = r.pstoich[n];
+            nsFlt = r.pstoich[n];
+	    ns = (int) nsFlt;
+	    if ((doublereal) ns != nsFlt) {
+	      if (ns < 1) ns = 1;
+	    }
 	    /*
 	     * Add to m_prxn. m_prxn is a vector of maps. m_prxn has a length
 	     * equal to the total number of species for each species, there

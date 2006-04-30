@@ -395,7 +395,13 @@ namespace Cantera {
         mutable vector<map<int, doublereal> >     m_rrxn;
         mutable vector<map<int, doublereal> >     m_prxn;
 
-        vector_int m_dn;
+	/**
+         * Difference between the input global reactants order
+         * and the input global products order. Changed to a double
+         * to account for the fact that we can have real-valued
+         * stoichiometries.
+         */
+        vector_fp  m_dn;
         vector_int m_revindex;
 
         vector<string> m_rxneqn;

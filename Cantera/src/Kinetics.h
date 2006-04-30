@@ -749,6 +749,8 @@ namespace Cantera {
 	 * is greater than one, then the reactant is listed
 	 * contiguously in the vector a number of times equal to its
 	 * stoichiometric coefficient.
+         * NOTE: These vectors will be wrong if there are real 
+         *       stoichiometric coefficients in the expression.
 	 */
         vector<vector_int> m_reactants;
 
@@ -760,6 +762,8 @@ namespace Cantera {
 	 * greater than one, then the reactant is listed contiguously
 	 * in the vector a number of times equal to its stoichiometric
 	 * coefficient.
+         * NOTE: These vectors will be wrong if there are real 
+         *       stoichiometric coefficients in the expression.
 	 */
         vector<vector_int> m_products;
 

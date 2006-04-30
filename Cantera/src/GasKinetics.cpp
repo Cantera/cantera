@@ -555,13 +555,22 @@ namespace Cantera {
         m_kdata->m_ropr.push_back(0.0);
         m_kdata->m_ropnet.push_back(0.0);
         int n, ns, m;
-
+	doublereal nsFlt;
+	doublereal reactantGlobalOrder = 0.0;
+	doublereal productGlobalOrder  = 0.0;
         int rnum = reactionNumber();
 
         vector_int rk;
         int nr = r.reactants.size();
         for (n = 0; n < nr; n++) {
-            ns = r.rstoich[n];
+            nsFlt = r.rstoich[n];
+	    reactantGlobalOrder += nsFlt;
+	    ns = (int) nsFlt;
+	    if ((doublereal) ns != nsFlt) {
+	      if (ns < 1) {
+		ns = 1;
+	      }
+	    }
             if (r.rstoich[n] != 0.0) 
                 m_rrxn[r.reactants[n]][rnum] += r.rstoich[n];
             for (m = 0; m < ns; m++) {
@@ -573,7 +582,14 @@ namespace Cantera {
         vector_int pk;
         int np = r.products.size();
         for (n = 0; n < np; n++) {
-            ns = r.pstoich[n];
+            nsFlt = r.pstoich[n];
+	    productGlobalOrder += nsFlt;
+            ns = (int) nsFlt;
+            if ((double) ns != nsFlt) {
+	      if (ns < 1) {
+		ns = 1;
+	      }
+	    }
             if (r.pstoich[n] != 0.0) 
                 m_prxn[r.products[n]][rnum] += r.pstoich[n];
             for (m = 0; m < ns; m++) {
@@ -587,14 +603,14 @@ namespace Cantera {
         m_rxnstoich->add(reactionNumber(), r);
 
         if (r.reversible) {
-            m_dn.push_back(pk.size() - rk.size());
-            m_revindex.push_back(reactionNumber());
-            m_nrev++;
+	  m_dn.push_back(productGlobalOrder - reactantGlobalOrder);
+	  m_revindex.push_back(reactionNumber());
+	  m_nrev++;
         }
         else {
-            m_dn.push_back(pk.size() - rk.size());            
-            m_irrev.push_back( reactionNumber() );
-            m_nirrev++;
+	  m_dn.push_back(productGlobalOrder - reactantGlobalOrder);
+	  m_irrev.push_back( reactionNumber() );
+	  m_nirrev++;
         }        
     }
 
