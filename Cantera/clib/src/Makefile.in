@@ -80,6 +80,10 @@ endif
 
 clean:
 	$(RM) $(OBJS) $(CTLIB)
+	(if test -d SunWS_cache ; then \
+           $(RM) -rf SunWS_cache ; \
+         fi )
+
 
 install:
 	@INSTALL@ -d @ct_libdir@
