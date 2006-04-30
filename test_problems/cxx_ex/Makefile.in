@@ -10,6 +10,7 @@ test:
 	./runtest
 
 clean:
+	(cd ../../examples/cxx ; @MAKE@ clean )
 	../../bin/rm_cvsignore
 
 depends:
