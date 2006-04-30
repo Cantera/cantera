@@ -1,5 +1,5 @@
 /**
- * @file transport.h
+ * @file thermo.h
  *
  * Support for thermo property calculation from C++ application programs.
  * This header file includes several headers from the Cantera kernel needed
