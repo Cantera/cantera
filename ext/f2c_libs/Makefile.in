@@ -24,6 +24,7 @@
 CC = @CC@
 SHELL = /bin/sh
 do_ranlib = @DO_RANLIB@
+do_stripsymbols = @HAVE_STRIPSYMBOLS@
 
 CFLAGS = @CXXFLAGS@ $(CXX_OPT)
 
@@ -36,8 +37,10 @@ F2C_H   = $(BUILDINCDIR)/f2c.h
 # compile, then strip unnecessary symbols
 .c.o: f2c.h
 	$(CC) -c -DSkip_f2c_Undefs $(CFLAGS) $*.c
+ifeq ($(do_stripsymbols),yes)
 	ld @ldemulationarg@ -r -x -o $*.xxx $*.o
 	mv $*.xxx $*.o
+endif
 
 ## Under Solaris (and other systems that do not understand ld -x),
 ## omit -x in the ld line above.
