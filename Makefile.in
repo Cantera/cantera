@@ -178,14 +178,18 @@ endif
 
 matlab:
 ifeq ($(build_matlab),1)
+ifneq ($(build_python),0)
 	cd Cantera/matlab; @MAKE@
+endif
 else
 	@echo 'NOT building the Matlab toolbox'
 endif
 
 matlab-install:
 ifeq ($(build_matlab),1)
+ifneq ($(build_python),0)
 	cd Cantera/matlab; @MAKE@ install
+endif
 endif
 
 finish-install:
@@ -213,11 +217,13 @@ ifeq ($(compact_install),0)
 	ln -s @ct_tutdir@ @prefix@/cantera/tutorials
 	@INSTALL@ License.* @prefix@/cantera
 endif
+ifneq ($(build_python),0)
 	@INSTALL@ tools/src/finish_install.py tools/bin
 	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
 	chmod +x @ct_bindir@/ctnew
 	chmod +x @ct_bindir@/mixmaster
 	cp -f @homedir@/setup_cantera @ct_bindir@
+endif
 else
 	cd Cantera/fortran/f77demos; sed s'/isentropic/ctlib/g' isentropic.dsp > ctlib.dsp
 	@INSTALL@ Cantera/fortran/f77demos/*.dsp @ct_demodir@/f77

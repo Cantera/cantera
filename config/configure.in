@@ -596,19 +596,24 @@ elif test "x$PYTHON_PACKAGE" = "xdefault"; then
    BUILD_PYTHON=2
 elif test "x$PYTHON_PACKAGE" = "xminimal"; then
    BUILD_PYTHON=1
+elif test "x$PYTHON_PACKAGE" = "xnone"; then
+   BUILD_PYTHON=0
 fi
 
 if test "$PYTHON_CMD" = "default" -o \
         "$PYTHON_CMD"x = "x"; then
     AC_PATH_PROGS(PYTHON_CMD, python2 python, "none")
     if test "$PYTHON_CMD" = "none"; then
-     echo 
-     echo "********************************************************************"
-     echo "Configuration error. Python is required to build Cantera, but it"
-     echo "cannot be found. Set environment variable PYTHON_CMD to the full path to"
-     echo "the Python interpreter on your system, and run configure again."
-     echo "********************************************************************"
-     exit 1
+      BUILD_PYTHON=0
+      echo "Python not found. Only those portions of Cantera that"
+      echo "can be installed without Python will be installed."
+#     echo 
+#     echo "********************************************************************"
+#     echo "Configuration error. Python is required to build Cantera, but it"
+#     echo "cannot be found. Set environment variable PYTHON_CMD to the full path to"
+#     echo "the Python interpreter on your system, and run configure again."
+#     echo "********************************************************************"
+#     exit 1
     else
       echo "Python command set by configure to " $PYTHON_CMD
     fi

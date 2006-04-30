@@ -41,10 +41,14 @@ CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
 # 
 # In addition to being one of the supported language interfaces,
 # Python is used internally by Cantera, both in the build process and
-# at run time (to process .cti input files). Therefore, you need to
+# at run time (to process .cti input files). Therefore, you generally need to
 # have Python on your system; if you don't, first install it from
 # http://www.python.org before proceeding with the installation of
 # Cantera.
+#
+# However, it is possible to use Cantera without Python, if you want
+# to work only with Cantera in C++ or Fortran, and plan to use CTML
+# input files, rather than CTI input files. 
 #
 # If you plan to work in Python, or you want to use the graphical
 # MixMaster application, then you need the full Cantera Python
@@ -53,13 +57,13 @@ CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
 # to process .cti files, then you only need a minimal subset of the
 # package (actually, only one file).
 
-# Set PYTHON_PACKAGE to one of these three strings:
+# Set PYTHON_PACKAGE to one of these four strings:
 #    full      install everything needed to use Cantera from Python
 #    minimal   install only enough to process .cti files
 #    default   try to do a full installation, but fall back to a minimal
 #              one in case of errors
-
-PYTHON_PACKAGE=${PYTHON_PACKAGE:="default"}
+#    none      don't install or run any Python scripts during the build process
+PYTHON_PACKAGE=${PYTHON_PACKAGE:="none"}
 
 
 # Cantera needs to know where to find the Python interpreter.  If
@@ -139,7 +143,7 @@ F90=${F90:="default"}
 # these compilers will be added automatically, and you do not need to
 # specify them here.  Otherwise, add any required compiler-specific
 # flags here.
-F90FLAGS=${F90FLAGS:='-O3'}
+F90FLAGS=${F90FLAGS:='-O0'}
 
 
 #----------------------------------------------------------------------
@@ -179,19 +183,24 @@ ENABLE_THERMO='y'
 # optional phase types. These may not be needed by all users. Set them
 # to 'n' to omit them from the kernel.
 
-WITH_LATTICE_SOLID='y'
-WITH_METAL='y' 
+WITH_LATTICE_SOLID=${WITH_LATTICE_SOLID:="y"}
+WITH_METAL=${WITH_METAL:="y"} 
 WITH_STOICH_SUBSTANCE='y' 
+
+# This flag enables the inclusion of accurate liquid/vapor equations
+# of state for several fluids, including water, nitrogen, hydrogen,
+# oxygen, methane, andd HFC-134a.
 WITH_PURE_FLUIDS='y'
 
 # Enable expanded electrochemistry capabilities, include thermo
 # models for electrolyte solutions
-WITH_ELECTROLYTES=${WITH_ELECTROLYTES:="n"}
+WITH_ELECTROLYTES=${WITH_ELECTROLYTES:="y"}
+
 ######################################################################
 # if set to 'y', the ck2cti program that converts Chemkin input files
 # to Cantera format will be built. If you don't use Chemkin format
 # files, or if you run ck2cti on some other machine, you can set this to 'n'. 
-ENABLE_CK='y'
+ENABLE_CK=${ENABLE_CK:='y'}
 
 # homogeneous and heterogeneous kinetics
 ENABLE_KINETICS='y'
@@ -202,10 +211,10 @@ ENABLE_TRANSPORT='y'
 # chemical equilibrium
 ENABLE_EQUIL='y'      
      
-# stirred reactor models
+# zero-dimensional stirred reactor models
 ENABLE_REACTORS='y'     
 
-# One-dimensional flows
+# One-dimensional flows and flames
 ENABLE_FLOW1D='y'
 
 # ODE integrators and DAE solvers
@@ -280,7 +289,7 @@ CXX=${CXX:=g++}
 CC=${CC:=gcc}
 
 # C++ compiler flags
-CXXFLAGS=${CXXFLAGS:="-O3 -Wall"}
+CXXFLAGS=${CXXFLAGS:="-O0 -Wall"}
 
 # the C++ flags required for linking. Uncomment if additional flags
 # need to be passed to the linker.
@@ -324,7 +333,7 @@ F77=${F77:=g77}
 
 # Fortran 77 compiler flags. Note that the Fortran compiler flags must be set
 # to produce object code compatible with the C/C++ compiler you are using.
-FFLAGS=${FFLAGS:='-O3'}
+FFLAGS=${FFLAGS:='-O0'}
 
 # the additional Fortran flags required for linking, if any. Leave commented
 # out if no additional flags are required.
