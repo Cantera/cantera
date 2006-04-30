@@ -81,6 +81,9 @@ $(FTLIB): $(MODFILES) $(USER_MODULE_OBJS) $(CXX_OBJS) $(LIB_DEPS)
 
 clean:
 	$(RM) $(OBJS) $(FTLIB) $(MODFILES)
+	(if test -d SunWS_cache ; then \
+           $(RM) -rf SunWS_cache ; \
+         fi )
 
 install:
 	@INSTALL@ $(FTLIB) @ct_libdir@
