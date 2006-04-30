@@ -13,12 +13,15 @@ LCXX_END_LIBS = @LCXX_END_LIBS@
 OBJS = mdp_allo.o csvdiff.o tok_input_util.o
 DEPENDS = $(OBJS:.o=.d)
 
+CXX_FLAGS=@CXXFLAGS@
+CONFIGDEFS=@DEFS@
+
 # Optimization is turned off (-O0) because a strange interal compiler
 # error results when using g++ 3.0 on Mac OS X. Optimization should
 # not be needed here anyway.
 
 .cpp.o:
-	@CXX@ -c $< @DEFS@  -I$(INCDIR) @CXXFLAGS@ $(CXX_FLAGS) -O0
+	@CXX@ -c $< -I$(INCDIR) @CXXFLAGS@ -O0
 
 all: $(BINDIR)/csvdiff
 
@@ -27,10 +30,10 @@ $(BINDIR)/csvdiff: mdp_allo.o csvdiff.o tok_input_util.o
 	 $(LCXX_FLAGS) $(LCXX_END_LIBS) 
 
 clean:
-	$(RM) *.o *.*~ csvdiff
+	$(RM) *.o *.*~ csvdiff $(BINDIR)/csvdiff
 
 %.d:
-	@CXX@ -MM -I$(INCDIR) @CXXFLAGS@ $(CXX_FLAGS) $*.cpp > $*.d
+	@CXX@ -MM -I$(INCDIR) $(CXX_FLAGS) $*.cpp > $*.d
 
 depends: $(DEPENDS)
 	cat *.d &> .depends
