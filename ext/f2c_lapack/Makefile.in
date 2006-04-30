@@ -21,7 +21,7 @@ CXX = @CXX@
 CC = @CC@
 
 # C++ compile flags
-CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
+CXX_FLAGS = @CXXFLAGS@ 
 
 # Local include files
 CXX_INCLUDES=-I../f2c_libs
