@@ -12,7 +12,7 @@
 build_f90=@BUILD_F90@
 build_python=@BUILD_PYTHON@
 
-INCDIR = ../../build/include/cantera
+INCDIR =      ../../../build/include/cantera
 INSTALL_TSC = ../../../bin/install_tsc
 
 CXX_H = Cantera.h  equilibrium.h  IncompressibleSolid.h \
