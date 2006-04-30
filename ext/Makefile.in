@@ -57,7 +57,7 @@ endif
 clean:
 	cd lapack; @MAKE@ clean
 	cd blas; @MAKE@ clean
-#	cd recipes; @MAKE@ clean
+	cd recipes; @MAKE@ clean
 	cd cvode; @MAKE@ clean
 	cd math; @MAKE@ clean
 	cd tpx; @MAKE@ clean
