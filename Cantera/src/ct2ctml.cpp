@@ -44,6 +44,16 @@ namespace ctml {
 
     void ct2ctml(const char* file) {
 
+#ifdef HAS_NO_PYTHON
+       /*
+        *  Section to bomb out if python is not
+        *  present in the computation environment.
+        */
+        string ppath = file;
+        throw CanteraError("ct2ctml", 
+                           "python cti to ctml conversion requested for file, " + ppath +
+                           ", but not available in this computational environment");
+#endif
         time_t aclock;
         time( &aclock );
         int ia = static_cast<int>(aclock);
@@ -91,19 +101,21 @@ namespace ctml {
          * this problem. Also, having the xml file pre-existing fixes
          * the problem as well. There may be more direct ways to fix
          * this bug; however, I am not aware of them.
+         * HKM -> During the solaris port, I found the same thing.
+         *        It probably has to do with NFS syncing problems.
+         *        3/3/06
          */
-#ifdef CYGWIN 
+        string sss = sleep();
 #ifdef DEBUG_PATHS
-        writelog("sleeping for 3 secs+\n");
+        writelog("sleeping for " + sss + " secs+\n");
 #endif
-        cmd = "sleep 3";
+        cmd = "sleep " + sss;
         try {
             ierr = system(cmd.c_str());
         }
         catch (...) {
             ierr = -10;
         }
-#endif
 
         // show the contents of the log file on the screen
         try {
