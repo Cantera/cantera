@@ -1,5 +1,8 @@
-#ifndef CXX_IDEALGASMIX
-#define CXX_IDEALGASMIX
+/*
+ * $Id$
+ */
+#ifndef CXX_GRI30H
+#define CXX_GRI30H
 
 #include <string>
 
