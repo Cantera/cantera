@@ -6,3 +6,4 @@ win32_old
 configure.vc++
 configure.my_vc++
 config.h
+set_cant_env
