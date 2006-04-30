@@ -36,7 +36,7 @@ BASE_H     = State.h Elements.h Constituents.h stringUtils.h global.h \
              funcs.h ct_defs.h Array.h PropertyCalculator.h \
              ctexceptions.h ctlapack.h units.h mix_defs.h\
              utilities.h vec_functions.h XML_Writer.h diagnostics.h \
-             config.h
+             config.h logger.h
 BASE       = $(BASE_OBJ)
 
 # thermodynamic properties
@@ -213,6 +213,9 @@ clean:
              fi \
           done)
 	$(RM) *.o *.gch *~ $(CANTERA_LIB) .depends
+	(if test -d SunWS_cache ; then \
+           $(RM) -rf SunWS_cache ; \
+         fi )
 	cd zeroD; @MAKE@ clean
 	cd oneD;  @MAKE@ clean
 	cd converters; @MAKE@ clean
