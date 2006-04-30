@@ -1,3 +1,6 @@
+/*
+ * $Id$
+ */
 #ifndef CXX_PUREFLUID
 #define CXX_PUREFLUID
 
@@ -5,7 +8,6 @@
 
 #include "kernel/PureFluidPhase.h"
 #include "kernel/importCTML.h"
-
 namespace Cantera {
 
 
