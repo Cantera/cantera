@@ -85,6 +85,9 @@ $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a
 
 clean:
 	$(RM) $(OBJS) $(PROGRAM)
+	(if test -d SunWS_cache ; then \
+           $(RM) -rf SunWS_cache ; \
+         fi )
 
 
 depends: $(DEPENDS)
