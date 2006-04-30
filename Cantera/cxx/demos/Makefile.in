@@ -19,6 +19,8 @@ OBJS = demos.o
 LINK_OPTIONS = @EXTRA_LINK@
 
 #############################################################################
+# True if we are in the source directory tree
+srcdirtree=1
 
 # Fortran libraries
 FORT_LIBS = @FLIBS@
@@ -30,7 +32,7 @@ CXX = @CXX@
 CXX_FLAGS = @CXXFLAGS@ @CXX_INCLUDES@
 
 # external libraries
-EXT_LIBS = @LOCAL_LIBS@ -lctcxx
+EXT_LIBS = @LOCAL_LIBS@ -ltpx -lctcxx
 
 # Ending C++ linking libraries
 LCXX_END_LIBS = @LCXX_END_LIBS@
@@ -41,6 +43,13 @@ CANTERA_LIBDIR=@buildlib@
 # required Cantera libraries
 CANTERA_LIBS =  
 
+# Depends
+ifeq ($srcdirtree, 1)
+  LOCAL_DEFNS =  -DSRCDIRTREE
+else
+  LOCAL_DEFNS = 
+endif 
+
 # the directory where Cantera include files may be found.
 CANTERA_INCDIR=@ctroot@/build/include
 
@@ -49,7 +58,7 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
 
 # how to compile C++ source files to object files
 .@CXX_EXT@.@OBJ_EXT@:
-	$(CXX) -c $< -I$(CANTERA_INCDIR) $(CXX_FLAGS)
+	$(CXX) -c $< -I$(CANTERA_INCDIR) $(CXX_FLAGS) $(LOCAL_DEFNS)
 
 PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
@@ -80,4 +89,7 @@ depends: $(DEPENDS)
 clean:
 	$(RM) $(OBJS) $(PROGRAM) .depends
 	../../../bin/rm_cvsignore
+	(if test -d SunWS_cache ; then \
+           $(RM) -rf SunWS_cache ; \
+         fi )
 
