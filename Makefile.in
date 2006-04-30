@@ -195,7 +195,7 @@ endif
 finish-install:
 	@INSTALL@ -d @ct_docdir@
 	@INSTALL@ -d @ct_bindir@
-	(cd Cantera/cxx/demos; make install)
+	(cd Cantera/cxx/demos; @MAKE@ install)
 	@INSTALL@ -d @ct_demodir@/f77
 	@INSTALL@ Cantera/fortran/f77demos/*.f @ct_demodir@/f77
 	@INSTALL@ tools/templates/f77/demo_ftnlib.cpp @ct_demodir@/f77
