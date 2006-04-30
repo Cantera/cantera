@@ -40,6 +40,9 @@ $(CXXLIB): $(OBJS)
 
 clean:
 	$(RM) $(OBJS) $(CXXLIB)
+	(if test -d SunWS_cache ; then \
+           $(RM) -rf SunWS_cache ; \
+         fi )
 
 install:
 	@INSTALL@ $(CXXLIB) @prefix@/lib/cantera
