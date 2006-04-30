@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <string>
+#include <ctype.h>
 
 #include "../config.h"
 
