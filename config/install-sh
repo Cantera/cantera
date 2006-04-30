@@ -41,6 +41,7 @@ stripprog="${STRIPPROG-strip}"
 rmprog="${RMPROG-rm}"
 mkdirprog="${MKDIRPROG-mkdir}"
 
+verbose=""
 transformbasename=""
 transform_arg=""
 instcmd="$mvprog"
@@ -91,6 +92,10 @@ while [ x"$1" != x ]; do
 	    shift
 	    continue;;
 
+        -v) verbose="y"
+            shift
+            continue;;
+
 	*)  if [ x"$src" = x ]
 	    then
 		src=$1
@@ -122,6 +127,7 @@ if [ x"$dir_arg" != x ]; then
 	else
 		instcmd=mkdir
 	fi
+
 else
 
 # Waiting for this to be detected by the "$instcmd $src $dsttmp" command
@@ -198,6 +204,11 @@ then
 	if [ x"$chgrpcmd" != x ]; then $doit $chgrpcmd $dst; else true ; fi &&
 	if [ x"$stripcmd" != x ]; then $doit $stripcmd $dst; else true ; fi &&
 	if [ x"$chmodcmd" != x ]; then $doit $chmodcmd $dst; else true ; fi
+
+        if [ x"$verbose" = xy ]
+        then
+          echo "$doit $instcmd $dst"    
+        fi
 else
 
 # If we're going to rename the final executable, determine the name now.
@@ -245,6 +256,10 @@ else
 	$doit $rmcmd -f $dstdir/$dstfile &&
 	$doit $mvcmd $dsttmp $dstdir/$dstfile 
 
+        if [ x"$verbose" = xy ]
+        then
+          echo "$src" ' -> '  "$dstdir/$dstfile"   
+        fi
 fi &&
 
 
