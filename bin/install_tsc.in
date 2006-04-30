@@ -15,7 +15,7 @@ INCDIR=$2
 # If the destination directory doesn't exist yet, create it
 #
 if test ! -d $INCDIR ; then
-   @INSTALL@ -d $INCDIR
+   @INSTALL_abs@ -d $INCDIR
 fi
 th="${INCDIR}"/"${lh}"  ; 
 if test ! -f "${lh}" ; then
@@ -24,16 +24,19 @@ if test ! -f "${lh}" ; then
 fi
 if test ! -f "${th}" ; then
     if test -x "${lh}" ; then
-      @INSTALL@ -m 755 -v "${lh}" "${th}"
+      @INSTALL_abs@ -m 755 -v "${lh}" "${th}"
     else
-      @INSTALL@ -m 644 -v "${lh}" "${th}"
+      @INSTALL_abs@ -m 644 -v "${lh}" "${th}"
     fi
 else 
-  if test "${lh}" -nt "${th}" ; then 
+#            if test "${lh}" -nt "${th}" ; then 
+   @TSCOMPARE_abs@ "${lh}" "${th}"
+   res=$?
+   if test "$res" = "0" ; then
     if test -x "${lh}" ; then
-      @INSTALL@ -m 755 -v "${lh}" "${th}"
+      @INSTALL_abs@ -m 755 -v "${lh}" "${th}"
     else
-      @INSTALL@ -m 644 -v "${lh}" "${th}"
+      @INSTALL_abs@ -m 644 -v "${lh}" "${th}"
     fi
   fi 
 fi
