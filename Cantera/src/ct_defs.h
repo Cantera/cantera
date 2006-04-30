@@ -17,7 +17,7 @@
 #ifndef CT_DEFS_H
 #define CT_DEFS_H
 
-#include <math.h>
+#include <cmath>
 #include "config.h"
 
 // STL includes
