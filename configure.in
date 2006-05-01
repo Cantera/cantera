@@ -1097,6 +1097,7 @@ AC_OUTPUT(Makefile \
           ext/f2c_blas/Makefile \
           ext/f2c_lapack/Makefile \
           ext/f2c_math/Makefile \
+          ext/recipes/Makefile \
 	  examples/Makefile \
           examples/cxx/Makefile \
 	  tools/Makefile \
