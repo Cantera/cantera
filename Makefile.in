@@ -73,7 +73,7 @@ else
 endif
 
 cxxlib: 
-	cd Cantera/cxx/src; @MAKE@
+	cd Cantera/cxx; @MAKE@
 
 utils:
 	cd tools; @MAKE@
