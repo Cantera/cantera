@@ -28,6 +28,8 @@ static void thermoset( int nlhs, mxArray *plhs[],
             ierr = delThermo(th); break;
         case 1:
             ierr = th_setPressure(th,*ptr); break;
+        case 2:
+            ierr = th_setElectricPotential(th, *ptr); break;
         default:
             mexErrMsgTxt("unknown attribute.");
         }
@@ -139,6 +141,8 @@ static void thermoget( int nlhs, mxArray *plhs[],
                 tsat = getDouble(prhs[3]);
                 vv = th_satPressure(n, tsat); break;
 #endif
+            case 25:
+                vv = th_electricPotential(n); break;
             default:
                 ok = false;
             }
