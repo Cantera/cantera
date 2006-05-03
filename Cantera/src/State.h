@@ -193,7 +193,9 @@ namespace Cantera {
          * Array Q should contain pure-species molar property 
          * values.
          */
-	doublereal mean_X(const doublereal* Q) const;
+	doublereal mean_X(const doublereal* Q) const {
+            return m_mmw*inner_product(m_ym.begin(), m_ym.end(), Q, 0.0);
+        }
 
 	/**
          * Evaluate the mass-fraction-weighted mean of Q:

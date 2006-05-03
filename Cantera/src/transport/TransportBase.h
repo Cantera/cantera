@@ -1,6 +1,6 @@
 /**
  *  @file TransportBase.h  
- *  Provides class Transport.
+ *   Provides class Transport.
  */
 
 /*

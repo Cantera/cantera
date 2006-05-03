@@ -44,10 +44,24 @@ namespace Cantera {
 
     public:
 
+        /**
+         * This class is implemented as a singleton -- one in which
+         * only one instance is needed.  The recommended way to access
+         * the factory is to call this static method, which
+         * instantiates the class if it is the first call, but
+         * otherwise simply returns the pointer to the existing
+         * instance.
+         */
         static SpeciesThermoFactory* factory() {
             if (!s_factory) s_factory = new SpeciesThermoFactory;
             return s_factory;
         }
+
+        /**
+         * If it is necessary to explicitly delete the factory before
+         * the process terminates (for example, when checking for
+         * memory leaks) then this method can be called to delete it.
+         */
 	static void deleteFactory() {
 	    if (s_factory) {
 	      delete s_factory;
@@ -55,8 +69,9 @@ namespace Cantera {
 	    }
 	}
 	
+
 	/**
-         * Destructor doesn't do anything. We do not delete statically
+         * Destructor. Doesn't do anything. We do not delete statically
 	 * created single instance of this class here, because it would
 	 * create an infinite loop if destructor is called for that
 	 * single instance.
@@ -69,6 +84,7 @@ namespace Cantera {
          * @param type the type to be created.
          */ 
         virtual SpeciesThermo* newSpeciesThermo(int type);
+
         virtual SpeciesThermo* newSpeciesThermo(XML_Node* node);
         virtual SpeciesThermo* newSpeciesThermo(vector<XML_Node*> nodes);
         virtual SpeciesThermo* newSpeciesThermoOpt(vector<XML_Node*> nodes);
@@ -78,13 +94,28 @@ namespace Cantera {
             SpeciesThermo& spthermo);
 
     private:
+
+        /// pointer to the sole instance of this class
         static SpeciesThermoFactory* s_factory;
+
+        /// Constructor. This is made private, so that only the static
+        /// method factory() can instantiate the class.
         SpeciesThermoFactory(){}
     };
 
 
+    ////////////////////// Convenience functions ////////////////////
+    //
+    //  These functions allow using a different factory class that
+    //  derives from SpeciesThermoFactory.
+    //
+    //////////////////////////////////////////////////////////////////
+
+
     /**
-     *  Create a new species thermo manager instance.
+     *  Create a new species thermo manager instance, by specifying
+     * the type and (optionally) a pointer to the factory to use to
+     * create it.
      */
     inline SpeciesThermo* newSpeciesThermoMgr(int type, 
         SpeciesThermoFactory* f=0) {

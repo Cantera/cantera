@@ -105,6 +105,7 @@ namespace Cantera {
      *  Utilities for Solvent ID and Molality 
      *  Here we also calculate and store the molecular weight
      *  of the solvent and the m_Mnaught parameter.
+     *  @param k index of the solvent.
      */
     void MolalityVPSSTP::setSolvent(int k) {
 	if (k < 0 || k >= m_kk) {
@@ -122,8 +123,9 @@ namespace Cantera {
 	return m_indexSolvent;
     }
 
-    /*
-     * Sets the minimum mole fraction in the molality formulation
+    /**
+     * Sets the minimum mole fraction in the molality formulation. The
+     * minimum mole fraction must be in the range 0 to 0.9.
      */
     void  MolalityVPSSTP::
     setMoleFSolventMin(doublereal xmolSolventMIN) {
@@ -135,9 +137,8 @@ namespace Cantera {
 	m_xmolSolventMIN = xmolSolventMIN;
     }
 
-    /*
-     * Returns the minimum mole fraction in the molality 
-     * formulation.
+    /**
+     * Returns the minimum mole fraction in the molality formulation.
      */
     doublereal MolalityVPSSTP::moleFSolventMin() const {
 	return m_xmolSolventMIN;
@@ -146,14 +147,16 @@ namespace Cantera {
     /**
      * getMolalities():
      *   We calculate the vector of molalities of the species
-     *  in the phase
-     *     m_i = (n_i) / (1000 * M_o * n_o_p)
-     *
-     *    where M_o is the molecular weight of the solvent
-     *    n_o is the mole fraction of the solvent
-     *    n_i is the mole fraction of the solute.
-     *    n_o_p = max (n_o_min, n_o)
-     *    n_o_min = minimum mole fraction of solvent allowed
+     *   in the phase
+     * \f[
+     *     m_i = (n_i) / (1000 * M_o * n_{o,p})
+     * \f]
+     *    where 
+     *    - \f$ M_o \f$ is the molecular weight of the solvent
+     *    - \f$ n_o \f$ is the mole fraction of the solvent
+     *    - \f$ n_i \f$ is the mole fraction of the solute.
+     *    - \f$ n_{o,p} = max (n_{o, min}, n_o) \f$
+     *    - \f$ n_{o,min} \f$ = minimum mole fraction of solvent allowed
      *              in the denominator.
      */
     void MolalityVPSSTP::getMolalities(doublereal * const molal) const {
@@ -163,12 +166,12 @@ namespace Cantera {
 	  xmolSolvent = m_xmolSolventMIN;
 	}
 	double denomInv = 1.0/
-	    (m_Mnaught * xmolSolvent);
+                          (m_Mnaught * xmolSolvent);
 	for (int k = 0; k < m_kk; k++) {
-	  molal[k] *= denomInv;
+            molal[k] *= denomInv;
 	}
 	for (int k = 0; k < m_kk; k++) {
-	  m_molalities[k] = molal[k];
+            m_molalities[k] = molal[k];
 	}
     }
 
@@ -191,25 +194,25 @@ namespace Cantera {
 	
 	double Lsum = 1.0 / m_Mnaught;
 	for (int k = 0; k < m_kk; k++) {
-	  if (k != m_indexSolvent) { 
-	    m_molalities[k] = molal[k];
-	    Lsum += molal[k];
-	  }
+            if (k != m_indexSolvent) { 
+                m_molalities[k] = molal[k];
+                Lsum += molal[k];
+            }
 	}
 	double tmp = 1.0 / Lsum;
 	m_molalities[m_indexSolvent] = tmp / m_Mnaught;
 	double sum = m_molalities[m_indexSolvent];
 	for (int k = 0; k < m_kk; k++) {
-	  if (k != m_indexSolvent) { 
-	    m_molalities[k] = tmp * molal[k];
-	    sum += m_molalities[k];
-	  }
+            if (k != m_indexSolvent) { 
+                m_molalities[k] = tmp * molal[k];
+                sum += m_molalities[k];
+            }
 	}
 	if (sum != 1.0) {
-	  tmp = 1.0 / sum;
-	  for (int k = 0; k < m_kk; k++) {
-	    m_molalities[k] *= tmp;
-	  }
+            tmp = 1.0 / sum;
+            for (int k = 0; k < m_kk; k++) {
+                m_molalities[k] *= tmp;
+            }
 	}
 	setMoleFractions(DATA_PTR(m_molalities));
 	/*
@@ -219,7 +222,7 @@ namespace Cantera {
 	 */
 	getMolalities(DATA_PTR(m_molalities));
     }
-
+    
     /*
      * setMolalitiesByName()
      *
@@ -257,48 +260,48 @@ namespace Cantera {
 	double cNeg = 0.0;
 	double sum = 0.0;
 	for (int k = 0; k < kk; k++) {
-	  double ch = charge(k);
-	  if (mf[k] > 0.0) {
-	    if (ch > 0.0) {
-	      if (ch * mf[k] > cPos) {
-		largePos = k;
-		cPos = ch * mf[k];
-	      }
-	    }
-	    if (ch < 0.0) {
-	      if (fabs(ch) * mf[k] > cNeg) {
-		largeNeg = k;
-		cNeg = fabs(ch) * mf[k];
-	      }
-	    }
-	  }
-	  sum += mf[k] * ch;
+            double ch = charge(k);
+            if (mf[k] > 0.0) {
+                if (ch > 0.0) {
+                    if (ch * mf[k] > cPos) {
+                        largePos = k;
+                        cPos = ch * mf[k];
+                    }
+                }
+                if (ch < 0.0) {
+                    if (fabs(ch) * mf[k] > cNeg) {
+                        largeNeg = k;
+                        cNeg = fabs(ch) * mf[k];
+                    }
+                }
+            }
+            sum += mf[k] * ch;
 	}
 	if (sum != 0.0) {
-	  if (sum > 0.0) {
-	    if (cPos > sum) {
-	      mf[largePos] -= sum / charge(largePos);
-	    } else {
-	      throw CanteraError("MolalityVPSSTP:setMolalitiesbyName",
-				 "unbalanced charges");
-	    }
-	  } else {
-	    if (cNeg > (-sum)) {
-	      mf[largeNeg] -= (-sum) / fabs(charge(largeNeg));
-	    } else {
-	      throw CanteraError("MolalityVPSSTP:setMolalitiesbyName",
-				 "unbalanced charges");
-	    }
-	  }
-
+            if (sum > 0.0) {
+                if (cPos > sum) {
+                    mf[largePos] -= sum / charge(largePos);
+                } else {
+                    throw CanteraError("MolalityVPSSTP:setMolalitiesbyName",
+                        "unbalanced charges");
+                }
+            } else {
+                if (cNeg > (-sum)) {
+                    mf[largeNeg] -= (-sum) / fabs(charge(largeNeg));
+                } else {
+                    throw CanteraError("MolalityVPSSTP:setMolalitiesbyName",
+                        "unbalanced charges");
+                }
+            }
+            
 	}
 	sum = 0.0;
 	for (int k = 0; k < kk; k++) {
-	  sum += mf[k];
+            sum += mf[k];
 	}
 	sum = 1.0/sum;
 	for (int k = 0; k < kk; k++) {
-	  mf[k] *= sum;
+            mf[k] *= sum;
 	}
 	setMoleFractions(DATA_PTR(mf));
 	/*
@@ -314,15 +317,15 @@ namespace Cantera {
      *
      *   Set the molalities of the solutes by name
      */
-      void MolalityVPSSTP::setMolalitiesByName(const string& x) {
-	 compositionMap xx;
-	 int kk = nSpecies();
-	 for (int k = 0; k < kk; k++) {
-	   xx[speciesName(k)] = -1.0;
-	 }
-	 parseCompString(x, xx);
-	 setMolalitiesByName(xx);
-     }
+    void MolalityVPSSTP::setMolalitiesByName(const string& x) {
+        compositionMap xx;
+        int kk = nSpecies();
+        for (int k = 0; k < kk; k++) {
+            xx[speciesName(k)] = -1.0;
+        }
+        parseCompString(x, xx);
+        setMolalitiesByName(xx);
+    }
 
          
     /*

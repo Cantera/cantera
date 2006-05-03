@@ -169,15 +169,15 @@ namespace Cantera {
      */
 
     /**
-     *  Returns the vector of nondimensional
-     *  enthalpies of the reference state at the current temperature
-     *  of the solution and the reference pressure for the species.
+     *  Returns the vector of nondimensional enthalpies of the
+     *  reference state at the current temperature of the solution and
+     *  the reference pressure for the species.
      */
     void VPStandardStateTP::getEnthalpy_RT_ref(doublereal *hrt) const {
 	/*
-	 * Call the function that makes sure the local copy of 
-	 * the species reference thermo functions are up to date
-	 * for the current temperature.
+	 * Call the function that makes sure the local copy of the
+	 * species reference thermo functions are up to date for the
+	 * current temperature.
 	 */
 	_updateRefStateThermo();
 	/*

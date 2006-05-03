@@ -24,8 +24,8 @@ namespace Cantera {
      * A species thermodynamic property manager for a phase.
      * This is a general manager that can handle a wide variety
      * of species thermodynamic polynomials for individual species.
-     * It is slow, however.
-     *
+     * It is slow, however, because it recomputes the functions of
+     * temperature needed for each species.
      *
      */
     class GeneralSpeciesThermo : public SpeciesThermo {

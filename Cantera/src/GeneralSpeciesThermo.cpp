@@ -72,11 +72,9 @@ namespace Cantera {
     /**
      * Install parameterization for a species.
      * @param index    Species index
-     * @param type     ignored, since only NASA type is supported
-     * @param c        coefficients. These are
-     * - c[0]          midpoint temperature
-     * - c[1] - c[7]   coefficients for low T range
-     * - c[8] - c[14]  coefficients for high T range
+     * @param type     parameterization type
+     * @param c        coefficients. The meaning of these depends on 
+     *                 the parameterization.
      */
     void GeneralSpeciesThermo::install(string name,
 				       int index,
@@ -117,7 +115,7 @@ namespace Cantera {
 	    break;
         case SHOMATE2:
 	    m_sp[index] = new ShomatePoly2(index, minTemp, maxTemp,
-					  refPressure, c);
+                                           refPressure, c);
 	    break;
 	case NASA2:
 	    m_sp[index] = new NasaPoly2(index, minTemp, maxTemp,
@@ -134,7 +132,7 @@ namespace Cantera {
     }
 
     /**
-     *  Update the properties for all species;
+     *  Update the properties for one species.
      */
     void GeneralSpeciesThermo::
     update_one(int k, doublereal t, doublereal* cp_R, 
@@ -145,7 +143,7 @@ namespace Cantera {
 
     
     /**
-     *  Update the properties for all species;
+     *  Update the properties for all species.
      */
     void GeneralSpeciesThermo::
     update(doublereal t, doublereal* cp_R, 

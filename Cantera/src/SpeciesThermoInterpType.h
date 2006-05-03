@@ -9,12 +9,15 @@
 // Copyright 2001  California Institute of Technology
 
 #include "speciesThermoTypes.h"
+
 #ifndef CT_SPECIESTHERMOINTERPTYPE_H
 #define CT_SPECIESTHERMOINTERPTYPE_H
 
 namespace Cantera {
 
-    
+    /**
+     * Base class.
+     */    
     class SpeciesThermoInterpType {
 
     public:

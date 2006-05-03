@@ -516,6 +516,54 @@ class thermo:
     def export(self, f, fmt = 'CSV'):
         pass
 
+class Mu0_table(thermo):
+    """Properties are computed by specifying a table of standard
+    chemical potentials vs. T."""
+
+    def __init__(self, range = (0.0, 0.0),
+                 h298 = 0.0,
+                 mu0 = None,
+                 p0 = -1.0):
+        self._t = range
+        self._h298 = h298
+        self._mu0 = mu0
+        self._pref = p0
+
+    def build(self, t):
+        n = t.addChild("Mu0")
+        n['Tmin'] = `self._t[0]`
+        n['Tmax'] = `self._t[1]`
+        if self._pref <= 0.0:
+            n['P0'] = `_pref`
+        else:
+            n['P0'] = `self._pref`
+        energy_units = _uenergy+'/'+_umol            
+        addFloat(n,"H298", self._h298, defunits = energy_units)
+        n.addChild("numPoints", len(self._mu0))
+
+        
+        mustr = ''
+        tstr = ''
+        col = 0
+        for v in self._mu0:
+            mu0 = v[1]
+            t = v[0]
+            tstr += '%17.9E, ' % t
+            mustr += '%17.9E, ' % mu0
+            col += 1
+            if col == 3:
+                tstr = tstr[:-2]+'\n'
+                mustr = mustr[:-2]+'\n'
+                col = 0
+            
+        u = n.addChild("floatArray", mustr)
+        u["size"] = "numPoints"
+        u["name"] = "Mu0Values"
+
+        u = n.addChild("floatArray", tstr)
+        u["size"] = "numPoints"
+        u["name"] = "Mu0Temperatures"
+
         
 class NASA(thermo):
     """NASA polynomial parameterization."""

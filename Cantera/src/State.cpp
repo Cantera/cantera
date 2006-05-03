@@ -164,9 +164,7 @@ namespace Cantera {
         scale(m_ym.begin(), m_ym.end(), c, m_dens);
     }
 
-    doublereal State::mean_X(const doublereal* Q) const {
-        return m_mmw*dot(m_ym.begin(), m_ym.end(), Q);
-    }
+
 
     doublereal State::mean_Y(const doublereal* Q) const {
         return dot(m_y.begin(), m_y.end(), Q);

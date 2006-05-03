@@ -101,6 +101,8 @@ thermo_getfp(PyObject *self, PyObject *args)
             vv = th_cp_mass(th); break;
         case 13:
             vv = th_cv_mass(th); break;
+        case 25:
+            vv = th_electricPotential(th); break;
         case 50:
             vv = th_critTemperature(th); break;
         case 51:

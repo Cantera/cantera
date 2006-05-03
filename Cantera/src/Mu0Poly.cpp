@@ -108,25 +108,25 @@ namespace Cantera {
 	 */
         bool ifound = false;
         for (i = 0, iindex = 2; i < nPoints; i++) {
-	  T1 = coeffs[iindex];
-	  m_t0_int[i] = T1;
-	  m_mu0_R_int[i] =  coeffs[iindex+1] / GasConstant;
-	  if (T1 == 298.15) {
-	    iT298 = i;
-	    ifound = true;
-	  }
-	  if (i < nPoints - 1) {
-	    T2 = coeffs[iindex+2];
-	    if (T2 <= T1) {
-	      throw CanteraError("Mu0Poly", 
-				 "Temperatures are not monotonic increasing");
-	    }
-	  }
-	  iindex += 2;
+            T1 = coeffs[iindex];
+            m_t0_int[i] = T1;
+            m_mu0_R_int[i] =  coeffs[iindex+1] / GasConstant;
+            if (T1 == 298.15) {
+                iT298 = i;
+                ifound = true;
+            }
+            if (i < nPoints - 1) {
+                T2 = coeffs[iindex+2];
+                if (T2 <= T1) {
+                    throw CanteraError("Mu0Poly", 
+                        "Temperatures are not monotonic increasing");
+                }
+            }
+            iindex += 2;
 	}
 	if (!ifound) {
-	  throw CanteraError("Mu0Poly",
-			     "One temperature has to be 298.15");
+            throw CanteraError("Mu0Poly",
+                "One temperature has to be 298.15");
 	}
 
 	/*
@@ -138,61 +138,61 @@ namespace Cantera {
 	m_h0_R_int[iT298] = m_H298;
 	m_s0_R_int[iT298] = - (mu1 - m_h0_R_int[iT298]) / T1;
 	for (i = iT298; i < m_numIntervals; i++) {
-	  T1      = m_t0_int[i];
-	  s1      = m_s0_R_int[i];
-	  h1      = m_h0_R_int[i];
-	  mu1     = m_mu0_R_int[i];
-	  T2      = m_t0_int[i+1];
-	  mu2     = m_mu0_R_int[i+1];
-	  deltaMu = mu2 - mu1;
-	  deltaT  = T2 - T1;
-	  cpi = (deltaMu - T1 * s1 + T2 * s1) / (deltaT - T2 * log(T2/T1));
-	  h2 = h1 + cpi * deltaT;
-	  s2 = s1 + cpi * log(T2/T1);
-	  m_cp0_R_int[i]   = cpi;
-	  m_h0_R_int[i+1]  = h2;
-	  m_s0_R_int[i+1]  = s2;
-	  m_cp0_R_int[i+1] = cpi;
+            T1      = m_t0_int[i];
+            s1      = m_s0_R_int[i];
+            h1      = m_h0_R_int[i];
+            mu1     = m_mu0_R_int[i];
+            T2      = m_t0_int[i+1];
+            mu2     = m_mu0_R_int[i+1];
+            deltaMu = mu2 - mu1;
+            deltaT  = T2 - T1;
+            cpi = (deltaMu - T1 * s1 + T2 * s1) / (deltaT - T2 * log(T2/T1));
+            h2 = h1 + cpi * deltaT;
+            s2 = s1 + cpi * log(T2/T1);
+            m_cp0_R_int[i]   = cpi;
+            m_h0_R_int[i+1]  = h2;
+            m_s0_R_int[i+1]  = s2;
+            m_cp0_R_int[i+1] = cpi;
 	}
 
 	/*
 	 * Starting from the interval with T298, we go down
 	 */
 	if (iT298 > 0) {
-	  T2 = m_t0_int[iT298];
-	  mu2 = m_mu0_R_int[iT298];
-	  m_h0_R_int[iT298] = m_H298;
-	  m_s0_R_int[iT298] = - (mu2 - m_h0_R_int[iT298]) / T2;
-	  for (i = iT298 - 1; i >= 0; i--) {
-	    T1      = m_t0_int[i];
-	    mu1     = m_mu0_R_int[i];
-	    T2      = m_t0_int[i+1];
-	    mu2     = m_mu0_R_int[i+1];
-	    s2      = m_s0_R_int[i+1];
-	    h2      = m_h0_R_int[i+1];
-	    deltaMu = mu2 - mu1;
-	    deltaT  = T2 - T1;
-	    cpi = (deltaMu - T1 * s2 + T2 * s2) / (deltaT - T1 * log(T2/T1)); 
-	    h1 = h2 - cpi * deltaT;
-	    s1 = s2 - cpi * log(T2/T1);
-	    m_cp0_R_int[i]   = cpi;
-	    m_h0_R_int[i]    = h1;
-	    m_s0_R_int[i]    = s1;
-	    if (i == (m_numIntervals-1)) {
-	      m_cp0_R_int[i+1] = cpi;
-	    }
-	  }
+            T2 = m_t0_int[iT298];
+            mu2 = m_mu0_R_int[iT298];
+            m_h0_R_int[iT298] = m_H298;
+            m_s0_R_int[iT298] = - (mu2 - m_h0_R_int[iT298]) / T2;
+            for (i = iT298 - 1; i >= 0; i--) {
+                T1      = m_t0_int[i];
+                mu1     = m_mu0_R_int[i];
+                T2      = m_t0_int[i+1];
+                mu2     = m_mu0_R_int[i+1];
+                s2      = m_s0_R_int[i+1];
+                h2      = m_h0_R_int[i+1];
+                deltaMu = mu2 - mu1;
+                deltaT  = T2 - T1;
+                cpi = (deltaMu - T1 * s2 + T2 * s2) / (deltaT - T1 * log(T2/T1)); 
+                h1 = h2 - cpi * deltaT;
+                s1 = s2 - cpi * log(T2/T1);
+                m_cp0_R_int[i]   = cpi;
+                m_h0_R_int[i]    = h1;
+                m_s0_R_int[i]    = s1;
+                if (i == (m_numIntervals-1)) {
+                    m_cp0_R_int[i+1] = cpi;
+                }
+            }
 	}
 #ifdef DEBUG_HKM_NOT
 	printf("    Temp     mu0(J/kmol)   cp0(J/kmol/K)   "
-	       " h0(J/kmol)   s0(J/kmol/K) \n");
+            " h0(J/kmol)   s0(J/kmol/K) \n");
         for (i = 0; i < nPoints; i++) {
-	  printf("%12.3g %12.5g %12.5g %12.5g %12.5g\n",
-		 m_t0_int[i],  m_mu0_R_int[i] * GasConstant,
-		 m_cp0_R_int[i]* GasConstant, 
-		 m_h0_R_int[i]* GasConstant,
-		 m_s0_R_int[i]* GasConstant);
-	  fflush(stdout);
+            printf("%12.3g %12.5g %12.5g %12.5g %12.5g\n",
+                m_t0_int[i],  m_mu0_R_int[i] * GasConstant,
+                m_cp0_R_int[i]* GasConstant, 
+                m_h0_R_int[i]* GasConstant,
+                m_s0_R_int[i]* GasConstant);
+            fflush(stdout);
 	}
 #endif
     }
@@ -261,15 +261,15 @@ namespace Cantera {
      */
     void  Mu0Poly::
     updateProperties(const doublereal* tt,  doublereal* cp_R,
-		     doublereal* h_RT, doublereal* s_R) const {
+        doublereal* h_RT, doublereal* s_R) const {
 	int j = m_numIntervals;
 	double T = *tt;
 	for (int i = 0; i < m_numIntervals; i++) {
-	  double T2 =  m_t0_int[i+1];
-	  if (T <=T2) {
-	    j = i;
-	    break;
-	  }
+            double T2 =  m_t0_int[i+1];
+            if (T <=T2) {
+                j = i;
+                break;
+            }
 	}
 	double T1 = m_t0_int[j];
 	double cp_Rj = m_cp0_R_int[j];

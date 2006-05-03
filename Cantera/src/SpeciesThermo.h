@@ -23,11 +23,30 @@ namespace Cantera {
     /**
      * @defgroup spthermo Species Standard-State Thermodynamic Properties
      *
-     * Species thermodynamic property managers compute the
-     * standard-state properties of pure species. They are designed
-     * for use by thermodynamic property managers (subclasses of
-     * ThermoPhase) to compute the thermodynamic properties of
-     * solutions. 
+     * To compute the thermodynamic properties of multicomponent
+     * solutions, it is necessary to know something about the
+     * thermodynamic properties of the individual species present in
+     * the solution. Exactly what sort of species properties are
+     * required depends on the thermodynamic model for the
+     * solution. For a gaseous solution (i.e., a gas mixture), the
+     * species properties required are usually ideal gas properties at
+     * the mixture temperature and at a reference pressure (often 1
+     * atm or 1 bar). For other types of solutions, however, it may
+     * not be possible to isolate the species in a "pure" state. For
+     * example, the thermodynamic properties of, say, Na+ and Cl- in
+     * saltwater are not easily determined from data on the properties
+     * of solid NaCl, or solid Na metal, or chlorine gas. In this
+     * case, the solvation in water is fundamental to the identity of
+     * the species, and some other reference state must be used. One
+     * common convention for liquid solutions is to use thermodynamic
+     * data for the solutes for the limit of infinite dilution in the
+     * pure solvent; another convention is to reference all properties
+     * to unit molality.
+     *
+     * Whatever the conventions used by a particular solution model,
+     * means need to be provided to compute the species properties in 
+     * the reference state. Class SpeciesThermo is the base class
+     * for a family of classes that compute these properties.
      */
 
 
@@ -50,7 +69,8 @@ namespace Cantera {
          * install a new species thermodynamic property
          * parameterization for one species.  
          * @param index The 'update' method will update the property 
-         * values at position \i index in the property arrays.  
+         * values for this species 
+         * at position \i index in the property arrays.  
          * @param type int flag specifying the type of parameterization to be
          * installed. 
          * @param c vector of coefficients for the parameterization. 
@@ -125,7 +145,7 @@ namespace Cantera {
 
 	/**
          * This utility function reports the type of parameterization
-         * used for the species, index.
+         * used for the species with index number index.
          */
         virtual int reportType(int index) const = 0;
 

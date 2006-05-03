@@ -3,7 +3,7 @@ import string
 import os
 
 from constants import *
-from SurfacePhase import SurfacePhase
+from SurfacePhase import SurfacePhase, EdgePhase
 from Kinetics import Kinetics
 import XML
 
@@ -48,8 +48,6 @@ class Interface(SurfacePhase, Kinetics):
         if len(fn) > 1:
             id = fn[1]        
             fn = fn[0]
-        #fname = os.path.basename(fn)
-        #ff = os.path.splitext(fname)
         
         # read in the root element of the tree if not building from
         # an already-built XML tree. Enable preprocessing if the film

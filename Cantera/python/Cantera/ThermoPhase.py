@@ -68,7 +68,10 @@ class ThermoPhase(Phase):
 
     def name(self):
         return self.idtag
-    
+
+    def setName(self, name):
+        self.idtag = name
+        
     def refPressure(self):
         """Reference pressure [Pa].
         All standard-state thermodynamic properties are for this pressure.
@@ -127,6 +130,10 @@ class ThermoPhase(Phase):
         """ The pressure [Pa]."""
         return _cantera.thermo_getfp(self._phase_id,7)        
 
+    def electricPotential(self):
+        """Electric potential [V]."""
+        return _cantera.thermo_getfp(self._phase_id,25)
+    
     def chemPotentials(self, species = []):
         """Species chemical potentials.
         

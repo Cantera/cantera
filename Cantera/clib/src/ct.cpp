@@ -433,6 +433,11 @@ extern "C" {
         catch (CanteraError) {return DERR;}
     }
 
+    double DLL_EXPORT th_electricPotential(int n) {
+        try {return th(n)->electricPotential();}
+        catch (CanteraError) {return DERR;}
+    }
+
     int DLL_EXPORT th_chemPotentials(int n, int lenm, double* murt) {
         thermo_t* thrm = th(n);
         int nsp = thrm->nSpecies();

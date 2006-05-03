@@ -25,6 +25,9 @@ namespace Cantera {
      * A species thermodynamic property manager for the NASA
      * polynomial parameterization with two temperature ranges.
      *
+     * This class is designed to efficiently evaluate the properties
+     * of a large number of species with the NASA parameterization.
+     *
      * The original NASA polynomial parameterization expressed the
      * heat capacity as a fourth-order polynomial in temperature, with
      * separate coefficients for each of two temperature ranges. (The
@@ -71,8 +74,6 @@ namespace Cantera {
 			     doublereal minTemp, doublereal maxTemp,
 			     doublereal refPressure) { 
 
-            //writelog("installing NASA thermo for species "+name+"\n");
-            //writelog(" index = "+int2str(index)+"\n");
             int imid = int(c[0]);       // midpoint temp converted to integer
             int igrp = m_index[imid];   // has this value been seen before?
             if (igrp == 0) {            // if not, prepare new group
@@ -211,42 +212,40 @@ namespace Cantera {
 				  doublereal &refPressure) {
 	    type = reportType(index);
 	    if (type == NASA) {
-	      int grp = m_group_map[index];
-	      int pos = m_posInGroup_map[index];
-	      const vector<NasaPoly1> &mlg = m_low[grp-1];
-	      const vector<NasaPoly1> &mhg = m_high[grp-1];
-	      const NasaPoly1 *lowPoly  = &(mlg[pos]);
-	      const NasaPoly1 *highPoly = &(mhg[pos]);
-	      int itype = NASA;
-	      doublereal tmid = lowPoly->maxTemp();
+                int grp = m_group_map[index];
+                int pos = m_posInGroup_map[index];
+                const vector<NasaPoly1> &mlg = m_low[grp-1];
+                const vector<NasaPoly1> &mhg = m_high[grp-1];
+                const NasaPoly1 *lowPoly  = &(mlg[pos]);
+                const NasaPoly1 *highPoly = &(mhg[pos]);
+                int itype = NASA;
+                doublereal tmid = lowPoly->maxTemp();
 	      c[0] = tmid;
 	      int n;
 	      double ttemp;
 	      lowPoly->reportParameters(n, itype, minTemp, ttemp, refPressure,
-					c + 1);
+                  c + 1);
 	      if (n != index) {
-		throw CanteraError("  ", "confused");
+                  throw CanteraError("  ", "confused");
 	      }
 	      if (itype != NASA1) {
-		throw CanteraError("  ", "confused");
+                  throw CanteraError("  ", "confused");
 	      }
 	      highPoly->reportParameters(n, itype, ttemp, maxTemp, refPressure,
-					c + 8);
+                  c + 8);
 	      if (n != index) {
-		throw CanteraError("  ", "confused");
+                  throw CanteraError("  ", "confused");
 	      }
 	      if (itype != NASA1) {
-		throw CanteraError("  ", "confused");
+                  throw CanteraError("  ", "confused");
 	      }
 	    } else {
-	      throw CanteraError(" ", "confused");
+                throw CanteraError(" ", "confused");
 	    }
 	}
 
  protected:
 
-	// mutable map<int, NasaPoly1*>       m_low_map;
-        // mutable map<int, NasaPoly1*>       m_high_map;
         vector<vector<NasaPoly1> >         m_high;
         vector<vector<NasaPoly1> >         m_low;
         map<int, int>                      m_index;

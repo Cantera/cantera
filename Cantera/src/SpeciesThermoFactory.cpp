@@ -32,30 +32,37 @@ namespace Cantera {
     SpeciesThermoFactory* SpeciesThermoFactory::s_factory = 0;
 
 
+    /**
+     * Examine the types of species thermo parameterizations,
+     * and return a SpeciesThermo manager that can handle the
+     * parameterizations present.
+     */
     static void getSpeciesThermoTypes(XML_Node* node, 
-				      int& has_nasa, int& has_shomate, int& has_simple,
-				      int &has_other) {
+        int& has_nasa, int& has_shomate, int& has_simple,
+        int &has_other) {
         const XML_Node& sparray = *node;
         vector<XML_Node*> sp;
+
+        // get all of the species nodes
         sparray.getChildren("species",sp);
-        int ns = static_cast<int>(sp.size());
-        for (int n = 0; n < ns; n++) {
-	  XML_Node* spNode = sp[n];
-	  if (spNode->hasChild("thermo")) {
-            const XML_Node& th = sp[n]->child("thermo");
-            if (th.hasChild("NASA")) has_nasa = 1;
-            if (th.hasChild("Shomate")) has_shomate = 1;
-            if (th.hasChild("const_cp")) has_simple = 1;
-            if (th.hasChild("poly")) {
-	      if (th.child("poly")["order"] == "1") has_simple = 1;
-	      else throw CanteraError("newSpeciesThermo",
-				      "poly with order > 1 not yet supported");
+        size_t n, ns = sp.size();
+        for (n = 0; n < ns; n++) {
+            XML_Node* spNode = sp[n];
+            if (spNode->hasChild("thermo")) {
+                const XML_Node& th = sp[n]->child("thermo");
+                if (th.hasChild("NASA")) has_nasa = 1;
+                if (th.hasChild("Shomate")) has_shomate = 1;
+                if (th.hasChild("const_cp")) has_simple = 1;
+                if (th.hasChild("poly")) {
+                    if (th.child("poly")["order"] == "1") has_simple = 1;
+                    else throw CanteraError("newSpeciesThermo",
+                        "poly with order > 1 not yet supported");
+                }
+                if (th.hasChild("Mu0")) has_other = 1;
+            } else {
+                throw UnknownSpeciesThermoModel("getSpeciesThermoTypes:",
+                    spNode->attrib("name"), "missing");
             }
-	    if (th.hasChild("Mu0")) has_other = 1;
-	  } else {
-	    throw UnknownSpeciesThermoModel("getSpeciesThermoTypes:",
-					    spNode->attrib("name"), "missing");
-	  }
         }
     }
 
@@ -67,18 +74,19 @@ namespace Cantera {
     SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(XML_Node* node) {
         int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
 	try {
-	  getSpeciesThermoTypes(node, inasa, ishomate, isimple, iother);
-	} catch (UnknownSpeciesThermoModel) {
-	  iother = 1;
+            getSpeciesThermoTypes(node, inasa, ishomate, isimple, iother);
+	} 
+        catch (UnknownSpeciesThermoModel) {
+            iother = 1;
 	}
 	if (iother) {
             writelog("returning new GeneralSpeciesThermo");
-	  return new GeneralSpeciesThermo();
+            return new GeneralSpeciesThermo();
 	}
         return newSpeciesThermo(NASA*inasa
             + SHOMATE*ishomate + SIMPLE*isimple);
     }
-
+    
     SpeciesThermo* SpeciesThermoFactory::
     newSpeciesThermo(vector<XML_Node*> nodes) {
         int n = static_cast<int>(nodes.size());
@@ -99,6 +107,9 @@ namespace Cantera {
     }
 
 
+    /**
+     * @todo is this used? 
+     */
     SpeciesThermo* SpeciesThermoFactory::
     newSpeciesThermoOpt(vector<XML_Node*> nodes) {
         int n = static_cast<int>(nodes.size());
@@ -120,6 +131,7 @@ namespace Cantera {
     }
 
 
+    
     SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(int type) {
         
         switch (type) {
@@ -156,8 +168,10 @@ namespace Cantera {
             writelog("\n**** WARNING ****\nFor species "+name+
                 ", discontinuity in cp/R detected at Tmid = "
                 +fp2str(tmid)+"\n");
-            writelog("\tValue computed using low-temperature polynomial:  "+fp2str(cplow)+".\n");
-            writelog("\tValue computed using high-temperature polynomial: "+fp2str(cphigh)+".\n");
+            writelog("\tValue computed using low-temperature polynomial:  "
+                +fp2str(cplow)+".\n");
+            writelog("\tValue computed using high-temperature polynomial: "
+                +fp2str(cphigh)+".\n");
         }
 
         // enthalpy
@@ -165,10 +179,13 @@ namespace Cantera {
         doublereal hrthigh = enthalpy_RT(tmid, chigh);
         delta = hrtlow - hrthigh;
         if (fabs(delta/hrtlow) > 0.001) {
-            writelog("\n**** WARNING ****\nFor species "+name+", discontinuity in h/RT detected at Tmid = "
+            writelog("\n**** WARNING ****\nFor species "+name+
+                ", discontinuity in h/RT detected at Tmid = "
                 +fp2str(tmid)+"\n");
-            writelog("\tValue computed using low-temperature polynomial:  "+fp2str(hrtlow)+".\n");
-            writelog("\tValue computed using high-temperature polynomial: "+fp2str(hrthigh)+".\n");
+            writelog("\tValue computed using low-temperature polynomial:  "
+                +fp2str(hrtlow)+".\n");
+            writelog("\tValue computed using high-temperature polynomial: "
+                +fp2str(hrthigh)+".\n");
         }
 
         // entropy
@@ -176,10 +193,13 @@ namespace Cantera {
         doublereal srhigh = entropy_R(tmid, chigh);
         delta = srlow - srhigh;
         if (fabs(delta/srlow) > 0.001) {
-            writelog("\n**** WARNING ****\nFor species "+name+", discontinuity in s/R detected at Tmid = "
+            writelog("\n**** WARNING ****\nFor species "+name+
+                ", discontinuity in s/R detected at Tmid = "
                 +fp2str(tmid)+"\n");
-            writelog("\tValue computed using low-temperature polynomial:  "+fp2str(srlow)+".\n");
-            writelog("\tValue computed using high-temperature polynomial: "+fp2str(srhigh)+".\n");
+            writelog("\tValue computed using low-temperature polynomial:  "
+                +fp2str(srlow)+".\n");
+            writelog("\tValue computed using high-temperature polynomial: "
+                +fp2str(srhigh)+".\n");
         }
     }
 
@@ -187,6 +207,8 @@ namespace Cantera {
     /** 
      * Install a NASA polynomial thermodynamic property
      * parameterization for species k into a SpeciesThermo instance.
+     * This is called by method installThermoForSpecies if a NASA
+     * block is found in the XML input.
      */
     static void installNasaThermoFromXML(string speciesName,
         SpeciesThermo& sp, int k, 
@@ -194,8 +216,14 @@ namespace Cantera {
         doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
 
         const XML_Node& f0 = *f0ptr;
+
+        // default to a single temperature range
         bool dualRange = false;
+
+        // but if f1ptr is suppled, then it is a two-range
+        // parameterization
         if (f1ptr) {dualRange = true;}
+
         tmin0 = fpValue(f0["Tmin"]);
         tmax0 = fpValue(f0["Tmax"]);
         tmin1 = tmax0;
@@ -207,6 +235,7 @@ namespace Cantera {
 
         vector_fp c0, c1;
         if (fabs(tmax0 - tmin1) < 0.01) {
+            // f0 has the lower T data, and f1 the higher T data
             tmin = tmin0;
             tmid = tmax0;
             tmax = tmax1;
@@ -214,11 +243,13 @@ namespace Cantera {
             if (dualRange)
                 getFloatArray(f1ptr->child("floatArray"), c1, false);
             else {
+                // if there is no higher range data, then copy c0 to c1.
                 c1.resize(7,0.0);
                 copy(c0.begin(), c0.end(), c1.begin());
             }
         }
         else if (fabs(tmax1 - tmin0) < 0.01) {
+            // f1 has the lower T data, and f0 the higher T data
             tmin = tmin1;
             tmid = tmax1;
             tmax = tmax0;
@@ -229,6 +260,9 @@ namespace Cantera {
             throw CanteraError("installNasaThermo",
 			       "non-continuous temperature ranges.");
         }
+
+        // The NasaThermo species property manager expects the
+        // coefficients in a different order, so rearrange them.
         array_fp c(15);
         c[0] = tmid;
         doublereal p0 = OneAtm;
