@@ -85,7 +85,7 @@ int equil_example1(int job) {
     for (int i = 0; i < ntemps; i++) {
         temp = tlow + dt*i;
         if (temp > gas.maxTemp()) break;
-        gas.setState_TPX(temp, pres, "SIH4:0.01, H2:1.0");
+        gas.setState_TPX(temp, pres, "SIH4:0.01, H2:0.99");
 
         equilibrate(gas,"TP");
         output(0,i) = temp;
