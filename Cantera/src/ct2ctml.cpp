@@ -109,6 +109,7 @@ namespace ctml {
 #ifdef DEBUG_PATHS
         writelog("sleeping for " + sss + " secs+\n");
 #endif
+#ifndef WIN32
         cmd = "sleep " + sss;
         try {
             ierr = system(cmd.c_str());
@@ -116,7 +117,7 @@ namespace ctml {
         catch (...) {
             ierr = -10;
         }
-
+#endif
         // show the contents of the log file on the screen
         try {
             char ch=0;
