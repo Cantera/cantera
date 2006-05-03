@@ -19,7 +19,9 @@ AC_DEFINE(NDEBUG)
 
 ac_sys_system=`uname -s`
 ac_sys_release=`uname -r`
-sys_hardware=`uname -i`
+
+# moved since MacOS deosn't support -i option
+#sys_hardware=`uname -i`
 
 #
 # Determine the number of hardware bits in the system
@@ -29,6 +31,7 @@ sys_hardware=`uname -i`
 #
 case $ac_sys_system in
   Linux* )
+       sys_hardware=`uname -i`
        echo 'linux ' $sys_hardware
        case $sys_hardware in
           x86_64 )  BITHARDWARE=64 ;;
@@ -36,6 +39,7 @@ case $ac_sys_system in
           * ) BITHARDWARE=${BITHARDWARE:="32"} ;;
        esac ;;
   SunOS* )
+      sys_hardware=`uname -i`
       echo 'SunOS ' $sys_hardware
       case $sys_hardware in
           "SUNW,Sun-Fire" )  BITHARDWARE=64 ;;
