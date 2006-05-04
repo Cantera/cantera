@@ -5,22 +5,24 @@
 #
 #
 test_python=@BUILD_PYTHON@
+test_ck=@BUILD_CK@
 
 all:
 	cd cxx_ex;       @MAKE@ all
-	cd silane_equil; @MAKE@ all
 	cd surfkin;      @MAKE@ all
 	cd fracCoeff;    @MAKE@ all
 	cd diamondSurf;  @MAKE@ all
+ifeq ($(test_ck),1)
 	cd ck2cti_test;  @MAKE@ all
-
+endif
 test:
 	cd cxx_ex;       @MAKE@ test
-	cd silane_equil; @MAKE@ test
 	cd surfkin;      @MAKE@ test
 	cd fracCoeff;    @MAKE@ test
 	cd diamondSurf;  @MAKE@ test
+ifeq ($(test_ck),1)
 	cd ck2cti_test;  @MAKE@ test
+endif
 ifeq ($(test_python),2)
 	cd python;       @MAKE@ test
 endif
@@ -28,20 +30,21 @@ endif
 clean:
 	$(RM) *.*~ 
 	cd cxx_ex;       @MAKE@ clean
-	cd silane_equil; @MAKE@ clean
 	cd surfkin;      @MAKE@ clean
 	cd fracCoeff;    @MAKE@ clean
 	cd diamondSurf;  @MAKE@ clean
+ifeq ($(test_ck),1)
 	cd ck2cti_test;  @MAKE@ clean
+endif
 ifeq ($(test_python),2)
 	cd python;       @MAKE@ clean
 endif
 
 depends:
 	cd cxx_ex;       @MAKE@ depends
-	cd silane_equil; @MAKE@ depends
 	cd surfkin;      @MAKE@ depends
 	cd fracCoeff;    @MAKE@ depends
 	cd diamondSurf;  @MAKE@ depends
+ifeq ($(test_ck),1)
 	cd ck2cti_test;  @MAKE@ depends
-
+endif

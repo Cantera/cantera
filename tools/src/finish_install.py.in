@@ -3,6 +3,9 @@ prefix = '@prefix@'
 pycmd = '@PYTHON_CMD@' # sys.argv[2]
 localinst = @local_inst@
 
+build_python = @BUILD_PYTHON@
+build_matlab = @BUILD_MATLAB@
+
 bindir = '@ct_bindir@'
 libdir = '@ct_libdir@' 
 hdrdir = '@ct_incdir@'
@@ -25,7 +28,7 @@ if pycmd <> 'python':
 ctloc = '-'
 warn = ''
 warn2 = ''
-if localinst:
+if localinst and build_python == 2:
     try:
         v = sys.version_info
         ctloc = prefix+'/lib/python'+`v[0]`+'.'+`v[1]`+'/site-packages'
@@ -56,15 +59,16 @@ if localinst:
         print 'error'
 f.close()
 
-# write the script to run MixMaster
-f = open(bindir+'/mixmaster','w')
-if isdarwin == '1':
-    f.write('#!/bin/sh\n'+pycmd+"""w -c 'from MixMaster import MixMaster; MixMaster()'
-    """)
-else:
-    f.write('#!/bin/sh\n'+pycmd+""" -c 'from MixMaster import MixMaster; MixMaster()'
-    """)
-f.close()
+if build_python == 2:
+    # write the script to run MixMaster
+    f = open(bindir+'/mixmaster','w')
+    if isdarwin == '1':
+        f.write('#!/bin/sh\n'+pycmd+"""w -c 'from MixMaster import MixMaster; MixMaster()'
+        """)
+    else:
+        f.write('#!/bin/sh\n'+pycmd+""" -c 'from MixMaster import MixMaster; MixMaster()'
+        """)
+    f.close()
 
 
 # write the script to copy files to build a new app
@@ -87,16 +91,17 @@ try:
 except:
     ctpath = "-"
 
-fm = open(ctdir+"/ctpath.m","w")
-fm.write("""path('"""+prefix+"""/matlab/toolbox/cantera/cantera',path)\n""")
-fm.write("""path('"""+prefix+"""/matlab/toolbox/cantera/cantera/1D',path)\n""")
-fm.close()
+if build_matlab:
+    fm = open(ctdir+"/ctpath.m","w")
+    fm.write("""path('"""+prefix+"""/matlab/toolbox/cantera/cantera',path)\n""")
+    fm.write("""path('"""+prefix+"""/matlab/toolbox/cantera/cantera/1D',path)\n""")
+    fm.close()
 
-fm = open(ctdir+"/cantera_demos.m","w")
-fm.write("""ctpath;\n""")
-fm.write("""cd demos/matlab;\n""")
-fm.write("""run_examples;\n""")
-fm.close()
+    fm = open(ctdir+"/cantera_demos.m","w")
+    fm.write("""ctpath;\n""")
+    fm.write("""cd demos/matlab;\n""")
+    fm.write("""run_examples;\n""")
+    fm.close()
 
 print """
 
@@ -108,7 +113,10 @@ File locations:
     library files     """+libdir+"""
     C++ headers       """+hdrdir+"""
     demos             """+demodir+"""
-    data files        """+datadir+"""
+    data files        """+datadir
+
+if build_matlab:
+    print """
     
     Matlab toolbox    """+prefix+"""/matlab/toolbox/cantera/cantera
     Matlab demos      """+prefix+"""/matlab/toolbox/cantera/cantera-demos
@@ -122,7 +130,7 @@ if ctpath <> "-":
     Python package    """+ctpath
     if warn <> '':
         print warn
-else:
+else if build_python == 2:
     print """
  ######################################################################
     Warning: the Cantera Python package is not installed. If you
