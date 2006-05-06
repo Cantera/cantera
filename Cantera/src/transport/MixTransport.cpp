@@ -133,7 +133,7 @@ namespace Cantera {
      * and 
      * \f[
      * \Phi_{k,j} = \frac{\left[1 
-     * + \sqrt\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}\right)}\right]^2}
+     * + \sqrt\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)\right]^2}
      * {\sqrt{8}\sqrt{1 + M_k/M_j}}
      * \f] 
      * @see updateViscosity_T();

@@ -417,6 +417,38 @@ class FlowReactor(ReactorBase):
         _cantera.flowReactor_setMassFlowRate(self.__reactor_id, mdot)
         
         
+class ConstPressureReactor(ReactorBase):
+    """
+    """
+    def __init__(self, contents = None, name = '',
+                 volume = 1.0, energy = 'on',
+                 mdot = -1.0, 
+                 verbose = 0):
+        """
+        contents - Reactor contents. If not specified, the reactor is
+        initially empty. In this case, call method 'insert' to specify
+        the contents.
+
+        name - Used only to identify this reactor in output. If not
+        specified, defaults to 'Reactor_n', where n is an integer
+        assigned in the order Reactor objects are created.
+
+        volume - Initial reactor volume. Defaults to 1 m^3.
+
+        energy - Set to 'on' or 'off'. If set to 'off', the energy
+        equation is not solved, and the temperature is held at its
+        initial value. The default in 'on'.
+
+        verbose - if set to a non-zero value, additional diagnostic
+        information will be printed.
+        """
+        global _reactorcount
+        if name == '':
+            name = 'ConstPressureReactor_'+`_reactorcount`
+        _reactorcount += 1
+        ReactorBase.__init__(self, contents = contents, name = name,
+                             volume = volume, energy = energy,
+                             verbose = verbose, type = 4)
             
 
 class Reservoir(ReactorBase):

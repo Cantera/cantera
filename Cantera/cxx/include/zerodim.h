@@ -5,6 +5,9 @@
 #include "kernel/zeroD/Reservoir.h"
 #include "kernel/zeroD/Wall.h"
 #include "kernel/zeroD/flowControllers.h"
+#include "kernel/zeroD/FlowReactor.h"
+#include "kernel/zeroD/ConstPressureReactor.h"
+
 using namespace CanteraZeroD;
 
 #endif

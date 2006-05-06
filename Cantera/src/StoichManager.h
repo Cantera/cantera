@@ -43,7 +43,7 @@ namespace Cantera {
      * \f[
      *  \dot C_k = \sum_k \nu^{(p)}_{k,i} R_i
      * \f]
-     * where \f$ \nu^{(p)_{k,i}}$ is the product-side stoichiometric
+     * where \f$ \nu^{(p)_{k,i}} \f$ is the product-side stoichiometric
      * coefficient of species \a k in reaction \a i.
      * This could be done be straightforward matrix multiplication, but would be inefficient, since most of the matrix elements of \f$ \nu^{(p)}_{k,i} \f$ are zero. We could do better by using sparse-matrix algorithms to compute this product. 
 

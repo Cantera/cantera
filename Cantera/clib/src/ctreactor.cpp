@@ -2,6 +2,7 @@
 // Cantera includes
 #include "zeroD/Reactor.h"
 #include "zeroD/FlowReactor.h"
+#include "zeroD/ConstPressureReactor.h"
 #include "zeroD/ReactorNet.h"
 #include "zeroD/Reservoir.h"
 #include "zeroD/Wall.h"
@@ -74,6 +75,8 @@ extern "C" {
             r = new Reactor();
         else if (type == FlowReactorType)
             r = new FlowReactor();
+        else if (type == ConstPressureReactorType)
+            r = new ConstPressureReactor();
         else if (type == ReservoirType)
             r = new Reservoir();
         else 

@@ -25,7 +25,7 @@ namespace Cantera {
      * \hat c_p(T) = A + B t + C t^2 + D t^3 + \frac{E}{t^2}
      * \f]
      * \f[
-     * \hat h^0(T)} = A t + \frac{B t^2}{2} + \frac{C t^3}{3} 
+     * \hat h^0(T) = A t + \frac{B t^2}{2} + \frac{C t^3}{3} 
      + \frac{D t^4}{4}  - \frac{E}{t}  + F.
      * \f]
      * \f[

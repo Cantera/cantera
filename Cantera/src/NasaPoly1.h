@@ -1,3 +1,6 @@
+#ifndef CT_NASAPOLY1_H
+#define CT_NASAPOLY1_H
+
 /**
  *  @file NasaPoly1.h
  */
@@ -9,9 +12,6 @@
 
 // Copyright 2001  California Institute of Technology
 
-
-#ifndef CT_NASAPOLY1_H
-#define CT_NASAPOLY1_H
 
 #include "global.h"
 #include "SpeciesThermoInterpType.h"

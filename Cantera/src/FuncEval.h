@@ -23,7 +23,7 @@ namespace Cantera {
      *  Classes derived from FuncEval evaluate the right-hand-side function
      * \f$ \vec{F}(t,\vec{y})\f$ in 
      * \f[
-     *  \dot\vec{y} = \vec{F}(t,\vec{y}).
+     *  \dot{\vec{y}} = \vec{F}(t,\vec{y}).
      * \f] 
      *  @ingroup odeGroup 
      */
@@ -50,7 +50,9 @@ namespace Cantera {
          */
         virtual void getInitialConditions(double t0, size_t leny, double* y)=0;
 
-        /** Number of equations. */
+        /** 
+         * Number of equations. 
+         */
         virtual int neq()=0;
 
         /// Number of parameters.

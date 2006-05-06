@@ -54,13 +54,7 @@ namespace Cantera {
      */
     void checkRxnElementBalance(Kinetics& kin, 
         const ReactionData &rdata, doublereal errorTolerance = 1.0e-3);
-    /**
-     * Extract the rate coefficient for a reaction from the xml node, kf.
-     * kf should point to a XML element named "rateCoeff".
-     * rdata is the partially filled ReactionData object for the reaction.
-     * This function will fill in more fields in the ReactionData object.
-     * 
-     */
+
     void getRateCoefficient(const XML_Node& kf, kinetics_t& kin, 
 			    ReactionData& rdata, int negA);
 

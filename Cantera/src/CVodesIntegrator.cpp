@@ -11,8 +11,10 @@
 #include <iostream>
 using namespace std;
 
+#define OLD_SUNDIALS
 
 // sundials includes
+#ifdef OLD_SUNDIALS
 #include <sundialstypes.h>
 #include <sundialsmath.h>
 #include <cvodes.h>
@@ -21,6 +23,16 @@ using namespace std;
 #include <cvspgmr.h>
 #include <nvector.h>
 #include <nvector_serial.h>
+#else
+#include <sundials_types.h>
+#include <sundials_math.h>
+#include <cvodes.h>
+#include <cvodes_dense.h>
+#include <cvodes_diag.h>
+#include <cvodes_spgmr.h>
+//#include <nvector.h>
+#include <nvector_serial.h>
+#endif
 
 inline static N_Vector nv(void* x) {
     return reinterpret_cast<N_Vector>(x);
@@ -109,7 +121,11 @@ namespace Cantera {
         if (m_cvode_mem) {
             if (m_np > 0) 
                 CVodeSensFree(m_cvode_mem);
+#ifdef OLD_SUNDIALS
             CVodeFree(m_cvode_mem);
+#else
+            CVodeFree(&m_cvode_mem);
+#endif
         }
       if (m_y) N_VDestroy_Serial(nv(m_y));
       if (m_abstol) N_VDestroy_Serial(nv(m_abstol));

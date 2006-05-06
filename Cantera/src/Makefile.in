@@ -216,7 +216,9 @@ clean:
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \
          fi )
+ifeq (@WITH_REACTORS@, 1)
 	cd zeroD; @MAKE@ clean
+endif
 	cd oneD;  @MAKE@ clean
 	cd converters; @MAKE@ clean
 	cd transport; @MAKE@ clean
@@ -226,7 +228,9 @@ depends: $(DEPENDS)
 	cat *.d > .depends
 	$(RM) $(DEPENDS) 
 	cd oneD; @MAKE@ depends
+ifeq (@WITH_REACTORS@, 1)
 	cd zeroD; @MAKE@ depends
+endif
 	cd converters; @MAKE@ depends
 	cd transport; @MAKE@ depends
 ifeq (@COMPILE_CATHERMO@, 1)

@@ -1,7 +1,8 @@
 /**
  *  @file Mu0Poly.h
- *
- * $Author$
+ */
+
+/* $Author$
  * $Revision$
  * $Date$
  */
