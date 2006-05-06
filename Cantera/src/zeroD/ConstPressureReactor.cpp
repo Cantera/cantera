@@ -12,8 +12,7 @@
 #pragma warning(disable:4503)
 #endif
 
-#include "Reactor.h"
-//#include "../CVode.h"
+#include "ConstPressureReactor.h"
 #include "FlowDevice.h"
 #include "Wall.h"
 #include "../InterfaceKinetics.h"
@@ -23,27 +22,15 @@ using namespace Cantera;
 
 namespace CanteraZeroD {
 
-    doublereal quadInterp(doublereal x0, doublereal* x, doublereal* y);
+    ConstPressureReactor::ConstPressureReactor() : Reactor() {}
 
-    Reactor::Reactor() : ReactorBase(), 
-                         m_kin(0),
-                         m_temp_atol(1.e-11), 
-                         m_maxstep(0.0),
-                         m_vdot(0.0), 
-                         m_Q(0.0), 
-                         m_rtol(1.e-9),
-                         m_chem(true),
-                         m_energy(true), m_nsens(-1)
-    {}
-
-    // overloaded method of FuncEval. Called by the integrator to
-    // get the initial conditions.
-    void Reactor::getInitialConditions(double t0, size_t leny, double* y) 
+    void ConstPressureReactor::
+    getInitialConditions(double t0, size_t leny, double* y) 
     {
         m_init = true;
         if (m_thermo == 0) {
-            cout << "Error: reactor is empty." << endl;
-            return;
+            throw CanteraError("getInitialConditions",
+                "Error: reactor is empty.");
         }  
         m_time = t0;
         m_thermo->restoreState(m_state);
@@ -56,9 +43,8 @@ namespace CanteraZeroD {
         m_thermo->getMassFractions(y+2);
         scale(y + 2, y + m_nsp + 2, y + 2, mass);
             
-        // set the first component to the total internal 
-        // energy
-        y[0] = m_thermo->intEnergy_mass() * mass;
+        // set the first component to the total enthalpy
+        y[0] = m_thermo->enthalpy_mass() * mass;
         
         // set the second component to the total volume
         y[1] = m_vol;
@@ -71,23 +57,18 @@ namespace CanteraZeroD {
             surf = m_wall[m]->surface(m_lr[m]);
             if (surf) {
                 m_wall[m]->getCoverages(m_lr[m], y + loc);
-                //surf->getCoverages(y+loc);
                 loc += surf->nSpecies();
             }
         }
     }
 
-    /*
-     *  Must be called before calling method 'advance'
-     */
-    void Reactor::initialize(doublereal t0) {
+    void ConstPressureReactor::initialize(doublereal t0) {
         m_thermo->restoreState(m_state);
         m_sdot.resize(m_nsp, 0.0);
         m_nv = m_nsp + 2;
         for (int w = 0; w < m_nwalls; w++)
             if (m_wall[w]->surface(m_lr[w]))
                 m_nv += m_wall[w]->surface(m_lr[w])->nSpecies();
-
         m_enthalpy = m_thermo->enthalpy_mass();
         m_pressure = m_thermo->pressure();
         m_intEnergy = m_thermo->intEnergy_mass();
@@ -100,7 +81,7 @@ namespace CanteraZeroD {
                 if (m_wall[m]->kinetics(m_lr[m])) {
                     if (&m_kin->thermo(0) != 
                         &m_wall[m]->kinetics(m_lr[m])->thermo(0)) {
-                        throw CanteraError("Reactor::initialize",
+                        throw CanteraError("ConstPressureReactor::initialize",
                             "First phase of all kinetics managers must be"
                             " the gas.");
                     }
@@ -111,54 +92,29 @@ namespace CanteraZeroD {
         m_init = true;
     }
     
-    int Reactor::nSensParams() {
-        if (m_nsens < 0) {
-            // determine the number of sensitivity parameters
-            int m, ns;
-            m_nsens = m_pnum.size();
-            for (m = 0; m < m_nwalls; m++) {
-                ns = m_wall[m]->nSensParams(m_lr[m]);
-                m_nsens_wall.push_back(ns);
-                m_nsens += ns;
-            }
-        }
-        return m_nsens;
-    }
+    void ConstPressureReactor::updateState(doublereal* y) {
 
-    void Reactor::updateState(doublereal* y) {
-
-        phase_t& mix = *m_thermo;  // define for readability
-
-        // The components of y are the total internal energy,
+        // The components of y are the total enthalpy,
         // the total volume, and the mass of each species.
 
-        // Set the mass fractions and  density of the mixture.
-
-
-        doublereal u   = y[0];
-        m_vol          = y[1];
+        doublereal h   = y[0];
         doublereal* mss = y + 2;
         doublereal mass = accumulate(y+2, y+2+m_nsp, 0.0);
         m_thermo->setMassFractions(mss);
 
-        m_thermo->setDensity(mass/m_vol);
-
-        doublereal temp = temperature();
-        mix.setTemperature(temp);
-
         if (m_energy) {
-            m_thermo->setState_UV(u/mass,m_vol/mass,1.0e-4); 
-            temp = mix.temperature(); //mix.setTemperature(temp);
+            m_thermo->setState_HP(h/mass, m_pressure, 1.0e-4); 
         }
-        //m_state[0] = temp;
+        else {
+            m_thermo->setPressure(m_pressure); 
+        }            
+        m_vol = mass / m_thermo->density();
 
         int loc = m_nsp + 2;
         SurfPhase* surf;
         for (int m = 0; m < m_nwalls; m++) {
             surf = m_wall[m]->surface(m_lr[m]);
             if (surf) {
-                //                surf->setTemperature(temp);
-                //surf->setCoverages(y+loc);
                 m_wall[m]->setCoverages(m_lr[m], y+loc);
                 loc += surf->nSpecies();
             }
@@ -166,7 +122,6 @@ namespace CanteraZeroD {
 
         // save parameters needed by other connected reactors
         m_enthalpy = m_thermo->enthalpy_mass();
-        m_pressure = m_thermo->pressure();
         m_intEnergy = m_thermo->intEnergy_mass();
         m_thermo->saveState(m_state);
     }
@@ -175,7 +130,7 @@ namespace CanteraZeroD {
     /*
      * Called by the integrator to evaluate ydot given y at time 'time'.
      */
-    void Reactor::evalEqs(doublereal time, doublereal* y, 
+    void ConstPressureReactor::evalEqs(doublereal time, doublereal* y, 
         doublereal* ydot, doublereal* params) 
     {
         int i, k, nk;
@@ -185,15 +140,14 @@ namespace CanteraZeroD {
         Kinetics* kin;
         int m, n, npar, ploc;
         double mult;
+
         // process sensitivity parameters
         if (params) {
             
             npar = m_pnum.size();
             for (n = 0; n < npar; n++) {
-                //m_mult_save[n] = m_kin->multiplier(m_pnum[n]);
                 mult = m_kin->multiplier(m_pnum[n]);
                 m_kin->setMultiplier(m_pnum[n], mult*params[n]);
-                //                m_kin->setMultiplier(m_pnum[n], m_mult_save[n]*params[n]);
             }
             ploc = npar;
             for (m = 0; m < m_nwalls; m++) {
@@ -204,21 +158,17 @@ namespace CanteraZeroD {
             }
         }
 
-        //        updateState(y);          // synchronize the reactor state with y
-
         m_vdot = 0.0;
         m_Q    = 0.0;
 
         // compute wall terms
-        doublereal vdot, rs0, sum, wallarea;
-        //        Kinetics* kin;
+        doublereal rs0, sum, wallarea;
+
         SurfPhase* surf;
         int lr, ns, loc = m_nsp+2, surfloc;
         fill(m_sdot.begin(), m_sdot.end(), 0.0);
         for (i = 0; i < m_nwalls; i++) {
             lr = 1 - 2*m_lr[i];
-            vdot = lr*m_wall[i]->vdot(time);
-            m_vdot += vdot;
             m_Q += lr*m_wall[i]->Q(time);
             kin = m_wall[i]->kinetics(m_lr[i]);
             surf = m_wall[i]->surface(m_lr[i]);
@@ -245,8 +195,8 @@ namespace CanteraZeroD {
             }
         } 
 
-        // volume equation
-        ydot[1] = m_vdot;
+        // dummy equation
+        ydot[1] = 0.0;
 
         /* species equations
          *  Equation is:
@@ -275,7 +225,7 @@ namespace CanteraZeroD {
          * \f]
          */
         if (m_energy) {
-            ydot[0] = - m_thermo->pressure() * m_vdot - m_Q;
+            ydot[0] = - m_Q;
         }
         else {
             ydot[0] = 0.0;
@@ -322,7 +272,6 @@ namespace CanteraZeroD {
             for (n = 0; n < npar; n++) {
                 mult = m_kin->multiplier(m_pnum[n]);
                 m_kin->setMultiplier(m_pnum[n], mult/params[n]);
-                //m_kin->setMultiplier(m_pnum[n], m_mult_save[n]);
             }
             ploc = npar;
             for (m = 0; m < m_nwalls; m++) {
@@ -334,18 +283,8 @@ namespace CanteraZeroD {
         }
     }
 
-    void Reactor::addSensitivityReaction(int rxn) {
-        m_pnum.push_back(rxn);
-        m_pname.push_back(name()+": "+m_kin->reactionString(rxn));
-        m_mult_save.push_back(1.0);
-        if (rxn < 0 || rxn >= m_kin->nReactions()) 
-            throw CanteraError("Reactor::addSensitivityReaction",
-                "Reaction number out of range ("+int2str(rxn)+")");
-    }
-
-
-    int Reactor::componentIndex(string nm) const {
-        if (nm == "U") return 0;
+    int ConstPressureReactor::componentIndex(string nm) const {
+        if (nm == "H") return 0;
         if (nm == "V") return 1;
         // check for a gas species name
         int k = m_thermo->speciesIndex(nm);

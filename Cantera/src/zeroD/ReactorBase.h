@@ -33,6 +33,7 @@ namespace CanteraZeroD {
     const int ReservoirType = 1;
     const int ReactorType = 2;
     const int FlowReactorType = 3;
+    const int ConstPressureReactorType = 4;
 
     /**
      * Base class for stirred reactors. 
@@ -112,9 +113,9 @@ namespace CanteraZeroD {
         void resetState();
 
         /// return a reference to the contents.
-        thermo_t& contents() { return *m_mix; }
+        thermo_t& contents() { return *m_thermo; }
 
-        const thermo_t& contents() const { return *m_mix; }
+        const thermo_t& contents() const { return *m_thermo; }
 
         doublereal residenceTime();
 
@@ -146,12 +147,9 @@ namespace CanteraZeroD {
             return 1;
         }
 
-        //    virtual void addSensitivityParam(int stype, int i) {}
-
     protected:
  
         int m_nsp;
-        thermo_t* m_mix;
         thermo_t*  m_thermo;
         doublereal m_time;
         doublereal m_vol, m_vol0;

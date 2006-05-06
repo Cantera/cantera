@@ -1,5 +1,5 @@
  /**
- *  @file ReactorZND.cpp
+ *  @file FlowReactor.cpp
  *
  *  A zero-dimensional reactor
  */
@@ -27,14 +27,14 @@ namespace CanteraZeroD {
     void FlowReactor::getInitialConditions(double t0, size_t leny, double* y) 
     {
         m_init = true;
-        if (m_mix == 0) {
+        if (m_thermo == 0) {
             writelog("Error: reactor is empty.\n");
             return;
         }  
         m_time = t0;
-        m_mix->restoreState(m_state);
+        m_thermo->restoreState(m_state);
 
-        m_mix->getMassFractions(y+2);
+        m_thermo->getMassFractions(y+2);
             
         y[0] = 0.0; // distance
         
@@ -46,7 +46,7 @@ namespace CanteraZeroD {
      *  Must be called before calling method 'advance'
      */
     void FlowReactor::initialize(doublereal t0) {
-        m_mix->restoreState(m_state);
+        m_thermo->restoreState(m_state);
         m_nv = m_nsp + 2;
         m_init = true;
     }
@@ -58,7 +58,7 @@ namespace CanteraZeroD {
         m_speed        = y[1];
         doublereal* mss = y + 2;
         //        doublereal mass = accumulate(y+2, y+2+m_nsp, 0.0);
-        m_mix->setMassFractions(mss);
+        m_thermo->setMassFractions(mss);
         
         doublereal rho = m_rho0 * m_speed0/m_speed;
 
@@ -74,7 +74,7 @@ namespace CanteraZeroD {
         else {
             m_thermo->setState_TP(m_T, pmom);
         }
-        m_mix->saveState(m_state);
+        m_thermo->saveState(m_state);
     }
 
 
@@ -85,10 +85,9 @@ namespace CanteraZeroD {
         doublereal* ydot, doublereal* params) 
     {
         m_time = time;
-        m_mix->restoreState(m_state);
+        m_thermo->restoreState(m_state);
 
         double mult;
-        Kinetics* kin;
         int n, npar;
 
         // process sensitivity parameters
@@ -105,10 +104,10 @@ namespace CanteraZeroD {
 
         // speed equation. Set m_fctr to a large value, so that rho*u is
         // held fixed
-        ydot[1] = m_fctr*(m_speed0 - m_mix->density()*m_speed/m_rho0);
+        ydot[1] = m_fctr*(m_speed0 - m_thermo->density()*m_speed/m_rho0);
 
         /* species equations */
-        const doublereal* mw = DATA_PTR(m_mix->molecularWeights());
+        const doublereal* mw = DATA_PTR(m_thermo->molecularWeights());
 
         if (m_chem) {
             m_kin->getNetProductionRates(ydot+2);   // "omega dot"
@@ -116,7 +115,7 @@ namespace CanteraZeroD {
         else {
             fill(ydot + 2, ydot + 2 + m_nsp, 0.0);
         }
-        doublereal rrho = 1.0/m_mix->density();
+        doublereal rrho = 1.0/m_thermo->density();
         for (n = 0; n < m_nsp; n++) {
             ydot[n+2] *= mw[n]*rrho;
         }
@@ -138,7 +137,7 @@ namespace CanteraZeroD {
         if (nm == "X") return 0;
         if (nm == "U") return 1;
         // check for a gas species name
-        int k = m_mix->speciesIndex(nm);
+        int k = m_thermo->speciesIndex(nm);
         if (k >= 0) return k + 2;
         else return -1;
     }

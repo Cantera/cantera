@@ -21,7 +21,7 @@
 namespace CanteraZeroD {
 
     ReactorBase::ReactorBase(string name) : m_nsp(0), 
-                                 m_mix(0), 
+                                 m_thermo(0), 
                                  m_time(0.0), 
                                  m_vol(1.0), 
                                  m_vol0(1.0), 
@@ -38,7 +38,7 @@ namespace CanteraZeroD {
     }
  
 //     void ReactorBase::resetState() {
-//         m_mix->saveState(m_state);
+//         m_thermo->saveState(m_state);
 //         m_enthalpy = m_thermo->enthalpy_mass();
 //         m_intEnergy = m_thermo->intEnergy_mass();
 //         m_pressure = m_thermo->pressure();
@@ -46,10 +46,9 @@ namespace CanteraZeroD {
 //     }
 
     void ReactorBase::setThermoMgr(thermo_t& thermo){
-        m_mix = &thermo;
         m_thermo = &thermo;
-        m_nsp = m_mix->nSpecies();
-        m_mix->saveState(m_state);
+        m_nsp = m_thermo->nSpecies();
+        m_thermo->saveState(m_state);
         m_enthalpy = m_thermo->enthalpy_mass();
         m_intEnergy = m_thermo->intEnergy_mass();
         m_pressure = m_thermo->pressure();
