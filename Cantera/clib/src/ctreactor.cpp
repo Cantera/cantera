@@ -114,7 +114,7 @@ extern "C" {
 
     int DLL_EXPORT reactor_setKineticsMgr(int i, int n) {
         reactor_t* r = _reactor(i);
-        if (r->type() == ReactorType) 
+        if (r->type() >= ReactorType) 
             ((Reactor*)r)->setKineticsMgr(*_kin(n));
         return 0;
     }
@@ -169,13 +169,13 @@ extern "C" {
 
     int DLL_EXPORT reactor_setEnergy(int i, int eflag) {
         reactor_t* r = _reactor(i);
-        if (r->type() == ReactorType) ((Reactor*)r)->setEnergy(eflag);
+        if (r->type() >= ReactorType) ((Reactor*)r)->setEnergy(eflag);
         return 0;
     }
 
     int DLL_EXPORT flowReactor_setMassFlowRate(int i, double mdot) {
         reactor_t* r = _reactor(i);
-        if (r->type() == ReactorType) ((FlowReactor*)r)->setMassFlowRate(mdot);
+        if (r->type() >= ReactorType) ((FlowReactor*)r)->setMassFlowRate(mdot);
         return 0;
     }
 
