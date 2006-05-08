@@ -130,7 +130,7 @@ if ctpath <> "-":
     Python package    """+ctpath
     if warn <> '':
         print warn
-else if build_python == 2:
+elif build_python == 2:
     print """
  ######################################################################
     Warning: the Cantera Python package is not installed. If you

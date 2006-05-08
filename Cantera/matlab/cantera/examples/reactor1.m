@@ -1,6 +1,9 @@
 function reactor1(g)
 % REACTOR1 Zero-dimensional kinetics: adiabatic, constant pressure.
-% 
+%
+%    >>>>  For a simpler way to carry out a constant-pressure simulation, 
+%    see example reactor3.m <<<<<
+%
 %    This example illustrates how to use class 'Reactor' for
 %    zero-dimensional kinetics simulations. Here the parameters are
 %    set so that the reactor is adiabatic and very close to constant

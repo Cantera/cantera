@@ -18,9 +18,11 @@ do_ranlib = @DO_RANLIB@
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
 # stirred reactors
-OBJS    = Reactor.o ReactorBase.o FlowDevice.o Wall.o ReactorNet.o FlowReactor.o
+OBJS    = Reactor.o ReactorBase.o FlowDevice.o Wall.o ReactorNet.o \
+          FlowReactor.o ConstPressureReactor.o ReactorFactory.o
 ZEROD_H = Reactor.h ReactorBase.h FlowDevice.h Wall.h ReactorNet.h \
-          flowControllers.h PID_Controller.h Reservoir.h FlowReactor.h
+          flowControllers.h PID_Controller.h Reservoir.h FlowReactor.h \
+          ConstPressureReactor.h ReactorFactory.h
 
 CXX_INCLUDES = -I..
 ZEROD_LIB = @buildlib@/libzeroD.a

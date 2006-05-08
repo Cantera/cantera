@@ -20,9 +20,9 @@
 #include "stringUtils.h"
 #include "State.h"
 
-#ifdef DARWIN
-#include <Accelerate.h>
-#endif
+//#ifdef DARWIN
+//#include <Accelerate.h>
+//#endif
 
 namespace Cantera {
 

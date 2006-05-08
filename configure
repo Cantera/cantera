@@ -1367,7 +1367,7 @@ mex_ext=mexglx
 case $ac_sys_system in
   Darwin*)  OS_IS_DARWIN=1;
             EXTRA_LINK="-framework Accelerate $EXTRA_LINK";
-            CXX_INCLUDES="$CXX_INCLUDES -I/System/Library/Frameworks/Accelerate.framework/Headers"
+#            CXX_INCLUDES="$CXX_INCLUDES -I/System/Library/Frameworks/Accelerate.framework/Headers"
             mex_ext=mexmac;;
   CYGWIN*)  OS_IS_CYGWIN=1; mex_ext=dll;;
   Linux* )  case $BITHARDWARE in
@@ -2618,7 +2618,8 @@ _ACEOF
 
 echo "using CVODES from SUNDIALS... Sensitivity analysis enabled."
 CVODE_LIBS='-lsundials_cvodes -lsundials_shared -lsundials_nvecserial'
-sundials_include='-I'${SUNDIALS_HOME}/include
+sundials_include='-I'${SUNDIALS_HOME}'/include -I'${SUNDIALS_HOME}'/include/sundials -I'${SUNDIALS_HOME}'/include/cvodes'
+echo "sundials include directory: " ${sundials_include}
 fi
 
 if test ${use_sundials} = 0; then
@@ -7765,7 +7766,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:7768:" \
+echo "$as_me:7769:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -7942,7 +7943,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:7945: \"$ac_link\") >&5
+(eval echo $as_me:7946: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -8022,7 +8023,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:8025: \"$ac_link\") >&5
+(eval echo $as_me:8026: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS

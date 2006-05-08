@@ -1,5 +1,7 @@
 function setKineticsMgr(r, k)
-% SETKINETICSMGR - set the kinetics manager
+% SETKINETICSMGR - set the kinetics manager. This method is used
+% internally during Reactor initialization, but is usually not
+% called by users.
 %
 if ~isa(k,'Kinetics')
   error('wrong object type');

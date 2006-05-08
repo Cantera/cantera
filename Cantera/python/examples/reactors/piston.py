@@ -1,21 +1,22 @@
-#
-#   Gas 1: a stoichiometric H2/O2/Ar mixture
-#   Gas 2: a wet CO/O2 mixture
-#
-#        -------------------------------------
-#        |          ||                       |
-#        |          ||                       |
-#        |  gas 1   ||        gas 2          |
-#        |          ||                       |
-#        |          ||                       |
-#        -------------------------------------
-#
-#   The two volumes are connected by an adiabatic free piston.
-#   The piston speed is proportional to the pressure difference
-#   between the two chambers.
-#
-#   Note that each side uses a *different* reaction mechanism
-#
+"""
+   Gas 1: a stoichiometric H2/O2/Ar mixture
+   Gas 2: a wet CO/O2 mixture
+
+        -------------------------------------
+        |          ||                       |
+        |          ||                       |
+        |  gas 1   ||        gas 2          |
+        |          ||                       |
+        |          ||                       |
+        -------------------------------------
+
+   The two volumes are connected by an adiabatic free piston.
+   The piston speed is proportional to the pressure difference
+   between the two chambers.
+
+   Note that each side uses a *different* reaction mechanism
+
+"""
 from Cantera import *
 from Cantera.Reactor import *
 import sys

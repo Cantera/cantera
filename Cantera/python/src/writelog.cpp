@@ -10,10 +10,11 @@ namespace Cantera {
 
     class Py_Logger : public Logger {
     public:
-        Py_Logger() {}
+        Py_Logger() { cout << "created Py_Logger" << endl;}
         virtual ~Py_Logger() {}
 
         virtual void write(const string& s) {
+            cout << "write..." << endl;
             char ch = s[0];
             int n = 0;
             while (ch != '\0') {

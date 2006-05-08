@@ -64,7 +64,7 @@ CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
 #    default   try to do a full installation, but fall back to a minimal
 #              one in case of errors
 
-PYTHON_PACKAGE=${PYTHON_PACKAGE:="none"}
+PYTHON_PACKAGE=${PYTHON_PACKAGE:="default"}
 
 # Cantera needs to know where to find the Python interpreter.  If
 # PYTHON_CMD is set to "default", then the configuration process will
@@ -142,7 +142,7 @@ F90=${F90:="default"}
 # these compilers will be added automatically, and you do not need to
 # specify them here.  Otherwise, add any required compiler-specific
 # flags here.
-F90FLAGS=${F90FLAGS:='-O0'}
+F90FLAGS=${F90FLAGS:='-O3'}
 
 #----------------------------------------------------------------------
 #         Customizations / Extensions
@@ -244,7 +244,7 @@ ENABLE_TPX='y'
 # See: http://www.llnl.gov/CASC/sundials
 #
 USE_SUNDIALS=${USE_SUNDIALS:='y'}
-SUNDIALS_HOME=${SUNDIALS_HOME:='/usr/local/sundials'}
+SUNDIALS_HOME=${SUNDIALS_HOME:=/usr/local/sundials}
 
 #----------------------------------------------------------------- 
 #         BLAS and LAPACK
@@ -292,7 +292,7 @@ CXX=${CXX:=g++}
 CC=${CC:=gcc}
 
 # C++ compiler flags
-CXXFLAGS=${CXXFLAGS:="-O0 -Wall"}
+CXXFLAGS=${CXXFLAGS:="-O3 -Wall"}
 
 # the C++ flags required for linking. Uncomment if additional flags
 # need to be passed to the linker.

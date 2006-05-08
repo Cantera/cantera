@@ -13,6 +13,7 @@ PROG_NAME = cxx_examples
 # the object files to be linked together. List those generated from Fortran
 # and from C/C++ separately
 OBJS = examples.o kinetics_example1.o kinetics_example2.o \
+       kinetics_example3.o \
        equil_example1.o \
        transport_example1.o transport_example2.o \
        rxnpath_example1.o

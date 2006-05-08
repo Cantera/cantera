@@ -96,7 +96,6 @@ namespace CanteraZeroD {
 
         // The components of y are the total enthalpy,
         // the total volume, and the mass of each species.
-
         doublereal h   = y[0];
         doublereal* mss = y + 2;
         doublereal mass = accumulate(y+2, y+2+m_nsp, 0.0);

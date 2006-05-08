@@ -49,7 +49,7 @@ namespace CanteraZeroD {
 
         //-----------------------------------------------------
 
-        virtual int neq() { return m_nv; }
+        //virtual int neq() { return m_nv; }
 
         virtual void getInitialConditions(doublereal t0, size_t leny, 
             doublereal* y);

@@ -81,7 +81,7 @@ mex_ext=mexglx
 case $ac_sys_system in
   Darwin*)  OS_IS_DARWIN=1; 
             EXTRA_LINK="-framework Accelerate $EXTRA_LINK";
-            CXX_INCLUDES="$CXX_INCLUDES -I/System/Library/Frameworks/Accelerate.framework/Headers"
+#            CXX_INCLUDES="$CXX_INCLUDES -I/System/Library/Frameworks/Accelerate.framework/Headers"
             mex_ext=mexmac;;
   CYGWIN*)  OS_IS_CYGWIN=1; mex_ext=dll;;
   Linux* )  case $BITHARDWARE in
@@ -302,7 +302,8 @@ if test ${use_sundials} = 1; then
 AC_DEFINE(HAS_SUNDIALS)
 echo "using CVODES from SUNDIALS... Sensitivity analysis enabled."
 CVODE_LIBS='-lsundials_cvodes -lsundials_shared -lsundials_nvecserial' 
-sundials_include='-I'${SUNDIALS_HOME}/include
+sundials_include='-I'${SUNDIALS_HOME}'/include -I'${SUNDIALS_HOME}'/include/sundials -I'${SUNDIALS_HOME}'/include/cvodes'
+echo "sundials include directory: " ${sundials_include}
 fi
 
 if test ${use_sundials} = 0; then
@@ -394,11 +395,14 @@ if test "$ENABLE_EQUIL" = "y" ; then
 #  NEED_RECIPES=1
 fi
 
+WITH_REACTORS=0
 if test "$ENABLE_REACTORS" = "y" ; then
   KERNEL=$KERNEL' 'reactor
   NEED_CVODE=1
   NEED_ZEROD=1
+  WITH_REACTORS=1
 fi
+AC_SUBST(WITH_REACTORS)
 
 if test "$ENABLE_SOLVERS" = "y" ; then
   KERNEL=$KERNEL' 'solvers

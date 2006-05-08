@@ -422,7 +422,6 @@ class ConstPressureReactor(ReactorBase):
     """
     def __init__(self, contents = None, name = '',
                  volume = 1.0, energy = 'on',
-                 mdot = -1.0, 
                  verbose = 0):
         """
         contents - Reactor contents. If not specified, the reactor is
