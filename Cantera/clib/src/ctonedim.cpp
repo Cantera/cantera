@@ -622,4 +622,26 @@ extern "C" {
         catch (CanteraError) { return -1; }
     }
 
+    int DLL_EXPORT sim1D_evalSSJacobian(int i) {
+        try {
+            _sim1D(i)->evalSSJacobian();
+            return 0;
+        }
+        catch (CanteraError) { return -1; }
+    }
+
+    double DLL_EXPORT sim1D_jacobian(int i, int m, int n) {
+        try {
+            return _sim1D(i)->jacobian(m,n);
+        }
+        catch (CanteraError) { return DERR; }
+    }
+
+    int DLL_EXPORT sim1D_size(int i) {
+        try {
+            return _sim1D(i)->size();
+        }
+        catch (CanteraError) { return -1; }
+    }
+
 }

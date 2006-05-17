@@ -209,6 +209,15 @@ namespace Cantera {
         return m;
     }
 
+    void OneDim::evalSSJacobian(doublereal* x, doublereal* xnew) {
+        doublereal rdt_save = m_rdt;
+        m_jac_ok = false;
+        setSteadyMode();
+        eval(-1, x, xnew, 0.0, 0);
+        m_jac->eval(x, xnew, 0.0);
+        m_rdt = rdt_save;
+    }
+
     /**
      * Return a pointer to the domain that contains component i of the
      * global solution vector. The domains are scanned right-to-left,

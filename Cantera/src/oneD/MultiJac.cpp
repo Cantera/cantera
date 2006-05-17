@@ -94,12 +94,6 @@ namespace Cantera {
                         for (m = 0; m < mv; m++) {
                             value(m+iloc,ipt) = (m_r1[m+iloc] 
                                 - resid0[m+iloc])*rdx;
-                            //if (__isnand(value(m+iloc,ipt))) {
-                            //    cout << "NaN detected at i, j, n, m: " << i 
-                            //         << " " << j << " " << n << " " <<  m << 
-                            //        " " << m_r1[m+iloc] << " " << resid0[m+iloc]
-                            //         << " " << rdx << endl;
-                            //}
                         }
                     }
                 }

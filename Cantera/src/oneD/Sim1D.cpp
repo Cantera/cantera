@@ -9,6 +9,7 @@
  */
 
 #include "Sim1D.h"
+#include "MultiJac.h"
 
 namespace Cantera {
 
@@ -566,4 +567,12 @@ namespace Cantera {
             }                    
         }
     }            
+
+    doublereal Sim1D::jacobian(int i, int j) { 
+        return OneDim::jacobian().value(i,j);
+    }
+
+    void Sim1D::evalSSJacobian() {
+        OneDim::evalSSJacobian(DATA_PTR(m_x), DATA_PTR(m_xnew));
+    }
 }

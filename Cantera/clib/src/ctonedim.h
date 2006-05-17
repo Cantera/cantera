@@ -81,6 +81,9 @@ extern "C" {
     int DLL_IMPORT sim1D_timeStepFactor(int i, double tfactor);
     int DLL_IMPORT sim1D_setTimeStepLimits(int i, double tsmin, double tsmax);
     int DLL_IMPORT sim1D_setFixedTemperature(int i, double temp);
+    int DLL_IMPORT sim1D_evalSSJacobian(int i);
+    double DLL_IMPORT sim1D_jacobian(int i, int m, int n);
+    int DLL_IMPORT sim1D_size(int i);
 }
 
 

@@ -156,6 +156,8 @@ namespace Cantera {
 
     protected:
 
+        void evalSSJacobian(doublereal* x, doublereal* xnew);
+
         doublereal m_tmin;        // minimum timestep size
         doublereal m_tmax;        // maximum timestep size
         doublereal m_tfactor;     // factor time step is multiplied by

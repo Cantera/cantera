@@ -109,6 +109,10 @@ namespace Cantera {
 
         const doublereal* solution() const { return DATA_PTR(m_x); }
 
+        doublereal jacobian(int i, int j);
+
+        void evalSSJacobian();
+
     protected:
 
         vector_fp m_x;          // the solution vector
