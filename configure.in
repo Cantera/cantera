@@ -821,6 +821,8 @@ HAVE_STRIPSYMBOLS='yes'
 case $ac_sys_system in
   SunOS* )
      HAVE_STRIPSYMBOLS='no';;
+  Darwin* )
+     HAVE_STRIPSYMBOLS='no';;
 esac 
 echo 'checking for a strip symbol command ... ' $HAVE_STRIPSYMBOLS
 AC_SUBST(HAVE_STRIPSYMBOLS)

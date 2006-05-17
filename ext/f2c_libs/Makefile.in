@@ -92,7 +92,7 @@ OFILES = $(MISC) $(POW) $(CX) $(DCX) $(REAL) $(DBL) $(INT) \
 all: f2c.h signal1.h sysdep1.h $(F2C_LIB) $(F2C_H)
 
 $(F2C_LIB): $(OFILES)
-	ar r $(F2C_LIB) $?
+	@ARCHIVE@ $(F2C_LIB) $?
 ifeq ($(do_ranlib),1)
 	@RANLIB@ $(F2C_LIB)
 endif
