@@ -243,7 +243,7 @@ ENABLE_TPX='y'
 #
 # See: http://www.llnl.gov/CASC/sundials
 #
-USE_SUNDIALS=${USE_SUNDIALS:='n'}
+USE_SUNDIALS=${USE_SUNDIALS:='y'}
 SUNDIALS_HOME=${SUNDIALS_HOME:=/usr/local/sundials}
 
 #----------------------------------------------------------------- 

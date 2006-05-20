@@ -32,7 +32,7 @@
 #define NOJAC 4
 #define JAC 8
 #define GMRES 16
-
+#define BAND 32
 
 namespace Cantera {
 
@@ -159,6 +159,9 @@ namespace Cantera {
 
         virtual void setMaxSteps(int nmax) 
             { warn("setMaxStep"); }
+
+        virtual void setBandwidth(int N_Upper, int N_Lower) 
+            { warn("setBandwidth"); }
 
         virtual int nSensParams() 
             { warn("nSensParams()"); return 0; }

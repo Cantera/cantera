@@ -20,6 +20,7 @@ using namespace std;
 #include <cvodes.h>
 #include <cvdense.h>
 #include <cvdiag.h>
+#include <cvband.h>
 #include <cvspgmr.h>
 #include <nvector.h>
 #include <nvector_serial.h>
@@ -107,7 +108,8 @@ namespace Cantera {
                                            m_abstolsens(1.0e-4),
                            m_nabs(0), 
                            m_hmax(0.0),
-                                           m_maxsteps(20000), m_np(0)
+                                           m_maxsteps(20000), m_np(0),
+                                           m_mupper(0), m_mlower(0)
     {
         //m_ropt.resize(OPT_SIZE,0.0);
         //m_iopt = new long[OPT_SIZE];
@@ -282,6 +284,12 @@ namespace Cantera {
         else if (m_type == GMRES) {
             CVSpgmr(m_cvode_mem, PREC_NONE, 0);
         }
+        else if (m_type == BAND + NOJAC) {
+            long int N = m_neq;
+            long int nu = m_mupper;
+            long int nl = m_mlower;
+            CVBand(m_cvode_mem, N, nu, nl);
+        }
         else {
             throw CVodesErr("unsupported option");
         }
@@ -342,6 +350,12 @@ namespace Cantera {
         }
         else if (m_type == DIAG) {
             CVDiag(m_cvode_mem);
+        }
+        else if (m_type == BAND + NOJAC) {
+            long int N = m_neq;
+            long int nu = m_mupper;
+            long int nl = m_mlower;
+            CVBand(m_cvode_mem, N, nu, nl);
         }
         else if (m_type == GMRES) {
             CVSpgmr(m_cvode_mem, PREC_NONE, 0);

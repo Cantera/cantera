@@ -71,7 +71,10 @@ namespace Cantera {
         virtual void setMaxStepSize(double hmax);
         virtual void setMinStepSize(double hmin);
         virtual void setMaxSteps(int nmax);
-
+        virtual void setBandwidth(int N_Upper, int N_Lower) {
+            m_mupper = N_Upper;
+            m_mlower = N_Lower;
+        }
         virtual int nSensParams() { return m_np; }
         virtual double sensitivity(int k, int p);
 
@@ -97,7 +100,7 @@ namespace Cantera {
         FuncData* m_fdata;
         N_Vector*  m_yS;
         int m_np;
-
+        int m_mupper, m_mlower;
     };
 
 }    // namespace
