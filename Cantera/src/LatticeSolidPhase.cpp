@@ -94,6 +94,36 @@ namespace Cantera {
         m_cp0_R.resize(leng);
         m_s0_R.resize(leng);
         setMolarDensity(m_molar_density);
+
+        const vector<string>& spnames = speciesNames();
+        int n, k, kl, namesize;
+        int nl = m_sitedens.size();
+        string s;
+        m_lattice.resize(m_kk,-1);
+        vector_fp conc(m_kk, 0.0);
+
+        compositionMap xx;
+        for (n = 0; n < nl; n++) {
+            for (k = 0; k < m_kk; k++) { 
+                xx[speciesName(k)] = -1.0;
+            }
+            parseCompString(m_sp[n], xx);
+            for (k = 0; k < m_kk; k++) { 
+                if (xx[speciesName(k)] != -1.0) {
+                    conc[k] = m_sitedens[n]*xx[speciesName(k)];
+                    m_lattice[k] = n;
+                }
+            }
+
+        }
+        for (k = 0; k < m_kk; k++) {
+            if (m_lattice[k] == -1) {
+                throw CanteraError("LatticeSolidPhase::"
+                    "setParametersFromXML","Species "+speciesName(k)
+                    +" not a member of any lattice.");
+            }                    
+        }
+        setMoleFractions(DATA_PTR(conc));
     }
 
 
@@ -125,10 +155,13 @@ namespace Cantera {
         doublereal site_density;
         string vacancy;
         doublereal sum = 0.0;
+        string s;
         for (n = 0; n < nl; n++) {
             XML_Node& i = *lattices[n];
             site_density = getFloat(i, "site_density", "-");
             vacancy = getString(i, "vacancy_species");
+            s = getString(i, "species");
+            m_sp.push_back(s);
             m_vac.push_back(vacancy);
             m_sitedens.push_back(site_density);
             sum += site_density;
