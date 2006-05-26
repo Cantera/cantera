@@ -1,6 +1,6 @@
 /**
  *
- *  @file LatticeSolidPhase.h
+ *  @file LatticePhase.h
  */
 
 /*  $Author$
@@ -11,8 +11,8 @@
  *
  */
 
-#ifndef CT_LATTICESOLID_H
-#define CT_LATTICESOLID_H
+#ifndef CT_LATTICE_H
+#define CT_LATTICE_H
 
 #include "ct_defs.h"
 #include "mix_defs.h"
@@ -23,18 +23,16 @@
 namespace Cantera {
 
     /**
-     * Overloads the virtual methods of class Thermo to implement the
-     * incompressible equation of state.
      */
-    class LatticeSolidPhase : public ThermoPhase  {
+    class LatticePhase : public ThermoPhase  {
 
     public:
 
-        LatticeSolidPhase() : m_tlast(0.0) {}
+        LatticePhase() : m_tlast(0.0) {}
 
-        virtual ~LatticeSolidPhase() {}
+        virtual ~LatticePhase() {}
 
-        virtual int eosType() const { return cLatticeSolid; }
+        virtual int eosType() const { return cLattice; }
 
         virtual doublereal enthalpy_mole() const;
 

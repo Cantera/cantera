@@ -124,6 +124,33 @@ namespace Cantera {
         while (s != "");
     }
 
+
+            
+    /**
+     * Parse a composition string.
+     */
+    void split(const string ss, vector<string>& w) {
+        string s = ss;
+        string::size_type icolon, ibegin, iend;
+        string name, num, nm;
+        do {
+            ibegin = s.find_first_not_of(", ;\n\t");
+            if (ibegin != string::npos) {
+                s = s.substr(ibegin,s.size());
+                iend = s.find_first_of(", ;\n\t");
+                if (iend != string::npos) {
+                    w.push_back(s.substr(0, iend));
+                    s = s.substr(iend+1, s.size());
+                }
+                else {
+                    w.push_back(s.substr(0, s.size()));
+                    return;
+                }
+            }
+        }
+        while (s != "");
+    }
+
     int fillArrayFromString(const string& str, doublereal* a, char delim) {
 		string::size_type iloc;
         int count = 0;

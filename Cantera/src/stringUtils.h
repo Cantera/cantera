@@ -23,6 +23,7 @@ namespace Cantera {
     string stripnonprint(string s);
     string lowercase(string s);
     void parseCompString(const string ss, compositionMap& x);
+    void split(const string ss, vector<string>& w);
     int fillArrayFromString(const string& str, doublereal* a, char delim = ' ');
     string report(const ThermoPhase& th, bool show_thermo = true);
     string formatCompList(const Phase& mix, int xyc);

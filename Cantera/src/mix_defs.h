@@ -42,6 +42,7 @@ namespace Cantera {
     const int cStoichSubstance = 5; // StoichSubstance.h
 
     const int cLatticeSolid = 20; // LatticeSolidPhase.h
+    const int cLattice = 21; 
 
     // pure fluids with liquid/vapor eqs of state
     const int cPureFluid = 10;
