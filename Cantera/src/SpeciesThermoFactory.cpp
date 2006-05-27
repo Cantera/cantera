@@ -74,10 +74,10 @@ namespace Cantera {
     SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(XML_Node* node) {
         int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
 	try {
-            getSpeciesThermoTypes(node, inasa, ishomate, isimple, iother);
-	} 
-        catch (UnknownSpeciesThermoModel) {
-            iother = 1;
+	  getSpeciesThermoTypes(node, inasa, ishomate, isimple, iother);
+	} catch (UnknownSpeciesThermoModel) {
+	  iother = 1;
+	  popError();
 	}
 	if (iother) {
             writelog("returning new GeneralSpeciesThermo");
@@ -96,10 +96,10 @@ namespace Cantera {
             getSpeciesThermoTypes(nodes[j], inasa, ishomate, isimple, iother);
 	  } catch (UnknownSpeciesThermoModel) {
 	    iother = 1;
+	    popError();
 	  }
         }
 	if (iother) {
-            writelog("returning new GeneralSpeciesThermo");
 	  return new GeneralSpeciesThermo();
 	}
         return newSpeciesThermo(NASA*inasa
@@ -123,7 +123,6 @@ namespace Cantera {
 	  }
         }
 	if (iother) {
-            writelog("returning new GeneralSpeciesThermo");
 	  return new GeneralSpeciesThermo();
 	}
         return newSpeciesThermo(NASA*inasa
