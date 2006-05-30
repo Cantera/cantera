@@ -13,40 +13,76 @@
 #include "ct_defs.h"
 #include "mix_defs.h"
 #include "LatticeSolidPhase.h"
+#include "LatticePhase.h"
 #include "SpeciesThermo.h"
+#include "importCTML.h"
 
 namespace Cantera {
 
     doublereal LatticeSolidPhase::
     enthalpy_mole() const {
-        doublereal p0 = m_spthermo->refPressure();
-        return GasConstant * temperature() * 
-            mean_X(&enthalpy_RT()[0]) 
-            + (pressure() - p0)/molarDensity();
+        _updateThermo();
+        doublereal ndens, sum = 0.0;
+        int n;
+        for (n = 0; n < m_nlattice; n++) {
+            ndens = m_lattice[n]->molarDensity();
+            sum += ndens * m_lattice[n]->enthalpy_mole();
+        }
+        return sum/molarDensity();
     }
 
     doublereal LatticeSolidPhase::intEnergy_mole() const {
-        doublereal p0 = m_spthermo->refPressure();
-        return GasConstant * temperature() * 
-            mean_X(&enthalpy_RT()[0]) 
-            - p0/molarDensity();
+        _updateThermo();
+        doublereal ndens, sum = 0.0;
+        int n;
+        for (n = 0; n < m_nlattice; n++) {
+            ndens = m_lattice[n]->molarDensity();
+            sum += ndens * m_lattice[n]->intEnergy_mole();
+        }
+        return sum/molarDensity();
     }
 
     doublereal LatticeSolidPhase::entropy_mole() const {
-        return GasConstant * (mean_X(&entropy_R()[0]) -
-            sum_xlogx());
+        _updateThermo();
+        doublereal ndens, sum = 0.0;
+        int n;
+        for (n = 0; n < m_nlattice; n++) {
+            ndens = m_lattice[n]->molarDensity();
+            sum += ndens * m_lattice[n]->entropy_mole();
+        }
+        return sum/molarDensity();
     }
 
     doublereal LatticeSolidPhase::gibbs_mole() const {
-        return enthalpy_mole() - temperature() * entropy_mole();
+        _updateThermo();
+        doublereal ndens, sum = 0.0;
+        int n;
+        for (n = 0; n < m_nlattice; n++) {
+            ndens = m_lattice[n]->molarDensity(); 
+            sum += ndens * m_lattice[n]->gibbs_mole();
+        }
+        return sum/molarDensity();
     }
 
     doublereal LatticeSolidPhase::cp_mole() const {
-        return GasConstant * mean_X(&cp_R()[0]);
+        _updateThermo();
+        doublereal ndens, sum = 0.0;
+        int n;
+        for (n = 0; n < m_nlattice; n++) {
+            ndens = m_lattice[n]->molarDensity(); 
+            sum += ndens * m_lattice[n]->cp_mole();
+        }
+        return sum/molarDensity();
     }
 
     void LatticeSolidPhase::getActivityConcentrations(doublereal* c) const {
-        getMoleFractions(c);
+        _updateThermo();
+        int n;
+        int strt = 0;
+        for (n = 0; n < m_nlattice; n++) {
+            m_lattice[n]->getMoleFractions(c+strt);
+            strt += m_lattice[n]->nSpecies();
+        }
     }
 
     void LatticeSolidPhase::getActivityCoefficients(doublereal* ac) const {
@@ -64,111 +100,130 @@ namespace Cantera {
     }
 
     void LatticeSolidPhase::getChemPotentials(doublereal* mu) const {
-        doublereal vdp = (pressure() - m_spthermo->refPressure())/
-                         molarDensity();
-        doublereal xx;
-        doublereal rt = temperature() * GasConstant;
-        const array_fp& g_RT = gibbs_RT();
-        for (int k = 0; k < m_kk; k++) {
-            xx = fmaxx(SmallNumber, moleFraction(k));
-            mu[k] = rt*(g_RT[k] + log(xx)) + vdp;
+        _updateThermo();
+        int n;
+        int strt = 0;
+        double dratio;
+        for (n = 0; n < m_nlattice; n++) {
+            dratio = m_lattice[n]->molarDensity()/molarDensity();
+            m_lattice[n]->getChemPotentials(mu+strt);
+            scale(mu + strt, mu + strt + m_lattice[n]->nSpecies(), mu + strt, dratio);
+            strt += m_lattice[n]->nSpecies();
         }
     }
 
     void LatticeSolidPhase::getStandardChemPotentials(doublereal* mu0) const {
-        getPureGibbs(mu0);
+        _updateThermo();
+        int n;
+        int strt = 0;
+        double dratio;
+        for (n = 0; n < m_nlattice; n++) {
+            dratio = m_lattice[n]->molarDensity()/molarDensity();
+            m_lattice[n]->getStandardChemPotentials(mu0+strt);
+            scale(mu0 + strt, mu0 + strt + m_lattice[n]->nSpecies(), mu0 + strt, dratio);
+            strt += m_lattice[n]->nSpecies();
+        }
     }
 
     void LatticeSolidPhase::initThermo() {
         m_kk = nSpecies();
         m_mm = nElements();
-        doublereal tmin = m_spthermo->minTemp();
-        doublereal tmax = m_spthermo->maxTemp();
-        if (tmin > 0.0) m_tmin = tmin;
-        if (tmax > 0.0) m_tmax = tmax;
-        m_p0 = refPressure();
-
-        int leng = m_kk;
-        m_h0_RT.resize(leng);
-        m_g0_RT.resize(leng);
-        m_cp0_R.resize(leng);
-        m_s0_R.resize(leng);
-        setMolarDensity(m_molar_density);
-
-        const vector<string>& spnames = speciesNames();
-        int n, k, kl, namesize;
-        int nl = m_sitedens.size();
-        string s;
-        m_lattice.resize(m_kk,-1);
-        vector_fp conc(m_kk, 0.0);
-
-        compositionMap xx;
-        for (n = 0; n < nl; n++) {
-            for (k = 0; k < m_kk; k++) { 
-                xx[speciesName(k)] = -1.0;
+        m_x.resize(m_kk);
+        int n, nsp, k, loc = 0;
+        doublereal ndens;
+        m_molar_density = 0.0;
+        for (n = 0; n < m_nlattice; n++) {
+            nsp = m_lattice[n]->nSpecies();
+            ndens = m_lattice[n]->molarDensity();
+            for (k = 0; k < nsp; k++) {
+                m_x[loc] = ndens * m_lattice[n]->moleFraction(k);
+                loc++;
             }
-            parseCompString(m_sp[n], xx);
-            for (k = 0; k < m_kk; k++) { 
-                if (xx[speciesName(k)] != -1.0) {
-                    conc[k] = m_sitedens[n]*xx[speciesName(k)];
-                    m_lattice[k] = n;
-                }
-            }
+            m_molar_density += ndens;
+        }
+        setMoleFractions(DATA_PTR(m_x));
 
-        }
-        for (k = 0; k < m_kk; k++) {
-            if (m_lattice[k] == -1) {
-                throw CanteraError("LatticeSolidPhase::"
-                    "setParametersFromXML","Species "+speciesName(k)
-                    +" not a member of any lattice.");
-            }                    
-        }
-        setMoleFractions(DATA_PTR(conc));
+//          const vector<string>& spnames = speciesNames();
+//          int n, k, kl, namesize;
+//          int nl = m_sitedens.size();
+//          string s;
+//          m_lattice.resize(m_kk,-1);
+//          vector_fp conc(m_kk, 0.0);
+
+//          compositionMap xx;
+//          for (n = 0; n < nl; n++) {
+//              for (k = 0; k < m_kk; k++) { 
+//                  xx[speciesName(k)] = -1.0;
+//              }
+//              parseCompString(m_sp[n], xx);
+//              for (k = 0; k < m_kk; k++) { 
+//                  if (xx[speciesName(k)] != -1.0) {
+//                      conc[k] = m_sitedens[n]*xx[speciesName(k)];
+//                      m_lattice[k] = n;
+//                  }
+//              }
+
+//          }
+//          for (k = 0; k < m_kk; k++) {
+//              if (m_lattice[k] == -1) {
+//                  throw CanteraError("LatticeSolidPhase::"
+//                      "setParametersFromXML","Species "+speciesName(k)
+//                      +" not a member of any lattice.");
+//              }                    
+//          }
+//          setMoleFractions(DATA_PTR(conc));
     }
 
 
     void LatticeSolidPhase::_updateThermo() const {
         doublereal tnow = temperature();
-        if (fabs(molarDensity() - m_molar_density)/m_molar_density > 0.0001) {
-            throw CanteraError("_updateThermo","molar density changed from "
-                +fp2str(m_molar_density)+" to "+fp2str(molarDensity()));
-        }
+        //        if (fabs(molarDensity() - m_molar_density)/m_molar_density > 0.0001) {
+        //   throw CanteraError("_updateThermo","molar density changed from "
+        //        +fp2str(m_molar_density)+" to "+fp2str(molarDensity()));
+        //}
         if (m_tlast != tnow) {
-            m_spthermo->update(tnow, &m_cp0_R[0], &m_h0_RT[0], 
-                &m_s0_R[0]);
-            m_tlast = tnow;
-            int k;
-            for (k = 0; k < m_kk; k++) {
-                m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
+            int n;
+            getMoleFractions(DATA_PTR(m_x));
+            int strt = 0;
+            for (n = 0; n < m_nlattice; n++) {
+                m_lattice[n]->setTemperature(tnow);
+                m_lattice[n]->setMoleFractions(DATA_PTR(m_x) + strt);
+                m_lattice[n]->setPressure(m_press);
+                strt += m_lattice[n]->nSpecies();
             }
             m_tlast = tnow;
         }
+    }
+
+    void LatticeSolidPhase::setLatticeMoleFractions(int nn, 
+        string x) {
+        m_lattice[nn]->setMoleFractionsByName(x);
+        int n, k, loc=0, nsp;
+        doublereal ndens;
+        for (n = 0; n < m_nlattice; n++) {
+            nsp = m_lattice[n]->nSpecies();
+            ndens = m_lattice[n]->molarDensity();
+            for (k = 0; k < nsp; k++) {
+                m_x[loc] = ndens * m_lattice[n]->moleFraction(k);
+                loc++;
+            }
+        }
+        setMoleFractions(DATA_PTR(m_x));
     }
 
     void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata) {
         eosdata._require("model","LatticeSolid");
         XML_Node& la = eosdata.child("LatticeArray");
         vector<XML_Node*> lattices;
-        la.getChildren("Lattice",lattices);
+        la.getChildren("phase",lattices);
         int n;
         int nl = lattices.size();
-        doublereal site_density;
-        string vacancy;
-        doublereal sum = 0.0;
-        string s;
+        m_nlattice = nl;
         for (n = 0; n < nl; n++) {
             XML_Node& i = *lattices[n];
-            site_density = getFloat(i, "site_density", "-");
-            vacancy = getString(i, "vacancy_species");
-            s = getString(i, "species");
-            m_sp.push_back(s);
-            m_vac.push_back(vacancy);
-            m_sitedens.push_back(site_density);
-            sum += site_density;
+            m_lattice.push_back((LatticePhase*)newPhase(i));
         }
-        m_molar_density = sum;
     }
-
 }
 
 

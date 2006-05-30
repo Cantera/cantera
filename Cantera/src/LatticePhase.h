@@ -94,10 +94,6 @@ namespace Cantera {
 
         // new methods defined here
 
-        double latticeMoleFraction(int k) { 
-            return moleFraction(k)*molarDensity()/m_sitedens[m_lattice[k]];
-        }
-
         const array_fp& enthalpy_RT() const {
             _updateThermo();
             return m_h0_RT;
@@ -136,18 +132,15 @@ namespace Cantera {
 
         int m_mm;
         doublereal m_tmin, m_tmax, m_p0;
-
         mutable doublereal     m_tlast;
         mutable array_fp      m_h0_RT;
         mutable array_fp      m_cp0_R;
         mutable array_fp      m_g0_RT;
         mutable array_fp      m_s0_R;
-        doublereal m_press;
-        vector<string>        m_vac;
-        vector_fp             m_sitedens;
-        doublereal m_molar_density;
-        vector<int>           m_lattice;
-        vector<string>        m_sp;
+        doublereal            m_press;
+        string                m_vacancy;
+        doublereal            m_molar_density;
+
     private:
 
         void _updateThermo() const;

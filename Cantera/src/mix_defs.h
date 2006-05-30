@@ -56,6 +56,7 @@ namespace Cantera {
     const int cInterfaceKinetics = 4;
     const int cLineKinetics = 5;
     const int cEdgeKinetics = 6;
+    const int cSolidKinetics = 7;
 }
 
 #endif

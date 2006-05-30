@@ -40,20 +40,21 @@
 
 #ifdef WITH_LATTICE_SOLID
 #include "LatticeSolidPhase.h"
+#include "LatticePhase.h"
 #endif
 
 namespace Cantera {
 
     ThermoFactory* ThermoFactory::s_factory = 0;
 
-    static int ntypes = 8;
+    static int ntypes = 9;
     static string _types[] = {"IdealGas", "Incompressible", 
                               "Surface", "Edge", "Metal", "StoichSubstance",
-                              "PureFluid", "LatticeSolid"};
+                              "PureFluid", "LatticeSolid", "Lattice"};
 
     static int _itypes[]   = {cIdealGas, cIncompressible, 
                               cSurf, cEdge, cMetal, cStoichSubstance,
-                              cPureFluid, cLatticeSolid};
+                              cPureFluid, cLatticeSolid, cLattice};
 
     /**
      * This method returns a new instance of a subclass of ThermoPhase
@@ -101,6 +102,10 @@ namespace Cantera {
 #ifdef WITH_LATTICE_SOLID
         case cLatticeSolid:
             th = new LatticeSolidPhase;
+            break;
+
+        case cLattice:
+            th = new LatticePhase;
             break;
 #endif
 
