@@ -357,6 +357,8 @@ if test "$WITH_LATTICE_SOLID" = "y"; then
   AC_DEFINE(WITH_LATTICE_SOLID)
   hdrs=$hdrs' LatticeSolidPhase.h'
   objs=$objs' LatticeSolidPhase.o'
+  hdrs=$hdrs' LatticePhase.h'
+  objs=$objs' LatticePhase.o'
 fi  
 phase_object_files=$objs
 phase_header_files=$hdrs
@@ -844,9 +846,9 @@ dnl Checks for libraries.
 AC_F77_LIBRARY_LDFLAGS()
 
 override_f77_libs=0;
-case $ac_sys_system in
-  Darwin*)  FLIBS='-lSystem'; override_f77_libs=1; SHARED_CTLIB=0;;
-esac
+#case $ac_sys_system in
+#  Darwin*)  FLIBS='-lSystem'; override_f77_libs=1; SHARED_CTLIB=0;;
+#esac
 
 if test $override_f77_libs -gt 0; then
   echo The Fortran 77 libraries on this platform are not correctly determined by 

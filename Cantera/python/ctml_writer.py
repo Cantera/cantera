@@ -1466,21 +1466,27 @@ class incompressible_solid(phase):
 
 class lattice:
     def __init__(self, name = '', site_density = -1.0,
+                 species = '',
                  vacancy_species = ''):
         self._name = name
         self._n = site_density
         self._vac = vacancy_species
+        self._species = species
         if name == '':
             raise CTI_Error('sublattice name must be specified')
         if site_density < 0.0:
             raise CTI_Error('sublattice '+name
                             +' site density must be specified')
+        if species == '':
+            raise CTI_Error('sublattice '+name
+                            +' species must be specified')            
     def build(self,p):
         lat = p.addChild('Lattice')
         lat['name'] = self._name
         addFloat(lat, 'site_density', self._n, defunits = _umol+'/'+_ulen+'3')
         if self._vac:
             lat.addChild('vacancy_species',self._vac)
+        lat.addChild('species',self._species)
 
 
 class lattice_solid(phase):
