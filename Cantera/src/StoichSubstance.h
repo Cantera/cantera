@@ -166,7 +166,7 @@ namespace Cantera {
 
         /**
          * This method returns the array of generalized
-         * concentrations.  For a stoichiomeetric substance, there is
+         * concentrations.  For a stoichiometric substance, there is
          * only one species, and the generalized concentration is 1.0.
          */
         virtual void getActivityConcentrations(doublereal* c) const {
@@ -321,6 +321,13 @@ namespace Cantera {
             cpr[0] = cp_mole() / GasConstant;
         }
 
+       /**
+	* Get the standard volumes for the standard state of the species
+	* at the current T and P
+	*/
+        virtual void getStandardVolumes(doublereal*vol) const {
+	  vol[0] = 1.0 / molarDensity();
+        }
 
 	//@}
         /// @name Thermodynamic Values for the Species Reference States --------------------
