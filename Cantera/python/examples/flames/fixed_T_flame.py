@@ -94,7 +94,7 @@ f = BurnerFlame(gas = gas, grid = initial_grid)
 f.burner.set(massflux = mdot, mole_fractions = comp, temperature = tburner)
 
 # read in the fixed temperature profile
-[zloc, tvalues] = getTempData('tdata.csv')
+[zloc, tvalues] = getTempData('tdata.dat')
 
 # set the temperature profile to the values read in
 f.flame.setFixedTempProfile(zloc, tvalues)
@@ -116,8 +116,10 @@ f.solve(loglevel, refine_grid)
 f.save('ch4_flame_fixed_T.xml','mixav',
        'solution with mixture-averaged transport')
 
+print '\n\n switching to multicomponent transport...\n\n'
 gas.switchTransportModel('Multi')
 f.flame.setTransportModel(gas)
+
 f.setRefineCriteria(ratio = 3.0, slope = 0.1, curve = 0.2)
 f.solve(loglevel, refine_grid)
 f.save('ch4_flame_fixed_T.xml','multi',
