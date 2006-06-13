@@ -70,8 +70,7 @@ namespace Cantera {
 
         virtual void setParametersFromXML(const XML_Node& eosdata);
 
-    void LatticeSolidPhase::setLatticeMoleFractions(int n, 
-        string x);
+        void setLatticeMoleFractions(int n, string x);
 
     protected:
         
