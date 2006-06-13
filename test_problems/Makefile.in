@@ -6,6 +6,7 @@
 #
 test_python=@BUILD_PYTHON@
 test_ck=@BUILD_CK@
+test_cathermo=@NEED_CATHERMO@
 
 all:
 	cd cxx_ex;       @MAKE@ all
@@ -15,6 +16,10 @@ all:
 ifeq ($(test_ck),1)
 	cd ck2cti_test;  @MAKE@ all
 endif
+ifeq ($(test_cathermo),1)
+	cd cathermo;     @MAKE@ all
+endif
+
 test:
 	cd cxx_ex;       @MAKE@ test
 	cd surfkin;      @MAKE@ test
@@ -26,6 +31,9 @@ endif
 ifeq ($(test_python),2)
 	cd python;       @MAKE@ test
 endif
+ifeq ($(test_cathermo),1)
+	cd cathermo;     @MAKE@ test
+endif
 
 clean:
 	$(RM) *.*~ 
@@ -33,12 +41,8 @@ clean:
 	cd surfkin;      @MAKE@ clean
 	cd fracCoeff;    @MAKE@ clean
 	cd diamondSurf;  @MAKE@ clean
-ifeq ($(test_ck),1)
 	cd ck2cti_test;  @MAKE@ clean
-endif
-ifeq ($(test_python),2)
 	cd python;       @MAKE@ clean
-endif
 
 depends:
 	cd cxx_ex;       @MAKE@ depends
@@ -47,4 +51,7 @@ depends:
 	cd diamondSurf;  @MAKE@ depends
 ifeq ($(test_ck),1)
 	cd ck2cti_test;  @MAKE@ depends
+endif
+ifeq ($(test_cathermo),1)
+	cd cathermo;     @MAKE@ depends
 endif
