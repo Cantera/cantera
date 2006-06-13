@@ -190,6 +190,9 @@ WITH_STOICH_SUBSTANCE='y'
 # oxygen, methane, andd HFC-134a.
 WITH_PURE_FLUIDS='y'
 
+# This flag enables the inclusion of ideal solution capabilities
+WITH_IDEAL_SOLUTIONS=${WITH_IDEAL_SOLUTIONS:="n"}
+
 # Enable expanded electrochemistry capabilities, include thermo
 # models for electrolyte solutions
 WITH_ELECTROLYTES=${WITH_ELECTROLYTES:="n"}
@@ -445,6 +448,7 @@ export WITH_LATTICE_SOLID
 export WITH_METAL
 export WITH_STOICH_SUBSTANCE
 export WITH_PURE_FLUIDS
+export WITH_IDEAL_SOLUTIONS
 export WITH_ELECTROLYTES
 
 #cd config

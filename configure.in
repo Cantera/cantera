@@ -330,9 +330,7 @@ NEED_MATH=
 NEED_TPX=
 NEED_F2C=
 NEED_CVODE=
-NEED_TRANSPORT=
 NEED_ZEROD=
-NEED_ONED=
 
 if test "$ENABLE_THERMO" = "y"; then 
   KERNEL=$KERNEL' 'thermo; 
@@ -365,12 +363,24 @@ phase_header_files=$hdrs
 AC_SUBST(phase_object_files)
 AC_SUBST(phase_header_files)
 
-COMPILE_CATHERMO=0
+
+NEED_CATHERMO=
+COMPILE_IDEAL_SOLUTIONS=0
+if test "$WITH_IDEAL_SOLUTIONS" = "y"; then
+   AC_DEFINE(WITH_IDEAL_SOLUTIONS)
+   NEED_CATHERMO=1 
+   COMPILE_IDEAL_SOLUTIONS=1
+fi
+AC_SUBST(COMPILE_IDEAL_SOLUTIONS)
+
+COMPILE_ELECTROLYTES=0
 if test "$WITH_ELECTROLYTES" = "y"; then
    AC_DEFINE(WITH_ELECTROLYTES)
-   COMPILE_CATHERMO=1 
+   NEED_CATHERMO=1 
+   COMPILE_ELECTROLYTES=1
 fi
-AC_SUBST(COMPILE_CATHERMO)
+AC_SUBST(COMPILE_ELECTROLYTES)
+AC_SUBST(NEED_CATHERMO)
 
 if test "$ENABLE_KINETICS" = "y"; then 
   KERNEL=$KERNEL' 'kinetics; 
@@ -383,6 +393,7 @@ if test "$ENABLE_CK" = "y" ; then
   KERNEL=$KERNEL' 'ck 
 fi
 
+NEED_TRANSPORT=
 if test "$ENABLE_TRANSPORT" = "y" ; then
   KERNEL=$KERNEL' 'trprops
   NEED_LAPACK=1
@@ -390,11 +401,12 @@ if test "$ENABLE_TRANSPORT" = "y" ; then
   NEED_TRANSPORT=1
 fi
 
+NEED_EQUIL=
 if test "$ENABLE_EQUIL" = "y" ; then 
   KERNEL=$KERNEL' 'equil
   KERNEL_OBJ=$KERNEL_OBJ' $(EQUIL_OBJ)'
+  NEED_EQUIL=1
   NEED_LAPACK=1
-#  NEED_RECIPES=1
 fi
 
 WITH_REACTORS=0
@@ -413,6 +425,7 @@ if test "$ENABLE_SOLVERS" = "y" ; then
   NEED_MATH=1
 fi
 
+NEED_ONED=
 if test "$ENABLE_FLOW1D" = "y" ; then 
   KERNEL=$KERNEL' 'flow1D
   NEED_LAPACK=1
@@ -420,9 +433,11 @@ if test "$ENABLE_FLOW1D" = "y" ; then
   NEED_ONED=1
 fi
 
+NEED_RXNPATH=
 if test "$ENABLE_RXNPATH" = "y" ; then
   KERNEL=$KERNEL' 'rpath
   KERNEL_OBJ=$KERNEL_OBJ' $(RPATH_OBJ)'
+  NEED_RXNPATH=1
 fi
 
 if test "$ENABLE_TPX" = "y" ; then 
@@ -436,6 +451,57 @@ AC_SUBST(KERNEL_OBJ)
 AC_SUBST(BUILD_CK)
 AC_SUBST(LIB_DIR)
 
+#
+# Report to the user what has been included/excluded from the compilation
+#
+echo " "
+echo "Config SUMMARY OF INCLUDED/EXCLUDED CAPABILITIES:"  
+if test "$NEED_TRANSPORT" = "1" ; then
+  echo "        Calculation of Transport Props        = ON"
+else
+  echo "        Calculation of Transport Props        = OFF"
+fi
+if test "$NEED_ZEROD" = "1" ; then
+  echo "        Zero-Dimensional Flow Reactors Models = ON"
+else
+  echo "        Zero-Dimensional Flow Reactors Models = OFF"
+fi
+if test "$NEED_ONED" = "1" ; then
+  echo "        One Dimensional Flow Reactors Models  = ON"
+else
+  echo "        One Dimensional Flow Reactors Models  = OFF"
+fi
+if test "$NEED_TPX" = "1" ; then
+  echo "        TPX Pure Fluid Capability             = ON"
+else
+  echo "        TPX Pure Fluid Capability             = OFF"
+fi
+if test "$NEED_CKREADER" = "1" ; then
+  echo "        Chemkin File Reader Capability        = ON"
+else
+  echo "        Chemkin File Reader Capability        = OFF"
+fi
+if test "$NEED_RXNPATH" = "1" ; then
+  echo "        Reaction Path Analysis                = ON"
+else
+  echo "        Reaction Path Analysis                = OFF"
+fi
+if test "$NEED_EQUIL" = "1" ; then
+  echo "        MultiPhase Equilibrium Solver         = ON"
+else
+  echo "        MultiPhase Equilibrium Solver         = OFF"
+fi
+if test "$COMPILE_IDEAL_SOLUTIONS" = "1" ; then
+  echo "        Ideal Solution Thermodynamics         = ON"
+else
+  echo "        Ideal Solution Thermodynamics         = OFF"
+fi
+if test "$COMPILE_ELECTROLYTES" = "1" ; then
+  echo "        Electrolyte Thermodynamics            = ON"
+else
+  echo "        Electrolyte Thermodynamics            = OFF"
+fi
+echo " "
 
 ########################################################
 # BLAS and LAPACK
@@ -528,15 +594,15 @@ if test -n "$NEED_ZEROD"
 then LOCAL_LIBS=$LOCAL_LIBS' '-lzeroD
 fi
 
+if test -n "$NEED_CATHERMO"
+then LOCAL_LIBS=$LOCAL_LIBS' '-lcaThermo
+fi
+
 if test -n "$NEED_TRANSPORT"
 then LOCAL_LIBS=$LOCAL_LIBS' '-ltransport
 fi
 
 LOCAL_LIBS=$LOCAL_LIBS' '-lcantera
-
-#if test -n "$NEED_RECIPES"
-#then LOCAL_LIBS=$LOCAL_LIBS' '-lrecipes
-#fi
 
 if test -n "$NEED_CVODE"; then 
 LOCAL_LIBS=$LOCAL_LIBS' '$CVODE_LIBS
@@ -1131,6 +1197,8 @@ AC_OUTPUT(Makefile \
           test_problems/ck2cti_test/Makefile \
           test_problems/ck2cti_test/runtest \
           test_problems/python/Makefile \
+          test_problems/cathermo/Makefile \
+          test_problems/cathermo/issp/Makefile \
           bin/install_tsc \
           )
 #	)
