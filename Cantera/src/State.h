@@ -105,7 +105,7 @@ namespace Cantera {
          * Must have a length greater than or equal to the number of
          * species.
          */
-	void setMoleFractions(const doublereal* x);
+	virtual void setMoleFractions(const doublereal* x);
 
 	/**
          * Set the mole fractions to the specified values without
@@ -114,7 +114,7 @@ namespace Cantera {
          * by a constraint equation as part of a larger set of
          * equations.
          */
-	void setMoleFractions_NoNorm(const doublereal* x);
+	virtual void setMoleFractions_NoNorm(const doublereal* x);
 
         /**
          * Get the species mass fractions.  
@@ -137,7 +137,7 @@ namespace Cantera {
          * Must have a length greater than or equal to the number of
          * species.
          */
-	void setMassFractions(const doublereal* y);
+	virtual void setMassFractions(const doublereal* y);
 
 	/**
          * Set the mass fractions to the specified values without
@@ -146,7 +146,7 @@ namespace Cantera {
          * by a constraint equation as part of a larger set of
          * equations. 
          */
-	void setMassFractions_NoNorm(const doublereal* y);
+	virtual void setMassFractions_NoNorm(const doublereal* y);
 
         /**
          * Get the species concentrations (kmol/m^3).  @param c On
@@ -167,7 +167,7 @@ namespace Cantera {
 	 *        in kmol/m2. The length of the vector is the number
 	 *        of species in the phase.
 	 */
-	void setConcentrations(const doublereal* c);
+	virtual void setConcentrations(const doublereal* c);
 
 	/**
 	 * Returns a read-only pointer to the start of the
@@ -238,12 +238,12 @@ namespace Cantera {
         }
 
 	/// Set the density (kg/m^3).
-	void setDensity(doublereal density) {
+	virtual void setDensity(doublereal density) {
             m_dens = density;
         }
 
 	/// Set the molar density (kmol/m^3).
-	void setMolarDensity(doublereal molarDensity) {
+	virtual void setMolarDensity(doublereal molarDensity) {
             m_dens = molarDensity*meanMolecularWeight();
         }
 
