@@ -464,6 +464,13 @@ namespace Cantera {
         }
 
         /**
+         * Get the partial molar heat capacities Units: J/kmol/K
+         */
+        virtual void getPartialMolarCp(doublereal* cpbar) const {
+           err("getPartialMolarCp");
+        }
+
+        /**
          * Get the species partial molar volumes. Units: m^3/kmol.
          */
         virtual void getPartialMolarVolumes(doublereal* vbar) const {
@@ -895,7 +902,8 @@ namespace Cantera {
 	 *   have already been read at this point.
 	 *   For example, we do not need to call this function for
 	 *   ideal gas equations of state.
-	 *   This function is called after the elements and the
+	 *   This function is called from importPhase() 
+         *   after the elements and the
 	 *   species are initialized with default ideal solution
 	 *   level data.
 	 *
