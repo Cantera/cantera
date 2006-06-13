@@ -380,7 +380,26 @@ namespace Cantera {
          * @see importCTML.cpp
          */
         virtual void initThermo();
-            
+
+        /**
+	 *   Import and initialize a ThermoPhase object
+	 *
+	 * @param phaseNode This object must be the phase node of a
+	 *             complete XML tree
+	 *             description of the phase, including all of the
+	 *             species data. In other words while "phase" must
+	 *             point to an XML phase object, it must have
+	 *             sibling nodes "speciesData" that describe
+	 *             the species in the phase.
+	 * @param id   ID of the phase. If nonnull, a check is done
+	 *             to see if phaseNode is pointing to the phase
+	 *             with the correct id. 
+	 */
+        void initThermoXML(XML_Node& phaseNode, string id);
+
+    private:
+      void initLengths();
+
     protected:
 	/*
 	 * The last temperature at which the reference thermodynamic

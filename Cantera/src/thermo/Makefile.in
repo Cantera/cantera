@@ -19,16 +19,18 @@ CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
 # Extended Cantera Thermodynamics Object Files
 CATHERMO_OBJ = SingleSpeciesTP.o StoichSubstanceSSTP.o \
-               MolalityVPSSTP.o  VPStandardStateTP.o
+               MolalityVPSSTP.o  VPStandardStateTP.o \
+               IdealSolidSolnPhase.o
 CATHERMO_H   = SingleSpeciesTP.h StoichSubstanceSSTP.h \
-               MolalityVPSSTP.h  VPStandardStateTP.h
+               MolalityVPSSTP.h  VPStandardStateTP.h \
+               IdealSolidSolnPhase.h
 
 CXX_INCLUDES = -I.. @CXX_INCLUDES@
 LIB = @buildlib@/libcaThermo.a
 
 DEPENDS = $(CATHERMO_OBJ:.o=.d)
 
-all: $(LIB)
+all: $(LIB) .depends
 	@(@INSTALL@ -d $(INCDIR))
 	@(for lh in $(CATHERMO_H) ; do \
 	  $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
@@ -57,14 +59,16 @@ clean:
 	    $(RM) $(LIB) ; \
             echo "$(RM) $(LIB)" ; \
           fi)
-	$(RM) *.o *~  .depends
+	$(RM) *.o *~  .depends *.d
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \
          fi )
 
-depends: $(DEPENDS)
+depends:
+	@MAKE@ .depends
+
+.depends: $(DEPENDS)
 	cat *.d > .depends
-	$(RM) $(DEPENDS) 
 
 TAGS: 
 	etags *.h *.cpp

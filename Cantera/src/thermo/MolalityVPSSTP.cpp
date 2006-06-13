@@ -26,14 +26,18 @@ namespace Cantera {
      * Default constructor.
      *
      * This doesn't do much more than initialize constants with
-     * default values for water at 25C.
+     * default values for water at 25C. Water molecular weight 
+     * comes from the default elements.xml file. It actually
+     * differs slightly from the IAPWS95 value of 18.015268. However,
+     * density conservation and therefore element conservation
+     * is the more important principle to follow.
      */
     MolalityVPSSTP::MolalityVPSSTP() :
 	VPStandardStateTP(),
 	m_indexSolvent(0),
-	m_weightSolvent(18.0),
+	m_weightSolvent(18.01528),
 	m_xmolSolventMIN(0.01),
-	m_Mnaught(18.0E-3)
+	m_Mnaught(18.01528E-3)
     {
     }
 
@@ -109,7 +113,8 @@ namespace Cantera {
      */
     void MolalityVPSSTP::setSolvent(int k) {
 	if (k < 0 || k >= m_kk) {
-	  throw CanteraError("MolalityVPSSTP::setSolute ", "trouble");
+	  throw CanteraError("MolalityVPSSTP::setSolute ", 
+			     "bad value");
 	}
 	m_indexSolvent = k;
 	m_weightSolvent = molecularWeight(k);
@@ -145,6 +150,33 @@ namespace Cantera {
     }
 
     /**
+     * calcMolalities():
+     *   We calculate the vector of molalities of the species
+     *   in the phase and store the result internally:
+     * \f[
+     *     m_i = (n_i) / (1000 * M_o * n_{o,p})
+     * \f]
+     *    where 
+     *    - \f$ M_o \f$ is the molecular weight of the solvent
+     *    - \f$ n_o \f$ is the mole fraction of the solvent
+     *    - \f$ n_i \f$ is the mole fraction of the solute.
+     *    - \f$ n_{o,p} = max (n_{o, min}, n_o) \f$
+     *    - \f$ n_{o,min} \f$ = minimum mole fraction of solvent allowed
+     *              in the denominator.
+     */
+    void MolalityVPSSTP::calcMolalities() const {
+	getMoleFractions(DATA_PTR(m_molalities));
+	double xmolSolvent = m_molalities[m_indexSolvent];
+	if (xmolSolvent < m_xmolSolventMIN) {
+	  xmolSolvent = m_xmolSolventMIN;
+	}
+	double denomInv = 1.0/ (m_Mnaught * xmolSolvent);
+	for (int k = 0; k < m_kk; k++) {
+            m_molalities[k] *= denomInv;
+	}
+    }
+
+    /**
      * getMolalities():
      *   We calculate the vector of molalities of the species
      *   in the phase
@@ -160,19 +192,10 @@ namespace Cantera {
      *              in the denominator.
      */
     void MolalityVPSSTP::getMolalities(doublereal * const molal) const {
-	getMoleFractions(molal);
-	double xmolSolvent = molal[m_indexSolvent];
-	if (xmolSolvent < m_xmolSolventMIN) {
-	  xmolSolvent = m_xmolSolventMIN;
-	}
-	double denomInv = 1.0/
-                          (m_Mnaught * xmolSolvent);
-	for (int k = 0; k < m_kk; k++) {
-            molal[k] *= denomInv;
-	}
-	for (int k = 0; k < m_kk; k++) {
-            m_molalities[k] = molal[k];
-	}
+      calcMolalities();
+      for (int k = 0; k < m_kk; k++) {
+	molal[k] = m_molalities[k];
+      }
     }
 
     /**
@@ -220,7 +243,7 @@ namespace Cantera {
 	 * the molalities from the mole fractions that we 
 	 * just obtained.
 	 */
-	getMolalities(DATA_PTR(m_molalities));
+	calcMolalities();
     }
     
     /*
@@ -309,7 +332,7 @@ namespace Cantera {
 	 * calculate the molalities again and store it in
 	 * this object.
 	 */
-	getMolalities(DATA_PTR(m_molalities));
+	calcMolalities();
     }
 
     /*
@@ -326,16 +349,6 @@ namespace Cantera {
         parseCompString(x, xx);
         setMolalitiesByName(xx);
     }
-
-         
-    /*
-     * Update the internal array that contains the molalities of the
-     * species.
-     */
-    void MolalityVPSSTP::updateMolalities() const {
-	getMolalities(DATA_PTR(m_molalities));
-    }
-
 
 
     /*
@@ -401,14 +414,22 @@ namespace Cantera {
      * 
      *  Calculate the osmotic coefficient of the solvent. Note there
      *  are lots of definitions of the osmotic coefficient floating
-     *  around. We use the one defined in the Pitzer paper:
+     *  around. We use the one defined in the Pitzer's book:
+     *  (Activity Coeff in Electrolyte Solutions, K. S. Pitzer
+     *   CRC Press, Boca Raton, 1991, p. 85, Eqn. 28).
      *
      *        Definition:
-     *         - sum(m_i) * M0 * oc = ln(activity_solvent)
+     *         - sum(m_i) * Mnaught * oc = ln(activity_solvent)
      */
     doublereal MolalityVPSSTP::osmoticCoefficient() const {
+        /*
+         * First, we calculate the activities all over again
+         */
 	vector_fp act(m_kk);
 	getActivities(DATA_PTR(act));
+        /*
+         * Then, we calculate the sum of the solvent molalities
+         */
 	double sum = 0;
 	for (int k = 0; k < m_kk; k++) {
 	  if (k != m_indexSolvent) {
@@ -483,6 +504,17 @@ namespace Cantera {
         }
     }
 
+    /** 
+     * Set the temperature (K), pressure (Pa), and molalities
+     * (gmol kg-1) of the solutes
+     */
+    void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, 
+				      const doublereal * const molalities) {
+	setMolalities(molalities);
+	setTemperature(t);
+	setPressure(p);
+    }
+
     /**
      * @internal Initialize. This method is provided to allow
      * subclasses to perform any initialization required after all
@@ -497,9 +529,46 @@ namespace Cantera {
      * @see importCTML.cpp
      */
     void MolalityVPSSTP::initThermo() {
-	VPStandardStateTP::initThermo();
-	m_molalities.resize(m_kk);
+      initLengths();
+      VPStandardStateTP::initThermo();
+
+      /*
+       * The solvent defaults to species 0
+       */
+      setSolvent(0);
     }
+
+  void  MolalityVPSSTP::initLengths() {
+    int m_kk = nSpecies();
+    m_molalities.resize(m_kk);
+  }
+
+  /**
+   * initThermoXML()                (virtual from ThermoPhase)
+   *   Import and initialize a ThermoPhase object
+   *
+   * @param phaseNode This object must be the phase node of a
+   *             complete XML tree
+   *             description of the phase, including all of the
+   *             species data. In other words while "phase" must
+   *             point to an XML phase object, it must have
+   *             sibling nodes "speciesData" that describe
+   *             the species in the phase.
+   * @param id   ID of the phase. If nonnull, a check is done
+   *             to see if phaseNode is pointing to the phase
+   *             with the correct id. 
+   */
+  void MolalityVPSSTP::initThermoXML(XML_Node& phaseNode, string id) {
+
+    initLengths();
+    /*
+     * The solvent defaults to species 0
+     */
+    setSolvent(0);
+
+    VPStandardStateTP::initThermoXML(phaseNode, id);
+  }
+  
 
 }
 

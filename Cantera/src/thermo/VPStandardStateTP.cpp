@@ -263,15 +263,45 @@ namespace Cantera {
      * added.
      */
     void VPStandardStateTP::initThermo() {
-	ThermoPhase::initThermo();
-	m_kk = nSpecies();
-        int leng = m_kk;
-        m_h0_RT.resize(leng);
-        m_g0_RT.resize(leng);
-        m_cp0_R.resize(leng);
-        m_s0_R.resize(leng);
+      initLengths();
+      ThermoPhase::initThermo();
     }
 
+  /**
+   * Initialize the internal lengths.
+   *       (this is not a virtual function)
+   */
+  void VPStandardStateTP::initLengths() {
+    m_kk = nSpecies();
+    int leng = m_kk;
+    m_h0_RT.resize(leng);
+    m_g0_RT.resize(leng);
+    m_cp0_R.resize(leng);
+    m_s0_R.resize(leng);
+  }
+
+  /**
+   *   Import and initialize a ThermoPhase object
+   *
+   * @param phaseNode This object must be the phase node of a
+   *             complete XML tree
+   *             description of the phase, including all of the
+   *             species data. In other words while "phase" must
+   *             point to an XML phase object, it must have
+   *             sibling nodes "speciesData" that describe
+   *             the species in the phase.
+   * @param id   ID of the phase. If nonnull, a check is done
+   *             to see if phaseNode is pointing to the phase
+   *             with the correct id.
+   *
+   * This routine initializes the lengths in the current object and
+   * then calls the parent routine.
+   */
+  void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, string id) {
+    VPStandardStateTP::initLengths();
+    ThermoPhase::initThermoXML(phaseNode, id);
+  }
+  
    /**
      * void _updateRefStateThermo()            (private, const)
      *
