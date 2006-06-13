@@ -73,7 +73,8 @@ namespace ctml {
         string type="");
 
     void getFloatArray(const XML_Node& node, vector_fp& v, 
-                       bool convert=true, string type="");
+                       bool convert=true, string type="",
+		       string nodeName = "floatArray");
 
     void getStringArray(const XML_Node& node, vector<string>& v);
     void getMap(const XML_Node& node, map<string, string>& m);

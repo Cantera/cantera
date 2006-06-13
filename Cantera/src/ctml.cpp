@@ -84,7 +84,16 @@ namespace ctml {
         if (maxval != Undef) f.addAttribute("max",maxval);
     }
 
-
+    /**
+     *  Add a floatArray XML type to the xml file.
+     *  This is a generic XML entry containing a vector
+     *  of doubles as its values and containing a set
+     *  of attributes that describes the length of the
+     *  vector, and optionally the units of the vector.
+     *
+     *  Note, a comma is not put after the last double
+     *  entry anymore.
+     */
     void addFloatArray(XML_Node& node, string title, int n, 
         const double* vals, string units, string type,
         doublereal minval, doublereal maxval) {
@@ -252,11 +261,8 @@ namespace ctml {
 
 
     /**
-     * Get a floating-point value from a child element.  Returns a
-     * double value for the child named 'name' of element 'parent'. If
-     * 'type' is supplied and matches a known unit type, unit
-     * conversion to SI will be done if the child element has an attribute
-     * 'units'.
+     * Get an integer value from a child element.  Returns an
+     * integer value for the child named 'name' of element 'parent'.
      */
     int getInteger(const XML_Node& parent, string name) {
         if (!parent.hasChild(name)) 
@@ -297,14 +303,19 @@ namespace ctml {
      * separating each field.
      *    If the node array has an units attribute field, then
      * the units are used to convert the floats, iff convert is true.
+     *
+     *  nodeName = The default value for the node name is floatArray
      */
     void getFloatArray(const XML_Node& node, vector_fp& v, bool convert,
-                       string type) {
+                       string type, string nodeName) {
 	string::size_type icom;
         string numstr;
-        if (node.name() != "floatArray") 
-            throw CanteraError("getFloatArray","wrong element type: "
-                +node.name());
+	doublereal dtmp;
+        string nn = node.name();
+        if (nn != nodeName) 
+            throw CanteraError("getFloatArray",
+                "wrong xml element type/name: was expecting "
+                 + nodeName + "but accessed " + node.name());
 
         v.clear();
         doublereal vmin = Undef, vmax = Undef;
@@ -323,22 +334,35 @@ namespace ctml {
 	}
 
 	if (node["min"] != "") 
-	    vmin = atof(node["min"].c_str());
+	    vmin = atofCheck(node["min"].c_str());
 	if (node["max"] != "") 
-	    vmax = atof(node["max"].c_str());
+	    vmax = atofCheck(node["max"].c_str());
 
-	  doublereal vv;
+	doublereal vv;
         string val = node.value();
         while (1 > 0) {
             icom = val.find(',');
             if (icom != string::npos) {
                 numstr = val.substr(0,icom);
                 val = val.substr(icom+1,val.size());
-                v.push_back(atof(numstr.c_str()));
+		dtmp = atofCheck(numstr.c_str());
+                v.push_back(dtmp);
             }
             else {
-                v.push_back(atof(val.c_str()));
-                break;
+	      /*
+	       * This little bit of code is to allow for the
+	       * possibility of a comma being the last 
+	       * item in the value text. This was allowed in
+	       * previous versions of Cantera, even though it
+	       * would appear to be odd. So, we keep the
+	       * possibilty in for backwards compatibility.
+	       */
+	      int nlen = strlen(val.c_str());
+	      if (nlen > 0) {
+		dtmp = atofCheck(val.c_str());
+		v.push_back(dtmp);
+	      }
+	      break;
             }
             vv = v.back();
             if (vmin != Undef && vv < vmin - Tiny) {
