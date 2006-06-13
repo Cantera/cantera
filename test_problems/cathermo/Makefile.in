@@ -1,0 +1,25 @@
+#
+# $Revision$
+# $Author$
+# $Date$
+#
+#
+test_issp=@COMPILE_IDEAL_SOLUTIONS@
+all:
+ifeq ($(test_issp),1)
+	cd issp;  @MAKE@ all
+endif
+
+test:
+ifeq ($(test_issp),1)
+	cd issp;  @MAKE@ test
+endif
+
+clean:
+	$(RM) *.*~ 
+	cd issp;         @MAKE@ clean
+
+depends:
+ifeq ($(test_issp),1)
+	cd issp;         @MAKE@ depends
+endif
