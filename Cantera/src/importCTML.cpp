@@ -932,16 +932,11 @@ namespace Cantera {
         // done adding species. 
         th->freezeSpecies();
 
-        // perform any required subclass-specific initialization.
-        th->initThermo();
-
         th->saveSpeciesData(db);
 
-        // set the state of the phase from the XML specification
-        if (phase.hasChild("state")) {
-            XML_Node& state = phase.child("state");
-            th->setStateFromXML(state);
-        }
+        // perform any required subclass-specific initialization.
+        string id = "";
+        th->initThermoXML(phase, id);
 
         return true;
     }        
@@ -1358,7 +1353,11 @@ next:
      *
      * @param th    This is a list of ThermoPhase pointers containing
      *              the phases that participate in the kinetics
-     *              reactions. 
+     *              reactions. All of the phases must have already
+     *              been initialized and formed within Cantera.
+     *              However, their pointers should not have been
+     *              added to the Kinetics object; this addition
+     *              is carried out here.
      *
      * @param k     This is a pointer to the kinetics manager class
      *              that will be initialized with a kinetics 
