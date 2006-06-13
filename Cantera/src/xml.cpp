@@ -675,17 +675,67 @@ namespace Cantera {
                     while (1 > 0) {
                         ieol = vv.find('\n');
                         if (ieol != string::npos) {
-                            s << endl << indent << vv.substr(0,ieol);
-                            vv = vv.substr(ieol+1,vv.size());
+			  int jf = ieol - 1;
+			  for (int j = 0; j < (int) ieol; j++) {
+			    if (! isspace(vv[j])) {
+			      jf = j;
+			      break;
+			    }
+			  }
+			  s << endl << indent << "  " << vv.substr(jf,ieol-jf);
+			  vv = vv.substr(ieol+1);
                         }
                         else {
-                            s << endl << indent << vv;
-                            break;
+			  int lll = static_cast<int>(vv.size()) - 1;
+			  if (lll >= 0) {
+			    int jf = lll;
+			    for (int j = 0; j < lll; j++) {
+			      if (! isspace(vv[j])) {
+				jf = j;
+				break;
+			      }
+			    }
+			    if (jf < lll) {
+			      s << endl << indent << "  " << vv.substr(jf);
+			    }
+			  }
+			  break;
                         }
                     }
+                    s << endl << indent;
                 }
                 else {
+		  bool doSpace = true;
+		  bool doNewLine = false;
+		  int ll = static_cast<int>(m_value.size()) - 1;
+		  if (ll > 15) {
+		    doNewLine = true;
+		  }
+		  if (m_name == "floatArray") {
+		    doNewLine = true;
+		  }
+		  if (doNewLine) doSpace = false;
+		
+		  if (doNewLine) {
+		    s << endl << indent << "  ";
+		  }
+		  /*
+		   * Put spaces around a raw value field for readability
+		   */
+		  if (doSpace && (! isspace(m_value[0]))) {
+		    s << " ";
+		  }
+		  /*
+		   * Write out the value
+		   */
 		  s << m_value;
+		
+		  if (doSpace && (! isspace(m_value[ll]))) {
+		    s << " ";
+		  }
+		  if (doNewLine) {
+		    s << endl << indent;
+		  }
 		}
             }
             int i;
