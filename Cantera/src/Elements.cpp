@@ -535,9 +535,11 @@ namespace Cantera {
 
         XML_Node& root = phase.root();
         XML_Node* local_db = 0;
-        if (root.child("ctml").hasChild("elementData")) {
+	if (root.hasChild("ctml")) {
+	  if (root.child("ctml").hasChild("elementData")) {
             local_db = &root.child("ctml/elementData");
-        }
+	  }
+	}
 
         int nel = static_cast<int>(enames.size());
         int i;
