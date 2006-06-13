@@ -531,7 +531,7 @@ read_values(FILE *fp, double **NVValues, int nCol, int nDataRows)
 
 static void print_usage() {
   printf("\t\n");
-  printf("  csvdiff [-h] File1.csv File2.csv\n");
+  printf("  csvdiff [-h] [-a atol] [-r rtol] File1.csv File2.csv\n");
   printf("\t\n");
   printf("\tCompares the variable values in two Excel formatted "
          "comma separated files.\n");
@@ -542,7 +542,9 @@ static void print_usage() {
   printf("\tsomething to be decided upon.\n");
   printf("\t\n");
   printf("\t Arguments:\n");
-  printf("\t  -h = Usage info\n");
+  printf("\t  -h      = Usage info\n");
+  printf("\t  -a atol = Set absolute tolerance parameter - default = 1.0E-9\n");
+  printf("\t  -r rtol = Set relative tolerance parameter - default = 1.0E-3\n");
   printf("\t\n");
   printf("\t Shell Return Values:\n");
   printf("\t   1 = Comparison was successful\n");
@@ -578,7 +580,7 @@ int main(int argc, char *argv[])
   int    i, j, ndiff, jmax, i1, i2, k, found;
   double max_diff, rel_diff;
   int    testPassed = 1;
-  double atol_j;
+  double atol_j, atol_arg = 0.0, rtol_arg = 0.0;
   
   /********************** BEGIN EXECUTION ************************************/
   
@@ -586,7 +588,7 @@ int main(int argc, char *argv[])
   * Interpret command line arguments
   */
     /* Loop over each command line option */
-  while((opt_let = getopt(argc, argv, "h")) != EOF) {
+  while((opt_let = getopt(argc, argv, "ha:r:")) != EOF) {
 
     /* case over the option letter */
     switch(opt_let) {
@@ -595,15 +597,44 @@ int main(int argc, char *argv[])
       /* Usage info was requested */
       print_usage();
       exit(0);
+
+   case 'a':
+     /* atol parameter */
+ 
+     char *ggg = optarg;
+     //printf("a = %s\n", ggg);
+     int id = sscanf(ggg,"%lg", &atol_arg);
+     if (id != 1) {
+       printf(" atol param bad: %s\n", ggg);
+       exit(-1);
+     }
+     gatol = atol_arg;
+     break;
+
+ case 'r':
+     /* rtol parameter */
+ 
+     char *rrr = optarg;
+     //printf("r = %s\n", ggg);
+     int id2 = sscanf(rrr,"%lg", &rtol_arg);
+     if (id2 != 1) {
+       printf(" rtol param bad: %s\n", rrr);
+       exit(-1);
+     }
+     grtol = rtol_arg;
+     break;
+    
       
     default:
       /* Default case. Error on unknown argument. */
+      printf("default called opt_let = %c\n", opt_let);
       fprintf(stderr, "ERROR in command line usuage:\n");
       print_usage();
       return 0; 
     } /* End "switch(opt_let)" */
 
   } /* End "while((opt_let=getopt(argc, argv, "i")) != EOF)" */
+
   if (optind !=  argc-2) {
     print_usage();
     exit(-1);
@@ -623,6 +654,9 @@ int main(int argc, char *argv[])
   printf("         \n");
   printf("         First  CSV File = %s\n", fileName1);
   printf("         Second CSV file = %s\n", fileName2); 
+  printf("\n");
+  printf("         Absolute tol = %g\n", gatol);
+  printf("         Relative tol = %g\n", grtol);
   printf("----------------------------------------------------------\n");
   printf("\n");  
   
@@ -663,10 +697,13 @@ int main(int argc, char *argv[])
    * Right now, if the number of data rows differ, we will punt.
    * Maybe later we can do something more significant
    */
+  int nDataRowsMIN = MIN(nDataRows1, nDataRows2);
+  int nDataRowsMAX = MAX(nDataRows1, nDataRows2);
   if (nDataRows1 != nDataRows2) {
     printf("Number of Data rows in file1, %d, is different than file2, %d\n",
 	   nDataRows1, nDataRows2);
-    exit(-1);
+  } else {
+    printf("Number of Data rows in both files = %d\n", nDataRowsMIN); 
   }
 
   rewind(fp1);
@@ -755,8 +792,8 @@ int main(int argc, char *argv[])
   /*
    *  Allocate storage for the column variables
    */
-  NVValues1 = mdp_alloc_dbl_2(nCol1, nDataRows1, 0.0);
-  NVValues2 = mdp_alloc_dbl_2(nCol2, nDataRows2, 0.0);
+  NVValues1 = mdp_alloc_dbl_2(nCol1, nDataRowsMAX, 0.0);
+  NVValues2 = mdp_alloc_dbl_2(nCol2, nDataRowsMAX, 0.0);
 
   /*
    *  Read in the values to the arrays
@@ -767,12 +804,13 @@ int main(int argc, char *argv[])
   /*
    * Compare the solutions in each file
    */
+  int method = 0;
 #define DGG_MODS
-
 #ifdef DGG_MODS
-  double slope1, slope2, xatol;
+  method = 1;
 #endif
-
+  double slope1, slope2, xatol;
+  bool notOK;
   for (k = 0; k < nColcomparisons; k++) {
 
     i1 =  compColList[k][0];
@@ -782,23 +820,26 @@ int main(int argc, char *argv[])
     max_diff = 0.0;
     ndiff = 0;
     atol_j =             get_atol(curVarValues1, nDataRows1, gatol);
-    atol_j = MAX(atol_j, get_atol(curVarValues2, nDataRows2, gatol));
-    for (j = 0; j < nDataRows1; j++) {
-#ifdef DGG_MODS
-        slope1 = 0.0;
-        slope2 = 0.0;
-        xatol = fabs(grtol * (NVValues1[0][j] - NVValues1[0][j-1]));
-        if (j > 0 && k > 0) {
-            slope1 = (curVarValues1[j] - curVarValues1[j-1])/
-                     (NVValues1[0][j] - NVValues1[0][j-1]);
-            slope2 = (curVarValues2[j] - curVarValues2[j-1])/
-                     (NVValues2[0][j] - NVValues2[0][j-1]);
-        }
-        if (diff_double_slope(curVarValues1[j], curVarValues2[j], 
-                grtol, atol_j, xatol, slope1, slope2)) {
-#else
-      if (diff_double(curVarValues1[j], curVarValues2[j], grtol, atol_j)) {
-#endif
+    atol_j = MIN(atol_j, get_atol(curVarValues2, nDataRows2, gatol));
+    for (j = 0; j < nDataRowsMIN; j++) {
+
+      slope1 = 0.0;
+      slope2 = 0.0;
+      xatol = fabs(grtol * (NVValues1[0][j] - NVValues1[0][j-1]));
+      if (j > 0 && k > 0) {
+	slope1 = (curVarValues1[j] - curVarValues1[j-1])/
+	  (NVValues1[0][j] - NVValues1[0][j-1]);
+	slope2 = (curVarValues2[j] - curVarValues2[j-1])/
+	  (NVValues2[0][j] - NVValues2[0][j-1]);
+      }
+      if (method) {
+	notOK = diff_double_slope(curVarValues1[j], curVarValues2[j], 
+				  grtol, atol_j, xatol, slope1, slope2);
+      } else {
+	notOK = diff_double(curVarValues1[j], curVarValues2[j], 
+			    grtol, atol_j);
+      }
+      if (notOK) {
 	ndiff++;
 	rel_diff = calc_rdiff((double) curVarValues1[j], 
 			      (double) curVarValues2[j], grtol, atol_j);
@@ -810,6 +851,24 @@ int main(int argc, char *argv[])
 	  printf("\tColumn variable %s at data row %d ", ColNames1[i1], j);
 	  printf(" differ: %g %g\n", curVarValues1[j], 
 		 curVarValues2[j]);
+	}
+      }
+    }
+ 
+    
+    if (nDataRowsMIN != nDataRowsMAX) {
+      ndiff +=  nDataRowsMAX - nDataRowsMIN;
+      if (ndiff < 10) {
+	if (nDataRows1 > nDataRows2) {
+	  for (j = nDataRowsMIN; j < nDataRowsMAX; j++) {
+	    printf("\tColumn variable %s at data row %d ", ColNames1[i1], j);
+	    printf(" differ: %g      NA\n", curVarValues1[j]);
+	  }
+	} else {
+	  for (j = nDataRowsMIN; j < nDataRowsMAX; j++) {
+	    printf("\tColumn variable %s at data row %d ", ColNames1[i1], j);
+	    printf(" differ: NA     %g \n", curVarValues2[j]);
+	  }
 	}
       }
     }
@@ -828,8 +887,8 @@ int main(int argc, char *argv[])
     } else if (Debug_Flag) {
       printf("Column variable %s passed\n",  ColNames1[i1]);
     }
+ 
   }
-
   
   return(testPassed);
 
