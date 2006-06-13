@@ -403,7 +403,7 @@ namespace Cantera {
          * These generalized concentrations are used
          * by this kinetics manager class to compute the forward and
          * reverse rates of elementary reactions. The "units" for the
-	 * concentrations of each phase depend  upon the implementation
+	 * concentrations of each phase depend upon the implementation
 	 * of kinetics within that phase.
 	 * The order of the species within the vector is based on
 	 * the order of listed ThermoPhase objects in the class, and the
