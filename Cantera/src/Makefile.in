@@ -126,7 +126,7 @@ thermo: $(THERMO)
           done)
 
 cathermo:
-ifeq (@COMPILE_CATHERMO@, 1)
+ifeq (@NEED_CATHERMO@, 1)
 	cd thermo; @MAKE@ all
 endif
 
@@ -205,7 +205,7 @@ ifeq ($(do_ranlib),1)
 endif
 
 clean:
-	$(RM) *.o *.gch *~ $(CANTERA_LIB)
+	$(RM) *.o *.gch *~ $(CANTERA_LIB) *.d
 	@(for lh in $(ALL_H) ; do \
              th=$(INCDIR)/$$lh ; \
              if test -f $$th ; then \
@@ -226,14 +226,13 @@ endif
 
 depends: $(DEPENDS)
 	cat *.d > .depends
-	$(RM) $(DEPENDS) 
 	cd oneD; @MAKE@ depends
 ifeq (@WITH_REACTORS@, 1)
 	cd zeroD; @MAKE@ depends
 endif
 	cd converters; @MAKE@ depends
 	cd transport; @MAKE@ depends
-ifeq (@COMPILE_CATHERMO@, 1)
+ifeq (@NEED_CATHERMO@, 1)
 	cd thermo; @MAKE@ depends
 endif
 
