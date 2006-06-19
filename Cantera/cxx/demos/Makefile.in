@@ -6,6 +6,9 @@
 #  Cantera.
 #
 #############################################################################
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o .dh .h .h.gch
+
 
 # the name of the executable program to be created
 PROG_NAME = demos@EXE_EXT@
@@ -60,11 +63,15 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
 .@CXX_EXT@.@OBJ_EXT@:
 	$(CXX) -c $< -I$(CANTERA_INCDIR) $(CXX_FLAGS) $(LOCAL_DEFNS)
 
+# how to create a dependency file
+.@CXX_EXT@.d:
+	g++ -MM -I$(CANTERA_INCDIR) $(CXX_FLAGS) $(LOCAL_DEFNS) $*.cpp > $*.d
+
 PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
 DEPENDS = $(OBJS:.o=.d)
 
-all: $(PROGRAM)
+all: $(PROGRAM) .depends
 
 $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
@@ -83,11 +90,14 @@ install:
 	chown -R @username@ @ct_demodir@/cxx
 
 depends: $(DEPENDS)
-	cat *.d > .depends
-	$(RM) $(DEPENDS) 
+	@MAKE@ .depends
+
+
+.depends: $(DEPENDS)
+	cat $(DEPENDS) > .depends
 
 clean:
-	$(RM) $(OBJS) $(PROGRAM) .depends
+	$(RM) $(OBJS) $(PROGRAM) .depends *.d
 	../../../bin/rm_cvsignore
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \

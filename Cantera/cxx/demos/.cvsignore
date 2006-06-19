@@ -7,3 +7,6 @@ gri30.xml
 kinetics1
 SunWS_cache
 demos
+*.d
+.depends
+liquidvapor.xml
