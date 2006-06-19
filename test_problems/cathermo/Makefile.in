@@ -5,14 +5,22 @@
 #
 #
 test_issp=@COMPILE_IDEAL_SOLUTIONS@
+test_electrolytes=@COMPILE_ELECTROLYTES@
+
 all:
 ifeq ($(test_issp),1)
 	cd issp;  @MAKE@ all
+endif
+ifeq ($(test_electrolytes),1)
+	cd ims; @MAKE@ all
 endif
 
 test:
 ifeq ($(test_issp),1)
 	cd issp;  @MAKE@ test
+endif
+ifeq ($(test_electrolytes),1)
+	cd ims; @MAKE@ test
 endif
 
 clean:
@@ -22,4 +30,7 @@ clean:
 depends:
 ifeq ($(test_issp),1)
 	cd issp;         @MAKE@ depends
+endif
+ifeq ($(test_electrolytes),1)
+	cd ims; @MAKE@ depends
 endif
