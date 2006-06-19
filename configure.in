@@ -253,6 +253,11 @@ AC_DEFINE_UNQUOTED(CANTERA_DATA,"$ct_datadir")
 if test -z "$MAKE"; then MAKE='make'; fi
 AC_SUBST(MAKE)
 
+if test -z "$GRAPHVIZDIR" ; then
+GRAPHVIZDIR=" "
+fi
+AC_SUBST(GRAPHVIZDIR)
+
 #----------- ARCHIVE --------------------
 
 if test "x${OS_IS_DARWIN}" = "x1"; then
@@ -1179,6 +1184,8 @@ AC_OUTPUT(Makefile \
 	  examples/Makefile \
           examples/cxx/Makefile \
 	  tools/Makefile \
+          tools/doc/Cantera.cfg \
+          tools/doc/Makefile \
           tools/src/Makefile \
           tools/src/sample.mak \
           tools/src/finish_install.py \
@@ -1199,6 +1206,7 @@ AC_OUTPUT(Makefile \
           test_problems/python/Makefile \
           test_problems/cathermo/Makefile \
           test_problems/cathermo/issp/Makefile \
+          test_problems/cathermo/ims/Makefile \
           bin/install_tsc \
           )
 #	)

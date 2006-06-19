@@ -363,6 +363,10 @@ RANLIB=${RANLIB:="ranlib"}
 # doesn't work, try GNU make.
 MAKE=${MAKE:=make}
 
+# The directory location of the graphviz program, dot.
+# dot is used for creating of the documentation.
+# if "dot" is in your path, you can leave this unspecified.
+GRAPHVIZDIR=${GRAPHVIZDIR:=" "}
 
 # file extensions
 CXX_EXT=${CXX_EXT:=cpp}
@@ -396,7 +400,6 @@ export BUILD_F90_INTERFACE
 export PYTHON_PACKAGE
 export BUILD_MATLAB_TOOLBOX
 #export MATLAB_CMD
-export CANTERA_ROOT
 export CT_SHARED_LIB
 export CXX
 export CXX_EXT
@@ -435,6 +438,7 @@ export PIC
 export SHARED
 export SOEXT
 export MAKE
+export GRAPHVIZDIR
 export RPFONT
 export FORTRAN_LIB_DIR
 export CANTERA_INSTALL_DIR
