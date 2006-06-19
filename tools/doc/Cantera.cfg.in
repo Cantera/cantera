@@ -5,7 +5,7 @@
 #---------------------------------------------------------------------------
 PROJECT_NAME           = Cantera
 PROJECT_NUMBER         = 1.6
-OUTPUT_DIRECTORY       = /Users/dgg/kernel
+OUTPUT_DIRECTORY       = @ctroot@/tools/doc
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
 USE_WINDOWS_ENCODING   = NO
@@ -22,7 +22,7 @@ ABBREVIATE_BRIEF       = "The $name class" \
                          a \
                          an \
                          the
-ALWAYS_DETAILED_SEC    = NO
+ALWAYS_DETAILED_SEC    = YES
 INLINE_INHERITED_MEMB  = NO
 FULL_PATH_NAMES        = NO
 STRIP_FROM_PATH        = 
@@ -81,7 +81,8 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = ../../Cantera/src \
+INPUT                  = ../../Cantera/src \ 
+                         ../../Cantera/src/thermo \
                          ../../Cantera/cxx/include \
                          doxyinput
 FILE_PATTERNS          = Kinetics.h \
@@ -90,6 +91,7 @@ FILE_PATTERNS          = Kinetics.h \
                          ct_defs.h \
                          logger.h \
                          global.h \
+                         units.h \
                          ctexceptions.h \
                          *.txt \
                          equilibrium.h \
@@ -100,11 +102,7 @@ FILE_PATTERNS          = Kinetics.h \
                          Phase.h \
                          utilities.h
 RECURSIVE              = NO
->>>>>>> 1.8.2.3
-EXCLUDE                = CVS \
-                         examples \
-                         converters \
-                         zeroD
+EXCLUDE                = CVS examples  converters zeroD
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = *old/* \
                          *old_src/* \
@@ -113,8 +111,8 @@ EXCLUDE_PATTERNS       = *old/* \
                          *examples/* \
                          *test/* \
                          *tests/*
-EXAMPLE_PATH           = examples \
-                         input
+EXAMPLE_PATH           = ../../examples \
+                         ../../data/inputs
 EXAMPLE_PATTERNS       = *.cpp \
                          *.h
 EXAMPLE_RECURSIVE      = NO
@@ -244,7 +242,7 @@ CALL_GRAPH             = NO
 GRAPHICAL_HIERARCHY    = YES
 DIRECTORY_GRAPH        = YES
 DOT_IMAGE_FORMAT       = png
-DOT_PATH               = /Applications/Graphviz.app/Contents/MacOS
+DOT_PATH               = @GRAPHVIZDIR@
 DOTFILE_DIRS           = 
 MAX_DOT_GRAPH_WIDTH    = 1024
 MAX_DOT_GRAPH_HEIGHT   = 1024

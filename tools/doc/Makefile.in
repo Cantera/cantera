@@ -1,0 +1,25 @@
+#
+# $Revision$
+# $Author$
+# $Date$
+#
+build_ck=@BUILD_CK@
+
+all: docs
+
+install:
+
+
+
+man-install:
+
+uninstall:
+
+clean:
+	cd html; $(RM) * 
+
+docs doxygen:
+	doxygen Cantera.cfg
+
+depends:
+
