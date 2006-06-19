@@ -107,6 +107,9 @@ namespace Cantera {
     /// Pointer to the single Application instance
     static Application* s_app = 0;
 
+    /**
+     * Definition of the static member of the Unit class.
+     */
     Unit* Unit::s_u = 0;
 
     static void appinit() {
@@ -264,8 +267,9 @@ namespace Cantera {
     string tmpDir() { appinit(); return app()->tmp_dir; }
     string sleep() { appinit(); return app()->sleep; }
 
+
     /**
-     * Returns the number of error messages.
+     * Return the number of errors that have been encountered so far.
      * \ingroup errorhandling
      */
     int nErrors() {
@@ -309,6 +313,7 @@ namespace Cantera {
     }
 
     /**
+     * Prints all of the error messages to stream f.
      * Write out to ostream, f, all of the saved error messages.
      * Cantera saves a stack of exceptions that it
      * has caught in the Application class. This routine writes
@@ -337,6 +342,7 @@ namespace Cantera {
     }
 
     /**
+     * Print all of the error messages using function writelog.
      * Write out all of the saved error messages to the log device.
      * Cantera saves a stack of exceptions that it
      * has caught in the Application class. This routine writes

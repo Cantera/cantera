@@ -25,22 +25,23 @@ namespace Cantera {
     class XML_Node;
     class Logger;
 
-    /// Number of errors that have been encountered so far
+    // Return the number of errors that have been encountered so far
     int nErrors();
 
-    /// The last error message
+    // The last error message
     string lastErrorMessage();
 
-    /// Add an error message
+    // Set an error condition in the application class without 
+    // throwing an exception.
     void setError(string r, string msg);
 
-    /// Print the error messages to stream f
+    // Prints all of the error messages to stream f
     void showErrors(ostream& f);
 
-    /// Print the error messages using function writelog.
+    // Print all of the error messages using function writelog.
     void showErrors();
 
-    /// Discard the last error message
+    // Discard the last error message
     void popError();
 
     /// Find an input file.
