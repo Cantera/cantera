@@ -14,16 +14,30 @@
 INCDIR = ../../../build/include/cantera/kernel/thermo
 INSTALL_TSC = ../../../bin/install_tsc
 do_ranlib = @DO_RANLIB@
+do_electro = @COMPILE_ELECTROLYTES@
+do_issp    = @COMPILE_IDEAL_SOLUTIONS@
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
 # Extended Cantera Thermodynamics Object Files
-CATHERMO_OBJ = SingleSpeciesTP.o StoichSubstanceSSTP.o \
-               MolalityVPSSTP.o  VPStandardStateTP.o \
-               IdealSolidSolnPhase.o
-CATHERMO_H   = SingleSpeciesTP.h StoichSubstanceSSTP.h \
+
+ifeq ($(do_electro),1)
+ELECTRO_OBJ = SingleSpeciesTP.o StoichSubstanceSSTP.o \
+              MolalityVPSSTP.o  VPStandardStateTP.o \
+              IdealSolidSolnPhase.o IdealMolalSoln.o
+ELECTRO_H =  SingleSpeciesTP.h StoichSubstanceSSTP.h \
                MolalityVPSSTP.h  VPStandardStateTP.h \
-               IdealSolidSolnPhase.h
+               IdealSolidSolnPhase.h IdealMolalSoln.h
+endif
+ifeq ($(do_issp),1)
+ISSP_OBJ = IdealSolidSolnPhase.o
+ISSP_H   = IdealSolidSolnPhase.h
+endif
+
+CATHERMO_OBJ = $(ELECTRO_OBJ) $(ISSP_OBJ) 
+
+CATHERMO_H   = $(ELECTRO_H) $(ISSP_H) 
+
 
 CXX_INCLUDES = -I.. @CXX_INCLUDES@
 LIB = @buildlib@/libcaThermo.a
@@ -68,7 +82,7 @@ depends:
 	@MAKE@ .depends
 
 .depends: $(DEPENDS)
-	cat *.d > .depends
+	cat $(DEPENDS) > .depends
 
 TAGS: 
 	etags *.h *.cpp
