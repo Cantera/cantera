@@ -60,7 +60,7 @@ void printDbl(double val) {
 
 int main(int argc, char** argv) {
     int i, k;
-    string infile = "diamond.cti";
+    string infile = "diamond.xml";
  
     try {
       XML_Node *xc = new XML_Node();
