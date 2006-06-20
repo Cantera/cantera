@@ -942,10 +942,6 @@ namespace Cantera {
       XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
       XML_Node *ss = s->findByName("standardState");
       m_speciesMolarVolume[k] = getFloat(*ss, "molarVolume", "-");
-#ifdef DEBUG_HKM
-      cout << "species " << sss[k] << " has volume " <<  
-	m_speciesMolarVolume[k] << endl;
-#endif
     }
 
     /*
