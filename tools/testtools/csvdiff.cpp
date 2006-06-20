@@ -583,7 +583,10 @@ int main(int argc, char *argv[])
   double atol_j, atol_arg = 0.0, rtol_arg = 0.0;
   
   /********************** BEGIN EXECUTION ************************************/
-  
+  int id = 0;
+  int id2 = 0;
+  char *ggg = 0;
+  char *rrr = 0;
   /*
   * Interpret command line arguments
   */
@@ -601,9 +604,9 @@ int main(int argc, char *argv[])
    case 'a':
      /* atol parameter */
  
-     char *ggg = optarg;
+     ggg = optarg;
      //printf("a = %s\n", ggg);
-     int id = sscanf(ggg,"%lg", &atol_arg);
+     id = sscanf(ggg,"%lg", &atol_arg);
      if (id != 1) {
        printf(" atol param bad: %s\n", ggg);
        exit(-1);
@@ -611,12 +614,12 @@ int main(int argc, char *argv[])
      gatol = atol_arg;
      break;
 
- case 'r':
+   case 'r':
      /* rtol parameter */
  
-     char *rrr = optarg;
+     rrr = optarg;
      //printf("r = %s\n", ggg);
-     int id2 = sscanf(rrr,"%lg", &rtol_arg);
+     id2 = sscanf(rrr,"%lg", &rtol_arg);
      if (id2 != 1) {
        printf(" rtol param bad: %s\n", rrr);
        exit(-1);
