@@ -710,9 +710,30 @@ if test "$USE_NUMERIC" = "y"; then
 AC_DEFINE(HAS_NUMERIC)
 fi
 
-NUMARRAY_INC_DIR=""
-if test -n "$NUMARRAY_HOME"; then
-NUMARRAY_INC_DIR="$NUMARRAY_HOME/include/python"
+if test -n "$NUMARRAY_INC_DIR" ; then
+  echo "setting NUMARRAY_INC_DIR to $NUMARRAY_INC_DIR"
+else
+ NUMARRAY_INC_DIR=""
+ if test -n "$NUMARRAY_HOME"; then
+  dir4="$NUMARRAY_HOME/include/python2.4"
+  if test -d $dir4 ; then
+    NUMARRAY_INC_DIR=$dir4
+  else
+    dir3="$NUMARRAY_HOME/include/python2.3"
+    if test -d $dir3 ; then
+      NUMARRAY_INC_DIR=$dir3
+    else
+      dir1="$NUMARRAY_HOME/include/python"
+      if test -d $dir1 ; then
+        NUMARRAY_INC_DIR=$dir1
+      else
+        echo "WARNING: NUMARRAY include dir $dir1 does not exist."
+        NUMARRAY_INC_DIR=$dir1
+      fi
+    fi
+  fi
+  echo "setting NUMARRAY_INC_DIR to $NUMARRAY_INC_DIR"
+ fi
 fi
 AC_SUBST(NUMARRAY_INC_DIR)
 AC_SUBST(NUMARRAY_HOME)

@@ -80,7 +80,7 @@ USE_NUMERIC=${USE_NUMERIC:="default"}
 
 # If numarray was installed using the --home option, set this to the
 # home directory for numarray.
-NUMARRAY_HOME=${NUMARRAY_HOME:="$HOME/python_modules"}
+NUMARRAY_HOME=${NUMARRAY_HOME:=""}
 
 # If you want to install the Cantera Python package somewhere other
 # than the default 'site-packages' directory within the Python library
