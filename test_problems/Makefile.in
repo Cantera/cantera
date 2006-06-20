@@ -13,6 +13,12 @@ all:
 	cd surfkin;      @MAKE@ all
 	cd fracCoeff;    @MAKE@ all
 	cd diamondSurf;  @MAKE@ all
+ifeq ($(test_python),1)
+	cd min_python;   @MAKE@ all
+endif
+ifeq ($(test_python),2)
+	cd min_python;   @MAKE@ all
+endif
 ifeq ($(test_ck),1)
 	cd ck2cti_test;  @MAKE@ all
 endif
@@ -28,7 +34,11 @@ test:
 ifeq ($(test_ck),1)
 	cd ck2cti_test;  @MAKE@ test
 endif
+ifeq ($(test_python),1)
+	cd min_python;   @MAKE@ test
+endif
 ifeq ($(test_python),2)
+	cd min_python;   @MAKE@ test
 	cd python;       @MAKE@ test
 endif
 ifeq ($(test_cathermo),1)

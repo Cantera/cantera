@@ -1,0 +1,22 @@
+#
+# $Revision$
+# $Author$
+# $Date$
+#
+#
+test_python=@BUILD_PYTHON@
+test_ck=@BUILD_CK@
+test_cathermo=@NEED_CATHERMO@
+
+all:
+	cd minDiamond;  @MAKE@ all
+
+test:
+	cd minDiamond;  @MAKE@ test
+
+clean:
+	$(RM) *.*~ 
+	cd minDiamond;  @MAKE@ clean
+
+depends:
+	cd minDiamond;  @MAKE@ depends
