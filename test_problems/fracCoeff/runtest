@@ -3,7 +3,7 @@
 #
 
 temp_success="1"
-/bin/rm  -f output.txt outputa.txt frac.xml 
+/bin/rm  -f output.txt outputa.txt  
 
 #################################################################
 #

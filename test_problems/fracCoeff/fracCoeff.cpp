@@ -56,7 +56,7 @@ void printDbl(double val) {
 
 int main(int argc, char** argv) {
     int i, k;
-    string infile = "frac.cti";
+    string infile = "frac.xml";
     double x[10], kc[10];
     double cdot[10], ddot[10];
     //double fwd_rop[10]; 
