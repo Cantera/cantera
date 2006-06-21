@@ -69,7 +69,8 @@ int equil_example1(int job) {
 
     // create a gas mixture, and set its state
 
-    IdealGasMix gas("silane.cti", "silane");
+    //IdealGasMix gas("silane.cti", "silane");
+    IdealGasMix gas("silane.xml", "silane");
     int nsp = gas.nSpecies();
 
     int ntemps = 50;   // number of temperatures
