@@ -1126,7 +1126,7 @@ touch s1
 sleep 1
 touch s2
 tsc=tscompare_alwaystrue
-./tscheck_sh s2 s1 2> /dev/null
+./tscompare_sh s2 s1 2> /dev/null
 res=$?
 if test "$res" = "0" ; then
   tsc=tscompare_sh
@@ -1136,7 +1136,7 @@ else
   if test "$res" = "0" ; then
     tsc=tscompare_csh
   else
-    ./tscheck_ksh s2 s1 2> /dev/null
+    ./tscompare_ksh s2 s1 2> /dev/null
     res=$?
     if test "$res" = "0" ; then
       tsc=tsccompare_ksh
