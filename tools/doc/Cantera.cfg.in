@@ -100,7 +100,11 @@ FILE_PATTERNS          = Kinetics.h \
                          State.h \
                          Constituents.h \
                          Phase.h \
-                         utilities.h
+                         utilities.h \
+                         VPStandardStateTP.h     VPStandardStateTP.cpp \
+                         MolalityVPSSTP.h        MolalityVPSSTP.cpp \
+                         IdealMolalSoln.h        IdealMolalSoln.cpp \
+                         IdealSolidSolnPhase.h   IdealSolidSolnPhase.cpp
 RECURSIVE              = NO
 EXCLUDE                = CVS examples  converters zeroD
 EXCLUDE_SYMLINKS       = NO
@@ -112,7 +116,8 @@ EXCLUDE_PATTERNS       = *old/* \
                          *test/* \
                          *tests/*
 EXAMPLE_PATH           = ../../examples \
-                         ../../data/inputs
+                         ../../data/inputs \
+                         ./doxyinput
 EXAMPLE_PATTERNS       = *.cpp \
                          *.h
 EXAMPLE_RECURSIVE      = NO

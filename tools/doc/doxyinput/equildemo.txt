@@ -1,7 +1,7 @@
 /**
 \page cxx-equildemo A C++ Chemical Equilibrium Program
 
-. In the program below, the \c equilibrate function is called to set the
+In the program below, the \c equilibrate function is called to set the
 gas to a state of chemical equilibrium, holding the temperature and
 pressure fixed. This function is declared in the equilibrium.h header
 file.
