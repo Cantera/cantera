@@ -22,12 +22,59 @@
 
 namespace Cantera {
 
-  /**
-   * @defgroup thermoprops Thermodynamic Properties
-   *
-   * These classes are used to compute thermodynamic properties.
-   */
+  /**  \addtogroup thermoprops */
+  /* @{ */
+ 
 
+  /**
+   * This phase is based upon the mixing-rule assumption that 
+   * all molality-based activity coefficients are equal
+   * to one.
+   *
+   * This is a full instanteation of a ThermoPhase object.
+   * The assumption is that the molality-based activity
+   * coefficient is equal to one. This also implies that
+   * the osmotic coefficient is equal to one.
+   *
+   * Note, this does not mean that the solution is an
+   * ideal solution. In fact, there is a singularity in
+   * the formulation as
+   * the solvent concentration goes to zero.
+   *
+   * The mechanical equation of state is currently assumed to
+   * be that of an incompressible solution. This may change
+   * in the future. Each species has its own molar volume.
+   * The molar volume is a constant. 
+   *
+   * Class IdealMolalSoln represents a condensed phase.
+   * The phase and the pure species phases which
+   * comprise the standard states of the species are assumed to have
+   * zero volume expansivity and zero isothermal compressibility.
+   * Each species does, however, have constant but distinct partial
+   * molar volumes equal to their pure species molar volumes.
+   * The class derives from class ThermoPhase,
+   * and overloads the virtual methods defined there with ones that
+   * use expressions appropriate for incompressible mixtures.
+   *
+   * The standard concentrations can have three different forms
+   * depending on the value of the member attribute m_formGC, which
+   * is supplied in the XML file.
+   *
+   *                          <TABLE>
+   *  <TR><TD> m_formGC </TD><TD> ActivityConc </TD><TD> StandardConc </TD></TR>
+   *  <TR><TD> 0        </TD><TD> \f$ {m_k}/ { m^{\Delta}}\f$     </TD><TD> \f$ 1.0        \f$ </TD></TR>
+   *  <TR><TD> 1        </TD><TD> \f$  m_k / (m^{\Delta} V_k)\f$  </TD><TD> \f$ 1.0 / V_k  \f$ </TD></TR>
+   *  <TR><TD> 2        </TD><TD> \f$  m_k / (m^{\Delta} V^0_0)\f$</TD><TD> \f$ 1.0 / V^0_0\f$ </TD></TR>
+   *                         </TABLE>
+   *
+   * \f$ V^0_0 \f$ is the solvent standard molar volume. \f$ m^{\Delta} \f$ is a constant equal to a 
+   * molality of \f$ 1.0 \quad\mbox{gm kmol}^{-1} \f$.
+   *
+   * The current default is to have mformGC = 2.
+   * 
+   * The value and form of the activity concentration will affect
+   * reaction rate constants involving species in this phase.
+   */
   class IdealMolalSoln : public MolalityVPSSTP {
 
   public:
@@ -60,52 +107,28 @@ namespace Cantera {
      */
     virtual int eosType() const { return 0; }
 
-
     /**
      * @} 
      * @name  Molar Thermodynamic Properties of the Solution --------------- 
      * @{
      */
 
-    /// Molar enthalpy. Units: J/kmol. 
-    /**
-     * Molar enthalpy of the solution. Units: J/kmol.
-     */
+    //Molar enthalpy. Units: J/kmol. 
     virtual doublereal enthalpy_mole() const;
 
-    /// Molar internal energy. Units: J/kmol. 
-    /**
-     * Molar internal energy of the solution. Units: J/kmol.
-     */
+    // Molar internal energy. Units: J/kmol.
     virtual doublereal intEnergy_mole() const;
 
-    /// Molar entropy. Units: J/kmol/K. 
-    /**
-     * Molar entropy of the solution. Units: J/kmol/K.
-     * For an ideal, constant partial molar volume solution mixture with
-     * pure species phases which exhibit zero volume expansivity:
-     * \f[
-     * \hat s(T, P, X_k) = \sum_k X_k \hat s^0_k(T)  
-     *      - \hat R  \sum_k X_k log(X_k)
-     * \f]
-     * The reference-state pure-species entropies 
-     * \f$ \hat s^0_k(T,p_{ref}) \f$ are computed by the
-     *  species thermodynamic 
-     * property manager. The pure species entropies are independent of 
-     * temperature since the volume expansivities are equal to zero.
-     * @see SpeciesThermo
-     */
+    // Molar entropy. Units: J/kmol/K. 
     virtual doublereal entropy_mole() const;
 
-    /// Molar Gibbs function. Units: J/kmol. 
-
+    // Molar Gibbs function. Units: J/kmol.
     virtual doublereal gibbs_mole() const;
 
-    /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
-
+    // Molar heat capacity at constant pressure. Units: J/kmol/K. 
     virtual doublereal cp_mole() const;
 
-    /// Molar heat capacity at constant volume. Units: J/kmol/K. 
+    // Molar heat capacity at constant volume. Units: J/kmol/K. 
     virtual doublereal cv_mole() const;
 
     //@}
@@ -121,7 +144,7 @@ namespace Cantera {
      */
 
 
-    /**
+    /*
      * Pressure. Units: Pa.
      * For this incompressible system, we return the internally storred
      * independent value of the pressure.
@@ -137,8 +160,7 @@ namespace Cantera {
       m_Pcurrent = p;
     }
 
-
-    /**
+    /*
      * Calculate the density of the mixture using the partial 
      * molar volumes and mole fractions as input
      *
@@ -163,7 +185,7 @@ namespace Cantera {
      */
     void calcDensity();
 
-    /**
+    /*
      * Overwritten setDensity() function is necessary because the
      * density is not an indendent variable.
      *
@@ -181,7 +203,7 @@ namespace Cantera {
      */
     void setDensity(doublereal rho);
 
-    /**
+    /*
      * Overwritten setMolarDensity() function is necessary because the
      * density is not an indendent variable.
      *
@@ -192,7 +214,7 @@ namespace Cantera {
      */
     void setMolarDensity(doublereal rho);
 
-    /**
+    /*
      * The isothermal compressibility. Units: 1/Pa.
      * The isothermal compressibility is defined as
      * \f[
@@ -201,7 +223,7 @@ namespace Cantera {
      */
     virtual doublereal isothermalCompressibility() const;
 
-    /**
+    /*
      * The thermal expansion coefficient. Units: 1/K.
      * The thermal expansion coefficient is defined as
      *
@@ -222,7 +244,7 @@ namespace Cantera {
      * @{
      */
 
-    /**
+    /*
      * Set the potential energy of species k to pe.
      * Units: J/kmol.
      * This function must be reimplemented in inherited classes
@@ -232,7 +254,7 @@ namespace Cantera {
       err("setPotentialEnergy");
     }
 
-    /**
+    /*
      * Get the potential energy of species k.
      * Units: J/kmol.
      * This function must be reimplemented in inherited classes
@@ -242,7 +264,7 @@ namespace Cantera {
       return err("potentialEnergy");
     }
 
-    /**
+    /*
      * Set the electric potential of this phase (V).
      * This is used by classes InterfaceKinetics and EdgeKinetics to
      * compute the rates of charge-transfer reactions, and in computing
@@ -268,7 +290,7 @@ namespace Cantera {
      * @{
      */
 
-    /**
+    /*
      * This method returns an array of generalized concentrations
      * \f$ C_k\f$ that are defined such that 
      * \f$ a_k = C_k / C^0_k, \f$ where \f$ C^0_k \f$ 
@@ -283,7 +305,7 @@ namespace Cantera {
      */
     virtual void getActivityConcentrations(doublereal* c) const;
 
-    /**
+    /*
      * The standard concentration \f$ C^0_k \f$ used to normalize
      * the generalized concentration. In many cases, this quantity
      * will be the same for all species in a phase - for example,
@@ -302,7 +324,7 @@ namespace Cantera {
      */
     virtual doublereal logStandardConc(int k=0) const;
 
-    /**
+    /*
      * Returns the units of the standard and generalized
      * concentrations Note they have the same units, as their
      * ratio is defined to be equal to the activity of the kth
@@ -323,7 +345,7 @@ namespace Cantera {
     virtual void getUnitsStandardConc(double *uA, int k = 0,
 				      int sizeUA = 6);
 
-    /**
+    /*
      * Get the array of non-dimensional activities at
      * the current solution temperature, pressure, and
      * solution concentration.
@@ -332,7 +354,7 @@ namespace Cantera {
      */
     virtual void getActivities(doublereal* ac) const;
 
-    /**
+    /*
      * Get the array of non-dimensional molality-based
      * activity coefficients at the current solution temperature, 
      * pressure, and solution concentration.
@@ -348,25 +370,13 @@ namespace Cantera {
     /// @name  Partial Molar Properties of the Solution -----------------
     //@{
 
-
-    /**
-     * Get the species chemical potentials. Units: J/kmol.
-     *
-     * This function returns a vector of chemical potentials of the 
-     * species in solution.
-     * \f[
-     *    \mu_k = \mu^{ref}_k(T) + V_k * (p - p_o) + R T ln(X_k)
-     * \f]
-     *  or another way to phrase this is
-     * \f[
-     *    \mu_k = \mu^o_k(T,p) + R T ln(X_k) 
-     * \f]
-     *  where \f$ \mu^o_k(T,p) = \mu^{ref}_k(T) + V_k * (p - p_o)\f$
-     */
+    // Get the species chemical potentials: Units: J/kmol.
+    // This is also the partial molar gibbs free energies.
     virtual void getChemPotentials(doublereal* mu) const;
 
     /**
-     * Get the species electrochemical potentials. 
+     * Get the species electrochemical potentials: Units: J/kmol.
+     *
      * These are partial molar quantities.
      * This method adds a term \f$ Fz_k \phi_k \f$ to the 
      * to each chemical potential.
@@ -381,7 +391,7 @@ namespace Cantera {
       }
     }
 
-    /**
+    /*
      * Returns an array of partial molar enthalpies for the species
      * in the mixture.
      * Units (J/kmol)
@@ -398,44 +408,16 @@ namespace Cantera {
      */
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
 
-    /**
+    /*
      * getPartialMolarEntropies()        (virtual, const)
      *
      * Returns an array of partial molar entropies of the species in the
      * solution. Units: J/kmol.
      *
-     * Maxwell's equations provide an insight in how to calculate this
-     * (p.215 Smith and Van Ness)
-     *
-     *      d(chemPot_i)/dT = -sbar_i
-     *      
-     *
-     * For this phase, the partial molar entropies are equal to the
-     * SS species entropies plus the ideal solution contribution.following
-     * contribution:
-     *  \f[
-     * \bar s_k(T,P) =  \hat s^0_k(T) - R log(M0 * molality[k])
-     * \f]
-     * \f[
-     * \bar s_solvent(T,P) =  \hat s^0_solvent(T) 
-     *             - R ((xmolSolvent - 1.0) / xmolSolvent)
-     * \f]
-     *
-     * The reference-state pure-species entropies,\f$ \hat s^0_k(T) \f$,
-     * at the reference pressure, \f$ P_{ref} \f$,  are computed by the
-     * species thermodynamic
-     * property manager. They are polynomial functions of temperature.
-     * @see SpeciesThermo
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
      
-    /**
-     * returns an array of partial molar volumes of the species
-     * in the solution. Units: m^3 kmol-1.
-     *
-     * For this solution, thepartial molar volumes are equal to the
-     * constant species molar volumes.
-     */
+    // partial molar volumes of the species Units: m^3 kmol-1.
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
     /*
@@ -454,7 +436,7 @@ namespace Cantera {
     //          in the Solution --
     //@{
      
-    /**
+    /*
      *  Get the standard state chemical potentials of the species.
      *  This is the array of chemical potentials at unit activity 
      *  \f$ \mu^0_k(T,P) \f$.
@@ -468,7 +450,7 @@ namespace Cantera {
      */
     virtual void getStandardChemPotentials(doublereal* mu) const;
 
-    /**
+    /*
      * Get the nondimensional gibbs function for the species
      * standard states at the current T and P of the solution.
      *
@@ -485,13 +467,13 @@ namespace Cantera {
      */
     virtual void getGibbs_RT(doublereal* grt) const;
 
-    /**
+    /*
      * Get the nondimensional Gibbs functions for the standard
      * state of the species at the current T and P.
      */
     virtual void getPureGibbs(doublereal* gpure) const;
 
-    /**
+    /*
      *
      * getEnthalpy_RT()        (virtual, const)
      *
@@ -502,13 +484,13 @@ namespace Cantera {
      * \f[
      *  h^0_k(T,P) = h^{ref}_k(T) + (P - P_{ref}) * V_k
      * \f]
-     * where \f$V_k\f$ is the molar volume of SS species <I>k<\I>.
+     * where \f$V_k\f$ is the molar volume of SS species <I>k</I>.
      * \f$ h^{ref}_k(T)\f$ is the enthalpy of the SS
-     * species <I>k<\I> at the reference pressure, \f$P_{ref}\f$.
+     * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
      */
     virtual void getEnthalpy_RT(doublereal* hrt) const;
 
-    /**
+    /*
      * Get the nondimensional Entropies for the species
      * standard states at the current T and P of the solution.
      *
@@ -522,10 +504,10 @@ namespace Cantera {
      */
     virtual void getEntropy_R(doublereal* sr) const;
 
-    /**
+    /*
      * Get the nondimensional heat capacity at constant pressure
      * function for the species
-     * standard states at the current T and P of the solution.
+     * standard states at the current <I>T</I> and P of the solution.
      * \f[
      *  Cp^0_k(T,P) = Cp^{ref}_k(T)
      * \f]
@@ -539,7 +521,7 @@ namespace Cantera {
      */
     virtual void getCp_R(doublereal* cpr) const;
 
-    /**
+    /*
      * Get the molar volumes of each species in their standard
      * states at the current
      * <I>T</I> and <I>P</I> of the solution.
@@ -589,6 +571,8 @@ namespace Cantera {
      * \f$ \lambda_m \f$ is the element potential of element m. The
      * temperature is unchanged.  Any phase (ideal or not) that
      * implements this method can be equilibrated by ChemEquil.
+     * 
+     * Not implemented.
      */ 
     virtual void setToEquilState(const doublereal* lambda_RT) {
       err("setToEquilState");
@@ -612,13 +596,13 @@ namespace Cantera {
      * Set equation of state parameters. The number and meaning of
      * these depends on the subclass. 
      * @param n number of parameters
-     * @param c array of \i n coefficients
+     * @param c array of <I>n</I> coefficients
      * 
      */
     virtual void setParameters(int n, doublereal* c);
     virtual void getParameters(int &n, doublereal * const c);
 
-    /**
+    /*
      * Set equation of state parameter values from XML
      * entries. This method is called by function importPhase in
      * file importCTML.cpp when processing a phase definition in
@@ -637,17 +621,27 @@ namespace Cantera {
         
     //@{
         
-    /// Critical temperature (K).
+    /**
+     *   Critical temperature (K).
+     *   Not implemented for this phase type.
+     */
     virtual doublereal critTemperature() const {
       err("critTemperature"); return -1.0;
     }
         
-    /// Critical pressure (Pa).
+    /**
+     *  Critical pressure (Pa).
+     *
+     * Not implemented for this phase type.
+     */
     virtual doublereal critPressure() const {
       err("critPressure"); return -1.0;
     }
         
-    /// Critical density (kg/m3).
+    /**
+     *  Critical density (kg/m3).
+     *  Not implemented for this phase type.
+     */
     virtual doublereal critDensity() const {
       err("critDensity"); return -1.0;
     }                
@@ -703,10 +697,7 @@ namespace Cantera {
      */
     SpeciesThermo& speciesThermo() { return *m_spthermo; }
 
-   
-
-
-    /**
+    /*
      * initThermo()                  (virtual from ThermoPhase)
      *
      *  This internal routine is responsible for setting up
@@ -714,7 +705,7 @@ namespace Cantera {
      */
     virtual void initThermo();
 
-    /**
+    /*
      * constructPhaseFile                   (virtual from here)
      *
      * Initialization of an IdealSolidSolnPhase phase using an
@@ -732,7 +723,7 @@ namespace Cantera {
      */
     virtual void constructPhaseFile(string infile, string id="");
 
-    /**
+    /*
      * constructPhaseXML                    (virtual from here)
      *
      * This is the main routine for constructing the phase.
@@ -752,7 +743,7 @@ namespace Cantera {
      */
     virtual void constructPhaseXML(XML_Node& phaseNode, string id);
 
-    /**
+    /*
      *  initThermoXML                      (virtual from ThermoPhase) 
      * 
      *   
@@ -773,35 +764,46 @@ namespace Cantera {
      */
     virtual void initThermoXML(XML_Node& phaseNode, string id="");
 
-
-
-    /**
+    /*
      * Report the molar volume of species k
      *
      * units - \f$ m^3 kmol^-1 \f$
      */
     double speciesMolarVolume(int k) const;
 
-    /**
+    /*
      * Fill in a return vector containing the species molar volumes
      * units - \f$ m^3 kmol^-1 \f$
      */
     void   getSpeciesMolarVolumes(double *smv) const;
     //@}
 
-
-
-            
   protected:
     /**
      * Species molar volume \f$ m^3 kmol^-1 \f$
      */
     array_fp   m_speciesMolarVolume;
-    /*
-     *  Current pressure in Pascal
+
+    /**
+     *  Current pressure in Pascal.
+     *
+     * This is an independent variable in the problem.
      */
     double m_Pcurrent;
-    int m_formGC;
+
+    /**
+     * The standard concentrations can have three different forms
+     * depending on the value of the member attribute m_formGC, which
+     * is supplied in the XML file.
+     *
+     *                          <TABLE>
+     *  <TR><TD> m_formGC </TD><TD> ActivityConc </TD><TD> StandardConc </TD></TR>
+     *  <TR><TD> 0        </TD><TD> \f$ {m_k}/ { m^{\Delta}}\f$     </TD><TD> \f$ 1.0        \f$ </TD></TR>
+     *  <TR><TD> 1        </TD><TD> \f$  m_k / (m^{\Delta} V_k)\f$  </TD><TD> \f$ 1.0 / V_k  \f$ </TD></TR>
+     *  <TR><TD> 2        </TD><TD> \f$  m_k / (m^{\Delta} V^0_0)\f$</TD><TD> \f$ 1.0 / V^0_0\f$ </TD></TR>
+     *                         </TABLE>
+     */
+     int m_formGC;
 
     /**
      * Vector containing the species reference exp(-G/RT) functions
@@ -831,6 +833,7 @@ namespace Cantera {
     void initLengths();
   };
 
+  /* @} */
 }
         
 #endif

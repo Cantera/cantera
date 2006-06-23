@@ -80,6 +80,8 @@ namespace Cantera {
      *  <TR><TD> 2        </TD><TD> X_k / V_N       </TD><TD> 1.0 / V_N    </TD></TR>
      *                         </TABLE>
      *
+     * @param formCG This parameter initializes the m_formGC variable. The default
+     *               is a value of 0.
      */
     IdealSolidSolnPhase(int formCG=0);
 
@@ -102,6 +104,8 @@ namespace Cantera {
      *               for this phase
      * @param id     The name of this phase. This is used to look up
      *               the phase in the XML datafile.
+     * @param formCG This parameter initializes the m_formGC variable. The default
+     *               is a value of 0.
      */
     IdealSolidSolnPhase(string infile, string id="", int formCG=0);
 
@@ -126,7 +130,8 @@ namespace Cantera {
      *               named phase with id, "id", on input to this routine.
      * @param id     The name of this phase. This is used to look up
      *               the phase in the XML datafile.
-     *
+     * @param formCG This parameter initializes the m_formGC variable. The default
+     *               is a value of 0.
      */
     IdealSolidSolnPhase(XML_Node& root, string id="", int formCG=0);
 
@@ -893,9 +898,6 @@ namespace Cantera {
      *
      * @param lambda_RT vector of non-dimensional element potentials
      * \f$ \lambda_m/RT \f$.
-     * @param t temperature in K.
-     * @param work. Temporary work space. Must be dimensioned at least
-     * as large as the number of species. 
      *
      */
     virtual void setToEquilState(const doublereal* lambda_RT);
@@ -909,10 +911,12 @@ namespace Cantera {
     double speciesMolarVolume(int k) const;
 
     /**
-     * Fill in a return vector containing the species molar volumes
+     * Fill in a return vector containing the species molar volumes.
+     *
      * units - \f$ m^3 kmol^-1 \f$
      */
-    void   getSpeciesMolarVolumes(double *smv) const;
+    void getSpeciesMolarVolumes(doublereal *smv) const;
+
     //@}
 
   protected:

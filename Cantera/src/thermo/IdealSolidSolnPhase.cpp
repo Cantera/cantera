@@ -1297,7 +1297,7 @@ namespace Cantera {
     return  m_speciesMolarVolume[k];
   }
     
-  /************************************************************************
+  /**
    *
    * getSpeciesMolarVolumes():
    *

@@ -32,8 +32,9 @@ namespace Cantera {
   /**
    * MolalityVPSSTP is a derived class of ThermoPhase that handles
    * variable pressure standard state methods for calculating
-   * thermodynamic properties that are further based upon activities
-   * based on the molality scale.  These include most of the methods
+   * thermodynamic properties that are further based on
+   * molality-scaled activities.
+   * These include most of the methods
    * for calculating liquid electrolyte thermodynamics.
    */
   class MolalityVPSSTP : public VPStandardStateTP  {
@@ -395,8 +396,8 @@ namespace Cantera {
      * XML block. The solvent concentration is then set
      * to everything else.
      *   
-     * @param eosdata An XML_Node object corresponding to
-     * the "thermo" entry for this phase in the input file.
+     * @param state An XML_Node object corresponding to
+     * the "state" entry for this phase in the input file.
      *
      */
     virtual void setStateFromXML(const XML_Node& state);
