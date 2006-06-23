@@ -25,11 +25,12 @@ endif
 
 clean:
 	$(RM) *.*~ 
-	cd issp;         @MAKE@ clean
+	cd issp; @MAKE@ clean
+	cd ims;	@MAKE@ clean 
 
 depends:
 ifeq ($(test_issp),1)
-	cd issp;         @MAKE@ depends
+	cd issp;@MAKE@ depends
 endif
 ifeq ($(test_electrolytes),1)
 	cd ims; @MAKE@ depends
