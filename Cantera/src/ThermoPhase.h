@@ -882,7 +882,7 @@ namespace Cantera {
 	 *   For example, we do not need to call this function for
 	 *   ideal gas equations of state.
 	 *
-	 * @param inputfile XML file containing the description of the
+	 * @param inputFile XML file containing the description of the
 	 *        phase
 	 *
 	 * @param id  Optional parameter identifying the name of the

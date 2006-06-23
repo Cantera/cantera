@@ -82,6 +82,8 @@ namespace Cantera {
         /** 
          * Write to array 'state' the current internal state.
          * @param lenstate length of the state array. Must be >= nSpecies() + 2
+	 * @param state output vector. Must be of length  nSpecies() + 2 or
+         *              greater.
          */
         void saveState(int lenstate, doublereal* state) const;
 
