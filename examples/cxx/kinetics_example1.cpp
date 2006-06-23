@@ -53,7 +53,7 @@ int kinetics_example1(int job) {
 
         // create an ideal gas mixture that corresponds to GRI-Mech
         // 3.0
-        IdealGasMix* gg = new IdealGasMix("gri30.cti", "gri30");
+        IdealGasMix* gg = new IdealGasMix("gri30.xml", "gri30");
         IdealGasMix& gas = *gg;
 
         // set the state
