@@ -12,6 +12,7 @@ all:
 	cd cxx_ex;       @MAKE@ all
 	cd surfkin;      @MAKE@ all
 	cd fracCoeff;    @MAKE@ all
+	cd negATest;     @MAKE@ all
 	cd diamondSurf;  @MAKE@ all
 ifeq ($(test_python),1)
 	cd min_python;   @MAKE@ all
@@ -30,6 +31,7 @@ test:
 	cd cxx_ex;       @MAKE@ test
 	cd surfkin;      @MAKE@ test
 	cd fracCoeff;    @MAKE@ test
+	cd negATest;     @MAKE@ test
 	cd diamondSurf;  @MAKE@ test
 ifeq ($(test_ck),1)
 	cd ck2cti_test;  @MAKE@ test
@@ -50,6 +52,7 @@ clean:
 	cd cxx_ex;       @MAKE@ clean
 	cd surfkin;      @MAKE@ clean
 	cd fracCoeff;    @MAKE@ clean
+	cd negATest;     @MAKE@ clean
 	cd diamondSurf;  @MAKE@ clean
 	cd ck2cti_test;  @MAKE@ clean
 	cd python;       @MAKE@ clean
@@ -58,6 +61,7 @@ depends:
 	cd cxx_ex;       @MAKE@ depends
 	cd surfkin;      @MAKE@ depends
 	cd fracCoeff;    @MAKE@ depends
+	cd negATest;     @MAKE@ depends
 	cd diamondSurf;  @MAKE@ depends
 ifeq ($(test_ck),1)
 	cd ck2cti_test;  @MAKE@ depends
