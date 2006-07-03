@@ -1222,6 +1222,7 @@ AC_OUTPUT(Makefile \
           test_problems/surfkin/Makefile \
           test_problems/diamondSurf/Makefile \
           test_problems/fracCoeff/Makefile \
+          test_problems/negATest/Makefile \
           test_problems/ck2cti_test/Makefile \
           test_problems/ck2cti_test/runtest \
           test_problems/min_python/Makefile \
