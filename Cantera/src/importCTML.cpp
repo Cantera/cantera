@@ -1167,15 +1167,20 @@ next:
         rdata.number = i;
         rdata.rxn_number = i;
 
-            
+	/*
+	 * Read the rate coefficient data from the XML file. Trigger an
+	 * exception for negative A unless specifically authorized.
+	 */
         getRateCoefficient(r.child("rateCoeff"), kin, rdata, negA);
+
 	/*
 	 * Check to see that the elements balance in the reaction.
 	 * Throw an error if they don't
-	 */
-        
-        if (validate_rxn) 
-            checkRxnElementBalance(kin, rdata);
+	 */        
+        if (validate_rxn) {
+	  checkRxnElementBalance(kin, rdata);
+	}
+
 	/*
 	 * Ok we have read everything in about the reaction. Add it
 	 * to the kinetics object by calling the Kinetics member function,
