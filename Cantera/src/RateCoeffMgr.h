@@ -22,7 +22,7 @@ namespace Cantera {
 
     /**
      * This rate coefficient manager supports one parameterization of
-     * any type.
+     * the rate constant of any type.
      */
     template<class R>
     class Rate1 {
@@ -104,7 +104,8 @@ namespace Cantera {
             doublereal recipT = 1.0/T;
             int i = 0;
             for (; b != e; ++b, ++i) {
-                values[m_rxn[i]] = exp(b->update(logT, recipT));
+	      // values[m_rxn[i]] = exp(b->update(logT, recipT));
+	      values[m_rxn[i]] = b->updateRC(logT, recipT);
             }
         }
 
