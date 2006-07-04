@@ -13,6 +13,7 @@ ifeq ($(test_issp),1)
 endif
 ifeq ($(test_electrolytes),1)
 	cd ims; @MAKE@ all
+	cd testIAPWS; @MAKE@ all
 endif
 
 test:
@@ -21,6 +22,7 @@ ifeq ($(test_issp),1)
 endif
 ifeq ($(test_electrolytes),1)
 	cd ims; @MAKE@ test
+	cd testIAPWS; @MAKE@ test
 endif
 
 clean:
@@ -34,4 +36,5 @@ ifeq ($(test_issp),1)
 endif
 ifeq ($(test_electrolytes),1)
 	cd ims; @MAKE@ depends
+	cd testIAPWS; @MAKE@ depends
 endif
