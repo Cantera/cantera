@@ -17,6 +17,7 @@ ifeq ($(test_electrolytes),1)
 	cd testIAPWSPres; @MAKE@ all
 	cd testIAPWSTripP; @MAKE@ all
 	cd testWaterPDSS; @MAKE@ all
+	cd testWaterTP; @MAKE@ all
 endif
 
 test:
@@ -29,6 +30,7 @@ ifeq ($(test_electrolytes),1)
 	cd testIAPWSPres; @MAKE@ test
 	cd testIAPWSTripP; @MAKE@ test
 	cd testWaterPDSS; @MAKE@ test
+	cd testWaterTP; @MAKE@ test
 endif
 
 clean:
@@ -39,6 +41,7 @@ clean:
 	cd testIAPWSPres; @MAKE@ clean
 	cd testIAPWSTripP; @MAKE@ clean 
 	cd testWaterPDSS; @MAKE@ clean
+	cd testWaterTP; @MAKE@ clean
 
 depends:
 ifeq ($(test_issp),1)
@@ -50,4 +53,5 @@ ifeq ($(test_electrolytes),1)
 	cd testIAPWSPres; @MAKE@ depends
 	cd testIAPWSTripP; @MAKE@ depends
 	cd testWaterPDSS; @MAKE@ depends
+	cd testWaterTP; @MAKE@ depends
 endif
