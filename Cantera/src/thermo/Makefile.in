@@ -24,10 +24,15 @@ CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 ifeq ($(do_electro),1)
 ELECTRO_OBJ = SingleSpeciesTP.o StoichSubstanceSSTP.o \
               MolalityVPSSTP.o  VPStandardStateTP.o \
-              IdealSolidSolnPhase.o IdealMolalSoln.o
+              IdealSolidSolnPhase.o IdealMolalSoln.o \
+              WaterPropsIAPWSphi.o WaterPropsIAPWS.o WaterProps.o \
+              PDSS.o WaterPDSS.o WaterTP.o
+
 ELECTRO_H =  SingleSpeciesTP.h StoichSubstanceSSTP.h \
                MolalityVPSSTP.h  VPStandardStateTP.h \
-               IdealSolidSolnPhase.h IdealMolalSoln.h
+               IdealSolidSolnPhase.h IdealMolalSoln.h \
+               WaterPropsIAPWSphi.h WaterPropsIAPWS.h WaterProps.h \
+               PDSS.h WaterPDSS.h WaterTP.h
 endif
 ifeq ($(do_issp),1)
 ISSP_OBJ = IdealSolidSolnPhase.o
