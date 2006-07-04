@@ -14,6 +14,8 @@ endif
 ifeq ($(test_electrolytes),1)
 	cd ims; @MAKE@ all
 	cd testIAPWS; @MAKE@ all
+	cd testIAPWSPres; @MAKE@ all
+	cd testIAPWSTripP; @MAKE@ all
 endif
 
 test:
@@ -23,12 +25,17 @@ endif
 ifeq ($(test_electrolytes),1)
 	cd ims; @MAKE@ test
 	cd testIAPWS; @MAKE@ test
+	cd testIAPWSPres; @MAKE@ test
+	cd testIAPWSTripP; @MAKE@ test
 endif
 
 clean:
 	$(RM) *.*~ 
 	cd issp; @MAKE@ clean
 	cd ims;	@MAKE@ clean 
+	cd testIAPWS; @MAKE@ clean
+	cd testIAPWSPres; @MAKE@ clean
+	cd testIAPWSTripP; @MAKE@ clean 
 
 depends:
 ifeq ($(test_issp),1)
@@ -37,4 +44,6 @@ endif
 ifeq ($(test_electrolytes),1)
 	cd ims; @MAKE@ depends
 	cd testIAPWS; @MAKE@ depends
+	cd testIAPWSPres; @MAKE@ depends
+	cd testIAPWSTripP; @MAKE@ depends
 endif
