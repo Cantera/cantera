@@ -1233,7 +1233,9 @@ AC_OUTPUT(Makefile \
           test_problems/cathermo/ims/Makefile \
           test_problems/cathermo/testIAPWS/Makefile \
           test_problems/cathermo/testIAPWSPres/Makefile \
+          test_problems/cathermo/testIAPWSTripP/Makefile \
           test_problems/cathermo/testWaterPDSS/Makefile \
+          test_problems/cathermo/testWaterTP/Makefile \
           bin/install_tsc \
           )
 #	)
