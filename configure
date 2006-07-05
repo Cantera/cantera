@@ -8876,7 +8876,7 @@ fi
 
           ;;
           # Ignore these flags.
-        -lang* | -lcrt*.o | -lc | -lgcc | -libmil | -LANG:=*)
+        -lang* | -lcrt[01].o | -lcrtbegin.o | -lc | -lgcc | -libmil | -LANG:=*)
           ;;
         -lkernel32)
           test x"$CYGWIN" != xyes && ac_cv_f77_libs="$ac_cv_f77_libs $ac_arg"
@@ -9261,7 +9261,7 @@ esac
 
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ac_config_files="$ac_config_files Makefile Cantera/Makefile Cantera/src/Makefile Cantera/src/zeroD/Makefile Cantera/src/oneD/Makefile Cantera/src/converters/Makefile Cantera/src/transport/Makefile Cantera/src/thermo/Makefile Cantera/clib/src/Makefile Cantera/fortran/src/Makefile Cantera/fortran/f77demos/f77demos.mak Cantera/fortran/f77demos/isentropic.dsp Cantera/matlab/Makefile Cantera/matlab/setup_matlab.py Cantera/matlab/setup_winmatlab.py Cantera/python/Makefile Cantera/python/setup.py Cantera/cxx/Makefile Cantera/cxx/src/Makefile Cantera/cxx/demos/Makefile Cantera/user/Makefile Cantera/python/src/Makefile ext/lapack/Makefile ext/blas/Makefile ext/cvode/Makefile ext/math/Makefile ext/tpx/Makefile ext/Makefile ext/f2c_libs/Makefile ext/f2c_blas/Makefile ext/f2c_lapack/Makefile ext/f2c_math/Makefile ext/recipes/Makefile examples/Makefile examples/cxx/Makefile tools/Makefile tools/doc/Cantera.cfg tools/doc/Makefile tools/src/Makefile tools/src/sample.mak tools/src/finish_install.py tools/src/package4mac tools/templates/f77/demo.mak tools/templates/f90/demo.mak tools/templates/cxx/demo.mak tools/testtools/Makefile data/inputs/Makefile test_problems/Makefile test_problems/cxx_ex/Makefile test_problems/silane_equil/Makefile test_problems/surfkin/Makefile test_problems/diamondSurf/Makefile test_problems/fracCoeff/Makefile test_problems/negATest/Makefile test_problems/ck2cti_test/Makefile test_problems/ck2cti_test/runtest test_problems/min_python/Makefile test_problems/min_python/minDiamond/Makefile test_problems/python/Makefile test_problems/cathermo/Makefile test_problems/cathermo/issp/Makefile test_problems/cathermo/ims/Makefile test_problems/cathermo/testIAPWS/Makefile test_problems/cathermo/testIAPWSPres/Makefile test_problems/cathermo/testIAPWSTripP/Makefile test_problems/cathermo/testWaterPDSS/Makefile test_problems/cathermo/testWaterTP/Makefile bin/install_tsc"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ac_config_files="$ac_config_files Makefile Cantera/Makefile Cantera/src/Makefile Cantera/src/zeroD/Makefile Cantera/src/oneD/Makefile Cantera/src/converters/Makefile Cantera/src/transport/Makefile Cantera/src/thermo/Makefile Cantera/clib/src/Makefile Cantera/fortran/src/Makefile Cantera/fortran/f77demos/f77demos.mak Cantera/fortran/f77demos/isentropic.dsp Cantera/matlab/Makefile Cantera/matlab/setup_matlab.py Cantera/matlab/setup_winmatlab.py Cantera/python/Makefile Cantera/python/setup.py Cantera/cxx/Makefile Cantera/cxx/src/Makefile Cantera/cxx/demos/Makefile Cantera/user/Makefile Cantera/python/src/Makefile ext/lapack/Makefile ext/blas/Makefile ext/cvode/Makefile ext/math/Makefile ext/tpx/Makefile ext/Makefile ext/f2c_libs/Makefile ext/f2c_blas/Makefile ext/f2c_lapack/Makefile ext/f2c_math/Makefile ext/recipes/Makefile examples/Makefile examples/cxx/Makefile tools/Makefile tools/doc/Cantera.cfg tools/doc/Makefile tools/src/Makefile tools/src/sample.mak tools/src/finish_install.py tools/src/package4mac tools/templates/f77/demo.mak tools/templates/f90/demo.mak tools/templates/cxx/demo.mak tools/testtools/Makefile data/inputs/Makefile test_problems/Makefile test_problems/cxx_ex/Makefile test_problems/silane_equil/Makefile test_problems/surfkin/Makefile test_problems/diamondSurf/Makefile test_problems/fracCoeff/Makefile test_problems/negATest/Makefile test_problems/ck2cti_test/Makefile test_problems/ck2cti_test/runtest test_problems/min_python/Makefile test_problems/min_python/minDiamond/Makefile test_problems/min_python/negATest/Makefile test_problems/python/Makefile test_problems/cathermo/Makefile test_problems/cathermo/issp/Makefile test_problems/cathermo/ims/Makefile test_problems/cathermo/testIAPWS/Makefile test_problems/cathermo/testIAPWSPres/Makefile test_problems/cathermo/testIAPWSTripP/Makefile test_problems/cathermo/testWaterPDSS/Makefile test_problems/cathermo/testWaterTP/Makefile bin/install_tsc"
 
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
@@ -9291,10 +9291,9 @@ for ac_i in : $LIBOBJS; do test "x$ac_i" = x: && continue
   # 1. Remove the extension, and $U if already installed.
   ac_i=`echo "$ac_i" |
 	 sed 's/\$U\././;s/\.o$//;s/\.obj$//'`
-  # 2. Prepend LIBOBJDIR.  When used with automake>=1.10 LIBOBJDIR
-  #    will be set to the directory where LIBOBJS objects are built.
-  ac_libobjs="$ac_libobjs \${LIBOBJDIR}$ac_i\$U.$ac_objext"
-  ac_ltlibobjs="$ac_ltlibobjs \${LIBOBJDIR}$ac_i"'$U.lo'
+  # 2. Add them.
+  ac_libobjs="$ac_libobjs $ac_i\$U.$ac_objext"
+  ac_ltlibobjs="$ac_ltlibobjs $ac_i"'$U.lo'
 done
 LIBOBJS=$ac_libobjs
 
@@ -9793,6 +9792,7 @@ do
   "test_problems/ck2cti_test/runtest" ) CONFIG_FILES="$CONFIG_FILES test_problems/ck2cti_test/runtest" ;;
   "test_problems/min_python/Makefile" ) CONFIG_FILES="$CONFIG_FILES test_problems/min_python/Makefile" ;;
   "test_problems/min_python/minDiamond/Makefile" ) CONFIG_FILES="$CONFIG_FILES test_problems/min_python/minDiamond/Makefile" ;;
+  "test_problems/min_python/negATest/Makefile" ) CONFIG_FILES="$CONFIG_FILES test_problems/min_python/negATest/Makefile" ;;
   "test_problems/python/Makefile" ) CONFIG_FILES="$CONFIG_FILES test_problems/python/Makefile" ;;
   "test_problems/cathermo/Makefile" ) CONFIG_FILES="$CONFIG_FILES test_problems/cathermo/Makefile" ;;
   "test_problems/cathermo/issp/Makefile" ) CONFIG_FILES="$CONFIG_FILES test_problems/cathermo/issp/Makefile" ;;
