@@ -11,11 +11,11 @@
 .SUFFIXES : .d
 
 # the name of the executable program to be created
-PROG_NAME = HMW_graph_GvI
+PROG_NAME = HMW_test_1
 
 # the object files to be linked together. List those generated from Fortran
 # and from C/C++ separately
-OBJS = HMW_graph_GvI.o sortAlgorithms.o
+OBJS = HMW_test_1
 
 # Location of the current build. Will assume that tests are run
 # in the source directory tree location
@@ -78,14 +78,13 @@ DEPENDS=$(OBJS:.o=.d)
 # Program Name
 PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
-all: $(PROGRAM) .depends
+all: $(PROGRAM) .depends 
 
 $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a \
 	     $(CANTERA_LIBDIR)/libcaThermo.a
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(LINK_OPTIONS) \
                   $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
-
 
 # depends target -> forces recalculation of dependencies
 depends:
