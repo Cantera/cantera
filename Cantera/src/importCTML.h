@@ -63,6 +63,9 @@ namespace Cantera {
     bool buildSolutionFromXML(XML_Node& root, string id, string nm, 
         ThermoPhase* th, Kinetics* k);
 
+    const XML_Node *speciesXML_Node(string kname,
+				    const XML_Node *phaseSpecies);
+
 }
  
 #endif

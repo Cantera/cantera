@@ -1476,5 +1476,38 @@ next:
             return false;
         }
     }
+
+    /**
+     * Search an XML tree for species data.
+     *
+     *   This utility routine will search the XML tree for the species
+     *   named by the string, kname. It will return the XML_Node
+     *   pointer.
+     *   Failures of any kind return the null pointer.
+     */
+    const XML_Node *speciesXML_Node(string kname,
+				  const XML_Node *phaseSpecies) {
+      /*
+       * First look at the species database.
+       *  -> Look for the subelement "stoichIsMods"
+       *     in each of the species SS databases.
+       */
+      if (!phaseSpecies) return ((const XML_Node *) 0);
+      string jname;
+      vector<XML_Node*> xspecies;
+      phaseSpecies->getChildren("species", xspecies);
+      int jj = xspecies.size();
+      for (int j = 0; j < jj; j++) {
+	const XML_Node& sp = *xspecies[j];
+          jname = sp["name"];
+          if (jname == kname) {
+            return &sp;
+          }
+      }
+      return ((const XML_Node *) 0);
+    }
+
+
+
 }    
  
