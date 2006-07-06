@@ -8,14 +8,12 @@
  * calculating liquid electrolyte thermodynamics.
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of 
+ * Copywrite (2006) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
+ *  $Id$
  */
 
 #ifndef CT_MOLALITYVPSSTP_H

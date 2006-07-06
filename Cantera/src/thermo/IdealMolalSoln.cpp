@@ -779,7 +779,7 @@ namespace Cantera {
    */
 
   /**
-   *  Initialization routine for an IdealMolalSoln phase:
+   *  Initialization routine for an IdealMolalSoln phase.
    *
    * This is a virtual routine. This routine will call initThermo()
    * for the parent class as well.
