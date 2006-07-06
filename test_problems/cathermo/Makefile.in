@@ -19,6 +19,10 @@ ifeq ($(test_electrolytes),1)
 	cd testWaterPDSS; @MAKE@ all
 	cd testWaterTP; @MAKE@ all
 	cd HMW_graph_GvT; @MAKE@ all
+	cd HMW_graph_GvI; @MAKE@ all
+	cd HMW_graph_HvT; @MAKE@ all
+	cd HMW_graph_CpvT; @MAKE@ all
+	cd HMW_graph_VvT; @MAKE@ all
 endif
 
 test:
@@ -33,6 +37,10 @@ ifeq ($(test_electrolytes),1)
 	cd testWaterPDSS; @MAKE@ test
 	cd testWaterTP; @MAKE@ test
 	cd HMW_graph_GvT; @MAKE@ test
+	cd HMW_graph_GvI; @MAKE@ test
+	cd HMW_graph_HvT; @MAKE@ test
+	cd HMW_graph_CpvT; @MAKE@ test
+	cd HMW_graph_VvT; @MAKE@ test
 endif
 
 clean:
@@ -45,6 +53,10 @@ clean:
 	cd testWaterPDSS; @MAKE@ clean
 	cd testWaterTP; @MAKE@ clean
 	cd HMW_graph_GvT; @MAKE@ clean
+	cd HMW_graph_GvI; @MAKE@ clean
+	cd HMW_graph_HvT; @MAKE@ clean
+	cd HMW_graph_CpvT; @MAKE@ clean
+	cd HMW_graph_VvT; @MAKE@ clean
 
 depends:
 ifeq ($(test_issp),1)
@@ -58,4 +70,8 @@ ifeq ($(test_electrolytes),1)
 	cd testWaterPDSS; @MAKE@ depends
 	cd testWaterTP; @MAKE@ depends
 	cd HMW_graph_GvT; @MAKE@ depends
+	cd HMW_graph_GvI; @MAKE@ depends
+	cd HMW_graph_HvT; @MAKE@ depends
+	cd HMW_graph_CpvT; @MAKE@ depends
+	cd HMW_graph_VvT; @MAKE@ depends
 endif
