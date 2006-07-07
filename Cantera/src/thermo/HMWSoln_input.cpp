@@ -757,8 +757,7 @@ namespace Cantera {
     if (!m_ok) {
       throw CanteraError("HMWSoln::constructPhaseXML","importPhase failed "); 
     }
-	
-
+    
   }
 
   /**
@@ -1116,7 +1115,6 @@ namespace Cantera {
 	}
       }
     }
-
 
     /*
      * Lastly set the state
