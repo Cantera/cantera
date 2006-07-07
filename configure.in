@@ -324,6 +324,21 @@ AC_SUBST(sundials_include)
 #########################################################
 #  The Cantera Kernel
 #########################################################
+#
+# DEBUG_MODE: Specify that additional code be compiled in
+#             that allows more debug printing where available.
+#  default = "y"
+#
+DEBUG_MODE=${DEBUG_MODE:="y"}
+CANTERA_DEBUG_MODE=1
+if test "$DEBUG_MODE" = "y" -o "$DEBUG_MODE" = "Y" ; then
+  AC_DEFINE(DEBUG_MODE)
+  CANTERA_DEBUG_MODE="1"
+else
+  CANTERA_DEBUG_MODE="0"
+fi
+AC_SUBST(CANTERA_DEBUG_MODE)
+
 KERNEL='base'
 KERNEL_OBJ='$(BASE_OBJ)'
 BUILD_CK=
@@ -461,6 +476,12 @@ AC_SUBST(LIB_DIR)
 #
 echo " "
 echo "Config SUMMARY OF INCLUDED/EXCLUDED CAPABILITIES:"  
+
+if test "$CANTERA_DEBUG_MODE" = "1" ; then
+  echo "        Cantera Debug Mode                    = ON"
+else
+  echo "        Cantera Debug Mode                    = OFF"
+fi
 if test "$NEED_TRANSPORT" = "1" ; then
   echo "        Calculation of Transport Props        = ON"
 else

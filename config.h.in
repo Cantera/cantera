@@ -12,6 +12,9 @@
 
 #define DEV_EQUIL  
 
+// Compile in additional debug printing where available.
+// Note, the printing may need to be turned on via a switch.
+// This just compiles in the code.
 #undef DEBUG_MODE
 
 //------------------------ Fortran settings -------------------//

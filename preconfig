@@ -156,7 +156,14 @@ F90FLAGS=${F90FLAGS:='-O3'}
 # for C++ applications.
 USER_SRC_DIR="Cantera/user"  # don't change this
 
-
+# In some cases, extra printing has been put into the code to aid
+# in debugging and verification. In order for the printing to occur
+# an additional switch must be turned on. However, compilation
+# of the printing is affected by the following DEBUG_MODE option.
+# This is turned on here by default. However, for a speedier executable
+# compilation of these statements may be turned off by setting
+# the parameter to "n".
+DEBUG_MODE="y"
 
 #----------------------------------------------------------------------
 #         Kernel Configuration
@@ -390,6 +397,7 @@ CANTERA_VERSION=${CANTERA_VERSION:="1.6.0"}
 
 export CANTERA_VERSION
 export USER_SRC_DIR
+export DEBUG_MODE
 export ARCHIVE
 export RANLIB
 export BITCOMPILE
