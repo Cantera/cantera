@@ -15,7 +15,7 @@ PROG_NAME = HMW_test_3
 
 # the object files to be linked together. List those generated from Fortran
 # and from C/C++ separately
-OBJS = HMW_test_3
+OBJS = HMW_test_3.o
 
 # Location of the current build. Will assume that tests are run
 # in the source directory tree location
