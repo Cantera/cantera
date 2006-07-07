@@ -1237,6 +1237,14 @@ AC_OUTPUT(Makefile \
           test_problems/cathermo/testIAPWSTripP/Makefile \
           test_problems/cathermo/testWaterPDSS/Makefile \
           test_problems/cathermo/testWaterTP/Makefile \
+          test_problems/cathermo/HMW_test_1/Makefile \
+          test_problems/cathermo/HMW_test_3/Makefile \
+          test_problems/cathermo/HMW_graph_GvT/Makefile \
+          test_problems/cathermo/HMW_graph_GvI/Makefile \
+          test_problems/cathermo/HMW_graph_HvT/Makefile \
+          test_problems/cathermo/HMW_graph_CpvT/Makefile \
+          test_problems/cathermo/HMW_graph_VvT/Makefile \
+          test_problems/cathermo/DH_graph_1/Makefile \
           bin/install_tsc \
           )
 #	)
