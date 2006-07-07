@@ -25,6 +25,7 @@ ifeq ($(test_electrolytes),1)
 	cd HMW_graph_VvT; @MAKE@ all
 	cd HMW_test_1; @MAKE@ all
 	cd HMW_test_3; @MAKE@ all
+	cd DH_graph_1; @MAKE@ all
 endif
 
 test:
@@ -45,6 +46,7 @@ ifeq ($(test_electrolytes),1)
 	cd HMW_graph_VvT; @MAKE@ test
 	cd HMW_test_1; @MAKE@ test
 	cd HMW_test_3; @MAKE@ test
+	cd DH_graph_1; @MAKE@ test
 endif
 
 clean:
@@ -63,6 +65,7 @@ clean:
 	cd HMW_graph_VvT; @MAKE@ clean
 	cd HMW_test_1; @MAKE@ clean
 	cd HMW_test_3; @MAKE@ clean
+	cd DH_graph_1; @MAKE@ clean
 
 depends:
 ifeq ($(test_issp),1)
@@ -82,4 +85,5 @@ ifeq ($(test_electrolytes),1)
 	cd HMW_graph_VvT; @MAKE@ depends
 	cd HMW_test_1; @MAKE@ depends
 	cd HMW_test_3; @MAKE@ depends
+	cd DH_graph_1; @MAKE@ depends
 endif
