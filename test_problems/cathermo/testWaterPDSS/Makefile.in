@@ -99,9 +99,9 @@ depends:
 test:
 ifeq ($(os_is_win), 1)
 else
-	@MAKE@ $(PROGRAM)
+	@ @MAKE@ -s $(PROGRAM)
 endif
-	./runtest
+	@ ./runtest
 
 clean:
 	$(RM) $(OBJS) $(PROGRAM) $(DEPENDS) .depends

@@ -33,20 +33,20 @@ ifeq ($(test_issp),1)
 	cd issp;  @MAKE@ test
 endif
 ifeq ($(test_electrolytes),1)
-	cd ims; @MAKE@ test
-	cd testIAPWS; @MAKE@ test
-	cd testIAPWSPres; @MAKE@ test
-	cd testIAPWSTripP; @MAKE@ test
-	cd testWaterPDSS; @MAKE@ test
-	cd testWaterTP; @MAKE@ test
-	cd HMW_graph_GvT; @MAKE@ test
-	cd HMW_graph_GvI; @MAKE@ test
-	cd HMW_graph_HvT; @MAKE@ test
-	cd HMW_graph_CpvT; @MAKE@ test
-	cd HMW_graph_VvT; @MAKE@ test
-	cd HMW_test_1; @MAKE@ test
-	cd HMW_test_3; @MAKE@ test
-	cd DH_graph_1; @MAKE@ test
+	cd ims; @MAKE@ -s test
+	cd testIAPWS; @MAKE@ -s test
+	cd testIAPWSPres; @MAKE@ -s test
+	cd testIAPWSTripP; @MAKE@ -s test
+	cd testWaterPDSS; @MAKE@ -s test
+	cd testWaterTP; @MAKE@ -s test
+	cd HMW_graph_GvT; @MAKE@ -s test
+	cd HMW_graph_GvI; @MAKE@ -s test
+	cd HMW_graph_HvT; @MAKE@ -s test
+	cd HMW_graph_CpvT; @MAKE@ -s test
+	cd HMW_graph_VvT; @MAKE@ -s test
+	cd HMW_test_1; @MAKE@ -s test
+	cd HMW_test_3; @MAKE@ -s test
+	cd DH_graph_1; @MAKE@ -s test
 endif
 
 clean:

@@ -78,7 +78,7 @@ DEPENDS=$(OBJS:.o=.d)
 # Program Name
 PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
-all: $(PROGRAM) .depends 
+all: .depends $(PROGRAM) 
 
 $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a \
 	     $(CANTERA_LIBDIR)/libcaThermo.a
@@ -99,9 +99,9 @@ depends:
 test:
 ifeq ($(os_is_win), 1)
 else
-	@MAKE@ $(PROGRAM)
+	@ @MAKE@ -s $(PROGRAM)
 endif
-	./runtest
+	@ ./runtest
 
 clean:
 	$(RM) $(OBJS) $(PROGRAM) $(DEPENDS) .depends
