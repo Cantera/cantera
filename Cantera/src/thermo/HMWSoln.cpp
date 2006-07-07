@@ -38,7 +38,6 @@ namespace Cantera {
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_B_Debye(3.28640E9),   // units = sqrt(kg/gmol) / m
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -69,7 +68,6 @@ namespace Cantera {
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_B_Debye(3.28640E9),  // units = sqrt(kg/gmol) / m
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -94,7 +92,6 @@ namespace Cantera {
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_B_Debye(3.28640E9),   // units = sqrt(kg/gmol) / m
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -144,7 +141,6 @@ namespace Cantera {
       m_IionicMolalityStoich= b.m_IionicMolalityStoich;
       m_form_A_Debye        = b.m_form_A_Debye;
       m_A_Debye             = b.m_A_Debye;
-      m_B_Debye             = b.m_B_Debye;
       if (!m_waterSS) {
 	m_waterSS = new WaterPDSS(this, 0);
       }
@@ -272,7 +268,6 @@ namespace Cantera {
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_B_Debye(3.28640E9),   // units = sqrt(kg/gmol) / m
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -545,7 +540,7 @@ namespace Cantera {
    * The mass density is not a function of pressure.
    */
   void HMWSoln::setPressure(doublereal p) {
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     //printf("setPressure: %g\n", p);
 #endif
     double temp = temperature();
@@ -1895,7 +1890,7 @@ namespace Cantera {
       exit(-1);
     }
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     int printE = 0;
     if (temperature() == 323.15) {
       printE = 0;
@@ -1967,7 +1962,7 @@ namespace Cantera {
     int z1, z2;
     int n, i, j, k, m, counterIJ,  counterIJ2;
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf("\n Debugging information from hmw_act \n");
     }
@@ -1996,7 +1991,7 @@ namespace Cantera {
      */
     m_IionicMolality = Is;
     sqrtIs = sqrt(Is);
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 1: \n");
       printf(" ionic strenth      = %14.7le \n total molar "
@@ -2016,7 +2011,7 @@ namespace Cantera {
      *                E-thetaprime for all combinations of positive 
      *                unlike charges up to 4
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 2: \n");
     }
@@ -2024,7 +2019,7 @@ namespace Cantera {
     for (z1 = 1; z1 <=4; z1++) {
       for (z2 =1; z2 <=4; z2++) {
 	calc_thetas(z1, z2, &etheta[z1][z2], &etheta_prime[z1][z2]);
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  printf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n", 
 		 z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
@@ -2033,7 +2028,7 @@ namespace Cantera {
       }
     }
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 3: \n");
       printf(" Species          Species            g(x) "
@@ -2076,7 +2071,7 @@ namespace Cantera {
 	  g[counterIJ]     = 0.0;
 	  hfunc[counterIJ] = 0.0;
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
@@ -2091,7 +2086,7 @@ namespace Cantera {
      * --------- SUBSECTION TO CALCULATE BMX, BprimeMX, BphiMX ----------
      * --------- Agrees with Pitzer, Eq. (49), (51), (55)
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 4: \n");
       printf(" Species          Species            BMX    "
@@ -2115,7 +2110,7 @@ namespace Cantera {
 	n = m_kk*i + j;
 	counterIJ = m_CounterIJ[n];
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (printE) {
 	  if (counterIJ == 2) {
 	    printf("%s %s\n", speciesName(i).c_str(),
@@ -2133,7 +2128,7 @@ namespace Cantera {
 	  BMX[counterIJ]  = beta0MX[counterIJ]
 	    + beta1MX[counterIJ] * g[counterIJ]
 	    + beta2MX[counterIJ] * g12rooti;
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	  if (m_debugCalc) {
 	    printf("%d %g: %g %g %g\n",
 		   counterIJ,  BMX[counterIJ], beta0MX[counterIJ],
@@ -2153,7 +2148,7 @@ namespace Cantera {
 	  BprimeMX[counterIJ] = 0.0;
 	  BphiMX[counterIJ]   = 0.0;
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
@@ -2169,7 +2164,7 @@ namespace Cantera {
      * --------- SUBSECTION TO CALCULATE CMX ----------
      * --------- Agrees with Pitzer, Eq. (53).
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 5: \n");
       printf(" Species          Species            CMX \n");
@@ -2193,7 +2188,7 @@ namespace Cantera {
 	else {
 	  CMX[counterIJ] = 0.0;
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (printE) {
 	  if (counterIJ == 2) {
 	    printf("%s %s\n", speciesName(i).c_str(), 
@@ -2202,7 +2197,7 @@ namespace Cantera {
 	  }
 	}
 #endif
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
@@ -2217,7 +2212,7 @@ namespace Cantera {
      * ------- SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi ----------
      * --------- Agrees with Pitzer, Eq. 72, 73, 74
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 6: \n");
       printf(" Species          Species            Phi_ij "
@@ -2247,7 +2242,7 @@ namespace Cantera {
 	  Phiprime[counterIJ] = 0.0;
 	  Phiphi[counterIJ]   = 0.0;
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
@@ -2263,7 +2258,7 @@ namespace Cantera {
      * ------------- SUBSECTION FOR CALCULATION OF F ----------------------
      * ------------ Agrees with Pitzer Eqn. (65) --------------------------
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 7: \n");
     }
@@ -2275,12 +2270,12 @@ namespace Cantera {
     Aphi = m_A_Debye / 3.0;
     F = -Aphi * ( sqrt(Is) / (1.0 + 1.2*sqrt(Is)) 
 		  + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (printE) {
       printf("Aphi = %20.13g\n", Aphi);
     }
 #endif
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" initial value of F = %10.6f \n", F );		
     }
@@ -2306,12 +2301,12 @@ namespace Cantera {
 	if (charge[i]*charge[j] > 0) {
 	  F = F + molality[i]*molality[j] * Phiprime[counterIJ];
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) printf(" F = %10.6f \n", F );
 #endif
       }
     }
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 8: \n");
     }
@@ -2393,7 +2388,7 @@ namespace Cantera {
 	 */
 	m_lnActCoeffMolal[i] = zsqF + sum1 + sum2 + sum3 + sum4 + sum5;
 	gamma[i] = exp(m_lnActCoeffMolal[i]);
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f \n", 
@@ -2475,7 +2470,7 @@ namespace Cantera {
 	}
 	m_lnActCoeffMolal[i] = zsqF + sum1 + sum2 + sum3 + sum4 + sum5;
 	gamma[i] = exp(m_lnActCoeffMolal[i]);
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f\n", 
@@ -2497,7 +2492,7 @@ namespace Cantera {
 	}
 	m_lnActCoeffMolal[i] = sum1;
 	gamma[i] = exp(m_lnActCoeffMolal[i]);
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f \n", 
@@ -2507,7 +2502,7 @@ namespace Cantera {
       }
 
     }
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 9: \n");
     }
@@ -2638,13 +2633,12 @@ namespace Cantera {
     } else {
       osmotic_coef = 1.0;
     }
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (printE) {
-	
       printf("OsmCoef - 1 = %20.13g\n", osmotic_coef - 1.0);
     }
 #endif
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
 	     "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
@@ -2670,7 +2664,7 @@ namespace Cantera {
      */
     double xmolSolvent = moleFraction(m_indexSolvent);
     m_lnActCoeffMolal[0] = lnwateract - log(xmolSolvent);
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Weight of Solvent = %16.7g\n", m_weightSolvent);
       printf(" molalitySum = %16.7g\n", molalitysum);
@@ -2719,7 +2713,7 @@ namespace Cantera {
      * HKM -> Assumption is made that the solvent is
      *        species 0.
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     m_debugCalc = 0;
 #endif
     if (m_indexSolvent != 0) {
@@ -2777,7 +2771,7 @@ namespace Cantera {
     int z1, z2;
     int n, i, j, k, m, counterIJ,  counterIJ2;
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf("\n Debugging information from "
 	     "s_Pitzer_dlnMolalityActCoeff_dT()\n");
@@ -2807,7 +2801,7 @@ namespace Cantera {
      */
     m_IionicMolality = Is;
     sqrtIs = sqrt(Is);
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 1: \n");
       printf(" ionic strenth      = %14.7le \n total molar "
@@ -2827,7 +2821,7 @@ namespace Cantera {
      *                E-thetaprime for all combinations of positive 
      *                unlike charges up to 4
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 2: \n");
     }
@@ -2835,7 +2829,7 @@ namespace Cantera {
     for (z1 = 1; z1 <=4; z1++) {
       for (z2 =1; z2 <=4; z2++) {
 	calc_thetas(z1, z2, &etheta[z1][z2], &etheta_prime[z1][z2]);
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  printf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n", 
 		 z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
@@ -2844,7 +2838,7 @@ namespace Cantera {
       }
     }
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 3: \n");
       printf(" Species          Species            g(x) "
@@ -2887,7 +2881,7 @@ namespace Cantera {
 	  g[counterIJ]     = 0.0;
 	  hfunc[counterIJ] = 0.0;
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
@@ -2903,7 +2897,7 @@ namespace Cantera {
      * ------- These are now temperature derivatives of the
      *         previously calculated quantities.
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 4: \n");
       printf(" Species          Species            BMX    "
@@ -2934,7 +2928,7 @@ namespace Cantera {
 	  BMX_L[counterIJ]  = beta0MX_L[counterIJ]
 	    + beta1MX_L[counterIJ] * g[counterIJ]
 	    + beta2MX_L[counterIJ] * g12rooti;
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	  if (m_debugCalc) {
 	    printf("%d %g: %g %g %g\n",
 		   counterIJ,  BMX_L[counterIJ], beta0MX_L[counterIJ],
@@ -2954,7 +2948,7 @@ namespace Cantera {
 	  BprimeMX_L[counterIJ] = 0.0;
 	  BphiMX_L[counterIJ]     = 0.0;
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
@@ -2970,7 +2964,7 @@ namespace Cantera {
      * --------- SUBSECTION TO CALCULATE CMX_L ----------
      * ---------
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 5: \n");
       printf(" Species          Species            CMX \n");
@@ -2994,7 +2988,7 @@ namespace Cantera {
 	else {
 	  CMX_L[counterIJ] = 0.0;
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
@@ -3009,7 +3003,7 @@ namespace Cantera {
      * ------- SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi ----------
      * --------
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 6: \n");
       printf(" Species          Species            Phi_ij "
@@ -3041,7 +3035,7 @@ namespace Cantera {
 	  Phiprime[counterIJ] = 0.0;
 	  Phiphi_L[counterIJ]   = 0.0;
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
@@ -3056,7 +3050,7 @@ namespace Cantera {
     /*
      * ----------- SUBSECTION FOR CALCULATION OF dFdT ---------------------
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 7: \n");
     }
@@ -3077,7 +3071,7 @@ namespace Cantera {
     //dAphidT = Al / (4.0 * GasConstant * T * T);
     dFdT = -dAphidT * ( sqrt(Is) / (1.0 + 1.2*sqrt(Is)) 
 			+ (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" initial value of dFdT = %10.6f \n", dFdT );		
     }
@@ -3103,12 +3097,12 @@ namespace Cantera {
 	if (charge[i]*charge[j] > 0) {
 	  dFdT = dFdT + molality[i]*molality[j] * Phiprime[counterIJ];
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) printf(" dFdT = %10.6f \n", dFdT);
 #endif
       }
     }
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 8: \n");
     }
@@ -3192,7 +3186,7 @@ namespace Cantera {
 	m_dlnActCoeffMolaldT[i] =
 	  zsqdFdT + sum1 + sum2 + sum3 + sum4 + sum5;
 	gamma[i] = exp(m_dlnActCoeffMolaldT[i]);
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f \n", 
@@ -3274,7 +3268,7 @@ namespace Cantera {
 	m_dlnActCoeffMolaldT[i] = 
 	  zsqdFdT + sum1 + sum2 + sum3 + sum4 + sum5;
 	gamma[i] = exp(m_dlnActCoeffMolaldT[i]);
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f\n", 
@@ -3296,7 +3290,7 @@ namespace Cantera {
 	}
 	m_dlnActCoeffMolaldT[i] = sum1;
 	gamma[i] = exp(m_dlnActCoeffMolaldT[i]);
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f \n", 
@@ -3306,7 +3300,7 @@ namespace Cantera {
       }
 
     }
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 9: \n");
     }
@@ -3437,7 +3431,7 @@ namespace Cantera {
     } else {
       d_osmotic_coef_dT = 0.0;
     }
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
 	     "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
@@ -3463,7 +3457,7 @@ namespace Cantera {
      */
     //double xmolSolvent = moleFraction(m_indexSolvent);
     m_dlnActCoeffMolaldT[0] = d_lnwateract_dT;
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" d_ln_a_water_dT = %10.6f d_a_water_dT=%10.6f\n\n", 
 	     d_lnwateract_dT, d_wateract_dT); 
@@ -3499,7 +3493,7 @@ namespace Cantera {
      * HKM -> Assumption is made that the solvent is
      *        species 0.
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     m_debugCalc = 0;
 #endif
     if (m_indexSolvent != 0) {
@@ -3558,7 +3552,7 @@ namespace Cantera {
     int z1, z2;
     int n, i, j, k, m, counterIJ,  counterIJ2;
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf("\n Debugging information from "
 	     "s_Pitzer_d2lnMolalityActCoeff_dT2()\n");
@@ -3589,7 +3583,7 @@ namespace Cantera {
      */
     m_IionicMolality = Is;
     sqrtIs = sqrt(Is);
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 1: \n");
       printf(" ionic strenth      = %14.7le \n total molar "
@@ -3609,7 +3603,7 @@ namespace Cantera {
      *                E-thetaprime for all combinations of positive 
      *                unlike charges up to 4
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 2: \n");
     }
@@ -3617,7 +3611,7 @@ namespace Cantera {
     for (z1 = 1; z1 <=4; z1++) {
       for (z2 =1; z2 <=4; z2++) {
 	calc_thetas(z1, z2, &etheta[z1][z2], &etheta_prime[z1][z2]);
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  printf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n", 
 		 z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
@@ -3626,7 +3620,7 @@ namespace Cantera {
       }
     }
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 3: \n");
       printf(" Species          Species            g(x) "
@@ -3669,7 +3663,7 @@ namespace Cantera {
 	  g[counterIJ]     = 0.0;
 	  hfunc[counterIJ] = 0.0;
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
@@ -3684,7 +3678,7 @@ namespace Cantera {
      * ------- These are now temperature derivatives of the
      *         previously calculated quantities.
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 4: \n");
       printf(" Species          Species            BMX    "
@@ -3715,7 +3709,7 @@ namespace Cantera {
 	  BMX_LL[counterIJ]  = beta0MX_LL[counterIJ]
 	    + beta1MX_LL[counterIJ] * g[counterIJ]
 	    + beta2MX_LL[counterIJ] * g12rooti;
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	  if (m_debugCalc) {
 	    printf("%d %g: %g %g %g\n",
 		   counterIJ,  BMX_LL[counterIJ], beta0MX_LL[counterIJ],
@@ -3735,7 +3729,7 @@ namespace Cantera {
 	  BprimeMX_LL[counterIJ] = 0.0;
 	  BphiMX_LL[counterIJ]     = 0.0;
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
@@ -3751,7 +3745,7 @@ namespace Cantera {
      * --------- SUBSECTION TO CALCULATE CMX_LL ----------
      * ---------
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 5: \n");
       printf(" Species          Species            CMX \n");
@@ -3774,7 +3768,7 @@ namespace Cantera {
 	} else {
 	  CMX_LL[counterIJ] = 0.0;
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
@@ -3789,7 +3783,7 @@ namespace Cantera {
      * ------- SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi ----------
      * --------
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 6: \n");
       printf(" Species          Species            Phi_ij "
@@ -3824,7 +3818,7 @@ namespace Cantera {
 	  Phiprime[counterIJ] = 0.0;
 	  Phiphi_LL[counterIJ]   = 0.0;
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
@@ -3842,7 +3836,7 @@ namespace Cantera {
     /*
      * ----------- SUBSECTION FOR CALCULATION OF d2FdT2 ---------------------
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 7: \n");
     }
@@ -3866,7 +3860,7 @@ namespace Cantera {
     //		    + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
     d2FdT2 = -d2AphidT2 * ( sqrt(Is) / (1.0 + 1.2*sqrt(Is)) 
 			    + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {	
       printf(" initial value of d2FdT2 = %10.6f \n", d2FdT2 );		
     }
@@ -3892,12 +3886,12 @@ namespace Cantera {
 	if (charge[i]*charge[j] > 0) {
 	  d2FdT2 = d2FdT2 + molality[i]*molality[j] * Phiprime[counterIJ];
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) printf(" d2FdT2 = %10.6f \n", d2FdT2);
 #endif
       }
     }
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 8: \n");
     }
@@ -3980,7 +3974,7 @@ namespace Cantera {
 	 */
 	m_d2lnActCoeffMolaldT2[i] =
 	  zsqd2FdT2 + sum1 + sum2 + sum3 + sum4 + sum5;
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s d2lngammadT2[i]=%10.6f \n", 
@@ -4062,7 +4056,7 @@ namespace Cantera {
 	}
 	m_d2lnActCoeffMolaldT2[i] = 
 	  zsqd2FdT2 + sum1 + sum2 + sum3 + sum4 + sum5;
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s d2lngammadT2[i]=%10.6f\n", 
@@ -4083,7 +4077,7 @@ namespace Cantera {
 	  sum1 = sum1 + molality[j]*2.0*m_Lambda_ij_LL(i,j);
 	}
 	m_d2lnActCoeffMolaldT2[i] = sum1;
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s d2lngammadT2[i]=%10.6f \n", 
@@ -4093,7 +4087,7 @@ namespace Cantera {
       }
 
     }
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 9: \n");
     }
@@ -4225,7 +4219,7 @@ namespace Cantera {
     } else {
       d2_osmotic_coef_dT2 = 0.0;
     }
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
 	     "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
@@ -4250,7 +4244,7 @@ namespace Cantera {
      */
     m_d2lnActCoeffMolaldT2[0] = d2_lnwateract_dT2;
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       d2_wateract_dT2 = exp(d2_lnwateract_dT2);
       printf(" d2_ln_a_water_dT2 = %10.6f d2_a_water_dT2=%10.6f\n\n", 
@@ -4306,7 +4300,7 @@ namespace Cantera {
      * HKM -> Assumption is made that the solvent is
      *        species 0.
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     m_debugCalc = 0;
 #endif
     if (m_indexSolvent != 0) {
@@ -4367,7 +4361,7 @@ namespace Cantera {
     double currTemp = temperature();
     double currPres = pressure();
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf("\n Debugging information from "
 	     "s_Pitzer_dlnMolalityActCoeff_dP()\n");
@@ -4397,7 +4391,7 @@ namespace Cantera {
      */
     m_IionicMolality = Is;
     sqrtIs = sqrt(Is);
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 1: \n");
       printf(" ionic strenth      = %14.7le \n total molar "
@@ -4418,7 +4412,7 @@ namespace Cantera {
      *                E-thetaprime for all combinations of positive 
      *                unlike charges up to 4
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 2: \n");
     }
@@ -4426,7 +4420,7 @@ namespace Cantera {
     for (z1 = 1; z1 <=4; z1++) {
       for (z2 =1; z2 <=4; z2++) {
 	calc_thetas(z1, z2, &etheta[z1][z2], &etheta_prime[z1][z2]);
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  printf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n", 
 		 z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
@@ -4435,7 +4429,7 @@ namespace Cantera {
       }
     }
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 3: \n");
       printf(" Species          Species            g(x) "
@@ -4479,7 +4473,7 @@ namespace Cantera {
 	  g[counterIJ]     = 0.0;
 	  hfunc[counterIJ] = 0.0;
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
@@ -4496,7 +4490,7 @@ namespace Cantera {
      * ------- These are now temperature derivatives of the
      *         previously calculated quantities.
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 4: \n");
       printf(" Species          Species            BMX    "
@@ -4527,7 +4521,7 @@ namespace Cantera {
 	  BMX_P[counterIJ]  = beta0MX_P[counterIJ]
 	    + beta1MX_P[counterIJ] * g[counterIJ]
 	    + beta2MX_P[counterIJ] * g12rooti;
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	  if (m_debugCalc) {
 	    printf("%d %g: %g %g %g\n",
 		   counterIJ,  BMX_P[counterIJ], beta0MX_P[counterIJ],
@@ -4547,7 +4541,7 @@ namespace Cantera {
 	  BprimeMX_P[counterIJ] = 0.0;
 	  BphiMX_P[counterIJ]     = 0.0;
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
@@ -4564,7 +4558,7 @@ namespace Cantera {
      * --------- SUBSECTION TO CALCULATE CMX_L ----------
      * ---------
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 5: \n");
       printf(" Species          Species            CMX \n");
@@ -4588,7 +4582,7 @@ namespace Cantera {
 	else {
 	  CMX_P[counterIJ] = 0.0;
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
@@ -4603,7 +4597,7 @@ namespace Cantera {
      * ------- SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi ----------
      * --------
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 6: \n");
       printf(" Species          Species            Phi_ij "
@@ -4635,7 +4629,7 @@ namespace Cantera {
 	  Phiprime[counterIJ] = 0.0;
 	  Phiphi_P[counterIJ]   = 0.0;
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
@@ -4650,7 +4644,7 @@ namespace Cantera {
     /*
      * ----------- SUBSECTION FOR CALCULATION OF dFdT ---------------------
      */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 7: \n");
     }
@@ -4663,7 +4657,7 @@ namespace Cantera {
 
     double dA_DebyedP = dA_DebyedP_TP(currTemp, currPres);
     double dAphidP = dA_DebyedP /3.0;
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     //dAphidT = 0.0;
 #endif
     //F = -Aphi * ( sqrt(Is) / (1.0 + 1.2*sqrt(Is)) 
@@ -4671,7 +4665,7 @@ namespace Cantera {
     //dAphidT = Al / (4.0 * GasConstant * T * T);
     dFdP = -dAphidP * ( sqrt(Is) / (1.0 + 1.2*sqrt(Is)) 
 			+ (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" initial value of dFdP = %10.6f \n", dFdP );		
     }
@@ -4697,12 +4691,12 @@ namespace Cantera {
 	if (charge[i]*charge[j] > 0) {
 	  dFdP = dFdP + molality[i]*molality[j] * Phiprime[counterIJ];
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) printf(" dFdP = %10.6f \n", dFdP);
 #endif
       }
     }
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 8: \n");
     }
@@ -4789,7 +4783,7 @@ namespace Cantera {
 	m_dlnActCoeffMolaldP[i] =
 	  zsqdFdP + sum1 + sum2 + sum3 + sum4 + sum5;
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s lngamma[i]=%10.6f \n", 
@@ -4870,7 +4864,7 @@ namespace Cantera {
 	}
 	m_dlnActCoeffMolaldP[i] = 
 	  zsqdFdP + sum1 + sum2 + sum3 + sum4 + sum5;
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s lndactcoeffmolaldP[i]=%10.6f \n", 
@@ -4893,7 +4887,7 @@ namespace Cantera {
 	  sum1 = sum1 + molality[j]*2.0*m_Lambda_ij_L(i,j);
 	}
 	m_dlnActCoeffMolaldP[i] = sum1;
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s dlnActCoeffMolaldP[i]=%10.6f \n", 
@@ -4903,7 +4897,7 @@ namespace Cantera {
       }
 
     }
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Step 9: \n");
     }
@@ -5038,7 +5032,7 @@ namespace Cantera {
     } else {
       d_osmotic_coef_dP = 0.0;
     }
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
 	     "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
@@ -5064,7 +5058,7 @@ namespace Cantera {
      */
     //double xmolSolvent = moleFraction(m_indexSolvent);
     m_dlnActCoeffMolaldP[0] = d_lnwateract_dP;
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" d_ln_a_water_dP = %10.6f d_a_water_dP=%10.6f\n\n", 
 	     d_lnwateract_dP, d_wateract_dP); 
@@ -5097,7 +5091,7 @@ namespace Cantera {
     double c1 = 4.581, c2 = 0.7237, c3 = 0.0120, c4 = 0.528;
 
     aphi = 0.392;   /* Value at 25 C */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Is = %g\n", is);
     }
@@ -5135,7 +5129,7 @@ namespace Cantera {
 	elambda[ij] = zprod*jfunc / (4.0*is);                  /* eqn 14 */
 	elambda1[ij] = (3.0*zprod*zprod*aphi*jprime/(4.0*sqrt(is))
 			- elambda[ij])/is;
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  printf(" ij = %d, elambda = %g, elambda1 = %g\n",
 		 ij, elambda[ij], elambda1[ij]);
@@ -5166,7 +5160,7 @@ namespace Cantera {
     i = abs(z1);
     j = abs(z2);
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     if (i > 4 || j > 4) {
       printf("we shouldn't be here\n");
       exit(-1);

@@ -903,16 +903,6 @@ namespace Cantera {
       }
 
       /*
-       * Look for parameters for B_Debye
-       */
-      if (acNode.hasChild("B_Debye")) {
-	m_B_Debye = getFloat(acNode, "B_Debye");
-#ifdef DEBUG_HKM_NOT
-	cout << "B_Debye = " << m_B_Debye << endl;
-#endif
-      }
-
-      /*
        * Look for Parameters for the Maximum Ionic Strength
        */
       if (acNode.hasChild("maxIonicStrength")) {

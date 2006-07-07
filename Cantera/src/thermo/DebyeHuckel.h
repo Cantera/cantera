@@ -850,7 +850,12 @@ namespace Cantera {
 
 
     /**
-     * 
+     *  Value of the Debye Huckel constant as a function of temperature
+     * and pressure.
+     *
+     *            A_Debye = (F e B_Debye) / (8 Pi epsilon R T)
+     *
+     *            Units = sqrt(kg/gmol)
      */
     virtual double A_Debye_TP(double temperature = -1.0, 
 			      double pressure = -1.0) const;
@@ -990,17 +995,18 @@ namespace Cantera {
      */
     mutable double m_IionicMolalityStoich;
 
+
     /**
      * A_Debye -> this expression appears on the top of the
      *            ln actCoeff term in the general Debye-Huckel
      *            expression
-     *            It depends on temperature
+     *            It depends on temperature and pressure.
      *            
      *            A_Debye = (F e B_Debye) / (8 Pi epsilon R T)
      *
      *            Units = sqrt(kg/gmol)
      *
-     *            Nominal value = 1.172576 sqrt(kg/gmol)
+     *            Nominal value(298K, atm) = 1.172576 sqrt(kg/gmol)
      *                  based on:
      *                    epsilon/epsilon_0 = 78.54
      *                           (water at 25C)
@@ -1010,6 +1016,8 @@ namespace Cantera {
      *                    R = 8.314472E3 kg m2 s-2 kmol-1 K-1
      *                    T = 298.15 K
      *                    B_Debye = 3.28640E9 sqrt(kg/gmol)/m
+     *
+     *            note in Pitzer's nomenclature, A_phi = A_Debye/3.0
      */
     mutable double m_A_Debye;
 

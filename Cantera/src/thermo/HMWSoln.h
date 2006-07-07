@@ -1108,6 +1108,7 @@ namespace Cantera {
      *            expression
      *            It depends on temperature. And, therefore,
      *            most be recalculated whenever T or P changes.
+     *            This variable is a local copy of the calculation.
      *            
      *            A_Debye = (F e B_Debye) / (8 Pi epsilon R T)
      *
@@ -1154,7 +1155,7 @@ namespace Cantera {
      *                    R = 8.314472E3 kg m2 s-2 kmol-1 K-1
      *                    T = 298.15 K
      */
-    double m_B_Debye;
+    //double m_B_Debye;
 
     /**
      *  Water standard state -> derived from the
@@ -1164,7 +1165,7 @@ namespace Cantera {
     double m_densWaterSS;
 
     /**
-     *  Water property calculator
+     *  Pointer to the water property calculator
      */
     WaterProps *m_waterProps;
 
