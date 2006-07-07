@@ -8,6 +8,9 @@ Fixed Concentration of the System:
                -> pressure follows the saturation pressure above one atmosphere)
                ->   This calculation is meant to test Gibbs_ex -> TODO
 
+              (note Aphi = A_Debye/3.0)
+
+
            T,      Pres,     Aphi,      Delta_G0,       Delta_G,   molarGibbs0,    molarGibbs,      Gibbs_ex,   meanAC_moll,  OsmCoeff-1, Gibbs_ex_Formula,    IdealMixing
       Kelvin,       bars, sqrt(kg/gmol), kJ/gmol,       kJ/gmol,    kJ/kgWater,    kJ/kgWater,    kJ/kgWater,             ,             ,      kJ/kgWater,    kJ/kgWater 
     293.15,    1.01325,     0.388171,     -8.81994,    0.0281518,     -19715.3,     -19699.4,     -8.55527,    0.999275857,    0.284828391,     -8.55527,      24.4417

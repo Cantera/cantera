@@ -182,6 +182,9 @@ int main(int argc, char **argv)
      printf("               -> pressure follows the saturation pressure above one atmosphere)\n");
      printf("               ->   This calculation is meant to test Gibbs_ex -> TODO\n");
      printf("\n");
+     printf("              (note Aphi = A_Debye/3.0)\n");
+     printf("\n");
+     printf("\n");
 
      printf("           T,      Pres,     Aphi,      Delta_G0,"
 	    "       Delta_G,"
