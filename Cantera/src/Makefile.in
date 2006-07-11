@@ -79,7 +79,7 @@ CK         = $(KINETICS)
 
 # chemical equilibrium
 EQUIL_OBJ  = ChemEquil.o MultiPhaseEquil.o sort.o MultiPhase.o equilibrate.o
-EQUIL_H    = ChemEquil.h MultiPhaseEquil.h MultiPhase.h sort.h equil.h
+EQUIL_H    = ChemEquil.h MultiPhaseEquil.h MultiPhase.h Crystal.h sort.h equil.h
 EQUIL      = $(THERMO) $(EQUIL_OBJ)
 
 # reaction path analysis
@@ -89,8 +89,8 @@ RPATH      = $(RPATH_OBJ)
 
 
 # solvers
-SOLVERS_OBJ = ODE_integrators.o  BandMatrix.o
-SOLVERS_H   = BandMatrix.h Integrator.h
+SOLVERS_OBJ = ODE_integrators.o  BandMatrix.o DAE_solvers.o
+SOLVERS_H   = BandMatrix.h Integrator.h DAE_Solver.h ResidEval.h
 SOLVERS    = $(SOLVERS_OBJ)
 
 # 1D flow models
@@ -180,13 +180,16 @@ ALL_H = $(BASE_H) $(THERMO_H) $(KINETICS_H) $(HETEROKIN_H) \
         $(EQUIL_H) $(SOLVERS_H) $(RPATH_H)
 
 .cpp.d:
-	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
+	g++ -MM $(CXX_INCLUDES) $(SUNDIALS_INC) $*.cpp > $*.d
 
 .cpp.o:
 	@CXX@ -c $< $(CXX_INCLUDES) $(CXX_FLAGS) 
 
 ODE_integrators.o:
 	@CXX@ -c ODE_integrators.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) $(CXX_FLAGS) 
+
+DAE_solvers.o:
+	@CXX@ -c DAE_solvers.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) $(CXX_FLAGS) 
 
 lib:  $(OBJ_LIB)
 	$(RM)     $(CANTERA_LIB)
