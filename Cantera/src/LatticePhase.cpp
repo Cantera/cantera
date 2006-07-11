@@ -76,7 +76,8 @@ namespace Cantera {
     }
 
     void LatticePhase::getStandardChemPotentials(doublereal* mu0) const {
-        getPureGibbs(mu0);
+        const array_fp& gibbsrt = gibbs_RT();
+        scale(gibbsrt.begin(), gibbsrt.end(), mu0, _RT());
     }
 
     void LatticePhase::initThermo() {
