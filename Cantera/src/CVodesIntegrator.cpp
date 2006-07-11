@@ -11,7 +11,7 @@
 #include <iostream>
 using namespace std;
 
-#define OLD_SUNDIALS
+#undef OLD_SUNDIALS
 
 // sundials includes
 #ifdef OLD_SUNDIALS
@@ -31,6 +31,7 @@ using namespace std;
 #include <cvodes_dense.h>
 #include <cvodes_diag.h>
 #include <cvodes_spgmr.h>
+#include <cvodes_band.h>
 //#include <nvector.h>
 #include <nvector_serial.h>
 #endif
@@ -65,7 +66,7 @@ extern "C" {
      *  desired equations.
      *  @ingroup odeGroup
      */
-    static void cvodes_rhs(realtype t, N_Vector y, N_Vector ydot, 
+    static int cvodes_rhs(realtype t, N_Vector y, N_Vector ydot, 
         void *f_data) {
         double* ydata = NV_DATA_S(y); //N_VDATA(y);
         double* ydotdata = NV_DATA_S(ydot); //N_VDATA(ydot);
@@ -81,6 +82,7 @@ extern "C" {
             //Cantera::showErrors();
             //Cantera::error("Teminating execution");
             //}
+            return 0;
     }
 
 }
@@ -211,6 +213,7 @@ namespace Cantera {
         m_np = func.nparams();
         long int nv = func.neq();
 
+#ifdef OLD_SUNDIALS
         doublereal* data;
         int n, j;
         m_yS = N_VNewVectorArray_Serial(m_np, nv);
@@ -220,6 +223,19 @@ namespace Cantera {
                 data[j] =0.0;
             }
         }
+#else
+        doublereal* data;
+        int n, j;
+        N_Vector y;
+        y = N_VNew_Serial(nv);
+        m_yS = N_VCloneVectorArray_Serial(m_np, y);
+        for (n = 0; n < m_np; n++) {
+            data = NV_DATA_S(m_yS[n]);
+            for (j = 0; j < nv; j++) {
+                data[j] =0.0;
+            }
+        }
+#endif
         int flag;
         flag = CVodeSensMalloc(m_cvode_mem, m_np, CV_STAGGERED, m_yS);
         if (flag != CV_SUCCESS) 
@@ -247,7 +263,7 @@ namespace Cantera {
 
         func.getInitialConditions(m_t0, m_neq, NV_DATA_S(nv(m_y)));
 
-        if (m_cvode_mem) CVodeFree(m_cvode_mem);
+        if (m_cvode_mem) CVodeFree(&m_cvode_mem);
         m_cvode_mem = CVodeCreate(m_method, m_iter);
         if (!m_cvode_mem) throw CVodesErr("CVodeCreate failed.");
 

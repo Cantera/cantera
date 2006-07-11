@@ -29,7 +29,7 @@ int run_example(int n, exfun f, int job = 2) {
 // array of example functions   
 exfun fex[] = {kinetics_example1, kinetics_example2, kinetics_example3,
                equil_example1, 
-               transport_example1, transport_example2, rxnpath_example1};
+               transport_example1, transport_example2}; //, rxnpath_example1};
  
 
 // main program

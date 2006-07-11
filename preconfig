@@ -23,8 +23,8 @@
 
 
 # If you define this to be <prefix>, then instead of running this
-# script as ./configure --prefix=<prefix> you can just run it as
-# ./configure
+# script as ./preconfig --prefix=<prefix> you can just run it as
+# ./preconfig
 CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
 
 
@@ -41,13 +41,10 @@ CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
 # 
 # In addition to being one of the supported language interfaces,
 # Python is used internally by Cantera, both in the build process and
-# at run time (to process .cti input files). Therefore, you generally need to
-# have Python on your system; if you don't, first install it from
-# http://www.python.org before proceeding with the installation of
-# Cantera.
-# However, it is possible to use Cantera without Python, if you want
-# to work only with Cantera in C++ or Fortran, and plan to use CTML
-# input files, rather than CTI input files.
+# at run time (to process .cti input files). Therefore, you generally
+# need to have Python on your system; if you don't, first install it
+# from http://www.python.org before proceeding with the installation
+# of Cantera.
 #
 # If you plan to work in Python, or you want to use the graphical
 # MixMaster application, then you need the full Cantera Python
@@ -203,6 +200,8 @@ WITH_IDEAL_SOLUTIONS=${WITH_IDEAL_SOLUTIONS:="n"}
 # Enable expanded electrochemistry capabilities, include thermo
 # models for electrolyte solutions
 WITH_ELECTROLYTES=${WITH_ELECTROLYTES:="n"}
+
+
 ######################################################################
 # if set to 'y', the ck2cti program that converts Chemkin input files
 # to Cantera format will be built. If you don't use Chemkin format
@@ -253,8 +252,8 @@ ENABLE_TPX='y'
 #
 # See: http://www.llnl.gov/CASC/sundials
 #
-USE_SUNDIALS=${USE_SUNDIALS:='y'}
-SUNDIALS_HOME=${SUNDIALS_HOME:=/usr/local/sundials}
+USE_SUNDIALS=${USE_SUNDIALS:='default'}
+SUNDIALS_HOME=${SUNDIALS_HOME:=$HOME/sundials}
 
 #----------------------------------------------------------------- 
 #         BLAS and LAPACK
@@ -272,6 +271,9 @@ SUNDIALS_HOME=${SUNDIALS_HOME:=/usr/local/sundials}
 #'-llapack -lf77blas -lcblas -latlas'
 #BLAS_LAPACK_DIR='/usr/lib'
 #
+# Note that on Mac OSX, BLAS and LAPACK from the built-in 'Accelerate'
+# framework are used by default, and nothing needs to be specified
+# here.
 #
 # The options below do not need to be set if you are using the default
 # libraries.
@@ -285,6 +287,7 @@ LAPACK_FTN_TRAILING_UNDERSCORE='y'
 
 # Currently this must be set to 'y'.
 LAPACK_FTN_STRING_LEN_AT_END='y'
+
 
 #------------------------------------------------------------------
 #       C++ compiler options
@@ -333,10 +336,10 @@ SHARED=${SHARED:="-shared"}
 # f2c-generated C sources instead of using the F77 sources in the ext
 # directory.
 
-# The default is not to do this on all platforms except vc++.
-# Set this to "n" to never do this on any platform.
-# Note, if set to "y", Cantera does not need a fortran compiler, and 
-# all fortran compiler parameters below are irrelevant.
+# The default is to use the f2c code.  Set this to "n" to never do
+# this on any platform.  Note, if set to "y", Cantera does not need a
+# fortran compiler, and all fortran compiler parameters below are
+# irrelevant.
 #
 BUILD_WITH_F2C=${BUILD_WITH_F2C:="y"}
 
@@ -359,7 +362,7 @@ FFLAGS=${FFLAGS:='-O3'}
 
 # the command to create a static library.
 ARCHIVE=${ARCHIVE:="ar ruv"}   # linux
-# ARCHIVE=${ARCHIVE:="libtool -static -o"}  # Mac OSX
+# ARCHIVE=${ARCHIVE:="libtool -static -o"}  # Mac OSX (this is set automatically)
 # ARCHIVE=${ARCHIVE:="CC -xar -o"} # Solaris using SUNspro compilers
 
 # the command to run 'ranlib' if it is needed. 
@@ -388,8 +391,8 @@ CT_SHARED_LIB=${CT_SHARED_LIB:=clib}
 # lowercase 'helvetica'.
 RPFONT=${RPFONT:="Helvetica"}
 
- 
-CANTERA_VERSION=${CANTERA_VERSION:="1.6.0"}
+# Don't change this.
+CANTERA_VERSION=${CANTERA_VERSION:="1.7.0"} 
 
 #-----------------------------------------------------------------------
 #------------------- don't change anything below!! ---------------------

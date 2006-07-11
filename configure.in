@@ -7,10 +7,24 @@ AC_CONFIG_HEADER(config.h)
 # AC_CONFIG_SRCDIR(./License.txt)
 AC_CONFIG_AUX_DIR(config)
 
+if test -z $CANTERA_VERSION ; then
+  echo 
+  echo ">>>>> Error <<<<<"
+  echo 
+  echo "Run script 'preconfig', instead of running 'configure'"
+  echo "directly. The 'preconfig' script sets various variable values"
+  echo "needed by 'configure' and then runs 'configure.' You may want to"
+  echo "edit 'preconfig' first, to set various installation options."
+  echo 
+  exit 1
+fi
+
+
 echo " "
 echo "--------------------------------------------------------------"
 echo " " 
-echo "           Cantera Configuration Script "
+echo "           Cantera "$CANTERA_VERSION
+echo "         Configuration Script "
 echo " " 
 echo "--------------------------------------------------------------"
 echo " "
@@ -62,8 +76,6 @@ if test $BITCOMPILE != $BITHARDWARE ; then
 fi
 
 
-# echo 'BITHARDWARE= ' $BITHARDWARE
-# echo 'BITCOMPILE= ' $BITCOMPILE
 AC_SUBST(BITCOMPILE)
 AC_SUBST(BITHARDWARE)
 AC_SUBST(BITCHANGE)
@@ -75,7 +87,7 @@ OS_IS_WIN=0
 OS_IS_CYGWIN=0
 EXTRA_LINK=${EXTRA_LINK:=""}
 
-
+# default Matlab MEX file extension
 mex_ext=mexglx
 
 case $ac_sys_system in
@@ -91,7 +103,6 @@ case $ac_sys_system in
             esac
 esac
 
-#echo "ldemulationarg = " $ldemulationarg
 AC_SUBST(ldemulationarg)
 
 
@@ -290,6 +301,7 @@ AC_SUBST(INCL_USER_CODE)
 use_sundials=0
 sundials_inc=
 CVODE_LIBS='-lcvode'
+IDA_LIBS=''
 
 if test "$USE_SUNDIALS" = "default"; then
 ldsave=$LDFLAGS
@@ -297,7 +309,7 @@ LDFLAGS='-L'$SUNDIALS_HOME/lib' '$ldsave
 fi
 
 AC_CHECK_LIB(sundials_cvodes, CVodeCreate, [use_sundials=1], [use_sundials=0],\
-[-lsundials_shared -lsundials_nvecserial -lm])
+[-lsundials_cvodes -lsundials_nvecserial -lm])
 
 if test "x$USE_SUNDIALS" = "xy"; then
 use_sundials=1
@@ -306,8 +318,9 @@ fi
 if test ${use_sundials} = 1; then
 AC_DEFINE(HAS_SUNDIALS)
 echo "using CVODES from SUNDIALS... Sensitivity analysis enabled."
-CVODE_LIBS='-lsundials_cvodes -lsundials_shared -lsundials_nvecserial' 
-sundials_include='-I'${SUNDIALS_HOME}'/include -I'${SUNDIALS_HOME}'/include/sundials -I'${SUNDIALS_HOME}'/include/cvodes'
+CVODE_LIBS='-lsundials_cvodes -lsundials_nvecserial' 
+IDA_LIBS='-lsundials_ida -lsundials_nvecserial' 
+sundials_include='-I'${SUNDIALS_HOME}'/include -I'${SUNDIALS_HOME}'/include/sundials -I'${SUNDIALS_HOME}'/include/cvodes -I'${SUNDIALS_HOME}'/include/ida'
 echo "sundials include directory: " ${sundials_include}
 fi
 
@@ -318,6 +331,7 @@ fi
 
 AC_SUBST(use_sundials)
 AC_SUBST(CVODE_LIBS)
+AC_SUBST(IDA_LIBS)
 AC_SUBST(sundials_include)
 
 
@@ -959,9 +973,9 @@ dnl Checks for libraries.
 AC_F77_LIBRARY_LDFLAGS()
 
 override_f77_libs=0;
-#case $ac_sys_system in
-#  Darwin*)  FLIBS='-lSystem'; override_f77_libs=1; SHARED_CTLIB=0;;
-#esac
+case $ac_sys_system in
+  Darwin*)  FLIBS='-lSystem'; override_f77_libs=1; SHARED_CTLIB=0;;
+esac
 
 if test $override_f77_libs -gt 0; then
   echo The Fortran 77 libraries on this platform are not correctly determined by 

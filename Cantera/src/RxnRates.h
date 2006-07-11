@@ -19,72 +19,86 @@
 
 namespace Cantera {
     
+    /**
+     * A rate coefficient of the form
+     * \f[
+     * A T^b \exp (-E/RT)
+     * \f]
+     */
+    class Arrhenius {
 
-  class Arrhenius {
-
-  public:
-    static int type(){ return ARRHENIUS; }        
-    Arrhenius() : 
-      m_logA(-1.0E300), 
-      m_b (0.0),
-      m_E (0.0),
-      m_A(0.0) 
-    {
-    }
-    Arrhenius(int csize, const doublereal* c) :
-      m_b (c[1]),
-      m_E (c[2]),
-      m_A (c[0])
-    {
-      if (m_A  <= 0.0) {
-	m_logA = -1.0E300; 
-      } else {
-	m_logA = log(m_A);
-      }
-    }
-
-    Arrhenius(doublereal A, doublereal b, doublereal E) :
-      m_b (b),
-      m_E (E),
-      m_A (A)
-    {
-      if (m_A  <= 0.0) {
-	m_logA = -1.0E300; 
-      } else {
-	m_logA = log(m_A);
-      }
-    }
-
-    void update_C(const doublereal* c) {}
+    public:
         
-    /**
-     * Update the value of the logarithm of the rate constant.
-     *
-     * Note, this function should never be called for negative A values.
-     * If it does then it will produce a negative overflow result, and
-     * a zero net forwards reaction rate, instead of a negative reaction
-     * rate constant that is the expected result.
-     */
-    doublereal update(doublereal logT, doublereal recipT) const {
-      return m_logA + m_b*logT - m_E*recipT;
-    }
+        /// return the rate coefficient type.
+        static int type(){ return ARRHENIUS; }
 
-    /**
-     * Update the value the rate constant.
-     *
-     * This function returns the actual value of the rate constant.
-     * It can be safely called for negative values of the pre-exponential
-     * factor.
-     */
-    doublereal updateRC(doublereal logT, doublereal recipT) const {
-      return m_A * exp(m_b*logT - m_E*recipT);
-    }
+        /// Default constructor.
+        Arrhenius() : 
+            m_logA(-1.0E300), 
+            m_b (0.0),
+            m_E (0.0),
+            m_A(0.0) {}
 
+        /// Constructor with Arrhenius parameters specified with an array.
+        Arrhenius(int csize, const doublereal* c) :
+            m_b (c[1]),
+            m_E (c[2]),
+            m_A (c[0])
+            {
+                if (m_A  <= 0.0) {
+                    m_logA = -1.0E300; 
+                } else {
+                    m_logA = log(m_A);
+                }
+            }
 
-    /// no longer used
-    //doublereal update_dT(doublereal logT, doublereal recipT) const {
-    //    return recipT*(m_b + m_E*recipT);
-    //}
+        /// Constructor.  
+        /// @param A pre-exponential. The unit system is
+        /// (kmol, m, s). The actual units depend on the reaction
+        /// order and the dimensionality (surface or bulk).
+        /// @param b Temperature exponent. Non-dimensional.
+        /// @param E Activation energy in temperature units. Kelvin.
+        Arrhenius(doublereal A, doublereal b, doublereal E) :
+            m_b (b),
+            m_E (E),
+            m_A (A)
+            {
+                if (m_A  <= 0.0) {
+                    m_logA = -1.0E300; 
+                } else {
+                    m_logA = log(m_A);
+                }
+            }
+
+        /// Update concentration-dependent parts of the rate
+        /// coefficient. For this class, there are no
+        /// concentration-dependent parts, so this method does
+        /// nothing.
+        void update_C(const doublereal* c) {}
+        
+        /**
+         * Update the value of the logarithm of the rate constant.
+         *
+         * Note, this function should never be called for negative A values.
+         * If it does then it will produce a negative overflow result, and
+         * a zero net forwards reaction rate, instead of a negative reaction
+         * rate constant that is the expected result.
+         */
+        doublereal update(doublereal logT, doublereal recipT) const {
+            return m_logA + m_b*logT - m_E*recipT;
+        }
+        
+        /**
+         * Update the value the rate constant.
+         *
+         * This function returns the actual value of the rate constant.
+         * It can be safely called for negative values of the pre-exponential
+         * factor.
+         */
+        doublereal updateRC(doublereal logT, doublereal recipT) const {
+            return m_A * exp(m_b*logT - m_E*recipT);
+        }
+
         
     void writeUpdateRHS(ostream& s) const {
       s << " exp(" << m_logA;
@@ -131,10 +145,6 @@ namespace Cantera {
 	f = m_terms[n].updateRC(logT, recipT);
 	fsum += f;
       }
-      //if (fsum <= 0.0) {
-      //	throw CanteraError("ArrheniusSum::update", 
-      //		   "Error: negative total reaction rate");
-      //}
       return log(fsum);
     }
 
@@ -152,52 +162,40 @@ namespace Cantera {
 	f = m_terms[n].updateRC(logT, recipT);
 	fsum += f;
       }
-      //if (fsum <= 0.0) {
-      //	throw CanteraError("ArrheniusSum::update", 
-      //		   "Error: negative total reaction rate");
-      //}
       return fsum;
     }
 
-
-    //        doublereal update_dT(doublereal logT, doublereal recipT) const {
-    //    throw CanteraError("ArrheniusSum::update_dT","not implemented.");
-    //}
-        
     void writeUpdateRHS(ostream& s) const {
       ;
     }
 
-    //doublereal activationEnergy_R() const {
-    //    return m_E;
-    //}
-
     static bool alwaysComputeRate() { return true;}
 
   protected:
-    vector<Arrhenius> m_terms;
-    int m_nterms;
+      vector<Arrhenius> m_terms;
+      int m_nterms;
   };
 
-  /**
-   * An Arrhenius rate with coverage-dependent terms.
-   */
-  class SurfaceArrhenius {
 
-  public:
-    static int type(){ return ARRHENIUS; }        
-    SurfaceArrhenius() : 
-      m_logA(-1.0E300),
-      m_b (0.0),
-      m_E (0.0), 
-      m_A(0.0),
-      m_acov(0.0), 
-      m_ecov(0.0), 
-      m_mcov(0.0),
-      m_ncov(0), 
-      m_nmcov(0)
-    {
-    }
+    /**
+     * An Arrhenius rate with coverage-dependent terms.
+     */
+    class SurfaceArrhenius {
+        
+    public:
+        static int type(){ return ARRHENIUS; }        
+        SurfaceArrhenius() : 
+            m_logA(-1.0E300),
+            m_b (0.0),
+            m_E (0.0), 
+            m_A(0.0),
+            m_acov(0.0), 
+            m_ecov(0.0), 
+            m_mcov(0.0),
+            m_ncov(0), 
+            m_nmcov(0)
+            {
+            }
 
     SurfaceArrhenius( int csize, const doublereal* c )  :
       m_b (c[1]), 

@@ -763,6 +763,7 @@ namespace Cantera {
         // set the id attribute of the phase to the 'id' attribute 
         // in the XML tree.
         th->setID(phase.id());
+        th->setName(phase.id());
 
         // Number of spatial dimensions. Defaults to 3 (bulk phase)
         if (phase.hasAttrib("dim")) {

@@ -1375,28 +1375,6 @@ class stoichiometric_liquid(stoichiometric_solid):
                                       species, density, transport,
                                       initial_state, options)
         
-## class pure_solid(stoichiometric_solid):
-##     """Deprecated. Use stoichiometric_solid"""
-##     def __init__(self,
-##                  name = '',
-##                  elements = '',
-##                  species = '',
-##                  density = -1.0,
-##                  transport = 'None',
-##                  initial_state = None,
-##                  options = []):
-        
-##         stoichiometric_solid.__init__(self, name, 3, elements,
-##                                       species, 'none',
-##                                       initial_state, options)
-##         self._dens = density
-##         self._pure = 1
-##         if self._dens < 0.0:
-##             raise CTI_Error('density must be specified.')
-##         self._tr = transport
-##         print 'WARNING: entry type pure_solid is deprecated.'
-##         print 'Use stoichiometric_solid instead.'
-
 
 class metal(phase):
     """A metal."""
@@ -1464,30 +1442,44 @@ class incompressible_solid(phase):
         k['model'] = 'none'        
 
 
-class lattice:
-    def __init__(self, name = '', site_density = -1.0,
+class lattice(phase):
+    def __init__(self, name = '',
+                 elements = '',
                  species = '',
+                 reactions = 'none',
+                 transport = 'None',
+                 initial_state = None,
+                 options = [],
+                 site_density = -1.0,
                  vacancy_species = ''):
-        self._name = name
+        phase.__init__(self, name, 3, elements, species, 'none',
+                        initial_state, options)
+        self._tr = transport
         self._n = site_density
         self._vac = vacancy_species
         self._species = species
         if name == '':
             raise CTI_Error('sublattice name must be specified')
+        if species == '':
+            raise CTI_Error('sublattice species must be specified')        
         if site_density < 0.0:
             raise CTI_Error('sublattice '+name
                             +' site density must be specified')
-        if species == '':
-            raise CTI_Error('sublattice '+name
-                            +' species must be specified')            
-    def build(self,p):
-        lat = p.addChild('Lattice')
-        lat['name'] = self._name
-        addFloat(lat, 'site_density', self._n, defunits = _umol+'/'+_ulen+'3')
-        if self._vac:
-            lat.addChild('vacancy_species',self._vac)
-        lat.addChild('species',self._species)
 
+    def build(self,p, visible = 0):
+        #if visible == 0:
+        #    return
+        ph = phase.build(self, p)
+        e = ph.addChild('thermo')
+        e['model'] = 'Lattice'
+        addFloat(e, 'site_density', self._n, defunits = _umol+'/'+_ulen+'3')
+        if self._vac:
+            e.addChild('vacancy_species',self._vac)
+        if self._tr:
+            t = ph.addChild('transport')
+            t['model'] = self._tr
+        k = ph.addChild("kinetics")
+        k['model'] = 'none'        
 
 class lattice_solid(phase):
     """A solid crystal consisting of one or more sublattices."""
@@ -1499,6 +1491,27 @@ class lattice_solid(phase):
                  transport = 'None',
                  initial_state = None,
                  options = []):
+
+        # find elements
+        elist = []
+        for lat in lattices:
+            e = lat._el.split()
+            for el in e:
+                if not el in elist:
+                    elist.append(el)
+        elements = string.join(elist)
+        
+        # find species
+        slist = []
+        for lat in lattices:
+            _sp = ""
+            for spp in lat._species:
+                _sp = _sp + spp
+            s = _sp.split()
+            for sp in s:
+                if not sp in slist:
+                    slist.append(sp)
+        species = string.join(slist)
         
         phase.__init__(self, name, 3, elements, species, 'none',
                        initial_state, options)
@@ -1519,7 +1532,7 @@ class lattice_solid(phase):
         if self._lattices:
             lat = e.addChild('LatticeArray')
             for n in self._lattices:
-                n.build(lat)
+                n.build(lat, visible = 1)
                 
         if self._tr:
             t = ph.addChild('transport')
@@ -1693,3 +1706,4 @@ if __name__ == "__main__":
     execfile(file)
     write()
     
+

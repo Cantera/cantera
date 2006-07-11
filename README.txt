@@ -8,10 +8,10 @@
       Copyright (c) 2001-2005 California Institute of Technology
 
 ***************************************************************
-***                                                         ***
-***   For information on installing and using Cantera, see  ***
-***        http://www.cantera.org/Documentation             ***
-***                                                         ***
+***                                                         
+***   For information on installing and using Cantera, see  
+***        http://www.cantera.org/Documentation             
+***                                                         
 ***************************************************************
 
 License information
@@ -28,11 +28,13 @@ Web sites
 ==========
 
 The main Cantera web site is http://www.cantera.org. This serves as a
-gateway to the other two web sites:
+gateway to three other web sites:
 
 1. The Cantera User's Group. http://groups.yahoo.com/groups/cantera.   
    This site has a message board, and some miscellaneous files and utilities. 
 
 2. The Cantera Sourceforge site. Distribution of the Cantera source code is
    done using Sourceforge. The site is http://sourceforge.net/projects/cantera.
+
+3. The Cantera wiki. http://www.cantera.org/wiki.
 
