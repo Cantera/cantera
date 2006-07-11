@@ -13,6 +13,14 @@
 using namespace std;
 using namespace Cantera;
 
+double tvalue(double val, double atol = 1.0E-9) {
+    double rval = val;
+    if (fabs(val) < atol) {
+      rval = 0.0; 
+    }
+    return rval;
+}
+
 int main () {
 
     double dens, u, s, h, cv, cp, pres;
@@ -62,7 +70,7 @@ int main () {
 	temp = T[i];
 	w->setState_TP(temp, presLow);
 	h = w->enthalpy_mole();
-	delh0 = h - h298;
+	delh0 = tvalue(h - h298, 1.0E-6);
 	g = w->gibbs_mole();
 	delg0 = (g - h298)/temp + GasConstant * log(oneBar/presLow);
 	Cp0 = w->cp_mole();
@@ -104,7 +112,7 @@ int main () {
 	}
 	w->setState_TP(temp, press);
 	h = w->enthalpy_mole();
-	delh0 = h - h298l;
+	delh0 = tvalue(h - h298l, 1.0E-6);
 	g = w->gibbs_mole();
 	delg0 = (g - h298l)/temp;
 	Cp0 = w->cp_mole();

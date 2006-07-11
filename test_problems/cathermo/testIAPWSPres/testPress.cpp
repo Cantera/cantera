@@ -1,5 +1,6 @@
 
 #include "stdio.h"
+#include "math.h"
 #include "WaterPropsIAPWS.h"
 #include <new>
 using namespace std;
@@ -26,10 +27,18 @@ int main () {
     printf("dens (liquid) = %g kg m-3\n", dens);
 
     u = water->intEnergy(T, dens);
-    printf("intEng (liquid) = %g J/kmol\n", u);
+    if (fabs(u) < 5.0E-7) {
+      printf("intEng (liquid) ~= 0.0 J/kmol (less than fabs(5.0E-7))\n");
+    } else {
+      printf("intEng (liquid) = %g J/kmol\n", u);
+    }
 
     s = water->entropy(T, dens);
-    printf("S (liquid) = %g J/kmolK\n", s);
+    if (fabs(s) < 1.0E-9) {
+      printf("S (liquid) ~= 0.0 J/kmolK (less than fabs(1.0E-9))\n");
+    } else {
+      printf("S (liquid) = %g J/kmolK\n", s);
+    }
 
     h = water->enthalpy(T, dens);
     printf("h (liquid) = %g J/kmol\n", h);

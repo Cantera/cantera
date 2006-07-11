@@ -1,7 +1,7 @@
 psat(273.16) = 611.655
 dens (liquid) = 999.793 kg m-3
-intEng (liquid) = -1.91143e-08 J/kmol
-S (liquid) = -8.47431e-11 J/kmolK
+intEng (liquid) = ~0.0 J/kmol (fabs(u) < 5.0E-7)
+S (liquid) = ~0.0 J/kmolK (fabs(s) < 5.0E-9)
 h (liquid) = 11.0214 J/kmol
 h (liquid) = 0.611782 J/kg
 g (liquid) = 11.0214 J/kmol
@@ -16,4 +16,4 @@ g (gas) = 11.0214 J/kmol
 cv (gas) = 25552.6 J/kmolK
 cp (gas) = 33947.1 J/kmolK
 
-Delta g = 4.13909e-06 J/kmol
+Delta g = ~0.0 J/kmol ( < 1.0E-5)
