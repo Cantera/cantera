@@ -536,12 +536,17 @@ namespace Cantera {
 
     void MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN) {
         index_t k, ik;
+        beginLogGroup("MultiPhaseEquil::step");
         if (omega < 0.0) 
             throw CanteraError("step","negative omega");
 
         for (ik = 0; ik < m_nel; ik++) {
             k = m_order[ik];
             m_lastmoles[k] = m_moles[k];
+            addLogEntry("component "+m_mix->speciesName(m_species[k])+" moles",
+                m_moles[k]);
+            addLogEntry("component "+m_mix->speciesName(m_species[k])+" step",
+                omega*deltaN[k]);
             m_moles[k] += omega * deltaN[k];
         }
 
@@ -557,6 +562,7 @@ namespace Cantera {
             }
         }
         updateMixMoles();
+        endLogGroup("MultiPhaseEquil::step");
     }
 
 
@@ -724,11 +730,15 @@ namespace Cantera {
                         for (k = 0; k < m_nsp; k++) {
                             kc = m_species[k];
                             if (m_mix->speciesPhaseIndex(kc) == ip) {
-                                stoich = nu[kc];
+                                stoich = nu[k]; // nu[kc];
                                 psum += stoich * stoich;
                             }
                         }
                         sum -= psum / (fabs(m_mix->phaseMoles(ip)) + TINY);
+                        if (ISNAN(sum)) {
+                            cout << " sum is nan. " << endl;
+                            cout << psum << " " << m_mix->phaseMoles(ip) << endl;
+                        }
                     }
                 }
                 rfctr = term1 + csum + sum;
@@ -736,8 +746,17 @@ namespace Cantera {
                     fctr = 1.0;
                 else
                     fctr = 1.0/(term1 + csum + sum);
+                if (ISNAN(fctr)) {
+                    cout << "fctr is nan." << endl;
+                    cout << term1 << " " << csum << " " << sum << " " << TINY << endl;
+                }
             }
             dxi[j] = -fctr*dg_rt;
+            if (ISNAN(dxi[j])) {
+                cout << "nan detected. " << endl;
+                cout << fctr << " " << dg_rt << endl;
+            }
+                
             index_t m;
              for (m = 0; m < m_nel; m++) {
                 if (m_moles[m_order[m]] <= 0.0 && (m_N(m, j)*dxi[j] < 0.0))
