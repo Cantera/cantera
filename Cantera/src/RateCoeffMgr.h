@@ -1,6 +1,8 @@
 /**
  *  @file RateCoeffMgr.h
- *
+ */
+
+/*
  * $Author$
  * $Revision$
  * $Date$

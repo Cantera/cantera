@@ -131,7 +131,7 @@ namespace Cantera {
      */
     void split(const string ss, vector<string>& w) {
         string s = ss;
-        string::size_type icolon, ibegin, iend;
+        string::size_type ibegin, iend;
         string name, num, nm;
         do {
             ibegin = s.find_first_not_of(", ;\n\t");
