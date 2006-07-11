@@ -144,6 +144,7 @@ namespace Cantera {
 
     XML_Node* get_XML_File(string file) {
         string path = "";
+        /*
         try {
             path = findInputFile(file);
         }
@@ -163,6 +164,12 @@ namespace Cantera {
             else
                 path = findInputFile(file);
         }
+        */
+        // The code above will try to process a cti file if the xml
+        // file is not found. But I (dgg) don't think it makes much sense,
+        // so it is replaced by:
+        path = findInputFile(file);
+        // 
 
         string ff = path;
         if (app()->xmlfiles.find(path) 
