@@ -442,7 +442,7 @@ namespace Cantera {
             int npnow = d.nPoints();
             int nstart = znew.size();
             for (m = 0; m < npnow-1; m++) {
-                cout << "T["<<m<<"]="<<value(n,2,m)<<endl;
+                //cout << "T["<<m<<"]="<<value(n,2,m)<<endl;
                 if(value(n,2,m)==t){
                     zfixed=d.grid(m);
                     //set d.zfixed, d.ztemp
@@ -462,7 +462,7 @@ namespace Cantera {
                     t2=value(n,2,m+1);
                     
                     zfixed=(z1-z2)/(t1-t2)*(t-t2)+z2;
-                    cout << zfixed<<endl;
+                    //cout << zfixed<<endl;
                     //set d.zfixed, d.ztemp;
                     d.m_zfixed=zfixed;
                     d.m_tfixed=t;
