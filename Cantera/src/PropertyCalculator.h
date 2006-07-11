@@ -22,6 +22,7 @@ namespace Cantera {
     template<class M>
     class PropertyCalculator {
     public:
+        virtual ~PropertyCalculator(){}
         virtual doublereal value(const M& s) =0;
         virtual string symbol() =0;
     };
