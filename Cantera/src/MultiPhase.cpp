@@ -14,6 +14,14 @@ namespace Cantera {
      }
 
     void MultiPhase::
+    addPhases(MultiPhase& mix) {
+        index_t n;
+        for (n = 0; n < mix.m_np; n++) {
+            addPhase(mix.m_phase[n], mix.m_moles[n]);
+        }
+    }
+
+    void MultiPhase::
     addPhases(phase_list& phases, const vector_fp& phaseMoles) {
         index_t np = phases.size();
         index_t n;
@@ -162,14 +170,14 @@ namespace Cantera {
     }
 
     /// Moles of species \c k.
-    doublereal MultiPhase::speciesMoles(index_t k) {
+    doublereal MultiPhase::speciesMoles(index_t k) const {
         index_t ip = m_spphase[k];
         return m_moles[ip]*m_moleFractions[k];
     }
 
     /// Total moles of element m, summed over all
     /// phases
-    doublereal MultiPhase::elementMoles(index_t m) {
+    doublereal MultiPhase::elementMoles(index_t m) const {
         doublereal sum = 0.0, phasesum;
         index_t i, k = 0, ik, nsp;
         for (i = 0; i < m_np; i++) {
@@ -185,7 +193,7 @@ namespace Cantera {
     }
 
     /// Total charge, summed over all phases
-    doublereal MultiPhase::charge() {
+    doublereal MultiPhase::charge() const {
         doublereal sum = 0.0;
         index_t i;
         for (i = 0; i < m_np; i++) {
@@ -198,7 +206,7 @@ namespace Cantera {
     /// \f[ Q_p = N_p \sum_k F z_k X_k \f]
     /// where the sum runs only over species in phase \a p.
     /// @param p index of the phase for which the charge is desired.   
-    doublereal MultiPhase::phaseCharge(index_t p) {
+    doublereal MultiPhase::phaseCharge(index_t p) const {
         doublereal phasesum = 0.0;
         int ik, k, nsp = m_phase[p]->nSpecies();
         for (ik = 0; ik < nsp; ik++) {
@@ -210,7 +218,7 @@ namespace Cantera {
 
 
     /// Get the chemical potentials of all species in all phases. 
-    void MultiPhase::getChemPotentials(doublereal* mu) {
+    void MultiPhase::getChemPotentials(doublereal* mu) const {
         index_t i, loc = 0;
         updatePhases();            
         for (i = 0; i < m_np; i++) {
@@ -247,7 +255,7 @@ namespace Cantera {
     /// potentials.
     ///
     void MultiPhase::getValidChemPotentials(doublereal not_mu,
-        doublereal* mu, bool standard) {
+        doublereal* mu, bool standard) const {
         index_t i, loc = 0;
 
         updatePhases();           
@@ -266,7 +274,7 @@ namespace Cantera {
     }
 
     /// True if species \a k belongs to a solution phase.
-    bool MultiPhase::solutionSpecies(index_t k) {
+    bool MultiPhase::solutionSpecies(index_t k) const {
         if (m_phase[m_spphase[k]]->nSpecies() > 1)
             return true;
         else
@@ -387,7 +395,7 @@ namespace Cantera {
     }
 
     /// The total mixture volume [m^3].
-    doublereal MultiPhase::volume() {
+    doublereal MultiPhase::volume() const {
         int i;
         doublereal sum = 0;
         for (i = 0; i < int(m_np); i++) {
@@ -416,6 +424,9 @@ namespace Cantera {
 
         if (XY == TP) {
             addLogEntry("problem type","fixed T,P");
+            addLogEntry("Temperature",temperature());
+            addLogEntry("Pressure", pressure());
+
 
             // create an equilibrium manager 
             e = new MultiPhaseEquil(this);
@@ -714,7 +725,31 @@ done:
         return err;
     }
 
-
+#ifdef MULTIPHASE_DEVEL
+    void importFromXML(string infile, string id) {
+        XML_Node* root = get_XML_File(infile);
+        if (id == "-") id = "";
+        XML_Node* x = get_XML_Node(string("#")+id, root);
+        if (x.name() != "multiphase")
+            throw CanteraError("MultiPhase::importFromXML",
+                "Current XML_Node is not a multiphase element.");
+        vector<XML_Node*> phases;
+        x.getChildren("phase",phases);
+        int np = phases.size();
+        int n;
+        ThermoPhase* p;
+        for (n = 0; n < np; n++) {
+            XML_Node& ph = *phases[n];
+            srcfile = infile;
+            if (ph.hasAttrib("src")) srcfile = ph["src"];
+            idstr =  ph["id"];
+            p = newPhase(srcfile, idstr);
+            if (p) {
+                addPhase(p, ph.value());
+            }
+        }
+    }
+#endif
 
     //-------------------------------------------------------------
     //

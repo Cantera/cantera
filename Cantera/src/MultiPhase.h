@@ -42,7 +42,11 @@ namespace Cantera {
         /// phase objects.  
         virtual ~MultiPhase() {}
 
+        
         void addPhases(phase_list& phases, const vector_fp& phaseMoles);
+
+        /// Add all phases present in 'mix' to this mixture.
+        void addPhases(MultiPhase& mix);
 
         /// Add a phase to the mixture. 
         /// @param p pointer to the phase object
@@ -50,19 +54,19 @@ namespace Cantera {
         void addPhase(phase_t* p, doublereal moles);
 
         /// Number of elements.
-        int nElements() { return int(m_nel); }
+        int nElements() const { return int(m_nel); }
 
         /// Name of element \a m.
-        string elementName(int m) { return m_enames[m]; }
+        string elementName(int m) const { return m_enames[m]; }
 
         /// Index of element with name \a name.
-        int elementIndex(string name) { return m_enamemap[name] - 1;}
+        int elementIndex(string name) const { return m_enamemap[name] - 1;}
         
         /// Number of species, summed over all phases.
-        int nSpecies() { return int(m_nsp); }
+        int nSpecies() const { return int(m_nsp); }
 
         /// Name of species with index \a k. 
-        string speciesName(int k) { return m_snames[k]; }
+        string speciesName(int k) const { return m_snames[k]; }
 
         /// Number of atoms of element \a m in species \a k.
         doublereal nAtoms(int k, int m) {
@@ -73,7 +77,7 @@ namespace Cantera {
         /// Species mole fractions. Write the array of species mole
         /// fractions into array \c x. The mole fractions are
         /// normalized to sum to one in each phase.
-        void getMoleFractions(doublereal* x) {
+        void getMoleFractions(doublereal* x) const {
             copy(m_moleFractions.begin(), m_moleFractions.end(), x);
         }
 
@@ -82,7 +86,7 @@ namespace Cantera {
         void init();
 
         /// Moles of phase n.
-        doublereal phaseMoles(index_t n) {
+        doublereal phaseMoles(index_t n) const {
             return m_moles[n];
         }
 
@@ -97,11 +101,11 @@ namespace Cantera {
         phase_t& phase(index_t n);
 
         /// Moles of species \c k.
-        doublereal speciesMoles(index_t k);
+        doublereal speciesMoles(index_t k) const;
 
         /// Index of the species belonging to phase number \c p
         /// with index \c k within the phase.
-        int speciesIndex(index_t k, index_t p) {
+        int speciesIndex(index_t k, index_t p) const {
             return m_spstart[p] + k;
         }
 
@@ -109,28 +113,28 @@ namespace Cantera {
         /// valid thermo data. Stoichiometric phases are not
         /// considered, since they may have thermo data only valid for
         /// conditions for which they are stable.
-        doublereal minTemp() { return m_Tmin; }
+        doublereal minTemp() const { return m_Tmin; }
 
         /// Maximum temperature for which all solution phases have
         /// valid thermo data. Stoichiometric phases are not
         /// considered, since they may have thermo data only valid for
         /// conditions for which they are stable.
-        doublereal maxTemp() { return m_Tmax; }
+        doublereal maxTemp() const { return m_Tmax; }
 
         /// Total charge (Coulombs). 
-        doublereal charge();
+        doublereal charge() const;
 
         /// Charge (Coulombs) of phase with index \a p.
-        doublereal phaseCharge(index_t p);
+        doublereal phaseCharge(index_t p) const;
 
         /// Total moles of element \a m, summed over all phases.
-        doublereal elementMoles(index_t m);
+        doublereal elementMoles(index_t m) const;
 
         /// Chemical potentials. Write into array \a mu the chemical
         /// potentials of all species [J/kmol]. The chemical
         /// potentials are related to the activities by
         /// \f[ \mu_k = \mu_k^0(T, P) + RT \ln a_k. \f].
-        void getChemPotentials(doublereal* mu);
+        void getChemPotentials(doublereal* mu) const;
 
         /// Valid chemical potentials. Write into array \a mu the
         /// chemical potentials of all species with thermo data valid
@@ -139,10 +143,10 @@ namespace Cantera {
         /// standard is set to true, then the values returned are
         /// standard chemical potentials.
         void getValidChemPotentials(doublereal not_mu, doublereal* mu,
-            bool standard = false);
+            bool standard = false) const;
 
         /// Temperature [K].
-        doublereal temperature() { return m_temp; }
+        doublereal temperature() const { return m_temp; }
 
         /// Set the mixture to a state of chemical equilibrium.
         /// @param XY Integer flag specifying properties to hold fixed.
@@ -166,12 +170,12 @@ namespace Cantera {
         }
 
         /// Pressure [Pa].
-        doublereal pressure() {
+        doublereal pressure() const {
             return m_press;
         }
 
         /// Volume [m^3].
-        doublereal volume();
+        doublereal volume() const;
 
         /// Set the pressure [Pa].
         void setPressure(doublereal P) {
@@ -192,19 +196,19 @@ namespace Cantera {
         doublereal cp() const;
 
         /// Number of phases.
-        index_t nPhases() {
+        index_t nPhases() const {
             return m_np;
         }
 
         /// Return true is species \a k is a species in a
         /// multicomponent solution phase.
-        bool solutionSpecies(index_t k);
+        bool solutionSpecies(index_t k) const;
 
-        index_t speciesPhaseIndex(index_t k) {
+        index_t speciesPhaseIndex(index_t k) const{
             return m_spphase[k];
         }
 
-        doublereal moleFraction(index_t k) {
+        doublereal moleFraction(index_t k) const{
             return m_moleFractions[k];
         }
 
@@ -218,7 +222,7 @@ namespace Cantera {
 
         /// Return true if the phase \a p has valid thermo data for
         /// the current temperature.
-        bool tempOK(index_t p) {
+        bool tempOK(index_t p) const {
             return m_temp_OK[p];
         }
 
@@ -244,7 +248,7 @@ namespace Cantera {
         vector<string> m_enames;
         vector_int m_atomicNumber;
         vector<string> m_snames;
-        map<string, int> m_enamemap;
+        mutable map<string, int> m_enamemap;
         index_t  m_np;
         doublereal m_temp;
         doublereal m_press;
@@ -259,7 +263,12 @@ namespace Cantera {
     inline std::ostream& operator<<(std::ostream& s, Cantera::MultiPhase& x) {
         size_t ip;
         for (ip = 0; ip < x.nPhases(); ip++) {
-            s << "*************** Phase " << ip << " *****************" << endl;
+            if (x.phase(ip).name() != "") {
+                s << "*************** " << x.phase(ip).name() << " *****************" << endl;
+            }
+            else {
+                s << "*************** Phase " << ip << " *****************" << endl;
+            }
             s << "Moles: " << x.phaseMoles(ip) << endl;
                 
             s << report(x.phase(ip)) << endl;
