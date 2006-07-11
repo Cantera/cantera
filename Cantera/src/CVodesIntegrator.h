@@ -23,7 +23,7 @@
 #include "ctexceptions.h"
 #include "ct_defs.h"
 
-#include <nvector.h>
+//#include <nvector.h>
 #include <nvector_serial.h>
 
 
