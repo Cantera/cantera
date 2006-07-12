@@ -141,10 +141,13 @@ namespace Cantera {
       m_IionicMolalityStoich= b.m_IionicMolalityStoich;
       m_form_A_Debye        = b.m_form_A_Debye;
       m_A_Debye             = b.m_A_Debye;
-      if (!m_waterSS) {
-	m_waterSS = new WaterPDSS(this, 0);
+      if (m_waterSS) {
+	delete m_waterSS;
+	m_waterSS = 0;
       }
-      m_waterSS             = b.m_waterSS;
+      if (b.m_waterSS) {
+	m_waterSS = new WaterPDSS(*(b.m_waterSS));
+      }
       m_densWaterSS         = b.m_densWaterSS;
       if (m_waterProps) {
 	delete m_waterProps;
@@ -153,7 +156,6 @@ namespace Cantera {
       if (b.m_waterProps) {
 	m_waterProps = new WaterProps(*(b.m_waterProps));
       }
-      m_waterSS             = b.m_waterSS;
       m_expg0_RT            = b.m_expg0_RT;
       m_pe                  = b.m_pe;
       m_pp                  = b.m_pp;
@@ -366,8 +368,12 @@ namespace Cantera {
    *     Destructor: does nothing:
    */
   HMWSoln::~HMWSoln() {
-    delete m_waterProps;
-    delete m_waterSS; 
+    if (m_waterProps) {
+      delete m_waterProps; m_waterProps = 0;
+    }
+    if (m_waterSS) {
+      delete m_waterSS; m_waterSS = 0;
+    } 
   }
 
   /**
@@ -488,6 +494,9 @@ namespace Cantera {
 
   /**
    * Molar internal energy of the solution. Units: J/kmol.
+   *
+   * This is calculated from the soln enthalpy and then
+   * subtracting pV.
    */
   doublereal HMWSoln::intEnergy_mole() const {
     double hh = enthalpy_mole();
@@ -497,6 +506,11 @@ namespace Cantera {
     return uu;
   }
 
+  /**
+   *  Molar soln entropy at constant pressure. Units: J/kmol/K. 
+   *
+   *  This is calculated from the partial molar entropies.
+   */
   doublereal HMWSoln::entropy_mole() const {
     getPartialMolarEntropies(DATA_PTR(m_tmpV));
     return mean_X(DATA_PTR(m_tmpV));
@@ -508,7 +522,11 @@ namespace Cantera {
     return mean_X(DATA_PTR(m_tmpV));
   }
 
-  /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
+  /** Molar heat capacity at constant pressure. Units: J/kmol/K.
+   *
+   * Returns the solution heat capacition at constant pressure. 
+   * This is calculated from the partial molar heat capacities.
+   */ 
   doublereal HMWSoln::cp_mole() const {
     getPartialMolarCp(DATA_PTR(m_tmpV));
     double val = mean_X(DATA_PTR(m_tmpV));
@@ -594,7 +612,6 @@ namespace Cantera {
      * store the denisty.
      */
     State::setDensity(dd);
-
   }
 
   /**
@@ -608,6 +625,8 @@ namespace Cantera {
    *  doesn't change with pressure or temperature.
    */
   doublereal HMWSoln::isothermalCompressibility() const {
+    throw CanteraError("HMWSoln::isothermalCompressibility",
+		       "unimplemented");
     return 0.0;
   }
 
@@ -882,19 +901,24 @@ namespace Cantera {
    * We calculate 
    */
   void HMWSoln::getPartialMolarEnthalpies(doublereal* hbar) const {
+    /*
+     * Get the nondimensional standard state enthalpies
+     */
     getEnthalpy_RT(hbar);
-
+    /*
+     * dimensionalize it.
+     */
+    double T = temperature();
+    double RT = GasConstant * T;
+    for (int k = 0; k < m_kk; k++) {
+      hbar[k] *= RT;
+    }
     /*
      * Update the activity coefficients, This also update the
      * internally storred molalities.
      */
     s_update_lnMolalityActCoeff();
     s_update_dlnMolalityActCoeff_dT();
-    double T = temperature();
-    double RT = GasConstant * T;
-    for (int k = 0; k < m_kk; k++) {
-      hbar[k] *= RT;
-    }
     double RTT = RT * T;
     for (int k = 0; k < m_kk; k++) {
       hbar[k] -= RTT * m_dlnActCoeffMolaldT[k];
@@ -936,17 +960,22 @@ namespace Cantera {
      */
     getEntropy_R(sbar);
     /*
+     * Dimensionalize the entropies
+     */
+    doublereal R = GasConstant;
+    for (k = 0; k < m_kk; k++) {
+      sbar[k] *= R;
+    }
+    /*
      * Update the activity coefficients, This also update the
      * internally stored molalities.
      */
     s_update_lnMolalityActCoeff();
-
-    doublereal R = GasConstant;
-    doublereal mm;
     /*
      * First we will add in the obvious dependence on the T
      * term out front of the log activity term
      */
+    doublereal mm;
     for (k = 0; k < m_kk; k++) {
       if (k != m_indexSolvent) {
 	mm = fmaxx(SmallNumber, m_molalities[k]);
@@ -955,8 +984,7 @@ namespace Cantera {
     }
     double xmolSolvent = moleFraction(m_indexSolvent);
     mm = fmaxx(SmallNumber, xmolSolvent);
-    sbar[m_indexSolvent] -=
-      R *(log(mm) + m_lnActCoeffMolal[m_indexSolvent]);
+    sbar[m_indexSolvent] -= R *(log(mm) + m_lnActCoeffMolal[m_indexSolvent]);
     /*
      * Check to see whether activity coefficients are temperature
      * dependent. If they are, then calculate the their temperature
@@ -967,18 +995,16 @@ namespace Cantera {
     for (k = 0; k < m_kk; k++) {
       sbar[k] -= RT * m_dlnActCoeffMolaldT[k];
     }
-       
   }
 
   /**
    * getPartialMolarVolumes()                (virtual, const)
    *
-   * returns an array of partial molar volumes of the species
+   * Returns an array of partial molar volumes of the species
    * in the solution. Units: m^3 kmol-1.
    *
-   * For this solution, the partial molar volumes are equal to the
-   * species standard state molar volumes. However, extensions
-   * to this will be implemented in the future.
+   * For this solution, the partial molar volumes are a
+   * complex function of pressure.
    *
    * The general relation is 
    *
@@ -988,12 +1014,10 @@ namespace Cantera {
    *
    *              = V0_i + RT d(lnActCoeffi)dP _T,M
    *
-   * So, if the activity coefficients depended on pressure this
-   * function would be nontrivial.
    */
   void HMWSoln::getPartialMolarVolumes(doublereal* vbar) const {
     /*
-     * Get the standard state values
+     * Get the standard state values in m^3 kmol-1
      */
     getStandardVolumes(vbar);
     /*
@@ -1027,31 +1051,21 @@ namespace Cantera {
     for (int k = 0; k < m_kk; k++) {
       cpbar[k] *= GasConstant;
     }
-	
     /*
-     * Check to see whether activity coefficients are temperature
-     * dependent. If they are, then calculate the their temperature
-     * derivatives and add them into the result.
+     * Update the activity coefficients, This also update the
+     * internally storred molalities.
      */
-    double dAdT = dA_DebyedT_TP();
-    if (dAdT != 0.0) {
-      /*
-       * Update the activity coefficients, This also update the
-       * internally storred molalities.
-       */
-      s_update_lnMolalityActCoeff();
-      s_update_dlnMolalityActCoeff_dT();
-      s_update_d2lnMolalityActCoeff_dT2();
-      double T = temperature();
-      double RT = GasConstant * T;
-      double RTT = RT * T;
-      for (int k = 0; k < m_kk; k++) {
-	cpbar[k] -= (2.0 * RT * m_dlnActCoeffMolaldT[k] +
-		     RTT * m_d2lnActCoeffMolaldT2[k]);
-      }
+    s_update_lnMolalityActCoeff();
+    s_update_dlnMolalityActCoeff_dT();
+    s_update_d2lnMolalityActCoeff_dT2();
+    double T = temperature();
+    double RT = GasConstant * T;
+    double RTT = RT * T;
+    for (int k = 0; k < m_kk; k++) {
+      cpbar[k] -= (2.0 * RT * m_dlnActCoeffMolaldT[k] +
+		   RTT * m_d2lnActCoeffMolaldT2[k]);
     }
   }
-
 
   /*
    * -------- Properties of the Standard State of the Species
@@ -4250,7 +4264,7 @@ namespace Cantera {
 #endif
   }
 
-  /***********************************************************************************************/
+  /********************************************************************************************/
 
   /**
    * s_Pitzer_dlnMolalityActCoeff_dP()         (private, const )

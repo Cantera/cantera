@@ -190,7 +190,7 @@ namespace Cantera {
 
     /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
     /*
-     *      (HKM -> Bump up to Parent object)
+     *     
      */
     virtual doublereal cp_mole() const;
 

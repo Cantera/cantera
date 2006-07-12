@@ -17,7 +17,7 @@
 #include "DebyeHuckel.h"
 #include "importCTML.h"
 #include "WaterProps.h"
-
+#include "WaterPDSS.h"
 
 namespace Cantera {
 
@@ -36,6 +36,8 @@ namespace Cantera {
     m_form_A_Debye(A_DEBYE_CONST),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
     m_B_Debye(3.28640E9),   // units = sqrt(kg/gmol) / m
+    m_waterSS(0),
+    m_densWaterSS(1000.),
     m_waterProps(0)
   {
     m_npActCoeff.resize(3);
@@ -63,6 +65,8 @@ namespace Cantera {
     m_form_A_Debye(A_DEBYE_CONST),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
     m_B_Debye(3.28640E9),  // units = sqrt(kg/gmol) / m
+    m_waterSS(0),
+    m_densWaterSS(1000.),
     m_waterProps(0)
   {
     m_npActCoeff.resize(3);
@@ -84,6 +88,8 @@ namespace Cantera {
     m_form_A_Debye(A_DEBYE_CONST),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
     m_B_Debye(3.28640E9),   // units = sqrt(kg/gmol) / m
+    m_waterSS(0),
+    m_densWaterSS(1000.),
     m_waterProps(0)
   {
     m_npActCoeff.resize(3);
@@ -133,6 +139,14 @@ namespace Cantera {
       m_B_Debye             = b.m_B_Debye;
       m_B_Dot               = b.m_B_Dot;
       m_npActCoeff          = b.m_npActCoeff;
+      if (m_waterSS) {
+	delete m_waterSS;
+	m_waterSS = 0;
+      }
+      if (b.m_waterSS) {
+	m_waterSS = new WaterPDSS(*(b.m_waterSS));
+      }
+      m_densWaterSS         = b.m_densWaterSS;
       if (m_waterProps) {
 	delete m_waterProps;
 	m_waterProps = 0;
@@ -156,9 +170,16 @@ namespace Cantera {
   /**
    * ~DebyeHuckel():   (virtual)
    *
-   *     Destructor: does nothing:
+   *   Destructor for DebyeHuckel. Release objects that
+   * it owns.
    */
   DebyeHuckel::~DebyeHuckel() {
+    if (m_waterProps) {
+      delete m_waterProps; m_waterProps = 0;
+    }
+    if (m_waterSS) {
+      delete m_waterSS; m_waterSS = 0;
+    } 
   }
 
   /**
@@ -205,17 +226,29 @@ namespace Cantera {
    * Molar enthalpy of the solution. Units: J/kmol.
    */
   doublereal DebyeHuckel::enthalpy_mole() const {
-    return err("not implemented");
-  }
-
-  /**
-   * Molar internal energy of the solution. Units: J/kmol.
-   */
-  doublereal DebyeHuckel::intEnergy_mole() const {
     getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
     return mean_X(DATA_PTR(m_tmpV));
   }
 
+  /**
+   * Molar internal energy of the solution. Units: J/kmol.
+   *
+   * This is calculated from the soln enthalpy and then
+   * subtracting pV.
+   */
+  doublereal DebyeHuckel::intEnergy_mole() const {
+    double hh = enthalpy_mole();
+    double pres = pressure();
+    double molarV = 1.0/molarDensity();
+    double uu = hh - pres * molarV;
+    return uu;
+  }
+
+  /**
+   *  Molar soln entropy at constant pressure. Units: J/kmol/K. 
+   *
+   *  This is calculated from the partial molar entropies.
+   */
   doublereal DebyeHuckel::entropy_mole() const {
     getPartialMolarEntropies(DATA_PTR(m_tmpV));
     return mean_X(DATA_PTR(m_tmpV));
@@ -227,10 +260,16 @@ namespace Cantera {
     return mean_X(DATA_PTR(m_tmpV));
   }
 
-  /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
+  /**
+   * Molar heat capacity at constant pressure. Units: J/kmol/K. 
+   *
+   * Returns the solution heat capacition at constant pressure.
+   * This is calculated from the partial molar heat capacities.
+   */
   doublereal DebyeHuckel::cp_mole() const {
     getPartialMolarCp(DATA_PTR(m_tmpV));
-    return mean_X(DATA_PTR(m_tmpV));
+    double val = mean_X(DATA_PTR(m_tmpV));
+    return val;
   }
 
   /// Molar heat capacity at constant volume. Units: J/kmol/K. 
@@ -255,6 +294,69 @@ namespace Cantera {
   }
 
   /**
+   * Set the pressure at constant temperature. Units: Pa.
+   * This method sets a constant within the object.
+   * The mass density is not a function of pressure.
+   */
+  void DebyeHuckel::setPressure(doublereal p) {
+#ifdef DEBUG_MODE
+    //printf("setPressure: %g\n", p);
+#endif
+    double temp = temperature();
+    if (m_waterSS) {
+      /*
+       * Call the water SS and set it's internal state
+       */
+      m_waterSS->setTempPressure(temp, p);
+
+      /*
+       * Store the internal density of the water SS.
+       * Note, we would have to do this for all other
+       * species if they had pressure dependent properties.
+       */
+      m_densWaterSS = m_waterSS->density();
+    }
+    /*
+     * Store the current pressure
+     */
+    m_Pcurrent = p;
+    /*
+     * Calculate all of the other standard volumes
+     * -> note these are constant for now
+     */
+    /*
+     * Get the partial molar volumes of all of the
+     * species. -> note this is a lookup for 
+     * water, here since it was done above.
+     */
+    double *vbar = &m_pp[0];
+    getPartialMolarVolumes(vbar);
+
+    /*
+     * Get mole fractions of all species.
+     */
+    double *x = &m_tmpV[0];
+    getMoleFractions(x);
+	
+    /*
+     * Calculate the solution molar volume and the 
+     * solution density.
+     */
+    doublereal vtotal = 0.0;
+    for (int i = 0; i < m_kk; i++) {
+      vtotal += vbar[i] * x[i];
+    }
+    doublereal dd = meanMolecularWeight() / vtotal;
+
+    /*
+     * Now, update the State class with the results. This
+     * store the denisty.
+     */
+    State::setDensity(dd);
+
+  }
+
+  /**
    * The isothermal compressibility. Units: 1/Pa.
    * The isothermal compressibility is defined as
    * \f[
@@ -265,6 +367,8 @@ namespace Cantera {
    *  doesn't change with pressure or temperature.
    */
   doublereal DebyeHuckel::isothermalCompressibility() const {
+    throw CanteraError("DebyeHuckel::isothermalCompressibility",
+		       "unimplemented");
     return 0.0;
   }
 
@@ -280,6 +384,8 @@ namespace Cantera {
    *  doesn't change with pressure or temperature.
    */
   doublereal DebyeHuckel::thermalExpansionCoeff() const {
+    throw CanteraError("DebyeHuckel::thermalExpansionCoeff",
+		       "unimplemented");
     return 0.0;
   }
     
@@ -523,8 +629,18 @@ namespace Cantera {
    * We calculate 
    */
   void DebyeHuckel::getPartialMolarEnthalpies(doublereal* hbar) const {
+    /*
+     * Get the nondimensional standard state enthalpies
+     */
     getEnthalpy_RT(hbar);
-
+    /*
+     * Dimensionalize it.
+     */
+    double T = temperature();
+    double RT = GasConstant * T;
+    for (int k = 0; k < m_kk; k++) {
+      hbar[k] *= RT;
+    }
     /*
      * Check to see whether activity coefficients are temperature
      * dependent. If they are, then calculate the their temperature
@@ -538,7 +654,6 @@ namespace Cantera {
        */
       s_update_lnMolalityActCoeff();
       s_update_dlnMolalityActCoeff_dT();
-      double T = temperature();
       double RTT = GasConstant * T * T;
       for (int k = 0; k < m_kk; k++) {
 	hbar[k] -= RTT * m_dlnActCoeffMolaldT[k];
@@ -584,17 +699,22 @@ namespace Cantera {
      */
     getEntropy_R(sbar);
     /*
+     * Dimensionalize the entropies
+     */
+    doublereal R = GasConstant;
+    for (k = 0; k < m_kk; k++) {
+      sbar[k] *= R;
+    }
+    /*
      * Update the activity coefficients, This also update the
      * internally storred molalities.
      */
     s_update_lnMolalityActCoeff();
-
-    doublereal R = GasConstant;
-    doublereal mm;
     /*
      * First we will add in the obvious dependence on the T
      * term out front of the log activity term
      */
+    doublereal mm;
     for (k = 0; k < m_kk; k++) {
       if (k != m_indexSolvent) {
 	mm = fmaxx(SmallNumber, m_molalities[k]);
@@ -603,8 +723,7 @@ namespace Cantera {
     }
     double xmolSolvent = moleFraction(m_indexSolvent);
     mm = fmaxx(SmallNumber, xmolSolvent);
-    sbar[m_indexSolvent] -=
-      R *(log(mm) + m_lnActCoeffMolal[m_indexSolvent]);
+    sbar[m_indexSolvent] -= R *(log(mm) + m_lnActCoeffMolal[m_indexSolvent]);
     /*
      * Check to see whether activity coefficients are temperature
      * dependent. If they are, then calculate the their temperature
@@ -626,20 +745,32 @@ namespace Cantera {
    * returns an array of partial molar volumes of the species
    * in the solution. Units: m^3 kmol-1.
    *
-   * For this solution, the partial molar volumes are equal to the
-   * constant species molar volumes.
+   * For this solution, the partial molar volumes are normally
+   *  equal to theconstant species molar volumes, except
+   * when the activity coefficients depend on pressure.
    *
    * The general relation is 
    *
    *       vbar_i = d(chemPot_i)/dP at const T, n
    *
-   * So, if the activity coefficients depended on pressure this
-   * function would be nontrivial.
+   *              = V0_i + d(Gex)/dP)_T,M
+   *
+   *              = V0_i + RT d(lnActCoeffi)dP _T,M
+   *
    */
   void DebyeHuckel::getPartialMolarVolumes(doublereal* vbar) const {
     getStandardVolumes(vbar);
+    /*
+     * Update the derivatives wrt the activity coefficients.
+     */
+    s_update_lnMolalityActCoeff();
+    s_update_dlnMolalityActCoeff_dP();  
+    double T = temperature();
+    double RT = GasConstant * T;
+    for (int k = 0; k < m_kk; k++) {
+      vbar[k] += RT * m_dlnActCoeffMolaldP[k];
+    }
   }
-
 
   /*
    * Partial molar heat capacity of the solution:
@@ -685,7 +816,6 @@ namespace Cantera {
     }
   }
 
-
   /*
    * -------- Properties of the Standard State of the Species
    *           in the Solution ------------------
@@ -715,6 +845,9 @@ namespace Cantera {
       pref = m_spthermo->refPressure(k);
       delta_p = m_Pcurrent - pref;
       mu[k] += delta_p * m_speciesSize[k];
+    }
+    if (m_waterSS) {
+      mu[0] = m_waterSS->gibbs_mole();
     }
   }
     
@@ -2318,8 +2451,7 @@ namespace Cantera {
    *
    *   Using internally stored values, this function calculates
    *   the pressure derivative of the logarithm of the
-   *   activity coefficient
-   *   for all species in the mechanism.
+   *   activity coefficient for all species in the mechanism.
    *
    *   We assume that the activity coefficients, molalities,
    *   and A_Debye are current.

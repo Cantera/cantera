@@ -182,7 +182,7 @@ namespace Cantera {
 
     /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
     /*
-     *      (HKM -> Bump up to Parent object)
+     *     
      */
     virtual doublereal cp_mole() const;
 
@@ -216,10 +216,7 @@ namespace Cantera {
      * This method sets a constant within the object.
      * The mass density is not a function of pressure.
      */
-    virtual void setPressure(doublereal p) {
-      m_Pcurrent = p;
-    }
-
+    virtual void setPressure(doublereal p);
 
     /**
      * Calculate the density of the mixture using the partial 
@@ -1116,6 +1113,12 @@ namespace Cantera {
      */
     array_fp m_npActCoeff;
 
+    /**
+     *  Water standard state -> derived from the
+     *  equation of state for water.
+     */
+    WaterPDSS *m_waterSS;
+    double m_densWaterSS;
 
     /**
      *  Pointer to the water property calculator
