@@ -1099,7 +1099,7 @@ namespace Cantera {
      * strong function of T, and its variability must be
      * accounted for,
      */
-    mutable int m_form_A_Debye;
+    int m_form_A_Debye;
 
   protected:
     /**
@@ -1134,28 +1134,6 @@ namespace Cantera {
      *                       = 1.0E3 at 25C
      */
     mutable double m_A_Debye;
-
-    /**
-     * B_Debye -> this expression appears on the bottom of the
-     *            ln actCoeff term in the general Debye-Huckel
-     *            expression
-     *            It depends on temperature
-     *            
-     *            B_Bebye = F / sqrt( epsilon R T / 2 )
-     *
-     *            Units = sqrt(kg/gmol) / m
-     *
-     *            Nominal value = 3.28640E9 sqrt(kg/gmol) / m
-     *                  based on:
-     *                    epsilon/epsilon_0 = 78.54
-     *                           (water at 25C)
-     *                    epsilon_0 = 8.854187817E12 C2 N-1 m-2
-     *                    e = 8.314472E3 kg m2 s-2 kmol-1 K-1
-     *                    F = 9.6485309E7 C kmol-1
-     *                    R = 8.314472E3 kg m2 s-2 kmol-1 K-1
-     *                    T = 298.15 K
-     */
-    //double m_B_Debye;
 
     /**
      *  Water standard state -> derived from the
@@ -1402,7 +1380,6 @@ namespace Cantera {
      * This function will be called to update the internally storred
      * natural logarithm of the molality activity coefficients 
      */
-    //void s_updateDHlnMolalityActCoeff() const;
     void s_update_lnMolalityActCoeff() const;
   public:
     void s_Pitzer_dlnMolalityActCoeff_dT() const;

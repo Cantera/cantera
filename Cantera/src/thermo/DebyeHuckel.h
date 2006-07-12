@@ -90,6 +90,14 @@ namespace Cantera {
 #define DHFORM_BETAIJ        3
 #define DHFORM_PITZER_BETAIJ 4
  
+  /*
+   *  Acceptable ways to calculate the value of A_Debye
+   */
+#define    A_DEBYE_CONST  0
+#define    A_DEBYE_WATER  1
+
+  class WaterProps;
+  class WaterPDSS;
 
   /**
    * Definition of the DebyeHuckel object
@@ -860,11 +868,41 @@ namespace Cantera {
     virtual double A_Debye_TP(double temperature = -1.0, 
 			      double pressure = -1.0) const;
 
+    /**
+     * Value of the derivative of the Debye Huckel constant with 
+     * respect to temperature as a function of temperature
+     * and pressure.
+     *
+     *            A_Debye = (F e B_Debye) / (8 Pi epsilon R T)
+     *
+     *            Units = sqrt(kg/gmol)
+     */
     virtual double dA_DebyedT_TP(double temperature = -1.0, 
 				 double pressure = -1.0) const;
 
+    /**
+     * Value of the 2nd derivative of the Debye Huckel constant with 
+     * respect to temperature as a function of temperature
+     * and pressure.
+     *
+     *            A_Debye = (F e B_Debye) / (8 Pi epsilon R T)
+     *
+     *            Units = sqrt(kg/gmol)
+     */
     virtual double d2A_DebyedT2_TP(double temperature = -1.0, 
 				   double pressure = -1.0) const;
+
+    /**
+     * Value of the derivative of the Debye Huckel constant with 
+     * respect to pressure, as a function of temperature
+     * and pressure.
+     *
+     *      A_Debye = (F e B_Debye) / (8 Pi epsilon R T)
+     *
+     *  Units = sqrt(kg/gmol)
+     */
+    virtual double dA_DebyedP_TP(double temperature = -1.0, 
+				 double pressure = -1.0) const;
 
     /*
      * AionicRadius()
@@ -995,7 +1033,26 @@ namespace Cantera {
      */
     mutable double m_IionicMolalityStoich;
 
+  public:
+    /**
+     * Form of the constant outside the Debye-Huckel term
+     * called A. It's normally a function of temperature 
+     * and pressure. However, it can be set from the
+     * input file in order to aid in numerical comparisons.
+     * Acceptable forms:
+     *
+     *       A_DEBYE_CONST  0
+     *       A_DEBYE_WATER  1
+     *
+     * The A_DEBYE_WATER form may be used for water solvents
+     * with needs to cover varying temperatures and pressures.
+     * Note, the dielectric constant of water is a relatively
+     * strong function of T, and its variability must be
+     * accounted for,
+     */
+    int m_form_A_Debye;
 
+  protected:
     /**
      * A_Debye -> this expression appears on the top of the
      *            ln actCoeff term in the general Debye-Huckel
@@ -1059,6 +1116,12 @@ namespace Cantera {
      */
     array_fp m_npActCoeff;
 
+
+    /**
+     *  Pointer to the water property calculator
+     */
+    WaterProps *m_waterProps;
+
     /**
      * Vector containing the species reference exp(-G/RT) functions
      * at T = m_tlast
@@ -1111,6 +1174,7 @@ namespace Cantera {
     mutable array_fp m_lnActCoeffMolal;
     mutable array_fp m_dlnActCoeffMolaldT;
     mutable array_fp m_d2lnActCoeffMolaldT2;
+    mutable array_fp m_dlnActCoeffMolaldP;
   
   private:
     doublereal err(string msg) const;
@@ -1122,10 +1186,11 @@ namespace Cantera {
      * This function will be called to update the internally storred
      * natural logarithm of the molality activity coefficients 
      */
-    void _updatelnMolalityActCoeff() const;
+    void s_update_lnMolalityActCoeff() const;
 
-    void _updatedlnMolalityActCoeffdT() const;
-    void _updated2lnMolalityActCoeffdT2() const;
+    void s_update_dlnMolalityActCoeff_dT() const;
+    void s_update_d2lnMolalityActCoeff_dT2() const;
+    void s_update_dlnMolalityActCoeff_dP() const;
   };
 
 }

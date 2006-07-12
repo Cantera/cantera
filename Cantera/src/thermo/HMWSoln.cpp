@@ -146,10 +146,12 @@ namespace Cantera {
       }
       m_waterSS             = b.m_waterSS;
       m_densWaterSS         = b.m_densWaterSS;
-      if (!m_waterProps) {
-	m_waterProps = new WaterProps(*b.m_waterProps);
-      } else {
-	m_waterProps = b.m_waterProps;
+      if (m_waterProps) {
+	delete m_waterProps;
+	m_waterProps = 0;
+      }
+      if (b.m_waterProps) {
+	m_waterProps = new WaterProps(*(b.m_waterProps));
       }
       m_waterSS             = b.m_waterSS;
       m_expg0_RT            = b.m_expg0_RT;
@@ -1323,7 +1325,6 @@ namespace Cantera {
       break;
     case A_DEBYE_WATER:
       A = m_waterProps->ADebye(T, P, 0);
-      //A = WaterProps::ADebye(T, P, 0);
       m_A_Debye = A;
       break;
     default:
@@ -1481,10 +1482,6 @@ namespace Cantera {
    *  Returns the 2nd derivative of the A_Debye parameter with
    *  respect to temperature as a function of temperature
    *  and pressure. 
-   *
-   *  The default is to assume that it is equal to zero
-   *  -> note, placeholder until a better formalism is 
-   *           put in place.
    *
    * units = A_Debye has units of sqrt(gmol kg-1).
    *         Temp has units of Kelvin.

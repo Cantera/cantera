@@ -16,6 +16,7 @@
 
 #include "DebyeHuckel.h"
 #include "importCTML.h"
+#include "WaterProps.h"
 
 
 namespace Cantera {
@@ -32,8 +33,10 @@ namespace Cantera {
     m_maxIionicStrength(30.0),
     m_useHelgesonFixedForm(false),
     m_IionicMolalityStoich(0.0),
+    m_form_A_Debye(A_DEBYE_CONST),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_B_Debye(3.28640E9)   // units = sqrt(kg/gmol) / m
+    m_B_Debye(3.28640E9),   // units = sqrt(kg/gmol) / m
+    m_waterProps(0)
   {
     m_npActCoeff.resize(3);
     m_npActCoeff[0] = 0.1127;
@@ -57,8 +60,10 @@ namespace Cantera {
     m_maxIionicStrength(30.0),
     m_useHelgesonFixedForm(false),
     m_IionicMolalityStoich(0.0),
+    m_form_A_Debye(A_DEBYE_CONST),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_B_Debye(3.28640E9)  // units = sqrt(kg/gmol) / m
+    m_B_Debye(3.28640E9),  // units = sqrt(kg/gmol) / m
+    m_waterProps(0)
   {
     m_npActCoeff.resize(3);
     m_npActCoeff[0] = 0.1127;
@@ -76,8 +81,10 @@ namespace Cantera {
     m_maxIionicStrength(3.0),
     m_useHelgesonFixedForm(false),
     m_IionicMolalityStoich(0.0),
+    m_form_A_Debye(A_DEBYE_CONST),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_B_Debye(3.28640E9)   // units = sqrt(kg/gmol) / m
+    m_B_Debye(3.28640E9),   // units = sqrt(kg/gmol) / m
+    m_waterProps(0)
   {
     m_npActCoeff.resize(3);
     m_npActCoeff[0] = 0.1127;
@@ -121,9 +128,18 @@ namespace Cantera {
       m_maxIionicStrength   = b.m_maxIionicStrength;
       m_useHelgesonFixedForm= b.m_useHelgesonFixedForm;
       m_IionicMolalityStoich= b.m_IionicMolalityStoich;
+      m_form_A_Debye        = b.m_form_A_Debye;
       m_A_Debye             = b.m_A_Debye;
       m_B_Debye             = b.m_B_Debye;
       m_B_Dot               = b.m_B_Dot;
+      m_npActCoeff          = b.m_npActCoeff;
+      if (m_waterProps) {
+	delete m_waterProps;
+	m_waterProps = 0;
+      }
+      if (b.m_waterProps) {
+	m_waterProps = new WaterProps(*(b.m_waterProps));
+      }
       m_expg0_RT            = b.m_expg0_RT;
       m_pe                  = b.m_pe;
       m_pp                  = b.m_pp;
@@ -411,7 +427,7 @@ namespace Cantera {
      * Update the molality array, m_molalities()
      *   This requires an update due to mole fractions
      */
-    _updatelnMolalityActCoeff();
+    s_update_lnMolalityActCoeff();
     for (int k = 0; k < m_kk; k++) {
       if (k != m_indexSolvent) {
 	ac[k] = m_molalities[k] * exp(m_lnActCoeffMolal[k]);
@@ -435,7 +451,9 @@ namespace Cantera {
    */
   void DebyeHuckel::
   getMolalityActivityCoefficients(doublereal* acMolality) const {
-    _updatelnMolalityActCoeff();
+
+    A_Debye_TP(-1.0, -1.0);
+    s_update_lnMolalityActCoeff();
     copy(m_lnActCoeffMolal.begin(), m_lnActCoeffMolal.end(), acMolality);
     for (int k = 0; k < m_kk; k++) {
       acMolality[k] = exp(acMolality[k]);
@@ -474,7 +492,7 @@ namespace Cantera {
      * Update the activity coefficients
      * This also updates the internal molality array.
      */
-    _updatelnMolalityActCoeff();
+    s_update_lnMolalityActCoeff();
     /*
      *   
      */
@@ -518,8 +536,8 @@ namespace Cantera {
        * Update the activity coefficients, This also update the
        * internally storred molalities.
        */
-      _updatelnMolalityActCoeff();
-      _updatedlnMolalityActCoeffdT();
+      s_update_lnMolalityActCoeff();
+      s_update_dlnMolalityActCoeff_dT();
       double T = temperature();
       double RTT = GasConstant * T * T;
       for (int k = 0; k < m_kk; k++) {
@@ -569,7 +587,7 @@ namespace Cantera {
      * Update the activity coefficients, This also update the
      * internally storred molalities.
      */
-    _updatelnMolalityActCoeff();
+    s_update_lnMolalityActCoeff();
 
     doublereal R = GasConstant;
     doublereal mm;
@@ -594,7 +612,7 @@ namespace Cantera {
      */
     double dAdT = dA_DebyedT_TP();
     if (dAdT != 0.0) {
-      _updatedlnMolalityActCoeffdT();
+      s_update_dlnMolalityActCoeff_dT();
       double RT = R * temperature();
       for (k = 0; k < m_kk; k++) {
 	sbar[k] -= RT * m_dlnActCoeffMolaldT[k];
@@ -654,9 +672,9 @@ namespace Cantera {
        * Update the activity coefficients, This also update the
        * internally storred molalities.
        */
-      _updatelnMolalityActCoeff();
-      _updatedlnMolalityActCoeffdT();
-      _updated2lnMolalityActCoeffdT2();
+      s_update_lnMolalityActCoeff();
+      s_update_dlnMolalityActCoeff_dT();
+      s_update_d2lnMolalityActCoeff_dT2();
       double T = temperature();
       double RT = GasConstant * T;
       double RTT = RT * T;
@@ -1496,10 +1514,28 @@ namespace Cantera {
    */
   double DebyeHuckel::A_Debye_TP(double tempArg, double presArg) const {
     double T = temperature(); 
+    double A;
     if (tempArg != -1.0) {
       T = tempArg;
     }
-    return m_A_Debye;
+    double P = pressure();
+    if (presArg != -1.0) {
+      P = presArg;
+    }
+
+    switch (m_form_A_Debye) {
+    case A_DEBYE_CONST:
+      A = m_A_Debye;
+      break;
+    case A_DEBYE_WATER:
+      A = m_waterProps->ADebye(T, P, 0);
+      m_A_Debye = A;
+      break;
+    default:
+      printf("shouldn't be here\n");
+      exit(-1);
+    }
+    return A;
   }
 
   /**
@@ -1509,16 +1545,32 @@ namespace Cantera {
    *  respect to temperature as a function of temperature
    *  and pressure. 
    *
-   *  The default is to assume that it is equal to zero
-   *  -> note, placeholder until a better formalism is 
-   *           put in place.
+   * units = A_Debye has units of sqrt(gmol kg-1).
+   *         Temp has units of Kelvin.
    */
   double DebyeHuckel::dA_DebyedT_TP(double tempArg, double presArg) const {
-    double T = temperature(); 
+    double T = temperature();
     if (tempArg != -1.0) {
       T = tempArg;
     }
-    return 0.0;
+    double P = pressure();
+    if (presArg != -1.0) {
+      P = presArg;
+    }
+    double dAdT;
+    switch (m_form_A_Debye) {
+    case A_DEBYE_CONST:
+      dAdT = 0.0;
+      break;
+    case A_DEBYE_WATER:
+      dAdT = m_waterProps->ADebye(T, P, 1);
+      //dAdT = WaterProps::ADebye(T, P, 1);
+      break;
+    default:
+      printf("shouldn't be here\n");
+      exit(-1);
+    }
+    return dAdT;
   }
 
   /**
@@ -1526,18 +1578,67 @@ namespace Cantera {
    *
    *  Returns the 2nd derivative of the A_Debye parameter with
    *  respect to temperature as a function of temperature
-   *  and pressure. 
-   *
-   *  The default is to assume that it is equal to zero
-   *  -> note, placeholder until a better formalism is 
-   *           put in place.
+   *  and pressure.
+   * 
+   * units = A_Debye has units of sqrt(gmol kg-1).
+   *         Temp has units of Kelvin.
    */
   double DebyeHuckel::d2A_DebyedT2_TP(double tempArg, double presArg) const {
-    double T = temperature(); 
+    double T = temperature();
     if (tempArg != -1.0) {
       T = tempArg;
     }
-    return 0.0;
+    double P = pressure();
+    if (presArg != -1.0) {
+      P = presArg;
+    }
+    double d2AdT2;
+    switch (m_form_A_Debye) {
+    case A_DEBYE_CONST:
+      d2AdT2 = 0.0;
+      break;
+    case A_DEBYE_WATER:
+      d2AdT2 = m_waterProps->ADebye(T, P, 2);
+      break;
+    default:
+      printf("shouldn't be here\n");
+      exit(-1);
+    }
+    return d2AdT2;
+  }
+
+  /**
+   * dA_DebyedP_TP()                              (virtual)
+   *
+   *  Returns the derivative of the A_Debye parameter with
+   *  respect to pressure, as a function of temperature
+   *  and pressure. 
+   *
+   * units = A_Debye has units of sqrt(gmol kg-1).
+   *         Pressure has units of pascals.
+   */
+  double DebyeHuckel::dA_DebyedP_TP(double tempArg, double presArg) const {
+    double T = temperature();
+    if (tempArg != -1.0) {
+      T = tempArg;
+    }
+    double P = pressure();
+    if (presArg != -1.0) {
+      P = presArg;
+    }
+    double dAdP;
+    switch (m_form_A_Debye) {
+    case A_DEBYE_CONST:
+      dAdP = 0.0;
+      break;
+    case A_DEBYE_WATER:
+      dAdP = m_waterProps->ADebye(T, P, 3);
+      break;
+    default:
+      printf("shouldn't be here\n");
+      exit(-1);
+    }
+    return dAdP;
   }
 
   /*
@@ -1587,6 +1688,7 @@ namespace Cantera {
     m_lnActCoeffMolal.resize(leng, 0.0);
     m_dlnActCoeffMolaldT.resize(leng, 0.0);
     m_d2lnActCoeffMolaldT2.resize(leng, 0.0);
+    m_dlnActCoeffMolaldP.resize(leng, 0.0);
     m_B_Dot.resize(leng, 0.0);
     m_expg0_RT.resize(leng, 0.0);
     m_pe.resize(leng, 0.0);
@@ -1671,7 +1773,7 @@ namespace Cantera {
   }
 
   /**
-   * _updatelnMolalityActCoeff():
+   * s_update_lnMolalityActCoeff():
    *
    *   Using internally stored values, this function calculates
    *   the activity coefficients for all species.
@@ -1683,7 +1785,7 @@ namespace Cantera {
    *   ( Note this is the main routine for implementing the
    *     activity coefficient formulation.)
    */
-  void DebyeHuckel::_updatelnMolalityActCoeff() const {
+  void DebyeHuckel::s_update_lnMolalityActCoeff() const {
     double z_k, zs_k1, zs_k2;
     /*
      * Update the internally storred vector of molalities
@@ -1941,7 +2043,7 @@ namespace Cantera {
   }
 
   /**
-   * _updatedMolalityActCoeffdT()         (private, const )
+   * s_update_dMolalityActCoeff_dT()         (private, const )
    *
    *   Using internally stored values, this function calculates
    *   the temperature derivative of the logarithm of the
@@ -1952,7 +2054,7 @@ namespace Cantera {
    *   solvent activity coefficient is on the molality
    *   scale. It's derivative is too.
    */
-  void DebyeHuckel::_updatedlnMolalityActCoeffdT() const {
+  void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const {
     double z_k, coeff, tmp, y, yp1, sigma, tmpLn;
     int k;
     double dAdT =  dA_DebyedT_TP();
@@ -2074,7 +2176,7 @@ namespace Cantera {
   }
 
   /**
-   * _updated2lnMolalityActCoeffdT2()         (private, const )
+   * s_update_d2lnMolalityActCoeff_dT2()         (private, const )
    *
    *   Using internally stored values, this function calculates
    *   the temperature 2nd derivative of the logarithm of the
@@ -2087,17 +2189,17 @@ namespace Cantera {
    *   scale. It's derivatives are too.
    */
 
-  void DebyeHuckel::_updated2lnMolalityActCoeffdT2() const {
+  void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const {
     double z_k, coeff, tmp, y, yp1, sigma, tmpLn;
     int k;
     double dAdT =  dA_DebyedT_TP();
-    if (dAdT == 0.0) {
+    double d2AdT2 = d2A_DebyedT2_TP();
+    if (d2AdT2 == 0.0 && dAdT == 0.0) {
       for (k = 0; k < m_kk; k++) {
-	m_dlnActCoeffMolaldT[k] = 0.0;
+	m_d2lnActCoeffMolaldT2[k] = 0.0;
       }
       return;
     }
-    double d2AdT2 = d2A_DebyedT2_TP();
 
     /*
      * Calculate a safe value for the mole fraction
@@ -2211,6 +2313,145 @@ namespace Cantera {
     }
   }
 
+  /**
+   * s_update_dlnMolalityActCoeff_dP()         (private, const )
+   *
+   *   Using internally stored values, this function calculates
+   *   the pressure derivative of the logarithm of the
+   *   activity coefficient
+   *   for all species in the mechanism.
+   *
+   *   We assume that the activity coefficients, molalities,
+   *   and A_Debye are current.
+   *
+   *   solvent activity coefficient is on the molality
+   *   scale. It's derivatives are too.
+   */
+  void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const {
+    double z_k, coeff, tmp, y, yp1, sigma, tmpLn;
+    int k, est;
+    double dAdP =  dA_DebyedP_TP();
+    if (dAdP == 0.0) {
+      for (k = 0; k < m_kk; k++) {
+	m_dlnActCoeffMolaldP[k] = 0.0;
+      }
+      return;
+    }
+    /*
+     * Calculate a safe value for the mole fraction
+     * of the solvent
+     */
+    double xmolSolvent = moleFraction(m_indexSolvent);
+    xmolSolvent = MAX(8.689E-3, xmolSolvent);
+
+
+    double sqrtI  = sqrt(m_IionicMolality);
+    double numdAdPTmp = dAdP * sqrtI;
+    double denomTmp = m_B_Debye * sqrtI;
+
+    switch (m_formDH) {
+    case DHFORM_DILUTE_LIMIT:
+      for (int k = 0; k < m_kk; k++) {
+	m_dlnActCoeffMolaldP[k] = 
+	  m_lnActCoeffMolal[k] * dAdP / m_A_Debye;
+      }
+      break;
+
+    case DHFORM_BDOT_AK:
+      for (int k = 0; k < m_kk; k++) {
+	est = m_electrolyteSpeciesType[k];
+	if (est == cEST_nonpolarNeutral) {
+	  m_lnActCoeffMolal[k] = 0.0;
+	} else {
+	  z_k = m_speciesCharge[k];
+	  m_dlnActCoeffMolaldP[k] =
+	    - z_k * z_k * numdAdPTmp / (1.0 + denomTmp * m_Aionic[k]);
+	}
+      }
+
+      m_dlnActCoeffMolaldP[m_indexSolvent] = 0.0;
+	  
+      coeff = 2.0 / 3.0 * dAdP * m_Mnaught * sqrtI;
+      tmp = 0.0;
+      if (denomTmp > 0.0) {
+	for (int k = 0; k < m_kk; k++) {
+	  y = denomTmp * m_Aionic[k];
+	  yp1 = y + 1.0;
+	  sigma = 3.0 / (y * y * y) * (yp1 - 1.0/yp1 - 2.0*log(yp1)); 
+	  z_k = m_speciesCharge[k];
+	  tmp += m_molalities[k] * z_k * z_k * sigma / 2.0;
+	}
+      }
+      m_dlnActCoeffMolaldP[m_indexSolvent] += coeff * tmp;
+      break;
+
+    case DHFORM_BDOT_ACOMMON:
+      denomTmp *= m_Aionic[0];
+      for (int k = 0; k < m_kk; k++) {
+	z_k = m_speciesCharge[k];
+	m_dlnActCoeffMolaldP[k] = 
+	  - z_k * z_k * numdAdPTmp / (1.0 + denomTmp);
+      }
+      if (denomTmp > 0.0) {
+	y = denomTmp;
+	yp1 = y + 1.0;
+	sigma = 3.0 / (y * y * y) * (yp1 - 1.0/yp1 - 2.0*log(yp1)); 
+      } else {
+	sigma = 0.0;
+      }
+      m_dlnActCoeffMolaldP[m_indexSolvent] =
+	2.0 /3.0 * dAdP * m_Mnaught * m_IionicMolality * sqrtI * sigma;
+      break;
+
+    case DHFORM_BETAIJ:
+      denomTmp *= m_Aionic[0];
+      for (int k = 0; k < m_kk; k++) {
+	if (k != m_indexSolvent) {
+	  z_k = m_speciesCharge[k];
+	  m_dlnActCoeffMolaldP[k] = 
+	    - z_k * z_k * numdAdPTmp / (1.0 + denomTmp);
+	}
+      }
+      if (denomTmp > 0.0) {
+	y = denomTmp;
+	yp1 = y + 1.0;
+	sigma = 3.0 / (y * y * y) * (yp1 - 1.0/yp1 - 2.0*log(yp1)); 
+      } else {
+	sigma = 0.0;
+      }
+      m_dlnActCoeffMolaldP[m_indexSolvent] =  
+	(xmolSolvent - 1.0)/xmolSolvent + 
+	2.0 /3.0 * dAdP * m_Mnaught * 
+	m_IionicMolality * sqrtI * sigma;
+      break;
+
+    case DHFORM_PITZER_BETAIJ:
+      denomTmp *= m_Aionic[0];
+      tmpLn = log(1.0 + denomTmp);
+      for (int k = 0; k < m_kk; k++) {
+	if (k != m_indexSolvent) {
+	  z_k = m_speciesCharge[k];
+	  m_dlnActCoeffMolaldP[k] = 
+	    - z_k * z_k * numdAdPTmp / (1.0 + denomTmp)
+	    - 2.0 * z_k * z_k * dAdP * tmpLn 
+	    / (m_B_Debye * m_Aionic[0]);
+	  m_dlnActCoeffMolaldP[k] /= 3.0; 
+	}
+      }
+
+      sigma = 1.0 / ( 1.0 + denomTmp);
+      m_dlnActCoeffMolaldP[m_indexSolvent] =  
+	(xmolSolvent - 1.0)/xmolSolvent + 
+	2.0 /3.0 * dAdP * m_Mnaught * 
+	m_IionicMolality * sqrtI * sigma;
+      break;
+
+    default:
+      printf("ERROR\n");
+      exit(-1);
+      break;
+    }
+  }
  
 }
 
