@@ -11,8 +11,6 @@ int main () {
     WaterPropsIAPWS *water = new WaterPropsIAPWS();
 
     double T;
-    double rho;
-
 
     /* 
      * Print out the triple point conditions

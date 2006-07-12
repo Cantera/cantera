@@ -30,7 +30,7 @@ endif
 
 test:
 ifeq ($(test_issp),1)
-	cd issp;  @MAKE@ test
+	cd issp;  @MAKE@ -s test
 endif
 ifeq ($(test_electrolytes),1)
 	cd ims; @MAKE@ -s test
