@@ -100,10 +100,18 @@ namespace Cantera {
             return attrib(attr);
         }
 
+        /**
+         * This function searches the attibutes vector for the parameter 
+         * string attribute. If a match is found, the attribute value
+         * is returned as a string. If no match is found, the empty string
+         * is returned.
+         *
+         * @param(attr) String containing the attribute to be searched for.
+         */
         string attrib(string attr) const { 
             map<string,string>::const_iterator i = m_attribs.find(attr);
             if (i != m_attribs.end()) return i->second;
-            else return ""; 
+            return ""; 
         }
 
         map<string,string>& attribs() { return m_attribs; }

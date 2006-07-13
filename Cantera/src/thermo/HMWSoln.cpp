@@ -1300,7 +1300,6 @@ namespace Cantera {
     }
     return vol;
   }
-
  
   /**
    * A_Debye_TP()                              (virtual)
@@ -1667,8 +1666,6 @@ namespace Cantera {
 
     counterIJ_setup();
   }
-
- 
 
   /**
    * Calcuate the natural log of the molality-based

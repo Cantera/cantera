@@ -430,6 +430,18 @@ namespace Cantera {
     }
   }
 
+  /**
+   * Overwritten setTemperature(double) from State.h. This
+   * function sets the temperature, and makes sure that
+   * the value propagates to underlying objects.
+   */
+  void DebyeHuckel::setTemperature(double temp) {
+    if (m_waterSS) {
+      m_waterSS->setTemperature(temp);
+    }
+    State::setTemperature(temp);
+  }
+
 
   //
   // ------- Activities and Activity Concentrations
@@ -890,14 +902,7 @@ namespace Cantera {
    * species <I>k<\I> at the reference pressure, \f$P_{ref}\f$.
    */
   void DebyeHuckel::getPureGibbs(doublereal* gpure) const {
-    getGibbs_ref(gpure);
-    doublereal pref;
-    doublereal delta_p;
-    for (int k = 0; k < m_kk; k++) {
-      pref = m_spthermo->refPressure(k);
-      delta_p = m_Pcurrent - pref;
-      gpure[k] += delta_p * m_speciesSize[k];
-    }
+    getStandardChemPotentials(gpure);
   }
 
   /**
@@ -926,6 +931,10 @@ namespace Cantera {
       delta_p = m_Pcurrent - pref;
       hrt[k] += delta_p/ RT * m_speciesSize[k];
     }
+    if (m_waterSS) {
+      hrt[0] = m_waterSS->enthalpy_mole();
+      hrt[0] /= RT;
+    }
   }
     
   /**
@@ -945,6 +954,10 @@ namespace Cantera {
   void DebyeHuckel::
   getEntropy_R(doublereal* sr) const {
     getEntropy_R_ref(sr);
+    if (m_waterSS) {
+      sr[0] = m_waterSS->entropy_mole();
+      sr[0] /= GasConstant;
+    }
   }
 
   /**
@@ -963,7 +976,11 @@ namespace Cantera {
    *           constant pressure heat capacity for species k. 
    */
   void DebyeHuckel::getCp_R(doublereal* cpr) const {
-    getCp_R_ref(cpr); 
+    getCp_R_ref(cpr);
+    if (m_waterSS) {
+      cpr[0] = m_waterSS->cp_mole();
+      cpr[0] /= GasConstant;
+    }
   }
     
   /**
@@ -975,6 +992,10 @@ namespace Cantera {
   void DebyeHuckel::getStandardVolumes(doublereal *vol) const {
     copy(m_speciesSize.begin(),
 	 m_speciesSize.end(), vol);
+    if (m_waterSS) {
+      double dd = m_waterSS->density();
+      vol[0] = molecularWeight(0)/dd;
+    }
   }
     
 
@@ -1276,9 +1297,11 @@ namespace Cantera {
 			 "Solvent " + solventName +
 			 " should be first species");
     }
-
+    
     /*
-     * Now go get the molar volumes
+     * Now go get the specification of the standard states for
+     * species in the solution. This includes the molar volumes
+     * data blocks for incompressible species.
      */
     XML_Node& speciesList = phaseNode.child("speciesArray");
     XML_Node* speciesDB =
@@ -1288,12 +1311,69 @@ namespace Cantera {
 
     for (k = 0; k < m_kk; k++) {
       XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
+      if (!s) {
+	throw CanteraError("DebyeHuckel::initThermoXML",
+			 "Species Data Base " + sss[k] + " not found");
+      }
       XML_Node *ss = s->findByName("standardState");
-      m_speciesSize[k] = getFloat(*ss, "molarVolume", "-");
+      if (!ss) {
+	throw CanteraError("DebyeHuckel::initThermoXML",
+			 "Species " + sss[k] + 
+			   " standardState XML block  not found");
+      }
+      string modelStringa = ss->attrib("model");
+      if (modelStringa == "") {
+	throw CanteraError("DebyeHuckel::initThermoXML",
+			   "Species " + sss[k] + 
+			   " standardState XML block model attribute not found");
+      }
+      string modelString = lowercase(modelStringa);
+
+      if (k == 0) {
+	if (modelString == "wateriapws" || modelString == "real_water" ||
+	    modelString == "waterpdss") {
+	  /*
+	   * Initialize the water standard state model
+	   */
+	  if (m_waterSS) delete m_waterSS;
+	  m_waterSS = new WaterPDSS(this, 0);
+	  /*
+	   * Fill in the molar volume of water (m3/kmol)
+	   * at standard conditions to fill in the m_speciesSize entry
+	   * with something reasonable.
+	   */
+	  m_waterSS->setState_TP(300., OneAtm);
+	  double dens = m_waterSS->density();
+	  double mw = m_waterSS->molecularWeight();
+	  m_speciesSize[0] = mw / dens;
 #ifdef DEBUG_HKM_NOT
-      cout << "species " << sss[k] << " has volume " <<  
-	m_speciesSize[k] << endl;
+	  cout << "Solvent species " << sss[k] << " has volume " <<  
+	    m_speciesSize[k] << endl;
 #endif
+	} else if (modelString == "constant_incompressible") {
+	  m_speciesSize[k] = getFloat(*ss, "molarVolume", "-");
+#ifdef DEBUG_HKM_NOT
+	  cout << "species " << sss[k] << " has volume " <<  
+	    m_speciesSize[k] << endl;
+#endif
+	} else {
+	  throw CanteraError("DebyeHuckel::initThermoXML",
+			     "Solvent SS Model \"" + modelStringa + 
+			     "\" is not known");
+	}
+      } else {
+	if (modelString != "constant_incompressible") {
+	  throw CanteraError("DebyeHuckel::initThermoXML",
+			     "Solute SS Model \"" + modelStringa + 
+			     "\" is not known");
+	}
+	m_speciesSize[k] = getFloat(*ss, "molarVolume", "-");
+#ifdef DEBUG_HKM_NOT
+	cout << "species " << sss[k] << " has volume " <<  
+   	  m_speciesSize[k] << endl;
+#endif
+      }
+
     }
 
     /*
@@ -1308,10 +1388,32 @@ namespace Cantera {
        * Look for parameters for A_Debye
        */
       if (acNode.hasChild("A_Debye")) {
-	m_A_Debye = getFloat(acNode, "A_Debye");
+	XML_Node *ss = acNode.findByName("A_Debye");
+	string modelStringa = ss->attrib("model");
+	string modelString = lowercase(modelStringa);
+	if (modelString != "") {
+	  if (modelString == "water") {
+	    m_form_A_Debye = A_DEBYE_WATER;
+	  } else {
+	    throw CanteraError("DebyeHuckel::initThermoXML",
+			       "A_Debye Model \"" + modelStringa + 
+			     "\" is not known");
+	  }
+	} else {
+	  m_A_Debye = getFloat(acNode, "A_Debye");
 #ifdef DEBUG_HKM_NOT
-	cout << "A_Debye = " << m_A_Debye << endl;
+	  cout << "A_Debye = " << m_A_Debye << endl;
 #endif
+	}
+      }
+
+      /*
+       * Initialize the water property calculator. It will share
+       * the internal eos water calculator.
+       */
+      if (m_form_A_Debye == A_DEBYE_WATER) {
+	if (m_waterProps) delete m_waterProps;
+	m_waterProps = new WaterProps(m_waterSS);
       }
 
       /*

@@ -842,7 +842,9 @@ namespace Cantera {
     }
 
     /*
-     * Now go get the molar volumes
+     * Now go get the specification of the standard states for
+     * species in the solution. This includes the molar volumes
+     * data blocks for incompressible species.
      */
     XML_Node& speciesList = phaseNode.child("speciesArray");
     XML_Node* speciesDB =
@@ -852,19 +854,62 @@ namespace Cantera {
 
     for (k = 0; k < m_kk; k++) {
       XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
+      if (!s) {
+	throw CanteraError("HMWSoln::initThermoXML",
+			 "Species Data Base " + sss[k] + " not found");
+      }
       XML_Node *ss = s->findByName("standardState");
-      m_speciesSize[k] = getFloat(*ss, "molarVolume", "-");
+      if (!ss) {
+	throw CanteraError("HMWSoln::initThermoXML",
+			 "Species " + sss[k] + 
+			   " standardState XML block  not found");
+      }
+      string modelStringa = ss->attrib("model");
+      if (modelStringa == "") {
+	throw CanteraError("HMWSoln::initThermoXML",
+			   "Species " + sss[k] + 
+			   " standardState XML block model attribute not found");
+      }
+      string modelString = lowercase(modelStringa);
+      if (k == 0) {
+	if (modelString == "wateriapws" || modelString == "real_water" ||
+	    modelString == "waterpdss") {
+	  /*
+	   * Initialize the water standard state model
+	   */
+	  if (m_waterSS) delete m_waterSS;
+	  m_waterSS = new WaterPDSS(this, 0);
+	  /*
+	   * Fill in the molar volume of water (m3/kmol)
+	   * at standard conditions to fill in the m_speciesSize entry
+	   * with something reasonable.
+	   */
+	  m_waterSS->setState_TP(300., OneAtm);
+	  double dens = m_waterSS->density();
+	  double mw = m_waterSS->molecularWeight();
+	  m_speciesSize[0] = mw / dens;
 #ifdef DEBUG_HKM_NOT
-      cout << "species " << sss[k] << " has volume " <<  
-	m_speciesSize[k] << endl;
+	  cout << "Solvent species " << sss[k] << " has volume " <<  
+	    m_speciesSize[k] << endl;
 #endif
+	} else {
+	  throw CanteraError("HMWSoln::initThermoXML",
+			     "Solvent SS Model \"" + modelStringa + 
+			     "\" is not allowed");
+	}
+      } else {
+	if (modelString != "constant_incompressible") {
+	  throw CanteraError("HMWSoln::initThermoXML",
+			     "Solute SS Model \"" + modelStringa + 
+			     "\" is not known");
+	}
+	m_speciesSize[k] = getFloat(*ss, "molarVolume", "-");
+#ifdef DEBUG_HKM_NOT
+	cout << "species " << sss[k] << " has volume " <<  
+   	  m_speciesSize[k] << endl;
+#endif
+      }
     }
-
-    /*
-     * Initialize the water standard state model
-     */
-    if (m_waterSS) delete m_waterSS;
-    m_waterSS = new WaterPDSS(this, 0);
 
     /*
      * Initialize the water property calculator. It will share

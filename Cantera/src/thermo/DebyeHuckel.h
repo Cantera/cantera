@@ -272,6 +272,13 @@ namespace Cantera {
      */
     virtual void setMolarDensity(doublereal conc);
 
+   /**
+     * Overwritten setTemperature(double) from State.h. This
+     * function sets the temperature, and makes sure that
+     * the value propagates to underlying objects.
+     */
+    virtual void setTemperature(doublereal temp);
+
     /**
      * The isothermal compressibility. Units: 1/Pa.
      * The isothermal compressibility is defined as
