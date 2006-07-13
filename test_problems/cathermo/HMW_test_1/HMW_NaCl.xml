@@ -92,8 +92,7 @@
            </floatArray>
         </NASA>
       </thermo>
-      <standardState model="constant_incompressible"> 
-         <molarVolume> 0.05555555 </molarVolume>
+      <standardState model="waterIAPWS"> 
       </standardState>
     </species>
                                                

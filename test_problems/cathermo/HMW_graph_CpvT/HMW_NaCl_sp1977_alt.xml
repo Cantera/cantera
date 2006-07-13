@@ -115,13 +115,13 @@
            </floatArray>
         </NASA>
       </thermo>
-      <standardState model="waterPDSS"> 
+      <standardState model="waterIAPWS"> 
          <!--
               Molar volume in m3 kmol-1. 
               (this is from Pitzer, Peiper, and Busey. However,
                the result can be easily derived from ~ 1gm/cm**3)
+                <molarVolume> 0.018068 </molarVolume>
            -->
-         <molarVolume> 0.018068 </molarVolume>
       </standardState>
     </species>
                                        
