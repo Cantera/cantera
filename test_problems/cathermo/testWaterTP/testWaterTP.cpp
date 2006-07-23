@@ -20,11 +20,10 @@ double tvalue(double val, double atol = 1.0E-9) {
 
 int main () {
 
-    double dens, u, s, h, cv, cp, pres;
+    double pres;
     try {
       WaterTP *w = new WaterTP("waterTPphase.xml","");
 
-      double rho;
 
       /* 
        * Print out the triple point conditions
