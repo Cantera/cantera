@@ -16,7 +16,11 @@ man-install:
 uninstall:
 
 clean:
-	cd html; $(RM) * 
+	cd html; mv banner4.jpg .. ; \
+        $(RM) *.jpg *.png *.html *.map *.md5 *.gif *.dot \
+               *.css *.hh[ckp] formula.repository ; \
+	mv ../banner4.jpg .
+
 
 docs doxygen:
 	doxygen Cantera.cfg
