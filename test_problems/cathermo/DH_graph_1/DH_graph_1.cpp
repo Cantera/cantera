@@ -26,11 +26,12 @@ class fileLog: public Logger {
 public:
     fileLog(string fName) {
 	m_fName = fName;
-	m_fs.open(fName.c_str());
+        m_fs.open(fName.c_str());
     }
     
     virtual void write(const string& msg) {
           m_fs << msg;
+          m_fs << endl;
     }
 
     virtual ~fileLog() {
@@ -38,7 +39,7 @@ public:
     }
     
     string m_fName;
-    fstream m_fs;
+    ofstream m_fs;
 
 };
 
@@ -73,7 +74,8 @@ int main(int argc, char **argv)
 
    int retn = 0;
    int i;
-   string commandFile = "vcs_Cantera.inp";
+   string fName = "DH_graph_1.log";
+   fileLog *fl = new fileLog(fName);
    try {
 
      char iFile[80];
@@ -81,7 +83,6 @@ int main(int argc, char **argv)
      if (argc > 1) {
        strcpy(iFile, argv[1]);
      }
-     fileLog *fl = new fileLog("DH_graph_1.log");
      setLogger(fl);
 
      DebyeHuckel *DH = new DebyeHuckel(iFile, "NaCl_electrolyte");
@@ -137,8 +138,10 @@ int main(int argc, char **argv)
      return retn;
 
    } catch (CanteraError) {
-
      showErrors();
+     if (fl) {
+       delete fl;
+     }
      return -1;
    }
 } 

@@ -13,6 +13,10 @@ fi
 temp_success="0"
 /bin/rm  -f output.txt outputa.txt
 ##########################################################################
+CANTERA_DATA=${CANTERA_DATA:=../../../data/inputs}; export CANTERA_DATA
+
+CANTERA_BIN=${CANTERA_BIN:=../../../bin}
+
 prog=DH_graph_1
 if test ! -x $prog ; then
    echo $prog ' does not exist'
@@ -22,6 +26,7 @@ fi
 /bin/rm -f test.out test.diff   DH_graph_1.out
 
 echo 'Testing the  DH dilute act calculation - act vs I'
+/bin/rm -f DH_graph_1.out
 $prog  DH_NaCl_dilute.xml  > DH_graph_1.out
 retnStat=$?
 echo 'Making a comparison with the good saved solution: '
@@ -46,6 +51,7 @@ fi
 /bin/rm -f test.out test.diff DH_NaCl_acommon.csv
 
 echo 'Testing the  DH dilute act calculation - act vs I'
+/bin/rm DH_NaCl_acommon.csv
 $prog  DH_NaCl_acommon.xml > DH_NaCl_acommon.csv
 retnStat=$?
 echo 'Making a comparison with the good saved solution: '
