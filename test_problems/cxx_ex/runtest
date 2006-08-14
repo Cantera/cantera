@@ -14,7 +14,7 @@ echo " "
 #################################################################
 #
 #################################################################
-# CANTERA_DATA=${CANTERA_DATA:=../../data/inputs}; export CANTERA_DATA
+CANTERA_DATA=${CANTERA_DATA:=../../data/inputs}; export CANTERA_DATA
 
 CANTERA_BIN=${CANTERA_BIN:=../../bin}
 ../../examples/cxx/cxx_examples > cxx_examples.out
@@ -114,7 +114,7 @@ if test x"$machType" = "xcygwin" ; then
   /bin/cp  kin1_blessed_win.csv   kin1_blessed_tmp.csv 
 fi
 
-$CANTERA_BIN/csvdiff kin1.csv kin1_blessed_tmp.csv > kin1_test.out
+$CANTERA_BIN/csvdiff -r 3.0E-3 kin1.csv kin1_blessed_tmp.csv > kin1_test.out
 retnStat=$?
 if [ $retnStat = "1" ]
 then
