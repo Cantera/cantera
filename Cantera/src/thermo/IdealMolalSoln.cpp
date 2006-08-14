@@ -330,10 +330,9 @@ namespace Cantera {
    *
    */
   doublereal IdealMolalSoln::standardConcentration(int k) const {
-    double c0, mvSolvent;
+    double c0 = 1.0, mvSolvent;
     switch (m_formGC) {
     case 0:
-      c0 = 1.0;
       break;
     case 1:
       c0 = 1.0 /m_speciesMolarVolume[m_indexSolvent];

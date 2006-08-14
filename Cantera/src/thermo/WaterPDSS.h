@@ -17,7 +17,7 @@
 #define CT_WATERPDSS_H
 #include "ct_defs.h"
 #include "PDSS.h"
-class XML_Node;
+//class XML_Node;
 #include "ThermoPhase.h"
 
 class WaterPropsIAPWS;
