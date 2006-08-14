@@ -127,7 +127,7 @@ int main(int argc, char **argv)
     int i1 = HMW->speciesIndex("Na+");
     int i2 = HMW->speciesIndex("Cl-");
     //int i3 = HMW->speciesIndex("H2O(L)");
-    for (i = 1; i < nsp; i++) {
+    for (i = 0; i < nsp; i++) {
       moll[i] = 0.0;
     }
     HMW->setMolalities(moll);
@@ -156,8 +156,8 @@ int main(int argc, char **argv)
      */
     double T;
  
-    double Cp0_NaCl, Cp0_Naplus, Cp0_Clminus, Delta_Cp0s, Cp0_H2O;
-    double Cp_NaCl, Cp_Naplus, Cp_Clminus, Cp_H2O;
+    double Cp0_NaCl = 0.0, Cp0_Naplus = 0.0, Cp0_Clminus = 0.0, Delta_Cp0s = 0.0, Cp0_H2O = 0.0;
+    double Cp_NaCl = 0.0, Cp_Naplus = 0.0, Cp_Clminus = 0.0, Cp_H2O = 0.0;
     double molarCp0;
 #ifdef DEBUG_HKM
     FILE *ttt = fopen("table.csv","w");
