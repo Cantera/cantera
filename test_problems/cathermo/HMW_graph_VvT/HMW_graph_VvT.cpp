@@ -151,8 +151,8 @@ int main(int argc, char **argv)
      */
     double T;
  
-    double V0_NaCl, V0_Naplus, V0_Clminus, Delta_V0s, V0_H2O;
-    double V_NaCl, V_Naplus, V_Clminus, V_H2O;
+    double V0_NaCl = 0.0, V0_Naplus = 0.0, V0_Clminus = 0.0, Delta_V0s = 0.0, V0_H2O = 0.0;
+    double V_NaCl = 0.0, V_Naplus = 0.0, V_Clminus = 0.0, V_H2O = 0.0;
     double molarV0;
 #ifdef DEBUG_HKM
     FILE *ttt = fopen("table.csv","w");
@@ -325,8 +325,12 @@ int main(int argc, char **argv)
 	   V0_Clminus*1.E3, V_Clminus*1.E3, (V_Clminus - V0_Clminus)*1.E3);
 
     printf(" NaCl(s)");
+    double dd = V_NaCl*1.E3 - V0_NaCl*1.E3;
+    if (fabs(dd) < 1.0E-12) {
+     dd = 0.0;
+    }
     printf("%13g               %13g %13g %13g\n", 1.0, 
-	   V0_NaCl*1.E3 , V_NaCl*1.E3,  V_NaCl*1.E3 - V0_NaCl*1.E3);
+	   V0_NaCl*1.E3 , V_NaCl*1.E3,  dd);
 
   
     delete HMW;
