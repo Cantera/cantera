@@ -91,7 +91,7 @@ source/llnlmath.o: source/llnlmath.c include/llnlmath.h include/llnltyps.h
 	(cd source; $(COMPILER) $(OPTS) -c llnlmath.c)
 
 clean:
-	$(RM)  ./libcvode.a
+	$(RM)  @buildlib@/libcvode.a
 	$(RM)  $(OBJS)
 
 depends:
