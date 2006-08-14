@@ -78,7 +78,7 @@ int main(int argc, char **argv)
      moll[1] += sum;
      
      HMW->setState_TPM(Temp, OneAtm, moll);
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
      HMW->m_debugCalc = true;
 #endif
      printf("       Temperature = %g K\n", Temp);

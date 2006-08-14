@@ -38,9 +38,9 @@ CXX = @CXX@
 
 # C++ compile flags
 ifeq ($(src_dir_tree), 1)
-CXX_FLAGS = -DSRCDIRTREE @CXXFLAGS@
+CXX_FLAGS = -DSRCDIRTREE @CXXFLAGS@ -DDEBUG_MODE
 else
-CXX_FLAGS = @CXXFLAGS@
+CXX_FLAGS = @CXXFLAGS@ -DDEBUG_MODE
 endif
 
 # Ending C++ linking libraries
