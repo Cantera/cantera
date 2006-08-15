@@ -81,7 +81,9 @@ utils:
 kernel-install:
 	@INSTALL@ -d @ct_libdir@
 	rm -fR @ct_libdir@/*
-	@INSTALL@ -m 644 @buildlib@/*.a @ct_libdir@
+	( for ilib in @buildlib@/*.a ; do  \
+	  @INSTALL@ -m 644 $${ilib} @ct_libdir@ ; \
+          done )
 ifeq ($(do_ranlib),1)
 	@RANLIB@ @ct_libdir@/*.a
 endif
@@ -94,17 +96,21 @@ endif
 win-kernel-install:
 	@INSTALL@ -d @ct_libdir@
 	$(RMDIRTREE) @ct_libdir@/*
-	@INSTALL@ -m 644 @buildlib@/*.lib @ct_libdir@
+	( for ilib in @buildlib@/*.lib ; do  \
+          @INSTALL@ -m 644 $${ilib} @ct_libdir@ ;  done )
 ifeq ($(use_dll),1)
-	@INSTALL@ -m 644 @buildlib@/*.dll @ct_libdir@
-	@INSTALL@ -m 644 @buildlib@/*.exp @ct_libdir@
+	( for ilib in @buildlib@/*.dll ; do  \
+          @INSTALL@ -m 644 $${ilib} @ct_libdir@ ;  done )
+	( for ilib in @buildlib@/*.exp ; do  \
+          @INSTALL@ -m 644 $${ilib} @ct_libdir@ ;  done )
 endif
 
 data-install:
 	@INSTALL@ -d @ct_datadir@
 	@INSTALL@ -m 644 data/inputs/elements.xml @ct_datadir@
 	@INSTALL@ -m 644 data/inputs/gri30.xml @ct_datadir@
-	@INSTALL@ -m 644 data/inputs/*.cti @ct_datadir@
+	( for iddd in data/inputs/*.cti ; do  \
+          @INSTALL@ -m 644 $${iddd} @ct_datadir@ ;  done )
 
 tools-install:
 	cd tools; @MAKE@ install
@@ -126,7 +132,8 @@ hdr-collect:
 	@INSTALL@ -d build/include/cantera/kernel/zeroD
 	@INSTALL@ -d build/include/cantera/kernel/converters
 	@INSTALL@ -d build/include/cantera/kernel/transport
-	@INSTALL@ Cantera/cxx/include/*.h build/include/cantera
+	( for ihhh in Cantera/cxx/include/*.h ; do  \
+          @INSTALL@ $${ihhh} build/include/cantera ;  done )
 	@INSTALL@ config.h build/include/cantera
 
 
@@ -200,9 +207,11 @@ finish-install:
 	@INSTALL@ -d @ct_bindir@
 	(cd Cantera/cxx/demos; @MAKE@ install)
 	@INSTALL@ -d @ct_demodir@/f77
-	@INSTALL@ Cantera/fortran/f77demos/*.f @ct_demodir@/f77
+	( for ihhh in Cantera/fortran/f77demos/*.f ; do  \
+          @INSTALL@ $${ihhh} @ct_demodir@/f77 ;  done )
 	@INSTALL@ tools/templates/f77/demo_ftnlib.cpp @ct_demodir@/f77
-	@INSTALL@ Cantera/fortran/f77demos/*.txt @ct_demodir@/f77
+	( for ihhh in Cantera/fortran/f77demos/*.txt ; do  \
+          @INSTALL@ $${ihhh} @ct_demodir@/f77 ;  done )
 	@INSTALL@ Cantera/fortran/f77demos/f77demos.mak @ct_demodir@/f77/Makefile
 	chown -R @username@ @ct_demodir@/f77
 
@@ -231,8 +240,10 @@ endif
 endif
 else
 	cd Cantera/fortran/f77demos; sed s'/isentropic/ctlib/g' isentropic.dsp > ctlib.dsp
-	@INSTALL@ Cantera/fortran/f77demos/*.dsp @ct_demodir@/f77
-	@INSTALL@ @buildbin@/* @ct_bindir@
+	( for ihhh in Cantera/fortran/f77demos/*.dsp ; do  \
+          @INSTALL@ $${ihhh} @ct_demodir@/f77 ;  done )
+	( for ihhh in  @buildbin@/* ; do  \
+          @INSTALL@ $${ihhh} @ct_bindir@ ;  done )
 endif
 
 example_codes:

@@ -1230,6 +1230,7 @@ AC_OUTPUT(Makefile \
 	  ext/blas/Makefile \
 	  ext/cvode/Makefile \
 	  ext/math/Makefile \
+	  ext/recipes/Makefile \
 	  ext/tpx/Makefile \
 	  ext/Makefile \
           ext/f2c_libs/Makefile \
