@@ -70,7 +70,7 @@ ifeq ($(do_ranlib),1)
 endif
 
 clean:
-	@(for lh in $(CATHERMO_H) ; do \
+	@(for lh in dummy.h $(CATHERMO_H) ; do \
             th=$(INCDIR)/"$${lh}" ; \
 	    if test -f "$${th}" ; then \
 	      $(RM) "$${th}"  ; \
