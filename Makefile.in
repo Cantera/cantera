@@ -224,7 +224,7 @@ ifneq ($(build_python),0)
 	@INSTALL@ tools/src/finish_install.py tools/bin
 	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
 	chmod +x @ct_bindir@/ctnew
-ifeq ($(build_pyhton),2)
+ifeq ($(build_python),2)
 	chmod +x @ct_bindir@/mixmaster
 endif
 	cp -f "@homedir@/setup_cantera" "@ct_bindir@"

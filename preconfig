@@ -415,6 +415,7 @@ export CT_SHARED_LIB
 export CXX
 export CXX_EXT
 export CXXFLAGS
+export CC
 export ENABLE_THERMO
 export ENABLE_KINETICS
 export ENABLE_TRANSPORT

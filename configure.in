@@ -574,13 +574,13 @@ AC_SUBST(BLAS_LAPACK_DIR)
 #    Define these variables, but turn them off in main version of code
 # 
 build_with_f2c=0
-if test -n $BUILD_WITH_F2C ; then
-  if test $BUILD_WITH_F2C = "y" -o $BUILD_WITH_F2C = "Y" ; then
+if test -n "$BUILD_WITH_F2C" ; then
+  if test "$BUILD_WITH_F2C" = "y" -o "$BUILD_WITH_F2C" = "Y" ; then
     build_with_f2c=1
-  elif test $BUILD_WITH_F2C = "n" -o $BUILD_WITH_F2C = "N" ; then
+  elif test "$BUILD_WITH_F2C" = "n" -o "$BUILD_WITH_F2C" = "N" ; then
     build_with_f2c=0
-  elif test $BUILD_WITH_F2C = "default" ; then
-    if test x$OS_IS_WIN = "x1" ; then
+  elif test "$BUILD_WITH_F2C" = "default" ; then
+    if test "x$OS_IS_WIN" = "x1" ; then
        build_with_f2c=1
     else
        build_with_f2c=0
