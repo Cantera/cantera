@@ -55,7 +55,9 @@ clean:
 	cd negATest;     @MAKE@ clean
 	cd diamondSurf;  @MAKE@ clean
 	cd ck2cti_test;  @MAKE@ clean
+	cd min_python;   @MAKE@ clean
 	cd python;       @MAKE@ clean
+	cd cathermo;     @MAKE@ clean
 
 depends:
 	cd cxx_ex;       @MAKE@ depends
@@ -65,6 +67,13 @@ depends:
 	cd diamondSurf;  @MAKE@ depends
 ifeq ($(test_ck),1)
 	cd ck2cti_test;  @MAKE@ depends
+endif
+ifeq ($(test_python),1)
+	cd min_python;   @MAKE@ depends
+endif
+ifeq ($(test_python),2)
+	cd min_python;   @MAKE@ depends
+	cd python;       @MAKE@ depends
 endif
 ifeq ($(test_cathermo),1)
 	cd cathermo;     @MAKE@ depends
