@@ -1060,7 +1060,7 @@ EOF
   fi
   rm -f testf90.f90
   AC_MSG_RESULT(${f90type})
-  if test -n $BUILD_F90; then
+  if test "x${BUILD_F90}" != "x0"; then
     if test "x${has_f90}" = "xno"; then
       echo "   -> cannot build the Fortran 90 interface"
       BUILD_F90=0
@@ -1237,7 +1237,6 @@ AC_OUTPUT(Makefile \
           ext/f2c_blas/Makefile \
           ext/f2c_lapack/Makefile \
           ext/f2c_math/Makefile \
-          ext/recipes/Makefile \
 	  examples/Makefile \
           examples/cxx/Makefile \
 	  tools/Makefile \
