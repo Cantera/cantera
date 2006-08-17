@@ -1067,6 +1067,9 @@ EOF
     fi
   fi
 fi
+if test -e f90out ; then
+  rm -f f90out
+fi
 savef90flags=${F90FLAGS}
 F90FLAGS=${f90opts}' '${F90FLAGS}
 F90BUILDFLAGS=${f90buildopts}' '${savef90flags}
