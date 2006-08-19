@@ -108,7 +108,7 @@ endif
 	@ ./runtest
 
 clean:
-	$(RM) $(OBJS) $(PROGRAM) $(DEPENDS) .depends
+	$(RM) $(OBJS) $(PROGRAM) $(DEPENDS) .depends *.o
 	../../../bin/rm_cvsignore
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \
