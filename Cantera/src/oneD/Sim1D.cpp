@@ -427,7 +427,7 @@ namespace Cantera {
         doublereal zfixed,interp_factor;
         doublereal z1 = 0.0, z2 = 0.0, t1,t2;
         int strt, n, m, i;
-        int m1,m2;
+        int m1 = 0,m2 = 0;
         vector_int dsize;
         bool addnewpt=false;
 
