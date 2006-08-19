@@ -139,7 +139,7 @@ double calc(double temp, double Iionic) {
 
   double molecWeight = 18.01528;
 
-  double RT = GasConst * temp * 1.0E-3;
+  //double RT = GasConst * temp * 1.0E-3;
   //double IdealMixing = 2.0 * RT * m * (log(m) - 1.0);
   //printf("   IdealMixing = %20.13g kJ/kg_water\n", IdealMixing);
 
@@ -150,7 +150,7 @@ double calc(double temp, double Iionic) {
   return phiL;
 }
 
-main() {
+int main() {
 
   printf("Standalone test of the apparent relative molal enthalpy, phiL:\n");
   printf(" (Check against simple formula in Silvester&Pitzer, J. Phys. Chem. 81, 1822 (1977)\n");
@@ -164,5 +164,5 @@ main() {
   printf("Ionic Strength = %g\n", Iionic);
 
   res = calc(273.15 + 200., Iionic);
-
+  return 0;
 }

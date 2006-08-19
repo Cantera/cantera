@@ -156,8 +156,8 @@ int main(int argc, char **argv)
      * ThermoUnknowns
      */
     double T;
-    double H0_NaCl, H0_Naplus, H0_Clminus, Delta_H0s, H0_H2O;
-    double H_NaCl, H_Naplus, H_Clminus, H_H2O;
+    double H0_NaCl = 0.0, H0_Naplus = 0.0, H0_Clminus = 0.0, Delta_H0s, H0_H2O = 0.0;
+    double H_NaCl = 0.0, H_Naplus = 0.0, H_Clminus = 0.0, H_H2O = 0.0;
     double molarEnth0;
 
     printf("A_L/RT: Comparison to Pitzer's book, p. 99, can be made.\n");
