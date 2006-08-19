@@ -44,7 +44,7 @@ int f__scale;
 char *f__icptr;
 
 /*error messages*/
-char *F_err[] =
+static char *F_err[] =
 {
 	"error in format",				/* 100 */
 	"illegal unit number",				/* 101 */
