@@ -6,6 +6,14 @@
 #ifdef __sun__
 #define USE_LARGEFILE
 #define OFF_T off64_t
+// On some older solaris systems, it seems that OFF_T needed to 
+// be set to an int sometimes. It didn't cause crashes if you 
+// didn't. However, ld warnings would occur if the sys -lg2c
+// libs were loaded at the same time. 
+// see man pages for fseek and fseeko.
+// Can be debugged by finding out what off_t is set to in the
+// the standard compiler headings.
+//#define OFF_T int
 #endif
 
 #ifdef __linux__
@@ -39,8 +47,12 @@
 #ifndef OFF_T
 #define OFF_T off64_t
 #endif
+#ifndef _LARGEFILE_SOURCE
 #define _LARGEFILE_SOURCE
+#endif
+#ifndef  _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #define FOPEN fopen64
