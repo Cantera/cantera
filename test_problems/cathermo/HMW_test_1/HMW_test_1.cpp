@@ -17,7 +17,7 @@
 
 using namespace Cantera;
 
-int CHECK_DEBUG_HKM = 0;
+int CHECK_DEBUG_MODE = 0;
 
 void printUsage() {
     cout << "usage: HMW_test_1 " <<  endl;
@@ -55,11 +55,11 @@ int main(int argc, char **argv)
 
    try {
   
-#ifdef DEBUG_HKM
-       CHECK_DEBUG_HKM = 1;
+#ifdef DEBUG_MODE
+       CHECK_DEBUG_MODE = 1;
 #endif
-     if (CHECK_DEBUG_HKM != 1) {
-       printf("Check can only be done if DEBUG_HKM is defined\n");
+     if (CHECK_DEBUG_MODE != 1) {
+       printf("Check can only be done if DEBUG_MODE is defined\n");
        exit(-1);
      }
      HMWSoln *HMW = new HMWSoln(1);
