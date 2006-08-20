@@ -87,7 +87,6 @@ install:
 	@INSTALL@ *.cpp    @ct_demodir@/cxx
 	@INSTALL@ *.h      @ct_demodir@/cxx
 	@INSTALL@ Makefile.install @ct_demodir@/cxx/Makefile
-	chown -R @username@ @ct_demodir@/cxx
 
 depends: $(DEPENDS)
 	@MAKE@ .depends
@@ -102,4 +101,11 @@ clean:
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \
          fi )
+
+TAGS:
+	etags *.h *.cpp
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
 
