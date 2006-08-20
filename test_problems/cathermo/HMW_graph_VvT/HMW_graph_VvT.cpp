@@ -299,7 +299,7 @@ int main(int argc, char **argv)
 
       if (i != TTable.NPoints+1) {
 	printf("%13g, %13g, %13g, %13g, %13g, %13g, "
-	     "%13g, %13g, %13g, %13g\n",
+	     "%13.5g, %13g, %13g, %13g\n",
 	     T, pres*1.0E-5,  Aphi, Av, Delta_V0s*1.0E3, Delta_Vs*1.0E3,
 	     Vex*1.0E3, phiV*1.0E3, molarV*1.0E3 , molarV0*1.0E3 );
 #ifdef DEBUG_HKM
