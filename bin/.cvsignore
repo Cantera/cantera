@@ -7,3 +7,4 @@ csvdiff
 *.pdb
 cti2ctml
 install_tsc
+tscompare
