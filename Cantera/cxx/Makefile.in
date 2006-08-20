@@ -12,19 +12,19 @@
 build_f90=@BUILD_F90@
 build_python=@BUILD_PYTHON@
 
-INCDIR =      ../../../build/include/cantera
+INCDIR =      ../../build/include/cantera
 INSTALL_TSC = ../../../bin/install_tsc
 
 CXX_H = Cantera.h  equilibrium.h  IncompressibleSolid.h \
         kinetics.h onedim.h  surface.h GRI30.h  integrators.h \
         Metal.h   PureFluid.h   transport.h Edge.h  \
         IdealGasMix.h  Interface.h    numerics.h  \
-        reactionpaths.h  zerodim.h
+        reactionpaths.h  zerodim.h importPhase.h thermo.h
 
 all:
 	@(cd include ; \
           for lh in $(CXX_H) ; do \
-          $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
+          $(INSTALL_TSC) "$${lh}" "../"$(INCDIR) ; \
 	done)
 	cd src;   @MAKE@
 	cd demos; @MAKE@
