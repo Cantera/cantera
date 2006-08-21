@@ -53,6 +53,9 @@ depends: $(DEPENDS)
 	cat *.d > .depends
 	$(RM) $(DEPENDS) 
 
+install:
+
+
 TAGS: 
 	etags *.h *.cpp
 
