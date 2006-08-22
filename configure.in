@@ -1204,6 +1204,23 @@ esac
 #echo 'INSTALL_abs = ' $INSTALL_abs
 AC_SUBST(INSTALL_abs)
 
+#
+# See if the install rule accepts the -v flag
+#
+$INSTALL -v License.txt config > config/e.out 2>&1
+dd=$?
+INSTALL_VERBOSE=
+if test "$dd" = "0" ; then
+  INSTALL_VERBOSE="-v"
+fi
+if test -e "config/License.txt" ; then
+  rm -f config/License.txt
+fi
+if test -e config/e.out ; then
+  rm -f e.out
+fi
+AC_SUBST(INSTALL_VERBOSE)
+
 
 dnl Checks for library functions.
 

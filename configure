@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS BITCOMPILE BITHARDWARE BITCHANGE ldemulationarg CVF_LIBDIR USE_CLIB_DLL local_inst local_python_inst python_prefix python_win_prefix ctversion homedir ct_libdir ct_bindir ct_incdir ct_incroot ct_datadir ct_demodir ct_templdir ct_tutdir ct_docdir ct_dir ct_mandir COMPACT_INSTALL build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE GRAPHVIZDIR ARCHIVE DO_RANLIB RANLIB USERDIR INCL_USER_CODE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT use_sundials CVODE_LIBS IDA_LIBS sundials_include CANTERA_DEBUG_MODE phase_object_files phase_header_files COMPILE_IDEAL_SOLUTIONS COMPILE_ELECTROLYTES NEED_CATHERMO WITH_REACTORS KERNEL KERNEL_OBJ BUILD_CK LIB_DIR build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR build_with_f2c build_f2c_lib LOCAL_LIB_DIRS LOCAL_LIBS CT_SHARED_LIB PYTHON_CMD BUILD_PYTHON NUMARRAY_INC_DIR NUMARRAY_HOME CANTERA_PYTHON_HOME CVSTAG MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS ac_ct_CXX CPP EGREP SOEXT SHARED PIC CXX_INCLUDES LCXX_FLAGS LCXX_END_LIBS HAVE_STRIPSYMBOLS F77 FFLAGS ac_ct_F77 FLIBS F90 BUILD_F90 F90FLAGS F90BUILDFLAGS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT math_libs SO LDSHARED EXTRA_LINK TSCOMPARE_abs INSTALL_abs LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS BITCOMPILE BITHARDWARE BITCHANGE ldemulationarg CVF_LIBDIR USE_CLIB_DLL local_inst local_python_inst python_prefix python_win_prefix ctversion homedir ct_libdir ct_bindir ct_incdir ct_incroot ct_datadir ct_demodir ct_templdir ct_tutdir ct_docdir ct_dir ct_mandir COMPACT_INSTALL build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE GRAPHVIZDIR ARCHIVE DO_RANLIB RANLIB USERDIR INCL_USER_CODE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT use_sundials CVODE_LIBS IDA_LIBS sundials_include CANTERA_DEBUG_MODE phase_object_files phase_header_files COMPILE_IDEAL_SOLUTIONS COMPILE_ELECTROLYTES NEED_CATHERMO WITH_REACTORS KERNEL KERNEL_OBJ BUILD_CK LIB_DIR build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR build_with_f2c build_f2c_lib LOCAL_LIB_DIRS LOCAL_LIBS CT_SHARED_LIB PYTHON_CMD BUILD_PYTHON NUMARRAY_INC_DIR NUMARRAY_HOME CANTERA_PYTHON_HOME CVSTAG MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CXX CXXFLAGS ac_ct_CXX CPP EGREP SOEXT SHARED PIC CXX_INCLUDES LCXX_FLAGS LCXX_END_LIBS HAVE_STRIPSYMBOLS F77 FFLAGS ac_ct_F77 FLIBS F90 BUILD_F90 F90FLAGS F90BUILDFLAGS precompile_headers CXX_DEPENDS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT math_libs SO LDSHARED EXTRA_LINK TSCOMPARE_abs INSTALL_abs INSTALL_VERBOSE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -9300,6 +9300,23 @@ esac
 #echo 'INSTALL_abs = ' $INSTALL_abs
 
 
+#
+# See if the install rule accepts the -v flag
+#
+$INSTALL -v License.txt config > config/e.out 2>&1
+dd=$?
+INSTALL_VERBOSE=
+if test "$dd" = "0" ; then
+  INSTALL_VERBOSE="-v"
+fi
+if test -e "config/License.txt" ; then
+  rm -f config/License.txt
+fi
+if test -e config/e.out ; then
+  rm -f e.out
+fi
+
+
 
 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ac_config_files="$ac_config_files Makefile Cantera/Makefile Cantera/src/Makefile Cantera/src/zeroD/Makefile Cantera/src/oneD/Makefile Cantera/src/converters/Makefile Cantera/src/transport/Makefile Cantera/src/thermo/Makefile Cantera/clib/src/Makefile Cantera/fortran/src/Makefile Cantera/fortran/f77demos/f77demos.mak Cantera/fortran/f77demos/isentropic.dsp Cantera/matlab/Makefile Cantera/matlab/setup_matlab.py Cantera/matlab/setup_winmatlab.py Cantera/python/Makefile Cantera/python/setup.py Cantera/cxx/Makefile Cantera/cxx/src/Makefile Cantera/cxx/demos/Makefile Cantera/user/Makefile Cantera/python/src/Makefile ext/lapack/Makefile ext/blas/Makefile ext/cvode/Makefile ext/math/Makefile ext/recipes/Makefile ext/tpx/Makefile ext/Makefile ext/f2c_libs/Makefile ext/f2c_blas/Makefile ext/f2c_lapack/Makefile ext/f2c_math/Makefile examples/Makefile examples/cxx/Makefile tools/Makefile tools/doc/Cantera.cfg tools/doc/Makefile tools/src/Makefile tools/src/sample.mak tools/src/finish_install.py tools/src/package4mac tools/templates/f77/demo.mak tools/templates/f90/demo.mak tools/templates/cxx/demo.mak tools/testtools/Makefile data/inputs/Makefile test_problems/Makefile test_problems/cxx_ex/Makefile test_problems/silane_equil/Makefile test_problems/surfkin/Makefile test_problems/diamondSurf/Makefile test_problems/fracCoeff/Makefile test_problems/negATest/Makefile test_problems/ck2cti_test/Makefile test_problems/ck2cti_test/runtest test_problems/min_python/Makefile test_problems/min_python/minDiamond/Makefile test_problems/min_python/negATest/Makefile test_problems/python/Makefile test_problems/cathermo/Makefile test_problems/cathermo/issp/Makefile test_problems/cathermo/ims/Makefile test_problems/cathermo/testIAPWS/Makefile test_problems/cathermo/testIAPWSPres/Makefile test_problems/cathermo/testIAPWSTripP/Makefile test_problems/cathermo/testWaterPDSS/Makefile test_problems/cathermo/testWaterTP/Makefile test_problems/cathermo/HMW_test_1/Makefile test_problems/cathermo/HMW_test_3/Makefile test_problems/cathermo/HMW_graph_GvT/Makefile test_problems/cathermo/HMW_graph_GvI/Makefile test_problems/cathermo/HMW_graph_HvT/Makefile test_problems/cathermo/HMW_graph_CpvT/Makefile test_problems/cathermo/HMW_graph_VvT/Makefile test_problems/cathermo/DH_graph_1/Makefile bin/install_tsc"
@@ -10066,6 +10083,7 @@ s,@LDSHARED@,$LDSHARED,;t t
 s,@EXTRA_LINK@,$EXTRA_LINK,;t t
 s,@TSCOMPARE_abs@,$TSCOMPARE_abs,;t t
 s,@INSTALL_abs@,$INSTALL_abs,;t t
+s,@INSTALL_VERBOSE@,$INSTALL_VERBOSE,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF
