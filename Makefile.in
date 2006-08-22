@@ -15,6 +15,7 @@ use_dll = @USE_CLIB_DLL@
 cvs_tag = @CVSTAG@
 branch = -r $(cvs_tag)
 RMDIRTREE = /bin/rm -r -f
+INSTALL_TSC = bin/install_tsc
 
 PY_EXAMPLES = equilibrium flames reactors misc liquid_vapor \
               gasdynamics kinetics surface_chemistry transport
@@ -132,10 +133,10 @@ hdr-collect:
 	@INSTALL@ -d build/include/cantera/kernel/zeroD
 	@INSTALL@ -d build/include/cantera/kernel/converters
 	@INSTALL@ -d build/include/cantera/kernel/transport
-	( for ihhh in Cantera/cxx/include/*.h ; do  \
-          @INSTALL@ $${ihhh} build/include/cantera ;  done )
-	@INSTALL@ config.h build/include/cantera
-
+	@(cd Cantera/cxx/include ; for ihhh in *.h ; do  \
+          ../../../$(INSTALL_TSC) $${ihhh} ../../../build/include/cantera ; \
+          done )
+	@$(INSTALL_TSC) config.h build/include/cantera 
 
 python: 
 ifeq ($(build_python),2)
@@ -155,30 +156,20 @@ ifneq ($(build_python),0)
 ifeq ($(build_python),2)
 	@(for exdir in $(PY_EXAMPLES) ; do \
              @INSTALL@ -d @ct_demodir@/python/$${exdir} ; \
-             @INSTALL@ Cantera/python/examples/$${exdir}/*.py \
-                  @ct_demodir@/python/$${exdir} ; \
-        done)
-	@INSTALL@ Cantera/python/examples/flames/*.dat \
-                  @ct_demodir@/python/flames ; \
-
-#	@INSTALL@ -d @ct_demodir@/python
-#	@INSTALL@ -d @ct_demodir@/python/equilibrium
-#	@INSTALL@ Cantera/python/examples/equilibrium/*.py \
-#                @ct_demodir@/python/equilibrium
-#	@INSTALL@ Cantera/python/examples/equilibrium/*.cti \
-#                @ct_demodir@/python/equilibrium
-#	@INSTALL@ -d @ct_demodir@/python/flames
-#	@INSTALL@ Cantera/python/examples/flames/*.py \
-#                @ct_demodir@/python/flames
-#	@INSTALL@ Cantera/python/examples/flames/*.cti \
-#                @ct_demodir@/python/flames
-#	@INSTALL@ -d @ct_demodir@/python/kinetics
-#	@INSTALL@ Cantera/python/examples/kinetics/*.py \
-#                @ct_demodir@/python/kinetics
-#	@INSTALL@ Cantera/python/examples/*.py @ct_demodir@/python
+	     (for ihhh in Cantera/python/examples/$${exdir}/*.py ; do  \
+                  @INSTALL@ $${ihhh} @ct_demodir@/python/$${exdir} ; \
+                  echo "@INSTALL@ $${ihhh} @ct_demodir@/python/$${exdir}" ; \
+              done ) \
+          done)
+	@(for ihhh in Cantera/python/examples/flames/*.dat ; do  \
+             @INSTALL@ $${ihhh} @ct_demodir@/python/flames ; \
+             echo "@INSTALL@ $${ihhh} @ct_demodir@/python/flames" ; \
+          done )
 	@INSTALL@ -d @ct_tutdir@/python
-	@INSTALL@ Cantera/python/tutorial/*.py \
-                  @ct_tutdir@/python
+	@(for ihhh in Cantera/python/tutorial/*.py ; do  \
+            @INSTALL@ $${ihhh} @ct_tutdir@/python ; \
+            echo "@INSTALL@ $${ihhh} @ct_tutdir@/python" ; \
+          done )
 	chown -R @username@ @ct_demodir@/python
 	chown -R @username@ @ct_tutdir@/python
 else
