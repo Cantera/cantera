@@ -433,27 +433,36 @@ read_colTitle(FILE *fp,  char ****ColMLNames_ptr, int  nColTitleLines, int nCol)
   char ***ColMLNames = *ColMLNames_ptr;
   char *scanLine = mdp_alloc_char_1(Max_Input_Str_Ln + 1, '\0');
   char **strlets = (char **) mdp_alloc_ptr_1(nCol+1);
-   for (int i = 0; i < nColTitleLines ; i++) {
-     retn = read_line(fp, scanLine, 0);
-     if (retn >= 0) {
-      /*
-       * Strip a trailing comma from the scanline -
-       *  -> These are not significant
-       */
-       int ccount = static_cast<int>(strlen(scanLine));
-       if (ccount > 0) {
-	 if (scanLine[ccount-1] == ',') scanLine[ccount-1] = '\0';
-       }
-       int ncolsFound = breakStrCommas(scanLine, strlets, nCol);
-       ColMLNames[i] = mdp_alloc_VecFixedStrings(nCol, MAX_TOKEN_STR_LN+1);
-       for (j = 0; j < ncolsFound; j++) {
-	 strip(strlets[j]);
-	 strcpy(ColMLNames[i][j], strlets[j]);
-       }
-     }
-   }
-   mdp_safe_free((void **) &scanLine);
-   mdp_safe_free((void **) &strlets);
+  if (nColTitleLines > 0) {
+    for (int i = 0; i < nColTitleLines ; i++) {
+      retn = read_line(fp, scanLine, 0);
+      if (retn >= 0) {
+	/*
+	 * Strip a trailing comma from the scanline -
+	 *  -> These are not significant
+	 */
+	int ccount = static_cast<int>(strlen(scanLine));
+	if (ccount > 0) {
+	  if (scanLine[ccount-1] == ',') scanLine[ccount-1] = '\0';
+	}
+	int ncolsFound = breakStrCommas(scanLine, strlets, nCol);
+	ColMLNames[i] = mdp_alloc_VecFixedStrings(nCol, MAX_TOKEN_STR_LN+1);
+	for (j = 0; j < ncolsFound; j++) {
+	  strip(strlets[j]);
+	  strcpy(ColMLNames[i][j], strlets[j]);
+	}
+      }
+    }
+  } else {
+    ColMLNames[0] = mdp_alloc_VecFixedStrings(nCol, MAX_TOKEN_STR_LN+1);
+    for (j = 0; j < nCol; j++) {
+      char cbuff[256];
+      sprintf(cbuff, "Col_%d", j+1);
+      strcpy(ColMLNames[0][j], cbuff);
+    }
+  }
+  mdp_safe_free((void **) &scanLine);
+  mdp_safe_free((void **) &strlets);
 }
 
 /*****************************************************************************/
