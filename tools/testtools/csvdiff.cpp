@@ -296,6 +296,9 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
    * set a preliminary value of nCol
    */
   nCol = maxCommas + 1;
+  if (nScanLines == 0) {
+    nCol = 0;
+  }
   char **strlets = (char **) mdp_alloc_ptr_1(maxCommas+1);
 
   int doingLineType = LT_TITLELINE;
@@ -575,11 +578,11 @@ int main(int argc, char *argv[])
   int opt_let;
   char  *fileName1=NULL, *fileName2=NULL; /* Names of the csv files */
   FILE  *fp1=NULL, *fp2=NULL;
-  int    nTitleLines1, nTitleLines2;
-  int    nColTitleLines1, nColTitleLines2;
-  int    nCol1,  nCol2, nColMAX, nColcomparisons;
-  int    nDataRows1, nDataRows2;
-  char  **title1,  **title2;
+  int    nTitleLines1 = 0, nTitleLines2 = 0;
+  int    nColTitleLines1 = 0, nColTitleLines2 = 0;
+  int    nCol1 = 0,  nCol2 = 0, nColMAX = 0, nColcomparisons = 0;
+  int    nDataRows1 = 0, nDataRows2 = 0;
+  char  **title1 = 0,  **title2 = 0;
   int    **compColList = NULL;
   char   ***ColMLNames1 = NULL, ***ColMLNames2 = NULL;
   char   **ColNames1 = NULL, **ColNames2 = NULL;
@@ -689,9 +692,28 @@ int main(int argc, char *argv[])
    */
 
   get_sizes(fp1, nTitleLines1, nColTitleLines1, nCol1, nDataRows1);
+  if (nCol1 == 0) {
+    printf("Number of columns in file %s is zero\n", fileName1);
+    testPassed = -1;
+    exit (-1);
+  }
+  if (nDataRows1 == 0) {
+    printf("Number of data rows in file %s is zero\n", fileName1);
+    testPassed = -1;
+    exit (-1);
+  }
 
   get_sizes(fp2, nTitleLines2, nColTitleLines2, nCol2, nDataRows2);
-
+  if (nCol2 == 0) {
+    printf("Number of columns in file %s is zero\n", fileName2);
+    testPassed = -1;
+    exit (-1);
+  }
+  if (nDataRows2 == 0) {
+    printf("Number of data rows in file %s is zero\n", fileName2);
+    testPassed = -1;
+    exit (-1);
+  }
 
   if (nTitleLines1 != nTitleLines2) {
     printf("Number o Title Lines differ:, %d %d\n",nTitleLines1, nTitleLines2);
@@ -860,7 +882,7 @@ int main(int argc, char *argv[])
 	  max_diff = rel_diff;
 	}
 	if (ndiff < 10) {
-	  printf("\tColumn variable %s at data row %d ", ColNames1[i1], j);
+	  printf("\tColumn variable %s at data row %d ", ColNames1[i1], j + 1);
 	  printf(" differ: %g %g\n", curVarValues1[j], 
 		 curVarValues2[j]);
 	}
@@ -873,12 +895,12 @@ int main(int argc, char *argv[])
       if (ndiff < 10) {
 	if (nDataRows1 > nDataRows2) {
 	  for (j = nDataRowsMIN; j < nDataRowsMAX; j++) {
-	    printf("\tColumn variable %s at data row %d ", ColNames1[i1], j);
+	    printf("\tColumn variable %s at data row %d ", ColNames1[i1], j + 1);
 	    printf(" differ: %g      NA\n", curVarValues1[j]);
 	  }
 	} else {
 	  for (j = nDataRowsMIN; j < nDataRowsMAX; j++) {
-	    printf("\tColumn variable %s at data row %d ", ColNames1[i1], j);
+	    printf("\tColumn variable %s at data row %d ", ColNames1[i1], j + 1);
 	    printf(" differ: NA     %g \n", curVarValues2[j]);
 	  }
 	}
@@ -893,7 +915,7 @@ int main(int argc, char *argv[])
       printf(
 	     "Column variable %s failed comparison test for %d occurances\n",
 	     ColNames1[i1], ndiff);
-      printf("  Largest difference was at data row %d ", jmax);
+      printf("  Largest difference was at data row %d ", jmax + 1);
       printf(": %g %g\n", curVarValues1[jmax],  curVarValues2[jmax]);
       testPassed = 0;
     } else if (Debug_Flag) {
