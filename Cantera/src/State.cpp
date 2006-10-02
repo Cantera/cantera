@@ -164,8 +164,6 @@ namespace Cantera {
         scale(m_ym.begin(), m_ym.end(), c, m_dens);
     }
 
-
-
     doublereal State::mean_Y(const doublereal* Q) const {
         return dot(m_y.begin(), m_y.end(), Q);
     }
@@ -199,6 +197,17 @@ namespace Cantera {
             if (m_molwts[k] < Tiny) m_molwts[k] = Tiny;
             m_rmolwts[k] = 1.0/m_molwts[k];
         }
+
+        /*
+         * Now that we have resized the State object, let's fill it with
+         * a valid mass fraction vector that sums to one. The State object
+         * should never have a mass fraction vector that doesn't sum to one.
+         * We will assume that species 0 has a mass fraction of 1.0 and
+         * mass fraction of all other species is 0.0.
+         */
+        m_y[0] = 1.0;
+        m_ym[0] = m_y[0] * m_rmolwts[0];
+        m_mmw = 1.0 / m_ym[0];
     }
 
 }
