@@ -197,6 +197,7 @@ finish-install:
 	@INSTALL@ -d @ct_docdir@
 	@INSTALL@ -d @ct_bindir@
 	(cd Cantera/cxx/demos; @MAKE@ install)
+	@INSTALL@ tools/templates/cxx/demo.mak @ct_demodir@/cxx
 	@INSTALL@ -d @ct_demodir@/f77
 	( for ihhh in Cantera/fortran/f77demos/*.f ; do  \
           @INSTALL@ $${ihhh} @ct_demodir@/f77 ;  done )
