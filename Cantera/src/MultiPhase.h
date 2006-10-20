@@ -238,10 +238,22 @@ namespace Cantera {
         /// state.  Note that if individual phases have T and P different
         /// than that stored locally, the phase T and P will be modified.
         void updatePhases() const;
-            
+           
+        /**
+         * Vector of the number of moles in each phase. 
+         * Length = m_np, number of phases.
+         */
         vector_fp m_moles;
+
+        /**
+	 * Vector of the ThermoPhase Pointers.
+	 */
         vector<phase_t*> m_phase;
         array_t m_atoms;
+      /**
+       * Locally storred vector of mole fractions of all species 
+       * comprising the MultiPhase object.
+       */
         vector_fp m_moleFractions;
         vector_int m_spphase;
         vector_int m_spstart;
@@ -249,10 +261,19 @@ namespace Cantera {
         vector_int m_atomicNumber;
         vector<string> m_snames;
         mutable map<string, int> m_enamemap;
+        /**
+	 *   Number of phases in the MultiPhase object
+	 */
         index_t  m_np;
         doublereal m_temp;
         doublereal m_press;
+      /**
+       * Number of distinct elements in all of the phases
+       */
         index_t m_nel; 
+      /**
+       * Number of distinct species in all of the phases
+       */
         index_t m_nsp;
         bool m_init;
         int m_eloc;
