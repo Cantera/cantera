@@ -89,11 +89,14 @@ namespace Cantera {
     ///
     /// @ingroup equil
 
-    void equilibrate(thermo_t& s, const char* XY, int solver,
+    int equilibrate(thermo_t& s, const char* XY, int solver,
         doublereal rtol, int maxsteps, int maxiter, int loglevel) {
         MultiPhase* m = 0;
         ChemEquil* e = 0;
         bool redo = true;
+        int retn = -1;
+        int nAttempts = 0;
+        int retnSub = 0;
 
         beginLogGroup("equilibrate", loglevel);
         addLogEntry("Single-phase equilibrate function");
@@ -114,24 +117,46 @@ namespace Cantera {
                 try { 
                     m->addPhase(&s, 1.0);
                     m->init();
-                    equilibrate(*m, XY, rtol, maxsteps, maxiter, loglevel); 
+                    nAttempts++;
+                    (void) equilibrate(*m, XY, rtol, maxsteps, maxiter, loglevel); 
                     redo = false;
                     addLogEntry("MultiPhaseEquil solver succeeded.");
                     delete m;
+                    retn = nAttempts;
                 }
                 catch (CanteraError err) {
                     addLogEntry("MultiPhaseEquil solver failed.");
-                    endLogGroup("equilibrate");
                     delete m;
-                    throw err;
+                    if (nAttempts < 2) {
+                      addLogEntry("Trying single phase ChemEquil solver.");
+                      solver = -1;
+                    } else {
+                      endLogGroup("equilibrate");
+                      throw err;
+                    }
                 }
             }
             else {        // solver <= 0
+                /*
+                 * Call the element potential solver
+                 */
                 e = new ChemEquil;
                 try {
                     e->options.maxIterations = maxsteps;
                     e->options.relTolerance = rtol;
-                    e->equilibrate(s,XY);
+                    nAttempts++;
+                    retnSub = e->equilibrate(s,XY);
+                    if (retnSub < 0) {
+                      addLogEntry("ChemEquil solver failed.");
+                      if (nAttempts < 2) {
+                        addLogEntry("Trying MultiPhaseEquil solver.");
+                        solver = 1;
+                      } else {
+                        throw CanteraError("equilibrate", 
+                                           "Both equilibrium solvers failed");
+                      }
+                    }
+                    retn = nAttempts;
                     s.setElementPotentials(e->elementPotentials());
                     redo = false;
                     delete e;
@@ -154,6 +179,10 @@ namespace Cantera {
                 }
             } 
         } // while (redo)
+        /*
+         * We are here only for a success
+         */
         endLogGroup("equilibrate");
+        return retn;
     }
 }
