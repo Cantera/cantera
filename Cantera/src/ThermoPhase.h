@@ -751,16 +751,18 @@ namespace Cantera {
             err("setToEquilState");
         }
 
-        // called by function 'equilibrate' in ChemEquil.h to transfer
-        // the element potentials to this object
+        // Called by function 'equilibrate' in ChemEquil.h to transfer
+        // the element potentials to this object after every successful
+        // equilibration routine.
         void setElementPotentials(const vector_fp& lambda) {
             m_lambda = lambda;
             m_hasElementPotentials = true;
         }
 
-        void getElementPotentials(doublereal* lambda) {
-            if (m_hasElementPotentials)
+        bool getElementPotentials(doublereal* lambda) {
+            if (m_hasElementPotentials) 
                 copy(m_lambda.begin(), m_lambda.end(), lambda);
+            return (m_hasElementPotentials);
         }
 
         //@}
@@ -1015,6 +1017,8 @@ namespace Cantera {
         /// Index number
         int m_index;
         doublereal m_phi;
+        /// Vector of element potentials.
+        ///    -> length equal to number of elements
         vector_fp m_lambda;
         bool m_hasElementPotentials;
 

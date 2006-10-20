@@ -178,7 +178,8 @@ namespace Cantera {
 
         // Newton iteration
         for (int n = 0; n < 50; n++) {
-            dt = (h - enthalpy_mass())/cp_mass();
+            double h0 = enthalpy_mass();
+            dt = (h - h0)/cp_mass();
             // limit step size to 100 K
             if (dt > 100.0) dt = 100.0;
             else if (dt < -100.0) dt = -100.0; 
