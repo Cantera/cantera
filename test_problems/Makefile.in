@@ -14,6 +14,8 @@ all:
 	cd fracCoeff;    @MAKE@ all
 	cd negATest;     @MAKE@ all
 	cd diamondSurf;  @MAKE@ all
+	cd ChemEquil_gri_matrix; @MAKE@ all
+	cd ChemEquil_gri_pairs; @MAKE@ all
 ifeq ($(test_python),1)
 	cd min_python;   @MAKE@ all
 endif
@@ -33,6 +35,8 @@ test:
 	cd fracCoeff;    @MAKE@ test
 	cd negATest;     @MAKE@ test
 	cd diamondSurf;  @MAKE@ test
+	cd ChemEquil_gri_matrix; @MAKE@ test
+	cd ChemEquil_gri_pairs; @MAKE@ test
 ifeq ($(test_ck),1)
 	cd ck2cti_test;  @MAKE@ test
 endif
@@ -54,6 +58,8 @@ clean:
 	cd fracCoeff;    @MAKE@ clean
 	cd negATest;     @MAKE@ clean
 	cd diamondSurf;  @MAKE@ clean
+	cd ChemEquil_gri_matrix; @MAKE@ clean
+	cd ChemEquil_gri_pairs; @MAKE@ clean
 	cd ck2cti_test;  @MAKE@ clean
 	cd min_python;   @MAKE@ clean
 	cd python;       @MAKE@ clean
@@ -65,6 +71,8 @@ depends:
 	cd fracCoeff;    @MAKE@ depends
 	cd negATest;     @MAKE@ depends
 	cd diamondSurf;  @MAKE@ depends
+	cd ChemEquil_gri_matrix; @MAKE@ depends
+	cd ChemEquil_gri_pairs; @MAKE@ depends
 ifeq ($(test_ck),1)
 	cd ck2cti_test;  @MAKE@ depends
 endif

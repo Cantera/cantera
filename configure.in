@@ -1276,6 +1276,8 @@ AC_OUTPUT(Makefile \
           test_problems/silane_equil/Makefile \
           test_problems/surfkin/Makefile \
           test_problems/diamondSurf/Makefile \
+          test_problems/ChemEquil_gri_matrix/Makefile \
+          test_problems/ChemEquil_gri_pairs/Makefile \
           test_problems/fracCoeff/Makefile \
           test_problems/negATest/Makefile \
           test_problems/ck2cti_test/Makefile \
