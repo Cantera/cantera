@@ -2,7 +2,7 @@
 #
 #
 
-temp_success="1"
+temp_success="0"
 /bin/rm  -f output.txt outputa.txt  
 
 #################################################################
@@ -15,7 +15,7 @@ CANTERA_BIN=${CANTERA_BIN:=../../bin}
 retnStat=$?
 if [ $retnStat != "0" ]
 then
-  temp_success="0"
+  temp_success="1"
   echo "fracCoeff returned with bad status, $retnStat, check output"
 fi
 
@@ -28,7 +28,7 @@ then
 else
   echo "unsuccessful diff comparison on fracCoeff test"
   echo "FAILED" > csvCode.txt
-  temp_success="0"
+  temp_success="1"
 fi
 
 ../../bin/exp3to2.sh frac.xml > fraca.xml
@@ -40,7 +40,8 @@ then
 else
   echo "unsuccessful diff comparison on fracCoeff.xml test"
   echo "FAILED" > csvCode.txt
-  temp_success="0"
+  temp_success="1"
 fi
 
 
+exit $temp_success
