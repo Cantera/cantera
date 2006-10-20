@@ -13,8 +13,8 @@ all:
 	cd negATest;  @MAKE@ all
 
 test:
-	cd minDiamond;  @MAKE@ test
-	cd negATest;  @MAKE@ test
+	cd minDiamond;  @MAKE@ -s test
+	cd negATest;  @MAKE@ -s test
 
 clean:
 	$(RM) *.*~ 
