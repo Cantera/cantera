@@ -264,24 +264,49 @@ namespace Cantera {
      * chemical potentials and temperature. This method is needed by
      * the ChemEquil equillibrium solver.
      */
-    void IdealGasPhase::setToEquilState(const doublereal* mu_RT) 
-    {
-        const array_fp& grt = gibbs_RT_ref();
+  void IdealGasPhase::setToEquilState(const doublereal* mu_RT) 
+  {
+    double tmp, tmp2;
+    const array_fp& grt = gibbs_RT_ref();
 
-        doublereal pres = 0.0;
-        for (int k = 0; k < m_kk; k++) {
-            m_pp[k] = -grt[k] + mu_RT[k];
-            m_pp[k] = m_p0 * exp(m_pp[k]);
-            pres += m_pp[k];
-        }
-        // set state
-        setState_PX(pres, &m_pp[0]);
+    /*
+     * Within the method, we protect against inf results if the
+     * exponent is too high.
+     *
+     * If it is too low, we set
+     * the partial pressure to zero. This capability is needed
+     * by the elemental potential method.
+     */
+    doublereal pres = 0.0;
+    for (int k = 0; k < m_kk; k++) {
+      tmp = -grt[k] + mu_RT[k];
+      if (tmp < -600.) {
+	m_pp[k] = 0.0;
+      } else if (tmp > 500.0) {
+	tmp2 = tmp / 500.;
+	tmp2 *= tmp2;
+	m_pp[k] = m_p0 * exp(500.) * tmp2;
+      } else {
+	m_pp[k] = m_p0 * exp(tmp);
+      }
+      pres += m_pp[k];
     }
+    // set state
+    setState_PX(pres, &m_pp[0]);
+  }
 
 
     /// This method is called each time a thermodynamic property is
-    /// requested, to check whether the species properties need to be
-    /// updated.
+    /// requested, to check whether the internal species properties
+    /// within the object need to be updated.
+    /// Currently, this updates the species thermo polynomial values
+    /// for the current value of the temperature. A check is made
+    /// to see if the temperature has changed since the last 
+    /// evaluation. This object does not contain any persistent
+    /// data that depends on the concentration, that needs to be
+    /// updated. The state object modifies its concentration 
+    /// dependent information at the time the setMoleFractions()
+    /// (or equivalent) call is made.
     void IdealGasPhase::_updateThermo() const {
         doublereal tnow = temperature();
 
@@ -302,7 +327,4 @@ namespace Cantera {
         }
     }
 }
-
-
-
 
