@@ -741,7 +741,7 @@ namespace Cantera {
     /// value".
     /// @ingroup HTML_logs
     void addLogEntry(string tag, string value) {
-        if (s_app->loglevel > 0) 
+        if (s_app->loglevel > 0 && s_app->current) 
             s_app->current->addChild("li",tag+": "+value);
     }
 
@@ -749,7 +749,7 @@ namespace Cantera {
     /// value".
     /// @ingroup HTML_logs
     void addLogEntry(string tag, doublereal value) {
-        if (s_app->loglevel > 0) 
+        if (s_app->loglevel > 0 && s_app->current) 
             s_app->current->addChild("li",tag+": "+fp2str(value));
     }
 
@@ -757,14 +757,14 @@ namespace Cantera {
     /// value".
     /// @ingroup HTML_logs
     void addLogEntry(string tag, int value) {
-        if (s_app->loglevel > 0) 
+        if (s_app->loglevel > 0 && s_app->current) 
             s_app->current->addChild("li",tag+": "+int2str(value));
     }
 
     /// Add an entry to the log file.
     /// @ingroup HTML_logs
     void addLogEntry(string msg) {
-        if (s_app->loglevel > 0)
+        if (s_app->loglevel > 0 && s_app->current)
             s_app->current->addChild("li",msg);
     }
 
@@ -780,8 +780,8 @@ namespace Cantera {
             s_app->current = s_app->current->parent();
             s_app->current = s_app->current->parent();
         }
+	s_app->loglevel = s_app->loglevels.back();
         s_app->loglevels.pop_back();
-        s_app->loglevel = s_app->loglevels.back();
         if (title != "" && title != s_app->loggroups.back()) {
             writelog("Logfile error."
                 "\n   beginLogGroup: "+ s_app->loggroups.back()+
