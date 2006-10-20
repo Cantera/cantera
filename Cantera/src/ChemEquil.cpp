@@ -396,7 +396,7 @@ namespace Cantera {
   {
     doublereal xval, yval, tmp;
     int fail = 0;
-    int m, n;
+    int m;
 
     if (m_p1) delete m_p1;
     if (m_p2) delete m_p2;
@@ -407,6 +407,7 @@ namespace Cantera {
     s.saveState(state);
 
 #ifdef DEBUG_HKM_EPEQUIL
+    int n;
     const vector<string>& eNames = s.elementNames();
 #endif
     beginLogGroup("ChemEquil::equilibrate");
