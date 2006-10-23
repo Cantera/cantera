@@ -157,10 +157,8 @@ USER_SRC_DIR="Cantera/user"  # don't change this
 # in debugging and verification. In order for the printing to occur
 # an additional switch must be turned on. However, compilation
 # of the printing is affected by the following DEBUG_MODE option.
-# This is turned on here by default. However, for a speedier executable
-# compilation of these statements may be turned off by setting
-# the parameter to "n".
-DEBUG_MODE="y"
+# This is turned off here by default. 
+DEBUG_MODE="n"
 
 #----------------------------------------------------------------------
 #         Kernel Configuration
