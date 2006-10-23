@@ -11,10 +11,9 @@
 #include <iostream>
 using namespace std;
 
-#undef OLD_SUNDIALS
 
 // sundials includes
-#ifdef OLD_SUNDIALS
+#ifdef SUNDIALS_VERSION_1
 #include <sundialstypes.h>
 #include <sundialsmath.h>
 #include <cvodes.h>
@@ -125,7 +124,7 @@ namespace Cantera {
         if (m_cvode_mem) {
             if (m_np > 0) 
                 CVodeSensFree(m_cvode_mem);
-#ifdef OLD_SUNDIALS
+#ifdef SUNDIALS_VERSION_1
             CVodeFree(m_cvode_mem);
 #else
             CVodeFree(&m_cvode_mem);
@@ -213,7 +212,7 @@ namespace Cantera {
         m_np = func.nparams();
         long int nv = func.neq();
 
-#ifdef OLD_SUNDIALS
+#ifdef SUNDIALS_VERSION_1
         doublereal* data;
         int n, j;
         m_yS = N_VNewVectorArray_Serial(m_np, nv);
