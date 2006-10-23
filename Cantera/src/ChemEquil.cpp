@@ -1237,6 +1237,8 @@ namespace Cantera {
       }
 #endif
 
+      double nCutoff;
+
       bool normalStep = true;
       /*
        * Decide if we are to do a normal step or a modified step
@@ -1304,8 +1306,8 @@ namespace Cantera {
        * The logic below looks for obvious cases where the current element
        * coefficient matrix is rank deficient.
        * 
-       * The way around rank-deficiency is to lump-sum the corresponding row of the
-       * matrix. Note, lump-summing seems to work very well in terms of 
+       * The way around rank-deficiency is to lump-sum the corresponding row 
+       * of the matrix. Note, lump-summing seems to work very well in terms of 
        * its stability properties, i.e., it heads in the right direction,
        * albeit with lousy convergence rates.
        *
@@ -1317,7 +1319,8 @@ namespace Cantera {
       for (m = 0; m < m_mm; m++) {
 	lumpSum[m] = 1;
       }
-      double nCutoff = 1.0E-4 * n_t_calc;
+
+      nCutoff = 1.0E-4 * n_t_calc;
 #ifdef DEBUG_HKM_EPEQUIL
       if (debug_prnt_lvl > 0) {
         printf(" Lump Sum Elements Calculation: \n");
