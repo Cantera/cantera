@@ -60,7 +60,7 @@ all: $(PROGRAM)
 $(PROGRAM): $(OBJS)
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXXFLAGS)\
         $(CANTERA_LIBS) $(LINK_OPTIONS) $(EXT_LIBS) \
-         @LIBS@ @FLIBS@  $(LCXX_END_LIBS)
+         @LIBS@ $(LCXX_END_LIBS)
 
 %.d:
 	g++ -MM -I$(CANTERA_INCDIR) $*.cpp > $*.d
