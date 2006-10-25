@@ -16,6 +16,7 @@
 #define CT_VEC_FUNCTIONS_H
 
 #include "ct_defs.h"
+#include "utilities.h"
 #include <numeric>
 #include <functional>
 #include <algorithm>

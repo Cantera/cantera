@@ -322,6 +322,8 @@ CVODE_LIBS='-lsundials_cvodes -lsundials_nvecserial'
 IDA_LIBS='-lsundials_ida -lsundials_nvecserial' 
 sundials_include='-I'${SUNDIALS_HOME}'/include -I'${SUNDIALS_HOME}'/include/sundials -I'${SUNDIALS_HOME}'/include/cvodes -I'${SUNDIALS_HOME}'/include/ida'
 echo "sundials include directory: " ${sundials_include}
+echo "sundials library directory: " $SUNDIALS_HOME/lib
+python tools/src/sundials_version.py $SUNDIALS_HOME
 fi
 
 if test ${use_sundials} = 0; then

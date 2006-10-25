@@ -252,6 +252,7 @@ ENABLE_TPX='y'
 #
 USE_SUNDIALS=${USE_SUNDIALS:='default'}
 SUNDIALS_HOME=${SUNDIALS_HOME:=/usr/local/sundials}
+#SUNDIALS_VERSION=${SUNDIALS_VERSION:='2.2.0'}
 
 #----------------------------------------------------------------- 
 #         BLAS and LAPACK
@@ -457,6 +458,7 @@ export NUMARRAY_HOME
 export CANTERA_PYTHON_HOME
 export USE_SUNDIALS
 export SUNDIALS_HOME
+export SUNDIALS_VERSION
 
 export WITH_LATTICE_SOLID
 export WITH_METAL

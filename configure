@@ -2743,6 +2743,8 @@ CVODE_LIBS='-lsundials_cvodes -lsundials_nvecserial'
 IDA_LIBS='-lsundials_ida -lsundials_nvecserial'
 sundials_include='-I'${SUNDIALS_HOME}'/include -I'${SUNDIALS_HOME}'/include/sundials -I'${SUNDIALS_HOME}'/include/cvodes -I'${SUNDIALS_HOME}'/include/ida'
 echo "sundials include directory: " ${sundials_include}
+echo "sundials library directory: " $SUNDIALS_HOME/lib
+python tools/src/sundials_version.py $SUNDIALS_HOME
 fi
 
 if test ${use_sundials} = 0; then
@@ -8551,7 +8553,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:8554:" \
+echo "$as_me:8556:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -8754,7 +8756,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:8757: \"$ac_link\") >&5
+(eval echo $as_me:8759: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -8832,7 +8834,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:8835: \"$ac_link\") >&5
+(eval echo $as_me:8837: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS

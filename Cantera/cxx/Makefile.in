@@ -27,7 +27,7 @@ all:
           $(INSTALL_TSC) "$${lh}" "../"$(INCDIR) ; \
 	done)
 	cd src;   @MAKE@
-	cd demos; @MAKE@
+#	cd demos; @MAKE@
 
 clean:
 	@(for lh in $(CXX_H) ; do \
@@ -42,7 +42,7 @@ clean:
 
 depends:
 	cd src; @MAKE@ depends
-	cd demos; @MAKE@ depends
+#	cd demos; @MAKE@ depends
 
 install:
 	cd src; @MAKE@ install
