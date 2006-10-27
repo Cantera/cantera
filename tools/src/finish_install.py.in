@@ -1,19 +1,19 @@
 import sys, os, string
-prefix = '@prefix@' 
+prefix = '@prefix_for_py@' 
 pycmd = '@PYTHON_CMD@' # sys.argv[2]
 localinst = @local_inst@
 
 build_python = @BUILD_PYTHON@
 build_matlab = @BUILD_MATLAB@
 
-bindir = '@ct_bindir@'
-libdir = '@ct_libdir@' 
-hdrdir = '@ct_incdir@'
-demodir = '@ct_demodir@'
-datadir = '@ct_datadir@'
-templdir = '@ct_templdir@'
-ctdir = '@ct_dir@'
-home = '@homedir@'
+bindir = '@ct_bindir_for_py@'
+libdir = '@ct_libdir_for_py@' 
+hdrdir = '@ct_incdir_for_py@'
+demodir = '@ct_demodir_for_py@'
+datadir = '@ct_datadir_for_py@'
+templdir = '@ct_templdir_for_py@'
+ctdir = '@ct_dir_for_py@'
+home = '@home_for_py@'
 isdarwin = '@OS_IS_DARWIN@'
 numarray_home = '@NUMARRAY_HOME@'
 

@@ -178,8 +178,22 @@ ctversion=${CANTERA_VERSION}
 AC_SUBST(ctversion)
 AC_DEFINE_UNQUOTED(CANTERA_VERSION,"$ctversion")
 
+
 homedir=${HOME}
+home_for_py=$homedir
+if test "x${OS_IS_CYGWIN}" = "x1"; then
+     home_for_py=`cygpath -a -w "${homedir}" `
+fi
+
+if test "x${OS_IS_CYGWIN}" = "x1"; then
+     prefix_for_py=`cygpath -a -w "${prefix}" `
+else
+     prefix_for_py=$prefix
+fi
+
 AC_SUBST(homedir)
+AC_SUBST(home_for_py)
+AC_SUBST(prefix_for_py)
 
 # A compact installation is one in which the $prefix directory
 # contains only Cantera files. It is different than a local
@@ -217,6 +231,32 @@ AC_SUBST(ct_tutdir)
 AC_SUBST(ct_docdir)
 AC_SUBST(ct_dir)
 AC_SUBST(ct_mandir)
+
+ct_libdir_for_py=${prefix_for_py}/lib
+ct_bindir_for_py=${prefix_for_py}/bin
+ct_incdir_for_py=${prefix_for_py}/include/cantera
+ct_incroot_for_py=${prefix_for_py}/include
+ct_datadir_for_py=${prefix_for_py}/data
+ct_demodir_for_py=${prefix_for_py}/demos
+ct_templdir_for_py=${prefix_for_py}/templates
+ct_tutdir_for_py=${prefix_for_py}/tutorials
+ct_docdir_for_py=${prefix_for_py}/doc
+ct_dir_for_py=${prefix_for_py}
+ct_mandir_for_py=${prefix_for_py}
+
+
+AC_SUBST(ct_libdir_for_py)
+AC_SUBST(ct_bindir_for_py)
+AC_SUBST(ct_incdir_for_py)
+AC_SUBST(ct_incroot_for_py)
+AC_SUBST(ct_datadir_for_py)
+AC_SUBST(ct_demodir_for_py)
+AC_SUBST(ct_templdir_for_py)
+AC_SUBST(ct_tutdir_for_py)
+AC_SUBST(ct_docdir_for_py)
+AC_SUBST(ct_dir_for_py)
+AC_SUBST(ct_mandir_for_py)
+
 
 COMPACT_INSTALL=1
 AC_SUBST(COMPACT_INSTALL)
@@ -310,7 +350,7 @@ ldsave=$LDFLAGS
 LDFLAGS='-L'$SUNDIALS_HOME/lib' '$ldsave
 
 AC_CHECK_LIB(sundials_cvodes, CVodeCreate, [use_sundials=1], [use_sundials=0],\
-[-lsundials_cvodes -lsundials_nvecserial -lsundials_shared -lm])
+[-lsundials_cvodes -lsundials_nvecserial -lm])
 less conftest.c
 
 LDFLAGS=$ldsave
