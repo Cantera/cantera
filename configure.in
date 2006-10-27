@@ -298,6 +298,8 @@ if test -n "$USER_SRC_DIR"; then USERDIR=$USER_SRC_DIR; INCL_USER_CODE=1; fi
 AC_SUBST(USERDIR)
 AC_SUBST(INCL_USER_CODE)
 
+AC_LANG_CPLUSPLUS
+
 use_sundials=0
 sundials_inc=
 CVODE_LIBS='-lcvode'
@@ -306,10 +308,13 @@ IDA_LIBS=''
 if test "$USE_SUNDIALS" = "default"; then
 ldsave=$LDFLAGS
 LDFLAGS='-L'$SUNDIALS_HOME/lib' '$ldsave
-fi
 
 AC_CHECK_LIB(sundials_cvodes, CVodeCreate, [use_sundials=1], [use_sundials=0],\
-[-lsundials_cvodes -lsundials_nvecserial -lm])
+[-lsundials_cvodes -lsundials_nvecserial -lsundials_shared -lm])
+less conftest.c
+
+LDFLAGS=$ldsave
+fi
 
 if test "x$USE_SUNDIALS" = "xy"; then
 use_sundials=1
@@ -972,7 +977,7 @@ AC_PROG_F77()
   fi
 
 dnl Checks for libraries.
-AC_F77_LIBRARY_LDFLAGS()
+# AC_F77_LIBRARY_LDFLAGS()
 
 override_f77_libs=0;
 case $ac_sys_system in
