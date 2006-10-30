@@ -647,8 +647,6 @@ python_prefix
 python_win_prefix
 ctversion
 homedir
-home_for_py
-prefix_for_py
 ct_libdir
 ct_bindir
 ct_incdir
@@ -660,17 +658,6 @@ ct_tutdir
 ct_docdir
 ct_dir
 ct_mandir
-ct_libdir_for_py
-ct_bindir_for_py
-ct_incdir_for_py
-ct_incroot_for_py
-ct_datadir_for_py
-ct_demodir_for_py
-ct_templdir_for_py
-ct_tutdir_for_py
-ct_docdir_for_py
-ct_dir_for_py
-ct_mandir_for_py
 COMPACT_INSTALL
 build
 build_cpu
@@ -1997,19 +1984,7 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
-
 homedir=${HOME}
-if test "x${OS_IS_CYGWIN}" = "x1"; then
-     home_for_py=`cygpath -a -w "${homedir}" `
-fi
-
-if test "x${OS_IS_CYGWIN}" = "x1"; then
-     prefix_for_py=`cygpath -a -w "${prefix}" `
-else
-     prefix_for_py=$prefix
-fi
-
-
 
 
 
@@ -2037,32 +2012,6 @@ ct_tutdir=${prefix}/tutorials
 ct_docdir=${prefix}/doc
 ct_dir=${prefix}
 ct_mandir=${prefix}
-
-
-
-
-
-
-
-
-
-
-
-
-
-ct_libdir_for_py=${prefix_for_py}/lib
-ct_bindir_for_py=${prefix_for_py}/bin
-ct_incdir_for_py=${prefix_for_py}/include/cantera
-ct_incroot_for_py=${prefix_for_py}/include
-ct_datadir_for_py=${prefix_for_py}/data
-ct_demodir_for_py=${prefix_for_py}/demos
-ct_templdir_for_py=${prefix_for_py}/templates
-ct_tutdir_for_py=${prefix_for_py}/tutorials
-ct_docdir_for_py=${prefix_for_py}/doc
-ct_dir_for_py=${prefix_for_py}
-ct_mandir_for_py=${prefix_for_py}
-
-
 
 
 
@@ -11089,8 +11038,6 @@ python_prefix!$python_prefix$ac_delim
 python_win_prefix!$python_win_prefix$ac_delim
 ctversion!$ctversion$ac_delim
 homedir!$homedir$ac_delim
-home_for_py!$home_for_py$ac_delim
-prefix_for_py!$prefix_for_py$ac_delim
 ct_libdir!$ct_libdir$ac_delim
 ct_bindir!$ct_bindir$ac_delim
 ct_incdir!$ct_incdir$ac_delim
@@ -11102,17 +11049,6 @@ ct_tutdir!$ct_tutdir$ac_delim
 ct_docdir!$ct_docdir$ac_delim
 ct_dir!$ct_dir$ac_delim
 ct_mandir!$ct_mandir$ac_delim
-ct_libdir_for_py!$ct_libdir_for_py$ac_delim
-ct_bindir_for_py!$ct_bindir_for_py$ac_delim
-ct_incdir_for_py!$ct_incdir_for_py$ac_delim
-ct_incroot_for_py!$ct_incroot_for_py$ac_delim
-ct_datadir_for_py!$ct_datadir_for_py$ac_delim
-ct_demodir_for_py!$ct_demodir_for_py$ac_delim
-ct_templdir_for_py!$ct_templdir_for_py$ac_delim
-ct_tutdir_for_py!$ct_tutdir_for_py$ac_delim
-ct_docdir_for_py!$ct_docdir_for_py$ac_delim
-ct_dir_for_py!$ct_dir_for_py$ac_delim
-ct_mandir_for_py!$ct_mandir_for_py$ac_delim
 COMPACT_INSTALL!$COMPACT_INSTALL$ac_delim
 build!$build$ac_delim
 build_cpu!$build_cpu$ac_delim
@@ -11137,6 +11073,19 @@ ARCHIVE!$ARCHIVE$ac_delim
 DO_RANLIB!$DO_RANLIB$ac_delim
 RANLIB!$RANLIB$ac_delim
 USERDIR!$USERDIR$ac_delim
+INCL_USER_CODE!$INCL_USER_CODE$ac_delim
+CXX!$CXX$ac_delim
+CXXFLAGS!$CXXFLAGS$ac_delim
+LDFLAGS!$LDFLAGS$ac_delim
+CPPFLAGS!$CPPFLAGS$ac_delim
+ac_ct_CXX!$ac_ct_CXX$ac_delim
+EXEEXT!$EXEEXT$ac_delim
+OBJEXT!$OBJEXT$ac_delim
+use_sundials!$use_sundials$ac_delim
+CVODE_LIBS!$CVODE_LIBS$ac_delim
+IDA_LIBS!$IDA_LIBS$ac_delim
+sundials_include!$sundials_include$ac_delim
+CANTERA_DEBUG_MODE!$CANTERA_DEBUG_MODE$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -11178,19 +11127,6 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
-INCL_USER_CODE!$INCL_USER_CODE$ac_delim
-CXX!$CXX$ac_delim
-CXXFLAGS!$CXXFLAGS$ac_delim
-LDFLAGS!$LDFLAGS$ac_delim
-CPPFLAGS!$CPPFLAGS$ac_delim
-ac_ct_CXX!$ac_ct_CXX$ac_delim
-EXEEXT!$EXEEXT$ac_delim
-OBJEXT!$OBJEXT$ac_delim
-use_sundials!$use_sundials$ac_delim
-CVODE_LIBS!$CVODE_LIBS$ac_delim
-IDA_LIBS!$IDA_LIBS$ac_delim
-sundials_include!$sundials_include$ac_delim
-CANTERA_DEBUG_MODE!$CANTERA_DEBUG_MODE$ac_delim
 phase_object_files!$phase_object_files$ac_delim
 phase_header_files!$phase_header_files$ac_delim
 COMPILE_IDEAL_SOLUTIONS!$COMPILE_IDEAL_SOLUTIONS$ac_delim
@@ -11266,7 +11202,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 86; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 73; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
