@@ -113,7 +113,9 @@ namespace Cantera {
                     "\nfor irreversible reactions");
             }
             if (pk.size() > 3) {
-                m_revproducts->add(rxn, r.products, m_dummy, r.pstoich);
+                // mod dgg 10/31/06
+                m_revproducts->add(rxn, r.products, r.pstoich, r.pstoich);
+                //m_revproducts->add(rxn, r.products, m_dummy, r.pstoich);
             }
             else {
                 m_revproducts->add(rxn, pk);
