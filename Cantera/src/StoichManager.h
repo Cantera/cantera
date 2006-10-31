@@ -401,8 +401,10 @@ They are designed to explicitly unroll loops over species or reactions for
         int speciesIndex(int n) const {return m_ic[n];}
 
         void multiply(const doublereal* input, doublereal* output) const {
-            for (int n = 0; n < m_n; n++) output[m_rxn] *= 
-                ppow(input[m_ic[n]],m_order[n]);  
+            for (int n = 0; n < m_n; n++) {
+                output[m_rxn] *= 
+                    ppow(input[m_ic[n]],m_order[n]); 
+            } 
         }
 
         void incrementSpecies(const doublereal* input, 
