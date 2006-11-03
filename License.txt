@@ -1,5 +1,5 @@
 
-Copyright (c) 2001-2004, California Institute of Technology
+Copyright (c) 2001-2006, California Institute of Technology
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
