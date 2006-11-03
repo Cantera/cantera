@@ -69,7 +69,10 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 
 // Identify whether the operating system is windows based, with
 // microsoft vc++ being used as the compiler
+
 #define WINMSVC
+
+#define HAS_SUNDIALS 1
 
 //--------- Fonts for reaction path diagrams ----------------------
 #define RXNPATH_FONT "Helvetica"
@@ -87,5 +90,6 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 #define WITH_METAL
 #define WITH_STOICH_SUBSTANCE
 #define WITH_PURE_FLUIDS
+#define WITH_LATTICE_SOLID
 
 #endif
