@@ -1,0 +1,291 @@
+#
+#  SURFACE MECHANISM OF POX of CH4 on PT wire gauze
+#
+#***********************************************************************
+#****                                                                  *     
+#****     CH4-O2 SURFACE MECHANISM  ON PT                              *    
+#****                                                                  *        
+#****     Version 1.0   Spring 2005                                    *
+#****                                                                  *        
+#****     Raul Quiceno, Olaf Deutschmann, IWR, Heidelberg University,  *
+#****     Germany                                                     *
+#****     Contact: mail@detchem.com (O. Deutschmann)                   *
+#****                                                                  *
+#****     Reference:                                                   *
+#****     R. Quiceno, J. Perez-Ramyrez, J. Warnatz, O. Deutschmann.    *
+#****     Appl. Catal. A: General (2006)                               *
+#****     www.detchem.com/mechanisms                                   *
+#****                                                                  *
+#****                                                                  *
+#****      The kinetic data of the backward reactions of               *
+#****      reactions in Section 3 are calculated                       *
+#****      from thermodynamics (k_b = k_f /K)                          *
+#****                                                                  *
+#****     Surface site density: 2.72E-9 mol/cm**2                      *
+#****                                                                  *
+#----------------------------------------------------------------------
+
+units(length = "cm", time = "s", quantity = "mol", act_energy = "J/mol")
+
+
+#
+# Define a gas mixture. This contains only major species, and no
+# gas-phase reactions. 
+# 
+ideal_gas(name = "gas",
+          elements = "O H C N Ar",
+          species = """H2 O2 H2O CH4 CO CO2 AR N2""",
+          transport = 'Mix',
+          options = ['skip_undeclared_elements',
+                     'skip_undeclared_species'],
+          initial_state = state(temperature = 300.0, pressure = OneAtm,
+                                mole_fractions = 'CH4:0.095, O2:0.21, AR:0.79')
+          )
+
+
+#
+# The platinum surface. 
+ideal_interface(name = "Pt_surf",
+                elements = " Pt  H  O  C ",
+                species = """ PT(S) H(S)
+                              H2O(S)  OH(S)  CO(S)  CO2(S)  CH3(S)
+                              CH2(S)  CH(S)  C(S)  O(S) """,
+                phases = "gas",
+                site_density = 2.72e-9,
+                reactions = "all",
+                options = ['skip_undeclared_elements',
+                           'skip_undeclared_species'],                
+                initial_state = state(temperature = 900.0,
+                                      coverages = 'O(S):0.00, PT(S):0.01, H(S):0.99')
+                )
+
+
+
+#-------------------------------------------------------------------------------
+#  Species data 
+#-------------------------------------------------------------------------------
+
+species(name = "CH4",
+    atoms = " C:1  H:4 ",
+    thermo = (
+       NASA( [  300.00,  1000.00], [  7.787414790E-01,   1.747668350E-02, 
+               -2.783409040E-05,   3.049708040E-08,  -1.223930680E-11,
+               -9.825228520E+03,   1.372219470E+01] ),
+       NASA( [ 1000.00,  5000.00], [  1.683478830E+00,   1.023723560E-02, 
+               -3.875128640E-06,   6.785584870E-10,  -4.503423120E-14,
+               -1.008078710E+04,   9.623394970E+00] )
+             )
+       )
+
+species(name = "O2",
+    atoms = " O:2 ",
+    thermo = (
+       NASA( [  300.00,  1000.00], [  3.783713500E+00,  -3.023363400E-03, 
+                9.949275100E-06,  -9.818910100E-09,   3.303182500E-12,
+               -1.063810700E+03,   3.641634500E+00] ),
+       NASA( [ 1000.00,  5000.00], [  3.612213900E+00,   7.485316600E-04, 
+               -1.982064700E-07,   3.374900800E-11,  -2.390737400E-15,
+               -1.197815100E+03,   3.670330700E+00] )
+             )
+       )
+
+species(name = "CO",
+    atoms = " C:1  O:1 ",
+    thermo = (
+       NASA( [  300.00,  1000.00], [  3.262451650E+00,   1.511940850E-03, 
+               -3.881755220E-06,   5.581944240E-09,  -2.474951230E-12,
+               -1.431053910E+04,   4.848896980E+00] ),
+       NASA( [ 1000.00,  5000.00], [  3.025078060E+00,   1.442688520E-03, 
+               -5.630827790E-07,   1.018581330E-10,  -6.910951560E-15,
+               -1.426834960E+04,   6.108217720E+00] )
+             )
+       )
+
+species(name = "CO2",
+    atoms = " C:1  O:2 ",
+    thermo = (
+       NASA( [  300.00,  1000.00], [  2.275724650E+00,   9.922072290E-03, 
+               -1.040911320E-05,   6.866686780E-09,  -2.117280090E-12,
+               -4.837314060E+04,   1.018848800E+01] ),
+       NASA( [ 1000.00,  5000.00], [  4.453622820E+00,   3.140168730E-03, 
+               -1.278410540E-06,   2.393996670E-10,  -1.669033190E-14,
+               -4.896696090E+04,  -9.553958770E-01] )
+             )
+       )
+
+species(name = "H2",
+    atoms = " H:2 ",
+    thermo = (
+       NASA( [  300.00,  1000.00], [  3.355351400E+00,   5.013614400E-04, 
+               -2.300690800E-07,  -4.790532400E-10,   4.852258500E-13,
+               -1.019162600E+03,  -3.547722800E+00] ),
+       NASA( [ 1000.00,  5000.00], [  3.066709500E+00,   5.747375500E-04, 
+                1.393831900E-08,  -2.548351800E-11,   2.909857400E-15,
+               -8.654741200E+02,  -1.779842400E+00] )
+             )
+       )
+
+species(name = "H2O",
+    atoms = " H:2  O:1 ",
+    thermo = (
+       NASA( [  300.00,  1000.00], [  4.167723400E+00,  -1.811497000E-03, 
+                5.947128800E-06,  -4.869202100E-09,   1.529199100E-12,
+               -3.028996900E+04,  -7.313547400E-01] ),
+       NASA( [ 1000.00,  5000.00], [  2.611047200E+00,   3.156313000E-03, 
+               -9.298543800E-07,   1.333153800E-10,  -7.468935100E-15,
+               -2.986816700E+04,   7.209126800E+00] )
+             )
+       )
+
+species(name = "AR",
+    atoms = " Ar:1 ",
+    thermo = (
+       NASA( [  300.00,  1000.00], [  2.500000000E+00,   0.000000000E+00, 
+                0.000000000E+00,   0.000000000E+00,   0.000000000E+00,
+               -7.453749800E+02,   4.366000600E+00] ),
+       NASA( [ 1000.00,  5000.00], [  2.500000000E+00,   0.000000000E+00, 
+                0.000000000E+00,   0.000000000E+00,   0.000000000E+00,
+               -7.453750200E+02,   4.366000600E+00] )
+             )
+       )
+
+
+#-------------------------------------------------------------------------------
+#  Reaction data 
+#-------------------------------------------------------------------------------
+
+# Adsorption reactions
+
+surface_reaction("H2 + 2 PT(S) => 2 H(S)",
+                 stick(0.046, 0, 0,
+                       coverage = ['PT(S)',0.0, -1.0, 0.0]))
+
+surface_reaction( "O2 + 2 PT(S) => 2 O(S)",
+                  Arrhenius(1.89000E+21, -0.5, 0))
+
+surface_reaction( "CH4 + 2 PT(S) => CH3(S) + H(S)",
+                  stick(0.0009, 0.0, 72000.0))
+
+surface_reaction( "CH4 + PT(S) + O(S) => CH3(S) + OH(S)",
+                  Arrhenius(5.0e18, 0.7, 42000.0,
+                            coverage = ['O(S)', 0.0, 0.0, 8000]))
+
+surface_reaction( "CH4 + PT(S) + OH(S) => CH3(S) + H2O(S)",
+                  stick(1.0, 0.0, 10000.0))
+
+surface_reaction( "H2O + PT(S) => H2O(S)",
+                  stick(7.50000E-01, 0, 0))
+
+surface_reaction( "CO2 + PT(S) => CO2(S)",
+                  stick(0.005, 0, 0))
+
+surface_reaction( "CO + PT(S) => CO(S)",
+                  stick(0.84, 0, 0))
+
+
+# Desorption reactions
+
+surface_reaction( "2 H(S) => H2 + 2 PT(S)",   
+		  Arrhenius(3.70000E+21, 0, 67400,
+                            coverage = ['H(S)', 0.0, 0.0, -10000.0]))
+
+surface_reaction( "2 O(S) => O2 + 2 PT(S)",   
+		  Arrhenius(3.70000E+21, 0, 235500,
+                            coverage = ['O(S)', 0.0, 0.0, -188300.0]) )
+
+surface_reaction( "H2O(S) => H2O + PT(S)",   [4.50000E+12, 0, 41800])
+
+surface_reaction( "CO(S) => CO + PT(S)",
+                  Arrhenius(1.00000E+15, 0, 146000,
+                            coverage = ['CO(S)', 0.0, 0.0, -33000.0]))
+
+surface_reaction( "CO2(S) => CO2 + PT(S)",   [1.00000E+13, 0, 27100])
+
+
+# surface reactions
+
+surface_reaction( "C(S) + O(S) => CO(S) + PT(S)",   [3.70000E+19, 0, 0])
+
+surface_reaction( "CO(S) + PT(S) => C(S) + O(S)",
+                  Arrhenius(3.70000E+19, 0, 236500,
+                            coverage = ['CO(S)', 0.0, 0.0, -33000]))
+
+# error in paper. This reaction is consistent with the version in the
+# file on the DETCHEM mechanisms web site, but differs from the
+# version in the Applied Catalysis paper.
+surface_reaction( "CO(S) + O(S) => CO2(S) + PT(S)",
+                  Arrhenius(3.70000E+21, 0, 117600,
+                            coverage = ['CO(S)', 0.0, 0.0, -33000]))
+
+# minor diff w paper
+surface_reaction( "CO2(S) + PT(S) => CO(S) + O(S)",
+                  Arrhenius(3.70000E+19, 0, 173300,
+                            coverage = ['O(S)', 0.0, 0.0, 94100]))
+
+surface_reaction( "CO(S) + OH(S) => CO2(S) + H(S)",
+                  Arrhenius(1.0000E+19, 0, 38700,
+                            coverage = ['CO(S)', 0.0, 0.0, -30000]))                  
+
+surface_reaction( "CO2(S) + H(S) => CO(S) + OH(S)",
+                  Arrhenius(1.0000E+19, 0, 8400))
+
+surface_reaction( "CH3(S) + PT(S) => CH2(S) + H(S)",
+                  Arrhenius(1.2600E+22, 0, 70300))
+
+surface_reaction( "CH2(S) + H(S) => CH3(S) + PT(S)",
+                  Arrhenius(3.0900E+22, 0, 0,
+                            coverage = ['H(S)', 0.0, 0.0, -2800]))
+
+surface_reaction( "CH2(S) + PT(S) => CH(S) + H(S)",
+                  Arrhenius(7.3100E+22, 0, 58900,
+                            coverage = ['C(S)', 0.0, 0.0, 50000]))                                    
+surface_reaction( "CH(S) + H(S) => CH2(S) + PT(S)",
+                  Arrhenius(3.0900E+22, 0, 0,
+                            coverage = ['H(S)', 0.0, 0.0, -2800]))
+
+
+surface_reaction( "CH(S) + PT(S) => C(S) + H(S)",
+                  Arrhenius(3.0900E+22, 0, 0,
+                            coverage = ['H(S)', 0.0, 0.0, -2800]))
+
+surface_reaction( "C(S) + H(S) => CH(S) + PT(S)",
+                  Arrhenius(1.2500E+22, 0, 138000))
+
+surface_reaction( "H(S) + O(S) => OH(S) + PT(S)",
+                  Arrhenius(1.2800E+21, 0, 11200))
+
+surface_reaction( "OH(S) + PT(S) => H(S) + O(S)",
+                  Arrhenius(7.39e19, 0, 77300,
+                            coverage = ['O(S)', 0.0, 0.0, -73200]))
+
+surface_reaction( "H2O(S) + PT(S) => H(S) + OH(S)",
+                  Arrhenius(1.15e19, 0, 101400,
+                            coverage = ['O(S)', 0.0, 0.0, 167300]))
+
+surface_reaction( "2 OH(S) => H2O(S) + O(S)",
+                  Arrhenius(7.4e20, 0, 74000))
+
+surface_reaction( "H2O(S) + O(S) => 2 OH(S)",
+                  Arrhenius(1.0e20, 0, 43100,
+                            coverage = ['O(S)', 0.0, 0.0, 240600]))
+
+surface_reaction( "H2 + C(S) => CH2(S)",
+                  stick(0.04, 0, 29700,
+                            coverage = ['C(S)', 0.0, 0.0, 4600]))
+
+surface_reaction( "CH2(S) => C(S) + H2",
+                  Arrhenius(7.69e13, 0, 25100,
+                            coverage = ['C(S)', 0.0, 0.0, 50000]))
+
+surface_reaction( "H(S) + OH(S) => H2O(S) + PT(S)",
+                  Arrhenius(2.04e21, 0, 66220))
+
+surface_reaction( "CH3(S) + H(S) => CH4 + 2 PT(S)",
+                  Arrhenius(3.3e21, 0, 50000,
+                            coverage = ['H(S)', 0.0, 0.0, -2800]))
+
+surface_reaction( "CH3(S) + H2O(S) => CH4 + OH(S) + PT(S)",
+                  Arrhenius(3.7e21, 0, 110600))
+
+surface_reaction( "CH3(S) + OH(S) => CH4 + O(S) + PT(S)",
+                  Arrhenius(3.7e21, 0, 87900))
