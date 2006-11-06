@@ -160,11 +160,11 @@ namespace Cantera {
         doublereal* chigh) {
 
         // heat capacity
-        doublereal cplow = poly4(tmid, clow+2);
-        doublereal cphigh = poly4(tmid, chigh+2);
+        doublereal cplow = poly4(tmid, clow);
+        doublereal cphigh = poly4(tmid, chigh);
         doublereal delta = cplow - cphigh;
         if (fabs(delta/cplow) > 0.001) {
-            writelog("\n**** WARNING ****\nFor species "+name+
+            writelog("\n\n**** WARNING ****\nFor species "+name+
                 ", discontinuity in cp/R detected at Tmid = "
                 +fp2str(tmid)+"\n");
             writelog("\tValue computed using low-temperature polynomial:  "
@@ -178,7 +178,7 @@ namespace Cantera {
         doublereal hrthigh = enthalpy_RT(tmid, chigh);
         delta = hrtlow - hrthigh;
         if (fabs(delta/hrtlow) > 0.001) {
-            writelog("\n**** WARNING ****\nFor species "+name+
+            writelog("\n\n**** WARNING ****\nFor species "+name+
                 ", discontinuity in h/RT detected at Tmid = "
                 +fp2str(tmid)+"\n");
             writelog("\tValue computed using low-temperature polynomial:  "
@@ -192,7 +192,7 @@ namespace Cantera {
         doublereal srhigh = entropy_R(tmid, chigh);
         delta = srlow - srhigh;
         if (fabs(delta/srlow) > 0.001) {
-            writelog("\n**** WARNING ****\nFor species "+name+
+            writelog("\n\n**** WARNING ****\nFor species "+name+
                 ", discontinuity in s/R detected at Tmid = "
                 +fp2str(tmid)+"\n");
             writelog("\tValue computed using low-temperature polynomial:  "

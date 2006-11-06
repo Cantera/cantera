@@ -94,9 +94,9 @@ namespace Cantera {
 	    return (SpeciesThermoInterpType *) np;
 	}
       
-        doublereal minTemp() const     { return m_lowT;}
-        doublereal maxTemp() const     { return m_highT;}
-        doublereal refPressure() const { return m_Pref; }
+        virtual doublereal minTemp() const     { return m_lowT;}
+        virtual doublereal maxTemp() const     { return m_highT;}
+        virtual doublereal refPressure() const { return m_Pref; }
         virtual int reportType() const { return NASA1; }
       
         /**
@@ -116,7 +116,7 @@ namespace Cantera {
 	 *  tt[4] = 1.0/t;
 	 *  tt[5] = log(t);
          */
-        void updateProperties(const doublereal* tt, 
+        virtual void updateProperties(const doublereal* tt, 
             doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const {
           
             doublereal ct0 = m_coeff[2];          // a0 
@@ -148,7 +148,7 @@ namespace Cantera {
 	 *
 	 *     (note: this is slow, but it is general)
 	 */
-	void updatePropertiesTemp(const doublereal temp, 
+	virtual void updatePropertiesTemp(const doublereal temp, 
 				  doublereal* cp_R, doublereal* h_RT, 
 				  doublereal* s_R) const {
 	    double tPoly[6];
@@ -161,7 +161,7 @@ namespace Cantera {
 	    updateProperties(tPoly, cp_R, h_RT, s_R);
 	}
 
-	void reportParameters(int &n, int &type,
+	virtual void reportParameters(int &n, int &type,
 			      doublereal &tlow, doublereal &thigh,
 			      doublereal &pref,
 			      doublereal* const coeffs) const {
@@ -170,10 +170,27 @@ namespace Cantera {
 	    tlow = m_lowT;
 	    thigh = m_highT;
 	    pref = m_Pref;
-	    for (int i = 0; i < 7; i++) {
-	      coeffs[i] = m_coeff[i];
+            coeffs[5] = m_coeff[0];
+            coeffs[6] = m_coeff[1];
+	    for (int i = 2; i < 7; i++) {
+	      coeffs[i-2] = m_coeff[i];
 	    }
+#ifdef WARN_ABOUT_CHANGES_FROM_VERSION_1_6
+            cout << "************************************************\n"
+            cout << "Warning: NasaPoly1::reportParameters now returns \n"
+                 << "the coefficient array in the same order as in\n"
+                 << "the input file.  See file NasaPoly1.h" << endl;
+            cout << "************************************************\n"
+#endif
 	}
+
+        virtual void modifyParameters(doublereal* coeffs) {
+            m_coeff[0] = coeffs[5];
+            m_coeff[1] = coeffs[6];
+	    for (int i = 0; i < 5; i++) {
+                m_coeff[i+2] = coeffs[i];
+	    }            
+        }
 
     protected:
         

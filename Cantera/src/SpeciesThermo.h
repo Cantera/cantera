@@ -159,6 +159,9 @@ namespace Cantera {
 				  doublereal &minTemp, 
 				  doublereal &maxTemp, 
 				  doublereal &refPressure)=0;
+
+	virtual void modifyParams(int index, doublereal *c) {}
+
     };
 }
 

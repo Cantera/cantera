@@ -194,27 +194,6 @@ namespace Cantera {
 	 */
         doublereal size(int k) const { return m_speciesSize[k]; }
 
-#ifdef INCL_DEPRECATED_METHODS
-        /**
-         * Return a SpeciesData structure containing species data. 
-         */
-        SpeciesData species(int k) const {
-            if (k < 0 || k >= nSpecies()) 
-                throw SpeciesRangeError("Constituents::charge",k,nSpecies());
-            SpeciesData s;
-            s.name = m_speciesNames[k];
-            s.phase = m_speciesPhase[k];
-            int offset = m_mm * k;
-            s.atoms.resize(m_mm);
-            for (int m = 0; m < m_mm; m++) {
-                s.atoms[m] = m_speciesComp[offset + m];
-            }
-            s.charge = m_speciesCharge[k];
-            s.molecularWeight = m_weight[k];
-            return s;
-        }
-#endif
-
         /**
          * Prohibit addition of more species, and prepare for
          * calculations with this set of elements and species.

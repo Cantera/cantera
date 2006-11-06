@@ -74,6 +74,7 @@ namespace Cantera {
 			     doublereal minTemp, doublereal maxTemp,
 			     doublereal refPressure) { 
 
+            m_name[index] = name;
             int imid = int(c[0]);       // midpoint temp converted to integer
             int igrp = m_index[imid];   // has this value been seen before?
             if (igrp == 0) {            // if not, prepare new group
@@ -97,12 +98,20 @@ namespace Cantera {
             vector_fp chigh(7);
             copy(c + 8, c + 15, chigh.begin());
 
-            checkContinuity(name, tmid, clow, &chigh[0]);
-
             m_high[igrp-1].push_back(NasaPoly1(index, tmid, thigh, 
                                          pref, &chigh[0]));
             m_low[igrp-1].push_back(NasaPoly1(index, tlow, tmid, 
                                         pref, clow));
+
+            vector_fp clu(7), chu(7);
+            clu[5] = clow[0];
+            clu[6] = clow[1];
+            copy(clow+2, clow+7, clu.begin());
+            chu[5] = chigh[0];
+            chu[6] = chigh[1];
+            copy(chigh.begin()+2, chigh.begin()+7, chu.begin());
+
+            checkContinuity(name, tmid, &clu[0], &chu[0]);
 
             if (tlow > m_tlow_max)    m_tlow_max = tlow;
             if (thigh < m_thigh_min)  m_thigh_min = thigh;
@@ -244,6 +253,37 @@ namespace Cantera {
 	    }
 	}
 
+
+	/**
+	 * This utility function modifies the array of coefficients.
+         * The array is the same as that returned by reportParams, so
+         * a call can first be made to reportParams to populate the
+         * array, and then modifyParams can be called to alter
+         * selected values.  For the NASA object, there are 15
+         * coefficients.
+	 */
+	virtual void modifyParams(int index, doublereal *c) {
+	    int type = reportType(index);
+	    if (type == NASA) {
+                int grp = m_group_map[index];
+                int pos = m_posInGroup_map[index];
+                vector<NasaPoly1> &mlg = m_low[grp-1];
+                vector<NasaPoly1> &mhg = m_high[grp-1];
+                NasaPoly1 *lowPoly  = &(mlg[pos]);
+                NasaPoly1 *highPoly = &(mhg[pos]);
+                doublereal tmid = lowPoly->maxTemp();
+                if (c[0] != tmid) {
+                    throw CanteraError(" ", "Tmid cannot be changed");
+                }
+                lowPoly->modifyParameters(c + 1);
+                highPoly->modifyParameters(c + 8);
+                checkContinuity(m_name[index], c[0], c + 1, c + 8);
+	    } else {
+                throw CanteraError(" ", "confused");
+	    }
+	}
+
+
  protected:
 
         vector<vector<NasaPoly1> >         m_high;
@@ -271,6 +311,7 @@ namespace Cantera {
 	 * temperature polynomials for that species are storred.
 	 */
 	mutable map<int, int>              m_posInGroup_map;
+        mutable map<int, string>           m_name;
 
     private:
 
@@ -280,16 +321,16 @@ namespace Cantera {
 
         /// for internal use by checkContinuity
         doublereal enthalpy_RT(double t, const doublereal* c) {
-            return c[2] + 0.5*c[3]*t + OneThird*c[4]*t*t 
-                + 0.25*c[5]*t*t*t + 0.2*c[6]*t*t*t*t
-                + c[0]/t;
+            return c[0] + 0.5*c[1]*t + OneThird*c[2]*t*t 
+                + 0.25*c[3]*t*t*t + 0.2*c[4]*t*t*t*t
+                + c[5]/t;
         }
 
         /// for internal use by checkContinuity
         doublereal entropy_R(double t, const doublereal* c) {
-            return c[2]*log(t) + c[3]*t + 0.5*c[4]*t*t 
-                + OneThird*c[5]*t*t*t + 0.25*c[6]*t*t*t*t
-                + c[1];
+            return c[0]*log(t) + c[1]*t + 0.5*c[2]*t*t 
+                + OneThird*c[3]*t*t*t + 0.25*c[4]*t*t*t*t
+                + c[6];
         }
 
     };

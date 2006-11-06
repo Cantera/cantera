@@ -47,6 +47,9 @@ namespace Cantera {
 				      doublereal &tlow, doublereal &thigh,
 				      doublereal &pref,
 				      doublereal* const coeffs) const = 0;
+
+        virtual void modifyParameters(doublereal* coeffs) {}
+
     };
 
 }
