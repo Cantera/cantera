@@ -98,7 +98,7 @@ namespace CanteraZeroD {
             else {
                 if (m_verbose) {
                     writelog("Not adding reactor "+r->name()+
-                        ", since type = "+int2str(r->type()));
+                        ", since type = "+int2str(r->type())+"\n");
                 }
             }
         }
@@ -107,6 +107,7 @@ namespace CanteraZeroD {
             return *m_r[n];
         }
 
+        bool verbose() const { return m_verbose; }
         void setVerbose(bool v = true) { m_verbose = v; }
 
         /// Return a reference to the integrator.
@@ -123,6 +124,8 @@ namespace CanteraZeroD {
             return sensitivity(k, p);
         }
 
+        void setVerbose(bool flag) { m_verbose = flag; }
+        bool verbose() const { return m_verbose; }
         //-----------------------------------------------------
 
         // overloaded methods of class FuncEval
