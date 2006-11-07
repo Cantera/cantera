@@ -107,6 +107,16 @@ namespace Cantera {
         }
     }
 
+    doublereal State::concentration(int k) const {
+        if (k >= 0 && k < m_kk) {
+            return m_y[k] * m_dens * m_rmolwts[k] ;
+        }
+        else {
+            throw CanteraError("State:massFraction",
+                "illegal species index number");
+        }
+    }
+
     void State::setMassFractions(const doublereal* y) {
         doublereal norm = 0.0, sum = 0.0;
         int k;

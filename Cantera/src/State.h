@@ -156,6 +156,12 @@ namespace Cantera {
          */
 	void getConcentrations(doublereal* c) const;
 
+        /**
+         * Concentration of species k. If k is outside the valid
+         * range, an exception will be thrown.
+         */
+        doublereal concentration(int k) const;
+
 	/**
 	 * Set the concentrations to the specified values within the
 	 * phase. 
