@@ -234,31 +234,41 @@ ENABLE_TPX='y'
 #         CVODE / CVODES
 #-----------------------------------------------------------------
 # 
-# Cantera uses the CVODE ODE integrator to time-integrate reactor
-# network ODE's and for various other purposes. An older version of
-# CVODE comes with Cantera, but it is possible to use the latest
-# version as well, which now supports sensitivity analysis (CVODES).
-# CVODES is a part of the 'sundials' package from Lawrence Livermore
-# National Laboratory. Sundials is not distributed with Cantera, but
-# it is free software that may be downloaded and installed
-# separately. If you have sundials, set SUNDIALS_HOME to the directory
-# where it is installed, or else put the sundials libraries on the
-# library path.  If you leave USE_SUNDIALS = 'default', then it will
-# be used if you have it, and if not the older CVODE will be used. Or
-# set USE_SUNDIALS to 'y' or 'n' to force using it or not.  Note that
-# sensitivity analysis with Cantera requires use of sundials.
+# Cantera uses the CVODE or CVODES ODE integrator to time-integrate
+# reactor network ODE's and for various other purposes. An older
+# version of CVODE comes with Cantera, but it is possible to use the
+# latest version as well, which now supports sensitivity analysis
+# (CVODES).  CVODES is a part of the 'sundials' package from Lawrence
+# Livermore National Laboratory. Sundials is not distributed with
+# Cantera, but it is free software that may be downloaded and
+# installed separately. If you leave USE_SUNDIALS = 'default', then it
+# will be used if you have it, and if not the older CVODE will be
+# used. Or set USE_SUNDIALS to 'y' or 'n' to force using it or not.
+# Note that sensitivity analysis with Cantera requires use of
+# sundials.
 #
 # See: http://www.llnl.gov/CASC/sundials
 #
 USE_SUNDIALS=${USE_SUNDIALS:='default'}
-SUNDIALS_HOME=${SUNDIALS_HOME:=$HOME/sundials}
-#SUNDIALS_VERSION=${SUNDIALS_VERSION:='2.2.0'}
+
+# This is where you installed sundials if you used the --prefix option
+# when you configured sundials. If you didn't use the prefix option,
+# then comment this line out.
+SUNDIALS_HOME=${SUNDIALS_HOME:=$HOME/sundials23}
+
+# It is recommended that you install the newest release of sundials 
+# (currently 2.3.0) before building Cantera. But if you want to use an 
+# older version, set SUNDIALS_VERSION to the version you have.
+# Acceptable values are '2.2' and '2.3' only; anything else will cause
+# Cantera to not use sundials.
+SUNDIALS_VERSION=${SUNDIALS_VERSION:='2.3'}
+
 
 #----------------------------------------------------------------- 
 #         BLAS and LAPACK
 #-----------------------------------------------------------------
 #
-# Cantera comes with Fortran versions of those parts of BLAS and
+# Cantera comes with Fortran (or c) versions of those parts of BLAS and
 # LAPACK it requires. But performance may be better if you use a
 # version of these libraries optimized for your machine hardware. If
 # you want to use your own libraries, set BLAS_LAPACK_LIBS to the
@@ -267,7 +277,7 @@ SUNDIALS_HOME=${SUNDIALS_HOME:=$HOME/sundials}
 # libraries are located. Otherwise, leave these lines commented out.
 #
 #BLAS_LAPACK_LIBS='-llapack -lblas'
-#'-llapack -lf77blas -lcblas -latlas'
+#BLAS_LAPACK_LIBS'-llapack -lf77blas -lcblas -latlas'
 #BLAS_LAPACK_DIR='/usr/lib'
 #
 # Note that on Mac OSX, BLAS and LAPACK from the built-in 'Accelerate'
@@ -308,13 +318,12 @@ CXXFLAGS=${CXXFLAGS:="-O3 -Wall"}
 
 # the C++ flags required for linking. Uncomment if additional flags
 # need to be passed to the linker.
-#LCXX_FLAGS="-framework Accelerate"   
 
 # Ending libraries to tack onto the linking of all C++ programs
 LCXX_END_LIBS=${LCXX_END_LIBS:="-lm"}
 
-# the compiler flag to use to compile code that will be inserted into shared 
-# libraries. 
+# the compiler flag to use to compile code that will be inserted into
+# shared libraries.
 PIC=${PIC:=-fPIC}
 
 # the compiler option to create a shared library from object files
@@ -372,9 +381,13 @@ RANLIB=${RANLIB:="ranlib"}
 # doesn't work, try GNU make.
 MAKE=${MAKE:=make}
 
-# The directory location of the graphviz program, dot.
-# dot is used for creating of the documentation.
-# if "dot" is in your path, you can leave this unspecified.
+# The directory location of the graphviz program, dot.  dot is used
+# for creating the documentation, and for making reaction path
+# diagrams.  if "dot" is in your path, you can leave this unspecified.
+#
+# NOTE: MATLAB comes with a stripped-down version of 'dot'. If 'dot'
+# is on your path, make sure it is not the MATLAB version!
+#
 GRAPHVIZDIR=${GRAPHVIZDIR:=" "}
 
 # file extensions

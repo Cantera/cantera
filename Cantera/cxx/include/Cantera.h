@@ -21,7 +21,7 @@ using namespace std;
 // The Cantera logger class
 #include "kernel/logger.h"
 
-using namespace Cantera;
+//using namespace Cantera;
 
 #endif
 

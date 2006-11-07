@@ -11,19 +11,8 @@
 #include <iostream>
 using namespace std;
 
+#ifdef SUNDIALS_VERSION_22
 
-// sundials includes
-#ifdef SUNDIALS_VERSION_1
-#include <sundialstypes.h>
-#include <sundialsmath.h>
-#include <cvodes.h>
-#include <cvdense.h>
-#include <cvdiag.h>
-#include <cvband.h>
-#include <cvspgmr.h>
-#include <nvector.h>
-#include <nvector_serial.h>
-#else
 #include <sundials_types.h>
 #include <sundials_math.h>
 #include <cvodes.h>
@@ -31,8 +20,27 @@ using namespace std;
 #include <cvodes_diag.h>
 #include <cvodes_spgmr.h>
 #include <cvodes_band.h>
-//#include <nvector.h>
 #include <nvector_serial.h>
+
+#else
+
+#ifdef SUNDIALS_VERSION_23
+#include <sundials/sundials_types.h>
+#include <sundials/sundials_math.h>
+#include <sundials/sundials_nvector.h>
+#include <nvector/nvector_serial.h>
+#include <cvodes/cvodes.h>
+#include <cvodes/cvodes_dense.h>
+#include <cvodes/cvodes_diag.h>
+#include <cvodes/cvodes_spgmr.h>
+#include <cvodes/cvodes_band.h>
+
+#else
+
+unsupported sundials version!
+
+#endif
+
 #endif
 
 inline static N_Vector nv(void* x) {

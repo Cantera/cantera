@@ -24,13 +24,14 @@
 #include "ct_defs.h"
 
 //#include <nvector.h>
-#include <nvector_serial.h>
+//#include <nvector_serial.h>
 
+#include <sundials/sundials_nvector.h>
 
 namespace Cantera {
 
     class FuncData;
-
+    
     /**
      * Exception thrown when a CVODES error is encountered.
      */

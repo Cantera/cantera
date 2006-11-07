@@ -1,5 +1,5 @@
 //
-//  Run the 'configure' script to generate 'config.h' from this input file.
+//  Run the 'preconfig' script to generate 'config.h' from this input file.
 //
 #ifndef CT_CONFIG_H
 #define CT_CONFIG_H
@@ -7,11 +7,6 @@
 
 //------------------------ Development flags ------------------//
 //
-// These flags turn on or off features that are still in 
-// development and are not yet stable. 
-
-#define DEV_EQUIL  
-
 // Compile in additional debug printing where available.
 // Note, the printing may need to be turned on via a switch.
 // This just compiles in the code.
@@ -47,12 +42,10 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 
 
 #undef HAS_SUNDIALS
+#undef SUNDIALS_VERSION_22
+#undef SUNDIALS_VERSION_23
 
 //-------- LAPACK / BLAS ---------
-
-// Define if you are using LAPACK and BLAS from the Intel Math Kernel
-// Library 
-#undef HAVE_INTEL_MKL
 
 #define LAPACK_FTN_STRING_LEN_AT_END
 #define LAPACK_NAMES_LOWERCASE
