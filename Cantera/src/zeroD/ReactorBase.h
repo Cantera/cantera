@@ -51,7 +51,8 @@ namespace CanteraZeroD {
         //-----------------------------------------------------
 
         virtual int type() const { return 0; }
-        string name() { return m_name; }
+        string name() const { return m_name; }
+        void setName(string name) { m_name = name; }
 
         /** @name Methods to set up a simulation. */
         //@{
