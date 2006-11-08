@@ -1,3 +1,9 @@
+########################################################################
+####  NOTE: with the changes made to the ChemEquil solver in version 1.7,
+####  it now converges, and the Multiphase solver is no longer invoked
+#### in this demo
+########################################################################
+
 # Equilibrium of a (nearly) stoichiometric hydrogen/oxygen mixture at
 # fixed temperature.
 
