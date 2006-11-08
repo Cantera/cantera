@@ -144,7 +144,7 @@ class Domain1D:
                 d[b] = tol[b]
         for b in d.keys():
             n = self.componentIndex(b)
-            print 'setting tol for ',b,' itime = ',itime
+            # print 'setting tol for ',b,' itime = ',itime
             _cantera.domain_setTolerances(self._hndl, n, d[b][0], d[b][1], itime)
 
     

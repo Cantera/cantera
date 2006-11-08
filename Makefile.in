@@ -155,16 +155,18 @@ ifneq ($(build_python),0)
 	cd Cantera/python; @MAKE@ install
 ifeq ($(build_python),2)
 	@(for exdir in $(PY_EXAMPLES) ; do \
-             @INSTALL@ -d @ct_demodir@/python/$${exdir} ; \
+	     @INSTALL@ -d @ct_demodir@/python/$${exdir} ; \
 	     (for ihhh in Cantera/python/examples/$${exdir}/*.py ; do  \
-                  @INSTALL@ $${ihhh} @ct_demodir@/python/$${exdir} ; \
+	          @INSTALL@ $${ihhh} @ct_demodir@/python/$${exdir} ; \
                   echo "@INSTALL@ $${ihhh} @ct_demodir@/python/$${exdir}" ; \
-              done ) \
+              done ) ; \
+	      @INSTALL@ Cantera/python/examples/$${exdir}/Makefile @ct_demodir@/python/$${exdir} ; \
           done)
 	@(for ihhh in Cantera/python/examples/flames/*.dat ; do  \
              @INSTALL@ $${ihhh} @ct_demodir@/python/flames ; \
              echo "@INSTALL@ $${ihhh} @ct_demodir@/python/flames" ; \
           done )
+	@INSTALL@ Cantera/python/examples/Makefile @ct_demodir@/python 
 	@INSTALL@ -d @ct_tutdir@/python
 	@(for ihhh in Cantera/python/tutorial/*.py ; do  \
             @INSTALL@ $${ihhh} @ct_tutdir@/python ; \
