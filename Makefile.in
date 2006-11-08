@@ -108,8 +108,8 @@ endif
 
 data-install:
 	@INSTALL@ -d @ct_datadir@
-	@INSTALL@ -m 644 data/inputs/elements.xml @ct_datadir@
-	@INSTALL@ -m 644 data/inputs/gri30.xml @ct_datadir@
+	( for iddd in data/inputs/*.xml ; do  \
+          @INSTALL@ -m 644 $${iddd} @ct_datadir@ ;  done )
 	( for iddd in data/inputs/*.cti ; do  \
           @INSTALL@ -m 644 $${iddd} @ct_datadir@ ;  done )
 
