@@ -2,7 +2,10 @@ import _cantera
 nummodule = None
 
 try:
-    if _cantera.nummod == 'numarray':
+    if _cantera.nummod == 'numpy':
+        import numpy
+        nummodule = numpy
+    elif _cantera.nummod == 'numarray':
         import numarray
         nummodule = numarray
     else:

@@ -83,7 +83,7 @@ NUMARRAY_HOME=${NUMARRAY_HOME:=""}
 # than the default 'site-packages' directory within the Python library
 # directory, then set this to the desired directory. This is useful when
 # you do not have write access to the Python library directory. 
-CANTERA_PYTHON_HOME=${CANTERA_PYTHON_HOME:="$HOME/python_modules"}
+#CANTERA_PYTHON_HOME=${CANTERA_PYTHON_HOME:="$HOME/python_modules"}
   
 # Set this to 'y' when site packages must be put in system directories
 # but Cantera tutorials must be put in user space.  An alternative to
@@ -254,15 +254,14 @@ USE_SUNDIALS=${USE_SUNDIALS:='default'}
 # This is where you installed sundials if you used the --prefix option
 # when you configured sundials. If you didn't use the prefix option,
 # then comment this line out.
-SUNDIALS_HOME=${SUNDIALS_HOME:=$HOME/sundials23}
+SUNDIALS_HOME=${SUNDIALS_HOME:=$HOME/sundials}
 
 # It is recommended that you install the newest release of sundials 
 # (currently 2.3.0) before building Cantera. But if you want to use an 
 # older version, set SUNDIALS_VERSION to the version you have.
 # Acceptable values are '2.2' and '2.3' only; anything else will cause
 # Cantera to not use sundials.
-SUNDIALS_VERSION=${SUNDIALS_VERSION:='2.3'}
-
+SUNDIALS_VERSION=${SUNDIALS_VERSION:='2.2'}
 
 #----------------------------------------------------------------- 
 #         BLAS and LAPACK

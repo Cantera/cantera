@@ -1,4 +1,681 @@
-2006-07-04 03:11  hkmoffa
+2006-11-07 13:03  dggoodwin
+
+	* Cantera/src/zeroD/ReactorNet.h: added verbose, setVerbose
+
+2006-11-07 13:02  dggoodwin
+
+	* Cantera/src/zeroD/ReactorBase.h: added setName
+
+2006-11-07 05:47  dggoodwin
+
+	* Cantera/src/: State.h, State.cpp: added method concentration(int
+	  k)
+
+2006-11-06 07:27  dggoodwin
+
+	* Cantera/cxx/demos/NASA_coeffs.cpp: added NASA polynomial example
+
+2006-11-06 07:20  dggoodwin
+
+	* Cantera/src/: Constituents.h, NasaPoly1.h, NasaThermo.h,
+	  SpeciesThermo.h, SpeciesThermoFactory.cpp,
+	  SpeciesThermoInterpType.h: added support for modifying NASA
+	  polynomial coefficients
+
+2006-11-05 07:54  dggoodwin
+
+	* data/inputs/methane_pox_on_pt.cti: added mechanism for partial
+	  oxidation of methane on platinum from the Deutschmann group
+
+2006-11-03 12:45  dggoodwin
+
+	* winconfig.h: updated
+
+2006-11-02 17:33  dggoodwin
+
+	* Cantera/python/winsetup.py, License.txt: updated for Cantera 1.7
+
+2006-10-31 11:09  dggoodwin
+
+	* Cantera/src/ReactionStoichMgr.cpp: fixed bug that resulted in
+	  incorrect computation of product concentration products when rxn
+	  has 4 or more product molecules and one or more has a stoich
+	  coeff > 1
+
+2006-10-30 11:30  dggoodwin
+
+	* configure, configure.in, preconfig, ext/f2c_libs/arith.h,
+	  tools/src/finish_install.py.in: modified for cygwin
+
+2006-10-27 13:34  dggoodwin
+
+	* configure, configure.in, tools/src/finish_install.py.in: mods for
+	  cygwin
+
+2006-10-22 18:13  dggoodwin
+
+	* Cantera/src/CVodesIntegrator.cpp: sundials version detection
+
+2006-10-22 17:58  dggoodwin
+
+	* preconfig: debug off is noe the default
+
+2006-10-22 17:56  dggoodwin
+
+	* Cantera/src/: ChemEquil.cpp, MultiPhaseEquil.cpp:  moved
+	  declaration of nCutoff to avoid jumping over it, causing a
+	  compile failure with gcc 4.0.1 on linuxChemEquil.cpp
+
+2006-10-22 17:51  dggoodwin
+
+	* tools/templates/cxx/demo.mak.in: removed FLIBS
+
+2006-10-20 14:56  hkmoffa
+
+	* test_problems/min_python/Makefile.in: Added -s to make tests.
+
+2006-10-20 14:55  hkmoffa
+
+	* test_problems/cathermo/HMW_graph_GvI/.cvsignore: Added a file.
+
+2006-10-20 14:54  hkmoffa
+
+	* test_problems/fracCoeff/runtest: Added an exit variable.
+
+2006-10-20 14:47  hkmoffa
+
+	* test_problems/ChemEquil_gri_matrix/output_blessed.txt: Slight
+	  change to the blessed solution.
+
+2006-10-20 14:43  hkmoffa
+
+	* configure, configure.in, test_problems/Makefile.in: Added new
+	  test directories.
+
+2006-10-20 14:42  hkmoffa
+
+	* Cantera/src/sort.h: Added an Id stamp.
+
+2006-10-20 14:41  hkmoffa
+
+	* Cantera/src/misc.cpp: Fixed an error in the LogGroup system.
+
+2006-10-20 14:40  hkmoffa
+
+	* Cantera/src/ChemEquil.cpp: eliminated an unused variable.
+
+2006-10-20 14:34  hkmoffa
+
+	* Cantera/src/: ChemEquil.cpp, ChemEquil.h: Reworking of the solver
+	  algorithm within ChemEquil:
+
+	     Much of the algorithm for relaxing the element potentials
+	  to equilibrium employs the Brinkley algorithm (const T, P) (p.
+	  129 Smith and Missen). This algorithm does better at relaxing the
+	  system towards steady state from a bad initial guess.
+
+	     The old algorithm now does the last little bit and it does
+	  the calculation for fixed pairs other than const T, P, using the
+	  Brinkley algorithm's initial guess.
+
+	    Modified the damping algorithm in the old method. It now
+	  doesn't
+	  create false convergence failures when it is close to the end of
+	  the calculation.
+
+	    The new solver has been tested against a matrix of initial
+	  conditions
+	  for the gri30 mechanism and a 200 species jp8 mechanism.
+
+	  Yet to do:	This routine should work but has not been checked
+	  out against:	     phases with electric charge       nonideal
+	  phases.     This routine should probably not yet work with
+	  molality based phases.     More work may have to be done with the
+	  Brinkley algorithm for     problems which suffer from
+	  stoichiometric constraints. A full	 Gauss-Jordon elimination
+	  step should probably be added to     flag cases where there are
+	  effective stoichiometric constraints.
+
+2006-10-20 14:22  hkmoffa
+
+	* Cantera/src/: equil.h, equilibrate.cpp: Added more error control
+	  and checking. This is needed for new test problems.
+
+2006-10-20 14:20  hkmoffa
+
+	* Cantera/src/MultiPhase.h: Added a couple of comments.
+
+2006-10-20 14:19  hkmoffa
+
+	* Cantera/src/: ThermoPhase.cpp, ThermoPhase.h: Change to the
+	  function getElementPotentials(). It now returns a boolean to
+	  indicate whether the object has element potentials or not.
+
+2006-10-20 14:17  hkmoffa
+
+	* Cantera/src/IdealGasPhase.cpp: Change to setToEquilState() to
+	  guard against inf results.
+
+2006-10-20 14:12  hkmoffa
+
+	* test_problems/ChemEquil_gri_matrix/: .cvsignore, Makefile.in,
+	  gri30.xml, gri_matrix.cpp, output_blessed.txt, runtest: Added
+	  another test program for the element potential equilibrium
+	  solver.  This test does a matrix of T, pres, and mixture fraction
+	  for the gri30 mechanism. It does a total of 1500 calculation
+	  starting from a bad initial guess.
+
+2006-10-20 14:09  hkmoffa
+
+	* test_problems/ChemEquil_gri_pairs/: .cvsignore, Makefile.in,
+	  gri30.xml, gri_pairs.cpp, output_blessed.txt, runtest: Added
+	  another test for the element potential equilibrium solver.  This
+	  test covers all pair options.
+
+2006-10-20 14:06  hkmoffa
+
+	* test_problems/silane_equil/output_blessed.txt: Changed the
+	  blessed file: printout has changed.
+
+2006-10-10 09:02  dggoodwin
+
+	* apps/bvp/: BoundaryValueProblem.h, README, blasius.cpp: initial
+	  import
+
+2006-10-02 15:24  hkmoffa
+
+	* Makefile.in: Added a file to the installed demo/cxx directory. It
+	  was needed so that the cxx files would compile out of the box.
+
+2006-10-02 12:10  hkmoffa
+
+	* Cantera/src/State.cpp: In the init() routine, I set the initial
+	  mass fraction vector so that it sums to one. Previously, it was
+	  set uniformly to zero. The mass fraction of species 0 is set to
+	  1.   This was noticed by a user, and may have resulted in seg
+	  faults before  the ThermoPhase object was properly initialized.
+
+2006-10-02 09:38  hkmoffa
+
+	* Cantera/fortran/f77demos/f77demos.mak.in: Fixed the Makefile that
+	  gets used in the install directories.  autoconf variables needed
+	  updating.
+
+2006-08-29 09:49  hkmoffa
+
+	* tools/testtools/csvdiff.cpp: Fixed an error for zero length
+	  files.
+
+2006-08-27 17:19  hkmoffa
+
+	* tools/testtools/csvdiff.cpp: Added default column titles, if none
+	  are supplied in the file.  This avoids a seg fault.
+
+2006-08-21 17:38  hkmoffa
+
+	* Makefile.in: Changed a few of the install commands to install_tsc
+	  (time step check).  These are needed in a few places so make
+	  doesn't do any extra work when it doesn't need to.
+
+	  Changed a few of the "install multiple files at once" cases into
+	  installations where one file is installed at a time. Some install
+	  commands, including the one that comes with cantera can only
+	  install one file at a time.
+
+2006-08-21 17:34  hkmoffa
+
+	* bin/install_tsc.in: Used the INSTALL_VERBOSE rule to check
+	  whether install can use the -v flag. If it can't echo is used to
+	  mimic its behavior.
+
+2006-08-21 17:31  hkmoffa
+
+	* configure, configure.in: Installed a rule to check if the install
+	  command uses the flag -v.  I found an openbsd system where this
+	  was not the case.
+
+2006-08-21 09:44  hkmoffa
+
+	* Cantera/Makefile.in: Added user directory to a lot of the rules.
+	  Took out the cads directory.
+
+2006-08-21 09:42  hkmoffa
+
+	* Cantera/user/Makefile.in: Added an install rule to the Makefile
+
+2006-08-19 17:18  hkmoffa
+
+	* Cantera/cxx/demos/Makefile.in: Added depends include at the end
+	  of the file.
+
+2006-08-19 17:17  hkmoffa
+
+	* Cantera/cxx/Makefile.in: Fixed clean rules.
+
+2006-08-19 17:14  hkmoffa
+
+	* bin/.cvsignore: Added a file.
+
+2006-08-19 17:13  hkmoffa
+
+	* examples/cxx/kinetics_example3.cpp: Changed the name of the input
+	  routine to gri.xml from gri.ctml.  This test is always run, so it
+	  must be run even if minimal python installation isn't done.
+	  Therefore, xml files must be used as input.
+
+2006-08-19 17:11  hkmoffa
+
+	* test_problems/min_python/minDiamond/runtest: Fixed the name of
+	  some environmental variables
+
+2006-08-19 17:09  hkmoffa
+
+	* test_problems/cathermo/HMW_test_1/HMW_test_1.cpp: Changed the
+	  #ifdef name
+
+2006-08-19 17:00  hkmoffa
+
+	* test_problems/cathermo/HMW_graph_VvT/: HMW_graph_VvT.cpp,
+	  Makefile.in, V_standalone.cpp, output_blessed.txt: Refined the
+	  regression test slightly, to make it less stringent.	Added to
+	  make clean rule
+
+2006-08-19 16:54  hkmoffa
+
+	* test_problems/cathermo/HMW_graph_CpvT/: Cp_standalone.cpp,
+	  Makefile.in: Fixed warning messages and added to make clean rule
+
+2006-08-19 16:52  hkmoffa
+
+	* test_problems/cathermo/HMW_graph_HvT/: HMW_graph_HvT.cpp,
+	  L_standalone.cpp, Makefile.in: Got rid of warning messages and
+	  added to make clean rule
+
+2006-08-19 16:48  hkmoffa
+
+	* test_problems/cathermo/HMW_graph_GvT/Makefile.in: Added to the
+	  make clean rule
+
+2006-08-19 11:15  hkmoffa
+
+	* ext/f2c_libs/.cvsignore: Added a directory.
+
+2006-08-19 11:14  hkmoffa
+
+	* ext/f2c_libs/sysdep1.h0: Added some comments about a particular
+	  problem on old solaris systems.
+
+2006-08-19 11:13  hkmoffa
+
+	* ext/f2c_libs/err.c: Eliminated an ld warning by setting a local
+	  variable as static.
+
+2006-08-19 09:08  hkmoffa
+
+	* Cantera/src/oneD/Sim1D.cpp: Fixed an optimization compiler
+	  warning about a possible uninitialized variable.
+
+2006-08-17 09:24  hkmoffa
+
+	* configure, configure.in: Added lines to remove a temporary file
+	  f90out
+
+2006-08-17 08:46  hkmoffa
+
+	* configure, configure.in: Took out a Makefile creation rule that
+	  was a duplicate.
+
+2006-08-17 08:38  hkmoffa
+
+	* examples/cxx/.cvsignore: Added a few misc files.
+
+2006-08-15 16:36  hkmoffa
+
+	* ext/f2c_libs/: f2c.h, f2c.h0: Made these two files compatible, so
+	  that there would be no confusion.  Changed the logical
+	  definition, which wasn't being used, to int from long int.
+
+2006-08-15 15:33  hkmoffa
+
+	* test_problems/Makefile.in: A couple of directories were left out
+	  of the clean and depends rules.
+
+2006-08-15 15:03  hkmoffa
+
+	* Makefile.in, configure.in: On Sun10, the cantera install is used.
+	  It only accepts one file at a time.
+
+2006-08-15 14:59  hkmoffa
+
+	* Cantera/src/thermo/Makefile.in: This change is needed in order
+	  for clean to work in some cases.
+
+2006-08-15 14:38  hkmoffa
+
+	* test_problems/cathermo/DH_graph_1/Makefile.in: added .depends to
+	  the list of dependencies.
+
+2006-08-14 18:12  hkmoffa
+
+	* Makefile.in, configure.in, preconfig: Fixed some small errors in
+	  the install process.
+
+2006-08-14 15:53  hkmoffa
+
+	* ext/f2c_libs/Makefile.in: Fixed an error in a Makefile.
+
+2006-08-14 15:01  hkmoffa
+
+	* ext/cvode/Makefile.in: Fixed a make clean rule in ext/cvode
+
+2006-08-14 14:00  hkmoffa
+
+	* test_problems/cathermo/HMW_test_3/: HMW_test_3.cpp, Makefile.in:
+	  Added DEBUG_MODE flag to compilation line.
+
+2006-08-14 13:54  hkmoffa
+
+	* Cantera/src/thermo/Makefile.in: Added DEGUG_MODE to the defaults.
+
+2006-08-14 13:48  hkmoffa
+
+	* test_problems/cathermo/HMW_graph_VvT/HMW_graph_VvT.cpp: Fixed a
+	  roundoff issue
+
+2006-08-14 13:44  hkmoffa
+
+	* test_problems/cathermo/HMW_graph_CpvT/HMW_graph_CpvT.cpp: Fixed
+	  some initialization issues.
+
+2006-08-14 13:39  hkmoffa
+
+	* test_problems/cathermo/testIAPWS/output_blessed.txt: New blessed
+	  file due to accuracy decrease.
+
+2006-08-14 13:38  hkmoffa
+
+	* Cantera/src/thermo/WaterPropsIAPWSphi.cpp: Slightly decreased the
+	  accuracy of internal check in one case.
+
+2006-08-14 13:32  hkmoffa
+
+	* test_problems/cathermo/DH_graph_1/: .cvsignore, DH_graph_1.cpp,
+	  runtest: Changed the logger instantiation. This apparently made a
+	  difference on SUSE.  Changed the runtest script to default to the
+	  correct location of CANTERA_DATA.
+
+2006-08-14 12:32  hkmoffa
+
+	* test_problems/cxx_ex/: .cvsignore, runtest: Relaxed the tolerance
+	  on the comparison for the kin1 problem.  It had failed on SUSE
+	  problems
+
+2006-08-14 12:18  hkmoffa
+
+	* Cantera/src/thermo/: IdealMolalSoln.cpp, WaterPDSS.h: Fixed a
+	  compilation error that popped up on SUSE 9.0.
+
+2006-07-25 09:52  hkmoffa
+
+	* tools/doc/Makefile.in: Fixed the makefile so that it wouldn't
+	  eliminate cvs files and it won't produce any warning output.
+
+2006-07-23 10:46  hkmoffa
+
+	* test_problems/cathermo/testWaterTP/testWaterTP.cpp: Took out
+	  warnings.
+
+2006-07-13 13:06  hkmoffa
+
+	* test_problems/cathermo/: HMW_graph_CpvT/.cvsignore,
+	  HMW_graph_CpvT/HMW_NaCl_sp1977_alt.xml,
+	  HMW_graph_GvI/HMW_NaCl.xml,
+	  HMW_graph_GvT/HMW_NaCl_sp1977_alt.xml, HMW_graph_HvT/.cvsignore,
+	  HMW_graph_HvT/HMW_NaCl_sp1977_alt.xml, HMW_graph_VvT/.cvsignore,
+	  HMW_graph_VvT/HMW_NaCl_sp1977_alt.xml, HMW_test_1/HMW_NaCl.xml,
+	  HMW_test_3/HMW_NaCl_tc.xml: Change in xml data file to support
+	  new changes.	standardState xml node value for water now matters.
+
+2006-07-13 13:05  hkmoffa
+
+	* Cantera/src/: xml.h, thermo/DebyeHuckel.cpp,
+	  thermo/DebyeHuckel.h, thermo/HMWSoln.cpp,
+	  thermo/HMWSoln_input.cpp: Another iteration on trying to unify
+	  the water treatment between the 2 objects.
+
+2006-07-12 08:42  hkmoffa
+
+	* test_problems/cathermo/: Makefile.in,
+	  testIAPWSTripP/testTripleP.cpp: Minor changes.
+
+2006-07-12 08:41  hkmoffa
+
+	* Cantera/src/thermo/: DebyeHuckel.cpp, DebyeHuckel.h, HMWSoln.cpp,
+	  HMWSoln.h: Unifying the water treatment between objects.  Found a
+	  bug in getPartialMolarEntropy in HMWSoln that wasn't covered in
+	  the test suite.
+
+2006-07-11 17:46  hkmoffa
+
+	* Cantera/src/thermo/: DebyeHuckel.cpp, DebyeHuckel.h, HMWSoln.cpp,
+	  HMWSoln.h: Iteration on unifying water treatments in the 2
+	  objects.
+
+2006-07-11 10:13  hkmoffa
+
+	* test_problems/cathermo/: HMW_test_1/.cvsignore,
+	  HMW_test_3/.cvsignore, testIAPWSPres/output_blessed.txt,
+	  testIAPWSPres/testPress.cpp, testIAPWSTripP/output_blessed.txt,
+	  testIAPWSTripP/testTripleP.cpp, testWaterPDSS/output_blessed.txt,
+	  testWaterPDSS/testWaterPDSS.cpp, testWaterTP/output_blessed.txt,
+	  testWaterTP/testWaterTP.cpp: Changed some of the tests so that
+	  quantities that are nominally zero should be set to zero exactly
+	  if they are below a tolerance.  In this way, unconsequential
+	  roundoff errors don't trigger false results.
+
+2006-07-11 09:30  dggoodwin
+
+	* Cantera/src/: DAE_solvers.cpp, Crystal.h, IDA_Solver.h,
+	  ResidEval.h: initial import
+
+2006-07-11 08:40  dggoodwin
+
+	* Cantera/src/oneD/Sim1D.cpp: commented out 2 output statements
+
+2006-07-11 08:39  dggoodwin
+
+	* Cantera/src/stringUtils.cpp: minor cleanup
+
+2006-07-11 08:38  dggoodwin
+
+	* Cantera/src/misc.cpp: commented out code that will try to find a
+	  cti file if the xml file is not found.
+
+2006-07-11 08:35  dggoodwin
+
+	* Cantera/src/RateCoeffMgr.h: minor cleanup
+
+2006-07-11 08:34  dggoodwin
+
+	* Cantera/src/PropertyCalculator.h: made destructor virtual
+
+2006-07-11 08:33  dggoodwin
+
+	* Cantera/src/: MultiPhase.cpp, MultiPhase.h: added some consts,
+	  and a routine to read a multiphase mixture from an input file,
+	  but this is not yet active
+
+2006-07-11 08:31  dggoodwin
+
+	* Cantera/src/Makefile.in: added Crystal class, DAE_Solvers
+
+2006-07-11 08:28  dggoodwin
+
+	* Cantera/src/: DAE_Solver.h, IDA_Solver.cpp: initial import
+
+2006-07-11 08:28  dggoodwin
+
+	* Cantera/src/CVodesIntegrator.h: updated for latest sundials
+
+2006-07-11 08:25  dggoodwin
+
+	* Cantera/src/MultiPhaseEquil.cpp: fixed minor bug that caused
+	  problems in some cases when an element was excluded.
+
+2006-07-07 11:09  hkmoffa
+
+	* test_problems/cathermo/: Makefile.in, DH_graph_1/Makefile.in,
+	  HMW_graph_CpvT/Makefile.in, HMW_graph_GvT/.cvsignore,
+	  HMW_graph_GvT/Makefile.in, HMW_graph_HvT/Makefile.in,
+	  HMW_graph_VvT/Makefile.in, HMW_test_1/Makefile.in,
+	  HMW_test_3/Makefile.in, ims/Makefile.in, issp/Makefile.in,
+	  testIAPWS/Makefile.in, testIAPWSPres/Makefile.in,
+	  testIAPWSTripP/Makefile.in, testWaterPDSS/Makefile.in,
+	  testWaterTP/Makefile.in: Made the testing process alot less
+	  verbose. Hopefully, the bottom line pass/fail result will now be
+	  more evident.
+
+2006-07-07 11:07  hkmoffa
+
+	* config.h.in, configure, configure.in, preconfig: Turned on and
+	  documented the DEBUG_MODE capability.  It will now create a
+	  config.h entry, and a Makefile.in substitution variable,
+	  CANTERA_DEBUG_MODE, which can be used in the test suite.
+
+2006-07-07 11:05  hkmoffa
+
+	* Cantera/src/thermo/: DebyeHuckel.h, HMWSoln.cpp, HMWSoln.h,
+	  HMWSoln_input.cpp: Took out an unneeded parameter B_Debye in
+	  Pitzer model.  Switched to DEBUG_MODE for optional printing.
+
+2006-07-07 09:31  hkmoffa
+
+	* test_problems/cathermo/HMW_graph_GvT/: HMW_graph_GvT.cpp,
+	  output_blessed.txt: Added some text to the output.
+
+2006-07-06 17:34  hkmoffa
+
+	* test_problems/cathermo/HMW_test_3/Makefile.in: Fixed a makefile
+	  error.
+
+2006-07-06 17:33  hkmoffa
+
+	* test_problems/cathermo/HMW_test_1/Makefile.in: Fixed an error.
+
+2006-07-06 17:28  hkmoffa
+
+	* configure, configure.in: Added additional test directories.
+
+2006-07-06 17:28  hkmoffa
+
+	* test_problems/cathermo/: Makefile.in, DH_graph_1/.cvsignore,
+	  DH_graph_1/DH_NaCl.xml, DH_graph_1/DH_NaCl_NM.xml,
+	  DH_graph_1/DH_NaCl_NM_blessed.csv, DH_graph_1/DH_NaCl_Pitzer.xml,
+	  DH_graph_1/DH_NaCl_Pitzer_blessed.csv,
+	  DH_graph_1/DH_NaCl_acommon.xml,
+	  DH_graph_1/DH_NaCl_acommon_blessed.csv,
+	  DH_graph_1/DH_NaCl_bdotak.xml,
+	  DH_graph_1/DH_NaCl_bdotak_blessed.csv,
+	  DH_graph_1/DH_NaCl_blessed.csv, DH_graph_1/DH_NaCl_dilute.xml,
+	  DH_graph_1/DH_NaCl_dilute_blessed.csv, DH_graph_1/DH_graph_1.cpp,
+	  DH_graph_1/Makefile.in, DH_graph_1/README, DH_graph_1/runtest:
+	  Added the existing test for the DebyeHuckel object.
+
+2006-07-06 17:27  hkmoffa
+
+	* Cantera/src/thermo/: DebyeHuckel.cpp, DebyeHuckel.h,
+	  HMWSoln_input.cpp, Makefile.in: Added the DebyeHuckel object.
+	  Note, this object needs a bit of work. It's not connected to the
+	  real model of water yet.
+
+2006-07-06 14:54  hkmoffa
+
+	* test_problems/cathermo/: Makefile.in, HMW_graph_GvI/Makefile.in,
+	  HMW_test_1/.cvsignore, HMW_test_1/HMW_NaCl.xml,
+	  HMW_test_1/HMW_test_1.cpp, HMW_test_1/Makefile.in,
+	  HMW_test_1/README, HMW_test_1/output_blessed.txt,
+	  HMW_test_1/runtest, HMW_test_3/.cvsignore,
+	  HMW_test_3/HMW_NaCl_tc.xml, HMW_test_3/HMW_test_3.cpp,
+	  HMW_test_3/Makefile.in, HMW_test_3/README,
+	  HMW_test_3/output_blessed.txt, HMW_test_3/runtest: Added 2 tests
+	  with debugging turned on.
+
+2006-07-06 14:13  hkmoffa
+
+	* test_problems/cathermo/: Makefile.in, HMW_graph_GvI/.cvsignore,
+	  HMW_graph_GvI/HMW_NaCl.xml, HMW_graph_GvI/HMW_graph_GvI.cpp,
+	  HMW_graph_GvI/Makefile.in, HMW_graph_GvI/NaCl_Solid.xml,
+	  HMW_graph_GvI/README, HMW_graph_GvI/T298_blessed.csv,
+	  HMW_graph_GvI/T523_blessed.csv, HMW_graph_GvI/TemperatureTable.h,
+	  HMW_graph_GvI/runtest, HMW_graph_GvI/sortAlgorithms.cpp,
+	  HMW_graph_GvI/sortAlgorithms.h: Added the GvI test.
+
+2006-07-06 14:12  hkmoffa
+
+	* test_problems/cathermo/HMW_graph_VvT/: .cvsignore,
+	  HMW_NaCl_sp1977_alt.xml, HMW_graph_VvT.cpp, Makefile.in,
+	  NaCl_Solid.xml, README, TemperatureTable.h, V_standalone.cpp,
+	  output_blessed.txt, runtest, sortAlgorithms.cpp,
+	  sortAlgorithms.h: Added the excess volume test.
+
+2006-07-06 14:00  hkmoffa
+
+	* test_problems/cathermo/HMW_graph_CpvT/: .cvsignore,
+	  Cp_standalone.cpp, HMW_NaCl_sp1977_alt.xml, HMW_graph_CpvT.cpp,
+	  Makefile.in, NaCl_Solid.xml, README, TemperatureTable.h,
+	  output_blessed.txt, runtest, sortAlgorithms.cpp,
+	  sortAlgorithms.h: Added the Cp HMWSoln test.
+
+2006-07-06 13:13  hkmoffa
+
+	* test_problems/cathermo/HMW_graph_HvT/: .cvsignore,
+	  HMW_NaCl_sp1977_alt.xml, HMW_graph_HvT.cpp, L_standalone.cpp,
+	  Makefile.in, NaCl_Solid.xml, README, TemperatureTable.h,
+	  output_blessed.txt, runtest, sortAlgorithms.cpp,
+	  sortAlgorithms.h: Added another test.
+
+2006-07-06 08:56  hkmoffa
+
+	* test_problems/cathermo/Makefile.in: Added directory.
+
+2006-07-06 08:56  hkmoffa
+
+	* test_problems/cathermo/HMW_graph_GvT/: .cvsignore,
+	  Gex_standalone.cpp, HMW_NaCl_sp1977_alt.xml, HMW_graph_GvT.cpp,
+	  Makefile.in, NaCl_Solid.xml, README, TemperatureTable.h,
+	  output_blessed.txt, runtest, sortAlgorithms.cpp,
+	  sortAlgorithms.h: Added unit test for HMWSoln.
+
+2006-07-06 08:41  hkmoffa
+
+	* Cantera/src/thermo/electrolytes.h: Added general .h define file
+
+2006-07-06 08:40  hkmoffa
+
+	* Cantera/src/: importCTML.cpp, importCTML.h: Added a utility
+	  routine.
+
+2006-07-06 08:39  hkmoffa
+
+	* Cantera/src/thermo/: HMWSoln.cpp, HMWSoln.h, HMWSoln_input.cpp,
+	  IdealMolalSoln.cpp, IdealMolalSoln.h, Makefile.in,
+	  MolalityVPSSTP.h: Added Pitzer Object
+
+2006-07-05 14:25  hkmoffa
+
+	* configure, configure.in: Added another test directory makefile.
+
+2006-07-05 14:23  hkmoffa
+
+	* test_problems/min_python/Makefile.in: Added another test to add
+	  coverage to the ctml to xml treatment of neg A coefficients.
+
+2006-07-05 07:35  hkmoffa
+
+	* configure, configure.in: Added a couple of test directory
+	  Makefiles that were ommitted.
+
+2006-07-03 18:11  hkmoffa
 
 	* test_problems/cathermo/: Makefile.in, testWaterTP/.cvsignore,
 	  testWaterTP/Makefile.in, testWaterTP/README,
@@ -6,45 +683,45 @@
 	  testWaterTP/testWaterTP.cpp, testWaterTP/waterTPphase.xml: Added
 	  a test for WaterTP
 
-2006-07-04 03:04  hkmoffa
+2006-07-03 18:04  hkmoffa
 
 	* configure, configure.in: Added another test directory.
 
-2006-07-04 03:04  hkmoffa
+2006-07-03 18:04  hkmoffa
 
 	* test_problems/cathermo/: Makefile.in, testWaterPDSS/.cvsignore,
 	  testWaterPDSS/Makefile.in, testWaterPDSS/output_blessed.txt,
 	  testWaterPDSS/runtest, testWaterPDSS/testWaterPDSS.cpp: Added a
 	  test for WaterPDSS object.
 
-2006-07-04 02:41  hkmoffa
+2006-07-03 17:41  hkmoffa
 
 	* configure, configure.in: Added a couple more tests for
 	  electrochemistry.
 
-2006-07-04 02:40  hkmoffa
+2006-07-03 17:40  hkmoffa
 
 	* test_problems/cathermo/Makefile.in: Added another test.
 
-2006-07-04 02:39  hkmoffa
+2006-07-03 17:39  hkmoffa
 
 	* test_problems/cathermo/testIAPWSTripP/: .cvsignore, Makefile.in,
 	  README, output_blessed.txt, runtest, testTripleP.cpp: Triple
 	  point calcultion test routine.
 
-2006-07-04 02:32  hkmoffa
+2006-07-03 17:32  hkmoffa
 
 	* test_problems/cathermo/testIAPWSPres/: .cvsignore, Makefile.in,
 	  README, output_blessed.txt, runtest, testPress.cpp: Second test.
 
-2006-07-04 02:21  hkmoffa
+2006-07-03 17:21  hkmoffa
 
 	* test_problems/cathermo/: Makefile.in, testIAPWS/.cvsignore,
 	  testIAPWS/Makefile.in, testIAPWS/README,
 	  testIAPWS/output_blessed.txt, testIAPWS/runtest,
 	  testIAPWS/testIAPWSphi.cpp: Added the first test for IAPWS
 
-2006-07-04 02:01  hkmoffa
+2006-07-03 17:01  hkmoffa
 
 	* Cantera/src/thermo/: IdealMolalSoln.cpp, Makefile.in, PDSS.cpp,
 	  PDSS.h, WaterPDSS.cpp, WaterPDSS.h, WaterProps.cpp, WaterProps.h,
@@ -53,21 +730,21 @@
 	  water properties routines. These are under-the-hood routines for
 	  calculation of water electrolyte thermochemistry.
 
-2006-07-03 21:59  hkmoffa
+2006-07-03 12:59  hkmoffa
 
 	* test_problems/Makefile.in: Added a new test directory.
 
-2006-07-03 21:58  hkmoffa
+2006-07-03 12:58  hkmoffa
 
 	* test_problems/negATest/: .cvsignore, Makefile.in, negATest.cpp,
 	  negATest_blessed.out, noxNeg.cti, noxNeg.xml, runtest: Added a
 	  new test that captures negative A factors.
 
-2006-07-03 21:57  hkmoffa
+2006-07-03 12:57  hkmoffa
 
 	* configure, configure.in: Added a new test.
 
-2006-07-03 21:57  hkmoffa
+2006-07-03 12:57  hkmoffa
 
 	* Cantera/src/: RateCoeffMgr.h, RxnRates.h: Fix for negative
 	  pre-exponential factors producing NaN rates of progress. This bug
@@ -90,30 +767,30 @@
 	  The fix should be considered as provisional. There are different
 	  pathways for fixing this. This is merely the simplest.
 
-2006-07-03 21:41  hkmoffa
+2006-07-03 12:41  hkmoffa
 
 	* Cantera/src/importCTML.cpp: Added a couple of comments.
 
-2006-06-24 01:23  hkmoffa
+2006-06-23 16:23  hkmoffa
 
 	* Makefile.in: python=minimal fixes on cygwin
 
-2006-06-23 23:04  hkmoffa
+2006-06-23 14:04  hkmoffa
 
 	* examples/cxx/: .cvsignore, gri30.xml, kinetics_example1.cpp:
 	  Added gri30.xml, so this example will work under the none python
 	  option.
 
-2006-06-23 23:01  hkmoffa
+2006-06-23 14:01  hkmoffa
 
 	* test_problems/cathermo/Makefile.in: Fixed an error in the clean
 	  rule.
 
-2006-06-23 22:35  hkmoffa
+2006-06-23 13:35  hkmoffa
 
 	* Cantera/src/: Phase.h, ThermoPhase.h: Doxygen fixes.
 
-2006-06-23 22:33  hkmoffa
+2006-06-23 13:33  hkmoffa
 
 	* tools/doc/: .cvsignore, Cantera.cfg.in, doxyinput/cxx-setup.txt,
 	  doxyinput/equildemo.txt, doxyinput/thermodemo.txt,
@@ -121,68 +798,68 @@
 	  documentation.  Fixes to doxygen docs -> eliminated all of the
 	  warnings and ommitted  pages.
 
-2006-06-23 22:31  hkmoffa
+2006-06-23 13:31  hkmoffa
 
 	* Cantera/src/thermo/: IdealMolalSoln.cpp, IdealMolalSoln.h,
 	  IdealSolidSolnPhase.cpp, IdealSolidSolnPhase.h, MolalityVPSSTP.h:
 	  Doxygen formatting changes.
 
-2006-06-23 16:31  dggoodwin
+2006-06-23 07:31  dggoodwin
 
 	* Cantera/cxx/demos/combustor.cpp: added C++ combustor example
 
-2006-06-23 16:28  dggoodwin
+2006-06-23 07:28  dggoodwin
 
 	* Cantera/python/examples/reactors/combustor.py: added combustor
 	  example
 
-2006-06-22 17:10  hkmoffa
+2006-06-22 08:10  hkmoffa
 
 	* test_problems/fracCoeff/: .cvsignore, frac.xml: Added frac.xml,
 	  since this is now a required file.
 
-2006-06-22 15:47  hkmoffa
+2006-06-22 06:47  hkmoffa
 
 	* configure, configure.in: Fixed an error in figuring out what time
 	  stamp program, tscompare, works on the current system.
 
-2006-06-22 15:43  hkmoffa
+2006-06-22 06:43  hkmoffa
 
 	* test_problems/diamondSurf/: .cvsignore, diamond.xml: Added the
 	  diamond.xml file. It's now a prerequisite towards running the
 	  problem.
 
-2006-06-21 02:00  hkmoffa
+2006-06-20 17:00  hkmoffa
 
 	* examples/cxx/equil_example1.cpp: Replaced silane.cti with
 	  silane.xml so that it will work for python none installation.
 
-2006-06-21 01:52  hkmoffa
+2006-06-20 16:52  hkmoffa
 
 	* test_problems/cxx_ex/runtest: Commented out CANTERA_DATA
 	  statement. On the x86-linux1 cf machine, this was causing the
 	  test to crash for some reason.
 
-2006-06-21 01:16  hkmoffa
+2006-06-20 16:16  hkmoffa
 
 	* test_problems/cathermo/ims/output_blessed.txt: Took out spurious
 	  output from the blessed file.
 
-2006-06-21 01:15  hkmoffa
+2006-06-20 16:15  hkmoffa
 
 	* Cantera/src/thermo/IdealMolalSoln.cpp: Took out a spurious print
 	  statement.
 
-2006-06-21 01:11  hkmoffa
+2006-06-20 16:11  hkmoffa
 
 	* test_problems/fracCoeff/: fracCoeff.cpp, runtest: Made this test
 	  work for python=none.
 
-2006-06-21 01:04  hkmoffa
+2006-06-20 16:04  hkmoffa
 
 	* configure.in: Added a few directories:    min_python
 
-2006-06-21 01:03  hkmoffa
+2006-06-20 16:03  hkmoffa
 
 	* test_problems/: Makefile.in, min_python/.cvsignore,
 	  min_python/Makefile.in, min_python/minDiamond/.cvsignore,
@@ -197,19 +874,19 @@
 	  python = none option. min_python dir will include the minimal
 	  python installation tests
 
-2006-06-21 00:48  hkmoffa
+2006-06-20 15:48  hkmoffa
 
 	* test_problems/diamondSurf/: diamond.cti, runDiamond.cpp, runtest:
 	  changed the input file to diamond.xml, so that python="none"
 	  installations will pass this test.
 
-2006-06-21 00:36  hkmoffa
+2006-06-20 15:36  hkmoffa
 
 	* test_problems/surfkin/surfdemo.cpp: Changed surfdemo.cpp to read
 	  gri30.xml.  Thus, this test will pass if python option is set to
 	  none.
 
-2006-06-20 23:58  hkmoffa
+2006-06-20 14:58  hkmoffa
 
 	* configure.in, preconfig: Changed NUMARRAY_HOME so that it doesn't
 	  have a default in preconfig.
@@ -228,56 +905,56 @@
 	  Note, the new method now conforms to what the numarray installer
 	  actually does.
 
-2006-06-20 15:56  hkmoffa
+2006-06-20 06:56  hkmoffa
 
 	* tools/testtools/csvdiff.cpp: Fixed compilation of this on a linux
 	  platform in the compile farm.  Didn't like declarations in a
 	  switch statement.
 
-2006-06-20 01:25  hkmoffa
+2006-06-19 16:25  hkmoffa
 
 	* tools/doc/: .cvsignore, Cantera.cfg, Cantera.cfg.in, Makefile.in,
 	  README, html/.cvsignore: Makde Cantera.cfg a configurable file.
 	  Previously there were several hard coded paths in the file.
 
-2006-06-20 01:21  hkmoffa
+2006-06-19 16:21  hkmoffa
 
 	* configure.in, preconfig: Added the GRAPHVIZDIR variable to the
 	  configure script.  This is used to locate the dot executable,
 	  when using doxygen.
 
-2006-06-20 01:19  hkmoffa
+2006-06-19 16:19  hkmoffa
 
 	* test_problems/cathermo/Makefile.in: Added a new test, ims.
 
-2006-06-20 01:19  hkmoffa
+2006-06-19 16:19  hkmoffa
 
 	* test_problems/cathermo/ims/: .cvsignore, IMSTester.cpp,
 	  Makefile.in, WaterPlusSolutes.xml, output_blessed.txt, runtest:
 	  Added a new test.
 
-2006-06-20 01:15  hkmoffa
+2006-06-19 16:15  hkmoffa
 
 	* Cantera/src/: global.h, misc.cpp: Reduced the number of doxygen
 	  error messages.
 
-2006-06-20 01:14  hkmoffa
+2006-06-19 16:14  hkmoffa
 
 	* Cantera/src/thermo/: IdealMolalSoln.cpp, IdealMolalSoln.h,
 	  Makefile.in, MolalityVPSSTP.cpp, MolalityVPSSTP.h: Added an
 	  IdealMolalSoln object.
 
-2006-06-19 16:35  hkmoffa
+2006-06-19 07:35  hkmoffa
 
 	* Cantera/cxx/demos/: .cvsignore, Makefile.in: Added a .depends
 	  rule
 
-2006-06-13 19:06  hkmoffa
+2006-06-13 10:06  hkmoffa
 
 	* Cantera/src/xml.cpp: changed the write_int() routine to produce
 	  prettier output.
 
-2006-06-13 19:04  hkmoffa
+2006-06-13 10:04  hkmoffa
 
 	* Cantera/src/: ctml.h, ctml.cpp: Added comments to addFloatArray()
 	  Corrected comments for procedure getInteger() getFloatArray():
@@ -287,42 +964,42 @@
 	  the code so that a comma can be the last non-spaced character
 	  in the value field.
 
-2006-06-13 18:11  hkmoffa
+2006-06-13 09:11  hkmoffa
 
 	* config.h.in, configure.in, preconfig: Added support for
 	  conditional use of ideal solid solutions.
 
-2006-06-13 18:09  hkmoffa
+2006-06-13 09:09  hkmoffa
 
 	* test_problems/cathermo/issp/: .cvsignore, ISSPTester.cpp,
 	  IdealSolidSolnPhaseExample.xml, Makefile.in, output_blessed.txt,
 	  runtest: Added a test problem for ideal solid solutions.
 
-2006-06-13 18:07  hkmoffa
+2006-06-13 09:07  hkmoffa
 
 	* test_problems/cathermo/: .cvsignore, Makefile.in: Added
 	  makefiles.
 
-2006-06-13 18:06  hkmoffa
+2006-06-13 09:06  hkmoffa
 
 	* test_problems/Makefile.in: Added a cathermo test directory.
 
-2006-06-13 18:05  hkmoffa
+2006-06-13 09:05  hkmoffa
 
 	* Cantera/src/Makefile.in: Added support for conditional
 	  compilation of thermo directory.
 
-2006-06-13 18:04  hkmoffa
+2006-06-13 09:04  hkmoffa
 
 	* Cantera/src/importCTML.cpp: Changed importPhase to call
 	  initThermoXML, not initThermo at the end of its execution.
 
-2006-06-13 18:03  hkmoffa
+2006-06-13 09:03  hkmoffa
 
 	* Cantera/src/State.h: Changed a few functions to be virtual, in
 	  order to support incompressible equations of state.
 
-2006-06-13 18:02  hkmoffa
+2006-06-13 09:02  hkmoffa
 
 	* Cantera/src/thermo/: IdealSolidSolnPhase.cpp,
 	  IdealSolidSolnPhase.h, Makefile.in, MolalityVPSSTP.cpp,
@@ -330,80 +1007,80 @@
 	  Added an IdealSolidSolnPhase capability. Changed existing thermo
 	  files to use initThermoXML().
 
-2006-06-13 17:26  hkmoffa
+2006-06-13 08:26  hkmoffa
 
 	* tools/testtools/csvdiff.cpp: Added an atol and rtol command-line
 	  capability. It also does more for comparisons with unequal rows.
 
-2006-06-13 02:57  hkmoffa
+2006-06-12 17:57  hkmoffa
 
 	* Cantera/src/InterfaceKinetics.h: Fixed a typo
 
-2006-06-13 02:24  hkmoffa
+2006-06-12 17:24  hkmoffa
 
 	* Cantera/src/LatticeSolidPhase.h: Fixed an error mentioned in the
 	  Cantera newsgroup.
 
-2006-06-13 02:20  hkmoffa
+2006-06-12 17:20  hkmoffa
 
 	* Cantera/src/ThermoPhase.h: Added the function
 	  getPartialMolarCp(). It isn't currently in the API, but it should
 	  be.
 
-2006-06-13 02:19  hkmoffa
+2006-06-12 17:19  hkmoffa
 
 	* Cantera/src/Elements.cpp: Fixed a minor case which resulted in a
 	  core dump.
 
-2006-06-11 13:36  dggoodwin
+2006-06-11 04:36  dggoodwin
 
 	* Cantera/python/examples/flames/fixed_T_flame.py: minor changes
 
-2006-06-10 19:15  dggoodwin
+2006-06-10 10:15  dggoodwin
 
 	* Cantera/python/examples/flames/: tdata.csv, tdata.dat: changed
 	  tdata.csv to tdata.dat
 
-2006-06-10 19:07  dggoodwin
+2006-06-10 10:07  dggoodwin
 
 	* Cantera/python/examples/flames/: fixed_T_flame.py, tdata.csv:
 	  added fixed T flame example
 
-2006-06-08 16:05  hkmoffa
+2006-06-08 07:05  hkmoffa
 
 	* Cantera/src/StoichSubstance.h: Fixed a typo and added
 	  getStandardVolumes() routine.
 
-2006-05-31 20:06  dggoodwin
+2006-05-31 11:06  dggoodwin
 
 	* configure, configure.in, Cantera/python/ctml_writer.py: added
 	  LatticePhase to configure.in
 
-2006-05-28 01:34  hkmoffa
+2006-05-27 16:34  hkmoffa
 
 	* Cantera/src/SpeciesThermoFactory.cpp: used popError() on two
 	  cases where errors are caught and delt with.
 
-2006-05-17 19:43  dggoodwin
+2006-05-17 10:43  dggoodwin
 
 	* configure.in, preconfig, ext/f2c_libs/Makefile.in,
 	  ext/f2c_libs/arith.h: misc
 
-2006-05-17 17:59  dggoodwin
+2006-05-17 08:59  dggoodwin
 
 	* examples/cxx/kinetics_example3.cpp: initial import
 
-2006-05-17 17:16  dggoodwin
+2006-05-17 08:16  dggoodwin
 
 	* Cantera/src/zeroD/: ReactorFactory.cpp, ReactorFactory.h: initial
 	  import
 
-2006-05-07 23:17  dggoodwin
+2006-05-07 14:17  dggoodwin
 
 	* Cantera/clib/src/ctreactor.cpp: added support for const pressure
 	  and flow reactors
 
-2006-05-06 17:34  dggoodwin
+2006-05-06 08:34  dggoodwin
 
 	* Cantera/: clib/src/ctreactor.cpp, cxx/include/zerodim.h,
 	  python/Cantera/Reactor.py, src/CVodesIntegrator.cpp,
@@ -413,27 +1090,27 @@
 	  src/transport/MixTransport.cpp: support for constant-pressure
 	  reactors
 
-2006-05-06 17:32  dggoodwin
+2006-05-06 08:32  dggoodwin
 
 	* Cantera/python/examples/reactors/piston.py: initial import
 
-2006-05-06 16:56  dggoodwin
+2006-05-06 07:56  dggoodwin
 
 	* Cantera/src/zeroD/: ConstPressureReactor.cpp,
 	  ConstPressureReactor.h, FlowReactor.cpp, Reactor.cpp, Reactor.h,
 	  ReactorBase.cpp, ReactorBase.h: added constant pressure reactor
 
-2006-05-04 04:13  dggoodwin
+2006-05-03 19:13  dggoodwin
 
 	* configure, test_problems/Makefile.in,
 	  tools/src/finish_install.py.in: support for Python-free
 	  environments
 
-2006-05-03 22:49  dggoodwin
+2006-05-03 13:49  dggoodwin
 
 	* Cantera/src/ct2ctml.cpp: Windows has no sleep command
 
-2006-05-03 21:45  dggoodwin
+2006-05-03 12:45  dggoodwin
 
 	* Cantera/: clib/src/ct.cpp, clib/src/ct.h,
 	  python/src/ctthermo_methods.cpp, python/ctml_writer.py,
@@ -445,209 +1122,209 @@
 	  src/thermo/MolalityVPSSTP.cpp, src/thermo/VPStandardStateTP.cpp,
 	  src/transport/TransportBase.h: added electric potential
 
-2006-05-03 20:12  hkmoffa
+2006-05-03 11:12  hkmoffa
 
 	* examples/cxx/equil_example1.cpp: Changed the initial condition
 	  slightly. This was to avoid a problem with convergence that
 	  occurred in the chemical equilibrium solver.
 
-2006-05-03 20:07  hkmoffa
+2006-05-03 11:07  hkmoffa
 
 	* test_problems/cxx_ex/: eq1_blessed.csv, eq1_blessed.dat:
 	  Rebaselined the blessed state, due to a small change in initial
 	  conditions.
 
-2006-05-03 11:51  dggoodwin
+2006-05-03 02:51  dggoodwin
 
 	* configure.in: moved uname -i statement
 
-2006-05-02 01:04  dggoodwin
+2006-05-01 16:04  dggoodwin
 
 	* Cantera/matlab/cantera/: @ThermoPhase/setElectricPotential.m,
 	  @ThermoPhase/electricPotential.m, importEdge.m: initial import
 
-2006-05-02 01:03  dggoodwin
+2006-05-01 16:03  dggoodwin
 
 	* Cantera/matlab/cantera/private/thermomethods.cpp: added functions
 	  to set and get the electric potential of a phase
 
-2006-05-02 00:36  hkmoffa
+2006-05-01 15:36  hkmoffa
 
 	* configure.in: Added the ext/recipes/Makefile file to the list of
 	  makefiles.  Somehow, it wasn't in the list.
 
-2006-05-01 17:51  hkmoffa
+2006-05-01 08:51  hkmoffa
 
 	* Makefile.in: Tracked down a bug in the make system to cxxlib.
 	  Need to make all at the Cantera/cxx level in order to copy
 	  include files over to the build/include directory tree.
 
-2006-05-01 01:43  hkmoffa
+2006-04-30 16:43  hkmoffa
 
 	* .cvsignore: Added some config log files to this file.
 
-2006-05-01 01:29  hkmoffa
+2006-04-30 16:29  hkmoffa
 
 	* bin/: tscompare, tscompare_alwaystrue, tscompare_csh,
 	  tscompare_ksh, tscompare_sh: Added tscompare files.
 
-2006-05-01 01:14  hkmoffa
+2006-04-30 16:14  hkmoffa
 
 	* examples/cxx/Makefile.in: Solaris port: added SunWS_cache to
 	  clean rule
 
-2006-05-01 01:13  hkmoffa
+2006-04-30 16:13  hkmoffa
 
 	* tools/testtools/Makefile.in: Took out extraneous statements.
 
-2006-05-01 01:13  hkmoffa
+2006-04-30 16:13  hkmoffa
 
 	* tools/src/Makefile.in: Solaris port commits.
 
-2006-05-01 01:11  hkmoffa
+2006-04-30 16:11  hkmoffa
 
 	* ext/f2c_libs/Makefile.in: Solaris changes.
 
-2006-05-01 01:10  hkmoffa
+2006-04-30 16:10  hkmoffa
 
 	* Cantera/python/: Makefile.in, ctml_writer.py, setup.py.in:
 	  Solaris port changes.
 
-2006-05-01 01:09  hkmoffa
+2006-04-30 16:09  hkmoffa
 
 	* bin/install_tsc.in: changed INSTALL to INSTALL_abs
 
-2006-05-01 01:08  hkmoffa
+2006-04-30 16:08  hkmoffa
 
 	* .cvsignore: Added files.
 
-2006-05-01 01:07  hkmoffa
+2006-04-30 16:07  hkmoffa
 
 	* configure, Cantera.README, Makefile.in, config.h.in,
 	  configure.in, preconfig: Solaris Port: the config/configure.in
 	  file has been pushed up one directory.		The
 	  previous configure file is now called preconfig.
 
-2006-05-01 01:03  hkmoffa
+2006-04-30 16:03  hkmoffa
 
 	* config/install-sh: Solaris port: Changing directory structure to
 	  put configure.in in top		directory.
 
-2006-05-01 00:33  hkmoffa
+2006-04-30 15:33  hkmoffa
 
 	* ext/Makefile.in: Added recipes to clean directories.
 
-2006-05-01 00:32  hkmoffa
+2006-04-30 15:32  hkmoffa
 
 	* ext/f2c_lapack/Makefile.in: Took out duplicates.
 
-2006-05-01 00:23  hkmoffa
+2006-04-30 15:23  hkmoffa
 
 	* Cantera/: cxx/demos/.cvsignore, fortran/src/.cvsignore: Added
 	  SunWS_cache
 
-2006-05-01 00:22  hkmoffa
+2006-04-30 15:22  hkmoffa
 
 	* Cantera/clib/src/.cvsignore: Added SuNWS_cache
 
-2006-05-01 00:20  hkmoffa
+2006-04-30 15:20  hkmoffa
 
 	* Cantera/cxx/Makefile.in: Fixed an error in INCDIR definition.
 
-2006-05-01 00:17  hkmoffa
+2006-04-30 15:17  hkmoffa
 
 	* Cantera/cxx/include/: IdealGasMix.h, PureFluid.h: Made ready() a
 	  const function,
 
-2006-05-01 00:15  hkmoffa
+2006-04-30 15:15  hkmoffa
 
 	* Cantera/fortran/src/Makefile.in: Solaris: SunWS_cache handling
 
-2006-05-01 00:13  hkmoffa
+2006-04-30 15:13  hkmoffa
 
 	* Cantera/cxx/demos/Makefile.in: Solaris changes
 
-2006-05-01 00:10  hkmoffa
+2006-04-30 15:10  hkmoffa
 
 	* Cantera/cxx/src/: .cvsignore, Makefile.in: Solaris changes
 	  SunWS_cache handling
 
-2006-05-01 00:08  hkmoffa
+2006-04-30 15:08  hkmoffa
 
 	* Cantera/src/ct_defs.h: Changed math.h to cmath
 
-2006-05-01 00:08  hkmoffa
+2006-04-30 15:08  hkmoffa
 
 	* Cantera/: src/.cvsignore, clib/src/Makefile.in: Added SunWS_cache
 
-2006-05-01 00:07  hkmoffa
+2006-04-30 15:07  hkmoffa
 
 	* Cantera/src/CVode.cpp: Added Id line
 
-2006-05-01 00:05  hkmoffa
+2006-04-30 15:05  hkmoffa
 
 	* Cantera/src/ct2ctml.cpp: More sleep commands needed for system
 	  calls for solaris
 
-2006-05-01 00:03  hkmoffa
+2006-04-30 15:03  hkmoffa
 
 	* Cantera/src/stringUtils.cpp: don't need ctypes.h
 
-2006-05-01 00:00  hkmoffa
+2006-04-30 15:00  hkmoffa
 
 	* Cantera/src/converters/: Makefile.in, ck2ct.cpp, ck2ct.h: Solaris
 	  changes:   use cstdlib not stdlib.h
 
-2006-04-30 23:43  hkmoffa
+2006-04-30 14:43  hkmoffa
 
 	* test_problems/: surfkin/.cvsignore, surfkin/Interface.h,
 	  surfkin/Makefile.in, silane_equil/.cvsignore,
 	  silane_equil/IdealGasMix.h: Solaris changes.
 
-2006-04-30 23:37  hkmoffa
+2006-04-30 14:37  hkmoffa
 
 	* test_problems/diamondSurf/run_diamond.py: Fixed typo.
 
-2006-04-30 23:36  hkmoffa
+2006-04-30 14:36  hkmoffa
 
 	* test_problems/diamondSurf/: .cvsignore, Makefile.in: Additions
 	  for solaris.
 
-2006-04-30 23:20  hkmoffa
+2006-04-30 14:20  hkmoffa
 
 	* Cantera/src/Makefile.in: Added the logger.h file.
 
-2006-04-30 22:21  hkmoffa
+2006-04-30 13:21  hkmoffa
 
 	* ext/Makefile.in: Uses the build_f2c_lib variable.
 
-2006-04-30 21:58  hkmoffa
+2006-04-30 12:58  hkmoffa
 
 	* Cantera/cxx/include/Cantera.h: Added logger.h to this file.
 
-2006-04-30 21:57  hkmoffa
+2006-04-30 12:57  hkmoffa
 
 	* Cantera/cxx/include/GRI30.h: Changed the #ifndef line so that it
 	  is unique.
 
-2006-04-30 21:56  hkmoffa
+2006-04-30 12:56  hkmoffa
 
 	* Cantera/cxx/include/kinetics.h: Added a couple more include
 	  kinetics files.
 
-2006-04-30 21:54  hkmoffa
+2006-04-30 12:54  hkmoffa
 
 	* Cantera/cxx/include/thermo.h: Changed a comments section.
 
-2006-04-30 21:54  hkmoffa
+2006-04-30 12:54  hkmoffa
 
 	* Cantera/cxx/include/PureFluid.h: Added Id field.
 
-2006-04-30 20:08  hkmoffa
+2006-04-30 11:08  hkmoffa
 
 	* .cvsignore: Added the file set_cant_env
 
-2006-04-30 20:06  hkmoffa
+2006-04-30 11:06  hkmoffa
 
 	* test_problems/: Makefile.in, cxx_ex/Makefile.in,
 	  fracCoeff/.cvsignore, fracCoeff/Makefile.in, fracCoeff/frac.cti,
@@ -657,7 +1334,7 @@
 	  for the calculation of equilibrium constants for fractional
 	  coefficient reactions.
 
-2006-04-30 20:01  hkmoffa
+2006-04-30 11:01  hkmoffa
 
 	* Cantera/src/: EdgeKinetics.cpp, GasKinetics.cpp, GasKinetics.h,
 	  InterfaceKinetics.cpp, Kinetics.h, Phase.cpp: Fixed an error in
@@ -669,14 +1346,14 @@
 	  difference in rxn order between the reactants and products for
 	  fraction coefficient reactions.
 
-2006-04-30 02:14  dggoodwin
+2006-04-29 17:14  dggoodwin
 
 	* Makefile.in, configure, config/configure.in: added capability to
 	  build without Python. Features requiring Python in the build
 	  process (Python and MATLAB interfaces) are skipped, and Python
 	  tests are skipped also.
 
-2006-04-29 12:45  dggoodwin
+2006-04-29 03:45  dggoodwin
 
 	* Cantera/src/thermo/: MolalityVPSSTP.cpp, MolalityVPSSTP.h,
 	  SingleSpeciesTP.cpp, VPStandardStateTP.cpp, VPStandardStateTP.h:
@@ -684,7 +1361,7 @@
 	  replacing v.begin() in many places by &v[0]. Macro DATA_PTR(v)
 	  defined for readability.
 
-2006-04-28 19:22  dggoodwin
+2006-04-28 10:22  dggoodwin
 
 	* Cantera/cxx/demos/flamespeed.cpp, Cantera/cxx/src/cxxutils.cpp,
 	  Cantera/src/Array.h, Cantera/src/BandMatrix.cpp,
@@ -728,53 +1405,53 @@
 	  replacing v.begin() in many places by &v[0]. Macro DATA_PTR(v)
 	  defined for readability.
 
-2006-04-28 00:47  hkmoffa
+2006-04-27 15:47  hkmoffa
 
 	* Cantera/src/CVode.cpp: Took out 2 print statements, that was
 	  causing the diamond test to fail.
 
-2006-04-27 23:39  hkmoffa
+2006-04-27 14:39  hkmoffa
 
 	* configure: Changed the environmental variable, WITH_ELECTROLYTES,
 	  so that it can be set from a preconfig routine.
 
-2006-04-25 11:52  dggoodwin
+2006-04-25 02:52  dggoodwin
 
 	* Cantera/src/Array.h: changed doublereal* to iterator in axpy
 
-2006-04-23 09:27  dggoodwin
+2006-04-23 00:27  dggoodwin
 
 	* Cantera/python/Cantera/Edge.py: initial import
 
-2006-04-23 09:24  dggoodwin
+2006-04-23 00:24  dggoodwin
 
 	* Cantera/src/oneD/Makefile.in: added missing Domain1D.cpp
 
-2006-04-23 08:41  dggoodwin
+2006-04-22 23:41  dggoodwin
 
 	* config/: configure, configure.in: cleaned up configure.in
 
-2006-04-19 22:46  hkmoffa
+2006-04-19 13:46  hkmoffa
 
 	* Cantera/python/Makefile.in: Added quotes around some variables.
 	  This is necessary if the variables have spaces in them in order
 	  for the values to be propagated correctly to the Makefile
 	  variables.
 
-2006-04-19 22:44  hkmoffa
+2006-04-19 13:44  hkmoffa
 
 	* ext/f2c_libs/Makefile.in: Added a ldemulation arg to the strip
 	  command. This is necessary when compiling 32 bit on a 64 bit
 	  linux box.
 
-2006-03-07 21:59  hkmoffa
+2006-03-07 12:59  hkmoffa
 
 	* Cantera/src/transport/: .cvsignore, MMCollisionInt.h,
 	  Makefile.in: Changed the name of some arguments that conflicted
 	  with names of member data. This created a warning message on
 	  Solaris.
 
-2006-03-07 21:52  hkmoffa
+2006-03-07 12:52  hkmoffa
 
 	* Cantera/src/oneD/: .cvsignore, Domain1D.h, Inlet1D.h,
 	  Makefile.in, Resid1D.h, Sim1D.cpp, Sim1D.h, StFlow.h:    Solaris
@@ -783,32 +1460,32 @@
 	  arguments.	 Solaris complains when virtual functions are
 	  hidden, when they are  overloaded.
 
-2006-03-07 21:49  hkmoffa
+2006-03-07 12:49  hkmoffa
 
 	* Cantera/src/oneD/boundaries1D.cpp: const needed for proper
 	  virtual inheritance
 
-2006-03-07 21:47  hkmoffa
+2006-03-07 12:47  hkmoffa
 
 	* Cantera/src/oneD/refine.cpp: Solaris warns about templated static
 	  functions.
 
-2006-03-06 01:07  hkmoffa
+2006-03-05 16:07  hkmoffa
 
 	* test_problems/python/runtest: Quotation marks are needed on
 	  Solaris
 
-2006-03-06 00:55  hkmoffa
+2006-03-05 15:55  hkmoffa
 
 	* Cantera/cxx/include/GRI30.h: Changed the defn of a function to
 	  agree with underlying virtual function.
 
-2006-03-06 00:52  hkmoffa
+2006-03-05 15:52  hkmoffa
 
 	* test_problems/silane_equil/Makefile.in: Added deletion of sun
 	  cache directory
 
-2006-03-04 00:21  hkmoffa
+2006-03-03 15:21  hkmoffa
 
 	* ext/tpx/: CarbonDioxide.cpp, CarbonDioxide.h, HFC134a.cpp,
 	  HFC134a.h, Heptane.cpp, Heptane.h, Hydrogen.cpp, Hydrogen.h,
@@ -818,56 +1495,56 @@
 	  *.  So, I changed it so that the species name is storred within
 	  the object.
 
-2006-03-03 23:44  hkmoffa
+2006-03-03 14:44  hkmoffa
 
 	* ext/: lapack/Makefile.in, recipes/Makefile.in: Took duplicate out
 	  of F77FLAGS statement.
 
-2006-03-03 23:43  hkmoffa
+2006-03-03 14:43  hkmoffa
 
 	* ext/Makefile.in: Fixed f2c so that it's only compiled when the
 	  option is turned on.
 
-2006-03-03 23:04  hkmoffa
+2006-03-03 14:04  hkmoffa
 
 	* Cantera/src/converters/.cvsignore: Added a file
 
-2006-03-03 23:02  hkmoffa
+2006-03-03 14:02  hkmoffa
 
 	* Cantera/src/ReactionPath.h: An argument hid a member function
 	  name. I Changed the argument variable name.
 
-2006-03-03 23:00  hkmoffa
+2006-03-03 14:00  hkmoffa
 
 	* Cantera/src/: zeroD/.cvsignore, zeroD/Makefile.in,
 	  thermo/.cvsignore, thermo/Makefile.in: Added SunWS_cache deletion
 
-2006-03-03 22:57  hkmoffa
+2006-03-03 13:57  hkmoffa
 
 	* Cantera/src/ReactionPath.cpp: An argument conflicted with a
 	  member variable. I changed the name of the argument variable.
 
-2006-03-03 22:11  hkmoffa
+2006-03-03 13:11  hkmoffa
 
 	* Cantera/src/: PureFluidPhase.cpp, PureFluidPhase.h: Changed the
 	  defn of two functions who were missing const declarations.  These
 	  were const in Thermophase.h, and for proper inheritance, they
 	  need to be the same in derived classes.
 
-2006-03-03 21:39  hkmoffa
+2006-03-03 12:39  hkmoffa
 
 	* ext/blas/Makefile.in: Took out duplicate flags
 
-2006-03-03 21:31  hkmoffa
+2006-03-03 12:31  hkmoffa
 
 	* ext/math/: Makefile.in, dgbfa.f: Added the file dgbfa.f Took out
 	  duplicate FFLAGS statement.
 
-2006-03-03 19:17  hkmoffa
+2006-03-03 10:17  hkmoffa
 
 	* tools/src/.cvsignore: Added the SunWS_cache directory.
 
-2006-03-03 19:03  hkmoffa
+2006-03-03 10:03  hkmoffa
 
 	* config/: configure, configure.in: This is the start of trying to
 	  handle 32 bit vs. 64 bit compilation on select platforms. For
@@ -884,35 +1561,35 @@
 	  Later I will add the default compiler flags that make this 32 bit
 	  compilation work. Now they are brought in through a prep script.
 
-2006-03-03 17:44  hkmoffa
+2006-03-03 08:44  hkmoffa
 
 	* ext/math/: Makefile.in, dgbefa.f, dgbfa.f: Replaced the file
 	  dgbefa.f with dgbfa.f. The later is used in other math routines.
 
-2006-03-03 17:42  hkmoffa
+2006-03-03 08:42  hkmoffa
 
 	* config/configure.in: EXTRA_LINK can now come in with a default
 	  value. Am using this for the 32 bit compile on a 64 bit linux
 	  operating system.
 
-2006-03-03 17:37  hkmoffa
+2006-03-03 08:37  hkmoffa
 
 	* test_problems/python/: .cvsignore, README, flame1_blessed.csv,
 	  flame1_blessed_linux.csv, frac.py, runtest: Rebaselined the
 	  problem.    The number of points changed from 104 to 105 points.
 	  However, the	solution stayed just about the same.
 
-2006-03-03 16:33  hkmoffa
+2006-03-03 07:33  hkmoffa
 
 	* test_problems/ck2cti_test/: .cvsignore, runtest.in: Added files
 	  to the ignore list.
 
-2006-03-03 16:29  hkmoffa
+2006-03-03 07:29  hkmoffa
 
 	* test_problems/diamondSurf/: Makefile.in, runDiamond.cpp: Fixed
 	  this test so that it can work in the srcdirtree environment.
 
-2006-03-03 16:27  hkmoffa
+2006-03-03 07:27  hkmoffa
 
 	* test_problems/cxx_ex/: Makefile.in, gri30.xml, kin1_blessed.csv,
 	  silane.xml: Rebaselined the kin1 problem after taking a close
@@ -923,41 +1600,41 @@
 	  convergence requirements were made a lot stricter, while
 	  maintaining the same time step truncation error tolerances.
 
-2006-03-03 16:21  hkmoffa
+2006-03-03 07:21  hkmoffa
 
 	* test_problems/silane_equil/: IdealGasMix.h, Makefile.in,
 	  output_blessed.txt, silane.xml, silane_equil.cpp: updated the
 	  test to ensure that it works from the srcdirtree.
 
-2006-03-03 15:43  hkmoffa
+2006-03-03 06:43  hkmoffa
 
 	* test_problems/surfkin/: Interface.h, Makefile.in, surfdemo.cpp:
 	  Fixed the program so that it can be run from srcdirtree and
 	  install tree
 
-2006-02-25 00:24  hkmoffa
+2006-02-24 15:24  hkmoffa
 
 	* Cantera/clib/src/ctonedim.cpp: Fixed a warning message about
 	  getting to the end of a int function without a return.
 
-2006-02-25 00:22  hkmoffa
+2006-02-24 15:22  hkmoffa
 
 	* Cantera/clib/src/ct.cpp: Fixed a warning message about no return
 	  from a double function.
 
-2005-12-19 07:10  dggoodwin
+2005-12-18 22:10  dggoodwin
 
 	* Cantera/python/ctml_writer.py: added size attribute to species
 	  class
 
-2005-12-15 18:07  dggoodwin
+2005-12-15 09:07  dggoodwin
 
 	* Cantera/src/GasKinetics.cpp: added statements to
 	  getEquilibriumConstants to force a T update on the next call.
 	  Array m_rkcn was being left containing incorrect data. Problem is
 	  now fixed.
 
-2005-12-09 18:49  dggoodwin
+2005-12-09 09:49  dggoodwin
 
 	* configure, Cantera/clib/src/ct.cpp, Cantera/clib/src/ct.h,
 	  Cantera/python/Cantera/ThermoPhase.py,
@@ -967,21 +1644,21 @@
 	  Cantera/src/converters/CKParser.cpp: removed critical and
 	  saturation properties from ThermoPhase
 
-2005-12-07 04:34  dggoodwin
+2005-12-06 19:34  dggoodwin
 
 	* Cantera/python/examples/reactors/sensitivity1.py: initial import
 
-2005-12-06 20:23  dggoodwin
+2005-12-06 11:23  dggoodwin
 
 	* config/: configure, configure.in: fixed sundials test
 
-2005-12-05 19:36  dggoodwin
+2005-12-05 10:36  dggoodwin
 
 	* Cantera/: matlab/cantera/examples/catcomb.m,
 	  python/Cantera/OneD/onedim.py, src/oneD/Domain1D.h,
 	  src/oneD/MultiNewton.cpp: minor changes
 
-2005-11-26 17:08  dggoodwin
+2005-11-26 08:08  dggoodwin
 
 	* configure, Cantera/clib/src/ctreactor.cpp,
 	  Cantera/python/Cantera/Reactor.py,
@@ -992,12 +1669,12 @@
 	  tools/templates/f77/demo.mak.in, tools/templates/f90/demo.mak.in:
 	  misc minor fixes
 
-2005-11-23 02:19  dggoodwin
+2005-11-22 17:19  dggoodwin
 
 	* Cantera/python/Cantera/ThermoPhase.py: fixed error in
 	  restoreState
 
-2005-11-22 18:59  dggoodwin
+2005-11-22 09:59  dggoodwin
 
 	* Cantera/cxx/demos/kinetics1.cpp, Cantera/src/FalloffFactory.cpp,
 	  Cantera/src/FalloffFactory.h, Cantera/src/GasKinetics.cpp,
@@ -1019,20 +1696,20 @@
 	  some variable names to eliminate leading ddouble (and some
 	  single) underscores
 
-2005-11-18 09:21  dggoodwin
+2005-11-18 00:21  dggoodwin
 
 	* ext/tpx/Sub.cpp: added check in set_xy for density == Undef but T
 	  != Undef. Failure to check for this condition had resulted in
 	  convergence to the wrong root for Hydrogen.
 
-2005-11-14 19:49  hkmoffa
+2005-11-14 10:49  hkmoffa
 
 	* Cantera/src/thermo/: Makefile.in, MolalityVPSSTP.cpp,
 	  MolalityVPSSTP.h, StoichSubstanceSSTP.h, VPStandardStateTP.cpp,
 	  VPStandardStateTP.h: Added a few more files to handle liquid
 	  electrochemistry thermo.
 
-2005-11-14 19:47  hkmoffa
+2005-11-14 10:47  hkmoffa
 
 	* Cantera/src/: ThermoPhase.h, ThermoPhase.cpp: Added two sets of
 	  functions   One, InitThermoFromXML() and InitThermoFromFile()
@@ -1041,17 +1718,17 @@
 	  capability for ThermoPhase objects, using the function,
 	  duplMyselfAsThermoPhase().
 
-2005-11-14 19:41  hkmoffa
+2005-11-14 10:41  hkmoffa
 
 	* Cantera/src/: Phase.cpp, Phase.h: Addec copy constructor and
 	  assignment operator.
 
-2005-11-13 12:15  dggoodwin
+2005-11-13 03:15  dggoodwin
 
 	* Cantera/src/: CVodesIntegrator.cpp, InterfaceKinetics.cpp,
 	  misc.cpp: removed some diagnostic output
 
-2005-11-10 16:06  dggoodwin
+2005-11-10 07:06  dggoodwin
 
 	* Cantera/src/: CVode.cpp, CVodesIntegrator.cpp,
 	  CVodesIntegrator.h, ChemEquil.cpp, EdgeKinetics.cpp,
@@ -1063,43 +1740,43 @@
 	  ctvector.h, misc.cpp, transport/SolidTransport.cpp,
 	  transport/TransportBase.h: support for sensitivity analysis
 
-2005-11-10 16:02  dggoodwin
+2005-11-10 07:02  dggoodwin
 
 	* Cantera/src/zeroD/: FlowReactor.h, FlowReactor.cpp: initial
 	  import
 
-2005-10-31 17:29  dggoodwin
+2005-10-31 08:29  dggoodwin
 
 	* Cantera/src/SimpleThermo.h: corrected bug that caused problems if
 	  this SpeciesThermo manager was used in conjunction with another
 	  one (e.g. NASA).
 
-2005-10-31 17:06  hkmoffa
+2005-10-31 08:06  hkmoffa
 
 	* Cantera/src/ChemEquil.cpp: Eliminated 2 unused variables.
 
-2005-10-29 06:22  dggoodwin
+2005-10-28 21:22  dggoodwin
 
 	* Cantera/matlab/cantera/gaussian.m: initial import
 
-2005-10-29 01:16  hkmoffa
+2005-10-28 16:16  hkmoffa
 
 	* Cantera/src/: GeneralSpeciesThermo.cpp,
 	  SpeciesThermoInterpType.h, thermo/SingleSpeciesTP.cpp: Added a
 	  virtual destructor for SpeciesThermoInterpType.h. Without it,
 	  there is a memory leak.
 
-2005-10-25 00:13  hkmoffa
+2005-10-24 15:13  hkmoffa
 
 	* Cantera/src/thermo/SingleSpeciesTP.cpp: Forgot the member
 	  function getCp_R_ref() in the previous commit.  This commit adds
 	  that function.
 
-2005-10-24 23:57  hkmoffa
+2005-10-24 14:57  hkmoffa
 
 	* Cantera/cxx/include/thermo.h: Added the new file.
 
-2005-10-24 23:52  hkmoffa
+2005-10-24 14:52  hkmoffa
 
 	* Cantera/src/thermo/: Makefile.in, SingleSpeciesTP.cpp,
 	  SingleSpeciesTP.h, StoichSubstanceSSTP.cpp,
@@ -1109,47 +1786,47 @@
 	  functionality in the SingleSpeciesTP level; it now evaluates the
 	  reference polynomials.
 
-2005-10-24 23:38  hkmoffa
+2005-10-24 14:38  hkmoffa
 
 	* Cantera/src/ThermoPhase.h: Moved the getStandardChemPotentials()
 	  routine to the standard state functions member group.
 
-2005-10-24 20:03  hkmoffa
+2005-10-24 11:03  hkmoffa
 
 	* Cantera/cxx/include/thermo.h: Added a thermo.h file to the cxx
 	  directory. This file is analogous to the transport.h file.
 
-2005-10-24 19:03  hkmoffa
+2005-10-24 10:03  hkmoffa
 
 	* Cantera/src/ThermoPhase.h: Moved the getActivities and
 	  getActivityCoefficients() functions to the activities member
 	  group.
 
-2005-10-24 18:41  dggoodwin
+2005-10-24 09:41  dggoodwin
 
 	* Cantera/src/: ODE_integrators.cpp, CVodesIntegrator.h,
 	  CVodesIntegrator.cpp: initial import
 
-2005-10-24 17:39  hkmoffa
+2005-10-24 08:39  hkmoffa
 
 	* Cantera/src/: State.h, State.cpp: Added the copy constructor and
 	  assignment operator.
 
-2005-10-22 02:53  hkmoffa
+2005-10-21 17:53  hkmoffa
 
 	* Cantera/src/importCTML.cpp: Generalization of the getStick()
 	  routine, to include the case where you have bulk reactants as
 	  well as surface reactants and a single gas phase reactant.
 
-2005-10-22 02:35  hkmoffa
+2005-10-21 17:35  hkmoffa
 
 	* Cantera/src/MultiPhase.h: Added cvs information to the file.
 
-2005-10-22 02:29  hkmoffa
+2005-10-21 17:29  hkmoffa
 
 	* Cantera/src/Makefile.in: Missed a .h file in the last commit.
 
-2005-10-22 02:18  hkmoffa
+2005-10-21 17:18  hkmoffa
 
 	* Cantera/src/: ConstCpPoly.cpp, ConstCpPoly.h,
 	  GeneralSpeciesThermo.cpp, GeneralSpeciesThermo.h, Makefile.in,
@@ -1174,144 +1851,144 @@
 	  in the future to limit the amount of code for users who don't
 	  need the new functionality.
 
-2005-10-22 00:44  hkmoffa
+2005-10-21 15:44  hkmoffa
 
 	* Cantera/src/reaction_defs.h: Added cvs info for this file.
 
-2005-10-22 00:41  hkmoffa
+2005-10-21 15:41  hkmoffa
 
 	* Cantera/src/IdealGasPhase.h: Fixed an error in the doxygen
 	  comments that caused my version of doxygen to segfault. This was
 	  caused by member groups not having a closing bracket.
 
-2005-10-22 00:25  hkmoffa
+2005-10-21 15:25  hkmoffa
 
 	* Cantera/src/: IdealGasPhase.cpp, IdealGasPhase.h: Filled out 2
 	  missing functions to this ThermoPhase object: getIntEnergy_RT()
 	  and getIntEnergy_RT_ref().
 
-2005-10-22 00:16  hkmoffa
+2005-10-21 15:16  hkmoffa
 
 	* Cantera/src/ThermoPhase.h: Added a detailed doxygen member
 	  function description.
 
-2005-10-22 00:15  hkmoffa
+2005-10-21 15:15  hkmoffa
 
 	* Cantera/src/StoichSubstance.h: Added more documentation to
 	  doxygen.
 
-2005-10-21 23:57  hkmoffa
+2005-10-21 14:57  hkmoffa
 
 	* Cantera/src/StoichSubstance.h: Added 3 missing member functions.
 	  Note, this class is still not complete; it's missing the ref
 	  functions.
 
-2005-10-21 23:42  hkmoffa
+2005-10-21 14:42  hkmoffa
 
 	* Cantera/src/Kinetics.h: Changed some comments so that they
 	  reflect the correct units.
 
-2005-10-21 23:39  hkmoffa
+2005-10-21 14:39  hkmoffa
 
 	* Cantera/src/misc.cpp: Added entries to the errorhandling group in
 	  the doxygen documentation.
 
-2005-10-21 23:38  hkmoffa
+2005-10-21 14:38  hkmoffa
 
 	* Cantera/src/Constituents.h: Eliminated a doxygen warning message.
 	  Also, took out the log file entry.
 
-2005-10-21 23:35  hkmoffa
+2005-10-21 14:35  hkmoffa
 
 	* Cantera/src/ctexceptions.h: Just changed the comments. Added an
 	  errorhandling group to group together functions and classes
 	  dealing with error handling in the doxygen output.
 
-2005-10-21 23:28  hkmoffa
+2005-10-21 14:28  hkmoffa
 
 	* Cantera/src/units.h: Added the unit 'gmol' to the list of
 	  recognized units.  Added more accuracy to the eV unit.
 
-2005-10-21 20:23  hkmoffa
+2005-10-21 11:23  hkmoffa
 
 	* Cantera/src/: Constituents.cpp, Constituents.h: Added a copy
 	  constructor and an assignment operator.
 
-2005-10-21 18:18  hkmoffa
+2005-10-21 09:18  hkmoffa
 
 	* Cantera/src/: ThermoPhase.cpp, ThermoPhase.h: Added a routine to
 	  the ThermoPhase specification: activityConvention().	This has a
 	  default value of molar-based. The other option is molality based.
 
-2005-10-21 17:51  hkmoffa
+2005-10-21 08:51  hkmoffa
 
 	* .cvsignore: Added the file config.h to this list.  It's a
 	  generated file.
 
-2005-10-21 02:57  dggoodwin
+2005-10-20 17:57  dggoodwin
 
 	* Cantera/python/examples/gasdynamics/soundSpeeds.py: initial
 	  import
 
-2005-10-21 01:33  hkmoffa
+2005-10-20 16:33  hkmoffa
 
 	* config.h.in: Added a compilation define when electrolytes are
 	  included.
 
-2005-10-21 01:31  hkmoffa
+2005-10-20 16:31  hkmoffa
 
 	* config/configure.in: Added support for compiling the src/thermo
 	  directory.
 
-2005-10-21 01:30  hkmoffa
+2005-10-20 16:30  hkmoffa
 
 	* configure: Added the WITH_ELECTROLYTE keyword into the script.
 	  However, I have made the default so that the thermo directory is
 	  not compiled.
 
-2005-10-21 01:29  hkmoffa
+2005-10-20 16:29  hkmoffa
 
 	* Cantera/src/Makefile.in: Added logic for including the thermo
 	  directory into the main compilation step.
 
-2005-10-21 01:27  hkmoffa
+2005-10-20 16:27  hkmoffa
 
 	* Cantera/src/thermo/: .cvsignore, Makefile.in,
 	  SingleSpeciesTP.cpp, SingleSpeciesTP.h: Added the SingleSpeciesTP
 	  file as a trial commit. Want to get the bugs out of adding these
 	  files to the main distribution first.
 
-2005-10-04 18:53  hkmoffa
+2005-10-04 09:53  hkmoffa
 
 	* Cantera/src/xml.cpp: Commented the _require() routine.
 
-2005-09-29 23:05  hkmoffa
+2005-09-29 14:05  hkmoffa
 
 	* ext/tpx/: CarbonDioxide.cpp, Heptane.cpp: Fixed a compilation
 	  error on Linux.
 
-2005-09-27 14:12  dggoodwin
+2005-09-27 05:12  dggoodwin
 
 	* Cantera/src/Constituents.cpp, Cantera/src/ThermoFactory.cpp,
 	  Cantera/src/ct_defs.h, Cantera/src/ctvector.cpp,
 	  Cantera/src/recipes.h, configure, Cantera/clib/src/ctonedim.cpp:
 	  minor cleanup
 
-2005-09-27 14:08  dggoodwin
+2005-09-27 05:08  dggoodwin
 
 	* Cantera/src/Makefile.in: removed reference to recipes.h
 
-2005-09-27 14:08  dggoodwin
+2005-09-27 05:08  dggoodwin
 
 	* Cantera/src/stringUtils.cpp: changed stripws to allow spaces in
 	  the middle of strings
 
-2005-09-22 05:45  dggoodwin
+2005-09-21 20:45  dggoodwin
 
 	* Cantera/python/examples/equilibrium/adiabatic.py: added phi title
 	  to output csv file
 
-2005-09-16 06:57  dggoodwin
+2005-09-15 21:57  dggoodwin
 
 	* Cantera/python/Cantera/liquidvapor.py,
 	  Cantera/python/examples/liquid_vapor/critProperties.py,
@@ -1319,66 +1996,66 @@
 	  tools/src/fixtext.cpp: changes to support the classes for CO2 and
 	  heptane in tpx
 
-2005-09-16 06:55  dggoodwin
+2005-09-15 21:55  dggoodwin
 
 	* ext/tpx/: CarbonDioxide.cpp, CarbonDioxide.h, Heptane.cpp,
 	  Heptane.h, Makefile.in, subs.h, utils.cpp: added files for CO2
 	  and heptane contributed by R. Hunt, Stanford
 
-2005-09-15 05:50  dggoodwin
+2005-09-14 20:50  dggoodwin
 
 	* Cantera/src/oneD/: Domain1D.cpp, MultiNewton.cpp, StFlow.cpp,
 	  StFlow.h, boundaries1D.cpp, oneD_files.cpp: changes to make
 	  solution of user-defined BVPs simpler.
 
-2005-09-15 05:47  dggoodwin
+2005-09-14 20:47  dggoodwin
 
 	* Cantera/src/oneD/Inlet1D.h: overloaded setupGrid in boundary1D to
 	  do nothing. Without this, Domain1D::setupGrid would be called for
 	  connector domains.
 
-2005-09-15 05:43  dggoodwin
+2005-09-14 20:43  dggoodwin
 
 	* Cantera/python/examples/equilibrium/multiphase_plasma.py: added
 	  comment
 
-2005-09-15 05:40  dggoodwin
+2005-09-14 20:40  dggoodwin
 
 	* Cantera/python/examples/flames/adiabatic_flame.py: changed error
 	  tolerance for time integration. The previous large value of atol
 	  was causing problems.
 
-2005-09-13 19:10  dggoodwin
+2005-09-13 10:10  dggoodwin
 
 	* Cantera/src/oneD/: Domain1D.cpp, Domain1D.h, Inlet1D.h,
 	  Sim1D.cpp, oneD_files.cpp: modifications to simplify solving
 	  boundary value problems
 
-2005-09-02 05:41  dggoodwin
+2005-09-01 20:41  dggoodwin
 
 	* test_problems/ck2cti_test/: runtest.in, soot.inp,
 	  soot_blessed.cti, therm_soot.dat: added test of extensions for
 	  large molecules as implemented in the MIT soot mechanism.
 
-2005-08-30 22:28  dggoodwin
+2005-08-30 13:28  dggoodwin
 
 	* test_problems/Makefile.in: removed silane_eqil
 
-2005-08-30 22:28  dggoodwin
+2005-08-30 13:28  dggoodwin
 
 	* test_problems/python/: frac.cti, frac.py, frac_blessed.out,
 	  runtest: modified the frac test
 
-2005-08-26 18:28  hkmoffa
+2005-08-26 09:28  hkmoffa
 
 	* configure: Changed the default back to the case where Cantera
 	  will make its own lapack and blas libraries.
 
-2005-08-26 16:59  hkmoffa
+2005-08-26 07:59  hkmoffa
 
 	* config/configure.in: Added an ending 'fi'
 
-2005-08-19 05:17  dggoodwin
+2005-08-18 20:17  dggoodwin
 
 	* winconfig.h, Cantera/matlab/cantera/buildwin.m,
 	  Cantera/matlab/cantera/private/ctmethods.cpp,
@@ -1389,27 +2066,27 @@
 	  config/configure.in: corrected minor bugs in windows versions of
 	  files
 
-2005-08-18 20:16  dggoodwin
+2005-08-18 11:16  dggoodwin
 
 	* configure, Cantera/src/State.cpp, config/configure,
 	  config/configure.in, ext/f2c_libs/arith.h: minor cleanup
 
-2005-07-30 23:49  hkmoffa
+2005-07-30 14:49  hkmoffa
 
 	* Cantera/src/ctml.cpp: Fixed an error where Cantera would seg
 	  fault if errors in the XML file occurred.
 
-2005-07-29 01:02  hkmoffa
+2005-07-28 16:02  hkmoffa
 
 	* Cantera/src/converters/CKParser.cpp: Got rid of one warning
 	  message.
 
-2005-07-29 01:01  hkmoffa
+2005-07-28 16:01  hkmoffa
 
 	* Cantera/src/converters/ck2ct.cpp: Changed the format type of an
 	  fprintf statement.
 
-2005-07-28 23:53  hkmoffa
+2005-07-28 14:53  hkmoffa
 
 	* Cantera/src/: ctml.cpp, ctml.h: Added the getMatrixValues
 	  routine. This routine fills in a matrix of doubles, keyed by a
@@ -1418,12 +2095,12 @@
 	  API.	Added a parameter to the getFloatArray() routine, that has
 	  a default value -> so it shouldn't cause any changes to the API.
 
-2005-07-28 23:40  hkmoffa
+2005-07-28 14:40  hkmoffa
 
 	* Cantera/src/: stringUtils.cpp, stringUtils.h: Added the
 	  atofCheck() routine.
 
-2005-07-26 05:56  dggoodwin
+2005-07-25 20:56  dggoodwin
 
 	* winconfig.h, Cantera/src/EdgeKinetics.h,
 	  Cantera/src/InterfaceKinetics.cpp,
@@ -1434,103 +2111,103 @@
 	  Cantera/src/converters/Reaction.h,
 	  Cantera/src/converters/ck2ct.cpp: cleanup
 
-2005-07-25 05:54  dggoodwin
+2005-07-24 20:54  dggoodwin
 
 	* Cantera/src/ReactionStoichMgr.cpp: changed how global reactions
 	  are handled
 
-2005-07-25 05:53  dggoodwin
+2005-07-24 20:53  dggoodwin
 
 	* Cantera/src/converters/: CKReader.cpp, CKReader.h, ck2ct.cpp:
 	  support for fractional stoich coefficients
 
-2005-07-25 05:52  dggoodwin
+2005-07-24 20:52  dggoodwin
 
 	* Cantera/src/converters/: Reaction.cpp, Reaction.h: added fwdOrder
 
-2005-07-25 05:51  dggoodwin
+2005-07-24 20:51  dggoodwin
 
 	* Cantera/src/converters/CKParser.cpp: now recognizes the FORD
 	  keyword
 
-2005-07-23 16:12  dggoodwin
+2005-07-23 07:12  dggoodwin
 
 	* test_problems/silane_equil/output_blessed.txt: SI chem potential
 	  changed in last digit
 
-2005-07-22 15:33  dggoodwin
+2005-07-22 06:33  dggoodwin
 
 	* Cantera/src/ChemEquil.cpp, Cantera/src/GasKinetics.cpp,
 	  Cantera/src/GasKinetics.h, configure, ext/f2c_libs/arith.h:
 	  cleanup
 
-2005-07-22 14:50  dggoodwin
+2005-07-22 05:50  dggoodwin
 
 	* examples/cxx/: Makefile.in, equil_example1.cpp, example_utils.h,
 	  examples.cpp, kinetics_example1.cpp, kinetics_example2.cpp,
 	  rxnpath_example1.cpp, transport_example1.cpp,
 	  transport_example2.cpp: updated
 
-2005-07-22 14:50  dggoodwin
+2005-07-22 05:50  dggoodwin
 
 	* Cantera/src/equilibrate.cpp: minor cleanup
 
-2005-07-22 14:36  dggoodwin
+2005-07-22 05:36  dggoodwin
 
 	* Cantera/python/setup.py.in: replaced g2c with ctf2c
 
-2005-07-22 06:36  dggoodwin
+2005-07-21 21:36  dggoodwin
 
 	* Cantera/src/equil.h: changed default loglevel to 0.
 
-2005-07-22 05:27  dggoodwin
+2005-07-21 20:27  dggoodwin
 
 	* Cantera/src/: ChemEquil.cpp, ChemEquil.h, equil.h,
 	  equilibrate.cpp, MultiPhase.cpp, MultiPhase.h,
 	  MultiPhaseEquil.cpp, MultiPhaseEquil.h: enhanced and cleaned up
 	  equilibrium code
 
-2005-07-21 17:00  dggoodwin
+2005-07-21 08:00  dggoodwin
 
 	* test_problems/python/.cvsignore: fixed .cvsignore so that
 	  frac_blessed.out is not included
 
-2005-07-16 14:19  dggoodwin
+2005-07-16 05:19  dggoodwin
 
 	* test_problems/python/frac_blessed.out: removed diagnostic
 	  messages
 
-2005-07-14 20:44  dggoodwin
+2005-07-14 11:44  dggoodwin
 
 	* Cantera/src/: MultiPhase.cpp, MultiPhase.h, ChemEquil.h:
 	  improvements to equilibrate
 
-2005-07-14 20:40  dggoodwin
+2005-07-14 11:40  dggoodwin
 
 	* Cantera/src/: importCTML.cpp, importCTML.h: allow tolerance on
 	  reaction element balances, rather than requiring precise balance
 
-2005-07-02 20:46  hkmoffa
+2005-07-02 11:46  hkmoffa
 
 	* config/configure.in: Fixed an error in the configure.in file,
 	  where the F90 interface was requested to be not built, but an
 	  attempt to build it is made anyway -> windows cygwin interface.
 
-2005-07-02 20:30  hkmoffa
+2005-07-02 11:30  hkmoffa
 
 	* configure: Took out an extraneous line that might be confusing.
 
-2005-06-28 18:00  hkmoffa
+2005-06-28 09:00  hkmoffa
 
 	* Cantera/src/MultiPhase.cpp: Fixed a compilation error condition.
 	  Commented out the call to init() within updatePhases().
 
-2005-06-27 16:51  dggoodwin
+2005-06-27 07:51  dggoodwin
 
 	* Cantera/src/: MultiPhaseEquil.cpp, MultiPhaseEquil.h,
 	  MultiPhase.h, MultiPhase.cpp: cleanup
 
-2005-06-25 17:57  dggoodwin
+2005-06-25 08:57  dggoodwin
 
 	* Makefile.in, Cantera/clib/src/ctmultiphase.cpp,
 	  Cantera/python/examples/.cvsignore,
@@ -1538,7 +2215,7 @@
 	  Cantera/src/MultiPhase.cpp, Cantera/src/MultiPhaseEquil.cpp,
 	  Cantera/src/MultiPhaseEquil.h: cleanup
 
-2005-06-25 15:16  dggoodwin
+2005-06-25 06:16  dggoodwin
 
 	* Cantera/python/examples/: catcomb.py, critProperties.py,
 	  diamond.py, dustygas.py, flame1.py, flame2.py, function1.py,
@@ -1551,7 +2228,7 @@
 	  surface_chemistry/catcomb.py, surface_chemistry/diamond.py,
 	  transport/dustygas.py: reorganized
 
-2005-06-25 07:27  dggoodwin
+2005-06-24 22:27  dggoodwin
 
 	* Cantera/clib/src/ctmultiphase.cpp,
 	  Cantera/python/Cantera/OneD/__init__.py,
@@ -1565,15 +2242,15 @@
 	  tools/templates/f77/demo.mak.in, tools/templates/f90/demo.mak.in:
 	  cleanup
 
-2005-06-24 19:43  dggoodwin
+2005-06-24 10:43  dggoodwin
 
 	* apps/MixMaster/KineticsFrame.py: changed default to non-browser
 
-2005-06-24 19:04  dggoodwin
+2005-06-24 10:04  dggoodwin
 
 	* README.txt: updated
 
-2005-06-23 17:14  hkmoffa
+2005-06-23 08:14  hkmoffa
 
 	* config/: configure, configure.in: Took out the version number
 	  from the path directories.  Simplified the installation
@@ -1583,27 +2260,27 @@
 	  version is used.  This should reduce the number of installation
 	  problems encountered.
 
-2005-06-23 17:10  hkmoffa
+2005-06-23 08:10  hkmoffa
 
 	* Makefile.in: Changed the rm commands to use a common rule. On
 	  occasion make was failing because rm didn't have the -r option
 	  when it encountered directories.
 
-2005-06-18 20:03  dggoodwin
+2005-06-18 11:03  dggoodwin
 
 	* Makefile.in: copy cti files to Python flame demo directory
 
-2005-06-18 20:02  dggoodwin
+2005-06-18 11:02  dggoodwin
 
 	* Cantera/python/examples/flames/: free_h2_air.py, ohn.cti: add
 	  free H2/air flame example
 
-2005-06-18 19:01  dggoodwin
+2005-06-18 10:01  dggoodwin
 
 	* tools/templates/cxx/demo.mak.in: Prerelease_1_6_0_branch merged
 	  into trunk
 
-2005-06-18 18:58  dggoodwin
+2005-06-18 09:58  dggoodwin
 
 	* .cvsignore, ChangeLog, INSTALLING, Makefile.in, README,
 	  config.h.in, configure, winconfig.h, Cantera/Makefile.in,
@@ -1810,11 +2487,11 @@
 	  tools/src/package4mac.in: Prerelease_1_6_0_branch merged into
 	  trunk
 
-2005-06-18 05:18  dggoodwin
+2005-06-17 20:18  dggoodwin
 
 	* Cantera/python/Cantera/OneD/FreeFlame.py: initial import
 
-2005-06-17 07:49  dggoodwin
+2005-06-16 22:49  dggoodwin
 
 	* Cantera/matlab/cantera/@Mixture/: Mixture.m, chemPotentials.m,
 	  display.m, elementIndex.m, equilibrate.m, mix_hndl.m,
@@ -1822,30 +2499,30 @@
 	  setPhaseMoles.m, setPressure.m, setSpeciesMoles.m,
 	  setTemperature.m, speciesIndex.m, temperature.m: initial import
 
-2005-06-17 07:46  dggoodwin
+2005-06-16 22:46  dggoodwin
 
 	* Cantera/python/examples/flames/adiabatic_flame.py: initial import
 
-2005-06-17 00:59  dggoodwin
+2005-06-16 15:59  dggoodwin
 
 	* Cantera/matlab/cantera/@Solution/display.m: use display method
 	  inherited from ThermoPhase
 
-2005-06-16 05:08  dggoodwin
+2005-06-15 20:08  dggoodwin
 
 	* Makefile.in, Cantera/matlab/cantera/examples/prandtl1.m,
 	  Cantera/python/setup.py.in, Cantera/src/ChemEquil.cpp,
 	  Cantera/src/MultiPhaseEquil.cpp: changes to make ChemEquil more
 	  stable
 
-2005-06-10 00:27  dggoodwin
+2005-06-09 15:27  dggoodwin
 
 	* configure, Cantera/cxx/demos/Makefile.in,
 	  examples/cxx/Makefile.in, examples/cxx/equil_example1.cpp,
 	  test_problems/silane_equil/Makefile.in,
 	  test_problems/surfkin/Makefile.in: minor cleanup
 
-2005-06-09 00:36  dggoodwin
+2005-06-08 15:36  dggoodwin
 
 	* configure, Cantera/matlab/setup_matlab.py.in,
 	  Cantera/python/setup.py.in, Cantera/src/oneD/StFlow.cpp,
@@ -1854,31 +2531,31 @@
 	  tools/templates/cxx/demo.mak.in: support for the Accelerate
 	  framework on the Mac
 
-2005-06-08 07:29  dggoodwin
+2005-06-07 22:29  dggoodwin
 
 	* Cantera/python/examples/equilibrium/: KOH.cti, adiabatic.py,
 	  multiphase_plasma.py, simple.py, stoich.py: initial import
 
-2005-06-08 05:54  dggoodwin
+2005-06-07 20:54  dggoodwin
 
 	* test_problems/python/flame1_blessed_linux.csv: updated blessed
 	  file
 
-2005-06-08 04:43  dggoodwin
+2005-06-07 19:43  dggoodwin
 
 	* Cantera/matlab/cantera/private/mixturemethods.cpp: support for
 	  multiphase mixtures
 
-2005-06-06 16:28  hkmoffa
+2005-06-06 07:28  hkmoffa
 
 	* Cantera/src/transport/TransportFactory.cpp: Added comments.
 
-2005-05-22 23:07  dggoodwin
+2005-05-22 14:07  dggoodwin
 
 	* test_problems/python/: frac.cti, frac.py, frac_blessed.out,
 	  runtest: fractional stoichiometric coefficient test
 
-2005-05-22 22:38  dggoodwin
+2005-05-22 13:38  dggoodwin
 
 	* Cantera/src/GasKinetics.cpp, Cantera/src/GasKinetics.h,
 	  Cantera/src/ReactionStoichMgr.cpp,
@@ -1904,7 +2581,7 @@
 	  tools/doc/doxyinput/demo1a.cpp, tools/doc/doxyinput/introcxx.txt:
 	  support for fractional stoichiometric coefficients
 
-2005-05-20 00:15  hkmoffa
+2005-05-19 15:15  hkmoffa
 
 	* Cantera/src/units.h: Added in more units:   nm
 	  nanometers   Angstrom   Angstroms Activation Energy Units:
@@ -1916,7 +2593,7 @@
 		 in electrochemistry. However, you have to multiply by the
 		 current temperature to convert correctly here.
 
-2005-05-01 15:58  dggoodwin
+2005-05-01 06:58  dggoodwin
 
 	* Cantera/src/: Array.h, ArrayViewer.h, BandMatrix.h, ChemEquil.h,
 	  Kinetics.h, MultiPhase.cpp, MultiPhase.h, MultiPhaseEquil.cpp,
@@ -1925,54 +2602,54 @@
 	  global.h, importCTML.cpp, phasereport.cpp: added support for
 	  non-integral product stoichiometric coefficients
 
-2005-04-23 19:14  dggoodwin
+2005-04-23 10:14  dggoodwin
 
 	* Cantera/matlab/cantera/@Mixture/: Mixture.m, addPhase.m,
 	  mix_hndl.m, nPhases.m, private/mixturemethods.m: initial import
 
-2005-04-23 19:12  dggoodwin
+2005-04-23 10:12  dggoodwin
 
 	* Cantera/matlab/cantera/@ThermoPhase/: equilibrate.m, name.m,
 	  setName.m, private/thermo_set.m: added name and setName methods
 
-2005-04-23 04:42  dggoodwin
+2005-04-22 19:42  dggoodwin
 
 	* Cantera/matlab/cantera/examples/: ignite.m, ignite2.m, ignite3.m,
 	  ignite_hp.m, ignite_uv.m: corrected plot labels to be mass,
 	  rather than mole, fractions
 
-2005-04-17 17:48  hkmoffa
+2005-04-17 08:48  hkmoffa
 
 	* Cantera/src/global.h: Added cvs id information.
 
-2005-04-15 21:47  hkmoffa
+2005-04-15 12:47  hkmoffa
 
 	* ext/Makefile.in: Changed the Makefile to always make f2c_libs.
 	  Applications may have use of this even if Cantera doesn't
 	  actually use f2c.
 
-2005-04-15 21:01  hkmoffa
+2005-04-15 12:01  hkmoffa
 
 	* Cantera/cxx/demos/kinetics1.cpp: Added in the cantera/Cantera.h
 	  include file. It seemed to need it to compile in the demo
 	  directory of the install directory.
 
-2005-04-13 13:17  dggoodwin
+2005-04-13 04:17  dggoodwin
 
 	* Cantera/python/examples/: equilibrium/adiabatic.py,
 	  equilibrium/plotting.py, flames/flame1.py, flames/flame2.py,
 	  flames/stflame1.py, kinetics/ratecoeffs.py: updated examples
 
-2005-04-07 02:03  dggoodwin
+2005-04-06 17:03  dggoodwin
 
 	* Cantera/matlab/cantera/buildwin.m: minor changes to SetupCantera
 
-2005-04-02 06:37  dggoodwin
+2005-04-01 20:37  dggoodwin
 
 	* Cantera/python/Cantera/constants.py: changed GasConstant to 1999
 	  CODATA value
 
-2005-04-01 16:29  dggoodwin
+2005-04-01 06:29  dggoodwin
 
 	* tools/doc/: Cantera.cfg, doxyinput/Cantera.txt,
 	  doxyinput/build.txt, doxyinput/ctnew.txt,
@@ -1985,112 +2662,112 @@
 	  doxyinput/thermodemo.cpp, doxyinput/thermodemo.txt: new doxygen
 	  files
 
-2005-04-01 03:10  dggoodwin
+2005-03-31 17:10  dggoodwin
 
 	* Cantera/src/: IdealGasPhase.h, State.h, ThermoPhase.h, misc.cpp,
 	  utilities.h: updated comments
 
-2005-03-30 19:33  hkmoffa
+2005-03-30 09:33  hkmoffa
 
 	* Cantera/src/ThermoPhase.h: Fixed a comment section that
 	  incorrectly identified a function as returning a Gibbs energy
 	  when it actually returned a Heat capacity.
 
-2005-03-30 18:03  hkmoffa
+2005-03-30 08:03  hkmoffa
 
 	* Makefile.in: Took residual particle Makefile stuff out of this
 	  file.
 
-2005-03-30 18:02  hkmoffa
+2005-03-30 08:02  hkmoffa
 
 	* Cantera/Makefile.in: Took residual particle configure stuff out
 	  of this file.
 
-2005-03-30 18:00  hkmoffa
+2005-03-30 08:00  hkmoffa
 
 	* config/configure.in: Took residual particle stuff out of this
 	  file.
 
-2005-03-23 21:54  hkmoffa
+2005-03-23 12:54  hkmoffa
 
 	* Cantera/src/.cvsignore: Added *.d
 
-2005-03-09 21:48  dggoodwin
+2005-03-09 12:48  dggoodwin
 
 	* Cantera/python/ctml_writer.py: added support for fractional
 	  product stoichiometric coefficients in global irreversible
 	  reactions
 
-2005-03-05 16:43  dggoodwin
+2005-03-05 07:43  dggoodwin
 
 	* Cantera/src/: LatticeSolidPhase.h, LatticeSolidPhase.cpp: initial
 	  import
 
-2005-02-25 13:48  dggoodwin
+2005-02-25 04:48  dggoodwin
 
 	* Makefile.in, config/configure, config/configure.in: g95 changes
 
-2005-02-25 04:52  dggoodwin
+2005-02-24 19:52  dggoodwin
 
 	* Makefile.in, Cantera/python/setup.py.in, config/configure,
 	  config/configure.in, tools/src/finish_install.py.in: minor
 	  cleanup
 
-2005-02-24 20:01  dggoodwin
+2005-02-24 11:01  dggoodwin
 
 	* Cantera/src/converters/ck2ct.cpp: minor cleanup
 
-2005-02-24 20:01  dggoodwin
+2005-02-24 11:01  dggoodwin
 
 	* Cantera/src/config.h: added check for CANTERA_APP
 
-2005-02-24 20:01  dggoodwin
+2005-02-24 11:01  dggoodwin
 
 	* Cantera/cxx/include/Cantera.h: added definition of CANTERA_APP,
 	  which is used in Cantera/src/config.h to control where to find
 	  the config file
 
-2005-02-24 19:59  dggoodwin
+2005-02-24 10:59  dggoodwin
 
 	* test_problems/: diamondSurf/runDiamond.cpp,
 	  silane_equil/silane_equil.cpp: added #include for file Cantera.h
 
-2005-02-24 19:59  dggoodwin
+2005-02-24 10:59  dggoodwin
 
 	* test_problems/silane_equil/output_blessed.txt: changed output
 	  format
 
-2005-02-24 17:54  dggoodwin
+2005-02-24 08:54  dggoodwin
 
 	* tools/src/findtag.py: initial import
 
-2005-02-17 18:35  dggoodwin
+2005-02-17 09:35  dggoodwin
 
 	* apps/MixMaster/: Mix.py, ThermoFrame.py, ThermoProp.py: minor
 	  changes
 
-2005-02-17 17:25  dggoodwin
+2005-02-17 08:25  dggoodwin
 
 	* apps/MixMaster/KineticsFrame.py: added scrollbar to reaction
 	  window
 
-2005-02-17 07:12  dggoodwin
+2005-02-16 22:12  dggoodwin
 
 	* apps/MixMaster/KineticsFrame.py: changed default reaction path
 	  diagram format to SVG
 
-2005-02-10 09:15  dggoodwin
+2005-02-10 00:15  dggoodwin
 
 	* Cantera/src/Makefile.in: minor win32 bug fixes
 
-2005-02-10 09:10  dggoodwin
+2005-02-10 00:10  dggoodwin
 
 	* Cantera/: clib/src/ct.h, matlab/cantera/buildwin.m,
 	  matlab/cantera/private/ctmethods.cpp, python/src/pycantera.cpp,
 	  src/MultiPhase.cpp, src/config.h, src/converters/ck2ct.cpp: minor
 	  win32 bug fixes
 
-2005-02-09 11:26  dggoodwin
+2005-02-09 02:26  dggoodwin
 
 	* Makefile.in, configure, Cantera/clib/src/ct.cpp,
 	  Cantera/clib/src/ct.h, Cantera/python/Cantera/Mixture.py,
@@ -2104,62 +2781,62 @@
 	  Cantera/python/src/pyutils.h, tools/src/package4mac.in: support
 	  for HTML log files.
 
-2005-02-09 11:23  dggoodwin
+2005-02-09 02:23  dggoodwin
 
 	* Cantera/src/: MultiPhase.cpp, MultiPhaseEquil.cpp, misc.cpp:
 	  support for HTML log files.
 
-2005-02-08 17:52  dggoodwin
+2005-02-08 08:52  dggoodwin
 
 	* config/: configure, configure.in: corrected error in g95 options
 
-2005-02-03 22:44  dggoodwin
+2005-02-03 13:44  dggoodwin
 
 	* Cantera/python/examples/equilibrium/adiabatic.py: initial import
 
-2005-02-02 21:07  dggoodwin
+2005-02-02 12:07  dggoodwin
 
 	* test_problems/ck2cti_test/runtest.in: minor output format change
 
-2005-02-02 20:59  dggoodwin
+2005-02-02 11:59  dggoodwin
 
 	* test_problems/ck2cti_test/gri30a_blessed.cti: minor output format
 	  change
 
-2005-02-02 20:37  dggoodwin
+2005-02-02 11:37  dggoodwin
 
 	* Cantera/src/config.h: not needed in repository
 
-2005-02-02 20:10  dggoodwin
+2005-02-02 11:10  dggoodwin
 
 	* Cantera/: clib/src/Cabinet.h, clib/src/ctfunc.cpp,
 	  clib/src/ctmultiphase.cpp, clib/src/ctonedim.cpp,
 	  clib/src/ctreactor.cpp, clib/src/ctrpath.cpp, clib/src/ctxml.cpp,
 	  src/config.h: added template<>
 
-2005-02-02 00:27  dggoodwin
+2005-02-01 15:27  dggoodwin
 
 	* Cantera/python/: Makefile.in, Cantera/Phase.py, Cantera/num.py,
 	  src/pycantera.cpp: changed numarray/Numeric selection to avoid
 	  importing the wrong module
 
-2005-02-01 16:22  dggoodwin
+2005-02-01 07:22  dggoodwin
 
 	* Cantera/python/src/: cantera.def, ct.def, ctflow.def,
 	  ctkinetics.def, ctnumerics.def, ctphase.def, ctphase_methods.cpp,
 	  ctsurf.def, ctthermo.def, cttransport.def: removed unused files
 
-2005-01-31 19:54  dggoodwin
+2005-01-31 10:54  dggoodwin
 
 	* Cantera/matlab/: Makefile.in, cantera/ck2cti.m,
 	  cantera/private/ctfunctions.cpp: added support for ck2cti without
 	  requiring external program
 
-2005-01-31 13:20  dggoodwin
+2005-01-31 04:20  dggoodwin
 
 	* Cantera/python/Cantera/ck2cti.py: initial import
 
-2005-01-31 13:18  dggoodwin
+2005-01-31 04:18  dggoodwin
 
 	* Cantera/: clib/src/ct.cpp, clib/src/ct.h,
 	  clib/src/ctmultiphase.cpp, clib/src/ctmultiphase.h,
@@ -2168,32 +2845,32 @@
 	  python/src/ctfuncs.cpp, python/src/ctmultiphase_methods.cpp,
 	  python/src/methods.h: added function ck2cti
 
-2005-01-31 13:18  dggoodwin
+2005-01-31 04:18  dggoodwin
 
 	* Cantera/src/converters/ck2ct.cpp: printf and stream i/o changed
 	  to fprintf to allow writing cti file to a file rather than to the
 	  standard output
 
-2005-01-31 13:16  dggoodwin
+2005-01-31 04:16  dggoodwin
 
 	* Cantera/src/phasereport.cpp: only print mu for non-zero species
 
-2005-01-29 03:57  dggoodwin
+2005-01-28 18:57  dggoodwin
 
 	* Cantera/clib/src/: Storage.cpp, ct.cpp: corrected a problem with
 	  phases with identical names
 
-2005-01-29 03:46  dggoodwin
+2005-01-28 18:46  dggoodwin
 
 	* Cantera/python/Cantera/Kinetics.py: corrected a problem with
 	  phases with identical names
 
-2005-01-25 04:48  dggoodwin
+2005-01-24 19:48  dggoodwin
 
 	* ext/: f2c_lapack/Makefile.in, f2c_math/.cvsignore: added files to
 	  .cvsignore
 
-2005-01-25 04:41  dggoodwin
+2005-01-24 19:41  dggoodwin
 
 	* ChangeLog, Makefile.in, configure, Cantera/cxx/demos/Makefile.in,
 	  Cantera/cxx/demos/demos.cpp, Cantera/cxx/demos/flamespeed.cpp,
@@ -2208,12 +2885,12 @@
 	  ext/tpx/subs.h, ext/tpx/utils.cpp, tools/bin/erase: fixed problem
 	  with dependencies for ck2cti
 
-2005-01-25 04:38  dggoodwin
+2005-01-24 19:38  dggoodwin
 
 	* tools/src/ck2cti.cpp, Cantera/src/converters/ck2ct.cpp,
 	  Cantera/src/converters/ck2ct.h: added validate option
 
-2005-01-24 16:06  dggoodwin
+2005-01-24 07:06  dggoodwin
 
 	* Makefile.in, configure, Cantera/cxx/demos/Makefile.in,
 	  Cantera/cxx/demos/demos.cpp, Cantera/cxx/demos/flamespeed.cpp,
@@ -2221,22 +2898,22 @@
 	  Cantera/src/config.h, Cantera/src/misc.cpp, ext/tpx/.depends,
 	  ext/tpx/utils.cpp, tools/bin/erase: changed C++ demos
 
-2005-01-24 12:32  dggoodwin
+2005-01-24 03:32  dggoodwin
 
 	* Cantera/cxx/demos/: Makefile.in, demos.cpp, flamespeed.cpp,
 	  kin1_blessed.csv, kin1_blessed.dat, kinetics1.cpp, rankine.cpp:
 	  added program demo to run all demos
 
-2005-01-19 22:22  dggoodwin
+2005-01-19 13:22  dggoodwin
 
 	* data/inputs/: nasa.cti, nasa_condensed.cti, nasa_gas.cti:
 	  separated gaseous and condensed-phase species
 
-2005-01-18 15:36  dggoodwin
+2005-01-18 06:36  dggoodwin
 
 	* ext/tpx/HFC134a.h: fixed include error
 
-2005-01-14 14:41  dggoodwin
+2005-01-14 05:41  dggoodwin
 
 	* configure, Cantera/python/Cantera/liquidvapor.py,
 	  Cantera/src/phasereport.cpp, bin/mixmaster.py,
@@ -2244,35 +2921,35 @@
 	  ext/tpx/HFC134a.cpp, ext/tpx/HFC134a.h, ext/tpx/Makefile.in,
 	  ext/tpx/subs.h, ext/tpx/utils.cpp: added HFC134a
 
-2005-01-13 19:02  hkmoffa
+2005-01-13 10:02  hkmoffa
 
 	* Cantera/src/StoichSubstance.h: Added a "get" in front of some
 	  void functions.
 
-2005-01-13 15:02  dggoodwin
+2005-01-13 06:02  dggoodwin
 
 	* Cantera/src/: ChemEquil.h, ThermoPhase.h, config.h,
 	  oneD/Domain1D.h, oneD/StFlow.cpp: changed code related to
 	  adiabatic flame
 
-2005-01-13 14:58  dggoodwin
+2005-01-13 05:58  dggoodwin
 
 	* Cantera/matlab/cantera/: @ThermoPhase/equilibrate.m,
 	  private/thermomethods.cpp: added option to select equil solver
 
-2005-01-13 14:58  dggoodwin
+2005-01-13 05:58  dggoodwin
 
 	* Cantera/matlab/cantera/examples/: catcomb.m, flame1.m,
 	  prandtl1.m, test_examples.m: added script to test selected
 	  examples without pausing
 
-2005-01-13 01:33  hkmoffa
+2005-01-12 16:33  hkmoffa
 
 	* Cantera/src/ThermoPhase.h: Forgot to add to functions to
 	  ThermoPhase.h:    getActivityCoefficents()
 	  getStandardVolumes()
 
-2005-01-13 00:09  hkmoffa
+2005-01-12 15:09  hkmoffa
 
 	* Cantera/src/: ConstDensityThermo.cpp, ConstDensityThermo.h,
 	  GRI_30_Kinetics.cpp, GasKinetics.cpp, GasKinetics.h,
@@ -2294,14 +2971,14 @@
 	  constants and reaction rates are the same up to numerical
 	  round-off error.
 
-2005-01-12 17:03  hkmoffa
+2005-01-12 08:03  hkmoffa
 
 	* Cantera/clib/src/Makefile.in: Fixed an error in this Makefile.
 	  libclib.a was being installed in the lib directory itself with
 	  the name "cantera". Now it is being installed in
 	  ctversion/libclib.a
 
-2005-01-12 03:22  hkmoffa
+2005-01-11 18:22  hkmoffa
 
 	* .cvsignore, Makefile.in, Cantera/clib/src/Makefile.in,
 	  Cantera/cxx/Makefile.in, Cantera/cxx/demos/Makefile.in,
@@ -2329,16 +3006,16 @@
 	  demo.mak.in now has a CXX_END_LIBS capability. My linux system
 	  needs this for some reason.
 
-2005-01-12 03:19  hkmoffa
+2005-01-11 18:19  hkmoffa
 
 	* configure: Changed the default for NEED_NUMERIC from 'n' to 'y'
 	  to help with backwards compatibility with previous releases.
 
-2005-01-10 15:57  dggoodwin
+2005-01-10 06:57  dggoodwin
 
 	* tools/doc/python/mkmkdoc.py: initial import
 
-2005-01-09 21:29  dggoodwin
+2005-01-09 12:29  dggoodwin
 
 	* config.h, configure, Cantera/clib/src/ct.cpp,
 	  Cantera/clib/src/ctmultiphase.cpp,
@@ -2365,21 +3042,21 @@
 	  tools/src/package4mac.in, tools/testtools/csvdiff.cpp: trunk
 	  changes merged in
 
-2005-01-09 20:32  dggoodwin
+2005-01-09 11:32  dggoodwin
 
 	* tools/testtools/csvdiff.cpp: modified csvdiff to allow larger
 	  error bounds when solution is changing rapidly
 
-2005-01-09 19:58  dggoodwin
+2005-01-09 10:58  dggoodwin
 
 	* test_problems/silane_equil/output_blessed.txt: updated blessed
 	  output due to format change
 
-2005-01-08 23:27  dggoodwin
+2005-01-08 14:27  dggoodwin
 
 	* data/inputs/: graphite.cti, water.cti: added water.cti
 
-2005-01-07 11:26  dggoodwin
+2005-01-07 02:26  dggoodwin
 
 	* Cantera/: clib/src/ct.cpp, clib/src/ct.h,
 	  cxx/demos/Makefile.install, cxx/demos/rankine.cpp,
@@ -2397,40 +3074,40 @@
 	  src/zeroD/Makefile.in, src/zeroD/flowControllers.h: merged
 	  changes from branch
 
-2005-01-07 10:58  dggoodwin
+2005-01-07 01:58  dggoodwin
 
 	* Cantera/src/MultiPhase.cpp: initial import
 
-2005-01-07 10:55  dggoodwin
+2005-01-07 01:55  dggoodwin
 
 	* Cantera/: src/PureFluidPhase.cpp, src/PureFluidPhase.h,
 	  src/ThermoFactory.cpp, clib/src/ct.cpp, python/Cantera/num.py:
 	  changed class PureFluid to PureFluidPhase
 
-2005-01-07 10:46  dggoodwin
+2005-01-07 01:46  dggoodwin
 
 	* Cantera/cxx/include/PureFluid.h: merged from branch
 
-2005-01-07 10:43  dggoodwin
+2005-01-07 01:43  dggoodwin
 
 	* Cantera/cxx/include/PureFluid.h: initial import
 
-2005-01-07 10:39  dggoodwin
+2005-01-07 01:39  dggoodwin
 
 	* Cantera/cxx/demos/: Makefile.install, rankine.cpp: added open
 	  rankine example
 
-2005-01-07 00:42  dggoodwin
+2005-01-06 15:42  dggoodwin
 
 	* config.h, winconfig.h, Cantera/python/Cantera/num.py,
 	  Cantera/src/config.h: cleanup
 
-2005-01-07 00:30  dggoodwin
+2005-01-06 15:30  dggoodwin
 
 	* Cantera/cxx/demos/flamespeed.cpp,
 	  examples/cxx/transport_example1.cpp: minor cleanup
 
-2005-01-06 13:49  dggoodwin
+2005-01-06 04:49  dggoodwin
 
 	* ChangeLog, README.txt, Cantera/clib/src/ctmultiphase.cpp,
 	  Cantera/cxx/demos/flamespeed.cpp,
@@ -2444,29 +3121,29 @@
 	  Cantera/src/oneD/StFlow.cpp, examples/cxx/transport_example1.cpp,
 	  ext/tpx/Sub.cpp: trunk changes merged into branch
 
-2005-01-06 13:32  dggoodwin
+2005-01-06 04:32  dggoodwin
 
 	* test_problems/silane_equil/output_blessed.txt: updated blessed
 	  output due to format change
 
-2005-01-06 12:59  dggoodwin
+2005-01-06 03:59  dggoodwin
 
 	* Cantera/python/Cantera/: Mixture.py, mixture.py: re-added
 
-2005-01-06 12:58  dggoodwin
+2005-01-06 03:58  dggoodwin
 
 	* Cantera/python/Cantera/: Mixture.py, __init__.py, num.py,
 	  solve.py, units.py, OneD/__init__.py: merged trunk
 
-2005-01-06 12:09  dggoodwin
+2005-01-06 03:09  dggoodwin
 
 	* Cantera/src/ctvector.cpp: fixed memory leak in operator=
 
-2005-01-06 12:08  dggoodwin
+2005-01-06 03:08  dggoodwin
 
 	* Cantera/src/oneD/StFlow.cpp: fixed memory leak in showSolution
 
-2005-01-05 22:04  dggoodwin
+2005-01-05 13:04  dggoodwin
 
 	* README.txt, config.h, Cantera/clib/src/ctmultiphase.cpp,
 	  Cantera/python/Cantera/__init__.py,
@@ -2481,64 +3158,64 @@
 	  Cantera/src/ct2ctml.cpp, examples/cxx/transport_example1.cpp:
 	  minor cleanup
 
-2005-01-05 13:36  dggoodwin
+2005-01-05 04:36  dggoodwin
 
 	* INSTALLING, README, README.txt: removed unneeded files
 
-2005-01-05 02:28  dggoodwin
+2005-01-04 17:28  dggoodwin
 
 	* ext/tpx/Sub.cpp: fixed problem with starting guess for T in Tsat
 	  that caused an exception with T > Tcrit on entry
 
-2005-01-04 21:32  hkmoffa
+2005-01-04 12:32  hkmoffa
 
 	* Cantera/src/transport/Makefile.in: New Makefile Format:
 	  Installs .h files and libs at the same time.
 
-2005-01-04 21:30  hkmoffa
+2005-01-04 12:30  hkmoffa
 
 	* Cantera/src/zeroD/Makefile.in: New Makefile format:	 installs
 	  .h files and libs at the same time.
 
-2005-01-04 00:40  hkmoffa
+2005-01-03 15:40  hkmoffa
 
 	* Cantera/python/Cantera/__init__.py: Took out the reference to
 	  ctdata.  ATM, this causes all python jobs to fail.
 
-2005-01-04 00:12  hkmoffa
+2005-01-03 15:12  hkmoffa
 
 	* Cantera/src/ct2ctml.cpp: ifdeffed out a static function that was
 	  not used.
 
-2004-12-18 16:16  dggoodwin
+2004-12-18 07:16  dggoodwin
 
 	* Cantera/src/converters/: CKParser.cpp, CKReader.h, config.h:
 	  minor cleanup
 
-2004-12-16 07:56  dggoodwin
+2004-12-15 22:56  dggoodwin
 
 	* Cantera/src/MultiPhase.cpp: initial import
 
-2004-12-13 15:58  dggoodwin
+2004-12-13 06:58  dggoodwin
 
 	* tools/bin/cvs2cl.pl: updated version
 
-2004-12-13 15:42  dggoodwin
+2004-12-13 06:42  dggoodwin
 
 	* configure, Cantera/src/MultiPhase.h, config/configure,
 	  config/configure.in: misc cleanup
 
-2004-12-13 15:36  dggoodwin
+2004-12-13 06:36  dggoodwin
 
 	* Makefile.in: added test export-win
 
-2004-12-10 20:36  dggoodwin
+2004-12-10 11:36  dggoodwin
 
 	* Cantera/python/Cantera/OneD/: BurnerDiffFlame.py, BurnerFlame.py,
 	  CounterFlame.py, StagnationFlow.py, onedim.py: modified python
 	  files to use either numarray or Numeric
 
-2004-12-10 20:32  dggoodwin
+2004-12-10 11:32  dggoodwin
 
 	* Cantera/python/: Cantera/Func.py, Cantera/Kinetics.py,
 	  Cantera/Mixture.py, Cantera/Phase.py, Cantera/Reactor.py,
@@ -2548,17 +3225,17 @@
 	  examples/isentropic.py: modified python files to use either
 	  numarray or Numeric
 
-2004-12-09 23:10  dggoodwin
+2004-12-09 14:10  dggoodwin
 
 	* Cantera/src/: MultiPhase.h, MultiPhaseEquil.cpp,
 	  MultiPhaseEquil.h: fixed convergence problem in MultiPhaseEquil
 
-2004-12-02 17:48  dggoodwin
+2004-12-02 08:48  dggoodwin
 
 	* data/inputs/: graphite.cti, silicon.cti, silicon_carbide.cti:
 	  initial import
 
-2004-12-02 00:01  dggoodwin
+2004-12-01 15:01  dggoodwin
 
 	* config.h.in, Cantera/clib/src/Makefile.in,
 	  Cantera/clib/src/ctmultiphase.cpp,
@@ -2570,33 +3247,33 @@
 	  Cantera/src/DenseMatrix.cpp, Cantera/src/Makefile.in,
 	  Cantera/src/phasereport.cpp: support for multiphase equilibrium
 
-2004-12-01 23:57  dggoodwin
+2004-12-01 14:57  dggoodwin
 
 	* Cantera/src/: MultiPhaseEquil.h, MultiPhaseEquil.cpp: support for
 	  multiphase equilibrium
 
-2004-12-01 23:56  dggoodwin
+2004-12-01 14:56  dggoodwin
 
 	* Cantera/src/MultiPhase.h: multiphase mixtures
 
-2004-11-24 04:08  dggoodwin
+2004-11-23 19:08  dggoodwin
 
 	* Cantera/src/importCTML.cpp: changed buildSolutionFromXML to use
 	  get_XML_NameID instead of get_XML_Node
 
-2004-11-15 21:52  hkmoffa
+2004-11-15 12:52  hkmoffa
 
 	* Cantera/clib/src/ct.cpp: Added a static_cast.
 
-2004-11-15 21:51  hkmoffa
+2004-11-15 12:51  hkmoffa
 
 	* Cantera/clib/src/ct.cpp: Added a return statement.
 
-2004-11-15 04:17  dggoodwin
+2004-11-14 19:17  dggoodwin
 
 	* Cantera/cxx/demos/flamespeed.cpp: initial import
 
-2004-11-15 03:33  dggoodwin
+2004-11-14 18:33  dggoodwin
 
 	* Makefile.in, configure, Cantera/cxx/include/equilibrium.h,
 	  Cantera/fortran/src/Makefile.in, Cantera/python/ctml_writer.py,
@@ -2606,41 +3283,41 @@
 	  ext/tpx/RedlichKwong.cpp: changed f90 mod file handling in
 	  Makefiles
 
-2004-11-13 00:37  dggoodwin
+2004-11-12 15:37  dggoodwin
 
 	* Cantera/src/oneD/: Domain1D.h, Sim1D.cpp, Sim1D.h, StFlow.cpp,
 	  StFlow.h, boundaries1D.cpp: changes by Karl Meredith to implement
 	  adiabatic, freely-propagating flames
 
-2004-11-02 11:23  dggoodwin
+2004-11-02 02:23  dggoodwin
 
 	* Cantera/src/: ImplicitChem.h, ImplicitChem.cpp: re-added file
 
-2004-10-19 12:47  dggoodwin
+2004-10-19 03:47  dggoodwin
 
 	* Cantera/src/xml.h: added 'const' to 'write'
 
-2004-10-19 12:44  dggoodwin
+2004-10-19 03:44  dggoodwin
 
 	* Cantera/src/xml.cpp: changed exception XML_NoChild to print
 	  offending XML_Node.
 
-2004-10-19 12:43  dggoodwin
+2004-10-19 03:43  dggoodwin
 
 	* Cantera/src/transport/TransportFactory.cpp: changed reading of
 	  transport data from XML tree so that species with no transport
 	  data (e.g. surface species) do not cause an exception to be
 	  thrown because the have no 'transport' child element.
 
-2004-10-18 21:52  hkmoffa
+2004-10-18 12:52  hkmoffa
 
 	* bin/install_tsc.in: Check for destination directory existing.
 
-2004-10-16 12:12  dggoodwin
+2004-10-16 03:12  dggoodwin
 
 	* Cantera/python/winsetup.py: initial import
 
-2004-10-16 01:10  dggoodwin
+2004-10-15 16:10  dggoodwin
 
 	* Cantera/: src/ct2ctml.cpp, src/global.h, src/logger.h,
 	  src/misc.cpp, matlab/cantera/private/ctmethods.cpp,
@@ -2649,11 +3326,11 @@
 	  python/src/writelog.cpp: added environment-specific classes to
 	  write log files
 
-2004-10-14 06:24  dggoodwin
+2004-10-13 21:24  dggoodwin
 
 	* tools/src/: package4mac.in, postflight: Mac install script
 
-2004-10-10 22:46  dggoodwin
+2004-10-10 13:46  dggoodwin
 
 	* config.h.in, Cantera/src/DenseMatrix.cpp,
 	  Cantera/src/GasKinetics.cpp, Cantera/src/ctvector.cpp,
@@ -2664,59 +3341,59 @@
 	  ext/f2c_recipes/simplx.c: changes to make type integer compatible
 	  with f2c
 
-2004-10-10 14:11  dggoodwin
+2004-10-10 05:11  dggoodwin
 
 	* Cantera/src/importCTML.cpp: moved arrays used to check for dup
 	  rxns into a class to avoid problems with initialization on some
 	  systems (FreeBSD)
 
-2004-10-10 14:09  dggoodwin
+2004-10-10 05:09  dggoodwin
 
 	* Cantera/src/: global.h, misc.cpp: added sleep function
 
-2004-10-10 14:09  dggoodwin
+2004-10-10 05:09  dggoodwin
 
 	* Cantera/src/ct2ctml.cpp: added sleep before call to python
 
-2004-10-09 20:58  dggoodwin
+2004-10-09 11:58  dggoodwin
 
 	* ext/tpx/RedlichKwong.h: removed use of pow
 
-2004-10-09 20:55  dggoodwin
+2004-10-09 11:55  dggoodwin
 
 	* ext/tpx/RedlichKwong.cpp: eliminated use of pow
 
-2004-10-09 17:45  dggoodwin
+2004-10-09 08:45  dggoodwin
 
 	* ext/tpx/: RedlichKwong.cpp, RedlichKwong.h: initial import
 
-2004-10-09 17:27  dggoodwin
+2004-10-09 08:27  dggoodwin
 
 	* tools/bin/cvs2cl.pl: initial import
 
-2004-10-09 17:21  dggoodwin
+2004-10-09 08:21  dggoodwin
 
 	* Cantera/python/Cantera/Transport.py: added method molarFluxes
 
-2004-10-09 17:19  dggoodwin
+2004-10-09 08:19  dggoodwin
 
 	* Cantera/python/Cantera/SurfacePhase.py: minor cleanup
 
-2004-10-09 17:18  dggoodwin
+2004-10-09 08:18  dggoodwin
 
 	* Cantera/python/src/pyutils.h: corrected problem with truncation
 	  of error messages
 
-2004-10-09 17:17  dggoodwin
+2004-10-09 08:17  dggoodwin
 
 	* Cantera/python/src/cttransport_methods.cpp: added
 	  py_getMolarFluxes
 
-2004-10-09 17:15  dggoodwin
+2004-10-09 08:15  dggoodwin
 
 	* Cantera/python/Cantera/ThermoPhase.py: added import statement
 
-2004-10-09 17:13  dggoodwin
+2004-10-09 08:13  dggoodwin
 
 	* Cantera/matlab/: Makefile.in, cantera/examples/rankine.m,
 	  cantera/private/ctfunctions.cpp, cantera/private/ctmatutils.h,
@@ -2724,186 +3401,186 @@
 	  cantera/private/thermomethods.cpp: added support for exceptions
 	  from tpx
 
-2004-10-09 17:07  dggoodwin
+2004-10-09 08:07  dggoodwin
 
 	* Cantera/src/: Phase.h, Phase.cpp: added const in restoreState
 
-2004-10-09 17:05  dggoodwin
+2004-10-09 08:05  dggoodwin
 
 	* Cantera/src/transport/TransportFactory.cpp: minor cleanup
 
-2004-10-09 17:03  dggoodwin
+2004-10-09 08:03  dggoodwin
 
 	* Cantera/src/transport/: MultiTransport.h, MultiTransport.cpp:
 	  added methods getMolarFluxes and getMassFluxes
 
-2004-10-09 17:00  dggoodwin
+2004-10-09 08:00  dggoodwin
 
 	* Cantera/src/: importCTML.cpp, xml.cpp: cleanup
 
-2004-10-09 16:58  dggoodwin
+2004-10-09 07:58  dggoodwin
 
 	* Cantera/src/misc.cpp: moved exception constructor definitions
 	  here from ctexceptions.h
 
-2004-10-09 16:57  dggoodwin
+2004-10-09 07:57  dggoodwin
 
 	* Cantera/src/ctexceptions.h: moved constructor definitions to
 	  misc.cpp
 
-2004-10-09 16:55  dggoodwin
+2004-10-09 07:55  dggoodwin
 
 	* Cantera/src/funcs.cpp: added include file
 
-2004-10-09 16:48  dggoodwin
+2004-10-09 07:48  dggoodwin
 
 	* Cantera/src/PureFluidPhase.cpp: moved most method definitions
 	  here from header file.
 
-2004-10-09 16:47  dggoodwin
+2004-10-09 07:47  dggoodwin
 
 	* Cantera/src/PureFluidPhase.h: moved most method definitions to
 	  PureFluidPhase.cpp
 
-2004-10-08 19:09  hkmoffa
+2004-10-08 10:09  hkmoffa
 
 	* Cantera/src/transport/TransportParams.h: Added an include for
 	  XML_Writer.h
 
-2004-10-08 19:09  hkmoffa
+2004-10-08 10:09  hkmoffa
 
 	* Cantera/src/transport/MMCollisionInt.cpp: Added an XML_writer
 	  include
 
-2004-10-05 19:56  dggoodwin
+2004-10-05 10:56  dggoodwin
 
 	* ext/tpx/Sub.h: added exceptions for error handling
 
-2004-10-05 19:55  dggoodwin
+2004-10-05 10:55  dggoodwin
 
 	* ext/tpx/Sub.cpp: Added exceptions to handle errors.
 
-2004-10-05 18:20  hkmoffa
+2004-10-05 09:20  hkmoffa
 
 	* config/configure.in: Added rule to make bin/install_tsc
 
-2004-10-05 18:15  hkmoffa
+2004-10-05 09:15  hkmoffa
 
 	* bin/: .cvsignore, install_tsc.in: Utility script to install a
 	  header file, only if the modified date has changed.
 
-2004-10-03 10:30  dggoodwin
+2004-10-03 01:30  dggoodwin
 
 	* Cantera/src/XML_Writer.h: initial import
 
-2004-10-03 10:28  dggoodwin
+2004-10-03 01:28  dggoodwin
 
 	* Cantera/src/transport/TransportBase.h: added method getMassFluxes
 
-2004-10-03 10:24  dggoodwin
+2004-10-03 01:24  dggoodwin
 
 	* Cantera/src/xml.h: removed class XML_Writer
 
-2004-10-03 09:41  dggoodwin
+2004-10-03 00:41  dggoodwin
 
 	* Cantera/src/xml.cpp: added line numbers to exception error
 	  messages
 
-2004-10-02 09:25  dggoodwin
+2004-10-02 00:25  dggoodwin
 
 	* Cantera/src/ct2ctml.cpp: minor cleanup
 
-2004-10-01 21:38  hkmoffa
+2004-10-01 12:38  hkmoffa
 
 	* Cantera/matlab/.cvsignore: Added a file.
 
-2004-10-01 21:37  hkmoffa
+2004-10-01 12:37  hkmoffa
 
 	* Cantera/matlab/setup_winmatlab.py: Removing a file that gets
 	  automatically created during the configuration process.
 
-2004-10-01 21:34  hkmoffa
+2004-10-01 12:34  hkmoffa
 
 	* Makefile.in: Took out automatic deletion of static libraries at
 	  the beginning of every make operation.
 
-2004-10-01 21:31  hkmoffa
+2004-10-01 12:31  hkmoffa
 
 	* config/configure.in: Added more handling of the PYTHON_CMD
 	  variable.
 
-2004-10-01 21:30  hkmoffa
+2004-10-01 12:30  hkmoffa
 
 	* configure: Uncommented out PYTHON_CMD.  It's now set to
 	  "default", if unspecified. Then, this default is treated in
 	  config/configure with special code.
 
-2004-09-24 22:16  hkmoffa
+2004-09-24 13:16  hkmoffa
 
 	* Makefile.in, configure: Added USE_DLL variable and its controls.
 	  Takes care of a bug that krept in for compiles with MSVC++v.6.0
 	  while trying to stand up MSVC++v7.0 compiles.
 
-2004-09-24 22:15  hkmoffa
+2004-09-24 13:15  hkmoffa
 
 	* config/configure.in: Added USE_CLIB_DLL evaluation.
 
-2004-09-24 22:14  hkmoffa
+2004-09-24 13:14  hkmoffa
 
 	* Cantera/python/Makefile.in: took care of problem with clib.dll
 	  for MSVC6.0
 
-2004-09-20 12:18  dggoodwin
+2004-09-20 03:18  dggoodwin
 
 	* Cantera/src/: EdgeKinetics.cpp, EdgeKinetics.h, ReactionData.h,
 	  importCTML.cpp, converters/ck2ct.cpp: added ability to specify
 	  beta for charge transfer reactions
 
-2004-09-17 00:08  hkmoffa
+2004-09-16 15:08  hkmoffa
 
 	* Makefile.in: Added dll install
 
-2004-09-16 23:43  hkmoffa
+2004-09-16 14:43  hkmoffa
 
 	* test_problems/python/runtest: Fixed an error in the default
 	  specifation of python executable
 
-2004-09-16 19:57  hkmoffa
+2004-09-16 10:57  hkmoffa
 
 	* tools/src/ck2cti.cpp: Added an id string.
 
-2004-09-16 19:52  hkmoffa
+2004-09-16 10:52  hkmoffa
 
 	* test_problems/: diamondSurf/Makefile.in,
 	  silane_equil/Makefile.in, surfkin/Makefile.in: turned off
 	  automatic compilation during make test for windows machines.
 
-2004-09-16 19:51  hkmoffa
+2004-09-16 10:51  hkmoffa
 
 	* test_problems/cxx_ex/: .cvsignore, gri30.xml,
 	  kin1_blessed_win.csv, kin2_blessed_win.csv, runtest, silane.xml:
 	  Made the blessed files machine dependent for this test.
 
-2004-09-16 19:30  hkmoffa
+2004-09-16 10:30  hkmoffa
 
 	* test_problems/ck2cti_test/gri30_tran.dat: Changed a LJ value to
 	  prevent roundoff error from leading to an error failure
 
-2004-09-16 19:13  hkmoffa
+2004-09-16 10:13  hkmoffa
 
 	* test_problems/ck2cti_test/: .cvsignore, runtest.in: Added a step
 	  to change 3 exponent expressions into 2 exponenet expressions.
 
-2004-09-16 19:06  hkmoffa
+2004-09-16 10:06  hkmoffa
 
 	* Cantera/src/converters/ck2ct.cpp: Took out a print statement that
 	  was causing a test to fail.
 
-2004-08-28 18:13  dggoodwin
+2004-08-28 09:13  dggoodwin
 
 	* tools/bin/erase: script to remove a file from the repository
 
-2004-08-28 18:12  dggoodwin
+2004-08-28 09:12  dggoodwin
 
 	* Cantera/src/: ArrayViewer.h, DenseMatrix.cpp, EdgeKinetics.h,
 	  GRI_30_Kinetics.h, GasKineticsWriter.h, InterfaceKinetics.h,
@@ -2917,148 +3594,148 @@
 	  oneD/newton_utils.cpp, zeroD/Reactor.cpp, zeroD/Reservoir.h:
 	  cleanup
 
-2004-08-27 22:37  hkmoffa
+2004-08-27 13:37  hkmoffa
 
 	* .cvsignore: Added 2 files.
 
-2004-08-27 22:35  hkmoffa
+2004-08-27 13:35  hkmoffa
 
 	* bin/.cvsignore: added some windows tmp files
 
-2004-08-27 22:21  hkmoffa
+2004-08-27 13:21  hkmoffa
 
 	* test_problems/python/runtest: Currently, linux and MSVC are
 	  producing the same results on this test problem. I changed
 	  runtest to substitute the right machine dependent blessed file.
 
-2004-08-27 22:08  hkmoffa
+2004-08-27 13:08  hkmoffa
 
 	* tools/testtools/: csvdiff.cpp, mdp_allo.cpp, mdp_allo.h: Changes
 	  to support MSVC
 
-2004-08-27 22:03  hkmoffa
+2004-08-27 13:03  hkmoffa
 
 	* tools/testtools/csvdiff.cpp: Added a getopt() capability for
 	  WINMSC
 
-2004-08-27 18:45  hkmoffa
+2004-08-27 09:45  hkmoffa
 
 	* config/configure.in: Added a default 0 to BUILD_PARTICLES value
 
-2004-08-10 22:39  hkmoffa
+2004-08-10 13:39  hkmoffa
 
 	* test_problems/python/: .cvsignore, flame1_blessed_linux.csv,
 	  runtest: Added a machine dependent blessed file capability
 
-2004-08-10 20:18  hkmoffa
+2004-08-10 11:18  hkmoffa
 
 	* config/configure.in: Added support for the new python_win_prefix
 	  variable.    -> This needs to be backslashed.    -> all other
 	  variables on all other platforms (and on OS_IS_WIN)	    need to
 	  be forward slashed.
 
-2004-08-10 20:16  hkmoffa
+2004-08-10 11:16  hkmoffa
 
 	* Cantera/python/Makefile.in: added python_win_prefix variable.  On
 	  windows this needs to be a backslash, unlike all the other
 	  variables which need to be regular slashes. Therefore, I had to
 	  create a new variable to do this.
 
-2004-08-10 19:28  hkmoffa
+2004-08-10 10:28  hkmoffa
 
 	* config/configure.in: Several changes:    CYGWIN is now undefined,
 	  not just 0	WINMSVC is now undefined, not just 0
 
 	     OS_IS_CYGWIN is now 0 when OS_IS_WIN = 1
 
-2004-08-10 03:31  hkmoffa
+2004-08-09 18:31  hkmoffa
 
 	* .cvsignore: added a dir.
 
-2004-08-10 03:29  hkmoffa
+2004-08-09 18:29  hkmoffa
 
 	* test_problems/python/runtest: Tried to add a default $1, so that
 	  it runs like all the rest.
 
-2004-08-10 03:15  hkmoffa
+2004-08-09 18:15  hkmoffa
 
 	* Cantera/python/.cvsignore: added a file.
 
-2004-08-10 03:12  hkmoffa
+2004-08-09 18:12  hkmoffa
 
 	* tools/src/cti2ctml.cpp: MSVC warning message
 
-2004-08-10 03:11  hkmoffa
+2004-08-09 18:11  hkmoffa
 
 	* examples/cxx/: example_utils.h, examples.cpp: MSVC experienced an
 	  error on this code. fixed it.
 
-2004-08-10 03:09  hkmoffa
+2004-08-09 18:09  hkmoffa
 
 	* config/: .cvsignore, configure.in: arith.h needs to be created
 	  for win
 
-2004-08-10 03:08  hkmoffa
+2004-08-09 18:08  hkmoffa
 
 	* Cantera/python/Makefile.in: clib.dll needs to be copied by hand
 
-2004-08-10 03:06  hkmoffa
+2004-08-09 18:06  hkmoffa
 
 	* test_problems/diamondSurf/: .cvsignore, runtest: MSVC differences
 	  no longer matter.
 
-2004-08-10 03:01  hkmoffa
+2004-08-09 18:01  hkmoffa
 
 	* Cantera/.cvsignore: Added a file.
 
-2004-08-10 03:00  hkmoffa
+2004-08-09 18:00  hkmoffa
 
 	* bin/get_arch: Added cygwin support
 
-2004-08-10 02:23  hkmoffa
+2004-08-09 17:23  hkmoffa
 
 	* ext/f2c_libs/: .cvsignore, arith.hwin32: added a file.
 
-2004-08-10 02:22  hkmoffa
+2004-08-09 17:22  hkmoffa
 
 	* ext/f2c_libs/f2c.h: Added windows specific definition block
 
-2004-08-10 02:20  hkmoffa
+2004-08-09 17:20  hkmoffa
 
 	* ext/f2c_lapack/dlamch.c: Added a stdio.h reference.
 
-2004-08-10 01:58  hkmoffa
+2004-08-09 16:58  hkmoffa
 
 	* test_problems/silane_equil/: .cvsignore, runtest: MSVS
 	  differences are now eliminated via a sed script.
 
-2004-08-10 01:45  hkmoffa
+2004-08-09 16:45  hkmoffa
 
 	* bin/exp3to2.sh: new shell script used for test programs.
 
-2004-08-10 00:21  hkmoffa
+2004-08-09 15:21  hkmoffa
 
 	* test_problems/surfkin/: .cvsignore, runtest: added -w option to
 	  diff, so that dos unix text file differences aren't important.
 
-2004-08-10 00:06  hkmoffa
+2004-08-09 15:06  hkmoffa
 
 	* test_problems/diamondSurf/.cvsignore: Added pc file.
 
-2004-08-09 23:28  hkmoffa
+2004-08-09 14:28  hkmoffa
 
 	* ext/f2c_blas/xerbla.c: added an include
 
-2004-08-09 22:51  hkmoffa
+2004-08-09 13:51  hkmoffa
 
 	* ext/f2c_libs/signal1.h: added this file for convenience
 
-2004-08-09 22:17  hkmoffa
+2004-08-09 13:17  hkmoffa
 
 	* ext/f2c_libs/sysdep1.h: Added this file in. It is recreated
 	  during linux makes, but vc++ makes don't create it.
 
-2004-08-09 19:41  hkmoffa
+2004-08-09 10:41  hkmoffa
 
 	* config/configure.in: Changed cygpath -a -w to cygpath -a -m. This
 	  causes backslashes to be replaced with regular slashes.
@@ -3066,27 +3743,27 @@
 	  are interpreted as escape sequences.	Regular slashes in c++ on
 	  the pc operate just like backslashes in all cases.
 
-2004-08-09 19:38  hkmoffa
+2004-08-09 10:38  hkmoffa
 
 	* Cantera/src/ct2ctml.cpp: Got rid of msvc++ warning message.
 
-2004-08-09 18:54  hkmoffa
+2004-08-09 09:54  hkmoffa
 
 	* Cantera/.cvsignore: added cads
 
-2004-08-09 18:50  hkmoffa
+2004-08-09 09:50  hkmoffa
 
 	* test_problems/surfkin/.cvsignore: Added files
 
-2004-08-09 17:12  hkmoffa
+2004-08-09 08:12  hkmoffa
 
 	* Cantera/python/tutorial/.cvsignore: Changed the name of a file.
 
-2004-08-09 17:11  hkmoffa
+2004-08-09 08:11  hkmoffa
 
 	* Cantera/python/tutorial/.cvsignore: Added a file
 
-2004-08-09 07:10  dggoodwin
+2004-08-08 22:10  dggoodwin
 
 	* Makefile.in, configure, Cantera/fortran/src/Makefile.in,
 	  Cantera/python/setup.py.in, Cantera/src/DenseMatrix.cpp,
@@ -3095,31 +3772,31 @@
 	  Cantera/src/misc.cpp, config/configure, config/configure.in,
 	  ext/math/fdump.f: improvements to the configuration process
 
-2004-08-07 01:09  hkmoffa
+2004-08-06 16:09  hkmoffa
 
 	* test_problems/surfkin/surfdemo.cpp: Added a return statement.
 
-2004-08-07 01:00  hkmoffa
+2004-08-06 16:00  hkmoffa
 
 	* ext/tpx/ck_gas.h: fixed a few vc++ errors.
 
-2004-08-07 00:54  hkmoffa
+2004-08-06 15:54  hkmoffa
 
 	* Cantera/src/ct2ctml.cpp: added some more debugging stuff.
 
-2004-08-07 00:23  hkmoffa
+2004-08-06 15:23  hkmoffa
 
 	* ext/f2c_libs/Makefile.in: Fixed an error on cygwin
 
-2004-08-06 23:56  hkmoffa
+2004-08-06 14:56  hkmoffa
 
 	* ext/math/Makefile.in: Added the all: target.
 
-2004-08-06 23:53  hkmoffa
+2004-08-06 14:53  hkmoffa
 
 	* config/configure.in, configure: Added support for build_with_f2c.
 
-2004-08-06 23:52  hkmoffa
+2004-08-06 14:52  hkmoffa
 
 	* ext/: Makefile.in, blas/Makefile.in, cvode/Makefile.in,
 	  f2c_blas/Makefile.in, f2c_libs/Makefile.in, f2c_math/Makefile.in,
@@ -3127,109 +3804,109 @@
 	  makefiles within the ext directory.  Added support for
 	  build_with_f2c.
 
-2004-08-06 23:50  hkmoffa
+2004-08-06 14:50  hkmoffa
 
 	* ext/recipes/Makefile.in: Added a depends rule
 
-2004-08-06 23:31  hkmoffa
+2004-08-06 14:31  hkmoffa
 
 	* config/.cvsignore: Added a dir.
 
-2004-08-06 23:29  hkmoffa
+2004-08-06 14:29  hkmoffa
 
 	* examples/cxx/.cvsignore: Added more files.
 
-2004-08-06 23:05  hkmoffa
+2004-08-06 14:05  hkmoffa
 
 	* tools/templates/f90/.cvsignore: Started this file.
 
-2004-08-06 23:03  dggoodwin
+2004-08-06 14:03  dggoodwin
 
 	* Makefile.in: fixed Fortran module install bug
 
-2004-08-06 23:01  hkmoffa
+2004-08-06 14:01  hkmoffa
 
 	* Cantera/python/examples/.cvsignore: Added this file.
 
-2004-08-06 23:00  hkmoffa
+2004-08-06 14:00  hkmoffa
 
 	* examples/cxx/.cvsignore: Added 3 files.
 
-2004-08-06 22:58  hkmoffa
+2004-08-06 13:58  hkmoffa
 
 	* apps/MixMaster/: .cvsignore, Units/.cvsignore: Added *.pyc rule
 	  to .cvsignore
 
-2004-08-06 22:56  hkmoffa
+2004-08-06 13:56  hkmoffa
 
 	* Cantera/user/.cvsignore: Added Makefile.
 
-2004-08-06 22:55  hkmoffa
+2004-08-06 13:55  hkmoffa
 
 	* Cantera/fortran/src/Makefile.in: Changed the suffix rule format.
 
-2004-08-06 22:51  hkmoffa
+2004-08-06 13:51  hkmoffa
 
 	* Cantera/src/: ct2ctml.cpp, misc.cpp: Added the "sleep" system
 	  command buf fix for the cygwin environment.  Added debugging
 	  printouts for the DEFINE DEBUG_PATH.
 
-2004-08-06 22:31  hkmoffa
+2004-08-06 13:31  hkmoffa
 
 	* Cantera/src/Makefile.in: Added a commented out capability to turn
 	  on DEBUG_PATHS, which is used to debug IO data issues.
 
-2004-08-06 22:29  hkmoffa
+2004-08-06 13:29  hkmoffa
 
 	* config.h.in: Added 2 defs:	CYGWIN	  WINMSVC to indicate
 	  environments. Used to support putting in sleep commands into
 	  ct2ctml.
 
-2004-08-06 22:26  hkmoffa
+2004-08-06 13:26  hkmoffa
 
 	* test_problems/: cxx_ex/.cvsignore, surfkin/.cvsignore,
 	  surfkin/surfdemo.cpp: Changed required file from gri30.xml to
 	  gri30.cti.
 
-2004-08-06 22:25  hkmoffa
+2004-08-06 13:25  hkmoffa
 
 	* test_problems/python/.cvsignore: Added a file.
 
-2004-08-06 22:22  hkmoffa
+2004-08-06 13:22  hkmoffa
 
 	* config/configure.in: Added a check to see if the fortran 90
 	  compiler is available.  Added a few defines to config.h. This is
 	  needed to implement the fix to the directory sync problem I found
 	  on cygwin.
 
-2004-08-06 17:45  hkmoffa
+2004-08-06 08:45  hkmoffa
 
 	* Cantera/src/Makefile.in: Fixed the format of the SUFFIX makefile
 	  command.
 
-2004-08-05 23:32  hkmoffa
+2004-08-05 14:32  hkmoffa
 
 	* bin/get_arch: Simple shell script to return the architecture. It
 	  is to be used on test problems which produce slightly different
 	  results on different platforms.
 
-2004-08-05 21:25  hkmoffa
+2004-08-05 12:25  hkmoffa
 
 	* ext/cvode/source/nvector.c: Added brackets.
 
-2004-08-05 21:23  hkmoffa
+2004-08-05 12:23  hkmoffa
 
 	* ext/math/Makefile.in: Fixed the SUFFIX object
 
-2004-08-05 21:22  hkmoffa
+2004-08-05 12:22  hkmoffa
 
 	* ext/math/mach.cpp: Added a _i1mach_ target
 
-2004-08-05 21:16  hkmoffa
+2004-08-05 12:16  hkmoffa
 
 	* ext/f2c_blas/Makefile.in: Slight change
 
-2004-08-05 21:15  hkmoffa
+2004-08-05 12:15  hkmoffa
 
 	* ext/f2c_math/: .cvsignore, Makefile.in, cblas.h, daux.c,
 	  ddaspk.c, dgbefa.c, dgbsl.c, dgefa.c, dgesl.c, dp1vlu.c,
@@ -3238,11 +3915,11 @@
 	  xerhlt.c, xermsg.c, xerprn.c, xersve.c, xgetua.c: First commit of
 	  this directory
 
-2004-08-05 19:51  hkmoffa
+2004-08-05 10:51  hkmoffa
 
 	* ext/f2c_blas/blaswrap.h: Added a file.
 
-2004-08-05 19:49  hkmoffa
+2004-08-05 10:49  hkmoffa
 
 	* ext/f2c_blas/: .cvsignore, Makefile.in, dasum.c, daxpy.c,
 	  dcabs1.c, dcopy.c, ddot.c, dgbmv.c, dgemm.c, dgemv.c, dger.c,
@@ -3253,7 +3930,7 @@
 	  idamax.c, isamax.c, lsame.c, xerbla.c: First commit for this
 	  directory
 
-2004-08-05 19:24  hkmoffa
+2004-08-05 10:24  hkmoffa
 
 	* ext/f2c_lapack/: .cvsignore, Makefile.in, blaswrap.h, dbdsqr.c,
 	  dgbrfs.c, dgbsv.c, dgbsvx.c, dgbtf2.c, dgbtrf.c, dgbtrs.c,
@@ -3269,20 +3946,20 @@
 	  dtrtri.c, ieeeck.c, ilaenv.c, lsame.c: First commit of this
 	  directory
 
-2004-08-05 19:04  dggoodwin
+2004-08-05 10:04  dggoodwin
 
 	* Cantera/fortran/src/cantera_funcs.f90,
 	  Cantera/fortran/src/fct.cpp, tools/templates/f90/demo.f90: minor
 	  changes to fortran files
 
-2004-08-05 18:42  dggoodwin
+2004-08-05 09:42  dggoodwin
 
 	* configure, Cantera/matlab/setup_winmatlab.py,
 	  Cantera/src/SpeciesThermoFactory.cpp,
 	  Cantera/src/oneD/StFlow.cpp, Cantera/src/oneD/StFlow.h,
 	  config/configure, config/configure.in: minor cleanup
 
-2004-08-05 02:18  hkmoffa
+2004-08-04 17:18  hkmoffa
 
 	* ext/f2c_libs/: .cvsignore, Makefile.in, abort_.c, arithchk.c,
 	  backspac.c, c_abs.c, c_cos.c, c_div.c, c_exp.c, c_log.c, c_sin.c,
@@ -3313,45 +3990,45 @@
 	  z_exp.c, z_log.c, z_sin.c, z_sqrt.c: First commit of f2c library
 	  directory
 
-2004-08-05 01:57  hkmoffa
+2004-08-04 16:57  hkmoffa
 
 	* ext/f2c_recipes/: .cvsignore, Makefile.in, simp1.c, simp2.c,
 	  simp3.c, simplx.c, splie2.c, splin2.c, spline.c, splint.c:
 	  Initial commit of this directory. -> f2c option
 
-2004-08-04 13:21  dggoodwin
+2004-08-04 04:21  dggoodwin
 
 	* Cantera/fortran/src/: cantera_xml.f90, fctxml_interface.f90,
 	  genf.py: XML module
 
-2004-08-03 22:49  hkmoffa
+2004-08-03 13:49  hkmoffa
 
 	* bin/rm_cvsignore: Added runtest to the list of files not to
 	  whack.
 
-2004-08-03 22:21  hkmoffa
+2004-08-03 13:21  hkmoffa
 
 	* test_problems/Makefile.in: Added endif's. This was causing an
 	  error exit.
 
-2004-08-03 18:32  dggoodwin
+2004-08-03 09:32  dggoodwin
 
 	* test_problems/silane_equil/output_blessed.txt: updated blessed
 	  file due to change in warning output format
 
-2004-08-03 18:15  dggoodwin
+2004-08-03 09:15  dggoodwin
 
 	* test_problems/: Makefile.in, python/.cvsignore,
 	  python/Makefile.in, python/diamond_blessed.csv,
 	  python/flame1_blessed.csv, python/runtest: added Python test
 	  problems
 
-2004-08-03 17:18  dggoodwin
+2004-08-03 08:18  dggoodwin
 
 	* Cantera/python/Cantera/OneD/BurnerDiffFlame.py: burner-stabilized
 	  flame with reservoir outlet condition
 
-2004-08-03 13:16  dggoodwin
+2004-08-03 04:16  dggoodwin
 
 	* Makefile.in, configure, Cantera/cxx/src/writelog.cpp,
 	  Cantera/matlab/cantera/ck2cti.m,
@@ -3359,12 +4036,12 @@
 	  Cantera/python/src/writelog.cpp, Cantera/src/global.h,
 	  config/configure, config/configure.in: cleanup
 
-2004-08-03 12:36  dggoodwin
+2004-08-03 03:36  dggoodwin
 
 	* Cantera/src/: IdealGasThermo.cpp, ImplicitChem.cpp, Makefile.in,
 	  SolidCompound.cpp, importSurfChem.cpp, surfKinetics.cpp: cleanup
 
-2004-08-03 11:09  dggoodwin
+2004-08-03 02:09  dggoodwin
 
 	* Cantera/src/: Constituents.cpp, DenseMatrix.h, EOS_TPX.h,
 	  EdgePhase.h, GRI30.h, IdealGasThermo.h, InterfaceKinetics.cpp,
@@ -3374,42 +4051,42 @@
 	  StoichManager.h, exceptions.h, fitPoly.h, pureSubstances.h,
 	  surfKinetics.h, transportModels.h, xml.cpp: removed unused files
 
-2004-08-01 23:33  dggoodwin
+2004-08-01 14:33  dggoodwin
 
 	* Cantera/fortran/src/fctxml.cpp: initial import
 
-2004-08-01 18:43  dggoodwin
+2004-08-01 09:43  dggoodwin
 
 	* Cantera/matlab/cantera/@ThermoPhase/speciesIndex.m: added support
 	  for cell arrays of species names
 
-2004-08-01 18:43  dggoodwin
+2004-08-01 09:43  dggoodwin
 
 	* Cantera/matlab/cantera/@ThermoPhase/elementIndex.m: added support
 	  for cell arrays of element names
 
-2004-07-30 14:26  dggoodwin
+2004-07-30 05:26  dggoodwin
 
 	* Cantera/matlab/cantera/@ThermoPhase/elementName.m: fixed bug
 
-2004-07-30 00:31  dggoodwin
+2004-07-29 15:31  dggoodwin
 
 	* Cantera/src/: RateCoeffMgr.h, RxnRates.h, reaction_defs.h,
 	  oneD/boundaries1D.cpp, zeroD/ReactorNet.cpp: added ArrheniusSum
 	  class
 
-2004-07-30 00:22  dggoodwin
+2004-07-29 15:22  dggoodwin
 
 	* Cantera/python/src/: ctreactor_methods.cpp, methods.h: removed
 	  time() methods for class Reactor and added them to class
 	  ReactorNet
 
-2004-07-30 00:21  dggoodwin
+2004-07-29 15:21  dggoodwin
 
 	* Cantera/python/Cantera/Reactor.py: removed method Reactor.time(),
 	  and added ReactorNet.time()
 
-2004-07-30 00:14  hkmoffa
+2004-07-29 15:14  hkmoffa
 
 	* test_problems/: Makefile.in, ck2cti_test/Makefile.in,
 	  cxx_ex/Makefile.in, cxx_ex/gri30.xml, diamondSurf/Makefile.in,
@@ -3417,41 +4094,41 @@
 	  silane_equil/silane_equil.cpp, surfkin/Makefile.in: Added depends
 	  target to makefiles
 
-2004-07-29 23:43  hkmoffa
+2004-07-29 14:43  hkmoffa
 
 	* test_problems/diamondSurf/: .cvsignore, Makefile.in: Added a
 	  depends target
 
-2004-07-29 01:44  hkmoffa
+2004-07-28 16:44  hkmoffa
 
 	* config/configure.in: Added support for ck2cti_test
 
-2004-07-29 01:40  hkmoffa
+2004-07-28 16:40  hkmoffa
 
 	* test_problems/ck2cti_test/: .cvsignore, Makefile.in, gri30.inp,
 	  gri30_tran.dat, gri30a_blessed.cti, runtest.in: Adding another
 	  test to cover ck parser
 
-2004-07-29 01:36  hkmoffa
+2004-07-28 16:36  hkmoffa
 
 	* test_problems/surfkin/: .cvsignore, Makefile.in: Added a depends
 	  capability
 
-2004-07-27 01:12  dggoodwin
+2004-07-26 16:12  dggoodwin
 
 	* Cantera/python/src/methods.h: removed unused bndry functions
 
-2004-07-26 17:58  hkmoffa
+2004-07-26 08:58  hkmoffa
 
 	* Cantera/src/: NasaThermo.h, ShomateThermo.h: Removed the at()
 	  function for vectors. gcc v2.95 does not support this function.
 
-2004-07-21 22:41  hkmoffa
+2004-07-21 13:41  hkmoffa
 
 	* Cantera/src/: ThermoFactory.h, misc.cpp: Took the deletion of a
 	  static pointer out of destructor.
 
-2004-07-17 02:18  hkmoffa
+2004-07-16 17:18  hkmoffa
 
 	* Cantera/src/: ConstDensityThermo.h, NasaPoly1.h, NasaThermo.h,
 	  PolyThermoMgr.h, ShomatePoly.h, ShomateThermo.h, SimpleThermo.h,
@@ -3468,206 +4145,206 @@
 	   objects that they referred to changed during vector resizing
 	  operations.
 
-2004-07-12 16:58  hkmoffa
+2004-07-12 07:58  hkmoffa
 
 	* Cantera/clib/src/: ct.cpp, ctonedim.cpp: static_cast to eliminate
 	  warnings from msvc.
 
-2004-07-12 16:57  hkmoffa
+2004-07-12 07:57  hkmoffa
 
 	* Cantera/clib/src/Storage.cpp: Static casts to eliminates warnings
 	  from msvc
 
-2004-07-12 16:57  hkmoffa
+2004-07-12 07:57  hkmoffa
 
 	* Cantera/clib/src/Cabinet.h: Static_casts to eliminate warnings
 	  from msvc.
 
-2004-07-08 22:32  hkmoffa
+2004-07-08 13:32  hkmoffa
 
 	* Cantera/src/StoichSubstance.cpp: Fixed an error that was making
 	  the diamond test problem fail.
 
-2004-07-08 22:32  hkmoffa
+2004-07-08 13:32  hkmoffa
 
 	* test_problems/diamondSurf/diamond_blessed.xml: Updated file so
 	  test would pass
 
-2004-07-08 22:14  hkmoffa
+2004-07-08 13:14  hkmoffa
 
 	* test_problems/silane_equil/output_blessed.txt: Updated blessed
 	  file.
 
-2004-07-08 20:14  hkmoffa
+2004-07-08 11:14  hkmoffa
 
 	* Cantera/src/: InterfaceKinetics.cpp, InterfaceKinetics.h: Added
 	  more comments. -> only formatting.
 
-2004-07-08 20:12  hkmoffa
+2004-07-08 11:12  hkmoffa
 
 	* Cantera/src/Group.cpp: only formatting.
 
-2004-07-08 20:11  hkmoffa
+2004-07-08 11:11  hkmoffa
 
 	* Cantera/src/units.h: Fixed an error that I recently introduced in
 	  using size_types.
 
-2004-07-08 20:10  hkmoffa
+2004-07-08 11:10  hkmoffa
 
 	* Cantera/src/ctml.cpp: Fixed errors that I recently introduced in
 	  using size_types.
 
-2004-07-08 20:09  hkmoffa
+2004-07-08 11:09  hkmoffa
 
 	* Cantera/src/misc.cpp: Fixed an error that I recently introduced
 	  in using size_types
 
-2004-07-08 20:07  hkmoffa
+2004-07-08 11:07  hkmoffa
 
 	* Cantera/src/stringUtils.cpp: Fixed an error that I recently
 	  introduced in using size_types.
 
-2004-07-08 20:03  hkmoffa
+2004-07-08 11:03  hkmoffa
 
 	* Cantera/src/GasKinetics.h: Added more initializations
 
-2004-07-08 18:08  hkmoffa
+2004-07-08 09:08  hkmoffa
 
 	* Cantera/src/misc.cpp: Fixed an error that I introduced. Must
 	  always check string::size_type against string::npos.
 
-2004-07-02 19:34  hkmoffa
+2004-07-02 10:34  hkmoffa
 
 	* Cantera/src/converters/CKParser.cpp: Eliminated warnings due to
 	  signed and unsigned comparisons.
 
-2004-07-02 19:28  hkmoffa
+2004-07-02 10:28  hkmoffa
 
 	* Cantera/src/converters/CKReader.cpp: static_cast to eliminate
 	  VC++ warnings.
 
-2004-07-02 19:27  hkmoffa
+2004-07-02 10:27  hkmoffa
 
 	* Cantera/src/converters/CKParser.cpp: static_casts to eliminate
 	  VC++ warnings.
 
-2004-07-02 19:25  hkmoffa
+2004-07-02 10:25  hkmoffa
 
 	* Cantera/src/converters/ck2ct.cpp: fixed file names for include
 	  files.  static_cast to eliminate VC++ warnigns.
 
-2004-07-02 19:24  hkmoffa
+2004-07-02 10:24  hkmoffa
 
 	* Cantera/src/converters/ckr_utils.cpp: static_cast to eliminate
 	  VC++ warnings.
 
-2004-07-02 19:23  hkmoffa
+2004-07-02 10:23  hkmoffa
 
 	* Cantera/src/converters/ckr_defs.h: Corrected file locations for
 	  include files.
 
-2004-07-02 19:21  hkmoffa
+2004-07-02 10:21  hkmoffa
 
 	* Cantera/src/converters/: writelog.cpp, filter.cpp, Reaction.cpp:
 	  static_cast to eliminate VC++ warnings.
 
-2004-07-02 19:20  hkmoffa
+2004-07-02 10:20  hkmoffa
 
 	* Cantera/src/converters/ck2ctml.cpp: Corrected file locations of
 	  include files.  static_cast to eliminate VC++ warnings.
 
-2004-07-02 19:19  hkmoffa
+2004-07-02 10:19  hkmoffa
 
 	* Cantera/src/converters/ck2ctml.h: Corrected file locations of
 	  include files.
 
-2004-07-02 18:48  hkmoffa
+2004-07-02 09:48  hkmoffa
 
 	* Cantera/src/converters/: CKParser.cpp, CKParser.h: Moved
 	  CK_SyntaxError definition to the .h file. It's used in more than
 	  one .cpp file.
 
-2004-07-02 18:47  hkmoffa
+2004-07-02 09:47  hkmoffa
 
 	* Cantera/src/converters/filter.cpp: split long lines.
 
-2004-07-02 18:14  hkmoffa
+2004-07-02 09:14  hkmoffa
 
 	* Cantera/src/zeroD/FlowDevice.cpp: Corrected file location of
 	  include file.
 
-2004-07-02 18:13  hkmoffa
+2004-07-02 09:13  hkmoffa
 
 	* Cantera/src/zeroD/ReactorBase.cpp: static_cast to eliminate VC++
 	  warnings.
 
-2004-07-02 18:12  hkmoffa
+2004-07-02 09:12  hkmoffa
 
 	* Cantera/src/zeroD/Wall.cpp: Correct file location of include
 	  file.
 
-2004-07-02 18:05  hkmoffa
+2004-07-02 09:05  hkmoffa
 
 	* Cantera/src/transport/TransportFactory.cpp: Corrected file
 	  locations of include files.  static_cast to eliminate VC++
 	  warnings.
 
-2004-07-02 18:04  hkmoffa
+2004-07-02 09:04  hkmoffa
 
 	* Cantera/src/transport/MultiTransport.cpp: static_cast to
 	  eliminate VC++ warnings.
 
-2004-07-02 18:02  hkmoffa
+2004-07-02 09:02  hkmoffa
 
 	* Cantera/src/transport/MMCollisionInt.cpp: commented out a
 	  variable that wasn't used.
 
-2004-07-02 18:01  hkmoffa
+2004-07-02 09:01  hkmoffa
 
 	* Cantera/src/transport/: L_matrix.h, MixTransport.cpp: Corrected
 	  the file location of include files.
 
-2004-07-02 17:59  hkmoffa
+2004-07-02 08:59  hkmoffa
 
 	* Cantera/src/transport/: TransportParams.h, SolidTransport.cpp:
 	  Corrected the file locations of include files.
 
-2004-07-02 17:29  hkmoffa
+2004-07-02 08:29  hkmoffa
 
 	* Cantera/src/oneD/MultiNewton.cpp: static_cast to eliminate VC++
 	  warnings.
 
-2004-07-02 17:27  hkmoffa
+2004-07-02 08:27  hkmoffa
 
 	* Cantera/src/oneD/OneDim.cpp: Static_cast to eliminate VC++
 	  warnings.
 
-2004-07-02 17:26  hkmoffa
+2004-07-02 08:26  hkmoffa
 
 	* Cantera/src/oneD/: Sim1D.cpp, StFlow.cpp: static_cast to
 	  eliminate VC++ warnings.
 
-2004-07-02 17:23  hkmoffa
+2004-07-02 08:23  hkmoffa
 
 	* Cantera/src/oneD/refine.cpp: Static_cast to eliminate VC++
 	  warnings.
 
-2004-07-02 17:21  hkmoffa
+2004-07-02 08:21  hkmoffa
 
 	* Cantera/src/oneD/refine.h: static_cast to eliminate warning in
 	  VC++
 
-2004-07-02 17:20  hkmoffa
+2004-07-02 08:20  hkmoffa
 
 	* Cantera/src/oneD/Solid1D.cpp: Fixed one Error in file not part of
 	  the distribution
 
-2004-07-02 17:19  hkmoffa
+2004-07-02 08:19  hkmoffa
 
 	* Cantera/src/oneD/Solid1D.h: Fixed one error in a file not yet
 	  part of distribution.
 
-2004-07-02 16:58  hkmoffa
+2004-07-02 07:58  hkmoffa
 
 	* Cantera/src/DASPK.cpp: Fixed an error in a calling routine.
 
@@ -3676,148 +4353,148 @@
 	  of a single integer. Basically, you have to cast first to the
 	  longer variable, before assigning.
 
-2004-07-02 16:48  hkmoffa
+2004-07-02 07:48  hkmoffa
 
 	* Cantera/src/SpeciesThermoFactory.cpp: static_cast to eliminate
 	  VC++ warnings.
 
-2004-07-02 16:47  hkmoffa
+2004-07-02 07:47  hkmoffa
 
 	* Cantera/src/misc.cpp: static_cast and size_type to eliminate VC++
 	  warnings.
 
-2004-07-02 16:46  hkmoffa
+2004-07-02 07:46  hkmoffa
 
 	* Cantera/src/importCTML.cpp: static_cast to eliminate VC++ warning
 	  messages.
 
-2004-07-02 16:45  hkmoffa
+2004-07-02 07:45  hkmoffa
 
 	* Cantera/src/ImplicitSurfChem.cpp: static_cast to eliminate VC++
 	  warning message.
 
-2004-07-02 16:44  hkmoffa
+2004-07-02 07:44  hkmoffa
 
 	* Cantera/src/ImplicitChem.h: Changed the name of a routine, to get
 	  it to compile. However, I don't think this is part of the
 	  distribution.
 
-2004-07-02 16:43  hkmoffa
+2004-07-02 07:43  hkmoffa
 
 	* Cantera/src/surfKinetics.h: changed the name of an include file.
 	  however, I think this is no longer part of the distribution.
 
-2004-07-02 16:42  hkmoffa
+2004-07-02 07:42  hkmoffa
 
 	* Cantera/src/ReactionPath.cpp: static_cast to eliminate warning
 	  messages.
 
-2004-07-02 16:41  hkmoffa
+2004-07-02 07:41  hkmoffa
 
 	* Cantera/src/ctml.cpp: static cast and size_type to eliminate VC++
 	  warning messages.
 
-2004-07-02 16:39  hkmoffa
+2004-07-02 07:39  hkmoffa
 
 	* Cantera/src/: stringUtils.cpp, ReactionPath.h: static_cast to
 	  eliminate VC++ warning messages.
 
-2004-07-02 01:58  hkmoffa
+2004-07-01 16:58  hkmoffa
 
 	* Cantera/src/GasKinetics.cpp: static_cast to eliminate VC++
 	  warnings.
 
-2004-07-02 01:54  hkmoffa
+2004-07-01 16:54  hkmoffa
 
 	* Cantera/src/: ArrayViewer.h, Kinetics.h: static_cast to eliminate
 	  VC++ warnings.
 
-2004-07-02 01:50  hkmoffa
+2004-07-01 16:50  hkmoffa
 
 	* Cantera/src/StoichManager.h: static_cast to eliminate VC++
 	  warnings.
 
-2004-07-02 01:47  hkmoffa
+2004-07-01 16:47  hkmoffa
 
 	* Cantera/src/: NasaThermo.h, ShomateThermo.h, RateCoeffMgr.h,
 	  ThirdBodyMgr.h: static_cast to eliminate VC++ warnings.
 
-2004-07-02 01:46  hkmoffa
+2004-07-01 16:46  hkmoffa
 
 	* Cantera/src/plots.cpp: static_casts to eliminate VC++ warnings.
 
-2004-07-02 01:46  hkmoffa
+2004-07-01 16:46  hkmoffa
 
 	* Cantera/src/units.h: small changes to eliminate VC++ warnings.
 
-2004-07-02 01:40  hkmoffa
+2004-07-01 16:40  hkmoffa
 
 	* Cantera/src/DenseMatrix.cpp: static_cast to eliminate VC++
 	  warnings
 
-2004-07-02 01:35  hkmoffa
+2004-07-01 16:35  hkmoffa
 
 	* Cantera/src/: Group.cpp, Group.h: Fixed an error that turned up
 	  in VC++.  I think the problem was that VC++ didn't allow friend
 	  functions to be defined in the body of declarations in .h files.
 
-2004-07-02 01:26  hkmoffa
+2004-07-01 16:26  hkmoffa
 
 	* Cantera/src/Elements.cpp: static cast added to avoid VC++
 	  compiler warning.
 
-2004-07-02 01:25  hkmoffa
+2004-07-01 16:25  hkmoffa
 
 	* Cantera/src/Array.h: static_cast added to avoid VC++ compiler
 	  issues.
 
-2004-07-02 01:22  hkmoffa
+2004-07-01 16:22  hkmoffa
 
 	* Cantera/src/xml.cpp: VC++ warnings were taken out
 
-2004-07-02 01:12  hkmoffa
+2004-07-01 16:12  hkmoffa
 
 	* Cantera/src/xml.h: Added static_cast to remove VC++ compiler
 	  warning.
 
-2004-07-01 00:30  hkmoffa
+2004-06-30 15:30  hkmoffa
 
 	* Cantera/src/ImplicitChem.cpp: Fixed an error with a calling
 	  statement.
 
-2004-06-30 23:08  hkmoffa
+2004-06-30 14:08  hkmoffa
 
 	* Cantera/src/ResidEval.h: Fixed a compiler error that showed up
 	  VC++
 
-2004-06-29 01:51  hkmoffa
+2004-06-28 16:51  hkmoffa
 
 	* Cantera/src/Phase.h: Set m_xml to zero after deletion.
 
-2004-06-29 01:49  hkmoffa
+2004-06-28 16:49  hkmoffa
 
 	* Cantera/src/importCTML.h: Added the installSpecies() declaration
 	  back in. This is needed for the particle species thermo object.
 	  It's in the cpp file, but just not declared here.
 
-2004-06-29 01:47  hkmoffa
+2004-06-28 16:47  hkmoffa
 
 	* Cantera/src/SpeciesThermoFactory.cpp: Added a few throw
 	  statements that was missing.	Added a throw UnknownSpeciesThermo
 	  statement for cases where the complete thermo block is missing.
 	  This is necessary for particle species object to function.
 
-2004-06-17 19:49  dggoodwin
+2004-06-17 10:49  dggoodwin
 
 	* Cantera/src/PureFluidPhase.cpp: initial import
 
-2004-06-16 23:55  dggoodwin
+2004-06-16 14:55  dggoodwin
 
 	* Cantera/src/GasKinetics.cpp: changed call to
 	  ReactionStoichMgr::add so that non-integral reaction orders are
 	  correctly processed.
 
-2004-06-09 02:59  dggoodwin
+2004-06-08 17:59  dggoodwin
 
 	* Cantera/src/: ConstDensityThermo.cpp, ConstDensityThermo.h,
 	  Constituents.cpp, Constituents.h, EdgePhase.h, Elements.h,
@@ -3828,12 +4505,12 @@
 	  zeroD/Wall.h: moved functions to read XML input files out of
 	  importCTML.cpp and into specific classes
 
-2004-06-07 00:02  dggoodwin
+2004-06-06 15:02  dggoodwin
 
 	* Cantera/src/Elements.cpp: moved reading of xml element data to
 	  Elements.cpp
 
-2004-06-04 07:19  dggoodwin
+2004-06-03 22:19  dggoodwin
 
 	* Makefile.in, configure, Cantera/matlab/setup_winmatlab.py,
 	  Cantera/python/Cantera/DustyGasTransport.py,
@@ -3849,35 +4526,35 @@
 	  test_problems/cxx_ex/gri30.xml, test_problems/cxx_ex/silane.xml:
 	  added comments
 
-2004-06-03 06:01  dggoodwin
+2004-06-02 21:01  dggoodwin
 
 	* Cantera/python/Cantera/importFromFile.py: added comments
 
-2004-06-03 05:44  dggoodwin
+2004-06-02 20:44  dggoodwin
 
 	* Cantera/python/Cantera/Interface.py: added comments
 
-2004-06-02 14:57  dggoodwin
+2004-06-02 05:57  dggoodwin
 
 	* Cantera/python/: Cantera/Func.py, Cantera/Phase.py,
 	  Cantera/ThermoPhase.py, examples/reactor1.py,
 	  examples/reactor2.py: minor cleanup
 
-2004-06-02 06:39  dggoodwin
+2004-06-01 21:39  dggoodwin
 
 	* Cantera/python/: Makefile.in, ctml_writer.py, setup.py.in: moved
 	  ctml_writer.py out of Cantera package
 
-2004-05-30 06:04  dggoodwin
+2004-05-29 21:04  dggoodwin
 
 	* Cantera/src/oneD/: Sim1D.cpp, refine.cpp: fixed problem with
 	  continuing beyond max number of points
 
-2004-05-30 06:02  dggoodwin
+2004-05-29 21:02  dggoodwin
 
 	* Cantera/python/Cantera/ctml_writer.py: converted to pure python
 
-2004-05-24 02:08  dggoodwin
+2004-05-23 17:08  dggoodwin
 
 	* Cantera/matlab/cantera/: @Reactor/private/reactormethods.cpp,
 	  @Transport/private/newTransport.cpp,
@@ -3885,68 +4562,68 @@
 	  @Wall/private/wallmethods.cpp, @XML_Node/private/newxml.cpp,
 	  @XML_Node/private/xmlmethods.cpp: removed unused files
 
-2004-05-24 02:05  dggoodwin
+2004-05-23 17:05  dggoodwin
 
 	* Cantera/matlab/cantera/@Kinetics/private/: delkinetics.cpp,
 	  isrev.cpp, kin_get.cpp, kin_set.cpp, newkinetics.cpp,
 	  production.cpp, pstoich.cpp, rop.cpp, rstoich.cpp, rxnstring.cpp:
 	  removed unused files
 
-2004-05-22 05:52  dggoodwin
+2004-05-21 20:52  dggoodwin
 
 	* Cantera/python/tutorial/: tut2.py, tut3.py, tut4.py: updated
 	  tutorials
 
-2004-05-21 20:09  dggoodwin
+2004-05-21 11:09  dggoodwin
 
 	* Cantera/src/transport/MMCollisionInt.cpp: fixed bug in which
 	  upper T* limit was incorrect in fits if T*max > 100, as with
 	  helium.
 
-2004-05-18 01:22  dggoodwin
+2004-05-17 16:22  dggoodwin
 
 	* config/configure.in: added test for sstream
 
-2004-05-18 00:59  dggoodwin
+2004-05-17 15:59  dggoodwin
 
 	* Cantera/matlab/cantera/@ReactorNet/: addReactor.m, atol.m,
 	  rtol.m, setInitialTime.m, setMaxTimeStep.m, setTolerances.m,
 	  time.m: initial import
 
-2004-05-17 18:23  dggoodwin
+2004-05-17 09:23  dggoodwin
 
 	* test_problems/cxx_ex/: kin1_blessed.csv, kin2_blessed.csv:
 	  reverted to previus version due to error in last versions
 
-2004-05-16 15:54  dggoodwin
+2004-05-16 06:54  dggoodwin
 
 	* Cantera/src/: CVode.cpp, CVode.h, Integrator.h: changed
 	  setMaxStep to setMaxStepSize, setMinStep to setMinStepSize, and
 	  added setMaxSteps to set the maximum number of steps that will be
 	  taken.
 
-2004-05-15 05:19  dggoodwin
+2004-05-14 20:19  dggoodwin
 
 	* Cantera/python/examples/critProperties.py: added example of
 	  computing critical-state properties
 
-2004-05-14 23:15  dggoodwin
+2004-05-14 14:15  dggoodwin
 
 	* Cantera/src/transport/: MultiTransport.h, MultiTransport.cpp:
 	  added ability to compute mixture-averaged diffusion coefficients
 	  in class MultiTransport.
 
-2004-05-13 19:52  dggoodwin
+2004-05-13 10:52  dggoodwin
 
 	* ChangeLog: log file generated from CVS log output by perl script
 	  cvs2cl.pl
 
-2004-05-13 19:45  dggoodwin
+2004-05-13 10:45  dggoodwin
 
 	* Cantera/src/converters/CKParser.cpp: fixed bug in which a species
 	  name beginning with M was interpreted as a third body
 
-2004-04-24 17:44  dggoodwin
+2004-04-24 08:44  dggoodwin
 
 	* configure, Cantera/matlab/setup_winmatlab.py,
 	  Cantera/python/Cantera/Func.py,
@@ -3961,114 +4638,114 @@
 	  Cantera/python/examples/reactor2.py, data/inputs/diamond.cti:
 	  updated examples
 
-2004-04-24 14:55  dggoodwin
+2004-04-24 05:55  dggoodwin
 
 	* Cantera/matlab/cantera/: @ReactorNet/ReactorNet.m,
 	  @ReactorNet/advance.m, @ReactorNet/reactornet_hndl.m,
 	  @ReactorNet/step.m, @ReactorNet/private/reactornetmethods.m,
 	  private/reactornetmethods.cpp: initial import
 
-2004-04-24 14:50  dggoodwin
+2004-04-24 05:50  dggoodwin
 
 	* test_problems/: cxx_ex/kin1_blessed.csv, cxx_ex/kin2_blessed.csv,
 	  silane_equil/output_blessed.txt: updated blessed files due to
 	  slight change in how Nasa polynomial thermo properties computed
 
-2004-04-23 23:02  hkmoffa
+2004-04-23 14:02  hkmoffa
 
 	* Cantera/src/surfKinetics.cpp: Call to the baseclass init()
 	  function from init()
 
-2004-04-23 22:37  hkmoffa
+2004-04-23 13:37  hkmoffa
 
 	* Cantera/src/GasKinetics.cpp: Cosmetic -> changed args to fall
 	  after (
 
-2004-04-23 22:36  hkmoffa
+2004-04-23 13:36  hkmoffa
 
 	* Cantera/src/PureFluidPhase.h: Added a header.
 
-2004-04-23 21:55  hkmoffa
+2004-04-23 12:55  hkmoffa
 
 	* Cantera/src/: importCTML.cpp, importCTML.h: Made
 	  checkRxnElementBalance global scoped, so that it could be used in
 	  cads package.
 
-2004-04-23 21:05  hkmoffa
+2004-04-23 12:05  hkmoffa
 
 	* Cantera/src/importCTML.cpp: Strictly formatting-   broke up long
 	  lines   added a few comments.
 
-2004-04-23 21:03  hkmoffa
+2004-04-23 12:03  hkmoffa
 
 	* Cantera/src/importCTML.h: Added prototypes for 2 functions.
 
-2004-04-23 19:35  hkmoffa
+2004-04-23 10:35  hkmoffa
 
 	* Cantera/fortran/src/Makefile.in: Changed libfct.a.a to libfct.a
 
-2004-04-23 19:17  hkmoffa
+2004-04-23 10:17  hkmoffa
 
 	* Cantera/fortran/f77demos/.cvsignore: Added 2 generated files.
 
-2004-04-23 19:13  hkmoffa
+2004-04-23 10:13  hkmoffa
 
 	* Cantera/fortran/src/fct.cpp: Changed a getMassFractions() call
 	  from 2 args to 1 arg. The old method had been taken out of
 	  State.h. And, this file had not been subsequently updated.
 
-2004-04-23 18:42  hkmoffa
+2004-04-23 09:42  hkmoffa
 
 	* Cantera/matlab/.cvsignore: Added setup_matlab.py, this is a
 	  generated file.
 
-2004-04-23 18:41  hkmoffa
+2004-04-23 09:41  hkmoffa
 
 	* Cantera/src/.cvsignore: Added config.h
 
-2004-04-23 18:34  dggoodwin
+2004-04-23 09:34  dggoodwin
 
 	* Cantera/src/importCTML.cpp: added function
 	  checkRxnElementBalance, and modified importReaction to call it
 	  before adding a reaction to check that it is balanced.
 
-2004-04-23 00:59  hkmoffa
+2004-04-22 15:59  hkmoffa
 
 	* config/: configure, configure.in: Added python_prefix capability.
 	  Can now install site-packages into a different directory than the
 	  Cantera install directory.  Added a particles section that
 	  shouldn't be turned on.
 
-2004-04-23 00:54  hkmoffa
+2004-04-22 15:54  hkmoffa
 
 	* .cvsignore: Added a file.
 
-2004-04-23 00:43  hkmoffa
+2004-04-22 15:43  hkmoffa
 
 	* Makefile.in: Making sure that build_particles=0 turns off going
 	  to cads directory
 
-2004-04-23 00:42  hkmoffa
+2004-04-22 15:42  hkmoffa
 
 	* configure: Added a python_prefix capability that allows one to
 	  put python site packages in a different spot than cantera
 	  installation files.
 
-2004-04-22 23:50  hkmoffa
+2004-04-22 14:50  hkmoffa
 
 	* tools/src/.cvsignore: Added 2 files.
 
-2004-04-22 23:33  hkmoffa
+2004-04-22 14:33  hkmoffa
 
 	* Cantera/python/Makefile.in: Part of separating python prefix from
 	  prefix.
 
-2004-04-22 23:28  hkmoffa
+2004-04-22 14:28  hkmoffa
 
 	* Makefile.in: Added installs for a few more files from demo
 	  directory.  -> including Makefile.install -> Makefile
 
-2004-04-22 23:14  hkmoffa
+2004-04-22 14:14  hkmoffa
 
 	* Cantera/cxx/: Makefile.in, demos/Makefile.in,
 	  demos/Makefile.install: Ok, think I fixed it. Added a demo
@@ -4076,20 +4753,20 @@
 	  problems run correctly in both directories (and give the same
 	  result).
 
-2004-04-22 21:49  hkmoffa
+2004-04-22 12:49  hkmoffa
 
 	* Cantera/cxx/demos/Makefile.in: Fixed an error in the clean rule.
 
-2004-04-22 21:46  hkmoffa
+2004-04-22 12:46  hkmoffa
 
 	* config/configure.in: Fixed a typo.
 
-2004-04-22 21:44  hkmoffa
+2004-04-22 12:44  hkmoffa
 
 	* config/: configure, configure.in: Added 2 directories to the list
 	  of Makefiles to be created.
 
-2004-04-22 21:42  hkmoffa
+2004-04-22 12:42  hkmoffa
 
 	* Cantera/cxx/: Makefile.in, demos/.cvsignore, demos/Makefile,
 	  demos/Makefile.in, demos/kin1_blessed.csv,
@@ -4097,97 +4774,97 @@
 	  src/cxxutils.cpp, src/writelog.cpp: Added a small demo.  Added
 	  comments.
 
-2004-04-22 21:06  hkmoffa
+2004-04-22 12:06  hkmoffa
 
 	* Cantera/matlab/cantera/.cvsignore: Added ctbin.m
 
-2004-03-18 14:26  dggoodwin
+2004-03-18 05:26  dggoodwin
 
 	* Cantera/matlab/cantera/@ThermoPhase/: setState_Psat.m,
 	  setState_Tsat.m: initial import
 
-2004-03-13 04:25  dggoodwin
+2004-03-12 19:25  dggoodwin
 
 	* Cantera/src/Phase.cpp: bug fixedin setMassFractionsByName
 
-2004-02-23 06:47  dggoodwin
+2004-02-22 21:47  dggoodwin
 
 	* Cantera/matlab/cantera/@Func/: char.m, display.m, plus.m,
 	  rdivide.m, subsref.m, times.m, private/funcmethods.m: initial
 	  import
 
-2004-02-03 04:33  dggoodwin
+2004-02-02 19:33  dggoodwin
 
 	* Cantera/src/: EdgePhase.h, EdgeKinetics.cpp, EdgeKinetics.h:
 	  initial import
 
-2004-01-31 00:14  hkmoffa
+2004-01-30 15:14  hkmoffa
 
 	* Cantera/clib/src/Makefile.in: Added an all: rule. The end effect
 	  is that the library isn't archived when there isn't any need to.
 
-2004-01-30 19:27  hkmoffa
+2004-01-30 10:27  hkmoffa
 
 	* configure: Small change to all presetting end libs.
 
-2004-01-14 17:30  hkmoffa
+2004-01-14 08:30  hkmoffa
 
 	* test_problems/cxx_ex/: gri30.xml, kin1_blessed.csv,
 	  kin2_blessed.csv: Changed the blessed files. There was a small
 	  change in the actual answer.
 
-2004-01-14 17:03  hkmoffa
+2004-01-14 08:03  hkmoffa
 
 	* test_problems/surfkin/surface.xml: Changed the xml file to have
 	  the same element ordering as the gri file's elements.
 
-2004-01-14 17:00  hkmoffa
+2004-01-14 08:00  hkmoffa
 
 	* test_problems/diamondSurf/: diamond.cti, diamond_blessed.xml,
 	  tdia_a.py: changed the cti file so that the elements of all
 	  phases were ordered the same.
 
-2004-01-11 13:57  dggoodwin
+2004-01-11 04:57  dggoodwin
 
 	* Cantera/cxx/demos/: Makefile, kinetics1.cpp: initial import
 
-2004-01-05 18:01  dggoodwin
+2004-01-05 09:01  dggoodwin
 
 	* Cantera/cxx/demos/: example_utils.h, kinetics1.cpp: initial
 	  import
 
-2004-01-04 15:40  dggoodwin
+2004-01-04 06:40  dggoodwin
 
 	* Cantera/src/: config.h, ct2ctml.cpp: changed check.py to
 	  .check.py
 
-2004-01-02 02:02  dggoodwin
+2004-01-01 17:02  dggoodwin
 
 	* test_problems/: cxx_ex/Makefile.in, cxx_ex/runtest,
 	  diamondSurf/runtest, silane_equil/runtest, surfkin/runtest: added
 	  definition of CANTERA_DATA
 
-2004-01-02 00:41  dggoodwin
+2004-01-01 15:41  dggoodwin
 
 	* Cantera/cxx/src/Makefile.in: initial import
 
-2004-01-02 00:39  dggoodwin
+2004-01-01 15:39  dggoodwin
 
 	* Makefile.in, config/configure, config/configure.in: cleanup
 
-2004-01-02 00:26  dggoodwin
+2004-01-01 15:26  dggoodwin
 
 	* include/: Cantera.h, GRI30.h, IdealGasMix.h, Interface.h, README,
 	  ctml.h, equilibrium.h, integrators.h, kinetics.h, numerics.h,
 	  onedim.h, reactionpaths.h, surface.h, transport.h, zerodim.h:
 	  files moved to Cantera/cxx/include
 
-2004-01-02 00:13  dggoodwin
+2004-01-01 15:13  dggoodwin
 
 	* Cantera/cxx/: cxxutils.cpp, writelog.cpp, src/cxxutils.cpp,
 	  src/writelog.cpp: innitial import
 
-2004-01-02 00:11  dggoodwin
+2004-01-01 15:11  dggoodwin
 
 	* Cantera/: README.txt, cxx/include/Cantera.h, cxx/include/GRI30.h,
 	  cxx/include/IdealGasMix.h, cxx/include/Interface.h,
@@ -4198,7 +4875,7 @@
 	  cxx/include/zerodim.h, src/Makefile.in, src/ct2ctml.cpp: initial
 	  import
 
-2004-01-01 20:56  dggoodwin
+2004-01-01 11:56  dggoodwin
 
 	* configure, Cantera/src/MMCollisionInt.cpp,
 	  Cantera/src/Makefile.in, Cantera/src/MixTransport.cpp,
@@ -4206,31 +4883,31 @@
 	  Cantera/src/misc.cpp, include/Cantera.h, include/README,
 	  include/config.h, include/ftn_defs.h: cleanup
 
-2003-12-31 09:38  dggoodwin
+2003-12-31 00:38  dggoodwin
 
 	* Makefile.in: -
 
-2003-12-31 09:31  dggoodwin
+2003-12-31 00:31  dggoodwin
 
 	* Makefile.in: -
 
-2003-12-31 09:27  dggoodwin
+2003-12-31 00:27  dggoodwin
 
 	* tools/Makefile.in: added build_ck
 
-2003-12-31 09:14  dggoodwin
+2003-12-31 00:14  dggoodwin
 
 	* Cantera/src/ct2ctml.cpp: removed #include pypath.h
 
-2003-12-31 09:04  dggoodwin
+2003-12-31 00:04  dggoodwin
 
 	* Makefile.in: -
 
-2003-12-22 15:41  dggoodwin
+2003-12-22 06:41  dggoodwin
 
 	* config/: configure, configure.in, testpch.h: initial import
 
-2003-12-22 15:30  dggoodwin
+2003-12-22 06:30  dggoodwin
 
 	* Makefile.in, config.h, Cantera/clib/src/ct.h,
 	  Cantera/clib/src/ctonedim.cpp, Cantera/matlab/setup_matlab.py,
@@ -4241,25 +4918,25 @@
 	  config/configure, config/configure.in: updated Windows build
 	  procedure
 
-2003-12-20 19:03  hkmoffa
+2003-12-20 10:03  hkmoffa
 
 	* Cantera/src/transport/MixTransport.cpp: Fix to getDiffusion in
 	  order to avoid a NAN result for m_nsp = 1 case and for mixtures
 	  with X_i=1.0.
 
-2003-12-20 18:53  hkmoffa
+2003-12-20 09:53  hkmoffa
 
 	* tools/testtools/csvdiff.cpp: Fixed 2 things:	 stripped column
 	  names   checked for zero title lines
 
-2003-12-20 13:12  dggoodwin
+2003-12-20 04:12  dggoodwin
 
 	* Cantera/src/ChemEquil.cpp, examples/cxx/equil_example1.cpp,
 	  test_problems/cxx_ex/eq1_blessed.csv,
 	  test_problems/cxx_ex/eq1_blessed.dat: changed problem parameters
 	  to keep T in range
 
-2003-12-20 13:06  dggoodwin
+2003-12-20 04:06  dggoodwin
 
 	* test_problems/cxx_ex/eq1_blessed.csv,
 	  test_problems/cxx_ex/eq1_blessed.dat,
@@ -4268,39 +4945,39 @@
 	  examples/cxx/equil_example1.cpp: changed problem parameters to
 	  keep T in range
 
-2003-12-20 12:43  dggoodwin
+2003-12-20 03:43  dggoodwin
 
 	* tools/templates/cxx/demo.cpp: changed example parameters
 
-2003-12-20 12:39  dggoodwin
+2003-12-20 03:39  dggoodwin
 
 	* tools/templates/cxx/demo.cpp: changed example parameters
 
-2003-12-20 12:35  dggoodwin
+2003-12-20 03:35  dggoodwin
 
 	* Makefile.in, Cantera/src/ChemEquil.cpp: minor cleanup
 
-2003-12-20 06:09  dggoodwin
+2003-12-19 21:09  dggoodwin
 
 	* config.h, Cantera/matlab/setup_matlab.py, Cantera/src/config.h,
 	  tools/Makefile.in, tools/src/finish_install.py.in,
 	  tools/templates/cxx/demo.cpp: -
 
-2003-12-20 06:08  dggoodwin
+2003-12-19 21:08  dggoodwin
 
 	* Cantera/src/ChemEquil.cpp: fixed temperature limits
 
-2003-12-15 09:54  dggoodwin
+2003-12-15 00:54  dggoodwin
 
 	* config.h, Cantera/matlab/setup_matlab.py,
 	  Cantera/src/Makefile.in, Cantera/src/config.h,
 	  tools/bin/finish_install.py: -
 
-2003-12-13 23:58  dggoodwin
+2003-12-13 14:58  dggoodwin
 
 	* Cantera/src/misc.cpp: -
 
-2003-12-13 15:35  dggoodwin
+2003-12-13 06:35  dggoodwin
 
 	* INSTALLING, Makefile.in, Cantera/clib/src/ct.cpp,
 	  Cantera/matlab/setup_matlab.py,
@@ -4314,43 +4991,43 @@
 	  ext/tpx/Hydrogen.cpp, ext/tpx/Oxygen.cpp,
 	  tools/bin/finish_install.py: cleanup
 
-2003-12-13 15:08  dggoodwin
+2003-12-13 06:08  dggoodwin
 
 	* test_problems/cxx_ex/: gri30.xml, kin1_blessed.csv,
 	  kin2_blessed.csv, tr2_blessed.csv: rebaselined
 
-2003-12-12 18:03  dggoodwin
+2003-12-12 09:03  dggoodwin
 
 	* Cantera/matlab/setup_matlab.py.in: -
 
-2003-12-12 17:51  dggoodwin
+2003-12-12 08:51  dggoodwin
 
 	* Cantera/matlab/cantera/private/: reactormethods.cpp,
 	  flowdevicemethods.cpp, wallmethods.cpp: -
 
-2003-12-12 17:46  dggoodwin
+2003-12-12 08:46  dggoodwin
 
 	* config/configure, config/configure.in,
 	  Cantera/matlab/setup_matlab.py.in: -
 
-2003-12-12 17:44  dggoodwin
+2003-12-12 08:44  dggoodwin
 
 	* Cantera/matlab/setup_matlab.py.in: initial import
 
-2003-12-12 17:28  dggoodwin
+2003-12-12 08:28  dggoodwin
 
 	* config/: configure, configure.in: -
 
-2003-12-12 17:18  dggoodwin
+2003-12-12 08:18  dggoodwin
 
 	* Cantera/: matlab/Makefile.in, python/setup.py.in,
 	  python/Makefile.in: removed libconverters dependency
 
-2003-12-12 17:15  dggoodwin
+2003-12-12 08:15  dggoodwin
 
 	* Cantera/clib/src/Makefile.in: removed libconverters dependency
 
-2003-12-12 17:11  dggoodwin
+2003-12-12 08:11  dggoodwin
 
 	* INSTALLING, License.txt, config.h, config.h.in, configure,
 	  Cantera/src/Makefile.in, Cantera/src/config.h,
@@ -4358,28 +5035,28 @@
 	  tools/src/Makefile.in: isolated Chemkin file support to building
 	  ck2cti
 
-2003-12-11 14:01  dggoodwin
+2003-12-11 05:01  dggoodwin
 
 	* Cantera/python/: Cantera/rxnpath.py, src/ctrpath_methods.cpp,
 	  src/methods.h: set font in reaction path diagrams
 
-2003-12-11 13:15  dggoodwin
+2003-12-11 04:15  dggoodwin
 
 	* tools/src/package4mac.in: initial import
 
-2003-12-11 13:06  dggoodwin
+2003-12-11 04:06  dggoodwin
 
 	* Cantera/src/transport/: DustyGasTransport.cpp,
 	  DustyGasTransport.h, MixTransport.cpp, MultiTransport.cpp,
 	  SolidTransport.cpp, TransportBase.h, TransportFactory.cpp: minor
 	  cleanup
 
-2003-12-05 18:13  dggoodwin
+2003-12-05 09:13  dggoodwin
 
 	* Cantera/src/: PureFluidPhase.h, ThermoPhase.cpp, ThermoPhase.h,
 	  transport/DustyGasTransport.cpp, transport/DustyGasTransport.h: -
 
-2003-11-24 17:39  dggoodwin
+2003-11-24 08:39  dggoodwin
 
 	* configure, Cantera/clib/src/ct.cpp, Cantera/clib/src/ct.h,
 	  Cantera/python/setup.py.in,
@@ -4392,14 +5069,14 @@
 	  Cantera/src/xml.cpp, Cantera/src/oneD/StFlow.cpp,
 	  Cantera/src/transport/DustyGasTransport.cpp, ext/tpx/utils.cpp: -
 
-2003-11-19 11:50  dggoodwin
+2003-11-19 02:50  dggoodwin
 
 	* Makefile.in, config/configure, config/configure.in,
 	  tools/templates/cxx/demo.cpp, tools/templates/cxx/demo.mak.in,
 	  tools/templates/f77/demo.f, tools/templates/f77/demo.mak.in,
 	  tools/templates/f77/demo_ftnlib.cpp: -
 
-2003-11-19 10:37  dggoodwin
+2003-11-19 01:37  dggoodwin
 
 	* Makefile.in, config.h, Cantera/src/config.h, config/configure,
 	  config/configure.in, tools/Makefile.in,
@@ -4407,105 +5084,105 @@
 	  tools/src/finish_install.py.in, tools/templates/f77/demo.mak.in:
 	  -
 
-2003-11-17 16:19  dggoodwin
+2003-11-17 07:19  dggoodwin
 
 	* config/configure, config/configure.in, config.h,
 	  Cantera/src/config.h, tools/Makefile.in,
 	  tools/bin/finish_install.py, tools/doc/Cantera.cfg: -
 
-2003-11-17 15:10  dggoodwin
+2003-11-17 06:10  dggoodwin
 
 	* Makefile.in, README.txt, config.h.in, configure: -
 
-2003-11-17 14:52  dggoodwin
+2003-11-17 05:52  dggoodwin
 
 	* tools/: src/ck2cti.cpp, src/finish_install.py.in,
 	  man/mixmaster.1: initial import
 
-2003-11-17 14:51  dggoodwin
+2003-11-17 05:51  dggoodwin
 
 	* Cantera/: matlab/Makefile.in, python/Cantera/Transport.py,
 	  python/examples/flame2.py, src/oneD/StFlow.cpp,
 	  src/oneD/StFlow.h: cleanup
 
-2003-11-16 18:14  dggoodwin
+2003-11-16 09:14  dggoodwin
 
 	* tools/man/ck2cti.1: initial import
 
-2003-11-13 12:54  dggoodwin
+2003-11-13 03:54  dggoodwin
 
 	* Cantera/src/oneD/MultiJac.cpp: removed NaN test
 
-2003-11-12 19:56  dggoodwin
+2003-11-12 10:56  dggoodwin
 
 	* Cantera/src/oneD/StFlow.cpp: multicomponent transport working
 
-2003-11-01 11:11  dggoodwin
+2003-11-01 02:11  dggoodwin
 
 	* Cantera/user/: Makefile.in, user.cpp: initial import
 
-2003-11-01 05:48  dggoodwin
+2003-10-31 20:48  dggoodwin
 
 	* Cantera/python/Cantera/ctml_writer.py: added capability to have
 	  species names with embedded commas
 
-2003-10-24 12:11  dggoodwin
+2003-10-24 03:11  dggoodwin
 
 	* tools/doc/html/banner4.jpg: initial import
 
-2003-10-22 02:33  dggoodwin
+2003-10-21 17:33  dggoodwin
 
 	* Cantera/src/: State.h, State.cpp: minor cleanup
 
-2003-10-15 18:21  hkmoffa
+2003-10-15 09:21  hkmoffa
 
 	* Cantera/src/misc.cpp: Added a call to delete the static instance
 	  of a Falloff factory
 
-2003-10-15 18:20  hkmoffa
+2003-10-15 09:20  hkmoffa
 
 	* Cantera/src/transport/: TransportFactory.cpp, TransportFactory.h:
 	  Fixed a bug in the destructor, wherein an infinite loop condition
 	  may occur.
 
-2003-10-14 14:58  dggoodwin
+2003-10-14 05:58  dggoodwin
 
 	* Cantera/python/Cantera/DustyGasTransport.py: initial import
 
-2003-09-25 22:37  dggoodwin
+2003-09-25 13:37  dggoodwin
 
 	* Cantera/src/transport/: DustyGasTransport.cpp,
 	  DustyGasTransport.h, Makefile.in, TransportBase.h,
 	  TransportFactory.cpp: added DustyGasTransport
 
-2003-09-16 17:58  hkmoffa
+2003-09-16 08:58  hkmoffa
 
 	* Cantera/src/ctml.cpp: Fixed a rather hideous error in getMap(),
 	  that was causing element compositions to be read incorrectly when
 	  the species is made up of a large numbers of a single element.
 
-2003-09-08 15:33  dggoodwin
+2003-09-08 06:33  dggoodwin
 
 	* Cantera/fortran/f77demos/: README.txt, ctlib.f, f77demos.mak.in,
 	  isentropic.f: initial import
 
-2003-09-06 08:04  dggoodwin
+2003-09-05 23:04  dggoodwin
 
 	* tools/templates/f77/: README_WIN32.txt, f77demo.dsp: initial
 	  import
 
-2003-09-05 18:57  hkmoffa
+2003-09-05 09:57  hkmoffa
 
 	* test_problems/diamondSurf/runDiamond.cpp: loosened the tolerances
 	  on nil printing
 
-2003-09-05 18:42  hkmoffa
+2003-09-05 09:42  hkmoffa
 
 	* Cantera/src/transport/: MixTransport.cpp, MixTransport.h,
 	  MultiTransport.cpp: Fixed several UMR's discovered while using
 	  valgrind.
 
-2003-09-05 18:20  hkmoffa
+2003-09-05 09:20  hkmoffa
 
 	* test_problems/diamondSurf/: Makefile.in, runDiamond.cpp,
 	  runDiamond_blessed.out: Fixed the Makefile.in, undated runDiamond
@@ -4513,41 +5190,41 @@
 	  error in my Cantera version that created an undocumented changed
 	  in the result.
 
-2003-09-05 16:45  hkmoffa
+2003-09-05 07:45  hkmoffa
 
 	* data/transport/misc_tran.dat: Added a III-V database
 
-2003-09-05 01:42  dggoodwin
+2003-09-04 16:42  dggoodwin
 
 	* Cantera/python/Cantera/OneD/: __init__.py, flame.py, onedim.py:
 	  initial import
 
-2003-09-03 22:00  hkmoffa
+2003-09-03 13:00  hkmoffa
 
 	* test_problems/diamondSurf/: runDiamond.cpp,
 	  runDiamond_blessed.out: Rebaselined due to change in units
 
-2003-09-03 21:59  hkmoffa
+2003-09-03 12:59  hkmoffa
 
 	* Cantera/src/: FalloffFactory.h, FalloffMgr.h: Fixed an error that
 	  I had introduced.
 
-2003-09-03 21:59  hkmoffa
+2003-09-03 12:59  hkmoffa
 
 	* test_problems/cxx_ex/: kin1_blessed.csv, kin2_blessed.csv:
 	  rebaselined due to change in constants.
 
-2003-09-03 20:49  hkmoffa
+2003-09-03 11:49  hkmoffa
 
 	* Cantera/src/converters/Makefile.in: Might as well keep this in
 	  till it breaks.
 
-2003-09-03 20:48  hkmoffa
+2003-09-03 11:48  hkmoffa
 
 	* Cantera/src/converters/: ck2ctml.cpp, ck2ctml.h: Added const to
 	  the aguement lists.
 
-2003-09-03 20:45  hkmoffa
+2003-09-03 11:45  hkmoffa
 
 	* Cantera/src/: global.h, misc.cpp: Added a function called
 	  appdelete(), which deletes all global data malloced by Cantera.
@@ -4560,7 +5237,7 @@
 	  map, so that the same XML tree isn't deleted twice.  Lookups are
 	  always done wrt absolute pathnames.
 
-2003-09-03 20:39  hkmoffa
+2003-09-03 11:39  hkmoffa
 
 	* Cantera/src/: importCTML.cpp, importCTML.h: Added the function
 	  get_XML_NameID, which does a search on the xml element name and
@@ -4570,21 +5247,21 @@
 	  read in enhancements to the XML data file for the PartSpecPhase
 	  class.
 
-2003-09-03 20:33  hkmoffa
+2003-09-03 11:33  hkmoffa
 
 	* Cantera/src/: InterfaceKinetics.cpp, InterfaceKinetics.h: Added
 	  comments and changed the order of functions to place like
 	  functions in blocks.
 
-2003-09-03 20:31  hkmoffa
+2003-09-03 11:31  hkmoffa
 
 	* Cantera/src/ThermoPhase.h: Cleanup of comment sections.
 
-2003-09-03 20:31  hkmoffa
+2003-09-03 11:31  hkmoffa
 
 	* Cantera/src/State.cpp: cleanup
 
-2003-09-03 20:29  hkmoffa
+2003-09-03 11:29  hkmoffa
 
 	* Cantera/src/: SpeciesThermo.h, SpeciesThermoFactory.cpp,
 	  SpeciesThermoFactory.h: Two main changes:   The routines will now
@@ -4598,88 +5275,88 @@
 	    calling a delete for an object in the object's own destructor
 	    function.
 
-2003-09-03 20:22  hkmoffa
+2003-09-03 11:22  hkmoffa
 
 	* Cantera/src/: xml.cpp, xml.h: Added the function findNameID,
 	  which does a tree lookup on the name and the id.  Took out
 	  m_level, which seemed to have no purpose.
 
-2003-09-03 20:19  hkmoffa
+2003-09-03 11:19  hkmoffa
 
 	* Cantera/src/Phase.h: Added comments.
 
-2003-09-03 20:18  hkmoffa
+2003-09-03 11:18  hkmoffa
 
 	* Cantera/src/.cvsignore: Added a file.
 
-2003-09-03 20:17  hkmoffa
+2003-09-03 11:17  hkmoffa
 
 	* Cantera/src/units.h: fixed a potentially fatal error of doing a
 	  delete in a destructor on the object containing the destructor.
 
-2003-09-03 20:15  hkmoffa
+2003-09-03 11:15  hkmoffa
 
 	* Cantera/src/: Constituents.cpp, Constituents.h: Added a vector
 	  get for the atoms in a species.
 
-2003-09-03 17:35  hkmoffa
+2003-09-03 08:35  hkmoffa
 
 	* Cantera/src/: FalloffFactory.h, FalloffMgr.h: Fixed an error with
 	  the destructors. valgrind showed that destructor wasn't being
 	  called for single instance of FalloffFactory.
 
-2003-08-29 16:59  dggoodwin
+2003-08-29 07:59  dggoodwin
 
 	* Cantera/clib/src/genpy.py: initial import
 
-2003-08-25 21:50  dggoodwin
+2003-08-25 12:50  dggoodwin
 
 	* Cantera/matlab/cantera/examples/catcomb.m: initial import
 
-2003-08-25 20:29  hkmoffa
+2003-08-25 11:29  hkmoffa
 
 	* Cantera/src/SurfPhase.h: Added a dummy routine to set and store
 	  the pressure. It doesn't have an effect on anything. However, it
 	  doesn't cause a cantera error.
 
-2003-08-23 19:14  dggoodwin
+2003-08-23 10:14  dggoodwin
 
 	* data/inputs/nasa.cti: initial import
 
-2003-08-22 00:39  hkmoffa
+2003-08-21 15:39  hkmoffa
 
 	* Cantera/src/IncompressibleThermo.h: Changed fmax to fmaxx.
 
-2003-08-22 00:38  hkmoffa
+2003-08-21 15:38  hkmoffa
 
 	* Cantera/src/RateCoeffMgr.h: Added the writeUpdate() function. It
 	  was needed to resolve externals.
 
-2003-08-22 00:37  hkmoffa
+2003-08-21 15:37  hkmoffa
 
 	* Cantera/src/MultiDomain.h: changed fmax to fmaxx
 
-2003-08-22 00:36  hkmoffa
+2003-08-21 15:36  hkmoffa
 
 	* Cantera/src/RxnRates.h: Changed fmax() to fmaxx() in one call.
 
-2003-08-22 00:35  hkmoffa
+2003-08-21 15:35  hkmoffa
 
 	* Cantera/src/importCTML.cpp: Added more comments.
 
-2003-08-22 00:34  hkmoffa
+2003-08-21 15:34  hkmoffa
 
 	* Cantera/src/ct2ctml.cpp: Commented out a spurious write operation
 
-2003-08-22 00:33  hkmoffa
+2003-08-21 15:33  hkmoffa
 
 	* Cantera/src/ctml.h: Added a name of an argument.
 
-2003-08-22 00:32  hkmoffa
+2003-08-21 15:32  hkmoffa
 
 	* Cantera/src/misc.cpp: Added a comment
 
-2003-08-22 00:32  hkmoffa
+2003-08-21 15:32  hkmoffa
 
 	* Cantera/src/: xml.cpp, xml.h: Changed findXMLPhase() to return a
 	  non const XML tree. It broke the runDiamond program the other
@@ -4688,18 +5365,18 @@
 	  operation that allows for the top level of an xml file to contain
 	  multiple elements. previously this was not possible.
 
-2003-08-22 00:28  hkmoffa
+2003-08-21 15:28  hkmoffa
 
 	* Cantera/src/zeroD/Reactor.cpp: Fixed a UMR in the file.
 
-2003-08-22 00:26  hkmoffa
+2003-08-21 15:26  hkmoffa
 
 	* examples/cxx/: equil_example1.cpp, kinetics_example1.cpp,
 	  rxnpath_example1.cpp, transport_example1.cpp,
 	  transport_example2.cpp: The find_xml interface has been
 	  deprecated. Therefore, there were changes needed in these files.
 
-2003-08-22 00:25  hkmoffa
+2003-08-21 15:25  hkmoffa
 
 	* test_problems/: Makefile.in, silane_equil/output_blessed.txt,
 	  silane_equil/silane_equil.cpp, surfkin/Interface.h,
@@ -4708,183 +5385,183 @@
 	  changed in the 4th sig digit, because, I think, the physical
 	  constants changed in ct_defs.h
 
-2003-08-22 00:23  hkmoffa
+2003-08-21 15:23  hkmoffa
 
 	* test_problems/diamondSurf/: runDiamond.cpp,
 	  runDiamond_blessed.out: Rebaselined test, because the answer
 	  changed in the 4th digit. I think it is due to the change in
 	  physical constants in ct_defs.h
 
-2003-08-21 19:48  hkmoffa
+2003-08-21 10:48  hkmoffa
 
 	* Cantera/Makefile.in: changed fortran to fortran/src. Added
 	  particle hooks which should all be turned off by default.
 
-2003-08-21 19:39  hkmoffa
+2003-08-21 10:39  hkmoffa
 
 	* Cantera/fortran/src/: .cvsignore, fct.cpp: find_XML is no longer
 	  in the Cantera kernel API.  this fixes the problem, replacing it
 	  with calls to get_XML_Node().
 
-2003-08-21 17:35  hkmoffa
+2003-08-21 08:35  hkmoffa
 
 	* test_problems/diamondSurf/: diamond.cti, diamond_blessed.xml,
 	  runDiamond_blessed.out: Rebaselined after adding in a reaction
 
-2003-08-21 16:27  dggoodwin
+2003-08-21 07:27  dggoodwin
 
 	* Cantera/src/zeroD/Wall.cpp: add support for surface chem
 
-2003-08-21 16:26  dggoodwin
+2003-08-21 07:26  dggoodwin
 
 	* Cantera/src/zeroD/Wall.h: added support for surface chemistry on
 	  each side of the wall
 
-2003-08-21 16:26  dggoodwin
+2003-08-21 07:26  dggoodwin
 
 	* Cantera/src/zeroD/Reactor.h: added surface chemistry
 
-2003-08-21 16:25  dggoodwin
+2003-08-21 07:25  dggoodwin
 
 	* Cantera/src/zeroD/Reactor.cpp: added support for surface
 	  chemistry.
 
-2003-08-21 04:40  dggoodwin
+2003-08-20 19:40  dggoodwin
 
 	* Cantera/src/ct2ctml.cpp: fixed get_CTML_Tree
 
-2003-08-20 23:34  hkmoffa
+2003-08-20 14:34  hkmoffa
 
 	* Cantera/src/misc.cpp: Added header lines to the file
 
-2003-08-20 22:23  hkmoffa
+2003-08-20 13:23  hkmoffa
 
 	* Cantera/src/xml.h: Added a CVS version comment block
 
-2003-08-20 22:00  hkmoffa
+2003-08-20 13:00  hkmoffa
 
 	* config/configure.in: Added another test directory
 
-2003-08-20 21:36  hkmoffa
+2003-08-20 12:36  hkmoffa
 
 	* test_problems/diamondSurf/: .cvsignore, Makefile.in, diamond.cti,
 	  diamond_blessed.xml, runDiamond.cpp, runDiamond_blessed.out,
 	  run_diamond.py, runtest: Added a new test problem
 
-2003-08-20 17:30  dggoodwin
+2003-08-20 08:30  dggoodwin
 
 	* Cantera/src/oneD/StFlow.h: added some 'const's
 
-2003-08-20 17:28  dggoodwin
+2003-08-20 08:28  dggoodwin
 
 	* Cantera/src/global.h: added two new functions.
 
-2003-08-20 17:27  dggoodwin
+2003-08-20 08:27  dggoodwin
 
 	* Cantera/src/: ctml.h, oneD/Sim1D.cpp, oneD/StFlow.cpp: added some
 	  'const's
 
-2003-08-20 17:27  dggoodwin
+2003-08-20 08:27  dggoodwin
 
 	* Cantera/src/ct_defs.h: changed gas constant to 1999 CODATA value,
 	  removed option to not use kmol.
 
-2003-08-20 17:26  dggoodwin
+2003-08-20 08:26  dggoodwin
 
 	* Cantera/src/ct2ctml.cpp: get_CTML_Tree is now deprecated. Use
 	  get_XML_File in misc.cpp.
 
-2003-08-20 17:23  dggoodwin
+2003-08-20 08:23  dggoodwin
 
 	* Cantera/src/: SpeciesThermoFactory.cpp, ThermoPhase.h: added some
 	  'const's
 
-2003-08-20 17:19  dggoodwin
+2003-08-20 08:19  dggoodwin
 
 	* Cantera/src/misc.cpp: added option to clear all entries in
 	  close_XML_File.
 
-2003-08-20 17:18  dggoodwin
+2003-08-20 08:18  dggoodwin
 
 	* Cantera/python/Cantera/Transport.py: stopped storing ThermoPhase
 	  object, since this is self-referential in classes like Solution
 	  that derive from Transport and ThermoPhase.
 
-2003-08-20 17:16  dggoodwin
+2003-08-20 08:16  dggoodwin
 
 	* Cantera/python/Cantera/Kinetics.py: stopped storing ThermoPhase
 	  objects, since this is self-referential if a class derives from
 	  both Kinetics and ThermoPhase, causing it to never be deleted.
 
-2003-08-20 17:15  dggoodwin
+2003-08-20 08:15  dggoodwin
 
 	* Cantera/python/Cantera/solution.py: changed call to XML_Node
 	  constructor
 
-2003-08-20 17:13  dggoodwin
+2003-08-20 08:13  dggoodwin
 
 	* Cantera/python/Cantera/XML.py: removed self.root, which was
 	  self-referencing.  'build' replaced by 'get_XML_File' in
 	  constructor.
 
-2003-08-20 17:03  hkmoffa
+2003-08-20 08:03  hkmoffa
 
 	* Cantera/src/importCTML.cpp: More comments added
 
-2003-08-20 00:02  hkmoffa
+2003-08-19 15:02  hkmoffa
 
 	* Cantera/python/Cantera/ctml_writer.py: Fixed an error in an
 	  argument list
 
-2003-08-19 19:28  hkmoffa
+2003-08-19 10:28  hkmoffa
 
 	* tools/src/: Makefile.in, ck2cti.cpp, ck2ctml.cpp, cti2ctml.cpp:
 	  Added some conversion programs.
 
-2003-08-19 16:57  hkmoffa
+2003-08-19 07:57  hkmoffa
 
 	* Cantera/src/SurfPhase.h: Added more comments
 
-2003-08-18 07:05  dggoodwin
+2003-08-17 22:05  dggoodwin
 
 	* Cantera/python/Cantera/ctml_writer.py: added support for
 	  specified reaction order, sticking coefficients, coverage
 	  dependence of rate coefficients; fixed error where site_density
 	  was not being converted to SI.
 
-2003-08-17 21:14  dggoodwin
+2003-08-17 12:14  dggoodwin
 
 	* Cantera/src/RateCoeffMgr.h: added comments
 
-2003-08-17 20:56  dggoodwin
+2003-08-17 11:56  dggoodwin
 
 	* Cantera/src/importCTML.cpp: Added support for coverage-dependent
 	  reaction rates and sticking coefficients, and reactions with
 	  specified  reaction order.
 
-2003-08-17 14:47  dggoodwin
+2003-08-17 05:47  dggoodwin
 
 	* Cantera/src/Kinetics.h: cleaned up and added more comments
 
-2003-08-16 22:17  dggoodwin
+2003-08-16 13:17  dggoodwin
 
 	* Cantera/python/Cantera/ctml_writer.py: changed handling of
 	  reaction pre-exponential units to write converted value to CTML,
 	  rather than pass original value with a units string
 
-2003-08-14 18:06  hkmoffa
+2003-08-14 09:06  hkmoffa
 
 	* Cantera/src/Kinetics.h: Organized the functions to list better
 	  under doxygen.  Added more comments.	Didn't change any of the
 	  actual code.
 
-2003-08-13 17:24  hkmoffa
+2003-08-13 08:24  hkmoffa
 
 	* Cantera/src/xml.cpp: Fixed an error with build(). Basically it
 	  was having trouble with the tag "--". I think that tag is illegal
 	  anyway.
 
-2003-08-13 02:55  hkmoffa
+2003-08-12 17:55  hkmoffa
 
 	* Cantera/src/xml.cpp: Fixed two errors in reading an xml file.
 	  1) empty child xml elements had an extra / character being added
@@ -4892,23 +5569,23 @@
 	  ending white space were being copied	    with an extra space
 	  added on to the front and end of the string.
 
-2003-08-11 19:08  hkmoffa
+2003-08-11 10:08  hkmoffa
 
 	* Cantera/src/State.h: Added comments.
 
-2003-08-11 18:13  hkmoffa
+2003-08-11 09:13  hkmoffa
 
 	* Cantera/src/Kinetics.h: Added more comments.
 
-2003-08-08 21:58  hkmoffa
+2003-08-08 12:58  hkmoffa
 
 	* Cantera/src/InterfaceKinetics.cpp: Added more comment.s
 
-2003-08-07 23:49  hkmoffa
+2003-08-07 14:49  hkmoffa
 
 	* test_problems/surfkin/surface.xml: Updated the xml data file
 
-2003-08-07 23:42  hkmoffa
+2003-08-07 14:42  hkmoffa
 
 	* Cantera/src/Makefile.in: Added a make hdr-collect line.  This is
 	  needed because the .h files in the build directory should be kept
@@ -4916,16 +5593,16 @@
 	  need to update. Obviously, a more refined approach could be
 	  envisioned where only out of date .h files are copied.
 
-2003-08-07 17:59  hkmoffa
+2003-08-07 08:59  hkmoffa
 
 	* Cantera/src/importCTML.cpp: Added a lot of comments to the
 	  routine.
 
-2003-08-07 02:23  hkmoffa
+2003-08-06 17:23  hkmoffa
 
 	* test_problems/Makefile.in: Added the Makefile.in input file
 
-2003-08-07 02:22  hkmoffa
+2003-08-06 17:22  hkmoffa
 
 	* test_problems/cxx_ex/: kin1_blessed.csv, tr1_blessed.csv,
 	  tr2_blessed.csv: Rebaselined these three tests. The results had
@@ -4936,7 +5613,7 @@
 	  Basically, a non standard kcal/mole conversion method was used to
 	  convert activation energies to temperatures internally.
 
-2003-08-07 02:16  hkmoffa
+2003-08-06 17:16  hkmoffa
 
 	* Cantera/src/ct2ctml.cpp: Fixed an error in get_CTML_Tree() where
 	  the program wouldn't use the path where the file was found, but
@@ -4945,67 +5622,67 @@
 	  created an infinite loop (probably another error in build() that
 	  needs to be fixed).
 
-2003-08-07 01:16  hkmoffa
+2003-08-06 16:16  hkmoffa
 
 	* Cantera/src/converters/Makefile.in: Broke a long line in two
 
-2003-08-07 00:43  hkmoffa
+2003-08-06 15:43  hkmoffa
 
 	* config/: configure, configure.in: Added the surfkin directory
 
-2003-08-06 20:30  hkmoffa
+2003-08-06 11:30  hkmoffa
 
 	* test_problems/cxx_ex/: gri30.xml, silane.xml: Updated xml files
 
-2003-08-06 20:15  hkmoffa
+2003-08-06 11:15  hkmoffa
 
 	* include/: GRI30.h, IdealGasMix.h: Fixed GRI30.h. The id was wrong
 	  and caused a test problem to fail.
 
-2003-08-06 20:13  hkmoffa
+2003-08-06 11:13  hkmoffa
 
 	* examples/cxx/.cvsignore: Added to cvsignore list
 
-2003-08-06 19:32  hkmoffa
+2003-08-06 10:32  hkmoffa
 
 	* test_problems/surfkin/: .cvsignore, Interface.h, Makefile.in,
 	  output_blessed.txt, runtest, surface.xml, surfdemo.cpp: Added a
 	  simple test that calculate a rate of production for a surface
 	  mechanism
 
-2003-08-06 19:14  hkmoffa
+2003-08-06 10:14  hkmoffa
 
 	* Cantera/src/ctml.cpp: Added a get_CTML_Tree() function. It was
 	  missing though there was an entry in ctml.h and IdealGasMix.h
 	  used it.
 
-2003-08-06 19:10  hkmoffa
+2003-08-06 10:10  hkmoffa
 
 	* test_problems/silane_equil/silane.xml: updated xml file. test
 	  passes.
 
-2003-08-05 01:15  hkmoffa
+2003-08-04 16:15  hkmoffa
 
 	* Cantera/src/: GasKinetics.cpp, GasKinetics.h: Added a bunch of
 	  new routines to return delta thermo values and reaction rate
 	  constants.
 
-2003-08-05 01:10  hkmoffa
+2003-08-04 16:10  hkmoffa
 
 	* Cantera/src/converters/: ck2ct.cpp, ck2ctml.cpp: Fixed up a
 	  couple of issues with the stringstream block. That block works
 	  for reading transport databases with comments in them. The other
 	  block seems to get hung up.
 
-2003-08-04 16:27  hkmoffa
+2003-08-04 07:27  hkmoffa
 
 	* tools/src/Makefile.in: Added a dependency to library files
 
-2003-08-02 02:37  hkmoffa
+2003-08-01 17:37  hkmoffa
 
 	* Cantera/src/RateCoeffMgr.h: added a comment.
 
-2003-08-02 02:36  hkmoffa
+2003-08-01 17:36  hkmoffa
 
 	* Cantera/src/: ThermoFactory.cpp, ThermoFactory.h: Added a
 	  specific named error condition for when the thermo factory can't
@@ -5014,7 +5691,7 @@
 	  the kernel can be made extensible wrt other ThermoPhase
 	  derivative classes it may not know about.
 
-2003-08-02 02:34  hkmoffa
+2003-08-01 17:34  hkmoffa
 
 	* Cantera/src/: KineticsFactory.cpp, KineticsFactory.h: Added a
 	  specific named error for not matching against a kinetics model.
@@ -5022,25 +5699,25 @@
 	  condition to make the kernel extensible wrt new kinetics
 	  managers.
 
-2003-08-02 02:29  hkmoffa
+2003-08-01 17:29  hkmoffa
 
 	* Cantera/src/InterfaceKinetics.cpp: Added a few comments
 
-2003-08-02 02:28  hkmoffa
+2003-08-01 17:28  hkmoffa
 
 	* Cantera/src/InterfaceKinetics.h: Added a comment block
 
-2003-08-02 02:27  hkmoffa
+2003-08-01 17:27  hkmoffa
 
 	* Cantera/src/Kinetics.h: Organized the routines into sections.
 	  Added a bunch of routines that report the change in thermo
 	  quantities due to reactions.
 
-2003-08-02 02:25  hkmoffa
+2003-08-01 17:25  hkmoffa
 
 	* Cantera/src/xml.cpp: Took out print statements in debug blocks
 
-2003-08-02 02:24  hkmoffa
+2003-08-01 17:24  hkmoffa
 
 	* Cantera/src/: ThermoPhase.cpp, ThermoPhase.h: Added a function
 	  getUnitsStandardConc() that will report in a vector form what the
@@ -5049,7 +5726,7 @@
 	  reaction rate constants and is used by cttables to actually print
 	  out the units for reaction rate constants.
 
-2003-08-02 02:16  hkmoffa
+2003-08-01 17:16  hkmoffa
 
 	* Cantera/src/transport/: MixTransport.cpp, MixTransport.h,
 	  MultiTransport.cpp, MultiTransport.h, TransportBase.h,
@@ -5059,38 +5736,38 @@
 	  in cttables for the print out to provide closure to the user's
 	  expectations.
 
-2003-08-01 22:50  hkmoffa
+2003-08-01 13:50  hkmoffa
 
 	* Cantera/src/State.h: Added one more routine, needed to get at
 	  private data
 
-2003-08-01 22:13  hkmoffa
+2003-08-01 13:13  hkmoffa
 
 	* Cantera/src/ctml.cpp: Slight change in comment
 
-2003-08-01 21:44  hkmoffa
+2003-08-01 12:44  hkmoffa
 
 	* Cantera/src/ctvector.cpp: Check for null before deleting or
 	  copying. Not strictly necessary, but good form.
 
-2003-08-01 21:43  hkmoffa
+2003-08-01 12:43  hkmoffa
 
 	* Cantera/src/mix_defs.h: Added descriptions of the ThermoPhase
 	  classes known to this routine.
 
-2003-08-01 21:42  hkmoffa
+2003-08-01 12:42  hkmoffa
 
 	* Cantera/src/ctml.cpp: UPgraded one error condition statement
 
-2003-07-30 00:37  dggoodwin
+2003-07-29 15:37  dggoodwin
 
 	* Cantera/src/State.h: moved some methods to State.cpp
 
-2003-07-30 00:32  dggoodwin
+2003-07-29 15:32  dggoodwin
 
 	* Cantera/src/State.cpp: initial import
 
-2003-07-25 22:46  hkmoffa
+2003-07-25 13:46  hkmoffa
 
 	* Cantera/src/: xml.cpp, xml.h: Fixed several serious errors and
 	  added a couple of routines.	 1) the read operation would hash
@@ -5102,149 +5779,149 @@
 	  findXMLPhase(): phase lookup.  Notes:  find_XML() still
 	  contains a memory leak.
 
-2003-07-24 17:58  hkmoffa
+2003-07-24 08:58  hkmoffa
 
 	* Cantera/src/Kinetics.h: Fixed an error in the Constructor
 	  function. m_indexPhase wasn't being set at all
 
-2003-07-23 23:54  hkmoffa
+2003-07-23 14:54  hkmoffa
 
 	* Cantera/src/Kinetics.h: Added a lot of comments to the header
 	  file
 
-2003-07-23 23:53  hkmoffa
+2003-07-23 14:53  hkmoffa
 
 	* Cantera/src/ConstDensityThermo.h: Took out an unnecessary
 	  redefinition of m_kk from an inherited class
 
-2003-07-23 23:51  hkmoffa
+2003-07-23 14:51  hkmoffa
 
 	* Cantera/src/stringUtils.cpp: Slight formatting change
 
-2003-07-23 17:41  hkmoffa
+2003-07-23 08:41  hkmoffa
 
 	* Cantera/src/StoichManager.h: Added comments to the file
 
-2003-07-21 18:28  hkmoffa
+2003-07-21 09:28  hkmoffa
 
 	* Cantera/src/Elements.h: Took out a surplus doxygen comment about
 	  the Cantera Namespace. It created an error during doxygen
 	  compilation
 
-2003-07-21 18:26  hkmoffa
+2003-07-21 09:26  hkmoffa
 
 	* Cantera/src/ThermoPhase.h: Added more doxygen comments to the
 	  files.  Added a catch/throw block to setstate_TPX().
 
-2003-07-21 18:08  hkmoffa
+2003-07-21 09:08  hkmoffa
 
 	* Cantera/src/State.h: Commented the member data.
 
-2003-07-21 18:02  hkmoffa
+2003-07-21 09:02  hkmoffa
 
 	* Cantera/src/Constituents.h: Took out a double nested @name that
 	  gave a warning to doxygen
 
-2003-07-18 22:19  hkmoffa
+2003-07-18 13:19  hkmoffa
 
 	* Cantera/src/Phase.h: Added comments about m_kk needing to be
 	  restated in this class.
 
-2003-07-07 18:45  hkmoffa
+2003-07-07 09:45  hkmoffa
 
 	* Cantera/src/ResidEval.h: Added more functions to the virtual base
 	  class. This will mean that all classes that inherit from this
 	  class will be broken until they too add definitions for these
 	  functions.
 
-2003-07-07 18:39  hkmoffa
+2003-07-07 09:39  hkmoffa
 
 	* Cantera/src/converters/ck2ctml.cpp: Commented out several
 	  statically defined functions that were not used in the file.
 
-2003-07-07 17:35  hkmoffa
+2003-07-07 08:35  hkmoffa
 
 	* Cantera/src/SolidCompound.h: Fixed a compiler warning. Linux
 	  warns against initialization lists which are not in the same
 	  order as items in the class itself.
 
-2003-07-04 09:35  dggoodwin
+2003-07-04 00:35  dggoodwin
 
 	* tools/bin/finish_install.py: added 'source setup_cantera'
 
-2003-07-04 09:18  dggoodwin
+2003-07-04 00:18  dggoodwin
 
 	* tools/bin/finish_install.py: added warning if the Python
 	  interface does not install.
 
-2003-07-03 18:23  hkmoffa
+2003-07-03 09:23  hkmoffa
 
 	* Cantera/src/Array.h: Added the function ptrColumn(), which
 	  returns a pointer to the top of a column of the matrix.
 
-2003-06-27 16:08  dggoodwin
+2003-06-27 07:08  dggoodwin
 
 	* Cantera/src/converters/ck2ctml.cpp: corrected bug in addTransport
 
-2003-06-27 16:07  dggoodwin
+2003-06-27 07:07  dggoodwin
 
 	* tools/bin/finish_install.py: added script to set matlab path
 
-2003-06-11 23:33  hkmoffa
+2003-06-11 14:33  hkmoffa
 
 	* Cantera/src/.cvsignore: Added another file to this list
 
-2003-06-10 18:39  hkmoffa
+2003-06-10 09:39  hkmoffa
 
 	* Cantera/src/misc.cpp: Fixed a typo in a comment
 
-2003-06-10 18:32  hkmoffa
+2003-06-10 09:32  hkmoffa
 
 	* test_problems/silane_equil/.cvsignore: Added a file to the ignore
 	  list, created during the test
 
-2003-06-10 17:27  hkmoffa
+2003-06-10 08:27  hkmoffa
 
 	* Cantera/src/Makefile.in: Uncommented the tpx rule
 
-2003-06-10 17:26  hkmoffa
+2003-06-10 08:26  hkmoffa
 
 	* Cantera/matlab/Makefile.in: Took out the references to the
 	  directories, 1D/@Domain1D/private and 1D/@Stack/private. They
 	  don't currently exist in the present version of the distribution.
 
-2003-06-10 17:07  hkmoffa
+2003-06-10 08:07  hkmoffa
 
 	* include/.cvsignore: Added a .cvsignore file
 
-2003-06-10 17:02  hkmoffa
+2003-06-10 08:02  hkmoffa
 
 	* tools/templates/: f77/.cvsignore, cxx/.cvsignore: Added a
 	  .cvsignore file
 
-2003-06-10 02:19  hkmoffa
+2003-06-09 17:19  hkmoffa
 
 	* Cantera/cxx/.cvsignore: Added this file so that cvs update
 	  doesn't flag Makefile
 
-2003-06-10 00:02  hkmoffa
+2003-06-09 15:02  hkmoffa
 
 	* tools/src/.cvsignore: Added a file to the ignore list
 
-2003-06-08 17:18  dggoodwin
+2003-06-08 08:18  dggoodwin
 
 	* Cantera/matlab/cantera/@Transport/trans_hndl.m: initial import
 
-2003-06-08 16:52  dggoodwin
+2003-06-08 07:52  dggoodwin
 
 	* Cantera/: cxx/writelog.cpp, python/src/writelog.cpp,
 	  matlab/cantera/private/write.cpp: initial import
 
-2003-06-08 16:41  dggoodwin
+2003-06-08 07:41  dggoodwin
 
 	* Cantera/src/oneD/boundaries1D.cpp: initial import
 
-2003-05-13 21:43  dggoodwin
+2003-05-13 12:43  dggoodwin
 
 	* Cantera/src/: DASPK.h, InterfaceKinetics.cpp, ReactionPath.cpp,
 	  ReactionPath.h, funcs.cpp, importCTML.cpp, misc.cpp,
@@ -5253,56 +5930,56 @@
 	  oneD/Sim1D.h, oneD/StFlow.cpp, oneD/StFlow.h,
 	  oneD/newton_utils.cpp, oneD/refine.cpp, oneD/refine.h: -
 
-2003-05-06 16:20  dggoodwin
+2003-05-06 07:20  dggoodwin
 
 	* tools/templates/cxx/: demo.cpp, demo.mak.in: fixed errors
 
-2003-05-06 15:36  dggoodwin
+2003-05-06 06:36  dggoodwin
 
 	* tools/templates/cxx/: demo.cpp, demo.mak.in: initial import
 
-2003-04-24 11:48  dggoodwin
+2003-04-24 02:48  dggoodwin
 
 	* Cantera/python/examples/function1.py: initial import
 
-2003-04-21 20:16  dggoodwin
+2003-04-21 11:16  dggoodwin
 
 	* tools/doc/: Cantera.cfg, ct.css, footer.html, header.html:
 	  initial import
 
-2003-04-21 11:55  dggoodwin
+2003-04-21 02:55  dggoodwin
 
 	* Makefile.in: corrected lib directory
 
-2003-04-20 16:40  dggoodwin
+2003-04-20 07:40  dggoodwin
 
 	* Cantera/matlab/Makefile.in: fixed library in Makefile.in
 
-2003-04-20 15:26  dggoodwin
+2003-04-20 06:26  dggoodwin
 
 	* Cantera/: matlab/.cvsignore, matlab/cantera/.cvsignore,
 	  python/.cvsignore, src/.cvsignore: added .cvsignore in mattlab
 
-2003-04-20 15:21  dggoodwin
+2003-04-20 06:21  dggoodwin
 
 	* config/: configure, configure.in: added target to buildlib
 
-2003-04-20 15:18  dggoodwin
+2003-04-20 06:18  dggoodwin
 
 	* Cantera/python/: Makefile.in, setup.py, setup.py.in: perform
 	  configuration of setup.py
 
-2003-04-19 01:19  dggoodwin
+2003-04-18 16:19  dggoodwin
 
 	* include/: GRI30.h, onedim.h, reactionpaths.h, transport.h,
 	  zerodim.h: minor cleanup
 
-2003-04-18 13:00  dggoodwin
+2003-04-18 04:00  dggoodwin
 
 	* tools/templates/f77/: demo.mak.in, demo_ftnlib.cpp,
 	  sample.mak.in: renamed sample.mak.in to demo.mak.in
 
-2003-04-14 19:57  dggoodwin
+2003-04-14 10:57  dggoodwin
 
 	* .cvsignore, INSTALLING, License.rtf, License.txt, Makefile.in,
 	  README, config.h, config.h.in, configure, apps/README.txt,
@@ -5899,7 +6576,7 @@
 	  tools/testtools/tok_input_util.cpp,
 	  tools/testtools/tok_input_util.h: Initial import.
 
-2003-04-14 19:57  dggoodwin
+2003-04-14 10:57  dggoodwin
 
 	* .cvsignore, INSTALLING, License.rtf, License.txt, Makefile.in,
 	  README, config.h, config.h.in, configure, apps/README.txt,

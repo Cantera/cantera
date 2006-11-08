@@ -124,8 +124,6 @@ namespace CanteraZeroD {
             return sensitivity(k, p);
         }
 
-        void setVerbose(bool flag) { m_verbose = flag; }
-        bool verbose() const { return m_verbose; }
         //-----------------------------------------------------
 
         // overloaded methods of class FuncEval

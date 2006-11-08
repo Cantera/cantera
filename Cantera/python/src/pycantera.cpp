@@ -18,7 +18,11 @@
 #ifdef HAS_NUMERIC
 #include "Numeric/arrayobject.h"
 #else
+//#ifdef HAS_NUMARRAY
 #include "numarray/arrayobject.h"
+//#else 
+//#include "numpy/arrayobject.h"
+//#endif
 #endif
 
 #include "ct.h"
@@ -87,7 +91,11 @@ extern "C" {
 #ifdef HAS_NUMERIC
         PyDict_SetItemString(d, "nummod",PyString_FromString("Numeric"));
 #else
+        //#ifdef HAS_NUMARRAY
         PyDict_SetItemString(d, "nummod",PyString_FromString("numarray"));
+        //#else
+            //PyDict_SetItemString(d, "nummod",PyString_FromString("numpy"));
+        //#endif
 #endif
     }
 
