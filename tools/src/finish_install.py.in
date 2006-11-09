@@ -54,7 +54,8 @@ if localinst and build_python == 2:
         if numarray_home <> '':
             pypath += ':'+numarray_home+'/lib/python'
             
-        sys.path.append(pypath)
+        sys.path.append(ctloc)
+        sys.path.append(numarray_home+'/lib/python')
         f.write('PYTHONPATH='+pypath+':$PYTHONPATH\nexport PYTHONPATH\n')
     except:
         print 'error'
