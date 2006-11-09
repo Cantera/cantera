@@ -17,7 +17,7 @@ branch = -r $(cvs_tag)
 RMDIRTREE = /bin/rm -r -f
 INSTALL_TSC = bin/install_tsc
 
-PY_EXAMPLES = equilibrium flames reactors misc liquid_vapor \
+PY_EXAMPLES = equilibrium fuel_cells flames reactors misc liquid_vapor \
               gasdynamics kinetics surface_chemistry transport
 
 prefix=@prefix@

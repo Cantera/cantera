@@ -338,6 +338,8 @@ IDA_LIBS='-lsundials_ida -lsundials_nvecserial'
 if test "$SUNDIALS_VERSION" = "2.2"; then
 AC_DEFINE(SUNDIALS_VERSION_22)
 sundials_include='-I'${SUNDIALS_HOME}'/include -I'${SUNDIALS_HOME}'/include/sundials -I'${SUNDIALS_HOME}'/include/cvodes -I'${SUNDIALS_HOME}'/include/ida'
+echo "sundials include directory: " ${sundials_include}
+echo "sundials library directory: " $SUNDIALS_LIB_DIR
 else
 AC_DEFINE(SUNDIALS_VERSION_23)
 sundials_include='-I'${SUNDIALS_INC_DIR}
