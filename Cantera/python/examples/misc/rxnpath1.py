@@ -16,6 +16,9 @@ from os.path import join
 from Cantera import *
 from Cantera import rxnpath
 
+import sys
+opts = sys.argv
+
 #------------ site-specific configuration -----------------------------
 
 # to view the diagram in a browser, set 'output_dir' to a directory that
@@ -43,10 +46,11 @@ element = 'N'
 output_file = 'rxnpath2.dot'
 url = output_urldir+'/'+output_file
 
-# graphics format. Must be one of png, svg, gif, or jpg
-fmt = 'svg'
-
 rxnpath.write(gas, element, join(output_dir, output_file), d)
-rxnpath.view(url, fmt)
+
+if len(opts) > 1 and opts[1] == "-view":
+    # graphics format. Must be one of png, svg, gif, or jpg
+    fmt = 'svg'
+    rxnpath.view(url, fmt)
 
 
