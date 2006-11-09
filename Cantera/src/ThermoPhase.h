@@ -841,13 +841,11 @@ namespace Cantera {
         /// Return a pointer to the XML tree containing the species
         /// data for this phase.
         const XML_Node* speciesData() { 
-            if (m_speciesData) 
-                return m_speciesData;
-            else {
+            if (!m_speciesData) {
                 throw CanteraError("ThermoPhase::speciesData",
                     "m_speciesData is NULL");
-                return 0;
             }
+            return m_speciesData;
         }
 
 
