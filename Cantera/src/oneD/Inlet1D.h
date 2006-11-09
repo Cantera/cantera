@@ -128,21 +128,6 @@ namespace Cantera {
             return m_V0;
         }
 
-//         virtual void showSolution_s(ostream& s, const doublereal* x) {
-//             s << "-------------------  Inlet " << domainIndex() << " ------------------- " << endl;
-//             s << "  mdot:        " << m_mdot << " kg/m^2/s" << "   " << x[0] << endl;
-//             s << "  temperature: " << m_temp << " K" << "    " << x[1] << endl;
-//             if (m_flow) {
-//                 s << "  mass fractions: " << endl;
-//                 for (int k = 0; k < m_flow->phase().nSpecies(); k++) {
-//                     if (m_yin[k] != 0.0) {
-//                         s << "      " << m_flow->phase().speciesName(k) 
-//                           << "  " << m_yin[k] << endl;
-//                     }
-//                 }
-//             }
-//             s << endl;
-//         }
 
         virtual void showSolution(const doublereal* x) {
             char buf[80];

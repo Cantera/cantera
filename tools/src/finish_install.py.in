@@ -28,6 +28,7 @@ if pycmd <> 'python':
 ctloc = '-'
 warn = ''
 warn2 = ''
+pypath = ''
 if localinst and build_python == 2:
     try:
         v = sys.version_info
@@ -89,6 +90,7 @@ try:
     import Cantera
     ctpath = Cantera.__path__[0]
 except:
+    print "Cantera not found on sys.path = ",sys.path
     ctpath = "-"
 
 if build_matlab:
