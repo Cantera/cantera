@@ -13,6 +13,8 @@
 #ifndef CT_CVODESWRAPPER_H
 #define CT_CVODESWRAPPER_H
 
+#ifdef HAS_SUNDIALS
+
 #ifdef WIN32
 #pragma warning(disable:4786)
 #pragma warning(disable:4503)
@@ -23,10 +25,11 @@
 #include "ctexceptions.h"
 #include "ct_defs.h"
 
-//#include <nvector.h>
-//#include <nvector_serial.h>
-
+#ifdef SUNDIALS_VERSION_22
+#include <nvector_serial.h>
+#else
 #include <sundials/sundials_nvector.h>
+#endif
 
 namespace Cantera {
 
@@ -105,5 +108,7 @@ namespace Cantera {
     };
 
 }    // namespace
+
+#endif
 
 #endif 
