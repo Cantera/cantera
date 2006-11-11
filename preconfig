@@ -254,14 +254,14 @@ USE_SUNDIALS=${USE_SUNDIALS:='default'}
 # This is where you installed sundials if you used the --prefix option
 # when you configured sundials. If you didn't use the prefix option,
 # then comment this line out.
-SUNDIALS_HOME=${SUNDIALS_HOME:=$HOME/sundials}
+#SUNDIALS_HOME=${SUNDIALS_HOME:=$HOME/sundials}
 
 # It is recommended that you install the newest release of sundials 
 # (currently 2.3.0) before building Cantera. But if you want to use an 
 # older version, set SUNDIALS_VERSION to the version you have.
 # Acceptable values are '2.2' and '2.3' only; anything else will cause
 # Cantera to not use sundials.
-SUNDIALS_VERSION=${SUNDIALS_VERSION:='2.2'}
+SUNDIALS_VERSION=${SUNDIALS_VERSION:='2.3'}
 
 #----------------------------------------------------------------- 
 #         BLAS and LAPACK
@@ -495,7 +495,7 @@ else
    CCPREFIX="--prefix="$CANTERA_CONFIG_PREFIX
 fi
 #
-# run the configure command in the config directory
+# run the configure command
 #
 ./configure $CCPREFIX $1 $2 $3 $4
 

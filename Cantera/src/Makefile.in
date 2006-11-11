@@ -180,16 +180,23 @@ ALL_H = $(BASE_H) $(THERMO_H) $(KINETICS_H) $(HETEROKIN_H) \
         $(EQUIL_H) $(SOLVERS_H) $(RPATH_H)
 
 .cpp.d:
-	g++ -MM $(CXX_INCLUDES) $(SUNDIALS_INC) $*.cpp > $*.d
+	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
 	@CXX@ -c $< $(CXX_INCLUDES) $(CXX_FLAGS) 
 
 ODE_integrators.o:
-	@CXX@ -c ODE_integrators.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) $(CXX_FLAGS) 
+	@CXX@ -c ODE_integrators.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
+            $(CXX_FLAGS) 
+ODE_integrators.d: ODE_integrators.cpp Makefile
+	g++ -MM ODE_integrators.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
+            $(CXX_FLAGS) > ODE_integrators.d 
 
-DAE_solvers.o:
-	@CXX@ -c DAE_solvers.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) $(CXX_FLAGS) 
+DAE_solvers.o: DAE_solvers.cpp
+	@CXX@ -c DAE_solvers.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) $(CXX_FLAGS)
+DAE_solvers.d: DAE_solvers.cpp Makefile
+	g++ -MM DAE_solvers.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
+            $(CXX_FLAGS) > DAE_solvers.d  
 
 lib:  $(OBJ_LIB)
 	$(RM)     $(CANTERA_LIB)
@@ -231,16 +238,18 @@ depends: $(DEPENDS)
 	cat *.d > .depends
 	cd oneD; @MAKE@ depends
 ifeq (@WITH_REACTORS@, 1)
-	cd zeroD; @MAKE@ depends
+	cd zeroD; @MAKE@ .depends
 endif
 	cd converters; @MAKE@ depends
 	cd transport; @MAKE@ depends
 ifeq (@NEED_CATHERMO@, 1)
 	cd thermo; @MAKE@ depends
 endif
+	$(RM) $(DEPENDS) 
 
 .depends: $(DEPENDS) Makefile
 	cat *.d > .depends
+
 
 TAGS: 
 	etags *.h *.cpp
