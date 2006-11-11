@@ -132,11 +132,7 @@ namespace Cantera {
         if (m_cvode_mem) {
             if (m_np > 0) 
                 CVodeSensFree(m_cvode_mem);
-#ifdef SUNDIALS_VERSION_1
-            CVodeFree(m_cvode_mem);
-#else
             CVodeFree(&m_cvode_mem);
-#endif
         }
       if (m_y) N_VDestroy_Serial(nv(m_y));
       if (m_abstol) N_VDestroy_Serial(nv(m_abstol));
@@ -220,17 +216,6 @@ namespace Cantera {
         m_np = func.nparams();
         long int nv = func.neq();
 
-#ifdef SUNDIALS_VERSION_1
-        doublereal* data;
-        int n, j;
-        m_yS = N_VNewVectorArray_Serial(m_np, nv);
-        for (n = 0; n < m_np; n++) {
-            data = NV_DATA_S(m_yS[n]);
-            for (j = 0; j < nv; j++) {
-                data[j] =0.0;
-            }
-        }
-#else
         doublereal* data;
         int n, j;
         N_Vector y;
@@ -242,7 +227,7 @@ namespace Cantera {
                 data[j] =0.0;
             }
         }
-#endif
+
         int flag;
         flag = CVodeSensMalloc(m_cvode_mem, m_np, CV_STAGGERED, m_yS);
         if (flag != CV_SUCCESS) 
