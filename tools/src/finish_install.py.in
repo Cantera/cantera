@@ -61,6 +61,17 @@ if localinst and build_python == 2:
         print 'error'
 f.close()
 
+
+if localinst and build_python == 1:
+    try:
+        v = sys.version_info
+        ctloc = prefix+'/lib/python'+`v[0]`+'.'+`v[1]`+'/site-packages'
+        f.write('PYTHONPATH='+ctloc+':$PYTHONPATH\nexport PYTHONPATH\n')
+    except:
+        print 'error'
+f.close()
+
+
 if build_python == 2:
     # write the script to run MixMaster
     f = open(bindir+'/mixmaster','w')
