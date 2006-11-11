@@ -232,6 +232,9 @@ if test "x${OS_IS_WIN}" = "x1"; then
 fi
 
 if test -z "$username"; then username=$USER; fi
+if test -z "$username"; then username=$USERNAME; fi
+if test -z "$username"; then username=`whoami`; fi
+
 AC_SUBST(username)
  
 AC_SUBST(ctroot)
