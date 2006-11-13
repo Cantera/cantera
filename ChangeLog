@@ -1,3 +1,25 @@
+2006-11-09 05:04  dggoodwin
+
+	* Cantera/python/examples/fuel_cells/: sofc.cti, sofc.py: added
+	  fuel cell demo
+
+2006-11-08 16:19  dggoodwin
+
+	* Cantera/src/ThermoPhase.h: minor cleanup
+
+2006-11-08 15:58  dggoodwin
+
+	* Makefile.in, preconfig, Cantera/python/Cantera/OneD/onedim.py,
+	  ext/f2c_libs/arith.h: install Makefiles for python demos
+
+2006-11-08 15:14  dggoodwin
+
+	* Cantera/python/examples/: Makefile, equilibrium/Makefile,
+	  equilibrium/stoich.py, flames/Makefile, gasdynamics/Makefile,
+	  kinetics/Makefile, liquid_vapor/Makefile, misc/Makefile,
+	  reactors/Makefile, surface_chemistry/Makefile,
+	  transport/Makefile: added Makefiles to run all demos
+
 2006-11-07 13:03  dggoodwin
 
 	* Cantera/src/zeroD/ReactorNet.h: added verbose, setVerbose
@@ -667,8 +689,12 @@
 
 2006-07-05 14:23  hkmoffa
 
-	* test_problems/min_python/Makefile.in: Added another test to add
-	  coverage to the ctml to xml treatment of neg A coefficients.
+	* test_problems/min_python/: Makefile.in, negATest/.cvsignore,
+	  negATest/Makefile.in, negATest/negATest.cpp,
+	  negATest/negATest_blessed.out, negATest/noxNeg.cti,
+	  negATest/noxNeg_blessed.xml, negATest/runtest: Added another test
+	  to add coverage to the ctml to xml treatment of neg A
+	  coefficients.
 
 2006-07-05 07:35  hkmoffa
 
