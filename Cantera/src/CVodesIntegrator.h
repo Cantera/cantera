@@ -28,6 +28,7 @@
 #ifdef SUNDIALS_VERSION_22
 #include <nvector_serial.h>
 #else
+//#include <sundials/config.h>
 #include <sundials/sundials_nvector.h>
 #endif
 
