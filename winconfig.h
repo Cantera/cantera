@@ -73,6 +73,7 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 #define WINMSVC
 
 #define HAS_SUNDIALS 1
+#define SUNDIALS_VERSION_23
 
 //--------- Fonts for reaction path diagrams ----------------------
 #define RXNPATH_FONT "Helvetica"

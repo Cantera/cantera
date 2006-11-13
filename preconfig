@@ -254,7 +254,7 @@ USE_SUNDIALS=${USE_SUNDIALS:='default'}
 # This is where you installed sundials if you used the --prefix option
 # when you configured sundials. If you didn't use the prefix option,
 # then comment this line out.
-#SUNDIALS_HOME=${SUNDIALS_HOME:=$HOME/sundials}
+SUNDIALS_HOME=${SUNDIALS_HOME:=$HOME/dv/sf/sundials-inst}
 
 # It is recommended that you install the newest release of sundials 
 # (currently 2.3.0) before building Cantera. But if you want to use an 
