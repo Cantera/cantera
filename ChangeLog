@@ -1,3 +1,80 @@
+2006-11-14 00:40  dggoodwin
+
+	* configure, configure.in, Cantera/src/MultiPhaseEquil.cpp: minor
+	  cleanup
+
+2006-11-13 11:55  dggoodwin
+
+	* Cantera/src/CVodesIntegrator.h, ext/f2c_libs/arith.h,
+	  win32/vc7/Sundials/CVODES/CVODES.vcproj,
+	  win32/vc7/Sundials/NVEC_SER/NVEC_SER.vcproj,
+	  win32/vc7/Sundials/SUNDIALS_SHARED/SUNDIALS_SHARED.vcproj,
+	  win32/vc7/cantera/cantera.vcproj: minor cleanup
+
+2006-11-13 11:46  dggoodwin
+
+	* win32/vc7/Sundials/sundials/sundials_config.h: added
+	  sundials_config.h so that users can build sundials without having
+	  to run configure
+
+2006-11-13 08:39  dggoodwin
+
+	* ChangeLog, preconfig, ext/f2c_libs/arith.h,
+	  test_problems/python/runtest: minor changes
+
+2006-11-12 20:23  dggoodwin
+
+	* License.rtf, preconfig, winconfig.h, ext/f2c_libs/arith.h: minor
+	  cleanup
+
+2006-11-12 20:22  dggoodwin
+
+	* win32/vc7/demos/: NASA_coeffs.vcproj, combustor.vcproj,
+	  flamespeed.vcproj, kinetics1.vcproj: added example project files
+
+2006-11-12 20:21  dggoodwin
+
+	* win32/vc7/: SetupCantera/SetupCantera.vdproj,
+	  SetupCantera/SetupCanteraLite.vdproj, cantera.sln,
+	  Sundials/CVODES/CVODES.vcproj,
+	  Sundials/CVODES_DENSE/CVODES_DENSE.vcproj,
+	  Sundials/IDA/IDA.vcproj, Sundials/KINSOL/KINSOL.vcproj,
+	  Sundials/NVEC_SER/NVEC_SER.vcproj,
+	  Sundials/SUNDIALS_SHARED/SUNDIALS_SHARED.vcproj,
+	  cantera/cantera.vcproj, demos/CanteraDemos.sln,
+	  demos/Rankine.vcproj, demos/demo.vcproj, zeroD/zeroD.vcproj:
+	  update of project files
+
+2006-11-11 06:12  dggoodwin
+
+	* win32/vc7/: cantera.sln, cantera_no_sundials.sln,
+	  SetupCantera/SetupCantera.vdproj, cantera/cantera.vcproj: added
+	  no_sundials version
+
+2006-11-11 06:10  dggoodwin
+
+	* win32/vc7/Sundials/: Sundials.sln,
+	  CVODES_DENSE/CVODES_DENSE.vcproj: added cvodes_dense
+
+2006-11-11 05:23  dggoodwin
+
+	* preconfig, Cantera/src/Makefile.in,
+	  Cantera/src/zeroD/Makefile.in: minor changes to how dependencies
+	  are handled in Makefiles
+
+2006-11-10 17:38  dggoodwin
+
+	* configure, configure.in: fixed null username
+
+2006-11-10 17:37  dggoodwin
+
+	* tools/src/finish_install.py.in: added writing PYTHONPATH to
+	  setup_Cantera for min_Python
+
+2006-11-10 05:48  dggoodwin
+
+	* Cantera/src/CVodesIntegrator.h: minor cleanup
+
 2006-11-09 05:04  dggoodwin
 
 	* Cantera/python/examples/fuel_cells/: sofc.cti, sofc.py: added
@@ -53,9 +130,18 @@
 
 	* winconfig.h: updated
 
-2006-11-02 17:33  dggoodwin
+2006-11-03 12:44  dggoodwin
 
-	* Cantera/python/winsetup.py, License.txt: updated for Cantera 1.7
+	* win32/vc7/Sundials/: CVODES/CVODES.vcproj, IDA/IDA.vcproj,
+	  KINSOL/KINSOL.vcproj, NVEC_SER/NVEC_SER.vcproj,
+	  SUNDIALS_SHARED/SUNDIALS_SHARED.vcproj: initial import
+
+2006-11-02 17:32  dggoodwin
+
+	* win32/vc7/SetupCantera/SetupCantera.vdproj,
+	  win32/vc7/SetupCantera/SetupCanteraLite.vdproj,
+	  win32/vc7/ctmatlab/runmlab.cmd, Cantera/python/winsetup.py,
+	  License.txt: updated for Cantera 1.7
 
 2006-10-31 11:09  dggoodwin
 
@@ -689,12 +775,8 @@
 
 2006-07-05 14:23  hkmoffa
 
-	* test_problems/min_python/: Makefile.in, negATest/.cvsignore,
-	  negATest/Makefile.in, negATest/negATest.cpp,
-	  negATest/negATest_blessed.out, negATest/noxNeg.cti,
-	  negATest/noxNeg_blessed.xml, negATest/runtest: Added another test
-	  to add coverage to the ctml to xml treatment of neg A
-	  coefficients.
+	* test_problems/min_python/Makefile.in: Added another test to add
+	  coverage to the ctml to xml treatment of neg A coefficients.
 
 2006-07-05 07:35  hkmoffa
 
@@ -1086,6 +1168,11 @@
 
 	* Cantera/src/SpeciesThermoFactory.cpp: used popError() on two
 	  cases where errors are caught and delt with.
+
+2006-05-18 16:18  dggoodwin
+
+	* win32/vc7/zeroD/zeroD.vcproj: added ConstPressureReactor to win32
+	  project
 
 2006-05-17 10:43  dggoodwin
 
@@ -1722,6 +1809,10 @@
 	  some variable names to eliminate leading ddouble (and some
 	  single) underscores
 
+2005-11-22 05:23  dggoodwin
+
+	* win32/vc7/cantera/cantera.vcproj: updated
+
 2005-11-18 00:21  dggoodwin
 
 	* ext/tpx/Sub.cpp: added check in set_xy for density == Undef but T
@@ -2028,6 +2119,11 @@
 	  Heptane.h, Makefile.in, subs.h, utils.cpp: added files for CO2
 	  and heptane contributed by R. Hunt, Stanford
 
+2005-09-15 08:59  dggoodwin
+
+	* win32/vc7/SetupCantera/: SetupCantera.vdproj,
+	  SetupCanteraLite.vdproj: does not include static libs
+
 2005-09-14 20:50  dggoodwin
 
 	* Cantera/src/oneD/: Domain1D.cpp, MultiNewton.cpp, StFlow.cpp,
@@ -2071,6 +2167,10 @@
 
 	* test_problems/python/: frac.cti, frac.py, frac_blessed.out,
 	  runtest: modified the frac test
+
+2005-08-29 13:23  dggoodwin
+
+	* win32/vc7/config_h/docopy.cmd: initial import
 
 2005-08-26 09:28  hkmoffa
 
@@ -2267,6 +2367,11 @@
 	  Cantera/src/oneD/StFlow.cpp, tools/src/package4mac.in,
 	  tools/templates/f77/demo.mak.in, tools/templates/f90/demo.mak.in:
 	  cleanup
+
+2005-06-24 21:55  dggoodwin
+
+	* win32/vc7/: cantera.sln, SetupCantera/SetupCantera.vdproj,
+	  cantera/cantera.vcproj: minor cleanup
 
 2005-06-24 10:43  dggoodwin
 
@@ -2668,7 +2773,9 @@
 
 2005-04-06 17:03  dggoodwin
 
-	* Cantera/matlab/cantera/buildwin.m: minor changes to SetupCantera
+	* Cantera/matlab/cantera/buildwin.m,
+	  win32/vc7/SetupCantera/SetupCantera.vdproj: minor changes to
+	  SetupCantera
 
 2005-04-01 20:37  dggoodwin
 
@@ -2788,10 +2895,12 @@
 
 2005-02-10 00:10  dggoodwin
 
-	* Cantera/: clib/src/ct.h, matlab/cantera/buildwin.m,
-	  matlab/cantera/private/ctmethods.cpp, python/src/pycantera.cpp,
-	  src/MultiPhase.cpp, src/config.h, src/converters/ck2ct.cpp: minor
-	  win32 bug fixes
+	* Cantera/clib/src/ct.h, Cantera/matlab/cantera/buildwin.m,
+	  Cantera/matlab/cantera/private/ctmethods.cpp,
+	  Cantera/python/src/pycantera.cpp, Cantera/src/MultiPhase.cpp,
+	  Cantera/src/config.h, Cantera/src/converters/ck2ct.cpp,
+	  win32/vc7/cantera.sln, win32/vc7/cantera/cantera.vcproj,
+	  win32/vc7/tpx/tpx.vcproj: minor win32 bug fixes
 
 2005-02-09 02:26  dggoodwin
 
@@ -2929,6 +3038,18 @@
 	* Cantera/cxx/demos/: Makefile.in, demos.cpp, flamespeed.cpp,
 	  kin1_blessed.csv, kin1_blessed.dat, kinetics1.cpp, rankine.cpp:
 	  added program demo to run all demos
+
+2005-01-22 04:48  dggoodwin
+
+	* win32/vc7/: SetupCantera/SetupCantera.vdproj,
+	  cantera/cantera.vcproj, ck2cti/ck2cti.vcproj,
+	  converters/converters.vcproj, ctmatlab/ctmatlab.vcproj,
+	  ctpython/ctpython.vcproj, cvode/cvode.vcproj,
+	  cxxutils/cxxutils.vcproj, f2c_blas/f2c_blas.vcproj,
+	  f2c_lapack/f2c_lapack.vcproj, f2c_libs/f2c_libs.vcproj,
+	  f2c_math/f2c_math.vcproj, f2c_recipes/f2c_recipes.vcproj,
+	  oneD/oneD.vcproj, tpx/tpx.vcproj, transport/transport.vcproj,
+	  zeroD/zeroD.vcproj: added hfc134a to Cantera
 
 2005-01-19 13:22  dggoodwin
 
@@ -3082,6 +3203,20 @@
 
 	* data/inputs/: graphite.cti, water.cti: added water.cti
 
+2005-01-07 17:10  dggoodwin
+
+	* win32/vc7/: cantera/cantera.vcproj, config_h/config_h.vcproj:
+	  added a file to project cantera
+
+2005-01-07 16:59  dggoodwin
+
+	* win32/vc7/config_h/config_h.vcproj: added project config_h
+
+2005-01-07 16:29  dggoodwin
+
+	* win32/vc7/demos/: CanteraDemos.sln, Rankine.vcproj: added project
+	  rankine
+
 2005-01-07 02:26  dggoodwin
 
 	* Cantera/: clib/src/ct.cpp, clib/src/ct.h,
@@ -3193,6 +3328,50 @@
 	* ext/tpx/Sub.cpp: fixed problem with starting guess for T in Tsat
 	  that caused an exception with T > Tcrit on entry
 
+2005-01-04 17:04  hkmoffa
+
+	* win32/vc7/cvode/.cvsignore: Added a directory name
+
+2005-01-04 17:03  hkmoffa
+
+	* win32/vc7/.cvsignore: added a file name
+
+2005-01-04 17:01  hkmoffa
+
+	* win32/vc7/: transport/.cvsignore, oneD/.cvsignore: Added a
+	  directory
+
+2005-01-04 17:00  hkmoffa
+
+	* win32/vc7/SetupCantera/.cvsignore: Adding the .cvsignore file
+
+2005-01-04 16:58  hkmoffa
+
+	* win32/vc7/clib/: .cvsignore, clib.vcproj: Changed the library
+	  paths in the Debug and Release versions.
+
+2005-01-04 16:54  hkmoffa
+
+	* win32/vc7/ctmatlab/: .cvsignore, runmlab.cmd: changed forward
+	  slashes into backslashes.
+
+2005-01-04 16:46  hkmoffa
+
+	* win32/vc7/ctpython/: .cvsignore, ctpython.vcproj, runpython.cmd:
+	  changed runpython.cmd to use backslashes.
+
+2005-01-04 14:28  hkmoffa
+
+	* win32/vc7/SetupCantera/SetupCantera.vdproj: Changed LF's to
+	  CR-LF's in the entire file. mcvc++ was having trouble reading the
+	  file with just LF's.
+
+2005-01-04 14:23  hkmoffa
+
+	* win32/vc7/SetupCantera/SetupCantera.vdproj: Changed LF's into
+	  CR-LF's in this file. This was causing msvc++ not to be able to
+	  load the file, at least for me.
+
 2005-01-04 12:32  hkmoffa
 
 	* Cantera/src/transport/Makefile.in: New Makefile Format:
@@ -3221,6 +3400,11 @@
 2004-12-15 22:56  dggoodwin
 
 	* Cantera/src/MultiPhase.cpp: initial import
+
+2004-12-13 10:38  dggoodwin
+
+	* win32/vc7/demos/: CanteraDemos.sln, ReadMe.txt, demo.vcproj:
+	  initial import
 
 2004-12-13 06:58  dggoodwin
 
@@ -3287,6 +3471,25 @@
 	* Cantera/src/importCTML.cpp: changed buildSolutionFromXML to use
 	  get_XML_NameID instead of get_XML_Node
 
+2004-11-15 14:07  hkmoffa
+
+	* win32/vc7/ck2cti/ck2cti.vcproj: use debug libraries on debug
+	  version.
+
+2004-11-15 14:05  hkmoffa
+
+	* win32/vc7/diamondSurf/diamondSurf.vcproj: ignored msvct default
+	  library
+
+2004-11-15 14:03  hkmoffa
+
+	* win32/vc7/cantera/cantera.vcproj: Dos format
+
+2004-11-15 13:41  hkmoffa
+
+	* win32/vc7/clib/clib.vcproj: For the debug dll, you have to
+	  compile with debug libraries.
+
 2004-11-15 12:52  hkmoffa
 
 	* Cantera/clib/src/ct.cpp: Added a static_cast.
@@ -3339,6 +3542,10 @@
 
 	* bin/install_tsc.in: Check for destination directory existing.
 
+2004-10-16 04:09  dggoodwin
+
+	* win32/vc7/SetupCantera/SetupCantera.vdproj: initial import
+
 2004-10-16 03:12  dggoodwin
 
 	* Cantera/python/winsetup.py: initial import
@@ -3355,6 +3562,34 @@
 2004-10-13 21:24  dggoodwin
 
 	* tools/src/: package4mac.in, postflight: Mac install script
+
+2004-10-12 06:56  dggoodwin
+
+	* win32/vc7/: cantera.sln, cantera_examples.sln,
+	  cantera/cantera.vcproj, ck2cti/ck2cti.vcproj, clib/clib.vcproj,
+	  converters/converters.vcproj, cti2ctml/cti2ctml.vcproj,
+	  cvode/cvode.vcproj, cxxutils/cxxutils.vcproj,
+	  f2c_blas/f2c_blas.vcproj, f2c_lapack/f2c_lapack.vcproj,
+	  f2c_libs/f2c_libs.vcproj, f2c_math/f2c_math.vcproj,
+	  f2c_recipes/f2c_recipes.vcproj, oneD/oneD.vcproj,
+	  silane_equil/silane_equil.vcproj, tpx/tpx.vcproj,
+	  transport/transport.vcproj, zeroD/zeroD.vcproj: added ctpython,
+	  changed c libs to multithreaded DLL, changed properties for
+	  release version
+
+2004-10-12 06:55  dggoodwin
+
+	* win32/vc7/ctpython/: ctpython.vcproj, runpython.cmd: files to
+	  build the Python interface within Visual Studio
+
+2004-10-11 07:36  dggoodwin
+
+	* win32/vc7/: cantera.sln, cantera/cantera.vcproj,
+	  cvode/cvode.vcproj, f2c_arithchk/f2c_arithchk.vcproj,
+	  f2c_blas/f2c_blas.vcproj, f2c_lapack/f2c_lapack.vcproj,
+	  f2c_libs/f2c_libs.vcproj, f2c_math/f2c_math.vcproj,
+	  f2c_recipes/f2c_recipes.vcproj, tpx/tpx.vcproj,
+	  transport/transport.vcproj: bug fixes
 
 2004-10-10 13:46  dggoodwin
 
@@ -3541,6 +3776,11 @@
 	  "default", if unspecified. Then, this default is treated in
 	  config/configure with special code.
 
+2004-09-24 13:35  hkmoffa
+
+	* win32/vc7/configure.vc++: Added the USE_DLL environmental
+	  variable.
+
 2004-09-24 13:16  hkmoffa
 
 	* Makefile.in, configure: Added USE_DLL variable and its controls.
@@ -3556,6 +3796,11 @@
 	* Cantera/python/Makefile.in: took care of problem with clib.dll
 	  for MSVC6.0
 
+2004-09-24 10:24  hkmoffa
+
+	* win32/README: Added another step, involving setting up paths and
+	  environmental variables.
+
 2004-09-20 03:18  dggoodwin
 
 	* Cantera/src/: EdgeKinetics.cpp, EdgeKinetics.h, ReactionData.h,
@@ -3566,6 +3811,10 @@
 
 	* Makefile.in: Added dll install
 
+2004-09-16 15:07  hkmoffa
+
+	* win32/README: Added another step.
+
 2004-09-16 14:43  hkmoffa
 
 	* test_problems/python/runtest: Fixed an error in the default
@@ -3574,6 +3823,19 @@
 2004-09-16 10:57  hkmoffa
 
 	* tools/src/ck2cti.cpp: Added an id string.
+
+2004-09-16 10:54  hkmoffa
+
+	* win32/vc7/cantera.sln: Added a few more dependencies to sln file.
+
+2004-09-16 10:54  hkmoffa
+
+	* win32/vc7/ck2cti/ck2cti.vcproj: Fixed an error.
+
+2004-09-16 10:53  hkmoffa
+
+	* win32/vc7/cvode/cvode.vcproj: Changed an absolute pathname into a
+	  relative pathname.
 
 2004-09-16 10:52  hkmoffa
 
@@ -3602,6 +3864,14 @@
 	* Cantera/src/converters/ck2ct.cpp: Took out a print statement that
 	  was causing a test to fail.
 
+2004-09-02 13:57  hkmoffa
+
+	* win32/vc7/configure.vc++: Took out HKM comments
+
+2004-09-02 13:48  hkmoffa
+
+	* win32/README: Added a cd command.
+
 2004-08-28 09:13  dggoodwin
 
 	* tools/bin/erase: script to remove a file from the repository
@@ -3628,6 +3898,17 @@
 
 	* bin/.cvsignore: added some windows tmp files
 
+2004-08-27 13:29  hkmoffa
+
+	* win32/README: Added detailed instructions for vc7
+
+2004-08-27 13:26  hkmoffa
+
+	* win32/vc7/: .cvsignore, cantera.sln, cantera_examples.sln,
+	  csvdiff/.cvsignore, csvdiff/csvdiff.vcproj,
+	  cxx_examples/.cvsignore, cxx_examples/cxx_examples.vcproj: Second
+	  generation of vc7 port.
+
 2004-08-27 13:21  hkmoffa
 
 	* test_problems/python/runtest: Currently, linux and MSVC are
@@ -3647,6 +3928,10 @@
 2004-08-27 09:45  hkmoffa
 
 	* config/configure.in: Added a default 0 to BUILD_PARTICLES value
+
+2004-08-27 08:42  hkmoffa
+
+	* win32/vc7/configure.vc++: Initial commit
 
 2004-08-10 13:39  hkmoffa
 
@@ -3730,6 +4015,29 @@
 
 	* ext/f2c_lapack/dlamch.c: Added a stdio.h reference.
 
+2004-08-09 17:18  hkmoffa
+
+	* win32/vc7/: .cvsignore, cantera.sln, cantera/.cvsignore,
+	  cantera/cantera.vcproj, ck2cti/.cvsignore, ck2cti/ck2cti.vcproj,
+	  clib/.cvsignore, clib/clib.vcproj, converters/.cvsignore,
+	  converters/converters.vcproj, cti2ctml/.cvsignore,
+	  cti2ctml/cti2ctml.vcproj, cvode/.cvsignore, cvode/cvode.vcproj,
+	  cxxutils/.cvsignore, cxxutils/cxxutils.vcproj,
+	  diamondSurf/.cvsignore, diamondSurf/diamondSurf.vcproj,
+	  f2c_arithchk/.cvsignore, f2c_arithchk/f2c_arithchk.vcproj,
+	  f2c_blas/.cvsignore, f2c_blas/f2c_blas.vcproj,
+	  f2c_lapack/.cvsignore, f2c_lapack/f2c_lapack.vcproj,
+	  f2c_libs/.cvsignore, f2c_libs/f2c_libs.vcproj,
+	  f2c_math/.cvsignore, f2c_math/f2c_math.vcproj,
+	  f2c_recipes/.cvsignore, f2c_recipes/f2c_recipes.vcproj,
+	  oneD/.cvsignore, oneD/oneD.vcproj, pycantera/.cvsignore,
+	  pycantera/pycantera.vcproj, silane_equil/.cvsignore,
+	  silane_equil/silane_equil.vcproj, surfkin/.cvsignore,
+	  surfkin/surfkin.vcproj, tpx/.cvsignore, tpx/tpx.vcproj,
+	  transport/.cvsignore, transport/transport.vcproj,
+	  zeroD/.cvsignore, zeroD/zeroD.vcproj: First commit of vc7 project
+	  files.
+
 2004-08-09 16:58  hkmoffa
 
 	* test_problems/silane_equil/: .cvsignore, runtest: MSVS
@@ -3797,6 +4105,18 @@
 	  Cantera/src/ctvector.cpp, Cantera/src/ctvector.h,
 	  Cantera/src/misc.cpp, config/configure, config/configure.in,
 	  ext/math/fdump.f: improvements to the configuration process
+
+2004-08-06 16:29  hkmoffa
+
+	* win32/vc6/: cantera.dsw, all/all.dsp, blas/blas.dsp,
+	  cantera/cantera.dsp, cantera_examples/cantera_examples.dsw,
+	  ck2cti/ck2cti.dsp, ckreader/ckreader.dsp, clib/clib.dsp,
+	  converters/converters.dsp, ct/ct.dsp, ctmath/ctmath.dsp,
+	  ctsetup/ctsetup.dsp, cvode/cvode.dsp, cxxutils/cxxutils.dsp,
+	  cxxutils/cxxutils.mak, lapack/lapack.dsp, oneD/oneD.dsp,
+	  recipes/recipes.dsp, tpx/tpx.dsp, tpx/tpx.mak,
+	  transport/transport.dsp, zeroD/zeroD.dsp: Duplicating existing
+	  structure in the new module. However, it's one directory deeper.
 
 2004-08-06 16:09  hkmoffa
 
@@ -4066,6 +4386,14 @@
 
 	* Cantera/src/: IdealGasThermo.cpp, ImplicitChem.cpp, Makefile.in,
 	  SolidCompound.cpp, importSurfChem.cpp, surfKinetics.cpp: cleanup
+
+2004-08-03 02:18  dggoodwin
+
+	* win32/README: Initial revision
+
+2004-08-03 02:18  dggoodwin
+
+	* win32/README: initial import
 
 2004-08-03 02:09  dggoodwin
 

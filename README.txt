@@ -1,11 +1,11 @@
         
                              C A N T E R A
 
-                              release 1.6
+                              release 1.7
 
-                               6/2005
+                               11/2006
 
-      Copyright (c) 2001-2005 California Institute of Technology
+      Copyright (c) 2001-2006 California Institute of Technology
 
 ***************************************************************
 ***                                                         
