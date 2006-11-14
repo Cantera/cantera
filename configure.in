@@ -310,8 +310,8 @@ CVODE_LIBS='-lcvode'
 IDA_LIBS=''
 
 if test "x$SUNDIALS_HOME" = "x"; then
-SUNDIALS_LIB_DIR=/usr/local/sundials/lib
-SUNDIALS_INC_DIR=/usr/local/include/sundials
+SUNDIALS_LIB_DIR=/usr/local/lib
+SUNDIALS_INC_DIR=/usr/local/include
 else
 SUNDIALS_LIB_DIR=$SUNDIALS_HOME/lib
 SUNDIALS_INC_DIR=$SUNDIALS_HOME/include
@@ -706,11 +706,9 @@ if test -n "$BLAS_LAPACK_DIR"
 then LOCAL_LIB_DIRS=$LOCAL_LIB_DIRS' -L'$BLAS_LAPACK_DIR
 fi
 
-
-if test -n "$SUNDIALS_HOME"
-then LOCAL_LIB_DIRS=$LOCAL_LIB_DIRS' -L'$SUNDIALS_HOME/lib
+if test ${use_sundials} = 1; then
+LOCAL_LIB_DIRS=$LOCAL_LIB_DIRS' -L'$SUNDIALS_LIB_DIR
 fi
-
 
 AC_SUBST(LOCAL_LIB_DIRS)
 AC_SUBST(LOCAL_LIBS)

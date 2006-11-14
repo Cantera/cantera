@@ -7,16 +7,16 @@
 #include <iostream>
 using namespace std;
 
-#if DARWIN == 1
-#define ISNAN __isnand
-#else
-#ifdef WIN32
-#include <float.h>
-#define ISNAN _isnan
-#else
-#define ISNAN isnan
-#endif
-#endif
+//#if DARWIN == 1
+//#define ISNAN __isnand
+//#else
+//#ifdef WIN32
+//#include <float.h>
+//#define ISNAN _isnan
+//#else
+//#define ISNAN isnan
+//#endif
+//#endif
 
 namespace Cantera {
 
@@ -736,10 +736,10 @@ namespace Cantera {
                             }
                         }
                         sum -= psum / (fabs(m_mix->phaseMoles(ip)) + TINY);
-                        if (ISNAN(sum)) {
-                            cout << " sum is nan. " << endl;
-                            cout << psum << " " << m_mix->phaseMoles(ip) << endl;
-                        }
+                        //     if (ISNAN(sum)) {
+                        //    cout << " sum is nan. " << endl;
+                        //    cout << psum << " " << m_mix->phaseMoles(ip) << endl;
+                        //                     }
                     }
                 }
                 rfctr = term1 + csum + sum;
@@ -747,16 +747,16 @@ namespace Cantera {
                     fctr = 1.0;
                 else
                     fctr = 1.0/(term1 + csum + sum);
-                if (ISNAN(fctr)) {
-                    cout << "fctr is nan." << endl;
-                    cout << term1 << " " << csum << " " << sum << " " << TINY << endl;
-                }
+                //                if (ISNAN(fctr)) {
+                //    cout << "fctr is nan." << endl;
+                //   cout << term1 << " " << csum << " " << sum << " " << TINY << endl;
+                //}
             }
             dxi[j] = -fctr*dg_rt;
-            if (ISNAN(dxi[j])) {
-                cout << "nan detected. " << endl;
-                cout << fctr << " " << dg_rt << endl;
-            }
+            //if (ISNAN(dxi[j])) {
+            //    cout << "nan detected. " << endl;
+            //    cout << fctr << " " << dg_rt << endl;
+            //}
                 
             index_t m;
              for (m = 0; m < m_nel; m++) {
