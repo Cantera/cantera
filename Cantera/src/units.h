@@ -34,7 +34,7 @@ namespace Cantera {
          * energy to SI units.
          * @param units activation energy units
          */
-        doublereal actEnergyToSI(string units) {
+        doublereal actEnergyToSI(std::string units) {
             if (m_act_u.find(units) != m_act_u.end()) {
                 return m_act_u[units];
             }
@@ -50,15 +50,15 @@ namespace Cantera {
          *  <string, doublereal>called  m_u[] and m_act_u for activity
          * coefficients. These maps are initialized with likely values.
          */
-        doublereal toSI(string units) {
+        doublereal toSI(std::string units) {
 
             // if dimensionless, return 1.0
             if (units == "") return 1.0;
 
             doublereal f = 1.0, fctr;
             int tsize;
-            string u = units, tok, tsub;
-            string::size_type k;
+            std::string u = units, tok, tsub;
+            std::string::size_type k;
             char action = '-';
 
             while (1 > 0) {
@@ -66,7 +66,7 @@ namespace Cantera {
                 // get token consisting of all characters up to the next 
                 // dash, slash, or the end of the string
                 k = u.find_first_of("/-");
-                if (k != string::npos)
+                if (k != std::string::npos)
                     tok = u.substr(0,k);
                 else
                     tok = u;
@@ -109,7 +109,7 @@ namespace Cantera {
                     throw CanteraError("toSI","unknown unit: "+tsub);
                 if (action == '-') f *= fctr;
                 else if (action == '/') f /= fctr;
-                if (k == string::npos) break;
+                if (k == std::string::npos) break;
                 action = u[k];
                 u = u.substr(k+1,u.size());
             }
@@ -121,8 +121,8 @@ namespace Cantera {
         /// pointer to the single instance of Unit
         static Unit* s_u;
 
-        map<string, doublereal> m_u;
-        map<string, doublereal> m_act_u;
+        std::map<std::string, doublereal> m_u;
+        std::map<std::string, doublereal> m_act_u;
 
         Unit(){
 

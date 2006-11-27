@@ -29,6 +29,9 @@
 
 #include "clib_defs.h"
 
+using namespace std;
+using namespace Cantera;
+
 inline XML_Node* _xml(int i) {
     return Cabinet<XML_Node>::cabinet(false)->item(i);
 }

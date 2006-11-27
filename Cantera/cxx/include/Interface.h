@@ -13,7 +13,7 @@ namespace Cantera {
         public SurfPhase, public InterfaceKinetics
     {
     public:
-        Interface(string infile, string id, vector<ThermoPhase*> phases) 
+        Interface(std::string infile, std::string id, std::vector<ThermoPhase*> phases) 
             : m_ok(false), m_r(0) {
 
             m_r = get_XML_File(infile); 
@@ -41,8 +41,8 @@ namespace Cantera {
     private:
     };
 
-    inline Interface* importInterface(string infile, string id, 
-        vector<ThermoPhase*> phases) {
+    inline Interface* importInterface(std::string infile, std::string id, 
+        std::vector<ThermoPhase*> phases) {
         return new Interface(infile, id, phases);
     }
 

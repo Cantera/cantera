@@ -119,7 +119,7 @@ namespace CanteraZeroD {
             return m_integ->sensitivity(k, p)/m_integ->solution(k);
         }
 
-        double sensitivity(string species, int p, int reactor=0) {
+        double sensitivity(std::string species, int p, int reactor=0) {
             int k = globalComponentIndex(species, reactor);
             return sensitivity(k, p);
         }
@@ -134,12 +134,12 @@ namespace CanteraZeroD {
             doublereal* y);
         virtual int nparams() { return m_ntotpar; }
 
-        int globalComponentIndex(string species, int reactor=0);
+        int globalComponentIndex(std::string species, int reactor=0);
 
     protected:
 
-        vector<ReactorBase*> m_r;
-        vector<Reactor*> m_reactors;
+        std::vector<ReactorBase*> m_r;
+        std::vector<Reactor*> m_reactors;
         int m_nr;
         int m_nreactors;
         Integrator* m_integ;

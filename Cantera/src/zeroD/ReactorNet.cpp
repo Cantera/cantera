@@ -1,6 +1,8 @@
 #include "ReactorNet.h"
 #include "../Integrator.h"
 
+using namespace std;
+
 namespace CanteraZeroD {
 
     ReactorNet::ReactorNet() : FuncEval(), m_nr(0), m_nreactors(0),

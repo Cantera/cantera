@@ -20,6 +20,8 @@
 
 #include "ImplicitSurfChem.h"
 
+using namespace std;
+
 namespace Cantera {
 
     //////////////////////////////////////////////////////////////////

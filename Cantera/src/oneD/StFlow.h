@@ -172,10 +172,10 @@ namespace Cantera {
         doublereal Y_fixed(int k, int j) const {return m_fixedy(k,j);}
 
 
-        virtual string componentName(int n) const;
+        virtual std::string componentName(int n) const;
 	    
         //added by Karl Meredith
-        int componentIndex(string name) const;
+        int componentIndex(std::string name) const;
 
 
         virtual void showSolution(const doublereal* x);
@@ -185,7 +185,7 @@ namespace Cantera {
         virtual void restore(const XML_Node& dom, doublereal* soln);
 
         // overloaded in subclasses
-        virtual string flowType() { return "<none>"; }
+        virtual std::string flowType() { return "<none>"; }
 
         void solveEnergyEqn(int j=-1) {
             if (j < 0)
@@ -442,9 +442,9 @@ namespace Cantera {
         bool m_ok;
 
         // flags
-        vector<bool> m_do_energy;
+        std::vector<bool> m_do_energy;
         bool m_do_soret;
-        vector<bool> m_do_species;
+        std::vector<bool> m_do_species;
         int m_transport_option;
 
         // solution estimate
@@ -477,7 +477,7 @@ namespace Cantera {
         virtual ~AxiStagnFlow() {}
         virtual void eval(int j, doublereal* x, doublereal* r, 
             integer* mask, doublereal rdt);
-        virtual string flowType() { return "Axisymmetric Stagnation"; }
+        virtual std::string flowType() { return "Axisymmetric Stagnation"; }
     };
 
     /**
@@ -490,7 +490,7 @@ namespace Cantera {
         virtual ~FreeFlame() {}
         virtual void eval(int j, doublereal* x, doublereal* r, 
             integer* mask, doublereal rdt);
-        virtual string flowType() { return "Free Flame"; }
+        virtual std::string flowType() { return "Free Flame"; }
         virtual bool fixed_mdot() { return false; }
     };
 
@@ -504,7 +504,7 @@ namespace Cantera {
         virtual ~OneDFlow() {}
         virtual void eval(int j, doublereal* x, doublereal* r, 
             integer* mask, doublereal rdt);
-        virtual string flowType() { return "OneDFlow"; }
+        virtual std::string flowType() { return "OneDFlow"; }
         doublereal mdot(doublereal* x, int j) {
             return x[index(c_offset_L,j)];
         }

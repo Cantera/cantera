@@ -44,7 +44,7 @@ namespace Cantera {
         Elements();
         ~Elements();
 
-	static double LookupWtElements(const string &);
+	static double LookupWtElements(const std::string &);
 
         /// Atomic weight of element m. 
         doublereal atomicWeight(int m) const { return m_atomicWeights[m]; }
@@ -73,13 +73,13 @@ namespace Cantera {
 	 *
 	 * @param name String containing the index.
          */
-        int elementIndex(string name) const;
+        int elementIndex(std::string name) const;
 
         /*
          * Name of the element with index \c m.  @param m Element 11111
          * index. If m < 0 or m >= nElements() an exception is thrown.
          */
-        string elementName(int m) const;
+        std::string elementName(int m) const;
 
 	/* elementNames() */
         /**   Returns a string vector containing the element names  
@@ -88,12 +88,12 @@ namespace Cantera {
 	 * @return <tt> const vector<string>& </tt>: The vector contains
 	 *         the element names in their indexed order.
          */
-        const vector<string>& elementNames() const {
+        const std::vector<std::string>& elementNames() const {
             return m_elementNames;
         }
 
         /// Add an element.
-        void addElement(const string& symbol, 
+        void addElement(const std::string& symbol, 
 			doublereal weight = -12345.0);
         void addElement(const XML_Node& e);
 
@@ -101,7 +101,7 @@ namespace Cantera {
 	 * Add an element only if the element hasn't been added before.
 	 * This is accomplished via a string match on symbol.
 	 */
-	void addUniqueElement(const string& symbol, 
+	void addUniqueElement(const std::string& symbol, 
             doublereal weight = -12345.0, int atomicNumber = 0);
         void addUniqueElement(const XML_Node& e);
 
@@ -166,7 +166,7 @@ namespace Cantera {
 	 *        
 	 *  Note, a string search is the primary way to identify elements.
 	 */
-        vector<string>                 m_elementNames;
+        std::vector<std::string>                 m_elementNames;
 
 	/**
 	 * Number of Constituents Objects that use this object
@@ -184,7 +184,7 @@ namespace Cantera {
 	/** Vector of pointers to Elements Objects
 	 *
 	 */
-	static vector<Elements *> Global_Elements_List;
+	static std::vector<Elements *> Global_Elements_List;
 
     };  
     

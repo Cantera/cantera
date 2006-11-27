@@ -9,6 +9,8 @@
 #pragma warning(disable:4786)
 #endif
 
+using namespace std;
+
 #include "SpeciesThermoFactory.h"
 
 #include "SpeciesThermo.h"
@@ -41,7 +43,7 @@ namespace Cantera {
         int& has_nasa, int& has_shomate, int& has_simple,
         int &has_other) {
         const XML_Node& sparray = *node;
-        vector<XML_Node*> sp;
+        std::vector<XML_Node*> sp;
 
         // get all of the species nodes
         sparray.getChildren("species",sp);
@@ -88,7 +90,7 @@ namespace Cantera {
     }
     
     SpeciesThermo* SpeciesThermoFactory::
-    newSpeciesThermo(vector<XML_Node*> nodes) {
+    newSpeciesThermo(std::vector<XML_Node*> nodes) {
         int n = static_cast<int>(nodes.size());
         int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
         for (int j = 0; j < n; j++) {
@@ -111,7 +113,7 @@ namespace Cantera {
      * @todo is this used? 
      */
     SpeciesThermo* SpeciesThermoFactory::
-    newSpeciesThermoOpt(vector<XML_Node*> nodes) {
+    newSpeciesThermoOpt(std::vector<XML_Node*> nodes) {
         int n = static_cast<int>(nodes.size());
         int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
         for (int j = 0; j < n; j++) {
@@ -156,7 +158,7 @@ namespace Cantera {
 
     /// Check the continuity of properties at the midpoint
     /// temperature.
-    void NasaThermo::checkContinuity(string name, double tmid, const doublereal* clow,
+    void NasaThermo::checkContinuity(std::string name, double tmid, const doublereal* clow,
         doublereal* chigh) {
 
         // heat capacity
@@ -209,7 +211,7 @@ namespace Cantera {
      * This is called by method installThermoForSpecies if a NASA
      * block is found in the XML input.
      */
-    static void installNasaThermoFromXML(string speciesName,
+    static void installNasaThermoFromXML(std::string speciesName,
         SpeciesThermo& sp, int k, 
         const XML_Node* f0ptr, const XML_Node* f1ptr) {
         doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
@@ -280,7 +282,7 @@ namespace Cantera {
      * Install a NASA96 polynomial thermodynamic property
      * parameterization for species k into a SpeciesThermo instance.
      */
-    static void installNasa96ThermoFromXML(string speciesName,
+    static void installNasa96ThermoFromXML(std::string speciesName,
         SpeciesThermo& sp, int k, 
         const XML_Node* f0ptr, const XML_Node* f1ptr) {
         doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
@@ -340,7 +342,7 @@ namespace Cantera {
      * Install a Shomate polynomial thermodynamic property
      * parameterization for species k.
      */
-    static void installShomateThermoFromXML(string speciesName, 
+    static void installShomateThermoFromXML(std::string speciesName, 
         SpeciesThermo& sp, int k, 
         const XML_Node* f0ptr, const XML_Node* f1ptr) {
         doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
@@ -395,7 +397,7 @@ namespace Cantera {
      * Install a constant-cp thermodynamic property
      * parameterization for species k.
      */
-    static void installSimpleThermoFromXML(string speciesName, 
+    static void installSimpleThermoFromXML(std::string speciesName, 
         SpeciesThermo& sp, int k, 
         const XML_Node& f) {
         doublereal tmin, tmax;
@@ -431,7 +433,7 @@ namespace Cantera {
 					  s["name"], "<nonexistent>");
 	}
 	const XML_Node& thermo = s.child("thermo");
-	const vector<XML_Node*>& tp = thermo.children();
+	const std::vector<XML_Node*>& tp = thermo.children();
 	int nc = static_cast<int>(tp.size());
 	if (nc == 1) {
             const XML_Node* f = tp[0];

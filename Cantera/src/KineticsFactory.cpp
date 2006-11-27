@@ -23,6 +23,8 @@
 #include "EdgeKinetics.h"
 #include "importCTML.h"
 
+using namespace std;
+
 namespace Cantera {
 
     KineticsFactory* KineticsFactory::s_factory = 0;

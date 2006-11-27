@@ -43,7 +43,7 @@ namespace Cantera {
         /**
          * Constructor for multiple surfaces.
          */
-        ImplicitSurfChem(vector<InterfaceKinetics*> k);
+        ImplicitSurfChem(std::vector<InterfaceKinetics*> k);
 
         /**
          * Destructor. Deletes the integrator.
@@ -96,8 +96,8 @@ namespace Cantera {
          */
         void updateState(doublereal* y);
 
-        vector<SurfPhase*>            m_surf;
-        vector<InterfaceKinetics*>    m_kin;
+        std::vector<SurfPhase*>            m_surf;
+        std::vector<InterfaceKinetics*>    m_kin;
         vector_int                    m_nsp;
         vector_int                    m_surfindex;
         int                           m_nsurf;

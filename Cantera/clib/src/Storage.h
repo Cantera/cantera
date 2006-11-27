@@ -19,11 +19,11 @@ public:
     virtual ~Storage();
 
     // vectors to hold pointers to objects
-    vector<Kinetics*> __ktable;
-    vector<thermo_t*> __thtable;
-    vector<Transport*> __trtable;
+    std::vector<Cantera::Kinetics*> __ktable;
+    std::vector<Cantera::thermo_t*> __thtable;
+    std::vector<Cantera::Transport*> __trtable;
 
-    map<string, int> __thmap;
+    std::map<std::string, int> __thmap;
 
     static Storage* storage() {
         if (__storage == 0) {
@@ -33,9 +33,9 @@ public:
     }
 
 
-    int addThermo(ThermoPhase* th);
-    int addKinetics(Kinetics* kin);
-    int addTransport(Transport* tr);
+    int addThermo(Cantera::ThermoPhase* th);
+    int addKinetics(Cantera::Kinetics* kin);
+    int addTransport(Cantera::Transport* tr);
     //    int addNewTransport(int model, char* dbase, int th, int loglevel);
     int clear();
     void deleteKinetics(int n);
@@ -45,23 +45,23 @@ public:
     static Storage* __storage;
 };
 
-inline ThermoPhase* ph(int n) {
+inline Cantera::ThermoPhase* ph(int n) {
     return Storage::__storage->__thtable[n];
 }
 
-inline Kinetics* kin(int n) {
+inline Cantera::Kinetics* kin(int n) {
     return Storage::__storage->__ktable[n];
 }
 
-inline ThermoPhase* th(int n) {
+inline Cantera::ThermoPhase* th(int n) {
     return Storage::__storage->__thtable[n];
 }
 
-inline int thermo_index(string id) {
+inline int thermo_index(std::string id) {
     return Storage::__storage->__thmap[id];
 }
 
-inline Transport* trans(int n) {
+inline Cantera::Transport* trans(int n) {
     return Storage::__storage->__trtable[n];
 }
 

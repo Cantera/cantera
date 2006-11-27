@@ -27,8 +27,8 @@ namespace Cantera {
      */
     class UnknownSpeciesThermoModel: public CanteraError {
     public:
-	UnknownSpeciesThermoModel(string proc, string spName,
-				  string speciesThermoModel) :
+	UnknownSpeciesThermoModel(std::string proc, std::string spName,
+				  std::string speciesThermoModel) :
 	    CanteraError(proc, "species " + spName + 
 			 ": Specified speciesThermoPhase model "   
 			 + speciesThermoModel + 
@@ -86,8 +86,8 @@ namespace Cantera {
         virtual SpeciesThermo* newSpeciesThermo(int type);
 
         virtual SpeciesThermo* newSpeciesThermo(XML_Node* node);
-        virtual SpeciesThermo* newSpeciesThermo(vector<XML_Node*> nodes);
-        virtual SpeciesThermo* newSpeciesThermoOpt(vector<XML_Node*> nodes);
+        virtual SpeciesThermo* newSpeciesThermo(std::vector<XML_Node*> nodes);
+        virtual SpeciesThermo* newSpeciesThermoOpt(std::vector<XML_Node*> nodes);
 
 
         virtual void installThermoForSpecies(int k, const XML_Node& s, 
@@ -138,7 +138,7 @@ namespace Cantera {
         return sptherm;
     }
 
-    inline SpeciesThermo* newSpeciesThermoMgr(vector<XML_Node*> nodes, 
+    inline SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> nodes, 
         SpeciesThermoFactory* f=0, bool opt=false) {
         if (f == 0) {
             f = SpeciesThermoFactory::factory();

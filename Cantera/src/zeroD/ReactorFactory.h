@@ -45,7 +45,7 @@ namespace CanteraZeroD {
          * @param n the type to be created.
          */
         virtual ReactorBase* newReactor(int n);
-        virtual ReactorBase* newReactor(string reactorType);
+        virtual ReactorBase* newReactor(std::string reactorType);
 
     private:
 
@@ -53,7 +53,7 @@ namespace CanteraZeroD {
         ReactorFactory(){}
     };
 
-    inline ReactorBase* newReactor(string model,  
+    inline ReactorBase* newReactor(std::string model,  
         ReactorFactory* f=0) {
         if (f == 0) {
             f = ReactorFactory::factory();

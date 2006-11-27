@@ -5,6 +5,8 @@
 #include "DenseMatrix.h"
 #include "stringUtils.h"
 
+using namespace std;
+
 namespace Cantera {
 
     /// Constructor.

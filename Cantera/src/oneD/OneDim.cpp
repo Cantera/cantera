@@ -10,6 +10,7 @@
 
 #include "../ctml.h"
 using namespace ctml;
+using namespace std;
 
 namespace Cantera {
 

@@ -1,6 +1,8 @@
 /**
  * @file ctvector.h
  *
+ * THESE  CLASSES ARE NO LONGER USED. USE std::vector<double> instead.
+ *
  * These classes are defined to represent floating-point and integer
  * arrays. They act as simplified replacements for std::vector<double>
  * and std::vector<int>, respectively. These classes are designed for

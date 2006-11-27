@@ -1,5 +1,5 @@
 /**
- *  @file stringUtils.h
+ *  @file std::stringUtils.h
  *
  */
 
@@ -17,27 +17,27 @@ namespace Cantera {
     class Phase;
     class ThermoPhase;
 
-    string fp2str(double x, string fmt = "%g");
-    string int2str(int n, string fmt = "%d");
-    string stripws(string s);
-    string stripnonprint(string s);
-    string lowercase(string s);
-    void parseCompString(const string ss, compositionMap& x);
-    void split(const string ss, vector<string>& w);
-    int fillArrayFromString(const string& str, doublereal* a, char delim = ' ');
-    string report(const ThermoPhase& th, bool show_thermo = true);
-    string formatCompList(const Phase& mix, int xyc);
-    string logfileName(const string& infile);    
-    string getFileName(const string& path);
+    std::string fp2str(double x, std::string fmt = "%g");
+    std::string int2str(int n, std::string fmt = "%d");
+    std::string stripws(std::string s);
+    std::string stripnonprint(std::string s);
+    std::string lowercase(std::string s);
+    void parseCompString(const std::string ss, compositionMap& x);
+    void split(const std::string ss, std::vector<std::string>& w);
+    int fillArrayFromString(const std::string& str, doublereal* a, char delim = ' ');
+    std::string report(const ThermoPhase& th, bool show_thermo = true);
+    std::string formatCompList(const Phase& mix, int xyc);
+    std::string logfileName(const std::string& infile);    
+    std::string getFileName(const std::string& path);
 
-    inline int intValue(string val) {
+    inline int intValue(std::string val) {
         return atoi(stripws(val).c_str());
     }
 
-    inline doublereal fpValue(string val) {
+    inline doublereal fpValue(std::string val) {
         return atof(stripws(val).c_str());
     }
-    string wrapString(const string& s, int len=70);
+    std::string wrapString(const std::string& s, int len=70);
 
     int stripLTWScstring(char str[]);
     double atofCheck(const char *dptr);

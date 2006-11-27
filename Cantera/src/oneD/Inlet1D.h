@@ -56,8 +56,8 @@ namespace Cantera {
         /// Temperature [K].
         virtual doublereal temperature() {return m_temp;}
 
-        /// Set the mole fractions by specifying a string.
-        virtual void setMoleFractions(string xin){err("setMoleFractions");}
+        /// Set the mole fractions by specifying a std::string.
+        virtual void setMoleFractions(std::string xin){err("setMoleFractions");}
 
         /// Set the mole fractions by specifying an array.
         virtual void setMoleFractions(doublereal* xin){err("setMoleFractions");}
@@ -92,7 +92,7 @@ namespace Cantera {
         doublereal m_temp, m_mdot;
 
     private:
-        void err(string method) {
+        void err(std::string method) {
             throw CanteraError("Bdry1D::"+method, 
                 "attempt to call base class method "+method);
         }
@@ -155,10 +155,10 @@ namespace Cantera {
 
         virtual void _finalize(const doublereal* x) {}
 
-        virtual void setMoleFractions(string xin);
+        virtual void setMoleFractions(std::string xin);
         virtual void setMoleFractions(doublereal* xin);
         virtual doublereal massFraction(int k) {return m_yin[k];}
-        virtual string componentName(int n) const;
+        virtual std::string componentName(int n) const;
         virtual void init();
         virtual void eval(int jg, doublereal* xg, doublereal* rg, 
             integer* diagg, doublereal rdt);
@@ -171,7 +171,7 @@ namespace Cantera {
         doublereal m_V0;
         int m_nsp;
         vector_fp m_yin;
-        string m_xstr;
+        std::string m_xstr;
         StFlow *m_flow;
     };
 
@@ -188,7 +188,7 @@ namespace Cantera {
         }
         virtual ~Empty1D(){}
 
-        virtual string componentName(int n) const;
+        virtual std::string componentName(int n) const;
         virtual void showSolution(const doublereal* x) {}
 
         virtual void init();
@@ -220,7 +220,7 @@ namespace Cantera {
         }
         virtual ~Symm1D(){}
 
-        virtual string componentName(int n) const;
+        virtual std::string componentName(int n) const;
 
         virtual void init();
 
@@ -252,7 +252,7 @@ namespace Cantera {
         }
         virtual ~Outlet1D(){}
 
-        virtual string componentName(int n) const;
+        virtual std::string componentName(int n) const;
 
         virtual void init();
 
@@ -299,10 +299,10 @@ namespace Cantera {
             ;
         }
 
-        virtual void setMoleFractions(string xin);
+        virtual void setMoleFractions(std::string xin);
         virtual void setMoleFractions(doublereal* xin);
         virtual doublereal massFraction(int k) {return m_yres[k];}
-        virtual string componentName(int n) const;
+        virtual std::string componentName(int n) const;
         virtual void init();
         virtual void eval(int jg, doublereal* xg, doublereal* rg, 
             integer* diagg, doublereal rdt);
@@ -313,7 +313,7 @@ namespace Cantera {
 
         int m_nsp;
         vector_fp m_yres;
-        string m_xstr;
+        std::string m_xstr;
         StFlow *m_flow;
     };
 
@@ -333,7 +333,7 @@ namespace Cantera {
         }
         virtual ~Surf1D(){}
 
-        virtual string componentName(int n) const;
+        virtual std::string componentName(int n) const;
 
         virtual void init();
 
@@ -351,9 +351,9 @@ namespace Cantera {
             ; //m_temp = x[0];
         }
 
-        virtual void showSolution_s(ostream& s, const doublereal* x) {
-            s << "-------------------  Surface " << domainIndex() << " ------------------- " << endl;
-            s << "  temperature: " << m_temp << " K" << "    " << x[0] << endl;
+        virtual void showSolution_s(std::ostream& s, const doublereal* x) {
+            s << "-------------------  Surface " << domainIndex() << " ------------------- " << std::endl;
+            s << "  temperature: " << m_temp << " K" << "    " << x[0] << std::endl;
         }
 
         virtual void showSolution(const doublereal* x) {
@@ -393,7 +393,7 @@ namespace Cantera {
         
         virtual ~ReactingSurf1D(){}
 
-        virtual string componentName(int n) const;
+        virtual std::string componentName(int n) const;
 
         virtual void init();
 

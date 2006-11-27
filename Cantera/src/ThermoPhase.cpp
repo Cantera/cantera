@@ -20,6 +20,7 @@
 
 #include "ThermoPhase.h"
 
+using namespace std;
 
 namespace Cantera {
     /**

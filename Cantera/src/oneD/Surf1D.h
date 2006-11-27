@@ -89,7 +89,7 @@ namespace Cantera {
 
         doublereal multiplier(int k) { return m_mult[k]; }
 
-        virtual string componentName(int n) const { 
+        virtual std::string componentName(int n) const { 
             return m_sphase->speciesName(n);
         }
 
@@ -297,11 +297,11 @@ namespace Cantera {
         int m_sp_left, m_sp_right;
         int m_start_left, m_start_right, m_start_surf;
         ThermoPhase *m_phase_left, *m_phase_right;
-        vector<ThermoPhase*> m_bulk;
-        vector<int> m_nbulk;
+        std::vector<ThermoPhase*> m_bulk;
+        std::vector<int> m_nbulk;
         int m_nsurf;
         vector_fp m_mult;
-        vector<bool> m_do_surf_species;
+        std::vector<bool> m_do_surf_species;
         vector_fp m_fixed_cov;
     };
 

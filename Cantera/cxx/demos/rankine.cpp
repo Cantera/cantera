@@ -7,6 +7,7 @@
 #include <cantera/PureFluid.h>    // defines class Water
 
 using namespace Cantera;
+using namespace std;
 
 map<string,double> h;
 map<string,double> s;

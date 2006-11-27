@@ -18,6 +18,8 @@
 
 #include "Inlet1D.h"
 
+using namespace std;
+
 namespace Cantera {
 
     Bdry1D::Bdry1D() : Domain1D(1, 1, 0.0), 

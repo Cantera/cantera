@@ -3,6 +3,8 @@
 #include "ReactorBase.h"
 #include "../Func1.h"
 
+using namespace std;
+
 namespace CanteraZeroD {
 
     bool FlowDevice::install(ReactorBase& in, ReactorBase& out) {

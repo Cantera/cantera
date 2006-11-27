@@ -122,7 +122,7 @@ namespace Cantera {
     };
 
     /// output the array
-    inline ostream& operator<<(ostream& s, const ArrayViewer& m) {
+    inline std::ostream& operator<<(std::ostream& s, const ArrayViewer& m) {
         int nr = static_cast<int>(m.nRows());
         int nc = static_cast<int>(m.nColumns());
         int i,j;
@@ -130,7 +130,7 @@ namespace Cantera {
             for (j = 0; j < nc; j++) {
                 s << m(i,j) << ", ";
             }
-            s << endl;
+            s << std::endl;
         }
         return s;
     }

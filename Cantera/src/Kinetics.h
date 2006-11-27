@@ -171,12 +171,12 @@ namespace Cantera {
 	 * Return the phase index of a phase in the list of phases
 	 * defined within the object.
 	 *
-	 *  @param ph string name of the phase
+	 *  @param ph std::string name of the phase
 	 *
 	 * If a -1 is returned, then the phase is not defined in
 	 * the Kinetics object.
 	 */
-        int phaseIndex(string ph) { 
+        int phaseIndex(std::string ph) { 
             if (m_phaseindex.find(ph) == m_phaseindex.end()) {
                 return -1;
             }
@@ -285,20 +285,20 @@ namespace Cantera {
         }
 
 	/**
-	 * Return the string name of the kth species in the kinetics
+	 * Return the std::string name of the kth species in the kinetics
 	 * manager. k is an integer from 0 to ktot - 1, where ktot is
 	 * the number of species in the kinetics manager, which is the
 	 * sum of the number of species in all phases participating in
-	 * the kinetics manager.  If k is out of bounds, the string
+	 * the kinetics manager.  If k is out of bounds, the std::string
 	 * "<unknown>" is returned.
 	 */
-        string kineticsSpeciesName(int k) const;
+        std::string kineticsSpeciesName(int k) const;
 
 	/**
 	 * This routine will look up a species number based on
-	 * the input string nm. The lookup of species will
+	 * the input std::string nm. The lookup of species will
 	 * occur for all phases listed in the kinetics object,
-	 * unless the string ph refers to a specific phase of
+	 * unless the std::string ph refers to a specific phase of
 	 * the object. 
 	 *
 	 *  return
@@ -308,15 +308,15 @@ namespace Cantera {
          *   the value -1 is returned.
 	 *   - If no match is found in any phase, the value -2 is returned.
 	 */
-        int kineticsSpeciesIndex(string nm, string ph = "<any>") const;
+        int kineticsSpeciesIndex(std::string nm, std::string ph = "<any>") const;
 
 	/**
-	 * This function looks up the string name of a species and
+	 * This function looks up the std::string name of a species and
 	 * returns a reference to the ThermoPhase object of the
 	 * phase where the species resides.
-	 * Will throw an error if the species string doesn't match.
+	 * Will throw an error if the species std::string doesn't match.
 	 */
-        thermo_t& speciesPhase(string nm);
+        thermo_t& speciesPhase(std::string nm);
 
 	/**
 	 * This function takes as an argument the kineticsSpecies index
@@ -573,10 +573,10 @@ namespace Cantera {
 	}
 
 	/**
-	 * Return a string representing the reaction.
+	 * Return a std::string representing the reaction.
 	 */
-        virtual string reactionString(int i) const {
-            err("reactionString"); return "<null>";
+        virtual std::string reactionString(int i) const {
+            err("reactionStd::String"); return "<null>";
         }
 
 	/**
@@ -633,7 +633,7 @@ namespace Cantera {
 	 *  m_thermo -> vector of pointers to ThermoPhase phases
 	 *              that participate in the kinetics 
 	 *              mechanism.
-	 *  m_phaseindex -> map containing the string id of each
+	 *  m_phaseindex -> map containing the std::string id of each
 	 *              ThermoPhase phase as a key and the
 	 *              index of the phase within the kinetics
 	 *              manager object as the value.
@@ -670,12 +670,12 @@ namespace Cantera {
 	    err("addReaction");
 	}
 
-        virtual const vector<grouplist_t>& reactantGroups(int i) { 
+        virtual const std::vector<grouplist_t>& reactantGroups(int i) { 
 	    //err("reactantGroups"); 
 	    return m_dummygroups;
 	}
 
-        virtual const vector<grouplist_t>& productGroups(int i) {
+        virtual const std::vector<grouplist_t>& productGroups(int i) {
 	    //err("productGroups"); 
 	    return m_dummygroups;
 	}
@@ -752,7 +752,7 @@ namespace Cantera {
          * NOTE: These vectors will be wrong if there are real 
          *       stoichiometric coefficients in the expression.
 	 */
-        vector<vector_int> m_reactants;
+        std::vector<vector_int> m_reactants;
 
 	/**
 	 * This is a vector of vectors containing the products for
@@ -765,7 +765,7 @@ namespace Cantera {
          * NOTE: These vectors will be wrong if there are real 
          *       stoichiometric coefficients in the expression.
 	 */
-        vector<vector_int> m_products;
+        std::vector<vector_int> m_products;
 
 	/**
 	 * m_thermo is a vector of pointers to ThermoPhase
@@ -778,7 +778,7 @@ namespace Cantera {
 	 * the source term vector, originating from the reaction
 	 * mechanism.
 	 */
-        vector<thermo_t*> m_thermo;
+        std::vector<thermo_t*> m_thermo;
 
 	/**
 	 * m_start is a vector of integers specifying the beginning position
@@ -795,7 +795,7 @@ namespace Cantera {
 	 * returning the index value, so that missing phases return
 	 * -1.
 	 */
-        map<string, int> m_phaseindex;
+        std::map<std::string, int> m_phaseindex;
         int m_index;
 
 	/**
@@ -814,8 +814,8 @@ namespace Cantera {
 
     private:
 
-        vector<grouplist_t> m_dummygroups;
-        void err(string m) const;
+        std::vector<grouplist_t> m_dummygroups;
+        void err(std::string m) const;
 
     };
 

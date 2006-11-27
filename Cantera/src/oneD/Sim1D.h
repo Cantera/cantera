@@ -35,7 +35,7 @@ namespace Cantera {
          * the pointer to the leftmost domain is domain[0], the pointer to the
          * domain to its right is domain[1], etc. 
          */ 
-        Sim1D(vector<Domain1D*>& domains);
+        Sim1D(std::vector<Domain1D*>& domains);
 
         /// Destructor. Does nothing.
         virtual ~Sim1D() {}
@@ -50,7 +50,7 @@ namespace Cantera {
 
         /// Set initial guess based on equilibrium
         //added by Karl Meredith
-        void setInitialGuess(string component, vector_fp& locs, vector_fp& vals);
+        void setInitialGuess(std::string component, vector_fp& locs, vector_fp& vals);
 
         /// Set one entry in the solution vector.
         void setValue(int dom, int comp, int localPoint,  doublereal value);
@@ -69,10 +69,10 @@ namespace Cantera {
 
         //@}
 
-        void save(string fname, string id, string desc);
+        void save(std::string fname, std::string id, std::string desc);
 
         /// Print to stream s the current solution for all domains.     
-        void showSolution(ostream& s);
+        void showSolution(std::ostream& s);
         void showSolution();
 
         const doublereal* solution() { return DATA_PTR(m_x); }
@@ -100,11 +100,11 @@ namespace Cantera {
             doublereal slope = 0.8, doublereal curve = 0.8, doublereal prune = -0.1);
         void setMaxGridPoints(int dom = -1, int npoints = 300);
 
-        void restore(string fname, string id);
+        void restore(std::string fname, std::string id);
         void getInitialSoln();
 
         void setSolution(const doublereal* soln) {
-            copy(soln, soln + m_x.size(), DATA_PTR(m_x));
+            std::copy(soln, soln + m_x.size(), DATA_PTR(m_x));
         }
 
         const doublereal* solution() const { return DATA_PTR(m_x); }

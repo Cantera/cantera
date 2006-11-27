@@ -26,6 +26,7 @@
 #include "TransportFactory.h"
 
 #include <iostream>
+using namespace std;
 
 /** 
  * Mole fractions below MIN_X will be set to MIN_X when computing

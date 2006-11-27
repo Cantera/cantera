@@ -17,6 +17,8 @@
 #endif
 
 #include "../ct_defs.h"
+#include "../global.h"
+#include "../stringUtils.h"
 
 namespace Cantera {
     class Func1;
@@ -174,9 +176,9 @@ namespace CanteraZeroD {
         ReactorBase* m_out;
         vector_int m_in2out, m_out2in;
 
-        void warn(string meth) {
-            cerr << "Warning: method " << meth << " of base class "
-                 << " FlowDevice called. Nothing done.";
+        void warn(std::string meth) {
+            writelog(std::string("Warning: method ") + meth + " of base class "
+                + " FlowDevice called. Nothing done.\n");
         }
     };
 

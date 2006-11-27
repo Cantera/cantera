@@ -28,7 +28,7 @@ namespace Cantera {
     class Func1;
     class SurfPhase;
 }
-using namespace Cantera;
+//using namespace Cantera;
 
 namespace CanteraZeroD {
 
@@ -69,12 +69,12 @@ namespace CanteraZeroD {
         /// Set the emissivity.
         void setEmissivity(doublereal epsilon) {
             if (epsilon > 1.0 || epsilon < 0.0) 
-                throw CanteraError("Wall::setEmissivity", 
+                throw Cantera::CanteraError("Wall::setEmissivity", 
                     "emissivity must be between 0.0 and 1.0");
             m_emiss = epsilon; }
 
         /** Set the piston velocity to a specified function. */
-        void setVelocity(Func1* f=0) {if (f) m_vf = f;}
+        void setVelocity(Cantera::Func1* f=0) {if (f) m_vf = f;}
 
         /** 
          * Set the expansion rate coefficient.
@@ -83,7 +83,7 @@ namespace CanteraZeroD {
 
         
         /// Specify the heat flux function \f$ q_0(t) \f$.
-        void setHeatFlux(Func1* q) { m_qf = q;}
+        void setHeatFlux(Cantera::Func1* q) { m_qf = q;}
 
         /// Install the wall between two reactors or reservoirs
         bool install(ReactorBase& leftReactor, ReactorBase& rightReactor);
@@ -110,15 +110,16 @@ namespace CanteraZeroD {
 
         // Specify the heterogeneous reaction mechanisms for each side
         // of the wall. 
-        void setKinetics(Kinetics* leftMechanism, Kinetics* rightMechanism);
+        void setKinetics(Cantera::Kinetics* leftMechanism, 
+            Cantera::Kinetics* rightMechanism);
 
         /// Return a pointer to the surface phase object for the left
         /// or right wall surface. 
-        SurfPhase* surface(int leftright) {
+        Cantera::SurfPhase* surface(int leftright) {
             return m_surf[leftright];
         }
 
-        Kinetics* kinetics(int leftright) {
+        Cantera::Kinetics* kinetics(int leftright) {
             return m_chem[leftright];
         }
 
@@ -142,7 +143,7 @@ namespace CanteraZeroD {
                 return m_pright.size();
         }
         void addSensitivityReaction(int leftright, int rxn);
-        string sensitivityParamID(int leftright, int p) { 
+        std::string sensitivityParamID(int leftright, int p) { 
             if (leftright == 0)
                 return m_pname_left[p]; 
             else 
@@ -159,18 +160,18 @@ namespace CanteraZeroD {
 
         ReactorBase* m_left;
         ReactorBase* m_right;
-        Kinetics * m_chem[2];
-        SurfPhase* m_surf[2];
+        Cantera::Kinetics * m_chem[2];
+        Cantera::SurfPhase* m_surf[2];
         int m_nsp[2];
         doublereal m_area, m_k, m_rrth;
         doublereal m_emiss;
-        Func1 *m_vf;
-        Func1 *m_qf;
-        vector_fp m_leftcov, m_rightcov;
+        Cantera::Func1 *m_vf;
+        Cantera::Func1 *m_qf;
+        Cantera::vector_fp m_leftcov, m_rightcov;
 
-        vector_int m_pleft, m_pright;
-        vector_fp m_leftmult_save, m_rightmult_save;
-        vector<string> m_pname_left, m_pname_right;
+        Cantera::vector_int m_pleft, m_pright;
+        Cantera::vector_fp m_leftmult_save, m_rightmult_save;
+        std::vector<std::string> m_pname_left, m_pname_right;
 
     private:
 

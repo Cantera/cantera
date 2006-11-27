@@ -158,7 +158,7 @@ namespace Cantera {
          */ 
         virtual void getCreationRates(doublereal* cdot) {
             updateROP();
-            fill(cdot, cdot + m_kk, 0.0);
+            std::fill(cdot, cdot + m_kk, 0.0);
             m_revProductStoich.incrementSpecies(
                 &m_kdata->m_ropf[0], cdot);
             m_irrevProductStoich.incrementSpecies(
@@ -177,7 +177,7 @@ namespace Cantera {
          */ 
         virtual void getDestructionRates(doublereal* ddot) {
             updateROP();
-            fill(ddot, ddot + m_kk, 0.0);
+            std::fill(ddot, ddot + m_kk, 0.0);
             m_revProductStoich.incrementSpecies(
                 &m_kdata->m_ropr[0], ddot);
             m_reactantStoich.incrementSpecies(
@@ -193,7 +193,7 @@ namespace Cantera {
          */ 
         virtual void getNetProductionRates(doublereal* net) {
             updateROP();
-            fill(net, net + m_kk, 0.0);
+            std::fill(net, net + m_kk, 0.0);
             m_revProductStoich.incrementSpecies(
                 &m_kdata->m_ropnet[0], net);
             m_irrevProductStoich.incrementSpecies(
@@ -247,7 +247,7 @@ namespace Cantera {
 	/**
 	 * Return a string representing the reaction.
 	 */
-	virtual string reactionString(int i) const {
+	virtual std::string reactionString(int i) const {
             return m_rxneqn[i];
         }
 
@@ -284,9 +284,9 @@ namespace Cantera {
         void updateROP();
 
 
-        const vector<grouplist_t>& reactantGroups(int i)
+        const std::vector<grouplist_t>& reactantGroups(int i)
             { return m_rgroups[i]; }
-        const vector<grouplist_t>& productGroups(int i)
+        const std::vector<grouplist_t>& productGroups(int i)
             { return m_pgroups[i]; }
 
         void _update_rates_T();
@@ -312,9 +312,9 @@ namespace Cantera {
 	 * The first pair is the reactionType of the reaction.
 	 * The second pair is ...
 	 */
-        mutable map<int, pair<int, int> >   m_index;
+        mutable std::map<int, std::pair<int, int> >   m_index;
 
-        vector<int> m_irrev;
+        std::vector<int> m_irrev;
 
         StoichManagerN                      m_reactantStoich;
         StoichManagerN                      m_revProductStoich;
@@ -329,16 +329,16 @@ namespace Cantera {
 	 */
         int m_nrev;
 
-        map<int, vector<grouplist_t> >      m_rgroups;
-        map<int, vector<grouplist_t> >      m_pgroups;
+        std::map<int, std::vector<grouplist_t> >      m_rgroups;
+        std::map<int, std::vector<grouplist_t> >      m_pgroups;
 
-        vector<int>                         m_rxntype;
+        std::vector<int>                         m_rxntype;
 
-        mutable vector<map<int, doublereal> >     m_rrxn;
-        mutable vector<map<int, doublereal> >     m_prxn;
+        mutable std::vector<std::map<int, doublereal> >     m_rrxn;
+        mutable std::vector<std::map<int, doublereal> >     m_prxn;
 
         vector_int m_revindex;
-        vector<string> m_rxneqn;
+        std::vector<std::string> m_rxneqn;
 
 	/**
 	 * Temporary data storage used in calculating the rates of
@@ -376,12 +376,12 @@ namespace Cantera {
         void addGlobalReaction(const ReactionData& r);
         void installReagents(const ReactionData& r);
 
-        void installGroups(int irxn, const vector<grouplist_t>& r,
-            const vector<grouplist_t>& p);
+        void installGroups(int irxn, const std::vector<grouplist_t>& r,
+            const std::vector<grouplist_t>& p);
         void updateKc();
 
         void registerReaction(int rxnNumber, int type, int loc) {
-            m_index[rxnNumber] = pair<int, int>(type, loc);
+            m_index[rxnNumber] = std::pair<int, int>(type, loc);
         }
         void applyButlerVolmerCorrection(doublereal* kf);
         bool m_finalized;

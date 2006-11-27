@@ -18,6 +18,9 @@
 #include "equilibrium.h"
 #endif
 
+using namespace std;
+using namespace Cantera;
+
 int main(int argc, char **argv) {
   try {
     IdealGasMix g("gri30.xml", "gri30_mix");

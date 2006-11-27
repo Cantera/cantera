@@ -22,6 +22,8 @@
 #include <time.h>
 #include "ctml.h"
 
+using namespace std;
+
 //#define DEBUG_PATHS
 
 using namespace Cantera;

@@ -18,6 +18,9 @@
 #include "equilibrium.h"
 #endif
 
+using namespace std;
+using namespace Cantera;
+
 int main(int argc, char **argv) {
   int numSucc = 0;
   int numFail = 0;

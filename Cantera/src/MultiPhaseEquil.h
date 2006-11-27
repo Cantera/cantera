@@ -59,7 +59,7 @@ namespace Cantera {
         doublereal equilibrate(int XY, doublereal err = 1.0e-9, 
             int maxsteps = 1000, int loglevel=-99);
 
-        string reactionString(index_t j);
+        std::string reactionString(index_t j);
         doublereal error();
         void printInfo();
 
@@ -89,7 +89,7 @@ namespace Cantera {
         int solutionSpecies(int n) const { return m_dsoln[m_order[n]]; }
         bool isStoichPhase(int n) const { return (m_dsoln[m_order[n]] == 0); }
         doublereal mu(int n) const { return m_mu[m_species[m_order[n]]]; }
-        string speciesName(int n) const { return 
+        std::string speciesName(int n) const { return 
                 m_mix->speciesName(m_species[m_order[n]]); }
 
         index_t m_nel_mix, m_nsp_mix, m_np;
@@ -103,7 +103,7 @@ namespace Cantera {
         vector_fp m_work, m_work2, m_work3;
         vector_fp m_moles, m_lastmoles, m_dxi;
         vector_fp m_deltaG_RT, m_mu;
-        vector<bool> m_majorsp;
+        std::vector<bool> m_majorsp;
         vector_int m_sortindex;
         vector_int m_lastsort;
         vector_int m_dsoln;
@@ -114,7 +114,7 @@ namespace Cantera {
         // with invalid thermo data
         vector_int m_species;
         vector_int m_element;
-        vector<bool> m_solnrxn;
+        std::vector<bool> m_solnrxn;
         bool m_force;
     };
 

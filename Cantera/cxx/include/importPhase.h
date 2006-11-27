@@ -8,7 +8,7 @@
 
 namespace Cantera {
 
-    ThermoPhase* importPhase(string infile, string id="") {
+    ThermoPhase* importPhase(std::string infile, std::string id="") {
         ThermoPhase* p = newPhase(infile, id);
         return p;
     }

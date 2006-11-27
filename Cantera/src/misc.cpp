@@ -1,3 +1,4 @@
+
 /**
  *  @file misc.cpp
  *
@@ -558,9 +559,9 @@ namespace Cantera {
             throw CanteraError("findInputFile", msg);
             return "";
         }
-        else {
-            return name;
-        }
+        //else {
+        return name;
+            //}
     }
 
     doublereal toSI(string unit) {

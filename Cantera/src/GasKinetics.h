@@ -219,13 +219,6 @@ namespace Cantera {
             get_wdot(&m_kdata->m_ropnet[0], net);
 #else
             m_rxnstoich->getNetProductionRates(m_kk, &m_kdata->m_ropnet[0], net); 
-            //fill(net, net + m_kk, 0.0);
-            //m_revProductStoich.incrementSpecies(
-            //    m_kdata->m_ropnet.begin(), net);
-            //m_irrevProductStoich.incrementSpecies(
-            //    m_kdata->m_ropnet.begin(), net);
-            //m_reactantStoich.decrementSpecies(
-            //    m_kdata->m_ropnet.begin(), net);
 #endif
         }
 
@@ -240,13 +233,6 @@ namespace Cantera {
             updateROP();
             m_rxnstoich->getCreationRates(m_kk, &m_kdata->m_ropf[0], 
                 &m_kdata->m_ropr[0], cdot); 
-            //fill(cdot, cdot + m_kk, 0.0);
-            //m_revProductStoich.incrementSpecies(
-            //    m_kdata->m_ropf.begin(), cdot);
-            //m_irrevProductStoich.incrementSpecies(
-            //    m_kdata->m_ropf.begin(), cdot);
-            //m_reactantStoich.incrementSpecies(
-            //    m_kdata->m_ropr.begin(), cdot);
         }
 
 	/**
@@ -282,7 +268,7 @@ namespace Cantera {
             return m_index[i].first;
         }
 
-        virtual string reactionString(int i) const {
+        virtual std::string reactionString(int i) const {
             return m_rxneqn[i];
         }
 
@@ -345,9 +331,9 @@ namespace Cantera {
         void updateROP();
 
 
-        const vector<grouplist_t>& reactantGroups(int i)
+        const std::vector<grouplist_t>& reactantGroups(int i)
             { return m_rgroups[i]; }
-        const vector<grouplist_t>& productGroups(int i)
+        const std::vector<grouplist_t>& productGroups(int i)
             { return m_pgroups[i]; }
 
 
@@ -367,33 +353,29 @@ namespace Cantera {
         Rate1<Arrhenius>                    m_falloff_high_rates;        
         Rate1<Arrhenius>                    m_rates;        
         
-        mutable map<int, pair<int, int> >   m_index;
+        mutable std::map<int, std::pair<int, int> >   m_index;
         
         FalloffMgr                          m_falloffn;
         
         ThirdBodyMgr<Enhanced3BConc>        m_3b_concm;
         ThirdBodyMgr<Enhanced3BConc>        m_falloff_concm;
         
-        vector<int> m_irrev;
-
-        //StoichManagerN                      m_reactantStoich;
-        //StoichManagerN                      m_revProductStoich;
-        //StoichManagerN                      m_irrevProductStoich;
+        std::vector<int> m_irrev;
 
         ReactionStoichMgr*                   m_rxnstoich;
 
-        vector<int>                         m_fwdOrder;
+        std::vector<int>                         m_fwdOrder;
 
         int m_nirrev;
         int m_nrev;
 
-        map<int, vector<grouplist_t> >      m_rgroups;
-        map<int, vector<grouplist_t> >      m_pgroups;
+        std::map<int, std::vector<grouplist_t> >      m_rgroups;
+        std::map<int, std::vector<grouplist_t> >      m_pgroups;
 
-        vector<int>                         m_rxntype;
+        std::vector<int>                         m_rxntype;
 
-        mutable vector<map<int, doublereal> >     m_rrxn;
-        mutable vector<map<int, doublereal> >     m_prxn;
+        mutable std::vector<std::map<int, doublereal> >     m_rrxn;
+        mutable std::vector<std::map<int, doublereal> >     m_prxn;
 
 	/**
          * Difference between the input global reactants order
@@ -404,7 +386,7 @@ namespace Cantera {
         vector_fp  m_dn;
         vector_int m_revindex;
 
-        vector<string> m_rxneqn;
+        std::vector<std::string> m_rxneqn;
 
         GasKineticsData* m_kdata;
 
@@ -416,22 +398,20 @@ namespace Cantera {
     private:
 
         int reactionNumber(){ return m_ii;}
-        vector<map<int, doublereal> > m_stoich;
+        std::vector<std::map<int, doublereal> > m_stoich;
 
         void addElementaryReaction(const ReactionData& r);
         void addThreeBodyReaction(const ReactionData& r);
         void addFalloffReaction(const ReactionData& r);
         
         void installReagents(const ReactionData& r); 
-        //const vector_int& r,
-        //    const vector_int& p, bool reversible);
 
-        void installGroups(int irxn, const vector<grouplist_t>& r,
-            const vector<grouplist_t>& p);
+        void installGroups(int irxn, const std::vector<grouplist_t>& r,
+            const std::vector<grouplist_t>& p);
         void updateKc();
 
         void registerReaction(int rxnNumber, int type, int loc) {
-            m_index[rxnNumber] = pair<int, int>(type, loc);
+            m_index[rxnNumber] = std::pair<int, int>(type, loc);
         }
         bool m_finalized;
     };

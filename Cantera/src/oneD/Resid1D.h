@@ -123,7 +123,7 @@ namespace Cantera {
         int nPoints() const { return m_points; }
 
         /// Name of the nth component. May be overloaded.
-        virtual string componentName(int n) const { 
+        virtual std::string componentName(int n) const { 
             return "component " + int2str(n); }
 
         /**
@@ -312,12 +312,12 @@ namespace Cantera {
         /**
          * Specify an identifying tag for this domain.
          */
-        void setID(const string& s) {m_id = s;}
+        void setID(const std::string& s) {m_id = s;}
 
         /**
          * Specify descriptive text for this domain.
          */
-        void setDesc(const string& s) {m_desc = s;}
+        void setDesc(const std::string& s) {m_desc = s;}
 
         virtual void getTransientMask(integer* mask){}
 
@@ -330,7 +330,7 @@ namespace Cantera {
         doublereal zmax() const { return m_z[m_points - 1]; }
 
 
-        void setProfile(string name, doublereal* values, doublereal* soln) {
+        void setProfile(std::string name, doublereal* values, doublereal* soln) {
             int n, j;
             for (n = 0; n < m_nv; n++) {
                 if (name == componentName(n)) {
@@ -383,7 +383,7 @@ namespace Cantera {
         int m_iloc;
         int m_jstart;
         Resid1D *m_left, *m_right;
-        string m_id, m_desc;
+        std::string m_id, m_desc;
         Refiner* m_refiner;
 
     private:

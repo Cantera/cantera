@@ -31,7 +31,7 @@ namespace Cantera {
         typedef size_t       index_t;
         typedef ThermoPhase  phase_t;
         typedef DenseMatrix  array_t;
-        typedef vector<phase_t*> phase_list;
+        typedef std::vector<phase_t*> phase_list;
 
         /// Constructor. The constructor takes no arguments, since
         /// phases are added using method addPhase.
@@ -57,16 +57,16 @@ namespace Cantera {
         int nElements() const { return int(m_nel); }
 
         /// Name of element \a m.
-        string elementName(int m) const { return m_enames[m]; }
+        std::string elementName(int m) const { return m_enames[m]; }
 
         /// Index of element with name \a name.
-        int elementIndex(string name) const { return m_enamemap[name] - 1;}
+        int elementIndex(std::string name) const { return m_enamemap[name] - 1;}
         
         /// Number of species, summed over all phases.
         int nSpecies() const { return int(m_nsp); }
 
         /// Name of species with index \a k. 
-        string speciesName(int k) const { return m_snames[k]; }
+        std::string speciesName(int k) const { return m_snames[k]; }
 
         /// Number of atoms of element \a m in species \a k.
         doublereal nAtoms(int k, int m) {
@@ -216,7 +216,7 @@ namespace Cantera {
 
         void setMolesByName(compositionMap& xMap);
 
-        void setMolesByName(const string& x);
+        void setMolesByName(const std::string& x);
 
         void setMoles(doublereal* n);
 
@@ -248,7 +248,7 @@ namespace Cantera {
         /**
 	 * Vector of the ThermoPhase Pointers.
 	 */
-        vector<phase_t*> m_phase;
+        std::vector<phase_t*> m_phase;
         array_t m_atoms;
       /**
        * Locally storred vector of mole fractions of all species 
@@ -257,10 +257,10 @@ namespace Cantera {
         vector_fp m_moleFractions;
         vector_int m_spphase;
         vector_int m_spstart;
-        vector<string> m_enames;
+        std::vector<std::string> m_enames;
         vector_int m_atomicNumber;
-        vector<string> m_snames;
-        mutable map<string, int> m_enamemap;
+        std::vector<std::string> m_snames;
+        mutable std::map<std::string, int> m_enamemap;
         /**
 	 *   Number of phases in the MultiPhase object
 	 */
@@ -277,7 +277,7 @@ namespace Cantera {
         index_t m_nsp;
         bool m_init;
         int m_eloc;
-        mutable vector<bool> m_temp_OK;
+        mutable std::vector<bool> m_temp_OK;
         doublereal m_Tmin, m_Tmax;
     };
 
@@ -285,14 +285,14 @@ namespace Cantera {
         size_t ip;
         for (ip = 0; ip < x.nPhases(); ip++) {
             if (x.phase(ip).name() != "") {
-                s << "*************** " << x.phase(ip).name() << " *****************" << endl;
+                s << "*************** " << x.phase(ip).name() << " *****************" << std::endl;
             }
             else {
-                s << "*************** Phase " << ip << " *****************" << endl;
+                s << "*************** Phase " << ip << " *****************" << std::endl;
             }
-            s << "Moles: " << x.phaseMoles(ip) << endl;
+            s << "Moles: " << x.phaseMoles(ip) << std::endl;
                 
-            s << report(x.phase(ip)) << endl;
+            s << report(x.phase(ip)) << std::endl;
         }
         return s;
     }

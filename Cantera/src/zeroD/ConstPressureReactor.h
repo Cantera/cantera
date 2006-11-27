@@ -60,7 +60,7 @@ namespace CanteraZeroD {
 
         virtual void updateState(doublereal* y);
 
-        virtual int componentIndex(string nm) const;
+        virtual int componentIndex(std::string nm) const;
 
     protected:
         

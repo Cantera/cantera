@@ -14,6 +14,8 @@
 #include "vec_functions.h"
 #include "ctexceptions.h"
 
+using namespace std;
+
 namespace Cantera {    
 
 

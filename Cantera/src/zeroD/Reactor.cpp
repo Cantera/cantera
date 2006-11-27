@@ -20,6 +20,7 @@
 #include "../SurfPhase.h"
 
 using namespace Cantera;
+using namespace std;
 
 namespace CanteraZeroD {
 

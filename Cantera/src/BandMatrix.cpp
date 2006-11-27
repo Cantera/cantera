@@ -11,17 +11,14 @@
 #pragma warning(disable:4503)
 #endif
 
-
-//#include <iostream>
-//#include <vector>
-//using namespace std;
-
 #include "BandMatrix.h"
 #include "ctlapack.h"
 #include "utilities.h"
 #include "ctexceptions.h"
 #include "stringUtils.h"
 #include "global.h"
+
+using namespace std;
 
 namespace Cantera {
 
@@ -140,42 +137,11 @@ namespace Cantera {
           ofstream fout("bandmatrix.csv");
           fout << *this << endl;
           fout.close();
-          //error("DGBTRF returned info = "+int2str(info)+".\n"
-          //    +"Matrix written to file bandmatrix.csv\n");
-              //throw CanteraError("BandMatrix::factor",
-              //    "DGBTRF returned info = "+int2str(info)+".\n"
-              //    +"Matrix written to file bandmatrix.csv\n");
         }
 	return info;
     }
 
 
-    /**
-     * Solve the linear system Ax = b, where A is this matrix.
-     * Calls LAPACK subroutine DGBTRS.
-     */
-//     void BandMatrix::solve(const vector_fp& b, vector_fp& x) {
-//         int info = 0;
-//         copy(b.begin(), b.end(), x.begin()); // b -> x
-
-//         // If the matrix has been modified since the last LU decomposition,
-//         // then do it now.
-//         if (!m_factored) factor();
-
-//         ct_dgbtrs(ctlapack::NoTranspose, columns(), nSubDiagonals(), 
-//             nSuperDiagonals(), 1, ludata.begin(), ldim(), ipiv().begin(), 
-//             x.begin(), columns(), info);
-
-//         // error handling
-//         if (info != 0) {
-//             ofstream fout("bandmatrix.csv");
-//             fout << *this << endl;
-//             fout.close();
-//             throw CanteraError("BandMatrix::solve",
-//                 "DGBTRS returned info = "+int2str(info)+".\n"
-//                 +"Matrix written to file bandmatrix.csv\n");
-//         }
-//     }  
 
     int BandMatrix::solve(int n, const doublereal* b, doublereal* x) {
         copy(b, b+n, x);
@@ -195,9 +161,6 @@ namespace Cantera {
             ofstream fout("bandmatrix.csv");
             fout << *this << endl;
             fout.close();
-            //throw CanteraError("BandMatrix::solve",
-            //    "DGBTRS returned info = "+int2str(info)+".\n"
-            //    +"Matrix written to file bandmatrix.csv\n");
         }
 	return info;
     }
@@ -207,7 +170,6 @@ namespace Cantera {
         int nc = m.columns();
         int i,j;
         for (i = 0; i < nr; i++) {
-            //s << "Row " << i+1 << ": ";
             for (j = 0; j < nc; j++) {
                 s << m(i,j) << ", ";
             }
@@ -215,18 +177,5 @@ namespace Cantera {
         }
         return s;
     }
-
-    /**
-     * Solve Ax = b. Array b is overwritten on exit with x.
-     */
-//     int bsolve(BandMatrix& A, double* b) {
-//         int info=0;
-//         A.ludata = A.data;
-//         ct_dgbsv(A.columns(), A.nSubDiagonals(), A.nSuperDiagonals(), 
-//             1, A.ludata.begin(), A.ldim(), A.ipiv().begin(), b, 
-//             A.columns(), info);
-//         A.m_factored = true;
-//         return info;
-//     }
 }
 

@@ -20,6 +20,7 @@
 #include "ct_defs.h"
 #include "ctexceptions.h"
 
+
 namespace Cantera {
 
     /**
@@ -84,8 +85,8 @@ namespace Cantera {
          * the call to update_C.
          */
         void update_C(const doublereal* c) {
-            TYPENAME_KEYWORD vector<R>::iterator b = m_rates.begin();
-            TYPENAME_KEYWORD vector<R>::iterator e = m_rates.end();
+            TYPENAME_KEYWORD std::vector<R>::iterator b = m_rates.begin();
+            TYPENAME_KEYWORD std::vector<R>::iterator e = m_rates.end();
             int i = 0;
             for (; b != e; ++b, ++i) {
                 b->update_C(c);
@@ -101,8 +102,8 @@ namespace Cantera {
          * preloaded with the constant rate coefficients.
          */
         void update(doublereal T, doublereal logT, doublereal* values) {
-            TYPENAME_KEYWORD vector<R>::const_iterator b = m_rates.begin();
-            TYPENAME_KEYWORD vector<R>::const_iterator e = m_rates.end();
+            TYPENAME_KEYWORD std::vector<R>::const_iterator b = m_rates.begin();
+            TYPENAME_KEYWORD std::vector<R>::const_iterator e = m_rates.end();
             doublereal recipT = 1.0/T;
             int i = 0;
             for (; b != e; ++b, ++i) {
@@ -111,13 +112,13 @@ namespace Cantera {
             }
         }
 
-        void writeUpdate(ostream & output1, string key) {
+        void writeUpdate(std::ostream & output1, std::string key) {
 	    output1 << key;
         }
 
     protected:
-        vector<R>             m_rates;
-        vector<int>           m_rxn;
+        std::vector<R>             m_rates;
+        std::vector<int>           m_rxn;
         array_fp              m_const; // not used
     };
 

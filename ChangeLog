@@ -1,3 +1,11 @@
+2006-11-14 01:20  dggoodwin
+
+	* Cantera/python/examples/reactors/surf_pfr.py: added pfr example
+
+2006-11-14 01:18  dggoodwin
+
+	* Cantera.README: Cantera.README no longer used
+
 2006-11-14 00:40  dggoodwin
 
 	* configure, configure.in, Cantera/src/MultiPhaseEquil.cpp: minor

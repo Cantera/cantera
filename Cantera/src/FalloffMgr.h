@@ -111,11 +111,11 @@ namespace Cantera {
 
     protected:
         vector_int m_rxn, m_rxn0;
-        vector<Falloff*> m_falloff;
+        std::vector<Falloff*> m_falloff;
         FalloffFactory* m_factory;
         vector_int m_loc;
         int m_n, m_n0;
-        vector<vector_fp::difference_type> m_offset;
+        std::vector<vector_fp::difference_type> m_offset;
         size_t m_worksize;
     };
 }

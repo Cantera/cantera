@@ -12,11 +12,6 @@
 #ifndef CT_REACTION_DATA_H
 #define CT_REACTION_DATA_H
 
-//#include <vector>
-//#include <map>
-//#include <numeric>
-//using namespace std;
-
 #include "reaction_defs.h"
 
 namespace Cantera {
@@ -45,9 +40,9 @@ namespace Cantera {
         vector_fp order;
         vector_fp rstoich;
         vector_fp pstoich;
-        vector<grouplist_t> rgroups;
-        vector<grouplist_t> pgroups;
-        map<int, doublereal> thirdBodyEfficiencies;
+        std::vector<grouplist_t> rgroups;
+        std::vector<grouplist_t> pgroups;
+        std::map<int, doublereal> thirdBodyEfficiencies;
         bool reversible;
         int rateCoeffType;
         vector_fp rateCoeffParameters;
@@ -55,7 +50,7 @@ namespace Cantera {
         int falloffType;
         vector_fp falloffParameters;
         int error;
-        string equation;
+        std::string equation;
         doublereal default_3b_eff;
         vector_fp cov;
         bool global;

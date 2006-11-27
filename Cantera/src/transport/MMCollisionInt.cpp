@@ -20,6 +20,7 @@
 #include "../xml.h"
 #include "../XML_Writer.h"
 #include <stdio.h>
+using namespace std;
 
 namespace Cantera {
 

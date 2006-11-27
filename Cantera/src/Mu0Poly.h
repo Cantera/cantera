@@ -123,7 +123,7 @@ namespace Cantera {
 
     };
 
-    void installMu0ThermoFromXML(string speciesName,
+    void installMu0ThermoFromXML(std::string speciesName,
 				 SpeciesThermo& sp, int k, 
 				 const XML_Node* Mu0Node_ptr);
 }

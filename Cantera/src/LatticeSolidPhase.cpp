@@ -17,6 +17,9 @@
 #include "SpeciesThermo.h"
 #include "importCTML.h"
 
+#include <string>
+using namespace std;
+
 namespace Cantera {
 
     doublereal LatticeSolidPhase::

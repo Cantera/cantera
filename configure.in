@@ -95,7 +95,7 @@ case $ac_sys_system in
             EXTRA_LINK="-framework Accelerate $EXTRA_LINK";
 #            CXX_INCLUDES="$CXX_INCLUDES -I/System/Library/Frameworks/Accelerate.framework/Headers"
             mex_ext=mexmac;;
-  CYGWIN*)  OS_IS_CYGWIN=1; mex_ext=dll;;
+  CYGWIN*)  OS_IS_CYGWIN=1; mex_ext=mexw32;;
   Linux* )  case $BITHARDWARE in
              64 ) if test "$BITCHANGE" = "y" ; then
                      ldemulationarg='-melf_i386'

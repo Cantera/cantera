@@ -41,7 +41,7 @@
 #include "ctml.h"
 
 using namespace ctml;
-
+using namespace std;
 
 // these are all used to check for duplicate reactions
 class rxninfo {

@@ -21,6 +21,7 @@
 #include "reaction_defs.h"
 #include "Group.h"
 
+using namespace std;
 
 namespace Cantera {
      

@@ -100,12 +100,12 @@ namespace Cantera {
         }
 
         
-    void writeUpdateRHS(ostream& s) const {
-      s << " exp(" << m_logA;
-      if (m_b != 0.0) s << " + " << m_b << " * tlog"; 
-      if (m_E != 0.0) s << " - " << m_E << " * rt";
-      s << ");" << endl;
-    }
+        void writeUpdateRHS(std::ostream& s) const {
+            s << " exp(" << m_logA;
+            if (m_b != 0.0) s << " + " << m_b << " * tlog"; 
+            if (m_E != 0.0) s << " - " << m_E << " * rt";
+            s << ");" << std::endl;
+        }
 
     doublereal activationEnergy_R() const {
       return m_E;
@@ -123,13 +123,17 @@ namespace Cantera {
   public:
     static int type(){ return ARRHENIUS_SUM; }        
     ArrheniusSum() : m_nterms(0) {}
-    ArrheniusSum( int csize, const doublereal* c ) {
-      m_nterms = 0;
-      addArrheniusTerm(c[0], c[1], c[2]);
-    }
+
     void addArrheniusTerm(doublereal A, doublereal b, doublereal E) {
-      m_terms.push_back(Arrhenius(A, b, E));
-      m_nterms++;
+        if (A > 0.0) {
+            m_terms.push_back(Arrhenius(A, b, E));
+            m_sign.push_back(1);
+        }
+        else if (A < 0.0) {
+            m_terms.push_back(Arrhenius(-A, b, E));
+            m_sign.push_back(-1);
+        }            
+        m_nterms++;
     }
             
     void update_C(const doublereal* c) {}
@@ -143,7 +147,7 @@ namespace Cantera {
       doublereal f, fsum = 0.0;
       for (n = 0; n < m_nterms; n++) {
 	f = m_terms[n].updateRC(logT, recipT);
-	fsum += f;
+	fsum += m_sign[n]*f;
       }
       return log(fsum);
     }
@@ -160,19 +164,20 @@ namespace Cantera {
       doublereal f, fsum = 0.0;
       for (n = 0; n < m_nterms; n++) {
 	f = m_terms[n].updateRC(logT, recipT);
-	fsum += f;
+	fsum += m_sign[n]*f;
       }
       return fsum;
     }
 
-    void writeUpdateRHS(ostream& s) const {
+      void writeUpdateRHS(std::ostream& s) const {
       ;
     }
 
-    static bool alwaysComputeRate() { return true;}
+    static bool alwaysComputeRate() { return false;}
 
   protected:
-      vector<Arrhenius> m_terms;
+      std::vector<Arrhenius> m_terms;
+      vector_int m_sign;
       int m_nterms;
   };
 
@@ -320,7 +325,7 @@ namespace Cantera {
       return exp(lres);
     }
         
-    void writeUpdateRHS(ostream& s) const {}
+      void writeUpdateRHS(std::ostream& s) const {}
 
   protected:
     doublereal delta_s0, delta_e0;

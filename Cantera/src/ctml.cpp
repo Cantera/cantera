@@ -23,6 +23,9 @@
 
 #define CTML_VERSION_1_4_1
 
+using namespace std;
+using namespace Cantera;
+
 namespace ctml {
 
     static doublereal fpValue(string val) {

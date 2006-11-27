@@ -17,7 +17,7 @@
 
 
 #include "ct_defs.h"
-using namespace std;
+//using namespace std;
 
 #include "SpeciesThermo.h"
 #include "ctexceptions.h"
@@ -33,7 +33,7 @@ namespace Cantera {
 
     class SpeciesRangeError : public CanteraError {
     public:
-        SpeciesRangeError(string func, int k, int kmax) :
+        SpeciesRangeError(std::string func, int k, int kmax) :
             CanteraError(func, "Species index " + int2str(k) + 
                 " outside valid range of 0 to " + int2str(kmax-1)) {}
     };
@@ -75,7 +75,7 @@ namespace Cantera {
 	///   \param m  Element index. 
 	///   \exception If m < 0 or m >= nElements(), the
 	///          exception, ElementRangeError, is thrown.
-	string elementName(int m) const;
+	std::string elementName(int m) const;
 
 
 	/// Index of element named 'name'.
@@ -87,7 +87,7 @@ namespace Cantera {
 	/// If 'name' is not
 	/// the name of an element in the set, then the value -1 is
 	/// returned.
-	int elementIndex(string name) const;
+	int elementIndex(std::string name) const;
 
 
 	/// Atomic weight of element m. 
@@ -97,11 +97,11 @@ namespace Cantera {
 	int atomicNumber(int m) const;
 
 	/// Return a read-only reference to the vector of element names.
-	const vector<string>& elementNames() const;
+	const std::vector<std::string>& elementNames() const;
 
 
 	/// Return a read-only reference to the vector of atomic weights.
-	const array_fp& atomicWeights() const;
+	const vector_fp& atomicWeights() const;
 
 
 	/// Number of elements.
@@ -122,14 +122,14 @@ namespace Cantera {
       //@{
 
       /// Add an element. 
-      /// @param symbol Atomic symbol string.
+      /// @param symbol Atomic symbol std::string.
       /// @param weight Atomic mass in amu.
-      void addElement(const string& symbol, doublereal weight);
+      void addElement(const std::string& symbol, doublereal weight);
 
       /// Add an element from an XML specification.
       void addElement(const XML_Node& e);
 
-      void addUniqueElement(const string& symbol, doublereal weight);
+      void addUniqueElement(const std::string& symbol, doublereal weight);
 
       void addUniqueElement(const XML_Node& e);
 
@@ -159,7 +159,7 @@ namespace Cantera {
 	 * Return a const reference to the vector of molecular weights
 	 * of the species
 	 */
-        const array_fp& molecularWeights() const;
+        const vector_fp& molecularWeights() const;
 
         
 	///   Electrical charge of one species k molecule, divided by
@@ -173,21 +173,21 @@ namespace Cantera {
          * They are not usually called by user programs.
          */
         //@{
-        void addSpecies(const string& name, const doublereal* comp,
+        void addSpecies(const std::string& name, const doublereal* comp,
 			doublereal charge = 0.0, doublereal size = 1.0);
 
-	void addUniqueSpecies(const string& name, const doublereal* comp,
+	void addUniqueSpecies(const std::string& name, const doublereal* comp,
 			      doublereal charge = 0.0, 
 			      doublereal size = 1.0);
         /**
          * Index of species named 'name'. The first species added
          * will have index 0, and the last one index nSpecies() - 1.
          */
-        int speciesIndex(string name) const;
+        int speciesIndex(std::string name) const;
         /// Name of the species with index k
-        string speciesName(int k) const;
+        std::string speciesName(int k) const;
         /// Return a const referernce to the vector of species names
-        const vector<string>& speciesNames() const;
+        const std::vector<std::string>& speciesNames() const;
         /**
 	 * size():
 	 *   This routine returns the size of species k
@@ -235,7 +235,7 @@ namespace Cantera {
          */
         Elements *                     m_Elements;
 
-        vector<string>                 m_speciesNames;
+        std::vector<std::string>                 m_speciesNames;
         vector_fp                      m_speciesComp;
         /**
 	 * m_speciesCharge: Vector of species charges

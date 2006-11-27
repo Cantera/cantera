@@ -1,5 +1,8 @@
 
 #include <cantera/Cantera.h>
+using namespace Cantera;
+using namespace std;
+
 //#include "ctexceptions.h"
 
 // turn off warnings under Windows

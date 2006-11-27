@@ -17,8 +17,9 @@
 #endif
 
 #include "ImplicitSurfChem.h"
-
 #include "Integrator.h"
+
+using namespace std;
 
 namespace Cantera {
 

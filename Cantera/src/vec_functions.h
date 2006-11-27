@@ -29,7 +29,7 @@ namespace Cantera {
      */
     template<class T>
     inline void copyn(size_t n, const T& x, T& y) {
-        copy(x.begin(), x.begin() + n, y.begin());
+        std::copy(x.begin(), x.begin() + n, y.begin());
     }
 
     /**
@@ -38,8 +38,8 @@ namespace Cantera {
      */
     template<class T>   
     inline void divide_each(T& x, const T& y) {
-        transform(x.begin(), x.end(), y.begin(), 
-            x.begin(), divides<TYPENAME_KEYWORD T::value_type>());
+        std::transform(x.begin(), x.end(), y.begin(), 
+            x.begin(), std::divides<TYPENAME_KEYWORD T::value_type>());
     }
     
     /**
@@ -48,8 +48,8 @@ namespace Cantera {
      */
     template<class T>
     inline void multiply_each(T& x, const T& y) {
-        transform(x.begin(), x.end(), y.begin(), 
-            x.begin(), multiplies<TYPENAME_KEYWORD T::value_type>());
+        std::transform(x.begin(), x.end(), y.begin(), 
+            x.begin(), std::multiplies<TYPENAME_KEYWORD T::value_type>());
     }
 
     /**
@@ -65,7 +65,7 @@ namespace Cantera {
      */
     template<class T>
     inline doublereal dot_product(const T& x, const T& y) {
-        return inner_product(x.begin(), x.end(), y.begin(), 0.0);
+        return std::inner_product(x.begin(), x.end(), y.begin(), 0.0);
     }
 
     /**
@@ -81,8 +81,8 @@ namespace Cantera {
      */
     template<class T>
     inline void add_each(T& x, const T& y) {
-        transform(x.begin(), x.end(), y.begin(), 
-            x.begin(), plus<TYPENAME_KEYWORD T::value_type>());
+        std::transform(x.begin(), x.end(), y.begin(), 
+            x.begin(), std::plus<TYPENAME_KEYWORD T::value_type>());
     }
 
     template<class InputIter, class S>
@@ -98,7 +98,7 @@ namespace Cantera {
      * value, and return this value.
      */
     template<class T>
-    inline T absmax(const vector<T>& v) {
+    inline T absmax(const std::vector<T>& v) {
         int n = v.size();
         T val;
         T maxval = 0.0;

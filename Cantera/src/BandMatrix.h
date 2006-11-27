@@ -146,12 +146,7 @@ namespace Cantera {
 
     };
 
-    ostream& operator<<(ostream& s, const BandMatrix& m);
-
-    /**
-     * Solve Ax = b. Array b is overwritten on exit with x.
-     */
-    //    int bsolve(BandMatrix& A, double* b);
+    std::ostream& operator<<(std::ostream& s, const BandMatrix& m);
 
 }
 

@@ -6,7 +6,7 @@
 #define CT_LOGGER_H
 
 #include <iostream>
-using namespace std;
+//using namespace std;
 
 namespace Cantera {
 
@@ -44,8 +44,8 @@ namespace Cantera {
       /// appended to the message, and so if one is desired it must
       /// be included in the string.
 	  
-	virtual void write(const string& msg) {
-	  cout << msg;
+	virtual void write(const std::string& msg) {
+            std::cout << msg;
         }
 
         /// Write an error message and quit. The default behavior is
@@ -56,8 +56,8 @@ namespace Cantera {
         /// terminate the application Cantera is invoked from (MATLAB,
         /// Excel, etc.) If this is not desired, then derive a class
         /// and reimplement this method.
-	    virtual void error(const string& msg) {
-            cerr << msg << endl;
+        virtual void error(const std::string& msg) {
+            std::cerr << msg << std::endl;
             exit(-1);
         }
 

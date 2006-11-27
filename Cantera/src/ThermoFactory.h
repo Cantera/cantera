@@ -23,7 +23,7 @@ namespace Cantera {
 
     class UnknownThermoPhaseModel : public CanteraError {
     public:
-	UnknownThermoPhaseModel(string proc, string thermoModel) :
+	UnknownThermoPhaseModel(std::string proc, std::string thermoModel) :
 	    CanteraError(proc, "Specified ThermoPhase model "   
 			 + thermoModel + 
 			 " does not match any known type.") {}
@@ -62,8 +62,8 @@ namespace Cantera {
          * Create a new thermodynamic property manager.
          * @param type the type to be created.
          */ 
-        //virtual ThermoPhase* newThermo(XML_Node& node, string id);
-        virtual ThermoPhase* newThermoPhase(string model);
+        //virtual ThermoPhase* newThermo(XML_Node& node, std::string id);
+        virtual ThermoPhase* newThermoPhase(std::string model);
 
     private:
 
@@ -75,7 +75,7 @@ namespace Cantera {
     /**
      *  Create a new thermo manager instance.
      */
-//     inline ThermoPhase* newThermoMgr(XML_Node& root, string id,  
+//     inline ThermoPhase* newThermoMgr(XML_Node& root, std::string id,  
 //         ThermoFactory* f=0) {
 //         if (f == 0) {
 //             f = ThermoFactory::factory();
@@ -87,7 +87,7 @@ namespace Cantera {
     /**
      *  Create a new thermo manager instance.
      */
-    inline ThermoPhase* newThermoPhase(string model,  
+    inline ThermoPhase* newThermoPhase(std::string model,  
         ThermoFactory* f=0) {
         if (f == 0) {
             f = ThermoFactory::factory();

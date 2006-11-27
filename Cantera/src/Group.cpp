@@ -53,7 +53,8 @@ namespace Cantera {
         if (!ok) { m_sign = -999; m_comp.resize(n,0); }
     }
 
-    ostream& Group::fmt(ostream& s, const vector<string>& esymbols) const {
+    std::ostream& Group::fmt(std::ostream& s, 
+        const std::vector<std::string>& esymbols) const {
         s << "(";
         int nm;
         bool first = true;

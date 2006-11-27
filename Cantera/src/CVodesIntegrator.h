@@ -28,7 +28,6 @@
 #ifdef SUNDIALS_VERSION_22
 #include <nvector_serial.h>
 #else
-//#include <sundials/config.h>
 #include <sundials/sundials_nvector.h>
 #endif
 
@@ -41,7 +40,7 @@ namespace Cantera {
      */
     class CVodesErr : public CanteraError {
     public:
-        CVodesErr(string msg) : CanteraError("CVodesIntegrator", msg){}
+        CVodesErr(std::string msg) : CanteraError("CVodesIntegrator", msg){}
     };
 
 

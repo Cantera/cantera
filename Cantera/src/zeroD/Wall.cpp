@@ -5,6 +5,9 @@
 #include "../InterfaceKinetics.h"
 #include "../SurfPhase.h"
 
+using Cantera::Func1;
+using Cantera::Kinetics;
+
 namespace CanteraZeroD {
 
         

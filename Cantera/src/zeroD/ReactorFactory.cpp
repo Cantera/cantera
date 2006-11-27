@@ -22,6 +22,7 @@
 #include "FlowReactor.h"
 #include "ConstPressureReactor.h"
 
+using namespace std;
 namespace CanteraZeroD {
 
     ReactorFactory* ReactorFactory::s_factory = 0;

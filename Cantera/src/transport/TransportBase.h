@@ -284,7 +284,7 @@ namespace Cantera {
          * method, the base class method will be called, resulting in
          * an exception being thrown.
          */
-        doublereal err(string msg) const;
+        doublereal err(std::string msg) const;
 
     };
 

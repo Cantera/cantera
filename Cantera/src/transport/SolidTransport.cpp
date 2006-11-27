@@ -23,6 +23,7 @@
 #include "../utilities.h"
 #include <iostream>
 
+using namespace std;
 
 namespace Cantera {
 

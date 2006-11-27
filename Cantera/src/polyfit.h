@@ -5,7 +5,7 @@
 #define CT_POLYFIT_H
 
 #include <vector>
-using namespace std;
+//using namespace std;
 
 #include "ct_defs.h"
 

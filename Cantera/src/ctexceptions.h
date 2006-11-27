@@ -16,7 +16,7 @@
 #define CT_CTEXCEPTIONS_H
 
 #include <string>
-using namespace std;
+//using namespace std;
 
 // See file misc.cpp for implementations of methods/functions declared
 // here.
@@ -46,7 +46,7 @@ namespace Cantera {
     class CanteraError {
     public:
         CanteraError() {}
-        CanteraError(string proc, string msg);
+        CanteraError(std::string proc, std::string msg);
         virtual ~CanteraError(){}
     protected:
     };
@@ -55,17 +55,17 @@ namespace Cantera {
     /// 
     class ArraySizeError : public CanteraError {
     public:
-        ArraySizeError(string proc, int sz, int reqd);
+        ArraySizeError(std::string proc, int sz, int reqd);
     };
 
     /// Exception thrown if an element index is out of range.
     class ElementRangeError : public CanteraError {
     public:
-        ElementRangeError(string func, int m, int mmax);
+        ElementRangeError(std::string func, int m, int mmax);
     };
     
-    void deprecatedMethod(string classnm, string oldnm, string newnm);
-    void removeAtVersion(string func, string version);
+    void deprecatedMethod(std::string classnm, std::string oldnm, std::string newnm);
+    void removeAtVersion(std::string func, std::string version);
 }
 
 #endif

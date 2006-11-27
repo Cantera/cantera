@@ -28,7 +28,7 @@
 #include <numeric>
 #include <string>
 
-using namespace std;
+//using namespace std;
 
 //#include "ctvector.h"
 //using namespace ct;
@@ -153,7 +153,7 @@ namespace Cantera {
     const int None = 0;
 
     // typedefs
-    typedef std::map<string, doublereal> compositionMap;
+    typedef std::map<std::string, doublereal> compositionMap;
 #define USE_STL_VECTOR
 #ifdef USE_STL_VECTOR
     typedef std::vector<double>            array_fp;

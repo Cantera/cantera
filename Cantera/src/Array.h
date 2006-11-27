@@ -131,9 +131,6 @@ namespace Cantera {
          * Evaluate a*x + y.
          */
         void axpy(doublereal a, const Array2D& x, const Array2D& y) {
-            //const doublereal* xb = x.begin();
-            //const doublereal* yb = y.begin();
-            //doublereal* b = begin();
             iterator b = begin();
             const_iterator xb = x.begin();
             const_iterator yb = y.begin();
@@ -189,7 +186,7 @@ namespace Cantera {
     };
 
     /// output the array
-    inline ostream& operator<<(ostream& s, const Array2D& m) {
+    inline std::ostream& operator<<(std::ostream& s, const Array2D& m) {
         int nr = static_cast<int>(m.nRows());
         int nc = static_cast<int>(m.nColumns());
         int i,j;
@@ -197,7 +194,7 @@ namespace Cantera {
             for (j = 0; j < nc; j++) {
                 s << m(i,j) << ", ";
             }
-            s << endl;
+            s << std::endl;
         }
         return s;
     }

@@ -39,13 +39,16 @@
 
 #include "ct_defs.h"
 
+#include "stringUtils.h"
+#include "global.h"
+
 namespace Cantera {
 
     struct UnknownThermoParam {
         UnknownThermoParam(int thermotype) {
-            cerr << endl << "### ERROR ###" << endl;
-            cerr << "Unknown species thermo parameterization ("
-                 << thermotype << ")" << endl << endl;
+            writelog(std::string("\n ### ERROR ### \n") + 
+                "Unknown species thermo parameterization ("
+                + int2str(thermotype) + ")\n\n");
         }
     };
 

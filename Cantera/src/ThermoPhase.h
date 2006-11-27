@@ -693,7 +693,7 @@ namespace Cantera {
         void setState_TPX(doublereal t, doublereal p, compositionMap& x);
 
         /** Set the temperature (K), pressure (Pa), and mole fractions.  */
-        void setState_TPX(doublereal t, doublereal p, const string& x);
+        void setState_TPX(doublereal t, doublereal p, const std::string& x);
 
         /** Set the temperature (K), pressure (Pa), and mass fractions. */
         void setState_TPY(doublereal t, doublereal p, const doublereal* y);
@@ -702,7 +702,7 @@ namespace Cantera {
         void setState_TPY(doublereal t, doublereal p, compositionMap& y);
         
         /** Set the temperature (K), pressure (Pa), and mass fractions.  */
-        void setState_TPY(doublereal t, doublereal p, const string& y);
+        void setState_TPY(doublereal t, doublereal p, const std::string& y);
 
         /** Set the temperature (K) and pressure (Pa) */
         void setState_TP(doublereal t, doublereal p);
@@ -889,7 +889,7 @@ namespace Cantera {
 	 *            phase. If none is given, the first XML
 	 *            phase element encountered will be used.
 	 */
-	virtual void initThermoFile(string inputFile, string id);
+	virtual void initThermoFile(std::string inputFile, std::string id);
 
 
 	/**
@@ -918,7 +918,7 @@ namespace Cantera {
 	 *             to see if phaseNode is pointing to the phase
 	 *             with the correct id. 
 	 */
-	virtual void initThermoXML(XML_Node& phaseNode, string id);
+	virtual void initThermoXML(XML_Node& phaseNode, std::string id);
 
         /**
          * @internal Initialize. This method is provided to allow
@@ -1022,7 +1022,7 @@ namespace Cantera {
 
     private:
 
-        doublereal err(string msg) const;
+        doublereal err(std::string msg) const;
 
     };
 

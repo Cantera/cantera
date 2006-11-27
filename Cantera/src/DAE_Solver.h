@@ -206,7 +206,7 @@ namespace Cantera {
 
         
     private:
-        void warn(string msg) const {
+        void warn(std::string msg) const {
             writelog(">>>> Warning: method "+msg+" of base class "
                 +"DAE_Solver called. Nothing done.\n");
         }

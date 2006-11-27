@@ -61,7 +61,7 @@ namespace Cantera {
 
         doublereal* getWorkArray();
         void releaseWorkArray(doublereal* work);
-        vector<doublereal*> m_workarrays;
+        std::vector<doublereal*> m_workarrays;
         int m_maxAge;
         int m_nv, m_np, m_n;
         doublereal m_elapsed;

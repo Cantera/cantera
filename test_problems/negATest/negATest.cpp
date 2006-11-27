@@ -6,6 +6,7 @@
  *
 
  */
+
 #ifdef SRCDIRTREE
 #include "ct_defs.h"
 #include "ctml.h"
@@ -23,13 +24,15 @@
 #include "kernel/InterfaceKinetics.h"
 #endif
 
-using namespace Cantera;
+#include <string>
 
-#
+using namespace Cantera;
+using namespace std; 
+
 int main(int argc, char **argv) {
   try {   
     int i;
-    string infile = "noxNeg.xml";
+    std::string infile = "noxNeg.xml";
     double x[20];
     double cdot[20], ddot[20];
     

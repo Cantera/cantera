@@ -19,7 +19,7 @@
  * is retrieved from the list by the interface function, the desired
  * method is invoked, and the result returned to the non-C++ calling
  * procedure. By storing the pointers in a 'cabinet', there is no need
- * to encode them in a string or integer and pass them out to the
+ * to encode them in a std::string or integer and pass them out to the
  * non-C++ calling routine, as some other interfacing schemes do.
  *
  * The Cabinet<M> class can be used to store pointers to any class
@@ -102,7 +102,7 @@ public:
             __table.push_back(new M(*old));
             return static_cast<int>(__table.size()) - 1;
         }
-        catch (CanteraError) {return -1;}
+        catch (Cantera::CanteraError) {return -1;}
         catch (...) {return -999;}
     }
 
@@ -119,7 +119,7 @@ public:
             *dest = *src;
             return 0;
         }
-        catch (CanteraError) {return -1;}
+        catch (Cantera::CanteraError) {return -1;}
         catch (...) {return -999;}
     }
 
@@ -150,7 +150,7 @@ public:
             __table[n] = __table[0]; 
         }
         else {
-            throw CanteraError("Cabinet<M>::del", 
+            throw Cantera::CanteraError("Cabinet<M>::del", 
                 "Attempt made to delete an already-deleted object.");
         } 
     }
@@ -163,7 +163,7 @@ public:
         if (n >= 0 && n < int(__table.size()))
             return __table[n];
         else {
-            throw CanteraError("item","index out of range"+int2str(n));
+            throw Cantera::CanteraError("item","index out of range"+Cantera::int2str(n));
             return __table[0];
         }
     }

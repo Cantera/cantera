@@ -115,10 +115,10 @@ namespace CanteraZeroD {
         virtual int nSensParams();
         virtual void addSensitivityReaction(int rxn);
 
-        virtual string sensParamID(int p) { return m_pname[p]; }
+        virtual std::string sensParamID(int p) { return m_pname[p]; }
 
-        //        virtual string component(int k) const;
-        virtual int componentIndex(string nm) const;
+        //        virtual std::string component(int k) const;
+        virtual int componentIndex(std::string nm) const;
 
     protected:
         
@@ -137,7 +137,7 @@ namespace CanteraZeroD {
 
         int m_nsens;
         vector_int m_pnum;
-        vector<string> m_pname;
+        std::vector<std::string> m_pname;
         vector_int m_nsens_wall;
         vector_fp m_mult_save;
 

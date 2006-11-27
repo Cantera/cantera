@@ -10,6 +10,8 @@
 #include "../ct_defs.h"
 #include "Domain1D.h"
 
+using namespace std;
+
 namespace Cantera {
 
     class Indx {

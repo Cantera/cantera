@@ -28,8 +28,8 @@ namespace Cantera {
 
         bool operator!() { return !m_ok;}
         bool ready() const { return m_ok; }
-        friend ostream& operator<<(ostream& s, GRI30& mix) {
-            string r = report(mix, true);
+        friend std::ostream& operator<<(std::ostream& s, GRI30& mix) {
+            std::string r = report(mix, true);
             s << r;
             return s;
         }

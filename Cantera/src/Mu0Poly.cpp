@@ -14,6 +14,7 @@
 #include "xml.h"
 #include "ctml.h"
 
+using namespace std;
 using namespace ctml;
 
 namespace Cantera {
@@ -317,7 +318,7 @@ namespace Cantera {
      * parameterization for species k into a SpeciesThermo instance,
      * getting the information from an XML database.
      */
-    void installMu0ThermoFromXML(string speciesName,
+    void installMu0ThermoFromXML(std::string speciesName,
 				 SpeciesThermo& sp, int k, 
 				 const XML_Node* Mu0Node_ptr) {
 

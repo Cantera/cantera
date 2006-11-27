@@ -24,7 +24,7 @@ namespace Cantera {
 
     enum flow_t   { NetFlow, OneWayFlow };
 
-    Group parseGroupString(string str, vector<string>& esyms);
+    Group parseGroupString(std::string str, std::vector<std::string>& esyms);
 
     // forward references
     class Path; 
@@ -35,7 +35,7 @@ namespace Cantera {
     class SpeciesNode {
     public:
 
-        typedef vector<Path*> path_list;
+        typedef std::vector<Path*> path_list;
 
         /// Default constructor
         SpeciesNode() : number(-1), name(""), value(0.0), 
@@ -46,7 +46,7 @@ namespace Cantera {
 
         // public attributes
         int         number;           ///<  Species number
-        string      name;             ///<  Label on graph
+        std::string      name;             ///<  Label on graph
         doublereal  value;            ///<  May be used to set node appearance
         bool        visible;          ///<  Visible on graph;
 
@@ -88,7 +88,7 @@ namespace Cantera {
 
     public:
  
-        typedef map<int, doublereal> rxn_path_map;
+        typedef std::map<int, doublereal> rxn_path_map;
 
         /**
          *  Constructor. Construct a one-way path from 
@@ -99,7 +99,7 @@ namespace Cantera {
         /// Destructor
         virtual ~Path() {}
 
-        void addReaction(int rxnNumber, doublereal value, string label = "");
+        void addReaction(int rxnNumber, doublereal value, std::string label = "");
 
         /// Upstream node.
         const SpeciesNode* begin() const { return m_a; }
@@ -129,11 +129,11 @@ namespace Cantera {
         ///  Map from reaction number to flow from that reaction in this path.
         const rxn_path_map& reactionMap() { return m_rxn; }
 
-        void writeLabel(ostream& s, doublereal threshold = 0.005);
+        void writeLabel(std::ostream& s, doublereal threshold = 0.005);
         
     protected:
 
-        map<string, doublereal> m_label;
+        std::map<std::string, doublereal> m_label;
         SpeciesNode *m_a, *m_b;
         rxn_path_map m_rxn;
         doublereal m_total;
@@ -169,8 +169,8 @@ namespace Cantera {
             return (m_nodes[k] != 0);
         }
 
-        void writeData(ostream& s);
-        void exportToDot(ostream& s);
+        void writeData(std::ostream& s);
+        void exportToDot(std::ostream& s);
         void add(ReactionPathDiagram& d);
         SpeciesNode* node(int k) { return m_nodes[k]; }
         Path* path(int k1, int k2) { return m_paths[k1][k2]; }
@@ -178,43 +178,43 @@ namespace Cantera {
         int nPaths() { return static_cast<int>(m_pathlist.size()); }
         int nNodes() { return static_cast<int>(m_nodes.size()); }
 
-        void addNode(int k, string nm, doublereal x = 0.0);
+        void addNode(int k, std::string nm, doublereal x = 0.0);
 
         void displayOnly(int k=-1) { m_local = k; }
 
         void linkNodes(int k1, int k2, int rxn, doublereal value,
-            string legend = "");
+            std::string legend = "");
 
-        void include(string aaname) { m_include.push_back(aaname); }
-        void exclude(string aaname) { m_exclude.push_back(aaname); }
-        void include(vector<string>& names) { 
+        void include(std::string aaname) { m_include.push_back(aaname); }
+        void exclude(std::string aaname) { m_exclude.push_back(aaname); }
+        void include(std::vector<std::string>& names) { 
             int n = static_cast<int>(names.size());
             for (int i = 0; i < n; i++) m_include.push_back(names[i]);
         }
-        void exclude(vector<string>& names) { 
+        void exclude(std::vector<std::string>& names) { 
             int n = static_cast<int>(names.size());
             for (int i = 0; i < n; i++) m_exclude.push_back(names[i]);
         }
-        vector<string>& included() { return m_include; }
-        vector<string>& excluded() { return m_exclude; }
+        std::vector<std::string>& included() { return m_include; }
+        std::vector<std::string>& excluded() { return m_exclude; }
         vector_int species();
         vector_int reactions();
         void findMajorPaths(doublereal threshold, int lda, doublereal* a);
-        void setFont(string font) {
+        void setFont(std::string font) {
             m_font = font;
         }
         // public attributes
 
-        string title;
-        string bold_color;
-        string normal_color;
-        string dashed_color;
-        string element;
-        string m_font;
+        std::string title;
+        std::string bold_color;
+        std::string normal_color;
+        std::string dashed_color;
+        std::string element;
+        std::string m_font;
         doublereal threshold, 
             bold_min, dashed_max, label_min;
         doublereal x_size, y_size;
-        string name, dot_options;
+        std::string name, dot_options;
         flow_t flow_type;
         double scale;
         double arrow_width; 
@@ -224,13 +224,13 @@ namespace Cantera {
     protected:
 
         doublereal                    m_flxmax;
-        map<int, map<int, Path*> >    m_paths;
-        map<int, SpeciesNode*>        m_nodes;
-        vector<Path*>                 m_pathlist;
-        vector<string>                m_include;
-        vector<string>                m_exclude;
+        std::map<int, std::map<int, Path*> >    m_paths;
+        std::map<int, SpeciesNode*>        m_nodes;
+        std::vector<Path*>                 m_pathlist;
+        std::vector<std::string>                m_include;
+        std::vector<std::string>                m_exclude;
         vector_int                   m_speciesNumber;
-        map<int, int>                 m_rxns;
+        std::map<int, int>                 m_rxns;
         int                           m_local;
     };
 
@@ -242,14 +242,14 @@ namespace Cantera {
         ReactionPathBuilder() {}
         virtual ~ReactionPathBuilder() {}
     
-        int init(ostream& logfile, Kinetics& s);
+        int init(std::ostream& logfile, Kinetics& s);
 
-        int build(Kinetics& s, string element, ostream& output, 
+        int build(Kinetics& s, std::string element, std::ostream& output, 
             ReactionPathDiagram& r, bool quiet=false);
 
-        int findGroups(ostream& logfile, Kinetics& s);
+        int findGroups(std::ostream& logfile, Kinetics& s);
  
-        void writeGroup(ostream& out, const Group& g);
+        void writeGroup(std::ostream& out, const Group& g);
 
     protected:
         void findElements(Kinetics& kin);
@@ -260,17 +260,17 @@ namespace Cantera {
         vector_fp m_ropf;
         vector_fp m_ropr;
         array_fp m_x;
-        vector<vector_int> m_reac;
-        vector<vector_int> m_prod;
+        std::vector<vector_int> m_reac;
+        std::vector<vector_int> m_prod;
         DenseMatrix m_elatoms;
-        vector<vector<int> > m_groups;
-        vector<Group> m_sgroup;
-        vector<string> m_elementSymbols;
-        //        map<int, int> m_warn;
-        map<int, map<int, map<int, Group> > >  m_transfer;
-        vector<bool> m_determinate;
+        std::vector<std::vector<int> > m_groups;
+        std::vector<Group> m_sgroup;
+        std::vector<std::string> m_elementSymbols;
+        //        std::map<int, int> m_warn;
+        std::map<int, std::map<int, std::map<int, Group> > >  m_transfer;
+        std::vector<bool> m_determinate;
         Array2D m_atoms;
-        map<string,int> m_enamemap;
+        std::map<std::string,int> m_enamemap;
     };
 
 }

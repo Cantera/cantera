@@ -17,4 +17,9 @@
 #define ERR -999
 #define DERR -999.999
 
+namespace Cantera {}
+using namespace Cantera;
+namespace std {}
+using namespace std;
+
 #endif

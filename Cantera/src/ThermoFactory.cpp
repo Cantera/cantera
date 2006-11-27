@@ -43,6 +43,8 @@
 #include "LatticePhase.h"
 #endif
 
+using namespace std;
+
 namespace Cantera {
 
     ThermoFactory* ThermoFactory::s_factory = 0;

@@ -26,6 +26,7 @@
 #include "ctexceptions.h"
 
 using namespace ctml;
+using namespace std;
 
 #ifdef USE_DGG_CODE
 #include <map>

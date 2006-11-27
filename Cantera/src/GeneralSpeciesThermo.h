@@ -47,7 +47,7 @@ namespace Cantera {
          * - c[1] - c[7]   coefficients for low T range
          * - c[8] - c[14]  coefficients for high T range
          */
-        virtual void install(string name, int index, int type, 
+        virtual void install(std::string name, int index, int type, 
 			     const doublereal* c, 
 			     doublereal minTemp, doublereal maxTemp,
 			     doublereal refPressure);
@@ -100,7 +100,7 @@ namespace Cantera {
 	 * Note, this object owns the objects, so they are deleted
 	 * in the destructor of this object.
 	 */
-	vector<SpeciesThermoInterpType *>  m_sp;
+	std::vector<SpeciesThermoInterpType *>  m_sp;
         doublereal                         m_tlow_max;
         doublereal                         m_thigh_min;
         doublereal                         m_p0;

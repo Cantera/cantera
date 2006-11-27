@@ -139,12 +139,12 @@ namespace Cantera {
         int nPoints() const { return m_points; }
 
         /// Name of the nth component. May be overloaded.
-        virtual string componentName(int n) const { 
+        virtual std::string componentName(int n) const { 
             if (m_name[n] != "") return m_name[n];
             else return "component " + int2str(n); 
         }
 
-        void setComponentName(int n, string name) {
+        void setComponentName(int n, std::string name) {
             m_name[n] = name;
         }
 
@@ -153,7 +153,7 @@ namespace Cantera {
         }
 
         /// index of component with name \a name.
-        int componentIndex(string name) {
+        int componentIndex(std::string name) {
             int nc = nComponents();
             for (int n = 0; n < nc; n++) {
                 if (name == componentName(n)) return n;
@@ -257,7 +257,7 @@ namespace Cantera {
             integer* mask, doublereal rdt=0.0);
 
         virtual doublereal residual(doublereal* x, int n, int j) {
-            throw CanteraError("Domain1D::residual","residual function must be overloaded in derived class");
+            throw CanteraError("Domain1D::residual","residual function must be overloaded in derived class "+id());
         }
 
         int timeDerivativeFlag(int n) { return m_td[n];}
@@ -367,22 +367,22 @@ namespace Cantera {
         /**
          * Specify an identifying tag for this domain.
          */
-        void setID(const string& s) {m_id = s;}
+        void setID(const std::string& s) {m_id = s;}
 
-        string id() { 
+        std::string id() { 
             if (m_id != "") return m_id;
-            else return string("domain ") + int2str(m_index);
+            else return std::string("domain ") + int2str(m_index);
         }
 
         /**
          * Specify descriptive text for this domain.
          */
-        void setDesc(const string& s) {m_desc = s;}
-        const string& desc() { return m_desc; }
+        void setDesc(const std::string& s) {m_desc = s;}
+        const std::string& desc() { return m_desc; }
 
         virtual void getTransientMask(integer* mask){}
 
-        virtual void showSolution_s(ostream& s, const doublereal* x) {}
+        virtual void showSolution_s(std::ostream& s, const doublereal* x) {}
         virtual void showSolution(const doublereal* x);
 
         virtual void restore(const XML_Node& dom, doublereal* soln) {}
@@ -394,7 +394,7 @@ namespace Cantera {
         doublereal zmax() const { return m_z[m_points - 1]; }
 
 
-        void setProfile(string name, doublereal* values, doublereal* soln) {
+        void setProfile(std::string name, doublereal* values, doublereal* soln) {
             int n, j;
             for (n = 0; n < m_nv; n++) {
                 if (name == componentName(n)) {
@@ -467,10 +467,10 @@ namespace Cantera {
         int m_iloc;
         int m_jstart;
         Domain1D *m_left, *m_right;
-        string m_id, m_desc;
+        std::string m_id, m_desc;
         Refiner* m_refiner;
         vector_int m_td;
-        vector<string> m_name;
+        std::vector<std::string> m_name;
 
     private:
 

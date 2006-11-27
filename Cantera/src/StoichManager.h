@@ -148,7 +148,7 @@ They are designed to explicitly unroll loops over species or reactions for
             return 0.0;
     }
 
-    inline static string fmt(string r, int n) { return r + "[" + int2str(n) + "]"; }
+    inline static std::string fmt(std::string r, int n) { return r + "[" + int2str(n) + "]"; }
 
 
     /**
@@ -163,7 +163,7 @@ They are designed to explicitly unroll loops over species or reactions for
         C1( int rxn = 0, int ic0 = 0)
             : m_rxn (rxn),  m_ic0 (ic0) {}
       
-        int data(vector<int>& ic) {
+        int data(std::vector<int>& ic) {
             ic.resize(1);
             ic[0] = m_ic0;
             return m_rxn;
@@ -193,21 +193,21 @@ They are designed to explicitly unroll loops over species or reactions for
         int speciesIndex(int n) const { return m_ic0; }
         int nSpecies() { return 1;}
         
-        void writeMultiply(string r, map<int, string>& out) {
+        void writeMultiply(std::string r, std::map<int, std::string>& out) {
             out[m_rxn] = fmt(r, m_ic0);
         }
 
-        void writeIncrementReaction(string r, map<int, string>& out) {
+        void writeIncrementReaction(std::string r, std::map<int, std::string>& out) {
             out[m_rxn] += " + "+fmt(r, m_ic0);
         }
-        void writeDecrementReaction(string r, map<int, string>& out) {
+        void writeDecrementReaction(std::string r, std::map<int, std::string>& out) {
             out[m_rxn] += " - "+fmt(r, m_ic0);
         }
 
-        void writeIncrementSpecies(string r, map<int, string>& out) {
+        void writeIncrementSpecies(std::string r, std::map<int, std::string>& out) {
             out[m_ic0] += " + "+fmt(r, m_rxn);
         }
-        void writeDecrementSpecies(string r, map<int, string>& out) {
+        void writeDecrementSpecies(std::string r, std::map<int, std::string>& out) {
             out[m_ic0] += " - "+fmt(r, m_rxn);
         }
         
@@ -226,7 +226,7 @@ They are designed to explicitly unroll loops over species or reactions for
         C2( int rxn = 0, int ic0 = 0, int ic1 = 0) 
             : m_rxn (rxn), m_ic0 (ic0), m_ic1 (ic1) {}
 
-        int data(vector<int>& ic) {
+        int data(std::vector<int>& ic) {
             ic.resize(2);
             ic[0] = m_ic0;
             ic[1] = m_ic1;
@@ -259,23 +259,23 @@ They are designed to explicitly unroll loops over species or reactions for
         int speciesIndex(int n) const { return (n == 0 ? m_ic0 : m_ic1); }
         int nSpecies() { return 2;}
 
-        void writeMultiply(string r, map<int, string>& out) {
+        void writeMultiply(std::string r, std::map<int, std::string>& out) {
             out[m_rxn] = fmt(r, m_ic0) + " * " + fmt(r, m_ic1);
         }
-        void writeIncrementReaction(string r, map<int, string>& out) {
+        void writeIncrementReaction(std::string r, std::map<int, std::string>& out) {
             out[m_rxn] += " + "+fmt(r, m_ic0)+" + "+fmt(r, m_ic1);
         }
-        void writeDecrementReaction(string r, map<int, string>& out) {
+        void writeDecrementReaction(std::string r, std::map<int, std::string>& out) {
             out[m_rxn] += " - "+fmt(r, m_ic0)+" - "+fmt(r, m_ic1);
         }
 
-        void writeIncrementSpecies(string r, map<int, string>& out) {
-            string s = " + "+fmt(r, m_rxn);
+        void writeIncrementSpecies(std::string r, std::map<int, std::string>& out) {
+            std::string s = " + "+fmt(r, m_rxn);
             out[m_ic0] += s; 
             out[m_ic1] += s; 
         }
-        void writeDecrementSpecies(string r, map<int, string>& out) {
-            string s = " - "+fmt(r, m_rxn);
+        void writeDecrementSpecies(std::string r, std::map<int, std::string>& out) {
+            std::string s = " - "+fmt(r, m_rxn);
             out[m_ic0] += s; 
             out[m_ic1] += s; 
         }
@@ -304,7 +304,7 @@ They are designed to explicitly unroll loops over species or reactions for
         C3( int rxn = 0, int ic0 = 0, int ic1 = 0, int ic2 = 0)
             : m_rxn (rxn), m_ic0 (ic0), m_ic1 (ic1), m_ic2 (ic2) {}
 
-        int data(vector<int>& ic) {
+        int data(std::vector<int>& ic) {
             ic.resize(3);
             ic[0] = m_ic0;
             ic[1] = m_ic1;
@@ -340,23 +340,23 @@ They are designed to explicitly unroll loops over species or reactions for
         int speciesIndex(int n) const { return (n == 0 ? m_ic0 : (n == 1 ? m_ic1 : m_ic2)); }
         int nSpecies() { return 3;}
 
-        void writeMultiply(string r, map<int, string>& out) {
+        void writeMultiply(std::string r, std::map<int, std::string>& out) {
             out[m_rxn] = fmt(r, m_ic0) + " * " + fmt(r, m_ic1) + " * " + fmt(r, m_ic2);
         }
-        void writeIncrementReaction(string r, map<int, string>& out) {
+        void writeIncrementReaction(std::string r, std::map<int, std::string>& out) {
             out[m_rxn] += " + "+fmt(r, m_ic0)+" + "+fmt(r, m_ic1)+" + "+fmt(r, m_ic2);
         }
-        void writeDecrementReaction(string r, map<int, string>& out) {
+        void writeDecrementReaction(std::string r, std::map<int, std::string>& out) {
             out[m_rxn] += " - "+fmt(r, m_ic0)+" - "+fmt(r, m_ic1)+" - "+fmt(r, m_ic2);
         }
-        void writeIncrementSpecies(string r, map<int, string>& out) {
-            string s = " + "+fmt(r, m_rxn);
+        void writeIncrementSpecies(std::string r, std::map<int, std::string>& out) {
+            std::string s = " + "+fmt(r, m_rxn);
             out[m_ic0] += s; 
             out[m_ic1] += s; 
             out[m_ic2] += s; 
         }
-        void writeDecrementSpecies(string r, map<int, string>& out) {
-            string s = " - "+fmt(r, m_rxn);
+        void writeDecrementSpecies(std::string r, std::map<int, std::string>& out) {
+            std::string s = " - "+fmt(r, m_rxn);
             out[m_ic0] += s; 
             out[m_ic1] += s;
             out[m_ic2] += s;  
@@ -389,7 +389,7 @@ They are designed to explicitly unroll loops over species or reactions for
             }
         }
 
-        int data(vector<int>& ic) {
+        int data(std::vector<int>& ic) {
             ic.resize(m_n);
             int n;
             for (n = 0; n < m_n; n++) ic[n] = m_ic[n];
@@ -431,7 +431,7 @@ They are designed to explicitly unroll loops over species or reactions for
                 -= m_stoich[n]*input[m_ic[n]];
         }
 
-        void writeMultiply(string r, map<int, string>& out) {
+        void writeMultiply(std::string r, std::map<int, std::string>& out) {
             int n;
             out[m_rxn] = "";
             for (n = 0; n < m_n; n++) {
@@ -443,28 +443,28 @@ They are designed to explicitly unroll loops over species or reactions for
                     out[m_rxn] += " * ";
             }
         }
-        void writeIncrementReaction(string r, map<int, string>& out) {
+        void writeIncrementReaction(std::string r, std::map<int, std::string>& out) {
             int n;
             for (n = 0; n < m_n; n++) {
                 out[m_rxn] += " + "+fp2str(m_stoich[n]) + "*" + fmt(r, m_ic[n]);
             }
         }
-        void writeDecrementReaction(string r, map<int, string>& out) {
+        void writeDecrementReaction(std::string r, std::map<int, std::string>& out) {
             int n;
             for (n = 0; n < m_n; n++) {
                 out[m_rxn] += " - "+fp2str(m_stoich[n]) + "*" + fmt(r, m_ic[n]);
             }
         }
-        void writeIncrementSpecies(string r, map<int, string>& out) {
-            string s = fmt(r, m_rxn);
+        void writeIncrementSpecies(std::string r, std::map<int, std::string>& out) {
+            std::string s = fmt(r, m_rxn);
             int n;
             for (n = 0; n < m_n; n++) {
                 out[m_ic[n]] += " + "+fp2str(m_stoich[n]) + "*" + s;
             }
         }
 
-        void writeDecrementSpecies(string r, map<int, string>& out) {
-            string s = fmt(r, m_rxn);
+        void writeDecrementSpecies(std::string r, std::map<int, std::string>& out) {
+            std::string s = fmt(r, m_rxn);
             int n;
             for (n = 0; n < m_n; n++) {
                 out[m_ic[n]] += " - "+fp2str(m_stoich[n]) + "*" + s;
@@ -516,32 +516,32 @@ They are designed to explicitly unroll loops over species or reactions for
 
 
     template<class InputIter>
-    inline static void _writeIncrementSpecies(InputIter begin, InputIter end, string r, 
-        map<int, string>& out) {
+    inline static void _writeIncrementSpecies(InputIter begin, InputIter end, std::string r, 
+        std::map<int, std::string>& out) {
         for (; begin != end; ++begin) begin->writeIncrementSpecies(r, out);
     }
 
     template<class InputIter>
-    inline static void _writeDecrementSpecies(InputIter begin, InputIter end, string r, 
-        map<int, string>& out) {
+    inline static void _writeDecrementSpecies(InputIter begin, InputIter end, std::string r, 
+        std::map<int, std::string>& out) {
         for (; begin != end; ++begin) begin->writeDecrementSpecies(r, out);
     }
 
     template<class InputIter>
-    inline static void _writeIncrementReaction(InputIter begin, InputIter end, string r, 
-        map<int, string>& out) {
+    inline static void _writeIncrementReaction(InputIter begin, InputIter end, std::string r, 
+        std::map<int, std::string>& out) {
         for (; begin != end; ++begin) begin->writeIncrementReaction(r, out);
     }
 
     template<class InputIter>
-    inline static void _writeDecrementReaction(InputIter begin, InputIter end, string r, 
-        map<int, string>& out) {
+    inline static void _writeDecrementReaction(InputIter begin, InputIter end, std::string r, 
+        std::map<int, std::string>& out) {
         for (; begin != end; ++begin) begin->writeDecrementReaction(r, out);
     }
 
     template<class InputIter>
-    inline static void _writeMultiply(InputIter begin, InputIter end, string r, 
-        map<int, string>& out) {
+    inline static void _writeMultiply(InputIter begin, InputIter end, std::string r, 
+        std::map<int, std::string>& out) {
         for (; begin != end; ++begin) begin->writeMultiply(r, out);
     }
 
@@ -708,35 +708,35 @@ They are designed to explicitly unroll loops over species or reactions for
             _decrementReactions(m_cn_list.begin(), m_cn_list.end(), input, output);
         }
  
-        void writeIncrementSpecies(string r, map<int, string>& out) {
+        void writeIncrementSpecies(std::string r, std::map<int, std::string>& out) {
             _writeIncrementSpecies(m_c1_list.begin(), m_c1_list.end(), r, out);
             _writeIncrementSpecies(m_c2_list.begin(), m_c2_list.end(), r, out);
             _writeIncrementSpecies(m_c3_list.begin(), m_c3_list.end(), r, out);
             _writeIncrementSpecies(m_cn_list.begin(), m_cn_list.end(), r, out);
         }
 
-        void writeDecrementSpecies(string r, map<int, string>& out) {
+        void writeDecrementSpecies(std::string r, std::map<int, std::string>& out) {
             _writeDecrementSpecies(m_c1_list.begin(), m_c1_list.end(), r, out);
             _writeDecrementSpecies(m_c2_list.begin(), m_c2_list.end(), r, out);
             _writeDecrementSpecies(m_c3_list.begin(), m_c3_list.end(), r, out);
             _writeDecrementSpecies(m_cn_list.begin(), m_cn_list.end(), r, out);
         }
 
-        void writeIncrementReaction(string r, map<int, string>& out) {
+        void writeIncrementReaction(std::string r, std::map<int, std::string>& out) {
             _writeIncrementReaction(m_c1_list.begin(), m_c1_list.end(), r, out);
             _writeIncrementReaction(m_c2_list.begin(), m_c2_list.end(), r, out);
             _writeIncrementReaction(m_c3_list.begin(), m_c3_list.end(), r, out);
             _writeIncrementReaction(m_cn_list.begin(), m_cn_list.end(), r, out);
         }
 
-        void writeDecrementReaction(string r, map<int, string>& out) {
+        void writeDecrementReaction(std::string r, std::map<int, std::string>& out) {
             _writeDecrementReaction(m_c1_list.begin(), m_c1_list.end(), r, out);
             _writeDecrementReaction(m_c2_list.begin(), m_c2_list.end(), r, out);
             _writeDecrementReaction(m_c3_list.begin(), m_c3_list.end(), r, out);
             _writeDecrementReaction(m_cn_list.begin(), m_cn_list.end(), r, out);
         }
 
-        void writeMultiply(string r, map<int, string>& out) {
+        void writeMultiply(std::string r, std::map<int, std::string>& out) {
             _writeMultiply(m_c1_list.begin(), m_c1_list.end(), r, out);
             _writeMultiply(m_c2_list.begin(), m_c2_list.end(), r, out);
             _writeMultiply(m_c3_list.begin(), m_c3_list.end(), r, out);
@@ -746,20 +746,20 @@ They are designed to explicitly unroll loops over species or reactions for
 
     private:
 
-        vector<C1>     m_c1_list;
-        vector<C2>     m_c2_list;
-        vector<C3>     m_c3_list;
-        vector<C_AnyN> m_cn_list;
+        std::vector<C1>     m_c1_list;
+        std::vector<C2>     m_c2_list;
+        std::vector<C3>     m_c3_list;
+        std::vector<C_AnyN> m_cn_list;
         /**
-         * Mapping with the Reaction Number as key and the Number of species
+         * Std::Mapping with the Reaction Number as key and the Number of species
          * as the value.
          */
-        map<int, int>  m_n;
+        std::map<int, int>  m_n;
         /**
-         * Mapping with the Reaction Number as key and the placement in the
+         * Std::Mapping with the Reaction Number as key and the placement in the
          * vector of reactions list( i.e., m_c1_list[]) as key
          */
-        map<int, int>  m_loc;
+        std::map<int, int>  m_loc;
     };
 
 #undef INCL_STOICH_WRITER
@@ -785,7 +785,7 @@ They are designed to explicitly unroll loops over species or reactions for
         void add(int rxn, const vector_int& k, const vector_fp& order, 
             const vector_fp& stoich) {
             int n, nn = k.size();
-            string s;
+            std::string s;
             for (n = 0; n < nn; n++) {
                 if (order[n] == 1.0) 
                     m_mult[rxn] += "*c[" + int2str(k[n]) + "]";
@@ -807,14 +807,14 @@ They are designed to explicitly unroll loops over species or reactions for
             }
         }
 
-        string mult(int rxn) { return m_mult[rxn]; }
-        string incrSpec(int k, string) { return m_is[k]; }
-        string decrSpec(int k) { return m_ds[k]; }
-        string incrRxn(int rxn) { return m_ir[rxn]; }    
-        string decrRxn(int rxn) { return m_dr[rxn]; }
+        std::string mult(int rxn) { return m_mult[rxn]; }
+        std::string incrSpec(int k, std::string) { return m_is[k]; }
+        std::string decrSpec(int k) { return m_ds[k]; }
+        std::string incrRxn(int rxn) { return m_ir[rxn]; }    
+        std::string decrRxn(int rxn) { return m_dr[rxn]; }
 
     private:
-        map<int, string> m_mult, m_ir, m_dr, m_is, m_ds;
+        std::map<int, std::string> m_mult, m_ir, m_dr, m_is, m_ds;
     };
 #endif
 

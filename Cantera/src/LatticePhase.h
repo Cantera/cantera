@@ -138,7 +138,7 @@ namespace Cantera {
         mutable array_fp      m_g0_RT;
         mutable array_fp      m_s0_R;
         doublereal            m_press;
-        string                m_vacancy;
+        std::string                m_vacancy;
         doublereal            m_molar_density;
 
     private:

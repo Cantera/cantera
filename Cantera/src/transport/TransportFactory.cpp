@@ -34,6 +34,7 @@
 #include "../IdealGasPhase.h"
 #include "../ctml.h"
 
+using namespace std;
 
 /**
  * polynomial degree used for fitting collision integrals

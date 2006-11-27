@@ -88,8 +88,8 @@ namespace Cantera {
 
     protected:
 
-        map<int, int> m_alg;
-        map<int, int> m_constrain;
+        std::map<int, int> m_alg;
+        std::map<int, int> m_constrain;
 
     private:
 

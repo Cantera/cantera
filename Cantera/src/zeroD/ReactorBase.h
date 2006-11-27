@@ -45,14 +45,14 @@ namespace CanteraZeroD {
 
     public:
 
-        ReactorBase(string name = "(none)");
+        ReactorBase(std::string name = "(none)");
         virtual ~ReactorBase(){}
 
         //-----------------------------------------------------
 
         virtual int type() const { return 0; }
-        string name() const { return m_name; }
-        void setName(string name) { m_name = name; }
+        std::string name() const { return m_name; }
+        void setName(std::string name) { m_name = name; }
 
         /** @name Methods to set up a simulation. */
         //@{
@@ -143,7 +143,7 @@ namespace CanteraZeroD {
 
         //@}
 
-        int error(string msg) const {
+        int error(std::string msg) const {
             writelog("Error: "+msg);
             return 1;
         }
@@ -161,16 +161,16 @@ namespace CanteraZeroD {
         doublereal m_intEnergy;
         doublereal m_pressure;
         vector_fp m_state;
-        vector<FlowDevice*> m_inlet, m_outlet;
-        vector<Wall*> m_wall;
+        std::vector<FlowDevice*> m_inlet, m_outlet;
+        std::vector<Wall*> m_wall;
         vector_int m_lr;
         int m_nwalls;
-        string m_name;
+        std::string m_name;
         double m_rho0;
 
     private:
 
-        void tilt(string method="") const { 
+        void tilt(std::string method="") const { 
         throw CanteraError("ReactorBase::"+method,
             "ReactorBase method called!"); }
     };

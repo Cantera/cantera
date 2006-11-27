@@ -7,16 +7,6 @@
 #include <iostream>
 using namespace std;
 
-//#if DARWIN == 1
-//#define ISNAN __isnand
-//#else
-//#ifdef WIN32
-//#include <float.h>
-//#define ISNAN _isnan
-//#else
-//#define ISNAN isnan
-//#endif
-//#endif
 
 namespace Cantera {
 

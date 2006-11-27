@@ -63,11 +63,11 @@ namespace Cantera {
 	const Phase &operator=(const Phase &c);
         
         XML_Node& xml() { return *m_xml; }
-        string id() const { return m_id; }
-        void setID(string id) {m_id = id;} 
+        std::string id() const { return m_id; }
+        void setID(std::string id) {m_id = id;} 
 
-        string name() const { return m_name; }
-        void setName(string nm) { m_name = nm; }
+        std::string name() const { return m_name; }
+        void setName(std::string nm) { m_name = nm; }
 
         int index() const { return m_index; }
         void setIndex(int m) { m_index = m; }
@@ -101,7 +101,7 @@ namespace Cantera {
          */
         void setMoleFractionsByName(compositionMap& xMap);
 
-        void setMoleFractionsByName(const string& x);
+        void setMoleFractionsByName(const std::string& x);
 
         /**
          * Set the species mass fractions by name. 
@@ -110,7 +110,7 @@ namespace Cantera {
          */
         void setMassFractionsByName(compositionMap& yMap);
 
-        void setMassFractionsByName(const string& x);
+        void setMassFractionsByName(const std::string& x);
 
         /** Set the temperature (K), density (kg/m^3), and mole fractions. */
         void setState_TRX(doublereal t, doublereal dens, const doublereal* x);
@@ -170,11 +170,11 @@ namespace Cantera {
 
         doublereal moleFraction(int k) const;
         
-        doublereal moleFraction(string name) const;
+        doublereal moleFraction(std::string name) const;
 
         doublereal massFraction(int k) const;
 
-        doublereal massFraction(string name) const;
+        doublereal massFraction(std::string name) const;
 
         /**
          * Charge density [C/m^3].
@@ -220,8 +220,8 @@ namespace Cantera {
 
         vector_fp m_data;
         XML_Node* m_xml;
-        string m_id;
-        string m_name;
+        std::string m_id;
+        std::string m_name;
     };
 
     typedef Phase phase_t;

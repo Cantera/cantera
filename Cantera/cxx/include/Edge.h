@@ -13,7 +13,7 @@ namespace Cantera {
         public EdgePhase, public EdgeKinetics
     {
     public:
-        Edge(string infile, string id, vector<ThermoPhase*> phases) 
+        Edge(std::string infile, std::string id, std::vector<ThermoPhase*> phases) 
             : m_ok(false), m_r(0) {
 
             m_r = get_XML_File(infile); 

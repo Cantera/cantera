@@ -13,7 +13,9 @@
 #include "IdealGasMix.h"
 #include "Interface.h"
 #endif
+
 using namespace Cantera;
+using namespace std;
 
 int main() {
 

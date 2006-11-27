@@ -70,7 +70,7 @@ namespace Cantera {
 
         virtual void setParametersFromXML(const XML_Node& eosdata);
 
-        void setLatticeMoleFractions(int n, string x);
+        void setLatticeMoleFractions(int n, std::string x);
 
     protected:
         
@@ -80,7 +80,7 @@ namespace Cantera {
         doublereal                m_press;
         doublereal                m_molar_density;
         int                       m_nlattice;
-        vector<LatticePhase*>     m_lattice;
+        std::vector<LatticePhase*>     m_lattice;
         mutable vector_fp                 m_x;
 
     private:

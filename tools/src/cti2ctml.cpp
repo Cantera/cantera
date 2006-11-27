@@ -18,7 +18,7 @@
 #include "xml.h"
 #include "ctml.h"
 
-
+using namespace Cantera;
 using namespace std;
 
 #ifdef DEBUG_HKM

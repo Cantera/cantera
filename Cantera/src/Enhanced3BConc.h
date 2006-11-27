@@ -27,9 +27,9 @@ namespace Cantera {
 
         Enhanced3BConc() : m_n (0), m_deflt (1.0) {}
 
-	Enhanced3BConc(int n, const map<int, doublereal>& enhanced, 
+	Enhanced3BConc(int n, const std::map<int, doublereal>& enhanced, 
             doublereal deflt = 1.0) {
-            map<int, doublereal>::const_iterator iter;
+            std::map<int, doublereal>::const_iterator iter;
             for (iter = enhanced.begin(); iter != enhanced.end(); ++iter) {
                 m_index.push_back( iter->first );
                 m_eff.push_back( iter->second - deflt);

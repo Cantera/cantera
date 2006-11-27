@@ -18,6 +18,8 @@
 
 #include "plots.h"
 
+using namespace std;
+
 namespace Cantera {
 
     void writePlotFile(string fname, string fmt, 

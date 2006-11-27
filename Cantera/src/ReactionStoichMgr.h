@@ -218,15 +218,15 @@ namespace Cantera {
      */
         virtual void multiplyRevProducts(const doublereal* c, doublereal* r);
 
-       virtual void write(string filename);
+      virtual void write(std::string filename);
 
   protected:
 
-      void writeCreationRates(ostream& f);
-      void writeDestructionRates(ostream& f);
-      void writeNetProductionRates(ostream& f);
-      void writeMultiplyReactants(ostream& f);
-      void writeMultiplyRevProducts(ostream& f);
+      void writeCreationRates(std::ostream& f);
+      void writeDestructionRates(std::ostream& f);
+      void writeNetProductionRates(std::ostream& f);
+      void writeMultiplyReactants(std::ostream& f);
+      void writeMultiplyRevProducts(std::ostream& f);
       StoichManagerN*  m_reactants;      
       StoichManagerN*  m_revproducts;
       StoichManagerN*  m_irrevproducts;

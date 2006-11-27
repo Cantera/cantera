@@ -14,38 +14,38 @@
 #include "ct_defs.h"
 #include "ctexceptions.h"
 #include <stdio.h>
-#include <string.h>
+#include <string>
 #include <stdlib.h>
 
 namespace Cantera {
 
 
     /**
-     * Convert a floating point number to a string using sprintf.
+     * Convert a floating point number to a std::string using sprintf.
      */
-    string fp2str(double x, string fmt) {
+    std::string fp2str(double x, std::string fmt) {
         char buf[30];
         sprintf(buf, fmt.c_str(), x);
-        return string(buf);
+        return std::string(buf);
     }
 
     /**
-     * Convert an integer number to a string using sprintf.
+     * Convert an integer number to a std::string using sprintf.
      */
-    string int2str(int n, string fmt) {
+    std::string int2str(int n, std::string fmt) {
         char buf[30];
         sprintf(buf, fmt.c_str(), n);
-        return string(buf);
+        return std::string(buf);
     }
 
-    string lowercase(string s) {
+    std::string lowercase(std::string s) {
         int n = static_cast<int>(s.size());
-        string lc(s);
+        std::string lc(s);
         for (int i = 0; i < n; i++) lc[i] = tolower(s[i]);
         return lc;
     }
 
-    static int firstChar(string s) {
+    static int firstChar(std::string s) {
         int i;
         int n = static_cast<int>(s.size());
         for (i = 0; i < n; i++) 
@@ -53,7 +53,7 @@ namespace Cantera {
         return i;
     }
 
-    static int lastChar(string s) {
+    static int lastChar(std::string s) {
         int i;
         int n = static_cast<int>(s.size());
         for (i = n-1; i >= 0; i--) 
@@ -64,7 +64,7 @@ namespace Cantera {
     /** 
      * Strip leading and trailing white space.
      */
-    string stripws(string s) {
+    std::string stripws(std::string s) {
         int ifirst = firstChar(s);
         int ilast = lastChar(s);
         return s.substr(ifirst, ilast - ifirst + 1); 
@@ -73,10 +73,10 @@ namespace Cantera {
     /** 
      * Strip non-printing characters.
      */
-    string stripnonprint(string s) {
+    std::string stripnonprint(std::string s) {
         int i;
         int n = static_cast<int>(s.size());
-        string ss = "";
+        std::string ss = "";
         for (i = 0; i < n; i++) {
             if (isprint(s[i])) {
                 ss += s[i];
@@ -89,20 +89,20 @@ namespace Cantera {
     /**
      * Parse a composition string.
      */
-    void parseCompString(const string ss, compositionMap& x) {
-        string s = ss;
-		string::size_type icolon, ibegin, iend;
-        string name, num, nm;
+    void parseCompString(const std::string ss, compositionMap& x) {
+        std::string s = ss;
+		std::string::size_type icolon, ibegin, iend;
+        std::string name, num, nm;
         do {
             ibegin = s.find_first_not_of(", ;\n\t");
-            if (ibegin != string::npos) {
+            if (ibegin != std::string::npos) {
                 s = s.substr(ibegin,s.size());
                 icolon = s.find(':');
                 iend = s.find_first_of(", ;\n\t");
                 //icomma = s.find(',');
-                if (icolon != string::npos) {
+                if (icolon != std::string::npos) {
                     name = s.substr(0, icolon);
-                    if (iend != string::npos) {
+                    if (iend != std::string::npos) {
                         num = s.substr(icolon+1, iend-icolon);
                         s = s.substr(iend+1, s.size());
                     }
@@ -129,16 +129,16 @@ namespace Cantera {
     /**
      * Parse a composition string.
      */
-    void split(const string ss, vector<string>& w) {
-        string s = ss;
-        string::size_type ibegin, iend;
-        string name, num, nm;
+    void split(const std::string ss, std::vector<std::string>& w) {
+        std::string s = ss;
+        std::string::size_type ibegin, iend;
+        std::string name, num, nm;
         do {
             ibegin = s.find_first_not_of(", ;\n\t");
-            if (ibegin != string::npos) {
+            if (ibegin != std::string::npos) {
                 s = s.substr(ibegin,s.size());
                 iend = s.find_first_of(", ;\n\t");
-                if (iend != string::npos) {
+                if (iend != std::string::npos) {
                     w.push_back(s.substr(0, iend));
                     s = s.substr(iend+1, s.size());
                 }
@@ -151,10 +151,10 @@ namespace Cantera {
         while (s != "");
     }
 
-    int fillArrayFromString(const string& str, doublereal* a, char delim) {
-		string::size_type iloc;
+    int fillArrayFromString(const std::string& str, doublereal* a, char delim) {
+		std::string::size_type iloc;
         int count = 0;
-        string num, s;
+        std::string num, s;
         s = str;
         while (s.size() > 0) {
             iloc = s.find(delim);
@@ -175,8 +175,8 @@ namespace Cantera {
     /**
      *  Get the file name without the path or extension
      */
-    string getFileName(const string& path) {
-        string file;
+    std::string getFileName(const std::string& path) {
+        std::string file;
         size_t idot = path.find_last_of('.');
         size_t islash = path.find_last_of('/');
         if (idot > 0 && idot < path.size()) {
@@ -197,8 +197,8 @@ namespace Cantera {
     /**
      *  Generate a logfile name based on an input file name
      */
-    string logfileName(const string& infile) {
-        string logfile;
+    std::string logfileName(const std::string& infile) {
+        std::string logfile;
         size_t idot = infile.find_last_of('.');
         size_t islash = infile.find_last_of('/');
         if (idot > 0 && idot < infile.size()) {
@@ -215,10 +215,10 @@ namespace Cantera {
         return logfile;
     }
 
-    string wrapString(const string& s, int len) {
+    std::string wrapString(const std::string& s, int len) {
         int nc = s.size();
         int n, count=0;
-        string r;
+        std::string r;
         for (n = 0; n < nc; n++) {
             if (s[n] == '\n') count = 0;
             else count++;
@@ -342,7 +342,7 @@ namespace Cantera {
 	      i++;
 	    }
 	  } else {
-	    string hh(dptr);
+	    std::string hh(dptr);
 	    free(eptr);
 	    throw CanteraError("aotofCheck",
 			       "Trouble processing string, " + hh);

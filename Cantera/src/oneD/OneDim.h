@@ -24,7 +24,7 @@ namespace Cantera {
         OneDim();
 
         // Constructor.
-        OneDim(vector<Domain1D*> domains);
+        OneDim(std::vector<Domain1D*> domains);
 
         /// Destructor.
         virtual ~OneDim();
@@ -52,7 +52,7 @@ namespace Cantera {
         /// Return a reference to domain i.
         Domain1D& domain(int i) const { return *m_dom[i]; }
 
-        int domainIndex(string name);
+        int domainIndex(std::string name);
 
         /// The index of the start of domain i in the solution vector.
         int start(int i) const { return m_dom[i]->loc(); }
@@ -139,7 +139,7 @@ namespace Cantera {
 
         void writeStats();
 
-        void save(string fname, string id, string desc, doublereal* sol);
+        void save(std::string fname, std::string id, std::string desc, doublereal* sol);
 
         // options
         void setMinTimeStep(doublereal tmin) { m_tmin = tmin; }
@@ -171,7 +171,7 @@ namespace Cantera {
         int m_bw;                 // Jacobian bandwidth
         int m_size;               // solution vector size
         
-        vector<Domain1D*> m_dom, m_connect, m_bulk;
+        std::vector<Domain1D*> m_dom, m_connect, m_bulk;
 
         bool m_init;
         vector_int m_nvars;

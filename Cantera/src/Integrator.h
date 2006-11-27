@@ -173,7 +173,7 @@ namespace Cantera {
     private:
 
         doublereal m_dummy;
-        void warn(string msg) const {
+        void warn(std::string msg) const {
             writelog(">>>> Warning: method "+msg+" of base class "
                 +"Integrator called. Nothing done.\n");
         }
@@ -181,7 +181,7 @@ namespace Cantera {
     };
 
     // defined in ODE_integrators.cpp
-    Integrator* newIntegrator(string itype);
+    Integrator* newIntegrator(std::string itype);
 
 }    // namespace
 

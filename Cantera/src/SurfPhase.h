@@ -100,7 +100,7 @@ namespace Cantera {
          * Set the coverages from a string of colon-separated
          * name:value pairs.
          */
-        void setCoveragesByName(string cov);
+        void setCoveragesByName(std::string cov);
 
         /**
          * Get the coverages. Array theta must be at least as long as

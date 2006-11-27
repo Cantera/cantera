@@ -36,10 +36,10 @@ namespace Cantera {
 	 *           in the interface
 	 *
 	 */
-        Interface(string infile, string id, vector<ThermoPhase*> phases) 
+        Interface(std::string infile, std::string id, std::vector<ThermoPhase*> phases) 
             : m_ok(false), m_r(0) {
-            string path = findInputFile(infile);
-            ifstream fin(path.c_str());
+            std::string path = findInputFile(infile);
+            std::ifstream fin(path.c_str());
             if (!fin) {
                 throw CanteraError("Interface","could not open "
                     +path+" for reading.");

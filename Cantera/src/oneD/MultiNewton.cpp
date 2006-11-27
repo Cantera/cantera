@@ -31,6 +31,8 @@ using namespace std;
 #include "../stringUtils.h"
 #include <time.h>
 
+using namespace std;
+
 namespace Cantera {
 
     //----------------------------------------------------------
@@ -130,13 +132,14 @@ namespace Cantera {
         }
 #endif
 
-        //try {
-	  iok = jac.solve(sz, step, step);
-	  if (iok > 0) {
+        iok = jac.solve(sz, step, step);
+
+        // if iok is non-zero, then solve failed
+        if (iok > 0) {
 	    iok--;
 	    int nd = r.nDomains();
 	    for (n = nd-1; n >= 0; n--) 
-	      if (iok >= r.start(n)) { break; }
+                if (iok >= r.start(n)) { break; }
 	    Domain1D& dom = r.domain(n);
 	    int offset = iok - r.start(n);
 	    int pt = offset/dom.nComponents();
@@ -146,14 +149,10 @@ namespace Cantera {
                 dom.id() + ", component "
                 +dom.componentName(comp)+" at point "
                 +int2str(pt)+"\n(Matrix row "+int2str(iok)+") \nsee file bandmatrix.csv\n");
-	  }
-	  else if (iok < 0)   
+        }
+        else if (iok < 0)   
 	    throw CanteraError("MultiNewton::step",
-				 "iok = "+int2str(iok));
-          //}
-          //catch (CanteraError) {
-	  //showErrors(cout);
-          //}
+                "iok = "+int2str(iok));
 
 #ifdef DEBUG_STEP
         bool ok = false;

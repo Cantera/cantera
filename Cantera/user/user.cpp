@@ -8,6 +8,7 @@
 using namespace Cantera;
 
 namespace User {
+    using namespace std;
 
     void hello() {
         cout << "Hello!" << endl;

@@ -84,7 +84,7 @@ namespace Cantera {
          * parameterization. 
          * @see speciesThermoTypes.h 
          */
-        virtual void install(string name, int index, int type, 
+        virtual void install(std::string name, int index, int type, 
 			     const doublereal* c, 
 			     doublereal minTemp,
 			     doublereal maxTemp,

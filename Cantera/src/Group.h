@@ -14,7 +14,7 @@
 
 #include "ct_defs.h"
 
-using namespace std;
+//using namespace std;
 namespace Cantera {
 
     /**
@@ -86,9 +86,9 @@ namespace Cantera {
         friend void verifyInputs(const Group& g1, const Group& g2) {
 //             if (Debug::on) {
 //                 if (g1.size() != g2.size()) {
-//                     cerr << "Group: size mismatch!" << endl;
-//                     cerr << " group 1 = " << g1 << endl;
-//                     cerr << " group 2 = " << g2 << endl;
+//                     cerr << "Group: size mismatch!" << std::endl;
+//                     cerr << " group 1 = " << g1 << std::endl;
+//                     cerr << " group 2 = " << g2 << std::endl;
 //                 }
 //             }
         }
@@ -116,7 +116,7 @@ namespace Cantera {
             return m_comp[m];
         }
 
-        ostream& fmt(ostream& s, const vector<string>& esymbols) const;
+        std::ostream& fmt(std::ostream& s, const std::vector<std::string>& esymbols) const;
 
         friend std::ostream& operator<<(std::ostream& s,
                                         const Group& g);

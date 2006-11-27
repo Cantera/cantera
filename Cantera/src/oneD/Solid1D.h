@@ -183,7 +183,7 @@ namespace Cantera {
          */
         doublereal C_fixed(int k, int j) const {return m_fixedc(k,j);}
 
-        virtual string componentName(int n) const;
+        virtual std::string componentName(int n) const;
 
         void setDielectricConstant(doublereal e) { m_eps = e; }
         doublereal dielectricConstant() { return m_eps; }
@@ -193,7 +193,7 @@ namespace Cantera {
          * May be called multiple times to generate animation.
          */
         void outputTEC(ostream &s, const doublereal* x, 
-            string title, int zone);
+            std::string title, int zone);
 
         virtual void showSolution(const doublereal* x);
 
@@ -202,7 +202,7 @@ namespace Cantera {
         virtual void restore(XML_Node& dom, doublereal* soln);
 
         // overloaded in subclasses
-        virtual string solidType() { return "<none>"; }
+        virtual std::string solidType() { return "<none>"; }
 
         void solveEnergyEqn(int j=-1) {
             if (j < 0)
@@ -382,9 +382,9 @@ namespace Cantera {
         bool m_ok;
 
         // flags
-        vector<bool> m_do_energy;
-        vector<bool> m_do_species;
-        vector<bool> m_do_gauss;
+        std::vector<bool> m_do_energy;
+        std::vector<bool> m_do_species;
+        std::vector<bool> m_do_gauss;
 
         // fixed T and Y values
         Array2D   m_fixedy;

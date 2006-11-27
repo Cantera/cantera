@@ -11,6 +11,8 @@
 #include "Sim1D.h"
 #include "MultiJac.h"
 
+using namespace std;
+
 namespace Cantera {
 
 

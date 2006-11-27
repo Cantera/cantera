@@ -27,6 +27,7 @@
 #include "MultiJac.h"
 
 using namespace ctml;
+using namespace std;
 
 namespace Cantera {
 

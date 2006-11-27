@@ -22,6 +22,8 @@
 #include "diagnostics.h"
 #include "ReactionData.h"
 
+using namespace std;
+
 namespace Cantera {
 
   // create stoichiometry managers for the reactants of all reactions,

@@ -28,7 +28,7 @@ namespace Cantera {
 
         ThirdBodyMgr<_E>() : m_n(0) {}
 
-        void install( int rxnNumber, const map<int, doublereal>& enhanced,
+        void install( int rxnNumber, const std::map<int, doublereal>& enhanced,
             doublereal dflt=1.0) {
             m_n++;
             m_reaction_index.push_back( rxnNumber );
@@ -37,7 +37,7 @@ namespace Cantera {
         }
         
         void update(const vector_fp& conc, doublereal ctot, workPtr work) {
-            TYPENAME_KEYWORD vector<_E>::const_iterator b = m_concm.begin();
+            TYPENAME_KEYWORD std::vector<_E>::const_iterator b = m_concm.begin();
             //doublereal* v = m_values.begin();
             for (; b != m_concm.end(); ++b, ++work) 
                 *work = b->update(conc, ctot);
@@ -59,7 +59,7 @@ namespace Cantera {
         
         int m_n;
         vector_int      m_reaction_index;
-        vector<_E>      m_concm;
+        std::vector<_E>      m_concm;
     };
     
 }

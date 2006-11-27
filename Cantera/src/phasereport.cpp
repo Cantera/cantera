@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include "mix_defs.h"
 
+using namespace std;
+
 namespace Cantera {
 
     /**

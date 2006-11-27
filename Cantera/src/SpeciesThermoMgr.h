@@ -16,7 +16,7 @@
 #include "stringUtils.h"
 #include "SpeciesThermo.h"
 #include <map>
-using namespace std;
+//using namespace std;
 
 namespace Cantera {
 
@@ -72,7 +72,7 @@ namespace Cantera {
      */
     class RefPressureMismatch : public CanteraError {
     public:
-        RefPressureMismatch(string proc, doublereal prnew, 
+        RefPressureMismatch(std::string proc, doublereal prnew, 
             doublereal prold) : CanteraError(proc, 
                 "Species reference pressure ("
                 + fp2str(prnew) + ") does not match previously-defined "
@@ -83,7 +83,7 @@ namespace Cantera {
     class UnknownSpeciesThermo 
         : public CanteraError {
     public:
-        UnknownSpeciesThermo(string proc, int type) :
+        UnknownSpeciesThermo(std::string proc, int type) :
             CanteraError(proc, "Specified species "
                 "parameterization type (" + int2str(type) 
                 + ") does not match any known type.") {}
@@ -104,7 +104,7 @@ namespace Cantera {
 	SpeciesThermoDuo() {}
         virtual ~SpeciesThermoDuo(){}
                 
-	virtual void install(string name, int sp, int type,
+	virtual void install(std::string name, int sp, int type,
 			     const doublereal* c,
 			     doublereal minTemp,
 			     doublereal maxTemp, 
@@ -146,7 +146,7 @@ namespace Cantera {
         }
 
 	virtual int reportType(int k) const {
-	    map<int, int>::const_iterator p = speciesToType.find(k);
+            std::map<int, int>::const_iterator p = speciesToType.find(k);
 	    if (p != speciesToType.end()) {
 	      const int type = p->second;
 	      return type;
@@ -176,7 +176,7 @@ namespace Cantera {
         T1 m_thermo1;
         T2 m_thermo2;
         doublereal m_p0;
-	map<int, int> speciesToType;
+        std::map<int, int> speciesToType;
     };
 
     //#define REMOVE_FOR_V155
@@ -194,7 +194,7 @@ namespace Cantera {
 	SpeciesThermo1() : m_pref(0.0) {}
         virtual ~SpeciesThermo1(){}
                 
-	virtual void install(string name, int sp, int type, const vector_fp& c) {
+	virtual void install(std::string name, int sp, int type, const vector_fp& c) {
 	    m_thermo.push_back(T(sp, c));
 	    if (m_pref) {
 		if (m_thermo.begin()->refPressure() != m_pref) {
@@ -242,7 +242,7 @@ namespace Cantera {
 
 
     private:
-        vector<T> m_thermo;
+        std::vector<T> m_thermo;
         doublereal m_pref;
     };
     //#endif
