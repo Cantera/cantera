@@ -27,7 +27,7 @@
 
 #include "TemperatureTable.h"
 
-
+using namespace std;
 using namespace Cantera;
 
 class fileLog: public Logger {
