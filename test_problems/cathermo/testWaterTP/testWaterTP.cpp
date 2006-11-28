@@ -6,7 +6,7 @@
 #include "WaterTP.h"
 #include <new>
 using namespace std;
-
+using namespace Cantera;
 
 double tvalue(double val, double atol = 1.0E-9) {
     double rval = val;
