@@ -24,6 +24,7 @@
 #endif
 
 using namespace Cantera;
+using namespace std;
 
 #
 int main(int argc, char **argv) {
