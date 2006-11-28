@@ -135,7 +135,7 @@ namespace Cantera {
 
     void setMolalities(const doublereal * const molal);
     void setMolalitiesByName(compositionMap& xMap);
-    void setMolalitiesByName(const string &);
+    void setMolalitiesByName(const std::string &);
 
     /**
      * @}
@@ -436,7 +436,7 @@ namespace Cantera {
      *             to see if phaseNode is pointing to the phase
      *             with the correct id. 
      */
-    void initThermoXML(XML_Node& phaseNode, string id);
+    void initThermoXML(XML_Node& phaseNode, std::string id);
 
     /** 
      * Set the temperature (K), pressure (Pa), and molalities
@@ -449,7 +449,7 @@ namespace Cantera {
     void setState_TPM(doublereal t, doublereal p, compositionMap& m);
 
     /** Set the temperature (K), pressure (Pa), and molalities.  */
-    void setState_TPM(doublereal t, doublereal p, const string& m);
+    void setState_TPM(doublereal t, doublereal p, const std::string& m);
 
   private:
     void initLengths();
@@ -477,7 +477,7 @@ namespace Cantera {
     
     mutable vector_fp  m_molalities;
   private:
-    doublereal err(string msg) const;
+    doublereal err(std::string msg) const;
 
   };
 

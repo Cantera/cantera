@@ -88,8 +88,8 @@ namespace Cantera {
     IdealMolalSoln(const IdealMolalSoln &);
     IdealMolalSoln& operator=(const	IdealMolalSoln&);
 
-    IdealMolalSoln(string inputFile, string id = "");
-    IdealMolalSoln(XML_Node& phaseRef, string id = "");
+    IdealMolalSoln(std::string inputFile, std::string id = "");
+    IdealMolalSoln(XML_Node& phaseRef, std::string id = "");
 
     /// Destructor. 
     virtual ~IdealMolalSoln();
@@ -725,7 +725,7 @@ namespace Cantera {
      *            phase. If none is given, the first XML
      *            phase element will be used.
      */
-    virtual void constructPhaseFile(string infile, string id="");
+    virtual void constructPhaseFile(std::string infile, std::string id="");
 
     /*
      * constructPhaseXML                    (virtual from here)
@@ -745,7 +745,7 @@ namespace Cantera {
      *             to see if phaseNode is pointing to the phase
      *             with the correct id. 
      */
-    virtual void constructPhaseXML(XML_Node& phaseNode, string id);
+    virtual void constructPhaseXML(XML_Node& phaseNode, std::string id);
 
     /*
      *  initThermoXML                      (virtual from ThermoPhase) 
@@ -766,7 +766,7 @@ namespace Cantera {
      *             to see if phaseNode is pointing to the phase
      *             with the correct id. 
      */
-    virtual void initThermoXML(XML_Node& phaseNode, string id="");
+    virtual void initThermoXML(XML_Node& phaseNode, std::string id="");
 
     /*
      * Report the molar volume of species k
@@ -831,7 +831,7 @@ namespace Cantera {
     mutable vector_fp      m_tmpV;
   
   private:
-    doublereal err(string msg) const;
+    doublereal err(std::string msg) const;
 
 
     void initLengths();

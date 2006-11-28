@@ -35,7 +35,7 @@ namespace Cantera {
     }
 
 
-    WaterTP::WaterTP(string inputFile, string id) :
+    WaterTP::WaterTP(std::string inputFile, std::string id) :
 	ThermoPhase(),
 	m_sub(0),
 	m_subflag(0),
@@ -49,7 +49,7 @@ namespace Cantera {
     }
 
 
-    WaterTP::WaterTP(XML_Node& phaseRoot, string id) :
+    WaterTP::WaterTP(XML_Node& phaseRoot, std::string id) :
 	ThermoPhase(),
 	m_sub(0),
 	m_subflag(0),
@@ -129,7 +129,7 @@ namespace Cantera {
      *            phase. If none is given, the first XML
      *            phase element will be used.
      */
-    void WaterTP::constructPhaseXML(XML_Node& phaseNode, string id) {
+    void WaterTP::constructPhaseXML(XML_Node& phaseNode, std::string id) {
 
 	/*
          * Call the Cantera importPhase() function. This will import
@@ -162,14 +162,14 @@ namespace Cantera {
      *            phase. If none is given, the first XML
      *            phase element will be used.
      */
-    void WaterTP::constructPhaseFile(string inputFile, string id) {
+    void WaterTP::constructPhaseFile(std::string inputFile, std::string id) {
 
 	if (inputFile.size() == 0) {
 	  throw CanteraError("WaterTp::initThermo",
 			     "input file is null");
 	}
-	string path = findInputFile(inputFile);
-	ifstream fin(path.c_str());
+	std::string path = findInputFile(inputFile);
+	std::ifstream fin(path.c_str());
 	if (!fin) {
 	  throw CanteraError("WaterTP::initThermo","could not open "
 			     +path+" for reading.");
@@ -202,7 +202,7 @@ namespace Cantera {
     }
 
     void WaterTP::
-    initThermoXML(XML_Node& phaseNode, string id) {
+    initThermoXML(XML_Node& phaseNode, std::string id) {
         if (m_sub) delete m_sub;
         m_sub = new WaterPropsIAPWS();
         if (m_sub == 0) {

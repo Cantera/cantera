@@ -95,8 +95,8 @@ namespace Cantera {
     HMWSoln(const HMWSoln &);
     HMWSoln& operator=(const	HMWSoln&);
 
-    HMWSoln(string inputFile, string id = "");
-    HMWSoln(XML_Node& phaseRef, string id = "");
+    HMWSoln(std::string inputFile, std::string id = "");
+    HMWSoln(XML_Node& phaseRef, std::string id = "");
 
     /**
      *  This is a special constructor, used to replicate test problems
@@ -800,7 +800,7 @@ namespace Cantera {
      * This routine is a precursor to constructPhaseXML(XML_Node*)
      * routine, which does most of the work.
      */
-    virtual void constructPhaseFile(string inputFile, string id);
+    virtual void constructPhaseFile(std::string inputFile, std::string id);
 
     /*
      * constructPhaseXML                    (virtual from HMWSoln)
@@ -816,7 +816,7 @@ namespace Cantera {
      *   particular to the specification of the activity 
      *   coefficient model for the Pitzer parameterization.
      */
-    virtual void constructPhaseXML(XML_Node& phaseNode, string id);
+    virtual void constructPhaseXML(XML_Node& phaseNode, std::string id);
 
     /**
      * @internal Initialize. This method is provided to allow
@@ -851,7 +851,7 @@ namespace Cantera {
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    virtual void initThermoXML(XML_Node& phaseNode, string id);
+    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
 
     /**
      * Report the molar volume of species k
@@ -1371,7 +1371,7 @@ namespace Cantera {
     mutable vector_fp m_gamma;
 
   private:
-    doublereal err(string msg) const;
+    doublereal err(std::string msg) const;
 
 
     void initLengths();

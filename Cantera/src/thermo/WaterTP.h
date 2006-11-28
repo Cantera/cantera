@@ -65,8 +65,8 @@ namespace Cantera {
         WaterTP(); 
         WaterTP(const WaterTP &b);
         WaterTP& operator=(const WaterTP&b);
-        WaterTP(string inputFile, string id = "");
-        WaterTP(XML_Node& phaseRef, string id = "");
+        WaterTP(std::string inputFile, std::string id = "");
+        WaterTP(XML_Node& phaseRef, std::string id = "");
         virtual ~WaterTP();
         ThermoPhase *duplMyselfAsThermoPhase();
         
@@ -143,11 +143,11 @@ namespace Cantera {
 	virtual void setTemperature(double temp);
     
 	virtual void constructPhase();
-	virtual void constructPhaseFile(string inputFile, string id);
-	virtual void constructPhaseXML(XML_Node& phaseNode, string id);
+	virtual void constructPhaseFile(std::string inputFile, std::string id);
+	virtual void constructPhaseXML(XML_Node& phaseNode, std::string id);
 
 
-	virtual void initThermoXML(XML_Node& eosdata, string id);
+	virtual void initThermoXML(XML_Node& eosdata, std::string id);
         virtual void initThermo();
         virtual void setParametersFromXML(const XML_Node& eosdata);
 

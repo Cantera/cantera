@@ -18,7 +18,7 @@
 #include "ctml.h"
 #include "PDSS.h"
 #include "importCTML.h"
-
+#include "SpeciesThermo.h"
 
 #include "ThermoPhase.h"
 
@@ -31,31 +31,55 @@ namespace Cantera {
     m_temp(-1.0),
     m_dens(-1.0),
     m_tp(tp),
+    m_mw(0.0),
     m_spindex(spindex),
-    m_mw(0.0)
+    m_spthermo(0),
+    m_cp0_R_ptr(0),
+    m_h0_RT_ptr(0),
+    m_s0_R_ptr(0),
+    m_g0_RT_ptr(0)
   {
     constructPDSS(tp, spindex);
+    if (tp) {
+      m_spthermo = &(tp->speciesThermo());
+    }
   }
 
 
-  PDSS::PDSS(ThermoPhase *tp, int spindex, string inputFile, string id) :
+  PDSS::PDSS(ThermoPhase *tp, int spindex, std::string inputFile, std::string id) :
     m_temp(-1.0),
     m_dens(-1.0),
     m_tp(tp),
-    m_spindex(spindex),
-    m_mw(0.0)
+    m_mw(0.0),
+    m_spindex(spindex), 
+    m_spthermo(0),
+    m_cp0_R_ptr(0),
+    m_h0_RT_ptr(0),
+    m_s0_R_ptr(0),
+    m_g0_RT_ptr(0)
   {
     constructPDSSFile(tp, spindex, inputFile, id);
+    if (tp) {
+      m_spthermo = &(tp->speciesThermo());
+    }
   }
 
 
-  PDSS::PDSS(ThermoPhase *tp, int spindex, XML_Node& phaseRoot, string id) :
+  PDSS::PDSS(ThermoPhase *tp, int spindex, XML_Node& phaseRoot, std::string id) :
     m_temp(-1.0),
     m_dens(-1.0),
     m_tp(0),
+    m_mw(0.0),
     m_spindex(0),
-    m_mw(0.0)
+    m_spthermo(0),				 
+    m_cp0_R_ptr(0),
+    m_h0_RT_ptr(0),
+    m_s0_R_ptr(0),
+    m_g0_RT_ptr(0)
   {
+    if (tp) {
+      m_spthermo = &(tp->speciesThermo());
+    }
     constructPDSSXML(tp, spindex, phaseRoot, id) ;
   }
 
@@ -64,8 +88,13 @@ namespace Cantera {
     m_temp(-1.0),
     m_dens(-1.0),
     m_tp(0),
-    m_spindex(0),
-    m_mw(b.m_mw)
+    m_mw(b.m_mw),
+    m_spindex(b.m_spindex),
+    m_spthermo(b.m_spthermo),
+    m_cp0_R_ptr(b.m_cp0_R_ptr),
+    m_h0_RT_ptr(b.m_h0_RT_ptr),
+    m_s0_R_ptr(b.m_s0_R_ptr),
+    m_g0_RT_ptr(b.m_g0_RT_ptr)
   {
     /*
      * Use the assignment operator to do the brunt
@@ -81,9 +110,15 @@ namespace Cantera {
     if (&b == this) return *this;
     m_tp = b.m_tp;
     m_spindex = b.m_spindex;
+    m_spthermo = b.m_spthermo;
     m_temp = b.m_temp;
     m_dens = b.m_dens;
     m_mw = b.m_mw;
+    m_spthermo = b.m_spthermo;
+    m_cp0_R_ptr = b.m_cp0_R_ptr;
+    m_h0_RT_ptr = b.m_h0_RT_ptr;
+    m_s0_R_ptr = b.m_s0_R_ptr;
+    m_g0_RT_ptr = b.m_g0_RT_ptr;
     return *this;
   }
 
@@ -112,7 +147,7 @@ namespace Cantera {
    *            phase element will be used.
    */
   void PDSS::constructPDSSXML(ThermoPhase *tp, int spindex, 
-			      XML_Node& phaseNode, string id) {
+			      XML_Node& phaseNode, std::string id) {
     initThermo();
   }
 
@@ -134,14 +169,14 @@ namespace Cantera {
    *            phase element will be used.
    */
   void PDSS::constructPDSSFile(ThermoPhase *tp, int spindex,
-			       string inputFile, string id) {
+			       std::string inputFile, std::string id) {
 
     if (inputFile.size() == 0) {
       throw CanteraError("PDSS::initThermo",
 			 "input file is null");
     }
-    string path = findInputFile(inputFile);
-    ifstream fin(path.c_str());
+    std::string path = findInputFile(inputFile);
+    std::ifstream fin(path.c_str());
     if (!fin) {
       throw CanteraError("PDSS::initThermo","could not open "
 			 +path+" for reading.");
@@ -164,7 +199,7 @@ namespace Cantera {
   }
 
   void PDSS::
-  initThermoXML(XML_Node& phaseNode, string id) {
+  initThermoXML(XML_Node& phaseNode, std::string id) {
     initThermo();
   }
 
@@ -177,11 +212,15 @@ namespace Cantera {
 
   /**
    * Return the molar enthalpy in units of J kmol-1
+   *
+   * (NOTE: assumes that ThermoPhase Ref Polynomials are up-to-date)
    */
   doublereal PDSS::
   enthalpy_mole() const {
-    throw CanteraError("PDSS::enthalpy_mole()", "unimplemented");
-    return (0.0);
+    //m_tp->_updateThermo();
+    double m_temp = m_tp->temperature();
+    double RT = GasConstant * m_temp;
+    return m_h0_RT_ptr[m_spindex] * RT;
   }
 
   /**

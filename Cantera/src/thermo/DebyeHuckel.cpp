@@ -19,6 +19,8 @@
 #include "WaterProps.h"
 #include "WaterPDSS.h"
 
+using namespace std;
+
 namespace Cantera {
 
   /**
@@ -53,7 +55,7 @@ namespace Cantera {
    *  the routine initThermo(), with a reference to the
    *  XML database to get the info for the phase.
    */
-  DebyeHuckel::DebyeHuckel(string inputFile, string id) :
+  DebyeHuckel::DebyeHuckel(std::string inputFile, std::string id) :
     MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
     m_formGC(2),
@@ -76,7 +78,7 @@ namespace Cantera {
     constructPhaseFile(inputFile, id);
   }
 
-  DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, string id) :
+  DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, std::string id) :
     MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
     m_formGC(2),
@@ -1036,13 +1038,13 @@ namespace Cantera {
    *            phase. If none is given, the first XML
    *            phase element will be used.
    */
-  void DebyeHuckel::constructPhaseFile(string inputFile, string id) {
+  void DebyeHuckel::constructPhaseFile(std::string inputFile, std::string id) {
 
     if (inputFile.size() == 0) {
       throw CanteraError("DebyeHuckel::initThermo",
 			 "input file is null");
     }
-    string path = findInputFile(inputFile);
+    std::string path = findInputFile(inputFile);
     ifstream fin(path.c_str());
     if (!fin) {
       throw CanteraError("DebyeHuckel::initThermo","could not open "
@@ -1072,7 +1074,7 @@ namespace Cantera {
    * utility function to assign an integer value from a string
    * for the ElectrolyteSpeciesType field.
    */
-  static int interp_est(string estString) {
+  static int interp_est(std::string estString) {
     const char *cc = estString.c_str();
     if (!strcasecmp(cc, "solvent")) {
       return cEST_solvent;
@@ -1118,10 +1120,10 @@ namespace Cantera {
    *             to see if phaseNode is pointing to the phase
    *             with the correct id. 
    */
-  void DebyeHuckel::constructPhaseXML(XML_Node& phaseNode, string id) {
+  void DebyeHuckel::constructPhaseXML(XML_Node& phaseNode, std::string id) {
    
     if (id.size() > 0) {
-      string idp = phaseNode.id();
+      std::string idp = phaseNode.id();
       if (idp != id) {
 	throw CanteraError("DebyeHuckel::constructPhaseXML", 
 			   "phasenode and Id are incompatible");
@@ -1143,7 +1145,7 @@ namespace Cantera {
     if (thermoNode.hasChild("standardConc")) {
       XML_Node& scNode = thermoNode.child("standardConc");
       m_formGC = 2;
-      string formString = scNode.attrib("model");
+      std::string formString = scNode.attrib("model");
       if (formString != "") {
 	if (formString == "unity") {
 	  m_formGC = 0;
@@ -1165,10 +1167,10 @@ namespace Cantera {
      * Get the Name of the Solvent:
      *      <solvent> solventName </solvent>
      */
-    string solventName = "";
+    std::string solventName = "";
     if (thermoNode.hasChild("solvent")) {
       XML_Node& scNode = thermoNode.child("solvent");
-      vector<string> nameSolventa;
+      vector<std::string> nameSolventa;
       getStringArray(scNode, nameSolventa);
       int nsp = static_cast<int>(nameSolventa.size());
       if (nsp != 1) {
@@ -1185,7 +1187,7 @@ namespace Cantera {
     if (thermoNode.hasChild("activityCoefficients")) {
       XML_Node& scNode = thermoNode.child("activityCoefficients");
       m_formDH = DHFORM_DILUTE_LIMIT;
-      string formString = scNode.attrib("model");
+      std::string formString = scNode.attrib("model");
       if (formString != "") {
 	if        (formString == "Dilute_limit") {
 	  m_formDH = DHFORM_DILUTE_LIMIT;
@@ -1242,9 +1244,9 @@ namespace Cantera {
    *             with the correct id.
    */
   void DebyeHuckel::
-  initThermoXML(XML_Node& phaseNode, string id) {
+  initThermoXML(XML_Node& phaseNode, std::string id) {
     int k;
-    string stemp;
+    std::string stemp;
     /*
      * Find the Thermo XML node 
      */
@@ -1267,10 +1269,10 @@ namespace Cantera {
      * Get the Name of the Solvent:
      *      <solvent> solventName </solvent>
      */
-    string solventName = "";
+    std::string solventName = "";
     if (thermoNode.hasChild("solvent")) {
       XML_Node& scNode = thermoNode.child("solvent");
-      vector<string> nameSolventa;
+      vector<std::string> nameSolventa;
       getStringArray(scNode, nameSolventa);
       int nsp = static_cast<int>(nameSolventa.size());
       if (nsp != 1) {
@@ -1280,7 +1282,7 @@ namespace Cantera {
       solventName = nameSolventa[0];
     }
     for (k = 0; k < m_kk; k++) {
-      string sname = speciesName(k);
+      std::string sname = speciesName(k);
       if (solventName == sname) {
 	m_indexSolvent = k;
 	break;
@@ -1321,13 +1323,13 @@ namespace Cantera {
 			 "Species " + sss[k] + 
 			   " standardState XML block  not found");
       }
-      string modelStringa = ss->attrib("model");
+      std::string modelStringa = ss->attrib("model");
       if (modelStringa == "") {
 	throw CanteraError("DebyeHuckel::initThermoXML",
 			   "Species " + sss[k] + 
 			   " standardState XML block model attribute not found");
       }
-      string modelString = lowercase(modelStringa);
+      std::string modelString = lowercase(modelStringa);
 
       if (k == 0) {
 	if (modelString == "wateriapws" || modelString == "real_water" ||
@@ -1479,15 +1481,15 @@ namespace Cantera {
       if (acNode.hasChild("ionicRadius")) {
 	XML_Node& irNode = acNode.child("ionicRadius");
 
-	string Aunits = "";
+	std::string Aunits = "";
 	double Afactor = 1.0;
 	if (irNode.hasAttrib("units")) {
-	  string Aunits = irNode.attrib("units");
+	  std::string Aunits = irNode.attrib("units");
 	  Afactor = toSI(Aunits); 
 	}
 
 	if (irNode.hasAttrib("default")) {
-	  string ads = irNode.attrib("default");
+	  std::string ads = irNode.attrib("default");
 	  double ad = fpValue(ads);
 	  for (int k = 0; k < m_kk; k++) {
 	    m_Aionic[k] = ad * Afactor;
@@ -1521,7 +1523,7 @@ namespace Cantera {
 	   * lack of agreement (HKM -> may be changed in the
 	   * future).
 	   */
-	  map<string,string>::const_iterator _b = m.begin();
+	  map<std::string,std::string>::const_iterator _b = m.begin();
 	  for (; _b != m.end(); ++_b) {
 	    int kk = speciesIndex(_b->first);
 	    if (kk < 0) {
@@ -1571,7 +1573,7 @@ namespace Cantera {
        */
       const XML_Node *phaseSpecies = speciesData();
       if (phaseSpecies) {
-	string kname, jname;
+	std::string kname, jname;
 	vector<XML_Node*> xspecies;
 	phaseSpecies->getChildren("species",xspecies);
 	int jj = xspecies.size();
@@ -1602,9 +1604,9 @@ namespace Cantera {
 	if (acNodePtr->hasChild("stoichIsMods")) {
 	  XML_Node& sIsNode = acNodePtr->child("stoichIsMods");
 
-	  map<string, string> msIs;
+	  map<std::string, std::string> msIs;
 	  getMap(sIsNode, msIs);
-	  map<string,string>::const_iterator _b = msIs.begin();
+	  map<std::string,std::string>::const_iterator _b = msIs.begin();
 	  for (; _b != msIs.end(); ++_b) {
 	    int kk = speciesIndex(_b->first);
 	    if (kk < 0) {
@@ -1650,13 +1652,13 @@ namespace Cantera {
     const XML_Node *phaseSpecies = speciesData();
     const XML_Node *spPtr = 0;
     if (phaseSpecies) {
-      string kname;
+      std::string kname;
       for (k = 0; k < m_kk; k++) {
 	kname = speciesName(k);
 	spPtr = speciesXML_Node(kname, phaseSpecies);
 	if (!spPtr) {
 	  if (spPtr->hasChild("electrolyteSpeciesType")) {
-	    string est = getString(*spPtr, "electrolyteSpeciesType");
+	    std::string est = getString(*spPtr, "electrolyteSpeciesType");
 	    if ((m_electrolyteSpeciesType[k] = interp_est(est)) == -1) {
 	      throw CanteraError("DebyeHuckel:initThermoXML",
 				 "Bad electrolyte type: " + est);
@@ -1671,14 +1673,14 @@ namespace Cantera {
     if (acNodePtr) {
       if (acNodePtr->hasChild("electrolyteSpeciesType")) {
 	XML_Node& ESTNode = acNodePtr->child("electrolyteSpeciesType");
-	map<string, string> msEST;
+	map<std::string, std::string> msEST;
 	getMap(ESTNode, msEST);
-	map<string,string>::const_iterator _b = msEST.begin();
+	map<std::string,std::string>::const_iterator _b = msEST.begin();
 	for (; _b != msEST.end(); ++_b) {
 	  int kk = speciesIndex(_b->first);
 	  if (kk < 0) {
 	  } else {
-	    string est = _b->second;
+	    std::string est = _b->second;
 	    if ((m_electrolyteSpeciesType[kk] = interp_est(est))  == -1) {
 	      throw CanteraError("DebyeHuckel:initThermoXML",
 				 "Bad electrolyte type: " + est);
@@ -1895,7 +1897,7 @@ namespace Cantera {
    * Bail out of functions with an error exit if they are not
    * implemented.
    */
-  doublereal DebyeHuckel::err(string msg) const {
+  doublereal DebyeHuckel::err(std::string msg) const {
     throw CanteraError("DebyeHuckel",
 		       "Unfinished func called: " + msg );
     return 0.0;

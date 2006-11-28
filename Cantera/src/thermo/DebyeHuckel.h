@@ -111,8 +111,8 @@ namespace Cantera {
     DebyeHuckel(const DebyeHuckel &);
     DebyeHuckel& operator=(const	DebyeHuckel&);
 
-    DebyeHuckel(string inputFile, string id = "");
-    DebyeHuckel(XML_Node& phaseRef, string id = "");
+    DebyeHuckel(std::string inputFile, std::string id = "");
+    DebyeHuckel(XML_Node& phaseRef, std::string id = "");
 
     /// Destructor. 
     virtual ~DebyeHuckel();
@@ -816,7 +816,7 @@ namespace Cantera {
      *            phase. If none is given, the first XML
      *            phase element will be used.
      */
-    virtual void constructPhaseFile(string infile, string id="");
+    virtual void constructPhaseFile(std::string infile, std::string id="");
 
     /*
      *   Import and initialize a DebyeHuckel phase 
@@ -842,10 +842,10 @@ namespace Cantera {
      *             to see if phaseNode is pointing to the phase
      *             with the correct id. 
      */
-    virtual void constructPhaseXML(XML_Node& phaseNode, string id="");
+    virtual void constructPhaseXML(XML_Node& phaseNode, std::string id="");
 
 
-    virtual void  initThermoXML(XML_Node& phaseNode, string id);
+    virtual void  initThermoXML(XML_Node& phaseNode, std::string id);
 
     /**
      * Report the molar volume of species k
@@ -1187,7 +1187,7 @@ namespace Cantera {
     mutable array_fp m_dlnActCoeffMolaldP;
   
   private:
-    doublereal err(string msg) const;
+    doublereal err(std::string msg) const;
 
 
     void initLengths();

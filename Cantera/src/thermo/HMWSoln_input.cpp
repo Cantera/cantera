@@ -15,6 +15,9 @@
 #include "WaterProps.h"
 #include "WaterPDSS.h"
 
+using namespace std;
+
+
 namespace Cantera {
 
   /**
@@ -23,7 +26,7 @@ namespace Cantera {
    * utility function to assign an integer value from a string
    * for the ElectrolyteSpeciesType field.
    */
-  static int interp_est(string estString) {
+  static int interp_est(std::string estString) {
     const char *cc = estString.c_str();
     if (!strcasecmp(cc, "solvent")) {
       return cEST_solvent;
@@ -581,7 +584,7 @@ namespace Cantera {
 			 "input file is null");
     }
     string path = findInputFile(inputFile);
-    ifstream fin(path.c_str());
+    std::ifstream fin(path.c_str());
     if (!fin) {
       throw CanteraError("HMWSoln:constructPhaseFile","could not open "
 			 +path+" for reading.");
@@ -830,8 +833,8 @@ namespace Cantera {
       }
     }
     if (m_indexSolvent == -1) {
-      cout << "HMWSoln::initThermo: Solvent Name not found" 
-	   << endl;
+      std::cout << "HMWSoln::initThermo: Solvent Name not found" 
+		<< std::endl;
       throw CanteraError("HMWSoln::initThermoXML",
 			 "Solvent name not found");
     }

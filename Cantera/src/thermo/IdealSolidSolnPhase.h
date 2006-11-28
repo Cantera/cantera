@@ -107,7 +107,7 @@ namespace Cantera {
      * @param formCG This parameter initializes the m_formGC variable. The default
      *               is a value of 0.
      */
-    IdealSolidSolnPhase(string infile, string id="", int formCG=0);
+    IdealSolidSolnPhase(std::string infile, std::string id="", int formCG=0);
 
 
     /**
@@ -133,7 +133,7 @@ namespace Cantera {
      * @param formCG This parameter initializes the m_formGC variable. The default
      *               is a value of 0.
      */
-    IdealSolidSolnPhase(XML_Node& root, string id="", int formCG=0);
+    IdealSolidSolnPhase(XML_Node& root, std::string id="", int formCG=0);
 
     /*
      * Copy Constructor
@@ -827,7 +827,7 @@ namespace Cantera {
      *            phase. If none is given, the first XML
      *            phase element will be used.
      */
-    virtual void constructPhaseFile(string infile, string id="");
+    virtual void constructPhaseFile(std::string infile, std::string id="");
 
     /**
      *   Import and initialize an IdealSolidSolnPhase phase 
@@ -854,7 +854,7 @@ namespace Cantera {
      *             to see if phaseNode is pointing to the phase
      *             with the correct id. 
      */
-    virtual void constructPhaseXML(XML_Node& phaseNode, string id="");
+    virtual void constructPhaseXML(XML_Node& phaseNode, std::string id="");
 
     /**
      *  Initialization of an IdealSolidSolnPhase phase:
@@ -889,7 +889,7 @@ namespace Cantera {
       *             to see if phaseNode is pointing to the phase
       *             with the correct id.
       */
-    virtual void initThermoXML(XML_Node& phaseNode, string id);
+    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
 
 
     /** 

@@ -56,7 +56,7 @@ namespace Cantera {
    *  the routine initThermo(), with a reference to the
    *  XML database to get the info for the phase.
    */
-  HMWSoln::HMWSoln(string inputFile, string id) :
+  HMWSoln::HMWSoln(std::string inputFile, std::string id) :
     MolalityVPSSTP(),
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
@@ -80,7 +80,7 @@ namespace Cantera {
     constructPhaseFile(inputFile, id);
   }
 
-  HMWSoln::HMWSoln(XML_Node& phaseRoot, string id) :
+  HMWSoln::HMWSoln(XML_Node& phaseRoot, std::string id) :
     MolalityVPSSTP(),
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
@@ -423,15 +423,6 @@ namespace Cantera {
     getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
     getMoleFractions(DATA_PTR(m_pp));
     double val = mean_X(DATA_PTR(m_tmpV));
-#ifdef DEBUG_HKM
-    double val0 = 0.0;
-    for (int k = 0; k < m_kk; k++) {
-      val0 += m_tmpV[k] * m_pp[k];
-    }
-    //if (val != val0) {
-    // printf("ERROR\n");
-    //}
-#endif
     return val;
   }
 
@@ -1542,7 +1533,7 @@ namespace Cantera {
    * Bail out of functions with an error exit if they are not
    * implemented.
    */
-  doublereal HMWSoln::err(string msg) const {
+  doublereal HMWSoln::err(std::string msg) const {
     throw CanteraError("HMWSoln",
 		       "Unfinished func called: " + msg );
     return 0.0;
@@ -1905,7 +1896,7 @@ namespace Cantera {
     }
 #endif
     double wateract;
-    string sni,  snj, snk; 
+    std::string sni,  snj, snk; 
 
     /*
      * This is the molality of the species in solution. 
@@ -2730,7 +2721,7 @@ namespace Cantera {
     }
 
     double d_wateract_dT;
-    string sni, snj, snk; 
+    std::string sni, snj, snk; 
 
     const double *molality  =  DATA_PTR(m_molalities);
     const double *charge    =  DATA_PTR(m_speciesCharge);
@@ -3510,7 +3501,7 @@ namespace Cantera {
     }
 
     double d2_wateract_dT2;
-    string sni, snj, snk; 
+    std::string sni, snj, snk; 
 
     const double *molality  =  DATA_PTR(m_molalities);
     const double *charge    =  DATA_PTR(m_speciesCharge);
@@ -4317,7 +4308,7 @@ namespace Cantera {
     }
 
     double d_wateract_dP;
-    string sni, snj, snk; 
+    std::string sni, snj, snk; 
 
     const double *molality  =  DATA_PTR(m_molalities);
     const double *charge    =  DATA_PTR(m_speciesCharge);
@@ -5205,7 +5196,7 @@ namespace Cantera {
    */
   void HMWSoln::printCoeffs() const {
     int i, j, k;
-    string sni, snj;
+    std::string sni, snj;
     calcMolalities();
     const double *charge = DATA_PTR(m_speciesCharge);
     double *molality = DATA_PTR(m_molalities);
@@ -5249,7 +5240,7 @@ namespace Cantera {
       for (j = 1; j < m_kk; j++) {
 	snj = speciesName(j);
 	for (k = 1; k < m_kk; k++) {
-	  string snk = speciesName(k);
+	  std::string snk = speciesName(k);
 	  int n = k + j * m_kk + i * m_kk * m_kk;
 	  if (m_Psi_ijk[n] != 0.0) {
 	    printf(" %-16s %-16s %-16s %9.5f \n",

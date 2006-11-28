@@ -35,11 +35,12 @@ namespace Cantera {
     m_allowGasPhase(false)
   {
     constructPDSS(tp, spindex);
+    m_spthermo = 0;
   }
 
 
   WaterPDSS::WaterPDSS(ThermoPhase *tp, int spindex, 
-		       string inputFile, string id) :
+		       std::string inputFile, std::string id) :
     PDSS(tp, spindex),
     m_sub(0),
     m_iState(-1),
@@ -50,10 +51,11 @@ namespace Cantera {
     m_allowGasPhase(false)
   {
     constructPDSSFile(tp, spindex, inputFile, id);
+    m_spthermo = 0;
   }
 
   WaterPDSS::WaterPDSS(ThermoPhase *tp, int spindex,
-		       XML_Node& phaseRoot, string id) :
+		       XML_Node& phaseRoot, std::string id) :
     PDSS(tp, spindex),
     m_sub(0),
     m_iState(-1),
@@ -64,6 +66,7 @@ namespace Cantera {
     m_allowGasPhase(false)
   {
     constructPDSSXML(tp, spindex, phaseRoot, id) ;
+    m_spthermo = 0;
   }
 
 
@@ -91,8 +94,12 @@ namespace Cantera {
    */
   WaterPDSS& WaterPDSS::operator=(const WaterPDSS&b) {
     if (&b == this) return *this;
-    m_sub->operator=(*(b.m_sub));
+    /*
+     * Call the base class operator
+     */
     PDSS::operator=(b);
+
+    m_sub->operator=(*(b.m_sub));
     m_verbose = b.m_verbose;
     m_allowGasPhase = b.m_allowGasPhase;
     return *this;
@@ -123,7 +130,7 @@ namespace Cantera {
    *            phase element will be used.
    */
   void WaterPDSS::constructPDSSXML(ThermoPhase *tp, int spindex,
-				   XML_Node& phaseNode, string id) {
+				   XML_Node& phaseNode, std::string id) {
     initThermo();
   }
    
@@ -144,14 +151,14 @@ namespace Cantera {
    *            phase element will be used.
    */
   void WaterPDSS::constructPDSSFile(ThermoPhase *tp, int spindex,
-				    string inputFile, string id) {
+				    std::string inputFile, std::string id) {
 
     if (inputFile.size() == 0) {
       throw CanteraError("WaterTp::initThermo",
 			 "input file is null");
     }
-    string path = findInputFile(inputFile);
-    ifstream fin(path.c_str());
+    std::string path = findInputFile(inputFile);
+    std::ifstream fin(path.c_str());
     if (!fin) {
       throw CanteraError("WaterPDSS::initThermo","could not open "
 			 +path+" for reading.");
@@ -174,7 +181,7 @@ namespace Cantera {
   }
 
   void WaterPDSS::
-  initThermoXML(XML_Node& phaseNode, string id) {
+  initThermoXML(XML_Node& phaseNode, std::string id) {
     initThermo();
   }
 

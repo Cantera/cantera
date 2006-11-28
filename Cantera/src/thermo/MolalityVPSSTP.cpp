@@ -18,7 +18,7 @@
 
 
 #include "MolalityVPSSTP.h"
-
+using namespace std;
 
 namespace Cantera {
 

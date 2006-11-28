@@ -20,11 +20,13 @@
 class XML_Node;
 class ThermoPhase;
 
-class WaterPropsIAPWS;
+ class WaterPropsIAPWS;
+
 
 namespace Cantera {
 
-
+  class SpeciesThermo;
+ 
   /**
    * Class for pressure dependent standard states.
    *
@@ -40,8 +42,8 @@ namespace Cantera {
     PDSS(ThermoPhase *tp, int spindex);
     PDSS(const PDSS &b);
     PDSS& operator=(const PDSS&b);
-    PDSS(ThermoPhase *tp, int spindex, string inputFile, string id = "");
-    PDSS(ThermoPhase *tp, int spindex, XML_Node& phaseRef, string id = "");
+    PDSS(ThermoPhase *tp, int spindex, std::string inputFile, std::string id = "");
+    PDSS(ThermoPhase *tp, int spindex, XML_Node& phaseRef, std::string id = "");
     virtual ~PDSS();
         
     /**
@@ -123,10 +125,10 @@ namespace Cantera {
     
     virtual void constructPDSS(ThermoPhase *tp, int spindex);
     virtual void constructPDSSFile(ThermoPhase *tp, int spindex, 
-				   string inputFile, string id);
+				   std::string inputFile, std::string id);
     virtual void constructPDSSXML(ThermoPhase *tp, int spindex, 
-				  XML_Node& phaseNode, string id);
-    virtual void initThermoXML(XML_Node& eosdata, string id);
+				  XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& eosdata, std::string id);
     virtual void initThermo();
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
@@ -153,15 +155,32 @@ namespace Cantera {
      */
     ThermoPhase *m_tp;
 
+
+    /**
+     * Molecular Weight of the species
+     */
+    doublereal m_mw;
+
     /**
      * Species index in the thermophase corresponding to this species.
      */
     int m_spindex;
 
     /**
-     * Molecular Weight of the species
+     * Pointer to the species thermodynamic property manager.
+     * This is a copy of the pointer in the ThermoPhase object.
+     * Note, this object doesn't own the pointer.
+     * If the SpeciesThermo ThermoPhase object doesn't know 
+     * or doesn't control the calculation, this will be 
+     * set to zero.
      */
-    doublereal m_mw;
+    SpeciesThermo* m_spthermo;
+
+    doublereal *m_cp0_R_ptr;
+    doublereal *m_h0_RT_ptr;
+    doublereal *m_s0_R_ptr;
+    doublereal *m_g0_RT_ptr;
+
 
   };
 

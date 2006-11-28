@@ -70,13 +70,13 @@ namespace Cantera {
     return *this;
   }
 
-  IdealMolalSoln::IdealMolalSoln(string inputFile, string id) :
+  IdealMolalSoln::IdealMolalSoln(std::string inputFile, std::string id) :
     MolalityVPSSTP()
   {
     constructPhaseFile(inputFile, id);
   }
 
-  IdealMolalSoln::IdealMolalSoln(XML_Node& root, string id) :
+  IdealMolalSoln::IdealMolalSoln(XML_Node& root, std::string id) :
     MolalityVPSSTP()
   {
     constructPhaseXML(root, id);
@@ -802,14 +802,15 @@ namespace Cantera {
    *            phase. If none is given, the first XML
    *            phase element will be used.
    */
-  void IdealMolalSoln::constructPhaseFile(string inputFile, string id) {
+  void IdealMolalSoln::constructPhaseFile(std::string inputFile, 
+					  std::string id) {
 
     if (inputFile.size() == 0) {
       throw CanteraError("IdealMolalSoln::constructPhaseFile",
 			 "input file is null");
     }
-    string path = findInputFile(inputFile);
-    ifstream fin(path.c_str());
+    std::string path = findInputFile(inputFile);
+    std::ifstream fin(path.c_str());
     if (!fin) {
       throw CanteraError("IdealMolalSoln::constructPhaseFile",
 			 "could not open "
@@ -857,9 +858,10 @@ namespace Cantera {
    *             to see if phaseNode is pointing to the phase
    *             with the correct id. 
    */
-  void IdealMolalSoln::constructPhaseXML(XML_Node& phaseNode, string id) {
+  void IdealMolalSoln::constructPhaseXML(XML_Node& phaseNode, 
+					 std::string id) {
     if (id.size() > 0) {
-      string idp = phaseNode.id();
+      std::string idp = phaseNode.id();
       if (idp != id) {
 	throw CanteraError("IdealMolalSoln::constructPhaseXML", 
 			   "phasenode and Id are incompatible");
@@ -904,7 +906,7 @@ namespace Cantera {
    *             to see if phaseNode is pointing to the phase
    *             with the correct id.
    */
-  void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, string id) {
+  void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, std::string id) {
 
     /*
      * Initialize the whole thermo object, using a virtual function.
@@ -912,7 +914,7 @@ namespace Cantera {
     initThermo();
 
     if (id.size() > 0) {
-      string idp = phaseNode.id();
+      std::string idp = phaseNode.id();
       if (idp != id) {
 	throw CanteraError("IdealMolalSoln::initThermo", 
 			   "phasenode and Id are incompatible");
@@ -934,7 +936,7 @@ namespace Cantera {
     if (thermoNode.hasChild("standardConc")) {
       XML_Node& scNode = thermoNode.child("standardConc");
       m_formGC = 2;
-      string formString = scNode.attrib("model");
+      std::string formString = scNode.attrib("model");
       if (formString != "") {
 	if (formString == "unity") {
 	  m_formGC = 0;
@@ -953,10 +955,10 @@ namespace Cantera {
      * Get the Name of the Solvent:
      *      <solvent> solventName </solvent>
      */
-    string solventName = "";
+    std::string solventName = "";
     if (thermoNode.hasChild("solvent")) {
       XML_Node& scNode = thermoNode.child("solvent");
-      vector<string> nameSolventa;
+      std::vector<std::string> nameSolventa;
       getStringArray(scNode, nameSolventa);
       int nsp = static_cast<int>(nameSolventa.size());
       if (nsp != 1) {
@@ -971,15 +973,15 @@ namespace Cantera {
      * Reconcile the solvent name and index.
      */
     for (int k = 0; k < m_kk; k++) {
-      string sname = speciesName(k);
+      std::string sname = speciesName(k);
       if (solventName == sname) {
 	m_indexSolvent = k;
 	break;
       }
     }
     if (m_indexSolvent == -1) {
-      cout << "IdealMolalSoln::initThermo: Solvent Name not found" 
-	   << endl;
+      std::cout << "IdealMolalSoln::initThermo: Solvent Name not found" 
+	   << std::endl;
       throw CanteraError("IdealMolalSoln::initThermo",
 			 "Solvent name not found");
     }
@@ -996,7 +998,7 @@ namespace Cantera {
     XML_Node* speciesDB =
       get_XML_NameID("speciesData", speciesList["datasrc"],
 		     &phaseNode.root());
-    const vector<string>&sss = speciesNames();
+    const std::vector<std::string> &sss = speciesNames();
 
     for (int k = 0; k < m_kk; k++) {
       XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
@@ -1055,7 +1057,7 @@ namespace Cantera {
    * Bail out of functions with an error exit if they are not
    * implemented.
    */
-  doublereal IdealMolalSoln::err(string msg) const {
+  doublereal IdealMolalSoln::err(std::string msg) const {
     throw CanteraError("IdealMolalSoln",
 		       "Unfinished func called: " + msg );
     return 0.0;

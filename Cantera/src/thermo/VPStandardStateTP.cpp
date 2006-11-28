@@ -21,6 +21,7 @@
 
 #include "VPStandardStateTP.h"
 
+using namespace std;
 
 namespace Cantera {
 
@@ -29,7 +30,8 @@ namespace Cantera {
      */
     VPStandardStateTP::VPStandardStateTP() :
 	ThermoPhase(),
-	m_tlast(-1.0)
+	m_tlast(-1.0),
+	m_plast(-1.0)
     {
     }
 
@@ -44,7 +46,8 @@ namespace Cantera {
      */
     VPStandardStateTP::VPStandardStateTP(const VPStandardStateTP &b) :
 	ThermoPhase(),
-	m_tlast(-1.0)
+	m_tlast(-1.0),
+	m_plast(-1.0)
     {
 	*this = b;
     }
@@ -67,10 +70,15 @@ namespace Cantera {
 	   * However, we have to handle data that we own.
 	   */
 	  m_tlast     = b.m_tlast;
+	  m_plast     = b.m_plast;
 	  m_h0_RT     = b.m_h0_RT;
 	  m_cp0_R     = b.m_cp0_R;
 	  m_g0_RT     = b.m_g0_RT;
 	  m_s0_R      = b.m_s0_R;
+	  m_hss_RT     = b.m_hss_RT;
+	  m_cpss_R     = b.m_cpss_R;
+	  m_gss_RT     = b.m_gss_RT;
+	  m_sss_R      = b.m_sss_R;
 	}
 	return *this;
     }
@@ -321,6 +329,21 @@ namespace Cantera {
 	  for (int k = 0; k < m_kk; k++) {
 	    m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
 	  }
+        }
+    }
+
+   /**
+     * void _updateStandardStateThermo()            (private, const)
+     *
+     * This function gets called for every call to functions in this
+     * class. It checks to see whether the temperature has changed and
+     * thus the ss thermodynamics functions for all of the species
+     * must be recalculated.
+     */                    
+    void VPStandardStateTP::_updateStandardStateThermo() const {
+        doublereal tnow = temperature();
+        if (m_tlast != tnow) {
+	  _updateRefStateThermo();
         }
     }
 }

@@ -68,9 +68,9 @@ namespace Cantera {
         WaterPDSS(const WaterPDSS &b);
         WaterPDSS& operator=(const WaterPDSS&b);
         WaterPDSS(ThermoPhase *tp, int spindex,
-		  string inputFile, string id = "");
+		  std::string inputFile, std::string id = "");
         WaterPDSS(ThermoPhase *tp, int spindex,
-		  XML_Node& phaseRef, string id = "");
+		  XML_Node& phaseRef, std::string id = "");
         virtual ~WaterPDSS();
         
        /**
@@ -142,10 +142,10 @@ namespace Cantera {
     
 	virtual void constructPDSS(ThermoPhase *tp, int spindex);
 	virtual void constructPDSSFile(ThermoPhase *tp, int spindex,
-				       string inputFile, string id);
+				       std::string inputFile, std::string id);
 	virtual void constructPDSSXML(ThermoPhase *tp, int spindex,
-				      XML_Node& phaseNode, string id);
-	virtual void initThermoXML(XML_Node& eosdata, string id);
+				      XML_Node& phaseNode, std::string id);
+	virtual void initThermoXML(XML_Node& eosdata, std::string id);
         virtual void initThermo();
         virtual void setParametersFromXML(const XML_Node& eosdata);
         WaterPropsIAPWS *getWater() const {
