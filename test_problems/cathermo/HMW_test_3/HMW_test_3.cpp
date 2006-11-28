@@ -15,8 +15,8 @@
 #include "HMWSoln.h"
 #endif
 
+using namespace std;
 using namespace Cantera;
-
 
 void printUsage() {
     cout << "usage: HMW_test_1 " <<  endl;

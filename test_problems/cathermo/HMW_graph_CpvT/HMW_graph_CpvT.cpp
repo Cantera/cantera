@@ -27,6 +27,7 @@
 #include "importCTML.h"
 #endif
 
+using namespace std;
 using namespace Cantera;
 
 class fileLog: public Logger {

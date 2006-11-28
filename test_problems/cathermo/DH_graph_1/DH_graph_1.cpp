@@ -20,6 +20,7 @@
 #include "cantera/kernel/thermo/DebyeHuckel.h"
 #endif
 
+using namespace std;
 using namespace Cantera;
 
 class fileLog: public Logger {

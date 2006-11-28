@@ -15,6 +15,7 @@
 #include "HMWSoln.h"
 #endif
 
+using namespace std;
 using namespace Cantera;
 
 int CHECK_DEBUG_MODE = 0;
