@@ -23,12 +23,10 @@ double tvalue(double val, double atol = 1.0E-9) {
 
 int main () {
 
-    double dens, u, s, h, cv, cp, pres;
+    double pres;
     try {
       Cantera::ThermoPhase *nnn = 0;
       Cantera::WaterPDSS *w = new Cantera::WaterPDSS(nnn, 0);
-
-      double rho;
 
       /* 
        * Print out the triple point conditions
