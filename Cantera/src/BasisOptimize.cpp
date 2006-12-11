@@ -13,7 +13,7 @@
 using namespace Cantera;
 using namespace std;
 #ifdef DEBUG_HKM
-extern int debug_print_lvl;
+int debug_print_lvl = 0;
 static void print_stringTrunc(const char *str, int space, int alignment);
 #endif
 static int amax(double *x, int j, int n);
