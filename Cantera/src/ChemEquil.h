@@ -147,6 +147,10 @@ namespace Cantera {
 
     void update(const thermo_t& s);
 
+    double calcEmoles(thermo_t& s, vector_fp& x, 
+		      const double & n_t, const vector_fp & Xmol_i_calc,
+		      vector_fp& eMolesCalc, vector_fp& n_i_calc);
+
     int m_mm;
     int m_kk;
     int m_skip;
@@ -192,6 +196,12 @@ namespace Cantera {
 
     vector_fp m_grt;
     vector_fp m_mu_RT;
+    /**
+     * Dimensionless values of the gibbs free energy for the
+     * standard state of each species, at the temperature and
+     * pressure of the solution (the star standard state).
+     */
+    vector_fp m_muSS_RT;
     vector_int m_component;
 
     /*

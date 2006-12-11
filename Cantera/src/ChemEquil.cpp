@@ -103,6 +103,7 @@ namespace Cantera {
     m_startSoln.resize(m_mm+1);
     m_grt.resize(m_kk);
     m_mu_RT.resize(m_kk);
+    m_muSS_RT.resize(m_kk);
     m_component.resize(m_mm,-2);
 
     // set up elemental composition matrix
@@ -1017,6 +1018,50 @@ namespace Cantera {
   }
 
   /**
+   * Given a vector of dimensionless element abundances,
+   * this routine calculates the moles of the elements and
+   * the moles of the species.
+   *   Input
+   *  --------
+   * x[m] = current dimensionless element potentials..
+   */
+  double ChemEquil::calcEmoles(thermo_t& s, vector_fp& x, const double & n_t,
+			       const vector_fp & Xmol_i_calc, 
+			       vector_fp& eMolesCalc, vector_fp& n_i_calc) {
+    int k, m;
+    double n_t_calc = 0.0;
+    double tmp;
+    /*
+     * Calculate the activity coefficients of the solution, at the
+     * previous solution state.
+     */
+    vector_fp actCoeff(m_kk, 1.0);
+    s.setMoleFractions(DATA_PTR(Xmol_i_calc));
+    s.getActivityCoefficients(DATA_PTR(actCoeff));
+ 
+    for (k = 0; k < m_kk; k++) {
+      tmp = - (m_muSS_RT[k] + log(actCoeff[k]));
+      for (m = 0; m < m_mm; m++) {
+	tmp += nAtoms(k,m) * x[m];
+      }
+      if (tmp > 100.) tmp = 100.;
+      if (tmp < -300.) {
+	n_i_calc[k] = 0.0;
+      } else {
+	n_i_calc[k] = n_t * exp(tmp);
+      }
+      n_t_calc += n_i_calc[k];
+    }
+    for (m = 0; m < m_mm; m++) {
+      eMolesCalc[m] = 0.0;
+      for (k = 0; k < m_kk; k++) {
+	eMolesCalc[m] += nAtoms(k,m) * n_i_calc[k];
+      }
+    }
+    return n_t_calc;
+  }
+
+  /**
    *  Do a calculation of the element potentials using
    *  the Brinkley method, p. 129 Smith and Missen.
    *
@@ -1068,28 +1113,29 @@ namespace Cantera {
     int m, n, k, info;
     DenseMatrix a1(neq, neq, 0.0);
     vector_fp b(neq, 0.0);
-    vector_fp muSS_RT(m_kk, 0.0);
     vector_fp n_i(m_kk,0.0);
     vector_fp n_i_calc(m_kk,0.0);
     vector_fp actCoeff(m_kk, 1.0);
-    vector_fp muSS_RT_mod(m_kk, 0.0); 
+  
+    vector_fp Xmol_i_calc(m_kk,0.0);
     double beta = 1.0;
 
     s.getMoleFractions(DATA_PTR(n_i));
+    copy(n_i.begin(), n_i.end(), Xmol_i_calc.begin());
 
     vector_fp x_old(m_mm+1, 0.0);
     vector_fp resid(m_mm+1, 0.0);
     vector_int lumpSum(m_mm+1, 0);
 
+ 
     /*
      * Get the nondimensional Gibbs functions for the species
      * at their standard states of solution at the current T and P
      * of the solution.
      */
-    s.getGibbs_RT(DATA_PTR(muSS_RT));
-    copy(muSS_RT.begin(), muSS_RT.end(), muSS_RT_mod.begin());
+    s.getGibbs_RT(DATA_PTR(m_muSS_RT));
 
-
+  
     vector_fp eMolesCalc(m_mm, 0.0);
     vector_fp eMolesFix(m_mm, 0.0);
     double elMolesTotal = 0.0;
@@ -1119,10 +1165,10 @@ namespace Cantera {
     double n_t = 0.0;
     double sum2 = 0.0;
     double nAtomsMax = 1.0;
-    s.setMoleFractions(DATA_PTR(x));
+    s.setMoleFractions(DATA_PTR(Xmol_i_calc));
     s.getActivityCoefficients(DATA_PTR(actCoeff));
     for (k = 0; k < m_kk; k++) {
-      tmp = - (muSS_RT[k] + log(actCoeff[k]));
+      tmp = - (m_muSS_RT[k] + log(actCoeff[k]));
       sum2 = 0.0;
       for (m = 0; m < m_mm; m++) {
 	sum = nAtoms(k,m);
@@ -1191,44 +1237,21 @@ namespace Cantera {
 	printf("START ITERATION %d:\n", iter);
       }
 #endif
-    
-      double n_t_calc = 0.0;
-      s.setMoleFractions(DATA_PTR(x));
-      s.getActivityCoefficients(DATA_PTR(actCoeff));
-      sum2 = 0.0;
+      /*
+       * Calculate the mole numbers of species and elements.
+       */
+      double n_t_calc = calcEmoles(s, x, n_t, Xmol_i_calc, eMolesCalc, n_i_calc);
       for (k = 0; k < m_kk; k++) {
-	tmp = - (muSS_RT[k] + log(actCoeff[k]));
-	for (m = 0; m < m_mm; m++) {
-	  tmp += nAtoms(k,m) * x[m];
-	}
-	if (tmp > 100.) tmp = 100.;
-	if (tmp < -300.) {
-	  n_i_calc[k] = 0.0;
-	} else {
-	  n_i_calc[k] = n_t * exp(tmp);
-	}
-	n_t_calc +=  n_i_calc[k];
-#ifdef DEBUG_HKM_EPEQUIL
-	if (debug_prnt_lvl > 0) {
-	  string nnn = s.speciesName(k);
-	  printf("%15s: %10.5g (%10.5g)\n", nnn.c_str(), 
-		 n_i_calc[k], tmp);
-	}
-#endif
+	Xmol_i_calc[k] = n_i_calc[k]/n_t_calc;
       }
+
 #ifdef DEBUG_HKM_EPEQUIL
       if (debug_prnt_lvl > 0) {
-	printf("%15s: %10.5g\n", "Total Molar Sum", n_t_calc);
-      }
-#endif
-      for (m = 0; m < m_mm; m++) {
-	eMolesCalc[m] = 0.0;
 	for (k = 0; k < m_kk; k++) {
-	  eMolesCalc[m] += nAtoms(k,m) * n_i_calc[k];
+	  string nnn = s.speciesName(k);
+	  printf("%15s: %10.5g %10.5g\n", nnn.c_str(),  n_i_calc[k], Xmol_i_calc[k]);
 	}
-      }
-#ifdef DEBUG_HKM_EPEQUIL
-      if (debug_prnt_lvl > 0) {
+	printf("%15s: %10.5g\n", "Total Molar Sum", n_t_calc);
 	printf("(iter %d) element moles bal:   Goal  Calculated\n", iter);
 	for (m = 0; m < m_mm; m++) {
 	  string nnn = eNames[m];

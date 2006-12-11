@@ -367,6 +367,25 @@ namespace Cantera {
         parseCompString(x, xx);
         setMolesByName(xx); 
     }
+ 
+    /// Get the mole numbers of all species in the multiphase
+    /// object
+    void MultiPhase::getMoles(doublereal * molNum) const {
+      /*
+       * First copy in the mole fractions
+       */
+      copy(m_moleFractions.begin(), m_moleFractions.end(), molNum);
+      index_t ik;
+      doublereal *dtmp = molNum;
+      for (index_t ip = 0; ip < m_np; ip++) {
+	doublereal phasemoles = m_moles[ip];
+	phase_t* p = m_phase[ip];
+	index_t nsp = p->nSpecies();
+	for (ik = 0; ik < nsp; ik++) {
+	  *(dtmp++) *= phasemoles;
+	}
+      }
+    }
 
     /// Set the species moles to the values in array \a n. The state
     /// of each phase object is also updated to have the specified
@@ -392,7 +411,7 @@ namespace Cantera {
             else {
                 m_moleFractions[loc] = 1.0;
             }
-            loc += p->nSpecies();
+            loc += nsp;
         }
     }
 

@@ -78,7 +78,7 @@ HETEROKIN    = $(THERMO) $(HETEROKIN_OBJ)
 CK         = $(KINETICS)
 
 # chemical equilibrium
-EQUIL_OBJ  = ChemEquil.o MultiPhaseEquil.o sort.o MultiPhase.o equilibrate.o
+EQUIL_OBJ  = ChemEquil.o MultiPhaseEquil.o sort.o MultiPhase.o equilibrate.o BasisOptimize.o
 EQUIL_H    = ChemEquil.h MultiPhaseEquil.h MultiPhase.h Crystal.h sort.h equil.h
 EQUIL      = $(THERMO) $(EQUIL_OBJ)
 

@@ -218,6 +218,7 @@ namespace Cantera {
 
         void setMolesByName(const std::string& x);
 
+        void getMoles(doublereal * molNum) const;
         void setMoles(doublereal* n);
 
         /// Return true if the phase \a p has valid thermo data for
@@ -296,6 +297,12 @@ namespace Cantera {
         }
         return s;
     }
+
+
+int BasisOptimize( int *usedZeroedSpecies, bool doFormRxn,
+	   MultiPhase *mphase, vector_int & orderVectorSpecies,
+	   vector_int & orderVectorElements, 
+           vector_fp & formRxnMatrix);
 }
 
 #endif
