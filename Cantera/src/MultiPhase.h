@@ -299,10 +299,15 @@ namespace Cantera {
     }
 
 
-int BasisOptimize( int *usedZeroedSpecies, bool doFormRxn,
-	   MultiPhase *mphase, vector_int & orderVectorSpecies,
-	   vector_int & orderVectorElements, 
-           vector_fp & formRxnMatrix);
+  int BasisOptimize( int *usedZeroedSpecies, bool doFormRxn,
+		     MultiPhase *mphase, vector_int & orderVectorSpecies,
+		     vector_int & orderVectorElements, 
+		     vector_fp & formRxnMatrix);
+  
+  int ElemRearrange(int nComponents,  const vector_fp & elementAbundances,
+		    MultiPhase *mphase, 
+		    vector_int & orderVectorSpecies,
+		    vector_int & orderVectorElements);
 }
 
 #endif

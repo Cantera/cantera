@@ -347,7 +347,7 @@ namespace Cantera {
         int n;
 
         // if the input species array has the wrong size, ignore it
-        // and consider the species for components in declarationi order.
+        // and consider the species for components in declaration order.
         if (order.size() != m_nsp) {
             for (k = 0; k < m_nsp; k++) m_order[k] = k;
         }

@@ -40,9 +40,21 @@ static int mlequ(double *c, int idem, int n, double *b, int m);
  *
  * Input 
  * --------- 
- * mphase
+ * mphase          Pointer to the multiphase object. Contains the 
+ *                 species mole fractions, which are used to pick the
+ *                 current optimal species component basis.
  * orderVectorElement
+ *                 Order vector for the elements. The element rows
+ *                 in the formula matrix are
+ *                 rearranged according to this vector.
  * orderVectorSpecies
+ *                 Order vector for the species. The species are
+ *                 rearranged according to this formula. The first
+ *                 nCompoments of this vector contain the calculated
+ *                 species components on exit.
+ * doFormRxn       If true, the routine calculates the formation
+ *                 reaction matrix based on the calculated 
+ *                 component species. If false, this step is skipped.
  * 
  * Output 
  * --------- 
@@ -58,9 +70,10 @@ static int mlequ(double *c, int idem, int n, double *b, int m);
  *
  */
 int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
-		    MultiPhase *mphase, vector_int & orderVectorSpecies,
-		    vector_int & orderVectorElements, 
-                    vector_fp & formRxnMatrix) {
+			   MultiPhase *mphase, vector_int & orderVectorSpecies,
+			   vector_int & orderVectorElements, 
+			   vector_fp & formRxnMatrix) {
+
   int  j, jj, k, kk, l, i, jl, ml;
   bool lindep;
   std::string ename;
@@ -182,13 +195,24 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
       /*
        *    Search the remaining part of the mole number vector, molNum
        *    for the largest remaining species. Return its identity. 
+       *    kk is the raw number. k is the orderVectorSpecies index.
        */
-      k = amax(DATA_PTR(molNum), jr, nspecies);
-      if (molNum[k] == 0.0) *usedZeroedSpecies = true;
+      kk = amax(DATA_PTR(molNum), jr, nspecies);
+      for (j = 0; j < nspecies; j++) {
+	if (orderVectorSpecies[j] == kk) {
+	  k = j;
+	  break;
+	}
+      }
+      if (j == nspecies) {
+	throw CanteraError("BasisOptimize", "orderVectorSpecies contains an error");
+      }
+
+      if (molNum[kk] == 0.0) *usedZeroedSpecies = true;
       /*
        * If the largest molNum is negative, then we are done.
        */
-      if (molNum[k] == USEDBEFORE) {
+      if (molNum[kk] == USEDBEFORE) {
 	nComponents = jr;
 	nNonComponents = nspecies - nComponents;
 	goto L_END_LOOP;
@@ -197,7 +221,7 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
        *  Assign a small negative number to the component that we have
        *  just found, in order to take it out of further consideration.
        */
-      molNum[k] = USEDBEFORE;
+      molNum[kk] = USEDBEFORE;
       /* *********************************************************** */
       /* **** CHECK LINEAR INDEPENDENCE WITH PREVIOUS SPECIES ****** */
       /* *********************************************************** */
@@ -208,7 +232,7 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
       jl = jr;
       for (j = 0; j < ne; ++j) {
 	jj = orderVectorElements[j];
-	sm[j + jr*ne] = mphase->nAtoms(k,jj);
+	sm[j + jr*ne] = mphase->nAtoms(kk,jj);
       }
       if (jl > 0) {
 	/*
@@ -529,3 +553,249 @@ static int amax(double *x, int j, int n) {
    }
    return 0;
  } /* mlequ() *************************************************************/
+
+
+/**
+ *
+ * ElemRearrange:
+ *
+ *    This subroutine handles the rearrangement of the constraint
+ *    equations represented by the Formula Matrix. Rearrangement is only
+ *    necessary when the number of components is less than the number of
+ *    elements. For this case, some constraints can never be satisfied 
+ *    exactly, because the range space represented by the Formula
+ *    Matrix of the components can't span the extra space. These 
+ *    constraints, which are out of the range space of the component
+ *    Formula matrix entries, are migrated to the back of the Formula
+ *    matrix.
+ *
+ *    A prototypical example is an extra element column in 
+ *    FormulaMatrix[], 
+ *    which is identically zero. For example, let's say that argon is
+ *    has an element column in FormulaMatrix[], but no species in the 
+ *    mechanism
+ *    actually contains argon. Then, nc < ne. Unless the entry for
+ *    desired elementabundance vector for Ar is zero, then this
+ *    element abundance constraint can never be satisfied. The 
+ *    constraint vector is not in the range space of the formula
+ *    matrix.
+ *    Also, without perturbation
+ *    of FormulaMatrix[], BasisOptimize[] would produce a zero pivot 
+ *    because the matrix
+ *    would be singular (unless the argon element column was already the
+ *    last column of  FormulaMatrix[]. 
+ *       This routine borrows heavily from BasisOptimize algorithm. It 
+ *    finds nc constraints which span the range space of the Component
+ *    Formula matrix, and assigns them as the first nc components in the
+ *    formular matrix. This guarrantees that BasisOptimize has a
+ *    nonsingular matrix to invert.
+ */
+int Cantera::ElemRearrange(int nComponents, const vector_fp & elementAbundances,
+			   MultiPhase *mphase, 
+			   vector_int & orderVectorSpecies,
+			   vector_int & orderVectorElements) {
+ 
+  int  j, k, l, i, jl, ml, jr, ielem, jj, kk;
+ 
+  bool lindep = false;
+  int nelements = mphase->nElements();
+  std::string ename;
+  /*
+   * Get the total number of species in the multiphase object
+   */
+  int nspecies = mphase->nSpecies();
+
+  double test = -1.0E10;
+#ifdef DEBUG_HKM
+  if (debug_print_lvl > 0) {
+    printf("   "); for(i=0; i<77; i++) printf("-"); printf("\n");
+    printf("   --- Subroutine ElemRearrange() called to ");
+    printf("check stoich. coefficent matrix\n");
+    printf("   ---    and to rearrange the element ordering once\n");
+  }
+#endif
+
+  /*
+   * Perhaps, initialize the element ordering
+   */
+  if ((int) orderVectorElements.size() < nelements) {
+    orderVectorElements.resize(nelements);
+    for (j = 0; j < nelements; j++) {
+      orderVectorElements[j] = j;
+    }
+  }
+
+  /*
+   * Perhaps, initialize the species ordering. However, this is 
+   * dangerous, as this ordering is assumed to yield the
+   * component species for the problem
+   */
+  if ((int) orderVectorSpecies.size() != nspecies) {
+    orderVectorSpecies.resize(nspecies);
+    for (k = 0; k < nspecies; k++) {
+      orderVectorSpecies[k] = k;
+    }
+  }
+
+  /*
+   * If the elementAbundances aren't input, just create a fake one
+   * based on summing the column of the stoich matrix.
+   * This will force elements with zero species to the
+   * end of the element ordering.
+   */
+  vector_fp eAbund(nelements,0.0);
+  if ((int) elementAbundances.size() != nelements) {
+    for (j = 0; j < nelements; j++) {
+      eAbund[j] = 0.0;
+      for (k = 0; k < nspecies; k++) {
+	eAbund[j] += fabs(mphase->nAtoms(k, j));
+      }
+    }
+  } else {
+    copy(elementAbundances.begin(), elementAbundances.end(), 
+	 eAbund.begin());
+  }
+
+  vector_fp sa(nelements,0.0);
+  vector_fp ss(nelements,0.0);
+  vector_fp sm(nelements*nelements,0.0);
+   
+  /*
+   *        Top of a loop of some sort based on the index JR. JR is the 
+   *       current number independent elements found. 
+   */
+  jr = -1;
+  do {
+    ++jr;
+    /* 
+     *     Top of another loop point based on finding a linearly 
+     *     independent element
+     */
+    do {
+      /*
+       *    Search the element vector. We first locate elements that
+       *    are present in any amount. Then, we locate elements that
+       *    are not present in any amount.
+       *    Return its identity in K. 
+       */
+      k = nelements;
+      for (ielem = jr; ielem < nelements; ielem++) {
+	kk = orderVectorElements[ielem];
+	if (eAbund[kk] != test && eAbund[kk] > 0.0) {
+	  k = ielem;
+	  break;
+	}
+      }
+      for (ielem = jr; ielem < nelements; ielem++) {
+	kk = orderVectorElements[ielem];
+	if (eAbund[kk] != test) {
+	  k = ielem;
+	  break;
+	}
+      }
+
+      if (k == nelements) {
+	// When we are here, there is an error usually.
+	// We haven't found the number of elements necessary.
+	// This is signalled by returning jr != nComponents.
+#ifdef DEBUG_HKM
+      if (debug_print_lvl > 0) {
+	printf("Error exit: returning with nComponents = %d\n", jr);
+      }
+#endif
+	return jr;
+      }
+	 
+      /*
+       *  Assign a large negative number to the element that we have
+       *  just found, in order to take it out of further consideration.
+       */
+      eAbund[kk] = test;
+	 
+      /* *********************************************************** */
+      /* **** CHECK LINEAR INDEPENDENCE OF CURRENT FORMULA MATRIX    */
+      /* **** LINE WITH PREVIOUS LINES OF THE FORMULA MATRIX  ****** */
+      /* *********************************************************** */
+      /*    
+       *          Modified Gram-Schmidt Method, p. 202 Dalquist 
+       *          QR factorization of a matrix without row pivoting. 
+       */
+      jl = jr;
+      /*
+       *   Fill in the row for the current element, k, under consideration
+       *   The row will contain the Formula matrix value for that element
+       *   with respect to the vector of component species.
+       *   (note j and k indecises are flipped compared to the previous routine)
+       */
+      for (j = 0; j < nComponents; ++j) {
+	jj = orderVectorSpecies[j];
+	kk = orderVectorElements[k];
+	sm[j + jr*nComponents] = mphase->nAtoms(jj,kk);
+      } 
+      if (jl > 0) {
+	/*
+	 *         Compute the coefficients of JA column of the 
+	 *         the upper triangular R matrix, SS(J) = R_J_JR 
+	 *         (this is slightly different than Dalquist) 
+	 *         R_JA_JA = 1 
+	 */
+	for (j = 0; j < jl; ++j) {
+	  ss[j] = 0.0;
+	  for (i = 0; i < nComponents; ++i) {
+	    ss[j] += sm[i + jr*nComponents] * sm[i + j*nComponents];
+	  }
+	  ss[j] /= sa[j];
+	}
+	/* 
+	 *     Now make the new column, (*,JR), orthogonal to the 
+	 *     previous columns
+	 */
+	for (j = 0; j < jl; ++j) {
+	  for (l = 0; l < nComponents; ++l) {
+	    sm[l + jr*nComponents] -= ss[j] * sm[l + j*nComponents];
+	  }
+	}
+      }
+	 
+      /*
+       *        Find the new length of the new column in Q. 
+       *        It will be used in the denominator in future row calcs. 
+       */
+      sa[jr] = 0.0;
+      for (ml = 0; ml < nComponents; ++ml) {
+	double tmp = sm[ml + jr*nComponents];
+	sa[jr] += tmp * tmp;
+      }
+      /* **************************************************** */
+      /* **** IF NORM OF NEW ROW  .LT. 1E-6 REJECT ********** */
+      /* **************************************************** */
+      if (sa[jr] < 1.0e-6)  lindep = true;
+      else                  lindep = false;
+    } while(lindep);
+    /* ****************************************** */
+    /* **** REARRANGE THE DATA ****************** */
+    /* ****************************************** */
+    if (jr != k) {
+#ifdef DEBUG_HKM
+      if (debug_print_lvl > 0) {
+	kk = orderVectorElements[k];
+	ename = mphase->elementName(kk);
+	printf("   ---   "); printf("%-2.2s", ename.c_str());
+	printf("replaces ");
+	kk = orderVectorElements[jr];
+	ename = mphase->elementName(kk);
+	printf("%-2.2s", ename.c_str());
+	printf(" as element %3d\n", jr);
+      }
+#endif
+      switch_pos(orderVectorElements, jr, k);
+    }
+  
+    /*
+     *      If we haven't found enough components, go back 
+     *      and find some more. (nc -1 is used below, because
+     *      jr is counted from 0, via the C convention.
+     */
+  } while (jr < (nComponents-1));
+  return nComponents;
+} /* vcs_elem_rearrange() ****************************************************/

@@ -88,6 +88,7 @@ namespace Cantera {
     m_p0 = s.refPressure(); 
     m_kk = m_phase->nSpecies();
     m_mm = m_phase->nElements();
+    m_nComponents = m_mm;
     if (m_kk < m_mm) {
       throw CanteraError("ChemEquil::initialize",
 			 "number of species cannot be less than the number of elements.");
@@ -105,9 +106,18 @@ namespace Cantera {
     m_mu_RT.resize(m_kk);
     m_muSS_RT.resize(m_kk);
     m_component.resize(m_mm,-2);
+    m_orderVectorElements.resize(m_mm);
+    int m, k;
+    for (m = 0; m < m_mm; m++) {
+      m_orderVectorElements[m] = m;
+    }
+    m_orderVectorSpecies.resize(m_kk);
+    for (k = 0; k < m_kk; k++) {
+      m_orderVectorSpecies[k] = k;
+    }
 
     // set up elemental composition matrix
-    int m, k, mneg = -1;
+    int mneg = -1;
     doublereal na, ewt;
     for (m = 0; m < m_mm; m++) {
       for (k = 0; k < m_kk; k++) {
@@ -238,7 +248,7 @@ namespace Cantera {
       /*
        * Update the current values of the temp, density, and
        * mole fraction, and element abundance vectors kept
-       * within tine ChemEquil object.
+       * within the ChemEquil object.
        */
       update(s);
       delete e;
@@ -285,8 +295,28 @@ namespace Cantera {
       }
     }
     s.setMoleFractions(DATA_PTR(xMF_est));
-	
+    s.getMoleFractions(DATA_PTR(xMF_est));
 
+      MultiPhase *mp = new MultiPhase;
+      mp->addPhase(&s, 1.0);
+      mp->init();
+      int usedZeroedSpecies = 0;
+      vector_fp formRxnMatrix;
+      m_nComponents = BasisOptimize(&usedZeroedSpecies, false,
+				      mp, m_orderVectorSpecies,
+				      m_orderVectorElements, formRxnMatrix);
+
+      for (m = 0; m < m_nComponents; m++) {
+	int k = m_orderVectorSpecies[m];
+	m_component[m] = k;
+	if (xMF_est[k] < 1.0E-8) {
+	  xMF_est[k] = 1.0E-8;
+	}
+      }
+      s.setMoleFractions(DATA_PTR(xMF_est));
+      s.getMoleFractions(DATA_PTR(xMF_est));
+
+      delete mp;
 
     s.getChemPotentials(DATA_PTR(mu_RT));
     doublereal rrt = 1.0/(GasConstant*m_phase->temperature());
@@ -305,7 +335,6 @@ namespace Cantera {
       printf("Temperature = %g\n", temp);
       printf("  id       Name     MF     mu/RT \n");
 
-      s.getMoleFractions(DATA_PTR(xMF_est));
 
       for (n = 0; n < s.nSpecies(); n++) {
 	string nnn = s.speciesName(n);
@@ -341,15 +370,23 @@ namespace Cantera {
 
 #ifdef DEBUG_HKM_EPEQUIL
     if (debug_prnt_lvl > 0) {
+      printf(" id      CompSpecies      ChemPot       EstChemPot       Diff\n");
       for (m = 0; m < m_mm; m++) {
 	int isp = m_component[m];
 	double tmp = 0.0;
+	string sname = s.speciesName(isp);
 	for (n = 0; n < m_mm; n++) {
 	  tmp += nAtoms(isp, n) * lambda[n];
 	}
-	printf("%3d   %10.5g   %10.5g   %10.5g\n",
-	       m, mu_RT[isp], tmp, tmp - mu_RT[isp]);
+	printf("%3d %16s  %10.5g   %10.5g   %10.5g\n",
+	       m, sname.c_str(),  mu_RT[isp], tmp, tmp - mu_RT[isp]);
 
+      }
+
+      printf(" id    ElName  Lambda\n");
+      for (m = 0; m < m_mm; m++) {
+	string ename = s.elementName(m);
+	printf(" %3d  %6s  %10.5g\n", m, ename.c_str(), lambda[m]);
       }
     }
 #endif
@@ -1199,7 +1236,7 @@ namespace Cantera {
       for (k = 0; k < m_kk; k++) {
 	string nnn = s.speciesName(k);
 	printf("%15s  %13.5g  %13.5g %13.5g\n",
-	       nnn.c_str(), n_i[k], muSS_RT[k], actCoeff[k]);
+	       nnn.c_str(), n_i[k], m_muSS_RT[k], actCoeff[k]);
       }
       printf("Initial n_t = %10.5g\n", n_t);
       printf("Comparison of Goal Element Abundance with Initial Guess:\n");
@@ -1221,7 +1258,7 @@ namespace Cantera {
      * -------------------------------------------------------------------
      * Main Loop.
      */
-    for (int iter = 0; iter < 2* options.maxIterations; iter++) {
+    for (int iter = 0; iter < 20* options.maxIterations; iter++) {
       /*
        * Save the old solution
        */
@@ -1343,7 +1380,7 @@ namespace Cantera {
 	lumpSum[m] = 1;
       }
 
-      nCutoff = 1.0E-4 * n_t_calc;
+      nCutoff = 1.0E-9 * n_t_calc;
 #ifdef DEBUG_HKM_EPEQUIL
       if (debug_prnt_lvl > 0) {
         printf(" Lump Sum Elements Calculation: \n");
@@ -1520,7 +1557,7 @@ namespace Cantera {
 	for (int im = 0; im < m; im++) {
 	  bool theSame = true;
 	  for (n = 0; n < m_mm; n++) {
-	    if (fabs(a1(m,n) - a1(im,n)) > 1.0E-3) {
+	    if (fabs(a1(m,n) - a1(im,n)) > 1.0E-7) {
 	      theSame = false;
 	      break;
 	    }
