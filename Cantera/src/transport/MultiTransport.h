@@ -44,7 +44,7 @@ namespace Cantera {
      * zero.
      * @ingroup transportProps
      */
-    class L_Matrix : public DenseMatrix { 
+    class L_Matrix : public DenseMatrix {
     public:
         L_Matrix() {}
         virtual ~L_Matrix(){}
@@ -79,17 +79,17 @@ namespace Cantera {
         virtual ~MultiTransport() {}
 
         // overloaded base class methods
-        virtual int model() { 
-            if (m_mode == CK_Mode) 
+        virtual int model() {
+            if (m_mode == CK_Mode)
                 return CK_Multicomponent;
-            else 
+            else
                 return cMulticomponent;
         }
 
         virtual doublereal viscosity();
 
         virtual void getSpeciesViscosities(doublereal* visc)
-            { updateViscosity_T(); copy(m_visc.begin(), m_visc.end(), visc); }
+            { updateViscosity_T(); std::copy(m_visc.begin(), m_visc.end(), visc); }
 
         virtual void getThermalDiffCoeffs(doublereal* dt);
         virtual doublereal thermalConductivity();
@@ -99,20 +99,20 @@ namespace Cantera {
 
         /// Although this class implements a multicomponent diffusion
         /// model, it is convenient to be able to compute
-        /// mixture-averaged diffusion coefficients too. 
+        /// mixture-averaged diffusion coefficients too.
         virtual void getMixDiffCoeffs(doublereal* d);
 
 
-        virtual void getSpeciesFluxes(int ndim, 
-        doublereal* grad_T, int ldx, const doublereal* grad_X, 
+        virtual void getSpeciesFluxes(int ndim,
+        doublereal* grad_T, int ldx, const doublereal* grad_X,
             int ldf, doublereal* fluxes);
 
         virtual void getMolarFluxes(const doublereal* state1,
-            const doublereal* state2, doublereal delta, 
+            const doublereal* state2, doublereal delta,
             doublereal* fluxes);
 
         virtual void getMassFluxes(const doublereal* state1,
-            const doublereal* state2, doublereal delta, 
+            const doublereal* state2, doublereal delta,
             doublereal* fluxes);
 
         virtual void setSolutionMethod(int method) {
@@ -282,9 +282,3 @@ namespace Cantera {
     };
 }
 #endif
-
-
-
-
-
-
