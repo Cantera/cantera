@@ -200,7 +200,7 @@ namespace Cantera {
          * values.
          */
 	doublereal mean_X(const doublereal* Q) const {
-            return m_mmw*inner_product(m_ym.begin(), m_ym.end(), Q, 0.0);
+            return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q, 0.0);
         }
 
 	/**
