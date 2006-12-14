@@ -61,22 +61,22 @@ namespace Cantera {
 
         void getEnthalpy_RT(doublereal* hrt) const {
             const array_fp& _h = enthalpy_RT();
-            copy(_h.begin(), _h.end(), hrt);
+            std::copy(_h.begin(), _h.end(), hrt);
         }
 
         void getEntropy_R(doublereal* sr) const {
             const array_fp& _s = entropy_R();
-            copy(_s.begin(), _s.end(), sr);
+            std::copy(_s.begin(), _s.end(), sr);
         }
 
         virtual void getGibbs_RT(doublereal* grt) const {
             const array_fp& gibbsrt = gibbs_RT();
-            copy(gibbsrt.begin(), gibbsrt.end(), grt);
+            std::copy(gibbsrt.begin(), gibbsrt.end(), grt);
         }
 
         void getCp_R(doublereal* cpr) const {
             const array_fp& _cpr = cp_R();
-            copy(_cpr.begin(), _cpr.end(), cpr);
+            std::copy(_cpr.begin(), _cpr.end(), cpr);
         }
 
 
@@ -95,7 +95,7 @@ namespace Cantera {
         const array_fp& expGibbs_RT() const {
             _updateThermo();
             int k;
-            for (k = 0; k != m_kk; k++) m_expg0_RT[k] = exp(m_g0_RT[k]);
+            for (k = 0; k != m_kk; k++) m_expg0_RT[k] = std::exp(m_g0_RT[k]);
             return m_expg0_RT;
         }
 

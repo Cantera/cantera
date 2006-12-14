@@ -1,5 +1,5 @@
 /**
- *  @file BandMatrix.h 
+ *  @file BandMatrix.h
  *
  *  Banded matrices.
  */
@@ -21,10 +21,10 @@
 #include "utilities.h"
 #include "ctexceptions.h"
 
-namespace Cantera { 
+namespace Cantera {
 
     /**
-     *  A class for banded matrices. 
+     *  A class for banded matrices.
      */
     class BandMatrix {
 
@@ -35,7 +35,7 @@ namespace Cantera {
 
         /// copy constructor
         BandMatrix(const BandMatrix& y);
-        
+
         /// Destructor. Does nothing.
         virtual ~BandMatrix(){}
 
@@ -45,7 +45,7 @@ namespace Cantera {
         void resize(int n, int kl, int ku, doublereal v = 0.0);
 
         void bfill(doublereal v) {
-            fill(data.begin(), data.end(), v);
+          std::fill(data.begin(), data.end(), v);
             m_factored = false;
         }
 
@@ -57,8 +57,8 @@ namespace Cantera {
             return value(i,j);
         }
 
-        /// Return a reference to element (i,j). Since this method may 
-        /// alter the element value, it may need to be refactored, so 
+        /// Return a reference to element (i,j). Since this method may
+        /// alter the element value, it may need to be refactored, so
         /// the flag m_factored is set to false.
         doublereal& value( int i, int j) {
             m_factored = false;
@@ -76,17 +76,17 @@ namespace Cantera {
             return data[index(i,j)];
         }
 
-        /// Return the location in the internal 1D array corresponding to 
+        /// Return the location in the internal 1D array corresponding to
         /// the (i,j) element in the banded array.
         int index(int i, int j) const {
             int rw = m_kl + m_ku + i - j;
             return (2*m_kl + m_ku + 1)*j + rw;
         }
-            
-        /// Return the value of the (i,j) element for (i,j) within the 
+
+        /// Return the value of the (i,j) element for (i,j) within the
         /// bandwidth. For efficiency, this method does not check that
         /// (i,j) are within the bandwidth; it is up to the calling
-        /// program to insure that this is true. 
+        /// program to insure that this is true.
         doublereal _value(int i, int j) const {
             return data[index(i,j)];
         }
@@ -109,7 +109,7 @@ namespace Cantera {
 
         int ldim() const { return 2*m_kl + m_ku + 1; }
         vector_int& ipiv() { return m_ipiv; }
-        
+
         /// Multiply A*b and write result to prod.
         void mult(const double* b, double* prod) const;
 
@@ -122,14 +122,14 @@ namespace Cantera {
 
         int solve(int n, const doublereal* b, doublereal* x);
         int solve(int n, doublereal* b);
-            
-        vector_fp::iterator begin() { 
+
+        vector_fp::iterator begin() {
             m_factored = false;
-            return data.begin(); 
+            return data.begin();
         }
-        vector_fp::iterator end() { 
+        vector_fp::iterator end() {
             m_factored = false;
-            return data.end(); 
+            return data.end();
         }
         vector_fp::const_iterator begin() const { return data.begin(); }
         vector_fp::const_iterator end() const { return data.end(); }
@@ -151,6 +151,3 @@ namespace Cantera {
 }
 
 #endif
-
-
-
