@@ -21,7 +21,7 @@ DEPENDS = $(COBJS:.o=.d)
 all:  $(TPLIB)
 
 %.d:
-	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
+	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
 	@CXX@ -c $< @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES)
