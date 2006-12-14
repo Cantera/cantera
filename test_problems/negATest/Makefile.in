@@ -68,7 +68,7 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
 
 # How to compile the dependency file
 .cpp.d:
-	g++ -MM -I$(CANTERA_INCDIR) $(CXX_FLAGS) $*.cpp > $*.d
+	@CXX_DEPENDS@ -I$(CANTERA_INCDIR) $(CXX_FLAGS) $*.cpp > $*.d
 
 # List of dependency files to be created
 DEPENDS=$(OBJS:.o=.d)
