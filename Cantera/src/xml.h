@@ -79,10 +79,10 @@ namespace Cantera {
         void setLineNumber(int n) {m_linenum = n;}
         int lineNumber() const {return m_linenum;}
         doublereal fp_value() const { 
-            return atof(m_value.c_str()); 
+            return std::atof(m_value.c_str()); 
         }
         integer int_value() const { 
-            return atoi(m_value.c_str()); 
+            return std::atoi(m_value.c_str()); 
         }
         std::string operator()() const { return m_value; }
         std::string operator()(std::string loc) const { return value(loc); }

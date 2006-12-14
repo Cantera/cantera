@@ -47,7 +47,7 @@ namespace Cantera {
 	    m_logp_ref(0.0),
 	    m_logc_ref(0.0),
 	    m_logStandConc(0.0),
-            m_ROP_ok(false), 
+            m_ROP_ok(false),
             m_temp(0.0)
             {}
         virtual ~GasKineticsData(){}
@@ -107,9 +107,9 @@ namespace Cantera {
          * must be dimensioned at least as large as the total number
          * of reactions.
          */
-        virtual void getFwdRatesOfProgress(doublereal* fwdROP) { 
-            updateROP(); 
-            copy(m_kdata->m_ropf.begin(), m_kdata->m_ropf.end(), fwdROP);
+        virtual void getFwdRatesOfProgress(doublereal* fwdROP) {
+            updateROP();
+            std::copy(m_kdata->m_ropf.begin(), m_kdata->m_ropf.end(), fwdROP);
         }
         /**
          * Reverse rates of progress.
@@ -117,9 +117,9 @@ namespace Cantera {
          * must be dimensioned at least as large as the total number
          * of reactions.
          */
-        virtual void getRevRatesOfProgress(doublereal* revROP) { 
-            updateROP(); 
-            copy(m_kdata->m_ropr.begin(), m_kdata->m_ropr.end(), revROP);
+        virtual void getRevRatesOfProgress(doublereal* revROP) {
+            updateROP();
+            std::copy(m_kdata->m_ropr.begin(), m_kdata->m_ropr.end(), revROP);
         }
         /**
          * Net rates of progress.  Return the net (forward - reverse)
@@ -127,9 +127,9 @@ namespace Cantera {
          * dimensioned at least as large as the total number of
          * reactions.
          */
-        virtual void getNetRatesOfProgress(doublereal* netROP) { 
-            updateROP(); 
-            copy(m_kdata->m_ropnet.begin(), m_kdata->m_ropnet.end(), netROP);
+        virtual void getNetRatesOfProgress(doublereal* netROP) {
+            updateROP();
+            std::copy(m_kdata->m_ropnet.begin(), m_kdata->m_ropnet.end(), netROP);
         }
 
 
@@ -138,7 +138,7 @@ namespace Cantera {
          * the reactions in concentration units in array kc, which
          * must be dimensioned at least as large as the total number
          * of reactions.
-         */  
+         */
 	virtual void getEquilibriumConstants(doublereal* kc);
 
 	/**
@@ -172,7 +172,7 @@ namespace Cantera {
 	virtual void getDeltaEntropy(doublereal* deltaS);
 
 	/**
-	 * Return the vector of values for the reaction 
+	 * Return the vector of values for the reaction
 	 * standard state gibbs free energy change.
 	 * These values don't depend upon the concentration
 	 * of the solution.
@@ -212,40 +212,40 @@ namespace Cantera {
          * net production rates (creation - destruction) in array
          * wdot, which must be dimensioned at least as large as the
          * total number of species.
-         */ 
+         */
         virtual void getNetProductionRates(doublereal* net) {
             updateROP();
 #ifdef HWMECH
             get_wdot(&m_kdata->m_ropnet[0], net);
 #else
-            m_rxnstoich->getNetProductionRates(m_kk, &m_kdata->m_ropnet[0], net); 
+            m_rxnstoich->getNetProductionRates(m_kk, &m_kdata->m_ropnet[0], net);
 #endif
         }
 
 	/**
-         * Species creation rates [kmol/m^3]. Return the species 
+         * Species creation rates [kmol/m^3]. Return the species
          * creation rates in array cdot, which must be
          * dimensioned at least as large as the total number of
          * species.
-         *  
-         */ 
+         *
+         */
         virtual void getCreationRates(doublereal* cdot) {
             updateROP();
-            m_rxnstoich->getCreationRates(m_kk, &m_kdata->m_ropf[0], 
-                &m_kdata->m_ropr[0], cdot); 
+            m_rxnstoich->getCreationRates(m_kk, &m_kdata->m_ropf[0],
+                &m_kdata->m_ropr[0], cdot);
         }
 
 	/**
-         * Species destruction rates [kmol/m^3]. Return the species 
+         * Species destruction rates [kmol/m^3]. Return the species
          * destruction rates in array ddot, which must be
          * dimensioned at least as large as the total number of
          * species.
-         *  
-         */ 
+         *
+         */
         virtual void getDestructionRates(doublereal* ddot) {
             updateROP();
-            m_rxnstoich->getDestructionRates(m_kk, &m_kdata->m_ropf[0], 
-                &m_kdata->m_ropr[0], ddot); 
+            m_rxnstoich->getDestructionRates(m_kk, &m_kdata->m_ropf[0],
+                &m_kdata->m_ropr[0], ddot);
             //            fill(ddot, ddot + m_kk, 0.0);
             //m_revProductStoich.incrementSpecies(
             //    m_kdata->m_ropr.begin(), ddot);
@@ -278,7 +278,7 @@ namespace Cantera {
          * for reaction i is always zero.
          */
         virtual bool isReversible(int i) {
-            if (find(m_revindex.begin(), m_revindex.end(), i) 
+          if (std::find(m_revindex.begin(), m_revindex.end(), i)
                 < m_revindex.end()) return true;
             else return false;
         }
@@ -299,7 +299,7 @@ namespace Cantera {
 	 * for irreversible reactions if the default for
 	 * doIrreversible is overridden.
 	 */
-	virtual void getRevRateConstants(doublereal *krev, 
+	virtual void getRevRateConstants(doublereal *krev,
 					 bool doIrreversible = false);
 
         //@}
@@ -319,7 +319,7 @@ namespace Cantera {
 
         virtual void init();
 
-        ///  Add a reaction to the mechanism. 
+        ///  Add a reaction to the mechanism.
         void addReaction(const ReactionData& r);
 
         virtual void finalize();
@@ -350,16 +350,16 @@ namespace Cantera {
         doublereal                          m_dt_threshold;
 
         Rate1<Arrhenius>                    m_falloff_low_rates;
-        Rate1<Arrhenius>                    m_falloff_high_rates;        
-        Rate1<Arrhenius>                    m_rates;        
-        
+        Rate1<Arrhenius>                    m_falloff_high_rates;
+        Rate1<Arrhenius>                    m_rates;
+
         mutable std::map<int, std::pair<int, int> >   m_index;
-        
+
         FalloffMgr                          m_falloffn;
-        
+
         ThirdBodyMgr<Enhanced3BConc>        m_3b_concm;
         ThirdBodyMgr<Enhanced3BConc>        m_falloff_concm;
-        
+
         std::vector<int> m_irrev;
 
         ReactionStoichMgr*                   m_rxnstoich;
@@ -403,8 +403,8 @@ namespace Cantera {
         void addElementaryReaction(const ReactionData& r);
         void addThreeBodyReaction(const ReactionData& r);
         void addFalloffReaction(const ReactionData& r);
-        
-        void installReagents(const ReactionData& r); 
+
+        void installReagents(const ReactionData& r);
 
         void installGroups(int irxn, const std::vector<grouplist_t>& r,
             const std::vector<grouplist_t>& p);

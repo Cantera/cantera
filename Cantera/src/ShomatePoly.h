@@ -49,7 +49,7 @@ namespace Cantera {
             m_Pref      (pref),
             m_index     (n) {
             m_coeff.resize(7);
-            copy(coeffs, coeffs + 7, m_coeff.begin());
+            std::copy(coeffs, coeffs + 7, m_coeff.begin());
         }
 
 	ShomatePoly(const ShomatePoly& b) :
@@ -58,7 +58,7 @@ namespace Cantera {
             m_Pref      (b.m_Pref),
             m_coeff     (array_fp(7)),
 	    m_index     (b.m_index) {
-            copy(b.m_coeff.begin(),
+            std::copy(b.m_coeff.begin(),
 		 b.m_coeff.begin() + 7,
 		 m_coeff.begin());
 	}
@@ -69,7 +69,7 @@ namespace Cantera {
 	      m_highT  = b.m_highT;
 	      m_Pref   = b.m_Pref;
 	      m_index  = b.m_index;
-	      copy(b.m_coeff.begin(),
+	      std::copy(b.m_coeff.begin(),
 		   b.m_coeff.begin() + 7,
 		   m_coeff.begin());
 	    }
@@ -148,7 +148,7 @@ namespace Cantera {
 	    tPoly[1] = tt * tt;
 	    tPoly[2] = tPoly[1] * tt;
 	    tPoly[3] = 1.0/tPoly[1];
-	    tPoly[4] = log(tt);
+	    tPoly[4] = std::log(tt);
 	    tPoly[5] = 1.0/GasConstant;
 	    tPoly[6] = 1.0/(GasConstant * temp);
 	    updateProperties(tPoly, cp_R, h_RT, s_R);
@@ -204,7 +204,7 @@ namespace Cantera {
 	    msp_high(0),
             m_index     (n)  {
             m_coeff.resize(15);
-            copy(coeffs, coeffs + 15, m_coeff.begin());
+            std::copy(coeffs, coeffs + 15, m_coeff.begin());
 	    m_midT = coeffs[0];
 	    msp_low  = new ShomatePoly(n, tlow, m_midT, pref, coeffs+1);
 	    msp_high = new ShomatePoly(n, m_midT, thigh, pref, coeffs+8);
@@ -219,7 +219,7 @@ namespace Cantera {
 	    msp_high(0),
             m_coeff     (array_fp(15)),
 	    m_index     (b.m_index) {
-            copy(b.m_coeff.begin(),
+            std::copy(b.m_coeff.begin(),
 		 b.m_coeff.begin() + 15,
 		 m_coeff.begin());
 	    msp_low  = new ShomatePoly(m_index, m_lowT, m_midT, 
@@ -235,7 +235,7 @@ namespace Cantera {
 	      m_highT  = b.m_highT;
 	      m_Pref   = b.m_Pref;
 	      m_index  = b.m_index;
-	      copy(b.m_coeff.begin(),
+	      std::copy(b.m_coeff.begin(),
 		   b.m_coeff.begin() + 15,
 		   m_coeff.begin());
 	      if (msp_low) delete msp_low;
@@ -274,7 +274,7 @@ namespace Cantera {
 	 *  m_t[1] = tt*tt;
 	 *  m_t[2] = m_t[1]*tt;
 	 *  m_t[3] = 1.0/m_t[1];
-	 *  m_t[4] = log(tt);
+	 *  m_t[4] = std::log(tt);
 	 *  m_t[5] = 1.0/GasConstant;
 	 *  m_t[6] = 1.0/(GasConstant * T);
          */

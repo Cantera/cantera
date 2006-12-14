@@ -36,12 +36,12 @@ namespace Cantera {
 
 
     /**
-     * Holds mechanism-specific data. 
+     * Holds mechanism-specific data.
      */
     class InterfaceKineticsData {
     public:
         InterfaceKineticsData() :
-            m_ROP_ok(false), 
+            m_ROP_ok(false),
             m_temp(0.0), m_logtemp(0.0)
             {}
         virtual ~InterfaceKineticsData(){}
@@ -67,7 +67,7 @@ namespace Cantera {
     public:
 
         /**
-	 * Constructor 
+	 * Constructor
 	 *
 	 * @param thermo The optional parameter may be used to initialize
 	 *               the object with one ThermoPhase object.
@@ -88,22 +88,22 @@ namespace Cantera {
         ///
         ///  @name Reaction Rates Of Progress
         ///
-        //@{ 
+        //@{
 
 
-        virtual void getFwdRatesOfProgress(doublereal* fwdROP) { 
-            updateROP(); 
-            copy(m_kdata->m_ropf.begin(), m_kdata->m_ropf.end(), fwdROP);
+        virtual void getFwdRatesOfProgress(doublereal* fwdROP) {
+            updateROP();
+            std::copy(m_kdata->m_ropf.begin(), m_kdata->m_ropf.end(), fwdROP);
         }
 
-        virtual void getRevRatesOfProgress(doublereal* revROP) { 
-            updateROP(); 
-            copy(m_kdata->m_ropr.begin(), m_kdata->m_ropr.end(), revROP);
+        virtual void getRevRatesOfProgress(doublereal* revROP) {
+            updateROP();
+            std::copy(m_kdata->m_ropr.begin(), m_kdata->m_ropr.end(), revROP);
         }
 
-        virtual void getNetRatesOfProgress(doublereal* netROP) { 
-            updateROP(); 
-            copy(m_kdata->m_ropnet.begin(), m_kdata->m_ropnet.end(), netROP);
+        virtual void getNetRatesOfProgress(doublereal* netROP) {
+            updateROP();
+            std::copy(m_kdata->m_ropnet.begin(), m_kdata->m_ropnet.end(), netROP);
         }
 
 	virtual void getEquilibriumConstants(doublereal* kc);
@@ -132,7 +132,7 @@ namespace Cantera {
 	virtual void getDeltaEntropy(doublereal* deltaS);
 
 	/**
-	 * Return the vector of values for the reaction 
+	 * Return the vector of values for the reaction
 	 * standard state gibbs free energy change.
 	 * These values don't depend upon the concentration
 	 * of the solution.
@@ -169,31 +169,31 @@ namespace Cantera {
         //@{
 
         /**
-         * Species creation rates [kmol/m^2/s]. Return the species 
+         * Species creation rates [kmol/m^2/s]. Return the species
          * creation rates in array cdot, which must be
          * dimensioned at least as large as the total number of
          * species in all phases of the kinetics
 	 * model
-         *  
-         */ 
+         *
+         */
         virtual void getCreationRates(doublereal* cdot) {
             updateROP();
-            m_rxnstoich.getCreationRates(m_kk, &m_kdata->m_ropf[0], 
-                &m_kdata->m_ropr[0], cdot); 
+            m_rxnstoich.getCreationRates(m_kk, &m_kdata->m_ropf[0],
+                &m_kdata->m_ropr[0], cdot);
         }
 
         /**
-         * Species destruction rates [kmol/m^2/s]. Return the species 
+         * Species destruction rates [kmol/m^2/s]. Return the species
          * destruction rates in array ddot, which must be
          * dimensioned at least as large as the total number of
          * species in all phases of the kinetics
 	 * model
-         *  
-         */ 
+         *
+         */
         virtual void getDestructionRates(doublereal* ddot) {
             updateROP();
-            m_rxnstoich.getDestructionRates(m_kk, &m_kdata->m_ropf[0], 
-                &m_kdata->m_ropr[0], ddot); 
+            m_rxnstoich.getDestructionRates(m_kk, &m_kdata->m_ropf[0],
+                &m_kdata->m_ropr[0], ddot);
         }
 
 	/**
@@ -202,12 +202,12 @@ namespace Cantera {
          * wdot, which must be dimensioned at least as large as the
          * total number of species in all phases of the kinetics
 	 * model
-         */ 
+         */
         virtual void getNetProductionRates(doublereal* net) {
             updateROP();
-             m_rxnstoich.getNetProductionRates(m_kk, 
+             m_rxnstoich.getNetProductionRates(m_kk,
 					      &m_kdata->m_ropnet[0],
-					      net); 
+					      net);
         }
 
         //@}
@@ -218,7 +218,7 @@ namespace Cantera {
 
 	/**
 	 * Stoichiometric coefficient of species k as a reactant in
-         * reaction i.  
+         * reaction i.
 	 */
         virtual doublereal reactantStoichCoeff(int k, int i) const {
             return m_rrxn[k][i];
@@ -226,7 +226,7 @@ namespace Cantera {
 
         /**
          * Stoichiometric coefficient of species k as a product in
-         * reaction i.  
+         * reaction i.
          */
         virtual doublereal productStoichCoeff(int k, int i) const {
             return m_prxn[k][i];
@@ -247,7 +247,7 @@ namespace Cantera {
          * for reaction i is always zero.
          */
         virtual bool isReversible(int i) {
-            if (find(m_revindex.begin(), m_revindex.end(), i) 
+          if (std::find(m_revindex.begin(), m_revindex.end(), i)
                 < m_revindex.end()) return true;
             else return false;
         }
@@ -261,7 +261,7 @@ namespace Cantera {
 
 
         virtual void getFwdRateConstants(doublereal* kfwd);
-        virtual void getRevRateConstants(doublereal* krev, 
+        virtual void getRevRateConstants(doublereal* krev,
 					 bool doIrreversible = false);
 	virtual void getActivationEnergies(doublereal *E);
 
@@ -277,7 +277,7 @@ namespace Cantera {
 	 * any reactions are actually added to the mechanism.
 	 * This function calculates m_kk the number of species in all
 	 * phases participating in the reaction mechanism. We don't know
-	 * m_kk previously, before all phases have been added. 
+	 * m_kk previously, before all phases have been added.
          */
         virtual void init();
 
@@ -289,7 +289,7 @@ namespace Cantera {
         /**
 	 * Finish adding reactions and prepare for use. This function
 	 * must be called after all reactions are entered into the mechanism
-	 * and before the mechanism is used to calculate reaction rates. 
+	 * and before the mechanism is used to calculate reaction rates.
 	 */
         virtual void finalize();
         virtual bool ready() const;
@@ -320,7 +320,7 @@ namespace Cantera {
         int                                 m_kk;
         vector_int m_revindex;
 
-        Rate1<SurfaceArrhenius>                    m_rates;        
+        Rate1<SurfaceArrhenius>                    m_rates;
         bool                                m_redo_rates;
 
 	/**
@@ -348,7 +348,7 @@ namespace Cantera {
 	/**
 	 *  m_rrxn is a vector of maps. m_rrxn has a length
 	 *  equal to the total number of species in the kinetics
-	 *  object. For each species, there exists a map, with the 
+	 *  object. For each species, there exists a map, with the
 	 *  reaction number being the key, and the
 	 *  reactant stoichiometric coefficient being the value.
 	 *  HKM -> mutable because search sometimes creates extra
@@ -359,7 +359,7 @@ namespace Cantera {
 	/**
 	 *  m_rrxn is a vector of maps. m_rrxn has a length
 	 *  equal to the total number of species in the kinetics
-	 *  object. For each species, there exists a map, with the 
+	 *  object. For each species, there exists a map, with the
 	 *  reaction number being the key, and the
 	 *  product stoichiometric coefficient being the value.
 	 */

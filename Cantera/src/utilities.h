@@ -233,7 +233,7 @@ namespace Cantera {
     inline doublereal sum_xlogx(InputIter begin, InputIter end) {
 	doublereal sum = 0.0;
 	for (; begin != end; ++begin) {
-            sum += (*begin) * log(*begin + Tiny);
+            sum += (*begin) * std::log(*begin + Tiny);
 	}
 	return sum;
     }
@@ -247,7 +247,7 @@ namespace Cantera {
                InputIter2 Q_begin) {
 	doublereal sum = 0.0;
 	for (; begin != end; ++begin, ++Q_begin) {
-            sum += (*begin) * log(*Q_begin + Tiny);
+            sum += (*begin) * std::log(*Q_begin + Tiny);
 	}
 	return sum;
     }

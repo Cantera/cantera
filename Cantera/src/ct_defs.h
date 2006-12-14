@@ -50,7 +50,7 @@
 namespace Cantera {
 
     const doublereal Pi = 3.1415926;
-    const doublereal SqrtPi = sqrt(Pi);
+    const doublereal SqrtPi = std::sqrt(Pi);
 
     // use kg-moles, rather than g-moles.
     // Note: this constant is a relic of old versions,
@@ -111,8 +111,8 @@ namespace Cantera {
 
     const doublereal OneThird = 1.0/3.0;
     const doublereal FiveSixteenths = 5.0/16.0;
-    const doublereal SqrtTen = sqrt(10.0);
-    const doublereal SqrtEight = sqrt(8.0);
+    const doublereal SqrtTen = std::sqrt(10.0);
+    const doublereal SqrtEight = std::sqrt(8.0);
 
     const doublereal SmallNumber = 1.e-300;
     const doublereal BigNumber = 1.e300;
@@ -175,7 +175,7 @@ namespace Cantera {
 
     //    template<class A, class B>
     //inline doublereal operator*(const vector<A>& u, const vector<B>& v) {
-    //    return inner_product(u.begin(), u.end(), v.begin(), 0.0);
+    //    return std::inner_product(u.begin(), u.end(), v.begin(), 0.0);
     // }
 
 

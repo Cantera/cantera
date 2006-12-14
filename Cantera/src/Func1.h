@@ -32,7 +32,7 @@ namespace Cantera {
 
     /**
      * Base class for 'functor' classes that evaluate a function of
-     * one variable. 
+     * one variable.
      */
     class Func1 {
     public:
@@ -47,26 +47,26 @@ namespace Cantera {
 
 
     /**
-     * A Gaussian. 
+     * A Gaussian.
      * \f[
      * f(t) = A e^{-[(t - t_0)/\tau]^2}
      * \f]
      * where \f[ \tau = \frac{fwhm}{2\sqrt{\ln 2}} \f]
      * @param A peak value
      * @param t0 offset
-     * @param fwhm full width at half max  
+     * @param fwhm full width at half max
      */
     class Gaussian : public Func1 {
     public:
         Gaussian(double A, double t0, double fwhm) {
             m_A = A;
             m_t0 = t0;
-            m_tau = fwhm/(2.0*sqrt(log(2.0)));
+            m_tau = fwhm/(2.0*std::sqrt(std::log(2.0)));
         }
         virtual ~Gaussian() {}
         virtual doublereal eval(doublereal t) {
             doublereal x = (t - m_t0)/m_tau;
-            return m_A*exp(-x*x);
+            return m_A*std::exp(-x*x);
         }
     protected:
         doublereal m_A, m_t0, m_tau;
@@ -75,14 +75,14 @@ namespace Cantera {
 
 
     /**
-     * Polynomial of degree n.  
-     */    
+     * Polynomial of degree n.
+     */
     class Poly1 : public Func1 {
     public:
         Poly1(int n, doublereal* c) {
             m_n = n+1;
             m_c.resize(n+1);
-            copy(c, c+m_n, m_c.begin());
+            std::copy(c, c+m_n, m_c.begin());
         }
         virtual ~Poly1() {}
 
@@ -104,23 +104,23 @@ namespace Cantera {
 
     /**
      * Fourier cosine/sine series.
-     * 
+     *
      * \f[
-     * f(t) = \frac{A_0}{2} + 
+     * f(t) = \frac{A_0}{2} +
      * \sum_{n=1}^N A_n \cos (n \omega t) + B_n \sin (n \omega t)
      * \f]
      */
     class Fourier1 : public Func1 {
     public:
-        Fourier1(int n, doublereal omega, doublereal a0, 
+        Fourier1(int n, doublereal omega, doublereal a0,
             doublereal* a, doublereal* b) {
             m_n = n;
             m_omega = omega;
             m_a0_2 = 0.5*a0;
             m_ccos.resize(n);
             m_csin.resize(n);
-            copy(a, a+n, m_ccos.begin());
-            copy(b, b+n, m_csin.begin());
+            std::copy(a, a+n, m_ccos.begin());
+            std::copy(b, b+n, m_csin.begin());
         }
         virtual ~Fourier1() {}
 
@@ -129,8 +129,8 @@ namespace Cantera {
             doublereal sum = m_a0_2;
             for (n = 0; n < m_n; n++) {
                 nn = n + 1;
-                sum += m_ccos[n]*cos(m_omega*nn*t) 
-                       + m_csin[n]*sin(m_omega*nn*t);
+                sum += m_ccos[n]*std::cos(m_omega*nn*t)
+                       + m_csin[n]*std::sin(m_omega*nn*t);
             }
             return sum;
         }
@@ -169,7 +169,7 @@ namespace Cantera {
             int n;
             doublereal sum = 0.0;
             for (n = 0; n < m_n; n++) {
-                sum += m_A[n]*pow(t,m_b[n])*exp(-m_E[n]/t);
+                sum += m_A[n]*std::pow(t,m_b[n])*std::exp(-m_E[n]/t);
             }
             return sum;
         }
@@ -201,7 +201,7 @@ namespace Cantera {
 
     private:
     };
-            
+
 
     /**
      * Sum of two functions.
