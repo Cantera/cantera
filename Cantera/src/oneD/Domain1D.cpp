@@ -5,6 +5,8 @@
 
 #include "Domain1D.h"
 
+using namespace std;
+
 namespace Cantera {
 
     void Domain1D::

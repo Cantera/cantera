@@ -15,6 +15,8 @@
 #include "IdealGasPhase.h"
 #include "SpeciesThermo.h"
 
+using namespace std;
+
 namespace Cantera {
 
     // Molar Thermodynamic Properties of the Solution ----------
