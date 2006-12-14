@@ -100,7 +100,7 @@ namespace Cantera {
          */
         virtual doublereal entropy_mole() const {
             return GasConstant * (mean_X(&entropy_R_ref()[0]) -
-                sum_xlogx() - log(pressure()/m_spthermo->refPressure()));
+                sum_xlogx() - std::log(pressure()/m_spthermo->refPressure()));
         }
 
         /**
@@ -236,7 +236,7 @@ namespace Cantera {
          virtual doublereal logStandardConc(int k=0) const {
              _updateThermo();
 	     double p = pressure();
-	     double lc = log (p / (GasConstant * temperature()));
+	     double lc = std::log (p / (GasConstant * temperature()));
 	     return lc;
         }
 
@@ -397,7 +397,7 @@ namespace Cantera {
         const array_fp& expGibbs_RT_ref() const {
             _updateThermo();
             int k;
-            for (k = 0; k != m_kk; k++) m_expg0_RT[k] = exp(m_g0_RT[k]);
+            for (k = 0; k != m_kk; k++) m_expg0_RT[k] = std::exp(m_g0_RT[k]);
             return m_expg0_RT;
         }
 

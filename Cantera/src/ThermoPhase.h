@@ -761,7 +761,7 @@ namespace Cantera {
 
         bool getElementPotentials(doublereal* lambda) {
             if (m_hasElementPotentials) 
-                copy(m_lambda.begin(), m_lambda.end(), lambda);
+                std::copy(m_lambda.begin(), m_lambda.end(), lambda);
             return (m_hasElementPotentials);
         }
 
