@@ -48,7 +48,7 @@ namespace Cantera {
         Array2D(int m, int n, doublereal v = 0.0) 
             : m_nrows(m), m_ncols(n) {
             m_data.resize(n*m);
-            fill(m_data.begin(), m_data.end(), v);
+            std::fill(m_data.begin(), m_data.end(), v);
         }
 
         /// copy constructor
