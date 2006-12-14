@@ -37,18 +37,18 @@ namespace Cantera {
         /// phases are added using method addPhase.
         MultiPhase();
 
-        /// Destructor. Does nothing. Class MultiPhase does not take 
+        /// Destructor. Does nothing. Class MultiPhase does not take
         /// "ownership" (i.e. responsibility for destroying) the
-        /// phase objects.  
+        /// phase objects.
         virtual ~MultiPhase() {}
 
-        
+
         void addPhases(phase_list& phases, const vector_fp& phaseMoles);
 
         /// Add all phases present in 'mix' to this mixture.
         void addPhases(MultiPhase& mix);
 
-        /// Add a phase to the mixture. 
+        /// Add a phase to the mixture.
         /// @param p pointer to the phase object
         /// @param moles total number of moles of all species in this phase
         void addPhase(phase_t* p, doublereal moles);
@@ -61,27 +61,27 @@ namespace Cantera {
 
         /// Index of element with name \a name.
         int elementIndex(std::string name) const { return m_enamemap[name] - 1;}
-        
+
         /// Number of species, summed over all phases.
         int nSpecies() const { return int(m_nsp); }
 
-        /// Name of species with index \a k. 
+        /// Name of species with index \a k.
         std::string speciesName(int k) const { return m_snames[k]; }
 
         /// Number of atoms of element \a m in species \a k.
         doublereal nAtoms(int k, int m) {
             if (!m_init) init();
-            return m_atoms(m,k); 
+            return m_atoms(m,k);
         }
 
         /// Species mole fractions. Write the array of species mole
         /// fractions into array \c x. The mole fractions are
         /// normalized to sum to one in each phase.
         void getMoleFractions(doublereal* x) const {
-            copy(m_moleFractions.begin(), m_moleFractions.end(), x);
+          std::copy(m_moleFractions.begin(), m_moleFractions.end(), x);
         }
 
-        /// Process phases and build atomic composition array. After 
+        /// Process phases and build atomic composition array. After
         /// init() has been called, no more phases may be added.
         void init();
 
@@ -96,7 +96,7 @@ namespace Cantera {
         }
 
         /// Return a reference to phase n. The state of phase n is
-        /// also updated to match the state stored locally in the 
+        /// also updated to match the state stored locally in the
         /// mixture object.
         phase_t& phase(index_t n);
 
@@ -121,7 +121,7 @@ namespace Cantera {
         /// conditions for which they are stable.
         doublereal maxTemp() const { return m_Tmax; }
 
-        /// Total charge (Coulombs). 
+        /// Total charge (Coulombs).
         doublereal charge() const;
 
         /// Charge (Coulombs) of phase with index \a p.
@@ -159,7 +159,7 @@ namespace Cantera {
         /// problems holding fixed something other than (T,P).
         /// @param loglevel Level of diagnostic output, written to a
         /// file in HTML format.
-        doublereal equilibrate(int XY, doublereal err = 1.0e-9, 
+        doublereal equilibrate(int XY, doublereal err = 1.0e-9,
             int maxsteps = 1000, int maxiter = 200, int loglevel = -99);
 
 
@@ -239,9 +239,9 @@ namespace Cantera {
         /// state.  Note that if individual phases have T and P different
         /// than that stored locally, the phase T and P will be modified.
         void updatePhases() const;
-           
+
         /**
-         * Vector of the number of moles in each phase. 
+         * Vector of the number of moles in each phase.
          * Length = m_np, number of phases.
          */
         vector_fp m_moles;
@@ -252,7 +252,7 @@ namespace Cantera {
         std::vector<phase_t*> m_phase;
         array_t m_atoms;
       /**
-       * Locally storred vector of mole fractions of all species 
+       * Locally storred vector of mole fractions of all species
        * comprising the MultiPhase object.
        */
         vector_fp m_moleFractions;
@@ -271,7 +271,7 @@ namespace Cantera {
       /**
        * Number of distinct elements in all of the phases
        */
-        index_t m_nel; 
+        index_t m_nel;
       /**
        * Number of distinct species in all of the phases
        */
@@ -292,7 +292,7 @@ namespace Cantera {
                 s << "*************** Phase " << ip << " *****************" << std::endl;
             }
             s << "Moles: " << x.phaseMoles(ip) << std::endl;
-                
+
             s << report(x.phase(ip)) << std::endl;
         }
         return s;
@@ -301,11 +301,11 @@ namespace Cantera {
 
   int BasisOptimize( int *usedZeroedSpecies, bool doFormRxn,
 		     MultiPhase *mphase, vector_int & orderVectorSpecies,
-		     vector_int & orderVectorElements, 
+		     vector_int & orderVectorElements,
 		     vector_fp & formRxnMatrix);
-  
+
   int ElemRearrange(int nComponents,  const vector_fp & elementAbundances,
-		    MultiPhase *mphase, 
+		    MultiPhase *mphase,
 		    vector_int & orderVectorSpecies,
 		    vector_int & orderVectorElements);
 }
