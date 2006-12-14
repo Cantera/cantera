@@ -71,7 +71,7 @@ namespace Cantera {
             m_index(n),
             m_coeff(array_fp(15)) {
 
-            copy(coeffs, coeffs + 15, m_coeff.begin());
+            std::copy(coeffs, coeffs + 15, m_coeff.begin());
 	    m_midT = coeffs[0];
 	    mnp_low  = new NasaPoly1(m_index, m_lowT, m_midT,
 				     m_Pref, &m_coeff[1]);
@@ -89,7 +89,7 @@ namespace Cantera {
             m_index(b.m_index),
             m_coeff(array_fp(15)) {
 
-            copy(b.m_coeff.begin(),
+            std::copy(b.m_coeff.begin(),
 		 b.m_coeff.begin() + 15,
 		 m_coeff.begin());
 	    mnp_low  = new NasaPoly1(m_index, m_lowT, m_midT,
@@ -105,7 +105,7 @@ namespace Cantera {
 	      m_highT  = b.m_highT;
 	      m_Pref   = b.m_Pref;
 	      m_index  = b.m_index;
-	      copy(b.m_coeff.begin(),
+	      std::copy(b.m_coeff.begin(),
 		   b.m_coeff.begin() + 15,
 		   m_coeff.begin());
 	      if (mnp_low) delete mnp_low;

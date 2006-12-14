@@ -59,7 +59,7 @@ namespace Cantera {
             m_Pref      (pref),
             m_index     (n),
             m_coeff     (array_fp(7)) {
-            copy(coeffs, coeffs + 7, m_coeff.begin());
+            std::copy(coeffs, coeffs + 7, m_coeff.begin());
         }
 
 	NasaPoly1(const NasaPoly1& b) :
@@ -68,7 +68,7 @@ namespace Cantera {
             m_Pref      (b.m_Pref),
             m_index     (b.m_index),
             m_coeff     (array_fp(7)) {
-            copy(b.m_coeff.begin(),
+            std::copy(b.m_coeff.begin(),
 		 b.m_coeff.begin() + 7,
 		 m_coeff.begin());
 	}
@@ -79,7 +79,7 @@ namespace Cantera {
 	      m_highT  = b.m_highT;
 	      m_Pref   = b.m_Pref;
 	      m_index  = b.m_index;
-	      copy(b.m_coeff.begin(),
+	      std::copy(b.m_coeff.begin(),
 		   b.m_coeff.begin() + 7,
 		   m_coeff.begin());
 	    }
@@ -114,7 +114,7 @@ namespace Cantera {
 	 *  tt[2] = m_t[1]*t;
 	 *  tt[3] = m_t[2]*t;
 	 *  tt[4] = 1.0/t;
-	 *  tt[5] = log(t);
+	 *  tt[5] = std::log(t);
          */
         virtual void updateProperties(const doublereal* tt, 
             doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const {
@@ -157,7 +157,7 @@ namespace Cantera {
 	    tPoly[2]  = tPoly[1] * temp;
 	    tPoly[3]  = tPoly[2] * temp;
 	    tPoly[4]  = 1.0 / temp;
-	    tPoly[5]  = log(temp);
+	    tPoly[5]  = std::log(temp);
 	    updateProperties(tPoly, cp_R, h_RT, s_R);
 	}
 
