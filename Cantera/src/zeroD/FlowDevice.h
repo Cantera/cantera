@@ -78,7 +78,7 @@ namespace CanteraZeroD {
             return m_mdot;
         }
 
-        // Update the mass flow rate at time 'time'. This must be 
+        // Update the mass flow rate at time 'time'. This must be
         // overloaded in subclassess to update m_mdot.
         virtual void updateMassFlowRate(doublereal time) {}
 
@@ -88,7 +88,7 @@ namespace CanteraZeroD {
         // specific enthalpy
         doublereal enthalpy_mass();
 
-//         /** 
+//         /**
 //          * Setpoint. Default = 0.0.
 //          */
 //         virtual doublereal setpoint() { warn("setpoint"); return 0.0; }
@@ -108,7 +108,7 @@ namespace CanteraZeroD {
 //         virtual void reset() {warn("reset");}
 
 //         /**
-//          * Set the setpoint. May be changed at any time. By default, 
+//          * Set the setpoint. May be changed at any time. By default,
 //          * this does nothing.
 //          */
 //         virtual void setSetpoint(doublereal value) {warn("setSetpoint");}
@@ -122,7 +122,7 @@ namespace CanteraZeroD {
 //             return true;
 //         }
 
-//         /** 
+//         /**
 //          * Get the controller gains. Returns false if the 'gains'
 //          * array is too small.
 //          */
@@ -131,8 +131,8 @@ namespace CanteraZeroD {
 //             return true;
 //         }
 
-//         /** 
-//          * Maximum difference between input and setpoint since 
+//         /**
+//          * Maximum difference between input and setpoint since
 //          * last call to 'reset'.
 //          */
 //         virtual doublereal maxError() {warn("maxError"); return 0.0;}
@@ -155,7 +155,7 @@ namespace CanteraZeroD {
         /// set parameters
         virtual void setParameters(int n, doublereal* coeffs) {
             m_coeffs.resize(n);
-            copy(coeffs, coeffs + n, m_coeffs.begin());
+            std::copy(coeffs, coeffs + n, m_coeffs.begin());
         }
 
         void setFunction(Cantera::Func1* f);
