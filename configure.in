@@ -92,9 +92,12 @@ mex_ext=mexglx
 
 case $ac_sys_system in
   Darwin*)  OS_IS_DARWIN=1; 
+            hardware=`uname -m`;
             EXTRA_LINK="-framework Accelerate $EXTRA_LINK";
-#            CXX_INCLUDES="$CXX_INCLUDES -I/System/Library/Frameworks/Accelerate.framework/Headers"
-            mex_ext=mexmac;;
+            #mex_ext=mexmac;
+            #if test "$hardware" = "i386" ; then 
+            #   mex_ext=mexmaci
+            ;;#fi;;
   CYGWIN*)  OS_IS_CYGWIN=1; mex_ext=mexw32;;
   Linux* )  case $BITHARDWARE in
              64 ) if test "$BITCHANGE" = "y" ; then
@@ -813,24 +816,76 @@ AC_SUBST(CVSTAG)
 #       
 #     Matlab Interface
 #
+
 BUILD_MATLAB=0
+
 if test "$BUILD_MATLAB_TOOLBOX" != "n"; then 
-  if test -z "$MATLAB_CMD"; then
-    AC_PATH_PROG(MATLAB_CMD, matlab, "none")
-    if test "$MATLAB_CMD" != "none"; then BUILD_MATLAB=1; BUILD_CLIB=1; fi
+  if test "$MATLAB_CMD" =  "default" -o \
+        "$MATLAB_CMD"x = "x"; then
+      AC_PATH_PROG(MATLAB_CMD, matlab, "none")
+      if test "$MATLAB_CMD" = "none"; then
+        MATLAB_CMD=`find /*/MATLAB*/bin/m* -name matlab`
+      fi
+      if test "$MATLAB_CMD" != "none" -a "x$MATLAB_CMD" != "x"; then 
+        BUILD_MATLAB=1
+        BUILD_CLIB=1
+      fi
   else
-    echo "Matlab command preset to $(MATLAB_CMD)$"
+    echo "Matlab command preset to $MATLAB_CMD"
+    BUILD_MATLAB=1
+    BUILD_CLIB=1    
   fi
   if test "x$OS_IS_WIN" = "x1"; then
     MATLAB_CMD=`cygpath -a -m "$MATLAB_CMD" `
     echo "Windows MATLAB command: ${MATLAB_CMD}"
   fi 
+
+  AC_MSG_CHECKING(MATLAB ($MATLAB_CMD))
+  rm -f diary
+  cat >> testmat.m << EOF
+diary;
+try, mexext, catch, disp 'mex_unknown', end;
+diary off;
+exit;
+EOF
+  ${MATLAB_CMD} -nojvm -nosplash -r testmat &> /dev/null
+#  &> /dev/null`
+  if test -f diary; then 
+    BUILD_MATLAB=1
+    mex_ext=`grep mex* diary`
+    rm -f diary
+  else
+    BUILD_MATLAB=0
+  fi
+  rm -f testmat.m
 else
   echo "MATLAB interface will not be installed"
   if test -z "$MATLAB_CMD"; then
     MATLAB_CMD="matlab"
   fi
 fi
+
+if test "$mex_ext" = "mex_unknown"; then
+case $ac_sys_system in
+  Darwin*)  hardware=`uname -m`;
+            mex_ext=mexmac;
+            if test "$hardware" = "i386" ; then 
+               mex_ext=mexmaci
+            fi;;
+  CYGWIN*)  mex_ext=dll;;
+  Linux* )  mex_ext=mexglx;;
+esac
+fi
+
+if test "$BUILD_MATLAB" = "1"; then
+  echo " "
+  echo "----------------------------  MATLAB -------------------------------"
+  echo "MEX file extension: " $mex_ext
+  echo "MATLAB command: " $MATLAB_CMD
+  ECHO "--------------------------------------------------------------------"
+  echo " "
+fi
+
 AC_SUBST(BUILD_MATLAB)
 AC_SUBST(MATLAB_CMD)
 AC_SUBST(BUILD_CLIB)

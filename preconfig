@@ -113,7 +113,7 @@ PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"}
 # Note that you may need to run 'mex -setup' within MATLAB to
 # configure it for your C++ compiler before running this script.
 BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="default"}
-
+MATLAB_CMD=${MATLAB_CMD:="default"}
                              
 #----------- Fortran 90/95 --------------------------------------------------
 
@@ -254,7 +254,7 @@ USE_SUNDIALS=${USE_SUNDIALS:='default'}
 # This is where you installed sundials if you used the --prefix option
 # when you configured sundials. If you didn't use the prefix option,
 # then comment this line out.
-#SUNDIALS_HOME=${SUNDIALS_HOME:=$HOME/sundials}
+SUNDIALS_HOME=${SUNDIALS_HOME:=$HOME/sundials}
 
 
 # It is recommended that you install the newest release of sundials 
@@ -422,7 +422,7 @@ export BUILD_WITH_F2C
 export BUILD_F90_INTERFACE
 export PYTHON_PACKAGE
 export BUILD_MATLAB_TOOLBOX
-#export MATLAB_CMD
+export MATLAB_CMD
 export CT_SHARED_LIB
 export CXX
 export CXX_EXT
