@@ -308,7 +308,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS BITCOMPILE BITHARDWARE BITCHANGE ldemulationarg CVF_LIBDIR USE_CLIB_DLL local_inst local_python_inst python_prefix python_win_prefix ctversion homedir ct_libdir ct_bindir ct_incdir ct_incroot ct_datadir ct_demodir ct_templdir ct_tutdir ct_docdir ct_dir ct_mandir COMPACT_INSTALL build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE GRAPHVIZDIR ARCHIVE DO_RANLIB RANLIB USERDIR INCL_USER_CODE CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT use_sundials CVODE_LIBS IDA_LIBS sundials_include CANTERA_DEBUG_MODE phase_object_files phase_header_files COMPILE_IDEAL_SOLUTIONS COMPILE_ELECTROLYTES NEED_CATHERMO WITH_REACTORS KERNEL KERNEL_OBJ BUILD_CK LIB_DIR build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR build_with_f2c build_f2c_lib LOCAL_LIB_DIRS LOCAL_LIBS CT_SHARED_LIB PYTHON_CMD BUILD_PYTHON NUMARRAY_INC_DIR NUMARRAY_HOME CANTERA_PYTHON_HOME CVSTAG MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS ac_ct_CC CXXCPP EGREP SOEXT SHARED PIC CXX_INCLUDES LCXX_FLAGS LCXX_END_LIBS HAVE_STRIPSYMBOLS F77 FFLAGS ac_ct_F77 F90 BUILD_F90 F90FLAGS F90BUILDFLAGS precompile_headers CXX_DEPENDS FLIBS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT math_libs SO LDSHARED EXTRA_LINK TSCOMPARE_abs INSTALL_abs INSTALL_VERBOSE LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS BITCOMPILE BITHARDWARE BITCHANGE ldemulationarg CVF_LIBDIR USE_CLIB_DLL local_inst local_python_inst python_prefix python_win_prefix ctversion homedir ct_libdir ct_bindir ct_incdir ct_incroot ct_datadir ct_demodir ct_templdir ct_tutdir ct_docdir ct_dir ct_mandir COMPACT_INSTALL build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE GRAPHVIZDIR ARCHIVE DO_RANLIB RANLIB CXX_DEPENDS USERDIR INCL_USER_CODE CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT use_sundials CVODE_LIBS IDA_LIBS sundials_include CANTERA_DEBUG_MODE phase_object_files phase_header_files COMPILE_IDEAL_SOLUTIONS COMPILE_ELECTROLYTES NEED_CATHERMO WITH_REACTORS KERNEL KERNEL_OBJ BUILD_CK LIB_DIR build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR build_with_f2c build_f2c_lib LOCAL_LIB_DIRS LOCAL_LIBS CT_SHARED_LIB PYTHON_CMD BUILD_PYTHON NUMARRAY_INC_DIR NUMARRAY_HOME CANTERA_PYTHON_HOME CVSTAG MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS ac_ct_CC CXXCPP EGREP SOEXT SHARED PIC CXX_INCLUDES LCXX_FLAGS LCXX_END_LIBS HAVE_STRIPSYMBOLS F77 FFLAGS ac_ct_F77 F90 BUILD_F90 F90FLAGS F90BUILDFLAGS precompile_headers FLIBS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT math_libs SO LDSHARED EXTRA_LINK TSCOMPARE_abs INSTALL_abs INSTALL_VERBOSE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1422,10 +1422,13 @@ mex_ext=mexglx
 
 case $ac_sys_system in
   Darwin*)  OS_IS_DARWIN=1;
+            hardware=`uname -m`;
             EXTRA_LINK="-framework Accelerate $EXTRA_LINK";
-#            CXX_INCLUDES="$CXX_INCLUDES -I/System/Library/Frameworks/Accelerate.framework/Headers"
-            mex_ext=mexmac;;
-  CYGWIN*)  OS_IS_CYGWIN=1; mex_ext=dll;;
+            #mex_ext=mexmac;
+            #if test "$hardware" = "i386" ; then
+            #   mex_ext=mexmaci
+            ;;#fi;;
+  CYGWIN*)  OS_IS_CYGWIN=1; mex_ext=mexw32;;
   Linux* )  case $BITHARDWARE in
              64 ) if test "$BITCHANGE" = "y" ; then
                      ldemulationarg='-melf_i386'
@@ -1717,6 +1720,15 @@ fi
 
 
 
+
+#----------- DEPENDS --------------------
+
+if test "x${CXX_DEPENDS}" = "x"; then
+CXX_DEPENDS='g++ -MM'
+fi
+
+
+#----------------------------------------
 
 #----------------------------------------
 
@@ -2959,10 +2971,13 @@ fi
 #
 #     Matlab Interface
 #
+
 BUILD_MATLAB=0
+
 if test "$BUILD_MATLAB_TOOLBOX" != "n"; then
-  if test -z "$MATLAB_CMD"; then
-    # Extract the first word of "matlab", so it can be a program name with args.
+  if test "$MATLAB_CMD" =  "default" -o \
+        "$MATLAB_CMD"x = "x"; then
+      # Extract the first word of "matlab", so it can be a program name with args.
 set dummy matlab; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
@@ -3002,20 +3017,70 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
-    if test "$MATLAB_CMD" != "none"; then BUILD_MATLAB=1; BUILD_CLIB=1; fi
+      if test "$MATLAB_CMD" = "none"; then
+        MATLAB_CMD=`find /*/MATLAB*/bin/m* -name matlab`
+      fi
+      if test "$MATLAB_CMD" != "none" -a "x$MATLAB_CMD" != "x"; then
+        BUILD_MATLAB=1
+        BUILD_CLIB=1
+      fi
   else
-    echo "Matlab command preset to $(MATLAB_CMD)$"
+    echo "Matlab command preset to $MATLAB_CMD"
+    BUILD_MATLAB=1
+    BUILD_CLIB=1
   fi
   if test "x$OS_IS_WIN" = "x1"; then
     MATLAB_CMD=`cygpath -a -m "$MATLAB_CMD" `
     echo "Windows MATLAB command: ${MATLAB_CMD}"
   fi
+
+  echo "$as_me:$LINENO: checking MATLAB ($MATLAB_CMD)" >&5
+echo $ECHO_N "checking MATLAB ($MATLAB_CMD)... $ECHO_C" >&6
+  rm -f diary
+  cat >> testmat.m << EOF
+diary;
+try, mexext, catch, disp 'mex_unknown', end;
+diary off;
+exit;
+EOF
+  ${MATLAB_CMD} -nojvm -nosplash -r testmat &> /dev/null
+#  &> /dev/null`
+  if test -f diary; then
+    BUILD_MATLAB=1
+    mex_ext=`grep mex* diary`
+    rm -f diary
+  else
+    BUILD_MATLAB=0
+  fi
+  rm -f testmat.m
 else
   echo "MATLAB interface will not be installed"
   if test -z "$MATLAB_CMD"; then
     MATLAB_CMD="matlab"
   fi
 fi
+
+if test "$mex_ext" = "mex_unknown"; then
+case $ac_sys_system in
+  Darwin*)  hardware=`uname -m`;
+            mex_ext=mexmac;
+            if test "$hardware" = "i386" ; then
+               mex_ext=mexmaci
+            fi;;
+  CYGWIN*)  mex_ext=dll;;
+  Linux* )  mex_ext=mexglx;;
+esac
+fi
+
+if test "$BUILD_MATLAB" = "1"; then
+  echo " "
+  echo "----------------------------  MATLAB -------------------------------"
+  echo "MEX file extension: " $mex_ext
+  echo "MATLAB command: " $MATLAB_CMD
+  ECHO "--------------------------------------------------------------------"
+  echo " "
+fi
+
 
 
 
@@ -8221,7 +8286,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:8224:" \
+echo "$as_me:8289:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -9371,6 +9436,7 @@ s,@GRAPHVIZDIR@,$GRAPHVIZDIR,;t t
 s,@ARCHIVE@,$ARCHIVE,;t t
 s,@DO_RANLIB@,$DO_RANLIB,;t t
 s,@RANLIB@,$RANLIB,;t t
+s,@CXX_DEPENDS@,$CXX_DEPENDS,;t t
 s,@USERDIR@,$USERDIR,;t t
 s,@INCL_USER_CODE@,$INCL_USER_CODE,;t t
 s,@CXX@,$CXX,;t t
@@ -9437,7 +9503,6 @@ s,@BUILD_F90@,$BUILD_F90,;t t
 s,@F90FLAGS@,$F90FLAGS,;t t
 s,@F90BUILDFLAGS@,$F90BUILDFLAGS,;t t
 s,@precompile_headers@,$precompile_headers,;t t
-s,@CXX_DEPENDS@,$CXX_DEPENDS,;t t
 s,@FLIBS@,$FLIBS,;t t
 s,@OS_IS_DARWIN@,$OS_IS_DARWIN,;t t
 s,@OS_IS_WIN@,$OS_IS_WIN,;t t
