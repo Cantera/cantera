@@ -292,6 +292,15 @@ fi
 AC_SUBST(DO_RANLIB)
 AC_SUBST(RANLIB)
 
+#----------- DEPENDS --------------------
+
+if test "x${CXX_DEPENDS}" = "x"; then
+CXX_DEPENDS='g++ -MM'
+fi
+AC_SUBST(CXX_DEPENDS)
+
+#----------------------------------------
+
 #----------------------------------------
 
 
