@@ -13,7 +13,9 @@ static void thermoset( int nlhs, mxArray *plhs[],
     double vv;
     int th = getInt(prhs[1]);
     int job = -getInt(prhs[2]);
-    double* ptr = mxGetPr(prhs[3]);
+    double* ptr = 0;
+    if (mxIsDouble(prhs[3]) == 1) 
+        ptr = mxGetPr(prhs[3]);
     int m = mxGetM(prhs[3]);
     int n = mxGetN(prhs[3]);
 

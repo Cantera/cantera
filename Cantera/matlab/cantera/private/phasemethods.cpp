@@ -14,13 +14,15 @@
         bool ok = true;
         int status, buflen;
         char* input_buf;
-        double* ptr;
+        double* ptr = 0;
         int n, nsp, mjob, show_thermo;
 
         // methods to set attributes
         if (job < 0) {
             mjob = -job;
-            ptr = mxGetPr(prhs[3]);
+            if (mxIsChar(prhs[3]) != 1) {
+                ptr = mxGetPr(prhs[3]);
+            }
             m = mxGetM(prhs[3]);
             n = mxGetN(prhs[3]);
             
@@ -75,10 +77,8 @@
                 int buflen, status;
                 char* input_buf;
                 if (mxIsChar(prhs[3]) == 1) {
-                    
                     if(mxGetM(prhs[3]) != 1)
                         mexErrMsgTxt("Input must be a row vector.");
-
                     buflen = (mxGetM(prhs[3]) * mxGetN(prhs[3])) + 1;
                     input_buf = (char*)mxCalloc(buflen, sizeof(char));
                     status = mxGetString(prhs[3], input_buf, buflen);
