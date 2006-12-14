@@ -1,5 +1,3 @@
-#!/bin/sh
-
 ############################################################################
 #
 #  Makefile to compile and link a C++ application to 
@@ -65,7 +63,7 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
 
 # how to create a dependency file
 .@CXX_EXT@.d:
-	g++ -MM -I$(CANTERA_INCDIR) $(CXX_FLAGS) $(LOCAL_DEFNS) $*.cpp > $*.d
+	@CXX_DEPENDS@ -I$(CANTERA_INCDIR) $(CXX_FLAGS) $(LOCAL_DEFNS) $*.cpp > $*.d
 
 PROGRAM = $(PROG_NAME)$(EXE_EXT)
 

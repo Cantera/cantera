@@ -180,7 +180,7 @@ ALL_H = $(BASE_H) $(THERMO_H) $(KINETICS_H) $(HETEROKIN_H) \
         $(EQUIL_H) $(SOLVERS_H) $(RPATH_H)
 
 .cpp.d:
-	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
+	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
 	@CXX@ -c $< $(CXX_INCLUDES) $(CXX_FLAGS) 
@@ -189,13 +189,13 @@ ODE_integrators.o:
 	@CXX@ -c ODE_integrators.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
             $(CXX_FLAGS) 
 ODE_integrators.d: ODE_integrators.cpp Makefile
-	g++ -MM ODE_integrators.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
+	@CXX_DEPENDS@ ODE_integrators.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
             $(CXX_FLAGS) > ODE_integrators.d 
 
 DAE_solvers.o: DAE_solvers.cpp
 	@CXX@ -c DAE_solvers.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) $(CXX_FLAGS)
 DAE_solvers.d: DAE_solvers.cpp Makefile
-	g++ -MM DAE_solvers.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
+	@CXX_DEPENDS@ DAE_solvers.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
             $(CXX_FLAGS) > DAE_solvers.d  
 
 lib:  $(OBJ_LIB)

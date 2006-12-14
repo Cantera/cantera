@@ -38,7 +38,7 @@ all: $(CONV_LIB)
         done)
 
 %.d:
-	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
+	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
 	@CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)

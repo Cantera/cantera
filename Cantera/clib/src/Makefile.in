@@ -100,7 +100,7 @@ win-install:
 
 
 %.d:
-	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
+	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
 
 depends: $(DEPENDS)
 	cat *.d > .depends

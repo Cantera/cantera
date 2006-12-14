@@ -46,7 +46,7 @@ endif
 DEPENDS = $(SRCS:.cpp=.d)
 
 .cpp.d:
-	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
+	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
 
 all: cantera/ctmethods.@mex_ext@
 

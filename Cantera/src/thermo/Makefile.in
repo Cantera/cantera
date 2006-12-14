@@ -28,14 +28,15 @@ ELECTRO_OBJ = SingleSpeciesTP.o StoichSubstanceSSTP.o \
               IdealSolidSolnPhase.o IdealMolalSoln.o \
               WaterPropsIAPWSphi.o WaterPropsIAPWS.o WaterProps.o \
               PDSS.o WaterPDSS.o WaterTP.o \
-	      HMWSoln.o HMWSoln_input.o DebyeHuckel.o
+	      HMWSoln.o HMWSoln_input.o DebyeHuckel.o \
+              IdealGasPDSS.o
 
 ELECTRO_H =  SingleSpeciesTP.h StoichSubstanceSSTP.h \
                MolalityVPSSTP.h  VPStandardStateTP.h \
                IdealSolidSolnPhase.h IdealMolalSoln.h \
                WaterPropsIAPWSphi.h WaterPropsIAPWS.h WaterProps.h \
                PDSS.h WaterPDSS.h WaterTP.h HMWSoln.h electrolytes.h \
-	       DebyeHuckel.h
+	       DebyeHuckel.h IdealGasPDSS.o
 endif
 ifeq ($(do_issp),1)
 ISSP_OBJ = IdealSolidSolnPhase.o
@@ -58,7 +59,7 @@ all: $(LIB) .depends
 	  $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
 	done)
 %.d:
-	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
+	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
 	@CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)

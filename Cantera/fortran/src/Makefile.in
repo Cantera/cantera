@@ -93,7 +93,7 @@ win-install:
 	@INSTALL@ ../../../lib/fct.lib @ct_libdir@
 
 %.d: %.cpp
-	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
+	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
 
 depends: $(DEPENDS)
 	cat *.d > .depends
