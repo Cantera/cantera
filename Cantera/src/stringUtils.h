@@ -31,11 +31,11 @@ namespace Cantera {
     std::string getFileName(const std::string& path);
 
     inline int intValue(std::string val) {
-        return atoi(stripws(val).c_str());
+        return std::atoi(stripws(val).c_str());
     }
 
     inline doublereal fpValue(std::string val) {
-        return atof(stripws(val).c_str());
+        return std::atof(stripws(val).c_str());
     }
     std::string wrapString(const std::string& s, int len=70);
 

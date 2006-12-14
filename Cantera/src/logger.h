@@ -58,7 +58,7 @@ namespace Cantera {
         /// and reimplement this method.
         virtual void error(const std::string& msg) {
             std::cerr << msg << std::endl;
-            exit(-1);
+            std::exit(-1);
         }
 
         /// Return an integer specifying the application environment.
