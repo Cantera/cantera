@@ -110,6 +110,7 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
   }
  
 #ifdef DEBUG_HKM
+  double molSave = 0.0;
   if (debug_print_lvl >= 1) {
     printf("   "); for(i=0; i<77; i++) printf("-"); printf("\n");
     printf("   --- Subroutine BASOPT called to ");
@@ -197,7 +198,7 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
        *    for the largest remaining species. Return its identity. 
        *    kk is the raw number. k is the orderVectorSpecies index.
        */
-      kk = amax(DATA_PTR(molNum), jr, nspecies);
+      kk = amax(DATA_PTR(molNum), 0, nspecies);
       for (j = 0; j < nspecies; j++) {
 	if (orderVectorSpecies[j] == kk) {
 	  k = j;
@@ -221,7 +222,11 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
        *  Assign a small negative number to the component that we have
        *  just found, in order to take it out of further consideration.
        */
+#ifdef DEBUG_HKM
+      molSave = molNum[kk];
+#endif
       molNum[kk] = USEDBEFORE;
+
       /* *********************************************************** */
       /* **** CHECK LINEAR INDEPENDENCE WITH PREVIOUS SPECIES ****** */
       /* *********************************************************** */
@@ -284,7 +289,7 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
 	printf("   ---   %-12.12s", sname.c_str());
 	jj = orderVectorSpecies[jr];
 	ename = mphase->speciesName(jj);
-	printf("(%9.2g) replaces %-12.12s", molNum[kk], ename.c_str());
+	printf("(%9.2g) replaces %-12.12s", molSave, ename.c_str());
 	printf("(%9.2g) as component %3d\n", molNum[jj], jr);
       }
 #endif

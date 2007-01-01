@@ -178,7 +178,7 @@ namespace Cantera {
         setPressure(p);
 
         // Newton iteration
-        for (int n = 0; n < 50; n++) {
+        for (int n = 0; n < 500; n++) {
             double h0 = enthalpy_mass();
             dt = (h - h0)/cp_mass();
             // limit step size to 100 K
@@ -196,7 +196,7 @@ namespace Cantera {
         doublereal tol) {
         doublereal dt;
         setDensity(1.0/v);
-        for (int n = 0; n < 50; n++) {
+        for (int n = 0; n < 500; n++) {
             dt = (u - intEnergy_mass())/cv_mass();
             if (dt > 100.0) dt = 100.0;
             else if (dt < -100.0) dt = -100.0;
@@ -216,7 +216,7 @@ namespace Cantera {
         doublereal tol) {
         doublereal dt;
         setPressure(p);
-        for (int n = 0; n < 50; n++) {
+        for (int n = 0; n < 500; n++) {
             dt = (s - entropy_mass())*temperature()/cp_mass();
             if (dt > 100.0) dt = 100.0;
             else if (dt < -100.0) dt = -100.0; 
@@ -233,7 +233,7 @@ namespace Cantera {
         doublereal tol) {
         doublereal dt;
         setDensity(1.0/v);
-        for (int n = 0; n < 50; n++) {
+        for (int n = 0; n < 500; n++) {
             dt = (s - entropy_mass())*temperature()/cv_mass();
             if (dt > 100.0) dt = 100.0;
             else if (dt < -100.0) dt = -100.0; 

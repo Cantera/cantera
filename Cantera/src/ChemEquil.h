@@ -117,8 +117,7 @@ namespace Cantera {
   protected:
 
     thermo_t*  m_phase;
-    thermo_t* m_thermo;
-
+ 
     /// number of atoms of element m in species k.
     doublereal nAtoms(int k, int m) const { return m_comp[k*m_mm + m]; }
 
@@ -127,9 +126,10 @@ namespace Cantera {
     void setToEquilState(thermo_t& s, 
 			 const vector_fp& x, doublereal t);
 
-    int setInitialMoles(thermo_t& s);
+    int setInitialMoles(thermo_t& s, vector_fp& elMoleGoal);
 
-    int estimateElementPotentials(thermo_t& s,  vector_fp& lambda);
+    int estimateElementPotentials(thermo_t& s,  vector_fp& lambda,
+				  vector_fp& elMolesGoal);
         
     int estimateEP_Brinkley(thermo_t&s, vector_fp& lambda, vector_fp& elMoles);
 
@@ -145,11 +145,14 @@ namespace Cantera {
 		       const vector_fp& elmols, DenseMatrix& jac, 
 		       double xval, double yval);
 
+    void adjustEloc(thermo_t& s, vector_fp & elMolesGoal);
+
     void update(const thermo_t& s);
 
     double calcEmoles(thermo_t& s, vector_fp& x, 
 		      const double & n_t, const vector_fp & Xmol_i_calc,
-		      vector_fp& eMolesCalc, vector_fp& n_i_calc);
+		      vector_fp& eMolesCalc, vector_fp& n_i_calc,
+		      double pressureConst);
 
     int m_mm;
     int m_kk;
@@ -194,8 +197,11 @@ namespace Cantera {
     vector_fp m_comp;
     doublereal m_temp, m_dens;
     doublereal m_p0;
+    /**
+     * Index of the element id corresponding to the electric charge of each
+     * species. Equal to -1 if there is no such element id.
+     */
     int m_eloc;
-    doublereal m_abscharge;
 
     doublereal m_startTemp, m_startDens;
     vector_fp m_startSoln;
