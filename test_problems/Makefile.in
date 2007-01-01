@@ -16,6 +16,7 @@ all:
 	cd diamondSurf;  @MAKE@ all
 	cd ChemEquil_gri_matrix; @MAKE@ all
 	cd ChemEquil_gri_pairs; @MAKE@ all
+	cd ChemEquil_ionizedGas; @MAKE@ all
 ifeq ($(test_python),1)
 	cd min_python;   @MAKE@ all
 endif
@@ -30,15 +31,16 @@ ifeq ($(test_cathermo),1)
 endif
 
 test:
-	cd cxx_ex;       @MAKE@ test
-	cd surfkin;      @MAKE@ test
-	cd fracCoeff;    @MAKE@ test
-	cd negATest;     @MAKE@ test
-	cd diamondSurf;  @MAKE@ test
-	cd ChemEquil_gri_matrix; @MAKE@ test
-	cd ChemEquil_gri_pairs; @MAKE@ test
+	@ cd cxx_ex;       @MAKE@ -s test
+	@ cd surfkin;      @MAKE@ -s test
+	@ cd fracCoeff;    @MAKE@ -s test
+	@ cd negATest;     @MAKE@ -s test
+	@ cd diamondSurf;  @MAKE@ -s test
+	@ cd ChemEquil_gri_matrix; @MAKE@ -s test
+	@ cd ChemEquil_gri_pairs; @MAKE@ -s test
+	@ cd ChemEquil_ionizedGas; @MAKE@ -s test
 ifeq ($(test_ck),1)
-	cd ck2cti_test;  @MAKE@ test
+	@ cd ck2cti_test;  @MAKE@ test
 endif
 ifeq ($(test_python),1)
 	cd min_python;   @MAKE@ test
@@ -60,6 +62,7 @@ clean:
 	cd diamondSurf;  @MAKE@ clean
 	cd ChemEquil_gri_matrix; @MAKE@ clean
 	cd ChemEquil_gri_pairs; @MAKE@ clean
+	cd ChemEquil_ionizedGas; @MAKE@ clean
 	cd ck2cti_test;  @MAKE@ clean
 	cd min_python;   @MAKE@ clean
 	cd python;       @MAKE@ clean
@@ -73,6 +76,7 @@ depends:
 	cd diamondSurf;  @MAKE@ depends
 	cd ChemEquil_gri_matrix; @MAKE@ depends
 	cd ChemEquil_gri_pairs; @MAKE@ depends
+	cd ChemEquil_ionizedGas; @MAKE@ depends
 ifeq ($(test_ck),1)
 	cd ck2cti_test;  @MAKE@ depends
 endif
