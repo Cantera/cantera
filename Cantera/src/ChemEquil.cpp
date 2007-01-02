@@ -88,10 +88,10 @@ namespace Cantera {
     m_kk = s.nSpecies();
     m_mm = s.nElements();
     m_nComponents = m_mm;
-    if (m_kk < m_mm) {
-      throw CanteraError("ChemEquil::initialize",
-			 "number of species cannot be less than the number of elements.");
-    }
+    //if (m_kk < m_mm) {
+    //throw CanteraError("ChemEquil::initialize",
+    //	 "number of species cannot be less than the number of elements.");
+    //}
         
     // allocate space in internal work arrays within the ChemEquil object
     m_molefractions.resize(m_kk);
@@ -288,7 +288,7 @@ namespace Cantera {
   /**
    * Generate a starting estimate for the element potentials.
    */
-  int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda,
+  int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
 					   vector_fp& elMolesGoal) 
   {
     int m, n;
@@ -385,11 +385,14 @@ namespace Cantera {
       info = -2; 
     }
     for (m = 0; m < m_nComponents; m++) {
-      lambda[m_orderVectorElements[m]] = b[m];
+      lambda_RT[m_orderVectorElements[m]] = b[m];
+    }
+    for (m = m_nComponents; m < m_mm;  m++) {
+      lambda_RT[m_orderVectorElements[m]] = 0.0;
     }
     if (info == 0) {
       for (m = 0; m < m_mm; m++) {
-	addLogEntry(s.elementName(m),lambda[m]);
+	addLogEntry(s.elementName(m),lambda_RT[m]);
       }
     }
 
@@ -401,16 +404,16 @@ namespace Cantera {
 	double tmp = 0.0;
 	string sname = s.speciesName(isp);
 	for (n = 0; n < m_mm; n++) {
-	  tmp += nAtoms(isp, n) * lambda[n];
+	  tmp += nAtoms(isp, n) * lambda_RT[n];
 	}
 	printf("%3d %16s  %10.5g   %10.5g   %10.5g\n",
 	       m, sname.c_str(),  mu_RT[isp], tmp, tmp - mu_RT[isp]);
       }
 
-      printf(" id    ElName  Lambda\n");
+      printf(" id    ElName  Lambda_RT\n");
       for (m = 0; m < m_mm; m++) {
 	string ename = s.elementName(m);
-	printf(" %3d  %6s  %10.5g\n", m, ename.c_str(), lambda[m]);
+	printf(" %3d  %6s  %10.5g\n", m, ename.c_str(), lambda_RT[m]);
       }
     }
 #endif
@@ -458,7 +461,7 @@ namespace Cantera {
   {
     doublereal xval, yval, tmp;
     int fail = 0;
-    int m;
+    int m, im;
 
     if (m_p1) delete m_p1;
     if (m_p2) delete m_p2;
@@ -548,7 +551,8 @@ namespace Cantera {
      * abundance.
      */
     tmp = -1.0;
-    for (m = 0; m < mm; m++) {
+    for (im = 0; im < m_nComponents; im++) {
+      m = m_orderVectorElements[im];
       if (elMolesGoal[m] > tmp ) {
 	m_skip = m;
 	tmp = elMolesGoal[m];
@@ -984,7 +988,7 @@ namespace Cantera {
 				doublereal xval, doublereal yval)
   {
     beginLogGroup("ChemEquil::equilResidual");
-    int n;
+    int n, m;
     doublereal xx, yy;
     doublereal temp = exp(x[m_mm]);
     setToEquilState(mix, x, temp);
@@ -992,23 +996,26 @@ namespace Cantera {
     // residuals are the total element moles
     vector_fp& elmFrac = m_elementmolefracs; 
     for (n = 0; n < m_mm; n++) {
+      m = m_orderVectorElements[n];
       // drive element potential for absent elements to -1000
-      if (elmFracGoal[n] < m_elemFracCutoff && n != m_eloc)
-	resid[n] = x[n] + 1000.0;
-      else {
+      if (elmFracGoal[m] < m_elemFracCutoff && m != m_eloc) {
+	resid[m] = x[m] + 1000.0;
+      } else if (n >= m_nComponents) {
+	resid[m] = x[m];
+      } else {
 	/*
 	 * Change the calculation for small element number, using
 	 * L'Hopital's rule.
 	 * The log formulation is unstable.
 	 */
-	if (elmFracGoal[n] < 1.0E-10 || elmFrac[n] < 1.0E-10 || n == m_eloc) {
-	  resid[n] = elmFracGoal[n] - elmFrac[n];
+	if (elmFracGoal[m] < 1.0E-10 || elmFrac[m] < 1.0E-10 || m == m_eloc) {
+	  resid[m] = elmFracGoal[m] - elmFrac[m];
 	} else {
-	  resid[n] = log( (1.0 + elmFracGoal[n]) / (1.0 + elmFrac[n]) );
+	  resid[m] = log( (1.0 + elmFracGoal[m]) / (1.0 + elmFrac[m]) );
 	}
       }
-      addLogEntry(m_phase->elementName(n),fp2str(elmFrac[n])+"  ("
-		  +fp2str(elmFracGoal[n])+")");
+      addLogEntry(m_phase->elementName(m),fp2str(elmFrac[m])+"  ("
+		  +fp2str(elmFracGoal[m])+")");
     }
 
 #ifdef DEBUG_HKM_EPEQUIL
@@ -1059,7 +1066,7 @@ namespace Cantera {
     
     equilResidual(s, x, elmols, r0, xval, yval);
     
-    m_doResPerturb = true;
+    m_doResPerturb = false;
     for (n = 0; n < len; n++) {
       xsave = x[n];
       dx = atol;
@@ -1179,7 +1186,7 @@ namespace Cantera {
     bool modifiedMatrix = false;
     int neq = m_mm+1;
     int retn = 1;
-    int m, n, k, info;
+    int m, n, k, info, im;
     DenseMatrix a1(neq, neq, 0.0);
     vector_fp b(neq, 0.0);
     vector_fp n_i(m_kk,0.0);
@@ -1362,16 +1369,19 @@ namespace Cantera {
       if (!normalStep) {
 	beta = 1.0;
 	resid[m_mm] = 0.0;
-	for (m = 0; m < m_mm; m++) {
+	for (im = 0; im < m_mm; im++) {
+	  m = m_orderVectorElements[im];
 	  resid[m] = 0.0;
-	  if (elMoles[m] > 0.001 * elMolesTotal) {
-	    if (eMolesCalc[m] > 1000. * elMoles[m]) {
-	      resid[m] = -0.5;
-	      resid[m_mm] -= 0.5;
-	    }
-	    if (1000 * eMolesCalc[m] < elMoles[m]) {
-	      resid[m] = 0.5;
-	      resid[m_mm] += 0.5;
+	  if (im < m_nComponents) {
+	    if (elMoles[m] > 0.001 * elMolesTotal) {
+	      if (eMolesCalc[m] > 1000. * elMoles[m]) {
+		resid[m] = -0.5;
+		resid[m_mm] -= 0.5;
+	      }
+	      if (1000 * eMolesCalc[m] < elMoles[m]) {
+		resid[m] = 0.5;
+		resid[m_mm] += 0.5;
+	      }
 	    }
 	  }
 	}
@@ -1454,26 +1464,40 @@ namespace Cantera {
 #endif
       }
 
-
-
-      for (m = 0; m < m_mm; m++) {
-	for (n = 0; n < m_mm; n++) {
-	  a1(m,n) = 0.0;
-	  for (k = 0; k < m_kk; k++) {
-	    a1(m,n) += nAtoms(k,m) * nAtoms(k,n) * n_i_calc[k];
-	  }
-	}
-	a1(m,m_mm) = eMolesCalc[m];
-	a1(m_mm, m) = eMolesCalc[m];
-	a1(m_mm, m_mm) = 0.0;      
-      }
- 
       /*
-       * Formulate the residual, resid,  and the estimate for the convergence criteria, sum
+       * Formulate the matrix.
+       */
+      for (im = 0; im < m_mm; im++) {
+	m = m_orderVectorElements[im];
+	if (im < m_nComponents) {
+	  for (n = 0; n < m_mm; n++) {
+	    a1(m,n) = 0.0;
+	    for (k = 0; k < m_kk; k++) {
+	      a1(m,n) += nAtoms(k,m) * nAtoms(k,n) * n_i_calc[k];
+	    }
+	  }
+	  a1(m,m_mm) = eMolesCalc[m];
+	  a1(m_mm, m) = eMolesCalc[m];
+	} else {
+	  for (n = 0; n <= m_mm; n++) {
+	    a1(m,n) = 0.0;
+	  }
+	  a1(m,m) = 1.0;
+	}
+      }
+      a1(m_mm, m_mm) = 0.0;
+
+      /*
+       * Formulate the residual, resid, and the estimate for the convergence criteria, sum
        */
       sum = 0.0;
-      for (m = 0; m < m_mm; m++) {
-	resid[m] = elMoles[m] - eMolesCalc[m];
+      for (im = 0; im < m_mm; im++) {
+	m = m_orderVectorElements[im];
+	if (im < m_nComponents) {
+	  resid[m] = elMoles[m] - eMolesCalc[m];
+	} else {
+	  resid[m] = 0.0;
+	}
 	/*
 	 * For equations with positive and negative coefficients, (electronic charge),
 	 * we must mitigate the convergence criteria by a condition limited by
