@@ -1369,6 +1369,7 @@ AC_OUTPUT(Makefile \
           test_problems/ChemEquil_gri_matrix/Makefile \
           test_problems/ChemEquil_gri_pairs/Makefile \
           test_problems/ChemEquil_ionizedGas/Makefile \
+          test_problems/ChemEquil_red1/Makefile \
           test_problems/fracCoeff/Makefile \
           test_problems/negATest/Makefile \
           test_problems/ck2cti_test/Makefile \
