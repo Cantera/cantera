@@ -134,7 +134,8 @@ class ThermoFrame(Frame):
 		elif self.prop[_INTENERGY].isChecked() \
                      and self.prop[_DENSITY].isChecked():
                     self.mix.set(density = self.prop[_DENSITY].get(),
-                                 intEnergy = self.prop[_INTENERGY].get())
+                                 intEnergy = self.prop[_INTENERGY].get(),
+				 equil=i)
 		else:
 			if self.warn > 0:
 				handleError("unsupported property pair")
