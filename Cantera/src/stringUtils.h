@@ -17,8 +17,10 @@ namespace Cantera {
     class Phase;
     class ThermoPhase;
 
-    std::string fp2str(double x, std::string fmt = "%g");
-    std::string int2str(int n, std::string fmt = "%d");
+    std::string fp2str(double x, std::string fmt);
+    std::string fp2str(double x);
+    std::string int2str(int n, std::string fmt);
+    std::string int2str(int n);
     std::string stripws(std::string s);
     std::string stripnonprint(std::string s);
     std::string lowercase(std::string s);

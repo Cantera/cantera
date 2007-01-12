@@ -98,7 +98,17 @@ namespace Cantera {
   class ChemEquil {
 
   public:
+    //! Default Constructor
     ChemEquil();
+
+    //! Constructor combined with the initialization function
+    /*!
+     *  This constructor initializes the ChemEquil object with everything it
+     *  needs to start solving equilibrium problems.
+     *   @param s ThermoPhase object that will be used in the equilibrium calls.
+     */
+    ChemEquil(thermo_t& s);
+
     virtual ~ChemEquil();
 
     int equilibrate(thermo_t& s, const char* XY,
@@ -116,6 +126,14 @@ namespace Cantera {
 
   protected:
 
+    //! Pointer to the %ThermoPhase object used to initialize this object.
+
+    /*!
+     *  This %ThermoPhase object must be compatible with the %ThermoPhase
+     *  objects input from the equilibrate function. Currently, this
+     *  means that the 2 %ThermoPhases have to have consist of the same 
+     *  species and elements.
+     */
     thermo_t*  m_phase;
  
     /// number of atoms of element m in species k.
@@ -226,9 +244,14 @@ namespace Cantera {
 
     vector_int m_orderVectorElements;
     vector_int m_orderVectorSpecies;
+
+
   };
 
-}
+#ifdef DEBUG_HKM
+  extern int ChemEquil_print_lvl;
+#endif
 
+}
 
 #endif

@@ -25,8 +25,21 @@ namespace Cantera {
      */
     std::string fp2str(double x, std::string fmt) {
         char buf[30];
-        sprintf(buf, fmt.c_str(), x);
-        return std::string(buf);
+        int n = snprintf(buf, 30, fmt.c_str(), x);
+	if (n > 0) {
+	  buf[29] = '\0';
+	  return std::string(buf);
+	} 
+	return std::string(" ");
+    }
+    std::string fp2str(double x) {
+        char buf[30];
+        int n = snprintf(buf, 30, "%g" , x);
+	if (n > 0) {
+	  buf[29] = '\0';
+	  return std::string(buf);
+	} 
+	return std::string(" ");
     }
 
     /**
@@ -34,8 +47,24 @@ namespace Cantera {
      */
     std::string int2str(int n, std::string fmt) {
         char buf[30];
+	int m = snprintf(buf, 30, fmt.c_str(), n);
         sprintf(buf, fmt.c_str(), n);
-        return std::string(buf);
+	if (m > 0) {
+	  buf[29] = '\0';
+	  return std::string(buf);
+	}
+	return std::string(" ");
+    }
+
+  
+    std::string int2str(int n) {
+      char buf[30];
+      int m = snprintf(buf, 30, "%d", n);
+      if (m > 0) {
+	buf[29] = '\0';
+	return std::string(buf);
+      }
+      return std::string(" ");
     }
 
     std::string lowercase(std::string s) {

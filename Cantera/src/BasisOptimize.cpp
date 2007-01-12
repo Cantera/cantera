@@ -13,7 +13,10 @@
 using namespace Cantera;
 using namespace std;
 #ifdef DEBUG_HKM
-int debug_print_lvl = 0;
+namespace Cantera {
+int Cantera::BasisOptimize_print_lvl = 0;
+static char sbuf[1024];
+}
 static void print_stringTrunc(const char *str, int space, int alignment);
 #endif
 static int amax(double *x, int j, int n);
@@ -111,38 +114,38 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
  
 #ifdef DEBUG_HKM
   double molSave = 0.0;
-  if (debug_print_lvl >= 1) {
-    printf("   "); for(i=0; i<77; i++) printf("-"); printf("\n");
-    printf("   --- Subroutine BASOPT called to ");
-    printf("calculate the number of components and ");
-    printf("evaluate the formation matrix\n");
-    if (debug_print_lvl > 0) {
-      printf("   ---\n");
+  if (BasisOptimize_print_lvl >= 1) {
+    writelog("   "); for(i=0; i<77; i++) writelog("-"); writelog("\n");
+    writelog("   --- Subroutine BASOPT called to ");
+    writelog("calculate the number of components and ");
+    writelog("evaluate the formation matrix\n");
+    if (BasisOptimize_print_lvl > 0) {
+      writelog("   ---\n");
       
-      printf("   ---      Formula Matrix used in BASOPT calculation\n");
-      printf("   ---      Species | Order | ");
+      writelog("   ---      Formula Matrix used in BASOPT calculation\n");
+      writelog("   ---      Species | Order | ");
       for (j = 0; j < ne; j++) {
 	jj = orderVectorElements[j];
-	printf(" ");
+	writelog(" ");
 	ename = mphase->elementName(jj);
 	print_stringTrunc(ename.c_str(), 4, 1);
-	printf("(%1d)", j);
+	sprintf(sbuf,"(%1d)", j); writelog(sbuf);
       }
-      printf("\n");
+      writelog("\n");
       for (k = 0; k < nspecies; k++) {
 	kk = orderVectorSpecies[k];
-	printf("   --- ");
+	writelog("   --- ");
 	sname = mphase->speciesName(kk);
 	print_stringTrunc(sname.c_str(), 11, 1);
-	printf(" |   %4d |", k);
+	sprintf(sbuf," |   %4d |", k); writelog(sbuf);
 	for (j = 0; j < ne; j++) {
 	  jj = orderVectorElements[j]; 
 	  double num = mphase->nAtoms(kk,jj);
-	  printf("%6.1g  ", num);
+	  sprintf(sbuf,"%6.1g  ", num); writelog(sbuf);
 	}
-	printf("\n");
+	writelog("\n");
       }
-      printf("   --- \n");
+      writelog("   --- \n");
     }
   }
 #endif
@@ -283,14 +286,16 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
     /* ****************************************** */
     if (jr != k) {
 #ifdef DEBUG_HKM
-      if (debug_print_lvl >= 1) {
+      if (BasisOptimize_print_lvl >= 1) {
 	kk = orderVectorSpecies[k];
 	sname = mphase->speciesName(kk);
-	printf("   ---   %-12.12s", sname.c_str());
+	sprintf(sbuf,"   ---   %-12.12s", sname.c_str()); writelog(sbuf);
 	jj = orderVectorSpecies[jr];
 	ename = mphase->speciesName(jj);
-	printf("(%9.2g) replaces %-12.12s", molSave, ename.c_str());
-	printf("(%9.2g) as component %3d\n", molNum[jj], jr);
+	sprintf(sbuf,"(%9.2g) replaces %-12.12s", molSave, ename.c_str());
+        writelog(sbuf);
+	sprintf(sbuf,"(%9.2g) as component %3d\n", molNum[jj], jr);
+        writelog(sbuf);
       }
 #endif
       switch_pos(orderVectorSpecies, jr, k);
@@ -363,49 +368,51 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
    */
   j = mlequ(DATA_PTR(sm), ne, nComponents, DATA_PTR(formRxnMatrix), nNonComponents);
   if (j == 1) {
-    printf("ERROR: mlequ returned an error condition\n");
+    writelog("ERROR: mlequ returned an error condition\n");
     throw CanteraError("basopt", "mlequ returned an error condition");
   }
     
 #ifdef DEBUG_HKM
-  if (debug_print_lvl >= 1) {
-    printf("   ---\n");
-    printf("   ---  Number of Components = %d\n", nComponents);
-    printf("   ---  Formula Matrix:\n");
-    printf("   ---                      Components:    ");
+  if (Cantera::BasisOptimize_print_lvl >= 1) {
+    writelog("   ---\n");
+    sprintf(sbuf,"   ---  Number of Components = %d\n", nComponents);
+    writelog(sbuf);
+    writelog("   ---  Formula Matrix:\n");
+    writelog("   ---                      Components:    ");
     for (k = 0; k < nComponents; k++) {
       kk = orderVectorSpecies[k];
-      printf(" %3d (%3d) ", k, kk);
+      sprintf(sbuf," %3d (%3d) ", k, kk); writelog(sbuf);
     }
-    printf("\n   ---                Components Moles:       ");
+    writelog("\n   ---                Components Moles:       ");
     for (k = 0; k < nComponents; k++) {
       kk = orderVectorSpecies[k];
-      printf("%-11.3g", molNumBase[kk]);
+      sprintf(sbuf,"%-11.3g", molNumBase[kk]); writelog(sbuf);
     }
-    printf("\n   ---        NonComponent |   Moles  |       ");
+    writelog("\n   ---        NonComponent |   Moles  |       ");
     for (i = 0; i < nComponents; i++) {
       kk = orderVectorSpecies[i];
       sname = mphase->speciesName(kk);
-      printf("%-11.10s", sname.c_str());
+      sprintf(sbuf,"%-11.10s", sname.c_str()); writelog(sbuf);
     }
-    printf("\n");
+    writelog("\n");
   
     for (i = 0; i < nNonComponents; i++) {
       k = i + nComponents;
       kk = orderVectorSpecies[k];
-      printf("   --- %3d (%3d) ", k, kk);
+      sprintf(sbuf,"   --- %3d (%3d) ", k, kk); writelog(sbuf);
       sname = mphase->speciesName(kk);
-      printf("%-10.10s", sname.c_str());
-      printf("|%10.3g|", molNumBase[kk]);
+      sprintf(sbuf,"%-10.10s", sname.c_str()); writelog(sbuf);
+      sprintf(sbuf,"|%10.3g|", molNumBase[kk]); writelog(sbuf);
       /*
        * Print the negative of formRxnMatrix[]; it's easier to interpret.
        */
       for (j = 0; j < nComponents; j++) {
-	printf("     %6.2f", - formRxnMatrix[j + i * ne]);
+	sprintf(sbuf,"     %6.2f", - formRxnMatrix[j + i * ne]);
+        writelog(sbuf);
       }
-      printf("\n");
+      writelog("\n");
     }
-    printf("   "); for (i=0; i<77; i++) printf("-"); printf("\n");
+    writelog("   "); for (i=0; i<77; i++) writelog("-"); writelog("\n");
   }
 #endif
 
@@ -435,7 +442,7 @@ static void print_stringTrunc(const char *str, int space, int alignment)
   int len = strlen(str);
   if ((len) >= space) {
     for (i = 0; i < space; i++) {
-      printf("%c", str[i]);
+      sprintf(sbuf,"%c", str[i]); writelog(sbuf);
     }
   } else {
     if (alignment == 1) {
@@ -447,11 +454,11 @@ static void print_stringTrunc(const char *str, int space, int alignment)
       rs = space - len - ls;
     }
     if (ls != 0) {
-      for (i = 0; i < ls; i++) printf(" ");
+      for (i = 0; i < ls; i++) writelog(" ");
     }
-    printf("%s", str);
+    sprintf(sbuf,"%s", str); writelog(sbuf);
     if (rs != 0) {
-      for (i = 0; i < rs; i++) printf(" ");
+      for (i = 0; i < rs; i++) writelog(" ");
     }
   }
 }
@@ -532,7 +539,8 @@ static int amax(double *x, int j, int n) {
        for (k = i + 1; k < n; ++k) {
 	 if (c[k + i * idem] != 0.0) goto FOUND_PIVOT;
        }
-       printf("vcs_mlequ ERROR: Encountered a zero column: %d\n", i);
+       sprintf(sbuf,"vcs_mlequ ERROR: Encountered a zero column: %d\n", i); 
+       writelog(sbuf);
        return 1;
      FOUND_PIVOT: ;
        for (j = 0; j < n; ++j) c[i + j * idem] += c[k + j * idem];
@@ -612,11 +620,11 @@ int Cantera::ElemRearrange(int nComponents, const vector_fp & elementAbundances,
 
   double test = -1.0E10;
 #ifdef DEBUG_HKM
-  if (debug_print_lvl > 0) {
-    printf("   "); for(i=0; i<77; i++) printf("-"); printf("\n");
-    printf("   --- Subroutine ElemRearrange() called to ");
-    printf("check stoich. coefficent matrix\n");
-    printf("   ---    and to rearrange the element ordering once\n");
+  if (BasisOptimize_print_lvl > 0) {
+    writelog("   "); for(i=0; i<77; i++) writelog("-"); writelog("\n");
+    writelog("   --- Subroutine ElemRearrange() called to ");
+    writelog("check stoich. coefficent matrix\n");
+    writelog("   ---    and to rearrange the element ordering once\n");
   }
 #endif
 
@@ -704,8 +712,9 @@ int Cantera::ElemRearrange(int nComponents, const vector_fp & elementAbundances,
 	// We haven't found the number of elements necessary.
 	// This is signalled by returning jr != nComponents.
 #ifdef DEBUG_HKM
-      if (debug_print_lvl > 0) {
-	printf("Error exit: returning with nComponents = %d\n", jr);
+      if (BasisOptimize_print_lvl > 0) {
+	sprintf(sbuf,"Error exit: returning with nComponents = %d\n", jr);
+        writelog(sbuf);
       }
 #endif
 	return jr;
@@ -782,15 +791,16 @@ int Cantera::ElemRearrange(int nComponents, const vector_fp & elementAbundances,
     /* ****************************************** */
     if (jr != k) {
 #ifdef DEBUG_HKM
-      if (debug_print_lvl > 0) {
+      if (BasisOptimize_print_lvl > 0) {
 	kk = orderVectorElements[k];
 	ename = mphase->elementName(kk);
-	printf("   ---   "); printf("%-2.2s", ename.c_str());
-	printf("replaces ");
+	writelog("   ---   ");
+        sprintf(sbuf,"%-2.2s", ename.c_str()); writelog(sbuf);
+	writelog("replaces ");
 	kk = orderVectorElements[jr];
 	ename = mphase->elementName(kk);
-	printf("%-2.2s", ename.c_str());
-	printf(" as element %3d\n", jr);
+	sprintf(sbuf,"%-2.2s", ename.c_str()); writelog(sbuf);
+	sprintf(sbuf," as element %3d\n", jr); writelog(sbuf);
       }
 #endif
       switch_pos(orderVectorElements, jr, k);

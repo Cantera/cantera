@@ -308,6 +308,9 @@ namespace Cantera {
 		    MultiPhase *mphase,
 		    vector_int & orderVectorSpecies,
 		    vector_int & orderVectorElements);
+#ifdef DEBUG_HKM
+  extern int BasisOptimize_print_lvl;
+#endif
 }
 
 #endif

@@ -1,13 +1,12 @@
 /**
  *  @file sort.cpp
  *
+ *  $Id$
  */
-
 
 #ifdef WIN32
 #pragma warning(disable:4786)
 #endif
-
 
 #include "sort.h"
 
@@ -17,6 +16,7 @@ namespace Cantera {
 
   void heapsort(vector_fp& x, vector_int& y) {
     int n = x.size();
+    if (n < 2) return;
     doublereal rra;
     integer rrb;
     int ll = n/2;
@@ -66,6 +66,7 @@ namespace Cantera {
 
   void heapsort(vector_fp& x, vector_fp& y) {
     int n = x.size();
+    if (n < 2) return;
     doublereal rra;
     doublereal rrb;
     int ll = n/2;
@@ -114,9 +115,4 @@ namespace Cantera {
   }
 
 }
-
-
-
-
-
 

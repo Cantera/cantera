@@ -77,7 +77,7 @@ namespace Cantera {
       
 	m_index = right.m_index;
         m_phi = right.m_phi;
-	m_lambda = right.m_lambda;
+	m_lambdaRRT = right.m_lambdaRRT;
 	m_hasElementPotentials = right.m_hasElementPotentials;
 
 	return *this;
@@ -379,31 +379,75 @@ namespace Cantera {
 
     }
     
-    /**
-     * Set the thermodynamic state.
-     */
+  /**
+   * Set the thermodynamic state.
+   */
     void ThermoPhase::setStateFromXML(const XML_Node& state) {
 
-        string comp = getString(state,"moleFractions");
-        if (comp != "") 
-            setMoleFractionsByName(comp);
-        else {
-            comp = getString(state,"massFractions");
-            if (comp != "") 
-                setMassFractionsByName(comp);
-        }
-        if (state.hasChild("temperature")) {
-            double t = getFloat(state, "temperature", "temperature");
-            setTemperature(t);
-        }
-        if (state.hasChild("pressure")) {
-            double p = getFloat(state, "pressure", "pressure");
-            setPressure(p);
-        }
-        if (state.hasChild("density")) {
-            double rho = getFloat(state, "density", "density");
-            setDensity(rho);
-        }
+      string comp = getString(state,"moleFractions");
+      if (comp != "") 
+	setMoleFractionsByName(comp);
+      else {
+	comp = getString(state,"massFractions");
+	if (comp != "") 
+	  setMassFractionsByName(comp);
+      }
+      if (state.hasChild("temperature")) {
+	double t = getFloat(state, "temperature", "temperature");
+	setTemperature(t);
+      }
+      if (state.hasChild("pressure")) {
+	double p = getFloat(state, "pressure", "pressure");
+	setPressure(p);
+      }
+      if (state.hasChild("density")) {
+	double rho = getFloat(state, "density", "density");
+	setDensity(rho);
+      }
     }
+
+
+
+  /*
+   * Called by function 'equilibrate' in ChemEquil.h to transfer
+   * the element potentials to this object after every successful
+   *  equilibration routine.
+   * The element potentials are storred in their dimensionless
+   * forms, calculated by dividing by RT.
+   *    @param lambda vector containing the element potentials.
+   *           Length = nElements. Units are Joules/kmol.
+   */
+  void ThermoPhase::setElementPotentials(const vector_fp& lambda) {
+    doublereal rrt = 1.0/(GasConstant* temperature());
+    int mm = nElements();
+    if (lambda.size() < (size_t) mm) {
+      throw CanteraError("setElementPotentials", "lambda too small");
+    }
+    if (!m_hasElementPotentials) {
+      m_lambdaRRT.resize(mm);
+    }
+    for (int m = 0; m < mm; m++) {
+      m_lambdaRRT[m] = lambda[m] * rrt;
+    }
+    m_hasElementPotentials = true;
+  }
+
+  /*
+   * Returns the storred element potentials.
+   * The element potentials are retrieved from their storred
+   * dimensionless forms by multiplying by RT.
+   * @param lambda Vector containing the element potentials.
+   *        Length = nElements. Units are Joules/kmol.
+   */
+   bool ThermoPhase::getElementPotentials(doublereal* lambda) const {
+    doublereal rt = GasConstant* temperature();
+    int mm = nElements();
+    if (m_hasElementPotentials) {
+      for (int m = 0; m < mm; m++) {
+	lambda[m] =  m_lambdaRRT[m] * rt;
+      }
+    }
+    return (m_hasElementPotentials);
+  }
 
 }
