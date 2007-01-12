@@ -20,12 +20,9 @@
 
 using namespace std;
 using namespace Cantera;
-#ifdef DEBUG_HKM_EPEQUIL
-extern int debug_prnt_lvl;
-#endif
 int main(int argc, char **argv) {
-#ifdef DEBUG_HKM_EPEQUIL
-  debug_prnt_lvl = 0;
+#ifdef DEBUG_HKM
+  ChemEquil_print_lvl = 0;
 #endif
   try {
 

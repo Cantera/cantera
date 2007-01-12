@@ -19,18 +19,13 @@
 using namespace std;
 using namespace Cantera;
 
-#ifdef DEBUG_HKM
-extern int debug_print_lvl;
-extern int debug_prnt_lvl;
-#endif
-
 int main(int argc, char **argv) {
   try {
     IdealGasMix g("red1.xml", "gri30_mix");
 
 #ifdef DEBUG_HKM
-   debug_print_lvl = 0;
-   debug_prnt_lvl = 0;
+   Cantera::BasisOptimize_print_lvl = 0;
+   Cantera::ChemEquil_print_lvl = 0;
 #endif
 
     double pres = 1.0E5;
