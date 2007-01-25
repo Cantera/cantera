@@ -121,7 +121,7 @@ namespace Cantera {
     }
 
     void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
-        const string& x) {
+        const std::string& x) {
         compositionMap xx;
         int kk = nSpecies();
         for (int k = 0; k < kk; k++) xx[speciesName(k)] = -1.0;
@@ -146,7 +146,7 @@ namespace Cantera {
     }
         
     void ThermoPhase::setState_TPY(doublereal t, doublereal p, 
-        const string& y) {
+        const std::string& y) {
         compositionMap yy;
         int kk = nSpecies();
         for (int k = 0; k < kk; k++) yy[speciesName(k)] = -1.0;
@@ -246,7 +246,7 @@ namespace Cantera {
         throw CanteraError("setState_SV","no convergence. dt = " + fp2str(dt));
     }
 
-    doublereal ThermoPhase::err(string msg) const {
+    doublereal ThermoPhase::err(std::string msg) const {
             throw CanteraError("ThermoPhase","Base class method "
                 +msg+" called. Equation of state type: "+int2str(eosType()));
             return 0;
@@ -301,7 +301,7 @@ namespace Cantera {
      *            phase. If none is given, the first XML
      *            phase element will be used.
      */
-    void ThermoPhase::initThermoFile(string inputFile, string id) {
+    void ThermoPhase::initThermoFile(std::string inputFile, std::string id) {
 
 	if (inputFile.size() == 0) {
 	  throw CanteraError("ThermoPhase::initThermoFile",
@@ -346,7 +346,7 @@ namespace Cantera {
      *             to see if phaseNode is pointing to the phase
      *             with the correct id. 
      */
-    void ThermoPhase::initThermoXML(XML_Node& phaseNode, string id) {
+    void ThermoPhase::initThermoXML(XML_Node& phaseNode, std::string id) {
 	/*
 	 * The default implementation just calls initThermo();
 	 */

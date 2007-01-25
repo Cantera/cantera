@@ -1,7 +1,8 @@
 /**
  * @file ctexceptions.h
  *
- *   THis contains 
+ *   This contains the definitions for the classes that are
+ *   thrown when Cantera experiences an error condition.
  */
 
 /*
@@ -16,56 +17,130 @@
 #define CT_CTEXCEPTIONS_H
 
 #include <string>
-//using namespace std;
 
 // See file misc.cpp for implementations of methods/functions declared
 // here.
 
 namespace Cantera {
 
-    /** 
-     * @defgroup errorhandling Error Handling
-     *
-     *  These classes and related functions are used to handle errors
-     *  and unknown events within Cantera.
-     * 
-     *  The general idea is that exceptions are thrown using the common
-     *  base class called CanteraError. Derived types of CanteraError
-     *  characterize what type of error is thrown. A list of all
-     *  of these errors is kept in the Application class. 
-     *
-     *  Any exceptions which are not caught cause a fatal error exit
-     *  from the program.  
-     */
+  /*!
+   * @defgroup errorhandling Error Handling
+   *
+   * \brief These classes and related functions are used to handle errors and unknown events within Cantera.
+   * 
+   *  The general idea is that exceptions are thrown using the common
+   *  base class called CanteraError. Derived types of CanteraError
+   *  characterize what type of error is thrown. A list of all
+   *  of the thrown errors is kept in the Application class. 
+   *
+   *  Any exceptions which are not caught cause a fatal error exit
+   *  from the program.
+   *
+   *  Below is an example of how to catch errors that throw the CanteraError class.
+   *  In general, all Cantera C++ programs will have this basic structure.
+   * 
+   *  \include edemo.cpp
+   *
+   *  The function showErrors() will print out the fatal error condition to standard output. 
+   */
     
-    /**
-     * Base class for exceptions thrown by Cantera classes.
+  //! Base class for exceptions thrown by Cantera classes.
+  /*!
+   * This class is the base class for exceptions thrown by Cantera.
+   *
+   * @ingroup errorhandling
+   */
+  class CanteraError {
+  public:
+    //! Normal Constructor for the CanteraError base class
+    /*!
+     * This class doesn't have any storage associated with it. In its
+     * constructor, a call to the Application class is made to store
+     * the strings associated with the generated error condition.
      *
-     * @ingroup errorhandling
+     * @param proc String name for the function within which the error was
+     *             generated.
+     * @param msg  Descriptive string describing the type of error message.
      */
-    class CanteraError {
-    public:
-        CanteraError() {}
-        CanteraError(std::string proc, std::string msg);
-        virtual ~CanteraError(){}
-    protected:
-    };
+    CanteraError(std::string proc, std::string msg);
 
-    /// Array size error.
-    /// 
-    class ArraySizeError : public CanteraError {
-    public:
-        ArraySizeError(std::string proc, int sz, int reqd);
-    };
+    //! Destructor for base class does nothing
+    virtual ~CanteraError(){}
+  protected:
+    //! Empty base constructor is made protected so that it may be used only by 
+    //! inherited classes.
+    /*!
+     *  We want to discourage throwing an error containing no information.
+     */
+    CanteraError() {}
+  };
 
-    /// Exception thrown if an element index is out of range.
-    class ElementRangeError : public CanteraError {
-    public:
-        ElementRangeError(std::string func, int m, int mmax);
-    };
-    
-    void deprecatedMethod(std::string classnm, std::string oldnm, std::string newnm);
-    void removeAtVersion(std::string func, std::string version);
+  //! Array size error.
+  /*!
+   *  This error is thrown if a supplied length to a vector supplied
+   *  to Cantera is too small.
+   *
+   * @ingroup errorhandling
+   */
+  class ArraySizeError : public CanteraError {
+  public:
+    //! Constructor
+    /*!
+     * The length needed is supplied by the argument, reqd, and the
+     * length supplied is given by the argument sz.
+     *
+     * @param proc String name for the function within which the error was
+     *             generated.
+     * @param sz   This is the length supplied to Cantera.
+     * @param reqd This is the required length needed by Cantera
+     */
+    ArraySizeError(std::string proc, int sz, int reqd);
+  };
+
+  //! An element index is out of range.
+  /*!
+   *
+   * @ingroup errorhandling
+   */
+  class ElementRangeError : public CanteraError {
+  public:
+    //! Constructor
+    /*!
+     * This class indicates an out-of-bounds index.
+     *
+     * @param func String name for the function within which the error was
+     *             generated.
+     * @param m   This is the value of the out-of-bounds index.
+     * @param mmax This is the maximum allowed value of the index. The
+     *             minimum allowed value is assumed to be 0.
+     */
+    ElementRangeError(std::string func, int m, int mmax);
+  };
+
+  //! Print a warning when a deprecated method is called.
+  /*!
+   * These methods are slated to go away in future releases of Cantera.
+   * The developer should work towards eliminating the use of these
+   * methods in the near future.
+   *
+   * @param classnm Class the method belongs to
+   * @param oldnm Name of the deprecated method
+   * @param newnm Name of the method users should use instead
+   *
+   * @ingroup errorhandling
+   */
+  void deprecatedMethod(std::string classnm, std::string oldnm, std::string newnm);
+
+  //! Throw an error condition for a procedure that has been removed.
+  /*!
+   *  
+   * @param func String name for the function within which the error was
+   *             generated.
+   * @param version Version of Cantera that first removed this function.
+   *
+   * @ingroup errorhandling 
+   */
+  void removeAtVersion(std::string func, std::string version);
 }
 
 #endif

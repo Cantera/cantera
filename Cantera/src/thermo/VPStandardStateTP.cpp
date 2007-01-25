@@ -111,7 +111,7 @@ namespace Cantera {
      */
 
 
-    doublereal VPStandardStateTP::err(string msg) const {
+    doublereal VPStandardStateTP::err(std::string msg) const {
             throw CanteraError("VPStandardStateTP","Base class method "
                 +msg+" called. Equation of state type: "+int2str(eosType()));
             return 0;
@@ -305,7 +305,7 @@ namespace Cantera {
    * This routine initializes the lengths in the current object and
    * then calls the parent routine.
    */
-  void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, string id) {
+  void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, std::string id) {
     VPStandardStateTP::initLengths();
     ThermoPhase::initThermoXML(phaseNode, id);
   }

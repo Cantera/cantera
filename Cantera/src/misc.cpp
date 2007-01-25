@@ -2,7 +2,7 @@
 /**
  *  @file misc.cpp
  *
- *  
+ *  $Id$
  */
 
 #ifdef WIN32
@@ -276,7 +276,7 @@ namespace Cantera {
     string sleep() { appinit(); return app()->sleep; }
 
 
-    /**
+    /*
      * Return the number of errors that have been encountered so far.
      * \ingroup errorhandling
      */
@@ -284,7 +284,7 @@ namespace Cantera {
         return static_cast<int>(app()->errorMessage.size());
     }
 
-    /**
+    /*
      * popError eliminates the last error message that Cantera
      * has saved. Cantera saves a stack of exceptions that it
      * has caught in the Application class. This routine eliminates
@@ -299,7 +299,7 @@ namespace Cantera {
         }
     }
 
-    /**
+    /*
      * Retrieve the last error message.
      * This routine will retrieve the last error message and return
      * it in the return string.
@@ -320,7 +320,7 @@ namespace Cantera {
 	}
     }
 
-    /**
+    /*
      * Prints all of the error messages to stream f.
      * Write out to ostream, f, all of the saved error messages.
      * Cantera saves a stack of exceptions that it
@@ -329,7 +329,7 @@ namespace Cantera {
      * clears them from internal storage.
      * \ingroup errorhandling
      */
-    void showErrors(ostream& f) {
+    void showErrors(std::ostream& f) {
         appinit(); 
         int i = static_cast<int>(s_app->errorMessage.size());
         if (i == 0) return;
@@ -349,7 +349,7 @@ namespace Cantera {
         s_app->errorRoutine.clear();
     }
 
-    /**
+    /*
      * Print all of the error messages using function writelog.
      * Write out all of the saved error messages to the log device.
      * Cantera saves a stack of exceptions that it
@@ -377,7 +377,7 @@ namespace Cantera {
         s_app->errorRoutine.clear();
     }
 
-    /**
+    /*
      * Set an error condition in the application class without 
      * throwing an exception.
      * This routine adds an error message to the end of the stack
@@ -385,7 +385,7 @@ namespace Cantera {
      * class.
      * \ingroup errorhandling
      */
-    void setError(string r, string msg) {
+    void setError(std::string r, std::string msg) {
         appinit();
         s_app->errorMessage.push_back(msg);
         s_app->errorRoutine.push_back(r);
@@ -593,15 +593,15 @@ namespace Cantera {
 
     // exceptions
 
-    CanteraError::CanteraError(string proc, string msg) {
+    CanteraError::CanteraError(std::string proc, std::string msg) {
         setError(proc, msg);
     }
     
-    ArraySizeError::ArraySizeError(string proc, int sz, int reqd) :
+    ArraySizeError::ArraySizeError(std::string proc, int sz, int reqd) :
         CanteraError(proc, "Array size ("+int2str(sz)+
             ") too small. Must be at least "+int2str(reqd)) {}
 
-    ElementRangeError::ElementRangeError(string func, int m, int mmax) :
+    ElementRangeError::ElementRangeError(std::string func, int m, int mmax) :
         CanteraError(func, "Element index " + int2str(m) + 
             " outside valid range of 0 to " + int2str(mmax-1)) {}
 
@@ -613,11 +613,11 @@ namespace Cantera {
     //
     //////////////////////////////////////////////////////////
 
-    /// Print a warning when a deprecated method is called.
-    /// @param classnm Class the method belongs to
-    /// @param oldnm Name of the deprecated method
-    /// @param newnm Name of the method users should use instead
-    void deprecatedMethod(string classnm, string oldnm, string newnm) {
+    // Print a warning when a deprecated method is called.
+    // @param classnm Class the method belongs to
+    // @param oldnm Name of the deprecated method
+    // @param newnm Name of the method users should use instead
+    void deprecatedMethod(std::string classnm, std::string oldnm, std::string newnm) {
         writelog(">>>> WARNING: method "+oldnm+" of class "+classnm
             +" is deprecated.\n");
         writelog("         Use method "+newnm+" instead.\n");
@@ -626,12 +626,12 @@ namespace Cantera {
     }
 
 
-    void removeAtVersion(string func, string version) {
-        if (version >= "CANTERA_VERSION") {
-            writelog("Removed procedure: "+func+"\n");
-            writelog("Removed in version: "+version+"\n");
-            throw CanteraError("removeAtVersion","procedure has been removed.");
-        }
+    void removeAtVersion(std::string func, std::string version) {
+      //if (version >= "CANTERA_VERSION") {
+      writelog("Removed procedure: "+func+"\n");
+      writelog("Removed in version: "+version+"\n");
+      throw CanteraError("removeAtVersion: "+ func,"procedure has been removed.");
+      // }
     }
 
 

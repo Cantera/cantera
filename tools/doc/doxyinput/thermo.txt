@@ -10,7 +10,7 @@ represents each phase.
 A simple complete program that creates an object representing a gas mixture and prints its temperature is shown below.
 \include ex1.cpp
 
-Class ThermoPhase is the base class for Cantera classes that represent
+Class Cantera::ThermoPhase is the base class for Cantera classes that represent
 phases of matter. It defines the public interface for all classes that
 represent phases. For example, it specifies that they all have a
 method \c temperature() that returns the current temperature, a method

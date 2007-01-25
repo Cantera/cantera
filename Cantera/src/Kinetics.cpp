@@ -104,7 +104,7 @@ namespace Cantera {
      *   the value -1 is returned.
      *   - If no match is found in any phase, the value -2 is returned.
      */
-    int Kinetics::kineticsSpeciesIndex(string nm, string ph) const {
+    int Kinetics::kineticsSpeciesIndex(std::string nm, std::string ph) const {
         int np = static_cast<int>(m_thermo.size());
         int k;
         string id;
@@ -133,7 +133,7 @@ namespace Cantera {
      * phase where the species resides.
      * Will throw an error if the species string doesn't match.
      */
-    thermo_t& Kinetics::speciesPhase(string nm) {
+    thermo_t& Kinetics::speciesPhase(std::string nm) {
         int np = static_cast<int>(m_thermo.size());
         int k;
         string id;
@@ -220,7 +220,7 @@ namespace Cantera {
      *  Private function of the class Kinetics, indicating that a function
      *  inherited from the base class hasn't had a definition assigned to it
      */
-    void Kinetics::err(string m) const {
+    void Kinetics::err(std::string m) const {
 	throw CanteraError("Kinetics::" + m, 
 			   "The default Base class method was called, when "
 			   "the inherited class's method should "

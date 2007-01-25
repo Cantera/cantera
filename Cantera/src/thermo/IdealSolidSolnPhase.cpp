@@ -40,7 +40,7 @@ namespace Cantera {
     }
   }
 
-  IdealSolidSolnPhase::IdealSolidSolnPhase(string inputFile, string id,
+  IdealSolidSolnPhase::IdealSolidSolnPhase(std::string inputFile, std::string id,
 					   int formGC) :
     ThermoPhase(),
     m_formGC(formGC),
@@ -58,7 +58,7 @@ namespace Cantera {
     constructPhaseFile(inputFile, id);
   }
 
-  IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, string id,
+  IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, std::string id,
 					   int formGC) :
     ThermoPhase(),
     m_formGC(formGC),
@@ -1062,7 +1062,7 @@ namespace Cantera {
    *             with the correct id. 
    */
   void IdealSolidSolnPhase::
-  constructPhaseXML(XML_Node& phaseNode, string id) {
+  constructPhaseXML(XML_Node& phaseNode, std::string id) {
     string subname = "IdealSolidSolnPhase::constructPhaseXML";
     if (id.size() > 0) {
       string idp = phaseNode.id();
@@ -1136,7 +1136,7 @@ namespace Cantera {
    *            phase element will be used.
    */
   void IdealSolidSolnPhase::
-  constructPhaseFile(string inputFile, string id) {
+  constructPhaseFile(std::string inputFile, std::string id) {
     if (inputFile.size() == 0) {
       throw CanteraError("IdealSolidSolnPhase::constructPhaseFile",
 			 "input file is null");
@@ -1192,7 +1192,7 @@ namespace Cantera {
    *             to see if phaseNode is pointing to the phase
    *             with the correct id.
    */
-  void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, string id) {
+  void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, std::string id) {
     /*
      * Initialize all of the lengths now that we know how many species
      * there are in the phase.

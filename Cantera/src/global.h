@@ -25,24 +25,69 @@ namespace Cantera {
     class XML_Node;
     class Logger;
 
-    // Return the number of errors that have been encountered so far
-    int nErrors();
+  //! Return the number of errors that have been encountered so far
+  /*!
+   * @ingroup errorhandling
+   */
+  int nErrors();
 
-    // The last error message
-    std::string lastErrorMessage();
+  //! Returns the last error message
+  /*!
+   * @return String containing the description of the last error 
+   *         message.
+   *
+   * @ingroup errorhandling
+   */
+  std::string lastErrorMessage();
 
-    // Set an error condition in the application class without 
-    // throwing an exception.
-    void setError(std::string r, std::string msg);
+  //! Set an error condition in the application class without throwing an exception.
+  /*!
+   * This routine adds an error message to the end of the stack
+   * of errors that Cantera accumulates in the Application
+   * class.
+   * @param r Procedure name which is generating the error condition
+   * @param msg Descriptive message of the error condition.
+   *
+   * \ingroup errorhandling
+   */
+  void setError(std::string r, std::string msg);
 
-    // Prints all of the error messages to stream f
-    void showErrors(std::ostream& f);
+  //!  Prints all of the error messages to an ostream
+  /*!
+   * Print all of the error messages using function writelog.
+   * Write out all of the saved error messages to the ostream f
+   * Cantera saves a stack of exceptions that it
+   * has caught in the Application class. This routine writes
+   * out all of the error messages to the ostream
+   * and then clears them from internal storage.
+   *
+   * @param f ostream which will receive the error messages
+   *
+   * \ingroup errorhandling
+   */
+   void showErrors(std::ostream& f);
 
-    // Print all of the error messages using function writelog.
-    void showErrors();
+  //! Print all of the error messages using function writelog.
+  /*!
+   * Print all of the error messages using function writelog.
+   * Write out all of the saved error messages to the log device.
+   * Cantera saves a stack of exceptions that it
+   * has caught in the Application class. This routine writes
+   * out all of the error messages to the log, usually stdout,
+   *  and then clears them from internal storage.
+   * \ingroup errorhandling
+   */
+  void showErrors();
 
-    // Discard the last error message
-    void popError();
+  //! Discard the last error message
+  /*!
+   * Cantera saves a stack of exceptions that it
+   * has caught in the Application class. This routine eliminates
+   * the last exception to be added to that stack.
+   *
+   * \ingroup errorhandling
+   */
+  void popError();
 
     /// Find an input file.
     std::string findInputFile(std::string name);

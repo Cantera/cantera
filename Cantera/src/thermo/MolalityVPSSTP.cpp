@@ -340,7 +340,7 @@ namespace Cantera {
    *
    *   Set the molalities of the solutes by name
    */
-  void MolalityVPSSTP::setMolalitiesByName(const string& x) {
+  void MolalityVPSSTP::setMolalitiesByName(const std::string& x) {
     compositionMap xx;
     int kk = nSpecies();
     for (int k = 0; k < kk; k++) {
@@ -449,7 +449,7 @@ namespace Cantera {
    */
 
 
-  doublereal MolalityVPSSTP::err(string msg) const {
+  doublereal MolalityVPSSTP::err(std::string msg) const {
     throw CanteraError("MolalityVPSSTP","Base class method "
 		       +msg+" called. Equation of state type: "+int2str(eosType()));
     return 0;
@@ -523,7 +523,7 @@ namespace Cantera {
   }
 
   /** Set the temperature (K), pressure (Pa), and molality.  */
-  void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, const string& m) {
+  void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, const std::string& m) {
     setMolalitiesByName(m);
     setTemperature(t);
     setPressure(p);
@@ -573,7 +573,7 @@ namespace Cantera {
    *             to see if phaseNode is pointing to the phase
    *             with the correct id. 
    */
-  void MolalityVPSSTP::initThermoXML(XML_Node& phaseNode, string id) {
+  void MolalityVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id) {
 
     initLengths();
     /*
