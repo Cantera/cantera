@@ -3,7 +3,11 @@
  * @file ct_defs.h
  *
  * This file contains definitions of terms that are used in internal 
- * routines and are unlikely to need modifying
+ * routines and are unlikely to need modifying. This file is included
+ * into every file that is in the Cantera Namespace.
+ *
+ * All physical constants are storred here.
+ * The module physConstants is defined here.
  */
 
 /* $Author$
@@ -28,17 +32,15 @@
 #include <numeric>
 #include <string>
 
-//using namespace std;
 
-//#include "ctvector.h"
-//using namespace ct;
-
+//! creates a pointer to the start of the raw data for a ctvector
 #define DATA_PTR(vec) &vec[0]
 
 #ifdef WIN32
 #define TYPENAME_KEYWORD
 #pragma warning(disable:4267)
 #else
+//! create a define for the typename command
 #define TYPENAME_KEYWORD typename
 #endif
 
@@ -49,16 +51,27 @@
  */
 namespace Cantera {
 
+ /*!
+  * All physical constants are storred here.
+  *
+  * @defgroup physConstants Physical Constants
+  * %Cantera uses the MKS system of units. The unit for moles 
+  * is defined to be the kmol.
+  * @ingroup globalData
+  * @{
+  */
+  //! Pi
     const doublereal Pi = 3.1415926;
+  //! sqrt(Pi)
     const doublereal SqrtPi = std::sqrt(Pi);
 
-    // use kg-moles, rather than g-moles.
-    // Note: this constant is a relic of old versions,
-    // and appears to be no longer used anywhere.
-    const doublereal CtMoles_per_mole = 1.e-3;       // kmol
-
-    /// @name Physical Constants
-    //@{
+  
+  /*!
+   *   @name Variations of the Gas Constant
+   * %Cantera uses the MKS system of units. The unit for moles 
+   * is defined to be the kmol.
+   */
+  //@{
 
     /// Avogadro's Number
     const doublereal Avogadro = 6.022136736e26;
@@ -79,7 +92,7 @@ namespace Cantera {
     /// Boltzmann's constant
     const doublereal Boltzmann = GasConstant / Avogadro;
 
-    /// Planck's constant
+    /// Planck's constant. Units of J-s
     const doublereal Planck = 6.626068e-34;           // J-s
     const doublereal Planck_bar = 1.05457148e-34;    // m2-kg/s
 
@@ -88,6 +101,7 @@ namespace Cantera {
     /// Stefan-Boltzmann constant
     const doublereal StefanBoltz = 5.67e-8;
 
+    //@}
     /// @name Electron Properties
     //@{
     const doublereal ElectronCharge = 1.602e-19; // C
@@ -96,7 +110,7 @@ namespace Cantera {
     //@}
 
     /// @name Electromagnetism
-    /// Cantera uses the MKS unit system.
+    /// %Cantera uses the MKS unit system.
     //@{
 
     /// Permittivity of free space \f$ \epsilon_0 \f$ in F/m.
@@ -106,59 +120,65 @@ namespace Cantera {
     const doublereal permeability_0 = 4.0e-7*Pi; // N/A^2
 
     //@}
-
-    //@} 
-
-    const doublereal OneThird = 1.0/3.0;
-    const doublereal FiveSixteenths = 5.0/16.0;
-    const doublereal SqrtTen = std::sqrt(10.0);
-    const doublereal SqrtEight = std::sqrt(8.0);
-
-    const doublereal SmallNumber = 1.e-300;
-    const doublereal BigNumber = 1.e300;
-
-    /// largest x such that exp(x) is valid
-    const doublereal MaxExp = 690.775527898;         
-
-    const int Undefined = -999;
-    const doublereal Undef = -999.1234;
-    const doublereal Cutoff = 1.e-12;
-    const doublereal Tiny = 1.e-20;
-
-
+ //@}
+ 
+  /*!
+   * @name Thermodynamic Equilibrium Constraints
+   * Integer numbers representing pairs of thermodynamic variables
+   * which are held constant during equilibration.
+   */
+  //@{
     const int TV = 100, HP = 101, SP = 102, PV = 103, TP = 104, UV = 105, 
               ST = 106, SV = 107, UP = 108, VH = 109, TH = 110, SH = 111,
               PX = 112, TX = 113;
     const int VT = -100, PH = -101, PS = -102, VP = -103, PT = -104, 
               VU = -105, TS = -106, VS = -107, PU = -108, HV = -109, 
               HT = -110, HS = -111, XP = -112, XT = -113;
+  //@}
 
+  //! 1/3
+    const doublereal OneThird = 1.0/3.0;
+  //! 5/16
+    const doublereal FiveSixteenths = 5.0/16.0;
+  //! sqrt(10)
+    const doublereal SqrtTen = std::sqrt(10.0);
+  //! sqrt(8)
+    const doublereal SqrtEight = std::sqrt(8.0);
+  //! smallest number to compare to zero.
+    const doublereal SmallNumber = 1.e-300;
+  //! largest number to compare to inf.
+    const doublereal BigNumber = 1.e300;
+  //! largest x such that exp(x) is valid
+    const doublereal MaxExp = 690.775527898;         
+
+  //! Fairly random number to be used to initialize variables against to see if they are subsequently defined.
+    const doublereal Undef = -999.1234;
+  //! Small number to compare differences of mole fractions against.
+    const doublereal Tiny = 1.e-20;
+  //! inline function to return the max value of two doubles.
     inline doublereal fmaxx(doublereal x, doublereal y)
     { return (x > y) ? x : y; }
+  //! inline function to return the min value of two doubles.
     inline doublereal fminn(doublereal x, doublereal y)
     { return (x < y) ? x : y; }
 
-    const int GAS = 0;
-    const int LIQUID = 1;
-    const int SOLID = 2;
-    const int PURE_FLUID = 3;
 
-    //    enum Phase {GAS, LIQUID, SOLID, PURE_FLUID};
-
-    const int Solid_Phase = 0,
-             Liquid_Phase = 1,
-              Vapor_Phase = 2,
-                Gas_Phase = 2;
-
-    const int None = 0;
-
-    // typedefs
+  //! Map connecting a string name with a double.
+  /*!
+   * This is used mostly to assign concentrations and mole fractions
+   * to species.
+   */
     typedef std::map<std::string, doublereal> compositionMap;
+//! Turn on the use of stl vectors for the basic array type within cantera
 #define USE_STL_VECTOR
 #ifdef USE_STL_VECTOR
-    typedef std::vector<double>            array_fp;
-    typedef std::vector<double>            vector_fp;
+  //! Vector of doubles.
+    typedef std::vector<double>        array_fp;
+  //! Vector of doubles.
+    typedef std::vector<double>        vector_fp;
+  //! Vector of ints
     typedef std::vector<int>           array_int;
+  //! Vector of ints
     typedef std::vector<int>           vector_int;
 #else
     typedef ct::ctvector_fp            array_fp;
@@ -166,17 +186,21 @@ namespace Cantera {
     typedef ct::ctvector_int           array_int;
     typedef ct::ctvector_int           vector_int;
 #endif
+  //! typedef for a group of species.
+  /*!
+   * A group of species is a subset of the species in a phase.
+   */
     typedef vector_int         group_t;
-    typedef std::vector<group_t>    grouplist_t;
+  //! typedef for a vector of groups of species.
+  /*!
+   * A grouplist of species is a vector of groups.
+   */
+  typedef std::vector<group_t>    grouplist_t;
  
+  //! Typedef for a pointer to temporary work storage
     typedef doublereal* workPtr;
+  //! typedef for a pointer to temporary work storage which is treated as constant
     typedef const doublereal* const_workPtr;
-
-
-    //    template<class A, class B>
-    //inline doublereal operator*(const vector<A>& u, const vector<B>& v) {
-    //    return std::inner_product(u.begin(), u.end(), v.begin(), 0.0);
-    // }
 
 
 }  // namespace

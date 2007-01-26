@@ -22,10 +22,16 @@
 
 namespace Cantera {
 
-    const int    cAC_CONVENTION_MOLAR    = 0;
-    const int    cAC_CONVENTION_MOLALITY = 1;
-
-    class XML_Node;
+  /*!
+   * @name CONSTANTS - Specification of the Molality conventention
+   */
+  //@{
+  //! Standard state uses the molar convention
+  const int    cAC_CONVENTION_MOLAR    = 0;
+  //! Stanadrd state uses the molality convention
+  const int    cAC_CONVENTION_MOLALITY = 1;
+  //@}
+  class XML_Node;
 
 
     /**
@@ -269,12 +275,19 @@ namespace Cantera {
          * This is used by classes InterfaceKinetics and EdgeKinetics to
          * compute the rates of charge-transfer reactions, and in computing
          * the electrochemical potentials of the species.
+	 * 
+	 * Each phase may have its own electric potential.
+	 *
+	 * &param v Value of the electric potential in Volts
          */
         void setElectricPotential(doublereal v) {
             m_phi = v;
         }
 
-        /// The electric potential of this phase (V).
+        //! Returns the electric potential of this phase (V).
+        /*!
+	 *  Units are Volts
+	 */ 
         doublereal electricPotential() const { return m_phi; }
 
         /**
@@ -675,6 +688,10 @@ namespace Cantera {
         }
         //@}
 
+      //! Return the Gas Constant multiplied by the current temperature
+      /*!
+       *  The units are Joules kmol-1
+       */
         doublereal _RT() const {
             return temperature() * GasConstant;
         }
@@ -1027,10 +1044,15 @@ namespace Cantera {
 
         /// Index number
         int m_index;
+      //! Storred value of the electric potential for this phase
+      /*!
+       * Units are Volts
+       */
         doublereal m_phi;
         /// Vector of element potentials.
         ///    -> length equal to number of elements
         vector_fp m_lambdaRRT;
+      //! Boolean indicating whether there is a valid set of saved element potentials for this phase
         bool m_hasElementPotentials;
 
     private:
@@ -1039,7 +1061,9 @@ namespace Cantera {
 
     };
 
+  //! typedef for the ThermoPhase class
     typedef ThermoPhase thermophase_t;
+  //! typedef for the ThermoPhase class
     typedef ThermoPhase thermo_t;
 }
         

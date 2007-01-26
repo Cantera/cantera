@@ -36,11 +36,10 @@ namespace Cantera {
     class Enhanced3BConc;
     class ReactionData;
 
-    /**
-     * Class to write a hard-coded version of a mechanism.
-     * @ingroup kineticsGroup
+    //! Class to write a hard-coded version of a mechanism.
+    /*!
+     * @ingroup kineticsmgr
      */
-
     class GasKineticsWriter {
 
     public:

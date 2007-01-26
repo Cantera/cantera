@@ -1,10 +1,14 @@
 /**
  * @file global.h
  *
- * These functions handle various utility functions, and store 
- * some parameters in 
- * global storage that are accessible at all times. 
- *  
+ * This file contains definitions for utility functions. These functions store 
+ * some parameters in  global storage that are accessible at all times
+ * from the calling application.
+ * Contains module definitions for
+ *       inputfiles
+ *       logs
+ *       textlogs
+ *       HTML_logs
  */
 
 /* $Author$
@@ -17,7 +21,6 @@
 #ifndef CT_GLOBAL_H
 #define CT_GLOBAL_H
 
-#include <string>
 #include "ct_defs.h"
 
 namespace Cantera {
@@ -48,7 +51,7 @@ namespace Cantera {
    * @param r Procedure name which is generating the error condition
    * @param msg Descriptive message of the error condition.
    *
-   * \ingroup errorhandling
+   * @ingroup errorhandling
    */
   void setError(std::string r, std::string msg);
 
@@ -81,7 +84,7 @@ namespace Cantera {
 
   //! Discard the last error message
   /*!
-   * Cantera saves a stack of exceptions that it
+   * %Cantera saves a stack of exceptions that it
    * has caught in the Application class. This routine eliminates
    * the last exception to be added to that stack.
    *
@@ -89,39 +92,192 @@ namespace Cantera {
    */
   void popError();
 
-    /// Find an input file.
-    std::string findInputFile(std::string name);
+  /*!
+   * @defgroup inputfiles Input File Handling
+   *
+   * The properties of phases and interfaces are specified in 
+   * text files. These procedures handle various aspects of reading
+   * these files.
+   *
+   * For input files not specified by an absolute pathname,
+   * %Cantera searches
+   * for input files along a path that includes platform-specific
+   * default locations, and possibly user-specified locations. 
+   *
+   * The current directory (".") is always searched first. Then, on
+   * Windows platforms, if environment variable COMMONPROGRAMFILES
+   * is set (which it should be on Win XP or Win 2000), then
+   * directories under this one will be added to the search
+   * path. The %Cantera Windows installer installs data files to this
+   * location.
+   * 
+   * On the Mac, directory '/Applications/Cantera/data' is added to the
+   * search path. 
+   * 
+   * On any platform, if environment variable CANTERA_DATA is set to a 
+   * directory name, then this directory is added to the search path. 
+   *
+   * Finally, the location where the data files were installed when
+   * %Cantera was built is added to the search path.
+   * 
+   * Additional directories may be added by calling function addDirectory.
+   * @{
+   */
 
-    void addDirectory(std::string dir);
+  //! Find an input file.
+  /*!
+   *    This routine will search for a file in the default
+   *    locations specified for the application.
+   *    See the routine setDefaultDirectories() listed above.
+   *
+   *    The default set of directories specified for the application
+   *    will be searched if a '/' or an '\\' is found in the
+   *    name. If either is found then a relative path name is
+   *    presumed, and the default directories are not searched.
+   *
+   *    The presence of the file is determined by whether the file
+   *    can be opened for reading by the current user.
+   *
+   *  @param name Name of the input file to be searched for
+   *
+   *    @return
+   *    
+   *      The absolute path name of the first matching
+   *      file is returned. If a relative path name
+   *      is indicated, the relative path name is returned.
+   *  
+   *      If the file is not found, a message is written to 
+   *      stdout and  a CanteraError exception is thrown.
+   *
+   * @ingroup inputfiles
+   */
+  std::string findInputFile(std::string name);
 
-    void appdelete();
+  //!  Add a directory to the input file search path.
+  /*!
+   * @ingroup inputfiles
+   */
+  void addDirectory(std::string dir);
 
-    /// The root directory where Cantera is installed
-    std::string canteraRoot();
+  //@}
 
-    /// Set the temporary file directory. The default is to use the 
-    /// directory specified by enviroment variable TMP or TEMP. If neither 
-    /// of these are defined, then the current working directory will be 
-    /// used for temporary files. Call this function to specify some other
-    /// place to put temporary files.
-    void setTmpDir(std::string tmp);
+  //! Delete and free all memory associated with the application
+  /*!
+   * Delete all global data.  It should be called at the end of the
+   * application if leak checking is to be done.
+   */
+  void appdelete();
 
-    /// The directory where temporary files may be created
-    std::string tmpDir();
+  //! Returns root directory where %Cantera where installed
+  /*!
+   * @return
+   *  Returns a string containing the name of the base directory where %Cantera is installed.
+   *  If the environmental variable CANTERA_ROOT is defined, this function will
+   *  return its value, preferentially.
+   *
+   * @ingroup inputfiles
+   */
+  std::string canteraRoot();
 
-    /// Delay time in seconds.
-    std::string sleep();
+  //! Sets the temporary file directory.
+  /*!
+   *  The default is to use the 
+   *  directory specified by enviroment variable TMP or TEMP. If neither 
+   *  of these are defined, then the current working directory will be 
+   *  used for temporary files. Call this function to specify some other
+   *  place to put temporary files.
+   *
+   * @ingroup inputfiles
+   */
+  void setTmpDir(std::string tmp);
 
-    void writelog(const std::string& msg);
+  //! Retrieves the  directory name where temporary files are created
+  /*!
+   * @ingroup inputfiles
+   * @return
+   *    Returns a string containing the directory name
+   */
+  std::string tmpDir();
 
-    void writelog(const char* msg);
+  //! Delay time in seconds.
+  /*!
+   * @return
+   *     Returns the length of time in seconds for calls to the
+   *     sleep function.
+   * @ingroup inputfiles
+   */
+  std::string sleep();
 
-    void error(const std::string& msg);
+  /*!
+   * @defgroup logs Diagnostic Output
+   *
+   * Writing diagnostic information to the screen or to a file.
+   * It is often useful to be able to write diagnostic messages to
+   * the screen or to a file. Cantera provides two sets of
+   * procedures for this purpose. The first set is designed to
+   * write text messages to the screen to document the progress of
+   * a complex calculation, such as a flame simulation.The second
+   * set writes nested lists in HTML format. This is useful to
+   * print debugging output for a complex calculation that calls
+   * many different procedures.
+   */
 
-    // returns 1 for MATLAB, 2 for Python, and 0 for C++ or Fortran.
-    int userInterface();
+  /*!
+   * @defgroup textlogs Writing messages to the screen
+   * @ingroup logs
+   */
 
-    void setLogger(Logger* logwriter);
+ 
+  //!  Write a message to the screen. 
+  /*!
+   * The string may be of any
+   * length, and may contain end-of-line characters. This method is
+   * used throughout Cantera to write log messages. It can also be
+   * called by user programs.  The advantage of using writelog over
+   * writing directly to the standard output is that messages
+   * written with writelog will display correctly even when Cantera
+   * is used from MATLAB or other application that do not have a
+   * standard output stream.
+   *
+   * @param msg  String message to be written to the screen 
+   * @ingroup textlogs
+   */
+  void writelog(const std::string& msg);
+
+  //!  Write a message to the screen. 
+  /*!
+   * The string may be of any
+   * length, and may contain end-of-line characters. This method is
+   * used throughout %Cantera to write log messages.
+   *
+   * @param msg  c character string to be written to the screen 
+   * @ingroup textlogs
+   */
+  void writelog(const char* msg);
+
+  //! Write an error message and terminate execution.
+  /*!
+   *  @param msg Error message to be written to the screen.
+   *  @ingroup textlogs
+   */
+  void error(const std::string& msg);
+
+  //! returns 1 for MATLAB, 2 for Python, and 0 for C++ or Fortran.
+  /*!
+   *   @ingroup textlogs
+   */ 
+  int userInterface();
+
+  //! Install a logger. 
+  /*!
+   *  Called by the language interfaces to install an appropriate logger. 
+   *  The logger is used for the writelog() function
+   *
+   * @param logwriter Pointer to a logger object
+   * @see Logger.
+   * @ingroup textlogs
+   */
+  void setLogger(Logger* logwriter);
 
     /// Return the conversion factor to convert unit std::string 'unit' to
     /// SI units.
@@ -138,21 +294,125 @@ namespace Cantera {
     void close_XML_File(std::string file);
 
 #ifdef WITH_HTML_LOGS
-    void beginLogGroup(std::string title, int loglevel=-99);
-    void addLogEntry(std::string tag, std::string value);
-    void addLogEntry(std::string tag, doublereal value);
-    void addLogEntry(std::string tag, int value);
-    void addLogEntry(std::string msg);
+
+  /*!
+   * @defgroup HTML_logs Writing HTML Logfiles
+   * @ingroup logs
+   * 
+   *  These functions are designed to allow writing HTML diagnostic
+   *  messages in a manner that allows users to control how much
+   *  diagnostic output to print. It works like this: Suppose you
+   *  have function A that invokes function B that invokes function
+   *  C. You want to be able to print diagnostic messages just from
+   *  function A, or from A and B, or from A, B, and C, or to turn
+   *  off printing diagnostic messages altogether. All you need to
+   *  do is call 'beginLogGroup' within function A, and specify a
+   *  loglevel value. Then in B, call beginLogGroup again, but
+   *  without an explicit value for loglevel. By default, the
+   *  current level is decremented by one in beginLogGroup. If it
+   *  is <= 0, no log messages are written. Thus, if each function
+   *  begins with beginLogGroup and calls endLogGroup before
+   *  returning, then setting loglevel = 3 will cause messages from
+   *  A, B, and C to be written (in nested HTML lists), loglevel =
+   *  2 results in messages only being written from A and B, etc.
+   */
+
+  //!Create a new group for log messages.
+  /*!
+   *  Usually this is called
+   *  upon entering the function, with the title parameter equal to
+   *  the name of the function or method. Subsequent messages
+   *  written with addLogEntry will appear grouped under this
+   *  heading, until endLogGroup() is called.
+   *
+   *  @param title String name of the LogGroup
+   *  @param loglevel loglevel of the group. 
+   *  @ingroup HTML_logs
+   */
+  void beginLogGroup(std::string title, int loglevel=-99);
+
+  //! Add an entry to an HTML log file.
+  /*!
+   *  Entries appear in the form "tag:value".
+   *
+   * @param tag      tag
+   * @param value    string value
+   *
+   * @ingroup HTML_logs
+   */
+  void addLogEntry(std::string tag, std::string value);
+
+  //! Add an entry to an HTML log file.
+  /*!
+   *  Entries appear in the form "tag:value".
+   *
+   * @param tag      tag
+   * @param value    double value
+   *
+   * @ingroup HTML_logs
+   */
+  void addLogEntry(std::string tag, doublereal value);
+
+  //! Add an entry to an HTML log file.
+  /*!
+   *  Entries appear in the form "tag:value".
+   *
+   * @param tag      tag
+   * @param value    int value
+   *
+   * @ingroup HTML_logs
+   */
+  void addLogEntry(std::string tag, int value);
+
+  //! Add an entry msg string to an HTML log file.
+  /*!
+   * Add a message string to the HTML log file
+   *
+   * @param msg      string mesg
+   *
+   * @ingroup HTML_logs
+   */
+  void addLogEntry(std::string msg);
+
+  //! Close the current group of log messages. 
+  /*!
+   *  This is typically
+   *  called just before leaving a function or method, to close the
+   *  group of messages that were output from this
+   *  function. Subsequent messages written with addLogEntry() will
+   *  appear at the next-higher level in the outline, unless
+   *  beginLogGroup() is called first to create a new group.  
+   *
+   * @param title Name of the log group. It defaults to the most recent
+   *              log group created.
+   * @ingroup HTML_logs
+   */
     void endLogGroup(std::string title="");
-    void write_logfile(std::string file = "log.html");
+
+  //! Write the HTML log file.
+  /*!
+   *  Log entries are stored in memory in
+   *  an XML tree until this function is called, which writes the
+   *  tree to a file and clears the entries stored in memory.  The
+   *  output file will have the name specified in the 'file'
+   *  argument.  If this argument has no extension, the extension
+   *  '.html' will be appended. Also, if the file already exists, an
+   *  integer will be appended to the name so that no existing log
+   *  file will be overwritten.  will be appended to the name.
+   *
+   *  @param  file Name of the file to be written
+   *  @ingroup HTML_logs
+   */
+  void write_logfile(std::string file = "log.html");
+
 #else
-    inline void beginLogGroup(std::string title, int loglevel=-99) {}
-    inline void addLogEntry(std::string tag, std::string value) {}
-    inline void addLogEntry(std::string tag, doublereal value) {}
-    inline void addLogEntry(std::string tag, int value) {}
-    inline void addLogEntry(std::string msg) {}
-    inline void endLogGroup(std::string title="") {}
-    inline void write_logfile(std::string file = "log.html") {}
+  inline void beginLogGroup(std::string title, int loglevel=-99) {}
+  inline void addLogEntry(std::string tag, std::string value) {}
+  inline void addLogEntry(std::string tag, doublereal value) {}
+  inline void addLogEntry(std::string tag, int value) {}
+  inline void addLogEntry(std::string msg) {}
+  inline void endLogGroup(std::string title="") {}
+  inline void write_logfile(std::string file = "log.html") {}
 #endif
 
 }

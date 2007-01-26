@@ -13,11 +13,6 @@
  *  $Revision$
  */
 
-
-#ifndef MAX
-#define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
-#endif
-
 #include "IdealMolalSoln.h"
 #include "importCTML.h"
 
@@ -412,7 +407,7 @@ namespace Cantera {
       ac[k] = m_molalities[k];
     }
     double xmolSolvent = moleFraction(m_indexSolvent);
-    xmolSolvent = MAX(8.689E-3, xmolSolvent);
+    xmolSolvent = fmaxx(8.689E-3, xmolSolvent);
     ac[m_indexSolvent] = 
       exp((xmolSolvent - 1.0)/xmolSolvent);
   }
@@ -434,7 +429,7 @@ namespace Cantera {
       acMolality[k] = 1.0;
     }
     double xmolSolvent = moleFraction(m_indexSolvent);
-    xmolSolvent = MAX(8.689E-3, xmolSolvent);
+    xmolSolvent = fmaxx(8.689E-3, xmolSolvent);
     acMolality[m_indexSolvent] = 
       exp((xmolSolvent - 1.0)/xmolSolvent) / xmolSolvent;
   }
@@ -485,7 +480,7 @@ namespace Cantera {
     doublereal RT = GasConstant * temperature();
     for (int k = 0; k < m_kk; k++) {
       if (k != m_indexSolvent) {
-	xx = MAX(m_molalities[k], xxSmall);
+	xx = fmaxx(m_molalities[k], xxSmall);
 	mu[k] += RT * log(xx);
       }
     }
@@ -494,7 +489,7 @@ namespace Cantera {
      *  -> see my notes
      */
     double xmolSolvent = moleFraction(m_indexSolvent);
-    xx = MAX(xmolSolvent, xxSmall);
+    xx = fmaxx(xmolSolvent, xxSmall);
     mu[m_indexSolvent] += 
       (RT * (xmolSolvent - 1.0) / xx);
   }

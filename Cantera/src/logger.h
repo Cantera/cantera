@@ -36,7 +36,9 @@ namespace Cantera {
     class Logger {
     public:
 
+      //! Constructor - empty
       Logger() {}
+      //! Destructor - empty
       virtual ~Logger() {}
 
       /// Write a log message. The default behavior is to write to

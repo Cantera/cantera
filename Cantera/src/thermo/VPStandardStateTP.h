@@ -401,17 +401,14 @@ namespace Cantera {
     void initLengths();
 
   protected:
-    /*
-     * The last temperature at which the reference thermodynamic
-     * properties were calculated at.
-     */
+    
+    //! The last temperature at which the reference thermodynamic properties were calculated at.
     mutable doublereal    m_tlast;
-    /*
-     * The last pressure at which the Standard State thermodynamic
-     * properties were calculated at.
-     */
+
+    //! The last pressure at which the Standard State thermodynamic properties were calculated at.
     mutable doublereal    m_plast;
-    /**
+
+    /*!
      * Vector containing the species reference enthalpies at T = m_tlast
      * and P = p_ref.
      */

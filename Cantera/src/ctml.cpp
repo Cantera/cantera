@@ -276,8 +276,8 @@ namespace ctml {
         int x, x0, x1;
         string units, vmin, vmax;
         x = atoi(node().c_str());
-        x0 = Undefined;
-        x1 = Undefined;
+        x0 = -9999999;
+        x1 =  9999999;
         vmin = node["min"];
         vmax = node["max"];
         if (vmin != "") {

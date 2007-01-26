@@ -1,7 +1,8 @@
-
-///  @file Constituents.h
-///  Header file for class Constituents
-
+/*!
+ * @file Constituents.h
+ *
+ *  Header file for class Constituents
+ */
 
 /*  $Author$ 
  *  $Date$
@@ -28,21 +29,33 @@ namespace Cantera {
 
     class Elements;
 
-
     /************** DEFINITIONS OF ERRORS *****************************/
 
+    //! Specific fatal error indicating that the index of a species is out of range.
+    /*!
+     *
+     *  @ingroup errorhandling
+     */
     class SpeciesRangeError : public CanteraError {
     public:
-        SpeciesRangeError(std::string func, int k, int kmax) :
-            CanteraError(func, "Species index " + int2str(k) + 
-                " outside valid range of 0 to " + int2str(kmax-1)) {}
+      //! Constructor
+      /*!
+       *  @param func Function where the error occurred.
+       *  @param k    current species index value
+       *  @param kmax Maximum permissible species index value. The
+       *              minimum permissible species index value is assumed to be 0
+       *
+       */
+      SpeciesRangeError(std::string func, int k, int kmax) :
+	CanteraError(func, "Species index " + int2str(k) + 
+		     " outside valid range of 0 to " + int2str(kmax-1)) {}
     };
 
     /******************************************************************/
 
 
-    /// Class Constituents manages a set of elements and
-    /// species. Class Constituents is designed to provide information
+    /// Class %Constituents manages a set of elements and
+    /// species. Class %Constituents is designed to provide information
     /// about the elements and species in a phase - names, index
     /// numbers (location in arrays), atomic or molecular weights,
     /// etc. No computations are performed by the methods of this
@@ -223,25 +236,46 @@ namespace Cantera {
 
     protected:
     
-        int                            m_kk;
-        vector_fp                      m_weight;
+        //! Number of species in the phase.
+      int                            m_kk;
+      //! Vector of molecular weights of the species
+      /*!
+       * This vector has length m_kk.
+       * The units of the vector are kg kmol-1.
+       */
+      vector_fp                      m_weight;
 
-        bool                           m_speciesFrozen;
+      //! Boolean indicating whether the number of species has been frozen.
+      /*!
+       * During the construction of the phase, this is false. After
+       * construction of the the phase, this is true.
+       */
+      bool                           m_speciesFrozen;
 
-        /*
+        /*!
          * Pointer to the element object corresponding to this
          * phase. Normally, this will be the default Element object
          * common to all phases.
          */
         Elements *                     m_Elements;
 
-        std::vector<std::string>                 m_speciesNames;
-        vector_fp                      m_speciesComp;
+      //! Vector of the species names
+      std::vector<std::string>                 m_speciesNames;
+
+      //! Atomic composition of the species.
+      /*!
+       * the number of atoms of i in species k is equal to
+       * m_speciesComp[k * m_mm + i]
+       * The length of this vector is equal to m_kk * m_mm
+       */
+      vector_fp                      m_speciesComp;
+
         /**
 	 * m_speciesCharge: Vector of species charges
 	 *           length = m_kk
 	 */
         vector_fp                      m_speciesCharge;
+
         /**
 	 * m_speciesSize(): Vector of species sizes.
 	 *           length m_kk

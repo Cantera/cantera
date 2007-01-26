@@ -34,10 +34,15 @@
 
 namespace Cantera {
 
+  /*!
+   * @name CONSTANTS - Models for the Standard State of IdealSolidSolnPhase's
+   */
+  //@{
   const int cIdealSolidSolnPhase0 = 5010;
   const int cIdealSolidSolnPhase1 = 5011;
   const int cIdealSolidSolnPhase2 = 5012;
- 
+  //@}
+
   /**
    * Class IdealSolidSolnPhase represents a condensed phase ideal 
    * solution compound. The phase and the pure species phases which
@@ -48,7 +53,7 @@ namespace Cantera {
    * The class derives from class ThermoPhase,
    * and overloads the virtual methods defined there with ones that
    * use expressions appropriate for ideal solution mixtures.
-   *File name for the XML datafile containing information
+   * File name for the XML datafile containing information
    *               for this phase
    * The generalized concentrations can have three different forms 
    * depending on the value of the member attribute m_formGC, which
@@ -135,17 +140,17 @@ namespace Cantera {
      */
     IdealSolidSolnPhase(XML_Node& root, std::string id="", int formCG=0);
 
-    /*
+    /*!
      * Copy Constructor
      */
     IdealSolidSolnPhase(const IdealSolidSolnPhase &);
 
-    /*
+    /*!
      * Assignment operator
      */
     IdealSolidSolnPhase& operator=(const IdealSolidSolnPhase &);
 
-    /*
+    /*!
      * Base Class Duplication Function
      *  -> given a pointer to ThermoPhase, this function can
      *     duplicate the object. (note has to be a separate function
@@ -154,7 +159,7 @@ namespace Cantera {
      */
     virtual ThermoPhase* duplMyselfAsThermoPhase();
 
-
+    //! Destructor
     virtual ~IdealSolidSolnPhase() {}
 
     /**

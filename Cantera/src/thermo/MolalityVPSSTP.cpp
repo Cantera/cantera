@@ -12,9 +12,6 @@
  *  $Date$
  *  $Revision$
  */
-#ifndef MAX
-#define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
-#endif
 
 
 #include "MolalityVPSSTP.h"
@@ -433,7 +430,7 @@ namespace Cantera {
     double sum = 0;
     for (int k = 0; k < m_kk; k++) {
       if (k != m_indexSolvent) {
-	sum += MAX(m_molalities[k], 0.0);
+	sum += fmaxx(m_molalities[k], 0.0);
       }
     }
     double oc = 1.0;

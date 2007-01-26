@@ -1,6 +1,11 @@
-
 /**
  *  @file misc.cpp
+ *
+ * This file contains a miscellaneous collection of global data
+ * functions.
+ *
+ * These modules are defined here:
+ *      globalData
  *
  *  $Id$
  */
@@ -28,82 +33,120 @@ using namespace std;
 
 namespace Cantera {
 
-    /**
-     * Class to hold global data. Class Application is the top-level
+  /*!
+   * @defgroup globalData Global Data
+   *
+   * Global data are available anywhere. There are two kinds.
+   * Cantera has an assortment of constant values for physical parameters.
+   * Also, Cantera maintains a collection of global data which is specific
+   * to each process that invokes Cantera functions. This process-specific
+   * data is storred in the class Application.
+   */
+  //@{
+  //@}
+    
+    //!  Class to hold global data. 
+    /*!
+     * Class Application is the top-level
      * class that stores data that should persist for the duration of
      * the process. The class should not be instantiated directly;
      * instead, it is instantiated as needed by the functions declared
      * here. At most one instance is created, and it is not destroyed
      * until the process terminates.
+     *
+     * @ingroup HTML_logs
+     * @ingroup textlogs
+     * @ingroup globalData
      */
-    class Application {
-    public:
-        Application() : linelen(0), stop_on_error(false),
-                        tmp_dir("."), sleep("1") 
-            {
-                // if TMP or TEMP is set, use it for the temporary
-                // directory
-                char* tmpdir = getenv("TMP");
-                if (tmpdir == 0) 
-                    tmpdir = getenv("TEMP");
-                if (tmpdir != 0)
-                    tmp_dir = string(tmpdir);
+  class Application {
+  public:
+    //! Constructor for class sets up the initial conditions
+    Application() : linelen(0), stop_on_error(false),
+		    tmp_dir("."), sleep("1") 
+    {
+      // if TMP or TEMP is set, use it for the temporary
+      // directory
+      char* tmpdir = getenv("TMP");
+      if (tmpdir == 0) 
+	tmpdir = getenv("TEMP");
+      if (tmpdir != 0)
+	tmp_dir = string(tmpdir);
 
-                // if SLEEP is set, use it as the sleep time
-                char* sleepstr = getenv("SLEEP");
-                if (sleepstr != 0) {
-                    sleep = string(sleepstr);
-                }
+      // if SLEEP is set, use it as the sleep time
+      char* sleepstr = getenv("SLEEP");
+      if (sleepstr != 0) {
+	sleep = string(sleepstr);
+      }
 
-                // install a default logwriter that writes to standard
-                // output / standard error
-                logwriter = new Logger();
-                // HTML log files
-                xmllog = 0; 
-                current = 0;
-                loglevel = 0;
-            }
+      // install a default logwriter that writes to standard
+      // output / standard error
+      logwriter = new Logger();
+      // HTML log files
+      xmllog = 0; 
+      current = 0;
+      loglevel = 0;
+    }
 
-        /// Delete any open XML trees, the logwriter, and
-        /// the XML log, if any.
-        virtual ~Application() {
-            map<string, XML_Node*>::iterator pos;
-            for (pos = xmlfiles.begin(); pos != xmlfiles.end(); ++pos) {
-                pos->second->unlock();
-                delete pos->second;
-                pos->second = 0;
-            }
-            delete logwriter;
-            if (xmllog) {
-                write_logfile("orphan");
-                //delete xmllog;
-            }
-        }
+    //! Destructor for class deletes global data
+    /*!
+     * Delete any open XML trees, the logwriter, and
+     * the XML log, if any.
+     */
+    virtual ~Application() {
+      map<string, XML_Node*>::iterator pos;
+      for (pos = xmlfiles.begin(); pos != xmlfiles.end(); ++pos) {
+	pos->second->unlock();
+	delete pos->second;
+	pos->second = 0;
+      }
+      delete logwriter;
+      if (xmllog) {
+	write_logfile("orphan");
+	//delete xmllog;
+      }
+    }
+    //! Current vector of input directories to search for input files
+    vector<string> inputDirs;
+    //! Current list of error messages 
+    vector<string> errorMessage;
+    //! Current list of warning messages
+    vector<string> warning;
+    //! Current error Routine
+    vector<string> errorRoutine;
+    //! Last error message
+    string msglog;
+    //! Current line length
+    size_t linelen;
+    //! Current value of stop_on_error
+    bool stop_on_error;
+    //! Current map of options
+    map<string, string>     options;
+    //! Current value of tmp_dir
+    string tmp_dir;
+    //! Current vector of xml file trees that have been previously parsed
+    map<string, XML_Node*> xmlfiles;
+    //! Current sleep command.
+    string sleep;
+    //! Current pointer to the logwriter
+    Logger* logwriter;
+    //! Current pointer to the top of the XML_Node tree for the current HTML log
+    XML_Node *xmllog;
+    //! Pointer to the last current position in the XML_Node tree for the current HTML log
+    XML_Node *current;
+    //! Current value of loglevel
+    int loglevel;
+    //! Vector of loglevels for loggroups that are open
+    vector<int> loglevels;
+    //! Current vector of loggroups that are open
+    vector<string> loggroups;
+  };
 
-        vector<string> inputDirs;
-        vector<string> errorMessage;
-        vector<string> warning;
-        vector<string> errorRoutine;
-        string msglog;
-        size_t linelen;
-        bool stop_on_error;
-        map<string, string>     options;
-        string tmp_dir;
-        map<string, XML_Node*> xmlfiles;
-        string sleep;
-        Logger* logwriter;
-        XML_Node *xmllog, *current;
-        int loglevel;
-        vector<int> loglevels;
-        vector<string> loggroups;
-    };
-        
     
             
-    /// Return a pointer to the one and only instance of class Application
+  /// Return a pointer to the one and only instance of class Application
     Application* app();
 
-    void setDefaultDirectories();
+    static void setDefaultDirectories();
 
     /// Pointer to the single Application instance
     static Application* s_app = 0;
@@ -119,7 +162,7 @@ namespace Cantera {
       }
     }
 
-    /**
+    /*
      * Delete all global data.  It should be called at the end of the
      * application if leak checking is to be done.
      */
@@ -143,7 +186,7 @@ namespace Cantera {
     }
 
 
-    XML_Node* get_XML_File(string file) {
+    XML_Node* get_XML_File(std::string file) {
         string path = "";
         /*
         try {
@@ -253,7 +296,7 @@ namespace Cantera {
         return s_app->xmlfiles[ff];
     }
 
-    void close_XML_File(string file) {
+    void close_XML_File(std::string file) {
         if (file == "all") {
             map<string, XML_Node*>::iterator 
                 b = app()->xmlfiles.begin(), e = app()->xmlfiles.end();
@@ -271,7 +314,7 @@ namespace Cantera {
         }
     }
 
-    void setTmpDir(string tmp) { app()->tmp_dir = tmp; }
+    void setTmpDir(std::string tmp) { app()->tmp_dir = tmp; }
     string tmpDir() { appinit(); return app()->tmp_dir; }
     string sleep() { appinit(); return app()->sleep; }
 
@@ -391,13 +434,10 @@ namespace Cantera {
         s_app->errorRoutine.push_back(r);
     }
 
-    /// @defgroup inputfiles Input File Handling
-    /// The properties of phases and interfaces are specified in 
-    /// text files. These procedures handle various aspects of reading
-    /// these files.
-    
-    /**
-     * Set the default directories for input files. Cantera searches
+   
+    //! Set the default directories for input files.
+    /*!
+     * %Cantera searches
      * for input files along a path that includes platform-specific
      * default locations, and possibly user-specified locations.  This
      * function installs the platform-specific directories on the
@@ -408,7 +448,7 @@ namespace Cantera {
      * Windows platforms, if environment variable COMMONPROGRAMFILES
      * is set (which it should be on Win XP or Win 2000), then
      * directories under this one will be added to the search
-     * path. The Cantera Windows installer installs data files to this
+     * path. The %Cantera Windows installer installs data files to this
      * location.
      * 
      * On the Mac, directory '/Applications/Cantera/data' is added to the
@@ -418,12 +458,12 @@ namespace Cantera {
      * directory name, then this directory is added to the search path. 
      *
      * Finally, the location where the data files were installed when
-     * Cantera was built is added to the search path.
+     * %Cantera was built is added to the search path.
      * 
      * Additional directories may be added by calling function addDirectory.
      * @ingroup inputfiles
      */
-    void setDefaultDirectories() {
+    static void setDefaultDirectories() {
         appinit();
         vector<string>& dirs = s_app->inputDirs;
 
@@ -484,10 +524,9 @@ namespace Cantera {
     }
 
 
-
-    /// Add a directory to the input file search path.
-    /// @ingroup inputfiles
-    void addDirectory(string dir) {
+    // Add a directory to the input file search path.
+    // @ingroup inputfiles
+    void addDirectory(std::string dir) {
         appinit();
         if (s_app->inputDirs.size() == 0) setDefaultDirectories();
         string d = stripnonprint(dir);
@@ -500,15 +539,15 @@ namespace Cantera {
         s_app->inputDirs.push_back(stripnonprint(dir));
     }
 
-    /*!    
+    /*    
      *    This routine will search for a file in the default
      *    locations specified for the application.
      *    See the routine setDefaultDirectories() listed above.
      *
      *    The default set of directories specified for the application
-     *    will be searched if a '/' or an '\\' is not found in
+     *    will be searched if a '/' or an '\\' is found in the
      *    name. If either is found then a relative path name is
-     *    presumed and the default directories are not searched.
+     *    presumed, and the default directories are not searched.
      *
      *    The presence of the file is determined by whether the file
      *    can be opened for reading by the current user.
@@ -522,7 +561,7 @@ namespace Cantera {
      *      If the file is not found, a message is written to 
      *      stdout and  a CanteraError exception is thrown.
      */
-    string findInputFile(string name) {
+    string findInputFile(std::string name) {
         appinit();
         string::size_type islash = name.find('/');
         string::size_type ibslash = name.find('\\');
@@ -564,18 +603,17 @@ namespace Cantera {
             //}
     }
 
-    doublereal toSI(string unit) {
+    doublereal toSI(std::string unit) {
         doublereal f = Unit::units()->toSI(unit);
         if (f) return f;
         else return 1.0;
     }
 
-    doublereal actEnergyToSI(string unit) {
+    doublereal actEnergyToSI(std::string unit) {
         doublereal f = Unit::units()->actEnergyToSI(unit);
         if (f) return f;
         else return 1.0;
     }
-
 
     string canteraRoot() {
         char* ctroot = 0;
@@ -589,7 +627,6 @@ namespace Cantera {
 #endif
         }
     }
-
 
     // exceptions
 
@@ -635,55 +672,53 @@ namespace Cantera {
     }
 
 
-    /// @defgroup logs Diagnostic Output
-    ///
-    /// Writing diagnostic information to the screen or to a file.
-    /// It is often useful to be able to write diagnostic messages to
-    /// the screen or to a file. Cantera provides two sets of
-    /// procedures for this purpose. The first set is designed to
-    /// write text messages to the screen to document the progress of
-    /// a complex calculation, such as a flame simulation.The second
-    /// set writes nested lists in HTML format. This is useful to
-    /// print debugging output for a complex calculation that calls
-    /// many different procedures.
+    // @defgroup logs Diagnostic Output
+    //
+    // Writing diagnostic information to the screen or to a file.
+    // It is often useful to be able to write diagnostic messages to
+    // the screen or to a file. Cantera provides two sets of
+    // procedures for this purpose. The first set is designed to
+    // write text messages to the screen to document the progress of
+    // a complex calculation, such as a flame simulation.The second
+    // set writes nested lists in HTML format. This is useful to
+    // print debugging output for a complex calculation that calls
+    // many different procedures.
 
 
-    /// @defgroup textlogs Writing messages to the screen
-    /// @ingroup logs
+    // @defgroup textlogs Writing messages to the screen
+    // @ingroup logs
 
-    /// Write a message to the screen. The string may be of any
-    /// length, and may contain end-of-line characters. This method is
-    /// used throughout Cantera to write log messages. It can also be
-    /// called by user programs.  The advantage of using writelog over
-    /// writing directly to the standard output is that messages
-    /// written with writelog will display correctly even when Cantera
-    /// is used from MATLAB or other application that do not have a
-    /// standard output stream. @ingroup textlogs
-    void writelog(const string& msg) {
+    // Write a message to the screen. The string may be of any
+    // length, and may contain end-of-line characters. This method is
+    // used throughout Cantera to write log messages. It can also be
+    // called by user programs.  The advantage of using writelog over
+    // writing directly to the standard output is that messages
+    // written with writelog will display correctly even when Cantera
+    // is used from MATLAB or other application that do not have a
+    // standard output stream. @ingroup textlogs
+    void writelog(const std::string& msg) {
         app()->logwriter->write(msg);
     }
 
-    /// test
-    /// @ingroup textlogs
+    // Write a message to the screen.
     void writelog(const char* msg) {writelog(string(msg));}
 
-    /// Write an error message and terminate execution. test.
-    /// @ingroup textlogs
-    void error(const string& msg) {
+    // Write an error message and terminate execution. test.
+    // @ingroup textlogs
+    void error(const std::string& msg) {
         app()->logwriter->error(msg);
     }
 
-    /// test
-    /// @ingroup textlogs
+    // @ingroup textlogs
     int userInterface() {
       appinit();
         return app()->logwriter->env();
     }
 
-    /// Install a logger. Called by the language interfaces to install an
-    /// appropriate logger. 
-    /// @see Logger.
-    /// @ingroup textlogs
+    // Install a logger. Called by the language interfaces to install an
+    // appropriate logger. 
+    // @see Logger.
+    // @ingroup textlogs
     void setLogger(Logger* logwriter) {
         appinit();
         delete s_app->logwriter;
@@ -692,38 +727,38 @@ namespace Cantera {
 
 #ifdef WITH_HTML_LOGS
 
+    ////////////////////////////////////////////////////////////////
+    // 
+    // @defgroup HTML_logs Writing HTML Logfiles
+    // @ingroup logs
+    // 
+    //  These functions are designed to allow writing HTML diagnostic
+    //  messages in a manner that allows users to control how much
+    //  diagnostic output to print. It works like this: Suppose you
+    //  have function A that invokes function B that invokes function
+    //  C. You want to be able to print diagnostic messages just from
+    //  function A, or from A and B, or from A, B, and C, or to turn
+    //  off printing diagnostic messages altogether. All you need to
+    //  do is call 'beginLogGroup' within function A, and specify a
+    //  loglevel value. Then in B, call beginLogGroup again, but
+    //  without an explicit value for loglevel. By default, the
+    //  current level is decremented by one in beginLogGroup. If it
+    //  is <= 0, no log messages are written. Thus, if each function
+    //  begins with beginLogGroup and calls endLogGroup before
+    //  returning, then setting loglevel = 3 will cause messages from
+    //  A, B, and C to be written (in nested HTML lists), loglevel =
+    //  2 results in messages only being written from A and B, etc.
+    //
     /////////////////////////////////////////////////////////////////
-    /// 
-    /// @defgroup HTML_logs Writing HTML Logfiles
-    /// @ingroup logs
-    /// 
-    ///  These functions are designed to allow writing HTML diagnostic
-    ///  messages in a manner that allows users to control how much
-    ///  diagnostic output to print. It works like this: Suppose you
-    ///  have function A that invokes function B that invokes function
-    ///  C. You want to be able to print diagnostic messages just from
-    ///  function A, or from A and B, or from A, B, and C, or to turn
-    ///  off printing diagnostic messages altogether. All you need to
-    ///  do is call 'beginLogGroup' within function A, and specify a
-    ///  loglevel value. Then in B, call beginLogGroup again, but
-    ///  without an explicit value for loglevel. By default, the
-    ///  current level is decremented by one in beginLogGroup. If it
-    ///  is <= 0, no log messages are written. Thus, if each function
-    ///  begins with beginLogGroup and calls endLogGroup before
-    ///  returning, then setting loglevel = 3 will cause messages from
-    ///  A, B, and C to be written (in nested HTML lists), loglevel =
-    ///  2 results in messages only being written from A and B, etc.
-    ///
-    //////////////////////////////////////////////////////////////////
 
 
-    /// Create a new group for log messages.  Usually this is called
-    /// upon entering the function, with the title parameter equal to
-    /// the name of the function or method. Subsequent messages
-    /// written with addLogEntry will appear grouped under this
-    /// heading, until endLogGroup() is called.
-    /// @ingroup HTML_logs
-    void beginLogGroup(string title, int loglevel) {
+    // Create a new group for log messages.  Usually this is called
+    // upon entering the function, with the title parameter equal to
+    // the name of the function or method. Subsequent messages
+    // written with addLogEntry will appear grouped under this
+    // heading, until endLogGroup() is called.
+    // @ingroup HTML_logs
+    void beginLogGroup(std::string title, int loglevel) {
         appinit();
         if (loglevel != -99) s_app->loglevel = loglevel;
         else s_app->loglevel--;
@@ -738,45 +773,45 @@ namespace Cantera {
         s_app->current = &s_app->current->addChild("ul");
     }
 
-    /// Add an entry to the log file. Entries appear in the form "tag:
-    /// value".
-    /// @ingroup HTML_logs
-    void addLogEntry(string tag, string value) {
+    // Add an entry to the log file. Entries appear in the form "tag:
+    // value".
+    // @ingroup HTML_logs
+    void addLogEntry(std::string tag, std::string value) {
         if (s_app->loglevel > 0 && s_app->current) 
             s_app->current->addChild("li",tag+": "+value);
     }
 
-    /// Add an entry to the log file. Entries appear in the form "tag:
-    /// value".
-    /// @ingroup HTML_logs
-    void addLogEntry(string tag, doublereal value) {
+    // Add an entry to the log file. Entries appear in the form "tag:
+    // value".
+    // @ingroup HTML_logs
+    void addLogEntry(std::string tag, doublereal value) {
         if (s_app->loglevel > 0 && s_app->current) 
             s_app->current->addChild("li",tag+": "+fp2str(value));
     }
 
-    /// Add an entry to the log file. Entries appear in the form "tag:
-    /// value".
-    /// @ingroup HTML_logs
-    void addLogEntry(string tag, int value) {
+    // Add an entry to the log file. Entries appear in the form "tag:
+    // value".
+    // @ingroup HTML_logs
+    void addLogEntry(std::string tag, int value) {
         if (s_app->loglevel > 0 && s_app->current) 
             s_app->current->addChild("li",tag+": "+int2str(value));
     }
 
-    /// Add an entry to the log file.
-    /// @ingroup HTML_logs
-    void addLogEntry(string msg) {
+    // Add an entry to the log file.
+    // @ingroup HTML_logs
+    void Cantera::addLogEntry(std::string msg) {
         if (s_app->loglevel > 0 && s_app->current)
             s_app->current->addChild("li",msg);
     }
 
-    /// Close the current group of log messages. This is typically
-    /// called just before leaving a function or method, to close the
-    /// group of messages that were output from this
-    /// function. Subsequent messages written with addLogEntry will
-    /// appear at the next-higher level in the outline, unless
-    /// beginLogGroup is called first to create a new group.  
-    /// @ingroup HTML_logs
-    void endLogGroup(string title) {
+    // Close the current group of log messages. This is typically
+    // called just before leaving a function or method, to close the
+    // group of messages that were output from this
+    // function. Subsequent messages written with addLogEntry will
+    // appear at the next-higher level in the outline, unless
+    // beginLogGroup is called first to create a new group.  
+    // @ingroup HTML_logs
+    void endLogGroup(std::string title) {
         if (s_app->loglevel > 0) {
             s_app->current = s_app->current->parent();
             s_app->current = s_app->current->parent();
@@ -800,16 +835,16 @@ namespace Cantera {
             s_app->loggroups.pop_back();
     }
 
-    /// Write the HTML log file. Log entries are stored in memory in
-    /// an XML tree until this function is called, which writes the
-    /// tree to a file and clears the entries stored in memory.  The
-    /// output file will have the name specified in the 'file'
-    /// argument.  If this argument has no extension, the extension
-    /// '.html' will be appended. Also, if the file already exists, an
-    /// integer will be appended to the name so that no existing log
-    /// file will be overwritten.  will be appended to the name.
-    /// @ingroup HTML_logs
-    void write_logfile(string file) {
+    // Write the HTML log file. Log entries are stored in memory in
+    // an XML tree until this function is called, which writes the
+    // tree to a file and clears the entries stored in memory.  The
+    // output file will have the name specified in the 'file'
+    // argument.  If this argument has no extension, the extension
+    // '.html' will be appended. Also, if the file already exists, an
+    // integer will be appended to the name so that no existing log
+    // file will be overwritten.  will be appended to the name.
+    // @ingroup HTML_logs
+    void write_logfile(std::string file) {
         if (!s_app->xmllog) {
             return;
         }

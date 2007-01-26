@@ -281,6 +281,11 @@ namespace Cantera {
 	 */
         int m_kk;
 
+      //! Set the molecular weight of a single species to a given value
+      /*!
+       * @param k       id of the species
+       * @param mw      Molecular Weight (kg kmol-1)
+       */
         void setMolecularWeight(int k, double mw) {
             m_molwts[k] = mw;
             m_rmolwts[k] = 1.0/mw;

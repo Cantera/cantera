@@ -1,5 +1,9 @@
 /**
  * @file Kinetics.h
+ *    
+ *  Base class for kinetics managers
+ *
+ * Contains the kineticsmgr module documentation.
  *
  *  $Author$
  *  $Date$
@@ -7,10 +11,6 @@
  */
 
 // Copyright 2001-2004  California Institute of Technology
-
-/**
- * @defgroup kineticsGroup Kinetics
- */
 
 #ifndef CT_KINETICS_H
 #define CT_KINETICS_H
@@ -109,22 +109,24 @@ namespace Cantera {
     /// 5 locations.
 
 
-    /// Public interface for kinetics managers. This class serves as a
-    /// base class to derive 'kinetics managers', which are classes
-    /// that manage homogeneous chemistry within one phase, or
-    /// heterogeneous chemistry at one interface. The virtual methods
-    /// of this class are meant to be overloaded in subclasses. The
-    /// non-virtual methods perform generic functions and are
-    /// implemented in Kinetics. They should not be overloaded. Only
-    /// those methods required by a subclass need to be overloaded;
-    /// the rest will throw exceptions if called.  @ingroup kinetics
-    /// @ingroup kineticsmgr
-
+    //! Public interface for kinetics managers. 
+    /*! 
+     * This class serves as a
+     * base class to derive 'kinetics managers', which are classes
+     * that manage homogeneous chemistry within one phase, or
+     * heterogeneous chemistry at one interface. The virtual methods
+     * of this class are meant to be overloaded in subclasses. The
+     * non-virtual methods perform generic functions and are
+     * implemented in Kinetics. They should not be overloaded. Only
+     * those methods required by a subclass need to be overloaded;
+     * the rest will throw exceptions if called.  @ingroup kinetics
+     * @ingroup kineticsmgr
+     */
     class Kinetics {
 
     public:
 
-        // typedefs
+        //! typedef for ThermoPhase
         typedef ThermoPhase thermo_t;
 
 	/**
@@ -727,6 +729,7 @@ namespace Cantera {
 
         /// For internal use. May be removed in a future release.
         int index(){ return m_index; }
+      //! Set the index of the Kinetics Manager
         void setIndex(int index) { m_index = index; }
 
 
@@ -796,6 +799,7 @@ namespace Cantera {
 	 * -1.
 	 */
         std::map<std::string, int> m_phaseindex;
+      //! Index of the Kinetics Manager
         int m_index;
 
 	/**
@@ -819,7 +823,7 @@ namespace Cantera {
 
     };
 
-
+  //! typedef for the kinetics base class
     typedef Kinetics kinetics_t;
 
 }

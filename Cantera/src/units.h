@@ -15,11 +15,16 @@ namespace Cantera {
     class Unit {
     public:
 
+      //! Initialize the static Unit class.
         static Unit* units() {
             if (!s_u) s_u = new Unit;
             return s_u;
         }
 
+      //! Destroy the static Unit class
+      /*!
+       * Note this can't be done in a destructor.
+       */
 	static void deleteUnit() {
 	    if (s_u) {
 	      delete s_u;
@@ -27,6 +32,7 @@ namespace Cantera {
 	    }
 	}
 
+      //! Empty Destructor
         virtual ~Unit() {}
 
         /**

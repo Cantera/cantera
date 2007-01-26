@@ -85,16 +85,45 @@ namespace Cantera {
         
     /// Constructors 
     IdealMolalSoln();
+
+    //! Copy Constructor
     IdealMolalSoln(const IdealMolalSoln &);
+
+    //! Equality operator
     IdealMolalSoln& operator=(const	IdealMolalSoln&);
 
+    //! Constructor for phase initialization
+    /*!
+     * This constructor will initialize a phase, by reading the required
+     * information from an input file.
+     *
+     *  @param inputFile   Name of the Input file that contains information about the phase
+     *  @param id          id of the phase within the input file 
+     */
     IdealMolalSoln(std::string inputFile, std::string id = "");
+
+    //! Constructor for phase initialization
+    /*!
+     * This constructor will initialize a phase, by reading the required
+     * information from XML_Node tree.
+     *
+     *  @param phaseRef    reference for an XML_Node tree that contains
+     *                     the information necessary to initialize the phase.
+     *  @param id          id of the phase within the input file 
+     */
     IdealMolalSoln(XML_Node& phaseRef, std::string id = "");
 
     /// Destructor. 
     virtual ~IdealMolalSoln();
 
-
+    //! Duplication function
+    /*!
+     * This virtual function is used to create a duplicate of the
+     * current phase. It's used to duplicate the phase when given
+     * a ThermoPhase pointer to the phase.
+     *
+     * @return It returns a ThermoPhase pointer.
+     */
     ThermoPhase *duplMyselfAsThermoPhase();
 
     /**
@@ -594,6 +623,14 @@ namespace Cantera {
      * 
      */
     virtual void setParameters(int n, doublereal* c);
+
+    /*!
+     * @internal
+     *  Get the parameters used to initialize the phase.
+     *
+     * @param n  number of parameters (output)
+     * @param c array of <I>n</I> coefficients
+     */
     virtual void getParameters(int &n, doublereal * const c);
 
     /*
@@ -758,14 +795,14 @@ namespace Cantera {
      */
     virtual void initThermoXML(XML_Node& phaseNode, std::string id="");
 
-    /*
+    /*!
      * Report the molar volume of species k
      *
      * units - \f$ m^3 kmol^-1 \f$
      */
     double speciesMolarVolume(int k) const;
 
-    /*
+    /*!
      * Fill in a return vector containing the species molar volumes
      * units - \f$ m^3 kmol^-1 \f$
      */

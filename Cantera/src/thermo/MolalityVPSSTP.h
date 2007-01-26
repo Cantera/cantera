@@ -448,9 +448,16 @@ namespace Cantera {
             
   protected:
 
+    //! Index of the solvent
+    /*!
+     * Currently the index of the solvent is hard-coded to the value 0
+     */
     int        m_indexSolvent;
+
+    //! Molecular weight of the Solvent
     doublereal m_weightSolvent;
-    /*
+
+    /*!
      * In any molality implementation, it makes sense to have
      * a minimum solvent mole fraction requirement, since the 
      * implementation becomes singular in the xmolSolvent=0
@@ -459,14 +466,19 @@ namespace Cantera {
      * molal_solvent = 0 when xmol_solvent = 0. 
      */
     doublereal m_xmolSolventMIN;
-    /*
+    /*!
      * This is the multiplication factor that goes inside 
      * log expressions involving the molalities of species.
      * Its equal to Wt_0 / 1000.
      *     where Wt_0 = weight of solvent (kg/kmol)
      */
     doublereal m_Mnaught;
-    
+
+    //! Current value of the molalities of the species in the phase.
+    /*!
+     * Note this vector is a mutable quantity.
+     * units are (kg/kmol)
+     */
     mutable vector_fp  m_molalities;
   private:
     doublereal err(std::string msg) const;

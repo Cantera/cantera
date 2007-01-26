@@ -17,6 +17,12 @@
 
 namespace Cantera {
 
+  /*!
+   * @defgroup globalUtilFuncs Global Utility Functions
+   *
+   */
+  //@{
+
     /**
      * Maximum of i and j. If \a i and \a j have different types, \a j
      * is converted to the type of \a i before the comparison.
@@ -96,6 +102,26 @@ namespace Cantera {
             *out = scale_factor * *begin;
     }
 
+    /*!
+     * Multiply elements of an array, y, by a scale factor, f and add the
+     * result to an existing array, x. This is essentially a templated daxpy_
+     * operation. 
+     * @code
+     *       for (i = 0; i < n; i++) {
+     *         x[i] += f * [i]
+     *       }
+     * @endcode
+     *
+     * It is templated with three parameters. The first template
+     * is the iterator, InputIter, which controls access to y[].
+     * The second template is the iterator OutputIter, which controls
+     * access to y[]. The third iterator is S, which is f.
+     *
+     * @param begin InputIter Iterator for beginning of y[]
+     * @param end   inputIter Iterator for end of y[]  
+     * @param out   OutputIter Iterator for beginning of x[]
+     * @param scale_factor Scale Factor to multiply y[i] by
+     */ 
     template<class InputIter, class OutputIter, class S>
     inline void increment_scale(InputIter begin, InputIter end, 
         OutputIter out, S scale_factor) {
@@ -252,6 +278,18 @@ namespace Cantera {
 	return sum;
     }
 
+  //! scale a templated vector by a constant factor.
+  /*!
+   * This function is essentially a wrapper around the stl
+   * function %scale(). The function is has one template
+   * parameter, OutputIter. OutputIter is a templated iterator
+   * that points to the vector to be scaled.
+   *
+   * @param N       Length of the vector
+   * @param alpha   scale factor - double
+   * @param x       Templated Iterator to the start of the vector
+   *                to be scaled. 
+   */
     template<class OutputIter>
     inline void scale(int N, double alpha, OutputIter x) {
         //#ifdef DARWINNNN
@@ -260,6 +298,8 @@ namespace Cantera {
         scale(x, x+N, x, alpha);
         //#endif
     }
+
+  //@}
 
 }
 

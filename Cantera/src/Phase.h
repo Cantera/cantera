@@ -62,14 +62,28 @@ namespace Cantera {
 	 */
 	const Phase &operator=(const Phase &c);
         
+      //! Returns a reference to the XML_Node storred for the phase
+      /*!
+       *  The XML_Node for the phase contains all of the input data used
+       *  to set up the model for the phase, during its initialization.
+       */
         XML_Node& xml() { return *m_xml; }
+
+      //! Return the string id for the phase
         std::string id() const { return m_id; }
+
+      //! Set the string id for the phase
         void setID(std::string id) {m_id = id;} 
 
+      //! Return the name of the phase
         std::string name() const { return m_name; }
+
+      //! Sets the string name for the phase
         void setName(std::string nm) { m_name = nm; }
 
+      //! Returns the index of the phase
         int index() const { return m_index; }
+      //! Sets the index of the phase
         void setIndex(int m) { m_index = m; }
 
         /** 
@@ -92,6 +106,11 @@ namespace Cantera {
          */
         void restoreState(const vector_fp& state);
 
+      //! Restore the state of the phase from a previously saved state vector.
+      /*!
+       *  @param lenstate   Length of the state vector
+       *  @param state      Vector of state conditions.
+       */
         void restoreState(int lenstate, const doublereal* state);
 
         /**
@@ -101,6 +120,14 @@ namespace Cantera {
          */
         void setMoleFractionsByName(compositionMap& xMap);
 
+      //! Set the mole fractions of a group of species by name
+      /*!
+       * The string x is in the form of a composition map
+       * Species which are not listed by name in the composition
+       * map are set to zero.
+       *
+       * @param x string x in the form of a composition map
+       */
         void setMoleFractionsByName(const std::string& x);
 
         /**
@@ -110,6 +137,13 @@ namespace Cantera {
          */
         void setMassFractionsByName(compositionMap& yMap);
 
+    
+      //! Set the species mass fractions by name. 
+      /*!
+       * Species not listed by name in \c x are set to zero.
+       *
+       * @param x  String containing a composition map
+       */
         void setMassFractionsByName(const std::string& x);
 
         /** Set the temperature (K), density (kg/m^3), and mole fractions. */
@@ -168,12 +202,36 @@ namespace Cantera {
          */
         void getMoleFractionsByName(compositionMap& x);
 
+      //! Return the mole fraction of a single species
+      /*!
+       * @param  k  String name of the species
+       *
+       * @return Mole fraction of the species
+       */
         doublereal moleFraction(int k) const;
         
+      //! Return the mole fraction of a single species
+      /*!
+       * @param  name  String name of the species
+       *
+       * @return Mole fraction of the species
+       */
         doublereal moleFraction(std::string name) const;
 
+      //! Return the mass fraction of a single species
+      /*!
+       * @param  k  String name of the species
+       *
+       * @return Mass Fraction of the species
+       */
         doublereal massFraction(int k) const;
 
+      //! Return the mass fraction of a single species
+      /*!
+       * @param  name  String name of the species
+       *
+       * @return Mass Fraction of the species
+       */
         doublereal massFraction(std::string name) const;
 
         /**
@@ -183,6 +241,12 @@ namespace Cantera {
 
         /// Number of spatial dimensions (1, 2, or 3)
         int nDim() {return m_ndim;}
+
+      //! Set the number of spatial dimensions (1, 2, or 3)
+      /*!
+       *  The number of spatial dimensions is used for vector involving
+       *  directions.
+       */
         void setNDim(int ndim) {m_ndim = ndim;}
 
         /** 
@@ -224,6 +288,7 @@ namespace Cantera {
         std::string m_name;
     };
 
+  //! typedef for the base Phase class
     typedef Phase phase_t;
 }
 
