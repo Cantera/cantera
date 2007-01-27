@@ -539,8 +539,10 @@ static int amax(double *x, int j, int n) {
        for (k = i + 1; k < n; ++k) {
 	 if (c[k + i * idem] != 0.0) goto FOUND_PIVOT;
        }
+#ifdef DEBUG_HKM
        sprintf(sbuf,"vcs_mlequ ERROR: Encountered a zero column: %d\n", i); 
        writelog(sbuf);
+#endif
        return 1;
      FOUND_PIVOT: ;
        for (j = 0; j < n; ++j) c[i + j * idem] += c[k + j * idem];

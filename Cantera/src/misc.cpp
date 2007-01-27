@@ -799,7 +799,7 @@ namespace Cantera {
 
     // Add an entry to the log file.
     // @ingroup HTML_logs
-    void Cantera::addLogEntry(std::string msg) {
+    void addLogEntry(std::string msg) {
         if (s_app->loglevel > 0 && s_app->current)
             s_app->current->addChild("li",msg);
     }
