@@ -193,11 +193,11 @@ WITH_STOICH_SUBSTANCE='y'
 WITH_PURE_FLUIDS='y'
 
 # This flag enables the inclusion of ideal solution capabilities
-WITH_IDEAL_SOLUTIONS=${WITH_IDEAL_SOLUTIONS:="n"}
+WITH_IDEAL_SOLUTIONS=${WITH_IDEAL_SOLUTIONS:="y"}
 
 # Enable expanded electrochemistry capabilities, include thermo
 # models for electrolyte solutions
-WITH_ELECTROLYTES=${WITH_ELECTROLYTES:="n"}
+WITH_ELECTROLYTES=${WITH_ELECTROLYTES:="y"}
 
 
 ######################################################################

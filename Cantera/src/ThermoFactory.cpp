@@ -32,8 +32,13 @@
 #include "MetalPhase.h"
 #endif
 
+#undef USE_SSTP
 #ifdef WITH_STOICH_SUBSTANCE
+#ifdef USE_SSTP
+#include "thermo/StoichSubstanceSSTP.h"
+#else
 #include "StoichSubstance.h"
+#endif
 #endif
 
 #include "importCTML.h"
@@ -97,7 +102,11 @@ namespace Cantera {
 
 #ifdef WITH_STOICH_SUBSTANCE
         case cStoichSubstance:
+#ifdef USE_SSTP
+            th = new StoichSubstanceSSTP;
+#else
             th = new StoichSubstance;
+#endif
             break;
 #endif
 
