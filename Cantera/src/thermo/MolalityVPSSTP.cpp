@@ -38,7 +38,7 @@ namespace Cantera {
   {
   }
 
-  /**
+  /*
    * Copy Constructor:
    *
    *  Note this stuff will not work until the underlying phase
@@ -87,7 +87,7 @@ namespace Cantera {
   MolalityVPSSTP::~MolalityVPSSTP() {
   }
 
-  /**
+  /*
    * This routine duplicates the current object and returns
    * a pointer to ThermoPhase.
    */
@@ -125,7 +125,7 @@ namespace Cantera {
     return m_indexSolvent;
   }
 
-  /**
+  /*
    * Sets the minimum mole fraction in the molality formulation. The
    * minimum mole fraction must be in the range 0 to 0.9.
    */
@@ -146,7 +146,7 @@ namespace Cantera {
     return m_xmolSolventMIN;
   }
 
-  /**
+  /*
    * calcMolalities():
    *   We calculate the vector of molalities of the species
    *   in the phase and store the result internally:
@@ -173,7 +173,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * getMolalities():
    *   We calculate the vector of molalities of the species
    *   in the phase
@@ -195,7 +195,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * setMolalities():
    *   We are supplied with the molalities of all of the
    *   solute species. We then calculate the mole fractions of all

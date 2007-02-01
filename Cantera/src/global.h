@@ -156,6 +156,8 @@ namespace Cantera {
   //!  Add a directory to the input file search path.
   /*!
    * @ingroup inputfiles
+   *
+   * @param dir  String name for the directory to be added to the search path
    */
   void addDirectory(std::string dir);
 
@@ -188,6 +190,8 @@ namespace Cantera {
    *  place to put temporary files.
    *
    * @ingroup inputfiles
+   *
+   * @param tmp String name for the temporary directory
    */
   void setTmpDir(std::string tmp);
 
@@ -279,19 +283,30 @@ namespace Cantera {
    */
   void setLogger(Logger* logwriter);
 
-    /// Return the conversion factor to convert unit std::string 'unit' to
-    /// SI units.
-    doublereal toSI(std::string unit);
-
-    /// Return the conversion factor to convert activation energy unit
-    /// std::string 'unit' to Kelvin.
-    doublereal actEnergyToSI(std::string unit);
-
-    /// Return a pointer to the XML tree for a Cantera input file. 
-    XML_Node* get_XML_File(std::string file);
-
-    /// Close a Cantera input file.
-    void close_XML_File(std::string file);
+  /// Return the conversion factor to convert unit std::string 'unit' to SI units.
+  /*!
+   * @param unit String containing the units
+   */
+  doublereal toSI(std::string unit);
+  
+  /// Return the conversion factor to convert activation energy unit
+  /// std::string 'unit' to Kelvin.
+  /*!
+   * @param unit  String containing the activation energy units
+   */
+  doublereal actEnergyToSI(std::string unit);
+  
+  /// Return a pointer to the XML tree for a Cantera input file. 
+  /*!
+   * @param file String containing the relative or absolute file name
+   */
+  XML_Node* get_XML_File(std::string file);
+  
+  /// Close a Cantera input file.
+  /*!
+   * @param file String containing the relative or absolute file name
+   */
+  void close_XML_File(std::string file);
 
 #ifdef WITH_HTML_LOGS
 

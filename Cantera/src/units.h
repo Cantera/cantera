@@ -55,6 +55,8 @@ namespace Cantera {
          * The list of recognized units is storred as a stl map
          *  <string, doublereal>called  m_u[] and m_act_u for activity
          * coefficients. These maps are initialized with likely values.
+	 *
+	 * @param units String containing the units description
          */
         doublereal toSI(std::string units) {
 

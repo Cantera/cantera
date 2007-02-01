@@ -143,6 +143,7 @@ namespace Cantera {
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
+     * @param uA Output vector containing the units
      *  uA[0] = kmol units - default  = 1
      *  uA[1] = m    units - default  = -nDim(), the number of spatial
      *                                dimensions in the Phase class.
@@ -150,6 +151,9 @@ namespace Cantera {
      *  uA[3] = Pa(pressure) units - default = 0;
      *  uA[4] = Temperature units - default = 0;
      *  uA[5] = time units - default = 0
+     * @param k species index. Defaults to 0.
+     * @param sizeUA output int containing the size of the vector.
+     *        Currently, this is equal to 6.
      */
     virtual void getUnitsStandardConc(double *uA, int k = 0,
 				      int sizeUA = 6);
@@ -166,6 +170,9 @@ namespace Cantera {
      *
      * We close the loop on this function, here, calling
      * getChemPotentials() and then dividing by RT.
+     *
+     * @param mu    Output vector of  non-dimensional species chemical potentials
+     *              Length: m_kk.
      */
     virtual void getChemPotentials_RT(doublereal* mu) const;
 
@@ -183,12 +190,14 @@ namespace Cantera {
      * Therefore, we will bring the error routines up to this object
      */
 
-    /**
-     * Get the array of chemical potentials at unit activity.
-     * These
-     * are the standard state chemical potentials \f$ \mu^0_k(T,P)
-     * \f$.. The values are evaluated at the current
-     * temperature and pressure.
+    
+    //!Get the array of chemical potentials at unit activity.
+    /*!
+     * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
+     * \f$. The values are evaluated at the current temperature and pressure.
+     *
+     * @param mu   Output vector of standard state chemical potentials.
+     *             length = m_kk. units are J / kmol.
      */
     virtual void getStandardChemPotentials(doublereal* mu) const {
       err("getStandardChemPotentials");
@@ -198,6 +207,9 @@ namespace Cantera {
      * Get the nondimensional Enthalpy functions for the species
      * at their standard states at the current
      * <I>T</I> and <I>P</I> of the solution.
+     *
+     * @param hrt     Output vector of standard state enthalpies.
+     *                length = m_kk. units are unitless.
      */
     virtual void getEnthalpy_RT(doublereal* hrt) const {
       err("getEnthalpy_RT");
@@ -207,6 +219,9 @@ namespace Cantera {
      * Get the array of nondimensional Enthalpy functions for the
      * standard state species
      * at the current <I>T</I> and <I>P</I> of the solution.
+     *
+     * @param sr     Output vector of nondimensional standard state
+     *               entropies. length = m_kk.
      */
     virtual void getEntropy_R(doublereal* sr) const {
       err("getEntropy_R");
@@ -216,6 +231,9 @@ namespace Cantera {
      * Get the nondimensional Gibbs functions for the species
      * at their standard states of solution at the current T and P
      * of the solution.
+     *
+     * @param grt    Output vector of nondimensional standard state
+     *               Gibbs free energies. length = m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const {
       err("getGibbs_RT");
@@ -224,6 +242,10 @@ namespace Cantera {
     /**
      * Get the nondimensional Gibbs functions for the standard
      * state of the species at the current T and P.
+     *
+     * @param gpure  Output vector of standard state
+     *               Gibbs free energies. length = m_kk.
+     *               units are J/kmol.
      */
     virtual void getPureGibbs(doublereal* gpure) const {
       err("getPureGibbs");
@@ -233,6 +255,9 @@ namespace Cantera {
      *  Returns the vector of nondimensional
      *  internal Energies of the standard state at the current temperature
      *  and pressure of the solution for each species.
+     *
+     * @param urt    Output vector of nondimensional standard state
+     *               internal energies. length = m_kk.
      */
     virtual void getIntEnergy_RT(doublereal *urt) const {
       err("getIntEnergy_RT");
@@ -242,6 +267,11 @@ namespace Cantera {
      * Get the nondimensional Heat Capacities at constant
      * pressure for the standard state of the species 
      * at the current T and P. 
+     *
+     * @param cpr    Output vector containing the 
+     *               the nondimensional Heat Capacities at constant
+     *               pressure for the standard state of the species.
+     *               Length: m_kk. 
      */
     virtual void getCp_R(doublereal* cpr) const {
       err("getCp_R");
@@ -252,6 +282,9 @@ namespace Cantera {
      * states at the current
      * <I>T</I> and <I>P</I> of the solution.
      * units = m^3 / kmol
+     *
+     * @param vol Output vector of species volumes. length = m_kk.
+     *            units =  m^3 / kmol
      */
     virtual void getStandardVolumes(doublereal *vol) const {
       err("getStandardVolumes");
@@ -261,32 +294,48 @@ namespace Cantera {
     /// @name Thermodynamic Values for the Species Reference States --------------------
     //@{
 
-    /**
+    /*!
      *  Returns the vector of nondimensional
      *  enthalpies of the reference state at the current temperature
      *  of the solution and the reference pressure for the species.
+     *
+     * @param hrt Output vector contains the nondimensional enthalpies
+     *            of the reference state of the species
+     *            length = m_kk, units = dimensionless.
      */
     virtual void getEnthalpy_RT_ref(doublereal *hrt) const;
      
-    /**
+    /*!
      *  Returns the vector of nondimensional
-     *  enthalpies of the reference state at the current temperature
+     *  Gibbs free energies of the reference state at the current temperature
      *  of the solution and the reference pressure for the species.
+     *
+     * @param grt Output vector contains the nondimensional Gibbs free energies
+     *            of the reference state of the species
+     *            length = m_kk, units = dimensionless.
      */
     virtual void getGibbs_RT_ref(doublereal *grt) const;
                    
-    /**
+    /*!
      *  Returns the vector of the
      *  gibbs function of the reference state at the current temperature
      *  of the solution and the reference pressure for the species.
      *  units = J/kmol
+     *
+     * @param g   Output vector contain the Gibbs free energies
+     *            of the reference state of the species
+     *            length = m_kk, units = J/kmol.
      */
     virtual void getGibbs_ref(doublereal *g) const;
       
-    /**
+    /*!
      *  Returns the vector of nondimensional
      *  entropies of the reference state at the current temperature
      *  of the solution and the reference pressure for the species.
+     *
+     * @param er  Output vector contain the nondimensional entropies
+     *            of the species in their reference states
+     *            length: m_kk, units: dimensionless.
      */
     virtual void getEntropy_R_ref(doublereal *er) const;
                  
@@ -295,6 +344,10 @@ namespace Cantera {
      *  constant pressure heat capacities of the reference state
      *  at the current temperature of the solution
      *  and reference pressure for the species.
+     *
+     * @param cprt Output vector contains the nondimensional heat capacities
+     *             of the species in their reference states
+     *             length: m_kk, units: dimensionless.
      */
     virtual void getCp_R_ref(doublereal *cprt) const;
 
@@ -339,7 +392,7 @@ namespace Cantera {
      * model. 
      *   
      * @param eosdata An XML_Node object corresponding to
-     * the "thermo" entry for this phase in the input file.
+     *                the "thermo" entry for this phase in the input file.
      */
     virtual void setParametersFromXML(const XML_Node& eosdata) {}
   

@@ -60,11 +60,15 @@ namespace Cantera {
 
 	/**
 	 * Copy Constructor for the State Class
+	 *
+	 * @param right   Reference to the class to be copied.
 	 */
 	State(const State& right);
 
 	/**
 	 * Assignment operator for the state class.
+	 *
+	 * @param right   Reference to the class to be copied.
 	 */
         State& operator=(const State& right);
 
@@ -84,19 +88,24 @@ namespace Cantera {
         /// @name Composition
         //@{
 
-	/**
-         * Get the species mole fractions.
-         * @param x On return, x contains the mole fractions. Must have a
-         * length greater than or equal to the number of species.
-         */
-	void getMoleFractions(doublereal* x) const;
+	
+      //! Get the species mole fraction vector.
+      /*!
+       * @param x On return, x contains the mole fractions. Must have a
+       *          length greater than or equal to the number of species.
+       */
+      void getMoleFractions(doublereal* x) const;
 
 
-        /// The mole fraction of species k. If k is ouside the valid
-        /// range, an exception will be thrown. Note that it is
-        /// somewhat more efficent to call getMoleFractions if the
-        /// mole fractions of all species are desired.
-        doublereal moleFraction(int k) const;
+      //! The mole fraction of species k.
+      /*!
+       *   If k is ouside the valid
+       *   range, an exception will be thrown. Note that it is
+       *   somewhat more efficent to call getMoleFractions if the
+       *   mole fractions of all species are desired.
+       *   @param k species index
+       */
+      doublereal moleFraction(int k) const;
 
 	/**
          * Set the mole fractions to the specified values, and then 
@@ -104,6 +113,9 @@ namespace Cantera {
          * @param x Array of unnormalized mole fraction values (input). 
          * Must have a length greater than or equal to the number of
          * species.
+	 *
+	 * @param x  Input vector of mole fractions.
+	 *           Length is m_kk.
          */
 	virtual void setMoleFractions(const doublereal* x);
 
@@ -113,6 +125,9 @@ namespace Cantera {
          * condition is being handled by some other means, for example
          * by a constraint equation as part of a larger set of
          * equations.
+	 *
+	 * @param x  Input vector of mole fractions.
+	 *           Length is m_kk.
          */
 	virtual void setMoleFractions_NoNorm(const doublereal* x);
 
@@ -120,15 +135,23 @@ namespace Cantera {
          * Get the species mass fractions.  
          * @param y On return, y
          * contains the mass fractions. Array \a y must have a length
-         * greater than or equal to the number of species. 
+         * greater than or equal to the number of species.
+	 *
+	 * @param y  Output vector of mass fractions.
+	 *           Length is m_kk. 
          */
 	void getMassFractions(doublereal* y) const;
 
-        /// Mass fraction of species k. If k is outside the valid
-        /// range, an exception will be thrown. Note that it is
-        /// somewhat more efficent to call getMassFractions if the
-        /// mass fractions of all species are desired.
-        doublereal massFraction(int k) const;
+      //! Mass fraction of species k. 
+      /*!
+       *  If k is outside the valid
+       *  range, an exception will be thrown. Note that it is
+       *  somewhat more efficent to call getMassFractions if the
+       *   mass fractions of all species are desired.
+       * 
+       * @param k    species index
+       */
+      doublereal massFraction(int k) const;
 
 	/**
          * Set the mass fractions to the specified values, and then 
@@ -136,6 +159,9 @@ namespace Cantera {
          * @param y Array of unnormalized mass fraction values (input). 
          * Must have a length greater than or equal to the number of
          * species.
+	 *
+	 * @param y  Input vector of mass fractions.
+	 *           Length is m_kk.
          */
 	virtual void setMassFractions(const doublereal* y);
 
@@ -144,7 +170,10 @@ namespace Cantera {
          * normalizing. This is useful when the normalization
          * condition is being handled by some other means, for example
          * by a constraint equation as part of a larger set of
-         * equations. 
+         * equations.
+	 *
+	 * @param y  Input vector of mass fractions.
+	 *           Length is m_kk.
          */
 	virtual void setMassFractions_NoNorm(const doublereal* y);
 
@@ -159,6 +188,8 @@ namespace Cantera {
         /**
          * Concentration of species k. If k is outside the valid
          * range, an exception will be thrown.
+	 *
+	 * @param  k Index of species
          */
         doublereal concentration(int k) const;
 
@@ -198,18 +229,24 @@ namespace Cantera {
          * \f[ \sum_k X_k Q_k. \f]
          * Array Q should contain pure-species molar property 
          * values.
+	 *
+	 * @param Q input vector of length m_kk that is to be averaged.
+	 * @return
+	 *   mole-freaction-weighted mean of Q
          */
 	doublereal mean_X(const doublereal* Q) const {
             return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q, 0.0);
         }
 
-	/**
-         * Evaluate the mass-fraction-weighted mean of Q:
-         * \f[ \sum_k Y_k Q_k \f]
-         * Array Q should contain pure-species property 
-         * values in mass units.
-         */        
-	doublereal mean_Y(const doublereal* Q) const;
+      /**
+       * Evaluate the mass-fraction-weighted mean of Q:
+       * \f[ \sum_k Y_k Q_k \f]
+       *
+       * @param Q  Array Q contains a vector of species property values in mass units.
+       * @return
+       *     Return value containing the  mass-fraction-weighted mean of Q.
+       */        
+      doublereal mean_Y(const doublereal* Q) const;
 
 	/**
          * The mean molecular weight. Units: (kg/kmol)
@@ -218,12 +255,20 @@ namespace Cantera {
             return m_mmw; 
 	}
 
-	/// Evaluate \f$ \sum_k X_k \log X_k \f$.
-	doublereal sum_xlogx() const;
+      //! Evaluate \f$ \sum_k X_k \log X_k \f$.
+      /*!
+       * @return
+       *     returns the indicated sum. units are dimensionless.
+       */
+      doublereal sum_xlogx() const;
 
-	/// Evaluate \f$ \sum_k X_k \log Q_k \f$.
-	doublereal sum_xlogQ(doublereal* Q) const;
-        //@}
+      //! Evaluate \f$ \sum_k X_k \log Q_k \f$.
+      /*!
+       *  @param Q Vector of length m_kk to take the log average of
+       *  @return Returns the indicated sum.
+       */
+      doublereal sum_xlogQ(doublereal* Q) const;
+      //@}
 
         /// @name Thermodynamic Properties
         /// Class State only stores enough thermodynamic data to
@@ -243,43 +288,56 @@ namespace Cantera {
             return m_dens/meanMolecularWeight(); 
         }
 
-	/// Set the density (kg/m^3).
-	virtual void setDensity(doublereal density) {
-            m_dens = density;
-        }
+      //! Set the internally storred density (kg/m^3) of the phase
+      /*!
+       * Note the density of a phase is an indepedent variable.
+       * 
+       * @param density Input density (kg/m^3).
+       */
+      virtual void setDensity(doublereal density) {
+	m_dens = density;
+      }
 
-	/// Set the molar density (kmol/m^3).
-	virtual void setMolarDensity(doublereal molarDensity) {
-            m_dens = molarDensity*meanMolecularWeight();
-        }
+      //! Set the internally storred molar density (kmol/m^3) of the phase.
+      /*!
+       * @param molarDensity   Input molar density (kmol/m^3).
+       */
+      virtual void setMolarDensity(doublereal molarDensity) {
+	m_dens = molarDensity*meanMolecularWeight();
+      }
 
-	/// Set the temperature (K).
-	void setTemperature(doublereal temp) {
-            m_temp = temp;
-        }
-        //@}
+      //! Set the temperature (K).
+      /*!
+       * This function sets the internally storred temperature of the phase.
+       *
+       * @param temp Temperature in kelvin
+       */
+      void setTemperature(doublereal temp) {
+	m_temp = temp;
+      }
+      //@}
 
-        /// True if species 
-        bool ready() const { return (m_kk > 0); }
-
+      /// True if the number species has been set
+      bool ready() const { return (m_kk > 0); }
 
 
     protected:
 
-        /**
-         * @internal 
-         * Initialize. Make a local copy of the vector of
-         * molecular weights, and resize the composition arrays to
-         * the appropriate size. The only information an instance of
-         * State has about the species is their molecular weights. 
-         *
-	 */
- 	void init(const array_fp& mw); //, density_is_independent = true);
-
-	/**
-	 * m_kk is the number of species in the mixture
-	 */
-        int m_kk;
+      /**
+       * @internal 
+       * Initialize. Make a local copy of the vector of
+       * molecular weights, and resize the composition arrays to
+       * the appropriate size. The only information an instance of
+       * State has about the species is their molecular weights. 
+       *
+       * @param mw Vector of molecular weights of the species.
+       */
+      void init(const array_fp& mw); //, density_is_independent = true);
+      
+      /**
+       * m_kk is the number of species in the phase
+       */
+      int m_kk;
 
       //! Set the molecular weight of a single species to a given value
       /*!

@@ -161,55 +161,60 @@ namespace Cantera {
 	{"Pu", 244.0482 }
     }; 
    
-    /* LookupWtElements(): */
-    /**  Static function to look up an atomic weight 
-     *
-     *   This static function looks up the argument string in the
-     *   database above and returns the associated molecular weight.
-     *   The data are from the periodic table.
-     *
-     *  Note: The idea behind this function is to provide a unified 
-     *        source for the element atomic weights. This helps to
-     *        ensure that mass is conserved.
-     *
-     *  @param 
-     *  ElemName  String. Only the first 3 characters are significant
-     *
-     *  @return
-     *    Return value contains the atomic weight of the element
-     *    If a match for the string is not found, a value of -1.0 is
-     *    returned.
-     *
-     *  @exception CanteraError 
-     *    If a match is not found, a CanteraError is thrown as well  
-     */
-    double Elements::LookupWtElements(const string& s) {
-      int num = sizeof(aWTable) / sizeof(struct awData);
-      string s3 = s.substr(0,3);
-      for (int i = 0; i < num; i++) {
-          //if (!std::strncmp(s.c_str(), aWTable[i].name, 3)) {
-          if (s3 == aWTable[i].name) {
-              return (aWTable[i].atomicWeight);
-          }
+
+  //!  Static function to look up an atomic weight 
+  /*!
+   *
+   *   This static function looks up the argument string in the
+   *   database above and returns the associated molecular weight.
+   *   The data are from the periodic table.
+   *
+   *  Note: The idea behind this function is to provide a unified 
+   *        source for the element atomic weights. This helps to
+   *        ensure that mass is conserved.
+   *
+   *  @param 
+   *  ElemName  String. Only the first 3 characters are significant
+   *
+   *  @return
+   *    Return value contains the atomic weight of the element
+   *    If a match for the string is not found, a value of -1.0 is
+   *    returned.
+   *
+   *  @exception CanteraError 
+   *    If a match is not found, a CanteraError is thrown as well  
+   */
+  double Elements::LookupWtElements(const std::string& s) {
+    int num = sizeof(aWTable) / sizeof(struct awData);
+    string s3 = s.substr(0,3);
+    for (int i = 0; i < num; i++) {
+      //if (!std::strncmp(s.c_str(), aWTable[i].name, 3)) {
+      if (s3 == aWTable[i].name) {
+	return (aWTable[i].atomicWeight);
       }
-      throw CanteraError("LookupWtElements", "element not found");
-      return -1.0;
     }
- 
+    throw CanteraError("LookupWtElements", "element not found");
+    return -1.0;
+  }
+  
+    
+  //!  Exception class to indicate a fixed set of elements.
+  /*!
+   *   This class is used to warn the user when the number of elements
+   *   are changed after at least one species is defined.
+   */ 
+  class ElementsFrozen : public CanteraError {
+  public:
+    //! Constructor for class
     /*!
-     *  Exception class to indicate a fixed set of elements.
-     * 
-     *   This class is used to warn the user when the number of elements
-     *   are changed after at least one species is defined. 
-     */ 
-    class ElementsFrozen : public CanteraError {
-    public:
-        ElementsFrozen(string func) 
-            : CanteraError(func,
-                "elements cannot be added after species.") {}
-    };
-   
-    /*!
+     * @param func Function where the error occurred.
+     */
+    ElementsFrozen(string func) 
+      : CanteraError(func,
+		     "elements cannot be added after species.") {}
+  };
+  
+    /*
      *  Elements Class Constructor
      *    We initialize all internal variables to zero here.
      */
@@ -220,7 +225,7 @@ namespace Cantera {
     {
     }
 
-    /*!
+    /*
      * Elements Class Destructor
      *   If the number of subscribers is not zero, through an error.
      *   A logic problem has occurred.
@@ -234,7 +239,7 @@ namespace Cantera {
       }
     }
  
-    /*!
+    /*
      * freezeElements():
      *
      *   Set the freeze flag. This is a prerequesite to other 
@@ -245,7 +250,7 @@ namespace Cantera {
     }
 
 #ifdef INCL_DEPRECATED_METHODS
-    /*!
+    /*
      *
      *   Returns an ElementData struct that contains the parameters 
      *   for element index m.
@@ -257,7 +262,7 @@ namespace Cantera {
       return e;
     }
 #endif  
-    /***********************************************************************
+    /*
      * elementIndex():
      *
      * Index of element named \c name. The index is an integer
@@ -268,7 +273,7 @@ namespace Cantera {
      *
      */
 #ifdef USE_DGG_CODE
-    int Elements::elementIndex(string name) const{
+    int Elements::elementIndex(std::string name) const{
       map<string, int>::const_iterator it;
       it = m_definedElements.find(name);
       if (it != m_definedElements.end()) {
@@ -277,7 +282,7 @@ namespace Cantera {
       return -1;
     }
 #else
-    int Elements::elementIndex(string name) const {
+    int Elements::elementIndex(std::string name) const {
       for (int i = 0; i < m_mm; i++) {
 	if (m_elementNames[i] == name) return i;
       }
@@ -285,7 +290,7 @@ namespace Cantera {
     }
 #endif
 
-    /*!
+    /*
      *
      * Name of the element with index \c m.  @param m Element
      * index. If m < 0 or m >= nElements() an exception is thrown.
@@ -297,7 +302,7 @@ namespace Cantera {
 	  throw ElementRangeError("Elements::elementName",m,nElements());
     }
  
-    /*!
+    /*
      *
      * Add an element to the current set of elements in the current object.
      * @param symbol  symbol string
@@ -311,7 +316,7 @@ namespace Cantera {
      *  and then calls the base routine.
      */
     void Elements::
-    addElement(const string& symbol, doublereal weight) 
+    addElement(const std::string& symbol, doublereal weight) 
     {
         if (weight == -12345.0) {
             weight = LookupWtElements(symbol);
@@ -338,7 +343,7 @@ namespace Cantera {
 	addElement(symbol, weight);
     }
 
-    /***********************************************************************
+    /*
      *  addUniqueElement():
      *
      * Add a unique element to the set. This routine will not allow 
@@ -353,7 +358,7 @@ namespace Cantera {
      */
 #ifdef USE_DGG_CODE
     void Elements::
-    addUniqueElement(const string& symbol, doublereal weight, int atomicNumber) 
+    addUniqueElement(const std::string& symbol, doublereal weight, int atomicNumber) 
     {
         if (m_elementsFrozen) 
             throw ElementsFrozen("addElement");
@@ -385,7 +390,7 @@ namespace Cantera {
 
 #else
     void Elements::
-    addUniqueElement(const string& symbol, 
+    addUniqueElement(const std::string& symbol, 
         doublereal weight, int atomicNumber) 
     {
      if (weight == -12345.0) {
@@ -428,26 +433,26 @@ namespace Cantera {
 #endif
 
 
-    /**
-     * @todo call addUniqueElement(symbol, weight) instead of
-     * addElement.
-     */
-    void Elements::
-    addUniqueElement(const XML_Node& e) {
-        doublereal weight = 0.0;
-        if (e.hasAttrib("atomicWt")) 
-            weight = atof(stripws(e["atomicWt"]).c_str());
-        int anum = 0;
-        if (e.hasAttrib("atomicNumber")) 
-            anum = atoi(stripws(e["atomicNumber"]).c_str());
-        string symbol = e["name"];
-        if (weight != 0.0)
-            addUniqueElement(symbol, weight, anum);
-        else
-            addUniqueElement(symbol);
+  /*
+   * @todo call addUniqueElement(symbol, weight) instead of
+   * addElement.
+   */
+  void Elements::
+  addUniqueElement(const XML_Node& e) {
+    doublereal weight = 0.0;
+    if (e.hasAttrib("atomicWt")) 
+      weight = atof(stripws(e["atomicWt"]).c_str());
+    int anum = 0;
+    if (e.hasAttrib("atomicNumber")) 
+      anum = atoi(stripws(e["atomicNumber"]).c_str());
+    string symbol = e["name"];
+    if (weight != 0.0)
+      addUniqueElement(symbol, weight, anum);
+    else
+      addUniqueElement(symbol);
     }
  
-    /***********************************************************************
+    /*
      * clear()
      *
      *   Remove all elements from the structure.
@@ -459,7 +464,7 @@ namespace Cantera {
       m_elementsFrozen = false;
     }
 
-    /***********************************************************************
+    /*
      * ready():
      *
      * True if the elements have been frozen
@@ -468,7 +473,7 @@ namespace Cantera {
       return (m_elementsFrozen);
     }
 
-    /***********************************************************************
+    /*
      * Elements(const Elements&)  - copy constructor:
      *
      *   This copy constructor just calls the assignment operator for this
@@ -483,7 +488,7 @@ namespace Cantera {
       numSubscribers = 0;
     }
   
-    /***********************************************************************
+    /*
      *  Elements& Elements::operator=(const Elements& right):
      *
      *  (assignment operator)
@@ -566,7 +571,7 @@ namespace Cantera {
 
     }
 
-    /***********************************************************************
+    /*
      *  subscribe(), unsubscribe(), and reportSubscriptions():
      *
      *   Handles setting and reporting the number of subscriptions to this

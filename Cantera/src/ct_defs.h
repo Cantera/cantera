@@ -156,12 +156,21 @@ namespace Cantera {
   //! Small number to compare differences of mole fractions against.
     const doublereal Tiny = 1.e-20;
   //! inline function to return the max value of two doubles.
-    inline doublereal fmaxx(doublereal x, doublereal y)
-    { return (x > y) ? x : y; }
-  //! inline function to return the min value of two doubles.
-    inline doublereal fminn(doublereal x, doublereal y)
-    { return (x < y) ? x : y; }
+  /*!
+   * @param x  double value
+   * @param y  second double value
+   */
+  inline doublereal fmaxx(doublereal x, doublereal y)
+  { return (x > y) ? x : y; }
 
+  //! inline function to return the min value of two doubles.
+  /*!
+   * @param x  double value
+   * @param y  second double value
+   */
+  inline doublereal fminn(doublereal x, doublereal y)
+  { return (x < y) ? x : y; }
+  
 
   //! Map connecting a string name with a double.
   /*!

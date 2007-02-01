@@ -67,18 +67,36 @@ namespace Cantera {
 
     public:
 
-	/// Constructor.
-	Constituents(Elements* ptr_Elements = 0);
+      //! Constructor.
+      /*!
+       *  Constructor sets all base variable types to zero. Also, it
+       *  sets the pointer to the Elements object for this object.
+       *
+       * @param ptr_Elements
+       *   The default is that a new Elements object is created, so this
+       *   Constituents object is independent of any other object. But if
+       *   ptr_Elements is supplied, it will be used. This way, a class
+       *   implementing a multi-phase mixture is responsible for
+       *   maintaining the global elements list for the mixture, and no
+       *   static global element list is required.
+       */
+       Constituents(Elements* ptr_Elements = 0);
+       
+      /// Destructor. 
+      ~Constituents();
 
-	/// Destructor. 
-	~Constituents();
+      ///  This copy constructor just calls the assignment operator
+      ///  for this class.
+      /*!
+       * @param right     reference to the object to be copied.
+       */
+      Constituents(const Constituents& right);
 
-	///  This copy constructor just calls the assignment operator
-	///  for this class.
-        Constituents(const Constituents& right);
-
-	/// Assignment operator
-        Constituents& operator=(const Constituents& right);
+      /// Assignment operator
+      /*!
+       *  @param right    Reference to the object to be copied.
+       */
+      Constituents& operator=(const Constituents& right);
 
 	/// @name Element Information
 	// @{
@@ -103,24 +121,29 @@ namespace Cantera {
 	int elementIndex(std::string name) const;
 
 
-	/// Atomic weight of element m. 
-	doublereal atomicWeight(int m) const;
+      /// Atomic weight of element m.
+      /*!
+       * @param m  Element index
+       */
+      doublereal atomicWeight(int m) const;
 
-	/// Atomic number of element m. 
-	int atomicNumber(int m) const;
+      /// Atomic number of element m.
+      /*!
+       *  @param m Element index
+       */
+      int atomicNumber(int m) const;
 
-	/// Return a read-only reference to the vector of element names.
-	const std::vector<std::string>& elementNames() const;
+      /// Return a read-only reference to the vector of element names.
+      const std::vector<std::string>& elementNames() const;
+
+      /// Return a read-only reference to the vector of atomic weights.
+      const vector_fp& atomicWeights() const;
 
 
-	/// Return a read-only reference to the vector of atomic weights.
-	const vector_fp& atomicWeights() const;
-
-
-	/// Number of elements.
-	int nElements() const;
+      /// Number of elements.
+      int nElements() const;
        
-	// @}
+      // @}
 
 
 
@@ -134,22 +157,45 @@ namespace Cantera {
 
       //@{
 
-      /// Add an element. 
-      /// @param symbol Atomic symbol std::string.
-      /// @param weight Atomic mass in amu.
+      //! Add an element. 
+      /*!
+       *  @param symbol Atomic symbol std::string.
+       *  @param weight Atomic mass in amu.
+       */
       void addElement(const std::string& symbol, doublereal weight);
-
-      /// Add an element from an XML specification.
+      
+      //! Add an element from an XML specification.
+      /*!
+       * @param e Reference to the XML_Node where the element is described.
+       */
       void addElement(const XML_Node& e);
 
+      //! Adde an element, checking for uniqueness
+      /*!
+       * The uniqueness is checked by comparing the string symbol. If
+       * not unique, nothing is done.
+       *
+       * @param symbol  String symbol of the element
+       * @param weight  Atomic weight of the element (kg kmol-1).
+       */
       void addUniqueElement(const std::string& symbol, doublereal weight);
 
+      //! Adde an element, checking for uniqueness
+      /*!
+       * The uniqueness is checked by comparing the string symbol. If
+       * not unique, nothing is done.
+       *
+       * @param e Reference to the XML_Node where the element is described.
+       */
       void addUniqueElement(const XML_Node& e);
 
+      //! Add all elements referenced in an XML_Node tree
+      /*!
+       * @param phase Reference to the top  XML_Node of a phase
+       */
       void addElementsFromXML(const XML_Node& phase);
    
-      /// Prohibit addition of more elements, and prepare to add
-      /// species.
+      /// Prohibit addition of more elements, and prepare to add species.
       void freezeElements();
 
       /// True if freezeElements has been called.
@@ -157,55 +203,95 @@ namespace Cantera {
 
       //@}
       
-	/// Returns the number of species in the phase
-        int nSpecies() const { return m_kk; }
+      /// Returns the number of species in the phase
+      int nSpecies() const { return m_kk; }
 
-        /// Molecular weight of species k.
-        doublereal molecularWeight(int k) const;
+      //! Molecular weight of species \c k.
+      /*!
+       * @param k   index of species \c k
+       * @return
+       *      Returns the molecular weight of species \c k.
+       */
+      doublereal molecularWeight(int k) const;
 
-	/// Molar mass. Preferred name for molecular weight.
-	doublereal molarMass(int k) const {
-	  return molecularWeight(k);
-	}
+      //! Return the Molar mass of species \c k
+      /*!
+       * Preferred name for molecular weight.
+       *
+       * @param k  index for species
+       * @return
+       *      Return the molar mass of species k kg/kmol.
+       */
+      doublereal molarMass(int k) const {
+	return molecularWeight(k);
+      }
 
-        /**
-	 * Return a const reference to the vector of molecular weights
-	 * of the species
-	 */
-        const vector_fp& molecularWeights() const;
+      /**
+       * Return a const reference to the vector of molecular weights
+       * of the species
+       */
+      const vector_fp& molecularWeights() const;
+       
+      /*!
+       *   Electrical charge of one species k molecule, divided by
+       *   the magnitude of the electron charge ( \f$ e = 1.602
+       *   \times 10^{-19}\f$ Coulombs). Dimensionless.
+       *
+       * @param k species index
+       */
+      doublereal charge(int k) const;
 
-        
-	///   Electrical charge of one species k molecule, divided by
-	///   the magnitude of the electron charge ( \f$ e = 1.602
-	///   \times 10^{-19}\f$ Coulombs). Dimensionless.
-        doublereal charge(int k) const;
+      /**
+       * @name Adding Species
+       * These methods are used to add new species.
+       * They are not usually called by user programs.
+       */
+      //@{
+      void addSpecies(const std::string& name, const doublereal* comp,
+		      doublereal charge = 0.0, doublereal size = 1.0);
 
-       /**
-         * @name Adding Species
-         * These methods are used to add new species.
-         * They are not usually called by user programs.
-         */
-        //@{
-        void addSpecies(const std::string& name, const doublereal* comp,
-			doublereal charge = 0.0, doublereal size = 1.0);
+      //! Add a species to the phase, checking for uniqueness of the name
+      /*!
+       * This routine checks for uniqueness of the string name. It only
+       * adds the species if it is unique.
+       *
+       * @param name    String name of the species
+       * @param  comp   Double vector containing the elemental composition of the
+       *                species.
+       * @param charge  Charge of the species. Defaults to zero.
+       * @param size    Size of the species (meters). Defaults to 1 meter.
+       */
+      void addUniqueSpecies(const std::string& name, const doublereal* comp,
+			    doublereal charge = 0.0, 
+			    doublereal size = 1.0);
+      
+      //! Index of species named 'name'
+      /*!
+       * The first species added
+       * will have index 0, and the last one index nSpecies() - 1.
+       *
+       * @param name String name of the species
+       * @return 
+       *    Returns the index of the species.
+       */
+      int speciesIndex(std::string name) const;
 
-	void addUniqueSpecies(const std::string& name, const doublereal* comp,
-			      doublereal charge = 0.0, 
-			      doublereal size = 1.0);
-        /**
-         * Index of species named 'name'. The first species added
-         * will have index 0, and the last one index nSpecies() - 1.
-         */
-        int speciesIndex(std::string name) const;
-        /// Name of the species with index k
-        std::string speciesName(int k) const;
-        /// Return a const referernce to the vector of species names
-        const std::vector<std::string>& speciesNames() const;
-        /**
-	 * size():
-	 *   This routine returns the size of species k
-	 */
-        doublereal size(int k) const { return m_speciesSize[k]; }
+      //! Name of the species with index k
+      /*!
+       * @param k index of the species
+       */
+      std::string speciesName(int k) const;
+       
+      /// Return a const referernce to the vector of species names
+      const std::vector<std::string>& speciesNames() const;
+      
+      //!  This routine returns the size of species k
+      /*!
+       * @param k index of the species 
+       * @return 
+       *      Returns the size of the species. Units are meters.
+       */
+      doublereal size(int k) const { return m_speciesSize[k]; }
 
         /**
          * Prohibit addition of more species, and prepare for
@@ -224,19 +310,26 @@ namespace Cantera {
         /// True if both elements and species have been frozen
         bool ready() const;
 
-        /// Number of atoms of element m in species k.
-        doublereal nAtoms(int k, int m) const;
+      //! Number of atoms of element \c m in species \c k.
+      /*!
+       * @param k    species index
+       * @param m    element index
+       */
+      doublereal nAtoms(int k, int m) const;
 
-	/**
-	 * Get a vector containing the atomic composition 
-	 * of species k
-	 */
-	void getAtoms(int k, double *atomArray) const;
+      
+      //! Get a vector containing the atomic composition  of species k
+      /*!
+       * @param  k         species index
+       * @param atomArray  vector containing the atomic number in the species.
+       *                   Length: m_mm
+       */
+      void getAtoms(int k, double *atomArray) const;
 
 
     protected:
     
-        //! Number of species in the phase.
+      //! Number of species in the phase.
       int                            m_kk;
       //! Vector of molecular weights of the species
       /*!

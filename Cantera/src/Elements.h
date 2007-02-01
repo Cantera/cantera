@@ -25,7 +25,8 @@ namespace Cantera {
     class XML_Node;
     class ElementRangeError;
 
-    /** Elements Class: Object contains the elements that make up species.
+    /*!
+     *  Elements Class: Object contains the elements that make up species.
      * 
      * Class Elements manages the elements that are part of a
      * chemistry specification.  This class may support calculations
@@ -40,106 +41,175 @@ namespace Cantera {
     class Elements {
 
     public:
-	/// Default constructor for the elements class
-        Elements();
-        ~Elements();
 
-	static double LookupWtElements(const std::string &);
+      /// Default constructor for the elements class
+      Elements();
 
-        /// Atomic weight of element m. 
-        doublereal atomicWeight(int m) const { return m_atomicWeights[m]; }
+      //! Default destructor for the elements class
+      ~Elements();
 
-        /// Atomic number of element m. 
-        int atomicNumber(int m) const { return m_atomicNumbers[m]; }
+      //! Function to lookup the atomic weight of an element
+      /*!
+       *  @param ename Element symbol name.
+       */
+      static double LookupWtElements(const std::string &ename);
 
-        /// vector of element atomic weights
-        const vector_fp& atomicWeights() const { return m_atomicWeights; }
+      /// Atomic weight of element m.
+      /*!
+       *  @param m element index
+       */
+      doublereal atomicWeight(int m) const { return m_atomicWeights[m]; }
 
-        /** 
-	 * Inline function that returns the number of elements in the object.
-	 * 
-	 *  @return 
-	 *    \c int: The number of elements in the object.
-	 */
-        int nElements() const { return m_mm; }
+      /// Atomic number of element m.
+      /*!
+       *  @param m element index
+       */
+      int atomicNumber(int m) const { return m_atomicNumbers[m]; }
 
-        /** Function that returns the index of an element.
-	 *
-         * Index of element named \c name. The index is an integer
-         * assigned to each element in the order it was added,
-         * beginning with 0 for the first element.  If \c name is not
-         * the name of an element in the set, then the value -1 is
-         * returned.
-	 *
-	 * @param name String containing the index.
-         */
-        int elementIndex(std::string name) const;
+      /// vector of element atomic weights
+      const vector_fp& atomicWeights() const { return m_atomicWeights; }
 
-        /*
-         * Name of the element with index \c m.  @param m Element 11111
-         * index. If m < 0 or m >= nElements() an exception is thrown.
-         */
-        std::string elementName(int m) const;
+      /** 
+       * Inline function that returns the number of elements in the object.
+       * 
+       *  @return 
+       *    \c int: The number of elements in the object.
+       */
+      int nElements() const { return m_mm; }
 
-	/* elementNames() */
-        /**   Returns a string vector containing the element names  
-	 *   
-         * Returns a read-only reference to the vector of element names.
-	 * @return <tt> const vector<string>& </tt>: The vector contains
-	 *         the element names in their indexed order.
-         */
-        const std::vector<std::string>& elementNames() const {
-            return m_elementNames;
-        }
+      //! Function that returns the index of an element.
+      /*!
+       * Index of element named \c name. The index is an integer
+       * assigned to each element in the order it was added,
+       * beginning with 0 for the first element.  If \c name is not
+       * the name of an element in the set, then the value -1 is
+       * returned.
+       *
+       * @param name String containing the index.
+       */
+      int elementIndex(std::string name) const;
+      
+      //! Name of the element with index \c m. 
+      /*!
+       * @param m Element index. If m < 0 or m >= nElements() an exception is thrown.
+       */
+      std::string elementName(int m) const;
+      
+      //!   Returns a string vector containing the element names  
+      /*!
+       * Returns a read-only reference to the vector of element names.
+       * @return <tt> const vector<string>& </tt>: The vector contains
+       *         the element names in their indexed order.
+       */
+      const std::vector<std::string>& elementNames() const {
+	return m_elementNames;
+      }
 
-        /// Add an element.
-        void addElement(const std::string& symbol, 
-			doublereal weight = -12345.0);
-        void addElement(const XML_Node& e);
+      //! Add an element to the current set of elements in the current object.
+      /*!
+       *   The default weight is a special value, which will cause the
+       *   routine to look up the actual weight via a string lookup.
+       *
+       *   There are two interfaces to this routine. The XML interface
+       *   looks up the required parameters for the regular interface
+       *   and then calls the base routine.
+       *
+       * @param symbol string symbol for the element.
+       * @param weight Atomic weight of the element. If no argument
+       *               is provided, a lookup is attempted.
+       */
+      void addElement(const std::string& symbol, 
+		      doublereal weight = -12345.0);
 
-	/*
-	 * Add an element only if the element hasn't been added before.
-	 * This is accomplished via a string match on symbol.
-	 */
-	void addUniqueElement(const std::string& symbol, 
-            doublereal weight = -12345.0, int atomicNumber = 0);
-        void addUniqueElement(const XML_Node& e);
+      //! Add an element to the current set of elements in the current object.
+      /*!
+       * @param   e   Reference to the XML_Node containing the element information
+       *              The node name is the element symbol and the atomWt attribute
+       *              is used as the atomic weight.
+       */
+      void addElement(const XML_Node& e);
 
-        void addElementsFromXML(const XML_Node& phase);
+      //!  Add an element only if the element hasn't been added before.
+      /*!
+       * This is accomplished via a string match on symbol.
+       *
+       * @param symbol string symbol for the element.
+       * @param weight Atomic weight of the element. If no argument
+       *               is provided, a lookup is attempted.
+       * @param atomicNumber defaults to 0
+       */
+      void addUniqueElement(const std::string& symbol, 
+			    doublereal weight = -12345.0, int atomicNumber = 0);
 
-        /**
-         * Prohibit addition of more elements, and prepare to add
-         * species.
-         */
-        void freezeElements();
+      //! Add an element to the current set of elements in the current object.
+      /*!
+       * @param   e   Reference to the XML_Node containing the element information
+       *              The node name is the element symbol and the atomWt attribute
+       *              is used as the atomic weight.
+       */
+      void addUniqueElement(const XML_Node& e);
+      
+      //! Add multiple elements from a XML_Node phase description
+      /*!
+       *  @param phase XML_Node reference to a phase
+       */
+      void addElementsFromXML(const XML_Node& phase);
+      
+      //! Prohibit addition of more elements, and prepare to add species.
+      void freezeElements();
     
-        /// True if freezeElements has been called.
-        bool elementsFrozen() { return m_elementsFrozen; }
+      /// True if freezeElements has been called.
+      bool elementsFrozen() { return m_elementsFrozen; }
 
-        /// Remove all elements
-        void clear();
+      /// Remove all elements
+      void clear();
 
-        /// True if both elements and species have been frozen
-        bool ready() const;
+      /// True if both elements and species have been frozen
+      bool ready() const;
 
-	Elements(const Elements& right);
-        Elements& operator=(const Elements& right);
+      //! copy constructor
+      /*!
+       *   This copy constructor just calls the assignment operator for this
+       *   class. It sets the number of subscribers to zer0.
+       *
+       * @param right   Reference to the object to be copied.
+       */
+      Elements(const Elements& right);
 
+      //! Assigntment operator
+      /*!
+       *   This is the assignment operator for the Elements class.
+       *   Right now we pretty much do a straight uncomplicated 
+       *   assignment. However, subscribers are not mucked with, as they
+       *   have to do with the address of the object to be subscribed to
+       *
+       * @param right   Reference to the object to be copied.
+       */
+      Elements& operator=(const Elements& right);
 
-	void subscribe();
-	int unsubscribe();
-	int reportSubscriptions() const;
+      //! subscribe to this object
+      /*!
+       *  Increment by one the number of subscriptions to this object.
+       */
+      void subscribe();
+
+      //! unsubscribe to this object
+      /*!
+       *  decrement by one the number of subscriptions to this object.
+       */
+      int unsubscribe();
+
+      //! report the number of subscriptions
+      int reportSubscriptions() const;
 
     protected:
     
 	/******************************************************************/
 	/*      Description of DATA in the Object                         */
 	/******************************************************************/
-	/* n_mm: */
-	/**    Number of elements.
-	 *
-	 */
-        int                            m_mm;
+
+      //!   Number of elements.
+      int                            m_mm;
 
 	/* m_elementsFrozen: */
 	/**   boolean indicating completion of object

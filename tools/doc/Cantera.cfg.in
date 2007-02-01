@@ -75,7 +75,7 @@ QUIET                  = NO
 WARNINGS               = YES
 WARN_IF_UNDOCUMENTED   = YES
 WARN_IF_DOC_ERROR      = YES
-WARN_NO_PARAMDOC       = NO
+WARN_NO_PARAMDOC       = YES
 WARN_FORMAT            = "$file:$line: $text"
 WARN_LOGFILE           = 
 #---------------------------------------------------------------------------
@@ -85,8 +85,7 @@ INPUT                  = ../../Cantera/src \
                          ../../Cantera/src/thermo \
                          ../../Cantera/cxx/include \
                          doxyinput
-FILE_PATTERNS          = Kinetics.h \
-                         Kinetics.cpp \
+FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          misc.cpp \
                          ct_defs.h \
                          logger.h \
@@ -95,11 +94,11 @@ FILE_PATTERNS          = Kinetics.h \
                          ctexceptions.h \
                          *.txt \
                          equilibrium.h \
-                         ThermoPhase.h \
-                         ThermoPhase.cpp \
-                         State.h \
-                         Constituents.h \
-                         Phase.h \
+                         ThermoPhase.h  ThermoPhase.cpp \
+                         Phase.h Phase.cpp \
+                         State.h  State.cpp \
+                         Constituents.h Constituents.cpp \
+                         Elements.h Elements.cpp \
                          utilities.h \
                          VPStandardStateTP.h     VPStandardStateTP.cpp \
                          MolalityVPSSTP.h        MolalityVPSSTP.cpp \

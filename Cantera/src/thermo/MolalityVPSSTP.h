@@ -40,24 +40,45 @@ namespace Cantera {
   public:
         
     /// Constructors 
+    /*!
+     * This doesn't do much more than initialize constants with
+     * default values for water at 25C. Water molecular weight 
+     * comes from the default elements.xml file. It actually
+     * differs slightly from the IAPWS95 value of 18.015268. However,
+     * density conservation and therefore element conservation
+     * is the more important principle to follow.
+     */
     MolalityVPSSTP();
-    MolalityVPSSTP(const MolalityVPSSTP &);
+
+    //! Copy constructor
+    /*!
+     *  Note this stuff will not work until the underlying phase
+     *  has a working copy constructor
+     *
+     * @param b class to be copied
+     */
+    MolalityVPSSTP(const MolalityVPSSTP &b);
+
     /// Assignment operator
-    MolalityVPSSTP& operator=(const	MolalityVPSSTP&);
+    /*!
+     *  Note this stuff will not work until the underlying phase
+     *  has a working assignment operator
+     *
+     * @param b class to be copied.
+     */
+    MolalityVPSSTP& operator=(const	MolalityVPSSTP&b);
 
     /// Destructor. 
     virtual ~MolalityVPSSTP();
 
-    /**
-     * Duplication routine for objects which inherit from 
-     * ThermoPhase.
-     *
+    //! Duplication routine for objects which inherit from  ThermoPhase.
+    /*!
      *  This virtual routine can be used to duplicate thermophase objects
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
     virtual ThermoPhase *duplMyselfAsThermoPhase();
-
+    
     /**
      *   
      * @name  Utilities  
@@ -104,6 +125,8 @@ namespace Cantera {
      * the solvent mole fraction goes to zero. Numerically, how
      * this limit is treated and resolved is an ongoing issue within
      * Cantera.
+     *
+     * @param xmolSolventMIN  Input double containing the minimum mole fraction
      */
     void setMoleFSolventMin(doublereal xmolSolventMIN);
 
@@ -118,24 +141,82 @@ namespace Cantera {
      */
     doublereal moleFSolventMin() const;
 
-    /**
-     * Calculates the molality of all species and
-     * stores the result internally.
+    
+    //! Calculates the molality of all species andstores the result internally.
+    /*!
+     *   We calculate the vector of molalities of the species
+     *   in the phase and store the result internally:
+     *   \f[
+     *     m_i = (n_i) / (1000 * M_o * n_{o,p})
+     *   \f]
+     *    where 
+     *    - \f$ M_o \f$ is the molecular weight of the solvent
+     *    - \f$ n_o \f$ is the mole fraction of the solvent
+     *    - \f$ n_i \f$ is the mole fraction of the solute.
+     *    - \f$ n_{o,p} = max (n_{o, min}, n_o) \f$
+     *    - \f$ n_{o,min} \f$ = minimum mole fraction of solvent allowed
+     *              in the denominator.
      */
     void calcMolalities() const;
 
-    /**
-     * getMolalities()
-     *   This function will return the molalities of the
-     *   species.
+ 
+    //!  This function will return the molalities of the species.
+    /*!
+     *   We calculate the vector of molalities of the species
+     *   in the phase
+     * \f[
+     *     m_i = (n_i) / (1000 * M_o * n_{o,p})
+     * \f]
+     *    where 
+     *    - \f$ M_o \f$ is the molecular weight of the solvent
+     *    - \f$ n_o \f$ is the mole fraction of the solvent
+     *    - \f$ n_i \f$ is the mole fraction of the solute.
+     *    - \f$ n_{o,p} = max (n_{o, min}, n_o) \f$
+     *    - \f$ n_{o,min} \f$ = minimum mole fraction of solvent allowed
+     *              in the denominator.
      *
+     * @param molal       Output vector of molalities. Length: m_kk.
      */
     void getMolalities(doublereal * const molal) const;
 
-
+    //! Set the molalities of a phase
+    /*!
+     * Set the molalities of the solutes in a phase. Note, the entry for the
+     * solvent is not used.
+     *   We are supplied with the molalities of all of the
+     *   solute species. We then calculate the mole fractions of all
+     *   species and update the ThermoPhase object.
+     *
+     *     m_i = (n_i) / (W_o/1000 * n_o_p)
+     *
+     *    where M_o is the molecular weight of the solvent
+     *    n_o is the mole fraction of the solvent
+     *    n_i is the mole fraction of the solute.
+     *    n_o_p = max (n_o_min, n_o)
+     *    n_o_min = minimum mole fraction of solvent allowed
+     *              in the denominator.
+     *
+     * @param molal   Input vector of molalities. Length: m_kk.
+     */
     void setMolalities(const doublereal * const molal);
+
+    //! Set the molalities of a phase
+    /*!
+     * Set the molalities of the solutes in a phase. Note, the entry for the
+     * solvent is not used.
+     *
+     * @param xMap  Composition Map containing the molalities.
+     */
     void setMolalitiesByName(compositionMap& xMap);
-    void setMolalitiesByName(const std::string &);
+
+    //! Set the molalities of a phase
+    /*!
+     * Set the molalities of the solutes in a phase. Note, the entry for the
+     * solvent is not used.
+     *
+     * @param name  String containing the information for a composition map.
+     */
+    void setMolalitiesByName(const std::string& name);
 
     /**
      * @}
@@ -213,6 +294,8 @@ namespace Cantera {
      * concentration is species-specific (e.g. surface species of
      * different sizes), this method may be called with an
      * optional parameter indicating the species.
+     *
+     * @param k species index. Defaults to zero.
      */
     virtual doublereal standardConcentration(int k=0) const {
       err("standardConcentration");
@@ -222,6 +305,8 @@ namespace Cantera {
     /**
      * Returns the natural logarithm of the standard 
      * concentration of the kth species
+     *
+     * @param k  species index
      */
     virtual doublereal logStandardConc(int k=0) const {
       err("logStandardConc");
@@ -238,6 +323,7 @@ namespace Cantera {
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
+     * @param uA Output vector containing the units
      *  uA[0] = kmol units - default  = 1
      *  uA[1] = m    units - default  = -nDim(), the number of spatial
      *                                dimensions in the Phase class.
@@ -245,6 +331,9 @@ namespace Cantera {
      *  uA[3] = Pa(pressure) units - default = 0;
      *  uA[4] = Temperature units - default = 0;
      *  uA[5] = time units - default = 0
+     * @param k species index. Defaults to 0.
+     * @param sizeUA output int containing the size of the vector.
+     *        Currently, this is equal to 6.
      */
     virtual void getUnitsStandardConc(double *uA, int k = 0,
 				      int sizeUA = 6);
@@ -254,6 +343,8 @@ namespace Cantera {
      * based for this class and classes that derive from it) at
      * the current solution temperature, pressure, and
      * solution concentration.
+     *
+     * @param ac     Output vector of activities. Length: m_kk.
      */
     virtual void getActivities(doublereal* ac) const {
       err("getActivities");
@@ -263,10 +354,13 @@ namespace Cantera {
      * Get the array of non-dimensional activity coefficients at
      * the current solution temperature, pressure, and
      * solution concentration.
-     * These are mole fraction based activity coefficients. In this
+     * These are mole-fraction based activity coefficients. In this
      * object, their calculation is based on translating the values
-     * of Molality based activity coefficients.
+     * of the molality based activity coefficients.
      *  See Denbigh p. 278 for a thorough discussion
+     *
+     * @param ac  Output vector containing the mole-fraction based activity coefficients.
+     *            length: m_kk.
      */
     void getActivityCoefficients(doublereal* ac) const;
 
@@ -275,6 +369,9 @@ namespace Cantera {
      * activity coefficients at the current solution temperature, 
      * pressure, and  solution concentration.
      *  See Denbigh p. 278 for a thorough discussion
+     *
+     * @param acMolality Output vector containing the molality based activity coefficients.
+     *                   length: m_kk.
      */
     virtual void getMolalityActivityCoefficients(doublereal *acMolality)
       const {
@@ -299,6 +396,9 @@ namespace Cantera {
      * to each chemical potential.
      *
      * Units: J/kmol
+     *
+     * @param mu     output vector containing the species electrochemical potentials.
+     *               Length: m_kk.
      */
     void getElectrochemPotentials(doublereal* mu) const {
       getChemPotentials(mu);
@@ -360,6 +460,9 @@ namespace Cantera {
      * \f$ \lambda_m \f$ is the element potential of element m. The
      * temperature is unchanged.  Any phase (ideal or not) that
      * implements this method can be equilibrated by ChemEquil.
+     *
+     * @param lambda_RT Input vector containing the dimensionless 
+     *                  element potentials.
      */
     virtual void setToEquilState(const doublereal* lambda_RT) {
       err("setToEquilState");
@@ -387,7 +490,7 @@ namespace Cantera {
      * to everything else.
      *   
      * @param state An XML_Node object corresponding to
-     * the "state" entry for this phase in the input file.
+     *              the "state" entry for this phase in the input file.
      *
      */
     virtual void setStateFromXML(const XML_Node& state);
@@ -430,17 +533,33 @@ namespace Cantera {
      */
     void initThermoXML(XML_Node& phaseNode, std::string id);
 
-    /** 
-     * Set the temperature (K), pressure (Pa), and molalities
-     * (gmol kg-1) of the solutes
+    
+    //! Set the temperature (K), pressure (Pa), and molalities
+    //!(gmol kg-1) of the solutes
+    /*!
+     * @param t           Temperature (K)
+     * @param p           Pressure (Pa)
+     * @param molalities  Input vector of molalities of the solutes.
+     *                    Length: m_kk.
      */
     void setState_TPM(doublereal t, doublereal p, 
 		      const doublereal * const molalities);
 
-    /** Set the temperature (K), pressure (Pa), and molalities.  */
+    //! Set the temperature (K), pressure (Pa), and molalities.
+    /*!
+     * @param t           Temperature (K)
+     * @param p           Pressure (Pa)
+     * @param m           compositionMap containing the molalities
+     */
     void setState_TPM(doublereal t, doublereal p, compositionMap& m);
 
-    /** Set the temperature (K), pressure (Pa), and molalities.  */
+    //! Set the temperature (K), pressure (Pa), and molalities. 
+    /*!
+     * @param t           Temperature (K)
+     * @param p           Pressure (Pa)
+     * @param m           String which gets translated into a composition
+     *                    map for the molalities of the solutes.
+     */
     void setState_TPM(doublereal t, doublereal p, const std::string& m);
 
   private:

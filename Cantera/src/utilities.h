@@ -23,263 +23,524 @@ namespace Cantera {
    */
   //@{
 
-    /**
-     * Maximum of i and j. If \a i and \a j have different types, \a j
-     * is converted to the type of \a i before the comparison.
-     */
-    template<class T, class S>
-    inline T max(T i, S j) {
-        return (i > T(j) ? i : T(j));
-    }
-
-    /**
-     * Minimum of i and j. If \a i and \a j have different types, \a j
-     * is converted to the type of \a i before the comparison.
-     */
-    template<class T, class S>
-    inline T min(T i, S j) {
-        return (i < T(j) ? i : T(j));
-    }
-
-    /**
-     * Inner product of two vectors of length 4. 
-     * If either \a x
-     * or \a y has length greater than 4, only the first 4 elements
-     * will be used.
-     */
-    template<class V>
-    inline doublereal dot4(const V& x, const V& y) {
-        return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3];
-    }
-
-    /**
-     * Inner product of two vectors of length 5.
-     * If either \a x
-     * or \a y has length greater than 5, only the first 5 elements
-     * will be used.
-     */
-    template<class V>
-    inline doublereal dot5(const V& x, const V& y) {
-        return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3] +
-            x[4]*y[4];
-    }
-
-    /**
-     * Inner product of two vectors of length 6.
-     * If either \a x
-     * or \a y has length greater than 6, only the first 6 elements
-     * will be used.
-     */
-    template<class V>
-    inline doublereal dot6(const V& x, const V& y) {
-        return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3] +
-            x[4]*y[4] + x[5]*y[5];
-    }
-
-    /**
-     * Inner product.
-     */
-    template<class InputIter, class InputIter2>
-    inline doublereal dot(InputIter x_begin, InputIter x_end, 
-        InputIter2 y_begin) {
-        doublereal sum = 0.0;
-        for(; x_begin != x_end; ++x_begin, ++y_begin) 
-            sum += *x_begin * *y_begin;
-        return sum;
-    }
-
-    /**
-     * Multiply elements of an array by a scale factor.
-     * \code
-     * vector_fp in(8, 1.0), out(8);
-     * scale(in.begin(), in.end(), out.begin(), factor);
-     * \endcode 
-     */ 
-    template<class InputIter, class OutputIter, class S>
-    inline void scale(InputIter begin, InputIter end, 
-        OutputIter out, S scale_factor) {
-        for (; begin != end; ++begin, ++out) 
-            *out = scale_factor * *begin;
-    }
-
-    /*!
-     * Multiply elements of an array, y, by a scale factor, f and add the
-     * result to an existing array, x. This is essentially a templated daxpy_
-     * operation. 
-     * @code
-     *       for (i = 0; i < n; i++) {
-     *         x[i] += f * [i]
-     *       }
-     * @endcode
-     *
-     * It is templated with three parameters. The first template
-     * is the iterator, InputIter, which controls access to y[].
-     * The second template is the iterator OutputIter, which controls
-     * access to y[]. The third iterator is S, which is f.
-     *
-     * @param begin InputIter Iterator for beginning of y[]
-     * @param end   inputIter Iterator for end of y[]  
-     * @param out   OutputIter Iterator for beginning of x[]
-     * @param scale_factor Scale Factor to multiply y[i] by
-     */ 
-    template<class InputIter, class OutputIter, class S>
-    inline void increment_scale(InputIter begin, InputIter end, 
-        OutputIter out, S scale_factor) {
-        for (; begin != end; ++begin, ++out) 
-            *out += scale_factor * *begin;
-    }
-
-    /**
-     * Multiply each entry in x by the corresponding entry in y.
-     */
-    template<class InputIter, class OutputIter>   
-    inline void multiply_each(OutputIter x_begin, OutputIter x_end, 
-        InputIter y_begin) {
-        for(; x_begin != x_end; ++x_begin, ++y_begin) *x_begin *= *y_begin;
-    }
-
-
-    /**
-     * Invoke method 'resize' with argument \a m for a sequence of objects.
-     */
-    template<class InputIter>
-    inline void resize_each(int m, InputIter begin, InputIter end) {
-        for(; begin != end; ++begin) begin->resize(m);
-    }
-
-    /**
-     * The maximum absolute value.
-     */
-    template<class InputIter>
-    inline doublereal absmax(InputIter begin, InputIter end) {
-        doublereal amax = 0.0;
-        for(; begin != end; ++begin) 
-            if (fabs(*begin) > amax) amax = fabs(*begin);
-        return amax;
-    }
-
-    /**
-     * Normalize the values in a sequence, such that they sum to 1.0.
-     */
-    template<class InputIter, class OutputIter>
-    inline void normalize(InputIter begin, InputIter end, 
-        OutputIter out) {
-        doublereal sum = accumulate(begin, end, 0.0);
-        for (; begin != end; ++begin, ++out) *out = *begin/sum;
-    }
-
-    /**
-     * Divide each element of \a x by the corresponding element of \a y.
-     */
-    template<class InputIter, class OutputIter>   
-    inline void divide_each(OutputIter x_begin, OutputIter x_end, 
-        InputIter y_begin) {
-        for(; x_begin != x_end; ++x_begin, ++y_begin) *x_begin /= *y_begin;
-    }
-
-    /**
-     * Increment each entry in \a x by the corresponding entry in \a y.
-     */
-    template<class InputIter, class OutputIter>   
-    inline void sum_each(OutputIter x_begin, OutputIter x_end, 
-        InputIter y_begin) {
-        for(; x_begin != x_end; ++x_begin, ++y_begin) *x_begin += *y_begin;
-    }
-
-    /** Copies a contiguous range in a sequence to indexed
-     *  positions in another sequence. Example:
-     *
-     *  \code
-     *  vector<double> x(3), y(20), ;
-     *  vector<int> index(3);
-     *  index[0] = 9;
-     *  index[1] = 2;
-     *  index[3] = 16; 
-     *  scatter_copy(x.begin(), x.end(), y.begin(), index.begin());
-     *  \endcode
-     */
-    template<class InputIter, class OutputIter, class IndexIter>
-    inline void scatter_copy(InputIter begin, InputIter end, 
-        OutputIter result, IndexIter index) {
-        for (; begin != end; ++begin, ++index) {
-            *(result + *index) = *begin;
-        }
-    }
-
-    /**
-     * Multiply selected elements in an array by a contiguous 
-     * sequence of multipliers. 
-     * Example:
-     * \code
-     * double multipliers[] = {8.9, -2.0, 5.6};
-     * int index[] = {7, 4, 13};
-     * vector_fp data(20);
-     * ...
-     * // multiply elements 7, 4, and 13 in data by multipliers
-     * scatter_mult(multipliers, multipliers + 3, data.begin(),
-     *               index);
-     * \endcode
-     */
     
-    template<class InputIter, class RandAccessIter, class IndexIter>
-    inline void scatter_mult(InputIter mult_begin, InputIter mult_end, 
-        RandAccessIter data, IndexIter index) {
-	for (; mult_begin != mult_end; ++mult_begin, ++index) {
-            *(data + *index) *= *mult_begin;
-	}
-    }
+  //! Maximum of two templated quantities, i and j.
+  /*!
+   * If \a i and \a j have different types, \a j
+   * is converted to the type of \a i before the comparison.
+   *
+   * @param i   first argument, instance of templated class T
+   * @param j   Second argument, instance of templated class S
+   * @return  
+   *       This function returns the maximum of the two values 
+   *       as an instance of templated type T.
+   */
+  template<class T, class S>
+  inline T max(T i, S j) {
+    return (i > T(j) ? i : T(j));
+  }
 
-    /**
-     * Divide selected elements in an array by a contiguous 
-     * sequence of divisors.
-     * Example: 
-     * \code
-     * double divisors[] = {8.9, -2.0, 5.6};
-     * int index[] = {7, 4, 13};
-     * vector_fp data(20);
-     * ...
-     * // divide elements 7, 4, and 13 in data by divisors
-     * scatter_divide(divisors, divisors + 3, data.begin(),
-     *               index);
-     * \endcode
-     */
-    template<class InputIter, class OutputIter, class IndexIter>
-    inline void scatter_divide(InputIter begin, InputIter end, 
-        OutputIter result, IndexIter index) {
-	for (; begin != end; ++begin, ++index) {
-            *(result + *index) /= *begin;
-	}
-    }
+  //! Minimum of two templated quantities, i and j.
+  /*!
+   * If \a i and \a j have different types, \a j
+   * is converted to the type of \a i before the comparison.
+   *
+   * @param i   first argument, instance of templated class T
+   * @param j   Second argument, instance of templated class S
+   * @return  
+   *       This function returns the minimum of the two values 
+   *       as an instance of templated type T.
+   */
+  template<class T, class S>
+  inline T min(T i, S j) {
+    return (i < T(j) ? i : T(j));
+  }
 
-    /**
-     * Compute \f[ \sum_k x_k \log x_k. \f]. A small number (1.0E-20)
-     * is added before taking the log.
-     */ 
-    template<class InputIter>  
-    inline doublereal sum_xlogx(InputIter begin, InputIter end) {
-	doublereal sum = 0.0;
-	for (; begin != end; ++begin) {
-            sum += (*begin) * std::log(*begin + Tiny);
-	}
-	return sum;
-    }
+    
+  //!  Tempalted Inner product of two vectors of length 4. 
+  /*!
+   * If either \a x
+   * or \a y has length greater than 4, only the first 4 elements
+   * will be used.
+   *
+   * @param x   first reference to the templated class V
+   * @param y   second reference to the templated class V
+   * @return
+   *      This class returns a hard-coded type, doublereal.
+   */
+  template<class V>
+  inline doublereal dot4(const V& x, const V& y) {
+    return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3];
+  }
+  
+  
+  //!  Tempalted Inner product of two vectors of length 5 
+  /*!
+   * If either \a x
+   * or \a y has length greater than 4, only the first 4 elements
+   * will be used.
+   *
+   * @param x   first reference to the templated class V
+   * @param y   second reference to the templated class V
+   * @return
+   *      This class returns a hard-coded type, doublereal.
+   */
+  template<class V>
+  inline doublereal dot5(const V& x, const V& y) {
+    return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3] +
+      x[4]*y[4];
+  }
+  
+  //!  Tempalted Inner product of two vectors of length 6
+  /*!
+   * If either \a x
+   * or \a y has length greater than 4, only the first 4 elements
+   * will be used.
+   *
+   * @param x   first reference to the templated class V
+   * @param y   second reference to the templated class V
+   * @return
+   *      This class returns a hard-coded type, doublereal.
+   */
+  template<class V>
+  inline doublereal dot6(const V& x, const V& y) {
+    return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3] +
+      x[4]*y[4] + x[5]*y[5];
+  }
+    
+  //! Function that calculates a templated inner product.
+  /*!
+   * This inner product is templated twice. The output variable is hard coded
+   * to return a doublereal.
+   *
+   * template<class InputIter, class InputIter2>
+   *
+   * @code
+   *     double x[8], y[8];
+   *     doublereal dsum = dot<double *,double *>(x, &x+7, y);
+   * @endcode
+   *
+   * @param x_begin  Iterator pointing to the beginning, belonging to the
+   *                 iterator class InputIter. 
+   * @param x_end    Iterator pointing to the end, belonging to the
+   *                 iterator class InputIter.
+   * @param y_begin Iterator pointing to the beginning of y, belonging to the
+   *               iterator class InputIter2. 
+   * @return
+   *     The return is hard-coded to return a double.
+   */
+  template<class InputIter, class InputIter2>
+  inline doublereal dot(InputIter x_begin, InputIter x_end, 
+			InputIter2 y_begin) {
+    doublereal sum = 0.0;
+    for(; x_begin != x_end; ++x_begin, ++y_begin) 
+      sum += *x_begin * *y_begin;
+    return sum;
+  }
+  
+  //!   Multiply elements of an array by a scale factor.
+  /*!
+   * \code
+   * vector_fp in(8, 1.0), out(8);
+   * scale(in.begin(), in.end(), out.begin(), factor);
+   * \endcode 
+   *
+   * @param begin  Iterator pointing to the beginning, belonging to the
+   *               iterator class InputIter. 
+   * @param end    Iterator pointing to the end, belonging to the
+   *               iterator class InputIter.
+   * @param out    Iterator pointing to the beginning of out, belonging to the
+   *               iterator class OutputIter. This is the output variable
+   *               for this routine.
+   * @param scale_factor  input scale factor belonging to the class S.
+   */ 
+  template<class InputIter, class OutputIter, class S>
+  inline void scale(InputIter begin, InputIter end, 
+		    OutputIter out, S scale_factor) {
+    for (; begin != end; ++begin, ++out) 
+      *out = scale_factor * *begin;
+  }
+  
+  /*!
+   * Multiply elements of an array, y, by a scale factor, f and add the
+   * result to an existing array, x. This is essentially a templated daxpy_
+   * operation. 
+   * 
+   * The template arguments are:  template<class InputIter, class OutputIter, class S>  
+   *
+   *  Simple Code Example of the functionality;
+   * @code
+   *       double x[10], y[10], f;
+   *       for (i = 0; i < n; i++) {
+   *         y[i] += f * x[i]
+   *       }
+   * @endcode
+   *  Example of the function call to implement the simple code example
+   *   @code
+   *      double x[10], y[10], f;
+   *      increment_scale(x, x+10, y, f); 
+   *   @endcode
+   *
+   * It is templated with three parameters. The first template
+   * is the iterator, InputIter, which controls access to y[].
+   * The second template is the iterator OutputIter, which controls
+   * access to y[]. The third iterator is S, which is f.
+   *
+   * @param begin InputIter Iterator for beginning of y[]
+   * @param end   inputIter Iterator for end of y[]  
+   * @param out   OutputIter Iterator for beginning of x[]
+   * @param scale_factor Scale Factor to multiply y[i] by
+   */ 
+  template<class InputIter, class OutputIter, class S>
+  inline void increment_scale(InputIter begin, InputIter end, 
+			      OutputIter out, S scale_factor) {
+    for (; begin != end; ++begin, ++out) 
+      *out += scale_factor * *begin;
+  }
+  
+    
+  //! Multiply each entry in x by the corresponding entry in y.
+  /*!
+   * The template arguments are:  template<class InputIter, class OutputIter>  
+   *
+   * Simple code Equivalent:
+   *  \code
+   *   double x[10], y[10]
+   *   for (n = 0; n < 10; n++) {
+   *     x[n] *= y[n];
+   *   }
+   * \endcode
+   * Example of function call usage to implement the simple code example:
+   *  \code
+   *     double x[10], y[10]
+   *     multiply_each(x, x+10, y);
+   *  \endcode
+   *
+   * @param x_begin   Iterator pointing to the beginning of the vector x, belonging to the
+   *                  iterator class InputIter.
+   * @param x_end     Iterator pointing to the end of the vector x, belonging to the
+   *                  iterator class InputIter. The difference between end and begin
+   *                  determines the loop length
+   * @param y_begin   Iterator pointing to the beginning of the vector y, belonging to the
+   *                  iterator class outputIter.
+   */    
+  template<class InputIter, class OutputIter>   
+  inline void multiply_each(OutputIter x_begin, OutputIter x_end, 
+			    InputIter y_begin) {
+    for(; x_begin != x_end; ++x_begin, ++y_begin) *x_begin *= *y_begin;
+  }
 
-    /**
-     * Compute \f[ \sum_k x_k \log Q_k. \f]. A small number (1.0E-20)
-     * is added before taking the log.
-     */ 
-    template<class InputIter1, class InputIter2>  
-    inline doublereal sum_xlogQ(InputIter1 begin, InputIter1 end,
-               InputIter2 Q_begin) {
-	doublereal sum = 0.0;
-	for (; begin != end; ++begin, ++Q_begin) {
-            sum += (*begin) * std::log(*Q_begin + Tiny);
-	}
-	return sum;
+  //! Invoke method 'resize' with argument \a m for a sequence of objects (templated version)
+  /*!
+   * The template arguments are:  template<class InputIter>  
+   *
+   * Simple code Equivalent:
+   *  \code
+   *   vector<vector<double> *> VV;
+   *   for (n = 0; n < 20; n++) {
+   *     vector<double> *vp = VV[n];
+   *     vp->resize(m);
+   *   }
+   * \endcode
+   * Example of function call usage to implement the simple code example:
+   *  \code
+   *    vector<vector<double> *> VV;
+   *    resize_each(m, &VV[0], &VV[20]);
+   *  \endcode
+   *
+   * @param m         Integer specifying the size that each object should be resized to.
+   * @param begin     Iterator pointing to the beginning of the sequence of object, belonging to the
+   *                  iterator class InputIter.
+   * @param end       Iterator pointing to the end of the sequence of objects, belonging to the
+   *                  iterator class InputIter. The difference between end and begin
+   *                  determines the loop length
+   *
+   * @note This is currently unused.
+   */
+  template<class InputIter>
+  inline void resize_each(int m, InputIter begin, InputIter end) {
+    for(; begin != end; ++begin) begin->resize(m);
+  }
+
+  //! The maximum absolute value (templated version)
+  /*!
+   * The template arguments are:  template<class InputIter>  
+   *
+   * Simple code Equivalent:
+   *  \code
+   *   double x[10] amax = 0.0;
+   *   for (int n = 0; n < 10; n++) {
+   *    if (fabs(x[n]) > amax) amax = fabs(x[10]);
+   *   }
+   *   return amax;
+   * \endcode
+   * Example of function call usage to implement the simple code example:
+   *  \code
+   *   double x[10]
+   *   double amax = absmax(x, x+10);
+   *  \endcode
+   *
+   * @param begin     Iterator pointing to the beginning of the x vector, belonging to the
+   *                  iterator class InputIter.
+   * @param end       Iterator pointing to the end of the x vector, belonging to the
+   *                  iterator class InputIter. The difference between end and begin
+   *                  determines the loop length
+   */
+  template<class InputIter>
+  inline doublereal absmax(InputIter begin, InputIter end) {
+    doublereal amax = 0.0;
+    for(; begin != end; ++begin) 
+      if (fabs(*begin) > amax) amax = fabs(*begin);
+    return amax;
+  }
+    
+  //! Normalize the values in a sequence, such that they sum to 1.0 (templated version)
+  /*!
+   * The template arguments are:  template<class InputIter, class OutputIter>  
+   *
+   * Simple Equivalent:
+   *  \code
+   *   double x[10], y[10], sum = 0.0;
+   *   for (int n = 0; n < 10; n++) {
+   *    sum += x[10];
+   *   }
+   *   for (int n = 0; n < 10; n++) {
+   *    y[n] = x[n]/sum;
+   *   }
+   * \endcode
+   * Example of function call usage:
+   *  \code
+   *   double x[10], y[10]; 
+   *   normalize(x, x+10, y);
+   *  \endcode
+   *
+   * @param begin     Iterator pointing to the beginning of the x vector, belonging to the
+   *                  iterator class InputIter.
+   * @param end       Iterator pointing to the end of the x vector, belonging to the
+   *                  iterator class InputIter. The difference between end and begin
+   *                  determines the loop length
+   * @param out       Iterator pointing to the beginning of the output vector, belonging to the
+   *                  iterator class OutputIter.
+   */
+  template<class InputIter, class OutputIter>
+  inline void normalize(InputIter begin, InputIter end, 
+			OutputIter out) {
+    doublereal sum = accumulate(begin, end, 0.0);
+    for (; begin != end; ++begin, ++out) *out = *begin/sum;
+  }
+
+  //! Templated divide of each element of \a x by the corresponding element of \a y.
+  /*!
+   * The template arguments are:  template<class InputIter, class OutputIter>  
+   *
+   * Simple Equivalent:
+   *  \code
+   *   double x[10], y[10];
+   *   for (n = 0; n < 10; n++) {
+   *     x[n] /= y[n];
+   *   }
+   * \endcode
+   * Example of code usage:
+   *  \code
+   *   double x[10], y[10];
+   *   divide_each(x, x+10, y);
+   *  \endcode
+   *
+   * @param x_begin   Iterator pointing to the beginning of the x vector, belonging to the
+   *                  iterator class OutputIter.
+   * @param x_end     Iterator pointing to the end of the x vector, belonging to the
+   *                  iterator class OutputIter. The difference between end and begin
+   *                  determines the number of inner iterations.
+   * @param y_begin   Iterator pointing to the beginning of the yvector, belonging to the
+   *                  iterator class InputIter.
+   */
+  template<class InputIter, class OutputIter>   
+  inline void divide_each(OutputIter x_begin, OutputIter x_end, 
+			  InputIter y_begin) {
+    for(; x_begin != x_end; ++x_begin, ++y_begin) *x_begin /= *y_begin;
+  }
+ 
+  //!  Increment each entry in \a x by the corresponding entry in \a y.
+  /*!
+   * The template arguments are:  template<class InputIter, class OutputIter>  
+   *
+   * @param x_begin   Iterator pointing to the beginning of the x vector, belonging to the
+   *                  iterator class OutputIter.
+   * @param x_end     Iterator pointing to the end of the x vector, belonging to the
+   *                  iterator class OutputIter. The difference between end and begin
+   *                  determines the number of inner iterations.
+   * @param y_begin   Iterator pointing to the beginning of the yvector, belonging to the
+   *                  iterator class InputIter.
+   */
+  template<class InputIter, class OutputIter>   
+  inline void sum_each(OutputIter x_begin, OutputIter x_end, 
+		       InputIter y_begin) {
+    for(; x_begin != x_end; ++x_begin, ++y_begin) *x_begin += *y_begin;
+  }
+
+  //!   Copies a contiguous range in a sequence to indexed
+  //!   positions in another sequence. 
+  /*!
+   * The template arguments are:  template<class InputIter, class OutputIter, class IndexIter>  
+   *
+   *  Example:
+   *
+   *  \code
+   *  vector<double> x(3), y(20), ;
+   *  vector<int> index(3);
+   *  index[0] = 9;
+   *  index[1] = 2;
+   *  index[3] = 16; 
+   *  scatter_copy(x.begin(), x.end(), y.begin(), index.begin());
+   *  \endcode
+   *
+   *  This routine is templated 3 times. 
+   *      InputIter is an iterator for the source vector
+   *      OutputIter is an iterator for the destination vector
+   *      IndexIter is an iterator for the index into the destination vector.
+   *
+   * @param begin   Iterator pointing to the beginning of the source vector, belonging to the
+   *                iterator class InputIter.
+   * @param end     Iterator pointing to the end of the source vector, belonging to the
+   *                iterator class InputIter. The difference between end and begin
+   *                determines the number of inner iterations.
+   * @param result  Iterator pointing to the beginning of the output vector, belonging to the
+   *                iterator class outputIter.
+   * @param index   Iterator pointing to the beginning of the index vector, belonging to the
+   *                iterator class IndexIter.
+   */
+  template<class InputIter, class OutputIter, class IndexIter>
+  inline void scatter_copy(InputIter begin, InputIter end, 
+			   OutputIter result, IndexIter index) {
+    for (; begin != end; ++begin, ++index) {
+      *(result + *index) = *begin;
     }
+  }
+  
+ 
+  //! Multiply selected elements in an array by a contiguous 
+  //! sequence of multipliers. 
+  /*!
+   * The template arguments are:  template<class InputIter, class RandAccessIter, class IndexIter>  
+   *
+   * Example:
+   * \code
+   * double multipliers[] = {8.9, -2.0, 5.6};
+   * int index[] = {7, 4, 13};
+   * vector_fp data(20);
+   * ...
+   * // Multiply elements 7, 4, and 13 in data by multipliers[0], multipliers[1],and multipliers[2],
+   * // respectively
+   * scatter_mult(multipliers, multipliers + 3, data.begin(), index);
+   * \endcode
+   *
+   * @param mult_begin   Iterator pointing to the beginning of the multiplier vector, belonging to the
+   *                     iterator class InputIter.
+   * @param mult_end     Iterator pointing to the end of the multiplier vector, belonging to the
+   *                     iterator class InputIter. The difference between end and begin
+   *                     determines the number of inner iterations.
+   * @param data         Iterator pointing to the beginning of the output vector, belonging to the
+   *                     iterator class RandAccessIter, that will be selectively multipied.
+   * @param index        Iterator pointing to the beginning of the index vector, belonging to the
+   *                     iterator class IndexIter.
+   */
+  template<class InputIter, class RandAccessIter, class IndexIter>
+  inline void scatter_mult(InputIter mult_begin, InputIter mult_end, 
+			   RandAccessIter data, IndexIter index) {
+    for (; mult_begin != mult_end; ++mult_begin, ++index) {
+      *(data + *index) *= *mult_begin;
+    }
+  }
+
+    
+  //! Divide selected elements in an array by a contiguous sequence of divisors.
+  /*!
+   * The template arguments are:  template<class InputIter, class OutputIter, class IndexIter>  
+   *
+   * Example: 
+   * \code
+   * double divisors[] = {8.9, -2.0, 5.6};
+   * int index[] = {7, 4, 13};
+   * vector_fp data(20);
+   * ...
+   * // divide elements 7, 4, and 13 in data by divisors[7] divisors[4], and divisors[13]
+   * // respectively
+   * scatter_divide(divisors, divisors + 3, data.begin(), index);
+   * \endcode
+   *
+   * @param begin   Iterator pointing to the beginning of the source vector, belonging to the
+   *                iterator class InputIter.
+   * @param end     Iterator pointing to the end of the source vector, belonging to the
+   *                iterator class InputIter. The difference between end and begin
+   *                determines the number of inner iterations.
+   * @param result  Iterator pointing to the beginning of the output vector, belonging to the
+   *                iterator class outputIter.
+   * @param index   Iterator pointing to the beginning of the index vector, belonging to the
+   *                iterator class IndexIter.
+   */
+  template<class InputIter, class OutputIter, class IndexIter>
+  inline void scatter_divide(InputIter begin, InputIter end,
+			     OutputIter result, IndexIter index) {
+    for (; begin != end; ++begin, ++index) {
+      *(result + *index) /= *begin;
+    }
+  }
+  
+  //!  Compute \f[ \sum_k x_k \log x_k. \f]. 
+  /*!
+   * The template arguments are:  template<class InputIter>
+   *
+   *  A small number (1.0E-20) is added before taking the log. This templated
+   *  class does the indicated sun. The template must be an iterator.
+   *
+   * @param begin  Iterator pointing to the beginning, belonging to the
+   *               iterator class InputIter. 
+   * @param end    Iterator pointing to the end, belonging to the
+   *               iterator class InputIter.
+   * @return 
+   *      The return from this class is a double.
+   */ 
+  template<class InputIter>  
+  inline doublereal sum_xlogx(InputIter begin, InputIter end) {
+    doublereal sum = 0.0;
+    for (; begin != end; ++begin) {
+      sum += (*begin) * std::log(*begin + Tiny);
+    }
+    return sum;
+  }
+
+  //! Compute \f[ \sum_k x_k \log Q_k. \f]. 
+  /*!
+   * The template arguments are:  template<class InputIter1, class InputIter2>
+   *
+   * This class is templated twice. The first template, InputIter1
+   * is the iterator that points to $x_k$. The second iterator
+   * InputIter2, point to $Q_k$.
+   *  A small number (1.0E-20) is added before taking the log.
+   * 
+   * @param begin  Iterator pointing to the beginning, belonging to the
+   *               iterator class InputIter1. 
+   * @param end    Iterator pointing to the end, belonging to the
+   *               iterator class InputIter1.
+   * @param Q_begin Iterator pointing to the beginning of Q_k, belonging to the
+   *               iterator class InputIter2. 
+   * @return 
+   *      The return from this class is hard coded to a doublereal.
+   */ 
+  template<class InputIter1, class InputIter2>  
+  inline doublereal sum_xlogQ(InputIter1 begin, InputIter1 end,
+			      InputIter2 Q_begin) {
+    doublereal sum = 0.0;
+    for (; begin != end; ++begin, ++Q_begin) {
+      sum += (*begin) * std::log(*Q_begin + Tiny);
+    }
+    return sum;
+  }
 
   //! scale a templated vector by a constant factor.
   /*!
+   * The template arguments are:  template<class OutputIter>
+   *
    * This function is essentially a wrapper around the stl
    * function %scale(). The function is has one template
    * parameter, OutputIter. OutputIter is a templated iterator
@@ -290,15 +551,15 @@ namespace Cantera {
    * @param x       Templated Iterator to the start of the vector
    *                to be scaled. 
    */
-    template<class OutputIter>
-    inline void scale(int N, double alpha, OutputIter x) {
-        //#ifdef DARWINNNN
-        //cblas_dscal(N, alpha, x, 1);
-        //#else
-        scale(x, x+N, x, alpha);
-        //#endif
-    }
-
+  template<class OutputIter>
+  inline void scale(int N, double alpha, OutputIter x) {
+    //#ifdef DARWINNNN
+    //cblas_dscal(N, alpha, x, 1);
+    //#else
+    scale(x, x+N, x, alpha);
+    //#endif
+  }
+  
   //@}
 
 }

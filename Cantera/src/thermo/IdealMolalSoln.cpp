@@ -98,7 +98,7 @@ namespace Cantera {
   //
   // -------- Molar Thermodynamic Properties of the Solution --------------- 
   //
-  /**
+  /*
    * Molar enthalpy of the solution: Units: J/kmol.
    *
    * Returns the amount of enthalpy per mole of solution.
@@ -120,7 +120,7 @@ namespace Cantera {
     return val;
   }
 
-  /**
+  /*
    * Molar internal energy of the solution: Units: J/kmol.
    *
    * Returns the amount of internal energy per mole of solution.
@@ -136,7 +136,7 @@ namespace Cantera {
     return mean_X(DATA_PTR(m_tmpV));
   }
 
-  /**
+  /*
    * Molar entropy of the solution: Units J/kmol/K.
    *
    * Returns the amount of entropy per mole of solution.
@@ -156,7 +156,7 @@ namespace Cantera {
     return mean_X(DATA_PTR(m_tmpV));
   }
 
-  /**
+  /*
    * Molar Gibbs function for the solution: Units J/kmol. 
    *
    * Returns the gibbs free energy of the solution per mole
@@ -173,7 +173,7 @@ namespace Cantera {
     return mean_X(DATA_PTR(m_tmpV));
   }
 
-  /**
+  /*
    * Molar heat capacity at constant pressure: Units: J/kmol/K. 
    *  * \f[
    * \bar{c}_p(T, P, X_k) = \sum_k X_k \bar{c}_{p,k}(T)  
@@ -187,7 +187,7 @@ namespace Cantera {
     return val;
   }
 
-  /**
+  /*
    * Molar heat capacity at constant volume: Units: J/kmol/K. 
    * NOT IMPLEMENTED.
    * Units: J/kmol/K
@@ -200,7 +200,7 @@ namespace Cantera {
   // ------- Mechanical Equation of State Properties ------------------------
   //
 
-  /**
+  /*
    * Pressure. Units: Pa.
    * For this incompressible system, we return the internally storred
    * independent value of the pressure.
@@ -209,7 +209,7 @@ namespace Cantera {
     return m_Pcurrent;
   }
 
-  /**
+  /*
    * The isothermal compressibility. Units: 1/Pa.
    * The isothermal compressibility is defined as
    * \f[
@@ -223,7 +223,7 @@ namespace Cantera {
     return 0.0;
   }
 
-  /**
+  /*
    * The thermal expansion coefficient. Units: 1/K.
    * The thermal expansion coefficient is defined as
    *
@@ -238,7 +238,7 @@ namespace Cantera {
     return 0.0;
   }
     
-  /**
+  /*
    * Overwritten setDensity() function is necessary because the
    * density is not an indendent variable.
    *
@@ -262,7 +262,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * Overwritten setMolarDensity() function is necessary because the
    * density is not an indendent variable.
    *
@@ -283,7 +283,7 @@ namespace Cantera {
   // ------- Activities and Activity Concentrations
   //
 
-  /**
+  /*
    * This method returns an array of activity concentrations \f$ C^a_k\f$.
    * \f$ C^a_k\f$ are defined such that 
    * \f$ a_k = C^a_k / C^s_k, \f$ where \f$ C^s_k \f$ 
@@ -312,7 +312,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * The standard concentration \f$ C^s_k \f$ used to normalize
    * the activity concentration. In many cases, this quantity
    * will be the same for all species in a phase - for example,
@@ -340,7 +340,7 @@ namespace Cantera {
     return c0;
   }
     
-  /**
+  /*
    * Returns the natural logarithm of the standard 
    * concentration of the kth species
    */
@@ -349,7 +349,7 @@ namespace Cantera {
     return log(c0);
   }
     
-  /**
+  /*
    * Returns the units of the standard and general concentrations
    * Note they have the same units, as their divisor is 
    * defined to be equal to the activity of the kth species
@@ -389,7 +389,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * Get the array of non-dimensional molality-based
    * activities at the current solution temperature, 
    * pressure, and solution concentration.
@@ -412,7 +412,7 @@ namespace Cantera {
       exp((xmolSolvent - 1.0)/xmolSolvent);
   }
 
-  /**
+  /*
    * Get the array of non-dimensional Molality based
    * activity coefficients at
    * the current solution temperature, pressure, and
@@ -438,7 +438,7 @@ namespace Cantera {
   // ------ Partial Molar Properties of the Solution -----------------
   //
 
-  /**
+  /*
    * Get the species chemical potentials: Units: J/kmol.
    *
    * This function returns a vector of chemical potentials of the 
@@ -494,18 +494,10 @@ namespace Cantera {
       (RT * (xmolSolvent - 1.0) / xx);
   }
 
-  /**
+  /*
    * Returns an array of partial molar enthalpies for the species
    * in the mixture: Units (J/kmol).
    *
-   * For this phase, the partial molar enthalpies are equal to the
-   * SS species enthalpies
-   *  \f[
-   * \bar{h}_k(T,P) = \hat h^{0}_k(T,P) 
-   * \f]
-   *     
-   *   note hbar = ubar + T d(ubar/dT)
-   *   see note about partial molar entropies.
    */
   void IdealMolalSoln::getPartialMolarEnthalpies(doublereal* hbar) const {
     getEnthalpy_RT(hbar);
@@ -515,7 +507,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * Returns an array of partial molar entropies of the species in the
    * solution: Units: J/kmol.
    *
@@ -558,7 +550,7 @@ namespace Cantera {
     sbar[m_indexSolvent] -= (R * (xmolSolvent - 1.0) / xmolSolvent);
   }
 
-  /**
+  /*
    * Returns an array of partial molar volumes of the species
    * in the solution: Units: m^3 kmol-1.
    *
@@ -571,7 +563,7 @@ namespace Cantera {
     getStandardVolumes(vbar);
   }
 
-  /**
+  /*
    * Partial molar heat capacity of the solution: Units: J/kmol/K.
    *
    *   The kth partial molar heat capacity is equal to 
@@ -604,7 +596,7 @@ namespace Cantera {
    *           in the Solution ------------------
    */
 
-  /** 
+  /*
    *  Get the standard state chemical potentials of the species.
    *  This is the array of chemical potentials at unit activity 
    *  (Mole fraction scale)
@@ -628,7 +620,7 @@ namespace Cantera {
     }
   }
     
-  /**
+  /*
    * Get the nondimensional gibbs function for the species
    * standard states at the current T and P of the solution.
    *
@@ -651,7 +643,7 @@ namespace Cantera {
     }
   }
     
-  /**
+  /*
    * Get the Gibbs functions for the pure species
    * at the current <I>T</I> and <I>P</I> of the solution.
    * We assume an incompressible constant partial molar
@@ -676,7 +668,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * Get the array of nondimensional Enthalpy functions for the ss
    * species at the current <I>T</I> and <I>P</I> of the solution.
    * We assume an incompressible constant partial molar
@@ -703,7 +695,7 @@ namespace Cantera {
     }
   }
     
-  /**
+  /*
    * Get the nondimensional Entropies for the species
    * standard states: Units: J/kmol/K
    *
@@ -726,7 +718,7 @@ namespace Cantera {
     getEntropy_R_ref(sr);
   }
 
-  /**
+  /*
    * Get the nondimensional heat capacity at constant pressure
    * function for the species
    * standard states: Units J/kmol/K
@@ -745,7 +737,7 @@ namespace Cantera {
     getCp_R_ref(cpr); 
   }
     
-  /**
+  /*
    * Get the molar volumes of each species in their standard
    * states at the current
    * <I>T</I> and <I>P</I> of the solution.
@@ -772,7 +764,7 @@ namespace Cantera {
    *  -------------- Utilities -------------------------------
    */
 
-  /**
+  /*
    *  Initialization routine for an IdealMolalSoln phase.
    *
    * This is a virtual routine. This routine will call initThermo()
@@ -829,7 +821,7 @@ namespace Cantera {
     delete fxml;
   }
    	
-  /**
+  /*
    *   Import and initialize an IdealMolalSoln phase 
    *   specification in an XML tree into the current object.
    *   Here we read an XML description of the phase.
@@ -882,7 +874,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    *   Import and initialize an IdealMolalSoln phase 
    *   specification in an XML tree into the current object.
    *
@@ -1011,7 +1003,7 @@ namespace Cantera {
     
   }
 
-  /**
+  /*
    * @internal
    * Set equation of state parameters. The number and meaning of
    * these depends on the subclass. 
@@ -1023,7 +1015,8 @@ namespace Cantera {
   }
   void IdealMolalSoln::getParameters(int &n, doublereal * const c) {
   }
-  /**
+
+  /*
    * Set equation of state parameter values from XML
    * entries. This method is called by function importPhase in
    * file importCTML.cpp when processing a phase definition in
@@ -1048,7 +1041,7 @@ namespace Cantera {
    * ------------ Private and Restricted Functions ------------------
    */
 
-  /**
+  /*
    * Bail out of functions with an error exit if they are not
    * implemented.
    */
@@ -1058,7 +1051,7 @@ namespace Cantera {
     return 0.0;
   }
 
-  /**
+  /*
    * This internal function adjusts the lengths of arrays.
    *
    * This function is not virtual nor is it inherited

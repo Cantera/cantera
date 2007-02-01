@@ -23,7 +23,7 @@ using namespace std;
 
 namespace Cantera {
 
-    /**
+    /*
      *  Constructor sets all base variable types to zero. Also, it
      *  sets the pointer to the Elements object for this object to the
      *  default value of BaseElements. If the BaseElements Elements
@@ -125,7 +125,7 @@ namespace Cantera {
      *
      */
     void Constituents::
-    addElement(const string& symbol, doublereal weight)
+    addElement(const std::string& symbol, doublereal weight)
     {
       m_Elements->addElement(symbol, weight);
     }
@@ -136,8 +136,7 @@ namespace Cantera {
       m_Elements->addElement(e);
     }
 
-
-    /**
+    /*
      * Add a unique element to the set. A check on the symbol is made
      * If the symbol is already an element, then a new element is
      * not created.
@@ -151,7 +150,7 @@ namespace Cantera {
      * -> Passthrough to the Element lvl.
      */
     void Constituents::
-    addUniqueElement(const string& symbol, doublereal weight)
+    addUniqueElement(const std::string& symbol, doublereal weight)
     {
       m_Elements->addUniqueElement(symbol, weight);
     }
@@ -166,7 +165,7 @@ namespace Cantera {
         m_Elements->addElementsFromXML(phase);
     }
 
-    /**
+    /*
      * -> Passthrough to the Element lvl.
      */
     void Constituents::freezeElements() {
@@ -190,7 +189,7 @@ namespace Cantera {
      *
      * -> Passthrough to the Element class.
      */
-    int Constituents::elementIndex(string name) const {
+    int Constituents::elementIndex(std::string name) const {
       return (m_Elements->elementIndex(name));
     }
 
@@ -266,7 +265,7 @@ namespace Cantera {
       return m_speciesCharge[k];
     }
 
-    /**********************************************************************
+    /*
      *
      * addSpecies()
      *   
@@ -285,7 +284,7 @@ namespace Cantera {
      *            and it need not be supplied on the command line.
      */
     void Constituents::
-    addSpecies(const string& name, const doublereal* comp,
+    addSpecies(const std::string& name, const doublereal* comp,
 	       doublereal charge, doublereal size) {  
       m_Elements->freezeElements();
       m_speciesNames.push_back(name);
@@ -302,7 +301,7 @@ namespace Cantera {
       m_kk++;
     }
 
-    /**********************************************************************
+    /*
      *
      * addUniqueSpecies():
      *
@@ -312,7 +311,7 @@ namespace Cantera {
      *   existing species in the phase.
      */
     void Constituents::
-    addUniqueSpecies(const string& name, const doublereal* comp, 
+    addUniqueSpecies(const std::string& name, const doublereal* comp, 
 		     doublereal charge, doublereal size) {
       vector<string>::const_iterator it = m_speciesNames.begin();
       for (int k = 0; k < m_kk; k++) {
@@ -347,7 +346,7 @@ namespace Cantera {
       addSpecies(name, comp, charge, size);
     }
 
-    /*******************************************************************
+    /*
      *
      * freezeSpecies()
      *   Set the boolean indicating that we are no longer allowing
@@ -357,7 +356,7 @@ namespace Cantera {
         m_speciesFrozen = true;
     }
 
-    /**********************************************************************
+    /*
      *
      * speciesIndex()
      *
@@ -369,7 +368,7 @@ namespace Cantera {
      *
      *  If name isn't in the list, then a -1 is returned.
      */
-    int Constituents::speciesIndex(string name) const {
+    int Constituents::speciesIndex(std::string name) const {
       vector<string>::const_iterator it = m_speciesNames.begin();
       for (int k = 0; k < m_kk; k++) {
         if (*it == name) {
@@ -383,7 +382,7 @@ namespace Cantera {
       return  -1;
     }
 
-    /**********************************************************************
+    /*
      *
      * speciesName()
      *
@@ -395,7 +394,8 @@ namespace Cantera {
 				  k, nSpecies());
       return m_speciesNames[k];
     }
-    /**********************************************************************
+
+    /*
      *
      * speciesNames()
      *
@@ -405,8 +405,7 @@ namespace Cantera {
       return m_speciesNames;
     }
 
-
-    /**
+    /*
      *
      * ready():
      *   True if both elements and species have been frozen
@@ -415,37 +414,34 @@ namespace Cantera {
       return (m_Elements->elementsFrozen() && m_speciesFrozen);
     }
 
-    /**
-     *
-     * nAtoms()
-     *
-     * Returns the number of atoms of element \c m in species \c k.
-     */
-    doublereal Constituents::nAtoms(int k, int m) const
-    {
-      const int m_mm = m_Elements->nElements();
-      if (m < 0 || m >=m_mm)
-          throw ElementRangeError("Constituents::nAtoms",m,nElements());
-      if (k < 0 || k >= nSpecies())
-          throw SpeciesRangeError("Constituents::nAtoms",k,nSpecies());
-      return m_speciesComp[m_mm * k + m];
-    }
+  /*
+   * Returns the number of atoms of element \c m in species \c k.
+   */
+  doublereal Constituents::nAtoms(int k, int m) const
+  {
+    const int m_mm = m_Elements->nElements();
+    if (m < 0 || m >=m_mm)
+      throw ElementRangeError("Constituents::nAtoms",m,nElements());
+    if (k < 0 || k >= nSpecies())
+      throw SpeciesRangeError("Constituents::nAtoms",k,nSpecies());
+    return m_speciesComp[m_mm * k + m];
+  }
 
-    /**
-     *
-     * getAtoms()
-     *
-     * Get a vector containing the atomic composition 
-     * of species k
-     */
-    void Constituents::getAtoms(int k, double *atomArray) const 
-    {
-	const int m_mm = m_Elements->nElements();
-	for (int m = 0; m < m_mm; m++) {
-	  atomArray[m] = (double) m_speciesComp[m_mm * k + m];
-	}
+  /*
+   *
+   * getAtoms()
+   *
+   * Get a vector containing the atomic composition 
+   * of species k
+   */
+  void Constituents::getAtoms(int k, double *atomArray) const 
+  {
+    const int m_mm = m_Elements->nElements();
+    for (int m = 0; m < m_mm; m++) {
+      atomArray[m] = (double) m_speciesComp[m_mm * k + m];
     }
-
+  }
+  
     /**
      * This copy constructor just calls the assignment operator
      * for this class.

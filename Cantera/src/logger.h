@@ -38,33 +38,43 @@ namespace Cantera {
 
       //! Constructor - empty
       Logger() {}
+
       //! Destructor - empty
       virtual ~Logger() {}
 
-      /// Write a log message. The default behavior is to write to
-      /// the standard output. Note that no end-of-line character is
-      /// appended to the message, and so if one is desired it must
-      /// be included in the string.
-	  
-	virtual void write(const std::string& msg) {
-            std::cout << msg;
-        }
+      //! Write a log message.
+      /*!
+       *  The default behavior is to write to
+       *  the standard output. Note that no end-of-line character is
+       *  appended to the message, and so if one is desired it must
+       *  be included in the string.
+       *
+       * @param msg      String message to be written to cout
+       */
+      virtual void write(const std::string& msg) {
+	std::cout << msg;
+      }
 
-        /// Write an error message and quit. The default behavior is
-        /// to write to the standard eror stream, and then call
-        /// exit(). Note that no end-of-line character is appended to
-        /// the message, and so if one is desired it must be included
-        /// in the string. Note that this default behavior will
-        /// terminate the application Cantera is invoked from (MATLAB,
-        /// Excel, etc.) If this is not desired, then derive a class
-        /// and reimplement this method.
-        virtual void error(const std::string& msg) {
-            std::cerr << msg << std::endl;
-            std::exit(-1);
-        }
+      //! Write an error message and quit. 
+      /*! 
+       *  The default behavior is
+       *  to write to the standard eror stream, and then call
+       *  exit(). Note that no end-of-line character is appended to
+       *  the message, and so if one is desired it must be included
+       *  in the string. Note that this default behavior will
+       *  terminate the application Cantera is invoked from (MATLAB,
+       *  Excel, etc.) If this is not desired, then derive a class
+       *  and reimplement this method.
+       *
+       * @param msg    Error message to be written to cerr.
+       */
+      virtual void error(const std::string& msg) {
+	std::cerr << msg << std::endl;
+	std::exit(-1);
+      }
 
-        /// Return an integer specifying the application environment.
-        virtual int env() { return 0; }
+      /// Return an integer specifying the application environment.
+      virtual int env() { return 0; }
     };
 
 }

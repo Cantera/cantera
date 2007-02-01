@@ -215,6 +215,8 @@ namespace Cantera {
 	 * be called. For homogeneous mechanisms, there is only one
 	 * object, and this method can be called without an argument
 	 * to access it.
+	 *
+	 * @param n Index of the ThermoPhase being sought.
 	 */
         thermo_t& thermo(int n=0) { return *m_thermo[n]; }
         const thermo_t& thermo(int n=0) const { return *m_thermo[n]; }
@@ -224,11 +226,21 @@ namespace Cantera {
 	 * defined in this kinetics mechanism.
 	 * It is typically used so that member functions of the
 	 * ThermoPhase may be called. @deprecated This method is redundant.
+	 *
+	 * @param n Index of the ThermoPhase being sought.
 	 */
         thermo_t& phase(int n=0) { 
             deprecatedMethod("Kinetics","phase","thermo");
             return *m_thermo[n]; 
         }
+	/**
+	 * This method returns a reference to the nth ThermoPhase
+	 * defined in this kinetics mechanism.
+	 * It is typically used so that member functions of the
+	 * ThermoPhase may be called. @deprecated This method is redundant.
+	 *
+	 * @param n Index of the ThermoPhase being sought.
+	 */
         const thermo_t& phase(int n=0) const { 
             deprecatedMethod("Kinetics","phase","thermo");
             return *m_thermo[n]; 
@@ -293,115 +305,144 @@ namespace Cantera {
 	 * sum of the number of species in all phases participating in
 	 * the kinetics manager.  If k is out of bounds, the std::string
 	 * "<unknown>" is returned.
+	 *
+	 * @param k species index
 	 */
         std::string kineticsSpeciesName(int k) const;
 
-	/**
-	 * This routine will look up a species number based on
-	 * the input std::string nm. The lookup of species will
-	 * occur for all phases listed in the kinetics object,
-	 * unless the std::string ph refers to a specific phase of
-	 * the object. 
-	 *
-	 *  return
-	 *   - If a match is found, the position in the species list
-	 *   is returned. 
-         *   - If a specific phase is specified and no match is found,
-         *   the value -1 is returned.
-	 *   - If no match is found in any phase, the value -2 is returned.
-	 */
-        int kineticsSpeciesIndex(std::string nm, std::string ph = "<any>") const;
+      /**
+       * This routine will look up a species number based on
+       * the input std::string nm. The lookup of species will
+       * occur for all phases listed in the kinetics object,
+       * unless the std::string ph refers to a specific phase of
+       * the object. 
+       *
+       *  return
+       *   - If a match is found, the position in the species list
+       *   is returned. 
+       *   - If a specific phase is specified and no match is found,
+       *   the value -1 is returned.
+       *   - If no match is found in any phase, the value -2 is returned.
+       *
+       * @param nm   Input string name of the species 
+       * @param ph   Input string name of the phase. Defaults to "<any>"
+       */
+      int kineticsSpeciesIndex(std::string nm, std::string ph = "<any>") const;
 
-	/**
-	 * This function looks up the std::string name of a species and
-	 * returns a reference to the ThermoPhase object of the
-	 * phase where the species resides.
-	 * Will throw an error if the species std::string doesn't match.
-	 */
-        thermo_t& speciesPhase(std::string nm);
+      /**
+       * This function looks up the std::string name of a species and
+       * returns a reference to the ThermoPhase object of the
+       * phase where the species resides.
+       * Will throw an error if the species std::string doesn't match.
+       *
+       * @param nm   String containing the name of the species.
+       */
+      thermo_t& speciesPhase(std::string nm);
+      
+      /**
+       * This function takes as an argument the kineticsSpecies index
+       * (i.e., the list index in the list of species in the kinetics
+       * manager) and returns the species' owning ThermoPhase object.
+       *
+       * @param k          Species index
+       */
+      thermo_t& speciesPhase(int k) {
+	return thermo(speciesPhaseIndex(k));                
+      }
 
-	/**
-	 * This function takes as an argument the kineticsSpecies index
-	 * (i.e., the list index in the list of species in the kinetics
-	 * manager) and returns the species' owning ThermoPhase object.
-	 */
-        thermo_t& speciesPhase(int k) {
-            return thermo(speciesPhaseIndex(k));                
-        }
-
-	/**
-	 * This function takes as an argument the kineticsSpecies index
-	 * (i.e., the list index in the list of species in the kinetics
-	 * manager) and returns the index of the phase owning the 
-	 * species.
-	 */
-        int speciesPhaseIndex(int k);
-
-	//@}
-
+      /**
+       * This function takes as an argument the kineticsSpecies index
+       * (i.e., the list index in the list of species in the kinetics
+       * manager) and returns the index of the phase owning the 
+       * species.
+       *
+       * @param k          Species index
+       */
+      int speciesPhaseIndex(int k);
+      
+      //@}
+      
 
 
         /**
          * @name Reaction Rates Of Progress
          */
         //@{
+      
+      //!  Return the forward rates of progress of the reactions
+      /*!
+       * Forward rates of progress.  Return the forward rates of
+       * progress in array fwdROP, which must be dimensioned at
+       * least as large as the total number of reactions.
+       *
+       * @param fwdROP  Output vector containing forward rates
+       *                of progress of the reactions. Length: m_ii.
+       */
+      virtual void getFwdRatesOfProgress(doublereal* fwdROP) {
+	err("getFwdRatesOfProgress");
+      }
+      
+      //!  Return the Reverse rates of progress of the reactions
+      /*!
+       * Return the reverse rates of
+       * progress in array revROP, which must be dimensioned at
+       * least as large as the total number of reactions.
+       *
+       * @param revROP  Output vector containing reverse rates
+       *                of progress of the reactions. Length: m_ii.
+       */
+      virtual void getRevRatesOfProgress(doublereal* revROP) {
+	err("getRevRatesOfProgress");
+      } 
 
-        /**
-         * Forward rates of progress.  Return the forward rates of
-         * progress in array fwdROP, which must be dimensioned at
-         * least as large as the total number of reactions.
-         */
-        virtual void getFwdRatesOfProgress(doublereal* fwdROP) {
-            err("getFwdRatesOfProgress");
-        }
- 
-        /**
-         * Reverse rates of progress.  Return the reverse rates of
-         * progress in array revROP, which must be dimensioned at
-         * least as large as the total number of reactions.
-         */
-        virtual void getRevRatesOfProgress(doublereal* revROP) {
-            err("getRevRatesOfProgress");
-        } 
+      /**
+       * Net rates of progress.  Return the net (forward - reverse)
+       * rates of progress in array netROP, which must be
+       * dimensioned at least as large as the total number of
+       * reactions.
+       *
+       * @param netROP  Output vector of the net ROP. Length: m_ii.
+       */
+      virtual void getNetRatesOfProgress(doublereal* netROP) {
+	err("getNetRatesOfProgress");
+      }
+      
 
-        /**
-         * Net rates of progress.  Return the net (forward - reverse)
-         * rates of progress in array netROP, which must be
-         * dimensioned at least as large as the total number of
-         * reactions.
-         */
-        virtual void getNetRatesOfProgress(doublereal* netROP) {
-            err("getNetRatesOfProgress");
-        }
+        
+      //! Return a vector of Equilibrium constants. 
+      /*!
+       *  Return the equilibrium constants of
+       *  the reactions in concentration units in array kc, which
+       *  must be dimensioned at least as large as the total number
+       *  of reactions.
+       *
+       * @param kc   Output vector containing the equilibrium constants.
+       *             Length: m_ii.
+       */  
+      virtual void getEquilibriumConstants(doublereal* kc) {
+	err("getEquilibriumConstants");
+      }
 
-
-        /**
-         * Equilibrium constants. Return the equilibrium constants of
-         * the reactions in concentration units in array kc, which
-         * must be dimensioned at least as large as the total number
-         * of reactions. 
-         */  
-         virtual void getEquilibriumConstants(doublereal* kc) {
-             err("getEquilibriumConstants");
-         }
-
-        /**
-         * Change in species properties. Given an array of molar species 
-         * property values \f$ z_k, k = 1, \dots, K \f$, return the 
-         * array of reaction values
-         * \f[
-         * \Delta Z_i = \sum_k \nu_{k,i} z_k, i = 1, \dots, I.
-         * \f] 
-         * For example, if this method is called with the array of
-         * standard-state molar Gibbs free energies for the species,
-         * then the values returned in array \c deltaProperty would be
-         * the standard-state Gibbs free energies of reaction for each
-         * reaction.
-         */
-        virtual void getReactionDelta(const doublereal* property,
-            doublereal* deltaProperty) {
-            err("getReactionDelta");
-        }
+      /**
+       * Change in species properties. Given an array of molar species 
+       * property values \f$ z_k, k = 1, \dots, K \f$, return the 
+       * array of reaction values
+       * \f[
+       * \Delta Z_i = \sum_k \nu_{k,i} z_k, i = 1, \dots, I.
+       * \f] 
+       * For example, if this method is called with the array of
+       * standard-state molar Gibbs free energies for the species,
+       * then the values returned in array \c deltaProperty would be
+       * the standard-state Gibbs free energies of reaction for each
+       * reaction.
+       *
+       * @param property Input vector of property value. Length: m_kk.
+       * @param deltaProperty Output vector of deltaRxn. Length: m_ii.
+       */
+      virtual void getReactionDelta(const doublereal* property,
+				    doublereal* deltaProperty) {
+	err("getReactionDelta");
+      }
 
 	/**
 	 * Return the vector of values for the reaction gibbs free
@@ -409,6 +450,9 @@ namespace Cantera {
 	 * of the solution.
 	 *
 	 *  units = J kmol-1
+	 *
+	 * @param deltaG  Output vector of  deltaG's for reactions
+	 *                Length: m_ii.
 	 */
 	virtual void getDeltaGibbs( doublereal* deltaG) {
 	    err("getDeltaGibbs");
@@ -420,6 +464,9 @@ namespace Cantera {
 	 * the solution.
 	 *
 	 *  units = J kmol-1
+	 *
+	 * @param deltaH  Output vector of deltaH's for reactions
+	 *                Length: m_ii.
 	 */
 	virtual void getDeltaEnthalpy( doublereal* deltaH) {
 	    err("getDeltaEnthalpy");
@@ -431,6 +478,9 @@ namespace Cantera {
 	 * solution.
 	 *
 	 *  units = J kmol-1 Kelvin-1
+	 *
+	 * @param deltaS  Output vector of deltaS's for reactions
+	 *                Length: m_ii.
 	 */
 	virtual void getDeltaEntropy( doublereal* deltaS) {
 	    err("getDeltaEntropy");
@@ -442,6 +492,9 @@ namespace Cantera {
 	 * the concentration of the solution.
 	 *
 	 *  units = J kmol-1
+	 *
+	 * @param deltaG  Output vector of ss deltaG's for reactions
+	 *                Length: m_ii.
 	 */
 	virtual void getDeltaSSGibbs( doublereal* deltaG) {
 	    err("getDeltaSSGibbs");
@@ -453,6 +506,9 @@ namespace Cantera {
 	 * upon the concentration of the solution.
 	 *
 	 *  units = J kmol-1
+	 *
+	 * @param deltaH  Output vector of ss deltaH's for reactions
+	 *                Length: m_ii.
 	 */
 	virtual void getDeltaSSEnthalpy( doublereal* deltaH) {
 	    err("getDeltaSSEnthalpy");
@@ -464,6 +520,9 @@ namespace Cantera {
 	 * depend upon the concentration of the solution.
 	 *
 	 *  units = J kmol-1 Kelvin-1
+	 *
+	 * @param deltaS  Output vector of ss deltaS's for reactions
+	 *                Length: m_ii.
 	 */
 	virtual void getDeltaSSEntropy( doublereal* deltaS) {
 	    err("getDeltaSSEntropy");
@@ -481,7 +540,9 @@ namespace Cantera {
          * species creation rates in array cdot, which must be
          * dimensioned at least as large as the total number of
          * species in all phases. @see nTotalSpecies.
-         *  
+         * 
+	 * @param cdot   Output vector of creation rates. 
+	 *               Length: m_kk. 
          */ 
         virtual void getCreationRates(doublereal* cdot) {
             err("getCreationRates");
@@ -493,6 +554,8 @@ namespace Cantera {
          * dimensioned at least as large as the total number of
          * species. @see nTotalSpecies.
          *  
+	 * @param ddot   Output vector of destruction rates. 
+	 *               Length: m_kk. 
          */ 
         virtual void getDestructionRates(doublereal* ddot) {
             err("getDestructionRates");
@@ -503,94 +566,123 @@ namespace Cantera {
          * the species net production rates (creation - destruction)
          * in array wdot, which must be dimensioned at least as large
          * as the total number of species. @see nTotalSpecies.
+	 *
+	 * @param wdot   Output vector of net production rates. 
+	 *               Length: m_kk. 
          */ 
         virtual void getNetProductionRates(doublereal* wdot) {
             err("getNetProductionRates");
         }
 
-        //@}
+      //@}
 
 
-        /**
-         * @name Reaction Mechanism Informational Query Routines
-         */
-        //@{
+      /**
+       * @name Reaction Mechanism Informational Query Routines
+       */
+      //@{
+      
+      /**
+       * Stoichiometric coefficient of species k as a reactant in
+       * reaction i.  
+       *
+       * @param k   species index
+       * @param i   reaction index
+       */
+      virtual doublereal reactantStoichCoeff(int k, int i) const { 
+	err("reactantStoichCoeff");
+	return -1.0;
+      }
 
-        /**
-         * Stoichiometric coefficient of species k as a reactant in
-         * reaction i.  
-         */
-        virtual doublereal reactantStoichCoeff(int k, int i) const { 
-            err("reactantStoichCoeff");
-            return -1.0;
-        }
-        /**
-         * Stoichiometric coefficient of species k as a product in
-         * reaction i.  
-         */
-        virtual doublereal productStoichCoeff(int k, int i) const { 
-            err("productStoichCoeff");
-            return -1.0;
-        }
+      /**
+       * Stoichiometric coefficient of species k as a product in
+       * reaction i.  
+       *
+       * @param k   species index
+       * @param i   reaction index
+       */
+      virtual doublereal productStoichCoeff(int k, int i) const { 
+	err("productStoichCoeff");
+	return -1.0;
+      }
 
-        virtual doublereal reactantOrder(int k, int i) const {
+      /**
+       * reactant Order of species k in reaction i.  
+       *
+       * @param k   species index
+       * @param i   reaction index
+       */
+      virtual doublereal reactantOrder(int k, int i) const {
             err("reactantOrder");
             return -1.0;
-        }
+      }
 
-        /**
-         * Returns a read-only reference to the vector of reactant
-         * index numbers for reaction i.
-         */ 
-        virtual const vector_int& reactants(int i) const { 
-            return m_reactants[i]; 
-        }
+      /**
+       * Returns a read-only reference to the vector of reactant
+       * index numbers for reaction i.
+       *
+       * @param i  reaction index
+       */ 
+      virtual const vector_int& reactants(int i) const { 
+	return m_reactants[i]; 
+      }
 
-        /**
-         * Returns a read-only reference to the vector of product
-         * index numbers for reaction i.
-         */ 
-        virtual const vector_int& products(int i) const { 
-            return m_products[i]; 
-        }
+      /**
+       * Returns a read-only reference to the vector of product
+       * index numbers for reaction i.
+       *
+       * @param i reaction index
+       */ 
+      virtual const vector_int& products(int i) const { 
+	return m_products[i]; 
+      }
 
-        /**
-         * Flag specifying the type of reaction. The legal values and
-         * their meaning are specific to the particular kinetics
-         * manager.
-         */
-        virtual int reactionType(int i) const { 
-            err("reactionType"); 
-            return -1; 
-        }
+      /**
+       * Flag specifying the type of reaction. The legal values and
+       * their meaning are specific to the particular kinetics
+       * manager.
+       *
+       * @param i   reaction index
+       */
+      virtual int reactionType(int i) const { 
+	err("reactionType"); 
+	return -1; 
+      }
 
-	/**
-         * True if reaction i has been declared to be reversible. If
-         * isReversible(i) is false, then the reverse rate of progress
-         * for reaction i is always zero.
-         */
-        virtual bool isReversible(int i){
-	    err("isReversible");
+      /**
+       * True if reaction i has been declared to be reversible. If
+       * isReversible(i) is false, then the reverse rate of progress
+       * for reaction i is always zero.
+       *
+       * @param i   reaction index
+       */
+      virtual bool isReversible(int i){
+	err("isReversible");
 	    return false;
-	}
-
-	/**
-	 * Return a std::string representing the reaction.
-	 */
-        virtual std::string reactionString(int i) const {
-            err("reactionStd::String"); return "<null>";
-        }
-
-	/**
-	 * Return the forward rate constants
-	 *
-	 * length is the number of reactions. units depends
-	 * on many issues. @todo DGG: recommend changing name to 
-         * getFwdRateCoefficients.
-	 */
-	virtual void getFwdRateConstants(doublereal *kfwd) {
-         err("getFwdRateConstants");
-	}
+      }
+      
+      /**
+       * Return a std::string representing the reaction.
+       *
+       * @param i   reaction index
+       */
+      virtual std::string reactionString(int i) const {
+	err("reactionStd::String"); return "<null>";
+      }
+      
+      /**
+       * Return the forward rate constants
+       *
+       * length is the number of reactions. units depends
+       * on many issues. @todo DGG: recommend changing name to 
+       * getFwdRateCoefficients.
+       *
+       * @param kfwd    Output vector containing the foward reaction rate constants.
+       *                Length: m_ii.
+       */
+      virtual void getFwdRateConstants(doublereal *kfwd) {
+	err("getFwdRateConstants");
+      }
 
 	/**
 	 * Return the reverse rate constants.
@@ -600,6 +692,10 @@ namespace Cantera {
 	 * for irreversible reactions if the default for
 	 * doIrreversible is overridden. @todo DGG: recommend changing name to 
          * getRevRateCoefficients.
+	 *
+	 * @param krev   Output vector of reverse rate constants.
+	 * @param doIrreversible boolean indicating whether irreversible reactions
+	 *                       should be included.
 	 */
 	virtual void getRevRateConstants(doublereal *krev, 
 					 bool doIrreversible = false) {
@@ -611,6 +707,9 @@ namespace Cantera {
 	 * Return the activation energies in Kelvin.
 	 *
 	 * length is the number of reactions
+	 *
+	 * @param E     Ouptut vector of activation energies.
+	 *              Length: m_ii.
 	 */
 	virtual void getActivationEnergies(doublereal *E) {
             err("getActivationEnergies");
@@ -639,6 +738,8 @@ namespace Cantera {
 	 *              ThermoPhase phase as a key and the
 	 *              index of the phase within the kinetics
 	 *              manager object as the value.
+	 *
+	 * @param thermo    Reference to the ThermoPhase to be added.
          */
         void addPhase(thermo_t& thermo);
 
@@ -667,6 +768,9 @@ namespace Cantera {
 	/**
 	 * Add a single reaction to the mechanism. This routine
 	 * must be called after init() and before finalize().
+	 *
+	 * @param r      Reference to the ReactionRate object for the reaction
+	 *               to be added.
 	 */
         virtual void addReaction(const ReactionData& r) {
 	    err("addReaction");
@@ -683,25 +787,32 @@ namespace Cantera {
 	}
 
 
-	//@}
-        /**
-         * @name Altering Reaction Rates
-         *
-         * These methods alter reaction rates. They are designed
-         * primarily for carrying out sensitivity analysis, but may be
-         * used for any purpose requiring dynamic alteration of rate
-         * constants.  For each reaction, a real-valued multiplier may
-         * be defined that multiplies the reaction rate
-         * coefficient. The multiplier may be set to zero to
-         * completely remove a reaction from the mechanism.
-         */
-        //@{
+      //@}
+      /**
+       * @name Altering Reaction Rates
+       *
+       * These methods alter reaction rates. They are designed
+       * primarily for carrying out sensitivity analysis, but may be
+       * used for any purpose requiring dynamic alteration of rate
+       * constants.  For each reaction, a real-valued multiplier may
+       * be defined that multiplies the reaction rate
+       * coefficient. The multiplier may be set to zero to
+       * completely remove a reaction from the mechanism.
+       */
+      //@{
+      
+      /// The current value of the multiplier for reaction i.
+      /*!
+       * @param i index of the reaction
+       */
+      doublereal multiplier(int i) const {return m_perturb[i];}
 
-        /// The current value of the multiplier for reaction i.
-        doublereal multiplier(int i) const {return m_perturb[i];}
-
-        /// Set the multiplier for reaction i to f.
-        void setMultiplier(int i, doublereal f) {m_perturb[i] = f;}
+      /// Set the multiplier for reaction i to f.
+      /*!
+       *  @param i  index of the reaction
+       *  @param f  value of the multiplier.
+       */
+      void setMultiplier(int i, doublereal f) {m_perturb[i] = f;}
         
         //@}
 
@@ -720,24 +831,31 @@ namespace Cantera {
 	}
 
 
-        /** 
-         * Extract from array \c data the portion pertaining to phase \c phase.
-         */
-        void selectPhase(const doublereal* data, const thermo_t* phase,
-            doublereal* phase_data);
+      /** 
+       * Extract from array \c data the portion pertaining to phase \c phase.
+       *
+       * @param data       data
+       * @param phase      phase
+       * @param phase_data phase_data
+       */
+      void selectPhase(const doublereal* data, const thermo_t* phase,
+		       doublereal* phase_data);
 
+      /// For internal use. May be removed in a future release.
+      int index(){ return m_index; }
 
-        /// For internal use. May be removed in a future release.
-        int index(){ return m_index; }
       //! Set the index of the Kinetics Manager
-        void setIndex(int index) { m_index = index; }
+      /*!
+       *  @param index   input index 
+       */
+      void setIndex(int index) { m_index = index; }
 
 
     protected:
 
 	
-        /// Number of reactions in the mechanism
-        int m_ii;
+      //! Number of reactions in the mechanism
+      int m_ii;
 	
         /// Vector of perturbation factors for each reaction's rate of
         /// progress vector. It is initialized to one.

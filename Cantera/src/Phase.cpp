@@ -116,7 +116,7 @@ namespace Cantera {
             setMoleFractions(&mf[0]);
         }
 
-        void Phase::setMoleFractionsByName(const string& x) {
+        void Phase::setMoleFractionsByName(const std::string& x) {
             compositionMap xx;
             int kk = nSpecies();
             for (int k = 0; k < kk; k++) { 
@@ -143,7 +143,7 @@ namespace Cantera {
             setMassFractions(&mf[0]);
         }
 
-        void Phase::setMassFractionsByName(const string& y) {
+        void Phase::setMassFractionsByName(const std::string& y) {
             compositionMap yy;
             int kk = nSpecies();
             for (int k = 0; k < kk; k++) { 
@@ -207,7 +207,7 @@ namespace Cantera {
             setMassFractions(y); setDensity(rho);
         }
 
-        /**
+        /*
          * Copy the vector of molecular weights into vector weights.
          */
         void Phase::getMolecularWeights(vector_fp& weights) {
@@ -216,7 +216,7 @@ namespace Cantera {
             copy(mw.begin(), mw.end(), weights.begin());
         }
 
-        /**
+        /*
          * Copy the vector of molecular weights into array weights.
 	 * @deprecated
          */
@@ -225,9 +225,9 @@ namespace Cantera {
             copy(mw.begin(), mw.end(), weights);
 	}
 
-       /**
-         * Copy the vector of molecular weights into array weights.
-         */
+       /*
+        * Copy the vector of molecular weights into array weights.
+        */
         void Phase::getMolecularWeights(doublereal* weights) {
             const array_fp& mw = Constituents::molecularWeights();
             copy(mw.begin(), mw.end(), weights);
@@ -257,7 +257,7 @@ namespace Cantera {
             return State::moleFraction(k);
         }
 
-        doublereal Phase::moleFraction(string name) const {
+        doublereal Phase::moleFraction(std::string name) const {
             int iloc = speciesIndex(name);
             if (iloc >= 0) return State::moleFraction(iloc);
             else return 0.0;
@@ -267,7 +267,7 @@ namespace Cantera {
             return State::massFraction(k);
         }
 
-        doublereal Phase::massFraction(string name) const {
+        doublereal Phase::massFraction(std::string name) const {
             int iloc = speciesIndex(name);
             if (iloc >= 0) return massFractions()[iloc];
             else return 0.0;
