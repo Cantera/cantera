@@ -151,7 +151,8 @@ namespace ctml {
         // then clean up by deleting the temporary Python file.
 #ifndef DEBUG_PATHS
 #ifdef WIN32
-        cmd = "cmd /C rm " + path;
+        //cmd = "cmd /C rm " + path;
+        remove(path.c_str()) ;
 #else
         cmd = "rm -f " + path;
         try {

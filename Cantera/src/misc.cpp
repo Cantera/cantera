@@ -29,6 +29,10 @@
 #undef DEBUG_PATHS
 
 #include <fstream>
+#ifdef WIN32
+#include <algorithm>
+#include <functional>
+#endif
 using namespace std;
 
 namespace Cantera {
@@ -214,6 +218,11 @@ namespace Cantera {
         // so it is replaced by:
         path = findInputFile(file);
         // 
+#ifdef WIN32
+        // RFB: For Windows make the path POSIX compliant so code looking for directory 
+        // separators is simpler.  Just look for '/' not both '/' and '\\'
+        replace_if( path.begin(), path.end(), bind2nd( equal_to<char>(), '\\'), '/' ) ; 
+#endif
 
         string ff = path;
         if (app()->xmlfiles.find(path) 
