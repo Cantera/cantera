@@ -359,7 +359,7 @@ namespace Cantera {
   }
 
   void SingleSpeciesTP::setState_TPX(doublereal t, doublereal p, 
-				     const string& x) {
+				     const std::string& x) {
     setTemperature(t); setPressure(p);
   }        
 
@@ -374,7 +374,7 @@ namespace Cantera {
   }
         
   void SingleSpeciesTP::setState_TPY(doublereal t, doublereal p, 
-				     const string& y) {
+				     const std::string& y) {
     setTemperature(t); setPressure(p);
   }
 
@@ -389,7 +389,7 @@ namespace Cantera {
     if (y[0] != 1.0) {
       err("setStatePY -> x[0] not 1.0");
     }
-    setMassFractions(y); setPressure(p);
+    setPressure(p);
   }
 
   void SingleSpeciesTP::setState_HP(doublereal h, doublereal p, 
@@ -458,52 +458,19 @@ namespace Cantera {
     throw CanteraError("setState_SV","no convergence. dt = " + fp2str(dt));
   }
 
-  /**
+  /*
    *  This private function throws a cantera exception. It's used when
    * this class doesn't have an answer for the question given to it,
    *  because the derived class isn't overriding a function.
    */
-  doublereal SingleSpeciesTP::err(string msg) const {
+  doublereal SingleSpeciesTP::err(std::string msg) const {
     throw CanteraError("SingleSpeciesTP","Base class method "
 		       +msg+" called. Equation of state type: "
 		       +int2str(eosType()));
     return 0;
   }
 
-  /**
-   * Returns the units of the standard and general concentrations
-   * Note they have the same units, as their divisor is 
-   * defined to be equal to the activity of the kth species
-   * in the solution, which is unitless.
-   *
-   * This routine is used in print out applications where the
-   * units are needed. Usually, MKS units are assumed throughout
-   * the program and in the XML input files. 
-   *
-   * On return uA contains the powers of the units (MKS assumed)
-   * of the standard concentrations and generalized concentrations
-   * for the kth species.
-   *
-   *  uA[0] = kmol units - default  = 1
-   *  uA[1] = m    units - default  = -nDim(), the number of spatial
-   *                                dimensions in the Phase class.
-   *  uA[2] = kg   units - default  = 0;
-   *  uA[3] = Pa(pressure) units - default = 0;
-   *  uA[4] = Temperature units - default = 0;
-   *  uA[5] = time units - default = 0
-   */
-  void SingleSpeciesTP::getUnitsStandardConc(double *uA, int k, int sizeUA) {
-    for (int i = 0; i < sizeUA; i++) {
-      if (i == 0) uA[0] = 1.0;
-      if (i == 1) uA[1] = -nDim();
-      if (i == 2) uA[2] = 0.0;
-      if (i == 3) uA[3] = 0.0;
-      if (i == 4) uA[4] = 0.0;
-      if (i == 5) uA[5] = 0.0;
-    }
-  }
-
-  /**
+  /*
    * @internal Initialize. This method is provided to allow
    * subclasses to perform any initialization required after all
    * species have been added. For example, it might be used to
@@ -537,8 +504,7 @@ namespace Cantera {
     ThermoPhase::initThermo();
   }
 
-
-  /**
+  /*
    * _updateThermo():
    * 
    *        This crucial internal routine calls the species thermo

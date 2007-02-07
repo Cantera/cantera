@@ -259,22 +259,22 @@ namespace Cantera {
 	err("isothermalCompressibility"); return -1.0;
       }
       
-        /**
-         * The volumetric thermal expansion coefficient. Units: 1/K.
-         * The thermal expansion coefficient is defined as
-         *
-         * \f[
-         * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
-         * \f]
-         */
-        virtual doublereal thermalExpansionCoeff() const {
-            err("thermalExpansionCoeff()"); return -1.0;
-        }
+      /**
+       * The volumetric thermal expansion coefficient. Units: 1/K.
+       * The thermal expansion coefficient is defined as
+       *
+       * \f[
+       * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
+       * \f]
+       */
+      virtual doublereal thermalExpansionCoeff() const {
+	err("thermalExpansionCoeff()"); return -1.0;
+      }
 
-        /// @deprecated
-        virtual void updateDensity() {
-            deprecatedMethod("ThermoPhase","updateDensity","");
-        }
+      /// @deprecated
+      virtual void updateDensity() {
+	deprecatedMethod("ThermoPhase","updateDensity","");
+      }
 
       /**
        * @} 
@@ -401,6 +401,11 @@ namespace Cantera {
        * This routine is used in print out applications where the
        * units are needed. Usually, MKS units are assumed throughout
        * the program and in the XML input files.
+       *
+       * The base %ThermoPhase class assigns thedefault quantities
+       * of (kmol/m3) for all species.
+       * Inherited classes are responsible for overriding the default 
+       * values if necessary.
        *
        * @param uA Output vector containing the units
        *  uA[0] = kmol units - default  = 1
@@ -1203,31 +1208,39 @@ namespace Cantera {
       void setIndex(int m) { m_index = m; }
 
 
-        /**
-         * @internal
-         * Set equation of state parameters. The number and meaning of
-         * these depends on the subclass. 
-         * @param n number of parameters
-         * @param c array of \a n coefficients
-         * 
-         */
-        virtual void setParameters(int n, doublereal* c) {}
-	virtual void getParameters(int &n, doublereal * const c) {}
+      /**
+       * @internal
+       * Set equation of state parameters. The number and meaning of
+       * these depends on the subclass. 
+       * @param n number of parameters
+       * @param c array of \a n coefficients
+       */
+      virtual void setParameters(int n, doublereal* c) {}
 
-        /**
-         * Set equation of state parameter values from XML
-         * entries. This method is called by function importPhase in
-         * file importCTML.cpp when processing a phase definition in
-         * an input file. It should be overloaded in subclasses to set
-         * any parameters that are specific to that particular phase
-         * model. Note, this method is called before the phase is
-	 * initialzed with elements and/or species.
-         *   
-         * @param eosdata An XML_Node object corresponding to
-         * the "thermo" entry for this phase in the input file.
-         */
-        virtual void setParametersFromXML(const XML_Node& eosdata) {}
+      /**
+       * @internal
+       * Get equation of state parameters. The number and meaning of
+       * these depends on the subclass. 
+       * @param n number of parameters
+       * @param c array of \a n coefficients
+       */
+      virtual void getParameters(int &n, doublereal * const c) {}
 
+      /**
+       * Set equation of state parameter values from XML entries.
+       *
+       * This method is called by function importPhase() in
+       * file importCTML.cpp when processing a phase definition in
+       * an input file. It should be overloaded in subclasses to set
+       * any parameters that are specific to that particular phase
+       * model. Note, this method is called before the phase is
+       * initialzed with elements and/or species.
+       *   
+       * @param eosdata An XML_Node object corresponding to
+       *                the "thermo" entry for this phase in the input file.
+       */
+      virtual void setParametersFromXML(const XML_Node& eosdata) {}
+      
       /**
        * Set the initial state of the phase to the conditions 
        * specified in the state XML element.

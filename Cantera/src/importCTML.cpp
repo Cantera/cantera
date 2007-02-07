@@ -778,7 +778,7 @@ namespace Cantera {
 
 
 	
-        // set equation of state parameters. The parameters are
+        // Set equation of state parameters. The parameters are
         // specific to each subclass of ThermoPhase, so this is done
         // by method setParametersFromXML in each subclass.
         if (phase.hasChild("thermo")) {
@@ -935,7 +935,7 @@ namespace Cantera {
 
         th->saveSpeciesData(db);
 
-        // perform any required subclass-specific initialization.
+        // Perform any required subclass-specific initialization.
         string id = "";
         th->initThermoXML(phase, id);
 

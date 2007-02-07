@@ -252,44 +252,48 @@ namespace Cantera {
             return 0;
     }
 
-	/**
-	 * Returns the units of the standard and general concentrations
-	 * Note they have the same units, as their divisor is 
-	 * defined to be equal to the activity of the kth species
-	 * in the solution, which is unitless.
-	 *
-	 * This routine is used in print out applications where the
-	 * units are needed. Usually, MKS units are assumed throughout
-	 * the program and in the XML input files. 
-	 *
-	 * On return uA contains the powers of the units (MKS assumed)
-	 * of the standard concentrations and generalized concentrations
-	 * for the kth species.
-	 *
-	 *  uA[0] = kmol units - default  = 1
-	 *  uA[1] = m    units - default  = -nDim(), the number of spatial
-	 *                                dimensions in the Phase class.
-	 *  uA[2] = kg   units - default  = 0;
-	 *  uA[3] = Pa(pressure) units - default = 0;
-	 *  uA[4] = Temperature units - default = 0;
-	 *  uA[5] = time units - default = 0
-	 */
-    void ThermoPhase::getUnitsStandardConc(double *uA, int k, int sizeUA) {
-	for (int i = 0; i < sizeUA; i++) {
-	  if (i == 0) uA[0] = 1.0;
-	  if (i == 1) uA[1] = -nDim();
-	  if (i == 2) uA[2] = 0.0;
+  /*
+   * Returns the units of the standard and general concentrations
+   * Note they have the same units, as their divisor is 
+   * defined to be equal to the activity of the kth species
+   * in the solution, which is unitless.
+   *
+   * This routine is used in print out applications where the
+   * units are needed. Usually, MKS units are assumed throughout
+   * the program and in the XML input files. 
+   *
+   * On return uA contains the powers of the units (MKS assumed)
+   * of the standard concentrations and generalized concentrations
+   * for the kth species.
+   *
+   * The base %ThermoPhase class assigns thedefault quantities
+   * of (kmol/m3).
+   * Inherited classes are responsible for overriding the default 
+   * values if necessary.
+   *
+   *  uA[0] = kmol units - default  = 1
+   *  uA[1] = m    units - default  = -nDim(), the number of spatial
+   *                                dimensions in the Phase class.
+   *  uA[2] = kg   units - default  = 0;
+   *  uA[3] = Pa(pressure) units - default = 0;
+   *  uA[4] = Temperature units - default = 0;
+   *  uA[5] = time units - default = 0
+   */
+  void ThermoPhase::getUnitsStandardConc(double *uA, int k, int sizeUA) {
+    for (int i = 0; i < sizeUA; i++) {
+      if (i == 0) uA[0] = 1.0;
+      if (i == 1) uA[1] = -nDim();
+      if (i == 2) uA[2] = 0.0;
 	  if (i == 3) uA[3] = 0.0;
 	  if (i == 4) uA[4] = 0.0;
 	  if (i == 5) uA[5] = 0.0;
-	}
     }
+  }
 
     /*
      * initThermoFile():
      *
-     * Initialization of a Debye-Huckel phase using an
-     * xml file.
+     * Initialization of a phase using an xml file.
      *
      * This routine is a precursor to initThermoXML(XML_Node*)
      * routine, which does most of the work. 
@@ -332,8 +336,12 @@ namespace Cantera {
     }
 
     /*
-     *   Import and initialize a ThermoPhase
-     *   object
+     *   Import and initialize a ThermoPhase object
+     *
+     *   This function is called from importPhase() 
+     *   after the elements and the
+     *   species are initialized with default ideal solution
+     *   level data.
      *
      * @param phaseNode This object must be the phase node of a
      *             complete XML tree
@@ -347,19 +355,20 @@ namespace Cantera {
      *             with the correct id. 
      */
     void ThermoPhase::initThermoXML(XML_Node& phaseNode, std::string id) {
-	/*
-	 * The default implementation just calls initThermo();
-	 */
-	initThermo();
-	/*
-	 * and sets the state
-	 */
-	if (phaseNode.hasChild("state")) {
-	  XML_Node& stateNode = phaseNode.child("state");
-	  setStateFromXML(stateNode);
-	}
+      /*
+       * The default implementation just calls initThermo(), which
+       * inheriting classes may override.
+       */
+      initThermo();
+      /*
+       * and sets the state
+       */
+      if (phaseNode.hasChild("state")) {
+	XML_Node& stateNode = phaseNode.child("state");
+	setStateFromXML(stateNode);
+      }
     }
-
+  
     /*
      * Initialize. 
      *
