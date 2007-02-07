@@ -101,6 +101,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          Elements.h Elements.cpp \
                          utilities.h \
                          VPStandardStateTP.h     VPStandardStateTP.cpp \
+                         SingleSpeciesTP.h SingleSpeciesTP.cpp \
                          MolalityVPSSTP.h        MolalityVPSSTP.cpp \
                          IdealMolalSoln.h        IdealMolalSoln.cpp \
                          IdealSolidSolnPhase.h   IdealSolidSolnPhase.cpp
