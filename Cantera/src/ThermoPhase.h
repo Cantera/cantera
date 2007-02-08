@@ -1058,141 +1058,142 @@ namespace Cantera {
         }
         
 
-        //@}
+      //@}
 
 
-        /// @name For Internal Use
+      //! @name Initialization Methods - For Internal Use (%ThermoPhase)
+      /*!
+       * The following methods are used in the process of constructing
+       * the phase and setting its parameters from a specification in an 
+       * input file. They are not normally used in application programs.
+       * To see how they are used, 
+       * see files importCTML.cpp and  ThermoFactory.cpp.
+       */
+      //@{
 
-        /// The following methods are used in the process of constructing
-        /// the phase and setting its parameters from a specification in an 
-        /// input file. They are not normally used in application programs.
-        /// To see how they are used, see files importCTML.cpp and 
-        /// ThermoFactory.cpp.
-        //@{
-
-        //! Store a reference to the XML tree containing the species data for this phase. 
-        /*!
-	 *  This is used to access data needed to construct transport manager later.
-	 *   @internal
-	 *
-	 * @param data   Pointer to the XML_Node data containing
-	 *               information about the species in the phase.
-	 */
-	void saveSpeciesData(const XML_Node* data) {
-	  m_speciesData = data;
-	}
+      //! Store a reference to the XML tree containing the species data for this phase. 
+      /*!
+       *  This is used to access data needed to construct transport manager later.
+       *   @internal
+       *
+       * @param data   Pointer to the XML_Node data containing
+       *               information about the species in the phase.
+       */
+      void saveSpeciesData(const XML_Node* data) {
+	m_speciesData = data;
+      }
       
-        /// Return a pointer to the XML tree containing the species
-        /// data for this phase.
-        const XML_Node* speciesData() { 
-            if (!m_speciesData) {
-                throw CanteraError("ThermoPhase::speciesData",
-                    "m_speciesData is NULL");
-            }
-            return m_speciesData;
-        }
+      /// Return a pointer to the XML tree containing the species
+      /// data for this phase.
+      const XML_Node* speciesData() { 
+	if (!m_speciesData) {
+	  throw CanteraError("ThermoPhase::speciesData",
+			     "m_speciesData is NULL");
+	}
+	return m_speciesData;
+      }
 
 
-        /**
-         * @internal Install a species thermodynamic property
-         * manager. The species thermodynamic property manager
-         * computes properties of the pure species for use in
-         * constructing solution properties. It is meant for internal
-         * use, and some classes derived from ThermoPhase may not use
-         * any species thermodynamic property manager. This method is
-         * called by function importPhase() in importCTML.cpp.
-	 *
-	 * @param spthermo input pointer to the species thermodynamic property
-	 *                 manager.
-         */
-        void setSpeciesThermo(SpeciesThermo* spthermo) 
-            { m_spthermo = spthermo; }
+      /**
+       * @internal Install a species thermodynamic property
+       * manager. The species thermodynamic property manager
+       * computes properties of the pure species for use in
+       * constructing solution properties. It is meant for internal
+       * use, and some classes derived from ThermoPhase may not use
+       * any species thermodynamic property manager. This method is
+       * called by function importPhase() in importCTML.cpp.
+       *
+       * @param spthermo input pointer to the species thermodynamic property
+       *                 manager.
+       */
+      void setSpeciesThermo(SpeciesThermo* spthermo) 
+      { m_spthermo = spthermo; }
 
-        /**
-         * @internal Return a reference to the species thermodynamic property
-         * manager.  @todo This method will fail if no species thermo
-         * manager has been installed.
-         */
-        SpeciesThermo& speciesThermo() { return *m_spthermo; }
+      /**
+       * @internal Return a reference to the species thermodynamic property
+       * manager.  @todo This method will fail if no species thermo
+       * manager has been installed.
+       */
+      SpeciesThermo& speciesThermo() { return *m_spthermo; }
 
-	/**
-	 * @internal
-	 * Initialization of a ThermoPhase object using an
-	 * ctml file.
-	 *
-	 *   This routine is a precursor to initThermoXML(XML_Node*)
-	 *   routine, which does most of the work.
-	 *   Here we read extra information about the XML description
-	 *   of a phase. Regular information about elements and species
-	 *   and their reference state thermodynamic information
-	 *   have already been read at this point.
-	 *   For example, we do not need to call this function for
-	 *   ideal gas equations of state.
-	 *
-	 * @param inputFile XML file containing the description of the
-	 *        phase
-	 *
-	 * @param id  Optional parameter identifying the name of the
-	 *            phase. If none is given, the first XML
-	 *            phase element encountered will be used.
-	 */
-	virtual void initThermoFile(std::string inputFile, std::string id);
-
-
-	/**
-	 * @internal
-	 *   Import and initialize a ThermoPhase object 
-	 *   using an XML tree.
-	 *   Here we read extra information about the XML description
-	 *   of a phase. Regular information about elements and species
-	 *   and their reference state thermodynamic information
-	 *   have already been read at this point.
-	 *   For example, we do not need to call this function for
-	 *   ideal gas equations of state.
-	 *   This function is called from importPhase() 
-         *   after the elements and the
-	 *   species are initialized with default ideal solution
-	 *   level data.
-	 *
-	 * @param phaseNode This object must be the phase node of a
-	 *             complete XML tree
-	 *             description of the phase, including all of the
-	 *             species data. In other words while "phase" must
-	 *             point to an XML phase object, it must have
-	 *             sibling nodes "speciesData" that describe
-	 *             the species in the phase.
-	 * @param id   ID of the phase. If nonnull, a check is done
-	 *             to see if phaseNode is pointing to the phase
-	 *             with the correct id. 
-	 */
-	virtual void initThermoXML(XML_Node& phaseNode, std::string id);
-
-        /**
-         * @internal Initialize. This method is provided to allow
-         * subclasses to perform any initialization required after all
-         * species have been added. For example, it might be used to
-         * resize internal work arrays that must have an entry for
-         * each species.  The base class implementation does nothing,
-         * and subclasses that do not require initialization do not
-         * need to overload this method.  When importing a CTML phase
-         * description, this method is called just prior to returning
-         * from function importPhase.
-         *
-         * @see importCTML.cpp
-         */
-        virtual void initThermo();
+      /**
+       * @internal
+       * Initialization of a ThermoPhase object using an
+       * ctml file.
+       *
+       *   This routine is a precursor to initThermoXML(XML_Node*)
+       *   routine, which does most of the work.
+       *   Here we read extra information about the XML description
+       *   of a phase. Regular information about elements and species
+       *   and their reference state thermodynamic information
+       *   have already been read at this point.
+       *   For example, we do not need to call this function for
+       *   ideal gas equations of state.
+       *
+       * @param inputFile XML file containing the description of the
+       *        phase
+       *
+       * @param id  Optional parameter identifying the name of the
+       *            phase. If none is given, the first XML
+       *            phase element encountered will be used.
+       */
+      virtual void initThermoFile(std::string inputFile, std::string id);
 
 
-        // The following methods are used by the clib interface
-        // library, and should not be used by application programs.
+      /**
+       * @internal
+       *   Import and initialize a ThermoPhase object 
+       *   using an XML tree.
+       *   Here we read extra information about the XML description
+       *   of a phase. Regular information about elements and species
+       *   and their reference state thermodynamic information
+       *   have already been read at this point.
+       *   For example, we do not need to call this function for
+       *   ideal gas equations of state.
+       *   This function is called from importPhase() 
+       *   after the elements and the
+       *   species are initialized with default ideal solution
+       *   level data.
+       *
+       * @param phaseNode This object must be the phase node of a
+       *             complete XML tree
+       *             description of the phase, including all of the
+       *             species data. In other words while "phase" must
+       *             point to an XML phase object, it must have
+       *             sibling nodes "speciesData" that describe
+       *             the species in the phase.
+       * @param id   ID of the phase. If nonnull, a check is done
+       *             to see if phaseNode is pointing to the phase
+       *             with the correct id. 
+       */
+      virtual void initThermoXML(XML_Node& phaseNode, std::string id);
 
-        /**
-         * @internal 
-         * Index number.  This method can be used to identify the
-         * location of a phase object in a list, and is used by the
-         * interface library (clib) routines for this purpose.
-         */
-        int index() { return m_index; }
+      /**
+       * @internal Initialize. This method is provided to allow
+       * subclasses to perform any initialization required after all
+       * species have been added. For example, it might be used to
+       * resize internal work arrays that must have an entry for
+       * each species.  The base class implementation does nothing,
+       * and subclasses that do not require initialization do not
+       * need to overload this method.  When importing a CTML phase
+       * description, this method is called just prior to returning
+       * from function importPhase.
+       *
+       * @see importCTML.cpp
+       */
+      virtual void initThermo();
+
+
+      // The following methods are used by the clib interface
+      // library, and should not be used by application programs.
+
+      /**
+       * @internal 
+       * Index number.  This method can be used to identify the
+       * location of a phase object in a list, and is used by the
+       * interface library (clib) routines for this purpose.
+       */
+      int index() { return m_index; }
 
 
       /**

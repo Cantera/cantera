@@ -29,24 +29,31 @@ namespace Cantera {
   /**
    * @ingroup thermoprops
    *
-   *  This is a filter class for ThermoPhase that implements
-   *  a variable pressure standard state for ThermoPhase objects.
+   *  This is a filter class for ThermoPhase that implements some prepatory
+   *  steps for efficiently handling
+   *  a variable pressure standard state for species.
    *
-   *  In addition support for the molality unit scale is provided.
+   *  Several concepts are introduced. The first concept is there are temporary
+   *  variables for holding the species standard values of Cp, H, S, and V at the
+   *  last temperature and pressure called. These functions are not recalculated
+   *  if a new call is made using the previous temperature and pressure.
    *
-   *   Currently, it really is just a shell. The ThermoPhase object
-   *   itself is based around the general concepts of
-   *   VPStandardStateTP. Therefore, there really isn't much going
-   *   on here.  However, this may change. The ThermoPhase object
-   *   itself could change. Additionally, this object may revolve
-   *   around the molality unit scale in the near future. We will
-   *   have to see how things fare.
+   *  There are also temporary
+   *  variables for holding the species reference-state values of Cp, H, S, and V at the
+   *  last temperature and reference pressure called. These functions are not recalculated
+   *  if a new call is made using the previous temperature. 
+   *   
+   *  @nosubgrouping
    */
-
   class VPStandardStateTP : public ThermoPhase {
 
   public:
-        
+
+    /*!
+     *   
+     * @name Constructors and Duplicators for %VPStandardStateTP 
+     *
+     */   
     /// Constructor. 
     VPStandardStateTP();
 
@@ -64,12 +71,12 @@ namespace Cantera {
      */
     virtual ThermoPhase *duplMyselfAsThermoPhase();
 
-    /**
-     *   
-     * @name  Utilities  
-     * @{
-     */
+    //@}
 
+    /**
+     * @name  Utilities (VPStandardStateTP)
+     */
+    //@{
     /** 
      * Equation of state type flag. The base class returns
      * zero. Subclasses should define this to return a unique
@@ -78,88 +85,10 @@ namespace Cantera {
      */
     virtual int eosType() const { return 0; }
 
-
-    /**
-     * @} 
-     * @name  Molar Thermodynamic Properties of the Solution
-     * @{
-     */
-
-    /*
-     * These are handled by inherited objects. At this level,
-     * this pass-through routine doesn't add anything to the
-     * ThermoPhase description.
-     */
-
-
-    /**
-     * @}
-     * @name Mechanical Properties
-     * @{
-     */
-
-    /*
-     * These are handled by inherited objects. At this level,
-     * this pass-through routine doesn't add anything to the
-     * ThermoPhase description.
-     */
-
-    /**
-     * @} 
-     * @name Electric Potential
-     * 
-     * The phase may be at some non-zero electrical
-     * potential. These methods set or get the value of the
-     * electric potential.
-     * @{
-     */
-
-    /*
-     * These are handled by inherited objects. At this level,
-     * this pass-through routine doesn't add anything to the
-     * ThermoPhase description.
-     */
-
-    /**
-     * @}
-     * @name Activities and Activity Concentrations
-     *
-     * The activity \f$a_k\f$ of a species in solution is
-     * related to the chemical potential by \f[ \mu_k = \mu_k^0(T)
-     * + \hat R T \log a_k. \f] The quantity \f$\mu_k^0(T)\f$ is
-     * the chemical potential at unit activity, which depends only
-     * on temperature.
-     * @{
-     */
-
-      
-    /**
-     * Returns the units of the standard and generalized
-     * concentrations Note they have the same units, as their
-     * ratio is defined to be equal to the activity of the kth
-     * species in the solution, which is unitless.
-     *
-     * This routine is used in print out applications where the
-     * units are needed. Usually, MKS units are assumed throughout
-     * the program and in the XML input files.
-     *
-     * @param uA Output vector containing the units
-     *  uA[0] = kmol units - default  = 1
-     *  uA[1] = m    units - default  = -nDim(), the number of spatial
-     *                                dimensions in the Phase class.
-     *  uA[2] = kg   units - default  = 0;
-     *  uA[3] = Pa(pressure) units - default = 0;
-     *  uA[4] = Temperature units - default = 0;
-     *  uA[5] = time units - default = 0
-     * @param k species index. Defaults to 0.
-     * @param sizeUA output int containing the size of the vector.
-     *        Currently, this is equal to 6.
-     */
-    virtual void getUnitsStandardConc(double *uA, int k = 0,
-				      int sizeUA = 6);
-
     //@}
-    /// @name  Partial Molar Properties of the Solution 
+ 
+
+    /// @name  Partial Molar Properties of the Solution  (VPStandardStateTP)
     //@{
 
     /**
@@ -175,21 +104,18 @@ namespace Cantera {
      *              Length: m_kk.
      */
     virtual void getChemPotentials_RT(doublereal* mu) const;
-
   
     //@}
-    /// @name  Properties of the Standard State of the Species in the Solution
-    //@{
 
-    /*
-     * These are handled by inherited objects. At this level,
-     * this pass-through routine doesn't add anything to the
-     * ThermoPhase description.
+    /*!
+     * @name  Properties of the Standard State of the Species in the Solution  (VPStandardStateTP)
      *
-     * However, we assume these methods exist for inherited objects.
-     * Therefore, we will bring the error routines up to this object
+     *  Within VPStandardStateTP, these properties are calculated via a common routine, _updateStandardStateThermo(),
+     *  which must be overloaded in inherited objects.
+     *  The values are cached within this object, and are not recalculated unless
+     *  the temperature or pressure changes.
      */
-
+    //@{
     
     //!Get the array of chemical potentials at unit activity.
     /*!
@@ -199,9 +125,7 @@ namespace Cantera {
      * @param mu   Output vector of standard state chemical potentials.
      *             length = m_kk. units are J / kmol.
      */
-    virtual void getStandardChemPotentials(doublereal* mu) const {
-      err("getStandardChemPotentials");
-    }
+    virtual void getStandardChemPotentials(doublereal* mu) const;
 
     /**
      * Get the nondimensional Enthalpy functions for the species
@@ -211,9 +135,7 @@ namespace Cantera {
      * @param hrt     Output vector of standard state enthalpies.
      *                length = m_kk. units are unitless.
      */
-    virtual void getEnthalpy_RT(doublereal* hrt) const {
-      err("getEnthalpy_RT");
-    }
+    virtual void getEnthalpy_RT(doublereal* hrt) const;
 
     /**
      * Get the array of nondimensional Enthalpy functions for the
@@ -223,9 +145,7 @@ namespace Cantera {
      * @param sr     Output vector of nondimensional standard state
      *               entropies. length = m_kk.
      */
-    virtual void getEntropy_R(doublereal* sr) const {
-      err("getEntropy_R");
-    }
+    virtual void getEntropy_R(doublereal* sr) const;
 
     /**
      * Get the nondimensional Gibbs functions for the species
@@ -235,9 +155,7 @@ namespace Cantera {
      * @param grt    Output vector of nondimensional standard state
      *               Gibbs free energies. length = m_kk.
      */
-    virtual void getGibbs_RT(doublereal* grt) const {
-      err("getGibbs_RT");
-    }
+    virtual void getGibbs_RT(doublereal* grt) const;
 
     /**
      * Get the nondimensional Gibbs functions for the standard
@@ -247,35 +165,35 @@ namespace Cantera {
      *               Gibbs free energies. length = m_kk.
      *               units are J/kmol.
      */
-    virtual void getPureGibbs(doublereal* gpure) const {
-      err("getPureGibbs");
-    }
+    virtual void getPureGibbs(doublereal* gpure) const;
 
     /**
      *  Returns the vector of nondimensional
      *  internal Energies of the standard state at the current temperature
      *  and pressure of the solution for each species.
+     * \f[
+     *  u^{ss}_k(T,P) = h^{ss}_k(T)  - P * V^{ss}_k
+     * \f]
      *
      * @param urt    Output vector of nondimensional standard state
      *               internal energies. length = m_kk.
      */
-    virtual void getIntEnergy_RT(doublereal *urt) const {
-      err("getIntEnergy_RT");
-    }
+    virtual void getIntEnergy_RT(doublereal *urt) const;
 
     /**
      * Get the nondimensional Heat Capacities at constant
      * pressure for the standard state of the species 
      * at the current T and P. 
      *
+     * This is redefined here to call the internal function,  _updateStandardStateThermo(),
+     * which calculates all standard state properties at the same time.
+     *
      * @param cpr    Output vector containing the 
      *               the nondimensional Heat Capacities at constant
      *               pressure for the standard state of the species.
      *               Length: m_kk. 
      */
-    virtual void getCp_R(doublereal* cpr) const {
-      err("getCp_R");
-    }
+    virtual void getCp_R(doublereal* cpr) const;
 
     /**
      * Get the molar volumes of each species in their standard
@@ -283,15 +201,47 @@ namespace Cantera {
      * <I>T</I> and <I>P</I> of the solution.
      * units = m^3 / kmol
      *
+     * This is redefined here to call the internal function,  _updateStandardStateThermo(),
+     * which calculates all standard state properties at the same time.
+     *
      * @param vol Output vector of species volumes. length = m_kk.
      *            units =  m^3 / kmol
      */
-    virtual void getStandardVolumes(doublereal *vol) const {
-      err("getStandardVolumes");
-    }
+    virtual void getStandardVolumes(doublereal *vol) const;
 
+  protected:
+
+    //! Updates the standard state thermodynamic functions at the current T and P of the solution.
+    /*!
+     * @internal
+     *
+     * This function gets called for every call to functions in this
+     * class. It checks to see whether the temperature or pressure has changed and
+     * thus the ss thermodynamics functions for all of the species
+     * must be recalculated.
+     *
+     * This function is responsible for updating the following internal members:
+     *
+     *    m_hss_RT;
+     *    m_cpss_R;
+     *    m_gss_RT;
+     *    m_sss_R;
+     *    m_Vss
+     *
+     *  Note, this will throw an error. It must be reimplemented in derived classes.
+     */                    
+    virtual void _updateStandardStateThermo() const;
+
+  public:
     //@}
-    /// @name Thermodynamic Values for the Species Reference States --------------------
+    /// @name Thermodynamic Values for the Species Reference States (VPStandardStateTP)
+    /*!
+     *  There are also temporary
+     *  variables for holding the species reference-state values of Cp, H, S, and V at the
+     *  last temperature and reference pressure called. These functions are not recalculated
+     *  if a new call is made using the previous temperature.
+     *  All calculations are done within the routine  _updateRefStateThermo().
+     */
     //@{
 
     /*!
@@ -351,38 +301,44 @@ namespace Cantera {
      */
     virtual void getCp_R_ref(doublereal *cprt) const;
 
-    ///////////////////////////////////////////////////////
-    //
-    //  The methods below are not virtual, and should not
-    //  be overloaded.
-    //
-    //////////////////////////////////////////////////////
-
-    /**
-     * @name Specific Properties
-     * @{
+    //! Recalculate the Reference state thermo functions
+    /*!
+     * This function checks to see whether the temperature has changed and
+     * thus the reference thermodynamics functions for all of the species
+     * must be recalculated.
+     * If the temperature has changed, the species thermo manager is called
+     * to recalculate G, Cp, H, and S at the current temperature and at
+     * the reference pressure.
      */
 
+  protected:
 
-    /**
-     * @name Setting the State
-     *
-     * These methods set all or part of the thermodynamic
-     * state.
-     * @{
+    //! Recalculate the Reference state thermo functions
+    /*!
+     * This function checks to see whether the temperature has changed and
+     * thus the reference thermodynamics functions for all of the species
+     * must be recalculated.
+     * If the temperature has changed, the species thermo manager is called
+     * to recalculate G, Cp, H, and S at the current temperature and at
+     * the reference pressure.
      */
-
-    //@}
-
-    /**
-     * @name Chemical Equilibrium
-     * Chemical equilibrium.
-     * @{
-     */
-
+    virtual void _updateRefStateThermo() const;
+ 
     //@}
 
 	
+  public:
+ 
+    //! @name Initialization Methods - For Internal use (VPStandardState)
+    /*!
+     * The following methods are used in the process of constructing
+     * the phase and setting its parameters from a specification in an 
+     * input file. They are not normally used in application programs.
+     * To see how they are used, see files importCTML.cpp and 
+     * ThermoFactory.cpp.
+     */
+    //@{
+
     /**
      * Set equation of state parameter values from XML
      * entries. This method is called by function importPhase in
@@ -396,31 +352,9 @@ namespace Cantera {
      */
     virtual void setParametersFromXML(const XML_Node& eosdata) {}
   
-
-    //---------------------------------------------------------
-    /// @name Critical state properties.
-    /// These methods are only implemented by some subclasses.
-        
-    //@{
-             
-    //@}
-        
-    /// @name Saturation properties.
-    /// These methods are only implemented by subclasses that 
-    /// implement full liquid-vapor equations of state.
-    ///
-   
-
-    //@}
-
-    /// The following methods are used in the process of constructing
-    /// the phase and setting its parameters from a specification in an 
-    /// input file. They are not normally used in application programs.
-    /// To see how they are used, see files importCTML.cpp and 
-    /// ThermoFactory.cpp.
-
-    /**
-     * @internal Initialize. This method is provided to allow
+    //! @internal Initialize the object
+    /*!
+     * This method is provided to allow
      * subclasses to perform any initialization required after all
      * species have been added. For example, it might be used to
      * resize internal work arrays that must have an entry for
@@ -428,14 +362,27 @@ namespace Cantera {
      * and subclasses that do not require initialization do not
      * need to overload this method.  When importing a CTML phase
      * description, this method is called just prior to returning
-     * from function importPhase.
+     * from function importPhase().
      *
      * @see importCTML.cpp
      */
     virtual void initThermo();
 
-    /**
-     *   Import and initialize a ThermoPhase object
+    //!   Initialize a ThermoPhase object, potentially reading activity
+    //!   coefficient information from an XML database.
+    /*!
+     *
+     * This routine initializes the lengths in the current object and
+     * then calls the parent routine.
+     * This method is provided to allow
+     * subclasses to perform any initialization required after all
+     * species have been added. For example, it might be used to
+     * resize internal work arrays that must have an entry for
+     * each species.  The base class implementation does nothing,
+     * and subclasses that do not require initialization do not
+     * need to overload this method.  When importing a CTML phase
+     * description, this method is called just prior to returning
+     * from function importPhase().
      *
      * @param phaseNode This object must be the phase node of a
      *             complete XML tree
@@ -448,10 +395,16 @@ namespace Cantera {
      *             to see if phaseNode is pointing to the phase
      *             with the correct id. 
      */
-    void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
 
   private:
+    //!  @internal Initialize the internal lengths in this object.
+    /*!
+     * Note this is not a virtual function.
+     */
     void initLengths();
+
+   //@}
 
   protected:
     
@@ -486,6 +439,12 @@ namespace Cantera {
     mutable vector_fp      m_s0_R;
 
     /**
+     * Vector containing the species reference volumes
+     * at T = m_tlast and P = p_ref
+     */   
+    mutable vector_fp      m_V0;
+
+    /**
      * Vector containing the species Standard State enthalpies at T = m_tlast
      * and P = m_plast.
      */
@@ -509,38 +468,21 @@ namespace Cantera {
      */
     mutable vector_fp      m_sss_R;
 
+    /**
+     * Vector containing the species standard state volumes
+     * at T = m_tlast and P = m_plast
+     */   
+    mutable vector_fp      m_Vss;
   
   private:
 
-    /**
+    /*!
      * VPStandardStateTP has its own err routine
-     *
      */
     doublereal err(std::string msg) const;
 
-    /**
-     * This function gets called for every call to functions in this
-     * class. It checks to see whether the temperature has changed and
-     * thus the reference thermodynamics functions for all of the species
-     * must be recalculated.
-     * If the temperature has changed, the species thermo manager is called
-     * to recalculate G, Cp, H, and S at the current temperature.
-     */
-    void _updateRefStateThermo() const;
-
-    /**
-     * void _updateStandardStateThermo()            (private, const)
-     *
-     * This function gets called for every call to functions in this
-     * class. It checks to see whether the temperature has changed and
-     * thus the ss thermodynamics functions for all of the species
-     * must be recalculated.
-     */                    
-    void _updateStandardStateThermo() const;
-
-    };
-
-  }
+  };
+}
         
 #endif
 
