@@ -99,6 +99,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          State.h  State.cpp \
                          Constituents.h Constituents.cpp \
                          Elements.h Elements.cpp \
+                         importCTML.cpp importCTML.h \
                          utilities.h \
                          VPStandardStateTP.h     VPStandardStateTP.cpp \
                          SingleSpeciesTP.h SingleSpeciesTP.cpp \
