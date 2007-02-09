@@ -39,6 +39,9 @@ namespace Cantera {
      *
      * These classes are used to compute thermodynamic properties of
      * phases of matter.
+     *
+     * @see newPhase(std::string file, std::string id) Description for how to read ThermoPhases from XML files.
+     * @see newPhase(XML_Node &phase) How to call the Factory routine to create and initialize ThermoPhase objects.
      */
 
     /**

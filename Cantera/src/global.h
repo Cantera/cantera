@@ -121,6 +121,25 @@ namespace Cantera {
    * %Cantera was built is added to the search path.
    * 
    * Additional directories may be added by calling function addDirectory.
+   *
+   * There are two different types of input files within %Cantera:
+   *    ctml: This is an xml file layed out in such a way that %Cantera can 
+   *          interpret the contents.
+   *    cti:  A human-readable ascii format for information that %Cantera
+   *          will read.
+   *
+   *   %Cantera can take its input from both types of files. However, given
+   *   a file in cti format, the initial operation that %Cantera will perform
+   *   is to translate the cti file into a ctml file. 
+   *   The translation is carried out via a system call to a python interpretor
+   *   program that actually carries out the translation. In general, a new
+   *   ctml file is created by the translation that is written to the current
+   *   local directory. 
+   *   The ctml file is then read back into %Cantera as the input.
+   *
+   * Other input routines in other modules:
+   *   @see importKinetics()
+   *
    * @{
    */
 

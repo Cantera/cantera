@@ -44,7 +44,7 @@ namespace Cantera {
      * Input
      * ------
      *  phaseData = This is an XML_Node that contains the xml data
-     *              describing the phase. Of particular note to ths
+     *              describing the phase. Of particular note to this
      *              routine is the child xml element called "kinetics".
      *              The element has one attribute called "model",
      *              with a string value. The value of this string
