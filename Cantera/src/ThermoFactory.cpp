@@ -1,5 +1,8 @@
 /**
  *  @file ThermoFactory.cpp
+ *
+ *  Definition of the %ThermoPhase factory base class.
+ *  All known ThermoPhases to Cantera should be listed here.
  */
 
 /*
@@ -63,10 +66,10 @@ namespace Cantera {
                               cSurf, cEdge, cMetal, cStoichSubstance,
                               cPureFluid, cLatticeSolid, cLattice};
 
-    /**
+    /*
      * This method returns a new instance of a subclass of ThermoPhase
      */ 
-    ThermoPhase* ThermoFactory::newThermoPhase(string model) {
+    ThermoPhase* ThermoFactory::newThermoPhase(std::string model) {
 
         int ieos=-1;
 
