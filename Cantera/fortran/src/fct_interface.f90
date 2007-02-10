@@ -216,7 +216,7 @@ interface
 
     integer function th_equil(n, XY)
         integer, intent(in) :: n
-        integer, intent(in) :: XY
+        character*(*), intent(in) :: XY
     end function th_equil
 
     double precision function th_refpressure(n)
