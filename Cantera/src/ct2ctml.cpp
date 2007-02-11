@@ -38,7 +38,12 @@ namespace ctml {
         const char* py = getenv("PYTHON_CMD");
         if (py) {
             string sp = stripws(string(py));
-            if (sp.size() > 0) s = sp;
+            if (sp.size() > 0) {
+                if (s.find(' ') != std::string::npos) 
+                    s = "\"" + sp + "\"";
+                else
+                    s = sp;
+            }
         }
         return s;
     }
@@ -59,11 +64,12 @@ namespace ctml {
         time_t aclock;
         time( &aclock );
         int ia = static_cast<int>(aclock);
-        string path = tmpDir()+"/.cttmp"+int2str(ia)+".pyw";
+        string path = "\"" + tmpDir()+"/.cttmp"+int2str(ia)+".pyw"+"\"";
         ofstream f(path.c_str());
         if (!f) {
             throw CanteraError("ct2ctml","cannot open "+path+" for writing.");
         }
+
         f << "from ctml_writer import *\n"
           << "import sys, os, os.path\n"
           << "file = \"" << file << "\"\n"
