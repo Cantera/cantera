@@ -67,7 +67,7 @@ subroutine demo(gas, MAXSP, MAXRXNS)
 
   ! compute the equilibrium state holding the specific
   ! enthalpy and pressure constant
-  call equilibrate(gas, HP)
+  call equilibrate(gas, 'HP')
 
   write(*,*) 'Equilibrium state properties:'
   write(*,10) temperature(gas), pressure(gas), density(gas), &
