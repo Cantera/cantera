@@ -91,6 +91,32 @@ namespace Cantera {
             m_index = index;
         }
 
+        /*
+         * Set the Jacobian bandwidth. See the discussion of method bandwidth. 
+         */
+        void setBandwidth(int bw = -1) {
+            m_bw = bw;
+        }
+
+        /**
+         * Set the Jacobian bandwith for this domain.  When class
+         * OneDim computes the bandwidth of the overall multi-domain
+         * problem (in OneDim::resize()), it calls this method for the
+         * bandwidth of each domain. If setBandwidth has not been
+         * called, then a negative bandwidth is returned, in which
+         * case OneDim assumes that this domain is dense -- that is,
+         * at each point, all components depend on the value of all
+         * other components at that point. In this case, the bandwidth
+         * is bw = 2*nComponents() - 1. However, if this domain
+         * contains some components that are uncoupled from other
+         * components at the same point, then this default bandwidth
+         * may greatly overestimate the true bandwidth, with a
+         * substantial penalty in performance. For such domains, use
+         * method setBandwidth to specify the bandwidth before passing
+         * this domain to the Sim1D or OneDim constructor.
+         */
+        int bandwidth() { return m_bw; }
+
         /**
          * Initialize. This method is called by OneDim::init() for
          * each domain once at the beginning of a simulation. Base
@@ -471,6 +497,7 @@ namespace Cantera {
         Refiner* m_refiner;
         vector_int m_td;
         std::vector<std::string> m_name;
+        int m_bw;
 
     private:
 

@@ -171,12 +171,17 @@ namespace Cantera {
             int bw1, bw2 = 0;
 
             // bandwidth of the local block
-            bw1 = 2*d->nComponents() - 1;
+            bw1 = d->bandwidth();
+            if (bw1 < 0) 
+                bw1 = 2*d->nComponents() - 1;
 
             // bandwidth of the block coupling the first point of this
             // domain to the last point of the previous domain
             if (i > 0) {
-                bw2 = d->nComponents() + m_dom[i-1]->nComponents() - 1;
+                bw2 = m_dom[i-1]->bandwidth();
+                if (bw2 < 0) 
+                    bw2 = m_dom[i-1]->nComponents();
+                bw2 += d->nComponents() - 1;
             }
             if (bw1 > m_bw) m_bw = bw1;
             if (bw2 > m_bw) m_bw = bw2;
