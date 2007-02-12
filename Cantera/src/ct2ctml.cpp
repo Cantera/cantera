@@ -39,10 +39,7 @@ namespace ctml {
         if (py) {
             string sp = stripws(string(py));
             if (sp.size() > 0) {
-                if (s.find(' ') != std::string::npos) 
-                    s = "\"" + sp + "\"";
-                else
-                    s = sp;
+              s = sp;
             }
         }
         return s;
@@ -64,7 +61,7 @@ namespace ctml {
         time_t aclock;
         time( &aclock );
         int ia = static_cast<int>(aclock);
-        string path = "\"" + tmpDir()+"/.cttmp"+int2str(ia)+".pyw"+"\"";
+        string path =  tmpDir()+"/.cttmp"+int2str(ia)+".pyw";
         ofstream f(path.c_str());
         if (!f) {
             throw CanteraError("ct2ctml","cannot open "+path+" for writing.");
@@ -80,10 +77,10 @@ namespace ctml {
           << "write()\n";
         f.close();
 #ifdef WIN32
-        string cmd = pypath() + " " + path + "> ct2ctml.log 2>&1";
+        string cmd = pypath() + " " + "\"" + path + "\"" + "> ct2ctml.log 2>&1";
 #else
-        string cmd = "sleep " + sleep() + "; " + pypath() + 
-                     " " + path + " &> ct2ctml.log";
+        string cmd = "sleep " + sleep() + "; " + "\"" + pypath() + "\"" + 
+                     " " + "\"" + path + "\"" + " &> ct2ctml.log";
 #endif
 #ifdef DEBUG_PATHS
         writelog("ct2ctml: executing the command " + cmd + "\n");
@@ -160,7 +157,7 @@ namespace ctml {
         //cmd = "cmd /C rm " + path;
         remove(path.c_str()) ;
 #else
-        cmd = "rm -f " + path;
+        cmd = "rm -f \"" + path + "\"";
         try {
             if (ierr == 0) 
                 system(cmd.c_str());
