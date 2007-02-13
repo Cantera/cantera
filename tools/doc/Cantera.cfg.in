@@ -101,6 +101,8 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          Elements.h Elements.cpp \
                          importCTML.cpp importCTML.h \
                          ThermoFactory.h ThermoFactory.cpp \
+                         SpeciesThermoFactory.h SpeciesThermoFactory.cpp \
+                         speciesThermoTypes.h SpeciesThermoMgr.h SpeciesThermo.h SpeciesThermoInterpTypes.h \
                          utilities.h \
                          VPStandardStateTP.h     VPStandardStateTP.cpp \
                          SingleSpeciesTP.h SingleSpeciesTP.cpp \

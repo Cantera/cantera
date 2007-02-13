@@ -2,7 +2,7 @@
 
 \page cxx-exceptions Exception Handling
 
-Cantera throws exceptions of type CanteraError when an error is encountered. Your program should always catch these. You can throw CanteraError exceptions too, if you like, or you can use your own application-specific exception classes. 
+%Cantera throws exceptions of type CanteraError when an error is encountered. Your program should always catch these. You can throw CanteraError exceptions too, if you like, or you can use your own application-specific exception classes. 
 
 \include except.cpp
 
