@@ -8,7 +8,6 @@
  * $Date$
  */
 
-
 #ifndef CT_GENERALSPECIESTHERMO_H
 #define CT_GENERALSPECIESTHERMO_H
 #include <string>

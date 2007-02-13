@@ -298,14 +298,15 @@ namespace Cantera {
         int                                m_ngroups;
         mutable vector_fp                  m_t;
 
-	/*
+	/*!
 	 * This map takes as its index, the species index in the phase.
 	 * It returns the group index, where the temperature polynomials
 	 * for that species are stored. group indecises start at 1,
 	 * so a decrement is always performed to access vectors.
 	 */
 	mutable map<int, int>              m_group_map;
-	/*
+
+	/*!
 	 * This map takes as its index, the species index in the phase.
 	 * It returns the position index within the group, where the 
 	 * temperature polynomials for that species are storred.
