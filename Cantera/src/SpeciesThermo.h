@@ -73,11 +73,14 @@ namespace Cantera {
    *  The following classes inherit from %SpeciesThermo
    *
    *   - NasaThermo          in file NasaThermo.h
-   *      - This is a two zone model, with each zone consisting of a 7 coefficient Nasa Polynomial format.
+   *      - This is a two zone model, with each zone consisting of a 7 
+   *        coefficient Nasa Polynomial format.
    *      .
    *   - ShomateThermo       in file ShomateThermo.h
    *   - SimpleThermo        in file SimpleThermo.h
    *   - GeneralSpeciesThermo in file GeneralSpeciesThermo.h
+   *   - SpeciesThermo1        in file SpeciesThermoMgr.h
+   *   - SpeciesThermoDuo      in file SpeciesThermoMgr.h
    *   .
    * The class SpeciesThermoInterpType is a virtual base class for
    * calculation of thermodynamic functions for a single species
@@ -117,9 +120,10 @@ namespace Cantera {
     //! Destructor
     virtual ~SpeciesThermo() {}
 
-    /**
-     * install a new species thermodynamic property
-     * parameterization for one species.  
+    
+    //! install a new species thermodynamic property
+    //!  parameterization for one species.  
+    /*!
      *
      * @param name      Name of the species
      * @param index     The 'update' method will update the property 
@@ -208,9 +212,9 @@ namespace Cantera {
      * @param k index for parameterization k
      */
     virtual doublereal maxTemp(int k=-1) const =0;
-
-    /**
-     * The reference-state pressure for species k.
+    
+    //! The reference-state pressure for species k.
+    /*!
      *
      * returns the reference state pressure in Pascals for
      * species k. If k is left out of the argument list,

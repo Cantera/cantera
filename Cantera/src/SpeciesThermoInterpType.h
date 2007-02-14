@@ -61,7 +61,7 @@ namespace Cantera {
   
     //! Update the properties for this species, given a temperature polynomial
     /*!
-     * This method is calledwith a pointer to an array containing the functions of
+     * This method is called with a pointer to an array containing the functions of
      * temperature needed by this  parameterization, and three pointers to arrays where the
      * computed property values should be written. This method updates only one value in
      * each array.
