@@ -100,7 +100,7 @@ namespace Cantera {
 				  doublereal * const c, 
 				  doublereal &minTemp, 
 				  doublereal &maxTemp, 
-				  doublereal &refPressure) {
+				  doublereal &refPressure) const {
 	    type = reportType(index);
             int loc = m_loc[index];
 	    if (type == SIMPLE) {

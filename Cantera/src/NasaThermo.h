@@ -317,7 +317,7 @@ namespace Cantera {
 			      doublereal * const c, 
 			      doublereal &minTemp, 
 			      doublereal &maxTemp, 
-			      doublereal &refPressure) {
+			      doublereal &refPressure) const {
       type = reportType(index);
       if (type == NASA) {
 	int grp = m_group_map[index];

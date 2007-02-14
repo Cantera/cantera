@@ -249,13 +249,12 @@ namespace Cantera {
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
      *
-     * @todo should be a const function.
      */
     virtual void reportParams(int index, int &type, 
 			      doublereal * const c, 
 			      doublereal &minTemp, 
 			      doublereal &maxTemp, 
-			      doublereal &refPressure) =0;
+			      doublereal &refPressure) const =0;
 
     //! Modify parameters for the standard state
     /*!

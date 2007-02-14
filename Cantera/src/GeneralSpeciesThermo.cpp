@@ -178,7 +178,7 @@ namespace Cantera {
 		 doublereal * const c, 
 		 doublereal &minTemp, 
 		 doublereal &maxTemp, 
-		 doublereal &refPressure) {
+		 doublereal &refPressure) const {
 	SpeciesThermoInterpType *sp = m_sp[index];
 	int n;
 	sp->reportParameters(n, type, minTemp, maxTemp, 

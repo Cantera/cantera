@@ -184,7 +184,7 @@ namespace Cantera {
 				  doublereal * const c, 
 				  doublereal &minTemp, 
 				  doublereal &maxTemp, 
-				  doublereal &refPressure) {
+				  doublereal &refPressure) const {
 	    type = reportType(index);
 	    if (type == SHOMATE) {
 	      int grp = m_group_map[index];

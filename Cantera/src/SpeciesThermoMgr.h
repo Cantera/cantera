@@ -292,13 +292,12 @@ namespace Cantera {
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
      *
-     * @todo should be a const function.
      */
     virtual void reportParams(int index, int &type, 
 			      doublereal * const c, 
 			      doublereal &minTemp, 
 			      doublereal &maxTemp, 
-			      doublereal &refPressure) {
+			      doublereal &refPressure) const {
       int ctype = reportType(index);
       if (ctype == m_thermo1.ID) {
 	m_thermo1.reportParams(index, type, c, minTemp, maxTemp, 
@@ -450,7 +449,7 @@ namespace Cantera {
 			      doublereal * const c, 
 			      doublereal &minTemp, 
 			      doublereal &maxTemp, 
-			     doublereal &refPressure) {
+			     doublereal &refPressure) const {
      m_thermo[index]->reportParameters(index, type, c, minTemp, maxTemp, refPressure);
    }
 

@@ -25,6 +25,7 @@ namespace Cantera {
     const int CK_Mode = 10;
 
     // types of transport models that can be constructed
+    const int None                 = 199;
     const int cMulticomponent      = 200;
     const int CK_Multicomponent    = 202;
     const int cMixtureAveraged     = 210;
