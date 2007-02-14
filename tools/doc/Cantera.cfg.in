@@ -103,6 +103,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          ThermoFactory.h ThermoFactory.cpp \
                          SpeciesThermoFactory.h SpeciesThermoFactory.cpp \
                          speciesThermoTypes.h SpeciesThermoMgr.h SpeciesThermo.h SpeciesThermoInterpTypes.h \
+                         NasaThermo.h NasaPoly1.h NasaPoly2.h \
                          utilities.h \
                          VPStandardStateTP.h     VPStandardStateTP.cpp \
                          SingleSpeciesTP.h SingleSpeciesTP.cpp \
