@@ -105,6 +105,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          speciesThermoTypes.h SpeciesThermoMgr.h SpeciesThermo.h SpeciesThermoInterpTypes.h \
                          NasaThermo.h NasaPoly1.h NasaPoly2.h \
                          ShomateThermo.h ShomatePoly.h SimpleThermo.h \
+                         GeneralSpeciesThermo.h GeneralSpeciesThermo.cpp \
                          utilities.h \
                          VPStandardStateTP.h     VPStandardStateTP.cpp \
                          SingleSpeciesTP.h SingleSpeciesTP.cpp \

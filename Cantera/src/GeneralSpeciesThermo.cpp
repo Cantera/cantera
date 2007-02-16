@@ -76,7 +76,7 @@ namespace Cantera {
      * @param c        coefficients. The meaning of these depends on 
      *                 the parameterization.
      */
-    void GeneralSpeciesThermo::install(string name,
+    void GeneralSpeciesThermo::install(std::string name,
 				       int index,
 				       int type, 
 				       const doublereal* c, 

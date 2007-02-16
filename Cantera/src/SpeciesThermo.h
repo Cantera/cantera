@@ -86,7 +86,7 @@ namespace Cantera {
    *      .
    *   - GeneralSpeciesThermo in file GeneralSpeciesThermo.h
    *      - This is a general model. Each species is handled separately
-   *        via a vector over SpeciesThermoInerpType classes.
+   *        via a vector over SpeciesThermoInterpType classes.
    *      . 
    *   - SpeciesThermo1        in file SpeciesThermoMgr.h
    *   - SpeciesThermoDuo      in file SpeciesThermoMgr.h
@@ -265,11 +265,10 @@ namespace Cantera {
      */
     virtual int reportType(int index = -1) const = 0;
 
+    
+    //! This utility function reports back the type of 
+    //! parameterization and all of the parameters for the species, index.
     /*!
-     * This utility function reports back the type of 
-     * parameterization and all of the parameters for the 
-     * species, index.
-     *
      * @param index     Species index
      * @param type      Integer type of the standard type
      * @param c         Vector of coefficients used to set the
@@ -277,7 +276,6 @@ namespace Cantera {
      * @param minTemp   output - Minimum temperature
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
-     *
      */
     virtual void reportParams(int index, int &type, 
 			      doublereal * const c, 

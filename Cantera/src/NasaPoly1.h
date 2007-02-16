@@ -221,8 +221,6 @@ namespace Cantera {
      * @param pref      output - reference pressure (Pa).
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
-     *
-     * @todo should be a const function.
      */
     virtual void reportParameters(int &n, int &type,
 				  doublereal &tlow, doublereal &thigh,
