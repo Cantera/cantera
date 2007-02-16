@@ -28,6 +28,16 @@ namespace Cantera {
    * a phase. Therefore, this class must carry along a species index into that
    * vector.
    *
+   * These routine may be templated. A key requirement of the template is that
+   * there is a constructor with the following form:
+   *
+   *  @code
+   *   SpeciesThermoInterpType(int index, doublereal tlow, doublereal thigh, 
+   *                           doublereal pref,  const doublereal* coeffs)
+   *  @endcode
+   *
+   *  The constructor is used to instantiate the object.
+   *
    * @ingroup spthermo
    */    
   class SpeciesThermoInterpType {
@@ -120,8 +130,6 @@ namespace Cantera {
      * @param refPressure output - reference pressure (Pa).
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
-     *
-     * @todo should be a const function.
      */
     virtual void reportParameters(int &index, int &type,
 				  doublereal &minTemp, doublereal &maxTemp,

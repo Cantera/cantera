@@ -310,6 +310,24 @@ namespace Cantera {
       }
     }
 
+    //! Modify parameters for the standard state
+    /*!
+     * @param index Species index
+     * @param c     Vector of coefficients used to set the
+     *              parameters for the standard state.
+     */
+    virtual void modifyParams(int index, doublereal *c) {
+      int ctype = reportType(index);
+      if (ctype == m_thermo1.ID) {
+	m_thermo1.modifyParams(index, c);
+      } else if (ctype == m_thermo2.ID) {
+	m_thermo2.modifyParams(index,  c);
+      } else {
+	throw CanteraError("modifyParams", "confused");
+      }
+    }
+
+
   private:
 
     //! Thermo Type 1
@@ -445,13 +463,23 @@ namespace Cantera {
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
      */
-   virtual void reportParams(int index, int &type, 
+    virtual void reportParams(int index, int &type, 
 			      doublereal * const c, 
 			      doublereal &minTemp, 
 			      doublereal &maxTemp, 
-			     doublereal &refPressure) const {
-     m_thermo[index]->reportParameters(index, type, c, minTemp, maxTemp, refPressure);
-   }
+			      doublereal &refPressure) const {
+      m_thermo[index]->reportParameters(index, type, c, minTemp, maxTemp, refPressure);
+    }
+
+    //! Modify parameters for the standard state
+    /*!
+     * @param index Species index
+     * @param c     Vector of coefficients used to set the
+     *              parameters for the standard state.
+     */
+    virtual void modifyParams(int index, doublereal *c) {
+      m_thermo[index]->modifyParameters(index, c);
+    }
 
   private:
     //! Vector of SPM objects. There are m_kk of them
@@ -464,9 +492,3 @@ namespace Cantera {
 }
 
 #endif
-
-
-
-
-
-

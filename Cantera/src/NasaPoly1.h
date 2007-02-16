@@ -54,7 +54,7 @@ namespace Cantera {
 	m_Pref(0.0), m_index (0), m_coeff(array_fp(7)) {}
 
 
-    //! full constructor
+    //! constructor used in templated instantiations
     /*!
      * @param n            Species index
      * @param tlow         Minimum temperature

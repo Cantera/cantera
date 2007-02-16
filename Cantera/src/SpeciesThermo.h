@@ -70,28 +70,57 @@ namespace Cantera {
    * phase during each call. 
    *
    *
-   *  The following classes inherit from %SpeciesThermo
+   *  The following classes inherit from %SpeciesThermo. Each of these classes
+   *  handle multiple species, usually all of the species in a phase.
    *
    *   - NasaThermo          in file NasaThermo.h
    *      - This is a two zone model, with each zone consisting of a 7 
    *        coefficient Nasa Polynomial format.
    *      .
    *   - ShomateThermo       in file ShomateThermo.h
+   *      - This is a two zone model, with each zone consisting of a 7 
+   *        coefficient Shomate Polynomial format.
+   *      .
    *   - SimpleThermo        in file SimpleThermo.h
+   *      - This is a one-zone constant heat capacity model.
+   *      .
    *   - GeneralSpeciesThermo in file GeneralSpeciesThermo.h
+   *      - This is a general model. Each species is handled separately
+   *        via a vector over SpeciesThermoInerpType classes.
+   *      . 
    *   - SpeciesThermo1        in file SpeciesThermoMgr.h
    *   - SpeciesThermoDuo      in file SpeciesThermoMgr.h
+   *      - This is a combination of two SpeciesThermo types.
+   *      .
    *   .
-   * The class SpeciesThermoInterpType is a virtual base class for
+   * The class SpeciesThermoInterpType is a pure virtual base class for
    * calculation of thermodynamic functions for a single species
    * in its reference state.
    *  The following classes inherit from %SpeciesThermoInterpType
    *   - NasaPoly1          in file NasaPoly1.h
+   *      - This is a one zone model,  consisting of a 7 
+   *        coefficient Nasa Polynomial format.
+   *      .
    *   - NasaPoly2          in file NasaPoly2.h
+   *      - This is a two zone model, with each zone consisting of a 7 
+   *        coefficient Nasa Polynomial format.
+   *      .
    *   - ShomatePoly        in file ShomatePoly.h
+   *      - This is a one zone model, consisting of a 7 
+   *        coefficient Shomate Polynomial format.
+   *      .
    *   - ShomatePoly2       in file ShomatePoly.h
+   *      - This is a two zone model, with each zone consisting of a 7 
+   *        coefficient Shomate Polynomial format.
+   *      .
    *   - ConstCpPoly        in file ConstCpPoly.h
+   *      - This is a one-zone constant heat capacity model.
+   *      .
    *   - Mu0Poly            in file Mu0Poly.h
+   *      - This is a multizoned model. The chemical potential is given
+   *        at a set number of temperatures. Between each temperature
+   *        the heat capacity is treated as a constant.
+   *      .
    *   .
    */
   //@{
@@ -99,7 +128,7 @@ namespace Cantera {
   //////////////////////// class SpeciesThermo ////////////////////
 
   /*!
-   * Virtual base class for the species thermo manager classes. This
+   * Pure Virtual base class for the species thermo manager classes. This
    * class defines the interface which all subclasses must
    * implement. 
    *
@@ -121,8 +150,8 @@ namespace Cantera {
     virtual ~SpeciesThermo() {}
 
     
-    //! install a new species thermodynamic property
-    //!  parameterization for one species.  
+    //! Install a new species thermodynamic property
+    //! parameterization for one species.  
     /*!
      *
      * @param name      Name of the species
@@ -209,7 +238,7 @@ namespace Cantera {
      * supplied, then the value returned is the maximum
      * temperature for parameterization k.
      *
-     * @param k index for parameterization k
+     * @param k  Species Index
      */
     virtual doublereal maxTemp(int k=-1) const =0;
     
@@ -224,7 +253,7 @@ namespace Cantera {
      * as those for ideal gases, require that all species
      * in the same phase have the same reference state pressures.
      *
-     * @param k index for parameterization k
+     * @param k Species Index
      */
     virtual doublereal refPressure(int k=-1) const =0;
 
@@ -262,7 +291,7 @@ namespace Cantera {
      * @param c     Vector of coefficients used to set the
      *              parameters for the standard state.
      */
-    virtual void modifyParams(int index, doublereal *c) {}
+    virtual void modifyParams(int index, doublereal *c) = 0;
 
   };
   //@}

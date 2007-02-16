@@ -188,6 +188,19 @@ namespace Cantera {
 	}
     }
 
+  //! Modify parameters for the standard state
+  /*!
+   * @param index Species index
+   * @param c     Vector of coefficients used to set the
+   *              parameters for the standard state.
+   */
+  void GeneralSpeciesThermo::
+  modifyParams(int index, doublereal *c) {
+    SpeciesThermoInterpType *sp = m_sp[index];
+    sp->modifyParameters(c);
+  }
+
+
     /**
      * Return the lowest temperature at which the thermodynamic
      * parameterization is valid.  If no argument is supplied, the

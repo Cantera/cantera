@@ -265,7 +265,7 @@ namespace Cantera {
      * supplied, then the value returned is the maximum
      * temperature for parameterization k.
      *
-     * @param k index for parameterization k
+     * @param k Species index
      */
     virtual doublereal maxTemp(int k=-1) const {
       if (k < 0)
@@ -285,7 +285,7 @@ namespace Cantera {
      * as those for ideal gases, require that all species
      * in the same phase have the same reference state pressures.
      *
-     * @param k index for parameterization k
+     * @param k Species index
      */
     virtual doublereal refPressure(int k = -1) const {
       return m_p0;
@@ -417,12 +417,12 @@ namespace Cantera {
      */
     vector_fp                          m_tmid;
 
-    //! Maximum value of the low temperature limit
- 
+    //! Maximum value of the low temperature limit 
     doublereal                         m_tlow_max;
 
     //! Minimum value of the high temperature limit
     doublereal                         m_thigh_min;
+
     //! Vector of low temperature limits (species index)
     /*!
      * Length is equal to number of species

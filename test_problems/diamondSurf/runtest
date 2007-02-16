@@ -4,6 +4,7 @@
 
 temp_success="1"
 /bin/rm  -f output.txt outputa.txt 
+tname="diamondSurf"
 
 #################################################################
 #
@@ -16,7 +17,7 @@ retnStat=$?
 if [ $retnStat != "0" ]
 then
   temp_success="0"
-  echo "runDiamond returned with bad status, $retnStat, check output"
+  echo "runDiamond ($tname test) returned with bad status, $retnStat, check output"
 fi
 
 ../../bin/exp3to2.sh output.txt > outputa.txt
@@ -24,9 +25,9 @@ diff -w outputa.txt runDiamond_blessed.out > diff_test.out
 retnStat=$?
 if [ $retnStat = "0" ]
 then
-  echo "successful diff comparison on diamond test"
+  echo "successful diff comparison on $tname test"
 else
-  echo "unsuccessful diff comparison on diamond test"
+  echo "unsuccessful diff comparison on $tname test"
   echo "FAILED" > csvCode.txt
   temp_success="0"
 fi
@@ -36,9 +37,9 @@ diff -w diamonda.xml diamond_blessed.xml > xml_diff_test.out
 retnStat=$?
 if [ $retnStat = "0" ]
 then
-  echo "successful diff comparison on diamond.xml test"
+  echo "successful diff comparison on $tname diamond.xml test"
 else
-  echo "unsuccessful diff comparison on diamond.xml test"
+  echo "unsuccessful diff comparison on $thame diamond.xml test"
   echo "FAILED" > csvCode.txt
   temp_success="0"
 fi

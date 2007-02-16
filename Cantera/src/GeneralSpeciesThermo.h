@@ -91,7 +91,14 @@ namespace Cantera {
 				  doublereal &maxTemp,
 				  doublereal &refPressure) const;
 
- protected:
+      //! Modify parameters for the standard state
+      /*!
+       * @param index Species index
+       * @param c     Vector of coefficients used to set the
+       *              parameters for the standard state.
+       */
+      virtual void modifyParams(int index, doublereal *c);
+    protected:
 
 	/**
 	 * This is the main unknown in the object. It is 
