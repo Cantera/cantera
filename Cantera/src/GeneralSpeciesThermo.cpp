@@ -69,7 +69,7 @@ namespace Cantera {
     }
 
     
-    /**
+    /*
      * Install parameterization for a species.
      * @param index    Species index
      * @param type     parameterization type

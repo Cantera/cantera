@@ -76,13 +76,8 @@ namespace Cantera {
      * computed property values should be written. This method updates only one value in
      * each array.
      *
-     * Temperature Polynomial:
-     *  tt[0] = t;
-     *  tt[1] = t*t;
-     *  tt[2] = m_t[1]*t;
-     *  tt[3] = m_t[2]*t;
-     *  tt[4] = 1.0/t;
-     *  tt[5] = std::log(t);
+     * The form and length of the Temperature Polynomial may vary depending on the
+     * parameterization.
      *
      * @param tempPoly  vector of temperature polynomials
      * @param cp_R    Vector of Dimensionless heat capacities.
