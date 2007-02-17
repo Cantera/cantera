@@ -37,4 +37,3 @@ int main() {
         if (cin.eof()) break;
     }
 }
-

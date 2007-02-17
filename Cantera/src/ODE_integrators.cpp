@@ -1,6 +1,10 @@
 #include "ct_defs.h"
 #include "Integrator.h"
 
+#ifdef NO_SUNDIALS
+#undef HAS_SUNDIALS
+#endif
+
 #ifdef HAS_SUNDIALS
 #include "CVodesIntegrator.cpp"
 #else
