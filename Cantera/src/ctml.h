@@ -105,8 +105,8 @@ namespace ctml {
     std::string getString(const Cantera::XML_Node& parent, std::string name);
 
     // these are defined in ct2ctml.cpp
-    void get_CTML_Tree(Cantera::XML_Node* node, std::string file);
-    void ct2ctml(const char* file);
+    void get_CTML_Tree(Cantera::XML_Node* node, std::string file, int debug = 0);
+    void ct2ctml(const char* file, int debug = 0);
 }
 
 #endif
