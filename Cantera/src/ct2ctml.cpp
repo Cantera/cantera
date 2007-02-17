@@ -46,7 +46,7 @@ namespace ctml {
     }
 
 
-    void ct2ctml(const char* file) {
+    void ct2ctml(const char* file, int debug) {
 
 #ifdef HAS_NO_PYTHON
        /*
@@ -76,21 +76,29 @@ namespace ctml {
           << "execfile(file)\n"
           << "write()\n";
         f.close();
+        string logfile = tmpDir()+"/ct2ctml.log";
 #ifdef WIN32
-        string cmd = pypath() + " " + "\"" + path + "\"" + "> ct2ctml.log 2>&1";
+        string cmd = pypath() + " " + "\"" + path + "\"" + "> " + logfile + " 2>&1";
 #else
         string cmd = "sleep " + sleep() + "; " + "\"" + pypath() + "\"" + 
-                     " " + "\"" + path + "\"" + " &> ct2ctml.log";
+                     " " + "\"" + path + "\"" + " &> " + logfile;
 #endif
 #ifdef DEBUG_PATHS
         writelog("ct2ctml: executing the command " + cmd + "\n");
 #endif
+        if (debug > 0) {
+            writelog("ct2ctml: executing the command " + cmd + "\n");
+            writelog("ct2ctml: the Python command is: " + pypath() + "\n");
+        }
+
         int ierr = 0;
         try {
             ierr = system(cmd.c_str());
         }
         catch (...) {
             ierr = -10;
+            if (debug > 0)
+                writelog("ct2ctml: command execution failed.\n");
         }
 
         /*
@@ -110,17 +118,20 @@ namespace ctml {
          *        It probably has to do with NFS syncing problems.
          *        3/3/06
          */
+#ifndef WIN32
         string sss = sleep();
 #ifdef DEBUG_PATHS
         writelog("sleeping for " + sss + " secs+\n");
 #endif
-#ifndef WIN32
+        if (debug > 0)
+            writelog("sleeping for " + sss + " secs+\n");            
         cmd = "sleep " + sss;
         try {
             ierr = system(cmd.c_str());
         }
         catch (...) {
             ierr = -10;
+            writelog("ct2ctml: command execution failed.\n");
         }
 #endif
         // show the contents of the log file on the screen
@@ -139,6 +150,10 @@ namespace ctml {
                 }
                 ferr.close();
             }
+            else {
+                if (debug > 0)
+                    writelog("cannot open ct2ctml.log for reading.\n");
+            }
         }
         catch (...) {
             ; 
@@ -153,17 +168,23 @@ namespace ctml {
         // if the conversion succeeded and DEBUG_PATHS is not defined,
         // then clean up by deleting the temporary Python file.
 #ifndef DEBUG_PATHS
-#ifdef WIN32
+        //#ifdef WIN32
         //cmd = "cmd /C rm " + path;
-        remove(path.c_str()) ;
-#else
-        cmd = "rm -f \"" + path + "\"";
-        try {
-            if (ierr == 0) 
-                system(cmd.c_str());
+        if (debug == 0)
+            remove(path.c_str());
+        else {
+            writelog("ct2ctml: retaining temporary file "+path+"\n");
         }
-        catch (...) { ; }
-#endif
+#else
+        writelog("ct2ctml: retaining temporary file "+path+"\n");
+        //#else
+            //cmd = "rm -f \"" + path + "\"";
+        //try {
+        //    if (ierr == 0) 
+        //        system(cmd.c_str());
+        //}
+        //catch (...) { ; }
+        //#endif
 #endif
     }
 
@@ -172,7 +193,7 @@ namespace ctml {
      * Get an CTML tree from a file, possibly preprocessing the file
      * first. 
      */
-    void get_CTML_Tree(XML_Node* rootPtr, string file) {
+    void get_CTML_Tree(XML_Node* rootPtr, string file, int debug) {
         string ff, ext = "";
 
         // find the input file on the Cantera search path
@@ -180,6 +201,9 @@ namespace ctml {
 #ifdef DEBUG_PATHS
         writelog("Found file: "+inname+"\n");
 #endif
+        if (debug > 0)
+            writelog("Found file: "+inname+"\n");
+
         if (inname == "") 
             throw CanteraError("get_CTML_tree", "file "+file+" not found");
 
@@ -192,15 +216,17 @@ namespace ctml {
 	  ext = inname.substr(idot, inname.size());
 	}
         if (ext != ".xml" && ext != ".ctml") {
-	  ct2ctml(inname.c_str());
-	  ff = inname.substr(0,idot) + ".xml";
+            ct2ctml(inname.c_str(), debug);
+            ff = inname.substr(0,idot) + ".xml";
         }
         else {
-	  ff = inname;
+            ff = inname;
 	}
 #ifdef DEBUG_PATHS
         writelog("Attempting to parse xml file " + ff + "\n");
 #endif
+        if (debug > 0)
+            writelog("Attempting to parse xml file " + ff + "\n");
         ifstream fin(ff.c_str());
         if (!fin) {
           throw 

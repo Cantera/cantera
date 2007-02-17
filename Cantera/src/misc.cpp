@@ -190,7 +190,7 @@ namespace Cantera {
     }
 
 
-    XML_Node* get_XML_File(std::string file) {
+    XML_Node* get_XML_File(std::string file, int debug) {
         string path = "";
         /*
         try {
@@ -274,7 +274,7 @@ namespace Cantera {
                  * Ok, we didn't find the processed XML tree. Do the conversion
                  * to xml, possibly overwriting the file, ff, in the process.
                  */
-                ctml::ct2ctml(path.c_str());
+                ctml::ct2ctml(path.c_str(),debug);
             }
             else {
                 ff = path;
