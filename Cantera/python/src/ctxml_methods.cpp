@@ -14,9 +14,10 @@ static PyObject*
 py_xml_get_XML_File(PyObject *self, PyObject *args)
 {
     char* file;
-    if (!PyArg_ParseTuple(args, "s:xml_get_XML_File", &file))
+    int debug;
+    if (!PyArg_ParseTuple(args, "si:xml_get_XML_File", &file, &debug))
         return NULL;
-    int n = xml_get_XML_File(file);
+    int n = xml_get_XML_File(file, debug);
     if (n < 0) return reportError(n);
     PyObject* pn = Py_BuildValue("i",n);
     return pn;

@@ -10,7 +10,7 @@ import exceptions
     
 class XML_Node:
     """A node in an XML tree."""
-    def __init__(self, name="--", src="", wrap=0, root=None, preprocess=0):
+    def __init__(self, name="--", src="", wrap=0, root=None, preprocess=0, debug=0):
         """
         Return an instance representing a node in an XML tree.
         
@@ -32,7 +32,7 @@ class XML_Node:
         # create an XML tree by parsing a file, and possibly
         # preprocessing it first
         elif src:
-            self._xml_id = _cantera.xml_get_XML_File(src)
+            self._xml_id = _cantera.xml_get_XML_File(src, debug)
             self.wrap = 1  # disable deleting
             
         # create a new empty node

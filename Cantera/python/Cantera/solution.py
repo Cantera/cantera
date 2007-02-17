@@ -26,7 +26,7 @@ class Solution(ThermoPhase, Kinetics, Transport):
 
     """
 
-    def __init__(self, src="", id="", loglevel = 0):
+    def __init__(self, src="", id="", loglevel = 0, debug = 0):
 
         self.ckin = 0
         self._owner = 0
@@ -35,7 +35,8 @@ class Solution(ThermoPhase, Kinetics, Transport):
         ff = os.path.splitext(fname)
 
         if src:
-            root = XML.XML_Node(name = 'doc', src = src, preprocess = 1)
+            root = XML.XML_Node(name = 'doc', src = src,
+                                preprocess = 1, debug = debug)
 
         if id:
             s = root.child(id = id)

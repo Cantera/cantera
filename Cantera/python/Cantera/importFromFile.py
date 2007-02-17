@@ -10,21 +10,21 @@ import XML
 
 __revision__ = "$Id$"
 
-def importPhase(file, name = '', loglevel = 0):
+def importPhase(file, name = '', loglevel = 0, debug = 0):
     """Import one phase from an input  file.  If 'name' is specified, the
     phase definition with this name will be imported, otherwise the first
     phase definition in the file will be imported. If 'loglevel' is set to
     a positive integer, additional information will be printed or written
     to log files about the details of the object constructed.
     """
-    return importPhases(file, [name], loglevel)[0]
+    return importPhases(file, [name], loglevel, debug)[0]
 
-def importPhases(file, names = [], loglevel = 0):
+def importPhases(file, names = [], loglevel = 0, debug = 0):
     """Import multiple phases from one file. The phase names should be
     entered as a list of strings. See: importPhase """
     s = []
     for nm in names:
-        s.append(solution.Solution(src=file,id=nm,loglevel=loglevel))
+        s.append(solution.Solution(src=file,id=nm,loglevel=loglevel,debug=debug))
     return s
 
 def importInterface(file, name = '', phases = []):

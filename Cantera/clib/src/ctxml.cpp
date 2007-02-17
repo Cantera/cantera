@@ -36,9 +36,9 @@ extern "C" {
         return Cabinet<XML_Node>::cabinet(true)->add(x);
     }
 
-    int DLL_EXPORT xml_get_XML_File(const char* file) {
+    int DLL_EXPORT xml_get_XML_File(const char* file, int debug) {
         try {
-            XML_Node* x = get_XML_File(string(file));
+            XML_Node* x = get_XML_File(string(file), debug);
             return Cabinet<XML_Node>::cabinet(false)->add(x);
         }
         catch (CanteraError) { return -1; }
@@ -87,9 +87,9 @@ extern "C" {
         catch (CanteraError) { return -1; }
     }
 
-    int DLL_EXPORT xml_preprocess_and_build(int i, const char* file) {
+    int DLL_EXPORT xml_preprocess_and_build(int i, const char* file, int debug) {
         try {
-            get_CTML_Tree(_xml(i), string(file));
+            get_CTML_Tree(_xml(i), string(file), debug);
             return 0;
         }
         catch (CanteraError) { return -1; }

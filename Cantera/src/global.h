@@ -319,7 +319,7 @@ namespace Cantera {
   /*!
    * @param file String containing the relative or absolute file name
    */
-  XML_Node* get_XML_File(std::string file);
+    XML_Node* get_XML_File(std::string file, int debug = 0);
   
   /// Close a Cantera input file.
   /*!
