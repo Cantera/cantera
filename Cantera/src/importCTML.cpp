@@ -51,7 +51,7 @@ public:
   //! string name
   std::vector<std::string> eqn;
   //! string vector of ints
-  std::vector<int> dup,;
+  std::vector<int> dup;
   //! string vector of ints
   std::vector<int>  nr;
   //! string vector of ints

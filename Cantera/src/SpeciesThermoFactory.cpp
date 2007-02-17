@@ -9,9 +9,10 @@
 #pragma warning(disable:4786)
 #endif
 
-using namespace std;
+
 
 #include "SpeciesThermoFactory.h"
+using namespace std;
 
 #include "SpeciesThermo.h"
 #include "NasaThermo.h"
@@ -27,6 +28,7 @@ using namespace std;
 #include "ctml.h"
 
 using namespace ctml;
+
 
 namespace Cantera {
 

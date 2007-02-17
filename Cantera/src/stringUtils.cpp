@@ -9,6 +9,9 @@
 #ifdef WIN32
 #pragma warning(disable:4786)
 #pragma warning(disable:4503)
+#define SNPRINTF _snprintf
+#else
+#define SNPRINTF snprintf
 #endif
 
 #include "ct_defs.h"
@@ -24,8 +27,8 @@ namespace Cantera {
      * Convert a floating point number to a std::string using sprintf.
      */
     std::string fp2str(double x, std::string fmt) {
-        char buf[30];
-        int n = snprintf(buf, 30, fmt.c_str(), x);
+	    char buf[30];
+        int n = SNPRINTF(buf, 30, fmt.c_str(), x);
 	if (n > 0) {
 	  buf[29] = '\0';
 	  return std::string(buf);
@@ -34,7 +37,7 @@ namespace Cantera {
     }
     std::string fp2str(double x) {
         char buf[30];
-        int n = snprintf(buf, 30, "%g" , x);
+        int n = SNPRINTF(buf, 30, "%g" , x);
 	if (n > 0) {
 	  buf[29] = '\0';
 	  return std::string(buf);
@@ -47,8 +50,8 @@ namespace Cantera {
      */
     std::string int2str(int n, std::string fmt) {
         char buf[30];
-	int m = snprintf(buf, 30, fmt.c_str(), n);
-        sprintf(buf, fmt.c_str(), n);
+	int m = SNPRINTF(buf, 30, fmt.c_str(), n);
+        //sprintf(buf, fmt.c_str(), n);
 	if (m > 0) {
 	  buf[29] = '\0';
 	  return std::string(buf);
@@ -59,7 +62,7 @@ namespace Cantera {
   
     std::string int2str(int n) {
       char buf[30];
-      int m = snprintf(buf, 30, "%d", n);
+      int m = SNPRINTF(buf, 30, "%d", n);
       if (m > 0) {
 	buf[29] = '\0';
 	return std::string(buf);
