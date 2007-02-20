@@ -318,6 +318,7 @@ namespace Cantera {
   /// Return a pointer to the XML tree for a Cantera input file. 
   /*!
    * @param file String containing the relative or absolute file name
+   * @param debug Debug flag
    */
     XML_Node* get_XML_File(std::string file, int debug = 0);
   

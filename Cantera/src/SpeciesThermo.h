@@ -127,17 +127,16 @@ namespace Cantera {
 
   //////////////////////// class SpeciesThermo ////////////////////
 
+  
+  //! Pure Virtual base class for the species thermo manager classes.
   /*!
-   * Pure Virtual base class for the species thermo manager classes. This
-   * class defines the interface which all subclasses must
-   * implement. 
+   *  This class defines the interface which all subclasses must implement. 
    *
-   * Class SpeciesThermo is the base class
+   * Class %SpeciesThermo is the base class
    * for a family of classes that compute properties of a set of 
    * species in their reference state at a range of temperatures.
    * Note, the pressure dependence of the reference state is not
    * handled by this particular species standard state model.
-   *
    */
   class SpeciesThermo {
     

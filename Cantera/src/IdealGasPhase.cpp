@@ -18,162 +18,226 @@
 using namespace std;
 
 namespace Cantera {
+  // Empty Constructor
+  IdealGasPhase::IdealGasPhase():
+    m_mm(0),
+    m_tmin(0.0),
+    m_tmax(0.0),
+    m_p0(-1.0),
+    m_tlast(0.0),
+    m_logc0(0.0)
+  {
+  }
 
-    // Molar Thermodynamic Properties of the Solution ----------
-    // Mechanical Equation of State ----------------------------
-    // Chemical Potentials and Activities ----------------------
+  // Molar Thermodynamic Properties of the Solution ----------
+  // Mechanical Equation of State ----------------------------
+  // Chemical Potentials and Activities ----------------------
 
-    /** 
-     * Get the array of non-dimensional activity coefficients 
-     */
-    void IdealGasPhase::getActivityCoefficients(doublereal *ac) const {
-	for (int k = 0; k < m_kk; k++) {
-	  ac[k] = 1.0;
-	}
+  /*
+   *  Returns the standard concentration \f$ C^0_k \f$, which is used to normalize
+   * the generalized concentration.
+   */
+  doublereal IdealGasPhase::standardConcentration(int k) const {
+    double p = pressure();
+    return p/(GasConstant * temperature());
+  }
+
+  /*
+   * Returns the natural logarithm of the standard 
+   * concentration of the kth species
+   */
+  doublereal IdealGasPhase::logStandardConc(int k) const {
+    _updateThermo();
+    double p = pressure();
+    double lc = std::log (p / (GasConstant * temperature()));
+    return lc;
+  }
+
+  /* 
+   * Get the array of non-dimensional activity coefficients 
+   */
+  void IdealGasPhase::getActivityCoefficients(doublereal *ac) const {
+    for (int k = 0; k < m_kk; k++) {
+      ac[k] = 1.0;
     }
+  }
 
-    /** 
-     * Get the array of chemical potentials at unit activity \f$
-     * \mu^0_k(T,P) \f$.
-     */
-    void IdealGasPhase::getStandardChemPotentials(doublereal* muStar) const {
-	const array_fp& gibbsrt = gibbs_RT_ref();
-	scale(gibbsrt.begin(), gibbsrt.end(), muStar, _RT());
-	double tmp = log (pressure() /m_spthermo->refPressure());
-	tmp *=  GasConstant * temperature();
-	for (int k = 0; k < m_kk; k++) {
-            muStar[k] += tmp;  // add RT*ln(P/P_0)
-	}
+  /*
+   * Get the array of chemical potentials at unit activity \f$
+   * \mu^0_k(T,P) \f$.
+   */
+  void IdealGasPhase::getStandardChemPotentials(doublereal* muStar) const {
+    const array_fp& gibbsrt = gibbs_RT_ref();
+    scale(gibbsrt.begin(), gibbsrt.end(), muStar, _RT());
+    double tmp = log (pressure() /m_spthermo->refPressure());
+    tmp *=  GasConstant * temperature();
+    for (int k = 0; k < m_kk; k++) {
+      muStar[k] += tmp;  // add RT*ln(P/P_0)
     }
+  }
 
-    //  Partial Molar Properties of the Solution --------------
+  //  Partial Molar Properties of the Solution --------------
 
-    void IdealGasPhase::getChemPotentials(doublereal* mu) const {
-        getStandardChemPotentials(mu);
-        //doublereal logp = log(pressure()/m_spthermo->refPressure());
-        doublereal xx;
-        doublereal rt = temperature() * GasConstant;
-        //const array_fp& g_RT = gibbs_RT_ref();
-        for (int k = 0; k < m_kk; k++) {
-            xx = fmaxx(SmallNumber, moleFraction(k));
-            mu[k] += rt*(log(xx));
-        }
+  void IdealGasPhase::getChemPotentials(doublereal* mu) const {
+    getStandardChemPotentials(mu);
+    //doublereal logp = log(pressure()/m_spthermo->refPressure());
+    doublereal xx;
+    doublereal rt = temperature() * GasConstant;
+    //const array_fp& g_RT = gibbs_RT_ref();
+    for (int k = 0; k < m_kk; k++) {
+      xx = fmaxx(SmallNumber, moleFraction(k));
+      mu[k] += rt*(log(xx));
     }
+  }
+  
+  /*
+   * Get the array of partial molar enthalpies of the species 
+   * units = J / kmol
+   */
+  void IdealGasPhase::getPartialMolarEnthalpies(doublereal* hbar) const {
+    const array_fp& _h = enthalpy_RT_ref();
+    doublereal rt = GasConstant * temperature();
+    scale(_h.begin(), _h.end(), hbar, rt);
+  }
 
-    /**
-     * Get the array of partial molar enthalpies of the species 
-     * units = J / kmol
-     */
-    void IdealGasPhase::getPartialMolarEnthalpies(doublereal* hbar) const {
-	const array_fp& _h = enthalpy_RT_ref();
-	doublereal rt = GasConstant * temperature();
-	scale(_h.begin(), _h.end(), hbar, rt);
+  /*
+   * Get the array of partial molar entropies of the species 
+   * units = J / kmol / K
+   */
+  void IdealGasPhase::getPartialMolarEntropies(doublereal* sbar) const {
+    const array_fp& _s = entropy_R_ref();
+    doublereal r = GasConstant;
+    scale(_s.begin(), _s.end(), sbar, r);
+    doublereal logp = log(pressure()/m_spthermo->refPressure());
+    for (int k = 0; k < m_kk; k++) {
+      doublereal xx = fmaxx(SmallNumber, moleFraction(k));
+      sbar[k] += r * (- logp - log(xx));
     }
+  }
 
-    /**
-     * Get the array of partial molar entropies of the species 
-     * units = J / kmol / K
-     */
-    void IdealGasPhase::getPartialMolarEntropies(doublereal* sbar) const {
-	const array_fp& _s = entropy_R_ref();
-	doublereal r = GasConstant;
-	scale(_s.begin(), _s.end(), sbar, r);
-        doublereal logp = log(pressure()/m_spthermo->refPressure());
-	for (int k = 0; k < m_kk; k++) {
-	  doublereal xx = fmaxx(SmallNumber, moleFraction(k));
-	  sbar[k] += r * (- logp - log(xx));
-        }
+  /*
+   * Get the array of partial molar internal energies of the species 
+   * units = J / kmol
+   */
+  void IdealGasPhase::getPartialMolarIntEnergies(doublereal* ubar) const {
+    const array_fp& _h = enthalpy_RT_ref();
+    doublereal rt = GasConstant * temperature();
+    for (int k = 0; k < m_kk; k++) {
+      ubar[k] =  rt * (_h[k] - 1.0);
     }
+  }
 
-    /**
-     * Get the array of partial molar volumes
-     * units = m^3 / kmol
-     */
-    void IdealGasPhase::getPartialMolarVolumes(doublereal* vbar) const {
-	double vol = 1.0 / molarDensity();
-	for (int k = 0; k < m_kk; k++) {
-	  vbar[k] = vol;
-	}
+  /*
+   * Get the array of partial molar heat capacities
+   */
+  void IdealGasPhase::getPartialMolarCp(doublereal* cpbar) const {
+    const array_fp& _cp = cp_R_ref();
+    scale(_cp.begin(), _cp.end(), cpbar, GasConstant);
+  }
+
+  /*
+   * Get the array of partial molar volumes
+   * units = m^3 / kmol
+   */
+  void IdealGasPhase::getPartialMolarVolumes(doublereal* vbar) const {
+    double vol = 1.0 / molarDensity();
+    for (int k = 0; k < m_kk; k++) {
+      vbar[k] = vol;
     }
+  }
 
-    // Properties of the Standard State of the Species in the Solution --
+  // Properties of the Standard State of the Species in the Solution --
 
-    /**
-     * Get the nondimensional Enthalpy functions for the species
-     * at their standard states at the current T and P of the
-     * solution
-     */
-    void IdealGasPhase::getEnthalpy_RT(doublereal* hrt) const {
-	const array_fp& _h = enthalpy_RT_ref();
-	copy(_h.begin(), _h.end(), hrt);
+  /*
+   * Get the nondimensional Enthalpy functions for the species
+   * at their standard states at the current T and P of the
+   * solution
+   */
+  void IdealGasPhase::getEnthalpy_RT(doublereal* hrt) const {
+    const array_fp& _h = enthalpy_RT_ref();
+    copy(_h.begin(), _h.end(), hrt);
+  }
+
+  /*
+   * Get the array of nondimensional entropy functions for the 
+   * standard state species
+   * at the current <I>T</I> and <I>P</I> of the solution.
+   */
+  void IdealGasPhase::getEntropy_R(doublereal* sr) const {
+    const array_fp& _s = entropy_R_ref();
+    copy(_s.begin(), _s.end(), sr);
+    double tmp = log (pressure() /m_spthermo->refPressure());
+    for (int k = 0; k < m_kk; k++) {
+      sr[k] -= tmp;
     }
+  }
 
-    /**
-     * Get the array of nondimensional entropy functions for the 
-     * standard state species
-     * at the current <I>T</I> and <I>P</I> of the solution.
-     */
-    void IdealGasPhase::getEntropy_R(doublereal* sr) const {
-	const array_fp& _s = entropy_R_ref();
-	copy(_s.begin(), _s.end(), sr);
-	double tmp = log (pressure() /m_spthermo->refPressure());
-	for (int k = 0; k < m_kk; k++) {
-	  sr[k] -= tmp;
-	}
+  /*
+   * Get the nondimensional gibbs function for the species
+   * standard states at the current T and P of the solution.
+   */
+  void IdealGasPhase::getGibbs_RT(doublereal* grt) const {
+    const array_fp& gibbsrt = gibbs_RT_ref();
+    copy(gibbsrt.begin(), gibbsrt.end(), grt);
+    double tmp = log (pressure() /m_spthermo->refPressure());
+    for (int k = 0; k < m_kk; k++) {
+      grt[k] += tmp;
     }
+  }
 
-    /**
-     * Get the nondimensional gibbs function for the species
-     * standard states at the current T and P of the solution.
-     */
-    void IdealGasPhase::getGibbs_RT(doublereal* grt) const {
-	const array_fp& gibbsrt = gibbs_RT_ref();
-	copy(gibbsrt.begin(), gibbsrt.end(), grt);
-	double tmp = log (pressure() /m_spthermo->refPressure());
-	for (int k = 0; k < m_kk; k++) {
-	  grt[k] += tmp;
-	}
+  /*
+   * get the pure Gibbs free energies of each species assuming
+   * it is in its standard state. This is the same as 
+   * getStandardChemPotentials().
+   */
+  void IdealGasPhase::getPureGibbs(doublereal* gpure) const {
+    const array_fp& gibbsrt = gibbs_RT_ref();
+    scale(gibbsrt.begin(), gibbsrt.end(), gpure, _RT());
+    double tmp = log (pressure() /m_spthermo->refPressure());
+    tmp *= _RT();
+    for (int k = 0; k < m_kk; k++) {
+      gpure[k] += tmp;
     }
+  }
 
-    /**
-     * get the pure Gibbs free energies of each species assuming
-     * it is in its standard state. This is the same as 
-     * getStandardChemPotentials().
-     */
-    void IdealGasPhase::getPureGibbs(doublereal* gpure) const {
-	const array_fp& gibbsrt = gibbs_RT_ref();
-	scale(gibbsrt.begin(), gibbsrt.end(), gpure, _RT());
-	double tmp = log (pressure() /m_spthermo->refPressure());
-	tmp *= _RT();
-	for (int k = 0; k < m_kk; k++) {
-	  gpure[k] += tmp;
-	}
+  /*
+   *  Returns the vector of nondimensional
+   *  internal Energies of the standard state at the current temperature
+   *  and pressure of the solution for each species.
+   */
+  void IdealGasPhase::getIntEnergy_RT(doublereal *urt) const {
+    const array_fp& _h = enthalpy_RT_ref();
+    for (int k = 0; k < m_kk; k++) {
+      urt[k] = _h[k] - 1.0;
     }
-
-    /**
-     *  Returns the vector of nondimensional
-     *  internal Energies of the standard state at the current temperature
-     *  and pressure of the solution for each species.
-     */
-    void IdealGasPhase::getIntEnergy_RT(doublereal *urt) const {
-	const array_fp& _h = enthalpy_RT_ref();
-	for (int k = 0; k < m_kk; k++) {
-	  urt[k] = _h[k] - 1.0;
-	}
-    }
+  }
     
-    /**
-     * Get the nondimensional heat capacity at constant pressure
-     * function for the species
-     * standard states at the current T and P of the solution.
-     */
-    void IdealGasPhase::getCp_R(doublereal* cpr) const {
-	const array_fp& _cpr = cp_R_ref();
-	copy(_cpr.begin(), _cpr.end(), cpr);
+  /*
+   * Get the nondimensional heat capacity at constant pressure
+   * function for the species
+   * standard states at the current T and P of the solution.
+   */
+  void IdealGasPhase::getCp_R(doublereal* cpr) const {
+    const array_fp& _cpr = cp_R_ref();
+    copy(_cpr.begin(), _cpr.end(), cpr);
+  }
+
+  /*
+   *  Get the molar volumes of the species standard states at the current
+   *  <I>T</I> and <I>P</I> of the solution.
+   *  units = m^3 / kmol
+   *
+   * @param vol     Output vector containing the standard state volumes.
+   *                Length: m_kk.
+   */
+   void IdealGasPhase::getStandardVolumes(doublereal *vol) const {
+    doublereal tmp = _RT() / pressure();
+    for (int k = 0; k < m_kk; k++) {
+      vol[k] = tmp;
     }
+  }
 
-
-    // Thermodynamic Values for the Species Reference States ---------
+  // Thermodynamic Values for the Species Reference States ---------
 
     /**
      *  Returns the vector of nondimensional
@@ -243,7 +307,7 @@ namespace Cantera {
 
 
     void IdealGasPhase::initThermo() {
-        m_kk = nSpecies();
+ 
         m_mm = nElements();
         doublereal tmin = m_spthermo->minTemp();
         doublereal tmax = m_spthermo->maxTemp();
@@ -261,11 +325,11 @@ namespace Cantera {
         m_pp.resize(leng);
     }
 
-    /** 
-     * Set mixture to an equilibrium state consistent with specified
-     * chemical potentials and temperature. This method is needed by
-     * the ChemEquil equillibrium solver.
-     */
+  /* 
+   * Set mixture to an equilibrium state consistent with specified
+   * chemical potentials and temperature. This method is needed by
+   * the ChemEquil equillibrium solver.
+   */
   void IdealGasPhase::setToEquilState(const doublereal* mu_RT) 
   {
     double tmp, tmp2;

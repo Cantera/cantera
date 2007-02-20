@@ -96,8 +96,8 @@ namespace Cantera {
 
   ///////////////////////  Exceptions //////////////////////////////
 
+  //! Exception thrown if species reference pressures don't match.
   /*!
-   * Exception thrown if species reference pressures don't match.
    * @ingroup spthermo
    */
   class RefPressureMismatch : public CanteraError {
@@ -117,8 +117,8 @@ namespace Cantera {
     virtual ~RefPressureMismatch() {}
   };
 
+  //! Unknown species thermo manager string error
   /*!
-   * Unknown species thermo manager string error
    * @ingroup spthermo
    */
   class UnknownSpeciesThermo : public CanteraError {

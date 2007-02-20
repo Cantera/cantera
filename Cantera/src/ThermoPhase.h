@@ -34,19 +34,37 @@ namespace Cantera {
   class XML_Node;
 
 
-    /**
-     * @defgroup thermoprops Thermodynamic Properties
-     *
-     * These classes are used to compute thermodynamic properties of
-     * phases of matter.
-     *
-     * @see newPhase(std::string file, std::string id) Description for how to read ThermoPhases from XML files.
-     * @see newPhase(XML_Node &phase) How to call the Factory routine to create and initialize ThermoPhase objects.
-     */
+  /**
+   * @defgroup thermoprops Thermodynamic Properties
+   *
+   * These classes are used to compute the thermodynamic properties of
+   * phases of matter. The main base class for describing thermodynamic 
+   * properties of phases within %Cantera is called ThermoPhase. %ThermoPhase
+   * is a large class that describes the interface within Cantera to Thermodynamic
+   * functions for a phase. 
+   *
+   * Mechanical properties
+   *
+   * Standard state properties
+   *
+   * Instantiation of ThermoPhase properties occurs via the following path.
+   *
+   * The following Objects inherit from ThermoPhase. These are known to the
+   * internal factory methods
+   *
+   *
+   * The following additional objects inherit from ThermoPhase. Most of these
+   * are associated with an electrochemistry capability that is under construction.
+   *
+   *
+   *
+   * @see newPhase(std::string file, std::string id) Description for how to read ThermoPhases from XML files.
+   * @see newPhase(XML_Node &phase) How to call the Factory routine to create and initialize ThermoPhase objects.
+   */
 
     /**
      * A phase with thermodynamic properties.  
-     * Class ThermoPhase is the base class for the family of classes
+     * Class %ThermoPhase is the base class for the family of classes
      * that represent phases of matter of any type. It defines a
      * common public interface, and implements a few methods. Most of
      * the methods, however, are declared virtual and are meant to be
@@ -55,7 +73,7 @@ namespace Cantera {
      * through pointers of type ThermoPhase* that point to objects of
      * subclasses of ThermoPhase.
      * 
-     * Class ThermoPhase
+     * Class %ThermoPhase
      * extends class Phase by adding methods to compute thermodynamic
      * properties in addition to the ones (temperature, density,
      * composition) that class Phase provides. The distinction is that
@@ -64,7 +82,7 @@ namespace Cantera {
      * those of class Phase do not, since they only involve data values
      * stored within the object.
      *
-     * Instances of subclasses of ThermoPhase should be created using
+     * Instances of subclasses of %ThermoPhase should be created using
      * the factory class ThermoFactory, not by calling the constructor
      * directly. This allows new classes to be used with the various
      * Cantera language interfaces.
@@ -74,6 +92,7 @@ namespace Cantera {
      * ThermoPhase. Methods that are not needed can be left
      * unimplimented, which will cause an exception to be thrown if it
      * is called.
+     *
      * @ingroup thermoprops
      * @ingroup phases
      */
@@ -93,13 +112,13 @@ namespace Cantera {
             delete m_spthermo;
         }
 
-	/**
-	 * Copy Constructor for the thermophase object. 
-	 *
-	 * Currently, this is not fully implemented. If called it will
-	 * throw an exception.
-	 */
-	ThermoPhase(const ThermoPhase &);
+      /**
+       * Copy Constructor for the %ThermoPhase object. 
+       *
+       * Currently, this is not fully implemented. If called it will
+       * throw an exception.
+       */
+      ThermoPhase(const ThermoPhase &);
 
 	
       //! Assignment operator
@@ -194,10 +213,10 @@ namespace Cantera {
             return err("intEnergy_mole");
         }
 
-        /// Molar entropy. Units: J/kmol/K. 
-        virtual doublereal entropy_mole() const {
-            return err("entropy_mole");
-        }
+      /// Molar entropy. Units: J/kmol/K. 
+      virtual doublereal entropy_mole() const {
+	return err("entropy_mole");
+      }
 
         /// Molar Gibbs function. Units: J/kmol. 
         virtual doublereal gibbs_mole() const {
@@ -234,7 +253,8 @@ namespace Cantera {
         }
 
 
-      //! Set the internally storred pressure (Pa)
+      //! Set the internally storred pressure (Pa) at constant
+      //! temperature and composition
       /*!
        *   This method must be reimplemented in derived classes, where it
        *   may involve the solution of a nonlinear equation. Within %Cantera,
@@ -250,22 +270,20 @@ namespace Cantera {
 	err("setPressure");
       }
       
-      /**
-       * The isothermal compressibility. Units: 1/Pa.
+      //! Returns  the isothermal compressibility. Units: 1/Pa.
+      /*!
        * The isothermal compressibility is defined as
        * \f[
        * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
        * \f]
-       *  This method may optionally be defined in derived classes.
        */
       virtual doublereal isothermalCompressibility() const {
 	err("isothermalCompressibility"); return -1.0;
       }
-      
-      /**
-       * The volumetric thermal expansion coefficient. Units: 1/K.
+
+      //! Return the volumetric thermal expansion coefficient. Units: 1/K.
+      /*!      
        * The thermal expansion coefficient is defined as
-       *
        * \f[
        * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
        * \f]
@@ -344,51 +362,51 @@ namespace Cantera {
 	 */
 	virtual int activityConvention() const;
 
-        /**
-         * This method returns an array of generalized concentrations
-         * \f$ C_k\f$ that are defined such that \f$ a_k = C_k /
-         * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
-         * defined below.  These generalized concentrations are used
-         * by kinetics manager classes to compute the forward and
-         * reverse rates of elementary reactions. Note that they may
-         * or may not have units of concentration --- they might be
-         * partial pressures, mole fractions, or surface coverages,
-         * for example.
-         *
-	 * @param c Output array of generalized concentrations. The 
-	 *           units depend upon the implementation of the
-	 *           reaction rate expressions within the phase.
-         */
-        virtual void getActivityConcentrations(doublereal* c) const {
-            err("getActivityConcentrations");
-        }
+        
+      //! This method returns an array of generalized concentrations
+      /*!
+       * \f$ C_k\f$ that are defined such that \f$ a_k = C_k /
+       * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
+       * defined below.  These generalized concentrations are used
+       * by kinetics manager classes to compute the forward and
+       * reverse rates of elementary reactions. Note that they may
+       * or may not have units of concentration --- they might be
+       * partial pressures, mole fractions, or surface coverages,
+       * for example.
+       *
+       * @param c Output array of generalized concentrations. The 
+       *           units depend upon the implementation of the
+       *           reaction rate expressions within the phase.
+       */
+      virtual void getActivityConcentrations(doublereal* c) const {
+	err("getActivityConcentrations");
+      }
 
-
-        /**
-         * The standard concentration \f$ C^0_k \f$ used to normalize
-         * the generalized concentration. In many cases, this quantity
-         * will be the same for all species in a phase - for example,
-         * for an ideal gas \f$ C^0_k = P/\hat R T \f$. For this
-         * reason, this method returns a single value, instead of an
-         * array.  However, for phases in which the standard
-         * concentration is species-specific (e.g. surface species of
-         * different sizes), this method may be called with an
-         * optional parameter indicating the species.
-	 *
-	 * @param k Optional parameter indicating the species. The default
-	 *         is to assume this refers to species 0.
-	 * @return 
-	 *   Returns the standard Concentration in units of m3 kmol-1.
-         */
-         virtual doublereal standardConcentration(int k=0) const {
-             err("standardConcentration");
-             return -1.0;
-         }
-
+      /**
+       * The standard concentration \f$ C^0_k \f$ used to normalize
+       * the generalized concentration. In many cases, this quantity
+       * will be the same for all species in a phase - for example,
+       * for an ideal gas \f$ C^0_k = P/\hat R T \f$. For this
+       * reason, this method returns a single value, instead of an
+       * array.  However, for phases in which the standard
+       * concentration is species-specific (e.g. surface species of
+       * different sizes), this method may be called with an
+       * optional parameter indicating the species.
+       *
+       * @param k Optional parameter indicating the species. The default
+       *         is to assume this refers to species 0.
+       * @return 
+       *   Returns the standard Concentration in units of m3 kmol-1.
+       */
+      virtual doublereal standardConcentration(int k=0) const {
+	err("standardConcentration");
+	return -1.0;
+      }
+      
         
       //! Natural logarithm of the standard concentration of the kth species.
       /*!
-       * @param k    index of the species
+       * @param k    index of the species (defaults to zero)
        */
       virtual doublereal logStandardConc(int k=0) const {
 	err("logStandardConc");
@@ -472,10 +490,12 @@ namespace Cantera {
 	err("getChemPotentials_RT");
       }
       
-      /**
-       * Get the species chemical potentials in the solution
-       * These are partial molar Gibbs free energies.
-       * Units: J/kmol.
+     
+      //! Get the species chemical potentials. Units: J/kmol.
+      /*!
+       * This function returns a vector of chemical potentials of the 
+       * species in solution at the current temperature, pressure
+       * and mole fraction of the solution.
        *
        * @param mu  Output vector of species chemical 
        *            potentials. Length: m_kk. Units: J/kmol
@@ -518,7 +538,7 @@ namespace Cantera {
 	err("getPartialMolarEntropies");
       }
 
-      //! Get the species partial molar enthalpies. Units: J/kmol.
+      //! Get the species partial molar internal energies. Units: J/kmol.
       /*!
        * @param ubar    Output vector of speciar partial molar internal energies.
        *                Length = m_kk. units are J/kmol.
@@ -529,7 +549,8 @@ namespace Cantera {
 
       //! Get the partial molar heat capacities Units: J/kmol/K
       /*!
-       * @param cpbar   Output vector of species partial molar heat capacities at constant pressure.
+       * @param cpbar   Output vector of species partial molar heat 
+       *                capacities at constant pressure.
        *                Length = m_kk. units are J/kmol/K.
        */
       virtual void getPartialMolarCp(doublereal* cpbar) const {
@@ -545,12 +566,12 @@ namespace Cantera {
 	err("getPartialMolarVolumes");
       }
 
-        //@}
-        /// @name Properties of the Standard State of the Species in the Solution 
-        //@{
-
+      //@}
+      /// @name Properties of the Standard State of the Species in the Solution 
+      //@{
 	
-      //! Get the array of chemical potentials at unit activity.
+      //! Get the array of chemical potentials at unit activity for the species
+      //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
       /*!
        * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
        * \f$. The values are evaluated at the current
@@ -562,11 +583,9 @@ namespace Cantera {
       virtual void getStandardChemPotentials(doublereal* mu) const {
 	err("getStandardChemPotentials");
       }
-
-        
+       
       //! Get the nondimensional Enthalpy functions for the species
-      //! at their standard states at the current
-      //! <I>T</I> and <I>P</I> of the solution.
+      //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
       /*!
        * @param hrt      Output vector of  nondimensional standard state enthalpies.
        *                 Length: m_kk.
@@ -575,11 +594,9 @@ namespace Cantera {
 	err("getEnthalpy_RT");
       }
 
+      //! Get the array of nondimensional Enthalpy functions for the
+      //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
       /*!
-       * Get the array of nondimensional Enthalpy functions for the
-       * standard state species
-       * at the current <I>T</I> and <I>P</I> of the solution.
-       *
        * @param sr   Output vector of  nondimensional standard state entropies.
        *             Length: m_kk.
        */
@@ -587,11 +604,9 @@ namespace Cantera {
 	err("getEntropy_R");
       }
 
+      //! Get the nondimensional Gibbs functions for the species
+      //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
       /*!
-       * Get the nondimensional Gibbs functions for the species
-       * at their standard states of solution at the current T and P
-       * of the solution.
-       *
        * @param grt  Output vector of nondimensional standard state gibbs free energies
        *             Length: m_kk.
        */
@@ -599,22 +614,20 @@ namespace Cantera {
 	err("getGibbs_RT");
       }
       
-      /**
-       * Get the nondimensional Gibbs functions for the standard
-       * state of the species at the current T and P.
-       *
-       * @param gpure Output vector of  standard state gibbs free energies
-       *             Length: m_kk.
+      //! Get the Gibbs functions for the standard
+      //! state of the species at the current <I>T</I> and <I>P</I> of the solution
+      /*!
+       * Units are Joules/kmol
+       * @param gpure  Output vector of  standard state gibbs free energies
+       *               Length: m_kk.
        */
       virtual void getPureGibbs(doublereal* gpure) const {
 	err("getPureGibbs");
       }
       
+      //!  Returns the vector of nondimensional Internal Energies  of the standard
+      //!  state species at the current <I>T</I> and <I>P</I> of the solution
       /*!
-       *  Returns the vector of nondimensional
-       *  Internal Energies of the standard state at the current temperature
-       *  and pressure of the solution for each species.
-       *
        * @param urt  output vector of nondimensional standard state internal energies
        *             of the species. Length: m_kk. 
        */
@@ -622,19 +635,18 @@ namespace Cantera {
 	err("getIntEnergy_RT");
       }
       
-      /**
-       * Get the nondimensional Heat Capacities at constant
-       * pressure for the standard state of the species 
-       * at the current T and P. 
-       *
+      //! Get the nondimensional Heat Capacities at constant
+      //! pressure for the species standard states
+      //! at the current <I>T</I> and <I>P</I> of the solution
+      /*!
        * @param cpr   Output vector of nondimensional standard state heat capacities
-       *             Length: m_kk.
+       *              Length: m_kk.
        */
       virtual void getCp_R(doublereal* cpr) const {
 	err("getCp_R");
       }
       
-      //!  Get the molar volumes of each species in their standard states at the current
+      //!  Get the molar volumes of the species standard states at the current
       //!  <I>T</I> and <I>P</I> of the solution.
       /*!
        * units = m^3 / kmol
@@ -650,26 +662,26 @@ namespace Cantera {
       /// @name Thermodynamic Values for the Species Reference States 
       //@{
 
+      
+      //!  Returns the vector of nondimensional
+      //!  enthalpies of the reference state at the current temperature
+      //!  of the solution and the reference pressure for the species.
       /*!
-       *  Returns the vector of nondimensional
-       *  enthalpies of the reference state at the current temperature
-       *  of the solution and the reference pressure for the species.
-       *
        *  This base function will throw a CanteraException unless
        *  it is overwritten in a derived class.
        *
-       * @param hrt     Output vector containing the nondimensional reference state enthalpies
+       * @param hrt     Output vector containing the nondimensional reference state 
+       *                enthalpies
        *                Length: m_kk.
        */
       virtual void getEnthalpy_RT_ref(doublereal *hrt) const {
             err("getEnthalpy_RT_ref");
         }
      
+      //!  Returns the vector of nondimensional
+      //!  Gibbs Free Energies of the reference state at the current temperature
+      //!  of the solution and the reference pressure for the species.
       /*!
-       *  Returns the vector of nondimensional
-       *  enthalpies of the reference state at the current temperature
-       *  of the solution and the reference pressure for the species.
-       *
        * @param grt     Output vector containing the nondimensional reference state 
        *                Gibbs Free energies.  Length: m_kk.
        */
@@ -677,10 +689,10 @@ namespace Cantera {
 	err("getGibbs_RT_ref");
       }
                    
+      //!  Returns the vector of the
+      //!  gibbs function of the reference state at the current temperature
+      //!  of the solution and the reference pressure for the species.
       /*!
-       *  Returns the vector of the
-       *  gibbs function of the reference state at the current temperature
-       *  of the solution and the reference pressure for the species.
        *  units = J/kmol
        *
        * @param g       Output vector containing the  reference state 
@@ -690,11 +702,10 @@ namespace Cantera {
 	err("getGibbs_ref");
       }
       
+      //!  Returns the vector of nondimensional
+      //!  entropies of the reference state at the current temperature
+      //!  of the solution and the reference pressure for each species.
       /*!
-       *  Returns the vector of nondimensional
-       *  entropies of the reference state at the current temperature
-       *  of the solution and the reference pressure for each species.
-       *
        * @param er      Output vector containing the nondimensional reference state 
        *                entropies.  Length: m_kk.
        */
@@ -702,11 +713,10 @@ namespace Cantera {
 	err("getEntropy_R_ref");
       }
 
+      //! Returns the vector of nondimensional
+      //!  internal Energies of the reference state at the current temperature
+      //!  of the solution and the reference pressure for each species.
       /*!
-       *  Returns the vector of nondimensional
-       *  internal Energies of the reference state at the current temperature
-       *  of the solution and the reference pressure for each species.
-       *
        * @param urt    Output vector of nondimensional reference state
        *               internal energies of the species.
        *               Length: m_kk
@@ -714,13 +724,12 @@ namespace Cantera {
       virtual void getIntEnergy_RT_ref(doublereal *urt) const {
 	err("getIntEnergy_RT_ref");
       }
-      
+           
+      //!  Returns the vector of nondimensional
+      //!  constant pressure heat capacities of the reference state
+      //!  at the current temperature of the solution
+      //!  and reference pressure for each species.
       /*!
-       *  Returns the vector of nondimensional
-       *  constant pressure heat capacities of the reference state
-       *  at the current temperature of the solution
-       *  and reference pressure for each species.
-       *
        * @param cprt   Output vector of nondimensional reference state
        *               heat capacities at constant pressure for the species.
        *               Length: m_kk
@@ -730,18 +739,18 @@ namespace Cantera {
       }
      
 
-        ///////////////////////////////////////////////////////
-        //
-        //  The methods below are not virtual, and should not
-        //  be overloaded.
-        //
-        //////////////////////////////////////////////////////
-
-        /**
-         * @}
-         * @name Specific Properties
-         * @{
-         */
+      ///////////////////////////////////////////////////////
+      //
+      //  The methods below are not virtual, and should not
+      //  be overloaded.
+      //
+      //////////////////////////////////////////////////////
+      
+      /**
+       * @}
+       * @name Specific Properties
+       * @{
+       */
 
         /**
          * Specific enthalpy. Units: J/kg. 

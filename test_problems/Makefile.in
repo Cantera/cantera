@@ -65,6 +65,7 @@ clean:
 	cd ChemEquil_gri_matrix; @MAKE@ clean
 	cd ChemEquil_gri_pairs; @MAKE@ clean
 	cd ChemEquil_ionizedGas; @MAKE@ clean
+	cd ChemEquil_red1; @MAKE@ clean
 	cd ck2cti_test;  @MAKE@ clean
 	cd min_python;   @MAKE@ clean
 	cd python;       @MAKE@ clean

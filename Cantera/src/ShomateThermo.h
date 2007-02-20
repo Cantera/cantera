@@ -19,12 +19,11 @@
 
 namespace Cantera {
 
+  //! A species thermodynamic property manager for the Shomate polynomial parameterization.
   /*!
-   * A species thermodynamic property manager for the Shomate
-   * polynomial parameterization. This is the parameterization used
-   * in the NIST Chemistry WebBook (http://webbook.nist.gov/chemistry)
-   *
-   * This parameterization assumes there are two temperature regions
+   *  This is the parameterization used
+   *  in the NIST Chemistry WebBook (http://webbook.nist.gov/chemistry)
+   * The parameterization assumes there are two temperature regions
    * each with its own Shomate polynomial representation, for each
    * species in the phase.
    * 
