@@ -15,6 +15,7 @@
 #include "SurfPhase.h"
 #include "EdgePhase.h"
 #include "utilities.h"
+#include "importCTML.h"
 
 #include <iostream>
 using namespace std;
@@ -42,6 +43,17 @@ namespace Cantera {
         setNDim(2);
     }
 
+  SurfPhase::SurfPhase(XML_Node& xmlphase) {
+    const XML_Node& th = xmlphase.child("thermo");
+    string model = th["model"];
+    if (model != "Surface") {
+      throw CanteraError("SurfPhase::SurfPhase", 
+			 "thermo model attribute must be Surface");
+    }
+    importPhase(xmlphase, this);
+  }
+
+
     doublereal SurfPhase::
     enthalpy_mole() const {
         if (m_n0 <= 0.0) return 0.0; 
@@ -52,9 +64,9 @@ namespace Cantera {
     SurfPhase::
     ~SurfPhase() { }
 
-    /**
+    /*
      * For a surface phase, the pressure is not a relevant
-     * thermodynamic variable, and so the enthalpy is equal to the
+     * thermodynamic variable, and so the Enthalpy is equal to the
      * internal energy.
      */
     doublereal SurfPhase::
@@ -93,17 +105,21 @@ namespace Cantera {
     }
 
 
-    /// The only parameter that can be set is the site density.
-    void SurfPhase::
-    setParameters(int n, doublereal* c) {
-        m_n0 = c[0];
-	if (m_n0 <= 0.0) {
-	  throw CanteraError("SurfPhase::setParameters",
-			     "Bad value for parameter");
-	}
-        m_logn0 = log(m_n0);
+  /// The only parameter that can be set is the site density.
+  void SurfPhase::
+  setParameters(int n, doublereal* c) {
+    if (n != 1) {
+      throw CanteraError("SurfPhase::setParameters",
+			 "Bad value for number of parameter");
     }
-
+    m_n0 = c[0];
+    if (m_n0 <= 0.0) {
+      throw CanteraError("SurfPhase::setParameters",
+			 "Bad value for parameter");
+    }
+    m_logn0 = log(m_n0);
+  }
+  
     void SurfPhase::
     getEnthalpy_RT(doublereal* hrt) const {
         _updateThermo();
@@ -202,7 +218,7 @@ namespace Cantera {
     }
 
     void SurfPhase::
-    setCoveragesByName(string cov) {
+    setCoveragesByName(std::string cov) {
         int kk = nSpecies();
         int k;
         compositionMap cc;

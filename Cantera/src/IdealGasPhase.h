@@ -1,7 +1,7 @@
 /**
  *
  *  @file IdealGasPhase.h
- *   
+ *   `
  *   ThermoPhase object for the ideal gas equation of state.
  */
 
@@ -59,8 +59,9 @@ namespace Cantera {
      * @{
      */
 
-    /**
-     * Molar enthalpy. Units: J/kmol.
+    
+    //! Return the Molar enthalpy. Units: J/kmol.
+    /*!
      * For an ideal gas mixture,
      * \f[
      * \hat h(T) = \sum_k X_k \hat h^0_k(T),
@@ -69,6 +70,7 @@ namespace Cantera {
      * The standard-state pure-species enthalpies 
      * \f$ \hat h^0_k(T) \f$ are computed by the species thermodynamic 
      * property manager.
+     *
      * \see SpeciesThermo
      */
     virtual doublereal enthalpy_mole() const {
@@ -335,7 +337,7 @@ namespace Cantera {
     //@{
 
     //! Get the array of chemical potentials at unit activity for the
-    //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
+    //! species standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
      * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
      * \f$. The values are evaluated at the current
@@ -346,7 +348,7 @@ namespace Cantera {
      */
     virtual void getStandardChemPotentials(doublereal* mu) const;
 
-    //! Get the nondimensional Enthalpy functions for the species
+    //! Get the nondimensional Enthalpy functions for the species standard states
     //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
      * @param hrt      Output vector of  nondimensional standard state enthalpies.
@@ -354,8 +356,8 @@ namespace Cantera {
      */
     virtual void getEnthalpy_RT(doublereal* hrt) const;
 
-    //! Get the array of nondimensional Enthalpy functions for the
-    //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
+    //! Get the array of nondimensional Entropy functions for the
+    //! species standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
      * @param sr   Output vector of  nondimensional standard state entropies.
      *             Length: m_kk.
@@ -363,7 +365,7 @@ namespace Cantera {
     virtual void getEntropy_R(doublereal* sr) const;
 
     //! Get the nondimensional Gibbs functions for the species
-    //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    //! standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
      * @param grt  Output vector of nondimensional standard state gibbs free energies
      *             Length: m_kk.
@@ -504,6 +506,17 @@ namespace Cantera {
 
     // @}
 
+    /**
+     * @internal Initialize. This method is provided to allow
+     * subclasses to perform any initialization required after all
+     * species have been added. For example, it might be used to
+     * resize internal work arrays that must have an entry for
+     * each species.  The base class implementation does nothing,
+     * and subclasses that do not require initialization do not
+     * need to overload this method. 
+     *
+     * @see importCTML.cpp
+     */
     virtual void initThermo();
 
     //!This method is used by the ChemEquil equilibrium solver.

@@ -2,7 +2,7 @@
  *  @file ThermoPhase.h
  *
  * Header file for class ThermoPhase.
- *
+ * Also contains the text for the Module thermoprops.
  */
 
 /*
@@ -43,85 +43,137 @@ namespace Cantera {
    * is a large class that describes the interface within Cantera to Thermodynamic
    * functions for a phase. 
    *
+   *
+   * The calculation of thermodynamic functions within %ThermoPhase is 
+   * broken down roughly into two or more steps. First, the standard state properties
+   * of all of the species are calculated at the current temperature and at either
+   * the current pressure or at a reference pressure. If the calculation is
+   * carried out at a refereence pressure instead of at the current pressure
+   * the calculation is called a "reference state properties" calculation,
+   * just to make the distinction (even though it may be considered to be
+   * a fixed-pressure standard-state calculation). The next step is to 
+   * adjust the reference state calculation to the current pressure. The thermodynamic
+   * functions then are considered to be at the standard state of each species.
+   * Lastly the mixing contributions are added to arrive at the thermodynamic
+   * functions for the solution.
+   *
+   * The %ThermoPhase class provides interfaces to thermodynamic properties calculated for 
+   * the reference state of each species, the standard state values for 
+   * each species, the thermodynamic functions for solution values, both
+   * on a per mole of solution basis (i.e., enthalpy_mole()), on a per kg of
+   * solution basis,  and on a
+   * partial molar basis for each species (i.e.,  
+   * getPartialMolarEnthalpies(double *hbar)).
+   * At each level, functions for the enthalpy, entropy, Gibbs free energy,
+   * internal energy, and volume are provided. So, 5 levels (reference state,
+   * standard state, partial molar, per mole of solution, and per mass of solution) 
+   * and 5 functions multiplied together makes 25 possible functions. That's 
+   * why %ThermoPhase is such a large class.
+   *
+   *  
    * Mechanical properties
    *
-   * Standard state properties
+   * Treatment of the electrochemical potential 
+   *
+   * Treatment of other potential energy contributions.
+   *
+   * Setting the State of the phase
    *
    * Instantiation of ThermoPhase properties occurs via the following path.
+   *
+   * Molar Basis vs. Molality Basis
    *
    * The following Objects inherit from ThermoPhase. These are known to the
    * internal factory methods
    *
+   *    - IdealGasPhase       in IdealGasPhase.h
+   *    - StoichSubstance     in StoichSubstance.h
+   *    - SurfPhase           in SurfPhase.h
+   *    - LatticePhase        in LatticePhase.h
+   *    - LatticeSolidPhase   in LatticeSolidPhase.h
+   *    - ConstDensityThermo  in ConstDensityThermo.h
+   *    - PureFluidPhase      in PureFluidPhase.h
+   *    .
    *
-   * The following additional objects inherit from ThermoPhase. Most of these
+   * The following additional objects inherit from %ThermoPhase. Most of these
    * are associated with an electrochemistry capability that is under construction.
    *
+   *     - DebyeHuckel          in thermo/DebyeHuckel.h
+   *     - SingleSpeciesTP      in thermo/SingleSpeciesTP.h
+   *     - StoichSubstanceSSTP  in thermo/StoichSubstanceSSTP.h
+   *     - VPStandardStateTP    in thermo/VPStandardStateTP.h
+   *     - IdealMolalSoln       in thermo/IdealMolalSoln.h
+   *     - IdealSolidSolnPhase  in thermo/IdealSolidSolnPhase.h
+   *     - IdealGasPDSS         in thermo/IdealGasPDSS.h
+   *     - MolalityVPSSTP       in thermo/MolalityVPSSTP.h
+   *     - HMWSoln              in thermo/HMWSoln.h
+   *     .
    *
-   *
-   * @see newPhase(std::string file, std::string id) Description for how to read ThermoPhases from XML files.
-   * @see newPhase(XML_Node &phase) How to call the Factory routine to create and initialize ThermoPhase objects.
+   * @see newPhase(std::string file, std::string id) Description for how to
+   *               read ThermoPhases from XML files.
+   * @see newPhase(XML_Node &phase) How to call the Factory routine to create 
+   *          and initialize ThermoPhase objects.
    */
 
-    /**
-     * A phase with thermodynamic properties.  
-     * Class %ThermoPhase is the base class for the family of classes
-     * that represent phases of matter of any type. It defines a
-     * common public interface, and implements a few methods. Most of
-     * the methods, however, are declared virtual and are meant to be
-     * overloaded in derived classes.  The standard way used
-     * throughout Cantera to compute properties of phases of matter is
-     * through pointers of type ThermoPhase* that point to objects of
-     * subclasses of ThermoPhase.
-     * 
-     * Class %ThermoPhase
-     * extends class Phase by adding methods to compute thermodynamic
-     * properties in addition to the ones (temperature, density,
-     * composition) that class Phase provides. The distinction is that
-     * the methods declared in ThermoPhase require knowing the
-     * particular equation of state of the phase of interest, while
-     * those of class Phase do not, since they only involve data values
-     * stored within the object.
-     *
-     * Instances of subclasses of %ThermoPhase should be created using
-     * the factory class ThermoFactory, not by calling the constructor
-     * directly. This allows new classes to be used with the various
-     * Cantera language interfaces.
-     * 
-     * To implement a new equation of state, derive a class from
-     * ThermoPhase and overload the virtual methods in
-     * ThermoPhase. Methods that are not needed can be left
-     * unimplimented, which will cause an exception to be thrown if it
-     * is called.
-     *
-     * @ingroup thermoprops
-     * @ingroup phases
-     */
-    class ThermoPhase : public Phase {
+  
+  //!   Base class for a phase with thermodynamic properties. 
+  /*!
+   * Class %ThermoPhase is the base class for the family of classes
+   * that represent phases of matter of any type. It defines a
+   * common public interface, and implements a few methods. Most of
+   * the methods, however, are declared virtual and are meant to be
+   * overloaded in derived classes.  The standard way used
+   * throughout Cantera to compute properties of phases of matter is
+   * through pointers of type ThermoPhase* that point to objects of
+   * subclasses of ThermoPhase.
+   * 
+   * Class %ThermoPhase extends class Phase by adding methods to compute 
+   * thermodynamic
+   * properties in addition to the ones (temperature, density,
+   * composition) that class Phase provides. The distinction is that
+   * the methods declared in ThermoPhase require knowing the
+   * particular equation of state of the phase of interest, while
+   * those of class Phase do not, since they only involve data values
+   * stored within the object.
+   *
+   * Instances of subclasses of %ThermoPhase should be created using
+   * the factory class ThermoFactory, not by calling the constructor
+   * directly. This allows new classes to be used with the various
+   * Cantera language interfaces.
+   * 
+   * To implement a new equation of state, derive a class from
+   * ThermoPhase and overload the virtual methods in
+   * ThermoPhase. Methods that are not needed can be left
+   * unimplimented, which will cause an exception to be thrown if it
+   * is called.
+   *
+   * @ingroup thermoprops
+   * @ingroup phases
+   */
+  class ThermoPhase : public Phase {
 
     public:
 
-        /// Constructor. Note that ThermoPhase is meant to be used as
-        /// a base class, so this constructor should not be called
-        /// explicitly.
-        ThermoPhase() : Phase(), m_spthermo(0), m_speciesData(0),
-                        m_index(-1), m_phi(0.0), m_hasElementPotentials(false) {}
+    //! Constructor. Note that ThermoPhase is meant to be used as
+    //! a base class, so this constructor should not be called
+    //! explicitly.
+    ThermoPhase() : Phase(), m_spthermo(0), m_speciesData(0),
+		    m_index(-1), m_phi(0.0), m_hasElementPotentials(false) {}
 
+    //! Destructor. Deletes the species thermo manager.
+    virtual ~ThermoPhase() {
+      delete m_spthermo;
+    }
 
-        /// Destructor. Deletes the species thermo manager.
-        virtual ~ThermoPhase() {
-            delete m_spthermo;
-        }
-
-      /**
-       * Copy Constructor for the %ThermoPhase object. 
-       *
-       * Currently, this is not fully implemented. If called it will
-       * throw an exception.
-       */
-      ThermoPhase(const ThermoPhase &);
-
+   
+    //!Copy Constructor for the %ThermoPhase object. 
+    /*!
+     * Currently, this is not fully implemented. If called it will
+     * throw an exception.
+     */
+    ThermoPhase(const ThermoPhase &);
 	
-      //! Assignment operator
+    //! Assignment operator
       /*!
        *  This is NOT a virtual function.
        *
@@ -130,34 +182,34 @@ namespace Cantera {
        */
       ThermoPhase& operator=(const ThermoPhase &right);
 
-	/**
-	 * Duplication routine for objects which inherit from 
-	 * ThermoPhase.
-	 *
-	 *  This virtual routine can be used to duplicate thermophase objects
-	 *  inherited from ThermoPhase even if the application only has
-	 *  a pointer to ThermoPhase to work with.
-	 * 
-	 *  Currently, this is not fully implemented. If called, an
-	 *  exception will be called.
-	 */
-	virtual ThermoPhase *duplMyselfAsThermoPhase();
-
-        /**
-         *   
-         * @name  Information Methods  
-         * @{
-         */
-
-        /** 
-         * Equation of state type flag. The base class returns
-         * zero. Subclasses should define this to return a unique
-         * non-zero value. Constants defined for this purpose are
-         * listed in mix_defs.h.
-         */
-        virtual int eosType() const { return 0; }
-
-
+    /**
+     * Duplication routine for objects which inherit from 
+     * ThermoPhase.
+     *
+     *  This virtual routine can be used to duplicate thermophase objects
+     *  inherited from ThermoPhase even if the application only has
+     *  a pointer to ThermoPhase to work with.
+     * 
+     *  Currently, this is not fully implemented. If called, an
+     *  exception will be called.
+     */
+    virtual ThermoPhase *duplMyselfAsThermoPhase();
+    
+    /**
+     *   
+     * @name  Information Methods  
+     * @{
+     */
+        
+    //! Equation of state type flag.
+    /*!
+     *  The base class returns
+     * zero. Subclasses should define this to return a unique
+     * non-zero value. Constants defined for this purpose are
+     * listed in mix_defs.h.
+     */
+    virtual int eosType() const { return 0; }
+    
 	/**
 	 * Returns the reference pressure in Pa. This function is a wrapper
 	 * that calls the species thermo refPressure function.
@@ -182,76 +234,76 @@ namespace Cantera {
 	return m_spthermo->minTemp(k);
       }
         
-      //! Maximum temperature for which the thermodynamic data for the species are valid. 
-      /*!
-       * If no argument is supplied, the
-       * value returned will be the highest temperature at which the
-       * data for \e all species are valid. Otherwise, the value
-       * will be only for species \a k. This function is a wrapper
-       * that calls the species thermo maxTemp function.
-       *
-       * @param k index of the species. Default is -1, which will return the min of the max value
-       *          over all species.
-       */
-      doublereal maxTemp(int k = -1) {
-	return m_spthermo->maxTemp(k);
-      }
+    //! Maximum temperature for which the thermodynamic data for the species 
+    //! are valid. 
+    /*!
+     * If no argument is supplied, the
+     * value returned will be the highest temperature at which the
+     * data for \e all species are valid. Otherwise, the value
+     * will be only for species \a k. This function is a wrapper
+     * that calls the species thermo maxTemp function.
+     *
+     * @param k index of the species. Default is -1, which will return the min of the max value
+     *          over all species.
+     */
+    doublereal maxTemp(int k = -1) {
+      return m_spthermo->maxTemp(k);
+    }
       
-      /**
-       * @} 
-       * @name  Molar Thermodynamic Properties of the Solution
-       * @{
-       */
+    /**
+     * @} 
+     * @name  Molar Thermodynamic Properties of the Solution
+     * @{
+     */
 
-         /// Molar enthalpy. Units: J/kmol. 
-        virtual doublereal enthalpy_mole() const {
-            return err("enthalpy_mole");
-        }
+    /// Molar enthalpy. Units: J/kmol. 
+    virtual doublereal enthalpy_mole() const {
+      return err("enthalpy_mole");
+    }
 
-        /// Molar internal energy. Units: J/kmol. 
-        virtual doublereal intEnergy_mole() const {
-            return err("intEnergy_mole");
-        }
+    /// Molar internal energy. Units: J/kmol. 
+    virtual doublereal intEnergy_mole() const {
+      return err("intEnergy_mole");
+    }
 
-      /// Molar entropy. Units: J/kmol/K. 
-      virtual doublereal entropy_mole() const {
-	return err("entropy_mole");
-      }
+    /// Molar entropy. Units: J/kmol/K. 
+    virtual doublereal entropy_mole() const {
+      return err("entropy_mole");
+    }
 
-        /// Molar Gibbs function. Units: J/kmol. 
-        virtual doublereal gibbs_mole() const {
-            return err("gibbs_mole");
-        }
+    /// Molar Gibbs function. Units: J/kmol. 
+    virtual doublereal gibbs_mole() const {
+      return err("gibbs_mole");
+    }
 
-        /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
-        virtual doublereal cp_mole() const {
-            return err("cp_mole");
-        }
+    /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
+    virtual doublereal cp_mole() const {
+      return err("cp_mole");
+    }
 
-        /// Molar heat capacity at constant volume. Units: J/kmol/K. 
-        virtual doublereal cv_mole() const {
-            return err("cv_mole");
-        }
+    /// Molar heat capacity at constant volume. Units: J/kmol/K. 
+    virtual doublereal cv_mole() const {
+      return err("cv_mole");
+    }
 
 
-        /**
-         * @}
-         * @name Mechanical Properties
-         * @{
-         */
-
-        /**
-         *  Pressure. Return the thermodynamic pressure (Pa). This
-	 *  method must be overloaded in derived classes. Since the
-	 *  mass density, temperature, and mass fractions are stored,
-	 *  this method should use these values to implement the
-	 *  mechanical equation of state \f$ P(T, \rho, Y_1, \dots,
-	 *  Y_K) \f$.
-         */
-        virtual doublereal pressure() const {
-            return err("pressure");
-        }
-
+    /**
+     * @}
+     * @name Mechanical Properties
+     * @{
+     */
+       
+    //! Return the thermodynamic pressure (Pa).
+    /*!
+     * This method must be overloaded in derived classes. Since the
+     *  mass density, temperature, and mass fractions are stored,
+     *  this method should use these values to implement the
+     *  mechanical equation of state \f$ P(T, \rho, Y_1, \dots,
+     *  Y_K) \f$.
+     */
+    virtual doublereal pressure() const {
+      return err("pressure");
+    }
 
       //! Set the internally storred pressure (Pa) at constant
       //! temperature and composition
@@ -363,55 +415,57 @@ namespace Cantera {
 	virtual int activityConvention() const;
 
         
-      //! This method returns an array of generalized concentrations
-      /*!
-       * \f$ C_k\f$ that are defined such that \f$ a_k = C_k /
-       * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
-       * defined below.  These generalized concentrations are used
-       * by kinetics manager classes to compute the forward and
-       * reverse rates of elementary reactions. Note that they may
-       * or may not have units of concentration --- they might be
-       * partial pressures, mole fractions, or surface coverages,
-       * for example.
-       *
-       * @param c Output array of generalized concentrations. The 
-       *           units depend upon the implementation of the
-       *           reaction rate expressions within the phase.
-       */
-      virtual void getActivityConcentrations(doublereal* c) const {
-	err("getActivityConcentrations");
-      }
+    //! This method returns an array of generalized concentrations
+    /*!
+     * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
+     * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
+     * defined below and \f$ a_k \f$ are activities used in the
+     * thermodynamic functions.  These activity (or generalized)
+     * concentrations are used
+     * by kinetics manager classes to compute the forward and
+     * reverse rates of elementary reactions. Note that they may
+     * or may not have units of concentration --- they might be
+     * partial pressures, mole fractions, or surface coverages,
+     * for example.
+     *
+     * @param c Output array of generalized concentrations. The 
+     *           units depend upon the implementation of the
+     *           reaction rate expressions within the phase.
+     */
+    virtual void getActivityConcentrations(doublereal* c) const {
+      err("getActivityConcentrations");
+    }
 
-      /**
-       * The standard concentration \f$ C^0_k \f$ used to normalize
-       * the generalized concentration. In many cases, this quantity
-       * will be the same for all species in a phase - for example,
-       * for an ideal gas \f$ C^0_k = P/\hat R T \f$. For this
-       * reason, this method returns a single value, instead of an
-       * array.  However, for phases in which the standard
-       * concentration is species-specific (e.g. surface species of
-       * different sizes), this method may be called with an
-       * optional parameter indicating the species.
-       *
-       * @param k Optional parameter indicating the species. The default
-       *         is to assume this refers to species 0.
-       * @return 
-       *   Returns the standard Concentration in units of m3 kmol-1.
-       */
-      virtual doublereal standardConcentration(int k=0) const {
-	err("standardConcentration");
-	return -1.0;
-      }
-      
+    //! Return the standard concentration for the kth species
+    /*!
+     * The standard concentration \f$ C^0_k \f$ used to normalize
+     * the activity (i.e., generalized) concentration. In many cases, this quantity
+     * will be the same for all species in a phase - for example,
+     * for an ideal gas \f$ C^0_k = P/\hat R T \f$. For this
+     * reason, this method returns a single value, instead of an
+     * array.  However, for phases in which the standard
+     * concentration is species-specific (e.g. surface species of
+     * different sizes), this method may be called with an
+     * optional parameter indicating the species.
+     *
+     * @param k Optional parameter indicating the species. The default
+     *         is to assume this refers to species 0.
+     * @return 
+     *   Returns the standard Concentration in units of m3 kmol-1.
+     */
+    virtual doublereal standardConcentration(int k=0) const {
+      err("standardConcentration");
+      return -1.0;
+    }  
         
-      //! Natural logarithm of the standard concentration of the kth species.
-      /*!
-       * @param k    index of the species (defaults to zero)
-       */
-      virtual doublereal logStandardConc(int k=0) const {
-	err("logStandardConc");
-	return -1.0;
-      }
+    //! Natural logarithm of the standard concentration of the kth species.
+    /*!
+     * @param k    index of the species (defaults to zero)
+     */
+    virtual doublereal logStandardConc(int k=0) const {
+      err("logStandardConc");
+      return -1.0;
+    }
       
       /**
        * Returns the units of the standard and generalized
@@ -491,19 +545,19 @@ namespace Cantera {
       }
       
      
-      //! Get the species chemical potentials. Units: J/kmol.
-      /*!
-       * This function returns a vector of chemical potentials of the 
-       * species in solution at the current temperature, pressure
-       * and mole fraction of the solution.
-       *
-       * @param mu  Output vector of species chemical 
-       *            potentials. Length: m_kk. Units: J/kmol
-       */
-      virtual void getChemPotentials(doublereal* mu) const {
-	err("getChemPotentials");
-      }
- 
+    //! Get the species chemical potentials. Units: J/kmol.
+    /*!
+     * This function returns a vector of chemical potentials of the 
+     * species in solution at the current temperature, pressure
+     * and mole fraction of the solution.
+     *
+     * @param mu  Output vector of species chemical 
+     *            potentials. Length: m_kk. Units: J/kmol
+     */
+    virtual void getChemPotentials(doublereal* mu) const {
+      err("getChemPotentials");
+    }
+    
       //!  Get the species electrochemical potentials. 
       /*!
        * These are partial molar quantities.  This method adds a term \f$ Fz_k
@@ -594,7 +648,7 @@ namespace Cantera {
 	err("getEnthalpy_RT");
       }
 
-      //! Get the array of nondimensional Enthalpy functions for the
+      //! Get the array of nondimensional Entropy functions for the
       //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
       /*!
        * @param sr   Output vector of  nondimensional standard state entropies.
@@ -1152,60 +1206,67 @@ namespace Cantera {
       virtual void initThermoFile(std::string inputFile, std::string id);
 
 
-      /**
-       * @internal
-       *   Import and initialize a ThermoPhase object 
-       *   using an XML tree.
-       *   Here we read extra information about the XML description
-       *   of a phase. Regular information about elements and species
-       *   and their reference state thermodynamic information
-       *   have already been read at this point.
-       *   For example, we do not need to call this function for
-       *   ideal gas equations of state.
-       *   This function is called from importPhase() 
-       *   after the elements and the
-       *   species are initialized with default ideal solution
-       *   level data.
-       *
-       * @param phaseNode This object must be the phase node of a
-       *             complete XML tree
-       *             description of the phase, including all of the
-       *             species data. In other words while "phase" must
-       *             point to an XML phase object, it must have
-       *             sibling nodes "speciesData" that describe
-       *             the species in the phase.
-       * @param id   ID of the phase. If nonnull, a check is done
-       *             to see if phaseNode is pointing to the phase
-       *             with the correct id. 
-       */
-      virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    //!Import and initialize a ThermoPhase object  using an XML tree.
+    /*!
+     * @internal
+     *
+     *   Here we read extra information about the XML description
+     *   of a phase. Regular information about elements and species
+     *   and their reference state thermodynamic information
+     *   have already been read at this point.
+     *   For example, we do not need to call this function for
+     *   ideal gas equations of state. This function is called from importPhase() 
+     *   after the elements and the species are initialized with 
+     *   default ideal solution level data.
+     *
+     *   The default implementation in ThermoPhase calls the
+     *   virtual function initThermo() and then sets the "state" of the
+     *   phase by looking for an XML element named "state", and then
+     *   interpreting its contents by calling the virtual function
+     *   setStateFromXML().
+     *
+     * @param phaseNode This object must be the phase node of a
+     *             complete XML tree
+     *             description of the phase, including all of the
+     *             species data. In other words while "phase" must
+     *             point to an XML phase object, it must have
+     *             sibling nodes "speciesData" that describe
+     *             the species in the phase.
+     * @param id   ID of the phase. If nonnull, a check is done
+     *             to see if phaseNode is pointing to the phase
+     *             with the correct id. 
+     */
+    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    
+    //! Initialize the ThermoPhase object after all species have been set up
+    /*!
+     * @internal Initialize.
+     *
+     * This method is provided to allow
+     * subclasses to perform any initialization required after all
+     * species have been added. For example, it might be used to
+     * resize internal work arrays that must have an entry for
+     * each species.  The base class implementation does nothing,
+     * and subclasses that do not require initialization do not
+     * need to overload this method.  When importing a CTML phase
+     * description, this method is called from ThermoPhase::initThermoXML(),
+     * which is called from importPhase(),
+     * just prior to returning from function importPhase().
+     *
+     * @see importCTML.cpp
+     */
+    virtual void initThermo();
+    
+    // The following methods are used by the clib interface
+    // library, and should not be used by application programs.
 
-      /**
-       * @internal Initialize. This method is provided to allow
-       * subclasses to perform any initialization required after all
-       * species have been added. For example, it might be used to
-       * resize internal work arrays that must have an entry for
-       * each species.  The base class implementation does nothing,
-       * and subclasses that do not require initialization do not
-       * need to overload this method.  When importing a CTML phase
-       * description, this method is called just prior to returning
-       * from function importPhase.
-       *
-       * @see importCTML.cpp
-       */
-      virtual void initThermo();
-
-
-      // The following methods are used by the clib interface
-      // library, and should not be used by application programs.
-
-      /**
-       * @internal 
-       * Index number.  This method can be used to identify the
-       * location of a phase object in a list, and is used by the
-       * interface library (clib) routines for this purpose.
-       */
-      int index() { return m_index; }
+    /*!
+     * @internal 
+     * Index number.  This method can be used to identify the
+     * location of a phase object in a list, and is used by the
+     * interface library (clib) routines for this purpose.
+     */
+    int index() { return m_index; }
 
 
       /**

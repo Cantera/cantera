@@ -738,7 +738,7 @@ namespace Cantera {
    *   species in a phase.
    *   We import information about the species, including their
    *   reference state thermodynamic polynomials. We then freeze
-   *   the state of the species, and finally call initThermo()
+   *   the state of the species, and finally call initThermoXML(phase, id)
    *   a member function of the ThermoPhase object to "finish"
    *   the description.
    *
