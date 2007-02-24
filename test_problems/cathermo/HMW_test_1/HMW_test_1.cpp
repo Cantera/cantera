@@ -56,14 +56,20 @@ int main(int argc, char **argv)
 
    try {
   
-#ifdef DEBUG_MODE
-       CHECK_DEBUG_MODE = 1;
-#endif
-     if (CHECK_DEBUG_MODE != 1) {
-       printf("Check can only be done if DEBUG_MODE is defined\n");
-       exit(-1);
-     }
      HMWSoln *HMW = new HMWSoln(1);
+
+#ifdef DEBUG_MODE
+     CHECK_DEBUG_MODE = 1;
+#endif
+     if (CHECK_DEBUG_MODE == 1) {
+       HMW->m_debugCalc = 1;
+       if (HMW->debugPrinting()) {
+         FILE *ff = fopen("CheckDebug.txt", "w");
+         fprintf(ff,"%1d\n", 1);
+         fclose(ff);
+       }
+       HMW->m_debugCalc = 0;
+     }
      
      int nsp = HMW->nSpecies();
     

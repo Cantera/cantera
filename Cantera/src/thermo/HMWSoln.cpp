@@ -5252,6 +5252,13 @@ namespace Cantera {
     }
   }
 
+  int HMWSoln::debugPrinting() {
+#ifdef DEBUG_MODE
+   return m_debugCalc;
+#else
+   return 0;
+#endif
+  }
  
   /*****************************************************************************/
 }

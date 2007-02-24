@@ -1447,11 +1447,16 @@ namespace Cantera {
 
 
   public:
-    /*
-     * Turn on copious debug printing
+    /*!
+     * Turn on copious debug printing when this
+     * is true and DEBUG_MODE is turned on.
      */
     mutable int m_debugCalc;
-
+    //! Return int specifying the amount of debug printing
+    /*!
+     *  This will return 0 if DEBUG_MODE is not turned on
+     */
+    int debugPrinting();
   };
 
 }

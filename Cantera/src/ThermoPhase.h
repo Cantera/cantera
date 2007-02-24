@@ -89,6 +89,7 @@ namespace Cantera {
    *    - IdealGasPhase       in IdealGasPhase.h
    *    - StoichSubstance     in StoichSubstance.h
    *    - SurfPhase           in SurfPhase.h
+   *    - EdgePhase           in EdgePhase.h
    *    - LatticePhase        in LatticePhase.h
    *    - LatticeSolidPhase   in LatticeSolidPhase.h
    *    - ConstDensityThermo  in ConstDensityThermo.h

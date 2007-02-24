@@ -3,3 +3,5 @@ Makefile
 output.txt
 csvCode.txt
 diff_test.out
+.depends
+*.d

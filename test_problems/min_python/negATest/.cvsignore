@@ -21,3 +21,4 @@ testdest2.xml
 negATest
 diff_xml.out
 noxNeg.xml
+.ctt*

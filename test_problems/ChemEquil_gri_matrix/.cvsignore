@@ -5,3 +5,5 @@ gri_matrix
 output.txt
 outputa.txt
 tmp
+.depends
+*.d

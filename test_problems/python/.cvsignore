@@ -12,3 +12,4 @@ frac_test.out
 *.txt
 *.log
 flame1_blessed_tmp.csv
+.ctt*

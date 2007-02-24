@@ -42,17 +42,17 @@ test:
 	@ cd ChemEquil_ionizedGas; @MAKE@ -s test
 	@ cd ChemEquil_red1; @MAKE@ -s test
 ifeq ($(test_ck),1)
-	@ cd ck2cti_test;  @MAKE@ test
+	@ cd ck2cti_test;  @MAKE@ -s test
 endif
 ifeq ($(test_python),1)
-	cd min_python;   @MAKE@ test
+	cd min_python;   @MAKE@ -s test
 endif
 ifeq ($(test_python),2)
-	cd min_python;   @MAKE@ test
-	cd python;       @MAKE@ test
+	cd min_python;   @MAKE@ -s test
+	cd python;       @MAKE@ -s test
 endif
 ifeq ($(test_cathermo),1)
-	cd cathermo;     @MAKE@ test
+	cd cathermo;     @MAKE@ -s test
 endif
 
 clean:

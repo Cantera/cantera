@@ -102,7 +102,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          importCTML.cpp importCTML.h \
                          ThermoFactory.h ThermoFactory.cpp \
                          IdealGasPhase.h IdealGasPhase.cpp \
-                         SurfPhase.h SurfPhase.cpp \
+                         SurfPhase.h EdgePhase.h SurfPhase.cpp \
                          SpeciesThermoFactory.h SpeciesThermoFactory.cpp \
                          speciesThermoTypes.h SpeciesThermoMgr.h SpeciesThermo.h SpeciesThermoInterpTypes.h \
                          NasaThermo.h NasaPoly1.h NasaPoly2.h \
