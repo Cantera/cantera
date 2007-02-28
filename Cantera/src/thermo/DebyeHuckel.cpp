@@ -1,5 +1,7 @@
 /**
  *  @file DebyeHuckel.cpp
+ *
+ * Definitions of the DebyeHuckel object.
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of 
@@ -23,7 +25,7 @@ using namespace std;
 
 namespace Cantera {
 
-  /**
+  /*
    * Default constructor
    */
   DebyeHuckel::DebyeHuckel() :
@@ -47,7 +49,8 @@ namespace Cantera {
     m_npActCoeff[1] = -0.01049;
     m_npActCoeff[2] = 1.545E-3;
   }
-  /**
+
+  /*
    * Working constructors
    *
    *  The two constructors below are the normal way
@@ -101,7 +104,7 @@ namespace Cantera {
     constructPhaseXML(phaseRoot, id);
   }
  
-  /**
+  /*
    * Copy Constructor:
    *
    *  Note this stuff will not work until the underlying phase
@@ -391,7 +394,7 @@ namespace Cantera {
     return 0.0;
   }
     
-  /**
+  /*
    * Overwritten setDensity() function is necessary because the
    * density is not an indendent variable.
    *
@@ -432,7 +435,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * Overwritten setTemperature(double) from State.h. This
    * function sets the temperature, and makes sure that
    * the value propagates to underlying objects.
@@ -1734,9 +1737,9 @@ namespace Cantera {
    *
    * units - \f$ m^3 kmol^-1 \f$
    */
-  double DebyeHuckel::speciesMolarVolume(int k) const {
-    return m_speciesSize[k];
-  }
+  // double DebyeHuckel::speciesMolarVolume(int k) const {
+  // return m_speciesSize[k];
+  //}
 
 
   /**

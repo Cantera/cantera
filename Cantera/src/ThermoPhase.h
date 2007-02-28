@@ -701,17 +701,17 @@ namespace Cantera {
       err("getCp_R");
     }
       
-      //!  Get the molar volumes of the species standard states at the current
-      //!  <I>T</I> and <I>P</I> of the solution.
-      /*!
-       * units = m^3 / kmol
-       *
-       * @param vol     Output vector containing the standard state volumes.
-       *                Length: m_kk.
-       */
-      virtual void getStandardVolumes(doublereal *vol) const {
-	err("getStandardVolumes");
-      }
+    //!  Get the molar volumes of the species standard states at the current
+    //!  <I>T</I> and <I>P</I> of the solution.
+    /*!
+     * units = m^3 / kmol
+     *
+     * @param vol     Output vector containing the standard state volumes.
+     *                Length: m_kk.
+     */
+    virtual void getStandardVolumes(doublereal *vol) const {
+      err("getStandardVolumes");
+    }
 
       //@}
       /// @name Thermodynamic Values for the Species Reference States 
@@ -793,62 +793,73 @@ namespace Cantera {
       err("getCp_R_ref()");
     }
      
+    //!  Get the molar volumes of the species reference states at the current
+    //!  <I>T</I> and <I>P_ref</I> of the solution.
+    /*!
+     * units = m^3 / kmol
+     *
+     * @param vol     Output vector containing the standard state volumes.
+     *                Length: m_kk.
+     */
+    virtual void getStandardVolumes_ref(doublereal *vol) const {
+      err("getStandardVolumes_ref");
+    }
 
-      ///////////////////////////////////////////////////////
-      //
-      //  The methods below are not virtual, and should not
-      //  be overloaded.
-      //
-      //////////////////////////////////////////////////////
-      
-      /**
-       * @}
-       * @name Specific Properties
-       * @{
-       */
+    ///////////////////////////////////////////////////////
+    //
+    //  The methods below are not virtual, and should not
+    //  be overloaded.
+    //
+    //////////////////////////////////////////////////////
+    
+    /**
+     * @}
+     * @name Specific Properties
+     * @{
+     */
 
-        /**
-         * Specific enthalpy. Units: J/kg. 
-         */
-        doublereal enthalpy_mass() const {
-            return enthalpy_mole()/meanMolecularWeight();
-        }
+    /**
+     * Specific enthalpy. Units: J/kg. 
+     */
+    doublereal enthalpy_mass() const {
+      return enthalpy_mole()/meanMolecularWeight();
+    }
 
-        /**
-         * Specific internal energy. Units: J/kg. 
-         */
-        doublereal intEnergy_mass() const {
-            return intEnergy_mole()/meanMolecularWeight();
-        }
+    /**
+     * Specific internal energy. Units: J/kg. 
+     */
+    doublereal intEnergy_mass() const {
+      return intEnergy_mole()/meanMolecularWeight();
+    }
 
-        /**
-         * Specific entropy. Units: J/kg/K. 
-         */
-        doublereal entropy_mass() const {
-            return entropy_mole()/meanMolecularWeight();
-        }
+    /**
+     * Specific entropy. Units: J/kg/K. 
+     */
+    doublereal entropy_mass() const {
+      return entropy_mole()/meanMolecularWeight();
+    }
 
-        /**
-         * Specific Gibbs function. Units: J/kg. 
-         */
-        doublereal gibbs_mass() const {
-            return gibbs_mole()/meanMolecularWeight();
-        }
+    /**
+     * Specific Gibbs function. Units: J/kg. 
+     */
+    doublereal gibbs_mass() const {
+      return gibbs_mole()/meanMolecularWeight();
+    }
 
-        /**
-         * Specific heat at constant pressure. Units: J/kg/K. 
-         */
-        doublereal cp_mass() const {
-            return cp_mole()/meanMolecularWeight();
-        }
+    /**
+     * Specific heat at constant pressure. Units: J/kg/K. 
+     */
+    doublereal cp_mass() const {
+      return cp_mole()/meanMolecularWeight();
+    }
 
-        /**
-         * Specific heat at constant volume. Units: J/kg/K. 
-         */
-        doublereal cv_mass() const {
-            return cv_mole()/meanMolecularWeight();
-        }
-        //@}
+    /**
+     * Specific heat at constant volume. Units: J/kg/K. 
+     */
+    doublereal cv_mass() const {
+      return cv_mole()/meanMolecularWeight();
+    }
+    //@}
 
       //! Return the Gas Constant multiplied by the current temperature
       /*!

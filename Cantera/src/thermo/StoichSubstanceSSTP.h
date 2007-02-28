@@ -55,7 +55,7 @@ namespace Cantera {
    * The enthalpy function is given by the following relation.
    *
    *       \f[
-   *            h^o_k(T,P) = h^{ref}_k(T) + \tilde v \left( P - P_{ref} \right)
+   *   \raggedright       h^o_k(T,P) = h^{ref}_k(T) + \tilde v \left( P - P_{ref} \right) 
    *       \f]
    *
    * For an incompressible,
