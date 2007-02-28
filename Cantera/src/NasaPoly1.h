@@ -245,6 +245,11 @@ namespace Cantera {
 #endif
 	}
 
+    //! Modify parameters for the standard state
+    /*!
+     * @param coeffs   Vector of coefficients used to set the
+     *                 parameters for the standard state.
+     */
     virtual void modifyParameters(doublereal* coeffs) {
       m_coeff[0] = coeffs[5];
       m_coeff[1] = coeffs[6];

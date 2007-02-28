@@ -136,26 +136,30 @@ namespace Cantera {
          * @{
          */
 
-        /**
-         * Pressure. Units: Pa.
-         * For an incompressible substance, the density is independent
-         * of pressure. This method simply returns the stored
-         * pressure value.
-         */ 
-        virtual doublereal pressure() const {
-            return m_press;
-        }
-
-        /**
-         * Set the pressure at constant temperature. Units: Pa.
-         * For an incompressible substance, the density is 
-         * independent of pressure. Therefore, this method only 
-         * stores the specified pressure value. It does not 
-         * modify the density.
-         */
-        virtual void setPressure(doublereal p) {
-            m_press = p;
-        }
+        
+      //! Report the Pressure. Units: Pa.
+      /*!
+       * For an incompressible substance, the density is independent
+       * of pressure. This method simply returns the storred
+       * pressure value.
+       */ 
+      virtual doublereal pressure() const {
+	return m_press;
+      }
+      
+      
+      //! Set the pressure at constant temperature. Units: Pa.
+      /*!
+       * For an incompressible substance, the density is 
+       * independent of pressure. Therefore, this method only 
+       * stores the specified pressure value. It does not 
+       * modify the density.
+       *
+       * @param p Pressure (units - Pa)
+       */
+      virtual void setPressure(doublereal p) {
+	m_press = p;
+      }
 
         //@}
 

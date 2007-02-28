@@ -114,7 +114,8 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          SingleSpeciesTP.h SingleSpeciesTP.cpp \
                          MolalityVPSSTP.h        MolalityVPSSTP.cpp \
                          IdealMolalSoln.h        IdealMolalSoln.cpp \
-                         IdealSolidSolnPhase.h   IdealSolidSolnPhase.cpp
+                         IdealSolidSolnPhase.h   IdealSolidSolnPhase.cpp \
+                         StoichSubstanceSSTP.h   StoichSubstanceSSTP.cpp
 RECURSIVE              = NO
 EXCLUDE                = CVS examples  converters zeroD
 EXCLUDE_SYMLINKS       = NO

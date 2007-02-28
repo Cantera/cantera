@@ -59,11 +59,11 @@ namespace Cantera {
    *		  
    * will search in the file gri30.xml for an XML element of the following form, where
    * the XML element name, phase, is an optional hit:
-   * @code
-   *      <phase id="gri30_mix>
-   *         . . .
-   *      </phase>
-   * @endcode
+   * @verbatim
+          <phase id="gri30_mix>
+             . . .
+          </phase>
+   * @endverbatim
    *
    * It will return a pointer to an xml tree for the XML phase element.
    *
@@ -108,11 +108,11 @@ namespace Cantera {
    * @endcode
    *		  
    * will search in the file gri30.xml for an XML element of the following form:
-   * @code
+   * @verbatim
    *      <phase id="gri30_mix>
    *         . . .
    *      </phase>
-   * @endcode
+   * @endverbatim
    *
    * It will return a pointer to an xml tree for the XML phase element.
    *

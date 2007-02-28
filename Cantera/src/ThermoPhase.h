@@ -306,22 +306,22 @@ namespace Cantera {
       return err("pressure");
     }
 
-      //! Set the internally storred pressure (Pa) at constant
-      //! temperature and composition
-      /*!
-       *   This method must be reimplemented in derived classes, where it
-       *   may involve the solution of a nonlinear equation. Within %Cantera,
-       *   the independent variable is the density. Therefore, this function
-       *   solves for the density that will yield the desired input pressure.
-       *   The temperature and composition iare held constant during this process.
-       *
-       *  This base class function will print an error, if not overwritten.
-       *
-       *  @param p input Pressure (Pa)
-       */
-      virtual void setPressure(doublereal p) {
-	err("setPressure");
-      }
+    //! Set the internally storred pressure (Pa) at constant
+    //! temperature and composition
+    /*!
+     *   This method must be reimplemented in derived classes, where it
+     *   may involve the solution of a nonlinear equation. Within %Cantera,
+     *   the independent variable is the density. Therefore, this function
+     *   solves for the density that will yield the desired input pressure.
+     *   The temperature and composition iare held constant during this process.
+     *
+     *  This base class function will print an error, if not overwritten.
+     *
+     *  @param p input Pressure (Pa)
+     */
+    virtual void setPressure(doublereal p) {
+      err("setPressure");
+    }
       
       //! Returns  the isothermal compressibility. Units: 1/Pa.
       /*!
@@ -467,36 +467,36 @@ namespace Cantera {
       err("logStandardConc");
       return -1.0;
     }
-      
-      /**
-       * Returns the units of the standard and generalized
-       * concentrations. Note they have the same units, as their
-       * ratio is defined to be equal to the activity of the kth
-       * species in the solution, which is unitless.
-       *
-       * This routine is used in print out applications where the
-       * units are needed. Usually, MKS units are assumed throughout
-       * the program and in the XML input files.
-       *
-       * The base %ThermoPhase class assigns thedefault quantities
-       * of (kmol/m3) for all species.
-       * Inherited classes are responsible for overriding the default 
-       * values if necessary.
-       *
-       * @param uA Output vector containing the units
-       *  uA[0] = kmol units - default  = 1
-       *  uA[1] = m    units - default  = -nDim(), the number of spatial
-       *                                dimensions in the Phase class.
-       *  uA[2] = kg   units - default  = 0;
-       *  uA[3] = Pa(pressure) units - default = 0;
-       *  uA[4] = Temperature units - default = 0;
-       *  uA[5] = time units - default = 0
-       * @param k species index. Defaults to 0.
-       * @param sizeUA output int containing the size of the vector.
-       *        Currently, this is equal to 6.
-       */
-      virtual void getUnitsStandardConc(double *uA, int k = 0,
-					int sizeUA = 6);
+         
+    //! Returns the units of the standard and generalized concentrations.
+    /*!
+     * Note they have the same units, as their
+     * ratio is defined to be equal to the activity of the kth
+     * species in the solution, which is unitless.
+     *
+     * This routine is used in print out applications where the
+     * units are needed. Usually, MKS units are assumed throughout
+     * the program and in the XML input files.
+     *
+     * The base %ThermoPhase class assigns thedefault quantities
+     * of (kmol/m3) for all species.
+     * Inherited classes are responsible for overriding the default 
+     * values if necessary.
+     *
+     * @param uA Output vector containing the units
+     *  uA[0] = kmol units - default  = 1
+     *  uA[1] = m    units - default  = -nDim(), the number of spatial
+     *                                dimensions in the Phase class.
+     *  uA[2] = kg   units - default  = 0;
+     *  uA[3] = Pa(pressure) units - default = 0;
+     *  uA[4] = Temperature units - default = 0;
+     *  uA[5] = time units - default = 0
+     * @param k species index. Defaults to 0.
+     * @param sizeUA output int containing the size of the vector.
+     *        Currently, this is equal to 6.
+     */
+    virtual void getUnitsStandardConc(double *uA, int k = 0,
+				      int sizeUA = 6);
 
       /**
        * Get the array of non-dimensional activities at
@@ -621,85 +621,85 @@ namespace Cantera {
 	err("getPartialMolarVolumes");
       }
 
-      //@}
-      /// @name Properties of the Standard State of the Species in the Solution 
-      //@{
-	
-      //! Get the array of chemical potentials at unit activity for the species
-      //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
-      /*!
-       * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
-       * \f$. The values are evaluated at the current
-       * temperature and pressure of the solution
-       *
-       * @param mu      Output vector of chemical potentials. 
-       *                Length: m_kk.
-       */
-      virtual void getStandardChemPotentials(doublereal* mu) const {
-	err("getStandardChemPotentials");
+    //@}
+    /// @name Properties of the Standard State of the Species in the Solution 
+    //@{
+    
+    //! Get the array of chemical potentials at unit activity for the species
+    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+     * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
+     * \f$. The values are evaluated at the current
+     * temperature and pressure of the solution
+     *
+     * @param mu      Output vector of chemical potentials. 
+     *                Length: m_kk.
+     */
+    virtual void getStandardChemPotentials(doublereal* mu) const {
+      err("getStandardChemPotentials");
       }
        
-      //! Get the nondimensional Enthalpy functions for the species
-      //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
-      /*!
-       * @param hrt      Output vector of  nondimensional standard state enthalpies.
-       *                 Length: m_kk.
-       */
-      virtual void getEnthalpy_RT(doublereal* hrt) const {
-	err("getEnthalpy_RT");
-      }
+    //! Get the nondimensional Enthalpy functions for the species
+    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+     * @param hrt      Output vector of  nondimensional standard state enthalpies.
+     *                 Length: m_kk.
+     */
+    virtual void getEnthalpy_RT(doublereal* hrt) const {
+      err("getEnthalpy_RT");
+    }
 
-      //! Get the array of nondimensional Entropy functions for the
-      //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
-      /*!
-       * @param sr   Output vector of  nondimensional standard state entropies.
-       *             Length: m_kk.
-       */
-      virtual void getEntropy_R(doublereal* sr) const {
-	err("getEntropy_R");
-      }
+    //! Get the array of nondimensional Entropy functions for the
+    //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+     * @param sr   Output vector of  nondimensional standard state entropies.
+     *             Length: m_kk.
+     */
+    virtual void getEntropy_R(doublereal* sr) const {
+      err("getEntropy_R");
+    }
 
-      //! Get the nondimensional Gibbs functions for the species
-      //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
-      /*!
-       * @param grt  Output vector of nondimensional standard state gibbs free energies
-       *             Length: m_kk.
-       */
-      virtual void getGibbs_RT(doublereal* grt) const {
-	err("getGibbs_RT");
-      }
+    //! Get the nondimensional Gibbs functions for the species
+    //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     *             Length: m_kk.
+     */
+    virtual void getGibbs_RT(doublereal* grt) const {
+      err("getGibbs_RT");
+    }
       
-      //! Get the Gibbs functions for the standard
-      //! state of the species at the current <I>T</I> and <I>P</I> of the solution
-      /*!
-       * Units are Joules/kmol
-       * @param gpure  Output vector of  standard state gibbs free energies
-       *               Length: m_kk.
-       */
-      virtual void getPureGibbs(doublereal* gpure) const {
-	err("getPureGibbs");
-      }
+    //! Get the Gibbs functions for the standard
+    //! state of the species at the current <I>T</I> and <I>P</I> of the solution
+    /*!
+     * Units are Joules/kmol
+     * @param gpure  Output vector of  standard state gibbs free energies
+     *               Length: m_kk.
+     */
+    virtual void getPureGibbs(doublereal* gpure) const {
+      err("getPureGibbs");
+    }
       
-      //!  Returns the vector of nondimensional Internal Energies  of the standard
-      //!  state species at the current <I>T</I> and <I>P</I> of the solution
-      /*!
-       * @param urt  output vector of nondimensional standard state internal energies
-       *             of the species. Length: m_kk. 
-       */
-      virtual void getIntEnergy_RT(doublereal *urt) const {
-	err("getIntEnergy_RT");
-      }
+    //!  Returns the vector of nondimensional Internal Energies  of the standard
+    //!  state species at the current <I>T</I> and <I>P</I> of the solution
+    /*!
+     * @param urt  output vector of nondimensional standard state internal energies
+     *             of the species. Length: m_kk. 
+     */
+    virtual void getIntEnergy_RT(doublereal *urt) const {
+      err("getIntEnergy_RT");
+    }
       
-      //! Get the nondimensional Heat Capacities at constant
-      //! pressure for the species standard states
-      //! at the current <I>T</I> and <I>P</I> of the solution
-      /*!
-       * @param cpr   Output vector of nondimensional standard state heat capacities
-       *              Length: m_kk.
-       */
-      virtual void getCp_R(doublereal* cpr) const {
-	err("getCp_R");
-      }
+    //! Get the nondimensional Heat Capacities at constant
+    //! pressure for the species standard states
+    //! at the current <I>T</I> and <I>P</I> of the solution
+    /*!
+     * @param cpr   Output vector of nondimensional standard state heat capacities
+     *              Length: m_kk.
+     */
+    virtual void getCp_R(doublereal* cpr) const {
+      err("getCp_R");
+    }
       
       //!  Get the molar volumes of the species standard states at the current
       //!  <I>T</I> and <I>P</I> of the solution.
@@ -757,41 +757,41 @@ namespace Cantera {
 	err("getGibbs_ref");
       }
       
-      //!  Returns the vector of nondimensional
-      //!  entropies of the reference state at the current temperature
-      //!  of the solution and the reference pressure for each species.
-      /*!
-       * @param er      Output vector containing the nondimensional reference state 
-       *                entropies.  Length: m_kk.
-       */
-      virtual void getEntropy_R_ref(doublereal *er) const {
-	err("getEntropy_R_ref");
-      }
-
-      //! Returns the vector of nondimensional
-      //!  internal Energies of the reference state at the current temperature
-      //!  of the solution and the reference pressure for each species.
-      /*!
-       * @param urt    Output vector of nondimensional reference state
-       *               internal energies of the species.
-       *               Length: m_kk
-       */
-      virtual void getIntEnergy_RT_ref(doublereal *urt) const {
-	err("getIntEnergy_RT_ref");
-      }
-           
-      //!  Returns the vector of nondimensional
-      //!  constant pressure heat capacities of the reference state
-      //!  at the current temperature of the solution
-      //!  and reference pressure for each species.
-      /*!
-       * @param cprt   Output vector of nondimensional reference state
-       *               heat capacities at constant pressure for the species.
-       *               Length: m_kk
-       */
-      virtual void getCp_R_ref(doublereal *cprt) const {
-	err("getCp_R_ref()");
-      }
+    //!  Returns the vector of nondimensional
+    //!  entropies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for each species.
+    /*!
+     * @param er      Output vector containing the nondimensional reference state 
+     *                entropies.  Length: m_kk.
+     */
+    virtual void getEntropy_R_ref(doublereal *er) const {
+      err("getEntropy_R_ref");
+    }
+    
+    //! Returns the vector of nondimensional
+    //!  internal Energies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for each species.
+    /*!
+     * @param urt    Output vector of nondimensional reference state
+     *               internal energies of the species.
+     *               Length: m_kk
+     */
+    virtual void getIntEnergy_RT_ref(doublereal *urt) const {
+      err("getIntEnergy_RT_ref");
+    }
+    
+    //!  Returns the vector of nondimensional
+    //!  constant pressure heat capacities of the reference state
+    //!  at the current temperature of the solution
+    //!  and reference pressure for each species.
+    /*!
+     * @param cprt   Output vector of nondimensional reference state
+     *               heat capacities at constant pressure for the species.
+     *               Length: m_kk
+     */
+    virtual void getCp_R_ref(doublereal *cprt) const {
+      err("getCp_R_ref()");
+    }
      
 
       ///////////////////////////////////////////////////////
@@ -1283,38 +1283,42 @@ namespace Cantera {
       void setIndex(int m) { m_index = m; }
 
 
-      /**
-       * @internal
-       * Set equation of state parameters. The number and meaning of
-       * these depends on the subclass. 
-       * @param n number of parameters
-       * @param c array of \a n coefficients
-       */
-      virtual void setParameters(int n, doublereal* c) {}
+    //! Set the equation of state parameters
+    /*!
+     * @internal
+     *  The number and meaning of these depends on the subclass. 
+     *
+     * @param n number of parameters
+     * @param c array of \a n coefficients
+     */
+    virtual void setParameters(int n, doublereal* c) {}
 
-      /**
-       * @internal
-       * Get equation of state parameters. The number and meaning of
-       * these depends on the subclass. 
-       * @param n number of parameters
-       * @param c array of \a n coefficients
-       */
-      virtual void getParameters(int &n, doublereal * const c) {}
 
-      /**
-       * Set equation of state parameter values from XML entries.
-       *
-       * This method is called by function importPhase() in
-       * file importCTML.cpp when processing a phase definition in
-       * an input file. It should be overloaded in subclasses to set
-       * any parameters that are specific to that particular phase
-       * model. Note, this method is called before the phase is
-       * initialzed with elements and/or species.
-       *   
-       * @param eosdata An XML_Node object corresponding to
-       *                the "thermo" entry for this phase in the input file.
-       */
-      virtual void setParametersFromXML(const XML_Node& eosdata) {}
+    //! Get the equation of state parameters in a vector
+    /*!
+     * @internal
+     * The number and meaning of these depends on the subclass. 
+     *
+     * @param n number of parameters
+     * @param c array of \a n coefficients
+     */
+    virtual void getParameters(int &n, doublereal * const c) {}
+
+      
+    //! Set equation of state parameter values from XML entries.
+    /*!
+     *
+     * This method is called by function importPhase() in
+     * file importCTML.cpp when processing a phase definition in
+     * an input file. It should be overloaded in subclasses to set
+     * any parameters that are specific to that particular phase
+     * model. Note, this method is called before the phase is
+     * initialzed with elements and/or species.
+     *   
+     * @param eosdata An XML_Node object corresponding to
+     *                the "thermo" entry for this phase in the input file.
+     */
+    virtual void setParametersFromXML(const XML_Node& eosdata) {}
       
       /**
        * Set the initial state of the phase to the conditions 

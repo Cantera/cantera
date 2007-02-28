@@ -35,32 +35,43 @@ namespace Cantera {
    *
    * The density of surface sites is given by the variable \f$ n_0 \f$, which has MKS units
    * of kmol m-2. 
-
+   *
+   *
+   * <b> Specification of Species Standard State Properties </b>
+   * 
+   *  It is assumed that the reference state thermodynamics may be
+   *  obtained by a pointer to a populated species thermodynamic property
+   *  manager class (see ThermoPhase::m_spthermo). How to relate pressure
+   *  changes to the reference state thermodynamics is resolved at this level.
+   *  
+   *  Pressure is defined as an independent variable in this phase. However, it has
+   *  no effect on any quantities, as the molar concentration is a constant.
+   *
+   * Therefore, The standard state internal energy for species  <I>k</I> is 
+   * equal to the enthalpy for species <I>k</I>.
+   *
+   *       \f[
+   *            u^o_k = h^o_k  
+   *       \f]
+   *  
+   *   Also, the standard state chemical potentials, entropy, and heat capacities
+   *   are independent of pressure. The standard state gibbs free energy is obtained
+   * from the enthalpy and entropy functions.
+   *   
+   * <b> Specification of Solution Thermodynamic Properties </b>
    *
    * The activity of species defined in the phase is given by
    *       \f[
    *            a_k = \theta_k      
    *       \f]
    *
-   * The activity concentration,\f$  C^a_k \f$, used by the kinetics manager, is equal to 
-   * the actual concentration, \f$ C^s_k \f$, and is given by the following
-   * expression.
-   *       \f[
-   *            C^a_k = C^s_k = \frac{\theta_k  n_0}{s_k}      
-   *       \f]
-   *
-   * The standard concentration for species <I>k</I> is: 
-   *        \f[
-   *            C^0_k = \frac{n_0}{s_k}      
-   *        \f]
-   *
-   * Pressure is defined as an independent variable in this phase. However, it has
-   * no effect on any quantities, as the molar concentration is a constant.
-   *
    * The chemical potential for species <I>k</I> is equal to 
    *       \f[
    *            \mu_k(T,P) = \mu^o_k(T) + R T \log(\theta_k)     
    *       \f]
+   *
+   * Pressure is defined as an independent variable in this phase. However, it has
+   * no effect on any quantities, as the molar concentration is a constant.
    *
    * The internal energy for species k is equal to the enthalpy for species <I>k</I>
    *       \f[
@@ -74,7 +85,23 @@ namespace Cantera {
    *            s_k(T,P) = s^o_k(T) - R \log(\theta_k)     
    *       \f]
    *
-   * The constructor for this  phase is located in the default ThermoFactory
+   * <b> Application within %Kinetics Managers </b>
+   *
+   * The activity concentration,\f$  C^a_k \f$, used by the kinetics manager, is equal to 
+   * the actual concentration, \f$ C^s_k \f$, and is given by the following
+   * expression.
+   *       \f[
+   *            C^a_k = C^s_k = \frac{\theta_k  n_0}{s_k}      
+   *       \f]
+   *
+   * The standard concentration for species <I>k</I> is: 
+   *        \f[
+   *            C^0_k = \frac{n_0}{s_k}      
+   *        \f]
+   *
+   * <b> Instanteation of the Class </b>
+   *
+   * The constructor for this phase is located in the default ThermoFactory
    * for Cantera. A new SurfPhase may be created by the following code snippet:
    *
    * @code
@@ -90,10 +117,12 @@ namespace Cantera {
    *    SurfPhase *diamond100TP = new SurfPhase(*xs);
    * @endcode
    *
+   *   <b> XML Example </b>
+   *
    *   An example of an XML Element named phase setting up a SurfPhase object named diamond_100
    *   is given below.
    *
-   *  @code
+   *  @verbatim
    * <phase dim="2" id="diamond_100">
    *    <elementArray datasrc="elements.xml">H C</elementArray>
    *    <speciesArray datasrc="#species_data">c6HH c6H* c6*H c6** c6HM c6HM* c6*M c6B </speciesArray>
@@ -112,7 +141,7 @@ namespace Cantera {
    *    </phaseArray>
    * </phase>
    *
-   *  @endcode
+   *  @endverbatim
    *
    * The model attribute, "Surface", on the thermo element identifies the phase as being
    * a SurfPhase object.
@@ -273,11 +302,11 @@ namespace Cantera {
      * site density in any convenient form. Internally it is changed
      * into MKS form.
      *
-     * @code
+     * @verbatim
      *    <thermo model="Surface">
      *       <site_density units="mol/cm2"> 3e-09 </site_density>
      *    </thermo>
-     * @endcode
+     * @endverbatim
      */
     virtual void setParametersFromXML(const XML_Node& thermoData);
 
@@ -311,12 +340,12 @@ namespace Cantera {
      *
      * An example of the XML code block is given below.
      *
-     * @code
+     * @verbatim
      *   <state>
      *      <temperature units="K">1200.0</temperature>
      *      <coverages>c6H*:0.1, c6HH:0.9</coverages>
      *   </state>
-     * @endcode
+     * @endverbatim
      */
     virtual void setStateFromXML(const XML_Node& state);
 

@@ -104,7 +104,7 @@ namespace Cantera {
    * part of the file_ID string. Searches are based on the
    * ID attribute of the XML element only.
    *
-   * @param file_ID This is a concatenation of two strings seperated
+   * param file_ID This is a concatenation of two strings seperated
    *                by the "#" character. The string before the
    *                pound character is the file name of an xml
    *                file to carry out the search. The string after
@@ -113,7 +113,7 @@ namespace Cantera {
    *                The string is interpreted as a file string if
    *                no # character is in the string.
    *
-   * @param root    If the file string is empty, searches for the
+   * param root    If the file string is empty, searches for the
    *                xml element with matching ID attribute are
    *                carried out from this XML node.
    */

@@ -10,6 +10,7 @@ test_electrolytes=@COMPILE_ELECTROLYTES@
 all:
 ifeq ($(test_issp),1)
 	cd issp;  @MAKE@ all
+	cd stoichSubSSTP; @MAKE@ all
 endif
 ifeq ($(test_electrolytes),1)
 	cd ims; @MAKE@ all
@@ -31,6 +32,7 @@ endif
 test:
 ifeq ($(test_issp),1)
 	cd issp;  @MAKE@ -s test
+	cd stoichSubSSTP; @MAKE@ -s test
 endif
 ifeq ($(test_electrolytes),1)
 	cd ims; @MAKE@ -s test
@@ -52,6 +54,7 @@ endif
 clean:
 	$(RM) *.*~ 
 	cd issp; @MAKE@ clean
+	cd stoichSubSSTP; @MAKE@ clean
 	cd ims;	@MAKE@ clean 
 	cd testIAPWS; @MAKE@ clean
 	cd testIAPWSPres; @MAKE@ clean
@@ -69,7 +72,8 @@ clean:
 
 depends:
 ifeq ($(test_issp),1)
-	cd issp;@MAKE@ depends
+	cd issp; @MAKE@ depends
+	cd stoichSubSSTP; @MAKE@ clean
 endif
 ifeq ($(test_electrolytes),1)
 	cd ims; @MAKE@ depends
