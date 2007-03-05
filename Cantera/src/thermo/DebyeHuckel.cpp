@@ -11,7 +11,7 @@
 /*
  * $Id$
  */
-
+//! Max function
 #ifndef MAX
 #define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
 #endif
@@ -120,7 +120,7 @@ namespace Cantera {
     *this = b;
   }
 
-  /**
+  /*
    * operator=()
    *
    *  Note this stuff will not work until the underlying phase
@@ -440,7 +440,7 @@ namespace Cantera {
    * function sets the temperature, and makes sure that
    * the value propagates to underlying objects.
    */
-  void DebyeHuckel::setTemperature(double temp) {
+  void DebyeHuckel::setTemperature(doublereal temp) {
     if (m_waterSS) {
       m_waterSS->setTemperature(temp);
     }
@@ -1264,7 +1264,7 @@ namespace Cantera {
      * Initialize all of the lengths of arrays in the object
      * now that we know what species are in the phase.
      */
-    initLengths();
+    initThermo();
 
     /*
      * Reconcile the solvent name and index.
@@ -1909,7 +1909,7 @@ namespace Cantera {
   }
 
 
-  /**
+  /*
    * initLengths():
    *
    * This internal function adjusts the lengths of arrays based on
@@ -1917,7 +1917,6 @@ namespace Cantera {
    */
   void DebyeHuckel::initLengths() {
     m_kk = nSpecies();
-    MolalityVPSSTP::initThermo();
  
     /*
      * Obtain the limits of the temperature from the species
@@ -2284,7 +2283,7 @@ namespace Cantera {
       lnActivitySolvent - log(xmolSolvent);
   }
 
-  /**
+  /*
    * s_update_dMolalityActCoeff_dT()         (private, const )
    *
    *   Using internally stored values, this function calculates
@@ -2430,7 +2429,6 @@ namespace Cantera {
    *   solvent activity coefficient is on the molality
    *   scale. It's derivatives are too.
    */
-
   void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const {
     double z_k, coeff, tmp, y, yp1, sigma, tmpLn;
     int k;
@@ -2555,7 +2553,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * s_update_dlnMolalityActCoeff_dP()         (private, const )
    *
    *   Using internally stored values, this function calculates

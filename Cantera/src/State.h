@@ -311,13 +311,15 @@ namespace Cantera {
        * This function sets the internally storred temperature of the phase.
        *
        * @param temp Temperature in kelvin
+       *
+       * @todo Make State::setTemperature a virtual function
        */
       void setTemperature(doublereal temp) {
 	m_temp = temp;
       }
       //@}
 
-      /// True if the number species has been set
+      //! True if the number species has been set
       bool ready() const { return (m_kk > 0); }
 
 

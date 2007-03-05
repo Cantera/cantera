@@ -80,17 +80,25 @@ namespace Cantera {
    *                        + 2 * sum_j (beta_jk m_j)
    *  
    */
+  /*!
+   * @name Formats for the Activity Coefficients 
+   *    
+   *   These are possible formats for the molality-based activity coefficients.
+   */
+  //@{
 #define DHFORM_DILUTE_LIMIT  0
 #define DHFORM_BDOT_AK       1
 #define DHFORM_BDOT_ACOMMON  2
 #define DHFORM_BETAIJ        3
 #define DHFORM_PITZER_BETAIJ 4
- 
+  //@}
   /*
-   *  Acceptable ways to calculate the value of A_Debye
+   *  @name  Acceptable ways to calculate the value of A_Debye
    */
+  //@{
 #define    A_DEBYE_CONST  0
 #define    A_DEBYE_WATER  1
+  //@}
 
   class WaterProps;
   class WaterPDSS;
@@ -101,7 +109,8 @@ namespace Cantera {
    * Class %DebyeHuckel represents a dilute liquid electrolyte phase which
    * obeys the Debye Huckel formulation for nonideality.
    *
-   *
+   * The concentrations of the ionic species are assumed to obey the electroneutrality
+   * condition. 
    *
    * <b> Specification of Species Standard %State Properties </b>
    *
@@ -159,8 +168,31 @@ namespace Cantera {
    * where the water phase is not a stable phase, i.e., beyond its
    * spinodal curve.
    *   
+   * <HR>
+   * <H1> Specification of Solution Thermodynamic Properties </H1>
+   * <HR>
+   * Chemical potentials
+   * of the solutes,  \f$ \mu_k \f$, and the solvent, \f$ \mu_o \f$, which are based 
+   * on the molality form, have the following general format:
    *
-   * <b> Specification of Solution Thermodynamic Properties </b>
+   * \f[
+   *    \mu_k = \mu^{\triangle}_k(T,P) + R T ln(\gamma_k^{\triangle} \frac{m_k}{m^\triangle}) 
+   * \f]
+   * \f[
+   *    \mu_o = \mu^o_o(T,P) + RT ln(a_o) 
+   * \f]
+   *
+   * where \f$ \gamma_k^{\triangle} \f$ is the molality based activity coefficient for species
+   * \f$k\f$.
+   * 
+   * Individual activity coefficients of ions can not be independently measured. Instead,
+   * only binary pairs forming electroneutral solutions can be measured.
+   *
+   * The specification of solute activity coefficients depends on the model
+   * assumed for the Debye-Huckel term. The model is set by the
+   * internal parameter #m_formDH.
+   *
+   *  <H3> Debye-Huckel Dilute Limit </H3>
    *
    *  DHFORM_DILUTE_LIMIT = 0
    *
@@ -214,9 +246,9 @@ namespace Cantera {
    *  ln(gamma_k)/RT = -z_k**2 * alpha * sqrt(I) / (1 + B * a * sqrt(I))
    *       -2 * z_k**2 * alpha * ln(1 + B * a * sqrt(I)) / (B * a)
    *                        + 2 * sum_j (beta_jk m_j)
-   *
+   * <HR>
    * <b> %Application within %Kinetics Managers </b>
-   *
+   * <HR>
    * The standard concentration is equal to 1.0. This means that the
    * kinetics operator works on an (activities basis). Since this
    * is a stoichiometric substance, this means that the concentration
@@ -255,9 +287,9 @@ namespace Cantera {
    *    StoichSubstanceSSTP solid;
    *    importPhase(*xm, &solid);
    * @endcode
-   *
+   * <HR>
    *   <b> XML Example </b>
-   *
+   * <HR>
    * The phase model name for this is called StoichSubstance. It must be supplied
    * as the model attribute of the thermo XML element entry.
    * Within the phase XML block,
@@ -304,18 +336,35 @@ namespace Cantera {
 
   public:
         
-    /// Constructors 
+    //! Empty Constructor
     DebyeHuckel();
+
+    //! Copy constructor
     DebyeHuckel(const DebyeHuckel &);
+
+    //! Assignment operator
     DebyeHuckel& operator=(const	DebyeHuckel&);
 
+    //! Full constructor for creating the phase.
+    /*!
+     *  @param inputFile  File name containing the XML description of the phase
+     *  @param id     id attribute containing the name of the phase. 
+     *                (default is the empty string)
+     */
     DebyeHuckel(std::string inputFile, std::string id = "");
+
+    //! Full constructor for creating the phase.
+    /*!
+     *  @param phaseRef XML phase node containing the description of the phase
+     *  @param id     id attribute containing the name of the phase. 
+     *                (default is the empty string)
+     */
     DebyeHuckel(XML_Node& phaseRef, std::string id = "");
 
     /// Destructor. 
     virtual ~DebyeHuckel();
 
-
+    //! Duplicator from the ThermoPhase parent class
     ThermoPhase *duplMyselfAsThermoPhase();
 
     /**
@@ -494,6 +543,8 @@ namespace Cantera {
      * function sets the temperature, and makes sure that
      * the value propagates to underlying objects, such as
      * the water standard state model.
+     *
+     * @todo Make State::setTemperature a virtual function
      *
      * @param temp Temperature in kelvin
      */
@@ -1018,7 +1069,7 @@ namespace Cantera {
      */
     SpeciesThermo& speciesThermo() { return *m_spthermo; }
 
-
+    //! Initialize the object's internal lengths after species are set
     /**
      * @internal Initialize. This method is provided to allow
      * subclasses to perform any initialization required after all
@@ -1028,7 +1079,11 @@ namespace Cantera {
      * and subclasses that do not require initialization do not
      * need to overload this method.  When importing a CTML phase
      * description, this method is called just prior to returning
-     * from function importPhase.
+     * from function importPhase().
+     *
+     * Cascading call sequence downwards starting with Parent.
+     *
+     * @internal
      *
      * @see importCTML.cpp
      */
@@ -1048,7 +1103,6 @@ namespace Cantera {
      *            phase element will be used.
      */
     virtual void constructPhaseFile(std::string infile, std::string id="");
-
     
     //!   Import and initialize a DebyeHuckel phase 
     //!   specification in an XML tree into the current object.
@@ -1142,7 +1196,7 @@ namespace Cantera {
     /*!
      * This is a function of temperature and pressure. See A_Debye_TP() for 
      * a definition of \f$ A_{Debye} \f$.
-     *     .
+     *     
      *            Units = sqrt(kg/gmol) K-1
      *
      * @param temperature Temperature in kelvin. Defaults to -1, in which
@@ -1153,15 +1207,14 @@ namespace Cantera {
      */
     virtual double dA_DebyedT_TP(double temperature = -1.0, 
 				 double pressure = -1.0) const;
-
-    /**
-     * Value of the 2nd derivative of the Debye Huckel constant with 
-     * respect to temperature as a function of temperature
-     * and pressure.
-     *
-     *            A_Debye = (F e B_Debye) / (8 Pi epsilon R T)
-     *
-     *            Units = sqrt(kg/gmol)
+    
+    //! Value of the 2nd derivative of the Debye Huckel constant with 
+    //! respect to temperature as a function of temperature and pressure.
+    /*!
+     * This is a function of temperature and pressure. See A_Debye_TP() for 
+     * a definition of \f$ A_{Debye} \f$.
+     *     
+     *            Units = sqrt(kg/gmol) K-2
      *
      * @param temperature Temperature in kelvin. Defaults to -1, in which
      *                    case the   temperature of the phase is assumed.
@@ -1172,14 +1225,13 @@ namespace Cantera {
     virtual double d2A_DebyedT2_TP(double temperature = -1.0, 
 				   double pressure = -1.0) const;
 
-    /**
-     * Value of the derivative of the Debye Huckel constant with 
-     * respect to pressure, as a function of temperature
-     * and pressure.
-     *
-     *      A_Debye = (F e B_Debye) / (8 Pi epsilon R T)
-     *
-     *  Units = sqrt(kg/gmol)
+    //! Value of the derivative of the Debye Huckel constant with 
+    //! respect to pressure, as a function of temperature and pressure.
+    /*!
+     * This is a function of temperature and pressure. See A_Debye_TP() for 
+     * a definition of \f$ A_{Debye} \f$.
+     *     
+     *            Units = sqrt(kg/gmol) Pa-1
      *
      * @param temperature Temperature in kelvin. Defaults to -1, in which
      *                    case the   temperature of the phase is assumed.
@@ -1205,15 +1257,17 @@ namespace Cantera {
   private:
 
 
-    /*   Static function that implements the non-polar species
-     *   salt-out modifications.
+    //!  Static function that implements the non-polar species
+    //!   salt-out modifications.
+    /*!
      *   Returns the calculated activity coefficients.
      */
     double _nonpolarActCoeff(double IionicMolality) const;
 
-    /**
-     *      Formula for the osmotic coefficient that occurs in
-     *      the GWB. It is originally from Helgeson for a variable
+    
+    //!      Formula for the osmotic coefficient that occurs in the GWB.
+    /*!
+     * It is originally from Helgeson for a variable
      *      NaCl brine. It's to be used with extreme caution.
      */
     double _osmoticCoeffHelgesonFixedForm() const;
@@ -1224,9 +1278,9 @@ namespace Cantera {
          
   protected:
 
-    /**
-     * This is the form of the Debye-Huckel parameterization
-     * used in this model.
+   
+    //! form of the Debye-Huckel parameterization  used in the model.
+    /*!
      * The options are described at the top of this document,
      * and in the general documentation.
      * The list is repeated here:
@@ -1275,7 +1329,17 @@ namespace Cantera {
      */
     double m_Pcurrent;
 
-	
+    //! Vector containing the electrolyte species type
+    /*!
+     * The possible types are:
+     *  - solvent
+     *  - Charged Species
+     *  - weakAcidAssociated
+     *  - strongAcidAssociated
+     *  - polarNeutral
+     *  - nonpolarNeutral
+     *  .
+     */
     vector_int  m_electrolyteSpeciesType;
 
     /**
@@ -1312,12 +1376,12 @@ namespace Cantera {
      */
     bool m_useHelgesonFixedForm;
   protected:
-    /**
-     * Stoichiometric ionic strength on the molality scale
-     */
+
+    //! Stoichiometric ionic strength on the molality scale
     mutable double m_IionicMolalityStoich;
 
   public:
+
     /**
      * Form of the constant outside the Debye-Huckel term
      * called A. It's normally a function of temperature 
@@ -1338,6 +1402,7 @@ namespace Cantera {
 
   protected:
 
+    //! Current value of the Debye Constant, A_Debye
     /**
      * A_Debye -> this expression appears on the top of the
      *            ln actCoeff term in the general Debye-Huckel
@@ -1363,6 +1428,7 @@ namespace Cantera {
      */
     mutable double m_A_Debye;
 
+    //! Current value of the constant that appears in the denominator
     /**
      * B_Debye -> this expression appears on the bottom of the
      *            ln actCoeff term in the general Debye-Huckel
@@ -1385,6 +1451,7 @@ namespace Cantera {
      */
     double m_B_Debye;
 
+    //! Array of B_Dot valyes
     /**
      *  B_Dot ->  This expression is an extension of the 
      *            Debye-Huckel expression used in some formulations
@@ -1401,11 +1468,17 @@ namespace Cantera {
      */
     array_fp m_npActCoeff;
 
-    /**
-     *  Water standard state -> derived from the
-     *  equation of state for water.
+    
+    //! Pointer to the  Water standard state object
+    /*!
+     *  derived from the equation of state for water.
      */
     WaterPDSS *m_waterSS;
+
+    //! Storage for the density of water's standard state
+    /*!
+     * Density depends on temperature and pressure.
+     */
     double m_densWaterSS;
 
     /**
@@ -1456,31 +1529,79 @@ namespace Cantera {
      */
     Array2D m_Beta_ij;
 
-    /**
-     *  Logarithm of the activity coefficients on the molality
-     *  scale.
+    //!  Logarithm of the activity coefficients on the molality scale.
+    /*!
      *       mutable because we change this if the composition
      *       or temperature or pressure changes.
      */
     mutable array_fp m_lnActCoeffMolal;
+
+    //! Derivative of log act coeff wrt T
     mutable array_fp m_dlnActCoeffMolaldT;
+
+    //! 2nd Derivative of log act coeff wrt T
     mutable array_fp m_d2lnActCoeffMolaldT2;
+
+    //! Derivative of log act coeff wrt P
     mutable array_fp m_dlnActCoeffMolaldP;
   
   private:
     doublereal err(std::string msg) const;
 
-
+    //! Initialize the internal lengths.
+    /*!
+     * This internal function adjusts the lengths of arrays based on
+     * the number of species.
+     */
     void initLengths();
 
-    /*
-     * This function will be called to update the internally storred
+  private:
+    //! Calculate the log activity coefficients
+    /*!
+     * This function updates the internally storred
      * natural logarithm of the molality activity coefficients 
      */
     void s_update_lnMolalityActCoeff() const;
 
+    //! Calculation of temperatue derivative of activity coefficient
+    /*!
+     *   Using internally stored values, this function calculates
+     *   the temperature derivative of the logarithm of the
+     *   activity coefficient for all species in the mechanism.
+     *
+     *   We assume that the activity coefficients are current in this routine
+     *
+     *   The solvent activity coefficient is on the molality scale. It's derivative is too.
+     */
     void s_update_dlnMolalityActCoeff_dT() const;
+
+    //! Calculate the temperature 2nd derivative of the activity coefficient
+    /*!
+     *   Using internally stored values, this function calculates
+     *   the temperature 2nd derivative of the logarithm of the
+     *   activity coefficient for all species in the mechanism.
+     *
+     *   We assume that the activity coefficients are current in this routine
+     *
+     *   solvent activity coefficient is on the molality
+     *   scale. It's derivatives are too.
+     *
+     * note: private routine
+     */
     void s_update_d2lnMolalityActCoeff_dT2() const;
+
+    //! Calculate the pressure derivative of the activity coefficient
+    /*!
+     *   Using internally stored values, this function calculates
+     *   the pressure derivative of the logarithm of the
+     *   activity coefficient for all species in the mechanism.
+     *
+     *   We assume that the activity coefficients, molalities,
+     *   and A_Debye are current.
+     *
+     *   solvent activity coefficient is on the molality
+     *   scale. It's derivatives are too.
+     */
     void s_update_dlnMolalityActCoeff_dP() const;
   };
 
