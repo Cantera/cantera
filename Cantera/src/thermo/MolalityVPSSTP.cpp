@@ -357,7 +357,7 @@ namespace Cantera {
    * - Activities, Standard States, Activity Concentrations -----------
    */
 
-  /**
+  /*
    * This method returns the activity convention.
    * Currently, there are two activity conventions
    *  Molar-based activities
@@ -380,7 +380,7 @@ namespace Cantera {
     return cAC_CONVENTION_MOLALITY;
   }
 
-  /**
+  /*
    * Get the array of non-dimensional activity coefficients at
    * the current solution temperature, pressure, and
    * solution concentration.
@@ -406,7 +406,7 @@ namespace Cantera {
     }
   }
     
-  /**
+  /*
    * osmotic coefficient:
    * 
    *  Calculate the osmotic coefficient of the solvent. Note there
@@ -452,7 +452,7 @@ namespace Cantera {
     return 0;
   }
 
-  /**
+  /*
    * Returns the units of the standard and general concentrations
    * Note they have the same units, as their divisor is 
    * defined to be equal to the activity of the kth species
@@ -485,7 +485,6 @@ namespace Cantera {
     }
   }
     
-
   /*
    * Set the thermodynamic state.
    */
@@ -501,7 +500,7 @@ namespace Cantera {
     }
   }
 
-  /** 
+  /*
    * Set the temperature (K), pressure (Pa), and molalities
    * (gmol kg-1) of the solutes
    */
@@ -512,14 +511,18 @@ namespace Cantera {
     setPressure(p);
   }
 
-  /** Set the temperature (K), pressure (Pa), and molalities.  */
+  /*
+   * Set the temperature (K), pressure (Pa), and molalities.
+   */
   void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, compositionMap& m) {
     setMolalitiesByName(m);
     setTemperature(t);
     setPressure(p);
   }
 
-  /** Set the temperature (K), pressure (Pa), and molality.  */
+  /*
+   * Set the temperature (K), pressure (Pa), and molality.  
+   */
   void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, const std::string& m) {
     setMolalitiesByName(m);
     setTemperature(t);
@@ -527,7 +530,7 @@ namespace Cantera {
   }
 
 
-  /**
+  /*
    * @internal Initialize. This method is provided to allow
    * subclasses to perform any initialization required after all
    * species have been added. For example, it might be used to
@@ -555,7 +558,7 @@ namespace Cantera {
     m_molalities.resize(m_kk);
   }
 
-  /**
+  /*
    * initThermoXML()                (virtual from ThermoPhase)
    *   Import and initialize a ThermoPhase object
    *

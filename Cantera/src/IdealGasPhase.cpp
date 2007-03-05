@@ -230,8 +230,8 @@ namespace Cantera {
    * @param vol     Output vector containing the standard state volumes.
    *                Length: m_kk.
    */
-   void IdealGasPhase::getStandardVolumes(doublereal *vol) const {
-    doublereal tmp = _RT() / pressure();
+  void IdealGasPhase::getStandardVolumes(doublereal *vol) const {
+    double tmp = 1.0 / molarDensity();
     for (int k = 0; k < m_kk; k++) {
       vol[k] = tmp;
     }
@@ -292,15 +292,22 @@ namespace Cantera {
 	}
     }
 
-    /**
-     *  Returns the vector of nondimensional
-     *  constant pressure heat capacities of the reference state
-     *   at the current temperature and reference pressure.
-     */
-    void IdealGasPhase::getCp_R_ref(doublereal *cprt) const {
-	const array_fp& _cpr = cp_R_ref();
-	copy(_cpr.begin(), _cpr.end(), cprt);
+  /**
+   *  Returns the vector of nondimensional
+   *  constant pressure heat capacities of the reference state
+   *   at the current temperature and reference pressure.
+   */
+  void IdealGasPhase::getCp_R_ref(doublereal *cprt) const {
+    const array_fp& _cpr = cp_R_ref();
+    copy(_cpr.begin(), _cpr.end(), cprt);
+  }
+
+  void IdealGasPhase::getStandardVolumes_ref(doublereal *vol) const {
+    doublereal tmp = _RT() / m_p0;
+    for (int k = 0; k < m_kk; k++) {
+      vol[k] = tmp;
     }
+  }
 
 
     // new methods defined here -------------------------------

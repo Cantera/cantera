@@ -473,7 +473,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * The standard concentration \f$ C^0_k \f$ used to normalize
    * the generalized concentration. In many cases, this quantity
    * will be the same for all species in a phase - for example,
@@ -678,7 +678,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    *
    * getPartialMolarEntropies()        (virtual, const)
    *
@@ -910,10 +910,7 @@ namespace Cantera {
     getStandardChemPotentials(gpure);
   }
 
-  /**
-   *
-   * getEnthalpy_RT()        (virtual, const)
-   *
+  /*
    * Get the array of nondimensional Enthalpy functions for the ss
    * species at the current <I>T</I> and <I>P</I> of the solution.
    * We assume an incompressible constant partial molar
@@ -942,15 +939,16 @@ namespace Cantera {
     }
   }
     
-  /**
-   *  getEntropy_R()         (virtual, const)
-   * 
+  /*
    * Get the nondimensional Entropies for the species
    * standard states at the current T and P of the solution.
    *
    * Note, this is equal to the reference state entropies
    * due to the zero volume expansivity:
    * i.e., (dS/dp)_T = (dV/dT)_P = 0.0
+   *
+   * The solvent water entropy is obtained from a pure water
+   * equation of state model.
    *
    * @param sr Vector of length m_kk, which on return sr[k]
    *           will contain the nondimensional
@@ -965,7 +963,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * Get the nondimensional heat capacity at constant pressure
    * function for the species
    * standard states at the current T and P of the solution.
@@ -975,6 +973,9 @@ namespace Cantera {
    * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
    * \f$ Cp^{ref}_k(T)\f$ is the constant pressure heat capacity
    * of species <I>k</I> at the reference pressure, \f$p_{ref}\f$.
+   *
+   * The solvent water heat capacity is obtained from a pure water
+   * equation of state model.
    *
    * @param cpr Vector of length m_kk, which on return cpr[k]
    *           will contain the nondimensional 
@@ -988,7 +989,7 @@ namespace Cantera {
     }
   }
     
-  /**
+  /*
    * Get the molar volumes of each species in their standard
    * states at the current
    * <I>T</I> and <I>P</I> of the solution.

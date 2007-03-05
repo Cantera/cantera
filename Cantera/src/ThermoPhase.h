@@ -45,19 +45,23 @@ namespace Cantera {
    *
    *
    * The calculation of thermodynamic functions within %ThermoPhase is 
-   * broken down roughly into two or more steps. First, the standard state properties
-   * of all of the species are calculated at the current temperature and at either
+   * broken down roughly into two or more steps. First, the standard state 
+   * properties
+   * of all of the species are calculated at the current temperature and at
+   * either
    * the current pressure or at a reference pressure. If the calculation is
    * carried out at a refereence pressure instead of at the current pressure
    * the calculation is called a "reference state properties" calculation,
    * just to make the distinction (even though it may be considered to be
    * a fixed-pressure standard-state calculation). The next step is to 
-   * adjust the reference state calculation to the current pressure. The thermodynamic
+   * adjust the reference state calculation to the current pressure. The 
+   * thermodynamic
    * functions then are considered to be at the standard state of each species.
    * Lastly the mixing contributions are added to arrive at the thermodynamic
    * functions for the solution.
    *
-   * The %ThermoPhase class provides interfaces to thermodynamic properties calculated for 
+   * The %ThermoPhase class provides interfaces to thermodynamic properties 
+   * calculated for 
    * the reference state of each species, the standard state values for 
    * each species, the thermodynamic functions for solution values, both
    * on a per mole of solution basis (i.e., enthalpy_mole()), on a per kg of
@@ -66,7 +70,8 @@ namespace Cantera {
    * getPartialMolarEnthalpies(double *hbar)).
    * At each level, functions for the enthalpy, entropy, Gibbs free energy,
    * internal energy, and volume are provided. So, 5 levels (reference state,
-   * standard state, partial molar, per mole of solution, and per mass of solution) 
+   * standard state, partial molar, per mole of solution, and per mass of 
+   * solution) 
    * and 5 functions multiplied together makes 25 possible functions. That's 
    * why %ThermoPhase is such a large class.
    *
@@ -97,7 +102,8 @@ namespace Cantera {
    *    .
    *
    * The following additional objects inherit from %ThermoPhase. Most of these
-   * are associated with an electrochemistry capability that is under construction.
+   * are associated with an electrochemistry capability that is under 
+   * construction.
    *
    *     - DebyeHuckel          in thermo/DebyeHuckel.h
    *     - SingleSpeciesTP      in thermo/SingleSpeciesTP.h
@@ -296,7 +302,7 @@ namespace Cantera {
        
     //! Return the thermodynamic pressure (Pa).
     /*!
-     * This method must be overloaded in derived classes. Since the
+     *  This method must be overloaded in derived classes. Since the
      *  mass density, temperature, and mass fractions are stored,
      *  this method should use these values to implement the
      *  mechanical equation of state \f$ P(T, \rho, Y_1, \dots,
@@ -323,16 +329,16 @@ namespace Cantera {
       err("setPressure");
     }
       
-      //! Returns  the isothermal compressibility. Units: 1/Pa.
-      /*!
-       * The isothermal compressibility is defined as
-       * \f[
-       * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
-       * \f]
-       */
-      virtual doublereal isothermalCompressibility() const {
-	err("isothermalCompressibility"); return -1.0;
-      }
+    //! Returns  the isothermal compressibility. Units: 1/Pa.
+    /*!
+     * The isothermal compressibility is defined as
+     * \f[
+     * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
+     * \f]
+     */
+    virtual doublereal isothermalCompressibility() const {
+      err("isothermalCompressibility"); return -1.0;
+    }
 
       //! Return the volumetric thermal expansion coefficient. Units: 1/K.
       /*!      
@@ -394,27 +400,27 @@ namespace Cantera {
          * @{
          */
 
-	/**
-	 * This method returns the convention used in specification
-	 * of the activities, of which there are currently two, molar-
-	 * and molality-based conventions.
-	 *
-	 * Currently, there are two activity conventions:
-	 *  - Molar-based activities
-	 *       Unit activity of species at either a hypothetical pure
-	 *       solution of the species or at a hypothetical
-	 *       pure ideal solution at infinite dilution
-	 *   cAC_CONVENTION_MOLAR 0
-	 *      - default
-	 *  
-	 *  - Molality-based acvtivities
-	 *       (unit activity of solutes at a hypothetical 1 molal
-	 *        solution referenced to infinite dilution at all
-	 *        pressures and temperatures).
-	 *   cAC_CONVENTION_MOLALITY 1
-	 */
-	virtual int activityConvention() const;
-
+	
+    //! This method returns the convention used in specification
+    //! of the activities, of which there are currently two, molar-
+    //! and molality-based conventions.
+    /*!
+     * Currently, there are two activity conventions:
+     *  - Molar-based activities
+     *       %Unit activity of species at either a hypothetical pure
+     *       solution of the species or at a hypothetical
+     *       pure ideal solution at infinite dilution
+     *   cAC_CONVENTION_MOLAR 0
+     *      - default
+     *  
+     *  - Molality-based acvtivities
+     *       (unit activity of solutes at a hypothetical 1 molal
+     *        solution referenced to infinite dilution at all
+     *        pressures and temperatures).
+     *   cAC_CONVENTION_MOLALITY 1
+     */
+    virtual int activityConvention() const;
+    
         
     //! This method returns an array of generalized concentrations
     /*!
@@ -478,7 +484,7 @@ namespace Cantera {
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns thedefault quantities
+     * The base %ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default 
      * values if necessary.
@@ -497,40 +503,36 @@ namespace Cantera {
      */
     virtual void getUnitsStandardConc(double *uA, int k = 0,
 				      int sizeUA = 6);
-
-      /**
-       * Get the array of non-dimensional activities at
-       * the current solution temperature, pressure, and
-       * solution concentration.
-       *
-       * We resolve this function at this level by calling
-       * on the activityConcentration function. However, 
-       * derived classes may want to override this default
-       * implementation.
-       *
-       * @param a   Output vector of activities. Length: m_kk.
-       */
-      virtual void getActivities(doublereal* a);
-
-      /**
-       * Get the array of non-dimensional molar-based
-       * activity coefficients at
-       * the current solution temperature, pressure, and
-       * solution concentration.
-       *
-       * @param ac Output vector of activity coefficients. Length: m_kk.
-       */
-      virtual void getActivityCoefficients(doublereal* ac) const {
-	if (m_kk == 1) {
-	  ac[0] = 1.0;
+      
+    //! Get the array of non-dimensional activities at
+    //! the current solution temperature, pressure, and solution concentration.
+    /*!
+     *
+     * We resolve this function at this level by calling
+     * on the activityConcentration function. However, 
+     * derived classes may want to override this default
+     * implementation.
+     *
+     * @param a   Output vector of activities. Length: m_kk.
+     */
+    virtual void getActivities(doublereal* a);
+    
+    //! Get the array of non-dimensional molar-based activity coefficients at
+    //! the current solution temperature, pressure, and solution concentration.
+    /*!
+     * @param ac Output vector of activity coefficients. Length: m_kk.
+     */
+    virtual void getActivityCoefficients(doublereal* ac) const {
+      if (m_kk == 1) {
+	ac[0] = 1.0;
 	} else {
 	  err("getActivityCoefficients");
 	}
-      }
+    }
       
-      //@}
-      /// @name  Partial Molar Properties of the Solution
-      //@{
+    //@}
+    /// @name  Partial Molar Properties of the Solution
+    //@{
       
       /**
        * Get the array of non-dimensional species chemical potentials
@@ -559,22 +561,22 @@ namespace Cantera {
       err("getChemPotentials");
     }
     
-      //!  Get the species electrochemical potentials. 
-      /*!
-       * These are partial molar quantities.  This method adds a term \f$ Fz_k
-       * \phi_k \f$ to each chemical potential.
-       *
-       * @param mu  Output vector of species electrochemical
-       *            potentials. Length: m_kk. Units: J/kmol
-       */
-      void getElectrochemPotentials(doublereal* mu) const {
-	getChemPotentials(mu);
-	double ve = Faraday * electricPotential();
-	for (int k = 0; k < m_kk; k++) {
-	  mu[k] += ve*charge(k);
-	}
+    //!  Get the species electrochemical potentials. 
+    /*!
+     * These are partial molar quantities.  This method adds a term \f$ Fz_k
+     * \phi_k \f$ to each chemical potential.
+     *
+     * @param mu  Output vector of species electrochemical
+     *            potentials. Length: m_kk. Units: J/kmol
+     */
+    void getElectrochemPotentials(doublereal* mu) const {
+      getChemPotentials(mu);
+      double ve = Faraday * electricPotential();
+      for (int k = 0; k < m_kk; k++) {
+	mu[k] += ve*charge(k);
       }
-
+    }
+    
       //!  Get the species partial molar enthalpies. Units: J/kmol.
       /*!
        * @param hbar    Output vector of species partial molar enthalpies.
@@ -1083,15 +1085,15 @@ namespace Cantera {
        */
       bool getElementPotentials(doublereal* lambda) const;
 
-        //@}
+    //@}
 
         
-        //---------------------------------------------------------
-        /// @name Critical State Properties.
-        /// These methods are only implemented by some subclasses, and may 
-        /// be moved out of ThermoPhase at a later date.
+    //---------------------------------------------------------
+    /// @name Critical State Properties.
+    /// These methods are only implemented by some subclasses, and may 
+    /// be moved out of ThermoPhase at a later date.
         
-        //@{
+    //@{
         
         /// Critical temperature (K).
         virtual doublereal critTemperature() const {
@@ -1136,7 +1138,7 @@ namespace Cantera {
         }
         
 
-      //@}
+    //@}
 
 
       //! @name Initialization Methods - For Internal Use (%ThermoPhase)
@@ -1172,21 +1174,24 @@ namespace Cantera {
       }
 
 
-      /**
-       * @internal Install a species thermodynamic property
-       * manager. The species thermodynamic property manager
-       * computes properties of the pure species for use in
-       * constructing solution properties. It is meant for internal
-       * use, and some classes derived from ThermoPhase may not use
-       * any species thermodynamic property manager. This method is
-       * called by function importPhase() in importCTML.cpp.
-       *
-       * @param spthermo input pointer to the species thermodynamic property
-       *                 manager.
-       */
-      void setSpeciesThermo(SpeciesThermo* spthermo) 
-      { m_spthermo = spthermo; }
-
+      
+    //!  Install a species thermodynamic property manager. 
+    /*!
+     * The species thermodynamic property manager
+     * computes properties of the pure species for use in
+     * constructing solution properties. It is meant for internal
+     * use, and some classes derived from ThermoPhase may not use
+     * any species thermodynamic property manager. This method is
+     * called by function importPhase() in importCTML.cpp.
+     *
+     * @param spthermo input pointer to the species thermodynamic property
+     *                 manager.
+     *
+     *  @internal
+     */
+    void setSpeciesThermo(SpeciesThermo* spthermo) 
+    { m_spthermo = spthermo; }
+    
       /**
        * @internal Return a reference to the species thermodynamic property
        * manager.  @todo This method will fail if no species thermo
@@ -1331,21 +1336,22 @@ namespace Cantera {
      */
     virtual void setParametersFromXML(const XML_Node& eosdata) {}
       
-      /**
-       * Set the initial state of the phase to the conditions 
-       * specified in the state XML element.
-       *
-       * This method sets the temperature, pressure, and mole 
-       * fraction vector to a set default value.
-       *
-       * @param state AN XML_Node object corresponding to
-       *              the "state" entry for this phase in the
-       *              input file.
-       */
-      virtual void setStateFromXML(const XML_Node& state);
+    
+    //! Set the initial state of the phase to the conditions 
+    //! specified in the state XML element.
+    /*!
+     *
+     * This method sets the temperature, pressure, and mole 
+     * fraction vector to a set default value.
+     *
+     * @param state AN XML_Node object corresponding to
+     *              the "state" entry for this phase in the
+     *              input file.
+     */
+    virtual void setStateFromXML(const XML_Node& state);
 
 
-      //@}
+    //@}
 
             
     protected:

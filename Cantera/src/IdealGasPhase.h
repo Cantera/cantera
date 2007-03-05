@@ -472,6 +472,15 @@ namespace Cantera {
      */
     virtual void  getCp_R_ref(doublereal *cprt) const;
 
+    //!  Get the molar volumes of the species standard states at the current
+    //!  <I>T</I> and <I>P_ref</I> of the solution.
+    /*!
+     * units = m^3 / kmol
+     *
+     * @param vol     Output vector containing the standard state volumes.
+     *                Length: m_kk.
+     */
+    virtual void getStandardVolumes_ref(doublereal *vol) const;
 
     //@}
     /// @name New Methods Defined Here  -------------------------------------------------

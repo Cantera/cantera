@@ -763,16 +763,6 @@ namespace Cantera {
      *  -------------- Utilities -------------------------------
      */
 
-    /**
-     * @internal Install a species thermodynamic property
-     * manager. The species thermodynamic property manager
-     * computes properties of the pure species for use in
-     * constructing solution properties. It is meant for internal
-     * use, and some classes derived from ThermoPhase may not use
-     * any species thermodynamic property manager.
-     */
-    void setSpeciesThermo(SpeciesThermo* spthermo) 
-    { m_spthermo = spthermo; }
 
     /**
      * Return a reference to the species thermodynamic property

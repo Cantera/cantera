@@ -105,6 +105,11 @@ namespace Cantera {
    *
    * <b> Specification of Species Standard %State Properties </b>
    *
+   * The standard states are on the unit molality basis. Therefore, in the
+   * documentation below, the normal \f$ o \f$ superscript is replaced with
+   * the \f$ \triangle \f$ symbol. The reference state symbol is now
+   *  \f$ \triangle, ref \f$.
+   * 
    *  
    *  It is assumed that the reference state thermodynamics may be
    *  obtained by a pointer to a populated species thermodynamic property
@@ -122,7 +127,7 @@ namespace Cantera {
    * The enthalpy function is given by the following relation.
    *
    *       \f[
-   *   \raggedright       h^o_k(T,P) = h^{ref}_k(T) + \tilde v \left( P - P_{ref} \right) 
+   *   \raggedright  h^\triangle_k(T,P) = h^{\triangle,ref}_k(T) + \tilde v \left( P - P_{ref} \right) 
    *       \f]
    *
    * For an incompressible,
@@ -133,12 +138,26 @@ namespace Cantera {
    * enthalpy to compute the molar internal energy.
    *
    *       \f[
-   *            u^o_k(T,P) = h^{ref}_k(T) - P_{ref} \tilde v
+   *            u^\triangle_k(T,P) = h^{\triangle,ref}_k(T) - P_{ref} \tilde v
    *       \f]
    *
    * The standard state heat capacity and entropy are independent
    * of pressure. The standard state gibbs free energy is obtained
    * from the enthalpy and entropy functions.
+   *
+   * The vector Constituents::m_speciesSize[] is used to hold the
+   * base values of species sizes. These are defined as the 
+   * molar volumes of species at infinite dilution at 300 K and 1 atm
+   * of water. m_speciesSize are calculated during the initialization of the
+   * %DebyeHuckel object and are then not touched.
+   *
+   * The current model assumes that an incompressible molar volume for
+   * all solutes. The molar volume for the water solvent, however,
+   * is obtained from a pure water equation of state, waterSS.
+   * Therefore, the water standard state varies with both T and P.
+   * It is an error to request standard state water properties  at a T and P
+   * where the water phase is not a stable phase, i.e., beyond its
+   * spinodal curve.
    *   
    *
    * <b> Specification of Solution Thermodynamic Properties </b>
@@ -146,7 +165,7 @@ namespace Cantera {
    *  All solution properties are obtained from the standard state
    *  species functions, since there is only one species in the phase.
    *
-   * <b> Application within %Kinetics Managers </b>
+   * <b> %Application within %Kinetics Managers </b>
    *
    * The standard concentration is equal to 1.0. This means that the
    * kinetics operator works on an (activities basis). Since this
@@ -166,7 +185,7 @@ namespace Cantera {
    * appear in the rate constant expression, since it's a stoichiometric
    * phase and the activity is always equal to 1.0.
    *
-   * <b> Instanteation of the Class </b>
+   * <b> Instantiation of the Class </b>
    *
    * The constructor for this phase is NOT located in the default ThermoFactory
    * for %Cantera. However, a new %StoichSubstanceSSTP may be created by 
@@ -333,17 +352,22 @@ namespace Cantera {
      *   thrown.  
      */
 
-    /**
-     * Pressure. Units: Pa.
+    //! Return the thermodynamic pressure (Pa).
+    /*!
      * For this incompressible system, we return the internally storred
      * independent value of the pressure.
-     */ 
+     */
     virtual doublereal pressure() const;
 
-    /**
-     * Set the pressure at constant temperature. Units: Pa.
-     * This method sets a constant within the object.
-     * The mass density is not a function of pressure.
+    //! Set the internally storred pressure (Pa) at constant
+    //! temperature and composition
+    /*!
+     *  This method sets a constant within the object.
+     *  The mass density is not a function of pressure.
+     *
+     *  @param p input Pressure (Pa)
+     *
+     * @todo Implement a variable pressure capability
      */
     virtual void setPressure(doublereal p);
 
@@ -395,7 +419,7 @@ namespace Cantera {
      *  NOTE: This is an overwritten function from the State.h
      *        class
      * 
-     * @param density Input density (kg/m^3).
+     * @param rho Input density (kg/m^3).
      */
     void setDensity(doublereal rho);
 
@@ -456,40 +480,6 @@ namespace Cantera {
      */
 
     /**
-     * Set the potential energy of species k to pe.
-     * Units: J/kmol.
-     * This function must be reimplemented in inherited classes
-     * of ThermoPhase.
-     */
-    virtual void setPotentialEnergy(int k, doublereal pe) {
-      err("setPotentialEnergy");
-    }
-
-    /**
-     * Get the potential energy of species k.
-     * Units: J/kmol.
-     * This function must be reimplemented in inherited classes
-     * of ThermoPhase.
-     */
-    virtual doublereal potentialEnergy(int k) const {
-      return err("potentialEnergy");
-    }
-
-    /**
-     * Set the electric potential of this phase (V).
-     * This is used by classes InterfaceKinetics and EdgeKinetics to
-     * compute the rates of charge-transfer reactions, and in computing
-     * the electrochemical potentials of the species.
-     */
-    void setElectricPotential(doublereal v) {
-      m_phi = v;
-    }
-
-    /// The electric potential of this phase (V).
-    doublereal electricPotential() const { return m_phi; }
-
-
-    /**
      * @}
      * @name Activities, Standard States,  and Activity Concentrations
      *
@@ -517,9 +507,10 @@ namespace Cantera {
      */
     virtual void getActivityConcentrations(doublereal* c) const;
 
-    /**
+    //! Return the standard concentration for the kth species
+    /*!
      * The standard concentration \f$ C^0_k \f$ used to normalize
-     * the generalized concentration. In many cases, this quantity
+     * the activity (i.e., generalized) concentration. In many cases, this quantity
      * will be the same for all species in a phase - for example,
      * for an ideal gas \f$ C^0_k = P/\hat R T \f$. For this
      * reason, this method returns a single value, instead of an
@@ -527,18 +518,29 @@ namespace Cantera {
      * concentration is species-specific (e.g. surface species of
      * different sizes), this method may be called with an
      * optional parameter indicating the species.
+     *
+     * For the time being, we will use the concentration of pure
+     * solvent for the the standard concentration of all species.
+     * This has the effect of making reaction rates
+     * based on the molality of species proportional to the
+     * molality of the species.
+     *
+     * @param k Optional parameter indicating the species. The default
+     *         is to assume this refers to species 0.
+     * @return 
+     *   Returns the standard Concentration in units of m3 kmol-1.
      */
     virtual doublereal standardConcentration(int k=0) const;
 
-    /**
-     * Returns the natural logarithm of the standard 
-     * concentration of the kth species
+    //! Natural logarithm of the standard concentration of the kth species.
+    /*!
+     * @param k    index of the species (defaults to zero)
      */
     virtual doublereal logStandardConc(int k=0) const;
 
-    /**
-     * Returns the units of the standard and generalized
-     * concentrations Note they have the same units, as their
+    //! Returns the units of the standard and generalized concentrations.
+    /*!
+     * Note they have the same units, as their
      * ratio is defined to be equal to the activity of the kth
      * species in the solution, which is unitless.
      *
@@ -546,6 +548,12 @@ namespace Cantera {
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
+     * The base %ThermoPhase class assigns the default quantities
+     * of (kmol/m3) for all species.
+     * Inherited classes are responsible for overriding the default 
+     * values if necessary.
+     *
+     * @param uA Output vector containing the units
      *  uA[0] = kmol units - default  = 1
      *  uA[1] = m    units - default  = -nDim(), the number of spatial
      *                                dimensions in the Phase class.
@@ -553,25 +561,37 @@ namespace Cantera {
      *  uA[3] = Pa(pressure) units - default = 0;
      *  uA[4] = Temperature units - default = 0;
      *  uA[5] = time units - default = 0
+     * @param k species index. Defaults to 0.
+     * @param sizeUA output int containing the size of the vector.
+     *        Currently, this is equal to 6.
      */
     virtual void getUnitsStandardConc(double *uA, int k = 0,
 				      int sizeUA = 6);
 
-    /**
-     * Get the array of non-dimensional molality-based activities at
-     * the current solution temperature, pressure, and
-     * solution concentration.
+    //! Get the array of non-dimensional activities at
+    //! the current solution temperature, pressure, and solution concentration.
+    /*!
+     *
+     * We resolve this function at this level by calling
+     * on the activityConcentration function. However, 
+     * derived classes may want to override this default
+     * implementation.
+     *
      * (note solvent is on molar scale).
+     *
+     * @param ac  Output vector of activities. Length: m_kk.
      */
     virtual void getActivities(doublereal* ac) const;
 
-    /**
-     * Get the array of non-dimensional molality-based 
-     * activity coefficients at
-     * the current solution temperature, pressure, and
-     * solution concentration.
-     * (note solvent is on molar scale. The solvent molar
-     *  based activity coefficient is returned).
+    //! Get the array of non-dimensional molality-based 
+    //! activity coefficients at
+    //! the current solution temperature, pressure, and solution concentration.
+    /*!
+     *  note solvent is on molar scale. The solvent molar
+     *  based activity coefficient is returned.
+     *
+     * @param acMolality Vector of Molality-based activity coefficients
+     *                   Length: m_kk
      */
     virtual void 
     getMolalityActivityCoefficients(doublereal* acMolality) const;
@@ -580,19 +600,22 @@ namespace Cantera {
     /// @name  Partial Molar Properties of the Solution -----------------
     //@{
 
-    /**
-     * Get the species chemical potentials. Units: J/kmol.
+    
+    //! Get the species chemical potentials. Units: J/kmol.
+    /*!
      *
      * This function returns a vector of chemical potentials of the 
      * species in solution.
+     *
      * \f[
-     *    \mu_k = \mu^{ref}_k(T) + V_k * (p - p_o) + R T ln(X_k)
+     *    \mu_k = \mu^{\triangle}_k(T,P) + R T ln(\gamma_k^{\triangle} m_k)
      * \f]
      *  or another way to phrase this is
-     * \f[
-     *    \mu_k = \mu^o_k(T,p) + R T ln(X_k) 
-     * \f]
-     *  where \f$ \mu^o_k(T,p) = \mu^{ref}_k(T) + V_k * (p - p_o)\f$
+     *
+     *  where
+     *
+     * @param mu  Output vector of species chemical 
+     *            potentials. Length: m_kk. Units: J/kmol
      */
     virtual void getChemPotentials(doublereal* mu) const;
 
@@ -662,15 +685,22 @@ namespace Cantera {
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
      
-    /**
-     * returns an array of partial molar volumes of the species
-     * in the solution. Units: m^3 kmol-1.
-     *
-     * For this solution, thepartial molar volumes are equal to the
+    //! Get the species partial molar volumes. Units: m^3/kmol.
+    /*!
+     * For this solution, the partial molar volumes are equal to the
      * constant species molar volumes.
+     *
+     *  @param vbar   Output vector of speciar partial molar volumes.
+     *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
+    //! Get the partial molar heat capacities Units: J/kmol/K
+    /*!
+     * @param cpbar   Output vector of species partial molar heat 
+     *                capacities at constant pressure.
+     *                Length = m_kk. units are J/kmol/K.
+     */
     virtual void getPartialMolarCp(doublereal* cpbar) const;
 
 
@@ -681,7 +711,14 @@ namespace Cantera {
     //@{
 
      
-    /**
+
+    //! Get the array of chemical potentials at unit activity for the species
+    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+     * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
+     * \f$. The values are evaluated at the current
+     * temperature and pressure of the solution
+     *
      *  Get the standard state chemical potentials of the species.
      *  This is the array of chemical potentials at unit activity 
      *  \f$ \mu^0_k(T,P) \f$.
@@ -692,87 +729,119 @@ namespace Cantera {
      *  equilibrium constant Kc. Therefore, Kc will also depend
      *  on T and P. This is the norm for liquid and solid systems.
      *
-     *  units = J / kmol
+     * @param mu      Output vector of chemical potentials. 
+     *                Length: m_kk.
      */
     virtual void getStandardChemPotentials(doublereal* mu) const;
 
-    /**
-     * Get the nondimensional gibbs function for the species
-     * standard states at the current T and P of the solution.
-     *
+    //! Get the nondimensional Gibbs functions for the species
+    //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+     *  The standard states are on the unit molality basis.
      *  \f[
-     *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
+     *  \mu^{\triangle}_k(T,P) = \mu^{\triangle,ref}_k(T) + (P - P_{ref}) * V_k
      * \f]
-     * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-     * \f$ \mu^{ref}_k(T)\f$ is the chemical potential of pure
+     *
+     *  where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
+     * \f$ \mu^{\triangle,ref}_k(T)\f$ is the chemical potential of pure
      * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
      *
-     * @param grt Vector of length m_kk, which on return sr[k]
-     *           will contain the nondimensional 
-     *           standard state gibbs function for species k. 
+     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     *             Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const;
 
-    /**
-     * Get the nondimensional Gibbs functions for the standard
-     * state of the species at the current T and P.
+    //! Get the Gibbs functions for the standard
+    //! state of the species at the current <I>T</I> and <I>P</I> of the solution
+    /*!
+     *  The standard states are on the unit molality basis.
+     * Units are Joules/kmol
+     * @param gpure  Output vector of  standard state gibbs free energies
+     *               Length: m_kk.
      */
     virtual void getPureGibbs(doublereal* gpure) const;
 
-    /**
-     *
-     * getEnthalpy_RT()        (virtual, const)
-     *
-     * Get the array of nondimensional Enthalpy functions for the 
-     * standard states 
-     * species at the current <I>T</I> and <I>P</I> of the solution.
+    //! Get the nondimensional Enthalpy functions for the species
+    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+     *  The standard states are on the unit molality basis.
      * We assume an incompressible constant partial molar
-     * volume here:
-     * \f[
-     *  h^0_k(T,P) = h^{ref}_k(T) + (P - P_{ref}) * V_k
-     * \f]
-     * where \f$V_k\f$ is the molar volume of SS species <I>k<\I>.
+     * volume for the solutes.
+     *
+     *  \f[
+     *      h^{\triangle}_k(T,P) = h^{\triangle,ref}_k(T) + (P - P_{ref}) * V_k
+     *  \f]
+     *
+     * where \f$V_k\f$ is the molar volume of SS species <I>k</I>.
      * \f$ h^{ref}_k(T)\f$ is the enthalpy of the SS
-     * species <I>k<\I> at the reference pressure, \f$P_{ref}\f$.
+     * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
+     *
+     * The solvent water enthalpy is obtained from a pure water
+     * equation of state model.
+     *
+     * @param hrt      Output vector of nondimensional standard state enthalpies.
+     *                 Length: m_kk.
      */
     virtual void getEnthalpy_RT(doublereal* hrt) const;
 
-    /**
-     * Get the nondimensional Entropies for the species
-     * standard states at the current T and P of the solution.
+    //! Get the array of nondimensional Entropy functions for the
+    //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+     *
+     *  The standard states are on the unit molality basis.
+     *
+     *  \f[
+     *      s^{\triangle}_k(T,P) = s^{\triangle,ref}_k(T) 
+     *  \f]
      *
      * Note, this is equal to the reference state entropies
      * due to the zero volume expansivity:
      * i.e., (dS/dp)_T = (dV/dT)_P = 0.0
      *
-     * @param sr Vector of length m_kk, which on return sr[k]
-     *           will contain the nondimensional
-     *           standard state entropy of species k.
+     * The solvent water entropy is obtained from a pure water
+     * equation of state model.
+     *
+     * @param sr   Output vector of  nondimensional standard state entropies.
+     *             Length: m_kk. The solvent water is species 0, always.
      */
     virtual void getEntropy_R(doublereal* sr) const;
 
-    /**
-     * Get the nondimensional heat capacity at constant pressure
-     * function for the species
-     * standard states at the current T and P of the solution.
+    //! Get the nondimensional Heat Capacities at constant
+    //! pressure for the species standard states
+    //! at the current <I>T</I> and <I>P</I> of the solution
+    /*!
+     *  The standard states are on the unit molality basis.
+     * For the solutes:
      * \f[
-     *  Cp^0_k(T,P) = Cp^{ref}_k(T)
+     *  Cp^\triangle_k(T,P) = Cp^{\triangle,ref}_k(T)
      * \f]
-     * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
+     *
      * \f$ Cp^{ref}_k(T)\f$ is the constant pressure heat capacity
      * of species <I>k</I> at the reference pressure, \f$p_{ref}\f$.
      *
+     * The solute heat capacity is obtained from a pure water
+     * equation of state model, so it depends on T and P.
+     *
      * @param cpr Vector of length m_kk, which on return cpr[k]
      *           will contain the nondimensional 
-     *           constant pressure heat capacity for species k. 
+     *           constant pressure heat capacity for species k.
      */
     virtual void getCp_R(doublereal* cpr) const;
 
-    /**
-     * Get the molar volumes of each species in their standard
-     * states at the current
-     * <I>T</I> and <I>P</I> of the solution.
+    //!  Get the molar volumes of the species standard states at the current
+    //!  <I>T</I> and <I>P</I> of the solution.
+    /*!
+     * The current model assumes that an incompressible molar volume for
+     * all solutes. The molar volume for the water solvent, however,
+     * is obtained from a pure water equation of state, waterSS.
+     * Therefore, the water standard state varies with both T and P.
+     * It is an error to request the water molar volume at a T and P
+     * where the water phase is not stable phase.
+     *
      * units = m^3 / kmol
+     *
+     * @param vol     Output vector containing the standard state volumes.
+     *                Length: m_kk. The solvent water is species 0, always.
      */
     virtual void getStandardVolumes(doublereal *vol) const;
 
@@ -810,14 +879,17 @@ namespace Cantera {
      * @{
      */
 
-    /**
-     * This method is used by the ChemEquil equilibrium solver.
+    //!This method is used by the ChemEquil equilibrium solver.
+    /*!
      * It sets the state such that the chemical potentials satisfy
      * \f[ \frac{\mu_k}{\hat R T} = \sum_m A_{k,m}
      * \left(\frac{\lambda_m} {\hat R T}\right) \f] where 
      * \f$ \lambda_m \f$ is the element potential of element m. The
      * temperature is unchanged.  Any phase (ideal or not) that
      * implements this method can be equilibrated by ChemEquil.
+     *
+     * @param lambda_RT Input vector of dimensionless element potentials
+     *                  The length is equal to nElements().
      */ 
     virtual void setToEquilState(const doublereal* lambda_RT) {
       err("setToEquilState");
@@ -827,27 +899,38 @@ namespace Cantera {
     //@}
 
 
-    /**
+    //! Set the equation of state parameters
+    /*!
      * @internal
-     * Set equation of state parameters. The number and meaning of
-     * these depends on the subclass. 
+     *  The number and meaning of these depends on the subclass. 
+     *
      * @param n number of parameters
-     * @param c array of \i n coefficients
-     * 
+     * @param c array of \a n coefficients
      */
     virtual void setParameters(int n, doublereal* c);
+
+    //! Get the equation of state parameters in a vector
+    /*!
+     * @internal
+     * The number and meaning of these depends on the subclass. 
+     *
+     * @param n number of parameters
+     * @param c array of \a n coefficients
+     */
     virtual void getParameters(int &n, doublereal * const c);
 
-    /**
-     * Set equation of state parameter values from XML
-     * entries. This method is called by function importPhase in
+    //! Set equation of state parameter values from XML entries.
+    /*!
+     *
+     * This method is called by function importPhase() in
      * file importCTML.cpp when processing a phase definition in
      * an input file. It should be overloaded in subclasses to set
      * any parameters that are specific to that particular phase
-     * model. 
+     * model. Note, this method is called before the phase is
+     * initialzed with elements and/or species.
      *   
      * @param eosdata An XML_Node object corresponding to
-     * the "thermo" entry for this phase in the input file.
+     *                the "thermo" entry for this phase in the input file.
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
  
@@ -892,17 +975,7 @@ namespace Cantera {
      *  -------------- Utilities -------------------------------
      */
 
-    /**
-     * @internal Install a species thermodynamic property
-     * manager. The species thermodynamic property manager
-     * computes properties of the pure species for use in
-     * constructing solution properties. It is meant for internal
-     * use, and some classes derived from ThermoPhase may not use
-     * any species thermodynamic property manager.
-     */
-    void setSpeciesThermo(SpeciesThermo* spthermo) 
-    { m_spthermo = spthermo; }
-
+ 
     /**
      * Return a reference to the species thermodynamic property
      * manager.  @todo This method will fail if no species thermo
@@ -926,10 +999,9 @@ namespace Cantera {
      */
     virtual void initThermo();
 
-    /*
-     * Initialization of a DebyeHuckel phase using an
-     * xml file
-     *
+    
+    //! Initialization of a DebyeHuckel phase using an xml file
+    /*!
      * This routine is a precursor to initThermo(XML_Node*)
      * routine, which does most of the work.
      *
@@ -970,20 +1042,6 @@ namespace Cantera {
 
 
     virtual void  initThermoXML(XML_Node& phaseNode, std::string id);
-
-    /**
-     * Report the molar volume of species k
-     *
-     * units - \f$ m^3 kmol^-1 \f$
-     */
-    //double speciesMolarVolume(int k) const;
-
-    /**
-     * Fill in a return vector containing the species molar volumes
-     * units - \f$ m^3 kmol^-1 \f$
-     */
-    //void   getSpeciesMolarVolumes(double *smv) const;
-
 
     /**
      *  Value of the Debye Huckel constant as a function of temperature
