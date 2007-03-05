@@ -355,7 +355,7 @@ namespace Cantera {
 
     /*
      * Now, update the State class with the results. This
-     * store the denisty.
+     * stores the density.
      */
     State::setDensity(dd);
 
@@ -1704,7 +1704,7 @@ namespace Cantera {
 
   }
 
-  /**
+  /*
    * @internal
    * Set equation of state parameters. The number and meaning of
    * these depends on the subclass. 
@@ -1716,7 +1716,8 @@ namespace Cantera {
   }
   void DebyeHuckel::getParameters(int &n, doublereal * const c) {
   }
-  /**
+
+  /*
    * Set equation of state parameter values from XML
    * entries. This method is called by function importPhase in
    * file importCTML.cpp when processing a phase definition in
@@ -1733,7 +1734,7 @@ namespace Cantera {
   void DebyeHuckel::setParametersFromXML(const XML_Node& eosdata) {
   }
     
-  /**
+  /*
    * Report the molar volume of species k
    *
    * units - \f$ m^3 kmol^-1 \f$
@@ -1743,7 +1744,7 @@ namespace Cantera {
   //}
 
 
-  /**
+  /*
    * A_Debye_TP()                              (virtual)
    *
    *   Returns the A_Debye parameter as a function of temperature
@@ -1779,7 +1780,7 @@ namespace Cantera {
     return A;
   }
 
-  /**
+  /*
    * dA_DebyedT_TP()                              (virtual)
    *
    *  Returns the derivative of the A_Debye parameter with

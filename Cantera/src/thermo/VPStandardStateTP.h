@@ -42,6 +42,14 @@ namespace Cantera {
    *  variables for holding the species reference-state values of Cp, H, S, and V at the
    *  last temperature and reference pressure called. These functions are not recalculated
    *  if a new call is made using the previous temperature. 
+   *
+   *  This class is usually used for nearly incompressible phases. For those phases, it
+   *  makes sense to change the equation of state independent variable from density to pressure.
+   *
+   * @todo
+   *   Put some teeth into this level by overloading the setDensity() function. It should
+   *   now throw an exception. Instead, setPressure routines should calculate the
+   *   solution density and then call State:setDensity() directly.
    *   
    *  @nosubgrouping
    */
@@ -110,7 +118,8 @@ namespace Cantera {
     /*!
      * @name  Properties of the Standard State of the Species in the Solution  (VPStandardStateTP)
      *
-     *  Within VPStandardStateTP, these properties are calculated via a common routine, _updateStandardStateThermo(),
+     *  Within VPStandardStateTP, these properties are calculated via a common routine, 
+     *  _updateStandardStateThermo(),
      *  which must be overloaded in inherited objects.
      *  The values are cached within this object, and are not recalculated unless
      *  the temperature or pressure changes.

@@ -577,52 +577,57 @@ namespace Cantera {
       }
     }
     
-      //!  Get the species partial molar enthalpies. Units: J/kmol.
-      /*!
-       * @param hbar    Output vector of species partial molar enthalpies.
-       *                Length: m_kk. units are J/kmol.
-       */
-      virtual void getPartialMolarEnthalpies(doublereal* hbar) const {
-	err("getPartialMolarEnthalpies");
-      }
+    //! Returns an array of partial molar enthalpies for the species
+    //! in the mixture. Units (J/kmol)
+    /*!
+     * @param hbar    Output vector of species partial molar enthalpies.
+     *                Length: m_kk. units are J/kmol.
+     */
+    virtual void getPartialMolarEnthalpies(doublereal* hbar) const {
+      err("getPartialMolarEnthalpies");
+    }
       
-      //! Get the species partial molar entropies. Units: J/kmol/K.
-      /*!
-       * @param sbar    Output vector of species partial molar entropies.
-       *                Length = m_kk. units are J/kmol/K.
-       */
-      virtual void getPartialMolarEntropies(doublereal* sbar) const {
-	err("getPartialMolarEntropies");
-      }
+    //! Returns an array of partial molar entropies of the species in the
+    //! solution. Units: J/kmol/K.
+    /*!
+     * @param sbar    Output vector of species partial molar entropies.
+     *                Length = m_kk. units are J/kmol/K.
+     */
+    virtual void getPartialMolarEntropies(doublereal* sbar) const {
+      err("getPartialMolarEntropies");
+    }
 
-      //! Get the species partial molar internal energies. Units: J/kmol.
-      /*!
-       * @param ubar    Output vector of speciar partial molar internal energies.
-       *                Length = m_kk. units are J/kmol.
-       */
-      virtual void getPartialMolarIntEnergies(doublereal* ubar) const {
-	err("getPartialMolarIntEnergies");
-      }
-
-      //! Get the partial molar heat capacities Units: J/kmol/K
-      /*!
-       * @param cpbar   Output vector of species partial molar heat 
-       *                capacities at constant pressure.
-       *                Length = m_kk. units are J/kmol/K.
-       */
-      virtual void getPartialMolarCp(doublereal* cpbar) const {
-	err("getPartialMolarCp");
-      }
+    //! Return an array of partial molar internal energies for the 
+    //! species in the mixture.  Units: J/kmol.
+    /*!
+     * @param ubar    Output vector of speciar partial molar internal energies.
+     *                Length = m_kk. units are J/kmol.
+     */
+    virtual void getPartialMolarIntEnergies(doublereal* ubar) const {
+      err("getPartialMolarIntEnergies");
+    }
+    
+    //! Return an array of partial molar heat capacities for the
+    //! species in the mixture.  Units: J/kmol/K
+    /*!
+     * @param cpbar   Output vector of species partial molar heat 
+     *                capacities at constant pressure.
+     *                Length = m_kk. units are J/kmol/K.
+     */
+    virtual void getPartialMolarCp(doublereal* cpbar) const {
+      err("getPartialMolarCp");
+    }
         
-      //! Get the species partial molar volumes. Units: m^3/kmol.
-      /*!
-       *  @param vbar   Output vector of speciar partial molar volumes.
-       *                Length = m_kk. units are m^3/kmol.
-       */
-      virtual void getPartialMolarVolumes(doublereal* vbar) const {
-	err("getPartialMolarVolumes");
-      }
-
+    //! Return an array of partial molar volumes for the
+    //! species in the mixture. Units: m^3/kmol.
+    /*!
+     *  @param vbar   Output vector of speciar partial molar volumes.
+     *                Length = m_kk. units are m^3/kmol.
+     */
+    virtual void getPartialMolarVolumes(doublereal* vbar) const {
+      err("getPartialMolarVolumes");
+    }
+    
     //@}
     /// @name Properties of the Standard State of the Species in the Solution 
     //@{

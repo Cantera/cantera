@@ -459,22 +459,6 @@ namespace Cantera {
     virtual void getChemPotentials(doublereal* mu) const;
 
     /**
-     * Get the species electrochemical potentials. 
-     * These are partial molar quantities.
-     * This method adds a term \f$ Fz_k \phi_k \f$ to the 
-     * to each chemical potential.
-     *
-     * Units: J/kmol
-     */
-    void getElectrochemPotentials(doublereal* mu) const {
-      getChemPotentials(mu);
-      double ve = Faraday * electricPotential();
-      for (int k = 0; k < m_kk; k++) {
-	mu[k] += ve*charge(k);
-      }
-    }
-
-    /**
      * Returns an array of partial molar enthalpies for the species
      * in the mixture.
      * Units (J/kmol)

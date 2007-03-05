@@ -162,8 +162,58 @@ namespace Cantera {
    *
    * <b> Specification of Solution Thermodynamic Properties </b>
    *
-   *  All solution properties are obtained from the standard state
-   *  species functions, since there is only one species in the phase.
+   *  DHFORM_DILUTE_LIMIT = 0
+   *
+   *      This form assumes a dilute limit to DH, and is mainly
+   *      for informational purposes:
+   *  \f[
+   *     \frac{\ln(\gamma_k^\triangle)}{ R T} = - z_k^2 A_{Debye} \sqrt{I}
+   *  \f]
+   *              where I is the ionic strength
+   *  \f[
+   *    I = \frac{1}{2} \sum_k{m_k  z_k^2}
+   *  \f]
+   *
+   *  DHFORM_BDOT_AK       = 1
+   *
+   *      This form assumes Bethke's format for the DH coefficient
+   *
+   *   ln(gamma_k)/RT = -z_k**2 * alpha * sqrt(I) / (1 + B * a_k * sqrt(I))
+   *                        + bdot_k * I
+   *      
+   *         (note, this particular form where a_k can differ in 
+   *          multielectrolyte
+   *          solutions has problems wrt a gibbs-duhem analysis. However
+   *          we include it here because there is a lot of data fit to it)
+   *
+   *  DHFORM_BDOT_AUNIFORM = 2
+   *
+   *      This form assumes Bethke's format for the DH coefficient
+   *
+   *   ln(gamma_k)/RT = -z_k**2 * alpha * sqrt(I) / (1 + B * a * sqrt(I))
+   *                        + bdot_k * I
+   *      
+   *         The value of a is determined at the beginning of the 
+   *         calculation, and not changed.
+   *
+   *  DHFORM_BETAIJ        = 3
+   * 
+   *      This form assumes a linear expansion in a virial coefficient form
+   *      It is used extensively in Newmann's book, and is the beginning of
+   *      more complex treatments for stronger electrolytes, like Pitzer
+   *      and HMW treatments.
+   *
+   *  ln(gamma_k)/RT = -z_k**2 * alpha * sqrt(I) / (1 + B * a * sqrt(I))
+   *                        + 2* sum_j (beta_jk m_j)
+   *  
+   *  DHFORM_PITZER_BETAIJ  = 4
+   * 
+   *      This form assumes an activity coefficient formulation consistent
+   *      with a truncated form of Pitzer's formulation.
+   *
+   *  ln(gamma_k)/RT = -z_k**2 * alpha * sqrt(I) / (1 + B * a * sqrt(I))
+   *       -2 * z_k**2 * alpha * ln(1 + B * a * sqrt(I)) / (B * a)
+   *                        + 2 * sum_j (beta_jk m_j)
    *
    * <b> %Application within %Kinetics Managers </b>
    *
@@ -619,27 +669,9 @@ namespace Cantera {
      */
     virtual void getChemPotentials(doublereal* mu) const;
 
-
-    /**
-     * Get the species electrochemical potentials. 
-     * These are partial molar quantities.
-     * This method adds a term \f$ Fz_k \phi_k \f$ to the 
-     * to each chemical potential.
-     *
-     * Units: J/kmol
-     */
-    void getElectrochemPotentials(doublereal* mu) const {
-      getChemPotentials(mu);
-      double ve = Faraday * electricPotential();
-      for (int k = 0; k < m_kk; k++) {
-	mu[k] += ve*charge(k);
-      }
-    }
-
-    /**
-     * Returns an array of partial molar enthalpies for the species
-     * in the mixture.
-     * Units (J/kmol)
+    //! Returns an array of partial molar enthalpies for the species
+    //! in the mixture. Units (J/kmol)
+    /*!
      * For this phase, the partial molar enthalpies are equal to the
      * pure species enthalpies
      *  \f[
@@ -651,30 +683,29 @@ namespace Cantera {
      * are computed by the species thermodynamic 
      * property manager. They are polynomial functions of temperature.
      * @see SpeciesThermo
+     *
+     * @param hbar    Output vector of species partial molar enthalpies.
+     *                Length: m_kk. units are J/kmol.
      */
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
 
+    //! Returns an array of partial molar entropies of the species in the
+    //! solution. Units: J/kmol/K.
     /**
-     * getPartialMolarEntropies()        (virtual, const)
-     *
-     * Returns an array of partial molar entropies of the species in the
-     * solution. Units: J/kmol.
-     *
      * Maxwell's equations provide an insight in how to calculate this
-     * (p.215 Smith and Van Ness)
+     *   (p.215 Smith and Van Ness)
      *
      *      d(chemPot_i)/dT = -sbar_i
      *      
-     *
      * For this phase, the partial molar entropies are equal to the
      * SS species entropies plus the ideal solution contribution.following
      * contribution:
      *  \f[
-     * \bar s_k(T,P) =  \hat s^0_k(T) - R log(M0 * molality[k])
+     *     \bar s_k(T,P) =  \hat s^0_k(T) - R log(M0 * molality[k])
      * \f]
      * \f[
-     * \bar s_solvent(T,P) =  \hat s^0_solvent(T) 
-     *             - R ((xmolSolvent - 1.0) / xmolSolvent)
+     *      \bar s_solvent(T,P) =  \hat s^0_solvent(T) 
+     *                  - R ((xmolSolvent - 1.0) / xmolSolvent)
      * \f]
      *
      * The reference-state pure-species entropies,\f$ \hat s^0_k(T) \f$,
@@ -682,10 +713,23 @@ namespace Cantera {
      * species thermodynamic
      * property manager. They are polynomial functions of temperature.
      * @see SpeciesThermo
+     *
+     *  @param sbar    Output vector of species partial molar entropies.
+     *                 Length = m_kk. units are J/kmol/K.
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
      
-    //! Get the species partial molar volumes. Units: m^3/kmol.
+    //! Return an array of partial molar heat capacities for the
+    //! species in the mixture.  Units: J/kmol/K
+    /*!
+     * @param cpbar   Output vector of species partial molar heat 
+     *                capacities at constant pressure.
+     *                Length = m_kk. units are J/kmol/K.
+     */
+    virtual void getPartialMolarCp(doublereal* cpbar) const;
+
+    //! Return an array of partial molar volumes for the
+    //! species in the mixture. Units: m^3/kmol.
     /*!
      * For this solution, the partial molar volumes are equal to the
      * constant species molar volumes.
@@ -694,15 +738,6 @@ namespace Cantera {
      *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
-
-    //! Get the partial molar heat capacities Units: J/kmol/K
-    /*!
-     * @param cpbar   Output vector of species partial molar heat 
-     *                capacities at constant pressure.
-     *                Length = m_kk. units are J/kmol/K.
-     */
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
-
 
     //@}
 
@@ -1014,9 +1049,10 @@ namespace Cantera {
      */
     virtual void constructPhaseFile(std::string infile, std::string id="");
 
-    /*
-     *   Import and initialize a DebyeHuckel phase 
-     *   specification in an XML tree into the current object.
+    
+    //!   Import and initialize a DebyeHuckel phase 
+    //!   specification in an XML tree into the current object.
+    /*!
      *   Here we read an XML description of the phase.
      *   We import descriptions of the elements that make up the
      *   species in a phase.
@@ -1034,6 +1070,7 @@ namespace Cantera {
      *             point to an XML phase object, it must have
      *             sibling nodes "speciesData" that describe
      *             the species in the phase.
+     *
      * @param id   ID of the phase. If nonnull, a check is done
      *             to see if phaseNode is pointing to the phase
      *             with the correct id. 
@@ -1043,25 +1080,76 @@ namespace Cantera {
 
     virtual void  initThermoXML(XML_Node& phaseNode, std::string id);
 
-    /**
-     *  Value of the Debye Huckel constant as a function of temperature
-     * and pressure.
+    
+    //! Return  the Debye Huckel constant as a function of temperature
+    //! and pressure (Units = sqrt(kg/gmol))
+    /*!
+     *  The default is to assume that it is constant, given
+     *  in the initialization process, and storred in the
+     *  member double, m_A_Debye. Optionally, a full water treatment may be employed that makes
+     *  \f$ A_{Debye} \f$ a full function of T and P.
      *
-     *            A_Debye = (F e B_Debye) / (8 Pi epsilon R T)
+     *   \f[
+     *      A_{Debye} = \frac{F e B_{Debye}}{8 \pi \epsilon R T} {\left( C_o \tilde{M}_o \right)}^{1/2}
+     *   \f]
+     * where
+     * 
+     *  \f[
+     *         B_{Debye} = \frac{F} {{(\frac{\epsilon R T}{2})}^{1/2}} 
+     *  \f]
+     *  Therefore:
+     * \f[
+     *   A_{Debye} = \frac{1}{8 \pi} 
+     *                 {\left(\frac{2 N_a \rho_o}{1000}\right)}^{1/2}
+     *                 {\left(\frac{N_a e^2}{\epsilon R T }\right)}^{3/2}
+     * \f]
      *
      *            Units = sqrt(kg/gmol)
+     *
+     *     where
+     *      - \f$ N_a \f$ is Avrogadro's number
+     *      - \f$ \rho_w \f$ is the density of water
+     *      - \f$ e \f$ is the electronic charge
+     *      - \f$ \epsilon = K \epsilon_o \f$ is the permitivity of water
+     *           where \f$ K \f$ is the dielectric condstant of water,
+     *           and  \f$ \epsilon_o \f$ is the permitivity of free space.
+     *      = \f$ \rho_o \f$ is the density of the solvent in its standard state.
+     *
+     *            Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)<SUP>1/2</SUP>
+     *                  based on:
+     *                 -   \f$ \epsilon / \epsilon_0 \f$ = 78.54
+     *                           (water at 25C)
+     *                 -   \f$ \epsilon_0 \f$= 8.854187817E-12 C<SUP>2</SUP> N<SUP>-1</SUP> m<SUP>-2</SUP>
+     *                 -   e = 1.60217653E-19 C
+     *                 -   F = 9.6485309E7 C kmol<SUP>-1</SUP>
+     *                 -   R = 8.314472E3 kg m<SUP>2</SUP> s<SUP>-2</SUP> kmol<SUP>-1</SUP> K<SUP>-1</SUP>
+     *                 -   T = 298.15 K
+     *                 -   B_Debye = 3.28640E9 (kg/gmol)<SUP>1/2</SUP> m<SUP>-1</SUP>
+     *                 -   \f$N_a\f$ = 6.0221415E26 kmol<SUP>-1</SUP>
+     *   
+     * @param temperature Temperature in kelvin. Defaults to -1, in which
+     *                    case the   temperature of the phase is assumed.
+     *
+     * @param pressure Pressure (Pa). Defaults to -1, in which
+     *                    case the pressure of the phase is assumed.
      */
     virtual double A_Debye_TP(double temperature = -1.0, 
 			      double pressure = -1.0) const;
 
-    /**
-     * Value of the derivative of the Debye Huckel constant with 
-     * respect to temperature as a function of temperature
-     * and pressure.
+    
+    //! Value of the derivative of the Debye Huckel constant with 
+    //! respect to temperature.
+    /*!
+     * This is a function of temperature and pressure. See A_Debye_TP() for 
+     * a definition of \f$ A_{Debye} \f$.
+     *     .
+     *            Units = sqrt(kg/gmol) K-1
      *
-     *            A_Debye = (F e B_Debye) / (8 Pi epsilon R T)
+     * @param temperature Temperature in kelvin. Defaults to -1, in which
+     *                    case the   temperature of the phase is assumed.
      *
-     *            Units = sqrt(kg/gmol)
+     * @param pressure Pressure (Pa). Defaults to -1, in which
+     *                    case the pressure of the phase is assumed.
      */
     virtual double dA_DebyedT_TP(double temperature = -1.0, 
 				 double pressure = -1.0) const;
@@ -1074,6 +1162,12 @@ namespace Cantera {
      *            A_Debye = (F e B_Debye) / (8 Pi epsilon R T)
      *
      *            Units = sqrt(kg/gmol)
+     *
+     * @param temperature Temperature in kelvin. Defaults to -1, in which
+     *                    case the   temperature of the phase is assumed.
+     *
+     * @param pressure Pressure (Pa). Defaults to -1, in which
+     *                    case the pressure of the phase is assumed.
      */
     virtual double d2A_DebyedT2_TP(double temperature = -1.0, 
 				   double pressure = -1.0) const;
@@ -1086,28 +1180,31 @@ namespace Cantera {
      *      A_Debye = (F e B_Debye) / (8 Pi epsilon R T)
      *
      *  Units = sqrt(kg/gmol)
+     *
+     * @param temperature Temperature in kelvin. Defaults to -1, in which
+     *                    case the   temperature of the phase is assumed.
+     *
+     * @param pressure Pressure (Pa). Defaults to -1, in which
+     *                    case the pressure of the phase is assumed.
      */
     virtual double dA_DebyedP_TP(double temperature = -1.0, 
 				 double pressure = -1.0) const;
 
-    /*
-     * AionicRadius()
-     *
-     *      Reports the ionic radius of the kth species
+    //!Reports the ionic radius of the kth species
+    /*!
+     * @param k  species index.
      */
     double AionicRadius(int k = 0) const;
 
-    /**
-     *
-     * formDH():
-     *
-     *  Returns the form of the Debye-Huckel parameterization used
-     */
+    //! Returns the form of the Debye-Huckel parameterization used
     int formDH() const { return m_formDH; }
 
+    //! Returns a reference to M_Beta_ij
     Array2D& get_Beta_ij() { return m_Beta_ij; }
 
   private:
+
+
     /*   Static function that implements the non-polar species
      *   salt-out modifications.
      *   Returns the calculated activity coefficients.
@@ -1204,6 +1301,8 @@ namespace Cantera {
      */
     double m_maxIionicStrength;
 
+  public:
+
     /**
      * If true, then the fixed for of Helgeson's activity
      * for water is used instead of the rigoruous form 
@@ -1211,7 +1310,6 @@ namespace Cantera {
      * used with caution, and is really only included as a 
      * validation exercise.
      */
-  public:
     bool m_useHelgesonFixedForm;
   protected:
     /**
@@ -1239,6 +1337,7 @@ namespace Cantera {
     int m_form_A_Debye;
 
   protected:
+
     /**
      * A_Debye -> this expression appears on the top of the
      *            ln actCoeff term in the general Debye-Huckel
