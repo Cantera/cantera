@@ -1015,7 +1015,7 @@ namespace Cantera {
    *  -------------- Utilities -------------------------------
    */
 
-  /**
+  /*
    *  Initialization routine for a DebyeHuckel phase.
    *
    * This is a virtual routine. This routine will call initThermo()
@@ -1026,7 +1026,7 @@ namespace Cantera {
     initLengths();
   }
 
-  /**
+  /*
    * constructPhaseFile
    *
    * Initialization of a Debye-Huckel phase using an
@@ -1100,7 +1100,7 @@ namespace Cantera {
     return rval;
   }
    	
-  /**
+  /*
    *   Import and initialize a DebyeHuckel phase 
    *   specification in an XML tree into the current object.
    *   Here we read an XML description of the phase.
@@ -1229,7 +1229,7 @@ namespace Cantera {
 
   }
 
-  /**
+  /*
    * Process the XML file after species are set up.
    *
    *  This gets called from importPhase(). It processes the XML file
@@ -2013,7 +2013,7 @@ namespace Cantera {
     return lac;
   }
 
-  /**
+  /*
    * s_update_lnMolalityActCoeff():
    *
    *   Using internally stored values, this function calculates
@@ -2071,7 +2071,7 @@ namespace Cantera {
       m_IionicMolalityStoich = m_maxIionicStrength;
     }
 
-    /**
+    /*
      * Possibly update the storred value of the
      * Debye-Huckel parameter A_Debye
      * This parameter appears on the top of the activity

@@ -34,7 +34,7 @@ namespace Cantera {
    *      This form assumes a dilute limit to DH, and is mainly
    *      for informational purposes:
    *
-   *   ln(gamma_k)/RT = -z_k**2 * alpha * sqrt(I)
+   *   ln(gamma_k) = -z_k**2 * alpha * sqrt(I)
    *
    *              where  I = 1/2 sum_k( molality_k * z_k**2)
    * 
@@ -42,7 +42,7 @@ namespace Cantera {
    *
    *      This form assumes Bethke's format for the DH coefficient
    *
-   *   ln(gamma_k)/RT = -z_k**2 * alpha * sqrt(I) / (1 + B * a_k * sqrt(I))
+   *   ln(gamma_k) = -z_k**2 * alpha * sqrt(I) / (1 + B * a_k * sqrt(I))
    *                        + bdot_k * I
    *      
    *         (note, this particular form where a_k can differ in 
@@ -54,7 +54,7 @@ namespace Cantera {
    *
    *      This form assumes Bethke's format for the DH coefficient
    *
-   *   ln(gamma_k)/RT = -z_k**2 * alpha * sqrt(I) / (1 + B * a * sqrt(I))
+   *   ln(gamma_k) = -z_k**2 * alpha * sqrt(I) / (1 + B * a * sqrt(I))
    *                        + bdot_k * I
    *      
    *         The value of a is determined at the beginning of the 
@@ -67,7 +67,7 @@ namespace Cantera {
    *      more complex treatments for stronger electrolytes, like Pitzer
    *      and HMW treatments.
    *
-   *  ln(gamma_k)/RT = -z_k**2 * alpha * sqrt(I) / (1 + B * a * sqrt(I))
+   *  ln(gamma_k) = -z_k**2 * alpha * sqrt(I) / (1 + B * a * sqrt(I))
    *                        + 2* sum_j (beta_jk m_j)
    *  
    *  DHFORM_PITZER_BETAIJ  = 4
@@ -75,7 +75,7 @@ namespace Cantera {
    *      This form assumes an activity coefficient formulation consistent
    *      with a truncated form of Pitzer's formulation.
    *
-   *  ln(gamma_k)/RT = -z_k**2 * alpha * sqrt(I) / (1 + B * a * sqrt(I))
+   *  ln(gamma_k) = -z_k**2 * alpha * sqrt(I) / (1 + B * a * sqrt(I))
    *       -2 * z_k**2 * alpha * ln(1 + B * a * sqrt(I)) / (B * a)
    *                        + 2 * sum_j (beta_jk m_j)
    *  
@@ -199,53 +199,122 @@ namespace Cantera {
    *      This form assumes a dilute limit to DH, and is mainly
    *      for informational purposes:
    *  \f[
-   *     \frac{\ln(\gamma_k^\triangle)}{ R T} = - z_k^2 A_{Debye} \sqrt{I}
+   *      \ln(\gamma_k^\triangle) = - z_k^2 A_{Debye} \sqrt{I}
    *  \f]
    *              where I is the ionic strength
    *  \f[
    *    I = \frac{1}{2} \sum_k{m_k  z_k^2}
    *  \f]
    *
-   *  DHFORM_BDOT_AK       = 1
+   *  The activity for the solvent water,\f$ a_o \f$, is not independent and must be 
+   *  determined from the Gibbs-Duhem relation.
    *
-   *      This form assumes Bethke's format for the DH coefficient
+   *  \f[
+   *       \ln(a_o) = \frac{X_o - 1.0}{X_o} + \frac{ 2 A_{Debye} \tilde{M}_o}{3} (I)^{3/2}
+   *  \f]
+   *     
    *
-   *   ln(gamma_k)/RT = -z_k**2 * alpha * sqrt(I) / (1 + B * a_k * sqrt(I))
-   *                        + bdot_k * I
-   *      
-   *         (note, this particular form where a_k can differ in 
+   *  <H3> Bdot Formulation </H3>
+   *
+   *    DHFORM_BDOT_AK       = 1
+   *
+   *      This form assumes Bethke's format for the Debye Huckel activity coefficient:
+   *
+   *   \f[
+   *      \ln(\gamma_k^\triangle) = -z_k^2 \frac{A_{Debye} \sqrt{I}}{ 1 + B_{Debye}  a_k \sqrt{I}}
+   *                        + \log(10) B^{dot}_k  I
+   *   \f]
+   *
+   *      Note, this particular form where \f$ a_k \f$ can differ in 
    *          multielectrolyte
-   *          solutions has problems wrt a gibbs-duhem analysis. However
-   *          we include it here because there is a lot of data fit to it)
+   *          solutions has problems with respect to a Gibbs-Duhem analysis. However,
+   *          we include it here because there is a lot of data fit to it.
+   *
+   *  The activity for the solvent water,\f$ a_o \f$, is not independent and must be 
+   *  determined from the Gibbs-Duhem relation. Here, we use:
+   *
+   *  \f[
+   *       \ln(a_o) = \frac{X_o - 1.0}{X_o} 
+   *        + \frac{ 2 A_{Debye} \tilde{M}_o}{3} (I)^{1/2}
+   *                        \left[ \sum_k{\frac{1}{2} m_k z_k^2 \sigma( B_{Debye} a_k \sqrt{I} ) } \right]
+   *                        - \frac{\log(10)}{2} \tilde{M}_o I \sum_k{ B^{dot}_k m_k}
+   *  \f]
+   *    where
+   *  \f[
+   *     \sigma (y) = \frac{3}{y^3} \left[ (1+y) - 2 \ln(1 + y) - \frac{1}{1+y} \right]
+   *  \f]
+   *
+   * Additionally, Helgeson's formulation for the water activity is offered as an
+   * alternative.
+   *
+   *
+   *  <H3> Bdot Formulation with Uniform Size Parameter in the Denominator </H3>
    *
    *  DHFORM_BDOT_AUNIFORM = 2
    *
-   *      This form assumes Bethke's format for the DH coefficient
+   *      This form assumes Bethke's format for the Debye-Huckel activity coefficient
    *
-   *   ln(gamma_k)/RT = -z_k**2 * alpha * sqrt(I) / (1 + B * a * sqrt(I))
-   *                        + bdot_k * I
+   *   \f[
+   *    \ln(\gamma_k^\triangle) = -z_k^2 \frac{A_{Debye} \sqrt{I}}{ 1 + B_{Debye}  a \sqrt{I}}
+   *                        + \log(10) B^{dot}_k  I
+   *   \f]
    *      
    *         The value of a is determined at the beginning of the 
    *         calculation, and not changed.
    *
+   *  \f[
+   *       \ln(a_o) = \frac{X_o - 1.0}{X_o} 
+   *        + \frac{ 2 A_{Debye} \tilde{M}_o}{3} (I)^{3/2} \sigma( B_{Debye} a \sqrt{I} )
+   *                        - \frac{\log(10)}{2} \tilde{M}_o I \sum_k{ B^{dot}_k m_k}
+   *  \f]
+   *
+   *
+   *  <H3> Beta_IJ formulation </H3>
+   *
    *  DHFORM_BETAIJ        = 3
    * 
    *      This form assumes a linear expansion in a virial coefficient form
-   *      It is used extensively in Newmann's book, and is the beginning of
-   *      more complex treatments for stronger electrolytes, like Pitzer
-   *      and HMW treatments.
-   *
-   *  ln(gamma_k)/RT = -z_k**2 * alpha * sqrt(I) / (1 + B * a * sqrt(I))
-   *                        + 2* sum_j (beta_jk m_j)
+   *      It is used extensively in the book by Newmann, Electrochemistry, and is the beginning of
+   *      more complex treatments for stronger electrolytes, fom Pitzer
+   *      and from Harvey, Moller, and Weire.
    *  
+   *   \f[
+   *    \ln(\gamma_k^\triangle) = -z_k^2 \frac{A_{Debye} \sqrt{I}}{ 1 + B_{Debye}  a \sqrt{I}}
+   *                         + 2 \sum_j \beta_{j,k} m_j
+   *   \f]
+   *
+   *   In the current treatment the binary interaction coefficients, \f$ \beta_{j,k}\f$, are 
+   *   independent of temperature and pressure.
+   *
+   *  \f[
+   *       \ln(a_o) = \frac{X_o - 1.0}{X_o} 
+   *        + \frac{ 2 A_{Debye} \tilde{M}_o}{3} (I)^{3/2} \sigma( B_{Debye} a \sqrt{I} )
+   *        -  \tilde{M}_o  \sum_j \sum_k \beta_{j,k} m_j m_k
+   *  \f]
+   *
+   *
+   *  <H3> Pitzer Beta_IJ formulation </H3>
+   *
    *  DHFORM_PITZER_BETAIJ  = 4
    * 
    *      This form assumes an activity coefficient formulation consistent
-   *      with a truncated form of Pitzer's formulation.
+   *      with a truncated form of Pitzer's formulation. Pitzer's formulation is equivalent
+   *      to the formulations above in the dilute limit, where rigorous theory may be applied.
    *
-   *  ln(gamma_k)/RT = -z_k**2 * alpha * sqrt(I) / (1 + B * a * sqrt(I))
-   *       -2 * z_k**2 * alpha * ln(1 + B * a * sqrt(I)) / (B * a)
-   *                        + 2 * sum_j (beta_jk m_j)
+   *   \f[
+   *     \ln(\gamma_k^\triangle) = -z_k^2 \frac{A_{Debye}}{3} \frac{\sqrt{I}}{ 1 + B_{Debye}  a \sqrt{I}}
+   *       -2 z_k^2 \frac{A_{Debye}}{3}  \frac{\ln(1 + B_{Debye}  a  \sqrt{I})}{ B_{Debye}  a}
+   *                         + 2 \sum_j \beta_{j,k} m_j
+   *   \f]
+   *
+   *
+   *  \f[
+   *       \ln(a_o) = \frac{X_o - 1.0}{X_o} 
+   *        + \frac{ 2 A_{Debye} \tilde{M}_o}{3} \frac{(I)^{3/2} }{1 +  B_{Debye}  a \sqrt{I} }
+   *        -  \tilde{M}_o  \sum_j \sum_k \beta_{j,k} m_j m_k
+   *  \f]
+   *
+   *
    * <HR>
    * <b> %Application within %Kinetics Managers </b>
    * <HR>
@@ -1130,10 +1199,25 @@ namespace Cantera {
      *             with the correct id. 
      */
     virtual void constructPhaseXML(XML_Node& phaseNode, std::string id="");
-
-
+    
+    //! Process the XML file after species are set up.
+    /*!
+     *  This gets called from importPhase(). It processes the XML file
+     *  after the species are set up. This is the main routine for
+     *  reading in activity coefficient parameters.
+     *
+     * @param phaseNode This object must be the phase node of a
+     *             complete XML tree
+     *             description of the phase, including all of the
+     *             species data. In other words while "phase" must
+     *             point to an XML phase object, it must have
+     *             sibling nodes "speciesData" that describe
+     *             the species in the phase.
+     * @param id   ID of the phase. If nonnull, a check is done
+     *             to see if phaseNode is pointing to the phase
+     *             with the correct id.
+     */
     virtual void  initThermoXML(XML_Node& phaseNode, std::string id);
-
     
     //! Return  the Debye Huckel constant as a function of temperature
     //! and pressure (Units = sqrt(kg/gmol))
