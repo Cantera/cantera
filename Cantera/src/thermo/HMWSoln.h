@@ -996,13 +996,6 @@ namespace Cantera {
      *  bimolecular rxns which have units of m-3 kmol-1 s-1.)
      */
     int m_formGC;
-
-    /**
-     *  Current pressure in Pascal. This is now the independent variable
-     *  as it must be for multicomponent solutions.
-     */
-    double m_Pcurrent;
-
 	
     vector_int  m_electrolyteSpeciesType;
 

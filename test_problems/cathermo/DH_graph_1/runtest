@@ -51,7 +51,6 @@ fi
 /bin/rm -f test.out test.diff DH_NaCl_acommon.csv
 
 echo 'Testing the  DH dilute act calculation - act vs I'
-/bin/rm DH_NaCl_acommon.csv
 $prog  DH_NaCl_acommon.xml > DH_NaCl_acommon.csv
 retnStat=$?
 echo 'Making a comparison with the good saved solution: '

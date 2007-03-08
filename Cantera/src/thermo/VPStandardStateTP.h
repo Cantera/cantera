@@ -34,14 +34,52 @@ namespace Cantera {
    *  a variable pressure standard state for species.
    *
    *  Several concepts are introduced. The first concept is there are temporary
-   *  variables for holding the species standard values of Cp, H, S, and V at the
+   *  variables for holding the species standard state values 
+   *  of Cp, H, S, G, and V at the
    *  last temperature and pressure called. These functions are not recalculated
    *  if a new call is made using the previous temperature and pressure.
    *
    *  There are also temporary
-   *  variables for holding the species reference-state values of Cp, H, S, and V at the
+   *  variables for holding the species reference-state values of Cp, H, S, and G at the
    *  last temperature and reference pressure called. These functions are not recalculated
    *  if a new call is made using the previous temperature. 
+   *
+   *  To support the above functionality, pressure and temperature variables,
+   *  m_plast and m_tlast, are kept which store the last pressure and temperature
+   *  used in the evaluation of standard state properties. An optional utility is provided
+   *  to store the results from the last temperature and pressure standard
+   *  state calculation and use it on subsequent calculations, if the temperature
+   *  and pressure are unchanged.
+   *
+   *  If #m_useTmpRefStateStorage is set to true, then the following internal
+   *  arrays, containing information about the reference arrays,
+   *  are calculated and kept up to date at every call.
+   *
+   *  - #m_h0_RT
+   *  - #m_g0_RT
+   *  - #m_s0_R
+   *  - #m_cp0_R
+   * 
+   *  The virtual function #_updateRefStateThermo() is supplied to do this
+   *  and may be reimplemented in child routines. A default implementation
+   *  based on the speciesThermo class is supplied in this base class.
+   *  #_updateStandardStateThermo() is called whenever a reference state property is needed.
+   *
+   *  When  #m_useTmpStandardStateStorage is true, then the following
+   *  internal arrays, containing information on the standard state properties
+   *  are calculated and kept up to date. 
+   *
+   *  -  #m_hss_RT;
+   *  -  #m_cpss_R;
+   *  -  #m_gss_RT;
+   *  -  #m_sss_R;
+   *  -  #m_Vss
+   *
+   *  The virtual function #_updateStandardStateThermo() is supplied to do this
+   *  and must be reimplemented in child routines, when  #m_useTmpStandardStateStorage is true.
+   *  It may be optionally reimplemented in child routines if
+   *  #m_useTmpStandardStateStorage is false.
+   *  #_updateStandardStateThermo() is called whenever a standard state property is needed.
    *
    *  This class is usually used for nearly incompressible phases. For those phases, it
    *  makes sense to change the equation of state independent variable from density to pressure.
@@ -99,19 +137,21 @@ namespace Cantera {
     /// @name  Partial Molar Properties of the Solution  (VPStandardStateTP)
     //@{
 
-    /**
-     * Get the array of non-dimensional species chemical potentials
-     * These are partial molar Gibbs free energies.
+    
+    //! Get the array of non-dimensional species chemical potentials
+    //! These are partial molar Gibbs free energies.
+    /*!
      * \f$ \mu_k / \hat R T \f$.
      * Units: unitless
      *
      * We close the loop on this function, here, calling
-     * getChemPotentials() and then dividing by RT.
+     * getChemPotentials() and then dividing by RT. No need for child
+     * classes to handle.
      *
      * @param mu    Output vector of  non-dimensional species chemical potentials
      *              Length: m_kk.
      */
-    virtual void getChemPotentials_RT(doublereal* mu) const;
+    void getChemPotentials_RT(doublereal* mu) const;
   
     //@}
 
@@ -166,15 +206,20 @@ namespace Cantera {
      */
     virtual void getGibbs_RT(doublereal* grt) const;
 
-    /**
-     * Get the nondimensional Gibbs functions for the standard
-     * state of the species at the current T and P.
+   
+    //! Get the nondimensional Gibbs functions for the standard
+    //! state of the species at the current T and P.
+    /*!
+     *  (Note resolved at this level)
      *
      * @param gpure  Output vector of standard state
      *               Gibbs free energies. length = m_kk.
      *               units are J/kmol.
+     *
+     * @todo This could be eliminated. It doesn't fit into the current
+     *       naming convention.
      */
-    virtual void getPureGibbs(doublereal* gpure) const;
+    void getPureGibbs(doublereal* gpure) const;
 
     /**
      *  Returns the vector of nondimensional
@@ -224,24 +269,33 @@ namespace Cantera {
     /*!
      * @internal
      *
-     * This function gets called for every call to functions in this
+     * If m_useTmpStandardStateStorage is true,
+     * this function must be called for every call to functions in this
      * class. It checks to see whether the temperature or pressure has changed and
      * thus the ss thermodynamics functions for all of the species
      * must be recalculated.
      *
-     * This function is responsible for updating the following internal members:
+     * This function is responsible for updating the following internal members,
+     * when  m_useTmpStandardStateStorage is true.
      *
-     *    m_hss_RT;
-     *    m_cpss_R;
-     *    m_gss_RT;
-     *    m_sss_R;
-     *    m_Vss
+     *  -  m_hss_RT;
+     *  -  m_cpss_R;
+     *  -  m_gss_RT;
+     *  -  m_sss_R;
+     *  -  m_Vss
+     *
+     *  If m_useTmpStandardStateStorage is not true, this function may be
+     *  required to be called by child classes to update internal member data.
      *
      *  Note, this will throw an error. It must be reimplemented in derived classes.
+     *
+     * @param pres Pressure at which to carry out the calculation.
+     *             The default is to use the current pressure, storred in m_Pcurrent.
      */                    
-    virtual void _updateStandardStateThermo() const;
+    virtual void _updateStandardStateThermo(doublereal pres = -1.0) const;
 
   public:
+
     //@}
     /// @name Thermodynamic Values for the Species Reference States (VPStandardStateTP)
     /*!
@@ -298,7 +352,7 @@ namespace Cantera {
      */
     virtual void getEntropy_R_ref(doublereal *er) const;
                  
-    /**
+    /*!
      *  Returns the vector of nondimensional
      *  constant pressure heat capacities of the reference state
      *  at the current temperature of the solution
@@ -310,15 +364,15 @@ namespace Cantera {
      */
     virtual void getCp_R_ref(doublereal *cprt) const;
 
-    //! Recalculate the Reference state thermo functions
+    //!  Get the molar volumes of the species reference states at the current
+    //!  <I>T</I> and <I>P_ref</I> of the solution.
     /*!
-     * This function checks to see whether the temperature has changed and
-     * thus the reference thermodynamics functions for all of the species
-     * must be recalculated.
-     * If the temperature has changed, the species thermo manager is called
-     * to recalculate G, Cp, H, and S at the current temperature and at
-     * the reference pressure.
+     * units = m^3 / kmol
+     *
+     * @param vol     Output vector containing the standard state volumes.
+     *                Length: m_kk.
      */
+    virtual void getStandardVolumes_ref(doublereal *vol) const;
 
   protected:
 
@@ -327,12 +381,24 @@ namespace Cantera {
      * This function checks to see whether the temperature has changed and
      * thus the reference thermodynamics functions for all of the species
      * must be recalculated.
+     * It must be called for every reference state function evaluation,
+     * if m_useTmpRefStateStorage is set to true.
      * If the temperature has changed, the species thermo manager is called
-     * to recalculate G, Cp, H, and S at the current temperature and at
-     * the reference pressure.
+     * to recalculate the following internal arrays at the current temperature and at
+     * the reference pressure:
+     *
+     *  - m_h0_RT
+     *  - m_g0_RT
+     *  - m_s0_R
+     *  - m_cp0_R
+     *
+     * This function may be reimplemented in child objects. However, it doesn't
+     * necessarily have to be, if the species thermo manager can carry
+     * out the full calculation.
      */
     virtual void _updateRefStateThermo() const;
  
+
     //@}
 
 	
@@ -416,12 +482,33 @@ namespace Cantera {
    //@}
 
   protected:
+
+    //! The current pressure of the solution (Pa)
+    /*!
+     * It gets initialized to 1 atm.
+     */
+    mutable doublereal    m_Pcurrent;
     
     //! The last temperature at which the reference thermodynamic properties were calculated at.
     mutable doublereal    m_tlast;
 
+    //! The last temperature at which the reference thermodynamic properties were calculated at.
+    mutable doublereal    m_tlast_ref;
+
     //! The last pressure at which the Standard State thermodynamic properties were calculated at.
     mutable doublereal    m_plast;
+
+    /*!
+     * Reference pressure (Pa) must be the same for all species
+     * - defaults to 1 atm.
+     */
+    doublereal m_p0;
+
+    /*!
+     * boolean indicating whether temporary reference state storage is used
+     * -> default is true
+     */
+    bool m_useTmpRefStateStorage;
 
     /*!
      * Vector containing the species reference enthalpies at T = m_tlast
@@ -447,11 +534,11 @@ namespace Cantera {
      */
     mutable vector_fp      m_s0_R;
 
-    /**
-     * Vector containing the species reference volumes
-     * at T = m_tlast and P = p_ref
-     */   
-    mutable vector_fp      m_V0;
+    /*!
+     * boolean indicating whether temporary standard state storage is used
+     * -> default is false
+     */
+    bool m_useTmpStandardStateStorage;
 
     /**
      * Vector containing the species Standard State enthalpies at T = m_tlast
@@ -482,6 +569,8 @@ namespace Cantera {
      * at T = m_tlast and P = m_plast
      */   
     mutable vector_fp      m_Vss;
+
+    
   
   private:
 

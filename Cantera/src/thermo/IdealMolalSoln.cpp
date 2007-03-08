@@ -23,7 +23,6 @@ namespace Cantera {
    */
   IdealMolalSoln::IdealMolalSoln() :
     MolalityVPSSTP(),
-    m_Pcurrent(OneAtm),
     m_formGC(2)
   {
   }
@@ -55,7 +54,6 @@ namespace Cantera {
     if (&b != this) {
       MolalityVPSSTP::operator=(b);
       m_speciesMolarVolume  = b.m_speciesMolarVolume;
-      m_Pcurrent            = b.m_Pcurrent;
       m_formGC              = b.m_formGC;
       m_expg0_RT            = b.m_expg0_RT;
       m_pe                  = b.m_pe;

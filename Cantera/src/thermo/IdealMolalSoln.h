@@ -1003,13 +1003,6 @@ namespace Cantera {
      */
     array_fp   m_speciesMolarVolume;
 
-    /*!
-     *  Current pressure in Pascal.
-     *
-     * This is an independent variable in the problem.
-     */
-    double m_Pcurrent;
-
     /**
      * The standard concentrations can have three different forms
      * depending on the value of the member attribute m_formGC, which

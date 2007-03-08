@@ -31,7 +31,6 @@ namespace Cantera {
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
     m_formGC(2),
-    m_Pcurrent(OneAtm),
     m_IionicMolality(0.0),
     m_maxIionicStrength(100.0),
     m_TempPitzerRef(298.15),
@@ -61,7 +60,6 @@ namespace Cantera {
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
     m_formGC(2),
-    m_Pcurrent(OneAtm),
     m_IionicMolality(0.0),
     m_maxIionicStrength(100.0),
     m_TempPitzerRef(298.15),
@@ -85,7 +83,6 @@ namespace Cantera {
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
     m_formGC(2),
-    m_Pcurrent(OneAtm),
     m_IionicMolality(0.0),
     m_maxIionicStrength(100.0),
     m_TempPitzerRef(298.15),
@@ -133,7 +130,6 @@ namespace Cantera {
       m_formPitzer          = b.m_formPitzer;
       m_formPitzerTemp      = b.m_formPitzerTemp;
       m_formGC              = b.m_formGC;
-      m_Pcurrent            = b.m_Pcurrent;
       m_Aionic              = b.m_Aionic;
       m_IionicMolality      = b.m_IionicMolality;
       m_maxIionicStrength   = b.m_maxIionicStrength;
@@ -265,7 +261,6 @@ namespace Cantera {
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
     m_formGC(2),
-    m_Pcurrent(OneAtm),
     m_IionicMolality(0.0),
     m_maxIionicStrength(30.0),
     m_TempPitzerRef(298.15),

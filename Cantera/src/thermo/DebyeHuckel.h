@@ -21,65 +21,6 @@
 
 namespace Cantera {
 
-
-  /*!
- 
-   *
-   * Major Parameters:
-   *
-   * m_formDH = Form of the Debye-Huckel expression
-   *
-   *  DHFORM_DILUTE_LIMIT = 0
-   *
-   *      This form assumes a dilute limit to DH, and is mainly
-   *      for informational purposes:
-   *
-   *   ln(gamma_k) = -z_k**2 * alpha * sqrt(I)
-   *
-   *              where  I = 1/2 sum_k( molality_k * z_k**2)
-   * 
-   *  DHFORM_BDOT_AK       = 1
-   *
-   *      This form assumes Bethke's format for the DH coefficient
-   *
-   *   ln(gamma_k) = -z_k**2 * alpha * sqrt(I) / (1 + B * a_k * sqrt(I))
-   *                        + bdot_k * I
-   *      
-   *         (note, this particular form where a_k can differ in 
-   *          multielectrolyte
-   *          solutions has problems wrt a gibbs-duhem analysis. However
-   *          we include it here because there is a lot of data fit to it)
-   *
-   *  DHFORM_BDOT_AUNIFORM = 2
-   *
-   *      This form assumes Bethke's format for the DH coefficient
-   *
-   *   ln(gamma_k) = -z_k**2 * alpha * sqrt(I) / (1 + B * a * sqrt(I))
-   *                        + bdot_k * I
-   *      
-   *         The value of a is determined at the beginning of the 
-   *         calculation, and not changed.
-   *
-   *  DHFORM_BETAIJ        = 3
-   * 
-   *      This form assumes a linear expansion in a virial coefficient form
-   *      It is used extensively in Newmann's book, and is the beginning of
-   *      more complex treatments for stronger electrolytes, like Pitzer
-   *      and HMW treatments.
-   *
-   *  ln(gamma_k) = -z_k**2 * alpha * sqrt(I) / (1 + B * a * sqrt(I))
-   *                        + 2* sum_j (beta_jk m_j)
-   *  
-   *  DHFORM_PITZER_BETAIJ  = 4
-   * 
-   *      This form assumes an activity coefficient formulation consistent
-   *      with a truncated form of Pitzer's formulation.
-   *
-   *  ln(gamma_k) = -z_k**2 * alpha * sqrt(I) / (1 + B * a * sqrt(I))
-   *       -2 * z_k**2 * alpha * ln(1 + B * a * sqrt(I)) / (B * a)
-   *                        + 2 * sum_j (beta_jk m_j)
-   *  
-   */
   /*!
    * @name Formats for the Activity Coefficients 
    *    
@@ -318,25 +259,57 @@ namespace Cantera {
    * <HR>
    * <b> %Application within %Kinetics Managers </b>
    * <HR>
-   * The standard concentration is equal to 1.0. This means that the
-   * kinetics operator works on an (activities basis). Since this
-   * is a stoichiometric substance, this means that the concentration
-   * of this phase drops out of kinetics expressions. 
+   * For the time being, we have set the standard concentration for all species in
+   * this phase equal to the default concentration of the solvent at 298 K and 1 atm. 
+   * This means that the
+   * kinetics operator essentially works on an activities basis, with units specified
+   * as if it were on a concentration basis.
    *
-   * An example of a reaction using this is a sticking coefficient
-   * reaction of a substance in an ideal gas phase on a surface with a bulk phase
-   * species in this phase. In this case, the rate of progress for this 
-   * reaction, \f$ R_s \f$, may be expressed via the following equation:
+   * For example, a bulk-phase binary reaction between liquid species j and k, producing
+   * a new liquid species l would have the
+   * following equation for its rate of progress variable, \f$ R^1 \f$, which has
+   * units of kmol m-3 s-1.
+   *
    *   \f[
-   *    R_s = k_s C_{gas}
+   *    R^1 = k^1 C_j^a C_k^a =  k^1 (C_o a_j) (C_o a_k) 
    *   \f]
-   * where the units for \f$ R_s \f$ are kmol m-2 s-1. \f$ C_{gas} \f$ has units
-   * of kmol m-3. Therefore, the kinetic rate constant,  \f$ k_s \f$, has
-   * units of m s-1. Nowhere does the concentration of the bulk phase
-   * appear in the rate constant expression, since it's a stoichiometric
-   * phase and the activity is always equal to 1.0.
+   * where
+   *   \f[
+   *      C_j^a = C_o a_j \quad and \quad C_k^a = C_o a_k
+   *   \f]
+   *   
+   *  \f$ C_j^a \f$ is the activity concentration of species j, and 
+   *  \f$ C_k^a \f$ is the activity concentration of species k. \f$ C_o \f$
+   *  is the concentration of water at 298 K and 1 atm. \f$ a_j \f$ is
+   *  the activity of species j at the current temperature and pressure
+   *  and concentration of the liquid phase. \f$k^1 \f$ has units of m3 kmol-1 s-1.
    *
+   *  The reverse rate constant can then be obtained from the law of microscopic reversibility
+   * and the equilibrium expression for the system.
+   *
+   *   \f[
+   *         \frac{a_j a_k}{ a_l} = K^{o,1} = \exp(\frac{\mu^o_l - \mu^o_j - \mu^o_k}{R T} )
+   *   \f]
+   *
+   *  \f$  K^{o,1} \f$ is the dimensionless form of the equilibrium constant.
+   *  
+   *   \f[
+   *    R^{-1} = k^{-1} C_l^a =  k^{-1} (C_o a_l)
+   *   \f]
+   *
+   *  where
+   *
+   *    \f[
+   *       k^{-1} =  k^1 K^{o,1} C_o
+   *   \f]
+   *
+   *  \f$k^{-1} \f$ has units of s-1.
+   * 
+   *  Note, this treatment may be modified in the future, as events dictate.
+   *
+   * <HR>
    * <b> Instantiation of the Class </b>
+   * <HR>
    *
    * The constructor for this phase is NOT located in the default ThermoFactory
    * for %Cantera. However, a new %StoichSubstanceSSTP may be created by 
@@ -397,8 +370,8 @@ namespace Cantera {
         </species>
      </speciesData>  @endverbatim
    *
-   *  The model attribute, "StoichSubstanceSSTP", on the thermo element identifies the phase as being
-   * a StoichSubstanceSSTP object.
+   *  The model attribute, "StoichSubstanceSSTP", on the thermo element identifies the phase as 
+   *  being a StoichSubstanceSSTP object.
    *
    */
   class DebyeHuckel : public MolalityVPSSTP {
@@ -662,8 +635,8 @@ namespace Cantera {
      * @{
      */
 
-    /**
-     * This method returns an array of generalized concentrations
+    //! This method returns an array of generalized concentrations
+    /*!
      * \f$ C_k\f$ that are defined such that 
      * \f$ a_k = C_k / C^0_k, \f$ where \f$ C^0_k \f$ 
      * is a standard concentration
@@ -698,7 +671,8 @@ namespace Cantera {
      * @param k Optional parameter indicating the species. The default
      *         is to assume this refers to species 0.
      * @return 
-     *   Returns the standard Concentration in units of m3 kmol-1.
+     *   Returns the standard Concentration in units of 
+     *   m<SUP>3</SUP> kmol<SUP>-1</SUP>.
      */
     virtual doublereal standardConcentration(int k=0) const;
 
@@ -1357,6 +1331,24 @@ namespace Cantera {
     double _osmoticCoeffHelgesonFixedForm() const;
     double _lnactivityWaterHelgesonFixedForm() const;
 
+  protected:
+
+    //! Updates the standard state thermodynamic functions at the current T and P of the solution.
+    /*!
+     * @internal
+     *
+     * This function gets called for every call to functions in this
+     * class. It checks to see whether the temperature or pressure has changed and
+     * thus the ss thermodynamics functions for all of the species
+     * must be recalculated.
+     *
+     *
+     *  Note, this will throw an error. It must be reimplemented in derived classes.
+     */                    
+    virtual void _updateStandardStateThermo(doublereal pres = -1.0) const;
+
+ 
+ 
     //@}
 
          
@@ -1407,11 +1399,6 @@ namespace Cantera {
      *  bimolecular rxns which have units of m-3 kmol-1 s-1.)
      */
     int m_formGC;
-
-    /**
-     *  Current pressure in Pascal
-     */
-    double m_Pcurrent;
 
     //! Vector containing the electrolyte species type
     /*!

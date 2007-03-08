@@ -670,9 +670,17 @@ namespace Cantera {
     doublereal m_tmin;
     //! Upper value of the temperature for which reference thermo is valid
     doublereal m_tmax;
-    //! Current value of the pressure (Pascals)
+
+    //! The current pressure of the solution (Pa)
+    /*!
+     * It gets initialized to 1 atm.
+     */
     doublereal m_press;
-    //! Value of the reference pressure (Pascals)
+
+    /*!
+     * Reference pressure (Pa) must be the same for all species
+     * - defaults to 1 atm.
+     */
     doublereal m_p0;
 
     //! Last temperature used to evaluate the thermodynamic polynomial.
