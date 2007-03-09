@@ -621,6 +621,22 @@ namespace Cantera {
      */
     virtual void getStandardVolumes(doublereal *vol) const;
 
+  protected:
+
+    //! Updates the standard state thermodynamic functions at the current T and P of the solution.
+    /*!
+     * @internal
+     *
+     * This function gets called for every call to functions in this
+     * class. It checks to see whether the temperature or pressure has changed and
+     * thus the ss thermodynamics functions for all of the species
+     * must be recalculated.
+     *
+     *
+     *  Note, this will throw an error. It must be reimplemented in derived classes.
+     */                    
+    virtual void _updateStandardStateThermo(doublereal pres = -1.0) const;
+
     //@}
     /// @name Thermodynamic Values for the Species Reference States ---
     //@{
@@ -654,7 +670,7 @@ namespace Cantera {
      * Chemical equilibrium.
      * @{
      */
-
+  public:
     /**
      * This method is used by the ChemEquil equilibrium solver.
      * It sets the state such that the chemical potentials satisfy

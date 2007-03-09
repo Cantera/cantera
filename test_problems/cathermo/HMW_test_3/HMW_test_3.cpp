@@ -18,6 +18,8 @@
 using namespace std;
 using namespace Cantera;
 
+int CHECK_DEBUG_MODE = 0;
+
 void printUsage() {
     cout << "usage: HMW_test_1 " <<  endl;
     cout <<"                -> Everything is hardwired" << endl;
@@ -78,9 +80,20 @@ int main(int argc, char **argv)
      moll[1] += sum;
      
      HMW->setState_TPM(Temp, OneAtm, moll);
+
 #ifdef DEBUG_MODE
-     HMW->m_debugCalc = true;
+     CHECK_DEBUG_MODE = 1;
 #endif
+     if (CHECK_DEBUG_MODE == 1) {
+       HMW->m_debugCalc = 1;
+       if (HMW->debugPrinting()) {
+         FILE *ff = fopen("CheckDebug.txt", "w");
+         fprintf(ff,"%1d\n", 1);
+         fclose(ff);
+       }
+       HMW->m_debugCalc = 1;
+     }
+
      printf("       Temperature = %g K\n", Temp);
      HMW->printCoeffs();
      pAtable(HMW);

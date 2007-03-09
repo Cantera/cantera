@@ -3,8 +3,8 @@ molar intEnergy  =      0.013282 J kg-1
 molar entropy    =        93.636 J kg-1 K-1
 molar gibbs      =   -3.8986e+07 J kg-1
 molar Cp         =         28836 J kg-1 K-1
-mixture density =         0.001 kg m-3
-molar density =    5.5339e-05 kmol m-3
+mixture density =        12.058 kg m-3
+molar density =       0.66727 kmol m-3
 mean molecular weight =         18.07 kg kmol-1
  Printout of standard state properties
             Name         mu_i       H_i_SS       S_i_SS      Cp_i_SS     Vol_i_SS

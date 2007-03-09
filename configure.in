@@ -1394,6 +1394,10 @@ AC_OUTPUT(Makefile \
           test_problems/cathermo/HMW_graph_CpvT/Makefile \
           test_problems/cathermo/HMW_graph_VvT/Makefile \
           test_problems/cathermo/DH_graph_1/Makefile \
+          test_problems/cathermo/DH_graph_acommon/Makefile \
+          test_problems/cathermo/DH_graph_NM/Makefile \
+          test_problems/cathermo/DH_graph_Pitzer/Makefile \
+          test_problems/cathermo/DH_graph_bdotak/Makefile \
           bin/install_tsc \
           )
 #	)

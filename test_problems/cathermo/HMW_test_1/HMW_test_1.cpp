@@ -32,7 +32,9 @@ void pAtable(HMWSoln *HMW) {
     double activities[100]; 
     double moll[100];
     
-    HMW->m_debugCalc = 1;
+    if (CHECK_DEBUG_MODE == 1) {
+      HMW->m_debugCalc = 1;
+    }
     HMW->getMolalityActivityCoefficients(acMol);
     HMW->getMoleFractions(mf);
     HMW->getActivities(activities);

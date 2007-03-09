@@ -2704,9 +2704,6 @@ namespace Cantera {
    * class. It checks to see whether the temperature or pressure has changed and
    * thus the ss thermodynamics functions for all of the species
    * must be recalculated.
-   *
-   *
-   *  Note, this will throw an error. It must be reimplemented in derived classes.
    */                    
   void DebyeHuckel::_updateStandardStateThermo(doublereal pnow) const {
     _updateRefStateThermo();

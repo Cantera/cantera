@@ -208,6 +208,63 @@ namespace Cantera {
   }
 
   /*
+   * Set the pressure at constant temperature. Units: Pa.
+   * This method sets a constant within the object.
+   * The mass density is not a function of pressure.
+   */
+  void IdealMolalSoln::setPressure(doublereal p) {
+
+#ifdef DEBUG_MODE
+    //printf("setPressure: %g\n", p);
+#endif
+    /*
+     * Store the current pressure
+     */
+    m_Pcurrent = p;
+
+    /*
+     * update the standard state thermo
+     * -> This involves calling the water function and setting the pressure
+     */
+    _updateStandardStateThermo();
+
+    /*
+     * Calculate all of the other standard volumes
+     * -> note these are constant for now
+     */
+    /*
+     * Get the partial molar volumes of all of the
+     * species. -> note this is a lookup for 
+     * water, here since it was done above.
+     */
+    double *vbar = &m_pp[0];
+    getPartialMolarVolumes(vbar);
+
+    /*
+     * Get mole fractions of all species.
+     */
+    double *x = &m_tmpV[0];
+    getMoleFractions(x);
+	
+    /*
+     * Calculate the solution molar volume and the 
+     * solution density.
+     */
+    doublereal vtotal = 0.0;
+    for (int i = 0; i < m_kk; i++) {
+      vtotal += vbar[i] * x[i];
+    }
+    doublereal dd = meanMolecularWeight() / vtotal;
+
+    /*
+     * Now, update the State class with the results. This
+     * stores the density.
+     */
+    State::setDensity(dd);
+
+  }
+
+  /*
    * The isothermal compressibility. Units: 1/Pa.
    * The isothermal compressibility is defined as
    * \f[
@@ -395,7 +452,8 @@ namespace Cantera {
    *  The max against 8.689E-3 is to limit the activity
    *  coefficient to be greater than 1.0E-50.
    */
-  void IdealMolalSoln::getActivities(doublereal* ac) const {
+  void IdealMolalSoln::getActivities(doublereal* ac) const {  
+    _updateStandardStateThermo();
     /*
      * Update the molality array, m_molalities()
      *   This requires an update due to mole fractions
@@ -608,6 +666,7 @@ namespace Cantera {
    *  units = J / kmol
    */
   void IdealMolalSoln::getStandardChemPotentials(doublereal* mu) const {
+    _updateStandardStateThermo();
     getGibbs_ref(mu);
     doublereal pref;
     doublereal delta_p;
@@ -656,6 +715,7 @@ namespace Cantera {
    * Units: J/kmol
    */
   void IdealMolalSoln::getPureGibbs(doublereal* gpure) const {
+    _updateStandardStateThermo();
     getGibbs_ref(gpure);
     doublereal pref;
     doublereal delta_p;
@@ -682,6 +742,7 @@ namespace Cantera {
    */
   void IdealMolalSoln::
   getEnthalpy_RT(doublereal* hrt) const {
+    _updateStandardStateThermo();
     getEnthalpy_RT_ref(hrt);
     doublereal pref;
     doublereal delta_p;
@@ -713,6 +774,7 @@ namespace Cantera {
    */
   void IdealMolalSoln::
   getEntropy_R(doublereal* sr) const {
+    _updateStandardStateThermo();
     getEntropy_R_ref(sr);
   }
 
@@ -732,6 +794,7 @@ namespace Cantera {
    *           constant pressure heat capacity for species k. 
    */
   void IdealMolalSoln::getCp_R(doublereal* cpr) const {
+    _updateStandardStateThermo();
     getCp_R_ref(cpr); 
   }
     
@@ -747,10 +810,32 @@ namespace Cantera {
    * Units = m^3 / kmol
    */
   void IdealMolalSoln::getStandardVolumes(doublereal *vol) const {
+    _updateStandardStateThermo();
     copy(m_speciesMolarVolume.begin(),
 	 m_speciesMolarVolume.end(), vol);
   }
-    
+
+  /*
+   * Updates the standard state thermodynamic functions at the current T and P of the solution.
+   *
+   * @internal
+   *
+   * This function gets called for every call to functions in this
+   * class. It checks to see whether the temperature or pressure has changed and
+   * thus the ss thermodynamics functions for all of the species
+   * must be recalculated.
+   */                    
+  void IdealMolalSoln::_updateStandardStateThermo(doublereal pnow) const {
+    _updateRefStateThermo();
+    doublereal tnow = temperature();
+    if (pnow == -1.0) {
+      pnow = m_Pcurrent;
+    }
+    if (m_tlast != tnow || m_plast != pnow) {
+      m_tlast = tnow;
+      m_plast = pnow;
+    }
+  } 
 
   /*
    * ------ Thermodynamic Values for the Species Reference States ---
@@ -773,7 +858,7 @@ namespace Cantera {
     MolalityVPSSTP::initThermo();
   }
 
-  /**
+  /*
    * Initialization of an IdealMolalSoln phase using an
    * xml file
    *

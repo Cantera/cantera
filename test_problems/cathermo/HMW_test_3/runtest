@@ -2,7 +2,6 @@
 #
 #
 temp_success="1"
-/bin/rm  -f output.txt outputa.txt
 
 ##########################################################################
 prog=HMW_test_3
@@ -11,7 +10,9 @@ if test ! -x $prog ; then
    exit -1
 fi
 ##########################################################################
-/bin/rm -f test.out test.diff   output.txt
+/bin/rm  -f output.txt outputa.txt 
+/bin/rm -f test.out test.diff   output.txt diff_test.out
+/bin/rm -f CheckDebug.txt output_bc.txt
 
 #################################################################
 #
@@ -29,7 +30,14 @@ then
 fi
 
 $CANTERA_BIN/exp3to2.sh output.txt > outputa.txt
-diff -w outputa.txt output_blessed.txt > diff_test.out
+if [ -f CheckDebug.txt ]
+then
+  cp output_blessed.txt output_bc.txt
+else
+  cp output_noD_blessed.txt output_bc.txt
+fi
+
+diff -w outputa.txt output_bc.txt > diff_test.out
 retnStat=$?
 if [ $retnStat = "0" ]
 then

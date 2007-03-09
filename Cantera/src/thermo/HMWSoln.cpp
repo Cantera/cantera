@@ -549,22 +549,22 @@ namespace Cantera {
 #ifdef DEBUG_MODE
     //printf("setPressure: %g\n", p);
 #endif
-    double temp = temperature();
     /*
-     * Call the water SS and set it's internal state
+     * Store the current pressure
      */
-    m_waterSS->setTempPressure(temp, p);
-
+    m_Pcurrent = p;
+    /*
+     * update the standard state thermo
+     * -> This involves calling the water function and setting the pressure
+     */
+    _updateStandardStateThermo();
+  
     /*
      * Store the internal density of the water SS.
      * Note, we would have to do this for all other
      * species if they had pressure dependent properties.
      */
     m_densWaterSS = m_waterSS->density();
-    /*
-     * Store the current pressure
-     */
-    m_Pcurrent = p;
     /*
      * Calculate all of the other standard volumes
      * -> note these are constant for now
@@ -784,6 +784,7 @@ namespace Cantera {
    *
    */
   void HMWSoln::getActivities(doublereal* ac) const {
+    _updateStandardStateThermo();
     /*
      * Update the molality array, m_molalities()
      *   This requires an update due to mole fractions
@@ -815,7 +816,7 @@ namespace Cantera {
    */
   void HMWSoln::
   getMolalityActivityCoefficients(doublereal* acMolality) const {
-
+    _updateStandardStateThermo();
     A_Debye_TP(-1.0, -1.0);
     s_update_lnMolalityActCoeff();
     copy(m_lnActCoeffMolal.begin(), m_lnActCoeffMolal.end(), acMolality);
@@ -1075,6 +1076,7 @@ namespace Cantera {
    *  units = J / kmol
    */
   void HMWSoln::getStandardChemPotentials(doublereal* mu) const {
+    _updateStandardStateThermo();
     getGibbs_ref(mu);
     doublereal pref;
     doublereal delta_p;
@@ -1145,6 +1147,7 @@ namespace Cantera {
    */
   void HMWSoln::
   getEnthalpy_RT(doublereal* hrt) const {
+    _updateStandardStateThermo();
     getEnthalpy_RT_ref(hrt);
     doublereal pref;
     doublereal delta_p;
@@ -1174,6 +1177,7 @@ namespace Cantera {
    */
   void HMWSoln::
   getEntropy_R(doublereal* sr) const {
+    _updateStandardStateThermo();
     getEntropy_R_ref(sr);
     sr[0] = m_waterSS->entropy_mole();
     sr[0] /= GasConstant;
@@ -1195,6 +1199,7 @@ namespace Cantera {
    *           constant pressure heat capacity for species k. 
    */
   void HMWSoln::getCp_R(doublereal* cpr) const {
+    _updateStandardStateThermo();
     getCp_R_ref(cpr); 
     cpr[0] = m_waterSS->cp_mole();
     cpr[0] /= GasConstant;
@@ -1209,10 +1214,35 @@ namespace Cantera {
    * The water calculation is done separately.
    */
   void HMWSoln::getStandardVolumes(doublereal *vol) const {
-    copy(m_speciesSize.begin(),
-	 m_speciesSize.end(), vol);
+    _updateStandardStateThermo();
+    copy(m_speciesSize.begin(), m_speciesSize.end(), vol);
     double dd = m_waterSS->density();
     vol[0] = molecularWeight(0)/dd;
+  }
+
+  /*
+   * Updates the standard state thermodynamic functions at the current T and P of the solution.
+   *
+   * @internal
+   *
+   * This function gets called for every call to functions in this
+   * class. It checks to see whether the temperature or pressure has changed and
+   * thus the ss thermodynamics functions for all of the species
+   * must be recalculated.
+   */                    
+  void HMWSoln::_updateStandardStateThermo(doublereal pnow) const {
+    _updateRefStateThermo();
+    doublereal tnow = temperature();
+    if (pnow == -1.0) {
+      pnow = m_Pcurrent;
+    }
+    if (m_tlast != tnow || m_plast != pnow) {
+      if (m_waterSS) {
+	m_waterSS->setTempPressure(tnow, pnow);
+      }
+      m_tlast = tnow;
+      m_plast = pnow;
+    }
   }
 
   /*
@@ -1287,7 +1317,7 @@ namespace Cantera {
     return vol;
   }
  
-  /**
+  /*
    * A_Debye_TP()                              (virtual)
    *
    *   Returns the A_Debye parameter as a function of temperature

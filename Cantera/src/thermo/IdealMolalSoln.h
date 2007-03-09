@@ -251,9 +251,7 @@ namespace Cantera {
      *
      * @param p   Input Pressure
      */
-    virtual void setPressure(doublereal p) {
-      m_Pcurrent = p;
-    }
+    virtual void setPressure(doublereal p);
 
     /**
      * Calculate the density of the mixture using the partial 
@@ -734,6 +732,20 @@ namespace Cantera {
      */
     virtual void getStandardVolumes(doublereal *vol) const;
 
+    //! Updates the standard state thermodynamic functions at the current T and P of the solution.
+    /*!
+     * @internal
+     *
+     * This function gets called for every call to functions in this
+     * class. It checks to see whether the temperature or pressure has changed and
+     * thus the ss thermodynamics functions for all of the species
+     * must be recalculated.
+     *
+     * Note, this function doesn't really do anything. I just left it in as a template
+     * for other situations which need a calculation at this level.
+     */                    
+    virtual void _updateStandardStateThermo(doublereal pres = -1.0) const;
+
     //@}
     /// @name Thermodynamic Values for the Species Reference States ---
     //@{
@@ -856,27 +868,7 @@ namespace Cantera {
     /// These methods are only implemented by subclasses that 
     /// implement full liquid-vapor equations of state.
     ///
-    /*
-    virtual doublereal satTemperature(doublereal p) const {
-      err("satTemperature"); return -1.0;
-    }
-        
-    virtual doublereal satPressure(doublereal t) const {
-      err("satPressure"); return -1.0;
-    }
-        
-    virtual doublereal vaporFraction() const {
-      err("vaprFraction"); return -1.0;
-    }
-        
-    virtual void setState_Tsat(doublereal t, doublereal x) {
-      err("setState_sat"); 
-    }
-
-    virtual void setState_Psat(doublereal p, doublereal x) {
-      err("setState_sat"); 
-    }
-    */
+ 
     //@}
 
 

@@ -11,11 +11,11 @@
 .SUFFIXES : .d
 
 # the name of the executable program to be created
-PROG_NAME = HMW_test_1
+PROG_NAME = DH_graph_1
 
 # the object files to be linked together. List those generated from Fortran
 # and from C/C++ separately
-OBJS = HMW_test_1.o
+OBJS = DH_graph_1.o
 
 # Location of the current build. Will assume that tests are run
 # in the source directory tree location
@@ -36,19 +36,11 @@ FORT_LIBS = @FLIBS@
 # the C++ compiler
 CXX = @CXX@
 
-debug_mode = @CANTERA_DEBUG_MODE@
-ifeq ($(debug_mode), 1)
-   DEBUG_FLAG=-DDEBUG_MODE
-else
-   DEBUG_FLAG=
-endif
-
-
 # C++ compile flags
 ifeq ($(src_dir_tree), 1)
-CXX_FLAGS = -DSRCDIRTREE @CXXFLAGS@ $(DEBUG_FLAG)
+CXX_FLAGS = -DSRCDIRTREE @CXXFLAGS@
 else
-CXX_FLAGS = @CXXFLAGS@ $(DEBUG_FLAG)
+CXX_FLAGS = @CXXFLAGS@
 endif
 
 # Ending C++ linking libraries
@@ -89,7 +81,7 @@ PROGRAM = $(PROG_NAME)$(EXE_EXT)
 all: $(PROGRAM) .depends 
 
 $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a \
-	     $(CANTERA_LIBDIR)/libcaThermo.a
+	     $(CANTERA_LIBDIR)/libcaThermo.a .depends
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(LINK_OPTIONS) \
                   $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)

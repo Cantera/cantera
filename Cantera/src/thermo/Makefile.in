@@ -17,8 +17,15 @@ do_ranlib = @DO_RANLIB@
 do_electro = @COMPILE_ELECTROLYTES@
 do_issp    = @COMPILE_IDEAL_SOLUTIONS@
 
-LOCAL_DEFS = -DDEBUG_MODE
-CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS) $(CXX_OPT)
+debug_mode = @CANTERA_DEBUG_MODE@
+ifeq ($(debug_mode), 1)
+   DEBUG_FLAG=-DDEBUG_MODE
+else
+   DEBUG_FLAG=
+endif
+
+#LOCAL_DEFS=-DDEBUG_MODE
+CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS) $(CXX_OPT) $(DEBUG_FLAG)
 
 # Extended Cantera Thermodynamics Object Files
 

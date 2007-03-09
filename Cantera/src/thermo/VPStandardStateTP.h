@@ -263,6 +263,8 @@ namespace Cantera {
      */
     virtual void getStandardVolumes(doublereal *vol) const;
 
+  
+
   protected:
 
     //! Updates the standard state thermodynamic functions at the current T and P of the solution.

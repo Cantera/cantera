@@ -1,0 +1,7 @@
+.depends
+DH_NaCl_bdotak.csv
+DH_graph_1
+DH_graph_1.d
+DH_graph_1.log
+Makefile
+output.txt

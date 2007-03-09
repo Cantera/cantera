@@ -2,7 +2,6 @@
 #
 #
 temp_success="1"
-/bin/rm  -f output.txt outputa.txt
 
 ##########################################################################
 prog=HMW_test_1
@@ -11,7 +10,8 @@ if test ! -x $prog ; then
    exit -1
 fi
 ##########################################################################
-/bin/rm -f test.out test.diff   output.txt
+/bin/rm  -f output.txt outputa.txt 
+/bin/rm -f test.out test.diff   output.txt diff_test.out
 /bin/rm -f CheckDebug.txt output_bc.txt
 
 #################################################################

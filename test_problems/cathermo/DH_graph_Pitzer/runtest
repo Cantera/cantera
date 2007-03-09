@@ -22,30 +22,19 @@ if test ! -x $prog ; then
    echo $prog ' does not exist'
    exit -1
 fi
-##########################################################################
-/bin/rm -f test.out test.diff   DH_graph_1.csv
 
-# echo 'Testing the  DH dilute act calculation - act vs I'
-$prog  DH_NaCl_dilute.xml  > DH_graph_1.csv
+##########################################################################
+/bin/rm -f test.out test.diff DH_NaCl_Pitzer.csv
+
+$prog  DH_NaCl_Pitzer.xml > DH_NaCl_Pitzer.csv
 retnStat=$?
-diff DH_graph_1.csv DH_NaCl_dilute_blessed.csv > diff.out
+diff DH_NaCl_Pitzer.csv DH_NaCl_Pitzer_blessed.csv > output.txt
 zres=$?
 if test "$zres" = "0"  -a "$retnStat" = "0"; then
-  echo "successful diff comparison on $prog dilute  test"
+  echo "successful diff comparison on $prog Pitzer test"
 else
-  echo "unsuccessful diff comparison on $prog dilute test"
-  temp_success="1"
-  if [ $retnStat != "0" ]
-  then
-    echo "$prog returned with bad status, $retnStat, check output"
-  fi
-fi
-
-
-
-##########################################################################
-if test $temp_success = "0" ; then
-  echo "PASSED" > csvCode.txt
-else
+  echo "unsuccessful diff comparison on $prog Pitzer test"
   echo "FAILED" > csvCode.txt
+  temp_success="0"
 fi
+
