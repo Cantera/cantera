@@ -1809,7 +1809,6 @@ namespace Cantera {
       break;
     case A_DEBYE_WATER:
       dAdT = m_waterProps->ADebye(T, P, 1);
-      //dAdT = WaterProps::ADebye(T, P, 1);
       break;
     default:
       printf("shouldn't be here\n");
@@ -1901,7 +1900,7 @@ namespace Cantera {
    * ------------ Private and Restricted Functions ------------------
    */
 
-  /**
+  /*
    * Bail out of functions with an error exit if they are not
    * implemented.
    */
@@ -1944,7 +1943,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * nonpolarActCoeff()                    (private)
    *
    *   Static function that implements the non-polar species
@@ -2419,7 +2418,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * s_update_d2lnMolalityActCoeff_dT2()         (private, const )
    *
    *   Using internally stored values, this function calculates

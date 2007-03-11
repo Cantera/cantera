@@ -86,6 +86,11 @@ $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a \
                   $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
 
+
+# Add an additional target for stability:
+$(OBJS):  $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libcaThermo.a
+
+
 L_standalone: L_standalone.o
 	 $(CXX) -o L_standalone L_standalone.o \
                $(LCXX_FLAGS) $(LINK_OPTIONS)  $(LCXX_END_LIBS)
@@ -113,4 +118,8 @@ clean:
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \
          fi )
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
 

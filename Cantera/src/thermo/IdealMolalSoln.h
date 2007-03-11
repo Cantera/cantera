@@ -743,6 +743,9 @@ namespace Cantera {
      *
      * Note, this function doesn't really do anything. I just left it in as a template
      * for other situations which need a calculation at this level.
+     *
+     * @param pres  Pressure at which to evaluate the standard states.
+     *              The default, indicated by a -1.0, is to use the current pressure
      */                    
     virtual void _updateStandardStateThermo(doublereal pres = -1.0) const;
 

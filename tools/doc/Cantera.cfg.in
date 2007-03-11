@@ -116,7 +116,8 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          IdealMolalSoln.h        IdealMolalSoln.cpp \
                          IdealSolidSolnPhase.h   IdealSolidSolnPhase.cpp \
                          StoichSubstanceSSTP.h   StoichSubstanceSSTP.cpp \
-                         DebyeHuckel.h           DebyeHuckel.cpp 
+                         DebyeHuckel.h           DebyeHuckel.cpp  \
+                         ConstDensityThermo.h ConstDensityThermo.cpp
 RECURSIVE              = NO
 EXCLUDE                = CVS examples  converters zeroD
 EXCLUDE_SYMLINKS       = NO

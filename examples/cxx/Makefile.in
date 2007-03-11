@@ -83,7 +83,9 @@ $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
                    $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ \
                   $(LCXX_END_LIBS)
-# $(FORT_LIBS) \
+
+# Add an additional target for stability:
+$(OBJS):  $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a
 
 clean:
 	$(RM) $(OBJS) $(PROGRAM)

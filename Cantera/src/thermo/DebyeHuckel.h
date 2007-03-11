@@ -110,8 +110,9 @@ namespace Cantera {
    * spinodal curve.
    *   
    * <HR>
-   * <H1> Specification of Solution Thermodynamic Properties </H1>
+   * <H2> Specification of Solution Thermodynamic Properties </H2>
    * <HR>
+   *
    * Chemical potentials
    * of the solutes,  \f$ \mu_k \f$, and the solvent, \f$ \mu_o \f$, which are based 
    * on the molality form, have the following general format:
@@ -128,10 +129,105 @@ namespace Cantera {
    * 
    * Individual activity coefficients of ions can not be independently measured. Instead,
    * only binary pairs forming electroneutral solutions can be measured.
+ 
+   *
+   *  <H3> Ionic Strength </H3>
+   *
+   *  Most of the parameterizations within the model use the ionic strength 
+   *  as a key variable. The ionic strength, \f$ I\f$ is defined as follows
+   *
+   *  \f[
+   *    I = \frac{1}{2} \sum_k{m_k  z_k^2}
+   *  \f]
+   *
+   * \f$ m_k \f$ is the molality of the kth species. \f$ z_k \f$ is the charge
+   * of the kth species. Note, the ionic strength is a defined units quantity.
+   * The molality has defined units of gmol kg-1, and therefore the ionic
+   * strength has units of sqrt( gmol kg-1).
+   *
+   * In some instances, from some authors, a different 
+   * formulation is used for the ionic strength in the equations below. The different
+   * formulation is due to the possibility of the existence of weak acids and how
+   * association wrt to the weak acid equilibrium relation affects the calculation 
+   * of the activity coefficients via the assumed value of the ionic strength.
+   *
+   * If we are to assume that the association reaction doesn't have an effect
+   * on the ionic strength, then we will want to consider the associated weak
+   * acid as in effect being fully dissociated, when we calculate an effective
+   * value for the ionic strength. We will call this calculated value, the
+   * stoichiometric ionic strength, \f$ I_s \f$, putting a subscript s to denote
+   * it from the more straightforward calculation of \f$ I \f$.
+   *
+   *  \f[
+   *    I_s = \frac{1}{2} \sum_k{m_k^s  z_k^2}
+   *  \f]
+   *
+   *  Here, \f$ m_k^s \f$ is the value of the molalities calculated assuming that
+   *  all weak acid-base pairs are in their fully dissociated states. This calculation may
+   * be simplified by considering that the weakly associated acid may be made up of two
+   * charged species, k1 and k2, each with their own charges, obeying the following relationship:
+   *
+   *   \f[
+   *      z_k = z_{k1} +  z_{k2}
+   *   \f]
+   *  Then, we may only need to specify one charge value, say, \f$  z_{k1}\f$, the cation charge number,
+   *  in order to get both numbers, since we have already specified \f$ z_k \f$ in the definition of original species.
+   *  Then, the stoichiometric ionic strength may be calculated via the following formula.
+   *
+   *  \f[
+   *    I_s = \frac{1}{2} \left(\sum_{k,ions}{m_k  z_k^2}+ \sum_{k,weak_assoc}(m_k  z_{k1}^2 + m_k  z_{k2}^2) \right)
+   *  \f]
+   *
+   *  The specification of which species are weakly associated acids is made in the input file via the
+   *  <TT> stoichIsMods </TT> XML block, where the charge for k1 is also specified. An example is given below:
+   * 
+   * @code
+   *          <stoichIsMods>
+   *                NaCl(aq):-1.0
+   *          </stoichIsMods>
+   * @endcode
+   *
+   *  Because we need the concept of a weakly associated acid in order to calculated \f$ I_s \f$ we need to 
+   *  catalog all species in the phase. This is done using the following categories:
+   *
+   *  -  <B>cEST_solvent</B>    :           Solvent species (neutral)
+   *  -  <B>cEST_chargedSpecies</B>         Charged species (charged)
+   *  -  <B>cEST_weakAcidAssociated</B>     Species which can break apart into charged species.
+   *                                        It may or may not be charged.  These may or may not be be included in the
+   *                                        species solution vector.
+   *  -  <B>cEST_strongAcidAssociated</B>   Species which always breaksapart into charged species.
+   *                                        It may or may not be charged. Normally, these aren't included
+   *                                        in the speciation vector.
+   *  -  <B>cEST_polarNeutral </B>          Polar neutral species
+   *  -  <B>cEST_nonpolarNeutral</B>        Non poloar neutral species
+   *
+   *  Polar and non-polar neutral species are differentiated, because some additions to the activity 
+   *  coefficient expressions distinguish between these two types of solutes. This is the so-called
+   *  salt-out effect.
+   *
+   * The type of species is specified in the <TT>electrolyteSpeciesType</TT> XML block. Note, this is not
+   * considered a part of the specification of the standard state for the species, at this time. Therefore,
+   * this information is put under the <TT>activityCoefficient</TT> XML block. An example is given below
+   *
+   * @code
+   *         <electrolyteSpeciesType>
+   *                H2L(L):solvent
+   *                H+:chargedSpecies
+   *                NaOH(aq):weakAcidAssociated
+   *                NaCl(aq):strongAcidAssociated
+   *                NH3(aq):polarNeutral
+   *                O2(aq):nonpolarNeutral
+   *         </electrolyteSpeciesType>
+   * @endcode
+   *
+   *  Much of the species electrolyte type information is infered from other information in the
+   *  input file. For example, as species which is charged is given the "chargedSpecies" default
+   *  category. A neutral solute species is put into the "nonpolarNeutral" category by default.
    *
    * The specification of solute activity coefficients depends on the model
    * assumed for the Debye-Huckel term. The model is set by the
-   * internal parameter #m_formDH.
+   * internal parameter #m_formDH. We will now describe each category in its own section.
+   *
    *
    *  <H3> Debye-Huckel Dilute Limit </H3>
    *
@@ -142,7 +238,7 @@ namespace Cantera {
    *  \f[
    *      \ln(\gamma_k^\triangle) = - z_k^2 A_{Debye} \sqrt{I}
    *  \f]
-   *              where I is the ionic strength
+   *              where \f$ I\f$ is the ionic strength
    *  \f[
    *    I = \frac{1}{2} \sum_k{m_k  z_k^2}
    *  \f]
@@ -215,7 +311,7 @@ namespace Cantera {
    *  DHFORM_BETAIJ        = 3
    * 
    *      This form assumes a linear expansion in a virial coefficient form
-   *      It is used extensively in the book by Newmann, Electrochemistry, and is the beginning of
+   *      It is used extensively in the book by Newmann, "Electrochemistry Systems", and is the beginning of
    *      more complex treatments for stronger electrolytes, fom Pitzer
    *      and from Harvey, Moller, and Weire.
    *  
@@ -233,6 +329,39 @@ namespace Cantera {
    *        -  \tilde{M}_o  \sum_j \sum_k \beta_{j,k} m_j m_k
    *  \f]
    *
+   * In this formulation the ionic radius, \f$ a \f$, is a constant. This must be supplied to the
+   * model, in an <DFN> ionicRadius </DFN> XML block.
+   *
+   * The \f$ \beta_{j,k} \f$ parameters are binary interaction parameters. They are supplied to
+   * the object in an <TT> DHBetaMatrix </TT> XML block. There are in principle \f$ N (N-1) /2 \f$
+   * different, symmetric interaction parameters, where \f$ N \f$ are the number of solute species in the
+   * mechanism.  
+   * An example is given below.
+   *
+   * An example <TT> activityCoefficients </TT> XML block for this formulation is supplied below
+   *
+   * @code
+   *  <activityCoefficients model="Beta_ij">
+   *         <!-- A_Debye units = sqrt(kg/gmol) -->
+   *         <A_Debye> 1.172576 </A_Debye>
+   *         <!-- B_Debye units = sqrt(kg/gmol)/m   -->
+   *         <B_Debye> 3.28640E9 </B_Debye>
+   *         <ionicRadius default="3.042843"  units="Angstroms">
+   *         </ionicRadius>
+   *         <DHBetaMatrix>
+   *               H+:Cl-:0.27
+   *               Na+:Cl-:0.15
+   *               Na+:OH-:0.06
+   *         </DHBetaMatrix>
+   *         <stoichIsMods>
+   *                NaCl(aq):-1.0
+   *         </stoichIsMods>
+   *         <electrolyteSpeciesType>
+   *                H+:chargedSpecies
+   *                NaCl(aq):weakAcidAssociated
+   *         </electrolyteSpeciesType>
+   *  </activityCoefficients>
+   * @endcode
    *
    *  <H3> Pitzer Beta_IJ formulation </H3>
    *
@@ -255,9 +384,79 @@ namespace Cantera {
    *        -  \tilde{M}_o  \sum_j \sum_k \beta_{j,k} m_j m_k
    *  \f]
    *
+   * <H3> Specification of the Debye Huckel Constants </H3>
+   *
+   *  In the equations above, the formulas for  \f$  A_{Debye} \f$ and \f$  B_{Debye} \f$ 
+   *  are needed. The %DebyeHuckel object uses two methods for specifying these quantities.
+   *  The default method is to assume that \f$  A_{Debye} \f$  is a constant, given
+   *  in the initialization process, and storred in the
+   *  member double, m_A_Debye. Optionally, a full water treatment may be employed that makes
+   *  \f$ A_{Debye} \f$ a full function of <I>T</I> and <I>P</I>.
+   *
+   *   \f[
+   *      A_{Debye} = \frac{F e B_{Debye}}{8 \pi \epsilon R T} {\left( C_o \tilde{M}_o \right)}^{1/2}
+   *   \f]
+   * where
+   * 
+   *  \f[
+   *         B_{Debye} = \frac{F} {{(\frac{\epsilon R T}{2})}^{1/2}} 
+   *  \f]
+   *  Therefore:
+   * \f[
+   *   A_{Debye} = \frac{1}{8 \pi} 
+   *                 {\left(\frac{2 N_a \rho_o}{1000}\right)}^{1/2}
+   *                 {\left(\frac{N_a e^2}{\epsilon R T }\right)}^{3/2}
+   * \f]
+   *
+   *            Units = sqrt(kg/gmol)
+   *
+   *     where
+   *      - \f$ N_a \f$ is Avrogadro's number
+   *      - \f$ \rho_w \f$ is the density of water
+   *      - \f$ e \f$ is the electronic charge
+   *      - \f$ \epsilon = K \epsilon_o \f$ is the permitivity of water
+   *           where \f$ K \f$ is the dielectric condstant of water,
+   *           and  \f$ \epsilon_o \f$ is the permitivity of free space.
+   *      - \f$ \rho_o \f$ is the density of the solvent in its standard state.
+   *
+   *            Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)<SUP>1/2</SUP>
+   *                  based on:
+   *                 -   \f$ \epsilon / \epsilon_0 \f$ = 78.54
+   *                           (water at 25C)
+   *                 -   \f$ \epsilon_0 \f$= 8.854187817E-12 C<SUP>2</SUP> N<SUP>-1</SUP> m<SUP>-2</SUP>
+   *                 -   e = 1.60217653E-19 C
+   *                 -   F = 9.6485309E7 C kmol<SUP>-1</SUP>
+   *                 -   R = 8.314472E3 kg m<SUP>2</SUP> s<SUP>-2</SUP> kmol<SUP>-1</SUP> K<SUP>-1</SUP>
+   *                 -   T = 298.15 K
+   *                 -   B_Debye = 3.28640E9 (kg/gmol)<SUP>1/2</SUP> m<SUP>-1</SUP>
+   *                 -   \f$N_a\f$ = 6.0221415E26 kmol<SUP>-1</SUP>
+   *
+   * An example of a fixed value implementation is given below.
+   * @code
+   *   <activityCoefficients model="Beta_ij">
+   *         <!-- A_Debye units = sqrt(kg/gmol)  -->
+   *         <A_Debye> 1.172576 </A_Debye>
+   *         <!-- B_Debye units = sqrt(kg/gmol)/m  -->
+   *         <B_Debye> 3.28640E9 </B_Debye>
+   *   </activityCoefficients>
+   * @endcode
+   *
+   * An example of a variable value implementation is given below.
+   *
+   * @code
+   *   <activityCoefficients model="Beta_ij">
+   *         <A_Debye model="water" /> 
+   *         <!-- B_Debye units = sqrt(kg/gmol)/m  -->
+   *         <B_Debye> 3.28640E9 </B_Debye>
+   *   </activityCoefficients>
+   * @endcode
+   *
+   *  Currently, \f$  B_{Debye} \f$ is a constant in the model, specified either by a default
+   *  water value, or through the input file. This may have to be looked at, in the future.
+   *
    *
    * <HR>
-   * <b> %Application within %Kinetics Managers </b>
+   * <H2> %Application within %Kinetics Managers </H2>
    * <HR>
    * For the time being, we have set the standard concentration for all species in
    * this phase equal to the default concentration of the solvent at 298 K and 1 atm. 
@@ -312,26 +511,38 @@ namespace Cantera {
    * <HR>
    *
    * The constructor for this phase is NOT located in the default ThermoFactory
-   * for %Cantera. However, a new %StoichSubstanceSSTP may be created by 
+   * for %Cantera. However, a new %DebyeHuckel object may be created by 
    * the following code snippets:
    *
    * @code
-   *    sprintf(file_ID,"%s#NaCl(S)", iFile);
+   *      DebyeHuckel *DH = new DebyeHuckel("DH_NaCl.xml", "NaCl_electrolyte");
+   * @endcode
+   *
+   * or
+   *
+   * @code
+   *    char iFile[80];
+   *    strcpy(iFile, "DH_NaCl.xml");
+   *    sprintf(file_ID,"%s#NaCl_electrolyte", iFile);
    *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
-   *    StoichSubstanceSSTP *solid = new StoichSubstanceSSTP(*xm);
+   *    DebyeHuckel *dh = new DebyeHuckel(*xm);
    * @endcode
    *
    * or by the following call to importPhase():
    *
    * @code
-   *    sprintf(file_ID,"%s#NaCl(S)", iFile);
+   *    char iFile[80];
+   *    strcpy(iFile, "DH_NaCl.xml");
+   *    sprintf(file_ID,"%s#NaCl_electrolyte", iFile);
    *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
-   *    StoichSubstanceSSTP solid;
-   *    importPhase(*xm, &solid);
+   *    DebyeHuckel dhphase;
+   *    importPhase(*xm, &dhphase);
    * @endcode
+   *
    * <HR>
    *   <b> XML Example </b>
    * <HR>
+   *
    * The phase model name for this is called StoichSubstance. It must be supplied
    * as the model attribute of the thermo XML element entry.
    * Within the phase XML block,
@@ -339,36 +550,52 @@ namespace Cantera {
    * this phase is given below. 
    * 
    * @verbatim
-     <!-- phase NaCl(S)    -->
-     <phase dim="3" id="NaCl(S)">
-        <elementArray datasrc="elements.xml">
-           Na Cl
-        </elementArray>
-        <speciesArray datasrc="#species_NaCl(S)"> NaCl(S) </speciesArray>
-        <thermo model="StoichSubstanceSSTP">
-           <density units="g/cm3">2.165</density>
-        </thermo>
-        <transport model="None"/>
-        <kinetics model="none"/>
-     </phase>
-    
-     <!-- species definitions     -->
-     <speciesData id="species_NaCl(S)">
-       <!-- species NaCl(S)   -->
-       <species name="NaCl(S)">
-          <atomArray> Na:1 Cl:1 </atomArray>
-          <thermo>
-             <Shomate Pref="1 bar" Tmax="1075.0" Tmin="250.0">
-                <floatArray size="7">
-                    50.72389, 6.672267, -2.517167,
-                    10.15934, -0.200675, -427.2115,
-                    130.3973
-                </floatArray>
-             </Shomate>
-          </thermo>
-          <density units="g/cm3">2.165</density>
-        </species>
-     </speciesData>  @endverbatim
+   <phase id="NaCl_electrolyte" dim="3">
+    <speciesArray datasrc="#species_waterSolution">
+               H2O(L) Na+ Cl- H+ OH- NaCl(aq) NaOH(aq)
+    </speciesArray>
+    <state>
+      <temperature units="K"> 300  </temperature>
+      <pressure units="Pa">101325.0</pressure>
+      <soluteMolalities>
+             Na+:3.0
+             Cl-:3.0
+             H+:1.0499E-8
+             OH-:1.3765E-6
+             NaCl(aq):0.98492
+             NaOH(aq):3.8836E-6
+      </soluteMolalities>
+    </state>
+    <!-- thermo model identifies the inherited class
+         from ThermoPhase that will handle the thermodynamics.
+      -->
+    <thermo model="DebyeHuckel">
+       <standardConc model="solvent_volume" />
+       <activityCoefficients model="Beta_ij">
+                <!-- A_Debye units = sqrt(kg/gmol)  -->
+                <A_Debye> 1.172576 </A_Debye>
+                <!-- B_Debye units = sqrt(kg/gmol)/m   -->
+                <B_Debye> 3.28640E9 </B_Debye>
+                <ionicRadius default="3.042843"  units="Angstroms">
+                </ionicRadius>
+                <DHBetaMatrix>
+                  H+:Cl-:0.27
+                  Na+:Cl-:0.15
+                  Na+:OH-:0.06
+                </DHBetaMatrix>
+                <stoichIsMods>
+                   NaCl(aq):-1.0
+                </stoichIsMods>
+                <electrolyteSpeciesType>
+                   H+:chargedSpecies
+                   NaCl(aq):weakAcidAssociated
+                </electrolyteSpeciesType>
+       </activityCoefficients>
+       <solvent> H2O(L) </solvent>
+    </thermo>
+    <elementArray datasrc="elements.xml"> O H Na Cl </elementArray>
+  </phase> 
+  @endverbatim
    *
    *  The model attribute, "StoichSubstanceSSTP", on the thermo element identifies the phase as 
    *  being a StoichSubstanceSSTP object.
@@ -984,6 +1211,9 @@ namespace Cantera {
      * class. It checks to see whether the temperature or pressure has changed and
      * thus the ss thermodynamics functions for all of the species
      * must be recalculated.
+     *
+     * @param pres  Pressure at which to evaluate the standard states.
+     *              The default, indicated by a -1.0, is to use the current pressure
      */                    
     virtual void _updateStandardStateThermo(doublereal pres = -1.0) const;
 

@@ -72,6 +72,7 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
 .cpp.d:
 	@CXX_DEPENDS@ $(INCLUDES) $(CXX_FLAGS) $*.cpp > $*.d
 
+
 # List of dependency files to be created
 DEPENDS=$(OBJS:.o=.d)
 
@@ -85,6 +86,9 @@ $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a \
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(LINK_OPTIONS) \
                   $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
+
+# Add an additional dependency to enhance stability
+$(OBJS): $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libcaThermo.a 
 
 # depends target -> forces recalculation of dependencies
 depends:
@@ -109,4 +113,8 @@ clean:
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \
          fi )
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
 

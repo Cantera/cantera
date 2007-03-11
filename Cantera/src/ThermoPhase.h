@@ -181,13 +181,13 @@ namespace Cantera {
     ThermoPhase(const ThermoPhase &);
 	
     //! Assignment operator
-      /*!
-       *  This is NOT a virtual function.
-       *
-       * @param right    Reference to %ThermoPhase object to be copied into the
-       *                 current one. 
-       */
-      ThermoPhase& operator=(const ThermoPhase &right);
+    /*!
+     *  This is NOT a virtual function.
+     *
+     * @param right    Reference to %ThermoPhase object to be copied into the
+     *                 current one. 
+     */
+    ThermoPhase& operator=(const ThermoPhase &right);
 
     /**
      * Duplication routine for objects which inherit from 
@@ -217,29 +217,29 @@ namespace Cantera {
      */
     virtual int eosType() const { return 0; }
     
-	/**
-	 * Returns the reference pressure in Pa. This function is a wrapper
-	 * that calls the species thermo refPressure function.
-	 */
-        doublereal refPressure() const {
-            return m_spthermo->refPressure();
-        }
+    /**
+     * Returns the reference pressure in Pa. This function is a wrapper
+     * that calls the species thermo refPressure function.
+     */
+    doublereal refPressure() const {
+      return m_spthermo->refPressure();
+    }
 
         
-      //! Minimum temperature for which the thermodynamic data for the species or phase are valid.
-      /*!
-       * If no argument is supplied, the
-       * value returned will be the lowest temperature at which the
-       * data for \e all species are valid. Otherwise, the value
-       * will be only for species \a k. This function is a wrapper
-       * that calls the species thermo minTemp function.
-       *
-       * @param k index of the species. Default is -1, which will return the max of the min value
-       *          over all species.
-       */
-      doublereal minTemp(int k = -1) {
-	return m_spthermo->minTemp(k);
-      }
+    //! Minimum temperature for which the thermodynamic data for the species or phase are valid.
+    /*!
+     * If no argument is supplied, the
+     * value returned will be the lowest temperature at which the
+     * data for \e all species are valid. Otherwise, the value
+     * will be only for species \a k. This function is a wrapper
+     * that calls the species thermo minTemp function.
+     *
+     * @param k index of the species. Default is -1, which will return the max of the min value
+     *          over all species.
+     */
+    doublereal minTemp(int k = -1) {
+      return m_spthermo->minTemp(k);
+    }
         
     //! Maximum temperature for which the thermodynamic data for the species 
     //! are valid. 
@@ -340,31 +340,31 @@ namespace Cantera {
       err("isothermalCompressibility"); return -1.0;
     }
 
-      //! Return the volumetric thermal expansion coefficient. Units: 1/K.
-      /*!      
-       * The thermal expansion coefficient is defined as
-       * \f[
-       * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
-       * \f]
-       */
-      virtual doublereal thermalExpansionCoeff() const {
-	err("thermalExpansionCoeff()"); return -1.0;
-      }
+    //! Return the volumetric thermal expansion coefficient. Units: 1/K.
+    /*!      
+     * The thermal expansion coefficient is defined as
+     * \f[
+     * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
+     * \f]
+     */
+    virtual doublereal thermalExpansionCoeff() const {
+      err("thermalExpansionCoeff()"); return -1.0;
+    }
 
-      /// @deprecated
-      virtual void updateDensity() {
-	deprecatedMethod("ThermoPhase","updateDensity","");
-      }
+    /// @deprecated
+    virtual void updateDensity() {
+      deprecatedMethod("ThermoPhase","updateDensity","");
+    }
 
-      /**
-       * @} 
-       * @name Electric Potential
-       * 
-       * The phase may be at some non-zero electrical
-       * potential. These methods set or get the value of the
-       * electric potential.
-       */
-      //@{
+    /**
+     * @} 
+     * @name Electric Potential
+     * 
+     * The phase may be at some non-zero electrical
+     * potential. These methods set or get the value of the
+     * electric potential.
+     */
+    //@{
       
       //! Set the electric potential of this phase (V).
       /*!
@@ -868,13 +868,13 @@ namespace Cantera {
     }
     //@}
 
-      //! Return the Gas Constant multiplied by the current temperature
-      /*!
-       *  The units are Joules kmol-1
-       */
-        doublereal _RT() const {
-            return temperature() * GasConstant;
-        }
+    //! Return the Gas Constant multiplied by the current temperature
+    /*!
+     *  The units are Joules kmol-1
+     */
+    doublereal _RT() const {
+      return temperature() * GasConstant;
+    }
 
       /**
        * @name Setting the State
@@ -1076,19 +1076,19 @@ namespace Cantera {
       void setElementPotentials(const vector_fp& lambda);
   
 
-      //!  Returns the element potentials storred in the ThermoPhase object
-      /*!
-       * Returns the storred element potentials.
-       * The element potentials are retrieved from their storred
-       * dimensionless forms by multiplying by RT.
-       * @param lambda Output vector containing the element potentials.
-       *        Length = nElements. Units are Joules/kmol.
-       * @return bool indicating whether thare are any valid storred element
-       *         potentials. The calling routine should check this 
-       *         bool. In the case that there aren't any, lambda is not
-       *         touched.
-       */
-      bool getElementPotentials(doublereal* lambda) const;
+    //!  Returns the element potentials storred in the ThermoPhase object
+    /*!
+     * Returns the storred element potentials.
+     * The element potentials are retrieved from their storred
+     * dimensionless forms by multiplying by RT.
+     * @param lambda Output vector containing the element potentials.
+     *        Length = nElements. Units are Joules/kmol.
+     * @return bool indicating whether thare are any valid storred element
+     *         potentials. The calling routine should check this 
+     *         bool. In the case that there aren't any, lambda is not
+     *         touched.
+     */
+    bool getElementPotentials(doublereal* lambda) const;
 
     //@}
 
@@ -1100,47 +1100,47 @@ namespace Cantera {
         
     //@{
         
-        /// Critical temperature (K).
-        virtual doublereal critTemperature() const {
-            err("critTemperature"); return -1.0;
-        }
+    /// Critical temperature (K).
+    virtual doublereal critTemperature() const {
+      err("critTemperature"); return -1.0;
+    }
         
-        /// Critical pressure (Pa).
-        virtual doublereal critPressure() const {
-            err("critPressure"); return -1.0;
-        }
+    /// Critical pressure (Pa).
+    virtual doublereal critPressure() const {
+      err("critPressure"); return -1.0;
+    }
         
-        /// Critical density (kg/m3).
-        virtual doublereal critDensity() const {
-            err("critDensity"); return -1.0;
-        }                
+    /// Critical density (kg/m3).
+    virtual doublereal critDensity() const {
+      err("critDensity"); return -1.0;
+    }                
         
-        //@}
+    //@}
         
-        /// @name Saturation properties.
-        /// These methods are only implemented by subclasses that 
-        /// implement full liquid-vapor equations of state. They may be
-        /// moved out of ThermoPhase at a later date.
-        ///
-        virtual doublereal satTemperature(doublereal p) const {
-            err("satTemperature"); return -1.0;
-        }
+    /// @name Saturation properties.
+    /// These methods are only implemented by subclasses that 
+    /// implement full liquid-vapor equations of state. They may be
+    /// moved out of ThermoPhase at a later date.
+    ///
+    virtual doublereal satTemperature(doublereal p) const {
+      err("satTemperature"); return -1.0;
+    }
         
-        virtual doublereal satPressure(doublereal t) const {
-            err("satPressure"); return -1.0;
-        }
+    virtual doublereal satPressure(doublereal t) const {
+      err("satPressure"); return -1.0;
+    }
         
-        virtual doublereal vaporFraction() const {
-            err("vaprFraction"); return -1.0;
-        }
+    virtual doublereal vaporFraction() const {
+      err("vaprFraction"); return -1.0;
+    }
         
-        virtual void setState_Tsat(doublereal t, doublereal x) {
-            err("setState_sat"); 
-        }
+    virtual void setState_Tsat(doublereal t, doublereal x) {
+      err("setState_sat"); 
+    }
 
-        virtual void setState_Psat(doublereal p, doublereal x) {
-            err("setState_sat"); 
-        }
+    virtual void setState_Psat(doublereal p, doublereal x) {
+      err("setState_sat"); 
+    }
         
 
     //@}
