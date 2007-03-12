@@ -1394,14 +1394,19 @@ namespace Cantera {
 
     private:
 
-        doublereal err(std::string msg) const;
+    //! Error function that gets called for unhandled cases
+    /*!
+     * @param msg String containing the message.
+     */
+    doublereal err(std::string msg) const;
 
     };
 
   //! typedef for the ThermoPhase class
-    typedef ThermoPhase thermophase_t;
+  typedef ThermoPhase thermophase_t;
+
   //! typedef for the ThermoPhase class
-    typedef ThermoPhase thermo_t;
+  typedef ThermoPhase thermo_t;
 }
         
 #endif

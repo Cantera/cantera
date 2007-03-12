@@ -1987,7 +1987,7 @@ namespace Cantera {
   }
 
 
-  /**
+  /*
    *  _activityWaterHelgesonFixedForm()          
    *
    *      Formula for the log of the activity of the water
@@ -2300,6 +2300,7 @@ namespace Cantera {
   void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const {
     double z_k, coeff, tmp, y, yp1, sigma, tmpLn;
     int k;
+    // First we store dAdT explicitly here
     double dAdT =  dA_DebyedT_TP();
     if (dAdT == 0.0) {
       for (k = 0; k < m_kk; k++) {
@@ -2318,13 +2319,17 @@ namespace Cantera {
     double sqrtI  = sqrt(m_IionicMolality);
     double numdAdTTmp = dAdT * sqrtI;
     double denomTmp = m_B_Debye * sqrtI;
+    double d_lnActivitySolvent_dT = 0;
 
     switch (m_formDH) {
     case DHFORM_DILUTE_LIMIT:
-      for (int k = 0; k < m_kk; k++) {
+      for (int k = 1; k < m_kk; k++) {
 	m_dlnActCoeffMolaldT[k] = 
 	  m_lnActCoeffMolal[k] * dAdT / m_A_Debye;
       }
+      d_lnActivitySolvent_dT = 	2.0 / 3.0 * dAdT * m_Mnaught *
+	m_IionicMolality * sqrt(m_IionicMolality);
+      m_dlnActCoeffMolaldT[m_indexSolvent] =  d_lnActivitySolvent_dT;
       break;
 
     case DHFORM_BDOT_AK:
@@ -2365,7 +2370,8 @@ namespace Cantera {
 	sigma = 0.0;
       }
       m_dlnActCoeffMolaldT[m_indexSolvent] =
-	2.0 /3.0 * dAdT * m_Mnaught * m_IionicMolality * sqrtI * sigma;
+	2.0 /3.0 * dAdT * m_Mnaught * 
+	m_IionicMolality * sqrtI * sigma;
       break;
 
     case DHFORM_BETAIJ:
@@ -2384,8 +2390,7 @@ namespace Cantera {
       } else {
 	sigma = 0.0;
       }
-      m_dlnActCoeffMolaldT[m_indexSolvent] =  
-	(xmolSolvent - 1.0)/xmolSolvent + 
+      m_dlnActCoeffMolaldT[m_indexSolvent] =
 	2.0 /3.0 * dAdT * m_Mnaught * 
 	m_IionicMolality * sqrtI * sigma;
       break;
@@ -2405,8 +2410,7 @@ namespace Cantera {
       }
 
       sigma = 1.0 / ( 1.0 + denomTmp);
-      m_dlnActCoeffMolaldT[m_indexSolvent] =  
-	(xmolSolvent - 1.0)/xmolSolvent + 
+      m_dlnActCoeffMolaldT[m_indexSolvent] =
 	2.0 /3.0 * dAdT * m_Mnaught * 
 	m_IionicMolality * sqrtI * sigma;
       break;
@@ -2416,6 +2420,8 @@ namespace Cantera {
       exit(-1);
       break;
     }
+
+ 
   }
 
   /*
@@ -2521,8 +2527,7 @@ namespace Cantera {
       } else {
 	sigma = 0.0;
       } 
-      m_d2lnActCoeffMolaldT2[m_indexSolvent] =  
-	(xmolSolvent - 1.0)/xmolSolvent + 
+      m_d2lnActCoeffMolaldT2[m_indexSolvent] =
 	2.0 /3.0 * d2AdT2 * m_Mnaught * 
 	m_IionicMolality * sqrtI * sigma;
       break;
@@ -2533,17 +2538,16 @@ namespace Cantera {
       for (int k = 0; k < m_kk; k++) {
 	if (k != m_indexSolvent) {
 	  z_k = m_speciesCharge[k];
-	  m_dlnActCoeffMolaldT[k] = 
+	  m_d2lnActCoeffMolaldT2[k] = 
 	    - z_k * z_k * numd2AdT2Tmp / (1.0 + denomTmp)
 	    - 2.0 * z_k * z_k * d2AdT2 * tmpLn 
 	    / (m_B_Debye * m_Aionic[0]);
-	  m_dlnActCoeffMolaldT[k] /= 3.0; 
+	  m_d2lnActCoeffMolaldT2[k] /= 3.0; 
 	}
       }
 
       sigma = 1.0 / ( 1.0 + denomTmp);
-      m_dlnActCoeffMolaldT[m_indexSolvent] =  
-	(xmolSolvent - 1.0)/xmolSolvent + 
+      m_d2lnActCoeffMolaldT2[m_indexSolvent] =
 	2.0 /3.0 * d2AdT2 * m_Mnaught * 
 	m_IionicMolality * sqrtI * sigma;
       break;
@@ -2641,7 +2645,8 @@ namespace Cantera {
 	sigma = 0.0;
       }
       m_dlnActCoeffMolaldP[m_indexSolvent] =
-	2.0 /3.0 * dAdP * m_Mnaught * m_IionicMolality * sqrtI * sigma;
+	2.0 /3.0 * dAdP * m_Mnaught * 
+	m_IionicMolality * sqrtI * sigma;
       break;
 
     case DHFORM_BETAIJ:
@@ -2660,8 +2665,7 @@ namespace Cantera {
       } else {
 	sigma = 0.0;
       }
-      m_dlnActCoeffMolaldP[m_indexSolvent] =  
-	(xmolSolvent - 1.0)/xmolSolvent + 
+      m_dlnActCoeffMolaldP[m_indexSolvent] =
 	2.0 /3.0 * dAdP * m_Mnaught * 
 	m_IionicMolality * sqrtI * sigma;
       break;
@@ -2681,8 +2685,7 @@ namespace Cantera {
       }
 
       sigma = 1.0 / ( 1.0 + denomTmp);
-      m_dlnActCoeffMolaldP[m_indexSolvent] =  
-	(xmolSolvent - 1.0)/xmolSolvent + 
+      m_dlnActCoeffMolaldP[m_indexSolvent] =
 	2.0 /3.0 * dAdP * m_Mnaught * 
 	m_IionicMolality * sqrtI * sigma;
       break;

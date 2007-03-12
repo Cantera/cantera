@@ -363,7 +363,7 @@ WaterPropsIAPWSphi::WaterPropsIAPWSphi() :
 {
 }
 
-/**
+/*
  * intCheck() calculates all of the functions at a one point and
  * prints out the result. It's used for conducting the internal
  * check.
@@ -624,7 +624,7 @@ double WaterPropsIAPWSphi::phi_d(double tau, double delta) {
   return retn;
 }
 
-/**
+/*
  * Calculate the dimensionless pressure at tau and delta;
  *
  *       p/(rhoRT) = delta * phi_d()
@@ -854,7 +854,7 @@ double WaterPropsIAPWSphi::phiR_t() const {
   return val;
 }
 
-/**
+/*
  * Calculate the dPhidtau function, which is basically the derivative
  * of helmholtz free energy wrt tau
  * Eqn. (6.4)
@@ -867,7 +867,7 @@ double WaterPropsIAPWSphi::phi_t(double tau, double delta) {
   return retn;
 }
 
-/**
+/*
  * Calculate d2_phi0/dtau2
  */
 double WaterPropsIAPWSphi::phi0_tt() const {
@@ -882,7 +882,7 @@ double WaterPropsIAPWSphi::phi0_tt() const {
   return retn;
 }
 
-/**
+/*
  * Calculate Eqn. 6.6 for dphiRdtau, the second derivative residual part of the
  * dimensionless Helmholtz free energy wrt temperature
  *
@@ -1190,7 +1190,7 @@ double WaterPropsIAPWSphi::enthalpy_RT() const {
   return hRT;
 }
 
-/**
+/*
  * Calculate the dimensionless entropy s/R.
  */
 double WaterPropsIAPWSphi::entropy_R() const {
@@ -1203,7 +1203,7 @@ double WaterPropsIAPWSphi::entropy_R() const {
   return sR;
 }
 
-/**
+/*
  * Calculate the dimensionless internal energy, u/RT.
  */
 double WaterPropsIAPWSphi::intEnergy_RT() const {
@@ -1214,7 +1214,7 @@ double WaterPropsIAPWSphi::intEnergy_RT() const {
   return uR;
 }
 
-/**
+/*
  * Calculate the dimensionless constant volume Heat Capacity, Cv/R
  */
 double WaterPropsIAPWSphi::cv_R() const {
@@ -1225,7 +1225,7 @@ double WaterPropsIAPWSphi::cv_R() const {
   return cvR;
 }
 
-/**
+/*
  * Calculate the dimensionless constant pressure Heat Capacity, Cp/R
  */
 double WaterPropsIAPWSphi::cp_R() const {

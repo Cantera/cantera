@@ -468,10 +468,20 @@ namespace Cantera {
   private:
 
     //! see SpeciesThermoFactory.cpp for the definition
+    /*!
+     * @param name string name of species
+     * @param tmid  Mid temperature, between the two temperature regions
+     * @param clow  coefficients for lower temperature region
+     * @param chigh coefficients for higher temperature region
+     */
     void checkContinuity(std::string name, double tmid, const doublereal* clow,
 			 doublereal* chigh);
 
     //! for internal use by checkContinuity
+    /*!
+     * @param t temperature 
+     * @param c coefficient array
+     */
     doublereal enthalpy_RT(double t, const doublereal* c) {
       return c[0] + 0.5*c[1]*t + OneThird*c[2]*t*t 
 	+ 0.25*c[3]*t*t*t + 0.2*c[4]*t*t*t*t
@@ -479,6 +489,10 @@ namespace Cantera {
     }
 
     //! for internal use by checkContinuity
+    /*!
+     * @param t temperature 
+     * @param c coefficient array
+     */
     doublereal entropy_R(double t, const doublereal* c) {
       return c[0]*log(t) + c[1]*t + 0.5*c[2]*t*t 
 	+ OneThird*c[3]*t*t*t + 0.25*c[4]*t*t*t*t

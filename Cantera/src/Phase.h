@@ -71,10 +71,10 @@ namespace Cantera {
        *  The XML_Node for the phase contains all of the input data used
        *  to set up the model for the phase, during its initialization.
        */
-        XML_Node& xml() { return *m_xml; }
+      XML_Node& xml() { return *m_xml; }
 
       //! Return the string id for the phase
-        std::string id() const { return m_id; }
+      std::string id() const { return m_id; }
 
       //! Set the string id for the phase
       /*!
@@ -92,7 +92,7 @@ namespace Cantera {
       void setName(std::string nm) { m_name = nm; }
 
       //! Returns the index of the phase
-        int index() const { return m_index; }
+      int index() const { return m_index; }
 
       //! Sets the index of the phase
       /*!
@@ -329,10 +329,10 @@ namespace Cantera {
        */
       doublereal massFraction(std::string name) const;
 
-        /**
-         * Charge density [C/m^3].
-         */
-        doublereal chargeDensity() const;
+      /**
+       * Charge density [C/m^3].
+       */
+      doublereal chargeDensity() const;
 
       /// Returns the number of spatial dimensions (1, 2, or 3)
       int nDim() {return m_ndim;}
@@ -346,47 +346,64 @@ namespace Cantera {
        */
       void setNDim(int ndim) {m_ndim = ndim;}
 
-        /** 
-         *  Finished adding species, prepare to use them for calculation
-         *  of mixture properties.
-         */
-        virtual void freezeSpecies();
+      /** 
+       *  Finished adding species, prepare to use them for calculation
+       *  of mixture properties.
+       */
+      virtual void freezeSpecies();
  
-        virtual bool ready() const;
+      virtual bool ready() const;
 
 
     protected:
 
-	/**
-	 * m_kk = Number of species in the phase.  @internal m_kk is a
-	 * member of both the State and Constituents classes.
-	 * Therefore, to avoid multiple inheritance problems, we need
-	 * to restate it in here, so that the declarations in the two
-	 * base classes become hidden.
-	 */
-	int m_kk;
-	/**
-	 * m_ndim is the dimensionality of the phase.  Volumetric
-	 * phases have dimensionality 3 and surface phases have
-	 * dimensionality 2.
-	 */
-        int m_ndim;
-	/**
-	 * m_index is the index of the phase
-	 * 
-	 */
-        int m_index;
+      /**
+       * m_kk = Number of species in the phase.  @internal m_kk is a
+       * member of both the State and Constituents classes.
+       * Therefore, to avoid multiple inheritance problems, we need
+       * to restate it in here, so that the declarations in the two
+       * base classes become hidden.
+       */
+      int m_kk;
+      /**
+       * m_ndim is the dimensionality of the phase.  Volumetric
+       * phases have dimensionality 3 and surface phases have
+       * dimensionality 2.
+       */
+      int m_ndim;
+      /**
+       * m_index is the index of the phase
+       * 
+       */
+      int m_index;
 
     private:
 
-        vector_fp m_data;
-        XML_Node* m_xml;
-        std::string m_id;
-        std::string m_name;
+      //! This stores the initial state of the system
+      /*!
+       * @deprecated
+       *      This doesn't seem to be used much anymore.
+       */
+      vector_fp m_data;
+
+      //! Pointer to the XML node containing the XML info for this phase
+      XML_Node* m_xml;
+
+      //! ID of the phase.
+      /*!
+       * This is the value of the ID attribute of the XML phase node.
+       */
+      std::string m_id;
+
+      //! Name of the phase.
+      /*!
+       * Initially, this is the value of the ID attribute of the XML phase node.
+       */
+      std::string m_name;
     };
 
   //! typedef for the base Phase class
-    typedef Phase phase_t;
+  typedef Phase phase_t;
 }
 
 #endif

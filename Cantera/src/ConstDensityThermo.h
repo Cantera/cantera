@@ -443,9 +443,9 @@ namespace Cantera {
     //! Current pressure (Pa)
     doublereal m_press;
 
-
   private:
 
+    //! Function to update the reference state thermo functions
     void _updateThermo() const;
   };
 }

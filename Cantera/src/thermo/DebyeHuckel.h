@@ -53,7 +53,9 @@ namespace Cantera {
    * The concentrations of the ionic species are assumed to obey the electroneutrality
    * condition. 
    *
-   * <b> Specification of Species Standard %State Properties </b>
+   * <HR>
+   * <H2> Specification of Species Standard %State Properties </H2>
+   * <HR>
    *
    * The standard states are on the unit molality basis. Therefore, in the
    * documentation below, the normal \f$ o \f$ superscript is replaced with
@@ -454,10 +456,10 @@ namespace Cantera {
    *  Currently, \f$  B_{Debye} \f$ is a constant in the model, specified either by a default
    *  water value, or through the input file. This may have to be looked at, in the future.
    *
-   *
    * <HR>
    * <H2> %Application within %Kinetics Managers </H2>
    * <HR>
+   *
    * For the time being, we have set the standard concentration for all species in
    * this phase equal to the default concentration of the solvent at 298 K and 1 atm. 
    * This means that the
@@ -507,7 +509,7 @@ namespace Cantera {
    *  Note, this treatment may be modified in the future, as events dictate.
    *
    * <HR>
-   * <b> Instantiation of the Class </b>
+   * <H2> Instantiation of the Class </H2>
    * <HR>
    *
    * The constructor for this phase is NOT located in the default ThermoFactory
@@ -540,7 +542,7 @@ namespace Cantera {
    * @endcode
    *
    * <HR>
-   *   <b> XML Example </b>
+   * <H2> XML Example </H2>
    * <HR>
    *
    * The phase model name for this is called StoichSubstance. It must be supplied
@@ -597,8 +599,6 @@ namespace Cantera {
   </phase> 
   @endverbatim
    *
-   *  The model attribute, "StoichSubstanceSSTP", on the thermo element identifies the phase as 
-   *  being a StoichSubstanceSSTP object.
    *
    */
   class DebyeHuckel : public MolalityVPSSTP {
@@ -994,16 +994,19 @@ namespace Cantera {
     //! in the mixture. Units (J/kmol)
     /*!
      * For this phase, the partial molar enthalpies are equal to the
-     * pure species enthalpies
+     * standard state enthalpies modified by the derivative of the
+     * molality-based activity coefficent wrt temperature
+     *
      *  \f[
-     * \bar h_k(T,P) = \hat h^{ref}_k(T) + (P - P_{ref}) \hat V^0_k
+     * \bar h_k(T,P) = h^{\triangle}_k(T,P) - R T^2 \frac{d \ln(\gamma_k^\triangle)}{dT}
      * \f]
-     * The reference-state pure-species enthalpies, 
-     * \f$ \hat h^{ref}_k(T) \f$,
-     * at the reference pressure,\f$ P_{ref} \f$,
-     * are computed by the species thermodynamic 
-     * property manager. They are polynomial functions of temperature.
-     * @see SpeciesThermo
+     * The solvent partial molar enthalpy is equal to 
+     *  \f[
+     * \bar h_o(T,P) = h^{o}_o(T,P) - R T^2 \frac{d \ln(a_o}{dT}
+     * \f]
+     *
+     * The temperature dependence of the activity coefficients currently
+     * only occurs through the temperature dependence of the Debye constant.
      *
      * @param hbar    Output vector of species partial molar enthalpies.
      *                Length: m_kk. units are J/kmol.
@@ -1562,6 +1565,8 @@ namespace Cantera {
     //!   salt-out modifications.
     /*!
      *   Returns the calculated activity coefficients.
+     *
+     * @param IionicMolality Value of the ionic molality (sqrt(gmol/kg))
      */
     double _nonpolarActCoeff(double IionicMolality) const;
 
@@ -1572,6 +1577,12 @@ namespace Cantera {
      *      NaCl brine. It's to be used with extreme caution.
      */
     double _osmoticCoeffHelgesonFixedForm() const;
+
+    //!      Formula for the log of the water activity that occurs in the GWB.
+    /*!
+     * It is originally from Helgeson for a variable
+     *      NaCl brine. It's to be used with extreme caution.
+     */
     double _lnactivityWaterHelgesonFixedForm() const;
  
  
@@ -1867,6 +1878,8 @@ namespace Cantera {
      *   activity coefficient for all species in the mechanism.
      *
      *   We assume that the activity coefficients are current in this routine
+     *
+     *
      *
      *   The solvent activity coefficient is on the molality scale. It's derivative is too.
      */

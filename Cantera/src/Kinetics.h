@@ -936,8 +936,14 @@ namespace Cantera {
 
     private:
 
-        std::vector<grouplist_t> m_dummygroups;
-        void err(std::string m) const;
+      //! Vector of group lists
+      std::vector<grouplist_t> m_dummygroups;
+
+      //! Function for unhandled situations
+      /*!
+       *  @param m  String error message
+       */
+      void err(std::string m) const;
 
     };
 

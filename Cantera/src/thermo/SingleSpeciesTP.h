@@ -703,8 +703,12 @@ namespace Cantera {
     void _updateThermo() const;
 
   private:
-    doublereal err(std::string msg) const;
 
+    //! Error return for unhandled cases
+    /*!
+     * @param msg   String message
+     */
+    doublereal err(std::string msg) const;
   };
 
 }

@@ -572,12 +572,12 @@ namespace Cantera {
      */   
     mutable vector_fp      m_Vss;
 
-    
-  
+      
   private:
 
+    //! VPStandardStateTP has its own err routine
     /*!
-     * VPStandardStateTP has its own err routine
+     * @param msg  Error message string
      */
     doublereal err(std::string msg) const;
 

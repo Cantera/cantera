@@ -214,19 +214,17 @@ namespace Cantera {
 	m_phaseindex[m_thermo.back()->id()] = nPhases();
     }
 
-    /**
-     *  err():
-     *
-     *  Private function of the class Kinetics, indicating that a function
-     *  inherited from the base class hasn't had a definition assigned to it
-     */
-    void Kinetics::err(std::string m) const {
-	throw CanteraError("Kinetics::" + m, 
-			   "The default Base class method was called, when "
-			   "the inherited class's method should "
-			   "have been called");
-    }
-
-
+  
+  //! Private function of the class Kinetics, indicating that a function
+  //!  inherited from the base class hasn't had a definition assigned to it
+  /*!
+   * @param m String message
+   */
+  void Kinetics::err(std::string m) const {
+    throw CanteraError("Kinetics::" + m, 
+		       "The default Base class method was called, when "
+		       "the inherited class's method should "
+		       "have been called");
+  }
 
 }

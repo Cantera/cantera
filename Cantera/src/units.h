@@ -129,9 +129,25 @@ namespace Cantera {
         /// pointer to the single instance of Unit
         static Unit* s_u;
 
-        std::map<std::string, doublereal> m_u;
-        std::map<std::string, doublereal> m_act_u;
+      //! Map between a string and a units double value
+      /*!
+       *  This map maps the dimension string to the units value adjustment. Example
+       *   -  m_u["m"]    = 1.0;
+       *   -  m_u["cm"]   = 0.01;
+       */
+      std::map<std::string, doublereal> m_u;
 
+      //! Map between a string and a units double value for activation energy units
+      /*!
+       *  This map maps the dimension string to the units value adjustment. Example
+       *   -    m_act_u["K"] =  GasConstant;
+       */
+      std::map<std::string, doublereal> m_act_u;
+
+      /*!
+       * Units class constructor, containing the default mappings between
+       * strings and units.
+       */
         Unit(){
 
             // length

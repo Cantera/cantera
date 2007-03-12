@@ -78,7 +78,7 @@ double WaterPropsIAPWS::helmholtzFE_RT() const{
   return (retn);
 }
 
-/**
+/*
  * Calculate the Helmholtz free energy in mks units of
  * J kmol-1 K-1.
  */
@@ -96,7 +96,7 @@ double  WaterPropsIAPWS::helmholtzFE() const{
 }
 
 
-/**
+/*
  * Calculate the pressure (Pascals), given the temperature and density
  *  Temperature: kelvin
  *  rho: density in kg m-3 
@@ -113,7 +113,7 @@ double  WaterPropsIAPWS::pressure() const{
   return (retn * rho * Rgas * temperature);
 }
 
-/**
+/*
  * Calculates the pressure in dimensionless form
  *  p/(rhoRT) at the currently stored tau and delta values 
  */
@@ -199,7 +199,7 @@ double WaterPropsIAPWS::density() const {
   return (delta * Rho_c);
 }
 
-/**
+/*
  * psat_est provides a rough estimate of the saturation
  * pressure given the temperature. This is used as an initial
  * guess for refining the pressure.
@@ -245,7 +245,7 @@ double WaterPropsIAPWS::psat_est(double temperature) {
   return ps;
 }
 
-/**
+/*
  * Returns the coefficient of thermal expansion as a function
  * of temperature and pressure.
  *           alpha = d (ln V) / dT at constant P.

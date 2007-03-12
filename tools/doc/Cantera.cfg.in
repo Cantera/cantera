@@ -43,7 +43,7 @@ SUBGROUPING            = YES
 # Build related configuration options
 #---------------------------------------------------------------------------
 EXTRACT_ALL            = NO
-EXTRACT_PRIVATE        = NO
+EXTRACT_PRIVATE        = YES
 EXTRACT_STATIC         = NO
 EXTRACT_LOCAL_CLASSES  = YES
 EXTRACT_LOCAL_METHODS  = NO
@@ -117,7 +117,8 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          IdealSolidSolnPhase.h   IdealSolidSolnPhase.cpp \
                          StoichSubstanceSSTP.h   StoichSubstanceSSTP.cpp \
                          DebyeHuckel.h           DebyeHuckel.cpp  \
-                         ConstDensityThermo.h ConstDensityThermo.cpp
+                         ConstDensityThermo.h ConstDensityThermo.cpp \
+                         WaterPropsIAPWSphi.h  WaterPropsIAPWSphi.cpp  WaterPropsIAPWS.h  WaterPropsIAPWS.cpp
 RECURSIVE              = NO
 EXCLUDE                = CVS examples  converters zeroD
 EXCLUDE_SYMLINKS       = NO
