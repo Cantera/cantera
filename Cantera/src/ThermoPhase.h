@@ -37,10 +37,11 @@ namespace Cantera {
   /**
    * @defgroup thermoprops Thermodynamic Properties
    *
+   *
    * These classes are used to compute the thermodynamic properties of
    * phases of matter. The main base class for describing thermodynamic 
    * properties of phases within %Cantera is called ThermoPhase. %ThermoPhase
-   * is a large class that describes the interface within Cantera to Thermodynamic
+   * is a large class that describes the interface within %Cantera to Thermodynamic
    * functions for a phase. 
    *
    *
@@ -82,13 +83,13 @@ namespace Cantera {
    *
    * Treatment of other potential energy contributions.
    *
-   * Setting the State of the phase
+   * Setting the %State of the phase
    *
-   * Instantiation of ThermoPhase properties occurs via the following path.
+   * Instantiation of %ThermoPhase properties occurs via the following path.
    *
    * Molar Basis vs. Molality Basis
    *
-   * The following Objects inherit from ThermoPhase. These are known to the
+   * The following Objects inherit from %ThermoPhase. These are known to the
    * internal factory methods
    *
    *    - IdealGasPhase       in IdealGasPhase.h
@@ -114,12 +115,13 @@ namespace Cantera {
    *     - IdealGasPDSS         in thermo/IdealGasPDSS.h
    *     - MolalityVPSSTP       in thermo/MolalityVPSSTP.h
    *     - HMWSoln              in thermo/HMWSoln.h
+   *     - WaterTP              in thermo/WaterTP.h
    *     .
    *
    * @see newPhase(std::string file, std::string id) Description for how to
    *               read ThermoPhases from XML files.
    * @see newPhase(XML_Node &phase) How to call the Factory routine to create 
-   *          and initialize ThermoPhase objects.
+   *          and initialize %ThermoPhase objects.
    */
 
   
@@ -366,39 +368,39 @@ namespace Cantera {
      */
     //@{
       
-      //! Set the electric potential of this phase (V).
-      /*!
-       * This is used by classes InterfaceKinetics and EdgeKinetics to
-       * compute the rates of charge-transfer reactions, and in computing
-       * the electrochemical potentials of the species.
-       * 
-       * Each phase may have its own electric potential.
-       *
-       * @param v Input value of the electric potential in Volts
-       */
-      void setElectricPotential(doublereal v) {
-	m_phi = v;
-      }
+    //! Set the electric potential of this phase (V).
+    /*!
+     * This is used by classes InterfaceKinetics and EdgeKinetics to
+     * compute the rates of charge-transfer reactions, and in computing
+     * the electrochemical potentials of the species.
+     * 
+     * Each phase may have its own electric potential.
+     *
+     * @param v Input value of the electric potential in Volts
+     */
+    void setElectricPotential(doublereal v) {
+      m_phi = v;
+    }
 
-        //! Returns the electric potential of this phase (V).
-        /*!
-	 *  Units are Volts
-	 */ 
-        doublereal electricPotential() const { return m_phi; }
+    //! Returns the electric potential of this phase (V).
+    /*!
+     *  Units are Volts
+     */ 
+    doublereal electricPotential() const { return m_phi; }
 
-        /**
-         * @}
-         * @name Activities, Standard States, and Activity Concentrations
-         *
-         * The activity \f$a_k\f$ of a species in solution is related
-         * to the chemical potential by \f[ \mu_k = \mu_k^0(T,P) +
-         * \hat R T \log a_k. \f] The quantity \f$\mu_k^0(T,P)\f$ is
-         * the standard chemical potential at unit activity, 
-	 * which depends on  temperature and pressure, 
-	 * but not on composition. The
-         * activity is dimensionless.
-         * @{
-         */
+    /**
+     * @}
+     * @name Activities, Standard States, and Activity Concentrations
+     *
+     * The activity \f$a_k\f$ of a species in solution is related
+     * to the chemical potential by \f[ \mu_k = \mu_k^0(T,P) +
+     * \hat R T \log a_k. \f] The quantity \f$\mu_k^0(T,P)\f$ is
+     * the standard chemical potential at unit activity, 
+     * which depends on  temperature and pressure, 
+     * but not on composition. The
+     * activity is dimensionless.
+     * @{
+     */
 
 	
     //! This method returns the convention used in specification
@@ -534,18 +536,18 @@ namespace Cantera {
     /// @name  Partial Molar Properties of the Solution
     //@{
       
-      /**
-       * Get the array of non-dimensional species chemical potentials
-       * These are partial molar Gibbs free energies.
-       * \f$ \mu_k / \hat R T \f$.
-       * Units: unitless
-       *
-       * @param mu  Output vector of dimensionless chemical potentials.
-       *            Length: m_kk.
-       */
-      virtual void getChemPotentials_RT(doublereal* mu) const {
-	err("getChemPotentials_RT");
-      }
+    /**
+     * Get the array of non-dimensional species chemical potentials
+     * These are partial molar Gibbs free energies.
+     * \f$ \mu_k / \hat R T \f$.
+     * Units: unitless
+     *
+     * @param mu  Output vector of dimensionless chemical potentials.
+     *            Length: m_kk.
+     */
+    virtual void getChemPotentials_RT(doublereal* mu) const {
+      err("getChemPotentials_RT");
+    }
       
      
     //! Get the species chemical potentials. Units: J/kmol.
@@ -720,49 +722,49 @@ namespace Cantera {
       err("getStandardVolumes");
     }
 
-      //@}
-      /// @name Thermodynamic Values for the Species Reference States 
-      //@{
+    //@}
+    /// @name Thermodynamic Values for the Species Reference States 
+    //@{
 
       
-      //!  Returns the vector of nondimensional
-      //!  enthalpies of the reference state at the current temperature
-      //!  of the solution and the reference pressure for the species.
-      /*!
-       *  This base function will throw a CanteraException unless
-       *  it is overwritten in a derived class.
-       *
-       * @param hrt     Output vector containing the nondimensional reference state 
-       *                enthalpies
-       *                Length: m_kk.
-       */
-      virtual void getEnthalpy_RT_ref(doublereal *hrt) const {
-            err("getEnthalpy_RT_ref");
-        }
+    //!  Returns the vector of nondimensional
+    //!  enthalpies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for the species.
+    /*!
+     *  This base function will throw a CanteraException unless
+     *  it is overwritten in a derived class.
+     *
+     * @param hrt     Output vector containing the nondimensional reference state 
+     *                enthalpies
+     *                Length: m_kk.
+     */
+    virtual void getEnthalpy_RT_ref(doublereal *hrt) const {
+      err("getEnthalpy_RT_ref");
+    }
      
-      //!  Returns the vector of nondimensional
-      //!  Gibbs Free Energies of the reference state at the current temperature
-      //!  of the solution and the reference pressure for the species.
-      /*!
-       * @param grt     Output vector containing the nondimensional reference state 
-       *                Gibbs Free energies.  Length: m_kk.
-       */
-      virtual void getGibbs_RT_ref(doublereal *grt) const {
-	err("getGibbs_RT_ref");
-      }
+    //!  Returns the vector of nondimensional
+    //!  Gibbs Free Energies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for the species.
+    /*!
+     * @param grt     Output vector containing the nondimensional reference state 
+     *                Gibbs Free energies.  Length: m_kk.
+     */
+    virtual void getGibbs_RT_ref(doublereal *grt) const {
+      err("getGibbs_RT_ref");
+    }
                    
-      //!  Returns the vector of the
-      //!  gibbs function of the reference state at the current temperature
-      //!  of the solution and the reference pressure for the species.
-      /*!
-       *  units = J/kmol
-       *
-       * @param g       Output vector containing the  reference state 
-       *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
-       */
-      virtual void getGibbs_ref(doublereal *g) const {
-	err("getGibbs_ref");
-      }
+    //!  Returns the vector of the
+    //!  gibbs function of the reference state at the current temperature
+    //!  of the solution and the reference pressure for the species.
+    /*!
+     *  units = J/kmol
+     *
+     * @param g       Output vector containing the  reference state 
+     *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
+     */
+    virtual void getGibbs_ref(doublereal *g) const {
+      err("getGibbs_ref");
+    }
       
     //!  Returns the vector of nondimensional
     //!  entropies of the reference state at the current temperature
@@ -876,204 +878,204 @@ namespace Cantera {
       return temperature() * GasConstant;
     }
 
-      /**
-       * @name Setting the State
-       *
-       * These methods set all or part of the thermodynamic
-       * state.
-       * @{
-       */
+    /**
+     * @name Setting the State
+     *
+     * These methods set all or part of the thermodynamic
+     * state.
+     * @{
+     */
 
-      //! Set the temperature (K), pressure (Pa), and mole fractions.
-      /*!
-       * Note, the mole fractions are set first before the pressure is set.
-       * Setting the pressure may involve the solution of a nonlinear equation.
-       *
-       * @param t    Temperature (K)
-       * @param p    Pressure (Pa)
-       * @param x    Vector of mole fractions.
-       *             Length is equal to m_kk.
-       */
-      void setState_TPX(doublereal t, doublereal p, const doublereal* x);
+    //! Set the temperature (K), pressure (Pa), and mole fractions.
+    /*!
+     * Note, the mole fractions are set first before the pressure is set.
+     * Setting the pressure may involve the solution of a nonlinear equation.
+     *
+     * @param t    Temperature (K)
+     * @param p    Pressure (Pa)
+     * @param x    Vector of mole fractions.
+     *             Length is equal to m_kk.
+     */
+    void setState_TPX(doublereal t, doublereal p, const doublereal* x);
 
-      //! Set the temperature (K), pressure (Pa), and mole fractions.  
-      /*!
-       * Note, the mole fractions are set first before the pressure is set.
-       * Setting the pressure may involve the solution of a nonlinear equation.
-       *
-       * @param t    Temperature (K)
-       * @param p    Pressure (Pa)
-       * @param x    Composition map of mole fractions. Species not in
-       *             the composition map are assumed to have zero mole fraction
-       */
-      void setState_TPX(doublereal t, doublereal p, compositionMap& x);
+    //! Set the temperature (K), pressure (Pa), and mole fractions.  
+    /*!
+     * Note, the mole fractions are set first before the pressure is set.
+     * Setting the pressure may involve the solution of a nonlinear equation.
+     *
+     * @param t    Temperature (K)
+     * @param p    Pressure (Pa)
+     * @param x    Composition map of mole fractions. Species not in
+     *             the composition map are assumed to have zero mole fraction
+     */
+    void setState_TPX(doublereal t, doublereal p, compositionMap& x);
 
-      //! Set the temperature (K), pressure (Pa), and mole fractions.  
-      /*!
-       * Note, the mole fractions are set first before the pressure is set.
-       * Setting the pressure may involve the solution of a nonlinear equation.
-       *
-       * @param t    Temperature (K)
-       * @param p    Pressure (Pa)
-       * @param x    String containing a composition map of the mole fractions. Species not in
-       *             the composition map are assumed to have zero mole fraction
-       */
-      void setState_TPX(doublereal t, doublereal p, const std::string& x);
+    //! Set the temperature (K), pressure (Pa), and mole fractions.  
+    /*!
+     * Note, the mole fractions are set first before the pressure is set.
+     * Setting the pressure may involve the solution of a nonlinear equation.
+     *
+     * @param t    Temperature (K)
+     * @param p    Pressure (Pa)
+     * @param x    String containing a composition map of the mole fractions. Species not in
+     *             the composition map are assumed to have zero mole fraction
+     */
+    void setState_TPX(doublereal t, doublereal p, const std::string& x);
 
-      //! Set the internally storred temperature (K), pressure (Pa), and mass fractions of the phase.
-      /*!
-       * Note, the mass fractions are set first before the pressure is set.
-       * Setting the pressure may involve the solution of a nonlinear equation.
-       *
-       * @param t    Temperature (K)
-       * @param p    Pressure (Pa)
-       * @param y    Vector of mass fractions.
-       *             Length is equal to m_kk.
-       */
-      void setState_TPY(doublereal t, doublereal p, const doublereal* y);
+    //! Set the internally storred temperature (K), pressure (Pa), and mass fractions of the phase.
+    /*!
+     * Note, the mass fractions are set first before the pressure is set.
+     * Setting the pressure may involve the solution of a nonlinear equation.
+     *
+     * @param t    Temperature (K)
+     * @param p    Pressure (Pa)
+     * @param y    Vector of mass fractions.
+     *             Length is equal to m_kk.
+     */
+    void setState_TPY(doublereal t, doublereal p, const doublereal* y);
 
-      //! Set the internally storred temperature (K), pressure (Pa), and mass fractions of the phase
-      /*!
-       * Note, the mass fractions are set first before the pressure is set.
-       * Setting the pressure may involve the solution of a nonlinear equation.
-       *
-       * @param t    Temperature (K)
-       * @param p    Pressure (Pa)
-       * @param y    Composition map of mass fractions. Species not in
-       *             the composition map are assumed to have zero mass fraction
-       */
-      void setState_TPY(doublereal t, doublereal p, compositionMap& y);
+    //! Set the internally storred temperature (K), pressure (Pa), and mass fractions of the phase
+    /*!
+     * Note, the mass fractions are set first before the pressure is set.
+     * Setting the pressure may involve the solution of a nonlinear equation.
+     *
+     * @param t    Temperature (K)
+     * @param p    Pressure (Pa)
+     * @param y    Composition map of mass fractions. Species not in
+     *             the composition map are assumed to have zero mass fraction
+     */
+    void setState_TPY(doublereal t, doublereal p, compositionMap& y);
         
-      //! Set the internally storred temperature (K), pressure (Pa), and mass fractions of the phase
-      /*!
-       * Note, the mass fractions are set first before the pressure is set.
-       * Setting the pressure may involve the solution of a nonlinear equation.
-       *
-       * @param t    Temperature (K)
-       * @param p    Pressure (Pa)
-       * @param y    String containing a composition map of the mass fractions. Species not in
-       *             the composition map are assumed to have zero mass fraction
-       */
-      void setState_TPY(doublereal t, doublereal p, const std::string& y);
+    //! Set the internally storred temperature (K), pressure (Pa), and mass fractions of the phase
+    /*!
+     * Note, the mass fractions are set first before the pressure is set.
+     * Setting the pressure may involve the solution of a nonlinear equation.
+     *
+     * @param t    Temperature (K)
+     * @param p    Pressure (Pa)
+     * @param y    String containing a composition map of the mass fractions. Species not in
+     *             the composition map are assumed to have zero mass fraction
+     */
+    void setState_TPY(doublereal t, doublereal p, const std::string& y);
 
-      //! Set the temperature (K) and pressure (Pa)
-      /*!
-       * Setting the pressure may involve the solution of a nonlinear equation.
-       *
-       * @param t    Temperature (K)
-       * @param p    Pressure (Pa)
-       */
-      void setState_TP(doublereal t, doublereal p);
+    //! Set the temperature (K) and pressure (Pa)
+    /*!
+     * Setting the pressure may involve the solution of a nonlinear equation.
+     *
+     * @param t    Temperature (K)
+     * @param p    Pressure (Pa)
+     */
+    void setState_TP(doublereal t, doublereal p);
 
-      //! Set the pressure (Pa) and mole fractions. 
-      /*!
-       * Note, the mole fractions are set first before the pressure is set.
-       * Setting the pressure may involve the solution of a nonlinear equation.
-       *
-       * @param p    Pressure (Pa)
-       * @param x    Vector of mole fractions.
-       *             Length is equal to m_kk.
-       */
-      void setState_PX(doublereal p, doublereal* x);
+    //! Set the pressure (Pa) and mole fractions. 
+    /*!
+     * Note, the mole fractions are set first before the pressure is set.
+     * Setting the pressure may involve the solution of a nonlinear equation.
+     *
+     * @param p    Pressure (Pa)
+     * @param x    Vector of mole fractions.
+     *             Length is equal to m_kk.
+     */
+    void setState_PX(doublereal p, doublereal* x);
 
 
-      //! Set the internally storred pressure (Pa) and mass fractions. 
-      /*!
-       * Note, the temperature is held constant during this operation.
-       * Note, the mass fractions are set first before the pressure is set.
-       * Setting the pressure may involve the solution of a nonlinear equation.
-       *
-       * @param p    Pressure (Pa)
-       * @param y    Vector of mass fractions.
-       *             Length is equal to m_kk.
-       */
-      void setState_PY(doublereal p, doublereal* y);
+    //! Set the internally storred pressure (Pa) and mass fractions. 
+    /*!
+     * Note, the temperature is held constant during this operation.
+     * Note, the mass fractions are set first before the pressure is set.
+     * Setting the pressure may involve the solution of a nonlinear equation.
+     *
+     * @param p    Pressure (Pa)
+     * @param y    Vector of mass fractions.
+     *             Length is equal to m_kk.
+     */
+    void setState_PY(doublereal p, doublereal* y);
 
-      //! Set the internally storred specific enthalpy (J/kg) and pressure (Pa) of the phase.
-      /*!
-       * @param h     Specific enthalpy (J/kg)
-       * @param p     Pressure (Pa)
-       * @param tol  Optional parameter setting the tolerance of the
-       *             calculation.
-       */
-      virtual void setState_HP(doublereal h, doublereal p, 
-			       doublereal tol = 1.e-4);
+    //! Set the internally storred specific enthalpy (J/kg) and pressure (Pa) of the phase.
+    /*!
+     * @param h     Specific enthalpy (J/kg)
+     * @param p     Pressure (Pa)
+     * @param tol  Optional parameter setting the tolerance of the
+     *             calculation.
+     */
+    virtual void setState_HP(doublereal h, doublereal p, 
+			     doublereal tol = 1.e-4);
 
-      //! Set the specific internal energy (J/kg) and specific volume (m^3/kg).
-      /*!
-       * This function fixes the internal state of the phase so that
-       * the specific internal energy and specific volume have the value of the input parameters.
-       *
-       * @param u    specific internal energy (J/kg)
-       * @param v    specific volume (m^3/kg).
-       * @param tol  Optional parameter setting the tolerance of the
-       *             calculation.
-       */
-      virtual void setState_UV(doublereal u, doublereal v, 
-			       doublereal tol = 1.e-4);
+    //! Set the specific internal energy (J/kg) and specific volume (m^3/kg).
+    /*!
+     * This function fixes the internal state of the phase so that
+     * the specific internal energy and specific volume have the value of the input parameters.
+     *
+     * @param u    specific internal energy (J/kg)
+     * @param v    specific volume (m^3/kg).
+     * @param tol  Optional parameter setting the tolerance of the
+     *             calculation.
+     */
+    virtual void setState_UV(doublereal u, doublereal v, 
+			     doublereal tol = 1.e-4);
 
-      //! Set the specific entropy (J/kg/K) and pressure (Pa).
-      /*!
-       * This function fixes the internal state of the phase so that
-       * the specific entropy and the pressure have the value of the input parameters.
-       *
-       * @param s    specific entropy (J/kg/K)
-       * @param p    specific pressure (Pa).
-       * @param tol  Optional parameter setting the tolerance of the
-       *             calculation.
-       */
-      virtual void setState_SP(doublereal s, doublereal p, 
-			       doublereal tol = 1.e-4);
+    //! Set the specific entropy (J/kg/K) and pressure (Pa).
+    /*!
+     * This function fixes the internal state of the phase so that
+     * the specific entropy and the pressure have the value of the input parameters.
+     *
+     * @param s    specific entropy (J/kg/K)
+     * @param p    specific pressure (Pa).
+     * @param tol  Optional parameter setting the tolerance of the
+     *             calculation.
+     */
+    virtual void setState_SP(doublereal s, doublereal p, 
+			     doublereal tol = 1.e-4);
 
-      //! Set the specific entropy (J/kg/K) and specific volume (m^3/kg).
-      /*!
-       * This function fixes the internal state of the phase so that
-       * the specific entropy and specific volume have the value of the input parameters.
-       *
-       * @param s    specific entropy (J/kg/K)
-       * @param v    specific volume (m^3/kg).
-       * @param tol  Optional parameter setting the tolerance of the
-       *             calculation.
-       */
-      virtual void setState_SV(doublereal s, doublereal v, doublereal tol = 1.e-4);
+    //! Set the specific entropy (J/kg/K) and specific volume (m^3/kg).
+    /*!
+     * This function fixes the internal state of the phase so that
+     * the specific entropy and specific volume have the value of the input parameters.
+     *
+     * @param s    specific entropy (J/kg/K)
+     * @param v    specific volume (m^3/kg).
+     * @param tol  Optional parameter setting the tolerance of the
+     *             calculation.
+     */
+    virtual void setState_SV(doublereal s, doublereal v, doublereal tol = 1.e-4);
 
-      //@}
+    //@}
       
-      /**
-       * @name Chemical Equilibrium
-       * Chemical equilibrium.
-       * @{
-       */
+    /**
+     * @name Chemical Equilibrium
+     * Chemical equilibrium.
+     * @{
+     */
       
       
-      //!This method is used by the ChemEquil equilibrium solver.
-      /*!
-       * It sets the state such that the chemical potentials satisfy
-       * \f[ \frac{\mu_k}{\hat R T} = \sum_m A_{k,m}
-       * \left(\frac{\lambda_m} {\hat R T}\right) \f] where 
-       * \f$ \lambda_m \f$ is the element potential of element m. The
-       * temperature is unchanged.  Any phase (ideal or not) that
-       * implements this method can be equilibrated by ChemEquil.
-       *
-       * @param lambda_RT Input vector of dimensionless element potentials
-       *                  The length is equal to nElements().
-       */ 
-      virtual void setToEquilState(const doublereal* lambda_RT) {
-	err("setToEquilState");
-      }
+    //!This method is used by the ChemEquil equilibrium solver.
+    /*!
+     * It sets the state such that the chemical potentials satisfy
+     * \f[ \frac{\mu_k}{\hat R T} = \sum_m A_{k,m}
+     * \left(\frac{\lambda_m} {\hat R T}\right) \f] where 
+     * \f$ \lambda_m \f$ is the element potential of element m. The
+     * temperature is unchanged.  Any phase (ideal or not) that
+     * implements this method can be equilibrated by ChemEquil.
+     *
+     * @param lambda_RT Input vector of dimensionless element potentials
+     *                  The length is equal to nElements().
+     */ 
+    virtual void setToEquilState(const doublereal* lambda_RT) {
+      err("setToEquilState");
+    }
 
-      //! Stores the element potentials in the ThermoPhase object
-      /*!
-       * Called by function 'equilibrate' in ChemEquil.h to transfer
-       * the element potentials to this object after every successful
-       *  equilibration routine.
-       * The element potentials are storred in their dimensionless
-       * forms, calculated by dividing by RT.
-       *
-       *    @param lambda Input vector containing the element potentials.
-       *           Length = nElements. Units are Joules/kmol.
-       */
-      void setElementPotentials(const vector_fp& lambda);
+    //! Stores the element potentials in the ThermoPhase object
+    /*!
+     * Called by function 'equilibrate' in ChemEquil.h to transfer
+     * the element potentials to this object after every successful
+     *  equilibration routine.
+     * The element potentials are storred in their dimensionless
+     * forms, calculated by dividing by RT.
+     *
+     *    @param lambda Input vector containing the element potentials.
+     *           Length = nElements. Units are Joules/kmol.
+     */
+    void setElementPotentials(const vector_fp& lambda);
   
 
     //!  Returns the element potentials storred in the ThermoPhase object
@@ -1117,66 +1119,87 @@ namespace Cantera {
         
     //@}
         
-    /// @name Saturation properties.
-    /// These methods are only implemented by subclasses that 
-    /// implement full liquid-vapor equations of state. They may be
-    /// moved out of ThermoPhase at a later date.
-    ///
+    //! @name Saturation properties.
+    /*!
+     * These methods are only implemented by subclasses that 
+     * implement full liquid-vapor equations of state. They may be
+     * moved out of ThermoPhase at a later date.
+     */
+    //@{
+
+    //! Return the saturation temperature given the pressure
+    /*!
+     * @param p Pressure (Pa)
+     */
     virtual doublereal satTemperature(doublereal p) const {
       err("satTemperature"); return -1.0;
     }
-        
+
+    //! Return the saturation pressure given the temperature
+    /*!
+     * @param t Temperature (Kelvin)
+     */
     virtual doublereal satPressure(doublereal t) const {
       err("satPressure"); return -1.0;
     }
-        
+
+    //! Return the fraction of vapor at the current conditions
     virtual doublereal vaporFraction() const {
       err("vaprFraction"); return -1.0;
     }
         
+    //! Set the state to a saturated system at a particular temperature
+    /*!
+     * @param t  Temperature (kelvin)
+     * @param x  Fraction of vapor
+     */
     virtual void setState_Tsat(doublereal t, doublereal x) {
       err("setState_sat"); 
     }
 
+    //! Set the state to a saturated system at a particular pressure
+    /*!
+     * @param p  Pressure (Pa)
+     * @param x  Fraction of vapor
+     */
     virtual void setState_Psat(doublereal p, doublereal x) {
       err("setState_sat"); 
     }
-        
-
+       
     //@}
 
 
-      //! @name Initialization Methods - For Internal Use (%ThermoPhase)
-      /*!
-       * The following methods are used in the process of constructing
-       * the phase and setting its parameters from a specification in an 
-       * input file. They are not normally used in application programs.
-       * To see how they are used, 
-       * see files importCTML.cpp and  ThermoFactory.cpp.
-       */
-      //@{
+    //! @name Initialization Methods - For Internal Use (%ThermoPhase)
+    /*!
+     * The following methods are used in the process of constructing
+     * the phase and setting its parameters from a specification in an 
+     * input file. They are not normally used in application programs.
+     * To see how they are used, 
+     * see files importCTML.cpp and  ThermoFactory.cpp.
+     */
+    //@{
 
-      //! Store a reference to the XML tree containing the species data for this phase. 
-      /*!
-       *  This is used to access data needed to construct transport manager later.
-       *   @internal
-       *
-       * @param data   Pointer to the XML_Node data containing
-       *               information about the species in the phase.
-       */
-      void saveSpeciesData(const XML_Node* data) {
-	m_speciesData = data;
-      }
+    //! Store a reference to the XML tree containing the species data for this phase. 
+    /*!
+     *  This is used to access data needed to construct transport manager later.
+     *   @internal
+     *
+     * @param data   Pointer to the XML_Node data containing
+     *               information about the species in the phase.
+     */
+    void saveSpeciesData(const XML_Node* data) {
+      m_speciesData = data;
+    }
       
-      /// Return a pointer to the XML tree containing the species
-      /// data for this phase.
-      const XML_Node* speciesData() { 
-	if (!m_speciesData) {
-	  throw CanteraError("ThermoPhase::speciesData",
-			     "m_speciesData is NULL");
-	}
-	return m_speciesData;
+    /// Return a pointer to the XML tree containing the species
+    /// data for this phase.
+    const XML_Node* speciesData() { 
+      if (!m_speciesData) {
+	throw CanteraError("ThermoPhase::speciesData",
+			   "m_speciesData is NULL");
       }
+      return m_speciesData;
+    }
 
 
       
@@ -1197,35 +1220,35 @@ namespace Cantera {
     void setSpeciesThermo(SpeciesThermo* spthermo) 
     { m_spthermo = spthermo; }
     
-      /**
-       * @internal Return a reference to the species thermodynamic property
-       * manager.  @todo This method will fail if no species thermo
-       * manager has been installed.
-       */
-      SpeciesThermo& speciesThermo() { return *m_spthermo; }
+    /**
+     * @internal Return a reference to the species thermodynamic property
+     * manager.  @todo This method will fail if no species thermo
+     * manager has been installed.
+     */
+    SpeciesThermo& speciesThermo() { return *m_spthermo; }
 
-      /**
-       * @internal
-       * Initialization of a ThermoPhase object using an
-       * ctml file.
-       *
-       *   This routine is a precursor to initThermoXML(XML_Node*)
-       *   routine, which does most of the work.
-       *   Here we read extra information about the XML description
-       *   of a phase. Regular information about elements and species
-       *   and their reference state thermodynamic information
-       *   have already been read at this point.
-       *   For example, we do not need to call this function for
-       *   ideal gas equations of state.
-       *
-       * @param inputFile XML file containing the description of the
-       *        phase
-       *
-       * @param id  Optional parameter identifying the name of the
-       *            phase. If none is given, the first XML
-       *            phase element encountered will be used.
-       */
-      virtual void initThermoFile(std::string inputFile, std::string id);
+    /**
+     * @internal
+     * Initialization of a ThermoPhase object using an
+     * ctml file.
+     *
+     *   This routine is a precursor to initThermoXML(XML_Node*)
+     *   routine, which does most of the work.
+     *   Here we read extra information about the XML description
+     *   of a phase. Regular information about elements and species
+     *   and their reference state thermodynamic information
+     *   have already been read at this point.
+     *   For example, we do not need to call this function for
+     *   ideal gas equations of state.
+     *
+     * @param inputFile XML file containing the description of the
+     *        phase
+     *
+     * @param id  Optional parameter identifying the name of the
+     *            phase. If none is given, the first XML
+     *            phase element encountered will be used.
+     */
+    virtual void initThermoFile(std::string inputFile, std::string id);
 
 
     //!Import and initialize a ThermoPhase object  using an XML tree.
@@ -1291,18 +1314,18 @@ namespace Cantera {
     int index() { return m_index; }
 
 
-      /**
-       * @internal Set the index number. The Cantera interface
-       * library uses this method to set the index number to the
-       * location of the pointer to this object in the pointer array
-       * it maintains. Using this method for any other purpose will
-       * lead to unpredictable results if used in conjunction with
-       * the interface library.
-       *
-       * @param m  Input the index number.
-       */ 
-      void setIndex(int m) { m_index = m; }
-
+    /**
+     * @internal Set the index number. The Cantera interface
+     * library uses this method to set the index number to the
+     * location of the pointer to this object in the pointer array
+     * it maintains. Using this method for any other purpose will
+     * lead to unpredictable results if used in conjunction with
+     * the interface library.
+     *
+     * @param m  Input the index number.
+     */ 
+    void setIndex(int m) { m_index = m; }
+    
 
     //! Set the equation of state parameters
     /*!
@@ -1359,40 +1382,40 @@ namespace Cantera {
     //@}
 
             
-    protected:
+  protected:
 
-      //! Pointer to the species thermodynamic property manager
-      SpeciesThermo* m_spthermo;
+    //! Pointer to the species thermodynamic property manager
+    SpeciesThermo* m_spthermo;
 
-        /// Pointer to  the XML tree containing the species
-        /// data for this phase. This is used to access data needed to
-        /// construct the transport manager and other properties
-        /// later in the initialization process.
-        const XML_Node* m_speciesData;
+    /// Pointer to  the XML tree containing the species
+    /// data for this phase. This is used to access data needed to
+    /// construct the transport manager and other properties
+    /// later in the initialization process.
+    const XML_Node* m_speciesData;
 
-      //! Index number of the phase
-      /*!
-       * The Cantera interface library uses this member to set the index number to the
-       * location of the pointer to this object in the pointer array of ThermoPhase's
-       * it maintains. Using this member for any other purpose will
-       * lead to unpredictable results if used in conjunction with
-       * the interface library.
-       */
-      int m_index;
+    //! Index number of the phase
+    /*!
+     * The Cantera interface library uses this member to set the index number to the
+     * location of the pointer to this object in the pointer array of ThermoPhase's
+     * it maintains. Using this member for any other purpose will
+     * lead to unpredictable results if used in conjunction with
+     * the interface library.
+     */
+    int m_index;
 
-      //! Storred value of the electric potential for this phase
-      /*!
-       * Units are Volts
-       */
-      doublereal m_phi;
+    //! Storred value of the electric potential for this phase
+    /*!
+     * Units are Volts
+     */
+    doublereal m_phi;
 
-        /// Vector of element potentials.
-        ///    -> length equal to number of elements
-        vector_fp m_lambdaRRT;
-      //! Boolean indicating whether there is a valid set of saved element potentials for this phase
-        bool m_hasElementPotentials;
+    /// Vector of element potentials.
+    ///    -> length equal to number of elements
+    vector_fp m_lambdaRRT;
+    //! Boolean indicating whether there is a valid set of saved element potentials for this phase
+    bool m_hasElementPotentials;
 
-    private:
+  private:
 
     //! Error function that gets called for unhandled cases
     /*!
@@ -1400,7 +1423,7 @@ namespace Cantera {
      */
     doublereal err(std::string msg) const;
 
-    };
+  };
 
   //! typedef for the ThermoPhase class
   typedef ThermoPhase thermophase_t;

@@ -46,7 +46,7 @@ EXTRACT_ALL            = NO
 EXTRACT_PRIVATE        = YES
 EXTRACT_STATIC         = NO
 EXTRACT_LOCAL_CLASSES  = YES
-EXTRACT_LOCAL_METHODS  = NO
+EXTRACT_LOCAL_METHODS  = YES
 HIDE_UNDOC_MEMBERS     = NO
 HIDE_UNDOC_CLASSES     = NO
 HIDE_FRIEND_COMPOUNDS  = NO
@@ -104,7 +104,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          IdealGasPhase.h IdealGasPhase.cpp \
                          SurfPhase.h EdgePhase.h SurfPhase.cpp \
                          SpeciesThermoFactory.h SpeciesThermoFactory.cpp \
-                         speciesThermoTypes.h SpeciesThermoMgr.h SpeciesThermo.h SpeciesThermoInterpTypes.h \
+                         speciesThermoTypes.h SpeciesThermoMgr.h SpeciesThermo.h SpeciesThermoInterpType.h \
                          NasaThermo.h NasaPoly1.h NasaPoly2.h \
                          ShomateThermo.h ShomatePoly.h SimpleThermo.h \
                          GeneralSpeciesThermo.h GeneralSpeciesThermo.cpp \
@@ -118,7 +118,10 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          StoichSubstanceSSTP.h   StoichSubstanceSSTP.cpp \
                          DebyeHuckel.h           DebyeHuckel.cpp  \
                          ConstDensityThermo.h ConstDensityThermo.cpp \
-                         WaterPropsIAPWSphi.h  WaterPropsIAPWSphi.cpp  WaterPropsIAPWS.h  WaterPropsIAPWS.cpp
+                         WaterPropsIAPWSphi.h  WaterPropsIAPWSphi.cpp \
+                         WaterPropsIAPWS.h  WaterPropsIAPWS.cpp \
+                         WaterTP.h WaterTP.cpp \
+                         PureFluidPhase.h PureFluidPhase.cpp
 RECURSIVE              = NO
 EXCLUDE                = CVS examples  converters zeroD
 EXCLUDE_SYMLINKS       = NO

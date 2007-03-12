@@ -93,6 +93,7 @@ namespace Cantera {
    *      - This is a combination of two SpeciesThermo types.
    *      .
    *   .
+   *
    * The class SpeciesThermoInterpType is a pure virtual base class for
    * calculation of thermodynamic functions for a single species
    * in its reference state.

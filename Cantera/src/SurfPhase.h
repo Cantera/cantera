@@ -99,7 +99,7 @@ namespace Cantera {
    *            C^0_k = \frac{n_0}{s_k}      
    *        \f]
    *
-   * <b> Instanteation of the Class </b>
+   * <b> Instantiation of the Class </b>
    *
    * The constructor for this phase is located in the default ThermoFactory
    * for Cantera. A new SurfPhase may be created by the following code snippet:

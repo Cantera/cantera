@@ -82,7 +82,7 @@ namespace Cantera {
         *this = b;
     }
 
-    /**
+    /*
      * Assignment operator
      */
     WaterTP& WaterTP::operator=(const WaterTP&b) {
@@ -113,15 +113,7 @@ namespace Cantera {
     }
 
    
-    /**
-     * constructPhase:
-     *
-     * Initialization of a Debye-Huckel phase using an
-     * xml file.
-     *
-     * This routine is a precursor to initThermo(XML_Node*)
-     * routine, which does most of the work.
-     *
+    /*
      * @param infile XML file containing the description of the
      *        phase
      *
@@ -143,19 +135,14 @@ namespace Cantera {
 	
     }
 
-
-
-   
-    /**
+    /*
      * initThermo():
      *
-     * Initialization of a Debye-Huckel phase using an
-     * xml file.
      *
-     * This routine is a precursor to initThermo(XML_Node*)
+     * This routine is a precursor to constructPhaseXML(XML_Node*)
      * routine, which does most of the work.
      *
-     * @param infile XML file containing the description of the
+     * @param inputFile XML file containing the description of the
      *        phase
      *
      * @param id  Optional parameter identifying the name of the
@@ -195,10 +182,6 @@ namespace Cantera {
 
 
     void WaterTP::initThermo() {
-
-
-
-
     }
 
     void WaterTP::
@@ -291,7 +274,7 @@ namespace Cantera {
                 "missing or negative substance flag");
     }
 
-    /**
+    /*
      * Return the molar enthalpy in units of J kmol-1
      */
     doublereal WaterTP::
@@ -302,7 +285,7 @@ namespace Cantera {
         return (h + EW_Offset);
     }
 
-    /**
+    /*
      * Calculate the internal energy in mks units of
      * J kmol-1 
      */
@@ -314,7 +297,7 @@ namespace Cantera {
         return (u + EW_Offset);            
     }
 
-    /**
+    /*
      * Calculate the entropy in mks units of 
      * J kmol-1 K-1
      */
@@ -326,7 +309,7 @@ namespace Cantera {
         return (s + SW_Offset); 
     }
 
-    /**
+    /*
      * Calculate the Gibbs free energy in mks units of
      * J kmol-1 K-1.
      */
@@ -338,7 +321,7 @@ namespace Cantera {
         return (g + EW_Offset - SW_Offset*T);
     }
 
-    /**
+    /*
      * Calculate the constant pressure heat capacity
      * in mks units of J kmol-1 K-1
      */
@@ -350,7 +333,7 @@ namespace Cantera {
         return cp;            
     }
 
-    /**
+    /*
      * Calculate the constant volume heat capacity
      * in mks units of J kmol-1 K-1
      */
@@ -362,7 +345,7 @@ namespace Cantera {
         return cv;
     }
 
-    /**
+    /*
      * Calculate the pressure (Pascals), given the temperature and density
      *  Temperature: kelvin
      *  rho: density in kg m-3
@@ -392,13 +375,13 @@ namespace Cantera {
     }
  
 
-    /// critical temperature 
+    // critical temperature 
     doublereal WaterTP::critTemperature() const { return m_sub->Tcrit(); }
         
-    /// critical pressure
+    // critical pressure
     doublereal WaterTP::critPressure() const { return m_sub->Pcrit(); }
         
-    /// critical density
+    // critical density
     doublereal WaterTP::critDensity() const { return m_sub->Rhocrit(); }
         
         
@@ -411,7 +394,7 @@ namespace Cantera {
 
      
 
-    /// saturation pressure
+    // saturation pressure
     doublereal WaterTP::satPressure(doublereal t){
         doublereal pp = m_sub->psat(t);
 	double dens = density();
