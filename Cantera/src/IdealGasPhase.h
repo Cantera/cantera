@@ -1,7 +1,5 @@
 /**
- *
- *  @file IdealGasPhase.h
- *   `
+ *  @file IdealGasPhase.h 
  *   ThermoPhase object for the ideal gas equation of state.
  */
 
@@ -26,15 +24,18 @@
 namespace Cantera {
 
     
-  //!Class %IdealGasPhase represents low-density gases that obey the
+  //!  Class %IdealGasPhase represents low-density gases that obey the
   //!  ideal gas equation of state. 
   /*!
    *
    * %IdealGasPhase derives from class ThermoPhase,
    * and overloads the virtual methods defined there with ones that
    * use expressions appropriate for ideal gas mixtures.
-   *
-   * This class is optimized for speed of execution.
+   * 
+   * The independent unknowns are density, mass fraction, and temperature.
+   * the #setPressure() function will calculate the density consistent with
+   * the current mass fraction vector and temperature and the desired pressure,
+   * and then set the density in the derived State object.
    *
    * <HR>
    * <H2> Specification of Species Standard %State Properties </H2>
@@ -47,8 +48,15 @@ namespace Cantera {
    *  description of the specification of reference state species thermodynamics functions).
    *  The reference state,
    *  where the pressure is fixed at a single pressure,
-   *  is key species property calculation for the Ideal Gas Equation
+   *  is a key species property calculation for the Ideal Gas Equation
    *  of state. 
+   *
+   *  This class is optimized for speed of execution. All calls to thermodynamic functions
+   *  first call internal routines (aka #enthalpy_RT_ref()) which return references
+   *  the reference state thermodynamics functions. Within these internal reference
+   *  state functions, the function #_updateThermo() is called, that first checks to see
+   *  whether the temperature has changed. If it has, it updates the internal reference
+   *  state thermo functions by calling the SpeciesThermo object. 
    *
    *  Functions for the calculation of standard state properties for species
    *  at arbitray pressure are provided in %IdealGasPhase. However, they
@@ -87,10 +95,10 @@ namespace Cantera {
    *            \mu^{ref}_k(T) =   h^{ref}_k(T)   - T S^{ref}_k(T)
    *       \f]
    *
-   *  The standard state internal energy is obtained from the enthalpy function too
+   *  The standard state internal energy is obtained from the enthalpy function also
    *  
    *       \f[
-   *            u^o_k(T,P) = h^o_k(T) - R T  
+   *            u^o_k(T,P) = h^o_k(T) - R T 
    *       \f]
    *
    *  The molar volume of a species is given by the ideal gas law
@@ -124,19 +132,25 @@ namespace Cantera {
    *            \mu_k(T,P) = \mu^{ref}_k(T, P) + R T \log(\frac{P X_k}{P_{ref}})     
    *       \f]
    *
-   * The partial molar entropy for species k  is given by the following relation,
+   * The partial molar entropy for species <I>k</I> is given by the following relation,
    *
    *       \f[
    *            \tilde{s}_k(T,P) = s^o_k(T,P) - R \log(X_k) = s^{ref}_k(T) - R \log(\frac{P X_k}{P_{ref}})  
    *       \f]
    *
-   * The partial molar enthalpy for species k is 
+   * The partial molar enthalpy for species <I>k</I> is 
    *
    *       \f[
    *            \tilde{h}_k(T,P) = h^o_k(T,P) = h^{ref}_k(T) 
    *       \f]
    *
-   * The partial molar heat capacity for species k is 
+   * The partial molar Internal Energy for species <I>k</I> is 
+   *
+   *       \f[
+   *            \tilde{u}_k(T,P) = u^o_k(T,P) = u^{ref}_k(T) 
+   *       \f]
+   *
+   * The partial molar Heat Capacity for species <I>k</I> is 
    *
    *       \f[
    *            \tilde{Cp}_k(T,P) = Cp^o_k(T,P) = Cp^{ref}_k(T) 
@@ -146,7 +160,7 @@ namespace Cantera {
    * <HR>
    * <H2> %Application within %Kinetics Managers </H2>
    * <HR>
-
+   *
    *   \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
    *   C^s_k, \f$ where \f$ C^s_k \f$ is a standard concentration
    *   defined below and \f$ a_k \f$ are activities used in the
@@ -246,12 +260,49 @@ namespace Cantera {
    * <H2> Instantiation of the Class </H2>
    * <HR>
    *
+   *  
+   * The constructor for this phase is located in the default ThermoFactory
+   * for %Cantera. A new %IdealGasPhase may be created by the following code snippet:
    *
+   * @code
+   *    XML_Node * const xs = xc->findNameID("phase", "silane");
+   *    ThermoPhase *silane_tp = newPhase(*xs);
+   *    IdealGasPhase *silaneGas = dynamic_cast <IdealGasPhase *>(silane_tp);
+   * @endcode
+   *
+   * or by the following constructor:
+   *
+   * @code
+   *    XML_Node * const xs = xc->findNameID("phase", "silane");
+   *    IdealGasPhase *silaneGas = new IdealGasPhase(*xs);
+   * @endcode
+
    * <HR>
    * <H2> XML Example </H2>
    * <HR>
+   *   An example of an XML Element named phase setting up a IdealGasPhase object named silane
+   *   is given below.
    *
-   * @ingroup thermoprops
+   * @verbatim
+     <!--     phase silane      -->
+     <phase dim="3" id="silane">
+        <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
+        <speciesArray datasrc="#species_data">
+                H2  H  HE  SIH4  SI  SIH  SIH2  SIH3  H3SISIH  SI2H6
+                       H2SISIH2  SI3H8  SI2  SI3
+        </speciesArray>
+        <reactionArray datasrc="#reaction_data"/>
+        <thermo model="IdealGas"/>
+        <kinetics model="GasKinetics"/>
+        <transport model="None"/>
+      </phase>  
+      @endverbatim
+   *
+   *   The model attribute "IdealGas" of the thermo XML element identifies the phase as
+   *   being of the type handled by the IdealGasPhase object. 
+   *
+   *    @ingroup thermoprops
+   *
    */
   class IdealGasPhase : public ThermoPhase  {
 
@@ -698,19 +749,34 @@ namespace Cantera {
     virtual void getStandardVolumes_ref(doublereal *vol) const;
 
     //@}
-    /// @name New Methods Defined Here  -------------------------------------------------
+    /// @name NonVirtual Internal methods to Return References to Reference State Thermo
     //@{
 
+    //! Returns a reference to the dimensionless reference state enthalpy vector.
+    /*!
+     * This function is part of the layer that checks/recalculates the reference
+     * state thermo functions.
+     */
     const array_fp& enthalpy_RT_ref() const {
       _updateThermo();
       return m_h0_RT;
     }
 
+    //! Returns a reference to the dimensionless reference state Gibbs free energy vector.
+    /*!
+     * This function is part of the layer that checks/recalculates the reference
+     * state thermo functions.
+     */
     const array_fp& gibbs_RT_ref() const {
       _updateThermo();
       return m_g0_RT;
     }
 
+    //! Returns a reference to the exponent of the dimensionless reference state Gibbs Free energy vector.
+    /*!
+     * This function is part of the layer that checks/recalculates the reference
+     * state thermo functions.
+     */
     const array_fp& expGibbs_RT_ref() const {
       _updateThermo();
       int k;
@@ -718,26 +784,42 @@ namespace Cantera {
       return m_expg0_RT;
     }
 
+    //! Returns a reference to the dimensionless reference state Entropy vector.
+    /*!
+     * This function is part of the layer that checks/recalculates the reference
+     * state thermo functions.
+     */
     const array_fp& entropy_R_ref() const {
       _updateThermo();
       return m_s0_R;
     }
 
+    //! Returns a reference to the dimensionless reference state Heat Capacity vector.
+    /*!
+     * This function is part of the layer that checks/recalculates the reference
+     * state thermo functions.
+     */
     const array_fp& cp_R_ref() const {
       _updateThermo();
       return m_cp0_R;
     }
 
-    // @}
+    //@}
 
-    /**
-     * @internal Initialize. This method is provided to allow
+    //! Initialize the ThermoPhase object after all species have been set up
+    /*!
+     * @internal Initialize.
+     *
+     * This method is provided to allow
      * subclasses to perform any initialization required after all
      * species have been added. For example, it might be used to
      * resize internal work arrays that must have an entry for
      * each species.  The base class implementation does nothing,
      * and subclasses that do not require initialization do not
-     * need to overload this method. 
+     * need to overload this method.  When importing a CTML phase
+     * description, this method is called from ThermoPhase::initThermoXML(),
+     * which is called from importPhase(),
+     * just prior to returning from function importPhase().
      *
      * @see importCTML.cpp
      */
@@ -829,7 +911,14 @@ namespace Cantera {
 
   private:
 
+    //! Update the species reference state thermodynamic functions
+    /*!
+     * The polynomials for the standard state functions are only
+     * reevalulated if the temperature has changed.
+     *
+     */
     void _updateThermo() const;
+
   };
 }
         

@@ -537,7 +537,7 @@ namespace Cantera {
 
   private:
 
-    //! Update the species standard state thermodynamic functions
+    //! Update the species reference state thermodynamic functions
     /*!
      * The polynomials for the standard state functions are only
      * reevalulated if the temperature has changed.
