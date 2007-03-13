@@ -1,3 +1,19 @@
+/***********************************************************************
+ *  $RCSfile$
+ *  $Author$
+ *  $Date$
+ *  $Revision$
+ ***********************************************************************/
+//  Copyright 2001  California Institute of Technology
+
+ /**
+ *  @file equil.h
+ *   This file contains the definition of some high level general equilibration
+ *   routines and the text for the module \ref equilfunctions. 
+ * 
+ *   It also contains the Module doxygen text for the Equilibration Solver
+ *   capability within %Cantera. see \ref equilfunctions 
+ */
 #ifndef CT_KERNEL_EQUIL_H
 #define CT_KERNEL_EQUIL_H
 
@@ -6,6 +22,11 @@
 
 namespace Cantera {
 
+    /*!
+     * @defgroup equilfunctions Equilibrium Solver Capability
+     *
+     * Cantera has several different equilibrium routines.
+     */
     //-----------------------------------------------------------
     //              convenience functions
     //-----------------------------------------------------------

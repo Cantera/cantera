@@ -121,7 +121,8 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          WaterPropsIAPWSphi.h  WaterPropsIAPWSphi.cpp \
                          WaterPropsIAPWS.h  WaterPropsIAPWS.cpp \
                          WaterTP.h WaterTP.cpp \
-                         PureFluidPhase.h PureFluidPhase.cpp
+                         PureFluidPhase.h PureFluidPhase.cpp \
+                         equil.h
 RECURSIVE              = NO
 EXCLUDE                = CVS examples  converters zeroD
 EXCLUDE_SYMLINKS       = NO

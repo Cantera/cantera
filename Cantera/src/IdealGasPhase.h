@@ -26,7 +26,7 @@
 namespace Cantera {
 
     
-  //!Class IdealGasPhase represents low-density gases that obey the
+  //!Class %IdealGasPhase represents low-density gases that obey the
   //!  ideal gas equation of state. 
   /*!
    *
@@ -35,6 +35,221 @@ namespace Cantera {
    * use expressions appropriate for ideal gas mixtures.
    *
    * This class is optimized for speed of execution.
+   *
+   * <HR>
+   * <H2> Specification of Species Standard %State Properties </H2>
+   * <HR>
+   *
+   *  It is assumed that the reference state thermodynamics may be
+   *  obtained by a pointer to a populated species thermodynamic property
+   *  manager class in the base class, ThermoPhase::m_spthermo 
+   *  (see the base class \link Cantera#SpeciesThermo SpeciesThermo \endlink for a 
+   *  description of the specification of reference state species thermodynamics functions).
+   *  The reference state,
+   *  where the pressure is fixed at a single pressure,
+   *  is key species property calculation for the Ideal Gas Equation
+   *  of state. 
+   *
+   *  Functions for the calculation of standard state properties for species
+   *  at arbitray pressure are provided in %IdealGasPhase. However, they
+   *  are all derived from their reference state conterparts.
+   *  
+   *  The standard state enthalpy is independent of pressure:
+   *
+   *       \f[
+   *            h^o_k(T,P) = h^{ref}_k(T)  
+   *       \f]
+   *
+   *  The standard state constant-pressure heat capacity is independent of pressure:
+   *
+   *       \f[
+   *            Cp^o_k(T,P) = Cp^{ref}_k(T)  
+   *       \f]
+   *
+   *  The standard state entropy depends in the following fashion on pressure:
+   *
+   *       \f[
+   *            S^o_k(T,P) = S^{ref}_k(T) -  R \ln(\frac{P}{P_{ref}}) 
+   *       \f]
+   *  The standard state gibbs free energy is obtained from the enthalpy and entropy
+   *  functions:
+   * 
+   *       \f[
+   *            \mu^o_k(T,P) =  h^o_k(T,P) - S^o_k(T,P) T 
+   *       \f]
+   *
+   *       \f[
+   *            \mu^o_k(T,P) =  \mu^{ref}_k(T) + R T \ln( \frac{P}{P_{ref}})
+   *       \f]
+   *
+   * where
+   *       \f[
+   *            \mu^{ref}_k(T) =   h^{ref}_k(T)   - T S^{ref}_k(T)
+   *       \f]
+   *
+   *  The standard state internal energy is obtained from the enthalpy function too
+   *  
+   *       \f[
+   *            u^o_k(T,P) = h^o_k(T) - R T  
+   *       \f]
+   *
+   *  The molar volume of a species is given by the ideal gas law
+   * 
+   *       \f[
+   *            V^o_k(T,P) = \frac{R T}{P} \mbox{\quad where}  
+   *       \f]
+   *
+   *  R = 8314.47215 Joules kmol<SUP>-1</SUP> K<SUP>-1</SUP>, from the 1999 CODATA convention.
+   *  For a complete list of physical constants used within %Cantera, see \ref physConstants .
+   *  
+   * <HR>
+   * <H2> Specification of Solution Thermodynamic Properties </H2>
+   * <HR>
+   *  
+   * The activity of a species defined in the phase is given by the ideal gas law:
+   *       \f[
+   *            a_k = X_k      
+   *       \f]
+   * where \f$ X_k \f$ is the mole fraction of species <I>k</I>.
+   * The chemical potential for species <I>k</I> is equal to 
+   *
+   *       \f[
+   *            \mu_k(T,P) = \mu^o_k(T, P) + R T \log(X_k)     
+   *       \f]
+   *
+   * In terms of the reference state, the above can be rewritten
+   *
+   * 
+   *       \f[
+   *            \mu_k(T,P) = \mu^{ref}_k(T, P) + R T \log(\frac{P X_k}{P_{ref}})     
+   *       \f]
+   *
+   * The partial molar entropy for species k  is given by the following relation,
+   *
+   *       \f[
+   *            \tilde{s}_k(T,P) = s^o_k(T,P) - R \log(X_k) = s^{ref}_k(T) - R \log(\frac{P X_k}{P_{ref}})  
+   *       \f]
+   *
+   * The partial molar enthalpy for species k is 
+   *
+   *       \f[
+   *            \tilde{h}_k(T,P) = h^o_k(T,P) = h^{ref}_k(T) 
+   *       \f]
+   *
+   * The partial molar heat capacity for species k is 
+   *
+   *       \f[
+   *            \tilde{Cp}_k(T,P) = Cp^o_k(T,P) = Cp^{ref}_k(T) 
+   *       \f]
+   *
+   *
+   * <HR>
+   * <H2> %Application within %Kinetics Managers </H2>
+   * <HR>
+
+   *   \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
+   *   C^s_k, \f$ where \f$ C^s_k \f$ is a standard concentration
+   *   defined below and \f$ a_k \f$ are activities used in the
+   *   thermodynamic functions.  These activity (or generalized)
+   *   concentrations are used
+   *   by kinetics manager classes to compute the forward and
+   *   reverse rates of elementary reactions.
+   *   The activity concentration,\f$  C^a_k \f$,is given by the following expression.
+   *
+   *       \f[
+   *            C^a_k = C^s_k  X_k  = \frac{P}{R T} X_k 
+   *       \f]
+   *
+   * The standard concentration for species <I>k</I> is independent of <I>k</I> and equal to 
+   *
+   *        \f[
+   *            C^s_k =  C^s = \frac{P}{R T}
+   *        \f]
+   *
+   * For example, a bulk-phase binary gas reaction between species j and k, producing
+   * a new gas species l would have the
+   * following equation for its rate of progress variable, \f$ R^1 \f$, which has
+   * units of kmol m-3 s-1.
+   *
+   *   \f[
+   *    R^1 = k^1 C_j^a C_k^a =  k^1 (C^s a_j) (C^s a_k)
+   *   \f]
+   *  where
+   *   \f[
+   *      C_j^a = C^s a_j \mbox{\quad and \quad} C_k^a = C^s a_k
+   *   \f]
+   *
+   *  \f$ C_j^a \f$ is the activity concentration of species j, and
+   *  \f$ C_k^a \f$ is the activity concentration of species k. \f$ C^s \f$
+   *  is the standard concentration. \f$ a_j \f$ is
+   *  the activity of species j which is equal to the mole fraction of j.
+   *
+   *  The reverse rate constant can then be obtained from the law of microscopic reversibility
+   *  and the equilibrium expression for the system.
+   *
+   *   \f[
+   *         \frac{a_j a_k}{ a_l} = K_a^{o,1} = \exp(\frac{\mu^o_l - \mu^o_j - \mu^o_k}{R T} )
+   *   \f]
+   *
+   *  \f$  K_a^{o,1} \f$ is the dimensionless form of the equilibrium constant, associated with
+   *  the pressure dependent standard states \f$ \mu^o_l(T,P) \f$ and their associated activities,
+   *  \f$ a_l \f$, repeated here:
+   * 
+   *       \f[
+   *            \mu_l(T,P) = \mu^o_l(T, P) + R T \log(a_l)     
+   *       \f]
+   *
+   *  We can switch over to expressing the equilibrium constant in terms of the reference
+   *  state chemical potentials
+   *
+   *   \f[
+   *       K_a^{o,1} = \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{P}
+   *   \f]
+   *
+   *   The concentration equilibrium constant, \f$ K_c \f$, may be obtained by changing over
+   *   to activity concentrations. When this is done:
+   *
+   *   \f[
+   *         \frac{C^a_j C^a_k}{ C^a_l} = C^o K_a^{o,1} = K_c^1 =
+   *             \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{RT}
+   *   \f]
+   *
+   *    %Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
+   *    using the second and third part of the above expression as a definition for the concentration
+   *    equilibrium constant.
+   *
+   *    For completeness, the pressure equilibrium constant may be obtained as well
+   *
+   *   \f[
+   *         \frac{P_j P_k}{ P_l P_{ref}} = K_p^1 = \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} )
+   *   \f]
+   *
+   *   \f$ K_p \f$ is the simplest form of the equilibrium constant for ideal gases. However, it isn't 
+   *   necessarily the simplest form of the equilibrium constant for other types of phases; \f$ K_c \f$ is
+   *   used instead because it is completely general.
+   *   
+   *   The reverse rate of progress may be written down as
+   *   \f[
+   *    R^{-1} = k^{-1} C_l^a =  k^{-1} (C^o a_l)
+   *   \f]
+   *
+   *  where we can use the concept of microscopic reversibility to write the reverse rate constant in terms of the
+   *  forward reate constant and the concentration equilibrium constant, \f$ K_c \f$.
+   *
+   *    \f[
+   *       k^{-1} =  k^1 K^1_c
+   *    \f]
+   *
+   *  \f$k^{-1} \f$ has units of s-1.
+   *
+   * <HR>
+   * <H2> Instantiation of the Class </H2>
+   * <HR>
+   *
+   *
+   * <HR>
+   * <H2> XML Example </H2>
+   * <HR>
    *
    * @ingroup thermoprops
    */

@@ -34,7 +34,7 @@ namespace Cantera {
   // Chemical Potentials and Activities ----------------------
 
   /*
-   *  Returns the standard concentration \f$ C^0_k \f$, which is used to normalize
+   * Returns the standard concentration \f$ C^0_k \f$, which is used to normalize
    * the generalized concentration.
    */
   doublereal IdealGasPhase::standardConcentration(int k) const {
@@ -239,60 +239,60 @@ namespace Cantera {
 
   // Thermodynamic Values for the Species Reference States ---------
 
-    /**
-     *  Returns the vector of nondimensional
-     *  enthalpies of the reference state at the current temperature
-     *  and reference presssure.
-     */
-    void IdealGasPhase::getEnthalpy_RT_ref(doublereal *hrt) const {
-	const array_fp& _h = enthalpy_RT_ref();
-	copy(_h.begin(), _h.end(), hrt);
-    }
+  /*
+   *  Returns the vector of nondimensional
+   *  enthalpies of the reference state at the current temperature
+   *  and reference presssure.
+   */
+  void IdealGasPhase::getEnthalpy_RT_ref(doublereal *hrt) const {
+    const array_fp& _h = enthalpy_RT_ref();
+    copy(_h.begin(), _h.end(), hrt);
+  }
 
-    /**
-     *  Returns the vector of nondimensional
-     *  enthalpies of the reference state at the current temperature
-     *  and reference pressure.
-     */
-    void IdealGasPhase::getGibbs_RT_ref(doublereal *grt) const {
-	const array_fp& gibbsrt = gibbs_RT_ref();
-	copy(gibbsrt.begin(), gibbsrt.end(), grt);
-    }
+  /*
+   *  Returns the vector of nondimensional
+   *  enthalpies of the reference state at the current temperature
+   *  and reference pressure.
+   */
+  void IdealGasPhase::getGibbs_RT_ref(doublereal *grt) const {
+    const array_fp& gibbsrt = gibbs_RT_ref();
+    copy(gibbsrt.begin(), gibbsrt.end(), grt);
+  }
 
-    /**
-     *  Returns the vector of the 
-     *  gibbs function of the reference state at the current temperature
-     *  and reference pressure.
-     *  units = J/kmol
-     */
-    void IdealGasPhase::getGibbs_ref(doublereal *g) const {
-	const array_fp& gibbsrt = gibbs_RT_ref();
-	scale(gibbsrt.begin(), gibbsrt.end(), g, _RT());
-    }
+  /*
+   *  Returns the vector of the 
+   *  gibbs function of the reference state at the current temperature
+   *  and reference pressure.
+   *  units = J/kmol
+   */
+  void IdealGasPhase::getGibbs_ref(doublereal *g) const {
+    const array_fp& gibbsrt = gibbs_RT_ref();
+    scale(gibbsrt.begin(), gibbsrt.end(), g, _RT());
+  }
 
-    /**
-     *  Returns the vector of nondimensional
-     *  entropies of the reference state at the current temperature
-     *  and reference pressure.
-     */
-    void IdealGasPhase::getEntropy_R_ref(doublereal *er) const {
-	const array_fp& _s = entropy_R_ref();
-	copy(_s.begin(), _s.end(), er);
-    }
+  /*
+   *  Returns the vector of nondimensional
+   *  entropies of the reference state at the current temperature
+   *  and reference pressure.
+   */
+  void IdealGasPhase::getEntropy_R_ref(doublereal *er) const {
+    const array_fp& _s = entropy_R_ref();
+    copy(_s.begin(), _s.end(), er);
+  }
 
-    /**
-     *  Returns the vector of nondimensional
-     *  internal Energies of the reference state at the current temperature
-     *  of the solution and the reference pressure for each species.
-     */
-    void IdealGasPhase::getIntEnergy_RT_ref(doublereal *urt) const {
-	const array_fp& _h = enthalpy_RT_ref();
-	for (int k = 0; k < m_kk; k++) {
-	  urt[k] = _h[k] - 1.0;
-	}
+  /*
+   *  Returns the vector of nondimensional
+   *  internal Energies of the reference state at the current temperature
+   *  of the solution and the reference pressure for each species.
+   */
+  void IdealGasPhase::getIntEnergy_RT_ref(doublereal *urt) const {
+    const array_fp& _h = enthalpy_RT_ref();
+    for (int k = 0; k < m_kk; k++) {
+      urt[k] = _h[k] - 1.0;
     }
+  }
 
-  /**
+  /*
    *  Returns the vector of nondimensional
    *  constant pressure heat capacities of the reference state
    *   at the current temperature and reference pressure.

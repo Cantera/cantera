@@ -1,11 +1,10 @@
 /**
  *  @file SpeciesThermo.h
- *
  *  Species thermodynamic property managers. In this file we describe
  *  the base class for the calculation of species thermodynamic
  *  property managers.
  *
- *  We also describe the doxygen module spthermo   
+ *  We also describe the doxygen module spthermo  (see \ref spthermo )
  */
 
 /*

@@ -156,6 +156,31 @@ namespace Cantera {
    * unimplimented, which will cause an exception to be thrown if it
    * is called.
    *
+   * Relationship with the kinetics operator:
+   *
+   * Describe activity coefficients.
+   *
+   * Describe K_a, K_p, and K_c, These are three different equilibrium
+   * constants. 
+   *
+   *   K_a is the calculation of the equilibrium constant from the
+   *   standard state Gibbs free energy values. It is by definition
+   *   dimensionless.
+   *
+   *   K_p is the calculation of the equilibrium constant from the
+   *   reference state gibbs free energy values. It is by definition
+   *   dimensionless. The pressure dependence is handled entirely
+   *   on the rhs of the equilibrium expression.
+   *
+   *   K_c is the equilibrium constant calculated from the
+   *   activity concentrations. The dimensions depend on the number
+   *   of products and reactants.
+   *    
+   *
+   * The kinetics manager requires the calculation of K_c for the
+   * calculation of the reverse rate constant
+   * 
+   *
    * @ingroup thermoprops
    * @ingroup phases
    */
