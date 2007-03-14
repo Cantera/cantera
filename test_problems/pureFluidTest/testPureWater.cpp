@@ -3,7 +3,8 @@
  */
 #include "stdio.h"
 #include "math.h"
-#include "WaterTP.h"
+#include "PureFluidPhase.h"
+#include "importCTML.h"
 #include <new>
 using namespace std;
 using namespace Cantera;
@@ -22,8 +23,11 @@ int main () {
 
     double pres;
     try {
-      WaterTP *w = new WaterTP("waterTPphase.xml","");
 
+      XML_Node *xc = get_XML_File("liquidvapor.xml"); 
+      XML_Node * const xs = xc->findNameID("phase", "water");
+      ThermoPhase *water_tp = newPhase(*xs);
+      PureFluidPhase *w = dynamic_cast <PureFluidPhase *>(water_tp);
 
       /* 
        * Print out the triple point conditions
@@ -164,13 +168,7 @@ int main () {
       double deltaH = 100000.;
       for (int i = 0; i < 40; i++) {
 	Hset += deltaH;
-	try {
-	  w->setState_HP(Hset, OneAtm);
-	} catch (CanteraError) {
-	  printf(" %10g, -> Failed to converge, beyond the spinodal probably \n\n", Hset);
-	  popError();
-	  break;
-	}
+	w->setState_HP(Hset, OneAtm);
 	vapFrac = w->vaporFraction();
 	Tcalc = w->temperature();
 	dens = w->density();
@@ -178,14 +176,13 @@ int main () {
 	Gcalc = w->gibbs_mass();
 	printf(" %10g, %10g, %10g, %11.5g, %11.5g, %11.5g\n", Hset , Tcalc, vapFrac, dens, Scalc, Gcalc);
       }
-
-     
+ 
 
       printf("Critical Temp     = %10.3g K\n", w->critTemperature());
       printf("Critical Pressure = %10.3g atm\n", w->critPressure()/OneAtm);
       printf("Critical Dens     = %10.3g kg/m3\n", w->critDensity());
 
-      delete w;
+      delete w;  
     } catch (CanteraError) {
 
       showErrors();

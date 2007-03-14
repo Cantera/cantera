@@ -7,6 +7,7 @@
 test_python=@BUILD_PYTHON@
 test_ck=@BUILD_CK@
 test_cathermo=@NEED_CATHERMO@
+test_pure_fluids=@COMPILE_PURE_FLUIDS@
 
 all:
 	cd cxx_ex;       @MAKE@ all
@@ -18,6 +19,9 @@ all:
 	cd ChemEquil_gri_pairs; @MAKE@ all
 	cd ChemEquil_ionizedGas; @MAKE@ all
 	cd ChemEquil_red1; @MAKE@ all
+ifeq ($(test_cathermo),1)
+	cd pureFluidTest;     @MAKE@ all
+endif
 ifeq ($(test_python),1)
 	cd min_python;   @MAKE@ all
 endif
@@ -41,6 +45,9 @@ test:
 	@ cd ChemEquil_gri_pairs; @MAKE@ -s test
 	@ cd ChemEquil_ionizedGas; @MAKE@ -s test
 	@ cd ChemEquil_red1; @MAKE@ -s test
+ifeq ($(test_cathermo),1)
+	@ cd pureFluidTest; @MAKE@  -s test
+endif
 ifeq ($(test_ck),1)
 	@ cd ck2cti_test;  @MAKE@ -s test
 endif
@@ -66,6 +73,7 @@ clean:
 	cd ChemEquil_gri_pairs; @MAKE@ clean
 	cd ChemEquil_ionizedGas; @MAKE@ clean
 	cd ChemEquil_red1; @MAKE@ clean
+	cd pureFluidTest; @MAKE@ clean
 	cd ck2cti_test;  @MAKE@ clean
 	cd min_python;   @MAKE@ clean
 	cd python;       @MAKE@ clean
@@ -81,6 +89,9 @@ depends:
 	cd ChemEquil_gri_pairs; @MAKE@ depends
 	cd ChemEquil_ionizedGas; @MAKE@ depends
 	cd ChemEquil_red1; @MAKE@ depends
+ifeq ($(test_cathermo),1)
+	cd pureFluidTest; @MAKE@  depends
+endif
 ifeq ($(test_ck),1)
 	cd ck2cti_test;  @MAKE@ depends
 endif

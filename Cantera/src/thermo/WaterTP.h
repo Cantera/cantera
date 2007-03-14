@@ -168,6 +168,13 @@ namespace Cantera {
      */
     virtual doublereal satPressure(doublereal t);
     
+    //! Return the fraction of vapor at the current conditions
+    /*!
+     * Below Tcrit, this routine will always return 0, by definition
+     * of the functionality of the routine. Above Tcrit, we query
+     * the density to toggle between 0 and 1.
+     */
+    virtual doublereal vaporFraction() const;
 
     virtual void setTemperature(double temp);
     

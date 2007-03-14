@@ -375,34 +375,48 @@ namespace Cantera {
     }
  
 
-    // critical temperature 
-    doublereal WaterTP::critTemperature() const { return m_sub->Tcrit(); }
+  // critical temperature 
+  doublereal WaterTP::critTemperature() const { return m_sub->Tcrit(); }
         
-    // critical pressure
-    doublereal WaterTP::critPressure() const { return m_sub->Pcrit(); }
+  // critical pressure
+  doublereal WaterTP::critPressure() const { return m_sub->Pcrit(); }
         
-    // critical density
-    doublereal WaterTP::critDensity() const { return m_sub->Rhocrit(); }
+  // critical density
+  doublereal WaterTP::critDensity() const { return m_sub->Rhocrit(); }
         
         
 
-    void WaterTP::setTemperature(double temp) {
-	State::setTemperature(temp);
-	doublereal dd = density();
-	m_sub->setState(temp, dd);
-    }
+  void WaterTP::setTemperature(double temp) {
+    State::setTemperature(temp);
+    doublereal dd = density();
+    m_sub->setState(temp, dd);
+  }
 
      
 
-    // saturation pressure
-    doublereal WaterTP::satPressure(doublereal t){
-        doublereal pp = m_sub->psat(t);
-	double dens = density();
-	setTemperature(t);
-	setDensity(dens);
-	return pp;
+  // saturation pressure
+  doublereal WaterTP::satPressure(doublereal t){
+    doublereal pp = m_sub->psat(t);
+    double dens = density();
+    setTemperature(t);
+    setDensity(dens);
+    return pp;
+  }
+
+  // Return the fraction of vapor at the current conditions
+  doublereal WaterTP::vaporFraction() const {
+    if (temperature() >= m_sub->Tcrit()) {
+      double dens = density();
+      if (dens >= m_sub->Rhocrit()) {
+	return 0.0;
+      }
+      return 1.0;
     }
-        
+    /*
+     * If below tcrit we always return 0 from this class
+     */
+    return 0.0;
+  }
 
 
 }

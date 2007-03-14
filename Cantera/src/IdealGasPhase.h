@@ -265,6 +265,7 @@ namespace Cantera {
    * for %Cantera. A new %IdealGasPhase may be created by the following code snippet:
    *
    * @code
+   *    XML_Node *xc = get_XML_File("silane.xml"); 
    *    XML_Node * const xs = xc->findNameID("phase", "silane");
    *    ThermoPhase *silane_tp = newPhase(*xs);
    *    IdealGasPhase *silaneGas = dynamic_cast <IdealGasPhase *>(silane_tp);
@@ -273,6 +274,7 @@ namespace Cantera {
    * or by the following constructor:
    *
    * @code
+   *    XML_Node *xc = get_XML_File("silane.xml"); 
    *    XML_Node * const xs = xc->findNameID("phase", "silane");
    *    IdealGasPhase *silaneGas = new IdealGasPhase(*xs);
    * @endcode
