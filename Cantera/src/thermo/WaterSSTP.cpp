@@ -1,6 +1,7 @@
 /**
- *  @file WaterTP.cpp
- *
+ *  @file WaterSSTP.cpp
+ *   Definitions for the Object WaterSSTP, which creates a
+ *   single species ThermoPhase object for real liquid water.
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of

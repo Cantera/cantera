@@ -132,21 +132,21 @@ namespace Cantera {
     //@{
 
     
-    //!Get the gibbs function for the species
-    //! standard states at the current T and P of the solution.
+    //!  Get the gibbs function for the species
+    //!  standard states at the current T and P of the solution.
     /*!
-     * @param grt Vector of length m_kk, which on return sr[k]
+     * @param gss Vector of length m_kk, which on return 
      *           will contain the 
-     *           standard state gibbs function for species k. 
+     *           standard state gibbs function for species <I>k</I>. 
      */
     virtual void getStandardChemPotentials(doublereal* gss) const;
 
     //!Get the nondimensional gibbs function for the species
     //! standard states at the current T and P of the solution.
     /*!
-     * @param grt Vector of length m_kk, which on return sr[k]
+     * @param grt Vector of length m_kk, which on return 
      *           will contain the nondimensional 
-     *           standard state gibbs function for species k. 
+     *           standard state gibbs function for species <I>k</I>
      */
     virtual void getGibbs_RT(doublereal* grt) const;
 
@@ -154,9 +154,9 @@ namespace Cantera {
     //! at the current <I>T</I> and <I>P</I> of the solution.
     /*!
      *
-     * @param hrt Vector of length m_kk, which on return hrt[k]
+     * @param hrt Vector of length m_kk, which on return
      *            will contain the nondimensional 
-     *            standard state enthalpy of species k. 
+     *            standard state enthalpy of species <I>k</I>
      */
     void getEnthalpy_RT(doublereal* hrt) const;
 
@@ -164,9 +164,9 @@ namespace Cantera {
     //! Get the nondimensional Entropies for the species
     //! standard states at the current T and P of the solution.
     /*!
-     * @param sr Vector of length m_kk, which on return sr[k]
+     * @param sr Vector of length m_kk, which on return 
      *           will contain the nondimensional 
-     *           standard state entropy for species k. 
+     *           standard state entropy for species<I>k</I> 
      */
     void getEntropy_R(doublereal* sr) const;
     
@@ -174,9 +174,9 @@ namespace Cantera {
     //!   function for the species standard states at the current T and P of the solution.
     /*!
      *
-     * @param cpr Vector of length m_kk, which on return cpr[k]
+     * @param cpr Vector of length m_kk, which on return
      *           will contain the nondimensional 
-     *           constant pressure heat capacity for species k. 
+     *           constant pressure heat capacity for species <I>k</I> 
      */
     virtual void getCp_R(doublereal* cpr) const;
 

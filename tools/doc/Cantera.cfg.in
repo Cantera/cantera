@@ -120,7 +120,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          ConstDensityThermo.h ConstDensityThermo.cpp \
                          WaterPropsIAPWSphi.h  WaterPropsIAPWSphi.cpp \
                          WaterPropsIAPWS.h  WaterPropsIAPWS.cpp \
-                         WaterTP.h WaterTP.cpp \
+                         WaterSSTP.h WaterSSTP.cpp \
                          PureFluidPhase.h PureFluidPhase.cpp \
                          equil.h
 RECURSIVE              = NO
