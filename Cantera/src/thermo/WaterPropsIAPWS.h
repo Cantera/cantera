@@ -323,7 +323,7 @@ private:
   double cp_R() const;
 
   //! Return the current dimensionless pressure
-  double pressure_rhoRT() const;
+  double pressureM_rhoRT() const;
 
 protected:
 

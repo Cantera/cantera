@@ -34,16 +34,16 @@ ELECTRO_OBJ = SingleSpeciesTP.o StoichSubstanceSSTP.o \
               MolalityVPSSTP.o  VPStandardStateTP.o \
               IdealSolidSolnPhase.o IdealMolalSoln.o \
               WaterPropsIAPWSphi.o WaterPropsIAPWS.o WaterProps.o \
-              PDSS.o WaterPDSS.o WaterTP.o \
+              PDSS.o WaterPDSS.o \
 	      HMWSoln.o HMWSoln_input.o DebyeHuckel.o \
-              IdealGasPDSS.o
+              IdealGasPDSS.o WaterSSTP.o
 
 ELECTRO_H =  SingleSpeciesTP.h StoichSubstanceSSTP.h \
                MolalityVPSSTP.h  VPStandardStateTP.h \
                IdealSolidSolnPhase.h IdealMolalSoln.h \
                WaterPropsIAPWSphi.h WaterPropsIAPWS.h WaterProps.h \
-               PDSS.h WaterPDSS.h WaterTP.h HMWSoln.h electrolytes.h \
-	       DebyeHuckel.h IdealGasPDSS.o
+               PDSS.h WaterPDSS.h HMWSoln.h electrolytes.h \
+	       DebyeHuckel.h IdealGasPDSS.h WaterSSTP.h
 endif
 ifeq ($(do_issp),1)
 ISSP_OBJ = IdealSolidSolnPhase.o

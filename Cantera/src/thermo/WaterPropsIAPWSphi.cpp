@@ -631,7 +631,7 @@ double WaterPropsIAPWSphi::phi_d(double tau, double delta) {
  *
  * note: this is done so much, we have a seperate routine.
  */
-double WaterPropsIAPWSphi::pressure_rhoRT(double tau, double delta) {
+double WaterPropsIAPWSphi::pressureM_rhoRT(double tau, double delta) {
   tdpolycalc(tau, delta);
   double res = phiR_d();
   double retn = 1.0 + delta * res; 

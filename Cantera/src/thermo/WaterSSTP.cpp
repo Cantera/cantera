@@ -1,0 +1,530 @@
+/**
+ *  @file WaterTP.cpp
+ *
+ */
+/*
+ * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Contract DE-AC04-94AL85000 with Sandia Corporation, the
+ * U.S. Government retains certain rights in this software.
+ */
+/*
+ * $Id$
+ */
+
+#include "xml.h"
+#include "WaterSSTP.h"
+#include "WaterPropsIAPWS.h"
+#include "importCTML.h"
+
+namespace Cantera {
+  /**
+   * Basic list of constructors and duplicators
+   */
+
+  WaterSSTP::WaterSSTP() :
+    SingleSpeciesTP(),
+    m_sub(0),
+    m_subflag(0),
+    m_mw(0.0),
+    EW_Offset(0.0),
+    SW_Offset(0.0),
+    m_verbose(0),
+    m_allowGasPhase(false)
+  {
+    constructPhase();
+  }
+
+
+  WaterSSTP::WaterSSTP(std::string inputFile, std::string id) :
+    SingleSpeciesTP(),
+    m_sub(0),
+    m_subflag(0),
+    m_mw(0.0),
+    EW_Offset(0.0),
+    SW_Offset(0.0),
+    m_verbose(0),
+    m_allowGasPhase(false)
+  {
+    constructPhaseFile(inputFile, id);
+  }
+
+
+  WaterSSTP::WaterSSTP(XML_Node& phaseRoot, std::string id) :
+    SingleSpeciesTP(),
+    m_sub(0),
+    m_subflag(0),
+    m_mw(0.0),
+    EW_Offset(0.0),
+    SW_Offset(0.0),
+    m_verbose(0),
+    m_allowGasPhase(false)
+  {
+    constructPhaseXML(phaseRoot, id) ;
+  }
+
+
+
+  WaterSSTP::WaterSSTP(const WaterSSTP &b) :
+    SingleSpeciesTP(b),
+    m_sub(0),
+    m_subflag(b.m_subflag),
+    m_mw(b.m_mw),
+    EW_Offset(b.EW_Offset),
+    SW_Offset(b.SW_Offset),
+    m_verbose(b.m_verbose),
+    m_allowGasPhase(b.m_allowGasPhase)
+  {
+    m_sub = new WaterPropsIAPWS(*(b.m_sub));  
+    /*
+     * Use the assignment operator to do the brunt
+     * of the work for the copy construtor.
+     */
+    *this = b;
+  }
+
+  /*
+   * Assignment operator
+   */
+  WaterSSTP& WaterSSTP::operator=(const WaterSSTP&b) {
+    if (&b == this) return *this;
+    m_sub->operator=(*(b.m_sub));
+    m_subflag = b.m_subflag;
+    m_mw = b.m_mw;
+    m_verbose = b.m_verbose;
+    m_allowGasPhase = b.m_allowGasPhase;
+    return *this;
+  }
+
+
+  ThermoPhase *WaterSSTP::duplMyselfAsThermoPhase() {
+    WaterSSTP* wtp = new WaterSSTP(*this);
+    return (ThermoPhase *) wtp;
+  }
+
+  WaterSSTP::~WaterSSTP() { 
+    delete m_sub; 
+  }
+
+
+  
+  void WaterSSTP::constructPhase() {
+    throw CanteraError("constructPhaseXML", "unimplemented");
+
+  }
+
+   
+  /*
+   * @param infile XML file containing the description of the
+   *        phase
+   *
+   * @param id  Optional parameter identifying the name of the
+   *            phase. If none is given, the first XML
+   *            phase element will be used.
+   */
+  void WaterSSTP::constructPhaseXML(XML_Node& phaseNode, std::string id) {
+
+    /*
+     * Call the Cantera importPhase() function. This will import
+     * all of the species into the phase. This will also handle
+     * all of the solvent and solute standard states.
+     */
+    bool m_ok = importPhase(phaseNode, this);
+    if (!m_ok) {
+      throw CanteraError("initThermo","importPhase failed ");
+    }
+	
+  }
+
+  /*
+   * constructPhaseFile
+   *
+   *
+   * This routine is a precursor to constructPhaseXML(XML_Node*)
+   * routine, which does most of the work.
+   *
+   * @param inputFile XML file containing the description of the
+   *        phase
+   *
+   * @param id  Optional parameter identifying the name of the
+   *            phase. If none is given, the first XML
+   *            phase element will be used.
+   */
+  void WaterSSTP::constructPhaseFile(std::string inputFile, std::string id) {
+
+    if (inputFile.size() == 0) {
+      throw CanteraError("WaterTp::initThermo",
+			 "input file is null");
+    }
+    std::string path = findInputFile(inputFile);
+    std::ifstream fin(path.c_str());
+    if (!fin) {
+      throw CanteraError("WaterSSTP::initThermo","could not open "
+			 +path+" for reading.");
+    }
+    /*
+     * The phase object automatically constructs an XML object.
+     * Use this object to store information.
+     */
+    XML_Node &phaseNode_XML = xml();
+    XML_Node *fxml = new XML_Node();
+    fxml->build(fin);
+    XML_Node *fxml_phase = findXMLPhase(fxml, id);
+    if (!fxml_phase) {
+      throw CanteraError("WaterSSTP::initThermo",
+			 "ERROR: Can not find phase named " +
+			 id + " in file named " + inputFile);
+    }
+    fxml_phase->copy(&phaseNode_XML);	
+    constructPhaseXML(*fxml_phase, id);
+    delete fxml;
+  }
+
+
+
+  void WaterSSTP::initThermo() {
+  }
+
+  void WaterSSTP::
+  initThermoXML(XML_Node& phaseNode, std::string id) {
+    if (m_sub) delete m_sub;
+    m_sub = new WaterPropsIAPWS();
+    if (m_sub == 0) {
+      throw CanteraError("WaterSSTP::initThermo",
+			 "could not create new substance object.");
+    }
+    /*
+     * Calculate the molecular weight. Note while there may
+     * be a very good calculated weight in the steam table
+     * class, using this weight may lead to codes exhibiting
+     * mass loss issues. We need to grab the elemental
+     * atomic weights used in the Element class and calculate
+     * a consistent H2O molecular weight based on that.
+     */
+    int nH = elementIndex("H");
+    if (nH < 0) {
+      throw CanteraError("WaterSSTP::initThermo",
+			 "H not an element");
+    }
+    double mw_H = atomicWeight(nH);
+    int nO = elementIndex("O");
+    if (nO < 0) {
+      throw CanteraError("WaterSSTP::initThermo",
+			 "O not an element");
+    }
+    double mw_O = atomicWeight(nO);
+    m_mw = 2.0 * mw_H + mw_O;
+    m_weight[0] = m_mw;
+    setMolecularWeight(0,m_mw);
+    double one = 1.0;
+    setMoleFractions(&one);
+
+    /*
+     * Set the baseline 
+     */
+    doublereal T = 298.15;
+
+    doublereal presLow = 1.0E-2;
+    doublereal oneBar = 1.0E5;
+    doublereal dens = density();
+    doublereal dd = m_sub->density(T, presLow, WATER_GAS, dens);
+    setTemperature(T);
+    setDensity(dd);
+    SW_Offset = 0.0;
+    doublereal s = entropy_mole();
+    s -=  GasConstant * log(oneBar/presLow);
+    if (s != 188.835E3) {
+      SW_Offset = 188.835E3 - s;
+    }
+    s = entropy_mole();
+    s -=  GasConstant * log(oneBar/presLow);
+    printf("s = %g\n", s);
+
+    doublereal h = enthalpy_mole();
+    if (h != -241.826E6) {
+      EW_Offset = -241.826E6 - h;
+    }
+    h = enthalpy_mole();
+
+    printf("h = %g\n", h);
+
+
+    /*
+     * Set the initial state of the system to 298.15 K and 
+     * 1 bar.
+     */
+    setTemperature(298.15);
+    double rho0 = m_sub->density(298.15, OneAtm, WATER_LIQUID);
+    setDensity(rho0);
+
+    /*
+     * We have to do something with the thermo function here.
+     */
+    if (m_spthermo) {
+      delete m_spthermo;
+      m_spthermo = 0;
+    }
+  }
+
+  void WaterSSTP::
+  setParametersFromXML(const XML_Node& eosdata) {
+    eosdata._require("model","PureFluid");
+    m_subflag = atoi(eosdata["fluid_type"].c_str());
+    if (m_subflag < 0) 
+      throw CanteraError("WaterSSTP::setParametersFromXML",
+			 "missing or negative substance flag");
+  }
+
+  /*
+   * Return the molar dimensionless enthalpy
+   */
+  void WaterSSTP::getEnthalpy_RT(doublereal* hrt) const {
+    double T = temperature();
+    double dens = density();
+    doublereal h = m_sub->enthalpy(T, dens);
+    *hrt = (h + EW_Offset)/(GasConstant*T);
+  }
+
+  /*
+   * Calculate the internal energy in mks units of
+   * J kmol-1 
+   */
+  void WaterSSTP::getIntEnergy_RT(doublereal *ubar) const {
+    double T = temperature();
+    double dens = density();
+    doublereal u = m_sub->intEnergy(T, dens);
+    *ubar = (u + EW_Offset)/GasConstant;            
+  }
+
+  /*
+   * Calculate the dimensionless entropy
+   */
+  void WaterSSTP::getEntropy_R(doublereal* sr) const {
+    double T = temperature();
+    double dens = density();
+    doublereal s = m_sub->entropy(T, dens);
+    sr[0] = (s + SW_Offset) / GasConstant;
+  }
+
+  /*
+   * Calculate the Gibbs free energy in mks units of
+   * J kmol-1 K-1.
+   */
+  void WaterSSTP::getGibbs_RT(doublereal *grt) const {
+    double T = temperature();
+    double dens = density();
+    doublereal g = m_sub->Gibbs(T, dens);
+    *grt = (g + EW_Offset - SW_Offset*T) / (GasConstant * T);
+  }
+
+  /*
+   * Calculate the Gibbs free energy in mks units of
+   * J kmol-1 K-1.
+   */
+  void WaterSSTP::getStandardChemPotentials(doublereal *gss) const {
+    double T = temperature();
+    double dens = density();
+    doublereal g = m_sub->Gibbs(T, dens);
+    *gss = (g + EW_Offset - SW_Offset*T);
+  }
+  
+  void WaterSSTP::getCp_R(doublereal* cpr) const {
+    double T = temperature();
+    double dens = density();
+    doublereal cp = m_sub->cp(T, dens);
+    cpr[0] = cp / GasConstant;
+  }
+
+  /*
+   * Calculate the constant volume heat capacity
+   * in mks units of J kmol-1 K-1
+   */
+  doublereal WaterSSTP::
+  cv_mole() const {
+    double T = temperature();
+    double dens = density();
+    doublereal cv = m_sub->cv(T, dens);
+    return cv;
+  }
+
+  // @name Thermodynamic Values for the Species Reference State
+
+
+  void WaterSSTP::getEnthalpy_RT_ref(doublereal *hrt) const {
+    doublereal p = pressure();
+    double T = temperature();
+    double dens = density();
+    int waterState = WATER_GAS;
+    double rc = m_sub->Rhocrit();
+    if (dens > rc) {
+      waterState = WATER_LIQUID;
+    }
+    doublereal dd = m_sub->density(T, OneAtm, waterState, dens);
+    if (dd <= 0.0) {
+      throw CanteraError("setPressure", "error");
+    }
+    doublereal h = m_sub->enthalpy(T, dd);
+    *hrt = (h + EW_Offset) / (GasConstant * T);
+    dd = m_sub->density(T, p, waterState, dens);
+  }
+
+  void WaterSSTP::getGibbs_RT_ref(doublereal *grt) const {
+    doublereal p = pressure();
+    double T = temperature();
+    double dens = density();
+    int waterState = WATER_GAS;
+    double rc = m_sub->Rhocrit();
+    if (dens > rc) {
+      waterState = WATER_LIQUID;
+    }
+    doublereal dd = m_sub->density(T, OneAtm, waterState, dens);
+    if (dd <= 0.0) {
+      throw CanteraError("setPressure", "error");
+    }
+    m_sub->setState(T, dd);
+    doublereal g = m_sub->Gibbs(T, dd);
+    *grt = (g + EW_Offset - SW_Offset*T)/ (GasConstant * T);
+    dd = m_sub->density(T, p, waterState, dens);
+ 
+  }
+
+  void WaterSSTP::getGibbs_ref(doublereal *g) const {
+    getGibbs_RT_ref(g);
+    doublereal rt = _RT();
+    for (int k = 0; k < m_kk; k++) {
+      g[k] *= rt;
+    }
+  }
+
+  void WaterSSTP::getEntropy_R_ref(doublereal *sr) const {
+    doublereal p = pressure();
+    double T = temperature();
+    double dens = density();
+    int waterState = WATER_GAS;
+    double rc = m_sub->Rhocrit();
+    if (dens > rc) {
+      waterState = WATER_LIQUID;
+    }
+    doublereal dd = m_sub->density(T, OneAtm, waterState, dens);
+   
+    if (dd <= 0.0) {
+      throw CanteraError("setPressure", "error");
+    }
+    m_sub->setState(T, dd);
+
+    doublereal s = m_sub->entropy(T, dd);
+    *sr = (s + SW_Offset)/ (GasConstant);
+    dd = m_sub->density(T, p, waterState, dens); 
+ 
+  }
+
+  void WaterSSTP::getCp_R_ref(doublereal *cpr) const {
+    doublereal p = pressure();
+    double T = temperature();
+    double dens = density();
+    int waterState = WATER_GAS;
+    double rc = m_sub->Rhocrit();
+    if (dens > rc) {
+      waterState = WATER_LIQUID;
+    }
+    doublereal dd = m_sub->density(T, OneAtm, waterState, dens);
+    m_sub->setState(T, dd);
+    if (dd <= 0.0) {
+      throw CanteraError("setPressure", "error");
+    }
+    doublereal cp = m_sub->cp(T, dd);
+    *cpr = cp / (GasConstant);
+    dd = m_sub->density(T, p, waterState, dens); 
+  }
+
+  void WaterSSTP::getStandardVolumes_ref(doublereal *vol) const {
+    doublereal p = pressure();
+    double T = temperature();
+    double dens = density();
+    int waterState = WATER_GAS;
+    double rc = m_sub->Rhocrit();
+    if (dens > rc) {
+      waterState = WATER_LIQUID;
+    }
+    doublereal dd = m_sub->density(T, OneAtm, waterState, dens);
+    if (dd <= 0.0) {
+      throw CanteraError("setPressure", "error");
+    }
+    *vol = meanMolecularWeight() /dd;
+    dd = m_sub->density(T, p, waterState, dens); 
+  }
+
+  /*
+   * Calculate the pressure (Pascals), given the temperature and density
+   *  Temperature: kelvin
+   *  rho: density in kg m-3
+   */
+  doublereal WaterSSTP::
+  pressure() const {
+    double T = temperature();
+    double dens = density();
+    doublereal p = m_sub->pressure(T, dens);
+    return p;
+  }
+        
+  void WaterSSTP::
+  setPressure(doublereal p) {
+    double T = temperature();
+    double dens = density();
+    int waterState = WATER_GAS;
+    double rc = m_sub->Rhocrit();
+    if (dens > rc) {
+      waterState = WATER_LIQUID;
+    }
+    doublereal dd = m_sub->density(T, p, waterState, dens);
+    if (dd <= 0.0) {
+      throw CanteraError("setPressure", "error");
+    }
+    setDensity(dd);
+  }
+ 
+
+  // critical temperature 
+  doublereal WaterSSTP::critTemperature() const { return m_sub->Tcrit(); }
+        
+  // critical pressure
+  doublereal WaterSSTP::critPressure() const { return m_sub->Pcrit(); }
+        
+  // critical density
+  doublereal WaterSSTP::critDensity() const { return m_sub->Rhocrit(); }
+        
+        
+
+  void WaterSSTP::setTemperature(double temp) {
+    State::setTemperature(temp);
+    doublereal dd = density();
+    m_sub->setState(temp, dd);
+  }
+
+     
+
+  // saturation pressure
+  doublereal WaterSSTP::satPressure(doublereal t){
+    doublereal pp = m_sub->psat(t);
+    double dens = density();
+    setTemperature(t);
+    setDensity(dens);
+    return pp;
+  }
+
+  // Return the fraction of vapor at the current conditions
+  doublereal WaterSSTP::vaporFraction() const {
+    if (temperature() >= m_sub->Tcrit()) {
+      double dens = density();
+      if (dens >= m_sub->Rhocrit()) {
+	return 0.0;
+      }
+      return 1.0;
+    }
+    /*
+     * If below tcrit we always return 0 from this class
+     */
+    return 0.0;
+  }
+
+
+}

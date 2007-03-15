@@ -667,10 +667,10 @@ namespace Cantera {
       getPureGibbs(mu0);
     }
 
-    /**
-     * Get the array of nondimensional Enthalpy functions for the 
-     * standard state species
-     * at the current <I>T</I> and <I>P</I> of the solution.
+    
+    //! Get the array of nondimensional Enthalpy functions for the standard state species
+    //! at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
      * We assume an incompressible constant partial molar
      * volume here:
      * \f[
@@ -686,10 +686,10 @@ namespace Cantera {
      */
     void getEnthalpy_RT(doublereal* hrt) const;
 
-    /**
-     * Get the nondimensional Entropies for the species
-     * standard states at the current T and P of the solution.
-     *
+    
+    //! Get the nondimensional Entropies for the species
+    //! standard states at the current T and P of the solution.
+    /*!
      * Note, this is equal to the reference state entropies
      * due to the zero volume expansivity: 
      * i.e., (dS/dP)_T = (dV/dT)_P = 0.0
@@ -699,6 +699,7 @@ namespace Cantera {
      *           standard state entropy for species k. 
      */
     void getEntropy_R(doublereal* sr) const;
+
     /**
      * Get the nondimensional gibbs function for the species
      * standard states at the current T and P of the solution.
@@ -733,10 +734,11 @@ namespace Cantera {
      */
     virtual void getPureGibbs(doublereal* gpure) const;
 
-    /**
-     *  Returns the vector of nondimensional
-     *  internal Energies of the standard state at the current
-     *  temperature and pressure of the solution for each species.
+    
+    //! Returns the vector of nondimensional
+    //!  internal Energies of the standard state at the current
+    //! temperature and pressure of the solution for each species.
+    /*!
      *
      * @param urt  Output vector of standard state nondimensional internal energies.
      *             Length: m_kk.

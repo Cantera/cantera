@@ -4,7 +4,7 @@
 temp_success="1"
 /bin/rm  -f output.txt outputa.txt
 
-testName=testPress
+testName=testIAPWSPress
 #################################################################
 #
 #################################################################

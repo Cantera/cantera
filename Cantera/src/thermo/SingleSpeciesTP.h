@@ -304,6 +304,17 @@ namespace Cantera {
      */
     void getPartialMolarEntropies(doublereal* sbar) const;
 
+    //! Get the species partial molar heat capacties. Units: J/kmol/K.
+    /*!
+     * This function is resolved here by calling the standard state
+     * thermo function.
+     *
+     * @param cpbar    Output vector of species partial molar heat capacities
+     *                 Length = 1. units are J/kmol/K.
+     */
+    void getPartialMolarCp(doublereal* cpbar) const;
+
+
     //! Get the species partial molar volumes. Units: m^3/kmol.
     /*!
      *  This function is resolved here by calling the density function.

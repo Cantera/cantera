@@ -1,4 +1,4 @@
-pres = 182080
+pres = 10107
 psat(273.16) = 611.655
 dens (liquid) = 999.793 kg m-3
 intEng (liquid) ~= 0.0 J/kmol (less than fabs(5.0E-7))

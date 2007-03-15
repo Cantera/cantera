@@ -103,22 +103,22 @@ double  WaterPropsIAPWS::helmholtzFE() const{
  */
 double  WaterPropsIAPWS::pressure(double temperature, double rho) {
   calcDim(temperature, rho);
-  double retn = pressure_rhoRT();
-  return (retn * rho * Rgas * temperature);
+  double retn = pressureM_rhoRT();
+  return (retn * rho * Rgas * temperature/M_water);
 }
 double  WaterPropsIAPWS::pressure() const{
-  double retn = pressure_rhoRT();
+  double retn = pressureM_rhoRT();
   double rho = delta * Rho_c;
   double temperature = T_c / tau;
-  return (retn * rho * Rgas * temperature);
+  return (retn * rho * Rgas * temperature/M_water);
 }
 
 /*
  * Calculates the pressure in dimensionless form
- *  p/(rhoRT) at the currently stored tau and delta values 
+ *  pM/(rhoRT) at the currently stored tau and delta values 
  */
-double  WaterPropsIAPWS::pressure_rhoRT() const {
-  double retn = m_phi->pressure_rhoRT(tau, delta);
+double  WaterPropsIAPWS::pressureM_rhoRT() const {
+  double retn = m_phi->pressureM_rhoRT(tau, delta);
   return retn;
 }
 
@@ -284,7 +284,7 @@ double WaterPropsIAPWS::coeffThermExp(double temperature, double pressure) {
   return retn;
 }
 
-/**
+/*
  * Returns the coefficient of isothermal compressibility
  * of temperature and pressure.
  *          kappa = - d (ln V) / dP at constant T.
@@ -404,8 +404,7 @@ corr1(double temperature, double pressure, double &densLiq,
  * p : Pascals : Newtons/m**2
  */
 static int method = 1;
-double WaterPropsIAPWS::
-psat(double temperature) {
+double WaterPropsIAPWS::psat(double temperature) {
   double densLiq = -1.0, densGas = -1.0, delGRT = 0.0;
   double dp, pcorr;
   double p = psat_est(temperature);

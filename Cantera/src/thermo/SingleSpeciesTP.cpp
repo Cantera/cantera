@@ -144,7 +144,7 @@ namespace Cantera {
     return cpbar;
   }
 
-  /**
+  /*
    * cv_mole():
    *
    *  Molar heat capacity at constant volume of the mixture. 
@@ -244,6 +244,14 @@ namespace Cantera {
   getPartialMolarEntropies(doublereal* sbar) const {
     getEntropy_R(sbar);
     sbar[0] *= GasConstant;
+  }
+
+  /**
+   * Get the species partial molar Heat Capacities. Units: J/kmol K.
+   */
+  void SingleSpeciesTP::getPartialMolarCp(doublereal* cpbar) const {
+    getCp_R(cpbar);
+    cpbar[0] *= GasConstant;
   }
 
   /**

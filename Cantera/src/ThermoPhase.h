@@ -115,7 +115,7 @@ namespace Cantera {
    *     - IdealGasPDSS         in thermo/IdealGasPDSS.h
    *     - MolalityVPSSTP       in thermo/MolalityVPSSTP.h
    *     - HMWSoln              in thermo/HMWSoln.h
-   *     - WaterTP              in thermo/WaterTP.h
+   *     - WaterSSTP            in thermo/WaterSSTP.h
    *     .
    *
    * @see newPhase(std::string file, std::string id) Description for how to

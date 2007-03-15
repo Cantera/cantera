@@ -84,14 +84,14 @@ public:
   //! Calculate the dimensionless pressure at tau and delta;
   /*!
    *
-   *       p/(rhoRT) = delta * phi_d() = 1.0 + delta phiR_d()
+   *       pM/(rhoRT) = delta * phi_d() = 1.0 + delta phiR_d()
    *
    * @param tau     Dimensionless temperature = T_c/T
    * @param delta   Dimensionless density =  delta = rho / Rho_c
    *
    * note: this is done so much, we have a seperate routine.
    */
-  double pressure_rhoRT(double tau, double delta);
+  double pressureM_rhoRT(double tau, double delta);
 
   /**
    * This program computes the reduced density, given the reduced pressure

@@ -850,7 +850,7 @@ namespace Cantera {
     copy(_s.begin(), _s.end(), sr);
   }
 
-  /**
+  /*
    *  Returns the vector of nondimensional
    *  internal Energies of the standard state at the current temperature
    *  of the solution and current pressure for each species.
@@ -870,7 +870,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * Get the nondimensional heat capacity at constant pressure
    * function for the species
    * standard states at the current T and P of the solution.
@@ -891,7 +891,7 @@ namespace Cantera {
     copy(_cpr.begin(), _cpr.end(), cpr);
   }
 
-  /**
+  /*
    * Get the molar volumes of each species in their standard
    * states at the current
    * <I>T</I> and <I>P</I> of the solution.
@@ -907,7 +907,7 @@ namespace Cantera {
    *     Thermodynamic Values for the Species Reference States
    *********************************************************************/
 
-  /**
+  /*
    *  Returns the vector of non-dimensional Enthalpy function
    *  of the reference state at the current temperature
    *  of the solution and the reference pressure for the species.

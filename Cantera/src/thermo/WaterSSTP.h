@@ -1,7 +1,6 @@
 /**
- *  @file WaterTP.h
- *
- * Declares a ThermoPhase class consisting of 
+ *  @file WaterSSTP.h
+ * Declares a %ThermoPhase class consisting of 
  * pure water.
  */
 /*
@@ -13,10 +12,10 @@
  * $Id$
  */
 
-#ifndef CT_WATERTP_H
-#define CT_WATERTP_H
+#ifndef CT_WATERSSTP_H
+#define CT_WATERSSTP_H
 
-#include "ThermoPhase.h"
+#include "SingleSpeciesTP.h"
 
 class WaterPropsIAPWS;
 
@@ -52,41 +51,38 @@ namespace Cantera {
    *   They assume u_liq(TP) = 0.0, s_liq(TP) = 0.0, where TP is the
    *   triple point conditions.
    *
-   * @todo 
-   *   I should have made this inherit from SingleSpeciesTP!
-   *
    * @ingroup thermoprops
    *
    */
-  class WaterTP : public ThermoPhase {
+  class WaterSSTP : public SingleSpeciesTP {
 
   public:
 
     //! Base constructor
-    WaterTP(); 
+    WaterSSTP(); 
 
     //! Copy constructor
-    WaterTP(const WaterTP &);
+    WaterSSTP(const WaterSSTP &);
 
     //! Assignment operator
-    WaterTP& operator=(const WaterTP&);
+    WaterSSTP& operator=(const WaterSSTP&);
 
     //! Full constructor for a water phase
     /*!
      * @param inputFile String name of the input file
      * @param id        string id of the phase name
      */
-    WaterTP(std::string inputFile, std::string id = "");
+    WaterSSTP(std::string inputFile, std::string id = "");
 
     //! Full constructor for a water phase
     /*!
      * @param phaseRef  XML node referencing the water phase.
      * @param id        string id of the phase name
      */
-    WaterTP(XML_Node& phaseRef, std::string id = "");
+    WaterSSTP(XML_Node& phaseRef, std::string id = "");
 
     //! Destructor 
-    virtual ~WaterTP();
+    virtual ~WaterSSTP();
 
     //! Duplicator from a ThermoPhase object
     ThermoPhase *duplMyselfAsThermoPhase();
@@ -103,11 +99,7 @@ namespace Cantera {
      * @name  Molar Thermodynamic Properties of the Solution --------------
      * @{
      */
-    virtual doublereal enthalpy_mole() const;
-    virtual doublereal intEnergy_mole() const;
-    virtual doublereal entropy_mole() const;
-    virtual doublereal gibbs_mole() const;
-    virtual doublereal cp_mole() const;
+
     virtual doublereal cv_mole() const;
 
     //@}
@@ -134,19 +126,158 @@ namespace Cantera {
     //@{
 
 
-    //! get the chemical potential of the water
-    /*!
-     * @param mu vector of chemical potentials.
-     */
-    virtual void getChemPotentials(doublereal* mu) const {
-      mu[0] = gibbs_mole();
-    }
-
     //@}
     /// @name  Properties of the Standard State of the Species
     //          in the Solution --
     //@{
+
     
+    //!Get the gibbs function for the species
+    //! standard states at the current T and P of the solution.
+    /*!
+     * @param grt Vector of length m_kk, which on return sr[k]
+     *           will contain the 
+     *           standard state gibbs function for species k. 
+     */
+    virtual void getStandardChemPotentials(doublereal* gss) const;
+
+    //!Get the nondimensional gibbs function for the species
+    //! standard states at the current T and P of the solution.
+    /*!
+     * @param grt Vector of length m_kk, which on return sr[k]
+     *           will contain the nondimensional 
+     *           standard state gibbs function for species k. 
+     */
+    virtual void getGibbs_RT(doublereal* grt) const;
+
+    //! Get the array of nondimensional Enthalpy functions for the standard state species
+    //! at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+     *
+     * @param hrt Vector of length m_kk, which on return hrt[k]
+     *            will contain the nondimensional 
+     *            standard state enthalpy of species k. 
+     */
+    void getEnthalpy_RT(doublereal* hrt) const;
+
+    
+    //! Get the nondimensional Entropies for the species
+    //! standard states at the current T and P of the solution.
+    /*!
+     * @param sr Vector of length m_kk, which on return sr[k]
+     *           will contain the nondimensional 
+     *           standard state entropy for species k. 
+     */
+    void getEntropy_R(doublereal* sr) const;
+    
+    //!   Get the nondimensional heat capacity at constant pressure
+    //!   function for the species standard states at the current T and P of the solution.
+    /*!
+     *
+     * @param cpr Vector of length m_kk, which on return cpr[k]
+     *           will contain the nondimensional 
+     *           constant pressure heat capacity for species k. 
+     */
+    virtual void getCp_R(doublereal* cpr) const;
+
+    //! Returns the vector of nondimensional
+    //!  internal Energies of the standard state at the current
+    //! temperature and pressure of the solution for each species.
+    /*!
+     *
+     * @param urt  Output vector of standard state nondimensional internal energies.
+     *             Length: m_kk.
+     */
+    virtual void getIntEnergy_RT(doublereal *urt) const;
+
+    //@}
+    //! @name Thermodynamic Values for the Species Reference State
+    /*!
+     *  All functions in this group need to be overrided, because
+     *  the  m_spthermo SpeciesThermo function is not adequate for
+     *  the real equation of state.
+     *
+     */
+    //@{
+
+
+    
+    //!  Returns the vector of nondimensional
+    //!  enthalpies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for the species.
+    /*!
+     * @param hrt     Output vector containing the nondimensional reference state enthalpies
+     *                Length: m_kk.
+     */
+    virtual void getEnthalpy_RT_ref(doublereal *hrt) const;
+
+   /*!
+     *  Returns the vector of nondimensional
+     *  enthalpies of the reference state at the current temperature
+     *  of the solution and the reference pressure for the species.
+     *
+     *  This function is resolved in this class.  It is assumed that the m_spthermo species thermo
+     *  pointer is populated and yields the reference state.
+     *
+     * @param grt     Output vector containing the nondimensional reference state
+     *                Gibbs Free energies.  Length: m_kk.
+     */
+    virtual void getGibbs_RT_ref(doublereal *grt) const;
+
+
+    /*!
+     *  Returns the vector of the
+     *  gibbs function of the reference state at the current temperature
+     *  of the solution and the reference pressure for the species.
+     *  units = J/kmol
+     *
+     *  This function is resolved in this class.  It is assumed that the m_spthermo
+     *  species thermo
+     *  pointer is populated and yields the reference state.
+     *
+     * @param g       Output vector containing the  reference state
+     *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
+     */
+    virtual void  getGibbs_ref(doublereal *g) const;
+
+    /*!
+     *  Returns the vector of nondimensional
+     *  entropies of the reference state at the current temperature
+     *  of the solution and the reference pressure for each species.
+     *
+     *  This function is resolved in this class.  It is assumed that the m_spthermo species thermo
+     *  pointer is populated and yields the reference state.
+     *
+     * @param er      Output vector containing the nondimensional reference state
+     *                entropies.  Length: m_kk.
+       */
+    virtual void getEntropy_R_ref(doublereal *er) const;
+
+    /*!
+     *  Returns the vector of nondimensional
+     *  constant pressure heat capacities of the reference state
+     *  at the current temperature of the solution
+     *  and reference pressure for each species.
+     *
+     *  This function is resolved in this class.  It is assumed that the m_spthermo 
+     *  species thermo
+     *  pointer is populated and yields the reference state.
+     *
+     * @param cprt   Output vector of nondimensional reference state
+     *               heat capacities at constant pressure for the species.
+     *               Length: m_kk
+     */
+    virtual void getCp_R_ref(doublereal *cprt) const;
+
+    //!  Get the molar volumes of the species reference states at the current
+    //!  <I>T</I> and <I>P_ref</I> of the solution.
+    /*!
+     * units = m^3 / kmol
+     *
+     * @param vol     Output vector containing the standard state volumes.
+     *                Length: m_kk.
+     */
+    virtual void getStandardVolumes_ref(doublereal *vol) const;
 
     /// critical temperature 
     virtual doublereal critTemperature() const;
@@ -281,6 +412,14 @@ namespace Cantera {
     void setTPXState() const;
     void check(doublereal v = 0.0) const;
     void reportTPXError() const;
+
+ protected:
+    /**
+     * @internal
+     *        This internal routine must be overwritten because
+     *  it is not applicable.
+     */
+    void _updateThermo() const;
 
   private:
     mutable WaterPropsIAPWS *m_sub;

@@ -3,7 +3,7 @@
  */
 #include "stdio.h"
 #include "math.h"
-#include "WaterTP.h"
+#include "WaterSSTP.h"
 #include <new>
 using namespace std;
 using namespace Cantera;
@@ -22,7 +22,7 @@ int main () {
 
     double pres;
     try {
-      WaterTP *w = new WaterTP("waterTPphase.xml","");
+      WaterSSTP *w = new WaterSSTP("waterTPphase.xml","");
 
 
       /* 
@@ -34,6 +34,7 @@ int main () {
       double presLow = 1.0E-2;
       temp = 298.15;
       double oneBar = 1.0E5;
+      double vol;
 
       printf("Comparisons to NIST: (see http://webbook.nist.gov):\n\n");
 
@@ -55,7 +56,7 @@ int main () {
       T[3] = 1000.;
 
       double Cp0, delh0, delg0, g;
-
+      double Cp0_ss;
       printf("\nIdeal Gas Standard State:\n");
       printf ("        T      Cp0           S0     "
 	      " -(G0-H298)/T       H0-H298\n");
@@ -69,6 +70,14 @@ int main () {
 	g = w->gibbs_mole();
 	delg0 = (g - h298)/temp + GasConstant * log(oneBar/presLow);
 	Cp0 = w->cp_mole();
+        {
+          w->getCp_R(&Cp0_ss); 
+          Cp0_ss *= GasConstant;
+          if (fabs(Cp0_ss - Cp0) > 1.0E-5) {
+            printf("Inconsistency!\n");
+            exit(-1);
+          }
+        }
 	s = w->entropy_mole();
 	s -= GasConstant * log(oneBar/presLow);
 	printf("%10g %10g %13g %13g %13g\n", temp, Cp0*1.0E-3, s*1.0E-3,
@@ -142,6 +151,120 @@ int main () {
 
       }
 
+
+      printf("\nLiquid 1bar or psat State: Partial Molar Quantities\n");
+      printf ("       T     press         psat            Cpbar          Sbar "
+	      "  -(G0-H298)/T       H0-H298       Volume\n");
+      printf ("      (K)     (bar)        (bar)        (J/molK)       (J/molK)"
+	      "     (J/molK)        (kJ/mol)     m3/kmol\n");
+ 
+      for (int i = 0; i < 6; i++) {
+	temp = T[i];
+	double psat = w->satPressure(temp);
+	double press = oneBar;
+	if (psat > press) {
+	  press = psat*1.002;
+	}
+	w->setState_TP(temp, press);
+	w->getPartialMolarEnthalpies(&h);
+	delh0 = tvalue(h - h298l, 1.0E-6);
+	w->getChemPotentials(&g);
+	delg0 = (g - h298l)/temp;
+	w->getPartialMolarCp(&Cp0);
+	w->getPartialMolarEntropies(&s);
+	w->getPartialMolarVolumes(&vol);
+	printf("%10g %10g %12g %13g %13g %13g %13g %13g\n", temp, press*1.0E-5,
+	       psat*1.0E-5,
+	       Cp0*1.0E-3, s*1.0E-3,
+	       -delg0*1.0E-3, delh0*1.0E-6, vol);
+      }
+
+      printf("\nLiquid 1bar or psat State: Standard State Quantities\n");
+      printf ("       T     press         psat            Cpbar          Sbar "
+	      "  -(G0-H298)/T       H0-H298       Volume\n");
+      printf ("      (K)     (bar)        (bar)        (J/molK)       (J/molK)"
+	      "     (J/molK)        (kJ/mol)     m3/kmol\n");
+ 
+      for (int i = 0; i < 6; i++) {
+	temp = T[i];
+	double psat = w->satPressure(temp);
+	double press = oneBar;
+	if (psat > press) {
+	  press = psat*1.002;
+	}
+	w->setState_TP(temp, press);
+	w->getEnthalpy_RT(&h);
+	h *= temp * GasConstant;
+	delh0 = tvalue(h - h298l, 1.0E-6);
+	w->getStandardChemPotentials(&g);
+	delg0 = (g - h298l)/temp;
+	w->getCp_R(&Cp0);
+	Cp0 *= GasConstant;
+	w->getEntropy_R(&s);
+	s *= GasConstant;
+	w->getStandardVolumes(&vol);
+	printf("%10g %10g %12g %13g %13g %13g %13g %13g\n", temp, press*1.0E-5,
+	       psat*1.0E-5,
+	       Cp0*1.0E-3, s*1.0E-3,
+	       -delg0*1.0E-3, delh0*1.0E-6, vol);
+      }
+
+      printf("\nLiquid 1bar or psat State: Reference State Quantities (Always 1 atm no matter what system pressure is)\n");
+      printf ("       T     press         psat            Cpbar          Sbar "
+	      "  -(G0-H298)/T       H0-H298       Volume\n");
+      printf ("      (K)     (bar)        (bar)        (J/molK)       (J/molK)"
+	      "     (J/molK)        (kJ/mol)     m3/kmol\n");
+ 
+      for (int i = 0; i < 6; i++) {
+	temp = T[i];
+	double psat = w->satPressure(temp);
+	double press = oneBar;
+	if (psat > press) {
+	  press = psat*1.002;
+	}
+	w->setState_TP(temp, press);
+	w->getEnthalpy_RT_ref(&h);
+	h *= temp * GasConstant;
+	delh0 = tvalue(h - h298l, 1.0E-6);
+	w->getGibbs_ref(&g);
+	delg0 = (g - h298l)/temp;
+	w->getCp_R_ref(&Cp0);
+	Cp0 *= GasConstant;
+	w->getEntropy_R_ref(&s);
+	s *= GasConstant;
+	w->getStandardVolumes_ref(&vol);
+	printf("%10g %10g %12g %13g %13g %13g %13g %13g\n", temp, press*1.0E-5,
+	       psat*1.0E-5,
+	       Cp0*1.0E-3, s*1.0E-3,
+	       -delg0*1.0E-3, delh0*1.0E-6, vol);
+      }
+
+      printf("\nLiquid 1 atm: Standard State Quantities - Should agree with table above\n");
+      printf ("       T     press         psat            Cpbar          Sbar "
+	      "  -(G0-H298)/T       H0-H298       Volume\n");
+      printf ("      (K)     (bar)        (bar)        (J/molK)       (J/molK)"
+	      "     (J/molK)        (kJ/mol)     m3/kmol\n");
+ 
+      for (int i = 0; i < 6; i++) {
+	temp = T[i];
+	double psat = w->satPressure(temp);
+	double press = OneAtm;
+	w->setState_TP(temp, press);
+	w->getEnthalpy_RT(&h);
+	h *= temp * GasConstant;
+	delh0 = tvalue(h - h298l, 1.0E-6);
+	w->getStandardChemPotentials(&g);
+	delg0 = (g - h298l)/temp;
+	w->getCp_R(&Cp0);
+	Cp0 *= GasConstant;
+	w->getEntropy_R(&s);
+	s *= GasConstant;
+	w->getStandardVolumes(&vol);
+	printf("%10g %10g %12g %13g %13g %13g %13g %13g\n", temp, press*1.0E-5,
+	       psat*1.0E-5,
+	       Cp0*1.0E-3, s*1.0E-3,
+	       -delg0*1.0E-3, delh0*1.0E-6, vol);
+      }
       printf("\n\nTable of increasing Enthalpy at 1 atm\n\n");
       double dens;
       printf("  Enthalpy,   Temperature,     x_Vapor,    Density, Entropy_mass, Gibbs_mass\n");

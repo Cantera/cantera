@@ -11,11 +11,11 @@
 .SUFFIXES : .d
 
 # the name of the executable program to be created
-PROG_NAME = testWaterTP
+PROG_NAME = testWaterSSTP
 
 # the object files to be linked together. List those generated from Fortran
 # and from C/C++ separately
-OBJS = testWaterTP.o
+OBJS = testWaterSSTP.o
 
 # Location of the current build. Will assume that tests are run
 # in the source directory tree location

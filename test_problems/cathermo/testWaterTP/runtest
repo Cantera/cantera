@@ -11,7 +11,7 @@ testName=testWaterTP
 CANTERA_DATA=${CANTERA_DATA:=../../../data/inputs}; export CANTERA_DATA
 
 CANTERA_BIN=${CANTERA_BIN:=../../../bin}
-./testWaterTP > output.txt
+./testWaterSSTP > output.txt
 retnStat=$?
 if [ $retnStat != "0" ]
 then
