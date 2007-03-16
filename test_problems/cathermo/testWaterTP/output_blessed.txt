@@ -1,5 +1,3 @@
-s = 188835
-h = -2.41826e+08
 psat(273.16) = 611.655
 Comparisons to NIST: (see http://webbook.nist.gov):
 

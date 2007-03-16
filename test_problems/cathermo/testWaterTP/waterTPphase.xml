@@ -10,7 +10,7 @@
       <temperature units="K">300.0</temperature>
       <pressure units="Pa">101325.0</pressure>
     </state>
-    <thermo model="PureFluid" fluid_type="0"/>
+    <thermo model="PureLiquidWater"/>
     <kinetics model="none"/>
   </phase>
 

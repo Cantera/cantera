@@ -25,6 +25,8 @@ static const double M_water = 18.015268; // kg kmol-1
 /*
  * Note, this is the Rgas value quoted in the paper. For consistency
  * we have to use that value and not the updated value
+ *
+ * The Ratio of R/M = 0.46151805 kJ kg-1 K-1 , which is Eqn. (6.3) in the paper.
  */
 //static const double Rgas = 8.314472E3;   // Joules kmol-1 K-1
 static const double Rgas = 8.314371E3;   // Joules kmol-1 K-1
@@ -67,15 +69,18 @@ WaterPropsIAPWS::~WaterPropsIAPWS() {
 void WaterPropsIAPWS::calcDim(double temperature, double rho) {
   tau = T_c / temperature;
   delta = rho / Rho_c;
-}
-
-/**
- * Calculate the Helmholtz Free energy in dimensionless units
- *
- */
-double WaterPropsIAPWS::helmholtzFE_RT() const{
-  double retn = m_phi->phi(tau, delta);
-  return (retn);
+  /*
+   * Determine the internal state
+   */
+  if (temperature > T_c) {
+      iState = WATER_SUPERCRIT;
+  } else {
+    if (delta < 1.0) {
+      iState = WATER_GAS;
+    } else {
+      iState = WATER_LIQUID;
+    }
+  }
 }
 
 /*
@@ -84,17 +89,16 @@ double WaterPropsIAPWS::helmholtzFE_RT() const{
  */
 double  WaterPropsIAPWS::helmholtzFE(double temperature, double rho) {
   setState(temperature, rho);
-  double retn = helmholtzFE_RT();
+  double retn = m_phi->phi(tau, delta);
   double RT = Rgas * temperature;
   return (retn * RT);
 }
 double  WaterPropsIAPWS::helmholtzFE() const{
-  double retn = helmholtzFE_RT();
+  double retn = m_phi->phi(tau, delta);
   double temperature = T_c/tau;
   double RT = Rgas * temperature;
   return (retn * RT);
 }
-
 
 /*
  * Calculate the pressure (Pascals), given the temperature and density
@@ -103,23 +107,14 @@ double  WaterPropsIAPWS::helmholtzFE() const{
  */
 double  WaterPropsIAPWS::pressure(double temperature, double rho) {
   calcDim(temperature, rho);
-  double retn = pressureM_rhoRT();
+  double retn = m_phi->pressureM_rhoRT(tau, delta);
   return (retn * rho * Rgas * temperature/M_water);
 }
 double  WaterPropsIAPWS::pressure() const{
-  double retn = pressureM_rhoRT();
+  double retn = m_phi->pressureM_rhoRT(tau, delta);
   double rho = delta * Rho_c;
   double temperature = T_c / tau;
   return (retn * rho * Rgas * temperature/M_water);
-}
-
-/*
- * Calculates the pressure in dimensionless form
- *  pM/(rhoRT) at the currently stored tau and delta values 
- */
-double  WaterPropsIAPWS::pressureM_rhoRT() const {
-  double retn = m_phi->pressureM_rhoRT(tau, delta);
-  return retn;
 }
 
 /*
@@ -150,7 +145,8 @@ density(double temperature, double pressure, int phase, double rhoguess) {
 	  rhoguess = pressure * M_water / (Rgas * temperature);
 	} else {
 	  /*
-	   * Provide a guess about the liquid density
+	   * Provide a guess about the liquid density that is 
+	   * relatively high -> convergnce from above seems robust.
 	   */
 	  rhoguess = 1000.;
 	}
@@ -166,7 +162,7 @@ density(double temperature, double pressure, int phase, double rhoguess) {
   }
   double p_red = pressure * M_water / (Rgas * temperature * Rho_c);
   deltaGuess = rhoguess / Rho_c;
-  calcDim(temperature, rhoguess);
+  setState(temperature, rhoguess);
   double delta_retn = m_phi->dfind(p_red, tau, deltaGuess);
   double density_retn;
   if (delta_retn >0.0) {
@@ -177,17 +173,11 @@ density(double temperature, double pressure, int phase, double rhoguess) {
      */
     density_retn = delta_retn * Rho_c;
     /*
-     * Determine the internal state
+     * Set the internal state -> this may be
+     * a duplication. However, let's just be sure.
      */
-    if (temperature > T_c) {
-      iState = WATER_SUPERCRIT;
-    } else {
-      if (delta_retn < 1.0) {
-	iState = WATER_GAS;
-      } else {
-	iState = WATER_LIQUID;
-      }
-    }
+    setState(temperature, density_retn);
+    
 
   } else {
     density_retn = -1.0;
@@ -327,34 +317,25 @@ isothermalCompressibility(double temperature, double pressure) {
   return retn;
 }
 
-/**
- * Calculate the Gibbs Free energy in dimensionless units
- *
- */
-double WaterPropsIAPWS::
-Gibbs_RT() const{
-  double gRT = m_phi->gibbs_RT();
-  return gRT;
-}
 
-/**
+/*
  * Calculate the Gibbs free energy in mks units of
  * J kmol-1 K-1.
  */
 double WaterPropsIAPWS::
 Gibbs(double temperature, double rho) {
   setState(temperature, rho);
-  double gRT = Gibbs_RT();
+  double gRT = m_phi->gibbs_RT();
   return (gRT * Rgas * temperature);
 }
 double WaterPropsIAPWS::
 Gibbs() const {
-  double gRT = Gibbs_RT();
+  double gRT = m_phi->gibbs_RT();
   double temperature = T_c/tau;
   return (gRT * Rgas * temperature);
 }
 
-/**
+/*
  * Calculate the Gibbs free energy in mks units of
  * J kmol-1 K-1.
  */
@@ -368,7 +349,7 @@ corr(double temperature, double pressure, double &densLiq,
     exit(-1);
   }
   setState(temperature, densLiq);
-  double gibbsLiqRT = Gibbs_RT();
+  double gibbsLiqRT =  m_phi->gibbs_RT();
 
   densGas = density(temperature, pressure, WATER_GAS, densGas);
   if (densGas <= 0.0) {
@@ -376,7 +357,7 @@ corr(double temperature, double pressure, double &densLiq,
     exit(-1);
   }
   setState(temperature, densGas);
-  double gibbsGasRT = Gibbs_RT();
+  double gibbsGasRT = m_phi->gibbs_RT();
     
   delGRT = gibbsLiqRT - gibbsGasRT;
 }
@@ -443,133 +424,91 @@ setState(double temperature, double rho) {
   m_phi->tdpolycalc(tau, delta);
 }
 
-/**
- * Calculate the enthalpy in dimensionless units
- *
- */
-double WaterPropsIAPWS::
-enthalpy_RT() const{
-  double hRT = m_phi->enthalpy_RT();
-  return hRT;
-}
 
-/**
+
+/*
  * Calculate the enthalpy in mks units of
  * J kmol-1 K-1.
  */
 double WaterPropsIAPWS::
 enthalpy(double temperature, double rho) {
   setState(temperature, rho);
-  double hRT = enthalpy_RT();
+  double hRT =  m_phi->enthalpy_RT();
   return (hRT * Rgas * temperature);
 }
 double WaterPropsIAPWS::
 enthalpy() const {
   double temperature = T_c/tau;
-  double hRT = enthalpy_RT();
+  double hRT =  m_phi->enthalpy_RT();
   return (hRT * Rgas * temperature);
 }
 
-/**
- * Calculate the internal Energy in dimensionless units
- *
- */
-double WaterPropsIAPWS::
-intEnergy_RT() const {
-  double uRT = m_phi->intEnergy_RT();
-  return uRT;
-}
 
-/**
+/*
  * Calculate the internal Energy in mks units of
  * J kmol-1 K-1.
  */
 double WaterPropsIAPWS::
 intEnergy(double temperature, double rho) {
   setState(temperature, rho);
-  double uRT = intEnergy_RT();
+  double uRT = m_phi->intEnergy_RT();
   return (uRT * Rgas * temperature);
 }
 double WaterPropsIAPWS::
 intEnergy() const{
   double temperature = T_c / tau;
-  double uRT = intEnergy_RT();
+  double uRT = m_phi->intEnergy_RT();
   return (uRT * Rgas * temperature);
 }
 
-/**
- * Calculate the enthalpy in dimensionless units
- *
- */
-double WaterPropsIAPWS::
-entropy_R() const {
-  double sR = m_phi->entropy_R();
-  return sR;
-}
-
-/**
+/*
  * Calculate the enthalpy in mks units of
  * J kmol-1 K-1.
  */
 double WaterPropsIAPWS::
 entropy(double temperature, double rho) {
   setState(temperature, rho);
-  double sR = entropy_R();
+  double sR = m_phi->entropy_R();
   return (sR * Rgas);
 }
 
-/**
+/*
  * Calculate the enthalpy in mks units of
  * J kmol-1 K-1.
  */
 double WaterPropsIAPWS::
 entropy() const {
-  double sR = entropy_R();
+  double sR = m_phi->entropy_R();
   return (sR * Rgas);
 }
 
-/**
- * Calculate the dimensionless Heat capacity at constant volume
- */
-double WaterPropsIAPWS::
-cv_R() const {
-  double cvR = m_phi->cv_R();
-  return cvR;
-}
 
-/**
+/*
  * Calculate heat capacity at constant volume
  * J kmol-1 K-1.
  */
 double WaterPropsIAPWS::
 cv(double temperature, double rho) {
   setState(temperature, rho);
-  double cvR = cv_R();
+  double cvR = m_phi->cv_R();
   return (cvR * Rgas);
 }
 
-/**
- * Calculate the dimensionless Heat capacity at constant pressure
- */
-double WaterPropsIAPWS::
-cp_R() const {
-  double cpR = m_phi->cp_R();
-  return cpR;
-}
 
-/**
+/*
  * Calculate heat capacity at constant pressure
  * J kmol-1 K-1.
  */
 double WaterPropsIAPWS::
 cp(double temperature, double rho) {
   setState(temperature, rho);
-  double cpR = cp_R();
+  double cpR = m_phi->cp_R();
   return (cpR * Rgas);
 }
+
 double  WaterPropsIAPWS::
 cp() const {
-  double cpR = cp_R();
+  double cpR = m_phi->cp_R();
   return (cpR * Rgas);
 }
 

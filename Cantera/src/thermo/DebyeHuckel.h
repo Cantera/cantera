@@ -523,7 +523,7 @@ namespace Cantera {
    * or
    *
    * @code
-   *    char iFile[80];
+   *    char iFile[80], file_ID[80];
    *    strcpy(iFile, "DH_NaCl.xml");
    *    sprintf(file_ID,"%s#NaCl_electrolyte", iFile);
    *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
@@ -533,7 +533,7 @@ namespace Cantera {
    * or by the following call to importPhase():
    *
    * @code
-   *    char iFile[80];
+   *    char iFile[80], file_ID[80];
    *    strcpy(iFile, "DH_NaCl.xml");
    *    sprintf(file_ID,"%s#NaCl_electrolyte", iFile);
    *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);

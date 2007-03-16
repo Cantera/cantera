@@ -24,19 +24,37 @@ namespace Cantera {
   //!  Class for single-component water. This is designed to cover just the
   //!  liquid part of water.
   /*!
+   *  The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the Themodynamic
+   *  Properties of Ordinary Water Substance for General and Scientific Use,"
+   *  J. Phys. Chem. Ref. Dat, 31, 387, 2002.
    *
+   * <HR>
+   * <H2> Specification of Species Standard %State Properties </H2>
+   * <HR>
+   *   
+   *   The offsets used in the steam tables are different than NIST's. 
+   *   They assume u_liq(TP) = 0.0, s_liq(TP) = 0.0, where TP is the
+   *   triple point conditions:
    *
-   * Notes:
-   *   Base state for thermodynamic properties:
-   * 
+   *      -  u(273.16, rho)    = 0.0
+   *      -  s(273.16, rho)    = 0.0 
+   *      -  psat(273.16)      = 611.655 Pascal
+   *      -  rho(273.16, psat) = 999.793 kg m-3
+   *
+   *   These "steam table" assumptions are used by the WaterPropsIAPWS class.
+   *   Therefore, offsets must be calculated to make the thermodynamic
+   *   properties calculated within this class to be consistent with
+   *   thermo properties within Cantera.
+   *
    *   The thermodynamic base state for water is set to the NIST basis here
-   *   by specifying constants EW_Offset and SW_Offset. These offsets are
+   *   by specifying constants, #EW_Offset and #SW_Offset, one for energy
+   *   quantities and one for entropy quantities. The offsets are
    *   specified so that the following properties hold:
    *
-   *   Delta_Hfo_gas(298.15) = -241.826 kJ/gmol
-   *   So_gas(298.15, 1bar)  = 188.835 J/gmolK
+   *   - Delta_Hfo_idealgas(298.15) = -241.826 kJ/gmol
+   *   - So_idealgas(298.15, 1bar)  =  188.835  J/gmolK
    *
-   *           (http://webbook.nist.gov)
+   *         ref ->  (http://webbook.nist.gov)
    *
    *   The "o" here refers to a hypothetical ideal gas state. The way
    *   we achieve this in practice is to evaluate at a very low pressure
@@ -47,10 +65,69 @@ namespace Cantera {
    *
    *   So(1bar) = S(P0) + RT ln(1bar/P0)
    *
-   *   The offsets used in the steam tables are different than NIST's. 
-   *   They assume u_liq(TP) = 0.0, s_liq(TP) = 0.0, where TP is the
-   *   triple point conditions.
+   * <HR>
+   * <H2> %Application within %Kinetics Managers </H2>
+   * <HR>
    *
+   *   This is unimplemented.
+   *
+   * <HR>
+   * <H2> Instantiation of the Class </H2>
+   * <HR>
+   *
+   * The constructor for this phase is NOT located in the default ThermoFactory
+   * for %Cantera. However, a new %WaterSSTP object may be created by 
+   * the following code snippets, combined with an XML file given in the
+   * XML example section.
+   *
+   * @code
+   *      WaterSSTP *w = new WaterSSTP("waterSSTPphase.xml","");
+   * @endcode
+   *
+   * or
+   *
+   * @code
+   *    char iFile[80], file_ID[80];
+   *    strcpy(iFile, "waterSSTPphase.xml");
+   *    sprintf(file_ID,"%s#water", iFile);
+   *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+   *    WaterSSTP *w = new WaterSSTP(*xm);
+   * @endcode
+   *
+   * or by the following call to importPhase():
+   *
+   * @code
+   *    char iFile[80], file_ID[80];
+   *    strcpy(iFile, "waterSSTPphase.xml");
+   *    sprintf(file_ID,"%s#water", iFile);
+   *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+   *    WaterSSTP water;
+   *    importPhase(*xm, &water);
+   * @endcode
+   *
+   * <HR>
+   * <H2> XML Example </H2>
+   * <HR>
+   *
+   *   An example of an XML Element named phase setting up a WaterSSTP object with
+   *   id "water"   is given below.
+   *
+   * @verbatim
+      <!-- phase water     -->
+      <phase dim="3" id="water">
+           <elementArray datasrc="elements.xml">O  H </elementArray>
+           <speciesArray datasrc="#species_data">H2O</speciesArray>
+           <state>
+             <temperature units="K">300.0</temperature>
+             <pressure units="Pa">101325.0</pressure>
+           </state>
+           <thermo model="PureLiquidWater"/>
+           <kinetics model="none"/>
+       </phase>
+   @endverbatim
+   * 
+   *  Note the model "PureLiquidWater" indicates the usage of the WaterSSTP object.
+   *  
    * @ingroup thermoprops
    *
    */
@@ -406,14 +483,8 @@ namespace Cantera {
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
-  protected:
-        
-    void Set(int n, double x, double y) const;
-    void setTPXState() const;
-    void check(doublereal v = 0.0) const;
-    void reportTPXError() const;
-
  protected:
+
     /**
      * @internal
      *        This internal routine must be overwritten because
@@ -422,8 +493,11 @@ namespace Cantera {
     void _updateThermo() const;
 
   private:
+    //! Pointer to the WaterPropsIAPWS that calculates the real properties
+    //! of water.
     mutable WaterPropsIAPWS *m_sub;
-    int m_subflag;
+
+    //! Molecular weight of Water -> Cantera assumption
     doublereal m_mw;
 
     /**
@@ -441,6 +515,8 @@ namespace Cantera {
     double SW_Offset;
 
     bool m_verbose;
+
+    bool m_ready;
 
     /**
      *  Since this phase represents a liquid phase, it's an error to 

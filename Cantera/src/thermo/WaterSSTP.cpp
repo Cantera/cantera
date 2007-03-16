@@ -1,7 +1,7 @@
 /**
  *  @file WaterSSTP.cpp
- *   Definitions for the Object WaterSSTP, which creates a
- *   single species ThermoPhase object for real liquid water.
+ *   Declarations for the object WaterSSTP, which creates a
+ *   single species %ThermoPhase object for real liquid water.
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of
@@ -25,25 +25,25 @@ namespace Cantera {
   WaterSSTP::WaterSSTP() :
     SingleSpeciesTP(),
     m_sub(0),
-    m_subflag(0),
     m_mw(0.0),
     EW_Offset(0.0),
     SW_Offset(0.0),
     m_verbose(0),
+    m_ready(false),
     m_allowGasPhase(false)
   {
-    constructPhase();
+    //constructPhase();
   }
 
 
   WaterSSTP::WaterSSTP(std::string inputFile, std::string id) :
     SingleSpeciesTP(),
     m_sub(0),
-    m_subflag(0),
     m_mw(0.0),
     EW_Offset(0.0),
     SW_Offset(0.0),
     m_verbose(0),
+    m_ready(false),
     m_allowGasPhase(false)
   {
     constructPhaseFile(inputFile, id);
@@ -53,11 +53,11 @@ namespace Cantera {
   WaterSSTP::WaterSSTP(XML_Node& phaseRoot, std::string id) :
     SingleSpeciesTP(),
     m_sub(0),
-    m_subflag(0),
     m_mw(0.0),
     EW_Offset(0.0),
     SW_Offset(0.0),
     m_verbose(0),
+    m_ready(false),
     m_allowGasPhase(false)
   {
     constructPhaseXML(phaseRoot, id) ;
@@ -68,14 +68,14 @@ namespace Cantera {
   WaterSSTP::WaterSSTP(const WaterSSTP &b) :
     SingleSpeciesTP(b),
     m_sub(0),
-    m_subflag(b.m_subflag),
     m_mw(b.m_mw),
     EW_Offset(b.EW_Offset),
     SW_Offset(b.SW_Offset),
     m_verbose(b.m_verbose),
+    m_ready(false),
     m_allowGasPhase(b.m_allowGasPhase)
   {
-    m_sub = new WaterPropsIAPWS(*(b.m_sub));  
+    m_sub = new WaterPropsIAPWS(*(b.m_sub));
     /*
      * Use the assignment operator to do the brunt
      * of the work for the copy construtor.
@@ -89,9 +89,9 @@ namespace Cantera {
   WaterSSTP& WaterSSTP::operator=(const WaterSSTP&b) {
     if (&b == this) return *this;
     m_sub->operator=(*(b.m_sub));
-    m_subflag = b.m_subflag;
     m_mw = b.m_mw;
     m_verbose = b.m_verbose;
+    m_ready = b.m_ready;
     m_allowGasPhase = b.m_allowGasPhase;
     return *this;
   }
@@ -109,7 +109,7 @@ namespace Cantera {
 
   
   void WaterSSTP::constructPhase() {
-    throw CanteraError("constructPhaseXML", "unimplemented");
+    throw CanteraError("WaterSSTP::constructPhase()", "unimplemented");
 
   }
 
@@ -183,10 +183,16 @@ namespace Cantera {
 
 
   void WaterSSTP::initThermo() {
+    SingleSpeciesTP::initThermo();
   }
 
   void WaterSSTP::
   initThermoXML(XML_Node& phaseNode, std::string id) {
+
+    /*
+     * Do initializations that don't depend on knowing the XML file
+     */
+    initThermo();
     if (m_sub) delete m_sub;
     m_sub = new WaterPropsIAPWS();
     if (m_sub == 0) {
@@ -238,7 +244,7 @@ namespace Cantera {
     }
     s = entropy_mole();
     s -=  GasConstant * log(oneBar/presLow);
-    printf("s = %g\n", s);
+    //printf("s = %g\n", s);
 
     doublereal h = enthalpy_mole();
     if (h != -241.826E6) {
@@ -246,7 +252,7 @@ namespace Cantera {
     }
     h = enthalpy_mole();
 
-    printf("h = %g\n", h);
+    //printf("h = %g\n", h);
 
 
     /*
@@ -264,15 +270,16 @@ namespace Cantera {
       delete m_spthermo;
       m_spthermo = 0;
     }
+
+    /*
+     * Set the flag to say we are ready to calculate stuff
+     */
+    m_ready = true;
   }
 
   void WaterSSTP::
   setParametersFromXML(const XML_Node& eosdata) {
-    eosdata._require("model","PureFluid");
-    m_subflag = atoi(eosdata["fluid_type"].c_str());
-    if (m_subflag < 0) 
-      throw CanteraError("WaterSSTP::setParametersFromXML",
-			 "missing or negative substance flag");
+    eosdata._require("model","PureLiquidWater");
   }
 
   /*
@@ -315,6 +322,9 @@ namespace Cantera {
     double dens = density();
     doublereal g = m_sub->Gibbs(T, dens);
     *grt = (g + EW_Offset - SW_Offset*T) / (GasConstant * T);
+    if (!m_ready) {
+      throw CanteraError("waterSSTP::", "Phase not ready");
+    }
   }
 
   /*
@@ -326,6 +336,9 @@ namespace Cantera {
     double dens = density();
     doublereal g = m_sub->Gibbs(T, dens);
     *gss = (g + EW_Offset - SW_Offset*T);
+    if (!m_ready) {
+      throw CanteraError("waterSSTP::", "Phase not ready");
+    }
   }
   
   void WaterSSTP::getCp_R(doublereal* cpr) const {

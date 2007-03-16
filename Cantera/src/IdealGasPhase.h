@@ -278,7 +278,7 @@ namespace Cantera {
    *    XML_Node * const xs = xc->findNameID("phase", "silane");
    *    IdealGasPhase *silaneGas = new IdealGasPhase(*xs);
    * @endcode
-
+   *
    * <HR>
    * <H2> XML Example </H2>
    * <HR>

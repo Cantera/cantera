@@ -1,6 +1,6 @@
 /**
  * @file WaterPropsIAPWS.h
- *
+ * Definitions for a class for calculating the equation of state of water. 
  */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of
@@ -28,9 +28,41 @@
 #define WATER_SUPERCRIT 2
 //@}
 
+//! Class for calculating the equation of state of water. 
 /*!
- * Class for calculating the properties of water. 
  *
+ *  The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the Themodynamic
+ *  Properties of Ordinary Water Substance for General and Scientific Use,"
+ *  J. Phys. Chem. Ref. Dat, 31, 387, 2002.
+ *
+ * This class provides a very complicated polynomial for the specific helmholtz free
+ * energy of water, as a function of temperature and density.
+ *
+ *    \f[
+ *        \frac{M\hat{f}(\rho,T)}{R T} = \phi(\delta, \tau) =
+ *                        \phi^o(\delta, \tau) +  \phi^r(\delta, \tau)
+ *    \f]
+ *
+ *  where
+ *
+ *    \f[
+ *         \delta = \rho / \rho_c \mbox{\qquad and \qquad} \tau = T_c / T 
+ *    \f]
+ *
+ *  The following constants are assumed
+ *
+ *     \f[
+ *         T_c = 647.096\mbox{\ K}
+ *    \f]
+ *    \f[
+ *        \rho_c = 322 \mbox{\  kg\ m$^{-3}$}
+ *     \f]
+ *    \f[
+ *        R/M = 0.46151805 \mbox{\ kJ\ kg$^{-1}$\ K$^{-1}$}
+ *    \f]
+ *
+ *  The free energy is a unique single-valued function of the temperature and density
+ *  over its entire range.
  *
  * Note, the base thermodynamic state for this class is the one
  * used in the steam tables, i.e., the liquid at the triple point
@@ -40,6 +72,59 @@
  * -  s(273.16, rho)    = 0.0 
  * -  psat(273.16)      = 611.655 Pascal
  * -  rho(273.16, psat) = 999.793 kg m-3
+ *
+ *  Therefore, to use this class within %Cantera, offsets to u() and s() must be used
+ *  to put the water class onto the same basis as other thermodynamic quantities.
+ *  For example, in the WaterSSTP class, these offsets are calculated in the following way.
+ *  The thermodynamic base state for water is set to the NIST basis here
+ *  by specifying constants EW_Offset and SW_Offset. These offsets are
+ *  calculated on the fly so that the following properties hold:
+ *
+ *   - Delta_Hfo_idealGas(298.15, 1bar) = -241.826 kJ/gmol
+ *   - So_idealGas(298.15, 1bar)        = 188.835 J/gmolK
+ *
+ *   The offsets are calculated by actually computing the above quantities and then
+ *   calculating the correction factor.
+ *
+ *  This class provides an interface to the #WaterPropsIAPWSphi class, which actually
+ *  calculates the \f$ \phi^o(\delta, \tau)  \f$ and the  \f$ \phi^r(\delta, \tau) \f$
+ *  polynomials in dimensionless form.
+ *
+ *  All thermodynamic results from this class are returned in dimensional form. This 
+ *  is because the gas constant (and molecular weight) used within this class is allowed to be potentially
+ *  different than that used elsewhere in %Cantera. Therefore, everything has to be
+ *  in dimensional units. Note, however, the thermodynamic basis is set to that used
+ *  in the steam tables. (u = s = 0 for liquid water at the triple point).
+ *
+ *  This class is not a %ThermoPhase. However, it does maintain an internal state of
+ *  the object that is dependent on temperature and density. The internal state
+ *  is characterized by an internally storred \f$ \tau\f$ and a \f$ \delta \f$ value,
+ *  and an iState value, which indicates whether the point is a liquid, a gas,
+ *  or a supercritical fluid.
+ *  Along with that the  \f$ \tau\f$ and a \f$ \delta \f$ values are polynomials of
+ *  \f$ \tau\f$ and a \f$ \delta \f$ that are kept by the #WaterPropsIAPWSphi class.
+ *  Therefore, whenever  \f$ \tau\f$ or \f$ \delta \f$ is changed, the function setState()
+ *  must be called in order for the internal state to be kept up to date. 
+ *
+ * The class is pretty straightfoward. However, one function deserves mention.
+ * the #density() function calculates the density that is consistent with
+ * a particular value of the temperature and pressure. It may therefore be 
+ * multivalued or potentially there may be no answer from this function. It therefore
+ * takes a phase guess and a density guess as optional parameters. If no guesses are
+ * supplied to density(), a gas phase guess is assumed. This may or may not be what
+ * is wanted. Therefore, density() should usually at leat be supplied with a phase
+ * guess so that it may manufacture an appropriate density guess. 
+ * #density() manufactures the initial density guess, nondimensionalizes everything,
+ * and then calls #WaterPropsIAPWSphi::dfind(), which does the iterative calculation
+ * to find the density condition that matches the desired input pressure.
+ *
+ * The phase guess defines are located in the .h file. they are
+ *
+ *   - WATER_GAS
+ *   - WATER_LIQUID
+ *   - WATER_SUPERCRIT
+ *
+ * @ingroup thermoprops
  *
  */
 class WaterPropsIAPWS {
@@ -174,10 +259,20 @@ public:
   double pressure() const;
 
   //! Calculates the density given the temperature and the pressure,
-  //! and a guess at the density. 
+  //! and a guess at the density. Sets the internal state. 
   /*!
    *  Note, below T_c, this is a multivalued function. 
    *
+   * The #density() function calculates the density that is consistent with
+   * a particular value of the temperature and pressure. It may therefore be 
+   * multivalued or potentially there may be no answer from this function. It therefore
+   * takes a phase guess and a density guess as optional parameters. If no guesses are
+   * supplied to density(), a gas phase guess is assumed. This may or may not be what
+   * is wanted. Therefore, density() should usually at leat be supplied with a phase
+   * guess so that it may manufacture an appropriate density guess. 
+   * #density() manufactures the initial density guess, nondimensionalizes everything,
+   * and then calls #WaterPropsIAPWSphi::dfind(), which does the iterative calculation
+   * to find the density condition that matches the desired input pressure.
    *
    *  @param  temperature: Kelvin
    *  @param  pressure   : Pressure in Pascals (Newton/m**2)
@@ -186,7 +281,8 @@ public:
    *  @param rhoguess    : guessed density of the water
    *                     : -1.0 no guessed density
    *  @return
-   *     Returns the density
+   *     Returns the density. If an error is encountered in the calculation
+   *     the value of -1.0 is returned.
    */
   double density(double temperature, double pressure, 
 		 int phase = -1, double rhoguess = -1.0);
@@ -196,19 +292,6 @@ public:
    * The density is an independent variable in the underlying equation of state
    */
   double density() const;
-
-  
-  //! This function returns an estimated value for the saturation pressure. 
-  /*!
-   * It does this via a polynomial fit of the vapor pressure curve. 
-   * units = (Pascals)
-   *
-   * @param temperature Input temperature (Kelvin)
-   *
-   * @return
-   *   Returns the estimated saturation pressure
-   */
-  double psat_est(double temperature);
 
   //! Returns the coefficient of thermal expansion as a function of temperature and pressure.
   /*!
@@ -235,31 +318,19 @@ public:
    *    returns the isothermal compressibility
    */
   double isothermalCompressibility(double temperature, double pressure);
-
-  
-  //! Utility routine in the calculation of the saturation pressure
+   
+  //! This function returns an estimated value for the saturation pressure. 
   /*!
-   * @param temperature    temperature (kelvin)
-   * @param pressure       pressure (Pascal)
-   * @param densLiq        Output density of liquid
-   * @param densGas        output Density of gas
-   * @param delGRT         output delGRT
-   */ 
-  void corr(double temperature, double pressure, double &densLiq, 
-	      double &densGas, double &delGRT);
+   * It does this via a polynomial fit of the vapor pressure curve. 
+   * units = (Pascals)
+   *
+   * @param temperature Input temperature (Kelvin)
+   *
+   * @return
+   *   Returns the estimated saturation pressure
+   */
+  double psat_est(double temperature);
 
-  //! Utility routine in the calculation of the saturation pressure
-  /*!
-   * @param temperature    temperature (kelvin)
-   * @param pressure       pressure (Pascal)
-   * @param densLiq        Output density of liquid
-   * @param densGas        output Density of gas
-   * @param pcorr          output corrected pressure
-   */ 
-  void corr1(double temperature, double pressure, double &densLiq, 
-	       double &densGas, double &pcorr);
-
- 
   //!  This function returns the saturation pressure given the
   //! temperature as an input parameter.
   /*!
@@ -297,35 +368,29 @@ private:
    */
   void calcDim(double temperature, double rho);
 
-  /*
-   * Dimensionless versions of thermo functions. Note these are 
-   * private, because R value is specific to the class. We only
-   * show the dimensional functions in the interface.
+  //! Utility routine in the calculation of the saturation pressure
+  /*!
+   * @param temperature    temperature (kelvin)
+   * @param pressure       pressure (Pascal)
+   * @param densLiq        Output density of liquid
+   * @param densGas        output Density of gas
+   * @param delGRT         output delGRT
    */
-  double helmholtzFE_RT() const;
+  void corr(double temperature, double pressure, double &densLiq, 
+	      double &densGas, double &delGRT);
 
-  //! Returns the dimensionless gibbs free energy
-  double Gibbs_RT() const;
+  //! Utility routine in the calculation of the saturation pressure
+  /*!
+   * @param temperature    temperature (kelvin)
+   * @param pressure       pressure (Pascal)
+   * @param densLiq        Output density of liquid
+   * @param densGas        output Density of gas
+   * @param pcorr          output corrected pressure
+   */ 
+  void corr1(double temperature, double pressure, double &densLiq, 
+	       double &densGas, double &pcorr);
 
-  //! Returns the dimensionless enthalpy
-  double enthalpy_RT() const;
-
-  //! Returns the dimensionless internal energy
-  double intEnergy_RT() const;
-
-  //! Returns the dimensionless entropy
-  double entropy_R() const; 
-
-  //! Returns the dimensionless heat capacity at constant volume
-  double cv_R() const;
-
-  //! Returns the dimensionless heat capacity at constant pressure
-  double cp_R() const;
-
-  //! Return the current dimensionless pressure
-  double pressureM_rhoRT() const;
-
-protected:
+private:
 
   //! pointer to the underlying object that does the calculations.
   WaterPropsIAPWSphi *m_phi;
@@ -346,4 +411,3 @@ protected:
   int iState;
 };
 #endif
-

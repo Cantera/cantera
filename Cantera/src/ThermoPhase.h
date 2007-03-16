@@ -1459,7 +1459,3 @@ namespace Cantera {
         
 #endif
 
-
-
-
-

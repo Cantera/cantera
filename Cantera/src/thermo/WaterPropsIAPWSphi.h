@@ -1,7 +1,7 @@
 /**
  * @file WaterPropsIAPWSphi.h
- *
  *   Lowest level of the classes which support a real water model.
+ *   This class calculates dimensionless quantitites.
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of
@@ -18,6 +18,10 @@
 /*!
  * the WaterPropsIAPSWSphi class support low level calls for
  * the real description of water.
+ *
+ *  The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the Themodynamic
+ *  Properties of Ordinary Water Substance for General and Scientific Use,"
+ *  J. Phys. Chem. Ref. Dat, 31, 387, 2002.
  * 
  * Units Note: This class works with reduced units exclusively.
  */
@@ -80,7 +84,6 @@ public:
   //! Internal check # 2
   void   check2();
 
-
   //! Calculate the dimensionless pressure at tau and delta;
   /*!
    *
@@ -138,9 +141,10 @@ public:
    */
   double cp_R() const;
 
-  /**
-   * Calculates internal polynomials in tau and delta. This
-   * routine is used to store the internal state of tau and delta
+  
+  //! Calculates internal polynomials in tau and delta.
+  /*!
+   * This routine is used to store the internal state of tau and delta
    * for later use by the other routines in the class.
    *
    * @param tau     Dimensionless temperature = T_c/T
@@ -186,7 +190,7 @@ private:
    */
   void intCheck(double tau, double delta);
 
-protected:
+private:
 
   //! Value of internally calculated polynomials of powers of TAU
   double TAUp[52];
