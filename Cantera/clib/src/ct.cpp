@@ -32,6 +32,9 @@
 using namespace std;
 using namespace Cantera;
 
+// Assign storage for the static member of the Templated Cabinet class
+Cabinet<XML_Node> * Cabinet<XML_Node>::__storage = 0;
+
 inline XML_Node* _xml(int i) {
     return Cabinet<XML_Node>::cabinet(false)->item(i);
 }
