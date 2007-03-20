@@ -14,6 +14,7 @@
 #include "mix_defs.h"
 #include "LatticePhase.h"
 #include "SpeciesThermo.h"
+#include <math.h>
 
 namespace Cantera {
 

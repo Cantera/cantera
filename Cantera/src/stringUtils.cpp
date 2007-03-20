@@ -17,7 +17,7 @@
 #include "ct_defs.h"
 #include "ctexceptions.h"
 #include <stdio.h>
-#include <string>
+#include <string.h>
 #include <stdlib.h>
 
 namespace Cantera {

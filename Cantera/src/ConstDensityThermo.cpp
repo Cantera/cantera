@@ -13,6 +13,7 @@
 #include "mix_defs.h"
 #include "ConstDensityThermo.h"
 #include "SpeciesThermo.h"
+#include <math.h>
 
 namespace Cantera {
 

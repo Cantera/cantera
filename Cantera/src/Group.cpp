@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include "Group.h"
+#include <math.h>
 
 namespace Cantera {
      
