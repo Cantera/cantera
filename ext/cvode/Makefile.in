@@ -25,7 +25,7 @@ all: @buildlib@/libcvode.a
    
 COMPILER = @CC@
 
-OPTS = -I../include @CXXFLAGS@ $(CXX_OPT)
+OPTS = -I../include @CFLAGS@ $(CXX_OPT)
 
 OBJS = source/cvode.o source/cvdense.o source/dense.o source/cvband.o \
        source/band.o source/cvdiag.o source/cvspgmr.o source/spgmr.o  \

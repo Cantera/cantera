@@ -28,16 +28,19 @@ CC = @CC@
 # C++ compile flags
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 
+# C compile flags
+CFLAGS = @CFLAGS@
+
 # Local include files
 CXX_INCLUDES=-I../f2c_libs
 
 # How to compile the dependency file
 .c.d:
-	@CXX_DEPENDS@  $(CXX_FLAGS) $(CXX_INCLUDES) $*.c > $*.d
+	@CXX_DEPENDS@  $(CFLAGS) $(CXX_INCLUDES) $*.c > $*.d
 
 # How to compile a C file
 .c.o:
-	@CC@ -c $< @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES)
+	@CC@ -c $< @DEFS@ $(CFLAGS) $(CXX_INCLUDES)
 
 
 # -----------------------------------------------
