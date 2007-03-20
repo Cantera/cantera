@@ -137,7 +137,7 @@ double calc(double temp, double Iionic) {
   return gex;
 }
 
-main() {
+int main() {
 
   printf("standalone test of Gibbs excess free energy:\n");
   printf("T = 50C\n");
@@ -148,4 +148,5 @@ main() {
   printf("T = 200C\n");
   
   res = calc(273.15 + 200., Iionic);
+  return 0;
 }

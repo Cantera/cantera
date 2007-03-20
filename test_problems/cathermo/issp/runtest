@@ -23,9 +23,9 @@ diff -w outputa.txt output_blessed.txt > diff_test.out
 retnStat=$?
 if [ $retnStat = "0" ]
 then
-  echo "successful diff comparison on ISSPTester test"
+  echo "successful diff comparison on issp test"
 else
-  echo "unsuccessful diff comparison on ISSPTester test"
+  echo "unsuccessful diff comparison on issp test"
   echo "FAILED" > csvCode.txt
   temp_success="0"
 fi
