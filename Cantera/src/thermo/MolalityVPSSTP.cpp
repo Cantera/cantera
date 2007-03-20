@@ -554,7 +554,7 @@ namespace Cantera {
   }
 
   void  MolalityVPSSTP::initLengths() {
-    int m_kk = nSpecies();
+    m_kk = nSpecies();
     m_molalities.resize(m_kk);
   }
 
