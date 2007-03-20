@@ -15,6 +15,7 @@
 
 #include "IdealMolalSoln.h"
 #include "importCTML.h"
+#include <math.h>
 
 namespace Cantera {
 
@@ -811,8 +812,8 @@ namespace Cantera {
    */
   void IdealMolalSoln::getStandardVolumes(doublereal *vol) const {
     _updateStandardStateThermo();
-    copy(m_speciesMolarVolume.begin(),
-	 m_speciesMolarVolume.end(), vol);
+    std::copy(m_speciesMolarVolume.begin(),
+	      m_speciesMolarVolume.end(), vol);
   }
 
   /*
