@@ -188,7 +188,7 @@ ALL_H = $(BASE_H) $(THERMO_H) $(KINETICS_H) $(HETEROKIN_H) \
         $(EQUIL_H) $(SOLVERS_H) $(RPATH_H)
 
 .cpp.d:
-	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
+	@CXX_DEPENDS@ $(CXX_INCLUDES) $(CXX_FLAGS) $*.cpp > $*.d
 
 .cpp.o:
 	@CXX@ -c $< $(CXX_INCLUDES) $(CXX_FLAGS) 
