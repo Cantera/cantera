@@ -351,7 +351,7 @@ namespace Cantera {
    *
    * Sets the mole fractions and adjusts the internal density.
    */
-  void IdealSolidSolnPhase::setMoleFractions(doublereal *x) {
+  void IdealSolidSolnPhase::setMoleFractions(const doublereal *x) {
     State::setMoleFractions(x);
     calcDensity();
   }
@@ -361,7 +361,7 @@ namespace Cantera {
    *
    * Sets the mole fractions and adjusts the internal density.
    */
-  void IdealSolidSolnPhase::setMoleFractions_NoNorm(doublereal *x) {
+  void IdealSolidSolnPhase::setMoleFractions_NoNorm(const doublereal *x) {
     State::setMoleFractions(x);
     calcDensity();
   }
@@ -371,7 +371,7 @@ namespace Cantera {
    *
    * Sets the mass fractions and adjusts the internal density.
    */
-  void IdealSolidSolnPhase::setMassFractions(doublereal *y) {
+  void IdealSolidSolnPhase::setMassFractions(const doublereal *y) {
     State::setMassFractions(y);
     calcDensity();
   }
@@ -381,7 +381,7 @@ namespace Cantera {
    *
    * Sets the mass fractions and adjusts the internal density.
    */
-  void IdealSolidSolnPhase::setMassFractions_NoNorm(doublereal *y) {
+  void IdealSolidSolnPhase::setMassFractions_NoNorm(const doublereal *y) {
     State::setMassFractions_NoNorm(y);
     calcDensity();
   }
@@ -391,7 +391,7 @@ namespace Cantera {
    *
    * Sets the concentrations and adjusts the internal density
    */
-  void IdealSolidSolnPhase::setConcentrations(doublereal *c) {
+  void IdealSolidSolnPhase::setConcentrations(const doublereal *c) {
     State::setConcentrations(c);
     calcDensity();
   }

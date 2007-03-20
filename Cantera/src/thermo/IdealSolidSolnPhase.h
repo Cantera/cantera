@@ -356,35 +356,35 @@ namespace Cantera {
      * @param x  Input vector of mole fractions.
      *           Length: m_kk.
      */
-    virtual void setMoleFractions(doublereal *x);
+    virtual void setMoleFractions(const doublereal *x);
 
     //! Set the mole fractions, but don't normalize them to one.
     /*!
      * @param x  Input vector of mole fractions.
      *           Length: m_kk.
      */
-    virtual void setMoleFractions_NoNorm(doublereal *x); 
+    virtual void setMoleFractions_NoNorm(const doublereal *x); 
 
     //! Set the mass fractions, and normalize them to one.
     /*!
      * @param y  Input vector of mass fractions.
      *           Length: m_kk.
      */
-    virtual void setMassFractions(doublereal *y);
+    virtual void setMassFractions(const doublereal *y);
 
     //! Set the mass fractions, but don't normalize them to one
     /*!
      * @param y  Input vector of mass fractions.
      *           Length: m_kk.
      */
-    virtual void setMassFractions_NoNorm(doublereal *y);
+    virtual void setMassFractions_NoNorm(const doublereal *y);
 
     //! Set the concentration, 
     /*!
      * @param c  Input vector of concentrations.
      *           Length: m_kk.
      */
-    virtual void setConcentrations(doublereal *c);
+    virtual void setConcentrations(const doublereal *c);
     
 
     //@}
