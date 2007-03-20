@@ -306,7 +306,7 @@ namespace Cantera {
             m_data[1] = 0.001;
             m_data[2] = 1.0;
 
-            setState_TRY(300.0, density(), &m_data[2]);
+            //setState_TRY(300.0, density(), &m_data[2]);
 
             m_kk = nSpecies();
 	} 
