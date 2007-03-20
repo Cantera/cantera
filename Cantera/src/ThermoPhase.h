@@ -542,7 +542,7 @@ namespace Cantera {
      *
      * @param a   Output vector of activities. Length: m_kk.
      */
-    virtual void getActivities(doublereal* a);
+    virtual void getActivities(doublereal* a) const;
     
     //! Get the array of non-dimensional molar-based activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.

@@ -103,7 +103,7 @@ namespace Cantera {
 	return cAC_CONVENTION_MOLAR;
     }
 
-    void ThermoPhase::getActivities(doublereal* a) {
+    void ThermoPhase::getActivities(doublereal* a) const {
         getActivityConcentrations(a);
         int nsp = nSpecies();
         int k;
