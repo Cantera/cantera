@@ -20,6 +20,7 @@
 #include "importCTML.h"
 #include "WaterProps.h"
 #include "WaterPDSS.h"
+#include <math.h>
 
 namespace Cantera {
 
@@ -274,7 +275,7 @@ namespace Cantera {
   {
     if (testProb != 1) {
       printf("unknown test problem\n");
-      exit(-1);
+      std::exit(-1);
     }
 
     constructPhaseFile("HMW_NaCl.xml", "");
@@ -819,7 +820,7 @@ namespace Cantera {
     _updateStandardStateThermo();
     A_Debye_TP(-1.0, -1.0);
     s_update_lnMolalityActCoeff();
-    copy(m_lnActCoeffMolal.begin(), m_lnActCoeffMolal.end(), acMolality);
+    std::copy(m_lnActCoeffMolal.begin(), m_lnActCoeffMolal.end(), acMolality);
     for (int k = 0; k < m_kk; k++) {
       acMolality[k] = exp(acMolality[k]);
     }
@@ -1215,7 +1216,7 @@ namespace Cantera {
    */
   void HMWSoln::getStandardVolumes(doublereal *vol) const {
     _updateStandardStateThermo();
-    copy(m_speciesSize.begin(), m_speciesSize.end(), vol);
+    std::copy(m_speciesSize.begin(), m_speciesSize.end(), vol);
     double dd = m_waterSS->density();
     vol[0] = molecularWeight(0)/dd;
   }
@@ -1358,7 +1359,7 @@ namespace Cantera {
       break;
     default:
       printf("shouldn't be here\n");
-      exit(-1);
+      std::exit(-1);
     }
     return A;
   }
@@ -1393,7 +1394,7 @@ namespace Cantera {
       break;
     default:
       printf("shouldn't be here\n");
-      exit(-1);
+      std::exit(-1);
     }
     return dAdT;
   }
@@ -1427,7 +1428,7 @@ namespace Cantera {
       break;
     default:
       printf("shouldn't be here\n");
-      exit(-1);
+      std::exit(-1);
     }
     return dAdP;
   }
@@ -1534,7 +1535,7 @@ namespace Cantera {
       break;
     default:
       printf("shouldn't be here\n");
-      exit(-1);
+      std::exit(-1);
     }
     return d2AdT2;
   }
@@ -1911,7 +1912,7 @@ namespace Cantera {
      */
     if (m_indexSolvent != 0) {
       printf("Wrong index solvent value!\n");
-      exit(-1);
+      std::exit(-1);
     }
 
 #ifdef DEBUG_MODE
@@ -2573,7 +2574,7 @@ namespace Cantera {
 	  if (j == (m_kk-1)) {
 	    // we should never reach this step
 	    printf("logic error 1 in Step 9 of hmw_act");
-	    exit(1);
+	    std::exit(1);
 	  }
 	  if (charge[k] > 0.0) {
 	    /*
@@ -2603,7 +2604,7 @@ namespace Cantera {
 	  if (j == m_kk-1) {
 	    // we should never reach this step
 	    printf("logic error 2 in Step 9 of hmw_act");
-	    exit(1);
+	    std::exit(1);
 	  }
 	  if (charge[k] < 0) {
 	    /*
@@ -2742,7 +2743,7 @@ namespace Cantera {
 #endif
     if (m_indexSolvent != 0) {
       printf("Wrong index solvent value!\n");
-      exit(-1);
+      std::exit(-1);
     }
 
     double d_wateract_dT;
@@ -3371,7 +3372,7 @@ namespace Cantera {
 	  if (j == (m_kk-1)) {
 	    // we should never reach this step
 	    printf("logic error 1 in Step 9 of hmw_act");
-	    exit(1);
+	    std::exit(1);
 	  }
 	  if (charge[k] > 0.0) {
 	    /*
@@ -3401,7 +3402,7 @@ namespace Cantera {
 	  if (j == m_kk-1) {
 	    // we should never reach this step
 	    printf("logic error 2 in Step 9 of hmw_act");
-	    exit(1);
+	    std::exit(1);
 	  }
 	  if (charge[k] < 0) {
 	    /*
@@ -3522,7 +3523,7 @@ namespace Cantera {
 #endif
     if (m_indexSolvent != 0) {
       printf("Wrong index solvent value!\n");
-      exit(-1);
+      std::exit(-1);
     }
 
     double d2_wateract_dT2;
@@ -4159,7 +4160,7 @@ namespace Cantera {
 	  if (j == (m_kk-1)) {
 	    // we should never reach this step
 	    printf("logic error 1 in Step 9 of hmw_act");
-	    exit(1);
+	    std::exit(1);
 	  }
 	  if (charge[k] > 0.0) {
 	    /*
@@ -4189,7 +4190,7 @@ namespace Cantera {
 	  if (j == m_kk-1) {
 	    // we should never reach this step
 	    printf("logic error 2 in Step 9 of hmw_act");
-	    exit(1);
+	    std::exit(1);
 	  }
 	  if (charge[k] < 0) {
 	    /*
@@ -4329,7 +4330,7 @@ namespace Cantera {
 #endif
     if (m_indexSolvent != 0) {
       printf("Wrong index solvent value!\n");
-      exit(-1);
+      std::exit(-1);
     }
 
     double d_wateract_dP;
@@ -4969,7 +4970,7 @@ namespace Cantera {
 	  if (j == (m_kk-1)) {
 	    // we should never reach this step
 	    printf("logic error 1 in Step 9 of hmw_act");
-	    exit(1);
+	    std::exit(1);
 	  }
 	  if (charge[k] > 0.0) {
 	    /*
@@ -5000,7 +5001,7 @@ namespace Cantera {
 	  if (j == m_kk-1) {
 	    // we should never reach this step
 	    printf("logic error 2 in Step 9 of hmw_act");
-	    exit(1);
+	    std::exit(1);
 	  }
 	  if (charge[k] < 0) {
 	    /*
@@ -5187,13 +5188,13 @@ namespace Cantera {
 #ifdef DEBUG_MODE
     if (i > 4 || j > 4) {
       printf("we shouldn't be here\n");
-      exit(-1);
+      std::exit(-1);
     }
 #endif
 
     if ((i == 0) || (j == 0)) {
       printf("ERROR calc_thetas called with one species being neutral\n");
-      exit(-1);
+      std::exit(-1);
     }
 
     /*

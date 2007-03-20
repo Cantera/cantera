@@ -20,6 +20,7 @@
 #include "importCTML.h"
 #include "WaterProps.h"
 #include "WaterPDSS.h"
+#include <string.h>
 
 using namespace std;
 
