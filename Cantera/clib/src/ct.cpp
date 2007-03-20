@@ -26,6 +26,7 @@
 #include "Cabinet.h"
 #include "InterfaceKinetics.h"
 #include "PureFluidPhase.h"
+//#include "xml.h"
 
 #include "clib_defs.h"
 
@@ -33,10 +34,11 @@ using namespace std;
 using namespace Cantera;
 
 // Assign storage for the static member of the Templated Cabinet class
-Cabinet<XML_Node> * Cabinet<XML_Node>::__storage = 0;
+//class Cabinet<XML_Node>;
+template<> Cabinet<Cantera::XML_Node>* Cabinet<Cantera::XML_Node>::__storage = (Cabinet<Cantera::XML_Node>* )0;
 
 inline XML_Node* _xml(int i) {
-    return Cabinet<XML_Node>::cabinet(false)->item(i);
+    return Cabinet<Cantera::XML_Node>::cabinet(false)->item(i);
 }
 
 
