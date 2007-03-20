@@ -200,7 +200,7 @@ namespace Cantera {
      *
      * @param a   Output vector of activities. Length: 1.
      */
-    virtual void getActivities(doublereal* a) {
+    virtual void getActivities(doublereal* a) const {
       a[0] = 1.0;
     }
 
