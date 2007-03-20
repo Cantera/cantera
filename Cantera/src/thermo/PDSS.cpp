@@ -218,7 +218,7 @@ namespace Cantera {
   doublereal PDSS::
   enthalpy_mole() const {
     //m_tp->_updateThermo();
-    double m_temp = m_tp->temperature();
+    m_temp = m_tp->temperature();
     double RT = GasConstant * m_temp;
     return m_h0_RT_ptr[m_spindex] * RT;
   }
