@@ -252,7 +252,10 @@ namespace Cantera {
       e->setInitialMixMoles();
 
       // store component indices
-      for (int m = 0; m < m_mm; m++) {
+      if (m_nComponents > m_kk) {
+        m_nComponents = m_kk;
+      }
+      for (int m = 0; m < m_nComponents; m++) {
 	m_component[m] = e->componentIndex(m);
       }
       for (int k = 0; k < m_kk; k++) {
