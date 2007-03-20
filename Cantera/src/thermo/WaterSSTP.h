@@ -374,7 +374,7 @@ namespace Cantera {
     /*!
      * @param t Temperature (kelvin)
      */
-    virtual doublereal satPressure(doublereal t);
+    virtual doublereal satPressure(doublereal t) const;
     
     //! Return the fraction of vapor at the current conditions
     /*!

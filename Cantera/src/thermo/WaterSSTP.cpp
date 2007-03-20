@@ -16,6 +16,7 @@
 #include "WaterSSTP.h"
 #include "WaterPropsIAPWS.h"
 #include "importCTML.h"
+#include <math.h>
 
 namespace Cantera {
   /**
@@ -517,11 +518,11 @@ namespace Cantera {
      
 
   // saturation pressure
-  doublereal WaterSSTP::satPressure(doublereal t){
+  doublereal WaterSSTP::satPressure(doublereal t) const {
+    doublereal tsave = temperature();
+    doublereal dsave = density();
     doublereal pp = m_sub->psat(t);
-    double dens = density();
-    setTemperature(t);
-    setDensity(dens);
+    m_sub->setState(tsave, dsave);
     return pp;
   }
 
