@@ -58,7 +58,7 @@ clean:
         fi )
 
 %.d:
-	@CXX@ -MM $(INCDIR) @CXXFLAGS@ $(CXX_FLAGS) $*.cpp > $*.d
+	@CXX_DEPENDS@ -MM $(INCDIR) @CXXFLAGS@ $(CXX_FLAGS) $*.cpp > $*.d
 
 depends: $(DEPENDS)
 	cat *.d &> .depends
