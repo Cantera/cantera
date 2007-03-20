@@ -33,7 +33,7 @@ clean:
 	$(RM) *.o *.*~ csvdiff $(BINDIR)/csvdiff
 
 %.d:
-	@CXX@ -MM -I$(INCDIR) $(CXX_FLAGS) $*.cpp > $*.d
+	@CXX_DEPENDS@ -MM -I$(INCDIR) $(CXX_FLAGS) $*.cpp > $*.d
 
 depends: $(DEPENDS)
 	cat *.d &> .depends
