@@ -65,8 +65,12 @@ namespace pip {
 #ifdef HAS_SSTREAM
 	  /*
 	   * Read a line from the file
+           *     
+           *  SOLARIS 10 NOTES: Optimized version of solaris seg faults 
+           *         without the '\n' argument for some reason, probably
+           *         an internal solaris stl bug.
 	   */
-	  getline(s, rest);
+	  getline(s, rest,'\n');
 	  /*
 	   * In the transport database, we allow comment lines that
 	   * consist of '#' and '!' as the first character in the
@@ -101,7 +105,7 @@ namespace pip {
 	      >> t.dipole >> t.polar >> t.rot;
 
 	    // get the rest of the line, in case there are comments
-	    getline(s, rest);
+	    getline(s, rest, '\n');
 	    if (nm != "") { 
 	      _trmap[nm] = t; // t.name] = t;
 	    }
