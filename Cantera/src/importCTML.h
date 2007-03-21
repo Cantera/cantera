@@ -1,6 +1,15 @@
 /**
  *  @file importCTML.h
+ *   Definitions of global routines for the importing
+ *   of data from XML files (see \ref inputfiles).
  *
+ *     This file contains routines which are global routines, i.e.,
+ *     not part of any object. These routine take as input, ctml
+ *     pointers to data, and pointers to %Cantera objects. The purpose
+ *     of these routines is to intialize the %Cantera objects with data
+ *     from the ctml tree structures.
+ */
+/*
  * $Author$
  * $Revision$
  * $Date$
@@ -262,6 +271,8 @@ namespace Cantera {
    *   @param kin Kinetics object
    *   @param rdata  Object containing the information about one reaction
    *   @param errorTolerance double containing the error tolerance.
+   *
+   * @ingroup kineticsmgr
    */
   void checkRxnElementBalance(Kinetics& kin, 
 			      const ReactionData &rdata, 
@@ -280,6 +291,8 @@ namespace Cantera {
    *  @param negA    Boolean indicating whether negative A's are ok.
    *
    *   Trigger anexception for negative A unless specifically authorized.
+   *
+   * @ingroup kineticsmgr
    */
   void getRateCoefficient(const XML_Node& kf, kinetics_t& kin, 
 			  ReactionData& rdata, int negA);

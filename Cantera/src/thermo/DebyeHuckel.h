@@ -1,7 +1,11 @@
 /**
  *  @file DebyeHuckel.h
+ *    Headers for the %DebyeHuckel ThermoPhase object, which modules dilute
+ *    electrolyte solutions
+ *    (see \link Cantera::DebyeHuckel DebyeHuckel \endlink) .
  *
- *    Declarations for the DebyeHuckel phase
+ * Class %DebyeHuckel represents a dilute liquid electrolyte phase which
+ * obeys the Debye Huckel formulation for nonideality.
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of 
@@ -181,7 +185,8 @@ namespace Cantera {
    *  \f]
    *
    *  The specification of which species are weakly associated acids is made in the input file via the
-   *  <TT> stoichIsMods </TT> XML block, where the charge for k1 is also specified. An example is given below:
+   *  <TT> stoichIsMods </TT> XML block, where the charge for k1 is also specified. 
+   *  An example is given below:
    * 
    * @code
    *          <stoichIsMods>
@@ -702,7 +707,7 @@ namespace Cantera {
      */
     virtual doublereal cp_mole() const;
 
-    /// Molar heat capacity at constant volume. Units: J/kmol/K.
+    //! Molar heat capacity at constant volume. Units: J/kmol/K.
     /*
      *      (HKM -> Bump up to Parent object)
      */
@@ -1266,6 +1271,7 @@ namespace Cantera {
      * @param lambda_RT Input vector of dimensionless element potentials
      *                  The length is equal to nElements().
      */ 
+  public:
     virtual void setToEquilState(const doublereal* lambda_RT) {
       err("setToEquilState");
     }

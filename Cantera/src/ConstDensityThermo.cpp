@@ -1,7 +1,13 @@
 /**
- *
  *  @file ConstDensityThermo.cpp
+ * Declarations for a Thermo manager for incompressible ThermoPhases 
+ * (see \ref thermoprops and \link Cantera::ConstDensityThermo ConstDensityThermo
+\endlink).
+ */
+/*
+ * $Id$
  *
+ *  Copyright 2002 California Institute of Technology
  */
 
 #ifdef WIN32

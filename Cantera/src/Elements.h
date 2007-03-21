@@ -6,8 +6,10 @@
  ***********************************************************************/
 //  Copyright 2001  California Institute of Technology
 
-/** @file Elements.h 
- *  Header file for class, Elements.
+/**
+ *  @file Elements.h 
+ *  Header file for class, Elements, which contains the elements that 
+ *  make up species (see \ref phases and \link Cantera::Elements Elements\endlink).
  *
  *  This file contains the declarations for the elements class.
  */
@@ -37,6 +39,8 @@ namespace Cantera {
      * 
      * The member functions return information about the elements described
      * in a particular instantiation of the class.
+     * 
+     * @ingroup phases
      */
     class Elements {
 

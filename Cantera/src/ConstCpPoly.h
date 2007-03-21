@@ -1,14 +1,14 @@
 /**
  *  @file ConstCpPoly.h
- *
- * Declarations for the SpeciesThermoInterpType object that
- * employs a constant heat capacity assumption.
- *
+ * Headers for the \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink 
+ * object that employs a constant heat capacity assumption (see \ref spthermo and
+ * \link Cantera::ConstCpPoly ConstCpPoly\endlink).
+ */
+/*
  * $Author$
  * $Revision$
  * $Date$
  */
-
 // Copyright 2001  California Institute of Technology
 
 

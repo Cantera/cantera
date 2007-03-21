@@ -1,7 +1,7 @@
-/*!
+/**
  * @file Constituents.h
- *
- *  Header file for class Constituents
+ *  Header file  Class \link Cantera::Constituents Constitutents\endlink which 
+ *  manages a set of elements and species (see \ref phases).
  */
 
 /*  $Author$ 
@@ -54,15 +54,18 @@ namespace Cantera {
     /******************************************************************/
 
 
-    /// Class %Constituents manages a set of elements and
-    /// species. Class %Constituents is designed to provide information
-    /// about the elements and species in a phase - names, index
-    /// numbers (location in arrays), atomic or molecular weights,
-    /// etc. No computations are performed by the methods of this
-    /// class. The set of elements must include all those that compose
-    /// the species, but may include additional elements. The species
-    /// all must belong to the same phase.
-
+    //! Class %Constituents manages a set of elements and  species.
+    /*!
+     * Class %Constituents is designed to provide information
+     * about the elements and species in a phase - names, index
+     * numbers (location in arrays), atomic or molecular weights,
+     * etc. No computations are performed by the methods of this
+     * class. The set of elements must include all those that compose
+     * the species, but may include additional elements. The species
+     * all must belong to the same phase.
+     *
+     * @ingroup phases
+     */
     class Constituents {
 
     public:

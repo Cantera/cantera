@@ -1,10 +1,12 @@
 /**
  *  @file importCTML.cpp
+ *     Declarations of global routines for the importing
+ *     of data from XML files (see \ref inputfiles).
  *
  *     This file contains routines which are global routines, i.e.,
  *     not part of any object. These routine take as input, ctml
- *     pointers to data, and pointers to Cantera objects. The purpose
- *     of these routines is to intialize the Cantera objects with data
+ *     pointers to data, and pointers to %Cantera objects. The purpose
+ *     of these routines is to intialize the %Cantera objects with data
  *     from the ctml tree structures.
  */
 

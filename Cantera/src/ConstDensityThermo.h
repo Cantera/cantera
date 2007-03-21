@@ -1,10 +1,8 @@
 /**
- *
  *  @file ConstDensityThermo.h
- *
- *  Thermo manager for incompressible substances.
+ * Header for a Thermo manager for incompressible ThermoPhases 
+ * (see \ref thermoprops and \link Cantera::ConstDensityThermo ConstDensityThermo\endlink).
  */
-
 /*
  *  $Author$
  *  $Date$

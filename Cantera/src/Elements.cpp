@@ -1,3 +1,12 @@
+/**
+ *  @file Elements.cpp
+ *  Declaration file for class, Elements, which contains the elements that
+ *  make up species (see \ref phases and \link Cantera::Elements Elements\endlink).
+ *
+ *  This file contains the definitions for functions in the class Elements.
+ *  It also contains a database of atomic weights.
+ */
+
 /****************************************************************************
  *  $RCSfile$
  *  $Author$
@@ -8,13 +17,6 @@
  ****************************************************************************/
 //  Copyright 2003  California Institute of Technology
 
-/**
- *  @file Elements.cpp
- *  Implementation file for the class Elements
- *
- *  This file contains the definitions for functions in the class Elements.
- *  It also contains a database of atomic weights.
- */
 
 #ifdef WIN32
 #pragma warning(disable:4786)

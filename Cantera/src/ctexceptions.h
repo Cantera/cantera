@@ -1,8 +1,8 @@
 /**
  * @file ctexceptions.h
- *
- *   This contains the definitions for the classes that are
- *   thrown when Cantera experiences an error condition.
+ *   Definitions for the classes that are
+ *   thrown when %Cantera experiences an error condition 
+ *   (also contains errorhandling module text - see \ref errorhandling).
  */
 
 /*

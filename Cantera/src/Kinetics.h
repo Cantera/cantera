@@ -1,9 +1,7 @@
 /**
  * @file Kinetics.h
- *    
- *  Base class for kinetics managers
- *
- * Contains the kineticsmgr module documentation.
+ *  Base class for kinetics managers and also contains the kineticsmgr
+ *  module documentation (see \ref  kineticsmgr).
  *
  *  $Author$
  *  $Date$

@@ -1,6 +1,7 @@
 /**
  *  @file Constituents.cpp
- *  Implementation file for class Constituents
+ *  Header file  Class \link Cantera::Constituents Constitutents\endlink which 
+ *  manages a set of elements and species (see \ref phases).
  */
 
 /*  $Author$ 

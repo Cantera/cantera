@@ -1,6 +1,9 @@
 /**
  *  @file SpeciesThermoInterpType.h
- *
+ * Pure Virtual Base class for individual species reference state
+ * themodynamic managers (see \ref spthermo and class \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType \endlink).
+ */
+ /*
  * $Author$
  * $Revision$
  * $Date$
