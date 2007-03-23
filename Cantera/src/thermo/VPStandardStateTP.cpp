@@ -1,6 +1,9 @@
 /**
- *
  *  @file VPStandardStateTP.cpp
+ * Definition file for a derived class of ThermoPhase that handles
+ * variable pressure standard state methods for calculating
+ * thermodynamic properties (see \ref thermoprops and
+ * class \link Cantera::VPStandardStateTP VPStandardStateTP\endlink).
  */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 

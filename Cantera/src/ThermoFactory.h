@@ -1,8 +1,8 @@
 /**
  *  @file ThermoFactory.h
+ *     Headers for the factory class that can create known %ThermoPhase objects
+ *     (see \ref thermoprops and class \link Cantera::ThermoFactory ThermoFactory\endlink).
  *
- *         This file contains the definition for the factory
- *         class that can create know %ThermoPhase objects.
  */
 
 /*

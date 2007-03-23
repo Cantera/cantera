@@ -1,8 +1,10 @@
 /**
  *
  *  @file State.cpp
+ * Definitions for the class State, that manages the independent variables of temperature, mass density,
+ * and species mass/mole fraction that define the thermodynamic state (see \ref phases and
+ * class \link Cantera::State State\endlink).
  *
- *  This file implements class State.
  */
 
 /*

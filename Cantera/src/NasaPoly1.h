@@ -1,9 +1,18 @@
-#ifndef CT_NASAPOLY1_H
-#define CT_NASAPOLY1_H
 
 /**
  *  @file NasaPoly1.h
+ *  Header for a single-species standard state object derived
+ *  from \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink  based 
+ *  on the NASA temperature polynomial form applied to one temperature region
+ *  (see \ref spthermo and class \link Cantera::NasaPoly1 NasaPoly1\endlink).
+ *
+ *  This parameterization has one NASA temperature region.
  */
+
+
+#ifndef CT_NASAPOLY1_H
+#define CT_NASAPOLY1_H
+
 
 /* $Author$
  * $Revision$

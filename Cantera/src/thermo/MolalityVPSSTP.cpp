@@ -1,6 +1,15 @@
 /**
- *
  *  @file MolalityVPSSTP.cpp
+ *   Definitions for intermediate ThermoPhase object for phases which
+ *   employ molality based activity coefficient formulations
+ *  (see \ref thermoprops 
+ * and class \link Cantera::MolalityVPSSTP MolalityVPSSTP\endlink).
+ *
+ * Header file for a derived class of ThermoPhase that handles
+ * variable pressure standard state methods for calculating
+ * thermodynamic properties that are further based upon activities
+ * based on the molality scale.  These include most of the methods for
+ * calculating liquid electrolyte thermodynamics.
  */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 

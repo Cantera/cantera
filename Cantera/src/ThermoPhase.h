@@ -1,8 +1,8 @@
 /**
  *  @file ThermoPhase.h
- *
- * Header file for class ThermoPhase.
- * Also contains the text for the Module thermoprops.
+ * Header file for class ThermoPhase, the base class for phases with
+ * thermodynamic properties, and the text for the Module thermoprops
+ * (see \ref thermoprops and class \link Cantera::ThermoPhase ThermoPhase\endlink).
  */
 
 /*
@@ -32,7 +32,6 @@ namespace Cantera {
   const int    cAC_CONVENTION_MOLALITY = 1;
   //@}
   class XML_Node;
-
 
   /**
    * @defgroup thermoprops Thermodynamic Properties

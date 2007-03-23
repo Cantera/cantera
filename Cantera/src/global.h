@@ -1,14 +1,16 @@
 /**
  * @file global.h
+ * This file contains definitions for utility functions and text for modules,
+ * inputfiles, logs, textlogs, HTML_logs (see \ref inputfiles, \ref logs, \ref textlogs and \ref HTML_logs).
  *
- * This file contains definitions for utility functions. These functions store 
+ * These functions store 
  * some parameters in  global storage that are accessible at all times
  * from the calling application.
  * Contains module definitions for
- *       inputfiles
- *       logs
- *       textlogs
- *       HTML_logs
+ *     -  inputfiles  (see \ref inputfiles)
+ *     -  logs        (see \ref logs)
+ *     -  textlogs    (see \ref textlogs)
+ *     -  HTML_logs   (see \ref HTML_logs)
  */
 
 /* $Author$

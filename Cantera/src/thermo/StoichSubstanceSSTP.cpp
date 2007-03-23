@@ -1,7 +1,8 @@
 /**
- *
  *  @file StoichSubstanceSSTP.cpp
- *
+ *   Definition file for the StoichSubstanceSSTP class, which represents a fixed-composition
+ * incompressible substance (see \ref thermoprops and 
+ * class \link Cantera::StoichSubstanceSSTP StoichSubstanceSSTP\endlink)
  */
 
 /*

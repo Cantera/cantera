@@ -1,8 +1,11 @@
 /**
  *  @file Mu0Poly.cpp
- *
- * Definitions for the Mu0Poly class.
- *
+ *  Definitions for a single-species standard state object derived
+ *  from \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink  based 
+ *  on a piecewise constant mu0 interpolation
+ *  (see \ref spthermo and class \link Cantera::Mu0Poly Mu0Poly\endlink).
+ */
+/*
  * $Author$
  * $Revision$
  * $Date$

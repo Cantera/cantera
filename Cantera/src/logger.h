@@ -1,12 +1,16 @@
-/// @file logger.h
-/// Class Logger
-///
+/**
+ * @file logger.h
+ * Header for Base class for 'loggers' that write text messages to log files
+ * (see \ref textlogs and class \link Cantera::Logger Logger\endlink).
+ */
+/*
+ * $Id$
+ */
 
 #ifndef CT_LOGGER_H
 #define CT_LOGGER_H
 
 #include <iostream>
-//using namespace std;
 
 namespace Cantera {
 

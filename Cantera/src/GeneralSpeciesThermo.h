@@ -1,5 +1,10 @@
 /**
  * @file GeneralSpeciesThermo.h
+ *  Headers for a completely general species thermodynamic property
+ *  manager for a phase (see \ref spthermo and
+ * \link Cantera::GeneralSpeciesThermo GeneralSpeciesThermo\endlink).
+ *
+ *  Because it is general, it is slow.
  */
 
 /*

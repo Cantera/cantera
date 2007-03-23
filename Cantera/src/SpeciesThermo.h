@@ -1,8 +1,8 @@
 /**
  *  @file SpeciesThermo.h
- *  Species thermodynamic property managers. In this file we describe
- *  the base class for the calculation of species thermodynamic
- *  property managers.
+ *  Virtual base class for the calculation of multiple-species thermodynamic
+ *  property managers and text for the spthermo module (see \ref spthermo 
+ *  and class \link Cantera::SpeciesThermo SpeciesThermo\endlink).
  *
  *  We also describe the doxygen module spthermo  (see \ref spthermo )
  */

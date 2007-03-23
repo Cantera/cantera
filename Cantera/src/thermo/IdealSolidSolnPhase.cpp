@@ -1,8 +1,8 @@
 /**
  *  @file IdealSolidSolnPhase.cpp
- *      Code for the class IdealSolidSolnPhase,
- *      which implements an ideal solid solution model
- *      with incompressible thermodynamics.
+ *      Implementation file for an ideal solid solution model
+ *      with incompressible thermodynamics (see \ref thermoprops and
+ *      \link Cantera::IdealSolidSolnPhase IdealSolidSolnPhase\endlink).
  */
 /*
  * $Id$

@@ -1,12 +1,13 @@
 /**
  * @file ShomateThermo.h
- * 
- * Definitions and declarations for a species property manager that
- * uses the Shomate polynomials.
- *
+ *   Header for the 2 regions Shomate polynomial
+ *   for multiple species in a phase, derived from the
+ *   \link Cantera::SpeciesThermo SpeciesThermo\endlink base class (see \ref spthermo and
+ *   \link Cantera::ShomateThermo ShomateThermo\endlink).
+ */
+/*
  * $Id$
  */
-
 // Copyright 2001  California Institute of Technology
 
 

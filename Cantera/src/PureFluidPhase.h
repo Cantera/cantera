@@ -1,10 +1,13 @@
 /**
  *  @file PureFluidPhase.h
- *
- * Declares class PureFluid.
+ *   Header for a ThermoPhase object for a pure fluid phase consisting of gas, liquid, mixed-gas-liquid
+ *   and supercrit fluid (see \ref thermoprops 
+ *   and class \link Cantera::PureFluidPhase PureFluidPhase\endlink).
+ * 
  *
  * This object is only available if the WITH_PURE_FLUIDS optional compile
  * capability has been turned on in Cantera's makefile system. 
+ * It inherits from ThermoPhase, but is built on top of the tpx package.
  */
 
 /*  $Author$

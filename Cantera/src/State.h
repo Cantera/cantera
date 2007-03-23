@@ -1,8 +1,8 @@
 /**
- *
  *  @file State.h
- *
- *  This is the header file for class State.
+ * Header for the class State, that manages the independent variables of temperature, mass density,
+ * and species mass/mole fraction that define the thermodynamic state (see \ref phases and
+ * class \link Cantera::State State\endlink).
  */
 
 /*
@@ -15,7 +15,6 @@
  *
  */
 
-
 #ifndef CT_STATE2_H
 #define CT_STATE2_H
 
@@ -23,26 +22,29 @@
 
 namespace Cantera {
 
-    /**
-     * Manages the independent variables of temperature, mass density,
-     * and species mass/mole fraction that define the thermodynamic
-     * state.  Class State stores just enough information about a
-     * multicomponent solution to specify its intensive thermodynamic
-     * state.  It stores values for the temperature, mass density, and
-     * an array of species mass fractions. It also stores an array of
-     * species molecular weights, which are used to convert between
-     * mole and mass representations of the composition. These are the
-     * \e only properties of the species that class State knows about.
-     * For efficiency in mass/mole conversion, the vector of mass
-     * fractions divided by molecular weight \f$ Y_k/M_k \f$ is also
-     * stored.
-     *
-     * Class State is not usually used directly in application
-     * programs. Its primary use is as a base class for class
-     * Phase. Class State has no virtual methods, and none of its
-     * methods are meant to be overloaded.
-     */
-
+    
+  //! Manages the independent variables of temperature, mass density,
+  //! and species mass/mole fraction that define the thermodynamic
+  //! state.
+  /*!
+   * Class State stores just enough information about a
+   * multicomponent solution to specify its intensive thermodynamic
+   * state.  It stores values for the temperature, mass density, and
+   * an array of species mass fractions. It also stores an array of
+   * species molecular weights, which are used to convert between
+   * mole and mass representations of the composition. These are the
+   * \e only properties of the species that class State knows about.
+   * For efficiency in mass/mole conversion, the vector of mass
+   * fractions divided by molecular weight \f$ Y_k/M_k \f$ is also
+   * stored.
+   *
+   * Class State is not usually used directly in application
+   * programs. Its primary use is as a base class for class
+   * Phase. Class State has no virtual methods, and none of its
+   * methods are meant to be overloaded.
+   *
+   * @ingroup phases
+   */
     class State {
 
     public:

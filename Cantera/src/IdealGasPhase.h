@@ -1,6 +1,9 @@
 /**
  *  @file IdealGasPhase.h 
- *   ThermoPhase object for the ideal gas equation of state.
+ *   ThermoPhase object for the ideal gas equation of
+ * state - workhorse for %Cantera (see \ref thermoprops 
+ * and class \link Cantera::IdealGasPhase IdealGasPhase\endlink).
+ * 
  */
 
 /*  $Author$

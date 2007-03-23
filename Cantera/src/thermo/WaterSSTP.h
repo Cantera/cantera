@@ -1,7 +1,7 @@
 /**
  *  @file WaterSSTP.h
- * Declares a %ThermoPhase class consisting of 
- * pure water.
+ * Declares a %ThermoPhase class consisting of  pure water (see \ref thermoprops
+ * and class \link Cantera::WaterSSTP WaterSSTP\endlink).
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of

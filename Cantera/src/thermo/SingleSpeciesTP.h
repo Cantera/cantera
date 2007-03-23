@@ -1,10 +1,10 @@
 /**
  *  @file SingleSpeciesTP.h
- *
- * Header file for class SingleSpeciesTP
+ *  Header for the %SingleSpeciesTP class, which is a filter class for %ThermoPhase,
+ *  that eases the construction of single species phases 
+ *  ( see \ref thermoprops and class \link Cantera::SingleSpeciesTP SingleSpeciesTP\endlink).
  *
  */
-
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the

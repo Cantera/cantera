@@ -1,12 +1,15 @@
 /**
  *  @file misc.cpp
- *
  * This file contains a miscellaneous collection of global data
- * functions.
+ * functions and text for the globalData module (see \ref globalData), the
+ * logs module (see \ref logs), and the HTML_logs module (see \ref HTML_logs).
  *
  * These modules are defined here:
- *      globalData
- *
+ *      globalData 
+ *      logs
+ *      HTML_logs
+ */
+/*
  *  $Id$
  */
 

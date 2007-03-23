@@ -1,13 +1,14 @@
 /**
  *  @file Phase.h
+ *   Header file for class, Phase, which contains functions for setting the
+ *   state of a phase, and for referencing species by name, and also contains text for the module phases
+ *   (see \ref phases and class \link Cantera::Phase Phase\endlink).
  */
-
 /*
  * $Author$
  * $Revision$
  * $Date$
  */
-
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_PHASE_H

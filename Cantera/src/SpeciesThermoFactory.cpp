@@ -1,14 +1,17 @@
 /**
  *  @file SpeciesThermoFactory.cpp
+ *    Definitions for factory to build instances of classes that manage the
+ *    standard-state thermodynamic properties of a set of species 
+ *    (see \ref spthermo and class \link Cantera::SpeciesThermoFactory SpeciesThermoFactory\endlink);
  */
-
+/*
+ * $Id$
+ */
 // Copyright 2001  California Institute of Technology
-
 
 #ifdef WIN32
 #pragma warning(disable:4786)
 #endif
-
 
 
 #include "SpeciesThermoFactory.h"

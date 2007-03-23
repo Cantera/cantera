@@ -1,5 +1,8 @@
 /**
  *  @file Phase.cpp
+ *   Definition file for class, Phase, which contains functions for setting the
+ *   state of a phase, and for referencing species by name
+ *   (see \ref phases and class \link Cantera::Phase Phase\endlink).
  */
 
 // Copyright 2001  California Institute of Technology

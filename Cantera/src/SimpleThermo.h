@@ -1,10 +1,12 @@
+/**
+ * @file SimpleThermo.h
+ *   Header for the SimpleThermo (constant heat capacity) species reference-state model
+ *   for multiple species in a phase, derived from the
+ *   \link Cantera::SpeciesThermo SpeciesThermo\endlink base class (see \ref spthermo and
+ *   \link Cantera::SimpleThermo SimpleThermo\endlink).
+ */
 /*
  * $Id$
- *
- * @file SimpleSpecies.h
- *
- *   Contains the definition and declarations for the SimpleSpecies 
- *   standard state species thermodynamic property manager for a phase.
  */
 
 #ifndef CT_SIMPLETHERMO_H
@@ -14,7 +16,7 @@
 
 namespace Cantera {
 
-  /**
+  /*!
    *  A constant-heat capacity species thermodynamic property manager class. 
    *  This makes the
    *  assumption that the heat capacity is a constant. Then, the following
@@ -22,13 +24,13 @@ namespace Cantera {
    *  functions for each species in the phase.
    *
    * \f[
-   * \frac{c_p(T)}{R} = Cp0\_R
+   *   \frac{c_p(T)}{R} = Cp0\_R
    * \f]
    * \f[
-   * \frac{h^0(T)}{RT} = \frac{1}{T} * (h0\_R + (T - T_0) * Cp0\_R)
+   *   \frac{h^0(T)}{RT} = \frac{1}{T} * (h0\_R + (T - T_0) * Cp0\_R)
    * \f]
    * \f[
-   * \frac{s^0(T)}{R} =  (s0\_R + (log(T) - log(T_0)) * Cp0\_R)
+   *   \frac{s^0(T)}{R} =  (s0\_R + (log(T) - log(T_0)) * Cp0\_R)
    * \f]
    *
    * This parameterization takes 4 input values. These are:

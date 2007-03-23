@@ -1,9 +1,11 @@
 /**
  *  @file SpeciesThermoMgr.h
- *
  *  This file contains descriptions of templated subclasses of 
- *  the virtual base class, SpeciesThermo.
- *  These include  SpeciesThermoDuo and SpeciesThermo1.
+ *  the virtual base class, SpeciesThermo, which 
+ *  include  SpeciesThermoDuo and SpeciesThermo1
+ *  (see \ref spthermo and classes 
+ *   \link Cantera::SpeciesThermoDuo SpeciesThermoDuo\endlink and
+ *  \link Cantera::SpeciesThermo1 SpeciesThermo1\endlink)
  *
  * $Author$
  * $Revision$

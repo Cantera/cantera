@@ -1,8 +1,8 @@
 /**
- *
  *  @file StoichSubstanceSSTP.h
- * 
- * Header file for the StoichSubstanceSSTP class
+ * Header file for the StoichSubstanceSSTP class, which represents a fixed-composition
+ * incompressible substance (see \ref thermoprops and 
+ * class \link Cantera::StoichSubstanceSSTP StoichSubstanceSSTP\endlink)
  */
 
 /*
@@ -26,11 +26,9 @@
 
 namespace Cantera {
 
-  /**
-   * @ingroup thermoprops
-   *
-   * Class %StoichSubstanceSSTP represents a stoichiometric (fixed composition) 
-   * incompressible substance.
+   //!  Class %StoichSubstanceSSTP represents a stoichiometric (fixed composition) 
+   //!  incompressible substance.
+   /*!
    * This class internally changes the independent degree of freedom from
    * density to pressure. This is necessary because the phase is incompressible.
    * It uses a constant volume approximation.
@@ -163,6 +161,7 @@ namespace Cantera {
    *  The model attribute, "StoichSubstanceSSTP", on the thermo element identifies the phase as being
    * a StoichSubstanceSSTP object.
    *
+   * @ingroup thermoprops
    */
   class StoichSubstanceSSTP : public SingleSpeciesTP {
 

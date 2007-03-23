@@ -1,12 +1,17 @@
 /**
  *  @file IdealMolalSoln.h
+ *   ThermoPhase object for the ideal molal equation of
+ * state (see \ref thermoprops 
+ * and class \link Cantera::IdealMolalSoln IdealMolalSoln\endlink).
  *
  * Header file for a derived class of ThermoPhase that handles
  * variable pressure standard state methods for calculating
  * thermodynamic properties that are further based upon 
  * activities on the molality scale. The Ideal molal
  * solution assumes that all molality-based activity
- * coefficients are equal to one.
+ * coefficients are equal to one. This turns out to be highly
+ * nonlinear in the limit of the solvent mole fraction going
+ * to zero.
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of 
@@ -27,7 +32,8 @@
 namespace Cantera {
 
   /**  \addtogroup thermoprops */
-  /* @{ */
+  /* @{ 
+   */
  
 
   /**

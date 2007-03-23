@@ -1,5 +1,8 @@
 /**
  *  @file SpeciesThermoFactory.h
+ *    Header for factory to build instances of classes that manage the
+ *    standard-state thermodynamic properties of a set of species 
+ *    (see \ref spthermo and class \link Cantera::SpeciesThermoFactory SpeciesThermoFactory\endlink);
  */
 
 /*

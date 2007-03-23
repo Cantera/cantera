@@ -1,8 +1,9 @@
 /**
  *  @file ThermoFactory.cpp
+ *     Definitions for the factory class that can create known %ThermoPhase objects
+ *     (see \ref thermoprops and class \link Cantera::ThermoFactory ThermoFactory\endlink).
  *
- *  Definition of the %ThermoPhase factory base class.
- *  All known ThermoPhases to Cantera should be listed here.
+ 
  */
 
 /*

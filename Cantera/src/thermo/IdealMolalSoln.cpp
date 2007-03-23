@@ -1,6 +1,17 @@
 /**
  *
  *  @file IdealMolalSoln.cpp
+ *   ThermoPhase object for the ideal molal equation of
+ * state (see \ref thermoprops 
+ * and class \link Cantera::IdealMolalSoln IdealMolalSoln\endlink).
+ *
+ * Definition file for a derived class of ThermoPhase that handles
+ * variable pressure standard state methods for calculating
+ * thermodynamic properties that are further based upon 
+ * activities on the molality scale. The Ideal molal
+ * solution assumes that all molality-based activity
+ * coefficients are equal to one. This turns out, actually, to be
+ * highly nonlinear when the solvent densities get low.
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of 

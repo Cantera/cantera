@@ -1,10 +1,8 @@
 /**
- *
  *  @file SurfPhase.h
- *
- *  Contains the declarations for the surface %ThermoPhase class,
- *  SurfPhase. 
- *
+ *  Header for a simple thermoydnamics model of a surface phase derived from ThermoPhase, 
+ *  assuming an ideal solution model
+ *  (see \ref thermoprops and class \link Cantera::SurfPhase SurfPhase\endlink).
  */
 
 /*  $Author$

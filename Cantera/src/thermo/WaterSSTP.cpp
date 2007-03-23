@@ -1,7 +1,7 @@
 /**
  *  @file WaterSSTP.cpp
- *   Declarations for the object WaterSSTP, which creates a
- *   single species %ThermoPhase object for real liquid water.
+ * Definitions for a %ThermoPhase class consisting of  pure water (see \ref thermoprops
+ * and class \link Cantera::WaterSSTP WaterSSTP\endlink).
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of

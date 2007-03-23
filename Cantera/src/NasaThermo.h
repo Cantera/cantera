@@ -1,8 +1,9 @@
 /**
  * @file NasaThermo.h
- *    
- *   Definitions for the 2 regime 7 coefficient Nasa thermodynamic
- *   polynomials.
+ *   Header for the 2 regime 7 coefficient Nasa thermodynamic
+ *   polynomials for multiple species in a phase, derived from the
+ *   \link Cantera::SpeciesThermo SpeciesThermo\endlink base class (see \ref spthermo and
+ *   \link Cantera::NasaThermo NasaThermo\endlink).
  */
 
 /*
