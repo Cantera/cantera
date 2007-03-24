@@ -41,7 +41,17 @@ namespace Cantera {
    * Class State is not usually used directly in application
    * programs. Its primary use is as a base class for class
    * Phase. Class State has no virtual methods, and none of its
-   * methods are meant to be overloaded.
+   * methods are meant to be overloaded. However, this is one exception.
+   *  If the phase is incompressible, then the density must be replaced
+   *  by the pressure as the independent variable. In this case, functions
+   *  such as setMassFraction within the class %State must actually now
+   *  calculate the density (at constant T and P) instead of leaving
+   *  it alone as befits an independent variable. Threfore, these type
+   *  of functions are virtual functions and need to be overloaded 
+   *  for incompressible phases. Note, for almost incompressible phases
+   *  (or phases which utilize standard states based on a T and P) this
+   *  may be advantageous as well, and they need to overload these functions
+   *  too. 
    *
    * @ingroup phases
    */
@@ -109,40 +119,40 @@ namespace Cantera {
        */
       doublereal moleFraction(int k) const;
 
-	/**
-         * Set the mole fractions to the specified values, and then 
-         * normalize them so that they sum to 1.0.
-         * @param x Array of unnormalized mole fraction values (input). 
-         * Must have a length greater than or equal to the number of
-         * species.
-	 *
-	 * @param x  Input vector of mole fractions.
-	 *           Length is m_kk.
-         */
-	virtual void setMoleFractions(const doublereal* x);
+      /**
+       * Set the mole fractions to the specified values, and then 
+       * normalize them so that they sum to 1.0.
+       * @param x Array of unnormalized mole fraction values (input). 
+       * Must have a length greater than or equal to the number of
+       * species.
+       *
+       * @param x  Input vector of mole fractions.
+       *           Length is m_kk.
+       */
+      virtual void setMoleFractions(const doublereal* x);
 
-	/**
-         * Set the mole fractions to the specified values without
-         * normalizing. This is useful when the normalization
-         * condition is being handled by some other means, for example
-         * by a constraint equation as part of a larger set of
-         * equations.
-	 *
-	 * @param x  Input vector of mole fractions.
-	 *           Length is m_kk.
-         */
-	virtual void setMoleFractions_NoNorm(const doublereal* x);
+      /**
+       * Set the mole fractions to the specified values without
+       * normalizing. This is useful when the normalization
+       * condition is being handled by some other means, for example
+       * by a constraint equation as part of a larger set of
+       * equations.
+       *
+       * @param x  Input vector of mole fractions.
+       *           Length is m_kk.
+       */
+      virtual void setMoleFractions_NoNorm(const doublereal* x);
 
-        /**
-         * Get the species mass fractions.  
-         * @param y On return, y
-         * contains the mass fractions. Array \a y must have a length
-         * greater than or equal to the number of species.
-	 *
-	 * @param y  Output vector of mass fractions.
-	 *           Length is m_kk. 
-         */
-	void getMassFractions(doublereal* y) const;
+      /**
+       * Get the species mass fractions.  
+       * @param y On return, y
+       * contains the mass fractions. Array \a y must have a length
+       * greater than or equal to the number of species.
+       *
+       * @param y  Output vector of mass fractions.
+       *           Length is m_kk. 
+       */
+      void getMassFractions(doublereal* y) const;
 
       //! Mass fraction of species k. 
       /*!
@@ -155,90 +165,90 @@ namespace Cantera {
        */
       doublereal massFraction(int k) const;
 
-	/**
-         * Set the mass fractions to the specified values, and then 
-         * normalize them so that they sum to 1.0.
-         * @param y Array of unnormalized mass fraction values (input). 
-         * Must have a length greater than or equal to the number of
-         * species.
-	 *
-	 * @param y  Input vector of mass fractions.
-	 *           Length is m_kk.
-         */
-	virtual void setMassFractions(const doublereal* y);
+      /**
+       * Set the mass fractions to the specified values, and then 
+       * normalize them so that they sum to 1.0.
+       * @param y Array of unnormalized mass fraction values (input). 
+       * Must have a length greater than or equal to the number of
+       * species.
+       *
+       * @param y  Input vector of mass fractions.
+       *           Length is m_kk.
+       */
+      virtual void setMassFractions(const doublereal* y);
 
-	/**
-         * Set the mass fractions to the specified values without
-         * normalizing. This is useful when the normalization
-         * condition is being handled by some other means, for example
-         * by a constraint equation as part of a larger set of
-         * equations.
-	 *
-	 * @param y  Input vector of mass fractions.
-	 *           Length is m_kk.
-         */
-	virtual void setMassFractions_NoNorm(const doublereal* y);
+      /**
+       * Set the mass fractions to the specified values without
+       * normalizing. This is useful when the normalization
+       * condition is being handled by some other means, for example
+       * by a constraint equation as part of a larger set of
+       * equations.
+       *
+       * @param y  Input vector of mass fractions.
+       *           Length is m_kk.
+       */
+      virtual void setMassFractions_NoNorm(const doublereal* y);
 
-        /**
-         * Get the species concentrations (kmol/m^3).  @param c On
-         * return, \a c contains the concentrations for all species.
-         * Array \a c must have a length greater than or equal to the
-         * number of species.
-         */
-	void getConcentrations(doublereal* c) const;
+      /**
+       * Get the species concentrations (kmol/m^3).  @param c On
+       * return, \a c contains the concentrations for all species.
+       * Array \a c must have a length greater than or equal to the
+       * number of species.
+       */
+      void getConcentrations(doublereal* c) const;
 
-        /**
-         * Concentration of species k. If k is outside the valid
-         * range, an exception will be thrown.
-	 *
-	 * @param  k Index of species
-         */
-        doublereal concentration(int k) const;
+      /**
+       * Concentration of species k. If k is outside the valid
+       * range, an exception will be thrown.
+       *
+       * @param  k Index of species
+       */
+      doublereal concentration(int k) const;
 
-	/**
-	 * Set the concentrations to the specified values within the
-	 * phase. 
-	 *
-	 * @param c The input vector to this routine is in dimensional
-	 *        units. For volumetric phases c[k] is the
-	 *        concentration of the kth species in kmol/m3.
-	 *        For surface phases, c[k] is the concentration
-	 *        in kmol/m2. The length of the vector is the number
-	 *        of species in the phase.
-	 */
-	virtual void setConcentrations(const doublereal* c);
+      /**
+       * Set the concentrations to the specified values within the
+       * phase. 
+       *
+       * @param c The input vector to this routine is in dimensional
+       *        units. For volumetric phases c[k] is the
+       *        concentration of the kth species in kmol/m3.
+       *        For surface phases, c[k] is the concentration
+       *        in kmol/m2. The length of the vector is the number
+       *        of species in the phase.
+       */
+      virtual void setConcentrations(const doublereal* c);
 
-	/**
-	 * Returns a read-only pointer to the start of the
-	 * massFraction array
-	 */
-        const doublereal* massFractions() const { return &m_y[0]; }
+      /**
+       * Returns a read-only pointer to the start of the
+       * massFraction array
+       */
+      const doublereal* massFractions() const { return &m_y[0]; }
 
-	/**
-	 * Returns a read-only pointer to the start of the
-	 * moleFraction/MW array.  This array is the array of mole
-	 * fractions, each divided by the mean molecular weight.
-	 */
-        const doublereal* moleFractdivMMW() const { return &m_ym[0];}
+      /**
+       * Returns a read-only pointer to the start of the
+       * moleFraction/MW array.  This array is the array of mole
+       * fractions, each divided by the mean molecular weight.
+       */
+      const doublereal* moleFractdivMMW() const { return &m_ym[0];}
 
 
-        //@}
+      //@}
 
-        /// @name Mean Properties
-        //@{
-	/**
-         * Evaluate the mole-fraction-weighted mean of Q:
-         * \f[ \sum_k X_k Q_k. \f]
-         * Array Q should contain pure-species molar property 
-         * values.
-	 *
-	 * @param Q input vector of length m_kk that is to be averaged.
-	 * @return
-	 *   mole-freaction-weighted mean of Q
-         */
-	doublereal mean_X(const doublereal* Q) const {
-            return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q, 0.0);
-        }
+      /// @name Mean Properties
+      //@{
+      /**
+       * Evaluate the mole-fraction-weighted mean of Q:
+       * \f[ \sum_k X_k Q_k. \f]
+       * Array Q should contain pure-species molar property 
+       * values.
+       *
+       * @param Q input vector of length m_kk that is to be averaged.
+       * @return
+       *   mole-freaction-weighted mean of Q
+       */
+      doublereal mean_X(const doublereal* Q) const {
+	return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q, 0.0);
+      }
 
       /**
        * Evaluate the mass-fraction-weighted mean of Q:
@@ -250,12 +260,12 @@ namespace Cantera {
        */        
       doublereal mean_Y(const doublereal* Q) const;
 
-	/**
-         * The mean molecular weight. Units: (kg/kmol)
-         */
-	doublereal meanMolecularWeight() const {
-            return m_mmw; 
-	}
+      /**
+       * The mean molecular weight. Units: (kg/kmol)
+       */
+      doublereal meanMolecularWeight() const {
+	return m_mmw; 
+      }
 
       //! Evaluate \f$ \sum_k X_k \log X_k \f$.
       /*!
@@ -272,23 +282,23 @@ namespace Cantera {
       doublereal sum_xlogQ(doublereal* Q) const;
       //@}
 
-        /// @name Thermodynamic Properties
-        /// Class State only stores enough thermodynamic data to
-        /// specify the state. In addition to composition information, 
-        /// it stores the temperature and
-        /// mass density. 
-        //@{
+      /// @name Thermodynamic Properties
+      /// Class State only stores enough thermodynamic data to
+      /// specify the state. In addition to composition information, 
+      /// it stores the temperature and
+      /// mass density. 
+      //@{
 
-	/// Temperature (K).
-	doublereal temperature() const { return m_temp; }
+      /// Temperature (K).
+      doublereal temperature() const { return m_temp; }
 
-	/// Density (kg/m^3).
-	doublereal density() const { return m_dens; }
+      /// Density (kg/m^3).
+      doublereal density() const { return m_dens; }
 
-	/// Molar density (kmol/m^3).
-	doublereal molarDensity() const { 
-            return m_dens/meanMolecularWeight(); 
-        }
+      /// Molar density (kmol/m^3).
+      doublereal molarDensity() const { 
+	return m_dens/meanMolecularWeight(); 
+      }
 
       //! Set the internally storred density (kg/m^3) of the phase
       /*!
@@ -348,71 +358,58 @@ namespace Cantera {
        * @param k       id of the species
        * @param mw      Molecular Weight (kg kmol-1)
        */
-        void setMolecularWeight(int k, double mw) {
-            m_molwts[k] = mw;
-            m_rmolwts[k] = 1.0/mw;
-        }
+      void setMolecularWeight(int k, double mw) {
+	m_molwts[k] = mw;
+	m_rmolwts[k] = 1.0/mw;
+      }
 
     private:
 
-	/**
-	 * Temperature. This is an independent variable 
-	 * units = Kelvin
-	 */
-        doublereal m_temp;
+      /**
+       * Temperature. This is an independent variable 
+       * units = Kelvin
+       */
+      doublereal m_temp;
 
-	/**
-	 * Density.   This is an independent variable except in
-	 *            the incompressible degenerate case. Thus,
-	 *            the pressure is determined from this variable
-	 *            not the other way round.
-	 * units = kg m-3
-	 */
-	doublereal m_dens;
+      /**
+       * Density.   This is an independent variable except in
+       *            the incompressible degenerate case. Thus,
+       *            the pressure is determined from this variable
+       *            not the other way round.
+       * units = kg m-3
+       */
+      doublereal m_dens;
 
-	/**
-	 * m_mmw is the mean molecular weight of the mixture
-	 * (kg kmol-1)
-	 */
-        doublereal m_mmw;
+      /**
+       * m_mmw is the mean molecular weight of the mixture
+       * (kg kmol-1)
+       */
+      doublereal m_mmw;
         
-	/**
-	 *  m_ym[k] = mole fraction of species k divided by the
-	 *            mean molecular weight of mixture.
-	 */
-        mutable array_fp m_ym;
+      /**
+       *  m_ym[k] = mole fraction of species k divided by the
+       *            mean molecular weight of mixture.
+       */
+      mutable array_fp m_ym;
 
-	/**
-	 * m_y[k]  = mass fraction of species k
-	 */
-        mutable array_fp m_y;
+      /**
+       * m_y[k]  = mass fraction of species k
+       */
+      mutable array_fp m_y;
 
-	/**
-	 * m_molwts[k] = molecular weight of species k (kg kmol-1)
-	 */
-	array_fp m_molwts;
+      /**
+       * m_molwts[k] = molecular weight of species k (kg kmol-1)
+       */
+      array_fp m_molwts;
 
-	/**
-	 *  m_rmolwts[k] = inverse of the molecular weight of species k
-	 *  units = kmol kg-1.
-	 */
-	array_fp m_rmolwts;
+      /**
+       *  m_rmolwts[k] = inverse of the molecular weight of species k
+       *  units = kmol kg-1.
+       */
+      array_fp m_rmolwts;
 
     };
 
 }
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-

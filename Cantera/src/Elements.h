@@ -1,11 +1,3 @@
-/***********************************************************************
- *  $RCSfile$
- *  $Author$ 
- *  $Date$
- *  $Revision$
- ***********************************************************************/
-//  Copyright 2001  California Institute of Technology
-
 /**
  *  @file Elements.h 
  *  Header file for class, Elements, which contains the elements that 
@@ -13,6 +5,13 @@
  *
  *  This file contains the declarations for the elements class.
  */
+/***********************************************************************
+ *  $RCSfile$
+ *  $Author$ 
+ *  $Date$
+ *  $Revision$
+ ***********************************************************************/
+//  Copyright 2001  California Institute of Technology
 
 #ifndef CT_ELEMENTS_H
 #define CT_ELEMENTS_H
@@ -27,21 +26,21 @@ namespace Cantera {
     class XML_Node;
     class ElementRangeError;
 
-    /*!
-     *  Elements Class: Object contains the elements that make up species.
-     * 
-     * Class Elements manages the elements that are part of a
-     * chemistry specification.  This class may support calculations
-     * employing Multiple phases. In this case, a single Elements object may
-     * be shared by more than one Constituents class. Reactions between
-     * the phases may then be described using stoichiometry base on the
-     * same Elements class object.
-     * 
-     * The member functions return information about the elements described
-     * in a particular instantiation of the class.
-     * 
-     * @ingroup phases
-     */
+    
+  //! Object containing the elements that make up species in a phase.
+  /*!
+   * Class %Elements manages the elements that are part of a
+   * chemistry specification.  This class may support calculations
+   * employing Multiple phases. In this case, a single Elements object may
+   * be shared by more than one Constituents class. Reactions between
+   * the phases may then be described using stoichiometry base on the
+   * same Elements class object.
+   * 
+   * The member functions return information about the elements described
+   * in a particular instantiation of the class.
+   * 
+   * @ingroup phases
+   */
     class Elements {
 
     public:

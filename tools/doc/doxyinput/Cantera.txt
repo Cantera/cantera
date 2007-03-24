@@ -5,6 +5,8 @@
 Choose one of the links below for an introduction to %Cantera, or use
  the menu at the top to view detailed documentation of the code.
 
+-
+
 - \subpage languages
 
 - Building and Installing %Cantera
