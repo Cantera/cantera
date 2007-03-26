@@ -96,6 +96,8 @@ extern char   *mdp_copy_C16_NAME_to_string(const C16_NAME);
 extern char   *mdp_copy_string(const char *);
 extern void    mdp_safe_copy_string(char **, const char *);
 
+extern void ***mdp_alloc_ptr_2(int, int);
+
 /*****************************************************************************/
 #endif
 /*****************************************************************************/

@@ -243,7 +243,7 @@ static int breakStrCommas(char *str, char **strlets, int maxPieces)
  */
 
 static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines, 
-	              int &nCol, int &nDataRows)
+	              int &nCol, int &nDataRows, int **ColIsFloat_ptr)
 {
   int nScanLinesMAX = 100;
   int nScanLines = nScanLinesMAX;
@@ -253,6 +253,7 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
   TOKEN fieldToken;
   char *scanLine = mdp_alloc_char_1(MAX_INPUT_STR_LN+1, '\0');
   int *numCommas = mdp_alloc_int_1(nScanLinesMAX, -1);
+  int *ColIsFloat = *ColIsFloat_ptr;
 
   /*
    * Rewind the file
@@ -289,7 +290,9 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
       }
     } while (cetn);
     if (i > 1) {
-      if ( maxCommas < numCommas[i]) maxCommas = numCommas[i];
+      if ( maxCommas < numCommas[i]) {
+	maxCommas = numCommas[i];
+      }
     }
   }
   /*
@@ -300,6 +303,33 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
     nCol = 0;
   }
   char **strlets = (char **) mdp_alloc_ptr_1(maxCommas+1);
+
+  /*
+   * Figure out if each column is a text or float
+   */
+  rewind(fp);
+  for (i = 0; i < nScanLines; i++) {
+    retn = read_line(fp, scanLine, 0);
+    int ncolsFound = breakStrCommas(scanLine, strlets, nCol);
+    if (ncolsFound == (maxCommas + 1)) {
+      for (j = 0; j < ncolsFound; j++) {
+	char *fieldStr = strlets[j];
+	fillTokStruct(&fieldToken, fieldStr);
+	if (fieldToken.ntokes != 1) {
+	  break;
+	}
+	int rerr = FALSE;
+	(void) tok_to_double(&fieldToken, DBL_MAX,
+			     -DBL_MAX, 0.0, &rerr);
+	if (!rerr) {
+	  ColIsFloat[j] = true;
+	}
+      }
+
+    }
+  }
+
+
 
   int doingLineType = LT_TITLELINE;
   rewind(fp);
@@ -332,11 +362,13 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
 	  goodDataLine = FALSE;
 	  break;
 	}
-	(void) tok_to_double(&fieldToken, DBL_MAX,
-			     -DBL_MAX, 0.0, &rerr);
-	if (rerr) {
-	  goodDataLine = FALSE;
-	  break;
+	if (ColIsFloat[j] == true) {
+	  (void) tok_to_double(&fieldToken, DBL_MAX,
+			       -DBL_MAX, 0.0, &rerr);
+	  if (rerr) {
+	    goodDataLine = FALSE;
+	    break;
+	  }
 	}
       }
       if (goodDataLine) {
@@ -377,11 +409,13 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
 	  goodDataLine = FALSE;
 	  break;
 	}
-	(void) tok_to_double(&fieldToken, DBL_MAX,
-			     -DBL_MAX, 0.0, &rerr);
-	if (rerr) {
-	  goodDataLine = FALSE;
-	  break;
+	if (ColIsFloat[j] == true) {
+	  (void) tok_to_double(&fieldToken, DBL_MAX,
+			       -DBL_MAX, 0.0, &rerr);
+	  if (rerr) {
+	    goodDataLine = FALSE;
+	    break;
+	  }
 	}
       }
       if (! goodDataLine) {
@@ -418,7 +452,7 @@ read_title(FILE *fp, char ***title, int nTitleLines)
 	if (ccount > 0) {
 	  if (scanLine[ccount-1] == ',') scanLine[ccount-1] = '\0';
 	}
-	*title[i] = mdp_copy_string(scanLine);
+	(*title)[i] = mdp_copy_string(scanLine);
       }
    }
    mdp_safe_free((void **) &scanLine);
@@ -492,7 +526,8 @@ static double get_atol(const double *values, const int nvals,
 /*****************************************************************************/
 
 static void
-read_values(FILE *fp, double **NVValues, int nCol, int nDataRows)
+read_values(FILE *fp, double **NVValues, char ***NSValues, int nCol, int nDataRows,
+	    int *ColIsFloat)
 {
   char **strlets = (char **) mdp_alloc_ptr_1(nCol+1);
   char *scanLine = mdp_alloc_char_1(Max_Input_Str_Ln + 1, '\0');
@@ -517,18 +552,21 @@ read_values(FILE *fp, double **NVValues, int nCol, int nDataRows)
     int rerr = FALSE;
     for (j = 0; j < ncolsFound; j++) {
       char *fieldStr = strlets[j];
+      NSValues[j][i] = mdp_copy_string(strlets[j]);
       fillTokStruct(&fieldToken, fieldStr);
       if (fieldToken.ntokes != 1) {
 	goodDataLine = FALSE;
 	break;
       }
-      value = tok_to_double(&fieldToken, DBL_MAX,
-			   -DBL_MAX, 0.0, &rerr);
-      if (rerr) {
-	goodDataLine = FALSE;
-	break;
+      if (ColIsFloat[j]) {
+	value = tok_to_double(&fieldToken, DBL_MAX,
+			      -DBL_MAX, 0.0, &rerr);
+	if (rerr) {
+	  goodDataLine = FALSE;
+	  break;
+	}
+	NVValues[j][i] = value;
       }
-      NVValues[j][i] = value;
     }
     if (! goodDataLine) {
       break;
@@ -587,7 +625,10 @@ int main(int argc, char *argv[])
   char   ***ColMLNames1 = NULL, ***ColMLNames2 = NULL;
   char   **ColNames1 = NULL, **ColNames2 = NULL;
   double **NVValues1 = NULL, **NVValues2 = NULL;
-  double *curVarValues1, *curVarValues2;
+  char   ***NSValues1 = NULL, ***NSValues2 = NULL; 
+  int    *ColIsFloat1 = NULL, *ColIsFloat2 = NULL;
+  double *curVarValues1 = NULL, *curVarValues2 = NULL;
+  char ** curStringValues1 = NULL, **curStringValues2 = NULL;
   int    mixed_var = 0;
   int    i, j, ndiff, jmax, i1, i2, k, found;
   double max_diff, rel_diff;
@@ -687,11 +728,13 @@ int main(int argc, char *argv[])
     exit(-1);
   }
 
+  ColIsFloat1 = mdp_alloc_int_1(200, 0);
+  ColIsFloat2 = mdp_alloc_int_1(200, 0);
   /*
    *   Obtain the size of the problem information: Compare between files. 
    */
 
-  get_sizes(fp1, nTitleLines1, nColTitleLines1, nCol1, nDataRows1);
+  get_sizes(fp1, nTitleLines1, nColTitleLines1, nCol1, nDataRows1, &ColIsFloat1);
   if (nCol1 == 0) {
     printf("Number of columns in file %s is zero\n", fileName1);
     testPassed = -1;
@@ -703,7 +746,7 @@ int main(int argc, char *argv[])
     exit (-1);
   }
 
-  get_sizes(fp2, nTitleLines2, nColTitleLines2, nCol2, nDataRows2);
+  get_sizes(fp2, nTitleLines2, nColTitleLines2, nCol2, nDataRows2, &ColIsFloat2);
   if (nCol2 == 0) {
     printf("Number of columns in file %s is zero\n", fileName2);
     testPassed = -1;
@@ -745,11 +788,19 @@ int main(int argc, char *argv[])
   read_title(fp1, &title1, nTitleLines1);
   read_title(fp2, &title2, nTitleLines2);
 
-  if (nTitleLines1 > 0 && nTitleLines2 > 0) {
-    if (strcmp(title1[0], title2[0]) != 0) {
-      printf("Titles differ:\n\t\"%s\"\n\t\"%s\"\n", title1[0], title2[0]);
-    } else if (Debug_Flag) {
-      printf("Title for each file: \"%s\"\n", title1[0]);
+  if (nTitleLines1 > 0 || nTitleLines2 > 0) {
+    int n = MIN(nTitleLines1, nTitleLines2);
+    for (i = 0; i < n; i++) {
+      if (strcmp(title1[i], title2[i]) != 0) {
+	printf("Title Line %d differ:\n\t\"%s\"\n\t\"%s\"\n", i, title1[i], title2[i]);
+      } else if (Debug_Flag) {
+	printf("Title Line %d for each file: \"%s\"\n", i, title1[i]);
+      }
+    }
+    if (nTitleLines1 != nTitleLines2) {
+      printf("Number of Title Lines differ: %d %d\n", nTitleLines1, nTitleLines2);
+      testPassed = -1;
+      exit(-1);
     }
   } else {
     if (nTitleLines1 != nTitleLines2) {
@@ -761,6 +812,8 @@ int main(int argc, char *argv[])
 	printf("Titles differ: title for second file: \"%s\"\n", 
 	       title2[0]);
       }
+      testPassed = -1;
+      exit(-1);
     }
   }
 
@@ -830,10 +883,16 @@ int main(int argc, char *argv[])
   NVValues2 = mdp_alloc_dbl_2(nCol2, nDataRowsMAX, 0.0);
 
   /*
+   *  Allocate storage for the column variables
+   */
+  NSValues1 = (char ***) mdp_alloc_ptr_2(nCol1, nDataRowsMAX);
+  NSValues2 = (char ***) mdp_alloc_ptr_2(nCol2, nDataRowsMAX);
+
+  /*
    *  Read in the values to the arrays
    */
-  read_values(fp1, NVValues1,  nCol1, nDataRows1);
-  read_values(fp2, NVValues2,  nCol2, nDataRows2);
+  read_values(fp1, NVValues1, NSValues1, nCol1, nDataRows1, ColIsFloat1);
+  read_values(fp2, NVValues2, NSValues2, nCol2, nDataRows2, ColIsFloat2);
 
   /*
    * Compare the solutions in each file
@@ -849,46 +908,73 @@ int main(int argc, char *argv[])
 
     i1 =  compColList[k][0];
     i2 =  compColList[k][1];
-    curVarValues1 = NVValues1[i1];
-    curVarValues2 = NVValues2[i2];	  
+    bool doFltComparison = true;
+    if (!ColIsFloat1[i1]) {
+      doFltComparison = false;
+      jmax = -1;
+    }
+    if (!ColIsFloat2[i2]) {
+      doFltComparison = false;
+      jmax = -1;
+    }
+    curStringValues1 = NSValues1[i1];
+    curStringValues2 = NSValues2[i2]; 
     max_diff = 0.0;
     ndiff = 0;
-    atol_j =             get_atol(curVarValues1, nDataRows1, gatol);
-    atol_j = MIN(atol_j, get_atol(curVarValues2, nDataRows2, gatol));
-    for (j = 0; j < nDataRowsMIN; j++) {
+    if (doFltComparison) {
+      curVarValues1 = NVValues1[i1];
+      curVarValues2 = NVValues2[i2];
+      atol_j =             get_atol(curVarValues1, nDataRows1, gatol);
+      atol_j = MIN(atol_j, get_atol(curVarValues2, nDataRows2, gatol));
+      for (j = 0; j < nDataRowsMIN; j++) {
 
-      slope1 = 0.0;
-      slope2 = 0.0;
-      xatol = fabs(grtol * (NVValues1[0][j] - NVValues1[0][j-1]));
-      if (j > 0 && k > 0) {
-	slope1 = (curVarValues1[j] - curVarValues1[j-1])/
-	  (NVValues1[0][j] - NVValues1[0][j-1]);
-	slope2 = (curVarValues2[j] - curVarValues2[j-1])/
-	  (NVValues2[0][j] - NVValues2[0][j-1]);
-      }
-      if (method) {
-	notOK = diff_double_slope(curVarValues1[j], curVarValues2[j], 
-				  grtol, atol_j, xatol, slope1, slope2);
-      } else {
-	notOK = diff_double(curVarValues1[j], curVarValues2[j], 
-			    grtol, atol_j);
-      }
-      if (notOK) {
-	ndiff++;
-	rel_diff = calc_rdiff((double) curVarValues1[j], 
-			      (double) curVarValues2[j], grtol, atol_j);
-	if (rel_diff > max_diff) {
-	  jmax = j;
-	  max_diff = rel_diff;
+	slope1 = 0.0;
+	slope2 = 0.0;
+	xatol = fabs(grtol * (NVValues1[0][j] - NVValues1[0][j-1]));
+	if (j > 0 && k > 0) {
+	  slope1 = (curVarValues1[j] - curVarValues1[j-1])/
+	    (NVValues1[0][j] - NVValues1[0][j-1]);
+	  slope2 = (curVarValues2[j] - curVarValues2[j-1])/
+	    (NVValues2[0][j] - NVValues2[0][j-1]);
 	}
-	if (ndiff < 10) {
-	  printf("\tColumn variable %s at data row %d ", ColNames1[i1], j + 1);
-	  printf(" differ: %g %g\n", curVarValues1[j], 
-		 curVarValues2[j]);
+	if (method) {
+	  notOK = diff_double_slope(curVarValues1[j], curVarValues2[j], 
+				    grtol, atol_j, xatol, slope1, slope2);
+	} else {
+	  notOK = diff_double(curVarValues1[j], curVarValues2[j], 
+			      grtol, atol_j);
+	}
+	if (notOK) {
+	  ndiff++;
+	  rel_diff = calc_rdiff((double) curVarValues1[j], 
+				(double) curVarValues2[j], grtol, atol_j);
+	  if (rel_diff > max_diff) {
+	    jmax = j;
+	    max_diff = rel_diff;
+	  }
+	  if (ndiff < 10) {
+	    printf("\tColumn variable %s at data row %d ", ColNames1[i1], j + 1);
+	    printf(" differ: %g %g\n", curVarValues1[j], 
+		   curVarValues2[j]);
+	  }
+	}
+      }
+    } else {
+      for (j = 0; j < nDataRowsMIN; j++) {
+	strip(curStringValues1[j]);
+	strip(curStringValues2[j]);
+	notOK = false;
+	if (strcmp(curStringValues1[j], curStringValues2[j])) {
+	  notOK = true;
+	  ndiff++;
+	  if (ndiff < 10) {
+	    printf("\tColumn String variable %s at data row %d ", ColNames1[i1], j + 1);
+	    printf(" differ: %s %s\n", curStringValues1[j], 
+		   curStringValues2[j]);
+	  }
 	}
       }
     }
- 
     
     if (nDataRowsMIN != nDataRowsMAX) {
       ndiff +=  nDataRowsMAX - nDataRowsMIN;
@@ -915,8 +1001,10 @@ int main(int argc, char *argv[])
       printf(
 	     "Column variable %s failed comparison test for %d occurances\n",
 	     ColNames1[i1], ndiff);
-      printf("  Largest difference was at data row %d ", jmax + 1);
-      printf(": %g %g\n", curVarValues1[jmax],  curVarValues2[jmax]);
+      if (jmax >= 0) {
+	printf("  Largest difference was at data row %d ", jmax + 1);
+	printf(": %g %g\n", curVarValues1[jmax],  curVarValues2[jmax]);
+      }
       testPassed = 0;
     } else if (Debug_Flag) {
       printf("Column variable %s passed\n",  ColNames1[i1]);

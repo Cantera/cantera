@@ -163,18 +163,20 @@ static double *smalloc(size_t n);
  *      POINT    **points, corner;
  *
  *      points = (POINT **) array_alloc (2, x, y, sizeof(POINT));
- *                               ^ ^ ^
- *                               | | |
- *         number of dimensions--+ | |
- *                                 | |
- *          first dimension max----+ |
- *                                   |
- *         second dimension max------+
+ *                                       ^  ^  ^
+ *                                       |  |  |
+ *                 number of dimensions--+  |  |
+ *                                          |  |
+ *                   first dimension max----+  |
+ *                                             |
+ *                  second dimension max-------+
  *
  *         (points may be now be used as if it were declared
  *          POINT points[x][y])
  *
- *          This particular version is limited to dimensions of 3 or less.
+ *          Note, the inner loop of the memory layout is the over the 
+ *          last column.
+ *
  *
  *      corner = points[2][3]; (refer to the structure as you would any array)
  *
@@ -832,7 +834,7 @@ double **mdp_alloc_dbl_2(int ndim1, int ndim2, const double val)
    *        val   = intialization value
    *    Return
    *    ------
-   *        Pointer to the intialized integer array
+   *        Pointer to the intialized double array
    *        Failures are indicated by returning the NULL pointer.
    **************************************************************************/
 {
@@ -1332,6 +1334,45 @@ void mdp_realloc_ptr_1(void ***array_hdl, int numLen, int numOldLen)
     mdp_alloc_eh("mdp_realloc_ptr_1", sizeof(void *) * numLen);
   }
 }
+
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/
+
+void ***mdp_alloc_ptr_2(int ndim1, int ndim2)
+ 
+   /*************************************************************************
+   *
+   *  mdp_alloc_ptr_2:
+   *
+   *    Allocate and initialize an array of pointers
+   *    of type pointer to void. All pointers are initialized to the NULL
+   *    value.
+   *        referenced by ptrArray[ndim1][ndim2]
+   *
+   *    Input
+   *    -------
+   *        ndim1 = Number of pointers in din 1
+   *        ndim2 = Number of pointers in dim 2
+   *    Return
+   *    ------
+   *        This value is initialized to the correct address of the vector.
+   *        A NULL value in the position indicates an error.
+   **************************************************************************/
+{
+  void ***array;
+  if (ndim1 <= 0) ndim1 = 1;
+  if (ndim2 <= 0) ndim2 = 1;
+   array = (void ***) mdp_array_alloc(2, ndim1, ndim2, sizeof(void *));
+   if (array != NULL) {
+     (void) memset((void *) array[0], 0, ndim1*ndim2 * sizeof(void *));
+   } else {
+    mdp_alloc_eh("mdp_alloc_ptr_2",
+		 sizeof(void *) * ndim1 * ndim2);
+   }
+   return array;
+}
+
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/
