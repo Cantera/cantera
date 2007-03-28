@@ -118,6 +118,8 @@ namespace Cantera {
         m_moleFractions.resize(m_nsp, 0.0);
 
         // iterate over the elements
+	//   -> fill in m_atoms(m,k), m_snames(k), m_spphase(k),
+	//              m_sptart(ip)
         for (m = 0; m < m_nel; m++) {
             sym = m_enames[m];
             k = 0;
@@ -158,6 +160,10 @@ namespace Cantera {
         /// mole fractions stored in the phase objects
         m_init = true;
         updateMoleFractions();
+
+	m_elemAbundances.resize(m_nel, 0.0);
+
+	calcElemAbundances();
     }
 
 
@@ -414,6 +420,38 @@ namespace Cantera {
             loc += nsp;
         }
     }
+
+  void MultiPhase::getElemAbundances(doublereal *elemAbundances) const {
+    index_t eGlobal;
+    calcElemAbundances();
+    for (eGlobal = 0; eGlobal < m_nel; eGlobal++) {
+      elemAbundances[eGlobal] = m_elemAbundances[eGlobal];
+    }
+  }
+
+  // Internal routine to calculate the element abundance vector
+  void MultiPhase::calcElemAbundances() const {
+    index_t loc = 0;
+    index_t eGlobal;
+    int ik, kGlobal;
+    doublereal spMoles;
+    for (eGlobal = 0; eGlobal < m_nel; eGlobal++) {
+      m_elemAbundances[eGlobal] = 0.0;
+    }
+    for (index_t ip = 0; ip < m_np; ip++) {
+      phase_t* p = m_phase[ip];
+      int nspPhase = p->nSpecies();
+      doublereal phasemoles = m_moles[ip];
+      loc += nspPhase;
+      for (ik = 0; ik < nspPhase; ik++) {
+	kGlobal = loc + ik;
+	spMoles = m_moleFractions[kGlobal] * phasemoles;
+	for (eGlobal = 0; eGlobal < m_nel; eGlobal++) {
+	  m_elemAbundances[eGlobal] += m_atoms(eGlobal, kGlobal) * spMoles;
+	}
+      }
+    }
+  }
 
     /// The total mixture volume [m^3].
     doublereal MultiPhase::volume() const {
@@ -771,6 +809,21 @@ done:
         }
     }
 #endif
+
+  // Name of element \a m.
+  std::string MultiPhase::elementName(int m) const {
+    return m_enames[m];
+  }
+
+  // Index of element with name \a name.
+  int MultiPhase::elementIndex(std::string name) const { 
+    return m_enamemap[name] - 1;
+  }
+  
+  // Name of species with global index \a k.
+  std::string MultiPhase::speciesName(int k) const {
+    return m_snames[k]; 
+  }
 
     //-------------------------------------------------------------
     //
