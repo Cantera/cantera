@@ -25,11 +25,6 @@ int iDebug_HKM = 0;
 
 /*****************************************************************/
 /*****************************************************************/
-/*****************************************************************/
-static void printUsage()
-{
-
-}
 
 #ifdef SRCDIRTREE
 #include "ct_defs.h"
@@ -118,7 +113,11 @@ int main(int argc, char** argv) {
 
       iKin_ptr->advanceCoverages(100.);
 
-   
+      // Throw some asserts in here to test that they compile
+      AssertTrace(p == p); 
+      AssertThrow(p == p, "main"); 
+      AssertThrowMsg(i == 20, "main", "are you kidding"); 
+
       double src[20];
       for (i = 0; i < 20; i++) src[i] = 0.0;
       iKin_ptr->getNetProductionRates(src);

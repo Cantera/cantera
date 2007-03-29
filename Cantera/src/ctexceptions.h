@@ -26,7 +26,8 @@ namespace Cantera {
   /*!
    * @defgroup errorhandling Error Handling
    *
-   * \brief These classes and related functions are used to handle errors and unknown events within Cantera.
+   * \brief These classes and related functions are used to handle errors and 
+   *        unknown events within Cantera.
    * 
    *  The general idea is that exceptions are thrown using the common
    *  base class called CanteraError. Derived types of CanteraError
@@ -42,7 +43,23 @@ namespace Cantera {
    *  \include edemo.cpp
    *
    *  The function showErrors() will print out the fatal error condition to standard output. 
+   *
+   *  A group of defines may be used during debugging to assert conditions which should
+   *  be true. These are named AssertTrace(), AssertThrow(), and AssertThrowMsg().
+   *  Examples of their usage is given below.
+   *
+   * @code
+   *       AssertTrace(p == OneAtm);
+   *       AssertThrow(p == OneAtm, "Kinetics::update");
+   *       AssertThrowMsg(p == OneAtm, "Kinetics::update", "Algorithm limited to atmospheric pressure");
+   * @endcode
+   *
+   *  Their first argument is a boolean. If the boolean is not true, a CanteraError is thrown, with 
+   *  descriptive information indicating where the error occured. These functions may be eliminated
+   *  from the source code, if the -DNDEBUG option is specified to the compiler.
+   *
    */
+  
     
   //! Base class for exceptions thrown by Cantera classes.
   /*!
@@ -141,6 +158,63 @@ namespace Cantera {
    * @ingroup errorhandling 
    */
   void removeAtVersion(std::string func, std::string version);
+
+  //! Provides a line number
+#define XSTR_TRACE_LINE(s) STR_TRACE_LINE(s)
+
+  //! Provides a line number
+#define STR_TRACE_LINE(s) #s  
+
+  //! Provides a std::string variable containing the file and line number
+  /*!
+   *   This is a std:string containing the file name and the line number
+   */
+#define STR_TRACE   (std::string(__FILE__) +  ":" + XSTR_TRACE_LINE(__LINE__))
+
+#ifdef NDEBUG
+#  define AssertTrace(expr)                   ((void) (0))
+#  define AssertThrow(expr, proc)             ((void) (0))
+#  define AssertThrowMsg(expr,proc, message)  ((void) (0))
+#else
+
+  //! Assertion must be true or an error is thrown
+  /*!
+   * Assertion must be true or else a CanteraError is thrown. A diagnostic string containing the
+   * file and line number,  indicating where the error 
+   * occured is added to the thrown object.
+   *
+   * @param expr  Boolean expression that must be true
+   *
+   * @ingroup errorhandling
+   */
+#  define AssertTrace(expr)         ((expr) ? (void) 0 : throw CanteraError(STR_TRACE, std::string("failed assert: ") + #expr))
+
+  //!  Assertion must be true or an error is thrown
+  /*!
+   * Assertion must be true or else a CanteraError is thrown. A diagnostic string indicating where the error 
+   * occured is added to the thrown object.
+   *
+   * @param expr  Boolean expression that must be true
+   * @param proc  Character string or std:string expression indicating the procedure where the assertion failed
+   * @ingroup errorhandling
+   */
+#  define AssertThrow(expr, proc)   ((expr) ? (void) 0 : throw CanteraError(proc, std::string("failed assert: ") + #expr))
+
+  //!  Assertion must be true or an error is thrown
+  /*!
+   * Assertion must be true or else a CanteraError is thrown. A diagnostic string indicating where the error 
+   * occured is added to the thrown object.
+   *
+   * @param expr  Boolean expression that must be true
+   * @param proc  Character string or std:string expression indicating the procedure where the assertion failed
+   * @param message  Character string or std:string expression contaiing a  descriptive 
+   *                 message is added to the thrown error condition.
+   *
+   * @ingroup errorhandling
+   */
+#  define AssertThrowMsg(expr, proc, message)  ((expr) ? (void) 0 : throw CanteraError(proc + std::string(": at failed assert: \"") + std::string(#expr) + std::string("\""), message))
+#endif
+ 
 }
 
 #endif

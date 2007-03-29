@@ -35,10 +35,16 @@ namespace Cantera {
 
   public:
 
-    // some typedefs for convenience
+    //! Shorthand for an index variable that can't be negative
     typedef size_t       index_t;
+
+    //! Shorthand for a ThermoPhase
     typedef ThermoPhase  phase_t;
+
+    //! shorthand for a 2D matrix
     typedef DenseMatrix  array_t;
+
+    //! Shorthand for a vector of pointers to ThermoPhase's
     typedef std::vector<phase_t*> phase_list;
 
     /// Constructor. The constructor takes no arguments, since
@@ -50,7 +56,13 @@ namespace Cantera {
     /// phase objects.
     virtual ~MultiPhase() {}
 
-
+    //! Add a vector of phases to the mixture
+    /*!
+     * See the single addPhases command. This just does a bunch of phases
+     * at one time
+     *   @param phases Vector of pointers to phases
+     *   @param phaseMoles Vector of mole numbers in each phase (kmol)
+     */
     void addPhases(phase_list& phases, const vector_fp& phaseMoles);
 
     /// Add all phases present in 'mix' to this mixture.
@@ -74,12 +86,12 @@ namespace Cantera {
     int nSpecies() const { return int(m_nsp); }
 
     //! Name of species with global index \a k.
-    std::string speciesName(int k) const;
+    std::string speciesName(int kGlob) const;
 
     /// Number of atoms of element \a m in species \a k.
-    doublereal nAtoms(int k, int m) {
+    doublereal nAtoms(int kGlob, int mGlob) {
       if (!m_init) init();
-      return m_atoms(m,k);
+      return m_atoms(mGlob, kGlob);
     }
 
     /// Species mole fractions. Write the array of species mole
@@ -89,31 +101,50 @@ namespace Cantera {
       std::copy(m_moleFractions.begin(), m_moleFractions.end(), x);
     }
 
-    /// Process phases and build atomic composition array. After
-    /// init() has been called, no more phases may be added.
+    //! Process phases and build atomic composition array. 
+    /*!This method
+     *  must be called after all phases are added, before doing
+     *  anything else with the mixture. After init() has been called,
+     *  no more phases may be added.
+     */
     void init();
 
-    /// Moles of phase n.
+    //! Return the number of moles in phase n.
+    /*!
+     * @param n  Index of the phase.
+     */
     doublereal phaseMoles(index_t n) const {
       return m_moles[n];
     }
 
-    /// Set the number of moles of phase with index n.
+    //! Set the number of moles of phase with index n.
+    /*!
+     * @param n     Index of the phase
+     * @param moles Number of moles in the phase (kmol)
+     */
     void setPhaseMoles(index_t n, doublereal moles) {
       m_moles[n] = moles;
     }
 
-    /// Return a reference to phase n. The state of phase n is
-    /// also updated to match the state stored locally in the
-    /// mixture object.
+    /// Return a %ThermoPhase reference to phase n.
+    /*! The state of phase n is
+     *  also updated to match the state stored locally in the
+     *  mixture object.
+     *
+     * @param n  Phase Index
+     *
+     * @return   Reference to the %ThermoPhase object for the phase
+     */
     phase_t& phase(index_t n);
 
-    //! Moles of species \c k.
+    //! Returns the moles of global species \c k.
     /*!
      * Returns the moles of global species k.
      * units = kmol
+     *
+     * @param kGlob   Global species index k
      */
-    doublereal speciesMoles(index_t k) const;
+    doublereal speciesMoles(index_t kGlob) const;
 
     /// Index of the species belonging to phase number \c p
     /// with index \c k within the phase.
@@ -160,17 +191,19 @@ namespace Cantera {
     /// Temperature [K].
     doublereal temperature() const { return m_temp; }
 
-    /// Set the mixture to a state of chemical equilibrium.
-    /// @param XY Integer flag specifying properties to hold fixed.
-    /// @param err Error tolerance for \f$\Delta \mu/RT \f$ for
-    /// all reactions. Also used as the relative error tolerance
-    /// for the outer loop.
-    /// @param maxsteps Maximum number of steps to take in solving
-    /// the fixed TP problem.
-    /// @param maxiter Maximum number of "outer" iterations for
-    /// problems holding fixed something other than (T,P).
-    /// @param loglevel Level of diagnostic output, written to a
-    /// file in HTML format.
+    //! Set the mixture to a state of chemical equilibrium.
+    /*!
+     *    @param XY   Integer flag specifying properties to hold fixed.
+     *    @param err  Error tolerance for \f$\Delta \mu/RT \f$ for
+     *                all reactions. Also used as the relative error tolerance
+     *                for the outer loop.
+     *    @param maxsteps Maximum number of steps to take in solving
+     *                    the fixed TP problem.
+     *    @param maxiter Maximum number of "outer" iterations for
+     *                   problems holding fixed something other than (T,P).
+     *    @param loglevel Level of diagnostic output, written to a
+     *                    file in HTML format.
+     */
     doublereal equilibrate(int XY, doublereal err = 1.0e-9,
 			   int maxsteps = 1000, int maxiter = 200, int loglevel = -99);
 
@@ -212,33 +245,62 @@ namespace Cantera {
       return m_np;
     }
 
-    /// Return true is species \a k is a species in a
+    /// Return true is species \a kGlob is a species in a
     /// multicomponent solution phase.
-    bool solutionSpecies(index_t k) const;
+    bool solutionSpecies(index_t kGlob) const;
 
     //! Returns the phase index of the Kth "global" species
     /*!
-     * @param k Global species index.
+     * @param kGlob Global species index.
      *
      * @return
      *     Returns the index of the owning phase.
      */
-    index_t speciesPhaseIndex(index_t k) const {
-      return m_spphase[k];
+    index_t speciesPhaseIndex(index_t kGlob) const {
+      return m_spphase[kGlob];
     }
 
     //! Returns the mole fraction of global species k
-    doublereal moleFraction(index_t k) const{
-      return m_moleFractions[k];
+    doublereal moleFraction(index_t kGlob) const{
+      return m_moleFractions[kGlob];
     }
 
     void setPhaseMoleFractions(index_t n, doublereal* x);
 
     void setMolesByName(compositionMap& xMap);
 
+    //! Set the Moles via a string containing their names.
+    /*!
+     * The string x is in the form of a composition map
+     * Species which are not listed by name in the composition
+     * map are set to zero.
+     *
+     * @param x string x in the form of a composition map
+     *             where values are the moles of the species.
+     */
     void setMolesByName(const std::string& x);
 
+  
+    //! Return a vector of global species mole numbers
+    /*!
+     *  Returns a vector of the number of moles of each species
+     *  in the multiphase object.
+     *
+     * @param molNum Vector of doubles of length nSpecies
+     *               containing the global mole numbers
+     *               (kmol).
+     */
     void getMoles(doublereal * molNum) const;
+
+    //! Sets all of the global species mole numbers
+    /*!
+     *  Sets the number of moles of each species
+     *  in the multiphase object.
+     *
+     * @param n    Vector of doubles of length nSpecies
+     *             containing the global mole numbers
+     *               (kmol).
+     */
     void setMoles(doublereal* n);
 
     //! Retrieves a vector of element abundances
@@ -250,13 +312,15 @@ namespace Cantera {
      */
     void getElemAbundances(doublereal * elemAbundances) const;
 
-    /// Return true if the phase \a p has valid thermo data for
-    /// the current temperature.
+    //! Return true if the phase \a p has valid thermo data for
+    //! the current temperature.
+    /*!
+     * @param p  Index of the phase.
+     */
     bool tempOK(index_t p) const {
       return m_temp_OK[p];
     }
 
-  protected:
 
     // These methods are meant for internal use.
 
@@ -264,6 +328,7 @@ namespace Cantera {
     /// compositions of the phase objects.
     void updateMoleFractions();
 
+  protected:
     /// Set the states of the phase objects to the locally-stored
     /// state.  Note that if individual phases have T and P different
     /// than that stored locally, the phase T and P will be modified.
@@ -297,6 +362,13 @@ namespace Cantera {
      */
     vector_fp m_moleFractions;
     vector_int m_spphase;
+
+    //! Vector of ints containing of first species index in the global list of species
+    //! for each phase
+    /*!
+     *  kfirst = m_spstart[ip], kfirst is the index of the first species in the ip'th
+     *                          phase.
+     */
     vector_int m_spstart;
     std::vector<std::string> m_enames;
     vector_int m_atomicNumber;
@@ -325,8 +397,27 @@ namespace Cantera {
     index_t m_nsp;
     bool m_init;
     int m_eloc;
+
+    //! Vector of bools indicating whether temperatures are ok for phases.
+    /*!
+     * If the current temperature is outside the range of valid temperatures
+     * for the phase thermodynamics, the phase flag is set to false.
+     */
     mutable std::vector<bool> m_temp_OK;
-    doublereal m_Tmin, m_Tmax;
+
+    //! Minimum temperature for which thermo parameterizations are valid
+    /*!
+     *  Stoichiometric phases are ignored in this determination.
+     *  units Kelvin
+     */
+    doublereal m_Tmin;
+
+    //! Minimum temperature for which thermo parameterizations are valid
+    /*!
+     *  Stoichiometric phases are ignored in this determination.
+     *  units Kelvin
+     */
+    doublereal m_Tmax;
 
     mutable vector_fp m_elemAbundances;
   };

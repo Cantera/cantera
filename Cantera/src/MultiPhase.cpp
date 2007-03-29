@@ -103,10 +103,10 @@ namespace Cantera {
     }
 
 
-    /// Process phases and build atomic composition array. This method
-    /// must be called after all phases are added, before doing
-    /// anything else with the mixture. After init() has been called,
-    /// no more phases may be added.
+  // Process phases and build atomic composition array. This method
+  // must be called after all phases are added, before doing
+  // anything else with the mixture. After init() has been called,
+  // no more phases may be added.
     void MultiPhase::init() {
         if (m_init) return;
         index_t ip, kp, k = 0, nsp, m;
@@ -116,6 +116,7 @@ namespace Cantera {
         // allocate space for the atomic composition matrix
         m_atoms.resize(m_nel, m_nsp, 0.0);
         m_moleFractions.resize(m_nsp, 0.0);
+	m_elemAbundances.resize(m_nel, 0.0);
 
         // iterate over the elements
 	//   -> fill in m_atoms(m,k), m_snames(k), m_spphase(k),
@@ -159,23 +160,21 @@ namespace Cantera {
         /// set the initial composition within each phase to the
         /// mole fractions stored in the phase objects
         m_init = true;
-        updateMoleFractions();
+    
+	updateMoleFractions();
 
-	m_elemAbundances.resize(m_nel, 0.0);
-
-	calcElemAbundances();
     }
 
 
-    /// Return a reference to phase n. The state of phase n is
-    /// also updated to match the state stored locally in the 
-    /// mixture object.
-    MultiPhase::phase_t& MultiPhase::phase(index_t n) {
-        if (!m_init) init();
-        m_phase[n]->setState_TPX(m_temp, m_press, 
-            DATA_PTR(m_moleFractions) + m_spstart[n]);
-        return *m_phase[n];
-    }
+    // Return a reference to phase n. The state of phase n is
+    // also updated to match the state stored locally in the 
+    // mixture object.
+  MultiPhase::phase_t& MultiPhase::phase(index_t n) {
+    if (!m_init) init();
+    m_phase[n]->setState_TPX(m_temp, m_press, 
+			     DATA_PTR(m_moleFractions) + m_spstart[n]);
+    return *m_phase[n];
+  }
 
     /// Moles of species \c k.
     doublereal MultiPhase::speciesMoles(index_t k) const {
@@ -340,58 +339,57 @@ namespace Cantera {
         p->setState_TPX(m_temp, m_press, x);
     }
 
-    /// Set the species moles using a map. The map \a xMap maps
-    /// species name strings to mole numbers. Mole numbers that are
-    /// less than or equal to zero will be set to zero.
-    void MultiPhase::setMolesByName(compositionMap& xMap) {
-        int kk = nSpecies();
-        doublereal x;
-        vector_fp moles(kk, 0.0);
-        for (int k = 0; k < kk; k++) {
-            x = xMap[speciesName(k)];
-            if (x > 0.0) moles[k] = x;
-        }
-        setMoles(DATA_PTR(moles));
+  // Set the species moles using a map. The map \a xMap maps
+  // species name strings to mole numbers. Mole numbers that are
+  // less than or equal to zero will be set to zero.
+  void MultiPhase::setMolesByName(compositionMap& xMap) {
+    int kk = nSpecies();
+    doublereal x;
+    vector_fp moles(kk, 0.0);
+    for (int k = 0; k < kk; k++) {
+      x = xMap[speciesName(k)];
+      if (x > 0.0) moles[k] = x;
+    }
+    setMoles(DATA_PTR(moles));
+  }
+
+  // Set the species moles using a string. Unspecified species are
+  // set to zero.
+  void MultiPhase::setMolesByName(const string& x) {
+    compositionMap xx;
+
+    // add an entry in the map for every species, with value -1.0.
+    // Function parseCompString (stringUtils.cpp) uses the names
+    // in the map to specify the allowed species.
+    int kk = nSpecies();
+    for (int k = 0; k < kk; k++) { 
+      xx[speciesName(k)] = -1.0;
     }
 
-
-    /// Set the species moles using a string. Unspecified species are
-    /// set to zero.
-    void MultiPhase::setMolesByName(const string& x) {
-        compositionMap xx;
-
-        // add an entry in the map for every species, with value -1.0.
-        // Function parseCompString (stringUtils.cpp) uses the names
-        // in the map to specify the allowed species.
-        int kk = nSpecies();
-        for (int k = 0; k < kk; k++) { 
-            xx[speciesName(k)] = -1.0;
-        }
-
-        // build the composition map from the string, and then set the
-        // moles.
-        parseCompString(x, xx);
-        setMolesByName(xx); 
-    }
+    // build the composition map from the string, and then set the
+    // moles.
+    parseCompString(x, xx);
+    setMolesByName(xx); 
+  }
  
-    /// Get the mole numbers of all species in the multiphase
-    /// object
-    void MultiPhase::getMoles(doublereal * molNum) const {
-      /*
-       * First copy in the mole fractions
-       */
-      copy(m_moleFractions.begin(), m_moleFractions.end(), molNum);
-      index_t ik;
-      doublereal *dtmp = molNum;
-      for (index_t ip = 0; ip < m_np; ip++) {
-	doublereal phasemoles = m_moles[ip];
-	phase_t* p = m_phase[ip];
-	index_t nsp = p->nSpecies();
-	for (ik = 0; ik < nsp; ik++) {
-	  *(dtmp++) *= phasemoles;
-	}
+  // Get the mole numbers of all species in the multiphase
+  // object
+  void MultiPhase::getMoles(doublereal * molNum) const {
+    /*
+     * First copy in the mole fractions
+     */
+    copy(m_moleFractions.begin(), m_moleFractions.end(), molNum);
+    index_t ik;
+    doublereal *dtmp = molNum;
+    for (index_t ip = 0; ip < m_np; ip++) {
+      doublereal phasemoles = m_moles[ip];
+      phase_t* p = m_phase[ip];
+      index_t nsp = p->nSpecies();
+      for (ik = 0; ik < nsp; ik++) {
+	*(dtmp++) *= phasemoles;
       }
     }
+  }
 
     /// Set the species moles to the values in array \a n. The state
     /// of each phase object is also updated to have the specified
@@ -825,40 +823,41 @@ done:
     return m_snames[k]; 
   }
 
-    //-------------------------------------------------------------
-    //
-    // protected methods
-    //
-    //-------------------------------------------------------------
+  //-------------------------------------------------------------
+  //
+  // protected methods
+  //
+  //-------------------------------------------------------------
 
 
-    /// Update the locally-stored species mole fractions. 
-    void MultiPhase::updateMoleFractions() {
-        index_t ip, loc = 0;
-        for (ip = 0; ip < m_np; ip++) {
-            phase_t* p = m_phase[ip];
-            p->getMoleFractions(DATA_PTR(m_moleFractions) + loc);
-            loc += p->nSpecies();
-        }
+  /// Update the locally-stored species mole fractions. 
+  void MultiPhase::updateMoleFractions() {
+    index_t ip, loc = 0;
+    for (ip = 0; ip < m_np; ip++) {
+      phase_t* p = m_phase[ip];
+      p->getMoleFractions(DATA_PTR(m_moleFractions) + loc);
+      loc += p->nSpecies();
     }
+    calcElemAbundances();
+  }
 
 
-    /// synchronize the phase objects with the mixture state. This
-    /// method sets each phase to the mixture temperature and
-    /// pressure, and sets the phase mole fractions based on the
-    /// mixture mole numbers. 
-    void MultiPhase::updatePhases() const {
-        index_t p, nsp, loc = 0;
-        for (p = 0; p < m_np; p++) {
-            nsp = m_phase[p]->nSpecies();
-            const doublereal* x = DATA_PTR(m_moleFractions) + loc;
-            loc += nsp;
-            m_phase[p]->setState_TPX(m_temp, m_press, x);
-            m_temp_OK[p] = true;
-            if (m_temp < m_phase[p]->minTemp() 
-                || m_temp > m_phase[p]->maxTemp()) m_temp_OK[p] = false;
-        }
-    }            
+  /// synchronize the phase objects with the mixture state. This
+  /// method sets each phase to the mixture temperature and
+  /// pressure, and sets the phase mole fractions based on the
+  /// mixture mole numbers. 
+  void MultiPhase::updatePhases() const {
+    index_t p, nsp, loc = 0;
+    for (p = 0; p < m_np; p++) {
+      nsp = m_phase[p]->nSpecies();
+      const doublereal* x = DATA_PTR(m_moleFractions) + loc;
+      loc += nsp;
+      m_phase[p]->setState_TPX(m_temp, m_press, x);
+      m_temp_OK[p] = true;
+      if (m_temp < m_phase[p]->minTemp() 
+	  || m_temp > m_phase[p]->maxTemp()) m_temp_OK[p] = false;
+    }
+  }            
 
 }
 
