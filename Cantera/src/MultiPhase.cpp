@@ -442,7 +442,6 @@ namespace Cantera {
       phase_t* p = m_phase[ip];
       int nspPhase = p->nSpecies();
       doublereal phasemoles = m_moles[ip];
-      loc += nspPhase;
       for (ik = 0; ik < nspPhase; ik++) {
 	kGlobal = loc + ik;
 	spMoles = m_moleFractions[kGlobal] * phasemoles;
@@ -450,6 +449,7 @@ namespace Cantera {
 	  m_elemAbundances[eGlobal] += m_atoms(eGlobal, kGlobal) * spMoles;
 	}
       }
+      loc += nspPhase;
     }
   }
 
