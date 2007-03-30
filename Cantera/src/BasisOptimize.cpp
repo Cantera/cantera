@@ -1,6 +1,9 @@
 /**
- * @file basopt.cpp
- *
+ * @file BasisOptimize.cpp
+ *     Functions which calculation optimized basis of the 
+ *     stoichiometric coefficient matrix (see /ref equil functions)
+ */
+/*
  *  $Author$
  *  $Date$
  *  $Revision$
@@ -23,11 +26,13 @@ static int amax(double *x, int j, int n);
 static void switch_pos(vector_int &orderVector, int jr, int kspec);
 static int mlequ(double *c, int idem, int n, double *b, int m);
 
+//@{
 #ifndef MIN
 #define MIN(x,y) (( (x) < (y) ) ? (x) : (y))
 #endif
+//@}
 
-/**
+/*
  * Choose the optimum basis for the calculations. This is done by 
  * choosing the species with the largest mole fraction 
  * not currently a linear combination of the previous components. 
@@ -570,7 +575,7 @@ static int amax(double *x, int j, int n) {
  } /* mlequ() *************************************************************/
 
 
-/**
+/*
  *
  * ElemRearrange:
  *

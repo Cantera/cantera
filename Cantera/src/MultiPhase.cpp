@@ -1,3 +1,14 @@
+/**
+ * @file MultiPhase.cpp
+ * Definitions for the \link Cantera::MultiPhase MultiPhase\endlink 
+ * object that is used to set up multiphase equilibrium problems (see \ref equilfunctions).
+ */
+/*
+ *  $Author$
+ *  $Date$
+ *  $Revision$
+ */
+
 #include "MultiPhase.h"
 #include "MultiPhaseEquil.h"
 
@@ -234,33 +245,33 @@ namespace Cantera {
         }
     }
 
-    /// Get chemical potentials of species with valid thermo
-    /// data. This method is designed for use in computing chemical
-    /// equilibrium by Gibbs minimization. For solution phases (more
-    /// than one species), this does the same thing as
-    /// getChemPotentials. But for stoichiometric phases, this writes
-    /// into array \a mu the user-specified value \a not_mu instead of
-    /// the chemical potential if the temperature is outside the range
-    /// for which the thermo data for the one species in the phase are
-    /// valid. The need for this arises since many condensed phases
-    /// have thermo data fit only for the temperature range for which
-    /// they are stable. For example, in the NASA database, the fits
-    /// for H2O(s) are only done up to 0 C, the fits for H2O(L) are
-    /// only done from 0 C to 100 C, etc. Using the polynomial fits outside
-    /// the range for which the fits were done can result in spurious
-    /// chemical potentials, and can lead to condensed phases
-    /// appearing when in fact they should be absent.
-    ///
-    /// By setting \a not_mu to a large positive value, it is possible
-    /// to force routines which seek to minimize the Gibbs free energy
-    /// of the mixture to zero out any phases outside the temperature
-    /// range for which their thermo data are valid.
-    ///
-    /// If this method is called with \a standard set to true, then
-    /// the composition-independent standard chemical potentials are
-    /// returned instead of the composition-dependent chemical
-    /// potentials.
-    ///
+    // Get chemical potentials of species with valid thermo
+    // data. This method is designed for use in computing chemical
+    // equilibrium by Gibbs minimization. For solution phases (more
+    // than one species), this does the same thing as
+    // getChemPotentials. But for stoichiometric phases, this writes
+    // into array \a mu the user-specified value \a not_mu instead of
+    // the chemical potential if the temperature is outside the range
+    // for which the thermo data for the one species in the phase are
+    // valid. The need for this arises since many condensed phases
+    // have thermo data fit only for the temperature range for which
+    // they are stable. For example, in the NASA database, the fits
+    // for H2O(s) are only done up to 0 C, the fits for H2O(L) are
+    // only done from 0 C to 100 C, etc. Using the polynomial fits outside
+    // the range for which the fits were done can result in spurious
+    // chemical potentials, and can lead to condensed phases
+    // appearing when in fact they should be absent.
+    //
+    // By setting \a not_mu to a large positive value, it is possible
+    // to force routines which seek to minimize the Gibbs free energy
+    // of the mixture to zero out any phases outside the temperature
+    // range for which their thermo data are valid.
+    //
+    // If this method is called with \a standard set to true, then
+    // the composition-independent standard chemical potentials are
+    // returned instead of the composition-dependent chemical
+    // potentials.
+    //
     void MultiPhase::getValidChemPotentials(doublereal not_mu,
         doublereal* mu, bool standard) const {
         index_t i, loc = 0;
@@ -355,7 +366,7 @@ namespace Cantera {
 
   // Set the species moles using a string. Unspecified species are
   // set to zero.
-  void MultiPhase::setMolesByName(const string& x) {
+  void MultiPhase::setMolesByName(const std::string& x) {
     compositionMap xx;
 
     // add an entry in the map for every species, with value -1.0.
@@ -814,8 +825,13 @@ done:
   }
 
   // Index of element with name \a name.
-  int MultiPhase::elementIndex(std::string name) const { 
-    return m_enamemap[name] - 1;
+  int MultiPhase::elementIndex(std::string name) const {
+    for (size_t e = 0; e < m_nel; e++) {
+      if (m_enames[e] == name) {
+	return (int) e;
+      }
+    }
+    return -1;
   }
   
   // Name of species with global index \a k.
