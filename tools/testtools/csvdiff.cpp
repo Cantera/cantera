@@ -760,12 +760,14 @@ int main(int argc, char *argv[])
 
   if (nTitleLines1 != nTitleLines2) {
     printf("Number o Title Lines differ:, %d %d\n",nTitleLines1, nTitleLines2);
+    testPassed = 0;
   } else if (Debug_Flag) {
     printf("Number of Title Lines in each file = %d\n", nTitleLines1);
   }
   if (nColTitleLines1 != nColTitleLines2) {
     printf("Number of Column title lines differ:, %d %d\n", nColTitleLines1,
 	   nColTitleLines2);
+    testPassed = 0;
   } else if (Debug_Flag) {
     printf("Number of column title lines in each file = %d\n", nColTitleLines1);
   }
@@ -793,6 +795,7 @@ int main(int argc, char *argv[])
     for (i = 0; i < n; i++) {
       if (strcmp(title1[i], title2[i]) != 0) {
 	printf("Title Line %d differ:\n\t\"%s\"\n\t\"%s\"\n", i, title1[i], title2[i]);
+        testPassed = 0;
       } else if (Debug_Flag) {
 	printf("Title Line %d for each file: \"%s\"\n", i, title1[i]);
       }
@@ -800,20 +803,19 @@ int main(int argc, char *argv[])
     if (nTitleLines1 != nTitleLines2) {
       printf("Number of Title Lines differ: %d %d\n", nTitleLines1, nTitleLines2);
       testPassed = -1;
-      exit(-1);
     }
   } else {
     if (nTitleLines1 != nTitleLines2) {
       if (nTitleLines1) {
 	printf("Titles differ: title for first file: \"%s\"\n", 
 	       title1[0]);
+        testPassed = 0;
       }
       if (nTitleLines2) {
 	printf("Titles differ: title for second file: \"%s\"\n", 
 	       title2[0]);
       }
       testPassed = -1;
-      exit(-1);
     }
   }
 
@@ -826,6 +828,7 @@ int main(int argc, char *argv[])
     printf("Number of column variables differ:, %d %d\n", 
                  nCol1, nCol2);
     mixed_var = TRUE;
+    testPassed = 0;
   } else if (Debug_Flag) {
     printf("Number of column variables in both files = %d\n",
 	   nCol1);
@@ -862,6 +865,7 @@ int main(int argc, char *argv[])
     if (!found) {
       printf("csvdiff WARNING Variable %s (%d) in first file not found"
 	     " in second file\n", ColNames1[i], i);
+      testPassed = 0;
     }
   }
   for (j = 0; j < nCol2; j++) {
@@ -873,6 +877,7 @@ int main(int argc, char *argv[])
       printf("csvdiff WARNING Variable %s (%d) in second file "
 	     "not found in first file\n",
 	     ColNames2[j], j);
+      testPassed = 0;
     }
   }
 
