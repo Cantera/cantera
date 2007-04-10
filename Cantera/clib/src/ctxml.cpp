@@ -19,6 +19,8 @@
 #define ERR -999
 #define DERR -999.999
 
+// Assign storage for the static member of the Templated Cabinet class
+// class Cabinet<XML_Node>;
 template<> Cabinet<XML_Node>*   Cabinet<XML_Node>::__storage = 0;
 
 inline XML_Node* _xml(int i) {

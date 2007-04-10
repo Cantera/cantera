@@ -20,6 +20,7 @@ using namespace Cantera;
 
 typedef Func1 func_t;
 
+// Assign storage to the Cabinet<Func1> static member
 template<> Cabinet<func_t>*       Cabinet<func_t>::__storage = 0;
 
 inline func_t* _func(int i) {
