@@ -90,7 +90,10 @@ if buildPython >= 2:
                             ],
               )
     except:
-        buildPython = 1
+        if buildPython == 3:
+          buildPython = 1
+        else:
+          raise 'Error encountered while building or installing the Cantera python modules!'
     
         
 if buildPython == 1:

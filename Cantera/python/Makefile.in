@@ -50,6 +50,7 @@ win: _winbuild
 #
 _build: $(SRCS) $(LIB_DEPS) Makefile setup.py
 	touch src/pycantera.cpp 
+	/bin/rm -f _build
 	(CXX="@CXX@"; export CXX; CC="@CXX@"; export CC; @PYTHON_CMD@ setup.py build)
 	echo 'ok' > _build
 
