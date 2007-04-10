@@ -60,6 +60,11 @@ inline ThermoPhase* _th(int n) {
     return Storage::__storage->__thtable[n];
 }
 
+
+// declaration for the static storage
+// -> The definition is located in ctfunc.cpp
+template<> Cabinet<Func1>*       Cabinet<Func1>::__storage;
+
 inline Func1* _func(int i) {
     return Cabinet<Func1>::cabinet()->item(i);
 } 
