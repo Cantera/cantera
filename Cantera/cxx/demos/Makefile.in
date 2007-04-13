@@ -69,7 +69,7 @@ PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
 DEPENDS = $(OBJS:.o=.d)
 
-all: $(PROGRAM) .depends
+all: $(PROGRAM) 
 
 $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \

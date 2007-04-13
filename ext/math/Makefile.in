@@ -13,9 +13,9 @@ do_ranlib = @DO_RANLIB@
 LIB = @buildlib@/libctmath.a
 
 all: $(LIB)
+PIC_FLAG=@PIC@
 
-
-F_FLAGS = @FFLAGS@ 
+F_FLAGS = @FFLAGS@ $(PIC_FLAG)
 
 OBJS = \
 mach.o \
@@ -48,7 +48,7 @@ ifeq ($(do_ranlib),1)
 	@RANLIB@ $(LIB)
 endif
 %.o : %.cpp
-	@CXX@ -c $< @DEFS@  @CXXFLAGS@ $(INCLUDES)
+	@CXX@ -c $< @DEFS@  @CXXFLAGS@ @PIC@ $(INCLUDES)
 
 %.o : %.f
 	@F77@ -c $< $(F_FLAGS)

@@ -15,7 +15,9 @@
 INSTALL_TSC = ../../../bin/install_tsc
 do_ranlib = @DO_RANLIB@
 
-CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
+PIC_FLAG=@PIC@
+
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
 
 OBJS = ct.o Storage.o ctsurf.o ctrpath.o \
        ctreactor.o ctfunc.o ctxml.o ctonedim.o ctmultiphase.o
@@ -53,7 +55,7 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
 
 # how to compile C++ source files to object files
 .@CXX_EXT@.@OBJ_EXT@:
-	$(CXX) -c $< $(CXX_INCLUDES) $(CXX_FLAGS) @PIC@
+	$(CXX) -c $< $(CXX_INCLUDES) $(CXX_FLAGS)
 
 LIB_NAME=lib@CT_SHARED_LIB@
 

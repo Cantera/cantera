@@ -15,7 +15,9 @@ INCDIR = ../../../build/include/cantera/kernel/transport
 INSTALL_TSC = ../../../bin/install_tsc
 do_ranlib = @DO_RANLIB@
 
-CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
+PIC_FLAG=@PIC@
+
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
 
 # Transport Object Files
 OBJS    = TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.o \

@@ -25,8 +25,9 @@ CC = @CC@
 SHELL = /bin/sh
 do_ranlib = @DO_RANLIB@
 do_stripsymbols = @HAVE_STRIPSYMBOLS@
+PIC_FLAG=@PIC@
 
-CFLAGS = @CFLAGS@ $(CXX_OPT)
+CFLAGS = @CFLAGS@ $(CXX_OPT) $(PIC_FLAG)
 
 # Destination f2c lib located in Cantera's build directory
 # -> Calling it ctf2c

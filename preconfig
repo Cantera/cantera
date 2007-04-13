@@ -322,7 +322,7 @@ CXXFLAGS=${CXXFLAGS:="-O3 -Wall"}
 # Ending libraries to tack onto the linking of all C++ programs
 LCXX_END_LIBS=${LCXX_END_LIBS:="-lm"}
 
-# the compiler flag to use to compile code that will be inserted into
+# The compiler flag to use to compile code that will be inserted into
 # shared libraries.
 PIC=${PIC:=-fPIC}
 

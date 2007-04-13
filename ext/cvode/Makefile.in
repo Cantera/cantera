@@ -22,10 +22,12 @@
 do_ranlib = @DO_RANLIB@
 
 all: @buildlib@/libcvode.a
+
+PIC_FLAG=@PIC@
    
 COMPILER = @CC@
 
-OPTS = -I../include @CFLAGS@ $(CXX_OPT)
+OPTS = -I../include @CFLAGS@ $(CXX_OPT) $(PIC_FLAG)
 
 OBJS = source/cvode.o source/cvdense.o source/dense.o source/cvband.o \
        source/band.o source/cvdiag.o source/cvspgmr.o source/spgmr.o  \

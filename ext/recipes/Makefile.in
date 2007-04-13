@@ -9,8 +9,8 @@
 LIB = @buildlib@/librecipes.a
 
 do_ranlib = @DO_RANLIB@
-
-F_FLAGS = @FFLAGS@ 
+PIC_FLAG=@PIC@
+F_FLAGS = @FFLAGS@ $(PIC_FLAG)
 
 OBJS = simp1.o simp2.o simp3.o simplx.o 
 SRCS = $(OBJS:.o=.cpp)

@@ -15,7 +15,9 @@ INCDIR = ../../../build/include/cantera/kernel/zeroD
 INSTALL_TSC = ../../../bin/install_tsc
 do_ranlib = @DO_RANLIB@
 
-CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
+PIC_FLAG=@PIC@
+
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
 
 # stirred reactors
 OBJS    = Reactor.o ReactorBase.o FlowDevice.o Wall.o ReactorNet.o \

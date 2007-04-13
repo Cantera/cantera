@@ -25,7 +25,9 @@ else
 endif
 
 #LOCAL_DEFS=-DDEBUG_MODE
-CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS) $(CXX_OPT) $(DEBUG_FLAG)
+PIC_FLAG=@PIC@
+
+CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS) $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
 
 # Extended Cantera Thermodynamics Object Files
 

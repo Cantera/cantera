@@ -12,7 +12,8 @@
 SUFFIXES=
 SUFFIXES= .cpp .d .o
 
-CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
+PIC_FLAG=@PIC@
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
 
 OBJS = cxxutils.o 
 

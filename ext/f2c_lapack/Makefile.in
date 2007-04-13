@@ -21,7 +21,8 @@ CXX = @CXX@
 CC = @CC@
 
 # C++ compile flags
-CXX_FLAGS = @CXXFLAGS@ 
+PIC_FLAG=@PIC@
+CXX_FLAGS = @CXXFLAGS@ $(PIC_FLAG)
 
 # C compile flags
 CFLAGS = @CFLAGS@

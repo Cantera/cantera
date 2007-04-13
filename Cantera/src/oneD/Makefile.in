@@ -14,7 +14,10 @@
 INCDIR = ../../../build/include/cantera/kernel/oneD
 INSTALL_TSC = ../../../bin/install_tsc                      
 do_ranlib = @DO_RANLIB@
-CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
+
+PIC_FLAG=@PIC@
+
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
 CXX_INCLUDES = -I.. @CXX_INCLUDES@
 
 # stirred reactors

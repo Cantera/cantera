@@ -989,6 +989,15 @@ AC_SUBST(SOEXT)
 if test -z "$SHARED"; then SHARED='-shared'; fi
 AC_SUBST(SHARED)
 
+#
+# PIC
+#  Compiler flag for specifying position independent code.
+#  This flag is needed sometimes in the compilation step
+#  for code that will go into a shared library.
+#  If Cantera is used in the Full python installation
+#  mode, this means just about all of Cantera's code
+#  should be position independent.
+#
 if test -z "$PIC"; then PIC='-fPIC'; fi
 AC_SUBST(PIC)
 

@@ -15,6 +15,8 @@ INCDIR      = ../../build/include/cantera/kernel
 INSTALL_TSC = ../../bin/install_tsc
 CANTERA_LIB = @buildlib@/libcantera.a
 
+PIC_FLAG=@PIC@
+
 debug_mode = @CANTERA_DEBUG_MODE@
 ifeq ($(debug_mode), 1)
    DEBUG_FLAG=-DDEBUG_MODE
@@ -23,7 +25,7 @@ else
 endif
 
 #LOCAL_DEFNS=-DDEBUG_PATHS -DDEBUG_MULTIPHASE_EQUIL
-CXX_FLAGS   = @CXXFLAGS@ $(CXX_OPT) $(LOCAL_DEFNS) $(DEBUG_FLAG)
+CXX_FLAGS   = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG) $(LOCAL_DEFNS) $(DEBUG_FLAG)
 EXT         = ../../ext
 do_ranlib = @DO_RANLIB@
 USE_SUNDIALS = @use_sundials@
