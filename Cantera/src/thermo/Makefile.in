@@ -32,24 +32,23 @@ CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS) $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
 # Extended Cantera Thermodynamics Object Files
 
 ifeq ($(do_electro),1)
-ELECTRO_OBJ = SingleSpeciesTP.o StoichSubstanceSSTP.o \
-              MolalityVPSSTP.o  VPStandardStateTP.o \
+do_issp = 1
+ELECTRO_OBJ = MolalityVPSSTP.o  VPStandardStateTP.o \
               IdealSolidSolnPhase.o IdealMolalSoln.o \
               WaterPropsIAPWSphi.o WaterPropsIAPWS.o WaterProps.o \
               PDSS.o WaterPDSS.o \
 	      HMWSoln.o HMWSoln_input.o DebyeHuckel.o \
               IdealGasPDSS.o WaterSSTP.o
 
-ELECTRO_H =  SingleSpeciesTP.h StoichSubstanceSSTP.h \
-               MolalityVPSSTP.h  VPStandardStateTP.h \
+ELECTRO_H = MolalityVPSSTP.h  VPStandardStateTP.h \
                IdealSolidSolnPhase.h IdealMolalSoln.h \
                WaterPropsIAPWSphi.h WaterPropsIAPWS.h WaterProps.h \
                PDSS.h WaterPDSS.h HMWSoln.h electrolytes.h \
 	       DebyeHuckel.h IdealGasPDSS.h WaterSSTP.h
 endif
 ifeq ($(do_issp),1)
-ISSP_OBJ = IdealSolidSolnPhase.o
-ISSP_H   = IdealSolidSolnPhase.h
+ISSP_OBJ = IdealSolidSolnPhase.o  StoichSubstanceSSTP.o SingleSpeciesTP.o 
+ISSP_H   = IdealSolidSolnPhase.h  StoichSubstanceSSTP.h SingleSpeciesTP.h
 endif
 
 CATHERMO_OBJ = $(ELECTRO_OBJ) $(ISSP_OBJ) 

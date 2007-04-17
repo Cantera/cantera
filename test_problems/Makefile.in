@@ -19,7 +19,7 @@ all:
 	cd ChemEquil_gri_pairs; @MAKE@ all
 	cd ChemEquil_ionizedGas; @MAKE@ all
 	cd ChemEquil_red1; @MAKE@ all
-ifeq ($(test_cathermo),1)
+ifeq ($(test_pure_fluids),1)
 	cd pureFluidTest;     @MAKE@ all
 endif
 ifeq ($(test_python),1)
