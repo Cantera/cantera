@@ -109,6 +109,10 @@ namespace Cantera {
 
 }    // namespace
 
+#else
+
+No sundials! 
+
 #endif
 
 #endif 
