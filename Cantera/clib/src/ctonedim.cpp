@@ -355,9 +355,21 @@ extern "C" {
     }
 
 
-    int DLL_EXPORT stflow_setTransport(int i, int itr) {
+    int DLL_EXPORT stflow_setTransport(int i, int itr, int iSoret) {
+        bool withSoret = false;
+        if (iSoret > 0) withSoret = true;
         try {
-            _stflow(i)->setTransport(*_transport(itr));
+            _stflow(i)->setTransport(*_transport(itr), withSoret);
+            return 0;
+        }
+        catch (CanteraError) { return -1; }
+    }
+
+    int DLL_EXPORT stflow_enableSoret(int i, int iSoret) {
+        bool withSoret = false;
+        if (iSoret > 0) withSoret = true;
+        try {
+            _stflow(i)->enableSoret(withSoret);
             return 0;
         }
         catch (CanteraError) { return -1; }

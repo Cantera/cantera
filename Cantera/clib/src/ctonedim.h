@@ -47,7 +47,8 @@ extern "C" {
     int DLL_IMPORT inlet_setSpreadRate(int i, double v);
 
     int DLL_IMPORT stflow_new(int iph, int ikin, int itr, int itype=1);
-    int DLL_IMPORT stflow_setTransport(int i, int itr);
+    int DLL_IMPORT stflow_setTransport(int i, int itr, int iSoret);
+    int DLL_IMPORT stflow_enableSoret(int i, int iSoret);
     int DLL_IMPORT stflow_setPressure(int i, double p);
     int DLL_IMPORT stflow_setFixedTempProfile(int i, int n, double* pos, 
         int m, double* temp);

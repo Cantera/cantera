@@ -267,6 +267,16 @@ namespace Cantera {
             throw CanteraError("setTransport","unknown transport model.");
     }
 
+    void StFlow::enableSoret(bool withSoret) { 
+        if (m_transport_option == c_Multi_Transport)
+            m_do_soret = withSoret;
+        else {
+            throw CanteraError("setTransport",
+                "Thermal diffusion (the Soret effect) "
+                "requires using a multicomponent transport model.");
+        }
+    }
+
 
     /**
      * Set the gas object state to be consistent with the solution at

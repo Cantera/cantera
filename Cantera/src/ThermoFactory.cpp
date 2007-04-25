@@ -130,8 +130,8 @@ namespace Cantera {
             break;
 #endif
 
-        default:
-	    throw UnknownThermoPhaseModel("ThermoFactory::newThermoPhase",
+        default: 
+   	    throw UnknownThermoPhaseModel("ThermoFactory::newThermoPhase",
 					  model);
         }
         return th;

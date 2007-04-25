@@ -489,11 +489,24 @@ static PyObject *
 py_stflow_setTransport(PyObject *self, PyObject *args)
 {
     int _val;
-    int i, itr;
-    if (!PyArg_ParseTuple(args, "ii:stflow_setTransport", &i, &itr)) 
+    int i, itr, isoret;
+    if (!PyArg_ParseTuple(args, "iii:stflow_setTransport", &i, &itr, &isoret)) 
         return NULL;
         
-    _val = stflow_setTransport(i,itr); 
+    _val = stflow_setTransport(i,itr, isoret); 
+    if (int(_val) == -1) return reportCanteraError();
+    return Py_BuildValue("i",_val);
+}
+
+static PyObject *
+py_stflow_enableSoret(PyObject *self, PyObject *args)
+{
+    int _val;
+    int i, isoret;
+    if (!PyArg_ParseTuple(args, "ii:stflow_enableSoret", &i, &isoret)) 
+        return NULL;
+        
+    _val = stflow_enableSoret(i,isoret); 
     if (int(_val) == -1) return reportCanteraError();
     return Py_BuildValue("i",_val);
 }

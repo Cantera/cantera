@@ -389,11 +389,17 @@ class AxisymmetricFlow(Domain1D):
         _cantera.stflow_setPressure(self._hndl, p)
         self._p = p
 
-    def setTransportModel(self, transp):
+    def setTransportModel(self, transp, withSoret = 0):
         """Set the transport model. The argument must be a transport
         manager for the 'gas' object."""
         itr = transp.transport_hndl()
-        _cantera.stflow_setTransport(self._hndl, itr)
+        _cantera.stflow_setTransport(self._hndl, itr, withSoret)
+
+    def enableSoret(self, withSoret = 1):
+        """Include or exclude thermal diffusion (Soret effect) when computing
+        diffusion velocities. If withSoret is not supplied or is positive,
+        thermal diffusion is enabled; otherwise it is disabled."""
+        _cantera.stflow_enableSoret(self._hndl, withSoret)
 
     def pressure(self):
         """Pressure [Pa]."""

@@ -100,6 +100,8 @@ namespace Cantera {
 
         /// set the transport manager
         void setTransport(Transport& trans, bool withSoret = false);
+        void enableSoret(bool withSoret);
+        bool withSoret() const { return m_do_soret; }
 
         /// Set the pressure. Since the flow equations are for the limit of
         /// small Mach number, the pressure is very nearly constant

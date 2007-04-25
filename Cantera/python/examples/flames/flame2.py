@@ -72,6 +72,10 @@ f.flame.setTransportModel(gas)
 f.solve(loglevel, refine_grid)
 f.save('ch4_flame1.xml','energy_multi',
        'solution with the energy equation enabled and multicomponent transport')
+f.flame.enableSoret()
+f.solve(loglevel, refine_grid)
+f.save('ch4_flame1.xml','energy_multi_soret',
+       'solution with the energy equation enabled and multicomponent transport with thermal diffusion')
 
 # write the velocity, temperature, density, and mole fractions to a CSV file
 z = f.flame.grid()
