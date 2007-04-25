@@ -123,13 +123,15 @@ C   920527  Corrected erroneous statements in DESCRIPTION.  (WRB)
 C***END PROLOGUE  POLFIT
       DOUBLE PRECISION TEMD1,TEMD2
       DIMENSION X(*), Y(*), W(*), R(*), A(*)
-      DIMENSION CO(4,3)
-      SAVE CO
-      DATA  CO(1,1), CO(2,1), CO(3,1), CO(4,1), CO(1,2), CO(2,2),
-     1      CO(3,2), CO(4,2), CO(1,3), CO(2,3), CO(3,3),
-     2  CO(4,3)/-13.086850,-2.4648165,-3.3846535,-1.2973162,
-     3          -3.3381146,-1.7812271,-3.2578406,-1.6589279,
-     4          -1.6282703,-1.3152745,-3.2640179,-1.9829776/
+
+c      DIMENSION CO(4,3)
+c      SAVE CO
+c      DATA  CO(1,1), CO(2,1), CO(3,1), CO(4,1), CO(1,2), CO(2,2),
+c     1      CO(3,2), CO(4,2), CO(1,3), CO(2,3), CO(3,3),
+c     2  CO(4,3)/-13.086850,-2.4648165,-3.3846535,-1.2973162,
+c     3          -3.3381146,-1.7812271,-3.2578406,-1.6589279,
+c     4          -1.6282703,-1.3152745,-3.2640179,-1.9829776/
+
 C***FIRST EXECUTABLE STATEMENT  POLFIT
       M = ABS(N)
       IF (M .EQ. 0) GO TO 30
@@ -138,73 +140,7 @@ C***FIRST EXECUTABLE STATEMENT  POLFIT
       MOP1 = MAXDEG + 1
       IF (M .LT. MOP1) GO TO 30
       IF (EPS .LT. 0.0  .AND.  M .EQ. MOP1) GO TO 30
-      XM = M
-      ETST = EPS*EPS*XM
-      IF (W(1) .LT. 0.0) GO TO 2
-      DO 1 I = 1,M
-        IF (W(I) .LE. 0.0) GO TO 30
- 1      CONTINUE
-      GO TO 4
- 2    DO 3 I = 1,M
- 3      W(I) = 1.0
- 4    IF (EPS .GE. 0.0) GO TO 8
-C
-C DETERMINE SIGNIFICANCE LEVEL INDEX TO BE USED IN STATISTICAL TEST FOR
-C CHOOSING DEGREE OF POLYNOMIAL FIT
-C
-      IF (EPS .GT. (-.55)) GO TO 5
-      IDEGF = M - MAXDEG - 1
-      KSIG = 1
-      IF (IDEGF .LT. 10) KSIG = 2
-      IF (IDEGF .LT. 5) KSIG = 3
-      GO TO 8
- 5    KSIG = 1
-      IF (EPS .LT. (-.03)) KSIG = 2
-      IF (EPS .LT. (-.07)) KSIG = 3
-C
-C INITIALIZE INDEXES AND COEFFICIENTS FOR FITTING
-C
- 8    K1 = MAXDEG + 1
-      K2 = K1 + MAXDEG
-      K3 = K2 + MAXDEG + 2
-      K4 = K3 + M
-      K5 = K4 + M
-      DO 9 I = 2,K4
- 9      A(I) = 0.0
-      W11 = 0.0
-      IF (N .LT. 0) GO TO 11
-C
-C UNCONSTRAINED CASE
-C
-      DO 10 I = 1,M
-        K4PI = K4 + I
-        A(K4PI) = 1.0
- 10     W11 = W11 + W(I)
-      GO TO 13
-C
-C CONSTRAINED CASE
-C
- 11   DO 12 I = 1,M
-        K4PI = K4 + I
- 12     W11 = W11 + W(I)*A(K4PI)**2
-C
-C COMPUTE FIT OF DEGREE ZERO
-C
- 13   TEMD1 = 0.0D0
-      DO 14 I = 1,M
-        K4PI = K4 + I
-        TEMD1 = TEMD1 + DBLE(W(I))*DBLE(Y(I))*DBLE(A(K4PI))
- 14     CONTINUE
-      TEMD1 = TEMD1/DBLE(W11)
-      A(K2+1) = TEMD1
-      SIGJ = 0.0
-      DO 15 I = 1,M
-        K4PI = K4 + I
-        K5PI = K5 + I
-        TEMD2 = TEMD1*DBLE(A(K4PI))
-        R(I) = TEMD2
-        A(K5PI) = TEMD2 - DBLE(R(I))
- 15     SIGJ = SIGJ + W(I)*((Y(I)-R(I)) - A(K5PI))**2
+
       J = 0
 C
 C SEE IF POLYNOMIAL OF DEGREE 0 SATISFIES THE DEGREE SELECTION CRITERION
@@ -280,12 +216,13 @@ C
 C COMPUTE F STATISTICS  (INPUT EPS .LT. 0.)
 C
  23   IF (SIGJ .EQ. 0.0) GO TO 29
-      DEGF = M - J - 1
-      DEN = (CO(4,KSIG)*DEGF + 1.0)*DEGF
-      FCRIT = (((CO(3,KSIG)*DEGF) + CO(2,KSIG))*DEGF + CO(1,KSIG))/DEN
-      FCRIT = FCRIT*FCRIT
-      F = (SIGJM1 - SIGJ)*DEGF/SIGJ
-      IF (F .LT. FCRIT) GO TO 25
+c      DEGF = M - J - 1
+c      DEN = (CO(4,KSIG)*DEGF + 1.0)*DEGF
+c      FCRIT = (((CO(3,KSIG)*DEGF) + CO(2,KSIG))*DEGF + CO(1,KSIG))/DEN
+c      FCRIT = FCRIT*FCRIT
+c      F = (SIGJM1 - SIGJ)*DEGF/SIGJ
+c      IF (F .LT. FCRIT) GO TO 25
+
 C
 C POLYNOMIAL OF DEGREE J SATISFIES F TEST
 C
@@ -326,8 +263,8 @@ C
       SIG = SIGPAS
       GO TO 33
  30   IERR = 2
-      CALL XERMSG ('SLATEC', 'POLFIT', 'INVALID INPUT PARAMETER.', 2,
-     +   1)
+c      CALL XERMSG ('SLATEC', 'POLFIT', 'INVALID INPUT PARAMETER.', 2,
+c     +   1)
       GO TO 37
  31   IERR = 3
       NDEG = MAXDEG

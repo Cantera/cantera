@@ -233,8 +233,12 @@ C-----------------------------------------------------------------------
 C The following Fortran-77 declaration is to cause the values of the
 C listed (local) variables to be saved between calls to this routine.
 C-----------------------------------------------------------------------
-      SAVE LUNIT, LUNDEF, MESFLG
-      DATA LUNIT/-1/, LUNDEF/6/, MESFLG/1/
+c      SAVE LUNIT, LUNDEF, MESFLG
+c dgg mod 2/2007
+      lunit = -1
+      lundef = 6
+      mesflg = 1
+c      DATA LUNIT/-1/, LUNDEF/6/, MESFLG/1/
 C
 C***FIRST EXECUTABLE STATEMENT  IXSAV
       IF (IPAR .EQ. 1) THEN
