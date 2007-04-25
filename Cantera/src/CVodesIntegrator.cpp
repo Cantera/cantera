@@ -4,6 +4,7 @@
  */
 
 // Copyright 2001  California Institute of Technology
+#include "config.h"
 
 #include "CVodesIntegrator.h"
 #include "stringUtils.h"
