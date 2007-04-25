@@ -243,7 +243,7 @@ surface_reaction( "OH(m) + OH(m) <=> H2O(m) + O(m)",
 #  Oxide surface.
 #
 #--------------------------------------------------------
-#
+#H
 # On the oxide surface, we consider four species:
 #  1. (ox)     - a surface vacancy
 #  2. O''(ox)  - a surface oxygen with charge -2
