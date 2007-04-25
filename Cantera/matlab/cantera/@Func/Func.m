@@ -62,6 +62,8 @@ else
     itype = 30;
   elseif strcmp(typ,'ratio')
     itype = 40;
+  elseif strcmp(typ,'composite')
+    itype = 60;
   end
   x.f1 = n;
   x.f2 = p;

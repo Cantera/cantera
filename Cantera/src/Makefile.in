@@ -39,7 +39,7 @@ SUNDIALS_INC = @sundials_include@
 BASE_OBJ   = State.o Elements.o Constituents.o stringUtils.o misc.o \
              importCTML.o plots.o \
              xml.o Phase.o DenseMatrix.o ctml.o funcs.o \
-             phasereport.o ct2ctml.o
+             phasereport.o ct2ctml.o Func1.o
 
 BASE_H     = State.h Elements.h Constituents.h stringUtils.h global.h \
              importCTML.h plots.h xml.h Phase.h DenseMatrix.h ctml.h \

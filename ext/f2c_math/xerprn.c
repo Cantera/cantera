@@ -1,24 +1,13 @@
-/* xerprn.f -- translated by f2c (version 20031025).
-   You must link the resulting object file with libf2c:
-	on Microsoft Windows system, link with libf2c.lib;
-	on Linux or Unix systems, link with .../path/to/libf2c.a -lm
-	or, if you install libf2c.a in a standard place, with -lf2c -lm
-	-- in that order, at the end of the command line, as in
-		cc *.o -lf2c -lm
-	Source for libf2c is in /netlib/f2c/libf2c.zip, e.g.,
-
-		http://www.netlib.org/f2c/libf2c.zip
+/* xerprn.f -- translated by f2c (version 20030320).
+   You must link the resulting object file with the libraries:
+	-lf2c -lm   (in that order)
 */
 
-#ifdef _cpluscplus
-extern "C" {
-#endif
 #include "f2c.h"
 
 /* Table of constant values */
 
 static integer c__4 = 4;
-static integer c__1 = 1;
 
 /* DECK XERPRN */
 /* Subroutine */ int xerprn_(char *prefix, integer *npref, char *messg, 
@@ -30,22 +19,17 @@ static integer c__1 = 1;
     /* Builtin functions */
     integer i_len(char *, ftnlen);
     /* Subroutine */ int s_copy(char *, char *, ftnlen, ftnlen);
-    integer s_wsfe(cilist *), do_fio(integer *, char *, ftnlen), e_wsfe(void),
-	     i_indx(char *, char *, ftnlen, ftnlen), s_cmp(char *, char *, 
+    integer i_indx(char *, char *, ftnlen, ftnlen), s_cmp(char *, char *, 
 	    ftnlen, ftnlen);
 
     /* Local variables */
-    static integer i__, n, iu[5];
-    static char cbuff[148];
-    static integer lpref, nextc, lwrap, nunit;
+    integer i__, n, iu[5];
+    extern /* Subroutine */ int printstring_(char *, ftnlen);
+    char cbuff[148];
+    integer lpref, nextc, lwrap, nunit;
     extern integer i1mach_(integer *);
-    static integer lpiece, idelta, lenmsg;
+    integer lpiece, idelta, lenmsg;
     extern /* Subroutine */ int xgetua_(integer *, integer *);
-
-    /* Fortran I/O blocks */
-    static cilist io___9 = { 0, 0, 0, "(A)", 0 };
-    static cilist io___13 = { 0, 0, 0, "(A)", 0 };
-
 
 /* ***BEGIN PROLOGUE  XERPRN */
 /* ***SUBSIDIARY */
@@ -177,14 +161,10 @@ L30:
     if (lenmsg == 0) {
 	i__1 = lpref;
 	s_copy(cbuff + i__1, " ", lpref + 1 - i__1, (ftnlen)1);
-	i__1 = nunit;
-	for (i__ = 1; i__ <= i__1; ++i__) {
-	    io___9.ciunit = iu[i__ - 1];
-	    s_wsfe(&io___9);
-	    do_fio(&c__1, cbuff, lpref + 1);
-	    e_wsfe();
-/* L40: */
-	}
+	printstring_(cbuff, (ftnlen)148);
+/*         DO 40 I=1,NUNIT */
+/*            WRITE(IU(I), '(A)') CBUFF(1:LPREF+1) */
+/*   40    CONTINUE */
 	return 0;
     }
 
@@ -296,14 +276,10 @@ L58:
 
 /*       PRINT */
 
-    i__1 = nunit;
-    for (i__ = 1; i__ <= i__1; ++i__) {
-	io___13.ciunit = iu[i__ - 1];
-	s_wsfe(&io___13);
-	do_fio(&c__1, cbuff, lpref + lpiece);
-	e_wsfe();
-/* L60: */
-    }
+    printstring_(cbuff, (ftnlen)148);
+/*      DO 60 I=1,NUNIT */
+/*         WRITE(IU(I), '(A)') CBUFF(1:LPREF+LPIECE) */
+/*   60 CONTINUE */
 
     if (nextc <= lenmsg) {
 	goto L50;
@@ -311,6 +287,3 @@ L58:
     return 0;
 } /* xerprn_ */
 
-#ifdef _cpluscplus
-}
-#endif

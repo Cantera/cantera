@@ -25,7 +25,7 @@ minute = 60.0
 #
 #######################################################################
 
-tc = 800.0                        # Temperature in Centigrade
+tc = 800.0                        # Temperature in Celsius
 
 length = 0.3 * cm                 # Catalyst bed length
 area = 1.0 * cm * cm              # Catalyst bed area
@@ -83,7 +83,7 @@ mass_flow_rate = velocity * rho0 * area
 # upstream. Since in a PFR model there is no diffusion, the upstream
 # reactors are not affected by any downstream reactors, and therefore
 # the problem may be solved by simply marching from the first to last
-# reactors, integrating each one to steady state.
+# reactor, integrating each one to steady state.
 
 for n in range(NReactors):
     
@@ -112,7 +112,7 @@ for n in range(NReactors):
         v = Valve(upstream = r, downstream = downstream, Kv = 3.0e-6)
 
         # The mass flow rate into the reactor will be fixed by using a
-        # MassFlowController obbject.
+        # MassFlowController object.
         m = MassFlowController(upstream = upstream,
                                downstream = r, mdot = mass_flow_rate)
 
@@ -126,19 +126,30 @@ for n in range(NReactors):
             time = time + dt
             sim.advance(time)
             
-            # check whether surface coverages are in steady state. 
+            # check whether surface coverages are in steady
+            # state. This will be the case if the creation and
+            # destruction rates for a surface (but not gas) species
+            # are equal. 
             alldone = 1
+
+	    # Note: netProduction = creation - destruction. By
+	    # supplying the surface object as an argument, only the
+	    # values for the surface species are returned by these
+	    # methods
             sdot = surf.netProductionRates(surf)
             cdot = surf.creationRates(surf)
             ddot = surf.destructionRates(surf)
             for ks in range(nsurf):
                 ratio = sdot[ks]/(cdot[ks] + ddot[ks])
-                #print ks, ratio
                 if ratio < 0.0: ratio = -ratio
                 if ratio > 1.0e-11 or time < 10*dt:
                     alldone = 0
+		    
             if alldone: break
 
+	# set the gas object state to that of this reactor, in
+	# preparation for the simulation of the next reactor
+	# downstream, where this object will set the inlet conditions
         gas = r.contents()
 
         dist = n*rlen * 1.0e3   # distance in mm

@@ -132,7 +132,7 @@ BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="default"}
 # The Fortran 90/95 compiler. If set to "default", the script will
 # look for a Fortran 90/95 compiler on your system by the name of
 # "f95", "gfortran", or "g95".
-F90=${F90:="default"}
+F90=${F90:="gfortran"}
 
 # Compiler option flags for the Fortran 90/95 compiler. If you are
 # using the Absoft or the NAG compiler, additional options specific to
@@ -199,6 +199,10 @@ WITH_IDEAL_SOLUTIONS=${WITH_IDEAL_SOLUTIONS:="y"}
 # models for electrolyte solutions
 WITH_ELECTROLYTES=${WITH_ELECTROLYTES:="y"}
 
+# Enable generating phase models from PrIMe models. For more
+# information about PrIME, see http://www.primekinetics.org
+# WARNING: Support for PrIMe is experimental!
+WITH_PRIME=${WITH_PRIME:="n"}
 
 ######################################################################
 # if set to 'y', the ck2cti program that converts Chemkin input files
@@ -327,7 +331,7 @@ LCXX_END_LIBS=${LCXX_END_LIBS:="-lm"}
 PIC=${PIC:=-fPIC}
 
 # the compiler option to create a shared library from object files
-SHARED=${SHARED:="-shared"}
+SHARED=${SHARED:="-dynamic"}
  
 
 #-------------------------------------------------------------------
@@ -479,6 +483,7 @@ export WITH_STOICH_SUBSTANCE
 export WITH_PURE_FLUIDS
 export WITH_IDEAL_SOLUTIONS
 export WITH_ELECTROLYTES
+export WITH_PRIME
 
 #cd config
 chmod +x ./configure 

@@ -1,35 +1,14 @@
-/* polfit.f -- translated by f2c (version 20031025).
-   You must link the resulting object file with libf2c:
-	on Microsoft Windows system, link with libf2c.lib;
-	on Linux or Unix systems, link with .../path/to/libf2c.a -lm
-	or, if you install libf2c.a in a standard place, with -lf2c -lm
-	-- in that order, at the end of the command line, as in
-		cc *.o -lf2c -lm
-	Source for libf2c is in /netlib/f2c/libf2c.zip, e.g.,
-
-		http://www.netlib.org/f2c/libf2c.zip
+/* polfit.f -- translated by f2c (version 20030320).
+   You must link the resulting object file with the libraries:
+	-lf2c -lm   (in that order)
 */
 
-#ifdef _cpluscplus
-extern "C" {
-#endif
 #include "f2c.h"
-
-/* Table of constant values */
-
-static integer c__2 = 2;
-static integer c__1 = 1;
 
 /* DECK POLFIT */
 /* Subroutine */ int polfit_(integer *n, real *x, real *y, real *w, integer *
 	maxdeg, integer *ndeg, real *eps, real *r__, integer *ierr, real *a)
 {
-    /* Initialized data */
-
-    static real co[12]	/* was [4][3] */ = { -13.08685f,-2.4648165f,
-	    -3.3846535f,-1.2973162f,-3.3381146f,-1.7812271f,-3.2578406f,
-	    -1.6589279f,-1.6282703f,-1.3152745f,-3.2640179f,-1.9829776f };
-
     /* System generated locals */
     integer i__1;
     real r__1;
@@ -38,23 +17,19 @@ static integer c__1 = 1;
     double sqrt(doublereal);
 
     /* Local variables */
-    static real f;
-    static integer i__, j, m, k1, k2, k3, k4, k5;
-    static real w1, w11, xm, yp;
-    static integer jp1;
-    static real den, sig;
-    static integer k1pj, k2pj, k4pi, k5pi, k3pi, mop1;
-    static real degf;
-    static integer nder;
-    static real sigj;
-    static integer ksig, jpas;
-    static real temp, etst;
-    static doublereal temd1, temd2;
-    static integer idegf, nfail;
-    static real fcrit, sigjm1, sigpas;
+    integer i__, j, m, k1, k2, k3, k4, k5;
+    real w1, w11, xm, yp;
+    integer jp1;
+    real sig;
+    integer k1pj, k2pj, k4pi, k3pi, k5pi, mop1, nder;
+    real sigj;
+    integer jpas;
+    real temp, etst;
+    doublereal temd1, temd2;
+    integer nfail;
+    real sigjm1, sigpas;
     extern /* Subroutine */ int pvalue_(integer *, integer *, real *, real *, 
-	    real *, real *), xermsg_(char *, char *, char *, integer *, 
-	    integer *, ftnlen, ftnlen, ftnlen);
+	    real *, real *);
 
 /* ***BEGIN PROLOGUE  POLFIT */
 /* ***PURPOSE  Fit discrete data in a least squares sense by polynomials */
@@ -177,6 +152,14 @@ static integer c__1 = 1;
 /*   920501  Reformatted the REFERENCES section.  (WRB) */
 /*   920527  Corrected erroneous statements in DESCRIPTION.  (WRB) */
 /* ***END PROLOGUE  POLFIT */
+/*      DIMENSION CO(4,3) */
+/*      SAVE CO */
+/*      DATA  CO(1,1), CO(2,1), CO(3,1), CO(4,1), CO(1,2), CO(2,2), */
+/*     1      CO(3,2), CO(4,2), CO(1,3), CO(2,3), CO(3,3), */
+/*     2  CO(4,3)/-13.086850,-2.4648165,-3.3846535,-1.2973162, */
+/*     3          -3.3381146,-1.7812271,-3.2578406,-1.6589279, */
+/*     4          -1.6282703,-1.3152745,-3.2640179,-1.9829776/ */
+/* ***FIRST EXECUTABLE STATEMENT  POLFIT */
     /* Parameter adjustments */
     --a;
     --r__;
@@ -185,7 +168,6 @@ static integer c__1 = 1;
     --x;
 
     /* Function Body */
-/* ***FIRST EXECUTABLE STATEMENT  POLFIT */
     m = abs(*n);
     if (m == 0) {
 	goto L30;
@@ -200,121 +182,6 @@ static integer c__1 = 1;
     }
     if (*eps < 0.f && m == mop1) {
 	goto L30;
-    }
-    xm = (real) m;
-    etst = *eps * *eps * xm;
-    if (w[1] < 0.f) {
-	goto L2;
-    }
-    i__1 = m;
-    for (i__ = 1; i__ <= i__1; ++i__) {
-	if (w[i__] <= 0.f) {
-	    goto L30;
-	}
-/* L1: */
-    }
-    goto L4;
-L2:
-    i__1 = m;
-    for (i__ = 1; i__ <= i__1; ++i__) {
-/* L3: */
-	w[i__] = 1.f;
-    }
-L4:
-    if (*eps >= 0.f) {
-	goto L8;
-    }
-
-/* DETERMINE SIGNIFICANCE LEVEL INDEX TO BE USED IN STATISTICAL TEST FOR */
-/* CHOOSING DEGREE OF POLYNOMIAL FIT */
-
-    if (*eps > -.55f) {
-	goto L5;
-    }
-    idegf = m - *maxdeg - 1;
-    ksig = 1;
-    if (idegf < 10) {
-	ksig = 2;
-    }
-    if (idegf < 5) {
-	ksig = 3;
-    }
-    goto L8;
-L5:
-    ksig = 1;
-    if (*eps < -.03f) {
-	ksig = 2;
-    }
-    if (*eps < -.07f) {
-	ksig = 3;
-    }
-
-/* INITIALIZE INDEXES AND COEFFICIENTS FOR FITTING */
-
-L8:
-    k1 = *maxdeg + 1;
-    k2 = k1 + *maxdeg;
-    k3 = k2 + *maxdeg + 2;
-    k4 = k3 + m;
-    k5 = k4 + m;
-    i__1 = k4;
-    for (i__ = 2; i__ <= i__1; ++i__) {
-/* L9: */
-	a[i__] = 0.f;
-    }
-    w11 = 0.f;
-    if (*n < 0) {
-	goto L11;
-    }
-
-/* UNCONSTRAINED CASE */
-
-    i__1 = m;
-    for (i__ = 1; i__ <= i__1; ++i__) {
-	k4pi = k4 + i__;
-	a[k4pi] = 1.f;
-/* L10: */
-	w11 += w[i__];
-    }
-    goto L13;
-
-/* CONSTRAINED CASE */
-
-L11:
-    i__1 = m;
-    for (i__ = 1; i__ <= i__1; ++i__) {
-	k4pi = k4 + i__;
-/* L12: */
-/* Computing 2nd power */
-	r__1 = a[k4pi];
-	w11 += w[i__] * (r__1 * r__1);
-    }
-
-/* COMPUTE FIT OF DEGREE ZERO */
-
-L13:
-    temd1 = 0.;
-    i__1 = m;
-    for (i__ = 1; i__ <= i__1; ++i__) {
-	k4pi = k4 + i__;
-	temd1 += (doublereal) w[i__] * (doublereal) y[i__] * (doublereal) a[
-		k4pi];
-/* L14: */
-    }
-    temd1 /= (doublereal) w11;
-    a[k2 + 1] = temd1;
-    sigj = 0.f;
-    i__1 = m;
-    for (i__ = 1; i__ <= i__1; ++i__) {
-	k4pi = k4 + i__;
-	k5pi = k5 + i__;
-	temd2 = temd1 * (doublereal) a[k4pi];
-	r__[i__] = temd2;
-	a[k5pi] = temd2 - (doublereal) r__[i__];
-/* L15: */
-/* Computing 2nd power */
-	r__1 = y[i__] - r__[i__] - a[k5pi];
-	sigj += w[i__] * (r__1 * r__1);
     }
     j = 0;
 
@@ -426,15 +293,12 @@ L23:
     if (sigj == 0.f) {
 	goto L29;
     }
-    degf = (real) (m - j - 1);
-    den = (co[(ksig << 2) - 1] * degf + 1.f) * degf;
-    fcrit = ((co[(ksig << 2) - 2] * degf + co[(ksig << 2) - 3]) * degf + co[(
-	    ksig << 2) - 4]) / den;
-    fcrit *= fcrit;
-    f = (sigjm1 - sigj) * degf / sigj;
-    if (f < fcrit) {
-	goto L25;
-    }
+/*      DEGF = M - J - 1 */
+/*      DEN = (CO(4,KSIG)*DEGF + 1.0)*DEGF */
+/*      FCRIT = (((CO(3,KSIG)*DEGF) + CO(2,KSIG))*DEGF + CO(1,KSIG))/DEN */
+/*      FCRIT = FCRIT*FCRIT */
+/*      F = (SIGJM1 - SIGJ)*DEGF/SIGJ */
+/*      IF (F .LT. FCRIT) GO TO 25 */
 
 /* POLYNOMIAL OF DEGREE J SATISFIES F TEST */
 
@@ -450,7 +314,7 @@ L24:
 /* POLYNOMIAL OF DEGREE J FAILS F TEST.  IF THERE HAVE BEEN THREE */
 /* SUCCESSIVE FAILURES, A STATISTICALLY BEST DEGREE HAS BEEN FOUND. */
 
-L25:
+/* L25: */
     ++nfail;
     if (nfail >= 3) {
 	goto L29;
@@ -494,8 +358,8 @@ L29:
     goto L33;
 L30:
     *ierr = 2;
-    xermsg_("SLATEC", "POLFIT", "INVALID INPUT PARAMETER.", &c__2, &c__1, (
-	    ftnlen)6, (ftnlen)6, (ftnlen)24);
+/*      CALL XERMSG ('SLATEC', 'POLFIT', 'INVALID INPUT PARAMETER.', 2, */
+/*     +   1) */
     goto L37;
 L31:
     *ierr = 3;
@@ -528,6 +392,3 @@ L37:
     return 0;
 } /* polfit_ */
 
-#ifdef _cpluscplus
-}
-#endif

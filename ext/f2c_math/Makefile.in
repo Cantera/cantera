@@ -73,7 +73,8 @@ xerhlt.o \
 xermsg.o \
 xerprn.o \
 xersve.o \
-xgetua.o 
+xgetua.o \
+printstring.o
 
 SRCS = $(OBJS:.o=.cpp)
 

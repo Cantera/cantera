@@ -18,6 +18,10 @@
 
 #include "ct_defs.h"
 
+#include <iostream>
+#include <string>
+using namespace std;
+
 namespace Cantera {
 
     const int FourierFuncType = 1;
@@ -29,6 +33,20 @@ namespace Cantera {
     const int ProdFuncType = 30;
     const int RatioFuncType = 40;
     const int PeriodicFuncType = 50;
+    const int CompositeFuncType = 60;
+    const int TimesConstantFuncType = 70;
+    const int PlusConstantFuncType = 80;
+    const int SinFuncType = 100;
+    const int CosFuncType = 102;
+    const int ExpFuncType = 104;
+    const int PowFuncType = 106;
+    const int ConstFuncType = 110;
+
+    class Sin1;
+    class Cos1;
+    class Exp1;
+    class Pow1;
+    class TimesConstant1;
 
     /**
      * Base class for 'functor' classes that evaluate a function of
@@ -36,15 +54,419 @@ namespace Cantera {
      */
     class Func1 {
     public:
-        Func1() {}
+        Func1() : m_c(0.0), m_f1(0), m_f2(0) {}
         virtual ~Func1() {}
+        virtual int ID() const { return 0; }
+
+        virtual Func1& duplicate() { cout << "DUPL ERR: ID = " << ID() << endl; 
+            return *(new Func1);}
+
         /// Calls method eval to evaluate the function
-        doublereal operator()(doublereal t) { return eval(t); }
+        doublereal operator()(doublereal t) const { return eval(t); }
+        
         /// Evaluate the function.
-        virtual doublereal eval(doublereal t) { return 0.0; }
+        virtual doublereal eval(doublereal t) const { return 0.0; }
+
+        virtual Func1& derivative() const {
+            cout << "ERR: ID = " << ID() << endl; 
+            return *(new Func1);
+        }
+
+        bool isIdentical(Func1& other) const {
+            if ((ID() != other.ID()) || (m_c != other.m_c))
+                return false;
+            if (m_f1) {
+                if (!other.m_f1) return false;
+                if (!m_f1->isIdentical(*other.m_f1)) return false;
+            }
+            if (m_f2) {
+                if (!other.m_f2) return false;
+                if (!m_f2->isIdentical(*other.m_f2)) return false;
+            }
+            return true;
+        }
+
+        virtual doublereal isProportional(TimesConstant1& other);
+        virtual doublereal isProportional(Func1& other);
+
+        virtual std::string write(std::string arg) const;
+
+        doublereal c() const { return m_c; }
+        Func1& func1() { return *m_f1; }
+        Func1& func2() { return *m_f2; }
+        virtual int order() const { return 3; }
+        Func1& func1_dup() const { return m_f1->duplicate(); }
+        Func1& func2_dup() const { return m_f2->duplicate(); }
+
+    protected:
+        doublereal m_c;
+        Func1 *m_f1, *m_f2;
     private:
     };
 
+
+    Func1& newSumFunction(Func1& f1, Func1& f2);
+    Func1& newDiffFunction(Func1& f1, Func1& f2);
+    Func1& newProdFunction(Func1& f1, Func1& f2);
+    Func1& newRatioFunction(Func1& f1, Func1& f2);
+    Func1& newCompositeFunction(Func1& f1, Func1& f2);
+    Func1& newTimesConstFunction(Func1& f1, doublereal c);
+    Func1& newPlusConstFunction(Func1& f1, doublereal c);
+
+    /// sin
+    class Sin1 : public Func1 {
+    public:
+        Sin1(doublereal omega = 1.0) {
+            m_c = omega;
+        }
+        virtual ~Sin1() {}
+        virtual std::string write(std::string arg) const;
+        virtual Func1& duplicate() { return *(new Sin1(m_c)); }
+        virtual int ID() const { return SinFuncType; }
+        virtual doublereal eval(doublereal t) const {
+            return sin(m_c*t);
+        }
+        virtual Func1& derivative() const;
+
+    protected:
+
+    };
+
+    /// cos
+    class Cos1 : public Func1 {
+    public:
+        Cos1(doublereal omega = 1.0) {
+            m_c = omega;
+        }
+        virtual ~Cos1() {}
+        virtual std::string write(std::string arg) const;
+        virtual Func1& duplicate() { return *(new Cos1(m_c)); }
+        virtual int ID() const { return CosFuncType; }
+        virtual doublereal eval(doublereal t) const {
+            return cos(m_c * t);
+        }
+        virtual Func1& derivative() const;
+
+    protected:
+    };
+
+    /// exp
+    class Exp1 : public Func1 {
+    public:
+        Exp1(doublereal A = 1.0) {m_c = A;}
+        virtual ~Exp1() {}
+        virtual std::string write(std::string arg) const;
+        virtual int ID() const { return ExpFuncType; }
+        virtual Func1& duplicate() { return *(new Exp1(m_c)); }
+        virtual doublereal eval(doublereal t) const {
+            return exp(m_c*t);
+        }
+
+        virtual Func1& derivative() const;
+
+    protected:
+
+    };
+
+    /// pow
+    class Pow1 : public Func1 {
+    public:
+        Pow1(doublereal n) {m_c = n;}
+        virtual ~Pow1() {}
+        virtual int ID() const { return PowFuncType; }
+        virtual Func1& duplicate() { return *(new Pow1(m_c)); }
+        virtual doublereal eval(doublereal t) const {
+            return pow(t, m_c);
+        }
+        virtual Func1& derivative() const;
+
+    protected:
+
+    };
+
+    /**
+     * Constant.
+     */    
+    class Const1 : public Func1 {
+    public:
+        Const1(doublereal A) {
+            m_c = A;
+        }
+        virtual ~Const1() {}
+        virtual int ID() const { return ConstFuncType; }
+        virtual doublereal eval(doublereal t) const {
+            return m_c;
+        }
+        virtual Func1& derivative() {
+            Func1* z = new Const1(0.0);
+            return *z;
+        }
+
+    protected:
+    };
+
+
+
+    /**
+     * Sum of two functions.
+     */
+    class Sum1 : public Func1 {
+    public:
+        Sum1(Func1& f1, Func1& f2) {
+            m_f1 = &f1;
+            m_f2 = &f2;
+        }
+        virtual ~Sum1() {
+            delete m_f1;
+            delete m_f2;
+        }
+        virtual int ID() const { return SumFuncType; }
+        virtual doublereal eval(doublereal t) const {
+            return m_f1->eval(t) + m_f2->eval(t);
+        }
+        virtual Func1& duplicate() {
+            Func1& f1d = m_f1->duplicate();
+            Func1& f2d = m_f2->duplicate();
+            Func1& dup = newSumFunction(f1d, f2d);
+            return dup;
+        }
+        virtual Func1& derivative() {
+            Func1& d1 = m_f1->derivative();
+            Func1& d2 = m_f2->derivative();
+            Func1& d = newSumFunction(d1, d2);
+            return d;
+        }
+        virtual int order() const { return 0; }
+        virtual std::string write(std::string arg) const;            
+    protected:
+    };
+
+
+    /**
+     * Difference of two functions.
+     */
+    class Diff1 : public Func1 {
+    public:
+        Diff1(Func1& f1, Func1& f2) {
+            m_f1 = &f1;
+            m_f2 = &f2;
+        }
+        virtual ~Diff1() {
+            delete m_f1;
+            delete m_f2;
+        }
+        virtual int ID() const { return DiffFuncType; }
+        virtual doublereal eval(doublereal t) const {
+            return m_f1->eval(t) - m_f2->eval(t);
+        }
+        virtual Func1& duplicate() {
+            Func1& f1d = m_f1->duplicate();
+            Func1& f2d = m_f2->duplicate();
+            Func1& dup = newDiffFunction(f1d, f2d);
+            return dup;
+        }
+        virtual Func1& derivative() const {
+            Func1& d = newDiffFunction(m_f1->derivative(), m_f2->derivative());
+            return d;
+        }
+        virtual int order() const { return 0; }
+        virtual std::string write(std::string arg) const;
+
+    protected:
+    };
+
+
+    /**
+     * Product of two functions.
+     */
+    class Product1 : public Func1 {
+    public:
+        Product1(Func1& f1, Func1& f2) {
+            m_f1 = &f1;
+            m_f2 = &f2;
+        }
+
+        virtual ~Product1() {
+            cout << "In Product1 destructor, deleting" << m_f1 << " " << m_f2 << endl;
+            delete m_f1;
+            delete m_f2;
+        }
+        virtual int ID() const { return ProdFuncType; }
+        virtual Func1& duplicate() {
+            Func1& f1d = m_f1->duplicate();
+            Func1& f2d = m_f2->duplicate();
+            Func1& dup = newProdFunction(f1d, f2d);
+            return dup;
+        }
+        virtual std::string write(std::string arg) const;
+        virtual doublereal eval(doublereal t) const {
+            return m_f1->eval(t) * m_f2->eval(t);
+        }
+        virtual Func1& derivative() const {
+            Func1& a1 = newProdFunction(m_f1->duplicate(), m_f2->derivative());
+            Func1& a2 = newProdFunction(m_f2->duplicate(), m_f1->derivative());
+            Func1& s = newSumFunction(a1, a2);
+            return s;
+        }
+        virtual int order() const { return 1; }
+                
+    protected:
+    };
+
+    /**
+     * Product of two functions.
+     */
+    class TimesConstant1 : public Func1 {
+    public:
+        TimesConstant1(Func1& f1, doublereal A) {
+            m_f1 = &f1;
+            m_c = A;
+        }
+
+        virtual ~TimesConstant1() {
+            delete m_f1;
+        }
+        virtual int ID() const { return TimesConstantFuncType; }
+        virtual Func1& duplicate() {
+            Func1& f1 = m_f1->duplicate();
+            Func1* dup = new TimesConstant1(f1, m_c);
+            return *dup;
+        }
+        virtual doublereal isProportional(TimesConstant1& other) {
+            if (func1().isIdentical(other.func1())) 
+                return (other.c()/c());
+            else
+                return 0.0;
+        }
+        virtual doublereal isProportional(Func1& other) {
+            if (func1().isIdentical(other)) return 1.0/c();
+            else return 0.0;
+        }
+        virtual doublereal eval(doublereal t) const {
+            return m_f1->eval(t) * m_c;
+        }
+        virtual Func1& derivative() const {
+            Func1& f1d = m_f1->derivative();
+            Func1* d = new TimesConstant1(f1d, m_c);
+            return *d;
+        }
+        virtual std::string write(std::string arg) const;
+        virtual int order() const { return 0; }                
+    protected:
+    };
+
+    /**
+     * A function plus a constant.
+     */
+    class PlusConstant1 : public Func1 {
+    public:
+        PlusConstant1(Func1& f1, doublereal A) {
+            m_f1 = &f1;
+            m_c = A;
+        }
+
+        virtual ~PlusConstant1() {
+            cout << "PlusConstant1: deleting " << m_f1 << endl;
+            delete m_f1;
+        }
+        virtual int ID() const { return PlusConstantFuncType; }
+        virtual Func1& duplicate() {
+            Func1& f1 = m_f1->duplicate();
+            Func1* dup = new PlusConstant1(f1, m_c);
+            return *dup;
+        }
+
+        virtual doublereal eval(doublereal t) const {
+            return m_f1->eval(t) + m_c;
+        }
+        virtual Func1& derivative() const {
+            Func1& f1d = m_f1->derivative();
+            return f1d;
+        }
+        virtual std::string write(std::string arg) const;
+        virtual int order() const { return 0; }
+                
+    protected:
+    };
+
+
+    /**
+     * Ratio of two functions.
+     */
+    class Ratio1 : public Func1 {
+    public:
+        Ratio1(Func1& f1, Func1& f2) {
+            m_f1 = &f1;
+            m_f2 = &f2;
+        }
+        virtual ~Ratio1() {
+            cout << "Ratio1: deleting " << m_f1 << " " << m_f2 << endl;
+            delete m_f1;
+            delete m_f2;
+        }
+        virtual int ID() const { return RatioFuncType; }
+        virtual doublereal eval(doublereal t) const {
+            return m_f1->eval(t) / m_f2->eval(t);
+        }
+        virtual Func1& duplicate() {
+            Func1& f1d = m_f1->duplicate();
+            Func1& f2d = m_f2->duplicate();
+            Func1& dup = newRatioFunction(f1d, f2d);
+            return dup;
+        }
+        virtual Func1& derivative() const {
+            Func1& a1 = newProdFunction(m_f1->derivative(), m_f2->duplicate());
+            Func1& a2 = newProdFunction(m_f1->duplicate(), m_f2->derivative());
+            Func1& s = newDiffFunction(a1, a2);
+            Func1& p = newProdFunction(m_f2->duplicate(), m_f2->duplicate());
+            Func1& r = newRatioFunction(s, p);
+            return r;
+        }
+        virtual std::string write(std::string arg) const;
+        virtual int order() const { return 1; }
+
+    protected:
+    };
+
+    /**
+     * Composite function.
+     */
+    class Composite1 : public Func1 {
+    public:
+        Composite1(Func1& f1, Func1& f2) {
+            m_f1 = &f1;
+            m_f2 = &f2;
+        }
+        virtual ~Composite1() {
+            delete m_f1;
+            delete m_f2;
+        }
+        virtual int ID() const { return CompositeFuncType; }
+        virtual doublereal eval(doublereal t) const {
+            return m_f1->eval( m_f2->eval(t) );
+        }
+        virtual Func1& duplicate() {
+            Func1& f1d = m_f1->duplicate();
+            Func1& f2d = m_f2->duplicate();
+            Func1& dup = newCompositeFunction(f1d, f2d);
+            return dup;
+        }
+        virtual Func1& derivative() const {
+            Func1& d1 = m_f1->derivative();
+            Func1& d3 = newCompositeFunction(d1, m_f2->duplicate());
+            Func1& d2 = m_f2->derivative();
+            Func1& p = newProdFunction(d3, d2);
+            return p;
+        }
+        virtual std::string write(std::string arg) const;
+        virtual int order() const { return 2; }
+    protected:
+    };
+
+    //
+    // The functors below are the old-style ones. They still work, 
+    // but can't do derivatives.
+    //
 
     /**
      * A Gaussian.
@@ -64,7 +486,7 @@ namespace Cantera {
             m_tau = fwhm/(2.0*std::sqrt(std::log(2.0)));
         }
         virtual ~Gaussian() {}
-        virtual doublereal eval(doublereal t) {
+        virtual doublereal eval(doublereal t) const {
             doublereal x = (t - m_t0)/m_tau;
             return m_A*std::exp(-x*x);
         }
@@ -86,7 +508,7 @@ namespace Cantera {
         }
         virtual ~Poly1() {}
 
-        virtual doublereal eval(doublereal t) {
+        virtual doublereal eval(doublereal t) const {
             int n;
             doublereal r = m_c[m_n-1];
             for (n = 1; n < m_n; n++) {
@@ -124,7 +546,7 @@ namespace Cantera {
         }
         virtual ~Fourier1() {}
 
-        virtual doublereal eval(doublereal t) {
+        virtual doublereal eval(doublereal t) const {
             int n, nn;
             doublereal sum = m_a0_2;
             for (n = 0; n < m_n; n++) {
@@ -165,7 +587,7 @@ namespace Cantera {
         }
         virtual ~Arrhenius1() {}
 
-        virtual doublereal eval(doublereal t) {
+        virtual doublereal eval(doublereal t) const {
             int n;
             doublereal sum = 0.0;
             for (n = 0; n < m_n; n++) {
@@ -183,100 +605,25 @@ namespace Cantera {
      *  Periodic function. Takes any function and makes it
      *  periodic with period T.
      */
-    class PeriodicFunc : public Func1 {
+    class Periodic1 : public Func1 {
     public:
-        PeriodicFunc(Func1& f, doublereal T) {
+        Periodic1(Func1& f, doublereal T) {
             m_func = &f;
-            m_period = T;
+            m_c = T;
         }
-        virtual ~PeriodicFunc() {}
-        virtual doublereal eval(doublereal t) {
-            int np = int(t/m_period);
-            doublereal time = t - np*m_period;
+        virtual ~Periodic1() { delete m_func; }
+        virtual doublereal eval(doublereal t) const {
+            int np = int(t/m_c);
+            doublereal time = t - np*m_c;
             return m_func->eval(time);
         }
     protected:
         Func1* m_func;
-        doublereal m_period;
 
     private:
     };
 
-
-    /**
-     * Sum of two functions.
-     */
-    class Func1Sum : public Func1 {
-    public:
-        Func1Sum(Func1& f1, Func1& f2) {
-            m_f1 = &f1;
-            m_f2 = &f2;
-        }
-        virtual ~Func1Sum() {}
-        virtual doublereal eval(doublereal t) {
-            return m_f1->eval(t) + m_f2->eval(t);
-        }
-    protected:
-        Func1 *m_f1, *m_f2;
-    private:
-    };
-
-
-    /**
-     * Difference of two functions.
-     */
-    class Func1Diff : public Func1 {
-    public:
-        Func1Diff(Func1& f1, Func1& f2) {
-            m_f1 = &f1;
-            m_f2 = &f2;
-        }
-        virtual ~Func1Diff() {}
-        virtual doublereal eval(doublereal t) {
-            return m_f1->eval(t) - m_f2->eval(t);
-        }
-    protected:
-        Func1 *m_f1, *m_f2;
-    private:
-    };
-
-
-    /**
-     * Product of two functions.
-     */
-    class Func1Product : public Func1 {
-    public:
-        Func1Product(Func1& f1, Func1& f2) {
-            m_f1 = &f1;
-            m_f2 = &f2;
-        }
-        virtual ~Func1Product() {}
-        virtual doublereal eval(doublereal t) {
-            return m_f1->eval(t) * m_f2->eval(t);
-        }
-    protected:
-        Func1 *m_f1, *m_f2;
-    private:
-    };
-
-
-    /**
-     * Ratio of two functions.
-     */
-    class Func1Ratio : public Func1 {
-    public:
-        Func1Ratio(Func1& f1, Func1& f2) {
-            m_f1 = &f1;
-            m_f2 = &f2;
-        }
-        virtual ~Func1Ratio() {}
-        virtual doublereal eval(doublereal t) {
-            return m_f1->eval(t) / m_f2->eval(t);
-        }
-    protected:
-        Func1 *m_f1, *m_f2;
-    private:
-    };
 }
+
 
 #endif

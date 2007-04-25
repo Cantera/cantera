@@ -1,18 +1,8 @@
-/* xermsg.f -- translated by f2c (version 20031025).
-   You must link the resulting object file with libf2c:
-	on Microsoft Windows system, link with libf2c.lib;
-	on Linux or Unix systems, link with .../path/to/libf2c.a -lm
-	or, if you install libf2c.a in a standard place, with -lf2c -lm
-	-- in that order, at the end of the command line, as in
-		cc *.o -lf2c -lm
-	Source for libf2c is in /netlib/f2c/libf2c.zip, e.g.,
-
-		http://www.netlib.org/f2c/libf2c.zip
+/* xermsg.f -- translated by f2c (version 20030320).
+   You must link the resulting object file with the libraries:
+	-lf2c -lm   (in that order)
 */
 
-#ifdef _cpluscplus
-extern "C" {
-#endif
 #include "f2c.h"
 
 /* Table of constant values */
@@ -35,6 +25,7 @@ static logical c_true = TRUE_;
     address a__1[2];
     integer i__1, i__2, i__3[2];
     char ch__1[87];
+    icilist ici__1;
 
     /* Builtin functions */
     /* Subroutine */ int s_copy(char *, char *, ftnlen, ftnlen);
@@ -43,27 +34,23 @@ static logical c_true = TRUE_;
     /* Subroutine */ int s_cat(char *, char **, integer *, integer *, ftnlen);
 
     /* Local variables */
-    static integer i__, lerr;
-    static char temp[72];
+    integer i__, lerr;
+    char temp[72];
     extern /* Subroutine */ int fdump_(void);
-    static char xlibr[8];
-    static integer ltemp, kount;
-    static char xsubr[8];
+    char xlibr[8];
+    integer ltemp, kount;
+    char xsubr[8];
     extern integer j4save_(integer *, integer *, logical *);
-    static integer llevel, maxmes;
-    static char lfirst[20];
+    integer llevel, maxmes;
+    char lfirst[20];
     extern /* Subroutine */ int xercnt_(char *, char *, char *, integer *, 
 	    integer *, integer *, ftnlen, ftnlen, ftnlen);
-    static integer lkntrl, kdummy;
+    integer lkntrl, kdummy;
     extern /* Subroutine */ int xerhlt_(char *, ftnlen);
-    static integer mkntrl;
+    integer mkntrl;
     extern /* Subroutine */ int xersve_(char *, char *, char *, integer *, 
 	    integer *, integer *, integer *, ftnlen, ftnlen, ftnlen), xerprn_(
 	    char *, integer *, char *, integer *, ftnlen, ftnlen);
-
-    /* Fortran I/O blocks */
-    static icilist io___14 = { 0, temp, 0, "('ERROR NUMBER = ', I8)", 72, 1 };
-
 
 /* ***BEGIN PROLOGUE  XERMSG */
 /* ***PURPOSE  Process error messages for SLATEC and other libraries. */
@@ -413,7 +400,12 @@ static logical c_true = TRUE_;
 /*          TRACEBACK. */
 
     if (lkntrl > 0) {
-	s_wsfi(&io___14);
+	ici__1.icierr = 0;
+	ici__1.icirnum = 1;
+	ici__1.icirlen = 72;
+	ici__1.iciunit = temp;
+	ici__1.icifmt = "('ERROR NUMBER = ', I8)";
+	s_wsfi(&ici__1);
 	do_fio(&c__1, (char *)&(*nerr), (ftnlen)sizeof(integer));
 	e_wsfi();
 	for (i__ = 16; i__ <= 22; ++i__) {
@@ -470,6 +462,3 @@ L30:
     return 0;
 } /* xermsg_ */
 
-#ifdef _cpluscplus
-}
-#endif

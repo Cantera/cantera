@@ -1,18 +1,8 @@
-/* pcoef.f -- translated by f2c (version 20031025).
-   You must link the resulting object file with libf2c:
-	on Microsoft Windows system, link with libf2c.lib;
-	on Linux or Unix systems, link with .../path/to/libf2c.a -lm
-	or, if you install libf2c.a in a standard place, with -lf2c -lm
-	-- in that order, at the end of the command line, as in
-		cc *.o -lf2c -lm
-	Source for libf2c is in /netlib/f2c/libf2c.zip, e.g.,
-
-		http://www.netlib.org/f2c/libf2c.zip
+/* pcoef.f -- translated by f2c (version 20030320).
+   You must link the resulting object file with the libraries:
+	-lf2c -lm   (in that order)
 */
 
-#ifdef _cpluscplus
-extern "C" {
-#endif
 #include "f2c.h"
 
 /* Table of constant values */
@@ -26,10 +16,10 @@ static integer c__1 = 1;
     integer i__1;
 
     /* Local variables */
-    static integer i__, ll, nr;
-    static real fac;
-    static integer new__, llp1, llp2;
-    static real save;
+    integer i__, ll, nr;
+    real fac;
+    integer new__, llp1, llp2;
+    real save;
     extern /* Subroutine */ int pvalue_(integer *, integer *, real *, real *, 
 	    real *, real *);
 
@@ -181,25 +171,25 @@ L4:
     double d_sign(doublereal *, doublereal *);
 
     /* Local variables */
-    static integer j, k, l, m;
-    static doublereal s, t;
-    static integer kb, la;
-    static doublereal ek;
-    static integer lm, mm, is, ju;
-    static doublereal sm, wk;
-    static integer lz, kp1;
-    static doublereal wkm;
+    integer j, k, l, m;
+    doublereal s, t;
+    integer kb, la;
+    doublereal ek;
+    integer lm, mm, is, ju;
+    doublereal sm, wk;
+    integer lz, kp1;
+    doublereal wkm;
     extern doublereal ddot_(integer *, doublereal *, integer *, doublereal *, 
 	    integer *);
-    static integer info;
+    integer info;
     extern /* Subroutine */ int dgbfa_(doublereal *, integer *, integer *, 
 	    integer *, integer *, integer *, integer *), dscal_(integer *, 
 	    doublereal *, doublereal *, integer *);
     extern doublereal dasum_(integer *, doublereal *, integer *);
-    static doublereal anorm;
+    doublereal anorm;
     extern /* Subroutine */ int daxpy_(integer *, doublereal *, doublereal *, 
 	    integer *, doublereal *, integer *);
-    static doublereal ynorm;
+    doublereal ynorm;
 
 
 /*     dgbco factors a double precision band matrix by gaussian */
@@ -546,23 +536,23 @@ L150:
     double d_sign(doublereal *, doublereal *);
 
     /* Local variables */
-    static integer j, k, l;
-    static doublereal s, t;
-    static integer kb;
-    static doublereal ek, sm, wk;
-    static integer kp1;
-    static doublereal wkm;
+    integer j, k, l;
+    doublereal s, t;
+    integer kb;
+    doublereal ek, sm, wk;
+    integer kp1;
+    doublereal wkm;
     extern doublereal ddot_(integer *, doublereal *, integer *, doublereal *, 
 	    integer *);
-    static integer info;
+    integer info;
     extern /* Subroutine */ int dgefa_(doublereal *, integer *, integer *, 
 	    integer *, integer *), dscal_(integer *, doublereal *, doublereal 
 	    *, integer *);
     extern doublereal dasum_(integer *, doublereal *, integer *);
-    static doublereal anorm;
+    doublereal anorm;
     extern /* Subroutine */ int daxpy_(integer *, doublereal *, doublereal *, 
 	    integer *, doublereal *, integer *);
-    static doublereal ynorm;
+    doublereal ynorm;
 
 
 /*     dgeco factors a double precision matrix by gaussian elimination */
@@ -823,10 +813,10 @@ L150:
     integer a_dim1, a_offset, i__1, i__2;
 
     /* Local variables */
-    static integer i__, j, k, l;
-    static doublereal t;
-    static integer kb, kp1, nm1;
-    static doublereal ten;
+    integer i__, j, k, l;
+    doublereal t;
+    integer kb, kp1, nm1;
+    doublereal ten;
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *, 
 	    integer *), dswap_(integer *, doublereal *, integer *, doublereal 
 	    *, integer *), daxpy_(integer *, doublereal *, doublereal *, 
@@ -1001,6 +991,3 @@ L150:
     return 0;
 } /* dgedi_ */
 
-#ifdef _cpluscplus
-}
-#endif

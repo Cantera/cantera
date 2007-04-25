@@ -1,18 +1,8 @@
-/* idamax.f -- translated by f2c (version 20031025).
-   You must link the resulting object file with libf2c:
-	on Microsoft Windows system, link with libf2c.lib;
-	on Linux or Unix systems, link with .../path/to/libf2c.a -lm
-	or, if you install libf2c.a in a standard place, with -lf2c -lm
-	-- in that order, at the end of the command line, as in
-		cc *.o -lf2c -lm
-	Source for libf2c is in /netlib/f2c/libf2c.zip, e.g.,
-
-		http://www.netlib.org/f2c/libf2c.zip
+/* idamax.f -- translated by f2c (version 20030320).
+   You must link the resulting object file with the libraries:
+	-lf2c -lm   (in that order)
 */
 
-#ifdef _cpluscplus
-extern "C" {
-#endif
 #include "f2c.h"
 
 integer idamax_(integer *n, doublereal *dx, integer *incx)
@@ -22,8 +12,8 @@ integer idamax_(integer *n, doublereal *dx, integer *incx)
     doublereal d__1;
 
     /* Local variables */
-    static integer i__, ix;
-    static doublereal dmax__;
+    integer i__, ix;
+    doublereal dmax__;
 
 
 /*     finds the index of element having max. absolute value. */
@@ -82,6 +72,3 @@ L30:
     return ret_val;
 } /* idamax_ */
 
-#ifdef _cpluscplus
-}
-#endif

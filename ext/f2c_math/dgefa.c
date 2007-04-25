@@ -1,18 +1,8 @@
-/* dgefa.f -- translated by f2c (version 20031025).
-   You must link the resulting object file with libf2c:
-	on Microsoft Windows system, link with libf2c.lib;
-	on Linux or Unix systems, link with .../path/to/libf2c.a -lm
-	or, if you install libf2c.a in a standard place, with -lf2c -lm
-	-- in that order, at the end of the command line, as in
-		cc *.o -lf2c -lm
-	Source for libf2c is in /netlib/f2c/libf2c.zip, e.g.,
-
-		http://www.netlib.org/f2c/libf2c.zip
+/* dgefa.f -- translated by f2c (version 20030320).
+   You must link the resulting object file with the libraries:
+	-lf2c -lm   (in that order)
 */
 
-#ifdef _cpluscplus
-extern "C" {
-#endif
 #include "f2c.h"
 
 /* Table of constant values */
@@ -26,9 +16,9 @@ static integer c__1 = 1;
     integer a_dim1, a_offset, i__1, i__2, i__3;
 
     /* Local variables */
-    static integer j, k, l;
-    static doublereal t;
-    static integer kp1, nm1;
+    integer j, k, l;
+    doublereal t;
+    integer kp1, nm1;
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *, 
 	    integer *), daxpy_(integer *, doublereal *, doublereal *, integer 
 	    *, doublereal *, integer *);
@@ -159,6 +149,3 @@ L70:
     return 0;
 } /* dgefa_ */
 
-#ifdef _cpluscplus
-}
-#endif

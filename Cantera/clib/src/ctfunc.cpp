@@ -35,7 +35,22 @@ extern "C" {
         func_t* r=0;
         int m = lenp;
         try {
-            if (type == FourierFuncType) {
+            if (type == SinFuncType) {
+                r = new Sin1(params[0]);
+            }
+            else if (type == CosFuncType) {
+                r = new Cos1(params[0]);
+            }
+            else if (type == ExpFuncType) {
+                r = new Exp1(params[0]);
+            }
+            else if (type == PowFuncType) {
+                if (lenp < 1) 
+                    throw CanteraError("func_new", 
+                        "exponent for pow must be supplied");                
+                r = new Pow1(params[0]);
+            }
+            else if (type == FourierFuncType) {
                 if (lenp < 2*n + 2) 
                     throw CanteraError("func_new", 
                         "not enough Fourier coefficients");
@@ -61,19 +76,28 @@ extern "C" {
                 r = new Arrhenius1(n, params);
             }
             else if (type == PeriodicFuncType) {
-                r = new PeriodicFunc(*_func(n), params[0]);
+                r = new Periodic1(*_func(n), params[0]);
             }
             else if (type == SumFuncType) {
-                r = new Func1Sum(*_func(n), *_func(m));
+                r = new Sum1(*_func(n), *_func(m));
             }
             else if (type == DiffFuncType) {
-                r = new Func1Diff(*_func(n), *_func(m));
+                r = new Diff1(*_func(n), *_func(m));
             }
             else if (type == ProdFuncType) {
-                r = new Func1Product(*_func(n), *_func(m));
+                r = new Product1(*_func(n), *_func(m));
             }
             else if (type == RatioFuncType) {
-                r = new Func1Ratio(*_func(n), *_func(m));
+                r = new Ratio1(*_func(n), *_func(m));
+            }
+            else if (type == CompositeFuncType) {
+                r = new Composite1(*_func(n), *_func(m));
+            }
+            else if (type == TimesConstantFuncType) {
+                r = new TimesConstant1(*_func(n), params[0]);
+            }
+            else if (type == PlusConstantFuncType) {
+                r = new PlusConstant1(*_func(n), params[0]);
             }
             else 
                 r = new Func1();
@@ -99,5 +123,12 @@ extern "C" {
     double DLL_EXPORT func_value(int i, double t) {
         return _func(i)->eval(t);
     }
+
+    int DLL_EXPORT func_derivative(int i) {
+        func_t* r = 0;
+        r = &_func(i)->derivative();
+        return Cabinet<func_t>::cabinet()->add(r);
+    }
+
 
 }

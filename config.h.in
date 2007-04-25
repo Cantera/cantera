@@ -134,4 +134,7 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 //    models for electrolyte solutions.
 #undef WITH_ELECTROLYTES
 
+#undef WITH_PRIME
+
+
 #endif

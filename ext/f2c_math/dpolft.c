@@ -1,18 +1,8 @@
-/* dpolft.f -- translated by f2c (version 20031025).
-   You must link the resulting object file with libf2c:
-	on Microsoft Windows system, link with libf2c.lib;
-	on Linux or Unix systems, link with .../path/to/libf2c.a -lm
-	or, if you install libf2c.a in a standard place, with -lf2c -lm
-	-- in that order, at the end of the command line, as in
-		cc *.o -lf2c -lm
-	Source for libf2c is in /netlib/f2c/libf2c.zip, e.g.,
-
-		http://www.netlib.org/f2c/libf2c.zip
+/* dpolft.f -- translated by f2c (version 20030320).
+   You must link the resulting object file with the libraries:
+	-lf2c -lm   (in that order)
 */
 
-#ifdef _cpluscplus
-extern "C" {
-#endif
 #include "f2c.h"
 
 /* Table of constant values */
@@ -25,12 +15,6 @@ static integer c__1 = 1;
 	doublereal *w, integer *maxdeg, integer *ndeg, doublereal *eps, 
 	doublereal *r__, integer *ierr, doublereal *a)
 {
-    /* Initialized data */
-
-    static doublereal co[12]	/* was [4][3] */ = { -13.08685,-2.4648165,
-	    -3.3846535,-1.2973162,-3.3381146,-1.7812271,-3.2578406,-1.6589279,
-	    -1.6282703,-1.3152745,-3.2640179,-1.9829776 };
-
     /* System generated locals */
     integer i__1;
     doublereal d__1;
@@ -39,22 +23,22 @@ static integer c__1 = 1;
     double sqrt(doublereal);
 
     /* Local variables */
-    static doublereal f;
-    static integer i__, j, m, k1, k2, k3, k4, k5;
-    static doublereal w1, w11, xm, yp;
-    static integer jp1;
-    static doublereal den, sig;
-    static integer k1pj, k2pj, k3pi, k4pi, k5pi, mop1;
-    static doublereal degf;
-    static integer nder;
-    static doublereal sigj;
-    static integer jpas, ksig;
-    static doublereal temp, etst, temd1, temd2;
-    static integer idegf, nfail;
-    static doublereal fcrit, sigjm1;
+    doublereal f;
+    integer i__, j, m, k1, k2, k3, k4, k5;
+    doublereal w1, co[12]	/* was [4][3] */, w11, xm, yp;
+    integer jp1;
+    doublereal den, sig;
+    integer k1pj, k2pj, k3pi, k4pi, k5pi, mop1;
+    doublereal degf;
+    integer nder;
+    doublereal sigj;
+    integer jpas, ksig;
+    doublereal temp, etst, temd1, temd2;
+    integer idegf, nfail;
+    doublereal fcrit, sigjm1;
     extern /* Subroutine */ int dp1vlu_(integer *, integer *, doublereal *, 
 	    doublereal *, doublereal *, doublereal *);
-    static doublereal sigpas;
+    doublereal sigpas;
     extern /* Subroutine */ int xermsg_(char *, char *, char *, integer *, 
 	    integer *, ftnlen, ftnlen, ftnlen);
 
@@ -181,6 +165,18 @@ static integer c__1 = 1;
 /*   920501  Reformatted the REFERENCES section.  (WRB) */
 /*   920527  Corrected erroneous statements in DESCRIPTION.  (WRB) */
 /* ***END PROLOGUE  DPOLFT */
+/*      SAVE CO */
+/*      DATA  CO(1,1), CO(2,1), CO(3,1), CO(4,1), CO(1,2), CO(2,2), */
+/*     1      CO(3,2), CO(4,2), CO(1,3), CO(2,3), CO(3,3), */
+/*     2  CO(4,3)/-13.086850D0,-2.4648165D0,-3.3846535D0,-1.2973162D0, */
+/*     3          -3.3381146D0,-1.7812271D0,-3.2578406D0,-1.6589279D0, */
+/*     4          -1.6282703D0,-1.3152745D0,-3.2640179D0,-1.9829776D0/ */
+/* ***FIRST EXECUTABLE STATEMENT  DPOLFT */
+/*      write(*,*) 'DPOLFT n = ',n */
+/*      do ii = 1,n */
+/*         write(*,*) x(ii), y(ii), w(ii) */
+/*      end do */
+/*      write(*,*) ' maxdeg, eps = ',maxdeg,eps */
     /* Parameter adjustments */
     --a;
     --r__;
@@ -189,12 +185,6 @@ static integer c__1 = 1;
     --x;
 
     /* Function Body */
-/* ***FIRST EXECUTABLE STATEMENT  DPOLFT */
-/*      write(*,*) 'DPOLFT n = ',n */
-/*      do ii = 1,n */
-/*         write(*,*) x(ii), y(ii), w(ii) */
-/*      end do */
-/*      write(*,*) ' maxdeg, eps = ',maxdeg,eps */
     m = abs(*n);
     if (m == 0) {
 	goto L30;
@@ -534,6 +524,3 @@ L37:
     return 0;
 } /* dpolft_ */
 
-#ifdef _cpluscplus
-}
-#endif

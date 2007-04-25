@@ -1,18 +1,8 @@
-/* daux.f -- translated by f2c (version 20031025).
-   You must link the resulting object file with libf2c:
-	on Microsoft Windows system, link with libf2c.lib;
-	on Linux or Unix systems, link with .../path/to/libf2c.a -lm
-	or, if you install libf2c.a in a standard place, with -lf2c -lm
-	-- in that order, at the end of the command line, as in
-		cc *.o -lf2c -lm
-	Source for libf2c is in /netlib/f2c/libf2c.zip, e.g.,
-
-		http://www.netlib.org/f2c/libf2c.zip
+/* daux.f -- translated by f2c (version 20030320).
+   You must link the resulting object file with the libraries:
+	-lf2c -lm   (in that order)
 */
 
-#ifdef _cpluscplus
-extern "C" {
-#endif
 #include "f2c.h"
 
 /* Table of constant values */
@@ -59,7 +49,7 @@ static logical c_true = TRUE_;
 
     /* Local variables */
     extern integer ixsav_(integer *, integer *, logical *);
-    static integer lunit, mesflg;
+    integer lunit, mesflg;
 
     /* Fortran I/O blocks */
     static cilist io___3 = { 0, 0, 0, fmt_10, 0 };
@@ -189,7 +179,7 @@ L100:
 /* DECK XSETF */
 /* Subroutine */ int xsetf_(integer *mflag)
 {
-    static integer junk;
+    integer junk;
     extern integer ixsav_(integer *, integer *, logical *);
 
 /* ***BEGIN PROLOGUE  XSETF */
@@ -231,7 +221,7 @@ L100:
 /* DECK XSETUN */
 /* Subroutine */ int xsetun_(integer *lun)
 {
-    static integer junk;
+    integer junk;
     extern integer ixsav_(integer *, integer *, logical *);
 
 /* ***BEGIN PROLOGUE  XSETUN */
@@ -271,14 +261,11 @@ L100:
 /* DECK IXSAV */
 integer ixsav_(integer *ipar, integer *ivalue, logical *iset)
 {
-    /* Initialized data */
-
-    static integer lunit = -1;
-    static integer lundef = 6;
-    static integer mesflg = 1;
-
     /* System generated locals */
     integer ret_val;
+
+    /* Local variables */
+    integer lunit, lundef, mesflg;
 
 /* ***BEGIN PROLOGUE  IXSAV */
 /* ***SUBSIDIARY */
@@ -327,6 +314,12 @@ integer ixsav_(integer *ipar, integer *ivalue, logical *iset)
 /* The following Fortran-77 declaration is to cause the values of the */
 /* listed (local) variables to be saved between calls to this routine. */
 /* ----------------------------------------------------------------------- */
+/*      SAVE LUNIT, LUNDEF, MESFLG */
+/* dgg mod 2/2007 */
+    lunit = -1;
+    lundef = 6;
+    mesflg = 1;
+/*      DATA LUNIT/-1/, LUNDEF/6/, MESFLG/1/ */
 
 /* ***FIRST EXECUTABLE STATEMENT  IXSAV */
     if (*ipar == 1) {
@@ -350,6 +343,3 @@ integer ixsav_(integer *ipar, integer *ivalue, logical *iset)
 /* ----------------------- End of Function IXSAV ------------------------- */
 } /* ixsav_ */
 
-#ifdef _cpluscplus
-}
-#endif

@@ -1,18 +1,8 @@
-/* ddaspk.f -- translated by f2c (version 20031025).
-   You must link the resulting object file with libf2c:
-	on Microsoft Windows system, link with libf2c.lib;
-	on Linux or Unix systems, link with .../path/to/libf2c.a -lm
-	or, if you install libf2c.a in a standard place, with -lf2c -lm
-	-- in that order, at the end of the command line, as in
-		cc *.o -lf2c -lm
-	Source for libf2c is in /netlib/f2c/libf2c.zip, e.g.,
-
-		http://www.netlib.org/f2c/libf2c.zip
+/* ddaspk.f -- translated by f2c (version 20030320).
+   You must link the resulting object file with the libraries:
+	-lf2c -lm   (in that order)
 */
 
-#ifdef _cpluscplus
-extern "C" {
-#endif
 #include "f2c.h"
 
 /* Table of constant values */
@@ -140,39 +130,42 @@ static integer c__926 = 926;
 	    e_wsle(void);
 
     /* Local variables */
-    static doublereal h__;
-    static integer i__;
-    static doublereal r__, h0;
-    static integer le;
-    static doublereal rh, tn;
-    static integer ici, idi, lid, ier;
-    static char msg[80];
-    static integer lwm, lvt, lwt, nwt, nli0, nni0;
-    static logical lcfl, lcfn, done;
-    static doublereal rcfl;
-    static integer nnid;
-    static logical lavl;
-    static integer maxl, iret;
-    static doublereal hmax;
-    static integer lphi;
-    static doublereal hmin;
-    static integer lyic, lpwk, nstd;
-    static doublereal rcfn;
-    static integer ncfl0, ncfn0;
+    doublereal h__;
+    integer i__;
+    doublereal r__, h0;
+    integer le;
+    doublereal rh, tn;
+    integer ici, idi;
+    static integer lid;
+    integer ier;
+    char msg[80];
+    integer lwm, lvt, lwt, nwt, nli0, nni0;
+    logical lcfl, lcfn, done;
+    doublereal rcfl;
+    integer nnid;
+    logical lavl;
+    integer maxl, iret;
+    doublereal hmax;
+    integer lphi;
+    doublereal hmin;
+    integer lyic, lpwk, nstd;
+    doublereal rcfn;
+    integer ncfl0, ncfn0;
     extern /* Subroutine */ int dnedd_();
-    static integer mband;
+    integer mband;
     extern /* Subroutine */ int dnedk_();
-    static integer lenic, lenid, ncphi, lenpd, lsoff, msave, index, itemp, 
-	    leniw, nzflg;
-    static doublereal atoli;
-    static integer lypic;
-    static logical lwarn;
-    static doublereal avlin;
-    static integer lenwp, lenrw, mxord, nwarn;
-    static doublereal rtoli;
-    static integer lsavr;
+    integer lenic;
+    static integer lenid, ncphi;
+    integer lenpd, lsoff, msave, index, itemp, leniw, nzflg;
+    doublereal atoli;
+    integer lypic;
+    logical lwarn;
+    doublereal avlin;
+    integer lenwp, lenrw, mxord, nwarn;
+    doublereal rtoli;
+    integer lsavr;
     extern doublereal d1mach_(integer *);
-    static doublereal tdist, tnext, fmaxl;
+    doublereal tdist, tnext, fmaxl;
     extern /* Subroutine */ int ddstp_(doublereal *, doublereal *, doublereal 
 	    *, integer *, U_fp, U_fp, U_fp, doublereal *, doublereal *, 
 	    doublereal *, integer *, integer *, doublereal *, integer *, 
@@ -183,7 +176,7 @@ static integer c__926 = 926;
 	    doublereal *, doublereal *, doublereal *, doublereal *, integer *,
 	     integer *, integer *, integer *, integer *, integer *, integer *,
 	     integer *, U_fp);
-    static doublereal tstop;
+    doublereal tstop;
     extern /* Subroutine */ int dcnst0_(integer *, doublereal *, integer *, 
 	    integer *), ddasic_(doublereal *, doublereal *, doublereal *, 
 	    integer *, integer *, integer *, U_fp, U_fp, U_fp, doublereal *, 
@@ -194,24 +187,24 @@ static integer c__926 = 926;
 	    doublereal *, doublereal *, integer *, integer *, integer *, U_fp)
 	    ;
     extern /* Subroutine */ int ddasid_(), ddasik_();
-    static integer icnflg;
-    static doublereal tscale, epconi;
+    integer icnflg;
+    doublereal tscale, epconi;
     extern /* Subroutine */ int ddatrp_(doublereal *, doublereal *, 
 	    doublereal *, doublereal *, integer *, integer *, doublereal *, 
 	    doublereal *);
-    static doublereal floatn;
+    doublereal floatn;
     static integer nonneg;
     extern /* Subroutine */ int ddawts_(integer *, integer *, doublereal *, 
 	    doublereal *, doublereal *, doublereal *, doublereal *, integer *)
 	    ;
     extern doublereal ddwnrm_(integer *, doublereal *, doublereal *, 
 	    doublereal *, integer *);
-    static integer leniwp;
+    integer leniwp;
     extern /* Subroutine */ int xerrwd_(char *, integer *, integer *, integer 
 	    *, integer *, integer *, integer *, integer *, doublereal *, 
 	    doublereal *, ftnlen), dinvwt_(integer *, doublereal *, integer *)
 	    ;
-    static doublereal uround, ypnorm;
+    doublereal uround, ypnorm;
 
     /* Fortran I/O blocks */
     static cilist io___49 = { 0, 6, 0, 0, 0 };
@@ -3082,11 +3075,11 @@ L760:
     integer phi_dim1, phi_offset;
 
     /* Local variables */
-    static doublereal cj;
-    static integer nh, mxnh;
+    doublereal cj;
+    integer nh, mxnh;
     extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *, 
 	    doublereal *, integer *);
-    static integer jskip, iernls;
+    integer jskip, iernls;
 
 
 /* ***BEGIN PROLOGUE  DDASIC */
@@ -3286,7 +3279,7 @@ L350:
     integer i__1;
 
     /* Local variables */
-    static integer i__;
+    integer i__;
 
 
 /* ***BEGIN PROLOGUE  DYYPNW */
@@ -3372,25 +3365,25 @@ L350:
     double pow_dd(doublereal *, doublereal *);
 
     /* Local variables */
-    static integer i__, j;
-    static doublereal r__;
-    static integer j1;
-    static doublereal ck;
-    static integer km1, kp1, kp2, ncf, nef;
-    static doublereal erk, err, est;
-    static integer nsp1;
-    static doublereal hnew, terk, xold;
-    static integer knew;
-    static doublereal erkm1, erkm2, erkp1, temp1, temp2;
-    static integer kdiff;
-    static doublereal enorm, alpha0, terkm1, terkm2, terkp1, alphas;
+    integer i__, j;
+    doublereal r__;
+    integer j1;
+    doublereal ck;
+    integer km1, kp1, kp2, ncf, nef;
+    doublereal erk, err, est;
+    integer nsp1;
+    doublereal hnew, terk, xold;
+    integer knew;
+    doublereal erkm1, erkm2, erkp1, temp1, temp2;
+    integer kdiff;
+    doublereal enorm, alpha0, terkm1, terkm2, terkp1, alphas;
     extern /* Subroutine */ int ddatrp_(doublereal *, doublereal *, 
 	    doublereal *, doublereal *, integer *, integer *, doublereal *, 
 	    doublereal *);
-    static doublereal cjlast;
+    doublereal cjlast;
     extern doublereal ddwnrm_(integer *, doublereal *, doublereal *, 
 	    doublereal *, integer *);
-    static integer iernls;
+    integer iernls;
 
 
 /* ***BEGIN PROLOGUE  DDSTP */
@@ -4011,8 +4004,8 @@ L690:
     doublereal d__1;
 
     /* Local variables */
-    static integer i__;
-    static doublereal rdy, rdymx;
+    integer i__;
+    doublereal rdy, rdymx;
 
 
 /* ***BEGIN PROLOGUE  DCNSTR */
@@ -4148,7 +4141,7 @@ L690:
     integer i__1;
 
     /* Local variables */
-    static integer i__;
+    integer i__;
 
 
 /* ***BEGIN PROLOGUE  DCNST0 */
@@ -4233,8 +4226,8 @@ L690:
     doublereal d__1;
 
     /* Local variables */
-    static integer i__;
-    static doublereal atoli, rtoli;
+    integer i__;
+    doublereal atoli, rtoli;
 
 
 /* ***BEGIN PROLOGUE  DDAWTS */
@@ -4284,7 +4277,7 @@ L10:
     integer i__1;
 
     /* Local variables */
-    static integer i__;
+    integer i__;
 
 
 /* ***BEGIN PROLOGUE  DINVWT */
@@ -4336,10 +4329,10 @@ L30:
     integer phi_dim1, phi_offset, i__1, i__2;
 
     /* Local variables */
-    static doublereal c__, d__;
-    static integer i__, j;
-    static doublereal temp1, gamma;
-    static integer koldp1;
+    doublereal c__, d__;
+    integer i__, j;
+    doublereal temp1, gamma;
+    integer koldp1;
 
 
 /* ***BEGIN PROLOGUE  DDATRP */
@@ -4420,8 +4413,8 @@ doublereal ddwnrm_(integer *neq, doublereal *v, doublereal *rwt, doublereal *
     double sqrt(doublereal);
 
     /* Local variables */
-    static integer i__;
-    static doublereal sum, vmax;
+    integer i__;
+    doublereal sum, vmax;
 
 
 /* ***BEGIN PROLOGUE  DDWNRM */
@@ -4481,7 +4474,7 @@ L30:
 	dumr, doublereal *epcon, doublereal *ratemx, doublereal *stptol, 
 	integer *jfdum, integer *icnflg, integer *icnstr, integer *iernls)
 {
-    static integer nj, ierj, ires, mxnj;
+    integer nj, ierj, ires, mxnj;
     extern /* Subroutine */ int dmatd_(integer *, doublereal *, doublereal *, 
 	    doublereal *, doublereal *, doublereal *, doublereal *, integer *,
 	     doublereal *, doublereal *, doublereal *, integer *, S_fp, 
@@ -4492,7 +4485,7 @@ L30:
 	    doublereal *, integer *, doublereal *, doublereal *, doublereal *,
 	     doublereal *, integer *, doublereal *, integer *, integer *, 
 	    integer *);
-    static integer mxnit, iernew;
+    integer mxnit, iernew;
 
 
 /* ***BEGIN PROLOGUE  DDASID */
@@ -4689,9 +4682,9 @@ L380:
 	ratemx, integer *maxit, doublereal *stptol, integer *icnflg, integer *
 	icnstr, integer *iernew)
 {
-    static integer m;
-    static doublereal rlx, rate, fnrm;
-    static integer iret, ires, lsoff;
+    integer m;
+    doublereal rlx, rate, fnrm;
+    integer iret, ires, lsoff;
     extern /* Subroutine */ int dslvd_(integer *, doublereal *, doublereal *, 
 	    integer *), dcopy_(integer *, doublereal *, integer *, doublereal 
 	    *, integer *), dlinsd_(integer *, doublereal *, doublereal *, 
@@ -4700,7 +4693,7 @@ L380:
 	    S_fp, integer *, doublereal *, integer *, doublereal *, integer *,
 	     integer *, doublereal *, doublereal *, doublereal *, integer *, 
 	    integer *, doublereal *, doublereal *, integer *);
-    static doublereal oldfnm, delnrm;
+    doublereal oldfnm, delnrm;
     extern doublereal ddwnrm_(integer *, doublereal *, doublereal *, 
 	    doublereal *, integer *);
 
@@ -4901,17 +4894,17 @@ L390:
     /* Subroutine */ int s_copy(char *, char *, ftnlen, ftnlen);
 
     /* Local variables */
-    static integer i__;
-    static doublereal rl;
-    static char msg[80];
-    static doublereal tau;
-    static integer ivar;
-    static doublereal slpi, f1nrm, ratio;
+    integer i__;
+    doublereal rl;
+    char msg[80];
+    doublereal tau;
+    integer ivar;
+    doublereal slpi, f1nrm, ratio;
     extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *, 
 	    doublereal *, integer *);
-    static doublereal rlmin, fnrmp;
-    static integer kprin;
-    static doublereal ratio1, f1nrmp;
+    doublereal rlmin, fnrmp;
+    integer kprin;
+    doublereal ratio1, f1nrmp;
     extern /* Subroutine */ int dfnrmd_(integer *, doublereal *, doublereal *,
 	     doublereal *, doublereal *, doublereal *, doublereal *, 
 	    doublereal *, S_fp, integer *, doublereal *, doublereal *, 
@@ -5221,25 +5214,25 @@ L200:
     doublereal d__1;
 
     /* Local variables */
-    static integer i__, j, ierj;
+    integer i__, j, ierj;
     extern /* Subroutine */ int dnsd_(doublereal *, doublereal *, doublereal *
 	    , integer *, S_fp, doublereal *, doublereal *, doublereal *, 
 	    integer *, doublereal *, doublereal *, doublereal *, doublereal *,
 	     integer *, doublereal *, doublereal *, doublereal *, doublereal *
 	    , doublereal *, doublereal *, doublereal *, doublereal *, integer 
 	    *, integer *, integer *, integer *, integer *);
-    static integer idum, ires;
-    static doublereal temp1, temp2;
+    integer idum, ires;
+    doublereal temp1, temp2;
     extern /* Subroutine */ int dmatd_(integer *, doublereal *, doublereal *, 
 	    doublereal *, doublereal *, doublereal *, doublereal *, integer *,
 	     doublereal *, doublereal *, doublereal *, integer *, S_fp, 
 	    integer *, doublereal *, U_fp, doublereal *, integer *);
-    static doublereal pnorm, delnrm;
-    static integer iernew;
+    doublereal pnorm, delnrm;
+    integer iernew;
     extern doublereal ddwnrm_(integer *, doublereal *, doublereal *, 
 	    doublereal *, integer *);
-    static doublereal tolnew;
-    static integer iertyp;
+    doublereal tolnew;
+    integer iertyp;
 
 
 /* ***BEGIN PROLOGUE  DNEDD */
@@ -5572,14 +5565,14 @@ L390:
     double pow_dd(doublereal *, doublereal *);
 
     /* Local variables */
-    static integer i__, m;
-    static doublereal rate;
+    integer i__, m;
+    doublereal rate;
     extern /* Subroutine */ int dslvd_(integer *, doublereal *, doublereal *, 
 	    integer *);
-    static doublereal delnrm;
+    doublereal delnrm;
     extern doublereal ddwnrm_(integer *, doublereal *, doublereal *, 
 	    doublereal *, integer *);
-    static doublereal oldnrm;
+    doublereal oldnrm;
 
 
 /* ***BEGIN PROLOGUE  DNSD */
@@ -5787,19 +5780,19 @@ L380:
     double sqrt(doublereal), d_sign(doublereal *, doublereal *);
 
     /* Local variables */
-    static integer i__, j, k, l, n, i1, i2, ii, mba;
-    static doublereal del;
-    static integer meb1, nrow;
-    static doublereal squr;
+    integer i__, j, k, l, n, i1, i2, ii, mba;
+    doublereal del;
+    integer meb1, nrow;
+    doublereal squr;
     extern /* Subroutine */ int dgbfa_(doublereal *, integer *, integer *, 
 	    integer *, integer *, integer *, integer *), dgefa_(doublereal *, 
 	    integer *, integer *, integer *, integer *);
-    static integer mband, lenpd, isave, msave;
-    static doublereal ysave;
-    static integer lipvt, mtype, meband;
-    static doublereal delinv;
-    static integer ipsave;
-    static doublereal ypsave;
+    integer mband, lenpd, isave, msave;
+    doublereal ysave;
+    integer lipvt, mtype, meband;
+    doublereal delinv;
+    integer ipsave;
+    doublereal ypsave;
 
 
 /* ***BEGIN PROLOGUE  DMATD */
@@ -6048,7 +6041,7 @@ L550:
 	    integer *, integer *, integer *, doublereal *, integer *), dgesl_(
 	    doublereal *, integer *, integer *, integer *, doublereal *, 
 	    integer *);
-    static integer lipvt, mtype, meband;
+    integer lipvt, mtype, meband;
 
 
 /* ***BEGIN PROLOGUE  DSLVD */
@@ -6124,8 +6117,8 @@ L400:
 	doublereal *epcon, doublereal *ratemx, doublereal *stptol, integer *
 	jflg, integer *icnflg, integer *icnstr, integer *iernls)
 {
-    static integer nj, lwp, ires, liwp, mxnj;
-    static doublereal eplin;
+    integer nj, lwp, ires, liwp, mxnj;
+    doublereal eplin;
     extern /* Subroutine */ int dnsik_(doublereal *, doublereal *, doublereal 
 	    *, integer *, integer *, integer *, S_fp, U_fp, doublereal *, 
 	    doublereal *, integer *, doublereal *, doublereal *, doublereal *,
@@ -6133,10 +6126,10 @@ L400:
 	    , doublereal *, doublereal *, doublereal *, doublereal *, 
 	    doublereal *, doublereal *, doublereal *, integer *, doublereal *,
 	     integer *, integer *, integer *);
-    static integer ierpj;
+    integer ierpj;
     extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *, 
 	    doublereal *, integer *);
-    static integer mxnit, iernew;
+    integer mxnit, iernew;
 
 
 /* ***BEGIN PROLOGUE  DDASIK */
@@ -6342,28 +6335,28 @@ L380:
 	*eplin, doublereal *epcon, doublereal *ratemx, integer *maxit, 
 	doublereal *stptol, integer *icnflg, integer *icnstr, integer *iernew)
 {
-    static integer m, ier, lwp;
-    static doublereal rlx, rate;
-    static integer ires;
-    static doublereal fnrm, rhok;
-    static integer iret, liwp;
-    static doublereal fnrm0;
-    static integer lsoff;
+    integer m, ier, lwp;
+    doublereal rlx, rate;
+    integer ires;
+    doublereal fnrm, rhok;
+    integer iret, liwp;
+    doublereal fnrm0;
+    integer lsoff;
     extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *, 
 	    doublereal *, integer *);
-    static integer iersl;
+    integer iersl;
     extern /* Subroutine */ int dslvk_(integer *, doublereal *, doublereal *, 
 	    doublereal *, doublereal *, doublereal *, doublereal *, 
 	    doublereal *, integer *, S_fp, integer *, U_fp, integer *, 
 	    doublereal *, doublereal *, doublereal *, doublereal *, 
 	    doublereal *, doublereal *, integer *);
-    static doublereal oldfnm;
+    doublereal oldfnm;
     extern /* Subroutine */ int dfnrmk_(integer *, doublereal *, doublereal *,
 	     doublereal *, doublereal *, doublereal *, doublereal *, 
 	    doublereal *, doublereal *, doublereal *, doublereal *, S_fp, 
 	    integer *, U_fp, integer *, integer *, doublereal *, doublereal *,
 	     doublereal *, integer *, doublereal *, doublereal *, integer *);
-    static doublereal delnrm;
+    doublereal delnrm;
     extern /* Subroutine */ int dlinsk_(integer *, doublereal *, doublereal *,
 	     doublereal *, doublereal *, doublereal *, doublereal *, 
 	    doublereal *, doublereal *, doublereal *, doublereal *, 
@@ -6614,18 +6607,18 @@ L390:
     /* Subroutine */ int s_copy(char *, char *, ftnlen, ftnlen);
 
     /* Local variables */
-    static integer i__;
-    static doublereal rl;
-    static integer ier;
-    static char msg[80];
-    static doublereal tau;
-    static integer ivar;
-    static doublereal slpi, f1nrm, ratio;
+    integer i__;
+    doublereal rl;
+    integer ier;
+    char msg[80];
+    doublereal tau;
+    integer ivar;
+    doublereal slpi, f1nrm, ratio;
     extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *, 
 	    doublereal *, integer *);
-    static doublereal rlmin, fnrmp;
-    static integer kprin;
-    static doublereal ratio1, f1nrmp;
+    doublereal rlmin, fnrmp;
+    integer kprin;
+    doublereal ratio1, f1nrmp;
     extern /* Subroutine */ int dfnrmk_(integer *, doublereal *, doublereal *,
 	     doublereal *, doublereal *, doublereal *, doublereal *, 
 	    doublereal *, doublereal *, doublereal *, doublereal *, S_fp, 
@@ -6970,22 +6963,22 @@ L200:
     doublereal d__1;
 
     /* Local variables */
-    static integer i__, j, lwp;
+    integer i__, j, lwp;
     extern /* Subroutine */ int dnsk_(doublereal *, doublereal *, doublereal *
 	    , integer *, S_fp, U_fp, doublereal *, doublereal *, integer *, 
 	    doublereal *, doublereal *, doublereal *, doublereal *, integer *,
 	     doublereal *, doublereal *, doublereal *, doublereal *, 
 	    doublereal *, doublereal *, doublereal *, doublereal *, integer *,
 	     integer *, integer *, integer *, integer *);
-    static integer ires, liwp;
-    static doublereal temp1, temp2, eplin;
-    static integer ierpj, iersl;
-    static doublereal delnrm;
-    static integer iernew;
+    integer ires, liwp;
+    doublereal temp1, temp2, eplin;
+    integer ierpj, iersl;
+    doublereal delnrm;
+    integer iernew;
     extern doublereal ddwnrm_(integer *, doublereal *, doublereal *, 
 	    doublereal *, integer *);
-    static doublereal tolnew;
-    static integer iertyp;
+    doublereal tolnew;
+    integer iertyp;
 
 
 /* ***BEGIN PROLOGUE  DNEDK */
@@ -7326,17 +7319,17 @@ L390:
     double pow_dd(doublereal *, doublereal *);
 
     /* Local variables */
-    static integer i__, m;
-    static doublereal rate, rhok;
+    integer i__, m;
+    doublereal rate, rhok;
     extern /* Subroutine */ int dslvk_(integer *, doublereal *, doublereal *, 
 	    doublereal *, doublereal *, doublereal *, doublereal *, 
 	    doublereal *, integer *, S_fp, integer *, U_fp, integer *, 
 	    doublereal *, doublereal *, doublereal *, doublereal *, 
 	    doublereal *, doublereal *, integer *);
-    static doublereal delnrm;
+    doublereal delnrm;
     extern doublereal ddwnrm_(integer *, doublereal *, doublereal *, 
 	    doublereal *, integer *);
-    static doublereal oldnrm;
+    doublereal oldnrm;
 
 
 /* ***BEGIN PROLOGUE  DNSK */
@@ -7561,12 +7554,12 @@ L380:
     integer i__1, i__2;
 
     /* Local variables */
-    static integer i__, lq, lr, lv, lz, ldl, nli, nre, kmp, lwk, nps, lwp, 
-	    ncfl, lhes, lgmr, maxl, nres, npsl, liwp, iflag;
+    integer i__, lq, lr, lv, lz, ldl, nli, nre, kmp, lwk, nps, lwp, ncfl, 
+	    lhes, lgmr, maxl, nres, npsl, liwp, iflag;
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *, 
 	    integer *), dcopy_(integer *, doublereal *, integer *, doublereal 
 	    *, integer *);
-    static integer miter, nrmax, nrsts, maxlp1;
+    integer miter, nrmax, nrsts, maxlp1;
     extern /* Subroutine */ int dspigm_(integer *, doublereal *, doublereal *,
 	     doublereal *, doublereal *, doublereal *, doublereal *, integer *
 	    , integer *, integer *, doublereal *, doublereal *, S_fp, integer 
@@ -7739,31 +7732,31 @@ L115:
     doublereal d__1;
 
     /* Local variables */
-    static doublereal c__;
-    static integer i__, j, k;
-    static doublereal s;
-    static integer i2, ll, ip1, ier;
-    static doublereal tem, rho;
-    static integer llp1, info;
+    doublereal c__;
+    integer i__, j, k;
+    doublereal s;
+    integer i2, ll, ip1, ier;
+    doublereal tem, rho;
+    integer llp1, info;
     extern /* Subroutine */ int datv_(integer *, doublereal *, doublereal *, 
 	    doublereal *, doublereal *, doublereal *, doublereal *, 
 	    doublereal *, S_fp, integer *, S_fp, doublereal *, doublereal *, 
 	    doublereal *, integer *, doublereal *, doublereal *, integer *, 
 	    integer *, integer *, doublereal *, integer *);
-    static doublereal prod, rnrm;
+    doublereal prod, rnrm;
     extern doublereal dnrm2_(integer *, doublereal *, integer *);
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *, 
 	    integer *), dhels_(doublereal *, integer *, integer *, doublereal 
 	    *, doublereal *), dheqr_(doublereal *, integer *, integer *, 
 	    doublereal *, integer *, integer *);
-    static doublereal dlnrm;
+    doublereal dlnrm;
     extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *, 
 	    doublereal *, integer *), dorth_(doublereal *, doublereal *, 
 	    doublereal *, integer *, integer *, integer *, integer *, 
 	    doublereal *), daxpy_(integer *, doublereal *, doublereal *, 
 	    integer *, doublereal *, integer *);
-    static integer maxlm1;
-    static doublereal snormw;
+    integer maxlm1;
+    doublereal snormw;
 
 
 /* ***BEGIN PROLOGUE  DSPIGM */
@@ -8167,7 +8160,7 @@ L300:
     integer i__1;
 
     /* Local variables */
-    static integer i__;
+    integer i__;
 
 
 /* ***BEGIN PROLOGUE  DATV */
@@ -8327,15 +8320,15 @@ L300:
     double sqrt(doublereal);
 
     /* Local variables */
-    static integer i__, i0;
-    static doublereal arg, tem;
+    integer i__, i0;
+    doublereal arg, tem;
     extern doublereal ddot_(integer *, doublereal *, integer *, doublereal *, 
 	    integer *);
-    static doublereal vnrm;
+    doublereal vnrm;
     extern doublereal dnrm2_(integer *, doublereal *, integer *);
     extern /* Subroutine */ int daxpy_(integer *, doublereal *, doublereal *, 
 	    integer *, doublereal *, integer *);
-    static doublereal sumdsq;
+    doublereal sumdsq;
 
 
 /* ***BEGIN PROLOGUE  DORTH */
@@ -8470,10 +8463,10 @@ L30:
     double sqrt(doublereal);
 
     /* Local variables */
-    static doublereal c__;
-    static integer i__, j, k;
-    static doublereal s, t, t1, t2;
-    static integer iq, km1, kp1, nm1;
+    doublereal c__;
+    integer i__, j, k;
+    doublereal s, t, t1, t2;
+    integer iq, km1, kp1, nm1;
 
 
 /* ***BEGIN PROLOGUE  DHEQR */
@@ -8678,10 +8671,10 @@ L130:
     integer a_dim1, a_offset, i__1, i__2;
 
     /* Local variables */
-    static doublereal c__;
-    static integer k;
-    static doublereal s, t, t1, t2;
-    static integer kb, iq, kp1;
+    doublereal c__;
+    integer k;
+    doublereal s, t, t1, t2;
+    integer kb, iq, kp1;
     extern /* Subroutine */ int daxpy_(integer *, doublereal *, doublereal *, 
 	    integer *, doublereal *, integer *);
 
@@ -8778,6 +8771,3 @@ L130:
 /* ------END OF SUBROUTINE DHELS------------------------------------------ */
 } /* dhels_ */
 
-#ifdef _cpluscplus
-}
-#endif
