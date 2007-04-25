@@ -342,17 +342,21 @@ namespace Cantera {
     std::map<int, int> speciesToType;
   };
   
-  //!  This species thermo manager requires that all species have the same parameterization.
+  //!  This species thermo manager requires that all species have the
+  //!  same parameterization.
   /*!
    *
-   *  This is a templated class. The first template is called SPM. SPM is an object 
-   *  that calculates the thermo for one species. This class contains a vector of SPM's,
-   *  one for each species. Together, the vector of SPM's is itself a SpeciesThermo class.
+   *  This is a templated class. The first template is called SPM. SPM
+   *  is an object that calculates the thermo for one species. This
+   *  class contains a vector of SPM's, one for each
+   *  species. Together, the vector of SPM's is itself a SpeciesThermo
+   *  class.
    *
-   * @todo The form of the template class, SPM, is basically unspecified. it needs to be 
-   *       nailed down to a specific form. One way to do this is with a virtual base class
-   *       formulation. Note, that the specification could be that it inherits from
-   *       the class SpeciesThermo, itself.
+   * @todo The form of the template class, SPM, is basically
+   *       unspecified. it needs to be nailed down to a specific
+   *       form. One way to do this is with a virtual base class
+   *       formulation. Note, that the specification could be that it
+   *       inherits from the class SpeciesThermo, itself.
    *
    * @deprecated Note this is currently unused and it may be on its way out.
    *
