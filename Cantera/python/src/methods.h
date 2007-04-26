@@ -263,6 +263,7 @@ static PyMethodDef ct_methods[] = {
     {"func_derivative", py_func_derivative, METH_VARARGS},
     {"func_del", py_func_del, METH_VARARGS},
     {"func_value", py_func_value, METH_VARARGS},
+    {"func_write", py_func_write, METH_VARARGS},
 
     {"mix_new", py_mix_new, METH_VARARGS},
     {"mix_del", py_mix_del, METH_VARARGS},

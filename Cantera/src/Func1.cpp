@@ -4,6 +4,13 @@ using namespace std;
 
 namespace Cantera {
 
+    static Func1* checkDupl(Func1& f) {
+        if (f.parent() != 0) 
+            return &f.duplicate();
+        else
+            return &f;
+    }
+
     Func1& Sin1::derivative() const {
         Func1* c = new Cos1(m_c);
         return *(new TimesConstant1(*c, m_c));
@@ -37,19 +44,42 @@ namespace Cantera {
     string Sin1::write(string arg) const {
         string c  = "";
         if (m_c != 1.0) c = fp2str(m_c);
-        return "\\sin{"+c+arg+"}";
+        return "\\sin("+c+arg+")";
     }
 
     string Cos1::write(string arg) const {
         string c  = "";
         if (m_c != 1.0) c = fp2str(m_c);
-        return "\\cos{"+c+arg+"}";
+        return "\\cos("+c+arg+")";
+    }
+
+    string Pow1::write(string arg) const {
+        string c  = "";
+        if (m_c == 0.5) {
+            return "\\sqrt{" + arg + "}";
+        } 
+        if (m_c == -0.5) {
+            return "\\frac{1}{\\sqrt{" + arg + "}}";
+        } 
+        if (m_c != 1.0) {
+            c = fp2str(m_c);
+            return "\\left("+arg+"\\right)^{"+c+"}";
+        }
+        else {
+            return arg; 
+        }
     }
 
     string Exp1::write(string arg) const {
         string c  = "";
         if (m_c != 1.0) c = fp2str(m_c);
-        return "\\exp{"+c+arg+"}";
+        return "\\exp("+c+arg+")";
+    }
+
+    string Const1::write(string arg) const {
+        string c  = "";
+        c = fp2str(m_c);
+        return c;
     }
 
     string Ratio1::write(string arg) const {
@@ -59,9 +89,9 @@ namespace Cantera {
 
     string Product1::write(string arg) const {
         string s = m_f1->write(arg); 
-        if (m_f1->order() < order()) s = "(" + s + ")";
+        if (m_f1->order() < order()) s = "\\left(" + s + "\\right)";
         string s2 = m_f2->write(arg); 
-        if (m_f2->order() < order()) s2 = "(" + s2 + ")";
+        if (m_f2->order() < order()) s2 = "\\left(" + s2 + "\\right)";
         return s + " " + s2;
     }
 
@@ -86,9 +116,12 @@ namespace Cantera {
 
     string TimesConstant1::write(string arg) const {
         string s = m_f1->write(arg);
-        if (m_f1->order() < order()) s = "(" + s + ")";
+        if (m_f1->order() < order()) s = "\\left(" + s + "\\right)";
         if (m_c == 1.0) return s;
         if (m_c == -1.0) return "-"+s;
+        char n = s[0];
+        if (n >= '0' && n <= '9')
+            s = "\\left(" + s + "\\right)";
         return fp2str(m_c) + s;
     }
 
@@ -128,6 +161,8 @@ namespace Cantera {
     }
 
     Func1& newSumFunction(Func1& f1, Func1& f2) {
+        if (f1.isIdentical(f2)) 
+            return newTimesConstFunction(f1, 2.0);
         if (isZero(f1)) {
             delete &f1;
             return f2;
@@ -138,8 +173,11 @@ namespace Cantera {
         }
         doublereal c = f1.isProportional(f2);
         if (c != 0) {
-            if (c == -1.0) return *(new Const1(0.0));
-            else return newTimesConstFunction(f1, c + 1.0);
+            if (c == -1.0) 
+                return *(new Const1(0.0));
+            else {
+                return newTimesConstFunction(f1, c + 1.0);
+            }
         }
         return *(new Sum1(f1, f2));
     }
@@ -189,7 +227,7 @@ namespace Cantera {
             }
             else ff2 = &f2;
             Func1& p = newProdFunction(*ff1, *ff2);
-            cout << "p = " << p.write("t") << endl;
+            //cout << "p = " << p.write("t") << endl;
 
             if (c1*c2 != 1.0) {
                 return newTimesConstFunction(p, c1*c2);
@@ -225,6 +263,10 @@ namespace Cantera {
             return *(new Const1(0.0));
         }
         if (c == 1.0) {
+            return f;
+        }
+        if (f.ID() == TimesConstantFuncType) {
+            f.setC(f.c() * c);
             return f;
         }
         return *(new TimesConstant1(f, c));

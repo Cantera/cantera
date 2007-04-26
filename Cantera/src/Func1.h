@@ -54,7 +54,7 @@ namespace Cantera {
      */
     class Func1 {
     public:
-        Func1() : m_c(0.0), m_f1(0), m_f2(0) {}
+        Func1() : m_c(0.0), m_f1(0), m_f2(0), m_parent(0) {}
         virtual ~Func1() {}
         virtual int ID() const { return 0; }
 
@@ -68,7 +68,8 @@ namespace Cantera {
         virtual doublereal eval(doublereal t) const { return 0.0; }
 
         virtual Func1& derivative() const {
-            cout << "ERR: ID = " << ID() << endl; 
+            cout << "derivative error... ERR: ID = " << ID() << endl;
+            cout << write("x") << endl;
             return *(new Func1);
         }
 
@@ -92,15 +93,20 @@ namespace Cantera {
         virtual std::string write(std::string arg) const;
 
         doublereal c() const { return m_c; }
+        void setC(doublereal c) { m_c = c; }
         Func1& func1() { return *m_f1; }
         Func1& func2() { return *m_f2; }
         virtual int order() const { return 3; }
         Func1& func1_dup() const { return m_f1->duplicate(); }
         Func1& func2_dup() const { return m_f2->duplicate(); }
+        Func1* parent() { return m_parent; }
+        void setParent(Func1* p) { m_parent = p; }
 
     protected:
         doublereal m_c;
         Func1 *m_f1, *m_f2;
+        Func1* m_parent;
+
     private:
     };
 
@@ -173,6 +179,7 @@ namespace Cantera {
     public:
         Pow1(doublereal n) {m_c = n;}
         virtual ~Pow1() {}
+        virtual std::string write(std::string arg) const;
         virtual int ID() const { return PowFuncType; }
         virtual Func1& duplicate() { return *(new Pow1(m_c)); }
         virtual doublereal eval(doublereal t) const {
@@ -193,11 +200,13 @@ namespace Cantera {
             m_c = A;
         }
         virtual ~Const1() {}
+        virtual std::string write(std::string arg) const;
         virtual int ID() const { return ConstFuncType; }
         virtual doublereal eval(doublereal t) const {
             return m_c;
         }
-        virtual Func1& derivative() {
+        virtual Func1& duplicate() { return *(new Const1(m_c)); }
+        virtual Func1& derivative() const {
             Func1* z = new Const1(0.0);
             return *z;
         }
@@ -215,6 +224,10 @@ namespace Cantera {
         Sum1(Func1& f1, Func1& f2) {
             m_f1 = &f1;
             m_f2 = &f2;
+            if (m_f1 == m_f2) 
+                cout << "Same functions!" << endl;
+            m_f1->setParent(this);
+            m_f2->setParent(this);
         }
         virtual ~Sum1() {
             delete m_f1;
@@ -230,7 +243,7 @@ namespace Cantera {
             Func1& dup = newSumFunction(f1d, f2d);
             return dup;
         }
-        virtual Func1& derivative() {
+        virtual Func1& derivative() const {
             Func1& d1 = m_f1->derivative();
             Func1& d2 = m_f2->derivative();
             Func1& d = newSumFunction(d1, d2);
@@ -287,7 +300,7 @@ namespace Cantera {
         }
 
         virtual ~Product1() {
-            cout << "In Product1 destructor, deleting" << m_f1 << " " << m_f2 << endl;
+            //cout << "In Product1 destructor, deleting" << m_f1 << " " << m_f2 << endl;
             delete m_f1;
             delete m_f2;
         }
@@ -366,7 +379,7 @@ namespace Cantera {
         }
 
         virtual ~PlusConstant1() {
-            cout << "PlusConstant1: deleting " << m_f1 << endl;
+            //cout << "PlusConstant1: deleting " << m_f1 << endl;
             delete m_f1;
         }
         virtual int ID() const { return PlusConstantFuncType; }
@@ -400,7 +413,7 @@ namespace Cantera {
             m_f2 = &f2;
         }
         virtual ~Ratio1() {
-            cout << "Ratio1: deleting " << m_f1 << " " << m_f2 << endl;
+            //cout << "Ratio1: deleting " << m_f1 << " " << m_f2 << endl;
             delete m_f1;
             delete m_f2;
         }

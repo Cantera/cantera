@@ -1,3 +1,4 @@
+
 """
 
 The classes in this module are designed to allow constructing
@@ -44,11 +45,14 @@ class Func1:
         self._typ = typ
         self.coeffs = asarray(coeffs,'d')
         self._func_id = _cantera.func_new(typ, n, self.coeffs)
-        
+
     def __del__(self):
         if self._func_id and self._own:
             _cantera.func_del(self._func_id)
-        
+
+    def __repr__(self):
+        return self.write()
+    
     def __call__(self, t):
         """Implements function syntax, so that F(t) is equivalent to
         F.value(t)."""
@@ -141,6 +145,10 @@ class Func1:
         kernel-level object."""
         return self._func_id
 
+    def write(self, arg = 'x', length = 1000):
+        return _cantera.func_write(self._func_id, length, arg)
+
+    
 class Sin(Func1):
     def __init__(self,omega=1.0):
         Func1.__init__(self,100,1,omega)
@@ -265,7 +273,7 @@ class Arrhenius(Func1):
 
 
 
-def Const(value):
+class Const(Func1):
     """Constant function.
     Objects created by function Const
     act as functions that have a constant value.
@@ -278,7 +286,9 @@ def Const(value):
     Function Const returns instances of class Polynomial that have
     degree zero, with the constant term set to the desired value.
     """
-    return Polynomial([value])
+    def __init__(self, value):
+        Func1.__init__(self,110,1,value)    
+    #return Polynomial([value])
 
 
 class PeriodicFunction(Func1):
@@ -301,6 +311,10 @@ class ComboFunc1(Func1):
         self._own = 1
         self._func_id = 0
         self._typ = typ
+        if type(f1) == types.IntType:
+            f1 = Const(f1)
+        if type(f2) == types.IntType:
+            f2 = Const(f2)            
         self.f1 = f1
         self.f2 = f2
         self.f1._own = 0
@@ -423,6 +437,7 @@ class DerivativeFunction(Func1):
 
 def derivative(f):
     return DerivativeFunction(f)
+
 
     
 

@@ -1,6 +1,7 @@
 
 #include "Func1.h"
 #include "ctexceptions.h"
+
 using namespace Cantera;
 
 #include "Cabinet.h"
@@ -50,6 +51,9 @@ extern "C" {
                         "exponent for pow must be supplied");                
                 r = new Pow1(params[0]);
             }
+            else if (type == ConstFuncType) {
+                r = new Const1(params[0]);
+            }
             else if (type == FourierFuncType) {
                 if (lenp < 2*n + 2) 
                     throw CanteraError("func_new", 
@@ -79,28 +83,35 @@ extern "C" {
                 r = new Periodic1(*_func(n), params[0]);
             }
             else if (type == SumFuncType) {
-                r = new Sum1(*_func(n), *_func(m));
+                r = &newSumFunction(_func(n)->duplicate(),
+                    _func(m)->duplicate());
             }
             else if (type == DiffFuncType) {
-                r = new Diff1(*_func(n), *_func(m));
+                r = &newDiffFunction(_func(n)->duplicate(), 
+                    _func(m)->duplicate());
             }
             else if (type == ProdFuncType) {
-                r = new Product1(*_func(n), *_func(m));
+                r = &newProdFunction(_func(n)->duplicate(), 
+                    _func(m)->duplicate());
             }
             else if (type == RatioFuncType) {
-                r = new Ratio1(*_func(n), *_func(m));
+                r = &newRatioFunction(_func(n)->duplicate(), 
+                    _func(m)->duplicate());
             }
             else if (type == CompositeFuncType) {
-                r = new Composite1(*_func(n), *_func(m));
+                r = &newCompositeFunction(_func(n)->duplicate(), 
+                    _func(m)->duplicate());
             }
             else if (type == TimesConstantFuncType) {
-                r = new TimesConstant1(*_func(n), params[0]);
+                r = &newTimesConstFunction(_func(n)->duplicate(), params[0]);
             }
             else if (type == PlusConstantFuncType) {
-                r = new PlusConstant1(*_func(n), params[0]);
+                r = &newPlusConstFunction(_func(n)->duplicate(), params[0]);
             }
-            else 
+            else {
+                throw CanteraError("func_new","unknown function type");
                 r = new Func1();
+            }
             return Cabinet<func_t>::cabinet()->add(r);
         }
         catch (CanteraError) {return -1;}
@@ -130,5 +141,23 @@ extern "C" {
         return Cabinet<func_t>::cabinet()->add(r);
     }
 
+    int DLL_EXPORT func_duplicate(int i) {
+        func_t* r = 0;
+        r = &_func(i)->duplicate();
+        return Cabinet<func_t>::cabinet()->add(r);
+    }
+
+    int DLL_EXPORT func_write(int i, int lennm, const char* arg, char* nm) {
+        try {
+            string a = string(arg);
+            string w = _func(i)->write(a);
+            int ws = w.size();
+            int lout = (lennm > ws ? ws : lennm);
+            copy(w.c_str(), w.c_str() + lout, nm);
+            nm[lout] = '\0';
+            return 0;
+        }
+        catch (CanteraError) { return -1; }
+    }
 
 }
