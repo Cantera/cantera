@@ -360,7 +360,7 @@ namespace Cantera {
         }
         virtual Func1& derivative() const {
             Func1& f1d = m_f1->derivative();
-            Func1* d = new TimesConstant1(f1d, m_c);
+            Func1* d = &newTimesConstFunction(f1d, m_c);
             return *d;
         }
         virtual std::string write(std::string arg) const;
