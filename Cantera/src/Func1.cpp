@@ -1,5 +1,7 @@
 #include "Func1.h"
 #include "stringUtils.h"
+#include "global.h"
+
 using namespace std;
 
 namespace Cantera {
@@ -13,12 +15,24 @@ namespace Cantera {
 
     Func1& Sin1::derivative() const {
         Func1* c = new Cos1(m_c);
-        return newTimesConstFunction(*c, m_c);
+        Func1* r = &newTimesConstFunction(*c, m_c);
+#ifdef DEBUG_FUNC
+        cout << "Sin1::derivative: \n";
+        cout << "function = \'" + write("x") + "\'\n";
+        cout << "derivative = \'" + r->write("x") + "\'\n";
+#endif 
+        return *r;
     } 
 
     Func1& Cos1::derivative() const {
         Func1* s = new Sin1(m_c);
-        return newTimesConstFunction(*s, -m_c);
+        Func1* r = &newTimesConstFunction(*s, -m_c);
+#ifdef DEBUG_FUNC
+        cout << "Cos1::derivative: \n";
+        cout << "function = \'" + write("x") + "\'\n";
+        cout << "derivative = \'" + r->write("x") + "\'\n";
+#endif 
+        return *r;
     }
 
     Func1& Exp1::derivative() const {
@@ -30,11 +44,23 @@ namespace Cantera {
     }
 
     Func1& Pow1::derivative() const {
-        Func1* f = new Pow1(m_c - 1.0);
-        if (m_c != 1.0) 
-            return newTimesConstFunction(*f, m_c);
-        else
-            return *(new Const1(1.0));
+        Func1* r;
+        if (m_c == 0.0) {
+            r = new Const1(0.0);
+        }
+        else if (m_c == 1.0) {
+            r = new Const1(1.0);
+        }
+        else {
+            Func1* f = new Pow1(m_c - 1.0);
+            r = &newTimesConstFunction(*f, m_c);
+        }
+#ifdef DEBUG_FUNC
+        cout << "Pow1::derivative: \n";
+        cout << "function = \'" + write("x") + "\'\n";
+        cout << "derivative = \'" + r->write("x") + "\'\n";
+#endif 
+        return *r;
     }
 
     string Func1::write(std::string arg) const {
@@ -314,6 +340,11 @@ namespace Cantera {
     }
     
     Func1& newCompositeFunction(Func1& f1, Func1& f2) {
+        //#ifdef DEBUG_FUNC
+        //cout << "creating new composite function." << endl;
+        //cout << "f1 = " << f1.write("x") << "  " << f1.ID() << endl;
+        //cout << "f2 = " << f2.write("x") << "  " << f2.ID() << endl;
+        //#endif
         if (isZero(f1)) {
             delete &f1; delete &f2;
             return *(new Const1(0.0));
@@ -337,11 +368,6 @@ namespace Cantera {
             delete &f2;
             return *(new Pow1(c1c2));
         }
-        if (isTimesConst(f1)) {
-            Func1& p = newTimesConstFunction(f2, f1.c());
-            delete &f1;
-            return p;
-        }
         return *(new Composite1(f1, f2));
     }
 
@@ -362,6 +388,15 @@ namespace Cantera {
 
     Func1& newPlusConstFunction(Func1& f, doublereal c) {
         if (c == 0.0) {
+            return f;
+        }
+        if (isConstant(f)) {
+            doublereal cc = f.c() + c;
+            delete &f;
+            return *(new Const1(cc));
+        }
+        if (f.ID() == PlusConstantFuncType) {
+            f.setC(f.c() + c);
             return f;
         }
         return *(new PlusConstant1(f, c));

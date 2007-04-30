@@ -11,6 +11,9 @@
 #ifndef CT_FUNC1_H
 #define CT_FUNC1_H
 
+#undef DEBUG_FUNC
+
+
 #ifdef WIN32
 #pragma warning(disable:4786)
 #pragma warning(disable:4503)
@@ -224,8 +227,6 @@ namespace Cantera {
         Sum1(Func1& f1, Func1& f2) {
             m_f1 = &f1;
             m_f2 = &f2;
-            if (m_f1 == m_f2) 
-                cout << "Same functions!" << endl;
             m_f1->setParent(this);
             m_f2->setParent(this);
         }
@@ -300,7 +301,6 @@ namespace Cantera {
         }
 
         virtual ~Product1() {
-            //cout << "In Product1 destructor, deleting" << m_f1 << " " << m_f2 << endl;
             delete m_f1;
             delete m_f2;
         }
@@ -379,7 +379,6 @@ namespace Cantera {
         }
 
         virtual ~PlusConstant1() {
-            //cout << "PlusConstant1: deleting " << m_f1 << endl;
             delete m_f1;
         }
         virtual int ID() const { return PlusConstantFuncType; }
@@ -413,7 +412,6 @@ namespace Cantera {
             m_f2 = &f2;
         }
         virtual ~Ratio1() {
-            //cout << "Ratio1: deleting " << m_f1 << " " << m_f2 << endl;
             delete m_f1;
             delete m_f2;
         }
@@ -465,11 +463,22 @@ namespace Cantera {
             return dup;
         }
         virtual Func1& derivative() const {
-            Func1& d1 = m_f1->derivative();
-            Func1& d3 = newCompositeFunction(d1, m_f2->duplicate());
-            Func1& d2 = m_f2->derivative();
-            Func1& p = newProdFunction(d3, d2);
-            return p;
+            Func1* d1 = &m_f1->derivative();
+
+            Func1* d3 = &newCompositeFunction(*d1, m_f2->duplicate());
+            Func1* d2 = &m_f2->derivative();
+            Func1* p = &newProdFunction(*d3, *d2);
+#ifdef DEBUG_FUNC
+            cout << "Composite1::derivative: \n";
+            cout << "f1 = " << m_f1->write("x") << endl;
+            cout << "f2 = " << m_f2->write("x") << endl;
+            cout << "d1 = " << d1 << " " << d1->write("x") << endl;
+            cout << "d3 = " << d3->write("x") << endl;
+            cout << "d2 = " << d2->write("x") << endl;
+            cout << "function = \'" + write("x") + "\'\n";
+            cout << "derivative = \'" + p->write("x") + "\'\n";
+#endif 
+            return *p;
         }
         virtual std::string write(std::string arg) const;
         virtual int order() const { return 2; }
