@@ -25,7 +25,8 @@
  */
 
 #include "IdealMolalSoln.h"
-#include "importCTML.h"
+//#include "importCTML.h"
+#include "ThermoFactory.h"
 #include <math.h>
 
 namespace Cantera {

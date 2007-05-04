@@ -17,7 +17,8 @@
 #include "xml.h"
 #include "ctml.h"
 #include "PDSS.h"
-#include "importCTML.h"
+//#include "importCTML.h"
+#include "ThermoFactory.h"
 #include "SpeciesThermo.h"
 
 #include "ThermoPhase.h"

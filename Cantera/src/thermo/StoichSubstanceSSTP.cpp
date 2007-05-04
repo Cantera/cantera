@@ -22,7 +22,8 @@
 #include "StoichSubstanceSSTP.h"
 #include "SpeciesThermo.h"
 #include <string>
-#include "importCTML.h"
+//#include "importCTML.h"
+#include "ThermoFactory.h"
 
 namespace Cantera {
 

@@ -25,7 +25,8 @@
 
 #include "mix_defs.h"
 #include "ThermoPhase.h"
-#include "importCTML.h"
+//#include "importCTML.h"
+#include "ThermoFactory.h"
 #include "SpeciesThermo.h"
 
 

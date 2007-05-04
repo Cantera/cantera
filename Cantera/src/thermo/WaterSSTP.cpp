@@ -15,7 +15,8 @@
 #include "xml.h"
 #include "WaterSSTP.h"
 #include "WaterPropsIAPWS.h"
-#include "importCTML.h"
+//#include "importCTML.h"
+#include "ThermoFactory.h"
 #include <math.h>
 
 namespace Cantera {
