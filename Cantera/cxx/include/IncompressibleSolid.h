@@ -4,7 +4,7 @@
 #include <string>
 
 #include "kernel/ConstDensityThermo.h"
-#include "kernel/importCTML.h"
+#include "kernel/importKinetics.h"
 
 namespace Cantera {
 

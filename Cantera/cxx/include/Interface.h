@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "thermo"
+#include "thermo.h"
 #include "kernel/SurfPhase.h"
 #include "kernel/InterfaceKinetics.h"
 #include "kernel/importKinetics.h"

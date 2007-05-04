@@ -5,7 +5,7 @@
 
 #include "kernel/EdgePhase.h"
 #include "kernel/EdgeKinetics.h"
-#include "kernel/importCTML.h"
+#include "kernel/importKinetics.h"
 
 namespace Cantera {
 
