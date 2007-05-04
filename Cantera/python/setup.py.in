@@ -29,7 +29,7 @@ cvlist = cvlibs.split()
 thermolib = []
 need_cathermo = @NEED_CATHERMO@
 if need_cathermo == 1:
-    thermolib = ["caThermo"]
+    thermolib = ["thermo"]
     
 extra_link = "@EXTRA_LINK@"
 linkargs = extra_link.split()    
@@ -46,12 +46,12 @@ endlib1 = endlibstr1.replace('-l', ' ')
 endlib = endlib1.split()
 
 if platform == "win32":
-    libs = ["clib", "zeroD","oneD","transport",
-            "cantera"] + bllist + cvlist + ["ctmath", "tpx"]
+    libs = ["clib", "zeroD","oneD","kinetics", "transport",
+            "cantera"] + bllist + cvlist + ["ctbase", "ctmath", "tpx"]
 else:
     
-    libs = ["clib", "zeroD","oneD","transport",
-            "cantera", "converters"] + thermolib + bllist + cvlist + ["ctmath", "tpx"]
+    libs = ["clib", "zeroD","oneD", "kinetics", "transport",
+            "equil", "ctnumerics", "converters"] + thermolib + bllist + cvlist + ["ctbase", "ctmath", "tpx"]
                                           
     if @build_with_f2c@ == 1:
          libs.append("ctf2c")

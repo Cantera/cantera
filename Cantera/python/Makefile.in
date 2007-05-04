@@ -13,7 +13,7 @@ have_python_site_package_topdir=@local_python_inst@
 python_site_package_topdir=@python_prefix@
 
 CANTERA_LIBDIR= @buildlib@
-LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a \
+LIB_DEPS = $(CANTERA_LIBDIR)/libctbase.a $(CANTERA_LIBDIR)/libzeroD.a \
            $(CANTERA_LIBDIR)/liboneD.a \
            $(CANTERA_LIBDIR)/libtransport.a \
            $(CANTERA_LIBDIR)/libclib.a \

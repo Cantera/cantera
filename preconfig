@@ -210,9 +210,19 @@ WITH_PRIME=${WITH_PRIME:="n"}
 # files, or if you run ck2cti on some other machine, you can set this to 'n'. 
 ENABLE_CK=${ENABLE_CK:='y'}
 
-# homogeneous and heterogeneous kinetics
-ENABLE_KINETICS='y'
+######################################################################
 
+# Enable homogeneous kinetics
+WITH_KINETICS='y'
+
+# Enable heterogeneous kinetics (surface chemistry). This also enables
+# charge transfer reactions for electrochemistry.
+WITH_HETERO_KINETICS='y'
+
+# Enable reaction path analysis
+WITH_REACTION_PATHS='y'
+
+######################################################################
 # transport properties
 ENABLE_TRANSPORT='y'  
 
@@ -408,7 +418,7 @@ CT_SHARED_LIB=${CT_SHARED_LIB:=clib}
 RPFONT=${RPFONT:="Helvetica"}
 
 # Don't change this.
-CANTERA_VERSION=${CANTERA_VERSION:="1.7.0"} 
+CANTERA_VERSION=${CANTERA_VERSION:="1.7.1"} 
 
 #-----------------------------------------------------------------------
 #------------------- don't change anything below!! ---------------------
@@ -433,7 +443,9 @@ export CXX_EXT
 export CXXFLAGS
 export CC
 export ENABLE_THERMO
-export ENABLE_KINETICS
+export WITH_KINETICS
+export WITH_HETERO_KINETICS
+export WITH_REACTION_PATHS
 export ENABLE_TRANSPORT
 export ENABLE_CK
 export ENABLE_EQUIL

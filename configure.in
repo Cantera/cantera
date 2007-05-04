@@ -393,8 +393,8 @@ else
 fi
 AC_SUBST(CANTERA_DEBUG_MODE)
 
-KERNEL='base'
-KERNEL_OBJ='$(BASE_OBJ)'
+KERNEL=''
+KERNEL_OBJ=''
 BUILD_CK=
 
 NEED_CKREADER=
@@ -406,10 +406,10 @@ NEED_F2C=
 NEED_CVODE=
 NEED_ZEROD=
 
-if test "$ENABLE_THERMO" = "y"; then 
-  KERNEL=$KERNEL' 'thermo; 
-  KERNEL_OBJ=$KERNEL_OBJ' $(THERMO_OBJ)'
-fi
+#if test "$ENABLE_THERMO" = "y"; then 
+#  KERNEL=$KERNEL' 'thermo; 
+#  KERNEL_OBJ=$KERNEL_OBJ' $(THERMO_OBJ)'
+#fi
 
 if test "$WITH_METAL" = "y"; then
   AC_DEFINE(WITH_METAL)
@@ -466,10 +466,28 @@ if test "$WITH_PRIME" = "y"; then
    AC_DEFINE(WITH_PRIME)
 fi
 
-if test "$ENABLE_KINETICS" = "y"; then 
-  KERNEL=$KERNEL' 'kinetics; 
-  KERNEL_OBJ=$KERNEL_OBJ' $(KINETICS_OBJ) $(HETEROKIN_OBJ)'
+COMPILE_KINETICS=0
+if test "$WITH_KINETICS" = "y"; then
+  AC_DEFINE(WITH_KINETICS)
+  COMPILE_KINETICS=1
 fi
+AC_SUBST(COMPILE_KINETICS)
+
+
+COMPILE_HETEROKIN=0
+if test "$WITH_HETERO_KINETICS" = "y"; then
+  AC_DEFINE(WITH_HETEROKINETICS)
+  COMPILE_HETEROKIN=1
+fi
+AC_SUBST(COMPILE_HETEROKIN)
+
+COMPILE_RXNPATH=0
+if test "$WITH_REACTION_PATHS" = "y"; then
+  AC_DEFINE(WITH_REACTIONPATHS)
+  COMPILE_RXNPATH=1
+fi
+AC_SUBST(COMPILE_RXNPATH)
+
 
 if test "$ENABLE_CK" = "y" ; then
   BUILD_CK=1
@@ -502,26 +520,12 @@ if test "$ENABLE_REACTORS" = "y" ; then
 fi
 AC_SUBST(WITH_REACTORS)
 
-if test "$ENABLE_SOLVERS" = "y" ; then
-  KERNEL=$KERNEL' 'solvers
-  KERNEL_OBJ=$KERNEL_OBJ' $(SOLVERS_OBJ)'
-  NEED_CVODE=1
-  NEED_MATH=1
-fi
-
 NEED_ONED=
 if test "$ENABLE_FLOW1D" = "y" ; then 
   KERNEL=$KERNEL' 'flow1D
   NEED_LAPACK=1
   NEED_MATH=1
   NEED_ONED=1
-fi
-
-NEED_RXNPATH=
-if test "$ENABLE_RXNPATH" = "y" ; then
-  KERNEL=$KERNEL' 'rpath
-  KERNEL_OBJ=$KERNEL_OBJ' $(RPATH_OBJ)'
-  NEED_RXNPATH=1
 fi
 
 if test "$ENABLE_TPX" = "y" ; then 
@@ -571,11 +575,6 @@ if test "$NEED_CKREADER" = "1" ; then
 else
   echo "        Chemkin File Reader Capability        = OFF"
 fi
-if test "$NEED_RXNPATH" = "1" ; then
-  echo "        Reaction Path Analysis                = ON"
-else
-  echo "        Reaction Path Analysis                = OFF"
-fi
 if test "$NEED_EQUIL" = "1" ; then
   echo "        MultiPhase Equilibrium Solver         = ON"
 else
@@ -590,6 +589,21 @@ if test "$COMPILE_ELECTROLYTES" = "1" ; then
   echo "        Electrolyte Thermodynamics            = ON"
 else
   echo "        Electrolyte Thermodynamics            = OFF"
+fi
+if test "$COMPILE_KINETICS" = "1" ; then
+  echo "        Homogeneous Kinetics                  = ON"
+else
+  echo "        Homogeneous Kinetics                  = OFF"
+fi
+if test "$COMPILE_HETEROKIN" = "1" ; then
+  echo "        Heterogeneous Kinetics                = ON"
+else
+  echo "        Heterogeneous Kinetics                = OFF"
+fi
+if test "$COMPILE_RXNPATH" = "1" ; then
+  echo "        Reaction Path Analysis                = ON"
+else
+  echo "        Reaction Path Analysis                = OFF"
 fi
 echo " "
 
@@ -684,19 +698,27 @@ if test -n "$NEED_ZEROD"
 then LOCAL_LIBS=$LOCAL_LIBS' '-lzeroD
 fi
 
+LOCAL_LIBS=$LOCAL_LIBS' '-lequil
+
 if test -n "$NEED_CATHERMO"
-then LOCAL_LIBS=$LOCAL_LIBS' '-lcaThermo
+then LOCAL_LIBS=$LOCAL_LIBS' '-lthermo
+fi
+
+if test -n "$COMPILE_KINETICS"
+then LOCAL_LIBS=$LOCAL_LIBS' '-lkinetics
 fi
 
 if test -n "$NEED_TRANSPORT"
 then LOCAL_LIBS=$LOCAL_LIBS' '-ltransport
 fi
 
-LOCAL_LIBS=$LOCAL_LIBS' '-lcantera
+LOCAL_LIBS=$LOCAL_LIBS' '-lctnumerics
 
 if test -n "$NEED_CVODE"; then 
 LOCAL_LIBS=$LOCAL_LIBS' '$CVODE_LIBS
 fi
+
+LOCAL_LIBS=$LOCAL_LIBS' '-lctbase
 
 if test -n "$NEED_LAPACK"
 then LOCAL_LIBS=$LOCAL_LIBS' '$BLAS_LAPACK_LIBS
@@ -1336,11 +1358,15 @@ dnl Checks for library functions.
 AC_OUTPUT(Makefile \
           Cantera/Makefile \
 	  Cantera/src/Makefile \
+	  Cantera/src/base/Makefile \
 	  Cantera/src/zeroD/Makefile \
 	  Cantera/src/oneD/Makefile \
 	  Cantera/src/converters/Makefile \
 	  Cantera/src/transport/Makefile \
 	  Cantera/src/thermo/Makefile \
+	  Cantera/src/kinetics/Makefile \
+	  Cantera/src/numerics/Makefile \
+          Cantera/src/equil/Makefile \
 	  Cantera/clib/src/Makefile \
 	  Cantera/fortran/src/Makefile \
 	  Cantera/fortran/f77demos/f77demos.mak \

@@ -3,8 +3,7 @@
  */
 #include "stdio.h"
 #include "math.h"
-#include "PureFluidPhase.h"
-#include "importCTML.h"
+#include "PureFluid.h"
 #include <new>
 using namespace std;
 using namespace Cantera;

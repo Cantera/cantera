@@ -5,7 +5,7 @@
 
 #include "kernel/SurfPhase.h"
 #include "kernel/InterfaceKinetics.h"
-#include "kernel/importCTML.h"
+#include "kernel/importKinetics.h"
 
 namespace Cantera {
 

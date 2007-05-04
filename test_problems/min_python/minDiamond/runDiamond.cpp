@@ -40,12 +40,7 @@ static void printUsage()
 #include "InterfaceKinetics.h"
 #else
 #include "Cantera.h"
-#include "kernel/ct_defs.h"
-#include "kernel/ctml.h"
-#include "kernel/GasKinetics.h"
-#include "kernel/importCTML.h"
-#include "kernel/ThermoPhase.h"
-#include "kernel/InterfaceKinetics.h"
+#include "kinetics.h"
 #endif
 
 using namespace Cantera;

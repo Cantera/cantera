@@ -1,12 +1,12 @@
 #ifndef CT_INCL_ONEDIM_H
 #define CT_INCL_ONEDIM_H
 
-#include "kernel/oneD/Sim1D.h"
-#include "kernel/oneD/OneDim.h"
-#include "kernel/oneD/Domain1D.h"
-#include "kernel/oneD/Inlet1D.h"
-#include "kernel/oneD/MultiNewton.h"
-#include "kernel/oneD/MultiJac.h"
-#include "kernel/oneD/StFlow.h"
+#include "kernel/Sim1D.h"
+#include "kernel/OneDim.h"
+#include "kernel/Domain1D.h"
+#include "kernel/Inlet1D.h"
+#include "kernel/MultiNewton.h"
+#include "kernel/MultiJac.h"
+#include "kernel/StFlow.h"
 #endif
 

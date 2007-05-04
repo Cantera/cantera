@@ -3,7 +3,8 @@
 
 // Cantera includes
 #include "ctml.h"
-#include "importCTML.h"
+//#include "importCTML.h"
+using namespace ctml;
 
 #include "../../clib/src/Cabinet.h"
 

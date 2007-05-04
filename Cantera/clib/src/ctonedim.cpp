@@ -8,9 +8,9 @@
 
 // Cantera includes
 #include "config.h"
-#include "oneD/Sim1D.h"
-#include "oneD/StFlow.h"
-#include "oneD/Inlet1D.h"
+#include "Sim1D.h"
+#include "StFlow.h"
+#include "Inlet1D.h"
 #include "DenseMatrix.h"
 
 // local includes

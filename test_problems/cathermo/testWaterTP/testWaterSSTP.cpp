@@ -3,8 +3,11 @@
  */
 #include "stdio.h"
 #include "math.h"
+
+#include "Cantera.h"
+#include "thermo.h"
 #include "WaterSSTP.h"
-#include "importCTML.h"
+
 #include <new>
 using namespace std;
 using namespace Cantera;

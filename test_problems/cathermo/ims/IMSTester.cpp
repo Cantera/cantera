@@ -29,7 +29,7 @@
 #include "IdealMolalSoln.h"
 #else
 #include "Cantera.h"
-#include "kernel/thermo/IdealMolalSoln.h"
+#include "kernel/IdealMolalSoln.h"
 #endif
 
 using namespace std;

@@ -7,16 +7,9 @@
  *
  */
 
-#ifdef SRCDIRTREE
-#include "ct_defs.h"
-#include "ThermoPhase.h"
-#include "IdealGasMix.h"
-#include "equil.h"
-#else
 #include "Cantera.h"
 #include "IdealGasMix.h"
 #include "equilibrium.h"
-#endif
 
 using namespace std;
 using namespace Cantera;

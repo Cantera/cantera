@@ -15,9 +15,9 @@
 #include "logger.h"
 #include "DebyeHuckel.h"
 #else
-#include "cantera/Cantera.h"
-#include "cantera/kernel/logger.h"
-#include "cantera/kernel/thermo/DebyeHuckel.h"
+#include "Cantera.h"
+#include "kernel/logger.h"
+#include "kernel/DebyeHuckel.h"
 #endif
 
 using namespace std;

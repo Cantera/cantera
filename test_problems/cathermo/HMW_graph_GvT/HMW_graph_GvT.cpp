@@ -19,10 +19,10 @@
 #else
 #include "ThermoPhase.h"
 
-#include "cantera/Cantera.h"
-#include "cantera/kernel/logger.h"
-#include "cantera/thermo.h"
-#include "cantera/kernel/thermo/HMWSoln.h"
+#include "Cantera.h"
+#include "kernel/logger.h"
+#include "thermo.h"
+#include "kernel/HMWSoln.h"
 #endif
 
 #include "TemperatureTable.h"

@@ -18,8 +18,10 @@
 #include "HMWSoln.h"
 #include "importCTML.h"
 #else
-#include "cantera/Cantera.h"
-#include "cantera/thermo.h"
+#include "Cantera.h"
+#include "thermo.h"
+#include "kernel/HMWSoln.h"
+#include "TemperatureTable.h"
 #endif
 
 using namespace std;

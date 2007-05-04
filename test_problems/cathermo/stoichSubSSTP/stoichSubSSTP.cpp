@@ -17,12 +17,9 @@
 #include "StoichSubstanceSSTP.h"
 #include "importCTML.h"
 #else
-#include "ThermoPhase.h"
-
-#include "cantera/Cantera.h"
-#include "cantera/kernel/logger.h"
-#include "cantera/thermo.h"
-#include "cantera/kernel/thermo/HMWSoln.h"
+#include "Cantera.h"
+#include "thermo.h"
+#include "kernel/StoichSubstanceSSTP.h"
 #endif
 
 #include "TemperatureTable.h"

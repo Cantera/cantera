@@ -26,7 +26,7 @@ PIC_FLAG=@PIC@
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
 
 
-CXX_INCLUDES = -I../src
+CXX_INCLUDES = -I../src/base
 
 LIB = @buildlib@/libuser.a
 

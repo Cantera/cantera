@@ -11,7 +11,7 @@
 #include "ct_defs.h"
 #include "HMWSoln.h"
 #else
-#include "cantera/Cantera.h"
+#include "Cantera.h"
 #include "HMWSoln.h"
 #endif
 

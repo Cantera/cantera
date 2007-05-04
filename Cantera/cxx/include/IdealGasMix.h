@@ -5,7 +5,7 @@
 
 #include "kernel/IdealGasPhase.h"
 #include "kernel/GasKinetics.h"
-#include "kernel/importCTML.h"
+#include "kernel/importKinetics.h"
 
 namespace Cantera {
 

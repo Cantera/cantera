@@ -23,9 +23,7 @@ DEPENDS = $(OBJS:.o=.d)
 CXX = @CXX@
 
 # the directory where Cantera include files may be found.
-CANTERA_INCDIR=../../src
-
-CXX_INCLUDES = -I$(CANTERA_INCDIR)  
+CXX_INCLUDES = -I../../src/base -I../../src/thermo
 
 # how to compile C++ source files to object files
 .@CXX_EXT@.@OBJ_EXT@:

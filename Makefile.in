@@ -129,10 +129,6 @@ endif
 hdr-collect:
 	@INSTALL@ -d build/include/cantera
 	@INSTALL@ -d build/include/cantera/kernel
-	@INSTALL@ -d build/include/cantera/kernel/oneD
-	@INSTALL@ -d build/include/cantera/kernel/zeroD
-	@INSTALL@ -d build/include/cantera/kernel/converters
-	@INSTALL@ -d build/include/cantera/kernel/transport
 	@(cd Cantera/cxx/include ; for ihhh in *.h ; do  \
           ../../../$(INSTALL_TSC) $${ihhh} ../../../build/include/cantera ; \
           done )
@@ -241,7 +237,6 @@ else
 endif
 
 example_codes:
-	(cd examples/cxx; @MAKE@ clean; @MAKE@)
 	(cd Cantera/cxx/demos; @MAKE@ clean)
 	(cd Cantera/cxx; @MAKE@)
 
@@ -278,7 +273,6 @@ clean:
 	cd tools; @MAKE@ clean
 	cd ext; @MAKE@ clean
 	cd test_problems; @MAKE@ clean
-	cd examples; @MAKE@ clean
 
 docs:
 	cd tools/doxygen/Cantera; doxygen Cantera.cfg

@@ -18,13 +18,11 @@
 #include "HMWSoln.h"
 #include "importCTML.h"
 #else
-#include "cantera/Cantera.h"
-#include "cantera/kernel/logger.h"
-#include "cantera/thermo.h"
+#include "Cantera.h"
+#include "kernel/logger.h"
+#include "thermo.h"
 #include "TemperatureTable.h"
-#include "ThermoPhase.h"
 #include "HMWSoln.h"
-#include "importCTML.h"
 #endif
 
 using namespace std;

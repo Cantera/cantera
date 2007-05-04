@@ -41,14 +41,16 @@ EXT_LIBS = -lzeroD -loneD @LOCAL_LIBS@
 # the directory where the Cantera libraries are located
 CANTERA_LIBDIR=@buildlib@
 # ../../../lib
-LIB_DEPS = $(CANTERA_LIBDIR)/libcantera.a \
+LIB_DEPS = $(CANTERA_LIBDIR)/libctbase.a \
+           $(CANTERA_LIBDIR)/libequil.a \
+           $(CANTERA_LIBDIR)/libtransport.a \
+           $(CANTERA_LIBDIR)/libthermo.a \
+           $(CANTERA_LIBDIR)/libctnumerics.a \
            $(CANTERA_LIBDIR)/libzeroD.a \
            $(CANTERA_LIBDIR)/liboneD.a 
 
 # the directory where Cantera include files may be found.
-CANTERA_INCDIR=../../src
-
-CXX_INCLUDES = -I$(CANTERA_INCDIR)  
+CXX_INCLUDES = -I../../src/base -I../../src/thermo -I../../src/kinetics -I../../src/transport -I../../src/numerics -I../../src/oneD -I../../src/zeroD -I../../src/equil -I../../src/converters
 
 # flags passed to the C++ compiler/linker for the linking step
 LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
@@ -81,7 +83,7 @@ endif
 endif
 
 clean:
-	$(RM) $(OBJS) $(CTLIB)
+	$(RM) $(OBJS) $(CTLIB) .depends
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \
          fi )

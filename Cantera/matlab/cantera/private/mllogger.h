@@ -3,7 +3,7 @@
 
 #include "mex.h"
 #include <string>
-#include "../../../src/logger.h"
+#include "cantera/kernel/logger.h"
 
 #include <iostream>
 using namespace std;

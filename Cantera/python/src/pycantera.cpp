@@ -11,7 +11,7 @@
 #pragma warning(disable:4503)
 #endif
 
-#include "../../src/config.h"
+#include "cantera/config.h"
 
 #include "Python.h"
 

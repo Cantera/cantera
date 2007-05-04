@@ -42,7 +42,7 @@ using namespace std;
 
 #include "ct_defs.h"
 #include "global.h"
-#include "converters/ck2ct.h"
+#include "ck2ct.h"
 
 using namespace Cantera;
 

@@ -71,7 +71,7 @@ DEPENDS = $(OBJS:.o=.d)
 
 all: $(PROGRAM) 
 
-$(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a
+$(PROGRAM): $(OBJS) 
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
                    $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)

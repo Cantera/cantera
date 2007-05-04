@@ -16,9 +16,9 @@
 #include "HMWSoln.h"
 #else
 
-#include "cantera/Cantera.h"
+#include "Cantera.h"
 
-#include "cantera/kernel/logger.h"
+#include "kernel/logger.h"
 #include "HMWSoln.h"
 #endif
 

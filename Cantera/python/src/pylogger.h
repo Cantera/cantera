@@ -3,7 +3,7 @@
 
 #include "Python.h"
 #include <string>
-#include "../../src/logger.h"
+#include "cantera/kernel/logger.h"
 
 using namespace std;
 

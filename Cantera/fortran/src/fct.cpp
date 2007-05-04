@@ -16,9 +16,10 @@
 // Cantera includes
 #include "equil.h"
 #include "KineticsFactory.h"
-#include "transport/TransportFactory.h"
+#include "TransportFactory.h"
+#include "ThermoFactory.h"
 #include "ctml.h"
-#include "importCTML.h"
+#include "importKinetics.h"
 //#include "converters/ck2ct.h"
 #include "../../clib/src/Storage.h"
 #include "../../clib/src/Cabinet.h"

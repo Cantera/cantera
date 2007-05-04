@@ -3,7 +3,7 @@
 
 // Cantera includes
 #include "Kinetics.h"
-#include "transport/TransportBase.h"
+#include "TransportBase.h"
 
 #include "Cabinet.h"
 #include "clib_defs.h"

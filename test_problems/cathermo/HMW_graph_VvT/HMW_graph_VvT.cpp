@@ -16,16 +16,14 @@
 #include "HMWSoln.h"
 #include "importCTML.h"
 #else
-#include "vcsc.h"
-#include "cantera/Cantera.h"
-#include "vcs_Cantera_input.h"
-#include "vcs_Cantera_convert.h"
-#include "cantera/kernel/logger.h"
-#include "cantera/thermo.h"
+//#include "vcsc.h"
+#include "Cantera.h"
+//#include "vcs_Cantera_input.h"
+//#include "vcs_Cantera_convert.h"
+#include "kernel/logger.h"
+#include "thermo.h"
 #include "TemperatureTable.h"
-#include "ThermoPhase.h"
 #include "HMWSoln.h"
-#include "importCTML.h"
 
 #endif
 

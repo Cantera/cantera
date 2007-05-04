@@ -1,7 +1,7 @@
 #/bin/sh
 
 LIBDIR = @buildlib@
-INCDIR = -I@ctroot@/Cantera/src
+INCDIR = -I@ctroot@/Cantera/src/
 BINDIR = @buildbin@
 build_ck = @BUILD_CK@
 
@@ -16,8 +16,7 @@ OBJS = ck2cti.o cti2ctml.o fixtext.o
 DEPENDS = $(OBJS:.o=.d)
 
 CONVLIB_DEP = @buildlib@/libconverters.a
-CANTERALIB_DEP = @buildlib@/libcantera.a \
-	         @buildlib@/libctcxx.a
+
 
 progs = $(BINDIR)/cti2ctml $(BINDIR)/fixtext
 ifeq ($(build_ck),1) 
@@ -27,18 +26,18 @@ exes = $(progs)
 endif
 
 .cpp.o:
-	@CXX@ -c $< @DEFS@  $(INCDIR) @CXXFLAGS@ $(CXX_FLAGS) 
+	@CXX@ -c $< @DEFS@  $(INCDIR)base $(INCDIR)converters @CXXFLAGS@ $(CXX_FLAGS) 
 
 all: $(exes)
 
 ck: $(BINDIR)/ck2cti
 
-$(BINDIR)/ck2cti: ck2cti.o $(CONVLIB_DEP) $(CANTERALIB_DEP)
+$(BINDIR)/ck2cti: ck2cti.o $(CONVLIB_DEP) 
 	$(RM) $(BINDIR)/ck2cti
 	@CXX@ -o $(BINDIR)/ck2cti ck2cti.o $(LCXX_FLAGS) \
-               -lconverters -lcantera -ltpx -lctcxx $(LCXX_END_LIBS)
+               -lconverters -lctbase -ltpx -lctcxx $(LCXX_END_LIBS)
 
-$(BINDIR)/cti2ctml: cti2ctml.o $(CANTERALIB_DEP)
+$(BINDIR)/cti2ctml: cti2ctml.o 
 	$(RM) $(BINDIR)/cti2ctml
 	@CXX@ -o $(BINDIR)/cti2ctml cti2ctml.o $(LCXX_FLAGS) $(LOCAL_LIBS) \
                $(LCXX_END_LIBS)
@@ -58,7 +57,7 @@ clean:
         fi )
 
 %.d:
-	@CXX_DEPENDS@ -MM $(INCDIR) @CXXFLAGS@ $(CXX_FLAGS) $*.cpp > $*.d
+	@CXX_DEPENDS@ $(INCDIR)base $(INCDIR)converters @CXXFLAGS@ $(CXX_FLAGS) $*.cpp > $*.d
 
 depends: $(DEPENDS)
 	cat *.d &> .depends

@@ -29,7 +29,7 @@
 #include "IdealSolidSolnPhase.h"
 #else
 #include "Cantera.h"
-#include "kernel/thermo/IdealSolidSolnPhase.h"
+#include "kernel/IdealSolidSolnPhase.h"
 #endif
 
 using namespace std;
