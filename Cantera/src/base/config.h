@@ -8,13 +8,13 @@
 #ifdef CANTERA_APP
 #include "../winconfig.h"
 #else
-#include "../../winconfig.h"
+#include "../../../winconfig.h"
 #endif
 #else
 #ifdef CANTERA_APP
 #include "../config.h"
 #else
-#include "../../config.h"
+#include "../../../config.h"
 #endif
 #endif
 #endif

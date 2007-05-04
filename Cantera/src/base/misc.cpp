@@ -24,9 +24,14 @@
 #include "units.h"
 #include "xml.h"
 #include "ctml.h"
+
+#define DGG_MOD
+#ifndef DGG_MOD
 #include "SpeciesThermoFactory.h"
 #include "ThermoFactory.h"
 #include "FalloffFactory.h"
+#endif
+
 #include "logger.h"
 
 #undef DEBUG_PATHS
@@ -178,10 +183,12 @@ namespace Cantera {
             delete s_app;
             s_app = 0;
         }
+#ifndef DGG_MOD
         SpeciesThermoFactory::deleteFactory();
         ThermoFactory::deleteFactory();
         FalloffFactory::deleteFalloffFactory();
         Unit::deleteUnit();
+#endif
     }
 
     Application* app() {
@@ -904,5 +911,116 @@ namespace Cantera {
     }
 
 #endif // WITH_HTML_LOGS
+
+
+
+  /*
+   * First we define a couple of typedefs that will
+   * be used throught this file
+   */
+  //! typedef for a pointer to an XML_Node
+  typedef const vector<XML_Node*>    nodeset_t;
+  //! typedef for an XML_Node
+  typedef XML_Node                   node_t;
+
+
+  /// split a string at a '#' sign. Used to separate a file name
+  /// from an id string.
+  static void split(const std::string& src, std::string& file, std::string& id) { 
+    string::size_type ipound = src.find('#');
+    if (ipound != string::npos) {
+      id = src.substr(ipound+1,src.size());
+      file = src.substr(0,ipound);
+    }
+    else {
+      id = "";
+      file = src;
+    }
+  }
+
+  /*
+   * This routine will locate an XML node in either the input
+   * XML tree or in another input file specified by the file
+   * part of the file_ID string. Searches are based on the
+   * ID attribute of the XML element only.
+   *
+   * param file_ID This is a concatenation of two strings seperated
+   *                by the "#" character. The string before the
+   *                pound character is the file name of an xml
+   *                file to carry out the search. The string after
+   *                the # character is the ID attribute 
+   *                of the xml element to search for. 
+   *                The string is interpreted as a file string if
+   *                no # character is in the string.
+   *
+   * param root    If the file string is empty, searches for the
+   *                xml element with matching ID attribute are
+   *                carried out from this XML node.
+   */
+  XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root) {
+    string fname, idstr;
+    XML_Node *db, *doc;
+    split(file_ID, fname, idstr);
+    if (fname == "") {
+      if (!root) throw CanteraError("get_XML_Node",
+				    "no file name given. file_ID = "+file_ID);
+      db = root->findID(idstr, 3);
+    } 
+    else {
+      doc = get_XML_File(fname);
+      if (!doc) throw CanteraError("get_XML_Node", 
+				   "get_XML_File failed trying to open "+fname);
+      db = doc->findID(idstr, 3);
+    }
+    if (!db) {
+      throw CanteraError("get_XML_Node", 
+			 "id tag '"+idstr+"' not found.");
+    }
+    return db;
+  }
+
+
+  /*
+   * This routine will locate an XML node in either the input
+   * XML tree or in another input file specified by the file
+   * part of the file_ID string. Searches are based on the
+   * XML element name and the ID attribute of the XML element.
+   * An exact match of both is usually required. However, the
+   * ID attribute may be set to "", in which case the first
+   * xml element with the correct element name will be returned.
+   *
+   * @param nameTarget This is the XML element name to look for.
+   *                   
+   * @param file_ID This is a concatenation of two strings seperated
+   *                by the "#" character. The string before the
+   *                pound character is the file name of an xml
+   *                file to carry out the search. The string after
+   *                the # character is the ID attribute 
+   *                of the xml element to search for. 
+   *                The string is interpreted as a file string if
+   *                no # character is in the string.
+   *
+   * @param root    If the file string is empty, searches for the
+   *                xml element with matching ID attribute are
+   *                carried out from this XML node.
+   */
+  XML_Node* get_XML_NameID(const std::string& nameTarget,
+			   const std::string& file_ID, 
+			   XML_Node* root) {
+    string fname, idTarget;
+    XML_Node *db, *doc;
+    split(file_ID, fname, idTarget);
+    if (fname == "") {
+      if (!root) return 0;
+      db = root->findNameID(nameTarget, idTarget);
+    } else {
+      doc = get_XML_File(fname);
+      if (!doc) return 0;
+      db = doc->findNameID(nameTarget, idTarget);
+    }
+    return db;
+  }
+
+
 }
 
