@@ -4,7 +4,7 @@
 #include <string>
 
 #include "kernel/MetalPhase.h"
-#include "kernel/importCTML.h"
+#include "kernel/importKinetics.h"
 
 namespace Cantera {
 

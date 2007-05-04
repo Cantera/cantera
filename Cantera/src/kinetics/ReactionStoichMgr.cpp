@@ -19,7 +19,6 @@
 #include "ReactionStoichMgr.h"
 #include "StoichManager.h"
 #include "ctexceptions.h"
-#include "diagnostics.h"
 #include "ReactionData.h"
 
 using namespace std;

@@ -4,7 +4,7 @@
 #include <string>
 
 #include "kernel/ThermoPhase.h"
-#include "kernel/importCTML.h"
+#include "kernel/ThermoFactory.h"
 
 namespace Cantera {
 
