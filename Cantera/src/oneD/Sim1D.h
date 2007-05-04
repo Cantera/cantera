@@ -6,7 +6,7 @@
 #define CT_SIM1D_H
 
 #include "OneDim.h"
-#include "../funcs.h"
+#include "funcs.h"
 
 namespace Cantera {
 

@@ -1,9 +1,9 @@
 
 #include "Wall.h"
 #include "ReactorBase.h"
-#include "../Func1.h"
-#include "../InterfaceKinetics.h"
-#include "../SurfPhase.h"
+#include "Func1.h"
+#include "InterfaceKinetics.h"
+#include "SurfPhase.h"
 
 using Cantera::Func1;
 using Cantera::Kinetics;

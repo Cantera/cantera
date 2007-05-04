@@ -16,9 +16,9 @@
 #pragma warning(disable:4503)
 #endif
 
-#include "../ct_defs.h"
-#include "../global.h"
-#include "../stringUtils.h"
+#include "ct_defs.h"
+#include "global.h"
+#include "stringUtils.h"
 
 namespace Cantera {
     class Func1;

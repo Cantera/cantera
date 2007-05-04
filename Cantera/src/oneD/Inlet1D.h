@@ -18,11 +18,11 @@
 #define CT_BDRY1D_H
 
 #include "Domain1D.h"
-#include "../SurfPhase.h"
-#include "../InterfaceKinetics.h"
+#include "SurfPhase.h"
+#include "InterfaceKinetics.h"
 #include "StFlow.h"
 #include "OneDim.h"
-#include "../ctml.h"
+#include "ctml.h"
 
 namespace Cantera {
 

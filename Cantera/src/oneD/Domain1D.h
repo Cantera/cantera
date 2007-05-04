@@ -13,8 +13,8 @@
 #define CT_DOMAIN1D_H
 
 
-#include "../xml.h"
-#include "../ctexceptions.h"
+#include "xml.h"
+#include "ctexceptions.h"
 #include "refine.h"
 
 

@@ -18,10 +18,10 @@
 #pragma warning(disable:4503)
 #endif
 
-#include "../ThermoPhase.h"
+#include "ThermoPhase.h"
 #include "MixTransport.h"
 
-#include "../utilities.h"
+#include "utilities.h"
 #include "TransportParams.h"
 #include "TransportFactory.h"
 

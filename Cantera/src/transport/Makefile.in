@@ -11,7 +11,7 @@
 .SUFFIXES :
 .SUFFIXES : .cpp .d .o .h
 
-INCDIR = ../../../build/include/cantera/kernel/transport
+INCDIR = ../../../build/include/cantera/kernel
 INSTALL_TSC = ../../../bin/install_tsc
 do_ranlib = @DO_RANLIB@
 
@@ -26,7 +26,7 @@ TRAN_H  =  TransportFactory.h MultiTransport.h MixTransport.h \
            MMCollisionInt.h  SolidTransport.h DustyGasTransport.h \
            TransportBase.h L_matrix.h TransportParams.h
 
-CXX_INCLUDES = -I.. @CXX_INCLUDES@
+CXX_INCLUDES = -I../base -I../thermo -I../numerics @CXX_INCLUDES@
 LIB = @buildlib@/libtransport.a
 
 DEPENDS = $(OBJS:.o=.d)

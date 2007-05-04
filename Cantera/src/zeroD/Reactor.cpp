@@ -16,8 +16,8 @@
 //#include "../CVode.h"
 #include "FlowDevice.h"
 #include "Wall.h"
-#include "../InterfaceKinetics.h"
-#include "../SurfPhase.h"
+#include "InterfaceKinetics.h"
+#include "SurfPhase.h"
 
 using namespace Cantera;
 using namespace std;

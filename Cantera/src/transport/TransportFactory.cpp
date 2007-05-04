@@ -13,7 +13,7 @@
 #pragma warning(disable:4503)
 #endif
 
-#include "../ThermoPhase.h"
+#include "ThermoPhase.h"
 
 // known transport models
 #include "MultiTransport.h"
@@ -24,15 +24,15 @@
 
 #include "TransportFactory.h"
 
-#include "../polyfit.h"
+#include "polyfit.h"
 #include "MMCollisionInt.h"
 #include <stdio.h>
-#include "../xml.h"
-#include "../XML_Writer.h"
+#include "xml.h"
+#include "XML_Writer.h"
 #include "TransportParams.h"
-#include "../global.h"
-#include "../IdealGasPhase.h"
-#include "../ctml.h"
+#include "global.h"
+#include "IdealGasPhase.h"
+#include "ctml.h"
 
 using namespace std;
 

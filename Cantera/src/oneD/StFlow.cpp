@@ -22,8 +22,8 @@
 #include <time.h>
 
 #include "StFlow.h"
-#include "../ArrayViewer.h"
-#include "../ctml.h"
+#include "ArrayViewer.h"
+#include "ctml.h"
 #include "MultiJac.h"
 
 using namespace ctml;

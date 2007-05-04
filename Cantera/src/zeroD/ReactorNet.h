@@ -19,8 +19,8 @@
 #endif
 
 #include "Reactor.h"
-#include "../FuncEval.h"
-#include "../Integrator.h"
+#include "FuncEval.h"
+#include "Integrator.h"
 
 namespace CanteraZeroD {
 

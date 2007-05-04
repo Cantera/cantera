@@ -19,9 +19,9 @@
 #pragma warning(disable:4503)
 #endif
 
-#include "../ct_defs.h"
-#include "../ctexceptions.h"
-#include "../Func1.h"
+#include "ct_defs.h"
+#include "ctexceptions.h"
+#include "Func1.h"
 
 namespace Cantera {
     class Kinetics;

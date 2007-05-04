@@ -22,7 +22,7 @@
 #include "FlowDevice.h"
 #include "ReactorBase.h"
 //#include "PID_Controller.h"
-#include "../Func1.h"
+#include "Func1.h"
 
 namespace CanteraZeroD {
 

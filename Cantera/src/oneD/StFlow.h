@@ -14,12 +14,12 @@
 #ifndef CT_STFLOW_H
 #define CT_STFLOW_H
 
-#include "../transport/TransportBase.h"
+#include "TransportBase.h"
 #include "Domain1D.h"
-#include "../Array.h"
-#include "../IdealGasPhase.h"
-#include "../Kinetics.h"
-#include "../funcs.h"
+#include "Array.h"
+#include "IdealGasPhase.h"
+#include "Kinetics.h"
+#include "funcs.h"
 //#include "../flowBoundaries.h"
 
 

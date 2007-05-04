@@ -26,9 +26,9 @@ using namespace std;
 #include <stdio.h>
 #include <math.h>
 
-#include "../ctexceptions.h"
-#include "../vec_functions.h"
-#include "../stringUtils.h"
+#include "ctexceptions.h"
+#include "vec_functions.h"
+#include "stringUtils.h"
 #include <time.h>
 
 using namespace std;

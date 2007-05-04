@@ -11,7 +11,7 @@
 .SUFFIXES :
 .SUFFIXES : .cpp .d .o .h
 
-INCDIR = ../../../build/include/cantera/kernel/zeroD
+INCDIR = ../../../build/include/cantera/kernel
 INSTALL_TSC = ../../../bin/install_tsc
 do_ranlib = @DO_RANLIB@
 
@@ -26,7 +26,7 @@ ZEROD_H = Reactor.h ReactorBase.h FlowDevice.h Wall.h ReactorNet.h \
           flowControllers.h PID_Controller.h Reservoir.h FlowReactor.h \
           ConstPressureReactor.h ReactorFactory.h
 
-CXX_INCLUDES = -I..
+CXX_INCLUDES = -I../base -I../thermo -I../kinetics -I../numerics
 ZEROD_LIB = @buildlib@/libzeroD.a
 
 DEPENDS = $(OBJS:.o=.d)

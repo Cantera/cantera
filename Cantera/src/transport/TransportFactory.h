@@ -33,7 +33,7 @@
 using namespace std;
 
 // Cantera includes
-#include "../ct_defs.h"
+#include "ct_defs.h"
 #include "TransportBase.h"
 
 namespace Cantera {

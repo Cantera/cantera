@@ -17,7 +17,7 @@
 #endif
 
 #include "ReactorBase.h"
-#include "../Kinetics.h"
+#include "Kinetics.h"
 
 
 namespace CanteraZeroD {

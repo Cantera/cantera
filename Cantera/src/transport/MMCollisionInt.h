@@ -19,7 +19,7 @@
 #include <vector>
 using namespace std;
 
-#include "../ct_defs.h"
+#include "ct_defs.h"
 
 // turn off warnings under Windows
 #ifdef WIN32

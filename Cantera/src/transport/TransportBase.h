@@ -15,7 +15,7 @@
 #ifndef CT_TRANSPORTBASE_H
 #define CT_TRANSPORTBASE_H
 
-#include "../ThermoPhase.h"
+#include "ThermoPhase.h"
 
 
 namespace Cantera {

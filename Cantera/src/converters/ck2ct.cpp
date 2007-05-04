@@ -13,7 +13,7 @@
 #include <string>
 #include <ctype.h>
 
-#include "../config.h"
+#include "config.h"
 
 #ifdef HAS_SSTREAM
 #include <sstream>
@@ -26,8 +26,8 @@ using namespace std;
 
 #include "ck2ct.h"
 #include <time.h>
-#include "../ct_defs.h"
-#include "../ctml.h"
+#include "ct_defs.h"
+#include "ctml.h"
 
 
 using namespace Cantera;

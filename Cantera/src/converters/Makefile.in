@@ -28,7 +28,7 @@ CONV_H = CKReader.h      thermoFunctions.h \
          ck2ct.h      ckr_defs.h      Constituent.h   \
          Species.h
 
-CXX_INCLUDES = -I. -I..
+CXX_INCLUDES = -I. -I../base -I../numerics
 CONV_LIB = @buildlib@/libconverters.a
 
 DEPENDS = $(OBJS:.o=.d)

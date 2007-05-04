@@ -21,18 +21,17 @@
 #pragma warning(disable:4503)
 #endif
 
-#include "../ThermoPhase.h"
+#include "ThermoPhase.h"
 
 #include "MultiTransport.h"
-#include "../ctlapack.h"
-//#include "../../../ext/math/gmres.h"
+#include "ctlapack.h"
 
-#include "../DenseMatrix.h"
-#include "../polyfit.h"
-#include "../utilities.h"
+#include "DenseMatrix.h"
+#include "utilities.h"
+#include "utilities.h"
 #include "L_matrix.h"
 #include "TransportParams.h"
-#include "../IdealGasPhase.h"
+#include "IdealGasPhase.h"
 
 #include "TransportFactory.h"
 

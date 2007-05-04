@@ -8,7 +8,7 @@
 #include "MultiNewton.h"
 #include "OneDim.h"
 
-#include "../ctml.h"
+#include "ctml.h"
 using namespace ctml;
 using namespace std;
 

@@ -11,14 +11,14 @@
 .SUFFIXES :
 .SUFFIXES : .cpp .d .o
 
-INCDIR = ../../../build/include/cantera/kernel/oneD
+INCDIR = ../../../build/include/cantera/kernel
 INSTALL_TSC = ../../../bin/install_tsc                      
 do_ranlib = @DO_RANLIB@
 
 PIC_FLAG=@PIC@
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
-CXX_INCLUDES = -I.. @CXX_INCLUDES@
+CXX_INCLUDES = -I../base -I../thermo -I../kinetics -I../transport -I../numerics @CXX_INCLUDES@
 
 
 OBJS    = MultiJac.o MultiNewton.o newton_utils.o OneDim.o\

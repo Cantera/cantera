@@ -16,9 +16,10 @@
 #endif
 
 #include "MMCollisionInt.h"
-#include "../polyfit.h"
-#include "../xml.h"
-#include "../XML_Writer.h"
+#include "utilities.h"
+#include "polyfit.h"
+#include "xml.h"
+#include "XML_Writer.h"
 #include <stdio.h>
 using namespace std;
 
