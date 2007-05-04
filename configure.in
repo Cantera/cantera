@@ -700,16 +700,16 @@ fi
 
 LOCAL_LIBS=$LOCAL_LIBS' '-lequil
 
-if test -n "$NEED_CATHERMO"
-then LOCAL_LIBS=$LOCAL_LIBS' '-lthermo
-fi
-
 if test -n "$COMPILE_KINETICS"
 then LOCAL_LIBS=$LOCAL_LIBS' '-lkinetics
 fi
 
 if test -n "$NEED_TRANSPORT"
 then LOCAL_LIBS=$LOCAL_LIBS' '-ltransport
+fi
+
+if test -n "$NEED_CATHERMO"
+then LOCAL_LIBS=$LOCAL_LIBS' '-lthermo
 fi
 
 LOCAL_LIBS=$LOCAL_LIBS' '-lctnumerics
