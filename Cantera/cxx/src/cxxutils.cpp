@@ -14,7 +14,7 @@ namespace Cantera {
     /**
      * Format a summary of the mixture state for output.
      */           
-    string report(const ThermoPhase& th, bool show_thermo) {
+    std::string report(const ThermoPhase& th, bool show_thermo) {
 
         try {
         char p[200];
@@ -76,19 +76,19 @@ namespace Cantera {
         return s;
         }
         catch (CanteraError) {
-            return string("<error>");
+            return std::string("<error>");
         }
     }
 
     /**
      * Format a composition list for output.
      */           
-    string formatCompList(const Phase& mix, int xyc) {
+    std::string formatCompList(const Phase& mix, int xyc) {
 
         const doublereal Threshold = 1.e-20;
 
         char p[200];
-        string s = "";
+        std::string s = "";
         int kk = mix.nSpecies();
         array_fp zz(kk);
         switch (xyc) {
