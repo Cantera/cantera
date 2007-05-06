@@ -58,29 +58,33 @@ ifeq ($(test_electrolytes),1)
 	cd DH_graph_NM; @MAKE@ -s test
 	cd DH_graph_Pitzer; @MAKE@ -s test
 endif
-
+#
+# Have to remove .depends before calling make, because
+# the rule for updating .depends is invoked, before the clean rule,
+# if .depends exists in the directory.
+#
 clean:
 	$(RM) *.*~ 
-	cd issp; @MAKE@ clean
-	cd stoichSubSSTP; @MAKE@ clean
-	cd ims;	@MAKE@ clean 
-	cd testIAPWS; @MAKE@ clean
-	cd testIAPWSPres; @MAKE@ clean
-	cd testIAPWSTripP; @MAKE@ clean 
-	cd testWaterPDSS; @MAKE@ clean
-	cd testWaterTP; @MAKE@ clean
-	cd HMW_graph_GvT; @MAKE@ clean
-	cd HMW_graph_GvI; @MAKE@ clean
-	cd HMW_graph_HvT; @MAKE@ clean
-	cd HMW_graph_CpvT; @MAKE@ clean
-	cd HMW_graph_VvT; @MAKE@ clean
-	cd HMW_test_1; @MAKE@ clean
-	cd HMW_test_3; @MAKE@ clean
-	cd DH_graph_1; @MAKE@ clean
-	cd DH_graph_acommon; @MAKE@  clean
-	cd DH_graph_bdotak; @MAKE@ clean
-	cd DH_graph_NM; @MAKE@ clean
-	cd DH_graph_Pitzer; @MAKE@ clean 
+	cd issp;              $(RM) .depends ; @MAKE@ clean
+	cd stoichSubSSTP;     $(RM) .depends ; @MAKE@ clean
+	cd ims;	              $(RM) .depends ; @MAKE@ clean 
+	cd testIAPWS;         $(RM) .depends ; @MAKE@ clean
+	cd testIAPWSPres;     $(RM) .depends ; @MAKE@ clean
+	cd testIAPWSTripP;    $(RM) .depends ; @MAKE@ clean 
+	cd testWaterPDSS;     $(RM) .depends ; @MAKE@ clean
+	cd testWaterTP;       $(RM) .depends ; @MAKE@ clean
+	cd HMW_graph_GvT;     $(RM) .depends ; @MAKE@ clean
+	cd HMW_graph_GvI;     $(RM) .depends ; @MAKE@ clean
+	cd HMW_graph_HvT;     $(RM) .depends ; @MAKE@ clean
+	cd HMW_graph_CpvT;    $(RM) .depends ; @MAKE@ clean
+	cd HMW_graph_VvT;     $(RM) .depends ; @MAKE@ clean
+	cd HMW_test_1;        $(RM) .depends ; @MAKE@ clean
+	cd HMW_test_3;        $(RM) .depends ; @MAKE@ clean
+	cd DH_graph_1;        $(RM) .depends ; @MAKE@ clean
+	cd DH_graph_acommon;  $(RM) .depends ; @MAKE@ clean
+	cd DH_graph_bdotak;   $(RM) .depends ; @MAKE@ clean
+	cd DH_graph_NM;       $(RM) .depends ; @MAKE@ clean
+	cd DH_graph_Pitzer;   $(RM) .depends ; @MAKE@ clean 
 
 depends:
 ifeq ($(test_issp),1)

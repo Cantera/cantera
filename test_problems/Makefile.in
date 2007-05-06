@@ -36,15 +36,15 @@ ifeq ($(test_cathermo),1)
 endif
 
 test:
-#	@ cd cxx_ex;       @MAKE@ -s test
-	@ cd surfkin;      @MAKE@ -s test
-	@ cd fracCoeff;    @MAKE@ -s test
-	@ cd negATest;     @MAKE@ -s test
-	@ cd diamondSurf;  @MAKE@ -s test
+#	@ cd cxx_ex;               @MAKE@ -s test
+	@ cd surfkin;              @MAKE@ -s test
+	@ cd fracCoeff;            @MAKE@ -s test
+	@ cd negATest;             @MAKE@ -s test
+	@ cd diamondSurf;          @MAKE@ -s test
 	@ cd ChemEquil_gri_matrix; @MAKE@ -s test
-	@ cd ChemEquil_gri_pairs; @MAKE@ -s test
+	@ cd ChemEquil_gri_pairs;  @MAKE@ -s test
 	@ cd ChemEquil_ionizedGas; @MAKE@ -s test
-	@ cd ChemEquil_red1; @MAKE@ -s test
+	@ cd ChemEquil_red1;       @MAKE@ -s test
 ifeq ($(test_cathermo),1)
 	@ cd pureFluidTest; @MAKE@  -s test
 endif
@@ -64,20 +64,20 @@ endif
 
 clean:
 	$(RM) *.*~ 
-#	cd cxx_ex;       @MAKE@ clean
-	cd surfkin;      @MAKE@ clean
-	cd fracCoeff;    @MAKE@ clean
-	cd negATest;     @MAKE@ clean
-	cd diamondSurf;  @MAKE@ clean
-	cd ChemEquil_gri_matrix; @MAKE@ clean
-	cd ChemEquil_gri_pairs; @MAKE@ clean
-	cd ChemEquil_ionizedGas; @MAKE@ clean
-	cd ChemEquil_red1; @MAKE@ clean
-	cd pureFluidTest; @MAKE@ clean
-	cd ck2cti_test;  @MAKE@ clean
-	cd min_python;   @MAKE@ clean
-	cd python;       @MAKE@ clean
-	cd cathermo;     @MAKE@ clean
+#	cd cxx_ex;                $(RM) .depends ; @MAKE@ clean
+	cd surfkin;               $(RM) .depends ; @MAKE@ clean
+	cd fracCoeff;             $(RM) .depends ; @MAKE@ clean
+	cd negATest;              $(RM) .depends ; @MAKE@ clean
+	cd diamondSurf;           $(RM) .depends ; @MAKE@ clean
+	cd ChemEquil_gri_matrix;  $(RM) .depends ; @MAKE@ clean
+	cd ChemEquil_gri_pairs;   $(RM) .depends ; @MAKE@ clean
+	cd ChemEquil_ionizedGas;  $(RM) .depends ; @MAKE@ clean
+	cd ChemEquil_red1;        $(RM) .depends ; @MAKE@ clean
+	cd pureFluidTest;         $(RM) .depends ; @MAKE@ clean
+	cd ck2cti_test;           $(RM) .depends ; @MAKE@ clean
+	cd min_python;                             @MAKE@ clean
+	cd python;                                 @MAKE@ clean
+	cd cathermo;                               @MAKE@ clean
 
 depends:
 #	cd cxx_ex;       @MAKE@ depends
