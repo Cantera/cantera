@@ -23,26 +23,26 @@ endif
 	cd user; @MAKE@
 
 clean:
-	cd src; @MAKE@ clean
-	cd cxx; @MAKE@ clean
-	cd clib/src; @MAKE@ clean
-	cd python; @MAKE@ clean
+	cd src;                            @MAKE@ clean
+	cd cxx;                            @MAKE@ clean
+	cd clib/src;      $(RM) .depends ; @MAKE@ clean
+	cd python;                         @MAKE@ clean
 ifeq ($(build_f90),1)
-	cd fortran/src; @MAKE@ clean
+	cd fortran/src;   $(RM) .depends ; @MAKE@ clean
 endif
-	cd user; @MAKE@ clean
+	cd user;          $(RM) .depends ; @MAKE@ clean
 
 depends:
-	cd src; @MAKE@ depends
-	cd cxx/src; @MAKE@ depends
-	cd clib/src; @MAKE@ depends
+	cd src;         @MAKE@ depends
+	cd cxx/src;     @MAKE@ depends
+	cd clib/src;    @MAKE@ depends
 ifeq ($(build_f90),1)
 	cd fortran/src; @MAKE@ depends
 endif
 ifeq ($(build_matlab),1)
-	cd matlab; @MAKE@ depends
+	cd matlab;      @MAKE@ depends
 endif
-	cd user; @MAKE@ depends
+	cd user;        @MAKE@ depends
 
 install:
 	cd src; @MAKE@ install

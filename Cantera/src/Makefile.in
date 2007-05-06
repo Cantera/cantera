@@ -14,27 +14,27 @@ all:
 	cd zeroD; @MAKE@ all
 	cd oneD;  @MAKE@ all
 	cd converters; @MAKE@ all
-	cd transport; @MAKE@ all
-	cd thermo; @MAKE@ all
-	cd kinetics; @MAKE@ all
-	cd numerics; @MAKE@ all
+	cd transport;  @MAKE@ all
+	cd thermo;     @MAKE@ all
+	cd kinetics;   @MAKE@ all
+	cd numerics;   @MAKE@ all
 
 clean:
-	cd base; @MAKE@ clean
-	cd equil; @MAKE@ clean
-	cd zeroD; @MAKE@ clean
-	cd oneD;  @MAKE@ clean
-	cd converters; @MAKE@ clean
-	cd transport; @MAKE@ clean
-	cd thermo; @MAKE@ clean
-	cd kinetics; @MAKE@ clean
-	cd numerics; @MAKE@ clean
+	cd base;       $(RM) .depends ; @MAKE@ clean
+	cd equil;      $(RM) .depends ; @MAKE@ clean
+	cd zeroD;      $(RM) .depends ; @MAKE@ clean
+	cd oneD;       $(RM) .depends ; @MAKE@ clean
+	cd converters; $(RM) .depends ; @MAKE@ clean
+	cd transport;  $(RM) .depends ; @MAKE@ clean
+	cd thermo;     $(RM) .depends ; @MAKE@ clean
+	cd kinetics;   $(RM) .depends ; @MAKE@ clean
+	cd numerics;   $(RM) .depends ; @MAKE@ clean
 
 depends: 
 	cd base; @MAKE@ depends
 	cd equil; @MAKE@ depends
 	cd oneD; @MAKE@ depends
-	cd zeroD; @MAKE@ .depends
+	cd zeroD; @MAKE@ depends
 	cd converters; @MAKE@ depends
 	cd transport; @MAKE@ depends
 	cd thermo; @MAKE@ depends
