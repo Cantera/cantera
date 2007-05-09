@@ -53,20 +53,28 @@
 #include "LatticePhase.h"
 #endif
 
+#ifdef WITH_ELECTROLYTES
+#include "HMWSoln.h"
+#endif
+
 using namespace std;
 
 namespace Cantera {
 
     ThermoFactory* ThermoFactory::s_factory = 0;
 
-    static int ntypes = 9;
+    static int ntypes = 10;
     static string _types[] = {"IdealGas", "Incompressible", 
                               "Surface", "Edge", "Metal", "StoichSubstance",
-                              "PureFluid", "LatticeSolid", "Lattice"};
+                              "PureFluid", "LatticeSolid", "Lattice",
+                              "HMW"
+    };
 
     static int _itypes[]   = {cIdealGas, cIncompressible, 
                               cSurf, cEdge, cMetal, cStoichSubstance,
-                              cPureFluid, cLatticeSolid, cLattice};
+                              cPureFluid, cLatticeSolid, cLattice,
+                              cHMW
+    };
 
     /*
      * This method returns a new instance of a subclass of ThermoPhase
@@ -130,6 +138,11 @@ namespace Cantera {
             th = new PureFluidPhase;
             break;
 #endif
+#ifdef WITH_ELECTROLYTES
+        case cHMW:
+            th = new HMWSoln;
+            break;
+#endif
 
         default: 
    	    throw UnknownThermoPhaseModel("ThermoFactory::newThermoPhase",
@@ -155,7 +168,12 @@ namespace Cantera {
     const XML_Node& th = xmlphase.child("thermo");
     string model = th["model"];
     ThermoPhase* t = newThermoPhase(model);
-    importPhase(xmlphase, t);
+    if (model == "HMW") {
+        HMWSoln* p = (HMWSoln*)t;
+        p->constructPhaseXML(xmlphase,"");
+    }
+    else
+        importPhase(xmlphase, t);
     return t;
   }
 

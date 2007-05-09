@@ -50,6 +50,9 @@ namespace Cantera {
     /// An edge between two 2D surfaces    
     const int cEdge = 6;
 
+    // HMW
+    const int cHMW = 40;
+
     // kinetic manager types
     const int cGasKinetics = 2;
     const int cGRI30 = 3;

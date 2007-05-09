@@ -1084,13 +1084,15 @@ class state:
                  mole_fractions = None,
                  mass_fractions = None,
                  density = None,
-                 coverages = None):
+                 coverages = None,
+                 solute_molalities = None):
         self._t = temperature
         self._p = pressure
         self._rho = density
         self._x = mole_fractions
         self._y = mass_fractions
         self._c = coverages
+        self._m = solute_molalities
         
     def build(self, ph):
         st = ph.addChild('state')
@@ -1100,6 +1102,7 @@ class state:
         if self._x: st.addChild('moleFractions', self._x)
         if self._y: st.addChild('massFractions', self._y)
         if self._c: st.addChild('coverages', self._c)
+        if self._m: st.addChild('soluteMolalities', self._m)        
     
 
 class phase:
@@ -1649,6 +1652,141 @@ class edge(phase):
 
     def conc_dim(self):
         return (1, -1)    
+
+
+class binary_salt_parameters:
+    def __init__(self,
+                 cation = "",
+                 anion = "",
+                 beta0 = None,
+                 beta1 = None,
+                 beta2 = None,
+                 Cphi = None,
+                 Alpha1 = -1.0):
+        self._cation = cation
+        self._anion = anion
+        self._beta0 = beta0
+        self._beta1 = beta1
+        self._Cphi = Cphi
+        self._Alpha1 = Alpha1
+        
+    def build(self, a):
+        s = a.addChild("binarySaltParameters")
+        s["cation"] = self._cation
+        s["anion"] = self._anion
+        s.addChild("beta0", self._beta0)
+        s.addChild("beta1", self._beta1)
+        s.addChild("beta2", self._beta2)
+        s.addChild("Cphi", self._Cphi)
+        s.addChild("Alpha1", self._Alpha1)
+
+class theta_anion:
+    def __init__(self,
+                 anions = None,
+                 theta = 0.0):
+        self._anions = anions
+        self._theta = theta
+        
+    def build(self, a):
+        s = a.addChild("thetaAnion")
+        s["anion1"] = self._anions[0]
+        s["anion2"] = self._anions[1]
+        s.addChild("Theta", self._theta)
+
+class psi_common_cation:
+    def __init__(self,
+                 anions = None,
+                 cation = '',
+                 theta = 0.0,
+                 psi = 0.0):
+        self._anions = anions
+        self._cation = cation
+        self._theta = theta
+        self._psi = psi
+        
+    def build(self, a):
+        s = a.addChild("psiCommonCation")
+        s["anion1"] = self._anions[0]
+        s["anion2"] = self._anions[1]
+        s["cation"] = self._cation
+        s.addChild("Theta", self._theta)
+        s.addChild("Psi", self._psi)                
+
+class psi_common_anion:
+    def __init__(self,
+                 anion = '',
+                 cations = None,
+                 theta = 0.0,
+                 psi = 0.0):
+        self._anion = anion
+        self._cations = cations
+        self._theta = theta
+        self._psi = psi
+        
+    def build(self, a):
+        s = a.addChild("psiCommonAnion")
+        s["anion1"] = self._cations[0]
+        s["anion2"] = self._cations[1]
+        s["cation"] = self._anion
+        s.addChild("Theta", self._theta)
+        s.addChild("Psi", self._psi)                
+
+        
+class theta_cation:
+    def __init__(self,
+                 cations = None,
+                 theta = 0.0):
+        self._cations = cations
+        self._theta = theta
+        
+    def build(self, a):
+        s = a.addChild("thetaCation")
+        s["cation1"] = self._anions[0]
+        s["cation2"] = self._anions[1]
+        s.addChild("Theta", self._theta)
+                 
+class pitzer:
+    def __init__(self,
+                 temp_model = "",
+                 A_Debye = "",
+                 default_ionic_radius = -1.0,
+        
+class electrolyte(phase):
+    """An electrolye solution obeying the HMW model."""
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 transport = 'None',
+                 initial_state = None,
+                 solvent = '',
+                 standard_concentration = '',
+                 activity_coefficients = None,
+                 options = []):
+        
+        phase.__init__(self, name, 3, elements, species, 'none',
+                       initial_state, options)
+        self._pure = 0
+        self._solvent = solvent
+        self._stdconc = standard_concentration
+
+    def conc_dim(self):
+        return (1,-3)
+        
+    def build(self, p):
+        ph = phase.build(self, p)
+        e = ph.addChild("thermo")
+        sc = e.addChild("standardConc")
+        sc['model'] = self._stdconc
+        e['model'] = 'HMW'
+        e.addChild("activity_coefficients")
+        
+        addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
+        if self._tr:
+            t = ph.addChild('transport')
+            t['model'] = self._tr
+        k = ph.addChild("kinetics")
+        k['model'] = 'none'        
 
         
 #-------------------------------------------------------------------

@@ -18,7 +18,8 @@ namespace Cantera {
      * Format a summary of the mixture state for output.
      */           
     string report(const ThermoPhase& th, bool show_thermo) {
-
+        cout << "in report... " << th.name() << endl;
+        cout << "nSpecies = " << th.nSpecies() << endl;
         char p[200];
         string s = "";
         try {
@@ -71,9 +72,15 @@ namespace Cantera {
         sprintf(p, " heat capacity c_p    %12.6g     %12.4g     J/K\n", 
             th.cp_mass(), th.cp_mole());
         s += p;
-        sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n", 
-            th.cv_mass(), th.cv_mole());
-        s += p;
+        try {
+            sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n", 
+                th.cv_mass(), th.cv_mole());
+            s += p;
+        }
+        catch(CanteraError) {
+            sprintf(p, " heat capacity c_v    <not implemented>       \n");
+            s += p;
+        }
         }
 
         int kk = th.nSpecies();
@@ -85,7 +92,7 @@ namespace Cantera {
         th.getChemPotentials(&mu[0]);
         doublereal rt = GasConstant * th.temperature(); 
         int k;
-        if (th.nSpecies() > 1) {
+        //if (th.nSpecies() > 1) {
 
             if (show_thermo) {
                 sprintf(p, " \n                           X     "
@@ -120,7 +127,7 @@ namespace Cantera {
                 }
             }
         }
-        }
+        //}
         catch (CanteraError) {
             ;
         }
