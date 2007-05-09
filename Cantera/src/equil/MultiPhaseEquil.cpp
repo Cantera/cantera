@@ -12,6 +12,7 @@ namespace Cantera {
 
     const doublereal TINY = 1.0e-20;
 
+#if defined(WITH_HTML_LOGS)
     /// Used to print reaction equations. Given a stoichiometric
     /// coefficient 'nu' and a chemical symbol 'sym', return a string
     /// for this species in the reaction. 
@@ -30,7 +31,7 @@ namespace Cantera {
         string s = fp2str(fabs(nu));
         return strt + s + " " + sym;
     }
-
+#endif
 
     /// Constructor. Construct a multiphase equilibrium manager for a
     /// multiphase mixture.
@@ -475,7 +476,7 @@ namespace Cantera {
         }
     }
 
-
+#if defined(WITH_HTML_LOGS)
     void MultiPhaseEquil::printInfo() {
         index_t m, ik, k;
         beginLogGroup("info");
@@ -523,6 +524,7 @@ namespace Cantera {
         }
         return sr + " <=> " + sp;
     }
+#endif
 
     void MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN) {
         index_t k, ik;
@@ -726,10 +728,6 @@ namespace Cantera {
                             }
                         }
                         sum -= psum / (fabs(m_mix->phaseMoles(ip)) + TINY);
-                        //     if (ISNAN(sum)) {
-                        //    cout << " sum is nan. " << endl;
-                        //    cout << psum << " " << m_mix->phaseMoles(ip) << endl;
-                        //                     }
                     }
                 }
                 rfctr = term1 + csum + sum;
@@ -737,16 +735,8 @@ namespace Cantera {
                     fctr = 1.0;
                 else
                     fctr = 1.0/(term1 + csum + sum);
-                //                if (ISNAN(fctr)) {
-                //    cout << "fctr is nan." << endl;
-                //   cout << term1 << " " << csum << " " << sum << " " << TINY << endl;
-                //}
             }
             dxi[j] = -fctr*dg_rt;
-            //if (ISNAN(dxi[j])) {
-            //    cout << "nan detected. " << endl;
-            //    cout << fctr << " " << dg_rt << endl;
-            //}
                 
             index_t m;
              for (m = 0; m < m_nel; m++) {

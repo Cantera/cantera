@@ -182,8 +182,11 @@ namespace Cantera {
     // mixture object.
   MultiPhase::phase_t& MultiPhase::phase(index_t n) {
     if (!m_init) init();
-    m_phase[n]->setState_TPX(m_temp, m_press, 
-			     DATA_PTR(m_moleFractions) + m_spstart[n]);
+    m_phase[n]->setTemperature(m_temp);
+    m_phase[n]->setMoleFractions_NoNorm(DATA_PTR(m_moleFractions) + m_spstart[n]);
+    m_phase[n]->setPressure(m_press);
+    //m_phase[n]->setState_TPX(m_temp, m_press, 
+    //			     DATA_PTR(m_moleFractions) + m_spstart[n]);
     return *m_phase[n];
   }
 

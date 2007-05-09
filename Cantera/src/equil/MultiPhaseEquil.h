@@ -58,10 +58,15 @@ namespace Cantera {
 
         doublereal equilibrate(int XY, doublereal err = 1.0e-9, 
             int maxsteps = 1000, int loglevel=-99);
-
-        std::string reactionString(index_t j);
         doublereal error();
+
+#if defined(WITH_HTML_LOGS)
+        std::string reactionString(index_t j);
         void printInfo();
+#else
+        inline std::string reactionString(index_t j) { return std::string(""); }
+        inline void printInfo() {}
+#endif
 
         void setInitialMixMoles() {
             setInitialMoles();

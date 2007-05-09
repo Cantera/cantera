@@ -19,6 +19,7 @@
 #define CT_STATE2_H
 
 #include "ct_defs.h"
+#include "utilities.h"
 
 namespace Cantera {
 
@@ -333,7 +334,6 @@ namespace Cantera {
 
       //! True if the number species has been set
       bool ready() const { return (m_kk > 0); }
-
 
     protected:
 

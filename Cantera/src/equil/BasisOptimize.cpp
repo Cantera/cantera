@@ -1,3 +1,4 @@
+
 /**
  * @file BasisOptimize.cpp
  *     Functions which calculation optimized basis of the 
@@ -82,7 +83,7 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
 			   vector_int & orderVectorElements, 
 			   vector_fp & formRxnMatrix) {
 
-  int  j, jj, k, kk, l, i, jl, ml;
+  int  j, jj, k=0, kk, l, i, jl, ml;
   bool lindep;
   std::string ename;
   std::string sname;
@@ -615,7 +616,7 @@ int Cantera::ElemRearrange(int nComponents, const vector_fp & elementAbundances,
 			   vector_int & orderVectorSpecies,
 			   vector_int & orderVectorElements) {
  
-  int  j, k, l, i, jl, ml, jr, ielem, jj, kk;
+  int  j, k, l, i, jl, ml, jr, ielem, jj, kk=0;
  
   bool lindep = false;
   int nelements = mphase->nElements();

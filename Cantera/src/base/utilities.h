@@ -133,10 +133,11 @@ namespace Cantera {
   template<class InputIter, class InputIter2>
   inline doublereal dot(InputIter x_begin, InputIter x_end, 
 			InputIter2 y_begin) {
-    doublereal sum = 0.0;
-    for(; x_begin != x_end; ++x_begin, ++y_begin) 
-      sum += *x_begin * *y_begin;
-    return sum;
+      return inner_product(x_begin, x_end, y_begin, 0.0);
+      //doublereal sum = 0.0;
+      //for(; x_begin != x_end; ++x_begin, ++y_begin) 
+      //sum += *x_begin * *y_begin;
+      //return sum;
   }
   
   //!   Multiply elements of an array by a scale factor.
