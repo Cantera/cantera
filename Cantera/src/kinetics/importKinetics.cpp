@@ -25,6 +25,7 @@
 #include "importKinetics.h"
 #include "mix_defs.h"
 #include <time.h>
+#include <memory>
 
 //   Cantera includes
 #include "speciesThermoTypes.h"
@@ -45,36 +46,47 @@
 using namespace ctml;
 using namespace std;
 
+namespace Cantera {
+
 //! these are all used to check for duplicate reactions
 class rxninfo {
 public:
   //! rdata
-  std::vector< std::map<int, doublereal> > rdata;
+  std::vector< std::map<int, doublereal> > m_rdata;
   //! string name
-  std::vector<std::string> eqn;
+  std::vector<std::string> m_eqn;
   //! string vector of ints
-  std::vector<int> dup;
+  std::vector<int> m_dup;
   //! string vector of ints
-  std::vector<int>  nr;
+  std::vector<int>  m_nr;
   //! string vector of ints
-  std::vector<int>  typ;
+  std::vector<int>  m_typ;
   //! vector of bools.
-  std::vector<bool> rev;
+  std::vector<bool> m_rev;
+    ~rxninfo() {
+        m_eqn.clear();
+        m_dup.clear();
+        m_nr.clear();
+        m_typ.clear();
+        m_rdata.clear();
+    }
+    bool installReaction(int i, const XML_Node& r, Kinetics* k, 
+        std::string default_phase, int rule,
+        bool validate_rxn) ;
 };
 
 //! Temporary storage of rxninfo
-rxninfo* _rxns = 0;
+//rxninfo* _rxns = 0;
 //! @name utilitydefines.
 //@{
-#define _reactiondata _rxns->rdata
-#define _eqn _rxns->eqn
-#define _dup _rxns->dup
-#define _nr _rxns->nr
-#define _typ _rxns->typ
-#define _rev _rxns->rev
+#define _reactiondata m_rdata
+#define _eqn m_eqn
+#define _dup m_dup
+#define _nr m_nr
+#define _typ m_typ
+#define _rev m_rev
 //@}
 
-namespace Cantera {
 
   /*
    * First we define a couple of typedefs that will
@@ -588,7 +600,7 @@ namespace Cantera {
    *
    * @ingroup kineticsmgr
    */
-  static bool installReaction(int i, const XML_Node& r, Kinetics* k, 
+    bool rxninfo::installReaction(int i, const XML_Node& r, Kinetics* k, 
 			      string default_phase, int rule,
 			      bool validate_rxn) {
 
@@ -732,12 +744,12 @@ namespace Cantera {
 	      string msg = string("Undeclared duplicate reactions detected: \n")
 		+"Reaction "+int2str(nn+1)+": "+_eqn[nn]
 		+"\nReaction "+int2str(i+1)+": "+eqn+"\n";
-	      _reactiondata.clear();
-	      _eqn.clear();
-	      _rev.clear();
-	      _nr.clear();
-	      _typ.clear();
-	      _dup.clear();
+	      //_reactiondata.clear();
+	      //_eqn.clear();
+	      //_rev.clear();
+	      //_nr.clear();
+	      //_typ.clear();
+	      //_dup.clear();
 	      throw CanteraError("installReaction",msg);
 	    }
 	  }
@@ -795,15 +807,16 @@ namespace Cantera {
   bool installReactionArrays(const XML_Node& p, Kinetics& kin, 
 			     std::string default_phase, bool check_for_duplicates) {
 
-    if (_rxns == 0) {
-      _rxns = new rxninfo;
-    }
-    _eqn.clear();
-    _dup.clear();
-    _nr.clear();
-    _typ.clear();
-    _reactiondata.clear();
-    _rev.clear();
+      std::auto_ptr< rxninfo > _rxns( new rxninfo ) ;
+      //if (_rxns == 0) {
+      //_rxns = new rxninfo;
+      //}
+    //_eqn.clear();
+    //_dup.clear();
+    //_nr.clear();
+    //_typ.clear();
+    //_reactiondata.clear();
+    //_rev.clear();
 
     vector<XML_Node*> rarrays;
     int itot = 0;
@@ -870,7 +883,7 @@ namespace Cantera {
 	for (i = 0; i < nrxns; i++) {
 	  const XML_Node* r = allrxns[i];
 	  if (r) {
-	    if (installReaction(itot, *r, &kin, 
+	    if (_rxns->installReaction(itot, *r, &kin, 
 				default_phase, rxnrule, check_for_duplicates)) ++itot;
 	  }
 	}
@@ -904,7 +917,7 @@ namespace Cantera {
 	       * sometimes has surprising results.
 	       */
 	      if ((rxid >= imin) && (rxid <= imax)) {
-		if (installReaction(itot, *r, &kin, 
+		if (_rxns->installReaction(itot, *r, &kin, 
 				    default_phase, rxnrule, check_for_duplicates)) ++itot;
 	      }
 	    }
@@ -919,13 +932,13 @@ namespace Cantera {
      */
     kin.finalize();
     //writer = 0;
-    _eqn.clear();
-    _dup.clear();
-    _nr.clear();
-    _typ.clear();
-    _reactiondata.clear();
-    delete _rxns;
-    _rxns = 0;
+    //_eqn.clear();
+    //_dup.clear();
+    //_nr.clear();
+    //_typ.clear();
+    //_reactiondata.clear();
+    //delete _rxns;
+    //_rxns = 0;
     return true;
   }
 

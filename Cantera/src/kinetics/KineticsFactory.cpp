@@ -28,6 +28,9 @@ using namespace std;
 namespace Cantera {
 
     KineticsFactory* KineticsFactory::s_factory = 0;
+      #if defined(THREAD_SAFE_CANTERA)
+        boost::mutex KineticsFactory::kinetics_mutex ;
+      #endif
 
     static int ntypes = 5;
     static string _types[] = {"none", "GasKinetics", "GRI30", "Interface", "Edge"};
@@ -58,28 +61,28 @@ namespace Cantera {
 
     Kinetics* KineticsFactory::
     newKinetics(XML_Node& phaseData, vector<ThermoPhase*> th) {
-	/*
-	 * Look for a child of the xml element phase called
-	 * "kinetics". It has an attribute name "model".
-	 * Store the value of that attribute in the variable kintype
-	 */
+    /*
+     * Look for a child of the xml element phase called
+     * "kinetics". It has an attribute name "model".
+     * Store the value of that attribute in the variable kintype
+     */
         string kintype = phaseData.child("kinetics")["model"];
-	/*
-	 * look up the string kintype in the list of known
-	 * kinetics managers (list is kept at the top of this file).
-	 * Translate it to an integer value, ikin. 
-	 */
+    /*
+     * look up the string kintype in the list of known
+     * kinetics managers (list is kept at the top of this file).
+     * Translate it to an integer value, ikin. 
+     */
         int ikin=-1;
         int n;
         for (n = 0; n < ntypes; n++) {
-	  if (kintype == _types[n]) ikin = _itypes[n];
+      if (kintype == _types[n]) ikin = _itypes[n];
         }
-	/*
-	 * Assign the kinetics manager based on the value of ikin.
-	 * Kinetics managers are classes derived from the base 
-	 * Kinetics class. Unknown kinetics managers will throw a
-	 * CanteraError here.
-	 */
+    /*
+     * Assign the kinetics manager based on the value of ikin.
+     * Kinetics managers are classes derived from the base 
+     * Kinetics class. Unknown kinetics managers will throw a
+     * CanteraError here.
+     */
         Kinetics* k=0;
         switch (ikin) {
             
@@ -104,8 +107,8 @@ namespace Cantera {
             break;
 
         default:
-	    throw UnknownKineticsModel("KineticsFactory::newKinetics", 
-				       kintype);
+        throw UnknownKineticsModel("KineticsFactory::newKinetics", 
+                       kintype);
         }
 
         // Now that we have the kinetics manager, we can
@@ -143,10 +146,11 @@ namespace Cantera {
             break;
 
         default:
-	    throw UnknownKineticsModel("KineticsFactory::newKinetics", 
-				       model);
+        throw UnknownKineticsModel("KineticsFactory::newKinetics", 
+                       model);
         }
         return k;
     }
 
 }
+

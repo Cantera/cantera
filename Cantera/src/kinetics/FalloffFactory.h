@@ -20,6 +20,11 @@
 
 #include "ct_defs.h"
 #include "reaction_defs.h"
+#include "FactoryBase.h"
+
+#if defined(THREAD_SAFE_CANTERA)
+#include <boost/thread/mutex.hpp>
+#endif
 
 namespace Cantera {
 
@@ -87,7 +92,7 @@ namespace Cantera {
      * @endcode
      * @ingroup falloffGroup  
      */
-    class FalloffFactory {
+    class FalloffFactory : public FactoryBase {
     public:
 
         /**
@@ -97,23 +102,29 @@ namespace Cantera {
          * to the existing factory is returned.
          */  
         static FalloffFactory* factory() { 
+            #if defined(THREAD_SAFE_CANTERA)
+               boost::mutex::scoped_lock   lock(falloff_mutex) ;
+            #endif
             if (!s_factory) s_factory = new FalloffFactory;
             return s_factory;
         }
 
-	static void deleteFalloffFactory() {
-	    if (s_factory) {
-	      delete s_factory;
-	      s_factory = 0;
-	    }
-	}
+        virtual void deleteFactory() {
+            #if defined(THREAD_SAFE_CANTERA)
+               boost::mutex::scoped_lock   lock(falloff_mutex) ;
+            #endif
+        if (s_factory) {
+          delete s_factory;
+          s_factory = 0;
+        }
+    }
 
         /**
          * Destructor doesn't do anything. We do not delete statically
-	 * created single instance of this class here, because it would
-	 * create an infinite loop if destructor is called for that
-	 * single instance. Instead, to delete single instance, we
-	 * call delete[] from FalloffMng's destructor.
+     * created single instance of this class here, because it would
+     * create an infinite loop if destructor is called for that
+     * single instance. Instead, to delete single instance, we
+     * call delete[] from FalloffMng's destructor.
          */
         virtual ~FalloffFactory() {
         }
@@ -129,8 +140,12 @@ namespace Cantera {
     private:
         static FalloffFactory* s_factory;
         FalloffFactory(){}
+      #if defined(THREAD_SAFE_CANTERA)
+        static boost::mutex falloff_mutex ;
+      #endif
     };
 
 }
 #endif
+
 

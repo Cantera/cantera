@@ -15,27 +15,38 @@
 #define REACTOR_FACTORY_H
 
 #include "ReactorBase.h"
+#include "FactoryBase.h"
+
+#if defined(THREAD_SAFE_CANTERA)
+#include <boost/thread/mutex.hpp>
+#endif
 
 namespace CanteraZeroD {
 
 
-    class ReactorFactory {
+    class ReactorFactory : FactoryBase {
 
     public:
 
         static ReactorFactory* factory() {
+            #if defined(THREAD_SAFE_CANTERA)
+               boost::mutex::scoped_lock   lock(reactor_mutex) ;
+            #endif
             if (!s_factory) s_factory = new ReactorFactory;
             return s_factory;
         }
 
-	static void deleteFactory() {
-	    if (s_factory) {
-	      delete s_factory;
-	      s_factory = 0;
-	    }
-	}
+        virtual void deleteFactory() {
+       #if defined(THREAD_SAFE_CANTERA)
+         boost::mutex::scoped_lock   lock(reactor_mutex) ;
+       #endif
+        if (s_factory) {
+          delete s_factory;
+          s_factory = 0;
+        }
+    }
 
-	/**
+    /**
          * Destructor doesn't do anything. 
          */
         virtual ~ReactorFactory() {}
@@ -50,6 +61,9 @@ namespace CanteraZeroD {
     private:
 
         static ReactorFactory* s_factory;
+         #if defined(THREAD_SAFE_CANTERA)
+            static boost::mutex reactor_mutex ;
+         #endif
         ReactorFactory(){}
     };
 
@@ -64,5 +78,6 @@ namespace CanteraZeroD {
 }
 
 #endif
+
 
 

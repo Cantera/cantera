@@ -36,7 +36,7 @@ namespace Cantera {
         typedef size_t           index_t;
         typedef DenseMatrix      matrix_t;
 
-        MultiPhaseEquil(mix_t* mix, bool start=true);
+        MultiPhaseEquil(mix_t* mix, bool start=true, int loglevel = 0);
 
         virtual ~MultiPhaseEquil() {}
 
@@ -62,14 +62,14 @@ namespace Cantera {
 
 #if defined(WITH_HTML_LOGS)
         std::string reactionString(index_t j);
-        void printInfo();
+        void printInfo(int loglevel);
 #else
         inline std::string reactionString(index_t j) { return std::string(""); }
-        inline void printInfo() {}
+        inline void printInfo(int loglevel) {}
 #endif
 
-        void setInitialMixMoles() {
-            setInitialMoles();
+        void setInitialMixMoles(int loglevel = 0) {
+            setInitialMoles(loglevel);
             finish();
         }
 
@@ -78,12 +78,12 @@ namespace Cantera {
     protected:
 
         void getComponents(const vector_int& order);
-        int setInitialMoles();
+        int setInitialMoles(int loglevel = 0);
         void computeN();
-        doublereal stepComposition();
+        doublereal stepComposition(int loglevel = 0);
         //void sort(vector_fp& x);
         void unsort(vector_fp& x);
-        void step(doublereal omega, vector_fp& deltaN);
+        void step(doublereal omega, vector_fp& deltaN, int loglevel = 0);
         doublereal computeReactionSteps(vector_fp& dxi);
         void updateMixMoles();
         void finish();

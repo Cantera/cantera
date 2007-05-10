@@ -244,6 +244,12 @@ ENABLE_RXNPATH='y'
 # two phase pure fluids
 ENABLE_TPX='y'
 
+# write HTMl log files. Some multiphase equilibrium procedures can
+# write copious diagnostic log messages. Set this to anything but 'y'
+# to remove this capability (results in slightly faster equilibrium 
+# calculations)
+WITH_HTML_LOG_FILES='y'
+
 #-----------------------------------------------------------------
 #         CVODE / CVODES
 #-----------------------------------------------------------------
@@ -343,6 +349,18 @@ PIC=${PIC:=-fPIC}
 # the compiler option to create a shared library from object files
 SHARED=${SHARED:="-dynamic"}
  
+#-------------------------------------------------------------------
+#      Thread Safety
+#-------------------------------------------------------------------
+
+# Cantera can be built so that it is thread safe. Doing so requires
+# using procedures from the boost library, so if you want thread
+# safety then you need to get and install boost if you don't have it.
+
+BUILD_THREAD_SAFE=${BUILD_THREAD_SAFE:="y"}
+BOOST_INC_DIR=${BOOST_INC_DIR:="/usr/local/include/boost-1_34"}
+BOOST_LIB_DIR=${BOOST_LIB_DIR:="/usr/local/lib"}
+BOOST_THREAD_LIB=${BOOST_THREAD_LIB:="boost_thread-mt-1_34"}
 
 #-------------------------------------------------------------------
 #      External procedures
@@ -496,6 +514,13 @@ export WITH_PURE_FLUIDS
 export WITH_IDEAL_SOLUTIONS
 export WITH_ELECTROLYTES
 export WITH_PRIME
+
+export BUILD_THREAD_SAFE
+export BOOST_INC_DIR
+export BOOST_LIB_DIR
+export BOOST_THREAD_LIB
+
+export WITH_HTML_LOG_FILES
 
 #cd config
 chmod +x ./configure 

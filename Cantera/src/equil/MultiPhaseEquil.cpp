@@ -39,7 +39,7 @@ namespace Cantera {
     /// @param start If true, the initial composition will be
     /// determined by a linear Gibbs minimization, otherwise the
     /// initial mixture composition will be used.
-    MultiPhaseEquil::MultiPhaseEquil(mix_t* mix, bool start) : m_mix(mix)
+    MultiPhaseEquil::MultiPhaseEquil(mix_t* mix, bool start, int loglevel) : m_mix(mix)
     {
         // the multi-phase mixture
         //        m_mix = mix;
@@ -165,7 +165,7 @@ namespace Cantera {
         // only the elemental composition of the initial mixture state
         // matters.
         if (start) {
-            setInitialMoles();
+            setInitialMoles(loglevel-1);
         }
         computeN();
 
@@ -198,28 +198,37 @@ namespace Cantera {
         int i;
         m_iter = 0;
         string iterstr;
-        beginLogGroup("MultiPhaseEquil::equilibrate", loglevel);
+        if (loglevel > 0)
+            beginLogGroup("MultiPhaseEquil::equilibrate", loglevel);
 
         for (i = 0; i < maxsteps; i++) {
-            iterstr = "iteration "+int2str(i);
-            beginLogGroup(iterstr);
-            stepComposition();
-            addLogEntry("error",fp2str(error()));
-            endLogGroup(iterstr);
+            if (loglevel > 0) {
+                iterstr = "iteration "+int2str(i);
+                beginLogGroup(iterstr);
+            }
+            stepComposition(loglevel-1);
+            if (loglevel > 0) {
+                addLogEntry("error",fp2str(error()));
+                endLogGroup(iterstr);
+            }
             if (error() < err) break;
         }
         if (i >= maxsteps) {
-            addLogEntry("Error","no convergence in "+int2str(maxsteps)
-                +" iterations");
-            endLogGroup("MultiPhaseEquil::equilibrate");
+            if (loglevel > 0) {
+                addLogEntry("Error","no convergence in "+int2str(maxsteps)
+                    +" iterations");
+                endLogGroup("MultiPhaseEquil::equilibrate");
+            }
             throw CanteraError("MultiPhaseEquil::equilibrate",
                 "no convergence in " + int2str(maxsteps) + 
                 " iterations. Error = " + fp2str(error()));
         }
-        addLogEntry("iterations",int2str(iterations()));
-        addLogEntry("error tolerance",fp2str(err));
-        addLogEntry("error",fp2str(error()));
-        endLogGroup("MultiPhaseEquil::equilibrate");
+        if (loglevel > 0) {
+            addLogEntry("iterations",int2str(iterations()));
+            addLogEntry("error tolerance",fp2str(err));
+            addLogEntry("error",fp2str(error()));
+            endLogGroup("MultiPhaseEquil::equilibrate");
+        }
         finish();
         return error();
     }
@@ -256,11 +265,12 @@ namespace Cantera {
     /// to solving the linear programming problem of minimizing the
     /// linear Gibbs function subject to the element and
     /// non-negativity constraints.
-    int MultiPhaseEquil::setInitialMoles() {
+    int MultiPhaseEquil::setInitialMoles(int loglevel) {
         index_t ik, j;
 
         double not_mu = 1.0e12;
-        beginLogGroup("MultiPhaseEquil::setInitialMoles");
+        if (loglevel > 0)
+            beginLogGroup("MultiPhaseEquil::setInitialMoles");
 
         m_mix->getValidChemPotentials(not_mu, DATA_PTR(m_mu), true);
         doublereal dg_rt;
@@ -275,7 +285,8 @@ namespace Cantera {
             // choose a set of components based on the current
             // composition
             computeN();
-            addLogEntry("iteration",iter);
+            if (loglevel > 0)
+                addLogEntry("iteration",iter);
             redo = false;
             iter++;
             if (iter > 4) break;
@@ -300,7 +311,8 @@ namespace Cantera {
                         // if a component has nearly zero moles, redo
                         // with a new set of components
                         if (!redo && delta_xi < 1.0e-10 && ik < m_nel) {
-                            addLogEntry("component too small",speciesName(ik));
+                            if (loglevel > 0)
+                                addLogEntry("component too small",speciesName(ik));
                             redo = true;
                         }
                         if (delta_xi < dxi_min) dxi_min = delta_xi;
@@ -316,8 +328,8 @@ namespace Cantera {
         }
         for (ik = 0; ik < m_nsp; ik++) 
             if (moles(ik) != 0.0) addLogEntry(speciesName(ik), moles(ik));
-
-        endLogGroup("MultiPhaseEquil::setInitialMoles");
+        if (loglevel > 0)
+            endLogGroup("MultiPhaseEquil::setInitialMoles");
         return 0;
     }
 
@@ -477,30 +489,41 @@ namespace Cantera {
     }
 
 #if defined(WITH_HTML_LOGS)
-    void MultiPhaseEquil::printInfo() {
+    void MultiPhaseEquil::printInfo(int loglevel) {
         index_t m, ik, k;
-        beginLogGroup("info");
-        beginLogGroup("components");
+        if (loglevel > 0) {
+            beginLogGroup("info");
+            beginLogGroup("components");
+        }
         for (m = 0; m < m_nel; m++) {
             ik = m_order[m];
             k = m_species[ik];
-            addLogEntry(m_mix->speciesName(k), fp2str(m_moles[ik]));
+            if (loglevel > 0)
+                addLogEntry(m_mix->speciesName(k), fp2str(m_moles[ik]));
         }
-        endLogGroup("components");
-        beginLogGroup("non-components");
+        if (loglevel > 0) {
+            endLogGroup("components");
+            beginLogGroup("non-components");
+        }
         for (m = m_nel; m < m_nsp; m++) {
             ik = m_order[m];
             k = m_species[ik];
-            addLogEntry(m_mix->speciesName(k), fp2str(m_moles[ik]));
+            if (loglevel > 0) 
+                addLogEntry(m_mix->speciesName(k), fp2str(m_moles[ik]));
         }
-        endLogGroup("non-components");
-        addLogEntry("Error",fp2str(error()));
-        beginLogGroup("Delta G / RT");
+        if (loglevel > 0) {
+            endLogGroup("non-components");
+            addLogEntry("Error",fp2str(error()));
+            beginLogGroup("Delta G / RT");
+        }
         for (k = 0; k < m_nsp - m_nel; k++) {
-            addLogEntry(reactionString(k), fp2str(m_deltaG_RT[k]));
+            if (loglevel > 0)
+                addLogEntry(reactionString(k), fp2str(m_deltaG_RT[k]));
         }
-        endLogGroup("Delta G / RT");
-        endLogGroup("info");
+        if (loglevel > 0) {
+            endLogGroup("Delta G / RT");
+            endLogGroup("info");
+        }
     }
 
     /// Return a string specifying the jth reaction. 
@@ -526,19 +549,23 @@ namespace Cantera {
     }
 #endif
 
-    void MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN) {
+    void MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN, 
+        int loglevel) {
         index_t k, ik;
-        beginLogGroup("MultiPhaseEquil::step");
+        if (loglevel > 0)
+            beginLogGroup("MultiPhaseEquil::step");
         if (omega < 0.0) 
             throw CanteraError("step","negative omega");
 
         for (ik = 0; ik < m_nel; ik++) {
             k = m_order[ik];
             m_lastmoles[k] = m_moles[k];
-            addLogEntry("component "+m_mix->speciesName(m_species[k])+" moles",
+            if (loglevel > 0) {
+                addLogEntry("component "+m_mix->speciesName(m_species[k])+" moles",
                 m_moles[k]);
-            addLogEntry("component "+m_mix->speciesName(m_species[k])+" step",
+                addLogEntry("component "+m_mix->speciesName(m_species[k])+" step",
                 omega*deltaN[k]);
+            }
             m_moles[k] += omega * deltaN[k];
         }
 
@@ -554,16 +581,17 @@ namespace Cantera {
             }
         }
         updateMixMoles();
-        endLogGroup("MultiPhaseEquil::step");
+        if (loglevel > 0)
+            endLogGroup("MultiPhaseEquil::step");
     }
 
 
     /// Take one step in composition, given the gradient of G at the
     /// starting point, and a vector of reaction steps dxi. 
     doublereal MultiPhaseEquil::
-    stepComposition() {
-
-        beginLogGroup("MultiPhaseEquil::stepComposition");
+    stepComposition(int loglevel) {
+        if (loglevel > 0)
+            beginLogGroup("MultiPhaseEquil::stepComposition");
 
         m_iter++;
         index_t ik, k = 0;
@@ -619,15 +647,17 @@ namespace Cantera {
                     }
                 }
                 if (m_moles[k] < -Tiny) {
-                    addLogEntry("Negative moles for "
-                        +m_mix->speciesName(m_species[k]), fp2str(m_moles[k]));
+                    if (loglevel > 0)
+                        addLogEntry("Negative moles for "
+                            +m_mix->speciesName(m_species[k]), fp2str(m_moles[k]));
                 }
                 m_majorsp[k] = true;
             }
         }
 
         // now take a step with this scaled omega
-        addLogEntry("Stepping by ", fp2str(omegamax));
+        if (loglevel > 0)
+            addLogEntry("Stepping by ", fp2str(omegamax));
         step(omegamax, m_work);
         // compute the gradient of G at this new position in the
         // current direction. If it is positive, then we have overshot
@@ -643,11 +673,13 @@ namespace Cantera {
         if (grad1 > 0.0) {
             omega *= fabs(grad0) / (grad1 + fabs(grad0));
             for (k = 0; k < m_nsp; k++) m_moles[k] = m_lastmoles[k];
-            addLogEntry("Stepped over minimum. Take smaller step ", fp2str(omega));
+            if (loglevel > 0)
+                addLogEntry("Stepped over minimum. Take smaller step ", fp2str(omega));
             step(omega, m_work);
         }
-        printInfo(); 
-        endLogGroup("MultiPhaseEquil::stepComposition");
+        printInfo(loglevel); 
+        if (loglevel > 0)
+            endLogGroup("MultiPhaseEquil::stepComposition");
         return omega;
     }
 

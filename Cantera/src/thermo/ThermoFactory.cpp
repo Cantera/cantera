@@ -62,6 +62,9 @@ using namespace std;
 namespace Cantera {
 
     ThermoFactory* ThermoFactory::s_factory = 0;
+#if defined(THREAD_SAFE_CANTERA)
+    boost::mutex ThermoFactory::thermo_mutex;
+#endif
 
     static int ntypes = 10;
     static string _types[] = {"IdealGas", "Incompressible", 

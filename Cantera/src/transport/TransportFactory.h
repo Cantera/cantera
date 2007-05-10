@@ -35,6 +35,11 @@ using namespace std;
 // Cantera includes
 #include "ct_defs.h"
 #include "TransportBase.h"
+#include "FactoryBase.h"
+
+#if defined(THREAD_SAFE_CANTERA)
+#include <boost/thread/mutex.hpp>
+#endif
 
 namespace Cantera {
 
@@ -43,11 +48,11 @@ namespace Cantera {
      */
     struct GasTransportData {
         GasTransportData() : speciesName("-"), 
-			     geometry(-1), wellDepth(-1.0),
-			     diameter(-1.0), 
-			     dipoleMoment(-1.0), 
-			     polarizability(-1.0),
-			     rotRelaxNumber(-1.0) {}
+                 geometry(-1), wellDepth(-1.0),
+                 diameter(-1.0), 
+                 dipoleMoment(-1.0), 
+                 polarizability(-1.0),
+                 rotRelaxNumber(-1.0) {}
         
         string speciesName;
         int geometry;
@@ -73,7 +78,7 @@ namespace Cantera {
      * created in other ways. @ingroup transportgroup
      * @ingroup transportProps
      */
-    class TransportFactory {
+    class TransportFactory : FactoryBase {
 
     public:
 
@@ -91,27 +96,30 @@ namespace Cantera {
          * @endcode
          */
         static TransportFactory* factory() {
-	  if (!s_factory) {
-	      s_factory = new TransportFactory();
-	    }
+            #if defined(THREAD_SAFE_CANTERA)
+               boost::mutex::scoped_lock   lock(transport_mutex) ;
+            #endif
+      if (!s_factory) {
+          s_factory = new TransportFactory();
+        }
             return s_factory;
         }
 
-	/**
-	 * Deletes the statically malloced instance.
-	 */
-	static void deleteTransportFactory();
+    /**
+     * Deletes the statically malloced instance.
+     */
+        virtual void deleteFactory();
 
         /**
          * Destructor 
-	 *
-	 * We do not delete statically
-	 * created single instance of this class here, because it would
-	 * create an infinite loop if destructor is called for that
-	 * single instance. 
+     *
+     * We do not delete statically
+     * created single instance of this class here, because it would
+     * create an infinite loop if destructor is called for that
+     * single instance. 
          */
         virtual ~TransportFactory();
-	
+    
 
         /// Build a new transport manager
         virtual Transport*
@@ -125,6 +133,9 @@ namespace Cantera {
     private:
 
         static TransportFactory* s_factory;
+         #if defined(THREAD_SAFE_CANTERA)
+            static boost::mutex transport_mutex ;
+         #endif
 
         // The constructor is private; use static method factory() to
         // get a pointer to a factory instance
@@ -190,19 +201,20 @@ namespace Cantera {
             f = TransportFactory::factory();
         }
         Transport* ptr = f->newTransport(transportModel, thermo, loglevel);
-	/*
-	 * Note: We delete the static s_factory instance here, instead of in
-	 *       appdelete() in misc.cpp, to avoid linking problems involving
-	 *       the need for multiple cantera and transport library statements
-	 *       for applications that don't have transport in them.
-	 */
-	TransportFactory::deleteTransportFactory();
-	return ptr;
+        /*
+         * Note: We delete the static s_factory instance here, instead of in
+         *       appdelete() in misc.cpp, to avoid linking problems involving
+         *       the need for multiple cantera and transport library statements
+         *       for applications that don't have transport in them.
+         */
+        //TransportFactory::deleteFactory();
+        return ptr;
     }
 
 
 }
 #endif
+
 
 
 

@@ -26,6 +26,9 @@ using namespace std;
 namespace CanteraZeroD {
 
     ReactorFactory* ReactorFactory::s_factory = 0;
+   #ifdef THREAD_SAFE_CANTERA
+    boost::mutex ReactorFactory::reactor_mutex ;
+   #endif
 
     static int ntypes = 4;
     static string _types[] = {"Reservoir", "Reactor", "ConstPressureReactor",
@@ -67,3 +70,4 @@ namespace CanteraZeroD {
     }
 
 }
+

@@ -17,6 +17,12 @@
 #include "ct_defs.h"
 #include "ctexceptions.h"
 
+#include <string>
+
+#if defined(THREAD_SAFE_CANTERA)
+#include <boost/thread/mutex.hpp>
+#endif
+
 namespace Cantera {
 
   //! Unit conversion utility
@@ -29,6 +35,9 @@ namespace Cantera {
 
     //! Initialize the static Unit class.
     static Unit* units() {
+            #if defined(THREAD_SAFE_CANTERA)
+        boost::mutex::scoped_lock   lock(units_mutex) ;
+            #endif
       if (!s_u) s_u = new Unit;
       return s_u;
     }
@@ -38,9 +47,12 @@ namespace Cantera {
      * Note this can't be done in a destructor.
      */
     static void deleteUnit() {
+            #if defined(THREAD_SAFE_CANTERA)
+        boost::mutex::scoped_lock   lock(units_mutex) ;
+            #endif
       if (s_u) {
-	delete s_u;
-	s_u = 0;
+    delete s_u;
+    s_u = 0;
       }
     }
 
@@ -54,10 +66,10 @@ namespace Cantera {
      */
     doublereal actEnergyToSI(std::string units) {
       if (m_act_u.find(units) != m_act_u.end()) {
-	return m_act_u[units];
+    return m_act_u[units];
       }
       else {
-	return toSI(units);
+    return toSI(units);
       }
     }
 
@@ -83,55 +95,55 @@ namespace Cantera {
 
       while (1 > 0) {
 
-	// get token consisting of all characters up to the next 
-	// dash, slash, or the end of the string
-	k = u.find_first_of("/-");
-	if (k != std::string::npos)
-	  tok = u.substr(0,k);
-	else
-	  tok = u;
-	tsize = static_cast<int>(tok.size());
-	if (tsize == 0) 
-	  fctr = 1.0;
-	else if (tok[tsize - 1] == '2') {
-	  tsub = tok.substr(0,tsize-1);
-	  fctr = m_u[tsub];
-	  fctr *= fctr;
-	}
-	else if (tok[tsize - 1] == '3') {
-	  tsub = tok.substr(0,tsize-1);
-	  fctr = m_u[tsub];
-	  fctr *= fctr*fctr;
-	}
-	else if (tok[tsize - 1] == '4') {
-	  tsub = tok.substr(0,tsize-1);
-	  fctr = m_u[tsub];
-	  fctr *= fctr*fctr*fctr;
-	}
-	else if (tok[tsize - 1] == '5') {
-	  tsub = tok.substr(0,tsize-1);
-	  fctr = m_u[tsub];
-	  fctr *= fctr*fctr*fctr*fctr;
-	}
-	else if (tok[tsize - 1] == '6') {
-	  tsub = tok.substr(0,tsize-1);
-	  fctr = m_u[tsub];
-	  fctr *= fctr*fctr*fctr*fctr*fctr;
-	}
-	else {
-	  tsub = tok;
-	  fctr = m_u[tok];
-	}
+    // get token consisting of all characters up to the next 
+    // dash, slash, or the end of the string
+    k = u.find_first_of("/-");
+    if (k != std::string::npos)
+      tok = u.substr(0,k);
+    else
+      tok = u;
+    tsize = static_cast<int>(tok.size());
+    if (tsize == 0) 
+      fctr = 1.0;
+    else if (tok[tsize - 1] == '2') {
+      tsub = tok.substr(0,tsize-1);
+      fctr = m_u[tsub];
+      fctr *= fctr;
+    }
+    else if (tok[tsize - 1] == '3') {
+      tsub = tok.substr(0,tsize-1);
+      fctr = m_u[tsub];
+      fctr *= fctr*fctr;
+    }
+    else if (tok[tsize - 1] == '4') {
+      tsub = tok.substr(0,tsize-1);
+      fctr = m_u[tsub];
+      fctr *= fctr*fctr*fctr;
+    }
+    else if (tok[tsize - 1] == '5') {
+      tsub = tok.substr(0,tsize-1);
+      fctr = m_u[tsub];
+      fctr *= fctr*fctr*fctr*fctr;
+    }
+    else if (tok[tsize - 1] == '6') {
+      tsub = tok.substr(0,tsize-1);
+      fctr = m_u[tsub];
+      fctr *= fctr*fctr*fctr*fctr*fctr;
+    }
+    else {
+      tsub = tok;
+      fctr = m_u[tok];
+    }
 
-	// tok is not one of the entries in map m_u, then 
-	// m_u[tok] returns 0.0. Check for this.
-	if (fctr == 0) 
-	  throw CanteraError("toSI","unknown unit: "+tsub);
-	if (action == '-') f *= fctr;
-	else if (action == '/') f /= fctr;
-	if (k == std::string::npos) break;
-	action = u[k];
-	u = u.substr(k+1,u.size());
+    // tok is not one of the entries in map m_u, then 
+    // m_u[tok] returns 0.0. Check for this.
+    if (fctr == 0) 
+      throw CanteraError("toSI","unknown unit: "+tsub);
+    if (action == '-') f *= fctr;
+    else if (action == '/') f /= fctr;
+   if (k == std::string::npos) break;
+    action = u[k];
+    u = u.substr(k+1,u.size());
       }
       return f;
     }
@@ -155,6 +167,10 @@ namespace Cantera {
      *   -    m_act_u["K"] =  GasConstant;
      */
     std::map<std::string, doublereal> m_act_u;
+
+#if defined(THREAD_SAFE_CANTERA)
+      static boost::mutex units_mutex;
+#endif
 
     /*!
      * Units class constructor, containing the default mappings between
@@ -215,3 +231,4 @@ namespace Cantera {
 }
 
 #endif
+

@@ -19,10 +19,17 @@
 
 #include "ThermoPhase.h"
 #include "xml.h"
-#include "SpeciesThermoFactory.h"
+
+#if defined(THREAD_SAFE_CANTERA)
+#include <boost/thread/mutex.hpp>
+#endif
+
+//#include "SpeciesThermoFactory.h"
+#include "FactoryBase.h"
 
 namespace Cantera {
 
+    class SpeciesThermoFactory;
 
   /*!
    *  @addtogroup thermoprops
@@ -55,33 +62,38 @@ namespace Cantera {
   
   //! Factory class for thermodynamic property managers.
   /*!
-   * This class keeps a list of the known ThermoPhase classes, and is used
-   * to create new instances of these classes.
+   * This class keeps a list of the known ThermoPhase classes, and is
+   * used to create new instances of these classes.
    */
-  class ThermoFactory {
+    class ThermoFactory : public FactoryBase {
 
   public:
 
-    //! Static function that creates a static instance of the factor.
+    //! Static function that creates a static instance of the factory.
     static ThermoFactory* factory() {
+#if defined(THREAD_SAFE_CANTERA)
+        boost::mutex::scoped_lock lock(thermo_mutex);
+#endif
       if (!s_factory) s_factory = new ThermoFactory;
       return s_factory;
     }
 
-    //! delete the static instance of this factory
-    static void deleteFactory() {
-      if (s_factory) {
-	delete s_factory;
-	s_factory = 0;
-      }
+      //! delete the static instance of this factory
+      virtual void deleteFactory() {
+#if defined(THREAD_SAFE_CANTERA)
+          boost::mutex::scoped_lock lock(thermo_mutex);
+#endif
+          if (s_factory) {
+            delete s_factory;
+            s_factory = 0;
+        }
     }
     
     //! Destructor doesn't do anything.
     /*!
-     * We do not delete statically
-     * created single instance of this class here, because it would
-     * create an infinite loop if destructor is called for that
-     * single instance.
+     * We do not delete statically created single instance of this
+     * class here, because it would create an infinite loop if
+     * destructor is called for that single instance.
      */
     virtual ~ThermoFactory() { }
 
@@ -103,6 +115,11 @@ namespace Cantera {
 
     //! Private constructor prevents usage
       ThermoFactory(){}
+
+#if defined(THREAD_SAFE_CANTERA)
+        static boost::mutex thermo_mutex;
+#endif
+
   };
   
   //!  Create a new thermo manager instance.

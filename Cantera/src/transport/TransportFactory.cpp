@@ -46,6 +46,9 @@ using namespace std;
 namespace Cantera {
 
     TransportFactory* TransportFactory::s_factory = 0;
+#if defined(THREAD_SAFE_CANTERA)
+    boost::mutex  TransportFactory::transport_mutex;
+#endif
 
     
     ////////////////////////// exceptions /////////////////////////
@@ -259,20 +262,23 @@ namespace Cantera {
       * explicitly deleted.
       */
     TransportFactory::~TransportFactory() {
-	if (m_integrals) {
+    if (m_integrals) {
             delete m_integrals;
             m_integrals = 0;
-	}
     }
-	
+    }
+    
      /**
       * This static function deletes the statically allocated instance.
       */
-    void TransportFactory::deleteTransportFactory() {
-	if (s_factory) {
-	  delete s_factory;
-	  s_factory = 0;
-	}
+    void TransportFactory::deleteFactory() {
+      #if defined(THREAD_SAFE_CANTERA)
+         boost::mutex::scoped_lock   lock(transport_mutex) ;
+      #endif
+    if (s_factory) {
+      delete s_factory;
+      s_factory = 0;
+    }
     }
 
     /**
@@ -527,7 +533,7 @@ namespace Cantera {
                     tr.astar_poly.push_back(ca);
                     tr.bstar_poly.push_back(cb);
                     tr.cstar_poly.push_back(cc);
-					tr.poly[i][j] = static_cast<int>(tr.astar_poly.size()) - 1;
+                    tr.poly[i][j] = static_cast<int>(tr.astar_poly.size()) - 1;
                     tr.fitlist.push_back(dstar);
                 }
 
@@ -990,3 +996,4 @@ namespace Cantera {
         tr.xml->XML_close(logfile, "binary_diffusion_coefficients");
     }
 }
+

@@ -36,6 +36,10 @@ using namespace ctml;
 namespace Cantera {
 
   SpeciesThermoFactory* SpeciesThermoFactory::s_factory = 0;
+      #if defined(THREAD_SAFE_CANTERA)
+        boost::mutex SpeciesThermoFactory::species_thermo_mutex ;
+      #endif
+ 
 
   /**
    * Examine the types of species thermo parameterizations,
@@ -48,8 +52,8 @@ namespace Cantera {
    * @todo Make sure that spDadta_node is species Data XML node by checking its name is speciesData
    */
   static void getSpeciesThermoTypes(XML_Node* spData_node, 
-				    int& has_nasa, int& has_shomate, int& has_simple,
-				    int &has_other) {
+                    int& has_nasa, int& has_shomate, int& has_simple,
+                    int &has_other) {
     const XML_Node& sparray = *spData_node;
     std::vector<XML_Node*> sp;
 
@@ -59,19 +63,19 @@ namespace Cantera {
     for (n = 0; n < ns; n++) {
       XML_Node* spNode = sp[n];
       if (spNode->hasChild("thermo")) {
-	const XML_Node& th = sp[n]->child("thermo");
-	if (th.hasChild("NASA")) has_nasa = 1;
-	if (th.hasChild("Shomate")) has_shomate = 1;
-	if (th.hasChild("const_cp")) has_simple = 1;
-	if (th.hasChild("poly")) {
-	  if (th.child("poly")["order"] == "1") has_simple = 1;
-	  else throw CanteraError("newSpeciesThermo",
-				  "poly with order > 1 not yet supported");
-	}
-	if (th.hasChild("Mu0")) has_other = 1;
+    const XML_Node& th = sp[n]->child("thermo");
+    if (th.hasChild("NASA")) has_nasa = 1;
+    if (th.hasChild("Shomate")) has_shomate = 1;
+    if (th.hasChild("const_cp")) has_simple = 1;
+    if (th.hasChild("poly")) {
+      if (th.child("poly")["order"] == "1") has_simple = 1;
+      else throw CanteraError("newSpeciesThermo",
+                  "poly with order > 1 not yet supported");
+    }
+    if (th.hasChild("Mu0")) has_other = 1;
       } else {
-	throw UnknownSpeciesThermoModel("getSpeciesThermoTypes:",
-					spNode->attrib("name"), "missing");
+    throw UnknownSpeciesThermoModel("getSpeciesThermoTypes:",
+                    spNode->attrib("name"), "missing");
       }
     }
   }
@@ -94,7 +98,7 @@ namespace Cantera {
       return new GeneralSpeciesThermo();
     }
     return newSpeciesThermo(NASA*inasa
-			    + SHOMATE*ishomate + SIMPLE*isimple);
+                + SHOMATE*ishomate + SIMPLE*isimple);
   }
     
   SpeciesThermo* SpeciesThermoFactory::
@@ -103,17 +107,17 @@ namespace Cantera {
     int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
     for (int j = 0; j < n; j++) {
       try {
-	getSpeciesThermoTypes(spData_nodes[j], inasa, ishomate, isimple, iother);
+    getSpeciesThermoTypes(spData_nodes[j], inasa, ishomate, isimple, iother);
       } catch (UnknownSpeciesThermoModel) {
-	iother = 1;
-	popError();
+    iother = 1;
+    popError();
       }
     }
     if (iother) {
       return new GeneralSpeciesThermo();
     }
     return newSpeciesThermo(NASA*inasa
-			    + SHOMATE*ishomate + SIMPLE*isimple);
+                + SHOMATE*ishomate + SIMPLE*isimple);
   }
 
 
@@ -126,17 +130,17 @@ namespace Cantera {
     int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
     for (int j = 0; j < n; j++) {
       try {
-	getSpeciesThermoTypes(nodes[j], inasa, ishomate, isimple, iother);
+    getSpeciesThermoTypes(nodes[j], inasa, ishomate, isimple, iother);
       } catch (UnknownSpeciesThermoModel) {
-	iother = 1;
-	popError();
+    iother = 1;
+    popError();
       }
     }
     if (iother) {
       return new GeneralSpeciesThermo();
     }
     return newSpeciesThermo(NASA*inasa
-			    + SHOMATE*ishomate + SIMPLE*isimple);
+                + SHOMATE*ishomate + SIMPLE*isimple);
   }
 
 
@@ -158,7 +162,7 @@ namespace Cantera {
       return new SpeciesThermoDuo<ShomateThermo, SimpleThermo>;
     default:
       throw UnknownSpeciesThermo(
-				 "SpeciesThermoFactory::newSpeciesThermo",type);
+                 "SpeciesThermoFactory::newSpeciesThermo",type);
       return 0; 
     }
   }
@@ -169,7 +173,7 @@ namespace Cantera {
    * temperature.
    */
   void NasaThermo::checkContinuity(std::string name, double tmid, const doublereal* clow,
-				   doublereal* chigh) {
+                   doublereal* chigh) {
 
         // heat capacity
         doublereal cplow = poly4(tmid, clow);
@@ -269,7 +273,7 @@ namespace Cantera {
         }
         else {
             throw CanteraError("installNasaThermo",
-			       "non-continuous temperature ranges.");
+                   "non-continuous temperature ranges.");
         }
 
         // The NasaThermo species property manager expects the
@@ -331,7 +335,7 @@ namespace Cantera {
         }
         else {
             throw CanteraError("installNasaThermo",
-			       "non-continuous temperature ranges.");
+                   "non-continuous temperature ranges.");
         }
         array_fp c(15);
         c[0] = tmid;
@@ -378,9 +382,9 @@ namespace Cantera {
             if (dualRange)
                 getFloatArray(f1ptr->child("floatArray"), c1, false);
             else {
-	      c1.resize(7,0.0);
-	      copy(c0.begin(), c0.begin()+7, c1.begin());
-	    }
+          c1.resize(7,0.0);
+          copy(c0.begin(), c0.begin()+7, c1.begin());
+        }
         }
         else if (fabs(tmax1 - tmin0) < 0.01) {
             tmin = tmin1;
@@ -391,7 +395,7 @@ namespace Cantera {
         }
         else {
             throw CanteraError("installShomateThermo",
-			       "non-continuous temperature ranges.");
+                   "non-continuous temperature ranges.");
         }
         array_fp c(15);
         c[0] = tmid;
@@ -434,18 +438,18 @@ namespace Cantera {
     void SpeciesThermoFactory::
     installThermoForSpecies(int k, const XML_Node& s, 
         SpeciesThermo& spthermo) {
-	/*
-	 * Check to see that the species block has a thermo block
-	 * before processing. Throw an error if not there.
-	 */
-	if (!(s.hasChild("thermo"))) {
-	  throw UnknownSpeciesThermoModel("installSpecies", 
-					  s["name"], "<nonexistent>");
-	}
-	const XML_Node& thermo = s.child("thermo");
-	const std::vector<XML_Node*>& tp = thermo.children();
-	int nc = static_cast<int>(tp.size());
-	if (nc == 1) {
+    /*
+     * Check to see that the species block has a thermo block
+     * before processing. Throw an error if not there.
+     */
+    if (!(s.hasChild("thermo"))) {
+      throw UnknownSpeciesThermoModel("installSpecies", 
+                      s["name"], "<nonexistent>");
+    }
+    const XML_Node& thermo = s.child("thermo");
+    const std::vector<XML_Node*>& tp = thermo.children();
+    int nc = static_cast<int>(tp.size());
+    if (nc == 1) {
             const XML_Node* f = tp[0];
             if (f->name() == "Shomate") {
                 installShomateThermoFromXML(s["name"], spthermo, k, f, 0);
@@ -456,15 +460,15 @@ namespace Cantera {
             else if (f->name() == "NASA") {
                 installNasaThermoFromXML(s["name"], spthermo, k, f, 0);
             }
-	    else if (f->name() == "Mu0") {
-	      installMu0ThermoFromXML(s["name"], spthermo, k, f);
-	    }
+        else if (f->name() == "Mu0") {
+          installMu0ThermoFromXML(s["name"], spthermo, k, f);
+        }
             else {
                 throw UnknownSpeciesThermoModel("installSpecies", 
-						s["name"], f->name());
+                        s["name"], f->name());
             }
-	}
-	else if (nc == 2) {
+    }
+    else if (nc == 2) {
             const XML_Node* f0 = tp[0];
             const XML_Node* f1 = tp[1];
             if (f0->name() == "NASA" && f1->name() == "NASA") {
@@ -475,14 +479,16 @@ namespace Cantera {
             } 
             else {
                 throw UnknownSpeciesThermoModel("installSpecies", s["name"], 
-						f0->name() + " and "
-						+ f1->name());
+                        f0->name() + " and "
+                        + f1->name());
             }
-	}
-	else {
-	    throw UnknownSpeciesThermoModel("installSpecies", s["name"], 
-					    "multiple");
-	}
+    }
+    else {
+        throw UnknownSpeciesThermoModel("installSpecies", s["name"], 
+                        "multiple");
+    }
     }
 
 }
+
+

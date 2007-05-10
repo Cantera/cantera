@@ -23,35 +23,42 @@ namespace Cantera {
   doublereal equilibrate(MultiPhase& s, const char* XY, 
 			 doublereal tol, int maxsteps, int maxiter, 
 			 int loglevel) {
+      if (loglevel > 0) {
+          beginLogGroup("equilibrate",loglevel);
+          addLogEntry("multiphase equilibrate function");
+          beginLogGroup("arguments");
+          addLogEntry("XY",XY);
+          addLogEntry("tol",tol);
+          addLogEntry("maxsteps",maxsteps);
+          addLogEntry("maxiter",maxiter);
+          addLogEntry("loglevel",loglevel);
+          endLogGroup("arguments");
+      }
+      s.init();
+      int ixy = _equilflag(XY);
+      if (ixy == TP || ixy == HP || ixy == SP || ixy == TV) {
+          try {
+              double err = s.equilibrate(ixy, tol, maxsteps, maxiter, loglevel);
+              if (loglevel > 0) {
+                  addLogEntry("Success. Error",err);
+                  endLogGroup("equilibrate");
 
-    beginLogGroup("equilibrate",loglevel);
-    addLogEntry("multiphase equilibrate function");
-    beginLogGroup("arguments");
-    addLogEntry("XY",XY);
-    addLogEntry("tol",tol);
-    addLogEntry("maxsteps",maxsteps);
-    addLogEntry("maxiter",maxiter);
-    addLogEntry("loglevel",loglevel);
-    endLogGroup("arguments");
-        
-    s.init();
-    int ixy = _equilflag(XY);
-    if (ixy == TP || ixy == HP || ixy == SP || ixy == TV) {
-      try {
-	double err = s.equilibrate(ixy, tol, maxsteps, maxiter);
-	addLogEntry("Success. Error",err);
-	endLogGroup("equilibrate");
-	return err;
+              }
+              return err;
+          }
+          catch (CanteraError e) {
+              if (loglevel > 0) {
+                  addLogEntry("Failure.",lastErrorMessage());
+                  endLogGroup("equilibrate");
+              }
+              throw e;
+          }
       }
-      catch (CanteraError e) {
-	addLogEntry("Failure.",lastErrorMessage());
-	endLogGroup("equilibrate");
-	throw e;
-      }
-    }
-    else {
-      addLogEntry("multiphase equilibrium can be done only for TP, HP, SP, or TV");
-      endLogGroup("equilibrate");
+      else {
+          if (loglevel > 0) {
+              addLogEntry("multiphase equilibrium can be done only for TP, HP, SP, or TV");
+              endLogGroup("equilibrate");
+          }
       throw CanteraError("equilibrate","unsupported option");
       return -1.0;
     }
@@ -97,18 +104,20 @@ namespace Cantera {
     int nAttempts = 0;
     int retnSub = 0;
 
-    beginLogGroup("equilibrate", loglevel);
-    addLogEntry("Single-phase equilibrate function");
-    {
-      beginLogGroup("arguments");
-      addLogEntry("phase",s.id());
-      addLogEntry("XY",XY);
-      addLogEntry("solver",solver);
-      addLogEntry("rtol",rtol);
-      addLogEntry("maxsteps",maxsteps);
-      addLogEntry("maxiter",maxiter);
-      addLogEntry("loglevel",loglevel);
-      endLogGroup("arguments");
+    if (loglevel > 0) {
+        beginLogGroup("equilibrate", loglevel);
+        addLogEntry("Single-phase equilibrate function");
+        {
+            beginLogGroup("arguments");
+            addLogEntry("phase",s.id());
+            addLogEntry("XY",XY);
+            addLogEntry("solver",solver);
+            addLogEntry("rtol",rtol);
+            addLogEntry("maxsteps",maxsteps);
+            addLogEntry("maxiter",maxiter);
+            addLogEntry("loglevel",loglevel);
+            endLogGroup("arguments");
+        }
     }
     while (redo) {
       if (solver > 0) {
@@ -117,22 +126,27 @@ namespace Cantera {
 	  m->addPhase(&s, 1.0);
 	  m->init();
 	  nAttempts++;
-	  (void) equilibrate(*m, XY, rtol, maxsteps, maxiter, loglevel); 
+	  (void) equilibrate(*m, XY, rtol, maxsteps, maxiter, loglevel-1); 
 	  redo = false;
-	  addLogEntry("MultiPhaseEquil solver succeeded.");
+          if (loglevel > 0) 
+              addLogEntry("MultiPhaseEquil solver succeeded.");
 	  delete m;
 	  retn = nAttempts;
 	}
 	catch (CanteraError err) {
-	  addLogEntry("MultiPhaseEquil solver failed.");
+            if (loglevel > 0) 
+                addLogEntry("MultiPhaseEquil solver failed.");
 	  delete m;
 	  if (nAttempts < 2) {
-	    addLogEntry("Trying single phase ChemEquil solver.");
+              if (loglevel > 0) 
+                  addLogEntry("Trying single phase ChemEquil solver.");
 	    solver = -1;
-	  } else {
-	    endLogGroup("equilibrate");
-	    throw err;
-	  }
+              } 
+              else {
+                  if (loglevel > 0) 
+                      endLogGroup("equilibrate");
+                  throw err;
+              }
 	}
       }
       else {        // solver <= 0
@@ -144,12 +158,14 @@ namespace Cantera {
 	  e->options.maxIterations = maxsteps;
 	  e->options.relTolerance = rtol;
 	  nAttempts++;
-	  retnSub = e->equilibrate(s,XY);
+	  retnSub = e->equilibrate(s,XY,loglevel-1);
 	  if (retnSub < 0) {
-	    addLogEntry("ChemEquil solver failed.");
+              if (loglevel > 0) 
+                  addLogEntry("ChemEquil solver failed.");
 	    if (nAttempts < 2) {
-	      addLogEntry("Trying MultiPhaseEquil solver.");
-	      solver = 1;
+                if (loglevel > 0) 
+                    addLogEntry("Trying MultiPhaseEquil solver.");
+                solver = 1;
 	    } else {
 	      throw CanteraError("equilibrate", 
 				 "Both equilibrium solvers failed");
@@ -159,20 +175,24 @@ namespace Cantera {
 	  s.setElementPotentials(e->elementPotentials());
 	  redo = false;
 	  delete e;
-	  addLogEntry("ChemEquil solver succeeded.");
+          if (loglevel > 0) 
+              addLogEntry("ChemEquil solver succeeded.");
 	}
 
 	catch (CanteraError err) {
 	  delete e;
-	  addLogEntry("ChemEquil solver failed.");
+          if (loglevel > 0) 
+              addLogEntry("ChemEquil solver failed.");
 	  // If ChemEquil fails, try the MultiPhase solver
 	  if (solver < 0) {
-	    addLogEntry("Trying MultiPhaseEquil solver.");
+              if (loglevel > 0) 
+                  addLogEntry("Trying MultiPhaseEquil solver.");
 	    solver = 1;
 	  }
 	  else {
 	    redo = false;
-	    endLogGroup("equilibrate");
+            if (loglevel > 0) 
+                endLogGroup("equilibrate");
 	    throw err;
 	  }
 	}
@@ -181,7 +201,8 @@ namespace Cantera {
     /*
      * We are here only for a success
      */
-    endLogGroup("equilibrate");
+        if (loglevel > 0) 
+            endLogGroup("equilibrate");
     return retn;
   }
 }

@@ -21,6 +21,9 @@
 namespace Cantera {
 
     FalloffFactory* FalloffFactory::s_factory = 0;
+      #if defined(THREAD_SAFE_CANTERA)
+        boost::mutex FalloffFactory::falloff_mutex ;
+      #endif
 
     /**
      * The 3-parameter Troe falloff parameterization. 
@@ -286,3 +289,4 @@ namespace Cantera {
     }
 
 }
+

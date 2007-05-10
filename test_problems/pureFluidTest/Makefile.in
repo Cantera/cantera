@@ -58,7 +58,7 @@ CANTERA_INCDIR=../../Cantera/src
 INCLUDES=-I$(CANTERA_INCDIR) -I$(CANTERA_INCDIR)/thermo
 else
 CANTERA_INCDIR=@ctroot@/build/include/cantera
-INCLUDES=-I$(CANTERA_INCDIR) -I$(CANTERA_INCDIR)/kernel
+INCLUDES=-I$(CANTERA_INCDIR) -I$(CANTERA_INCDIR)/kernel @CXX_INCLUDES@ 
 endif
 
 # flags passed to the C++ compiler/linker for the linking step

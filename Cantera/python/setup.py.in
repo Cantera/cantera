@@ -45,13 +45,17 @@ endlibstr1 = "@LCXX_END_LIBS@"
 endlib1 = endlibstr1.replace('-l', ' ')
 endlib = endlib1.split()
 
+locallibstr = "@LOCAL_LIBS@"
+local1 = locallibstr.replace('-l', ' ')
+locallibs = local1.split()
+
 if platform == "win32":
     libs = ["clib", "zeroD","oneD","kinetics", "transport",
             "cantera"] + bllist + cvlist + ["ctbase", "ctmath", "tpx"]
 else:
-    
-    libs = ["clib", "zeroD","oneD", "kinetics", "transport",
-            "equil", "ctnumerics", "converters"] + thermolib + bllist + cvlist + ["ctbase", "ctmath", "tpx"]
+    libs = ["clib"] + locallibs
+    #libs = ["clib", "zeroD","oneD", "kinetics", "transport",
+    #        "equil", "ctnumerics", "converters"] + thermolib + bllist + cvlist + ["ctbase", "ctmath", "tpx", "boost_thread-mt-1_34"]
                                           
     if @build_with_f2c@ == 1:
          libs.append("ctf2c")

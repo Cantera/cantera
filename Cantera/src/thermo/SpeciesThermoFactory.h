@@ -19,6 +19,8 @@
 
 #include "SpeciesThermo.h"
 #include "ctexceptions.h"
+#include "FactoryBase.h"
+
 
 namespace Cantera {
 
@@ -59,7 +61,7 @@ namespace Cantera {
    *
    * @ingroup thermoprops
    */
-  class SpeciesThermoFactory {
+  class SpeciesThermoFactory : public FactoryBase {
 
   public:
 
@@ -73,6 +75,9 @@ namespace Cantera {
      * instance.
      */
     static SpeciesThermoFactory* factory() {
+#if defined(THREAD_SAFE_CANTERA)
+        boost::mutex::scoped_lock lock(species_thermo_mutex);
+#endif
       if (!s_factory) s_factory = new SpeciesThermoFactory;
       return s_factory;
     }
@@ -83,7 +88,10 @@ namespace Cantera {
      * the process terminates (for example, when checking for
      * memory leaks) then this method can be called to delete it.
      */
-    static void deleteFactory() {
+    virtual void deleteFactory() {
+#if defined(THREAD_SAFE_CANTERA)
+        boost::mutex::scoped_lock lock(species_thermo_mutex);
+#endif
       if (s_factory) {
 	delete s_factory;
 	s_factory = 0;
@@ -153,6 +161,10 @@ namespace Cantera {
 
     //! pointer to the sole instance of this class
     static SpeciesThermoFactory* s_factory;
+
+#if defined(THREAD_SAFE_CANTERA)
+      static boost::mutex species_thermo_mutex;
+#endif
 
     //! Constructor. This is made private, so that only the static
     //! method factory() can instantiate the class.

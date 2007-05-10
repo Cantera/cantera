@@ -112,9 +112,9 @@ namespace Cantera {
     virtual ~ChemEquil();
 
     int equilibrate(thermo_t& s, const char* XY,
-		    bool useThermoPhaseElementPotentials = false);
+        bool useThermoPhaseElementPotentials = false, int loglevel = 0);
     int equilibrate(thermo_t& s, const char* XY, vector_fp& elMoles,
-		    bool useThermoPhaseElementPotentials = false);
+        bool useThermoPhaseElementPotentials = false, int loglevel = 0);
     const vector_fp& elementPotentials() const { return m_lambda; }
 
     /**
@@ -144,10 +144,10 @@ namespace Cantera {
     void setToEquilState(thermo_t& s, 
 			 const vector_fp& x, doublereal t);
 
-    int setInitialMoles(thermo_t& s, vector_fp& elMoleGoal);
+      int setInitialMoles(thermo_t& s, vector_fp& elMoleGoal, int loglevel = 0);
 
     int estimateElementPotentials(thermo_t& s,  vector_fp& lambda,
-				  vector_fp& elMolesGoal);
+        vector_fp& elMolesGoal, int loglevel = 0);
         
     int estimateEP_Brinkley(thermo_t&s, vector_fp& lambda, vector_fp& elMoles);
 
@@ -157,11 +157,11 @@ namespace Cantera {
 
     void equilResidual(thermo_t& s, const vector_fp& x, 
 		       const vector_fp& elmtotal, vector_fp& resid, 
-		       double xval, double yval);
+        double xval, double yval, int loglevel = 0);
 
     void equilJacobian(thermo_t& s, vector_fp& x,  
 		       const vector_fp& elmols, DenseMatrix& jac, 
-		       double xval, double yval);
+        double xval, double yval, int loglevel = 0);
 
     void adjustEloc(thermo_t& s, vector_fp & elMolesGoal);
 

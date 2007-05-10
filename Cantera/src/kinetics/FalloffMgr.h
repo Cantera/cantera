@@ -30,10 +30,12 @@ namespace Cantera {
          * falloff function calculators. If omitted, the standard factory 
          * will be used.
          */
-        FalloffMgr(FalloffFactory* f = 0) : 
-	    m_n(0), m_n0(0), m_worksize(0) {
-             if (f == 0) m_factory = FalloffFactory::factory();
-            else m_factory = f;
+        FalloffMgr(/*FalloffFactory* f = 0*/) : 
+        m_n(0), m_n0(0), m_worksize(0) {
+             //if (f == 0) 
+                m_factory = FalloffFactory::factory();   // RFB:TODO This raw pointer should be encapsulated
+                                                         // because accessing a 'Singleton Factory'
+            //else m_factory = f;
         }
 
         /**
@@ -43,10 +45,10 @@ namespace Cantera {
         virtual ~FalloffMgr(){
             int i;
             for (i = 0; i < m_n; i++) delete m_falloff[i];
-	    if (m_factory) {
-	      FalloffFactory::deleteFalloffFactory();
-	      m_factory = 0;
-	    }
+        //if (m_factory) {
+          //FalloffFactory::deleteFalloffFactory();
+          //m_factory = 0;
+        //}
         }
 
         /**
@@ -58,7 +60,7 @@ namespace Cantera {
          * @param c vector of coefficients for the falloff function.
          */ 
         void install(int rxn, int type, 
-		     const vector_fp& c) {
+             const vector_fp& c) {
             if (type != SIMPLE_FALLOFF) {
                 m_rxn.push_back(rxn);
                 Falloff* f = m_factory->newFalloff(type,c);
@@ -121,3 +123,4 @@ namespace Cantera {
 }
 
 #endif
+

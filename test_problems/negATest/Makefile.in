@@ -64,7 +64,7 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
 
 # How to compile C++ source files to object files
 .@CXX_EXT@.@OBJ_EXT@: Interface.h
-	$(CXX) -c $< -I$(CANTERA_INCDIR) $(CXX_FLAGS)
+	$(CXX) -c $< -I$(CANTERA_INCDIR) @CXX_INCLUDES@ $(CXX_FLAGS)
 
 # How to compile the dependency file
 .cpp.d:

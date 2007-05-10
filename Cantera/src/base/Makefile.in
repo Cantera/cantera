@@ -26,13 +26,13 @@ PIC_FLAG=@PIC@
 
 CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS) $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
 
-BASE_OBJ = misc.o ct2ctml.o ctml.o plots.o stringUtils.o xml.o
+BASE_OBJ = ct2ctml.o ctml.o misc.o plots.o stringUtils.o xml.o
 
-BASE_H   = ct_defs.h ctexceptions.h global.h logger.h XML_Writer.h \
+BASE_H   = ct_defs.h ctexceptions.h logger.h XML_Writer.h \
            ctml.h plots.h stringUtils.h xml.h config.h utilities.h \
-           Array.h vec_functions.h
+           Array.h vec_functions.h global.h FactoryBase.h
 
-CXX_INCLUDES = -I.
+CXX_INCLUDES = -I. @CXX_INCLUDES@
 LIB = @buildlib@/libctbase.a
 
 DEPENDS = $(BASE_OBJ:.o=.d)

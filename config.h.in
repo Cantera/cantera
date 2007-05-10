@@ -100,7 +100,7 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 #undef CANTERA_DATA
 
 
-#define WITH_HTML_LOGS
+#undef WITH_HTML_LOGS
 
 // define STORE_MOLE_FRACTIONS if you want Cantera to internally
 // represent the composition of a mixture as mole fractions. Usually
@@ -115,6 +115,8 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 
 //--------------------- compile options ----------------------------
 #undef USE_PCH
+
+#define THREAD_SAFE_CANTERA
 
 //--------------------- optional phase models ----------------------
 //    This define indicates the enabling of the inclusion of

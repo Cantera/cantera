@@ -276,6 +276,7 @@ GRAPHVIZDIR=" "
 fi
 AC_SUBST(GRAPHVIZDIR)
 
+
 #----------- ARCHIVE --------------------
 
 if test "x${OS_IS_DARWIN}" = "x1"; then
@@ -539,6 +540,21 @@ AC_SUBST(KERNEL_OBJ)
 AC_SUBST(BUILD_CK)
 AC_SUBST(LIB_DIR)
 
+if test "$WITH_HTML_LOG_FILES" = "y"; then
+  AC_DEFINE(WITH_HTML_LOGS)
+fi
+
+BOOST_INCLUDE=
+BOOST_LIB=
+if test "$BUILD_THREAD_SAFE" = "y" ; then
+  AC_DEFINE(THREAD_SAFE_CANTERA)
+  BOOST_INCLUDE=-I$BOOST_INC_DIR
+  BOOST_LIB=$BOOST_THREAD_LIB
+fi
+AC_SUBST(BOOST_INCLUDE)
+AC_SUBST(BOOST_LIB)
+
+
 #
 # Report to the user what has been included/excluded from the compilation
 #
@@ -549,6 +565,11 @@ if test "$CANTERA_DEBUG_MODE" = "1" ; then
   echo "        Cantera Debug Mode                    = ON"
 else
   echo "        Cantera Debug Mode                    = OFF"
+fi
+if test "$BUILD_THREAD_SAFE" = "y" ; then
+  echo "        Thread Safe                           = YES"
+else
+  echo "        Thread Safe                           = NO"
 fi
 if test "$NEED_TRANSPORT" = "1" ; then
   echo "        Calculation of Transport Props        = ON"
@@ -753,6 +774,12 @@ fi
 if test ${use_sundials} = 1; then
 LOCAL_LIB_DIRS=$LOCAL_LIB_DIRS' -L'$SUNDIALS_LIB_DIR
 fi
+
+if test ${BUILD_THREAD_SAFE} = "y"; then
+LOCAL_LIBS=$LOCAL_LIBS' '-l$BOOST_LIB
+LOCAL_LIB_DIRS=$LOCAL_LIB_DIRS' -L'$BOOST_LIB_DIR
+fi
+
 
 AC_SUBST(LOCAL_LIB_DIRS)
 AC_SUBST(LOCAL_LIBS)
@@ -1028,6 +1055,7 @@ AC_SUBST(SHARED)
 if test -z "$PIC"; then PIC='-fPIC'; fi
 AC_SUBST(PIC)
 
+CXX_INCLUDES=$BOOST_INCLUDE
 AC_SUBST(CXX_INCLUDES)
 #
 # LCXX_FLAGS: Flags that get attached to the CXX loader
@@ -1358,6 +1386,7 @@ dnl Checks for library functions.
 AC_OUTPUT(Makefile \
           Cantera/Makefile \
 	  Cantera/src/Makefile \
+          Cantera/src/app/Makefile \
 	  Cantera/src/base/Makefile \
 	  Cantera/src/zeroD/Makefile \
 	  Cantera/src/oneD/Makefile \
