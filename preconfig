@@ -355,11 +355,17 @@ SHARED=${SHARED:="-dynamic"}
 
 # Cantera can be built so that it is thread safe. Doing so requires
 # using procedures from the boost library, so if you want thread
-# safety then you need to get and install boost if you don't have it.
+# safety then you need to get and install boost (http://www.boost.org) 
+# if you don't have it.  This is turned off by default, in which case
+# boost is not required to build Cantera.
 
-BUILD_THREAD_SAFE=${BUILD_THREAD_SAFE:="y"}
+BUILD_THREAD_SAFE=${BUILD_THREAD_SAFE:="n"}
+
+# where boost header and library files may be found
 BOOST_INC_DIR=${BOOST_INC_DIR:="/usr/local/include/boost-1_34"}
 BOOST_LIB_DIR=${BOOST_LIB_DIR:="/usr/local/lib"}
+
+# the boost thread library
 BOOST_THREAD_LIB=${BOOST_THREAD_LIB:="boost_thread-mt-1_34"}
 
 #-------------------------------------------------------------------
