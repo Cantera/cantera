@@ -1386,7 +1386,6 @@ dnl Checks for library functions.
 AC_OUTPUT(Makefile \
           Cantera/Makefile \
 	  Cantera/src/Makefile \
-          Cantera/src/app/Makefile \
 	  Cantera/src/base/Makefile \
 	  Cantera/src/zeroD/Makefile \
 	  Cantera/src/oneD/Makefile \

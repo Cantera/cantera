@@ -26,7 +26,7 @@ exes = $(progs)
 endif
 
 .cpp.o:
-	@CXX@ -c $< @DEFS@  $(INCDIR)base $(INCDIR)converters @CXXFLAGS@ $(CXX_FLAGS) 
+	@CXX@ -c $< @DEFS@  $(INCDIR)base $(INCDIR)converters @CXX_INCLUDES@ @CXXFLAGS@ $(CXX_FLAGS) 
 
 all: $(exes)
 
@@ -35,7 +35,7 @@ ck: $(BINDIR)/ck2cti
 $(BINDIR)/ck2cti: ck2cti.o $(CONVLIB_DEP) 
 	$(RM) $(BINDIR)/ck2cti
 	@CXX@ -o $(BINDIR)/ck2cti ck2cti.o $(LCXX_FLAGS) \
-               -lconverters -lctbase -ltpx -lctcxx $(LCXX_END_LIBS)
+               -lconverters -lctbase -ltpx -lctcxx $(LOCAL_LIBS) $(LCXX_END_LIBS)
 
 $(BINDIR)/cti2ctml: cti2ctml.o 
 	$(RM) $(BINDIR)/cti2ctml
@@ -45,7 +45,7 @@ $(BINDIR)/cti2ctml: cti2ctml.o
 $(BINDIR)/fixtext: fixtext.o 
 	$(RM) $(BINDIR)/fixtext
 	@CXX@ -o $(BINDIR)/fixtext fixtext.o $(LCXX_FLAGS) \
-               $(LCXX_END_LIBS)
+               $(LOCAL_LIBS) $(LCXX_END_LIBS)
 
 $(CONVLIB_DEP):
 	cd ../../Cantera/src/converters; @MAKE@

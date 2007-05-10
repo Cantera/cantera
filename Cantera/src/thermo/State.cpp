@@ -28,13 +28,6 @@
 
 using namespace std;
 
-template<class T> struct timesConstant : public unary_function<T, double>
-{
-    timesConstant(T c) : m_c(c) {}
-    double operator()(T x) {return m_c * x;}
-    T m_c;
-};
-
 namespace Cantera {
 
     State::State() : m_kk(0), m_temp(0.0), m_dens(0.001), m_mmw(0.0) {}
@@ -90,23 +83,23 @@ namespace Cantera {
         int k;
         doublereal sum = 0.0, norm = 0.0;
         sum = dot(x, x + m_kk, m_molwts.begin());
-        for (k = 0; k != m_kk; ++k) {
-            m_ym[k] = x[k] / sum;
-            m_y[k]  = m_molwts[k]*m_ym[k];
-            norm += x[k];
-        }
+        doublereal rsum = 1.0/sum;
+        transform(x, x + m_kk, m_ym.begin(), timesConstant<double>(rsum));
+        transform(m_ym.begin(), m_ym.begin() + m_kk, m_molwts.begin(), 
+            m_y.begin(), multiplies<double>());
+        norm = accumulate(x, x + m_kk, 0.0);
+        //for (k = 0; k != m_kk; ++k) {
+        //    m_ym[k] = x[k] / sum;
+        //    m_y[k]  = m_molwts[k]*m_ym[k];
+        //    norm += x[k];
+        //}
         m_mmw = sum/norm;
     }
 
     void State::setMoleFractions_NoNorm(const doublereal* x) {
-        int k;
         m_mmw = dot(x, x + m_kk, m_molwts.begin());
         doublereal rmmw = 1.0/m_mmw;
-        //for (k = 0; k != m_kk; ++k) {
-        //    m_ym[k] = x[k]*rmmw;
-            //m_y[k] = m_ym[k] * m_molwts[k];
-        //}
-    transform(x, x + m_kk, m_ym.begin(), timesConstant<double>(rmmw));
+        transform(x, x + m_kk, m_ym.begin(), timesConstant<double>(rmmw));
         transform(m_y.begin(), m_y.begin() + m_kk, m_molwts.begin(), 
             m_y.begin(), multiplies<double>());
     }
@@ -135,28 +128,37 @@ namespace Cantera {
         doublereal norm = 0.0, sum = 0.0;
         int k;
         //cblas_dcopy(m_kk, y, 1, m_y.begin(), 1);
-        for (k = 0; k != m_kk; ++k) {
-            norm += y[k];
-            m_y[k] = y[k];
-        }
-        //scale(y, y + m_kk, m_y.begin(), 1.0/norm);
-        scale(m_kk, 1.0/norm, m_y.begin());
+        norm = accumulate(y, y + m_kk, 0.0);
+        copy(y, y + m_kk, m_y.begin());
+        scale(y, y + m_kk, m_y.begin(), 1.0/norm);
+        //        for (k = 0; k != m_kk; ++k) {
+        //    norm += y[k];
+        //    m_y[k] = y[k];
+        //}
 
-        for (k = 0; k != m_kk; ++k) {
-            m_ym[k] = m_y[k] * m_rmolwts[k];
-            sum += m_ym[k];
-        }
+        //scale(m_kk, 1.0/norm, m_y.begin());
+        transform(m_y.begin(), m_y.begin() + m_kk, m_rmolwts.begin(),
+            m_ym.begin(), multiplies<double>());
+        sum = accumulate(m_ym.begin(), m_ym.begin() + m_kk, 0.0);
+        //        for (k = 0; k != m_kk; ++k) {
+        //    m_ym[k] = m_y[k] * m_rmolwts[k];
+        //    sum += m_ym[k];
+        //}
         m_mmw = 1.0/sum;
     }
 
     void State::setMassFractions_NoNorm(const doublereal* y) {
         int k;
         doublereal sum = 0.0;
-        for (k = 0; k != m_kk; ++k) {
-            m_y[k] = y[k];
-            m_ym[k] = m_y[k] * m_rmolwts[k];
-            sum += m_ym[k];
-        }
+        copy(y, y + m_kk, m_y.begin());
+        transform(m_y.begin(), m_y.end(), m_rmolwts.begin(), m_ym.begin(),
+            multiplies<double>());
+        sum = accumulate(m_ym.begin(), m_ym.end(), 0.0);
+        //for (k = 0; k != m_kk; ++k) {
+        //    m_y[k] = y[k];
+        //    m_ym[k] = m_y[k] * m_rmolwts[k];
+        //    sum += m_ym[k];
+        //}
         m_mmw = 1.0/sum;
     }
 

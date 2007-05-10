@@ -4,8 +4,8 @@
  *     Functions which calculation optimized basis of the 
  *     stoichiometric coefficient matrix (see /ref equil functions)
  */
+
 /*
-  /*
  *  $Author$
  *  $Date$
  *  $Revision$

@@ -359,7 +359,7 @@ SHARED=${SHARED:="-dynamic"}
 # if you don't have it.  This is turned off by default, in which case
 # boost is not required to build Cantera.
 
-BUILD_THREAD_SAFE=${BUILD_THREAD_SAFE:="n"}
+BUILD_THREAD_SAFE=${BUILD_THREAD_SAFE:="y"}
 
 # where boost header and library files may be found
 BOOST_INC_DIR=${BOOST_INC_DIR:="/usr/local/include/boost-1_34"}

@@ -16,6 +16,15 @@
 #include <Accelerate.h>
 #endif
 
+
+template<class T> struct timesConstant : public std::unary_function<T, double>
+{
+    timesConstant(T c) : m_c(c) {}
+    double operator()(T x) {return m_c * x;}
+    T m_c;
+};
+
+
 namespace Cantera {
 
   /*!
@@ -159,8 +168,9 @@ namespace Cantera {
   template<class InputIter, class OutputIter, class S>
   inline void scale(InputIter begin, InputIter end, 
 		    OutputIter out, S scale_factor) {
-    for (; begin != end; ++begin, ++out) 
-      *out = scale_factor * *begin;
+      transform(begin, end, out, timesConstant<S>(scale_factor));
+      //    for (; begin != end; ++begin, ++out) 
+      //*out = scale_factor * *begin;
   }
   
   /*!
