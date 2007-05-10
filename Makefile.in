@@ -156,6 +156,9 @@ ifeq ($(build_python),2)
 	          @INSTALL@ $${ihhh} @ct_demodir@/python/$${exdir} ; \
                   echo "@INSTALL@ $${ihhh} @ct_demodir@/python/$${exdir}" ; \
               done ) ; \
+	     (for ihhh in Cantera/python/examples/$${exdir}/*.cti ; do  \
+	          @INSTALL@ $${ihhh} @ct_demodir@/python/$${exdir} ; \
+              done ) ; \
 	      @INSTALL@ Cantera/python/examples/$${exdir}/Makefile @ct_demodir@/python/$${exdir} ; \
           done)
 	@(for ihhh in Cantera/python/examples/flames/*.dat ; do  \
