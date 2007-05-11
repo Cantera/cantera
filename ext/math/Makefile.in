@@ -37,7 +37,8 @@ xerhlt.o \
 xermsg.o \
 xerprn.o \
 xersve.o \
-xgetua.o 
+xgetua.o \
+printstring.o 
 
 SRCS = $(OBJS:.o=.cpp)
 all = $(LIB)
@@ -47,6 +48,10 @@ $(LIB):  $(OBJS)
 ifeq ($(do_ranlib),1)
 	@RANLIB@ $(LIB)
 endif
+
+%.o : %.c
+	@CXX@ -c $< @DEFS@  @CXXFLAGS@ @PIC@ -I../.. $(INCLUDES)
+
 %.o : %.cpp
 	@CXX@ -c $< @DEFS@  @CXXFLAGS@ @PIC@ $(INCLUDES)
 

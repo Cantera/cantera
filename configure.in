@@ -968,6 +968,18 @@ AC_SUBST(BUILD_CLIB)
 export_name=$target
 AC_SUBST(export_name)
 
+#
+# PIC
+#  Compiler flag for specifying position independent code.
+#  This flag is needed sometimes in the compilation step
+#  for code that will go into a shared library.
+#  If Cantera is used in the Full python installation
+#  mode, this means just about all of Cantera's code
+#  should be position independent.
+#
+if test -z "$PIC"; then PIC='-fPIC'; fi
+AC_SUBST(PIC)
+
 
 dnl Checks for programs.
 AC_PROG_INSTALL
@@ -984,6 +996,9 @@ precompile_headers=no
 #             statement. AFLAGS are base flags that
 #             get added to compilers and loaders. 
 #
+if test -z "$AFLAGS" ; then
+  AFLAGS="$PIC"
+fi
 if test ! -z "$AFLAGS" ; then
   if test -z "$CXXFLAGS" ; then
     CXXFLAGS="$AFLAGS"
@@ -1042,18 +1057,6 @@ AC_SUBST(SOEXT)
 
 if test -z "$SHARED"; then SHARED='-shared'; fi
 AC_SUBST(SHARED)
-
-#
-# PIC
-#  Compiler flag for specifying position independent code.
-#  This flag is needed sometimes in the compilation step
-#  for code that will go into a shared library.
-#  If Cantera is used in the Full python installation
-#  mode, this means just about all of Cantera's code
-#  should be position independent.
-#
-if test -z "$PIC"; then PIC='-fPIC'; fi
-AC_SUBST(PIC)
 
 CXX_INCLUDES=$BOOST_INCLUDE
 AC_SUBST(CXX_INCLUDES)
@@ -1120,7 +1123,7 @@ AC_SUBST(HAVE_STRIPSYMBOLS)
 #---------------------------------------------------------------------------
 
 #if test x"$build_with_f2c" = "x0"; then
-AC_PROG_F77()
+#AC_PROG_F77()
 
 # if G77 is defined, then add a flag to turn off adding a second underscore
 # to procedures that have an underscore in the name
@@ -1132,15 +1135,15 @@ dnl Checks for libraries.
 # AC_F77_LIBRARY_LDFLAGS()
 
 override_f77_libs=0;
-case $ac_sys_system in
-  Darwin*)  FLIBS='-lSystem'; override_f77_libs=1; SHARED_CTLIB=0;;
-esac
-
-if test $override_f77_libs -gt 0; then
-  echo The Fortran 77 libraries on this platform are not correctly determined by 
-  echo the configuration process. They are being manually set to 
-  echo     FLIBS = $FLIBS
-fi
+#case $ac_sys_system in
+#  Darwin*)  FLIBS='-lSystem'; override_f77_libs=1; SHARED_CTLIB=0;;
+#esac
+#
+#if test $override_f77_libs -gt 0; then
+#  echo The Fortran 77 libraries on this platform are not correctly determined by 
+#  echo the configuration process. They are being manually set to 
+#  echo     FLIBS = $FLIBS
+#fi
 
 #fi
 
@@ -1190,6 +1193,7 @@ EOF
     f90type="gfortran"
     f90opts="-fno-second-underscore -I. -I${ct_incdir}"
     f90buildopts="-fno-second-underscore -I."
+    FLIBS="-lgfortran"
   fi
 
   isg95=`grep -c 'G95' f90out`

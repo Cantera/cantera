@@ -7,7 +7,10 @@ except:
 libs = []
 platform = sys.platform
 
-flibs = '@FLIBS@'
+flibstr = '@FLIBS@'
+f1 = flibstr.replace('-l', ' ')
+flibs = f1.split()
+
 #linkargs = '@LCXX_FLAGS@'
 
 numarray_incl = "@NUMARRAY_INC_DIR@"
@@ -54,6 +57,8 @@ if platform == "win32":
             "cantera"] + bllist + cvlist + ["ctbase", "ctmath", "tpx"]
 else:
     libs = ["clib"] + locallibs
+    if flibs:
+        libs = libs + flibs
     #libs = ["clib", "zeroD","oneD", "kinetics", "transport",
     #        "equil", "ctnumerics", "converters"] + thermolib + bllist + cvlist + ["ctbase", "ctmath", "tpx", "boost_thread-mt-1_34"]
                                           

@@ -387,11 +387,11 @@ BOOST_THREAD_LIB=${BOOST_THREAD_LIB:="boost_thread-mt-1_34"}
 # fortran compiler, and all fortran compiler parameters below are
 # irrelevant.
 #
-BUILD_WITH_F2C=${BUILD_WITH_F2C:="y"}
+BUILD_WITH_F2C=${BUILD_WITH_F2C:="n"}
 
 # if you are building the external Fortran 77 procedures from the Fortran 
 # source code, enter the compiler here. 
-F77=${F77:=g77}
+F77=${F77:=gfortran}
 
 # Fortran 77 compiler flags. Note that the Fortran compiler flags must be set
 # to produce object code compatible with the C/C++ compiler you are using.
