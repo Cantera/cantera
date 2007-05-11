@@ -139,100 +139,287 @@ namespace Cantera {
   //@{
   //@}
     
-    //!  Class to hold global data. 
-    /*!
-     * Class Application is the top-level
-     * class that stores data that should persist for the duration of
-     * the process. The class should not be instantiated directly;
-     * instead, it is instantiated as needed by the functions declared
-     * here. At most one instance is created, and it is not destroyed
-     * until the process terminates.
-     *
-     * @ingroup HTML_logs
-     * @ingroup textlogs
-     * @ingroup globalData
-     */
+  //!  Class to hold global data. 
+  /*!
+   * Class Application is the top-level
+   * class that stores data that should persist for the duration of
+   * the process. The class should not be instantiated directly;
+   * instead, it is instantiated as needed by the functions declared
+   * here. At most one instance is created, and it is not destroyed
+   * until the process terminates.
+   *
+   * @ingroup HTML_logs
+   * @ingroup textlogs
+   * @ingroup globalData
+   */
   class Application {
 
   protected:
-     class Messages
-     {
-  public:
-        Messages() 
-        {
-            // install a default logwriter that writes to standard
-            // output / standard error
-            logwriter = new Logger();
-         #ifdef WITH_HTML_LOGS
-            // HTML log files
-            xmllog = 0; 
-            current = 0;
-            loglevel = 0;
-         #endif
-        }
-        ~Messages() 
-        {
-            delete logwriter;
-         #ifdef WITH_HTML_LOGS
-            if (xmllog) {
-                write_logfile("orphan");
-                //delete xmllog;
-            }
-         #endif
-        }
+    //! Class to carry out messages
+    /*!
+     * @ingroup HTML_logs
+     */
+    class Messages {
+    public:
+      //! Constructor for the Messages class
+      /*!
+       * constructor for the Messages class which is a subclass
+       * of the Application class.
+       */
+      Messages() {
+	// install a default logwriter that writes to standard
+	// output / standard error
+	logwriter = new Logger();
+#ifdef WITH_HTML_LOGS
+	xmllog = 0; 
+	current = 0;
+	loglevel = 0;
+#endif
+      }
 
-        void addError(std::string r, std::string msg) ;
-        int getErrorCount() ;
-        void popError() ;
-        std::string lastErrorMessage() ;
-        void getErrors( std::ostream& f) ;
-        void logErrors() ;
+      //! Destructor for the Messages class
+      ~Messages() {
+	delete logwriter;
+#ifdef WITH_HTML_LOGS
+	if (xmllog) {
+	  write_logfile("orphan");
+	}
+#endif
+      }
+      
+      //! Set an error condition in the application class without 
+      //! throwing an exception.
+      /*!
+       * This routine adds an error message to the end of the stack
+       * of errors that Cantera accumulates in the Application
+       * class.
+       * @param r   location
+       * @param msg  Description of the error
+       * @ingroup errorhandling
+       */
+      void addError(std::string r, std::string msg) ;
+    
+      //! Return the number of errors that have been encountered so far.
+      /*!
+       * @ingroup errorhandling
+       */
+      int getErrorCount() ;
 
+      //! Discard the last error message
+      /*!
+       * %Cantera saves a stack of exceptions that it
+       * has caught in the Application class. This routine eliminates
+       * the last exception to be added to that stack.
+       *
+       * @ingroup errorhandling
+       */
+      void popError() ;
+   
+      //! Retrieve the last error message in a string
+      /*!
+       * This routine will retrieve the last error message and return
+       * it in the return string.
+       *
+       * @ingroup errorhandling
+       */
+      std::string lastErrorMessage() ;
 
-        void writelog(const std::string& msg) ;
-        void writelog(const char* pszmsg) ;
-        void logerror(const std::string& msg) ;
-        int getUserEnv() ;
-        void setLogger(Logger* logwriter) ;
+      //!  Prints all of the error messages to an ostream
+      /*!
+       * Print all of the error messages using function writelog.
+       * Write out all of the saved error messages to the ostream f
+       * Cantera saves a stack of exceptions that it
+       * has caught in the Application class. This routine writes
+       * out all of the error messages to the ostream
+       * and then clears them from internal storage.
+       *
+       * @param f ostream which will receive the error messages
+       *
+       * @ingroup errorhandling
+       */
+      void getErrors( std::ostream& f) ;
 
-      #ifdef WITH_HTML_LOGS
-         void beginLogGroup(std::string title, int loglevel) ;
-         void addLogEntry(std::string tag, std::string value) ;
-         void addLogEntry(std::string tag, doublereal value) ;
-         void addLogEntry(std::string tag, int value) ;
-         void addLogEntry(std::string msg) ;
-         void endLogGroup(std::string title) ;
-         void write_logfile(std::string file) ;
-      #endif
+      //!  Prints all of the error messages using writelog
+      /*!
+       * Print all of the error messages using function writelog.
+       * Cantera saves a stack of exceptions that it
+       * has caught in the Application class. This routine writes
+       * out all of the error messages
+       * and then clears them from internal storage.
+       *
+       * @ingroup errorhandling
+       */
+      void logErrors() ;
+      
+      //!  Write a message to the screen.
+      /*!
+       * The string may be of any
+       * length, and may contain end-of-line characters. This method is
+       * used throughout %Cantera to write log messages.
+       *
+       * @param msg  c++ string to be written to the screen
+       * @ingroup textlogs
+       */
+      void writelog(const std::string& msg) ;
 
-     protected:
-         //! Current list of error messages 
-         vector<string> errorMessage;
-         //! Current list of warning messages
-         //vector<string> warning;
-         //! Current error Routine
-         vector<string> errorRoutine;
-         //! Last error message
-         //string msglog;
-         //! Current line length
-         // size_t linelen;
-         //! Current pointer to the logwriter
-         Logger* logwriter;
-      #ifdef WITH_HTML_LOGS
-         //! Current pointer to the top of the XML_Node tree for the current HTML log
-         XML_Node *xmllog;
-         //! Pointer to the last current position in the XML_Node tree for the current HTML log
-         XML_Node *current;
-         //! Current value of loglevel
-         int loglevel;
-         //! Vector of loglevels for loggroups that are open
-         vector<int> loglevels;
-         //! Current vector of loggroups that are open
-         vector<string> loggroups;
-      #endif
+      //!  Write a message to the screen.
+      /*!
+       * The string may be of any
+       * length, and may contain end-of-line characters. This method is
+       * used throughout %Cantera to write log messages.
+       *
+       * @param pszmsg  c character string to be written to the screen
+       * @ingroup textlogs
+       */
+      void writelog(const char* pszmsg) ;
+
+      //! Write an error message and quit.
+      /*!
+       *  The default behavior is
+       *  to write to the standard eror stream, and then call
+       *  exit(). Note that no end-of-line character is appended to
+       *  the message, and so if one is desired it must be included
+       *  in the string. Note that this default behavior will
+       *  terminate the application Cantera is invoked from (MATLAB,
+       *  Excel, etc.) If this is not desired, then derive a class
+       *  and reimplement this method.
+       *
+       * @param msg    Error message to be written to cerr.
+       */
+      void logerror(const std::string& msg) ;
+
+      //! Returns an integer specifying the application environment
+      int getUserEnv() ;
+
+      //! Install a logger.
+      /*!
+       *  Called by the language interfaces to install an appropriate logger.
+       *  The logger is used for the writelog() function
+       *
+       * @param logwriter Pointer to a logger object
+       * @see Logger.
+       * @ingroup textlogs
+       */
+      void setLogger(Logger* logwriter) ;
+      
+#ifdef WITH_HTML_LOGS
+
+      //!Create a new group for log messages.
+      /*!
+       *  Usually this is called
+       *  upon entering the function, with the title parameter equal to
+       *  the name of the function or method. Subsequent messages
+       *  written with addLogEntry will appear grouped under this
+       *  heading, until endLogGroup() is called.
+       *
+       *  @param title String name of the LogGroup
+       *  @param loglevel loglevel of the group.
+       *  @ingroup HTML_logs
+       */
+      void beginLogGroup(std::string title, int loglevel) ;
+
+      //! Add an entry to an HTML log file.
+      /*!
+       *  Entries appear in the form "tag:value".
+       *
+       * @param tag      tag
+       * @param value    double value
+       *
+       * @ingroup HTML_logs
+       */
+      void addLogEntry(std::string tag, std::string value) ;
+
+      //! Add an entry to an HTML log file.
+      /*!
+       *  Entries appear in the form "tag:value".
+       *
+       * @param tag      tag
+       * @param value    double value
+       *
+       * @ingroup HTML_logs
+       */
+      void addLogEntry(std::string tag, doublereal value) ;
+
+      //! Add an entry to an HTML log file.
+      /*!
+       *  Entries appear in the form "tag:value".
+       *
+       * @param tag      tag
+       * @param value    double value
+       *
+       * @ingroup HTML_logs
+       */
+      void addLogEntry(std::string tag, int value) ;
+
+      //! Add an entry to an HTML log file.
+      /*!
+       *  Entries appear in the form "msg".
+       *
+       * @param msg  Message to be added
+       *
+       * @ingroup HTML_logs
+       */
+      void addLogEntry(std::string msg) ;
+
+      //! Close the current group of log messages.
+      /*!
+       *  This is typically
+       *  called just before leaving a function or method, to close the
+       *  group of messages that were output from this
+       *  function. Subsequent messages written with addLogEntry() will
+       *  appear at the next-higher level in the outline, unless
+       *  beginLogGroup() is called first to create a new group.
+       *
+       * @param title Name of the log group. It defaults to the most recent
+       *              log group created.
+       */
+      void endLogGroup(std::string title) ;
+
+      //! Write the HTML log file.
+      /*!
+       *  Log entries are stored in memory in
+       *  an XML tree until this function is called, which writes the
+       *  tree to a file and clears the entries stored in memory.  The
+       *  output file will have the name specified in the 'file'
+       *  argument.  If this argument has no extension, the extension
+       *  '.html' will be appended. Also, if the file already exists, an
+       *  integer will be appended to the name so that no existing log
+       *  file will be overwritten.
+       *  WITH_HTML_LOGS must be defined.
+       *
+       *  @param  file Name of the file to be written
+       */
+      void write_logfile(std::string file);
+#endif
+      
+    protected:
+      //! Current list of error messages 
+      vector<string> errorMessage;
+     
+      //! Current error Routine
+      vector<string> errorRoutine;
+   
+      //! Current pointer to the logwriter
+      Logger* logwriter;
+#ifdef WITH_HTML_LOGS
+      //! Current pointer to the top of the XML_Node tree for the current HTML log
+      XML_Node *xmllog;
+
+      //! Pointer to the last current position in the XML_Node tree for the current HTML log
+      XML_Node *current;
+
+      //! Current value of loglevel
+      int loglevel;
+
+      //! Vector of loglevels for loggroups that are open
+      vector<int> loglevels;
+
+      //! Current vector of loggroups that are open
+      vector<string> loggroups;
+#endif
     } ;
-
-    #ifdef THREAD_SAFE_CANTERA
+    
+#ifdef THREAD_SAFE_CANTERA
       typedef boost::shared_ptr< Messages >   pMessages_t ;
       typedef std::map< cthreadId_t, pMessages_t > threadMsgMap_t ;
       class ThreadMessages
@@ -353,12 +540,71 @@ namespace Cantera {
     void setTmpDir(std::string tmp) ;
     std::string getTmpDir() ;
     std::string sleep() ;
+
+    //! Set an error condition in the application class without 
+    //! throwing an exception.
+    /*!
+     * This routine adds an error message to the end of the stack
+     * of errors that Cantera accumulates in the Application
+     * class.
+     * @param r   location
+     * @param msg  Description of the error
+     * @ingroup errorhandling
+     */
     void addError(std::string r, std::string msg) { pMessenger->addError(r, msg) ; }
+
+    //! Return the number of errors that have been encountered so far.
+    /*!
+     * @ingroup errorhandling
+     */
     int getErrorCount() { return pMessenger->getErrorCount() ; }
+
+    //! Discard the last error message
+    /*!
+     * %Cantera saves a stack of exceptions that it
+     * has caught in the Application class. This routine eliminates
+     * the last exception to be added to that stack.
+     *
+     * @ingroup errorhandling
+     */
     void popError() { pMessenger->popError() ; }
+
+    //! Retrieve the last error message in a string
+    /*!
+     * This routine will retrieve the last error message and return
+     * it in the return string.
+     *
+     * @ingroup errorhandling
+     */
     std::string lastErrorMessage() { return pMessenger->lastErrorMessage() ; }
+
+    //!  Prints all of the error messages to an ostream
+    /*!
+     * Print all of the error messages using function writelog.
+     * Write out all of the saved error messages to the ostream f
+     * Cantera saves a stack of exceptions that it
+     * has caught in the Application class. This routine writes
+     * out all of the error messages to the ostream
+     * and then clears them from internal storage.
+     *
+     * @param f ostream which will receive the error messages
+     *
+     * @ingroup errorhandling
+     */
     void getErrors( std::ostream& f) { pMessenger->getErrors(f) ; }
+
+    //!  Prints all of the error messages using writelog
+    /*!
+     * Print all of the error messages using function writelog.
+     * Cantera saves a stack of exceptions that it
+     * has caught in the Application class. This routine writes
+     * out all of the error messages
+     * and then clears them from internal storage.
+     *
+     * @ingroup errorhandling
+     */
     void logErrors() { pMessenger->logErrors() ; }
+
     void addDataDirectory( std::string dir ) ;
     std::string findInputFile(std::string name) ;
     XML_Node* get_XML_File(std::string file, int debug=0) ;
@@ -366,19 +612,115 @@ namespace Cantera {
 
     void writelog(const std::string& msg) { pMessenger->writelog(msg); }
     void writelog(const char* pszmsg) { pMessenger->writelog(pszmsg); }
+
+    //! Write an error message and quit.
+    /*!
+     *  The default behavior is
+     *  to write to the standard eror stream, and then call
+     *  exit(). Note that no end-of-line character is appended to
+     *  the message, and so if one is desired it must be included
+     *  in the string. Note that this default behavior will
+     *  terminate the application Cantera is invoked from (MATLAB,
+     *  Excel, etc.) If this is not desired, then derive a class
+     *  and reimplement this method.
+     *
+     * @param msg    Error message to be written to cerr.
+     */
     void logerror(const std::string& msg) {pMessenger->logerror(msg); }
+
+    //! Returns an integer specifying the application environment.
     int getUserEnv() { return pMessenger->getUserEnv() ; }
     void setLogger(Logger* logwriter) {pMessenger->setLogger(logwriter);}
 
     void thread_complete() ;
 
 #ifdef WITH_HTML_LOGS
+    //!Create a new group for log messages.
+    /*!
+     *  Usually this is called
+     *  upon entering the function, with the title parameter equal to
+     *  the name of the function or method. Subsequent messages
+     *  written with addLogEntry will appear grouped under this
+     *  heading, until endLogGroup() is called.
+     *
+     *  @param title String name of the LogGroup
+     *  @param loglevel loglevel of the group.
+     *  @ingroup HTML_logs
+     */ 
     void beginLogGroup(std::string title, int loglevel) { pMessenger->beginLogGroup(title,loglevel);} 
+
+    //! Add an entry to an HTML log file.
+    /*!
+     *  Entries appear in the form "tag:value".
+     *
+     * @param tag      tag
+     * @param value    double value
+     *
+     * @ingroup HTML_logs
+     */
     void addLogEntry(std::string tag, std::string value) { pMessenger->addLogEntry(tag, value);}
+
+    //! Add an entry to an HTML log file.
+    /*!
+     *  Entries appear in the form "tag:value".
+     *
+     * @param tag      tag
+     * @param value    double value
+     *
+     * @ingroup HTML_logs
+     */
     void addLogEntry(std::string tag, doublereal value) { pMessenger->addLogEntry(tag, value);}
+
+    //! Add an entry to an HTML log file.
+    /*!
+     *  Entries appear in the form "tag:value".
+     *
+     * @param tag      tag
+     * @param value    double value
+     *
+     * @ingroup HTML_logs
+     */
     void addLogEntry(std::string tag, int value) { pMessenger->addLogEntry(tag, value);}
+
+    //! Add an entry to an HTML log file.
+    /*!
+     *  Entries appear in the form "msg".
+     *
+     * @param msg      Message to be added to file
+     *
+     * @ingroup HTML_logs
+     */
     void addLogEntry(std::string msg) { pMessenger->addLogEntry(msg); }
+
+    //! Close the current group of log messages.
+    /*!
+     *  This is typically
+     *  called just before leaving a function or method, to close the
+     *  group of messages that were output from this
+     *  function. Subsequent messages written with addLogEntry() will
+     *  appear at the next-higher level in the outline, unless
+     *  beginLogGroup() is called first to create a new group.
+     *
+     * @param title Name of the log group. It defaults to the most recent
+     *              log group created.
+     * @ingroup HTML_logs
+     */
     void endLogGroup(std::string title) { pMessenger->endLogGroup(title) ;}
+
+    //! Write the HTML log file.
+    /*!
+     *  Log entries are stored in memory in
+     *  an XML tree until this function is called, which writes the
+     *  tree to a file and clears the entries stored in memory.  The
+     *  output file will have the name specified in the 'file'
+     *  argument.  If this argument has no extension, the extension
+     *  '.html' will be appended. Also, if the file already exists, an
+     *  integer will be appended to the name so that no existing log
+     *  file will be overwritten.
+     *  WITH_HTML_LOGS must be defined.
+     *
+     *  @param  file Name of the file to be written
+     */
     void write_logfile(std::string file) { pMessenger->write_logfile(file) ; }
 #endif
 
@@ -634,55 +976,61 @@ protected:
     }
 
 
-    /*
-     * Return the number of errors that have been encountered so far.
-     * \ingroup errorhandling
-     */
-    int nErrors() {
-        return app()->getErrorCount();
-    }
-    int Application::Messages::getErrorCount() {
-       return static_cast<int>(errorMessage.size()) ;
-    }
+  /*
+   * Return the number of errors that have been encountered so far.
+   * \ingroup errorhandling
+   */
+  int nErrors() {
+    return app()->getErrorCount();
+  }
+  
+  // Return the number of errors encountered so far
+  int Application::Messages::getErrorCount() {
+    return static_cast<int>(errorMessage.size()) ;
+  }
 
-    /*
-     * popError eliminates the last error message that Cantera
-     * has saved. Cantera saves a stack of exceptions that it
-     * has caught in the Application class. This routine eliminates
-     * the last exception to be added to that stack.
-     * \ingroup errorhandling
-     */
-    void popError() {
-       app()->popError() ;
-    }
-    void Application::Messages::popError() {
-       if ( static_cast<int>(errorMessage.size()) > 0) {
-          errorRoutine.pop_back() ;
-          errorMessage.pop_back() ;
-        }
-    }
+  /*
+   * popError eliminates the last error message that Cantera
+   * has saved. Cantera saves a stack of exceptions that it
+   * has caught in the Application class. This routine eliminates
+   * the last exception to be added to that stack.
+   * \ingroup errorhandling
+   */
+  void popError() {
+    app()->popError() ;
+  }
 
-    /*
-     * Retrieve the last error message.
-     * This routine will retrieve the last error message and return
-     * it in the return string.
-     * \ingroup errorhandling
-     */
-    string lastErrorMessage() {
-       return app()->lastErrorMessage() ;
+  // Eliminate the last error message
+  void Application::Messages::popError() {
+    if ( static_cast<int>(errorMessage.size()) > 0) {
+      errorRoutine.pop_back() ;
+      errorMessage.pop_back() ;
     }
-    std::string Application::Messages::lastErrorMessage() {
-       if ( static_cast<int>(errorMessage.size()) > 0) {
-            string head = 
-                "\n\n************************************************\n"
-                "                Cantera Error!                  \n"
+  }
+
+  /*
+   * Retrieve the last error message.
+   * This routine will retrieve the last error message and return
+   * it in the return string.
+   * \ingroup errorhandling
+   */
+  string lastErrorMessage() {
+    return app()->lastErrorMessage() ;
+  }
+
+  // Retrieve the last error message
+  std::string Application::Messages::lastErrorMessage() {
+    if ( static_cast<int>(errorMessage.size()) > 0) {
+      string head = 
+	"\n\n************************************************\n"
+	"                Cantera Error!                  \n"
                 "************************************************\n\n";
-            return head+string("\nProcedure: ")+errorRoutine.back()
+      return head+string("\nProcedure: ")+errorRoutine.back()
                 +string("\nError:   ")+errorMessage.back();
-      } else  {
+    } else  {
       return "<no Cantera error>";
     }
-    }
+  }
 
     /*
      * Prints all of the error messages to stream f.
@@ -696,25 +1044,27 @@ protected:
     void showErrors(std::ostream& f) {
         app()->getErrors(f) ;
     }
-    void Application::Messages::getErrors( std::ostream& f) {
-        int i = static_cast<int>(errorMessage.size());
-        if (i == 0) return;
-        f << endl << endl;
-        f << "************************************************" << endl;
-        f << "                   Cantera Error!                  " << endl;
-        f << "************************************************" << endl
-      << endl;
-        int j;
-        for (j = 0; j < i; j++) {
-            f << endl;
-            f << "Procedure: " << errorRoutine[j] << endl;
-            f << "Error:     " << errorMessage[j] << endl;
-        } 
-        f << endl << endl;
-        errorMessage.clear();
-        errorRoutine.clear();
-    }
 
+  // Prints all error messages to stream f
+  void Application::Messages::getErrors( std::ostream& f) {
+    int i = static_cast<int>(errorMessage.size());
+    if (i == 0) return;
+    f << endl << endl;
+    f << "************************************************" << endl;
+    f << "                   Cantera Error!                  " << endl;
+    f << "************************************************" << endl
+      << endl;
+    int j;
+    for (j = 0; j < i; j++) {
+      f << endl;
+      f << "Procedure: " << errorRoutine[j] << endl;
+      f << "Error:     " << errorMessage[j] << endl;
+    } 
+    f << endl << endl;
+    errorMessage.clear();
+    errorRoutine.clear();
+  }
+  
     /*
      * Print all of the error messages using function writelog.
      * Write out all of the saved error messages to the log device.
@@ -727,40 +1077,44 @@ protected:
     void showErrors() {
         app()->logErrors() ;
     }
-    void Application::Messages::logErrors() {
-        int i = static_cast<int>(errorMessage.size());
-        if (i == 0) return;
-        writelog("\n\n");
-        writelog("************************************************\n");
-        writelog("                   Cantera Error!                  \n");
-        writelog("************************************************\n\n");
-        int j;
-        for (j = 0; j < i; j++) {
-            writelog("\n");
+
+  // Print out all of the error messages
+  void Application::Messages::logErrors() {
+    int i = static_cast<int>(errorMessage.size());
+    if (i == 0) return;
+    writelog("\n\n");
+    writelog("************************************************\n");
+    writelog("                   Cantera Error!                  \n");
+    writelog("************************************************\n\n");
+    int j;
+    for (j = 0; j < i; j++) {
+      writelog("\n");
             writelog(string("Procedure: ")+ errorRoutine[j]+" \n");
             writelog(string("Error:     ")+ errorMessage[j]+" \n");
-        } 
-        writelog("\n\n");
-        errorMessage.clear();
-        errorRoutine.clear();
-    }
+    } 
+    writelog("\n\n");
+    errorMessage.clear();
+    errorRoutine.clear();
+  }
 
-    /*
-     * Set an error condition in the application class without 
-     * throwing an exception.
-     * This routine adds an error message to the end of the stack
-     * of errors that Cantera accumulates in the Application
-     * class.
-     * \ingroup errorhandling
-     */
-    void setError(std::string r, std::string msg) {
-       app()->addError(r, msg) ;
-    }
-    void Application::Messages::addError(std::string r, std::string msg) {
-        errorMessage.push_back(msg);
-        errorRoutine.push_back(r);
-    }
+  /*
+   * Set an error condition in the application class without 
+   * throwing an exception.
+   * This routine adds an error message to the end of the stack
+   * of errors that Cantera accumulates in the Application
+   * class.
+   * \ingroup errorhandling
+   */
+  void setError(std::string r, std::string msg) {
+    app()->addError(r, msg) ;
+  }
 
+  // Set an error condition in the application class without throwing an exception
+  void Application::Messages::addError(std::string r, std::string msg) {
+    errorMessage.push_back(msg);
+    errorRoutine.push_back(r);
+  }
+  
    
     //! Set the default directories for input files.
     /*!
@@ -1006,80 +1360,91 @@ protected:
     }
 
 
-    // @defgroup logs Diagnostic Output
-    //
-    // Writing diagnostic information to the screen or to a file.
-    // It is often useful to be able to write diagnostic messages to
-    // the screen or to a file. Cantera provides two sets of
-    // procedures for this purpose. The first set is designed to
-    // write text messages to the screen to document the progress of
-    // a complex calculation, such as a flame simulation.The second
-    // set writes nested lists in HTML format. This is useful to
-    // print debugging output for a complex calculation that calls
-    // many different procedures.
+  // defgroup logs Diagnostic Output (global.h)
+  //
+  // Writing diagnostic information to the screen or to a file.
+  // It is often useful to be able to write diagnostic messages to
+  // the screen or to a file. Cantera provides two sets of
+  // procedures for this purpose. The first set is designed to
+  // write text messages to the screen to document the progress of
+  // a complex calculation, such as a flame simulation.The second
+  // set writes nested lists in HTML format. This is useful to
+  // print debugging output for a complex calculation that calls
+  // many different procedures.
+  
+  
+  // defgroup textlogs Writing messages to the screen (global.h)
+  // ingroup logs
+  //
+  // Write a message to the screen. The string may be of any
+  // length, and may contain end-of-line characters. This method is
+  // used throughout Cantera to write log messages. It can also be
+  // called by user programs.  The advantage of using writelog over
+  // writing directly to the standard output is that messages
+  // written with writelog will display correctly even when Cantera
+  // is used from MATLAB or other application that do not have a
+  // standard output stream. @ingroup textlogs
 
+  // Write a message to the screen
+  void writelog(const std::string& msg) {
+    app()->writelog(msg);
+  }
 
-    // @defgroup textlogs Writing messages to the screen
-    // @ingroup logs
+  // Write a message to the screen
+  void Application::Messages::writelog(const std::string& msg) {
+    logwriter->write(msg) ;
+  }
 
-    // Write a message to the screen. The string may be of any
-    // length, and may contain end-of-line characters. This method is
-    // used throughout Cantera to write log messages. It can also be
-    // called by user programs.  The advantage of using writelog over
-    // writing directly to the standard output is that messages
-    // written with writelog will display correctly even when Cantera
-    // is used from MATLAB or other application that do not have a
-    // standard output stream. @ingroup textlogs
-    void writelog(const std::string& msg) {
-        app()->writelog(msg);
-    }
-    void Application::Messages::writelog(const std::string& msg) {
-       logwriter->write(msg) ;
-    }
+  // Write a message to the screen.
+  void writelog(const char* msg) {
+    app()->writelog(msg);
+  }
 
-    // Write a message to the screen.
-    void writelog(const char* msg) {
-        app()->writelog(msg);
-    }
-    void Application::Messages::writelog(const char* pszmsg) {
-       logwriter->write( pszmsg ) ;
-    }
+  // Write a message to the screen
+  void Application::Messages::writelog(const char* pszmsg) {
+    logwriter->write( pszmsg ) ;
+  }
     
-    void writelogf(const char* fmt,...) {
-       enum { BUFSIZE = 2048 } ;
-       char sbuf[BUFSIZE] ;
+  // Write a message to the screen using printf format
+  void writelogf(const char* fmt,...) {
+    enum { BUFSIZE = 2048 } ;
+    char sbuf[BUFSIZE] ;
        
-       va_list args ;
+    va_list args ;
        
-       va_start( args, fmt ) ;
+    va_start( args, fmt ) ;
        
-       #if defined(WIN32) && defined(MSC_VER)
-       _vsnprintf( sbuf, BUFSIZE, fmt, args ) ; 
-       #else
-       vsprintf( sbuf, fmt, args ) ;
-       #endif
+#if defined(WIN32) && defined(MSC_VER)
+    _vsnprintf( sbuf, BUFSIZE, fmt, args ) ; 
+#else
+    vsprintf( sbuf, fmt, args ) ;
+#endif
        
-       writelog( sbuf ) ;
+    writelog( sbuf ) ;
        
-       va_end(args) ;
-    }
+    va_end(args) ;
+  }
 
-    // Write an error message and terminate execution. test.
-    // @ingroup textlogs
-    void error(const std::string& msg) {
-        app()->logerror(msg);
-    }
-    void Application::Messages::logerror(const std::string& msg) {
-       logwriter->error(msg) ;
-    }
+  // Write an error message and terminate execution. test.
+  // @ingroup textlogs
+  void error(const std::string& msg) {
+    app()->logerror(msg);
+  }
+
+  // Write an error message and terminate execution
+  void Application::Messages::logerror(const std::string& msg) {
+    logwriter->error(msg) ;
+  }
 
     // @ingroup textlogs
     int userInterface() {
         return app()->getUserEnv();
     }
-    int Application::Messages::getUserEnv() {
-       return logwriter->env() ;
-    }
+
+  // Return an integer specifying the application environment.
+  int Application::Messages::getUserEnv() {
+    return logwriter->env() ;
+  }
 
     // Install a logger. Called by the language interfaces to install an
     // appropriate logger. 
@@ -1097,12 +1462,13 @@ protected:
        logwriter = _logwriter;
     }
 
+
 #ifdef WITH_HTML_LOGS
 
     ////////////////////////////////////////////////////////////////
     // 
-    // @defgroup HTML_logs Writing HTML Logfiles
-    // @ingroup logs
+    // defgroup HTML_logs Writing HTML Logfiles
+    // ingroup logs
     // 
     //  These functions are designed to allow writing HTML diagnostic
     //  messages in a manner that allows users to control how much
@@ -1206,90 +1572,98 @@ protected:
        app()->endLogGroup(title) ;
     }
 
-    void Application::Messages::endLogGroup(std::string title) {
-        if (loglevel <= 0) return;
-        //if (loglevel > 0) {
-            current = current->parent();
-            current = current->parent();
-            //}
-         loglevel = loglevels.back();
-        loglevels.pop_back();
-        if (title != "" && title != loggroups.back()) {
-            writelog("Logfile error."
-                "\n   beginLogGroup: "+ loggroups.back()+
-                "\n   endLogGroup:   "+title+"\n");
-            write_logfile("logerror"); 
-            //s_app->loggroups.clear();
-            //s_app->loglevels.clear();
-        }
-        else if (loggroups.size() == 1) {
-            write_logfile(loggroups.back()+"_log"); 
-            loggroups.clear();
-            loglevels.clear();
-        }
-        else
-            loggroups.pop_back();
+  void Application::Messages::endLogGroup(std::string title) {
+    if (loglevel <= 0) return;
+    //if (loglevel > 0) {
+    current = current->parent();
+    current = current->parent();
+    //}
+    loglevel = loglevels.back();
+    loglevels.pop_back();
+    if (title != "" && title != loggroups.back()) {
+      writelog("Logfile error."
+	       "\n   beginLogGroup: "+ loggroups.back()+
+	       "\n   endLogGroup:   "+title+"\n");
+      write_logfile("logerror"); 
+      //s_app->loggroups.clear();
+      //s_app->loglevels.clear();
+    }
+    else if (loggroups.size() == 1) {
+      write_logfile(loggroups.back()+"_log"); 
+      loggroups.clear();
+      loglevels.clear();
+    }
+    else
+      loggroups.pop_back();
+  }
+
+
+  // Write the HTML log file.
+  /*
+   *  Log entries are stored in memory in
+   *  an XML tree until this function is called, which writes the
+   *  tree to a file and clears the entries stored in memory.  The
+   *  output file will have the name specified in the 'file'
+   *  argument.  If this argument has no extension, the extension
+   *  '.html' will be appended. Also, if the file already exists, an
+   *  integer will be appended to the name so that no existing log
+   *  file will be overwritten.
+   *  WITH_HTML_LOGS must be defined.
+   *
+   *  @param  file Name of the file to be written
+   *  @ingroup HTML_logs
+   */
+  void write_logfile(std::string file) {
+    app()->write_logfile(file) ;
+  }
+
+  // Write the HTML log file.
+  void Application::Messages::write_logfile(std::string file) {
+    if (!xmllog) {
+      return;
+    }
+    string::size_type idot = file.rfind('.');
+    string ext = "";
+    string nm = file;
+    if (idot != string::npos) {
+      ext = file.substr(idot, file.size());
+      nm = file.substr(0,idot);
+    }
+    else {
+      ext = ".html";
+      nm = file;
     }
 
-    // Write the HTML log file. Log entries are stored in memory in
-    // an XML tree until this function is called, which writes the
-    // tree to a file and clears the entries stored in memory.  The
-    // output file will have the name specified in the 'file'
-    // argument.  If this argument has no extension, the extension
-    // '.html' will be appended. Also, if the file already exists, an
-    // integer will be appended to the name so that no existing log
-    // file will be overwritten.  will be appended to the name.
-    // @ingroup HTML_logs
-    void write_logfile(std::string file) {
-       app()->write_logfile(file) ;
+    // see if file exists. If it does, find an integer that
+    // can be appended to the name to create the name of a file
+    // that does not exist.
+    string fname = nm + ext;
+    ifstream f(fname.c_str());
+    if (f) {
+      int n = 0;
+      while (1 > 0) {
+	n++;
+	fname = nm + int2str(n) + ext;
+	ifstream f(fname.c_str());
+	if (!f) break;
+      }
     }
 
-    void Application::Messages::write_logfile(std::string file) {
-        if (!xmllog) {
-            return;
-        }
-        string::size_type idot = file.rfind('.');
-        string ext = "";
-        string nm = file;
-        if (idot != string::npos) {
-            ext = file.substr(idot, file.size());
-            nm = file.substr(0,idot);
-        }
-        else {
-            ext = ".html";
-            nm = file;
-        }
+    // Now we have a file name that does not correspond to any 
+    // existing file. Open it as an output stream, and dump the 
+    // XML (HTML) tree to it.
 
-        // see if file exists. If it does, find an integer that
-        // can be appended to the name to create the name of a file
-        // that does not exist.
-        string fname = nm + ext;
-        ifstream f(fname.c_str());
-        if (f) {
-            int n = 0;
-            while (1 > 0) {
-                n++;
-                fname = nm + int2str(n) + ext;
-                ifstream f(fname.c_str());
-                if (!f) break;
-            }
-        }
-
-        // Now we have a file name that does not correspond to any 
-        // existing file. Open it as an output stream, and dump the 
-        // XML (HTML) tree to it.
-
-        if (xmllog) {
-            ofstream f(fname.c_str());
-            // go to the top of the tree, and write it all.
-            xmllog->root().write(f);
-            f.close();
-            writelog("Log file " + fname + " written.\n");
-            delete xmllog;
-            xmllog = 0;
-            current = 0;
-        }
+    if (xmllog) {
+      ofstream f(fname.c_str());
+      // go to the top of the tree, and write it all.
+      xmllog->root().write(f);
+      f.close();
+      writelog("Log file " + fname + " written.\n");
+      delete xmllog;
+      xmllog = 0;
+      current = 0;
     }
+  }
 
 #endif // WITH_HTML_LOGS
 

@@ -288,9 +288,9 @@ namespace Cantera {
    */
   void writelog(const char* msg);
   
-  //! Write a formated message to the screen
+  //! Write a formatted message to the screen
   /*!
-   * Using the printf formatting of C write a message to the screen
+   * Using the printf formatting of C, write a message to the screen
    * with variable values.
    *
    * @param fmt  c format string for the following arguments
@@ -348,6 +348,7 @@ namespace Cantera {
    */
   void close_XML_File(std::string file);
 
+
 #ifdef WITH_HTML_LOGS
 
   /*!
@@ -371,6 +372,9 @@ namespace Cantera {
    *  A, B, and C to be written (in nested HTML lists), loglevel =
    *  2 results in messages only being written from A and B, etc.
    */
+  //@{
+  //@}
+
 
   //!Create a new group for log messages.
   /*!
@@ -453,7 +457,8 @@ namespace Cantera {
    *  argument.  If this argument has no extension, the extension
    *  '.html' will be appended. Also, if the file already exists, an
    *  integer will be appended to the name so that no existing log
-   *  file will be overwritten.  will be appended to the name.
+   *  file will be overwritten. 
+   *  WITH_HTML_LOGS must be defined.
    *
    *  @param  file Name of the file to be written
    *  @ingroup HTML_logs
