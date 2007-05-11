@@ -22,16 +22,29 @@ namespace Cantera {
   //! number of phases of any type. 
   /*!
    *    All phases have the same
-   *    temperature and pressure, and a specified number of moles.
+   *    temperature and pressure, and a specified number of moles for
+   *    each phase.
    *    The phases do not need to have the same elements. For example,
    *    a mixture might consist of a gaseous phase with elements (H,
    *    C, O, N), a solid carbon phase containing only element C,
    *    etc. A master element set will be constructed for the mixture
-   *    that is the union of the elements of each phase.
+   *    that is the intersection of the elements of each phase.
+   *
+   *   This object is the basic tool used by Cantera for use in
+   *   Multiphase equilibrium calculations. 
    *
    *   Below, reference is made to global species and global elements.
    *   These refer to the collective species and elements encompassing
    *   all of the phases tracked by the object. 
+   *
+   *   The global element list kept by this object is an
+   *   intersection of the element lists of all the phases that
+   *   comprise the MultiPhase.
+   *
+   *   The global species list kept by this object is a
+   *   concatenated list of all of the species in all the phases that
+   *   comprise the MultiPhase. The ordering of species is contiguous
+   *   with respect to the phase id.
    *
    *  @ingroup equilfunctions
    */
@@ -332,6 +345,9 @@ namespace Cantera {
 
     /// Enthalpy [J].
     doublereal enthalpy() const;
+
+    /// Enthalpy [J].
+    doublereal IntEnergy() const;
 
     /// Entropy [J/K].
     doublereal entropy() const;

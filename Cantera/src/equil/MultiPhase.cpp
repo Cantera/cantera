@@ -322,6 +322,16 @@ namespace Cantera {
         return sum;
     }
 
+  /// The internal energy of the mixture (J).
+  doublereal MultiPhase::IntEnergy() const {
+    index_t i;
+    doublereal sum = 0.0;
+    updatePhases();
+    for (i = 0; i < m_np; i++) 
+      sum += m_phase[i]->intEnergy_mole() * m_moles[i];
+    return sum;
+  }
+
     /// The entropy of the mixture (J/K).
     doublereal MultiPhase::entropy() const {
         index_t i;
