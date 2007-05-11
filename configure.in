@@ -1072,6 +1072,12 @@ if test ! -z "$AFLAGS" ; then
     LCXX_FLAGS="$LCXXFLAGS"" ""$AFLAGS"
   fi
 fi
+if test "$BUILD_WITH_F2C"="n"; then
+  if test ! -z "$LFORT_FLAGS"; then
+     LCXX_FLAGS="$LCXX_FLAGS"" ""$LFORT_FLAGS"
+  fi
+fi
+
 AC_SUBST(LCXX_FLAGS)
 #
 # Ending Libs for compiling static applications and 
@@ -1123,7 +1129,7 @@ AC_SUBST(HAVE_STRIPSYMBOLS)
 #---------------------------------------------------------------------------
 
 #if test x"$build_with_f2c" = "x0"; then
-#AC_PROG_F77()
+AC_PROG_F77()
 
 # if G77 is defined, then add a flag to turn off adding a second underscore
 # to procedures that have an underscore in the name

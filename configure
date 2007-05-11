@@ -308,7 +308,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS BITCOMPILE BITHARDWARE BITCHANGE ldemulationarg CVF_LIBDIR USE_CLIB_DLL local_inst local_python_inst python_prefix python_win_prefix ctversion homedir ct_libdir ct_bindir ct_incdir ct_incroot ct_datadir ct_demodir ct_templdir ct_tutdir ct_docdir ct_dir ct_mandir COMPACT_INSTALL build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE GRAPHVIZDIR ARCHIVE DO_RANLIB RANLIB CXX_DEPENDS USERDIR INCL_USER_CODE CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT use_sundials CVODE_LIBS IDA_LIBS sundials_include CANTERA_DEBUG_MODE COMPILE_PURE_FLUIDS phase_object_files phase_header_files COMPILE_IDEAL_SOLUTIONS COMPILE_ELECTROLYTES NEED_CATHERMO COMPILE_KINETICS COMPILE_HETEROKIN COMPILE_RXNPATH WITH_REACTORS KERNEL KERNEL_OBJ BUILD_CK LIB_DIR BOOST_INCLUDE BOOST_LIB build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR build_with_f2c build_f2c_lib LOCAL_LIB_DIRS LOCAL_LIBS CT_SHARED_LIB PYTHON_CMD BUILD_PYTHON NUMARRAY_INC_DIR NUMARRAY_HOME CANTERA_PYTHON_HOME CVSTAG MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name PIC INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS ac_ct_CC CXXCPP EGREP SOEXT SHARED CXX_INCLUDES LCXX_FLAGS LCXX_END_LIBS HAVE_STRIPSYMBOLS F90 BUILD_F90 F90FLAGS F90BUILDFLAGS precompile_headers FLIBS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT math_libs SO LDSHARED EXTRA_LINK TSCOMPARE_abs INSTALL_abs INSTALL_VERBOSE LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS BITCOMPILE BITHARDWARE BITCHANGE ldemulationarg CVF_LIBDIR USE_CLIB_DLL local_inst local_python_inst python_prefix python_win_prefix ctversion homedir ct_libdir ct_bindir ct_incdir ct_incroot ct_datadir ct_demodir ct_templdir ct_tutdir ct_docdir ct_dir ct_mandir COMPACT_INSTALL build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE GRAPHVIZDIR ARCHIVE DO_RANLIB RANLIB CXX_DEPENDS USERDIR INCL_USER_CODE CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT use_sundials CVODE_LIBS IDA_LIBS sundials_include CANTERA_DEBUG_MODE COMPILE_PURE_FLUIDS phase_object_files phase_header_files COMPILE_IDEAL_SOLUTIONS COMPILE_ELECTROLYTES NEED_CATHERMO COMPILE_KINETICS COMPILE_HETEROKIN COMPILE_RXNPATH WITH_REACTORS KERNEL KERNEL_OBJ BUILD_CK LIB_DIR BOOST_INCLUDE BOOST_LIB build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR build_with_f2c build_f2c_lib LOCAL_LIB_DIRS LOCAL_LIBS CT_SHARED_LIB PYTHON_CMD BUILD_PYTHON NUMARRAY_INC_DIR NUMARRAY_HOME CANTERA_PYTHON_HOME CVSTAG MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name PIC INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS ac_ct_CC CXXCPP EGREP SOEXT SHARED CXX_INCLUDES LCXX_FLAGS LCXX_END_LIBS HAVE_STRIPSYMBOLS F77 FFLAGS ac_ct_F77 F90 BUILD_F90 F90FLAGS F90BUILDFLAGS precompile_headers FLIBS OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT math_libs SO LDSHARED EXTRA_LINK TSCOMPARE_abs INSTALL_abs INSTALL_VERBOSE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -777,6 +777,14 @@ ac_env_CXXCPP_set=${CXXCPP+set}
 ac_env_CXXCPP_value=$CXXCPP
 ac_cv_env_CXXCPP_set=${CXXCPP+set}
 ac_cv_env_CXXCPP_value=$CXXCPP
+ac_env_F77_set=${F77+set}
+ac_env_F77_value=$F77
+ac_cv_env_F77_set=${F77+set}
+ac_cv_env_F77_value=$F77
+ac_env_FFLAGS_set=${FFLAGS+set}
+ac_env_FFLAGS_value=$FFLAGS
+ac_cv_env_FFLAGS_set=${FFLAGS+set}
+ac_cv_env_FFLAGS_value=$FFLAGS
 
 #
 # Report the --help message.
@@ -861,6 +869,8 @@ Some influential environment variables:
   CC          C compiler command
   CFLAGS      C compiler flags
   CXXCPP      C++ preprocessor
+  F77         Fortran 77 compiler command
+  FFLAGS      Fortran 77 compiler flags
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -8218,6 +8228,12 @@ if test ! -z "$AFLAGS" ; then
     LCXX_FLAGS="$LCXXFLAGS"" ""$AFLAGS"
   fi
 fi
+if test "$BUILD_WITH_F2C"="n"; then
+  if test ! -z "$LFORT_FLAGS"; then
+     LCXX_FLAGS="$LCXX_FLAGS"" ""$LFORT_FLAGS"
+  fi
+fi
+
 
 #
 # Ending Libs for compiling static applications and
@@ -8274,7 +8290,242 @@ echo 'checking for a strip symbol command ... ' $HAVE_STRIPSYMBOLS
 #---------------------------------------------------------------------------
 
 #if test x"$build_with_f2c" = "x0"; then
-#AC_PROG_F77()
+ac_ext=f
+ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
+ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_f77_compiler_gnu
+if test -n "$ac_tool_prefix"; then
+  for ac_prog in g77 f77 xlf frt pgf77 fort77 fl32 af77 f90 xlf90 pgf90 epcf90 f95 fort xlf95 ifc efc pgf95 lf95 gfortran
+  do
+    # Extract the first word of "$ac_tool_prefix$ac_prog", so it can be a program name with args.
+set dummy $ac_tool_prefix$ac_prog; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_prog_F77+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test -n "$F77"; then
+  ac_cv_prog_F77="$F77" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_F77="$ac_tool_prefix$ac_prog"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+fi
+fi
+F77=$ac_cv_prog_F77
+if test -n "$F77"; then
+  echo "$as_me:$LINENO: result: $F77" >&5
+echo "${ECHO_T}$F77" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+    test -n "$F77" && break
+  done
+fi
+if test -z "$F77"; then
+  ac_ct_F77=$F77
+  for ac_prog in g77 f77 xlf frt pgf77 fort77 fl32 af77 f90 xlf90 pgf90 epcf90 f95 fort xlf95 ifc efc pgf95 lf95 gfortran
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_prog_ac_ct_F77+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test -n "$ac_ct_F77"; then
+  ac_cv_prog_ac_ct_F77="$ac_ct_F77" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_ac_ct_F77="$ac_prog"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+fi
+fi
+ac_ct_F77=$ac_cv_prog_ac_ct_F77
+if test -n "$ac_ct_F77"; then
+  echo "$as_me:$LINENO: result: $ac_ct_F77" >&5
+echo "${ECHO_T}$ac_ct_F77" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+  test -n "$ac_ct_F77" && break
+done
+
+  F77=$ac_ct_F77
+fi
+
+
+# Provide some information about the compiler.
+echo "$as_me:8385:" \
+     "checking for Fortran 77 compiler version" >&5
+ac_compiler=`set X $ac_compile; echo $2`
+{ (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
+  (eval $ac_compiler --version </dev/null >&5) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }
+{ (eval echo "$as_me:$LINENO: \"$ac_compiler -v </dev/null >&5\"") >&5
+  (eval $ac_compiler -v </dev/null >&5) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }
+{ (eval echo "$as_me:$LINENO: \"$ac_compiler -V </dev/null >&5\"") >&5
+  (eval $ac_compiler -V </dev/null >&5) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }
+rm -f a.out
+
+# If we don't use `.F' as extension, the preprocessor is not run on the
+# input file.  (Note that this only needs to work for GNU compilers.)
+ac_save_ext=$ac_ext
+ac_ext=F
+echo "$as_me:$LINENO: checking whether we are using the GNU Fortran 77 compiler" >&5
+echo $ECHO_N "checking whether we are using the GNU Fortran 77 compiler... $ECHO_C" >&6
+if test "${ac_cv_f77_compiler_gnu+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+      program main
+#ifndef __GNUC__
+       choke me
+#endif
+
+      end
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_f77_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_compiler_gnu=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_compiler_gnu=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+ac_cv_f77_compiler_gnu=$ac_compiler_gnu
+
+fi
+echo "$as_me:$LINENO: result: $ac_cv_f77_compiler_gnu" >&5
+echo "${ECHO_T}$ac_cv_f77_compiler_gnu" >&6
+ac_ext=$ac_save_ext
+ac_test_FFLAGS=${FFLAGS+set}
+ac_save_FFLAGS=$FFLAGS
+FFLAGS=
+echo "$as_me:$LINENO: checking whether $F77 accepts -g" >&5
+echo $ECHO_N "checking whether $F77 accepts -g... $ECHO_C" >&6
+if test "${ac_cv_prog_f77_g+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  FFLAGS=-g
+cat >conftest.$ac_ext <<_ACEOF
+      program main
+
+      end
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_f77_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_prog_f77_g=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_prog_f77_g=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+
+fi
+echo "$as_me:$LINENO: result: $ac_cv_prog_f77_g" >&5
+echo "${ECHO_T}$ac_cv_prog_f77_g" >&6
+if test "$ac_test_FFLAGS" = set; then
+  FFLAGS=$ac_save_FFLAGS
+elif test $ac_cv_prog_f77_g = yes; then
+  if test "x$ac_cv_f77_compiler_gnu" = xyes; then
+    FFLAGS="-g -O2"
+  else
+    FFLAGS="-g"
+  fi
+else
+  if test "x$ac_cv_f77_compiler_gnu" = xyes; then
+    FFLAGS="-O2"
+  else
+    FFLAGS=
+  fi
+fi
+
+G77=`test $ac_compiler_gnu = yes && echo yes`
+ac_ext=cc
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
 
 # if G77 is defined, then add a flag to turn off adding a second underscore
 # to procedures that have an underscore in the name
@@ -9359,6 +9610,9 @@ s,@CXX_INCLUDES@,$CXX_INCLUDES,;t t
 s,@LCXX_FLAGS@,$LCXX_FLAGS,;t t
 s,@LCXX_END_LIBS@,$LCXX_END_LIBS,;t t
 s,@HAVE_STRIPSYMBOLS@,$HAVE_STRIPSYMBOLS,;t t
+s,@F77@,$F77,;t t
+s,@FFLAGS@,$FFLAGS,;t t
+s,@ac_ct_F77@,$ac_ct_F77,;t t
 s,@F90@,$F90,;t t
 s,@BUILD_F90@,$BUILD_F90,;t t
 s,@F90FLAGS@,$F90FLAGS,;t t

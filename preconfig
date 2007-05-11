@@ -359,7 +359,7 @@ SHARED=${SHARED:="-dynamic"}
 # if you don't have it.  This is turned off by default, in which case
 # boost is not required to build Cantera.
 
-BUILD_THREAD_SAFE=${BUILD_THREAD_SAFE:="y"}
+BUILD_THREAD_SAFE=${BUILD_THREAD_SAFE:="n"}
 
 # where boost header and library files may be found
 BOOST_INC_DIR=${BOOST_INC_DIR:="/usr/local/include/boost-1_34"}
@@ -387,7 +387,7 @@ BOOST_THREAD_LIB=${BOOST_THREAD_LIB:="boost_thread-mt-1_34"}
 # fortran compiler, and all fortran compiler parameters below are
 # irrelevant.
 #
-BUILD_WITH_F2C=${BUILD_WITH_F2C:="n"}
+BUILD_WITH_F2C=${BUILD_WITH_F2C:="y"}
 
 # if you are building the external Fortran 77 procedures from the Fortran 
 # source code, enter the compiler here. 
@@ -399,7 +399,7 @@ FFLAGS=${FFLAGS:='-O3'}
 
 # the additional Fortran flags required for linking, if any. Leave commented
 # out if no additional flags are required.
-#LFORT_FLAGS="-lcc_dynamic"
+LFORT_FLAGS="-L/usr/local/lib"
 
 
 #------------------------------------------------------
