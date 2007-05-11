@@ -82,7 +82,11 @@ WARN_LOGFILE           =
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = ../../Cantera/src \ 
+                         ../../Cantera/src/base \ 
+                         ../../Cantera/src/numerics \ 
                          ../../Cantera/src/thermo \
+                         ../../Cantera/src/kinetics \
+                         ../../Cantera/src/transport \
                          ../../Cantera/cxx/include \
                          doxyinput
 FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
