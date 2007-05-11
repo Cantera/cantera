@@ -75,14 +75,67 @@ namespace Cantera {
    * and 5 functions multiplied together makes 25 possible functions. That's 
    * why %ThermoPhase is such a large class.
    *
-   *  
+   * <H3>
    * Mechanical properties
+   * </H3>
    *
-   * Treatment of the electrochemical potential 
+   * <H3>
+   * Treatment of the %Phase Potential and the electrochemical potential of a species
+   * </H3>
    *
-   * Treatment of other potential energy contributions.
+   *  The electrochemical potential of species k in a phase p, \f$ \zeta_k \f$,
+   *  is related to the chemical potential via
+   *  the following equation, 
+   * 
+   *       \f[
+   *            \zeta_{k}(T,P) = \mu_{k}(T,P) + z_k \phi_p 
+   *       \f]
    *
+   *   where  \f$ \nu_k \f$ is the charge of species k, and \f$ \phi_p \f$ is
+   *   the electric potential of phase p.
+   *      
+   *  The potential  \f$ \phi_p \f$ is tracked and internally storred within
+   *  the base %ThermoPhase object. It constitutes a specification of the
+   *  internal state of the phase; it's the third state variable, the first 
+   *  two being temperature and density (or, pressure, for incompressible
+   *  equations of state). It may be set with the function,
+   *  ThermoPhase::setElectricPotential(),
+   *  and may be queried with the function ThermoPhase::electricPotential().
+   *  
+   *  Note, the overall electrochemical potential of a phase may not be
+   *  changed by the potential because many phases enforce charge
+   *  neutrality:
+   *
+   *       \f[
+   *            0 = \sum_k z_k X_k
+   *       \f]
+   *
+   *  Whether charge neutrality is necessary for a phase is also specified
+   *  within the ThermoPhase object, by the function call
+   *  ThermoPhase::chargeNeutralityNecessary(). Note, that it is not
+   *  necessary for the IdealGas phase, currently. However, it is
+   *  necessary for liquid phases such as Cantera::DebyeHuckel and
+   *  Cantera::HMWSoln for the proper specification of the chemical potentials.
+   *
+   *
+   *  This equation, when applied to the \f$ \zeta_k \f$ equation described
+   *  above, results in a zero net change in the effective Gibbs free
+   *  energy of the phase. However, specific charged species in the phase
+   *  may increase or decrease their electochemical potentials, which will
+   *  have an effect on interfacial reactions involving charged species,
+   *  when there is a potential drop between phases. This effect is used
+   *  within the Cantera::InterfaceKinetics and Cantera::EdgeKinetics kinetics 
+   *  objects classes.
+   *  
+   *
+   *  Other internal state variables, that track the treatment of other
+   *  potential energy contributions, by adding contributions to the
+   *  chemical potential to create an effective chemical potential, 
+   *  may be added at a later time.
+   *
+   * <H3>
    * Setting the %State of the phase
+   * </H3>
    *
    * Instantiation of %ThermoPhase properties occurs via the following path.
    *
@@ -190,14 +243,10 @@ namespace Cantera {
     //! Constructor. Note that ThermoPhase is meant to be used as
     //! a base class, so this constructor should not be called
     //! explicitly.
-    ThermoPhase() : Phase(), m_spthermo(0), m_speciesData(0),
-		    m_index(-1), m_phi(0.0), m_hasElementPotentials(false) {}
+    ThermoPhase();
 
     //! Destructor. Deletes the species thermo manager.
-    virtual ~ThermoPhase() {
-      delete m_spthermo;
-    }
-
+    virtual ~ThermoPhase();
    
     //!Copy Constructor for the %ThermoPhase object. 
     /*!
@@ -408,7 +457,7 @@ namespace Cantera {
 
     //! Returns the electric potential of this phase (V).
     /*!
-     *  Units are Volts
+     *  Units are Volts (which are Joules/coulomb)
      */ 
     doublereal electricPotential() const { return m_phi; }
 
@@ -589,8 +638,15 @@ namespace Cantera {
     
     //!  Get the species electrochemical potentials. 
     /*!
-     * These are partial molar quantities.  This method adds a term \f$ Fz_k
-     * \phi_k \f$ to each chemical potential.
+     *  These are partial molar quantities.  This method adds a term \f$ F z_k
+     *  \phi_p \f$ to each chemical potential.  
+     *  The electrochemical potential of species k in a phase p, \f$ \zeta_k \f$,
+     *  is related to the chemical potential via
+     *  the following equation, 
+     *
+     *       \f[
+     *            \zeta_{k}(T,P) = \mu_{k}(T,P) + F z_k \phi_p 
+     *       \f]
      *
      * @param mu  Output vector of species electrochemical
      *            potentials. Length: m_kk. Units: J/kmol
@@ -1405,6 +1461,21 @@ namespace Cantera {
 
     //@}
 
+    //! Returns the chargeNeutralityNecessity boolean
+    /*!
+     * Some phases must have zero net charge in order for
+     * their thermodynamics functions to be valid.
+     * If this is so, then the value returned from this
+     * function is true.
+     * If this is not the case, then this is false.
+     * Now, ideal gases have this parameter set to false,
+     * while solution with  molality-based activity
+     * coefficients have this parameter set to true. 
+     */
+    bool chargeNeutralityNecessary() const {
+      return m_chargeNeutralityNecessary;
+    }
+
             
   protected:
 
@@ -1438,6 +1509,16 @@ namespace Cantera {
     vector_fp m_lambdaRRT;
     //! Boolean indicating whether there is a valid set of saved element potentials for this phase
     bool m_hasElementPotentials;
+
+    //! Boolean indicating whether a charge neutrality condition is a necessity
+    /*!
+     * Note, the charge neutrality condition is not a necessity for ideal gas phases. There may
+     * be a net charge in those phases, because the NASA polynomials for ionized species 
+     * in Ideal gases take this condition into account. 
+     * However, liquid phases usually require charge neutrality in order for their derived
+     * thermodynamics to be valid.
+     */ 
+    bool m_chargeNeutralityNecessary;
 
   private:
 

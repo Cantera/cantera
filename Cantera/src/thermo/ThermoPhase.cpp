@@ -25,6 +25,24 @@
 using namespace std;
 
 namespace Cantera {
+
+    //! Constructor. Note that ThermoPhase is meant to be used as
+    //! a base class, so this constructor should not be called
+    //! explicitly.
+    ThermoPhase::ThermoPhase() :
+         Phase(), 
+         m_spthermo(0), m_speciesData(0),
+         m_index(-1), 
+         m_phi(0.0), 
+         m_hasElementPotentials(false),
+         m_chargeNeutralityNecessary(false)
+    {
+    }
+
+   ThermoPhase::~ThermoPhase() 
+   {
+     delete m_spthermo;
+   }
     /**
      * Copy Constructor for the ThermoPhase object. 
      *
@@ -37,7 +55,8 @@ namespace Cantera {
 	m_speciesData(0),
 	m_index(-1),
 	m_phi(0.0), 
-	m_hasElementPotentials(false)
+	m_hasElementPotentials(false),
+        m_chargeNeutralityNecessary(false)
     {
 	/*
 	 * Call the assignment operator

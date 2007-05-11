@@ -45,6 +45,12 @@ namespace Cantera {
     m_xmolSolventMIN(0.01),
     m_Mnaught(18.01528E-3)
   {
+    /*
+     * Change the default to be that charge neutrality in the
+     * phase is necessary condition for the proper specification
+     * of thermodynamic functions within the phase
+     */
+    m_chargeNeutralityNecessary = true;
   }
 
   /*
