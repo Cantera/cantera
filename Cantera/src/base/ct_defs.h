@@ -30,6 +30,7 @@
 #include <map>
 #include <numeric>
 #include <string>
+#include <algorithm>
 
 
 //! creates a pointer to the start of the raw data for a ctvector

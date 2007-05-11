@@ -171,11 +171,13 @@ namespace Cantera {
     const XML_Node& th = xmlphase.child("thermo");
     string model = th["model"];
     ThermoPhase* t = newThermoPhase(model);
+#ifdef WITH_ELECTROLYTES
     if (model == "HMW") {
         HMWSoln* p = (HMWSoln*)t;
         p->constructPhaseXML(xmlphase,"");
     }
     else
+#endif
         importPhase(xmlphase, t);
     return t;
   }
