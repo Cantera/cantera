@@ -28,33 +28,36 @@ namespace Cantera {
 
     // forward references
 
-    class ReactionData;
-    class InterfaceKineticsData;
-    class ThermoPhase;
-    class SurfPhase;
-    class ImplicitSurfChem;
+  class ReactionData;
+  class InterfaceKineticsData;
+  class ThermoPhase;
+  class SurfPhase;
+  class ImplicitSurfChem;
 
 
-    /**
-     * Holds mechanism-specific data.
-     */
-    class InterfaceKineticsData {
-    public:
-        InterfaceKineticsData() :
-            m_ROP_ok(false),
-            m_temp(0.0), m_logtemp(0.0)
-            {}
-        virtual ~InterfaceKineticsData(){}
+  /**
+   * Holds mechanism-specific data.
+   */
+  class InterfaceKineticsData {
+  public:
+    InterfaceKineticsData() :
+      m_ROP_ok(false),
+      m_temp(0.0), m_logtemp(0.0)
+    {}
+    virtual ~InterfaceKineticsData(){}
 
-        doublereal m_logp0, m_logc0;
-        array_fp m_ropf, m_ropr, m_ropnet;
-        //array_fp m_rfn_low, m_rfn_high;
-        bool m_ROP_ok;
+    doublereal m_logp0, m_logc0;
+    array_fp m_ropf;
+    array_fp m_ropr;
+    array_fp m_ropnet;
+   
+    bool m_ROP_ok;
 
-        doublereal m_temp, m_logtemp;
-        vector_fp m_rfn;
-        vector_fp m_rkcn;
-    };
+    doublereal m_temp;
+    doublereal m_logtemp;
+    vector_fp m_rfn;
+    vector_fp m_rkcn;
+  };
 
 
     ///
@@ -121,15 +124,20 @@ namespace Cantera {
 	 */
 	virtual void getDeltaEnthalpy( doublereal* deltaH);
 
-	/**
-	 * Return the vector of values for the reactions change in
-	 * entropy.
-	 * These values depend upon the concentration
-	 * of the solution.
-	 *
-	 *  units = J kmol-1 Kelvin-1
-	 */
-	virtual void getDeltaEntropy(doublereal* deltaS);
+	
+      //! Return the vector of values for the change in
+      //! entropy due to each reaction
+      /*!
+       * These values depend upon the concentration
+       * of the solution.
+       *
+       *  units = J kmol-1 Kelvin-1
+       *
+       * @param deltaS vector of Enthalpy changes 
+       *        Length = m_ii, number of reactions
+       *         
+       */
+      virtual void getDeltaEntropy(doublereal* deltaS);
 
 	/**
 	 * Return the vector of values for the reaction
@@ -196,20 +204,24 @@ namespace Cantera {
                 &m_kdata->m_ropr[0], ddot);
         }
 
-	/**
-         * Species net production rates [kmol/m^2/s]. Return the species
-         * net production rates (creation - destruction) in array
-         * wdot, which must be dimensioned at least as large as the
-         * total number of species in all phases of the kinetics
-	 * model
-         */
-        virtual void getNetProductionRates(doublereal* net) {
-            updateROP();
-             m_rxnstoich.getNetProductionRates(m_kk,
-					      &m_kdata->m_ropnet[0],
-					      net);
-        }
-
+      //! Return the species net production rates
+      /*!
+       * Species net production rates [kmol/m^2/s]. Return the species
+       * net production rates (creation - destruction) in array
+       * wdot, which must be dimensioned at least as large as the
+       * total number of species in all phases of the kinetics
+       * model
+       *
+       * @param net  Vector of species production rates.
+       *             units kmol m-d s-1, where d is dimension.
+       */
+      virtual void getNetProductionRates(doublereal* net) {
+	updateROP();
+	m_rxnstoich.getNetProductionRates(m_kk,
+					  &m_kdata->m_ropnet[0],
+					  net);
+      }
+      
         //@}
         /**
          * @name Reaction Mechanism Informational Query Routines
@@ -263,6 +275,8 @@ namespace Cantera {
         virtual void getFwdRateConstants(doublereal* kfwd);
         virtual void getRevRateConstants(doublereal* krev,
 					 bool doIrreversible = false);
+
+
 	virtual void getActivationEnergies(doublereal *E);
 
 	//@}
@@ -286,12 +300,15 @@ namespace Cantera {
 	 */
         virtual void addReaction(const ReactionData& r);
 
-        /**
-	 * Finish adding reactions and prepare for use. This function
-	 * must be called after all reactions are entered into the mechanism
-	 * and before the mechanism is used to calculate reaction rates.
-	 */
-        virtual void finalize();
+        
+      //! Finish adding reactions and prepare for use.
+      /*!
+       * This function
+       * must be called after all reactions are entered into the mechanism
+       * and before the mechanism is used to calculate reaction rates.
+       */
+      virtual void finalize();
+
         virtual bool ready() const;
 
 
@@ -313,12 +330,17 @@ namespace Cantera {
 
     protected:
 
-	/**
-	 * m_kk here is the number of species in all of the phases
-	 * that participate in the kinetics mechanism.
-	 */
-        int                                 m_kk;
-        vector_int m_revindex;
+      //! m_kk here is the number of species in all of the phases
+      //! that participate in the kinetics mechanism.
+      int                                 m_kk;
+
+      //! List of reactions numbers which are reversible reactions
+      /*!
+       *  This is a vector of reaction numbers. Each reaction
+       *  in the list is reversible.
+       *  Length = number of reversible reactions
+       */
+      vector_int m_revindex;
 
         Rate1<SurfaceArrhenius>                    m_rates;
         bool                                m_redo_rates;
@@ -368,32 +390,68 @@ namespace Cantera {
 
         std::vector<std::string> m_rxneqn;
 
-	/**
-	 * Temporary data storage used in calculating the rates of
-	 * of reactions.
-	 */
-        InterfaceKineticsData* m_kdata;
+      /**
+       * Temporary data storage used in calculating the rates of
+       * of reactions.
+       */
+      InterfaceKineticsData* m_kdata;
 
-	/**
-	 * An array of generalized concentrations
-         * \f$ C_k \f$ that are defined such that \f$ a_k = C_k /
-         * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration/
-         * These generalized concentrations are used
-         * by this kinetics manager class to compute the forward and
-         * reverse rates of elementary reactions. The "units" for the
-	 * concentrations of each phase depend upon the implementation
-	 * of kinetics within that phase.
-	 * The order of the species within the vector is based on
-	 * the order of listed ThermoPhase objects in the class, and the
-	 * order of the species within each ThermoPhase class.
-	 */
-        vector_fp m_conc;
+      //! an array of generalized concentrations for each species
+      /*!
+       * An array of generalized concentrations
+       * \f$ C_k \f$ that are defined such that \f$ a_k = C_k /
+       * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration/
+       * These generalized concentrations are used
+       * by this kinetics manager class to compute the forward and
+       * reverse rates of elementary reactions. The "units" for the
+       * concentrations of each phase depend upon the implementation
+       * of kinetics within that phase.
+       * The order of the species within the vector is based on
+       * the order of listed ThermoPhase objects in the class, and the
+       * order of the species within each ThermoPhase class.
+       */
+      vector_fp m_conc;
 
-        vector_fp m_mu0;
-        vector_fp m_phi;
-        vector_fp m_pot;
-        vector_fp m_rwork;
-        vector_fp m_E;
+      //! Vector of standard state chemical potentials
+      /*!
+       * This vector contains a temporary vector of
+       *  standard state chemical potentials
+       * for all of the species in the kinetics object
+       *
+       * Length = m_k
+       * units = J/kmol
+       */
+      vector_fp m_mu0;
+
+      //! Vector of phase potentials
+      /*!
+       * Temporary vector containing the potential of each phase
+       * in the kinetics object
+       *
+       * length = number of phases
+       * units = Volts
+       */
+      vector_fp m_phi;
+
+      //! Vector of potential energies due to Voltages
+      /*!
+       *  Length is the number of species in kinetics mech. It's
+       *  used to store the potential energy due to the voltage.
+       */
+      vector_fp m_pot;
+      
+      //! Vector temporary
+      /*!
+       * Length is number of reactions. it's used to store the
+       * voltage contribution to the activation energy.
+       */
+      vector_fp m_rwork;
+
+      //! Vector of raw activation energies for the reactions
+      /*!
+       * units are in Kelvin
+       */
+      vector_fp m_E;
 
         SurfPhase*                             m_surf;
         ImplicitSurfChem*                      m_integrator;
@@ -411,8 +469,10 @@ namespace Cantera {
             m_index[rxnNumber] = std::pair<int, int>(type, loc);
         }
         void applyButlerVolmerCorrection(doublereal* kf);
-        bool m_finalized;
-        bool m_has_coverage_dependence;
+
+      //! boolean indicating whether mechanism has been finalized
+      bool m_finalized;
+      bool m_has_coverage_dependence;
     };
 }
 

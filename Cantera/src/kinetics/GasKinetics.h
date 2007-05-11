@@ -207,11 +207,15 @@ namespace Cantera {
          */
         //@{
 
-        /**
-         * Species net production rates [kmol/m^3]. Return the species
+        //! Return the species net production rates
+        /*!
+         * Species net production rates [kmol/m^3/s]. Return the species
          * net production rates (creation - destruction) in array
          * wdot, which must be dimensioned at least as large as the
          * total number of species.
+         *
+         *  @param net  Vector of species production rates.
+         *             units kmol m-3 s-1
          */
         virtual void getNetProductionRates(doublereal* net) {
             updateROP();

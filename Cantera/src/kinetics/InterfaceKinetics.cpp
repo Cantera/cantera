@@ -274,12 +274,8 @@ namespace Cantera {
         // compute the change in electrical potential energy for each
         // reaction. This will only be non-zero if a potential
         // difference is present.
-        //fill(m_rwork.begin(), m_rwork.begin() + m_ii, 0.0);
-        //m_reactantStoich.decrementReactions(m_pot.begin(), m_rwork.begin()); 
-        //m_revProductStoich.incrementReactions(m_pot.begin(), m_rwork.begin());
-        //m_irrevProductStoich.incrementReactions(m_pot.begin(), m_rwork.begin());
         m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_pot), 
-            DATA_PTR(m_rwork));
+				     DATA_PTR(m_rwork));
 
         // modify the reaction rates. Only modify those with a
         // non-zero activation energy, and do not decrease the
@@ -462,33 +458,35 @@ namespace Cantera {
 	m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaH);
     }
 
-    /************************************************************************
-     *
-     * getDeltaEntropy():
-     *
-     * Return the vector of values for the reactions change in
-     * entropy.
-     * These values depend upon the concentration
-     * of the solution.
-     *
-     *  units = J kmol-1 Kelvin-1
+   
+  // Return the vector of values for the change in
+  // entropy due to each reaction
+  /*
+   * These values depend upon the concentration
+   * of the solution.
+   *
+   *  units = J kmol-1 Kelvin-1
+   *
+   * @param deltaS vector of Enthalpy changes 
+   *        Length = m_ii, number of reactions
+   *         
+   */
+  void InterfaceKinetics::getDeltaEntropy(doublereal* deltaS) {
+    /*
+     * Get the partial molar entropy of all species in all of
+     * the phases
      */
-    void InterfaceKinetics::getDeltaEntropy( doublereal* deltaS) {
-	/*
-	 * Get the partial molar entropy of all species in the
-	 * solid solution.
-	 */
-        int np = nPhases();
-        int n;
-        for (n = 0; n < np; n++) {
-            thermo(n).getPartialMolarEntropies(DATA_PTR(m_grt) + m_start[n]);
-        }
-	/*
-	 * Use the stoichiometric manager to find deltaS for each
-	 * reaction.
-	 */
-	m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaS);
+    int np = nPhases();
+    int n;
+    for (n = 0; n < np; n++) {
+      thermo(n).getPartialMolarEntropies(DATA_PTR(m_grt) + m_start[n]);
     }
+    /*
+     * Use the stoichiometric manager to find deltaS for each
+     * reaction.
+     */
+    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaS);
+  }
 
     /**
      *
