@@ -187,7 +187,7 @@ namespace Cantera {
    *
    * @ingroup errorhandling
    */
-#  define AssertTrace(expr)         ((expr) ? (void) 0 : throw CanteraError(STR_TRACE, std::string("failed assert: ") + #expr))
+#  define AssertTrace(expr)         ((expr) ? (void) 0 : throw Cantera::CanteraError(STR_TRACE, std::string("failed assert: ") + #expr))
 
   //!  Assertion must be true or an error is thrown
   /*!
@@ -198,7 +198,7 @@ namespace Cantera {
    * @param proc  Character string or std:string expression indicating the procedure where the assertion failed
    * @ingroup errorhandling
    */
-#  define AssertThrow(expr, proc)   ((expr) ? (void) 0 : throw CanteraError(proc, std::string("failed assert: ") + #expr))
+#  define AssertThrow(expr, proc)   ((expr) ? (void) 0 : throw Cantera::CanteraError(proc, std::string("failed assert: ") + #expr))
 
   //!  Assertion must be true or an error is thrown
   /*!
@@ -212,7 +212,7 @@ namespace Cantera {
    *
    * @ingroup errorhandling
    */
-#  define AssertThrowMsg(expr, proc, message)  ((expr) ? (void) 0 : throw CanteraError(proc + std::string(": at failed assert: \"") + std::string(#expr) + std::string("\""), message))
+#  define AssertThrowMsg(expr, proc, message)  ((expr) ? (void) 0 : throw Cantera::CanteraError(proc + std::string(": at failed assert: \"") + std::string(#expr) + std::string("\""), message))
 #endif
  
 }
