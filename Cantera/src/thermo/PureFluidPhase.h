@@ -21,10 +21,14 @@
 #define CT_EOS_TPX_H
 
 #include "ThermoPhase.h"
-
+/*
+ * For doxygen to recognize the ifdef below, it seems necessary to 
+ * include a specific include reference.
+ */
+#include "../../../config.h"
 /**
  * This object is only available if the WITH_PURE_FLUIDS optional compile
- * capability has been turned on in Cantera's makefile system. 
+ * capability has been turned on in Cantera's makefile system.  
  */
 #ifdef WITH_PURE_FLUIDS
 
