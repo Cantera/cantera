@@ -38,7 +38,7 @@ namespace Cantera {
     m_tlast_ref(-1.0),
     m_plast(-1.0),
     m_p0(OneAtm),
-    m_useTmpRefStateStorage(true),
+    m_useTmpRefStateStorage(false),
     m_useTmpStandardStateStorage(false)
   {
   }
@@ -59,7 +59,7 @@ namespace Cantera {
     m_tlast_ref(-1.0),
     m_plast(-1.0),
     m_p0(OneAtm),
-    m_useTmpRefStateStorage(true),
+    m_useTmpRefStateStorage(false),
     m_useTmpStandardStateStorage(false)
   {
     *this = b;
@@ -390,12 +390,18 @@ namespace Cantera {
   void VPStandardStateTP::initLengths() {
     m_kk = nSpecies();
     int leng = m_kk;
-    if (m_useTmpRefStateStorage){
-      m_h0_RT.resize(leng);
-      m_g0_RT.resize(leng);
-      m_cp0_R.resize(leng);
-      m_s0_R.resize(leng);
-    }
+    /*
+     * malloc the storage for this even if
+     * m_useTmpRefStateStorage is set to false.
+     * So many functions need that temporary storage anyway.
+     * However, that variable is still used to see if the
+     * storage is used to supply the complete picture.
+     */
+    m_h0_RT.resize(leng);
+    m_g0_RT.resize(leng);
+    m_cp0_R.resize(leng);
+    m_s0_R.resize(leng);
+    
     if (m_useTmpStandardStateStorage) {
       m_hss_RT.resize(leng);
       m_gss_RT.resize(leng);

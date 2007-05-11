@@ -510,7 +510,7 @@ namespace Cantera {
 
     /*!
      * boolean indicating whether temporary reference state storage is used
-     * -> default is true
+     * -> default is false
      */
     bool m_useTmpRefStateStorage;
 

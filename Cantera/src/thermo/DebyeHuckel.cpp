@@ -49,6 +49,8 @@ namespace Cantera {
     m_densWaterSS(1000.),
     m_waterProps(0)
   {
+    m_useTmpRefStateStorage = true;
+    m_useTmpStandardStateStorage = false;
     m_npActCoeff.resize(3);
     m_npActCoeff[0] = 0.1127;
     m_npActCoeff[1] = -0.01049;
@@ -78,11 +80,13 @@ namespace Cantera {
     m_densWaterSS(1000.),
     m_waterProps(0)
   {
+    m_useTmpRefStateStorage = true;
+    m_useTmpStandardStateStorage = false;
     m_npActCoeff.resize(3);
     m_npActCoeff[0] = 0.1127;
     m_npActCoeff[1] = -0.01049;
     m_npActCoeff[2] = 1.545E-3;
-    constructPhaseFile(inputFile, id);
+    constructPhaseFile(inputFile, id); 
   }
 
   DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, std::string id) :
@@ -100,11 +104,13 @@ namespace Cantera {
     m_densWaterSS(1000.),
     m_waterProps(0)
   {
+    m_useTmpRefStateStorage = true;
+    m_useTmpStandardStateStorage = false;
     m_npActCoeff.resize(3);
     m_npActCoeff[0] = 0.1127;
     m_npActCoeff[1] = -0.01049;
     m_npActCoeff[2] = 1.545E-3;
-    constructPhaseXML(phaseRoot, id);
+    constructPhaseXML(phaseRoot, id);   
   }
  
   /*
@@ -1013,6 +1019,113 @@ namespace Cantera {
       vol[0] = molecularWeight(0)/dd;
     }
   }
+  
+
+
+  void DebyeHuckel::getGibbs_RT_ref(doublereal *grt) const {
+    /*
+     * Call the function that makes sure the local copy of
+     * the species reference thermo functions are up to date
+     * for the current temperature.
+     */
+    _updateRefStateThermo();
+    /*
+     * Copy the gibbs function into return vector.
+     */
+    copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
+   
+    if (m_waterSS) {
+      double pnow = m_Pcurrent;
+      double tnow = temperature();
+      m_waterSS->setTempPressure(tnow, m_p0);
+      double mu0 = m_waterSS->gibbs_mole();
+      m_waterSS->setTempPressure(tnow, pnow);
+      double rt = _RT();
+      grt[0] = mu0 / rt;
+    }
+    
+  }
+
+  void DebyeHuckel::getEnthalpy_RT_ref(doublereal *hrt) const {
+    /*
+     * Call the function that makes sure the local copy of
+     * the species reference thermo functions are up to date
+     * for the current temperature.
+     */
+    _updateRefStateThermo();
+    /*
+     * Copy the gibbs function into return vector.
+     */
+    copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
+   
+    if (m_waterSS) {
+      double pnow = m_Pcurrent;
+      double tnow = temperature();
+      m_waterSS->setTempPressure(tnow, m_p0);
+      double h0 = m_waterSS->enthalpy_mole();
+      m_waterSS->setTempPressure(tnow, pnow);
+      double rt = _RT();
+      hrt[0] = h0 / rt;
+    }
+  }
+
+  void DebyeHuckel::getEntropy_R_ref(doublereal *sr) const {
+    /*
+     * Call the function that makes sure the local copy of
+     * the species reference thermo functions are up to date
+     * for the current temperature.
+     */
+    _updateRefStateThermo();
+    /*
+     * Copy the gibbs function into return vector.
+     */
+    copy(m_s0_R.begin(), m_s0_R.end(), sr);
+   
+    if (m_waterSS) {
+      double pnow = m_Pcurrent;
+      double tnow = temperature();
+      m_waterSS->setTempPressure(tnow, m_p0);
+      double s0 = m_waterSS->entropy_mole();
+      m_waterSS->setTempPressure(tnow, pnow);
+      sr[0] = s0 / GasConstant;
+    }
+  }
+
+  void DebyeHuckel::getCp_R_ref(doublereal *cpr) const {
+    /*
+     * Call the function that makes sure the local copy of
+     * the species reference thermo functions are up to date
+     * for the current temperature.
+     */
+    _updateRefStateThermo();
+    copy(m_cp0_R.begin(), m_cp0_R.end(), cpr); 
+    if (m_waterSS) {
+      double pnow = m_Pcurrent;
+      double tnow = temperature();
+      m_waterSS->setTempPressure(tnow, m_p0);
+      double cp0 = m_waterSS->cp_mole();
+      m_waterSS->setTempPressure(tnow, pnow);
+      cpr[0] = cp0 / GasConstant;
+    }
+  }
+
+  /*
+   * Get the molar volumes of each species in their reference
+   * states at the current
+   * <I>T</I> and <I>P</I> of the solution.
+   * units = m^3 / kmol
+   */
+  void DebyeHuckel::getStandardVolumes_ref(doublereal *vol) const {
+    double psave = m_Pcurrent;
+    _updateStandardStateThermo(m_p0);
+    copy(m_speciesSize.begin(),
+	 m_speciesSize.end(), vol);
+    if (m_waterSS) {
+      double dd = m_waterSS->density();
+      vol[0] = molecularWeight(0)/dd;
+    }
+    _updateStandardStateThermo(psave);
+  }
 
   /*
    * ------ Thermodynamic Values for the Species Reference States ---
@@ -1701,6 +1814,11 @@ namespace Cantera {
 	  }
 	}
       }
+    }
+
+    
+    if (m_waterSS) {
+      m_useTmpRefStateStorage = false;
     }
 
     /*

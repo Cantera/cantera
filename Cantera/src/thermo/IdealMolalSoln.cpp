@@ -38,6 +38,7 @@ namespace Cantera {
     MolalityVPSSTP(),
     m_formGC(2)
   {
+    m_useTmpRefStateStorage = true;
   }
 
   /**
@@ -77,14 +78,18 @@ namespace Cantera {
   }
 
   IdealMolalSoln::IdealMolalSoln(std::string inputFile, std::string id) :
-    MolalityVPSSTP()
+    MolalityVPSSTP(),
+    m_formGC(2)
   {
+    m_useTmpRefStateStorage = true;
     constructPhaseFile(inputFile, id);
   }
 
   IdealMolalSoln::IdealMolalSoln(XML_Node& root, std::string id) :
-    MolalityVPSSTP()
+    MolalityVPSSTP(),
+    m_formGC(2)
   {
+    m_useTmpRefStateStorage = true;
     constructPhaseXML(root, id);
   }
 

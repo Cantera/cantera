@@ -1209,6 +1209,56 @@ namespace Cantera {
      */
     virtual void getStandardVolumes(doublereal *vol) const;
 
+    //!  Returns the vector of nondimensional
+    //!  Gibbs Free Energies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for the species.
+    /*!
+     * @param grt     Output vector containing the nondimensional reference state
+     *                Gibbs Free energies.  Length: m_kk.
+     */
+    virtual void getGibbs_RT_ref(doublereal *grt) const;
+
+   //!  Returns the vector of nondimensional
+    //!  enthalpies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for the species.
+    /*!
+     * @param hrt     Output vector containing the nondimensional reference state enthalpies
+     *                Length: m_kk.
+     */
+    virtual void getEnthalpy_RT_ref(doublereal *hrt) const;
+
+    /*!
+     *  Returns the vector of nondimensional
+     *  entropies of the reference state at the current temperature
+     *  of the solution and the reference pressure for each species.
+     *
+     * @param er      Output vector containing the nondimensional reference state
+     *                entropies.  Length: m_kk.
+       */
+    virtual void getEntropy_R_ref(doublereal *er) const;
+
+    /*!
+     *  Returns the vector of nondimensional
+     *  constant pressure heat capacities of the reference state
+     *  at the current temperature of the solution
+     *  and reference pressure for each species.
+     *
+     * @param cprt   Output vector of nondimensional reference state
+     *               heat capacities at constant pressure for the species.
+     *               Length: m_kk
+     */
+    virtual void getCp_R_ref(doublereal *cprt) const;
+
+    //!  Get the molar volumes of the species reference states at the current
+    //!  <I>T</I> and <I>P_ref</I> of the solution.
+    /*!
+     * units = m^3 / kmol
+     *
+     * @param vol     Output vector containing the standard state volumes.
+     *                Length: m_kk.
+     */
+    virtual void getStandardVolumes_ref(doublereal *vol) const;
+
   protected:
 
     //! Updates the standard state thermodynamic functions at the current T and P of the solution.
