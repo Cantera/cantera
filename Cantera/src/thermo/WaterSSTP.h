@@ -277,8 +277,6 @@ namespace Cantera {
      */
     //@{
 
-
-    
     //!  Returns the vector of nondimensional
     //!  enthalpies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
@@ -293,9 +291,6 @@ namespace Cantera {
      *  enthalpies of the reference state at the current temperature
      *  of the solution and the reference pressure for the species.
      *
-     *  This function is resolved in this class.  It is assumed that the m_spthermo species thermo
-     *  pointer is populated and yields the reference state.
-     *
      * @param grt     Output vector containing the nondimensional reference state
      *                Gibbs Free energies.  Length: m_kk.
      */
@@ -308,10 +303,6 @@ namespace Cantera {
      *  of the solution and the reference pressure for the species.
      *  units = J/kmol
      *
-     *  This function is resolved in this class.  It is assumed that the m_spthermo
-     *  species thermo
-     *  pointer is populated and yields the reference state.
-     *
      * @param g       Output vector containing the  reference state
      *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
      */
@@ -321,9 +312,6 @@ namespace Cantera {
      *  Returns the vector of nondimensional
      *  entropies of the reference state at the current temperature
      *  of the solution and the reference pressure for each species.
-     *
-     *  This function is resolved in this class.  It is assumed that the m_spthermo species thermo
-     *  pointer is populated and yields the reference state.
      *
      * @param er      Output vector containing the nondimensional reference state
      *                entropies.  Length: m_kk.
@@ -335,10 +323,6 @@ namespace Cantera {
      *  constant pressure heat capacities of the reference state
      *  at the current temperature of the solution
      *  and reference pressure for each species.
-     *
-     *  This function is resolved in this class.  It is assumed that the m_spthermo 
-     *  species thermo
-     *  pointer is populated and yields the reference state.
      *
      * @param cprt   Output vector of nondimensional reference state
      *               heat capacities at constant pressure for the species.
