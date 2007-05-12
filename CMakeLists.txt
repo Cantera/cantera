@@ -15,6 +15,8 @@ else (PYTHON_CMD STREQUAL "default")
   SET( PYTHON_EXE ${PYTHON_CMD} )
 endif (PYTHON_CMD STREQUAL "default")
 
+INCLUDE(cmake/fortran.cmake)
+
 # configuration
 CONFIGURE_FILE (
     ${PROJECT_SOURCE_DIR}/config.h_cmake.in

@@ -58,8 +58,9 @@
 #              build process
 #    default   try to do a full installation, but fall back to a minimal
 #              one in case of errors
+OPTION(BUILD_PYTHON_PACKAGE "Build the Python Package?")
 
-SET( PYTHON_PACKAGE  "default")
+SET(PYTHON_PACKAGE "default" CACHE STRING "full or minimal")
 
 # Cantera needs to know where to find the Python interpreter.  If
 # PYTHON_CMD is set to "default", then cmake will look for the Python
@@ -76,3 +77,7 @@ SET( USE_NUMERIC "default")
 SET( NUMARRAY_HOME "$HOME/python_packages")
 
 SET( CANTERA_VERSION "1.7.1")
+
+
+SET( BUILD_F90_INTERFACE 1)
+SET( F90 "default" )

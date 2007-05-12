@@ -29,7 +29,7 @@
 #include "flib_defs.h"
 
 // Assign storage for the templated classes' static member
-template<> Cabinet<XML_Node> * Cabinet<XML_Node>::__storage=0;
+//template<> Cabinet<XML_Node> * Cabinet<XML_Node>::__storage=0;
 
 inline XML_Node* _xml(const integer* n) {
     return Cabinet<XML_Node>::cabinet()->item(*n);
