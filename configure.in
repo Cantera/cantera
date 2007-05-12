@@ -1193,13 +1193,15 @@ EOF
     f90type=unknown
   fi
 #
+F90LIBS=
+
   msg=`${F90} --version &> f90out`
   isgfortran=`grep -c 'GNU Fortran 95' f90out`
   if test "x${isgfortran}" != "x0"; then 
     f90type="gfortran"
     f90opts="-fno-second-underscore -I. -I${ct_incdir}"
     f90buildopts="-fno-second-underscore -I."
-    FLIBS="-lgfortran"
+    F90LIBS="-lgfortran"
   fi
 
   isg95=`grep -c 'G95' f90out`
@@ -1246,6 +1248,7 @@ AC_SUBST(BUILD_F90)
 AC_SUBST(F90)
 AC_SUBST(F90FLAGS)
 AC_SUBST(F90BUILDFLAGS)
+AC_SUBST(F90LIBS)
 
 AC_OBJEXT
 AC_EXEEXT

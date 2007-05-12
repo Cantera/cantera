@@ -33,7 +33,7 @@ CXX = @CXX@
 CXX_FLAGS = @CXXFLAGS@
 
 # external libraries
-EXT_LIBS = -lfct -lclib @LOCAL_LIBS@ -lctcxx -lstdc++ @FLIBS@
+EXT_LIBS = -lfct -lclib @LOCAL_LIBS@ -lctcxx -lstdc++ @F90LIBS@
 
 # the Fortran 90/95 compiler
 F90 = @F90@

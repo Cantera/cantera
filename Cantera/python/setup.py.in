@@ -58,14 +58,17 @@ if platform == "win32":
 else:
     libs = ["clib"] + locallibs
     if flibs:
-        libs = libs + flibs
+        libs = libs 
     #libs = ["clib", "zeroD","oneD", "kinetics", "transport",
     #        "equil", "ctnumerics", "converters"] + thermolib + bllist + cvlist + ["ctbase", "ctmath", "tpx", "boost_thread-mt-1_34"]
                                           
     if @build_with_f2c@ == 1:
-         libs.append("ctf2c")
+        libs.append("ctf2c")
+    else:
+        libs = libs + flibs
+        
     for d in endlib:
-          libs.append(d) 
+        libs.append(d) 
 
 
 # values:
