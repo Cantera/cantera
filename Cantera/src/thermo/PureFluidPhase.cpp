@@ -10,6 +10,8 @@
 #include "xml.h"
 #include "PureFluidPhase.h"
 
+#ifdef WITH_PURE_FLUIDS
+
 #include "../../../ext/tpx/Sub.h"
 #include "../../../ext/tpx/utils.h"
 
@@ -249,5 +251,4 @@ namespace Cantera {
 
 }
 
-
-
+#endif  // WITH_PURE_FLUIDS

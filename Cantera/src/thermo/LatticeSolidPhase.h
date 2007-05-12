@@ -14,11 +14,17 @@
 #ifndef CT_LATTICESOLID_H
 #define CT_LATTICESOLID_H
 
+#include "config.h"
+#ifdef WITH_LATTICE_SOLID
+
 #include "ct_defs.h"
+
 #include "mix_defs.h"
 #include "ThermoPhase.h"
 #include "SpeciesThermo.h"
 #include "utilities.h"
+
+
 
 namespace Cantera {
 
@@ -89,4 +95,5 @@ namespace Cantera {
     };
 }
         
+#endif
 #endif

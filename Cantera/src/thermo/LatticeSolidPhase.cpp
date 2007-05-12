@@ -10,6 +10,9 @@
 #pragma warning(disable:4503)
 #endif
 
+#include "config.h"
+#ifdef WITH_LATTICE_SOLID
+
 #include "ct_defs.h"
 #include "mix_defs.h"
 #include "LatticeSolidPhase.h"
@@ -230,6 +233,4 @@ namespace Cantera {
     }
 }
 
-
-
-
+#endif
