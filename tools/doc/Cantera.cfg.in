@@ -85,12 +85,13 @@ INPUT                  = ../../Cantera/src \
                          ../../Cantera/src/base \ 
                          ../../Cantera/src/numerics \ 
                          ../../Cantera/src/thermo \
+                         ../../Cantera/src/equil \
                          ../../Cantera/src/kinetics \
                          ../../Cantera/src/transport \
                          ../../Cantera/cxx/include \
                          doxyinput
 FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
-                         misc.cpp \
+                         FactoryBase.h misc.cpp \
                          ct_defs.h \
                          logger.h \
                          global.h \
@@ -244,7 +245,8 @@ SEARCH_INCLUDES        = YES
 INCLUDE_PATH           = 
 INCLUDE_FILE_PATTERNS  = 
 PREDEFINED             = WITH_HTML_LOGS \
-                         WITH_PURE_FLUIDS
+                         WITH_PURE_FLUIDS \
+                         THREAD_SAFE_CANTERA
 EXPAND_AS_DEFINED      = YES
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
