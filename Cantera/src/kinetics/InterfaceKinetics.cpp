@@ -248,6 +248,52 @@ namespace Cantera {
         }
     }
 
+  // Returns the Species creation rates [kmol/m^2/s]. 
+  /*
+   *   Return the species
+   * creation rates in array cdot, which must be
+   * dimensioned at least as large as the total number of
+   * species in all phases of the kinetics
+   * model
+   *  
+   *  @param cdot Vector containing the creation rates.
+   *              length = m_kk. units = kmol/m^2/s
+   */
+  void InterfaceKinetics::getCreationRates(doublereal* cdot) {
+    updateROP();
+    m_rxnstoich.getCreationRates(m_kk, &m_kdata->m_ropf[0],
+				 &m_kdata->m_ropr[0], cdot);
+  }
+   
+  //  Return the Species destruction rates [kmol/m^2/s].
+  /*
+   *  Return the species destruction rates in array ddot, which must be
+   *  dimensioned at least as large as the total number of
+   *  species in all phases of the kinetics model
+   */
+  void InterfaceKinetics::getDestructionRates(doublereal* ddot) {
+    updateROP();
+    m_rxnstoich.getDestructionRates(m_kk, &m_kdata->m_ropf[0],
+				    &m_kdata->m_ropr[0], ddot);
+  }
+
+  // Return the species net production rates
+  /*
+   * Species net production rates [kmol/m^2/s]. Return the species
+   * net production rates (creation - destruction) in array
+   * wdot, which must be dimensioned at least as large as the
+   * total number of species in all phases of the kinetics
+   * model
+   *
+   * @param net  Vector of species production rates.
+   *             units kmol m-d s-1, where d is dimension.
+   */
+  void InterfaceKinetics::getNetProductionRates(doublereal* net) {
+    updateROP();
+    m_rxnstoich.getNetProductionRates(m_kk,
+				      &m_kdata->m_ropnet[0],
+				      net);
+  }
 
     /**
      * For reactions that transfer charge across a potential difference,
@@ -661,108 +707,99 @@ namespace Cantera {
 //     }
 
         
-    void InterfaceKinetics::installReagents(const ReactionData& r) {
+  void InterfaceKinetics::installReagents(const ReactionData& r) {
 
-	int n, ns, m; 
-	doublereal nsFlt;
-	/*
-	 * extend temporary storage by one for this rxn.
-	 */
-        m_kdata->m_ropf.push_back(0.0);
-        m_kdata->m_ropr.push_back(0.0);
-        m_kdata->m_ropnet.push_back(0.0);
-        m_kdata->m_rkcn.push_back(0.0);
+    int n, ns, m; 
+    doublereal nsFlt;
+    /*
+     * extend temporary storage by one for this rxn.
+     */
+    m_kdata->m_ropf.push_back(0.0);
+    m_kdata->m_ropr.push_back(0.0);
+    m_kdata->m_ropnet.push_back(0.0);
+    m_kdata->m_rkcn.push_back(0.0);
 
-	/*
-	 * Obtain the current reaction index for the reaction that we
-	 * are adding. The first reaction is labeled 0.
-	 */
-        int rnum = reactionNumber();
+    /*
+     * Obtain the current reaction index for the reaction that we
+     * are adding. The first reaction is labeled 0.
+     */
+    int rnum = reactionNumber();
 
-        // vectors rk and pk are lists of species numbers, with
-        // repeated entries for species with stoichiometric
-        // coefficients > 1. This allows the reaction to be defined
-        // with unity reaction order for each reactant, and so the
-        // faster method 'multiply' can be used to compute the rate of
-        // progress instead of 'power'.
+    // vectors rk and pk are lists of species numbers, with
+    // repeated entries for species with stoichiometric
+    // coefficients > 1. This allows the reaction to be defined
+    // with unity reaction order for each reactant, and so the
+    // faster method 'multiply' can be used to compute the rate of
+    // progress instead of 'power'.
 
-        vector_int rk;
-        int nr = r.reactants.size();
-        for (n = 0; n < nr; n++) {
-            nsFlt = r.rstoich[n];
-	    ns = (int) nsFlt;
-	    if ((doublereal) ns != nsFlt) {
-	      if (ns < 1) ns = 1;
-	    }
-	    /*
-	     * Add to m_rrxn. m_rrxn is a vector of maps. m_rrxn has a length
-	     * equal to the total number of species for each species, there
-	     * exists a map, with the reaction number being the key, and the
-	     * reactant stoichiometric coefficient being the value.
-	     */
-            m_rrxn[r.reactants[n]][rnum] = ns;
-            for (m = 0; m < ns; m++) {
-                rk.push_back(r.reactants[n]);
-            }
-        }
-	/*
-	 * Now that we have rk[], we add it into the vector<vector_int> m_reactants
-	 * in the rnum index spot. Thus m_reactants[rnum] yields a vector
-	 * of reactants for the rnum'th reaction
-	 */
-        m_reactants.push_back(rk);
-        
-        vector_int pk;
-        int np = r.products.size();
-        for (n = 0; n < np; n++) {
-            nsFlt = r.pstoich[n];
-	    ns = (int) nsFlt;
-	    if ((doublereal) ns != nsFlt) {
-	      if (ns < 1) ns = 1;
-	    }
-	    /*
-	     * Add to m_prxn. m_prxn is a vector of maps. m_prxn has a length
-	     * equal to the total number of species for each species, there
-	     * exists a map, with the reaction number being the key, and the
-	     * product stoichiometric coefficient being the value.
-	     */
-            m_prxn[r.products[n]][rnum] = ns;
-            for (m = 0; m < ns; m++) {
-                pk.push_back(r.products[n]);
-            }
-        }
-	/*
-	 * Now that we have pk[], we add it into the vector<vector_int> m_products
-	 * in the rnum index spot. Thus m_products[rnum] yields a vector
-	 * of products for the rnum'th reaction
-	 */
-        m_products.push_back(pk);
-	/*
-	 * Add this reaction to the stoichiometric coefficient manager. This
-	 * calculates rates of species production from reaction rates of 
-	 * progress.
-	 */
-        m_rxnstoich.add( reactionNumber(), r);
-	/*
-	 * register reaction in lists of reversible and irreversible rxns.
-	 */
-        if (r.reversible) {
-	    m_revindex.push_back(reactionNumber());
-	    m_nrev++;
-        } else {
-	    m_irrev.push_back( reactionNumber() );
-	    m_nirrev++;
-        }        
+    vector_int rk;
+    int nr = r.reactants.size();
+    for (n = 0; n < nr; n++) {
+      nsFlt = r.rstoich[n];
+      ns = (int) nsFlt;
+      if ((doublereal) ns != nsFlt) {
+	if (ns < 1) ns = 1;
+      }
+      /*
+       * Add to m_rrxn. m_rrxn is a vector of maps. m_rrxn has a length
+       * equal to the total number of species for each species, there
+       * exists a map, with the reaction number being the key, and the
+       * reactant stoichiometric coefficient being the value.
+       */
+      m_rrxn[r.reactants[n]][rnum] = nsFlt;
+      for (m = 0; m < ns; m++) {
+	rk.push_back(r.reactants[n]);
+      }
     }
-
-
-    //void InterfaceKinetics::installGroups(int irxn, 
-    //    const vector<grouplist_t>& r, const vector<grouplist_t>& p) {
-    //    if (!r.empty()) {
-    //        m_rgroups[reactionNumber()] = r;
-    //        m_pgroups[reactionNumber()] = p;
-    //    }
-    //}
+    /*
+     * Now that we have rk[], we add it into the vector<vector_int> m_reactants
+     * in the rnum index spot. Thus m_reactants[rnum] yields a vector
+     * of reactants for the rnum'th reaction
+     */
+    m_reactants.push_back(rk);
+        
+    vector_int pk;
+    int np = r.products.size();
+    for (n = 0; n < np; n++) {
+      nsFlt = r.pstoich[n];
+      ns = (int) nsFlt;
+      if ((doublereal) ns != nsFlt) {
+	if (ns < 1) ns = 1;
+      }
+      /*
+       * Add to m_prxn. m_prxn is a vector of maps. m_prxn has a length
+       * equal to the total number of species for each species, there
+       * exists a map, with the reaction number being the key, and the
+       * product stoichiometric coefficient being the value.
+       */
+      m_prxn[r.products[n]][rnum] = nsFlt;
+      for (m = 0; m < ns; m++) {
+	pk.push_back(r.products[n]);
+      }
+    }
+    /*
+     * Now that we have pk[], we add it into the vector<vector_int> m_products
+     * in the rnum index spot. Thus m_products[rnum] yields a vector
+     * of products for the rnum'th reaction
+     */
+    m_products.push_back(pk);
+    /*
+     * Add this reaction to the stoichiometric coefficient manager. This
+     * calculates rates of species production from reaction rates of 
+     * progress.
+     */
+    m_rxnstoich.add( reactionNumber(), r);
+    /*
+     * register reaction in lists of reversible and irreversible rxns.
+     */
+    if (r.reversible) {
+      m_revindex.push_back(reactionNumber());
+      m_nrev++;
+    } else {
+      m_irrev.push_back( reactionNumber() );
+      m_nirrev++;
+    }        
+  }
 
     /**
      * Prepare the class for the addition of reactions. This function
@@ -824,11 +861,5 @@ namespace Cantera {
     }
 
 }
-
-
-
-
-
-
 
 
