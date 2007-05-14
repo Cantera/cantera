@@ -337,10 +337,15 @@ namespace Cantera {
   
   /// Return a pointer to the XML tree for a Cantera input file. 
   /*!
+   *  This routine will find the file and read the XML file into an
+   *  XML tree structure. Then, a pointer will be returned. If the
+   *  file has already been processed, then just the pointer will
+   *  be returned.
+   *
    * @param file String containing the relative or absolute file name
    * @param debug Debug flag
    */
-    XML_Node* get_XML_File(std::string file, int debug = 0);
+  XML_Node* get_XML_File(std::string file, int debug = 0);
   
   /// Close a Cantera input file.
   /*!
@@ -475,11 +480,64 @@ namespace Cantera {
   inline void write_logfile(std::string file = "log.html") {}
 #endif
 
-    XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root);
+ 
+  //! This routine will locate an XML node in either the input
+  //! XML tree or in another input file specified by the file
+  //! part of the file_ID string.
+  /*!
+   *    Searches are based on the
+   *    ID attribute of the XML element only.
+   *
+   * @param file_ID This is a concatenation of two strings seperated
+   *                by the "#" character. The string before the
+   *                pound character is the file name of an xml
+   *                file to carry out the search. The string after
+   *                the # character is the ID attribute
+   *                of the xml element to search for.
+   *                The string is interpreted as a file string if
+   *                no # character is in the string.
+   *
+   * @param root    If the file string is empty, searches for the
+   *                xml element with matching ID attribute are
+   *                carried out from this XML node.
+   *
+   * @return 
+   *    Returns the XML_Node, if found. Returns null if not found.
+   */
+  XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root);
 
-    XML_Node* get_XML_NameID(const std::string& nameTarget,
-      const std::string& file_ID, 
-      XML_Node* root);
+   
+  //! This routine will locate an XML node in either the input
+  //! XML tree or in another input file specified by the file
+  //! part of the file_ID string.
+  /*!
+   * Searches are based on the
+   * XML element name and the ID attribute of the XML element.
+   * An exact match of both is usually required. However, the
+   * ID attribute may be set to "", in which case the first
+   * xml element with the correct element name will be returned.
+   *
+   * @param nameTarget This is the XML element name to look for.
+   *
+   * @param file_ID This is a concatenation of two strings seperated
+   *                by the "#" character. The string before the
+   *                pound character is the file name of an xml
+   *                file to carry out the search. The string after
+   *                the # character is the ID attribute
+   *                of the xml element to search for.
+   *                The string is interpreted as a file string if
+   *                no # character is in the string.
+   *
+   * @param root    If the file string is empty, searches for the
+   *                xml element with matching ID attribute are
+   *                carried out from this XML node.
+   *
+   * @return 
+   *    Returns the XML_Node, if found. Returns null if not found.
+   */
+  XML_Node* get_XML_NameID(const std::string& nameTarget,
+			   const std::string& file_ID, 
+			   XML_Node* root);
 }
 
 #endif

@@ -47,19 +47,26 @@ using namespace std;
 // Using macros to avoid polluting code with alot of ifdef's
 
 #ifdef THREAD_SAFE_CANTERA
-   #include <boost/shared_ptr.hpp>
-   #include <boost/thread/mutex.hpp>
-   static boost::mutex  dir_mutex;  // For input directory access
-   static boost::mutex  msg_mutex;  // For access to string messages
-   static boost::mutex  app_mutex;  // Application state including creating singleton
-   //static boost::mutex  log_mutex;  // Logger pointer
-   static boost::mutex  xml_mutex;  // XML file storage
 
-   #define DIR_LOCK() boost::mutex::scoped_lock   d_lock(dir_mutex)
-   #define MSG_LOCK() boost::mutex::scoped_lock   m_lock(msg_mutex)
-   #define APP_LOCK() boost::mutex::scoped_lock   a_lock(app_mutex)
-   //#define LOG_LOCK() boost::mutex::scoped_lock   l_lock(log_mutex)
-   #define XML_LOCK() boost::mutex::scoped_lock   x_lock(xml_mutex)
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+static boost::mutex  dir_mutex;  // For input directory access
+static boost::mutex  msg_mutex;  // For access to string messages
+static boost::mutex  app_mutex;  // Application state including creating singleton
+//static boost::mutex  log_mutex;  // Logger pointer
+static boost::mutex  xml_mutex;  // XML file storage
+
+//! Macro for locking input directory access
+#define DIR_LOCK() boost::mutex::scoped_lock   d_lock(dir_mutex)
+
+//! Macro for locking access to string messages
+#define MSG_LOCK() boost::mutex::scoped_lock   m_lock(msg_mutex)
+
+//! Macro for locking creating singletons in the application state
+#define APP_LOCK() boost::mutex::scoped_lock   a_lock(app_mutex)
+
+//! Macro for locking XML file writing
+#define XML_LOCK() boost::mutex::scoped_lock   x_lock(xml_mutex)
 
    #ifdef WITH_HTML_LOGS
       //static boost::mutex  html_mutex; // html logs
@@ -453,6 +460,7 @@ namespace Cantera {
          }
 
       private:
+	//! Thread Msg Map
          threadMsgMap_t   m_threadMsgMap ;
       } ;
     #endif
@@ -496,18 +504,18 @@ namespace Cantera {
     }
 
   public:
-     /// Return a pointer to the one and only instance of class Application
-     /*
-      * If the an Application object has not yet been created it is created
+    //! Return a pointer to the one and only instance of class Application
+    /*
+     * If the an Application object has not yet been created it is created
      */
-     static Application* Instance() {
-        APP_LOCK();
-        if ( Application::s_app == 0 ) {
-           Application::s_app = new Application() ;
-        }
-        return s_app ;
+    static Application* Instance() {
+      APP_LOCK();
+      if ( Application::s_app == 0 ) {
+	Application::s_app = new Application() ;
+      }
+      return s_app ;
     }
-
+    
     //! Destructor for class deletes global data
     /*!
      * Delete any open XML trees, the logwriter, and
@@ -516,19 +524,13 @@ namespace Cantera {
     virtual ~Application() {
       map<string, XML_Node*>::iterator pos;
       for (pos = xmlfiles.begin(); pos != xmlfiles.end(); ++pos) {
-    pos->second->unlock();
-    delete pos->second;
-    pos->second = 0;
+	pos->second->unlock();
+	delete pos->second;
+	pos->second = 0;
       }
-//      delete logwriter;
-//#ifdef WITH_HTML_LOGS
-//      if (xmllog) {
-//          write_logfile("orphan");
-//          //delete xmllog;
-//      }
-//#endif
     }
 
+    //! Static function that destroys the application class's data
     static void ApplicationDestroy() {
        APP_LOCK() ;
        if ( Application::s_app != 0 ) {
@@ -537,8 +539,19 @@ namespace Cantera {
       }
     }
 
+    //! Set the directory where temporary files may be written.
+    /*!
+     * @param tmp Name of the directory
+     */
     void setTmpDir(std::string tmp) ;
+
+    //! get the name of a directory where temporary files may be written.
     std::string getTmpDir() ;
+
+    //! Pause the application for a certain amount
+    /*!
+     * This has been needed in the past for some network file systems.
+     */
     std::string sleep() ;
 
     //! Set an error condition in the application class without 
@@ -605,12 +618,83 @@ namespace Cantera {
      */
     void logErrors() { pMessenger->logErrors() ; }
 
+    //!  Add a directory to the data file search path.
+    /*!
+     * @ingroup inputfiles
+     *
+     * @param dir  String name for the directory to be added to the search path
+     */
     void addDataDirectory( std::string dir ) ;
+    
+    //! Find an input file.
+    /*!
+     *    This routine will search for a file in the default
+     *    locations specified for the application.
+     *    See the routine setDefaultDirectories() listed above.
+     *
+     *    The default set of directories specified for the application
+     *    will be searched if a '/' or an '\\' is found in the
+     *    name. If either is found then a relative path name is
+     *    presumed, and the default directories are not searched.
+     *
+     *    The presence of the file is determined by whether the file
+     *    can be opened for reading by the current user.
+     *
+     *  @param name Name of the input file to be searched for
+     *
+     *    @return
+     *    
+     *      The absolute path name of the first matching
+     *      file is returned. If a relative path name
+     *      is indicated, the relative path name is returned.
+     *  
+     *      If the file is not found, a message is written to 
+     *      stdout and  a CanteraError exception is thrown.
+     *
+     * @ingroup inputfiles
+     */
     std::string findInputFile(std::string name) ;
+
+    //! Return a pointer to the XML tree for a Cantera input file. 
+    /*!
+     *  This routine will find the file and read the XML file into an
+     *  XML tree structure. Then, a pointer will be returned. If the
+     *  file has already been processed, then just the pointer will
+     *  be returned.
+     * 
+     * @param file String containing the relative or absolute file name
+     * @param debug Debug flag
+     */
     XML_Node* get_XML_File(std::string file, int debug=0) ;
+
+    //! Close an XML File 
+    /*!
+     * Close a file that is opened by this application object
+     *
+     * @param file String containing the relative or absolute file name
+     */
     void close_XML_File(std::string file) ;
 
+    //!  Write a message to the screen.
+    /*!
+     * The string may be of any
+     * length, and may contain end-of-line characters. This method is
+     * used throughout %Cantera to write log messages.
+     *
+     * @param msg  c++ string to be written to the screen
+     * @ingroup textlogs
+     */
     void writelog(const std::string& msg) { pMessenger->writelog(msg); }
+
+    //!  Write a message to the screen.
+    /*!
+     * The string may be of any
+     * length, and may contain end-of-line characters. This method is
+     * used throughout %Cantera to write log messages.
+     *
+     * @param pszmsg  c null terminated string to be written to the screen
+     * @ingroup textlogs
+     */
     void writelog(const char* pszmsg) { pMessenger->writelog(pszmsg); }
 
     //! Write an error message and quit.
@@ -630,8 +714,17 @@ namespace Cantera {
 
     //! Returns an integer specifying the application environment.
     int getUserEnv() { return pMessenger->getUserEnv() ; }
-    void setLogger(Logger* logwriter) {pMessenger->setLogger(logwriter);}
 
+    //!  Install a logger -  Called by the language interfaces to install an
+    //!  appropriate logger. 
+    /*!
+     * @param logwriter Pointer to a logger object
+     *  @see Logger.
+     *  @ingroup textlogs
+     */
+    void setLogger(Logger* logwriter) {pMessenger->setLogger(logwriter);}
+   
+    //! Delete Messenger object allocated per thread.
     void thread_complete() ;
 
 #ifdef WITH_HTML_LOGS
@@ -774,14 +867,14 @@ protected:
      static Application* s_app ;
   };
             
-    //Application* app();
-    inline Application* app() {
-       return Application::Instance() ;
-    }
+  //! Return a pointer to the application object
+  inline Application* app() {
+    return Application::Instance() ;
+  }
 
 
-    /// Pointer to the single Application instance
-    Application* Application::s_app = 0;
+  /// Pointer to the single Application instance
+  Application* Application::s_app = 0;
 
     /**
      * Definition of the static member of the Unit class.
@@ -935,27 +1028,34 @@ protected:
         return xmlfiles[ff];
     }
 
-    void close_XML_File(std::string file) {
-       app()->close_XML_File(file) ;
+  // Close an XML File 
+  /*
+   * Close a file that is openned by the application object
+   *
+   * @param file string name of the file
+   */
+  void close_XML_File(std::string file) {
+    app()->close_XML_File(file) ;
+  }
+
+  void Application::close_XML_File(std::string file) {
+    XML_LOCK();
+    if (file == "all") {
+      map<string, XML_Node*>::iterator 
+	b = xmlfiles.begin(), 
+	e = xmlfiles.end();
+      for(; b != e; ++b) {
+	b->second->unlock();
+	delete b->second;
+	xmlfiles.erase(b->first);
+      }
     }
-    void Application::close_XML_File(std::string file) {
-        XML_LOCK();
-        if (file == "all") {
-            map<string, XML_Node*>::iterator 
-                b = xmlfiles.begin(), 
-                e = xmlfiles.end();
-            for(; b != e; ++b) {
-                b->second->unlock();
-                delete b->second;
-                xmlfiles.erase(b->first);
-            }
-        }
-        else if (xmlfiles.find(file) != xmlfiles.end()) {
-            xmlfiles[file]->unlock();
-            delete xmlfiles[file];
-            xmlfiles.erase(file);
-        }
+    else if (xmlfiles.find(file) != xmlfiles.end()) {
+      xmlfiles[file]->unlock();
+      delete xmlfiles[file];
+      xmlfiles.erase(file);
     }
+  }
 
     void setTmpDir(std::string tmp) { app()->setTmpDir(tmp); }
     void Application::setTmpDir(std::string tmp) {
@@ -1203,92 +1303,90 @@ protected:
     }
 
 
-    // Add a directory to the input file search path.
-    // @ingroup inputfiles
-    void addDirectory(std::string dir) {
-        app()->addDataDirectory( dir ) ;
+  // Add a directory to the input file search path.
+  // @ingroup inputfiles
+  void addDirectory(std::string dir) {
+    app()->addDataDirectory( dir ) ;
+  }
+  void Application::addDataDirectory( std::string dir ) {
+    DIR_LOCK() ;
+    if (inputDirs.size() == 0) setDefaultDirectories();
+    string d = stripnonprint(dir);
+    size_t m, n = inputDirs.size();
+    
+    // don't add if already present
+    for (m = 0; m < n; m++) {
+      if (d == inputDirs[m]) return;
     }
-    void Application::addDataDirectory( std::string dir ) {
-        DIR_LOCK() ;
-        if (inputDirs.size() == 0) setDefaultDirectories();
-        string d = stripnonprint(dir);
-        size_t m, n = inputDirs.size();
-
-        // don't add if already present
-        for (m = 0; m < n; m++) {
-            if (d == inputDirs[m]) return;
-        }
-
-        inputDirs.push_back(d);
+    
+    inputDirs.push_back(d);
+  }
+  
+  /*    
+   *    This routine will search for a file in the default
+   *    locations specified for the application.
+   *    See the routine setDefaultDirectories() listed above.
+   *
+   *    The default set of directories specified for the application
+   *    will be searched if a '/' or an '\\' is found in the
+   *    name. If either is found then a relative path name is
+   *    presumed, and the default directories are not searched.
+   *
+   *    The presence of the file is determined by whether the file
+   *    can be opened for reading by the current user.
+   *
+   *    \return
+   *    
+   *      The absolute path name of the first matching
+   *      file is returned. If a relative path name
+   *      is indicated, the relative path name is returned.
+   *  
+   *      If the file is not found, a message is written to 
+   *      stdout and  a CanteraError exception is thrown.
+   */
+  std::string findInputFile(std::string name) {
+    return app()->findInputFile(name) ;
+  }
+  
+  std::string Application::findInputFile(std::string name) {
+    DIR_LOCK() ;
+    string::size_type islash = name.find('/');
+    string::size_type ibslash = name.find('\\');
+    string inname;
+    vector<string>& dirs = inputDirs;
+ 
+    int nd;
+    if (islash == string::npos && ibslash == string::npos) {
+      nd = static_cast<int>(dirs.size());
+      int i;
+      inname = "";
+      for (i = 0; i < nd; i++) {
+	inname = dirs[i] + "/" + name;
+	ifstream fin(inname.c_str());
+	if (fin) {
+	  fin.close();
+	  return inname;
+	}
+      }
+      string msg;
+      msg = "\nInput file " + name 
+	+ " not found in director";
+      msg += (nd == 1 ? "y " : "ies ");
+      for (i = 0; i < nd; i++) {
+	msg += "\n'" + dirs[i] + "'";
+	if (i < nd-1) msg += ", ";
+      }
+      msg += "\n\n";
+      msg += "To fix this problem, either:\n";
+      msg += "    a) move the missing files into the local directory;\n";
+      msg += "    b) define environment variable CANTERA_DATA to\n";
+      msg += "         point to the directory containing the file.";
+      throw CanteraError("findInputFile", msg);
+      return "";
     }
 
-    /*    
-     *    This routine will search for a file in the default
-     *    locations specified for the application.
-     *    See the routine setDefaultDirectories() listed above.
-     *
-     *    The default set of directories specified for the application
-     *    will be searched if a '/' or an '\\' is found in the
-     *    name. If either is found then a relative path name is
-     *    presumed, and the default directories are not searched.
-     *
-     *    The presence of the file is determined by whether the file
-     *    can be opened for reading by the current user.
-     *
-     *    \return
-     *    
-     *      The absolute path name of the first matching
-     *      file is returned. If a relative path name
-     *      is indicated, the relative path name is returned.
-     *  
-     *      If the file is not found, a message is written to 
-     *      stdout and  a CanteraError exception is thrown.
-     */
-    std::string findInputFile(std::string name) {
-       return app()->findInputFile(name) ;
-    }
-
-    std::string Application::findInputFile(std::string name) {
-        DIR_LOCK() ;
-        string::size_type islash = name.find('/');
-        string::size_type ibslash = name.find('\\');
-        string inname;
-        vector<string>& dirs = inputDirs;
-        //if (dirs.size() == 0) setDefaultDirectories();
-
-        int nd;
-        if (islash == string::npos && ibslash == string::npos) {
-            nd = static_cast<int>(dirs.size());
-            int i;
-            inname = "";
-            for (i = 0; i < nd; i++) {
-                inname = dirs[i] + "/" + name;
-                ifstream fin(inname.c_str());
-                if (fin) {
-                    fin.close();
-                    return inname;
-                }
-            }
-            string msg;
-            msg = "\nInput file " + name 
-                  + " not found in director";
-            msg += (nd == 1 ? "y " : "ies ");
-            for (i = 0; i < nd; i++) {
-                msg += "\n'" + dirs[i] + "'";
-                if (i < nd-1) msg += ", ";
-            }
-            msg += "\n\n";
-            msg += "To fix this problem, either:\n";
-            msg += "    a) move the missing files into the local directory;\n";
-            msg += "    b) define environment variable CANTERA_DATA to\n";
-            msg += "         point to the directory containing the file.";
-            throw CanteraError("findInputFile", msg);
-            return "";
-        }
-        //else {
-        return name;
-            //}
-    }
+    return name;
+  }
 
     doublereal toSI(std::string unit) {
         doublereal f = Unit::units()->toSI(unit);
@@ -1445,13 +1543,14 @@ protected:
     return logwriter->env() ;
   }
 
-    // Install a logger. Called by the language interfaces to install an
-    // appropriate logger. 
-    // @see Logger.
-    // @ingroup textlogs
-    void setLogger(Logger* logwriter) {
+  // Install a logger. Called by the language interfaces to install an
+  // appropriate logger. 
+  // @see Logger.
+  // @ingroup textlogs
+  void setLogger(Logger* logwriter) {
        app()->setLogger(logwriter) ;
-    }
+  }
+
     void Application::Messages::setLogger(Logger* _logwriter) {
        if ( logwriter == _logwriter ) return ;
        if (logwriter != 0 ) {
@@ -1763,7 +1862,8 @@ protected:
     return db;
   }
 
-    std::vector<FactoryBase*> FactoryBase::s_vFactoryRegistry;
+  //! Assigned storage for the static member of the FactoryBase class
+  std::vector<FactoryBase*> FactoryBase::s_vFactoryRegistry;
 }
 
 
