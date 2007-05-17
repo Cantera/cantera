@@ -33,7 +33,6 @@ namespace Cantera {
      * 1, and in many cases no more than three coefficients are
      * non-zero for the reactants and/or the products.
      *
-
      * For the present purposes, we will consider each direction of a
      * reversible reaction to be a separate reaction. We often need to
      * compute quantities that can formally be written as a matrix
@@ -45,15 +44,18 @@ namespace Cantera {
      * \f]
      * where \f$ \nu^{(p)_{k,i}} \f$ is the product-side stoichiometric
      * coefficient of species \a k in reaction \a i.
-     * This could be done be straightforward matrix multiplication, but would be inefficient, since most of the matrix elements of \f$ \nu^{(p)}_{k,i} \f$ are zero. We could do better by using sparse-matrix algorithms to compute this product.
-
-If the reactions are general ones, with non-integral stoichiometric
-coefficients, this is about as good as we can do. But we are
-particularly concerned here with the performance for very large
-reaction mechanisms, which are usually composed of elementary
-reactions, which have integral stoichiometric
-coefficients. Furthermore, very few elementary reactions involve more
-than 3 product or reactant molecules. This means that instead of
+     * This could be done be straightforward matrix multiplication, 
+     * but would be inefficient, since most of the matrix elements 
+     * of \f$ \nu^{(p)}_{k,i} \f$ are zero. We could do better by 
+     * using sparse-matrix algorithms to compute this product.
+     *
+     * If the reactions are general ones, with non-integral stoichiometric
+     * coefficients, this is about as good as we can do. But we are
+     * particularly concerned here with the performance for very large
+     * reaction mechanisms, which are usually composed of elementary
+     * reactions, which have integral stoichiometric
+     * coefficients. Furthermore, very few elementary reactions involve more
+     * than 3 product or reactant molecules. This means that instead of
 
 
 But we can do even better if we take account of the special structure
@@ -61,13 +63,12 @@ of this matrix for elementary reactions.
 
 involve three or fewer product molecules (or reactant molecules).
 
-     * To take advantage of this structure, reactions are divided int
+     * To take advantage of this structure, reactions are divided into
 These classes are
      * designed to take advantage of this sparse structure when
      * computing quantities that can be written as matrix multiplies
 
-They are designed to explicitly unroll loops over species or reactions for
-
+     * They are designed to explicitly unroll loops over species or reactions for
      * Operations on reactions that require knowing the reaction
      * stoichiometry.
      * This module consists of class StoichManager, and
@@ -212,7 +213,8 @@ They are designed to explicitly unroll loops over species or reactions for
         }
 
     private:
-        int m_rxn, m_ic0;
+        int m_rxn; 
+        int m_ic0;
     };
 
 
