@@ -75,6 +75,10 @@ namespace Cantera {
     doublereal SurfPhase::
     intEnergy_mole() const { return enthalpy_mole(); }
 
+  void SurfPhase::getPartialMolarVolumes(doublereal* vbar) const {
+    getStandardVolumes(vbar);
+  }
+
     void SurfPhase::
     getStandardChemPotentials(doublereal* mu0) const {
         _updateThermo();
@@ -88,7 +92,8 @@ namespace Cantera {
         int k;
         getActivityConcentrations(DATA_PTR(m_work));
         for (k = 0; k < m_kk; k++) {
-            mu[k] += GasConstant * temperature() * (log(m_work[k]) - logStandardConc(k));
+            mu[k] += GasConstant * temperature() * 
+	      (log(m_work[k]) - logStandardConc(k));
         } 
     }
 
@@ -122,7 +127,14 @@ namespace Cantera {
     }
     m_logn0 = log(m_n0);
   }
-  
+
+  void SurfPhase::
+  getGibbs_RT(doublereal* grt) const {
+    _updateThermo();
+    double rrt = 1.0/(GasConstant*temperature());
+    scale(m_mu0.begin(), m_mu0.end(), grt, rrt);
+  }
+
     void SurfPhase::
     getEnthalpy_RT(doublereal* hrt) const {
         _updateThermo();
@@ -137,21 +149,55 @@ namespace Cantera {
         scale(m_s0.begin(), m_s0.end(), sr, rr);
     }
 
+  void SurfPhase::
+  getCp_R(doublereal* cpr) const {
+    _updateThermo();
+    double rr = 1.0/GasConstant;
+    scale(m_cp0.begin(), m_cp0.end(), cpr, rr);
+  }
+
+ void SurfPhase::
+ getStandardVolumes(doublereal* vol) const {
+   _updateThermo();
+   for (int k = 0; k < m_kk; k++) {
+     vol[k] = 1.0/standardConcentration(k);
+   }
+  }
+
     void SurfPhase::
-    initThermo() {
-        m_h0.resize(m_kk);
-        m_s0.resize(m_kk);
-        m_cp0.resize(m_kk);
-        m_mu0.resize(m_kk);
-        m_work.resize(m_kk);
-        m_pe.resize(m_kk, 0.0);
-        vector_fp cov(m_kk, 0.0);
-        cov[0] = 1.0;
-        setCoverages(DATA_PTR(cov));
-        m_logsize.resize(m_kk);
-        for (int k = 0; k < m_kk; k++) 
-            m_logsize[k] = log(size(k));
+    getGibbs_RT_ref(doublereal* grt) const {
+      getGibbs_RT(grt);
     }
+
+    void SurfPhase::
+    getEnthalpy_RT_ref(doublereal* hrt) const {
+      getEnthalpy_RT(hrt);
+    }
+
+    void SurfPhase::
+    getEntropy_R_ref(doublereal* sr) const {
+      getEntropy_R(sr);
+    }
+
+  void SurfPhase::
+  initThermo() {
+    if (m_kk <= 0) {
+      throw CanteraError("SurfPhase::initThermo",
+			 "Number of species is less than or equal to zero");
+    }
+    m_h0.resize(m_kk);
+    m_s0.resize(m_kk);
+    m_cp0.resize(m_kk);
+    m_mu0.resize(m_kk);
+    m_work.resize(m_kk);
+    m_pe.resize(m_kk, 0.0);
+    vector_fp cov(m_kk, 0.0);
+    cov[0] = 1.0;
+    setCoverages(DATA_PTR(cov));
+    m_logsize.resize(m_kk);
+    for (int k = 0; k < m_kk; k++) 
+      m_logsize[k] = log(size(k));
+  }
 
     void SurfPhase::
     setPotentialEnergy(int k, doublereal pe) {
@@ -188,8 +234,13 @@ namespace Cantera {
     setCoverages(const doublereal* theta) {
         double sum = 0.0;
         int k;
-        for (k = 0; k < m_kk; k++) sum += theta[k];
-
+        for (k = 0; k < m_kk; k++) {
+	  sum += theta[k];
+	}
+	if (sum <= 0.0) {
+	  throw CanteraError("SurfPhase::setCoverages",
+			     "Sum of Coverage fractions is zero or negative");
+	}
         for (k = 0; k < m_kk; k++) {
             m_work[k] = m_n0*theta[k]/(sum*size(k));
         }
@@ -231,10 +282,18 @@ namespace Cantera {
         parseCompString(cov, cc);
         doublereal c;
         vector_fp cv(kk, 0.0);
+	bool ifound = false;
         for (k = 0; k < kk; k++) { 
             c = cc[speciesName(k)];
-            if (c > 0.0) cv[k] = c;
+            if (c > 0.0) {
+	      ifound = true;
+	      cv[k] = c;
+	    }
         }
+	if (!ifound) {
+	  throw CanteraError("SurfPhase::setCoveragesByName",
+			     "Input coverages are all zero or negative");
+	}
         setCoverages(DATA_PTR(cv));
     }
 

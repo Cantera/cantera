@@ -406,7 +406,11 @@ namespace Cantera {
      * @see importCTML.cpp
      */
     void ThermoPhase::initThermo() {
-
+      // Check to see that there is at least one species defined in the phase
+      if (m_kk <= 0) {
+        throw CanteraError("ThermoPhase::initThermo()",
+                           "Number of species is less than or equal to zero");
+      }
     }
     
   /**

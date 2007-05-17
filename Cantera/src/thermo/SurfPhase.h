@@ -1,6 +1,7 @@
 /**
  *  @file SurfPhase.h
- *  Header for a simple thermoydnamics model of a surface phase derived from ThermoPhase, 
+ *  Header for a simple thermoydnamics model of a surface phase
+ *  derived from ThermoPhase, 
  *  assuming an ideal solution model
  *  (see \ref thermoprops and class \link Cantera::SurfPhase SurfPhase\endlink).
  */
@@ -25,7 +26,8 @@ namespace Cantera {
 
 
     
-  //! A simple thermoydnamics model for a surface phase, assuming an ideal solution model.
+  //!  A simple thermoydnamics model for a surface phase, 
+  //!  assuming an ideal solution model.
   /*!
    * The surface consists of a grid of equivalent sites. Surface species may be defined to
    * occupy one or more sites. The surface species are assumed to be
@@ -200,6 +202,14 @@ namespace Cantera {
      */
     virtual doublereal intEnergy_mole() const;
 
+    //! Return an array of partial molar volumes for the
+    //! species in the mixture. Units: m^3/kmol.
+    /*!
+     *  @param vbar   Output vector of speciar partial molar volumes.
+     *                Length = m_kk. units are m^3/kmol.
+     */
+    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+
     //! Get the array of chemical potentials at unit activity for the
     //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
     /*!
@@ -230,7 +240,7 @@ namespace Cantera {
      *  Activity concentrations are 
      *
      *      \f[
-     *            C^a_k = C^s_k = \frac{\theta_k  n_0}{s_k}      
+     *            C^a_k = C^s_k = \frac{\theta_k  n_0}{s_k}    
      *      \f]
      *
      *  where \f$ \theta_k \f$ is the surface site fraction for species k,
@@ -378,6 +388,14 @@ namespace Cantera {
      */
     void setSiteDensity(doublereal n0);
 
+    //! Get the nondimensional Gibbs functions for the species
+    //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     *             Length: m_kk.
+     */
+    virtual void getGibbs_RT(doublereal* grt) const;
+
     //! Get the nondimensional Enthalpy functions for the species standard states
     //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
@@ -393,6 +411,25 @@ namespace Cantera {
      *             Length: m_kk.
      */
     void getEntropy_R(doublereal* sr) const;
+
+    //! Get the nondimensional Heat Capacities at constant
+    //! pressure for the species standard states
+    //! at the current <I>T</I> and <I>P</I> of the solution
+    /*!
+     * @param cpr   Output vector of nondimensional standard state heat capacities
+     *              Length: m_kk.
+     */
+    virtual void getCp_R(doublereal* cpr) const;
+
+    //!  Get the molar volumes of the species standard states at the current
+    //!  <I>T</I> and <I>P</I> of the solution.
+    /*!
+     * units = m^3 / kmol
+     *
+     * @param vol     Output vector containing the standard state volumes.
+     *                Length: m_kk.
+     */
+    virtual void getStandardVolumes(doublereal *vol) const;
 
     //! Return the thermodynamic pressure (Pa).
     /*!
@@ -423,6 +460,32 @@ namespace Cantera {
       m_press = p;
     }
 
+    //!  Returns the vector of nondimensional
+    //!  Gibbs Free Energies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for the species.
+    /*!
+     * @param grt     Output vector containing the nondimensional reference state 
+     *                Gibbs Free energies.  Length: m_kk.
+     */
+    virtual void getGibbs_RT_ref(doublereal *grt) const;
+
+    //!  Returns the vector of nondimensional
+    //!  enthalpies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for the species.
+    /*!
+     * @param hrt      Output vector of  nondimensional standard state enthalpies.
+     *                 Length: m_kk.
+     */
+    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
+
+    //!  Returns the vector of nondimensional
+    //!  entropies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for each species.
+    /*!
+     * @param er      Output vector containing the nondimensional reference state 
+     *                entropies.  Length: m_kk.
+     */
+    virtual void getEntropy_R_ref(doublereal *er) const;
 
     //------- new methods defined in this class ----------
     
