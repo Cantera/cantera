@@ -13,7 +13,6 @@
               
 #include "InterfaceKinetics.h"
 #include "SurfPhase.h"            
-#include "ReactionData.h"
 #include "StoichManager.h"
 #include "RateCoeffMgr.h"
                                                               
