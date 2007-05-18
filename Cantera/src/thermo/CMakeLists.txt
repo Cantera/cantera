@@ -5,6 +5,6 @@ SET (CTTHERMO_SRCS State.cpp Elements.cpp Constituents.cpp Phase.cpp
              ThermoFactory.cpp phasereport.cpp  StoichSubstance.cpp 
              PureFluidPhase.cpp LatticeSolidPhase.cpp LatticePhase.cpp)
 
-INCLUDE_DIRECTORIES (../base . )
+INCLUDE_DIRECTORIES (../base)
 
 ADD_LIBRARY(ctthermo ${CTTHERMO_SRCS})

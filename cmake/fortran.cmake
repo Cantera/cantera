@@ -3,6 +3,7 @@
 #if (NOT BUILD_WITH_F2C)
 
 #### Fortran 90
+message("Fortran cmake")
 
 if (BUILD_F90_INTERFACE)
     if (F90 STREQUAL "default")

@@ -265,6 +265,24 @@ class Kinetics:
     def sourceTerms(self):
         return _cantera.kin_getarray(self.ckin,80)        
 
+    def delta_H(self):
+        return _cantera.kin_getarray(self.ckin,90)
+
+    def delta_G(self):
+        return _cantera.kin_getarray(self.ckin,91)
+    
+    def delta_S(self):
+        return _cantera.kin_getarray(self.ckin,92)    
+    
+    def delta_H0(self):
+        return _cantera.kin_getarray(self.ckin,93)
+
+    def delta_G0(self):
+        return _cantera.kin_getarray(self.ckin,94)    
+
+    def delta_S0(self):
+        return _cantera.kin_getarray(self.ckin,95)
+    
     def multiplier(self,i):
         return _cantera.kin_multiplier(self.ckin,i)
 

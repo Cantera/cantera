@@ -88,10 +88,22 @@ namespace Cantera {
         virtual int ID() { return cInterfaceKinetics; }
         virtual int type() { return cInterfaceKinetics; }
 
-      ///
-      ///  @name Reaction Rates Of Progress
-      ///
-      //@{
+	/**
+	 * Set the electric potential in the nth phase
+	 *
+	 * @param n phase Index in this kinetics object.
+	 * @param V Electric potential (volts)
+	 */
+        void setElectricPotential(int n, doublereal V) {
+            thermo(n).setElectricPotential(V);
+            m_redo_rates = true;
+	}
+
+
+        ///
+        ///  @name Reaction Rates Of Progress
+        ///
+        //@{
 
       //! Return the forward rates of progress for each reaction
       /*!
@@ -410,7 +422,6 @@ namespace Cantera {
        *  product stoichiometric coefficient for the species being the value.
        */
       mutable std::vector<std::map<int, doublereal> >     m_prxn;
-
       //! String expression for each rxn
       /*!
        * Vector of strings of length m_ii, the number of 
@@ -489,15 +500,15 @@ namespace Cantera {
       //! Pointer to the surface solver
       ImplicitSurfChem*                      m_integrator;
 
-    public:
+        vector_fp m_beta;
+        vector_int m_ctrxn;
 
         int reactionNumber(){ return m_ii;}
-    protected:
+
         void addElementaryReaction(const ReactionData& r);
         void addGlobalReaction(const ReactionData& r);
         void installReagents(const ReactionData& r);
 
-    private:
         void updateKc();
 
       //! Write values into m_index
@@ -512,10 +523,13 @@ namespace Cantera {
 
       void applyButlerVolmerCorrection(doublereal* kf);
 
-    protected:
-      //! boolean indicating whether mechanism has been finalized
-      bool m_finalized;
-      bool m_has_coverage_dependence;
+        //! boolean indicating whether mechanism has been finalized
+        bool m_finalized;
+        bool m_has_coverage_dependence;
+        bool m_has_electrochem_rxns;
+
+    private:
+
     };
 }
 

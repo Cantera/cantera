@@ -13,6 +13,7 @@
 #endif
 
 #include "InterfaceKinetics.h"
+#include "EdgeKinetics.h"
 #include "SurfPhase.h"
 
 #include "ReactionData.h"
@@ -44,7 +45,8 @@ namespace Cantera {
         m_surf(0),
         m_integrator(0),
         m_finalized(false),
-        m_has_coverage_dependence(false)
+        m_has_coverage_dependence(false),
+        m_has_electrochem_rxns(false)
     {
         if (thermo != 0) addPhase(*thermo);
         m_kdata = new InterfaceKineticsData;
@@ -77,7 +79,8 @@ namespace Cantera {
         if (T != m_kdata->m_temp || m_redo_rates) {
             m_kdata->m_logtemp = log(T);
             m_rates.update(T, m_kdata->m_logtemp, DATA_PTR(m_kdata->m_rfn));
-            applyButlerVolmerCorrection(DATA_PTR(m_kdata->m_rfn));
+            if (m_has_electrochem_rxns)
+                applyButlerVolmerCorrection(DATA_PTR(m_kdata->m_rfn));
             m_kdata->m_temp = T;
             updateKc();
             m_kdata->m_ROP_ok = false;
@@ -153,15 +156,14 @@ namespace Cantera {
             }
 
             // compute Delta mu^0 for all reversible reactions
-            //m_reactantStoich.decrementReactions(m_mu0.begin(), m_rkc.begin()); 
-            //m_revProductStoich.incrementReactions(m_mu0.begin(), m_rkc.begin());
             m_rxnstoich.getRevReactionDelta(m_ii, DATA_PTR(m_mu0), 
                 DATA_PTR(m_rkc));
 
             for (i = 0; i < m_nrev; i++) {
                 irxn = m_revindex[i];
                 if (irxn < 0 || irxn >= nReactions()) {
-                    throw CanteraError("InterfaceKinetics","illegal value: irxn = "+int2str(irxn));
+                    throw CanteraError("InterfaceKinetics",
+                        "illegal value: irxn = "+int2str(irxn));
                 }
                 m_rkc[irxn] = exp(m_rkc[irxn]*rrt);
             }
@@ -238,9 +240,6 @@ namespace Cantera {
 
         fill(kc, kc + m_ii, 0.0);
 
-        //m_reactantStoich.decrementReactions(m_mu0.begin(), kc); 
-        //m_revProductStoich.incrementReactions(m_mu0.begin(), kc);
-        //m_irrevProductStoich.incrementReactions(m_mu0.begin(), kc);
         m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_mu0), kc);
 
         for (i = 0; i < m_ii; i++) {
@@ -328,23 +327,18 @@ namespace Cantera {
         // activation energy below zero.
         doublereal ea, eamod;
 
-        for (i = 0; i < m_ii; i++) {
-            eamod = 0.5*m_rwork[i];
+        int nct = m_beta.size();
+        int irxn;
+        for (i = 0; i < nct; i++) {
+            irxn = m_ctrxn[i];
+            eamod = m_beta[i]*m_rwork[irxn];
             if (eamod != 0.0 && m_E[i] != 0.0) {
                 ea = GasConstant * m_E[i];
                 if (eamod + ea < 0.0) {
+                    writelog("Warning: act energy mod too large!\n");
                     eamod = -ea;
-                    writelog("warning: modified E < 0.\n");
                 }
-                kf[i] *= exp(-eamod*rrt);
-//                 if (kf[i] == 0.0) {
-//                     for (n = 0; n < np; n++) {
-//                         cout << "phi " << n << "  " << thermo(n).electricPotential() << "  " << m_phi[n] << endl;
-//                     }
-//                     cout << "Zero rate coeff." << endl;
-//                     cout << "eamod = " << eamod << " " << eamod*rrt << endl;
-//                     cout << eamod/Faraday << endl;
-//                 }
+                kf[irxn] *= exp(-eamod*rrt);
             }
         }
     }
@@ -380,10 +374,10 @@ namespace Cantera {
         getFwdRateConstants(krev);
         if (doIrreversible) {
             doublereal *tmpKc = DATA_PTR(m_kdata->m_ropnet);
-	  getEquilibriumConstants(tmpKc);
-	  for (int i = 0; i < m_ii; i++) {
-	    krev[i] /=  tmpKc[i];
-	  }
+            getEquilibriumConstants(tmpKc);
+            for (int i = 0; i < m_ii; i++) {
+                krev[i] /=  tmpKc[i];
+            }
         }
         else {
             const vector_fp& rkc = m_kdata->m_rkcn;
@@ -661,18 +655,29 @@ namespace Cantera {
     void InterfaceKinetics::
     addElementaryReaction(const ReactionData& r) {
         int iloc;
+
         // install rate coeff calculator
+
         vector_fp rp = r.rateCoeffParameters;
         int ncov = r.cov.size();
         if (ncov > 3) {
             m_has_coverage_dependence = true;
         }
         for (int m = 0; m < ncov; m++) rp.push_back(r.cov[m]);
+
         iloc = m_rates.install( reactionNumber(),
             r.rateCoeffType, rp.size(), 
             DATA_PTR(rp) );
+
         // store activation energy
         m_E.push_back(r.rateCoeffParameters[2]);
+
+        if (r.beta > 0.0) {
+            m_has_electrochem_rxns = true;
+            m_beta.push_back(r.beta);
+            m_ctrxn.push_back(reactionNumber());
+        }
+
         // add constant term to rate coeff value vector
         m_kdata->m_rfn.push_back(r.rateCoeffParameters[0]);                
         registerReaction( reactionNumber(), ELEMENTARY_RXN, iloc);
@@ -757,7 +762,6 @@ namespace Cantera {
      * of reactants for the rnum'th reaction
      */
     m_reactants.push_back(rk);
-        
     vector_int pk;
     int np = r.products.size();
     for (n = 0; n < np; n++) {
@@ -835,10 +839,14 @@ namespace Cantera {
      */
     void InterfaceKinetics::finalize() {
         m_rwork.resize(nReactions());
-        int ks = surfacePhaseIndex();
+        int ks = reactionPhaseIndex();
         if (ks < 0) throw CanteraError("InterfaceKinetics::finalize",
              "no surface phase is present.");
         m_surf = (SurfPhase*)&thermo(ks);
+        if (m_surf->nDim() != 2) 
+            throw CanteraError("InterfaceKinetics::finalize",
+                "expected interface dimension = 2, but got dimension = "
+                +int2str(m_surf->nDim()));
         m_finalized = true;
     }
 
@@ -860,6 +868,18 @@ namespace Cantera {
         m_integrator = 0;
     }
 
+    void EdgeKinetics::finalize() {
+        m_rwork.resize(nReactions());
+        int ks = reactionPhaseIndex();
+        if (ks < 0) throw CanteraError("EdgeKinetics::finalize",
+             "no edge phase is present.");
+        m_surf = (SurfPhase*)&thermo(ks);
+        if (m_surf->nDim() != 1) 
+            throw CanteraError("EdgeKinetics::finalize",
+                "expected interface dimension = 1, but got dimension = "
+                +int2str(m_surf->nDim()));
+        m_finalized = true;
+    }
 }
 
 

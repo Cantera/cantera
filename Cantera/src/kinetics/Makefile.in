@@ -48,7 +48,7 @@ endif
 # heterogeneous kinetics
 
 ifeq ($(do_heterokin),1)
-HETEROKIN_OBJ=InterfaceKinetics.o ImplicitSurfChem.o EdgeKinetics.o
+HETEROKIN_OBJ=InterfaceKinetics.o ImplicitSurfChem.o 
 HETEROKIN_H  =InterfaceKinetics.h ImplicitSurfChem.h EdgeKinetics.h
 HETEROKIN    = $(HETEROKIN_OBJ)
 endif
