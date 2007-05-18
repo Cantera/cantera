@@ -116,7 +116,7 @@ namespace Cantera {
         int i, irxn;
         vector_fp& m_rkc = m_kdata->m_rkcn;
         fill(m_rkc.begin(), m_rkc.end(), 0.0);
-
+b
         if (m_nrev > 0) {
 
             int n, nsp, k, ik=0;
@@ -134,9 +134,7 @@ namespace Cantera {
             }
 
             // compute Delta mu^0 for all reversible reactions
-            m_reactantStoich.decrementReactions(DATA_PTR(m_mu0), 
-                DATA_PTR(m_rkc)); 
-            m_revProductStoich.incrementReactions(DATA_PTR(m_mu0), 
+            m_rxnstoich.getRevReactionDelta(m_ii, DATA_PTR(m_mu0), 
                 DATA_PTR(m_rkc));
 
             for (i = 0; i < m_nrev; i++) {
@@ -172,8 +170,10 @@ namespace Cantera {
             }
 
             // compute Delta mu^ for all reversible reactions
-            m_reactantStoich.decrementReactions(DATA_PTR(dmu), DATA_PTR(rmu)); 
-            m_revProductStoich.incrementReactions(DATA_PTR(dmu), DATA_PTR(rmu));
+            m_rxnstoich.getRevReactionDelta(m_ii, DATA_PTR(dmu), 
+                DATA_PTR(rmu));
+            //m_reactantStoich.decrementReactions(DATA_PTR(dmu), DATA_PTR(rmu)); 
+            //m_revProductStoich.incrementReactions(DATA_PTR(dmu), DATA_PTR(rmu));
 
             for (i = 0; i < m_nrev; i++) {
                 irxn = m_revindex[i];
@@ -205,10 +205,11 @@ namespace Cantera {
         }
 
         fill(kc, kc + m_ii, 0.0);
+        m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_mu0), kc);
 
-        m_reactantStoich.decrementReactions(DATA_PTR(m_mu0), kc); 
-        m_revProductStoich.incrementReactions(DATA_PTR(m_mu0), kc);
-        m_irrevProductStoich.incrementReactions(DATA_PTR(m_mu0), kc);
+        //        m_reactantStoich.decrementReactions(DATA_PTR(m_mu0), kc); 
+        //m_revProductStoich.incrementReactions(DATA_PTR(m_mu0), kc);
+        //m_irrevProductStoich.incrementReactions(DATA_PTR(m_mu0), kc);
 
         for (i = 0; i < m_ii; i++) {
             kc[i] = exp(-kc[i]*rrt);
@@ -242,10 +243,8 @@ namespace Cantera {
         // compute the change in electrical potential energy for each
         // reaction. This will only be non-zero if a potential
         // difference is present.
-        fill(DATA_PTR(m_rwork), DATA_PTR(m_rwork) + m_ii, 0.0);
-        m_reactantStoich.decrementReactions(DATA_PTR(m_pot), DATA_PTR(m_rwork)); 
-        m_revProductStoich.incrementReactions(DATA_PTR(m_pot), DATA_PTR(m_rwork));
-        m_irrevProductStoich.incrementReactions(DATA_PTR(m_pot), DATA_PTR(m_rwork));
+        m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_pot), 
+				     DATA_PTR(m_rwork));
 
         // modify the reaction rates. Only modify those with a
         // non-zero activation energy, and do not decrease the
@@ -257,11 +256,10 @@ namespace Cantera {
         for (i = 0; i < nct; i++) {
             irxn = m_ctrxn[i];
             eamod = m_beta[i]*m_rwork[irxn];
-            //cout << "i, beta = " << i << " " << m_beta[i] << endl;
             if (eamod != 0.0 && m_E[i] != 0.0) {
                 ea = GasConstant * m_E[i];
                 if (eamod + ea < 0.0) {
-                    writelog("Warning: act energy mod too large");
+                    writelog("Warning: act energy mod too large!\n");
                     eamod = -ea;
                 }
                 kf[irxn] *= exp(-eamod*rrt);
@@ -373,9 +371,10 @@ namespace Cantera {
             DATA_PTR(rp) );
 
         // store activation energy
+        m_E.push_back(r.rateCoeffParameters[2]);
+
         if (r.beta > 0.0) {
             m_has_electrochem_rxns = true;
-            m_E.push_back(r.rateCoeffParameters[2]);
             m_beta.push_back(r.beta);
             m_ctrxn.push_back(reactionNumber());
         }
