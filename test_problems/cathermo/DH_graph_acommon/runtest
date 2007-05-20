@@ -31,9 +31,9 @@ retnStat=$?
 diff DH_NaCl_acommon.csv DH_NaCl_acommon_blessed.csv > output.txt
 zres=$?
 if test "$zres" = "0"  -a "$retnStat" = "0"; then
-  echo "successful diff comparison on $prog acommon test"
+  echo "successful diff comparison on $prog _acommon test"
 else
-  echo "unsuccessful diff comparison on $prog acommon test"
+  echo "unsuccessful diff comparison on $prog _acommon test"
   echo "FAILED" > csvCode.txt
   temp_success="0"
 fi

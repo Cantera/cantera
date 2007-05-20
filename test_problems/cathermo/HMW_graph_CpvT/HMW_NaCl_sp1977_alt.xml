@@ -93,7 +93,7 @@
        </activityCoefficients>
        <solvent> H2O(L) </solvent>
     </thermo>
-    <elementArray datasrc="elements.xml"> O H C Fe Si N Na Cl </elementArray>
+    <elementArray datasrc="elements.xml"> O H C E Fe Si N Na Cl </elementArray>
     <kinetics model="none" >
     </kinetics>
   </phase>
@@ -129,7 +129,7 @@
       <!-- Na+ rework. Differences in the delta_G0 reaction
            for salt formation were dumped into this polynomial.
        -->
-      <atomArray> Na:1 </atomArray>
+      <atomArray> Na:1 E:-1 </atomArray>
       <charge> +1 </charge>
       <thermo>
         <Shomate Pref="1 bar" Tmax="   593.15" Tmin="   293.15">
@@ -162,7 +162,7 @@
            Notes: the order of the polynomials can be decreased by
                   dropping terms from the complete Shomate poly.
        -->
-      <atomArray> Cl:1 </atomArray>
+      <atomArray> Cl:1 E:1 </atomArray>
       <charge> -1 </charge>
   
       <standardState model="constant_incompressible"> 
@@ -189,7 +189,7 @@
            The H+ standard state is set to zeroes by convention. This
            includes it's contribution to the molar volume of solution.
         -->
-      <atomArray> H:1 </atomArray>
+      <atomArray> H:1 E:-1 </atomArray>
       <charge> +1 </charge>
       <standardState model="constant_incompressible"> 
           <molarVolume> 0.0 </molarVolume>
@@ -219,7 +219,7 @@
            Notes: the order of the polynomials can be decreased by
                   dropping terms from the complete Shomate poly.
        -->
-      <atomArray> O:1 H:1 </atomArray>
+      <atomArray> O:1 H:1 E:1 </atomArray>
       <charge> -1 </charge>
       <standardState model="constant_incompressible"> 
           <!-- OH- (aq) molar volume
