@@ -18,8 +18,6 @@ namespace Cantera {
      * Format a summary of the mixture state for output.
      */           
     string report(const ThermoPhase& th, bool show_thermo) {
-        cout << "in report... " << th.name() << endl;
-        cout << "nSpecies = " << th.nSpecies() << endl;
         char p[200];
         string s = "";
         try {

@@ -351,8 +351,10 @@ namespace Cantera {
 #endif
     doublereal dd = m_sub->density(T, p, waterState, dens);
     if (dd <= 0.0) {
-      printf("throw an error\n");
-      throw CanteraError("WaterPDSS:pressure", "Failed to set water state");
+      std::string stateString = "T = " +
+	fp2str(T) + " K and p = " + fp2str(p) + " Pa";
+      throw CanteraError("WaterPDSS:setPressure()", 
+			 "Failed to set water SS state: " + stateString);
     }
     m_dens = dd;
   }

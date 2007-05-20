@@ -394,7 +394,7 @@ namespace Cantera {
             getFloatArray(f0.child("floatArray"), c1, false);
         }
         else {
-            throw CanteraError("installShomateThermo",
+            throw CanteraError("installShomateThermoFromXML",
                    "non-continuous temperature ranges.");
         }
         array_fp c(15);
@@ -443,7 +443,7 @@ namespace Cantera {
      * before processing. Throw an error if not there.
      */
     if (!(s.hasChild("thermo"))) {
-      throw UnknownSpeciesThermoModel("installSpecies", 
+      throw UnknownSpeciesThermoModel("installThermoForSpecies", 
                       s["name"], "<nonexistent>");
     }
     const XML_Node& thermo = s.child("thermo");
@@ -464,7 +464,7 @@ namespace Cantera {
           installMu0ThermoFromXML(s["name"], spthermo, k, f);
         }
             else {
-                throw UnknownSpeciesThermoModel("installSpecies", 
+                throw UnknownSpeciesThermoModel("installThermoForSpecies", 
                         s["name"], f->name());
             }
     }
@@ -478,13 +478,13 @@ namespace Cantera {
                 installShomateThermoFromXML(s["name"], spthermo, k, f0, f1);
             } 
             else {
-                throw UnknownSpeciesThermoModel("installSpecies", s["name"], 
+                throw UnknownSpeciesThermoModel("installThermoForSpecies", s["name"], 
                         f0->name() + " and "
                         + f1->name());
             }
     }
     else {
-        throw UnknownSpeciesThermoModel("installSpecies", s["name"], 
+        throw UnknownSpeciesThermoModel("installThermoForSpecies", s["name"], 
                         "multiple");
     }
     }

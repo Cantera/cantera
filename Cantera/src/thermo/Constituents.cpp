@@ -294,6 +294,19 @@ namespace Cantera {
       double wt = 0.0;
       int m_mm = m_Elements->nElements();
       const vector_fp &aw = m_Elements->atomicWeights();
+      if (charge != 0.0) {
+        int eindex = m_Elements->elementIndex("E");
+        if (eindex >= 0) {
+          doublereal ecomp = comp[eindex];
+          if (fabs (charge + ecomp) > 0.001) {
+            throw CanteraError("Constituents::addSpecies",
+                              "Input charge and element E compositions differ for species " + name);
+          }
+        } else {
+          throw CanteraError("Constituents::addSpecies",
+                             "Input charge and element E compositions differ for species " + name);
+        }
+      }
       for (int m = 0; m < m_mm; m++) {
 	m_speciesComp.push_back(comp[m]);
 	wt += comp[m] * aw[m];
