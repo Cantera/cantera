@@ -98,8 +98,10 @@ int flamespeed(int np, void* p) {
     // specify the objects to use to compute kinetic rates and 
     // transport properties
 
-    Transport* tr = newTransportMgr("Mix", &gas);
-    flow.setTransport(*tr);
+    Transport* trmix = newTransportMgr("Mix", &gas);
+    Transport* trmulti = newTransportMgr("Multi", &gas);
+
+    flow.setTransport(*trmix);
     flow.setKinetics(gas);
     flow.setPressure(pressure);
 
@@ -192,7 +194,22 @@ int flamespeed(int np, void* p) {
     refine_grid = true;
     flow.solveEnergyEqn();
     flame.solve(loglevel,refine_grid);
+    cout << "Flame speed with mixture-averaged transport: " <<
+        flame.value(flowdomain,flow.componentIndex("u"),0) << " m/s" << endl;
 
+    // now switch to multicomponent transport
+    flow.setTransport(*trmulti);
+    flame.solve(loglevel, refine_grid);
+    cout << "Flame speed with multicomponent transport: " <<
+        flame.value(flowdomain,flow.componentIndex("u"),0) << " m/s" << endl;
+
+    // now enable Soret diffusion
+    flow.enableSoret(true);
+    flame.solve(loglevel, refine_grid);
+    cout << "Flame speed with multicomponent transport + Soret: " <<
+        flame.value(flowdomain,flow.componentIndex("u"),0) << " m/s" << endl;
+
+    //
     int np=flow.nPoints();
     vector<doublereal> zvec,Tvec,COvec,CO2vec,Uvec;
 

@@ -746,6 +746,18 @@ extern "C" {
         return kin(n)->nReactions();
     }
 
+    int DLL_EXPORT kin_nPhases(int n) {
+        return kin(n)->nPhases();
+    }
+
+    int DLL_EXPORT kin_phaseIndex(int n, char* ph) {
+        return kin(n)->phaseIndex(string(ph));
+    }
+
+    int DLL_EXPORT kin_reactionPhaseIndex(int n) {
+        return kin(n)->reactionPhaseIndex();
+    }
+
     double DLL_EXPORT kin_reactantStoichCoeff(int n, int k, int i) {
         return kin(n)->reactantStoichCoeff(k,i);
     }

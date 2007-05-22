@@ -6,6 +6,7 @@
 #define CXX_DEMO
 #include "rankine.cpp"
 #include "flamespeed.cpp"
+#include "hydrogen_flamespeed.cpp"
 #include "kinetics1.cpp"
 
 #include <time.h>
@@ -13,16 +14,17 @@
 typedef int (*exfun)(int, void*);
  
 // array of demo functions   
-exfun fex[] = {kinetics1, openRankine, flamespeed};
+exfun fex[] = {kinetics1, openRankine, flamespeed, h2_flamespeed};
  
 string demostr[] = {"zero-D kinetics        ", 
                     "open Rankine cycle     ",
-                    "flamespeed             "};
+                    "CH4 flamespeed         ",
+                    "H2  flamespeed         "};
 
-int np[] = {0, 0, 1};
-double p[] = {0, 0, 0.9};
+int np[] = {0, 0, 1, 1};
+double p[] = {0, 0, 0.9, 0.9};
 
-#define NDEMOS 3
+#define NDEMOS 4
 
 int mainmenu() {
     int i, idemo;

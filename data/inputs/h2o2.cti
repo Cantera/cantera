@@ -15,6 +15,14 @@ ideal_gas(name = "ohmech",
       initial_state = state(temperature = 300.0,
                         pressure = OneAtm)    )
 
+ideal_gas(name = "ohmech-multi",
+      elements = " O  H  Ar ",
+      species = """ H2  H  O  O2  OH  H2O  HO2  H2O2  AR """,
+      reactions = "all",
+      transport = "Multi",
+      initial_state = state(temperature = 300.0,
+                        pressure = OneAtm)    )
+
 
 
 #-------------------------------------------------------------------------------

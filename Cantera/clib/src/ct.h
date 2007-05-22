@@ -100,6 +100,9 @@ extern "C" {
         char* default_phase);
     int DLL_IMPORT kin_nSpecies(int n);
     int DLL_IMPORT kin_nReactions(int n);
+    int DLL_IMPORT kin_nPhases(int n);
+    int DLL_IMPORT kin_phaseIndex(int n, char* ph);
+    int DLL_IMPORT kin_reactionPhaseIndex(int n);
     double DLL_IMPORT kin_reactantStoichCoeff(int n, int i, int k);
     double DLL_IMPORT kin_productStoichCoeff(int n, int i, int k);
     int DLL_IMPORT kin_reactionType(int n, int i);

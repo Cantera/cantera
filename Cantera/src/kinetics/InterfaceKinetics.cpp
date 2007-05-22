@@ -194,7 +194,7 @@ namespace Cantera {
                 nsp = thermo(n).nSpecies();
                 for (k = 0; k < nsp; k++) {
                     delta = Faraday * m_phi[n] * thermo(n).charge(k);
-                    cout << thermo(n).speciesName(k) << "   " << (delta+dmu[ik])/rt << " " << dmu[ik]/rt << endl;
+                    //cout << thermo(n).speciesName(k) << "   " << (delta+dmu[ik])/rt << " " << dmu[ik]/rt << endl;
                     dmu[ik] += delta;
                     ik++;
                 }
@@ -336,8 +336,15 @@ namespace Cantera {
                 ea = GasConstant * m_E[i];
                 if (eamod + ea < 0.0) {
                     writelog("Warning: act energy mod too large!\n");
-                    eamod = -ea;
+                    writelog("  Delta phi = "+fp2str(m_rwork[irxn]/Faraday)+"\n");
+                    writelog("  Delta Ea = "+fp2str(eamod)+"\n");
+                    writelog("  Ea = "+fp2str(ea)+"\n");
+                    for (n = 0; n < np; n++) {
+                        writelog("Phase "+int2str(n)+": phi = "
+                            +fp2str(m_phi[n])+"\n");
+                    }
                 }
+                //eamod = -ea;
                 kf[irxn] *= exp(-eamod*rrt);
             }
         }
@@ -463,6 +470,10 @@ namespace Cantera {
         for (n = 0; n < np; n++) {
             thermo(n).getChemPotentials(DATA_PTR(m_grt) + m_start[n]);
         }
+        //for (n = 0; n < m_grt.size(); n++) {
+        //    cout << n << "G_RT = " << m_grt[n] << endl;
+        //}
+
 	/*
 	 * Use the stoichiometric manager to find deltaG for each
 	 * reaction.

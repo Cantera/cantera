@@ -263,28 +263,28 @@ public:
     }
 
     /*
-     * Check to see if reactant reaction orders have been specified. 
+     * Check to see if reaction orders have been specified. 
      */
     if (rp == 1 && rxn.hasChild("order")) {
-      vector<XML_Node*> ord;
-      rxn.getChildren("order",ord);
-      int norder = static_cast<int>(ord.size());
-      int loc;
-      doublereal forder;
-      for (int nn = 0; nn < norder; nn++) {
-	const XML_Node& oo = *ord[nn];
-	string sp = oo["species"];
-	loc = speciesMap[sp];
-	if (loc == 0) 
-	  throw CanteraError("getReagents",
-			     "reaction order specified for non-reactant: "
-			     +sp);
-	forder = fpValue(oo());
-	if (forder < 0.0) {
-	  throw CanteraError("getReagents",
-			     "reaction order must be non-negative");
-	}
-	// replace the forward stoichiometric coefficient
+        vector<XML_Node*> ord;
+        rxn.getChildren("order",ord);
+        int norder = static_cast<int>(ord.size());
+        int loc;
+        doublereal forder;
+        for (int nn = 0; nn < norder; nn++) {
+            const XML_Node& oo = *ord[nn];
+            string sp = oo["species"];
+            loc = speciesMap[sp];
+            if (loc == 0) 
+                throw CanteraError("getReagents",
+                    "reaction order specified for non-reactantt: "
+                    +sp);
+            forder = fpValue(oo());
+            if (forder < 0.0) {
+                throw CanteraError("getReagents",
+                    "reaction order must be non-negative");
+            }
+	// replace the stoichiometric coefficient
 	// stored above in 'order' with the specified
 	// reaction order
 	order[loc-1] = forder;
@@ -655,7 +655,7 @@ public:
      * Get the products. We store the id of products in rdata.products
      */
     ok = ok && getReagents(r, kin, -1, default_phase, rdata.products, 
-			   rdata.pstoich, dummy, rule);
+			   rdata.pstoich, rdata.pstoich, rule);
 
     // if there was a problem getting either the reactants or the products, 
     // then abort.

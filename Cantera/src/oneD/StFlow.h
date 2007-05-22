@@ -488,7 +488,10 @@ namespace Cantera {
     class FreeFlame : public StFlow {
     public:
         FreeFlame(igthermo_t* ph = 0, int nsp = 1, int points = 1) :
-            StFlow(ph, nsp, points) { m_dovisc = false; }
+            StFlow(ph, nsp, points) { 
+            m_dovisc = false;
+            setID("flame");
+        }
         virtual ~FreeFlame() {}
         virtual void eval(int j, doublereal* x, doublereal* r,
             integer* mask, doublereal rdt);
