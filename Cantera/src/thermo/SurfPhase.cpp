@@ -1,8 +1,9 @@
 /**
  *  @file SurfPhase.cpp 
- *  Definitions for a simple thermoydnamics model of a surface phase derived from ThermoPhase, 
- *  assuming an ideal solution model
- *  (see \ref thermoprops and class \link Cantera::SurfPhase SurfPhase\endlink).
+ *  Definitions for a simple thermoydnamics model of a surface phase 
+ *  derived from ThermoPhase,  assuming an ideal solution model
+ *  (see \ref thermoprops and class 
+ *  \link Cantera::SurfPhase SurfPhase\endlink).
  */
 
 // Copyright 2002  California Institute of Technology
@@ -74,6 +75,45 @@ namespace Cantera {
      */
     doublereal SurfPhase::
     intEnergy_mole() const { return enthalpy_mole(); }
+
+  /*
+   * Get the array of partial molar enthalpies of the species
+   * units = J / kmol
+   */
+  void SurfPhase::getPartialMolarEnthalpies(doublereal* hbar) const {
+    getEnthalpy_RT(hbar);
+    doublereal rt = GasConstant * temperature();
+    for (int k = 0; k < m_kk; k++) {
+      hbar[k] *= rt;
+    }
+  }
+
+  // Returns an array of partial molar entropies of the species in the
+  // solution. Units: J/kmol/K.
+  /*
+   * @param sbar    Output vector of species partial molar entropies.
+   *                Length = m_kk. units are J/kmol/K.
+   */
+  void SurfPhase::getPartialMolarEntropies(doublereal* sbar) const {
+    getEntropy_R(sbar);
+    for (int k = 0; k < m_kk; k++) {
+      sbar[k] *= GasConstant;
+    }
+  }
+
+  // Returns an array of partial molar heat capacities of the species in the
+  // solution. Units: J/kmol/K.
+  /*
+   * @param sbar    Output vector of species partial molar entropies.
+   *                Length = m_kk. units are J/kmol/K.
+   */
+  void SurfPhase::getPartialMolarCp(doublereal* cpbar) const {
+    getCp_R(cpbar);
+    for (int k = 0; k < m_kk; k++) {
+      cpbar[k] *= GasConstant;
+    }
+  }
+ 
 
   void SurfPhase::getPartialMolarVolumes(doublereal* vbar) const {
     getStandardVolumes(vbar);

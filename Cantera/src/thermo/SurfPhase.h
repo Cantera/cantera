@@ -202,6 +202,44 @@ namespace Cantera {
      */
     virtual doublereal intEnergy_mole() const;
 
+    //! Get the species chemical potentials. Units: J/kmol.
+    /*!
+     * This function returns a vector of chemical potentials of the 
+     * species in solution at the current temperature, pressure
+     * and mole fraction of the solution.
+     *
+     * @param mu  Output vector of species chemical 
+     *            potentials. Length: m_kk. Units: J/kmol
+     */
+    virtual void getChemPotentials(doublereal* mu) const;
+
+    //! Returns an array of partial molar enthalpies for the species
+    //! in the mixture. Units (J/kmol)
+    /*!
+     * @param hbar    Output vector of species partial molar enthalpies.
+     *                Length: m_kk. units are J/kmol.
+     */
+    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+
+    //! Returns an array of partial molar entropies of the species in the
+    //! solution. Units: J/kmol/K.
+    /*!
+     * @param sbar    Output vector of species partial molar entropies.
+     *                Length = m_kk. units are J/kmol/K.
+     */
+    virtual void getPartialMolarEntropies(doublereal* sbar) const;
+
+ 
+
+    //! Return an array of partial molar heat capacities for the
+    //! species in the mixture.  Units: J/kmol/K
+    /*!
+     * @param cpbar   Output vector of species partial molar heat
+     *                capacities at constant pressure.
+     *                Length = m_kk. units are J/kmol/K.
+     */
+    virtual void getPartialMolarCp(doublereal* cpbar) const;
+
     //! Return an array of partial molar volumes for the
     //! species in the mixture. Units: m^3/kmol.
     /*!
@@ -222,16 +260,7 @@ namespace Cantera {
      */
     virtual void getStandardChemPotentials(doublereal* mu0) const;
 
-    //! Get the species chemical potentials. Units: J/kmol.
-    /*!
-     * This function returns a vector of chemical potentials of the 
-     * species in solution at the current temperature, pressure
-     * and mole fraction of the solution.
-     *
-     * @param mu  Output vector of species chemical 
-     *            potentials. Length: m_kk. Units: J/kmol
-     */
-    virtual void getChemPotentials(doublereal* mu) const;
+
 
     //! Return a vector of activity concentrations for each species
     /*!
