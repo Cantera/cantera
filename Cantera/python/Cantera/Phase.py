@@ -84,7 +84,7 @@ class Phase:
             m = self.elementIndex(element)
             k = self.speciesIndex(species)
             na = _cantera.phase_natoms(self._phase_id, k, m)
-            if na < 0: return 0
+            #if na < 0: return 0
             return na
         except CanteraError:
             return 0
