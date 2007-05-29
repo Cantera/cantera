@@ -111,7 +111,7 @@ public:
     bal.clear();
     balp.clear();
     balr.clear();
-
+    //cout << "checking " << rdata.equation << endl;
     int np = rdata.products.size();
 
     // iterate over the products
@@ -125,6 +125,7 @@ public:
       for (m = 0; m < nel; m++) {
 	bal[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
 	balp[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
+        //cout << "product species " << ph.speciesName(klocal) << " has " << ph.nAtoms(klocal,m) << " atoms of " << ph.elementName(m) << " and kstoich = " << kstoich << endl;
       }
     }
     int nr = rdata.reactants.size();
@@ -139,6 +140,7 @@ public:
       for (m = 0; m < nel; m++) {
 	bal[ph.elementName(m)] -= kstoich*ph.nAtoms(klocal,m);
 	balr[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
+        //cout << "reactant species " << ph.speciesName(klocal) << " has " << ph.nAtoms(klocal,m) << " atoms of " << ph.elementName(m) << " and kstoich = " << kstoich << endl;
       }
     }
 
@@ -196,6 +198,7 @@ public:
 			  vector_int& spnum, vector_fp& stoich, vector_fp& order,
 			  int rule) {
 
+      
     string rptype;
 
     /*
@@ -256,6 +259,8 @@ public:
       stoich.push_back(stch);
       ord = doublereal(stch);
       order.push_back(ord);
+      //cout << key[n] << " " << isp << " " << stch << endl;
+
       /*
        * Needed to process reaction orders below.
        */
@@ -284,11 +289,11 @@ public:
                 throw CanteraError("getReagents",
                     "reaction order must be non-negative");
             }
-	// replace the stoichiometric coefficient
-	// stored above in 'order' with the specified
-	// reaction order
-	order[loc-1] = forder;
-      }
+            // replace the stoichiometric coefficient
+            // stored above in 'order' with the specified
+            // reaction order
+            order[loc-1] = forder;
+        }
     }
     return true;
   }
@@ -650,12 +655,21 @@ public:
     // get the reactants
     ok = getReagents(r, kin, 1, default_phase, rdata.reactants, 
 		     rdata.rstoich, rdata.order, rule);
-
+    //cout << "Reactants: " << endl;
+    int npp = rdata.reactants.size();
+    int nj;
+    //for (nj = 0; nj < npp; nj++) {
+    //    cout << rdata.reactants[nj] << "   " << rdata.rstoich[nj] << endl;
+    //}
     /*
      * Get the products. We store the id of products in rdata.products
      */
     ok = ok && getReagents(r, kin, -1, default_phase, rdata.products, 
-			   rdata.pstoich, rdata.pstoich, rule);
+			   rdata.pstoich, dummy, rule);
+    //cout << "Products: " << endl;npp = rdata.products.size();
+    //for (nj = 0; nj < npp; nj++) {
+    //    cout << rdata.products[nj] << "   " << rdata.pstoich[nj] << endl;
+    //}
 
     // if there was a problem getting either the reactants or the products, 
     // then abort.
