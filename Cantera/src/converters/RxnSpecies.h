@@ -27,6 +27,8 @@ namespace ckr {
  */
 class RxnSpecies {
 public:
+    RxnSpecies() :
+      number(0) {}
     string         name;        //!< The name of the object.
     double         number;      //!< The number of units (molecules, etc.).
     grouplist_t    groups;

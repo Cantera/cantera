@@ -93,13 +93,18 @@ namespace ckr {
 
 
     //////////////////////////////////////////////////////////////////////////
-    
+   
+    //! Specifies the Units for all reactions 
     /**
-     *   Specifies the units for all reactions.  
+     *   The default units are Cal per gmol for the activivation units
+     *   and the default number type is assumed to be gmol.
      */
-    
     class ReactionUnits {
     public:
+        ReactionUnits() :
+           ActEnergy(ckr::Cal_per_Mole),
+           Quantity(ckr::Moles) { }
+           
         int ActEnergy;    ///< Activation energy unit flag 
         int Quantity;     ///< Moles or molecules unit flag
     };

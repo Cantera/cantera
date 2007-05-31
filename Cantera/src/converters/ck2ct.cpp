@@ -190,11 +190,15 @@ namespace pip {
     }
 
     /**
-     * addSpecies():
+     * Write out a species cti block to the output file.
      *
      */
     static void addSpecies(FILE* f, string idtag, const ckr::Species& sp) {
         string spname = sp.name;
+	if (spname.size() == 0) {
+	  throw CanteraError("addSpecies", 
+			     "Species name is empty");
+	}
         fprintf(f,"\nspecies(name = \"%s\",\n",spname.c_str());
         int nel = static_cast<int>(sp.elements.size());
         int m, num;
@@ -226,6 +230,18 @@ namespace pip {
         }
 
         fprintf(f,"    atoms = \"%s\",\n", str.c_str());
+	if (sp.lowCoeffs.size() == 0) {
+	  throw CanteraError("addSpecies", 
+			     "Low Nasa Thermo Polynomial was not found");
+	}
+	if (sp.highCoeffs.size() == 0) {
+	  throw CanteraError("addSpecies", 
+			     "High Nasa Thermo Polynomial was not found");
+	}
+	if (sp.tlow >= sp.thigh) {
+	  throw CanteraError("addSpecies", 
+			     "Low temp limit is greater or equal to high temp limit");
+	}
         addNASA(f, sp.lowCoeffs, sp.highCoeffs, 
             sp.tlow, sp.tmid, sp.thigh);
 
@@ -277,7 +293,10 @@ namespace pip {
         else {
             if (rxn.kf.type == ckr::Arrhenius) {
                 fprintf(f,"  [%10.5E, %g, %g]", rxn.kf.A, rxn.kf.n, rxn.kf.E);
-            }
+            } else {
+	      throw CanteraError("addReaction",
+				 "unknown kf_type to reaction: " + int2str(rxn.kf.type));
+	    }
         }
     
         // reaction orders
@@ -346,7 +365,7 @@ namespace pip {
         doublereal version = 1.0;
 
         fprintf(f,  "units(length = \"cm\", time = \"s\", quantity = \"mol\", ");
-        string e_unit;
+        string e_unit = " ";
         int eunit = r.units.ActEnergy;
         if (eunit == ckr::Cal_per_Mole)
             e_unit = "cal/mol";
@@ -443,7 +462,7 @@ namespace pip {
         }
     }
 
-
+/*
     static int fixtext(string infile, string outfile) {
         ifstream fin(infile.c_str());
         ofstream fout(outfile.c_str());
@@ -474,6 +493,7 @@ namespace pip {
         fout.close();
         return 0;
     }
+*/
 
     int convert_ck(const char* in_file, const char* db_file,
         const char* tr_file, const char* id_tag, bool debug, bool validate) {

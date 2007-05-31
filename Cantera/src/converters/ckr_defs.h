@@ -67,6 +67,8 @@ namespace ckr {
     /** @name Activation Energy Units 
      *  These constants specify the supported units for the activation energy of
      *  a reaction
+     *  The default is to assume Cal_per_Mole for unspecified units in the activation energy
+     *  as this was the original default
      */
     //@{
     const int Cal_per_Mole = 1, 
