@@ -117,7 +117,7 @@ namespace Cantera {
     /*
      * Duplication routine
      */
-    virtual ThermoPhase *duplMyselfAsThermoPhase();
+    virtual ThermoPhase *duplMyselfAsThermoPhase() const;
 
     //@}
 

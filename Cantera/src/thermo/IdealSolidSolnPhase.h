@@ -155,7 +155,7 @@ namespace Cantera {
      *     not the copy constructor, because it has to be
      *     a virtual function)
      */
-    virtual ThermoPhase* duplMyselfAsThermoPhase();
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //! Destructor
     virtual ~IdealSolidSolnPhase() {}

@@ -115,7 +115,7 @@ namespace Cantera {
      *  Currently, this is not fully implemented. If called, an
      *  exception will be called by the ThermoPhase copy constructor.
      */
-    ThermoPhase *ThermoPhase::duplMyselfAsThermoPhase() {
+    ThermoPhase *ThermoPhase::duplMyselfAsThermoPhase() const {
 	ThermoPhase* tp = new ThermoPhase(*this);
 	return tp;
     }

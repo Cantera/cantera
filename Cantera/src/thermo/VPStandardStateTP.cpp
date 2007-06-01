@@ -115,7 +115,7 @@ namespace Cantera {
    * Duplication function.
    *  This calls the copy constructor for this object.
    */
-  ThermoPhase* VPStandardStateTP::duplMyselfAsThermoPhase() {
+  ThermoPhase* VPStandardStateTP::duplMyselfAsThermoPhase() const {
     VPStandardStateTP* vptp = new VPStandardStateTP(*this);
     return (ThermoPhase *) vptp;
   }

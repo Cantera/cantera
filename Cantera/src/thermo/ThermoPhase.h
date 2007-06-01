@@ -275,7 +275,7 @@ namespace Cantera {
      *  Currently, this is not fully implemented. If called, an
      *  exception will be called.
      */
-    virtual ThermoPhase *duplMyselfAsThermoPhase();
+    virtual ThermoPhase *duplMyselfAsThermoPhase() const;
     
     /**
      *   

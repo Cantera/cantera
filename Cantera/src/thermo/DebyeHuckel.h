@@ -639,7 +639,7 @@ namespace Cantera {
     virtual ~DebyeHuckel();
 
     //! Duplicator from the ThermoPhase parent class
-    ThermoPhase *duplMyselfAsThermoPhase();
+    ThermoPhase *duplMyselfAsThermoPhase() const;
 
     /**
      *   

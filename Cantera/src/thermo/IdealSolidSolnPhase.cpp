@@ -113,7 +113,7 @@ namespace Cantera {
    *     not the copy constructor, because it has to be
    *     a virtual function)
    */
-  ThermoPhase* IdealSolidSolnPhase::duplMyselfAsThermoPhase() {
+  ThermoPhase* IdealSolidSolnPhase::duplMyselfAsThermoPhase() const {
     IdealSolidSolnPhase *ii = new IdealSolidSolnPhase(*this);
     return (ThermoPhase*) ii;
   }

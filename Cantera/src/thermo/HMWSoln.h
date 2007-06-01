@@ -108,7 +108,7 @@ namespace Cantera {
     virtual ~HMWSoln();
 
 
-    ThermoPhase *duplMyselfAsThermoPhase();
+    ThermoPhase *duplMyselfAsThermoPhase() const;
 
     /**
      *   

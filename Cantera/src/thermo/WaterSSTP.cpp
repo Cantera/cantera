@@ -99,7 +99,7 @@ namespace Cantera {
   }
 
 
-  ThermoPhase *WaterSSTP::duplMyselfAsThermoPhase() {
+  ThermoPhase *WaterSSTP::duplMyselfAsThermoPhase() const {
     WaterSSTP* wtp = new WaterSSTP(*this);
     return (ThermoPhase *) wtp;
   }

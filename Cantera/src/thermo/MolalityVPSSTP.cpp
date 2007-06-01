@@ -107,7 +107,7 @@ namespace Cantera {
    * a pointer to ThermoPhase.
    */
   ThermoPhase* 
-  MolalityVPSSTP::duplMyselfAsThermoPhase() {
+  MolalityVPSSTP::duplMyselfAsThermoPhase() const {
     MolalityVPSSTP* mtp = new MolalityVPSSTP(*this);
     return (ThermoPhase *) mtp;
   }

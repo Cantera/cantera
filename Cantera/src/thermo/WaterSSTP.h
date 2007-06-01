@@ -162,7 +162,7 @@ namespace Cantera {
     virtual ~WaterSSTP();
 
     //! Duplicator from a ThermoPhase object
-    ThermoPhase *duplMyselfAsThermoPhase();
+    ThermoPhase *duplMyselfAsThermoPhase() const;
         
     /**
      *   

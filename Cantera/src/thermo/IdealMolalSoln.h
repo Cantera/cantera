@@ -130,7 +130,7 @@ namespace Cantera {
      *
      * @return It returns a ThermoPhase pointer.
      */
-    ThermoPhase *duplMyselfAsThermoPhase();
+    ThermoPhase *duplMyselfAsThermoPhase() const;
 
     /**
      *   

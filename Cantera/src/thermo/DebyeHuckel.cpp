@@ -202,7 +202,7 @@ namespace Cantera {
    *  duplicate the current object. It uses the copy constructor
    *  defined above.
    */
-  ThermoPhase* DebyeHuckel::duplMyselfAsThermoPhase() {
+  ThermoPhase* DebyeHuckel::duplMyselfAsThermoPhase() const {
     DebyeHuckel* mtp = new DebyeHuckel(*this);
     return (ThermoPhase *) mtp;
   }

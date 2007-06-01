@@ -80,7 +80,6 @@ namespace Cantera {
     }
 
     void State::setMoleFractions(const doublereal* x) {
-        int k;
         doublereal sum = 0.0, norm = 0.0;
         sum = dot(x, x + m_kk, m_molwts.begin());
         doublereal rsum = 1.0/sum;
@@ -126,7 +125,6 @@ namespace Cantera {
 
     void State::setMassFractions(const doublereal* y) {
         doublereal norm = 0.0, sum = 0.0;
-        int k;
         //cblas_dcopy(m_kk, y, 1, m_y.begin(), 1);
         norm = accumulate(y, y + m_kk, 0.0);
         copy(y, y + m_kk, m_y.begin());
@@ -148,7 +146,6 @@ namespace Cantera {
     }
 
     void State::setMassFractions_NoNorm(const doublereal* y) {
-        int k;
         doublereal sum = 0.0;
         copy(y, y + m_kk, m_y.begin());
         transform(m_y.begin(), m_y.end(), m_rmolwts.begin(), m_ym.begin(),

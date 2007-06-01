@@ -106,7 +106,7 @@ namespace Cantera {
   /**
    *
    */
-  ThermoPhase* IdealMolalSoln::duplMyselfAsThermoPhase() {
+  ThermoPhase* IdealMolalSoln::duplMyselfAsThermoPhase() const {
     IdealMolalSoln* mtp = new IdealMolalSoln(*this);
     return (ThermoPhase *) mtp;
   }

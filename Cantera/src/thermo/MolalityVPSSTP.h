@@ -202,7 +202,7 @@ namespace Cantera {
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
-    virtual ThermoPhase *duplMyselfAsThermoPhase();
+    virtual ThermoPhase *duplMyselfAsThermoPhase() const;
     
     /**
      *   
