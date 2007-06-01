@@ -300,7 +300,9 @@ namespace Cantera {
         if (!p) m_root = this;
         else m_root = &p->root();
     }
-    
+
+
+
 
     XML_Node::~XML_Node() {
         if (m_locked) 
@@ -525,7 +527,7 @@ namespace Cantera {
         }
     } 
 
-    void XML_Node::copyUnion(XML_Node *node_dest) {
+    void XML_Node::copyUnion(XML_Node *node_dest) const {
 	XML_Node *sc, *dc;
 	int ndc, idc;
 	node_dest->addValue(m_value);
@@ -569,7 +571,7 @@ namespace Cantera {
 	}
     }
 
-   void XML_Node::copy(XML_Node *node_dest) {
+   void XML_Node::copy(XML_Node *node_dest) const {
 	XML_Node *sc, *dc;
 	int ndc;
 	node_dest->addValue(m_value);

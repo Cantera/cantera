@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-//using namespace std;
+
 
 #include "ctexceptions.h"
 #include "ct_defs.h"
@@ -62,6 +62,11 @@ namespace Cantera {
     public:
 
         XML_Node(std::string nm = "--", XML_Node* p = 0, int n = 0);
+    private:
+      XML_Node(const XML_Node &right);
+      XML_Node& operator=(const XML_Node &right);
+
+    public:
         virtual ~XML_Node();
         void addComment(std::string comment);
         XML_Node& addChild(XML_Node& node);
@@ -126,8 +131,11 @@ namespace Cantera {
             return (m_attribs.find(a) != m_attribs.end());
         }
 
-
-        std::string name() const { return m_name; }
+      //! Returns the name of the XML node
+      /*!
+       * The name is the XML node is the XML node name
+       */
+      std::string name() const { return m_name; }
         std::string id() const {
             if (hasAttrib("id")) return attrib("id");
             else return "";
@@ -167,8 +175,8 @@ namespace Cantera {
         void write(std::ostream& s, int level = 0) const;
         XML_Node& root() const { return *m_root; }
         void setRoot(XML_Node& root) { m_root = &root; }
-        void copyUnion(XML_Node *node_dest);
-        void copy(XML_Node *node_dest);
+        void copyUnion(XML_Node *node_dest) const;
+        void copy(XML_Node *node_dest) const;
         void lock() {m_locked = true;}
         void unlock() {m_locked = false; }
 
@@ -177,7 +185,14 @@ namespace Cantera {
 
     protected:
 
-        std::string m_name;
+      //! XML node name of the node. 
+      /*!
+       *  For example, if we were in the XML_Node where
+       *       <phase dim="3" id="gas">
+       *       </phase>
+       *  Then, this string would be equal to "phase"
+       */
+      std::string m_name;
         std::string m_value;
         std::map<std::string, XML_Node*> m_childindex;
         std::map<std::string, std::string> m_attribs;

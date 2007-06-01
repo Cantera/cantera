@@ -18,6 +18,14 @@ namespace Cantera {
     class ThermoPhase;
 
     std::string fp2str(double x, std::string fmt);
+
+    //! Convert a double into a c++ string
+    /*!
+     * The default format to use is equivalent to the default
+     * format used by printf's %g formatting.
+     *
+     * @param x double to be converted
+     */
     std::string fp2str(double x);
     std::string int2str(int n, std::string fmt);
     std::string int2str(int n);
