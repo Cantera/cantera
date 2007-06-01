@@ -46,7 +46,7 @@ namespace Cantera {
     GeneralSpeciesThermo(const GeneralSpeciesThermo &);
 
     //! Assignment operator
-    const GeneralSpeciesThermo & operator=(const GeneralSpeciesThermo &);
+    GeneralSpeciesThermo & operator=(const GeneralSpeciesThermo &);
 
     //! destructor
     virtual ~GeneralSpeciesThermo();

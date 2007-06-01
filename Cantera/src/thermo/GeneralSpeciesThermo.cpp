@@ -44,7 +44,7 @@ namespace Cantera {
 	m_sp = b.m_sp;
     }
 
-    const GeneralSpeciesThermo& 
+    GeneralSpeciesThermo& 
     GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo &b) {
 	if (&b != this) {
 	  m_tlow_max = b.m_tlow_max;

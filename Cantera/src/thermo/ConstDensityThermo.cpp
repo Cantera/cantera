@@ -23,6 +23,35 @@
 
 namespace Cantera {
 
+  ConstDensityThermo::ConstDensityThermo() : m_tlast(0.0) {
+  }
+
+
+  ConstDensityThermo::ConstDensityThermo(const ConstDensityThermo &right)
+    : m_tlast(0.0) {
+    *this = operator=(right);
+  }
+
+  ConstDensityThermo& ConstDensityThermo::operator=(const ConstDensityThermo &right) {
+    if (&right == this) return *this;
+
+    m_mm            = right.m_mm;
+    m_tmin          = right.m_tmin;
+    m_tmax          = right.m_tmax;
+    m_p0            = right.m_p0;
+    m_tlast         = right.m_tlast;
+    m_h0_RT         = right.m_h0_RT;
+    m_cp0_R         = right.m_cp0_R;
+    m_g0_RT         = right.m_g0_RT;
+    m_s0_R          = right.m_s0_R;
+    m_expg0_RT      = right.m_expg0_RT;
+    m_pe            = right.m_pe;
+    m_pp            = right.m_pp;
+    
+    return *this;
+
+  }
+
     int ConstDensityThermo::
     eosType() const { return cIncompressible; }
 

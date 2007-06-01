@@ -73,6 +73,48 @@ namespace Cantera {
       m_t.resize(6);
     }
 
+    //! Copy constructor
+    /*!
+     *  @param right NasaThermo object to be copied.
+     */
+    NasaThermo(const NasaThermo &right) :
+      ID(NASA),  
+      m_tlow_max(0.0), 
+      m_thigh_min(1.e30),
+      m_p0(-1.0),
+      m_ngroups(0)
+    {
+      *this = operator=(right);
+    }
+
+    //! Assignment operator
+    /*!
+     *  @param right NasaThermo object to be copied.
+     */
+    NasaThermo& operator=(const NasaThermo &right) {
+      /*
+       * Check for self assignment.
+       */
+      if (this == &right) return *this;
+
+      m_high           = right.m_high;
+      m_low            = right.m_low;
+      m_index          = right.m_index;
+      m_tmid           = right.m_tmid;
+      m_tlow_max       = right.m_tlow_max;
+      m_thigh_min      = right.m_thigh_min;
+      m_tlow           = right.m_tlow;
+      m_thigh          = right.m_thigh;
+      m_p0             = right.m_p0;
+      m_ngroups        = right.m_ngroups;
+      m_t              = right.m_t;
+      m_group_map      = right.m_group_map;
+      m_posInGroup_map = right.m_posInGroup_map;
+      m_name           = right.m_name;
+
+      return *this;
+    }
+
     //! destructor
     virtual ~NasaThermo() {}
 

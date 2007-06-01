@@ -156,6 +156,31 @@ namespace Cantera {
     //! Destructor
     virtual ~SpeciesThermoDuo(){}
 
+
+    //! copy constructor
+    SpeciesThermoDuo(const SpeciesThermoDuo &right) {
+      *this = operator=(right);
+    }
+
+    //! Assignment operator
+    /*!
+     * @param right Object to be copied
+     */
+    SpeciesThermoDuo& operator=(const SpeciesThermoDuo &right) {
+      if (right == *this) return *this;
+
+      m_thermo1 = right.m_thermo1;
+      m_thermo2 = right.m_thermo2;
+      m_p0 = m_p0;
+      speciesToType = right.speciesToType;
+
+      return *this;
+    }
+
+    //virtual SpeciesThermo *duplMyselfAsSpeciesThermo() const {
+    // SpeciesThermoDuo *std = new SpeciesThermoDuo(*this);
+    // return (SpeciesThermo *) std;
+    //}
     /**
      * install a new species thermodynamic property
      * parameterization for one species.  
@@ -370,6 +395,27 @@ namespace Cantera {
     SpeciesThermo1() : m_pref(0.0) {}
     //! destructor
     virtual ~SpeciesThermo1(){}
+
+    //! Copy Constructor
+    SpeciesThermo1(const SpeciesThermo1 &right) :
+      m_pref(0.0)
+    {
+      *this = operator=(right);
+    }
+
+
+    //! Asignment Operator
+    /*!
+     * @param right Object to be copied
+     */
+    SpeciesThermo1 & operator=(const SpeciesThermo1 &right) {
+      if (right == *this) return *this;
+
+      m_thermo = right.m_thermo;
+      m_pref   = right.m_pref;
+
+      return *this;
+    }
     
     //! Install one species into this Species Thermo Manager
     /*!

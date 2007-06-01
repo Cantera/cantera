@@ -66,8 +66,6 @@ namespace Cantera {
     m_Mnaught(b.m_Mnaught),
     m_molalities(b.m_molalities)
   {
-    throw CanteraError("MolalityVPSSTP::operator=()",
-		       "Not Implemented Fully");
     *this = operator=(b);
   }
 
@@ -87,8 +85,6 @@ namespace Cantera {
       m_Mnaught          = b.m_Mnaught;
       m_molalities       = b.m_molalities;
     }
-    throw CanteraError("MolalityVPSSTP::operator=()",
-		       "Not Implemented Fully");
     return *this;
   }
 

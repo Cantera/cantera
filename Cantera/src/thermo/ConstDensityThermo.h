@@ -54,10 +54,22 @@ namespace Cantera {
     /*!
      * 
      */
-    ConstDensityThermo() : m_tlast(0.0) {}
+    ConstDensityThermo();
 
     //! Destructor
     virtual ~ConstDensityThermo() {}
+
+    //! Copy Constructor
+    /*!
+     * @param right Object to be copied
+     */
+    ConstDensityThermo(const ConstDensityThermo &right);
+
+    //! Assignment Operator
+    /*!
+     * @param right Object to be copied
+     */
+    ConstDensityThermo& operator=(const ConstDensityThermo &right);
 
     // overloaded methods of class ThermoPhase
 

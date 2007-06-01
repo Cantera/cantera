@@ -148,6 +148,36 @@ namespace Cantera {
     //! Destructor
     virtual ~SpeciesThermo() {}
 
+
+    //! Copy Constructor for the %SpeciesThermo object. 
+    /*!
+     * @param right    Reference to %SpeciesThermo object to be copied into the
+     *                 current one. 
+     */
+    SpeciesThermo(const SpeciesThermo &right) {}
+	
+    //! Assignment operator for the %SpeciesThermo object
+    /*!
+     *  This is NOT a virtual function.
+     *
+     * @param right    Reference to %SpeciesThermo object to be copied into the
+     *                 current one. 
+     */
+    SpeciesThermo& operator=(const SpeciesThermo &right) {
+      return *this;
+    }
+
+   
+    //! Duplication routine for objects which inherit from 
+    //! %SpeciesThermo
+    /*!
+     *  This virtual routine can be used to duplicate %SpeciesThermo  objects
+     *  inherited from %SpeciesThermo even if the application only has
+     *  a pointer to %SpeciesThermo to work with.
+     *  ->commented out because we first need to add copy constructors
+     *   and assignment operators to all of the derived classes.
+     */
+    // virtual SpeciesThermo *duplMyselfAsSpeciesThermo() const = 0;
     
     //! Install a new species thermodynamic property
     //! parameterization for one species.  

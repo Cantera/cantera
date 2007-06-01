@@ -69,6 +69,43 @@ namespace Cantera {
     //! Destructor
     virtual ~SimpleThermo() {}
 
+    //! Copy constructor
+    SimpleThermo(const SimpleThermo &right) :
+      ID(SIMPLE),
+      m_tlow_max(0.0), 
+      m_thigh_min(1.e30),
+      m_p0(-1.0),
+      m_nspData(0) {
+      /*
+       * Call the assignment operator
+       */
+      *this = operator=(right);
+    }
+
+    //! Assignment operator
+    SimpleThermo& SimpleThermo::operator=(const SimpleThermo &right) {
+      /*
+       * Check for self assignment.
+       */
+      if (this == &right) return *this;
+  
+      m_loc          = right.m_loc;
+      m_index        = right.m_index;
+      m_tlow_max     = right.m_tlow_max;
+      m_thigh_min    = right.m_thigh_min;
+      m_tlow         = right.m_tlow;
+      m_thigh        = right.m_thigh;
+      m_t0           = right.m_t0;
+      m_logt0        = right.m_logt0;
+      m_h0_R         = right.m_h0_R;
+      m_s0_R         = right.m_s0_R;
+      m_cp0_R        = right.m_cp0_R;
+      m_p0           = right.m_p0;
+      m_nspData      = right.m_nspData;
+
+      return *this;
+    }
+
     //! Install a new species thermodynamic property
     //! parameterization for one species.  
     /*!

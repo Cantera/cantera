@@ -87,12 +87,14 @@ namespace Cantera {
 	  delete m_spthermo;
 	}
         //m_spthermo = (right.m_spthermo)->duplMyselfAsSpeciesThermo();
-	throw CanteraError("ThermoPhase assignment", "not implemented");
+	throw CanteraError("ThermoPhase::operator=()", "SpeciesThermo dupl not impl");
+			   
 
         /// Pointer to  the XML tree containing the species
         /// data for this phase. This is used to access data needed to
         /// construct the transport manager and other properties
         /// later in the initialization process.
+	// We don't do a deep copy here, because we don't own this
         m_speciesData = right.m_speciesData;
 
       
@@ -100,6 +102,7 @@ namespace Cantera {
         m_phi = right.m_phi;
 	m_lambdaRRT = right.m_lambdaRRT;
 	m_hasElementPotentials = right.m_hasElementPotentials;
+	m_chargeNeutralityNecessary = right.m_chargeNeutralityNecessary;
 
 	return *this;
     }
