@@ -50,7 +50,9 @@ namespace Cantera {
   /**
    * Copy constructor
    */
-  WaterProps::WaterProps(const WaterProps &b) 
+  WaterProps::WaterProps(const WaterProps &b)  :
+    m_waterIAPWS(0),
+    m_own_sub(false)
   {
     *this = b;
   }
@@ -69,10 +71,21 @@ namespace Cantera {
    */
   WaterProps& WaterProps::operator=(const WaterProps&b) {
     if (&b == this) return *this;
-    /*
-     * add content here.
-     */
-    
+   
+    if (m_own_sub) {
+      if (m_waterIAPWS) {
+	delete m_waterIAPWS;
+	m_waterIAPWS = 0;
+      }
+    }
+    if (b.m_own_sub) {
+      m_waterIAPWS = new WaterPropsIAPWS();
+      m_own_sub = true;
+    } else {
+      m_waterIAPWS = b.m_waterIAPWS;
+      m_own_sub = false;
+    }
+
     return *this;
   }
   

@@ -136,10 +136,10 @@ public:
   WaterPropsIAPWS();
 
   //! Copy constructor
-  WaterPropsIAPWS(const WaterPropsIAPWS &);
+  WaterPropsIAPWS(const WaterPropsIAPWS &b);
 
   //! assignment constructor
-  WaterPropsIAPWS & operator=(const WaterPropsIAPWS &);
+  WaterPropsIAPWS & operator=(const WaterPropsIAPWS &b);
 
   //! destructor
   ~WaterPropsIAPWS();

@@ -64,6 +64,7 @@ namespace Cantera {
 	/**
 	 * Basic list of constructors and duplicators
 	 */
+      WaterPDSS(); 
         WaterPDSS(ThermoPhase *tp, int spindex); 
         WaterPDSS(const WaterPDSS &b);
         WaterPDSS& operator=(const WaterPDSS&b);
@@ -171,21 +172,6 @@ private:
 	 *   2 supercrit
 	 */
 	int m_iState;
-
-	/**
-	 * Thermophase which this species belongs to
-	 */
-	ThermoPhase *m_tp;
-
-	/**
-	 * Species index in the thermophase corresponding to this species.
-	 */
-	int m_spindex;
-
-	/*
-	 * Molecular Weight
-	 */
-        doublereal m_mw;
 
 	/**
 	 * Offset constants used to obtain consistency with the NIST database.

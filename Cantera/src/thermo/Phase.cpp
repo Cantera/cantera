@@ -29,6 +29,8 @@ namespace Cantera {
      * then calls the assignment operator.
      */
     Phase::Phase(const Phase &right) :
+        Constituents(),
+        State(),
 	m_kk(-1),
 	m_ndim(3),
 	m_index(-1), 
@@ -51,7 +53,7 @@ namespace Cantera {
      * we have to copy our own data, making sure to do a 
      * deep copy on the XML_Node data owned by this object.
      */
-    const Phase &Phase::operator=(const Phase &right) {
+    Phase &Phase::operator=(const Phase &right) {
 	/*
          * Check for self assignment.
          */
@@ -74,13 +76,28 @@ namespace Cantera {
 	 * to have our own individual copies of the XML data tree
 	 * in each object
 	 */
-	m_xml   = new XML_Node(*(right.m_xml));
+	if (m_xml) {
+	  delete m_xml;
+	  m_xml = 0;
+	}
+	if (right.m_xml) {
+	  m_xml   = new XML_Node();
+	  (right.m_xml)->copy(m_xml);
+	}
 	m_id    = right.m_id;
 	m_name  = right.m_name;
 
 	return *this;
     }
-    
+
+  // Destructor.
+  Phase::~Phase() { 
+    if (m_xml) {
+      delete m_xml;
+      m_xml = 0;
+    }
+  }
+
 
         void Phase::saveState(vector_fp& state) const {
             state.resize(nSpecies() + 2);

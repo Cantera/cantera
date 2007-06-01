@@ -51,8 +51,8 @@ namespace Cantera {
     Constituents::Constituents(Elements* ptr_Elements) :
         m_kk(0),
         m_speciesFrozen(false) ,
-        m_Elements(ptr_Elements) {
-
+        m_Elements(ptr_Elements) 
+    {
       if (!m_Elements) m_Elements = new Elements();
 
       // Register subscription to Elements object whether or not we
@@ -456,48 +456,63 @@ namespace Cantera {
     }
   }
   
-    /**
-     * This copy constructor just calls the assignment operator
-     * for this class.
-     * The assignment operator does a deep copy.
+  /*
+   * This copy constructor just calls the assignment operator
+   * for this class.
+   * The assignment operator does a deep copy.
+   */
+  Constituents::Constituents(const Constituents& right) :
+    m_kk(0),
+    m_speciesFrozen(false),
+    m_Elements(0) 
+  {
+    *this = right;
+  }
+  
+  /*
+   *  Assignment operator for the Constituents class.
+   *  Right now we pretty much do a straight uncomplicated
+   *  copy of all of the protected data.
+   */
+  Constituents& Constituents::operator=(const Constituents& right) {
+    /*
+     * Check for self assignment.
      */
-    Constituents::Constituents(const Constituents& right) {
-	*this = right;
-    }
-
-    /**
-     *  Assignment operator for the Constituents class.
-     *  Right now we pretty much do a straight uncomplicated
-     *  copy of all of the protected data.
+    if (this == &right) return *this;
+    /*
+     * We do a straight assignment operator on all of the
+     * data. The vectors are copied.
      */
-    Constituents& Constituents::operator=(const Constituents& right) {
-	/*
-	 * Check for self assignment.
-	 */
-	if (this == &right) return *this;
-	/*
-	 * We do a straight assignment operator on all of the
-	 * data. The vectors are copied.
-	 */
-	m_kk             = right.m_kk;
-	m_weight         = right.m_weight;
-	m_speciesFrozen  = right.m_speciesFrozen;
-	if (m_Elements) {
-	  m_Elements->unsubscribe();
+    m_kk             = right.m_kk;
+    m_weight         = right.m_weight;
+    m_speciesFrozen  = right.m_speciesFrozen;
+    if (m_Elements) {
+      int nleft = m_Elements->unsubscribe();
+      if (nleft <= 0) {
+	vector<Elements *>::iterator it;
+	for (it  = Elements::Global_Elements_List.begin();
+	     it != Elements::Global_Elements_List.end(); ++it) {
+	  if (*it == m_Elements) {
+	    Elements::Global_Elements_List.erase(it);
+	    break;
+	  }
 	}
-	m_Elements       = right.m_Elements;
-	if (m_Elements) {
-	  m_Elements->subscribe();
-	}
-	m_speciesNames   = right.m_speciesNames;
-	m_speciesComp    = right.m_speciesComp;
-	m_speciesCharge  = right.m_speciesCharge;
-	m_speciesSize    = right.m_speciesSize;
-	/*
-	 * Return the reference to the current object
-	 */
-	return *this;
+	delete m_Elements;
+      }
     }
-
+    m_Elements       = right.m_Elements;
+    if (m_Elements) {
+      m_Elements->subscribe();
+    }
+    m_speciesNames   = right.m_speciesNames;
+    m_speciesComp    = right.m_speciesComp;
+    m_speciesCharge  = right.m_speciesCharge;
+    m_speciesSize    = right.m_speciesSize;
+    /*
+     * Return the reference to the current object
+     */
+    return *this;
+  }
+  
 
 }

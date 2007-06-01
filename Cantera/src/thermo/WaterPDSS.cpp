@@ -26,16 +26,33 @@ namespace Cantera {
   /**
    * Basic list of constructors and duplicators
    */
-
-  WaterPDSS::WaterPDSS(ThermoPhase *tp, int spindex) :
-    PDSS(tp, spindex),
+  WaterPDSS::WaterPDSS() :
+    PDSS(),
     m_sub(0),
-    m_iState(-1),
+    m_temp(0.0),
+    m_dens(0.0),
+    m_iState(-3000),
     EW_Offset(0.0),
     SW_Offset(0.0),
     m_verbose(0),
     m_allowGasPhase(false)
   {
+    m_sub = new WaterPropsIAPWS();  
+    m_spthermo = 0;
+  }
+
+  WaterPDSS::WaterPDSS(ThermoPhase *tp, int spindex) :
+    PDSS(tp, spindex),
+    m_sub(0),
+    m_temp(0.0),
+    m_dens(0.0),
+    m_iState(-3000),
+    EW_Offset(0.0),
+    SW_Offset(0.0),
+    m_verbose(0),
+    m_allowGasPhase(false)
+  {
+    m_sub = new WaterPropsIAPWS();  
     constructPDSS(tp, spindex);
     m_spthermo = 0;
   }
@@ -45,13 +62,15 @@ namespace Cantera {
 		       std::string inputFile, std::string id) :
     PDSS(tp, spindex),
     m_sub(0),
-    m_iState(-1),
-    m_mw(0.0),
+    m_temp(0.0),
+    m_dens(0.0),
+    m_iState(-3000),
     EW_Offset(0.0),
     SW_Offset(0.0),
     m_verbose(0),
     m_allowGasPhase(false)
   {
+    m_sub = new WaterPropsIAPWS();  
     constructPDSSFile(tp, spindex, inputFile, id);
     m_spthermo = 0;
   }
@@ -60,13 +79,15 @@ namespace Cantera {
 		       XML_Node& phaseRoot, std::string id) :
     PDSS(tp, spindex),
     m_sub(0),
-    m_iState(-1),
-    m_mw(0.0),
+    m_temp(0.0),
+    m_dens(0.0),
+    m_iState(-3000),
     EW_Offset(0.0),
     SW_Offset(0.0),
     m_verbose(0),
     m_allowGasPhase(false)
   {
+    m_sub = new WaterPropsIAPWS();  
     constructPDSSXML(tp, spindex, phaseRoot, id) ;
     m_spthermo = 0;
   }
@@ -74,16 +95,17 @@ namespace Cantera {
 
 
   WaterPDSS::WaterPDSS(const WaterPDSS &b) :
-    PDSS(b),
+    PDSS(),
     m_sub(0),
-    m_iState(-1),
-    m_mw(b.m_mw),
+    m_temp(0.0),
+    m_dens(0.0),
+    m_iState(-3000),
     EW_Offset(b.EW_Offset),
     SW_Offset(b.SW_Offset),
     m_verbose(b.m_verbose),
     m_allowGasPhase(b.m_allowGasPhase)
   {
-    m_sub = new WaterPropsIAPWS(*(b.m_sub));  
+    m_sub = new WaterPropsIAPWS();  
     /*
      * Use the assignment operator to do the brunt
      * of the work for the copy construtor.
@@ -102,7 +124,12 @@ namespace Cantera {
     PDSS::operator=(b);
 
     m_sub->operator=(*(b.m_sub));
-    m_verbose = b.m_verbose;
+    m_temp          = b.m_temp;
+    m_dens          = b.m_dens;
+    m_iState        = b.m_iState;
+    EW_Offset       = b.EW_Offset;
+    SW_Offset       = b.SW_Offset;
+    m_verbose       = b.m_verbose;
     m_allowGasPhase = b.m_allowGasPhase;
     return *this;
   }

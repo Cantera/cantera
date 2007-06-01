@@ -362,6 +362,12 @@ WaterPropsIAPWSphi::WaterPropsIAPWSphi() :
   TAUsqrt(-1.0),
   DELTAsave(-1.0)
 {
+  for (int i = 0; i < 52; i++) {
+    TAUp[i] = 1.0;
+  }
+  for (int i = 0; i < 16; i++) {
+    DELTAp[i] = 1.0;
+  }
 }
 
 /*

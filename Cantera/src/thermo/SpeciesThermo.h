@@ -177,7 +177,7 @@ namespace Cantera {
      *  ->commented out because we first need to add copy constructors
      *   and assignment operators to all of the derived classes.
      */
-    // virtual SpeciesThermo *duplMyselfAsSpeciesThermo() const = 0;
+    virtual SpeciesThermo *duplMyselfAsSpeciesThermo() const = 0;
     
     //! Install a new species thermodynamic property
     //! parameterization for one species.  

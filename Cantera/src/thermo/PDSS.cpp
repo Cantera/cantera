@@ -27,6 +27,19 @@ namespace Cantera {
   /**
    * Basic list of constructors and duplicators
    */
+  PDSS::PDSS() :
+    m_temp(-1.0),
+    m_dens(-1.0),
+    m_tp(0),
+    m_mw(0.0),
+    m_spindex(-1),
+    m_spthermo(0),
+    m_cp0_R_ptr(0),
+    m_h0_RT_ptr(0),
+    m_s0_R_ptr(0),
+    m_g0_RT_ptr(0)
+  {
+  }
 
   PDSS::PDSS(ThermoPhase *tp, int spindex) :
     m_temp(-1.0),

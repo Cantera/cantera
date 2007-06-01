@@ -149,25 +149,22 @@ namespace Cantera {
                   m_xml(new XML_Node("phase")), 
                   m_id("<phase>"), m_name("") {}
 
-        /// Destructor.
-        virtual ~Phase(){ 
-	    delete m_xml;
-	    m_xml = 0;
-	}
+      /// Destructor.
+      virtual ~Phase();
 
       /**
        * Copy Constructor
        *
-       * @param  c       Reference to the class to be used in the copy
+       * @param  right       Reference to the class to be used in the copy
        */
-      Phase(const Phase &c);
+      Phase(const Phase &right);
       
       /**
        * Assignment operator
        *
-       * @param  c       Reference to the class to be used in the copy
+       * @param  right      Reference to the class to be used in the copy
        */
-      const Phase &operator=(const Phase &c);
+      Phase &operator=(const Phase &right);
         
       //! Returns a reference to the XML_Node storred for the phase
       /*!

@@ -20,9 +20,9 @@
 /*
  * Critical Point values in mks units
  */
-static const double T_c = 647.096;       // Kelvin
+ const double T_c = 647.096;       // Kelvin
 static const double P_c = 22.064E6;      // Pascals
-static const double Rho_c = 322.;        // kg m-3
+ const double Rho_c = 322.;        // kg m-3
 static const double M_water = 18.015268; // kg kmol-1
 /*
  * Note, this is the Rgas value quoted in the paper. For consistency

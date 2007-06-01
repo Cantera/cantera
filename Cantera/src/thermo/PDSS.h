@@ -39,6 +39,7 @@ namespace Cantera {
     /**
      * Basic list of constructors and duplicators
      */
+    PDSS();
     PDSS(ThermoPhase *tp, int spindex);
     PDSS(const PDSS &b);
     PDSS& operator=(const PDSS&b);

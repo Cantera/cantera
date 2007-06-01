@@ -115,8 +115,23 @@ namespace Cantera {
       return *this;
     }
 
+
     //! destructor
     virtual ~NasaThermo() {}
+
+    //! Duplication routine for objects which inherit from 
+    //! %SpeciesThermo
+    /*!
+     *  This virtual routine can be used to duplicate %SpeciesThermo  objects
+     *  inherited from %SpeciesThermo even if the application only has
+     *  a pointer to %SpeciesThermo to work with.
+     *  ->commented out because we first need to add copy constructors
+     *   and assignment operators to all of the derived classes.
+     */
+    virtual SpeciesThermo *duplMyselfAsSpeciesThermo() const {
+      NasaThermo *nt = new NasaThermo(*this);
+      return (SpeciesThermo *) nt;
+    }
 
     //! install a new species thermodynamic property
     //!  parameterization for one species.  

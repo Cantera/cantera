@@ -52,6 +52,10 @@ namespace Cantera {
 
   }
 
+  SpeciesThermo *ConstDensityThermo::duplMyselfAsSpeciesThermo() const {
+     ConstDensityThermo *cdt = new ConstDensityThermo(*this);
+     return (SpeciesThermo *) cdt;
+  }
     int ConstDensityThermo::
     eosType() const { return cIncompressible; }
 

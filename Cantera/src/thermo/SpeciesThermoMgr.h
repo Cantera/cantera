@@ -153,9 +153,9 @@ namespace Cantera {
   public:
     //! Constructor
     SpeciesThermoDuo() {}
+
     //! Destructor
     virtual ~SpeciesThermoDuo(){}
-
 
     //! copy constructor
     SpeciesThermoDuo(const SpeciesThermoDuo &right) {
@@ -167,7 +167,7 @@ namespace Cantera {
      * @param right Object to be copied
      */
     SpeciesThermoDuo& operator=(const SpeciesThermoDuo &right) {
-      if (right == *this) return *this;
+      if (&right == this) return *this;
 
       m_thermo1 = right.m_thermo1;
       m_thermo2 = right.m_thermo2;
@@ -177,10 +177,20 @@ namespace Cantera {
       return *this;
     }
 
-    //virtual SpeciesThermo *duplMyselfAsSpeciesThermo() const {
-    // SpeciesThermoDuo *std = new SpeciesThermoDuo(*this);
-    // return (SpeciesThermo *) std;
-    //}
+    //! Duplication routine for objects which inherit from 
+    //! %SpeciesThermo
+    /*!
+     *  This virtual routine can be used to duplicate %SpeciesThermo  objects
+     *  inherited from %SpeciesThermo even if the application only has
+     *  a pointer to %SpeciesThermo to work with.
+     *  ->commented out because we first need to add copy constructors
+     *   and assignment operators to all of the derived classes.
+     */
+    virtual SpeciesThermo *duplMyselfAsSpeciesThermo() const {
+      SpeciesThermoDuo<T1,T2> *nt = new SpeciesThermoDuo<T1,T2>(*this);
+      return (SpeciesThermo *) nt;
+    }
+
     /**
      * install a new species thermodynamic property
      * parameterization for one species.  
@@ -409,12 +419,26 @@ namespace Cantera {
      * @param right Object to be copied
      */
     SpeciesThermo1 & operator=(const SpeciesThermo1 &right) {
-      if (right == *this) return *this;
+      if (&right == this) return *this;
 
       m_thermo = right.m_thermo;
       m_pref   = right.m_pref;
 
       return *this;
+    }
+
+    //! Duplication routine for objects which inherit from 
+    //! %SpeciesThermo
+    /*!
+     *  This virtual routine can be used to duplicate %SpeciesThermo  objects
+     *  inherited from %SpeciesThermo even if the application only has
+     *  a pointer to %SpeciesThermo to work with.
+     *  ->commented out because we first need to add copy constructors
+     *   and assignment operators to all of the derived classes.
+     */
+    virtual SpeciesThermo *duplMyselfAsSpeciesThermo() const {
+      SpeciesThermo1<SPM> *nt = new SpeciesThermo1<SPM>(*this);
+      return (SpeciesThermo *) nt;
     }
     
     //! Install one species into this Species Thermo Manager

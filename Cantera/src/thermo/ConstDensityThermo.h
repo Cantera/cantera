@@ -71,8 +71,19 @@ namespace Cantera {
      */
     ConstDensityThermo& operator=(const ConstDensityThermo &right);
 
-    // overloaded methods of class ThermoPhase
+   
+    //! Duplication routine for objects which inherit from 
+    //! %SpeciesThermo
+    /*!
+     *  This virtual routine can be used to duplicate %SpeciesThermo  objects
+     *  inherited from %SpeciesThermo even if the application only has
+     *  a pointer to %SpeciesThermo to work with.
+     *  ->commented out because we first need to add copy constructors
+     *   and assignment operators to all of the derived classes.
+     */
+    virtual SpeciesThermo *duplMyselfAsSpeciesThermo() const;
 
+    //! overloaded methods of class ThermoPhase
     virtual int eosType() const;
 
     //! Return the Molar Enthalpy. Units: J/kmol.

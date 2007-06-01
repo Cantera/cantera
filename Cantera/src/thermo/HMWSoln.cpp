@@ -110,7 +110,20 @@ namespace Cantera {
    *  has a working copy constructor
    */
   HMWSoln::HMWSoln(const HMWSoln &b) :
-    MolalityVPSSTP(b)
+    MolalityVPSSTP(),
+    m_formPitzer(PITZERFORM_BASE),
+    m_formPitzerTemp(PITZER_TEMP_CONSTANT),
+    m_formGC(2),
+    m_IionicMolality(0.0),
+    m_maxIionicStrength(100.0),
+    m_TempPitzerRef(298.15),
+    m_IionicMolalityStoich(0.0),
+    m_form_A_Debye(A_DEBYE_WATER),
+    m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
+    m_waterSS(0),
+    m_densWaterSS(1000.),
+    m_waterProps(0),
+    m_debugCalc(0)
   {
     /*
      * Use the assignment operator to do the brunt

@@ -40,8 +40,15 @@ namespace Cantera {
     GeneralSpeciesThermo(const GeneralSpeciesThermo &b) :
 	m_tlow_max(b.m_tlow_max), 
 	m_thigh_min(b.m_thigh_min),
-	m_kk(b.m_kk) {
-	m_sp = b.m_sp;
+	m_kk(b.m_kk) 
+    {
+      m_sp.resize(m_kk, 0);
+      for (int k = 0; k < m_kk; k++) {
+	SpeciesThermoInterpType *bk = b.m_sp[k];
+	if (bk) {
+	  m_sp[k] = bk->duplMyselfAsSpeciesThermoInterpType();
+	}
+      }
     }
 
     GeneralSpeciesThermo& 
@@ -49,8 +56,22 @@ namespace Cantera {
 	if (&b != this) {
 	  m_tlow_max = b.m_tlow_max;
 	  m_thigh_min = b.m_thigh_min;
+	
+	  for (int k = 0; k < m_kk; k++) {
+	    SpeciesThermoInterpType *sp = m_sp[k];
+	    if (sp) {
+	      delete sp;
+	      m_sp[k] = 0;
+	    }
+	  }
 	  m_kk = b.m_kk;
-	  m_sp = b.m_sp;
+	  m_sp.resize(m_kk, 0);
+	  for (int k = 0; k < m_kk; k++) {
+	    SpeciesThermoInterpType *bk = b.m_sp[k];
+	    if (bk) {
+	      m_sp[k] = bk->duplMyselfAsSpeciesThermoInterpType();
+	    }
+	  }
 	}
 	return *this;
     }
@@ -95,6 +116,8 @@ namespace Cantera {
 	  m_sp.resize(index+1, 0);
           m_kk = index+1;
 	}
+	AssertThrow(m_sp[index] == 0, 
+		    "Index position isn't null, duplication of assignment: " + int2str(index));
 
 	/*
 	 * Create the necessary object

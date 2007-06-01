@@ -120,7 +120,19 @@ namespace Cantera {
    *  has a working copy constructor
    */
   DebyeHuckel::DebyeHuckel(const DebyeHuckel &b) :
-    MolalityVPSSTP(b)
+    MolalityVPSSTP(),
+    m_formDH(DHFORM_DILUTE_LIMIT),
+    m_formGC(2),
+    m_IionicMolality(0.0),
+    m_maxIionicStrength(30.0),
+    m_useHelgesonFixedForm(false),
+    m_IionicMolalityStoich(0.0),
+    m_form_A_Debye(A_DEBYE_CONST),
+    m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
+    m_B_Debye(3.28640E9),   // units = sqrt(kg/gmol) / m
+    m_waterSS(0),
+    m_densWaterSS(1000.),
+    m_waterProps(0)
   {
     /*
      * Use the assignment operator to do the brunt

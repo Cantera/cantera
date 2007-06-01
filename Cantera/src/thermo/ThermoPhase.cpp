@@ -76,7 +76,9 @@ namespace Cantera {
          * Check for self assignment.
          */
         if (this == &right) return *this;
-
+        /*
+         * Call the base class assignment operator
+         */
 	(void)Phase::operator=(right);
 
 	/*
@@ -86,17 +88,10 @@ namespace Cantera {
 	if (m_spthermo) {
 	  delete m_spthermo;
 	}
-        //m_spthermo = (right.m_spthermo)->duplMyselfAsSpeciesThermo();
-	throw CanteraError("ThermoPhase::operator=()", "SpeciesThermo dupl not impl");
-			   
+        m_spthermo = (right.m_spthermo)->duplMyselfAsSpeciesThermo();
 
-        /// Pointer to  the XML tree containing the species
-        /// data for this phase. This is used to access data needed to
-        /// construct the transport manager and other properties
-        /// later in the initialization process.
 	// We don't do a deep copy here, because we don't own this
         m_speciesData = right.m_speciesData;
-
       
 	m_index = right.m_index;
         m_phi = right.m_phi;
