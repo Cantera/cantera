@@ -2,7 +2,7 @@
 #
 #
 temp_success="1"
-/bin/rm  -f output.txt outputa.txt
+/bin/rm  -f output.txt outputa.txt table.csv diff_out.txt diff_csv.txt
 testName="ChemEquil_ionizedGas"
 
 #################################################################
@@ -19,14 +19,34 @@ then
   echo "ERROR: $testName: ionizedGasEquil returned with bad status, $retnStat, check output"
 fi
 
-diff -w output.txt output_blessed.txt > diff_test.out
-retnStat=$?
-if [ $retnStat = "0" ]
+diff -w output.txt output_blessed.txt > diff_out.txt
+retnStat_txt=$?
+csvdiff -a 1.0E-50 table.csv table_blessed.csv > diff_csv.txt
+retnStat_csv=$?
+
+eCode=1
+if test $retnStat_csv = "1"
 then
-  echo "successful diff comparison on $testName test"
-  temp_success="0"
+  eCode=0
+  echo "Successful test comparison on " $testName
+  if [ $retnStat_txt != "0" ]
+  then
+     echo "   But, text output files have differences. See diff_out.txt"
+  fi
 else
-  echo "FAILED: unsuccessful diff comparison on $testName test"
-  echo "FAILED" > csvCode.txt
+  echo "Unsuccessful test comparison on " $testName " test"
+  if test $retnStat_csv != "1"
+  then
+     echo "      csv files are different - see diff_csv.txt"
+  fi
+  if test $retnStat_txt != "0"
+  then
+     echo "      And, text output files have differences. See diff_out.txt"
+  fi
 fi
+#
+#
+exit 0
+
+
 
