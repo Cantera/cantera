@@ -301,6 +301,36 @@ namespace Cantera {
         else m_root = &p->root();
     }
 
+  XML_Node::XML_Node(const XML_Node &right) :
+     m_name(""), 
+     m_value(""),
+     m_parent(0),
+     m_locked(false),
+     m_nchildren(0), 
+     m_n(0),
+     m_iscomment(false) 
+  {
+    right.copy(this);
+  }
+
+
+  XML_Node & XML_Node::operator=(const XML_Node &right)
+  {
+    if (&right != this) {
+      int n = static_cast<int>(m_children.size());
+      for (int i = 0; i < n; i++) {
+	if (m_children[i]) {
+	  if (m_children[i]->parent() == this) {
+	    delete m_children[i];
+	    m_children[i] = 0;
+	  }
+	}
+      }
+      m_children.resize(0);
+      right.copy(this);
+    }
+    return *this;
+  }
 
 
 

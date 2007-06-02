@@ -62,11 +62,11 @@ namespace Cantera {
     public:
 
         XML_Node(std::string nm = "--", XML_Node* p = 0, int n = 0);
-    private:
+   
       XML_Node(const XML_Node &right);
       XML_Node& operator=(const XML_Node &right);
 
-    public:
+   
         virtual ~XML_Node();
         void addComment(std::string comment);
         XML_Node& addChild(XML_Node& node);
