@@ -325,15 +325,18 @@ namespace Cantera {
         // modify the reaction rates. Only modify those with a
         // non-zero activation energy, and do not decrease the
         // activation energy below zero.
-        doublereal ea, eamod;
-
+        doublereal eamod;
+#ifdef DEBUG_MODE
+        double ea;
+#endif
         int nct = m_beta.size();
         int irxn;
         for (i = 0; i < nct; i++) {
             irxn = m_ctrxn[i];
             eamod = m_beta[i]*m_rwork[irxn];
-            if (eamod != 0.0 && m_E[i] != 0.0) {
-                ea = GasConstant * m_E[i];
+            if (eamod != 0.0 && m_E[irxn] != 0.0) {
+#ifdef DEBUG_MODE
+                ea = GasConstant * m_E[irxn];
                 if (eamod + ea < 0.0) {
                     writelog("Warning: act energy mod too large!\n");
                     writelog("  Delta phi = "+fp2str(m_rwork[irxn]/Faraday)+"\n");
@@ -344,7 +347,7 @@ namespace Cantera {
                             +fp2str(m_phi[n])+"\n");
                     }
                 }
-                //eamod = -ea;
+#endif
                 kf[irxn] *= exp(-eamod*rrt);
             }
         }
@@ -677,8 +680,8 @@ namespace Cantera {
         for (int m = 0; m < ncov; m++) rp.push_back(r.cov[m]);
 
         iloc = m_rates.install( reactionNumber(),
-            r.rateCoeffType, rp.size(), 
-            DATA_PTR(rp) );
+				r.rateCoeffType, rp.size(), 
+				DATA_PTR(rp) );
 
         // store activation energy
         m_E.push_back(r.rateCoeffParameters[2]);
@@ -860,6 +863,17 @@ namespace Cantera {
                 +int2str(m_surf->nDim()));
         m_finalized = true;
     }
+
+
+  doublereal InterfaceKinetics::electrochem_beta(int irxn) const{
+    int n = m_ctrxn.size();
+    for (int i = 0; i < n; i++) {
+      if (m_ctrxn[i] == irxn) {
+	return m_beta[i];
+      }
+    }
+    return 0.0;
+  }
 
 
     bool InterfaceKinetics::ready() const {

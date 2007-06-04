@@ -274,6 +274,24 @@ namespace Cantera {
             return m_index[i].first;
         }
 
+      //! Return the charge transfer rxn Beta parameter for the ith reaction
+      /*!
+       *  Returns the beta parameter for a charge transfer reaction. This 
+       *  parameter is not important for non-charge transfer reactions.
+       *  Note, the parameter defaults to zero. However, a value of 0.5
+       *  should be supplied for every charge transfer reaction if
+       *  no information is known, as a value of 0.5 pertains to a
+       *  symmetric transition state. The value can vary between 0 to 1.
+       *
+       *
+       *  @param irxn Reaction number in the kinetics mechanism
+       *
+       *  @return
+       *    Beta parameter. This defaults to zero, even for charge transfer
+       *    reactions.
+       */
+      doublereal electrochem_beta(int irxn) const;
+
 	/**
          * True if reaction i has been declared to be reversible. If
          * isReversible(i) is false, then the reverse rate of progress
@@ -340,13 +358,13 @@ namespace Cantera {
 
 
 
-        void _update_rates_T();
-        void _update_rates_phi();
-        void _update_rates_C();
-
-        void advanceCoverages(doublereal tstep);
-        void checkPartialEquil();
-
+      void _update_rates_T();
+      void _update_rates_phi();
+      void _update_rates_C();
+      
+      void advanceCoverages(doublereal tstep);
+      void checkPartialEquil();
+      
       //! Temporary work vector of length m_kk
       vector_fp m_grt;
 
@@ -500,8 +518,8 @@ namespace Cantera {
       //! Pointer to the surface solver
       ImplicitSurfChem*                      m_integrator;
 
-        vector_fp m_beta;
-        vector_int m_ctrxn;
+      vector_fp m_beta;
+      vector_int m_ctrxn;
 
         int reactionNumber(){ return m_ii;}
 
