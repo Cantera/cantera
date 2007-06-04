@@ -89,14 +89,36 @@ namespace Cantera {
 
   public:
         
-    /// Constructors 
+    /// Default Constructor 
     HMWSoln();
 
-    HMWSoln(const HMWSoln &);
-    HMWSoln& operator=(const	HMWSoln&);
-
+    //! Full constructor for setting up the entire ThermoPhase Object
     HMWSoln(std::string inputFile, std::string id = "");
+
+    //! Full constructor for setting up the entire ThermoPhase Object
     HMWSoln(XML_Node& phaseRef, std::string id = "");
+
+
+    //! Copy Constructor
+    /*!
+     * Copy constructor for the object. Constructed
+     * object will be a clone of this object, but will
+     * also own all of its data.
+     * This is a wrapper around the assignment operator
+     * 
+     * @param right Object to be copied.
+     */
+    HMWSoln(const HMWSoln &right);
+
+    //! Asignment operator
+    /*!
+     * Assignment operator for the object. Constructed
+     * object will be a clone of this object, but will
+     * also own all of its data.
+     * 
+     * @param right Object to be copied.
+     */
+    HMWSoln& operator=(const HMWSoln& right);
 
     /**
      *  This is a special constructor, used to replicate test problems
@@ -107,7 +129,14 @@ namespace Cantera {
     /// Destructor. 
     virtual ~HMWSoln();
 
-
+    //! Duplicator from the ThermoPhase parent class
+    /*!
+     * Given a pointer to a ThermoPhase object, this function will
+     * duplicate the ThermoPhase object and all underlying structures.
+     * This is basically a wrapper around the copy constructor.
+     *
+     * @return returns a pointer to a ThermoPhase
+     */
     ThermoPhase *duplMyselfAsThermoPhase() const;
 
     /**

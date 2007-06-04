@@ -16,6 +16,78 @@
 
 namespace Cantera {
 
+
+  // Default empty constructor
+  StoichSubstance::StoichSubstance() :
+    m_kk(0),
+    m_tmin(0.0),
+    m_tmax(0.0),
+    m_press(OneAtm),
+    m_p0(OneAtm),
+    m_tlast(-1.0)  {
+  }
+  
+  // Copy Constructor
+  /*
+   * Copy constructor for the object. Constructed
+   * object will be a clone of this object, but will
+   * also own all of its data.
+   * This is a wrapper around the assignment operator
+   *
+   * @param right Object to be copied.
+   */
+  StoichSubstance::StoichSubstance(const StoichSubstance &right) :
+	m_kk(0),
+	m_tmin(0.0),
+	m_tmax(0.0),
+	m_press(OneAtm),
+	m_p0(OneAtm),
+	m_tlast(-1.0)  { 
+    *this = operator=(right);
+  }
+
+  // Asignment operator
+  /*
+   * Assignment operator for the object. Constructed
+   * object will be a clone of this object, but will
+   * also own all of its data.
+   *
+   * @param right Object to be copied.
+   */
+  StoichSubstance& StoichSubstance::
+  operator=(const StoichSubstance &right) {
+    if (&right != this) {
+      ThermoPhase::operator=(right);
+      m_kk      = right.m_kk;
+      m_tmin    = right.m_tmin;
+      m_tmax    = right.m_tmax;
+      m_press   = right.m_press;
+      m_p0      = right.m_p0;
+      m_tlast   = right.m_tlast;
+      m_h0_RT   = right.m_h0_RT;
+      m_cp0_R   = right.m_cp0_R;
+      m_s0_R    = right.m_s0_R;
+    }
+    return *this;
+  }
+
+  // Duplicator from the %ThermoPhase parent class
+  /*
+   * Given a pointer to a %ThermoPhase object, this function will
+   * duplicate the %ThermoPhase object and all underlying structures.
+   * This is basically a wrapper around the copy constructor.
+   *
+   * @return returns a pointer to a %ThermoPhase
+   */
+  ThermoPhase *StoichSubstance::duplMyselfAsThermoPhase() const {
+    ThermoPhase *igp = new StoichSubstance(*this);
+    return (ThermoPhase *) igp;
+  }
+
+  // Destructor
+  StoichSubstance::~StoichSubstance() {
+  }
+
     void StoichSubstance::initThermo() {
         m_kk = nSpecies();
         if (m_kk > 1) {

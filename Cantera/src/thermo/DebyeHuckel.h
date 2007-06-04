@@ -639,6 +639,13 @@ namespace Cantera {
     virtual ~DebyeHuckel();
 
     //! Duplicator from the ThermoPhase parent class
+    /*!
+     * Given a pointer to a ThermoPhase object, this function will
+     * duplicate the ThermoPhase object and all underlying structures.
+     * This is basically a wrapper around the copy constructor.
+     *
+     * @return returns a pointer to a ThermoPhase
+     */
     ThermoPhase *duplMyselfAsThermoPhase() const;
 
     /**

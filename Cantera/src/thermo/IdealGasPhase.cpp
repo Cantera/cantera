@@ -23,7 +23,7 @@
 using namespace std;
 
 namespace Cantera {
-  // Empty Constructor
+  // Default empty Constructor
   IdealGasPhase::IdealGasPhase():
     m_mm(0),
     m_tmin(0.0),
@@ -34,7 +34,130 @@ namespace Cantera {
   {
   }
 
-  // Molar Thermodynamic Properties of the Solution ----------
+  // Copy Constructor
+  IdealGasPhase::IdealGasPhase(const IdealGasPhase& right):
+    m_mm(right.m_mm),
+    m_tmin(right.m_tmin),
+    m_tmax(right.m_tmax),
+    m_p0(right.m_p0),
+    m_tlast(right.m_tlast),
+    m_logc0(right.m_logc0)
+  {
+    /*
+     * Use the assignment operator to do the brunt
+     * of the work for the copy construtor.
+     */
+    *this = right;
+  }
+
+  // Asignment operator
+  /*
+   * Assignment operator for the object. Constructed
+   * object will be a clone of this object, but will
+   * also own all of its data.
+   *
+   * @param right Object to be copied.
+   */
+  IdealGasPhase& IdealGasPhase::
+  operator=(const IdealGasPhase &right) {
+    if (&right != this) {
+      ThermoPhase::operator=(right);
+      m_mm      = right.m_mm;
+      m_tmin    = right.m_tmin;
+      m_tmax    = right.m_tmax;
+      m_p0      = right.m_p0;
+      m_tlast   = right.m_tlast;
+      m_logc0   = right.m_logc0;
+      m_h0_RT   = right.m_h0_RT;
+      m_cp0_R   = right.m_cp0_R;
+      m_g0_RT   = right.m_g0_RT;
+      m_s0_R    = right.m_s0_R;
+      m_expg0_RT= right.m_expg0_RT;
+      m_pe      = right.m_pe;
+      m_pp      = right.m_pp;
+    }
+    return *this;
+  }
+
+  // Duplicator from the %ThermoPhase parent class
+  /*
+   * Given a pointer to a %ThermoPhase object, this function will
+   * duplicate the %ThermoPhase object and all underlying structures.
+   * This is basically a wrapper around the copy constructor.
+   *
+   * @return returns a pointer to a %ThermoPhase
+   */
+  ThermoPhase *IdealGasPhase::duplMyselfAsThermoPhase() const {
+    ThermoPhase *igp = new IdealGasPhase(*this);
+    return (ThermoPhase *) igp;
+  }
+
+  // Molar Thermodynamic Properties of the Solution ------------------
+
+  /*
+   * Molar internal energy. J/kmol. For an ideal gas mixture,
+   * \f[
+   * \hat u(T) = \sum_k X_k \hat h^0_k(T) - \hat R T,
+   * \f]
+   * and is a function only of temperature.
+   * The reference-state pure-species enthalpies 
+   * \f$ \hat h^0_k(T) \f$ are computed by the species thermodynamic 
+   * property manager.
+   * @see SpeciesThermo
+   */
+  doublereal IdealGasPhase::intEnergy_mole() const {
+    return GasConstant * temperature()
+      * ( mean_X(&enthalpy_RT_ref()[0]) - 1.0);
+  }
+
+  /*
+   * Molar entropy. Units: J/kmol/K.
+   * For an ideal gas mixture,
+   * \f[
+   * \hat s(T, P) = \sum_k X_k \hat s^0_k(T) - \hat R \log (P/P^0).
+   * \f]
+   * The reference-state pure-species entropies 
+   * \f$ \hat s^0_k(T) \f$ are computed by the species thermodynamic 
+   * property manager.
+   * @see SpeciesThermo
+   */
+  doublereal IdealGasPhase::entropy_mole() const {
+    return GasConstant * (mean_X(&entropy_R_ref()[0]) -
+			  sum_xlogx() - std::log(pressure()/m_spthermo->refPressure()));
+  }
+
+  /*
+   * Molar Gibbs free Energy for an ideal gas.
+   * Units =  J/kmol.
+   */
+  doublereal IdealGasPhase::gibbs_mole() const {
+    return enthalpy_mole() - temperature() * entropy_mole();
+  }
+
+  /*
+   * Molar heat capacity at constant pressure. Units: J/kmol/K.
+   * For an ideal gas mixture, 
+   * \f[
+   * \hat c_p(t) = \sum_k \hat c^0_{p,k}(T).
+   * \f]
+   * The reference-state pure-species heat capacities  
+   * \f$ \hat c^0_{p,k}(T) \f$ are computed by the species thermodynamic 
+   * property manager.
+   * @see SpeciesThermo
+   */
+  doublereal IdealGasPhase::cp_mole() const {
+    return GasConstant * mean_X(&cp_R_ref()[0]);
+  }
+
+  /*
+   * Molar heat capacity at constant volume. Units: J/kmol/K.
+   * For an ideal gas mixture,
+   * \f[ \hat c_v = \hat c_p - \hat R. \f]
+   */
+  doublereal IdealGasPhase::cv_mole() const {
+    return cp_mole() - GasConstant;
+  }
+
   // Mechanical Equation of State ----------------------------
   // Chemical Potentials and Activities ----------------------
 

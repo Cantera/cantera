@@ -313,12 +313,44 @@ namespace Cantera {
 
   public:
 
-    //! Empty Constructor
+    //! Default empty Constructor
     IdealGasPhase();
+
+    //! Copy Constructor
+    /*!
+     * Copy constructor for the object. Constructed
+     * object will be a clone of this object, but will
+     * also own all of its data.
+     * This is a wrapper around the assignment operator
+     *
+     * @param right Object to be copied.
+     */
+    IdealGasPhase(const IdealGasPhase &right);
+
+    //! Asignment operator
+    /*!
+     * Assignment operator for the object. Constructed
+     * object will be a clone of this object, but will
+     * also own all of its data.
+     *
+     * @param right Object to be copied.
+     */
+    IdealGasPhase& operator=(const  IdealGasPhase& right);
 
     //! Destructor
     virtual ~IdealGasPhase() {}
-    
+
+    //! Duplicator from the %ThermoPhase parent class
+    /*!
+     * Given a pointer to a %ThermoPhase object, this function will
+     * duplicate the %ThermoPhase object and all underlying structures.
+     * This is basically a wrapper around the inherited copy constructor.
+     *
+     * @return returns a pointer to a %ThermoPhase object, containing
+     *      a copy of the current object
+     */
+    ThermoPhase *duplMyselfAsThermoPhase() const;
+
     //! Equation of state flag.
     /*!
      *  Returns the value cIdealGas, defined  in mix_defs.h.
@@ -360,10 +392,7 @@ namespace Cantera {
      * property manager.
      * @see SpeciesThermo
      */
-    virtual doublereal intEnergy_mole() const {
-      return GasConstant * temperature()
-	* ( mean_X(&enthalpy_RT_ref()[0]) - 1.0);
-    }
+    virtual doublereal intEnergy_mole() const;
 
     /**
      * Molar entropy. Units: J/kmol/K.
@@ -376,19 +405,13 @@ namespace Cantera {
      * property manager.
      * @see SpeciesThermo
      */
-    virtual doublereal entropy_mole() const {
-      return GasConstant * (mean_X(&entropy_R_ref()[0]) -
-			    sum_xlogx() - std::log(pressure()/m_spthermo->refPressure()));
-    }
+    virtual doublereal entropy_mole() const;
 
     /**
      * Molar Gibbs free Energy for an ideal gas.
      * Units =  J/kmol.
      */
-    virtual doublereal gibbs_mole() const {
-      return enthalpy_mole() - temperature() * entropy_mole();
-    }
-
+    virtual doublereal gibbs_mole() const;
 
     /**
      * Molar heat capacity at constant pressure. Units: J/kmol/K.
@@ -401,18 +424,14 @@ namespace Cantera {
      * property manager.
      * @see SpeciesThermo
      */
-    virtual doublereal cp_mole() const {
-      return GasConstant * mean_X(&cp_R_ref()[0]);
-    }
+    virtual doublereal cp_mole() const;
 
     /**
      * Molar heat capacity at constant volume. Units: J/kmol/K.
      * For an ideal gas mixture,
      * \f[ \hat c_v = \hat c_p - \hat R. \f]
      */
-    virtual doublereal cv_mole() const {
-      return cp_mole() - GasConstant;
-    }
+    virtual doublereal cv_mole() const;
 
     //@}
 

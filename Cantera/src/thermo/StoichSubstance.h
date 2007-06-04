@@ -36,15 +36,42 @@ namespace Cantera {
 
     public:
 
-        StoichSubstance():
-	    m_kk(0),
-	    m_tmin(0.0),
-	    m_tmax(0.0),
-	    m_press(OneAtm),
-	    m_p0(OneAtm),
-	    m_tlast(-1.0)  {}
+      //! Default empty constructor
+      StoichSubstance();
 
-        virtual ~StoichSubstance() {}
+      //! Copy Constructor
+      /*!
+       * Copy constructor for the object. Constructed
+       * object will be a clone of this object, but will
+       * also own all of its data.
+       * This is a wrapper around the assignment operator
+       *
+       * @param right Object to be copied.
+       */
+      StoichSubstance(const StoichSubstance &right);
+
+      //! Asignment operator
+      /*!
+       * Assignment operator for the object. Constructed
+       * object will be a clone of this object, but will
+       * also own all of its data.
+       *
+       * @param right Object to be copied.
+       */
+      StoichSubstance& operator=(const StoichSubstance &right);
+
+      //! Destructor
+      virtual ~StoichSubstance();
+
+      //! Duplicator from the %ThermoPhase parent class
+      /*
+       * Given a pointer to a %ThermoPhase object, this function will
+       * duplicate the %ThermoPhase object and all underlying structures.
+       * This is basically a wrapper around the copy constructor.
+       *
+       * @return returns a pointer to a %ThermoPhase
+       */
+      ThermoPhase *duplMyselfAsThermoPhase() const;
 
 	/**
          *   

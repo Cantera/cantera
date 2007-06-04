@@ -33,19 +33,18 @@ using namespace std;
 
 namespace Cantera {
 
-    SurfPhase::
-    SurfPhase(doublereal n0):
-	ThermoPhase(),
-	m_n0(n0),
-	m_logn0(0.0),
-	m_tmin(0.0),
-	m_tmax(0.0),
-	m_press(OneAtm),
-	m_tlast(0.0) 
-    {
-	if (n0 > 0.0) m_logn0 = log(n0);
-        setNDim(2);
-    }
+  SurfPhase::SurfPhase(doublereal n0):
+    ThermoPhase(),
+    m_n0(n0),
+    m_logn0(0.0),
+    m_tmin(0.0),
+    m_tmax(0.0),
+    m_press(OneAtm),
+    m_tlast(0.0) 
+  {
+    if (n0 > 0.0) m_logn0 = log(n0);
+    setNDim(2);
+  }
 
   SurfPhase::SurfPhase(XML_Node& xmlphase) {
     const XML_Node& th = xmlphase.child("thermo");
@@ -57,6 +56,66 @@ namespace Cantera {
     importPhase(xmlphase, this);
   }
 
+  // Copy Constructor
+  /*
+   * Copy constructor for the object. Constructed
+   * object will be a clone of this object, but will
+   * also own all of its data.
+   * This is a wrapper around the assignment operator
+   *
+   * @param right Object to be copied.
+   */
+  SurfPhase::SurfPhase(const SurfPhase &right) :
+    m_n0(right.m_n0),
+    m_logn0(right.m_logn0),
+    m_tmin(right.m_tmin),
+    m_tmax(right.m_tmax),
+    m_press(right.m_press),
+    m_tlast(right.m_tlast)
+  {
+    *this = operator=(right);
+  }
+
+  // Asignment operator
+  /*
+   * Assignment operator for the object. Constructed
+   * object will be a clone of this object, but will
+   * also own all of its data.
+   *
+   * @param right Object to be copied.
+   */
+  SurfPhase& SurfPhase::
+  operator=(const SurfPhase &right) {
+    if (&right != this) {
+      ThermoPhase::operator=(right);
+      m_n0         = right.m_n0;
+      m_logn0      = right.m_logn0;
+      m_tmin       = right.m_tmin;
+      m_tmax       = right.m_tmax;
+      m_press      = right.m_press;
+      m_tlast      = right.m_tlast;
+      m_h0         = right.m_h0;
+      m_cp0        = right.m_cp0;
+      m_mu0        = right.m_mu0;
+      m_work       = right.m_work;
+      m_pe         = right.m_pe;
+      m_logsize    = right.m_logsize;
+    }
+    return *this;
+  }
+
+  // Duplicator from the %ThermoPhase parent class
+  /*
+   * Given a pointer to a %ThermoPhase object, this function will
+   * duplicate the %ThermoPhase object and all underlying structures.
+   * This is basically a wrapper around the copy constructor.
+   *
+   * @return returns a pointer to a %ThermoPhase
+   */
+  ThermoPhase *SurfPhase::duplMyselfAsThermoPhase() const {
+    ThermoPhase *igp = new SurfPhase(*this);
+    return (ThermoPhase *) igp;
+  }
 
     doublereal SurfPhase::
     enthalpy_mole() const {

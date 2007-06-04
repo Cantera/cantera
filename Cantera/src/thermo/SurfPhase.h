@@ -167,9 +167,39 @@ namespace Cantera {
      */
     SurfPhase(XML_Node& xmlphase);
     
+    //! Copy Constructor
+    /*!
+     * Copy constructor for the object. Constructed
+     * object will be a clone of this object, but will
+     * also own all of its data.
+     * This is a wrapper around the assignment operator
+     *
+     * @param right Object to be copied.
+     */
+    SurfPhase(const SurfPhase &right);
+
+    //! Asignment operator
+    /*!
+     * Assignment operator for the object. Constructed
+     * object will be a clone of this object, but will
+     * also own all of its data.
+     *
+     * @param right Object to be copied.
+     */
+    SurfPhase& operator=(const SurfPhase &right);
 
     //! Destructor.
     virtual ~SurfPhase();
+
+    //! Duplicator from the %ThermoPhase parent class
+    /*
+     * Given a pointer to a %ThermoPhase object, this function will
+     * duplicate the %ThermoPhase object and all underlying structures.
+     * This is basically a wrapper around the copy constructor.
+     *
+     * @return returns a pointer to a %ThermoPhase
+     */
+    ThermoPhase *duplMyselfAsThermoPhase() const;
 
     //----- reimplimented methods of class ThermoPhase ------
 

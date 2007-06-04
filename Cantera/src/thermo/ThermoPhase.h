@@ -264,16 +264,15 @@ namespace Cantera {
      */
     ThermoPhase& operator=(const ThermoPhase &right);
 
-    /**
-     * Duplication routine for objects which inherit from 
-     * ThermoPhase.
-     *
-     *  This virtual routine can be used to duplicate thermophase objects
-     *  inherited from ThermoPhase even if the application only has
-     *  a pointer to ThermoPhase to work with.
+     //! Duplication routine for objects which inherit from 
+     //!  ThermoPhase.
+     /*!
+     *  This virtual routine can be used to duplicate %ThermoPhase objects
+     *  inherited from %ThermoPhase even if the application only has
+     *  a pointer to %ThermoPhase to work with.
      * 
-     *  Currently, this is not fully implemented. If called, an
-     *  exception will be called.
+     *  These routines are basically wrappers around the derived copy
+     *  constructor.
      */
     virtual ThermoPhase *duplMyselfAsThermoPhase() const;
     
