@@ -63,29 +63,18 @@ public:
   std::vector<int>  m_typ;
   //! vector of bools.
   std::vector<bool> m_rev;
-    ~rxninfo() {
-        m_eqn.clear();
-        m_dup.clear();
-        m_nr.clear();
-        m_typ.clear();
-        m_rdata.clear();
-    }
-    bool installReaction(int i, const XML_Node& r, Kinetics* k, 
-        std::string default_phase, int rule,
-        bool validate_rxn) ;
+  ~rxninfo() {
+    m_eqn.clear();
+    m_dup.clear();
+    m_nr.clear();
+    m_typ.clear();
+    m_rdata.clear();
+  }
+  bool installReaction(int i, const XML_Node& r, Kinetics* k, 
+		       std::string default_phase, int rule,
+		       bool validate_rxn) ;
 };
 
-//! Temporary storage of rxninfo
-//rxninfo* _rxns = 0;
-//! @name utilitydefines.
-//@{
-#define _reactiondata m_rdata
-#define _eqn m_eqn
-#define _dup m_dup
-#define _nr m_nr
-#define _typ m_typ
-#define _rev m_rev
-//@}
 
 
   /*
@@ -193,12 +182,11 @@ public:
    *         allowing the calling routine to skip this reaction
    *         and continue.
    */
-  static bool getReagents(const XML_Node& rxn, kinetics_t& kin, int rp,
-			  string default_phase, 
-			  vector_int& spnum, vector_fp& stoich, vector_fp& order,
-			  int rule) {
+  bool getReagents(const XML_Node& rxn, kinetics_t& kin, int rp,
+		   std::string default_phase, 
+		   vector_int& spnum, vector_fp& stoich, vector_fp& order,
+		   int rule) {
 
-      
     string rptype;
 
     /*
@@ -605,11 +593,17 @@ public:
    *
    * @ingroup kineticsmgr
    */
-    bool rxninfo::installReaction(int i, const XML_Node& r, Kinetics* k, 
+  bool rxninfo::installReaction(int i, const XML_Node& r, Kinetics* k, 
 			      string default_phase, int rule,
 			      bool validate_rxn) {
 
     Kinetics& kin = *k;
+
+    /* Check to see that we are in fact at a reaction node */
+    if (r.name() != "reaction") {
+      throw CanteraError(" rxninfo::installReaction",
+			 " expected xml node reaction, got " + r.name());
+    }
     /*
      *  We use the ReactionData object to store initial values read
      *  in from the xml data. Then, when we have collected everything
@@ -618,19 +612,18 @@ public:
      * the ReactionData object).
      */
     ReactionData rdata;
-    rdata.reactionType = ELEMENTARY_RXN;  // default
-    vector_int reac, prod;
-    string eqn, type;
-    int nn, eqlen;
-    vector_fp dummy;
-
-    // check to see if the reaction is specified to be a duplicate
-    // of another reaction, or to allow a negative pre-exponential.
+   
+    // Check to see if the reaction is specified to be a duplicate
+    // of another reaction. It's an error if the reaction is a 
+    // duplicate and this is not set.
     int dup = 0;
     if (r.hasAttrib("duplicate")) dup = 1;
+
+    // Check to see if the reaction rate constant can be negative
+    // It's an error if a negative rate constant is found and
+    // this is not set.
     int negA = 0;
     if (r.hasAttrib("negative_A")) negA = 1;
-
 
     /*
      * This seemingly simple expression goes and finds the child element,
@@ -638,32 +631,37 @@ public:
      * as a string, and returns it the variable eqn. We post process
      * the string to convert [ and ] characters into < and >, which 
      * cannot be stored in an XML file.
+     * The string eqn is just used for IO purposes. It isn't parsed
+     * for the identities of reactants or products.
      */
-    if (r.hasChild("equation"))
+    string eqn = "<no equation>";
+    if (r.hasChild("equation")) {
       eqn = r("equation");
-    else
-      eqn = "<no equation>";
-
-    eqlen = static_cast<int>(eqn.size());
+    }
+    int eqlen = static_cast<int>(eqn.size());
+    int nn;
     for (nn = 0; nn < eqlen; nn++) {
       if (eqn[nn] == '[') eqn[nn] = '<';
       if (eqn[nn] == ']') eqn[nn] = '>';
     }
 
 
-    bool ok;
+
     // get the reactants
-    ok = getReagents(r, kin, 1, default_phase, rdata.reactants, 
+
+    bool ok = getReagents(r, kin, 1, default_phase, rdata.reactants, 
 		     rdata.rstoich, rdata.order, rule);
     //cout << "Reactants: " << endl;
-    int npp = rdata.reactants.size();
-    int nj;
+    //int npp = rdata.reactants.size();
+    //int nj;
     //for (nj = 0; nj < npp; nj++) {
     //    cout << rdata.reactants[nj] << "   " << rdata.rstoich[nj] << endl;
     //}
+
     /*
      * Get the products. We store the id of products in rdata.products
-     */
+     */   
+    vector_fp dummy;
     ok = ok && getReagents(r, kin, -1, default_phase, rdata.products, 
 			   rdata.pstoich, dummy, rule);
     //cout << "Products: " << endl;npp = rdata.products.size();
@@ -679,11 +677,9 @@ public:
     // reversible. Default is irreversible.
     rdata.reversible = false;
     string isrev = r["reversible"];
-    if (isrev == "yes" || isrev == "true")
+    if (isrev == "yes" || isrev == "true") {
       rdata.reversible = true;
-
-
-    string typ = r["type"];
+    }
 
     /*
      * If reaction orders are specified, then this reaction
@@ -702,13 +698,13 @@ public:
       rdata.global = true;
     }
 
-
     /*
-     * Seaarch the reaction element for the attribute "type".
+     * Search the reaction element for the attribute "type".
      * If found, then branch on the type, to fill in appropriate
      * fields in rdata. 
-     */
-
+     */ 
+    rdata.reactionType = ELEMENTARY_RXN;
+    string typ = r["type"];
     if (typ == "falloff") {
       rdata.reactionType = FALLOFF_RXN;
       rdata.falloffType = SIMPLE_FALLOFF;
@@ -726,10 +722,10 @@ public:
     else if (typ == "edge") {
       rdata.reactionType = EDGE_RXN;
     }
-    else if (typ != "")
+    else if (typ != "") {
       throw CanteraError("installReaction",
 			 "Unknown reaction type: " + typ);
-
+    }
     /*
      * Look for undeclared duplicate reactions.
      */
@@ -746,35 +742,29 @@ public:
       for (nn = 0; nn < np; nn++) {
 	rxnstoich[rdata.products[nn]+1] += rdata.pstoich[nn];
       }
-      int nrxns = static_cast<int>(_reactiondata.size());
+      int nrxns = static_cast<int>(m_rdata.size());
       for (nn = 0; nn < nrxns; nn++) {
-	if ((int(rdata.reactants.size()) == _nr[nn]) 
-	    && (rdata.reactionType == _typ[nn])) {
-	  c = isDuplicateReaction(rxnstoich, _reactiondata[nn]);
+	if ((int(rdata.reactants.size()) == m_nr[nn]) 
+	    && (rdata.reactionType == m_typ[nn])) {
+	  c = isDuplicateReaction(rxnstoich, m_rdata[nn]);
 	  if (c > 0.0 
 	      || (c < 0.0 && rdata.reversible)
-	      || (c < 0.0 && _rev[nn])) {
-	    if ((!dup || !_dup[nn])) {
+	      || (c < 0.0 && m_rev[nn])) {
+	    if ((!dup || !m_dup[nn])) {
 	      string msg = string("Undeclared duplicate reactions detected: \n")
-		+"Reaction "+int2str(nn+1)+": "+_eqn[nn]
+		+"Reaction "+int2str(nn+1)+": "+m_eqn[nn]
 		+"\nReaction "+int2str(i+1)+": "+eqn+"\n";
-	      //_reactiondata.clear();
-	      //_eqn.clear();
-	      //_rev.clear();
-	      //_nr.clear();
-	      //_typ.clear();
-	      //_dup.clear();
-	      throw CanteraError("installReaction",msg);
+	      throw CanteraError("installReaction", msg);
 	    }
 	  }
 	}
       }
-      _dup.push_back(dup);
-      _rev.push_back(rdata.reversible);
-      _eqn.push_back(eqn);
-      _nr.push_back(rdata.reactants.size());
-      _typ.push_back(rdata.reactionType);
-      _reactiondata.push_back(rxnstoich);
+      m_dup.push_back(dup);
+      m_rev.push_back(rdata.reversible);
+      m_eqn.push_back(eqn);
+      m_nr.push_back(rdata.reactants.size());
+      m_typ.push_back(rdata.reactionType);
+      m_rdata.push_back(rxnstoich);
     }
         
     rdata.equation = eqn;
@@ -821,10 +811,7 @@ public:
   bool installReactionArrays(const XML_Node& p, Kinetics& kin, 
 			     std::string default_phase, bool check_for_duplicates) {
 
-      std::auto_ptr< rxninfo > _rxns( new rxninfo ) ;
-      //if (_rxns == 0) {
-      //_rxns = new rxninfo;
-      //}
+    const std::auto_ptr< rxninfo > _rxns( new rxninfo ) ;
     //_eqn.clear();
     //_dup.clear();
     //_nr.clear();
@@ -860,8 +847,6 @@ public:
        * of the current xml node.
        */
       const XML_Node* rdata = get_XML_Node(rxns["datasrc"], &rxns.root());
-      //const XML_Node* rdata = find_XML(rxns["datasrc"],&rxns.root(),
-      //			     "","","reactionData");
       /*
        * If the reactionArray element has a child element named
        * "skip", and if the attribute of skip called "species" has
@@ -945,14 +930,7 @@ public:
      * the true number of reactions in the mechanism, itot.
      */
     kin.finalize();
-    //writer = 0;
-    //_eqn.clear();
-    //_dup.clear();
-    //_nr.clear();
-    //_typ.clear();
-    //_reactiondata.clear();
-    //delete _rxns;
-    //_rxns = 0;
+  
     return true;
   }
 
@@ -969,13 +947,15 @@ public:
    *              phaseArray containing a listing of other phases
    *              that participate in the kinetics mechanism.
    *
-   * @param th    This is a list of ThermoPhase pointers containing
+   * @param th    This is a list of ThermoPhase pointers which must
+   *              include all of
    *              the phases that participate in the kinetics
-   *              reactions. All of the phases must have already
+   *              operator. All of the phases must have already
    *              been initialized and formed within Cantera.
    *              However, their pointers should not have been
    *              added to the Kinetics object; this addition
-   *              is carried out here.
+   *              is carried out here. Additional phases may
+   *              be include; these have no effect.
    *
    * @param k     This is a pointer to the kinetics manager class
    *              that will be initialized with a kinetics 
@@ -988,8 +968,10 @@ public:
 
     Kinetics& kin = *k;
 
-    // This phase will be the default one
-    string default_phase = phase["id"];
+    // This phase will be the owning phase for the kinetics operator
+    // For interfaces, it is the surface phase between two volumes.
+    // For homogeneous kinetics, it's the current volumetric phase.
+    string owning_phase = phase["id"];
 
     bool check_for_duplicates = false;
     if (phase.parent()->hasChild("validate")) {
@@ -1007,7 +989,7 @@ public:
       const XML_Node& pa = phase.child("phaseArray");
       getStringArray(pa, phase_ids);
     }
-    phase_ids.push_back(default_phase);
+    phase_ids.push_back(owning_phase);
             
     int np = static_cast<int>(phase_ids.size());
     int nt = static_cast<int>(th.size());
@@ -1048,7 +1030,7 @@ public:
     kin.init();
 
     // Install the reactions.
-    return installReactionArrays(phase, kin, default_phase, check_for_duplicates);
+    return installReactionArrays(phase, kin, owning_phase, check_for_duplicates);
   }
 
   /*

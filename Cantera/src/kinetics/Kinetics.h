@@ -149,7 +149,7 @@ namespace Cantera {
         ///  mix_defs.h.
         virtual int type() { return 0; }
 
-        /// Number of reactions in the reaction mechanism.
+        //! Number of reactions in the reaction mechanism.
         int nReactions() const {return m_ii;}
 
 	//@}
@@ -297,18 +297,20 @@ namespace Cantera {
             return m_start[n] + k;
         }
 
-	/**
-	 * Return the std::string name of the kth species in the kinetics
-	 * manager. k is an integer from 0 to ktot - 1, where ktot is
-	 * the number of species in the kinetics manager, which is the
-	 * sum of the number of species in all phases participating in
-	 * the kinetics manager.  If k is out of bounds, the std::string
-	 * "<unknown>" is returned.
-	 *
-	 * @param k species index
-	 */
-        std::string kineticsSpeciesName(int k) const;
-
+	
+      //! Return the std::string name of the kth species in the kinetics
+      //! manager.
+      /*!
+       *  k is an integer from 0 to ktot - 1, where ktot is
+       * the number of species in the kinetics manager, which is the
+       * sum of the number of species in all phases participating in
+       * the kinetics manager.  If k is out of bounds, the std::string
+       * "<unknown>" is returned.
+       *
+       * @param k species index
+       */
+      std::string kineticsSpeciesName(int k) const;
+      
       /**
        * This routine will look up a species number based on
        * the input std::string nm. The lookup of species will
@@ -721,9 +723,9 @@ namespace Cantera {
          */
         //@{
 
-        /**
-         * Add a phase to the kinetics manager object. This must
-	 * be done before the function init() is called or 
+        //!  Add a phase to the kinetics manager object. 
+        /*!
+         * This must be done before the function init() is called or 
 	 * before any reactions are input.
 	 * The following fields are updated:
 	 *  m_start -> vector of integers, containing the
@@ -740,7 +742,7 @@ namespace Cantera {
 	 *
 	 * @param thermo    Reference to the ThermoPhase to be added.
          */
-        void addPhase(thermo_t& thermo);
+        virtual void addPhase(thermo_t& thermo);
 
         /**
          * Prepare the class for the addition of reactions. This

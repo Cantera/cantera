@@ -69,6 +69,40 @@ namespace Cantera {
 			      const ReactionData &rdata, 
 			      doublereal errorTolerance = 1.0e-3);
 
+  /**
+   * Get the reactants or products of a reaction. The information
+   * is returned in the spnum, stoich, and order vectors. The
+   * length of the vectors is the number of different types of
+   * reactants or products found for the reaction.
+   *
+   * Input
+   * --------
+   *  rxn -> xml node pointing to the reaction element
+   *         in the xml tree.
+   *  kin -> Reference to the kinetics object to install
+   *         the information into.
+   *  rp = 1 -> Go get the reactants for a reaction
+   *      -1 -> Go get the products for a reaction
+   *  default_phase = String name for the default phase
+   *          to loop up species in.
+   *  Output
+   * -----------
+   *  spnum = vector of species numbers found. 
+   *          Length is number of reactants or products. 
+   *  stoich = stoichiometric coefficient of the reactant or product
+   *          Length is number of reactants or products. 
+   *  order = Order of the reactant and product in the reaction
+   *          rate expression
+   *  @param rule  If we fail to find a species, we will throw an error
+   *               if rule != 1. If rule = 1, we simply return false, 
+   *               allowing the calling routine to skip this reaction
+   *               and continue.
+   */
+  bool getReagents(const XML_Node& rxn, kinetics_t& kin, int rp,
+		   std::string default_phase, 
+		   vector_int& spnum, vector_fp& stoich, vector_fp& order,
+		   int rule);
+
   //! Read the rate coefficient data from the XML file. 
   /*!
    *  Extract the rate coefficient for a reaction from the xml node, kf.
@@ -128,11 +162,12 @@ namespace Cantera {
    * For example, if phase I is an interface phase between bulk
    * phases A and B. Then, the XML_Node for phase I should be
    * the first argument. 
-   * The vector of %ThermoPhase objects should be consist of pointers
+   * The vector of %ThermoPhase objects should consist of pointers
    * to phases I, A, and B. 
    *
    * @param phase This is an xml node containing a description
-   *              of a phase. Within the phase is a XML element
+   *              of the owning phase for the kinetics object. 
+   *              Within the phase is a XML element
    *              called reactionArray containing the location
    *              of the description of the reactions that make
    *              up the kinetics object. 
@@ -140,21 +175,24 @@ namespace Cantera {
    *              phaseArray containing a listing of other phases
    *              that participate in the kinetics mechanism.
    *
-   * @param th    This is a list of ThermoPhase pointers containing
+   * @param th    This is a list of ThermoPhase pointers which must
+   *              include all of
    *              the phases that participate in the kinetics
-   *              reactions. All of the phases must have already
+   *              operator. All of the phases must have already
    *              been initialized and formed within Cantera.
    *              However, their pointers should not have been
    *              added to the Kinetics object; this addition
-   *              is carried out here.
+   *              is carried out here. Additional phases may
+   *              be include in the list; these have no effect. 
    *
-   * @param kin   This is a pointer to a bare kinetics manager class
+   * @param kin   This is a pointer to a kinetics manager class
    *              that will be initialized with the kinetics 
-   *              mechanism.
+   *              mechanism. Inherited Kinetics classes may be
+   *              used here.
    *
    * @ingroup kineticsmgr
    *
-   */
+   */ 
   bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th, 
 		      Kinetics* kin);
  
