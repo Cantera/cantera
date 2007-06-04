@@ -1,6 +1,8 @@
 /**
  *  @file ReactionData.h
  *
+ */
+/*
  * $Author$
  * $Revision$
  * $Date$
@@ -31,7 +33,7 @@ namespace Cantera {
             global = false;
             beta = 0.0;
         }
-        ~ReactionData(){}
+        virtual ~ReactionData(){}
 
         int reactionType;
         int number, rxn_number;
@@ -43,6 +45,8 @@ namespace Cantera {
         std::vector<grouplist_t> rgroups;
         std::vector<grouplist_t> pgroups;
         std::map<int, doublereal> thirdBodyEfficiencies;
+
+        //! True if the current reaction is reversible. False otherwise
         bool reversible;
         int rateCoeffType;
         vector_fp rateCoeffParameters;
