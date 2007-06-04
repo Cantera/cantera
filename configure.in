@@ -1452,6 +1452,7 @@ AC_OUTPUT(Makefile \
           test_problems/silane_equil/Makefile \
           test_problems/surfkin/Makefile \
           test_problems/diamondSurf/Makefile \
+          test_problems/diamondSurf_dupl/Makefile \
           test_problems/ChemEquil_gri_matrix/Makefile \
           test_problems/ChemEquil_gri_pairs/Makefile \
           test_problems/ChemEquil_ionizedGas/Makefile \
@@ -1486,6 +1487,7 @@ AC_OUTPUT(Makefile \
           test_problems/cathermo/DH_graph_NM/Makefile \
           test_problems/cathermo/DH_graph_Pitzer/Makefile \
           test_problems/cathermo/DH_graph_bdotak/Makefile \
+          test_problems/cathermo/HMW_dupl_test/Makefile \
           bin/install_tsc \
           )
 #	)
