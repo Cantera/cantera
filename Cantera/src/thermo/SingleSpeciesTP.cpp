@@ -28,9 +28,8 @@ namespace Cantera {
    *
    */
 
-  /**
-   * SingleSpeciesTP():
-   *
+  // Base empty constructor. 
+  /*
    *   Base constructor -> does nothing but called the inherited
    *   class constructor
    */
@@ -44,15 +43,62 @@ namespace Cantera {
   {
   }
 
-  /**
-   * ~SingleSpeciesTP():
-   *
+
+  //! Copy constructor
+  /*!
+   * @param right Object to be copied
+   */
+  SingleSpeciesTP::SingleSpeciesTP(const SingleSpeciesTP &right):
+    ThermoPhase(),
+    m_tmin(0.0),
+    m_tmax(0.0),
+    m_press(OneAtm),
+    m_p0(OneAtm),
+    m_tlast(-1.0) 
+  {
+    *this = operator=(right);
+  }
+  
+  //! Assignment operator
+  /*!
+   * @param right Object to be copied
+   */
+  SingleSpeciesTP & SingleSpeciesTP::operator=(const SingleSpeciesTP & right) {
+   if (&right != this) {
+      ThermoPhase::operator=(right);
+      m_tmin       = right.m_tmin;
+      m_tmax       = right.m_tmax;
+      m_press      = right.m_press;
+      m_p0         = right.m_p0;
+      m_tlast      = right.m_tlast;
+      m_h0_RT      = right.m_h0_RT;
+      m_cp0_R      = right.m_cp0_R;
+      m_s0_R       = right.m_s0_R;
+    }
+    return *this;
+  }
+  
+  /*
    *  destructor -> does nothing but implicitly calls the inherited
    *                class destructors.
    */
   SingleSpeciesTP::~SingleSpeciesTP()
   {
   }
+
+  //! Duplication function
+  /*!
+   * This virtual function is used to create a duplicate of the
+   * current phase. It's used to duplicate the phase when given
+   * a ThermoPhase pointer to the phase.
+   *
+   * @return It returns a ThermoPhase pointer.
+   */
+  ThermoPhase *SingleSpeciesTP::duplMyselfAsThermoPhase() const {
+    SingleSpeciesTP *stp = new SingleSpeciesTP(*this);
+    return (ThermoPhase *) stp;
+  }
+
   /**
    *   
    * ------------------- Utilities ----------------------------------  

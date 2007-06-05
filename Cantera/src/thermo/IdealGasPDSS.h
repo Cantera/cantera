@@ -37,11 +37,29 @@ namespace Cantera {
      * Basic list of constructors and duplicators
      */
     IdealGasPDSS(ThermoPhase *tp, int spindex);
+
+    //! Copy Constructur
+    /*!
+     * @param b Object to be copied
+     */
     IdealGasPDSS(const IdealGasPDSS &b);
+
+    //! Assignment operator
+    /*!
+     * @param b Object to be copeid
+     */
     IdealGasPDSS& operator=(const IdealGasPDSS&b);
-    IdealGasPDSS(ThermoPhase *tp, int spindex, std::string inputFile, std::string id = "");
-    IdealGasPDSS(ThermoPhase *tp, int spindex, XML_Node& phaseRef, std::string id = "");
+
+    IdealGasPDSS(ThermoPhase *tp, int spindex,
+		 std::string inputFile, std::string id = "");
+    IdealGasPDSS(ThermoPhase *tp, int spindex, XML_Node& phaseRef, 
+		 std::string id = "");
+
+    //! Destructor
     virtual ~IdealGasPDSS();
+
+    //! Duplicator
+    virtual ThermoPhase *duplMyselfAsThermoPhase() const;
         
     /**
      *   

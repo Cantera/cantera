@@ -26,6 +26,59 @@ using namespace std;
 
 namespace Cantera {
 
+
+  // Base empty constructor
+  LatticeSolidPhase::LatticeSolidPhase() : 
+    m_tlast(0.0) 
+  {
+  }
+  
+  // Copy Constructor
+  /*
+   * @param right Object to be copied
+   */
+  LatticeSolidPhase::LatticeSolidPhase(const LatticeSolidPhase &right) :
+    m_tlast(0.0)
+  {
+    *this = operator=(right);
+  }
+
+  // Assignment operator
+  /*
+   * @param right Object to be copied
+   */
+  LatticeSolidPhase& 
+  LatticeSolidPhase::operator=(const LatticeSolidPhase& right) {
+    if (&right != this) {
+      ThermoPhase::operator=(right);
+      m_mm         = right.m_mm;
+      m_kk         = right.m_kk;
+      m_tlast      = right.m_tlast;
+      m_press      = right.m_press;
+      m_molar_density = right.m_molar_density;
+      m_nlattice   = right.m_nlattice;
+      m_x          = right.m_x;
+    }
+    return *this;
+  }
+
+  //! Destructor
+  LatticeSolidPhase::~LatticeSolidPhase() {
+  }
+
+  // Duplication function
+  /*
+   * This virtual function is used to create a duplicate of the
+   * current phase. It's used to duplicate the phase when given
+   * a ThermoPhase pointer to the phase.
+   *
+   * @return It returns a %ThermoPhase pointer.
+   */
+  ThermoPhase *LatticeSolidPhase::duplMyselfAsThermoPhase() const {
+    LatticeSolidPhase *igp = new LatticeSolidPhase(*this);
+    return (ThermoPhase *) igp;
+  }
+  
     doublereal LatticeSolidPhase::
     enthalpy_mole() const {
         _updateThermo();

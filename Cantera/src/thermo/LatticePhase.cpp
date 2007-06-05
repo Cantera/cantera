@@ -21,6 +21,63 @@
 
 namespace Cantera {
 
+  //! Base Empty constructor
+  LatticePhase::LatticePhase() :
+    m_tlast(0.0) 
+  {
+  }
+  
+  //! Copy Constructor
+  /*!
+   * @param right Object to be copied
+   */
+  LatticePhase::LatticePhase(const LatticePhase &right) :
+    m_tlast(0.0)
+  {
+    *this = operator=(right);
+  }
+  
+  //! Assignment operator
+  /*!
+   * @param right Object to be copied
+   */
+  LatticePhase& LatticePhase::operator=(const LatticePhase& right) {
+    if (&right != this) {
+      ThermoPhase::operator=(right);
+      m_mm         = right.m_mm;
+      m_tmin       = right.m_tmin;
+      m_tmax       = right.m_tmax;
+      m_p0         = right.m_p0;
+      m_tlast      = right.m_tlast;
+      m_h0_RT      = right.m_h0_RT;
+      m_cp0_R      = right.m_cp0_R;
+      m_g0_RT      = right.m_g0_RT;
+      m_s0_R       = right.m_s0_R;
+      m_press      = right.m_press;
+      m_vacancy    = right.m_vacancy;
+      m_molar_density = right.m_molar_density;
+    }
+    return *this;
+  }
+  
+  //! Destructor
+  LatticePhase::~LatticePhase() {
+  }
+  
+  //! Duplication function
+  /*!
+   * This virtual function is used to create a duplicate of the
+   * current phase. It's used to duplicate the phase when given
+   * a ThermoPhase pointer to the phase.
+   *
+   * @return It returns a ThermoPhase pointer.
+   */
+  ThermoPhase *LatticePhase::duplMyselfAsThermoPhase() const {
+    LatticePhase *igp = new LatticePhase(*this);
+    return (ThermoPhase *) igp;
+  }
+  
+  
     doublereal LatticePhase::
     enthalpy_mole() const {
         doublereal p0 = m_spthermo->refPressure();

@@ -95,7 +95,7 @@ namespace Cantera {
     //! Copy Constructor
     IdealMolalSoln(const IdealMolalSoln &);
 
-    //! Equality operator
+    //! Assignment operator
     IdealMolalSoln& operator=(const	IdealMolalSoln&);
 
     //! Constructor for phase initialization

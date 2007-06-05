@@ -39,6 +39,11 @@ namespace Cantera {
   {
   }
 
+  // Full Constructor.
+  /*
+   *  @param phaseRef XML node pointing to a StoichSubstanceSSTP description
+   *  @param id       Id of the phase. 
+   */
   StoichSubstanceSSTP::StoichSubstanceSSTP(XML_Node& xmlphase, std::string id) {
     if (id != "") {
       std::string idxml = xmlphase["id"];
@@ -56,6 +61,28 @@ namespace Cantera {
     importPhase(xmlphase, this);
   }
 
+  //! Copy constructor
+  /*!
+   * @param right Object to be copied
+   */
+  StoichSubstanceSSTP::StoichSubstanceSSTP(const StoichSubstanceSSTP  &right) :
+    SingleSpeciesTP()
+  {
+    *this = operator=(right);
+  }
+  
+  //! Assignment operator
+  /*!
+   * @param right Object to be copied
+   */
+  StoichSubstanceSSTP & 
+  StoichSubstanceSSTP::operator=(const StoichSubstanceSSTP & right) {
+    if (&right != this) {
+      SingleSpeciesTP::operator=(right);
+    }
+    return *this;
+  }
+
   /*
    * Destructor for the routine (virtual)
    *        
@@ -63,6 +90,20 @@ namespace Cantera {
   StoichSubstanceSSTP::~StoichSubstanceSSTP() 
   {
   }
+
+  // Duplication function
+  /*
+   * This virtual function is used to create a duplicate of the
+   * current phase. It's used to duplicate the phase when given
+   * a ThermoPhase pointer to the phase.
+   *
+   * @return It returns a ThermoPhase pointer.
+   */
+  ThermoPhase *StoichSubstanceSSTP::duplMyselfAsThermoPhase() const {
+    StoichSubstanceSSTP *stp = new StoichSubstanceSSTP(*this);
+    return (ThermoPhase *) stp;
+  }
+
 
   /*
    * ---- Utilities -----

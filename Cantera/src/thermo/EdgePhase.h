@@ -43,9 +43,24 @@ namespace Cantera {
      */
     EdgePhase(doublereal n0 = 0.0);
 
+    //! Copy Constructor
+    /*!
+     * @param right Object to be copied
+     */
+    EdgePhase(const EdgePhase & right);
+
+    //! Assignment Operator
+    /*!
+     * @param right Object to be copied
+     */
+    EdgePhase& operator=(const EdgePhase & right);
+
     //! Destructor
     virtual ~EdgePhase() {}
 
+    //! Duplicator from a ThermoPhase object
+    ThermoPhase *duplMyselfAsThermoPhase() const;
+    
     //! returns the equation of state type
     virtual int eosType() const { return cEdge; }
 

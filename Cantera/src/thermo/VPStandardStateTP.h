@@ -65,7 +65,8 @@ namespace Cantera {
    *  The virtual function #_updateRefStateThermo() is supplied to do this
    *  and may be reimplemented in child routines. A default implementation
    *  based on the speciesThermo class is supplied in this base class.
-   *  #_updateStandardStateThermo() is called whenever a reference state property is needed.
+   *  #_updateStandardStateThermo() is called whenever a reference state
+   *   property is needed.
    *
    *  When  #m_useTmpStandardStateStorage is true, then the following
    *  internal arrays, containing information on the standard state properties

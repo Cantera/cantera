@@ -31,9 +31,33 @@ namespace Cantera {
 
     public:
 
-        LatticePhase() : m_tlast(0.0) {}
+      //! Base Empty constructor
+      LatticePhase();
 
-        virtual ~LatticePhase() {}
+      //! Copy Constructor
+      /*!
+       * @param right Object to be copied
+       */
+      LatticePhase(const LatticePhase &right);
+
+      //! Assignment operator
+      /*!
+       * @param right Object to be copied
+       */
+      LatticePhase& operator=(const LatticePhase& right);
+
+      //! Destructor
+      virtual ~LatticePhase();
+
+      //! Duplication function
+      /*!
+       * This virtual function is used to create a duplicate of the
+       * current phase. It's used to duplicate the phase when given
+       * a ThermoPhase pointer to the phase.
+       *
+       * @return It returns a ThermoPhase pointer.
+       */
+      ThermoPhase *duplMyselfAsThermoPhase() const;
 
         virtual int eosType() const { return cLattice; }
 
@@ -134,7 +158,9 @@ namespace Cantera {
     protected:
 
         int m_mm;
-        doublereal m_tmin, m_tmax, m_p0;
+        doublereal m_tmin;
+        doublereal m_tmax;
+        doublereal m_p0;
         mutable doublereal     m_tlast;
         mutable array_fp      m_h0_RT;
         mutable array_fp      m_cp0_R;

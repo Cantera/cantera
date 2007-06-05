@@ -72,6 +72,12 @@ namespace Cantera {
   IdealGasPDSS::~IdealGasPDSS() { 
   }
   
+  //! Duplicator
+  ThermoPhase *IdealGasPDSS::duplMyselfAsThermoPhase() const {
+    IdealGasPDSS * idg = new IdealGasPDSS(*this);
+    return (ThermoPhase *) idg;
+  }
+
   void IdealGasPDSS::constructPDSS(ThermoPhase *tp, int spindex) {
     initThermo();
   }

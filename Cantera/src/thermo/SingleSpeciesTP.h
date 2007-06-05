@@ -67,7 +67,8 @@ namespace Cantera {
    *  of such a compound even past the phase equilibrium point, up to the 
    *  point where the phase itself ceases to be a stable phase.
    *
-   *  This class doesn't do much at the initialization level. It's SingleSpeciesTP::initThermo()
+   *  This class doesn't do much at the initialization level. 
+   *  It's SingleSpeciesTP::initThermo()
    *  member does check that one and only one species has been defined
    *  to occupy the phase.
    *
@@ -77,11 +78,33 @@ namespace Cantera {
 
   public:
         
-    /// Constructor. 
+    //! Base empty constructor. 
     SingleSpeciesTP();
 
-    /// Destructor
+    //! Copy constructor
+    /*!
+     * @param right Object to be copied
+     */
+    SingleSpeciesTP(const SingleSpeciesTP  &right);
+    
+    //! Assignment operator
+    /*!
+     * @param right Object to be copied
+     */
+    SingleSpeciesTP & operator=(const SingleSpeciesTP & right);
+
+    //! Destructor
     virtual ~SingleSpeciesTP();
+
+    //! Duplication function
+    /*!
+     * This virtual function is used to create a duplicate of the
+     * current phase. It's used to duplicate the phase when given
+     * a ThermoPhase pointer to the phase.
+     *
+     * @return It returns a ThermoPhase pointer.
+     */
+    ThermoPhase *duplMyselfAsThermoPhase() const;
 
     /**
      *   

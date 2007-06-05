@@ -53,7 +53,8 @@ namespace Cantera {
    * The enthalpy function is given by the following relation.
    *
    *       \f[
-   *   \raggedright       h^o_k(T,P) = h^{ref}_k(T) + \tilde v \left( P - P_{ref} \right) 
+   *   \raggedright   h^o_k(T,P) =
+   *                  h^{ref}_k(T) + \tilde v \left( P - P_{ref} \right) 
    *       \f]
    *
    * For an incompressible,
@@ -166,25 +167,42 @@ namespace Cantera {
   class StoichSubstanceSSTP : public SingleSpeciesTP {
 
   public:
-    /**
-     * Default Constructor for the StoichSubstanceSSTP class
-     */
+    
+    //! Default Constructor for the StoichSubstanceSSTP class
     StoichSubstanceSSTP();
 
-    //! Constructor.
+    //! Full Constructor.
     /*!
      *  @param phaseRef XML node pointing to a StoichSubstanceSSTP description
      *  @param id       Id of the phase. 
      */
     StoichSubstanceSSTP(XML_Node& phaseRef, std::string id = "");
-   
 
-    /**
-     * Destructor for the routine (virtual)
-     *        
+    //! Copy constructor
+    /*!
+     * @param right Object to be copied
      */
+    StoichSubstanceSSTP(const StoichSubstanceSSTP  &right);
+    
+    //! Assignment operator
+    /*!
+     * @param right Object to be copied
+     */
+    StoichSubstanceSSTP & operator=(const StoichSubstanceSSTP & right);
+   
+    //! Destructor for the routine (virtual)
     virtual ~StoichSubstanceSSTP();
 
+    //! Duplication function
+    /*!
+     * This virtual function is used to create a duplicate of the
+     * current phase. It's used to duplicate the phase when given
+     * a ThermoPhase pointer to the phase.
+     *
+     * @return It returns a ThermoPhase pointer.
+     */
+    ThermoPhase *duplMyselfAsThermoPhase() const;
+   
     /**
      *   
      * @name  Utilities  
@@ -399,8 +417,8 @@ namespace Cantera {
      * term \f$ P_{ref} \hat v\f$ is subtracted from the specified reference molar
      * enthalpy to compute the standard state molar internal energy.
      *
-     * @param urt  output vector of nondimensional standard state internal energies
-     *             of the species. Length: m_kk. 
+     * @param urt  output vector of nondimensional standard state 
+     *             internal energies of the species. Length: m_kk. 
      */
     virtual void getIntEnergy_RT(doublereal* urt) const;
 

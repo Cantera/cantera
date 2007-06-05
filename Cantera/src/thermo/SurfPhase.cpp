@@ -113,7 +113,7 @@ namespace Cantera {
    * @return returns a pointer to a %ThermoPhase
    */
   ThermoPhase *SurfPhase::duplMyselfAsThermoPhase() const {
-    ThermoPhase *igp = new SurfPhase(*this);
+    SurfPhase *igp = new SurfPhase(*this);
     return (ThermoPhase *) igp;
   }
 
@@ -441,10 +441,46 @@ namespace Cantera {
         }
     }
 
+  // Default constructor
+  EdgePhase::EdgePhase(doublereal n0) : SurfPhase(n0) {
+    setNDim(1);
+  }
 
-    EdgePhase::EdgePhase(doublereal n0) : SurfPhase(n0) {
-        setNDim(1);
+  // Copy Constructor
+  /*
+   * @param right Object to be copied
+   */
+  EdgePhase::EdgePhase(const EdgePhase & right) :
+    SurfPhase(right.m_n0)
+  {
+    setNDim(1);
+    *this = operator=(right);
+  }
+
+  // Assignment Operator
+  /*
+   * @param right Object to be copied
+   */
+  EdgePhase& EdgePhase::operator=(const EdgePhase & right) {
+    if (&right != this) {
+      SurfPhase::operator=(right);
+      setNDim(1);
     }
+    return *this;
+  }
+
+  // Duplicator from the %ThermoPhase parent class
+  /*
+   * Given a pointer to a %ThermoPhase object, this function will
+   * duplicate the %ThermoPhase object and all underlying structures.
+   * This is basically a wrapper around the copy constructor.
+   *
+   * @return returns a pointer to a %ThermoPhase
+   */
+  ThermoPhase *EdgePhase::duplMyselfAsThermoPhase() const {
+    EdgePhase *igp = new EdgePhase(*this);
+    return (ThermoPhase *) igp;
+  }
 
     void EdgePhase::
     setParametersFromXML(const XML_Node& eosdata) {

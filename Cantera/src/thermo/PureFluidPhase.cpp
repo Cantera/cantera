@@ -1,6 +1,7 @@
 /**
  *   @file PureFluidPhase.cpp
- *   Definitions for a ThermoPhase object for a pure fluid phase consisting of gas, liquid, mixed-gas-liquid
+ *   Definitions for a ThermoPhase object for a pure fluid phase consisting 
+ *   of gas, liquid, mixed-gas-liquid
  *   and supercritical fluid (see \ref thermoprops 
  *   and class \link Cantera::PureFluidPhase PureFluidPhase\endlink).
  */
@@ -17,7 +18,64 @@
 
 namespace Cantera {
 
-    PureFluidPhase::~PureFluidPhase() { delete m_sub; }
+  // Base Constructor
+  PureFluidPhase::PureFluidPhase() :
+    ThermoPhase(), 
+    m_sub(0),
+    m_subflag(0), 
+    m_mw(-1.0), 
+    m_verbose(false)
+  {
+  }
+
+  // CopyConstructor
+  PureFluidPhase::PureFluidPhase(const PureFluidPhase& right) :
+    ThermoPhase(), 
+    m_sub(0),
+    m_subflag(0), 
+    m_mw(-1.0), 
+    m_verbose(false)
+  {
+    *this = right;
+  }
+
+  //! Assignment operator
+  /*!
+   * @param right Object to be copied
+   */
+  PureFluidPhase& PureFluidPhase::operator=(const PureFluidPhase& right) {
+    if (&right != this) {
+      ThermoPhase::operator=(right);
+      if (m_sub) {
+	delete m_sub;
+      }
+      m_subflag    = right.m_subflag;
+      m_sub        = tpx::GetSub(m_subflag);
+      m_mw         = right.m_mw;
+      m_verbose    = right.m_verbose;
+    }
+    return *this;
+  }
+  
+  // Duplicator from the %ThermoPhase parent class
+  /*
+   * Given a pointer to a %ThermoPhase object, this function will
+   * duplicate the %ThermoPhase object and all underlying structures.
+   * This is basically a wrapper around the copy constructor.
+   *
+   * @return returns a pointer to a %ThermoPhase
+   */
+  ThermoPhase *PureFluidPhase::duplMyselfAsThermoPhase() const {
+    PureFluidPhase *igp = new PureFluidPhase(*this);
+    return (ThermoPhase *) igp;
+  }
+
+
+
+
+    PureFluidPhase::~PureFluidPhase() {
+      delete m_sub; 
+    }
 
     void PureFluidPhase::
     initThermo() {

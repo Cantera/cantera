@@ -41,8 +41,19 @@ namespace Cantera {
      */
     PDSS();
     PDSS(ThermoPhase *tp, int spindex);
+
+    //! Copy Constructor
+    /*!
+     * @param b object to be copied
+     */
     PDSS(const PDSS &b);
+
+    //! Assignment operator
+    /*!
+     * @param b Object to be copied
+     */
     PDSS& operator=(const PDSS&b);
+
     PDSS(ThermoPhase *tp, int spindex, std::string inputFile, std::string id = "");
     PDSS(ThermoPhase *tp, int spindex, XML_Node& phaseRef, std::string id = "");
     virtual ~PDSS();

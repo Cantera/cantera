@@ -63,13 +63,34 @@ namespace Cantera {
 
   public:
 
-    //! Base Constructor
-    PureFluidPhase() : ThermoPhase(), m_sub(0), m_subflag(0), 
-		       m_mw(-1.0), m_verbose(false) {}
+    //! Empty Base Constructor
+    PureFluidPhase();
+
+    //! Copy Constructor
+    /*!
+     * @param right Object to be copied
+     */
+    PureFluidPhase(const PureFluidPhase &right);
+
+    //! Assignment operator
+    /*!
+     * @param right Object to be copied
+     */
+    PureFluidPhase& operator=(const PureFluidPhase& right);
 
     //! Destructor
     virtual ~PureFluidPhase();
-        
+
+    //! Duplication function
+    /*!
+     * This virtual function is used to create a duplicate of the
+     * current phase. It's used to duplicate the phase when given
+     * a ThermoPhase pointer to the phase.
+     *
+     * @return It returns a ThermoPhase pointer.
+     */
+    ThermoPhase *duplMyselfAsThermoPhase() const;
+
     //! Equation of state type
     virtual int eosType() const { return cPureFluid; }
 
