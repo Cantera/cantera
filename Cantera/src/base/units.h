@@ -169,7 +169,8 @@ namespace Cantera {
     std::map<std::string, doublereal> m_act_u;
 
 #if defined(THREAD_SAFE_CANTERA)
-      static boost::mutex units_mutex;
+    //! Decl for static locker for Units singelton 
+    static boost::mutex units_mutex;
 #endif
 
     /*!

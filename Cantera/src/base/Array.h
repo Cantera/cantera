@@ -27,6 +27,13 @@ namespace Cantera {
     /**
      *  A class for 2D arrays stored in column-major
      *  (Fortran-compatible) form.
+     *  In this form, the data entry for an n row, m col 
+     *  matrix is 
+     *       index = i + (n-1) * j
+     *  where
+     *     J(i,j) = data_start + index 
+     *         i = row
+     *         j = column
      */
     class Array2D {
 
@@ -69,7 +76,12 @@ namespace Cantera {
 	    return *this;
         }
 
-        /// resize the array, and fill the new entries with 'v'
+        //! resize the array, and fill the new entries with 'v'
+        /*!
+         * @param n  This is the number of rows
+         * @param m  This is the number of columns in the new matrix
+         * @param v  Default fill value -> defaults to zero.
+         */
         void resize(int n, int m, doublereal v = 0.0) {
             m_nrows = n;
             m_ncols = m;
@@ -147,6 +159,13 @@ namespace Cantera {
          */ 
         doublereal operator() ( int i, int j) const {return value(i,j);}
 
+        //! Returns a changeable reference to position in the matrix
+        /*!
+         * This is a key entry. Returns a reference to the matrixes (i,j)
+         * element. This may be used as an L value.
+         * @param i   The row index
+         * @param j   The column index
+         */
         doublereal& value( int i, int j) {return m_data[m_nrows*j + i];}
         doublereal value( int i, int j) const {return m_data[m_nrows*j + i];}
 

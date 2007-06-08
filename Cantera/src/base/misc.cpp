@@ -244,7 +244,7 @@ namespace Cantera {
        *
        * @ingroup errorhandling
        */
-      void getErrors( std::ostream& f) ;
+      void getErrors(std::ostream& f) ;
 
       //!  Prints all of the error messages using writelog
       /*!
@@ -427,37 +427,47 @@ namespace Cantera {
     } ;
     
 #ifdef THREAD_SAFE_CANTERA
+      //! Typedef for thread specific messages
       typedef boost::shared_ptr< Messages >   pMessages_t ;
+
+      //! Typedef for map between a thread and the message
       typedef std::map< cthreadId_t, pMessages_t > threadMsgMap_t ;
+
       class ThreadMessages
       {
       public:
-         ThreadMessages()
-         {
-         }
-
-         Messages* operator->()
-         {
-            MSG_LOCK() ;
-            cthreadId_t curId = getThisThreadId() ;
-            threadMsgMap_t::iterator iter = m_threadMsgMap.find( curId ) ;
-            if ( iter != m_threadMsgMap.end() )
+	//! Constructor
+	ThreadMessages()
+	{
+	}
+	
+	//! Provide a pointer deferencing overloaded operator
+	/*!
+	 * @return  returns a pointer to Messages
+	 */
+	Messages* operator->()
+	{
+	  MSG_LOCK() ;
+	  cthreadId_t curId = getThisThreadId() ;
+	  threadMsgMap_t::iterator iter = m_threadMsgMap.find( curId ) ;
+	  if ( iter != m_threadMsgMap.end() )
             {
-               return (iter->second.get()) ;
+	      return (iter->second.get()) ;
             }
-            pMessages_t pMsgs( new Messages() ) ;
-            m_threadMsgMap.insert( std::pair< cthreadId_t, pMessages_t >( curId, pMsgs ) ) ;
-            return pMsgs.get() ;
-         }
+	  pMessages_t pMsgs( new Messages() ) ;
+	  m_threadMsgMap.insert( std::pair< cthreadId_t, pMessages_t >( curId, pMsgs ) ) ;
+	  return pMsgs.get() ;
+	}
 
-         void removeThreadMessages() {
-            MSG_LOCK() ;
-            cthreadId_t curId = getThisThreadId() ;
-            threadMsgMap_t::iterator iter = m_threadMsgMap.find( curId ) ;
-            if ( iter != m_threadMsgMap.end() ) {
-               m_threadMsgMap.erase( iter ) ;
-            }
-         }
+	//! Remove a local thread message
+	void removeThreadMessages() {
+	  MSG_LOCK() ;
+	  cthreadId_t curId = getThisThreadId() ;
+	  threadMsgMap_t::iterator iter = m_threadMsgMap.find( curId ) ;
+	  if ( iter != m_threadMsgMap.end() ) {
+	    m_threadMsgMap.erase( iter ) ;
+	  }
+	}
 
       private:
 	//! Thread Msg Map
