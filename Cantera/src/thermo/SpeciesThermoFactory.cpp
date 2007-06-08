@@ -36,9 +36,10 @@ using namespace ctml;
 namespace Cantera {
 
   SpeciesThermoFactory* SpeciesThermoFactory::s_factory = 0;
-      #if defined(THREAD_SAFE_CANTERA)
-        boost::mutex SpeciesThermoFactory::species_thermo_mutex ;
-      #endif
+
+#if defined(THREAD_SAFE_CANTERA)
+  boost::mutex SpeciesThermoFactory::species_thermo_mutex ;
+#endif
  
 
   /**

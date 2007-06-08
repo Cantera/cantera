@@ -90,7 +90,7 @@ namespace Cantera {
      */
     virtual void deleteFactory() {
 #if defined(THREAD_SAFE_CANTERA)
-        boost::mutex::scoped_lock lock(species_thermo_mutex);
+      boost::mutex::scoped_lock lock(species_thermo_mutex);
 #endif
       if (s_factory) {
 	delete s_factory;
@@ -163,7 +163,8 @@ namespace Cantera {
     static SpeciesThermoFactory* s_factory;
 
 #if defined(THREAD_SAFE_CANTERA)
-      static boost::mutex species_thermo_mutex;
+    //! Decl of the static mutex variable that locks the %SpeciesThermo factory singelton
+    static boost::mutex species_thermo_mutex;
 #endif
 
     //! Constructor. This is made private, so that only the static

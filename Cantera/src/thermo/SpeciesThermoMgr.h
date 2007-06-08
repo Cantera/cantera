@@ -158,6 +158,9 @@ namespace Cantera {
     virtual ~SpeciesThermoDuo(){}
 
     //! copy constructor
+    /*!
+     * @param right Object to be copied
+     */
     SpeciesThermoDuo(const SpeciesThermoDuo &right) {
       *this = operator=(right);
     }
@@ -407,6 +410,9 @@ namespace Cantera {
     virtual ~SpeciesThermo1(){}
 
     //! Copy Constructor
+    /*!
+     * @param right Object to be copied
+     */
     SpeciesThermo1(const SpeciesThermo1 &right) :
       m_pref(0.0)
     {

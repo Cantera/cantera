@@ -29,7 +29,7 @@
 
 namespace Cantera {
 
-    class SpeciesThermoFactory;
+  class SpeciesThermoFactory;
 
   /*!
    *  @addtogroup thermoprops
@@ -65,7 +65,7 @@ namespace Cantera {
    * This class keeps a list of the known ThermoPhase classes, and is
    * used to create new instances of these classes.
    */
-    class ThermoFactory : public FactoryBase {
+  class ThermoFactory : public FactoryBase {
 
   public:
 
@@ -113,11 +113,13 @@ namespace Cantera {
     //! static member of a single instance
     static ThermoFactory* s_factory;
 
-    //! Private constructor prevents usage
-      ThermoFactory(){}
+    //! Private constructors prevents usage
+    ThermoFactory(){};
+   
 
 #if defined(THREAD_SAFE_CANTERA)
-        static boost::mutex thermo_mutex;
+    //! Decl for locking mutex for thermo factory singelton
+    static boost::mutex thermo_mutex;
 #endif
 
   };

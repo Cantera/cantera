@@ -70,6 +70,9 @@ namespace Cantera {
     virtual ~SimpleThermo() {}
 
     //! Copy constructor
+    /*!
+     * @param right Object to be copied
+     */
     SimpleThermo(const SimpleThermo &right) :
       ID(SIMPLE),
       m_tlow_max(0.0), 
@@ -83,7 +86,10 @@ namespace Cantera {
     }
 
     //! Assignment operator
-    SimpleThermo& SimpleThermo::operator=(const SimpleThermo &right) {
+    /*!
+     * @param right Object to be copied
+     */
+    SimpleThermo& operator=(const SimpleThermo &right) {
       /*
        * Check for self assignment.
        */
