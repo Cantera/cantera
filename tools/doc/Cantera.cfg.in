@@ -98,6 +98,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          units.h \
                          ctexceptions.h \
                          *.txt \
+                         clockWC.h clockWC.cpp \
                          equilibrium.h \
                          ThermoPhase.h  ThermoPhase.cpp \
                          Phase.h Phase.cpp \
