@@ -195,7 +195,7 @@ namespace Cantera {
       m_u["kJ"]       = 1.0e3;
       m_u["cal"]      = 4.184;
       m_u["kcal"]     = 4184.0;
-      m_u["eV"]       = 1.60217733e-19;
+      m_u["eV"]       = Faraday; //1.60217733e-19;
 
       // quantity
       m_u["mol"]      = 1.0e-3;
@@ -223,7 +223,7 @@ namespace Cantera {
       m_u["hr"]       = 3600.0;
       m_u["ms"]       = 0.001;
 
-      m_act_u["eV"] = m_u["eV"]/m_u["molec"];
+      m_act_u["eV"] = m_u["eV"]; // /m_u["molec"];
       m_act_u["K"] =  GasConstant;
       m_act_u["Kelvin"] =  GasConstant;
       m_act_u["Dimensionless"] =  (GasConstant * 273.15);

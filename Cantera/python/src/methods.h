@@ -294,6 +294,8 @@ static PyMethodDef ct_methods[] = {
     {"mix_equilibrate", py_mix_equilibrate, METH_VARARGS},
     {"mix_getChemPotentials", py_mix_getChemPotentials, METH_VARARGS},
 
+    {"ct_appdelete", pyct_appdelete, METH_VARARGS},
+
 #ifdef INCL_USER_PYTHON
 #include "usermethods.h"
 #endif

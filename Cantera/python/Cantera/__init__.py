@@ -51,6 +51,12 @@ def addDirectory(dir):
 def writeLogFile(file):
     return _cantera.ct_writelogfile(file)
 
+
+def reset():
+    """Release all cached Cantera data. Equivalent to
+    starting a fresh session."""
+    _cantera.ct_appdelete()
+    
 # workaround for case problems in CVS repository file Mixture.py. On some
 # systems it appears as mixture.py, and on others as Mixture.py
 try:

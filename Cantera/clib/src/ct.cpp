@@ -88,6 +88,7 @@ static double pfprop(int n, int i, double v=0.0, double x=0.0) {
 }
 #endif
 
+
 inline int nThermo() {
     return Storage::storage()->nThermo();
 }
@@ -100,6 +101,11 @@ namespace Cantera {
  * Exported functions.
  */
 extern "C" {
+
+    int DLL_EXPORT ct_appdelete() {
+        appdelete();
+        return 0;
+    }
 
     //--------------- Phase ---------------------//
 

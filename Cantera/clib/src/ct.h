@@ -5,6 +5,7 @@
 #include "cantera/config.h"
 
 extern "C" {
+    int DLL_IMPORT ct_appdelete();
 
     int DLL_IMPORT phase_nElements(int n);
     int DLL_IMPORT phase_nSpecies(int n);
