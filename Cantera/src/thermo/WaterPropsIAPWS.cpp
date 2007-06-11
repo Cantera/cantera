@@ -18,12 +18,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 /*
- * Critical Point values in mks units
+ * Critical Point values of water in mks units
  */
- const double T_c = 647.096;       // Kelvin
-static const double P_c = 22.064E6;      // Pascals
- const double Rho_c = 322.;        // kg m-3
-static const double M_water = 18.015268; // kg kmol-1
+//! Critical Temperature value (kelvin)
+const double T_c = 647.096;  
+//! Critical Pressure (Pascals)
+static const double P_c = 22.064E6; 
+//! Value of the Density at the critical point (kg  m-3)
+const double Rho_c = 322.;    
+//! Molecular Weight of water that is consistent with the paper (kg kmol-1)
+static const double M_water = 18.015268; 
+
 /*
  * Note, this is the Rgas value quoted in the paper. For consistency
  * we have to use that value and not the updated value

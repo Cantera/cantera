@@ -278,7 +278,7 @@ namespace Cantera {
    *              exist in 'p'. If rule != 0, quietly skip 
    *              this species if some elements are undeclared;
    *              otherwise, throw an exception
-   * @param factor Pointer to the SpeciesThermoFactory .
+   * @param factory Pointer to the SpeciesThermoFactory .
    *
    * @return
    *  Returns true if everything is ok, false otherwise.
