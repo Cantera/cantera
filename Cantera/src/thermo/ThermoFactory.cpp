@@ -514,6 +514,11 @@ namespace Cantera {
 		      SpeciesThermo& spthermo, int rule, 
 		      SpeciesThermoFactory* factory) {
 
+    std::string xname = s.name();
+    if (xname != "species") {
+      throw CanteraError("installSpecies",
+			 "Unexpected XML name of species XML_Node: " + xname);
+    }
     // get the composition of the species
     const XML_Node& a = s.child("atomArray");
     map<string,string> comp;
@@ -568,23 +573,27 @@ namespace Cantera {
     return true;
   }
 
+
+  //  Search an XML tree for species data.
   /*
-   * Search an XML tree for species data.
-   *
    *   This utility routine will search the XML tree for the species
    *   named by the string, kname. It will return the XML_Node
-   *   pointer.
+   *   pointer to the species data for that species.
    *   Failures of any kind return the null pointer.
+   *
+   * @param kname String containing the name of the species.
+   * @param phaseSpeciesData   Pointer to the XML speciesData element
+   *              containing the species data for that phase.
+   *
    */
   const XML_Node *speciesXML_Node(std::string kname,
 				  const XML_Node *phaseSpeciesData) {
-    /*
-     * First look at the species database.
-     *  -> Look for the subelement "stoichIsMods"
-     *     in each of the species SS databases.
-     */
     if (!phaseSpeciesData) return ((const XML_Node *) 0);
-    string jname;
+    string jname = phaseSpeciesData->name();
+    if (jname != "speciesData") {
+      throw CanteraError("speciesXML_Node()",
+			 "Unexpected phaseSpeciesData name: " + jname);
+    }
     vector<XML_Node*> xspecies;
     phaseSpeciesData->getChildren("species", xspecies);
     int jj = xspecies.size();
