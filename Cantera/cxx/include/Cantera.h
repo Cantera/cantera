@@ -18,6 +18,9 @@
 // The Cantera logger class
 #include "kernel/logger.h"
 
+// Include the timer
+#include "kernel/clockWC.h"
+
 #endif
 
 
