@@ -16,12 +16,33 @@
 #include <Accelerate.h>
 #endif
 
-
+//! Templated unary operator that carries out a multiplication operation
+/*!
+ *  Class carries out a multiplication operation ON ITSELF using
+ *  a unary call. It inherits from the STL class,  std::unary_function.
+ *  The class contains one template, which is the underlying class.
+ *  Note. This is outside the Cantera namespace ?!
+ */
 template<class T> struct timesConstant : public std::unary_function<T, double>
 {
-    timesConstant(T c) : m_c(c) {}
-    double operator()(T x) {return m_c * x;}
-    T m_c;
+  //! Constructor
+  /*!
+   * @param c  Stores the value of c as the internal constant.
+   */
+  timesConstant(T c) : m_c(c) {}
+
+  //! Parenthesis operator that carries out a unary multiplication
+  //! and returns a double
+  /*!
+   * @param x value of the class which is input
+   *
+   * @return
+   *  return m_c * x, which is defined as a double
+   */
+  double operator()(T x) {return m_c * x;}
+
+  //! Internal storred value of the constant
+  T m_c;
 };
 
 
@@ -572,44 +593,74 @@ namespace Cantera {
     //#endif
   }
   
+
+  //! Templated evaluation of a polynomial of order 6
+  /*!
+   *  @param x   Value of the independent variable - First template parameter
+   *  @param c   Pointer to the polynomial - Second template parameter 
+   */
+  template<class D, class R>
+  R poly6(D x, R* c) {
+    return ((((((c[6]*x + c[5])*x + c[4])*x + c[3])*x + 
+	      c[2])*x + c[1])*x + c[0]);
+  }
+
+  //! Templated evaluation of a polynomial of order 8
+  /*!
+   *  @param x   Value of the independent variable - First template parameter
+   *  @param c   Pointer to the polynomial - Second template parameter 
+   */
+  template<class D, class R>
+  R poly8(D x, R* c) {
+    return ((((((((c[8]*x + c[7])*x + c[6])*x + c[5])*x + c[4])*x + c[3])*x + 
+	      c[2])*x + c[1])*x + c[0]);
+  }
+
+  //! Templated evaluation of a polynomial of order 10
+  /*!
+   *  @param x   Value of the independent variable - First template parameter
+   *  @param c   Pointer to the polynomial - Second template parameter 
+   */
+  template<class D, class R>
+  R poly10(D x, R* c) {
+    return ((((((((((c[10]*x + c[9])*x + c[8])*x + c[7])*x 
+		  + c[6])*x + c[5])*x + c[4])*x + c[3])*x 
+	      + c[2])*x + c[1])*x + c[0]);
+  }
+
+  //! Templated evaluation of a polynomial of order 5
+  /*!
+   *  @param x   Value of the independent variable - First template parameter
+   *  @param c   Pointer to the polynomial - Second template parameter 
+   */ 
+  template<class D, class R>
+  R poly5(D x, R* c) {
+    return (((((c[5]*x + c[4])*x + c[3])*x + 
+	      c[2])*x + c[1])*x + c[0]);
+  }
+
+  //! Templated evaluation of a polynomial of order 4
+  /*!
+   *  @param x   Value of the independent variable - First template parameter
+   *  @param c   Pointer to the polynomial - Second template parameter 
+   */
+  template<class D, class R>
+  R poly4(D x, R* c) {
+    return ((((c[4]*x + c[3])*x + 
+	      c[2])*x + c[1])*x + c[0]);
+  }
+    
+  //! Templated evaluation of a polynomial of order 3
+  /*!
+   *  @param x   Value of the independent variable - First template parameter
+   *  @param c   Pointer to the polynomial - Second template parameter 
+   */
+  template<class D, class R>
+  R poly3(D x, R* c) {
+    return (((c[3]*x + c[2])*x + c[1])*x + c[0]);
+  }
+
   //@}
-
-    template<class D, class R>
-    R poly6(D x, R* c) {
-        return ((((((c[6]*x + c[5])*x + c[4])*x + c[3])*x + 
-                     c[2])*x + c[1])*x + c[0]);
-    }
-
-    template<class D, class R>
-    R poly8(D x, R* c) {
-        return ((((((((c[8]*x + c[7])*x + c[6])*x + c[5])*x + c[4])*x + c[3])*x + 
-                     c[2])*x + c[1])*x + c[0]);
-    }
-
-    template<class D, class R>
-    R poly10(D x, R* c) {
-        return ((((((((((c[10]*x + c[9])*x + c[8])*x + c[7])*x 
-                         + c[6])*x + c[5])*x + c[4])*x + c[3])*x 
-                     + c[2])*x + c[1])*x + c[0]);
-    }
-    
-    template<class D, class R>
-    R poly5(D x, R* c) {
-        return (((((c[5]*x + c[4])*x + c[3])*x + 
-                     c[2])*x + c[1])*x + c[0]);
-    }
-    
-    template<class D, class R>
-    R poly4(D x, R* c) {
-        return ((((c[4]*x + c[3])*x + 
-                     c[2])*x + c[1])*x + c[0]);
-    }
-    
-    template<class D, class R>
-    R poly3(D x, R* c) {
-        return (((c[3]*x + c[2])*x + c[1])*x + c[0]);
-    }
-
 }
 
 
