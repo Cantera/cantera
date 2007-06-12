@@ -2095,11 +2095,74 @@ namespace Cantera {
 
 
     void counterIJ_setup(void) const;
+
+    //! Process an XML node called "binarySaltParameters"
+    /*!
+     * This node contains all of the parameters necessary to describe
+     * the Pitzer model for that particular binary salt.
+     * This function reads the XML file and writes the coefficients
+     * it finds to an internal data structures.
+     *
+     * @param BinSalt  reference to the XML_Node named binarySaltParameters
+     *                 containing the
+     *                 anion - cation interaction
+     */
     void readXMLBinarySalt(XML_Node &BinSalt);
+
+    //! Process an XML node called "thetaAnion"
+    /*!
+     * This node contains all of the parameters necessary to describe
+     * the binary interactions between two anions.
+     *
+     * @param BinSalt  reference to the XML_Node named thetaAnion
+     *                 containing the
+     *                 anion - anion interaction
+     */
     void readXMLThetaAnion(XML_Node &BinSalt);
+
+    //! Process an XML node called "thetaCation"
+    /*!
+     * This node contains all of the parameters necessary to describe
+     * the binary interactions between two cations.
+     *
+     * @param BinSalt  reference to the XML_Node named thetaCation
+     *                 containing the
+     *                 cation - cation interaction
+     */
     void readXMLThetaCation(XML_Node &BinSalt);
+
+    //! Process an XML node called "psiCommonAnion"
+    /*!
+     * This node contains all of the parameters necessary to describe
+     * the ternary interactions between one anion and two cations.
+     *
+     * @param BinSalt  reference to the XML_Node named psiCommonAnion
+     *                 containing the
+     *                 anion - cation1 - cation2 interaction
+     */
     void readXMLPsiCommonAnion(XML_Node &BinSalt);
+
+    //! Process an XML node called "psiCommonCation"
+    /*!
+     * This node contains all of the parameters necessary to describe
+     * the ternary interactions between one cation and two anions.
+     *
+     * @param BinSalt  reference to the XML_Node named psiCommonCation
+     *                 containing the
+     *                 cation - anion1 - anion2 interaction
+     */
     void readXMLPsiCommonCation(XML_Node &BinSalt);
+
+    //! Process an XML node called "lambdaNeutral"
+    /*!
+     * This node contains all of the parameters necessary to describe
+     * the binary interactions between one neutral species and
+     * any other species (neutral or otherwise) in the mechanism.
+     *
+     * @param BinSalt  reference to the XML_Node named lambdaNeutral
+     *                 containing multiple
+     *                 Neutral - species interactions
+     */
     void readXMLLambdaNeutral(XML_Node &BinSalt);
 
 

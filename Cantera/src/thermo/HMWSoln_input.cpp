@@ -58,6 +58,11 @@ namespace Cantera {
    * it finds to an internal data structures.
    */
   void HMWSoln::readXMLBinarySalt(XML_Node &BinSalt) {
+    string xname = BinSalt.name();
+    if (xname != "binarySaltParameters") {
+      throw CanteraError("HMWSoln::readXMLBinarySalt",
+			 "Incorrect name for processing this routine: " + xname);
+    }
     double *charge = DATA_PTR(m_speciesCharge);
     string stemp;
     int nParamsFound, i;
@@ -226,6 +231,11 @@ namespace Cantera {
    * the binary interactions between two anions.
    */
   void HMWSoln::readXMLThetaAnion(XML_Node &BinSalt) {
+    string xname = BinSalt.name();
+    if (xname != "thetaAnion") {
+      throw CanteraError("HMWSoln::readXMLThetaAnion",
+			 "Incorrect name for processing this routine: " + xname);
+    }
     double *charge = DATA_PTR(m_speciesCharge);
     string stemp;
     string iName = BinSalt.attrib("anion1");
@@ -281,6 +291,11 @@ namespace Cantera {
    * the binary interactions between two cation.
    */
   void HMWSoln::readXMLThetaCation(XML_Node &BinSalt) {
+    string xname = BinSalt.name();
+    if (xname != "thetaCation") {
+      throw CanteraError("HMWSoln::readXMLThetaCation",
+			 "Incorrect name for processing this routine: " + xname);
+    }
     double *charge = DATA_PTR(m_speciesCharge);
     string stemp;
     string iName = BinSalt.attrib("cation1");
@@ -336,6 +351,11 @@ namespace Cantera {
    * the binary interactions between two anions and one common cation.
    */
   void HMWSoln::readXMLPsiCommonCation(XML_Node &BinSalt) {
+    string xname = BinSalt.name();
+    if (xname != "psiCommonCation") {
+      throw CanteraError("HMWSoln::readXMLPsiCommonCation",
+			 "Incorrect name for processing this routine: " + xname);
+    }
     double *charge = DATA_PTR(m_speciesCharge);
     string stemp;
     string kName = BinSalt.attrib("cation");
@@ -424,6 +444,11 @@ namespace Cantera {
    * the binary interactions between two cations and one common anion.
    */
   void HMWSoln::readXMLPsiCommonAnion(XML_Node &BinSalt) {
+    string xname = BinSalt.name();
+    if (xname != "psiCommonAnion") {
+      throw CanteraError("HMWSoln::readXMLPsiCommonAnion",
+			 "Incorrect name for processing this routine: " + xname);
+    }
     double *charge = DATA_PTR(m_speciesCharge);
     string stemp;
     string kName = BinSalt.attrib("anion");
@@ -510,6 +535,11 @@ namespace Cantera {
    * any other species (neutral or otherwise) in the mechanism.
    */
   void HMWSoln::readXMLLambdaNeutral(XML_Node &BinSalt) {
+    string xname = BinSalt.name();
+    if (xname != "lambdaNeutral") {
+      throw CanteraError("HMWSoln::readXMLLanbdaNeutral",
+			 "Incorrect name for processing this routine: " + xname);
+    }
     double *charge = DATA_PTR(m_speciesCharge);
     string stemp;
     string iName = BinSalt.attrib("neutral");
@@ -547,7 +577,8 @@ namespace Cantera {
 	m_Lambda_ij(iSpecies,jSpecies) = atofCheck(stemp.c_str());
 	if (old != 0.0) {
 	  if (old != m_Lambda_ij(iSpecies,jSpecies)) {
-	    throw CanteraError("HMWSoln::readXMLLambdaNeutral", "conflicting values");
+	    throw CanteraError("HMWSoln::readXMLLambdaNeutral", 
+			       "conflicting values");
 	  }
 	}
       }
