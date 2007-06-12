@@ -83,7 +83,8 @@ namespace Cantera {
    * The enthalpy function is given by the following relation.
    *
    *       \f[
-   *   \raggedright  h^\triangle_k(T,P) = h^{\triangle,ref}_k(T) + \tilde v \left( P - P_{ref} \right) 
+   *   \raggedright  h^\triangle_k(T,P) = h^{\triangle,ref}_k(T) 
+   *         + \tilde v \left( P - P_{ref} \right) 
    *       \f]
    *
    * For an incompressible,
@@ -176,15 +177,19 @@ namespace Cantera {
    *   \f[
    *      z_k = z_{k1} +  z_{k2}
    *   \f]
-   *  Then, we may only need to specify one charge value, say, \f$  z_{k1}\f$, the cation charge number,
-   *  in order to get both numbers, since we have already specified \f$ z_k \f$ in the definition of original species.
+   *  Then, we may only need to specify one charge value, say, \f$  z_{k1}\f$, 
+   *  the cation charge number,
+   *  in order to get both numbers, since we have already specified \f$ z_k \f$ 
+   *  in the definition of original species.
    *  Then, the stoichiometric ionic strength may be calculated via the following formula.
    *
    *  \f[
-   *    I_s = \frac{1}{2} \left(\sum_{k,ions}{m_k  z_k^2}+ \sum_{k,weak_assoc}(m_k  z_{k1}^2 + m_k  z_{k2}^2) \right)
+   *    I_s = \frac{1}{2} \left(\sum_{k,ions}{m_k  z_k^2}+ 
+   *               \sum_{k,weak_assoc}(m_k  z_{k1}^2 + m_k  z_{k2}^2) \right)
    *  \f]
    *
-   *  The specification of which species are weakly associated acids is made in the input file via the
+   *  The specification of which species are weakly associated acids is made in the input 
+   *  file via the
    *  <TT> stoichIsMods </TT> XML block, where the charge for k1 is also specified. 
    *  An example is given below:
    * 
@@ -194,13 +199,15 @@ namespace Cantera {
    *          </stoichIsMods>
    * @endcode
    *
-   *  Because we need the concept of a weakly associated acid in order to calculated \f$ I_s \f$ we need to 
+   *  Because we need the concept of a weakly associated acid in order to calculated 
+   *  \f$ I_s \f$ we need to 
    *  catalog all species in the phase. This is done using the following categories:
    *
    *  -  <B>cEST_solvent</B>    :           Solvent species (neutral)
    *  -  <B>cEST_chargedSpecies</B>         Charged species (charged)
    *  -  <B>cEST_weakAcidAssociated</B>     Species which can break apart into charged species.
-   *                                        It may or may not be charged.  These may or may not be be included in the
+   *                                        It may or may not be charged.  These may or 
+   *                                        may not be be included in the
    *                                        species solution vector.
    *  -  <B>cEST_strongAcidAssociated</B>   Species which always breaksapart into charged species.
    *                                        It may or may not be charged. Normally, these aren't included
@@ -208,13 +215,17 @@ namespace Cantera {
    *  -  <B>cEST_polarNeutral </B>          Polar neutral species
    *  -  <B>cEST_nonpolarNeutral</B>        Non poloar neutral species
    *
-   *  Polar and non-polar neutral species are differentiated, because some additions to the activity 
+   *  Polar and non-polar neutral species are differentiated, because some additions 
+   *  to the activity 
    *  coefficient expressions distinguish between these two types of solutes. This is the so-called
    *  salt-out effect.
    *
-   * The type of species is specified in the <TT>electrolyteSpeciesType</TT> XML block. Note, this is not
-   * considered a part of the specification of the standard state for the species, at this time. Therefore,
-   * this information is put under the <TT>activityCoefficient</TT> XML block. An example is given below
+   * The type of species is specified in the <TT>electrolyteSpeciesType</TT> XML block.
+   * Note, this is not
+   * considered a part of the specification of the standard state for the species, 
+   * at this time. Therefore,
+   * this information is put under the <TT>activityCoefficient</TT> XML block. An example 
+   * is given below
    *
    * @code
    *         <electrolyteSpeciesType>
@@ -318,7 +329,8 @@ namespace Cantera {
    *  DHFORM_BETAIJ        = 3
    * 
    *      This form assumes a linear expansion in a virial coefficient form
-   *      It is used extensively in the book by Newmann, "Electrochemistry Systems", and is the beginning of
+   *      It is used extensively in the book by Newmann, "Electrochemistry Systems", 
+   *      and is the beginning of
    *      more complex treatments for stronger electrolytes, fom Pitzer
    *      and from Harvey, Moller, and Weire.
    *  
@@ -742,8 +754,9 @@ namespace Cantera {
     //! Set the internally storred pressure (Pa) at constant
     //! temperature and composition
     /*!
-     *  This method sets a constant within the object.
-     *  The mass density is not a function of pressure.
+     *  This method sets the pressure within the object.
+     *  The water model is a completely compressible model.
+     *  Also, the dielectric constant is pressure dependent.
      *
      *  @param p input Pressure (Pa)
      *
@@ -776,7 +789,7 @@ namespace Cantera {
      */
     void calcDensity();
 
-    //! Set the internally storred molar density (kmol/m^3) of the phase.
+    //! Set the internally storred density (gm/m^3) of the phase.
     /*!
      * Overwritten setDensity() function is necessary because the
      * density is not an indendent variable.
@@ -892,14 +905,8 @@ namespace Cantera {
     //! Return the standard concentration for the kth species
     /*!
      * The standard concentration \f$ C^0_k \f$ used to normalize
-     * the activity (i.e., generalized) concentration. In many cases, this quantity
-     * will be the same for all species in a phase - for example,
-     * for an ideal gas \f$ C^0_k = P/\hat R T \f$. For this
-     * reason, this method returns a single value, instead of an
-     * array.  However, for phases in which the standard
-     * concentration is species-specific (e.g. surface species of
-     * different sizes), this method may be called with an
-     * optional parameter indicating the species.
+     * the activity (i.e., generalized) concentration in
+     * kinetics calculations.
      *
      * For the time being, we will use the concentration of pure
      * solvent for the the standard concentration of all species.
@@ -1389,8 +1396,23 @@ namespace Cantera {
     virtual doublereal satTemperature(doublereal p) const {
       err("satTemperature"); return -1.0;
     }
-        
-    virtual doublereal satPressure(doublereal t) const {
+
+    //! Get the saturation pressure for a given temperature. 
+    /*!
+     * Note the limitations of this function. Stability considerations
+     * concernting multiphase equilibrium are ignored in this 
+     * calculation. Therefore, the call is made directly to the SS of 
+     * water underneath. The object is put back into its original
+     * state at the end of the call.
+     *
+     * @todo This is probably not implemented correctly. The stability
+     *       of the salt should be added into this calculation. The
+     *       underlying water model may be called to get the stability
+     *       of the pure water solution, if needed.
+     *
+     * @param T  Temperature (kelvin)
+     */   
+    virtual doublereal satPressure(doublereal T) const {
       err("satPressure"); return -1.0;
     }
         
