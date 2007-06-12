@@ -105,6 +105,7 @@ clean:
          fi )
 
 depends:
+	$(RM) *.d .depends
 	@MAKE@ .depends
 
 .depends: $(DEPENDS)
