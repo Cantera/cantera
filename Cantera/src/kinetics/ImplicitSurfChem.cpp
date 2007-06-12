@@ -1,8 +1,11 @@
 /**
  *  @file ImplicitSurfChem.cpp
- *
- * Implicit integration of surface site density equations
- *
+ * Definitions for the implicit integration of surface site density equations
+ *  (see \ref  kineticsmgr and class
+ *  \link Cantera::ImplicitSurfChem ImplicitSurfChem\endlink).
+ */
+
+/*
  * $Author$
  * $Revision$
  * $Date$
@@ -22,6 +25,9 @@
 using namespace std;
 
 namespace Cantera {
+
+
+ 
 
     ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) 
         : FuncEval(),  m_nv(0), m_integ(0), 
@@ -54,6 +60,12 @@ namespace Cantera {
         m_work.resize(ntmax);
     }
 
+  /**
+   * Destructor. Deletes the integrator.
+   */
+  ImplicitSurfChem::~ImplicitSurfChem(){ 
+    delete m_integ; 
+  }
 
     // overloaded method of FuncEval. Called by the integrator to
     // get the initial conditions.
@@ -76,6 +88,34 @@ namespace Cantera {
         m_integ->initialize(t0, *this);
     }
 
+  // Integrate from t0 to t1. The integrator is reinitialized first.
+  /*
+   *   This routine does a time accurate solve from t = t0 to t = t1.
+   *   of the surface problem.
+   *
+   *  @param t0  Initial Time -> this is an input
+   *  @param t1  Final Time -> This is an input
+   */
+  void ImplicitSurfChem::integrate(doublereal t0, doublereal t1) {
+    m_integ->initialize(t0, *this);
+    m_integ->setMaxStepSize(t1 - t0);
+    m_integ->integrate(t1);
+    updateState(m_integ->solution());
+  }
+  
+  // Integrate from t0 to t1 without reinitializing the integrator. 
+  /*
+   *  Use when the coverages have not changed from
+   *  their values on return from the last call to integrate or
+   *  integrate0.
+   *
+   *  @param t0  Initial Time -> this is an input
+   *  @param t1  Final Time -> This is an input
+   */
+  void ImplicitSurfChem::integrate0(doublereal t0, doublereal t1) {
+    m_integ->integrate(t1);
+    updateState(m_integ->solution());
+  }
 
     void ImplicitSurfChem::updateState(doublereal* c) {
         int loc = 0;
@@ -86,29 +126,29 @@ namespace Cantera {
     }
 
 
-    /**
-     * Called by the integrator to evaluate ydot given y at time 'time'.
-     */
-    void ImplicitSurfChem::eval(doublereal time, doublereal* y, 
-        doublereal* ydot, doublereal* p) 
-    {
-        int n;
-        updateState(y);   // synchronize the surface state(s) with y
-        doublereal rs0, sum;
-        int loc, k, kstart;
-        for (n = 0; n < m_nsurf; n++) {
-            rs0 = 1.0/m_surf[n]->siteDensity();
-            m_kin[n]->getNetProductionRates(DATA_PTR(m_work));
-            kstart = m_kin[n]->kineticsSpeciesIndex(0,m_surfindex[n]);
-            sum = 0.0;
-            loc = 0;
-            for (k = 1; k < m_nsp[n]; k++) {
-                ydot[k + loc] = m_work[kstart + k] * rs0 * m_surf[n]->size(k);
-                sum -= ydot[k];
-            }
-            ydot[loc] = sum;
-            loc += m_nsp[n];
-        }
+  /**
+   * Called by the integrator to evaluate ydot given y at time 'time'.
+   */
+  void ImplicitSurfChem::eval(doublereal time, doublereal* y, 
+			      doublereal* ydot, doublereal* p) 
+  {
+    int n;
+    updateState(y);   // synchronize the surface state(s) with y
+    doublereal rs0, sum;
+    int loc, k, kstart;
+    for (n = 0; n < m_nsurf; n++) {
+      rs0 = 1.0/m_surf[n]->siteDensity();
+      m_kin[n]->getNetProductionRates(DATA_PTR(m_work));
+      kstart = m_kin[n]->kineticsSpeciesIndex(0,m_surfindex[n]);
+      sum = 0.0;
+      loc = 0;
+      for (k = 1; k < m_nsp[n]; k++) {
+	ydot[k + loc] = m_work[kstart + k] * rs0 * m_surf[n]->size(k);
+	sum -= ydot[k];
+      }
+      ydot[loc] = sum;
+      loc += m_nsp[n];
     }
+  }
 
 }
