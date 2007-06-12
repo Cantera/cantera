@@ -362,7 +362,31 @@ namespace Cantera {
       void _update_rates_phi();
       void _update_rates_C();
       
+      //! Advance the surface coverages in time
+      /*!
+       * This method carries out a time-accurate advancement of the
+       * surface coverages for a specified amount of time.
+       *
+       *  \f[
+       *    \dot {\theta}_k = \dot s_k (\sigma_k / s_0)
+       *  \f]
+       *
+       *
+       * @param tstep  Time value to advance the surface coverages
+       */
       void advanceCoverages(doublereal tstep);
+
+      //! Solve for the pseudo steady-state of the surface problem
+      /*!
+       * Solve for the steady state of the surface problem. 
+       * This is the same thing as the advanceCoverages() function,
+       * but at infinite times.
+       *
+       * Note, a direct solve is carried out under the hood here,
+       * to reduce the computational time.
+       */
+      void solvePseudoSteadyStateProblem();
+
       void checkPartialEquil();
       
       //! Temporary work vector of length m_kk

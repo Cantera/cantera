@@ -294,64 +294,64 @@ namespace Cantera {
 				      net);
   }
 
-    /**
-     * For reactions that transfer charge across a potential difference,
-     * the activation energies are modified by the potential difference.
-     * (see, for example, ...). This method applies this correction.
-     */
-    void InterfaceKinetics::applyButlerVolmerCorrection(doublereal* kf) {
-        int i;
+  /**
+   * For reactions that transfer charge across a potential difference,
+   * the activation energies are modified by the potential difference.
+   * (see, for example, ...). This method applies this correction.
+   */
+  void InterfaceKinetics::applyButlerVolmerCorrection(doublereal* kf) {
+    int i;
 
-        int n, nsp, k, ik=0;
-        doublereal rt = GasConstant*thermo(0).temperature();
-        doublereal rrt = 1.0/rt;
-        int np = nPhases();
+    int n, nsp, k, ik=0;
+    doublereal rt = GasConstant*thermo(0).temperature();
+    doublereal rrt = 1.0/rt;
+    int np = nPhases();
 
-        // compute the electrical potential energy of each species
-        for (n = 0; n < np; n++) {
-            nsp = thermo(n).nSpecies();
-            for (k = 0; k < nsp; k++) {
-                m_pot[ik] = Faraday*thermo(n).charge(k)*m_phi[n];
-                ik++;
-            }
-        }
-
-        // compute the change in electrical potential energy for each
-        // reaction. This will only be non-zero if a potential
-        // difference is present.
-        m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_pot), 
-				     DATA_PTR(m_rwork));
-
-        // modify the reaction rates. Only modify those with a
-        // non-zero activation energy, and do not decrease the
-        // activation energy below zero.
-        doublereal eamod;
-#ifdef DEBUG_MODE
-        double ea;
-#endif
-        int nct = m_beta.size();
-        int irxn;
-        for (i = 0; i < nct; i++) {
-            irxn = m_ctrxn[i];
-            eamod = m_beta[i]*m_rwork[irxn];
-            if (eamod != 0.0 && m_E[irxn] != 0.0) {
-#ifdef DEBUG_MODE
-                ea = GasConstant * m_E[irxn];
-                if (eamod + ea < 0.0) {
-                    writelog("Warning: act energy mod too large!\n");
-                    writelog("  Delta phi = "+fp2str(m_rwork[irxn]/Faraday)+"\n");
-                    writelog("  Delta Ea = "+fp2str(eamod)+"\n");
-                    writelog("  Ea = "+fp2str(ea)+"\n");
-                    for (n = 0; n < np; n++) {
-                        writelog("Phase "+int2str(n)+": phi = "
-                            +fp2str(m_phi[n])+"\n");
-                    }
-                }
-#endif
-                kf[irxn] *= exp(-eamod*rrt);
-            }
-        }
+    // compute the electrical potential energy of each species
+    for (n = 0; n < np; n++) {
+      nsp = thermo(n).nSpecies();
+      for (k = 0; k < nsp; k++) {
+	m_pot[ik] = Faraday*thermo(n).charge(k)*m_phi[n];
+	ik++;
+      }
     }
+
+    // Compute the change in electrical potential energy for each
+    // reaction. This will only be non-zero if a potential
+    // difference is present.
+    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_pot), 
+				 DATA_PTR(m_rwork));
+
+    // Modify the reaction rates. Only modify those with a
+    // non-zero activation energy, and do not decrease the
+    // activation energy below zero.
+    doublereal eamod;
+#ifdef DEBUG_MODE
+    double ea;
+#endif
+    int nct = m_beta.size();
+    int irxn;
+    for (i = 0; i < nct; i++) {
+      irxn = m_ctrxn[i];
+      eamod = m_beta[i]*m_rwork[irxn];
+      if (eamod != 0.0 && m_E[irxn] != 0.0) {
+#ifdef DEBUG_MODE
+	ea = GasConstant * m_E[irxn];
+	if (eamod + ea < 0.0) {
+	  writelog("Warning: act energy mod too large!\n");
+	  writelog("  Delta phi = "+fp2str(m_rwork[irxn]/Faraday)+"\n");
+	  writelog("  Delta Ea = "+fp2str(eamod)+"\n");
+	  writelog("  Ea = "+fp2str(ea)+"\n");
+	  for (n = 0; n < np; n++) {
+	    writelog("Phase "+int2str(n)+": phi = "
+		     +fp2str(m_phi[n])+"\n");
+	  }
+	}
+#endif
+	kf[irxn] *= exp(-eamod*rrt);
+      }
+    }
+  }
 
 
 
@@ -880,18 +880,43 @@ namespace Cantera {
         return (m_finalized);
     }
 
-    void InterfaceKinetics::
-    advanceCoverages(doublereal tstep) {
-        if (m_integrator == 0) {
-            vector<InterfaceKinetics*> k;
-            k.push_back(this);
-            m_integrator = new ImplicitSurfChem(k);
-            m_integrator->initialize();
-        }
-        m_integrator->integrate(0.0, tstep);
-        delete m_integrator;
-        m_integrator = 0;
+  // Advance the surface coverages in time
+  /*
+   * @param tstep  Time value to advance the surface coverages
+   */
+  void InterfaceKinetics::
+  advanceCoverages(doublereal tstep) {
+    if (m_integrator == 0) {
+      vector<InterfaceKinetics*> k;
+      k.push_back(this);
+      m_integrator = new ImplicitSurfChem(k);
+      m_integrator->initialize();
     }
+    m_integrator->integrate(0.0, tstep);
+    delete m_integrator;
+    m_integrator = 0;
+  }
+
+  // Solve for the pseudo steady-state of the surface problem
+  /*
+   * Solve for the steady state of the surface problem.
+   * This is the same thing as the advanceCoverages() function,
+   * but at infinite times.
+   *
+   * Note, a direct solve is carried out under the hood here,
+   * to reduce the computational time.
+   */
+  void InterfaceKinetics::solvePseudoSteadyStateProblem() {
+#ifndef DEBUG_HKM
+    advanceCoverages(1000.0);
+#else
+    /*
+     * New direct method to go here
+     */
+
+#endif
+  }
+
 
     void EdgeKinetics::finalize() {
         m_rwork.resize(nReactions());
