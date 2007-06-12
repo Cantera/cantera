@@ -118,8 +118,13 @@ namespace Cantera {
      * non-virtual methods perform generic functions and are
      * implemented in Kinetics. They should not be overloaded. Only
      * those methods required by a subclass need to be overloaded;
-     * the rest will throw exceptions if called.  @ingroup kinetics
-     * @ingroup kineticsmgr
+     * the rest will throw exceptions if called.
+     *
+     * When the nomenclature "kinetics species index" is used below,
+     * this means that the species index ranges over all species in
+     * all phases handled by the kinetics manager. 
+     *
+     *  @ingroup kineticsmgr
      */
     class Kinetics {
 
@@ -587,7 +592,7 @@ namespace Cantera {
        * Stoichiometric coefficient of species k as a reactant in
        * reaction i.  
        *
-       * @param k   species index
+       * @param k   kinetic species index
        * @param i   reaction index
        */
       virtual doublereal reactantStoichCoeff(int k, int i) const { 
@@ -599,7 +604,7 @@ namespace Cantera {
        * Stoichiometric coefficient of species k as a product in
        * reaction i.  
        *
-       * @param k   species index
+       * @param k   kinetic species index
        * @param i   reaction index
        */
       virtual doublereal productStoichCoeff(int k, int i) const { 
@@ -610,7 +615,7 @@ namespace Cantera {
       /**
        * reactant Order of species k in reaction i.  
        *
-       * @param k   species index
+       * @param k   kinetic species index
        * @param i   reaction index
        */
       virtual doublereal reactantOrder(int k, int i) const {
