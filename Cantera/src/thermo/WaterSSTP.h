@@ -370,7 +370,7 @@ namespace Cantera {
 
     virtual void setTemperature(double temp);
     
-    virtual void constructPhase();
+    void constructPhase();
 
  
     //! Initialization of a pure water phase using an
@@ -385,7 +385,7 @@ namespace Cantera {
      *            phase. If none is given, the first XML
      *            phase element will be used.
      */
-    virtual void constructPhaseFile(std::string inputFile, std::string id);
+    void constructPhaseFile(std::string inputFile, std::string id);
 
    
     //! Initialization of a pure water phase using an  xml file.
@@ -399,7 +399,7 @@ namespace Cantera {
      *            phase. If none is given, the first XML
      *            phase element will be used.
      */
-    virtual void constructPhaseXML(XML_Node& phaseNode, std::string id);
+    void constructPhaseXML(XML_Node& phaseNode, std::string id);
 
     //!Import and initialize a ThermoPhase object  using an XML tree.
     /*!

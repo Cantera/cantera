@@ -926,7 +926,7 @@ namespace Cantera {
      *            phase. If none is given, the first XML
      *            phase element will be used.
      */
-    virtual void constructPhaseFile(std::string infile, std::string id="");
+    void constructPhaseFile(std::string infile, std::string id="");
 
     //!   Import and initialize an IdealMolalSoln phase 
     //!  specification in an XML tree into the current object.
@@ -958,7 +958,7 @@ namespace Cantera {
      *             to see if phaseNode is pointing to the phase
      *             with the correct id. 
      */
-    virtual void constructPhaseXML(XML_Node& phaseNode, std::string id);
+    void constructPhaseXML(XML_Node& phaseNode, std::string id);
 
     //!  Import and initialize an IdealMolalSoln phase 
     //!  specification in an XML tree into the current object.

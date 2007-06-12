@@ -1476,7 +1476,7 @@ namespace Cantera {
      *            phase. If none is given, the first XML
      *            phase element will be used.
      */
-    virtual void constructPhaseFile(std::string infile, std::string id="");
+    void constructPhaseFile(std::string infile, std::string id="");
     
     //!   Import and initialize a DebyeHuckel phase 
     //!   specification in an XML tree into the current object.
@@ -1503,7 +1503,7 @@ namespace Cantera {
      *             to see if phaseNode is pointing to the phase
      *             with the correct id. 
      */
-    virtual void constructPhaseXML(XML_Node& phaseNode, std::string id="");
+    void constructPhaseXML(XML_Node& phaseNode, std::string id="");
     
     //! Process the XML file after species are set up.
     /*!

@@ -1448,7 +1448,7 @@ namespace Cantera {
     SpeciesThermo& speciesThermo() { return *m_spthermo; }
 
     /*
-     * constructPhaseFile()                 (virtual from HMWSoln)
+     * constructPhaseFile()              
      *
      *   Import, construct, and initialize a HMWSoln phase 
      *   specification from an XML tree into the current object.
@@ -1456,10 +1456,10 @@ namespace Cantera {
      * This routine is a precursor to constructPhaseXML(XML_Node*)
      * routine, which does most of the work.
      */
-    virtual void constructPhaseFile(std::string inputFile, std::string id);
+    void constructPhaseFile(std::string inputFile, std::string id);
 
     /*
-     * constructPhaseXML                    (virtual from HMWSoln)
+     * constructPhaseXML                 
      *
      * This is the main routine for constructing the phase.
      *
@@ -1472,7 +1472,7 @@ namespace Cantera {
      *   particular to the specification of the activity 
      *   coefficient model for the Pitzer parameterization.
      */
-    virtual void constructPhaseXML(XML_Node& phaseNode, std::string id);
+    void constructPhaseXML(XML_Node& phaseNode, std::string id);
 
     /**
      * @internal Initialize. This method is provided to allow

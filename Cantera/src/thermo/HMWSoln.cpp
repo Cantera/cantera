@@ -1419,7 +1419,7 @@ namespace Cantera {
   void HMWSoln::setParametersFromXML(const XML_Node& eosdata) {
   }
     
-  /**
+  /*
    * Get the saturation pressure for a given temperature. 
    * Note the limitations of this function. Stability considerations
    * concernting multiphase equilibrium are ignored in this 
