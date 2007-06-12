@@ -415,7 +415,7 @@ namespace Cantera {
    *        n = 1
    *        C[0] = density of phase [ kg/m3 ]
    */
-  void StoichSubstanceSSTP::getParameters(int &n, double * const c) {
+  void StoichSubstanceSSTP::getParameters(int &n, double * const c) const {
     double rho = density();
     n = 1;
     c[0] = rho;

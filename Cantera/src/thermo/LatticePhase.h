@@ -146,7 +146,7 @@ namespace Cantera {
         // set the site density of sublattice n
         virtual void setParameters(int n, doublereal* c) {}
 
-        virtual void getParameters(int &n, doublereal * const c) {
+        virtual void getParameters(int &n, doublereal * const c) const {
             double d = molarDensity();
             c[0] = d;
             n = 1;

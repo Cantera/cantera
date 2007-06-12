@@ -128,7 +128,7 @@ namespace Cantera {
         setDensity(rho);
     }
 
-    void StoichSubstance::getParameters(int &n, double * const c) {
+    void StoichSubstance::getParameters(int &n, double * const c) const {
         double rho = density();
         c[0] = rho;
     }

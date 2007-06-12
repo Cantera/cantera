@@ -1114,7 +1114,8 @@ namespace Cantera {
    */
   void IdealMolalSoln::setParameters(int n, doublereal* c) {
   }
-  void IdealMolalSoln::getParameters(int &n, doublereal * const c) {
+
+  void IdealMolalSoln::getParameters(int &n, doublereal * const c) const {
   }
 
   /*

@@ -1853,7 +1853,8 @@ namespace Cantera {
    */
   void DebyeHuckel::setParameters(int n, doublereal* c) {
   }
-  void DebyeHuckel::getParameters(int &n, doublereal * const c) {
+
+  void DebyeHuckel::getParameters(int &n, doublereal * const c) const {
   }
 
   /*

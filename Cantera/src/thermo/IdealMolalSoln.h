@@ -825,7 +825,7 @@ namespace Cantera {
      * @param n  number of parameters (output)
      * @param c array of <I>n</I> coefficients
      */
-    virtual void getParameters(int &n, doublereal * const c);
+    virtual void getParameters(int &n, doublereal * const c) const;
 
     /*!
      * Set equation of state parameter values from XML

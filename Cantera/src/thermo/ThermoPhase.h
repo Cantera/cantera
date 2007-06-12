@@ -1390,7 +1390,7 @@ namespace Cantera {
      * location of a phase object in a list, and is used by the
      * interface library (clib) routines for this purpose.
      */
-    int index() { return m_index; }
+    int index() const { return m_index; }
 
 
     /**
@@ -1425,7 +1425,7 @@ namespace Cantera {
      * @param n number of parameters
      * @param c array of \a n coefficients
      */
-    virtual void getParameters(int &n, doublereal * const c) {}
+    virtual void getParameters(int &n, doublereal * const c) const {}
 
       
     //! Set equation of state parameter values from XML entries.

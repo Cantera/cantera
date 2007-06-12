@@ -482,7 +482,7 @@ namespace Cantera {
      *       -  n = 1
      *       -  c[0] = density of phase [ kg/m3 ]
      */
-    virtual void getParameters(int &n, double * const c);
+    virtual void getParameters(int &n, double * const c) const;
 
     //! Set equation of state parameter values from XML entries.
     /*!

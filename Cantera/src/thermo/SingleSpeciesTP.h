@@ -625,7 +625,8 @@ namespace Cantera {
      * 
      */
     virtual void setParameters(int n, doublereal* c) {}
-    virtual void getParameters(int &n, doublereal * const c) {}
+
+    virtual void getParameters(int &n, doublereal * const c) const {}
 
     /**
      * Set equation of state parameter values from XML
