@@ -168,13 +168,25 @@ namespace Cantera {
 
 
 
-    /**
-     * Change of a molar species property in a reaction.  Given an
+    //! Calculates the change of a molar species property in a reaction. 
+    /*!
+     * Given an
      * array of species properties 'g', return in array 'dg' the
      * change in this quantity in the reactions. Array 'g' must
      * have a length at least as great as the number of species,
      * and array 'dg' must have a length as great as the total
      * number of reactions.
+     *  \f[
+     *      \delta g_i = \sum_k{\nu_{i,k} g_k   }
+     *  \f]
+     *
+     * @param nReactions  Number of reactions
+     * @param g           Molar property of the species.
+     *                    An example would be the partial molar enthalpy
+     *                    Length is equal to number of kinetic species
+     * @param dg          Calculated property change of the reaction.
+     *                    An example would be the delta change in enthalpy,
+     *                    i.e., the enthalpy of reaction.
      */
       virtual void getReactionDelta(int nReactions, 
 			  const doublereal* g, 
