@@ -311,7 +311,7 @@ namespace Cantera {
      * @param k index of the species. Default is -1, which will return the max of the min value
      *          over all species.
      */
-    doublereal minTemp(int k = -1) {
+    doublereal minTemp(int k = -1) const {
       return m_spthermo->minTemp(k);
     }
         
@@ -327,7 +327,7 @@ namespace Cantera {
      * @param k index of the species. Default is -1, which will return the min of the max value
      *          over all species.
      */
-    doublereal maxTemp(int k = -1) {
+    doublereal maxTemp(int k = -1) const {
       return m_spthermo->maxTemp(k);
     }
       
@@ -1300,7 +1300,7 @@ namespace Cantera {
     { m_spthermo = spthermo; }
     
     /**
-     * @internal Return a reference to the species thermodynamic property
+     * @internal Return a changeable reference to the species thermodynamic property
      * manager.  @todo This method will fail if no species thermo
      * manager has been installed.
      */
