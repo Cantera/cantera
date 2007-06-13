@@ -55,6 +55,8 @@
 
 #ifdef WITH_ELECTROLYTES
 #include "HMWSoln.h"
+#include "DebyeHuckel.h"
+#include "IdealMolalSoln.h"
 #endif
 
 using namespace std;
@@ -144,6 +146,14 @@ namespace Cantera {
 #ifdef WITH_ELECTROLYTES
         case cHMW:
             th = new HMWSoln;
+            break;
+
+        case cDebyeHuckel:
+            th = new DebyeHuckel;
+            break;
+
+        case cIdealMolalSoln:
+            th = new IdealMolalSoln;
             break;
 #endif
 

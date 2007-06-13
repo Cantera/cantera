@@ -50,8 +50,14 @@ namespace Cantera {
     /// An edge between two 2D surfaces    
     const int cEdge = 6;
 
-    // HMW
+    //! HMW - Strong electrolyte using the Pitzer formulation
     const int cHMW = 40;
+
+    //! DebyeHuckel - Weak electrolyte using various Debye-Huckel formulations
+    const int cDebyeHuckel = 50;
+
+    //! IdealMolalSoln - molality based solution with molality-based act coeffs of 1
+    const int cIdealMolalSoln = 60;
 
     // kinetic manager types
     const int cGasKinetics = 2;

@@ -702,7 +702,7 @@ namespace Cantera {
      */
     HMWSoln(int testProb);
 
-    /// Destructor. 
+    //! Destructor. 
     virtual ~HMWSoln();
 
     //! Duplicator from the ThermoPhase parent class
@@ -1836,24 +1836,68 @@ namespace Cantera {
      *  is used to access this array.
      */
     mutable vector_fp  m_Beta0MX_ij;
+
+    //! Derivative of Beta0_ij[i][j] wrt T
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp  m_Beta0MX_ij_L;
+
+    //! Derivative of Beta0_ij[i][j] wrt TT
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp  m_Beta0MX_ij_LL;
+
+    //! Derivative of Beta0_ij[i][j] wrt P
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp  m_Beta0MX_ij_P;
+
+    //! Array of coefficients for Beta0, a variable in Pitzer's papers
+    /*!
+     *  column index is counterIJ
+     *  m_Beta0MX_ij_coeff.ptrColumn(counterIJ) is a double* containing
+     *  the vector of coefficients for the counterIJ interaction.
+     */
     mutable Array2D    m_Beta0MX_ij_coeff;
 
-    /**
+    /*!
      *  Array of 2D data used in the Pitzer/HMW formulation.
      *  Beta1_ij[i][j] is the value of the Beta1 coefficient
      *  for the ij salt. It will be nonzero iff i and j are
      *  both charged and have opposite sign. The array is also
      *  symmetric. 
      *     counterIJ where counterIJ = m_counterIJ[i][j]
-     *  is used to access this array.
+     *     is used to access this array.
      */
     mutable vector_fp m_Beta1MX_ij;
+
+    //! Derivative of Beta1_ij[i][j] wrt T
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_Beta1MX_ij_L;
+
+    //! Derivative of Beta1_ij[i][j] wrt TT
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_Beta1MX_ij_LL;
+
+    //! Derivative of Beta1_ij[i][j] wrt P
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_Beta1MX_ij_P;
+
+    //! Array of coefficients for Beta1, a variable in Pitzer's papers
+    /*!
+     * column index is counterIJ
+     *  m_Beta1MX_ij_coeff.ptrColumn(counterIJ) is a double* containing
+     *  the vector of coefficients for the counterIJ interaction.
+     */
     mutable Array2D   m_Beta1MX_ij_coeff;
 
     /**
@@ -1867,8 +1911,23 @@ namespace Cantera {
      *  is used to access this array.
      */
     vector_fp m_Beta2MX_ij;
+
+    //! Derivative of Beta2_ij[i][j] wrt T
+    /*!
+     *  vector index is counterIJ
+     */
     vector_fp m_Beta2MX_ij_L;
+
+    //! Derivative of Beta2_ij[i][j] wrt TT
+    /*!
+     *  vector index is counterIJ
+     */
     vector_fp m_Beta2MX_ij_LL;
+
+    //! Derivative of Beta2_ij[i][j] wrt P
+    /*!
+     *  vector index is counterIJ
+     */
     vector_fp m_Beta2MX_ij_P;
 
     /**
@@ -1894,9 +1953,31 @@ namespace Cantera {
      *  is used to access this array.
      */
     mutable vector_fp m_CphiMX_ij;
+
+    //! Derivative of Cphi_ij[i][j] wrt T
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_CphiMX_ij_L;
+
+    //! Derivative of Cphi_ij[i][j] wrt TT
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_CphiMX_ij_LL;
+
+    //! Derivative of Cphi_ij[i][j] wrt P
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_CphiMX_ij_P;
+
+    //! Array of coefficients for Beta1, a variable in Pitzer's papers
+    /*!
+     *  column index is counterIJ
+     *  m_CphiMX_ij_coeff.ptrColumn(counterIJ) is a double* containing
+     *  the vector of coefficients for the counterIJ interaction.
+     */
     mutable Array2D   m_CphiMX_ij_coeff;
 
     /**
@@ -1911,8 +1992,23 @@ namespace Cantera {
      *      for Theta_ij, which depends on the ionic strength.
      */
     vector_fp m_Theta_ij;
+
+    //! Derivative of Theta_ij[i][j] wrt T
+    /*!
+     *  vector index is counterIJ
+     */
     vector_fp m_Theta_ij_L;
+
+    //! Derivative of Theta_ij[i][j] wrt TT
+    /*!
+     *  vector index is counterIJ
+     */
     vector_fp m_Theta_ij_LL;
+
+    //! Derivative of Theta_ij[i][j] wrt P
+    /*!
+     *  vector index is counterIJ
+     */
     vector_fp m_Theta_ij_P;
 
     /**
@@ -1927,8 +2023,23 @@ namespace Cantera {
      * and the last two coordinates are symmetric wrt anions.
      */
     vector_fp m_Psi_ijk;
+
+    //! Derivitive of Psi_ijk[n] wrt T
+    /*! 
+     *  see m_Psi_ijk for reference on the indexing into this variable. 
+     */
     vector_fp m_Psi_ijk_L;
+
+    //! Derivitive of Psi_ijk[n] wrt TT
+    /*! 
+     *  see m_Psi_ijk for reference on the indexing into this variable. 
+     */
     vector_fp m_Psi_ijk_LL;
+
+    //! Derivitive of Psi_ijk[n] wrt P
+    /*! 
+     *  see m_Psi_ijk for reference on the indexing into this variable. 
+     */
     vector_fp m_Psi_ijk_P;
 
     /*
@@ -1940,22 +2051,46 @@ namespace Cantera {
      * neutral, neutral interactions are also included here.
      */
     Array2D   m_Lambda_ij;
+
     //! Derivative of  Lambda_ij[i][j] wrt T. see m_Lambda_ij
     Array2D   m_Lambda_ij_L;
+
     //! Derivative of  Lambda_ij[i][j] wrt TT
     Array2D   m_Lambda_ij_LL;
+
     //! Derivative of  Lambda_ij[i][j] wrt P
     Array2D   m_Lambda_ij_P;
 
-    /**
-     *  Logarithm of the activity coefficients on the molality
-     *  scale.
+    
+    //!  Logarithm of the activity coefficients on the molality
+    //!  scale.
+    /*!
      *       mutable because we change this if the composition
      *       or temperature or pressure changes.
+     *
+     *  index is the species index
      */
     mutable vector_fp m_lnActCoeffMolal;
+
+    //!  Derivative of the Logarithm of the activity coefficients on the molality
+    //!  scale wrt T
+    /*!
+     *  index is the species index
+     */
     mutable vector_fp m_dlnActCoeffMolaldT;
+
+    //!  Derivative of the Logarithm of the activity coefficients on the molality
+    //!  scale wrt TT
+    /*!
+     *  index is the species index
+     */
     mutable vector_fp m_d2lnActCoeffMolaldT2;
+
+    //!  Derivative of the Logarithm of the activity coefficients on the molality
+    //!  scale wrt P
+    /*!
+     *  index is the species index
+     */
     mutable vector_fp m_dlnActCoeffMolaldP;
 
     /*
@@ -2050,30 +2185,123 @@ namespace Cantera {
      */
     mutable vector_fp m_BprimeMX_IJ_P;
 
+    //! Intermediate variable called BphiMX in Pitzer's paper
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_BphiMX_IJ;
+
+    //! Derivative of BphiMX_IJ wrt T
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_BphiMX_IJ_L;
+
+    //! Derivative of BphiMX_IJ wrt TT
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_BphiMX_IJ_LL;
+
+    //! Derivative of BphiMX_IJ wrt P
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_BphiMX_IJ_P;
+
+    //! Intermediate variable called Phi in Pitzer's paper
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_Phi_IJ;
+
+    //! Derivative of m_Phi_IJ wrt T
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_Phi_IJ_L;
+
+    //! Derivative of m_Phi_IJ wrt TT
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_Phi_IJ_LL;
+
+    //! Derivative of m_Phi_IJ wrt P
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_Phi_IJ_P;
+
+    //! Intermediate variable called Phiprime in Pitzer's paper
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_Phiprime_IJ;
+
+    //! Intermediate variable called PhiPhi in Pitzer's paper
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_PhiPhi_IJ;
+
+    //! Derivative of m_PhiPhi_IJ wrt T
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_PhiPhi_IJ_L;
+
+    //! Derivative of m_PhiPhi_IJ wrt TT
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_PhiPhi_IJ_LL;
+
+    //! Derivative of m_PhiPhi_IJ wrt P
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_PhiPhi_IJ_P;
+
+    //! Intermediate variable called CMX in Pitzer's paper
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_CMX_IJ;
+
+    //! Derivative of m_CMX_IJ wrt T
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_CMX_IJ_L;
+
+    //! Derivative of m_CMX_IJ wrt TT
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_CMX_IJ_LL;
+
+    //! Derivative of m_CMX_IJ wrt P
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_CMX_IJ_P;
 
+    //! Intermediate storage of the activity coefficient itself
+    /*!
+     *  vector index is the species index
+     */
     mutable vector_fp m_gamma;
 
   private:
+
+    //! Local error routine
+    /*!
+     * @param msg print out a message and error exit
+     */
     doublereal err(std::string msg) const;
 
-
+    //!  Initialize all of the species - dependent lengths in the object
     void initLengths();
 
     /*
@@ -2081,14 +2309,32 @@ namespace Cantera {
      * natural logarithm of the molality activity coefficients 
      */
     void s_update_lnMolalityActCoeff() const;
+
   public:
-    void s_Pitzer_dlnMolalityActCoeff_dT() const;
-    void s_Pitzer_dlnMolalityActCoeff_dP() const;
-  private:
-    /**
-     * This function calculates the temperature derivative of the
-     * natural logarithm of the molality activity coefficients.
+
+    //!  Calculates the temperature derivative of the
+    //!  natural logarithm of the molality activity coefficients.
+    /*!
+     * Public function makes sure that all dependent data is
+     * up to date, before calling a private function
      */
+    void s_Pitzer_dlnMolalityActCoeff_dT() const;
+
+    //!  Calculates the Pressure derivative of the
+    //!  natural logarithm of the molality activity coefficients.
+    /*!
+     * Public function makes sure that all dependent data is
+     * up to date, before calling a private function
+     */
+    void s_Pitzer_dlnMolalityActCoeff_dP() const;
+
+  private:
+   
+     //! This function calculates the temperature derivative of the
+     //! natural logarithm of the molality activity coefficients.
+     /*!
+      * Private function does the work
+      */
     void s_update_dlnMolalityActCoeff_dT() const;
 
     /**
@@ -2103,9 +2349,18 @@ namespace Cantera {
      */
     void s_update_dlnMolalityActCoeff_dP() const;
 
-    /**
-     * This function calculates the temperature derivatives
-     * of the Pitzer coefficients
+    //! Calculates the Pitzer coefficients' dependence on the temperature.
+    /*!
+     *  It will also calculate the temperature
+     *  derivatives of the coefficients, as they are important
+     *  in the calculation of the latent heats and the
+     *  heat capacities of the mixtures.
+     *
+     *   @param doDerivs If >= 1, then the routine will calculate
+     *                  the first derivative. If >= 2, the 
+     *                  routine will calculate the first and second
+     *                  temperature derivative.
+     *                  default = 2
      */
     void s_updatePitzerCoeffWRTemp(int doDerivs = 2) const;
 
@@ -2114,6 +2369,7 @@ namespace Cantera {
      * calculation
      */
     void s_updatePitzerSublnMolalityActCoeff() const;
+
     /*
      * Calculate the lambda interactions. 
      * 
@@ -2146,8 +2402,16 @@ namespace Cantera {
     void calc_thetas(int z1, int z2,
 		     double *etheta, double *etheta_prime) const;
 
-
-    void counterIJ_setup(void) const;
+    //! Set up a counter variable for keeping track of symmetric binary
+    //! interactactions amongst the solute species.
+    /*!
+     * The purpose of this is to squeeze the ij parameters into a
+     * compressed single counter.
+     *
+     * n = m_kk*i + j 
+     * m_Counter[n] = counter
+     */
+    void counterIJ_setup() const;
 
     //! Process an XML node called "binarySaltParameters"
     /*!
@@ -2225,6 +2489,7 @@ namespace Cantera {
      * is true and DEBUG_MODE is turned on.
      */
     mutable int m_debugCalc;
+
     //! Return int specifying the amount of debug printing
     /*!
      *  This will return 0 if DEBUG_MODE is not turned on

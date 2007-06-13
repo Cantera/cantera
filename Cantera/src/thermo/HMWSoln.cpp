@@ -1895,7 +1895,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * Calculates the Pitzer coefficients' dependence on the
    * temperature. It will also calculate the temperature
    * derivatives of the coefficients, as they are important
@@ -2893,7 +2893,7 @@ namespace Cantera {
     const double *thetaij_L =  DATA_PTR(m_Theta_ij_L);
     const double *alphaMX   =  DATA_PTR(m_Alpha1MX_ij);
     const double *psi_ijk_L =  DATA_PTR(m_Psi_ijk_L);
-    double *gamma     =  DATA_PTR(m_gamma);
+    double *gamma           =  DATA_PTR(m_gamma);
     /*
      * Local variables defined by Coltrin
      */
