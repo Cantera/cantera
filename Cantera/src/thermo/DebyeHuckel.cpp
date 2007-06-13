@@ -547,7 +547,7 @@ namespace Cantera {
    *  uA[4] = Temperature units - default = 0;
    *  uA[5] = time units - default = 0
    */
-  void DebyeHuckel::getUnitsStandardConc(double *uA, int k, int sizeUA) {
+  void DebyeHuckel::getUnitsStandardConc(double *uA, int k, int sizeUA) const {
     for (int i = 0; i < sizeUA; i++) {
       if (i == 0) uA[0] = 1.0;
       if (i == 1) uA[1] = -nDim();

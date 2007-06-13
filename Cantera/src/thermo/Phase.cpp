@@ -230,7 +230,7 @@ namespace Cantera {
         /*
          * Copy the vector of molecular weights into vector weights.
          */
-        void Phase::getMolecularWeights(vector_fp& weights) {
+        void Phase::getMolecularWeights(vector_fp& weights) const {
             const array_fp& mw = Constituents::molecularWeights();
             if (weights.size() < mw.size()) weights.resize(mw.size());
             copy(mw.begin(), mw.end(), weights.begin());
@@ -240,7 +240,7 @@ namespace Cantera {
          * Copy the vector of molecular weights into array weights.
 	 * @deprecated
          */
-        void Phase::getMolecularWeights(int iwt, doublereal* weights) {
+        void Phase::getMolecularWeights(int iwt, doublereal* weights) const {
             const array_fp& mw = Constituents::molecularWeights();
             copy(mw.begin(), mw.end(), weights);
 	}
@@ -248,7 +248,7 @@ namespace Cantera {
        /*
         * Copy the vector of molecular weights into array weights.
         */
-        void Phase::getMolecularWeights(doublereal* weights) {
+        void Phase::getMolecularWeights(doublereal* weights) const {
             const array_fp& mw = Constituents::molecularWeights();
             copy(mw.begin(), mw.end(), weights);
         }
@@ -257,7 +257,7 @@ namespace Cantera {
          * Return a const reference to the internal vector of
          * molecular weights.
          */
-        const array_fp& Phase::molecularWeights() {
+        const array_fp& Phase::molecularWeights() const {
             return Constituents::molecularWeights(); 
         }
 
@@ -265,7 +265,7 @@ namespace Cantera {
         /**
          * Get the mole fractions by name. 
          */
-        void Phase::getMoleFractionsByName(compositionMap& x) {
+        void Phase::getMoleFractionsByName(compositionMap& x) const {
             x.clear();
             int kk = nSpecies();
             for (int k = 0; k < kk; k++) {

@@ -225,7 +225,7 @@ namespace Cantera {
    *  uA[5] = time units - default = 0
    */
   void StoichSubstanceSSTP::
-  getUnitsStandardConc(double *uA, int k, int sizeUA) {
+  getUnitsStandardConc(double *uA, int k, int sizeUA) const {
     for (int i = 0; i < 6; i++) {
       uA[i] = 0;
     }

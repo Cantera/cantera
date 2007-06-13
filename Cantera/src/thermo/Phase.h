@@ -364,7 +364,7 @@ namespace Cantera {
        *
        * @param weights Output vector of molecular weights (kg/kmol)
        */
-      void getMolecularWeights(vector_fp& weights);
+      void getMolecularWeights(vector_fp& weights) const;
 
       /**
        * Copy the vector of molecular weights into array weights.
@@ -374,20 +374,20 @@ namespace Cantera {
        *
        * @deprecated
        */
-      void getMolecularWeights(int iwt, doublereal* weights);
+      void getMolecularWeights(int iwt, doublereal* weights) const;
 
       /**
        * Copy the vector of molecular weights into array weights.
        *
        * @param weights  Output array of molecular weights (kg/kmol)
        */
-      void getMolecularWeights(doublereal* weights);
+      void getMolecularWeights(doublereal* weights) const;
 
       /**
        * Return a const reference to the internal vector of
        * molecular weights.
        */
-      const array_fp& molecularWeights();
+      const array_fp& molecularWeights() const;
 
       /**
        * Get the mole fractions by name. 
@@ -395,7 +395,7 @@ namespace Cantera {
        * @param x  Output composition map containing the
        *           species mole fractions.
        */
-      void getMoleFractionsByName(compositionMap& x);
+      void getMoleFractionsByName(compositionMap& x) const;
 
       //! Return the mole fraction of a single species
       /*!
@@ -435,7 +435,7 @@ namespace Cantera {
       doublereal chargeDensity() const;
 
       /// Returns the number of spatial dimensions (1, 2, or 3)
-      int nDim() {return m_ndim;}
+      int nDim() const {return m_ndim;}
 
       //! Set the number of spatial dimensions (1, 2, or 3)
       /*!

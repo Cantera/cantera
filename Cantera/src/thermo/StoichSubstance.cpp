@@ -117,7 +117,7 @@ namespace Cantera {
     }
 
     void StoichSubstance::
-    getUnitsStandardConc(double *uA, int k, int sizeUA) {
+    getUnitsStandardConc(double *uA, int k, int sizeUA) const {
 	for (int i = 0; i < sizeUA; i++) {
 	  uA[i] = 0.0;
 	}

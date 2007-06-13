@@ -534,7 +534,7 @@ namespace Cantera {
      *  unitless.
      */
     virtual void getUnitsStandardConc(double *uA, int k = 0, 
-				      int sizeUA = 6);
+				      int sizeUA = 6) const;
 
     
     //! Get the array of species activity coefficients

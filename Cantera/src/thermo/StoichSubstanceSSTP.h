@@ -360,7 +360,7 @@ namespace Cantera {
      *        Currently, this is equal to 6.
      */
     virtual void getUnitsStandardConc(double *uA, int k = 0,
-				      int sizeUA = 6);
+				      int sizeUA = 6) const;
 
     //@}
     /// @name  Partial Molar Properties of the Solution

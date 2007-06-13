@@ -444,7 +444,7 @@ namespace Cantera {
    *  uA[4] = Temperature units - default = 0;
    *  uA[5] = time units - default = 0
    */
-  void IdealMolalSoln::getUnitsStandardConc(double *uA, int k, int sizeUA) {
+  void IdealMolalSoln::getUnitsStandardConc(double *uA, int k, int sizeUA) const {
     int eos = eosType();
     if (eos == 0) {
       for (int i = 0; i < sizeUA; i++) {

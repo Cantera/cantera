@@ -578,7 +578,7 @@ namespace Cantera {
    *  unitless.
    */
   void IdealSolidSolnPhase::
-  getUnitsStandardConc(double *uA, int, int sizeUA) {
+  getUnitsStandardConc(double *uA, int, int sizeUA) const {
     int eos = eosType();
     if (eos == cIdealSolidSolnPhase0) {
       for (int i = 0; i < sizeUA; i++) {

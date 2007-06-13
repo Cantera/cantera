@@ -1014,7 +1014,7 @@ namespace Cantera {
      *  uA[5] = time units - default = 0
      */
     virtual void getUnitsStandardConc(double *uA, int k = 0,
-				      int sizeUA = 6);
+				      int sizeUA = 6) const;
 
     /**
      * Get the array of non-dimensional molality-based activities at
