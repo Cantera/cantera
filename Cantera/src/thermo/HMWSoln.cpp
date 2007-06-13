@@ -2103,7 +2103,7 @@ namespace Cantera {
      */
     double molalitysum = 0.0;
 
-    double *g        =  DATA_PTR(m_gfunc_IJ);
+    double *gfunc    =  DATA_PTR(m_gfunc_IJ);
     double *hfunc    =  DATA_PTR(m_hfunc_IJ);
     double *BMX      =  DATA_PTR(m_BMX_IJ);
     double *BprimeMX =  DATA_PTR(m_BprimeMX_IJ);
@@ -2218,17 +2218,17 @@ namespace Cantera {
 	   */
 	  x = sqrtIs * alphaMX[counterIJ];
 	  if (x > 1.0E-100) {
-	    g[counterIJ]     =  2.0*(1.0-(1.0 + x) * exp(-x)) / (x*x);
+	    gfunc[counterIJ]     =  2.0*(1.0-(1.0 + x) * exp(-x)) / (x*x);
 	    hfunc[counterIJ] = -2.0*
 	      (1.0-(1.0 + x + 0.5*x*x) * exp(-x)) / (x*x);
 	  }
 	  else {
-	    g[counterIJ]     = 0.0;
+	    gfunc[counterIJ]     = 0.0;
 	    hfunc[counterIJ] = 0.0;
 	  }
 	} 
 	else {
-	  g[counterIJ]     = 0.0;
+	  gfunc[counterIJ]     = 0.0;
 	  hfunc[counterIJ] = 0.0;
 	}
 #ifdef DEBUG_MODE
@@ -2286,13 +2286,13 @@ namespace Cantera {
 	 */
 	if (charge[i]*charge[j] < 0.0) {	
 	  BMX[counterIJ]  = beta0MX[counterIJ]
-	    + beta1MX[counterIJ] * g[counterIJ]
+	    + beta1MX[counterIJ] * gfunc[counterIJ]
 	    + beta2MX[counterIJ] * g12rooti;
 #ifdef DEBUG_MODE
 	  if (m_debugCalc) {
 	    printf("%d %g: %g %g %g\n",
 		   counterIJ,  BMX[counterIJ], beta0MX[counterIJ],
-		   beta1MX[counterIJ], g[counterIJ]);
+		   beta1MX[counterIJ], gfunc[counterIJ]);
 	  }
 #endif
 	  if (Is > 1.0E-150) {
@@ -2913,7 +2913,7 @@ namespace Cantera {
      */
     double molalitysum = 0.0;
 
-    double *g        =  DATA_PTR(m_gfunc_IJ);
+    double *gfunc    =  DATA_PTR(m_gfunc_IJ);
     double *hfunc    =  DATA_PTR(m_hfunc_IJ);
     double *BMX_L    =  DATA_PTR(m_BMX_IJ_L);
     double *BprimeMX_L= DATA_PTR(m_BprimeMX_IJ_L);
@@ -3028,17 +3028,17 @@ namespace Cantera {
 	   */
 	  x = sqrtIs * alphaMX[counterIJ];
 	  if (x > 1.0E-100) {
-	    g[counterIJ]     =  2.0*(1.0-(1.0 + x) * exp(-x)) / (x*x);
+	    gfunc[counterIJ]     =  2.0*(1.0-(1.0 + x) * exp(-x)) / (x*x);
 	    hfunc[counterIJ] = -2.0*
 	      (1.0-(1.0 + x + 0.5*x*x) * exp(-x)) / (x*x);
 	  }
 	  else {
-	    g[counterIJ]     = 0.0;
+	    gfunc[counterIJ]     = 0.0;
 	    hfunc[counterIJ] = 0.0;
 	  }
 	} 
 	else {
-	  g[counterIJ]     = 0.0;
+	  gfunc[counterIJ]     = 0.0;
 	  hfunc[counterIJ] = 0.0;
 	}
 #ifdef DEBUG_MODE
@@ -3046,7 +3046,7 @@ namespace Cantera {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
 	  printf(" %-16s %-16s %9.5f %9.5f \n", sni.c_str(), snj.c_str(), 
-		 g[counterIJ], hfunc[counterIJ]);
+		 gfunc[counterIJ], hfunc[counterIJ]);
 	}
 #endif
       }
@@ -3086,13 +3086,13 @@ namespace Cantera {
 	 */
 	if (charge[i]*charge[j] < 0.0) {	
 	  BMX_L[counterIJ]  = beta0MX_L[counterIJ]
-	    + beta1MX_L[counterIJ] * g[counterIJ]
+	    + beta1MX_L[counterIJ] * gfunc[counterIJ]
 	    + beta2MX_L[counterIJ] * g12rooti;
 #ifdef DEBUG_MODE
 	  if (m_debugCalc) {
 	    printf("%d %g: %g %g %g\n",
 		   counterIJ,  BMX_L[counterIJ], beta0MX_L[counterIJ],
-		   beta1MX_L[counterIJ], g[counterIJ]);
+		   beta1MX_L[counterIJ], gfunc[counterIJ]);
 	  }
 #endif
 	  if (Is > 1.0E-150) {
@@ -3692,7 +3692,7 @@ namespace Cantera {
      */
     double molalitysum = 0.0;
 
-    double *g        =  DATA_PTR(m_gfunc_IJ);
+    double *gfunc    =  DATA_PTR(m_gfunc_IJ);
     double *hfunc    =  DATA_PTR(m_hfunc_IJ);
     double *BMX_LL   =  DATA_PTR(m_BMX_IJ_LL);
     double *BprimeMX_LL=DATA_PTR(m_BprimeMX_IJ_LL);
@@ -3789,9 +3789,9 @@ namespace Cantera {
 	
     /*
      *
-     *  calculate g(x) and hfunc(x) for each cation-anion pair MX
+     *  calculate gfunc(x) and hfunc(x) for each cation-anion pair MX
      *   In the original literature, hfunc, was called gprime. However,
-     *   it's not the derivative of g(x), so I renamed it.
+     *   it's not the derivative of gfunc(x), so I renamed it.
      */
     for (i = 1; i < (m_kk - 1); i++) {
       for (j = (i+1); j < m_kk; j++) {
@@ -3809,17 +3809,17 @@ namespace Cantera {
 	   */
 	  x = sqrtIs * alphaMX[counterIJ];
 	  if (x > 1.0E-100) {
-	    g[counterIJ]     =  2.0*(1.0-(1.0 + x) * exp(-x)) / (x*x);
+	    gfunc[counterIJ] =  2.0*(1.0-(1.0 + x) * exp(-x)) / (x*x);
 	    hfunc[counterIJ] = -2.0*
 	      (1.0-(1.0 + x + 0.5*x*x) * exp(-x)) / (x*x);
 	  }
 	  else {
-	    g[counterIJ]     = 0.0;
+	    gfunc[counterIJ] = 0.0;
 	    hfunc[counterIJ] = 0.0;
 	  }
 	} 
 	else {
-	  g[counterIJ]     = 0.0;
+	  gfunc[counterIJ] = 0.0;
 	  hfunc[counterIJ] = 0.0;
 	}
 #ifdef DEBUG_MODE
@@ -3827,7 +3827,7 @@ namespace Cantera {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
 	  printf(" %-16s %-16s %9.5f %9.5f \n", sni.c_str(), snj.c_str(), 
-		 g[counterIJ], hfunc[counterIJ]);
+		 gfunc[counterIJ], hfunc[counterIJ]);
 	}
 #endif
       }
@@ -3866,7 +3866,7 @@ namespace Cantera {
 	 */
 	if (charge[i]*charge[j] < 0.0) {
 	  BMX_LL[counterIJ]  = beta0MX_LL[counterIJ]
-	    + beta1MX_LL[counterIJ] * g[counterIJ]
+	    + beta1MX_LL[counterIJ] * gfunc[counterIJ]
 	    + beta2MX_LL[counterIJ] * g12rooti;
 #ifdef DEBUG_MODE
 	  if (m_debugCalc) {
@@ -4499,7 +4499,7 @@ namespace Cantera {
      */
     double molalitysum = 0.0;
 
-    double *g        =  DATA_PTR(m_gfunc_IJ);
+    double *gfunc        =  DATA_PTR(m_gfunc_IJ);
     double *hfunc    =  DATA_PTR(m_hfunc_IJ);
     double *BMX_P    =  DATA_PTR(m_BMX_IJ_P);
     double *BprimeMX_P= DATA_PTR(m_BprimeMX_IJ_P);
@@ -4619,17 +4619,17 @@ namespace Cantera {
 	   */
 	  x = sqrtIs * alphaMX[counterIJ];
 	  if (x > 1.0E-100) {
-	    g[counterIJ]     =  2.0*(1.0-(1.0 + x) * exp(-x)) / (x*x);
+	    gfunc[counterIJ]     =  2.0*(1.0-(1.0 + x) * exp(-x)) / (x*x);
 	    hfunc[counterIJ] = -2.0*
 	      (1.0-(1.0 + x + 0.5*x*x) * exp(-x)) / (x*x);
 	  }
 	  else {
-	    g[counterIJ]     = 0.0;
+	    gfunc[counterIJ]     = 0.0;
 	    hfunc[counterIJ] = 0.0;
 	  }
 	} 
 	else {
-	  g[counterIJ]     = 0.0;
+	  gfunc[counterIJ]     = 0.0;
 	  hfunc[counterIJ] = 0.0;
 	}
 #ifdef DEBUG_MODE
@@ -4637,7 +4637,7 @@ namespace Cantera {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
 	  printf(" %-16s %-16s %9.5f %9.5f \n", sni.c_str(), snj.c_str(), 
-		 g[counterIJ], hfunc[counterIJ]);
+		 gfunc[counterIJ], hfunc[counterIJ]);
 	}
 #endif
       }
@@ -4678,7 +4678,7 @@ namespace Cantera {
 	 */
 	if (charge[i]*charge[j] < 0.0) {	
 	  BMX_P[counterIJ]  = beta0MX_P[counterIJ]
-	    + beta1MX_P[counterIJ] * g[counterIJ]
+	    + beta1MX_P[counterIJ] * gfunc[counterIJ]
 	    + beta2MX_P[counterIJ] * g12rooti;
 #ifdef DEBUG_MODE
 	  if (m_debugCalc) {

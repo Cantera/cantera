@@ -75,11 +75,8 @@ namespace Cantera {
   class WaterPDSS;
 
   /**
-   * Definition of the HMWSoln object
-   *
-  *
-   * Class %DebyeHuckel represents a dilute liquid electrolyte phase which
-   * obeys the Debye Huckel formulation for nonideality.
+   * Class %HMWSoln represents a dilute or conetrated liquid electrolyte phase which
+   * obeys the Pitzer formulation for nonideality.
    *
    * The concentrations of the ionic species are assumed to obey the electroneutrality
    * condition. 
@@ -99,7 +96,7 @@ namespace Cantera {
    *  manager class (see ThermoPhase::m_spthermo). How to relate pressure
    *  changes to the reference state thermodynamics is resolved at this level.
    *
-   *  For an incompressible,
+   * For an incompressible,
    * stoichiometric substance, the molar internal energy is
    * independent of pressure. Since the thermodynamic properties
    * are specified by giving the standard-state enthalpy, the
@@ -148,7 +145,7 @@ namespace Cantera {
    * <H2> Specification of Solution Thermodynamic Properties </H2>
    * <HR>
    *
-  * Chemical potentials
+   * Chemical potentials
    * of the solutes,  \f$ \mu_k \f$, and the solvent, \f$ \mu_o \f$, which are based 
    * on the molality form, have the following general format:
    *
@@ -176,7 +173,7 @@ namespace Cantera {
    *  \f]
    *
    *
-  * \f$ m_k \f$ is the molality of the kth species. \f$ z_k \f$ is the charge
+   * \f$ m_k \f$ is the molality of the kth species. \f$ z_k \f$ is the charge
    * of the kth species. Note, the ionic strength is a defined units quantity.
    * The molality has defined units of gmol kg-1, and therefore the ionic
    * strength has units of sqrt( gmol kg-1).
@@ -198,7 +195,7 @@ namespace Cantera {
    *    I_s = \frac{1}{2} \sum_k{m_k^s  z_k^2}
    *  \f]
    *
- *  Here, \f$ m_k^s \f$ is the value of the molalities calculated assuming that
+   *  Here, \f$ m_k^s \f$ is the value of the molalities calculated assuming that
    *  all weak acid-base pairs are in their fully dissociated states. This calculation may
    * be simplified by considering that the weakly associated acid may be made up of two
    * charged species, k1 and k2, each with their own charges, obeying the following relationship:
@@ -269,7 +266,7 @@ namespace Cantera {
    * @endcode
    *
    *
-  *  Much of the species electrolyte type information is infered from other information in the
+   *  Much of the species electrolyte type information is infered from other information in the
    *  input file. For example, as species which is charged is given the "chargedSpecies" default
    *  category. A neutral solute species is put into the "nonpolarNeutral" category by default.
    *
@@ -304,7 +301,7 @@ namespace Cantera {
    *
    *    DHFORM_BDOT_AK       = 1
    *
-  *      This form assumes Bethke's format for the Debye Huckel activity coefficient:
+   *      This form assumes Bethke's format for the Debye Huckel activity coefficient:
    *
    *   \f[
    *      \ln(\gamma_k^\triangle) = -z_k^2 \frac{A_{Debye} \sqrt{I}}{ 1 + B_{Debye}  a_k \sqrt{I}}
@@ -460,7 +457,7 @@ namespace Cantera {
    *            Units = sqrt(kg/gmol)
    *
    *
-  *     where
+   *     where
    *      - \f$ N_a \f$ is Avrogadro's number
    *      - \f$ \rho_w \f$ is the density of water
    *      - \f$ e \f$ is the electronic charge
@@ -1943,8 +1940,11 @@ namespace Cantera {
      * neutral, neutral interactions are also included here.
      */
     Array2D   m_Lambda_ij;
+    //! Derivative of  Lambda_ij[i][j] wrt T. see m_Lambda_ij
     Array2D   m_Lambda_ij_L;
+    //! Derivative of  Lambda_ij[i][j] wrt TT
     Array2D   m_Lambda_ij_LL;
+    //! Derivative of  Lambda_ij[i][j] wrt P
     Array2D   m_Lambda_ij_P;
 
     /**
@@ -1987,16 +1987,69 @@ namespace Cantera {
      *  The subscript, L, denotes the same quantity's derivative
      *  wrt temperature
      */
+
+    //! This is the value of g(x) in Pitzer's papers
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_gfunc_IJ;
+
+    //! hfunc, was called gprime in Pitzer's paper. However,
+    //! it's not the derivative of gfunc(x), so I renamed it.
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_hfunc_IJ;
+
+    //! Intermediate variable called BMX in Pitzer's paper
+    //! This is the basic cation - anion interaction
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_BMX_IJ;
+
+    //! Derivative of BMX_IJ wrt T
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_BMX_IJ_L;
+
+    //! Derivative of BMX_IJ wrt TT
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_BMX_IJ_LL;
+
+    //! Derivative of BMX_IJ wrt P
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_BMX_IJ_P;
+
+    //! Intermediate variable called BprimeMX in Pitzer's paper
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_BprimeMX_IJ;
+
+    //! Derivative of BprimeMX wrt T 
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_BprimeMX_IJ_L;
+
+    //! Derivative of BprimeMX wrt TT
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_BprimeMX_IJ_LL;
+
+    //! Derivative of BprimeMX wrt P
+    /*!
+     *  vector index is counterIJ
+     */
     mutable vector_fp m_BprimeMX_IJ_P;
+
     mutable vector_fp m_BphiMX_IJ;
     mutable vector_fp m_BphiMX_IJ_L;
     mutable vector_fp m_BphiMX_IJ_LL;
