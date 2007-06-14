@@ -83,18 +83,26 @@ namespace Cantera {
   class WaterPDSS;
 
   /**
-   * Class %HMWSoln represents a dilute or conetrated liquid electrolyte phase which
-   * obeys the Pitzer formulation for nonideality.
+   * Class %HMWSoln represents a dilute or concentrated liquid electrolyte
+   * phase which obeys the Pitzer formulation for nonideality.
    *
-   * The concentrations of the ionic species are assumed to obey the electroneutrality
-   * condition. 
+   * As a prerequisite to the specification of thermodynamic quantities,
+   * The concentrations of the ionic species are assumed to obey the 
+   * electroneutrality condition. 
    *
    * <HR>
    * <H2> Specification of Species Standard %State Properties </H2>
    * <HR>
    *
-   * The standard states are on the unit molality basis. Therefore, in the
-   * documentation below, the normal \f$ o \f$ superscript is replaced with
+   * The solvent is assumed to be liquid water. A real model for liquid
+   * water (IAPWS 1995 formulation) is used as its standard state.
+   * All standard state properties for the solvent are based on
+   * this real model for water, and involve function calls
+   * to the object that handles the real water model, #WaterPropsIAPWS.
+   *
+   * The standard states for solutes are on the unit molality basis. 
+   * Therefore, in the documentation below, the normal \f$ o \f$ 
+   * superscript is replaced with
    * the \f$ \triangle \f$ symbol. The reference state symbol is now
    *  \f$ \triangle, ref \f$.
    * 
@@ -104,19 +112,24 @@ namespace Cantera {
    *  manager class (see ThermoPhase::m_spthermo). How to relate pressure
    *  changes to the reference state thermodynamics is resolved at this level.
    *
-   * For an incompressible,
-   * stoichiometric substance, the molar internal energy is
-   * independent of pressure. Since the thermodynamic properties
-   * are specified by giving the standard-state enthalpy, the
-   * term \f$ P_0 \hat v\f$ is subtracted from the specified molar
-   * enthalpy to compute the molar internal energy. The entropy is
-   * assumed to be independent of the pressure.
+   *  For solutes that rely on ThermoPhase::m_spthermo, are assumed to
+   *  have an incompressible standard state mechanical property.
+   *  In other words, the molar volumes are independent of temperature
+   *  and pressure.
+   *
+   *  For these incompressible,
+   *  standard states, the molar internal energy is
+   *  independent of pressure. Since the thermodynamic properties
+   *  are specified by giving the standard-state enthalpy, the
+   *  term \f$ P_0 \hat v\f$ is subtracted from the specified molar
+   *  enthalpy to compute the molar internal energy. The entropy is
+   *  assumed to be independent of the pressure.
    *
    * The enthalpy function is given by the following relation.
    *
    *       \f[
    *   \raggedright  h^\triangle_k(T,P) = h^{\triangle,ref}_k(T) 
-   *         + \tilde v \left( P - P_{ref} \right) 
+   *         + \tilde{v}_k \left( P - P_{ref} \right) 
    *       \f]
    *
    * For an incompressible,
@@ -127,19 +140,19 @@ namespace Cantera {
    * enthalpy to compute the molar internal energy.
    *
    *       \f[
-   *            u^\triangle_k(T,P) = h^{\triangle,ref}_k(T) - P_{ref} \tilde v
+   *            u^\triangle_k(T,P) = h^{\triangle,ref}_k(T) - P_{ref} \tilde{v}_k
    *       \f]
    *
    *
-   * The standard state heat capacity and entropy are independent
-   * of pressure. The standard state gibbs free energy is obtained
+   * The solute standard state heat capacity and entropy are independent
+   * of pressure. The solute standard state gibbs free energy is obtained
    * from the enthalpy and entropy functions.
    *
    * The vector Constituents::m_speciesSize[] is used to hold the
    * base values of species sizes. These are defined as the 
    * molar volumes of species at infinite dilution at 300 K and 1 atm
    * of water. m_speciesSize are calculated during the initialization of the
-   * %DebyeHuckel object and are then not touched.
+   * %HMWSoln object and are then not touched.
    *
    * The current model assumes that an incompressible molar volume for
    * all solutes. The molar volume for the water solvent, however,
@@ -168,7 +181,12 @@ namespace Cantera {
    * \f$k\f$.
    * 
    * Individual activity coefficients of ions can not be independently measured. Instead,
-   * only binary pairs forming electroneutral solutions can be measured.
+   * only binary pairs forming electroneutral solutions can be measured. This problem
+   * leads to a redundancy in the evaluation of species standard state properties.
+   * The redundancy issue is resolved by setting the standard state chemical potential
+   * enthalpy, entropy, and volume for the hydrogen ion, H+, to zero, for every temperature
+   * and pressure. After this convention is applied, all other standard state 
+   * properties of ionic species contain meaningfull information.
    *
    *
    *  <H3> Ionic Strength </H3>
@@ -279,19 +297,31 @@ namespace Cantera {
    *  category. A neutral solute species is put into the "nonpolarNeutral" category by default.
    *
    *
-   *  <H3> Debye-Huckel Dilute Limit </H3>
+   *  <H3> Multicomponent Activity Coefficients for Solutes </H3>
    *
-   *  DHFORM_DILUTE_LIMIT = 0
+   *    In the formulas below the following conventions are used. The subscript <I>M</I> refers
+   *    to a particular cation. The subscript X refers to a particular anion, whose
+   *    activity is being currently evaluated. the subscript <I>a</I> refers to a summation
+   *    over all anions in the solution, while the subscript <I>c</I> refers to a summation
+   *    over all cations in the solutions.
    *
-   *      This form assumes a dilute limit to DH, and is mainly
-   *      for informational purposes:
-   *  \f[
-   *      \ln(\gamma_k^\triangle) = - z_k^2 A_{Debye} \sqrt{I}
-   *  \f]
+   *     The activity coefficient for a particular cation <I>M</I> is given by
+   *
+   *   \f[
+   *      \ln(\gamma_M^\triangle) = -z_M^2(F) + \sum_a m_a \left( 2 B_{Ma} + Z C_{Ma} \right)
+   *      + z_M   \left( \sum_a  \sum_c m_a m_c C_{Ma} \right)
+   *             + \sum_c m_c \left[ 2 \Phi_{Mc} + \sum_a m_a \psi_{Mca} \right]
+   *             + \sum_{a < a'} \sum m_a m_{a'} \psi_{Ma{a'}}
+   *             +  2 \sum_n m_n \lambda_{nM}
+   *   \f]
+   *
+   *
    *              where \f$ I\f$ is the ionic strength
    *  \f[
    *    I = \frac{1}{2} \sum_k{m_k  z_k^2}
    *  \f]
+   *
+   *  <H3> Activity of the Water Solvent </H3>
    *
    *  The activity for the solvent water,\f$ a_o \f$, is not independent and must be 
    *  determined from the Gibbs-Duhem relation.
@@ -301,91 +331,7 @@ namespace Cantera {
    *  \f]
    *     
    *
-   *  <H3> Bdot Formulation </H3>
-   *
-   *    DHFORM_BDOT_AK       = 1
-   *
-   *      This form assumes Bethke's format for the Debye Huckel activity coefficient:
-   *
-   *   \f[
-   *      \ln(\gamma_k^\triangle) = -z_k^2 \frac{A_{Debye} \sqrt{I}}{ 1 + B_{Debye}  a_k \sqrt{I}}
-   *                        + \log(10) B^{dot}_k  I
-   *   \f]
-   *
-   *      Note, this particular form where \f$ a_k \f$ can differ in 
-   *          multielectrolyte
-   *          solutions has problems with respect to a Gibbs-Duhem analysis. However,
-   *          we include it here because there is a lot of data fit to it.
-   *
-   *  The activity for the solvent water,\f$ a_o \f$, is not independent and must be 
-   *  determined from the Gibbs-Duhem relation. Here, we use:
-   *
-   *  \f[
-   *       \ln(a_o) = \frac{X_o - 1.0}{X_o} 
-   *        + \frac{ 2 A_{Debye} \tilde{M}_o}{3} (I)^{1/2}
-   *                        \left[ \sum_k{\frac{1}{2} m_k z_k^2 \sigma( B_{Debye} a_k \sqrt{I} ) } \right]
-   *                        - \frac{\log(10)}{2} \tilde{M}_o I \sum_k{ B^{dot}_k m_k}
-   *  \f]
-   *    where
-   *  \f[
-   *     \sigma (y) = \frac{3}{y^3} \left[ (1+y) - 2 \ln(1 + y) - \frac{1}{1+y} \right]
-   *  \f]
-   *
-   * Additionally, Helgeson's formulation for the water activity is offered as an
-   * alternative.
-   *
-   *  <H3> Bdot Formulation with Uniform Size Parameter in the Denominator </H3>
-   *
-   *  DHFORM_BDOT_AUNIFORM = 2
-   *
-   *      This form assumes Bethke's format for the Debye-Huckel activity coefficient
-   *
-   *   \f[
-   *    \ln(\gamma_k^\triangle) = -z_k^2 \frac{A_{Debye} \sqrt{I}}{ 1 + B_{Debye}  a \sqrt{I}}
-   *                        + \log(10) B^{dot}_k  I
-   *   \f]
-   *      
-   *         The value of a is determined at the beginning of the 
-   *         calculation, and not changed.
-   *
-   *  \f[
-   *       \ln(a_o) = \frac{X_o - 1.0}{X_o} 
-   *        + \frac{ 2 A_{Debye} \tilde{M}_o}{3} (I)^{3/2} \sigma( B_{Debye} a \sqrt{I} )
-   *                        - \frac{\log(10)}{2} \tilde{M}_o I \sum_k{ B^{dot}_k m_k}
-   *  \f]
-   *
-   *
-   *  <H3> Beta_IJ formulation </H3>
-   *
-   *  DHFORM_BETAIJ        = 3
-   *
-   *      This form assumes a linear expansion in a virial coefficient form
-   *      It is used extensively in the book by Newmann, "Electrochemistry Systems", 
-   *      and is the beginning of
-   *      more complex treatments for stronger electrolytes, fom Pitzer
-   *      and from Harvey, Moller, and Weire.
-   *  
-   *   \f[
-   *    \ln(\gamma_k^\triangle) = -z_k^2 \frac{A_{Debye} \sqrt{I}}{ 1 + B_{Debye}  a \sqrt{I}}
-   *                         + 2 \sum_j \beta_{j,k} m_j
-   *   \f]
-   *
-   *   In the current treatment the binary interaction coefficients, \f$ \beta_{j,k}\f$, are 
-   *   independent of temperature and pressure.
-   *
-   *  \f[
-   *       \ln(a_o) = \frac{X_o - 1.0}{X_o} 
-   *        + \frac{ 2 A_{Debye} \tilde{M}_o}{3} (I)^{3/2} \sigma( B_{Debye} a \sqrt{I} )
-   *        -  \tilde{M}_o  \sum_j \sum_k \beta_{j,k} m_j m_k
-   *  \f]
-   *
-   * In this formulation the ionic radius, \f$ a \f$, is a constant. This must be supplied to the
-   * model, in an <DFN> ionicRadius </DFN> XML block.
-   *
-   * The \f$ \beta_{j,k} \f$ parameters are binary interaction parameters. They are supplied to
-   * the object in an <TT> DHBetaMatrix </TT> XML block. There are in principle \f$ N (N-1) /2 \f$
-   * different, symmetric interaction parameters, where \f$ N \f$ are the number of solute species in the
-   * mechanism.  
+ 
    * An example is given below.
    *
    * An example <TT> activityCoefficients </TT> XML block for this formulation is supplied below
@@ -413,26 +359,6 @@ namespace Cantera {
    *  </activityCoefficients>
    * @endcode
    *
-   *  <H3> Pitzer Beta_IJ formulation </H3>
-   *
-   *  DHFORM_PITZER_BETAIJ  = 4
-   * 
-   * *      This form assumes an activity coefficient formulation consistent
-   *      with a truncated form of Pitzer's formulation. Pitzer's formulation is equivalent
-   *      to the formulations above in the dilute limit, where rigorous theory may be applied.
-   *
-   *   \f[
-   *     \ln(\gamma_k^\triangle) = -z_k^2 \frac{A_{Debye}}{3} \frac{\sqrt{I}}{ 1 + B_{Debye}  a \sqrt{I}}
-   *       -2 z_k^2 \frac{A_{Debye}}{3}  \frac{\ln(1 + B_{Debye}  a  \sqrt{I})}{ B_{Debye}  a}
-   *                         + 2 \sum_j \beta_{j,k} m_j
-   *   \f]
-   *
-   *
-   *  \f[
-   *       \ln(a_o) = \frac{X_o - 1.0}{X_o} 
-   *        + \frac{ 2 A_{Debye} \tilde{M}_o}{3} \frac{(I)^{3/2} }{1 +  B_{Debye}  a \sqrt{I} }
-   *        -  \tilde{M}_o  \sum_j \sum_k \beta_{j,k} m_j m_k
-   *  \f]
    *
    * <H3> Specification of the Debye Huckel Constants </H3>
    *

@@ -1,6 +1,5 @@
 /**
  *  @file HMWSoln.cpp
- *
  * Member functions of Pitzer activity coefficient implementation.
  */
 /*
