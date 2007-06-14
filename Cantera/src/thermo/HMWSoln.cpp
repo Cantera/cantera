@@ -11,11 +11,11 @@
 /*
  * $Id$
  */
-
+//@{
 #ifndef MAX
 #define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
 #endif
-
+//@}
 #include "HMWSoln.h"
 //#include "importCTML.h"
 #include "ThermoFactory.h"
@@ -25,7 +25,7 @@
 
 namespace Cantera {
 
-  /**
+  /*
    * Default constructor
    */
   HMWSoln::HMWSoln() :
@@ -49,7 +49,7 @@ namespace Cantera {
       elambda1[i] = 0.0;
     }
   }
-  /**
+  /*
    * Working constructors
    *
    *  The two constructors below are the normal way
@@ -245,8 +245,8 @@ namespace Cantera {
   }
 
 
-  /**
-   * Test matrix for this object
+  
+  /*  
    *
    *
    *  test problems:
@@ -691,12 +691,12 @@ namespace Cantera {
 		       "Density is not an independent variable");
   }
 
-  /**
+  /*
    * Overwritten setTemperature(double) from State.h. This
    * function sets the temperature, and makes sure that
    * the value propagates to underlying objects.
    */
-  void HMWSoln::setTemperature(double temp) {
+  void HMWSoln::setTemperature(doublereal temp) {
     m_waterSS->setTemperature(temp);
     State::setTemperature(temp);
   }

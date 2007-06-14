@@ -1279,10 +1279,9 @@ namespace Cantera {
     /*!
      * @internal
      *
-     * This function gets called for every call to functions in this
+     * This function gets called for every call to a public function in this
      * class. It checks to see whether the temperature or pressure has changed and
-     * thus the ss thermodynamics functions for all of the species
-     * must be recalculated.
+     * thus whether the ss thermodynamics functions must be recalculated.
      *
      * @param pres  Pressure at which to evaluate the standard states.
      *              The default, indicated by a -1.0, is to use the current pressure

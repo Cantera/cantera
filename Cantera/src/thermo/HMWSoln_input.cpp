@@ -22,13 +22,13 @@ using namespace std;
 
 namespace Cantera {
 
-  /**
-   * interp_est()                          (static)
-   *
-   * utility function to assign an integer value from a string
-   * for the ElectrolyteSpeciesType field.
+
+  //! utility function to assign an integer value from a string
+  //! for the ElectrolyteSpeciesType field.
+  /*!
+   *  @param estString string name of the electrolyte species type
    */
-  static int interp_est(std::string estString) {
+  int HMWSoln::interp_est(std::string estString) {
     const char *cc = estString.c_str();
     if (!strcasecmp(cc, "solvent")) {
       return cEST_solvent;
@@ -50,7 +50,7 @@ namespace Cantera {
     return rval;
   }
 
-  /**
+  /*
    * Process an XML node called "SimpleSaltParameters. 
    * This node contains all of the parameters necessary to describe
    * the Pitzer model for that particular binary salt.
@@ -585,7 +585,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    *  Initialization routine for a HMWSoln phase.
    *
    * This is a virtual routine. This routine will call initThermo()
@@ -596,7 +596,7 @@ namespace Cantera {
     initLengths();
   }
 
-  /**
+  /*
    *   Import, construct, and initialize a HMWSoln phase 
    *   specification from an XML tree into the current object.
    *
@@ -610,7 +610,7 @@ namespace Cantera {
    *            phase. If none is given, the first XML
    *            phase element will be used.
    */
-  void HMWSoln::constructPhaseFile(string inputFile, string id) {
+  void HMWSoln::constructPhaseFile(std::string inputFile, std::string id) {
 
     if (inputFile.size() == 0) {
       throw CanteraError("HMWSoln:constructPhaseFile",
@@ -640,7 +640,7 @@ namespace Cantera {
     delete fxml;
   }
   
-  /**
+  /*
    *   Import, construct, and initialize a HMWSoln phase 
    *   specification from an XML tree into the current object.
    *
@@ -667,7 +667,7 @@ namespace Cantera {
    *             to see if phaseNode is pointing to the phase
    *             with the correct id. 
    */
-  void HMWSoln::constructPhaseXML(XML_Node& phaseNode, string id) {
+  void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id) {
     string stemp;
     if (id.size() > 0) {
       string idp = phaseNode.id();
@@ -815,7 +815,7 @@ namespace Cantera {
    *             with the correct id.
    */
   void HMWSoln::
-  initThermoXML(XML_Node& phaseNode, string id) {
+  initThermoXML(XML_Node& phaseNode, std::string id) {
     int k;
     string stemp;
     /*
