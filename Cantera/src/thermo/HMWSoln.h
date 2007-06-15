@@ -263,8 +263,8 @@ namespace Cantera {
    *                                        may not be be included in the
    *                                        species solution vector.
    *  -  <B>cEST_strongAcidAssociated</B>   Species which always breaksapart into charged species.
-   *                                        It may or may not be charged. Normally, these aren't included
-   *                                        in the speciation vector.
+   *                                        It may or may not be charged. Normally, these
+   *                                        aren't included in the speciation vector.
    *  -  <B>cEST_polarNeutral </B>          Polar neutral species
    *  -  <B>cEST_nonpolarNeutral</B>        Non poloar neutral species
    *
@@ -309,29 +309,104 @@ namespace Cantera {
    *
    *   \f[
    *      \ln(\gamma_M^\triangle) = -z_M^2(F) + \sum_a m_a \left( 2 B_{Ma} + Z C_{Ma} \right)
-   *      + z_M   \left( \sum_a  \sum_c m_a m_c C_{Ma} \right)
+   *      + z_M   \left( \sum_a  \sum_c m_a m_c C_{ca} \right)
    *             + \sum_c m_c \left[ 2 \Phi_{Mc} + \sum_a m_a \psi_{Mca} \right]
    *             + \sum_{a < a'} \sum m_a m_{a'} \psi_{Ma{a'}}
    *             +  2 \sum_n m_n \lambda_{nM}
    *   \f]
    *
+   *     The activity coefficient for a particular anion <I>X</I> is given by
    *
-   *              where \f$ I\f$ is the ionic strength
-   *  \f[
-   *    I = \frac{1}{2} \sum_k{m_k  z_k^2}
-   *  \f]
+   *   \f[
+   *      \ln(\gamma_X^\triangle) = -z_X^2(F) + \sum_a m_c \left( 2 B_{cX} + Z C_{cX} \right)
+   *      + \left|z_X \right|  \left( \sum_a  \sum_c m_a m_c C_{ca} \right)
+   *             + \sum_a m_a \left[ 2 \Phi_{Xa} + \sum_c m_c \psi_{cXa} \right]
+   *             + \sum_{c < c'} \sum m_c m_{c'} \psi_{c{c'}X}
+   *             +  2 \sum_n m_n \lambda_{nM}
+   *   \f]
+   *              where the function \f$ F \f$ is given by
+   *
+   *
+   *   \f[
+   *       F = - A_{\phi} \left[ \frac{\sqrt{I}}{1 + b \sqrt{I}} 
+   *                 + \frac{2}{b} \ln{\left(1 + b\sqrt{I}\right)} \right]
+   *                 + \sum_a \sum_c m_a m_c B'_{ca}
+   *                 + \sum_{c < c'} \sum m_c m_{c'} \Phi'_{c{c'}}
+   *                 + \sum_{a < a'} \sum m_a m_{a'} \Phi'_{a{a'}}
+   *   \f]
+   *
+   *   where \f$ I\f$ is the ionic strength
+   *
+   *   \f[
+   *       I = \frac{1}{2} \sum_k{m_k  z_k^2}
+   *   \f]
+   *
+   *   and the function \f$ Z \f$ is given by
+   *
+   *   \f[
+   *       Z = \sum_i m_i \left| z_i \right|
+   *   \f]
+   *
+   *   In the above formulas, \f$ \Phi'_{c{c'}} \f$  and \f$  \Phi'_{a{a'}} \f$ are the
+   *   ionic strength derivatives of \f$ \Phi_{c{c'}} \f$  and \f$  \Phi_{a{a'}} \f$,
+   *   respectively.
+   *
+   *   The function \f$ B'_{MX} \f$ is defined as:
+   *
+   *   \f[
+   *       B'_{MX} = \left( \frac{\beta^1_{MX} h(\alpha \sqrt{I})}{I}  \right) 
+   *                 \left( \frac{\beta^2_{MX} h(\alpha \sqrt{I})}{I}  \right)
+   *   \f]
+   *
+   *  where \f$ h(x) \f$ is defined as
+   *
+   *   \f[
+   *       h(x) = g'(x) \frac{x}{2} = 
+   *        \frac{2\left(1 - \left(1 + x + \frac{x^2}{2} \right)\exp(-x) \right)}{x^2}
+   *   \f]
+   *
+   *   The activity coefficient for neutral species <I>N</I> is given by 
+   *
+   *   \f[
+   *       \ln(\gamma_N^\triangle) = 2 \left( \sum_i m_i \lambda_{iN}\right)
+   *   \f]
+   *
    *
    *  <H3> Activity of the Water Solvent </H3>
    *
    *  The activity for the solvent water,\f$ a_o \f$, is not independent and must be 
-   *  determined from the Gibbs-Duhem relation.
+   *  determined either from the Gibbs-Duhem relation or from taking the appropriate derivative
+   *  of the same excess Gibbs free energy function as was used to formulate
+   *  the solvent activity coefficients. Pitzer's description follows the later approach to
+   *  derive a formula for the osmotic coefficient, \f$ \phi \f$.
    *
    *  \f[
-   *       \ln(a_o) = \frac{X_o - 1.0}{X_o} + \frac{ 2 A_{Debye} \tilde{M}_o}{3} (I)^{3/2}
+   *       \phi - 1 = - \left( \frac{d\left(\frac{G^{ex}}{RT} \right)}{d(\tilde{M}_o n_o)}  \right)
+   *                \frac{1}{\sum_{i \ne 0} m_i}
+   *  \f]
+   *
+   *  The result is the following
+   *
+   *  \f[
+   *     \phi - 1 =  
+   *          \frac{2}{\sum_{i \ne 0} m_i}
+   *           \left[
+   *           \begin{array}{c}
+   *        -  A_{\phi} \frac{I^{3/2}}{1 + b \sqrt{I}}  
+   *        +   \sum_c  \sum_a m_c m_a \left( B^{\phi}_{ca} + Z C_{ca}\right) 
+   *          \\
+   *        +   \sum_{c < c'} \sum m_c m_{c'} \left[ \Phi^{\phi}_{c{c'}} + \sum_a m_a \Psi_{c{c'}a} \right]
+   *        +   \sum_{a < a'} \sum m_a m_{a'} \left[ \Phi^{\phi}_{a{a'}} + \sum_c m_c \Psi_{a{a'}c} \right]
+   *          \\
+   *        + \sum_n \sum_c m_n m_c \lambda_{nc} +  \sum_n \sum_a m_n m_a \lambda_{na} 
+   *        + \sum_{n < n'} \sum m_n m_{n'} \lambda_{n{n'}}
+   *        + \frac{1}{2} \left( \sum_n m^2_n \lambda_{nn}\right)
+   *          \end{array}
+   *          \right]
    *  \f]
    *     
    *
- 
+   *
    * An example is given below.
    *
    * An example <TT> activityCoefficients </TT> XML block for this formulation is supplied below
