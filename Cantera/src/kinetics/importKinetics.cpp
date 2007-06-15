@@ -114,7 +114,8 @@ public:
       for (m = 0; m < nel; m++) {
 	bal[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
 	balp[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
-        //cout << "product species " << ph.speciesName(klocal) << " has " << ph.nAtoms(klocal,m) << " atoms of " << ph.elementName(m) << " and kstoich = " << kstoich << endl;
+        //cout << "product species " << ph.speciesName(klocal) << " has " << ph.nAtoms(klocal,m)
+	//     << " atoms of " << ph.elementName(m) << " and kstoich = " << kstoich << endl;
       }
     }
     int nr = rdata.reactants.size();
@@ -129,20 +130,24 @@ public:
       for (m = 0; m < nel; m++) {
 	bal[ph.elementName(m)] -= kstoich*ph.nAtoms(klocal,m);
 	balr[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
-        //cout << "reactant species " << ph.speciesName(klocal) << " has " << ph.nAtoms(klocal,m) << " atoms of " << ph.elementName(m) << " and kstoich = " << kstoich << endl;
+        //cout << "reactant species " << ph.speciesName(klocal) << " has " << ph.nAtoms(klocal,m) 
+	//     << " atoms of " << ph.elementName(m) << " and kstoich = " << kstoich << endl;
       }
     }
 
     map<string, double>::iterator b = bal.begin();
     string msg = "\n\tElement    Reactants    Products";
     bool ok = true;
-    doublereal err;
+    doublereal err, elemsum;
     for (; b != bal.end(); ++b) {
-      err = fabs(b->second/(balr[b->first] + balp[b->first]));
-      if (err > errorTolerance) {
-	ok = false;
-	msg += "\n\t"+b->first+"           "+ fp2str(balr[b->first])
-	  +"           "+ fp2str(balp[b->first]);
+      elemsum = fabs(balr[b->first]) + fabs(balp[b->first]);
+      if (elemsum > 0.0) {
+	err = fabs(b->second/elemsum);
+	if (err > errorTolerance) {
+	  ok = false;
+	  msg += "\n\t"+b->first+"           "+ fp2str(balr[b->first])
+	    +"           "+ fp2str(balp[b->first]);
+	}
       }
     }
     if (!ok) {
