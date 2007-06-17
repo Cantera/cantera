@@ -1,6 +1,12 @@
 /**
  *  @file HMWSoln.cpp
- * Member functions of Pitzer activity coefficient implementation.
+ *    Definitions for the %HMWSoln ThermoPhase object, which models concentrated
+ *    electrolyte solutions
+ *    (see \ref thermoprops and \link Cantera::HMWSoln HMWSoln \endlink) .
+ *
+ * Class %HMWSoln represents a concentrated liquid electrolyte phase which
+ * obeys the Pitzer formulation for nonideality using molality-based
+ * standard states.
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of 

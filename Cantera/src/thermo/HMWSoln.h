@@ -1,6 +1,12 @@
 /**
  *  @file HMWSoln.h
- *    Header file for Pitzer activity coefficient implementation 
+ *    Headers for the %HMWSoln ThermoPhase object, which models concentrated
+ *    electrolyte solutions
+ *    (see \ref thermoprops and \link Cantera::HMWSoln HMWSoln \endlink) .
+ *
+ * Class %HMWSoln represents a concentrated liquid electrolyte phase which
+ * obeys the Pitzer formulation for nonideality using molality-based
+ * standard states.
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of 
@@ -297,7 +303,139 @@ namespace Cantera {
    *  category. A neutral solute species is put into the "nonpolarNeutral" category by default.
    *
    *
+   *  <H3> Specification of the Excess Gibbs Free Energy </H3>
+   *
+   *  Pitzer's formulation may best be represented as a specification of the excess gibbs
+   *  free energy, \f$ G^{ex} \f$, defined as the deviation of the total gibbs free energy from 
+   *  that of an ideal molal solution. 
+   *     \f[
+   *         G = G^{id} + G^{ex}
+   *     \f]
+   *
+   *  The ideal molal solution contribution, not equal to an ideal solution contribution
+   *  and in fact containing a singularity at the zero solvent mole fraction limit, is
+   *  given below.
+   *     \f[
+   *         G^{id} = n_o \mu^o_o + \sum_{k\ne o} n_k \mu_k^{\triangle}
+   *               + \tilde{M}_o n_o ( RT (\sum{m_i(\ln(m_i)-1)}))
+   *     \f]
+   *
+   *  From the excess Gibbs free energy formulation, the activity coefficient expression
+   *  and the osmotic coefficient expression for the solvent may be defined, by 
+   *  taking the appropriate derivatives. Using this approach garranties that the
+   *  entire system will obey the Gibbs-Duhem relations.
+   *
+   *  Pitzer employs the following general expression for the excess Gibbs free energy
+   *
+   *  \f[    
+   *    \begin{array}{cclc}
+   *     \frac{G^{ex}}{\tilde{M}_o  n_o RT} &= &
+   *          \left( \frac{4AI}{3b} \right) \ln(1 + b \sqrt{I})
+   *        +   2 \sum_c \sum_a m_c m_a B_{ca} 
+   *        +     \sum_c \sum_a m_c m_a Z C_{ca}
+   *          \\&&
+   *        +   \sum_{c < c'} \sum m_c m_{c'} \left[ 2 \Phi_{c{c'}} + \sum_a m_a \Psi_{c{c'}a} \right]
+   *        +   \sum_{a < a'} \sum m_a m_{a'} \left[ 2 \Phi_{a{a'}} + \sum_c m_c \Psi_{a{a'}c} \right]
+   *          \\&&
+   *        + 2 \sum_n \sum_c m_n m_c \lambda_{nc} + 2 \sum_n \sum_a m_n m_a \lambda_{na} 
+   *        + 2 \sum_{n < n'} \sum m_n m_{n'} \lambda_{n{n'}}
+   *        +  \sum_n m^2_n \lambda_{nn}         
+   *    \end{array}
+   *  \f]
+   *
+   *  <I>a</I> is a subscribt over all anions, <I>c</I> is a subscript extending over all
+   *  cations, and  <I>i</I> is a subscrit that extends over all anions and cations.
+   *  <I>n</I> is a subscript that extends only over neutral solute molecules. 
+   *  The second line contains cross terms where cations affect cations and/or cation/anion pairs,
+   *  and anions affect anions or cation/anion pairs. Note part of the coefficients,
+   *  \f$ \Phi_{c{c'}} \f$ and  \f$ \Phi_{a{a'}} \f$  stem from the theory
+   *  of unsymmetrical mixing of electrolytes with different charges. This
+   *  theory depends on the total ionic stregnth of the solution, and therefore,
+   *  \f$ \Phi_{c{c'}} \f$ and  \f$ \Phi_{a{a'}} \f$  will depend on <I>I</I>, the
+   *  ionic strength.  \f$ B_{ca}\f$ is a strong function of the total ionic strength,  <I>I</I>,
+   *  of the electrolyte. The rest of the coefficients are assumed to be independent of the
+   *  molalities or ionic strengths. However, all coefficients are potentially functions
+   *  of the temperature and pressure of the solution.
+   *  
+   *   <I>A</I> is the Debye-Huckel constant. It's specification is described in its own
+   *   section below. 
+   *
+   *   \f$ I\f$ is the ionic strength of the solution, and is given by:
+   *
+   *   \f[
+   *       I = \frac{1}{2} \sum_k{m_k  z_k^2}
+   *   \f]
+   *
+   *   In contrast to several other Debye-Huckel implementations (see \ref DebyeHuckel), the 
+   *   parameter \f$ b\f$ in the above equation is a constant that 
+   *   doesn not vary with respect to ion idenity. This is an important simplification
+   *   as it avoids troubles with satisfaction of the Gibbs-Duhem analysis.  
+   *
+   *   The function \f$ Z \f$ is given by
+   *
+   *   \f[
+   *       Z = \sum_i m_i \left| z_i \right|
+   *   \f]
+   *
+   *   The value of \f$ B_{ca}\f$ is given by the following function
+   *
+   *   \f[
+   *      B_{ca} = \beta^{(0)}_{ca} + \beta^{(1)}_{ca} g(\alpha_1 \sqrt{I}) 
+   *             + \beta^{(2)}_{ca} g(\alpha_2 \sqrt{I}) 
+   *   \f]
+   *
+   *   where
+   *
+   *   \f[
+   *       g(x) = 2 \frac{(1 - (1 + x)\exp[-x])}{x^2}
+   *   \f]
+   *
+   *   The formulation for \f$ B_{ca}\f$ combined with the formulation of the
+   *   Debye-Huckel term in the eqn. for the excess Gibbs free energy stems
+   *   essentially from an empirical fit to the ionic strength dependent data
+   *   based over a wide sampling of binary electroyte systems. \f$ C_{ca} \f$,
+   *   \f$ \lambda_{nc} \f$, \f$ \lambda_{na} \f$, \f$ \lambda_{nn} \f$,
+   *   \f$ \Psi_{c{c'}a} \f$, \f$ \Psi_{a{a'}c} \f$ are experimentally derived
+   *   coefficients that may have pressure and/or temperature dependencies.
+   *    The \f$ \Phi_{c{c'}} \f$ and \f$ \Phi_{a{a'}} \f$ formulations are 
+   *   slightly more complicated. \f$ b \f$ is a univeral
+   *   constant defined to be equal to \f$ 1.2 kg^{1/2} gmol^{-1/2} \f$. The exponential
+   *   coefficient \f$ \alpha_1 \f$ is usually fixed at \f$ \alpha_1 = 2.0 kg^{1/2} gmol^{-1/2}\f$
+   *   except for 2-2 electrolytes, while other parameters were fit to experimental
+   *   data. For 2-2 electrolytes, \f$ \alpha_1 = 1.4 kg^{1/2} gmol^{-1/2}\f$
+   *    is used in combination with either \f$ \alpha_2 = 12 kg^{1/2} gmol^{-1/2}\f$
+   *   or \f$ \alpha_2 = k A_\psi \f$, where k is a constant. For electrolytes other
+   *   than 2-2 electrolytes the \f$ \beta^{(2)}_{ca} g(\alpha_2 \sqrt{I}) \f$  term
+   *   is not used in the fitting procedure; it is only used for divalent metal
+   *   solfates and other high-valence electrolytes which exhibit significant 
+   *   association at low ionic strengths.
+   *
+   *   The \f$ \beta^{(0)}_{ca} \f$,  \f$ \beta^{(1)}_{ca} \f$,  \f$ \beta^{(2)}_{ca} \f$,
+   *   and \f$ C_{ca}\f$ binary coefficients are referred to as ion-interaction or
+   *   Pitzer parameters. These Pitzer parameters may vary with temperature and pressure
+   *   but they do not depend on the ionic strength. Their values and temperature
+   *   derivatives of their values have been tabulated for a range of electrolytes
+   *   
+   *   The \f$ \Phi_{c{c'}} \f$ and \f$ \Phi_{a{a'}} \f$ contributions, which
+   *   capture cation-cation and anion-anion interactions, also have an
+   *   ionic strength dependence.
+   *
+   *   Ternary contributions \f$ \Psi_{c{c'}a} \f$ and \f$ \Psi_{a{a'}c} \f$ 
+   *   have been measured also for some systems. The success of the Pitzer
+   *   method lies in its ability to model nonlinear activity coefficients
+   *   of complex multicomponent systems with just binary and minor
+   *   ternary contributions, which can be independently measured in
+   *   binary or ternary subsystems.
+   *
+   *
    *  <H3> Multicomponent Activity Coefficients for Solutes </H3>
+   *
+   *    The formulas for activity coefficients of solutes may be obtained by taking the 
+   *    following derivative of the excess Gibbs Free Energy formulation described above:
+   *
+   *    \f[
+   *     \ln(\gamma_k^\triangle) = \frac{d\left( \frac{G^{ex}}{M_o n_o RT} \right)}{d(m_k)}\Bigg|_{n_i}
+   *    \f]
    *
    *    In the formulas below the following conventions are used. The subscript <I>M</I> refers
    *    to a particular cation. The subscript X refers to a particular anion, whose
@@ -335,16 +473,11 @@ namespace Cantera {
    *                 + \sum_{a < a'} \sum m_a m_{a'} \Phi'_{a{a'}}
    *   \f]
    *
-   *   where \f$ I\f$ is the ionic strength
+   *   We have employed the definition of \f$ A_{\phi} \f$, also used by Pitzer
+   *   which is equal to
    *
    *   \f[
-   *       I = \frac{1}{2} \sum_k{m_k  z_k^2}
-   *   \f]
-   *
-   *   and the function \f$ Z \f$ is given by
-   *
-   *   \f[
-   *       Z = \sum_i m_i \left| z_i \right|
+   *     A_{\phi} = \frac{A}{3}
    *   \f]
    *
    *   In the above formulas, \f$ \Phi'_{c{c'}} \f$  and \f$  \Phi'_{a{a'}} \f$ are the
@@ -387,51 +520,147 @@ namespace Cantera {
    *
    *  The result is the following
    *
-   *  \f[
-   *     \phi - 1 =  
+   *  \f[    
+   *    \begin{array}{ccclc}
+   *      \phi - 1 &= &
    *          \frac{2}{\sum_{i \ne 0} m_i}
-   *           \left[
-   *           \begin{array}{c}
+   *           \bigg[ &
    *        -  A_{\phi} \frac{I^{3/2}}{1 + b \sqrt{I}}  
-   *        +   \sum_c  \sum_a m_c m_a \left( B^{\phi}_{ca} + Z C_{ca}\right) 
-   *          \\
+   *        +   \sum_c  \sum_a m_c m_a \left( B^{\phi}_{ca} + Z C_{ca}\right)
+   *          \\&&&
    *        +   \sum_{c < c'} \sum m_c m_{c'} \left[ \Phi^{\phi}_{c{c'}} + \sum_a m_a \Psi_{c{c'}a} \right]
    *        +   \sum_{a < a'} \sum m_a m_{a'} \left[ \Phi^{\phi}_{a{a'}} + \sum_c m_c \Psi_{a{a'}c} \right]
-   *          \\
+   *          \\&&&
    *        + \sum_n \sum_c m_n m_c \lambda_{nc} +  \sum_n \sum_a m_n m_a \lambda_{na} 
    *        + \sum_{n < n'} \sum m_n m_{n'} \lambda_{n{n'}}
-   *        + \frac{1}{2} \left( \sum_n m^2_n \lambda_{nn}\right)
-   *          \end{array}
-   *          \right]
+   *        + \frac{1}{2} \left( \sum_n m^2_n \lambda_{nn}\right)         
+   *          \bigg]
+   *    \end{array}
+   *  \f]
+   *
+   *  It can be shown that the expression 
+   *
+   *  \f[
+   *     B^{\phi}_{ca} = \beta^{(0)}_{ca} + \beta^{(1)}_{ca} \exp{(- \alpha_1 \sqrt{I})} 
+   *             + \beta^{(2)}_{ca} \exp{(- \alpha_2 \sqrt{I})} 
    *  \f]
    *     
+   *  is consistent with the expression \f$ B_{ca}\f$ in the \f$ G^{ex}\f$ expression
+   *  after carrying out the derivative wrt \f$ m_M\f$. 
+   *
+   *  Also taking into account that  \f$ \Phi_{c{c'}} \f$ and
+   *  \f$ \Phi_{a{a'}} \f$ has an ionic strength dependence
+   *
+   *  \f[
+   *    \Phi^{\phi}_{c{c'}} = \Phi_{c{c'}} + I \frac{d\Phi_{c{c'}}}{dI}
+   *  \f]
+   *  \f[
+   *    \Phi^{\phi}_{a{a'}} = \Phi_{a{a'}} + I \frac{d\Phi_{a{a'}}}{dI}
+   *  \f]
    *
    *
+   *  <H3> Temperature and Pressure Dependence of the Pitzer Parameters </H3>
+   *
+   *  In general most of the coefficients introduced in the previous section may
+   *  have a temperature and pressure dependence. The temperature and pressure
+   *  dependence of these coefficients strongly influence the value of the
+   *  excess Enthalpy and excess Volumes of Pitzer solutions. Therefore, these
+   *  are readily measurable quantities.
+   *  HMWSoln provides several
+   *  different methods for putting these dependencies into the coefficients.
+   *  HMWSoln has an implementation described by Silverter and Pitzer (1977),
+   *  which was used to fit experimental data for NaCl over an extensive range,
+   *  below the critical temperature of water.
+   *  They found a temperature funcdtional form for fitting the 3 following
+   *  coefficients that describe the Pitzer parameterization for a single salt
+   *  to be adequate to describe how the excess gibbs free energy values for
+   *  the binary salt changes with respect to temperature.
+   *  The following functional form
+   *  was used to fit the temperature dependence of the Pitzer Coefficients.
+   *
+   *  \f[
+   *      \beta^{(0)} = q_1 + q_2 \left( \frac{1}{T} - \frac{1}{T_r}\right)
+   *               + q_3 \ln \left( \frac{T}{T_r} \right)
+   *               + q_4 \left( T - T_r \right)
+   +               +  q_5 \left( T^2 - T_r^2 \right)
+   *  \f]
+   *  \f[
+   *      \beta^{(1)} = q_6  + q_9 \left( T - T_r \right) +  q_{10} \left( T^2 - T_r^2 \right)
+   *  \f]
+   *  \f[
+   *     C^{\phi} = q_{11}  ++ q_{12} \left( \frac{1}{T} - \frac{1}{T_r}\right)
+   *      +  q_{13} \ln \left( \frac{T}{T_r} \right) +   + q_{14} \left( T - T_r \right)
+   *  \f]
+   *
+   *  In later papers, Pitzer has added additional temperature dependencies
+   *  to all of the other remaining second and third order virial coefficients.
+   *  Some of these dependencies are justified and motivated by theory. Therefore,
+   *  a formalism wherein all of the coefficients in the base theory have
+   *  temperature dependencies associated with them has been implemented into the
+   *  %HMWSoln object.
+   *
+   *  <H3> Example of the specification of Paramters for the Activity Coefficients </H3>
+   *  
    * An example is given below.
    *
    * An example <TT> activityCoefficients </TT> XML block for this formulation is supplied below
    *
-   *   * @code
-   *  <activityCoefficients model="Beta_ij">
-   *         <!-- A_Debye units = sqrt(kg/gmol) -->
-   *         <A_Debye> 1.172576 </A_Debye>
-   *         <!-- B_Debye units = sqrt(kg/gmol)/m   -->
-   *         <B_Debye> 3.28640E9 </B_Debye>
-   *         <ionicRadius default="3.042843"  units="Angstroms">
-   *         </ionicRadius>
-   *         <DHBetaMatrix>
-   *               H+:Cl-:0.27
-   *               Na+:Cl-:0.15
-   *               Na+:OH-:0.06
-   *         </DHBetaMatrix>
-   *         <stoichIsMods>
-   *                NaCl(aq):-1.0
-   *         </stoichIsMods>
-   *         <electrolyteSpeciesType>
-   *                H+:chargedSpecies
-   *                NaCl(aq):weakAcidAssociated
-   *         </electrolyteSpeciesType>
-   *  </activityCoefficients>
+   * @code
+    <activityCoefficients model="Pitzer" TempModel="complex1">
+                <!-- Pitzer Coefficients
+                     These coefficients are from Pitzer's main
+                     paper, in his book.
+                  -->
+                <A_Debye model="water" />
+                <ionicRadius default="3.042843"  units="Angstroms">
+                </ionicRadius>
+                <binarySaltParameters cation="Na+" anion="Cl-">
+                  <beta0> 0.0765, 0.008946, -3.3158E-6,
+                          -777.03, -4.4706
+                  </beta0>
+                  <beta1> 0.2664, 6.1608E-5, 1.0715E-6 </beta1>
+                  <beta2> 0.0    </beta2>
+                  <Cphi> 0.00127, -4.655E-5, 0.0,
+                         33.317, 0.09421
+                  </Cphi>
+                  <Alpha1> 2.0 </Alpha1>
+                </binarySaltParameters>
+
+                <binarySaltParameters cation="H+" anion="Cl-">
+                  <beta0> 0.1775, 0.0, 0.0, 0.0, 0.0</beta0>
+                  <beta1> 0.2945, 0.0, 0.0 </beta1>
+                  <beta2> 0.0    </beta2>
+                  <Cphi> 0.0008, 0.0, 0.0, 0.0, 0.0 </Cphi>
+                  <Alpha1> 2.0 </Alpha1>
+                </binarySaltParameters>
+
+                <binarySaltParameters cation="Na+" anion="OH-">
+                  <beta0> 0.0864, 0.0, 0.0, 0.0, 0.0 </beta0>
+                  <beta1> 0.253, 0.0, 0.0 </beta1>
+                  <beta2> 0.0    </beta2>
+                  <Cphi> 0.0044, 0.0, 0.0, 0.0, 0.0 </Cphi>
+                  <Alpha1> 2.0 </Alpha1>
+                </binarySaltParameters>
+
+                <thetaAnion anion1="Cl-" anion2="OH-">
+                  <Theta> -0.05 </Theta>
+                </thetaAnion>
+
+                <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
+                  <Theta> -0.05 </Theta>
+                  <Psi> -0.006 </Psi>
+                </psiCommonCation>
+
+                <thetaCation cation1="Na+" cation2="H+">
+                  <Theta> 0.036 </Theta>
+                </thetaCation>
+
+                <psiCommonAnion anion="Cl-" cation1="Na+" cation2="H+">
+                  <Theta> 0.036 </Theta>
+                  <Psi> -0.004 </Psi>
+                </psiCommonAnion>
+
+       </activityCoefficients>
    * @endcode
    *
    *
