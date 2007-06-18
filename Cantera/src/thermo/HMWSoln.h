@@ -330,7 +330,7 @@ namespace Cantera {
    *  \f[    
    *    \begin{array}{cclc}
    *     \frac{G^{ex}}{\tilde{M}_o  n_o RT} &= &
-   *          \left( \frac{4AI}{3b} \right) \ln(1 + b \sqrt{I})
+   *          \left( \frac{4A_{Debye}I}{3b} \right) \ln(1 + b \sqrt{I})
    *        +   2 \sum_c \sum_a m_c m_a B_{ca} 
    *        +     \sum_c \sum_a m_c m_a Z C_{ca}
    *          \\&&
@@ -477,7 +477,7 @@ namespace Cantera {
    *   which is equal to
    *
    *   \f[
-   *     A_{\phi} = \frac{A}{3}
+   *     A_{\phi} = \frac{A_{Debye}}{3}
    *   \f]
    *
    *   In the above formulas, \f$ \Phi'_{c{c'}} \f$  and \f$  \Phi'_{a{a'}} \f$ are the
@@ -576,28 +576,41 @@ namespace Cantera {
    *  to be adequate to describe how the excess gibbs free energy values for
    *  the binary salt changes with respect to temperature.
    *  The following functional form
-   *  was used to fit the temperature dependence of the Pitzer Coefficients.
+   *  was used to fit the temperature dependence of the Pitzer Coefficients
+   *  for each cation - anion pair, M X.
    *
    *  \f[
-   *      \beta^{(0)} = q_1 + q_2 \left( \frac{1}{T} - \frac{1}{T_r}\right)
-   *               + q_3 \ln \left( \frac{T}{T_r} \right)
-   *               + q_4 \left( T - T_r \right)
-   +               +  q_5 \left( T^2 - T_r^2 \right)
+   *      \beta^{(0)}_{MX} = q^{b0}_0 
+   *                       + q^{b0}_1 \left( T - T_r \right)
+   *                       + q^{b0}_2 \left( T^2 - T_r^2 \right)
+   *                       + q^{b0}_3 \left( \frac{1}{T} - \frac{1}{T_r}\right)
+   *                       + q^{b0}_4 \ln \left( \frac{T}{T_r} \right)
    *  \f]
    *  \f[
-   *      \beta^{(1)} = q_6  + q_9 \left( T - T_r \right) +  q_{10} \left( T^2 - T_r^2 \right)
+   *      \beta^{(1)}_{MX} = q^{b1}_0  + q^{b1}_1 \left( T - T_r \right)
+   *                       + q^{b1}_{2} \left( T^2 - T_r^2 \right)
    *  \f]
    *  \f[
-   *     C^{\phi} = q_{11}  ++ q_{12} \left( \frac{1}{T} - \frac{1}{T_r}\right)
-   *      +  q_{13} \ln \left( \frac{T}{T_r} \right) +   + q_{14} \left( T - T_r \right)
+   *     C^{\phi}_{MX} = q^{Cphi}_0 
+   *                   + q^{Cphi}_1 \left( T - T_r \right)
+   *                   + q^{Cphi}_2 \left( T^2 - T_r^2 \right)
+   *                   + q^{Cphi}_3 \left( \frac{1}{T} - \frac{1}{T_r}\right)
+   *                   + q^{Cphi}_4 \ln \left( \frac{T}{T_r} \right)
    *  \f]
+   *
+   *  where
+   *
+   *  \f[ 
+   *          C^{\phi}_{MX} =  2 {\left| z_M z_X \right|}^{1/2} C_{MX}
+   *  \f]
+   *
    *
    *  In later papers, Pitzer has added additional temperature dependencies
    *  to all of the other remaining second and third order virial coefficients.
    *  Some of these dependencies are justified and motivated by theory. Therefore,
    *  a formalism wherein all of the coefficients in the base theory have
-   *  temperature dependencies associated with them has been implemented into the
-   *  %HMWSoln object.
+   *  temperature dependencies associated with them has been implemented within the
+   *  %HMWSoln object. Much of the formalism, however, has been unexercised.
    *
    *  <H3> Example of the specification of Paramters for the Activity Coefficients </H3>
    *  
@@ -664,14 +677,15 @@ namespace Cantera {
    * @endcode
    *
    *
-   * <H3> Specification of the Debye Huckel Constants </H3>
+   * <H3> Specification of the Debye-Huckel Constant </H3>
    *
-   *  In the equations above, the formulas for  \f$  A_{Debye} \f$ and \f$  B_{Debye} \f$ 
-   *  are needed. The %DebyeHuckel object uses two methods for specifying these quantities.
+   *  In the equations above, the formula for  \f$  A_{Debye} \f$ 
+   *  is needed. The %HMWSoln object uses two methods for specifying these quantities.
    *  The default method is to assume that \f$  A_{Debye} \f$  is a constant, given
    *  in the initialization process, and storred in the
    *  member double, m_A_Debye. Optionally, a full water treatment may be employed that makes
-   *  \f$ A_{Debye} \f$ a full function of <I>T</I> and <I>P</I>.
+   *  \f$ A_{Debye} \f$ a full function of <I>T</I> and <I>P</I> and creates nontrivial entries for
+   *  the excess heat capacity, enthalpy, and excess volumes of solution.
    *
    *   \f[
    *      A_{Debye} = \frac{F e B_{Debye}}{8 \pi \epsilon R T} {\left( C_o \tilde{M}_o \right)}^{1/2}
@@ -689,7 +703,6 @@ namespace Cantera {
    * \f]
    *
    *            Units = sqrt(kg/gmol)
-   *
    *
    *     where
    *      - \f$ N_a \f$ is Avrogadro's number
@@ -714,36 +727,24 @@ namespace Cantera {
    *
    * An example of a fixed value implementation is given below.
    * @code
-   *   <activityCoefficients model="Beta_ij">
+   *   <activityCoefficients model="Pitzer">
    *         <!-- A_Debye units = sqrt(kg/gmol)  -->
    *         <A_Debye> 1.172576 </A_Debye>
-   *         <!-- B_Debye units = sqrt(kg/gmol)/m  -->
-   *         <B_Debye> 3.28640E9 </B_Debye>
+   *         <!-- object description continues -->
    *   </activityCoefficients>
    * @endcode
    *
-   * An example of a variable value implementation is given below.
+   * An example of a variable value implementation within the %HMWSoln object is given below.
+   * The model attribute, "water", triggers the full implementation.
    *
    * @code
-   *   <activityCoefficients model="Beta_ij">
+   *   <activityCoefficients model="Pitzer">
+   *         <!-- A_Debye units = sqrt(kg/gmol)  -->
    *         <A_Debye model="water" /> 
-   *         <!-- B_Debye units = sqrt(kg/gmol)/m  -->
-   *         <B_Debye> 3.28640E9 </B_Debye>
+   *         <!-- object description continues -->
    *   </activityCoefficients>
    * @endcode
    *
-   * An example of a variable value implementation is given below.
-   *
-   * @code
-   *   <activityCoefficients model="Beta_ij">
-   *         <A_Debye model="water" /> 
-   *         <!-- B_Debye units = sqrt(kg/gmol)/m  -->
-   *         <B_Debye> 3.28640E9 </B_Debye>
-   *   </activityCoefficients>
-   * @endcode
-   *
-   *  Currently, \f$  B_{Debye} \f$ is a constant in the model, specified either by a default
-   *  water value, or through the input file. This may have to be looked at, in the future.
    *
    * <HR>
    * <H2> %Application within %Kinetics Managers </H2>
@@ -752,11 +753,12 @@ namespace Cantera {
    * For the time being, we have set the standard concentration for all species in
    * this phase equal to the default concentration of the solvent at 298 K and 1 atm. 
    * This means that the
-   * kinetics operator essentially works on an activities basis, with units specified
-   * as if it were on a concentration basis.
+   * kinetics operator essentially works on an activities basis, with units for the
+   * kinetic rate constant specified
+   * as if all reactants were on a concentration basis.
    *
-   * For example, a bulk-phase binary reaction between liquid species j and k, producing
-   * a new liquid species l would have the
+   * For example, a bulk-phase binary reaction between liquid species <I>j</I> and <I>k</I>, producing
+   * a new liquid species <I>l</I> would have the
    * following equation for its rate of progress variable, \f$ R^1 \f$, which has
    * units of kmol m-3 s-1.
    *
@@ -768,15 +770,15 @@ namespace Cantera {
    *      C_j^a = C_o a_j \quad and \quad C_k^a = C_o a_k
    *   \f]
    *   
-   *  \f$ C_j^a \f$ is the activity concentration of species j, and 
-   *  \f$ C_k^a \f$ is the activity concentration of species k. \f$ C_o \f$
+   *  \f$ C_j^a \f$ is the activity concentration of species <I>j</I>, and 
+   *  \f$ C_k^a \f$ is the activity concentration of species <I>k</I>. \f$ C_o \f$
    *  is the concentration of water at 298 K and 1 atm. \f$ a_j \f$ is
-   *  the activity of species j at the current temperature and pressure
-   *  and concentration of the liquid phase. \f$k^1 \f$ has units of m3 kmol-1 s-1.
+   *  the activity of species <I>j</I> at the current temperature and pressure
+   *  and concentration of the liquid phase. \f$k^1 \f$ has units of m<SUP>3</SUP> 
+   *  kmol<SUP>-1</SUP> s<SUP>-1</SUP>.
    *
    *
-   *
-  *  The reverse rate constant can then be obtained from the law of microscopic reversibility
+   *  The reverse rate constant can then be obtained from the law of microscopic reversibility
    * and the equilibrium expression for the system.
    *
    *   \f[
@@ -803,32 +805,39 @@ namespace Cantera {
    * <H2> Instantiation of the Class </H2>
    * <HR>
    *
-   *   * The constructor for this phase is NOT located in the default ThermoFactory
-   * for %Cantera. However, a new %DebyeHuckel object may be created by 
-   * the following code snippets:
+   * The constructor for this phase is now located in the default ThermoFactory
+   * for %Cantera. The following code snipet may be used to initialize the phase
+   * using the default construction technique within %Cantera.
    *
    * @code
-   *      DebyeHuckel *DH = new DebyeHuckel("DH_NaCl.xml", "NaCl_electrolyte");
+   *      ThermoPhase *HMW = newPhase("HMW_NaCl.xml", "NaCl_electrolyte");
+   * @endcode
+   *
+   *
+   * A new %HMWSoln object may be created by  the following code snippets:
+   *
+   * @code
+   *      HMWSoln *HMW = new HMWSoln("HMW_NaCl.xml", "NaCl_electrolyte");
    * @endcode
    *
    * or
    *
    * @code
    *    char iFile[80], file_ID[80];
-   *    strcpy(iFile, "DH_NaCl.xml");
+   *    strcpy(iFile, "HMW_NaCl.xml");
    *    sprintf(file_ID,"%s#NaCl_electrolyte", iFile);
    *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
-   *    DebyeHuckel *dh = new DebyeHuckel(*xm);
+   *    HMWSoln *dh = new HMWSoln(*xm);
    * @endcode
    *
    * or by the following call to importPhase():
    *
    * @code
    *    char iFile[80], file_ID[80];
-   *    strcpy(iFile, "DH_NaCl.xml");
+   *    strcpy(iFile, "HMW_NaCl.xml");
    *    sprintf(file_ID,"%s#NaCl_electrolyte", iFile);
    *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
-   *    DebyeHuckel dhphase;
+   *    HMWSoln dhphase;
    *    importPhase(*xm, &dhphase);
    * @endcode
    *
@@ -845,7 +854,7 @@ namespace Cantera {
    * @verbatim
    <phase id="NaCl_electrolyte" dim="3">
     <speciesArray datasrc="#species_waterSolution">
-               H2O(L) Na+ Cl- H+ OH- NaCl(aq) NaOH(aq)
+               H2O(L) Na+ Cl- H+ OH-
     </speciesArray>
     <state>
       <temperature units="K"> 300  </temperature>
@@ -855,38 +864,74 @@ namespace Cantera {
              Cl-:3.0
              H+:1.0499E-8
              OH-:1.3765E-6
-             NaCl(aq):0.98492
-             NaOH(aq):3.8836E-6
       </soluteMolalities>
     </state>
     <!-- thermo model identifies the inherited class
          from ThermoPhase that will handle the thermodynamics.
       -->
-    <thermo model="DebyeHuckel">
+    <thermo model="HMW">
        <standardConc model="solvent_volume" />
-       <activityCoefficients model="Beta_ij">
-                <!-- A_Debye units = sqrt(kg/gmol)  -->
-                <A_Debye> 1.172576 </A_Debye>
-                <!-- B_Debye units = sqrt(kg/gmol)/m   -->
-                <B_Debye> 3.28640E9 </B_Debye>
+     <activityCoefficients model="Pitzer" TempModel="complex1">
+                <!-- Pitzer Coefficients
+                     These coefficients are from Pitzer's main
+                     paper, in his book.
+                  -->
+                <A_Debye model="water" />
                 <ionicRadius default="3.042843"  units="Angstroms">
                 </ionicRadius>
-                <DHBetaMatrix>
-                  H+:Cl-:0.27
-                  Na+:Cl-:0.15
-                  Na+:OH-:0.06
-                </DHBetaMatrix>
-                <stoichIsMods>
-                   NaCl(aq):-1.0
-                </stoichIsMods>
-                <electrolyteSpeciesType>
-                   H+:chargedSpecies
-                   NaCl(aq):weakAcidAssociated
-                </electrolyteSpeciesType>
+                <binarySaltParameters cation="Na+" anion="Cl-">
+                  <beta0> 0.0765, 0.008946, -3.3158E-6,
+                          -777.03, -4.4706
+                  </beta0>
+                  <beta1> 0.2664, 6.1608E-5, 1.0715E-6 </beta1>
+                  <beta2> 0.0    </beta2>
+                  <Cphi> 0.00127, -4.655E-5, 0.0,
+                         33.317, 0.09421
+                  </Cphi>
+                  <Alpha1> 2.0 </Alpha1>
+                </binarySaltParameters>
+
+                <binarySaltParameters cation="H+" anion="Cl-">
+                  <beta0> 0.1775, 0.0, 0.0, 0.0, 0.0</beta0>
+                  <beta1> 0.2945, 0.0, 0.0 </beta1>
+                  <beta2> 0.0    </beta2>
+                  <Cphi> 0.0008, 0.0, 0.0, 0.0, 0.0 </Cphi>
+                  <Alpha1> 2.0 </Alpha1>
+                </binarySaltParameters>
+
+                <binarySaltParameters cation="Na+" anion="OH-">
+                  <beta0> 0.0864, 0.0, 0.0, 0.0, 0.0 </beta0>
+                  <beta1> 0.253, 0.0, 0.0 </beta1>
+                  <beta2> 0.0    </beta2>
+                  <Cphi> 0.0044, 0.0, 0.0, 0.0, 0.0 </Cphi>
+                  <Alpha1> 2.0 </Alpha1>
+                </binarySaltParameters>
+
+                <thetaAnion anion1="Cl-" anion2="OH-">
+                  <Theta> -0.05 </Theta>
+                </thetaAnion>
+
+                <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
+                  <Theta> -0.05 </Theta>
+                  <Psi> -0.006 </Psi>
+                </psiCommonCation>
+
+                <thetaCation cation1="Na+" cation2="H+">
+                  <Theta> 0.036 </Theta>
+                </thetaCation>
+
+                <psiCommonAnion anion="Cl-" cation1="Na+" cation2="H+">
+                  <Theta> 0.036 </Theta>
+                  <Psi> -0.004 </Psi>
+                </psiCommonAnion>
+
        </activityCoefficients>
+
        <solvent> H2O(L) </solvent>
     </thermo>
     <elementArray datasrc="elements.xml"> O H Na Cl </elementArray>
+    <kinetics model="none" >
+    </kinetics>
   </phase> 
   @endverbatim
    *
