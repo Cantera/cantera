@@ -123,6 +123,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          IdealSolidSolnPhase.h   IdealSolidSolnPhase.cpp \
                          StoichSubstanceSSTP.h   StoichSubstanceSSTP.cpp \
                          DebyeHuckel.h           DebyeHuckel.cpp  \
+                         HMWSoln.h HMWSoln.cpp HMWSoln_input.cpp \
                          ConstDensityThermo.h ConstDensityThermo.cpp \
                          WaterPropsIAPWSphi.h  WaterPropsIAPWSphi.cpp \
                          WaterPropsIAPWS.h  WaterPropsIAPWS.cpp \
