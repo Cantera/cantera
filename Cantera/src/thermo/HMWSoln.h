@@ -487,8 +487,8 @@ namespace Cantera {
    *   The function \f$ B'_{MX} \f$ is defined as:
    *
    *   \f[
-   *       B'_{MX} = \left( \frac{\beta^1_{MX} h(\alpha \sqrt{I})}{I}  \right) 
-   *                 \left( \frac{\beta^2_{MX} h(\alpha \sqrt{I})}{I}  \right)
+   *       B'_{MX} = \left( \frac{\beta^1_{MX} h(\alpha^1_{MX} \sqrt{I})}{I}  \right) 
+   *                 \left( \frac{\beta^2_{MX} h(\alpha^2_{MX} \sqrt{I})}{I}  \right)
    *   \f]
    *
    *  where \f$ h(x) \f$ is defined as
@@ -541,8 +541,8 @@ namespace Cantera {
    *  It can be shown that the expression 
    *
    *  \f[
-   *     B^{\phi}_{ca} = \beta^{(0)}_{ca} + \beta^{(1)}_{ca} \exp{(- \alpha_1 \sqrt{I})} 
-   *             + \beta^{(2)}_{ca} \exp{(- \alpha_2 \sqrt{I})} 
+   *     B^{\phi}_{ca} = \beta^{(0)}_{ca} + \beta^{(1)}_{ca} \exp{(- \alpha^1_{ca} \sqrt{I})} 
+   *             + \beta^{(2)}_{ca} \exp{(- \alpha^2_{ca} \sqrt{I})} 
    *  \f]
    *     
    *  is consistent with the expression \f$ B_{ca}\f$ in the \f$ G^{ex}\f$ expression
@@ -604,19 +604,70 @@ namespace Cantera {
    *          C^{\phi}_{MX} =  2 {\left| z_M z_X \right|}^{1/2} C_{MX}
    *  \f]
    *
-   *
    *  In later papers, Pitzer has added additional temperature dependencies
    *  to all of the other remaining second and third order virial coefficients.
    *  Some of these dependencies are justified and motivated by theory. Therefore,
    *  a formalism wherein all of the coefficients in the base theory have
-   *  temperature dependencies associated with them has been implemented within the
-   *  %HMWSoln object. Much of the formalism, however, has been unexercised.
+   *  temperature dependencies associated with them has been implemented 
+   *  within the  %HMWSoln object. Much of the formalism, however,
+   *  has been unexercised.
    *
-   *  <H3> Example of the specification of Paramters for the Activity Coefficients </H3>
+   *  In the %HMWSoln object, the temperature dependence of the Pitzer 
+   *  parameters are specified in the following way.
+   *
+   *    - PIZTER_TEMP_CONSTANT      - string name "CONSTANT"
+   *      - Assumes that all coefficients are independent of temperature
+   *        and pressure
+   *    - PIZTER_TEMP_COMPLEX1     - string name "COMPLEX" or "COMPLEX1"
+   *      - Uses the full temperature dependence for the
+   *        \f$\beta^{(0)}_{MX} \f$ (5 coeffs), 
+   *        the  \f$\beta^{(1)}_{MX} \f$ (3 coeffs),
+   *        and \f$ C^{\phi}_{MX} \f$ (5) coefficients described above. 
+   *        There are 
+   *    - PITZER_TEMP_LINEAR        - string name "LINEAR"
+   *      - Uses just the temperature dependence for the
+   *        \f$\beta^{(0)}_{MX} \f$, the  \f$\beta^{(1)}_{MX} \f$,
+   *        and \f$ C^{\phi}_{MX} \f$ coefficients described above. 
+   *        There are 2 coefficients for each term.
+   *
+   *  The temperature dependence is specified in an attributes field
+   *  in the <TT>  activityCoefficients </TT>  XML block, 
+   *  called <TT> TempModel </TT>. Permissible values for that 
+   *  attribute are <TT> CONSTANT, COMPLEX1</TT>, and <TT> LINEAR.</TT>
+   *
+   *  The specification of the binary interaction between a cation and
+   *  an anion is given by the coefficients, \f$ B_{MX}\f$ and 
+   *  \f$ C_{MX}\f$
+   *  The specification of \f$ B_{MX}\f$ is a function of 
+   *  \f$\beta^{(0)}_{MX} \f$, \f$\beta^{(1)}_{MX} \f$, 
+   *  \f$\beta^{(2)}_{MX} \f$,  \f$\alpha^{(1)}_{MX} \f$, and
+   *  \f$\alpha^{(2)}_{MX} \f$.
+   *  \f$ C_{MX}\f$ is calculated from \f$C^{\phi}_{MX} \f$
+   *  from the formula above.
+   *  All of the underlying coefficients are specified in the
+   *  XML element block <TT> binarySaltParameters </TT>, which
+   *  has the attribute <TT> cation </TT> and <TT> anion </TT>
+   *  to identify the interaction. XML elements named
+   *  <TT> beta0, beta1, beta2, Cphi, Alpha1, Alpha2 </TT> 
+   *  within each <TT> binarySaltParameters </TT> block
+   *  specify the parameters. Within each of these blocks 
+   *  multiple parameters describing temperature or pressure
+   *  dependence are serially listed in the order that they
+   *  appear in the equation in this document. An example of
+   *  the <TT> beta0 </TT> block that fits the <TT> COMPLEX1 </TT> temperature
+   *  dependence given above is
+   *
+   *  @code
+       <beta0> q0, q1, q2, q3, q4  </beta0>
+   * @endcode
+   *
+   *  <H3> Example of the specification of Parameters for the Activity
+   *   Coefficients </H3>
    *  
    * An example is given below.
    *
-   * An example <TT> activityCoefficients </TT> XML block for this formulation is supplied below
+   * An example <TT> activityCoefficients </TT> XML block for this 
+   * formulation is supplied below
    *
    * @code
     <activityCoefficients model="Pitzer" TempModel="complex1">
