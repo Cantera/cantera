@@ -380,8 +380,8 @@ namespace Cantera {
    *   The value of \f$ B_{ca}\f$ is given by the following function
    *
    *   \f[
-   *      B_{ca} = \beta^{(0)}_{ca} + \beta^{(1)}_{ca} g(\alpha_1 \sqrt{I}) 
-   *             + \beta^{(2)}_{ca} g(\alpha_2 \sqrt{I}) 
+   *      B_{ca} = \beta^{(0)}_{ca} + \beta^{(1)}_{ca} g(\alpha^{(1)}_{ca} \sqrt{I}) 
+   *             + \beta^{(2)}_{ca} g(\alpha^{(2)}_{ca} \sqrt{I}) 
    *   \f]
    *
    *   where
@@ -399,19 +399,20 @@ namespace Cantera {
    *   coefficients that may have pressure and/or temperature dependencies.
    *    The \f$ \Phi_{c{c'}} \f$ and \f$ \Phi_{a{a'}} \f$ formulations are 
    *   slightly more complicated. \f$ b \f$ is a univeral
-   *   constant defined to be equal to \f$ 1.2 kg^{1/2} gmol^{-1/2} \f$. The exponential
-   *   coefficient \f$ \alpha_1 \f$ is usually fixed at \f$ \alpha_1 = 2.0 kg^{1/2} gmol^{-1/2}\f$
+   *   constant defined to be equal to \f$ 1.2\ kg^{1/2}\ gmol^{-1/2} \f$. The exponential
+   *   coefficient \f$ \alpha^{(1)}_{ca} \f$ is usually 
+   *   fixed at \f$ \alpha^{(1)}_{ca} = 2.0\ kg^{1/2} gmol^{-1/2}\f$
    *   except for 2-2 electrolytes, while other parameters were fit to experimental
-   *   data. For 2-2 electrolytes, \f$ \alpha_1 = 1.4 kg^{1/2} gmol^{-1/2}\f$
-   *    is used in combination with either \f$ \alpha_2 = 12 kg^{1/2} gmol^{-1/2}\f$
-   *   or \f$ \alpha_2 = k A_\psi \f$, where k is a constant. For electrolytes other
-   *   than 2-2 electrolytes the \f$ \beta^{(2)}_{ca} g(\alpha_2 \sqrt{I}) \f$  term
+   *   data. For 2-2 electrolytes, \f$ \alpha^{(1)}_{ca} = 1.4\ kg^{1/2}\ gmol^{-1/2}\f$
+   *    is used in combination with either \f$ \alpha^{(2)}_{ca} = 12\ kg^{1/2}\ gmol^{-1/2}\f$
+   *   or \f$ \alpha^{(2)}_{ca} = k A_\psi \f$, where <I>k</I> is a constant. For electrolytes other
+   *   than 2-2 electrolytes the \f$ \beta^{(2)}_{ca} g(\alpha^{(2)}_{ca} \sqrt{I}) \f$  term
    *   is not used in the fitting procedure; it is only used for divalent metal
    *   solfates and other high-valence electrolytes which exhibit significant 
    *   association at low ionic strengths.
    *
-   *   The \f$ \beta^{(0)}_{ca} \f$,  \f$ \beta^{(1)}_{ca} \f$,  \f$ \beta^{(2)}_{ca} \f$,
-   *   and \f$ C_{ca}\f$ binary coefficients are referred to as ion-interaction or
+   *   The \f$ \beta^{(0)}_{ca} \f$,  \f$ \beta^{(1)}_{ca}\f$,  \f$ \beta^{(2)}_{ca} \f$,
+   *   and \f$ C_{ca} \f$ binary coefficients are referred to as ion-interaction or
    *   Pitzer parameters. These Pitzer parameters may vary with temperature and pressure
    *   but they do not depend on the ionic strength. Their values and temperature
    *   derivatives of their values have been tabulated for a range of electrolytes
@@ -487,8 +488,8 @@ namespace Cantera {
    *   The function \f$ B'_{MX} \f$ is defined as:
    *
    *   \f[
-   *       B'_{MX} = \left( \frac{\beta^1_{MX} h(\alpha^1_{MX} \sqrt{I})}{I}  \right) 
-   *                 \left( \frac{\beta^2_{MX} h(\alpha^2_{MX} \sqrt{I})}{I}  \right)
+   *       B'_{MX} = \left( \frac{\beta^{(1)}_{MX} h(\alpha^{(1)}_{MX} \sqrt{I})}{I}  \right) 
+   *                 \left( \frac{\beta^{(2)}_{MX} h(\alpha^{(2)}_{MX} \sqrt{I})}{I}  \right)
    *   \f]
    *
    *  where \f$ h(x) \f$ is defined as
@@ -541,8 +542,8 @@ namespace Cantera {
    *  It can be shown that the expression 
    *
    *  \f[
-   *     B^{\phi}_{ca} = \beta^{(0)}_{ca} + \beta^{(1)}_{ca} \exp{(- \alpha^1_{ca} \sqrt{I})} 
-   *             + \beta^{(2)}_{ca} \exp{(- \alpha^2_{ca} \sqrt{I})} 
+   *     B^{\phi}_{ca} = \beta^{(0)}_{ca} + \beta^{(1)}_{ca} \exp{(- \alpha^{(1)}_{ca} \sqrt{I})} 
+   *             + \beta^{(2)}_{ca} \exp{(- \alpha^{(2)}_{ca} \sqrt{I})} 
    *  \f]
    *     
    *  is consistent with the expression \f$ B_{ca}\f$ in the \f$ G^{ex}\f$ expression
@@ -622,11 +623,10 @@ namespace Cantera {
    *      - Uses the full temperature dependence for the
    *        \f$\beta^{(0)}_{MX} \f$ (5 coeffs), 
    *        the  \f$\beta^{(1)}_{MX} \f$ (3 coeffs),
-   *        and \f$ C^{\phi}_{MX} \f$ (5) coefficients described above. 
-   *        There are 
+   *        and \f$ C^{\phi}_{MX} \f$ (5 coeffs) parameters described above.
    *    - PITZER_TEMP_LINEAR        - string name "LINEAR"
    *      - Uses just the temperature dependence for the
-   *        \f$\beta^{(0)}_{MX} \f$, the  \f$\beta^{(1)}_{MX} \f$,
+   *        \f$\beta^{(0)}_{MX} \f$, the \f$\beta^{(1)}_{MX} \f$,
    *        and \f$ C^{\phi}_{MX} \f$ coefficients described above. 
    *        There are 2 coefficients for each term.
    *
@@ -661,7 +661,16 @@ namespace Cantera {
        <beta0> q0, q1, q2, q3, q4  </beta0>
    * @endcode
    *
-   *  <H3> Example of the specification of Parameters for the Activity
+   *  <H3> Mixing Parameters </H3>
+   *
+   *
+   *  <H3> Ternary Pitzer Parameters </H3>
+   *
+   *
+   *  <H3> Treatment of Neutral Species </H3>
+   *
+   *
+   *  <H3> Example of the Specification of Parameters for the Activity
    *   Coefficients </H3>
    *  
    * An example is given below.
@@ -744,14 +753,14 @@ namespace Cantera {
    * where
    * 
    *  \f[
-   *         B_{Debye} = \frac{F} {{(\frac{\epsilon R T}{2})}^{1/2}} 
+   *      B_{Debye} = \frac{F} {{(\frac{\epsilon R T}{2})}^{1/2}} 
    *  \f]
    *  Therefore:
-   * \f[
-   *   A_{Debye} = \frac{1}{8 \pi} 
-   *                 {\left(\frac{2 N_a \rho_o}{1000}\right)}^{1/2}
-   *                 {\left(\frac{N_a e^2}{\epsilon R T }\right)}^{3/2}
-   * \f]
+   *  \f[
+   *      A_{Debye} = \frac{1}{8 \pi} 
+   *                  {\left(\frac{2 N_a \rho_o}{1000}\right)}^{1/2}
+   *                  {\left(\frac{N_a e^2}{\epsilon R T }\right)}^{3/2}
+   *  \f]
    *
    *            Units = sqrt(kg/gmol)
    *
@@ -796,6 +805,14 @@ namespace Cantera {
    *   </activityCoefficients>
    * @endcode
    *
+   *
+   * <H3>  Temperature and Pressure Dependence of the Activity Coefficients </H3>
+   *
+   *  Temperature dependence of the activity coefficients leads to nonzero terms
+   *  for the excess enthalpy of solution.
+   *
+   *  The pressure dependence of the activity coefficients leads to non-zero terms
+   *  for the excess Volume of the solution.
    *
    * <HR>
    * <H2> %Application within %Kinetics Managers </H2>
