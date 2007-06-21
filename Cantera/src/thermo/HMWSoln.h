@@ -657,11 +657,76 @@ namespace Cantera {
    *  the <TT> beta0 </TT> block that fits the <TT> COMPLEX1 </TT> temperature
    *  dependence given above is
    *
-   *  @code
-       <beta0> q0, q1, q2, q3, q4  </beta0>
+   * @code
+   *  <binarySaltParameters cation="Na+" anion="OH-"> 
+        <beta0> q0, q1, q2, q3, q4  </beta0>
+      <\binarySaltParameters>
    * @endcode
    *
-   *  <H3> Mixing Parameters </H3>
+   *  <H3> Like-Charged Binary Ion Parameters and the Mixing Parameters </H3>
+   *
+   *  The previous section contained the functions, \f$ \Phi_{c{c'}} \f$,
+   *  \f$ \Phi_{a{a'}} \f$ and their derivatives wrt the
+   *  ionic strength, \f$ \Phi'_{c{c'}} \f$ and \f$ \Phi'_{a{a'}} \f$.
+   *  Part of these terms come from theory.
+   *
+   *  Since like charged ions repel each other and are generally
+   *  not near each other, the virial coefficients for same-charged ions
+   *  are small. However, Pitzer doesn't ignore these in his 
+   *  formulation. Relatively larger and longer range terms between
+   *  like-charged ions exist however, which appear only for 
+   *  unsymmetrical mixing of same-sign charged ions with different
+   *  charges. \f$ \Phi_{ij} \f$, where \f$ ij \f$ is either \f$ a{a'} \f$
+   *  or \f$ c{c'} \f$ is given by
+   *
+   *  \f[ 
+   *      \Phi_{i{j}} = \Theta_{ij} + \,^E\Theta_{ij}(I)
+   *  \f]
+   *
+   *  \f$ \Theta_{ij} \f$ is the small virial coefficient expansion term.
+   *  Dependent in general on temperature and pressure, it's ionic
+   *  strength dependence is ignored in Pitzer's approach. 
+   *  \f$ \,^E\Theta_{ij}(I) \f$ accounts for the electrostatic
+   *  unsymmetrical mixing effects and is depeendnet only on the
+   *  charges of the ions i, j, the total ionic strength and on
+   *  the dielectric constant and density of the solvent.
+   *  This seems to be a relatively well-documented part of the theory.
+   *  They theory below comes from Pitzer summation (Pitzer) in the
+   *  appendix. It's also mentioned in bethke's book (Bethke), and
+   *  the equations are summarized in Harvie & Weare (1980).
+   *  Within the code, \f$ \,^E\Theta_{ij}(I) \f$ is evaluated according
+   *  to the algorithm described in Appendix B [Pitzer] as
+   *
+   *  \f[ 
+   *     \,^E\Theta_{ij}(I) = \left( \frac{z_i z_j}{4I} \right)
+   *        \left( J(x_{ij})  - \frac{1}{2} J(x_{ii})  
+   *                          - \frac{1}{2} J(x_{jj})  \right)
+   *  \f]
+   *
+   *  where \f$ x_{ij} = 6 z_i z_j A_{\phi} \sqrt{I} \f$ and
+   *
+   *   \f[ 
+   *      J(x) = \frac{1}{x} \int_0^{\infty}{\left( 1 + q +
+   *        \frac{1}{2} q^2 - e^q \right) y^2 dy}
+   *  \f]
+   *
+   *  and \f$ q = - (\frac{x}{y}) e^{-y} \f$. \f$ J(x) \f$ is evaluated by 
+   *  numerical integration.
+   *
+   *  The \f$  \Theta_{ij} \f$ term is a constant that is specified
+   *  by the XML element <TT> thetaCation </TT> and 
+   *  <TT> thetaAnion </TT>,  which
+   *  has the attribute <TT> cation1 </TT>, <TT> cation2 </TT> and
+   *  <TT> anion1 </TT>, <TT> anion2 </TT> respectively
+   *  to identify the interaction. No temperature or 
+   *  pressure dependence of this parameter is currently allowed.
+   *  An example of the block is biven below
+   *
+   * @code
+       <thetaCation cation1="Na+" cation2="H+">
+                  <Theta> 0.036 </Theta>
+       </thetaCation>
+     @endcode
    *
    *
    *  <H3> Ternary Pitzer Parameters </H3>
@@ -671,7 +736,7 @@ namespace Cantera {
    *
    *
    *  <H3> Example of the Specification of Parameters for the Activity
-   *   Coefficients </H3>
+   *       Coefficients </H3>
    *  
    * An example is given below.
    *
