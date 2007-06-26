@@ -895,17 +895,24 @@ namespace Cantera {
   }
 
 
-  /**
+  /*
    * Returns an array of partial molar enthalpies for the species
    * in the mixture.
    * Units (J/kmol)
    *
-   * We calculate this quantity partially from the relation and
-   * partially by calling the standard state enthalpy function.
+   * For this phase, the partial molar enthalpies are equal to the
+   * standard state enthalpies modified by the derivative of the
+   * molality-based activity coefficent wrt temperature
    *
-   *     hbar_i = - T**2 * d(chemPot_i/T)/dT 
+   *  \f[
+   * \bar h_k(T,P) = h^{\triangle}_k(T,P) - R T^2 \frac{d \ln(\gamma_k^\triangle)}{dT}
+   * \f]
+   * The solvent partial molar enthalpy is equal to 
+   *  \f[
+   * \bar h_o(T,P) = h^{o}_o(T,P) - R T^2 \frac{d \ln(a_o)}{dT}
+   * \f]
    *
-   * We calculate 
+   *
    */
   void HMWSoln::getPartialMolarEnthalpies(doublereal* hbar) const {
     /*
@@ -932,7 +939,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    *
    * getPartialMolarEntropies()        (virtual, const)
    *

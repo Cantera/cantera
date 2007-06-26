@@ -1595,7 +1595,8 @@ namespace Cantera {
      * \f]
      * The solvent partial molar enthalpy is equal to 
      *  \f[
-     * \bar h_o(T,P) = h^{o}_o(T,P) - R T^2 \frac{d \ln(a_o}{dT}
+     * \bar h_o(T,P) = h^{o}_o(T,P) - R T^2 \frac{d \ln(a_o)}{dT}
+     *       = h^{o}_o(T,P) + R T^2  (\sum_{k \neq o} m_k)  \tilde{M_o} (\frac{d \phi}{dT})
      * \f]
      *
      *
@@ -1607,7 +1608,7 @@ namespace Cantera {
   
     //! Returns an array of partial molar entropies of the species in the
     //! solution. Units: J/kmol/K.
-    /**
+    /*!
      * Maxwell's equations provide an insight in how to calculate this
      *   (p.215 Smith and Van Ness)
      *
