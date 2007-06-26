@@ -940,7 +940,6 @@ namespace Cantera {
   }
 
   /*
-   *
    * getPartialMolarEntropies()        (virtual, const)
    *
    * Returns an array of partial molar entropies of the species in the
@@ -954,10 +953,14 @@ namespace Cantera {
    * Combining this with the expression H = G + TS yields:
    *
    *  \f[
-   * \bar s_k(T,P) =  \hat s^0_k(T) - R log(M0 * molality[k] ac[k])
-   *                      - R T^2 d log(ac[k]) / dT
+   *     \bar s_k(T,P) =  s^{\triangle}_k(T,P) 
+   *             - R \ln( \gamma^{\triangle}_k \frac{m_k}{m^{\triangle}}))
+   *                    - R T \frac{d \ln(\gamma^{\triangle}_k) }{dT}
    * \f]
-   *
+   * \f[
+   *      \bar s_o(T,P) = s^o_o(T,P) - R \ln(a_o)
+   *                    - R T \frac{d \ln(a_o)}{dT}
+   * \f]  
    *
    * The reference-state pure-species entropies,\f$ \hat s^0_k(T) \f$,
    * at the reference pressure, \f$ P_{ref} \f$,  are computed by the
@@ -1011,7 +1014,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * getPartialMolarVolumes()                (virtual, const)
    *
    * Returns an array of partial molar volumes of the species
@@ -1053,7 +1056,16 @@ namespace Cantera {
    *   enthalpy of the kth species in the solution at constant
    *   P and composition (p. 220 Smith and Van Ness).
    *
-   *     Cp = -T d2(chemPot_i)/dT2
+   *  \f[
+   *     \bar C_{p,k}(T,P) =  C^{\triangle}_{p,k}(T,P) 
+   *             - 2 R T \frac{d \ln( \gamma^{\triangle}_k)}{dT}
+   *                    - R T^2 \frac{d^2 \ln(\gamma^{\triangle}_k) }{{dT}^2}
+   * \f]
+   * \f[
+   *      \bar C_{p,o}(T,P) = C^o_{p,o}(T,P) 
+   *                   - 2 R T \frac{d \ln(a_o)}{dT}
+   *                    - R T^2 \frac{d^2 \ln(a_o)}{{dT}^2}
+   * \f]
    */
   void HMWSoln::getPartialMolarCp(doublereal* cpbar) const {
     /*
@@ -1086,7 +1098,7 @@ namespace Cantera {
    *           in the Solution ------------------
    */
 
-  /**
+  /*
    *  getStandardChemPotentials()      (virtual, const)
    *
    *
@@ -1115,7 +1127,7 @@ namespace Cantera {
     mu[0] = m_waterSS->gibbs_mole();
   }
     
-  /**
+  /*
    * Get the nondimensional gibbs function for the species
    * standard states at the current T and P of the solution.
    *
@@ -1138,7 +1150,7 @@ namespace Cantera {
     }
   }
     
-  /**
+  /*
    *
    * getPureGibbs()
    *
@@ -1227,7 +1239,7 @@ namespace Cantera {
     sr[0] /= GasConstant;
   }
 
-  /**
+  /*
    * Get the nondimensional heat capacity at constant pressure
    * function for the species
    * standard states at the current T and P of the solution.
@@ -1250,7 +1262,7 @@ namespace Cantera {
     cpr[0] /= GasConstant;
   }
     
-  /**
+  /*
    * Get the molar volumes of each species in their standard
    * states at the current
    * <I>T</I> and <I>P</I> of the solution.

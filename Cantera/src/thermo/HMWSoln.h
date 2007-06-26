@@ -276,8 +276,8 @@ namespace Cantera {
    *
    *  Polar and non-polar neutral species are differentiated, because some additions 
    *  to the activity 
-   *  coefficient expressions distinguish between these two types of solutes. This is the so-called
-   *  salt-out effect.
+   *  coefficient expressions distinguish between these two types of solutes. 
+   *  This is the so-called salt-out effect.
    *
    * The type of species is specified in the <TT>electrolyteSpeciesType</TT> XML block.
    * Note, this is not
@@ -346,13 +346,15 @@ namespace Cantera {
    *  <I>a</I> is a subscribt over all anions, <I>c</I> is a subscript extending over all
    *  cations, and  <I>i</I> is a subscrit that extends over all anions and cations.
    *  <I>n</I> is a subscript that extends only over neutral solute molecules. 
-   *  The second line contains cross terms where cations affect cations and/or cation/anion pairs,
+   *  The second line contains cross terms where cations affect 
+   *  cations and/or cation/anion pairs,
    *  and anions affect anions or cation/anion pairs. Note part of the coefficients,
    *  \f$ \Phi_{c{c'}} \f$ and  \f$ \Phi_{a{a'}} \f$  stem from the theory
    *  of unsymmetrical mixing of electrolytes with different charges. This
    *  theory depends on the total ionic stregnth of the solution, and therefore,
    *  \f$ \Phi_{c{c'}} \f$ and  \f$ \Phi_{a{a'}} \f$  will depend on <I>I</I>, the
-   *  ionic strength.  \f$ B_{ca}\f$ is a strong function of the total ionic strength,  <I>I</I>,
+   *  ionic strength.  \f$ B_{ca}\f$ is a strong function of the 
+   *  total ionic strength,  <I>I</I>,
    *  of the electrolyte. The rest of the coefficients are assumed to be independent of the
    *  molalities or ionic strengths. However, all coefficients are potentially functions
    *  of the temperature and pressure of the solution.
@@ -518,6 +520,14 @@ namespace Cantera {
    *       \phi - 1 = - \left( \frac{d\left(\frac{G^{ex}}{RT} \right)}{d(\tilde{M}_o n_o)}  \right)
    *                \frac{1}{\sum_{i \ne 0} m_i}
    *  \f]
+   *
+   *  The osmotic coefficient may be related to the water activity by the following relation:
+   * 
+   *  \f[
+   *       \phi = - \frac{1}{\tilde{M}_o \sum_{i \neq o} m_i} \ln(a_o) 
+   *           = - \frac{n_o}{\sum_{i \neq o}n_i} \ln(a_o)
+   *  \f]
+   *
    *
    *  The result is the following
    *
@@ -688,7 +698,7 @@ namespace Cantera {
    *  Dependent in general on temperature and pressure, it's ionic
    *  strength dependence is ignored in Pitzer's approach. 
    *  \f$ \,^E\Theta_{ij}(I) \f$ accounts for the electrostatic
-   *  unsymmetrical mixing effects and is depeendnet only on the
+   *  unsymmetrical mixing effects and is dependent only on the
    *  charges of the ions i, j, the total ionic strength and on
    *  the dielectric constant and density of the solvent.
    *  This seems to be a relatively well-documented part of the theory.
@@ -925,10 +935,68 @@ namespace Cantera {
    * <H3>  Temperature and Pressure Dependence of the Activity Coefficients </H3>
    *
    *  Temperature dependence of the activity coefficients leads to nonzero terms
-   *  for the excess enthalpy of solution.
+   *  for the excess enthalpy and entropy of solution. This means that the
+   *  partial molar enthalpies, entropies, and heat capacities are all
+   *  non-trivial to compute. The following formulas are used.
+   *
+   *  The partial molar enthalpy, \f$ \bar s_k(T,P) \f$:
+   *  
+   *  \f[
+   * \bar h_k(T,P) = h^{\triangle}_k(T,P) 
+   *               - R T^2 \frac{d \ln(\gamma_k^\triangle)}{dT}
+   * \f]
+   * The solvent partial molar enthalpy is equal to 
+   *  \f[
+   * \bar h_o(T,P) = h^{o}_o(T,P) - R T^2 \frac{d \ln(a_o)}{dT}
+   *       = h^{o}_o(T,P) 
+   *       + R T^2 (\sum_{k \neq o} m_k)  \tilde{M_o} (\frac{d \phi}{dT})
+   * \f]
+   *
+   *  The partial molar entropy, \f$ \bar s_k(T,P) \f$:
+   *
+   *  \f[
+   *     \bar s_k(T,P) =  s^{\triangle}_k(T,P) 
+   *             - R \ln( \gamma^{\triangle}_k \frac{m_k}{m^{\triangle}}))
+   *                    - R T \frac{d \ln(\gamma^{\triangle}_k) }{dT}
+   * \f]
+   * \f[
+   *      \bar s_o(T,P) = s^o_o(T,P) - R \ln(a_o)
+   *                    - R T \frac{d \ln(a_o)}{dT}
+   * \f]
+   *
+   * The partial molar heat capacity, \f$ C_{p,k}(T,P)\f$:
+   *
+   *  \f[
+   *     \bar C_{p,k}(T,P) =  C^{\triangle}_{p,k}(T,P) 
+   *             - 2 R T \frac{d \ln( \gamma^{\triangle}_k)}{dT}
+   *                    - R T^2 \frac{d^2 \ln(\gamma^{\triangle}_k) }{{dT}^2}
+   * \f]
+   * \f[
+   *      \bar C_{p,o}(T,P) = C^o_{p,o}(T,P) 
+   *                   - 2 R T \frac{d \ln(a_o)}{dT}
+   *                    - R T^2 \frac{d^2 \ln(a_o)}{{dT}^2}
+   * \f]
    *
    *  The pressure dependence of the activity coefficients leads to non-zero terms
    *  for the excess Volume of the solution.
+   *  Therefore, the partial molar volumes are functions
+   *  of the pressure derivatives of the activity coefficients.
+   * \f[
+   *     \bar V_k(T,P) =  V^{\triangle}_k(T,P) 
+   *                    + R T \frac{d \ln(\gamma^{\triangle}_k) }{dP}
+   * \f]
+   * \f[
+   *      \bar V_o(T,P) = V^o_o(T,P) 
+   *                    + R T \frac{d \ln(a_o)}{dP}
+   * \f]
+   *
+   *  The majority of work for these functions take place in the internal
+   *  routines that calculate the first and second derivatives of the log
+   *  of the activity coefficients wrt temperature,
+   *  s_update_dlnMolalityActCoeff_dT(), s_update_d2lnMolalityActCoeff_dT2(),
+   *  and the first 
+   *  derivative of the log activity coefficients wrt pressure,
+   *  s_update_dlnMolalityActCoeff_dP().
    *
    * <HR>
    * <H2> %Application within %Kinetics Managers </H2>
@@ -941,7 +1009,8 @@ namespace Cantera {
    * kinetic rate constant specified
    * as if all reactants were on a concentration basis.
    *
-   * For example, a bulk-phase binary reaction between liquid species <I>j</I> and <I>k</I>, producing
+   * For example, a bulk-phase binary reaction between liquid species 
+   * <I>j</I> and <I>k</I>, producing
    * a new liquid species <I>l</I> would have the
    * following equation for its rate of progress variable, \f$ R^1 \f$, which has
    * units of kmol m-3 s-1.
@@ -966,7 +1035,7 @@ namespace Cantera {
    * and the equilibrium expression for the system.
    *
    *   \f[
-   *         \frac{a_j a_k}{ a_l} = K^{o,1} = \exp(\frac{\mu^o_l - \mu^o_j - \mu^o_k}{R T} )
+   *      \frac{a_j a_k}{ a_l} = K^{o,1} = \exp(\frac{\mu^o_l - \mu^o_j - \mu^o_k}{R T} )
    *   \f]
    *
    *  \f$  K^{o,1} \f$ is the dimensionless form of the equilibrium constant.
@@ -1591,12 +1660,14 @@ namespace Cantera {
      * molality-based activity coefficent wrt temperature
      *
      *  \f[
-     * \bar h_k(T,P) = h^{\triangle}_k(T,P) - R T^2 \frac{d \ln(\gamma_k^\triangle)}{dT}
+     * \bar h_k(T,P) = h^{\triangle}_k(T,P) 
+     *               - R T^2 \frac{d \ln(\gamma_k^\triangle)}{dT}
      * \f]
      * The solvent partial molar enthalpy is equal to 
      *  \f[
      * \bar h_o(T,P) = h^{o}_o(T,P) - R T^2 \frac{d \ln(a_o)}{dT}
-     *       = h^{o}_o(T,P) + R T^2  (\sum_{k \neq o} m_k)  \tilde{M_o} (\frac{d \phi}{dT})
+     *       = h^{o}_o(T,P) 
+     *       + R T^2 (\sum_{k \neq o} m_k)  \tilde{M_o} (\frac{d \phi}{dT})
      * \f]
      *
      *
@@ -1609,7 +1680,7 @@ namespace Cantera {
     //! Returns an array of partial molar entropies of the species in the
     //! solution. Units: J/kmol/K.
     /*!
-     * Maxwell's equations provide an insight in how to calculate this
+     * Maxwell's equations provide an answer for how calculate this
      *   (p.215 Smith and Van Ness)
      *
      *      d(chemPot_i)/dT = -sbar_i
@@ -1620,11 +1691,13 @@ namespace Cantera {
      * temperature derivative of the activity coefficents.
      *
      *  \f[
-     *     \bar s_k(T,P) =  \hat s^0_k(T) - R log(M0 * molality[k])
+     *     \bar s_k(T,P) =  s^{\triangle}_k(T,P) 
+     *             - R \ln( \gamma^{\triangle}_k \frac{m_k}{m^{\triangle}}))
+     *                    - R T \frac{d \ln(\gamma^{\triangle}_k) }{dT}
      * \f]
      * \f[
-     *      \bar s_solvent(T,P) =  \hat s^0_solvent(T) 
-     *                  - R ((xmolSolvent - 1.0) / xmolSolvent)
+     *      \bar s_o(T,P) = s^o_o(T,P) - R \ln(a_o)
+     *                    - R T \frac{d \ln(a_o)}{dT}
      * \f]
      *
      *  @param sbar    Output vector of species partial molar entropies.
@@ -1638,6 +1711,15 @@ namespace Cantera {
      *  For this solution, the partial molar volumes are functions
      *  of the pressure derivatives of the activity coefficients.
      *
+     *  \f[
+     *     \bar V_k(T,P)  = V^{\triangle}_k(T,P) 
+     *                    + R T \frac{d \ln(\gamma^{\triangle}_k) }{dP}
+     * \f]
+     * \f[
+     *      \bar V_o(T,P) = V^o_o(T,P) 
+     *                    + R T \frac{d \ln(a_o)}{dP}
+     * \f]
+     *
      *  @param vbar   Output vector of speciar partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
@@ -1646,12 +1728,25 @@ namespace Cantera {
     //! Return an array of partial molar heat capacities for the
     //! species in the mixture.  Units: J/kmol/K
     /*!
+     *  The following formulas are implemented within the code.
+     *
+     *  \f[
+     *     \bar C_{p,k}(T,P) =  C^{\triangle}_{p,k}(T,P) 
+     *             - 2 R T \frac{d \ln( \gamma^{\triangle}_k)}{dT}
+     *                    - R T^2 \frac{d^2 \ln(\gamma^{\triangle}_k) }{{dT}^2}
+     * \f]
+     * \f[
+     *      \bar C_{p,o}(T,P) = C^o_{p,o}(T,P) 
+     *                   - 2 R T \frac{d \ln(a_o)}{dT}
+     *                    - R T^2 \frac{d^2 \ln(a_o)}{{dT}^2}
+     * \f]
+     *
+     *
      * @param cpbar   Output vector of species partial molar heat 
      *                capacities at constant pressure.
      *                Length = m_kk. units are J/kmol/K.
      */
     virtual void getPartialMolarCp(doublereal* cpbar) const;
-
 
     //@}
 
@@ -1661,7 +1756,8 @@ namespace Cantera {
 
      
     //! Get the array of chemical potentials at unit activity for the species
-    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    //! at their standard states at the current <I>T</I> and <I>P</I>
+    //! of the solution.
     /*!
      * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
      * \f$. The values are evaluated at the current
@@ -2992,12 +3088,12 @@ namespace Cantera {
      //! This function calculates the temperature derivative of the
      //! natural logarithm of the molality activity coefficients.
      /*!
-      * Private function does the work
+      * This is the private function. It does all of the direct work.
       */
     void s_update_dlnMolalityActCoeff_dT() const;
 
     /**
-     * This function calcultes the temperature second derivative
+     * This function calculates the temperature second derivative
      * of the natural logarithm of the molality activity 
      * coefficients.
      */

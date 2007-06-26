@@ -560,7 +560,7 @@ namespace Cantera {
      * standard state species entropies plus the ideal molal solution contribution.
      * 
      * \f[
-     *   \bar{s}_k(T,P) =  s^0_k(T) - R log( m_k )
+     *   \bar{s}_k(T,P) =  s^0_k(T) - R \ln( \frac{m_k}{m^{\triangle}} )
      * \f]
      * \f[
      *   \bar{s}_w(T,P) =  s^0_w(T) - R ((X_w - 1.0) / X_w)
@@ -615,8 +615,8 @@ namespace Cantera {
     //          in the Solution --
     //@{
      
+    //!  Get the standard state chemical potentials of the species.
     /*!
-     *  Get the standard state chemical potentials of the species.
      *  This is the array of chemical potentials at unit activity 
      *  \f$ \mu^0_k(T,P) \f$.
      *  We define these here as the chemical potentials of the pure
