@@ -350,7 +350,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * Process an XML node called "readXMLPsiCommonCation". 
    * This node contains all of the parameters necessary to describe
    * the binary interactions between two anions and one common cation.
@@ -403,7 +403,7 @@ namespace Cantera {
       throw CanteraError("HMWSoln::readXMLPsiCommonCation", 
 			 "anion2 charge problem");
     }
-	
+    
     int n = iSpecies * m_kk + jSpecies;
     int counter = m_CounterIJ[n];
     int num = BinSalt.nChildren();
@@ -547,13 +547,13 @@ namespace Cantera {
     }
     double *charge = DATA_PTR(m_speciesCharge);
     string stemp;
-    string iName = BinSalt.attrib("neutral");
+    string iName = BinSalt.attrib("species1");
     if (iName == "") {
-      throw CanteraError("HMWSoln::readXMLLambdaNeutral", "no neutral attrib");
+      throw CanteraError("HMWSoln::readXMLLambdaNeutral", "no species1 attrib");
     }
-    string jName = BinSalt.attrib("speciesj");
+    string jName = BinSalt.attrib("species2");
     if (jName == "") {
-      throw CanteraError("HMWSoln::readXMLLambdaNeutral", "no speciesj attrib");
+      throw CanteraError("HMWSoln::readXMLLambdaNeutral", "no species2 attrib");
     }
     /*
      * Find the index of the species in the current phase. It's not
@@ -564,7 +564,8 @@ namespace Cantera {
       return;
     }
     if (charge[iSpecies] != 0) {
-      throw CanteraError("HMWSoln::readXMLLambdaNeutral", "neutral charge problem");
+      throw CanteraError("HMWSoln::readXMLLambdaNeutral", 
+			 "neutral charge problem");
     }
     int jSpecies = speciesIndex(jName);
     if (jSpecies < 0) {

@@ -449,8 +449,8 @@ namespace Cantera {
    *   \f[
    *      \ln(\gamma_M^\triangle) = -z_M^2(F) + \sum_a m_a \left( 2 B_{Ma} + Z C_{Ma} \right)
    *      + z_M   \left( \sum_a  \sum_c m_a m_c C_{ca} \right)
-   *             + \sum_c m_c \left[ 2 \Phi_{Mc} + \sum_a m_a \psi_{Mca} \right]
-   *             + \sum_{a < a'} \sum m_a m_{a'} \psi_{Ma{a'}}
+   *             + \sum_c m_c \left[ 2 \Phi_{Mc} + \sum_a m_a \Psi_{Mca} \right]
+   *             + \sum_{a < a'} \sum m_a m_{a'} \Psi_{Ma{a'}}
    *             +  2 \sum_n m_n \lambda_{nM}
    *   \f]
    *
@@ -459,8 +459,8 @@ namespace Cantera {
    *   \f[
    *      \ln(\gamma_X^\triangle) = -z_X^2(F) + \sum_a m_c \left( 2 B_{cX} + Z C_{cX} \right)
    *      + \left|z_X \right|  \left( \sum_a  \sum_c m_a m_c C_{ca} \right)
-   *             + \sum_a m_a \left[ 2 \Phi_{Xa} + \sum_c m_c \psi_{cXa} \right]
-   *             + \sum_{c < c'} \sum m_c m_{c'} \psi_{c{c'}X}
+   *             + \sum_a m_a \left[ 2 \Phi_{Xa} + \sum_c m_c \Psi_{cXa} \right]
+   *             + \sum_{c < c'} \sum m_c m_{c'} \Psi_{c{c'}X}
    *             +  2 \sum_n m_n \lambda_{nM}
    *   \f]
    *              where the function \f$ F \f$ is given by
@@ -607,7 +607,8 @@ namespace Cantera {
    *
    *  In later papers, Pitzer has added additional temperature dependencies
    *  to all of the other remaining second and third order virial coefficients.
-   *  Some of these dependencies are justified and motivated by theory. Therefore,
+   *  Some of these dependencies are justified and motivated by theory. 
+   *  Therefore,
    *  a formalism wherein all of the coefficients in the base theory have
    *  temperature dependencies associated with them has been implemented 
    *  within the  %HMWSoln object. Much of the formalism, however,
@@ -720,7 +721,7 @@ namespace Cantera {
    *  <TT> anion1 </TT>, <TT> anion2 </TT> respectively
    *  to identify the interaction. No temperature or 
    *  pressure dependence of this parameter is currently allowed.
-   *  An example of the block is biven below
+   *  An example of the block is presented below.
    *
    * @code
        <thetaCation cation1="Na+" cation2="H+">
@@ -731,9 +732,59 @@ namespace Cantera {
    *
    *  <H3> Ternary Pitzer Parameters </H3>
    *
+   *  The \f$  \Psi_{c{c'}a} \f$ and \f$  \Psi_{ca{a'}} \f$ terms
+   *  represent ternary interactions between two cations and
+   *  an anion and two anions and a cation, respectively.
+   *  In Pitzer's implementation these terms are usually small
+   *  in absolute size. Currently these parameters do not have
+   *  any dependence on temperature, pressure, or ionic strength.
+   *  
+   *   Their values are input using the XML element
+   *   <TT> psiCommonCation </TT> and  <TT> psiCommonAnion </TT>.
+   *   The species id's are specified in attribute fields in
+   *   the XML element. The fields  <TT>cation</TT>, 
+   *   <TT> anion1</TT>, and <TT> anion2</TT>
+   *   are used for  <TT>psiCommonCation</TT>. The fields <TT> anion</TT>,
+   *   <TT>cation1</TT> and  <TT>cation2</TT> are used for 
+   *   <TT> psiCommonAnion</TT>. An example block is given below.
+   *   The <TT> Theta </TT> field below is a duplicate of the
+   *   <TT> thetaAnion </TT> field mentioned above. The two fields
+   *   are input into the same block for convenience, and because
+   *   their data are highly correlated, in practice.
+   *   It is an error for the
+   *   two blocks to specify different information about 
+   *   thetaAnion (or thetaCation) in different blocks. It's
+   *   ok to specify duplicate but consistent information
+   *   in multiple blocks.
+   *
+   * @code
+       <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
+             <Theta> -0.05 </Theta>
+             <Psi> -0.006 </Psi>
+       </psiCommonCation>
+      @endcode
    *
    *  <H3> Treatment of Neutral Species </H3>
    *
+   *  Binary virial-coefficient-like interactions between two neutral 
+   *  species may be specified in the \f$ \lambda_{mn} \f$ terms
+   *  that appear in the formulas above.
+   *  Currently these interactions are independent of temperature,
+   *  pressure, and ionic strength. Also, currently, the neutrality
+   *  of the species are not checked. Therefore, this interaction
+   *  may involve charged species in the solution as well.
+   *  The identity of the species is specified by the 
+   *  <TT>species1</TT> and <TT>species2</TT> attributes to the XML
+   *  <TT>lambdaNeutral</TT> node. These terms are symmetrical;
+   *  <TT>species1</TT> and <TT>species2</TT> may be reversed and
+   *  the term will be the same. An example is given below.
+   *
+   * @code
+       <lambdaNeutral species1="CO2" species2="CH4">
+             <lambda> 0.05 </lambda>
+       </lambdaNeutral>
+      @endcode
+
    *
    *  <H3> Example of the Specification of Parameters for the Activity
    *       Coefficients </H3>
@@ -2693,8 +2744,8 @@ namespace Cantera {
      */
     mutable vector_fp m_d2lnActCoeffMolaldT2;
 
-    //!  Derivative of the Logarithm of the activity coefficients on the molality
-    //!  scale wrt P
+    //!  Derivative of the Logarithm of the activity coefficients on the 
+    //!  molality scale wrt P
     /*!
      *  index is the species index
      */
