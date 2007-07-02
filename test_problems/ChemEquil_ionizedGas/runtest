@@ -21,7 +21,7 @@ fi
 
 diff -w output.txt output_blessed.txt > diff_out.txt
 retnStat_txt=$?
-csvdiff -a 1.0E-50 table.csv table_blessed.csv > diff_csv.txt
+${CANTERA_BIN}/csvdiff -a 1.0E-50 table.csv table_blessed.csv > diff_csv.txt
 retnStat_csv=$?
 
 eCode=1

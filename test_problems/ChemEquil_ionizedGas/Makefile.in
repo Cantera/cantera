@@ -33,6 +33,10 @@ os_is_win = @OS_IS_WIN@
 # Fortran libraries
 FORT_LIBS = @FLIBS@
 
+# Executables extension
+extension = @EXE_EXT@
+extension2 = @EXEEXT@
+
 # the C++ compiler
 CXX = @CXX@
 
