@@ -461,7 +461,7 @@ namespace Cantera {
      * @param hrt      Output vector of  nondimensional standard state enthalpies.
      *                 Length: m_kk.
      */
-    void getEnthalpy_RT(doublereal* hrt) const;
+    virtual void getEnthalpy_RT(doublereal* hrt) const;
 
     //! Get the array of nondimensional Entropy functions for the
     //! species standard states at the current <I>T</I> and <I>P</I> of the solution.
@@ -469,7 +469,7 @@ namespace Cantera {
      * @param sr   Output vector of  nondimensional standard state entropies.
      *             Length: m_kk.
      */
-    void getEntropy_R(doublereal* sr) const;
+    virtual void getEntropy_R(doublereal* sr) const;
 
     //! Get the nondimensional Heat Capacities at constant
     //! pressure for the species standard states

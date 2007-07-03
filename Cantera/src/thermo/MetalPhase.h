@@ -74,6 +74,16 @@ namespace Cantera {
             for (n = 0; n < nsp; n++) mu[n] = 0.0;
         }
 
+        virtual void getEnthalpy_RT(doublereal* hrt) const {
+            int n, nsp = nSpecies();
+            for (n = 0; n < nsp; n++) hrt[n] = 0.0;
+        }
+
+        virtual void getEntropy_R(doublereal* sr) const {
+            int n, nsp = nSpecies();
+            for (n = 0; n < nsp; n++) sr[n] = 0.0;
+        }
+
         virtual void getStandardChemPotentials(doublereal* mu0) const {
             int n, nsp = nSpecies();
             for (n = 0; n < nsp; n++) mu0[n] = 0.0;
