@@ -27,6 +27,10 @@ namespace Cantera {
    *
    * Cantera has several different equilibrium routines.
    */
+  //@{
+  //@}
+
+
   //-----------------------------------------------------------
   //              convenience functions
   //-----------------------------------------------------------
