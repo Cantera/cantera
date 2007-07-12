@@ -15,16 +15,12 @@
 
 // Copyright 2002  California Institute of Technology
 
-
-
 #ifndef CT_CTML_H
 #define CT_CTML_H
 
 #include "ct_defs.h"
 #include "xml.h"
 #include "Array.h"
-//using namespace Cantera;
-
 
 namespace ctml {
 
