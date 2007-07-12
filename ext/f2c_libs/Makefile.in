@@ -100,7 +100,7 @@ endif
 
 $(F2C_H): f2c.h
 	@INSTALL@ -d $(BUILDINCDIR)
-	@INSTALL@ f2c.h $(F2C_H)
+	@INSTALL@ -c f2c.h $(F2C_H)
 
 ### If your system lacks ranlib, you don't need it; see README.
 
