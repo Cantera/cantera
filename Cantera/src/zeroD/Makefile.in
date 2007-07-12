@@ -64,7 +64,7 @@ clean:
             $(RM) $(ZEROD_LIB) ; \
             echo "$(RM) $(ZEROD_LIB)" ; \
           fi)
-	$(RM) *.o *~ .depends
+	$(RM) *.o *~ .depends *.d
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \
          fi )
