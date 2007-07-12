@@ -19,8 +19,8 @@ verbose='y'
 if test "x$VERBOSE" = "x-v" ; then
   verbose=
 fi
-INSTALL_XV="@INSTALL_abs@ -m 755 $VERBOSE "
-INSTALL_V="@INSTALL_abs@ -m 644 $VERBOSE "
+INSTALL_XV="@INSTALL_abs@ -m 755 -c $VERBOSE "
+INSTALL_V="@INSTALL_abs@ -m 644 -c $VERBOSE "
 #
 # If the destination directory doesn't exist yet, create it
 #
