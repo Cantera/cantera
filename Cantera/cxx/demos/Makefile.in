@@ -82,13 +82,13 @@ test:
 
 install:
 	@INSTALL@ -d       @ct_demodir@/cxx
-	@INSTALL@ *.cpp    @ct_demodir@/cxx
-	@INSTALL@ *.h      @ct_demodir@/cxx
-	@INSTALL@ Makefile.install @ct_demodir@/cxx/Makefile
+	@(for ihhh in *.cpp *.h Makefile.install  ; do  \
+             @INSTALL@       -c $${ihhh} @ct_demodir@/cxx ; \
+             echo "@INSTALL@ -c $${ihhh} @ct_demodir@/cxx" ; \
+         done )
 
 depends: $(DEPENDS)
 	@MAKE@ .depends
-
 
 .depends: $(DEPENDS)
 	cat $(DEPENDS) > .depends
