@@ -37,8 +37,8 @@ clean:
               echo "$(RM) $${th}" ; \
             fi \
           done)
-	cd src; @MAKE@ clean
-	cd demos; @MAKE@ clean
+	cd src;   $(RM) .depends ; @MAKE@ clean
+	cd demos; $(RM) .depends ; @MAKE@ clean
 
 depends:
 	cd src; @MAKE@ depends
