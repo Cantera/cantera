@@ -68,7 +68,7 @@ endif
 fortran:
 ifeq ($(build_f90),1)
 	cd Cantera/fortran/src; @MAKE@
-	@INSTALL@ Cantera/fortran/src/*.mod build/include/cantera
+	@INSTALL@ -c Cantera/fortran/src/*.mod build/include/cantera
 else
 	@echo skipping building the Fortran 90/95 interface
 endif
@@ -83,7 +83,7 @@ kernel-install:
 	@INSTALL@ -d @ct_libdir@
 	rm -fR @ct_libdir@/*
 	( for ilib in @buildlib@/*.a ; do  \
-	  @INSTALL@ -m 644 $${ilib} @ct_libdir@ ; \
+	  @INSTALL@ -c -m 644 $${ilib} @ct_libdir@ ; \
           done )
 ifeq ($(do_ranlib),1)
 	@RANLIB@ @ct_libdir@/*.a
@@ -98,20 +98,20 @@ win-kernel-install:
 	@INSTALL@ -d @ct_libdir@
 	$(RMDIRTREE) @ct_libdir@/*
 	( for ilib in @buildlib@/*.lib ; do  \
-          @INSTALL@ -m 644 $${ilib} @ct_libdir@ ;  done )
+          @INSTALL@ -c -m 644 $${ilib} @ct_libdir@ ;  done )
 ifeq ($(use_dll),1)
 	( for ilib in @buildlib@/*.dll ; do  \
-          @INSTALL@ -m 644 $${ilib} @ct_libdir@ ;  done )
+          @INSTALL@ -c -m 644 $${ilib} @ct_libdir@ ;  done )
 	( for ilib in @buildlib@/*.exp ; do  \
-          @INSTALL@ -m 644 $${ilib} @ct_libdir@ ;  done )
+          @INSTALL@ -c -m 644 $${ilib} @ct_libdir@ ;  done )
 endif
 
 data-install:
 	@INSTALL@ -d @ct_datadir@
 	( for iddd in data/inputs/*.xml ; do  \
-          @INSTALL@ -m 644 $${iddd} @ct_datadir@ ;  done )
+          @INSTALL@ -c -m 644 $${iddd} @ct_datadir@ ;  done )
 	( for iddd in data/inputs/*.cti ; do  \
-          @INSTALL@ -m 644 $${iddd} @ct_datadir@ ;  done )
+          @INSTALL@ -c -m 644 $${iddd} @ct_datadir@ ;  done )
 
 tools-install:
 	cd tools; @MAKE@ install
@@ -122,7 +122,7 @@ hdr-install:
 
 f90-modules-install:
 ifeq ($(build_f90),1)
-	@INSTALL@ -m  644 build/include/cantera/*.mod @ct_incroot@/cantera
+	@INSTALL@ -c -m 644 build/include/cantera/*.mod @ct_incroot@/cantera
 endif
 
 # collect scattered header files and build the include directory
@@ -153,23 +153,23 @@ ifeq ($(build_python),2)
 	@(for exdir in $(PY_EXAMPLES) ; do \
 	     @INSTALL@ -d @ct_demodir@/python/$${exdir} ; \
 	     (for ihhh in Cantera/python/examples/$${exdir}/*.py ; do  \
-	          @INSTALL@ $${ihhh} @ct_demodir@/python/$${exdir} ; \
-                  echo "@INSTALL@ $${ihhh} @ct_demodir@/python/$${exdir}" ; \
+	          @INSTALL@ -c $${ihhh} @ct_demodir@/python/$${exdir} ; \
+                  echo "@INSTALL@ -c $${ihhh} @ct_demodir@/python/$${exdir}" ; \
               done ) ; \
 	     (for ihhh in Cantera/python/examples/$${exdir}/*.cti ; do  \
-	          @INSTALL@ $${ihhh} @ct_demodir@/python/$${exdir} ; \
+	          @INSTALL@ -c $${ihhh} @ct_demodir@/python/$${exdir} ; \
               done ) ; \
-	      @INSTALL@ Cantera/python/examples/$${exdir}/Makefile @ct_demodir@/python/$${exdir} ; \
+	      @INSTALL@ -c Cantera/python/examples/$${exdir}/Makefile @ct_demodir@/python/$${exdir} ; \
           done)
 	@(for ihhh in Cantera/python/examples/flames/*.dat ; do  \
-             @INSTALL@ $${ihhh} @ct_demodir@/python/flames ; \
-             echo "@INSTALL@ $${ihhh} @ct_demodir@/python/flames" ; \
+             @INSTALL@ -c $${ihhh} @ct_demodir@/python/flames ; \
+             echo "@INSTALL@ -c $${ihhh} @ct_demodir@/python/flames" ; \
           done )
-	@INSTALL@ Cantera/python/examples/Makefile @ct_demodir@/python 
+	@INSTALL@ -c Cantera/python/examples/Makefile @ct_demodir@/python 
 	@INSTALL@ -d @ct_tutdir@/python
 	@(for ihhh in Cantera/python/tutorial/*.py ; do  \
-            @INSTALL@ $${ihhh} @ct_tutdir@/python ; \
-            echo "@INSTALL@ $${ihhh} @ct_tutdir@/python" ; \
+            @INSTALL@ -c $${ihhh} @ct_tutdir@/python ; \
+            echo "@INSTALL@ -c $${ihhh} @ct_tutdir@/python" ; \
           done )
 	chown -R @username@ @ct_demodir@/python
 	chown -R @username@ @ct_tutdir@/python
@@ -198,14 +198,14 @@ finish-install:
 	@INSTALL@ -d @ct_docdir@
 	@INSTALL@ -d @ct_bindir@
 	(cd Cantera/cxx/demos; @MAKE@ install)
-	@INSTALL@ tools/templates/cxx/demo.mak @ct_demodir@/cxx
+	@INSTALL@ -c tools/templates/cxx/demo.mak @ct_demodir@/cxx
 	@INSTALL@ -d @ct_demodir@/f77
 	( for ihhh in Cantera/fortran/f77demos/*.f ; do  \
-          @INSTALL@ $${ihhh} @ct_demodir@/f77 ;  done )
-	@INSTALL@ tools/templates/f77/demo_ftnlib.cpp @ct_demodir@/f77
+          @INSTALL@ -c $${ihhh} @ct_demodir@/f77 ;  done )
+	@INSTALL@ -c tools/templates/f77/demo_ftnlib.cpp @ct_demodir@/f77
 	( for ihhh in Cantera/fortran/f77demos/*.txt ; do  \
-          @INSTALL@ $${ihhh} @ct_demodir@/f77 ;  done )
-	@INSTALL@ Cantera/fortran/f77demos/f77demos.mak @ct_demodir@/f77/Makefile
+          @INSTALL@ -c $${ihhh} @ct_demodir@/f77 ;  done )
+	@INSTALL@ -c Cantera/fortran/f77demos/f77demos.mak @ct_demodir@/f77/Makefile
 	chown -R @username@ @ct_demodir@/f77
 
 ifeq ($(os_is_win),0)
@@ -220,10 +220,10 @@ ifeq ($(compact_install),0)
 	ln -s @ct_datadir@ @prefix@/cantera/data
 	ln -s @ct_templdir@ @prefix@/cantera/templates
 	ln -s @ct_tutdir@ @prefix@/cantera/tutorials
-	@INSTALL@ License.* @prefix@/cantera
+	@INSTALL@ -c License.* @prefix@/cantera
 endif
 ifneq ($(build_python),0)
-	@INSTALL@ tools/src/finish_install.py tools/bin
+	@INSTALL@ -c tools/src/finish_install.py tools/bin
 	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
 	chmod +x @ct_bindir@/ctnew
 ifeq ($(build_python),2)
@@ -234,9 +234,9 @@ endif
 else
 	cd Cantera/fortran/f77demos; sed s'/isentropic/ctlib/g' isentropic.dsp > ctlib.dsp
 	( for ihhh in Cantera/fortran/f77demos/*.dsp ; do  \
-          @INSTALL@ $${ihhh} @ct_demodir@/f77 ;  done )
+          @INSTALL@ -c $${ihhh} @ct_demodir@/f77 ;  done )
 	( for ihhh in  @buildbin@/* ; do  \
-          @INSTALL@ $${ihhh} @ct_bindir@ ;  done )
+          @INSTALL@ -c $${ihhh} @ct_bindir@ ;  done )
 endif
 
 example_codes:
@@ -329,7 +329,4 @@ configure: config/configure.in
 
 #info:
 #	echo '#define CANTERA_ROOT "@prefix@/cantera"' > include/ctdir.h
-
-
-
 
