@@ -17,13 +17,14 @@
 
 using namespace Cantera;
 using namespace std;
+
 #ifdef DEBUG_HKM
 namespace Cantera {
-int Cantera::BasisOptimize_print_lvl = 0;
-//static char sbuf[1024];
+  int BasisOptimize_print_lvl = 0;
 }
 static void print_stringTrunc(const char *str, int space, int alignment);
 #endif
+
 static int amax(double *x, int j, int n);
 static void switch_pos(vector_int &orderVector, int jr, int kspec);
 static int mlequ(double *c, int idem, int n, double *b, int m);
