@@ -276,6 +276,7 @@ clean:
 	cd tools; @MAKE@ clean
 	cd ext; @MAKE@ clean
 	cd test_problems; @MAKE@ clean
+	$(RM) mt.mod
 
 docs:
 	cd tools/doxygen/Cantera; doxygen Cantera.cfg
