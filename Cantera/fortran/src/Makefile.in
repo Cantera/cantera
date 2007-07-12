@@ -76,6 +76,8 @@ LIB_NAME=libfct.a
 
 FTLIB = @buildlib@/$(LIB_NAME)
 
+all: $(FTLIB)
+
 $(FTLIB): $(MODFILES) $(USER_MODULE_OBJS) $(CXX_OBJS) $(LIB_DEPS)
 	$(RM)     $(FTLIB)
 	@ARCHIVE@ $(FTLIB) $(OBJS)
