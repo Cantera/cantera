@@ -16,14 +16,14 @@ apps:
 apps-install:
 	@INSTALL@ -d @ct_bindir@
 ifeq ($(build_ck),1)
-	@INSTALL@ @buildbin@/ck2cti @ct_bindir@
+	@INSTALL@ -c @buildbin@/ck2cti @ct_bindir@
 endif
-	@INSTALL@ @buildbin@/cti2ctml @ct_bindir@
+	@INSTALL@ -c @buildbin@/cti2ctml @ct_bindir@
 
 man-install:
 	@INSTALL@ -d @ct_mandir@/man1
-	@INSTALL@ man/ck2cti.1 @ct_mandir@/man1
-	@INSTALL@ man/mixmaster.1 @ct_mandir@/man1
+	@INSTALL@ -c man/ck2cti.1 @ct_mandir@/man1
+	@INSTALL@ -c man/mixmaster.1 @ct_mandir@/man1
 
 uninstall:
 	rm -r -f @ct_mandir@/man1/ck2cti.1
@@ -44,13 +44,19 @@ depends:
 templates-install:
 	@INSTALL@ -d @ct_dir@/templates
 	@INSTALL@ -d @ct_dir@/templates/f77
-	@INSTALL@ -m 644 templates/f77/*.cpp @ct_dir@/templates/f77
-	@INSTALL@ -m 644 templates/f77/*.f @ct_dir@/templates/f77
-	@INSTALL@ -m 644 templates/f77/*.mak @ct_dir@/templates/f77
-	@INSTALL@ -d @ct_dir@/templates/f90
-	@INSTALL@ -m 644 templates/f90/*.f90 @ct_dir@/templates/f90
-	@INSTALL@ -m 644 templates/f90/*.mak @ct_dir@/templates/f90
+	@(for ihhh in templates/f77/*.mak templates/f77/*.f  ; do  \
+                  @INSTALL@ -c $${ihhh} @ct_dir@/templates/f77 ; \
+                  echo "@INSTALL@ -c $${ihhh} @ct_dir@/templates/f77" ; \
+         done ) 
+	@INSTALL@  -d @ct_dir@/templates/f90
+	@(for ihhh in templates/f90/*.mak templates/f90/*.f90 templates/f90/*.cpp ; do  \
+                  @INSTALL@ -c $${ihhh} @ct_dir@/templates/f90 ; \
+                  echo "@INSTALL@ -c $${ihhh} @ct_dir@/templates/f90" ; \
+         done ) 
 	@INSTALL@ -d @ct_dir@/templates/cxx
-	@INSTALL@ -m 644 templates/cxx/*.cpp @ct_dir@/templates/cxx
-	@INSTALL@ -m 644 templates/cxx/*.mak @ct_dir@/templates/cxx
+	@(for ihhh in templates/cxx/*.mak templates/cxx/*.cpp; do  \
+                  @INSTALL@ -c $${ihhh} @ct_dir@/templates/cxx ; \
+                  echo "@INSTALL@ -c $${ihhh} @ct_dir@/templates/cxx" ; \
+         done ) 
 	chown -R @username@ @ct_dir@/templates
+
