@@ -6,6 +6,9 @@
  *   Cantera objects are stored and referenced by integers - no
  *   pointers are passed to or from the calling application.
  */
+/*
+ * $Id$
+ */
 
 // turn off warnings under Windows
 #ifdef WIN32
@@ -20,7 +23,6 @@
 #include "ThermoFactory.h"
 #include "ctml.h"
 #include "importKinetics.h"
-//#include "converters/ck2ct.h"
 #include "../../clib/src/Storage.h"
 #include "../../clib/src/Cabinet.h"
 #include "InterfaceKinetics.h"
@@ -28,8 +30,10 @@
 
 #include "flib_defs.h"
 
-// Assign storage for the templated classes' static member
-//template<> Cabinet<XML_Node> * Cabinet<XML_Node>::__storage=0;
+// Assert that there is storage 
+// for the templated classes' static member
+// (needed to compile on solaris)
+template<> Cabinet<XML_Node> * Cabinet<XML_Node>::__storage;
 
 inline XML_Node* _xml(const integer* n) {
     return Cabinet<XML_Node>::cabinet()->item(*n);
