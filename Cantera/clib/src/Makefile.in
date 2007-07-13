@@ -91,7 +91,7 @@ clean:
 
 install:
 	@INSTALL@ -d @ct_libdir@
-	@INSTALL@ -m 644 $(CTLIB) @ct_libdir@
+	@INSTALL@ -c -m 644 $(CTLIB) @ct_libdir@
 ifeq ($(do_ranlib),1)
 ifeq ($(shared_ctlib),0)
 	@RANLIB@ @ct_libdir@/$(LIB_NAME).a
@@ -100,7 +100,7 @@ endif
 
 
 win-install:
-	@INSTALL@ ../../../lib/clib.lib @prefix@/lib/cantera
+	@INSTALL@ -c ../../../lib/clib.lib @prefix@/lib/cantera
 
 
 %.d:
