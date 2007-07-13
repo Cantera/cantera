@@ -24,7 +24,7 @@ namespace Cantera {
         virtual ~IncompressibleSolid() {}
 
         bool operator!() { return !m_ok;}
-        bool ready() { return m_ok; }
+        bool ready() const { return m_ok; }
 
         //friend std::ostream& operator<<(std::ostream& s, IdealGasMix& mix) {
         //    std::string r = report(mix, true);

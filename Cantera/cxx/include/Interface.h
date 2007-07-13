@@ -33,7 +33,7 @@ namespace Cantera {
         virtual ~Interface() {}
 
         bool operator!() { return !m_ok;}
-        bool ready() { return m_ok; }
+        bool ready() const { return m_ok; }
 
     protected:
         bool m_ok;
