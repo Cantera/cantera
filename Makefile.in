@@ -220,7 +220,8 @@ ifeq ($(compact_install),0)
 	ln -s @ct_datadir@ @prefix@/cantera/data
 	ln -s @ct_templdir@ @prefix@/cantera/templates
 	ln -s @ct_tutdir@ @prefix@/cantera/tutorials
-	@INSTALL@ -c License.* @prefix@/cantera
+	@INSTALL@ -c License.rtf @prefix@/cantera
+	@INSTALL@ -c License.txt @prefix@/cantera
 endif
 ifneq ($(build_python),0)
 	@INSTALL@ -c tools/src/finish_install.py tools/bin
