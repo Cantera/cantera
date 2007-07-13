@@ -1,7 +1,7 @@
 /**
  *  @file HMWSoln.cpp
- *    Definitions for the %HMWSoln ThermoPhase object, which models concentrated
- *    electrolyte solutions
+ *    Definitions for the %HMWSoln ThermoPhase object, which 
+ *    models concentrated electrolyte solutions
  *    (see \ref thermoprops and \link Cantera::HMWSoln HMWSoln \endlink) .
  *
  * Class %HMWSoln represents a concentrated liquid electrolyte phase which
@@ -22,7 +22,6 @@
 #endif
 //@}
 #include "HMWSoln.h"
-//#include "importCTML.h"
 #include "ThermoFactory.h"
 #include "WaterProps.h"
 #include "WaterPDSS.h"
@@ -423,7 +422,6 @@ namespace Cantera {
       break;
     default:
       throw CanteraError("eosType", "Unknown type");
-      break;
     }
     return res;
   }
@@ -1195,7 +1193,7 @@ namespace Cantera {
     /*
      * Copy the gibbs function into return vector.
      */
-    copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
+    std::copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
     // We don't call the reference state functions, because there may 
     // not be a solution at 1 atm for the water equation.
     //   getEnthalpy_RT_ref(hrt);
@@ -1231,7 +1229,7 @@ namespace Cantera {
     /*
      * Copy the gibbs function into return vector.
      */
-    copy(m_s0_R.begin(), m_s0_R.end(), sr);
+    std::copy(m_s0_R.begin(), m_s0_R.end(), sr);
    // We don't call the reference state functions, because there may 
     // not be a solution at 1 atm for the water equation.
     //getEntropy_R_ref(sr);
@@ -1256,7 +1254,7 @@ namespace Cantera {
    */
   void HMWSoln::getCp_R(doublereal* cpr) const {
     _updateStandardStateThermo();
-    copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
+    std::copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
     //getCp_R_ref(cpr); 
     cpr[0] = m_waterSS->cp_mole();
     cpr[0] /= GasConstant;
@@ -1289,7 +1287,7 @@ namespace Cantera {
     /*
      * Copy the gibbs function into return vector.
      */
-    copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
+    std::copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
   
     double pnow = m_Pcurrent;
     double tnow = temperature();
@@ -1310,7 +1308,7 @@ namespace Cantera {
     /*
      * Copy the gibbs function into return vector.
      */
-    copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
+    std::copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
 
     double pnow = m_Pcurrent;
     double tnow = temperature();
@@ -1332,7 +1330,7 @@ namespace Cantera {
     /*
      * Copy the gibbs function into return vector.
      */
-    copy(m_s0_R.begin(), m_s0_R.end(), sr);
+    std::copy(m_s0_R.begin(), m_s0_R.end(), sr);
    
     double pnow = m_Pcurrent;
     double tnow = temperature();
@@ -1350,7 +1348,7 @@ namespace Cantera {
      * for the current temperature.
      */
     _updateRefStateThermo();
-    copy(m_cp0_R.begin(), m_cp0_R.end(), cpr); 
+    std::copy(m_cp0_R.begin(), m_cp0_R.end(), cpr); 
     double pnow = m_Pcurrent;
     double tnow = temperature();
     m_waterSS->setTempPressure(tnow, m_p0);
@@ -1368,8 +1366,8 @@ namespace Cantera {
   void HMWSoln::getStandardVolumes_ref(doublereal *vol) const {
     double psave = m_Pcurrent;
     _updateStandardStateThermo(m_p0);
-    copy(m_speciesSize.begin(),
-	 m_speciesSize.end(), vol);
+    std::copy(m_speciesSize.begin(),
+	      m_speciesSize.end(), vol);
     if (m_waterSS) {
       double dd = m_waterSS->density();
       vol[0] = molecularWeight(0)/dd;
