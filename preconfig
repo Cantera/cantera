@@ -419,6 +419,11 @@ RANLIB=${RANLIB:="ranlib"}
 # doesn't work, try GNU make.
 MAKE=${MAKE:=make}
 
+# The command to run when "installing". This defaults now to the
+# install-sh bourne shell script that comes with the autoconf package.
+# It can be overridden here.
+INSTALL_BIN=${INSTALL_BIN:=config/install-sh}
+
 # The directory location of the graphviz program, dot.  dot is used
 # for creating the documentation, and for making reaction path
 # diagrams.  if "dot" is in your path, you can leave this unspecified.
@@ -432,6 +437,7 @@ GRAPHVIZDIR=${GRAPHVIZDIR:=" "}
 CXX_EXT=${CXX_EXT:=cpp}
 F77_EXT=${F77_EXT:=f}
 F90_EXT=${F90_EXT:=f90}
+
 
 
 CT_SHARED_LIB=${CT_SHARED_LIB:=clib}
@@ -485,6 +491,7 @@ export F90
 export F90_EXT
 export FFLAGS
 export F90FLAGS
+export INSTALL_BIN
 export LAPACK_NAMES
 export LCXX_FLAGS
 export LCXX_END_LIBS
@@ -529,10 +536,10 @@ export BOOST_THREAD_LIB
 export WITH_HTML_LOG_FILES
 
 #cd config
-chmod +x ./configure 
-chmod +x config/config.guess
-chmod +x config/config.sub
-#chmod +x config/install-sh
+chmod -f +x ./configure 
+chmod -f +x config/config.guess
+chmod -f +x config/config.sub
+#chmod -f +x config/install-sh
 
 #
 # Decide whether to add a prefix variable to the configure line

@@ -982,7 +982,26 @@ AC_SUBST(PIC)
 
 
 dnl Checks for programs.
+#
+#  This script will find and set the $INSTALL 
+#  environmental variable, and set a substitution
+#  rule for that variable
 AC_PROG_INSTALL
+#
+#  HKM -
+#  However, recently, I've had problems with 
+#  the default LINUX /usr/bin/install program wrt
+#  files/directories which are group writeable, but
+#  which are not owned by the current user (this happens
+#  in a group environment). The default config/install-sh
+#  doesn't have this problem. So, I changed the default
+#  install program to config/install-sh, which should work
+#  on all platforms since its a bourne shell script
+INSTALL=${INSTALL_BIN:=config/install-sh}
+echo 'INSTALL program has been set to ' $INSTALL
+#
+#  precompile_headers still relevant?
+#
 precompile_headers=no
 #
 # CFLAGS: flags that get attached to the C compiler
