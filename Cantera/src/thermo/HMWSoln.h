@@ -2852,6 +2852,12 @@ namespace Cantera {
      * -------- Temporary Variables Used in the Activity Coeff Calc
      */
 
+    //! Cropped values of the molalities used in activity
+    //! coefficient calculations
+    mutable vector_fp m_molalitiesCropped;
+
+    //! Boolean indicating whether the molalities are cropped
+    mutable bool m_molalitiesAreCropped;
     
     //! a counter variable for keeping track of symmetric binary
     //! interactions amongst the solute species.
@@ -3169,6 +3175,13 @@ namespace Cantera {
      * m_Counter[n] = counter
      */
     void counterIJ_setup() const;
+
+    //! Calculate the cropped molalities
+    /*!
+     * This is an internal routine that calculates values
+     * of m_molalitiesCropped from m_molalities
+     */
+    void calcMolalitiesCropped() const;
 
     //! Process an XML node called "binarySaltParameters"
     /*!

@@ -46,6 +46,7 @@ namespace Cantera {
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
+    m_molalitiesAreCropped(false),
     m_debugCalc(0)
   {
     for (int i = 0; i < 17; i++) {
@@ -75,6 +76,7 @@ namespace Cantera {
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
+    m_molalitiesAreCropped(false),
     m_debugCalc(0)
   {
     for (int i = 0; i < 17; i++) {
@@ -98,6 +100,7 @@ namespace Cantera {
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
+    m_molalitiesAreCropped(false),
     m_debugCalc(0)
   {
     for (int i = 0; i < 17; i++) {
@@ -127,6 +130,7 @@ namespace Cantera {
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
+    m_molalitiesAreCropped(false),
     m_debugCalc(0)
   {
     /*
@@ -243,6 +247,8 @@ namespace Cantera {
       m_gamma               = b.m_gamma;
 
       m_CounterIJ           = b.m_CounterIJ;
+      m_molalitiesCropped   = b.m_molalitiesCropped;
+      m_molalitiesAreCropped= b.m_molalitiesAreCropped;
       m_debugCalc           = b.m_debugCalc;
     }
     return *this;
@@ -708,7 +714,7 @@ namespace Cantera {
   // ------- Activities and Activity Concentrations
   //
 
-  /**
+  /*
    * This method returns an array of generalized concentrations
    * \f$ C_k\f$ that are defined such that 
    * \f$ a_k = C_k / C^0_k, \f$ where \f$ C^0_k \f$ 
@@ -729,7 +735,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * The standard concentration \f$ C^0_k \f$ used to normalize
    * the generalized concentration. In many cases, this quantity
    * will be the same for all species in a phase - for example,
@@ -751,7 +757,7 @@ namespace Cantera {
     return 1.0 / mvSolvent;
   }
     
-  /**
+  /*
    * Returns the natural logarithm of the standard 
    * concentration of the kth species
    */
@@ -760,7 +766,7 @@ namespace Cantera {
     return log(c_solvent);
   }
     
-  /**
+  /*
    * Returns the units of the standard and general concentrations
    * Note they have the same units, as their divisor is 
    * defined to be equal to the activity of the kth species
@@ -794,7 +800,7 @@ namespace Cantera {
   }    
 
 
-  /**
+  /*
    * Get the array of non-dimensional activities at
    * the current solution temperature, pressure, and
    * solution concentration.
@@ -821,7 +827,7 @@ namespace Cantera {
       exp(m_lnActCoeffMolal[m_indexSolvent]) * xmolSolvent;
   }
 
-  /**
+  /*
    * getMolalityActivityCoefficients()             (virtual, const)
    *
    * Get the array of non-dimensional Molality based
@@ -1149,9 +1155,6 @@ namespace Cantera {
   }
     
   /*
-   *
-   * getPureGibbs()
-   *
    * Get the Gibbs functions for the pure species
    * at the current <I>T</I> and <I>P</I> of the solution.
    * We assume an incompressible constant partial molar
@@ -1168,7 +1171,6 @@ namespace Cantera {
   }
 
   /*
-   *
    * getEnthalpy_RT()        (virtual, const)
    *
    * Get the array of nondimensional Enthalpy functions for the ss
@@ -1747,7 +1749,7 @@ namespace Cantera {
     m_pe.resize(leng, 0.0);
     m_pp.resize(leng, 0.0);
     m_tmpV.resize(leng, 0.0);
-
+    m_molalitiesCropped.resize(leng, 0.0);
 
     int maxCounterIJlen = 1 + (leng-1) * (leng-2) / 2;
 
@@ -1838,6 +1840,7 @@ namespace Cantera {
 
     m_gamma.resize(leng, 0.0);
 
+
     counterIJ_setup();
   }
 
@@ -1854,6 +1857,11 @@ namespace Cantera {
      * State objects' data.
      */
     calcMolalities();
+    /*
+     *  Calculate a cropped set of molalities that will be used
+     *  in all activity coefficent calculations.
+     */
+    calcMolalitiesCropped();
     /*
      * Calculate the stoichiometric ionic charge. This isn't used in the
      * Pitzer formulation.
@@ -1887,9 +1895,134 @@ namespace Cantera {
     s_updatePitzerSublnMolalityActCoeff();
   }
 
+
+  /*
+   * Calculate cropped molalities
+   */
+  void HMWSoln::calcMolalitiesCropped() const {
+    int i, j, k;
+    doublereal Imax = 0.0, Itmp;
+    doublereal Iac_max;
+    m_molalitiesAreCropped = false;
+
+    for (k = 0; k < m_kk; k++) {
+      m_molalitiesCropped[k] = m_molalities[k];
+      double charge = m_speciesCharge[k];
+      Itmp = m_molalities[k] * charge * charge;
+      if (Itmp > Imax) {
+	Imax = Itmp;
+      }
+    }
+    /*
+     * Quick return
+     */
+    if (Imax < m_maxIionicStrength) {
+      return;
+    }
+
+    m_molalitiesAreCropped = true;
+
+    for (i = 1; i < (m_kk - 1); i++) {
+      double charge_i = m_speciesCharge[i];
+      double abs_charge_i = fabs(charge_i);
+      if (charge_i == 0.0) {
+	continue;
+      }
+      for (j = (i+1); j < m_kk; j++) {
+	double charge_j = m_speciesCharge[j];
+	double abs_charge_j = fabs(charge_j);
+	/*
+	 * Find the counterIJ for the symmetric binary interaction
+	 */
+	//n = m_kk*i + j;
+	//counterIJ = m_CounterIJ[n];
+	/*
+	 * Only loop over oppositely charge species
+	 */
+	if (charge_i * charge_j < 0) {
+	  Iac_max = m_maxIionicStrength;
+
+	  if (m_molalitiesCropped[i] > m_molalitiesCropped[j]) {
+	    Imax = m_molalitiesCropped[i] * abs_charge_i * abs_charge_i;
+	    if (Imax > Iac_max) {
+	      m_molalitiesCropped[i] = Iac_max / (abs_charge_i * abs_charge_i);
+	    }
+	    Imax = m_molalitiesCropped[j] * fabs(abs_charge_j * abs_charge_i);
+	    if (Imax > Iac_max) {
+	      m_molalitiesCropped[j] = Iac_max / (abs_charge_j * abs_charge_i);
+	    }
+	  } else {
+	    Imax = m_molalitiesCropped[j] * abs_charge_j * abs_charge_j; 
+	    if (Imax > Iac_max) {
+	      m_molalitiesCropped[j] = Iac_max / (abs_charge_j * abs_charge_j);
+	    }
+	    Imax = m_molalitiesCropped[i] * abs_charge_j * abs_charge_i;
+	    if (Imax > Iac_max) {
+	      m_molalitiesCropped[i] = Iac_max / (abs_charge_j * abs_charge_i);
+	    }
+	  }
+	}
+      }
+    }
+
+    /*
+     * Do this loop 10 times until we have achieved charge neutrality
+     * in the cropped molalities
+     */
+    for (int times = 0; times< 10; times++) {
+      double anion_charge = 0.0;
+      double cation_charge = 0.0;
+      int anion_contrib_max_i = -1;
+      double anion_contrib_max = -1.0;
+      int cation_contrib_max_i = -1;
+      double cation_contrib_max = -1.0;
+      for (i = 0; i < m_kk; i++) {
+	double charge_i = m_speciesCharge[i];
+	if (charge_i < 0.0) {
+	  double anion_contrib =  - m_molalitiesCropped[i] * charge_i;
+	  anion_charge += anion_contrib ;
+	  if (anion_contrib > anion_contrib_max) {
+	    anion_contrib_max = anion_contrib;
+	    anion_contrib_max_i = i;
+	  }
+	} else if (charge_i > 0.0) {
+	  double cation_contrib = m_molalitiesCropped[i] * charge_i;
+	  cation_charge += cation_contrib ;
+	  if (cation_contrib > cation_contrib_max) {
+	    cation_contrib_max = cation_contrib;
+	    cation_contrib_max_i = i;
+	  }
+	}
+      }
+      double total_charge = cation_charge - anion_charge;
+      if (total_charge > 1.0E-8) {
+	double desiredCrop = total_charge/m_speciesCharge[cation_contrib_max_i];
+	double maxCrop =  0.66 * m_molalitiesCropped[cation_contrib_max_i];
+	if (desiredCrop < maxCrop) {
+	  m_molalitiesCropped[cation_contrib_max_i] -= desiredCrop;
+	  break;
+	} else {
+	  m_molalitiesCropped[cation_contrib_max_i] -= maxCrop;
+	}
+      } else if (total_charge < -1.0E-8) {
+	double desiredCrop = total_charge/m_speciesCharge[anion_contrib_max_i];
+	double maxCrop =  0.66 * m_molalitiesCropped[anion_contrib_max_i];
+	if (desiredCrop < maxCrop) {
+	  m_molalitiesCropped[anion_contrib_max_i] -= desiredCrop;
+	  break;
+	} else {
+	  m_molalitiesCropped[anion_contrib_max_i] -= maxCrop;
+	}
+      } else {
+	break;
+      }
+    }
+    
+  }
+
   /*
    * Set up a counter variable for keeping track of symmetric binary
-   * interactactions amongst the solute species.
+   * interactions amongst the solute species.
    *
    * n = m_kk*i + j 
    * m_Counter[n] = counter
@@ -2053,7 +2186,8 @@ namespace Cantera {
     }
 
   }
-  /**
+
+  /*
    * Calculate the Pitzer portion of the activity coefficients.
    *
    * This is the main routine in the whole module. It calculates the
@@ -2082,9 +2216,9 @@ namespace Cantera {
     std::string sni,  snj, snk; 
 
     /*
-     * This is the molality of the species in solution. 
+     * Use the CROPPED molality of the species in solution. 
      */
-    const double *molality = DATA_PTR(m_molalities);
+    const double *molality = DATA_PTR(m_molalitiesCropped);
     /*
      * These are the charges of the species accessed from Constituents.h
      */
@@ -2878,7 +3012,7 @@ namespace Cantera {
 
   /*************************************************************************************/
 
-  /**
+  /*
    * Calculate the Pitzer portion of the temperature
    * derivative of the log activity coefficients.
    * This is an internal routine.
@@ -2906,7 +3040,7 @@ namespace Cantera {
     double d_wateract_dT;
     std::string sni, snj, snk; 
 
-    const double *molality  =  DATA_PTR(m_molalities);
+    const double *molality  =  DATA_PTR(m_molalitiesCropped);
     const double *charge    =  DATA_PTR(m_speciesCharge);
     const double *beta0MX_L =  DATA_PTR(m_Beta0MX_ij_L);
     const double *beta1MX_L =  DATA_PTR(m_Beta1MX_ij_L);
@@ -3650,7 +3784,7 @@ namespace Cantera {
   /*************************************************************************************/
 
 
-  /**
+  /*
    * s_update_d2lnMolalityActCoeff_dT2()         (private, const )
    *
    *   Using internally stored values, this function calculates
@@ -3685,7 +3819,7 @@ namespace Cantera {
 
     std::string sni, snj, snk; 
 
-    const double *molality  =  DATA_PTR(m_molalities);
+    const double *molality  =  DATA_PTR(m_molalitiesCropped);
     const double *charge    =  DATA_PTR(m_speciesCharge);
     const double *beta0MX_LL=  DATA_PTR(m_Beta0MX_ij_LL);
     const double *beta1MX_LL=  DATA_PTR(m_Beta1MX_ij_LL);
@@ -4436,7 +4570,7 @@ namespace Cantera {
 
   /********************************************************************************************/
 
-  /**
+  /*
    * s_Pitzer_dlnMolalityActCoeff_dP()         (private, const )
    *
    *   Using internally stored values, this function calculates
@@ -4456,7 +4590,7 @@ namespace Cantera {
     s_update_dlnMolalityActCoeff_dP();
   }
 
-  /**
+  /*
    * s_update_dlnMolalityActCoeff_dP()         (private, const )
    *
    *   Using internally stored values, this function calculates
@@ -4492,7 +4626,7 @@ namespace Cantera {
     double d_wateract_dP;
     std::string sni, snj, snk; 
 
-    const double *molality  =  DATA_PTR(m_molalities);
+    const double *molality  =  DATA_PTR(m_molalitiesCropped);
     const double *charge    =  DATA_PTR(m_speciesCharge);
     const double *beta0MX_P =  DATA_PTR(m_Beta0MX_ij_P);
     const double *beta1MX_P =  DATA_PTR(m_Beta1MX_ij_P);
@@ -5381,7 +5515,7 @@ namespace Cantera {
     std::string sni, snj;
     calcMolalities();
     const double *charge = DATA_PTR(m_speciesCharge);
-    double *molality = DATA_PTR(m_molalities);
+    double *molality = DATA_PTR(m_molalitiesCropped);
     double *moleF = DATA_PTR(m_tmpV);
     /*
      * Update the coefficients wrt Temperature
@@ -5390,7 +5524,7 @@ namespace Cantera {
     s_updatePitzerCoeffWRTemp(2);
     getMoleFractions(moleF);
 
-    printf("Index  Name                  MoleF      Molality      Charge\n");
+    printf("Index  Name                  MoleF   MolalityCropped  Charge\n");
     for (k = 0; k < m_kk; k++) {
       sni = speciesName(k);
       printf("%2d     %-16s %14.7le %14.7le %5.1f \n",
