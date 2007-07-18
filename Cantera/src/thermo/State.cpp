@@ -1,10 +1,8 @@
 /**
- *
  *  @file State.cpp
  * Definitions for the class State, that manages the independent variables of temperature, mass density,
  * and species mass/mole fraction that define the thermodynamic state (see \ref phases and
  * class \link Cantera::State State\endlink).
- *
  */
 
 /*
@@ -101,7 +99,7 @@ namespace Cantera {
         m_mmw = dot(x, x + m_kk, m_molwts.begin());
         doublereal rmmw = 1.0/m_mmw;
         transform(x, x + m_kk, m_ym.begin(), timesConstant<double>(rmmw));
-        transform(m_y.begin(), m_y.begin() + m_kk, m_molwts.begin(), 
+        transform(m_ym.begin(), m_ym.begin() + m_kk, m_molwts.begin(), 
             m_y.begin(), multiplies<double>());
     }
 
