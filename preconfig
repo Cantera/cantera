@@ -274,7 +274,7 @@ USE_SUNDIALS=${USE_SUNDIALS:='default'}
 # This is where you installed sundials if you used the --prefix option
 # when you configured sundials. If you didn't use the prefix option,
 # then comment this line out.
-SUNDIALS_HOME=${SUNDIALS_HOME:=$HOME/sundials}
+SUNDIALS_HOME=${SUNDIALS_HOME:=""}
 
 
 # It is recommended that you install the newest release of sundials 
@@ -437,6 +437,7 @@ GRAPHVIZDIR=${GRAPHVIZDIR:=" "}
 CXX_EXT=${CXX_EXT:=cpp}
 F77_EXT=${F77_EXT:=f}
 F90_EXT=${F90_EXT:=f90}
+EXE_EXT=${EXE_EXT:=}
 
 
 
