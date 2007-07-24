@@ -181,7 +181,7 @@ ctversion=${CANTERA_VERSION}
 AC_SUBST(ctversion)
 AC_DEFINE_UNQUOTED(CANTERA_VERSION,"$ctversion")
 
-homedir=${HOME}
+homedir="${HOME}"
 
 AC_SUBST(homedir)
 
@@ -326,18 +326,32 @@ if test "x$SUNDIALS_HOME" = "x"; then
 SUNDIALS_LIB_DIR=/usr/local/lib
 SUNDIALS_INC_DIR=/usr/local/include
 else
-SUNDIALS_LIB_DIR=$SUNDIALS_HOME/lib
-SUNDIALS_INC_DIR=$SUNDIALS_HOME/include
+SUNDIALS_LIB_DIR="$SUNDIALS_HOME/lib"
+SUNDIALS_INC_DIR="$SUNDIALS_HOME/include"
 fi
 
 if test "$USE_SUNDIALS" = "default"; then
-ldsave=$LDFLAGS
-LDFLAGS='-L'$SUNDIALS_LIB_DIR' '$ldsave
-
+#
+# HKM Disabled this line as it was causing configure to fail when
+#     SUNDIALS_LIB_DIR had a space in it, despite use of double quotes everywhere
+#ldsave="$LDFLAGS"
+#LDFLAGS='-L'"$SUNDIALS_LIB_DIR"' '"$ldsave"
 AC_CHECK_LIB(sundials_cvodes, CVodeCreate, [use_sundials=1], [use_sundials=0],\
 [-lsundials_cvodes -lsundials_nvecserial -lm])
 
-LDFLAGS=$ldsave
+if test ${use_sundials} = 0 ; then
+  tmpFile="$SUNDIALS_LIB_DIR/libsundials_cvodes.a"
+  if test -f $tmpFile ; then
+     use_sundials=1
+  fi
+fi
+
+if test ${use_sundials} = 1 ; then
+   echo SUNDIALS: succeeded in finding a sundials installation
+else
+  echo SUNDIALS: failed at finding a sundials installation
+fi
+#LDFLAGS=$ldsave
 fi
 
 if test "x$USE_SUNDIALS" = "xy"; then
@@ -867,6 +881,19 @@ else
   echo "setting NUMARRAY_INC_DIR to $NUMARRAY_INC_DIR"
  fi
 fi
+
+if test $BUILD_PYTHON = 2 ; then
+if test x"$NUMARRAY_INC_DIR" = "x" ; then
+if test ! "$USE_NUMERIC" = "y"; then
+  echo 'NUMARRAY is being used but we can find it'
+  if test "x$PYTHON_PACKAGE" = "xdefault"; then
+    echo 'setting python package build back to minimal'
+    BUILD_PYTHON=1
+  fi
+fi
+fi
+fi
+
 AC_SUBST(NUMARRAY_INC_DIR)
 AC_SUBST(NUMARRAY_HOME)
 AC_SUBST(CANTERA_PYTHON_HOME)
