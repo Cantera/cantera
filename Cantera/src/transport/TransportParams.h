@@ -2,7 +2,7 @@
 #define CT_TRANSPORTPARAMS_H
 
 #include <vector>
-using namespace std;
+
 
 #include "ct_defs.h"
 #include "TransportBase.h"
@@ -29,21 +29,21 @@ namespace Cantera {
         vector_fp        mw;
 
         // polynomial fits
-        vector<vector_fp>            visccoeffs;
-        vector<vector_fp>            condcoeffs;
-        vector<vector_fp>            diffcoeffs;
+        std::vector<vector_fp>            visccoeffs;
+        std::vector<vector_fp>            condcoeffs;
+        std::vector<vector_fp>            diffcoeffs;
         vector_fp                    polytempvec;
         
-        vector<vector<int> > poly;
-        vector<vector_fp >   omega22_poly;
-        vector<vector_fp >   astar_poly;
-        vector<vector_fp >   bstar_poly;
-        vector<vector_fp >   cstar_poly;
+        std::vector<std::vector<int> > poly;
+        std::vector<vector_fp >   omega22_poly;
+        std::vector<vector_fp >   astar_poly;
+        std::vector<vector_fp >   bstar_poly;
+        std::vector<vector_fp >   cstar_poly;
 
         vector_fp   zrot;
         vector_fp   crot;
 
-        vector<bool> polar;
+        std::vector<bool> polar;
         vector_fp    alpha;
         vector_fp    fitlist;
         vector_fp    eps;

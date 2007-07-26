@@ -18,8 +18,7 @@
 #include "ct_defs.h"
 
 #include <vector>
-using namespace std;
-using namespace Cantera;
+
 
 
 /////////////////////////////////////////////////////////////////////
