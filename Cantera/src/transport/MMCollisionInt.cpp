@@ -227,10 +227,12 @@ namespace Cantera {
 
     void MMCollisionInt::init(XML_Writer* xml,  
         doublereal tsmin, doublereal tsmax, int log_level) {
+
         ostream& logfile = xml->output();
         m_xml = xml;
         m_loglevel = log_level;
-        m_xml->XML_comment(logfile, "Collision Integral Polynomial Fits");
+        if (m_loglevel > 0) 
+            m_xml->XML_comment(logfile, "Collision Integral Polynomial Fits");
         m_nmin = -1;
         m_nmax = -1;
         char p[200];
@@ -242,20 +244,24 @@ namespace Cantera {
             m_nmin = 0;
             m_nmax = 36;
         }
-        m_xml->XML_item(logfile, "Tstar_min", tstar[m_nmin + 1]);
-        m_xml->XML_item(logfile, "Tstar_max", tstar[m_nmax + 1]);
+        if (m_loglevel > 0)  {
+            m_xml->XML_item(logfile, "Tstar_min", tstar[m_nmin + 1]);
+            m_xml->XML_item(logfile, "Tstar_max", tstar[m_nmax + 1]);
+        }
         m_logTemp.resize(37);
         doublereal rmserr, e22 = 0.0, ea = 0.0, eb = 0.0, ec = 0.0;
 
-        m_xml->XML_open(logfile, "dstar_fits");
-        m_xml->XML_comment(logfile, "Collision integral fits at each "
-            "tabulated T* vs. delta*.\n"
-            "These polynomial fits are used to interpolate between "
-            "columns (delta*)\n in the Monchick and Mason tables."
-            " They are only used for nonzero delta*.");
-        if (log_level < 4) {
-            m_xml->XML_comment(logfile, 
-                "polynomial coefficients not printed (log_level < 4)"); 
+        if (m_loglevel > 0)  {
+            m_xml->XML_open(logfile, "dstar_fits");
+            m_xml->XML_comment(logfile, "Collision integral fits at each "
+                "tabulated T* vs. delta*.\n"
+                "These polynomial fits are used to interpolate between "
+                "columns (delta*)\n in the Monchick and Mason tables."
+                " They are only used for nonzero delta*.");
+            if (log_level < 4) {
+                m_xml->XML_comment(logfile, 
+                    "polynomial coefficients not printed (log_level < 4)"); 
+            }
         }
 
         string indent = "    ";
@@ -270,7 +276,7 @@ namespace Cantera {
                 m_xml->XML_open(logfile, "dstar_fit", p);
                 m_xml->XML_item(logfile, "Tstar", tstar[i+1]);
                 m_xml->XML_writeVector(logfile, indent, "omega22", 
-                    c.size(), DATA_PTR(c)); 
+                    c.size(), DATA_PTR(c));
             }
             m_o22poly.push_back(c);
             if (rmserr > e22) e22 = rmserr;
@@ -298,15 +304,19 @@ namespace Cantera {
 
             if (log_level > 3)
                 m_xml->XML_close(logfile, "dstar_fit");
+        
+
+            if (log_level > 0) {
+                sprintf(p,
+                    "max RMS errors in fits vs. delta*:\n"
+                    "      omega_22 =     %12.6g \n"
+                    "      A*       =     %12.6g \n"
+                    "      B*       =     %12.6g \n"
+                    "      C*       =     %12.6g \n", e22, ea, eb, ec);
+                m_xml->XML_comment(logfile, p);
+                m_xml->XML_close(logfile, "dstar_fits");
+            }
         }
-        sprintf(p,
-            "max RMS errors in fits vs. delta*:\n"
-            "      omega_22 =     %12.6g \n"
-            "      A*       =     %12.6g \n"
-            "      B*       =     %12.6g \n"
-            "      C*       =     %12.6g \n", e22, ea, eb, ec);
-            m_xml->XML_comment(logfile, p);
-            m_xml->XML_close(logfile, "dstar_fits");
     }
 
     MMCollisionInt::~MMCollisionInt() {}
@@ -434,7 +444,7 @@ namespace Cantera {
         w[0]= -1.0;
         rmserr = polyfit(n, logT, DATA_PTR(values), 
             DATA_PTR(w), degree, ndeg, 0.0, o22);
-        if (rmserr > 0.01) {
+        if (m_loglevel > 0 && rmserr > 0.01) {
             char p[100];
             sprintf(p, "Warning: RMS error = %12.6g in omega_22 fit with delta* = %12.6g\n", rmserr, deltastar);
             m_xml->XML_comment(logfile, p);

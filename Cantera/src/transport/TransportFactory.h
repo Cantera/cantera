@@ -138,16 +138,11 @@ namespace Cantera {
 #if defined(THREAD_SAFE_CANTERA)
     static boost::mutex transport_mutex ;
 #endif
+      bool m_verbose;
 
     // The constructor is private; use static method factory() to
     // get a pointer to a factory instance
     TransportFactory();
-
-    /// Read in transport parameters from a database
-    //void readTransportDatabase(ostream& logfile, 
-    //    XML_Node* db, 
-    //    const vector<string>& names, 
-    //    TransportParams& tr);
 
     void getTransportData(const XML_Node* db,  
 			  XML_Node& log, const std::vector<std::string>& names, 
@@ -166,18 +161,6 @@ namespace Cantera {
     void setupMM(std::ostream& flog,  const XML_Node* transport_database, 
 		 thermo_t* thermo, int mode, int log_level, 
 		 TransportParams& tr);
-
-    /// construct a new power-law transport manager
-    //Transport* newPowerTransport(const string& transport_database, 
-    //    phase_t* mix);
-
-    /// construct a new multicomponent transport manager
-    //        Transport* newMultiTransport(const string& fname, 
-    //    thermo_t* thermo, int mode = 0, int log_level = 0);
-
-    /// construct a new mixture-averaged transport server
-    //Transport* newMixTransport(const string& fname, 
-    //    thermo_t* thermo, int mode = 0, int log_level = 0);
 
 
     /// Second-order correction to the binary diffusion coefficients
