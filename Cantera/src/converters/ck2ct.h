@@ -13,7 +13,7 @@ namespace ckr{
 
 namespace pip {
 
-    void ck2ct(string idtag, ckr::CKReader& r);
+    void ck2ct(std::string idtag, ckr::CKReader& r);
 
     int convert_ck(const char* in_file, const char* db_file,
         const char* tr_file, const char* id_tag, bool debug, bool validate);
