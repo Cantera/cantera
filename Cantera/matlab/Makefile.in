@@ -78,71 +78,104 @@ install:
 	@INSTALL_abs@ -d @prefix@/matlab/toolbox/cantera/cantera/1D
 	@INSTALL_abs@ -d @prefix@/matlab/toolbox/cantera/cantera/1D/@Domain1D/private
 	@INSTALL_abs@ -d @prefix@/matlab/toolbox/cantera/cantera/1D/@Stack/private
-	cd cantera; @INSTALL_abs@ *.m *.@mex_ext@ @prefix@/matlab/toolbox/cantera/cantera
-	cd cantera/private; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/private
-	cd cantera/examples; @INSTALL_abs@ *.m @prefix@/matlab/toolbox/cantera/cantera-demos
-	cd cantera/@ThermoPhase; @INSTALL_abs@ \
-            *.m @prefix@/matlab/toolbox/cantera/cantera/@ThermoPhase
-	cd cantera/@ThermoPhase/private; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@ThermoPhase/private
-	cd cantera/@Kinetics; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@Kinetics
-	cd cantera/@Kinetics/private; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@Kinetics/private
-	cd cantera/@Solution; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@Solution
-	cd cantera/@Transport; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@Transport
-	cd cantera/@Transport/private; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@Transport/private
-	cd cantera/@Interface; @INSTALL_abs@ \
-            *.m @prefix@/matlab/toolbox/cantera/cantera/@Interface
-	cd cantera/@Interface/private; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@Interface/private
-	cd cantera/@Mixture; @INSTALL_abs@ \
-            *.m @prefix@/matlab/toolbox/cantera/cantera/@Mixture
-	cd cantera/@Mixture/private; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@Mixture/private
-	cd cantera/@XML_Node; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@XML_Node
-	cd cantera/@Reactor; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@Reactor
-	cd cantera/@Reactor/private; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@Reactor/private
-	cd cantera/@ReactorNet; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@ReactorNet
-	cd cantera/@ReactorNet/private; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@ReactorNet/private
-	cd cantera/@Wall; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@Wall
-	cd cantera/@Wall/private; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@Wall/private
-	cd cantera/@FlowDevice; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@FlowDevice
-	cd cantera/@FlowDevice/private; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@FlowDevice/private
-	cd cantera/@Func; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@Func
-	cd cantera/@Func/private; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/@Func/private
-	cd cantera/1D; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/1D
-	cd cantera/1D/@Domain1D; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/1D/@Domain1D
-	cd cantera/1D/@Domain1D/private; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/1D/@Domain1D/private
-	cd cantera/1D/@Stack; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/1D/@Stack
-	cd cantera/1D/@Stack/private; @INSTALL_abs@ *.m \
-            @prefix@/matlab/toolbox/cantera/cantera/1D/@Stack/private
+	cd cantera; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera;  done )
+	cd cantera/private; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/private;  done )
+	cd cantera/examples; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/cantera-demos;  done )
+	cd cantera/@ThermoPhase; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@ThermoPhase;  done )
+	cd cantera/@ThermoPhase/private; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@ThermoPhase/private;  done )
+	cd cantera/@Kinetics; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@Kinetics;  done )
+	cd cantera/@Kinetics/private; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@Kinetics/private;  done )
+	cd cantera/@Solution; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@Solution;  done )
+	cd cantera/@Transport; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@Transport;  done )
+	cd cantera/@Transport/private; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@Transport/private;  done )
+	cd cantera/@Interface; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@Interface;  done )
+	cd cantera/@Interface/private; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@Interface/private;  done )
+	cd cantera/@Mixture; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@Mixture;  done )
+	cd cantera/@Mixture/private; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@Mixture/private;  done )
+	cd cantera/@XML_Node; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@XML_Node;  done )
+	cd cantera/@Reactor; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@Reactor;  done )
+	cd cantera/@Reactor/private; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@Reactor/private;  done )
+	cd cantera/@ReactorNet; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@ReactorNet;  done )
+	cd cantera/@ReactorNet/private; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@ReactorNet/private;  done )
+	cd cantera/@Wall; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@Wall;  done )
+	cd cantera/@Wall/private; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@Wall/private;  done )
+	cd cantera/@FlowDevice; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@FlowDevice;  done )
+	cd cantera/@FlowDevice/private; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@FlowDevice/private;  done )
+	cd cantera/@Func; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@Func;  done )
+	cd cantera/@Func/private; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@Func/private;  done )
+	cd cantera/1D; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/1D;  done )
+	cd cantera/1D/@Domain1D; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/1D/@Domain1D;  done )
+	cd cantera/1D/@Domain1D/private; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/1D/@Domain1D/private;  done )
+	cd cantera/1D/@Stack; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/1D/@Stack;  done )
+	cd cantera/1D/@Stack/private; \
+            ( for iddd in *.m ; do  \
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/1D/@Stack/private;  done )
 	@INSTALL_abs@ -d @ct_demodir@/matlab
-	@INSTALL_abs@ cantera/examples/*.m @ct_demodir@/matlab
-	@INSTALL_abs@ -d @ct_tutdir@/matlab
-	@INSTALL_abs@ cantera/tutorial/*.m @ct_tutdir@/matlab
+	( for iddd in cantera/examples/*.m ; do  \
+          @INSTALL_abs@ -c $${iddd} @ct_demodir@/matlab;  done )
+	@INSTALL@ -d @ct_tutdir@/matlab
+	( for iddd in cantera/tutorial/*.m ; do  \
+          @INSTALL_abs@ -c $${iddd} @ct_tutdir@/matlab;  done )
 	chown -R @username@ @ct_demodir@/matlab
 	chown -R @username@ @ct_tutdir@/matlab
-
 
 clean:
 	rm -f cantera/private/*.o
