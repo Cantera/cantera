@@ -63,7 +63,7 @@ namespace Cantera {
      * Evaluate the Jacobian at x0. The array of residual values at x0
      * is supplied as an input.
      */ 
-    void MultiJac::eval(doublereal* x0, doublereal* resid0, doublereal rdt)
+        void MultiJac::eval(doublereal* x0, doublereal* resid0, doublereal rdt)
     {
         m_nevals++;
         clock_t t0 = clock();

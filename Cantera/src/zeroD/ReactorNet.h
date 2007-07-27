@@ -21,6 +21,7 @@
 #include "Reactor.h"
 #include "FuncEval.h"
 #include "Integrator.h"
+#include "Array.h"
 
 namespace CanteraZeroD {
 
@@ -124,6 +125,9 @@ namespace CanteraZeroD {
             return sensitivity(k, p);
         }
 
+        void evalJacobian(doublereal t, doublereal* y, 
+            doublereal* ydot, doublereal* p, Array2D* j);
+
         //-----------------------------------------------------
 
         // overloaded methods of class FuncEval
@@ -135,6 +139,15 @@ namespace CanteraZeroD {
         virtual int nparams() { return m_ntotpar; }
 
         int globalComponentIndex(std::string species, int reactor=0);
+
+        void connect(int i, int j) {
+            m_connect[j*m_nr + i] = 1;
+            m_connect[i*m_nr + j] = 1;
+        }
+
+        bool connected(int i, int j) {
+            return (m_connect[m_nr*i + j] == 1);
+        }
 
     protected:
 
@@ -154,6 +167,8 @@ namespace CanteraZeroD {
         bool m_verbose;
         int m_ntotpar;
         vector_int m_nparams;
+        vector_int m_connect;
+        vector_fp m_ydot;
 
     private:
 

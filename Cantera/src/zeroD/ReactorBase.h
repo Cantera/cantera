@@ -89,6 +89,10 @@ namespace CanteraZeroD {
         FlowDevice& inlet(int n = 0);
         FlowDevice& outlet(int n = 0);
 
+        int nInlets() { return m_inlet.size(); }
+        int nOutlets() { return m_outlet.size(); }
+        int nWalls() { return m_wall.size(); }
+
         void addWall(Wall& w, int lr);
         Wall& wall(int n);
 

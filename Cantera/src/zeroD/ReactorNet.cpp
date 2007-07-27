@@ -1,5 +1,7 @@
 #include "ReactorNet.h"
 #include "Integrator.h"
+#include "FlowDevice.h"
+#include "Wall.h"
 
 using namespace std;
 
@@ -48,6 +50,7 @@ namespace CanteraZeroD {
                 m_ntotpar += r->nSensParams();
                 m_nv += nv;
                 m_nreactors++;
+
                 if (m_verbose) {
                     sprintf(buf,"Reactor %d: %d variables.\n",n,nv);
                     writelog(buf);
@@ -58,6 +61,35 @@ namespace CanteraZeroD {
                 if (m_r[n]->type() == FlowReactorType && m_nr > 1) {
                     throw CanteraError("ReactorNet::initialize",
                         "FlowReactors must be used alone.");
+                }
+            }
+        }
+
+        m_connect.resize(m_nr*m_nr,0);
+        m_ydot.resize(m_nv,0.0);
+        int i, j, nin, nout, nw;
+        ReactorBase *r, *rj;
+        for (i = 0; i < m_nr; i++) {
+            r = m_reactors[i];
+            for (j = 0; j < m_nr; j++) {
+                if (i == j) connect(i,j);
+                else {
+                    rj = m_reactors[j];
+                    nin = rj->nInlets();
+                    for (n = 0; n < nin; n++) {
+                        if (&rj->inlet(n).out() == r) connect(i,j);
+                    }
+                    nout = rj->nOutlets();
+                    for (n = 0; n < nout; n++) {
+                        if (&rj->outlet(n).in() == r) connect(i,j);
+                    }
+                    nw = rj->nWalls();
+                    for (n = 0; n < nw; n++) {
+                        if (&rj->wall(n).left() == rj  
+                            && &rj->wall(n).right() == r) connect(i,j);
+                        else if (&rj->wall(n).left() == r  
+                            && &rj->wall(n).right() == rj) connect(i,j);
+                    }
                 }
             }
         }
@@ -114,6 +146,7 @@ namespace CanteraZeroD {
 //             }
 //         }
 //     }
+
         
     void ReactorNet::eval(doublereal t, doublereal* y, 
         doublereal* ydot, doublereal* p) {
@@ -129,6 +162,43 @@ namespace CanteraZeroD {
                     ydot + start, p + pstart);
                 start += m_size[n];
                 pstart += m_nparams[n];
+            }
+        }
+        catch (...) {
+            showErrors();
+            error("Terminating execution.");
+        }
+    }
+
+
+        
+    void ReactorNet::evalJacobian(doublereal t, doublereal* y, 
+        doublereal* ydot, doublereal* p, Array2D* j) {
+        int n, m;
+        doublereal ysave, dy;
+        Array2D& jac = *j;
+
+        // use a try... catch block, since exceptions are not passed
+        // through CVODE, since it is C code
+        try {
+            //evaluate the unperturbed ydot
+            eval(t, y, ydot, p);
+            for (n = 0; n < m_nv; n++) {
+             
+                // perturb x(n)
+                ysave = y[n];
+                dy = m_atol[n] + fabs(ysave)*m_rtol;
+                y[n] = ysave + dy;
+                dy = y[n] - ysave;
+
+                // calculate perturbed residual
+                eval(t, y, DATA_PTR(m_ydot), p);
+
+                // compute nth column of Jacobian
+                for (m = 0; m < m_nv; m++) {
+                    jac(m,n) = (m_ydot[m] - ydot[m])/dy;
+                }
+                y[n] = ysave;
             }
         }
         catch (...) {
