@@ -71,7 +71,7 @@ namespace Cantera {
         virtual void update_C();
 
         virtual void getSpeciesFluxes(int ndim, 
-        doublereal* grad_T, int ldx, const doublereal* grad_X, 
+        const doublereal* grad_T, int ldx, const doublereal* grad_X, 
             int ldf, doublereal* fluxes);
 
         virtual bool init(TransportParams& tr);

@@ -244,7 +244,7 @@ namespace Cantera {
      * \f]
      */
     void MixTransport::getSpeciesFluxes(int ndim, 
-        doublereal* grad_T, int ldx, const doublereal* grad_X, 
+        const doublereal* grad_T, int ldx, const doublereal* grad_X, 
         int ldf, doublereal* fluxes) {
         int n, k;
 

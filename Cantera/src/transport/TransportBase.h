@@ -135,13 +135,34 @@ namespace Cantera {
         //@}
 
 
-        /**
-         * Get the species mass fluxes, given the gradients.
+        //! Get the species diffusive mass fluxes wrt to 
+        //! the mass averaged velocity, 
+        //! given the gradients in mole fraction and temperature
+        /*!
+         *  Units for the returned fluxes are kg m-2 s-1.
+         * 
+         *  @param ndim Number of dimensions in the flux expressions
+         *  @param grad_T Gradient of the temperature
+         *                 (length = ndim)
+         * @param ldx  Leading dimension of the grad_X array 
+         *              (usually equal to m_nsp but not always)
+         * @param grad_X Gradients of the mole fraction
+         *             Flat vector with the m_nsp in the inner loop.
+         *             length = ldx * ndim
+         * @param ldf  Leading dimension of the fluxes array 
+         *              (usually equal to m_nsp but not always)
+         * @param fluxes  Output of the diffusive mass fluxes
+         *             Flat vector with the m_nsp in the inner loop.
+         *             length = ldx * ndim
          */
         virtual void getSpeciesFluxes(int ndim, 
-        doublereal* grad_T, int ldx, const doublereal* grad_X,
-            int ldf, doublereal* fluxes) { err("getSpeciesFluxes"); }
-
+                                      const doublereal* grad_T, 
+                                      int ldx, 
+                                      const doublereal* grad_X,
+                                      int ldf, 
+                                      doublereal* fluxes) { 
+          err("getSpeciesFluxes"); 
+        }
 
         /** 
          * Get the molar fluxes [kmol/m^2/s], given the thermodynamic

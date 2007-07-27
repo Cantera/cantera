@@ -104,7 +104,7 @@ namespace Cantera {
 
 
         virtual void getSpeciesFluxes(int ndim,
-        doublereal* grad_T, int ldx, const doublereal* grad_X,
+        const doublereal* grad_T, int ldx, const doublereal* grad_X,
             int ldf, doublereal* fluxes);
 
         virtual void getMolarFluxes(const doublereal* state1,

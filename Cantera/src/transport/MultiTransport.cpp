@@ -440,7 +440,7 @@ namespace Cantera {
      * 
      */
     void MultiTransport::getSpeciesFluxes(int ndim, 
-        doublereal* grad_T, int ldx, const doublereal* grad_X, 
+        const doublereal* grad_T, int ldx, const doublereal* grad_X, 
         int ldf, doublereal* fluxes) {
 
         // update the binary diffusion coefficients if necessary
