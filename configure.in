@@ -861,20 +861,25 @@ if test -n "$NUMARRAY_INC_DIR" ; then
 else
  NUMARRAY_INC_DIR=""
  if test -n "$NUMARRAY_HOME"; then
-  dir4="$NUMARRAY_HOME/include/python2.4"
-  if test -d $dir4 ; then
-    NUMARRAY_INC_DIR=$dir4
+  dir5="$NUMARRAY_HOME/include/python2.5"
+  if test -d $dir5 ; then
+    NUMARRAY_INC_DIR=$dir5
   else
-    dir3="$NUMARRAY_HOME/include/python2.3"
-    if test -d $dir3 ; then
-      NUMARRAY_INC_DIR=$dir3
+    dir4="$NUMARRAY_HOME/include/python2.4"
+    if test -d $dir4 ; then
+      NUMARRAY_INC_DIR=$dir4
     else
-      dir1="$NUMARRAY_HOME/include/python"
-      if test -d $dir1 ; then
-        NUMARRAY_INC_DIR=$dir1
+      dir3="$NUMARRAY_HOME/include/python2.3"
+      if test -d $dir3 ; then
+        NUMARRAY_INC_DIR=$dir3
       else
-        echo "WARNING: NUMARRAY include dir $dir1 does not exist."
-        NUMARRAY_INC_DIR=$dir1
+        dir1="$NUMARRAY_HOME/include/python"
+        if test -d $dir1 ; then
+          NUMARRAY_INC_DIR=$dir1
+        else
+          echo "WARNING: NUMARRAY include dir $dir1 does not exist."
+          NUMARRAY_INC_DIR=$dir1
+        fi
       fi
     fi
   fi
@@ -882,17 +887,22 @@ else
  fi
 fi
 
-if test $BUILD_PYTHON = 2 ; then
-if test x"$NUMARRAY_INC_DIR" = "x" ; then
-if test ! "$USE_NUMERIC" = "y"; then
-  echo 'NUMARRAY is being used but we can find it'
-  if test "x$PYTHON_PACKAGE" = "xdefault"; then
-    echo 'setting python package build back to minimal'
-    BUILD_PYTHON=1
-  fi
-fi
-fi
-fi
+# this fails, at least on a Mac. By default, numarray include files
+# are installed in the include directory in the Python framework. This
+# does not require setting NUMARRAY_INC_DIR, so testing that it is
+# non-null is not a valid test of whether numarray is
+# installed. Commented out 7/26/07 by DGG.
+#if test $BUILD_PYTHON = 2 ; then
+#if test x"$NUMARRAY_INC_DIR" = "x" ; then
+#if test ! "$USE_NUMERIC" = "y"; then
+#  echo 'NUMARRAY is being used but we can find it'
+#  if test "x$PYTHON_PACKAGE" = "xdefault"; then
+#    echo 'setting python package build back to minimal'
+#    BUILD_PYTHON=1
+#  fi
+#fi
+#fi
+#fi
 
 AC_SUBST(NUMARRAY_INC_DIR)
 AC_SUBST(NUMARRAY_HOME)
@@ -1024,7 +1034,10 @@ AC_PROG_INSTALL
 #  doesn't have this problem. So, I changed the default
 #  install program to config/install-sh, which should work
 #  on all platforms since its a bourne shell script
-INSTALL=${INSTALL_BIN:=config/install-sh}
+
+# problem: install-sh does not handle wildcards in filename.
+# commenting this out (DGG)
+# INSTALL=${INSTALL_BIN:=config/install-sh}
 echo 'INSTALL program has been set to ' $INSTALL
 #
 #  precompile_headers still relevant?
