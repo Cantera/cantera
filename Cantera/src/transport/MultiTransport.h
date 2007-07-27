@@ -97,15 +97,41 @@ namespace Cantera {
         virtual void getBinaryDiffCoeffs(int ld, doublereal* d);
         virtual void getMultiDiffCoeffs(int ld, doublereal* d);
 
-        /// Although this class implements a multicomponent diffusion
-        /// model, it is convenient to be able to compute
-        /// mixture-averaged diffusion coefficients too.
+        //! Although this class implements a multicomponent diffusion
+        //! model, it is convenient to be able to compute
+        //! mixture-averaged diffusion coefficients too.
+        /*!
+         * @param d Mixture averaged diffusion coefficients
+	 *          Length = m_msp, units = m2/sec
+         */
         virtual void getMixDiffCoeffs(doublereal* d);
 
-
+        //! Get the species diffusive mass fluxes wrt to 
+        //! the mass averaged velocity, 
+        //! given the gradients in mole fraction and temperature
+        /*!
+         *  Units for the returned fluxes are kg m-2 s-1.
+         * 
+         *  @param ndim Number of dimensions in the flux expressions
+         *  @param grad_T Gradient of the temperature
+	 *                 (length = ndim)
+	 * @param ldx  Leading dimension of the grad_X array 
+	 *              (usually equal to m_nsp but not always)
+	 * @param grad_X Gradients of the mole fraction
+	 *             Flat vector with the m_nsp in the inner loop.
+	 *             length = ldx * ndim
+	 * @param ldf  Leading dimension of the fluxes array 
+	 *              (usually equal to m_nsp but not always)
+	 * @param fluxes  Output of the diffusive mass fluxes
+	 *             Flat vector with the m_nsp in the inner loop.
+	 *             length = ldx * ndim
+	 */
         virtual void getSpeciesFluxes(int ndim,
-        const doublereal* grad_T, int ldx, const doublereal* grad_X,
-            int ldf, doublereal* fluxes);
+				      const doublereal* grad_T, 
+				      int ldx, 
+				      const doublereal* grad_X,
+				      int ldf,
+				      doublereal* fluxes);
 
         virtual void getMolarFluxes(const doublereal* state1,
             const doublereal* state2, doublereal delta,
