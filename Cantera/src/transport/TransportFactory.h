@@ -1,10 +1,8 @@
 /**
- *
  *  @file TransportFactory.h
  *  Header file defining class TransportFactory
  *     (see \link Cantera::TransportFactory TransportFactory\endlink)
  */
-
 /*
  *  $Author$
  *  $Date$
@@ -31,6 +29,7 @@
 #include <new>
 
 
+
 // Cantera includes
 #include "ct_defs.h"
 #include "TransportBase.h"
@@ -52,7 +51,7 @@ namespace Cantera {
 			 dipoleMoment(-1.0), 
 			 polarizability(-1.0),
 			 rotRelaxNumber(-1.0) {}
-        
+
     std::string speciesName;
     int geometry;
     doublereal wellDepth;
@@ -67,14 +66,17 @@ namespace Cantera {
   class TransportParams;
   class XML_Node;
 
-  /**
-   * The purpose of TransportFactory is to create new instances of
-   * 'transport managers', which are classes that provide transport
-   * properties and are derived from base class
-   * Transport. TransportFactory handles all initialization
+ 
+  //! The purpose of TransportFactory is to create new instances of
+  //! 'transport managers', which are classes that provide transport
+  //! properties and are derived from base class Transport.
+  /*!
+   * TransportFactory handles all initialization
    * required, including evaluation of collision integrals and
    * generating polynomial fits.  Transport managers can also be
-   * created in other ways. @ingroup transportgroup
+   * created in other ways.
+   *
+   * @ingroup transportgroup
    * @ingroup transportProps
    */
   class TransportFactory : FactoryBase {
@@ -103,6 +105,7 @@ namespace Cantera {
       }
       return s_factory;
     }
+
 
     /**
      * Deletes the statically malloced instance.
