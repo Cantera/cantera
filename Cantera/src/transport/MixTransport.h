@@ -53,17 +53,34 @@ namespace Cantera {
 
     virtual int model() { return cMixtureAveraged; }
 
-    // overloaded base class methods
+    //! Viscosity of the mixture
+    /*!
+     *
+     */
     virtual doublereal viscosity();
-
 
     virtual void getSpeciesViscosities(doublereal* visc)
     { update_T();  updateViscosity_T(); copy(m_visc.begin(), m_visc.end(), visc); }
 
+    //! Return the thermal diffusion coefficients
+    /*!
+     * For this approximation, these are all zero.
+     */
     virtual void getThermalDiffCoeffs(doublereal* dt);
+
+    //! returns the mixture thermal conductivity
     virtual doublereal thermalConductivity();
 
     virtual void getBinaryDiffCoeffs(int ld, doublereal* d);
+
+    
+    //! Mixture-averaged diffusion coefficients [m^2/s]. 
+    /*!
+    * For the single species case or the pure fluid case
+    * the routine returns the self-diffusion coefficient.
+    * This is need to avoid a Nan result in the formula
+    * below.
+    */
     virtual void getMixDiffCoeffs(doublereal* d);
     virtual void getMobilities(doublereal* mobil);
     virtual void update_T();
@@ -115,8 +132,8 @@ namespace Cantera {
 
   private:
 
-
-    doublereal pressure_ig() {
+    //! Calculate the pressure from the ideal gas law
+    doublereal pressure_ig() const {
       return (m_thermo->molarDensity() * GasConstant *
 	      m_thermo->temperature());
     }
