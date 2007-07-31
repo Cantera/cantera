@@ -58,7 +58,7 @@ namespace Cantera {
 
 
     virtual void getSpeciesViscosities(doublereal* visc)
-    { updateViscosity_T(); copy(m_visc.begin(), m_visc.end(), visc); }
+    { update_T();  updateViscosity_T(); copy(m_visc.begin(), m_visc.end(), visc); }
 
     virtual void getThermalDiffCoeffs(doublereal* dt);
     virtual doublereal thermalConductivity();
