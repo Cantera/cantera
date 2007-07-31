@@ -234,23 +234,27 @@ namespace Cantera {
         f_eps = xi*xi;
     }
 
-    /**
-     * TransportFactory(): default constructor
-     *     
-     *   The default constructor for this class sets up 
-     *   m_models[], a mapping between the string name
-     *   for a transport model and the integer name.
-     */
-    TransportFactory::TransportFactory() : m_integrals(0), m_verbose(false) {
-        m_models["Mix"] = cMixtureAveraged;
-        m_models["Multi"] = cMulticomponent;
-        m_models["Solid"] = cSolidTransport;
-        m_models["DustyGas"] = cDustyGasTransport;
-        m_models["CK_Multi"] = CK_Multicomponent;
-        m_models["CK_Mix"] = CK_MixtureAveraged;
-        m_models["User"] = cUserTransport;
-        m_models["None"] = None;
-    }
+  /**
+   * TransportFactory(): default constructor
+   *     
+   *   The default constructor for this class sets up 
+   *   m_models[], a mapping between the string name
+   *   for a transport model and the integer name.
+   */
+  TransportFactory::TransportFactory() :
+    m_verbose(false),
+    m_integrals(0)
+    
+  {
+    m_models["Mix"] = cMixtureAveraged;
+    m_models["Multi"] = cMulticomponent;
+    m_models["Solid"] = cSolidTransport;
+    m_models["DustyGas"] = cDustyGasTransport;
+    m_models["CK_Multi"] = CK_Multicomponent;
+    m_models["CK_Mix"] = CK_MixtureAveraged;
+    m_models["User"] = cUserTransport;
+    m_models["None"] = None;
+  }
 
      /**
       * Destructor 

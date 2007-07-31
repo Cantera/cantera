@@ -134,14 +134,23 @@ namespace Cantera {
 
   private:
 
+    //! Static instance of the factor -> This is the only instance of this
+    //! object allowed
     static TransportFactory* s_factory;
 #if defined(THREAD_SAFE_CANTERA)
     static boost::mutex transport_mutex ;
 #endif
-      bool m_verbose;
 
-    // The constructor is private; use static method factory() to
-    // get a pointer to a factory instance
+
+
+    //! The constructor is private; use static method factory() to
+    //! get a pointer to a factory instance
+    /*!
+     *      
+     *   The default constructor for this class sets up 
+     *   m_models[], a mapping between the string name
+     *   for a transport model and the integer name.
+     */
     TransportFactory();
 
     void getTransportData(const XML_Node* db,  
@@ -156,7 +165,7 @@ namespace Cantera {
     void fitCollisionIntegrals(std::ostream& logfile, 
 			       TransportParams& tr);
 
-    MMCollisionInt* m_integrals;
+   
 
     void setupMM(std::ostream& flog,  const XML_Node* transport_database, 
 		 thermo_t* thermo, int mode, int log_level, 
@@ -165,13 +174,23 @@ namespace Cantera {
 
     /// Second-order correction to the binary diffusion coefficients
     void getBinDiffCorrection(doublereal t, 
-			      const TransportParams& tr, int k, int j, doublereal xk, doublereal xj, 
+			      const TransportParams& tr, int k, int j,
+			      doublereal xk, doublereal xj, 
 			      doublereal& fkj, doublereal& fjk);
 
     /// Corrections for polar-nonpolar binary diffusion coefficients
     void makePolarCorrections(int i, int j, 
-			      const TransportParams& tr, doublereal& f_eps, doublereal& f_sigma);
+			      const TransportParams& tr, doublereal& f_eps, 
+			      doublereal& f_sigma);
 
+    //! Boolean indicating whether to turn on verbose printing
+    bool m_verbose;
+   
+    //! Pointer to the collision integrals
+    MMCollisionInt* m_integrals;
+    
+    //! Mapping between between the string name
+    //!   for a transport model and the integer name.
     std::map<std::string, int> m_models;
   };
 
@@ -181,7 +200,8 @@ namespace Cantera {
    * @ingroup transportProps
    */
   inline Transport* newTransportMgr(std::string transportModel="", 
-				    thermo_t* thermo=0, int loglevel=0, TransportFactory* f=0) {
+				    thermo_t* thermo=0, int loglevel=0, 
+				    TransportFactory* f=0) {
     if (f == 0) {
       f = TransportFactory::factory();
     }
