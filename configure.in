@@ -934,6 +934,7 @@ if test "$BUILD_MATLAB_TOOLBOX" != "n"; then
       if test "$MATLAB_CMD" != "none" -a "x$MATLAB_CMD" != "x"; then 
         BUILD_MATLAB=1
         BUILD_CLIB=1
+        echo 'HKM -> BUILD turned on 1' 
       fi
   else
     echo "Matlab command preset to $MATLAB_CMD"
@@ -953,6 +954,7 @@ try, mexext, catch, disp 'mex_unknown', end;
 diary off;
 exit;
 EOF
+  echo 'HKM matlab = ' $MATLAB_CMD "\n"
   ${MATLAB_CMD} -nojvm -nosplash -r testmat &> /dev/null
 #  &> /dev/null`
   if test -f diary; then 
@@ -1516,6 +1518,7 @@ AC_OUTPUT(Makefile \
           test_problems/ChemEquil_gri_pairs/Makefile \
           test_problems/ChemEquil_ionizedGas/Makefile \
           test_problems/ChemEquil_red1/Makefile \
+          test_problems/mixGasTransport/Makefile \
           test_problems/fracCoeff/Makefile \
           test_problems/negATest/Makefile \
           test_problems/ck2cti_test/Makefile \
