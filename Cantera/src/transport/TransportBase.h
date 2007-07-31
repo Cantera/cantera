@@ -88,6 +88,14 @@ namespace Cantera {
     void setIndex(int i) { m_index = i; }
 
 
+    //! Set the number of dimensions to be expected in flux expressions
+    /*!
+     * Internal memory will be set with this value
+     */
+    void setNDim(int ndim) { m_nDim = ndim; }
+
+    //! return the number of dimensions
+    int nDim() const { return m_nDim; }
 
     /**
      * @name Transport Properties
@@ -251,9 +259,9 @@ namespace Cantera {
      * TransportFactory, not by calling the constructor directly.
      * @see TransportFactory
      */
-    Transport(thermo_t* thermo=0) 
-      : m_thermo(thermo), m_ready(false), m_nmin(0), m_index(-1) {}
-
+    Transport(thermo_t* thermo=0, int ndim = 1) 
+      : m_thermo(thermo), m_ready(false), m_nmin(0), m_index(-1), 
+        m_nDim(ndim) {}
 
   protected:
 
@@ -290,7 +298,10 @@ namespace Cantera {
     thermo_t*  m_thermo;  ///< pointer to the object representing the phase 
     bool      m_ready;    ///< true if finalize has been called
     size_t    m_nmin;     ///< number of species
-    int       m_index;  
+    int       m_index;
+
+    //! Number of dimensions used in flux expresions
+    int       m_nDim;
 
 
   private:
