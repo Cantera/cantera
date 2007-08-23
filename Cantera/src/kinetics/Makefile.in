@@ -27,7 +27,7 @@ else
 endif
 
 PIC_FLAG=@PIC@
-
+LOCAL_DEFS = -DDEBUG_SOLVESP
 CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS) $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
 
 # homogeneous kinetics
@@ -35,12 +35,12 @@ CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS) $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
 ifeq ($(do_kinetics),1)
 KINETICS_OBJ=importKinetics.o GRI_30_Kinetics.o KineticsFactory.o \
              GasKinetics.o \
-             FalloffFactory.o ReactionStoichMgr.o Kinetics.o
+             FalloffFactory.o ReactionStoichMgr.o Kinetics.o solveSP.o
 KINETICS_H = importKinetics.h GRI_30_Kinetics.h KineticsFactory.h \
              Kinetics.h GasKinetics.h \
              FalloffFactory.h  ReactionStoichMgr.h reaction_defs.h \
              FalloffMgr.h ThirdBodyMgr.h RateCoeffMgr.h ReactionData.h \
-             RxnRates.h Enhanced3BConc.h StoichManager.h
+             RxnRates.h Enhanced3BConc.h StoichManager.h solveSP.h
 KINETICS   = $(KINETICS_OBJ) $(KINETICS_H)
 endif
 

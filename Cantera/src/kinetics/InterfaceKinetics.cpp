@@ -46,7 +46,8 @@ namespace Cantera {
         m_integrator(0),
         m_finalized(false),
         m_has_coverage_dependence(false),
-        m_has_electrochem_rxns(false)
+        m_has_electrochem_rxns(false),
+	m_ioFlag(0)
     {
         if (thermo != 0) addPhase(*thermo);
         m_kdata = new InterfaceKineticsData;
@@ -59,7 +60,9 @@ namespace Cantera {
     InterfaceKinetics::
     ~InterfaceKinetics(){
         delete m_kdata;
-        delete m_integrator;
+	if (m_integrator) {
+	  delete m_integrator; 
+	}
     }
 
 
@@ -698,6 +701,13 @@ namespace Cantera {
     }
 
 
+  void InterfaceKinetics::setIOFlag(int ioFlag) {
+    m_ioFlag = ioFlag;
+    if (m_integrator) {
+      m_integrator->setIOFlag(ioFlag);
+    }
+  }
+
 //     void InterfaceKinetics::
 //     addGlobalReaction(const ReactionData& r) {
             
@@ -905,31 +915,39 @@ namespace Cantera {
    *
    * Note, a direct solve is carried out under the hood here,
    * to reduce the computational time.
+   *
+   * the integrator object is saved inbetween calls to 
+   * reduce the computational cost of repeated calls.
    */
-  void InterfaceKinetics::solvePseudoSteadyStateProblem() {
-#ifndef DEBUG_HKM
-    advanceCoverages(1000.0);
-#else
+  void InterfaceKinetics::
+  solvePseudoSteadyStateProblem(int ifuncOverride,
+				doublereal timeScaleOverride) {
+    // create our own solver object
+    if (m_integrator == 0) {
+      vector<InterfaceKinetics*> k;
+      k.push_back(this);
+      m_integrator = new ImplicitSurfChem(k);
+      m_integrator->initialize();
+    }
+    m_integrator->setIOFlag(m_ioFlag);
     /*
      * New direct method to go here
      */
-
-#endif
+    m_integrator->solvePseudoSteadyStateProblem(ifuncOverride, timeScaleOverride);
   }
 
-
-    void EdgeKinetics::finalize() {
-        m_rwork.resize(nReactions());
-        int ks = reactionPhaseIndex();
-        if (ks < 0) throw CanteraError("EdgeKinetics::finalize",
-             "no edge phase is present.");
-        m_surf = (SurfPhase*)&thermo(ks);
-        if (m_surf->nDim() != 1) 
-            throw CanteraError("EdgeKinetics::finalize",
-                "expected interface dimension = 1, but got dimension = "
-                +int2str(m_surf->nDim()));
-        m_finalized = true;
-    }
+  void EdgeKinetics::finalize() {
+    m_rwork.resize(nReactions());
+    int ks = reactionPhaseIndex();
+    if (ks < 0) throw CanteraError("EdgeKinetics::finalize",
+				   "no edge phase is present.");
+    m_surf = (SurfPhase*)&thermo(ks);
+    if (m_surf->nDim() != 1) 
+      throw CanteraError("EdgeKinetics::finalize",
+			 "expected interface dimension = 1, but got dimension = "
+			 +int2str(m_surf->nDim()));
+    m_finalized = true;
+  }
 }
 
 

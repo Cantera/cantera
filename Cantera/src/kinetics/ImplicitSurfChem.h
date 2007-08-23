@@ -26,8 +26,11 @@
 #include "Integrator.h"
 #include "InterfaceKinetics.h"
 #include "SurfPhase.h"
+#include "solveSP.h"
 
 namespace Cantera {
+
+  class solveSP;
 
     
   //! Advances the surface coverages of the associated set of SurfacePhase
@@ -115,6 +118,36 @@ namespace Cantera {
      *  @param t1  Final Time -> This is an input
      */
     void integrate0(doublereal t0, doublereal t1);
+
+
+    //! Solve for the pseudo steady-state of the surface problem
+    /*!
+     * Solve for the steady state of the surface problem. 
+     * This is the same thing as the advanceCoverages() function,
+     * but at infinite times.
+     *
+     * Note, a direct solve is carried out under the hood here,
+     * to reduce the computational time.
+     *
+     * @param ifuncOverride 4 values are possible
+     *                    1  SFLUX_INITIALIZE
+     *                    2  SFLUX_RESIDUAL
+     *                    3  SFLUX_JACOBIAN
+     *                    4  SFLUX_TRANSIENT
+     *         The default is -1, which means that the program
+     *         will decide.
+     * @param timeScaleOverride When a psuedo transient is
+     *             selected this value can be used to override
+     *             the default time scale for integration which
+     *             is one.
+     *             When SFLUX_TRANSIENT is used, this is equal to the
+     *             time over which the equations are integrated.
+     *             When SFLUX_INITIALIZE is used, this is equal to the
+     *             time used in the initial transient algorithm,
+     *             before the equation system is solved directly.
+     */
+    void solvePseudoSteadyStateProblem(int ifuncOverride = -1,
+				       doublereal timeScaleOverride = 1.0);
       
 
     // overloaded methods of class FuncEval
@@ -144,6 +177,59 @@ namespace Cantera {
     virtual void getInitialConditions(doublereal t0, 
 				      size_t leny, doublereal* y);
 
+    /*
+     * Get the specifications for the problem from the values
+     * in the ThermoPhase objects for all phases.
+     *
+     *  1) concentrations of all species in all phases, m_concSpecies[]
+     *  2) Temperature and pressure
+     *
+     *
+     *  @param vecConcSpecies Vector of concentrations. The
+     *                  phase concentration vectors are contiguous
+     *                  within the object, in the same order as the
+     *                  unknown vector.
+     */
+    void getConcSpecies(doublereal * const vecConcSpecies) const;
+
+    //! Sets the concentrations within phases that are unknowns in 
+    //! the surface problem
+    /*!
+     * Fills the local concentration vector for all of the
+     * species in all of the phases that are unknowns in the surface
+     * problem.
+     *
+     *  @param vecConcSpecies Vector of concentrations. The
+     *                  phase concentration vectors are contiguous
+     *                  within the object, in the same order as the
+     *                  unknown vector.
+     */
+    void setConcSpecies(const doublereal * const vecConcSpecies);
+
+    //! Sets the state variable in all thermodynamic phases (surface and
+    //! surrounding bulk phases) to the input temperature and pressure
+    /*!
+     *  @param TKelvin input temperature (kelvin)
+     *  @param PresPa   input pressure in pascal.
+     */
+    void setCommonState_TP(double TKelvin, double PresPa);
+
+
+    //! Returns a reference to the vector of pointers to the 
+    //! InterfaceKinetics objects
+    /*!
+     * This should probably go away in the future, as it opens up the 
+     * class.
+     */
+    std::vector<InterfaceKinetics*> & getObjects() {
+      return m_vecKinPtrs;
+    }
+
+    int checkMatch(std::vector<ThermoPhase *> m_vec, ThermoPhase *thPtr);
+
+    void setIOFlag(int ioFlag) {
+      m_ioFlag = ioFlag;
+    }
 
   protected:
         
@@ -161,20 +247,100 @@ namespace Cantera {
      */
     void updateState(doublereal* y);
 
+    //! vector of pointers to surface phases.
     std::vector<SurfPhase*>            m_surf;
-    std::vector<InterfaceKinetics*>    m_kin;
+
+    //! Vector of pointers to bulk phases
+    std::vector<ThermoPhase *>         m_bulkPhases;
+
+    //! vector of pointers to InterfaceKinetics objects
+    std::vector<InterfaceKinetics*>    m_vecKinPtrs;
+
+    //! Vector of number of species in each Surface Phase
     vector_int                    m_nsp;
+
+    //! index of the surface phase in each InterfaceKinetics object
     vector_int                    m_surfindex;
-    int                           m_nsurf;
-    int                           m_nv;
-    //int m_nsp, m_surfindex;
-    Integrator* m_integ;         // pointer to integrator
+
+    
+    vector_int                    m_specStartIndex;
+
+    //! Total number of surface phases.
+    /*!
+     * This is also equal to the number of InterfaceKinetics objects
+     * as there is a 1-1 correspondence between InterfaceKinetics objects
+     * and surface phases.
+     */
+    int m_nsurf;
+
+    //! Total number of surface species in all surface phases
+    /*!
+     * This is the total number of unknowns in m_mode 0 problem
+     */
+    int m_nv;
+
+    int m_numBulkPhases;
+    vector_int  m_nspBulkPhases;
+    int  m_numTotalBulkSpecies;
+    int m_numTotalSpecies;
+
+    std::vector<vector_int> pLocVec;
+    //! Pointer to the cvode integrator
+    Integrator* m_integ;    
     doublereal m_atol, m_rtol;   // tolerances
     doublereal m_maxstep;        // max step size
     vector_fp m_work;
 
+    
+ 
+    /**
+     * Temporary vector - length num species in the Kinetics object.
+     *                    This is the sum of the number of species
+     *                    in each phase included in the kinetics object.
+     */
+    vector_fp m_concSpecies;
+    vector_fp m_concSpeciesSave;
+
+    //std::vector<vector_fp> m_vectorConcKinSpecies;
+    //std::vector<vector_fp> m_vectorNetSpeciesProdRate;
+    /**
+     * Index into the species vector of the kinetics manager,
+     * pointing to the first species from the surrounding medium.
+     */
+    int m_mediumSpeciesStart;
+    /**
+     * Index into the species vector of the kinetics manager,
+     * pointing to the first species from the condensed phase 
+     * of the particles.
+     */
+    int m_bulkSpeciesStart;
+    /**
+     * Index into the species vector of the kinetics manager,
+     * pointing to the first species from the surface 
+     * of the particles
+     */
+    int m_surfSpeciesStart;
+    /**
+     * Pointer to the helper method, Placid, which solves the
+     * surface problem.
+     */
+    solveSP *m_surfSolver;
+
+    //! If true, a common temperature and pressure for all
+    //! surface and bulk phases associated with the surface problem
+    //! is imposed
+    bool m_commonTempPressForPhases;
+
+    //! We make the solveSS class a friend because we need
+    //! to access all of the above information directly.
+    //! Adding the members into the class is also a possibility.
+    friend class solveSS;
+
   private:
 
+    //! Controls the amount of printing from this routine
+    //! and underlying routines.
+    int m_ioFlag;
   };
 }
 
