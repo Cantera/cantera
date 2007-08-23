@@ -16,6 +16,7 @@ all:
 	cd negATest;     @MAKE@ all
 	cd diamondSurf;  @MAKE@ all
 	cd diamondSurf_dupl;  @MAKE@ all
+	cd surfSolverTest;  @MAKE@ all
 	cd ChemEquil_gri_matrix; @MAKE@ all
 	cd ChemEquil_gri_pairs; @MAKE@ all
 	cd ChemEquil_ionizedGas; @MAKE@ all
@@ -45,6 +46,7 @@ test:
 	@ cd negATest;             @MAKE@ -s test
 	@ cd diamondSurf;          @MAKE@ -s test
 	@ cd diamondSurf_dupl;     @MAKE@ -s test
+	@ cd surfSolverTest;       @MAKE@ -s test
 	@ cd ChemEquil_gri_matrix; @MAKE@ -s test
 	@ cd ChemEquil_gri_pairs;  @MAKE@ -s test
 	@ cd ChemEquil_ionizedGas; @MAKE@ -s test
@@ -76,6 +78,7 @@ clean:
 	cd negATest;              $(RM) .depends ; @MAKE@ clean
 	cd diamondSurf;           $(RM) .depends ; @MAKE@ clean
 	cd diamondSurf_dupl;      $(RM) .depends ; @MAKE@ clean
+	cd surfSolverTest;        $(RM) .depends ; @MAKE@ clean
 	cd ChemEquil_gri_matrix;  $(RM) .depends ; @MAKE@ clean
 	cd ChemEquil_gri_pairs;   $(RM) .depends ; @MAKE@ clean
 	cd ChemEquil_ionizedGas;  $(RM) .depends ; @MAKE@ clean
@@ -89,31 +92,32 @@ clean:
 	cd cathermo;                               @MAKE@ clean
 
 depends:
-#	cd cxx_ex;       @MAKE@ depends
-	cd surfkin;      @MAKE@ depends
-	cd fracCoeff;    @MAKE@ depends
-	cd negATest;     @MAKE@ depends
-	cd diamondSurf;  @MAKE@ depends
-	cd diamondSurf_dupl; @MAKE@ depends
+#	cd cxx_ex;               @MAKE@ depends
+	cd surfkin;              @MAKE@ depends
+	cd fracCoeff;            @MAKE@ depends
+	cd negATest;             @MAKE@ depends
+	cd diamondSurf;          @MAKE@ depends
+	cd diamondSurf_dupl;     @MAKE@ depends
+	cd surfSolverTest;       @MAKE@ depends
 	cd ChemEquil_gri_matrix; @MAKE@ depends
-	cd ChemEquil_gri_pairs; @MAKE@ depends
+	cd ChemEquil_gri_pairs;  @MAKE@ depends
 	cd ChemEquil_ionizedGas; @MAKE@ depends
-	cd ChemEquil_red1; @MAKE@ depends
-	cd mixGasTransport; @MAKE@ depends
-	cd multiGasTransport; @MAKE@ depends
+	cd ChemEquil_red1;       @MAKE@ depends
+	cd mixGasTransport;      @MAKE@ depends
+	cd multiGasTransport;    @MAKE@ depends
 ifeq ($(test_cathermo),1)
-	cd pureFluidTest; @MAKE@  depends
+	cd pureFluidTest;        @MAKE@ depends
 endif
 ifeq ($(test_ck),1)
-	cd ck2cti_test;  @MAKE@ depends
+	cd ck2cti_test;          @MAKE@ depends
 endif
 ifeq ($(test_python),1)
-	cd min_python;   @MAKE@ depends
+	cd min_python;           @MAKE@ depends
 endif
 ifeq ($(test_python),2)
-	cd min_python;   @MAKE@ depends
-	cd python;       @MAKE@ depends
+	cd min_python;           @MAKE@ depends
+	cd python;               @MAKE@ depends
 endif
 ifeq ($(test_cathermo),1)
-	cd cathermo;     @MAKE@ depends
+	cd cathermo;             @MAKE@ depends
 endif
