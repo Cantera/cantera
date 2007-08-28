@@ -86,7 +86,7 @@ install:
               @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/private;  done )
 	cd cantera/examples; \
             ( for iddd in *.m ; do  \
-              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/cantera-demos;  done )
+              @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera-demos;  done )
 	cd cantera/@ThermoPhase; \
             ( for iddd in *.m ; do  \
               @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/@ThermoPhase;  done )
