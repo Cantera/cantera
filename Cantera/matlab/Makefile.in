@@ -79,7 +79,7 @@ install:
 	@INSTALL_abs@ -d @prefix@/matlab/toolbox/cantera/cantera/1D/@Domain1D/private
 	@INSTALL_abs@ -d @prefix@/matlab/toolbox/cantera/cantera/1D/@Stack/private
 	cd cantera; \
-            ( for iddd in *.m ; do  \
+            ( for iddd in *.m ctmethods*; do  \
               @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera;  done )
 	cd cantera/private; \
             ( for iddd in *.m ; do  \
