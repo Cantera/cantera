@@ -164,7 +164,7 @@ public:
             return __table[n];
         else {
             throw Cantera::CanteraError("item","index out of range"+Cantera::int2str(n));
-            return __table[0];
+            //return __table[0];
         }
     }
 
@@ -196,5 +196,12 @@ private:
      */
     bool _can_delete;
 };
+
+//! Declaration stating that the storage for the static member
+//! of each instanteated template will exist
+/*!
+ *   The actual storage will be allocated in .cpp files
+ */
+template<class M> Cabinet<M>*       Cabinet<M>::__storage;
 
 #endif

@@ -35,9 +35,6 @@
 using namespace std;
 using namespace Cantera;
 
-// declaration for the static storage
-// -> The definition is located in ctxml.cpp
-template<> Cabinet<XML_Node>*   Cabinet<XML_Node>::__storage;
 
 inline XML_Node* _xml(int i) {
     return Cabinet<Cantera::XML_Node>::cabinet(false)->item(i);
