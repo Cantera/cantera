@@ -680,7 +680,7 @@ namespace Cantera {
 
 
   public:
-    int ioflag;
+    int m_ioflag;
   };
 }
 #endif

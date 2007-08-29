@@ -36,12 +36,12 @@ namespace Cantera {
   /***************************************************************************
    *                    LAPACK PROTOTYPES
    ***************************************************************************/
-#define FSUB_TYPE void
-  extern "C" {
-    extern FSUB_TYPE dgetrf_(int *, int *, double *, int *, int [], int *);
-    extern FSUB_TYPE dgetrs_(char *, int *, int *, double *, int *, int [],
-			     double [], int *, int *, unsigned int);
-  }
+//#define FSUB_TYPE void
+ // extern "C" {
+  //  extern FSUB_TYPE dgetrf_(int *, int *, double *, int *, int [], int *);
+   // extern FSUB_TYPE dgetrs_(char *, int *, int *, double *, int *, int [],
+//			     double [], int *, int *, unsigned int);
+ // }
   /*****************************************************************************
    *   PROTOTYPES and PREPROC DIRECTIVES FOR MISC. ROUTINES 
    *****************************************************************************/
@@ -72,7 +72,7 @@ namespace Cantera {
     m_rtol(1.0E-4),
     m_maxstep(1000),
     m_maxTotSpecies(0),
-    ioflag(0)
+    m_ioflag(0)
   {
  
     m_numSurfPhases = 0;
@@ -240,15 +240,15 @@ namespace Cantera {
     double         t1;
 #endif
 #else
-    if (ioflag > 1) {
-      ioflag = 1;
+    if (m_ioflag > 1) {
+      m_ioflag = 1;
     }
 #endif
 
 #ifdef DEBUG_SOLVESP
 #ifdef DEBUG_SOLVESP_TIME
     Cantera::clockWC wc;
-    if (ioflag)  t1 = wc.secondsWC();
+    if (m_ioflag)  t1 = wc.secondsWC();
 #endif
 #endif
 
@@ -292,8 +292,8 @@ namespace Cantera {
      */
     // m_kin->getNetProductionRates(DATA_PTR(m_netProductionRatesSave));
   
-    if (ioflag) {
-      print_header(ioflag, ifunc, time_scale, DAMPING, reltol, abstol, 
+    if (m_ioflag) {
+      print_header(m_ioflag, ifunc, time_scale, DAMPING, reltol, abstol, 
 		   TKelvin, PGas, DATA_PTR(m_netProductionRatesSave),
 		   DATA_PTR(m_XMolKinSpecies));
     }
@@ -334,7 +334,7 @@ namespace Cantera {
 	if (damp < 1.0) label_factor = 1.0;
 	tmp = calc_t(DATA_PTR(m_netProductionRatesSave), 
 		     DATA_PTR(m_XMolKinSpecies),
-		     &label_t, &label_t_old,  &label_factor, ioflag);
+		     &label_t, &label_t_old,  &label_factor, m_ioflag);
 	if (iter < 10)
 	  inv_t = tmp;
 	else if (tmp > 2.0*inv_t)
@@ -382,12 +382,12 @@ namespace Cantera {
 				    DATA_PTR(m_resid), m_neq);
 
 #ifdef DEBUG_SOLVESP
-      if (ioflag > 1) {
-	printIterationHeader(ioflag, damp, inv_t, t_real, iter, do_time);
+      if (m_ioflag > 1) {
+	printIterationHeader(m_ioflag, damp, inv_t, t_real, iter, do_time);
 	/*
 	 *    Print out the residual and jacobian
 	 */
-	printResJac(ioflag, m_neq, m_Jac, DATA_PTR(m_resid),
+	printResJac(m_ioflag, m_neq, m_Jac, DATA_PTR(m_resid),
 		    DATA_PTR(m_wtResid), resid_norm);
       }
 #endif
@@ -411,14 +411,14 @@ namespace Cantera {
        *    "nan" results from the linear solve.
        */
       else {
-	if (ioflag) {
+	if (m_ioflag) {
 	  printf("solveSurfSS: Zero pivot, assuming converged: %g (%d)\n",
 		 resid_norm, info);
 	}
 	for (jcol = 0; jcol < m_neq; jcol++) m_resid[jcol] = 0.0;
 
 	/* print out some helpful info */
-	if (ioflag > 1) {
+	if (m_ioflag > 1) {
 	  printf("-----\n");
 	  printf("solveSurfProb: iter %d t_real %g delta_t %g\n\n",
 		 iter,t_real, 1.0/inv_t);
@@ -432,7 +432,7 @@ namespace Cantera {
 	}
 	if (do_time) t_real += time_scale;
 #ifdef DEBUG_SOLVESP
-	if (ioflag) {
+	if (m_ioflag) {
 	  printf("\nResidual is small, forcing convergence!\n");
 	}
 #endif
@@ -467,8 +467,8 @@ namespace Cantera {
   
       if (do_time) t_real += damp/inv_t;
 
-      if (ioflag) {
-	printIteration(ioflag, damp, label_d, label_t,  inv_t, t_real, iter,
+      if (m_ioflag) {
+	printIteration(m_ioflag, damp, label_d, label_t,  inv_t, t_real, iter,
 		       update_norm, resid_norm,
 		       DATA_PTR(m_netProductionRatesSave),
 		       DATA_PTR(m_CSolnSP), DATA_PTR(m_resid), 
@@ -485,7 +485,7 @@ namespace Cantera {
 	       update_norm*time_scale/t_real < EXTRA_ACCURACY) )  {
 	    do_time = false;
 #ifdef DEBUG_SOLVESP
-	    if (ioflag > 1) {
+	    if (m_ioflag > 1) {
 	      printf("\t\tSwitching to steady solve.\n");
 	    }
 #endif
@@ -503,7 +503,7 @@ namespace Cantera {
      *  recalculate sdot's at equal site fractions.
      */
     if (not_converged) {
-      if (ioflag) {
+      if (m_ioflag) {
 	printf("#$#$#$# Error in solveSP $#$#$#$ \n");
 	printf("Newton iter on surface species did not converge, "
 	       "update_norm = %e \n", update_norm);
@@ -512,7 +512,7 @@ namespace Cantera {
     }
 #ifdef DEBUG_SOLVESP
 #ifdef DEBUG_SOLVESP_TIME
-    if (ioflag) {
+    if (m_ioflag) {
       printf("\nEnd of solve, time used: %e\n", wc.secondsWC()-t1);
     }
 #endif
@@ -523,12 +523,12 @@ namespace Cantera {
      *        - right now, will always return the last solution
      *          no matter how bad
      */
-    if (ioflag) {
+    if (m_ioflag) {
       fun_eval(DATA_PTR(m_resid), DATA_PTR(m_CSolnSP), DATA_PTR(m_CSolnSPOld),
 	       false, deltaT);
       resid_norm = calcWeightedNorm(DATA_PTR(m_wtResid),
 				    DATA_PTR(m_resid), m_neq);
-      printFinal(ioflag, damp, label_d, label_t,  inv_t, t_real, iter,
+      printFinal(m_ioflag, damp, label_d, label_t,  inv_t, t_real, iter,
 		 update_norm, resid_norm, DATA_PTR(m_netProductionRatesSave),
 		 DATA_PTR(m_CSolnSP), DATA_PTR(m_resid), 
 		 DATA_PTR(m_XMolKinSpecies), DATA_PTR(m_wtSpecies),

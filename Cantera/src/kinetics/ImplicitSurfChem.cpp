@@ -294,7 +294,7 @@ namespace Cantera {
       setConcSpecies(DATA_PTR(m_concSpecies));
     }
 
-    m_surfSolver->ioflag = m_ioFlag; 
+    m_surfSolver->m_ioflag = m_ioFlag; 
 
     // Save the current solution
     copy(m_concSpecies.begin(), m_concSpecies.end(), m_concSpeciesSave.begin());
