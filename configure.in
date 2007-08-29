@@ -1016,9 +1016,16 @@ AC_SUBST(export_name)
 #  mode, this means just about all of Cantera's code
 #  should be position independent.
 #
-if test -z "$PIC"; then PIC='-fPIC'; fi
+if test -z "$PIC"; then
+  case $ac_sys_system in
+    SunOS* )
+      PIC=' ';;
+    * )
+      PIC='-fPIC';;
+  esac
+fi
+echo 'checking for Position independent code command ... ' $PIC
 AC_SUBST(PIC)
-
 
 dnl Checks for programs.
 #

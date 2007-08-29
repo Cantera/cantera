@@ -344,7 +344,7 @@ LCXX_END_LIBS=${LCXX_END_LIBS:="-lm"}
 
 # The compiler flag to use to compile code that will be inserted into
 # shared libraries.
-PIC=${PIC:=-fPIC}
+PIC=${PIC:=""}
 
 # the compiler option to create a shared library from object files
 SHARED=${SHARED:="-dynamic"}
