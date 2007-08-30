@@ -3137,7 +3137,7 @@ fi
       if test "$MATLAB_CMD" != "none" -a "x$MATLAB_CMD" != "x"; then
         BUILD_MATLAB=1
         BUILD_CLIB=1
-        echo 'HKM -> BUILD turned on 1'
+        #echo 'HKM -> BUILD turned on 1'
       fi
   else
     echo "Matlab command preset to $MATLAB_CMD"
@@ -3158,15 +3158,16 @@ try, mexext, catch, disp 'mex_unknown', end;
 diary off;
 exit;
 EOF
-  echo 'HKM matlab = ' $MATLAB_CMD "\n"
   ${MATLAB_CMD} -nojvm -nosplash -r testmat &> /dev/null
 #  &> /dev/null`
   if test -f diary; then
     BUILD_MATLAB=1
+    echo $MATLAB_CMD
     mex_ext=`grep mex* diary`
     rm -f diary
   else
     BUILD_MATLAB=0
+    echo 'failed!'
   fi
   rm -f testmat.m
 else
@@ -3193,7 +3194,7 @@ if test "$BUILD_MATLAB" = "1"; then
   echo "----------------------------  MATLAB -------------------------------"
   echo "MEX file extension: " $mex_ext
   echo "MATLAB command: " $MATLAB_CMD
-  ECHO "--------------------------------------------------------------------"
+  echo "--------------------------------------------------------------------"
   echo " "
 fi
 
@@ -8450,7 +8451,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:8453:" \
+echo "$as_me:8454:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
