@@ -895,7 +895,7 @@ namespace Cantera {
    *      - \f$ \rho_w \f$ is the density of water
    *      - \f$ e \f$ is the electronic charge
    *      - \f$ \epsilon = K \epsilon_o \f$ is the permitivity of water
-   *           where \f$ K \f$ is the dielectric condstant of water,
+   *           where \f$ K \f$ is the dielectric constant of water,
    *           and  \f$ \epsilon_o \f$ is the permitivity of free space.
    *      - \f$ \rho_o \f$ is the density of the solvent in its standard state.
    *
