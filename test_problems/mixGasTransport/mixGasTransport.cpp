@@ -232,11 +232,11 @@ int main(int argc, char** argv) {
       string sss = g.speciesName(k);
       printf("    %15s %13.5g %13.5g\n", sss.c_str(), fluxes(k,0), fluxes(k,1));
       sum1 += fluxes(k,0);
-      if (fabs(fluxes(k,0) > max1)) {
+      if (fabs(fluxes(k,0)) > max1) {
 	max1 = fabs(fluxes(k,0));
       } 
       sum2 += fluxes(k,1);
-      if (fabs(fluxes(k,1) > max2)) {
+      if (fabs(fluxes(k,1)) > max2) {
 	max2 = fabs(fluxes(k,0));
       } 
     }
