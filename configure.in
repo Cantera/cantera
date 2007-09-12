@@ -801,6 +801,28 @@ AC_SUBST(LOCAL_LIBS)
 #-------------------------------------------------
 #      Language Interfaces
 #-------------------------------------------------
+# This define is needed to account for the variability for how
+# static variables in templated classes are defined. Right now
+# this is only turned on for the SunPro compiler on solaris.
+# in that system , you need to declare the static storage variable.
+# with the following line in the include file
+#
+#    template<class M> Cabinet<M>* Cabinet<M>::__storage;
+#
+# Note, on other systems that declaration is treated as a definition
+# and this leads to multiple defines at link time. This config.h addition
+# is needed because there were irreconcilable issues between 
+# the Solaris SunPro compiler and the cygwin gcc compiler.
+#
+case $ac_sys_system in
+  SunOS* )
+      AC_DEFINE(NEEDS_GENERIC_TEMPL_STATIC_DECL)
+      echo 'Turned on special handing of static definitions in templated classes'
+      ;;
+  * )
+      ;;
+esac
+
 
 AC_SUBST(CT_SHARED_LIB)
 
@@ -1157,7 +1179,7 @@ case $ac_sys_system in
   SunOS* )
       case $CXX in 
           CC* ) 
-            LCXX_END_LIBS="$LCXX_END_LIBS"" -lCrun -lCstd" ;;
+            LCXX_END_LIBS="$LCXX_END_LIBS"" -lCrun -lCstd -lfsu" ;;
       esac ;;
   Linux)
       LCXX_END_LIBS=" -lctf2c ""$LCXX_END_LIBS" ;;

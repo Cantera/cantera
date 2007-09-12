@@ -74,6 +74,20 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 //--------- Fonts for reaction path diagrams ----------------------
 #undef RXNPATH_FONT
 
+//---------- C++ Compiler Variations ------------------------------
+
+// This define is needed to account for the variability for how
+// static variables in templated classes are defined. Right now
+// this is only turned on for the SunPro compiler on solaris.
+// in that system , you need to declare the static storage variable.
+// with the following line in the include file
+//
+//    template<class M> Cabinet<M>* Cabinet<M>::__storage;
+//
+// Note, on other systems that declaration is treated as a definition
+// and this leads to multiple defines at link time
+#undef NEEDS_GENERIC_TEMPL_STATIC_DECL
+
 //--------------------- Python ------------------------------------
 // This path to the python executable is created during
 // Cantera's setup. It identifies the python executable 
