@@ -41,11 +41,18 @@ using namespace std;
 using namespace Cantera;
 
 void printDbl(double val) {
-  if (fabs(val) < 5.0E-17) {
+  if (fabs(val) < 1.0E-17) {
     cout << " nil";
   } else {
     cout << val;
   }
+}
+
+static double cutoff (double val, double atol=1.0E-15) {
+  if (fabs(val) < atol) {
+     return 0.0;
+  }
+  return val;
 }
 
 int main(int argc, char** argv) {
@@ -186,7 +193,8 @@ int main(int argc, char** argv) {
     printf(" Dump of the Thermal Diffusivities :\n");
     for (k = 0; k < nsp; k++) {
       string sss = g.speciesName(k);
-      printf("    %15s %13.5g\n", sss.c_str(), thermDiff[k]);
+      double ddd = cutoff(thermDiff[k]);
+      printf("    %15s %13.5g\n", sss.c_str(), ddd);
     }
 
     printf("Viscoscity and thermal Cond vs. T\n");
@@ -230,13 +238,15 @@ int main(int argc, char** argv) {
     double max2 = 0.0;
     for (k = 0; k < nsp; k++) {
       string sss = g.speciesName(k);
-      printf("    %15s %13.5g %13.5g\n", sss.c_str(), fluxes(k,0), fluxes(k,1));
+      double ddd = cutoff(fluxes(k,0));
+      double eee = cutoff(fluxes(k,1));
+      printf("    %15s %13.5g %13.5g\n", sss.c_str(), ddd, eee);
       sum1 += fluxes(k,0);
-      if (fabs(fluxes(k,0) > max1)) {
+      if (fabs(fluxes(k,0)) > max1) {
 	max1 = fabs(fluxes(k,0));
       } 
       sum2 += fluxes(k,1);
-      if (fabs(fluxes(k,1) > max2)) {
+      if (fabs(fluxes(k,1)) > max2) {
 	max2 = fabs(fluxes(k,0));
       } 
     }
