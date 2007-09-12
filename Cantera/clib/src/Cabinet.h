@@ -7,6 +7,7 @@
 
 #include <vector>
 #include "stringUtils.h"
+#include "config.h"
 
 /**
  * Template for classes to hold pointers to objects. The Cabinet<M>
@@ -202,6 +203,8 @@ private:
 /*!
  *   The actual storage will be allocated in .cpp files
  */
-template<class M> Cabinet<M>*       Cabinet<M>::__storage;
+#ifdef NEEDS_GENERIC_TEMPL_STATIC_DECL
+template<class M>  Cabinet<M>*       Cabinet<M>::__storage;
+#endif
 
 #endif
