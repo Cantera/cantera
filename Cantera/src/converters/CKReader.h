@@ -33,14 +33,14 @@ namespace ckr {
         /// Construct a new empty Group object
         Group() : name("<empty>"), index(-1) {}
 
-        Group(const string& nm) : name(nm), index(-1) {}
+        Group(const std::string& nm) : name(nm), index(-1) {}
         
         /// Destructor
         ~Group() {}
         
-        string name;                 //!<  name
+       std::string name;                 //!<  name
         int index;                   //!<  index number
-        map<string, double> comp;    //!<  elemental composition
+        std::map<std::string, double> comp;    //!<  elemental composition
 
         bool operator==(const Group& g) const {
             return (name == g.name);
@@ -51,7 +51,7 @@ namespace ckr {
     };
 
     /// a list (vector) of Groups
-    typedef vector<Group>      groupList;
+    typedef std::vector<Group>      groupList;
 
 
     /**
@@ -88,8 +88,8 @@ namespace ckr {
          * @param logFile file to write logging and error messages to.
          * @return true if no errors encountered, false otherwise.
          */
-        bool read(const string& inputFile,
-            const string& thermoDatabase, const string& logFile);
+        bool read(const std::string& inputFile,
+            const std::string& thermoDatabase, const std::string& logFile);
 
         void write(string outputFile);  ///< not implemented.
 

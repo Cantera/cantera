@@ -5,40 +5,7 @@
 
 // Copyright 2001  California Institute of Technology
 //
-// $Log$
-// Revision 1.20  2005-12-09 17:49:34  dggoodwin
-// removed critical and saturation properties from ThermoPhase
-//
-// Revision 1.19  2005/07/28 23:02:44  hkmoffa
-// Got rid of one warning message.
-//
-// Revision 1.18  2005/07/26 03:56:35  dggoodwin
-// cleanup
-//
-// Revision 1.17  2005/07/25 03:51:21  dggoodwin
-// now recognizes the FORD keyword
-//
-// Revision 1.16  2005/01/07 10:26:43  dggoodwin
-// merged changes from branch
-//
-// Revision 1.15.2.2  2004/12/18 15:16:13  dggoodwin
-// minor cleanup
-//
-// Revision 1.15.2.1  2004/12/18 15:00:02  dggoodwin
-// *** empty log message ***
-//
-//
-// Revision 1.6  2004/07/02 16:48:13  hkmoffa
-// Moved CK_SyntaxError definition to the .h file. It's used in more
-// than one .cpp file.
-//
-// Revision 1.5  2004/05/13 17:45:05  dggoodwin
-// fixed bug in which a species name beginning with M was interpreted as a third body
-//
-// Revision 1.4  2004/05/13 16:58:33  dggoodwin
-// *** empty log message ***
-//
-//
+// $Id$
 
 // turn off warnings about truncating long names under Windows
 #ifdef WIN32
@@ -62,29 +29,29 @@ using namespace std;
 namespace ckr {
 
 
-    static string int2s(int n, string fmt="%d") {
+    static string int2s(int n, std::string fmt="%d") {
         char buf[30];
         sprintf(buf, fmt.c_str(), n);
         return string(buf);
     }
 
     /// Exception class for syntax errors.
-     CK_SyntaxError::CK_SyntaxError(ostream& f, 
-				    const string& s, int linenum) 
+     CK_SyntaxError::CK_SyntaxError(std::ostream& f, 
+				    const std::string& s, int linenum) 
 	 : m_out(f) {
 	 m_msg += "Syntax error: " + s;
 	 if (linenum > 0) m_msg += "  (line " + int2s(linenum) + ")\n";
      }
 
 
-    static int parseGroupString(string str, vector<string>& esyms, 
+    static int parseGroupString(std::string str, std::vector<std::string>& esyms, 
         vector_int& result);
 
     /**
      *  Throw an exception if one of the four lines that must have 
      *  1, 2, 3, or 4 in column 80 do not.
      */
-    static void illegalThermoLine(ostream& f, 
+    static void illegalThermoLine(std::ostream& f, 
         char n, int linenum = -1) 
     {
         throw CK_SyntaxError(f, "column 80 must "
@@ -95,15 +62,15 @@ namespace ckr {
     /**
      *  Throw an exception if number string is bad
      */
-    static void illegalNumber(ostream& f, 
-        string s, int linenum = -1) 
+    static void illegalNumber(std::ostream& f, 
+        std::string s, int linenum = -1) 
     {
         string msg = "illegal number: "+s;
         throw CK_SyntaxError(f, msg, linenum); 
     };
 
 
-    extern void getDefaultAtomicWeights(map<string,double>& weights);
+    extern void getDefaultAtomicWeights(std::map<std::string,double>& weights);
 
     static string d2e(string s) {
         size_t n;
@@ -118,14 +85,34 @@ namespace ckr {
         return r;
     }
 
-    static double de_atof(string s) {
+    static double de_atof(std::string s) {
         string r = d2e(s);
 	//double rval = Cantera::atofCheck(r.c_str()); 
         double rval = atof(r.c_str());
         return rval;
     }
 
-    static double getNumberFromString(string s) {
+  /**
+   *  Check validity of the temperatures defining the 
+   *  temperature ranges for the NASA9 polynomial species thermodynamic
+   *  property fits. 
+   *  @param log     log file output stream
+   *  @param temp    Vector of temperatures
+   */
+  static void checkNASA9Temps(std::ostream& log, vector_fp &temp) {
+    int i;
+    for (i = 1; i < (int) temp.size(); i++) {
+      double tlow = temp[i-1];
+      double thigh = temp[i];
+      if (thigh <= tlow) {
+	string sss =  "error reading temperature";
+	throw CK_SyntaxError(log, sss);
+      }
+    }
+  }
+
+
+    static double getNumberFromString(std::string s) {
         bool inexp = false;
         removeWhiteSpace(s);
         int sz = static_cast<int>(s.size());
@@ -155,8 +142,8 @@ namespace ckr {
      *  @param sp      Species object to add element to
      *  @param log     log file output stream
      */
-    static void addElement(string symbol, double atoms, 
-        Species& sp, ostream& log) {
+  static void addElement(std::string symbol, double atoms, 
+			 Species& sp, std::ostream& log) {
         
         if (atoms != 0.0) {
             Constituent e;
@@ -177,8 +164,8 @@ namespace ckr {
      *  @param tmid    intermediate temperature
      *  @param tmax    maximum temperature
      */
-    static void checkTemps(ostream& log, double tmin, 
-        double tmid, double tmax) 
+    static void checkTemps(std::ostream& log, double tmin, 
+			   double tmid, double tmax) 
     {
         if (tmin == 0.0 || tmid == 0.0 || tmax == 0.0) {
             throw CK_SyntaxError(log, 
@@ -186,8 +173,9 @@ namespace ckr {
         }
     }
 
-    static void getSpecies(string s, 
-        int n, vector<RxnSpecies>& species, bool debug, ostream& log) {
+    static void getSpecies(std::string s, 
+			   int n, vector<RxnSpecies>& species, bool debug, 
+			   std::ostream& log) {
         removeWhiteSpace(s);
         // break string into substrings at the '+' characters separating
         // species symbols
@@ -247,8 +235,9 @@ namespace ckr {
      *  containing the species symbols and stoichiometric coefficients.
      *  @todo allow non-integral stoichiometric coefficients
      */
-    int getGroups(string::const_iterator begin, string::const_iterator end, vector<string>& esyms, 
-        vector<grouplist_t>& rxngroups) 
+    int getGroups(std::string::const_iterator begin, 
+		  std::string::const_iterator end, std::vector<std::string>& esyms, 
+		  std::vector<grouplist_t>& rxngroups) 
     {
         bool ingroup = false;
         rxngroups.clear();
@@ -284,29 +273,36 @@ namespace ckr {
     /**
      * Constructor. Construct a parser for the specified input file.
      */
-    CKParser::CKParser(istream* infile, const string& fname, ostream* log) 
-        : verbose(true), debug(false), m_line (0) {
-        m_ckfile = infile; 
-        m_ckfilename = fname;
-        m_log = log;
-        m_nasafmt = false;
-        m_last_eol = '\n';
-    }
+  CKParser::CKParser(std::istream* infile, const std::string& fname, 
+		     std::ostream* log) :
+    verbose(true), 
+    debug(false),
+    m_line (0),
+    m_nasafmt(false),
+    m_nasa9fmt(false)
+  {
+    m_ckfile = infile; 
+    m_ckfilename = fname;
+    m_log = log;
+    m_last_eol = '\n';
+  }
 
 
-    /**
-     * 
-     *  Get a line from the input file, and return it in string s. If the
-     *  line contains a comment character (!), then return only the
-     *  portion preceding it.  Non-printing characters are replaced by
-     *  spaces.  
-     *  @param s On return, s contains the line read from the
-     *  input file.
-     *  @param comment On return, comment contains the text following the
-     *  comment character on the line, if any.
-     *
-     */
-    void CKParser::getCKLine(string& s, string& comment) {
+ 
+  //    Get a line from the input file, and return it in string s. 
+  /*
+   *  If the line contains a comment character (!), then return only the
+   *  portion preceding it.  Non-printing characters are replaced by
+   *  spaces.  
+   *
+   *  The input file is m_ckfile, an istream.
+   *
+   *  @param s        On return, s contains the line read from the
+   *                  input file.
+   *  @param comment  On return, comment contains the text following the
+   *                  comment character on the line, if any.
+   */
+  void CKParser::getCKLine(std::string& s, std::string& comment) {
 
         // Chemkin comment character    
         const char commentChar = '!';
@@ -398,13 +394,13 @@ namespace ckr {
      *
      */
 
-    void CKParser::putCKLine(string& s, string& comment) {
+    void CKParser::putCKLine(std::string& s, std::string& comment) {
         m_buf = s;
         m_comment = comment;
     }
 
 
-    bool CKParser::advanceToKeyword(const string& kw, const string& stop) {
+    bool CKParser::advanceToKeyword(const std::string& kw, const std::string& stop) {
         string s, c;
         do {
             getCKLine(s,c);
@@ -573,9 +569,9 @@ next:
      *
      */
 
-    bool CKParser::readThermoSection(vector<string>& names, 
-        speciesTable& species, vector_fp& temp, 
-        int& optionFlag, ostream& log) {
+    bool CKParser::readThermoSection(std::vector<std::string>& names, 
+				     speciesTable& species, vector_fp& temp, 
+				     int& optionFlag, std::ostream& log) {
         string s;
         vector<string> toks;
 
@@ -614,38 +610,96 @@ next:
                 }
                 else if (match(toks[itt],"NO_TMID")) {
                     m_nasafmt = true;
-                    log << "\nOption 'NO_TMID' specified. Default midpoint temperature\n";
+                    log << "\nOption 'NO_TMID' specified. Default "
+		      "midpoint temperature\n";
                     log << "will be used for all species.\n\n";
-                }
-                else throw CK_SyntaxError(log, 
+                } else if (match(toks[itt], "NASA9")) {
+		  m_nasa9fmt = true;
+		  log << "Option NASA9 specified: Use new "
+		    "nasa input file format\n\n";
+		} else if (match(toks[itt], "NASA")) {
+		  m_nasa9fmt = false;
+		  log << "Option NASA specified: Use old "
+		    "nasa input file format\n\n";
+                } else throw CK_SyntaxError(log, 
                     "unrecognized THERMO option.", m_line);
             }
         }
 
         // if "THERMO ALL" specified, or if optionFlag is set to HasTempRange,
-        // then the next line must be the 3 default temperatures for the database.
+        // then the next line must contain the default temperatures 
+	// for the database.
 
         if (optionFlag == NoThermoDatabase || optionFlag == HasTempRange) {
             getCKLine(s, comment);
             getTokens(s, static_cast<int>(s.size()), toks);
-            if (toks.size() >= 3) {
+	    if (m_nasa9fmt) {
+	      //
+	      // For NASA9 polynomials, the format is
+	      //   t1  t2 t3 t4 date
+	      // when there are 3 temperature regions
+	      //
+	      int nreg = toks.size() - 2;
+	      if (nreg >= 1) {
+		temp.resize(nreg+1);
+		for (int i = 0; i <= nreg; i++) {
+		  temp[i] = de_atof(toks[i]);
+		}
+		string defaultDate = toks[nreg+1];
+	      } else {
+		throw CK_SyntaxError(log, "Default temp region card is bad", m_line);
+	      }
+	      if (verbose) {
+		log.flags(ios::showpoint | ios::fixed);
+		log.precision(2);
+		log << endl << " Default # of temperature regions: " 
+		    << nreg << endl;
+		log << "          ";
+		for (int i = 0; i <= nreg; i++) {
+		  log << temp[i] << "  ";
+		}
+		log << endl;
+	      }
+	      checkNASA9Temps(log, temp);
+	    } else {
+	      //
+	      // For NASA polynomials, the format is
+	      //   tlow tmid thigh
+	      // There are always 2 temperature regions
+	      //
+	      if (toks.size() >= 3) {
                 tmin = de_atof(toks[0]);
                 tmid = de_atof(toks[1]);
                 tmax = de_atof(toks[2]);
-            }
+	      }
         
-            if (verbose) {
+	      if (verbose) {
                 log.flags(ios::showpoint | ios::fixed);
                 log.precision(2);
                 log << endl << " default Tlow, Tmid, Thigh: " << tmin << "  " 
                     << tmid << "  " << tmax << endl;
-            }
-            checkTemps(log, tmin, tmid, tmax);
-            temp.clear();
-            temp.push_back(tmin);
-            temp.push_back(tmid);
-            temp.push_back(tmax);
+	      }
+	      checkTemps(log, tmin, tmid, tmax);
+	      temp.clear();
+	      temp.push_back(tmin);
+	      temp.push_back(tmid);
+	      temp.push_back(tmax);
+	    }
         }
+
+	/// XXXX BRANCH TO THE DIFFERENT THERMO READERS HERE 
+
+	// Check to see that we expect to be reading a NASA formatted file
+	if (m_nasa9fmt) {
+	  bool ok =  readNASA9ThermoSection(names, species, temp, 
+					    optionFlag, log);
+	  if (!ok) {
+	    throw CK_SyntaxError(log, 
+				 "In NASA parser. However, we expect a NASA9 file format",
+				 -1);
+	  }
+	  return ok;
+	}
 
         // now read in all species records that have names in list 'names'
 
@@ -844,7 +898,7 @@ next:
 
 
     
-    void CKParser::missingAuxData(const string& kw) {
+    void CKParser::missingAuxData(const std::string& kw) {
         throw CK_SyntaxError(*m_log, kw + 
             " keyword must be followed by slash-delimited data.", m_line);
     }
@@ -854,7 +908,7 @@ next:
      *  Parse the REACTION section of the input file, and return
      *  a list of Reaction objects and the units.
      */
-    bool CKParser::readReactionSection(const vector<string>& speciesNames, 
+    bool CKParser::readReactionSection(const std::vector<std::string>& speciesNames, 
         vector<string>& elementNames, reactionList& reactions,
         ReactionUnits& units) 
     {
@@ -952,44 +1006,44 @@ next:
 
             // look for a metadata line
             if (s[0] == '%') {
-                metaDataLine = true;
-                if (eqloc > 0 && eqloc < int(s.size())) {
-                    int ierr, ierp;
-                    vector<grouplist_t> rg, pg;
-                    s[eqloc] = ' ';
-                    ierr = getGroups(s.begin(), s.begin() + eqloc, 
-                        elementNames, rg);
-                    ierp = getGroups(s.begin() + eqloc, s.end(), 
-                        elementNames, pg);
-                    unsigned int nr = 
-			static_cast<unsigned int>(rxn.reactants.size());
-                    unsigned int nratoms = 0;
-                    for (unsigned int ij = 0; ij < nr; ij++) 
-                        nratoms += int(rxn.reactants[ij].number);
-                    if (rg.size() != nratoms) 
-                        throw CK_SyntaxError(*m_log,
-                            " groups not specified for all reactants", m_line);
-                    else if (ierr < 0)
-                        throw CK_SyntaxError(*m_log,
-                            " error in reactant group specification", m_line);
-                    for (unsigned int ir = 0; ir < nr; ir++) {
-                        rxn.reactants[ir].groups = rg[ir];
-                    }
-                    unsigned int np = 
-			static_cast<unsigned int>(rxn.products.size());
-                    unsigned int npatoms = 0;
-                    for (unsigned int ik = 0; ik < np; ik++) 
-                        npatoms += int(rxn.products[ik].number);
-                    if (pg.size() != npatoms) 
-                        throw CK_SyntaxError(*m_log,
-                            " groups not specified for all products", m_line);
-                    else if (ierp < 0)
-                        throw CK_SyntaxError(*m_log,
-                            " error in product group specification", m_line);
-                    for (unsigned int ip = 0; ip < np; ip++) {
-                        rxn.products[ip].groups = pg[ip];
-                    }             
-                }   
+	      metaDataLine = true;
+	      if (eqloc > 0 && eqloc < int(s.size())) {
+		int ierr, ierp;
+		vector<grouplist_t> rg, pg;
+		s[eqloc] = ' ';
+		ierr = getGroups(s.begin(), s.begin() + eqloc, 
+				 elementNames, rg);
+		ierp = getGroups(s.begin() + eqloc, s.end(), 
+				 elementNames, pg);
+		unsigned int nr = 
+		  static_cast<unsigned int>(rxn.reactants.size());
+		unsigned int nratoms = 0;
+		for (unsigned int ij = 0; ij < nr; ij++) 
+		  nratoms += int(rxn.reactants[ij].number);
+		if (rg.size() != nratoms) 
+		  throw CK_SyntaxError(*m_log,
+				       " groups not specified for all reactants", m_line);
+		else if (ierr < 0)
+		  throw CK_SyntaxError(*m_log,
+				       " error in reactant group specification", m_line);
+		for (unsigned int ir = 0; ir < nr; ir++) {
+		  rxn.reactants[ir].groups = rg[ir];
+		}
+		unsigned int np = 
+		  static_cast<unsigned int>(rxn.products.size());
+		unsigned int npatoms = 0;
+		for (unsigned int ik = 0; ik < np; ik++) 
+		  npatoms += int(rxn.products[ik].number);
+		if (pg.size() != npatoms) 
+		  throw CK_SyntaxError(*m_log,
+				       " groups not specified for all products", m_line);
+		else if (ierp < 0)
+		  throw CK_SyntaxError(*m_log,
+				       " error in product group specification", m_line);
+		for (unsigned int ip = 0; ip < np; ip++) {
+		  rxn.products[ip].groups = pg[ip];
+		}             
+	      }   
             }
 
             else if (eqloc >= 0 && eqloc < int(s.size())) {
@@ -1217,7 +1271,8 @@ next:
                     // check for duplicate keyword
                     if (kwindex[name]) {
                         throw CK_SyntaxError(*m_log, 
-                            "duplicate auxiliary data keyword " + name, m_line);
+                            "duplicate auxiliary data keyword "
+					     + name, m_line);
                     }
                     else 
                         kwindex[name] = 1;
@@ -1415,7 +1470,7 @@ next:
 
 
 
-    int parseGroupString(string str, vector<string>& esyms, group_t& result) {
+    int parseGroupString(std::string str, std::vector<std::string>& esyms, group_t& result) {
         bool inSymbol=true;
         string s = str + '-';
         int i;

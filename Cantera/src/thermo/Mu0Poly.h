@@ -139,6 +139,8 @@ namespace Cantera {
     //! Returns an integer representing the type of parameterization
     virtual int reportType() const { return MU0_INTERP; }
 
+    //! Returns an integer representing the species index
+    virtual int speciesIndex() const { return m_index; }
   
     //! Update the properties for this species, given a temperature polynomial
     /*!

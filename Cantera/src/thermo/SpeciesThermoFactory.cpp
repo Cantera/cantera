@@ -23,6 +23,8 @@ using namespace std;
 #include "SimpleThermo.h"
 #include "GeneralSpeciesThermo.h"
 #include "Mu0Poly.h"
+#include "Nasa9PolyMultiTempRegion.h"
+#include "Nasa9Poly1.h"
 
 #include "SpeciesThermoMgr.h"
 #include "speciesThermoTypes.h"
@@ -64,19 +66,21 @@ namespace Cantera {
     for (n = 0; n < ns; n++) {
       XML_Node* spNode = sp[n];
       if (spNode->hasChild("thermo")) {
-    const XML_Node& th = sp[n]->child("thermo");
-    if (th.hasChild("NASA")) has_nasa = 1;
-    if (th.hasChild("Shomate")) has_shomate = 1;
-    if (th.hasChild("const_cp")) has_simple = 1;
-    if (th.hasChild("poly")) {
-      if (th.child("poly")["order"] == "1") has_simple = 1;
-      else throw CanteraError("newSpeciesThermo",
-                  "poly with order > 1 not yet supported");
-    }
-    if (th.hasChild("Mu0")) has_other = 1;
+	const XML_Node& th = sp[n]->child("thermo");
+	if (th.hasChild("NASA")) has_nasa = 1;
+	if (th.hasChild("Shomate")) has_shomate = 1;
+	if (th.hasChild("const_cp")) has_simple = 1;
+	if (th.hasChild("poly")) {
+	  if (th.child("poly")["order"] == "1") has_simple = 1;
+	  else throw CanteraError("newSpeciesThermo",
+				  "poly with order > 1 not yet supported");
+	}
+	if (th.hasChild("Mu0")) has_other = 1;
+	if (th.hasChild("NASA9")) has_other = 1;
+	if (th.hasChild("NASA9MULTITEMP")) has_other = 1;
       } else {
-    throw UnknownSpeciesThermoModel("getSpeciesThermoTypes:",
-                    spNode->attrib("name"), "missing");
+	throw UnknownSpeciesThermoModel("getSpeciesThermoTypes:",
+					spNode->attrib("name"), "missing");
       }
     }
   }
@@ -429,6 +433,58 @@ namespace Cantera {
         sp.install(speciesName, k, SIMPLE, &c[0], tmin, tmax, p0);
     }
 
+   /** 
+     * Install a NASA9 polynomial thermodynamic property
+     * parameterization for species k into a SpeciesThermo instance.
+     * This is called by method installThermoForSpecies if a NASA9
+     * block is found in the XML input.
+     */
+    static void installNasa9ThermoFromXML(std::string speciesName,
+					  SpeciesThermo& sp, int k, 
+					  const std::vector<XML_Node*>& tp)
+    { 				
+      const XML_Node * fptr = tp[0];
+      int nRegTmp = tp.size();
+      int nRegions = 0;
+      vector_fp cPoly;
+      Nasa9Poly1 *np_ptr = 0; 
+      std::vector<Nasa9Poly1 *> regionPtrs;
+      doublereal tmin, tmax, pref;
+      // Loop over all of the possible temperature regions
+      for (int i = 0; i < nRegTmp; i++) {
+	fptr = tp[i];
+	if (fptr) {
+	  if (fptr->name() == "NASA9") {
+	    if (fptr->hasChild("floatArray")) {
+
+	      tmin = fpValue((*fptr)["Tmin"]);
+	      tmax = fpValue((*fptr)["Tmax"]);
+	      pref = fpValue((*fptr)["P0"]);
+
+	      getFloatArray(fptr->child("floatArray"), cPoly, false);
+	      if (cPoly.size() != 9) {
+		throw CanteraError("installNasa9ThermoFromXML",
+				   "Expected 9 coeff polynomial");
+	      }
+	      np_ptr = new Nasa9Poly1(k, tmin, tmax, pref,
+				      DATA_PTR(cPoly));
+	      regionPtrs.push_back(np_ptr);
+	      nRegions++;
+	    } 
+	  }
+	}
+      }
+      if (nRegions == 0) {
+	throw UnknownSpeciesThermoModel("installThermoForSpecies", 
+					speciesName, "  " );
+      } else if (nRegions == 1)  {
+	sp.install_STIT(np_ptr);
+      } else {
+	Nasa9PolyMultiTempRegion*  npMulti_ptr = new  Nasa9PolyMultiTempRegion(regionPtrs);
+	sp.install_STIT(npMulti_ptr);
+      }
+    }
+
     /**
      * Install a species thermodynamic property parameterization
      * for one species into a species thermo manager.
@@ -436,60 +492,71 @@ namespace Cantera {
      * @param s XML node specifying species
      * @param spthermo species thermo manager
      */
-    void SpeciesThermoFactory::
-    installThermoForSpecies(int k, const XML_Node& s, 
-        SpeciesThermo& spthermo) {
+  void SpeciesThermoFactory::
+  installThermoForSpecies(int k, const XML_Node& s, 
+			  SpeciesThermo& spthermo) {
     /*
      * Check to see that the species block has a thermo block
      * before processing. Throw an error if not there.
      */
     if (!(s.hasChild("thermo"))) {
       throw UnknownSpeciesThermoModel("installThermoForSpecies", 
-                      s["name"], "<nonexistent>");
+				      s["name"], "<nonexistent>");
     }
     const XML_Node& thermo = s.child("thermo");
     const std::vector<XML_Node*>& tp = thermo.children();
     int nc = static_cast<int>(tp.size());
     if (nc == 1) {
-            const XML_Node* f = tp[0];
-            if (f->name() == "Shomate") {
-                installShomateThermoFromXML(s["name"], spthermo, k, f, 0);
-            }
-            else if (f->name() == "const_cp") {
-                installSimpleThermoFromXML(s["name"], spthermo, k, *f);
-            }
-            else if (f->name() == "NASA") {
-                installNasaThermoFromXML(s["name"], spthermo, k, f, 0);
-            }
-        else if (f->name() == "Mu0") {
-          installMu0ThermoFromXML(s["name"], spthermo, k, f);
-        }
-            else {
-                throw UnknownSpeciesThermoModel("installThermoForSpecies", 
-                        s["name"], f->name());
-            }
+      const XML_Node* f = tp[0];
+      if (f->name() == "Shomate") {
+	installShomateThermoFromXML(s["name"], spthermo, k, f, 0);
+      }
+      else if (f->name() == "const_cp") {
+	installSimpleThermoFromXML(s["name"], spthermo, k, *f);
+      }
+      else if (f->name() == "NASA") {
+	installNasaThermoFromXML(s["name"], spthermo, k, f, 0);
+      }
+      else if (f->name() == "Mu0") {
+	installMu0ThermoFromXML(s["name"], spthermo, k, f);
+      }
+      else if (f->name() == "NASA9") {
+	installNasa9ThermoFromXML(s["name"], spthermo, k, tp);
+      } 
+      else {
+	throw UnknownSpeciesThermoModel("installThermoForSpecies", 
+					s["name"], f->name());
+      }
     }
     else if (nc == 2) {
-            const XML_Node* f0 = tp[0];
-            const XML_Node* f1 = tp[1];
-            if (f0->name() == "NASA" && f1->name() == "NASA") {
-                installNasaThermoFromXML(s["name"], spthermo, k, f0, f1);
-            } 
-            else if (f0->name() == "Shomate" && f1->name() == "Shomate") {
-                installShomateThermoFromXML(s["name"], spthermo, k, f0, f1);
-            } 
-            else {
-                throw UnknownSpeciesThermoModel("installThermoForSpecies", s["name"], 
-                        f0->name() + " and "
-                        + f1->name());
-            }
+      const XML_Node* f0 = tp[0];
+      const XML_Node* f1 = tp[1];
+      if (f0->name() == "NASA" && f1->name() == "NASA") {
+	installNasaThermoFromXML(s["name"], spthermo, k, f0, f1);
+      } 
+      else if (f0->name() == "Shomate" && f1->name() == "Shomate") {
+	installShomateThermoFromXML(s["name"], spthermo, k, f0, f1);
+      } 
+      else if (f0->name() == "NASA9" && f1->name() == "NASA9") {
+	installNasa9ThermoFromXML(s["name"], spthermo, k, tp);
+      } else {
+	throw UnknownSpeciesThermoModel("installThermoForSpecies", s["name"], 
+					f0->name() + " and "
+					+ f1->name());
+      }
     }
-    else {
-        throw UnknownSpeciesThermoModel("installThermoForSpecies", s["name"], 
-                        "multiple");
-    }
-    }
+    else if (nc >= 2) {
+      const XML_Node* f0 = tp[0];
+      if (f0->name() == "NASA9") {
+	installNasa9ThermoFromXML(s["name"], spthermo, k, tp);
+      } else {
+	throw UnknownSpeciesThermoModel("installThermoForSpecies", s["name"], 
+					"multiple");
+      }
+    } else {
+	throw UnknownSpeciesThermoModel("installThermoForSpecies", s["name"], 
+					"multiple");
+      }
+  }
 
 }
-
-

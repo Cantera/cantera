@@ -19,6 +19,7 @@
 #include "ct_defs.h"
 #include "SpeciesThermoMgr.h"
 #include "NasaPoly1.h"
+#include "Nasa9Poly1.h"
 #include "speciesThermoTypes.h"
 //#include "polyfit.h"
 
@@ -87,6 +88,14 @@ namespace Cantera {
 			 const doublereal* c, 
 			 doublereal minTemp, doublereal maxTemp,
 			 doublereal refPressure);
+
+    //! Install a new species thermodynamic property
+    //! parameterization for one species.
+    /*!
+     * @param stit_ptr Pointer to the SpeciesThermoInterpType object
+     *          This will set up the thermo for one species
+     */
+    virtual void install_STIT(SpeciesThermoInterpType *stit_ptr);
 
     //! Like update(), but only updates the single species k.
     /*!

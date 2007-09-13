@@ -32,14 +32,14 @@ CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS) $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
 # Basic Cantera Thermodynamics Object Files
 THERMO_OBJ = State.o Elements.o Constituents.o Phase.o \
              ThermoPhase.o IdealGasPhase.o ConstDensityThermo.o \
-             SpeciesThermoFactory.o ConstCpPoly.o \
+             SpeciesThermoFactory.o ConstCpPoly.o Nasa9Poly1.o Nasa9PolyMultiTempRegion.o \
              Mu0Poly.o GeneralSpeciesThermo.o SurfPhase.o \
              ThermoFactory.o phasereport.o @phase_object_files@
 
 THERMO_H   = State.h Elements.h Constituents.h Phase.h mix_defs.h \
              ThermoPhase.h IdealGasPhase.h ConstDensityThermo.h \
              SpeciesThermoFactory.h ThermoFactory.h \
-             NasaPoly1.h NasaPoly2.h NasaThermo.h \
+             NasaPoly1.h NasaPoly2.h NasaThermo.h Nasa9Poly1.h Nasa9PolyMultiTempRegion.h \
              ShomateThermo.h ShomatePoly.h ConstCpPoly.h \
              SimpleThermo.h SpeciesThermoMgr.h \
              SpeciesThermoInterpType.h \

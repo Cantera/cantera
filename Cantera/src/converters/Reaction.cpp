@@ -110,7 +110,7 @@ namespace ckr {
  *  not participate in the reaction.
  */
 
-double Reaction::stoichCoefficient(const string& s) const {
+double Reaction::stoichCoefficient(const std::string& s) const {
     int k;
     int nr = static_cast<int>(reactants.size());
     for (k = 0; k < nr; k++) 

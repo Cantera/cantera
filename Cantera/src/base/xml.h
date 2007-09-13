@@ -124,7 +124,13 @@ namespace Cantera {
         XML_Node* parent() const { return m_parent; }
         XML_Node* setParent(XML_Node* p) { m_parent = p; return p; }
 
-        bool hasChild(std::string ch) const {
+        //! Tests whether the current node has a child node with a particular name
+        /*!
+         * @param ch  Name of the child node to test
+         *
+         * @return Returns true if the child node exists, false otherwise.
+         */
+        bool hasChild(const std::string ch) const {
             return (m_childindex.find(ch) != m_childindex.end());
         }
         bool hasAttrib(std::string a) const {

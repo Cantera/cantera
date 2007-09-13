@@ -188,6 +188,16 @@ namespace Cantera {
       m_p0 = refPressure;
     }
 
+    //! Install a new species thermodynamic property
+    //! parameterization for one species.
+    /*!
+     * @param stit_ptr Pointer to the SpeciesThermoInterpType object
+     *          This will set up the thermo for one species
+     */
+    virtual void install_STIT(SpeciesThermoInterpType *stit_ptr) {
+      throw CanteraError("install_STIT", "not implemented");
+    }
+
     //! Compute the reference-state properties for all species.
     /*!
      * Given temperature T in K, this method updates the values of

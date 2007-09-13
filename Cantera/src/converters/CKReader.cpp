@@ -42,8 +42,8 @@ namespace ckr {
  *  @return true if no errors were encountered, false otherwise
  */
 
-bool CKReader::read(const string& inputFile, const string& thermoDatabase, 
-    const string& logfile) {
+bool CKReader::read(const std::string& inputFile, const std::string& thermoDatabase, 
+		    const std::string& logfile) {
 
     clock_t t0, t1;
 
@@ -174,8 +174,9 @@ bool CKReader::read(const string& inputFile, const string& thermoDatabase,
     string nm;
     vector<string> undef;
     bool allsp = (speciesSymbols[0] == "<ALL>");
-    if (hasthermo && parser.readThermoSection(speciesSymbols,
-        speciesData, temp, optionFlag, log)) {
+    if (hasthermo && 
+	parser.readThermoSection(speciesSymbols,
+				 speciesData, temp, optionFlag, log)) {
         if (allsp) {
             nsp = static_cast<int>(speciesData.size()); 
             for (k = 0; k < nsp; k++) {
@@ -294,7 +295,7 @@ bool CKReader::read(const string& inputFile, const string& thermoDatabase,
 
 
 /// print a summary of all reactions to the log file
-bool CKReader::writeReactions(ostream& log) {
+bool CKReader::writeReactions(std::ostream& log) {
 
     bool ok = true;
     //    int ns = species.size();
@@ -356,7 +357,7 @@ bool CKReader::writeReactions(ostream& log) {
 
 
 /// validate the species
-bool CKReader::validateSpecies(ostream& log) {
+bool CKReader::validateSpecies(std::ostream& log) {
     int nel = static_cast<int>(elements.size());
     int nsp = static_cast<int>(species.size());
     double nm, tol;
@@ -420,7 +421,7 @@ bool CKReader::validateSpecies(ostream& log) {
 
 
 /// validate the reactions
-bool CKReader::validateReactions(ostream& log) {
+bool CKReader::validateReactions(std::ostream& log) {
 
     bool ok = true;
     //    int ns = species.size();
@@ -479,7 +480,7 @@ bool CKReader::validateReactions(ostream& log) {
  *  - The heat capacity at Tmax is not greater than the equipartition limit
  *    for the number of atoms in the molecule
  */ 
-bool checkThermo(ostream& log, speciesList& sp, double tol) {
+bool checkThermo(std::ostream& log, speciesList& sp, double tol) {
     const double dt = 0.0001;
     double t, cp0, h0, s0, cp1, h1, s1;
     int nsp = static_cast<int>(sp.size());
@@ -635,8 +636,8 @@ bool checkThermo(ostream& log, speciesList& sp, double tol) {
      * @return true if all reactions balance
      * @todo use reaction number stored in reaction object
      */
-    bool checkBalance(ostream& f, speciesTable& speciesData, 
-        reactionList& r, vector<int>& unbalanced, double tolerance) 
+    bool checkBalance(std::ostream& f, speciesTable& speciesData, 
+        reactionList& r, std::vector<int>& unbalanced, double tolerance) 
     {
         int nrxn = static_cast<int>(r.size());
         string rname, pname;

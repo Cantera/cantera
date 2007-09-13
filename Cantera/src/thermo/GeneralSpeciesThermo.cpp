@@ -158,6 +158,30 @@ namespace Cantera {
 	m_thigh_min = min(maxTemp, m_thigh_min);
     }
 
+  // Install a new species thermodynamic property
+  // parameterization for one species.
+  /*
+   * @param stit_ptr Pointer to the SpeciesThermoInterpType object
+   *          This will set up the thermo for one species
+   */
+  void GeneralSpeciesThermo::install_STIT(SpeciesThermoInterpType *stit_ptr) {
+    /*
+     * Resize the arrays if necessary, filling the empty
+     * slots with the zero pointer.
+     */
+    int index = stit_ptr->speciesIndex();
+    if (index > m_kk - 1) {
+      m_sp.resize(index+1, 0);
+      m_kk = index+1;
+    }
+    AssertThrow(m_sp[index] == 0, 
+		"Index position isn't null, duplication of assignment: " + int2str(index));
+    /*
+     *  Now, simply assign the position
+     */
+    m_sp[index] = stit_ptr;
+  }
+  
     /**
      *  Update the properties for one species.
      */

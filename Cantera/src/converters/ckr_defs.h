@@ -14,15 +14,15 @@
 #include <string>
 #include <iostream>
 #include <vector>
-using namespace std;
+//using namespace std;
 
 //#include "../ctvector.h"
 
 /// the namespace for the CKReader packaage
 namespace ckr {
 
-    typedef vector<double> vector_fp;
-    typedef vector<double> vector_int;
+    typedef std::vector<double> vector_fp;
+    typedef std::vector<double> vector_int;
     //typedef vector<double> vector_fp;
 
     // exceptions
@@ -32,11 +32,11 @@ namespace ckr {
             m_msg = "";
         }
         virtual ~CK_Exception() {}
-        string errorMessage() {
+        std::string errorMessage() {
             return m_msg;
         }
     protected:
-        string m_msg;
+        std::string m_msg;
     };
 
     const double UNDEF = -9999.1234;

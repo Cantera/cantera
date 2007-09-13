@@ -212,6 +212,16 @@ namespace Cantera {
    
     }
 
+    //! Install a new species thermodynamic property
+    //! parameterization for one species.
+    /*!
+     * @param stit_ptr Pointer to the SpeciesThermoInterpType object
+     *          This will set up the thermo for one species
+     */
+    virtual void install_STIT(SpeciesThermoInterpType *stit_ptr) {
+      throw CanteraError("install_STIT", "not implemented");
+    }
+
     //! Like update(), but only updates the single species k.
     /*!
      * @param k       species index
@@ -352,7 +362,7 @@ namespace Cantera {
      * @param index  Species index
      */
     virtual int reportType(int index) const { return SHOMATE; }
-
+  
     /*!
      * This utility function reports back the type of 
      * parameterization and all of the parameters for the 
