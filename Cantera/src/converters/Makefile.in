@@ -20,7 +20,7 @@ PIC_FLAG=@PIC@
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
 
 OBJS = atomicWeightDB.o CKParser.o CKReader.o Reaction.o ckr_utils.o \
-       thermoFunctions.o writelog.o ck2ct.o Species.o
+       thermoFunctions.o writelog.o ck2ct.o Species.o NASA9Parser.o
 # ck2ctml.o
 CONV_H = CKReader.h      thermoFunctions.h \
          Element.h    Reaction.h      CKParser.h    \
