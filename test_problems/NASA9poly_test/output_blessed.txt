@@ -1,0 +1,6 @@
+Comparisons of H2 calculated via several equivalent classes:
+1500 K and 1 atm:
+         NasaThermo   Nasa9   Nasa9_4reg 
+  cp/R:      3.8823      3.8823      3.8823
+  H/RT:     2.91015     2.91015     2.91015
+  S/R:     21.5255     21.5255     21.5255

@@ -1,0 +1,10 @@
+Makefile
+ck2cti.log
+ct2ctml.log
+diff_test.out
+runtest
+sample.cti
+samplea.cti
+sampleb.cti
+testdest.xml
+testdest2.xml
