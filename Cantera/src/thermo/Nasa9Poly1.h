@@ -196,7 +196,13 @@ namespace Cantera {
      * @param thigh     output - Maximum temperature
      * @param pref      output - reference pressure (Pa).
      * @param coeffs    Vector of coefficients used to set the
-     *                  parameters for the standard state.
+     *                  parameters for the standard state. There are
+     *                  12 of them, designed to be compatible
+     *                  with the multiple temperature formulation.
+     *      coeffs[0] is equal to one.
+     *      coeffs[1] is min temperature
+     *      coeffs[2] is max temperature
+     *      coeffs[3+i] from i =0,9 are the coefficients themselves
      */
     virtual void reportParameters(int &n, int &type,
 				  doublereal &tlow, doublereal &thigh,

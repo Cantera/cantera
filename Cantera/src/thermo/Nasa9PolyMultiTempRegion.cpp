@@ -343,7 +343,7 @@ namespace Cantera {
 				    doublereal &pref,
 				    doublereal* const coeffs) const {
     n = m_index;
-    type = NASA9;
+    type = NASA9MULTITEMP;
     tlow = m_lowT;
     thigh = m_highT;
     pref = m_Pref;

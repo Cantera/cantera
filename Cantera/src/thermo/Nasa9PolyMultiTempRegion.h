@@ -160,6 +160,13 @@ namespace Cantera {
      * @param pref      output - reference pressure (Pa).
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
+     *      There are 1 + 11*nzones coefficients
+     *      coeffs[0] is equal to nTempZones.
+     *      index = 1
+     *      for each zone:
+     *        coeffs[index] = minTempZone
+     *        coeffs[index+1] = maxTempZone
+     *        coeffs[index+2+i] from i =0,9 are the coefficients themselves
      */
     virtual void reportParameters(int &n, int &type,
 				  doublereal &tlow, doublereal &thigh,

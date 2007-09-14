@@ -276,8 +276,11 @@ namespace Cantera {
     tlow = m_lowT;
     thigh = m_highT;
     pref = m_Pref;
+    coeffs[0] = 1;
+    coeffs[1] = m_lowT;
+    coeffs[2] = m_highT;
     for (int i = 0; i < 9; i++) {
-      coeffs[i] = m_coeff[i];
+      coeffs[i+3] = m_coeff[i];
     }
 
   }
