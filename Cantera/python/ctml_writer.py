@@ -605,6 +605,46 @@ class NASA(thermo):
         u["size"] = "7"
         u["name"] = "coeffs"
 
+        
+class NASA9(thermo):
+    """NASA9 polynomial parameterization for a single temperature region."""
+    
+    def __init__(self, range = (0.0, 0.0), 
+                 coeffs = [], p0 = -1.0):
+        self._t = range          # Range of the polynomial representation
+        self._pref = p0          # Reference pressure
+        if len(coeffs) <> 9:
+            raise CTI_Error('NASA9 coefficient list must have length = 9')
+        self._coeffs = coeffs
+
+
+    def export(self, f, fmt='CSV'):
+        if fmt == 'CSV':
+            str = 'NASA9,'+`self._t[0]`+','+`self._t[1]`+','
+            for i in  range(9):
+                str += '%17.9E, ' % self._coeffs[i]
+            f.write(str)
+            
+    def build(self, t):
+        n = t.addChild("NASA9")
+        n['Tmin'] = `self._t[0]`    
+        n['Tmax'] = `self._t[1]`
+        if self._pref <= 0.0:
+            n['P0'] = `_pref`
+        else:
+            n['P0'] = `self._pref`
+        str = ''
+        for i in  range(4):
+            str += '%17.9E, ' % self._coeffs[i]
+        str += '\n'
+        str += '%17.9E, %17.9E, %17.9E, %17.9E' % (self._coeffs[4], self._coeffs[5],
+                                                   self._coeffs[6], self._coeffs[7])
+        str += '\n'
+        str += '%17.9E' % (self._coeffs[8])
+        u = n.addChild("floatArray", str)
+        u["size"] = "9"
+        u["name"] = "coeffs"
+
 
 class Shomate(thermo):
     """Shomate polynomial parameterization."""
