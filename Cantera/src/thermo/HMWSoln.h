@@ -61,7 +61,7 @@ namespace Cantera {
    *     All coefficients are assumed to have a linear dependence
    *     wrt to temperature.
    *  PITZER_TEMP_COMPLEX1
-   *     All coefficnets are assumed to have a complex functional
+   *     All coefficients are assumed to have a complex functional
    *     based dependence wrt temperature;  See:
    *    (Silvester, Pitzer, J. Phys. Chem. 81, 19 1822 (1977)).
    *
