@@ -2664,25 +2664,35 @@ namespace Cantera {
      *  counterIJ where counterIJ = m_counterIJ[i][j]
      *  is used to access this array.
      */
-    vector_fp m_Beta2MX_ij;
+    mutable vector_fp m_Beta2MX_ij;
 
     //! Derivative of Beta2_ij[i][j] wrt T
     /*!
      *  vector index is counterIJ
      */
-    vector_fp m_Beta2MX_ij_L;
+    mutable vector_fp m_Beta2MX_ij_L;
 
     //! Derivative of Beta2_ij[i][j] wrt TT
     /*!
      *  vector index is counterIJ
      */
-    vector_fp m_Beta2MX_ij_LL;
+    mutable vector_fp m_Beta2MX_ij_LL;
 
     //! Derivative of Beta2_ij[i][j] wrt P
     /*!
      *  vector index is counterIJ
      */
-    vector_fp m_Beta2MX_ij_P;
+    mutable vector_fp m_Beta2MX_ij_P;
+
+    //! Array of coefficients for Beta2, a variable in Pitzer's papers
+    /*!
+     * column index is counterIJ
+     *  m_Beta2MX_ij_coeff.ptrColumn(counterIJ) is a double* containing
+     *  the vector of coefficients for the counterIJ interaction.
+     *  This was added for the YMP database version of the code since it
+     *  contains temperature-dependent parameters for some 2-2 electrolytes.
+     */
+    mutable Array2D   m_Beta2MX_ij_coeff;
 
     /**
      *  Array of 2D data used in the Pitzer/HMW formulation.

@@ -171,7 +171,7 @@ namespace Cantera {
 	  m_Beta1MX_ij_coeff(1,counter) = vParams[1];
 	  m_Beta1MX_ij[counter] = vParams[0];
 	} else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
-	  if (nParamsFound < 3) {
+	  if (nParamsFound != 5) {
 	    throw CanteraError("HMWSoln::readXMLBinarySalt::beta1 for " + ispName 
 			       + "::" + jspName,
 			       "wrong number of params found");
@@ -181,11 +181,39 @@ namespace Cantera {
 	  }
 	  m_Beta1MX_ij[counter] = vParams[0];
 	}
-
       }
       if (nodeName == "beta2") {
-	stemp = xmlChild.value();
-	m_Beta2MX_ij[counter] = atofCheck(stemp.c_str());
+	getFloatArray(xmlChild, vParams, false, "", "beta2");
+	nParamsFound = vParams.size();
+	if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
+	  if (nParamsFound != 1) {
+	    throw CanteraError("HMWSoln::readXMLBinarySalt::beta2 for " + ispName 
+			       + "::" + jspName,
+			       "wrong number of params found");
+	  }
+	  m_Beta2MX_ij[counter] = vParams[0];
+	  m_Beta2MX_ij_coeff(0,counter) = m_Beta2MX_ij[counter];
+	} else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+	  if (nParamsFound != 2) {
+	    throw CanteraError("HMWSoln::readXMLBinarySalt::beta2 for " + ispName 
+			       + "::" + jspName,
+			       "wrong number of params found");
+	  }
+	  m_Beta2MX_ij_coeff(0,counter) = vParams[0];
+	  m_Beta2MX_ij_coeff(1,counter) = vParams[1];
+	  m_Beta2MX_ij[counter] = vParams[0];
+	} else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+	  if (nParamsFound != 5) {
+	    throw CanteraError("HMWSoln::readXMLBinarySalt::beta2 for " + ispName 
+			       + "::" + jspName,
+			       "wrong number of params found");
+	  }
+	  for (i = 0; i < nParamsFound; i++) {
+	    m_Beta2MX_ij_coeff(i, counter) = vParams[i];
+	  }
+	  m_Beta2MX_ij[counter] = vParams[0];
+	}
+
       }
       if (nodeName == "cphi") {
 	/*

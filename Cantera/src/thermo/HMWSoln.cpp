@@ -7,6 +7,10 @@
  * Class %HMWSoln represents a concentrated liquid electrolyte phase which
  * obeys the Pitzer formulation for nonideality using molality-based
  * standard states.
+ *
+ * This version of the code was modified to have the binary Beta2 Pitzer 
+ * parameter consistent with the temperature expansions used for Beta0, 
+ * Beta1, and Cphi.(CFJC, SNL)
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of 
@@ -194,6 +198,7 @@ namespace Cantera {
       m_Beta2MX_ij_L        = b.m_Beta2MX_ij_L;
       m_Beta2MX_ij_LL       = b.m_Beta2MX_ij_LL;
       m_Beta2MX_ij_P        = b.m_Beta2MX_ij_P;
+      m_Beta2MX_ij_coeff    = b.m_Beta2MX_ij_coeff;
       m_Alpha1MX_ij         = b.m_Alpha1MX_ij;
       m_CphiMX_ij           = b.m_CphiMX_ij;
       m_CphiMX_ij_L         = b.m_CphiMX_ij_L;
@@ -1780,6 +1785,7 @@ namespace Cantera {
     m_Beta2MX_ij_L.resize(maxCounterIJlen, 0.0);
     m_Beta2MX_ij_LL.resize(maxCounterIJlen, 0.0);
     m_Beta2MX_ij_P.resize(maxCounterIJlen, 0.0);
+    m_Beta2MX_ij_coeff.resize(TCoeffLength, maxCounterIJlen, 0.0);
 
     m_CphiMX_ij.resize(maxCounterIJlen, 0.0);
     m_CphiMX_ij_L.resize(maxCounterIJlen, 0.0);
@@ -2068,6 +2074,7 @@ namespace Cantera {
     int i, j, n, counterIJ;
     const double *beta0MX_coeff;
     const double *beta1MX_coeff;
+    const double *beta2MX_coeff;
     const double *CphiMX_coeff;
     double T = temperature();
     double Tr = m_TempPitzerRef;
@@ -2093,6 +2100,7 @@ namespace Cantera {
 	    
 	beta0MX_coeff = m_Beta0MX_ij_coeff.ptrColumn(counterIJ);
 	beta1MX_coeff = m_Beta1MX_ij_coeff.ptrColumn(counterIJ);
+	beta2MX_coeff = m_Beta2MX_ij_coeff.ptrColumn(counterIJ);
 	CphiMX_coeff = m_CphiMX_ij_coeff.ptrColumn(counterIJ);
 
 	switch (m_formPitzerTemp) {
@@ -2107,6 +2115,10 @@ namespace Cantera {
 	    + beta1MX_coeff[1]*tlin;
 	  m_Beta1MX_ij_L[counterIJ] = beta1MX_coeff[1];
 	  m_Beta1MX_ij_LL[counterIJ] = 0.0;
+	  m_Beta2MX_ij[counterIJ]   = beta2MX_coeff[0]
+	    + beta2MX_coeff[1]*tlin;
+	  m_Beta2MX_ij_L[counterIJ] = beta2MX_coeff[1];
+	  m_Beta2MX_ij_LL[counterIJ] = 0.0;
 	  m_CphiMX_ij [counterIJ]   = CphiMX_coeff[0]
 	    + CphiMX_coeff[1]*tlin;
 	  m_CphiMX_ij_L[counterIJ]  = CphiMX_coeff[1];
@@ -2126,6 +2138,12 @@ namespace Cantera {
 	    + beta1MX_coeff[3]*tinv
 	    + beta1MX_coeff[4]*tln;
 
+	  m_Beta2MX_ij[counterIJ] = beta2MX_coeff[0] 
+	    + beta2MX_coeff[1]*tlin
+	    + beta2MX_coeff[2]*tquad
+	    + beta2MX_coeff[3]*tinv
+	    + beta2MX_coeff[4]*tln;
+
 	  m_CphiMX_ij[counterIJ] = CphiMX_coeff[0] 
 	    + CphiMX_coeff[1]*tlin
 	    + CphiMX_coeff[2]*tquad
@@ -2142,6 +2160,10 @@ namespace Cantera {
 	    - beta1MX_coeff[3]/(T*T)
 	    + beta1MX_coeff[4]/T;
 
+	  m_Beta2MX_ij_L[counterIJ] =  beta2MX_coeff[1]
+	    + beta2MX_coeff[2]*2.0*T
+	    - beta2MX_coeff[3]/(T*T)
+	    + beta2MX_coeff[4]/T;
 
 	  m_CphiMX_ij_L[counterIJ] =  CphiMX_coeff[1]
 	    + CphiMX_coeff[2]*2.0*T
@@ -2160,6 +2182,11 @@ namespace Cantera {
 	      + 2.0*beta1MX_coeff[3]/(T*T*T)
 	      - beta1MX_coeff[4]/(T*T);
 		  
+	    m_Beta2MX_ij_LL[counterIJ] =
+	      + beta2MX_coeff[2]*2.0
+	      + 2.0*beta2MX_coeff[3]/(T*T*T)
+	      - beta2MX_coeff[4]/(T*T);
+
 	    m_CphiMX_ij_LL[counterIJ] = 
 	      + CphiMX_coeff[2]*2.0
 	      + 2.0*CphiMX_coeff[3]/(T*T*T)
@@ -2179,9 +2206,6 @@ namespace Cantera {
 #endif
 	  break;
 	}
-	    
-	   
-
       }
     }
 
@@ -2433,6 +2457,7 @@ namespace Cantera {
 		   speciesName(j).c_str());
 	    printf("beta0MX[%d] = %g\n", counterIJ, beta0MX[counterIJ]);
 	    printf("beta1MX[%d] = %g\n", counterIJ, beta1MX[counterIJ]);
+	    printf("beta2MX[%d] = %g\n", counterIJ, beta2MX[counterIJ]);
 	  }
 	}
 #endif
@@ -2446,9 +2471,9 @@ namespace Cantera {
 	    + beta2MX[counterIJ] * g12rooti;
 #ifdef DEBUG_MODE
 	  if (m_debugCalc) {
-	    printf("%d %g: %g %g %g\n",
+	    printf("%d %g: %g %g %g %g\n",
 		   counterIJ,  BMX[counterIJ], beta0MX[counterIJ],
-		   beta1MX[counterIJ], gfunc[counterIJ]);
+		   beta1MX[counterIJ], beta2MX[counterIJ], gfunc[counterIJ]);
 	  }
 #endif
 	  if (Is > 1.0E-150) {
@@ -3246,9 +3271,9 @@ namespace Cantera {
 	    + beta2MX_L[counterIJ] * g12rooti;
 #ifdef DEBUG_MODE
 	  if (m_debugCalc) {
-	    printf("%d %g: %g %g %g\n",
+	    printf("%d %g: %g %g %g %g\n",
 		   counterIJ,  BMX_L[counterIJ], beta0MX_L[counterIJ],
-		   beta1MX_L[counterIJ], gfunc[counterIJ]);
+		   beta1MX_L[counterIJ],  beta2MX_L[counterIJ], gfunc[counterIJ]);
 	  }
 #endif
 	  if (Is > 1.0E-150) {
@@ -4026,9 +4051,9 @@ namespace Cantera {
 	    + beta2MX_LL[counterIJ] * g12rooti;
 #ifdef DEBUG_MODE
 	  if (m_debugCalc) {
-	    printf("%d %g: %g %g %g\n",
+	    printf("%d %g: %g %g %g %g\n",
 		   counterIJ,  BMX_LL[counterIJ], beta0MX_LL[counterIJ],
-		   beta1MX_LL[counterIJ], g[counterIJ]);
+		   beta1MX_LL[counterIJ], beta2MX_LL[counterIJ], g[counterIJ]);
 	  }
 #endif
 	  if (Is > 1.0E-150) {
@@ -4840,7 +4865,7 @@ namespace Cantera {
 	  if (m_debugCalc) {
 	    printf("%d %g: %g %g %g\n",
 		   counterIJ,  BMX_P[counterIJ], beta0MX_P[counterIJ],
-		   beta1MX_P[counterIJ], g[counterIJ]);
+		   beta1MX_P[counterIJ], beta2MX_P[counterIJ], g[counterIJ]);
 	  }
 #endif
 	  if (Is > 1.0E-150) {
