@@ -180,6 +180,15 @@ namespace Cantera {
      *  Now, simply assign the position
      */
     m_sp[index] = stit_ptr;
+
+    /*
+     * Calculate max and min 
+     */
+    double minTemp = stit_ptr->minTemp();
+    double maxTemp = stit_ptr->maxTemp();
+
+    m_tlow_max = max(minTemp, m_tlow_max);
+    m_thigh_min = min(maxTemp, m_thigh_min);
   }
   
     /**
