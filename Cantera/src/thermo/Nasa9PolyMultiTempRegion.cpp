@@ -272,7 +272,7 @@ namespace Cantera {
       }
     }
 #endif
-    m_regionPts[m_currRegion]->updateProperties(tt, cp_R, h_RT, s_R);
+    (m_regionPts[m_currRegion])->updateProperties(tt, cp_R, h_RT, s_R);
   }
 
  
@@ -347,6 +347,7 @@ namespace Cantera {
     tlow = m_lowT;
     thigh = m_highT;
     pref = m_Pref;
+    double ctmp[12];
     coeffs[0] = m_numTempRegions;
     int index = 1;
     int n_tmp = 0;;
@@ -355,7 +356,10 @@ namespace Cantera {
     for (int iReg = 0; iReg < m_numTempRegions; iReg++) {
       m_regionPts[iReg]->reportParameters(n_tmp, type_tmp,
 					  coeffs[index], coeffs[index+1],
-					  pref_tmp, coeffs + index + 2);
+					  pref_tmp, ctmp);
+      for (int i = 0; i < 9; i++) {
+	coeffs[index+2+i] = ctmp[3+i];
+      }
       index += 11;
     }
 
