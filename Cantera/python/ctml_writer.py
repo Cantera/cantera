@@ -637,8 +637,8 @@ class NASA9(thermo):
         for i in  range(4):
             str += '%17.9E, ' % self._coeffs[i]
         str += '\n'
-        str += '%17.9E, %17.9E, %17.9E, %17.9E' % (self._coeffs[4], self._coeffs[5],
-                                                   self._coeffs[6], self._coeffs[7])
+        str += '%17.9E, %17.9E, %17.9E, %17.9E,' % (self._coeffs[4], self._coeffs[5],
+                                                    self._coeffs[6], self._coeffs[7])
         str += '\n'
         str += '%17.9E' % (self._coeffs[8])
         u = n.addChild("floatArray", str)
