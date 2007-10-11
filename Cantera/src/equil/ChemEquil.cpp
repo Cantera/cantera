@@ -30,7 +30,7 @@ using namespace std;
 #include "stringUtils.h"
 #include "MultiPhase.h"
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
 #include "stdio.h"
 int Cantera::ChemEquil_print_lvl = 0;
 //static char sbuf[1024];
@@ -274,7 +274,7 @@ namespace Cantera {
        */
       update(s);
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
     writelog("setInitialMoles:   Estimated Mole Fractions\n");
     writelogf("  Temperature = %g\n", s.temperature()); 
@@ -371,7 +371,7 @@ namespace Cantera {
     doublereal rrt = 1.0/(GasConstant* s.temperature());
     scale(mu_RT.begin(), mu_RT.end(), mu_RT.begin(), rrt);
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
     if (ChemEquil_print_lvl > 0) {
       for (m = 0; m < m_nComponents; m++) {
     int isp = m_component[m];
@@ -421,7 +421,7 @@ namespace Cantera {
         }
     }
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
     if (ChemEquil_print_lvl > 0) {
       writelog(" id      CompSpecies      ChemPot       EstChemPot       Diff\n");
       for (m = 0; m < m_nComponents; m++) {
@@ -508,7 +508,7 @@ namespace Cantera {
              "Input ThermoPhase is incompatible with initialization");
     }
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
     int n;
     const vector<string>& eNames = s.elementNames();
 #endif
@@ -762,8 +762,12 @@ namespace Cantera {
       below[m] = -2000.0;
       if (elMolesGoal[m] < m_elemFracCutoff && m != m_eloc) x[m] = -1000.0;
     }
-    above[mm] = log(s.maxTemp() + 1.0);
-    below[mm] = log(s.minTemp() - 1.0);
+    /*
+     * Set the temperature bounds to be 25 degrees different than the max and min
+     * temperatures.
+     */
+    above[mm] = log(s.maxTemp() + 25.0);
+    below[mm] = log(s.minTemp() - 25.0);
 
     vector_fp grad(nvar, 0.0);        // gradient of f = F*F/2
     vector_fp oldx(nvar, 0.0);        // old solution
@@ -790,7 +794,7 @@ namespace Cantera {
     // Compute the Jacobian matrix
     equilJacobian(s, x, elMolesGoal, jac, xval, yval);
     
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
     if (ChemEquil_print_lvl > 0) {
       writelogf("Jacobian matrix %d:\n", iter); 
       for (m = 0; m <= m_mm; m++) {
@@ -850,34 +854,40 @@ namespace Cantera {
     for (m = 0; m < nvar; m++) {
       newval = x[m] + res_trial[m];
       if (newval > above[m]) {
-    fctr = fmaxx( 0.0, fminn( fctr, 
-                  0.8*(above[m] - x[m])/(newval - x[m])));
+	fctr = fmaxx(0.0, 
+		     fminn(fctr,0.8*(above[m] - x[m])/(newval - x[m])));
       }
       else if (newval < below[m]) {
-    fctr = fminn(fctr, 0.8*(x[m] - below[m])/(x[m] - newval));
+	fctr = fminn(fctr, 0.8*(x[m] - below[m])/(x[m] - newval));
       }
     }
-    if (fctr != 1.0) addLogEntry("factor to keep solution in bounds",
-                 fctr);
+    if (fctr != 1.0) {
+      addLogEntry("WARNING: factor to keep solution in bounds", fctr);
+#ifdef DEBUG_CHEMEQUIL
+      if (ChemEquil_print_lvl > 0) {
+	writelogf("WARNING Soln Damping because of bounds: %g\n", fctr); 
+      }
+#endif
+    }
 
     // multiply the step by the scaling factor
     scale(res_trial.begin(), res_trial.end(), res_trial.begin(), fctr);
 
     if (!dampStep(s, oldx, oldf, grad, res_trial, 
-          x, f, elMolesGoal , xval, yval))
-      {
-    fail++;
-    if (fail > 3) {
-      addLogEntry("dampStep","Failed 3 times. Giving up.");
-      endLogGroup(); // iteration
-      endLogGroup(); // equilibrate
-      s.restoreState(state);
-      throw CanteraError("equilibrate",
-                 "Cannot find an acceptable Newton damping coefficient.");
-      return -4;
-    }
+		  x, f, elMolesGoal , xval, yval)) {
+      fail++;
+      if (fail > 3) {
+	addLogEntry("dampStep","Failed 3 times. Giving up.");
+	endLogGroup(); // iteration
+	endLogGroup(); // equilibrate
+	s.restoreState(state);
+	throw CanteraError("equilibrate",
+			   "Cannot find an acceptable Newton damping coefficient.");
+	return -4;
       }
-    else fail = 0;
+    } else {
+      fail = 0;
+    }
 
   converge:    
 
@@ -1018,7 +1028,7 @@ namespace Cantera {
     for (m = 0; m < nvar; m++) {
       x[m] = oldx[m] + damp * step[m];
     }
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
     if (ChemEquil_print_lvl > 0) {
       writelogf("Solution Unknowns: damp = %g\n", damp); 
       writelog("            X_new      X_old       Step\n");
@@ -1071,7 +1081,7 @@ namespace Cantera {
               +fp2str(elmFracGoal[m])+")");
     }
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
     if (ChemEquil_print_lvl > 0 && !m_doResPerturb) {
       writelog("Residual:      ElFracGoal     ElFracCurrent     Resid\n");
       for (n = 0; n < m_mm; n++) {
@@ -1093,7 +1103,7 @@ namespace Cantera {
         endLogGroup("ChemEquil::equilResidual");
     }
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
     if (ChemEquil_print_lvl > 0 && !m_doResPerturb) {
       writelog("               Goal           Xvalue          Resid\n");
       writelogf("      XX   :   % -14.7E % -14.7E    % -10.5E\n", xval, xx, resid[m_mm]);
@@ -1321,7 +1331,7 @@ namespace Cantera {
     }
    
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
     const vector<string>& eNames = s.elementNames();
     if (ChemEquil_print_lvl > 0) {
       writelog("estimateEP_Brinkley::\n\n");
@@ -1367,7 +1377,7 @@ namespace Cantera {
       /*
        * Calculate the mole numbers of species
        */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
     writelogf("START ITERATION %d:\n", iter);
       }
@@ -1381,7 +1391,7 @@ namespace Cantera {
     Xmol_i_calc[k] = n_i_calc[k]/n_t_calc;
       }
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
     writelog("        Species: Calculated_Moles Calculated_Mole_Fraction\n");
     for (k = 0; k < m_kk; k++) {
@@ -1416,7 +1426,7 @@ namespace Cantera {
       }
     }
       }
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
     if (!normalStep) {
       writelogf(" NOTE: iter(%d) Doing an abnormal step due to row %d\n", iter, iM); 
@@ -1484,7 +1494,7 @@ namespace Cantera {
       }
 
       nCutoff = 1.0E-9 * n_t_calc;
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
         writelog(" Lump Sum Elements Calculation: \n");
       }
@@ -1512,7 +1522,7 @@ namespace Cantera {
         }
       }
     }
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
     if (ChemEquil_print_lvl > 0) {
       string nnn = eNames[m];
       writelogf("               %5s %3d : %5d  %5d\n",nnn.c_str(), lumpSum[m], kMSp, kMSp2); 
@@ -1570,7 +1580,7 @@ namespace Cantera {
 
       for (m = 0; m < m_mm; m++) {
     if (a1(m,m) < 1.0E-50) {
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
         writelogf(" NOTE: Diagonalizing the analytical Jac row %d\n", m); 
       }
@@ -1592,7 +1602,7 @@ namespace Cantera {
 
       resid[m_mm] = n_t - n_t_calc;
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
     writelog("Matrix:\n");
     for (m = 0; m <= m_mm; m++) {
@@ -1607,7 +1617,7 @@ namespace Cantera {
       
       tmp = resid[m_mm] /(n_t + 1.0E-15);
       sum += tmp * tmp;
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
     writelogf("(it %d) Convergence = %g\n", iter, sum);
       }
@@ -1633,7 +1643,7 @@ namespace Cantera {
       tmp += fabs(a1(m,n));
     }
     if (m < m_mm && tmp < 1.0E-30) {
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
         writelogf(" NOTE: Diagonalizing row %d\n", m); 
       }
@@ -1652,7 +1662,7 @@ namespace Cantera {
     resid[m] *= tmp;
       }
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
     writelog("Row Summed Matrix:\n");
     for (m = 0; m <= m_mm; m++) {
@@ -1702,7 +1712,7 @@ namespace Cantera {
       }
     }
     if (sameAsRow >= 0 || lumpSum[m]) {
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
         if (lumpSum[m]) {
           writelogf("Lump summing row %d, due to rank deficiency analysis\n", m);
@@ -1721,7 +1731,7 @@ namespace Cantera {
     }
       }
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0 && modifiedMatrix) {
     writelog("Row Summed, MODIFIED Matrix:\n");
     for (m = 0; m <= m_mm; m++) {
@@ -1739,7 +1749,7 @@ namespace Cantera {
       }
       catch (CanteraError) {
     addLogEntry("estimateEP_Brinkley:Jacobian is singular.");
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
     if (ChemEquil_print_lvl > 0) {
       writelog("Matrix is SINGULAR.ERROR\n");
     }
@@ -1772,7 +1782,7 @@ namespace Cantera {
       }
     }    
       }
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
     if (beta != 1.0) {
       writelogf("(it %d) Beta = %g\n", iter, beta); 
@@ -1790,7 +1800,7 @@ namespace Cantera {
       n_t *= exp(beta * resid[m_mm]);  
     
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
     writelogf("(it %d)    OLD_SOLUTION  NEW SOLUTION    (undamped updated)\n", iter);
     for (m = 0; m < m_mm; m++) {
@@ -1802,7 +1812,7 @@ namespace Cantera {
 #endif
     }
   exit:
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
     double temp = s.temperature();
     double pres = s.pressure();
@@ -1829,7 +1839,7 @@ namespace Cantera {
     s.getMoleFractions(DATA_PTR(m_molefractions));
     int k;
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
     int maxPosEloc = -1;
     int maxNegEloc = -1; 
     double maxPosVal = -1.0;
@@ -1867,7 +1877,7 @@ namespace Cantera {
     if (sumPos >= sumNeg) {
       if ( sumPos <= 0.0) return;
       double factor = (elMolesGoal[m_eloc] + sumNeg) / sumPos;
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
     if (factor < 0.9999999999) {
       string nnn = s.speciesName(maxPosEloc);
@@ -1884,7 +1894,7 @@ namespace Cantera {
       }
     } else {
       double factor = (-elMolesGoal[m_eloc] + sumPos) / sumNeg;
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
     if (factor < 0.9999999999) {
       string nnn = s.speciesName(maxNegEloc);

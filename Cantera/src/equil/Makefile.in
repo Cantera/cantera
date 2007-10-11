@@ -21,8 +21,17 @@ ifeq ($(debug_mode), 1)
 else
    DEBUG_FLAG=
 endif
-
 #LOCAL_DEFS=-DDEBUG_MODE
+
+#
+# Local Define to turn on if you want to debug ChemEquil:
+#
+#LOCAL_DEFS=-DDEBUG_CHEMEQUIL
+#
+# Local define to turn on debug statements for BasisOptimize:
+#
+#LOCAL_DEFS=-DDEBUG_BASISOPTIMIZE
+#
 PIC_FLAG=@PIC@
 
 CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS) $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)

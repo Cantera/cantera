@@ -728,8 +728,7 @@ namespace Cantera {
 		    vector_int & orderVectorSpecies,
 		    vector_int & orderVectorElements);
 
-
-#ifdef DEBUG_HKM
+#ifdef DEBUG_BASISOPTIMIZE
   extern int BasisOptimize_print_lvl;
 #endif
 }
