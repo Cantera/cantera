@@ -904,39 +904,52 @@ namespace Cantera {
     for (m = 0; m < nvar; m++) {
       double tval =  options.relTolerance;
       if (m < mm) {
-    if (m == m_eloc) {
-      tval = elMolesGoal[m] * options.relTolerance + options.absElemTol
-        + 1.0E-15;
-    } else {
-      tval = elMolesGoal[m] * options.relTolerance + options.absElemTol;
-    }
+	/*
+	 * Special case convergence requirements for electron element.
+	 * This is a special case because the element coefficients may
+	 * be both positive and negative. And, typically they sum to 0.0.
+	 * Therefore, there is no natural absolute value for this quantity.
+	 * We supply the absolute value tolerance here. Note, this is
+	 * made easier since the element abundances are normalized to one
+	 * within this routine. 
+	 *
+	 * Note, the 1.0E-13 value was recently relaxed from 1.0E-15, because
+	 * convergence failures were found to occur for the lower value
+	 * at small pressure (0.01 pascal).
+	 */
+	if (m == m_eloc) {
+	  tval = elMolesGoal[m] * options.relTolerance + options.absElemTol
+	    + 1.0E-13;
+	} else {
+	  tval = elMolesGoal[m] * options.relTolerance + options.absElemTol;
+	}
       }
       if (fabs(res_trial[m]) > tval) {
-    passThis = false;
+	passThis = false;
       }
     }
     if (iter > 0 && passThis
-    && fabs(deltax) < options.relTolerance 
-    && fabs(deltay) < options.relTolerance) {
+	&& fabs(deltax) < options.relTolerance 
+	&& fabs(deltay) < options.relTolerance) {
       options.iterations = iter;
       if (loglevel > 0) {
-          endLogGroup("Iteration "+int2str(iter)); // iteration
-          beginLogGroup("Converged solution");
-          addLogEntry("Iterations",iter);
-          addLogEntry("Relative error in "+m_p1->symbol(),deltax);
-          addLogEntry("Relative error in "+m_p2->symbol(),deltay);
-          addLogEntry("Max residual",rmax);
-          beginLogGroup("Element potentials");
+	endLogGroup("Iteration "+int2str(iter)); // iteration
+	beginLogGroup("Converged solution");
+	addLogEntry("Iterations",iter);
+	addLogEntry("Relative error in "+m_p1->symbol(),deltax);
+	addLogEntry("Relative error in "+m_p2->symbol(),deltay);
+	addLogEntry("Max residual",rmax);
+	beginLogGroup("Element potentials");
       }
       doublereal rt = GasConstant* s.temperature();
       for (m = 0; m < m_mm; m++) {
-    m_lambda[m] = x[m]*rt;
-    if (loglevel > 0)
-        addLogEntry("element "+ s.elementName(m), fp2str(x[m]));
+	m_lambda[m] = x[m]*rt;
+	if (loglevel > 0)
+	  addLogEntry("element "+ s.elementName(m), fp2str(x[m]));
       }
 
       if (m_eloc >= 0) {
-    adjustEloc(s, elMolesGoal);
+	adjustEloc(s, elMolesGoal);
       }
       /*
        * Save the calculated and converged element potentials
@@ -1045,11 +1058,12 @@ namespace Cantera {
    *  Evaluates the residual vector F, of length mm 
    */
   void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x, 
-                const vector_fp& elmFracGoal, vector_fp& resid, 
-      doublereal xval, doublereal yval, int loglevel)
+				const vector_fp& elmFracGoal, vector_fp& resid, 
+				doublereal xval, doublereal yval, int loglevel)
   {
-      if (loglevel > 0)
-          beginLogGroup("ChemEquil::equilResidual");
+    if (loglevel > 0) {
+      beginLogGroup("ChemEquil::equilResidual");
+    }
     int n, m;
     doublereal xx, yy;
     doublereal temp = exp(x[m_mm]);
@@ -1061,32 +1075,32 @@ namespace Cantera {
       m = m_orderVectorElements[n];
       // drive element potential for absent elements to -1000
       if (elmFracGoal[m] < m_elemFracCutoff && m != m_eloc) {
-    resid[m] = x[m] + 1000.0;
+	resid[m] = x[m] + 1000.0;
       } else if (n >= m_nComponents) {
-    resid[m] = x[m];
+	resid[m] = x[m];
       } else {
-    /*
-     * Change the calculation for small element number, using
-     * L'Hopital's rule.
-     * The log formulation is unstable.
-     */
-    if (elmFracGoal[m] < 1.0E-10 || elmFrac[m] < 1.0E-10 || m == m_eloc) {
-      resid[m] = elmFracGoal[m] - elmFrac[m];
-    } else {
-      resid[m] = log( (1.0 + elmFracGoal[m]) / (1.0 + elmFrac[m]) );
-    }
+	/*
+	 * Change the calculation for small element number, using
+	 * L'Hopital's rule.
+	 * The log formulation is unstable.
+	 */
+	if (elmFracGoal[m] < 1.0E-10 || elmFrac[m] < 1.0E-10 || m == m_eloc) {
+	  resid[m] = elmFracGoal[m] - elmFrac[m];
+	} else {
+	  resid[m] = log( (1.0 + elmFracGoal[m]) / (1.0 + elmFrac[m]) );
+	}
       }
       if (loglevel > 0)
-          addLogEntry(s.elementName(m),fp2str(elmFrac[m])+"  ("
-              +fp2str(elmFracGoal[m])+")");
+	addLogEntry(s.elementName(m),fp2str(elmFrac[m])+"  ("
+		    +fp2str(elmFracGoal[m])+")");
     }
 
 #ifdef DEBUG_CHEMEQUIL
     if (ChemEquil_print_lvl > 0 && !m_doResPerturb) {
       writelog("Residual:      ElFracGoal     ElFracCurrent     Resid\n");
       for (n = 0; n < m_mm; n++) {
-    writelogf("               % -14.7E % -14.7E    % -10.5E\n", 
-           elmFracGoal[n], elmFrac[n], resid[n]);
+	writelogf("               % -14.7E % -14.7E    % -10.5E\n", 
+		  elmFracGoal[n], elmFrac[n], resid[n]);
       }
     }
 #endif
@@ -1096,11 +1110,11 @@ namespace Cantera {
     resid[m_mm] = xx/xval - 1.0; 
     resid[m_skip] = yy/yval - 1.0;
     if (loglevel > 0) {
-        string xstr = fp2str(xx)+"  ("+fp2str(xval)+")";
-        addLogEntry(m_p1->symbol(), xstr);
-        string ystr = fp2str(yy)+"  ("+fp2str(yval)+")";
-        addLogEntry(m_p2->symbol(), ystr);
-        endLogGroup("ChemEquil::equilResidual");
+      string xstr = fp2str(xx)+"  ("+fp2str(xval)+")";
+      addLogEntry(m_p1->symbol(), xstr);
+      string ystr = fp2str(yy)+"  ("+fp2str(yval)+")";
+      addLogEntry(m_p2->symbol(), ystr);
+      endLogGroup("ChemEquil::equilResidual");
     }
 
 #ifdef DEBUG_CHEMEQUIL
@@ -1116,11 +1130,11 @@ namespace Cantera {
   //-------------------- Jacobian evaluation ---------------------------
 
   void ChemEquil::equilJacobian(thermo_t& s, vector_fp& x,  
-                const vector_fp& elmols, DenseMatrix& jac, 
-      doublereal xval, doublereal yval, int loglevel)
+				const vector_fp& elmols, DenseMatrix& jac, 
+				doublereal xval, doublereal yval, int loglevel)
   {
     if (loglevel > 0) 
-        beginLogGroup("equilJacobian");
+      beginLogGroup("equilJacobian");
     int len = x.size();
     vector_fp& r0 = m_jwork1;
     vector_fp& r1 = m_jwork2;
