@@ -21,7 +21,7 @@
 using namespace std;
 using namespace Cantera;
 int main(int argc, char **argv) {
-#ifdef DEBUG_HKM
+#ifdef DEBUG_CHEMEQUIL
   ChemEquil_print_lvl = 0;
 #endif
   try {

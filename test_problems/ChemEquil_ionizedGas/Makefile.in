@@ -40,11 +40,14 @@ extension2 = @EXEEXT@
 # the C++ compiler
 CXX = @CXX@
 
+#
+# LOCAL_DEFS=-DDEBUG_CHEMEQUIL
+#
 # C++ compile flags
 ifeq ($(src_dir_tree), 1)
-CXX_FLAGS = -DSRCDIRTREE @CXXFLAGS@
+  CXX_FLAGS = -DSRCDIRTREE @CXXFLAGS@ $(LOCAL_DEFS)
 else
-CXX_FLAGS = @CXXFLAGS@
+  CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS)
 endif
 
 # Ending C++ linking libraries

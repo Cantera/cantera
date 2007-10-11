@@ -23,8 +23,10 @@ int main(int argc, char **argv) {
   try {
     IdealGasMix g("red1.xml", "gri30_mix");
 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_BASISOPTIMIZE
    Cantera::BasisOptimize_print_lvl = 0;
+#endif
+#ifdef DEBUG_CHEMEQUIL
    Cantera::ChemEquil_print_lvl = 0;
 #endif
 

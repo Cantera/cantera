@@ -36,6 +36,9 @@ FORT_LIBS = @FLIBS@
 # the C++ compiler
 CXX = @CXX@
 
+# LOCAL_DEFS = -DDEBUG_CHEMEQUIL
+# LOCAL_DEFS = -DEBUG_BASISOPTIMIZE
+#
 # C++ compile flags
 ifeq ($(src_dir_tree), 1)
 CXX_FLAGS = -DSRCDIRTREE @CXXFLAGS@
