@@ -221,7 +221,6 @@ namespace Cantera {
      */
     int m_eloc;
 
-    doublereal m_startTemp, m_startDens;
     vector_fp m_startSoln;
 
     vector_fp m_grt;

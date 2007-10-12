@@ -61,9 +61,9 @@ namespace Cantera {
 
   ///  Default Constructor.
   ChemEquil::ChemEquil() : m_skip(-1), m_p1(0), m_p2(0), m_elementTotalSum(1.0), 
-               m_p0(OneAtm), m_eloc(-1),
-               m_elemFracCutoff(1.0E-100),
-               m_doResPerturb(false)
+			   m_p0(OneAtm), m_eloc(-1),
+			   m_elemFracCutoff(1.0E-100),
+			   m_doResPerturb(false)
   {}
 
   //! Constructor combined with the initialization function
@@ -73,11 +73,11 @@ namespace Cantera {
    *   @param s ThermoPhase object that will be used in the equilibrium calls.
    */
   ChemEquil::ChemEquil(thermo_t& s) :
-                           m_skip(-1), m_p1(0), m_p2(0),
-                           m_elementTotalSum(1.0), 
-                           m_p0(OneAtm), m_eloc(-1),
-                           m_elemFracCutoff(1.0E-100),
-                           m_doResPerturb(false)
+    m_skip(-1), m_p1(0), m_p2(0),
+    m_elementTotalSum(1.0), 
+    m_p0(OneAtm), m_eloc(-1),
+    m_elemFracCutoff(1.0E-100),
+    m_doResPerturb(false)
   {
     initialize(s);
   }
@@ -91,6 +91,8 @@ namespace Cantera {
       delete m_p2;
     }
   }
+
+
 
   /**
    *  Prepare for equilibrium calculations.
@@ -137,32 +139,32 @@ namespace Cantera {
     doublereal na, ewt;
     for (m = 0; m < m_mm; m++) {
       for (k = 0; k < m_kk; k++) {
-    na = s.nAtoms(k,m);
+	na = s.nAtoms(k,m);
 
-    // handle the case of negative atom numbers (used to
-    // represent positive ions, where the 'element' is an
-    // electron
-    if (na < 0.0) {
+	// handle the case of negative atom numbers (used to
+	// represent positive ions, where the 'element' is an
+	// electron
+	if (na < 0.0) {
 
-      // if negative atom numbers have already been specified
-      // for some element other than this one, throw
-      // an exception
-      if (mneg >= 0 && mneg != m) 
-        throw CanteraError("ChemEquil::initialize",
-                   "negative atom numbers allowed for only one element"); 
-      mneg = m;
-      ewt = s.atomicWeight(m);
+	  // if negative atom numbers have already been specified
+	  // for some element other than this one, throw
+	  // an exception
+	  if (mneg >= 0 && mneg != m) 
+	    throw CanteraError("ChemEquil::initialize",
+			       "negative atom numbers allowed for only one element"); 
+	  mneg = m;
+	  ewt = s.atomicWeight(m);
 
-      // the element should be an electron... if it isn't 
-      // print a warning.
-      if (ewt > 1.0e-3) 
-        writelog(string("WARNING: species "
-                +s.speciesName(k)
-                +" has "+fp2str(s.nAtoms(k,m))
-                +" atoms of element "
-                +s.elementName(m)+
-                ", but this element is not an electron.\n"));
-    }
+	  // the element should be an electron... if it isn't 
+	  // print a warning.
+	  if (ewt > 1.0e-3) 
+	    writelog(string("WARNING: species "
+			    +s.speciesName(k)
+			    +" has "+fp2str(s.nAtoms(k,m))
+			    +" atoms of element "
+			    +s.elementName(m)+
+			    ", but this element is not an electron.\n"));
+	}
       }
     }
     m_eloc = mneg;
@@ -170,7 +172,7 @@ namespace Cantera {
     // set up the elemental composition matrix
     for (k = 0; k < m_kk; k++) {
       for (m = 0; m < m_mm; m++) {
-    m_comp[k*m_mm + m] = s.nAtoms(k,m);
+	m_comp[k*m_mm + m] = s.nAtoms(k,m);
       }
     }
   }
@@ -186,13 +188,13 @@ namespace Cantera {
    *
    */
   void ChemEquil::setToEquilState(thermo_t& s, 
-                  const vector_fp& lambda_RT, doublereal t) 
+				  const vector_fp& lambda_RT, doublereal t) 
   {
     // Construct the chemical potentials by summing element potentials
     fill(m_mu_RT.begin(), m_mu_RT.end(), 0.0);
     for (int k = 0; k < m_kk; k++)
       for (int m = 0; m < m_mm; m++) 
-    m_mu_RT[k] += lambda_RT[m]*nAtoms(k,m);
+	m_mu_RT[k] += lambda_RT[m]*nAtoms(k,m);
 
     // Set the temperature
     s.setTemperature(t);
@@ -222,12 +224,12 @@ namespace Cantera {
     for (m = 0; m < m_mm; m++) {
       m_elementmolefracs[m] = 0.0;
       for (k = 0; k < m_kk; k++) {
-    m_elementmolefracs[m] += nAtoms(k,m) * m_molefractions[k];
-    if (m_molefractions[k] < 0.0) {
-      throw CanteraError("update",
-                 "negative mole fraction for "+s.speciesName(k)+
-                 ": "+fp2str(m_molefractions[k]));
-    }
+	m_elementmolefracs[m] += nAtoms(k,m) * m_molefractions[k];
+	if (m_molefractions[k] < 0.0) {
+	  throw CanteraError("update",
+			     "negative mole fraction for "+s.speciesName(k)+
+			     ": "+fp2str(m_molefractions[k]));
+	}
       }
       sum += m_elementmolefracs[m];
     }
@@ -239,13 +241,13 @@ namespace Cantera {
 
   /// Estimate the initial mole numbers. This version borrows from the
   /// MultiPhaseEquil solver. 
-    int ChemEquil::setInitialMoles(thermo_t& s, vector_fp & elMoleGoal, 
-        int loglevel) {
+  int ChemEquil::setInitialMoles(thermo_t& s, vector_fp & elMoleGoal, 
+				 int loglevel) {
     MultiPhase* mp = 0;
     MultiPhaseEquil* e = 0;
     int iok = 0;
     if (loglevel > 0)
-        beginLogGroup("ChemEquil::setInitialMoles");
+      beginLogGroup("ChemEquil::setInitialMoles");
     try {
       mp = new MultiPhase;
       mp->addPhase(&s, 1.0);
@@ -258,14 +260,14 @@ namespace Cantera {
         m_nComponents = m_kk;
       }
       for (int m = 0; m < m_nComponents; m++) {
-    m_component[m] = e->componentIndex(m);
+	m_component[m] = e->componentIndex(m);
       }
       for (int k = 0; k < m_kk; k++) {
-    if (s.moleFraction(k) > 0.0) {
-        if (loglevel > 0)
+	if (s.moleFraction(k) > 0.0) {
+	  if (loglevel > 0)
             addLogEntry(s.speciesName(k),
-                s.moleFraction(k));
-    }
+			s.moleFraction(k));
+	}
       }
       /*
        * Update the current values of the temp, density, and
@@ -276,20 +278,20 @@ namespace Cantera {
 
 #ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
-    writelog("setInitialMoles:   Estimated Mole Fractions\n");
-    writelogf("  Temperature = %g\n", s.temperature()); 
-    writelogf("  Pressure = %g\n", s.pressure()); 
-    for (int k = 0; k < m_kk; k++) {
-      string nnn = s.speciesName(k);
-      double mf = s.moleFraction(k);
-      writelogf("         %-12s % -10.5g\n", nnn.c_str(), mf); 
-    }
-    writelog("      Element_Name   ElementGoal  ElementMF\n");
-    for (int m = 0; m < m_mm; m++) {
-      string nnn = s.elementName(m);
-      writelogf("      %-12s % -10.5g% -10.5g\n",
-         nnn.c_str(), elMoleGoal[m], m_elementmolefracs[m]); 
-    }
+	writelog("setInitialMoles:   Estimated Mole Fractions\n");
+	writelogf("  Temperature = %g\n", s.temperature()); 
+	writelogf("  Pressure = %g\n", s.pressure()); 
+	for (int k = 0; k < m_kk; k++) {
+	  string nnn = s.speciesName(k);
+	  double mf = s.moleFraction(k);
+	  writelogf("         %-12s % -10.5g\n", nnn.c_str(), mf); 
+	}
+	writelog("      Element_Name   ElementGoal  ElementMF\n");
+	for (int m = 0; m < m_mm; m++) {
+	  string nnn = s.elementName(m);
+	  writelogf("      %-12s % -10.5g% -10.5g\n",
+		    nnn.c_str(), elMoleGoal[m], m_elementmolefracs[m]); 
+	}
       }
 #endif
 
@@ -303,7 +305,7 @@ namespace Cantera {
       iok = -1;
     }
     if (loglevel > 0)
-        endLogGroup();
+      endLogGroup();
     return iok;
   }
 
@@ -312,11 +314,11 @@ namespace Cantera {
    * Generate a starting estimate for the element potentials.
    */
   int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
-      vector_fp& elMolesGoal, int loglevel) 
+					   vector_fp& elMolesGoal, int loglevel) 
   {
     int m, n;
     if (loglevel > 0)
-        beginLogGroup("estimateElementPotentials");
+      beginLogGroup("estimateElementPotentials");
     //for (k = 0; k < m_kk; k++) {
     //    if (m_molefractions[k] > 0.0) {
     //        m_molefractions[k] = fmaxx(m_molefractions[k], 0.05);
@@ -332,7 +334,7 @@ namespace Cantera {
     s.getMoleFractions(DATA_PTR(xMF_est));
     for (n = 0; n < s.nSpecies(); n++) {
       if (xMF_est[n] < 1.0E-20) {
-    xMF_est[n] = 1.0E-20;
+	xMF_est[n] = 1.0E-20;
       }
     }
     s.setMoleFractions(DATA_PTR(xMF_est));
@@ -344,24 +346,24 @@ namespace Cantera {
     int usedZeroedSpecies = 0;
     vector_fp formRxnMatrix;
     m_nComponents = BasisOptimize(&usedZeroedSpecies, false,
-                  mp, m_orderVectorSpecies,
-                  m_orderVectorElements, formRxnMatrix);
+				  mp, m_orderVectorSpecies,
+				  m_orderVectorElements, formRxnMatrix);
 
     for (m = 0; m < m_nComponents; m++) {
       int k = m_orderVectorSpecies[m];
       m_component[m] = k;
       if (xMF_est[k] < 1.0E-8) {
-    xMF_est[k] = 1.0E-8;
+	xMF_est[k] = 1.0E-8;
       }
     }
     s.setMoleFractions(DATA_PTR(xMF_est));
     s.getMoleFractions(DATA_PTR(xMF_est));
 
     int nct = Cantera::ElemRearrange(m_nComponents, elMolesGoal, mp, 
-                     m_orderVectorSpecies, m_orderVectorElements);
+				     m_orderVectorSpecies, m_orderVectorElements);
     if (nct != m_nComponents) {
       throw CanteraError("ChemEquil::estimateElementPotentials",
-             "confused");
+			 "confused");
     }
 
     delete mp;
@@ -374,9 +376,9 @@ namespace Cantera {
 #ifdef DEBUG_CHEMEQUIL
     if (ChemEquil_print_lvl > 0) {
       for (m = 0; m < m_nComponents; m++) {
-    int isp = m_component[m];
-    string nnn = s.speciesName(isp);
-    writelogf("isp = %d, %s\n", isp, nnn.c_str());
+	int isp = m_component[m];
+	string nnn = s.speciesName(isp);
+	writelogf("isp = %d, %s\n", isp, nnn.c_str());
       }
       double pres = s.pressure();
       double temp = s.temperature();
@@ -384,16 +386,16 @@ namespace Cantera {
       writelogf("Temperature = %g\n", temp); 
       writelog("  id       Name     MF     mu/RT \n");
       for (n = 0; n < s.nSpecies(); n++) {
-    string nnn = s.speciesName(n);
-    writelogf("%10d %15s %10.5g %10.5g\n",
-           n, nnn.c_str(), xMF_est[n], mu_RT[n]);
+	string nnn = s.speciesName(n);
+	writelogf("%10d %15s %10.5g %10.5g\n",
+		  n, nnn.c_str(), xMF_est[n], mu_RT[n]);
       }
     }
 #endif
     DenseMatrix aa(m_nComponents, m_nComponents, 0.0);
     for (m = 0; m < m_nComponents; m++) {
       for (n = 0; n < m_nComponents; n++) {
-    aa(m,n) = nAtoms(m_component[m], m_orderVectorElements[n]);
+	aa(m,n) = nAtoms(m_component[m], m_orderVectorElements[n]);
       }
       b[m] = mu_RT[m_component[m]];
     }
@@ -403,9 +405,9 @@ namespace Cantera {
       info = solve(aa, DATA_PTR(b));
     }
     catch (CanteraError) {
-        if (loglevel > 0)
-            addLogEntry("failed to estimate initial element potentials.");
-        info = -2; 
+      if (loglevel > 0)
+	addLogEntry("failed to estimate initial element potentials.");
+      info = -2; 
     }
     for (m = 0; m < m_nComponents; m++) {
       lambda_RT[m_orderVectorElements[m]] = b[m];
@@ -414,36 +416,36 @@ namespace Cantera {
       lambda_RT[m_orderVectorElements[m]] = 0.0;
     }
     if (info == 0) {
-        if (loglevel > 0) {
-            for (m = 0; m < m_mm; m++) {
-                addLogEntry(s.elementName(m),lambda_RT[m]);
-            }
-        }
+      if (loglevel > 0) {
+	for (m = 0; m < m_mm; m++) {
+	  addLogEntry(s.elementName(m),lambda_RT[m]);
+	}
+      }
     }
 
 #ifdef DEBUG_CHEMEQUIL
     if (ChemEquil_print_lvl > 0) {
       writelog(" id      CompSpecies      ChemPot       EstChemPot       Diff\n");
       for (m = 0; m < m_nComponents; m++) {
-    int isp = m_component[m];
-    double tmp = 0.0;
-    string sname = s.speciesName(isp);
-    for (n = 0; n < m_mm; n++) {
-      tmp += nAtoms(isp, n) * lambda_RT[n];
-    }
-    writelogf("%3d %16s  %10.5g   %10.5g   %10.5g\n",
-           m, sname.c_str(),  mu_RT[isp], tmp, tmp - mu_RT[isp]);
+	int isp = m_component[m];
+	double tmp = 0.0;
+	string sname = s.speciesName(isp);
+	for (n = 0; n < m_mm; n++) {
+	  tmp += nAtoms(isp, n) * lambda_RT[n];
+	}
+	writelogf("%3d %16s  %10.5g   %10.5g   %10.5g\n",
+		  m, sname.c_str(),  mu_RT[isp], tmp, tmp - mu_RT[isp]);
       }
 
       writelog(" id    ElName  Lambda_RT\n");
       for (m = 0; m < m_mm; m++) {
-    string ename = s.elementName(m);
-    writelogf(" %3d  %6s  %10.5g\n", m, ename.c_str(), lambda_RT[m]);
+	string ename = s.elementName(m);
+	writelogf(" %3d  %6s  %10.5g\n", m, ename.c_str(), lambda_RT[m]);
       }
     }
 #endif
     if (loglevel > 0)
-        endLogGroup();
+      endLogGroup();
     return info;
   }
 
@@ -457,14 +459,14 @@ namespace Cantera {
    *   within the current thermodynamic state of the system.
    */
   int ChemEquil::equilibrate(thermo_t& s, const char* XY, 
-      bool useThermoPhaseElementPotentials, int loglevel) {
+			     bool useThermoPhaseElementPotentials, int loglevel) {
     vector_fp elMolesGoal(s.nElements());
     initialize(s);
     update(s);
     copy(m_elementmolefracs.begin(), m_elementmolefracs.end(),
-     elMolesGoal.begin());
+	 elMolesGoal.begin());
     return equilibrate(s, XY, elMolesGoal, useThermoPhaseElementPotentials, 
-        loglevel-1);
+		       loglevel-1);
   }
 
 
@@ -483,10 +485,10 @@ namespace Cantera {
    *     Unsuccessful returns are indicated by a return value of -1 for
    *     lack of convergence or -3 for a singular jacobian.
    */
-    int ChemEquil::equilibrate(thermo_t& s, const char* XYstr, 
-        vector_fp& elMolesGoal, 
-        bool useThermoPhaseElementPotentials,
-        int loglevel)
+  int ChemEquil::equilibrate(thermo_t& s, const char* XYstr, 
+			     vector_fp& elMolesGoal, 
+			     bool useThermoPhaseElementPotentials,
+			     int loglevel)
   {
     doublereal xval, yval, tmp;
     int fail = 0;
@@ -505,7 +507,7 @@ namespace Cantera {
      */
     if (m_mm != s.nElements() || m_kk != s.nSpecies()) {
       throw CanteraError("ChemEquil::equilibrate ERROR", 
-             "Input ThermoPhase is incompatible with initialization");
+			 "Input ThermoPhase is incompatible with initialization");
     }
 
 #ifdef DEBUG_CHEMEQUIL
@@ -513,7 +515,7 @@ namespace Cantera {
     const vector<string>& eNames = s.elementNames();
 #endif
     if (loglevel > 0)
-        beginLogGroup("ChemEquil::equilibrate");
+      beginLogGroup("ChemEquil::equilibrate");
     initialize(s);
     update(s);
     switch (XY) {
@@ -546,26 +548,26 @@ namespace Cantera {
       m_p2 = new DensityCalculator<thermo_t>;
       break; 
     default:
-        if (loglevel > 0)
-            endLogGroup("ChemEquil::equilibrate");
+      if (loglevel > 0)
+	endLogGroup("ChemEquil::equilibrate");
       throw CanteraError("equilibrate","illegal property pair.");
     }
     if (loglevel > 0) {
-        addLogEntry("Problem type","fixed "+m_p1->symbol()+", "+m_p2->symbol());
-        addLogEntry(m_p1->symbol(), m_p1->value(s));
-        addLogEntry(m_p2->symbol(), m_p2->value(s));
+      addLogEntry("Problem type","fixed "+m_p1->symbol()+", "+m_p2->symbol());
+      addLogEntry(m_p1->symbol(), m_p1->value(s));
+      addLogEntry(m_p2->symbol(), m_p2->value(s));
     }
     // If the temperature is one of the specified variables, and
     // it is outside the valid range, throw an exception.
     if (tempFixed) {
       double tfixed = s.temperature();
       if (tfixed > s.maxTemp() + 1.0 || tfixed < s.minTemp() - 1.0) {
-          if (loglevel > 0)
-              endLogGroup("ChemEquil::equilibrate");
-          throw CanteraError("ChemEquil","Specified temperature ("
-              +fp2str(s.temperature())+" K) outside "
-              "valid range of "+fp2str(s.minTemp())+" K to "
-              +fp2str(s.maxTemp())+" K\n");
+	if (loglevel > 0)
+	  endLogGroup("ChemEquil::equilibrate");
+	throw CanteraError("ChemEquil","Specified temperature ("
+			   +fp2str(s.temperature())+" K) outside "
+			   "valid range of "+fp2str(s.minTemp())+" K to "
+			   +fp2str(s.maxTemp())+" K\n");
       }                
     }
 
@@ -607,7 +609,7 @@ namespace Cantera {
     // that since we have already save the target element moles,
     // changing the composition at this point only affects the
     // starting point, not the final solution.
-    vector_fp xmm(m_kk,0.0);
+    vector_fp xmm(m_kk, 0.0);
     for (int k = 0; k < m_kk; k++) {
       xmm[k] = s.moleFraction(k) + 1.0E-32;
     }
@@ -618,14 +620,32 @@ namespace Cantera {
      * m_dens, and the element mole fractions.
      */
     update(s);
-
+   
+    doublereal tmaxPhase = s.maxTemp();
+    doublereal tminPhase = s.minTemp();
     // loop to estimate T
     if (!tempFixed) {
-        if (loglevel > 0)
-            beginLogGroup("Initial T Estimate");
+      if (loglevel > 0)
+	beginLogGroup("Initial T Estimate");
+  
+      doublereal tmin;
+      doublereal tmax;
 
-      doublereal tmax = s.maxTemp();
-      doublereal tmin = s.minTemp();
+      tmin = s.temperature();
+      if (tmin < tminPhase) {
+	tmin = tminPhase;
+      }
+      if (tmin > tmaxPhase) {
+	tmin = tmaxPhase - 20;
+      }
+      tmax = tmin + 10.;
+      if (tmax > tmaxPhase) {
+	tmax = tmaxPhase;
+      }
+      if (tmax < tminPhase) {
+	tmax = tminPhase + 20;
+      }
+    
       doublereal slope, phigh, plow, pval, dt;
 
       // first get the property values at the upper and lower
@@ -646,48 +666,62 @@ namespace Cantera {
       s.setTemperature(t0);
 
       // loop up to 5 times
-      for (int it = 0; it < 5; it++) {
+      for (int it = 0; it < 10; it++) {
 
-    // set the composition and get p1
-          setInitialMoles(s, elMolesGoal, loglevel - 1);
-    pval = m_p1->value(s);
+	// set the composition and get p1
+	setInitialMoles(s, elMolesGoal, loglevel - 1);
+	pval = m_p1->value(s);
 
+	// If this value of p1 is greater than the specified
+	// property value, then the current temperature is too
+	// high. Use it as the new upper bound. Otherwise, it
+	// is too low, so use it as the new lower bound.
+	if (pval > xval) { 
+	  tmax = t0; 
+	  phigh = pval; 
+	}
+	else {
+	  tmin = t0; 
+	  plow = pval; 
+	}
 
-    // If this value of p1 is greater than the specified
-    // property value, then the current temperature is too
-    // high. Use it as the new upper bound. Otherwise, it
-    // is too low, so use it as the new lower bound.
-    if (pval > xval) { 
-      tmax = t0; 
-      phigh = pval; 
-    }
-    else {
-      tmin = t0; 
-      plow = pval; 
-    }
+	// Determine the new T estimate by linearly intepolation
+	// between the upper and lower bounds
+	slope = (phigh - plow)/(tmax - tmin);
+	dt = (xval - pval)/slope;
 
-    // Determine the new T estimate by linearly intepolation
-    // between the upper and lower bounds
-    slope = (phigh - plow)/(tmax - tmin);
-    dt = (xval - plow)/slope;
-
-    // If within 100 K, terminate the search
-    if (fabs(dt) < 100.0) break;
-
-    // update the T estimate
-    t0 = tmin + dt;
-    if (loglevel > 0)
-        addLogEntry("new T estimate", t0);
-
-    s.setTemperature(t0);
+	// If within 50 K, terminate the search
+	if (fabs(dt) < 50.0) break;
+	if (dt >  200.) dt  = 200.;
+	if (dt < -200.) dt = -200.;
+	if ((t0 + dt) < tminPhase) {
+	  dt = 0.5*((t0) + tminPhase) - t0;
+	}
+	if ((t0 + dt) > tmaxPhase) {
+	  dt = 0.5*((t0) + tmaxPhase) - t0;
+	}  
+	// update the T estimate
+	t0 = t0 + dt;
+	if (t0 <= tminPhase || t0 >= tmaxPhase) {
+	  printf("We shouldn't be here\n");
+	  exit(-1);
+	}
+	if (loglevel > 0) {
+	  addLogEntry("new T estimate", t0);
+	}
+	if (t0 < 100.) {
+	  printf("t0 - we are here %g\n", t0);
+	  exit(-1);
+	}
+	s.setTemperature(t0);
       }
       if (loglevel > 0)
-          endLogGroup("Initial T Estimate"); // initial T estimate
+	endLogGroup("Initial T Estimate"); // initial T estimate
     }
 
     
     setInitialMoles(s, elMolesGoal,loglevel);
-  
+
     /*
      * If requested, get the initial estimate for the
      * chemical potentials from the ThermoPhase object
@@ -696,12 +730,15 @@ namespace Cantera {
     if (useThermoPhaseElementPotentials) {
       bool haveEm = s.getElementPotentials(DATA_PTR(x));
       if (haveEm) {
-    doublereal rt = GasConstant * s.temperature();
-    for (m = 0; m < m_mm; m++) {
-      x[m] /= rt;
-    }
+	doublereal rt = GasConstant * s.temperature();
+	if (s.temperature() < 100.) {
+	  printf("we are here %g\n", s.temperature());
+	}
+	for (m = 0; m < m_mm; m++) {
+	  x[m] /= rt;
+	}
       } else {
-    estimateElementPotentials(s, x, elMolesGoal);
+	estimateElementPotentials(s, x, elMolesGoal);
       }
     } else {
       /*
@@ -716,6 +753,7 @@ namespace Cantera {
       estimateElementPotentials(s, x, elMolesGoal);
     }
 
+
     /*
      * Do a better estimate of the element potentials.
      * We have found that the current estimate may not be good
@@ -729,9 +767,9 @@ namespace Cantera {
     int info = estimateEP_Brinkley(s, x, elMolesGoal);
     if (info != 0) {
       if (info == 1) {
-    addLogEntry("estimateEP_Brinkley didn't converge in given max interations");
+	addLogEntry("estimateEP_Brinkley didn't converge in given max interations");
       } else if (info == -3) {
-    addLogEntry("estimateEP_Brinkley had a singular Jacobian. Continuing anyway");
+	addLogEntry("estimateEP_Brinkley had a singular Jacobian. Continuing anyway");
       }
     } else {
       setToEquilState(s, x, s.temperature());
@@ -783,7 +821,7 @@ namespace Cantera {
     iter++;
     if (iter > 1) endLogGroup("Iteration "+int2str(iter-1)); // iteration
     if (loglevel > 0)
-        beginLogGroup("Iteration "+int2str(iter));
+      beginLogGroup("Iteration "+int2str(iter));
 
     // compute the residual and the jacobian using the current
     // solution vector
@@ -798,26 +836,26 @@ namespace Cantera {
     if (ChemEquil_print_lvl > 0) {
       writelogf("Jacobian matrix %d:\n", iter); 
       for (m = 0; m <= m_mm; m++) {
-    writelog("      [ ");
-    for (n = 0; n <= m_mm; n++) {
-      writelogf("%10.5g ", jac(m,n)); 
-    }
-    writelog(" ]");
-    char xName[32];
-    if (m < m_mm) {
-      string nnn = eNames[m];
-      sprintf(xName, "x_%-10s", nnn.c_str());
-    } else {
-      sprintf(xName, "x_XX");
-    }
-    if (m_eloc == m) {
-      sprintf(xName, "x_ELOC");
-    }
-    if (m == m_skip) {
-      sprintf(xName, "x_YY");
-    }
-    writelogf("%-12s", xName); 
-    writelogf(" =  - (%10.5g)\n", res_trial[m]);
+	writelog("      [ ");
+	for (n = 0; n <= m_mm; n++) {
+	  writelogf("%10.5g ", jac(m,n)); 
+	}
+	writelog(" ]");
+	char xName[32];
+	if (m < m_mm) {
+	  string nnn = eNames[m];
+	  sprintf(xName, "x_%-10s", nnn.c_str());
+	} else {
+	  sprintf(xName, "x_XX");
+	}
+	if (m_eloc == m) {
+	  sprintf(xName, "x_ELOC");
+	}
+	if (m == m_skip) {
+	  sprintf(xName, "x_YY");
+	}
+	writelogf("%-12s", xName); 
+	writelogf(" =  - (%10.5g)\n", res_trial[m]);
       }
     }
 #endif
@@ -842,9 +880,9 @@ namespace Cantera {
       s.restoreState(state);
 
       throw CanteraError("equilibrate",
-             "Jacobian is singular. \nTry adding more species, "
-             "changing the elemental composition slightly, \nor removing "
-             "unused elements.");
+			 "Jacobian is singular. \nTry adding more species, "
+			 "changing the elemental composition slightly, \nor removing "
+			 "unused elements.");
       return -3;
     }
 
@@ -858,7 +896,20 @@ namespace Cantera {
 		     fminn(fctr,0.8*(above[m] - x[m])/(newval - x[m])));
       }
       else if (newval < below[m]) {
-	fctr = fminn(fctr, 0.8*(x[m] - below[m])/(x[m] - newval));
+	if (m < m_mm && (m != m_skip)) {
+	  res_trial[m] = -50;
+	  if (x[m] < below[m] + 50.) {
+	    res_trial[m] = below[m] - x[m];
+	  }
+	} else {
+	  fctr = fminn(fctr, 0.8*(x[m] - below[m])/(x[m] - newval));
+	}
+      }
+      // Delta Damping
+      if (m == mm) {
+	if (fabs(res_trial[mm]) > 0.2) {
+	  fctr = fminn(fctr, 0.2/fabs(res_trial[mm]));
+	}
       }
     }
     if (fctr != 1.0) {
@@ -869,7 +920,7 @@ namespace Cantera {
       }
 #endif
     }
-
+    
     // multiply the step by the scaling factor
     scale(res_trial.begin(), res_trial.end(), res_trial.begin(), fctr);
 
@@ -1019,19 +1070,19 @@ namespace Cantera {
     damp = 1.0;
     for (m = 0; m < m_mm; m++) {
       if (m == m_eloc) {
-    if (step[m] > 1.25) {
-      damp = MIN(damp, 1.25 /step[m]);
-    }
-    if (step[m] < -1.25) {
-      damp = MIN(damp, -1.25 / step[m]);
-    }
+	if (step[m] > 1.25) {
+	  damp = MIN(damp, 1.25 /step[m]);
+	}
+	if (step[m] < -1.25) {
+	  damp = MIN(damp, -1.25 / step[m]);
+	}
       } else {
-    if (step[m] > 0.75) {
-      damp = MIN(damp, 0.75 /step[m]);
-    }
-    if (step[m] < -0.75) {
-      damp = MIN(damp, -0.75 / step[m]);
-    }
+	if (step[m] > 0.75) {
+	  damp = MIN(damp, 0.75 /step[m]);
+	}
+	if (step[m] < -0.75) {
+	  damp = MIN(damp, -0.75 / step[m]);
+	}
       }
     }
 
@@ -1046,7 +1097,7 @@ namespace Cantera {
       writelogf("Solution Unknowns: damp = %g\n", damp); 
       writelog("            X_new      X_old       Step\n");
       for (m = 0; m < nvar; m++) {
-    writelogf("     % -10.5g   % -10.5g    % -10.5g\n", x[m], oldx[m], step[m]);
+	writelogf("     % -10.5g   % -10.5g    % -10.5g\n", x[m], oldx[m], step[m]);
       }
     }
 #endif
@@ -1180,10 +1231,10 @@ namespace Cantera {
    *  --------
    * x[m] = current dimensionless element potentials..
    */
-    double ChemEquil::calcEmoles(thermo_t& s, vector_fp& x, const double & n_t,
-        const vector_fp & Xmol_i_calc, 
-        vector_fp& eMolesCalc, vector_fp& n_i_calc,
-        double pressureConst) {
+  double ChemEquil::calcEmoles(thermo_t& s, vector_fp& x, const double & n_t,
+			       const vector_fp & Xmol_i_calc, 
+			       vector_fp& eMolesCalc, vector_fp& n_i_calc,
+			       double pressureConst) {
     int k, m;
     double n_t_calc = 0.0;
     double tmp;
@@ -1199,20 +1250,20 @@ namespace Cantera {
     for (k = 0; k < m_kk; k++) {
       tmp = - (m_muSS_RT[k] + log(actCoeff[k]));
       for (m = 0; m < m_mm; m++) {
-    tmp += nAtoms(k,m) * x[m];
+	tmp += nAtoms(k,m) * x[m];
       }
       if (tmp > 100.) tmp = 100.;
       if (tmp < -300.) {
-    n_i_calc[k] = 0.0;
+	n_i_calc[k] = 0.0;
       } else {
-    n_i_calc[k] = n_t * exp(tmp);
+	n_i_calc[k] = n_t * exp(tmp);
       }
       n_t_calc += n_i_calc[k];
     }
     for (m = 0; m < m_mm; m++) {
       eMolesCalc[m] = 0.0;
       for (k = 0; k < m_kk; k++) {
-    eMolesCalc[m] += nAtoms(k,m) * n_i_calc[k];
+	eMolesCalc[m] += nAtoms(k,m) * n_i_calc[k];
       }
     }
     return n_t_calc;
@@ -1255,7 +1306,7 @@ namespace Cantera {
    * NOTE: update for activity coefficients.
    */
   int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x, 
-                     vector_fp& elMoles) {
+				     vector_fp& elMoles) {
     /*
      * Before we do anything, we will save the state of the solution.
      * Then, if things go drastically wrong, we will restore the 
@@ -1284,7 +1335,6 @@ namespace Cantera {
     vector_fp x_old(m_mm+1, 0.0);
     vector_fp resid(m_mm+1, 0.0);
     vector_int lumpSum(m_mm+1, 0);
-
  
     /*
      * Get the nondimensional Gibbs functions for the species
@@ -1300,22 +1350,22 @@ namespace Cantera {
     for (m = 0; m < m_mm; m++) {
       elMolesTotal += elMoles[m];
       for (k = 0; k < m_kk; k++) {
-    eMolesFix[m] +=  nAtoms(k,m) * n_i[k];
+	eMolesFix[m] +=  nAtoms(k,m) * n_i[k];
       }
     }
 
     for (m = 0; m < m_mm; m++) {
       if (x[m] > 50.0) {
-    x[m] = 50.;
+	x[m] = 50.;
       }
       if (elMoles[m] > 1.0E-70) {
-    if (x[m] < -100) {
-      x[m] = -100.;
-    }
+	if (x[m] < -100) {
+	  x[m] = -100.;
+	}
       } else {
-    if (x[m] < -1000.) {
-      x[m] = -1000.;
-    }
+	if (x[m] < -1000.) {
+	  x[m] = -1000.;
+	}
       }
     }
 
@@ -1330,17 +1380,17 @@ namespace Cantera {
       tmp = - (m_muSS_RT[k] + log(actCoeff[k]));
       sum2 = 0.0;
       for (m = 0; m < m_mm; m++) {
-    sum = nAtoms(k,m);
-    tmp += sum * x[m];
-    sum2 += sum;
-    if (sum2 > nAtomsMax) {
-      nAtomsMax = sum2;
-    }
+	sum = nAtoms(k,m);
+	tmp += sum * x[m];
+	sum2 += sum;
+	if (sum2 > nAtomsMax) {
+	  nAtomsMax = sum2;
+	}
       }
       if (tmp > 100.) {
-    n_t += 2.8E43;
+	n_t += 2.8E43;
       } else {
-    n_t += exp(tmp);
+	n_t += exp(tmp);
       }
     }
    
@@ -1356,26 +1406,27 @@ namespace Cantera {
       writelog("Initial mole numbers and mu_SS:\n"); 
       writelog("         Name           MoleNum        mu_SS   actCoeff\n");
       for (k = 0; k < m_kk; k++) {
-    string nnn = s.speciesName(k);
-    writelogf("%15s  %13.5g  %13.5g %13.5g\n",
-           nnn.c_str(), n_i[k], m_muSS_RT[k], actCoeff[k]);
+	string nnn = s.speciesName(k);
+	writelogf("%15s  %13.5g  %13.5g %13.5g\n",
+		  nnn.c_str(), n_i[k], m_muSS_RT[k], actCoeff[k]);
       }
       writelogf("Initial n_t = %10.5g\n", n_t); 
       writelog("Comparison of Goal Element Abundance with Initial Guess:\n");
       writelog("  eName       eCurrent       eGoal\n");
       for (m = 0; m < m_mm; m++) {
-    string nnn = s.elementName(m);
-    writelogf("%5s   %13.5g  %13.5g\n",nnn.c_str(), eMolesFix[m], elMoles[m]); 
+	string nnn = s.elementName(m);
+	writelogf("%5s   %13.5g  %13.5g\n",nnn.c_str(), eMolesFix[m], elMoles[m]); 
       }
     }
 #endif
     for (m = 0; m < m_mm; m++) {
       if (m != m_eloc) {
-    if (elMoles[m] <= options.absElemTol) {
-      x[m] = -200.;
-    }
+	if (elMoles[m] <= options.absElemTol) {
+	  x[m] = -200.;
+	}
       }
     }
+       
     /*
      * -------------------------------------------------------------------
      * Main Loop.
@@ -1385,7 +1436,7 @@ namespace Cantera {
        * Save the old solution
        */
       for (m = 0; m < m_mm; m++) {
-    x_old[m] = x[m];
+	x_old[m] = x[m];
       }
       x_old[m_mm] = n_t;
       /*
@@ -1393,31 +1444,33 @@ namespace Cantera {
        */
 #ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
-    writelogf("START ITERATION %d:\n", iter);
+	writelogf("START ITERATION %d:\n", iter);
       }
 #endif
       /*
        * Calculate the mole numbers of species and elements.
        */
       double n_t_calc = calcEmoles(s, x, n_t, Xmol_i_calc, eMolesCalc, n_i_calc,
-                   pressureConst);
+				   pressureConst);
+
       for (k = 0; k < m_kk; k++) {
-    Xmol_i_calc[k] = n_i_calc[k]/n_t_calc;
+	Xmol_i_calc[k] = n_i_calc[k]/n_t_calc;
       }
+
 
 #ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
-    writelog("        Species: Calculated_Moles Calculated_Mole_Fraction\n");
-    for (k = 0; k < m_kk; k++) {
-      string nnn = s.speciesName(k);
-      writelogf("%15s: %10.5g %10.5g\n", nnn.c_str(),  n_i_calc[k], Xmol_i_calc[k]);
-    }
-    writelogf("%15s: %10.5g\n", "Total Molar Sum", n_t_calc);
-    writelogf("(iter %d) element moles bal:   Goal  Calculated\n", iter);
-    for (m = 0; m < m_mm; m++) {
-      string nnn = eNames[m];
-      writelogf("              %8s: %10.5g %10.5g \n", nnn.c_str(), elMoles[m], eMolesCalc[m]);
-    }
+	writelog("        Species: Calculated_Moles Calculated_Mole_Fraction\n");
+	for (k = 0; k < m_kk; k++) {
+	  string nnn = s.speciesName(k);
+	  writelogf("%15s: %10.5g %10.5g\n", nnn.c_str(),  n_i_calc[k], Xmol_i_calc[k]);
+	}
+	writelogf("%15s: %10.5g\n", "Total Molar Sum", n_t_calc);
+	writelogf("(iter %d) element moles bal:   Goal  Calculated\n", iter);
+	for (m = 0; m < m_mm; m++) {
+	  string nnn = eNames[m];
+	  writelogf("              %8s: %10.5g %10.5g \n", nnn.c_str(), elMoles[m], eMolesCalc[m]);
+	}
       }
 #endif
 
@@ -1429,53 +1482,53 @@ namespace Cantera {
        */
       int iM = -1;
       for (m = 0; m < m_mm; m++) {
-    if (elMoles[m] > 0.001 * elMolesTotal) {
-      if (eMolesCalc[m] > 1000. * elMoles[m]) {
-        normalStep = false;
-        iM = m;
-      }
-      if (1000 * eMolesCalc[m] < elMoles[m]) {
-        normalStep = false;
-        iM = m;
-      }
-    }
+	if (elMoles[m] > 0.001 * elMolesTotal) {
+	  if (eMolesCalc[m] > 1000. * elMoles[m]) {
+	    normalStep = false;
+	    iM = m;
+	  }
+	  if (1000 * eMolesCalc[m] < elMoles[m]) {
+	    normalStep = false;
+	    iM = m;
+	  }
+	}
       }
 #ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
-    if (!normalStep) {
-      writelogf(" NOTE: iter(%d) Doing an abnormal step due to row %d\n", iter, iM); 
-    }
+	if (!normalStep) {
+	  writelogf(" NOTE: iter(%d) Doing an abnormal step due to row %d\n", iter, iM); 
+	}
       }
 #endif 
       if (!normalStep) {
-    beta = 1.0;
-    resid[m_mm] = 0.0;
-    for (im = 0; im < m_mm; im++) {
-      m = m_orderVectorElements[im];
-      resid[m] = 0.0;
-      if (im < m_nComponents) {
-        if (elMoles[m] > 0.001 * elMolesTotal) {
-          if (eMolesCalc[m] > 1000. * elMoles[m]) {
-        resid[m] = -0.5;
-        resid[m_mm] -= 0.5;
-          }
-          if (1000 * eMolesCalc[m] < elMoles[m]) {
-        resid[m] = 0.5;
-        resid[m_mm] += 0.5;
-          }
-        }
-      }
-    }
-    if (n_t < (elMolesTotal / nAtomsMax)) {
-      if (resid[m_mm] < 0.0) {
-        resid[m_mm] = 0.1;
-      }
-    } else if (n_t > elMolesTotal) {
-      if (resid[m_mm] > 0.0) {
-        resid[m_mm] = 0.0;
-      }
-    }
-    goto updateSolnVector;
+	beta = 1.0;
+	resid[m_mm] = 0.0;
+	for (im = 0; im < m_mm; im++) {
+	  m = m_orderVectorElements[im];
+	  resid[m] = 0.0;
+	  if (im < m_nComponents) {
+	    if (elMoles[m] > 0.001 * elMolesTotal) {
+	      if (eMolesCalc[m] > 1000. * elMoles[m]) {
+		resid[m] = -0.5;
+		resid[m_mm] -= 0.5;
+	      }
+	      if (1000 * eMolesCalc[m] < elMoles[m]) {
+		resid[m] = 0.5;
+		resid[m_mm] += 0.5;
+	      }
+	    }
+	  }
+	}
+	if (n_t < (elMolesTotal / nAtomsMax)) {
+	  if (resid[m_mm] < 0.0) {
+	    resid[m_mm] = 0.1;
+	  }
+	} else if (n_t > elMolesTotal) {
+	  if (resid[m_mm] > 0.0) {
+	    resid[m_mm] = 0.0;
+	  }
+	}
+	goto updateSolnVector;
       }
    
 
@@ -1504,7 +1557,7 @@ namespace Cantera {
        *       Hopefully, it's caught by the equal rows logic below.
        */
       for (m = 0; m < m_mm; m++) {
-    lumpSum[m] = 1;
+	lumpSum[m] = 1;
       }
 
       nCutoff = 1.0E-9 * n_t_calc;
@@ -1514,33 +1567,33 @@ namespace Cantera {
       }
 #endif
       for (m = 0; m < m_mm; m++) {
-    int kMSp = -1;
-    int kMSp2 = -1;
-    int nSpeciesWithElem  = 0;
-    for (k = 0; k < m_kk; k++) {
-      if (n_i_calc[k] > nCutoff) {
-        if (fabs(nAtoms(k,m)) > 0.001) {
-          nSpeciesWithElem++;
-          if (kMSp != -1) {
-        kMSp2 = k;
-        double factor = fabs(nAtoms(kMSp,m) / nAtoms(kMSp2,m));
-        for (n = 0; n < m_mm; n++) {
-          if (fabs(factor *  nAtoms(kMSp2,n) -  nAtoms(kMSp,n)) > 1.0E-8) {
-            lumpSum[m] = 0;
-            break;
-          }
-        }
-          } else {
-        kMSp = k;
-          }
-        }
-      }
-    }
+	int kMSp = -1;
+	int kMSp2 = -1;
+	int nSpeciesWithElem  = 0;
+	for (k = 0; k < m_kk; k++) {
+	  if (n_i_calc[k] > nCutoff) {
+	    if (fabs(nAtoms(k,m)) > 0.001) {
+	      nSpeciesWithElem++;
+	      if (kMSp != -1) {
+		kMSp2 = k;
+		double factor = fabs(nAtoms(kMSp,m) / nAtoms(kMSp2,m));
+		for (n = 0; n < m_mm; n++) {
+		  if (fabs(factor *  nAtoms(kMSp2,n) -  nAtoms(kMSp,n)) > 1.0E-8) {
+		    lumpSum[m] = 0;
+		    break;
+		  }
+		}
+	      } else {
+		kMSp = k;
+	      }
+	    }
+	  }
+	}
 #ifdef DEBUG_CHEMEQUIL
-    if (ChemEquil_print_lvl > 0) {
-      string nnn = eNames[m];
-      writelogf("               %5s %3d : %5d  %5d\n",nnn.c_str(), lumpSum[m], kMSp, kMSp2); 
-    }
+	if (ChemEquil_print_lvl > 0) {
+	  string nnn = eNames[m];
+	  writelogf("               %5s %3d : %5d  %5d\n",nnn.c_str(), lumpSum[m], kMSp, kMSp2); 
+	}
 #endif
       }
 
@@ -1548,22 +1601,22 @@ namespace Cantera {
        * Formulate the matrix.
        */
       for (im = 0; im < m_mm; im++) {
-    m = m_orderVectorElements[im];
-    if (im < m_nComponents) {
-      for (n = 0; n < m_mm; n++) {
-        a1(m,n) = 0.0;
-        for (k = 0; k < m_kk; k++) {
-          a1(m,n) += nAtoms(k,m) * nAtoms(k,n) * n_i_calc[k];
-        }
-      }
-      a1(m,m_mm) = eMolesCalc[m];
-      a1(m_mm, m) = eMolesCalc[m];
-    } else {
-      for (n = 0; n <= m_mm; n++) {
-        a1(m,n) = 0.0;
-      }
-      a1(m,m) = 1.0;
-    }
+	m = m_orderVectorElements[im];
+	if (im < m_nComponents) {
+	  for (n = 0; n < m_mm; n++) {
+	    a1(m,n) = 0.0;
+	    for (k = 0; k < m_kk; k++) {
+	      a1(m,n) += nAtoms(k,m) * nAtoms(k,n) * n_i_calc[k];
+	    }
+	  }
+	  a1(m,m_mm) = eMolesCalc[m];
+	  a1(m_mm, m) = eMolesCalc[m];
+	} else {
+	  for (n = 0; n <= m_mm; n++) {
+	    a1(m,n) = 0.0;
+	  }
+	  a1(m,m) = 1.0;
+	}
       }
       a1(m_mm, m_mm) = 0.0;
 
@@ -1572,45 +1625,45 @@ namespace Cantera {
        */
       sum = 0.0;
       for (im = 0; im < m_mm; im++) {
-    m = m_orderVectorElements[im];
-    if (im < m_nComponents) {
-      resid[m] = elMoles[m] - eMolesCalc[m];
-    } else {
-      resid[m] = 0.0;
-    }
-    /*
-     * For equations with positive and negative coefficients, (electronic charge),
-     * we must mitigate the convergence criteria by a condition limited by
-     * finite precision of inverting a matrix. 
-     * Other equations with just positive coefficients aren't limited by this.
-     */
-    if (m == m_eloc) {
-      tmp = resid[m] / (elMoles[m] + elMolesTotal*1.0E-6 + options.absElemTol);
-    } else {
-      tmp = resid[m] / (elMoles[m] + options.absElemTol);
-    }
-    sum += tmp * tmp;
+	m = m_orderVectorElements[im];
+	if (im < m_nComponents) {
+	  resid[m] = elMoles[m] - eMolesCalc[m];
+	} else {
+	  resid[m] = 0.0;
+	}
+	/*
+	 * For equations with positive and negative coefficients, (electronic charge),
+	 * we must mitigate the convergence criteria by a condition limited by
+	 * finite precision of inverting a matrix. 
+	 * Other equations with just positive coefficients aren't limited by this.
+	 */
+	if (m == m_eloc) {
+	  tmp = resid[m] / (elMoles[m] + elMolesTotal*1.0E-6 + options.absElemTol);
+	} else {
+	  tmp = resid[m] / (elMoles[m] + options.absElemTol);
+	}
+	sum += tmp * tmp;
       }
 
       for (m = 0; m < m_mm; m++) {
-    if (a1(m,m) < 1.0E-50) {
+	if (a1(m,m) < 1.0E-50) {
 #ifdef DEBUG_CHEMEQUIL
-      if (ChemEquil_print_lvl > 0) {
-        writelogf(" NOTE: Diagonalizing the analytical Jac row %d\n", m); 
-      }
+	  if (ChemEquil_print_lvl > 0) {
+	    writelogf(" NOTE: Diagonalizing the analytical Jac row %d\n", m); 
+	  }
 #endif
-      for (n = 0; n < m_mm; n++) {
-        a1(m,n) = 0.0;
-      }
-      a1(m,m) = 1.0;
-      if (resid[m] > 0.0) {
-        resid[m] = 1.0;
-      } else if (resid[m] < 0.0) {
-        resid[m] = -1.0;
-      } else {
-        resid[m] = 0.0;
-      }
-    }
+	  for (n = 0; n < m_mm; n++) {
+	    a1(m,n) = 0.0;
+	  }
+	  a1(m,m) = 1.0;
+	  if (resid[m] > 0.0) {
+	    resid[m] = 1.0;
+	  } else if (resid[m] < 0.0) {
+	    resid[m] = -1.0;
+	  } else {
+	    resid[m] = 0.0;
+	  }
+	}
       }
 
 
@@ -1618,14 +1671,14 @@ namespace Cantera {
 
 #ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
-    writelog("Matrix:\n");
-    for (m = 0; m <= m_mm; m++) {
-      writelog("       [");
-      for (n = 0; n <= m_mm; n++) {
-        writelogf(" %10.5g", a1(m,n)); 
-      }
-      writelogf("]  =   %10.5g\n", resid[m]); 
-    }
+	writelog("Matrix:\n");
+	for (m = 0; m <= m_mm; m++) {
+	  writelog("       [");
+	  for (n = 0; n <= m_mm; n++) {
+	    writelogf(" %10.5g", a1(m,n)); 
+	  }
+	  writelogf("]  =   %10.5g\n", resid[m]); 
+	}
       }
 #endif
       
@@ -1633,7 +1686,7 @@ namespace Cantera {
       sum += tmp * tmp;
 #ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
-    writelogf("(it %d) Convergence = %g\n", iter, sum);
+	writelogf("(it %d) Convergence = %g\n", iter, sum);
       }
 #endif
       /*
@@ -1644,51 +1697,50 @@ namespace Cantera {
        * singular.
        */
       if (sum < 0.05 * options.relTolerance) {
-    retn = 0;
-    goto exit;
+	retn = 0;
+	goto exit;
       }
 
       /*
        * Row Sum scaling
        */
       for (m = 0; m <= m_mm; m++) {
-    tmp = 0.0;
-    for (n = 0; n <= m_mm; n++) {
-      tmp += fabs(a1(m,n));
-    }
-    if (m < m_mm && tmp < 1.0E-30) {
+	tmp = 0.0;
+	for (n = 0; n <= m_mm; n++) {
+	  tmp += fabs(a1(m,n));
+	}
+	if (m < m_mm && tmp < 1.0E-30) {
 #ifdef DEBUG_CHEMEQUIL
-      if (ChemEquil_print_lvl > 0) {
-        writelogf(" NOTE: Diagonalizing row %d\n", m); 
-      }
+	  if (ChemEquil_print_lvl > 0) {
+	    writelogf(" NOTE: Diagonalizing row %d\n", m); 
+	  }
 #endif
-      for (n = 0; n <= m_mm; n++) {
-        if (n != m) {
-          a1(m,n) = 0.0;
-          a1(n,m) = 0.0;
-        }
-      }
-    }
-    tmp = 1.0/tmp;
-    for (n = 0; n <= m_mm; n++) {
-      a1(m,n) *= tmp;
-    }
-    resid[m] *= tmp;
+	  for (n = 0; n <= m_mm; n++) {
+	    if (n != m) {
+	      a1(m,n) = 0.0;
+	      a1(n,m) = 0.0;
+	    }
+	  }
+	}
+	tmp = 1.0/tmp;
+	for (n = 0; n <= m_mm; n++) {
+	  a1(m,n) *= tmp;
+	}
+	resid[m] *= tmp;
       }
 
 #ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
-    writelog("Row Summed Matrix:\n");
-    for (m = 0; m <= m_mm; m++) {
-      writelog("       [");
-      for (n = 0; n <= m_mm; n++) {
-        writelogf(" %10.5g", a1(m,n)); 
-      }
-      writelogf("]  =   %10.5g\n", resid[m]); 
-    }
+	writelog("Row Summed Matrix:\n");
+	for (m = 0; m <= m_mm; m++) {
+	  writelog("       [");
+	  for (n = 0; n <= m_mm; n++) {
+	    writelogf(" %10.5g", a1(m,n)); 
+	  }
+	  writelogf("]  =   %10.5g\n", resid[m]); 
+	}
       }
 #endif
-
       /*
        * Next Step: We have row-summed the equations.
        * However, there are some degenerate cases where two
@@ -1712,68 +1764,68 @@ namespace Cantera {
        */
       modifiedMatrix = false;
       for (m = 0; m < m_mm; m++) {
-    int sameAsRow = -1;
-    for (int im = 0; im < m; im++) {
-      bool theSame = true;
-      for (n = 0; n < m_mm; n++) {
-        if (fabs(a1(m,n) - a1(im,n)) > 1.0E-7) {
-          theSame = false;
-          break;
-        }
-      }
-      if (theSame) {
-        sameAsRow = im;
-      }
-    }
-    if (sameAsRow >= 0 || lumpSum[m]) {
+	int sameAsRow = -1;
+	for (int im = 0; im < m; im++) {
+	  bool theSame = true;
+	  for (n = 0; n < m_mm; n++) {
+	    if (fabs(a1(m,n) - a1(im,n)) > 1.0E-7) {
+	      theSame = false;
+	      break;
+	    }
+	  }
+	  if (theSame) {
+	    sameAsRow = im;
+	  }
+	}
+	if (sameAsRow >= 0 || lumpSum[m]) {
 #ifdef DEBUG_CHEMEQUIL
-      if (ChemEquil_print_lvl > 0) {
-        if (lumpSum[m]) {
-          writelogf("Lump summing row %d, due to rank deficiency analysis\n", m);
-        } else if (sameAsRow >= 0) {
-         writelogf("Identified that rows %d and %d are the same\n", m, sameAsRow);
-        }
-      }
+	  if (ChemEquil_print_lvl > 0) {
+	    if (lumpSum[m]) {
+	      writelogf("Lump summing row %d, due to rank deficiency analysis\n", m);
+	    } else if (sameAsRow >= 0) {
+	      writelogf("Identified that rows %d and %d are the same\n", m, sameAsRow);
+	    }
+	  }
 #endif
-      modifiedMatrix = true;
-      for (n = 0; n < m_mm; n++) {
-        if (n != m) {
-          a1(m,m) += fabs(a1(m,n));
-          a1(m,n) = 0.0;
-        }
-      }
-    }
+	  modifiedMatrix = true;
+	  for (n = 0; n < m_mm; n++) {
+	    if (n != m) {
+	      a1(m,m) += fabs(a1(m,n));
+	      a1(m,n) = 0.0;
+	    }
+	  }
+	}
       }
 
 #ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0 && modifiedMatrix) {
-    writelog("Row Summed, MODIFIED Matrix:\n");
-    for (m = 0; m <= m_mm; m++) {
-      writelog("       [");
-      for (n = 0; n <= m_mm; n++) {
-        writelogf(" %10.5g", a1(m,n)); 
-      }
-      writelogf("]  =   %10.5g\n", resid[m]);
-    }
+	writelog("Row Summed, MODIFIED Matrix:\n");
+	for (m = 0; m <= m_mm; m++) {
+	  writelog("       [");
+	  for (n = 0; n <= m_mm; n++) {
+	    writelogf(" %10.5g", a1(m,n)); 
+	  }
+	  writelogf("]  =   %10.5g\n", resid[m]);
+	}
       }
 #endif
 
       try {
-    info = solve(a1, DATA_PTR(resid));
+	info = solve(a1, DATA_PTR(resid));
       }
       catch (CanteraError) {
-    addLogEntry("estimateEP_Brinkley:Jacobian is singular.");
+	addLogEntry("estimateEP_Brinkley:Jacobian is singular.");
 #ifdef DEBUG_CHEMEQUIL
-    if (ChemEquil_print_lvl > 0) {
-      writelog("Matrix is SINGULAR.ERROR\n");
-    }
+	if (ChemEquil_print_lvl > 0) {
+	  writelog("Matrix is SINGULAR.ERROR\n");
+	}
 #endif
-    s.restoreState(state);
-    throw CanteraError("equilibrate:estimateEP_Brinkley()",
-               "Jacobian is singular. \nTry adding more species, "
-               "changing the elemental composition slightly, \nor removing "
-               "unused elements.");
-    return -3;
+	s.restoreState(state);
+	throw CanteraError("equilibrate:estimateEP_Brinkley()",
+			   "Jacobian is singular. \nTry adding more species, "
+			   "changing the elemental composition slightly, \nor removing "
+			   "unused elements.");
+	return -3;
       }
 
       /*
@@ -1783,24 +1835,24 @@ namespace Cantera {
        */
       beta = 1.0;
       for (m = 0; m < m_mm; m++) {
-    if (resid[m] > 1.0) {
-      double betat = 1.0 / resid[m];
-      if (betat < beta) {
-        beta = betat;
-      }
-    }
-    if (resid[m] < -1.0) {
-      double betat = -1.0 / resid[m];
-      if (betat < beta) {
-        beta = betat;
-      }
-    }    
+	if (resid[m] > 1.0) {
+	  double betat = 1.0 / resid[m];
+	  if (betat < beta) {
+	    beta = betat;
+	  }
+	}
+	if (resid[m] < -1.0) {
+	  double betat = -1.0 / resid[m];
+	  if (betat < beta) {
+	    beta = betat;
+	  }
+	}    
       }
 #ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
-    if (beta != 1.0) {
-      writelogf("(it %d) Beta = %g\n", iter, beta); 
-    }
+	if (beta != 1.0) {
+	  writelogf("(it %d) Beta = %g\n", iter, beta); 
+	}
       }
 #endif
 
@@ -1809,36 +1861,36 @@ namespace Cantera {
        */
     updateSolnVector:
       for (m = 0; m < m_mm; m++) {
-    x[m] += beta * resid[m];
+	x[m] += beta * resid[m];
       }
       n_t *= exp(beta * resid[m_mm]);  
     
 
 #ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
-    writelogf("(it %d)    OLD_SOLUTION  NEW SOLUTION    (undamped updated)\n", iter);
-    for (m = 0; m < m_mm; m++) {
-      string eee = eNames[m];
-      writelogf("     %5s   %10.5g   %10.5g   %10.5g\n", eee.c_str(), x_old[m], x[m], resid[m]);
-    }
+	writelogf("(it %d)    OLD_SOLUTION  NEW SOLUTION    (undamped updated)\n", iter);
+	for (m = 0; m < m_mm; m++) {
+	  string eee = eNames[m];
+	  writelogf("     %5s   %10.5g   %10.5g   %10.5g\n", eee.c_str(), x_old[m], x[m], resid[m]);
+	}
         writelogf("       n_t    %10.5g   %10.5g  %10.5g \n",  x_old[m_mm], n_t, exp(resid[m_mm]));
       }
 #endif
     }
   exit:
 #ifdef DEBUG_CHEMEQUIL
-      if (ChemEquil_print_lvl > 0) {
-    double temp = s.temperature();
-    double pres = s.pressure();
+    if (ChemEquil_print_lvl > 0) {
+      double temp = s.temperature();
+      double pres = s.pressure();
    
-    if (retn == 0) {
-      writelogf(" ChemEquil::estimateEP_Brinkley() SUCCESS: equilibrium found at T = %g, Pres = %g\n",
-         temp, pres);
-    } else {
-      writelogf(" ChemEquil::estimateEP_Brinkley() FAILURE: equilibrium not found at T = %g, Pres = %g\n",
-         temp, pres);
-    }
+      if (retn == 0) {
+	writelogf(" ChemEquil::estimateEP_Brinkley() SUCCESS: equilibrium found at T = %g, Pres = %g\n",
+		  temp, pres);
+      } else {
+	writelogf(" ChemEquil::estimateEP_Brinkley() FAILURE: equilibrium not found at T = %g, Pres = %g\n",
+		  temp, pres);
       }
+    }
 #endif
     return retn;
   }
@@ -1860,18 +1912,18 @@ namespace Cantera {
     double maxNegVal = -1.0;
     if (ChemEquil_print_lvl > 0) {
       for (k = 0; k < m_kk; k++) {
-    if (nAtoms(k,m_eloc) > 0.0) {
-      if (m_molefractions[k] > maxPosVal && m_molefractions[k] > 0.0) {
-        maxPosVal = m_molefractions[k];
-        maxPosEloc = k;
-      }
-    }
-    if (nAtoms(k,m_eloc) < 0.0) {
-      if (m_molefractions[k] > maxNegVal && m_molefractions[k] > 0.0) {
-        maxNegVal = m_molefractions[k];
-        maxNegEloc = k;
-      }
-    }
+	if (nAtoms(k,m_eloc) > 0.0) {
+	  if (m_molefractions[k] > maxPosVal && m_molefractions[k] > 0.0) {
+	    maxPosVal = m_molefractions[k];
+	    maxPosEloc = k;
+	  }
+	}
+	if (nAtoms(k,m_eloc) < 0.0) {
+	  if (m_molefractions[k] > maxNegVal && m_molefractions[k] > 0.0) {
+	    maxNegVal = m_molefractions[k];
+	    maxNegEloc = k;
+	  }
+	}
       }
     }
 #endif
@@ -1880,10 +1932,10 @@ namespace Cantera {
     double sumNeg = 0.0;
     for (k = 0; k < m_kk; k++) {
       if (nAtoms(k,m_eloc) > 0.0) {
-    sumPos += nAtoms(k,m_eloc) * m_molefractions[k];
+	sumPos += nAtoms(k,m_eloc) * m_molefractions[k];
       }
       if (nAtoms(k,m_eloc) < 0.0) {
-    sumNeg += nAtoms(k,m_eloc) * m_molefractions[k];
+	sumNeg += nAtoms(k,m_eloc) * m_molefractions[k];
       }
     }
     sumNeg = - sumNeg;
@@ -1893,35 +1945,35 @@ namespace Cantera {
       double factor = (elMolesGoal[m_eloc] + sumNeg) / sumPos;
 #ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
-    if (factor < 0.9999999999) {
-      string nnn = s.speciesName(maxPosEloc);
-      writelogf("adjustEloc: adjusted %s and friends from %g to %g to ensure neutrality condition\n",
-         nnn.c_str(),
-         m_molefractions[maxPosEloc], m_molefractions[maxPosEloc]*factor);
-    }
+	if (factor < 0.9999999999) {
+	  string nnn = s.speciesName(maxPosEloc);
+	  writelogf("adjustEloc: adjusted %s and friends from %g to %g to ensure neutrality condition\n",
+		    nnn.c_str(),
+		    m_molefractions[maxPosEloc], m_molefractions[maxPosEloc]*factor);
+	}
       }
 #endif
       for (k = 0; k < m_kk; k++) {
-    if (nAtoms(k,m_eloc) > 0.0) {
-      m_molefractions[k] *= factor;
-    }
+	if (nAtoms(k,m_eloc) > 0.0) {
+	  m_molefractions[k] *= factor;
+	}
       }
     } else {
       double factor = (-elMolesGoal[m_eloc] + sumPos) / sumNeg;
 #ifdef DEBUG_CHEMEQUIL
       if (ChemEquil_print_lvl > 0) {
-    if (factor < 0.9999999999) {
-      string nnn = s.speciesName(maxNegEloc);
-      writelogf("adjustEloc: adjusted %s and friends from %g to %g to ensure neutrality condition\n",
-         nnn.c_str(),
-         m_molefractions[maxNegEloc], m_molefractions[maxNegEloc]*factor);
-    }
+	if (factor < 0.9999999999) {
+	  string nnn = s.speciesName(maxNegEloc);
+	  writelogf("adjustEloc: adjusted %s and friends from %g to %g to ensure neutrality condition\n",
+		    nnn.c_str(),
+		    m_molefractions[maxNegEloc], m_molefractions[maxNegEloc]*factor);
+	}
       }
 #endif
       for (k = 0; k < m_kk; k++) {
-    if (nAtoms(k,m_eloc) < 0.0) {
-      m_molefractions[k] *= factor;
-    }
+	if (nAtoms(k,m_eloc) < 0.0) {
+	  m_molefractions[k] *= factor;
+	}
       }
     }
        
