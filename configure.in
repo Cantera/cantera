@@ -1538,6 +1538,7 @@ AC_OUTPUT(Makefile \
           tools/templates/cxx/demo.mak \
 	  tools/testtools/Makefile \
           data/inputs/Makefile  \
+          data/inputs/mkxml  \
           test_problems/Makefile \
           test_problems/cxx_ex/Makefile \
           test_problems/silane_equil/Makefile \
@@ -1602,6 +1603,9 @@ if test -f "test_problems/nasa9_reader/runtest"; then
 fi
 if test -f "bin/install_tsc"; then
   chmod +x bin/install_tsc
+fi
+if test -f "data/inputs/mkxml"; then
+  chmod +x data/inputs/mkxml
 fi
 
 

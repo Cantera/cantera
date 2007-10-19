@@ -10,3 +10,4 @@ set_cant_env
 autom4te.cache
 config.log
 config.status
+linux.my.32
