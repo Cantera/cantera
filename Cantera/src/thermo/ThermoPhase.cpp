@@ -22,6 +22,10 @@
 
 #include "ThermoPhase.h"
 
+#ifndef MAX
+#define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
+#endif
+
 using namespace std;
 
 namespace Cantera {
@@ -191,85 +195,476 @@ namespace Cantera {
         setMassFractions(y); setPressure(p);
     }
 
-    void ThermoPhase::setState_HP(doublereal h, doublereal p, 
-        doublereal tol) {
-        doublereal dt;
-        setPressure(p);
+  void ThermoPhase::setState_HP(doublereal Htarget, doublereal p, 
+				doublereal dTtol) {
+    setState_HPorUV(Htarget, p, dTtol, false);
+  }
 
-        // Newton iteration
-        for (int n = 0; n < 500; n++) {
-            double h0 = enthalpy_mass();
-            dt = (h - h0)/cp_mass();
-            // limit step size to 100 K
-            if (dt > 100.0) dt = 100.0;
-            else if (dt < -100.0) dt = -100.0; 
-            setState_TP(temperature() + dt, p);
-            if (fabs(dt) < tol) {
-                return;
-            }
-        }
-        throw CanteraError("setState_HP","No convergence. dt = " + fp2str(dt));
+  void ThermoPhase::setState_UV(doublereal u, doublereal v, 
+				doublereal dTtol) {
+    setState_HPorUV(u, v, dTtol, true);
+  }
+
+  void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p, 
+				    doublereal dTtol, bool doUV) {
+    doublereal dt;
+    doublereal Hmax = 0.0, Hmin = 0.0;;
+    doublereal v = 0.0;
+    if (doUV) {
+      v = p;
+      setDensity(1.0/v);
+    } else {
+      setPressure(p);
+    }
+    double Tmax = maxTemp() + 0.1;
+    double Tmin = minTemp() - 0.1;
+
+    // Make sure we are within the temperature bounds at the start
+    // of the iteration
+    double Tnew = temperature();
+    if (Tnew > Tmax) {
+      Tnew = Tmax - 1.0;
+      if (doUV) {
+	setTemperature(Tnew);
+      } else {
+	setState_TP(Tnew, p);
+      }
+    }
+    if (Tnew < Tmin) {
+      Tnew = Tmin + 1.0;
+      if (doUV) {
+	setTemperature(Tnew);
+      } else {
+	setState_TP(Tnew, p);
+      }
     }
 
-    void ThermoPhase::setState_UV(doublereal u, doublereal v, 
-        doublereal tol) {
-        doublereal dt;
-        setDensity(1.0/v);
-        for (int n = 0; n < 500; n++) {
-            dt = (u - intEnergy_mass())/cv_mass();
-            if (dt > 100.0) dt = 100.0;
-            else if (dt < -100.0) dt = -100.0;
-            if (fabs(dt) < tol) {
-                setTemperature(temperature() + dt);
-                return;
-            }
-            setTemperature(temperature() + 0.5*dt);
-        }
-        throw CanteraError("setState_UV",
-            "no convergence. dt = " + fp2str(dt)+"\n"
-            +"tol = "+fp2str(tol)+"\n"
-            +"u = "+fp2str(u)+" v = "+fp2str(v)+"\n");
+    double Hnew = 0.0;
+    double Cpnew = 0.0;
+    if (doUV) {
+      Hnew = intEnergy_mass();
+      Cpnew = cv_mass();
+    } else {
+      Hnew = enthalpy_mass();
+      Cpnew = cp_mass();
+    }
+    double Htop = Hnew;
+    double Ttop = Tnew;
+    double Hbot = Hnew;
+    double Tbot = Tnew;
+    double Told = Tnew;
+    double Hold = Hnew;
+
+    bool ignoreBounds = false;
+    // Unstable phases are those for which
+    // cp < 0.0. These are possible for cases where
+    // we have passed the spinodal curve.
+    bool unstablePhase = false;
+    bool unstablePhaseNew = false;
+   
+
+    // Newton iteration
+    for (int n = 0; n < 500; n++) {
+      Told = Tnew;
+      Hold = Hnew;
+      double cpd = Cpnew;
+      if (cpd < 0.0) {
+	unstablePhase = true;
+      }
+      dt = (Htarget - Hold)/cpd;
+      if (dt > 0.0) {
+	if (!unstablePhase) {
+	  if (Htop < Htarget) {
+	    dt *= 1.5;
+	  }
+	} else {
+	  if (Hbot > Htarget) {
+	    dt *= 1.5;
+	  }
+	}
+      } else {
+	if (!unstablePhase) {
+	  if (Hbot > Htarget) {
+	    dt *= 1.5;
+	  }
+	} else {
+	  if (Htop < Htarget) {
+	    dt *= 1.5;
+	  }
+	}
+      }
+
+      // limit step size to 200 K
+      if (dt > 100.0)       dt =  100.0;
+      else if (dt < -100.0) dt = -100.0; 
+      Tnew = Told + dt;
+      // Limit the step size so that we are convergent
+      // This is the step that makes it different from a 
+      // Newton's algorithm
+      if (dt > 0.0) {
+	if (!unstablePhase) {
+	  if (Htop > Htarget) {
+	    if (Tnew > (0.75 * Ttop + 0.25 * Told)) {
+	      dt = 0.75 * (Ttop - Told);
+	      Tnew = Told + dt;
+	    }
+	  }
+	} else {
+	  if (Hbot < Htarget) {
+	    if (Tnew < (0.75 * Tbot + 0.25 * Told)) {
+	      dt = 0.75 * (Tbot - Told);
+	      Tnew = Told + dt;
+	    }
+	  }
+	}
+      } else {
+	if (!unstablePhase) {
+	  if (Hbot < Htarget) {
+	    if (Tnew < (0.75 * Tbot + 0.25 * Told)) {
+	      dt = 0.75 * (Tbot - Told);
+	      Tnew = Told + dt;
+	    }
+	  }
+	} else {
+	  if (Htop > Htarget) {
+	    if (Tnew > (0.75 * Ttop + 0.25 * Told)) {
+	      dt = 0.75 * (Ttop - Told);
+	      Tnew = Told + dt;
+	    }
+	  }
+	}
+      }
+      // Check Max and Min values
+      if (Tnew > Tmax) {
+	if (!ignoreBounds) {
+	  if (doUV) {
+	    setTemperature(Tmax);
+	    Hmax = intEnergy_mass();
+	  } else {
+	    setState_TP(Tmax, p);
+	    Hmax = enthalpy_mass();
+	  }
+	  if (Hmax >= Htarget) {
+	    if (Htop < Htarget) {
+	      Ttop = Tmax;
+	      Htop = Hmax;
+	    }
+	  } else {
+	    Tnew = Tmax + 1.0;
+	    ignoreBounds = true;
+	  }
+	}
+      }
+      if (Tnew < Tmin) {
+	if (!ignoreBounds) {
+	  if (doUV) {
+	    setTemperature(Tmin);
+	    Hmin = intEnergy_mass();
+	  } else {
+	    setState_TP(Tmin, p);
+	    Hmin = enthalpy_mass();
+	  }
+	  if (Hmin <= Htarget) {
+	    if (Hbot > Htarget) {
+	      Tbot = Tmin;
+	      Hbot = Hmin;
+	    }
+	  } else {
+	    Tnew = Tmin - 1.0;
+	    ignoreBounds = true;
+	  }
+	}
+      }
+ 
+      // Try to keep phase within its region of stability
+      // -> Could do a lot better if I calculate the
+      //    spinodal value of H.
+      for (int its = 0; its < 10; its++) {
+	Tnew = Told + dt;
+	if (doUV) {
+	  setTemperature(Tnew);
+	  Hnew = intEnergy_mass();
+	  Cpnew = cv_mass();
+	} else {
+	  setState_TP(Tnew, p);
+	  Hnew = enthalpy_mass();
+	  Cpnew = cp_mass();
+	}
+	if (Cpnew < 0.0) {
+	  unstablePhaseNew = true;
+	} else {
+	  break;
+	  unstablePhaseNew = false;
+	}
+	if (unstablePhase == false) {
+	  if (unstablePhaseNew == true) {
+	    dt *= 0.25;
+	  }
+	}
+      }
+
+      if (Hnew == Htarget) {
+	return;
+      } else if (Hnew > Htarget) {
+	if ((Htop < Htarget) || (Hnew < Htop)) {
+	  Htop = Hnew;
+	  Ttop = Tnew;
+	} 
+      } else if (Hnew < Htarget) {
+	if ((Hbot > Htarget) || (Hnew > Hbot)) {
+	  Hbot = Hnew;
+	  Tbot = Tnew;
+	}
+      }
+      // Convergence in H
+      double Herr = Htarget - Hnew;
+      double acpd = MAX(fabs(cpd), 1.0E-5);
+      double denom = MAX(fabs(Htarget), acpd * dTtol);
+      double HConvErr = fabs((Herr)/denom);
+      if (HConvErr < 0.00001 *dTtol) {
+	return;
+      }
+      if (fabs(dt) < dTtol) {
+	return;
+      }
+    }
+    throw CanteraError("setState_HPorUV","No convergence. dt = " + fp2str(dt));
+  }
+
+  void ThermoPhase::setState_SP(doublereal Starget, doublereal p, 
+				doublereal dTtol) {
+    setState_SPorSV(Starget, p, dTtol, false);
+  }
+
+  void ThermoPhase::setState_SV(doublereal Starget, doublereal v, 
+				doublereal dTtol) {
+    setState_SPorSV(Starget, v, dTtol, true);
+  }
+
+  void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p, 
+				    doublereal dTtol, bool doSV) {
+    doublereal v = 0.0;
+    doublereal dt;
+    if (doSV) {
+      v = p;
+      setDensity(1.0/v); 
+    } else {
+      setPressure(p);
+    }
+    double Tmax = maxTemp() + 0.1;
+    double Tmin = minTemp() - 0.1;
+
+    // Make sure we are within the temperature bounds at the start
+    // of the iteration
+    double Tnew = temperature();
+    if (Tnew > Tmax) {
+      Tnew = Tmax - 1.0;
+      if (doSV) {
+	setTemperature(Tnew);
+      } else {
+	setState_TP(Tnew, p);
+      }
+    }
+    if (Tnew < Tmin) {
+      Tnew = Tmin + 1.0;
+      if (doSV) {
+	setTemperature(Tnew);
+      } else {
+	setState_TP(Tnew, p);
+      }
     }
 
-    void ThermoPhase::setState_SP(doublereal s, doublereal p, 
-        doublereal tol) {
-        doublereal dt;
-        setPressure(p);
-        for (int n = 0; n < 500; n++) {
-            dt = (s - entropy_mass())*temperature()/cp_mass();
-            if (dt > 100.0) dt = 100.0;
-            else if (dt < -100.0) dt = -100.0; 
-            if (fabs(dt) < tol) {
-                setState_TP(temperature() + dt, p);
-                return;
-            }
-            setState_TP(temperature() + 0.5*dt, p);
-        }
-        throw CanteraError("setState_SP","no convergence. dt = " + fp2str(dt));
+    double Snew = entropy_mass();
+    double Cpnew = 0.0;
+    if (doSV) {
+      Cpnew = cv_mass();
+    } else {
+      Cpnew = cp_mass();
     }
 
-    void ThermoPhase::setState_SV(doublereal s, doublereal v, 
-        doublereal tol) {
-        doublereal dt;
-        setDensity(1.0/v);
-        for (int n = 0; n < 500; n++) {
-            dt = (s - entropy_mass())*temperature()/cv_mass();
-            if (dt > 100.0) dt = 100.0;
-            else if (dt < -100.0) dt = -100.0; 
-            if (fabs(dt) < tol) {
-                setTemperature(temperature() + dt);
-                return;
-            }
-            setTemperature(temperature() + 0.5*dt);
-        }
-        throw CanteraError("setState_SV","no convergence. dt = " + fp2str(dt));
-    }
+    double Stop = Snew;
+    double Ttop = Tnew;
+    double Sbot = Snew;
+    double Tbot = Tnew;
+    double Told = Tnew;
+    double Sold = Snew;
 
-    doublereal ThermoPhase::err(std::string msg) const {
-            throw CanteraError("ThermoPhase","Base class method "
-                +msg+" called. Equation of state type: "+int2str(eosType()));
-            return 0;
+    bool ignoreBounds = false;
+    // Unstable phases are those for which
+    // cp < 0.0. These are possible for cases where
+    // we have passed the spinodal curve.
+    bool unstablePhase = false;
+    bool unstablePhaseNew = false;
+   
+
+    // Newton iteration
+    for (int n = 0; n < 500; n++) {
+      Told = Tnew;
+      Sold = Snew;
+      double cpd = Cpnew;
+      if (cpd < 0.0) {
+	unstablePhase = true;
+      }
+      dt = (Starget - Sold)*Told/cpd;
+      if (dt > 0.0) {
+	if (!unstablePhase) {
+	  if (Stop < Starget) {
+	    dt *= 1.5;
+	  }
+	} else {
+	  if (Sbot > Starget) {
+	    dt *= 1.5;
+	  }
+	}
+      } else {
+	if (!unstablePhase) {
+	  if (Sbot > Starget) {
+	    dt *= 1.5;
+	  }
+	} else {
+	  if (Stop < Starget) {
+	    dt *= 1.5;
+	  }
+	}
+      }
+
+      // limit step size to 200 K
+      if (dt > 100.0)       dt =  100.0;
+      else if (dt < -100.0) dt = -100.0; 
+      Tnew = Told + dt;
+      // Limit the step size so that we are convergent
+      if (dt > 0.0) {
+	if (!unstablePhase) {
+	  if (Stop > Starget) {
+	    if (Tnew > Ttop) {
+	      dt = 0.75 * (Ttop - Told);
+	    Tnew = Told + dt;
+	    }
+	  }
+	} else {
+	  if (Sbot < Starget) {
+	    if (Tnew < Tbot) {
+	      dt = 0.75 * (Tbot - Told);
+	      Tnew = Told + dt;
+	    }
+	  }
+	}
+      } else {
+	if (!unstablePhase) {
+	  if (Sbot < Starget) {
+	    if (Tnew < Tbot) {
+	      dt = 0.75 * (Tbot - Told);
+	      Tnew = Told + dt;
+	    }
+	  }
+	} else {
+	  if (Stop > Starget) {
+	    if (Tnew > Ttop) {
+	      dt = 0.75 * (Ttop - Told);
+	      Tnew = Told + dt;
+	    }
+	  }
+	}
+      }
+      // Check Max and Min values
+      if (Tnew > Tmax) {
+	if (!ignoreBounds) {
+	  if (doSV) {
+	    setTemperature(Tmax);
+	  } else {
+	    setState_TP(Tmax, p);
+	  }
+	  double Smax = entropy_mass();
+	  if (Smax >= Starget) {
+	    if (Stop < Starget) {
+	      Ttop = Tmax;
+	      Stop = Smax;
+	    }
+	  } else {
+	    Tnew = Tmax + 1.0;
+	    ignoreBounds = true;
+	  }
+	}
+      }
+      if (Tnew < Tmin) {
+	if (!ignoreBounds) {
+	  if (doSV) {
+	    setTemperature(Tmin);
+	  } else {
+	    setState_TP(Tmin, p);
+	  }
+	  double Smin = enthalpy_mass();
+	  if (Smin <= Starget) {
+	    if (Sbot > Starget) {
+	      Sbot = Tmin;
+	      Sbot = Smin;
+	    }
+	  } else {
+	    Tnew = Tmin - 1.0;
+	    ignoreBounds = true;
+	  }
+	}
+      }
+ 
+      // Try to keep phase within its region of stability
+      // -> Could do a lot better if I calculate the
+      //    spinodal value of H.
+      for (int its = 0; its < 10; its++) {
+	Tnew = Told + dt;
+	if (doSV) {
+	  setTemperature(Tnew);
+	  Cpnew = cv_mass();
+	} else {
+	  setState_TP(Tnew, p);
+	  Cpnew = cp_mass();
+	}
+	Snew = entropy_mass();
+	if (Cpnew < 0.0) {
+	  unstablePhaseNew = true;
+	} else {
+	  break;
+	  unstablePhaseNew = false;
+	}
+	if (unstablePhase == false) {
+	  if (unstablePhaseNew == true) {
+	    dt *= 0.25;
+	  }
+	}
+      }
+
+      if (Snew == Starget) {
+	return;
+      } else if (Snew > Starget) {
+	if ((Stop < Starget) || (Snew < Stop)) {
+	  Stop = Snew;
+	  Ttop = Tnew;
+	} 
+      } else if (Snew < Starget) {
+	if ((Sbot > Starget) || (Snew > Sbot)) {
+	  Sbot = Snew;
+	  Tbot = Tnew;
+	}
+      }
+      // Convergence in S
+      double Serr = Starget - Snew;
+      double acpd = MAX(fabs(cpd), 1.0E-5);
+      double denom = MAX(fabs(Starget), acpd * dTtol);
+      double SConvErr = fabs((Serr * Tnew)/denom);
+      if (SConvErr < 0.00001 *dTtol) {
+	return;
+      }
+      if (fabs(dt) < dTtol) {
+	return;
+      }
     }
+    throw CanteraError("setState_SPorSV","No convergence. dt = " + fp2str(dt));
+  }
+
+  doublereal ThermoPhase::err(std::string msg) const {
+    throw CanteraError("ThermoPhase","Base class method "
+		       +msg+" called. Equation of state type: "+int2str(eosType()));
+    return 0;
+  }
 
   /*
    * Returns the units of the standard and general concentrations

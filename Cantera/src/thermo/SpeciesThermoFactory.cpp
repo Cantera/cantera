@@ -184,7 +184,7 @@ namespace Cantera {
         doublereal cplow = poly4(tmid, clow);
         doublereal cphigh = poly4(tmid, chigh);
         doublereal delta = cplow - cphigh;
-        if (fabs(delta/cplow) > 0.001) {
+        if (fabs(delta/(fabs(cplow)+1.0E-4)) > 0.001) {
             writelog("\n\n**** WARNING ****\nFor species "+name+
                 ", discontinuity in cp/R detected at Tmid = "
                 +fp2str(tmid)+"\n");
@@ -198,7 +198,7 @@ namespace Cantera {
         doublereal hrtlow = enthalpy_RT(tmid, clow);
         doublereal hrthigh = enthalpy_RT(tmid, chigh);
         delta = hrtlow - hrthigh;
-        if (fabs(delta/hrtlow) > 0.001) {
+        if (fabs(delta/(fabs(hrtlow)+cplow*tmid)) > 0.001) {
             writelog("\n\n**** WARNING ****\nFor species "+name+
                 ", discontinuity in h/RT detected at Tmid = "
                 +fp2str(tmid)+"\n");
@@ -212,7 +212,7 @@ namespace Cantera {
         doublereal srlow = entropy_R(tmid, clow);
         doublereal srhigh = entropy_R(tmid, chigh);
         delta = srlow - srhigh;
-        if (fabs(delta/srlow) > 0.001) {
+        if (fabs(delta/(fabs(srlow)+cplow)) > 0.001) {
             writelog("\n\n**** WARNING ****\nFor species "+name+
                 ", discontinuity in s/R detected at Tmid = "
                 +fp2str(tmid)+"\n");

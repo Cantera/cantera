@@ -1057,7 +1057,6 @@ namespace Cantera {
      */
     void setState_PX(doublereal p, doublereal* x);
 
-
     //! Set the internally storred pressure (Pa) and mass fractions. 
     /*!
      * Note, the temperature is held constant during this operation.
@@ -1074,11 +1073,10 @@ namespace Cantera {
     /*!
      * @param h     Specific enthalpy (J/kg)
      * @param p     Pressure (Pa)
-     * @param tol  Optional parameter setting the tolerance of the
-     *             calculation.
+     * @param tol   Optional parameter setting the tolerance of the
+     *              calculation. Defaults to 1.0E-4
      */
-    virtual void setState_HP(doublereal h, doublereal p, 
-			     doublereal tol = 1.e-4);
+    virtual void setState_HP(doublereal h, doublereal p, doublereal tol = 1.e-4);
 
     //! Set the specific internal energy (J/kg) and specific volume (m^3/kg).
     /*!
@@ -1088,10 +1086,24 @@ namespace Cantera {
      * @param u    specific internal energy (J/kg)
      * @param v    specific volume (m^3/kg).
      * @param tol  Optional parameter setting the tolerance of the
-     *             calculation.
+     *             calculation. Defaults to 1.0E-4
      */
-    virtual void setState_UV(doublereal u, doublereal v, 
-			     doublereal tol = 1.e-4);
+    virtual void setState_UV(doublereal u, doublereal v, doublereal tol = 1.e-4);
+
+  private:
+
+    //! Carry out work in HP and UV calculations.
+    /*!
+     * @param h     Specific enthalpy or internal energy (J/kg)
+     * @param p     Pressure (Pa) or specific volume (m^3/kg)
+     * @param tol   Optional parameter setting the tolerance of the
+     *              calculation. Defaults to 1.0E-4
+     * @param doUV  True if solving for UV, false for HP.
+     */
+    void setState_HPorUV(doublereal h, doublereal p, 
+			 doublereal tol = 1.e-4, bool doUV = false);
+
+  public:
 
     //! Set the specific entropy (J/kg/K) and pressure (Pa).
     /*!
@@ -1101,10 +1113,9 @@ namespace Cantera {
      * @param s    specific entropy (J/kg/K)
      * @param p    specific pressure (Pa).
      * @param tol  Optional parameter setting the tolerance of the
-     *             calculation.
+     *             calculation. Defaults to 1.0E-4
      */
-    virtual void setState_SP(doublereal s, doublereal p, 
-			     doublereal tol = 1.e-4);
+    virtual void setState_SP(doublereal s, doublereal p, doublereal tol = 1.e-4);
 
     //! Set the specific entropy (J/kg/K) and specific volume (m^3/kg).
     /*!
@@ -1114,9 +1125,24 @@ namespace Cantera {
      * @param s    specific entropy (J/kg/K)
      * @param v    specific volume (m^3/kg).
      * @param tol  Optional parameter setting the tolerance of the
-     *             calculation.
+     *             calculation. Defaults to 1.0E-4
      */
     virtual void setState_SV(doublereal s, doublereal v, doublereal tol = 1.e-4);
+
+  private:
+
+    //! Carry out work in SP and SV calculations.
+    /*!
+     * @param s     Specific entropy (J/kg)
+     * @param p     Pressure (Pa) or specific volume (m^3/kg)
+     * @param tol   Optional parameter setting the tolerance of the
+     *              calculation. Defaults to 1.0E-4
+     * @param doSV  True if solving for SV, false for SP.
+     */
+    void setState_SPorSV(doublereal s, doublereal p, 
+			 doublereal tol = 1.e-4, bool doSV = false);
+
+  public:
 
     //@}
       
