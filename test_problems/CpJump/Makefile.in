@@ -52,6 +52,24 @@ CANTERA_LIBDIR=@buildlib@
 # required Cantera libraries
 CANTERA_LIBS = @LOCAL_LIBS@ -lctcxx
 
+# Cantera library Dependencies
+CANTERA_LIB_DEPS = $(CANTERA_LIBDIR)/liboneD.a \
+                   $(CANTERA_LIBDIR)/libzeroD.a \
+                   $(CANTERA_LIBDIR)/libkinetics.a \
+                   $(CANTERA_LIBDIR)/libtransport.a \
+                   $(CANTERA_LIBDIR)/libthermo.a \
+                   $(CANTERA_LIBDIR)/libctnumerics.a \
+                   $(CANTERA_LIBDIR)/libcvode.a \
+                   $(CANTERA_LIBDIR)/libctbase.a \
+                   $(CANTERA_LIBDIR)/libctmath.a \
+                   $(CANTERA_LIBDIR)/libtpx.a \
+                   $(CANTERA_LIBDIR)/libconverters.a
+
+ifeq (@build_lapack@, 1)
+CANTERA_LAPACK_DEPS = $(CANTERA_LIBDIR)/libctblas.a \
+                      $(CANTERA_LIBDIR)/libctlapack.a
+endif
+
 # the directory where Cantera include files may be found.
 ifeq ($(src_dir_tree), 1)
 CANTERA_INCDIR=../../Cantera/src
@@ -78,7 +96,7 @@ PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
 all: $(PROGRAM)
 
-$(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libctbase.a
+$(PROGRAM): $(OBJS) $(CANTERA_LIB_DEPS) $(CANTERA_LAPACK_DEPS)
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(LINK_OPTIONS) \
                   $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
