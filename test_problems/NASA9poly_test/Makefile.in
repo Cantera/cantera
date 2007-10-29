@@ -66,9 +66,8 @@ CANTERA_LIB_DEPS = $(CANTERA_LIBDIR)/liboneD.a \
                    $(CANTERA_LIBDIR)/libconverters.a 
 
 ifeq (@build_lapack@, 1)
-CANTERA_LIB_DEPS = $CANTERA_LIB_DEPS \
-                   $(CANTERA_LIBDIR)/libctblas.a \
-                   $(CANTERA_LIBDIR)/libctlapack.a
+CANTERA_LAPACK_DEPS = $(CANTERA_LIBDIR)/libctblas.a \
+                     $(CANTERA_LIBDIR)/libctlapack.a
 endif
 
 # the directory where Cantera include files may be found.
@@ -99,7 +98,7 @@ PROGRAM = $(PROG_NAME)$(EXE_EXT)
 all: $(PROGRAM)
 
 # Rule to make the program
-$(PROGRAM): $(OBJS)  $(CANTERA_LIB_DEPS)
+$(PROGRAM): $(OBJS)  $(CANTERA_LIB_DEPS) $(CANTERA_LAPACK_DEPS)
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(LINK_OPTIONS) \
                   $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)

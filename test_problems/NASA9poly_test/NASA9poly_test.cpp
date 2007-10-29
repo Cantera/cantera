@@ -55,6 +55,8 @@ int main(int argc, char** argv) {
     vector_fp cp_R(nsp, 0.0);
     g.getCp_R(DATA_PTR(cp_R));
     
+    vector_fp Gvalues(nsp, 0.0);
+
     printf("Comparisons of H2 calculated via several equivalent classes:\n");
     printf("1500 K and 1 atm:\n");
     printf("         NasaThermo   Nasa9   Nasa9_4reg \n");
@@ -70,6 +72,21 @@ int main(int argc, char** argv) {
     g.getEntropy_R(DATA_PTR(S_R));
     printf("  S/R: %11.6g %11.6g %11.6g\n", S_R[0], S_R[1], S_R[2]);
 
+   Transport * tran = newTransportMgr("Mix", &g);
+
+    // MultiTransport * tranMix = dynamic_cast<MultiTransport *>(tran);
+    printf("Viscoscity and thermal Cond vs. T\n");
+    for ( int k = 0; k < 40; k++) {
+      double T1 = 400. + 200. * k;
+      g.setState_TPX(T1, pres, DATA_PTR(Xset));
+      g.getPureGibbs(DATA_PTR(Gvalues));
+      //printf("     --  %13g %13.5g %13.5g %13.5g %13.5g \n",
+      //	     Gvalues[0],  Gvalues[1],  Gvalues[2], 
+      //	     Gvalues[3],  Gvalues[4]); 
+      double visc = tran->viscosity();
+      double cond = tran->thermalConductivity();
+      printf("    %13g %13.5g %13.5g\n", T1, visc, cond);
+    }
 
   }
   catch (CanteraError) {
