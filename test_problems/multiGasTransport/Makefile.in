@@ -61,12 +61,15 @@ CANTERA_LIB_DEPS = $(CANTERA_LIBDIR)/liboneD.a \
                    $(CANTERA_LIBDIR)/libctnumerics.a \
                    $(CANTERA_LIBDIR)/libcvode.a \
                    $(CANTERA_LIBDIR)/libctbase.a \
-                   $(CANTERA_LIBDIR)/libctlapack.a \
-                   $(CANTERA_LIBDIR)/libctblas.a \
                    $(CANTERA_LIBDIR)/libctmath.a \
                    $(CANTERA_LIBDIR)/libtpx.a \
                    $(CANTERA_LIBDIR)/libconverters.a 
 
+ifeq (@build_lapack@, 1)
+CANTERA_LIB_DEPS = $CANTERA_LIB_DEPS \
+                   $(CANTERA_LIBDIR)/libctblas.a \
+                   $(CANTERA_LIBDIR)/libctlapack.a
+endif
 
 # the directory where Cantera include files may be found.
 ifeq ($(src_dir_tree), 1)
