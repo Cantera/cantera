@@ -55,22 +55,52 @@ AxiStagnBVP::AxiStagnBVP(int nsp, int np, double L) :
 // destructor
 AxiStagnBVP::~AxiStagnBVP() {}
 
+
+
 // specify guesses for the initial values. These can be anything
 // that leads to a converged solution.
-doublereal initialValue(int n, int j) { 
+doublereal AxiStagnBVP::initialValue(int n, int j) { 
     switch (n) {
     case 0:
-        return m_u0;
+        return m_uin;
     case 1:
-        return m_u0/m_L;
+        return m_uin/m_L;
     case 2:
-        return m_Tinf;
+        return m_Tin;
     case 4:
         return 1.0;
     default:
         return 0.0;
     }
 }
+
+/**
+ * Set the gas object state to be consistent with the solution at
+ * point j.
+ */
+void AxiStagnBVP::setGas(const doublereal* x,int j) {
+    m_thermo->setTemperature(T(x,j));
+    const doublereal* yy = x + m_nv*j + 4;
+    m_thermo->setMassFractions_NoNorm(yy);
+    m_thermo->setPressure(m_press);
+}
+
+
+/**
+ * Set the gas state to be consistent with the solution at the
+ * midpoint between j and j + 1.
+ */
+void StFlow::setGasAtMidpoint(const doublereal* x,int j) {
+    m_thermo->setTemperature(0.5*(T(x,j)+T(x,j+1)));
+    const doublereal* yyj = x + m_nv*j + 4;
+    const doublereal* yyjp = x + m_nv*(j+1) + 4;
+    for (int k = 0; k < m_nsp; k++)
+        m_ybar[k] = 0.5*(yyj[k] + yyjp[k]);
+    m_thermo->setMassFractions_NoNorm(DATA_PTR(m_ybar));
+    m_thermo->setPressure(m_press);
+}
+
+
 
 // Specify the residual. This is where the ODE system and boundary 
 // conditions are specified. The solver will attempt to find a solution

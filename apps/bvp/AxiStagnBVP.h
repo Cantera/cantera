@@ -62,12 +62,13 @@ public:
     // destructor
     virtual ~AxiStagnBVP() {}
 
+
     // specify guesses for the initial values. These can be anything
     // that leads to a converged solution.
-    virtual doublereal initialValue(int n, int j) { 
+    doublereal AxiStagnBVP::initialValue(int n, int j) { 
         switch (n) {
         case 0:
-            return 0.1*z(j);
+            return m;
         case 1:
             return 0.5*z(j);
         default:
