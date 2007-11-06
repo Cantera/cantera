@@ -274,7 +274,7 @@ USE_SUNDIALS=${USE_SUNDIALS:='default'}
 # This is where you installed sundials if you used the --prefix option
 # when you configured sundials. If you didn't use the prefix option,
 # then comment this line out.
-SUNDIALS_HOME=${SUNDIALS_HOME:=""}
+#SUNDIALS_HOME=${SUNDIALS_HOME:=""}
 
 
 # It is recommended that you install the newest release of sundials 
