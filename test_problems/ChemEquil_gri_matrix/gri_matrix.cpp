@@ -20,6 +20,7 @@ int main(int argc, char **argv) {
   try {
     int retnSub;
     double T = 500.;
+    int solver = -1;
 
     IdealGasMix g("gri30.xml", "gri30_mix");
     double pres = OneAtm;
@@ -39,7 +40,7 @@ int main(int argc, char **argv) {
     Xmol[iN2] = 0.4;
     g.setState_TPX(T, pres, DATA_PTR(Xmol));
     try {
-      retnSub = equilibrate(g, "TP", -1);
+      retnSub = equilibrate(g, "TP", solver);
       cout << g;
       if (retnSub != 1) {
 	cerr << "ERROR: ChemEquil equilibration step failed at " 
@@ -75,7 +76,7 @@ int main(int argc, char **argv) {
     Xmol[iN2] = 0.4;
     g.setState_TPX(T, pres, DATA_PTR(Xmol));
     try {
-      retnSub = equilibrate(g, "TP", -1);
+      retnSub = equilibrate(g, "TP", solver);
       cout << g;
       if (retnSub != 1) {
 	cerr << "ERROR: ChemEquil equilibration step failed at " 
@@ -113,7 +114,7 @@ int main(int argc, char **argv) {
     pres = OneAtm;
     g.setState_TPX(T, pres, DATA_PTR(Xmol));
     try {
-      retnSub = equilibrate(g, "TP", -1);
+      retnSub = equilibrate(g, "TP", solver);
       cout << g;
       if (retnSub != 1) {
 	cerr << "ERROR: ChemEquil equilibration step failed at " 
@@ -151,7 +152,7 @@ int main(int argc, char **argv) {
     pres = 1.0;
     g.setState_TPX(T, pres, DATA_PTR(Xmol));
     try {
-      retnSub = equilibrate(g, "TP", -1);
+      retnSub = equilibrate(g, "TP", solver);
       cout << g;
       if (retnSub != 1) {
 	cerr << "ERROR: ChemEquil equilibration step failed at " 
@@ -197,7 +198,7 @@ int main(int argc, char **argv) {
 
 	  retnSub = 0;
 	  try {
-	    retnSub = equilibrate(g, "TP", -1);
+	    retnSub = equilibrate(g, "TP", solver);
 	    if (retnSub != 1) {
 	      cerr << "ERROR: ChemEquil equilibration step failed at " 
 		   << " T    = " << T 
