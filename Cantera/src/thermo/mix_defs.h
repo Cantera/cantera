@@ -40,6 +40,7 @@ namespace Cantera {
     const int cMetal = 4;          //  MetalPhase in MetalPhase.h
     //    const int cSolidCompound = 5;  //  SolidCompound in SolidCompound.h
     const int cStoichSubstance = 5; // StoichSubstance.h
+    const int cSemiconductor = 7;
 
     const int cLatticeSolid = 20; // LatticeSolidPhase.h
     const int cLattice = 21; 
@@ -69,3 +70,4 @@ namespace Cantera {
 }
 
 #endif
+ 

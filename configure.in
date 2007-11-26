@@ -430,6 +430,12 @@ if test "$WITH_METAL" = "y"; then
   AC_DEFINE(WITH_METAL)
   hdrs=$hdrs' MetalPhase.h'
 fi
+
+if test "$WITH_SEMICONDUCTOR" = "y"; then
+  AC_DEFINE(WITH_SEMICONDUCTOR)
+  hdrs=$hdrs' SemiconductorPhase.h'
+  objs=$objs' SemiconductorPhase.o'
+fi
 if test "$WITH_STOICH_SUBSTANCE" = "y"; then
   AC_DEFINE(WITH_STOICH_SUBSTANCE)
   hdrs=$hdrs' StoichSubstance.h'

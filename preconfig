@@ -61,7 +61,7 @@ CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
 #    default   try to do a full installation, but fall back to a minimal
 #              one in case of errors
 
-PYTHON_PACKAGE=${PYTHON_PACKAGE:="default"}
+PYTHON_PACKAGE=${PYTHON_PACKAGE:="full"}
 
 # Cantera needs to know where to find the Python interpreter.  If
 # PYTHON_CMD is set to "default", then the configuration process will
@@ -179,6 +179,7 @@ DEBUG_MODE="n"
 
 # thermodynamic properties 
 ENABLE_THERMO='y'
+
 ######################################################################
 # optional phase types. These may not be needed by all users. Set them
 # to 'n' to omit them from the kernel.
@@ -186,6 +187,8 @@ ENABLE_THERMO='y'
 WITH_LATTICE_SOLID=${WITH_LATTICE_SOLID:="y"}
 WITH_METAL=${WITH_METAL:="y"}
 WITH_STOICH_SUBSTANCE='y' 
+WITH_SEMICONDUCTOR='y'
+
 
 # This flag enables the inclusion of accurate liquid/vapor equations
 # of state for several fluids, including water, nitrogen, hydrogen,
@@ -523,6 +526,7 @@ export SUNDIALS_VERSION
 
 export WITH_LATTICE_SOLID
 export WITH_METAL
+export WITH_SEMICONDUCTOR
 export WITH_STOICH_SUBSTANCE
 export WITH_PURE_FLUIDS
 export WITH_IDEAL_SOLUTIONS

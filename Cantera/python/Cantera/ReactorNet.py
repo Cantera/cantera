@@ -59,6 +59,10 @@ class ReactorNet:
         using the current state as the initial condition. Default: 0.0 s"""
         _cantera.reactornet_setInitialTime(self.__reactornet_id, t0)
 
+    def setTolerances(self, rtol, atol):
+        """Set the relative and absolute error tolerances."""
+        _cantera.reactornet_setTolerances(self.__reactornet_id, rtol, atol)
+        
     def advance(self, time):
         """Advance the state of the reactor network in time from the current
         time to time 'time'."""

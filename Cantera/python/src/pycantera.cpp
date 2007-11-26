@@ -20,6 +20,8 @@
 #else
 //#ifdef HAS_NUMARRAY
 #include "numarray/arrayobject.h"
+//#include "numpy/libnumarray.h"
+
 //#else 
 //#include "numpy/arrayobject.h"
 //#endif

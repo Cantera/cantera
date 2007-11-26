@@ -33,7 +33,7 @@ for n in range(500):
 
     # set the mixture to a state of chemical equilibrium holding
     # temperature and pressure fixed
-    mix.equilibrate("TP",maxsteps=1000,loglevel=0)
+    mix.equilibrate("TP",maxsteps=10000,loglevel=1)
         
     # write out the moles of each species
     writeCSV(f,[t]+ list(mix.speciesMoles()))

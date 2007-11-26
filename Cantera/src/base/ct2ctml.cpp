@@ -24,7 +24,7 @@
 
 using namespace std;
 
-//#define DEBUG_PATHS
+#undef DEBUG_PATHS
 
 using namespace Cantera;
 
@@ -34,13 +34,25 @@ namespace ctml {
     // environment variable PYTHON_CMD if it is set. If not, return
     // the string 'python'.
     static string pypath() {
-        string s = "python";
+        string s = "ctpython";
         const char* py = getenv("PYTHON_CMD");
+        if (!py) {
+            const char* hm = getenv("HOME");
+            string home = stripws(string(hm));
+            string cmd = string("source ")+home
+                +string("/setup_cantera &> /dev/null");
+            system(cmd.c_str());
+            py = getenv("PYTHON_CMD");
+        }        
         if (py) {
             string sp = stripws(string(py));
             if (sp.size() > 0) {
               s = sp;
             }
+        }
+        else {
+            throw CanteraError("ct2ctml", 
+                "set environment variable PYTHON_CMD");
         }
         return s;
     }
@@ -58,6 +70,7 @@ namespace ctml {
                            "python cti to ctml conversion requested for file, " + ppath +
                            ", but not available in this computational environment");
 #endif
+
         time_t aclock;
         time( &aclock );
         int ia = static_cast<int>(aclock);
