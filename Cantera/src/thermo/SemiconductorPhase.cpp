@@ -10,6 +10,11 @@ namespace Cantera {
         return log(r) + JD_const1*r - JD_const2*r*r;
     }
 
+
+    SemiconductorPhase::SemiconductorPhase(std::string infile, 
+        std::string id) {}
+    
+
     //    doublereal SemiconductorPhase::ionizedDonorConcentration() {
     //    return 1.0/(1.0 + 2.0*exp( fermiLevel() - m_edonor));
     //}
@@ -47,12 +52,13 @@ namespace Cantera {
         return 0.0;
     }
 
+    /** 
+     * Energy at the top of the conduction band. By default, energies
+     * are referenced to this energy, and so this function simply
+     * returns zero.
+     */
     doublereal SemiconductorPhase::ec() const {
         return ev() + bandgap();
-    }
-
-    doublereal SemiconductorPhase::bandgap() const {
-        return m_gap;
     }
 
 
