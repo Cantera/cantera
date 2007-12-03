@@ -32,7 +32,7 @@ namespace Cantera {
         getActivityConcentrations(DATA_PTR(m_work));
         doublereal r = m_work[0]/nc();
         mu[0] = ec() + GasConstant*temperature()*(JoyceDixon(r));
-        mu[1] = ev() + + GasConstant*temperature()*(log(m_work[1]/nv()));
+        mu[1] = ev() + GasConstant*temperature()*(log(m_work[1]/nv()));
     }
 
     // units: kmol/m^3
