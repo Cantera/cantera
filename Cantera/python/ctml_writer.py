@@ -176,7 +176,10 @@ class XMLnode:
 # constants that can be used in .cti files
 OneAtm = 1.01325e5
 OneBar = 1.0e5
-
+# Conversion from eV to J/kmol (electronCharge * Navrog)
+eV = 96.4853E6  
+# Electron Mass in kg
+ElectronMass = 9.10938188e-31
 
 import types, math, copy
 
