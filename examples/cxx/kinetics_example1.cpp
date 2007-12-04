@@ -126,10 +126,7 @@ int kinetics_example1(int job) {
              << "  kin1.csv    (Excel CSV file)" << endl
              << "  kin1.dat    (Tecplot data file)" << endl;
 
-#define DEBUG_HKM
-#ifdef DEBUG_HKM
 	delete gg;
-#endif
         return 0;
     }
 

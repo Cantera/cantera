@@ -54,7 +54,18 @@ LCXX_END_LIBS = @LCXX_END_LIBS@
 CANTERA_LIBDIR=@buildlib@
 
 # required Cantera libraries
-CANTERA_LIBS = 
+CANTERA_LIBS = @LOCAL_LIBS@ -lctcxx
+
+CANTERA_LIB_DEPS = $(CANTERA_LIBDIR)/libkinetics.a \
+                   $(CANTERA_LIBDIR)/libtransport.a \
+                   $(CANTERA_LIBDIR)/libthermo.a \
+                   $(CANTERA_LIBDIR)/libctnumerics.a \
+                   $(CANTERA_LIBDIR)/libcvode.a \
+                   $(CANTERA_LIBDIR)/libctbase.a \
+                   $(CANTERA_LIBDIR)/libctmath.a \
+                   $(CANTERA_LIBDIR)/libtpx.a \
+                   $(CANTERA_LIBDIR)/libconverters.a
+
 
 # the directory where Cantera include files may be found.
 CANTERA_INC=-I@ctroot@/build/include
@@ -79,13 +90,11 @@ DEPENDS=$(OBJS:.o=.d)
 %.d:
 	@CXX_DEPENDS@ -I$(CANTERA_INCDIR) $(CXX_FLAGS) $*.cpp > $*.d
 
-$(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a
+$(PROGRAM): $(OBJS) $(CANTERA_LIB_DEPS)
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
                    $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ \
                   $(LCXX_END_LIBS)
 
-# Add an additional target for stability:
-$(OBJS):  $(CANTERA_LIBDIR)/libcantera.a $(CANTERA_LIBDIR)/libzeroD.a
 
 clean:
 	$(RM) $(OBJS) $(PROGRAM)
