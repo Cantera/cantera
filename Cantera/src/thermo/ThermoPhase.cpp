@@ -62,12 +62,12 @@ namespace Cantera {
 	m_hasElementPotentials(false),
         m_chargeNeutralityNecessary(false)
     {
-	/*
-	 * Call the assignment operator
-	 */
-	*this = operator=(right);
+      /*
+       * Call the assignment operator
+       */
+      *this = operator=(right);
     }
-
+  
     /*
      * operator=()
      *
@@ -272,32 +272,14 @@ namespace Cantera {
 	unstablePhase = true;
       }
       dt = (Htarget - Hold)/cpd;
-      if (dt > 0.0) {
-	if (!unstablePhase) {
-	  if (Htop < Htarget) {
-	    dt *= 1.5;
-	  }
-	} else {
-	  if (Hbot > Htarget) {
-	    dt *= 1.5;
-	  }
-	}
-      } else {
-	if (!unstablePhase) {
-	  if (Hbot > Htarget) {
-	    dt *= 1.5;
-	  }
-	} else {
-	  if (Htop < Htarget) {
-	    dt *= 1.5;
-	  }
-	}
-      }
 
-      // limit step size to 200 K
+      // limit step size to 210 K
       if (dt > 100.0)       dt =  100.0;
       else if (dt < -100.0) dt = -100.0; 
+
+      // Calculate the new T
       Tnew = Told + dt;
+
       // Limit the step size so that we are convergent
       // This is the step that makes it different from a 
       // Newton's algorithm
@@ -506,27 +488,6 @@ namespace Cantera {
 	unstablePhase = true;
       }
       dt = (Starget - Sold)*Told/cpd;
-      if (dt > 0.0) {
-	if (!unstablePhase) {
-	  if (Stop < Starget) {
-	    dt *= 1.5;
-	  }
-	} else {
-	  if (Sbot > Starget) {
-	    dt *= 1.5;
-	  }
-	}
-      } else {
-	if (!unstablePhase) {
-	  if (Sbot > Starget) {
-	    dt *= 1.5;
-	  }
-	} else {
-	  if (Stop < Starget) {
-	    dt *= 1.5;
-	  }
-	}
-      }
 
       // limit step size to 200 K
       if (dt > 100.0)       dt =  100.0;
