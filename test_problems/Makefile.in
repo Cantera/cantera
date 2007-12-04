@@ -10,7 +10,7 @@ test_cathermo=@NEED_CATHERMO@
 test_pure_fluids=@COMPILE_PURE_FLUIDS@
 
 all:
-#	cd cxx_ex;       @MAKE@ all
+	cd cxx_ex;       @MAKE@ all
 	cd surfkin;      @MAKE@ all
 	cd fracCoeff;    @MAKE@ all
 	cd negATest;     @MAKE@ all
@@ -42,7 +42,7 @@ ifeq ($(test_cathermo),1)
 endif
 
 test:
-#	@ cd cxx_ex;               @MAKE@ -s test
+	@ cd cxx_ex;               @MAKE@ -s test
 	@ cd surfkin;              @MAKE@ -s test
 	@ cd fracCoeff;            @MAKE@ -s test
 	@ cd negATest;             @MAKE@ -s test
@@ -77,7 +77,7 @@ endif
 
 clean:
 	$(RM) *.*~ 
-#	cd cxx_ex;                $(RM) .depends ; @MAKE@ clean
+	cd cxx_ex;                $(RM) .depends ; @MAKE@ clean
 	cd surfkin;               $(RM) .depends ; @MAKE@ clean
 	cd fracCoeff;             $(RM) .depends ; @MAKE@ clean
 	cd negATest;              $(RM) .depends ; @MAKE@ clean
@@ -100,7 +100,7 @@ clean:
 	cd cathermo;                               @MAKE@ clean
 
 depends:
-#	cd cxx_ex;               @MAKE@ depends
+	cd cxx_ex;               @MAKE@ depends
 	cd surfkin;              @MAKE@ depends
 	cd fracCoeff;            @MAKE@ depends
 	cd negATest;             @MAKE@ depends
