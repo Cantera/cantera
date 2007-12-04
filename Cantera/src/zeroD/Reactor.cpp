@@ -148,8 +148,12 @@ namespace CanteraZeroD {
         mix.setTemperature(temp);
 
         if (m_energy) {
-            m_thermo->setState_UV(u/mass,m_vol/mass,1.0e-4); 
-            temp = mix.temperature(); //mix.setTemperature(temp);
+	  // Decreased the tolerance on delta_T to 1.0E-7 so that T is
+	  // accurate to 9 sig digits, because this is
+	  // used in the numerical jacobian routines where relative values  
+	  // of 1.0E-7 are used in the deltas.
+	  m_thermo->setState_UV(u/mass,m_vol/mass, 1.0e-7); 
+	  temp = mix.temperature(); //mix.setTemperature(temp);
         }
         //m_state[0] = temp;
 
