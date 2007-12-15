@@ -104,7 +104,7 @@ namespace Cantera {
     //@}
     /// @name Electron Properties
     //@{
-    const doublereal ElectronCharge = 1.602e-19; // C
+    const doublereal ElectronCharge = 1.602176487e-19; // C
     const doublereal ElectronMass = 9.10938188e-31; // kg
     const doublereal Faraday = ElectronCharge * Avogadro;
     //@}
@@ -118,6 +118,8 @@ namespace Cantera {
 
     /// Permeability of free space \f$ \mu_0 \f$ in N/A^2.
     const doublereal permeability_0 = 4.0e-7*Pi; // N/A^2
+
+    const doublereal lightSpeed = 1.0/sqrt(epsilon_0 * permeability_0);
 
     //@}
  //@}
@@ -144,6 +146,8 @@ namespace Cantera {
     const doublereal SqrtTen = std::sqrt(10.0);
   //! sqrt(8)
     const doublereal SqrtEight = std::sqrt(8.0);
+    const doublereal SqrtTwo = std::sqrt(2.0);
+
   //! smallest number to compare to zero.
     const doublereal SmallNumber = 1.e-300;
   //! largest number to compare to inf.

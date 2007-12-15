@@ -13,7 +13,8 @@ ideal_gas(name = "air",
       reactions = "all",
       transport = "Mix",
       initial_state = state(temperature = 300.0,
-                        pressure = OneAtm, mole_fractions = 'O2:0.21, N2:0.78, AR:0.01')    )
+                            pressure = OneAtm,
+                            mole_fractions = 'O2:0.21, N2:0.78, AR:0.01')    )
 
 
 

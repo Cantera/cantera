@@ -43,8 +43,17 @@ inline ThermoPhase* _fph(const integer* n) {
     return th(*n);
 }
 
-inline Kinetics* _fkin(const integer* n) {
-    return kin(*n);
+//inline Kinetics* _fkin(const integer* n) {
+//    return kin(*n);
+//}
+
+static Kinetics* _fkin(const integer* n) {
+    if (*n >= 0) 
+        return kin(*n);
+    else {
+        error("_fkin: negative kinetics index");
+        return kin(0);
+    }
 }
 
 inline ThermoPhase* _fth(const integer* n) {
@@ -87,6 +96,18 @@ extern "C" {
     }
 
     //--------------- Phase ---------------------//
+
+    status_t DLL_EXPORT phase_getname_(const integer* n, char* nm, 
+        ftnlen lennm) {
+        try {
+            string pnm = _fph(n)->name();
+            int lout = min(lennm,pnm.size());
+            copy(pnm.c_str(), pnm.c_str() + lout, nm);
+            for (int nn = lout; nn < lennm; nn++) nm[nn] = ' ';            
+            return 0;
+        }
+        catch (CanteraError) { handleError(); return -1; }
+    }        
 
     integer DLL_EXPORT phase_nelements_(const integer* n) {
         return _fph(n)->nElements();
@@ -417,7 +438,7 @@ extern "C" {
 
     //-------------- Kinetics ------------------//
 
-    status_t DLL_EXPORT newkineticsfromxml_(integer* mxml, integer* iphase, 
+    integer DLL_EXPORT newkineticsfromxml_(integer* mxml, integer* iphase, 
         const integer* neighbor1, const integer* neighbor2, const integer* neighbor3, 
         const integer* neighbor4) {
         try {
@@ -438,13 +459,14 @@ extern "C" {
             }
             Kinetics* kin = newKineticsMgr(*x, phases);
             if (kin) {
-                return Storage::storage()->addKinetics(kin);
+                int k = Storage::storage()->addKinetics(kin);
+                return k; //Storage::storage()->addKinetics(kin);
             }
             else {
                 return 0;
             }
         }
-        catch (CanteraError) { handleError(); return -1; }
+        catch (CanteraError) { handleError(); return 999; }
     }
 
 //     status_t DLL_EXPORT installRxnArrays_(integer* pxml, integer* ikin, 
@@ -481,6 +503,15 @@ extern "C" {
 
     integer DLL_EXPORT kin_nreactions_(const integer* n) {
         return _fkin(n)->nReactions();
+    }
+
+    integer DLL_EXPORT kin_nphases_(const integer* n) {
+        return _fkin(n)->nPhases();
+    }
+
+    integer DLL_EXPORT kin_phaseindex_(const integer* n, const char* ph,
+        ftnlen lenph) {
+        return _fkin(n)->phaseIndex(f2string(ph, lenph));
     }
 
     doublereal DLL_EXPORT kin_reactantstoichcoeff_(const integer* n, integer* k, integer* i) {
@@ -713,21 +744,6 @@ extern "C" {
         addDirectory(string(buf));
         return 0;
     }
-
-//     status_t DLL_EXPORT readlog_(const integer* n, char* buf) {
-//         string s;
-//         writelog("function readlog is deprecated!");
-//         //getlog(s);
-//         int nlog = s.size();
-//         if (n < 0) return nlog; 
-//         int nn = min(n-1, nlog);
-//         copy(s.begin(), s.begin() + nn,
-//             buf);
-//         buf[min(nlog, n-1)] = '\0';
-//         //clearlog();
-//         return 0;
-
-//     } 
 
 
     status_t DLL_EXPORT ctbuildsolutionfromxml(char* src, integer* ixml, char* id, 

@@ -188,7 +188,8 @@ WITH_LATTICE_SOLID=${WITH_LATTICE_SOLID:="y"}
 WITH_METAL=${WITH_METAL:="y"}
 WITH_STOICH_SUBSTANCE='y' 
 WITH_SEMICONDUCTOR='y'
-
+WITH_ADSORBATE='y'
+WITH_SPECTRA=${WITH_SPECTRA:="y"}
 
 # This flag enables the inclusion of accurate liquid/vapor equations
 # of state for several fluids, including water, nitrogen, hydrogen,
@@ -337,7 +338,7 @@ CXX=${CXX:=g++}
 CC=${CC:=gcc}
 
 # C++ compiler flags
-CXXFLAGS=${CXXFLAGS:="-O3 -Wall"}
+CXXFLAGS=${CXXFLAGS:="-O0 -g -Wall"}
 
 # the C++ flags required for linking. Uncomment if additional flags
 # need to be passed to the linker.
@@ -527,6 +528,8 @@ export SUNDIALS_VERSION
 export WITH_LATTICE_SOLID
 export WITH_METAL
 export WITH_SEMICONDUCTOR
+export WITH_ADSORBATE
+export WITH_SPECTRA
 export WITH_STOICH_SUBSTANCE
 export WITH_PURE_FLUIDS
 export WITH_IDEAL_SOLUTIONS

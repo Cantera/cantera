@@ -281,6 +281,15 @@ interface
         integer, intent(in) :: n
     end function kin_nreactions
 
+    integer function kin_nphases(n)
+        integer, intent(in) :: n
+    end function kin_nphases
+
+    integer function kin_phaseIndex(n, phase)
+        integer, intent(in) :: n
+        character*(*), intent(in) :: phase
+    end function kin_phaseindex
+
     double precision function kin_reactantstoichcoeff(n, k, i)
         integer, intent(in) :: n
         integer, intent(in) :: k

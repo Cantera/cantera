@@ -78,6 +78,19 @@ module cantera_kinetics
       ctkin_nreactions = kin_nreactions(self%kin_id)
     end function ctkin_nreactions
 
+    integer function ctkin_nPhases(self)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      ctkin_nphases = kin_nphases(self%kin_id)
+    end function ctkin_nphases
+
+    integer function ctkin_phaseIndex(self, name)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      character*(*), intent(in) :: name
+      ctkin_phaseindex = kin_phaseindex(self%kin_id, name)
+    end function ctkin_phaseindex
+
     double precision function ctkin_reactantStoichCoeff(self, k, i)
       implicit none
       type(phase_t), intent(in) :: self

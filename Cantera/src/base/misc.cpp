@@ -1401,7 +1401,8 @@ protected:
     doublereal toSI(std::string unit) {
         doublereal f = Unit::units()->toSI(unit);
         if (f) return f;
-        else return 1.0;
+        else throw CanteraError("toSI","unknown unit string: "+unit);
+        //return 1.0;
     }
 
     doublereal actEnergyToSI(std::string unit) {

@@ -26,6 +26,8 @@ using namespace std;
 #include "Nasa9PolyMultiTempRegion.h"
 #include "Nasa9Poly1.h"
 
+#include "AdsorbateThermo.h"
+
 #include "SpeciesThermoMgr.h"
 #include "speciesThermoTypes.h"
 
@@ -48,14 +50,14 @@ namespace Cantera {
    * Examine the types of species thermo parameterizations,
    * and return a flag indicating the type of parameterization
    * needed by the species.
-   *
+   * 
    *  @param spData_node Species Data XML node. This node contains a list
    *                     of species XML nodes underneath it.
    * 
    * @todo Make sure that spDadta_node is species Data XML node by checking its name is speciesData
    */
   static void getSpeciesThermoTypes(XML_Node* spData_node, 
-                    int& has_nasa, int& has_shomate, int& has_simple,
+      int& has_nasa, int& has_shomate, int& has_simple,
                     int &has_other) {
     const XML_Node& sparray = *spData_node;
     std::vector<XML_Node*> sp;
@@ -78,6 +80,7 @@ namespace Cantera {
 	if (th.hasChild("Mu0")) has_other = 1;
 	if (th.hasChild("NASA9")) has_other = 1;
 	if (th.hasChild("NASA9MULTITEMP")) has_other = 1;
+	if (th.hasChild("adsorbate")) has_other = 1;
       } else {
 	throw UnknownSpeciesThermoModel("getSpeciesThermoTypes:",
 					spNode->attrib("name"), "missing");
@@ -485,6 +488,40 @@ namespace Cantera {
       }
     }
 
+
+   /** 
+     * Install an Adsorbatge thermodynamic property
+     * parameterization for species k into a SpeciesThermo instance.
+     * This is called by method installThermoForSpecies if a NASA9
+     * block is found in the XML input.
+     */
+    static void installAdsorbateThermoFromXML(std::string speciesName,
+        SpeciesThermo& sp, int k, 
+        const XML_Node& f) { 		
+        vector_fp freqs;
+        doublereal tmin, tmax, pref;
+        int nfreq = 0;
+        tmin = fpValue(f["Tmin"]);
+        tmax = fpValue(f["Tmax"]);
+        pref = fpValue(f["P0"]);
+        if (tmax == 0.0) tmax = 1.0e30;
+
+        if (f.hasChild("floatArray")) {
+            getFloatArray(f.child("floatArray"), freqs, false);
+            nfreq = freqs.size(); 
+        }
+        for (int n = 0; n < nfreq; n++) {
+            freqs[n] *= 3.0e10;
+        }
+        vector_fp coeffs(nfreq + 2);
+        coeffs[0] = nfreq;
+        coeffs[1] = getFloat(f, "binding_energy", "-");
+        copy(freqs.begin(), freqs.end(), coeffs.begin() + 2);
+        //posc = new Adsorbate(k, tmin, tmax, pref,  
+        //    DATA_PTR(coeffs)); 
+        (&sp)->install(speciesName, k, ADSORBATE, &coeffs[0], tmin, tmax, pref);
+    }
+
     /**
      * Install a species thermodynamic property parameterization
      * for one species into a species thermo manager.
@@ -506,6 +543,8 @@ namespace Cantera {
     const XML_Node& thermo = s.child("thermo");
     const std::vector<XML_Node*>& tp = thermo.children();
     int nc = static_cast<int>(tp.size());
+
+
     if (nc == 1) {
       const XML_Node* f = tp[0];
       if (f->name() == "Shomate") {
@@ -522,7 +561,10 @@ namespace Cantera {
       }
       else if (f->name() == "NASA9") {
 	installNasa9ThermoFromXML(s["name"], spthermo, k, tp);
-      } 
+      }
+      else if (f->name() == "adsorbate") {
+          installAdsorbateThermoFromXML(s["name"], spthermo, k, *f);
+      }
       else {
 	throw UnknownSpeciesThermoModel("installThermoForSpecies", 
 					s["name"], f->name());

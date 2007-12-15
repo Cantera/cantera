@@ -65,6 +65,8 @@
 //! This is implemented in the class Nasa9PolyMultiTempRegion in Nasa9Poly1MultiTempRegion
 #define NASA9MULTITEMP  513
 
+#define ADSORBATE 1024
+
 #include "ct_defs.h"
 
 #include "stringUtils.h"

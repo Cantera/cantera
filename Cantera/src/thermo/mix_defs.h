@@ -14,6 +14,7 @@ namespace Cantera {
     const int cNASA = 1;
     const int cShomate = 2;
     const int cNASA96 = 3;
+    const int cHarmonicOsc = 4;
 
     /**
      * Equation of state types:

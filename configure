@@ -2514,6 +2514,13 @@ _ACEOF
   hdrs=$hdrs' SemiconductorPhase.h'
   objs=$objs' SemiconductorPhase.o'
 fi
+if test "$WITH_ADSORBATE" = "y"; then
+  cat >>confdefs.h <<\_ACEOF
+#define WITH_ADSORBATE 1
+_ACEOF
+
+  hdrs=$hdrs' AdsorbateThermo.h'
+fi
 if test "$WITH_STOICH_SUBSTANCE" = "y"; then
   cat >>confdefs.h <<\_ACEOF
 #define WITH_STOICH_SUBSTANCE 1
@@ -2661,6 +2668,16 @@ if test "$ENABLE_TPX" = "y" ; then
 #define INCL_PURE_FLUIDS 1
 _ACEOF
 
+fi
+
+NEED_SPECTRA=0
+if test "$WITH_SPECTRA" = "y"; then
+  cat >>confdefs.h <<\_ACEOF
+#define WITH_SPECTRA 1
+_ACEOF
+
+  KERNEL=$KERNEL' 'spectra
+  NEED_SPECTRA=1
 fi
 
 
@@ -2885,6 +2902,10 @@ fi
 
 if test -n "$NEED_TPX"
 then LOCAL_LIBS=$LOCAL_LIBS' '-ltpx
+fi
+
+if test -n "$NEED_SPECTRA"
+then LOCAL_LIBS=$LOCAL_LIBS' '-lctspectra
 fi
 
 if test -n "$NEED_F2C"
@@ -8485,7 +8506,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:8488:" \
+echo "$as_me:8509:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -8688,7 +8709,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:8691: \"$ac_link\") >&5
+(eval echo $as_me:8712: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -8766,7 +8787,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:8769: \"$ac_link\") >&5
+(eval echo $as_me:8790: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -9257,7 +9278,7 @@ fi
 
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ac_config_files="$ac_config_files Makefile Cantera/Makefile Cantera/src/Makefile Cantera/src/base/Makefile Cantera/src/zeroD/Makefile Cantera/src/oneD/Makefile Cantera/src/converters/Makefile Cantera/src/transport/Makefile Cantera/src/thermo/Makefile Cantera/src/kinetics/Makefile Cantera/src/numerics/Makefile Cantera/src/equil/Makefile Cantera/clib/src/Makefile Cantera/fortran/src/Makefile Cantera/fortran/f77demos/f77demos.mak Cantera/fortran/f77demos/isentropic.dsp Cantera/matlab/Makefile Cantera/matlab/setup_matlab.py Cantera/matlab/setup_winmatlab.py Cantera/python/Makefile Cantera/python/setup.py Cantera/cxx/Makefile Cantera/cxx/src/Makefile Cantera/cxx/demos/Makefile Cantera/user/Makefile Cantera/python/src/Makefile ext/lapack/Makefile ext/blas/Makefile ext/cvode/Makefile ext/math/Makefile ext/recipes/Makefile ext/tpx/Makefile ext/Makefile ext/f2c_libs/Makefile ext/f2c_blas/Makefile ext/f2c_lapack/Makefile ext/f2c_math/Makefile examples/Makefile examples/cxx/Makefile tools/Makefile tools/doc/Cantera.cfg tools/doc/Makefile tools/src/Makefile tools/src/sample.mak tools/src/finish_install.py tools/src/package4mac tools/templates/f77/demo.mak tools/templates/f90/demo.mak tools/templates/cxx/demo.mak tools/testtools/Makefile data/inputs/Makefile data/inputs/mkxml test_problems/Makefile test_problems/cxx_ex/Makefile test_problems/silane_equil/Makefile test_problems/surfkin/Makefile test_problems/surfSolverTest/Makefile test_problems/diamondSurf/Makefile test_problems/diamondSurf_dupl/Makefile test_problems/ChemEquil_gri_matrix/Makefile test_problems/ChemEquil_gri_pairs/Makefile test_problems/ChemEquil_ionizedGas/Makefile test_problems/ChemEquil_red1/Makefile test_problems/CpJump/Makefile test_problems/mixGasTransport/Makefile test_problems/multiGasTransport/Makefile test_problems/fracCoeff/Makefile test_problems/negATest/Makefile test_problems/NASA9poly_test/Makefile test_problems/ck2cti_test/Makefile test_problems/ck2cti_test/runtest test_problems/nasa9_reader/Makefile test_problems/nasa9_reader/runtest test_problems/min_python/Makefile test_problems/min_python/minDiamond/Makefile test_problems/min_python/negATest/Makefile test_problems/pureFluidTest/Makefile test_problems/python/Makefile test_problems/cathermo/Makefile test_problems/cathermo/issp/Makefile test_problems/cathermo/ims/Makefile test_problems/cathermo/stoichSubSSTP/Makefile test_problems/cathermo/testIAPWS/Makefile test_problems/cathermo/testIAPWSPres/Makefile test_problems/cathermo/testIAPWSTripP/Makefile test_problems/cathermo/testWaterPDSS/Makefile test_problems/cathermo/testWaterTP/Makefile test_problems/cathermo/HMW_test_1/Makefile test_problems/cathermo/HMW_test_3/Makefile test_problems/cathermo/HMW_graph_GvT/Makefile test_problems/cathermo/HMW_graph_GvI/Makefile test_problems/cathermo/HMW_graph_HvT/Makefile test_problems/cathermo/HMW_graph_CpvT/Makefile test_problems/cathermo/HMW_graph_VvT/Makefile test_problems/cathermo/DH_graph_1/Makefile test_problems/cathermo/DH_graph_acommon/Makefile test_problems/cathermo/DH_graph_NM/Makefile test_problems/cathermo/DH_graph_Pitzer/Makefile test_problems/cathermo/DH_graph_bdotak/Makefile test_problems/cathermo/HMW_dupl_test/Makefile bin/install_tsc"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ac_config_files="$ac_config_files Makefile Cantera/Makefile Cantera/src/Makefile Cantera/src/base/Makefile Cantera/src/zeroD/Makefile Cantera/src/oneD/Makefile Cantera/src/converters/Makefile Cantera/src/transport/Makefile Cantera/src/thermo/Makefile Cantera/src/kinetics/Makefile Cantera/src/numerics/Makefile Cantera/src/spectra/Makefile Cantera/src/equil/Makefile Cantera/clib/src/Makefile Cantera/fortran/src/Makefile Cantera/fortran/f77demos/f77demos.mak Cantera/fortran/f77demos/isentropic.dsp Cantera/matlab/Makefile Cantera/matlab/setup_matlab.py Cantera/matlab/setup_winmatlab.py Cantera/python/Makefile Cantera/python/setup.py Cantera/cxx/Makefile Cantera/cxx/src/Makefile Cantera/cxx/demos/Makefile Cantera/user/Makefile Cantera/python/src/Makefile ext/lapack/Makefile ext/blas/Makefile ext/cvode/Makefile ext/math/Makefile ext/recipes/Makefile ext/tpx/Makefile ext/Makefile ext/f2c_libs/Makefile ext/f2c_blas/Makefile ext/f2c_lapack/Makefile ext/f2c_math/Makefile examples/Makefile examples/cxx/Makefile tools/Makefile tools/doc/Cantera.cfg tools/doc/Makefile tools/src/Makefile tools/src/sample.mak tools/src/finish_install.py tools/src/package4mac tools/templates/f77/demo.mak tools/templates/f90/demo.mak tools/templates/cxx/demo.mak tools/testtools/Makefile data/inputs/Makefile data/inputs/mkxml test_problems/Makefile test_problems/cxx_ex/Makefile test_problems/silane_equil/Makefile test_problems/surfkin/Makefile test_problems/spectroscopy/Makefile test_problems/surfSolverTest/Makefile test_problems/diamondSurf/Makefile test_problems/diamondSurf_dupl/Makefile test_problems/ChemEquil_gri_matrix/Makefile test_problems/ChemEquil_gri_pairs/Makefile test_problems/ChemEquil_ionizedGas/Makefile test_problems/ChemEquil_red1/Makefile test_problems/CpJump/Makefile test_problems/mixGasTransport/Makefile test_problems/multiGasTransport/Makefile test_problems/fracCoeff/Makefile test_problems/negATest/Makefile test_problems/NASA9poly_test/Makefile test_problems/ck2cti_test/Makefile test_problems/ck2cti_test/runtest test_problems/nasa9_reader/Makefile test_problems/nasa9_reader/runtest test_problems/min_python/Makefile test_problems/min_python/minDiamond/Makefile test_problems/min_python/negATest/Makefile test_problems/pureFluidTest/Makefile test_problems/python/Makefile test_problems/cathermo/Makefile test_problems/cathermo/issp/Makefile test_problems/cathermo/ims/Makefile test_problems/cathermo/stoichSubSSTP/Makefile test_problems/cathermo/testIAPWS/Makefile test_problems/cathermo/testIAPWSPres/Makefile test_problems/cathermo/testIAPWSTripP/Makefile test_problems/cathermo/testWaterPDSS/Makefile test_problems/cathermo/testWaterTP/Makefile test_problems/cathermo/HMW_test_1/Makefile test_problems/cathermo/HMW_test_3/Makefile test_problems/cathermo/HMW_graph_GvT/Makefile test_problems/cathermo/HMW_graph_GvI/Makefile test_problems/cathermo/HMW_graph_HvT/Makefile test_problems/cathermo/HMW_graph_CpvT/Makefile test_problems/cathermo/HMW_graph_VvT/Makefile test_problems/cathermo/DH_graph_1/Makefile test_problems/cathermo/DH_graph_acommon/Makefile test_problems/cathermo/DH_graph_NM/Makefile test_problems/cathermo/DH_graph_Pitzer/Makefile test_problems/cathermo/DH_graph_bdotak/Makefile test_problems/cathermo/HMW_dupl_test/Makefile bin/install_tsc"
 
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
@@ -9741,6 +9762,7 @@ do
   "Cantera/src/thermo/Makefile" ) CONFIG_FILES="$CONFIG_FILES Cantera/src/thermo/Makefile" ;;
   "Cantera/src/kinetics/Makefile" ) CONFIG_FILES="$CONFIG_FILES Cantera/src/kinetics/Makefile" ;;
   "Cantera/src/numerics/Makefile" ) CONFIG_FILES="$CONFIG_FILES Cantera/src/numerics/Makefile" ;;
+  "Cantera/src/spectra/Makefile" ) CONFIG_FILES="$CONFIG_FILES Cantera/src/spectra/Makefile" ;;
   "Cantera/src/equil/Makefile" ) CONFIG_FILES="$CONFIG_FILES Cantera/src/equil/Makefile" ;;
   "Cantera/clib/src/Makefile" ) CONFIG_FILES="$CONFIG_FILES Cantera/clib/src/Makefile" ;;
   "Cantera/fortran/src/Makefile" ) CONFIG_FILES="$CONFIG_FILES Cantera/fortran/src/Makefile" ;;
@@ -9786,6 +9808,7 @@ do
   "test_problems/cxx_ex/Makefile" ) CONFIG_FILES="$CONFIG_FILES test_problems/cxx_ex/Makefile" ;;
   "test_problems/silane_equil/Makefile" ) CONFIG_FILES="$CONFIG_FILES test_problems/silane_equil/Makefile" ;;
   "test_problems/surfkin/Makefile" ) CONFIG_FILES="$CONFIG_FILES test_problems/surfkin/Makefile" ;;
+  "test_problems/spectroscopy/Makefile" ) CONFIG_FILES="$CONFIG_FILES test_problems/spectroscopy/Makefile" ;;
   "test_problems/surfSolverTest/Makefile" ) CONFIG_FILES="$CONFIG_FILES test_problems/surfSolverTest/Makefile" ;;
   "test_problems/diamondSurf/Makefile" ) CONFIG_FILES="$CONFIG_FILES test_problems/diamondSurf/Makefile" ;;
   "test_problems/diamondSurf_dupl/Makefile" ) CONFIG_FILES="$CONFIG_FILES test_problems/diamondSurf_dupl/Makefile" ;;

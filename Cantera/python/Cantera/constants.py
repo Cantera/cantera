@@ -21,7 +21,7 @@ Boltzmann = GasConstant / Avogadro
 StefanBoltz = 5.67e-8
 
 # The charge on an electron
-ElectronCharge = 1.602e-19
+ElectronCharge = 1.602176487e-19
 
 Pi = 3.1415926
 

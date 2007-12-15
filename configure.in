@@ -436,6 +436,10 @@ if test "$WITH_SEMICONDUCTOR" = "y"; then
   hdrs=$hdrs' SemiconductorPhase.h'
   objs=$objs' SemiconductorPhase.o'
 fi
+if test "$WITH_ADSORBATE" = "y"; then
+  AC_DEFINE(WITH_ADSORBATE)
+  hdrs=$hdrs' AdsorbateThermo.h'
+fi
 if test "$WITH_STOICH_SUBSTANCE" = "y"; then
   AC_DEFINE(WITH_STOICH_SUBSTANCE)
   hdrs=$hdrs' StoichSubstance.h'
@@ -553,6 +557,13 @@ if test "$ENABLE_TPX" = "y" ; then
   KERNEL=$KERNEL' 'tpx
   NEED_TPX=1
   AC_DEFINE(INCL_PURE_FLUIDS)
+fi
+
+NEED_SPECTRA=0
+if test "$WITH_SPECTRA" = "y"; then
+  AC_DEFINE(WITH_SPECTRA)
+  KERNEL=$KERNEL' 'spectra
+  NEED_SPECTRA=1
 fi
 
 AC_SUBST(KERNEL)
@@ -771,6 +782,10 @@ fi
 
 if test -n "$NEED_TPX"
 then LOCAL_LIBS=$LOCAL_LIBS' '-ltpx
+fi
+
+if test -n "$NEED_SPECTRA"
+then LOCAL_LIBS=$LOCAL_LIBS' '-lctspectra
 fi
 
 if test -n "$NEED_F2C"
@@ -1504,6 +1519,7 @@ AC_OUTPUT(Makefile \
 	  Cantera/src/thermo/Makefile \
 	  Cantera/src/kinetics/Makefile \
 	  Cantera/src/numerics/Makefile \
+	  Cantera/src/spectra/Makefile \
           Cantera/src/equil/Makefile \
 	  Cantera/clib/src/Makefile \
 	  Cantera/fortran/src/Makefile \
@@ -1549,6 +1565,7 @@ AC_OUTPUT(Makefile \
           test_problems/cxx_ex/Makefile \
           test_problems/silane_equil/Makefile \
           test_problems/surfkin/Makefile \
+          test_problems/spectroscopy/Makefile \
           test_problems/surfSolverTest/Makefile \
           test_problems/diamondSurf/Makefile \
           test_problems/diamondSurf_dupl/Makefile \

@@ -23,13 +23,6 @@ class PureFluid(ThermoPhase):
     mixture of gases, a liquid solution, or a solid solution, for
     example.
 
-    Class PureFluid derives from classes ThermoPhase, Kinetics, and
-    Transport.  It defines very few methods of its own, and is
-    provided largely for convenience, so that a single object can be
-    used to compute thermodynamic, kinetic, and transport properties
-    of a solution. Functions like IdealGasMix and others defined in
-    module gases return objects of class PureFluid.
-
     """
 
     def __init__(self, src="", id=""):

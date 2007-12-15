@@ -37,6 +37,10 @@
 #include "MetalPhase.h"
 #endif
 
+#ifdef WITH_SEMICONDUCTOR
+#include "SemiconductorPhase.h"
+#endif
+
 #undef USE_SSTP
 #ifdef WITH_STOICH_SUBSTANCE
 #ifdef USE_SSTP

@@ -678,6 +678,41 @@ class Shomate(thermo):
         u = n.addChild("floatArray", str)
         u["size"] = "7"
         u["name"] = "coeffs"
+
+
+class Adsorbate(thermo):
+    """Adsorbed species characterized by a binding energy and a set of
+    vibrational frequencies."""
+    
+    def __init__(self, range = (0.0, 0.0),
+                 binding_energy = 0.0,
+                 frequencies = [], p0 = -1.0):
+        self._t = range
+        self._pref = p0
+        self._freqs = frequencies
+        self._be = binding_energy
+
+        
+    def build(self, t):
+        n = t.addChild("adsorbate")
+        n['Tmin'] = `self._t[0]`
+        n['Tmax'] = `self._t[1]`
+        if self._pref <= 0.0:
+            n['P0'] = `_pref`
+        else:
+            n['P0'] = `self._pref`
+            
+        energy_units = _uenergy+'/'+_umol
+        addFloat(n,'binding_energy',self._be, defunits = energy_units)
+        str = ""
+        nfreq = len(self._freqs)
+        for i in  range(nfreq):
+            str += '%17.9E, ' % self._freqs[i]
+        str += '\n'
+        u = n.addChild("floatArray", str)
+        u["size"] = `nfreq`
+        u["name"] = "freqs"
+        
     
                  
 class const_cp(thermo):
@@ -1627,6 +1662,7 @@ class lattice_solid(phase):
         k['model'] = 'none'        
 
 
+
 class liquid_vapor(phase):
     """A fluid with a complete liquid/vapor equation of state.
     This entry type selects one of a set of predefined fluids with
@@ -1657,7 +1693,49 @@ class liquid_vapor(phase):
         e['model'] = 'PureFluid'
         e['fluid_type'] = `self._subflag`
         k = ph.addChild("kinetics")
-        k['model'] = 'none'        
+        k['model'] = 'none'
+
+
+
+class redlich_kwong(phase):
+    """A fluid with a complete liquid/vapor equation of state.
+    This entry type selects one of a set of predefined fluids with
+    built-in liquid/vapor equations of state. The substance_flag
+    parameter selects the fluid. See purefluids.py for the usage
+    of this entry type."""
+    
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 substance_flag = 7,
+                 initial_state = None,
+                 Tcrit = 1.0,
+                 Pcrit = 1.0,
+                 options = []):
+        
+        phase.__init__(self, name, 3, elements, species, 'none',
+                       initial_state, options)
+        self._subflag = 7
+        self._pure = 1
+        self._tc = 1
+        self._pc = 1
+
+    def conc_dim(self):
+        return (0,0)
+        
+    def build(self, p):
+        ph = phase.build(self, p)
+        e = ph.addChild("thermo")
+        e['model'] = 'PureFluid'
+        e['fluid_type'] = `self._subflag`
+        addFloat(e, 'Tc', self._tc, defunits = "K")
+        addFloat(e, 'Pc', self._pc, defunits = "Pa")
+        addFloat(e, 'MolWt', self._mw, defunits = _umass+"/"+_umol)
+        ph.addChild("kinetics")
+        k['model'] = 'none'
+
+        
 
 class ideal_interface(phase):
     """An ideal interface."""

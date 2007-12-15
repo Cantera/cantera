@@ -254,6 +254,8 @@ namespace Cantera {
     m_models["CK_Mix"] = CK_MixtureAveraged;
     m_models["User"] = cUserTransport;
     m_models["None"] = None;
+    //m_models["Radiative"] = cRadiative;
+
   }
 
      /**

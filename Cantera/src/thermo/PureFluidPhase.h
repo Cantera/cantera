@@ -106,7 +106,7 @@ namespace Cantera {
     /// Molar Gibbs function. Units: J/kmol. 
     virtual doublereal gibbs_mole() const;
 
-    /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
+      /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
     virtual doublereal cp_mole() const;
 
     /// Molar heat capacity at constant volume. Units: J/kmol/K. 

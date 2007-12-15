@@ -35,6 +35,7 @@ namespace Cantera {
   const int cUserTransport       = 500;
   const int cFtnTransport        = 600;
   const int cLiquidTransport     = 700;
+  const int cRadiativeTransport  = 800;
 
   // forward reference
   class XML_Writer;
@@ -60,9 +61,9 @@ namespace Cantera {
     virtual int model() {return 0;}
 
     /**
-     * Phase object. Every transport manager is designed to
-     * compute properties for a specific phase of a mixture, which
-     * might be a liquid solution, a gas mixture, etc. This method
+     * Phase object. Every transport manager is designed to compute
+     * properties for a specific phase of a mixture, which might be a
+     * liquid solution, a gas mixture, a surface, etc. This method
      * returns a reference to the object representing the phase
      * itself.
      */        

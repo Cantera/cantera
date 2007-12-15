@@ -46,11 +46,20 @@ contains
          self%nsp = phase_nspecies(self%thermo_id)
          self%nrxn = 0
          self%err = 0
+         self%kin_id = -1
+         self%tran_id = -1
       else
          call cantera_error('newThermoPhase','xml_phase or id must be specified.')
       end if
       newThermoPhase = self
     end function newThermoPhase
+
+    subroutine ctthermo_getName(self, name)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      character*(*), intent(out) :: name
+      call phase_getname(self%thermo_id, name)
+    end subroutine ctthermo_getName
 
     integer function ctthermo_nElements(self)
       implicit none

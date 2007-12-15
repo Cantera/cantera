@@ -11,6 +11,7 @@ MODULE CANTERA
   USE cantera_transport
   USE cantera_xml
   USE cantera_funcs
+  USE cantera_iface
 
   INTERFACE addAttrib
      MODULE PROCEDURE ctxml_addAttrib
@@ -204,6 +205,10 @@ MODULE CANTERA
      MODULE PROCEDURE ctfunc_importPhase
   END INTERFACE importPhase
 
+  INTERFACE importInterface
+     MODULE PROCEDURE ctfunc_importInterface
+  END INTERFACE importInterface
+
   INTERFACE intEnergy_mass
      MODULE PROCEDURE ctthermo_intEnergy_mass
   END INTERFACE intEnergy_mass
@@ -279,6 +284,14 @@ MODULE CANTERA
   INTERFACE nTotalSpecies
      MODULE PROCEDURE ctkin_nTotalSpecies
   END INTERFACE nTotalSpecies
+
+  INTERFACE nPhases
+     MODULE PROCEDURE ctkin_nPhases
+  END INTERFACE nPhases
+
+  INTERFACE phaseIndex
+     MODULE PROCEDURE ctkin_phaseIndex
+  END INTERFACE phaseIndex
 
   INTERFACE phase_report
      MODULE PROCEDURE ctfunc_phase_report

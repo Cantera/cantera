@@ -76,7 +76,8 @@ namespace Cantera {
     //! Returns an integer representing the species index
     virtual int speciesIndex() const = 0;
   
-    //! Update the properties for this species, given a temperature polynomial
+    //! Update the properties for this species, given a temperature
+    //! polynomial
     /*!
      * This method is called with a pointer to an array containing the functions of
      * temperature needed by this  parameterization, and three pointers to arrays where the
@@ -96,7 +97,10 @@ namespace Cantera {
      */
     virtual void updateProperties(const doublereal* tempPoly, 
 				  doublereal* cp_R, doublereal* h_RT,
-				  doublereal* s_R) const = 0;
+        doublereal* s_R) const {
+        double T = tempPoly[0];
+        updatePropertiesTemp(T, cp_R, h_RT, s_R);
+    }
 
     //! Compute the reference-state property of one species
     /*!

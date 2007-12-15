@@ -15,8 +15,11 @@
 #include "ShomatePoly.h"
 #include "ConstCpPoly.h"
 #include "Mu0Poly.h"
+#include "AdsorbateThermo.h"
+
 #include "SpeciesThermoFactory.h"
 #include <iostream>
+
 using namespace std;
                                                            
 namespace Cantera {
@@ -116,12 +119,14 @@ namespace Cantera {
 	  m_sp.resize(index+1, 0);
           m_kk = index+1;
 	}
-	AssertThrow(m_sp[index] == 0, 
-		    "Index position isn't null, duplication of assignment: " + int2str(index));
+	//AssertThrow(m_sp[index] == 0, 
+        //		    "Index position isn't null, duplication of assignment: " + int2str(index));
 
+        int nfreq = 3;
 	/*
 	 * Create the necessary object
 	 */
+
 	switch (type) {
 	case NASA1:
 	    m_sp[index] = new NasaPoly1(index, minTemp, maxTemp,
@@ -148,12 +153,20 @@ namespace Cantera {
 	    m_sp[index] = new NasaPoly2(index, minTemp, maxTemp,
 					refPressure, c);
 	    break;
+        case ADSORBATE:
+	    m_sp[index] = new Adsorbate(index, minTemp, maxTemp,
+                refPressure, c);
+	    break;
 	default:
 	    throw UnknownSpeciesThermoModel(
                 "GeneralSpeciesThermo::install",
 		"unknown species type", int2str(type));
             break;
 	}
+        if (!m_sp[index]) {
+            cout << "Null m_sp... index = " << index << endl;
+            cout << "type = " << type << endl;
+        }
 	m_tlow_max = max(minTemp, m_tlow_max);
 	m_thigh_min = min(maxTemp, m_thigh_min);
     }
@@ -211,10 +224,16 @@ namespace Cantera {
 	vector<SpeciesThermoInterpType *>::const_iterator _begin, _end;
 	_begin  = m_sp.begin();
 	_end    = m_sp.end();
-	SpeciesThermoInterpType * sp_ptr;
+	SpeciesThermoInterpType * sp_ptr = 0;
 	for (; _begin != _end; ++_begin) {
 	  sp_ptr = *(_begin);
-	  sp_ptr->updatePropertiesTemp(t, cp_R, h_RT, s_R);
+          if (sp_ptr) {
+
+              sp_ptr->updatePropertiesTemp(t, cp_R, h_RT, s_R);
+          }
+          else {
+              writelog("General::update: sp_ptr is NULL!");
+          }
 	}
     }
 
@@ -226,7 +245,7 @@ namespace Cantera {
 	SpeciesThermoInterpType *sp = m_sp[index];
 	return sp->reportType();
     }
-    
+
     /**
      * This utility function reports back the type of 
      * parameterization and all of the parameters for the 
