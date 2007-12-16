@@ -29,7 +29,7 @@ LINK_OPTIONS = @EXTRA_LINK@
 os_is_win = @OS_IS_WIN@
 
 # Fortran libraries
-FORT_LIBS = @FLIBS@
+FORT_LIBS = #@FLIBS@
 
 # the C++ compiler
 CXX = @CXX@
