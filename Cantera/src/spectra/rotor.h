@@ -3,6 +3,15 @@
  * Header file for class Rotor.
  */
 
+/**
+ * @defgroup spectra Spectroscopic Models
+ *
+ * These classes are used to simulate the absorption and emission spectra of 
+ * molecules.
+ *
+ * @ingroup thermoprops
+ */
+
 #ifndef CT_ROTOR
 #define CT_ROTOR
 
@@ -12,7 +21,7 @@ namespace Cantera {
 
     /**
      * Class Rotor represents a non-rigid quantum-mechanical rotor.
-     * @ingroup Spectroscopy
+     * @ingroup spectra
      */
     class Rotor {
     public:

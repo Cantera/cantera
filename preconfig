@@ -132,7 +132,7 @@ BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="default"}
 # The Fortran 90/95 compiler. If set to "default", the script will
 # look for a Fortran 90/95 compiler on your system by the name of
 # "f95", "gfortran", or "g95".
-F90=${F90:="gfortran"}
+F90=${F90:="default"}
 
 # Compiler option flags for the Fortran 90/95 compiler. If you are
 # using the Absoft or the NAG compiler, additional options specific to
