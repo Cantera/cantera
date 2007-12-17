@@ -74,11 +74,9 @@ namespace Cantera {
   //@{
 
     /// Avogadro's Number
-    const doublereal Avogadro = 6.022136736e26;
+    const doublereal Avogadro = 6.02214179e26; //   /kmol
 
-    //const doublereal GasConstant = 8314.0;
-
-    /// Universal Gas Constant. 1999 CODATA value.
+    /// Universal Gas Constant. 2006 CODATA value.
     const doublereal GasConstant = 8314.47215; // J/kmol/K
 
     const doublereal logGasConstant = 9.025752908;
@@ -93,13 +91,13 @@ namespace Cantera {
     const doublereal Boltzmann = GasConstant / Avogadro;
 
     /// Planck's constant. Units of J-s
-    const doublereal Planck = 6.626068e-34;           // J-s
-    const doublereal Planck_bar = 1.05457148e-34;    // m2-kg/s
+    const doublereal Planck = 6.62606896e-34;           // J-s
+    const doublereal Planck_bar = 1.05457162853e-34;    // m2-kg/s
 
     /// log(k/h)
     const doublereal logBoltz_Planck = 23.7599032;  // ln(k_B/h)
     /// Stefan-Boltzmann constant
-    const doublereal StefanBoltz = 5.67e-8;
+    const doublereal StefanBoltz = 5.6704004e-8;
 
     //@}
     /// @name Electron Properties
@@ -114,7 +112,7 @@ namespace Cantera {
     //@{
 
     /// Permittivity of free space \f$ \epsilon_0 \f$ in F/m.
-    const doublereal epsilon_0 = 8.8542e-12;  // Farads/m = C^2/N/m^2
+    const doublereal epsilon_0 = 8.85417817e-12;  // Farads/m = C^2/N/m^2
 
     /// Permeability of free space \f$ \mu_0 \f$ in N/A^2.
     const doublereal permeability_0 = 4.0e-7*Pi; // N/A^2
