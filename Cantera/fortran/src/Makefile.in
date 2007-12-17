@@ -20,7 +20,7 @@ CXX_OBJS = fct.o fctxml.o
 INTERFACE_MODULE_OBJS = fct_interface.o fctxml_interface.o 
 
 USER_MODULE_OBJS = cantera_xml.o cantera_thermo.o cantera_kinetics.o \
-                   cantera_transport.o cantera_iface.o cantera_funcs.o cantera.o
+                   cantera_transport.o cantera_funcs.o cantera.o
 
 MODULES = $(INTERFACE_MODULE_OBJS:_interface.o=.mod) $(USER_MODULE_OBJS)
 OBJS = $(CXX_OBJS) $(USER_MODULE_OBJS)
