@@ -337,6 +337,9 @@ namespace Cantera {
 	  sum += theta[k];
 	}
 	if (sum <= 0.0) {
+            for (k = 0; k < m_kk; k++) {
+                cout << "theta(" << k << ") = " << theta[k] << endl;
+            }
 	  throw CanteraError("SurfPhase::setCoverages",
 			     "Sum of Coverage fractions is zero or negative");
 	}
