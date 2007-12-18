@@ -54,7 +54,7 @@ namespace Cantera {
      * is returned. Otherwise, it is computed as a sum
      * \f[
      * z = \sum_{J=0}^{J_{max} (2J + 1) \exp(-E(J)/kT)
-     * \]
+     * \f]
      */
     doublereal Rotor::partitionFunction(doublereal T, int cutoff) {
         int j = 0;
