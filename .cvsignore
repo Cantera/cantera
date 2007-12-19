@@ -11,3 +11,4 @@ autom4te.cache
 config.log
 config.status
 linux.my.32
+.DS_Store
