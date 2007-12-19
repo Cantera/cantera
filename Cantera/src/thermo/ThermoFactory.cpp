@@ -24,6 +24,7 @@
 #include "speciesThermoTypes.h"
 #include "SpeciesThermoFactory.h"
 #include "IdealGasPhase.h"
+#include "IdealSolidSolnPhase.h"
 
 #ifdef WITH_PURE_FLUIDS
 #include "PureFluidPhase.h"
@@ -72,17 +73,19 @@ namespace Cantera {
     boost::mutex ThermoFactory::thermo_mutex;
 #endif
 
-    static int ntypes = 10;
+    static int ntypes = 13;
     static string _types[] = {"IdealGas", "Incompressible", 
                               "Surface", "Edge", "Metal", "StoichSubstance",
                               "PureFluid", "LatticeSolid", "Lattice",
-                              "HMW"
+                              "HMW", "IdealSolidSolution", "DebyeHuckel", 
+                              "IdealMolalSolution"
     };
 
     static int _itypes[]   = {cIdealGas, cIncompressible, 
                               cSurf, cEdge, cMetal, cStoichSubstance,
                               cPureFluid, cLatticeSolid, cLattice,
-                              cHMW
+                              cHMW, cIdealSolidSolnPhase, cDebyeHuckel,
+                              cIdealMolalSoln
     };
 
     /*
@@ -97,7 +100,6 @@ namespace Cantera {
         }
 
         ThermoPhase* th=0;
-        //        map<string, double> d;
         switch (ieos) {
 
         case cIdealGas:
@@ -114,6 +116,10 @@ namespace Cantera {
 
         case cEdge:
             th = new EdgePhase;
+            break;
+
+        case cIdealSolidSolnPhase:
+            th = new IdealSolidSolnPhase();
             break;
 
 #ifdef WITH_METAL
@@ -187,12 +193,12 @@ namespace Cantera {
     ThermoPhase* t = newThermoPhase(model);
 #ifdef WITH_ELECTROLYTES
     if (model == "HMW") {
-        HMWSoln* p = (HMWSoln*)t;
-        p->constructPhaseXML(xmlphase,"");
+      HMWSoln* p = (HMWSoln*)t;
+      p->constructPhaseXML(xmlphase,"");
     }
     else
 #endif
-        importPhase(xmlphase, t);
+      importPhase(xmlphase, t);
     return t;
   }
 

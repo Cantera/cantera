@@ -1193,6 +1193,50 @@ namespace Cantera {
    *             with the correct id.
    */
   void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, std::string id) {
+    string subname = "IdealSolidSolnPhase::initThermoXML";
+    /*
+     * Check on the thermo field. Must have:
+     * <thermo model="IdealSolidSolution" />
+     */
+    if (phaseNode.hasChild("thermo")) {
+      XML_Node& thNode = phaseNode.child("thermo");
+      string mStringa = thNode.attrib("model");
+      string mString = lowercase(mStringa);
+      if (mString != "idealsolidsolution") {
+	throw CanteraError(subname.c_str(),
+			   "Unknown thermo model: " + mStringa);
+      }
+    } else {
+      throw CanteraError(subname.c_str(),
+			 "Unspecified thermo model");
+    }
+
+    /*
+     * Form of the standard concentrations. Must have one of:
+     * 
+     *     <standardConc model="unity" />
+     *     <standardConc model="molar_volume" />
+     *     <standardConc model="solvent_volume" />
+     */
+    if (phaseNode.hasChild("standardConc")) {
+      XML_Node& scNode = phaseNode.child("standardConc");
+      string formStringa = scNode.attrib("model");
+      string formString = lowercase(formStringa);
+      if (formString == "unity") {
+	m_formGC = 0;
+      } else if (formString == "molar_volume") {
+	m_formGC = 1;
+      } else if (formString == "solvent_volume") {
+	m_formGC = 2;
+      } else {
+	throw CanteraError(subname.c_str(),
+			   "Unknown standardConc model: " + formStringa);
+      }
+    } else {
+      throw CanteraError(subname.c_str(),
+			 "Unspecified standardConc model");
+    }
+
     /*
      * Initialize all of the lengths now that we know how many species
      * there are in the phase.

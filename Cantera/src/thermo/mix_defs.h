@@ -52,6 +52,9 @@ namespace Cantera {
     /// An edge between two 2D surfaces    
     const int cEdge = 6;
 
+    /// Constant partial molar volume solution IdealSolidSolnPhase.h
+    const int cIdealSolidSolnPhase = 5009;
+
     //! HMW - Strong electrolyte using the Pitzer formulation
     const int cHMW = 40;
 

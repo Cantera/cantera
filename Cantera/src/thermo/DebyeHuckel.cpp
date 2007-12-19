@@ -1360,7 +1360,6 @@ namespace Cantera {
       throw CanteraError("DebyeHuckel::constructPhaseXML",
 			 "importPhase failed "); 
     }
-
   }
 
   /*
@@ -1395,10 +1394,31 @@ namespace Cantera {
     XML_Node& thermoNode = phaseNode.child("thermo");
 
     /*
-     * Initialize all of the lengths of arrays in the object
-     * now that we know what species are in the phase.
+     * Possibly change the form of the standard concentrations
      */
-    initThermo();
+    if (thermoNode.hasChild("standardConc")) {
+      XML_Node& scNode = thermoNode.child("standardConc");
+      m_formGC = 2;
+      std::string formString = scNode.attrib("model");
+      if (formString != "") {
+	if (formString == "unity") {
+	  m_formGC = 0;
+	  printf("exit standardConc = unity not done\n");
+	  exit(-1);
+	} else if (formString == "molar_volume") {
+	  m_formGC = 1;
+	  printf("exit standardConc = molar_volume not done\n");
+	  exit(-1);
+	} else if (formString == "solvent_volume") {
+	  m_formGC = 2;
+	} else {
+	  throw CanteraError("DebyeHuckel::constructPhaseXML",
+			     "Unknown standardConc model: " + formString);
+	}
+      }
+    }
+
+  
 
     /*
      * Reconcile the solvent name and index.
@@ -1438,6 +1458,44 @@ namespace Cantera {
 			 " should be first species");
     }
     
+    /*
+     * Determine the form of the Debye-Huckel model,
+     * m_formDH.  We will use this information to size arrays below.
+     */
+    if (thermoNode.hasChild("activityCoefficients")) {
+      XML_Node& scNode = thermoNode.child("activityCoefficients");
+      m_formDH = DHFORM_DILUTE_LIMIT;
+      std::string formString = scNode.attrib("model");
+      if (formString != "") {
+	if        (formString == "Dilute_limit") {
+	  m_formDH = DHFORM_DILUTE_LIMIT;
+	} else if (formString == "Bdot_with_variable_a") {
+	  m_formDH = DHFORM_BDOT_AK  ;
+	} else if (formString == "Bdot_with_common_a") {
+	  m_formDH = DHFORM_BDOT_ACOMMON;
+	} else if (formString == "Beta_ij") {
+	  m_formDH = DHFORM_BETAIJ;
+	} else if (formString == "Pitzer_with_Beta_ij") {
+	  m_formDH = DHFORM_PITZER_BETAIJ;
+	} else {
+	  throw CanteraError("DebyeHuckel::constructPhaseXML",
+			     "Unknown standardConc model: " + formString);
+	}
+      }
+    } else {
+      /*
+       * If there is no XML node named "activityCoefficients", assume
+       * that we are doing the extreme dilute limit assumption
+       */
+      m_formDH = DHFORM_DILUTE_LIMIT;
+    }
+
+    /*
+     * Initialize all of the lengths of arrays in the object
+     * now that we know what species are in the phase.
+     */
+    initThermo();
+
     /*
      * Now go get the specification of the standard states for
      * species in the solution. This includes the molar volumes

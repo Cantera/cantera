@@ -806,7 +806,7 @@ namespace Cantera {
      * @param g    Output vector containing reference Gibbs free energies.
      *             Length: m_kk.
      */
-    virtual void  getGibbs_ref(doublereal *g) const;
+    virtual void getGibbs_ref(doublereal *g) const;
 
     /**
      *  Returns the vector of nondimensional
