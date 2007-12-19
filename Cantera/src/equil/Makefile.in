@@ -15,9 +15,8 @@ INCDIR = ../../../build/include/cantera/kernel
 INSTALL_TSC = ../../../bin/install_tsc
 do_ranlib = @DO_RANLIB@
 
-# do_VCSnonideal = @DO_VCSNONIDEAL@
-do_VCSnonideal = 1
-# do_VCSnonideal = 0
+do_VCSnonideal = @COMPILE_VCSNONIDEAL@
+
 
 debug_mode = @CANTERA_DEBUG_MODE@
 ifeq ($(debug_mode), 1)
