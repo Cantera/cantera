@@ -24,7 +24,10 @@
 #include "speciesThermoTypes.h"
 #include "SpeciesThermoFactory.h"
 #include "IdealGasPhase.h"
+
+#ifdef WITH_IDEAL_SOLUTIONS
 #include "IdealSolidSolnPhase.h"
+#endif
 
 #ifdef WITH_PURE_FLUIDS
 #include "PureFluidPhase.h"
@@ -118,9 +121,11 @@ namespace Cantera {
             th = new EdgePhase;
             break;
 
+#ifdef WITH_IDEAL_SOLUTIONS
         case cIdealSolidSolnPhase:
             th = new IdealSolidSolnPhase();
             break;
+#endif
 
 #ifdef WITH_METAL
         case cMetal:
