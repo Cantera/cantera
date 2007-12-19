@@ -622,6 +622,11 @@ if test "$NEED_TPX" = "1" ; then
 else
   echo "        TPX Pure Fluid Capability             = OFF"
 fi
+if test "$NEED_SPECTRA" = "1" ; then
+  echo "        Spectroscopy Capability               = ON"
+else
+  echo "        Spectroscopy Capability               = OFF"
+fi
 if test "$NEED_CKREADER" = "1" ; then
   echo "        Chemkin File Reader Capability        = ON"
 else
@@ -656,6 +661,26 @@ if test "$COMPILE_RXNPATH" = "1" ; then
   echo "        Reaction Path Analysis                = ON"
 else
   echo "        Reaction Path Analysis                = OFF"
+fi
+echo " "
+
+echo " "
+echo "Config SUMMARY OF INCLUDED/EXCLUDED THERMO MODELS:"  
+
+if test "$WITH_METAL" = "y" ; then
+  echo "        Metal Phase Model                     = INCLUDED"
+else
+  echo "        Metal Phase Model                     = EXCLUDED"
+fi
+if test "$WITH_SEMICONDUCTOR" = "y" ; then
+  echo "        Semiconductor Model                   = INCLUDED"
+else
+  echo "        Semiconductor Model                   = EXCLUDED"
+fi
+if test "$WITH_ADSORBATE" = "y" ; then
+  echo "        Adsorbate Model                       = INCLUDED"
+else
+  echo "        Adsorbate Model                       = EXCLUDED"
 fi
 echo " "
 
