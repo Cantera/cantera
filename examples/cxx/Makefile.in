@@ -13,8 +13,7 @@ PROG_NAME = cxx_examples
 # the object files to be linked together. List those generated from Fortran
 # and from C/C++ separately
 OBJS = examples.o kinetics_example1.o kinetics_example2.o \
-       kinetics_example3.o \
-       equil_example1.o \
+       kinetics_example3.o  equil_example1.o \
        transport_example1.o transport_example2.o \
        rxnpath_example1.o
 
@@ -92,12 +91,12 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
 
 PROGRAM = ./$(PROG_NAME)$(EXE_EXT)
 
-all: $(PROGRAM)
+all: .depends $(PROGRAM) 
 
 DEPENDS=$(OBJS:.o=.d)
 
 %.d:
-	@CXX_DEPENDS@ -I$(CANTERA_INCDIR) $(CXX_FLAGS) $*.cpp > $*.d
+	@CXX_DEPENDS@ $(CANTERA_INC) $(CXX_FLAGS) $*.cpp > $*.d
 
 $(PROGRAM): $(OBJS) $(LIB_DEPS)
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
@@ -106,15 +105,16 @@ $(PROGRAM): $(OBJS) $(LIB_DEPS)
 
 
 clean:
-	$(RM) $(OBJS) $(PROGRAM)
+	$(RM) $(OBJS) $(PROGRAM) $(DEPENDS) .depends
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \
          fi )
 
+depends:
+	$(MAKE) .depends
 
-depends: $(DEPENDS)
+.depends: $(DEPENDS)
 	cat *.d > .depends
-	$(RM) $(DEPENDS)
 
 TAGS:
 	etags *.h *.cpp
