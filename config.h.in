@@ -152,5 +152,9 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 
 #undef WITH_PRIME
 
+//    Enable the VCS NonIdeal equilibrium solver. This is
+//    accessed by specifying the solver=2 option
+#undef WITH_VCSNONIDEAL
+
 
 #endif
