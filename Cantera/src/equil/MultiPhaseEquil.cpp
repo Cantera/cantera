@@ -1,5 +1,6 @@
 #include "MultiPhaseEquil.h"
 #include "MultiPhase.h"
+#include "MolalityVPSSTP.h"
 #include "sort.h"
 #include "global.h"
 
@@ -851,4 +852,172 @@ namespace Cantera {
         }
         return maxerr;
     }
+
+  double MultiPhaseEquil::phaseMoles(index_t iph) {
+    return m_mix->phaseMoles(iph);
+  }
+
+#include <stdio.h>
+   /*
+    *
+    */
+  void MultiPhaseEquil::reportCSV(const std::string &reportFile) {
+    int k;
+    int istart;
+    int nSpecies;
+
+    double vol = 0.0;
+    string sName;
+    int nphase = m_np;
+
+    FILE * FP = fopen(reportFile.c_str(), "w");
+    if (!FP) {
+      printf("Failure to open file\n");
+      exit(-1);
+    }
+    double Temp = m_mix->temperature();
+    double pres = m_mix->pressure();
+    vector<double> mf( m_nsp_mix, 1.0);
+    vector<double> fe(m_nsp_mix, 0.0);
+
+    std::vector<double> VolPM;
+    std::vector<double> activity;
+    std::vector<double> ac;
+    std::vector<double> mu;
+    std::vector<double> mu0;
+    std::vector<double> molalities;
+
+
+    vol = 0.0;
+    for (int iphase = 0; iphase < nphase; iphase++) {
+      istart =    m_mix->speciesIndex(0, iphase);
+      ThermoPhase &tref = m_mix->phase(iphase);
+      nSpecies = tref.nSpecies();
+      VolPM.resize(nSpecies, 0.0);
+      tref.getMoleFractions(&mf[istart]);
+      tref.getPartialMolarVolumes(DATA_PTR(VolPM));
+      //vcs_VolPhase *volP = m_vprob->VPhaseList[iphase];
+
+      double TMolesPhase = phaseMoles(iphase);
+      double VolPhaseVolumes = 0.0;
+      for (k = 0; k < nSpecies; k++) {
+	VolPhaseVolumes += VolPM[k] * mf[istart + k];
+      }
+      VolPhaseVolumes *= TMolesPhase;
+      vol += VolPhaseVolumes;
+    }
+    fprintf(FP,"--------------------- VCS_MULTIPHASE_EQUIL FINAL REPORT"
+            " -----------------------------\n");
+    fprintf(FP,"Temperature  = %11.5g kelvin\n", Temp);
+    fprintf(FP,"Pressure     = %11.5g Pascal\n", pres);
+    fprintf(FP,"Total Volume = %11.5g m**3\n", vol);
+    //    fprintf(FP,"Number Basis optimizations = %d\n", m_vprob->m_NumBasisOptimizations);
+    // fprintf(FP,"Number VCS iterations = %d\n", m_vprob->m_Iterations);
+
+    for (int iphase = 0; iphase < nphase; iphase++) {
+      istart =    m_mix->speciesIndex(0, iphase);
+    
+      ThermoPhase &tref = m_mix->phase(iphase);
+      ThermoPhase *tp = &tref;
+      tp->getMoleFractions(&mf[istart]);
+      string phaseName = tref.name();
+      //      vcs_VolPhase *volP = m_vprob->VPhaseList[iphase];
+      double TMolesPhase = phaseMoles(iphase);
+      //AssertTrace(TMolesPhase == m_mix->phaseMoles(iphase));
+      nSpecies = tref.nSpecies();
+      activity.resize(nSpecies, 0.0);
+      ac.resize(nSpecies, 0.0);
+
+      mu0.resize(nSpecies, 0.0);
+      mu.resize(nSpecies, 0.0);
+      VolPM.resize(nSpecies, 0.0);
+      molalities.resize(nSpecies, 0.0);
+
+      int actConvention = tp->activityConvention();
+      tp->getActivities(DATA_PTR(activity));
+      tp->getActivityCoefficients(DATA_PTR(ac));
+      tp->getStandardChemPotentials(DATA_PTR(mu0));
+
+      tp->getPartialMolarVolumes(DATA_PTR(VolPM));
+      tp->getChemPotentials(DATA_PTR(mu));
+      double VolPhaseVolumes = 0.0;
+      for (k = 0; k < nSpecies; k++) {
+        VolPhaseVolumes += VolPM[k] * mf[istart + k];
+      }
+      VolPhaseVolumes *= TMolesPhase;
+      vol += VolPhaseVolumes;
+     if (actConvention == 1) {
+        MolalityVPSSTP *mTP = static_cast<MolalityVPSSTP *>(tp);
+        tp->getChemPotentials(DATA_PTR(mu));
+        mTP->getMolalities(DATA_PTR(molalities));
+        tp->getChemPotentials(DATA_PTR(mu));
+
+        if (iphase == 0) {
+          fprintf(FP,"        Name,      Phase,  PhaseMoles,  Mole_Fract, "
+                  "Molalities,  ActCoeff,   Activity,"
+                  "ChemPot_SS0,   ChemPot,   mole_num,       PMVol, Phase_Volume\n");
+
+          fprintf(FP,"            ,           ,      (kmol),            ,     "
+                  ",          ,           ,"
+                  "  (kJ/gmol), (kJ/gmol),     (kmol), (m**3/kmol),     (m**3)\n");
+        }
+        for (k = 0; k < nSpecies; k++) {
+          sName = tp->speciesName(k);
+          fprintf(FP,"%12s, %11s, %11.3e, %11.3e, %11.3e, %11.3e, %11.3e,"
+                  "%11.3e, %11.3e, %11.3e, %11.3e, %11.3e\n",
+                  sName.c_str(),
+                  phaseName.c_str(), TMolesPhase,
+                  mf[istart + k], molalities[k], ac[k], activity[k],
+                  mu0[k]*1.0E-6, mu[k]*1.0E-6,
+                  mf[istart + k] * TMolesPhase,
+                  VolPM[k],  VolPhaseVolumes );
+        }
+
+      } else {
+        if (iphase == 0) {
+          fprintf(FP,"        Name,       Phase,  PhaseMoles,  Mole_Fract,  "
+                  "Molalities,   ActCoeff,    Activity,"
+                  "  ChemPotSS0,     ChemPot,   mole_num,       PMVol, Phase_Volume\n");
+
+          fprintf(FP,"            ,            ,      (kmol),            ,  "
+                  ",           ,            ,"
+                  "   (kJ/gmol),   (kJ/gmol),     (kmol), (m**3/kmol),      (m**3)\n");
+        }
+        for (k = 0; k < nSpecies; k++) {
+          molalities[k] = 0.0;
+        }
+        for (k = 0; k < nSpecies; k++) {
+          sName = tp->speciesName(k);
+          fprintf(FP,"%12s, %11s, %11.3e, %11.3e, %11.3e, %11.3e, %11.3e, "
+                  "%11.3e, %11.3e,% 11.3e, %11.3e, %11.3e\n",
+                  sName.c_str(),
+                  phaseName.c_str(), TMolesPhase,
+                  mf[istart + k],  molalities[k], ac[k],
+                  activity[k], mu0[k]*1.0E-6, mu[k]*1.0E-6,
+                  mf[istart + k] * TMolesPhase,
+                  VolPM[k],  VolPhaseVolumes );
+        }
+      }
+#ifdef DEBUG
+      /*
+       * Check consistency: These should be equal
+       */
+      tp->getChemPotentials(&(fe[istart]));
+      for (k = 0; k < nSpecies; k++) {
+        //if (!vcs_doubleEqual(fe[istart+k], mu[k])) {
+        //  fprintf(FP,"ERROR: incompatibility!\n");
+        //  fclose(FP);
+        //  printf("ERROR: incompatibility!\n");
+        //  exit(-1);
+	// }
+      }
+#endif
+
+    }
+    fclose(FP);
+  }
+
+
+
+
 }

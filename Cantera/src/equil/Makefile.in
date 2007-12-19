@@ -15,6 +15,10 @@ INCDIR = ../../../build/include/cantera/kernel
 INSTALL_TSC = ../../../bin/install_tsc
 do_ranlib = @DO_RANLIB@
 
+# do_VCSnonideal = @DO_VCSNONIDEAL@
+do_VCSnonideal = 1
+# do_VCSnonideal = 0
+
 debug_mode = @CANTERA_DEBUG_MODE@
 ifeq ($(debug_mode), 1)
    DEBUG_FLAG=-DDEBUG_MODE
@@ -32,7 +36,7 @@ endif
 #
 #LOCAL_DEFS=-DDEBUG_BASISOPTIMIZE
 #
-#LOCAL_DEFS=-DDEBUG_BASISOPTIMIZE -DDEBUG_CHEMEQUIL
+LOCAL_DEFS=-DDEBUG_BASISOPTIMIZE -DDEBUG_CHEMEQUIL -DCANTERA_SRC_TREE -DALTLINPROG -DDEBUG
 #
 PIC_FLAG=@PIC@
 
@@ -43,27 +47,55 @@ EQUIL_OBJ = BasisOptimize.o ChemEquil.o MultiPhase.o MultiPhaseEquil.o equilibra
 
 EQUIL_H = ChemEquil.h MultiPhase.h MultiPhaseEquil.h equil.h PropertyCalculator.h
 
+ifeq ($(do_VCSnonideal), 1)
+VCSNONIDEAL_OBJ = vcs_solve_TP.o vcs_VolPhase.o vcs_solve.o vcs_prob.o \
+                  vcs_TP.o vcs_TV.o vcs_report.o vcs_util.o \
+                  vcs_IntStarStar.o  vcs_DoubleStarStar.o  vcs_elem.o \
+                  vcs_elem_rearrange.o   vcs_MultiPhaseEquil.o \
+                  vcs_nasa_poly.o  vcs_nondim.o vcs_Exception.o \
+                  vcs_funcVtot.o vcs_inest.o vcs_rearrange.o \
+                  vcs_root1d.o vcs_rxnadj.o  vcs_timer_generic.o \
+                  vcs_SpeciesProperties.o vcs_setMolesLinProg.o \
+                  vcs_prep.o vcs_species_thermo.o vcs_Gibbs.o
+VCSNONIDEAL_H =   vcs_internal.h vcs_VolPhase.h vcs_solve.h vcs_prob.h \
+                  vcs_IntStarStar.h    vcs_DoubleStarStar.h vcs_defs.h \
+                  vcs_MultiPhaseEquil.h vcs_nasa_poly.h vcs_Exception.h  \
+                  vcs_SpeciesProperties.h vcs_species_thermo.h
+endif
+
 CXX_INCLUDES = -I../base -I../thermo -I../numerics @CXX_INCLUDES@
 LIB = @buildlib@/libequil.a
 
-DEPENDS = $(EQUIL_OBJ:.o=.d)
+ifeq ($(do_VCSnonideal), 1)
+  VLIB=@buildlib@/libVCSnonideal.a 
+endif
 
-all: $(LIB) .depends
+DEPENDS = $(EQUIL_OBJ:.o=.d) $(VCSNONIDEAL_OBJ:.o=.d)
+
+all: $(LIB) $(VLIB)
 	@(@INSTALL@ -d $(INCDIR))
-	@(for lh in $(EQUIL_H) ; do \
+	@(for lh in $(EQUIL_H) $(VCSNONIDEAL_H); do \
 	  $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
 	done)
 %.d:
-	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
+	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
 	@CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
 
-$(LIB): $(EQUIL_OBJ) $(EQUIL_H)
-	@ARCHIVE@ $(LIB) $(EQUIL_OBJ) > /dev/null
+$(LIB): $(EQUIL_OBJ) $(EQUIL_H) $(VCSNONIDEAL_OBJ) $(VCSNONIDEAL_H)
+	@ARCHIVE@ $(LIB) $(EQUIL_OBJ) $(VCSNONIDEAL_OBJ) > /dev/null
 ifeq ($(do_ranlib),1)
 	@RANLIB@ $(LIB)
 endif
+
+$(VLIB): $(VCSNONIDEAL_OBJ) $(VCS_NONIDEAL_H)
+	@ARCHIVE@ $(VLIB) $(VCSNONIDEAL_OBJ) > /dev/null
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(VLIB)
+endif
+
+
 
 clean:
 	@(for lh in dummy.h $(EQUIL_H) ; do \

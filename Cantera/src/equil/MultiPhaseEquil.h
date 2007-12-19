@@ -75,6 +75,10 @@ namespace Cantera {
 
         index_t componentIndex(index_t n) { return m_species[m_order[n]]; }
 
+      void reportCSV(const std::string &reportFile);
+
+      double phaseMoles(index_t iph);
+
     protected:
 
         void getComponents(const vector_int& order);

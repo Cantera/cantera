@@ -7,6 +7,7 @@
 #include "equil.h"
 #include "ChemEquil.h"
 #include "MultiPhaseEquil.h"
+#include "vcs_MultiPhaseEquil.h"
 
 namespace Cantera {
 
@@ -23,6 +24,7 @@ namespace Cantera {
   doublereal equilibrate(MultiPhase& s, const char* XY, 
 			 doublereal tol, int maxsteps, int maxiter, 
 			 int loglevel) {
+
       if (loglevel > 0) {
           beginLogGroup("equilibrate",loglevel);
           addLogEntry("multiphase equilibrate function");
@@ -62,6 +64,7 @@ namespace Cantera {
       throw CanteraError("equilibrate","unsupported option");
       return -1.0;
     }
+    
   }
 
   /*
@@ -103,6 +106,8 @@ namespace Cantera {
     int retn = -1;
     int nAttempts = 0;
     int retnSub = 0;
+    bool estimateEquil = false;
+    int printLvlSub = 0;
 
     if (loglevel > 0) {
         beginLogGroup("equilibrate", loglevel);
@@ -120,7 +125,37 @@ namespace Cantera {
         }
     }
     while (redo) {
-      if (solver > 0) {
+
+      if (solver >= 2) {
+	m = new MultiPhase;
+	try { 
+	  m->addPhase(&s, 1.0);
+	  m->init();
+	  nAttempts++;
+	  (void) vcs_equilibrate(*m, XY, estimateEquil, printLvlSub,
+				 rtol, maxsteps, maxiter, loglevel-1); 
+	  redo = false;
+          if (loglevel > 0) 
+	    addLogEntry("VCSnonideal solver succeeded.");
+	  delete m;
+	  retn = nAttempts;
+	}
+	catch (CanteraError err) {
+	  if (loglevel > 0) 
+	    addLogEntry("VCSnonideal solver failed.");
+	  delete m;
+	  if (nAttempts < 2) {
+	    if (loglevel > 0) 
+	      addLogEntry("Trying single phase ChemEquil solver.");
+	    solver = -1;
+	  } 
+	  else {
+	    if (loglevel > 0) 
+	      endLogGroup("equilibrate");
+	    throw err;
+	  }
+	}
+      } else if (solver == 1) {
 	m = new MultiPhase;
 	try { 
 	  m->addPhase(&s, 1.0);
