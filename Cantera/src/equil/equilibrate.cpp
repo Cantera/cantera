@@ -106,8 +106,7 @@ namespace Cantera {
     int retn = -1;
     int nAttempts = 0;
     int retnSub = 0;
-    bool estimateEquil = false;
-    int printLvlSub = 0;
+  
 
     if (loglevel > 0) {
       beginLogGroup("equilibrate", loglevel);
@@ -126,6 +125,9 @@ namespace Cantera {
     }
     while (redo) {
       if (solver >= 2) {
+#ifdef WITH_VCSNONIDEAL
+	int printLvlSub = 0;
+	bool estimateEquil = false;
 	m = new MultiPhase;
 	try { 
 	  m->addPhase(&s, 1.0);
@@ -154,6 +156,10 @@ namespace Cantera {
 	    throw err;
 	  }
 	}
+#else
+	throw CanteraError("equilibrate", 
+			   "VCSNonIdeal solver called, but not compiled");
+#endif
       } else if (solver == 1) {
 	m = new MultiPhase;
 	try { 
