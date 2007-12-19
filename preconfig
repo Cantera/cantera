@@ -188,7 +188,7 @@ WITH_LATTICE_SOLID=${WITH_LATTICE_SOLID:="y"}
 WITH_METAL=${WITH_METAL:="y"}
 WITH_STOICH_SUBSTANCE='y' 
 WITH_SEMICONDUCTOR='y'
-WITH_ADSORBATE='y'
+WITH_ADSORBATE=${WITH_ADSORBATE:="y"}
 WITH_SPECTRA=${WITH_SPECTRA:="y"}
 
 # This flag enables the inclusion of accurate liquid/vapor equations
