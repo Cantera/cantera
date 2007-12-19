@@ -308,7 +308,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS BITCOMPILE BITHARDWARE BITCHANGE ldemulationarg CVF_LIBDIR USE_CLIB_DLL local_inst local_python_inst python_prefix python_win_prefix ctversion homedir ct_libdir ct_bindir ct_incdir ct_incroot ct_datadir ct_demodir ct_templdir ct_tutdir ct_docdir ct_dir ct_mandir COMPACT_INSTALL build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE GRAPHVIZDIR ARCHIVE DO_RANLIB RANLIB CXX_DEPENDS USERDIR INCL_USER_CODE CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT use_sundials CVODE_LIBS IDA_LIBS sundials_include CANTERA_DEBUG_MODE COMPILE_PURE_FLUIDS phase_object_files phase_header_files COMPILE_IDEAL_SOLUTIONS COMPILE_ELECTROLYTES NEED_CATHERMO COMPILE_KINETICS COMPILE_HETEROKIN COMPILE_RXNPATH WITH_REACTORS KERNEL KERNEL_OBJ BUILD_CK LIB_DIR BOOST_INCLUDE BOOST_LIB build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR build_with_f2c build_f2c_lib LOCAL_LIB_DIRS LOCAL_LIBS CT_SHARED_LIB PYTHON_CMD BUILD_PYTHON NUMARRAY_INC_DIR NUMARRAY_HOME CANTERA_PYTHON_HOME CVSTAG MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name PIC INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS ac_ct_CC CXXCPP EGREP SOEXT SHARED CXX_INCLUDES LCXX_FLAGS LCXX_END_LIBS HAVE_STRIPSYMBOLS F77 FFLAGS ac_ct_F77 FLIBS F90 BUILD_F90 F90FLAGS F90BUILDFLAGS F90LIBS precompile_headers OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT math_libs SO LDSHARED EXTRA_LINK TSCOMPARE_abs INSTALL_abs INSTALL_VERBOSE LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS BITCOMPILE BITHARDWARE BITCHANGE ldemulationarg CVF_LIBDIR USE_CLIB_DLL local_inst local_python_inst python_prefix python_win_prefix ctversion homedir ct_libdir ct_bindir ct_incdir ct_incroot ct_datadir ct_demodir ct_templdir ct_tutdir ct_docdir ct_dir ct_mandir COMPACT_INSTALL build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE GRAPHVIZDIR ARCHIVE DO_RANLIB RANLIB CXX_DEPENDS USERDIR INCL_USER_CODE CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT use_sundials CVODE_LIBS IDA_LIBS sundials_include CANTERA_DEBUG_MODE COMPILE_PURE_FLUIDS phase_object_files phase_header_files COMPILE_IDEAL_SOLUTIONS COMPILE_ELECTROLYTES NEED_CATHERMO COMPILE_KINETICS COMPILE_HETEROKIN COMPILE_RXNPATH WITH_REACTORS KERNEL KERNEL_OBJ BUILD_CK LIB_DIR COMPILE_VCSNONIDEAL BOOST_INCLUDE BOOST_LIB build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR build_with_f2c build_f2c_lib LOCAL_LIB_DIRS LOCAL_LIBS CT_SHARED_LIB PYTHON_CMD BUILD_PYTHON NUMARRAY_INC_DIR NUMARRAY_HOME CANTERA_PYTHON_HOME CVSTAG MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name PIC INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS ac_ct_CC CXXCPP EGREP SOEXT SHARED CXX_INCLUDES LCXX_FLAGS LCXX_END_LIBS HAVE_STRIPSYMBOLS F77 FFLAGS ac_ct_F77 FLIBS F90 BUILD_F90 F90FLAGS F90BUILDFLAGS F90LIBS precompile_headers OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT math_libs SO LDSHARED EXTRA_LINK TSCOMPARE_abs INSTALL_abs INSTALL_VERBOSE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -2685,6 +2685,16 @@ fi
 
 
 
+COMPILE_VCSNONIDEAL=0
+if test "$WITH_VCSNONIDEAL" = "y"; then
+  cat >>confdefs.h <<\_ACEOF
+#define WITH_VCSNONIDEAL 1
+_ACEOF
+
+  COMPILE_VCSNONIDEAL=1
+fi
+
+
 if test "$WITH_HTML_LOG_FILES" = "y"; then
   cat >>confdefs.h <<\_ACEOF
 #define WITH_HTML_LOGS 1
@@ -2742,6 +2752,11 @@ if test "$NEED_TPX" = "1" ; then
 else
   echo "        TPX Pure Fluid Capability             = OFF"
 fi
+if test "$NEED_SPECTRA" = "1" ; then
+  echo "        Spectroscopy Capability               = ON"
+else
+  echo "        Spectroscopy Capability               = OFF"
+fi
 if test "$NEED_CKREADER" = "1" ; then
   echo "        Chemkin File Reader Capability        = ON"
 else
@@ -2777,6 +2792,48 @@ if test "$COMPILE_RXNPATH" = "1" ; then
 else
   echo "        Reaction Path Analysis                = OFF"
 fi
+if test "$COMPILE_VCSNONIDEAL" = "1" ; then
+  echo "        VCS NonIdeal equilibrium solver       = ON"
+else
+  echo "        VCS NonIdeal equilibrium solver       = OFF"
+fi
+echo " "
+
+echo " "
+echo "Config SUMMARY OF INCLUDED/EXCLUDED THERMO MODELS:"
+
+if test "$WITH_IDEAL_SOLUTIONS" = "y" ; then
+  echo "        Ideal Solution Phase Model            = INCLUDED"
+else
+  echo "        Ideal Solution Phase Model            = EXCLUDED"
+fi
+if test "$WITH_METAL" = "y" ; then
+  echo "        Metal Phase Model                     = INCLUDED"
+else
+  echo "        Metal Phase Model                     = EXCLUDED"
+fi
+if test "$WITH_SEMICONDUCTOR" = "y" ; then
+  echo "        Semiconductor Model                   = INCLUDED"
+else
+  echo "        Semiconductor Model                   = EXCLUDED"
+fi
+if test "$WITH_ADSORBATE" = "y" ; then
+  echo "        Adsorbate Model                       = INCLUDED"
+else
+  echo "        Adsorbate Model                       = EXCLUDED"
+fi
+if test "$WITH_ELECTROLYTES" = "y" ; then
+  echo "        Molality-based Electrolyte Models     = INCLUDED"
+else
+  echo "        Molality-based Electrolyte Models     = EXCLUDED"
+fi
+if test "$WITH_LATTICE_SOLID" = "y" ; then
+  echo "        Lattice Solid based Models            = INCLUDED"
+else
+  echo "        Lattice Solid based Models            = EXCLUDED"
+fi
+
+
 echo " "
 
 ########################################################
@@ -8506,7 +8563,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:8509:" \
+echo "$as_me:8566:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -8709,7 +8766,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:8712: \"$ac_link\") >&5
+(eval echo $as_me:8769: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -8787,7 +8844,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:8790: \"$ac_link\") >&5
+(eval echo $as_me:8847: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -10014,6 +10071,7 @@ s,@KERNEL@,$KERNEL,;t t
 s,@KERNEL_OBJ@,$KERNEL_OBJ,;t t
 s,@BUILD_CK@,$BUILD_CK,;t t
 s,@LIB_DIR@,$LIB_DIR,;t t
+s,@COMPILE_VCSNONIDEAL@,$COMPILE_VCSNONIDEAL,;t t
 s,@BOOST_INCLUDE@,$BOOST_INCLUDE,;t t
 s,@BOOST_LIB@,$BOOST_LIB,;t t
 s,@build_lapack@,$build_lapack,;t t

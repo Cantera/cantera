@@ -571,6 +571,13 @@ AC_SUBST(KERNEL_OBJ)
 AC_SUBST(BUILD_CK)
 AC_SUBST(LIB_DIR)
 
+COMPILE_VCSNONIDEAL=0
+if test "$WITH_VCSNONIDEAL" = "y"; then
+  AC_DEFINE(WITH_VCSNONIDEAL)
+  COMPILE_VCSNONIDEAL=1
+fi
+AC_SUBST(COMPILE_VCSNONIDEAL)
+
 if test "$WITH_HTML_LOG_FILES" = "y"; then
   AC_DEFINE(WITH_HTML_LOGS)
 fi
@@ -662,11 +669,21 @@ if test "$COMPILE_RXNPATH" = "1" ; then
 else
   echo "        Reaction Path Analysis                = OFF"
 fi
+if test "$COMPILE_VCSNONIDEAL" = "1" ; then
+  echo "        VCS NonIdeal equilibrium solver       = ON"
+else
+  echo "        VCS NonIdeal equilibrium solver       = OFF"
+fi
 echo " "
 
 echo " "
-echo "Config SUMMARY OF INCLUDED/EXCLUDED THERMO MODELS:"  
+echo "Config SUMMARY OF INCLUDED/EXCLUDED THERMO MODELS:"
 
+if test "$WITH_IDEAL_SOLUTIONS" = "y" ; then
+  echo "        Ideal Solution Phase Model            = INCLUDED"
+else
+  echo "        Ideal Solution Phase Model            = EXCLUDED"
+fi
 if test "$WITH_METAL" = "y" ; then
   echo "        Metal Phase Model                     = INCLUDED"
 else
@@ -682,6 +699,18 @@ if test "$WITH_ADSORBATE" = "y" ; then
 else
   echo "        Adsorbate Model                       = EXCLUDED"
 fi
+if test "$WITH_ELECTROLYTES" = "y" ; then
+  echo "        Molality-based Electrolyte Models     = INCLUDED"
+else
+  echo "        Molality-based Electrolyte Models     = EXCLUDED"
+fi
+if test "$WITH_LATTICE_SOLID" = "y" ; then
+  echo "        Lattice Solid based Models            = INCLUDED"
+else
+  echo "        Lattice Solid based Models            = EXCLUDED"
+fi
+
+
 echo " "
 
 ########################################################
