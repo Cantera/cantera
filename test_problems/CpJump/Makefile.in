@@ -59,7 +59,6 @@ CANTERA_LIB_DEPS = $(CANTERA_LIBDIR)/liboneD.a \
                    $(CANTERA_LIBDIR)/libtransport.a \
                    $(CANTERA_LIBDIR)/libthermo.a \
                    $(CANTERA_LIBDIR)/libctnumerics.a \
-                   $(CANTERA_LIBDIR)/libcvode.a \
                    $(CANTERA_LIBDIR)/libctbase.a \
                    $(CANTERA_LIBDIR)/libctmath.a \
                    $(CANTERA_LIBDIR)/libtpx.a \
@@ -69,6 +68,12 @@ ifeq (@build_lapack@, 1)
 CANTERA_LAPACK_DEPS = $(CANTERA_LIBDIR)/libctblas.a \
                       $(CANTERA_LIBDIR)/libctlapack.a
 endif
+
+ifeq (@use_sundials@, 0)
+CANTERA_CVODE_DEPS = $(CANTERA_LIBDIR)/libcvode.a
+endif
+
+LIB_DEPS = $(CANTERA_LIB_DEPS) $(CANTERA_LAPACK_DEPS) $(CANTERA_CVODE_DEPS)
 
 # the directory where Cantera include files may be found.
 ifeq ($(src_dir_tree), 1)
@@ -96,7 +101,7 @@ PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
 all: $(PROGRAM)
 
-$(PROGRAM): $(OBJS) $(CANTERA_LIB_DEPS) $(CANTERA_LAPACK_DEPS)
+$(PROGRAM): $(OBJS) $(LIB_DEPS) 
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(LINK_OPTIONS) \
                   $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)

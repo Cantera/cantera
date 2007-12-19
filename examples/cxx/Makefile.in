@@ -60,12 +60,21 @@ CANTERA_LIB_DEPS = $(CANTERA_LIBDIR)/libkinetics.a \
                    $(CANTERA_LIBDIR)/libtransport.a \
                    $(CANTERA_LIBDIR)/libthermo.a \
                    $(CANTERA_LIBDIR)/libctnumerics.a \
-                   $(CANTERA_LIBDIR)/libcvode.a \
                    $(CANTERA_LIBDIR)/libctbase.a \
                    $(CANTERA_LIBDIR)/libctmath.a \
                    $(CANTERA_LIBDIR)/libtpx.a \
                    $(CANTERA_LIBDIR)/libconverters.a
 
+ifeq (@build_lapack@, 1)
+CANTERA_LAPACK_DEPS = $(CANTERA_LIBDIR)/libctblas.a \
+                      $(CANTERA_LIBDIR)/libctlapack.a
+endif
+
+ifeq (@use_sundials@, 0)
+CANTERA_CVODE_DEPS = $(CANTERA_LIBDIR)/libcvode.a
+endif
+
+LIB_DEPS = $(CANTERA_LIB_DEPS) $(CANTERA_LAPACK_DEPS) $(CANTERA_CVODE_DEPS)
 
 # the directory where Cantera include files may be found.
 CANTERA_INC=-I@ctroot@/build/include
@@ -90,7 +99,7 @@ DEPENDS=$(OBJS:.o=.d)
 %.d:
 	@CXX_DEPENDS@ -I$(CANTERA_INCDIR) $(CXX_FLAGS) $*.cpp > $*.d
 
-$(PROGRAM): $(OBJS) $(CANTERA_LIB_DEPS)
+$(PROGRAM): $(OBJS) $(LIB_DEPS)
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
                    $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ \
                   $(LCXX_END_LIBS)

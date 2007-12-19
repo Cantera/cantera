@@ -50,7 +50,6 @@ LCXX_END_LIBS = @LCXX_END_LIBS@
 CANTERA_LIBDIR=@buildlib@
 
 CANTERA_LIB_DEP=$(CANTERA_LIBDIR)/libctbase.a \
-                $(CANTERA_LIBDIR)/libcvode.a \
                 $(CANTERA_LIBDIR)/libctnumerics.a \
                 $(CANTERA_LIBDIR)/libthermo.a \
                 $(CANTERA_LIBDIR)/libtransport.a \
