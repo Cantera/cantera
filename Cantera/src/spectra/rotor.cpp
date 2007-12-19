@@ -41,7 +41,8 @@ namespace Cantera {
     }
 
     /** 
-     * The number of quantum states with the same J. 
+     * The number of quantum states with the same J. For a
+     * quantum-mechanical rotor, this is simply 2J+1.
      */
     int Rotor::degeneracy(int J) {
         return 2*J + 1;
@@ -53,7 +54,7 @@ namespace Cantera {
      * If T/Trot > 100, then the classical value (T/Trot) is
      * is returned. Otherwise, it is computed as a sum
      * \f[
-     * z = \sum_{J=0}^{J_{max} (2J + 1) \exp(-E(J)/kT)
+     * z = \sum_{J=0}^{J_{max}} (2J + 1) \exp(-E(J)/kT)
      * \f]
      */
     doublereal Rotor::partitionFunction(doublereal T, int cutoff) {

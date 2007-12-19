@@ -8,7 +8,9 @@
  *
  * These classes are used to simulate the absorption and emission spectra of 
  * molecules.
- *
+ */
+
+/*
  * @ingroup thermoprops
  */
 
