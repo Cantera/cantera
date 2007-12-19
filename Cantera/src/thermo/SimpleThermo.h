@@ -153,7 +153,7 @@ namespace Cantera {
     virtual void install(string name, int index, int type, 
 			 const doublereal* c,
 			 doublereal minTemp, doublereal maxTemp, doublereal refPressure) {
-      writelog("installing const_cp for species "+name+"\n");
+      //writelog("installing const_cp for species "+name+"\n");
       m_logt0.push_back(log(c[0]));
       m_t0.push_back(c[0]);
       m_h0_R.push_back(c[1]/GasConstant);
