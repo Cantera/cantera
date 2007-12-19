@@ -17,7 +17,7 @@
 #include "WaterPropsIAPWS.h"
 //#include "importCTML.h"
 #include "ThermoFactory.h"
-#include <math.h>
+#include <cmath>
 
 namespace Cantera {
   /**

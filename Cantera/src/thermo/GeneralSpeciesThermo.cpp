@@ -15,7 +15,9 @@
 #include "ShomatePoly.h"
 #include "ConstCpPoly.h"
 #include "Mu0Poly.h"
+#ifdef WITH_ADSORBATE
 #include "AdsorbateThermo.h"
+#endif
 
 #include "SpeciesThermoFactory.h"
 #include <iostream>
@@ -122,7 +124,7 @@ namespace Cantera {
 	//AssertThrow(m_sp[index] == 0, 
         //		    "Index position isn't null, duplication of assignment: " + int2str(index));
 
-        int nfreq = 3;
+        //int nfreq = 3;
 	/*
 	 * Create the necessary object
 	 */
@@ -153,10 +155,12 @@ namespace Cantera {
 	    m_sp[index] = new NasaPoly2(index, minTemp, maxTemp,
 					refPressure, c);
 	    break;
+#ifdef WITH_ADSORBATE
         case ADSORBATE:
-	    m_sp[index] = new Adsorbate(index, minTemp, maxTemp,
-                refPressure, c);
+	   m_sp[index] = new Adsorbate(index, minTemp, maxTemp,
+                                        refPressure, c);
 	    break;
+#endif
 	default:
 	    throw UnknownSpeciesThermoModel(
                 "GeneralSpeciesThermo::install",

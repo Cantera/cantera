@@ -26,7 +26,9 @@ using namespace std;
 #include "Nasa9PolyMultiTempRegion.h"
 #include "Nasa9Poly1.h"
 
+#ifdef WITH_ADSORBATE
 #include "AdsorbateThermo.h"
+#endif
 
 #include "SpeciesThermoMgr.h"
 #include "speciesThermoTypes.h"
@@ -495,6 +497,7 @@ namespace Cantera {
      * This is called by method installThermoForSpecies if a NASA9
      * block is found in the XML input.
      */
+#ifdef WITH_ADSORBATE
     static void installAdsorbateThermoFromXML(std::string speciesName,
         SpeciesThermo& sp, int k, 
         const XML_Node& f) { 		
@@ -521,6 +524,7 @@ namespace Cantera {
         //    DATA_PTR(coeffs)); 
         (&sp)->install(speciesName, k, ADSORBATE, &coeffs[0], tmin, tmax, pref);
     }
+#endif
 
     /**
      * Install a species thermodynamic property parameterization
@@ -562,9 +566,11 @@ namespace Cantera {
       else if (f->name() == "NASA9") {
 	installNasa9ThermoFromXML(s["name"], spthermo, k, tp);
       }
+#ifdef WITH_ADSORBATE
       else if (f->name() == "adsorbate") {
           installAdsorbateThermoFromXML(s["name"], spthermo, k, *f);
       }
+#endif
       else {
 	throw UnknownSpeciesThermoModel("installThermoForSpecies", 
 					s["name"], f->name());
