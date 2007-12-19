@@ -12,16 +12,12 @@
 
 #include "ct_defs.h"
 
-#ifdef DARWINNN
-#include <Accelerate.h>
-#endif
+//#ifdef DARWIN
+//#include <Accelerate.h>
+//#endif
 
 //! Templated unary operator that carries out a multiplication operation
 /*!
- *  Class carries out a multiplication operation ON ITSELF using
- *  a unary call. It inherits from the STL class,  std::unary_function.
- *  The class contains one template, which is the underlying class.
- *  Note. This is outside the Cantera namespace ?!
  */
 template<class T> struct timesConstant : public std::unary_function<T, double>
 {
