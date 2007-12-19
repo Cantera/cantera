@@ -59,7 +59,6 @@ CANTERA_LIB_DEPS = $(CANTERA_LIBDIR)/liboneD.a \
                    $(CANTERA_LIBDIR)/libtransport.a \
 		   $(CANTERA_LIBDIR)/libthermo.a \
                    $(CANTERA_LIBDIR)/libctnumerics.a \
-                   $(CANTERA_LIBDIR)/libcvode.a \
                    $(CANTERA_LIBDIR)/libctbase.a \
                    $(CANTERA_LIBDIR)/libctmath.a \
                    $(CANTERA_LIBDIR)/libtpx.a \
