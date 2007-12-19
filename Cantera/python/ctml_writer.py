@@ -1,4 +1,7 @@
 #!/usr/local/bin/python
+#
+#  $Id$
+#
 """
  Cantera .cti input file processor
 
