@@ -806,6 +806,10 @@ fi
 
 LOCAL_LIBS=$LOCAL_LIBS' '-lequil
 
+if test  "$WITH_VCSNONIDEAL" = "y" ; then
+LOCAL_LIBS=$LOCAL_LIBS' '-lVCSnonideal
+fi
+
 if test -n "$COMPILE_KINETICS"
 then LOCAL_LIBS=$LOCAL_LIBS' '-lkinetics
 fi
