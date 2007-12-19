@@ -186,8 +186,8 @@ ENABLE_THERMO='y'
 
 WITH_LATTICE_SOLID=${WITH_LATTICE_SOLID:="y"}
 WITH_METAL=${WITH_METAL:="y"}
-WITH_STOICH_SUBSTANCE='y' 
-WITH_SEMICONDUCTOR='y'
+WITH_STOICH_SUBSTANCE=${WITH_STOICH_SUBSTANCE:="y"}
+WITH_SEMICONDUCTOR=${WITH_SEMICONDUCTOR:="y"}
 WITH_ADSORBATE=${WITH_ADSORBATE:="y"}
 WITH_SPECTRA=${WITH_SPECTRA:="y"}
 
@@ -225,6 +225,9 @@ WITH_HETERO_KINETICS='y'
 
 # Enable reaction path analysis
 WITH_REACTION_PATHS='y'
+
+# Enable vcs equilibrium package for nonideal phases
+WITH_VCSNONIDEAL=${WITH_VCSNONIDEAL:="n"}
 
 ######################################################################
 # transport properties
