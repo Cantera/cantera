@@ -46,12 +46,47 @@ namespace Cantera {
     setNDim(2);
   }
 
-  SurfPhase::SurfPhase(XML_Node& xmlphase) {
+  SurfPhase::SurfPhase(std::string infile, std::string id) :
+    ThermoPhase(),
+    m_n0(0.0),
+    m_logn0(0.0),
+    m_tmin(0.0),
+    m_tmax(0.0),
+    m_press(OneAtm),
+    m_tlast(0.0) 
+  {
+    XML_Node* root = get_XML_File(infile);
+    if (id == "-") id = "";
+    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id, root);
+    if (!xphase) {
+      throw CanteraError("SurfPhase::SurfPhase",
+			  "Couldn't find phase name in file:" + id);
+    }
+    // Check the model name to ensure we have compatibility
+    const XML_Node& th = xphase->child("thermo");
+    string model = th["model"];
+    if (model != "Surface" && model != "Edge") {
+      throw CanteraError("SurfPhase::SurfPhase", 
+			 "thermo model attribute must be Surface or Edge");
+    }
+    importPhase(*xphase, this);
+  }
+
+
+  SurfPhase::SurfPhase(XML_Node& xmlphase) :
+    ThermoPhase(),
+    m_n0(0.0),
+    m_logn0(0.0),
+    m_tmin(0.0),
+    m_tmax(0.0),
+    m_press(OneAtm),
+    m_tlast(0.0) 
+  {
     const XML_Node& th = xmlphase.child("thermo");
     string model = th["model"];
-    if (model != "Surface") {
+    if (model != "Surface" && model != "Edge") {
       throw CanteraError("SurfPhase::SurfPhase", 
-			 "thermo model attribute must be Surface");
+			 "thermo model attribute must be Surface or Edge");
     }
     importPhase(xmlphase, this);
   }

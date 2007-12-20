@@ -26,12 +26,12 @@
 
 namespace Cantera {
 
-   //!  Class %StoichSubstanceSSTP represents a stoichiometric (fixed composition) 
-   //!  incompressible substance.
-   /*!
+  //!  Class %StoichSubstanceSSTP represents a stoichiometric (fixed
+  //!   composition)  incompressible substance.
+  /*!
    * This class internally changes the independent degree of freedom from
-   * density to pressure. This is necessary because the phase is incompressible.
-   * It uses a constant volume approximation.
+   * density to pressure. This is necessary because the phase is
+   * incompressible. It uses a constant volume approximation.
    *
    *
    * <b> Specification of Species Standard %State Properties </b>
@@ -168,10 +168,20 @@ namespace Cantera {
 
   public:
     
-    //! Default Constructor for the StoichSubstanceSSTP class
+    //! Default constructor for the StoichSubstanceSSTP class
     StoichSubstanceSSTP();
 
-    //! Full Constructor.
+    //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object 
+    //! directly from an asci input file
+    /*!
+     * @param infile name of the input file
+     * @param id     name of the phase id in the file.
+     *               If this is blank, the first phase in the file is used.
+     */
+    StoichSubstanceSSTP(std::string infile, std::string id = "");
+
+    //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object 
+    //! directly from an XML database
     /*!
      *  @param phaseRef XML node pointing to a StoichSubstanceSSTP description
      *  @param id       Id of the phase. 

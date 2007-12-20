@@ -88,8 +88,10 @@ namespace Cantera {
      */
     IdealSolidSolnPhase(int formCG=0);
 
-    /**
-     * Constructor for IdealSolidSolnPhase.
+
+    //! Construct and initialize an IdealSolidSolnPhase ThermoPhase object 
+    //! directly from an asci input file
+    /*!
      *
      * This constructor will also fully initialize the object.
      * The generalized concentrations can have three different forms 
@@ -112,11 +114,9 @@ namespace Cantera {
      */
     IdealSolidSolnPhase(std::string infile, std::string id="", int formCG=0);
 
-
-    /**
-     * Constructor for IdealSolidSolnPhase.
-     * This constructor will also fully initialize the object.
-     *
+    //! Construct and initialize an IdealSolidSolnPhase ThermoPhase object 
+    //! directly from an XML database
+    /*!  
      * The generalized concentrations can have three different forms 
      * depending on the value of the member attribute m_formGC, which
      * is supplied in the constructor and/or read from the data file.

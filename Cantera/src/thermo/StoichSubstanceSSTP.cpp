@@ -39,12 +39,41 @@ namespace Cantera {
   {
   }
 
+  // Create and initialize a StoichSubstanceSSTP ThermoPhase object 
+  // from an asci input file
+  /*
+   * @param infile name of the input file
+   * @param id     name of the phase id in the file.
+   *               If this is blank, the first phase in the file is used.
+   */
+  StoichSubstanceSSTP::StoichSubstanceSSTP(std::string infile, std::string id) :
+    SingleSpeciesTP()
+  {
+    XML_Node* root = get_XML_File(infile);
+    if (id == "-") id = "";
+    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id, root);
+    if (!xphase) {
+      throw CanteraError("StoichSubstanceSSTP::StoichSubstanceSSTP",
+			  "Couldn't find phase name in file:" + id);
+    }
+    // Check the model name to ensure we have compatibility
+    const XML_Node& th = xphase->child("thermo");
+    std::string model = th["model"];
+    if (model != "StoichSubstance" && model != "StoichSubstanceSSTP") {
+      throw CanteraError("StoichSubstanceSSTP::StoichSubstanceSSTP",
+			 "thermo model attribute must be StoichSubstance");
+    }
+    importPhase(*xphase, this);
+  }
+
   // Full Constructor.
   /*
    *  @param phaseRef XML node pointing to a StoichSubstanceSSTP description
    *  @param id       Id of the phase. 
    */
-  StoichSubstanceSSTP::StoichSubstanceSSTP(XML_Node& xmlphase, std::string id) {
+  StoichSubstanceSSTP::StoichSubstanceSSTP(XML_Node& xmlphase, std::string id) :
+    SingleSpeciesTP()
+  {
     if (id != "") {
       std::string idxml = xmlphase["id"];
       if (id != idxml) {
@@ -54,7 +83,7 @@ namespace Cantera {
     }
     const XML_Node& th = xmlphase.child("thermo");
     std::string model = th["model"];
-    if (model != "StoichSubstanceSSTP") {
+    if (model != "StoichSubstance" && model != "StoichSubstanceSSTP") {
       throw CanteraError("StoichSubstanceSSTP::StoichSubstanceSSTP",
 			 "thermo model attribute must be StoichSubstance");
     }
@@ -433,7 +462,11 @@ namespace Cantera {
    *   </phase>
    */
   void StoichSubstanceSSTP::setParametersFromXML(const XML_Node& eosdata) {
-    eosdata._require("model","StoichSubstanceSSTP");
+    std::string model = eosdata["model"];
+    if (model != "StoichSubstance" && model != "StoichSubstanceSSTP") {
+      throw CanteraError("StoichSubstanceSSTP::StoichSubstanceSSTP",
+			 "thermo model attribute must be StoichSubstance");
+    }
     doublereal rho = getFloat(eosdata, "density", "-");
     setDensity(rho);
   }

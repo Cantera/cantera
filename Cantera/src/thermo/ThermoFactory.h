@@ -168,7 +168,8 @@ namespace Cantera {
   /*!
    *  This routine is a wrapper around the newPhase(XML_Node) routine
    *  which does the work. The wrapper locates the input phase XML_Node
-   *  in a file.
+   *  in a file, and then instantiates the object, returning the pointer
+   *  to the ThermoPhase object.
    *
    * @param infile name of the input file
    * @param id     name of the phase id in the file.

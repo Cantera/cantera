@@ -161,7 +161,17 @@ namespace Cantera {
      */
     SurfPhase(doublereal n0 = 0.0);
 
-    //! Constructor.
+    //! Construct and initialize a SurfPhase ThermoPhase object 
+    //! directly from an asci input file
+    /*!
+     * @param infile name of the input file
+     * @param id     name of the phase id in the file.
+     *               If this is blank, the first phase in the file is used.
+     */
+    SurfPhase(std::string infile, std::string id);
+
+    //! Construct and initialize a SurfPhase ThermoPhase object 
+    //! directly from an XML database
     /*!
      *  @param xmlphase XML node pointing to a SurfPhase description
      */

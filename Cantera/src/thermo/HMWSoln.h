@@ -1200,7 +1200,8 @@ namespace Cantera {
     //! Default Constructor 
     HMWSoln();
 
-    //! Full constructor for setting up the entire ThermoPhase Object
+    //! Construct and initialize an HMWSoln ThermoPhase object 
+    //! directly from an asci input file
     /*!
      * Working constructors
      *
@@ -1216,7 +1217,8 @@ namespace Cantera {
      */
     HMWSoln(std::string inputFile, std::string id = "");
 
-    //! Full constructor for creating the phase.
+    //! Construct and initialize an HMWSoln ThermoPhase object 
+    //! directly from an XML database
     /*!
      *  @param phaseRef XML phase node containing the description of the phase
      *  @param id     id attribute containing the name of the phase. 
