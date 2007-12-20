@@ -210,13 +210,16 @@ namespace Cantera {
   ThermoPhase* newPhase(std::string infile, std::string id) {
     XML_Node* root = get_XML_File(infile); 
     if (id == "-") id = "";
-    XML_Node* x = get_XML_Node(string("#")+id, root);
-    if (x) 
-      return newPhase(*x);
+    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id, root);
+    if (!xphase) {
+      throw CanteraError("newPhase",
+			  "Couldn't find phase named \"" + id + "\" in file, " + infile);
+    }
+    if (xphase) 
+      return newPhase(*xphase);
     else
-      return 0;
+      return (ThermoPhase *) 0;
   }
-
 
         
   /*
