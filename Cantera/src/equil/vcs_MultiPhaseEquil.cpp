@@ -618,9 +618,9 @@ namespace Cantera {
     * Call the thermo Program
     */
    int ip1 = m_printLvl;
-   int ipr = m_printLvl;
-   if (m_printLvl >= 2) {  
-     ip1 = m_printLvl - 1;
+   int ipr = m_printLvl-1;
+   if (m_printLvl >= 3) {  
+     ip1 = m_printLvl - 2;
    } else {
      ip1 = 0;
    }
@@ -708,8 +708,9 @@ namespace Cantera {
      }
      plogf("------------------------------------------"
 	    "-------------------\n"); 
-
-     plogf("Total time = %12.6e seconds\n", te - ts);
+     if (printLvl > 2) {
+       plogf("Total time = %12.6e seconds\n", te - ts);
+     }
    }
    return iSuccess;
   }
@@ -1092,6 +1093,7 @@ namespace Cantera {
 
     int iSurPhase = -1;
     int gasPhase;
+    int printLvl = vprob->m_printLvl;
 
     /*
      * Loop over the phases, transfering pertinent information
@@ -1171,8 +1173,9 @@ namespace Cantera {
 	VolPhase->EqnState = VCS_EOS_STOICH_SUB;
 	break;
       case  cPureFluid:
-	plogf("cPureFluid not handled yet\n");
-	exit(-1);
+	if (printLvl > 1) {
+	  plogf("cPureFluid not recognized yet by VCSnonideal\n");
+	}
 	break;
       case cEdge:
 	plogf("cEdge not handled yet\n");
@@ -1184,7 +1187,9 @@ namespace Cantera {
 	VolPhase->EqnState = VCS_EOS_IDEAL_SOLN;
 	break;
       default:
-	plogf("Unknown Cantera EOS: %d\n", eos);
+	if (printLvl > 1) {
+	  plogf("Unknown Cantera EOS to VCSnonideal: %d\n", eos);
+	}
 	VolPhase->EqnState = VCS_EOS_UNK_CANTERA;
 	if (!VolPhase->UseCanteraCalls) {
 	  plogf("vcs functions asked for, but unimplemented\n");
@@ -1372,8 +1377,10 @@ namespace Cantera {
 	  ts_ptr->Activity_Coeff_Model  = VCS_AC_CONSTANT;
 	  ts_ptr->Activity_Coeff_Params = NULL;
 	} else {
-	  plogf("vcs_Cantera_convert: Species Type %d not handled\n",
-		 spType);
+	  if (vprob->m_printLvl > 2) {
+	    plogf("vcs_Cantera_convert: Species Type %d not known \n",
+		  spType);
+	  }
 	  ts_ptr->SS0_Model = VCS_SS0_NOTHANDLED;
 	  ts_ptr->SSStar_Model = VCS_SSSTAR_NOTHANDLED;
 	  if (!(ts_ptr->UseCanteraCalls )) {
@@ -1448,8 +1455,12 @@ namespace Cantera {
     /*
      *          Printout the species information: PhaseID's and mole nums
      */
-    if (vprob->m_printLvl > 0) {
-      plogf("\n"); print_char('-', 80); plogf("\n");
+    if (vprob->m_printLvl > 1) {
+      plogf("\n"); print_char('=', 80); plogf("\n");
+      print_char('=', 16);
+      plogf(" Cantera_to_vprob: START OF PROBLEM STATEMENT ");
+      print_char('=', 20); plogf("\n");
+      print_char('=', 80); plogf("\n");
       plogf("             Phase IDs of species\n");
       plogf("            species     phaseID        phaseName   ");
       plogf(" Initial_Estimated_gMols\n");
@@ -1481,9 +1492,9 @@ namespace Cantera {
       }
    
       plogf("\n"); print_char('=', 80); plogf("\n");
-      print_char('=', 20); 
+      print_char('=', 16); 
       plogf(" Cantera_to_vprob: END OF PROBLEM STATEMENT ");
-      print_char('=', 23); plogf("\n");
+      print_char('=', 20); plogf("\n");
       print_char('=', 80); plogf("\n\n");
     }
  
@@ -1561,8 +1572,12 @@ namespace Cantera {
     /*
      *          Printout the species information: PhaseID's and mole nums
      */
-    if (vprob->m_printLvl > 0) {
-      plogf("\n"); print_char('-', 80); plogf("\n");
+    if (vprob->m_printLvl > 1) {
+      plogf("\n"); print_char('=', 80); plogf("\n");
+      print_char('=', 20);
+      plogf(" Cantera_to_vprob: START OF PROBLEM STATEMENT ");
+      print_char('=', 20); plogf("\n");
+      print_char('=', 80); plogf("\n\n");
       plogf("             Phase IDs of species\n");
       plogf("            species     phaseID        phaseName   ");
       plogf(" Initial_Estimated_gMols\n");
@@ -1596,7 +1611,7 @@ namespace Cantera {
       plogf("\n"); print_char('=', 80); plogf("\n");
       print_char('=', 20); 
       plogf(" Cantera_to_vprob: END OF PROBLEM STATEMENT ");
-      print_char('=', 23); plogf("\n");
+      print_char('=', 20); plogf("\n");
       print_char('=', 80); plogf("\n\n");
     }
  
@@ -1737,7 +1752,7 @@ namespace Cantera {
     addLogEntry("maxiter",maxiter);
     addLogEntry("loglevel",loglevel);
     endLogGroup("arguments");
-    int printLvlSub = MAX(0, printLvl);
+    int printLvlSub = MAX(0, printLvl-1);
 
     s.init();
   
