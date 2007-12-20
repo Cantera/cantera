@@ -9,7 +9,7 @@
         O H C Fe Ca N Na Cl
     </elementArray>
     <speciesArray datasrc="#species_NaCl(S)"> NaCl(S) </speciesArray>
-    <thermo model="StoichSubstanceSSTP">
+    <thermo model="StoichSubstance">
       <density units="g/cm3">2.165</density>
     </thermo>
     <transport model="None"/>

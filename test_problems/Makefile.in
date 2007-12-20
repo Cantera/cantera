@@ -8,6 +8,7 @@ test_python=@BUILD_PYTHON@
 test_ck=@BUILD_CK@
 test_cathermo=@NEED_CATHERMO@
 test_pure_fluids=@COMPILE_PURE_FLUIDS@
+test_vcs_nonideal=@COMPILE_VCSNONIDEAL@
 
 all:
 	cd cxx_ex;       @MAKE@ all
@@ -39,6 +40,9 @@ ifeq ($(test_ck),1)
 endif
 ifeq ($(test_cathermo),1)
 	cd cathermo;     @MAKE@ all
+endif
+ifeq ($(test_vcs_nonideal),1)
+	cd VCSnonideal;     @MAKE@ all
 endif
 
 test:
@@ -74,6 +78,9 @@ endif
 ifeq ($(test_cathermo),1)
 	cd cathermo;     @MAKE@ -s test
 endif
+ifeq ($(test_vcs_nonideal),1)
+	cd VCSnonideal;     @MAKE@ -s test
+endif
 
 clean:
 	$(RM) *.*~ 
@@ -98,6 +105,7 @@ clean:
 	cd min_python;                             @MAKE@ clean
 	cd python;                                 @MAKE@ clean
 	cd cathermo;                               @MAKE@ clean
+	cd VCSnonideal;	                           @MAKE@ clean
 
 depends:
 	cd cxx_ex;               @MAKE@ depends
@@ -131,4 +139,7 @@ ifeq ($(test_python),2)
 endif
 ifeq ($(test_cathermo),1)
 	cd cathermo;             @MAKE@ depends
+endif
+ifeq ($(test_vcs_nonideal),1)
+	cd VCSnonideal;    	 @MAKE@ depends
 endif
