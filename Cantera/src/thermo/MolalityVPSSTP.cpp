@@ -595,9 +595,134 @@ namespace Cantera {
     VPStandardStateTP::initThermoXML(phaseNode, id);
   }
   
+ /**
+   * Format a summary of the mixture state for output.
+   */           
+  std::string MolalityVPSSTP::report(bool show_thermo) const {
 
+
+    char p[800];
+    string s = "";
+    try {
+      if (name() != "") {
+	sprintf(p, " \n  %s:\n", name().c_str());
+	s += p;
+      }
+      sprintf(p, " \n       temperature    %12.6g  K\n", temperature());
+      s += p;
+      sprintf(p, "          pressure    %12.6g  Pa\n", pressure());
+      s += p;
+      sprintf(p, "           density    %12.6g  kg/m^3\n", density());
+      s += p;
+      sprintf(p, "  mean mol. weight    %12.6g  amu\n", meanMolecularWeight());
+      s += p;
+
+      doublereal phi = electricPotential();
+      sprintf(p, "         potential    %12.6g  V\n", phi);
+      s += p;
+
+      int kk = nSpecies();
+      array_fp x(kk);
+      array_fp molal(kk);
+      array_fp mu(kk);
+      array_fp muss(kk);
+      array_fp acMolal(kk);
+      array_fp actMolal(kk);
+      getMoleFractions(&x[0]);
+      getMolalities(&molal[0]);
+      getChemPotentials(&mu[0]);
+      getStandardChemPotentials(&muss[0]);
+      getMolalityActivityCoefficients(&acMolal[0]);
+      getActivities(&actMolal[0]);
+ 
+      int iHp = speciesIndex("H+");
+      if (iHp >= 0) {
+	double pH = -log(actMolal[iHp]) / log(10.0);
+	sprintf(p, "                pH    %12.4g  \n", pH);
+	s += p;
+      }
+
+      if (show_thermo) {
+        sprintf(p, " \n");
+        s += p;
+        sprintf(p, "                          1 kg            1 kmol\n");
+        s += p;
+        sprintf(p, "                       -----------      ------------\n");
+        s += p;
+        sprintf(p, "          enthalpy    %12.6g     %12.4g     J\n", 
+		enthalpy_mass(), enthalpy_mole());
+        s += p;
+        sprintf(p, "   internal energy    %12.6g     %12.4g     J\n", 
+		intEnergy_mass(), intEnergy_mole());
+        s += p;
+        sprintf(p, "           entropy    %12.6g     %12.4g     J/K\n", 
+		entropy_mass(), entropy_mole());
+        s += p;
+        sprintf(p, "    Gibbs function    %12.6g     %12.4g     J\n", 
+		gibbs_mass(), gibbs_mole());
+        s += p;
+        sprintf(p, " heat capacity c_p    %12.6g     %12.4g     J/K\n", 
+		cp_mass(), cp_mole());
+        s += p;
+        try {
+	  sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n", 
+		  cv_mass(), cv_mole());
+	  s += p;
+        }
+        catch(CanteraError) {
+	  sprintf(p, " heat capacity c_v    <not implemented>       \n");
+	  s += p;
+        }
+      }
+
+   
+      //doublereal rt = GasConstant * temperature(); 
+      int k;
+
+   
+      sprintf(p, " \n");
+      s += p;
+      if (show_thermo) {
+	sprintf(p, "                           X        "
+		"   Molalities         Chem.Pot.    ChemPotSS    ActCoeffMolal\n");
+	s += p;
+	sprintf(p, "                                    "
+		"                      (J/kmol)      (J/kmol)                 \n");
+	s += p;
+	sprintf(p, "                     -------------  "
+		"  ------------     ------------  ------------    ------------\n");
+	s += p;
+	for (k = 0; k < kk; k++) {
+	  if (x[k] > SmallNumber) {
+	    sprintf(p, "%18s  %12.6g     %12.6g     %12.6g   %12.6g   %12.6g\n", 
+		    speciesName(k).c_str(), x[k], molal[k], mu[k], muss[k], acMolal[k]);
+	  }
+	  else {
+	    sprintf(p, "%18s  %12.6g     %12.6g          N/A      %12.6g   %12.6g \n", 
+		    speciesName(k).c_str(), x[k], molal[k], muss[k], acMolal[k]);
+	  }
+	  s += p;
+	}
+      }
+      else {
+	sprintf(p, "                           X"
+		"Molalities\n");
+	s += p;
+	sprintf(p, "                     -------------"
+		"     ------------\n");
+	s += p;
+	for (k = 0; k < kk; k++) {
+	  sprintf(p, "%18s   %12.6g     %12.6g\n", 
+		  speciesName(k).c_str(), x[k], molal[k]);
+	  s += p;
+	}
+      }
+    } catch (CanteraError) {
+      ;
+    }
+    return s;
+  }
+
+ 
 }
-
-
-
 

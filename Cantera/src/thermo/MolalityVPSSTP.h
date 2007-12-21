@@ -744,6 +744,13 @@ namespace Cantera {
      */
     void setState_TPM(doublereal t, doublereal p, const std::string& m);
 
+    //! returns a summary of the state of the phase as a string
+    /*!
+     * @param show_thermo If true, extra information is printed out
+     *                    about the thermodynamic state of the system.
+     */
+    virtual std::string report(bool show_thermo = true) const;
+
   private:
     void initLengths();
             

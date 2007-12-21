@@ -9,6 +9,7 @@
 #include "kernel/IdealGasPhase.h"
 #include "kernel/GRI_30_Kinetics.h"
 #include "kernel/importKinetics.h"
+#include "kernel/stringUtils.h"
 
 namespace Cantera {
 
@@ -29,7 +30,7 @@ namespace Cantera {
         bool operator!() { return !m_ok;}
         bool ready() const { return m_ok; }
         friend std::ostream& operator<<(std::ostream& s, GRI30& mix) {
-            std::string r = report(mix, true);
+            std::string r = Cantera::report(mix, true);
             s << r;
             return s;
         }

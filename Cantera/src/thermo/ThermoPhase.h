@@ -1501,6 +1501,13 @@ namespace Cantera {
       return m_chargeNeutralityNecessary;
     }
 
+
+    //! returns a summary of the state of the phase as a string
+    /*!
+     * @param show_thermo If true, extra information is printed out
+     *                    about the thermodynamic state of the system.
+     */
+    virtual std::string report(bool show_thermo = true) const;
             
   protected:
 

@@ -8,6 +8,8 @@
 
 #include "kernel/PureFluidPhase.h"
 #include "kinetics.h"
+#include "kernel/stringUtils.h"
+
 namespace Cantera {
 
 
@@ -36,7 +38,7 @@ namespace Cantera {
         bool operator!() { return !m_ok;}
         bool ready() const { return m_ok; }
         friend std::ostream& operator<<(std::ostream& s, PureFluid& mix) {
-            std::string r = report(mix, true);
+            std::string r = Cantera::report(mix, true);
             s << r;
             return s;
         }

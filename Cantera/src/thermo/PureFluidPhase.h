@@ -1,6 +1,7 @@
 /**
  *  @file PureFluidPhase.h
- *   Header for a ThermoPhase object for a pure fluid phase consisting of gas, liquid, mixed-gas-liquid
+ *   Header for a ThermoPhase object for a pure fluid phase consisting of 
+ *   gas, liquid, mixed-gas-liquid
  *   and supercrit fluid (see \ref thermoprops 
  *   and class \link Cantera::PureFluidPhase PureFluidPhase\endlink).
  * 
@@ -293,6 +294,14 @@ namespace Cantera {
      *                the "thermo" entry for this phase in the input file.
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
+
+
+    //! returns a summary of the state of the phase as a string
+    /*!
+     * @param show_thermo If true, extra information is printed out
+     *                    about the thermodynamic state of the system.
+     */
+    virtual std::string report(bool show_thermo = true) const;
 
   protected:
 

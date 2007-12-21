@@ -12,6 +12,8 @@ The problem can be divided up into two parts: estimating the Gibbs
 reaction delta for
         Na+ + Cl- = NaCl(solid)
 
+ (so that Del(Gf) = G(NaCl(solid)) - G(Na+) - G(Cl-))
+
 and estimating the activity coefficients for the electrolytes at
 the solubility limit.
 
@@ -36,7 +38,6 @@ From Codata key values for Thermodynamics:
 
 
            Del(Gf)(298.15) =  9.1020 kJ/gmol
-
 
 
 

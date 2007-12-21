@@ -15,7 +15,7 @@ SUFFIXES= .cpp .d .o
 PIC_FLAG=@PIC@
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
 
-OBJS = cxxutils.o importPhase.o
+OBJS =  importPhase.o
 
 DEPENDS = $(OBJS:.o=.d)
 
