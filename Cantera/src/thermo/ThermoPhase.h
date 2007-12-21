@@ -28,7 +28,7 @@ namespace Cantera {
   //@{
   //! Standard state uses the molar convention
   const int    cAC_CONVENTION_MOLAR    = 0;
-  //! Stanadrd state uses the molality convention
+  //! Standard state uses the molality convention
   const int    cAC_CONVENTION_MOLALITY = 1;
   //@}
   class XML_Node;
