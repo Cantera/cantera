@@ -2465,10 +2465,10 @@ fi
 #
 # DEBUG_MODE: Specify that additional code be compiled in
 #             that allows more debug printing where available.
-#  default = "y"
+#  default = "n"
 #
-DEBUG_MODE=${DEBUG_MODE:="y"}
-CANTERA_DEBUG_MODE=1
+DEBUG_MODE=${DEBUG_MODE:="n"}
+CANTERA_DEBUG_MODE=0
 if test "$DEBUG_MODE" = "y" -o "$DEBUG_MODE" = "Y" ; then
   cat >>confdefs.h <<\_ACEOF
 #define DEBUG_MODE 1
