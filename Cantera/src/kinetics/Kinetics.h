@@ -23,6 +23,10 @@ namespace Cantera {
     // forward references
     class ReactionData;
 
+    /**
+     * @defgroup chemkinetics Chemical Kinetics
+     */
+
     /// @defgroup kineticsmgr Kinetics Managers 
     /// @section kinmodman Models and Managers
     /// 
@@ -106,6 +110,7 @@ namespace Cantera {
     /// in the reactions), the next 3 will be for phase 'b', and finally the 
     /// net production rates for the surface species will occupy the last 
     /// 5 locations.
+    /// @ingroup chemkinetics
 
 
     //! Public interface for kinetics managers. 

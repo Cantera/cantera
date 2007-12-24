@@ -10,15 +10,17 @@
 #include "ct_defs.h"
 #include "rotor.h"
 
-namespace Cantera {
+namespace CanteraSpectra {
 
     /**
-     * @param Bv  Rotational  constant, wavenumbers
+     * Constructor.
+     *
+     * @param Bv  Rotational  constant, wavenumbers.
+     * @dipoleMoment permanent dipole moment.
      * @param Dv  Coefficient describing centrifugal 
-     * effects on the bond length. For a rigid rotor, Bv = 0.
+     *   effects on the bond length. For a rigid rotor, Bv = 0.
      * @param Hv  Coefficient describing higher-order vibration-rotation
      * interactions. For a rigid rotor, Hv = 0. 
-     * @dipoleMoment permanent dipole moment.
      */
     Rotor::Rotor(doublereal Bv, doublereal dipoleMoment, 
         doublereal Dv, doublereal Hv ) : m_Bv(Bv), 
@@ -81,18 +83,23 @@ namespace Cantera {
         return degeneracy(J)*exp(-wnum_to_J(energy_w(J))/(Boltzmann*T));
     }
 
-    /** The difference in the energies of an upper and a lower state.
-     *
+    /** 
+     * The frequency at which radiation is absorbed by a transition
+     * from the lower to the upper state in wavenumber units.
      */
     doublereal Rotor::frequency(int J_lower, int J_upper) {
         return (energy_w(J_upper) - energy_w(J_lower));
     }
 
+    /**
+     * The spectral intensity of a rotational transition.
+     */
     doublereal Rotor::intensity(int J_lower, int J_upper, doublereal T) {
         int dJ = J_upper - J_lower;
         if (dJ > 1 || dJ < -1) return 0;
         return relPopulation(J_lower, T);
-   }
+    }
+
 }
 
 

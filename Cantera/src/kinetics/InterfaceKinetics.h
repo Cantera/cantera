@@ -1,6 +1,7 @@
 /**
  * @file InterfaceKinetics.h
  *
+ * @ingroup chemkinetics
  */
 /*
  * $Author$
@@ -10,6 +11,13 @@
 
 // Copyright 2001  California Institute of Technology
 
+/**
+ * @defgroup electrochem Electrochemistry
+ *
+ * Support for electrochemical reaction kinetics.
+ *
+ * @ingroup chemkinetics
+ */
 
 #ifndef CT_IFACEKINETICS_H
 #define CT_IFACEKINETICS_H
@@ -67,6 +75,7 @@ namespace Cantera {
   ///  reactions are assumed to occur at a 2D interface between two
   ///  3D phases.
   ///
+  ///  @ingroup chemkinetics
   class InterfaceKinetics : public Kinetics {
 
   public:

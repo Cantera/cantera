@@ -1,9 +1,12 @@
 /**
  *  @file Phase.h
- *   Header file for class, Phase, which contains functions for setting the
- *   state of a phase, and for referencing species by name, and also contains text for the module phases
- *   (see \ref phases and class \link Cantera::Phase Phase\endlink).
+ *
+ *   Header file for class, Phase, which contains functions for
+ *   setting the state of a phase, and for referencing species by
+ *   name, and also contains text for the module phases (see \ref
+ *   phases and class \link Cantera::Phase Phase\endlink).
  */
+
 /*
  * $Author$
  * $Revision$
@@ -25,7 +28,7 @@ namespace Cantera {
     
 
   /** 
-   * @defgroup phases Phases of Matter
+   * @defgroup phases Models of Phases of Matter
    *
    *  These classes are used to represent the composition and state of a
    *  single phase of matter. 
@@ -44,8 +47,9 @@ namespace Cantera {
    *  the phases may then be described using stoichiometry base on the
    *  same Elements class object.
    *
-   *  The member functions of class %Elements return information about the elements described
-   *  in a particular instantiation of the class.
+   *  The member functions of class %Elements return information about
+   *  the elements described in a particular instantiation of the
+   *  class.
    *
    *  Class %Constituents is designed to provide information
    *  about the elements and species in a phase - names, index
@@ -64,9 +68,9 @@ namespace Cantera {
    *  %Constituents also contains utilities retrieving the index of
    *  a species in the phase given its name, Constituents::speciesIndex().
    *
-   *  Class State manages the independent variables of temperature, mass density,
-   *  and species mass/mole fraction that define the thermodynamic
-   *  state.
+   *  Class State manages the independent variables of temperature,
+   *  mass density, and species mass/mole fraction that define the
+   *  thermodynamic state.
    * 
    *  Class %State stores just enough information about a
    *  multicomponent solution to specify its intensive thermodynamic
@@ -79,18 +83,20 @@ namespace Cantera {
    *  Class %State is not usually used directly in application
    *  programs. Its primary use is as a base class for class
    *  Phase. Class %State has no virtual methods, and none of its
-   *  methods are meant to be overloaded. However, this is one exception.
-   *  If the phase is incompressible, then the density must be replaced
-   *  by the pressure as the independent variable. In this case, functions
-   *  such as State::setMassFractions() within the class %State must actually now
-   *  calculate the density (at constant <I>T</I> and <I>P</I>) instead of leaving
-   *  it alone as befits an independent variable. Therefore, these types
-   *  of functions are virtual functions and need to be overloaded 
-   *  for incompressible phases. Note, for nearly incompressible phases
-   *  (or phases which utilize standard states based on a  <I>T</I> and <I>P</I>) this
-   *  change in independent variables may be advantageous as well,
-   *  and these functions in %State need to overload as well so that the
-   *  storred density within State doesn't become out of date.
+   *  methods are meant to be overloaded. However, this is one
+   *  exception.  If the phase is incompressible, then the density
+   *  must be replaced by the pressure as the independent variable. In
+   *  this case, functions such as State::setMassFractions() within
+   *  the class %State must actually now calculate the density (at
+   *  constant <I>T</I> and <I>P</I>) instead of leaving it alone as
+   *  befits an independent variable. Therefore, these types of
+   *  functions are virtual functions and need to be overloaded for
+   *  incompressible phases. Note, for nearly incompressible phases
+   *  (or phases which utilize standard states based on a <I>T</I> and
+   *  <I>P</I>) this change in independent variables may be
+   *  advantageous as well, and these functions in %State need to
+   *  overload as well so that the storred density within State
+   *  doesn't become out of date.
    *
    *  Class Phase derives from both clases
    *  Constituents and State. In addition to the methods of those two

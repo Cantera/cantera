@@ -123,7 +123,7 @@ namespace Cantera {
    *        at a set number of temperatures. Between each temperature
    *        the heat capacity is treated as a constant.
    *      .
-   *   .
+   * @ingroup phases   .
    */
   //@{
 

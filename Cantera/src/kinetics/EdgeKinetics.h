@@ -1,7 +1,11 @@
 /**
  * @file EdgeKinetics.h
  *
- * $Author$
+ * @ingroup chemkinetics
+ * @ingroup electrochem
+ */
+
+/* $Author$
  * $Revision$
  * $Date$
  */
@@ -16,6 +20,10 @@
 
 namespace Cantera {
 
+    /**
+     * Heterogeneous reactions at one-dimensional interfaces between
+     * multiple adjacent two-dimensional surfaces. 
+     */
     class EdgeKinetics : public InterfaceKinetics {
 
     public:

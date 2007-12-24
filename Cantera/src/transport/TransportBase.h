@@ -12,6 +12,14 @@
 // Copyright 2001-2003  California Institute of Technology
 
 
+/**
+ * @defgroup tranprops Transport Properties
+ *
+ * @ingroup phases
+ *
+ * These classes provide transport properties.
+ */
+
 #ifndef CT_TRANSPORTBASE_H
 #define CT_TRANSPORTBASE_H
 

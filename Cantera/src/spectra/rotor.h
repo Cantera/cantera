@@ -1,45 +1,45 @@
+#ifndef CT_ROTOR
+#define CT_ROTOR
+
 /**
  * @file rotor.h
  * Header file for class Rotor.
  */
 
 /**
- * @defgroup spectra Spectroscopic Models
+ * @defgroup spectroscopy Spectroscopic Models
  *
  * These classes are used to simulate the absorption and emission spectra of 
  * molecules.
  */
 
-/*
- * @ingroup thermoprops
- */
-
-#ifndef CT_ROTOR
-#define CT_ROTOR
-
 #include "ct_defs.h"
+using namespace Cantera;
 
-namespace Cantera {
+/**
+ * Namespace for spectroscopic functions and classes. 
+ */
+namespace CanteraSpectra {
 
     /**
      * Class Rotor represents a non-rigid quantum-mechanical rotor.
-     * @ingroup spectra
+     * @ingroup spectroscopy
      */
     class Rotor {
     public:
+
+        /// Default Constructor.
         Rotor() {}
+
+        /// Destructor.
         virtual ~Rotor() {}
 
-        /*
-         */
+        /// Full Constructor.
         Rotor(doublereal Bv, doublereal dipoleMoment = 0.0, 
             doublereal Dv = 0.0, doublereal Hv = 0.0);
 
-
-        /// energy in wavenumbers
         doublereal energy_w(int J);
 
-        /// degeneracy
         int degeneracy(int J);
 
         doublereal partitionFunction(doublereal T, int cutoff=-1);
@@ -66,6 +66,7 @@ namespace Cantera {
         return freq/(100.0*lightSpeed);
     }
 
+    /** Convert from wavenumbers to Joules. */
     inline doublereal wnum_to_J(doublereal w) {
         return Planck * w * 100.0 * lightSpeed;
     }

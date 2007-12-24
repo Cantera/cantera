@@ -1,6 +1,7 @@
 /**
  *  @file GRI_30_Kinetics.cpp 
  *
+ * @ingroup chemkinetics
  */
 
 // Copyright 2001  California Institute of Technology

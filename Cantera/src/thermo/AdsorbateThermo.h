@@ -1,5 +1,5 @@
 /**
- *  @file HarmonicOscThermo.h 
+ *  @file AdsorbateThermo.h 
  *
  *  Header for a single-species standard
  *  state object derived from \link Cantera::SpeciesThermoInterpType
@@ -21,12 +21,11 @@
 
 #include "SpeciesThermoInterpType.h"
 
-#include <iostream>
-using namespace std;
-
 namespace Cantera {
 
     /** 
+     * An adsorbed surface species.
+     *
      * This class is designed specifically for use by the class
      * GeneralSpeciesThermo. It implements a model for the
      * thermodynamic properties of a molecule that can be modeled as a
@@ -86,9 +85,9 @@ namespace Cantera {
             return (SpeciesThermoInterpType *) np;
         }
 
-        virtual void install(string name, int index, int type, 
-            const doublereal* c,
-            doublereal minTemp, doublereal maxTemp, doublereal refPressure) {
+        virtual void install(std::string name, int index, int type, 
+            const doublereal* c, doublereal minTemp, doublereal maxTemp, 
+            doublereal refPressure) {
             m_be = c[1];
             m_nFreqs = int(c[0]);
             for (int n = 0; n < m_nFreqs; n++) {
@@ -120,61 +119,61 @@ namespace Cantera {
         virtual int speciesIndex() const { return m_index; }
     
 
-    //! Compute the reference-state property of one species
-    /*!
-     * Given temperature T in K, this method updates the values of
-     * the non-dimensional heat capacity at constant pressure,
-     * enthalpy, and entropy, at the reference pressure, Pref
-     * of one of the species. The species index is used
-     * to reference into the cp_R, h_RT, and s_R arrays.
-     *
-     * @param temp    Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
-     */
-    void updatePropertiesTemp(const doublereal temp, 
-			      doublereal* cp_R,
-			      doublereal* h_RT, 
-			      doublereal* s_R) const {
-        h_RT[m_index] = _energy_RT(temp);
-        cp_R[m_index] = (temp*h_RT[m_index] 
-            - (temp-0.01)*_energy_RT(temp-0.01))/0.01;
-        s_R[m_index] = h_RT[m_index] - _free_energy_RT(temp);
-      }
-
-    //!This utility function reports back the type of 
-    //! parameterization and all of the parameters for the 
-    //! species, index.
-    /*!
-     * All parameters are output variables
-     *
-     * @param n         Species index
-     * @param type      Integer type of the standard type
-     * @param tlow      output - Minimum temperature
-     * @param thigh     output - Maximum temperature
-     * @param pref      output - reference pressure (Pa).
-     * @param coeffs    Vector of coefficients used to set the
-     *                  parameters for the standard state.
-     */
-    void reportParameters(int &n, int &type,
-			  doublereal &tlow, doublereal &thigh,
-			  doublereal &pref,
-			  doublereal* const coeffs) const {
-      n = m_index;
-      type = ADSORBATE;
-      tlow = m_lowT;
-      thigh = m_highT;
-      pref = m_Pref;
-      coeffs[0] = m_nFreqs;
-      coeffs[1] = m_be;
-      for (int i = 2; i < m_nFreqs+2; i++) {
-	coeffs[i] = m_freq[i-2];
-      }
-    }
+        //! Compute the reference-state property of one species
+        /*!
+         * Given temperature T in K, this method updates the values of
+         * the non-dimensional heat capacity at constant pressure,
+         * enthalpy, and entropy, at the reference pressure, Pref
+         * of one of the species. The species index is used
+         * to reference into the cp_R, h_RT, and s_R arrays.
+         *
+         * @param temp    Temperature (Kelvin)
+         * @param cp_R    Vector of Dimensionless heat capacities.
+         *                (length m_kk).
+         * @param h_RT    Vector of Dimensionless enthalpies.
+         *                (length m_kk).
+         * @param s_R     Vector of Dimensionless entropies.
+         *                (length m_kk).
+         */
+        void updatePropertiesTemp(const doublereal temp, 
+            doublereal* cp_R,
+            doublereal* h_RT, 
+            doublereal* s_R) const {
+            h_RT[m_index] = _energy_RT(temp);
+            cp_R[m_index] = (temp*h_RT[m_index] 
+                - (temp-0.01)*_energy_RT(temp-0.01))/0.01;
+            s_R[m_index] = h_RT[m_index] - _free_energy_RT(temp);
+        }
+        
+        //! This utility function reports back the type of 
+        /*! parameterization and all of the parameters for the 
+         * species, index.
+         *
+         * All parameters are output variables
+         *
+         * @param n         Species index
+         * @param type      Integer type of the standard type
+         * @param tlow      output - Minimum temperature
+         * @param thigh     output - Maximum temperature
+         * @param pref      output - reference pressure (Pa).
+         * @param coeffs    Vector of coefficients used to set the
+         *                  parameters for the standard state.
+         */
+        void reportParameters(int &n, int &type,
+            doublereal &tlow, doublereal &thigh,
+            doublereal &pref,
+            doublereal* const coeffs) const {
+            n = m_index;
+            type = ADSORBATE;
+            tlow = m_lowT;
+            thigh = m_highT;
+            pref = m_Pref;
+            coeffs[0] = m_nFreqs;
+            coeffs[1] = m_be;
+            for (int i = 2; i < m_nFreqs+2; i++) {
+                coeffs[i] = m_freq[i-2];
+            }
+        }
 
     protected:
         //!  lowest valid temperature
@@ -193,36 +192,36 @@ namespace Cantera {
         doublereal m_be;
         
 
-    doublereal _energy_RT(double T) const {
-        doublereal x, hnu_kt, hnu, sum = 0.0;
-        doublereal kt = T*Boltzmann;
-        int i;
-        for (i = 0; i < m_nFreqs; i++) {
-            hnu = Planck * m_freq[i];
-            hnu_kt = hnu/kt;
-            x = exp(-hnu_kt);
-            sum += hnu_kt * x/(1.0 - x);
+        doublereal _energy_RT(double T) const {
+            doublereal x, hnu_kt, hnu, sum = 0.0;
+            doublereal kt = T*Boltzmann;
+            int i;
+            for (i = 0; i < m_nFreqs; i++) {
+                hnu = Planck * m_freq[i];
+                hnu_kt = hnu/kt;
+                x = exp(-hnu_kt);
+                sum += hnu_kt * x/(1.0 - x);
+            }
+            return sum + m_be/(GasConstant*T);
         }
-        return sum + m_be/(GasConstant*T);
-    }
 
-    doublereal _free_energy_RT(double T) const {
-        doublereal x, hnu_kt, sum = 0.0;
-        doublereal kt = T*Boltzmann;
-        int i;
-        for (i = 0; i < m_nFreqs; i++) {
-            hnu_kt = Planck * m_freq[i] / kt;
-            x = exp(-hnu_kt);
-            sum += log(1.0 - x);
+        doublereal _free_energy_RT(double T) const {
+            doublereal x, hnu_kt, sum = 0.0;
+            doublereal kt = T*Boltzmann;
+            int i;
+            for (i = 0; i < m_nFreqs; i++) {
+                hnu_kt = Planck * m_freq[i] / kt;
+                x = exp(-hnu_kt);
+                sum += log(1.0 - x);
+            }
+            return sum + m_be/(GasConstant*T);
         }
-        return sum + m_be/(GasConstant*T);
-    }
 
-    doublereal _entropy_R(double T) const {
-        return _energy_RT(T) - _free_energy_RT(T);
-    }
+        doublereal _entropy_R(double T) const {
+            return _energy_RT(T) - _free_energy_RT(T);
+        }
 
-  };
+    };
 
 }
 #endif
