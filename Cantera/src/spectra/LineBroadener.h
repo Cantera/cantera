@@ -123,6 +123,8 @@ namespace CanteraSpectra {
         //virtual doublereal cumulative(doublereal deltaFreq) 
         //virtual doublereal width()
 
+        void testv();
+
     protected:
 
         doublereal F(doublereal x);

@@ -42,7 +42,7 @@ namespace Cantera {
    * 
    *  \include edemo.cpp
    *
-   *  The function showErrors() will print out the fatal error condition to standard output. 
+   *  The function showErrors() will p//rint out the fatal error condition to standard output. 
    *
    *  A group of defines may be used during debugging to assert conditions which should
    *  be true. These are named AssertTrace(), AssertThrow(), and AssertThrowMsg().

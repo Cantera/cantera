@@ -3,7 +3,7 @@
 #include "spectra.h"
 #include <iostream>
 using namespace std;
-using namespace Cantera;
+using namespace CanteraSpectra;
 
 int main() {
 //     double B;
@@ -24,31 +24,25 @@ int main() {
 //     }
 
     // test line broading classes
-    double gam = 2.0; 
-    double sigma = 10.0;
+    double gam = 2.0e0; 
+    double sigma = 5.0;
 
     LineBroadener* lor = new Lorentzian(gam);
     LineBroadener* gaus = new Gaussian(sigma);
-    LineBroadener* voig = new Voigt(sigma, gam);
+    Voigt* voig = new Voigt(sigma, gam);
+    //voig->testv();
 
-    double nu0 = 1000.0;
-    double dnu = 0.2;
+    double dnu = 0.1;
     double nu;
-    double gw = gaus->width();
     double sum = 0.0, sumg = 0.0, sumlor = 0.0;
-    for (int n = -1000; n < 1000; n++) {
+    for (int n = -2000; n < 2000; n++) {
         //cout << n << endl;
         nu = n*dnu;
         sumg += gaus->profile(nu)*dnu;
         sum += voig->profile(nu)*dnu;
         sumlor += lor->profile(nu)*dnu;
-        try {
-            cout << nu << ", " << (*lor)(nu) << ", " << (*gaus)(nu) 
-                 << ", " << (*voig)(nu) << endl;
-        }
-        catch (CanteraError) {
-            showErrors();
-        }
+        cout << nu << ", " << (*lor)(nu) << ", " << (*gaus)(nu) 
+             << ", " << (*voig)(nu) << endl;
     }
     cout << "Voigt area = " << sum << endl;
     cout << "Gaussian area = " << sumg << endl;

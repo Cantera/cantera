@@ -70,9 +70,17 @@ namespace CanteraSpectra {
         m_gamma_lor = gamma;
         m_sigsqrt2 = SqrtTwo*m_sigma;
         m_gamma = gamma/m_sigsqrt2;
-        m_eps = 1.0e-9;
+        m_eps = 1.0e-20;
     }
     
+    void Voigt::testv() {
+        m_gamma = 1.0e1;
+        cout << F(1.0) << endl;
+        m_gamma = 0.5;
+        cout << F(1.0) << endl;
+        m_gamma = 0.0001;
+        cout << F(10.0) << endl;
+    }
     /**
      * This method evaluates the function
      * \f[
@@ -90,14 +98,18 @@ namespace CanteraSpectra {
         double b = (tau + x)/y;
         double t = b*y;
         double f1, f2, f3;
-        double c0 = 2.0/(Pi*m_eps);
+        double c0 = 2.0/(Pi*m_eps); // eps or e?
         const double c1 = 1.0/SqrtTwo;
         const double c2 = 2.0/SqrtPi;
 
         if (y > c0/m_eps) {
-            throw CanteraError("Voigt::F", 
-                "condition that y < c0/epsion violated");
+            //cout << "returning 0.0 since y > c0/m_eps" << endl;
+            return 0.0; 
         }
+        //{
+        //    throw CanteraError("Voigt::F", 
+        //        "condition that y < c0/epsilon violated");
+        //}
         while (1 > 0) {
             f1 = c2*y*exp(-Pi*Pi/(t*t));
             f2 = fabs(y*y - Pi*Pi/(t*t));
@@ -107,7 +119,7 @@ namespace CanteraSpectra {
             if ((f1/(f2*f3)) < 0.5*m_eps) break;
         }
         double h = t/y;
-        int N = int(0.5*b/h);
+        int N = int(0.5 + b/h);
         double S = 0.0;
         double u = h/2;
         for (int i = 0; i < N; i++) {
@@ -120,17 +132,21 @@ namespace CanteraSpectra {
             C = 2.0*exp(y*y - x*x)*cos(2*x*y)/(1.0 + exp(2*Pi/h));
         }
         else {
+            //cout << "returning 0, since y2 > Pi/h" << endl;
             return 0.0;
         }
+        //cout << "for x = " << x << ", y = " << y << endl;
+        //cout << "V(x,y) = " << Q+C << endl;
         return Q + C;
     }
 
     /** 
      * Voigt profile.
      *
+     * Not sure that constant is right.
      */
     doublereal Voigt::profile(doublereal deltaFreq) {
-        const double ff = m_gamma_lor*m_gamma_lor/(2.0*Pi*m_sigma*m_sigma);
+        const double ff = 1.0/(m_sigsqrt2*SqrtPi);
         return ff*F(deltaFreq/m_sigsqrt2);
     }
 

@@ -1,6 +1,8 @@
 /**
  * @file GasKinetics.h
  *
+ * @ingroup chemkinetics
+ *
  * $Author$
  * $Revision$
  * $Date$
