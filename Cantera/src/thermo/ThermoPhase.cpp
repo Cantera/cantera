@@ -22,9 +22,11 @@
 
 #include "ThermoPhase.h"
 
+//@{
 #ifndef MAX
 #define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
 #endif
+//@}
 
 using namespace std;
 

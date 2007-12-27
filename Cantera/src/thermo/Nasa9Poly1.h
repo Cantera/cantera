@@ -31,23 +31,22 @@ namespace Cantera {
  
   //! The NASA 9 polynomial parameterization for one temperature range.
   /*!
-   * This parameterization expresses the heat capacity via a
-   * 7 coefficient polynomial.
-   * 
+   *  This parameterization expresses the heat capacity via a
+   *  7 coefficient polynomial.
    *  Note that this is the form used in the
-   * 2002 NASA equilibrium program
+   *  2002 NASA equilibrium program. A reference to the form is 
+   *  provided below:
    *
-   *  NASA Glenn Coefficients for Calculating Thermodynamic
-   *  Properties of Individual Species, 
+   *  "NASA Glenn Coefficients for Calculating Thermodynamic
+   *  Properties of Individual Species," 
    *  B. J. McBride, M. J. Zehe, S. Gordon
    *  NASA/TP-2002-211556, Sept. 2002
-   *
    *
    * Nine coefficients \f$(a_0,\dots,a_6)\f$ are used to represent
    * \f$ C_p^0(T)\f$, \f$ H^0(T)\f$, and \f$ S^0(T) \f$ as 
    * polynomials in \f$ T \f$ :  
    * \f[
-   * \frac{c_p(T)}{R} = a_0 T^{-2} + a_1 T^{-1} + a_2 + a_3 T 
+   * \frac{C_p^0(T)}{R} = a_0 T^{-2} + a_1 T^{-1} + a_2 + a_3 T 
    *                  + a_4 T^2 + a_5 T^3 + a_6 T^4
    * \f]
    * 
@@ -61,13 +60,16 @@ namespace Cantera {
    +    + a_3 T  \frac{a_4}{2} T^2 + \frac{a_5}{3} T^3  + \frac{a_6}{4} T^4 + a_8 
    * \f]
    * 
-   *  The standard state is assumed to be the ideal gas at the
+   *  The standard state is assumed to be an ideal gas at the
    *  standard pressure of 1 bar, for gases.
    *  For condensed species, the standard state is the
-   *  pure cyrstalline or liquid substance at the standard
+   *  pure crystalline or liquid substance at the standard
    *  pressure of 1 atm.
    * 
-   * These NASA representations may have more than 2 temperature regions.
+   * These NASA representations may have multiple temperature regions
+   * through the use of the Nasa9PolyMultiTempRegion object, which uses
+   * multiple copies of this %Nasa9Poly1 object to handle multiple temperature
+   * regions.
    *
    * @ingroup spthermo
    */

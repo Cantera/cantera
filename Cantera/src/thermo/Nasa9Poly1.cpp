@@ -1,6 +1,6 @@
 /**
- *  @file Nasa9Poly1.h
- *  Header for a single-species standard state object derived
+ *  @file Nasa9Poly1.cpp
+ *  Definitions for a single-species standard state object derived
  *  from 
  *  \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink 
  *  based 
@@ -14,11 +14,8 @@
  * $Revision$
  * $Date$
  */
-
 // Copyright 2007  Sandia National Laboratories
 
-
-//#include "global.h"
 #include "Nasa9Poly1.h"
 
 namespace Cantera {
@@ -32,8 +29,8 @@ namespace Cantera {
    *  Note that this is the form used in the
    * 2002 NASA equilibrium program
    *
-   *  NASA Glenn Coefficients for Calculating Thermodynamic
-   *  Properties of Individual Species, 
+   *  "NASA Glenn Coefficients for Calculating Thermodynamic
+   *  Properties of Individual Species,"
    *  B. J. McBride, M. J. Zehe, S. Gordon
    *  NASA/TP-2002-211556, Sept. 2002
    *
@@ -42,7 +39,7 @@ namespace Cantera {
    * \f$ C_p^0(T)\f$, \f$ H^0(T)\f$, and \f$ S^0(T) \f$ as 
    * polynomials in \f$ T \f$ :  
    * \f[
-   * \frac{c_p(T)}{R} = a_0 T^{-2} + a_1 T^{-1} + a_2 + a_3 T 
+   * \frac{C_p^0(T)}{R} = a_0 T^{-2} + a_1 T^{-1} + a_2 + a_3 T 
    *                  + a_4 T^2 + a_5 T^3 + a_6 T^4
    * \f]
    * 
@@ -59,7 +56,7 @@ namespace Cantera {
    *  The standard state is assumed to be the ideal gas at the
    *  standard pressure of 1 bar, for gases.
    *  For condensed species, the standard state is the
-   *  pure cyrstalline or liquid substance at the standard
+   *  pure crystalline or liquid substance at the standard
    *  pressure of 1 atm.
    * 
    * These NASA representations may have more than 2 temperature regions.

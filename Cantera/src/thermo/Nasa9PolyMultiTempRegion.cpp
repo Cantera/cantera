@@ -1,6 +1,6 @@
 /**
- *  @file Nasa9Poly1.h
- *  Header for a single-species standard state object derived
+ *  @file Nasa9PolyMultiTempRegion.cpp
+ *  Definitions for a single-species standard state object derived
  *  from \link Cantera::SpeciesThermoInterpType 
  *    SpeciesThermoInterpType\endlink  based 
  *  on the NASA 9 coefficient temperature polynomial form 
@@ -11,37 +11,31 @@
  *  This parameterization has one NASA temperature region.
  */
 
-
-
-
 /* $Author$
  * $Revision$
  * $Date$
  */
-
 // Copyright 2007  Sandia National Laboratories
-
 
 #include "global.h"
 #include "ctexceptions.h"
 #include "Nasa9PolyMultiTempRegion.h"
 
 namespace Cantera {
-
  
-  // The NASA 9 polynomial parameterization for one temperature range.
+  // The NASA 9 polynomial parameterization for a single species
+  // encompassing multiple temperature regions.
   /*
-   * This parameterization expresses the heat capacity via a
-   * 7 coefficient polynomial.
-   * 
+   *  This parameterization expresses the heat capacity via a
+   *  7 coefficient polynomial.
    *  Note that this is the form used in the
-   * 2002 NASA equilibrium program
+   *  2002 NASA equilibrium program. A reference to the form is
+   *  provided below:
    *
-   *  NASA Glenn Coefficients for Calculating Thermodynamic
-   *  Properties of Individual Species, 
+   *  "NASA Glenn Coefficients for Calculating Thermodynamic
+   *  Properties of Individual Species,"
    *  B. J. McBride, M. J. Zehe, S. Gordon
    *  NASA/TP-2002-211556, Sept. 2002
-   *
    *
    * Nine coefficients \f$(a_0,\dots,a_6)\f$ are used to represent
    * \f$ C_p^0(T)\f$, \f$ H^0(T)\f$, and \f$ S^0(T) \f$ as 
@@ -62,13 +56,16 @@ namespace Cantera {
    *    + \frac{a_6}{4} T^4 + a_8 
    * \f]
    * 
-   *  The standard state is assumed to be the ideal gas at the
+   *  The standard state is assumed to be an ideal gas at the
    *  standard pressure of 1 bar, for gases.
    *  For condensed species, the standard state is the
-   *  pure cyrstalline or liquid substance at the standard
+   *  pure crystalline or liquid substance at the standard
    *  pressure of 1 atm.
-   * 
-   * These NASA representations may have more than 2 temperature regions.
+   *
+   * These NASA representations may have multiple temperature regions
+   * through the use of this %Nasa9PolyMultiTempRegion object, which uses
+   * multiple copies of the Nasa9Poly1 object to handle multiple temperature
+   * regions.
    *
    * @ingroup spthermo
    */
@@ -86,14 +83,14 @@ namespace Cantera {
   }
 
 
-  // constructor used in templated instantiations
+  // Constructor used in templated instantiations
   /*
-   * @param n            Species index
-   * @param tlow         Minimum temperature
-   * @param thigh        Maximum temperature
-   * @param pref         reference pressure (Pa).
-   * @param coeffs       Vector of coefficients used to set the
-   *                     parameters for the standard state.
+   * @param regionPts Vector of pointers to Nasa9Poly1 objects. These
+   *                  objects all refer to the temperature regions for the
+   *                  same species. The vector must be in increasing
+   *                  temperature region format.  Together they
+   *                  represent the reference temperature parameterization
+   *                  for a single species.
    */
   Nasa9PolyMultiTempRegion::
   Nasa9PolyMultiTempRegion(std::vector<Cantera::Nasa9Poly1 *> &regionPts) :
