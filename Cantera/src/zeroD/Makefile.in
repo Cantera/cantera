@@ -38,13 +38,10 @@ all: .depends $(ZEROD_LIB)
 	done)
 
 %.d:
-	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
+	@CXX_DEPENDS@  @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
 	@CXX@ -c $< @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES)
-
-.f.o:
-	@F77@ -c $< $(F77_FLAGS) 
 
 $(ZEROD_LIB): $(OBJS) $(ZEROD_H)
 	@ARCHIVE@ $(ZEROD_LIB) $(OBJS) > /dev/null
@@ -69,11 +66,10 @@ clean:
            $(RM) -rf SunWS_cache ; \
          fi )
 
-depends: $(DEPENDS)
-	cat *.d > .depends
-	$(RM) $(DEPENDS) 
+depends: 
+	@MAKE@ .depends
 
-.depends: $(DEPENDS) Makefile
+.depends: $(DEPENDS) 
 	cat *.d > .depends
 
 TAGS: 
