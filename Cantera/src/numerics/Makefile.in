@@ -42,13 +42,13 @@ LIB = @buildlib@/libctnumerics.a
 
 DEPENDS = $(NUMERICS_OBJ:.o=.d)
 
-all: $(LIB) .depends
+all: .depends $(LIB) 
 	@(@INSTALL@ -d $(INCDIR))
 	@(for lh in $(NUMERICS_H) ; do \
 	  $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
 	done)
 %.d:
-	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
+	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
 	@CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
