@@ -5,6 +5,8 @@ These values are the same as those in the C++ header file ct_defs.h in
 the Cantera kernel.
 """
 
+import math
+
 ## One atmosphere in Pascals
 OneAtm = 101325.0
 
