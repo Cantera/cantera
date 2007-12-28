@@ -59,6 +59,9 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
 .@CXX_EXT@.@OBJ_EXT@:
 	$(CXX) -c $< $(CXX_INCLUDES) $(CXX_FLAGS)
 
+%.d:
+	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
+
 LIB_NAME=lib@CT_SHARED_LIB@
 
 ifeq ($(shared_ctlib),1)
@@ -67,7 +70,7 @@ else
 CTLIB = @buildlib@/$(LIB_NAME).a
 endif
 
-all: $(CTLIB)
+all: .depends $(CTLIB)
  
 $(CTLIB): $(OBJS) $(LIB_DEPS)
 	$(RM)     $(CTLIB)
@@ -83,7 +86,7 @@ endif
 endif
 
 clean:
-	$(RM) $(OBJS) $(CTLIB) .depends
+	$(RM) $(OBJS) *.d $(CTLIB) .depends
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \
          fi )
@@ -102,13 +105,11 @@ endif
 win-install:
 	@INSTALL@ -c ../../../lib/clib.lib @prefix@/lib/cantera
 
+depends:
+	@MAKE@ .depends
 
-%.d:
-	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
-
-depends: $(DEPENDS)
+.depends: $(DEPENDS)
 	cat *.d > .depends
-	$(RM) $(DEPENDS) 
 
 ifeq ($(wildcard .depends), .depends)
 include .depends
