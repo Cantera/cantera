@@ -33,14 +33,14 @@ CONV_LIB = @buildlib@/libconverters.a
 
 DEPENDS = $(OBJS:.o=.d)
 
-all: $(CONV_LIB)
+all: .depends $(CONV_LIB)
 	@(@INSTALL@ -d $(INCDIR))
 	@(for lh in $(CONV_H) ; do \
           $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
         done)
 
 %.d:
-	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
+	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
 	@CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
@@ -67,9 +67,11 @@ clean:
 CKParser.o: CKParser.cpp
 	@CXX@ -c CKParser.cpp $(CXX_FLAGS) $(CXX_INCLUDES) -O0
 
-depends: $(DEPENDS)
+depends: 
+	@MAKE@ .depends
+
+.depends: $(DEPENDS)
 	cat *.d > .depends
-	$(RM) $(DEPENDS) 
 
 TAGS: 
 	etags *.h *.cpp
