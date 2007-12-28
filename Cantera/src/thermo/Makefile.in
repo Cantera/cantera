@@ -87,7 +87,7 @@ all: $(LIB) .depends
 	  $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
 	done)
 %.d:
-	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
+	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
 	@CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
