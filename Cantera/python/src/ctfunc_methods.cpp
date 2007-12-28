@@ -28,7 +28,7 @@ py_func_newcombo(PyObject *self, PyObject *args)
 static PyObject*
 py_func_derivative(PyObject *self, PyObject *args)
 {
-    int type, n, m;
+    int n;
     if (!PyArg_ParseTuple(args, "i:func_derivative", &n))
         return NULL;
     int nn = func_derivative(n);
