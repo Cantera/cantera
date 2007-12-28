@@ -63,13 +63,13 @@ ODE_integrators.o:
 	@CXX@ -c ODE_integrators.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
             $(CXX_FLAGS) 
 ODE_integrators.d: ODE_integrators.cpp Makefile
-	@CXX_DEPENDS@ ODE_integrators.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
+	@CXX_DEPENDS@ $(CXX_FLAGS) ODE_integrators.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
              > ODE_integrators.d 
 
 DAE_solvers.o: DAE_solvers.cpp
 	@CXX@ -c DAE_solvers.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) $(CXX_FLAGS)
 DAE_solvers.d: DAE_solvers.cpp Makefile
-	@CXX_DEPENDS@ DAE_solvers.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
+	@CXX_DEPENDS@ $(CXX_FLAGS) DAE_solvers.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
              > DAE_solvers.d  
 
 clean:
