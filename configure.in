@@ -777,7 +777,7 @@ esac
 
 #
 #  Create a variable build_f2c_lib that determines whether
-#  the f2c_lib will be built on a given platform
+#  our f2c_lib will be built on a given platform
 #  
 build_f2c_lib=0
 if test -n "$NEED_F2C" ; then 
@@ -1122,6 +1122,8 @@ if test -z "$PIC"; then
   case $ac_sys_system in
     SunOS* )
       PIC=' ';;
+    CYGWIN* )
+      PIC=' ';;
     * )
       PIC='-fPIC';;
   esac
@@ -1254,14 +1256,15 @@ AC_SUBST(LCXX_FLAGS)
 # dynamically loaded libraries
 #  (sunpro solaris needs a few for dynamic linking)
 #
+if test -n "$NEED_F2C" ; then 
+   LCXX_END_LIBS="-lctf2c ""$LCXX_END_LIBS"
+fi
 case $ac_sys_system in
   SunOS* )
       case $CXX in 
           CC* ) 
             LCXX_END_LIBS="$LCXX_END_LIBS"" -lCrun -lCstd -lfsu" ;;
       esac ;;
-  Linux)
-      LCXX_END_LIBS=" -lctf2c ""$LCXX_END_LIBS" ;;
 esac
 AC_SUBST(LCXX_END_LIBS)
 
