@@ -20,13 +20,15 @@
 #  distribution. 
 
 #######################################################################
-
-
+#
+# Set CANTERA_CONFIG_PREFIX to the directory where you want Cantera
+# installed into. The default is /usr/local/Cantera
+#
 # If you define this to be <prefix>, then instead of running this
 # script as ./preconfig --prefix=<prefix> you can just run it as
-# ./preconfig
-CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
+# ./preconfig.
 
+CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
 
 #----------------------------------------------------------------------
 #         Language Interfaces
@@ -87,15 +89,17 @@ USE_NUMERIC=${USE_NUMERIC:="default"}
   
 # Set this to 'y' when site packages must be put in system directories
 # but Cantera tutorials must be put in user space.  An alternative to
-# doing this is to put everything in user space by running this script
-# with the 'prefix' option, and defining environment variable PYTHONPATH
-# to tell Python where to find the Cantera package.
+# doing this is to keep this setting on "n" . Then everything is 
+# put into the user space by running this script
+# with the 'prefix' option. The environment variable PYTHONPATH
+# may then be set to tell Python where to find the Cantera package.
 #
 SET_PYTHON_SITE_PACKAGE_TOPDIR=${SET_PYTHON_SITE_PACKAGE_TOPDIR:="n"}
 
+# If the SET_PYTHON_SITE_PACKAGE_TOPDIR is set to y, the entry below
+# sets the location where the Cantera site package is installed.
+#
 PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"} 
-
-
 
 #----------- MATLAB --------------------------------------------------
 
@@ -376,7 +380,7 @@ BOOST_LIB_DIR=${BOOST_LIB_DIR:="/usr/local/lib"}
 BOOST_THREAD_LIB=${BOOST_THREAD_LIB:="boost_thread-mt-1_34"}
 
 #-------------------------------------------------------------------
-#      External procedures
+#      External Procedures
 #-------------------------------------------------------------------
 
 # Cantera uses several external software packages, which are all in
@@ -408,20 +412,19 @@ FFLAGS=${FFLAGS:='-O3'}
 # out if no additional flags are required.
 LFORT_FLAGS="-L/usr/local/lib"
 
-
 #------------------------------------------------------
-#        other programs
+#        Other Programs
 #------------------------------------------------------
 
-# the command to create a static library.
+# The command to create a static library.
 ARCHIVE=${ARCHIVE:="ar ruv"}   # linux
 # ARCHIVE=${ARCHIVE:="libtool -static -o"}  # Mac OSX (this is set automatically)
 # ARCHIVE=${ARCHIVE:="CC -xar -o"} # Solaris using SUNspro compilers
 
-# the command to run 'ranlib' if it is needed. 
+# The command to run 'ranlib' if it is needed. 
 RANLIB=${RANLIB:="ranlib"}
 
-# the command to run the 'make' utility. The Cantera Makefiles are
+# The command to run the 'make' utility. The Cantera Makefiles are
 # compatible with the GNU make utility, so if your make utility
 # doesn't work, try GNU make.
 MAKE=${MAKE:=make}
@@ -440,7 +443,7 @@ INSTALL_BIN=${INSTALL_BIN:=config/install-sh}
 #
 GRAPHVIZDIR=${GRAPHVIZDIR:=" "}
 
-# file extensions
+# File extensions
 CXX_EXT=${CXX_EXT:=cpp}
 F77_EXT=${F77_EXT:=f}
 F90_EXT=${F90_EXT:=f90}
@@ -546,7 +549,6 @@ export BOOST_THREAD_LIB
 
 export WITH_HTML_LOG_FILES
 
-#cd config
 chmod -f +x ./configure 
 chmod -f +x config/config.guess
 chmod -f +x config/config.sub
@@ -565,7 +567,5 @@ fi
 # run the configure command
 #
 ./configure $CCPREFIX $1 $2 $3 $4
-
-
 
 
