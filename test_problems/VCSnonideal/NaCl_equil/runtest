@@ -12,6 +12,8 @@ temp_success="1"
 
 testName=NaCl_equil
 
+BINDIR=../../../bin
+
 #################################################################
 #
 #################################################################
@@ -24,9 +26,9 @@ then
   echo "mpequil returned with bad status, $retnStat, check output"
 fi
 
-diff good_out.txt out.txt  > diff_out.txt
+diff -w good_out.txt out.txt  > diff_out.txt
 retnStat_txt=$?
-csvdiff -a 1.0E-50 vcs_equilibrate_blessed.csv vcs_equilibrate_res.csv  > diff_csv.txt
+$BINDIR/csvdiff -a 1.0E-50 vcs_equilibrate_blessed.csv vcs_equilibrate_res.csv  > diff_csv.txt
 retnStat_csv=$?
 
 if test $retnStat_csv = "1"  
