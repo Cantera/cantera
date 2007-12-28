@@ -31,13 +31,13 @@ LIB = @buildlib@/libtransport.a
 
 DEPENDS = $(OBJS:.o=.d)
 
-all: $(LIB)
+all: .depends $(LIB)
 	@(@INSTALL@ -d $(INCDIR))
 	@(for lh in $(TRAN_H) ; do \
 	  $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
 	done)
 %.d:
-	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
+	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
 	@CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
@@ -60,14 +60,16 @@ clean:
 	    $(RM) $(LIB) ; \
             echo "$(RM) $(LIB)" ; \
           fi)
-	$(RM) *.o *~  .depends
+	$(RM) *.o *.d *~  .depends
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \
          fi )
 
-depends: $(DEPENDS)
+depends: 
+	@MAKE@ .depends
+
+.depends: $(DEPENDS)
 	cat *.d > .depends
-	$(RM) $(DEPENDS) 
 
 TAGS: 
 	etags *.h *.cpp
