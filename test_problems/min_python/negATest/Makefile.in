@@ -77,7 +77,7 @@ DEPENDS=$(OBJS:.o=.d)
 PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
 # all rule makes a single program
-all: $(PROGRAM)
+all: .depends $(PROGRAM)
 
 # Rule to make the program
 $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libctbase.a 
