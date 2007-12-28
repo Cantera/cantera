@@ -1,6 +1,9 @@
 /**
  * @file ct2ctml.cpp
- *
+ * Driver for the system call to the python executable that converts
+ * cti files to ctml files (see \ref inputfiles).
+ */
+/*
  * $Author$
  * $Revision$
  * $Date$
@@ -30,11 +33,13 @@ using namespace Cantera;
 
 namespace ctml {
 
-    // return the full path to the Python interpreter.  Use
-    // environment variable PYTHON_CMD if it is set. If not, return
-    // the string 'python'.
+    //! return the full path to the Python interpreter. 
+    /*!
+     * Use the environment variable PYTHON_CMD if it is set. If not, return
+     * the string 'python'.
+     */
     static string pypath() {
-        string s = "ctpython";
+        string s = "python";
         const char* py = getenv("PYTHON_CMD");
         if (!py) {
             const char* hm = getenv("HOME");
@@ -50,10 +55,10 @@ namespace ctml {
               s = sp;
             }
         }
-        else {
-            throw CanteraError("ct2ctml", 
-                "set environment variable PYTHON_CMD");
-        }
+        //else {
+        //    throw CanteraError("ct2ctml", 
+        //        "set environment variable PYTHON_CMD");
+        //}
         return s;
     }
 
