@@ -7,37 +7,28 @@
 // Copyright 2001  California Institute of Technology
 
 
+/**
+ * @defgroup utils Templated Utility Functions
+ *
+ * These are templates to perform various simple operations on arrays.
+ * Note that the compiler will inline these, so using them carries no
+ * performnce penalty.
+ */
+
 #ifndef CT_UTILITIES_H
 #define CT_UTILITIES_H
 
 #include "ct_defs.h"
 
-//#ifdef DARWIN
-//#include <Accelerate.h>
-//#endif
-
-//! Templated unary operator that carries out a multiplication operation
-/*!
+/**
+ * Unary operator to multiply the argument by a constant.  The form of
+ * this operator is designed for use by std::transform.  @see @ref
+ * scale.
  */
 template<class T> struct timesConstant : public std::unary_function<T, double>
 {
-  //! Constructor
-  /*!
-   * @param c  Stores the value of c as the internal constant.
-   */
   timesConstant(T c) : m_c(c) {}
-
-  //! Parenthesis operator that carries out a unary multiplication
-  //! and returns a double
-  /*!
-   * @param x value of the class which is input
-   *
-   * @return
-   *  return m_c * x, which is defined as a double
-   */
   double operator()(T x) {return m_c * x;}
-
-  //! Internal storred value of the constant
   T m_c;
 };
 
@@ -49,7 +40,6 @@ namespace Cantera {
    *
    */
   //@{
-
     
   //! Maximum of two templated quantities, i and j.
   /*!
@@ -84,7 +74,7 @@ namespace Cantera {
   }
 
     
-  //!  Tempalted Inner product of two vectors of length 4. 
+  //!  Templated Inner product of two vectors of length 4. 
   /*!
    * If either \a x
    * or \a y has length greater than 4, only the first 4 elements
@@ -160,10 +150,6 @@ namespace Cantera {
   inline doublereal dot(InputIter x_begin, InputIter x_end, 
 			InputIter2 y_begin) {
       return inner_product(x_begin, x_end, y_begin, 0.0);
-      //doublereal sum = 0.0;
-      //for(; x_begin != x_end; ++x_begin, ++y_begin) 
-      //sum += *x_begin * *y_begin;
-      //return sum;
   }
   
   //!   Multiply elements of an array by a scale factor.
@@ -186,8 +172,6 @@ namespace Cantera {
   inline void scale(InputIter begin, InputIter end, 
 		    OutputIter out, S scale_factor) {
       transform(begin, end, out, timesConstant<S>(scale_factor));
-      //    for (; begin != end; ++begin, ++out) 
-      //*out = scale_factor * *begin;
   }
   
   /*!
@@ -195,7 +179,8 @@ namespace Cantera {
    * result to an existing array, x. This is essentially a templated daxpy_
    * operation. 
    * 
-   * The template arguments are:  template<class InputIter, class OutputIter, class S>  
+   * The template arguments are:  template<class InputIter, 
+   * class OutputIter, class S>  
    *
    *  Simple Code Example of the functionality;
    * @code
@@ -582,11 +567,7 @@ namespace Cantera {
    */
   template<class OutputIter>
   inline void scale(int N, double alpha, OutputIter x) {
-    //#ifdef DARWINNNN
-    //cblas_dscal(N, alpha, x, 1);
-    //#else
     scale(x, x+N, x, alpha);
-    //#endif
   }
   
 
@@ -635,10 +616,10 @@ namespace Cantera {
 	      c[2])*x + c[1])*x + c[0]);
   }
 
-  //! Templated evaluation of a polynomial of order 4
+  //! Evaluates a polynomial of order 4.
   /*!
-   *  @param x   Value of the independent variable - First template parameter
-   *  @param c   Pointer to the polynomial - Second template parameter 
+   *  @param x   Value of the independent variable.
+   *  @param c   Pointer to the polynomial coefficient array.
    */
   template<class D, class R>
   R poly4(D x, R* c) {

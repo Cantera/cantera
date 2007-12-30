@@ -87,6 +87,11 @@ namespace CanteraSpectra {
      * F(x, y) = \frac{y}{\pi}\int_{-\infty}^{+\infty} \frac{e^{-z^2}}
      * {(x - z)^2 + y^2} dz
      * \f]
+     * The algorithm used to cmpute this function is described in the
+     * reference below.  @see F. G. Lether and P. R. Wenston, "The
+     * numerical computation of the %Voigt function by a corrected
+     * midpoint quadrature rule for \f$ (-\infty, \infty) \f$. Journal
+     * of Computational and Applied Mathematics}, 34 (1):75--92, 1991.
      */
     doublereal Voigt::F(doublereal x) {
 
@@ -98,25 +103,22 @@ namespace CanteraSpectra {
         double b = (tau + x)/y;
         double t = b*y;
         double f1, f2, f3;
-        double c0 = 2.0/(Pi*m_eps); // eps or e?
+        const double c0 = 2.0/(Pi*exp(0.0));
         const double c1 = 1.0/SqrtTwo;
         const double c2 = 2.0/SqrtPi;
 
         if (y > c0/m_eps) {
-            //cout << "returning 0.0 since y > c0/m_eps" << endl;
             return 0.0; 
         }
-        //{
-        //    throw CanteraError("Voigt::F", 
-        //        "condition that y < c0/epsilon violated");
-        //}
+        double f0, ef0;
         while (1 > 0) {
-            f1 = c2*y*exp(-Pi*Pi/(t*t));
+            f0 = Pi*Pi/(t*t);
+            ef0 = exp(-f0);
+            f1 = c2*y*ef0;
             f2 = fabs(y*y - Pi*Pi/(t*t));
-            f3 = 1.0 - pow(exp(-Pi*Pi/(t*t)),2);
+            f3 = 1.0 - ef0*ef0;
             t *= c1;
-            //  cout << "t = " << t << endl;
-            if ((f1/(f2*f3)) < 0.5*m_eps) break;
+            if (f1/(f2*f3) < 0.5*m_eps) break;
         }
         double h = t/y;
         int N = int(0.5 + b/h);
@@ -132,11 +134,8 @@ namespace CanteraSpectra {
             C = 2.0*exp(y*y - x*x)*cos(2*x*y)/(1.0 + exp(2*Pi/h));
         }
         else {
-            //cout << "returning 0, since y2 > Pi/h" << endl;
             return 0.0;
         }
-        //cout << "for x = " << x << ", y = " << y << endl;
-        //cout << "V(x,y) = " << Q+C << endl;
         return Q + C;
     }
 

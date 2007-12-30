@@ -115,15 +115,15 @@ namespace Cantera {
 
     //! Public interface for kinetics managers. 
     /*! 
-     * This class serves as a
-     * base class to derive 'kinetics managers', which are classes
-     * that manage homogeneous chemistry within one phase, or
-     * heterogeneous chemistry at one interface. The virtual methods
-     * of this class are meant to be overloaded in subclasses. The
-     * non-virtual methods perform generic functions and are
-     * implemented in Kinetics. They should not be overloaded. Only
-     * those methods required by a subclass need to be overloaded;
-     * the rest will throw exceptions if called.
+     * This class serves as a base class to derive 'kinetics
+     * managers', which are classes that manage homogeneous chemistry
+     * within one phase, or heterogeneous chemistry at one
+     * interface. The virtual methods of this class are meant to be
+     * overloaded in subclasses. The non-virtual methods perform
+     * generic functions and are implemented in Kinetics. They should
+     * not be overloaded. Only those methods required by a subclass
+     * need to be overloaded; the rest will throw exceptions if
+     * called.
      *
      * When the nomenclature "kinetics species index" is used below,
      * this means that the species index ranges over all species in

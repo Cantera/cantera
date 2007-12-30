@@ -5,7 +5,7 @@
  * This file is included
  * in every file that is in the Cantera Namespace.
  *
- * All physical constants are storred here.
+ * All physical constants are stored here.
  * The module physConstants is defined here.
  */
 
@@ -52,11 +52,12 @@
 namespace Cantera {
 
  /*!
-  * All physical constants are storred here.
+  * All physical constants are stored here.
   *
   * @defgroup physConstants Physical Constants
   * %Cantera uses the MKS system of units. The unit for moles 
-  * is defined to be the kmol.
+  * is defined to be the kmol. All values of physical constants
+  * are consistent with the 2006 CODATA recommendations.
   * @ingroup globalData
   * @{
   */
@@ -154,10 +155,12 @@ namespace Cantera {
   //! largest x such that exp(x) is valid
     const doublereal MaxExp = 690.775527898;         
 
-  //! Fairly random number to be used to initialize variables against to see if they are subsequently defined.
+  //! Fairly random number to be used to initialize variables against
+  //! to see if they are subsequently defined.
     const doublereal Undef = -999.1234;
   //! Small number to compare differences of mole fractions against.
     const doublereal Tiny = 1.e-20;
+
   //! inline function to return the max value of two doubles.
   /*!
    * @param x  double value

@@ -11,14 +11,6 @@
 
 // Copyright 2001  California Institute of Technology
 
-/**
- * @defgroup electrochem Electrochemistry
- *
- * Support for electrochemical reaction kinetics.
- *
- * @ingroup chemkinetics
- */
-
 #ifndef CT_IFACEKINETICS_H
 #define CT_IFACEKINETICS_H
 

@@ -3,6 +3,8 @@
  * This file contains definitions for utility functions and text for modules,
  * inputfiles, logs, textlogs, HTML_logs (see \ref inputfiles, \ref logs, \ref textlogs and \ref HTML_logs).
  *
+ * @ingroup utils
+ *
  * These functions store 
  * some parameters in  global storage that are accessible at all times
  * from the calling application.

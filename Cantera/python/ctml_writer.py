@@ -1,26 +1,29 @@
-#!/usr/local/bin/python
+##
+# @file ctml_writer.py
 #
+# Cantera .cti input file processor
+# @defgroup pygroup Cantera Python Interface
+#
+# The functions and classes in this module process Cantera .cti input
+# files and produce CTML files. It can be imported as a module, or used
+# as a script.
+#
+# script usage:
+# 
+# python ctml_writer.py infile.cti
+# 
+# This will produce CTML file 'infile.xml'
+#
+#
+
 #  $Id$
-#
-"""
- Cantera .cti input file processor
 
- The functions and classes in this module process Cantera .cti input
- files and produce CTML files. It can be imported as a module, or used
- as a script.
-
- script usage:
-
- python ctml_writer.py infile.cti
-
- This will produce CTML file 'infile.xml'
-
-"""
 import string
 
 class CTI_Error:
     """Exception raised if an error is encountered while
-    parsing the input file."""
+    parsing the input file.
+    @ingroup pygroup"""
     def __init__(self, msg):
         print '\n\n***** Error parsing input file *****\n\n'
         print msg
