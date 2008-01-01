@@ -79,6 +79,9 @@ endif
 
 %.o : %.f
 	@F77@ -c $<  $(F77_INCLUDES) $(F_FLAGS) 
+
+$(OBJS): Makefile
+
 clean:
 	$(RM) $(OBJS) $(LAPACKLIB)
 depends:
