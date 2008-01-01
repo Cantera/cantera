@@ -86,7 +86,7 @@ all: $(LIB) .depends
 	@(for lh in $(CATHERMO_H) ; do \
 	  $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
 	done)
-%.d:
+%.d: Makefile $*.o
 	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
