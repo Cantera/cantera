@@ -1,8 +1,17 @@
+/**
+ * @file Interface.h
+ *   Declaration and Definition for the class Interface, part of 
+ *   Cantera's Cantera_CXX namespace.
+ */
+/*
+ * $Id$
+ */
 #ifndef CXX_INTERFACE
 #define CXX_INTERFACE
 
 #include <string>
 
+#include "Cantera.h"
 #include "thermo.h"
 #include "kernel/SurfPhase.h"
 #include "kernel/InterfaceKinetics.h"
@@ -43,7 +52,7 @@ namespace Cantera_CXX {
             m_r = Cantera::get_XML_File(infile); 
             if (id == "-") id = "";
             
-            XML_Node* x = Cantera::get_XML_Node("#"+id, m_r);
+            Cantera::XML_Node* x = Cantera::get_XML_Node("#"+id, m_r);
             if (!x)                 
                 throw Cantera::CanteraError("Interface","error in get_XML_Node");
 
@@ -61,7 +70,7 @@ namespace Cantera_CXX {
 
     protected:
         bool m_ok;
-        XML_Node* m_r;
+        Cantera::XML_Node* m_r;
 
     private:
     };

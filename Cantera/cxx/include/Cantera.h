@@ -21,6 +21,8 @@
 // Include the timer
 #include "kernel/clockWC.h"
 
+#include "kernel/xml.h"
+
 #endif
 
 
