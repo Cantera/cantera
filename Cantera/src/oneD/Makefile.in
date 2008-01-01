@@ -63,7 +63,7 @@ clean:
          fi )
 
 depends: 
-	@MAKE .depends
+	@MAKE@ .depends
 
 .depends: $(DEPENDS)
 	cat *.d > .depends
