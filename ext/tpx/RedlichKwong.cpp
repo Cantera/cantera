@@ -31,7 +31,7 @@ namespace tpx {
     double RedlichKwong::sp() {
 	const double Pref = 101325.0;
 	double rgas = 8314.3/m_mw;
-        double ss = rgas*(log(Pref/(Rho*rgas*T)));
+        //double ss = rgas*(log(Pref/(Rho*rgas*T)));
         double sr = sresid(); 
         double p = Pp();
 	double s = rgas*(log(Pref/p)) + sr + m_entropy_offset;

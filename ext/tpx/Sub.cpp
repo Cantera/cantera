@@ -15,11 +15,13 @@ namespace tpx {
         return string(buf);
     }
 
+/*
     static string int2str(int n, string fmt="%d") {
         char buf[30];
         sprintf(buf, fmt.c_str(), n);
         return string(buf);
     }
+*/
 
     string TPX_Error::ErrorMessage = "";
     string TPX_Error::ErrorProcedure = "";

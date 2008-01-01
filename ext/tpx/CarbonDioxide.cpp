@@ -256,7 +256,7 @@ double CarbonDioxide::up() {
 */
 
 double CarbonDioxide::sp() {
-    double Tinverse = 1.0/T;   
+    //double Tinverse = 1.0/T;   
     double T2inverse = pow(T, -2);
     double T3inverse = pow(T, -3);
     double T4inverse = pow(T, -4);
