@@ -16,10 +16,8 @@ OBJS    = user.o
 
 ###############################################################
 
-
-
-SUFFIXES=
-SUFFIXES= .cpp .d .o
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o
 
 OBJDIR = .
 PIC_FLAG=@PIC@
@@ -32,7 +30,7 @@ LIB = @buildlib@/libuser.a
 
 DEPENDS = $(OBJS:.o=.d)
 
-%.d:
+%.d: Makefile %.o
 	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
@@ -49,12 +47,15 @@ $(LIB): $(OBJS)
 clean:
 	$(RM) *.o *~ $(LIB)
 
-depends: $(DEPENDS)
+depends:
+	@MAKE@ .depends
+
+.depends: $(DEPENDS)
 	cat *.d > .depends
-	$(RM) $(DEPENDS) 
+
+$(OBJS): Makefile
 
 install:
-
 
 TAGS: 
 	etags *.h *.cpp
