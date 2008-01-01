@@ -7,7 +7,6 @@ do_ranlib = @DO_RANLIB@
 PIC_FLAG=@PIC@
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
 
-#COBJS = tpx_files.o
 COBJS = Methane.o Nitrogen.o Oxygen.o Water.o Hydrogen.o RedlichKwong.o \
         CarbonDioxide.o Heptane.o lk.o Sub.o utils.o HFC134a.o
 
@@ -19,9 +18,9 @@ TPLIB = @buildlib@/libtpx.a
 
 DEPENDS = $(COBJS:.o=.d)
 
-all:  $(TPLIB)
+all:  $(TPLIB) .depends
 
-%.d:
+%.d: Makefile %.o
 	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
@@ -39,9 +38,13 @@ endif
 clean:
 	$(RM) $(COBJS) $(FOBJS) *~ *.d .depends
 
-depends: $(DEPENDS)
+depends: 
+	@MAKE@ .depends
+
+.depends: $(DEPENDS)
 	cat *.d > .depends
-	$(RM) $(DEPENDS)
+
+$(COBJS): Makefile
 
 ifeq ($(wildcard .depends), .depends)
 include .depends
