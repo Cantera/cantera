@@ -31,12 +31,12 @@ LIB = @buildlib@/libtransport.a
 
 DEPENDS = $(OBJS:.o=.d)
 
-all: .depends $(LIB)
+all:  $(LIB) .depends
 	@(@INSTALL@ -d $(INCDIR))
 	@(for lh in $(TRAN_H) ; do \
 	  $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
 	done)
-%.d:
+%.d: Makefile %.o
 	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
@@ -70,6 +70,10 @@ depends:
 
 .depends: $(DEPENDS)
 	cat *.d > .depends
+
+$(OBJS): Makefile
+
+$(OBJS): Makefile
 
 TAGS: 
 	etags *.h *.cpp

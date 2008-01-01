@@ -31,13 +31,13 @@ ZEROD_LIB = @buildlib@/libzeroD.a
 
 DEPENDS = $(OBJS:.o=.d)
 
-all: .depends $(ZEROD_LIB)
+all: $(ZEROD_LIB) .depends
 	@(@INSTALL@ -d $(INCDIR))
 	@(for lh in $(ZEROD_H) ; do \
           $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
 	done)
 
-%.d:
+%.d: Makefile %.o
 	@CXX_DEPENDS@  @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
@@ -71,6 +71,8 @@ depends:
 
 .depends: $(DEPENDS) 
 	cat *.d > .depends
+
+$(OBJS): Makefile
 
 TAGS: 
 	etags *.h *.cpp
