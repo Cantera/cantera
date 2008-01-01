@@ -146,6 +146,7 @@ namespace Cantera {
     const doublereal SqrtTen = std::sqrt(10.0);
   //! sqrt(8)
     const doublereal SqrtEight = std::sqrt(8.0);
+  //! sqrt(2)
     const doublereal SqrtTwo = std::sqrt(2.0);
 
   //! smallest number to compare to zero.
