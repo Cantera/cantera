@@ -86,7 +86,7 @@ all: $(LIB) .depends
 	@(for lh in $(CATHERMO_H) ; do \
 	  $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
 	done)
-%.d: Makefile $*.o
+%.d: Makefile %.o
 	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
@@ -115,11 +115,21 @@ clean:
            $(RM) -rf SunWS_cache ; \
          fi )
 
+#
+# Dependency rules
+#
 depends:
 	@MAKE@ .depends
 
 .depends: $(DEPENDS)
 	cat $(DEPENDS) > .depends
+
+$(CATHERMO_OBJ): Makefile
+
+#
+# Make sure that if the Makefile changes, all object files
+# must get recompiled
+$(CATHERMO_OBJ): Makefile
 
 TAGS: 
 	etags *.h *.cpp

@@ -58,6 +58,8 @@ endif
 %.o : %.f
 	@F77@ -c $< $(F_FLAGS)
 
+$(OBJS): Makefile
+
 clean:
 	$(RM) $(OBJS) $(LIB)
 
@@ -65,6 +67,3 @@ depends:
 	echo '...'
 
  
-
-
-
