@@ -10,6 +10,7 @@
 
 using namespace Cantera;
 using namespace std;
+using namespace Cantera_CXX;
 
 int main() {
 

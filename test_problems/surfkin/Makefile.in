@@ -53,6 +53,8 @@ CANTERA_LIBDIR=@buildlib@
 # required Cantera libraries
 CANTERA_LIBS =  @LOCAL_LIBS@ -lctcxx
 
+CANTERA_LIBS_DEP = @LOCAL_LIBS_DEP@
+
 # the directory where Cantera include files may be found.
 ifeq ($(src_dir_tree), 1)
 CANTERA_INCDIR=../../Cantera/src
@@ -69,15 +71,15 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
 
 DEPENDS=$(OBJS:.o=.d) 
 
-.cpp.d:
+%.d: Makefile %.o
 	@CXX_DEPENDS@ -I$(CANTERA_INCDIR) $(CXX_FLAGS) $*.cpp > $*.d
 
 
 PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
-all: $(PROGRAM)
+all: $(PROGRAM) .depends
 
-$(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libctbase.a 
+$(PROGRAM): $(OBJS) $(CANTERA_LIBS_DEP)
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(LINK_OPTIONS) \
                   $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
@@ -93,6 +95,8 @@ depends:
 .depends: $(DEPENDS)
 	cat *.d > .depends
 
+$(OBJS): Makefile
+
 # Do the test -> For the windows vc++ environment, we have to skip checking on
 #                whether the program is uptodate, because we don't utilize make
 #                in that environment to build programs.
@@ -104,7 +108,7 @@ endif
 	./runtest
 
 clean:
-	$(RM) $(OBJS) $(PROGRAM)
+	$(RM) $(OBJS) $(PROGRAM) .depends *.d
 	../../bin/rm_cvsignore
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ;  fi )
