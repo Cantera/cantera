@@ -39,7 +39,7 @@ all: .depends $(CONV_LIB)
           $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
         done)
 
-%.d:
+%.d: Makefile %.o
 	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
@@ -72,6 +72,8 @@ depends:
 
 .depends: $(DEPENDS)
 	cat *.d > .depends
+
+$(OBJS): Makefile
 
 TAGS: 
 	etags *.h *.cpp
