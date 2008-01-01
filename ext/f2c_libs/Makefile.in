@@ -199,6 +199,8 @@ arith.h: arithchk.c
 	./chkll >arith.h
 	rm -f chkll* arithchk.o
 
+$(OFILES): Makefile
+
 # depends target -> already in the Makefile
 depends:
 

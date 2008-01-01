@@ -128,6 +128,8 @@ depends:
 
 .depends: $(DEPENDS)
 	cat *.d > .depends
+
+$(OBJS): Makefile
  
 ifeq ($(wildcard .depends), .depends)
 include .depends
