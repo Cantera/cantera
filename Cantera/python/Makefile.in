@@ -13,11 +13,7 @@ have_python_site_package_topdir=@local_python_inst@
 python_site_package_topdir=@python_prefix@
 
 CANTERA_LIBDIR= @buildlib@
-LIB_DEPS = $(CANTERA_LIBDIR)/libctbase.a $(CANTERA_LIBDIR)/libzeroD.a \
-           $(CANTERA_LIBDIR)/liboneD.a \
-           $(CANTERA_LIBDIR)/libtransport.a \
-           $(CANTERA_LIBDIR)/libclib.a \
-           $(CANTERA_LIBDIR)/libconverters.a 
+LIB_DEPS = @LOCAL_LIBS_DEP@
 
 WIN_LIB_DEPS = $(CANTERA_LIBDIR)/cantera.lib $(CANTERA_LIBDIR)/zeroD.lib \
            $(CANTERA_LIBDIR)/oneD.lib \
@@ -102,6 +98,5 @@ test:
 	cd examples; @PYTHON_CMD@ critProperties.py  &> critProperties.out
 
 # end of file
-
 
 
