@@ -20,7 +20,7 @@ CANTERA_BIN=${CANTERA_BIN:=../../../bin}
 
 #################################################################
 
-$prog HMW_NaCl_sp1977_alt.xml > output.txt
+./$prog HMW_NaCl_sp1977_alt.xml > output.txt
 retnStat=$?
 if [ $retnStat != "0" ]
 then

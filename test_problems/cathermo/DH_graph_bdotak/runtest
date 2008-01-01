@@ -26,7 +26,7 @@ fi
 ##########################################################################
 /bin/rm -f test.out test.diff DH_NaCl_bdotak.csv
 
-$prog  DH_NaCl_bdotak.xml > DH_NaCl_bdotak.csv
+./$prog  DH_NaCl_bdotak.xml > DH_NaCl_bdotak.csv
 retnStat=$?
 diff DH_NaCl_bdotak.csv DH_NaCl_bdotak_blessed.csv > output.txt
 zres=$?

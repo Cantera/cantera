@@ -19,7 +19,7 @@ BINDIR=../../../bin
 #################################################################
 MPEQUIL_EXE=${MPEQUIL_EXE:=nacl_equil}
 
-$MPEQUIL_EXE -d 5 > dout.txt 2>err_dout.txt
+./$MPEQUIL_EXE -d 5 > dout.txt 2>err_dout.txt
 retnStat=$?
 if test $retnStat != "0" 
 then

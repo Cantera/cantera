@@ -26,7 +26,7 @@ fi
 /bin/rm -f test.out test.diff   DH_graph_1.csv
 
 # echo 'Testing the  DH dilute act calculation - act vs I'
-$prog  DH_NaCl_dilute.xml  > DH_graph_1.csv
+./$prog  DH_NaCl_dilute.xml  > DH_graph_1.csv
 retnStat=$?
 diff DH_graph_1.csv DH_NaCl_dilute_blessed.csv > diff.out
 zres=$?

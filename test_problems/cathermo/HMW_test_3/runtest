@@ -21,7 +21,7 @@ CANTERA_BIN=${CANTERA_BIN:=../../../bin}
 
 #################################################################
 
-$prog  > output.txt
+./$prog  > output.txt
 retnStat=$?
 if [ $retnStat != "0" ]
 then
