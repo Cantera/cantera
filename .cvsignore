@@ -12,3 +12,5 @@ config.log
 config.status
 linux.my.32
 .DS_Store
+win32
+prepreconfig*
