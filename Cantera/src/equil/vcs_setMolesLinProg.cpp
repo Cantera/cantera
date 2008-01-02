@@ -43,6 +43,7 @@ static void printProgress(const vector<string> &spName,
 }
 #endif
 
+#ifdef ALTLINPROG
 //! Estimate the initial mole numbers. 
 /*!
  *   This is done by running
@@ -226,6 +227,6 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
   }
   return retn;
 }
-
+#endif
 }
 

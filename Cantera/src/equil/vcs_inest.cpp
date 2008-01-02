@@ -72,13 +72,13 @@ namespace VCSnonideal {
     vcs_setMolesLinProg();
 #else
 
-    std::vector<double> ax(ne*nspecies, 0.0);
-    std::vector<double> bb(ne, 0.0);
+    std::vector<double> ax(m_numElemConstraints*nspecies, 0.0);
+    std::vector<double> bb(m_numElemConstraints, 0.0);
     std::vector<double> cc(nspecies, 0.0);
 
     int neActive = 0;
     jj = 0;
-    for (j = 0; j < ne; j++) {
+    for (j = 0; j < m_numElemConstraints; j++) {
       if (ElActive[j]) {
 	neActive++;
 	bb[jj] = gai[j];
@@ -88,7 +88,7 @@ namespace VCSnonideal {
     for (kspec = 0; kspec < nspecies; ++kspec) {
       cc[kspec] = -ff[kspec];
       jj = 0;
-      for (j = 0; j < ne; ++j) {
+      for (j = 0; j < m_numElemConstraints; ++j) {
 	if (ElActive[j]) {
 	  ax[jj + kspec * neActive] = FormulaMatrix[j][kspec];
 	  jj++;
