@@ -18,15 +18,23 @@
 
 #ifdef CANTERA_SRC_TREE
 #include "speciesThermoTypes.h"
+#ifdef WITH_IDEAL_SOLUTIONS
 #include "IdealSolidSolnPhase.h"
+#endif
+#ifdef WITH_ELECTROLYTES
 #include "IdealMolalSoln.h"
+#endif
 #include "ChemEquil.h"
 #else 
 #include "cantera/Cantera.h"
 #include "cantera/thermo.h"
 #include "cantera/kernel/speciesThermoTypes.h"
+#ifdef WITH_IDEAL_SOLUTIONS
 #include "cantera/kernel/IdealSolidSolnPhase.h"
+#endif
+#ifdef WITH_ELECTROLYTES
 #include "cantera/kernel/IdealMolalSoln.h"
+#endif
 #include "cantera/kernel/ChemEquil.h"
 #endif
 
@@ -808,9 +816,10 @@ namespace Cantera {
 
  
       if (actConvention == 1) {
+#ifdef WITH_ELECTROLYTES
 	MolalityVPSSTP *mTP = static_cast<MolalityVPSSTP *>(tp);
-	tp->getChemPotentials(VCS_DATA_PTR(mu));
 	mTP->getMolalities(VCS_DATA_PTR(molalities));
+#endif
 	tp->getChemPotentials(VCS_DATA_PTR(mu));
   
 	if (iphase == 0) {

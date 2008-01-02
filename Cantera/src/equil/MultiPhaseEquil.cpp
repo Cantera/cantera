@@ -1,6 +1,15 @@
+/**
+ * @file MultiPhaseEquil.cpp
+ */
+/*
+ * $Id$
+ */
+
 #include "MultiPhaseEquil.h"
 #include "MultiPhase.h"
+#ifdef WITH_ELECTROLYTES
 #include "MolalityVPSSTP.h"
+#endif
 #include "sort.h"
 #include "global.h"
 
@@ -946,10 +955,11 @@ namespace Cantera {
       }
       VolPhaseVolumes *= TMolesPhase;
       vol += VolPhaseVolumes;
-     if (actConvention == 1) {
-        MolalityVPSSTP *mTP = static_cast<MolalityVPSSTP *>(tp);
-        tp->getChemPotentials(DATA_PTR(mu));
+      if (actConvention == 1) {
+#ifdef WITH_ELECTROLYTES
+        MolalityVPSSTP *mTP = static_cast<MolalityVPSSTP *>(tp);  
         mTP->getMolalities(DATA_PTR(molalities));
+#endif
         tp->getChemPotentials(DATA_PTR(mu));
 
         if (iphase == 0) {
