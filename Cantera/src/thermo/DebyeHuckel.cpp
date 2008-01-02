@@ -25,7 +25,7 @@
 #include "ThermoFactory.h"
 #include "WaterProps.h"
 #include "WaterPDSS.h"
-#include <string.h>
+#include <cstring>
 
 using namespace std;
 
@@ -1214,17 +1214,19 @@ namespace Cantera {
    */
   static int interp_est(std::string estString) {
     const char *cc = estString.c_str();
-    if (!strcasecmp(cc, "solvent")) {
+    string lc = lowercase(estString);
+    const char *ccl = lc.c_str();
+    if (!strcmp(ccl, "solvent")) {
       return cEST_solvent;
-    } else if (!strcasecmp(cc, "chargedspecies")) {
+    } else if (!strcmp(ccl, "chargedspecies")) {
       return cEST_chargedSpecies;
-    } else if (!strcasecmp(cc, "weakAcidAssociated")) {
+    } else if (!strcmp(ccl, "weakacidassociated")) {
       return cEST_weakAcidAssociated;
-    } else if (!strcasecmp(cc, "strongAcidAssociated")) {
+    } else if (!strcmp(ccl, "strongacidassociated")) {
       return cEST_strongAcidAssociated;
-    } else if (!strcasecmp(cc, "polarNeutral")) {
+    } else if (!strcmp(ccl, "polarneutral")) {
       return cEST_polarNeutral;
-    } else if (!strcasecmp(cc, "nonpolarNeutral")) {
+    } else if (!strcmp(ccl, "nonpolarneutral")) {
       return cEST_nonpolarNeutral;
     }
     int retn, rval;
