@@ -21,6 +21,10 @@
 #include "ct_defs.h"
 #include "utilities.h"
 
+#ifdef WIN32
+#pragma warning(disable:4996)
+#endif
+
 namespace Cantera {
 
     
