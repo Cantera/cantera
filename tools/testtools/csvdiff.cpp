@@ -83,16 +83,26 @@ int Max_Input_Str_Ln = MAX_INPUT_STR_LN;
  * does enough to handle required functionality.
  */
 int optind = -1;
+char *optarg = 0;
 
 int getopt(int argc, char **argv, const char *) {
     static int currArg = 1;
+    static int currOptInd = 1;
     string tok;
     static int charPos = 0;
     int rc = -1;
     if (currArg >= argc) {
+      optarg = 0;
       return -rc;
     }
     tok = string(argv[currArg]);
+    currOptInd = currArg+1;
+    if (currOptInd > argc - 1) {
+      currOptInd = -1;
+      optarg = 0;
+    } else {
+      optarg = argv[currArg+1];
+    }
     size_t len = strlen(tok.c_str());
     if (charPos == 0) {
       bool found = false;
@@ -114,6 +124,7 @@ int getopt(int argc, char **argv, const char *) {
 	  if (currArg < (argc-1)) {
 	    currArg++;
 	  } else {
+            optarg = 0;
 	    return -1;
 	  }
 	}
@@ -128,6 +139,7 @@ int getopt(int argc, char **argv, const char *) {
     }
     return rc;
 }
+
 #endif
 
 /*****************************************************************************/
