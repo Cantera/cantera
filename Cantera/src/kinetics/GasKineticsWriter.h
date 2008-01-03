@@ -60,9 +60,9 @@ namespace Cantera {
         }
         void writeUpdateROP(){}
 
-        void writeGetNetProductionRates(ostream& s, int nsp, int nrxns) {
+		void writeGetNetProductionRates(std::ostream& s, int nsp, int nrxns) {
             int i, k;
-            s << "void get_wdot(const double* rop, double* wdot) {" << endl;
+			s << "void get_wdot(const double* rop, double* wdot) {" << std::endl;
             for (k = 0; k < nsp; k++) {
                 s << "  wdot[" << k << "] = ";
                 doublereal net;
@@ -91,7 +91,7 @@ namespace Cantera {
         }
 
  
-        void writeUpdateKc(ostream& s, int nsp, int nrxns) {
+		void writeUpdateKc(std::ostream& s, int nsp, int nrxns) {
             int i, k, n, nn, ir;
             s << "void update_kc(const double* a, "
                 "double exp_c0, double* rkc) {" << endl;
@@ -131,7 +131,7 @@ namespace Cantera {
             s << "}" << endl;
         }
 
-        void writeEvalRopnet(ostream& s) {
+		void writeEvalRopnet(std::ostream& s) {
             int i;
             s << "void eval_ropnet(const double* c, "
                 "const double* rf, const double* rkc, double* r) {" << endl;
@@ -149,7 +149,7 @@ namespace Cantera {
 
 
 
-        void writeUpdateRates(ostream& s) {
+		void writeUpdateRates(std::ostream& s) {
             s << "void update_rates(double t, double tlog, double* rf) {" << endl;
             s << "  double rt = 1.0/t;" << endl;
             m_rates.writeUpdate(s, "rf");
@@ -169,14 +169,14 @@ namespace Cantera {
         Rate1<Arrhenius>                    m_falloff_high_rates;        
         Rate1<Arrhenius>                    m_rates;        
         
-        vector<int> m_irrev;
-
+		std::vector<int> m_irrev;
+#ifdef INCL_STOICH_WRITER
         StoichWriter                       m_reactantWriter;
         StoichWriter                       m_revProductWriter;
         StoichWriter                       m_irrevProductWriter;
-
-        mutable vector<map<int, doublereal> >     m_rrxn;
-        mutable vector<map<int, doublereal> >     m_prxn;
+#endif
+		mutable std::vector<std::map<int, doublereal> >     m_rrxn;
+		mutable std::vector<std::map<int, doublereal> >     m_prxn;
 
         vector_int m_dn;
         vector_int m_revindex;
