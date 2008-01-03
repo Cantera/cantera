@@ -20,6 +20,10 @@
 #include "vcs_VolPhase.h"
 #include "vcs_species_thermo.h"
 
+#ifdef WIN32
+#pragma warning(disable:4996)
+#endif
+
 namespace VCSnonideal {
 
 
@@ -3861,7 +3865,7 @@ int VCS_SOLVE::vcs_species_type(int kspec)
    *      phase and shares a non-zero stoichiometric coefficient, then
    *      the current species is a major species.
    */
-  double szAdj = scSize[irxn] * sqrt(m_numRxnTot);
+  double szAdj = scSize[irxn] * std::sqrt((double)m_numRxnTot);
   for (k = 0; k < m_numComponents; ++k) {
     if (!(SSPhase[k])) {
       if (sc[irxn][k] != 0.0) {
