@@ -151,7 +151,7 @@ namespace Cantera {
         /**
          * Take one internal step.
          */
-        virtual int step(doublereal tout) {
+        virtual doublereal step(doublereal tout) {
             warn("step"); return 0;
         }
 
