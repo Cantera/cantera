@@ -1,3 +1,5 @@
 buildux.m
 ctmethods.mex*
 ctbin.m
+ctmethods.dll
+status
