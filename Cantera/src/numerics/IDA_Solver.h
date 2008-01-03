@@ -28,7 +28,7 @@ namespace Cantera {
      */
     class IDA_Err : public CanteraError {
     public:
-        IDA_Err(string msg) : CanteraError("IDA_Solver", msg){}
+		IDA_Err(std::string msg) : CanteraError("IDA_Solver", msg){}
     };
 
 
@@ -66,7 +66,6 @@ namespace Cantera {
 
         virtual void setMaxNumSteps(int n);
         virtual void setInitialStepSize(doublereal h0);
-        virtual void setMaxStepSize(doublereal hmax);
         virtual void setStopTime(doublereal tstop);
         virtual void setMaxErrTestFailures(int n);
         virtual void setMaxNonlinIterations(int n);
@@ -99,7 +98,7 @@ namespace Cantera {
 
         virtual int solve(doublereal tout);
 
-        virtual int step(doublereal tout);
+        virtual doublereal step(doublereal tout);
 
         virtual void init(doublereal t0);
 
@@ -117,15 +116,15 @@ namespace Cantera {
 
 	int m_neq;
         void* m_ida_mem;
-        double m_t0;
+        doublereal m_t0;
         void *m_y, *m_ydot, *m_id, *m_constraints, *m_abstol;
         int m_type;
         int m_itol;
         int m_iter;
-        double m_reltol;
-        double m_abstols;
+        doublereal m_reltol;
+        doublereal m_abstols;
         int m_nabs;
-        double m_hmax, m_hmin;
+        doublereal m_hmax, m_hmin;
         int m_maxsteps, m_maxord;
         ResidData* m_fdata;
         int m_mupper, m_mlower;        
