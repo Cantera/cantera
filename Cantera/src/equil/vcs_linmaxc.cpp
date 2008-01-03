@@ -21,6 +21,7 @@
 #endif
 
 #include "vcs_internal.h"
+#include "vcs_solve.h"
 
 extern "C" void dbocls_(double *W, int *MDW, int *MCON, int *MROWS,
 			int *NCOLS,
@@ -34,6 +35,8 @@ extern "C" void dbocls_(double *W, int *MDW, int *MCON, int *MROWS,
 ******************************************************************************/
 namespace VCSnonideal {
 
+#ifdef ALTLINPROG
+#else
 int linprogmax(double *XMOLES, double *CC, double *AX, double *BB, 
 	       int NE, int M, int NE0)
    
@@ -146,5 +149,5 @@ int linprogmax(double *XMOLES, double *CC, double *AX, double *BB,
    
    return 0;
 }
-
+#endif
 }

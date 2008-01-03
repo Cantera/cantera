@@ -13,8 +13,7 @@
 #ifndef VCS_MULTIPHASEEQUIL_H
 #define VCS_MULTIPHASEEQUIL_H
 
-
-#ifdef CANTERA_NOTIN_SRC_TREE
+#ifdef CANTERA_APP
 #include "cantera/kernel/ct_defs.h"
 #include "cantera/kernel/MultiPhase.h"
 #else

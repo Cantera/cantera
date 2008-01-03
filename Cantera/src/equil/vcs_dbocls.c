@@ -719,7 +719,8 @@ static integer c__4 = 4;
 	drelpr = d1mach_(&c__4);
 	checkl = FALSE_;
 	filter = TRUE_;
-	lenx = (*ncols + *mcon << 1) + 2;
+	/*lenx = (*ncols + *mcon << 1) + 2;*/
+	lenx = ((*ncols + *mcon) << 1) + 2;
 	iscale = 1;
 	igo = 1;
 	accum = FALSE_;
@@ -1302,11 +1303,13 @@ L230:
     liw = 1;
 
 /*     SET THE NEW TRIANGULARIZATION FACTOR. */
-    x[(*ncols + *mcon << 1) + 1] = zero;
+    /*x[(*ncols + *mcon << 1) + 1] = zero;*/
+    x[((*ncols + *mcon) << 1) + 1] = zero;
 
 /*     SET THE WEIGHT TO USE IN COMPONENTS .GT. MCON, */
 /*     WHEN MAKING LINEAR INDEPENDENCE TEST. */
-    x[(*ncols + *mcon << 1) + 2] = one / wt;
+    /*x[(*ncols + *mcon << 1) + 2] = one / wt; */
+    x[((*ncols + *mcon) << 1) + 2] = one / wt;
     i__1 = mout + *mcon;
     i__2 = *ncols + *mcon;
     dbols_(&w[w_offset], mdw, &i__1, &i__2, &bl[1], &bu[1], &ind[1], &iopt[

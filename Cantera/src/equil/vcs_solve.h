@@ -802,6 +802,11 @@ public:
 
 }; 
 
+#ifdef ALTLINPROG
+#else
+int linprogmax(double *, double *, double *, double *, int, int, int);
+#endif
+
 }
 #endif
 
