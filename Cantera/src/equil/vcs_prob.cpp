@@ -19,13 +19,13 @@
 #include "vcs_species_thermo.h"
 #include "vcs_internal.h"
 
-#ifdef CANTERA_SRC_TREE
-#include "ThermoPhase.h" 
-#include "MolalityVPSSTP.h" 
-#else
+#ifdef CANTERA_APP
 #include "cantera/Cantera.h"
 #include "cantera/kernel/ThermoPhase.h"
 #include "cantera/kernel/MolalityVPSSTP.h"
+#else
+#include "ThermoPhase.h" 
+#include "MolalityVPSSTP.h" 
 #endif
 #include <string>
 using namespace std;
@@ -388,7 +388,7 @@ void VCS_PROB::addPhaseElements(vcs_VolPhase *volPhase) {
      */
     for (e = 0; e < ne; e++) {
       en = ElName[e];
-      if (!strcasecmp(enVP.c_str(), en.c_str())) {
+      if (!strcmp(enVP.c_str(), en.c_str())) {
 	volPhase->ElGlobalIndex[eVP] = e;
 	foundPos = e;
       }
