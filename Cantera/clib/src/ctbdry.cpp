@@ -10,8 +10,8 @@
 
 
 // Cantera includes
-#include "oneD/OneDim.h"
-#include "oneD/Inlet1D.h"
+#include "OneDim.h"
+#include "Inlet1D.h"
 #include "InterfaceKinetics.h"
 #include "Cabinet.h"
 #include "Storage.h"
