@@ -18,6 +18,10 @@
 #include "vcs_species_thermo.h" 
 #include "vcs_internal.h"
 
+#ifdef WIN32
+#pragma warning(disable:4996)
+#endif
+
 namespace VCSnonideal {
 
 /******************************************************************************
