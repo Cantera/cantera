@@ -20,6 +20,9 @@
 
 #include "ct_defs.h"
 
+#ifdef WIN32
+#pragma warning(disable:4996)
+#endif
 /**
  * Unary operator to multiply the argument by a constant.  The form of
  * this operator is designed for use by std::transform.  @see @ref
