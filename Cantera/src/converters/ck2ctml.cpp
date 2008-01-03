@@ -21,7 +21,7 @@ using namespace std;
 #include "writelog.h"
 
 
-#include "../xml.h"
+#include "xml.h"
 #include "ck2ctml.h"
 
 //using namespace Cantera;
