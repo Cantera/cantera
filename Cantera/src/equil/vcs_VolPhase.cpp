@@ -14,12 +14,13 @@
 #include "vcs_SpeciesProperties.h"
 #include "vcs_species_thermo.h"
 
-#ifdef CANTERA_SRC_TREE
-#include "ThermoPhase.h"
-#else
+#ifdef CANTERA_APP
 #include "cantera/Cantera.h"
 #include "cantera/kernel/ThermoPhase.h"
+#else
+#include "ThermoPhase.h"
 #endif
+
 
 #include <cstdio>
 #include <cstdlib>
