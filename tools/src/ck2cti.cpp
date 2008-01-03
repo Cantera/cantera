@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
         idtag.c_str(), debug, validate);
 
     if (ierr < 0) {
-        showErrors(cerr);
+		showErrors(std::cerr);
     }
     return ierr;
 }
