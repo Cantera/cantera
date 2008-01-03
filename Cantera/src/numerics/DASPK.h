@@ -76,7 +76,7 @@ namespace Cantera {
         void setMaxOrder(int n);
         void setInitialIntStepSize(doublereal h0);
         void estimateInitial_Y_given_Yp();
-        void estimateInitial_YaYp_given_Yd(const vector<int>& vartypes);
+		void estimateInitial_YaYp_given_Yd(const std::vector<int>& vartypes);
         void sizeRwork();
         void sizeIwork();
         int integrate(doublereal tout);
