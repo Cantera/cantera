@@ -57,7 +57,9 @@ using namespace std;
 #  define TRUE  1
 #  define FALSE 0
 #endif
-
+#ifdef WIN32
+#pragma warning(disable:4996)
+#endif
 #ifndef MAX
 #  define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
 #endif
@@ -374,7 +376,7 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
 	  goodDataLine = FALSE;
 	  break;
 	}
-	if (ColIsFloat[j] == true) {
+	if ((ColIsFloat[j]) == 1) {
 	  (void) tok_to_double(&fieldToken, DBL_MAX,
 			       -DBL_MAX, 0.0, &rerr);
 	  if (rerr) {
@@ -421,7 +423,7 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
 	  goodDataLine = FALSE;
 	  break;
 	}
-	if (ColIsFloat[j] == true) {
+	if (ColIsFloat[j] == 1) {
 	  (void) tok_to_double(&fieldToken, DBL_MAX,
 			       -DBL_MAX, 0.0, &rerr);
 	  if (rerr) {
@@ -920,7 +922,7 @@ int main(int argc, char *argv[])
   method = 1;
 #endif
   double slope1, slope2, xatol;
-  bool notOK;
+  int notOK;
   for (k = 0; k < nColcomparisons; k++) {
 
     i1 =  compColList[k][0];
