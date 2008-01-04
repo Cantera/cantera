@@ -3,10 +3,12 @@
 # test target -> make the program and run the test
 test:
 	./runtest @PYTHON_CMD@
+	@cd tut1; ./runtest @PYTHON_CMD@
 
 # clean target -> clean up
 clean:
 	../../bin/rm_cvsignore
+	cd tut1; ./cleanup
 
 depends:
 
