@@ -15,8 +15,11 @@
 #include "vcs_DoubleStarStar.h"
 #include "vcs_Exception.h"
 
-
+#ifdef CANTERA_APP
+#include "cantera/kernel/global.h"
+#else
 #include "global.h"
+#endif
 
 namespace VCSnonideal {
 
