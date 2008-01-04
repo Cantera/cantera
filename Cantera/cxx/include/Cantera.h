@@ -3,7 +3,10 @@
 #define CANTERA_H_INCL
 
 // definitions
+#ifndef CANTERA_APP
 #define CANTERA_APP
+#endif
+
 #include "kernel/ct_defs.h"
 
 // some useful functions
