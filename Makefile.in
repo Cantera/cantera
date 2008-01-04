@@ -81,7 +81,7 @@ utils:
 
 kernel-install:
 	@INSTALL@ -d @ct_libdir@
-	rm -fR @ct_libdir@/*
+	-rm -fR @ct_libdir@/*
 	( for ilib in @buildlib@/*.a ; do  \
 	  @INSTALL@ -c -m 644 $${ilib} @ct_libdir@ ; \
           done )
@@ -96,7 +96,7 @@ endif
 
 win-kernel-install:
 	@INSTALL@ -d @ct_libdir@
-	$(RMDIRTREE) @ct_libdir@/*
+	-$(RMDIRTREE) @ct_libdir@/*
 	( for ilib in @buildlib@/*.lib ; do  \
           @INSTALL@ -c -m 644 $${ilib} @ct_libdir@ ;  done )
 ifeq ($(use_dll),1)
@@ -212,10 +212,10 @@ ifeq ($(os_is_win),0)
 
 # if not a 'compact' installation, then add some symbolic links for convenience.
 ifeq ($(compact_install),0)
-	$(RMDIRTREE) @prefix@/cantera/demos
-	$(RMDIRTREE) @prefix@/cantera/data
-	$(RMDIRTREE) @prefix@/cantera/templates
-	$(RMDIRTREE) @prefix@/cantera/tutorials
+	-$(RMDIRTREE) @prefix@/cantera/demos
+	-$(RMDIRTREE) @prefix@/cantera/data
+	-$(RMDIRTREE) @prefix@/cantera/templates
+	-$(RMDIRTREE) @prefix@/cantera/tutorials
 	ln -s @ct_demodir@ @prefix@/cantera/demos
 	ln -s @ct_datadir@ @prefix@/cantera/data
 	ln -s @ct_templdir@ @prefix@/cantera/templates
@@ -262,22 +262,22 @@ datafiles:
 	cd data/inputs; @MAKE@
 
 uninstall:
-	$(RMDIRTREE) @ct_incdir@
-	$(RMDIRTREE) @ct_libdir@
-	$(RMDIRTREE) @ct_datadir@
-	$(RMDIRTREE) @ct_demodir@
-	$(RMDIRTREE) @ct_docdir@
-	$(RMDIRTREE) @ct_tutdir@
-	$(RMDIRTREE) @prefix@/matlab/toolbox/cantera
+	-$(RMDIRTREE) @ct_incdir@
+	-$(RMDIRTREE) @ct_libdir@
+	-$(RMDIRTREE) @ct_datadir@
+	-$(RMDIRTREE) @ct_demodir@
+	-$(RMDIRTREE) @ct_docdir@
+	-$(RMDIRTREE) @ct_tutdir@
+	-$(RMDIRTREE) @prefix@/matlab/toolbox/cantera
 	cd tools; @MAKE@ uninstall
 
 clean:
-	$(RMDIRTREE) *.*~ @buildlib@/*.* build/include/cantera/config.h
-	cd Cantera; @MAKE@ clean
-	cd tools; @MAKE@ clean
-	cd ext; @MAKE@ clean
-	cd test_problems; @MAKE@ clean
-	$(RM) mt.mod
+	-$(RMDIRTREE) *.*~ @buildlib@/*.* build/include/cantera/config.h
+	-cd Cantera; @MAKE@ clean
+	-cd tools; @MAKE@ clean
+	-cd ext; @MAKE@ clean
+	-cd test_problems; @MAKE@ clean
+	-$(RM) mt.mod
 
 docs:
 	cd tools/doxygen/Cantera; doxygen Cantera.cfg
