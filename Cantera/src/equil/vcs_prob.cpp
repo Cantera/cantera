@@ -19,14 +19,9 @@
 #include "vcs_species_thermo.h"
 #include "vcs_internal.h"
 
-#ifdef CANTERA_APP
-#include "cantera/Cantera.h"
-#include "cantera/kernel/ThermoPhase.h"
-#include "cantera/kernel/MolalityVPSSTP.h"
-#else
 #include "ThermoPhase.h" 
 #include "MolalityVPSSTP.h" 
-#endif
+
 #include <string>
 using namespace std;
  

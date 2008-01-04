@@ -16,18 +16,6 @@
 #include "vcs_nasa_poly.h"
 #include "vcs_solve.h"
 
-#ifdef CANTERA_APP
-#include "cantera/Cantera.h"
-#include "cantera/thermo.h"
-#include "cantera/kernel/speciesThermoTypes.h"
-#ifdef WITH_IDEAL_SOLUTIONS
-#include "cantera/kernel/IdealSolidSolnPhase.h"
-#endif
-#ifdef WITH_ELECTROLYTES
-#include "cantera/kernel/IdealMolalSoln.h"
-#endif
-#include "cantera/kernel/ChemEquil.h"
-#else
 #include "ct_defs.h"
 #include "mix_defs.h"
 #include "speciesThermoTypes.h"
@@ -38,8 +26,6 @@
 #include "IdealMolalSoln.h"
 #endif
 #include "ChemEquil.h"
-#endif
-
 
 #include <string>
 #include <vector>

@@ -13,13 +13,8 @@
 #ifndef VCS_MULTIPHASEEQUIL_H
 #define VCS_MULTIPHASEEQUIL_H
 
-#ifdef CANTERA_APP
-#include "cantera/kernel/ct_defs.h"
-#include "cantera/kernel/MultiPhase.h"
-#else
 #include "ct_defs.h"
 #include "MultiPhase.h"
-#endif
 /*
  * VCS_PROB is outside of Cantera namespace
  */
