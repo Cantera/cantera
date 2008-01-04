@@ -5,12 +5,14 @@ test:
 	./runtest @PYTHON_CMD@
 	@cd tut1; ./runtest @PYTHON_CMD@
 	@cd tut2; ./runtest @PYTHON_CMD@
+	@cd flame1; ./runtest @PYTHON_CMD@
 
 # clean target -> clean up
 clean:
 	../../bin/rm_cvsignore
 	cd tut1; ./cleanup
 	cd tut2; ./cleanup
+	cd flame1; ./cleanup
 
 depends:
 
