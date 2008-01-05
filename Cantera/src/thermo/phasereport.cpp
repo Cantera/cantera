@@ -1,3 +1,15 @@
+/**
+ *  @file phasereport.cpp
+ *  Output routines for phases
+ */
+
+/*  $Author$
+ *  $Date$
+ *  $Revision$
+ *
+ *  Copyright 2001 California Institute of Technology
+ *
+ */
 
 // turn off warnings under Windows
 #ifdef WIN32
@@ -13,22 +25,45 @@
 using namespace std;
 
 namespace Cantera {
-
-  /**
-   * Format a summary of the mixture state for output.
-   */           
+  
+  //! Format a summary of the mixture state for output.
+  /*!
+   * @param th  ThermoPhase object to create a report about
+   * @param show_thermo Boolean indicating whether the thermo functions
+   *                    of the phase should be written out
+   *
+   * @return  Returns a string containing the report
+   */
   std::string report(const ThermoPhase& th, bool show_thermo) {
     return th.report(show_thermo);
   }
 
+  //! Write a phase report to the screen device
+  /*!
+   *  This routine is a wrapper around the report() function.
+   *  It writes to the screen device.
+   *
+   * @param th          ThermoPhase object to create a report about
+   * @param show_thermo Boolean indicating whether the thermo functions
+   *                    of the phase should be written out
+   */
   void writephase(const ThermoPhase& th, bool show_thermo) {
-    string s = report(th, show_thermo);
+    std::string s = report(th, show_thermo);
     writelog(s+"\n");
   }
-
-  /**
-   * Format a composition list for output.
-   */           
+  
+  //! Format a composition list for output.
+  /*!
+   *  Depending upon xyc, this creates a list of
+   *  mole fractions, mass fractions, or concentrations.
+   * 
+   *  @param mix  Mixture to create a list from
+   *  @param xyc  Integer 0  mole fractions
+   *                      1  mass fractions
+   *                      2 concentrations 
+   *
+   * @return Returns a string containing the list
+   */
   std::string formatCompList(const Phase& mix, int xyc) {
 
     const doublereal Threshold = 1.e-20;
