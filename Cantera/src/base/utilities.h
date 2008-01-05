@@ -5,8 +5,10 @@
  */
 
 // Copyright 2001  California Institute of Technology
+/*
+ * $Id$
 
-
+ */
 /**
  * @defgroup utils Templated Utility Functions
  *
@@ -23,15 +25,33 @@
 #ifdef WIN32
 #pragma warning(disable:4996)
 #endif
-/**
- * Unary operator to multiply the argument by a constant.  The form of
- * this operator is designed for use by std::transform.  @see @ref
- * scale.
+
+//! Unary operator to multiply the argument by a constant. 
+/*!
+ *  The form of this operator is designed for use by std::transform. 
+ *  @see @ref  scale.
  */
 template<class T> struct timesConstant : public std::unary_function<T, double>
 {
+  //! Constructor
+  /*!
+   * @param c  Constant of templated type T
+   *           that will be storred internally within the object
+   *           and used in the multiplication operation
+   */
   timesConstant(T c) : m_c(c) {}
+
+  //! Parenthesis operator returning a double
+  /*!
+   * @param x  Variable of templated type T that will be 
+   *           used in the mulitplication operator
+   *
+   * @return Returns a value of type double from the internal 
+   *         multiplication
+   */
   double operator()(T x) {return m_c * x;}
+
+  //! Storred constant value of time T
   T m_c;
 };
 
