@@ -115,7 +115,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          ShomateThermo.h ShomatePoly.h SimpleThermo.h \
                          GeneralSpeciesThermo.h GeneralSpeciesThermo.cpp \
                          ConstCpPoly.h  ConstCpPoly.cpp Mu0Poly.h Mu0Poly.cpp \
-                         utilities.h \
+                         utilities.h phasereport.cpp \
                          VPStandardStateTP.h     VPStandardStateTP.cpp \
                          SingleSpeciesTP.h SingleSpeciesTP.cpp \
                          MolalityVPSSTP.h        MolalityVPSSTP.cpp \
