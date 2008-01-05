@@ -1,6 +1,9 @@
 /**
  *  @file WaterProps.h
- *
+ *   Header for a class used to house several approximation
+ *   routines for properties of water.
+ *  (see \ref thermoprops
+ *   and class \link Cantera::WaterProps WaterProps\endlink).
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of
@@ -31,19 +34,34 @@ namespace Cantera {
 
   public:
 
+    //! Default constructor
     WaterProps();
 
+    //! Constructor with pointer to Water PDSS object
+    /*!
+     * @param wptr Pointer to water standard state object
+     */
     WaterProps(WaterPDSS *wptr);
 
+    //! Copy Constructor
+    /*!
+     * @param b Object to be copied
+     */
     WaterProps(const WaterProps &b);
 
+    //! destructor
     virtual ~WaterProps();
 
-    WaterProps& operator=(const WaterProps&b);
+    //! Assignment operator
+    /*!
+     * @param b Object to be copied
+     */
+    WaterProps& operator=(const WaterProps& b);
 
-    /*
-     * Simple calculation of water density at atmospheric pressure.
-     * Valid up to boiling point.
+    
+     //! Simple calculation of water density at atmospheric pressure.
+     //! Valid up to boiling point.
+    /*!
      *
      * ifunc = 0 Returns the density in kg/m^3
      * ifunc = 1 returns the derivative of the density wrt T.
