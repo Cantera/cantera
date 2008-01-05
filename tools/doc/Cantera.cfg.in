@@ -128,6 +128,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          WaterPropsIAPWSphi.h  WaterPropsIAPWSphi.cpp \
                          WaterPropsIAPWS.h  WaterPropsIAPWS.cpp \
                          WaterSSTP.h WaterSSTP.cpp \
+                         WaterProps.h WaterProps.cpp \
                          PureFluidPhase.h PureFluidPhase.cpp \
                          equil.h MultiPhase.h MultiPhase.cpp BasisOptimize.cpp \
                          Nasa9Poly1.h Nasa9Poly1.cpp \
