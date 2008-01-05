@@ -102,6 +102,12 @@ namespace ctml {
 
     // these are defined in ct2ctml.cpp
     void get_CTML_Tree(Cantera::XML_Node* node, std::string file, int debug = 0);
+
+    //! Convert a cti file into a ctml file
+    /*!
+     *  
+     *  @ingroup inputfiles
+     */
     void ct2ctml(const char* file, int debug = 0);
 }
 
