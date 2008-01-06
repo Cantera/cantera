@@ -12,34 +12,47 @@ Cantera can be built on most unix or unix-like platforms. Before you start, you'
   latest version at http://www.python.org. Python is used in the build
   process, and to process input files, so it is needed even if you
   plan to use Cantera only from C++, MATLAB, or Fortran.  
-  - \b numarray. If you \e do want to use Cantera from Python, or if you
+
+- \b numarray. If you \e do want to use Cantera from Python, or if you
   want to run the graphical MixMaster application, you'll also need to
   install the numarray package, which may be obtained at
-  http://sourceforge.net/projects/numpy . In most cases, all that is
-  required to build numarray is to type "python setup.py install" from
-  within the directory where you have unpacked the numarray source
-  code.
-
-
+  http://sourceforge.net/projects/numpy . 
+  Note that numarray is now superceded by "numpy", but Cantera hasn't yet been
+  updated to use numpy. Be sure to get the "old" numarray. Once you have
+  downloaded it, upack the tar file. In most cases, all that is required to
+  build numarray is to type "python setup.py install" from within the directory
+  where you have unpacked the numarray source code
+  \see \ref installnumarray .
 
 - <b>The GNU "make" program</b>. Most systems have this, but on some it might
-  be called "gmake" instead of "make". 
+  be called "gmake" instead of "make". (On these systems "make" may refer to a
+  similar but non-compatible program.)
 
 - <b>A C/C++ compiler</b>. Virtually any reasonably recent compiler
-should work.  The GNU gcc/g++ compiler, available free for many
-platforms, works fine.
+  should work.  The GNU gcc/g++ compiler, available free for many
+  platforms, works fine.
 
-- Optional:
-  - <b>MATLAB</b>. Only needed to if you plan to use Cantera from MATLAB. 
-    To build the Cantera MATLAB Toolbox, your C/C++ compiler must be 
-    compatible with the one used to compile MATLAB. In most cases this means
-    you need to use gcc/g++ version 3.x if you have MATLAB 7 (R14) and gcc/g++ 2.95 if you have MATLAB 6 (R13). 
-  - <b>a Fortran 90/95 compiler</b>. Only needed if you plan to use Cantera
-    from Fortran 90/95. 
+- Optional software:
+    - <b>Sundials</b>. Sundials is a numerical software package for solving complex
+      non-linear systems of differential and/or algebraic equations. If you have it,
+      %Cantera will use it; if not, it will use an older, pre-sundials version of the
+      ODE solver, and some other capabilities will not be supported (e.g.
+      sensitivity analysis). It is recommended that you install sundials if
+      possible. All you need to do is go to the sundials web site
+      (www.llnl.gov/casc/sundials), download the software, and build it. To build
+      it, just go into the directory where you have unpacked the source, type
+      "./configure", "make", then "make install".
+    - <b>MATLAB</b>. Only needed to if you plan to use Cantera from MATLAB. 
+      To build the Cantera MATLAB Toolbox, your C/C++ compiler must be 
+      compatible with the one used to compile MATLAB. In most cases this means
+      you need to use gcc/g++ version 3.x if you have MATLAB 7 (R14) and gcc/g++ 2.95 if you have MATLAB 6 (R13). 
+    - <b>a Fortran 90/95 compiler</b>. Only needed if you plan to use Cantera
+      from Fortran 90/95. 
+    .
 
 - Note: On a Mac, you'll need to download the "XCode Tools" from Apple,
-which includes the gcc/g++ compiler and other GNU tools.
-
+  which includes the gcc/g++ compiler and other GNU tools.
+.
 
 \section ctbuild-proc Build Procedure
 
