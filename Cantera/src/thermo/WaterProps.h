@@ -21,13 +21,32 @@
 #include "ct_defs.h"
 class WaterPropsIAPWS;
 namespace Cantera {
-
   class WaterPDSS;
  
-
   /**
-   * Definition of the WaterProps class. This class is used to 
-   * house several approximation routines for properties of water
+   * @defgroup relatedProps Electric Properties of Phases
+   *
+   *
+   * These classes are used to compute the electrical and electrothermochemical properties of
+   * phases of matter. The main property currently is the dielectric
+   * constant, which is an important parameter for electolyte solutions.
+   *
+   * 
+   * @ingroup phases
+   */
+  //@{
+
+
+  //! The WaterProps class is used to 
+  //! house several approximation routines for properties of water.
+  /*!
+   *  The class is also a wrapper around the WaterPropsIAPWS class
+   *  which provides the calculations for the equation of
+   *  state properties for water.
+   *
+   *  In particular, this class house routine for the calculation
+   *  of the dielectric constant of water
+   *
    * Most if not all of the member functions are static.
    */
   class WaterProps {
@@ -59,16 +78,21 @@ namespace Cantera {
     WaterProps& operator=(const WaterProps& b);
 
     
-     //! Simple calculation of water density at atmospheric pressure.
-     //! Valid up to boiling point.
+    //! Simple calculation of water density at atmospheric pressure.
+    //! Valid up to boiling point.
     /*!
+     * This formulation has no dependence on the pressure and shouldn't
+     * be used where accuracy is needed.
      *
+     * @param T temperature in kelvin
+     * @param P Pressure in pascal
+     * @param ifunc changes what's returned
+     *
+     * @return value returned depends on ifunc value:
      * ifunc = 0 Returns the density in kg/m^3
      * ifunc = 1 returns the derivative of the density wrt T.
-     * ifunc = 2 returns the derivative of the density wrt P.
-     * ifunc = 3 returns the 2nd derivative of the density wrt T 
-     *
-     * Note -> needs augmenting with a T,P implementation.
+     * ifunc = 2 returns the 2nd derivative of the density wrt T 
+     * ifunc = 3 returns the derivative of the density wrt P.
      *
      * Verification:
      *   Agrees with the CRC values (6-10) for up to 4 sig digits.
@@ -77,51 +101,64 @@ namespace Cantera {
      */
     static double density_T(double T, double P, int ifunc);
 
-    /**
-     * Dielectric constant for water:
-     *     Bradley-Pitzer equation for the dielectric constant 
-     *     of water as a function of temperature and pressure.
+   
+    //!     Bradley-Pitzer equation for the dielectric constant 
+    //!     of water as a function of temperature and pressure.
+    /*!
+     *  Returns the dimensionless relative dielectric constant
+     *  and its derivatives.
+     * 
      *
-     *  ifunc = 0 value
-     *  ifunc = 1 Temperature deriviative
-     *  ifunc = 2 second temperature derivative
+     * Range of validity: 0 to 350C, 0 to 1 kbar pressure
      *
-     *  @param T temperature in Kelvin
-     *  @param P Pressure in bar
+     * @param T temperature (kelvin)
+     * @param P_pascal pressure in pascal
+     * @param ifunc changes what's returned from the function
+     *   - ifunc = 0 return value
+     *   - ifunc = 1 return temperature derivative
+     *   - ifunc = 2 return temperature second derivative
+     *   - ifunc = 3 return pressure first derivative
+     *   .
      *
-     * Range of validity 0 to 350C, 0 to 1 kbar pressure
-     *
-     * ifunc = 0 return value
-     * ifunc = 1 return temperature derivative
+     * @return Depends on the value of ifunc:
+     *   - ifunc = 0 return value
+     *   - ifunc = 1 return temperature derivative
+     *   - ifunc = 2 return temperature second derivative
+     *   - ifunc = 3 return pressure first derivative
+     *   .
      *
      *  Validation:
      *   Numerical experiments indicate that this function agrees with
      *   the Archer and Wang data in the CRC p. 6-10 to all 4 significant
      *   digits shown (0 to 100C).
      * 
-     *   value at 25C, relEps = 78.38
+     *   value at 25C and 1 atm, relEps = 78.38
+     * 
      */
-    static double relEpsilon(double T, double P_pascal,  int ifunc);
+    static double relEpsilon(double T, double P_pascal,  int ifunc = 0);
 
-    /**
-     * ADebye calculates the value of A_Debye as a function
-     * of temperature and pressure according to relations
-     * that take into account the temperature and pressure
-     * dependence of the water density and dieletric constant.
+    
+    //! ADebye calculates the value of A_Debye as a function
+    //! of temperature and pressure according to relations
+    //! that take into account the temperature and pressure
+    //! dependence of the water density and dieletric constant.
+    /*!
+     *  The A_Debye expression appears on the top of the
+     *  ln actCoeff term in the general Debye-Huckel expression
+     *  It depends on temperature and pressure. And, therefore,
+     *  most be recalculated whenever T or P changes.
+     *  The units returned by this expression are sqrt(kg/gmol).
+     *     
      *
-     * A_Debye -> this expression appears on the top of the
-     *            ln actCoeff term in the general Debye-Huckel
-     *            expression
-     *            It depends on temperature. And, therefore,
-     *            most be recalculated whenever T or P changes.
-     *            
-     *            A_Debye = (1/8Pi) sqrt(2Na dw/1000) 
-     *                          (e e/(epsilon RT)^3/2
+     *    \f[
+     *      A_{Debye} = \frac{1}{8 \pi} \sqrt{\frac{2 N_{Avog} \rho_w}{1000}}
+     *                        {\left(\frac{e^2}{\epsilon k_{boltz} T}\right)}^{\frac{3}{2}}
+     *    \f]
      *
-     *            Units = sqrt(kg/gmol)
      *
-     *            Nominal value = 1.172576 sqrt(kg/gmol)
-     *                  based on:
+     *   Nominal value at 25C and 1atm = 1.172576 sqrt(kg/gmol).
+     *
+     *                Based on:
      *                    epsilon/epsilon_0 = 78.54
      *                           (water at 25C)
      *                    epsilon_0 = 8.854187817E-12 C2 N-1 m-2
@@ -132,30 +169,75 @@ namespace Cantera {
      *                    B_Debye = 3.28640E9 sqrt(kg/gmol)/m
      *                    Na = 6.0221415E26
      *
+     *  @param T  Temperature (kelvin)
+     *  @param P  pressure (pascal)
+     *  @param ifunc Changes what's returned from the routine:
+     *   - ifunc = 0 return value
+     *   - ifunc = 1 return temperature derivative
+     *   - ifunc = 2 return temperature second derivative
+     *   - ifunc = 3 return pressure first derivative
+     *   .
+     *
+     * @return Returns a single double whose meaning depends on ifunc:
+     *   - ifunc = 0 return value
+     *   - ifunc = 1 return temperature derivative
+     *   - ifunc = 2 return temperature second derivative
+     *   - ifunc = 3 return pressure first derivative
+     *   .
+     *
      *  Verification:
-     *    With the epsRelWater value from the BP relation,
-     *    and the water density from the WaterDens function,
+     *
+     *    With the epsRelWater value from the Bradley-Pitzer relation,
+     *    and the water density from the density_IAPWS() function,
      *    The A_Debye computed with this function agrees with
      *    the Pitzer table p. 99 to 4 significant digits at 25C.
      *    and 20C. (Aphi = ADebye/3)
      */
     double ADebye(double T, double P, int ifunc);
 
+
+    //! Returns the saturation pressure given the temperature
+    /*!
+     * @param T temperature (kelvin)
+     * @return returns the saturation pressure (pascal)
+     */
     double satPressure(double T);
  
 
+    //! Returns the density of water
+    /*!
+     * @param T Temperature (kelvin)
+     * @param P pressure (pascal)
+     */
     double density_IAPWS(double T, double P);
+
+    //! returns the coefficient of thermal expansion
+    /*!
+     *  @param T Temperature (kelvin)
+     *  @param P pressure (pascal)
+     */
     double coeffThermalExp_IAPWS(double T, double P);
+
+    //! Returns the isothermal compressibility of water
+    /*!
+     * @param T  temperature in kelvin
+     * @param P  pressure in pascal
+     */
     double isothermalCompressibility_IAPWS(double T, double P);
 
   protected:
 
-
+    //! Pointer to the WaterPropsIAPWS object
+    /*!
+     *  this pointer points to the water object.
+     */
     WaterPropsIAPWS *m_waterIAPWS;
+
+    //! true if we own the WaterPropsIAPWS object
     bool m_own_sub;
   };
 
-
+ //@}
 }
 
 

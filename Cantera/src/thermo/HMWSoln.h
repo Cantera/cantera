@@ -2509,7 +2509,7 @@ namespace Cantera {
      *                 where B_Debye = F / sqrt(epsilon R T/2) 
      *                                 (dw/1000)^(1/2)
      *
-     *            A_Debye = (1/ (8 Pi)) (2 Pi * Na * dw/1000)^(1/2)
+     *            A_Debye = (1/ (8 Pi)) (2 Na * dw/1000)^(1/2)
      *                       (e * e / (epsilon * kb * T))^(3/2) 
      *
      *            Units = sqrt(kg/gmol)

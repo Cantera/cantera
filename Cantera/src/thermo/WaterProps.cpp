@@ -10,10 +10,11 @@
  * $Id$
  */
 
+//@{
 #ifndef MAX
 #define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
 #endif
-
+//@}
 
 #include "WaterProps.h"
 #include "ctml.h"
@@ -89,23 +90,26 @@ namespace Cantera {
     return *this;
   }
   
+  // Simple calculation of water density at atmospheric pressure.
+  // Valid up to boiling point.
   /*
-   * Simple calculation of water density at atmospheric pressure.
-   * Valid up to boiling point.
+   * This formulation has no dependence on the pressure and shouldn't
+   * be used where accuracy is needed.
    *
+   * @param T temperature in kelvin
+   * @param P Pressure in pascal
+   * @param ifunc changes what's returned
+   *
+   * @return value returned depends on ifunc value:
    * ifunc = 0 Returns the density in kg/m^3
    * ifunc = 1 returns the derivative of the density wrt T.
-   * ifunc = 3 returns the derivative of the density wrt P
    * ifunc = 2 returns the 2nd derivative of the density wrt T 
-   *
-   * Note -> needs augmenting with a T,P implementation.
+   * ifunc = 3 returns the derivative of the density wrt P.
    *
    * Verification:
    *   Agrees with the CRC values (6-10) for up to 4 sig digits.
    *
    * units = returns density in kg m-3.
-   * 
-   *  (static)
    */
   double WaterProps::density_T(double T, double P, int ifunc) {
     double Tc = T - 273.15;
@@ -161,24 +165,27 @@ namespace Cantera {
     return rho;
   }
 
-
-  /**
-   * Dielectric constant for water:
-   *     Bradley-Pitzer equation for the dielectric constant 
-   *     of water as a function of temperature and pressure.
-   *
+  //  Bradley-Pitzer equation for the dielectric constant 
+  //  of water as a function of temperature and pressure.
+  /*!
+   *  Returns the dimensionless relative dielectric constant
+   *  and its derivatives.
+   * 
    *  ifunc = 0 value
    *  ifunc = 1 Temperature deriviative
    *  ifunc = 2 second temperature derivative
-   *
-   *  @param T temperature in Kelvin
-   *  @param P Pressure in bar
+   *  ifunc = 3 return pressure first derivative
    *
    * Range of validity 0 to 350C, 0 to 1 kbar pressure
    *
+   * @param T temperature (kelvin)
+   * @param P_pascal pressure in pascal
+   * @param ifunc changes what's returned from the function
+   *
+   * @return Depends on the value of ifunc:
    * ifunc = 0 return value
    * ifunc = 1 return temperature derivative
-   * ifunc = 2 return temperature second derivative
+   * ifunc = 2 return second temperature derivative
    * ifunc = 3 return pressure first derivative
    *
    *  Validation:
@@ -188,10 +195,9 @@ namespace Cantera {
    * 
    *   value at 25C, relEps = 78.38
    * 
-   * (statically defined within the object)
    */
   double WaterProps::relEpsilon(double T, double P_pascal, 
-				int ifunc = 0) {
+				int ifunc) {
     const double U1 = 3.4279E2;
     const double U2 = -5.0866E-3;
     const double U3 = 9.4690E-7;
