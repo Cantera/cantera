@@ -792,53 +792,73 @@ AC_SUBST(build_f2c_lib)
 #
 LOCAL_LIBS= 
 LOCAL_LIBS_DEP=
+RAW_LIBS_DEP=
+INSTALL_LIBS_DEP=
 
 if test -n "$INCL_USER_CODE"
 then 
   LOCAL_LIBS=$LOCAL_LIBS' '-luser
   LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libuser.a
+  INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libuser.a
+  RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libuser.a
 fi
 
 if test -n "$NEED_ONED"
 then 
   LOCAL_LIBS=$LOCAL_LIBS' '-loneD
   LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/liboneD.a
+  INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/liboneD.a
+  RAW_LIBS_DEP=$RAW_LIBS_DEP' 'liboneD.a
 fi
 
 if test -n "$NEED_ZEROD"
 then
   LOCAL_LIBS=$LOCAL_LIBS' '-lzeroD
   LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libzeroD.a
+  INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libzeroD.a
+  RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libzeroD.a
 fi
 
 LOCAL_LIBS=$LOCAL_LIBS' '-lequil
 LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libequil.a
+INSTALL_LIBS_DEP=$INTALL_LIBS_DEP' '$ct_libdir/libequil.a
+RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libequil.a
 
 if test  "$WITH_VCSNONIDEAL" = "y" ; then
   LOCAL_LIBS=$LOCAL_LIBS' '-lVCSnonideal
   LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libVCSnonideal.a
+  INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libVCSnonideal.a
+  RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libVCSnonideal.a
 fi
 
 if test -n "$COMPILE_KINETICS"
 then 
   LOCAL_LIBS=$LOCAL_LIBS' '-lkinetics
   LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libkinetics.a
+  INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libkinetics.a
+  RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libkinetics.a
 fi
 
 if test -n "$NEED_TRANSPORT"
 then
   LOCAL_LIBS=$LOCAL_LIBS' '-ltransport
   LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libtransport.a
+  INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libtransport.a
+  RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libtransport.a
 fi
 
 if test -n "$NEED_CATHERMO"
 then 
   LOCAL_LIBS=$LOCAL_LIBS' '-lthermo
   LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libthermo.a
+  INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libthermo.a
+  RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libthermo.a
 fi
 
 LOCAL_LIBS=$LOCAL_LIBS' '-lctnumerics
 LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libctnumerics.a
+INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libctnumerics.a
+RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libctnumerics.a
 
 if test -n "$NEED_CVODE"; then 
   LOCAL_LIBS=$LOCAL_LIBS' '$CVODE_LIBS
@@ -846,6 +866,8 @@ fi
 
 LOCAL_LIBS=$LOCAL_LIBS' '-lctbase
 LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libctbase.a
+INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libctbase.a
+RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libctbase.a
 
 if test -n "$NEED_LAPACK"
 then
@@ -856,24 +878,32 @@ if test -n "$NEED_MATH"
 then 
   LOCAL_LIBS=$LOCAL_LIBS' '-lctmath
   LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libctmath.a
+  INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libctmath.a
+  RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libctmath.a
 fi
 
 if test -n "$NEED_TPX"
 then
   LOCAL_LIBS=$LOCAL_LIBS' '-ltpx
   LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libtpx.a
+  INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libtpx.a
+  RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libtpx.a
 fi
 
 if test -n "$NEED_SPECTRA"
 then 
   LOCAL_LIBS=$LOCAL_LIBS' '-lctspectra
   LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libctspectra.a
+  INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libctspectra.a
+  RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libctspectra.a
 fi
 
 if test -n "$NEED_F2C"
 then
   LOCAL_LIBS=$LOCAL_LIBS' '-lctf2c
   LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libctf2c.a
+  INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libctf2c.a
+  RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libctf2c.a
 else
   case $ac_sys_system in
     Linux)    LOCAL_LIBS=$LOCAL_LIBS' '-lg2c;;
@@ -885,6 +915,8 @@ if test -n "$NEED_CKREADER"
 then 
   LOCAL_LIBS=$LOCAL_LIBS' '-lconverters
   LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libconverters.a
+  INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libconverters.a
+  RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libconverters.a
 fi
 
 LOCAL_LIB_DIRS=
@@ -905,6 +937,8 @@ fi
 AC_SUBST(LOCAL_LIB_DIRS)
 AC_SUBST(LOCAL_LIBS)
 AC_SUBST(LOCAL_LIBS_DEP)
+AC_SUBST(INSTALL_LIBS_DEP)
+AC_SUBST(RAW_LIBS_DEP)
 
 #-------------------------------------------------
 #      Language Interfaces
