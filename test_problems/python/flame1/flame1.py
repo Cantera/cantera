@@ -28,7 +28,7 @@ initial_grid = [0.0, 0.02, 0.04, 0.06, 0.08, 0.1,
 
 tol_ss    = [1.0e-5, 1.0e-13]        # [rtol atol] for steady-state
                                     # problem
-tol_ts    = [1.0e-4, 1.0e-9]        # [rtol atol] for time stepping
+tol_ts    = [1.0e-5, 1.0e-11]        # [rtol atol] for time stepping
 
 loglevel  = 1                       # amount of diagnostic output (0
                                     # to 5)
@@ -60,7 +60,7 @@ f.showSolution()
 
 f.solve(loglevel, refine_grid)
 
-f.setRefineCriteria(ratio = 200.0, slope = 0.05, curve = 0.1)
+f.setRefineCriteria(ratio = 200.0, slope = 0.0502, curve = 0.1)
 f.set(energy = 'on')
 f.solve(loglevel,refine_grid)
 
