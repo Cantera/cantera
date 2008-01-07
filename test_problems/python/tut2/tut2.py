@@ -126,7 +126,7 @@ print cc
 
 # will get infs because coverages are zero.
 gg = diamonnd_surf2.chemPotentials()
-print gg
+print gg[0], gg[1]
 
 
 
