@@ -28,7 +28,7 @@ CXX_INCLUDES = -I../../src/base -I../../src/thermo @CXX_INCLUDES@
 
 # how to compile C++ source files to object files
 .cpp.o:
-	$(CXX) -c $< $(CXX_INCLUDES) $(CXX_FLAGS)
+	@CXX@ -c $< $(CXX_INCLUDES) $(CXX_FLAGS)
 
 %.d: Makefile %.o
 	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d

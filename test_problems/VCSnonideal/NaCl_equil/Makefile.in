@@ -74,11 +74,11 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR)  @CXXFLAGS@
 
 # How to compile C++ source files to object files
 .cpp.o:
-	$(CXX) $(CXX_FLAGS) -c $< 
+	@CXX@ $(CXX_FLAGS) -c $< 
 
 # How to compile the dependency file
 .cpp.d:
-	g++ -MM  $(CXX_FLAGS) $*.cpp > $*.d
+	@CXX_DEPENDS@  $(CXX_FLAGS) $*.cpp > $*.d
 
 # List of dependency files to be created
 DEPENDS=$(OBJS:.o=.d)
