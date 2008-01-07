@@ -108,7 +108,7 @@ namespace Cantera {
 
     doublereal Transport::err(string msg) const { 
         throw NotImplemented(msg);
-        return 0.0;
+        //return 0.0;
     }
 
     //////////////////// class TransportFactory methods //////////////
