@@ -61,7 +61,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
   double test = -1.0E-10;
 
 #ifdef DEBUG
-    char *pprefix = " --- seMolesLinProg ";
+    std::string pprefix(" --- seMolesLinProg ");
     if (vcs_debug_print_lvl >= 2) {
       plogf("   --- call setInitialMoles\n"); 
     }
@@ -107,8 +107,8 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
     if (!vcs_elabcheck(0)) {
 #ifdef DEBUG
       if (vcs_debug_print_lvl >= 2) {
-	plogf("%s Mole numbers failing element abundances\n", pprefix);  
-	plogf("%sCall vcs_elcorr to attempt fix\n",          pprefix);
+	plogf("%s Mole numbers failing element abundances\n", pprefix.c_str());  
+	plogf("%sCall vcs_elcorr to attempt fix\n",          pprefix.c_str());
       }
 #endif
       retn = vcs_elcorr(VCS_DATA_PTR(sm), VCS_DATA_PTR(wx));
@@ -184,15 +184,15 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
       // step the composition by dxi_min, check against zero, since
       // we are zeroing components and species on every step.
       // Redo the iteration, if a component went from positive to zero on this step.
-      double ds = idir*dxi_min;
-      soln[ik] += ds;
+      double dsLocal = idir*dxi_min;
+      soln[ik] += dsLocal;
       soln[ik] = MAX(0.0,  soln[ik]);
       for (jcomp = 0; jcomp < m_numComponents; jcomp++) {
 	bool full = false;
 	if (soln[jcomp] > 1.0E-15) {
 	  full = true;
 	}
-	soln[jcomp] += sc_irxn[jcomp] * ds;
+	soln[jcomp] += sc_irxn[jcomp] * dsLocal;
 	soln[jcomp] = MAX(0.0, soln[jcomp]);
 	if (full) {
 	  if (soln[jcomp] < 1.0E-60) {

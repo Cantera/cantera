@@ -883,7 +883,7 @@ namespace Cantera {
 			 "Jacobian is singular. \nTry adding more species, "
 			 "changing the elemental composition slightly, \nor removing "
 			 "unused elements.");
-      return -3;
+      //return -3;
     }
 
     // find the factor by which the Newton step can be multiplied
@@ -934,7 +934,7 @@ namespace Cantera {
 	s.restoreState(state);
 	throw CanteraError("equilibrate",
 			   "Cannot find an acceptable Newton damping coefficient.");
-	return -4;
+	//return -4;
       }
     } else {
       fail = 0;
@@ -1037,7 +1037,7 @@ namespace Cantera {
       throw CanteraError("equilibrate",
              "no convergence in "+int2str(options.maxIterations)
              +" iterations.");
-      return -1;
+      //return -1;
     }
     goto next;
   }   
@@ -1825,7 +1825,7 @@ namespace Cantera {
 			   "Jacobian is singular. \nTry adding more species, "
 			   "changing the elemental composition slightly, \nor removing "
 			   "unused elements.");
-	return -3;
+	//return -3;
       }
 
       /*

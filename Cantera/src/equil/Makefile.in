@@ -99,10 +99,10 @@ all: $(LIB) $(VLIB) .depends
 	done)
 
 .cpp.d: Makefile %.o
-	g++ -MM $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
+	@CXX_DEPENDS@  $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .c.d: Makefile %.o
-	g++ -MM $(CXX_FLAGS) $(CXX_INCLUDES) -I../../../ext/f2c_libs $*.c > $*.d
+	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) -I../../../ext/f2c_libs $*.c > $*.d
 
 .cpp.o:
 	@CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)

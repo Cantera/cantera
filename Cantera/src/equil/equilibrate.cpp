@@ -62,7 +62,7 @@ namespace Cantera {
               endLogGroup("equilibrate");
           }
       throw CanteraError("equilibrate","unsupported option");
-      return -1.0;
+      //return -1.0;
     }
     
   }

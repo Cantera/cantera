@@ -94,7 +94,7 @@ int VCS_SOLVE::vcs_TV(int ipr, int ip1, int maxit, double T_arg, double VolReque
   *  (L and MOL_UNITS determined from global units value if__)
   */
 double VCS_SOLVE::vcs_VolTotal(double tkelvin, double pres, double w[],
-			       double VolPM[])
+			       double volPM[])
 {
    double volTot = 0.0;
    for (int iphase = 0; iphase < NPhase; iphase++) {
@@ -102,7 +102,7 @@ double VCS_SOLVE::vcs_VolTotal(double tkelvin, double pres, double w[],
      Vphase->setState_TP(tkelvin, pres);
      Vphase->setMolesFromVCS(w);
      double volp = Vphase->VolPM_calc();
-     (void) Vphase->sendToVCSVolPM(VolPM);
+     (void) Vphase->sendToVCSVolPM(volPM);
      volTot += volp;
    }
    return volTot;

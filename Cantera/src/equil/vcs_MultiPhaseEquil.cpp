@@ -1165,7 +1165,6 @@ namespace Cantera {
       case cSurf:
 	plogf("cSurf not handled yet\n");
 	exit(-1);
-	break;
       case cStoichSubstance:
 	VolPhase->EqnState = VCS_EOS_STOICH_SUB;
 	break;
@@ -1177,7 +1176,6 @@ namespace Cantera {
       case cEdge:
 	plogf("cEdge not handled yet\n");
 	exit(-1);
-	break;
       case cIdealSolidSolnPhase0:
       case cIdealSolidSolnPhase1:
       case cIdealSolidSolnPhase2:
@@ -1772,7 +1770,6 @@ namespace Cantera {
 	counter++;
       }
       delete eqsolve;
-      return retn;
     }
     catch (CanteraError e) {
       addLogEntry("Failure.", lastErrorMessage());

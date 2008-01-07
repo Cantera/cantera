@@ -480,7 +480,7 @@ void VCS_PROB::reportCSV(const std::string &reportFile) {
   double Temp = T;
   double pres = Pres;
 
-  std::vector<double> VolPM(nspecies, 0.0);
+  std::vector<double> volPM(nspecies, 0.0);
   std::vector<double> activity(nspecies, 0.0);;
   std::vector<double> ac(nspecies, 0.0);;
   std::vector<double> mu(nspecies, 0.0);;
@@ -495,14 +495,14 @@ void VCS_PROB::reportCSV(const std::string &reportFile) {
     vcs_VolPhase *volP = VPhaseList[iphase];
     //const Cantera::ThermoPhase *tptr = volP->ptrThermoPhase();
     int nSpeciesPhase = volP->NVolSpecies;
-    VolPM.resize(nSpeciesPhase, 0.0);
-    volP->sendToVCSVolPM(VCS_DATA_PTR(VolPM));
+    volPM.resize(nSpeciesPhase, 0.0);
+    volP->sendToVCSVolPM(VCS_DATA_PTR(volPM));
   
     double TMolesPhase = volP->TotalMoles();
     double VolPhaseVolumes = 0.0;
     for (k = 0; k < nSpeciesPhase; k++) {
       iK++;
-      VolPhaseVolumes += VolPM[istart + k] * mf[istart + k];
+      VolPhaseVolumes += volPM[istart + k] * mf[istart + k];
     }
     VolPhaseVolumes *= TMolesPhase;
     vol += VolPhaseVolumes;
@@ -524,7 +524,7 @@ void VCS_PROB::reportCSV(const std::string &reportFile) {
     const Cantera::ThermoPhase *tp = volP->ptrThermoPhase();
     string phaseName = volP->PhaseName;
     int nSpeciesPhase = volP->NVolSpecies;
-    volP->sendToVCSVolPM(VCS_DATA_PTR(VolPM));
+    volP->sendToVCSVolPM(VCS_DATA_PTR(volPM));
     double TMolesPhase = volP->TotalMoles();
     //AssertTrace(TMolesPhase == m_mix->phaseMoles(iphase));
     activity.resize(nSpeciesPhase, 0.0);
@@ -532,7 +532,7 @@ void VCS_PROB::reportCSV(const std::string &reportFile) {
    
     mu0.resize(nSpeciesPhase, 0.0);
     mu.resize(nSpeciesPhase, 0.0);
-    VolPM.resize(nSpeciesPhase, 0.0);
+    volPM.resize(nSpeciesPhase, 0.0);
     molalities.resize(nSpeciesPhase, 0.0);
  
     int actConvention = tp->activityConvention();
@@ -540,11 +540,11 @@ void VCS_PROB::reportCSV(const std::string &reportFile) {
     tp->getActivityCoefficients(VCS_DATA_PTR(ac));
     tp->getStandardChemPotentials(VCS_DATA_PTR(mu0));
   
-    tp->getPartialMolarVolumes(VCS_DATA_PTR(VolPM));
+    tp->getPartialMolarVolumes(VCS_DATA_PTR(volPM));
     tp->getChemPotentials(VCS_DATA_PTR(mu));
     double VolPhaseVolumes = 0.0;
     for (k = 0; k < nSpeciesPhase; k++) {
-      VolPhaseVolumes += VolPM[k] * mf[istart + k];
+      VolPhaseVolumes += volPM[k] * mf[istart + k];
     }
     VolPhaseVolumes *= TMolesPhase;
     vol += VolPhaseVolumes;
@@ -574,7 +574,7 @@ void VCS_PROB::reportCSV(const std::string &reportFile) {
 		mf[istart + k], molalities[k], ac[k], activity[k],
 		mu0[k]*1.0E-6, mu[k]*1.0E-6,
 		mf[istart + k] * TMolesPhase,
-		VolPM[k],  VolPhaseVolumes );
+		volPM[k],  VolPhaseVolumes );
       }
  
     } else {
@@ -599,7 +599,7 @@ void VCS_PROB::reportCSV(const std::string &reportFile) {
 		mf[istart + k],  molalities[k], ac[k], 
 		activity[k], mu0[k]*1.0E-6, mu[k]*1.0E-6, 
 		mf[istart + k] * TMolesPhase,
-		VolPM[k],  VolPhaseVolumes );       
+		volPM[k],  VolPhaseVolumes );       
       }
     }
 

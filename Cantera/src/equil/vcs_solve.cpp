@@ -771,7 +771,7 @@ namespace VCSnonideal {
    */
   int VCS_SOLVE::vcs_prob_specify(const VCS_PROB *pub) {
     int kspec, k, i, j, iph;
-    char *yo = "vcs_prob_specify ERROR: ";
+    string yo("vcs_prob_specify ERROR: ");
     int retn = VCS_SUCCESS;
     bool status_change = false;
 
@@ -826,20 +826,20 @@ namespace VCSnonideal {
       vcs_VolPhase *pub_phase_ptr = pub->VPhaseList[iph];
 
       if  (vPhase->VP_ID != pub_phase_ptr->VP_ID) {
-	plogf("%sPhase numbers have changed:%d %d\n", yo,
+	plogf("%sPhase numbers have changed:%d %d\n", yo.c_str(),
 	       vPhase->VP_ID, pub_phase_ptr->VP_ID);
 	retn = VCS_PUB_BAD;
       }
 
       if  (vPhase->SingleSpecies != pub_phase_ptr->SingleSpecies) {
-	plogf("%sSingleSpecies value have changed:%d %d\n", yo,
+	plogf("%sSingleSpecies value have changed:%d %d\n", yo.c_str(),
 	       vPhase->SingleSpecies,
 	       pub_phase_ptr->SingleSpecies);
 	retn = VCS_PUB_BAD;
       }
 
       if  (vPhase->GasPhase != pub_phase_ptr->GasPhase) {
-	plogf("%sGasPhase value have changed:%d %d\n", yo,
+	plogf("%sGasPhase value have changed:%d %d\n", yo.c_str(),
 	       vPhase->GasPhase,
 	       pub_phase_ptr->GasPhase);
 	retn = VCS_PUB_BAD;
@@ -848,14 +848,14 @@ namespace VCSnonideal {
       vPhase->EqnState = pub_phase_ptr->EqnState;
 
       if  (vPhase->NVolSpecies != pub_phase_ptr->NVolSpecies) {
-	plogf("%sNVolSpecies value have changed:%d %d\n", yo,
+	plogf("%sNVolSpecies value have changed:%d %d\n", yo.c_str(),
 	       vPhase->NVolSpecies,
 	       pub_phase_ptr->NVolSpecies);
 	retn = VCS_PUB_BAD;
       }
 
       if (vPhase->PhaseName == pub_phase_ptr->PhaseName) {
-	plogf("%sPhaseName value have changed:%s %s\n", yo,
+	plogf("%sPhaseName value have changed:%s %s\n", yo.c_str(),
 	       vPhase->PhaseName.c_str(),
 	       pub_phase_ptr->PhaseName.c_str());
 	retn = VCS_PUB_BAD;

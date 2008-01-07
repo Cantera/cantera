@@ -50,13 +50,13 @@ static int  prnfm(void);
 /*****************************************************************************/
 
 #ifdef DEBUG
-void VCS_SOLVE::checkDelta1(double * const ds, 
+void VCS_SOLVE::checkDelta1(double * const dsLocal, 
 			    double * const delTPhMoles, int kspec) {
   std::vector<double> dchange(NPhase, 0.0);
   for (int k = 0; k < kspec; k++) {
     if (SpeciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
       int iph = PhaseID[k];
-      dchange[iph] += ds[k];
+      dchange[iph] += dsLocal[k];
     }
   }
   for (int iphase = 0; iphase < NPhase; iphase++) {
@@ -4524,7 +4524,7 @@ void VCS_SOLVE::prneav(void)
 /*****************************************************************************/
 /*****************************************************************************/
 
-double VCS_SOLVE::l2normdg(double dg[])
+double VCS_SOLVE::l2normdg(double dgLocal[])
    
   /*************************************************************************
    *
@@ -4539,9 +4539,9 @@ double VCS_SOLVE::l2normdg(double dg[])
   if (m_numRxnRdc <= 0) return 0.0;
   for (irxn = 0, tmp = 0.0; irxn < m_numRxnRdc; ++irxn) {
     if (spStatus[irxn] == VCS_SPECIES_MAJOR || spStatus[irxn] == VCS_SPECIES_MINOR ||
-	dg[irxn] < 0.0) {
+	dgLocal[irxn] < 0.0) {
       if (spStatus[irxn] != VCS_SPECIES_ZEROEDMS) {
-	tmp += dg[irxn] * dg[irxn];
+	tmp += dgLocal[irxn] * dgLocal[irxn];
       }
     }
   }

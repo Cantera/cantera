@@ -336,15 +336,12 @@ void vcs_VolPhase::evaluateActCoeff() const {
     case VCS_AC_DEBYE_HUCKEL:         
       plogf("Not implemented Yet\n");
       exit(-1);
-      break; 
     case VCS_AC_REGULAR_SOLN:         
       plogf("Not implemented Yet\n");
       exit(-1);
-      break;             
     case VCS_AC_MARGULES:             
       plogf("Not implemented Yet\n");
       exit(-1);
-      break;
     default:
       plogf("%sERROR: unknown model\n", yo);
       exit(-1);

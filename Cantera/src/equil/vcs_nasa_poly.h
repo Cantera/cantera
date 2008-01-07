@@ -72,12 +72,11 @@ public:
   char PhName[24];
 };
 
-
 /* Externals for vcs_nasa_poly.c */
 
 extern VCS_NASA_POLY *vcs_nasa_poly_create(int, int);
 extern void vcs_nasa_poly_free(VCS_NASA_POLY *);
-extern void vcs_nasa_poly_destroy(VCS_NASA_POLY **);;
+extern void vcs_nasa_poly_destroy(VCS_NASA_POLY **);
 
 extern double vcs_G0_NASA(double, VCS_NASA_POLY *);
 extern double vcs_H0_NASA(double, VCS_NASA_POLY *);

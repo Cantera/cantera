@@ -377,19 +377,16 @@ double VCS_SPECIES_THERMO::eval_ac(int kglob)
 	 
       plogf("Not implemented Yet\n");
       exit(-1);
-      break;
 	 
     case VCS_AC_REGULAR_SOLN:
 	 
       plogf("Not implemented Yet\n");
       exit(-1);
-      break;
 	 
     case VCS_AC_MARGULES:
 	 
       plogf("Not implemented Yet\n");
       exit(-1);
-      break;
     default:
 #ifdef DEBUG
       plogf("%sERROR: unknown model\n", yo);
