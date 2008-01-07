@@ -101,7 +101,7 @@ clean:
 	cd mixGasTransport;       $(RM) .depends ; @MAKE@ clean
 	cd multiGasTransport;     $(RM) .depends ; @MAKE@ clean
 	cd pureFluidTest;         $(RM) .depends ; @MAKE@ clean
-	cd rankin_democxx;        $(RM) .depends ; @MAKE@ clean
+	cd rankine_democxx;       $(RM) .depends ; @MAKE@ clean
 	cd ck2cti_test;           $(RM) .depends ; @MAKE@ clean
 	cd nasa9_reader;          $(RM) .depends ; @MAKE@ clean
 	cd min_python;                             @MAKE@ clean
