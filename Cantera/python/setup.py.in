@@ -7,9 +7,11 @@ except:
 libs = []
 platform = sys.platform
 
-flibstr = '@FLIBS@'
-f1 = flibstr.replace('-l', ' ')
-flibs = f1.split()
+flibs = []
+if @build_with_f2c@ <> 1:
+    flibstr = '@FLIBS@'
+    f1 = flibstr.replace('-l', ' ')
+    flibs = f1.split()
 
 linkargs = '@LCXX_FLAGS@'
 
@@ -19,7 +21,6 @@ incdirs=["../../build/include", "src", "../clib/src"]
 
 if numarray_incl <> '':
     incdirs.append(numarray_incl)
-
 
 bllibstr = "@BLAS_LAPACK_LIBS@"
 bllibs = bllibstr.replace('-l',' ')
@@ -57,8 +58,8 @@ if platform == "win32":
             "cantera"] + bllist + cvlist + ["ctbase", "ctmath", "tpx"]
 else:
     libs = ["clib"] + locallibs
-    if flibs:
-        libs = libs 
+    #if flibs:
+    #    libs = libs 
     #libs = ["clib", "zeroD","oneD", "kinetics", "transport",
     #        "equil", "ctnumerics", "converters"] + thermolib + bllist + cvlist + ["ctbase", "ctmath", "tpx", "boost_thread-mt-1_34"]
                                           
