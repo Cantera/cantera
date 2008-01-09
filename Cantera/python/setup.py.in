@@ -75,12 +75,10 @@ else:
 #  0   do nothing
 #  1   install only ctml_writer.py
 #  2   install full package
-#  3   try to install full, but install ctml_writer if full package
-#      install fails
 buildPython = @BUILD_PYTHON@
 if buildPython >= 2:
 
-    try:
+#    try:
         setup(name="Cantera",
               version="@ctversion@",
               description="The Cantera Python Interface",
@@ -101,15 +99,15 @@ if buildPython >= 2:
                                       )
                             ],
               )
-    except:
-        if buildPython == 3:
-          buildPython = 1
-        else:
-          raise 'Error encountered while building or installing the Cantera python modules!'
+#    except:
+#        if buildPython == 3:
+#          buildPython = 1
+#        else:
+#          raise 'Error encountered while building or installing the Cantera python modules!'
     
         
 if buildPython == 1:
-    try:
+#    try:
         setup(name="Cantera CTI File Processor",
               version="@ctversion@",
               description="Converts .cti files to CTML",
@@ -120,5 +118,5 @@ if buildPython == 1:
               url="http://www.cantera.org",
               py_modules = ["ctml_writer"],
               )
-    except:
-        raise 'Error encountered while building or installing the Cantera CTI file preprocessor!'
+#    except:
+#        raise 'Error encountered while building or installing the Cantera CTI file preprocessor!'
