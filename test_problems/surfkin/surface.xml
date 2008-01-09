@@ -10,7 +10,7 @@
     </thermo>
     <elementArray datasrc="elements.xml"> O H  C</elementArray>
     <speciesArray datasrc="#surf_species_data">
-     surf-* surf-H
+     surf_site surf_H
     </speciesArray>
     <reactionArray datasrc="#surf_rxn_data">
     </reactionArray>
@@ -25,7 +25,7 @@
 
   <speciesData id="surf_species_data">
 
-    <species name="surf-*">
+    <species name="surf_site">
       <note>open site</note>
       <atomArray> </atomArray>
       <thermo>
@@ -46,7 +46,7 @@
       </thermo>
     </species>
 
-    <species name="surf-H">
+    <species name="surf_H">
       <note>surface H</note>
       <atomArray> H:1 </atomArray>
       <thermo>
@@ -74,9 +74,9 @@
 
     <!-- reaction 1 -->
     <reaction id="surf_rxn_1" reversible="yes">
-      <equation>H + surf-H [=] H2 + surf-*</equation>
-      <reactants> H:1 surf-H:1 </reactants>
-      <products>H2:1 surf-*:1 </products>
+      <equation>H + surf_H [=] H2 + surf_site</equation>
+      <reactants> H:1 surf_H:1 </reactants>
+      <products>H2:1 surf_site:1 </products>
       <rateCoeff>
         <Arrhenius>
           <A units="cm3/mol/s">1.0E14</A>

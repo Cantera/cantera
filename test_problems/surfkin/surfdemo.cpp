@@ -5,10 +5,13 @@
  *  site fractions.
  */
 #include "Cantera.h"
+#include <iostream>
+
 #include "IdealGasMix.h"
 #include "Interface.h"
 
 using namespace Cantera;
+using namespace Cantera_CXX;
 using namespace std;
 using namespace Cantera_CXX;
 
@@ -30,7 +33,8 @@ int main() {
         surf.getNetProductionRates(DATA_PTR(wdot));
         int k;
         for (k = 0; k < gas.nSpecies(); k++)
-            cout << gas.speciesName(k) << "   " << wdot[k] << endl;
+            cout << gas.speciesName(k) << "  " << wdot[k] << endl;
+
         for (k = 0; k < surf.nSpecies(); k++)
             cout << surf.speciesName(k) << "   " 
                  << wdot[k+gas.nSpecies()] << endl;

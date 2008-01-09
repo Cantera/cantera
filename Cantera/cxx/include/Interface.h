@@ -3,19 +3,21 @@
  *   Declaration and Definition for the class Interface, part of 
  *   Cantera's Cantera_CXX namespace.
  */
+
 /*
  * $Id$
  */
+
 #ifndef CXX_INTERFACE
 #define CXX_INTERFACE
 
 #include <string>
-
 #include "Cantera.h"
 #include "thermo.h"
-#include "kernel/SurfPhase.h"
-#include "kernel/InterfaceKinetics.h"
-#include "kernel/importKinetics.h"
+#include "kinetics.h"
+// #include "kernel/SurfPhase.h"
+// #include "kernel/InterfaceKinetics.h"
+// #include "kernel/importKinetics.h"
 
 /**
  * This namespace is used for the Cantera C++ user interface.
@@ -23,12 +25,12 @@
 namespace Cantera_CXX {
 
     /**
-     * An interface between multiple bulk phases. This class is defined 
-     * mostly for convenience. It inherits both from Cantera::SurfPhase 
-     * and Cantera::InterfaceKinetics. It therefore represents a 
-     * surface phase, and also acts as the kinetics manager to manage
-     * reaction occurring on the surface, possibly involving species
-     * from other phases.
+     * An interface between multiple bulk phases. This class is
+     * defined mostly for convenience. It inherits both from
+     * Cantera::SurfPhase and Cantera::InterfaceKinetics. It therefore
+     * represents a surface phase, and also acts as the kinetics
+     * manager to manage reaction occurring on the surface, possibly
+     * involving species from other phases.
      */
     class Interface : 
         public Cantera::SurfPhase,
@@ -48,7 +50,6 @@ namespace Cantera_CXX {
         Interface(std::string infile, std::string id, 
             std::vector<Cantera::ThermoPhase*> phases) 
             : m_ok(false), m_r(0) {
-
             m_r = Cantera::get_XML_File(infile); 
             if (id == "-") id = "";
             

@@ -37,17 +37,17 @@ namespace Cantera {
     void GRI_30_Kinetics::
     gri30_update_rates_T() {
         doublereal T = thermo().temperature();
-        if (fabs(T - m_kdata->m_temp) > m_dt_threshold) {
-            doublereal logT = log(T);
-            m_kdata->m_logc_ref = m_kdata->m_logp_ref - logT;
-            update_rates(T, logT, &m_kdata->m_rfn[0]);
-            m_falloff_low_rates.update(T, logT, &m_kdata->m_rfn_low[0]);
-            m_falloff_high_rates.update(T, logT, &m_kdata->m_rfn_high[0]);
-            m_falloffn.updateTemp(T, &m_kdata->falloff_work[0]);
-            m_kdata->m_temp = T;
-            gri30_updateKc();
-            m_kdata->m_ROP_ok = false;
-        }
+        //if (fabs(T - m_kdata->m_temp) > m_dt_threshold) {
+        doublereal logT = log(T);
+        m_kdata->m_logc_ref = m_kdata->m_logp_ref - logT;
+        update_rates(T, logT, &m_kdata->m_rfn[0]);
+        m_falloff_low_rates.update(T, logT, &m_kdata->m_rfn_low[0]);
+        m_falloff_high_rates.update(T, logT, &m_kdata->m_rfn_high[0]);
+        m_falloffn.updateTemp(T, &m_kdata->falloff_work[0]);
+        m_kdata->m_temp = T;
+        gri30_updateKc();
+        m_kdata->m_ROP_ok = false;
+        //}
     };
 
 

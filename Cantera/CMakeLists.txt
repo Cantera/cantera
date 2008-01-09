@@ -1,9 +1,5 @@
 add_subdirectory(src)
+add_subdirectory(clib)
+add_subdirectory(fortran)
 
-if (BUILD_F90_INTERFACE)
-    add_subdirectory(fortran)
-endif (BUILD_F90_INTERFACE) 
 
-if (BUILD_MATLAB_TOOLBOX)
-    add_subdirectory(matlab)
-endif (BUILD_MATLAB_TOOLBOX) 

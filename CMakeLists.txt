@@ -3,7 +3,7 @@ PROJECT (Cantera)
 #----------------------------
 #     user-configurable settings
 #----------------------------
-INCLUDE (config.cmake)
+#INCLUDE (config.cmake)
 
 
 #operating system
@@ -18,8 +18,6 @@ if (PYTHON_CMD STREQUAL "default")
 else (PYTHON_CMD STREQUAL "default")
   SET( PYTHON_EXE ${PYTHON_CMD} )
 endif (PYTHON_CMD STREQUAL "default")
-
-INCLUDE(cmake/thermo.cmake)
 
 INCLUDE(cmake/fortran.cmake)
 

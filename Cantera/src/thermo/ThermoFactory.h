@@ -24,7 +24,6 @@
 #include <boost/thread/mutex.hpp>
 #endif
 
-//#include "SpeciesThermoFactory.h"
 #include "FactoryBase.h"
 
 namespace Cantera {

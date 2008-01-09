@@ -780,7 +780,7 @@ namespace Cantera {
 	 * Add a single reaction to the mechanism. This routine
 	 * must be called after init() and before finalize().
 	 *
-	 * @param r      Reference to the ReactionRate object for the reaction
+	 * @param r      Reference to the ReactionData object for the reaction
 	 *               to be added.
 	 */
         virtual void addReaction(const ReactionData& r) {

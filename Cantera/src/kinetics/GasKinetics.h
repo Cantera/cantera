@@ -60,11 +60,11 @@ namespace Cantera {
         bool m_ROP_ok;
 
         doublereal m_temp;
-        vector_fp  m_rfn;
-        vector_fp falloff_work;
-        vector_fp concm_3b_values;
-        vector_fp concm_falloff_values;
-        vector_fp m_rkcn;
+        array_fp  m_rfn;
+        array_fp falloff_work;
+        array_fp concm_3b_values;
+        array_fp concm_falloff_values;
+        array_fp m_rkcn;
     };
 
 
@@ -78,8 +78,9 @@ namespace Cantera {
     class GasKinetics : public Kinetics {
 
     public:
+
 	/**
-	 * @name Constructors and General Information about Mechanism
+	 * @name Constructors and General Information
 	 */
 	//@{
         /// Constructor.
@@ -113,6 +114,7 @@ namespace Cantera {
             updateROP();
             std::copy(m_kdata->m_ropf.begin(), m_kdata->m_ropf.end(), fwdROP);
         }
+
         /**
          * Reverse rates of progress.
          * Return the reverse rates of progress in array revROP, which
@@ -123,6 +125,7 @@ namespace Cantera {
             updateROP();
             std::copy(m_kdata->m_ropr.begin(), m_kdata->m_ropr.end(), revROP);
         }
+
         /**
          * Net rates of progress.  Return the net (forward - reverse)
          * rates of progress in array netROP, which must be
@@ -144,27 +147,24 @@ namespace Cantera {
 	virtual void getEquilibriumConstants(doublereal* kc);
 
 	/**
-	 * Return the vector of values for the reaction gibbs free energy
+	 * Return the array of values for the reaction gibbs free energy
 	 * change.
-	 * These values depend upon the concentration
-	 * of the solution.
+	 * These values depend on the species concentrations.
 	 *
 	 *  units = J kmol-1
 	 */
 	virtual void getDeltaGibbs( doublereal* deltaG);
 
 	/**
-	 * Return the vector of values for the reactions change in
-	 * enthalpy.
-	 * These values depend upon the concentration
-	 * of the solution.
+	 * Return the array of values for the reaction enthalpy change.
+	 * These values depend upon the species concentrations.
 	 *
 	 *  units = J kmol-1
 	 */
 	virtual void getDeltaEnthalpy( doublereal* deltaH);
 
 	/**
-	 * Return the vector of values for the reactions change in
+	 * Return the array of values for the reactions change in
 	 * entropy.
 	 * These values depend upon the concentration
 	 * of the solution.
@@ -174,19 +174,19 @@ namespace Cantera {
 	virtual void getDeltaEntropy(doublereal* deltaS);
 
 	/**
-	 * Return the vector of values for the reaction
-	 * standard state gibbs free energy change.
-	 * These values don't depend upon the concentration
-	 * of the solution.
+	 * Return the array of values for the reaction
+	 * standard state Gibbs free energy change.
+	 * These values do not depend on the species 
+         * concentrations.
 	 *
 	 *  units = J kmol-1
 	 */
 	virtual void getDeltaSSGibbs(doublereal* deltaG);
 
 	/**
-	 * Return the vector of values for the change in the
+	 * Return the array of values for the change in the
 	 * standard state enthalpies of reaction.
-	 * These values don't depend upon the concentration
+	 * These values do not depend upon the concentration
 	 * of the solution.
 	 *
 	 *  units = J kmol-1
@@ -194,9 +194,9 @@ namespace Cantera {
 	virtual void getDeltaSSEnthalpy(doublereal* deltaH);
 
 	/**
-	 * Return the vector of values for the change in the
+	 * Return the array of values for the change in the
 	 * standard state entropies for each reaction.
-	 * These values don't depend upon the concentration
+	 * These values do not depend upon the concentration
 	 * of the solution.
 	 *
 	 *  units = J kmol-1 Kelvin-1
@@ -216,7 +216,7 @@ namespace Cantera {
          * wdot, which must be dimensioned at least as large as the
          * total number of species.
          *
-         *  @param net  Vector of species production rates.
+         *  @param net  Array of species production rates.
          *             units kmol m-3 s-1
          */
         virtual void getNetProductionRates(doublereal* net) {
@@ -314,19 +314,10 @@ namespace Cantera {
          */
         //@{
 
-
-	/**
-         * Set delta T threshold for updating temperature-dependent
-         * rates.
-         */
-        void setRateUpdateThreshold(doublereal dt) {
-            m_dt_threshold = dt;
-        }
-
         virtual void init();
 
         ///  Add a reaction to the mechanism.
-        void addReaction(const ReactionData& r);
+        virtual void addReaction(const ReactionData& r);
 
         virtual void finalize();
         virtual bool ready() const;
@@ -352,8 +343,7 @@ namespace Cantera {
 
         int                                 m_kk, m_nfall;
 
-        vector_int                          m_fallindx;
-        doublereal                          m_dt_threshold;
+        array_int                          m_fallindx;
 
         Rate1<Arrhenius>                    m_falloff_low_rates;
         Rate1<Arrhenius>                    m_falloff_high_rates;
@@ -389,16 +379,16 @@ namespace Cantera {
          * to account for the fact that we can have real-valued
          * stoichiometries.
          */
-        vector_fp  m_dn;
-        vector_int m_revindex;
+        array_fp  m_dn;
+        array_int m_revindex;
 
         std::vector<std::string> m_rxneqn;
 
         GasKineticsData* m_kdata;
 
-        vector_fp m_conc;
+        array_fp m_conc;
         void processFalloffReactions();
-        vector_fp m_grt;
+        array_fp m_grt;
 
 
     private:

@@ -38,7 +38,6 @@ namespace Cantera {
         Kinetics(),
         m_kk(0), 
         m_nfall(0), 
-        m_dt_threshold(0.0), // 1.e-6),
         m_nirrev(0), 
         m_nrev(0),
         m_finalized(false)
@@ -49,8 +48,8 @@ namespace Cantera {
         m_rxnstoich = new ReactionStoichMgr;
     }
 
-  GasKinetics::
-  ~GasKinetics() {delete m_kdata; delete m_rxnstoich;}
+    GasKinetics::
+    ~GasKinetics() {delete m_kdata; delete m_rxnstoich;}
 
     /**
      * Update temperature-dependent portions of reaction rates and
@@ -66,17 +65,16 @@ namespace Cantera {
     _update_rates_T() {
         doublereal T = thermo().temperature();
         m_kdata->m_logStandConc = log(thermo().standardConcentration()); 
-        if (fabs(T - m_kdata->m_temp) > 0.0) { // m_dt_threshold) {
-            doublereal logT = log(T);
-            //m_kdata->m_logp0 - logT;
-            m_rates.update(T, logT, &m_kdata->m_rfn[0]);
-            m_falloff_low_rates.update(T, logT, &m_kdata->m_rfn_low[0]); 
-            m_falloff_high_rates.update(T, logT, &m_kdata->m_rfn_high[0]);
-            m_falloffn.updateTemp(T, &m_kdata->falloff_work[0]);
-            m_kdata->m_temp = T;
-            updateKc();
-            m_kdata->m_ROP_ok = false;
-        }
+        //if (fabs(T - m_kdata->m_temp) > 0.0) { 
+        doublereal logT = log(T);
+        m_rates.update(T, logT, &m_kdata->m_rfn[0]);
+        m_falloff_low_rates.update(T, logT, &m_kdata->m_rfn_low[0]); 
+        m_falloff_high_rates.update(T, logT, &m_kdata->m_rfn_high[0]);
+        m_falloffn.updateTemp(T, &m_kdata->falloff_work[0]);
+        m_kdata->m_temp = T;
+        updateKc();
+        m_kdata->m_ROP_ok = false;
+        //}
     };
 
 
