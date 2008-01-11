@@ -6,4 +6,25 @@ SET (THERMO_SRCS State.cpp Elements.cpp Constituents.cpp Phase.cpp
              ThermoFactory.cpp phasereport.cpp  SemiconductorPhase.cpp 
              StoichSubstance.cpp PureFluidPhase.cpp LatticeSolidPhase.cpp 
              LatticePhase.cpp)
+SET(CMAKE_CXX_FLAGS -I/${PROJECT_SOURCE_DIR}/Cantera/src/base)
+
+SET (LIBRARY_OUTPUT_PATH 
+  ${PROJECT_BINARY_DIR}/build/lib/${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_SYSTEM_VERSION} CACHE PATH "Single directory for all libraries"
+  )
+
 ADD_LIBRARY(thermo ${THERMO_SRCS})
+
+TARGET_LINK_LIBRARIES (thermo ctbase)
+
+SET(THERMO_H   State.h Elements.h Constituents.h Phase.h mix_defs.h 
+             ThermoPhase.h IdealGasPhase.h ConstDensityThermo.h 
+             SpeciesThermoFactory.h ThermoFactory.h 
+             NasaPoly1.h NasaPoly2.h NasaThermo.h Nasa9Poly1.h 
+             Nasa9PolyMultiTempRegion.h 
+             ShomateThermo.h ShomatePoly.h ConstCpPoly.h 
+             SimpleThermo.h SpeciesThermoMgr.h 
+             SpeciesThermoInterpType.h 
+             GeneralSpeciesThermo.h Mu0Poly.h 
+             speciesThermoTypes.h SpeciesThermo.h SurfPhase.h 
+             EdgePhase.h )
+#             @phase_header_files@)

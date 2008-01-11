@@ -51,16 +51,13 @@
 # to process .cti files, then you only need a minimal subset of the
 # package (actually, only one file).
 
-# Set PYTHON_PACKAGE to one of these four strings:
-#    full      install everything needed to use Cantera from Python
-#    minimal   install only enough to process .cti files
-#    none      Don't install  or run any Python scripts during the 
-#              build process
-#    default   try to do a full installation, but fall back to a minimal
-#              one in case of errors
-OPTION(CANTERA_BUILD_PYTHON_PACKAGE "Build the Python Package?" ON)
+OPTION(CANTERA_BUILD_FULL_PYTHON "Include support for using Cantera from Python?" ON)
+OPTION(CANTERA_BUILD_MIN_PYTHON "Include support for using CTI input files?" ON)
 
-SET(CANTERA_PYTHON_PACKAGE_TYPE "default" CACHE LIST "full or minimal")
+MARK_AS_ADVANCED (
+   CANTERA_BUILD_FULL_PYTHON
+   CANTERA_BUILD_MIN_PYTHON
+   )
 
 # Cantera needs to know where to find the Python interpreter.  If
 # PYTHON_CMD is set to "default", then cmake will look for the Python
@@ -74,13 +71,13 @@ SET( USE_NUMERIC "default")
 
 # If numarray was installed using the --home option, set this to the
 # home directory for numarray.
-SET( NUMARRAY_HOME "$HOME/python_packages")
+# SET( NUMARRAY_HOME "$HOME/python_packages")
 
 SET( CANTERA_VERSION "1.7.1")
 
 SET( WITH_PURE_FLUIDS  1 )
 
-SET( WITH_LATTICE_SOLID 0 )
+SET( WITH_LATTICE_SOLID 1 )
 
 SET( WITH_METAL 1 )
 
@@ -89,4 +86,3 @@ SET( WITH_STOICH_SUBSTANCE 1 )
 SET ( WITH_IDEAL_SOLUTIONS 1 )
 
 SET (WITH_ELECTROLYTES 1 )
-

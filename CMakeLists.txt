@@ -3,7 +3,7 @@ PROJECT (Cantera)
 #----------------------------
 #     user-configurable settings
 #----------------------------
-#INCLUDE (config.cmake)
+INCLUDE (config.cmake)
 
 
 #operating system
@@ -19,17 +19,26 @@ else (PYTHON_CMD STREQUAL "default")
   SET( PYTHON_EXE ${PYTHON_CMD} )
 endif (PYTHON_CMD STREQUAL "default")
 
-INCLUDE(cmake/fortran.cmake)
-
 # configuration
 CONFIGURE_FILE (
     ${PROJECT_SOURCE_DIR}/config.h_cmake.in
     ${PROJECT_BINARY_DIR}/config.h )
 
-include_directories(${PROJECT_BINARY_DIR})
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR})
 
-set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/build/lib/${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_SYSTEM_VERSION})
+SET (LIBRARY_OUTPUT_PATH 
+  ${PROJECT_BINARY_DIR}/build/lib/${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_SYSTEM_VERSION} CACHE PATH "Single directory for all libraries"
+  )
 
-add_subdirectory(Cantera)
+SET (EXECUTABLE_OUTPUT_PATH 
+  ${PROJECT_BINARY_DIR}/build/bin/${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_SYSTEM_VERSION} CACHE PATH "Single directory for all executables"
+  )
+
+MARK_AS_ADVANCED (
+    LIBRARY_OUTPUT_PATH
+    EXECUTABLE_OUTPUT_PATH
+   )
+
+ADD_SUBDIRECTORY (Cantera)
 
 

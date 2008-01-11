@@ -1,8 +1,5 @@
 import sys
-try:
-    from distutils.core import setup, Extension
-except:
-    print 'could not import distutils. Will try anyway...'
+from distutils.core import setup, Extension
     
 libs = []
 platform = sys.platform
