@@ -1,6 +1,7 @@
 #!/bin/sh
 
 PY_DEMOS = catcomb.py diamond.py
+PYTHON_CMD = /Library/Frameworks/Python.framework/Versions/Current/bin/python
 
 run:
 	@(for py in $(PY_DEMOS) ; do \

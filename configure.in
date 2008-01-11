@@ -1223,7 +1223,7 @@ precompile_headers=no
 # CFLAGS: flags that get attached to the C compiler
 #             statement. AFLAGS are base flags that
 #             get added to compilers and loaders.
-# FFLAGS: flags that get attached to the C compiler
+# FFLAGS: flags that get attached to the Fortran compiler
 #             statement. AFLAGS are base flags that
 #             get added to compilers and loaders.
 #
@@ -1377,6 +1377,11 @@ dnl Checks for libraries.
 AC_F77_LIBRARY_LDFLAGS()
 
 override_f77_libs=0;
+
+if test -n $build_with_f2c_libs; then
+  FFLAGS=
+fi
+
 #case $ac_sys_system in
 #  Darwin*)  FLIBS='-lSystem'; override_f77_libs=1; SHARED_CTLIB=0;;
 #esac
@@ -1660,6 +1665,15 @@ AC_OUTPUT(Makefile \
 	  Cantera/user/Makefile \
 	  Cantera/python/src/Makefile \
 	  Cantera/python/examples/equilibrium/Makefile \
+	  Cantera/python/examples/fuel_cells/Makefile \
+	  Cantera/python/examples/kinetics/Makefile \
+	  Cantera/python/examples/misc/Makefile \
+	  Cantera/python/examples/transport/Makefile \
+	  Cantera/python/examples/flames/Makefile \
+	  Cantera/python/examples/gasdynamics/Makefile \
+	  Cantera/python/examples/liquid_vapor/Makefile \
+	  Cantera/python/examples/reactors/Makefile \
+	  Cantera/python/examples/surface_chemistry/Makefile \
           ext/lapack/Makefile \
 	  ext/blas/Makefile \
 	  ext/cvode/Makefile \

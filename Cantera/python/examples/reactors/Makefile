@@ -2,6 +2,7 @@
 
 PY_DEMOS = combustor.py function1.py mix1.py mix2.py piston.py reactor1.py \
            reactor2.py sensitivity1.py
+PYTHON_CMD = /Library/Frameworks/Python.framework/Versions/Current/bin/python
 
 run:
 	@(for py in $(PY_DEMOS) ; do \

@@ -2,6 +2,7 @@
 
 PY_DEMOS = flame1.py flame2.py stflame1.py npflame1.py free_h2_air.py \
            adiabatic_flame.py fixed_T_flame.py
+PYTHON_CMD = /Library/Frameworks/Python.framework/Versions/Current/bin/python
 
 run:
 	@(for py in $(PY_DEMOS) ; do \
