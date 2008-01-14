@@ -2416,7 +2416,7 @@ namespace Cantera {
 	  sni = speciesName(i);
 	  snj = speciesName(j);
 	  printf(" %-16s %-16s %9.5f %9.5f \n", sni.c_str(), snj.c_str(), 
-		 g[counterIJ], hfunc[counterIJ]);
+		 gfunc[counterIJ], hfunc[counterIJ]);
 	}
 #endif
       }
@@ -4053,7 +4053,7 @@ namespace Cantera {
 	  if (m_debugCalc) {
 	    printf("%d %g: %g %g %g %g\n",
 		   counterIJ,  BMX_LL[counterIJ], beta0MX_LL[counterIJ],
-		   beta1MX_LL[counterIJ], beta2MX_LL[counterIJ], g[counterIJ]);
+		   beta1MX_LL[counterIJ], beta2MX_LL[counterIJ], gfunc[counterIJ]);
 	  }
 #endif
 	  if (Is > 1.0E-150) {
@@ -4586,7 +4586,7 @@ namespace Cantera {
 
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
-      d2_wateract_dT2 = exp(d2_lnwateract_dT2);
+      double d2_wateract_dT2 = exp(d2_lnwateract_dT2);
       printf(" d2_ln_a_water_dT2 = %10.6f d2_a_water_dT2=%10.6f\n\n", 
 	     d2_lnwateract_dT2, d2_wateract_dT2); 
     }
@@ -4863,9 +4863,9 @@ namespace Cantera {
 	    + beta2MX_P[counterIJ] * g12rooti;
 #ifdef DEBUG_MODE
 	  if (m_debugCalc) {
-	    printf("%d %g: %g %g %g\n",
+	    printf("%d %g: %g %g %g %g\n",
 		   counterIJ,  BMX_P[counterIJ], beta0MX_P[counterIJ],
-		   beta1MX_P[counterIJ], beta2MX_P[counterIJ], g[counterIJ]);
+		   beta1MX_P[counterIJ], beta2MX_P[counterIJ], gfunc[counterIJ]);
 	  }
 #endif
 	  if (Is > 1.0E-150) {
