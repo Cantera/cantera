@@ -36,11 +36,18 @@ FORT_LIBS = @FLIBS@
 # the C++ compiler
 CXX = @CXX@
 
+do_DEBUG_MODE = @CANTERA_DEBUG_MODE@
+ifeq ($(do_DEBUG_MODE), 1)
+DDD = -DDEBUG_MODE
+else
+DDD =
+endif
+
 # C++ compile flags
 ifeq ($(src_dir_tree), 1)
-CXX_FLAGS = -DSRCDIRTREE @CXXFLAGS@ -DDEBUG_MODE
+CXX_FLAGS = -DSRCDIRTREE @CXXFLAGS@ $(DDD)
 else
-CXX_FLAGS = @CXXFLAGS@ -DDEBUG_MODE
+CXX_FLAGS = @CXXFLAGS@ $(DDD)
 endif
 
 # Ending C++ linking libraries
