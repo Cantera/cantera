@@ -162,7 +162,7 @@ USER_SRC_DIR="Cantera/user"  # don't change this
 # an additional switch must be turned on. However, compilation
 # of the printing is affected by the following DEBUG_MODE option.
 # This is turned off here by default. 
-DEBUG_MODE="n"
+DEBUG_MODE=${DEBUG_MODE:='n'}
 
 #----------------------------------------------------------------------
 #         Kernel Configuration
