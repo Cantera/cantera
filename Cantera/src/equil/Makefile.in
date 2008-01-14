@@ -31,20 +31,16 @@ endif
 #LOCAL_DEFS=-DDEBUG_MODE
 
 #
-# Local Define to turn on if you want to debug ChemEquil:
+# Local Define to turn on if you want to debug ChemEquil: or 
+# BasisOptimize
 #
-#LOCAL_DEFS=-DDEBUG_CHEMEQUIL
-#
-# Local define to turn on debug statements for BasisOptimize:
-#
-#LOCAL_DEFS=-DDEBUG_BASISOPTIMIZE
+#LOCAL_DEFS=-DDEBUG_MODE
 #
 
 ifeq ($(do_AltLinProg), 1)
 DALT_STR=-DALTLINPROG
 endif
-LOCAL_DEFS=-DDEBUG_BASISOPTIMIZE -DDEBUG_CHEMEQUIL \
-           -DDEBUG $(DALT_STR)
+LOCAL_DEFS=  $(DALT_STR)
 #
 #
 PIC_FLAG=@PIC@

@@ -50,7 +50,7 @@ namespace VCSnonideal {
     Vol(0.0),
     Faraday_dim(1.602e-19 * 6.022136736e26),
     m_VCount(0),
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     vcs_debug_print_lvl(0),
 #endif
     m_VCS_UnitsFormat(VCS_UNITS_UNITLESS)
@@ -491,7 +491,7 @@ namespace VCSnonideal {
      */
     NPhase = nph;
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     vcs_debug_print_lvl = pub->vcs_debug_print_lvl;
 #endif
 

@@ -54,7 +54,7 @@ VCS_PROB::VCS_PROB(int nsp, int nel, int nph) :
     m_Iterations(0),
     m_NumBasisOptimizations(0),
     m_printLvl(0)
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     ,
     vcs_debug_print_lvl(0)
 #endif
@@ -603,7 +603,7 @@ void VCS_PROB::reportCSV(const std::string &reportFile) {
       }
     }
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     /*
      * Check consistency: These should be equal
      */
@@ -623,7 +623,7 @@ void VCS_PROB::reportCSV(const std::string &reportFile) {
 }
 
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 void VCS_PROB::setDebugPrintLvl(int lvl) {
   vcs_debug_print_lvl = lvl;
 }

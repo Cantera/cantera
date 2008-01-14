@@ -1,10 +1,15 @@
 /**
  *  @file vcs_MultiPhaseEquil.cpp
- *
+ *    Driver routines for equilibrium solvers
  */
 /*
  *
  * $Id$
+ */
+/*
+ * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Contract DE-AC04-94AL85000 with Sandia Corporation, the
+ * U.S. Government retains certain rights in this software.
  */
 #include "vcs_MultiPhaseEquil.h"
 #include "vcs_prob.h"
@@ -734,7 +739,7 @@ namespace Cantera {
     double Temp = m_mix->temperature();
     double pres = m_mix->pressure();
     double *mf = VCS_DATA_PTR(m_vprob->mf);
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     double *fe = VCS_DATA_PTR(m_vprob->m_gibbsSpecies);
 #endif
     std::vector<double> VolPM;
@@ -857,7 +862,7 @@ namespace Cantera {
 	}
       }
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       /*
        * Check consistency: These should be equal
        */

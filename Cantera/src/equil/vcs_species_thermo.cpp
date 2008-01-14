@@ -291,7 +291,7 @@ VolStar_calc(int kglob, double TKelvin, double pres)
  */
 double VCS_SPECIES_THERMO::G0_R_calc(int kglob, double TKelvin)
 {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   char yo[] = "VS_SPECIES_THERMO::G0_R_calc ";
 #endif
   double fe, H, S;
@@ -323,7 +323,7 @@ double VCS_SPECIES_THERMO::G0_R_calc(int kglob, double TKelvin)
       fe = vcs_G0_NASA(TKelvin, (VCS_NASA_POLY *) SS0_Params);
       break;
     default:
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       plogf("%sERROR: unknown model\n", yo);
 #endif
       exit(-1);
@@ -355,7 +355,7 @@ double VCS_SPECIES_THERMO::G0_R_calc(int kglob, double TKelvin)
  */
 double VCS_SPECIES_THERMO::eval_ac(int kglob)
 {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   char yo[] = "VCS_SPECIES_THERMO::eval_ac ";
 #endif
   double ac;
@@ -388,7 +388,7 @@ double VCS_SPECIES_THERMO::eval_ac(int kglob)
       plogf("Not implemented Yet\n");
       exit(-1);
     default:
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       plogf("%sERROR: unknown model\n", yo);
 #endif
       exit(-1);

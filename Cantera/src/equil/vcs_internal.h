@@ -120,7 +120,7 @@ extern void   vcsUtil_stsw(std::vector<std::string> & vecStrings, int, int);
 /* Externals for vcs_root1d.c */
 
 extern int vcsUtil_root1d(double, double, int, VCS_FUNC_PTR , void *, 
-			  double , int, double *);
+			  double , int, double *, int printLvl = 0);
 
 /* Externals defined in vcs_timer_generic.c */
 

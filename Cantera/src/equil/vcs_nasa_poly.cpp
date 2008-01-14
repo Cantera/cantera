@@ -167,7 +167,7 @@ double vcs_G0_NASA(double TKelvin, VCS_NASA_POLY *poly_ptr)
    *  Find the temperature region
    */
   if (TKelvin <= *Tlim) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     plogf("vcs_G0_NASA error: TKelvin below lowest bounds %g\n", *Tlim);
 #endif
     iRegion = 0;
@@ -182,7 +182,7 @@ double vcs_G0_NASA(double TKelvin, VCS_NASA_POLY *poly_ptr)
     Tlim++;
     if (TKelvin <= *Tlim) goto L_FOUNDREGION;
   }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   plogf("vcs_G0_NASA error: TKelvin above highest bounds %g\n", *(Tlim));
 #endif
  
@@ -238,7 +238,7 @@ double vcs_H0_NASA(double TKelvin, VCS_NASA_POLY *poly_ptr)
    *  Find the temperature region
    */
   if (TKelvin <= *Tlim) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     plogf("vcs_H0_NASA error: TKelvin below lowest bounds\n");
 #endif
     iRegion = 0;
@@ -252,7 +252,7 @@ double vcs_H0_NASA(double TKelvin, VCS_NASA_POLY *poly_ptr)
     Tlim++;
     if (TKelvin <= *Tlim) goto L_FOUNDREGION;
   }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   plogf("vcs_H0_NASA error: TKelvin above highest bounds\n");
 #endif
   iRegion--;
@@ -309,7 +309,7 @@ double vcs_Cp0_NASA(double TKelvin, VCS_NASA_POLY *poly_ptr)
    *  Find the temperature region
    */
   if (TKelvin <= *Tlim) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     plogf("vcs_Cp0_NASA error: TKelvin below lowest bounds\n");
 #endif
     iRegion = 0;
@@ -323,7 +323,7 @@ double vcs_Cp0_NASA(double TKelvin, VCS_NASA_POLY *poly_ptr)
     Tlim++;
     if (TKelvin <= *Tlim) goto L_FOUNDREGION;
   }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   plogf("vcs_Cp0_NASA error: TKelvin above highest bounds\n");
 #endif
 
@@ -376,7 +376,7 @@ double vcs_S0_NASA(double TKelvin, VCS_NASA_POLY *poly_ptr)
    *  Find the temperature region
    */
   if (TKelvin <= *Tlim) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     plogf("vcs_S0_NASA error: TKelvin below lowest bounds\n");
 #endif
     iRegion = 0;
@@ -390,7 +390,7 @@ double vcs_S0_NASA(double TKelvin, VCS_NASA_POLY *poly_ptr)
     Tlim++;
     if (TKelvin <= *Tlim) goto L_FOUNDREGION;
   }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   plogf("vcs_S0_NASA error: TKelvin above highest bounds\n");
 #endif
   iRegion--;

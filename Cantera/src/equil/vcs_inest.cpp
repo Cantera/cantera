@@ -41,7 +41,7 @@ namespace VCSnonideal {
      * Linear programming module is based on using dbolm.
      ***************************************************************************/
   {
-    int conv,  j, k,  lt, ikl, kspec, iph, irxn, jj;
+    int conv, k,  lt, ikl, kspec, iph, irxn;
     double s, s1,  xl, par;
     int finished;
     int     nspecies   = m_numSpeciesTot;
@@ -66,7 +66,7 @@ namespace VCSnonideal {
 #ifdef ALTLINPROG
     vcs_setMolesLinProg();
 #else
-
+    int j, jj;
     std::vector<double> ax(m_numElemConstraints*nspecies, 0.0);
     std::vector<double> bb(m_numElemConstraints, 0.0);
     std::vector<double> cc(nspecies, 0.0);
@@ -94,7 +94,7 @@ namespace VCSnonideal {
 	       VCS_DATA_PTR(bb), neActive, nspecies, neActive);
 #endif
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("%s Mole Numbers returned from linear programming (vcs_inest initial guess):\n",
 	     pprefix);
@@ -107,8 +107,8 @@ namespace VCSnonideal {
 	     "programming (vcs_inest initial guess):\n",
 	     pprefix);
       plogf("%s     Element           Goal         Actual\n", pprefix);
-      jj = 0;
-      for (j = 0; j < m_numElemConstraints; j++) {
+      int jj = 0;
+      for (int j = 0; j < m_numElemConstraints; j++) {
 	if (ElActive[j]) {
 	  double tmp = 0.0;
 	  for (kspec = 0; kspec < nspecies; ++kspec) {
@@ -202,7 +202,7 @@ namespace VCSnonideal {
       }
     }
     vcs_deltag(0, true);
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       for (kspec = 0; kspec < nspecies; ++kspec) {
 	plogf("%s", pprefix); plogf("%-12.12s", SpName[kspec].c_str());
@@ -255,7 +255,7 @@ namespace VCSnonideal {
 	}
       }
     }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       for (kspec = 0; kspec < nspecies; ++kspec) {
 	if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -361,7 +361,7 @@ namespace VCSnonideal {
     } while (!finished);
   finished:
     ;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("%s     Final Mole Numbers produced by inest:\n",
 	     pprefix);
@@ -415,7 +415,7 @@ namespace VCSnonideal {
     /*
      *  Go get the estimate of the solution
      */
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("%sGo find an initial estimate for the equilibrium problem\n",
 	     pprefix);
@@ -439,7 +439,7 @@ namespace VCSnonideal {
      */
     int rangeCheck  = vcs_elabcheck(1);
     if (!vcs_elabcheck(0)) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	plogf("%sInitial guess failed element abundances\n", pprefix);  
 	plogf("%sCall vcs_elcorr to attempt fix\n", pprefix);
@@ -454,7 +454,7 @@ namespace VCSnonideal {
 	       "constraints is probable\n", pprefix);
 	retn = -1;
       } else {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 2) {
 	  if (rangeCheck) {
 	    plogf("%sInitial guess now satisfies element abundances\n", pprefix);
@@ -469,7 +469,7 @@ namespace VCSnonideal {
       }
     }
     else {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	if (rangeCheck) {
 	  plogf("%sInitial guess satisfies element abundances\n", pprefix);
@@ -483,7 +483,7 @@ namespace VCSnonideal {
 #endif
     } 
       
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("%sTotal Dimensionless Gibbs Free Energy = %15.7E\n", pprefix,
 	     vcs_Total_Gibbs(VCS_DATA_PTR(soln), VCS_DATA_PTR(m_gibbsSpecies), 

@@ -1,12 +1,15 @@
-/* ======================================================================= */
-/* -------------------------------------------------- */
-/* | RCS Head Information on zuzax.pchem.sandia.gov | */
-/* -------------------------------------------------- */
-/* $RCSfile$ */
-/* $Author$ */
-/* $Date$ */
-/* $Revision$ */
-/* ======================================================================= */
+/**
+ * @file vcs_rxnadj.cpp
+ *  routines for carrying out various line adjustments
+ */
+/*
+ *  $Id$
+ */
+/*
+ * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Contract DE-AC04-94AL85000 with Sandia Corporation, the
+ * U.S. Government retains certain rights in this software.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -52,7 +55,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
   int irxn, j, k, kspec, soldel = 0;
   double s, xx, dss;
   double *dnPhase_irxn;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   char ANOTE[128];
   plogf("   "); for (j = 0; j < 77; j++) plogf("-");
   plogf("\n   --- Subroutine rxn_adj_cg() called\n");
@@ -66,7 +69,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
    *   this algorithm. If not, we bail out.
    */
   for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     sprintf(ANOTE,"Normal Calc");
 #endif
      
@@ -82,14 +85,14 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
        *              should be replaced with something more relativistic
        */
       if (dg[irxn] < -1.0e-4) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	(void) sprintf(ANOTE, "MultSpec: come alive DG = %11.3E", dg[irxn]);       
 #endif
 	ds[kspec] = 1.0e-10;
 	spStatus[irxn] = VCS_SPECIES_MAJOR;
 	--(m_numRxnMinorZeroed);
       } else {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	(void) sprintf(ANOTE, "MultSpec: still dead DG = %11.3E", dg[irxn]);       
 #endif
 	ds[kspec] = 0.0;
@@ -106,7 +109,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
        *     in this mode.
        */
       if (fabs(dg[irxn]) <= tolmaj2) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	sprintf(ANOTE,"Skipped: converged DG = %11.3E\n", dg[irxn]);
 	plogf("   --- "); plogf("%-12.12s", SpName[kspec].c_str());
 	plogf("  %12.4E %12.4E | %s\n",  soln[kspec], ds[kspec], ANOTE);
@@ -118,7 +121,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
        *     their values are to be decreasing anyway.                
        */
       if (spStatus[irxn] <= VCS_SPECIES_MINOR && dg[irxn] >= 0.0) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	sprintf(ANOTE,"Skipped: IC = %3d and DG >0: %11.3E\n", 
 		spStatus[irxn], dg[irxn]);
 	plogf("   --- "); plogf("%-12.12s", SpName[kspec].c_str());
@@ -196,7 +199,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 	  }
 	  soln[k] = 0.0;
 	  TPhMoles[PhaseID[k]] = 0.0; 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	  plogf("   --- vcs_st2 Special section to delete ");
 	  plogf("%-12.12s", SpName[k].c_str());
 	  plogf("\n   ---   Immediate return - Restart iteration\n");
@@ -212,7 +215,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 	}
       }
     } /* End of regular processing */
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     plogf("   --- "); plogf("%-12.12s", SpName[kspec].c_str());
     plogf("  %12.4E %12.4E | %s\n", soln[kspec], ds[kspec], ANOTE);
 #endif	
@@ -231,7 +234,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
    */
    
    
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   plogf("   "); for (j = 0; j < 77; j++) plogf("-"); plogf("\n");
 #endif
   return soldel;
@@ -385,7 +388,7 @@ double VCS_SOLVE::deltaG_Recalc_Rxn(int irxn, const double *const molNum,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 double VCS_SOLVE::vcs_line_search(int irxn, double dx_orig, char *ANOTE)
 #else
 double VCS_SOLVE::vcs_line_search(int irxn, double dx_orig)
@@ -418,7 +421,7 @@ double VCS_SOLVE::vcs_line_search(int irxn, double dx_orig)
   if (deltaGOrig > 0.0) {
     if (dx_orig > 0.0) {
       dx = 0.0;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	//plogf("    --- %s :Warning possible error dx>0 dg > 0\n", SpName[kspec]);
       }
@@ -429,7 +432,7 @@ double VCS_SOLVE::vcs_line_search(int irxn, double dx_orig)
   } else if (deltaGOrig < 0.0) {
     if (dx_orig < 0.0) {
       dx = 0.0;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	//plogf("   --- %s :Warning possible error dx<0 dg < 0\n", SpName[kspec]);
       }
@@ -511,13 +514,13 @@ double VCS_SOLVE::vcs_line_search(int irxn, double dx_orig)
 
  finalize:
   if (its >= MAXITS) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     sprintf(ANOTE,"Rxn reduced to zero step size from %g to %g (MAXITS)", 
 	    dx_orig, dx);
     return dx;
 #endif
   }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (dx != dx_orig) {
     sprintf(ANOTE,"Line Search reduced step size from %g to %g",
 	    dx_orig, dx);

@@ -202,7 +202,7 @@ public:
   double vcs_Hessian_diag_adj(int, double);
   double vcs_Hessian_actCoeff_diag(int irxn);
   void vcs_CalcLnActCoeffJac(const double * const moleSpeciesVCS);
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   double vcs_line_search(int irxn, double dx_orig, char *ANOTE);
 #else
   double vcs_line_search(int irxn, double dx_orig);
@@ -294,7 +294,7 @@ private:
    * @param do_delete
    */
   double minor_alt_calc(int kspec, int irxn, int *do_delete
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 			, char *ANOTE  
 #endif
 			);
@@ -302,7 +302,7 @@ private:
   int force(int iti);
   void vcs_switch2D(double * const * const Jac, int k1, int k2);
   double l2normdg(double dg[]);
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   void prneav(void);
   void checkDelta1(double * const ds, double * const delTPhMoles, int kspec);
 #endif
@@ -779,7 +779,7 @@ public:
 
   VCS_COUNTERS *m_VCount;
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   int vcs_debug_print_lvl;
 #endif
 

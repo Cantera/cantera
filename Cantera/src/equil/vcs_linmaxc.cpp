@@ -16,7 +16,7 @@
 #ifdef hpux
 #define dbocls_ dbocls
 #endif
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 //extern int vcs_debug_print_lvl;
 #endif
 
@@ -129,7 +129,7 @@ int linprogmax(double *XMOLES, double *CC, double *AX, double *BB,
    for (j = 0; j < NCOLS; j++) {
       XMOLES[j] = X[j];
    }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
    //sum = 0.0;
    //for (j = 0; j < NCOLS; j++) {
    //   sum += XMOLES[j] * CC[j];

@@ -123,7 +123,7 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
   double *aw, *sa, *sm, *ss;
   bool modifiedSoln = false;
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   vcs_debug_print_lvl = printLvl;
 #endif
 

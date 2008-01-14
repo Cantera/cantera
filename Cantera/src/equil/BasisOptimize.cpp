@@ -1,4 +1,3 @@
-
 /**
  * @file BasisOptimize.cpp
  *     Functions which calculation optimized basis of the 
@@ -6,9 +5,7 @@
  */
 
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
+ * $Id$
  */
 
 #include "ct_defs.h"
@@ -18,7 +15,7 @@
 using namespace Cantera;
 using namespace std;
 
-#ifdef DEBUG_BASISOPTIMIZE
+#ifdef DEBUG_MODE
 namespace Cantera {
   int BasisOptimize_print_lvl = 0;
 }
@@ -120,7 +117,7 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
     }
   }
  
-#ifdef DEBUG_BASISOPTIMIZE
+#ifdef DEBUG_MODE
   double molSave = 0.0;
   if (BasisOptimize_print_lvl >= 1) {
     writelog("   "); for(i=0; i<77; i++) writelog("-"); writelog("\n");
@@ -186,7 +183,7 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
     formRxnMatrix.resize(nspecies*ne, 0.0);
   }
 
-#ifdef DEBUG_BASISOPTIMIZE
+#ifdef DEBUG_MODE
   /*
    * For debugging purposes keep an unmodified copy of the array.
    */
@@ -233,7 +230,7 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
        *  Assign a small negative number to the component that we have
        *  just found, in order to take it out of further consideration.
        */
-#ifdef DEBUG_BASISOPTIMIZE
+#ifdef DEBUG_MODE
       molSave = molNum[kk];
 #endif
       molNum[kk] = USEDBEFORE;
@@ -293,7 +290,7 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
     /* **** REARRANGE THE DATA ****************** */
     /* ****************************************** */
     if (jr != k) {
-#ifdef DEBUG_BASISOPTIMIZE
+#ifdef DEBUG_MODE
       if (BasisOptimize_print_lvl >= 1) {
     kk = orderVectorSpecies[k];
     sname = mphase->speciesName(kk);
@@ -378,7 +375,7 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
     throw CanteraError("basopt", "mlequ returned an error condition");
   }
     
-#ifdef DEBUG_BASISOPTIMIZE
+#ifdef DEBUG_MODE
   if (Cantera::BasisOptimize_print_lvl >= 1) {
     writelog("   ---\n");
     writelogf("   ---  Number of Components = %d\n", nComponents);
@@ -425,7 +422,7 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
 
 
 
-#ifdef DEBUG_BASISOPTIMIZE
+#ifdef DEBUG_MODE
 static void print_stringTrunc(const char *str, int space, int alignment)
 
    /***********************************************************************
@@ -543,7 +540,7 @@ static int amax(double *x, int j, int n) {
        for (k = i + 1; k < n; ++k) {
      if (c[k + i * idem] != 0.0) goto FOUND_PIVOT;
        }
-#ifdef DEBUG_BASISOPTIMIZE
+#ifdef DEBUG_MODE
        writelogf("vcs_mlequ ERROR: Encountered a zero column: %d\n", i); 
 #endif
        return 1;
@@ -624,7 +621,7 @@ int Cantera::ElemRearrange(int nComponents, const vector_fp & elementAbundances,
   int nspecies = mphase->nSpecies();
 
   double test = -1.0E10;
-#ifdef DEBUG_BASISOPTIMIZE
+#ifdef DEBUG_MODE
   if (BasisOptimize_print_lvl > 0) {
     writelog("   "); for(i=0; i<77; i++) writelog("-"); writelog("\n");
     writelog("   --- Subroutine ElemRearrange() called to ");
@@ -716,7 +713,7 @@ int Cantera::ElemRearrange(int nComponents, const vector_fp & elementAbundances,
     // When we are here, there is an error usually.
     // We haven't found the number of elements necessary.
     // This is signalled by returning jr != nComponents.
-#ifdef DEBUG_BASISOPTIMIZE
+#ifdef DEBUG_MODE
       if (BasisOptimize_print_lvl > 0) {
     writelogf("Error exit: returning with nComponents = %d\n", jr);
       }
@@ -794,17 +791,17 @@ int Cantera::ElemRearrange(int nComponents, const vector_fp & elementAbundances,
     /* **** REARRANGE THE DATA ****************** */
     /* ****************************************** */
     if (jr != k) {
-#ifdef DEBUG_BASISOPTIMIZE
+#ifdef DEBUG_MODE
       if (BasisOptimize_print_lvl > 0) {
-    kk = orderVectorElements[k];
-    ename = mphase->elementName(kk);
-    writelog("   ---   ");
+	kk = orderVectorElements[k];
+	ename = mphase->elementName(kk);
+	writelog("   ---   ");
         writelogf("%-2.2s", ename.c_str()); 
-    writelog("replaces ");
-    kk = orderVectorElements[jr];
-    ename = mphase->elementName(kk);
-    writelogf("%-2.2s", ename.c_str()); 
-    writelogf(" as element %3d\n", jr); 
+	writelog("replaces ");
+	kk = orderVectorElements[jr];
+	ename = mphase->elementName(kk);
+	writelogf("%-2.2s", ename.c_str()); 
+	writelogf(" as element %3d\n", jr); 
       }
 #endif
       switch_pos(orderVectorElements, jr, k);

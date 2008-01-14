@@ -26,7 +26,7 @@ using namespace std;
 
 namespace VCSnonideal {
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 static void printProgress(const vector<string> &spName, 
 			 const vector<double> &soln,
 			 const vector<double> &ff) {
@@ -60,7 +60,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
   int ik, irxn;
   double test = -1.0E-10;
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     std::string pprefix(" --- seMolesLinProg ");
     if (vcs_debug_print_lvl >= 2) {
       plogf("   --- call setInitialMoles\n"); 
@@ -96,7 +96,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
     }
   }
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     printProgress(SpName, soln, ff);
   }
@@ -105,7 +105,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
   while (redo) {
  
     if (!vcs_elabcheck(0)) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	plogf("%s Mole numbers failing element abundances\n", pprefix.c_str());  
 	plogf("%sCall vcs_elcorr to attempt fix\n",          pprefix.c_str());
@@ -130,7 +130,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
 			  test, &usedZeroedSpecies);
     if (retn != VCS_SUCCESS) return retn;
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("iteration %d\n", iter);  
     }
@@ -169,7 +169,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
 	  // with a new set of components
 	  if (!redo) {
 	    if (delta_xi < 1.0e-10 && (soln[ik] >= 1.0E-10)) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 2) {
 		plogf("   --- Component too small: %s\n", SpName[jcomp].c_str()); 
 	      }
@@ -206,14 +206,14 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
     //  updateMixMoles();
     // Update the phase objects with the contents of the soln vector
     // vcs_updateVP(0);
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       printProgress(SpName, soln, ff);
     }
 #endif
   }
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl == 1) {
     printProgress(SpName, soln, ff);
     plogf("   --- setInitialMoles end\n"); 
@@ -229,4 +229,3 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
 }
 #endif
 }
-

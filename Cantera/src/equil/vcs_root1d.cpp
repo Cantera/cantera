@@ -1,12 +1,16 @@
-/* ======================================================================= */
-/* -------------------------------------------------- */
-/* | RCS Head Information on zuzax.pchem.sandia.gov | */
-/* -------------------------------------------------- */
-/* $RCSfile$ */
-/* $Author$ */
-/* $Date$ */
-/* $Revision$ */
-/* ======================================================================= */
+/**
+ * @file vcs_root1d.cpp
+ *  Code for a one dimensional root finder program.
+ */
+/*
+ *  $Id$
+ */
+/*
+ * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Contract DE-AC04-94AL85000 with Sandia Corporation, the
+ * U.S. Government retains certain rights in this software.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -19,9 +23,8 @@ namespace VCSnonideal {
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-#ifdef DEBUG_ROOT1D
-static void print_funcEval(FILE *fp, double xval, double fval, int its) 
-   
+#ifdef DEBUG_MODE
+static void print_funcEval(FILE *fp, double xval, double fval, int its)  
 {
    fprintf(fp,"\n");
    fprintf(fp,"...............................................................\n");
@@ -36,24 +39,21 @@ static void print_funcEval(FILE *fp, double xval, double fval, int its)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-
-int vcsUtil_root1d(double xmin, double xmax, int itmax,
-		   VCS_FUNC_PTR func, void *fptrPassthrough,
-		   double FuncTargVal, int varID,
-		   double *xbest)
-
-   /**************************************************************************
+  /**************************************************************************
    *
    * vcs_root1d:
    *
    *  Driver for solving a 1D function.
    ***************************************************************************/
-{
+  int vcsUtil_root1d(double xmin, double xmax, int itmax,
+		     VCS_FUNC_PTR func, void *fptrPassthrough,
+		     double FuncTargVal, int varID,
+		     double *xbest, int printLvl) {
    static int callNum = 0;
    const char *stre = "vcs_root1d ERROR: ";
    const char *strw = "vcs_root1d WARNING: ";
    int converged = FALSE, err = FALSE;
-#ifdef DEBUG_ROOT1D
+#ifdef DEBUG_MODE
    char fileName[80];
    FILE *fp;
 #endif
@@ -68,12 +68,18 @@ int vcsUtil_root1d(double xmin, double xmax, int itmax,
    double c[9], f[3], xn1, xn2, x0 = 0.0, f0 = 0.0, root, theta, xquad;
 
    callNum++;
-#ifdef DEBUG_ROOT1D
-   sprintf(fileName, "rootfd_%d.log", callNum);
-   fp = fopen(fileName, "w");
-   fprintf(fp, " Iter   TP_its  xval   Func_val  |  Reasoning\n");
-   fprintf(fp, "-----------------------------------------------------"
-	   "-------------------------------\n");
+#ifdef DEBUG_MODE
+   if (printLvl >= 3) {
+     sprintf(fileName, "rootfd_%d.log", callNum);
+     fp = fopen(fileName, "w");
+     fprintf(fp, " Iter   TP_its  xval   Func_val  |  Reasoning\n");
+     fprintf(fp, "-----------------------------------------------------"
+	     "-------------------------------\n");
+   }
+#else
+   if (printLvl >= 3) {
+     plogf("WARNING: vcsUtil_root1d: printlvl >= 3, but debug mode not turned on\n");
+   }
 #endif
    if (xmax <= xmin) {
      plogf("%sxmin and xmax are bad: %g %g\n", stre, xmin, xmax);
@@ -84,10 +90,11 @@ int vcsUtil_root1d(double xmin, double xmax, int itmax,
     x1 = (xmin + xmax) / 2.0;     
    }
    f1 = func(x1, FuncTargVal, varID, fptrPassthrough, &err);
-#ifdef DEBUG_ROOT1D
-   print_funcEval(x1, f1, its);
-   
-   fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E\n", -2, VCount->Its, x1, f1);
+#ifdef DEBUG_MODE
+   if (printLvl >= 3) {
+     print_funcEval(fp, x1, f1, its); 
+     fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E\n", -2, 0, x1, f1);
+   }
 #endif
    if (f1 == 0.0) {
       *xbest = x1;
@@ -103,9 +110,11 @@ int vcsUtil_root1d(double xmin, double xmax, int itmax,
    x2 = x1 * 1.1;
    if (x2 > xmax)    x2 = x1 - (xmax - xmin) / 100.;
    f2 = func(x2, FuncTargVal, varID, fptrPassthrough, &err);
-#ifdef DEBUG_ROOT1D
-   print_funcEval(x2, f2, its);
-   fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", -1, VCount->Its, x2, f2);
+#ifdef DEBUG_MODE
+   if (printLvl >= 3) {
+     print_funcEval(fp, x2, f2, its);
+     fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", -1, 0, x2, f2);
+   }
 #endif
  
    if (FuncTargVal != 0.0) {
@@ -146,8 +155,10 @@ int vcsUtil_root1d(double xmin, double xmax, int itmax,
       } else {
 	 xnew = x2 - f2 / slope; 
       } 
-#ifdef DEBUG_ROOT1D
-      fprintf(fp, " | xlin = %-9.4g", xnew);
+#ifdef DEBUG_MODE
+      if (printLvl >= 3) {
+	fprintf(fp, " | xlin = %-9.4g", xnew);
+      }
 #endif
 
       /*
@@ -171,9 +182,11 @@ int vcsUtil_root1d(double xmin, double xmax, int itmax,
 	    theta = fabs(xquad - xnew) / fabs(xnew - x2);
 	    theta = MIN(1.0, theta);
 	    xnew = theta * xnew + (1.0 - theta) * xquad;
-#ifdef DEBUG_ROOT1D
-	    if (theta != 1.0) {
-	       fprintf(fp, " | xquad = %-9.4g", xnew);
+#ifdef DEBUG_MODE
+	    if (printLvl >= 3) {
+	      if (theta != 1.0) {
+		fprintf(fp, " | xquad = %-9.4g", xnew);
+	      }
 	    }
 #endif
 	 } else {
@@ -184,8 +197,10 @@ int vcsUtil_root1d(double xmin, double xmax, int itmax,
 	    if ((DSIGN(xnew - x2) == DSIGN(x2 - x1)) &&
 		(DSIGN(x2   - x1) == DSIGN(x1 - x0))    ) {
 	       xnew += xnew - x2;
-#ifdef DEBUG_ROOT1D
-	       fprintf(fp, " | xquada = %-9.4g", xnew);
+#ifdef DEBUG_MODE
+	       if (printLvl >= 3) {
+		 fprintf(fp, " | xquada = %-9.4g", xnew);
+	       }
 #endif
 	    }
 	 }
@@ -207,14 +222,18 @@ int vcsUtil_root1d(double xmin, double xmax, int itmax,
 	 slope = fabs(x2 - x1) / 10.;
 	 if (fabs(xnew - x1) < slope) {
 	    xnew = x1 + DSIGN(xnew-x1) * slope;
-#ifdef DEBUG_ROOT1D
-	    fprintf(fp, " | x10%% = %-9.4g", xnew);
+#ifdef DEBUG_MODE
+	    if (printLvl >= 3) {
+	      fprintf(fp, " | x10%% = %-9.4g", xnew);
+	    }
 #endif
 	 }
 	 if (fabs(xnew - x2) < slope) {
 	    xnew = x2 + DSIGN(xnew-x2) * slope; 
-#ifdef DEBUG_ROOT1D
-	    fprintf(fp, " | x10%% = %-9.4g", xnew);
+#ifdef DEBUG_MODE
+	    if (printLvl >= 3) {
+	      fprintf(fp, " | x10%% = %-9.4g", xnew);
+	    }
 #endif
 	 }
       } else {
@@ -225,8 +244,10 @@ int vcsUtil_root1d(double xmin, double xmax, int itmax,
 	 slope = 2.0 * fabs(x2 - x1);
 	 if (fabs(slope) < fabs(xnew - x2)) {
 	    xnew = x2 + DSIGN(xnew-x2) * slope;
-#ifdef DEBUG_ROOT1D
-	    fprintf(fp, " | xlimitsize = %-9.4g", xnew);
+#ifdef DEBUG_MODE
+	    if (printLvl >= 3) {
+	      fprintf(fp, " | xlimitsize = %-9.4g", xnew);
+	    }
 #endif
 	 }
       }
@@ -234,18 +255,22 @@ int vcsUtil_root1d(double xmin, double xmax, int itmax,
       
       if (xnew > xmax) {
         xnew = x2 + (xmax - x2) / 2.0;
-#ifdef DEBUG_ROOT1D
-	fprintf(fp, " | xlimitmax = %-9.4g", xnew);
+#ifdef DEBUG_MODE
+	if (printLvl >= 3) {
+	  fprintf(fp, " | xlimitmax = %-9.4g", xnew);
+	}
 #endif
       }
       if (xnew < xmin) {
 	 xnew = x2 + (x2 - xmin) / 2.0;
-#ifdef DEBUG_ROOT1D
-	fprintf(fp, " | xlimitmin = %-9.4g", xnew);
+#ifdef DEBUG_MODE
+	 if (printLvl >= 3) {
+	   fprintf(fp, " | xlimitmin = %-9.4g", xnew);
+	 }
 #endif
       }
       if (foundStraddle) {
-#ifdef DEBUG_ROOT1D
+#ifdef DEBUG_MODE
          slope = xnew;	 
 #endif
 	 if (posStraddle) {
@@ -265,18 +290,22 @@ int vcsUtil_root1d(double xmin, double xmax, int itmax,
 	     if (xnew < xPosF) xnew = (xPosF + x2)/2;
 	   }
 	 }
-#ifdef DEBUG_ROOT1D
-         if (slope != xnew) {
-	    fprintf(fp, " | xstraddle = %-9.4g", xnew);	    
+#ifdef DEBUG_MODE
+	 if (printLvl >= 3) {
+	   if (slope != xnew) {
+	     fprintf(fp, " | xstraddle = %-9.4g", xnew);	    
+	   }
 	 }
 #endif	
       }
       
       fnew = func(xnew, FuncTargVal, varID, fptrPassthrough, &err);
-#ifdef DEBUG_ROOT1D
-      fprintf(fp,"\n");
-      print_funcEval(xnew, fnew, its);
-      fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", its, VCount->Its, xnew, fnew);
+#ifdef DEBUG_MODE
+      if (printLvl >= 3) {
+	fprintf(fp,"\n");
+	print_funcEval(fp, xnew, fnew, its);
+	fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", its, 0, xnew, fnew);
+      }
 #endif
       
       if (foundStraddle) {
@@ -327,20 +356,30 @@ int vcsUtil_root1d(double xmin, double xmax, int itmax,
       its++;
    } while (! converged && its < itmax);
    if (converged) {
-#ifdef DEBUG_ROOT1D
-      plogf("vcs_root1d success: convergence achieved\n");
-      fprintf(fp, " | vcs_root1d success in %d its, fnorm = %g\n", its, fnorm);
+     if (printLvl >= 1) {
+       plogf("vcs_root1d success: convergence achieved\n");
+     }
+#ifdef DEBUG_MODE
+     if (printLvl >= 3) {
+       fprintf(fp, " | vcs_root1d success in %d its, fnorm = %g\n", its, fnorm);
+     }
 #endif  
    } else {
       retn = VCS_FAILED_CONVERGENCE;
-      plogf("vcs_root1d ERROR: maximum iterations exceeded without convergence\n");
-#ifdef DEBUG_ROOT1D
-      fprintf(fp, "\nvcs_root1d failure in %d its\n", its);
+      if (printLvl >= 1) {
+	plogf("vcs_root1d ERROR: maximum iterations exceeded without convergence\n");
+      }
+#ifdef DEBUG_MODE
+      if (printLvl >= 3) {
+	fprintf(fp, "\nvcs_root1d failure in %d its\n", its);
+      }
 #endif
    }
    *xbest = x2;
-#ifdef DEBUG_ROOT1D
-   fclose(fp);
+#ifdef DEBUG_MODE
+   if (printLvl >= 3) {
+     fclose(fp);
+   }
 #endif
    return retn;
 }

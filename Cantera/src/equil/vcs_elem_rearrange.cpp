@@ -60,7 +60,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double *aw, double *sa, double *sm,
    int  j, k, l, i, jl, ml, jr, lindep, ielem;
    int ncomponents = m_numComponents;
    double test = -1.0E10;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
    if (vcs_debug_print_lvl >= 2) {
      plogf("   "); for(i=0; i<77; i++) plogf("-"); plogf("\n");
      plogf("   --- Subroutine elem_rearrange() called to ");
@@ -179,7 +179,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double *aw, double *sa, double *sm,
       /* **** REARRANGE THE DATA ****************** */
       /* ****************************************** */
       if (jr != k) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 2) {
 	  plogf("   ---   "); plogf("%-2.2s", (ElName[k]).c_str());
 	  plogf("(%9.2g) replaces ", gai[k]);
@@ -214,7 +214,7 @@ void VCS_SOLVE::vcs_switch_elem_pos(int ipos, int jpos) {
    int j;
    double dtmp;
    vcs_VolPhase *volPhase;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
    if (ipos < 0 || ipos > (m_numElemConstraints - 1) ||
        jpos < 0 || jpos > (m_numElemConstraints - 1)    ) {
       plogf("vcs_switch_elem_pos: ifunc = 0: inappropriate args: %d %d\n",

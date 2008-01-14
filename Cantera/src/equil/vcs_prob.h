@@ -239,7 +239,7 @@ namespace VCSnonideal {
 
     //! Print level for print routines
     int m_printLvl;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     //! Debug print lvl
     int vcs_debug_print_lvl;
 #endif
@@ -361,7 +361,7 @@ namespace VCSnonideal {
 
     void reportCSV(const std::string &reportFile);
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     //! Set the debug level
     /*!
      *  @param vcs_debug_print_lvl input debug level

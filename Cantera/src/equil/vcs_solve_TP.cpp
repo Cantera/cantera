@@ -1,4 +1,4 @@
-/*!
+/**
  * @file vcs_solve_TP.cpp Implementation file that contains the
  *     main algorithm for finding an equilibrium
  */
@@ -34,13 +34,13 @@ namespace VCSnonideal {
 static void print_space(int num);
 
 
-#ifdef DEBUG	 
+#ifdef DEBUG_MODE 
 //static double minor_alt_calc(int, int, int *, char *); 
 #else
 //static double minor_alt_calc(int, int, int *);
 #endif
-#ifdef DEBUG
-#  ifdef DEBUG_MORE
+#ifdef DEBUG_MODE
+#  ifdef DEBUG_NOT
 static void prneav(void);
 static int  prnfm(void);
 #  endif 
@@ -49,7 +49,7 @@ static int  prnfm(void);
 /*****************************************************************************/
 /*****************************************************************************/
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 void VCS_SOLVE::checkDelta1(double * const dsLocal, 
 			    double * const delTPhMoles, int kspec) {
   std::vector<double> dchange(NPhase, 0.0);
@@ -172,7 +172,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
   vcs_VolPhase *Vphase;
   double     *sc_irxn = NULL;  /* Stoichiometric coefficients for cur rxn  */
   double *dnPhase_irxn;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   char ANOTE[128];
   /*
    * Set the debug print lvl to the same as the print lvl.
@@ -359,7 +359,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     spStatus[irxn] = vcs_species_type(kspec);
     if (spStatus[irxn] == VCS_SPECIES_MINOR) {
       spStatus[irxn] = VCS_SPECIES_MAJOR;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	plogf("   --- Minor species changed to major: ");
 	plogf("%-12s\n", SpName[kspec].c_str());
@@ -373,7 +373,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
   im = (m_numRxnMinorZeroed == m_numRxnRdc);
   lec = FALSE;
   if (! vcs_elabcheck(0)) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("   --- Element Abundance check failed\n"); 
     }
@@ -381,7 +381,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     vcs_elcorr(VCS_DATA_PTR(sm), VCS_DATA_PTR(wx));
     vcs_dfe(VCS_DATA_PTR(soln), 0, 0, 0, m_numSpeciesRdc);
   }
-#ifdef DEBUG	
+#ifdef DEBUG_MODE	
   else {
     if (vcs_debug_print_lvl >= 2) {
       plogf("   --- Element Abundance check passed\n");
@@ -474,7 +474,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
       /* -           we don't need to start over. */
     }
   } else {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       if (im) {
 	plogf("   --- vcs_RxnStepSizes not called because all"
@@ -513,7 +513,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
      */
     goto L_RETURN_BLOCK;
   } 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     plogf("   --- Main Loop Treatment of each non-component species ");
     if (iti == 0) plogf("- Full Calculation:\n");
@@ -528,14 +528,14 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     sc_irxn = sc[irxn];
     iph = PhaseID[kspec];
     Vphase = VPhaseList[iph];
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     ANOTE[0] = '\0';	 
 #endif
     /********************************************************************/
     /********************** VOLTAGE SPECIES **************************/
     /********************************************************************/
     if (spStatus[irxn] == VCS_SPECIES_INTERFACIALVOLTAGE) {
-#ifdef DEBUG	 
+#ifdef DEBUG_MODE	 
       dx = minor_alt_calc(kspec, irxn, &soldel, ANOTE); 
 #else
       dx = minor_alt_calc(kspec, irxn, &soldel);
@@ -548,7 +548,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
       /********************** ZEROED OUT SPECIES **************************/
       /********************************************************************/
       bool resurrect = true;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 3) {
 	plogf("   --- %s currently zeroed (SpStatus=%-2d):", 
 	       SpName[kspec].c_str(), spStatus[irxn]);
@@ -567,7 +567,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	wt[kspec] = soln[kspec];
 	ds[kspec] = 0.0;
 	resurrect = false;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	sprintf(ANOTE, "Species stays zeroed: DG = %11.4E",
 		dg[irxn]);
 	if (dg[irxn] < 0.0) {
@@ -589,7 +589,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	    if (atomComp > 0.0) {
 	      double maxPermissible = gai[j] / atomComp;
 	      if (maxPermissible < VCS_DELETE_MINORSPECIES_CUTOFF) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 		sprintf(ANOTE, "Species stays zeroed even though dG neg, because of %s elemAbund",
 			ElName[j].c_str());
 #endif
@@ -606,7 +606,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
       if (resurrect) {
 	if (Vphase->Existence == 0) Vphase->Existence = 1;
 	--m_numRxnMinorZeroed;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 2) {
 	  plogf("   --- Zeroed species changed to major: ");
 	  plogf("%-12s\n", SpName[kspec].c_str());
@@ -624,7 +624,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	  dx = wt[kspec] - soln[kspec];
 	}
 	ds[kspec] = dx;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	sprintf(ANOTE, "Born:IC=-1 to IC=1:DG=%11.4E", dg[irxn]);
 #endif
       } else {
@@ -644,7 +644,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	wt[kspec] = soln[kspec];
 	ds[kspec] = 0.0;
 	dx = 0.0;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	sprintf(ANOTE,"minor species not considered");
 	if (vcs_debug_print_lvl >= 2) {
 	  plogf("   --- "); plogf("%-12s", SpName[kspec].c_str());
@@ -669,7 +669,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
        *    If soldel is true on return, then we branch to the section
        *    that deletes a species from the current set of active species.
        */
-#ifdef DEBUG	 
+#ifdef DEBUG_MODE	 
       dx = minor_alt_calc(kspec, irxn, &soldel, ANOTE); 
 #else
       dx = minor_alt_calc(kspec, irxn, &soldel);
@@ -680,7 +680,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	/*****  DELETE MINOR SPECIES LESS THAN  VCS_DELETE_SPECIES_CUTOFF  */
 	/*****  MOLE NUMBER                                                */
 	/*******************************************************************/
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 2) {
 	  plogf("   --- Delete minor species in multispec phase: %-12s\n",
 		 SpName[kspec].c_str());
@@ -704,7 +704,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	 *       Therefore, we will decrement the species counter, here.
 	 */
 	--irxn;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	goto L_MAIN_LOOP_END_NO_PRINT;
 #else
 	goto L_MAIN_LOOP_END;
@@ -714,7 +714,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
       /********************************************************************/
       /*********************** MAJOR SPECIES ******************************/
       /********************************************************************/
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       sprintf(ANOTE, "Normal Major Calc");
 #endif
       /*
@@ -726,7 +726,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	wt[kspec] = soln[kspec];
 	ds[kspec] = 0.0;
 	dx = 0.0;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	sprintf(ANOTE, "major species is converged");
 	if (vcs_debug_print_lvl >= 2) {
 	  plogf("   --- "); plogf("%-12s", SpName[kspec].c_str());
@@ -751,7 +751,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
       } else {
 	dx = 0.0;
 	ds[kspec] = 0.0;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	sprintf(ANOTE, "dx set to 0, DG flipped sign due to "
 		"changed initial point");
 #endif
@@ -767,7 +767,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
        *      or we restart the entire iteration.
        */
       if (wt[kspec] <= 0.0) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	sprintf(ANOTE, "initial nonpos moles= %11.3E",
 		wt[kspec]);
 #endif
@@ -803,7 +803,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	  if (wt[kspec] < 0.005 * TMoles) {
 	    iph = PhaseID[kspec];
 	    if (wt[kspec] < (TPhMoles[iph] * 0.01)) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 2) {
 		plogf("   --- Major species changed to minor: ");
 		plogf("%-12s\n", SpName[kspec].c_str());
@@ -840,7 +840,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	  wt[kspec] = soln[kspec] + dx;
 	  if (wt[kspec] > 0.0) {
 	    ds[kspec] = dx;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	    sprintf(ANOTE, 
 		    "zeroing SS phase created a neg component species "
 		    "-> reducing step size instead");
@@ -853,7 +853,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	    iph = PhaseID[kspec];
 	    Vphase = VPhaseList[iph];
 	    Vphase->Existence = 0;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	    sprintf(ANOTE, "zero SS phase: moles went neg");
 #endif
 	    /*
@@ -896,7 +896,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	    for (ll = irxn+1; ll < m_numRxnRdc; ++ll) {
 	      dgl[ll] = dg[ll];
 	    }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	    if (vcs_debug_print_lvl >= 2) {
 	      if (spStatus[irxn] >= 0) {
 		plogf("   --- SS species changed to zeroedss: ");
@@ -925,7 +925,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
       if (dx != 0.0 && (soln[kspec] > 0.0) &&
 	  (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
 	double dx_old = dx;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	dx = vcs_line_search(irxn, dx_old, ANOTE);
 #else
 	dx = vcs_line_search(irxn, dx_old);
@@ -943,7 +943,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
        *         to the reaction delta that we just computed. 
        *         This should keep the amount of material constant. 
        */
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (ds[kspec] != dx) {
 	plogf("we have a problem!\n");
 	exit(-1);
@@ -962,16 +962,16 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	DelTPhMoles[iph] += dx * dnPhase_irxn[iph];
       }
     }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     checkDelta1(VCS_DATA_PTR(ds), VCS_DATA_PTR(DelTPhMoles), kspec+1);
 #endif
     /*
      *          Branch point for returning -
      */
-#ifndef DEBUG
+#ifndef DEBUG_MODE
   L_MAIN_LOOP_END: ;
 #endif
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       wt[kspec] = soln[kspec] + ds[kspec];
       plogf("   --- "); plogf("%-12.12s", SpName[kspec].c_str());
@@ -983,7 +983,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 #endif
     /**************** END OF MAIN LOOP OVER FORMATION REACTIONS ************/
   }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     for (k = 0; k < m_numComponents; k++) {
       plogf("   --- ");  plogf("%-12.12s", SpName[k].c_str());
@@ -1007,7 +1007,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
       xx = -ds[k] / soln[k];
       if (par < xx) {
 	par = xx;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	ll = k;	    
 #endif
       }
@@ -1027,7 +1027,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
   if (par <= 1.01 && par > 0.0) {
     /* Reduce the size of the step by the multiplicative factor, par */
     par *= 0.99;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("   --- Reduction in step size due to component ");
       plogf("%s", SpName[ll].c_str());
@@ -1043,7 +1043,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
   } else {
     par = 1.0;
   }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   checkDelta1(VCS_DATA_PTR(ds), VCS_DATA_PTR(DelTPhMoles), m_numSpeciesTot);
 #endif
    
@@ -1091,13 +1091,13 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
   vcs_dfe(VCS_DATA_PTR(wt), 1, 1, 0, m_numSpeciesRdc);
   if (printDetails) {
     if (iti != 0) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	plogf("   *** vcs_dfe for printout only:");	
       }
 #endif
       vcs_dfe(VCS_DATA_PTR(wt), 1, 1, 0, m_numSpeciesRdc);
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	plogf("   *** vcs_deltag for printout only:");    
       }   
@@ -1153,8 +1153,8 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     if (m_VCount->Its > 150) {
       plogf("   --- Troublesome solve\n"); 
     }
-#ifdef DEBUG
-#ifdef DEBUG_MORE
+#ifdef DEBUG_MODE
+#ifdef DEBUG_NOT
     if (vcs_debug_print_lvl >= 3) {
       prneav();
     }
@@ -1181,14 +1181,14 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
   if (printDetails && forced) {
       
     if (iti != 0) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 3) {
 	plogf("   *** vcs_dfe for printout only:");
       }   
 #endif
       vcs_updateVP(0);
       vcs_dfe(VCS_DATA_PTR(soln), 0, 1, 0, m_numSpeciesRdc);
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 3) {
 	plogf("   *** vcs_deltag call for printouts only;");
       }
@@ -1249,7 +1249,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
    */
   ++(m_VCount->Its);
   ++it1;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     plogf("   --- Increment counter increased, step is accepted: %4d\n",
 	   m_VCount->Its);
@@ -1293,7 +1293,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	  }
 	}
 	if (soldel) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	  if (vcs_debug_print_lvl >= 1) {
 	    plogf("   --- Setting microscopic phase %d to zero\n", iph);
 	  }
@@ -1334,14 +1334,14 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
   /*************************************************************************/
   /***************** CHECK FOR ELEMENT ABUNDANCE****************************/
   /*************************************************************************/
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     plogf("   --- Normal element abundance check");
   }
 #endif
   vcs_elab();
   if (! vcs_elabcheck(0)) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf(" - failed -> redoing element abundances.\n");
     }
@@ -1351,7 +1351,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     vcs_deltag(0, true);
     uptodate_minors = TRUE;
   }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   else {
     if (vcs_debug_print_lvl >= 2) {
       plogf(" - passed\n");
@@ -1386,7 +1386,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
       for (j = m_numComponents - 1; j >= 0; j--) {
 	if (soln[l] > soln[j]) {
 	  if (sc[i][j] != 0.0) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	    if (vcs_debug_print_lvl >= 2) {
 	      plogf("   --- Get a new basis because %s", SpName[l].c_str());
 	      plogf(" is larger than comp %s", SpName[j].c_str());
@@ -1399,12 +1399,12 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	} else {
 	  break;
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_NOT
 	if (spStatus[i] == VCS_SPECIES_ZEROEDMS) {
 	  if (soln[j] == 0.0) {
 	    if (sc[i][j] != 0.0) {
 	      if (dg[i] < 0.0) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 		if (vcs_debug_print_lvl >= 2) {
 		  plogf("   --- Get a new basis because %s", SpName[l].c_str());
 		  plogf(" has dg < 0.0 and comp %s has zero mole num", SpName[j].c_str());
@@ -1426,7 +1426,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
       for (j = 0; j < m_numComponents; ++j) {
 	if (soln[l] > soln[j]) {
 	  if (sc[i][j] != 0.0) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	    if (vcs_debug_print_lvl >= 2) {
 	      plogf("   --- Get a new basis because ");
 	      plogf("%s", SpName[l].c_str());
@@ -1439,12 +1439,12 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	    goto L_COMPONENT_CALC;
 	  }
 	}
-#ifdef DEBUG_HKM
+#ifdef DEBUG_NOT
 	if (spStatus[i] == VCS_SPECIES_ZEROEDMS) {
 	  if (soln[j] == 0.0) {
 	    if (sc[i][j] != 0.0) {
 	      if (dg[i] < 0.0) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 		if (vcs_debug_print_lvl >= 2) {
 		  plogf("   --- Get a new basis because %s", SpName[l].c_str());
 		  plogf(" has dg < 0.0 and comp %s has zero mole num", SpName[j].c_str());
@@ -1461,7 +1461,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
       }
     }
   }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     plogf("   --- Check for an optimum basis passed\n");
   }
@@ -1474,7 +1474,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
    *     Go right to the check equilibrium section 
    */
   if (iti == 0) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("   --- Reevaluate major-minor status of noncomponents:\n");
     }
@@ -1485,7 +1485,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	 
       int speciesType = vcs_species_type(kspec);
       if (speciesType < VCS_SPECIES_MINOR) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 2) {
 	  if (spStatus[irxn]  >= VCS_SPECIES_MINOR) {
 	    plogf("   ---    major/minor species is now zeroed out: %s\n", 
@@ -1495,7 +1495,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 #endif	    
 	++m_numRxnMinorZeroed;	    
       } else if (speciesType == VCS_SPECIES_MINOR) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 2) {
 	  if (spStatus[irxn] != VCS_SPECIES_MINOR) {
 	    if (spStatus[irxn] == VCS_SPECIES_MAJOR) {
@@ -1513,7 +1513,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	++m_numRxnMinorZeroed;
       } else if (speciesType == VCS_SPECIES_MAJOR) {
 	if (spStatus[irxn] != VCS_SPECIES_MAJOR) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	  if (vcs_debug_print_lvl >= 2) {
 	    if (spStatus[irxn] ==  VCS_SPECIES_MINOR) {
 	      plogf("   ---   Noncomponent turned from minor to major: ");
@@ -1548,7 +1548,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
   /*************************************************************************/
  L_EQUILIB_CHECK: ;
   if (! im) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("   --- Equilibrium check for major species: ");
     }
@@ -1563,7 +1563,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	   */
 	  goto L_RETURN_BLOCK;
 	} else {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	  if (vcs_debug_print_lvl >= 2) {
 	    plogf("%s failed\n", SpName[ir[irxn]].c_str());
 	  }
@@ -1581,13 +1581,13 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	}
       }
     }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf(" MAJOR SPECIES CONVERGENCE achieved\n");
     }
 #endif
   }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   else {
     if (vcs_debug_print_lvl >= 2) {
       plogf(" MAJOR SPECIES CONVERGENCE achieved "
@@ -1613,7 +1613,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
       vcs_deltag(1, false);
       uptodate_minors = TRUE;
     }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("   --- Equilibrium check for minor species: ");
     }
@@ -1628,7 +1628,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	   */
 	  goto L_RETURN_BLOCK;
 	}
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 2) {
 	  plogf("%s failed\n", SpName[ir[irxn]].c_str());
 	}
@@ -1641,7 +1641,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	goto L_MAINLOOP_ALL_SPECIES;
       }
     }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf(" CONVERGENCE achieved\n");
     }
@@ -1659,7 +1659,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
   /*        LEC is only true when we are near the end game */
   if (lec) {
     if (!giveUpOnElemAbund) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	plogf("   --- Check the Full Element Abundances: ");
       }
@@ -1670,7 +1670,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
        *        the element abundances, and then go do a major step
        */
       if (! vcs_elabcheck(1) ) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 2) {
 	  if (! vcs_elabcheck(0)) {
 	    plogf(" failed\n");
@@ -1682,7 +1682,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	// delete?
 	goto L_ELEM_ABUND_CHECK;
       }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	plogf(" passed\n");
       }
@@ -1762,7 +1762,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 	  /*
 	   * Probably an unrecoverable range error
 	   */
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	  if (vcs_debug_print_lvl >= 2) {
 	    plogf(" ---  vcs_solve_tp: RANGE SPACE ERROR ENCOUNTERED\n");
 	    plogf(" ---  vcs_solve_tp: - Giving up on NE Element Abundance satisfaction \n");
@@ -1912,7 +1912,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 /*****************************************************************************/
 
 double VCS_SOLVE::minor_alt_calc(int kspec, int irxn, int *do_delete
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 			     , char *ANOTE  
 #endif
 			     )
@@ -1973,7 +1973,7 @@ double VCS_SOLVE::minor_alt_calc(int kspec, int irxn, int *do_delete
     if (dg_irxn < -20.) {
       dg_irxn = -20.;
     }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     sprintf(ANOTE,"minor species alternative calc");
 #endif
     if (dg_irxn >= 82.0) {
@@ -2049,7 +2049,7 @@ double VCS_SOLVE::minor_alt_calc(int kspec, int irxn, int *do_delete
      *      HKM -> Need to check the sign
      */
     dx = dg[irxn]/ Faraday_dim;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     sprintf(ANOTE,"voltage species alternative calc");
 #endif
   }
@@ -2279,7 +2279,7 @@ void VCS_SOLVE::vcs_reinsert_deleted(int kspec) {
   int i, k, irxn = kspec - m_numComponents;
   int *phaseID = VCS_DATA_PTR(PhaseID);
   double dx;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     plogf("   --- Add back a deleted species: %-12s\n", SpName[kspec].c_str());
   }
@@ -2359,7 +2359,7 @@ void VCS_SOLVE::delete_multiphase(int iph) {
    * set the phase existence flag to dead
    */
   Vphase->Existence = 0;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     plogf("   --- delete_multiphase %d, %s\n", iph, Vphase->PhaseName.c_str());
   }
@@ -2427,7 +2427,7 @@ void VCS_SOLVE::delete_multiphase(int iph) {
 	 
       ++(m_numRxnRdc);
       ++(m_numSpeciesRdc);
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	plogf("   ---    Make %s", SpName[kspec].c_str()); 
 	plogf(" an active but zeroed species because its phase "
@@ -2461,7 +2461,7 @@ int VCS_SOLVE::recheck_deleted(void)
 {
   int iph, kspec, irxn, npb;
   double *xtcutoff = VCS_DATA_PTR(TmpPhase);
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     plogf("   --- Start rechecking deleted species in multispec phases\n");
   }
@@ -2639,7 +2639,7 @@ int VCS_SOLVE::force(int iti)
     return FALSE;
   }
 #endif
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     plogf("   --- subroutine FORCE: End Slope = %g\n", s2);
   }
@@ -2654,7 +2654,7 @@ int VCS_SOLVE::force(int iti)
   }
 #ifdef DEBUG_NOT
   if (s1 >= 0.0) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("   --- subroutine FORCE produced no adjustments,");
       plogf(" failed s1 test -PROBLEM!!\n");
@@ -2663,7 +2663,7 @@ int VCS_SOLVE::force(int iti)
     return FALSE;
   }
 #endif
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     plogf("   --- subroutine FORCE: Beginning Slope = %g\n", s1);
   }
@@ -2676,14 +2676,14 @@ int VCS_SOLVE::force(int iti)
     al = s1 / (s1 - s2);
   }
   if (al >= 0.95 || al < 0.0) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("   --- subroutine FORCE produced no adjustments (al = %g)\n", al);
     }
 #endif
     return FALSE;
   }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     plogf("   --- subroutine FORCE produced a damping factor = %g\n", al);
   }
@@ -2700,7 +2700,7 @@ int VCS_SOLVE::force(int iti)
   }
   vcs_updateVP(0);
    
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     plogf("   --- subroutine FORCE adjusted the mole "
 	   "numbers, AL = %10.3f\n", al);
@@ -2746,7 +2746,7 @@ int VCS_SOLVE::vcs_RxnStepSizes() {
   double s, xx, dss;
   vcs_VolPhase *Vphase = 0;
   double *dnPhase_irxn;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   char ANOTE[128];
   if (vcs_debug_print_lvl >= 2) {
     plogf("   "); for (j = 0; j < 82; j++) plogf("-"); plogf("\n");
@@ -2768,7 +2768,7 @@ int VCS_SOLVE::vcs_RxnStepSizes() {
    ************************************************************************/
 
   for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     sprintf(ANOTE,"Normal Calc");
 #endif
 
@@ -2797,13 +2797,13 @@ int VCS_SOLVE::vcs_RxnStepSizes() {
 	  double trphmoles = tphmoles / TMoles;
 	  if (trphmoles > VCS_DELETE_PHASE_CUTOFF) {
 	    ds[kspec] = TMoles * VCS_SMALL_MULTIPHASE_SPECIES;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	    sprintf(ANOTE,
 		    "MultSpec: small species born again DG = %11.3E", 
 		    dg[irxn]);
 #endif
 	  } else {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	    sprintf(ANOTE, "MultSpec: phase come alive DG = %11.3E", dg[irxn]);       
 #endif
 	    Vphase = VPhaseList[iph];
@@ -2812,7 +2812,7 @@ int VCS_SOLVE::vcs_RxnStepSizes() {
 	  }
 	  --(m_numRxnMinorZeroed);
 	} else {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	  sprintf(ANOTE, "MultSpec: still dead DG = %11.3E", dg[irxn]);       
 #endif
 	  ds[kspec] = 0.0;
@@ -2829,7 +2829,7 @@ int VCS_SOLVE::vcs_RxnStepSizes() {
 	 *     in this mode.
 	 */
 	if (fabs(dg[irxn]) <= tolmaj2) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	  sprintf(ANOTE,"Skipped: superconverged DG = %11.3E", dg[irxn]);
 	  if (vcs_debug_print_lvl >= 2) {
 	    plogf("   --- %-12.12s", SpName[kspec].c_str()); 
@@ -2844,7 +2844,7 @@ int VCS_SOLVE::vcs_RxnStepSizes() {
 	 *     their values are to be decreasing anyway.                
 	 */
 	if ((spStatus[irxn] != VCS_SPECIES_MAJOR) && (dg[irxn] >= 0.0)) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	  sprintf(ANOTE,"Skipped: IC = %3d and DG >0: %11.3E", 
 		  spStatus[irxn], dg[irxn]);
 	  if (vcs_debug_print_lvl >= 2) {
@@ -2886,7 +2886,7 @@ int VCS_SOLVE::vcs_RxnStepSizes() {
 	  if (UseActCoeffJac) {
 	    double s_old = s;
 	    s = vcs_Hessian_diag_adj(irxn, s_old);
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	    if (s_old != s) {
 	      sprintf(ANOTE, "Normal calc: diag adjusted from %g "
 		      "to %g due to act coeff",  s_old, s);
@@ -2905,14 +2905,14 @@ int VCS_SOLVE::vcs_RxnStepSizes() {
 	      double negChangeComp = - stoicC * ds[kspec];
 	      if (negChangeComp > soln[j]) {
 		if (soln[j] > 0.0) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 		  sprintf(ANOTE, "Delta damped from %g "
 			  "to %g due to component %d (%10s) going neg", ds[kspec],
 			  -soln[j]/stoicC, j,  SpName[j].c_str());
 #endif
 		  ds[kspec] = - soln[j] / stoicC; 
 		} else {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 		  sprintf(ANOTE, "Delta damped from %g "
 			  "to %g due to component %d (%10s) zero", ds[kspec],
 			  -soln[j]/stoicC, j,  SpName[j].c_str());
@@ -2924,7 +2924,7 @@ int VCS_SOLVE::vcs_RxnStepSizes() {
 	  }
 	  // Implement a damping term that limits ds to the size of the mole number
 	  if (-ds[kspec] > soln[kspec]) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	    sprintf(ANOTE, "Delta damped from %g "
 		    "to %g due to %s going negative", ds[kspec],
 		    -soln[kspec],  SpName[kspec].c_str());
@@ -2990,7 +2990,7 @@ int VCS_SOLVE::vcs_RxnStepSizes() {
 	    Vphase = VPhaseList[iph];
 	    Vphase->Existence = 0;
 	    TPhMoles[iph] = 0.0;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	    if (vcs_debug_print_lvl >= 2) {
 	      plogf("   --- vcs_RxnStepSizes Special section to delete %s\n",
 		     SpName[k].c_str());
@@ -3008,7 +3008,7 @@ int VCS_SOLVE::vcs_RxnStepSizes() {
 	  }
 	}
       } /* End of regular processing */
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	plogf("   --- %-12.12s", SpName[kspec].c_str());
 	plogf("  %12.4E %12.4E %12.4E | %s\n", 
@@ -3017,7 +3017,7 @@ int VCS_SOLVE::vcs_RxnStepSizes() {
 #endif	
     } /* End of loop over SpeciesUnknownType */
   } /* End of loop over non-component stoichiometric formation reactions */
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     plogf("   "); vcs_print_line("-", 82);
   }
@@ -3063,7 +3063,7 @@ void VCS_SOLVE::vcs_deltag(int l, bool doDeleted) {
     irxnl = m_numRxnTot;
   }
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     plogf("   --- Subroutine vcs_deltag called for ");
     if (l < 0) {
@@ -3277,7 +3277,7 @@ int VCS_SOLVE::vcs_basopt(int ifirst, double aw[], double sa[], double sm[],
   int jlose = -1;
   double *dptr, *scrxn_ptr;
   double tsecond = vcs_second();
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     plogf("   "); for(i=0; i<77; i++) plogf("-"); plogf("\n");
     plogf("   --- Subroutine BASOPT called to ");
@@ -3465,7 +3465,7 @@ int VCS_SOLVE::vcs_basopt(int ifirst, double aw[], double sa[], double sm[],
 	for (i = 0; i < m_numSpeciesTot; ++i) {
 	  ir[i] = ncTrial + i;
 	}
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 2) {
 	  plogf("   ---   Total number of components found = %3d (ne = %d)\n ", 
 		 ncTrial, m_numElemConstraints);
@@ -3531,7 +3531,7 @@ int VCS_SOLVE::vcs_basopt(int ifirst, double aw[], double sa[], double sm[],
     /* **** REARRANGE THE DATA ****************** */
     /* ****************************************** */
     if (jr != k) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	plogf("   ---   %-12.12s", (SpName[k]).c_str());
 	plogf("(%9.2g) replaces %-12.12s", soln[k], SpName[jr].c_str());
@@ -3541,7 +3541,7 @@ int VCS_SOLVE::vcs_basopt(int ifirst, double aw[], double sa[], double sm[],
       vcs_switch_pos(FALSE, jr, k);
       vcsUtil_dsw(aw, jr, k);
     }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     else {
       if (vcs_debug_print_lvl >= 2) {
 	plogf("   ---   %-12.12s", SpName[k].c_str());
@@ -3682,7 +3682,7 @@ int VCS_SOLVE::vcs_basopt(int ifirst, double aw[], double sa[], double sm[],
   }
 
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     plogf("   ---                Components:");
     for (j = 0; j < ncTrial; j++) {
@@ -3805,7 +3805,7 @@ int VCS_SOLVE::vcs_species_type(int kspec)
 	double negChangeComp = - stoicC;
 	if (negChangeComp > 0.0) {
 	  if (soln[j] < 1.0E-60) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	    if (vcs_debug_print_lvl >= 2) {
 	      plogf("   ---   %s would have popped back into existance but"
 		     " needed component %s is zero\n",
@@ -3829,7 +3829,7 @@ int VCS_SOLVE::vcs_species_type(int kspec)
 	if (atomComp > 0.0) {
 	  double maxPermissible = gai[j] / atomComp;
 	  if (maxPermissible < VCS_DELETE_MINORSPECIES_CUTOFF) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	    if (vcs_debug_print_lvl >= 2) {
 	      plogf("   ---   %s would have popped back into existance but"
 		     " needed element %s is zero\n",
@@ -3948,7 +3948,7 @@ void VCS_SOLVE::vcs_chemPotPhase(int iph, const double *const molNum,
   int nkk = Vphase->NVolSpecies;
   int k, kspec;
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   //if (vcs_debug_print_lvl >= 2) {
   // plogf("   --- Subroutine vcs_chemPotPhase called for phase %d\n",
   //     iph);
@@ -3980,7 +3980,7 @@ void VCS_SOLVE::vcs_chemPotPhase(int iph, const double *const molNum,
       }
     }
     if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (molNum[kspec] != phi) {
 	plogf("We have an inconsistency!\n");
 	exit(-1);
@@ -4107,7 +4107,7 @@ void VCS_SOLVE::vcs_dfe(double *z, int kk, int ll, int lbot, int ltop)
   vcs_VolPhase *Vphase;
   VCS_SPECIES_THERMO *st_ptr;
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     if (ll == 0) {
       if (lbot != 0) {
@@ -4146,7 +4146,7 @@ void VCS_SOLVE::vcs_dfe(double *z, int kk, int ll, int lbot, int ltop)
       tlogMoles[iph] += z[kspec];
     }
   }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   for  (iph = 0; iph < NPhase; iph++) {
     if (! vcs_doubleEqual(tlogMoles[iph], tPhMoles_ptr[iph])) {
       plogf("phase Moles may be off, iph = %d, %20.14g %20.14g \n",
@@ -4202,7 +4202,7 @@ void VCS_SOLVE::vcs_dfe(double *z, int kk, int ll, int lbot, int ltop)
   for (kspec = l1; kspec < l2; ++kspec) {
     iphase = PhaseID[kspec];
     if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       if (z[kspec] != phasePhi[iphase]) {
 	plogf("We have an inconsistency!\n");
 	exit(-1);
@@ -4244,7 +4244,7 @@ void VCS_SOLVE::vcs_dfe(double *z, int kk, int ll, int lbot, int ltop)
 	kspec = ir[irxn];
 	iphase = PhaseID[kspec];
 	if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	  if (z[kspec] != phasePhi[iphase]) {
 	    plogf("We have an inconsistency!\n");
 	    exit(-1);
@@ -4287,7 +4287,7 @@ void VCS_SOLVE::vcs_dfe(double *z, int kk, int ll, int lbot, int ltop)
 	kspec = ir[irxn];
 	iphase = PhaseID[kspec];
 	if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	  if (z[kspec] != phasePhi[iphase]) {
 	    plogf("We have an inconsistency!\n");
 	    exit(-1);
@@ -4478,7 +4478,7 @@ void vcsUtil_stsw(std::vector<std::string> & vstr, int i1, int i2)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 
 void VCS_SOLVE::prneav(void)
    
@@ -4672,7 +4672,7 @@ void VCS_SOLVE::vcs_switch_pos(int ifunc, int k1, int k2)
   vcs_VolPhase *pv1, *pv2;
   VCS_SPECIES_THERMO *st_tmp;
   if (k1 == k2) return;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (k1 < 0 || k1 > (m_numSpeciesTot - 1) ||
       k2 < 0 || k2 > (m_numSpeciesTot - 1)    ) {
     plogf("vcs_switch_pos: ifunc = 0: inappropriate args: %d %d\n",
@@ -4687,7 +4687,7 @@ void VCS_SOLVE::vcs_switch_pos(int ifunc, int k1, int k2)
 
   kp1 = indPhSp[k1];
   kp2 = indPhSp[k2];
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (pv1->IndSpecies[kp1] != k1) {
     plogf("Indexing error in program\n");
     exit(-1);
@@ -4740,7 +4740,7 @@ void VCS_SOLVE::vcs_switch_pos(int ifunc, int k1, int k2)
      */
     i1 = k1 - m_numComponents;
     i2 = k2 - m_numComponents;
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (i1 < 0 || i1 > (m_numRxnTot - 1) ||
 	i2 < 0 || i2 > (m_numRxnTot - 1)    ) {
       plogf("switch_pos: ifunc = 1: inappropriate noncomp values: %d %d\n",
@@ -4795,7 +4795,7 @@ void VCS_SOLVE::vcs_deltag_Phase(int iphase, bool doDeleted) {
   if (doDeleted) irxnl = m_numRxnTot;
   vcs_VolPhase *vPhase = VPhaseList[iphase];
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
     plogf("   --- Subroutine vcs_deltag_Phase called for phase %d\n",
 	   iphase);
@@ -4807,7 +4807,7 @@ void VCS_SOLVE::vcs_deltag_Phase(int iphase, bool doDeleted) {
    */
   if (vPhase->SingleSpecies) {
     kspec = vPhase->IndSpecies[0];
-#ifdef DEBUG
+#ifdef DEBUG_MODE
     if (iphase != PhaseID[kspec]) {
       plogf("vcs_deltag_Phase index error\n");
       exit(-1);
@@ -4938,7 +4938,7 @@ double VCS_SOLVE::vcs_birthGuess(int kspec) {
     /*
      * Logic to handle species in multiple species phases
      */
-#ifdef DEBUG	 
+#ifdef DEBUG_MODE	 
     char ANOTE[32];
     double dxm = minor_alt_calc(kspec, irxn, &soldel, ANOTE); 
 #else

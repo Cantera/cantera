@@ -1008,7 +1008,7 @@ namespace Cantera {
                   VolPM[k],  VolPhaseVolumes );
         }
       }
-#ifdef DEBUG
+#ifdef DEBUG_MODE
       /*
        * Check consistency: These should be equal
        */

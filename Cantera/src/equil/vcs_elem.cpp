@@ -210,7 +210,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
   int i, j, retn = 0, kspec, goodSpec, its; 
   double xx, par, saveDir, dir;
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   double l2before = 0.0, l2after = 0.0;
   std::vector<double> ga_save(m_numElemConstraints, 0.0);
   vcs_dcopy(VCS_DATA_PTR(ga_save), VCS_DATA_PTR(ga), m_numElemConstraints);
@@ -316,7 +316,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 	    double maxPermissible = gai[i] / atomComp;
 	    if (soln[kspec] > maxPermissible) {
 	      
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 3) {
 		plogf("  ---  vcs_elcorr: Reduced species %s from %g to %g due to %s max bounds constraint\n",
 		       SpName[kspec].c_str(), soln[kspec], maxPermissible, ElName[i].c_str());
@@ -331,7 +331,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 		} else {
 		  spStatus[kspec] =  VCS_SPECIES_ZEROEDMS;
 		} 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 		if (vcs_debug_print_lvl >= 2) {
 		  plogf("  ---  vcs_elcorr: Zeroed species %s and changed status to %d due to max bounds constraint\n",
 			 SpName[kspec].c_str(), spStatus[kspec]);
@@ -578,7 +578,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 
  L_CLEANUP: ;
   vcs_tmoles();
-#ifdef DEBUG
+#ifdef DEBUG_MODE
   l2after = 0.0;
   for (i = 0; i < m_numElemConstraints; ++i) {
     l2after += SQUARE(ga[i] - gai[i]);
