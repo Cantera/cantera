@@ -27,6 +27,8 @@ LINK_OPTIONS =
 
 #############################################################################
 
+on_DEBUG_MODE=@CANTERA_DEBUG_MODE@
+
 # Check to see whether we are in the msvc++ environment
 os_is_win = @OS_IS_WIN@
 

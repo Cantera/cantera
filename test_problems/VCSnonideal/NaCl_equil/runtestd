@@ -14,6 +14,17 @@ testName=nacl_equil
 
 BINDIR=../../../bin
 
+#
+# There are different answers depending on whether DEBUG_MODE was
+# turned on in the compile
+goodFile=good_dout.txt
+if test $# -gt 0
+then
+if test $1 = "DEBUG_MODE"
+then
+   goodFile=good_dout_dm.txt
+fi
+fi
 #################################################################
 #
 #################################################################
@@ -26,7 +37,7 @@ then
   echo "mpequil returned with bad status, $retnStat, check output"
 fi
 
-diff -w good_dout.txt dout.txt  > diff_dout.txt
+diff -w $goodFile dout.txt  > diff_dout.txt
 retnStat_txt=$?
 $BINDIR/csvdiff -a 1.0E-50 vcs_equilibrate_blessed.csv vcs_equilibrate_res.csv  > diff_csv.txt
 retnStat_csv=$?
