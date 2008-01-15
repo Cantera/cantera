@@ -12,8 +12,6 @@ CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
 COBJS = Methane.o Nitrogen.o Oxygen.o Water.o Hydrogen.o RedlichKwong.o \
         CarbonDioxide.o Heptane.o lk.o Sub.o utils.o HFC134a.o
 
-FOBJS = 
-
 CXX_LIBS = @LIBS@
 CXX_INCLUDES = -I../include 
 TPLIB = @buildlib@/libtpx.a
