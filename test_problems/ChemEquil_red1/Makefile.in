@@ -68,7 +68,6 @@ CANTERA_LIBS_DEP = @LOCAL_LIBS_DEP@ $(CANTERA_LIBDIR)/libctcxx.a
 else
 CANTERA_LIBS_DEP = @INSTALL_LIBS_DEP@ $(CANTERA_LIBDIR)/libctcxx.a
 endif
-
 #
 # Alternate form of dependencies: (uses a gnu make extensions)
 ALT_LIBS_DEP := $(addprefix $(CANTER_LIBDIR), @RAW_LIBS_DEP@ libctcxx.a)
