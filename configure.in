@@ -860,20 +860,6 @@ LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libctnumerics.a
 INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libctnumerics.a
 RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libctnumerics.a
 
-if test -n "$NEED_CVODE"; then 
-  LOCAL_LIBS=$LOCAL_LIBS' '$CVODE_LIBS
-fi
-
-LOCAL_LIBS=$LOCAL_LIBS' '-lctbase
-LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libctbase.a
-INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libctbase.a
-RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libctbase.a
-
-if test -n "$NEED_LAPACK"
-then
-  LOCAL_LIBS=$LOCAL_LIBS' '$BLAS_LAPACK_LIBS
-fi
-
 if test -n "$NEED_MATH"
 then 
   LOCAL_LIBS=$LOCAL_LIBS' '-lctmath
@@ -898,6 +884,33 @@ then
   RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libctspectra.a
 fi
 
+if test -n "$NEED_CKREADER"
+then 
+  LOCAL_LIBS=$LOCAL_LIBS' '-lconverters
+  LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libconverters.a
+  INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libconverters.a
+  RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libconverters.a
+fi
+
+LOCAL_LIBS=$LOCAL_LIBS' '-lctbase
+LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libctbase.a
+INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libctbase.a
+RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libctbase.a
+
+CANTERA_CORE_LIBS=$LOCAL_LIBS
+CANTERA_CORE_LIBS_DEPS=$INSTALL_LIBS_DEPS
+CANTERA_CORE_LIBS_BT_DEPS=$LOCAL_LIBS_DEPS
+CANTERA_CORE_LIBS_NAMES=$RAW_LIBS_DEPS
+
+if test -n "$NEED_CVODE"; then 
+  LOCAL_LIBS=$LOCAL_LIBS' '$CVODE_LIBS
+fi
+
+if test -n "$NEED_LAPACK"
+then
+  LOCAL_LIBS=$LOCAL_LIBS' '$BLAS_LAPACK_LIBS
+fi
+
 if test -n "$NEED_F2C"
 then
   LOCAL_LIBS=$LOCAL_LIBS' '-lctf2c
@@ -910,14 +923,6 @@ else
   esac
 fi
 #    Darwin*)  LOCAL_LIBS=$LOCAL_LIBS' '-lg2c;;
-
-if test -n "$NEED_CKREADER"
-then 
-  LOCAL_LIBS=$LOCAL_LIBS' '-lconverters
-  LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libconverters.a
-  INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libconverters.a
-  RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libconverters.a
-fi
 
 LOCAL_LIB_DIRS=
 if test -n "$BLAS_LAPACK_DIR"
@@ -1175,11 +1180,13 @@ AC_SUBST(export_name)
 #
 # PIC
 #  Compiler flag for specifying position independent code.
-#  This flag is needed sometimes in the compilation step
+#  This flag is needed in the compilation step
 #  for code that will go into a shared library.
 #  If Cantera is used in the Full python installation
-#  mode, this means just about all of Cantera's code
-#  should be position independent.
+#  mode, this means that all of Cantera's code
+#  compiled into static libraries and all code linked into
+#  those routines, such as cvode and lapack, should be position independent
+#  and should be compiled with this flag.
 #
 if test -z "$PIC"; then
   case $ac_sys_system in
@@ -1662,6 +1669,8 @@ AC_OUTPUT(Makefile \
 	  Cantera/cxx/Makefile \
 	  Cantera/cxx/src/Makefile \
 	  Cantera/cxx/demos/Makefile \
+	  Cantera/cxx/include/Cantera.mak \
+	  Cantera/cxx/include/Cantera_bt.mak \
 	  Cantera/user/Makefile \
 	  Cantera/python/src/Makefile \
 	  Cantera/python/examples/equilibrium/Makefile \
