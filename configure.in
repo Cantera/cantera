@@ -1239,24 +1239,22 @@ precompile_headers=no
 #             get added to compilers and loaders. 
 #
 if test -z "$AFLAGS" ; then
-  AFLAGS="$PIC"
+  AFLAGS=" "
 fi
-if test ! -z "$AFLAGS" ; then
-  if test -z "$CXXFLAGS" ; then
+if test -z "$CXXFLAGS" ; then
     CXXFLAGS="$AFLAGS"
-  else
+else
     CXXFLAGS="$CXXFLAGS"" ""$AFLAGS"
-  fi
-  if test -z "$CFLAGS" ; then
-    CFLAGS="$AFLAGS"
-  else
-    CFLAGS="$CFLAGS"" ""$AFLAGS"
-  fi
-  if test -z "$FFLAGS" ; then
-    FFLAGS="$AFLAGS"
-  else
-    FFLAGS="$FFLAGS"" ""$AFLAGS"
-  fi
+fi
+if test -z "$CFLAGS" ; then
+  CFLAGS="$AFLAGS"
+else
+  CFLAGS="$CFLAGS"" ""$AFLAGS"
+fi
+if test -z "$FFLAGS" ; then
+  FFLAGS="$AFLAGS"
+else
+  FFLAGS="$FFLAGS"" ""$AFLAGS"
 fi
 
 if test "x$OS_IS_WIN" = "x1"; then
