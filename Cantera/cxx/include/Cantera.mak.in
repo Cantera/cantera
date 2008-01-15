@@ -1,0 +1,50 @@
+#######################################################################
+# Include Snipet for Makefiles
+#
+#    To create Cantera C++ applications from the install environment
+#    include this file into your Makefile environment
+#
+#  Main Variables:
+# 
+#      CANTERA_INCLUDES = Variable containing the include path
+#
+#
+#      CANTERA_LIBS = List of libraries to include on the link line
+#
+#      CANTERA_LIBS_DEP = dependency line for Cantera libs
+# 
+#
+#####################################################################
+# $Id$
+#
+#
+# This variable determines whether we are making this example in the
+# build tree environment or in the install tree environment.
+#
+in_CanteraBuildTree = 0
+
+#
+# The directory where Cantera include files may be found.
+#
+CANTERA_INCROOTDIR=@ct_incroot@
+
+#
+# Includes to add
+#
+CANTERA_INCLUDES=-I$(CANTERA_INCROOTDIR) -I$(CANTERA_INCROOTDIR)/cantera
+
+#
+# Library location
+#
+CANTERA_LIBSDIR = @ct_libdir@
+
+#
+# Required Cantera libraries
+#
+CANTERA_LIBS = -L$(CANTERA_LIBDIR) @LOCAL_LIBS@ -lctcxx
+
+#
+# Dependency Line
+#
+CANTERA_LIBS_DEP = @INSTALL_LIBS_DEP@ $(CANTERA_LIBDIR)/libctcxx.a
+
