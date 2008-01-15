@@ -119,6 +119,8 @@ tools-install:
 hdr-install:
 	@INSTALL@ -d @ct_incdir@
 	cp -r -f build/include/cantera @ct_incroot@
+	@(if test -f @ct_incroot@/cantera/Cantera_bt.mak ; then rm -f @ct_incroot@/cantera/Cantera_bt.mak ; fi )
+
 
 f90-modules-install:
 ifeq ($(build_f90),1)
@@ -129,7 +131,7 @@ endif
 hdr-collect:
 	@INSTALL@ -d build/include/cantera
 	@INSTALL@ -d build/include/cantera/kernel
-	@(cd Cantera/cxx/include ; for ihhh in *.h ; do  \
+	@(cd Cantera/cxx/include ; for ihhh in *.h *.mak; do  \
           ../../../$(INSTALL_TSC) $${ihhh} ../../../build/include/cantera ; \
           done )
 	@$(INSTALL_TSC) config.h build/include/cantera 
