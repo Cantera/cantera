@@ -7,13 +7,8 @@
 
 #include <stdio.h>
 
-#ifdef SRCDIRTREE
-#include "ct_defs.h"
-#include "HMWSoln.h"
-#else
 #include "Cantera.h"
-#include "HMWSoln.h"
-#endif
+#include "kernel/HMWSoln.h"
 
 using namespace std;
 using namespace Cantera;

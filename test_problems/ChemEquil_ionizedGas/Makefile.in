@@ -17,10 +17,6 @@ PROG_NAME = ionizedGasEquil
 # and from C/C++ separately
 OBJS = ionizedGasEquil.o
 
-# Location of the current build. Will assume that tests are run
-# in the source directory tree location
-src_dir_tree = 0
-
 # additional flags to be passed to the linker. If your program
 # requires other external libraries, put them here
 LINK_OPTIONS = @EXTRA_LINK@
@@ -31,7 +27,11 @@ LINK_OPTIONS = @EXTRA_LINK@
 os_is_win = @OS_IS_WIN@
 
 # Fortran libraries
+ifeq (@build_with_f2c@, 0)
 FORT_LIBS = @FLIBS@
+else
+FORT_LIBS =
+endif
 
 # Executables extension
 EXE_EXT = @EXE_EXT@
@@ -43,11 +43,7 @@ CXX = @CXX@
 # LOCAL_DEFS=-DDEBUG_CHEMEQUIL
 #
 # C++ compile flags
-ifeq ($(src_dir_tree), 1)
-  CXX_FLAGS = -DSRCDIRTREE @CXXFLAGS@ $(LOCAL_DEFS)
-else
-  CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS)
-endif
+CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS)
 
 # Ending C++ linking libraries
 LCXX_END_LIBS = @LCXX_END_LIBS@
@@ -59,11 +55,7 @@ CANTERA_LIBDIR=@buildlib@
 CANTERA_LIBS = @LOCAL_LIBS@ -lctcxx
 
 # the directory where Cantera include files may be found.
-ifeq ($(src_dir_tree), 1)
-CANTERA_INCDIR=../../Cantera/src
-else
 CANTERA_INCDIR=@ctroot@/build/include/cantera
-endif
 
 # flags passed to the C++ compiler/linker for the linking step
 LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@

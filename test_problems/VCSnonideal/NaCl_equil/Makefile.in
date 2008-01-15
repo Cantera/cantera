@@ -33,7 +33,11 @@ on_DEBUG_MODE=@CANTERA_DEBUG_MODE@
 os_is_win = @OS_IS_WIN@
 
 # Fortran libraries
+ifeq (@build_with_f2c@, 0)
 FORT_LIBS = @FLIBS@
+else
+FORT_LIBS =
+endif
 
 # the C++ compiler
 CXX = @CXX@
