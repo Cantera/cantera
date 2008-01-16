@@ -65,7 +65,7 @@ CANTERA_LIBDIR=@ct_libdir@
 endif
 
 # required Cantera libraries
-CANTERA_LIBS = -L$(CANTERA_LIBDIR) @LOCAL_LIBS@ -lctcxx
+CANTERA_LIBS =  @LOCAL_LIBS@ -lctcxx
 
 ifeq ($(in_CanteraBuildTree),1)
 CANTERA_LIBS_DEP = @LOCAL_LIBS_DEP@ $(CANTERA_LIBDIR)/libctcxx.a
@@ -77,7 +77,7 @@ endif
 ALT_LIBS_DEP := $(addprefix $(CANTER_LIBDIR), @RAW_LIBS_DEP@ libctcxx.a)
 
 # flags passed to the C++ compiler/linker for the linking step
-LCXX_FLAGS = @CXXFLAGS@
+LCXX_FLAGS = @CXXFLAGS@  @LOCAL_LIB_DIRS@ 
 
 # How to compile C++ source files to object files
 .cpp.o:

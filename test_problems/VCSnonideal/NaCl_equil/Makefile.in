@@ -60,8 +60,7 @@ CANTERA_LIBDIR=@buildlib@
 #
 # Setup The Cantera Interface
 #
-CANTERA_LIBS=-lequil -lVCSnonideal  -lthermo -ltpx -lctnumerics \
-             -lctbase -lctlapack -lctblas -lctcxx
+CANTERA_LIBS= @LOCAL_LIBS@ -lctcxx
 
 CANTERA_LIBDEP = \
      $(CANTERA_LIBDIR)/libequil.a \
@@ -76,7 +75,7 @@ CANTERA_LIBDEP = \
 
 
 # flags passed to the C++ compiler/linker for the linking step
-LCXX_FLAGS = -L$(CANTERA_LIBDIR)  @CXXFLAGS@
+LCXX_FLAGS = @CXXFLAGS@ @LOCAL_LIB_DIRS@ 
 
 # How to compile C++ source files to object files
 .cpp.o:
