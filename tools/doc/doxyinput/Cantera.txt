@@ -13,6 +13,9 @@ Choose one of the links below for an introduction to %Cantera, or use
   - \subpage cantera-build
   - \subpage cantera-winbuild
 
+- Working with %Cantera in MATLAB
+  - \subpage matlab-tutorial
+
 - Working with %Cantera in C++
   - \subpage start
   - \subpage cxx-ctnew
