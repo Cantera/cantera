@@ -38,15 +38,26 @@ namespace VCSnonideal {
   /*****************************************************************************/
   /*****************************************************************************/
 
-  /************ ERROR HANDLING *****************/
-
+  //! Structure used in error handling
+  /*!
+   *  I think this isn't really used and should be eliminated.
+   */
   struct VCS_ERR {
+
+    //! flag
     int Flag;
+    //! species1
     int Species1;
+    //! species2
     int Species2;
+    //! printlevel
     int PrintLevel;
+    //! value1
     double Value1;
+    //! value2
     double Value2;
+
+    //! Character string - null terminated
     char Mess[120];
   };
   typedef struct VCS_ERR VCS_ERR_STRUCT;
@@ -286,16 +297,45 @@ namespace VCSnonideal {
                                    (length) * sizeof(int))
 #  define vcs_vdzero(vector, length) (void) memset(VCS_DATA_PTR(vector), 0, \
                                     (length) * sizeof(double))
-#  define vcs_vizero(vector, length) (void)  memset(VCS_DATA_PTR(vector), 0, \
-                                    (length) * sizeof(int))
+  
+  //! Zero a std int vector
+  /*!
+   * @param vec_to vector of ints
+   * @param length length of the vector to zero.
+   */
+  inline void vcs_vizero(std::vector<int> &vec_to, int length) {
+    (void) memset(VCS_DATA_PTR(vec_to), 0, (length) * sizeof(int));
+  }
 
-  inline void  vcs_vdcopy(std::vector<double> & vec_to, 
-			  const std::vector<double> & vec_from, int length) {
+  //! Copy one std double vector into another
+  /*!
+   * This is an inlined function that uses memcpy. memcpy is probably
+   * the fastest way to do this. This routine requires the vectors to be
+   * previously dimensioned appropriately. No error checking is done.
+   *
+   * @param vec_to  Vector to copy into. This vector must be dimensioned
+   *                at least as large as the vec_from vector.
+   * @param vec_from Vector to copy from
+   * @param length  Number of doubles to copy.
+   */
+  inline void vcs_vdcopy(std::vector<double> & vec_to, 
+			 const std::vector<double> & vec_from, int length) {
     (void) memcpy((void *)&(vec_to[0]), (const void *) &(vec_from[0]), 
 		  (length) * sizeof(double));
   }
-  inline void  vcs_vicopy(std::vector<int> & vec_to, 
-			  const std::vector<int> & vec_from, int length) {
+
+  //! Copy one std integer vector into another
+  /*!
+   * This is an inlined function that uses memcpy. memcpy is probably
+   * the fastest way to do this. This routine requires the 
+   *
+   * @param vec_to  Vector to copy into. This vector must be dimensioned
+   *                at least as large as the vec_from vector.
+   * @param vec_from Vector to copy from
+   * @param length  Number of integers to copy.
+   */
+  inline void vcs_vicopy(std::vector<int> & vec_to, 
+			 const std::vector<int> & vec_from, int length) {
     (void) memcpy((void *)&(vec_to[0]), (const void *) &(vec_from[0]), 
 		  (length) * sizeof(int));
   }
@@ -311,9 +351,35 @@ namespace VCSnonideal {
   void vcs_vicopy(std::vector<int> &vec_to, 
 		  const std::vector<int> vec_from, int len = -1);
 #endif
-  extern int  vcs_amax(double *, int, int);
-  extern int  vcs_max_int(int *, int);
-  extern void vcs_print_line(const char *, int);
+
+  //! Finds the location of the maximum component in a double vector
+  /*!
+   * @param x pointer to a vector of doubles
+   * @param j lowest index to search from 
+   * @param n highest index to search from 
+   * @return  Return index of the greatest value on X(i) searched
+   *             j <= i < n
+   */
+  int vcs_amax(const double *x, int j, int n);
+
+  //! Returns the maximum integer in a list
+  /*!
+   *  @param vector pointer to a vector of ints
+   *  @param length length of the integer vector
+   *
+   * @return returns the max integer value in the list
+   */
+  int vcs_max_int(const int *vector, int length);
+
+  //! Prints a line consisting of mutliple occurances of the same string
+  /*!
+   *  This prints a string num times, and then terminate with a
+   *  end of line character
+   *
+   * @param str C string that is null terminated
+   * @param num number of times the string is to be printed
+   */
+  void vcs_print_line(const char *str, int num);
 
   //! Print a string within a given space limit
   /*!
