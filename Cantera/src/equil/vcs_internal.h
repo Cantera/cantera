@@ -81,25 +81,51 @@ namespace VCSnonideal {
    *                     3 -> everything
    */
 
+  //! Class to keep track of time and iterations
+  /*!
+   * class keeps all of the counters together.
+   */
   class VCS_COUNTERS {
   public:
-    int T_Its;         /* Total number of iterations in the main loop 
-			  of vcs_TP() to solve for thermo equilibrium */
-    int Its;               /* Current number of iterations in the main loop 
-			      of vcs_TP() to solve for thermo equilibrium */
-    int T_Basis_Opts;  /* Total number of optimizations of the 
-			  components basis set done */
-    int Basis_Opts;        /* Total number of optimizations of the 
-			      components basis set done */
-    int T_Calls_Inest;       /* Current number of times the initial thermo
-				equilibrium estimator has been called */
-    int T_Calls_vcs_TP;      /* Current number of calls to vcs_TP */
-    double T_Time_vcs_TP;  /* Total time spent in vcs_TP */
-    double Time_vcs_TP;    /* Current time spent in vcs_TP */
-    double T_Time_basopt;  /* Total Time spent in basopt () */
-    double Time_basopt;    /* Current Time spent in basopt () */
-    double T_Time_inest;     /* Time spent in initial estimator */
-    double T_Time_vcs;       /* Time spent in the vcs suite of programs */
+    //! Total number of iterations in the main loop 
+    //! of vcs_TP() to solve for thermo equilibrium 
+    int T_Its;
+ 
+    //!  Current number of iterations in the main loop 
+    //!	  of vcs_TP() to solve for thermo equilibrium 
+    int Its;
+
+    //! Total number of optimizations of the 
+    //!	components basis set done 
+    int T_Basis_Opts;
+
+    //! number of optimizations of the components basis set done 
+    int Basis_Opts;
+ 
+    //! Current number of times the initial thermo
+    //!	equilibrium estimator has been called 
+    int T_Calls_Inest; 
+ 
+    //! Current number of calls to vcs_TP 
+    int T_Calls_vcs_TP;     
+
+    //! Current time spent in vcs_TP 
+    double T_Time_vcs_TP;
+
+    //! Current time spent in vcs_TP 
+    double Time_vcs_TP;
+  
+    //! Total Time spent in basopt 
+    double T_Time_basopt;  
+
+    //! Current Time spent in basopt
+    double Time_basopt;
+
+    //! Time spent in initial estimator 
+    double T_Time_inest;
+
+    //! Time spent in the vcs suite of programs
+    double T_Time_vcs;      
   };
 
   /*****************************************************************************/
@@ -288,8 +314,34 @@ namespace VCSnonideal {
   extern int  vcs_amax(double *, int, int);
   extern int  vcs_max_int(int *, int);
   extern void vcs_print_line(const char *, int);
-  extern void vcs_print_stringTrunc(const char *, int, int);
-  extern bool vcs_doubleEqual(double, double);
+
+  //! Print a string within a given space limit
+  /*!
+   *   This routine limits the amount of the string that will be printed to a
+   *   maximum of "space" characters. Printing is done to
+   *   to Cantera's writelog() function.
+   *
+   *     @param str  String, which must be null terminated.
+   *     @param space   space limit for the printing.
+   *     @param alignment Alignment of string within the space:
+   *                     -  0 centered
+   *                     -  1 right aligned
+   *                     -  2 left aligned
+   */
+  void vcs_print_stringTrunc(const char *str, int space, int alignment);
+
+  //! Simple routine to check whether two doubles are equal up to
+  //! roundoff error
+  /*!
+   *  Currently it's set to check for 10 digits of
+   *  relative accuracy.
+   *
+   * @param d1 first double
+   * @param d2 second double
+   *
+   * @return returns true if the doubles are "equal" and false otherwise
+   */
+  bool vcs_doubleEqual(double d1, double d2);
 
   /****************************************************************************/
 }
