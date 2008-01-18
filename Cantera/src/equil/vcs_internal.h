@@ -2,7 +2,6 @@
  *  @file vcs_internal.h
  *      Internal declarations for the VCSnonideal package
  */
-
 /*
  * $Id$
  */
@@ -139,25 +138,106 @@ namespace VCSnonideal {
     double T_Time_vcs;      
   };
 
-  /*****************************************************************************/
-  /**************** Prototypes *************************************************/
-  /*****************************************************************************/
+  //!  This is the rootfinder function call for the function vcs_TV()
+  /*!
+   * The function is of type VCS_FUNC_PTR
+   * It's the function call for the vcs_TV().
+   *  Solves for the total volume of the system, by first calculating
+   *  the equilibrium wrt T,P.
+   *  Routine then returns
+   *
+   *   \f[
+   *    f(x) = V(T,P) - Vtarget
+   *   \f]
+   *
+   * @param xval Currently value of the independent variable
+   * @param Vtarget   Target value of the volume
+   * @param varID     If 0, xval is temperature, If 1, xval is pressure.
+   * @param fptrPassthrough Pointer to VCS_SOLVE object
+   * @param err Return 0 for success. Anything else is an error code.
+   *
+   */
+  double vcs_funcVtot(double xval, double Vtarget, int varID, 
+		      void *fptrPassthrough, int *err);
 
-  /* Externals for vcs_funcVtot.c */
 
-  extern double vcs_funcVtot(double, double, int, void *, int *);
+  //!  Returns the value of the gas constant in the units specified by parameter
+  /*!
+   *  @param mu_units Specifies the units. 
+   *           -  VCS_UNITS_KCALMOL: kcal gmol-1 K-1
+   *           -  VCS_UNITS_UNITLESS:  1.0 K-1
+   *           -  VCS_UNITS_KJMOL:   kJ gmol-1 K-1
+   *           -  VCS_UNITS_KELVIN:    1.0 K-1
+   *           -  VCS_UNITS_MKS:   joules  kmol-1 K-1 =  kg m2 s-2 kmol-1 K-1 
+   */
+  double vcsUtil_gasConstant(int mu_units);
 
-  /* Externals defined in vcs_nondim.c */
+  //! Invert an n x n matrix and solve m rhs's
+  /*!
+   * Solve a square matrix with multiple right hand sides
+   *
+   * \f[
+   *     C X + B = 0;
+   * \f]
+   *
+   * This routine uses Gauss elimination and is optimized for the solution
+   * of lots of rhs's. A crude form of row pivoting is used here. 
+   * The matrix C is destroyed during the solve.
+   *
+   * @return  The solution x[] is returned in the matrix <I>B</I>.
+   *          Routine returns an integer representing success:
+   *     -   1 : Matrix is singluar
+   *     -   0 : solution is OK
+   *   
+   *
+   *  @param c  Matrix to be inverted. c is in fortran format, i.e., rows
+   *            are the inner loop. Row  numbers equal to idem.
+   *            c[i+j*idem] = c_i_j = Matrix to be inverted:
+   *                   -  i = row number
+   *                   -  j = column number
+   *
+   *  @param idem number of row dimensions in c
+   *  @param n  Number of rows and columns in c
+   *  @param b  Multiple RHS. Note, b is actually the negative of 
+   *            most formulations.  Row  numbers equal to idem.
+   *             b[i+j*idem] = b_i_j = vectors of rhs's:
+   *                   -  i = row number
+   *                   -  j = column number
+   *            (each column is a new rhs)
+   *  @param m  number of rhs's
+   */
+  int  vcsUtil_mlequ(double *c, int idem, int n, double *b, int m);
 
-  extern double vcsUtil_gasConstant(int);
+  //! Swap values in vector of doubles
+  /*!
+   * Switches the value of x[i1] with x[i2]
+   * 
+   * @param x  Vector of doubles
+   * @param i1 first index
+   * @param i2 second index
+   */
+  void vcsUtil_dsw(double x[], int i1, int i2);
 
-  /* Externals in vcs_solve_TP.c */
+  //! Swap values in an integer array
+  /*!
+   * Switches the value of x[i1] with x[i2]
+   * 
+   * @param x  Vector of integers
+   * @param i1 first index
+   * @param i2 second index
+   */
+  void   vcsUtil_isw(int x[], int i1, int i2);
 
-  extern int    vcsUtil_mlequ(double *, int, int, double *, int);
-  extern void   vcsUtil_dsw(double *, int ,int);
-  extern void   vcsUtil_isw(int [], int, int);
-  extern void   vcsUtil_ssw(char **, int, int); 
-  extern void   vcsUtil_stsw(std::vector<std::string> & vecStrings, int, int); 
+  //! Swap values in a std vector string
+  /*!
+   * Switches the value of vecStrings[i1] with vecStrings[i2]
+   * 
+   * @param vecStrings  Vector of integers
+   * @param i1 first index
+   * @param i2 second index
+   */
+  void vcsUtil_stsw(std::vector<std::string> & vecStrings, 
+		    int i1, int i2); 
 
   /* Externals for vcs_root1d.c */
 
@@ -262,8 +342,10 @@ namespace VCSnonideal {
        double thetaR = Pi/2.0;
        int printLvl = 4;
    
-       iconv =  VCSnonideal::vcsUtil_root1d(thetamin, thetamax, maxit, funcZero,
-                                            (void *) 0, 0.0, 0, &thetaR, printLvl);
+       iconv =  VCSnonideal::vcsUtil_root1d(thetamin, thetamax, maxit, 
+                                            funcZero,
+                                            (void *) 0, 0.0, 0, 
+                                            &thetaR, printLvl);
        printf("theta = %g\n", thetaR);
        double h2Final = calc_h2_farfield(thetaR);
        printf("h2Final = %g\n", h2Final);
@@ -273,30 +355,74 @@ namespace VCSnonideal {
    */
   int vcsUtil_root1d(double xmin, double xmax, int itmax, VCS_FUNC_PTR func,
 		     void *fptrPassthrough, 
-		     double FuncTargVal, int varID, double *xbest, int printLvl = 0);
+		     double FuncTargVal, int varID, double *xbest,
+		     int printLvl = 0);
 
-  /* Externals defined in vcs_timer_generic.c */
+  //! Returns the system wall clock time in seconds
+  /*!
+   * @return time in seconds.
+   */
+  double vcs_second();
 
-  extern double vcs_second(void);
-
-
-  /* Externals defined in vcs_util.c */
-
+  //! This define turns on using memset and memcpy. I have not run into
+  //! any systems where this is a problem. It's the fastest way to do 
+  //! low lvl operations where applicable. There are alternative routines
+  //! available if this ever fails.
 #define USE_MEMSET
 #ifdef USE_MEMSET
 #include <string.h>
-#  define vcs_dzero(vector, length) (void) memset((void *) (vector), 0, \
-                                    (length) * sizeof(double))
-#  define vcs_izero(vector, length) (void)  memset((void *) (vector), 0, \
-                                    (length) * sizeof(int))
-#  define vcs_dcopy(vec_to, vec_from, length) \
-                     (void) memcpy((void *) (vec_to), (const void *) (vec_from), \
-                                   (length) * sizeof(double))
-#  define vcs_icopy(vec_to, vec_from, length) \
-                     (void) memcpy((void *) (vec_to), (const void *) (vec_from), \
-                                   (length) * sizeof(int))
-#  define vcs_vdzero(vector, length) (void) memset(VCS_DATA_PTR(vector), 0, \
-                                    (length) * sizeof(double))
+
+  //! Zero a double vector
+  /*!
+   * @param vec_to vector of doubles
+   * @param length length of the vector to zero.
+   */
+  inline void vcs_dzero(double *vec_to, int length) {
+    (void) memset((void *) vec_to, 0, length * sizeof(double));
+  }
+
+  //! Zero an int vector
+  /*!
+   * @param vec_to vector of ints
+   * @param length length of the vector to zero.
+   */
+  inline void vcs_izero(int *vec_to, int length) {
+    (void) memset((void *) vec_to, 0, length * sizeof(int));
+  }
+
+  //! Copy a double vector
+  /*!
+   * @param vec_to    Vector to copy into. This vector must be dimensioned
+   *                  at least as large as the vec_from vector.
+   * @param vec_from  Vector to copy from
+   * @param length    Number of doubles to copy.
+   */
+  inline void vcs_dcopy(double *vec_to, const double *vec_from, int length) {
+    (void) memcpy((void *) vec_to, (const void *) vec_from, 
+		  (length) * sizeof(double));
+  }
+
+
+  //! Copy an int vector
+  /*!
+   * @param vec_to    Vector to copy into. This vector must be dimensioned
+   *                  at least as large as the vec_from vector.
+   * @param vec_from  Vector to copy from
+   * @param length    Number of int to copy.
+   */
+  inline void vcs_icopy(int *vec_to, const int *vec_from, int length) {
+    (void) memcpy((void *) vec_to, (const void *) vec_from, 
+		  (length) * sizeof(int));
+  }
+
+  //! Zero a std double vector
+  /*!
+   * @param vec_to vector of doubles
+   * @param length length of the vector to zero.
+   */
+  inline void vcs_vdzero(std::vector<double> &vec_to, int length) {
+    (void) memset(VCS_DATA_PTR(vec_to), 0, (length) * sizeof(double));
+  }
   
   //! Zero a std int vector
   /*!

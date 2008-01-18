@@ -1,12 +1,15 @@
-/*======================================================================= 
-* -------------------------------------------------- 
-* | CVS Head Information on zuzax.pchem.sandia.gov | 
-* -------------------------------------------------- 
-* $RCSfile$ 
-* $Author$ 
-* $Date$
-* $Revision$ 
-*======================================================================= */
+/**
+ *  @file vcs_nondim.cpp
+ *     Nondimensionalization routines with VCSnonideal
+ */
+/*
+ * $Id$
+ */
+/*
+ * Copywrite (2007) Sandia Corporation. Under the terms of 
+ * Contract DE-AC04-94AL85000 with Sandia Corporation, the
+ * U.S. Government retains certain rights in this software.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -71,41 +74,6 @@ double VCS_SOLVE::vcs_nondimMult_TP(int mu_units, double TKelvin)
        exit(-1);
    }
    return rt;
-}
-
-/**************************************************************************
- *
- * vcs_gasConstant:
- *
- *   Returns the value of the gas constant in the units specified by 
- *   if__.
- ***************************************************************************/
-double vcsUtil_gasConstant(int mu_units)
-{
-    double r;
-    switch (mu_units) {
-    case VCS_UNITS_KCALMOL:  
-	r =  0.008314472/4.184;
-	break;
-    case VCS_UNITS_UNITLESS: 
-	r = 1.0;
-	break;
-    case VCS_UNITS_KJMOL: 
-	r = 0.008314472;
-	break;
-    case VCS_UNITS_KELVIN:
-	r = 1.0;
-	break;
-    case VCS_UNITS_MKS:
-	/* joules / kg-mol K = kg m2 / s2 kg-mol K */
-	r = 8.314472E3;
-	break;
-    default:
-	plogf("vcs_gasConstant error: uknown units: %d\n", 
-	       mu_units);
-	exit(-1);
-    }
-    return r;
 }
 
 /**************************************************************************
