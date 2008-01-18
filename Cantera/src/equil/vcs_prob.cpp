@@ -53,11 +53,8 @@ VCS_PROB::VCS_PROB(int nsp, int nel, int nph) :
     tolmin(1.0E-6),
     m_Iterations(0),
     m_NumBasisOptimizations(0),
-    m_printLvl(0)
-#ifdef DEBUG_MODE
-    ,
+    m_printLvl(0),
     vcs_debug_print_lvl(0)
-#endif
 {
   NSPECIES0 = nspecies;
   if (nspecies <= 0) {
@@ -623,11 +620,9 @@ void VCS_PROB::reportCSV(const std::string &reportFile) {
 }
 
 
-#ifdef DEBUG_MODE
 void VCS_PROB::setDebugPrintLvl(int lvl) {
   vcs_debug_print_lvl = lvl;
 }
 
-#endif
 
 }
