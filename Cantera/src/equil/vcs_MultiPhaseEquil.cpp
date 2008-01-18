@@ -619,7 +619,7 @@ namespace Cantera {
     * Call the thermo Program
     */
    int ip1 = m_printLvl;
-   int ipr = m_printLvl-1;
+   int ipr = MAX(0, m_printLvl-1);
    if (m_printLvl >= 3) {  
      ip1 = m_printLvl - 2;
    } else {

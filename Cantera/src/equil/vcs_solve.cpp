@@ -398,7 +398,7 @@ namespace VCSnonideal {
       /*
        *        If requested to print anything out, go ahead and do so;
        */
-      if (ipr) vcs_report(iconv);
+      if (ipr > 0) vcs_report(iconv);
       /*
        *        Copy the results of the run back to the VCS_PROB structure,
        *        which is returned to the user.

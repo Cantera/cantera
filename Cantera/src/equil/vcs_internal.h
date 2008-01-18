@@ -421,7 +421,7 @@ namespace VCSnonideal {
    * @param length length of the vector to zero.
    */
   inline void vcs_vdzero(std::vector<double> &vec_to, int length) {
-    (void) memset(VCS_DATA_PTR(vec_to), 0, (length) * sizeof(double));
+    (void) memset((void *)VCS_DATA_PTR(vec_to), 0, (length) * sizeof(double));
   }
   
   //! Zero a std int vector
@@ -430,7 +430,7 @@ namespace VCSnonideal {
    * @param length length of the vector to zero.
    */
   inline void vcs_vizero(std::vector<int> &vec_to, int length) {
-    (void) memset(VCS_DATA_PTR(vec_to), 0, (length) * sizeof(int));
+    (void) memset((void *)VCS_DATA_PTR(vec_to), 0, (length) * sizeof(int));
   }
 
   //! Copy one std double vector into another
@@ -535,8 +535,6 @@ namespace VCSnonideal {
    */
   bool vcs_doubleEqual(double d1, double d2);
 
-  /****************************************************************************/
 }
 
 #endif
-/****************************************************************************/
