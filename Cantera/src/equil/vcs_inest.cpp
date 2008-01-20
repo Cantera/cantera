@@ -21,6 +21,8 @@
 #include "vcs_internal.h" 
 #include "vcs_VolPhase.h"
 
+#include "clockWC.h"
+
 namespace VCSnonideal {
 
   static char pprefix[20] = "   --- vcs_inest: ";
@@ -396,7 +398,7 @@ namespace VCSnonideal {
   {
     int retn = 0;
     double    test;
-    double tsecond = vcs_second();
+    Cantera::clockWC tickTock;
     test = -1.0E20;
     /*
      *  Malloc temporary space for usage in this routine and in
@@ -494,7 +496,7 @@ namespace VCSnonideal {
     /*
      *      Free malloced memory
      */
-    tsecond = vcs_second() - tsecond;
+    double tsecond = tickTock.secondsWC();
     m_VCount->T_Time_inest += tsecond;
     (m_VCount->T_Calls_Inest)++;
     return retn;

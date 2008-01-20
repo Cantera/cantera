@@ -21,6 +21,8 @@
 #include "vcs_SpeciesProperties.h"
 #include "vcs_species_thermo.h"
 
+#include "clockWC.h"
+
 #include <string>
 #include "math.h"
 using namespace std;
@@ -292,7 +294,7 @@ namespace VCSnonideal {
 		     int iprintTime) {
     int retn = 0;
     int iconv = 0, nspecies0, nelements0, nphase0;
-    double te, ts = vcs_second();
+    Cantera::clockWC tickTock;
     if (iprintTime == -1) {
       iprintTime = MAX(ipr, ip1);
     }
@@ -409,8 +411,8 @@ namespace VCSnonideal {
     /*
      * Report on the time if requested to do so
      */
-    te = vcs_second();
-    m_VCount->T_Time_vcs += te - ts;
+    double te = tickTock.secondsWC();
+    m_VCount->T_Time_vcs += te;
     if (iprintTime > 0) {
       vcs_TCounters_report();
     }

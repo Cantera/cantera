@@ -20,6 +20,8 @@
 #include "vcs_VolPhase.h"
 #include "vcs_species_thermo.h"
 
+#include "clockWC.h"
+
 #ifdef WIN32
 #pragma warning(disable:4996)
 #endif
@@ -156,7 +158,7 @@ namespace VCSnonideal {
     double test, RT;
     int j, k, l, solveFail, l1, kspec, irxn, im, forced, iph;
     //  double *ss, *sm, *sa, *aw, *wx, 
-    double dx, xx, par, tsecond;
+    double dx, xx, par;
     int liqphase = FALSE, numSpecliquid = 0;
     int dofast, soldel, ll, it1;
     int lec, npb, iti, i, lnospec;
@@ -186,7 +188,7 @@ namespace VCSnonideal {
      *    Initialize and set up all counters
      */
     vcs_counters_init(0);
-    tsecond = vcs_second();
+    Cantera::clockWC ticktock;
    
     /*
      *  Malloc temporary space for usage in this routine and in
@@ -1894,7 +1896,7 @@ namespace VCSnonideal {
     /*
      *           Calculate counters
      */
-    tsecond = vcs_second() - tsecond;
+    double tsecond = ticktock.secondsWC();
     m_VCount->Time_vcs_TP = tsecond;
     m_VCount->T_Time_vcs_TP += m_VCount->Time_vcs_TP;
     (m_VCount->T_Calls_vcs_TP)++;
@@ -3276,7 +3278,7 @@ namespace VCSnonideal {
     int juse  = -1;
     int jlose = -1;
     double *dptr, *scrxn_ptr;
-    double tsecond = vcs_second();
+    Cantera::clockWC tickTock;
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("   "); for(i=0; i<77; i++) plogf("-"); plogf("\n");
@@ -3749,7 +3751,7 @@ namespace VCSnonideal {
     }
     
   L_CLEANUP: ;
-    tsecond = vcs_second() - tsecond;
+    double tsecond = tickTock.secondsWC();
     m_VCount->Time_basopt += tsecond;
     (m_VCount->Basis_Opts)++;
     return VCS_SUCCESS;

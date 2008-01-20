@@ -23,6 +23,7 @@
 
 #include "ct_defs.h"
 #include "mix_defs.h"
+#include "clockWC.h"
 #include "speciesThermoTypes.h"
 #ifdef WITH_IDEAL_SOLUTIONS
 #include "IdealSolidSolnPhase.h"
@@ -567,7 +568,7 @@ namespace VCSnonideal {
    // Debugging level
    
     int maxit = maxsteps;;
-    double ts = vcs_second();
+    clockWC tickTock;
     int nsp = m_mix->nSpecies();
     int nel = m_mix->nElements();
     int nph = m_mix->nPhases();
@@ -651,7 +652,7 @@ namespace VCSnonideal {
      m_mix->setPhaseMoles(ip, phaseMole);
    }
   
-   double te = vcs_second();
+   double te = tickTock.secondsWC();
    if (printLvl > 0) {
      plogf("\n Results from vcs:\n");
      if (iSuccess != 0) {
@@ -710,7 +711,7 @@ namespace VCSnonideal {
      plogf("------------------------------------------"
 	    "-------------------\n"); 
      if (printLvl > 2) {
-       plogf("Total time = %12.6e seconds\n", te - ts);
+       plogf("Total time = %12.6e seconds\n", te);
      }
    }
    return iSuccess;
