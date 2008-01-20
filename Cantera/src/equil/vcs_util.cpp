@@ -1,13 +1,15 @@
-/* ======================================================================= */
-/* -------------------------------------------------- */
-/* | RCS Head Information on zuzax.pchem.sandia.gov | */
-/* -------------------------------------------------- */
-/* $RCSfile$ */
-/* $Author$ */
-/* $Date$ */
-/* $Revision$ */
-/* ======================================================================= */
-
+/**
+ *  @file vcs_util.cpp
+ *  Internal definitions for utility functions for the VCSnonideal package
+ */
+/*
+ * $Id$
+ */
+/*
+ * Copywrite (2005) Sandia Corporation. Under the terms of 
+ * Contract DE-AC04-94AL85000 with Sandia Corporation, the
+ * U.S. Government retains certain rights in this software.
+ */
 #include <cstdlib>
 #include <cmath>
 
@@ -15,9 +17,9 @@
 
 namespace VCSnonideal {
 
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
+  /***************************************************************************/
+  /***************************************************************************/
+  /***************************************************************************/
 #ifndef USE_MEMSET
   void vcs_dzero(double *vector, int length)
    
@@ -26,15 +28,15 @@ namespace VCSnonideal {
      *  vcs_dzero:
      *
      *     Zeroes a double vector
-     ***************************************************************************/
+     *************************************************************************/
   {
     int i;
     for (i = 0; i < length; i++) vector[i] = 0.0; 
-  } /* vcs_dzero() *************************************************************/
+  } /* vcs_dzero() ***********************************************************/
 #endif
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
+  /***************************************************************************/
+  /***************************************************************************/
+  /***************************************************************************/
 #ifndef USE_MEMSET
   void vcs_izero(int *vector, int length)
    
@@ -43,15 +45,15 @@ namespace VCSnonideal {
      *  vcs_izero:
      *
      *     Zeroes an int vector
-     ***************************************************************************/
+     *************************************************************************/
   {
     int i;
     for (i = 0; i < length; i++) vector[i] = 0; 
-  } /* vcs_izero() *************************************************************/
+  } /* vcs_izero() ***********************************************************/
 #endif
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
+  /***************************************************************************/
+  /***************************************************************************/
+  /***************************************************************************/
 
 #ifndef USE_MEMSET
   void vcs_dcopy(double *vec_to, double *vec_from, int length)
@@ -213,19 +215,6 @@ namespace VCSnonideal {
   /*****************************************************************************/
   /*****************************************************************************/
 
-  static void printSev(int severity)  {
-    switch (severity) {
-    case 1:
-      plogf("   VCS NOTE : ");        break;
-    case 2:
-      plogf("   VCS WARNING : ");     break;
-    case 3:
-      plogf("   VCS ERROR : ");       break;
-    case 4:
-      plogf("   VCS FATAL ERROR : "); break;
-    }   
-  }
-
   // Swap values in a std vector string
   /*
    * Switches the value of vecStrings[i1] with vecStrings[i2]
@@ -384,130 +373,7 @@ namespace VCSnonideal {
     return r;
   }
 
-  int vcsUtil_err_check(VCS_ERR_STRUCT &vcsE, char *string1, int ival)
-   
-    /**************************************************************************
-     *
-     *  vcs_err_check:
-     *
-     *     This routine checks the error flag, prints a message, and then
-     *     resets the error counters.
-     *
-     * Input
-     *   severity:  Affects what happens in the routine.
-     *           0  = Ignore warning, don't print anything
-     *           1  = Note
-     *           2  = Warning
-     *           3  = Error -> Probably fatal
-     *           4  = Immediate Fatal Error
-     *   ival       = Another integer input that means different things
-     *                depending on the error condition. Frequently, it will 
-     *                point to a species or reaction which is the culprit.
-     *          
-     * Return
-     *   Returns the error flag value
-     ***************************************************************************/
-  {
-    int flag = vcsE.Flag, doPrint, severity;
-    /*
-     *            Do a fast exit if there is no error encountered
-     */
-    if (flag == VCS_SUCCESS) return flag;
-    switch (flag) {
-    case VCS_FAILED_CONVERGENCE:
-      severity = 1;
-      break;
-    case VCS_THERMO_OUTOFRANGE:
-      severity = 2;
-      break;
-    case VCS_NOMEMORY:
-    case VCS_PUB_BAD:
-      severity = 3;
-      break;
-    case VCS_SHOULDNT_BE_HERE:
-      severity = 4;
-      break;
-    }
-    doPrint = (vcsE.PrintLevel <= severity);
-    if (doPrint) {
-      printSev(severity);
-      if (string1 != NULL) plogf("%s ", string1);
-    }
-    switch (flag) {
-    case VCS_NOMEMORY:
-      if (doPrint) {
-	plogf("Out of Memory");
-      }
-      break;
-    case VCS_FAILED_CONVERGENCE:
-      if (doPrint) {
-	plogf("Failed Convergence");
-      }
-      break;
-    case VCS_SHOULDNT_BE_HERE:
-      if (doPrint) {
-	plogf("Shouldn't be here, internal vcsc error");
-      }
-      break;
-    case VCS_PUB_BAD:
-      if (doPrint) {
-	plogf("Public data structure is corrupt");
-      }
-      break;
-    case VCS_THERMO_OUTOFRANGE:
-      if (doPrint) {
-	plogf("Thermo Data out of Range");
-	if (vcsE.Species1 >= 0) plogf(", Species = %d", vcsE.Species1);
-	if (ival >= 0)          plogf(", Species = %d", ival);
-	if (vcsE.Value1 != VCS_ERR_NOVALUE)
-	  plogf(", TKelvin = %g", vcsE.Value1);
-	if (vcsE.Value1 != VCS_ERR_NOVALUE)
-	  plogf(", Tlimit = %g", vcsE.Value2);
-      }
-      break;
-    default:
-      if (doPrint) {
-	plogf("Unknown Error Condition = %d ??", flag);
-      }
-      break;
-    }
-   
-    if (doPrint) {
-      plogf("\n");
-      if (vcsE.Mess[0] != '\0') {
-        printSev(severity);
-	plogf(" %s\n", vcsE.Mess);
-      }
-      fflush(stdout);
-    }
-    if (severity > 3) exit(-1);
-    vcsUtil_err_reset(vcsE);
-    return flag;
-  }
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
 
-  void vcsUtil_err_reset (VCS_ERR_STRUCT &vcsE)
-   
-    /**************************************************************************
-     *
-     *  vcs_err_reset:
-     *
-     *     Sets the error handler back to default conditions. 
-     ***************************************************************************/
-  {
-    vcsE.Flag    = VCS_SUCCESS;
-    vcsE.Species1 = -1;
-    vcsE.Species2 = -1;
-    vcsE.Value1   = VCS_ERR_NOVALUE;
-    vcsE.Value2   = VCS_ERR_NOVALUE;
-    vcsE.Mess[0] = '\0';
-    vcsE.Mess[119] = '\0';
-  }
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
 
   void vcs_print_line(const char *string, int num)
    

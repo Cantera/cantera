@@ -32,56 +32,11 @@ namespace VCSnonideal {
    */
 #define plogf  Cantera::writelogf
 
-
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
-
-  //! Structure used in error handling
-  /*!
-   *  I think this isn't really used and should be eliminated.
-   */
-  struct VCS_ERR {
-
-    //! flag
-    int Flag;
-    //! species1
-    int Species1;
-    //! species2
-    int Species2;
-    //! printlevel
-    int PrintLevel;
-    //! value1
-    double Value1;
-    //! value2
-    double Value2;
-
-    //! Character string - null terminated
-    char Mess[120];
-  };
-  typedef struct VCS_ERR VCS_ERR_STRUCT;
-
-
-  extern int vcsUtil_err_check(VCS_ERR_STRUCT &vcsE, char *string1, int ival);
-  extern void vcsUtil_err_reset(VCS_ERR_STRUCT &vcsE);
-
-
-  /*********************************/
-  /* Function Pointer Typedefs */
-  /*********************************/
-
-  typedef double (*VCS_FUNC_PTR)(double, double, int, void *, int *);
-
   /*
    * Forward references
    */
   class VCS_SPECIES_THERMO;
   class VCS_PROB;
-
-
-  /****************************************************************************/
-  /****************************************************************************/
-  /****************************************************************************/
 
   //!  Amount of extra printing that is done while in debug mode.
   /*!
@@ -239,7 +194,13 @@ namespace VCSnonideal {
   void vcsUtil_stsw(std::vector<std::string> & vecStrings, 
 		    int i1, int i2); 
 
-  /* Externals for vcs_root1d.c */
+  //! Definition of the function pointer for the root finder
+  /*!
+   *  see vcsUtil_root1d for a definition of how to use this.
+   */
+  typedef double (*VCS_FUNC_PTR)(double xval, double Vtarget, 
+				 int varID, void *fptrPassthrough,
+				 int *err);
 
   //! One dimensional root finder
   /*!
