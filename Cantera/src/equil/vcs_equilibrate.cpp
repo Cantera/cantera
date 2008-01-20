@@ -299,7 +299,7 @@ namespace Cantera {
   
     if (solver == 2) {
       try {
-	vcs_MultiPhaseEquil *eqsolve = new vcs_MultiPhaseEquil(&s, printLvlSub);
+	VCSnonideal::vcs_MultiPhaseEquil *eqsolve = new VCSnonideal::vcs_MultiPhaseEquil(&s, printLvlSub);
 	int err = eqsolve->equilibrate(ixy, estimateEquil, printLvlSub,
 				       tol, maxsteps, maxiter);
 	if (err != 0) {

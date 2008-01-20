@@ -15,20 +15,10 @@
 
 #include "ct_defs.h"
 #include "MultiPhase.h"
-/*
- * VCS_PROB is outside of Cantera namespace
- */
-namespace VCSnonideal {
-  class VCS_PROB;
-  class VCS_SOLVE;
-}
+
 
 namespace Cantera {
 
-  int vcs_Cantera_to_vprob(MultiPhase *mphase, VCSnonideal::VCS_PROB *vprob);
-
-  int vcs_Cantera_update_vprob(MultiPhase *mphase, 
-			       VCSnonideal::VCS_PROB *vprob);
    
   //!  Set a single-phase chemical solution to chemical equilibrium.
   /*!
@@ -187,7 +177,20 @@ namespace Cantera {
 			int solver = 2,
 			doublereal rtol = 1.0e-9, int maxsteps = 1000, 
 			int maxiter = 100, int loglevel = -99);
+
+}
+
+namespace VCSnonideal {
+
+  class VCS_PROB;
+  class VCS_SOLVE;
   
+  int vcs_Cantera_to_vprob(Cantera::MultiPhase *mphase, VCSnonideal::VCS_PROB *vprob);
+
+  int vcs_Cantera_update_vprob(Cantera::MultiPhase *mphase, 
+			       VCSnonideal::VCS_PROB *vprob);
+
+
   //! Cantera's Interface to the Multiphase chemical equilibrium solver.
   /*!
    *  Class MultiPhaseEquil is designed to be used to set a mixture
@@ -199,9 +202,9 @@ namespace Cantera {
   public:
     //! Shorthand for the MultiPhase mixture object used by Cantera
     //! to store information about multiple phases
-    typedef MultiPhase       mix_t;
+    typedef Cantera::MultiPhase       mix_t;
     typedef size_t           index_t;
-    typedef DenseMatrix      matrix_t;
+    typedef Cantera::DenseMatrix      matrix_t;
 
     vcs_MultiPhaseEquil();
     vcs_MultiPhaseEquil(mix_t* mix, int printLvl, bool start=true);
@@ -213,7 +216,7 @@ namespace Cantera {
       else return -1;
     }
 
-    void getStoichVector(index_t rxn, vector_fp& nu) {
+    void getStoichVector(index_t rxn, Cantera::vector_fp& nu) {
       index_t k;
       nu.resize(m_nsp, 0.0);
       if (rxn > m_nsp - m_nel) return;
@@ -333,7 +336,7 @@ namespace Cantera {
      *  
      *       m_order[korig] = k_sorted
      */
-    vector_int m_order;
+    Cantera::vector_int m_order;
 
     VCSnonideal::VCS_PROB *m_vprob;
 
@@ -351,7 +354,7 @@ namespace Cantera {
     // Vector of indices for species that are included in the
     // calculation.  This is used to exclude pure-phase species
     // with invalid thermo data
-    vector_int m_species;
+    Cantera::vector_int m_species;
 
     //! Pointer to the object that does all of the equilibration work.
     /*!

@@ -37,9 +37,9 @@
 
 using namespace Cantera;
 using namespace std;
-using namespace VCSnonideal;
+//using namespace VCSnonideal;
 
-namespace Cantera {
+namespace VCSnonideal {
 
   vcs_MultiPhaseEquil::vcs_MultiPhaseEquil() :
     m_vprob(0),
