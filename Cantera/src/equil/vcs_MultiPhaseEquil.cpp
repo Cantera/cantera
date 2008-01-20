@@ -1,9 +1,8 @@
 /**
  *  @file vcs_MultiPhaseEquil.cpp
- *    Driver routines for equilibrium solvers
+ *    Driver routine for the VCSnonideal equilibrium solver package
  */
 /*
- *
  * $Id$
  */
 /*
@@ -11,6 +10,7 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
+
 #include "vcs_MultiPhaseEquil.h"
 #include "vcs_prob.h"
 #include "vcs_internal.h"
@@ -1618,171 +1618,7 @@ namespace Cantera {
     return VCS_SUCCESS;
   }
 
-  /*
-   *  Set a single-phase chemical solution to chemical equilibrium.
-   *  This is a convenience function that uses one or the other of
-   *  the two chemical equilibrium solvers.
-   *
-   *  @param s The object to set to an equilibrium state
-   *
-   *  @param XY An integer specifying the two properties to be held
-   *            constant.
-   *
-   *  @param estimateEquil Boolean indicating whether the solver
-   *                   should estimate its own initial condition.
-   *                   If false, the initial mole fraction vector
-   *                   in the %ThermoPhase object is used as the 
-   *                   initial condition.
-   *
-   *  @param printLvl Determines the amount of printing that
-   *                  gets sent to stdout from the vcs package
-   *                  (Note, you may have to compile with debug
-   *                   flags to get some printing).
-   *
-   *  @param solver The equilibrium solver to use. If solver = 0,
-   *                the ChemEquil solver will be used, and if
-   *                solver = 1, the vcs_MultiPhaseEquil solver will
-   *                be used (slower than ChemEquil,
-   *                but more stable). If solver < 0 (default, then 
-   *                ChemEquil will be tried first, and if it fails 
-   *                vcs_MultiPhaseEquil will be tried.
-   *
-   *  @param maxsteps The maximum number of steps to take to find
-   *                  the solution.
-   *
-   *  @param maxiter For the MultiPhaseEquil solver only, this is
-   *                 the maximum number of outer temperature or 
-   *                 pressure iterations to take when T and/or P is 
-   *                 not held fixed.
-   *
-   *  @param loglevel Controls amount of diagnostic output. loglevel
-   *                  = 0 suppresses diagnostics, and increasingly-verbose
-   *                  messages are written as loglevel increases. The 
-   *                  messages are written to a file in HTML format for viewing 
-   *                  in a web browser. @see HTML_logs
-   */
-  int vcs_equilibrate(thermo_t& s, const char* XY, 
-		      bool estimateEquil,  int printLvl,
-		      int solver,
-		      doublereal rtol, int maxsteps, int maxiter, 
-		      int loglevel) {
-    MultiPhase* m = 0;
-    bool redo = true;
-    int retn = 1;
 
-    beginLogGroup("equilibrate", loglevel);
-    addLogEntry("Single-phase equilibrate function");
-    {
-      beginLogGroup("arguments");
-      addLogEntry("phase",s.id());
-      addLogEntry("XY",XY);
-      addLogEntry("solver",solver);
-      addLogEntry("rtol",rtol);
-      addLogEntry("maxsteps",maxsteps);
-      addLogEntry("maxiter",maxiter);
-      addLogEntry("loglevel",loglevel);
-      endLogGroup("arguments");
-    }
- 
-    if (solver > 0) {
-      m = new MultiPhase;
-      try {
-	/*
-	 *  Set the kmoles of the phase to 1.0, arbitrarily.
-	 *  It actually doesn't matter.
-	 */
-	m->addPhase(&s, 1.0);
-	m->init();
 
-	retn = vcs_equilibrate(*m, XY, estimateEquil, printLvl,
-			       rtol, maxsteps, maxiter, loglevel);
-	redo = false;
-	addLogEntry("MultiPhaseEquil solver succeeded.");
-	delete m;
-      }
-      catch (CanteraError err) {
-	addLogEntry("MultiPhaseEquil solver failed.");
-	delete m;
-	throw err;
-      }
-    } else {
-      throw CanteraError("vcs_equilibrate",
-			 "ChemEquil not implemented in this interface yet");
-    }
-   
-    /*
-     * We are here only for a success
-     */
-    endLogGroup("equilibrate");
-    return retn;
-  }
 
- int vcs_equilibrate(MultiPhase& s, const char* XY,
-                      bool estimateEquil, int printLvl,
-                      doublereal tol, int maxsteps, int maxiter,
-                      int loglevel) {
-    int ixy = _equilflag(XY);
-    int retn = vcs_equilibrate_1(s, ixy, estimateEquil, printLvl,
-                                 tol, maxsteps, maxiter, loglevel);
-    return retn;
-  };
-
-  /*
-   * Set a multiphase mixture to a state of chemical equilibrium.
-   * This is the top-level driver for multiphase equilibrium. It
-   * doesn't do much more than call the equilibrate method of class
-   * MultiPhase, except that it adds some messages to the logfile,
-   * if loglevel is set > 0.
-   *
-   * @return Returns the value of 1 if successful.
-   *
-   * @ingroup equil
-   */
-  int vcs_equilibrate_1(MultiPhase& s, int ixy, 
-		      bool estimateEquil, int printLvl,
-		      doublereal tol, int maxsteps, int maxiter, int loglevel) {
-    static int counter = 0;
-    int retn = 1;
-    beginLogGroup("equilibrate",loglevel);
-    addLogEntry("multiphase equilibrate function");
-    beginLogGroup("arguments");
-    addLogEntry("XY",ixy);
-    addLogEntry("tol",tol);
-    addLogEntry("maxsteps",maxsteps);
-    addLogEntry("maxiter",maxiter);
-    addLogEntry("loglevel",loglevel);
-    endLogGroup("arguments");
-    int printLvlSub = MAX(0, printLvl-1);
-
-    s.init();
-  
-    try {
-      vcs_MultiPhaseEquil *eqsolve = new vcs_MultiPhaseEquil(&s, printLvlSub);
-      int err = eqsolve->equilibrate(ixy, estimateEquil, printLvlSub,
-				     tol, maxsteps, maxiter);
-      if (err != 0) {
-	retn = 0;
-      }
-      addLogEntry("Success. Error", err);
-      endLogGroup("equilibrate");
-      // hard code a csv output file.
-      if (printLvl > 0) {
-	string reportFile = "vcs_equilibrate_res.csv";
-	if (counter > 0) {
-	  reportFile = "vcs_equilibrate_res_" + int2str(counter) + ".csv";
-	}
-	eqsolve->reportCSV(reportFile);
-	counter++;
-      }
-      delete eqsolve;
-    }
-    catch (CanteraError e) {
-      addLogEntry("Failure.", lastErrorMessage());
-      endLogGroup("equilibrate");
-      throw e;
-    }
-    
-    return retn;
-  }
- 
 }

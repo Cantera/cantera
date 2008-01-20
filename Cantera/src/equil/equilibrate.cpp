@@ -133,8 +133,8 @@ namespace Cantera {
 	  m->addPhase(&s, 1.0);
 	  m->init();
 	  nAttempts++;
-	  (void) vcs_equilibrate(*m, XY, estimateEquil, printLvlSub,
-				 rtol, maxsteps, maxiter, loglevel-1); 
+	  vcs_equilibrate(*m, XY, estimateEquil, printLvlSub, solver,
+			  rtol, maxsteps, maxiter, loglevel-1); 
 	  redo = false;
           if (loglevel > 0) 
 	    addLogEntry("VCSnonideal solver succeeded.");

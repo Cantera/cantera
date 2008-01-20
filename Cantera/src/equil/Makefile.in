@@ -69,7 +69,7 @@ VCSNONIDEAL_OBJ = vcs_solve_TP.o vcs_VolPhase.o vcs_solve.o vcs_prob.o \
                   vcs_nasa_poly.o  vcs_nondim.o vcs_Exception.o \
                   vcs_funcVtot.o vcs_inest.o vcs_rearrange.o \
                   vcs_root1d.o vcs_rxnadj.o  vcs_timer_generic.o \
-                  vcs_SpeciesProperties.o  \
+                  vcs_SpeciesProperties.o vcs_equilibrate.o \
                   vcs_prep.o vcs_species_thermo.o vcs_Gibbs.o \
                   $(DALT_OBJ)
 

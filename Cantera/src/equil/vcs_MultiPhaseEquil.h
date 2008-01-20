@@ -111,6 +111,10 @@ namespace Cantera {
    *                  (Note, you may have to compile with debug
    *                   flags to get some printing).
    *
+   *  @param solver   Determines which solver is used. 
+   *                 - 1 MultiPhaseEquil solver
+   *                 - 2 VCSnonideal Solver (default)
+   *
    *  @param maxsteps The maximum number of steps to take to find
    *                  the solution.
    *
@@ -129,6 +133,7 @@ namespace Cantera {
    */
   int vcs_equilibrate(MultiPhase& s, const char* XY, 
 		      bool estimateEquil = false, int printLvl = 0,
+		      int solver = 2,
 		      doublereal rtol = 1.0e-9, int maxsteps = 1000, 
 		      int maxiter = 100, int loglevel = -99);
 
@@ -157,6 +162,10 @@ namespace Cantera {
    *                  (Note, you may have to compile with debug
    *                   flags to get some printing).
    *
+   *  @param solver   Determines which solver is used. 
+   *                 - 1 MultiPhaseEquil solver
+   *                 - 2 VCSnonideal Solver (default)
+   *
    *  @param maxsteps The maximum number of steps to take to find
    *                  the solution.
    *
@@ -174,9 +183,10 @@ namespace Cantera {
    *  @ingroup equilfunctions
    */
   int vcs_equilibrate_1(MultiPhase& s, int ixy, 
-		      bool estimateEquil = false, int printLvl = 0,
-		      doublereal rtol = 1.0e-9, int maxsteps = 1000, 
-		      int maxiter = 100, int loglevel = -99);
+			bool estimateEquil = false, int printLvl = 0,
+			int solver = 2,
+			doublereal rtol = 1.0e-9, int maxsteps = 1000, 
+			int maxiter = 100, int loglevel = -99);
   
   //! Cantera's Interface to the Multiphase chemical equilibrium solver.
   /*!

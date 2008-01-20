@@ -779,9 +779,7 @@ public:
 
   VCS_COUNTERS *m_VCount;
 
-#ifdef DEBUG_MODE
   int vcs_debug_print_lvl;
-#endif
 
   //! Units for the chemical potential data:
   /*!
