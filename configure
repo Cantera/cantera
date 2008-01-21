@@ -308,7 +308,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS BITCOMPILE BITHARDWARE BITCHANGE ldemulationarg CVF_LIBDIR USE_CLIB_DLL local_inst local_python_inst python_prefix python_win_prefix ctversion homedir ct_libdir ct_bindir ct_incdir ct_incroot ct_datadir ct_demodir ct_templdir ct_tutdir ct_docdir ct_dir ct_mandir COMPACT_INSTALL build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE GRAPHVIZDIR ARCHIVE DO_RANLIB RANLIB CXX_DEPENDS USERDIR INCL_USER_CODE CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT use_sundials CVODE_LIBS IDA_LIBS sundials_include CANTERA_DEBUG_MODE COMPILE_PURE_FLUIDS phase_object_files phase_header_files COMPILE_IDEAL_SOLUTIONS COMPILE_ELECTROLYTES NEED_CATHERMO COMPILE_KINETICS COMPILE_HETEROKIN COMPILE_RXNPATH WITH_REACTORS KERNEL KERNEL_OBJ BUILD_CK LIB_DIR COMPILE_VCSNONIDEAL BOOST_INCLUDE BOOST_LIB build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_DIR build_with_f2c build_f2c_lib LOCAL_LIB_DIRS LOCAL_LIBS LOCAL_LIBS_DEP INSTALL_LIBS_DEP RAW_LIBS_DEP CT_SHARED_LIB PYTHON_CMD BUILD_PYTHON NUMARRAY_INC_DIR NUMARRAY_HOME CANTERA_PYTHON_HOME CVSTAG MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name PIC INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS ac_ct_CC CXXCPP EGREP SOEXT SHARED CXX_INCLUDES LCXX_FLAGS LCXX_END_LIBS HAVE_STRIPSYMBOLS F77 FFLAGS ac_ct_F77 FLIBS F90 BUILD_F90 F90FLAGS F90BUILDFLAGS F90LIBS precompile_headers OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT math_libs SO LDSHARED EXTRA_LINK TSCOMPARE_abs INSTALL_abs INSTALL_VERBOSE LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS BITCOMPILE BITHARDWARE BITCHANGE ldemulationarg CVF_LIBDIR USE_CLIB_DLL local_inst local_python_inst python_prefix python_win_prefix ctversion homedir ct_libdir ct_bindir ct_incdir ct_incroot ct_datadir ct_demodir ct_templdir ct_tutdir ct_docdir ct_dir ct_mandir COMPACT_INSTALL build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE GRAPHVIZDIR ARCHIVE DO_RANLIB RANLIB CXX_DEPENDS USERDIR INCL_USER_CODE CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT use_sundials CVODE_LIBS IDA_LIBS sundials_include CANTERA_DEBUG_MODE COMPILE_PURE_FLUIDS phase_object_files phase_header_files COMPILE_IDEAL_SOLUTIONS COMPILE_ELECTROLYTES NEED_CATHERMO COMPILE_KINETICS COMPILE_HETEROKIN COMPILE_RXNPATH WITH_REACTORS KERNEL KERNEL_OBJ BUILD_CK LIB_DIR COMPILE_VCSNONIDEAL BOOST_INCLUDE BOOST_LIB build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_LINK BLAS_LAPACK_DIR build_with_f2c build_f2c_lib F2C_SYSTEMLIB BOOST_LIB_DIR LOCAL_LIB_DIRS LOCAL_LIBS LOCAL_LIBS_DEP INSTALL_LIBS_DEP RAW_LIBS_DEP CANTERA_CORE_LIBS CANTERA_CORE_LIBS_DEP CT_SHARED_LIB PYTHON_CMD BUILD_PYTHON NUMARRAY_INC_DIR NUMARRAY_HOME CANTERA_PYTHON_HOME CVSTAG MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name PIC INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS ac_ct_CC CXXCPP EGREP SOEXT SHARED CXX_INCLUDES LCXX_FLAGS LCXX_END_LIBS HAVE_STRIPSYMBOLS F77 FFLAGS ac_ct_F77 FLIBS F90 BUILD_F90 F90FLAGS F90BUILDFLAGS F90LIBS precompile_headers OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT math_libs SO LDSHARED EXTRA_LINK TSCOMPARE_abs INSTALL_abs INSTALL_VERBOSE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -2850,10 +2850,14 @@ if test -z "$BLAS_LAPACK_LIBS"; then
   if test "x$OS_IS_DARWIN" = "x0"; then
     BLAS_LAPACK_LIBS="-lctlapack -lctblas"
     BLAS_LAPACK_DIR="$buildlib"
+    BLAS_LAPACK_LINK="-L$BLAS_LAPACK_DIR $BLAS_LAPACK_LIBS"
     build_blas=1
     build_lapack=1
   fi
+else
+BLAS_LAPACK_LINK="-L$BLAS_LAPACK_DIR $BLAS_LAPACK_LIBS"
 fi
+
 
 
 
@@ -2903,9 +2907,15 @@ esac
 #  our f2c_lib will be built on a given platform
 #
 build_f2c_lib=0
+F2C_SYSTEMLIB=
 if test -n "$NEED_F2C" ; then
   build_f2c_lib=1
+else
+  case $ac_sys_system in
+    Linux)    F2C_SYSTEMLIB="-lg2c"
+  esac
 fi
+
 
 
 #
@@ -2986,44 +2996,44 @@ RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libctnumerics.a
 if test -n "$NEED_MATH"
 then
   LOCAL_LIBS=$LOCAL_LIBS' '-lctmath
-  LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libctmath.a
-  INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libctmath.a
-  RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libctmath.a
+  LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libctmath.a
+  INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libctmath.a
+  RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libctmath.a
 fi
 
 if test -n "$NEED_TPX"
 then
   LOCAL_LIBS=$LOCAL_LIBS' '-ltpx
-  LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libtpx.a
-  INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libtpx.a
-  RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libtpx.a
+  LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libtpx.a
+  INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libtpx.a
+  RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libtpx.a
 fi
 
 if test -n "$NEED_SPECTRA"
 then
   LOCAL_LIBS=$LOCAL_LIBS' '-lctspectra
-  LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libctspectra.a
-  INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libctspectra.a
-  RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libctspectra.a
+  LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libctspectra.a
+  INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libctspectra.a
+  RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libctspectra.a
 fi
 
 if test -n "$NEED_CKREADER"
 then
   LOCAL_LIBS=$LOCAL_LIBS' '-lconverters
-  LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libconverters.a
-  INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libconverters.a
-  RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libconverters.a
+  LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libconverters.a
+  INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libconverters.a
+  RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libconverters.a
 fi
 
 LOCAL_LIBS=$LOCAL_LIBS' '-lctbase
-LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libctbase.a
-INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libctbase.a
-RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libctbase.a
+LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libctbase.a
+INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libctbase.a
+RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libctbase.a
 
 CANTERA_CORE_LIBS=$LOCAL_LIBS
-CANTERA_CORE_LIBS_DEPS=$INSTALL_LIBS_DEPS
-CANTERA_CORE_LIBS_BT_DEPS=$LOCAL_LIBS_DEPS
-CANTERA_CORE_LIBS_NAMES=$RAW_LIBS_DEPS
+CANTERA_CORE_LIBS_DEP=$INSTALL_LIBS_DEP
+CANTERA_CORE_LIBS_BT_DEP=$LOCAL_LIBS_DEP
+CANTERA_CORE_LIBS_NAMES=$RAW_LIBS_DEP
 
 if test -n "$NEED_CVODE"; then
   LOCAL_LIBS=$LOCAL_LIBS' '$CVODE_LIBS
@@ -3037,9 +3047,9 @@ fi
 if test -n "$NEED_F2C"
 then
   LOCAL_LIBS=$LOCAL_LIBS' '-lctf2c
-  LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libctf2c.a
-  INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libctf2c.a
-  RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libctf2c.a
+  LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libctf2c.a
+  INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libctf2c.a
+  RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libctf2c.a
 else
   case $ac_sys_system in
     Linux)    LOCAL_LIBS=$LOCAL_LIBS' '-lg2c;;
@@ -3059,7 +3069,11 @@ fi
 if test ${BUILD_THREAD_SAFE} = "y"; then
 LOCAL_LIBS=$LOCAL_LIBS' '-l$BOOST_LIB
 LOCAL_LIB_DIRS=$LOCAL_LIB_DIRS' -L'$BOOST_LIB_DIR
+else
+BOOST_LIB_DIR=""
 fi
+
+
 
 
 
@@ -8638,7 +8652,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:8641:" \
+echo "$as_me:8655:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -8841,7 +8855,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:8844: \"$ac_link\") >&5
+(eval echo $as_me:8858: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -8919,7 +8933,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:8922: \"$ac_link\") >&5
+(eval echo $as_me:8936: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -10172,14 +10186,19 @@ s,@BOOST_LIB@,$BOOST_LIB,;t t
 s,@build_lapack@,$build_lapack,;t t
 s,@build_blas@,$build_blas,;t t
 s,@BLAS_LAPACK_LIBS@,$BLAS_LAPACK_LIBS,;t t
+s,@BLAS_LAPACK_LINK@,$BLAS_LAPACK_LINK,;t t
 s,@BLAS_LAPACK_DIR@,$BLAS_LAPACK_DIR,;t t
 s,@build_with_f2c@,$build_with_f2c,;t t
 s,@build_f2c_lib@,$build_f2c_lib,;t t
+s,@F2C_SYSTEMLIB@,$F2C_SYSTEMLIB,;t t
+s,@BOOST_LIB_DIR@,$BOOST_LIB_DIR,;t t
 s,@LOCAL_LIB_DIRS@,$LOCAL_LIB_DIRS,;t t
 s,@LOCAL_LIBS@,$LOCAL_LIBS,;t t
 s,@LOCAL_LIBS_DEP@,$LOCAL_LIBS_DEP,;t t
 s,@INSTALL_LIBS_DEP@,$INSTALL_LIBS_DEP,;t t
 s,@RAW_LIBS_DEP@,$RAW_LIBS_DEP,;t t
+s,@CANTERA_CORE_LIBS@,$CANTERA_CORE_LIBS,;t t
+s,@CANTERA_CORE_LIBS_DEP@,$CANTERA_CORE_LIBS_DEP,;t t
 s,@CT_SHARED_LIB@,$CT_SHARED_LIB,;t t
 s,@PYTHON_CMD@,$PYTHON_CMD,;t t
 s,@BUILD_PYTHON@,$BUILD_PYTHON,;t t

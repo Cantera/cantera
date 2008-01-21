@@ -727,9 +727,12 @@ if test -z "$BLAS_LAPACK_LIBS"; then
   if test "x$OS_IS_DARWIN" = "x0"; then 
     BLAS_LAPACK_LIBS="-lctlapack -lctblas"
     BLAS_LAPACK_DIR="$buildlib"
+    BLAS_LAPACK_LINK="-L$BLAS_LAPACK_DIR $BLAS_LAPACK_LIBS"
     build_blas=1
     build_lapack=1
   fi
+else
+BLAS_LAPACK_LINK="-L$BLAS_LAPACK_DIR $BLAS_LAPACK_LIBS"
 fi
 
 AC_SUBST(build_lapack)
@@ -737,6 +740,7 @@ AC_SUBST(build_lapack)
 AC_SUBST(build_blas)
 
 AC_SUBST(BLAS_LAPACK_LIBS)
+AC_SUBST(BLAS_LAPACK_LINK)
 AC_SUBST(BLAS_LAPACK_DIR)
 
 #
@@ -780,10 +784,16 @@ esac
 #  our f2c_lib will be built on a given platform
 #  
 build_f2c_lib=0
+F2C_SYSTEMLIB=
 if test -n "$NEED_F2C" ; then 
   build_f2c_lib=1
+else
+  case $ac_sys_system in
+    Linux)    F2C_SYSTEMLIB="-lg2c"
+  esac
 fi
 AC_SUBST(build_f2c_lib)
+AC_SUBST(F2C_SYSTEMLIB)
 
 #
 # LOCAL_LIBS:
@@ -863,44 +873,44 @@ RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libctnumerics.a
 if test -n "$NEED_MATH"
 then 
   LOCAL_LIBS=$LOCAL_LIBS' '-lctmath
-  LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libctmath.a
-  INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libctmath.a
-  RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libctmath.a
+  LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libctmath.a
+  INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libctmath.a
+  RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libctmath.a
 fi
 
 if test -n "$NEED_TPX"
 then
   LOCAL_LIBS=$LOCAL_LIBS' '-ltpx
-  LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libtpx.a
-  INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libtpx.a
-  RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libtpx.a
+  LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libtpx.a
+  INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libtpx.a
+  RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libtpx.a
 fi
 
 if test -n "$NEED_SPECTRA"
 then 
   LOCAL_LIBS=$LOCAL_LIBS' '-lctspectra
-  LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libctspectra.a
-  INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libctspectra.a
-  RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libctspectra.a
+  LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libctspectra.a
+  INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libctspectra.a
+  RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libctspectra.a
 fi
 
 if test -n "$NEED_CKREADER"
 then 
   LOCAL_LIBS=$LOCAL_LIBS' '-lconverters
-  LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libconverters.a
-  INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libconverters.a
-  RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libconverters.a
+  LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libconverters.a
+  INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libconverters.a
+  RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libconverters.a
 fi
 
 LOCAL_LIBS=$LOCAL_LIBS' '-lctbase
-LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libctbase.a
-INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libctbase.a
-RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libctbase.a
+LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libctbase.a
+INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libctbase.a
+RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libctbase.a
 
 CANTERA_CORE_LIBS=$LOCAL_LIBS
-CANTERA_CORE_LIBS_DEPS=$INSTALL_LIBS_DEPS
-CANTERA_CORE_LIBS_BT_DEPS=$LOCAL_LIBS_DEPS
-CANTERA_CORE_LIBS_NAMES=$RAW_LIBS_DEPS
+CANTERA_CORE_LIBS_DEP=$INSTALL_LIBS_DEP
+CANTERA_CORE_LIBS_BT_DEP=$LOCAL_LIBS_DEP
+CANTERA_CORE_LIBS_NAMES=$RAW_LIBS_DEP
 
 if test -n "$NEED_CVODE"; then 
   LOCAL_LIBS=$LOCAL_LIBS' '$CVODE_LIBS
@@ -914,9 +924,9 @@ fi
 if test -n "$NEED_F2C"
 then
   LOCAL_LIBS=$LOCAL_LIBS' '-lctf2c
-  LOCAL_LIBS_DEPS=$LOCAL_LIBS_DEPS' '$buildlib/libctf2c.a
-  INSTALL_LIBS_DEPS=$INSTALL_LIBS_DEPS' '$ct_libdir/libctf2c.a
-  RAW_LIBS_DEPS=$RAW_LIBS_DEPS' 'libctf2c.a
+  LOCAL_LIBS_DEP=$LOCAL_LIBS_DEP' '$buildlib/libctf2c.a
+  INSTALL_LIBS_DEP=$INSTALL_LIBS_DEP' '$ct_libdir/libctf2c.a
+  RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libctf2c.a
 else
   case $ac_sys_system in
     Linux)    LOCAL_LIBS=$LOCAL_LIBS' '-lg2c;;
@@ -936,14 +946,18 @@ fi
 if test ${BUILD_THREAD_SAFE} = "y"; then
 LOCAL_LIBS=$LOCAL_LIBS' '-l$BOOST_LIB
 LOCAL_LIB_DIRS=$LOCAL_LIB_DIRS' -L'$BOOST_LIB_DIR
+else
+BOOST_LIB_DIR=""
 fi
 
-
+AC_SUBST(BOOST_LIB_DIR)
 AC_SUBST(LOCAL_LIB_DIRS)
 AC_SUBST(LOCAL_LIBS)
 AC_SUBST(LOCAL_LIBS_DEP)
 AC_SUBST(INSTALL_LIBS_DEP)
 AC_SUBST(RAW_LIBS_DEP)
+AC_SUBST(CANTERA_CORE_LIBS)
+AC_SUBST(CANTERA_CORE_LIBS_DEP)
 
 #-------------------------------------------------
 #      Language Interfaces
