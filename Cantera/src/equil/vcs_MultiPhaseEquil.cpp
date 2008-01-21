@@ -1619,7 +1619,35 @@ namespace VCSnonideal {
     return VCS_SUCCESS;
   }
 
+  // This routine hasn't been checked yet
+  void vcs_MultiPhaseEquil::getStoichVector(index_t rxn, Cantera::vector_fp& nu) {
+    index_t k;
+    nu.resize(m_nsp, 0.0);
+    int nc = numComponents();
+    const DoubleStarStar &scMatrix = m_vsolvePtr->sc;
+    const  std::vector<int> indSpecies =  m_vsolvePtr->ind;
+    if (rxn > m_nsp - nc) return;
+    for (k = 0; k < m_nsp; k++) {
+      int j = indSpecies[j];
+      nu[j] = scMatrix[rxn][k];
+    }
+  }
+  
+  int vcs_MultiPhaseEquil::numComponents() const {
+    int nc = -1;
+    if (m_vsolvePtr) {
+      nc =  m_vsolvePtr->m_numComponents;
+    }
+    return nc;
+  }
 
+  int vcs_MultiPhaseEquil::numElemConstraints() const {
+    int nec = -1;
+    if (m_vsolvePtr) {
+      nec =  m_vsolvePtr->m_numElemConstraints;
+    }
+    return nec;
+  }
 
-
+  
 }

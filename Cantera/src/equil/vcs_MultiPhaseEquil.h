@@ -185,8 +185,26 @@ namespace VCSnonideal {
   class VCS_PROB;
   class VCS_SOLVE;
   
-  int vcs_Cantera_to_vprob(Cantera::MultiPhase *mphase, VCSnonideal::VCS_PROB *vprob);
+  //! Translate a MultiPhase object into a VCS_PROB problem definition object
+  /*!
+   *  @param mphase MultiPhase object that is the source for all of the information
+   *  @param vprob  VCS_PROB problem definition that gets all of the information
+   *
+   *  Note, both objects share the underlying Thermophase objects. So, neither
+   *  can be const objects.
+   */
+  int vcs_Cantera_to_vprob(Cantera::MultiPhase *mphase, 
+			   VCSnonideal::VCS_PROB *vprob);
 
+  //! Translate a MultiPhase information into a VCS_PROB problem definition object
+  /*!
+   *  This version updates the problem statement information only. All species and
+   *  phase definitions remain the same.
+   *
+   *  @param mphase MultiPhase object that is the source for all of the information
+   *  @param vprob  VCS_PROB problem definition that gets all of the information
+   *
+   */
   int vcs_Cantera_update_vprob(Cantera::MultiPhase *mphase, 
 			       VCSnonideal::VCS_PROB *vprob);
 
@@ -202,13 +220,21 @@ namespace VCSnonideal {
   public:
     //! Shorthand for the MultiPhase mixture object used by Cantera
     //! to store information about multiple phases
-    typedef Cantera::MultiPhase       mix_t;
-    typedef size_t           index_t;
-    typedef Cantera::DenseMatrix      matrix_t;
+    typedef Cantera::MultiPhase mix_t;
 
+    //! Typedef for an index variable
+    typedef size_t index_t;
+
+    //! Typedef for a dense 2d matrix.
+    typedef Cantera::DenseMatrix matrix_t;
+
+    //! Default empty constructor
     vcs_MultiPhaseEquil();
+
+    
     vcs_MultiPhaseEquil(mix_t* mix, int printLvl, bool start=true);
 
+    //! Destructor for the class
     virtual ~vcs_MultiPhaseEquil();
 
     int constituent(index_t m) { 
@@ -216,16 +242,15 @@ namespace VCSnonideal {
       else return -1;
     }
 
-    void getStoichVector(index_t rxn, Cantera::vector_fp& nu) {
-      index_t k;
-      nu.resize(m_nsp, 0.0);
-      if (rxn > m_nsp - m_nel) return;
-      for (k = 0; k < m_nsp; k++) {
-	nu[m_order[k]] = m_N(k, rxn);
-      }
-    }
+    //! Get the stoichiometric matrix for a single reaction index
+    /*!
+     * This returns a stoichiometric reaction matrix for a single
+     * formation reaction.
+     */
+    void getStoichVector(index_t rxn, Cantera::vector_fp& nu);
 
-    int iterations() { return m_iter; }
+    //! return the number of iterations
+    int iterations() const { return m_iter; }
 
     //! Equilibrate the solution using the current element abundances
     //! storred in the MultiPhase object
@@ -314,9 +339,35 @@ namespace VCSnonideal {
 		       int printLvl, doublereal err, 
 		       int maxsteps, int loglevel);
 
+    //! Report the equilibrium answer in a comma separated table format
+    /*!
+     *  This routine is used for in the test suite.
+     * 
+     *  @param reportFile Base name of the file to get the report.
+     *         File name is incremented by 1 for each report.
+     */
     void reportCSV(const std::string &reportFile);
+
+    //! reports the number of components in the equilibration problem
+    /*!
+     *  @return returns the number of components. If an equilibrium
+     *          problem hasn't been solved yet, it returns -1.
+     */
+    int numComponents() const;
+
+    //! Reports the number of element contraints in the equilibration problem
+    /*!
+     *  @return returns the number of element constraints. If an equilibrium
+     *          problem hasn't been solved yet, it returns -1.
+     */
+    int numElemConstraints() const;
   
-    index_t componentIndex(index_t n) { return m_species[m_order[n]]; }
+    //index_t componentIndex(index_t n) { return m_species[m_order[n]]; }
+
+    friend int vcs_Cantera_to_vprob(Cantera::MultiPhase *mphase, 
+				    VCSnonideal::VCS_PROB *vprob);
+    friend int  vcs_Cantera_update_vprob(Cantera::MultiPhase *mphase, 
+					 VCSnonideal::VCS_PROB *vprob);
 
   protected:
 
@@ -338,26 +389,63 @@ namespace VCSnonideal {
      */
     Cantera::vector_int m_order;
 
+    //! Object which contains the problem statement
+    /*!
+     *  The problem statement may contain some subtleties. For example,
+     *  the element constraints may be different than just an element 
+     *  conservation contraint equations. 
+     *  There may be kinetically frozen degrees of freedom. 
+     *  There may be multiple electrolyte phases with zero charge constraints.
+     *  All of these make the problem statement different than the
+     *  simple element conservation statement.
+     */
     VCSnonideal::VCS_PROB *m_vprob;
 
     //! Pointer to the MultiPhase mixture that will be equilibrated.
     /*!
-     *  Solutions will be returned in this variable.
+     *  Equilibrium solutions will be returned via this variable.
      */
     mix_t *m_mix;
+
+    //! Print level from the VCSnonlinear package
+    /*!
+     *  (Note, you may have to compile with debug
+     *                   flags to get some printing).
+     *
+     *    - 0 No IO from the routine whatsoever
+     *    - 1 file IO from reportCSV() carried out.
+     *        One line print statements from equilibrate_XY() functions
+     *    - 2 Problem statement information from vcs_Cantera_update_vprob()
+     *        - Final state of the system from vcs_solve_TP()
+     *    - 3 Several more setup tables
+     *        - Problem initialization routine
+     *    - 4 One table for each iteration within vcs_solve_Tp()
+     *    - 5 Multiple tables for each iteration within vcs_solve_TP()
+     *        - full discussion of decisions made for each variable.
+     */
     int m_printLvl;
 
+
+    //! Stoichiometric matrix
+    /*!
+     *
+     */
     matrix_t m_N;
 
     int m_iter;
 
-    // Vector of indices for species that are included in the
-    // calculation.  This is used to exclude pure-phase species
-    // with invalid thermo data
+    //! Vector of indices for species that are included in the
+    //! calculation. 
+    /*!
+     *   This is used to exclude pure-phase species
+     *   with invalid thermo data
+     */
     Cantera::vector_int m_species;
 
     //! Pointer to the object that does all of the equilibration work.
     /*!
+     * VCS_SOLVE will have different ordering for species and element constraints
+     * than this object or the VCS_PROB object.
      * This object owns the pointer.
      */
     VCSnonideal::VCS_SOLVE *m_vsolvePtr;

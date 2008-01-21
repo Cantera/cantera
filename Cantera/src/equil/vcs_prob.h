@@ -57,7 +57,7 @@ namespace VCSnonideal {
     //! Number of element contraints in the equilibrium problem
     int ne;
 
-    //! Number of element constrints used to malloc data structures
+    //! Number of element constraints used to malloc data structures
     //! involving elements
     int NE0;
 

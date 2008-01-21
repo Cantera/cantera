@@ -377,7 +377,7 @@ public:
    */
   DoubleStarStar FormulaMatrix;
 
-  //! Stoichiometric coefficient matrix for  for the reaction mechanism 
+  //! Stoichiometric coefficient matrix for the reaction mechanism 
   //! expressed in Reduced Canonical Form.
   /*!
    *   This is the stoichiometric coefficient matrix for the 
