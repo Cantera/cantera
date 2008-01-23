@@ -1621,14 +1621,18 @@ namespace VCSnonideal {
 
   // This routine hasn't been checked yet
   void vcs_MultiPhaseEquil::getStoichVector(index_t rxn, Cantera::vector_fp& nu) {
-    index_t k;
-    nu.resize(m_nsp, 0.0);
+    int k;
+    int nsp = m_vsolvePtr->m_numSpeciesTot;
+    nu.resize(nsp, 0.0);
+    for (int i = 0; i < nsp; i++) {
+      nu[i] = 0.0;
+    }
     int nc = numComponents();
     const DoubleStarStar &scMatrix = m_vsolvePtr->sc;
     const  std::vector<int> indSpecies =  m_vsolvePtr->ind;
-    if (rxn > m_nsp - nc) return;
-    for (k = 0; k < m_nsp; k++) {
-      int j = indSpecies[j];
+    if ((int) rxn > nsp - nc) return;
+    for (k = 0; k < nsp; k++) {
+      int j = indSpecies[k];
       nu[j] = scMatrix[rxn][k];
     }
   }
@@ -1648,6 +1652,12 @@ namespace VCSnonideal {
     }
     return nec;
   }
+ 
 
-  
+  int vcs_MultiPhaseEquil::component(int m) const {
+    int nc = numComponents();
+    if (m < nc) return m_vsolvePtr->ind[m]; 
+    else return -1;
+  }
+
 }

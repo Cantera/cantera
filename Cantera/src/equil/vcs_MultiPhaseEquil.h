@@ -1,5 +1,5 @@
 /**
- *  @file  vcs_MultiPhase.h
+ *  @file  vcs_MultiPhaseEquil.h
  *  Interface class for the vcsnonlinear solver
  */
 
@@ -237,15 +237,22 @@ namespace VCSnonideal {
     //! Destructor for the class
     virtual ~vcs_MultiPhaseEquil();
 
-    int constituent(index_t m) { 
-      if (m < m_nel) return m_order[m]; 
-      else return -1;
-    }
+    //! Return the index of the ith component
+    /*!
+     *  Returns the index of the ith component in the equilibrium 
+     *  calculation. The index refers to the ordering of the species
+     *  in the MultiPhase object.
+     */
+    int component(int m) const ; 
 
-    //! Get the stoichiometric matrix for a single reaction index
+    //! Get the stoichiometric reaction matrix for a single reaction index
     /*!
      * This returns a stoichiometric reaction matrix for a single
-     * formation reaction.
+     * formation reaction for a noncomponent species.
+     *
+     *
+     * @param rxn Reaction number.
+     * @param nu  Vector of coefficients for the formation reaction.
      */
     void getStoichVector(index_t rxn, Cantera::vector_fp& nu);
 
@@ -374,10 +381,10 @@ namespace VCSnonideal {
 
     //!  Number of elements in the combined element object describing all of the
     //!  phases.
-    index_t m_nel;
+    //index_t m_nel;
 
     //! Number of species in the combined multiphase object
-    index_t m_nsp;
+    //index_t m_nsp;
 
     //!  Vector that takes into account of the current sorting of the species
     /*!
