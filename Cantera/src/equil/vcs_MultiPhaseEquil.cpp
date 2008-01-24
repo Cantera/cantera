@@ -50,8 +50,7 @@ namespace VCSnonideal {
   {
   }
 
-  vcs_MultiPhaseEquil::vcs_MultiPhaseEquil(mix_t* mix, int printLvl, 
-					   bool start) :
+  vcs_MultiPhaseEquil::vcs_MultiPhaseEquil(mix_t* mix, int printLvl) :
     m_vprob(0),
     m_mix(0),
     m_printLvl(printLvl),
@@ -1621,20 +1620,23 @@ namespace VCSnonideal {
 
   // This routine hasn't been checked yet
   void vcs_MultiPhaseEquil::getStoichVector(index_t rxn, Cantera::vector_fp& nu) {
-    int k;
     int nsp = m_vsolvePtr->m_numSpeciesTot;
     nu.resize(nsp, 0.0);
     for (int i = 0; i < nsp; i++) {
       nu[i] = 0.0;
     }
     int nc = numComponents();
+    // scMatrix [nrxn][ncomp]
     const DoubleStarStar &scMatrix = m_vsolvePtr->sc;
     const  std::vector<int> indSpecies =  m_vsolvePtr->ind;
     if ((int) rxn > nsp - nc) return;
-    for (k = 0; k < nsp; k++) {
-      int j = indSpecies[k];
-      nu[j] = scMatrix[rxn][k];
+    int j = indSpecies[rxn + nc];
+    nu[j] = 1.0;
+    for (int kc = 0; kc < nc; kc++) {
+      j = indSpecies[kc];
+      nu[j] = scMatrix[rxn][kc];
     }
+    
   }
   
   int vcs_MultiPhaseEquil::numComponents() const {

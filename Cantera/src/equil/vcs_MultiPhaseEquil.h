@@ -213,6 +213,12 @@ namespace VCSnonideal {
   /*!
    *  Class MultiPhaseEquil is designed to be used to set a mixture
    *  containing one or more phases to a state of chemical equilibrium. 
+   *
+   * Note, as currently constructed, the underlying ThermoPhase
+   * objects are shared between the MultiPhase object and this
+   * object. Therefore, mix is not a const argument, and the
+   * return parameters are contained in underlying ThermoPhase
+   * objects.
    * 
    * @ingroup equilfunctions
    */
@@ -232,7 +238,28 @@ namespace VCSnonideal {
     vcs_MultiPhaseEquil();
 
     
-    vcs_MultiPhaseEquil(mix_t* mix, int printLvl, bool start=true);
+    //! Constructor for the multiphase equilibrium solver
+    /*!
+     * This constructor will initialize the object with a MultiPhase
+     * object, setting up the internal equilibration problem.
+     * Note, as currently constructed, the underlying ThermoPhase
+     * objects are shared between the MultiPhase object and this
+     * object. Therefore, mix is not a const argument, and the
+     * return parameters are contained in underlying ThermoPhase
+     * objects.
+     *
+     * @param mix Object containing the MultiPhase object
+     * @param printLvl Determines the amount of printing to stdout
+     *            that occurs for each call:
+     *        - 0 No printing
+     *        - 1 Only printing to the .csv file
+     *        - 2 print the soln only
+     *        - 3 Print the setup and then the soln only
+     *        - 4 Print a table for each iteration
+     *        - 5 Print more than a table for each iteration
+     *
+     */
+    vcs_MultiPhaseEquil(mix_t* mix, int printLvl);
 
     //! Destructor for the class
     virtual ~vcs_MultiPhaseEquil();
@@ -245,14 +272,20 @@ namespace VCSnonideal {
      */
     int component(int m) const ; 
 
-    //! Get the stoichiometric reaction matrix for a single reaction index
+    //! Get the stoichiometric reaction coefficients for a single
+    //! reaction index
     /*!
-     * This returns a stoichiometric reaction matrix for a single
-     * formation reaction for a noncomponent species.
-     *
+     * This returns a stoichiometric reaction vector for a single
+     * formation reaction for a noncomponent species. There are
+     * (nSpecies() - nComponents) formation reactions. Each
+     * formation reaction will have a value of 1.0 for the species
+     * that is being formed, and the other non-zero coefficients will 
+     * all involve the components of the mixture.
      *
      * @param rxn Reaction number.
      * @param nu  Vector of coefficients for the formation reaction.
+     *            Length is equal to the number of species in
+     *            the MultiPhase object.
      */
     void getStoichVector(index_t rxn, Cantera::vector_fp& nu);
 
@@ -311,10 +344,28 @@ namespace VCSnonideal {
 		       int maxsteps = 1000, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances
-    //! storred in the MultiPhase object using constant H and P
+    //! storred in the MultiPhase object using either constant H and P
+    //! or constant U and P.
     /*!
      *  Use the vcs algorithm to equilibrate the current multiphase
-     *  mixture.
+     *  mixture. The pressure of the calculation is taken from 
+     *  the current pressure storred with the MultiPhase object.
+     *
+     *  @param Htarget Value of the total mixture enthalpy or total
+     *                 internal energy that will be
+     *                 kept constant. Note, this is and must be an extensive
+     *                 quantity.  units = Joules
+     *
+     *  @param XY      Integer flag indicating what is held constant.
+     *                 Must be either HP or UP.
+     *
+     *  @param Tlow    Lower limit of the temperature. It's an
+     *                 error condition if the temperature falls
+     *                 below Tlow.
+     *
+     *  @param Thigh   Upper limit of the temperature. It's an
+     *                 error condition if the temperature goes
+     *                 higher than Thigh.
      *
      *  @param estimateEquil Boolean indicating whether the solver
      *                   should estimate its own initial condition.
@@ -325,26 +376,108 @@ namespace VCSnonideal {
      *  @param printLvl  Determines the amount of printing that
      *                  gets sent to stdout from the vcs package
      *                  (Note, you may have to compile with debug
-     *                   flags to get some printing).
+     *                   flags to get some printing). See main
+     *                   constructor call for meaning of the levels.
+     *
      *  @param err     Internal error level
+     *
      *  @param maxsteps max steps allowed.
-     *  @param  loglevel for 
+     *
+     *  @param loglevel Determines the amount of printing to the HTML
+     *                  output file.
      */
     int equilibrate_HP(doublereal Htarget, int XY, double Tlow, double Thigh,
 		       bool estimateEquil = false,
 		       int printLvl = 0, doublereal err = 1.0E-6, 
 		       int maxsteps = 1000, int loglevel=-99);
 
-
+    //! Equilibrate the solution using the current element abundances
+    //! storred in the MultiPhase object using constant S and P.
+    /*!
+     *  Use the vcs algorithm to equilibrate the current multiphase
+     *  mixture. The pressure of the calculation is taken from 
+     *  the current pressure storred with the MultiPhase object.
+     *
+     *  @param Starget Value of the total mixture entropy
+     *                 that will be
+     *                 kept constant. Note, this is and must be an extensive
+     *                 quantity.  units = Joules/K
+     *
+     *
+     *  @param Tlow    Lower limit of the temperature. It's an
+     *                 error condition if the temperature falls
+     *                 below Tlow.
+     *
+     *  @param Thigh   Upper limit of the temperature. It's an
+     *                 error condition if the temperature goes
+     *                 higher than Thigh.
+     *
+     *  @param estimateEquil Boolean indicating whether the solver
+     *                   should estimate its own initial condition.
+     *                   If false, the initial mole fraction vector
+     *                   in the %ThermoPhase object is used as the 
+     *                   initial condition.
+     *
+     *  @param printLvl  Determines the amount of printing that
+     *                  gets sent to stdout from the vcs package
+     *                  (Note, you may have to compile with debug
+     *                   flags to get some printing). See main
+     *                   constructor call for meaning of the levels.
+     *
+     *  @param err     Internal error level
+     *
+     *  @param maxsteps max steps allowed.
+     *
+     *  @param loglevel Determines the amount of printing to the HTML
+     *                  output file.
+     */
     int equilibrate_SP(doublereal Starget, double Tlow, double Thigh,
 		       bool estimateEquil = false,
 		       int printLvl = 0, doublereal err = 1.0E-6, 
 		       int maxsteps = 1000, int loglevel=-99);
 
+
+    //! Equilibrate the solution using the current element abundances
+    //! storred in the MultiPhase object using constant V and constant
+    //! T, H, U, or S.
+    /*!
+     *  Use the vcs algorithm to equilibrate the current multiphase
+     *  mixture. The pressure of the calculation is taken from 
+     *  the current pressure storred with the MultiPhase object.
+     *
+     *
+     *  @param XY      Integer flag indicating what is held constant.
+     *                 Must be either TV, HV, UV, or SV.
+     *
+     *  @param xtarget Value of the total thermodynamic parameter to
+     *                 be held constant in addition to V.
+     *                 Note, except for T, this must be an extensive
+     *                 quantity.  units = Joules/K or Joules
+     *
+     *
+     *  @param estimateEquil Boolean indicating whether the solver
+     *                   should estimate its own initial condition.
+     *                   If false, the initial mole fraction vector
+     *                   in the %ThermoPhase object is used as the 
+     *                   initial condition.
+     *
+     *  @param printLvl  Determines the amount of printing that
+     *                  gets sent to stdout from the vcs package
+     *                  (Note, you may have to compile with debug
+     *                   flags to get some printing). See main
+     *                   constructor call for meaning of the levels.
+     *
+     *  @param err     Internal error level
+     *
+     *  @param maxsteps max steps allowed.
+     *
+     *  @param loglevel Determines the amount of printing to the HTML
+     *                  output file.
+     */
     int equilibrate_TV(int XY, doublereal xtarget,
-		       bool estimateEquil,
-		       int printLvl, doublereal err, 
-		       int maxsteps, int loglevel);
+		       bool estimateEquil = false,
+		       int printLvl = 0, doublereal err = 1.0E-6, 
+		       int maxsteps = 1000, int loglevel = -99);
 
     //! Report the equilibrium answer in a comma separated table format
     /*!
