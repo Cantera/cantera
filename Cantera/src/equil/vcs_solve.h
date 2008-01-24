@@ -90,18 +90,13 @@ public:
    *
    *  @param maxit  Maximum number of iterations for the algorithm 
    *
-   *  @param iprintTime Printing of time information. Default = -1,
-   *                    implies printing if other printing is turned
-   *                    on.
-   *
    * Output:
    *
    *    @return
    *       nonzero value: failure to solve the problem at hand.
    *       zero : success
    */
-  int vcs(VCS_PROB *vprob, int ifunc, int ipr, int ip1, int maxit,
-	  int iprintTime = -1);
+  int vcs(VCS_PROB *vprob, int ifunc, int ipr, int ip1, int maxit);
 
   int vcs_solve_TP(int, int, int);
 
@@ -324,7 +319,7 @@ private:
    */
   void vcs_counters_init(int ifunc);
 
-  void vcs_TCounters_report(void);
+  void vcs_TCounters_report(int timing_print_lvl = 1);
 
 public:
   //! value of the number of species  used to malloc data structures
@@ -780,6 +775,13 @@ public:
   VCS_COUNTERS *m_VCount;
 
   int vcs_debug_print_lvl;
+
+  //! printing level of timing information
+  /*!
+   *  1 allowing printing of timing
+   *  0 do not allow printing of timing -> everything is a zero.
+   */
+  int m_timing_print_lvl;
 
   //! Units for the chemical potential data:
   /*!

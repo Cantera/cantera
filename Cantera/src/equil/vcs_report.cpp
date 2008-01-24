@@ -348,11 +348,17 @@ int VCS_SOLVE::vcs_report(int iconv)
     */
    plogf("\n");
    plogf("\nCounters:         Iterations          Time (seconds)\n");
-   plogf("    vcs_basopt:   %5d             %11.5E\n",
-	  m_VCount->Basis_Opts, m_VCount->Time_basopt);
-   plogf("    vcs_TP:       %5d             %11.5E\n", 
-	  m_VCount->Its, m_VCount->Time_vcs_TP);
-   
+   if (m_timing_print_lvl > 0) {
+     plogf("    vcs_basopt:   %5d             %11.5E\n",
+	   m_VCount->Basis_Opts, m_VCount->Time_basopt);
+     plogf("    vcs_TP:       %5d             %11.5E\n", 
+	   m_VCount->Its, m_VCount->Time_vcs_TP);
+   } else {
+     plogf("    vcs_basopt:   %5d             %11s\n",
+	   m_VCount->Basis_Opts,"    NA     ");
+     plogf("    vcs_TP:       %5d             %11s\n", 
+	   m_VCount->Its,"    NA     " );
+   }
    print_line("-", 80);
    print_line("-", 80);
    
@@ -373,7 +379,7 @@ int VCS_SOLVE::vcs_report(int iconv)
 /*****************************************************************************/
 /*****************************************************************************/
 
-void VCS_SOLVE::vcs_TCounters_report(void)
+void VCS_SOLVE::vcs_TCounters_report(int timing_print_lvl)
    
    /**************************************************************************
    *
@@ -382,15 +388,26 @@ void VCS_SOLVE::vcs_TCounters_report(void)
    *   Print out the total Its and time counters to standard output
    ***************************************************************************/
 {
-   plogf("\nTCounters:   Num_Calls   Total_Its       Total_Time (seconds)\n");
-   plogf("    vcs_basopt:   %5d      %5d         %11.5E\n",
-	  m_VCount->T_Basis_Opts, m_VCount->T_Basis_Opts, m_VCount->T_Time_basopt);
-   plogf("    vcs_TP:       %5d      %5d         %11.5E\n", 
-	  m_VCount->T_Calls_vcs_TP, m_VCount->T_Its, m_VCount->T_Time_vcs_TP);
-   plogf("    vcs_inest:    %5d                    %11.5E\n", 
-	   m_VCount->T_Calls_Inest,  m_VCount->T_Time_inest);
-   plogf("    vcs_TotalTime:                         %11.5E\n",
+  plogf("\nTCounters:   Num_Calls   Total_Its       Total_Time (seconds)\n");
+  if (timing_print_lvl > 0) {
+    plogf("    vcs_basopt:   %5d      %5d         %11.5E\n",
+	  m_VCount->T_Basis_Opts, m_VCount->T_Basis_Opts, "    NA     ");
+    plogf("    vcs_TP:       %5d      %5d         %11.5E\n", 
+	  m_VCount->T_Calls_vcs_TP, m_VCount->T_Its, "    NA     ");
+    plogf("    vcs_inest:    %5d                    %11.5E\n", 
+	  m_VCount->T_Calls_Inest, "    NA     ");
+    plogf("    vcs_TotalTime:                         %11.5E\n",
 	  m_VCount->T_Time_vcs);
+  } else {
+    plogf("    vcs_basopt:   %5d      %5d         %11s\n",
+	  m_VCount->T_Basis_Opts, m_VCount->T_Basis_Opts,"    NA     ");
+    plogf("    vcs_TP:       %5d      %5d         %11s\n", 
+	  m_VCount->T_Calls_vcs_TP, m_VCount->T_Its,"    NA     ");
+    plogf("    vcs_inest:    %5d                    %11s\n", 
+	  m_VCount->T_Calls_Inest, "    NA     ");
+    plogf("    vcs_TotalTime:                         %11s\n",
+	  "    NA     ");
+  }
 }
    
 /*****************************************************************************/

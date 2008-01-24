@@ -42,6 +42,7 @@ using namespace std;
 
 namespace VCSnonideal {
 
+
   vcs_MultiPhaseEquil::vcs_MultiPhaseEquil() :
     m_vprob(0),
     m_mix(0),
@@ -710,7 +711,9 @@ namespace VCSnonideal {
      plogf("------------------------------------------"
 	    "-------------------\n"); 
      if (printLvl > 2) {
-       plogf("Total time = %12.6e seconds\n", te);
+       if (m_vsolvePtr->m_timing_print_lvl > 0) {
+         plogf("Total time = %12.6e seconds\n", te);
+       }
      }
    }
    return iSuccess;

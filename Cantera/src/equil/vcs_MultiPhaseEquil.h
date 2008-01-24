@@ -182,6 +182,7 @@ namespace Cantera {
 
 namespace VCSnonideal {
 
+
   class VCS_PROB;
   class VCS_SOLVE;
   

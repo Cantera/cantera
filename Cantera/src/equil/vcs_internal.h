@@ -32,6 +32,15 @@ namespace VCSnonideal {
    */
 #define plogf  Cantera::writelogf
 
+  //! Global hook for turning on and off time printing.
+  /*!
+   * Default is to allow printing. But, you can assign this to zero
+   * globally to turn off all time printing.
+   * This is helpful for test suite purposes where you are interested
+   * in differences in text files.
+   */
+  extern int vcs_timing_print_lvl;
+
   /*
    * Forward references
    */

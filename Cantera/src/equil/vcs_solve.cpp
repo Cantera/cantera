@@ -29,6 +29,8 @@ using namespace std;
 
 namespace VCSnonideal {
 
+  int VCSnonideal::vcs_timing_print_lvl = 1;
+
   VCS_SOLVE::VCS_SOLVE() :
     NSPECIES0(0),
     NPHASE0(0),
@@ -52,9 +54,8 @@ namespace VCSnonideal {
     Vol(0.0),
     Faraday_dim(1.602e-19 * 6.022136736e26),
     m_VCount(0),
-#ifdef DEBUG_MODE
     vcs_debug_print_lvl(0),
-#endif
+    m_timing_print_lvl(1),
     m_VCS_UnitsFormat(VCS_UNITS_UNITLESS)
   {
   }
@@ -211,7 +212,10 @@ namespace VCSnonideal {
     m_VCount    = new VCS_COUNTERS();
     vcs_counters_init(1);
 
-  
+    if (vcs_timing_print_lvl == 0) {
+      m_timing_print_lvl = 0;
+    }
+
     return;
 
   }
@@ -281,23 +285,22 @@ namespace VCSnonideal {
    *
    *  @param maxit  Maximum number of iterations for the algorithm 
    *
-   *  @param iprintTime Printing of time information. Default = -1,
-   *                    implies printing if other printing is turned on.
-   *
    * Output:
    *
    *    @return
    *       nonzero value: failure to solve the problem at hand.
    *       zero : success
    */
-  int VCS_SOLVE::vcs(VCS_PROB *vprob, int ifunc, int ipr, int ip1, int maxit,
-		     int iprintTime) {
+  int VCS_SOLVE::vcs(VCS_PROB *vprob, int ifunc, int ipr, int ip1, int maxit) {
     int retn = 0;
     int iconv = 0, nspecies0, nelements0, nphase0;
     Cantera::clockWC tickTock;
-    if (iprintTime == -1) {
-      iprintTime = MAX(ipr, ip1);
+    
+    int  iprintTime = MAX(ipr, ip1);
+    if (m_timing_print_lvl < iprintTime) {
+      iprintTime =  m_timing_print_lvl ;
     }
+    
     if (ifunc < 0 || ifunc > 2) {
       plogf("vcs: Unrecognized value of ifunc, %d: bailing!\n",
 	     ifunc);
@@ -414,7 +417,7 @@ namespace VCSnonideal {
     double te = tickTock.secondsWC();
     m_VCount->T_Time_vcs += te;
     if (iprintTime > 0) {
-      vcs_TCounters_report();
+      vcs_TCounters_report(m_timing_print_lvl);
     }
     /*
      *        Now, destroy the private data, if requested to do so
