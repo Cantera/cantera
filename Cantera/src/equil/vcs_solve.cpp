@@ -387,18 +387,9 @@ namespace VCSnonideal {
        *    a 2x2 Newton's method, using loops over vcs_TP() to
        *    calculate the residual and Jacobian)
        */
-      switch (vprob->prob_type) {
-      case VCS_PROBTYPE_TP:
-	iconv = vcs_TP(ipr, ip1, maxit, vprob->T, vprob->Pres);
-	break;
-      case VCS_PROBTYPE_TV:
-	iconv = vcs_TV(ipr, ip1, maxit, vprob->T, vprob->Vol);	    
-	break;
-      default:
-	plogf("Unknown or unimplemented problem type: %d\n",
-	       vprob->prob_type);
-	return VCS_PUB_BAD;
-      }
+    
+      iconv = vcs_TP(ipr, ip1, maxit, vprob->T, vprob->Pres);
+
 	     
       /*
        *        If requested to print anything out, go ahead and do so;
@@ -994,9 +985,7 @@ namespace VCSnonideal {
    
     return VCS_SUCCESS;
   }
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
+
   // Initialize the internal counters
   /*
    * Initialize the internal counters containing the subroutine call
@@ -1022,6 +1011,43 @@ namespace VCSnonideal {
       m_VCount->T_Time_vcs = 0.0;
     }
   }
+
+ /**************************************************************************
+  *
+  * vcs_VolTotal
+  *
+  *  This function calculates the partial molar volume
+  *  for all species, kspec, in the thermo problem
+  *  at the temperature TKelvin and pressure, Pres, pres is in atm.
+  *  And, it calculates the total volume of the combined system.
+  *
+  * Input
+  *    iphase
+  *    TKelvin
+  *    pres
+  *    w[] => vector containing the current mole numbers.
+  *
+  * Output
+  *    VolPM[] => For species in all phase, the entries are the
+  *                partial molar volumes
+  *    return value = Total volume of the phase in L**3 / MOL_UNITS
+  *
+  *  (L and MOL_UNITS determined from global units value if__)
+  */
+double VCS_SOLVE::vcs_VolTotal(double tkelvin, double pres, double w[],
+                               double volPM[])
+{
+   double volTot = 0.0;
+   for (int iphase = 0; iphase < NPhase; iphase++) {
+     vcs_VolPhase *Vphase = VPhaseList[iphase];
+     Vphase->setState_TP(tkelvin, pres);
+     Vphase->setMolesFromVCS(w);
+     double volp = Vphase->VolPM_calc();
+     (void) Vphase->sendToVCSVolPM(volPM);
+     volTot += volp;
+   }
+   return volTot;
+}
 
 
 

@@ -102,29 +102,6 @@ namespace VCSnonideal {
     double T_Time_vcs;      
   };
 
-  //!  This is the rootfinder function call for the function vcs_TV()
-  /*!
-   * The function is of type VCS_FUNC_PTR
-   * It's the function call for the vcs_TV().
-   *  Solves for the total volume of the system, by first calculating
-   *  the equilibrium wrt T,P.
-   *  Routine then returns
-   *
-   *   \f[
-   *    f(x) = V(T,P) - Vtarget
-   *   \f]
-   *
-   * @param xval Currently value of the independent variable
-   * @param Vtarget   Target value of the volume
-   * @param varID     If 0, xval is temperature, If 1, xval is pressure.
-   * @param fptrPassthrough Pointer to VCS_SOLVE object
-   * @param err Return 0 for success. Anything else is an error code.
-   *
-   */
-  double vcs_funcVtot(double xval, double Vtarget, int varID, 
-		      void *fptrPassthrough, int *err);
-
-
   //!  Returns the value of the gas constant in the units specified by parameter
   /*!
    *  @param mu_units Specifies the units. 

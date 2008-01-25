@@ -63,11 +63,11 @@ endif
 
 ifeq ($(do_VCSnonideal), 1)
 VCSNONIDEAL_OBJ = vcs_solve_TP.o vcs_VolPhase.o vcs_solve.o vcs_prob.o \
-                  vcs_TP.o vcs_TV.o vcs_report.o vcs_util.o \
+                  vcs_TP.o vcs_report.o vcs_util.o \
                   vcs_IntStarStar.o  vcs_DoubleStarStar.o  vcs_elem.o \
                   vcs_elem_rearrange.o   vcs_MultiPhaseEquil.o \
                   vcs_nasa_poly.o  vcs_nondim.o vcs_Exception.o \
-                  vcs_funcVtot.o vcs_inest.o vcs_rearrange.o \
+                  vcs_inest.o vcs_rearrange.o \
                   vcs_root1d.o vcs_rxnadj.o \
                   vcs_SpeciesProperties.o vcs_equilibrate.o \
                   vcs_prep.o vcs_species_thermo.o vcs_Gibbs.o \

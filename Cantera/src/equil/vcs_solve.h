@@ -166,7 +166,6 @@ public:
 
   int vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres);
   void  vcs_fePrep_TP(void);
-  int vcs_TV(int ipr, int ip1, int maxit, double T, double VolRequest);
   double vcs_VolTotal(double, double, double [], double []);
 
   int vcs_prep_oneTime(int printLvl);
