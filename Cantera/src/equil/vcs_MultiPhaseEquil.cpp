@@ -1065,12 +1065,13 @@ namespace VCSnonideal {
   }
   
   /*
-   * ---------------------------------------------------------------------------------------
+   * 
    *
    * HKM -> Work on transfering the current value of the voltages into the 
    *        equilibrium problem.
    */
-  int  vcs_Cantera_to_vprob(MultiPhase *mphase, VCS_PROB *vprob) {
+  int  vcs_Cantera_to_vprob(Cantera::MultiPhase *mphase,
+			    VCSnonideal::VCS_PROB *vprob) {
     int k;
     VCS_SPECIES_THERMO *ts_ptr = 0;
 
@@ -1508,7 +1509,8 @@ namespace VCSnonideal {
   /*
    * The basic problem has already been set up.
    */
-  int vcs_Cantera_update_vprob(MultiPhase *mphase, VCS_PROB *vprob) {
+  int vcs_Cantera_update_vprob(Cantera::MultiPhase *mphase, 
+			       VCSnonideal::VCS_PROB *vprob) {
     int totNumPhases = mphase->nPhases();
     int kT = 0;
     std::vector<double> tmpMoles;

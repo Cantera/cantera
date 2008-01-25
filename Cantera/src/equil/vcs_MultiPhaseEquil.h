@@ -53,6 +53,9 @@ namespace Cantera {
    *                ChemEquil will be tried first, and if it fails 
    *                vcs_MultiPhaseEquil will be tried.
    *
+   *  @param rtol  Relative tolerance of the solve. Defaults to
+   *               1.0E-9.
+   *
    *  @param maxsteps The maximum number of steps to take to find
    *                  the solution.
    *
@@ -105,6 +108,9 @@ namespace Cantera {
    *                 - 1 MultiPhaseEquil solver
    *                 - 2 VCSnonideal Solver (default)
    *
+   *  @param rtol  Relative tolerance of the solve. Defaults to
+   *               1.0E-9.
+   *
    *  @param maxsteps The maximum number of steps to take to find
    *                  the solution.
    *
@@ -138,8 +144,8 @@ namespace Cantera {
    *
    *  @param s The object to set to an equilibrium state
    *
-   *  @param XY An integer specifying the two properties to be held
-   *            constant.
+   *  @param ixy An integer specifying the two properties to be held
+   *             constant.
    *
    *  @param estimateEquil Boolean indicating whether the solver
    *                   should estimate its own initial condition.
@@ -155,6 +161,9 @@ namespace Cantera {
    *  @param solver   Determines which solver is used. 
    *                 - 1 MultiPhaseEquil solver
    *                 - 2 VCSnonideal Solver (default)
+   *
+   *  @param rtol  Relative tolerance of the solve. Defaults to
+   *               1.0E-9.
    *
    *  @param maxsteps The maximum number of steps to take to find
    *                  the solution.
@@ -209,7 +218,6 @@ namespace VCSnonideal {
   int vcs_Cantera_update_vprob(Cantera::MultiPhase *mphase, 
 			       VCSnonideal::VCS_PROB *vprob);
 
-
   //! Cantera's Interface to the Multiphase chemical equilibrium solver.
   /*!
    *  Class MultiPhaseEquil is designed to be used to set a mixture
@@ -225,6 +233,7 @@ namespace VCSnonideal {
    */
   class vcs_MultiPhaseEquil {
   public:
+
     //! Shorthand for the MultiPhase mixture object used by Cantera
     //! to store information about multiple phases
     typedef Cantera::MultiPhase mix_t;
@@ -270,6 +279,10 @@ namespace VCSnonideal {
      *  Returns the index of the ith component in the equilibrium 
      *  calculation. The index refers to the ordering of the species
      *  in the MultiPhase object.
+     *
+     *  @param m Index of the component. Must be between 0 and the
+     *           number of components, which can be obtained from the
+     *           numComponents() command.
      */
     int component(int m) const ; 
 
@@ -502,8 +515,8 @@ namespace VCSnonideal {
      *          problem hasn't been solved yet, it returns -1.
      */
     int numElemConstraints() const;
-  
-    //index_t componentIndex(index_t n) { return m_species[m_order[n]]; }
+
+    // Friend functions
 
     friend int vcs_Cantera_to_vprob(Cantera::MultiPhase *mphase, 
 				    VCSnonideal::VCS_PROB *vprob);
@@ -511,14 +524,6 @@ namespace VCSnonideal {
 					 VCSnonideal::VCS_PROB *vprob);
 
   protected:
-
-
-    //!  Number of elements in the combined element object describing all of the
-    //!  phases.
-    //index_t m_nel;
-
-    //! Number of species in the combined multiphase object
-    //index_t m_nsp;
 
     //!  Vector that takes into account of the current sorting of the species
     /*!
@@ -566,13 +571,13 @@ namespace VCSnonideal {
      */
     int m_printLvl;
 
-
     //! Stoichiometric matrix
     /*!
      *
      */
     matrix_t m_N;
 
+    //! Iteration Count
     int m_iter;
 
     //! Vector of indices for species that are included in the
