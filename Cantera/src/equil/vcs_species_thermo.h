@@ -26,7 +26,7 @@ class vcs_VolPhase;
  */
 #define VCS_SS0_NOTHANDLED    -1
 #define VCS_SS0_CONSTANT       0
-#define VCS_SS0_NASA_POLY      1
+//#define VCS_SS0_NASA_POLY      1
 #define VCS_SS0_CONSTANT_CP    2
 
 

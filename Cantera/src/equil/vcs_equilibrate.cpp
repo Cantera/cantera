@@ -18,7 +18,6 @@
 #include "vcs_species_thermo.h"
 #include "vcs_SpeciesProperties.h"
 #include "vcs_VolPhase.h"
-#include "vcs_nasa_poly.h"
 #include "vcs_solve.h"
 #include "equil.h"
 

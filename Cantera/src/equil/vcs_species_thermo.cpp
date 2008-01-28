@@ -16,7 +16,7 @@
 #include "vcs_species_thermo.h"
 #include "vcs_defs.h"
 #include "vcs_VolPhase.h"
-#include "vcs_nasa_poly.h"
+
 #include "vcs_Exception.h"
 #include "vcs_internal.h"
 
@@ -72,10 +72,6 @@ VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(int indexPhase,
  */
 VCS_SPECIES_THERMO::~VCS_SPECIES_THERMO() 
 {
-  if (SS0_Model  == VCS_SS0_NASA_POLY) {
-    vcs_nasa_poly_destroy((VCS_NASA_POLY **) &(this->SS0_Params));
-    SS0_Params = 0;
-  }
 }
 
 /*****************************************************************************
@@ -105,15 +101,12 @@ VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(const VCS_SPECIES_THERMO& b) :
   UseCanteraCalls(b.UseCanteraCalls),
   m_VCS_UnitsFormat(b.m_VCS_UnitsFormat)
 {
-	VCS_NASA_POLY *ppp = 0;	
+
   switch (SS0_Model) {
-  case VCS_SS0_NASA_POLY:
-    ppp = (VCS_NASA_POLY *) b.SS0_Params;
-    SS0_Params = (void *) new VCS_NASA_POLY(*ppp);
-    break;
+ 
   default:
-	  ppp = 0;
-	  SS0_Params = 0;
+    
+    SS0_Params = 0;
     break;
   }
 }
@@ -137,17 +130,6 @@ VCS_SPECIES_THERMO::operator=(const VCS_SPECIES_THERMO& b)
     SS0_S0                = b.SS0_S0;
     SS0_Cp0               = b.SS0_Cp0;
     SS0_Pref              = b.SS0_Pref;
-
-    VCS_NASA_POLY *ppp= 0;
-    switch (SS0_Model) {
-    case VCS_SS0_NASA_POLY:
-      ppp = (VCS_NASA_POLY *) b.SS0_Params;
-      SS0_Params = (void *) new VCS_NASA_POLY(*ppp);
-      break;
-    default:
-      break;
-    }   
-
     SSStar_Model          = b.SSStar_Model;
     /*
      * shallow copy because function is undeveloped.
@@ -319,9 +301,6 @@ double VCS_SPECIES_THERMO::G0_R_calc(int kglob, double TKelvin)
       S  = SS0_Cp0 + SS0_Cp0 * log((TKelvin / SS0_T0));
       fe = H - TKelvin * S;
       break;
-    case VCS_SS0_NASA_POLY: 
-      fe = vcs_G0_NASA(TKelvin, (VCS_NASA_POLY *) SS0_Params);
-      break;
     default:
 #ifdef DEBUG_MODE
       plogf("%sERROR: unknown model\n", yo);
@@ -373,20 +352,6 @@ double VCS_SPECIES_THERMO::eval_ac(int kglob)
     case VCS_AC_CONSTANT:
       ac = 1.0;
       break;
-    case VCS_AC_DEBYE_HUCKEL:
-	 
-      plogf("Not implemented Yet\n");
-      exit(-1);
-	 
-    case VCS_AC_REGULAR_SOLN:
-	 
-      plogf("Not implemented Yet\n");
-      exit(-1);
-	 
-    case VCS_AC_MARGULES:
-	 
-      plogf("Not implemented Yet\n");
-      exit(-1);
     default:
 #ifdef DEBUG_MODE
       plogf("%sERROR: unknown model\n", yo);

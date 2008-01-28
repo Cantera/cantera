@@ -391,11 +391,13 @@ void VCS_SOLVE::vcs_TCounters_report(int timing_print_lvl)
   plogf("\nTCounters:   Num_Calls   Total_Its       Total_Time (seconds)\n");
   if (timing_print_lvl > 0) {
     plogf("    vcs_basopt:   %5d      %5d         %11.5E\n",
-	  m_VCount->T_Basis_Opts, m_VCount->T_Basis_Opts, "    NA     ");
+	  m_VCount->T_Basis_Opts, m_VCount->T_Basis_Opts,
+	  m_VCount->T_Time_basopt);
     plogf("    vcs_TP:       %5d      %5d         %11.5E\n", 
-	  m_VCount->T_Calls_vcs_TP, m_VCount->T_Its, "    NA     ");
+	  m_VCount->T_Calls_vcs_TP, m_VCount->T_Its, 
+	  m_VCount->T_Time_vcs_TP);
     plogf("    vcs_inest:    %5d                    %11.5E\n", 
-	  m_VCount->T_Calls_Inest, "    NA     ");
+	  m_VCount->T_Calls_Inest,  m_VCount->T_Time_inest);
     plogf("    vcs_TotalTime:                         %11.5E\n",
 	  m_VCount->T_Time_vcs);
   } else {

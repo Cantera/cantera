@@ -18,7 +18,7 @@
 #include "vcs_species_thermo.h"
 #include "vcs_SpeciesProperties.h"
 #include "vcs_VolPhase.h"
-#include "vcs_nasa_poly.h"
+
 #include "vcs_solve.h"
 
 #include "ct_defs.h"
@@ -1315,57 +1315,8 @@ namespace VCSnonideal {
 	double c[150];
 	double minTemp, maxTemp, refPressure;
 	sp.reportParams(k, spType, c, minTemp, maxTemp, refPressure);
-	if (spType == NASA) {
-	  if (ts_ptr->SS0_Params) {
-	    if (ts_ptr->SS0_Model  == VCS_SS0_NASA_POLY) {
-	      vcs_nasa_poly_destroy((VCS_NASA_POLY **) &(ts_ptr->SS0_Params));
-	      ts_ptr->SS0_Params = 0;
-	    }
-	  }
-	  ts_ptr->SS0_Model  = VCS_SS0_NASA_POLY;
-	 
-	  ts_ptr->SS0_Params = (void *)
-	    vcs_nasa_poly_create(2, vprob->ne);
-	  ts_ptr->SS0_feSave    = 0.0;
-	  ts_ptr->SS0_TSave     = -90.;
-	  ts_ptr->SS0_Pref = sp.refPressure();
-	  if (gasPhase) {
-	    ts_ptr->SSStar_Model = VCS_SSSTAR_IDEAL_GAS;
-	    ts_ptr->SSStar_Vol_Model  = VCS_SSVOL_IDEALGAS;	       
-	  } else {
-	    ts_ptr->SSStar_Model = VCS_SSSTAR_CONSTANT;
-	    ts_ptr->SSStar_Vol_Model  = VCS_SSVOL_CONSTANT;
-	  }
-	  ts_ptr->Activity_Coeff_Model  = VCS_AC_CONSTANT;
-	  ts_ptr->Activity_Coeff_Params = NULL;
-	  VCS_NASA_POLY * poly_ptr = (VCS_NASA_POLY *)ts_ptr->SS0_Params;
 
-	  poly_ptr->Tlimits[0] = minTemp;
-	  poly_ptr->Tlimits[1] = c[0];
-	  poly_ptr->Tlimits[2] = maxTemp;
-
-	  /*
-	   * Cantera takes coefficients A5 and A6 and puts them into 
-	   * the first and second spots in the polynomial vector.
-	   * Here, we reverse this operation.
-	   */
-	  poly_ptr->Acoeff[0][0] = c[3];
-	  poly_ptr->Acoeff[0][1] = c[4];
-	  poly_ptr->Acoeff[0][2] = c[5];
-	  poly_ptr->Acoeff[0][3] = c[6];
-	  poly_ptr->Acoeff[0][4] = c[7];
-	  poly_ptr->Acoeff[0][5] = c[1];
-	  poly_ptr->Acoeff[0][6] = c[2];
-
-	  poly_ptr->Acoeff[1][0] = c[10];
-	  poly_ptr->Acoeff[1][1] = c[11];
-	  poly_ptr->Acoeff[1][2] = c[12];
-	  poly_ptr->Acoeff[1][3] = c[13];
-	  poly_ptr->Acoeff[1][4] = c[14];
-	  poly_ptr->Acoeff[1][5] = c[8];
-	  poly_ptr->Acoeff[1][6] = c[9];
-
-	} else if (spType == SIMPLE) {
+	if (spType == SIMPLE) {
 	  ts_ptr->SS0_Model  = VCS_SS0_CONSTANT;
 	  ts_ptr->SS0_T0  = c[0];
 	  ts_ptr->SS0_H0  = c[1];

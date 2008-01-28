@@ -66,7 +66,7 @@ VCSNONIDEAL_OBJ = vcs_solve_TP.o vcs_VolPhase.o vcs_solve.o vcs_prob.o \
                   vcs_TP.o vcs_report.o vcs_util.o \
                   vcs_IntStarStar.o  vcs_DoubleStarStar.o  vcs_elem.o \
                   vcs_elem_rearrange.o   vcs_MultiPhaseEquil.o \
-                  vcs_nasa_poly.o  vcs_nondim.o vcs_Exception.o \
+                    vcs_nondim.o vcs_Exception.o \
                   vcs_inest.o vcs_rearrange.o \
                   vcs_root1d.o vcs_rxnadj.o \
                   vcs_SpeciesProperties.o vcs_equilibrate.o \
@@ -75,7 +75,7 @@ VCSNONIDEAL_OBJ = vcs_solve_TP.o vcs_VolPhase.o vcs_solve.o vcs_prob.o \
 
 VCSNONIDEAL_H =   vcs_internal.h vcs_VolPhase.h vcs_solve.h vcs_prob.h \
                   vcs_IntStarStar.h    vcs_DoubleStarStar.h vcs_defs.h \
-                  vcs_MultiPhaseEquil.h vcs_nasa_poly.h vcs_Exception.h  \
+                  vcs_MultiPhaseEquil.h  vcs_Exception.h  \
                   vcs_SpeciesProperties.h vcs_species_thermo.h
 endif
 
