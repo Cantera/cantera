@@ -1,9 +1,16 @@
 Unknown Cantera EOS to VCSnonideal: 45012
+vcs_Cantera_convert: Species Type 4 not known 
 vcs_Cantera_convert: Species Type 8 not known 
 vcs_Cantera_convert: Species Type 64 not known 
 vcs_Cantera_convert: Species Type 8 not known 
 vcs_Cantera_convert: Species Type 8 not known 
+vcs_Cantera_convert: Species Type 4 not known 
+vcs_Cantera_convert: Species Type 4 not known 
+vcs_Cantera_convert: Species Type 4 not known 
+vcs_Cantera_convert: Species Type 4 not known 
 vcs_Cantera_convert: Species Type 8 not known 
+vcs_Cantera_convert: Species Type 4 not known 
+vcs_Cantera_convert: Species Type 4 not known 
 vcs_Cantera_convert: Species Type 8 not known 
 
 ================================================================================
@@ -2814,16 +2821,16 @@ Chemical Potentials of the Species: (dimensionless)
 
 
 Counters:         Iterations          Time (seconds)
-    vcs_basopt:       3             0.00000E+00
-    vcs_TP:          36             1.78000E+00
+    vcs_basopt:       3                 NA     
+    vcs_TP:          36                 NA     
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
 TCounters:   Num_Calls   Total_Its       Total_Time (seconds)
-    vcs_basopt:       3          3         0.00000E+00
-    vcs_TP:           1         36         1.78000E+00
-    vcs_inest:        0                    0.00000E+00
-    vcs_TotalTime:                         1.79000E+00
+    vcs_basopt:       3          3             NA     
+    vcs_TP:           1         36             NA     
+    vcs_inest:        0                        NA     
+    vcs_TotalTime:                             NA     
 
  Results from vcs:
 
@@ -2847,7 +2854,6 @@ N2                  4.000e+00         9.763e-01       -5.719e+07
 OH                  3.747e-07         9.146e-08       -2.670e+08
 NaCl(S)             4.788e+00         1.000e+00       -4.326e+08
 -------------------------------------------------------------
-Total time = 1.800000e+00 seconds
 *************** NaCl_electrolyte *****************
 Moles: 2.32742
  

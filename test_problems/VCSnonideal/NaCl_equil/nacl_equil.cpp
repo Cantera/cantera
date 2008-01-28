@@ -10,6 +10,7 @@
 #include "Cantera.h"
 #include "equilibrium.h"
 #include "kernel/vcs_MultiPhaseEquil.h"
+#include "kernel/vcs_internal.h"
 
 #include "kernel/ThermoFactory.h"
 #include "kernel/IdealGasPhase.h"
@@ -37,6 +38,7 @@ int main(int argc, char **argv) {
   string inputFile = "HMW_NaCl.xml";
   bool printInputFormat = false; // print cmdfile.txt format 
   bool printedUsage = false;
+  VCSnonideal::vcs_timing_print_lvl = 0;
 
   /*
    * Process the command line arguments

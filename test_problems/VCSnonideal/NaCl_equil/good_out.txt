@@ -273,16 +273,16 @@ Chemical Potentials of the Species: (dimensionless)
 
 
 Counters:         Iterations          Time (seconds)
-    vcs_basopt:       3             0.00000E+00
-    vcs_TP:          36             1.66000E+00
+    vcs_basopt:       3                 NA     
+    vcs_TP:          36                 NA     
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
 TCounters:   Num_Calls   Total_Its       Total_Time (seconds)
-    vcs_basopt:       3          3         0.00000E+00
-    vcs_TP:           1         36         1.66000E+00
-    vcs_inest:        0                    0.00000E+00
-    vcs_TotalTime:                         1.68000E+00
+    vcs_basopt:       3          3             NA     
+    vcs_TP:           1         36             NA     
+    vcs_inest:        0                        NA     
+    vcs_TotalTime:                             NA     
 
  Results from vcs:
 
@@ -316,7 +316,7 @@ Moles: 2.32742
            density         1216.41  kg/m^3
   mean mol. weight         20.0596  amu
          potential               0  V
-               pH            6.59  
+                pH            6.59  
  
                           1 kg            1 kmol
                        -----------      ------------
