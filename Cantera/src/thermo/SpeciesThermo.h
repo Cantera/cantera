@@ -160,7 +160,6 @@ namespace Cantera {
     //! Destructor
     virtual ~SpeciesThermo() {}
 
-
     //! Copy Constructor for the %SpeciesThermo object. 
     /*!
      * @param right    Reference to %SpeciesThermo object to be copied into the
@@ -178,7 +177,6 @@ namespace Cantera {
     SpeciesThermo& operator=(const SpeciesThermo &right) {
       return *this;
     }
-
    
     //! Duplication routine for objects which inherit from 
     //! %SpeciesThermo

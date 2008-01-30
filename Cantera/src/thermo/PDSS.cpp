@@ -224,43 +224,49 @@ namespace Cantera {
   setParametersFromXML(const XML_Node& eosdata) {
   }
 
-  /**
-   * Return the molar enthalpy in units of J kmol-1
-   *
+  // Return the molar enthalpy in units of J kmol-1
+  /*
+   * Returns the species standard state enthalpy in J kmol-1 at the
+   * current temperature and pressure.
    * (NOTE: assumes that ThermoPhase Ref Polynomials are up-to-date)
    */
-  doublereal PDSS::
-  enthalpy_mole() const {
+  doublereal PDSS::enthalpy_mole() const {
     //m_tp->_updateThermo();
     m_temp = m_tp->temperature();
     double RT = GasConstant * m_temp;
     return m_h0_RT_ptr[m_spindex] * RT;
   }
 
-  /**
-   * Calculate the internal energy in mks units of
-   * J kmol-1 
+  // Return the molar internal Energy in units of J kmol-1
+  /*
+   * Returns the species standard state internal Energy in J kmol-1 at the
+   * current temperature and pressure.
+   *
+   * @return returns the species standard state internal Energy in  J kmol-1
    */
-  doublereal PDSS::
-  intEnergy_mole() const {
-    throw CanteraError("PDSS::enthalpy_mole()", "unimplemented");
+  doublereal PDSS::intEnergy_mole() const {
+    throw CanteraError("PDSS::intEnergy_mole()", "unimplemented");
     return (0.0);
   }
 
-  /**
-   * Calculate the entropy in mks units of 
-   * J kmol-1 K-1
+  // Return the molar entropy in units of J kmol-1 K-1
+  /*
+   * Returns the species standard state entropy in J kmol-1 K-1 at the
+   * current temperature and pressure.
+   *
+   * @return returns the species standard state entropy in J kmol-1 K-1
    */
-  doublereal PDSS::
-  entropy_mole() const {
-
+  doublereal PDSS::entropy_mole() const {
     throw CanteraError("PDSS::entropy_mole()", "unimplemented");
     return (0.0);
   }
 
-  /**
-   * Calculate the Gibbs free energy in mks units of
-   * J kmol-1 K-1.
+  // Return the molar gibbs free energy in units of J kmol-1
+  /*
+   * Returns the species standard state gibbs free energy in J kmol-1 at the
+   * current temperature and pressure.
+   *
+   * @return returns the species standard state gibbs free energy in  J kmol-1
    */
   doublereal PDSS::
   gibbs_mole() const {
@@ -268,26 +274,29 @@ namespace Cantera {
     return (0.0);
   }
 
-  /**
-   * Calculate the constant pressure heat capacity
-   * in mks units of J kmol-1 K-1
+  // Return the molar const pressure heat capacity in units of J kmol-1 K-1
+  /*
+   * Returns the species standard state Cp in J kmol-1 K-1 at the
+   * current temperature and pressure.
+   *
+   * @return returns the species standard state Cp in J kmol-1 K-1
    */
-  doublereal PDSS::
-  cp_mole() const {
+  doublereal PDSS::cp_mole() const {
     throw CanteraError("PDSS::cp_mole()", "unimplemented");
     return (0.0);
   }
 
-  /**
-   * Calculate the constant volume heat capacity
-   * in mks units of J kmol-1 K-1
+  // Return the molar const volume heat capacity in units of J kmol-1 K-1
+  /*
+   * Returns the species standard state Cv in J kmol-1 K-1 at the
+   * current temperature and pressure.
+   *
+   * @return returns the species standard state Cv in J kmol-1 K-1
    */
-  doublereal PDSS::
-  cv_mole() const {
+  doublereal PDSS::cv_mole() const {
     throw CanteraError("PDSS::cv_mole()", "unimplemented");
     return (0.0);
   }
-
    
   /**
    * Return the difference in enthalpy between current p
@@ -334,17 +343,19 @@ namespace Cantera {
     return (0.0);
   }
 
-  /**
-   * Calculate the difference in the constant pressure heat capacity
-   * between the current p and the ref p0,
-   * in mks units of J kmol-1 K-1
+  // Return the molar const volume heat capacity in units of J kmol-1 K-1
+  /*
+   * Returns the species standard state Cv in J kmol-1 K-1 at the
+   * current temperature and pressure.
+   *
+   * @return returns the species standard state Cv in J kmol-1 K-1
    */
   doublereal PDSS::
   cpDelp_mole() const {
     throw CanteraError("PDSS::cpDelp_mole()", "unimplemented");
     return (0.0);
   }
-
+  
   /**
    * Calculate the difference in constant volume heat capacity
    * between the current p and the ref p0

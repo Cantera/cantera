@@ -88,7 +88,7 @@ namespace Cantera {
      * the process terminates (for example, when checking for
      * memory leaks) then this method can be called to delete it.
      */
-    virtual void deleteFactory() {
+    void deleteFactory() {
 #if defined(THREAD_SAFE_CANTERA)
       boost::mutex::scoped_lock lock(species_thermo_mutex);
 #endif
@@ -112,7 +112,7 @@ namespace Cantera {
     /*!
      * @param type the integer type to be created.
      */ 
-    virtual SpeciesThermo* newSpeciesThermo(int type);
+    SpeciesThermo* newSpeciesThermo(int type);
 
     //! Create a new species property manager.
     /*!
@@ -124,7 +124,7 @@ namespace Cantera {
      *                     Each speciesData node contains a list of XML species elements
      *                      e.g., \<speciesData id="Species_Data"\>
      */ 
-    virtual SpeciesThermo* newSpeciesThermo(XML_Node* spData_node);
+    SpeciesThermo* newSpeciesThermo(XML_Node* spData_node);
 
     //! Create a new species property manager for a group of species
     /*!
@@ -136,7 +136,7 @@ namespace Cantera {
      *                     Each speciesData node contains a list of XML species elements
      *                      e.g., \<speciesData id="Species_Data"\>
      */ 
-    virtual SpeciesThermo* newSpeciesThermo(std::vector<XML_Node*> spData_nodes);
+    SpeciesThermo* newSpeciesThermo(std::vector<XML_Node*> spData_nodes);
 
     //! Create a new species property manager.
     /*!
@@ -151,11 +151,22 @@ namespace Cantera {
      *
      *  @todo is this used? 
      */ 
-    virtual SpeciesThermo* newSpeciesThermoOpt(std::vector<XML_Node*> spData_nodes);
+    SpeciesThermo* newSpeciesThermoOpt(std::vector<XML_Node*> spData_nodes);
 
-
-    virtual void installThermoForSpecies(int k, const XML_Node& s, 
-					 SpeciesThermo& spthermo);
+    //! Install a species thermodynamic property parameterization
+    //! for one species into a species thermo manager.
+    /*!
+     * @param k species number
+     * @param s  Reference to the XML node specifying the species standard
+     *           state information
+     * @param spthermo Species reference state thermo manager
+     * @param phaseNode_ptr Optional Pointer to the XML phase
+     *                      information for the phase in which the species
+     *                      resides
+     */
+    void installThermoForSpecies(int k, const XML_Node& s, 
+				 SpeciesThermo& spthermo,
+				 const XML_Node *phaseNode_ptr = 0);
 
   private:
 

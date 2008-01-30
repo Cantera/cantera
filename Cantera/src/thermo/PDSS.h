@@ -27,9 +27,28 @@ namespace Cantera {
 
   class SpeciesThermo;
  
-  /**
-   * Class for pressure dependent standard states.
+  //! Virtual base class for a species with a pressure dependent 
+  //! standard state 
+  /*!
+   * Virtual base class for calculation of  the
+   * pressure dependent standard state for a single species
+   * 
+   * Class %PDSS is the base class
+   * for a family of classes that compute properties of a set of
+   * species in their standard states at a range of temperatures
+   * and pressures. The independent variables for this object
+   * are temperature and pressure.
+   * The class may mave a reference to a SpeciesThermo object
+   * which handles the calculation of the reference state temperature
+   * behavior of a subset of species.
    *
+   * This class is analagous to the SpeciesThermoInterpType
+   * class, except that the standard state inherently incorporates
+   * the pressure dependence.
+   *
+   * The class operates on a setState temperature and pressure basis.
+   * It only recalculates the standard state when the setState functions
+   * for temperature and pressure are called. 
    *
    */
   class PDSS {
@@ -37,9 +56,18 @@ namespace Cantera {
   public:
 
     /**
-     * Basic list of constructors and duplicators
+     * Empty Constructor
      */
     PDSS();
+
+    //! Constructor that initializes the object by examining the XML entries
+    //! from the ThermoPhase object
+    /*!
+     *  This function calls the constructPDSS member function.
+     * 
+     *  @param tp        Pointer to the ThermoPhase object pertaining to the phase
+     *  @param spindex   Species index of the species in the phase
+     */
     PDSS(ThermoPhase *tp, int spindex);
 
     //! Copy Constructor
@@ -54,8 +82,35 @@ namespace Cantera {
      */
     PDSS& operator=(const PDSS&b);
 
+    //! Constructor that initializes the object by examining the input file
+    //! of the ThermoPhase object
+    /*!
+     *  This function calls the constructPDSSFile member function.
+     * 
+     *  @param tp        Pointer to the ThermoPhase object pertaining to the phase
+     *  @param spindex   Species index of the species in the phase
+     *  @param inputFile String name of the input file
+     *  @param id        String name of the phase in the input file. The default
+     *                   is the empty string, in which case the first phase in the
+     *                   file is used.
+     */
     PDSS(ThermoPhase *tp, int spindex, std::string inputFile, std::string id = "");
+
+    //! Constructor that initializes the object by examining the input file
+    //! of the ThermoPhase object
+    /*!
+     *  This function calls the constructPDSSXML member function.
+     * 
+     *  @param tp        Pointer to the ThermoPhase object pertaining to the phase
+     *  @param spindex   Species index of the species in the phase
+     *  @param phaseRef  Reference to the XML tree containing the phase information.
+     *  @param id        String name of the phase in the input file. The default
+     *                   is the empty string, in which case the first phase in the
+     *                   file is used.
+     */
     PDSS(ThermoPhase *tp, int spindex, XML_Node& phaseRef, std::string id = "");
+
+    //! Destructor for the phase
     virtual ~PDSS();
         
     /**
@@ -63,24 +118,78 @@ namespace Cantera {
      * @name  Utilities  
      * @{
      */
+
+    //! Returns the type of the standard state parameterization
+    /*!
+     * @return Returns the integer # of the parameterization
+     */
     virtual int pdssType() const { return -1; }
 
     /**
      * @} 
-     * @name  Molar Thermodynamic Properties of the Solution --------------
+     * @name  Molar Thermodynamic Properties of the Species Standard State
      * @{
      */
+   
+    //! Return the molar enthalpy in units of J kmol-1
+    /*!
+     * Returns the species standard state enthalpy in J kmol-1 at the
+     * current temperature and pressure.
+     *
+     * @return returns the species standard state enthalpy in  J kmol-1
+     */
     virtual doublereal enthalpy_mole() const;
+
+    //! Return the molar internal Energy in units of J kmol-1
+    /*!
+     * Returns the species standard state internal Energy in J kmol-1 at the
+     * current temperature and pressure.
+     *
+     * @return returns the species standard state internal Energy in  J kmol-1
+     */
     virtual doublereal intEnergy_mole() const;
+
+    //! Return the molar entropy in units of J kmol-1 K-1
+    /*!
+     * Returns the species standard state entropy in J kmol-1 K-1 at the
+     * current temperature and pressure.
+     *
+     * @return returns the species standard state entropy in J kmol-1 K-1
+     */
     virtual doublereal entropy_mole() const;
+
+    //! Return the molar gibbs free energy in units of J kmol-1
+    /*!
+     * Returns the species standard state gibbs free energy in J kmol-1 at the
+     * current temperature and pressure.
+     *
+     * @return returns the species standard state gibbs free energy in  J kmol-1
+     */
     virtual doublereal gibbs_mole() const;
+
+    //! Return the molar const pressure heat capacity in units of J kmol-1 K-1
+    /*!
+     * Returns the species standard state Cp in J kmol-1 K-1 at the
+     * current temperature and pressure.
+     *
+     * @return returns the species standard state Cp in J kmol-1 K-1
+     */
     virtual doublereal cp_mole() const;
+
+    //! Return the molar const volume heat capacity in units of J kmol-1 K-1
+    /*!
+     * Returns the species standard state Cv in J kmol-1 K-1 at the
+     * current temperature and pressure.
+     *
+     * @return returns the species standard state Cv in J kmol-1 K-1
+     */
     virtual doublereal cv_mole() const;
 
     /*
      * Get the difference in the standard state thermodynamic properties
-     * between the reference pressure, po, and the current pressure.
+     * between the current pressure. and the reference pressure, p0
      */
+
     virtual doublereal enthalpyDelp_mole() const;
     virtual doublereal intEnergyDelp_mole() const;
     virtual doublereal entropyDelp_mole() const;

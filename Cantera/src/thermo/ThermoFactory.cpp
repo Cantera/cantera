@@ -420,7 +420,7 @@ namespace Cantera {
 	  XML_Node* s = db->findByAttr("name",spnames[i]);
 	  if (s) {
 	    if (installSpecies(k, *s, *th, spthermo, sprule[jsp], 
-			       spfactory)) 
+                               &phase, spfactory)) 
 	      ++k;
 	  }
 	  else {
@@ -441,82 +441,7 @@ namespace Cantera {
     th->initThermoXML(phase, id);
 
     return true;
-  }        
-
-
-
-//     void setEOSParameters(const XML_Node& xmlphase, ThermoPhase* th) {
-
-//         // if no thermo model is specified for the phase, simply
-//         // return
-//         if (!phase.hasChild("thermo")) return;
-
-//         const XML_Node& eos = phase.child("thermo");
-
-//         // set the parameters for the particular equation of state type,
-//         // and 
-//         if (eos["model"] == "Incompressible") {
-//             if (th->eosType() == cIncompressible) {
-//                 doublereal rho = getFloat(eos, "density", "-");
-//                 th->setParameters(1, &rho);
-//             }
-//             else {
-//                 eoserror = true;
-//             }
-//         }
-//             else if (eos["model"] == "StoichSubstance") {
-//                 if (th->eosType() == cStoichSubstance) {
-//                     doublereal rho = getFloat(eos, "density", "-");
-//                     th->setDensity(rho);
-//                 }
-//                 else {
-//                     eoserror = true;
-//                 }
-//             }
-//             else if (eos["model"] == "Surface") {
-//                 if (th->eosType() == cSurf) {
-//                     doublereal n = getFloat(eos, "site_density", "-");
-//                     if (n <= 0.0) 
-//                         throw CanteraError("importCTML",
-//                             "missing or negative site density");
-//                     th->setParameters(1, &n);
-//                 }
-//                 else {
-//                     eoserror = true;
-//                 }
-//             }
-//             else if (eos["model"] == "Edge") {
-//                 if (th->eosType() == cEdge) {
-//                     doublereal n = getFloat(eos, "site_density", "-");
-//                     if (n <= 0.0) 
-//                         throw CanteraError("importCTML",
-//                             "missing or negative site density");
-//                     th->setParameters(1, &n);
-//                 }
-//                 else {
-//                     eoserror = true;
-//                 }
-//             }
-// #ifdef INCL_PURE_FLUIDS
-//             else if (eos["model"] == "PureFluid") {
-//                 if (th->eosType() == cPureFluid) {
-//                     subflag = atoi(eos["fluid_type"].c_str());
-//                     if (subflag < 0) 
-//                         throw CanteraError("importCTML",
-//                             "missing fluid type flag");
-//                 }
-//                 else {
-//                     eoserror = true;
-//                 }
-//             }
-// #endif
-//             if (eoserror) {
-//                 string msg = "Wrong equation of state type for phase "+phase["id"]+"\n";
-//                 msg += eos["model"]+" is not consistent with eos type "+int2str(th->eosType());
-//                 throw CanteraError("importCTML",msg);
-//             }
-
-
+  }
 
   /*
    * Install a species into a ThermoPhase object, which defines
@@ -537,9 +462,30 @@ namespace Cantera {
    *  containing the thermodynamic information for the reference
    *  state of the species. Failures or lack of information trigger
    *  an "UnknownSpeciesThermoModel" exception being thrown.
+   * *
+   * @param k     Species Index in the phase
+   * @param s     XML_Node containing the species data for this species.
+   * @param p     Reference to the ThermoPhase object.
+   * @param spthermo Reference to the SpeciesThermo object, where
+   *              the standard state thermo properties for this
+   *              species will be installed.
+   * @param rule  Parameter that handles what to do with species
+   *              who have elements that aren't declared.
+   *              Check that all elements in the species
+   *              exist in 'p'. If rule != 0, quietly skip
+   *              this species if some elements are undeclared;
+   *              otherwise, throw an exception
+   * @param phaseNode_ptr Pointer to the XML_Node for this phase
+   *              (defaults to 0)
+   * @param factory Pointer to the SpeciesThermoFactory .
+   *              (defaults to 0)
+   *
+   * @return
+   *  Returns true if everything is ok, false otherwise.
    */
   bool installSpecies(int k, const XML_Node& s, thermo_t& p, 
 		      SpeciesThermo& spthermo, int rule, 
+		      XML_Node *phaseNode_ptr,
 		      SpeciesThermoFactory* factory) {
 
     std::string xname = s.name();
@@ -596,7 +542,7 @@ namespace Cantera {
 
     // install the thermo parameterization for this species into
     // the species thermo manager for phase p.
-    factory->installThermoForSpecies(k, s, spthermo);
+    factory->installThermoForSpecies(k, s, spthermo, phaseNode_ptr);
         
     return true;
   }

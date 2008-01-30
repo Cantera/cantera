@@ -18,10 +18,10 @@
 
 namespace Cantera {
 
-  //!  Pure Virtual Base class for individual species reference state
-  //!  themodynamic managers. 
+  //!  Pure Virtual Base class for the thermoydnamic manager for 
+  //!  an individual species' reference state
   /*!
-   *  This differs from the SpeciesThermo virtual
+   * This differs from the SpeciesThermo virtual
    * base class in the sense that this class is meant to handle only
    * one species. The speciesThermo class is meant to handle the 
    * calculation of all the species (or a large subset) in a phase.

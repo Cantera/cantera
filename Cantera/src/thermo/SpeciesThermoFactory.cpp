@@ -492,7 +492,7 @@ namespace Cantera {
 
 
    /** 
-     * Install an Adsorbatge thermodynamic property
+     * Install an Adsorbate thermodynamic property
      * parameterization for species k into a SpeciesThermo instance.
      * This is called by method installThermoForSpecies if a NASA9
      * block is found in the XML input.
@@ -532,10 +532,14 @@ namespace Cantera {
      * @param k species number
      * @param s XML node specifying species
      * @param spthermo species thermo manager
+     * @param phaseNode_ptr Optional Pointer to the XML phase
+     *                      information for the phase in which the species
+     *                      resides
      */
   void SpeciesThermoFactory::
   installThermoForSpecies(int k, const XML_Node& s, 
-			  SpeciesThermo& spthermo) {
+			  SpeciesThermo& spthermo, 
+			  const XML_Node *phaseNode_ptr) {
     /*
      * Check to see that the species block has a thermo block
      * before processing. Throw an error if not there.

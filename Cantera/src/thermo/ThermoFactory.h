@@ -278,13 +278,17 @@ namespace Cantera {
    *              exist in 'p'. If rule != 0, quietly skip 
    *              this species if some elements are undeclared;
    *              otherwise, throw an exception
+   * @param phaseNode_ptr Pointer to the XML_Node for this phase
+   *              (defaults to 0)
    * @param factory Pointer to the SpeciesThermoFactory .
+   *              (defaults to 0)
    *
    * @return
    *  Returns true if everything is ok, false otherwise.
    */
   bool installSpecies(int k, const XML_Node& s, thermo_t& p, 
 		      SpeciesThermo& spthermo, int rule, 
+                       XML_Node *phaseNode_ptr = 0,
 		      SpeciesThermoFactory* factory = 0);
 
   //!Search an XML tree for species data.
