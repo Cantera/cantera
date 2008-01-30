@@ -32,170 +32,170 @@ using namespace std;
 
 namespace Cantera {
 
-    //! Constructor. Note that ThermoPhase is meant to be used as
-    //! a base class, so this constructor should not be called
-    //! explicitly.
-    ThermoPhase::ThermoPhase() :
-         Phase(), 
-         m_spthermo(0), m_speciesData(0),
-         m_index(-1), 
-         m_phi(0.0), 
-         m_hasElementPotentials(false),
-         m_chargeNeutralityNecessary(false)
-    {
-    }
+  //! Constructor. Note that ThermoPhase is meant to be used as
+  //! a base class, so this constructor should not be called
+  //! explicitly.
+  ThermoPhase::ThermoPhase() :
+    Phase(), 
+    m_spthermo(0), m_speciesData(0),
+    m_index(-1), 
+    m_phi(0.0), 
+    m_hasElementPotentials(false),
+    m_chargeNeutralityNecessary(false)
+  {
+  }
 
-   ThermoPhase::~ThermoPhase() 
-   {
-     delete m_spthermo;
-   }
-    /**
-     * Copy Constructor for the ThermoPhase object. 
-     *
-     * Currently, this is implemented, but not tested. If called it will
-     * throw an exception until fully tested.
+  ThermoPhase::~ThermoPhase() 
+  {
+    delete m_spthermo;
+  }
+  /**
+   * Copy Constructor for the ThermoPhase object. 
+   *
+   * Currently, this is implemented, but not tested. If called it will
+   * throw an exception until fully tested.
+   */
+  ThermoPhase::ThermoPhase(const ThermoPhase &right)  :
+    Phase(),
+    m_spthermo(0), 
+    m_speciesData(0),
+    m_index(-1),
+    m_phi(0.0), 
+    m_hasElementPotentials(false),
+    m_chargeNeutralityNecessary(false)
+  {
+    /*
+     * Call the assignment operator
      */
-    ThermoPhase::ThermoPhase(const ThermoPhase &right)  :
-	Phase(),
-	m_spthermo(0), 
-	m_speciesData(0),
-	m_index(-1),
-	m_phi(0.0), 
-	m_hasElementPotentials(false),
-        m_chargeNeutralityNecessary(false)
-    {
-      /*
-       * Call the assignment operator
-       */
-      *this = operator=(right);
-    }
+    *this = operator=(right);
+  }
   
+  /*
+   * operator=()
+   *
+   *  Note this stuff will not work until the underlying phase
+   *  has a working assignment operator
+   */
+  ThermoPhase& ThermoPhase::
+  operator=(const ThermoPhase &right) {
     /*
-     * operator=()
-     *
-     *  Note this stuff will not work until the underlying phase
-     *  has a working assignment operator
+     * Check for self assignment.
      */
-    ThermoPhase& ThermoPhase::
-    operator=(const ThermoPhase &right) {
-	/*
-         * Check for self assignment.
-         */
-        if (this == &right) return *this;
-        /*
-         * Call the base class assignment operator
-         */
-	(void)Phase::operator=(right);
+    if (this == &right) return *this;
+    /*
+     * Call the base class assignment operator
+     */
+    (void)Phase::operator=(right);
 
-	/*
-	 * Pointer to the species thermodynamic property manager
-	 * We own this, so we need to do a deep copy
-	 */
-	if (m_spthermo) {
-	  delete m_spthermo;
-	}
-        m_spthermo = (right.m_spthermo)->duplMyselfAsSpeciesThermo();
+    /*
+     * Pointer to the species thermodynamic property manager
+     * We own this, so we need to do a deep copy
+     */
+    if (m_spthermo) {
+      delete m_spthermo;
+    }
+    m_spthermo = (right.m_spthermo)->duplMyselfAsSpeciesThermo();
 
-	// We don't do a deep copy here, because we don't own this
-        m_speciesData = right.m_speciesData;
+    // We don't do a deep copy here, because we don't own this
+    m_speciesData = right.m_speciesData;
       
-	m_index = right.m_index;
-        m_phi = right.m_phi;
-	m_lambdaRRT = right.m_lambdaRRT;
-	m_hasElementPotentials = right.m_hasElementPotentials;
-	m_chargeNeutralityNecessary = right.m_chargeNeutralityNecessary;
+    m_index = right.m_index;
+    m_phi = right.m_phi;
+    m_lambdaRRT = right.m_lambdaRRT;
+    m_hasElementPotentials = right.m_hasElementPotentials;
+    m_chargeNeutralityNecessary = right.m_chargeNeutralityNecessary;
 
-	return *this;
+    return *this;
+  }
+
+  /*
+   * Duplication routine for objects which inherit from 
+   * ThermoPhase.
+   *
+   *  This virtual routine can be used to duplicate thermophase objects
+   *  inherited from ThermoPhase even if the application only has
+   *  a pointer to ThermoPhase to work with.
+   * 
+   *  Currently, this is not fully implemented. If called, an
+   *  exception will be called by the ThermoPhase copy constructor.
+   */
+  ThermoPhase *ThermoPhase::duplMyselfAsThermoPhase() const {
+    ThermoPhase* tp = new ThermoPhase(*this);
+    return tp;
+  }
+
+  int ThermoPhase::activityConvention() const {
+    return cAC_CONVENTION_MOLAR;
+  }
+
+  void ThermoPhase::getActivities(doublereal* a) const {
+    getActivityConcentrations(a);
+    int nsp = nSpecies();
+    int k;
+    for (k = 0; k < nsp; k++) a[k] /= standardConcentration(k);
+  }
+
+  void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
+				 const doublereal* x) {
+    setMoleFractions(x); setTemperature(t); setPressure(p);
+  }
+
+  void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
+				 compositionMap& x) {
+    setMoleFractionsByName(x); setTemperature(t); setPressure(p);
+  }
+
+  void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
+				 const std::string& x) {
+    compositionMap xx;
+    int kk = nSpecies();
+    for (int k = 0; k < kk; k++) xx[speciesName(k)] = -1.0;
+    try {
+      parseCompString(x, xx);
     }
-
-    /*
-     * Duplication routine for objects which inherit from 
-     * ThermoPhase.
-     *
-     *  This virtual routine can be used to duplicate thermophase objects
-     *  inherited from ThermoPhase even if the application only has
-     *  a pointer to ThermoPhase to work with.
-     * 
-     *  Currently, this is not fully implemented. If called, an
-     *  exception will be called by the ThermoPhase copy constructor.
-     */
-    ThermoPhase *ThermoPhase::duplMyselfAsThermoPhase() const {
-	ThermoPhase* tp = new ThermoPhase(*this);
-	return tp;
+    catch (CanteraError) {
+      throw CanteraError("setState_TPX",
+			 "Unknown species in composition map: "+ x);
     }
+    setMoleFractionsByName(xx); setTemperature(t); setPressure(p);
+  }        
 
-    int ThermoPhase::activityConvention() const {
-	return cAC_CONVENTION_MOLAR;
-    }
+  void ThermoPhase::setState_TPY(doublereal t, doublereal p, 
+				 const doublereal* y) {
+    setMassFractions(y); setTemperature(t); setPressure(p);
+  }
 
-    void ThermoPhase::getActivities(doublereal* a) const {
-        getActivityConcentrations(a);
-        int nsp = nSpecies();
-        int k;
-        for (k = 0; k < nsp; k++) a[k] /= standardConcentration(k);
-    }
-
-    void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
-        const doublereal* x) {
-        setMoleFractions(x); setTemperature(t); setPressure(p);
-    }
-
-    void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
-        compositionMap& x) {
-        setMoleFractionsByName(x); setTemperature(t); setPressure(p);
-    }
-
-    void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
-        const std::string& x) {
-        compositionMap xx;
-        int kk = nSpecies();
-        for (int k = 0; k < kk; k++) xx[speciesName(k)] = -1.0;
-        try {
-            parseCompString(x, xx);
-        }
-        catch (CanteraError) {
-            throw CanteraError("setState_TPX",
-                "Unknown species in composition map: "+ x);
-        }
-        setMoleFractionsByName(xx); setTemperature(t); setPressure(p);
-    }        
-
-    void ThermoPhase::setState_TPY(doublereal t, doublereal p, 
-        const doublereal* y) {
-        setMassFractions(y); setTemperature(t); setPressure(p);
-    }
-
-    void ThermoPhase::setState_TPY(doublereal t, doublereal p, 
-        compositionMap& y) {
-        setMassFractionsByName(y); setTemperature(t); setPressure(p);
-    }
+  void ThermoPhase::setState_TPY(doublereal t, doublereal p, 
+				 compositionMap& y) {
+    setMassFractionsByName(y); setTemperature(t); setPressure(p);
+  }
         
-    void ThermoPhase::setState_TPY(doublereal t, doublereal p, 
-        const std::string& y) {
-        compositionMap yy;
-        int kk = nSpecies();
-        for (int k = 0; k < kk; k++) yy[speciesName(k)] = -1.0;
-        try {
-            parseCompString(y, yy);
-        }
-        catch (CanteraError) {
-            throw CanteraError("setState_TPY",
-                "Unknown species in composition map: "+ y);
-        }
-        setMassFractionsByName(yy); setTemperature(t); setPressure(p);
+  void ThermoPhase::setState_TPY(doublereal t, doublereal p, 
+				 const std::string& y) {
+    compositionMap yy;
+    int kk = nSpecies();
+    for (int k = 0; k < kk; k++) yy[speciesName(k)] = -1.0;
+    try {
+      parseCompString(y, yy);
     }
+    catch (CanteraError) {
+      throw CanteraError("setState_TPY",
+			 "Unknown species in composition map: "+ y);
+    }
+    setMassFractionsByName(yy); setTemperature(t); setPressure(p);
+  }
 
-    void ThermoPhase::setState_TP(doublereal t, doublereal p) {
-        setTemperature(t); setPressure(p);
-    }
+  void ThermoPhase::setState_TP(doublereal t, doublereal p) {
+    setTemperature(t); setPressure(p);
+  }
 
-    void ThermoPhase::setState_PX(doublereal p, doublereal* x) {
-        setMoleFractions(x); setPressure(p);
-    }
+  void ThermoPhase::setState_PX(doublereal p, doublereal* x) {
+    setMoleFractions(x); setPressure(p);
+  }
 
-    void ThermoPhase::setState_PY(doublereal p, doublereal* y) {
-        setMassFractions(y); setPressure(p);
-    }
+  void ThermoPhase::setState_PY(doublereal p, doublereal* y) {
+    setMassFractions(y); setPressure(p);
+  }
 
   void ThermoPhase::setState_HP(doublereal Htarget, doublereal p, 
 				doublereal dTtol) {
@@ -207,15 +207,35 @@ namespace Cantera {
     setState_HPorUV(u, v, dTtol, true);
   }
 
+  // Do the convergence work
+  /*
+   *  We assume here that H at constant P is a monotonically increasing
+   *  function of T.
+   *  We assume here that U at constant V is a monotonically increasing
+   *  function of T.
+   *  
+   *  Note, the value of dTtol may become important for some applications
+   *  where numerical jacobians are being calculated.
+   */
   void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p, 
 				    doublereal dTtol, bool doUV) {
     doublereal dt;
     doublereal Hmax = 0.0, Hmin = 0.0;;
     doublereal v = 0.0;
+
+    // Assign the specific volume or pressure and make sure it's positive
     if (doUV) {
       v = p;
+      if (v < 1.0E-300) {
+	throw CanteraError("setState_HPorUV (UV)",
+			   "Input specific volume is too small or negative. v = " + fp2str(v));
+      }
       setDensity(1.0/v);
     } else {
+      if (p < 1.0E-300) {
+	throw CanteraError("setState_HPorUV (HP)",
+			   "Input pressure is too small or negative. p = " + fp2str(p));
+      }
       setPressure(p);
     }
     double Tmax = maxTemp() + 0.1;
@@ -224,6 +244,7 @@ namespace Cantera {
     // Make sure we are within the temperature bounds at the start
     // of the iteration
     double Tnew = temperature();
+    double Tinit = Tnew;
     if (Tnew > Tmax) {
       Tnew = Tmax - 1.0;
       if (doUV) {
@@ -262,6 +283,9 @@ namespace Cantera {
     // cp < 0.0. These are possible for cases where
     // we have passed the spinodal curve.
     bool unstablePhase = false;
+    // Counter indicating the last temperature point where the
+    // phase was unstable
+    double Tunstable = -1.0;
     bool unstablePhaseNew = false;
    
 
@@ -272,10 +296,11 @@ namespace Cantera {
       double cpd = Cpnew;
       if (cpd < 0.0) {
 	unstablePhase = true;
+	Tunstable = Tnew;
       }
       dt = (Htarget - Hold)/cpd;
 
-      // limit step size to 210 K
+      // limit step size to 100 K
       if (dt > 100.0)       dt =  100.0;
       else if (dt < -100.0) dt = -100.0; 
 
@@ -376,6 +401,7 @@ namespace Cantera {
 	}
 	if (Cpnew < 0.0) {
 	  unstablePhaseNew = true;
+	  Tunstable = Tnew;
 	} else {
 	  break;
 	  unstablePhaseNew = false;
@@ -411,8 +437,38 @@ namespace Cantera {
       if (fabs(dt) < dTtol) {
 	return;
       }
+
     }
-    throw CanteraError("setState_HPorUV","No convergence. dt = " + fp2str(dt));
+    // We are here when there hasn't been convergence
+    /*
+     * Formulate a detailed error message, since questions seem to
+     * arise often about the lack of convergence.
+     */
+    string ErrString =  "No convergence in 500 iterations\n";
+    if (doUV) {
+      ErrString += "\tTarget Internal Energy  = " + fp2str(Htarget) + "\n";
+      ErrString += "\tCurrent Specific Volume = " + fp2str(v) + "\n";
+      ErrString += "\tStarting Temperature    = " + fp2str(Tinit) + "\n";
+      ErrString += "\tCurrent Temperature     = " + fp2str(Tnew) + "\n";
+      ErrString += "\tCurrent Internal Energy = " + fp2str(Hnew) + "\n";
+      ErrString += "\tCurrent Delta T         = " + fp2str(dt) + "\n";
+    } else {
+      ErrString += "\tTarget Enthalpy         = " + fp2str(Htarget) + "\n";
+      ErrString += "\tCurrent Pressure        = " + fp2str(p) + "\n";
+      ErrString += "\tStarting Temperature    = " + fp2str(Tinit) + "\n";
+      ErrString += "\tCurrent Temperature     = " + fp2str(Tnew) + "\n";
+      ErrString += "\tCurrent Enthalpy        = " + fp2str(Hnew) + "\n";
+      ErrString += "\tCurrent Delta T         = " + fp2str(dt) + "\n";
+    }
+    if (unstablePhase) {
+      ErrString += "\t  - The phase became unstable (Cp < 0) T_unstable_last = "
+	+ fp2str(Tunstable) + "\n";
+    }
+    if (doUV) {
+      throw CanteraError("setState_HPorUV (UV)", ErrString);
+    } else {
+      throw CanteraError("setState_HPorUV (HP)", ErrString);
+    }
   }
 
   void ThermoPhase::setState_SP(doublereal Starget, doublereal p, 
@@ -425,14 +481,32 @@ namespace Cantera {
     setState_SPorSV(Starget, v, dTtol, true);
   }
 
+  // Do the convergence work for fixed entropy situations
+  /*
+   *  We assume here that S at constant P is a monotonically increasing
+   *  function of T.
+   *  We assume here that S at constant V is a monotonically increasing
+   *  function of T.
+   *  
+   *  Note, the value of dTtol may become important for some applications
+   *  where numerical jacobians are being calculated.
+   */
   void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p, 
 				    doublereal dTtol, bool doSV) {
     doublereal v = 0.0;
     doublereal dt;
     if (doSV) {
       v = p;
+      if (v < 1.0E-300) {
+	throw CanteraError("setState_SPorSV (SV)",
+			   "Input specific volume is too small or negative. v = " + fp2str(v));
+      }
       setDensity(1.0/v); 
     } else {
+      if (p < 1.0E-300) {
+	throw CanteraError("setState_SPorSV (SP)",
+			   "Input pressure is too small or negative. p = " + fp2str(p));
+      }
       setPressure(p);
     }
     double Tmax = maxTemp() + 0.1;
@@ -441,6 +515,7 @@ namespace Cantera {
     // Make sure we are within the temperature bounds at the start
     // of the iteration
     double Tnew = temperature();
+    double Tinit = Tnew;
     if (Tnew > Tmax) {
       Tnew = Tmax - 1.0;
       if (doSV) {
@@ -475,9 +550,10 @@ namespace Cantera {
 
     bool ignoreBounds = false;
     // Unstable phases are those for which
-    // cp < 0.0. These are possible for cases where
+    // Cp < 0.0. These are possible for cases where
     // we have passed the spinodal curve.
     bool unstablePhase = false;
+    double Tunstable = -1.0;
     bool unstablePhaseNew = false;
    
 
@@ -488,6 +564,7 @@ namespace Cantera {
       double cpd = Cpnew;
       if (cpd < 0.0) {
 	unstablePhase = true;
+	Tunstable = Tnew;
       }
       dt = (Starget - Sold)*Told/cpd;
 
@@ -501,7 +578,7 @@ namespace Cantera {
 	  if (Stop > Starget) {
 	    if (Tnew > Ttop) {
 	      dt = 0.75 * (Ttop - Told);
-	    Tnew = Told + dt;
+	      Tnew = Told + dt;
 	    }
 	  }
 	} else {
@@ -584,6 +661,7 @@ namespace Cantera {
 	Snew = entropy_mass();
 	if (Cpnew < 0.0) {
 	  unstablePhaseNew = true;
+	  Tunstable = Tnew;
 	} else {
 	  break;
 	  unstablePhaseNew = false;
@@ -620,7 +698,36 @@ namespace Cantera {
 	return;
       }
     }
-    throw CanteraError("setState_SPorSV","No convergence. dt = " + fp2str(dt));
+    // We are here when there hasn't been convergence
+    /*
+     * Formulate a detailed error message, since questions seem to
+     * arise often about the lack of convergence.
+     */
+    string ErrString =  "No convergence in 500 iterations\n";
+    if (doSV) {
+      ErrString += "\tTarget Entropy          = " + fp2str(Starget) + "\n";
+      ErrString += "\tCurrent Specific Volume = " + fp2str(v) + "\n";
+      ErrString += "\tStarting Temperature    = " + fp2str(Tinit) + "\n";
+      ErrString += "\tCurrent Temperature     = " + fp2str(Tnew) + "\n";
+      ErrString += "\tCurrent Entropy          = " + fp2str(Snew) + "\n";
+      ErrString += "\tCurrent Delta T         = " + fp2str(dt) + "\n";
+    } else {
+      ErrString += "\tTarget Entropy          = " + fp2str(Starget) + "\n";
+      ErrString += "\tCurrent Pressure        = " + fp2str(p) + "\n";
+      ErrString += "\tStarting Temperature    = " + fp2str(Tinit) + "\n";
+      ErrString += "\tCurrent Temperature     = " + fp2str(Tnew) + "\n";
+      ErrString += "\tCurrent Entropy         = " + fp2str(Snew) + "\n";
+      ErrString += "\tCurrent Delta T         = " + fp2str(dt) + "\n";
+    }
+    if (unstablePhase) {
+      ErrString += "\t  - The phase became unstable (Cp < 0) T_unstable_last = "
+	+ fp2str(Tunstable) + "\n";
+    }
+    if (doSV) {
+      throw CanteraError("setState_SPorSV (SV)", ErrString);
+    } else {
+      throw CanteraError("setState_SPorSV (SP)", ErrString);
+    }
   }
 
   doublereal ThermoPhase::err(std::string msg) const {
@@ -661,142 +768,140 @@ namespace Cantera {
       if (i == 0) uA[0] = 1.0;
       if (i == 1) uA[1] = -nDim();
       if (i == 2) uA[2] = 0.0;
-	  if (i == 3) uA[3] = 0.0;
-	  if (i == 4) uA[4] = 0.0;
-	  if (i == 5) uA[5] = 0.0;
+      if (i == 3) uA[3] = 0.0;
+      if (i == 4) uA[4] = 0.0;
+      if (i == 5) uA[5] = 0.0;
     }
   }
 
-    /*
-     * initThermoFile():
-     *
-     * Initialization of a phase using an xml file.
-     *
-     * This routine is a precursor to initThermoXML(XML_Node*)
-     * routine, which does most of the work. 
-     *
-     * @param infile XML file containing the description of the
-     *        phase
-     *
-     * @param id  Optional parameter identifying the name of the
-     *            phase. If none is given, the first XML
-     *            phase element will be used.
-     */
-    void ThermoPhase::initThermoFile(std::string inputFile, std::string id) {
+  /*
+   * initThermoFile():
+   *
+   * Initialization of a phase using an xml file.
+   *
+   * This routine is a precursor to initThermoXML(XML_Node*)
+   * routine, which does most of the work. 
+   *
+   * @param infile XML file containing the description of the
+   *        phase
+   *
+   * @param id  Optional parameter identifying the name of the
+   *            phase. If none is given, the first XML
+   *            phase element will be used.
+   */
+  void ThermoPhase::initThermoFile(std::string inputFile, std::string id) {
 
-	if (inputFile.size() == 0) {
-	  throw CanteraError("ThermoPhase::initThermoFile",
-			     "input file is null");
-	}
-	string path = findInputFile(inputFile);
-	ifstream fin(path.c_str());
-	if (!fin) {
-	  throw CanteraError("initThermoFile","could not open "
-			     +path+" for reading.");
-	}
-	/*
-	 * The phase object automatically constructs an XML object.
-	 * Use this object to store information.
-	 */
-	XML_Node &phaseNode_XML = xml();
-        XML_Node *fxml = new XML_Node();
-	fxml->build(fin);
-	XML_Node *fxml_phase = findXMLPhase(fxml, id);
-	if (!fxml_phase) {
-	  throw CanteraError("ThermoPhase::initThermo",
-			     "ERROR: Can not find phase named " +
-			     id + " in file named " + inputFile);
-	}
-	fxml_phase->copy(&phaseNode_XML);	
-	initThermoXML(*fxml_phase, id);
-	delete fxml;
+    if (inputFile.size() == 0) {
+      throw CanteraError("ThermoPhase::initThermoFile",
+			 "input file is null");
     }
-
+    string path = findInputFile(inputFile);
+    ifstream fin(path.c_str());
+    if (!fin) {
+      throw CanteraError("initThermoFile","could not open "
+			 +path+" for reading.");
+    }
     /*
-     *   Import and initialize a ThermoPhase object
-     *
-     *   This function is called from importPhase() 
-     *   after the elements and the
-     *   species are initialized with default ideal solution
-     *   level data.
-     *
-     * @param phaseNode This object must be the phase node of a
-     *             complete XML tree
-     *             description of the phase, including all of the
-     *             species data. In other words while "phase" must
-     *             point to an XML phase object, it must have
-     *             sibling nodes "speciesData" that describe
-     *             the species in the phase.
-     * @param id   ID of the phase. If nonnull, a check is done
-     *             to see if phaseNode is pointing to the phase
-     *             with the correct id. 
+     * The phase object automatically constructs an XML object.
+     * Use this object to store information.
      */
-    void ThermoPhase::initThermoXML(XML_Node& phaseNode, std::string id) {
-      /*
-       * The default implementation just calls initThermo(), which
-       * inheriting classes may override.
-       */
-      initThermo();
-      /*
-       * and sets the state
-       */
-      if (phaseNode.hasChild("state")) {
-	XML_Node& stateNode = phaseNode.child("state");
-	setStateFromXML(stateNode);
-      }
+    XML_Node &phaseNode_XML = xml();
+    XML_Node *fxml = new XML_Node();
+    fxml->build(fin);
+    XML_Node *fxml_phase = findXMLPhase(fxml, id);
+    if (!fxml_phase) {
+      throw CanteraError("ThermoPhase::initThermo",
+			 "ERROR: Can not find phase named " +
+			 id + " in file named " + inputFile);
     }
+    fxml_phase->copy(&phaseNode_XML);	
+    initThermoXML(*fxml_phase, id);
+    delete fxml;
+  }
+
+  /*
+   *   Import and initialize a ThermoPhase object
+   *
+   *   This function is called from importPhase() 
+   *   after the elements and the
+   *   species are initialized with default ideal solution
+   *   level data.
+   *
+   * @param phaseNode This object must be the phase node of a
+   *             complete XML tree
+   *             description of the phase, including all of the
+   *             species data. In other words while "phase" must
+   *             point to an XML phase object, it must have
+   *             sibling nodes "speciesData" that describe
+   *             the species in the phase.
+   * @param id   ID of the phase. If nonnull, a check is done
+   *             to see if phaseNode is pointing to the phase
+   *             with the correct id. 
+   */
+  void ThermoPhase::initThermoXML(XML_Node& phaseNode, std::string id) {
+    /*
+     * The default implementation just calls initThermo(), which
+     * inheriting classes may override.
+     */
+    initThermo();
+    /*
+     * and sets the state
+     */
+    if (phaseNode.hasChild("state")) {
+      XML_Node& stateNode = phaseNode.child("state");
+      setStateFromXML(stateNode);
+    }
+  }
   
-    /*
-     * Initialize. 
-     *
-     * This method is provided to allow
-     * subclasses to perform any initialization required after all
-     * species have been added. For example, it might be used to
-     * resize internal work arrays that must have an entry for
-     * each species.  The base class implementation does nothing,
-     * and subclasses that do not require initialization do not
-     * need to overload this method.  When importing a CTML phase
-     * description, this method is called just prior to returning
-     * from function importPhase.
-     *
-     * @see importCTML.cpp
-     */
-    void ThermoPhase::initThermo() {
-      // Check to see that there is at least one species defined in the phase
-      if (m_kk <= 0) {
-        throw CanteraError("ThermoPhase::initThermo()",
-                           "Number of species is less than or equal to zero");
-      }
+  /*
+   * Initialize. 
+   *
+   * This method is provided to allow
+   * subclasses to perform any initialization required after all
+   * species have been added. For example, it might be used to
+   * resize internal work arrays that must have an entry for
+   * each species.  The base class implementation does nothing,
+   * and subclasses that do not require initialization do not
+   * need to overload this method.  When importing a CTML phase
+   * description, this method is called just prior to returning
+   * from function importPhase.
+   *
+   * @see importCTML.cpp
+   */
+  void ThermoPhase::initThermo() {
+    // Check to see that there is at least one species defined in the phase
+    if (m_kk <= 0) {
+      throw CanteraError("ThermoPhase::initThermo()",
+			 "Number of species is less than or equal to zero");
     }
+  }
     
-  /**
+  /*
    * Set the thermodynamic state.
    */
-    void ThermoPhase::setStateFromXML(const XML_Node& state) {
+  void ThermoPhase::setStateFromXML(const XML_Node& state) {
 
-      string comp = getString(state,"moleFractions");
+    string comp = getString(state,"moleFractions");
+    if (comp != "") 
+      setMoleFractionsByName(comp);
+    else {
+      comp = getString(state,"massFractions");
       if (comp != "") 
-	setMoleFractionsByName(comp);
-      else {
-	comp = getString(state,"massFractions");
-	if (comp != "") 
-	  setMassFractionsByName(comp);
-      }
-      if (state.hasChild("temperature")) {
-	double t = getFloat(state, "temperature", "temperature");
-	setTemperature(t);
-      }
-      if (state.hasChild("pressure")) {
-	double p = getFloat(state, "pressure", "pressure");
-	setPressure(p);
-      }
-      if (state.hasChild("density")) {
-	double rho = getFloat(state, "density", "density");
-	setDensity(rho);
-      }
+	setMassFractionsByName(comp);
     }
-
-
+    if (state.hasChild("temperature")) {
+      double t = getFloat(state, "temperature", "temperature");
+      setTemperature(t);
+    }
+    if (state.hasChild("pressure")) {
+      double p = getFloat(state, "pressure", "pressure");
+      setPressure(p);
+    }
+    if (state.hasChild("density")) {
+      double rho = getFloat(state, "density", "density");
+      setDensity(rho);
+    }
+  }
 
   /*
    * Called by function 'equilibrate' in ChemEquil.h to transfer
@@ -829,7 +934,7 @@ namespace Cantera {
    * @param lambda Vector containing the element potentials.
    *        Length = nElements. Units are Joules/kmol.
    */
-   bool ThermoPhase::getElementPotentials(doublereal* lambda) const {
+  bool ThermoPhase::getElementPotentials(doublereal* lambda) const {
     doublereal rt = GasConstant* temperature();
     int mm = nElements();
     if (m_hasElementPotentials) {
@@ -840,12 +945,10 @@ namespace Cantera {
     return (m_hasElementPotentials);
   }
 
-  /**
+  /*
    * Format a summary of the mixture state for output.
    */           
   std::string ThermoPhase::report(bool show_thermo) const {
-
-
     char p[800];
     string s = "";
     try {
@@ -952,6 +1055,4 @@ namespace Cantera {
   }
 
  
-
-
 }
