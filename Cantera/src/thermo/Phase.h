@@ -26,7 +26,7 @@ using namespace ctml;
 
 namespace Cantera {
     
-
+  
   /** 
    * @defgroup phases Models of Phases of Matter
    *
@@ -138,7 +138,7 @@ namespace Cantera {
    *  vector, which is in general of length (2 + nSpecies()). The first
    *  two entries of the state vector is temperature and density.
    *
-  *
+   *
    *  @todo
    *   Make the concept of saving state vectors more general, so that
    *   it can handle other cases where there are additional internal state
@@ -146,367 +146,398 @@ namespace Cantera {
    *
    * @ingroup phases
    */
-    class Phase : public Constituents, public State {    
+  class Phase : public Constituents, public State {    
 
-    public:
+  public:
 
-        /// Default constructor.
-        Phase() : m_kk(-1), m_ndim(3), m_index(-1), 
-                  m_xml(new XML_Node("phase")), 
-                  m_id("<phase>"), m_name("") {}
+    /// Default constructor.
+    Phase();
 
-      /// Destructor.
-      virtual ~Phase();
+    /// Destructor.
+    virtual ~Phase();
 
-      /**
-       * Copy Constructor
-       *
-       * @param  right       Reference to the class to be used in the copy
-       */
-      Phase(const Phase &right);
+    /**
+     * Copy Constructor
+     *
+     * @param  right       Reference to the class to be used in the copy
+     */
+    Phase(const Phase &right);
       
-      /**
-       * Assignment operator
-       *
-       * @param  right      Reference to the class to be used in the copy
-       */
-      Phase &operator=(const Phase &right);
+    /**
+     * Assignment operator
+     *
+     * @param  right      Reference to the class to be used in the copy
+     */
+    Phase &operator=(const Phase &right);
         
-      //! Returns a reference to the XML_Node storred for the phase
-      /*!
-       *  The XML_Node for the phase contains all of the input data used
-       *  to set up the model for the phase, during its initialization.
-       */
-      XML_Node& xml() { return *m_xml; }
+    //! Returns a reference to the XML_Node storred for the phase
+    /*!
+     *  The XML_Node for the phase contains all of the input data used
+     *  to set up the model for the phase, during its initialization.
+     */
+    XML_Node& xml();
 
-      //! Return the string id for the phase
-      std::string id() const { return m_id; }
+    //! Return the string id for the phase
+    /*!
+     * Returns the id of the phase. The ID of the phase
+     * is set to the string name of the phase within the XML file
+     * Generally, it refers to the individual model name that
+     * denotes the species, the thermo, and the reaction rate info.
+     */
+    std::string id() const;
 
-      //! Set the string id for the phase
-      /*!
-       * @param id String id of the phase
-       */
-      void setID(std::string id) {m_id = id;} 
+    //! Set the string id for the phase
+    /*!
+     * Sets the id of the phase. The ID of the phase
+     * is originally set to the string name of the phase within the XML file.
+     * Generally, it refers to the individual model name that
+     * denotes the species, the thermo, and the reaction rate info.
+     *
+     * @param id String id of the phase
+     */
+    void setID(std::string id); 
 
-      //! Return the name of the phase
-        std::string name() const { return m_name; }
+    //! Return the name of the phase
+    /*!
+     * Returns the name of the phase. The name of the phase
+     * is set to the string name of the phase within the XML file
+     * Generally, it refers to the individual model name that
+     * denotes the species, the thermo, and the reaction rate info.
+     * It may also refer more specifically to a location within
+     * the domain.
+     */
+    std::string name() const;
 
-      //! Sets the string name for the phase
-      /*!
-       * @param nm String name of the phase
-       */
-      void setName(std::string nm) { m_name = nm; }
+    //! Sets the string name for the phase
+    /*!
+     * Sets the name of the phase. The name of the phase
+     * is originally set to the string name of the phase within the XML file.
+     * Generally, it refers to the individual model name that
+     * denotes the species, the thermo, and the reaction rate info.
+     * It may also refer more specifically to a location within
+     * the domain.
+     *
+     * @param nm String name of the phase
+     */
+    void setName(std::string nm);
 
-      //! Returns the index of the phase
-      int index() const { return m_index; }
+    //! Returns the index of the phase
+    /*!
+     * The index is used in the Python and matlab interfaces to 
+     * index into a list of ThermoPhase objects
+     */
+    int index() const;
 
-      //! Sets the index of the phase
-      /*!
-       * @param m Integer index of the phase
-       */
-      void setIndex(int m) { m_index = m; }
+    //! Sets the index of the phase
+    /*!
+     * The index is used in the Python and matlab interfaces to 
+     * index into a list of ThermoPhase objects
+     *
+     * @param m Integer index of the phase
+     */
+    void setIndex(int m);
 
-      //! Save the current internal state of the phase
-      /*!
-       * Write to vector 'state' the current internal state.
-       *
-       * @param state output vector. Will be resized to nSpecies() + 2 on return.
-       */
-      void saveState(vector_fp& state) const;
+    //! Save the current internal state of the phase
+    /*!
+     * Write to vector 'state' the current internal state.
+     *
+     * @param state output vector. Will be resized to nSpecies() + 2 on return.
+     */
+    void saveState(vector_fp& state) const;
        
-      //! Write to array 'state' the current internal state.
-      /*!
-       * @param lenstate length of the state array. Must be >= nSpecies() + 2
-       * @param state    output vector. Must be of length  nSpecies() + 2 or
-       *                 greater.
-       */
-      void saveState(int lenstate, doublereal* state) const;
+    //! Write to array 'state' the current internal state.
+    /*!
+     * @param lenstate length of the state array. Must be >= nSpecies() + 2
+     * @param state    output vector. Must be of length  nSpecies() + 2 or
+     *                 greater.
+     */
+    void saveState(int lenstate, doublereal* state) const;
       
-      //!Restore a state saved on a previous call to saveState.
-      /*!
-       * @param state State vector containing the previously saved state.
-       */
-      void restoreState(const vector_fp& state);
+    //!Restore a state saved on a previous call to saveState.
+    /*!
+     * @param state State vector containing the previously saved state.
+     */
+    void restoreState(const vector_fp& state);
 
-      //! Restore the state of the phase from a previously saved state vector.
-      /*!
-       *  @param lenstate   Length of the state vector
-       *  @param state      Vector of state conditions.
-       */
-        void restoreState(int lenstate, const doublereal* state);
+    //! Restore the state of the phase from a previously saved state vector.
+    /*!
+     *  @param lenstate   Length of the state vector
+     *  @param state      Vector of state conditions.
+     */
+    void restoreState(int lenstate, const doublereal* state);
 
-        /**
-         * Set the species mole fractions by name. 
-         * @param xMap map from species names to mole fraction values.
-         * Species not listed by name in \c xMap are set to zero.
-         */
-        void setMoleFractionsByName(compositionMap& xMap);
+    /**
+     * Set the species mole fractions by name. 
+     * @param xMap map from species names to mole fraction values.
+     * Species not listed by name in \c xMap are set to zero.
+     */
+    void setMoleFractionsByName(compositionMap& xMap);
 
-      //! Set the mole fractions of a group of species by name
-      /*!
-       * The string x is in the form of a composition map
-       * Species which are not listed by name in the composition
-       * map are set to zero.
-       *
-       * @param x string x in the form of a composition map
-       */
-        void setMoleFractionsByName(const std::string& x);
+    //! Set the mole fractions of a group of species by name
+    /*!
+     * The string x is in the form of a composition map
+     * Species which are not listed by name in the composition
+     * map are set to zero.
+     *
+     * @param x string x in the form of a composition map
+     */
+    void setMoleFractionsByName(const std::string& x);
 
-        /**
-         * Set the species mass fractions by name. 
-         * @param yMap map from species names to mass fraction values.
-         * Species not listed by name in \c yMap are set to zero.
-         */
-        void setMassFractionsByName(compositionMap& yMap);
+    /**
+     * Set the species mass fractions by name. 
+     * @param yMap map from species names to mass fraction values.
+     * Species not listed by name in \c yMap are set to zero.
+     */
+    void setMassFractionsByName(compositionMap& yMap);
 
     
-      //! Set the species mass fractions by name. 
-      /*!
-       * Species not listed by name in \c x are set to zero.
-       *
-       * @param x  String containing a composition map
-       */
-      void setMassFractionsByName(const std::string& x);
+    //! Set the species mass fractions by name. 
+    /*!
+     * Species not listed by name in \c x are set to zero.
+     *
+     * @param x  String containing a composition map
+     */
+    void setMassFractionsByName(const std::string& x);
 
-      //! Set the internally storred temperature (K), density, and mole fractions.  
-      /*!
-       * Note, the mole fractions are always set first, before the density
-       *
-       * @param t     Temperature in kelvin
-       * @param dens  Density (kg/m^3)
-       * @param x     vector of species mole fractions.
-       *              Length is equal to m_kk
-       */
-      void setState_TRX(doublereal t, doublereal dens, const doublereal* x);
+    //! Set the internally storred temperature (K), density, and mole fractions.  
+    /*!
+     * Note, the mole fractions are always set first, before the density
+     *
+     * @param t     Temperature in kelvin
+     * @param dens  Density (kg/m^3)
+     * @param x     vector of species mole fractions.
+     *              Length is equal to m_kk
+     */
+    void setState_TRX(doublereal t, doublereal dens, const doublereal* x);
 
 
-      //! Set the internally storred temperature (K), density, and mole fractions.  
-      /*!
-       * Note, the mole fractions are always set first, before the density
-       *
-       * @param t     Temperature in kelvin
-       * @param dens  Density (kg/m^3)
-       * @param x     Composition Map containing the mole fractions.
-       *              Species not included in the map are assumed to have
-       *              a zero mole fraction.
-       */
-      void setState_TRX(doublereal t, doublereal dens, compositionMap& x);
+    //! Set the internally storred temperature (K), density, and mole fractions.  
+    /*!
+     * Note, the mole fractions are always set first, before the density
+     *
+     * @param t     Temperature in kelvin
+     * @param dens  Density (kg/m^3)
+     * @param x     Composition Map containing the mole fractions.
+     *              Species not included in the map are assumed to have
+     *              a zero mole fraction.
+     */
+    void setState_TRX(doublereal t, doublereal dens, compositionMap& x);
 
-      //! Set the internally storred temperature (K), density, and mass fractions.  
-      /*!
-       * Note, the mass fractions are always set first, before the density
-       *
-       * @param t     Temperature in kelvin
-       * @param dens  Density (kg/m^3)
-       * @param y     vector of species mass fractions.
-       *              Length is equal to m_kk
-       */
-      void setState_TRY(doublereal t, doublereal dens, const doublereal* y);
+    //! Set the internally storred temperature (K), density, and mass fractions.  
+    /*!
+     * Note, the mass fractions are always set first, before the density
+     *
+     * @param t     Temperature in kelvin
+     * @param dens  Density (kg/m^3)
+     * @param y     vector of species mass fractions.
+     *              Length is equal to m_kk
+     */
+    void setState_TRY(doublereal t, doublereal dens, const doublereal* y);
 
-      //! Set the internally storred temperature (K), density, and mass fractions.  
-      /*!
-       * Note, the mass fractions are always set first, before the density
-       *
-       * @param t     Temperature in kelvin
-       * @param dens  Density (kg/m^3)
-       * @param y     Composition Map containing the mass fractions.
-       *              Species not included in the map are assumed to have
-       *              a zero mass fraction.
-       */
-      void setState_TRY(doublereal t, doublereal dens, compositionMap& y);
+    //! Set the internally storred temperature (K), density, and mass fractions.  
+    /*!
+     * Note, the mass fractions are always set first, before the density
+     *
+     * @param t     Temperature in kelvin
+     * @param dens  Density (kg/m^3)
+     * @param y     Composition Map containing the mass fractions.
+     *              Species not included in the map are assumed to have
+     *              a zero mass fraction.
+     */
+    void setState_TRY(doublereal t, doublereal dens, compositionMap& y);
 
-      //! Set the internally storred temperature (K), molar density (kmol/m^3), and mole fractions.  
-      /*!
-       * Note, the mole fractions are always set first, before the molar density
-       *
-       * @param t     Temperature in kelvin
-       * @param n     molar density (kmol/m^3)
-       * @param x     vector of species mole fractions.
-       *              Length is equal to m_kk
-       */
-      void setState_TNX(doublereal t, doublereal n, const doublereal* x);
+    //! Set the internally storred temperature (K), molar density (kmol/m^3), and mole fractions.  
+    /*!
+     * Note, the mole fractions are always set first, before the molar density
+     *
+     * @param t     Temperature in kelvin
+     * @param n     molar density (kmol/m^3)
+     * @param x     vector of species mole fractions.
+     *              Length is equal to m_kk
+     */
+    void setState_TNX(doublereal t, doublereal n, const doublereal* x);
     
-      //! Set the internally storred temperature (K) and density (kg/m^3)
-      /*!
-       * @param t     Temperature in kelvin
-       * @param rho   Density (kg/m^3)
-       */
-      void setState_TR(doublereal t, doublereal rho);
+    //! Set the internally storred temperature (K) and density (kg/m^3)
+    /*!
+     * @param t     Temperature in kelvin
+     * @param rho   Density (kg/m^3)
+     */
+    void setState_TR(doublereal t, doublereal rho);
       
-      //! Set the internally storred temperature (K) and mole fractions.  
-      /*!
-       * @param t   Temperature in kelvin
-       * @param x   vector of species mole fractions.
-       *            Length is equal to m_kk
-       */
-      void setState_TX(doublereal t, doublereal* x);
+    //! Set the internally storred temperature (K) and mole fractions.  
+    /*!
+     * @param t   Temperature in kelvin
+     * @param x   vector of species mole fractions.
+     *            Length is equal to m_kk
+     */
+    void setState_TX(doublereal t, doublereal* x);
 
-      //! Set the internally storred temperature (K) and mass fractions.  
-      /*!
-       * @param t   Temperature in kelvin
-       * @param y   vector of species mass fractions.
-       *            Length is equal to m_kk
-       */
-      void setState_TY(doublereal t, doublereal* y);
+    //! Set the internally storred temperature (K) and mass fractions.  
+    /*!
+     * @param t   Temperature in kelvin
+     * @param y   vector of species mass fractions.
+     *            Length is equal to m_kk
+     */
+    void setState_TY(doublereal t, doublereal* y);
 
-      //! Set the density (kg/m^3) and mole fractions. 
-      /*!
-       * @param rho  Density (kg/m^3)
-       * @param x    vector of species mole fractions.
-       *             Length is equal to m_kk
-       */
-      void setState_RX(doublereal rho, doublereal* x);
+    //! Set the density (kg/m^3) and mole fractions. 
+    /*!
+     * @param rho  Density (kg/m^3)
+     * @param x    vector of species mole fractions.
+     *             Length is equal to m_kk
+     */
+    void setState_RX(doublereal rho, doublereal* x);
 
-      //! Set the density (kg/m^3) and mass fractions.  
-      /*!
-       * @param rho  Density (kg/m^3)
-       * @param y    vector of species mass fractions.
-       *             Length is equal to m_kk
-       */
-      void setState_RY(doublereal rho, doublereal* y);
+    //! Set the density (kg/m^3) and mass fractions.  
+    /*!
+     * @param rho  Density (kg/m^3)
+     * @param y    vector of species mass fractions.
+     *             Length is equal to m_kk
+     */
+    void setState_RY(doublereal rho, doublereal* y);
 
-      /**
-       * Copy the vector of molecular weights into vector weights.
-       *
-       * @param weights Output vector of molecular weights (kg/kmol)
-       */
-      void getMolecularWeights(vector_fp& weights) const;
+    /**
+     * Copy the vector of molecular weights into vector weights.
+     *
+     * @param weights Output vector of molecular weights (kg/kmol)
+     */
+    void getMolecularWeights(vector_fp& weights) const;
 
-      /**
-       * Copy the vector of molecular weights into array weights.
-       *
-       * @param iwt      Unused. 
-       * @param weights  Output array of molecular weights (kg/kmol)
-       *
-       * @deprecated
-       */
-      void getMolecularWeights(int iwt, doublereal* weights) const;
+    /**
+     * Copy the vector of molecular weights into array weights.
+     *
+     * @param iwt      Unused. 
+     * @param weights  Output array of molecular weights (kg/kmol)
+     *
+     * @deprecated
+     */
+    void getMolecularWeights(int iwt, doublereal* weights) const;
 
-      /**
-       * Copy the vector of molecular weights into array weights.
-       *
-       * @param weights  Output array of molecular weights (kg/kmol)
-       */
-      void getMolecularWeights(doublereal* weights) const;
+    /**
+     * Copy the vector of molecular weights into array weights.
+     *
+     * @param weights  Output array of molecular weights (kg/kmol)
+     */
+    void getMolecularWeights(doublereal* weights) const;
 
-      /**
-       * Return a const reference to the internal vector of
-       * molecular weights.
-       */
-      const array_fp& molecularWeights() const;
+    /**
+     * Return a const reference to the internal vector of
+     * molecular weights.
+     */
+    const array_fp& molecularWeights() const;
 
-      /**
-       * Get the mole fractions by name. 
-       *
-       * @param x  Output composition map containing the
-       *           species mole fractions.
-       */
-      void getMoleFractionsByName(compositionMap& x) const;
+    /**
+     * Get the mole fractions by name. 
+     *
+     * @param x  Output composition map containing the
+     *           species mole fractions.
+     */
+    void getMoleFractionsByName(compositionMap& x) const;
 
-      //! Return the mole fraction of a single species
-      /*!
-       * @param  k  String name of the species
-       *
-       * @return Mole fraction of the species
-       */
-      doublereal moleFraction(int k) const;
+    //! Return the mole fraction of a single species
+    /*!
+     * @param  k  String name of the species
+     *
+     * @return Mole fraction of the species
+     */
+    doublereal moleFraction(int k) const;
         
-      //! Return the mole fraction of a single species
-      /*!
-       * @param  name  String name of the species
-       *
-       * @return Mole fraction of the species
-       */
-      doublereal moleFraction(std::string name) const;
+    //! Return the mole fraction of a single species
+    /*!
+     * @param  name  String name of the species
+     *
+     * @return Mole fraction of the species
+     */
+    doublereal moleFraction(std::string name) const;
 
-      //! Return the mass fraction of a single species
-      /*!
-       * @param  k  String name of the species
-       *
-       * @return Mass Fraction of the species
-       */
-      doublereal massFraction(int k) const;
+    //! Return the mass fraction of a single species
+    /*!
+     * @param  k  String name of the species
+     *
+     * @return Mass Fraction of the species
+     */
+    doublereal massFraction(int k) const;
 
-      //! Return the mass fraction of a single species
-      /*!
-       * @param  name  String name of the species
-       *
-       * @return Mass Fraction of the species
-       */
-      doublereal massFraction(std::string name) const;
+    //! Return the mass fraction of a single species
+    /*!
+     * @param  name  String name of the species
+     *
+     * @return Mass Fraction of the species
+     */
+    doublereal massFraction(std::string name) const;
 
-      /**
-       * Charge density [C/m^3].
-       */
-      doublereal chargeDensity() const;
+    /**
+     * Charge density [C/m^3].
+     */
+    doublereal chargeDensity() const;
 
-      /// Returns the number of spatial dimensions (1, 2, or 3)
-      int nDim() const {return m_ndim;}
+    /// Returns the number of spatial dimensions (1, 2, or 3)
+    int nDim() const {return m_ndim;}
 
-      //! Set the number of spatial dimensions (1, 2, or 3)
-      /*!
-       *  The number of spatial dimensions is used for vector involving
-       *  directions.
-       *
-       * @param ndim   Input number of dimensions.
-       */
-      void setNDim(int ndim) {m_ndim = ndim;}
+    //! Set the number of spatial dimensions (1, 2, or 3)
+    /*!
+     *  The number of spatial dimensions is used for vector involving
+     *  directions.
+     *
+     * @param ndim   Input number of dimensions.
+     */
+    void setNDim(int ndim) {m_ndim = ndim;}
 
-      /** 
-       *  Finished adding species, prepare to use them for calculation
-       *  of mixture properties.
-       */
-      virtual void freezeSpecies();
+    /** 
+     *  Finished adding species, prepare to use them for calculation
+     *  of mixture properties.
+     */
+    virtual void freezeSpecies();
  
-      virtual bool ready() const;
+    virtual bool ready() const;
 
 
-    protected:
+  protected:
 
-      /**
-       * m_kk = Number of species in the phase.  @internal m_kk is a
-       * member of both the State and Constituents classes.
-       * Therefore, to avoid multiple inheritance problems, we need
-       * to restate it in here, so that the declarations in the two
-       * base classes become hidden.
-       */
-      int m_kk;
-      /**
-       * m_ndim is the dimensionality of the phase.  Volumetric
-       * phases have dimensionality 3 and surface phases have
-       * dimensionality 2.
-       */
-      int m_ndim;
-      /**
-       * m_index is the index of the phase
-       * 
-       */
-      int m_index;
+    /**
+     * m_kk = Number of species in the phase.  @internal m_kk is a
+     * member of both the State and Constituents classes.
+     * Therefore, to avoid multiple inheritance problems, we need
+     * to restate it in here, so that the declarations in the two
+     * base classes become hidden.
+     */
+    int m_kk;
+    /**
+     * m_ndim is the dimensionality of the phase.  Volumetric
+     * phases have dimensionality 3 and surface phases have
+     * dimensionality 2.
+     */
+    int m_ndim;
+    /**
+     * m_index is the index of the phase
+     * 
+     */
+    int m_index;
 
-    private:
+  private:
 
-      //! This stores the initial state of the system
-      /*!
-       * @deprecated
-       *      This doesn't seem to be used much anymore.
-       */
-      vector_fp m_data;
+    //! This stores the initial state of the system
+    /*!
+     * @deprecated
+     *      This doesn't seem to be used much anymore.
+     */
+    vector_fp m_data;
 
-      //! Pointer to the XML node containing the XML info for this phase
-      XML_Node* m_xml;
+    //! Pointer to the XML node containing the XML info for this phase
+    XML_Node* m_xml;
 
-      //! ID of the phase.
-      /*!
-       * This is the value of the ID attribute of the XML phase node.
-       */
-      std::string m_id;
+    //! ID of the phase.
+    /*!
+     * This is the value of the ID attribute of the XML phase node.
+     */
+    std::string m_id;
 
-      //! Name of the phase.
-      /*!
-       * Initially, this is the value of the ID attribute of the XML phase node.
-       */
-      std::string m_name;
-    };
+    //! Name of the phase.
+    /*!
+     * Initially, this is the value of the ID attribute of the XML phase node.
+     */
+    std::string m_name;
+  };
 
   //! typedef for the base Phase class
   typedef Phase phase_t;
