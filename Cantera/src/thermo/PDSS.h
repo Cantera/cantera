@@ -112,10 +112,20 @@ namespace Cantera {
 
     //! Destructor for the phase
     virtual ~PDSS();
+
+    //! Duplication routine for objects which inherit from %PDSS
+    /*!
+     *  This virtual routine can be used to duplicate %PDSS  objects
+     *  inherited from %PDSS even if the application only has
+     *  a pointer to %PDSS to work with.
+     *
+     * @return returns a pointer to the base %PDSS object type
+     */
+    virtual PDSS *duplMyselfAsPDSS() const;
         
     /**
      *   
-     * @name  Utilities  
+     * @name  Utilities
      * @{
      */
 
@@ -189,7 +199,6 @@ namespace Cantera {
      * Get the difference in the standard state thermodynamic properties
      * between the current pressure. and the reference pressure, p0
      */
-
     virtual doublereal enthalpyDelp_mole() const;
     virtual doublereal intEnergyDelp_mole() const;
     virtual doublereal entropyDelp_mole() const;

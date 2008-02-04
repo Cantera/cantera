@@ -139,6 +139,20 @@ namespace Cantera {
   PDSS::~PDSS() { 
   }
   
+  // Duplicator from the %PDSS parent class
+  /*
+   * Given a pointer to a %PDSS object, this function will
+   * duplicate the %PDSS object and all underlying structures.
+   * This is basically a wrapper around the copy constructor.
+   *
+   * @return returns a pointer to a %PDSS
+   */
+  PDSS *PDSS::duplMyselfAsPDSS() const {
+    PDSS *ip = new PDSS(*this);
+    return ip;
+  }
+
+
   void PDSS::constructPDSS(ThermoPhase *tp, int spindex) {
     initThermo();
   }
