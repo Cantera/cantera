@@ -138,7 +138,6 @@ namespace Cantera {
   };
 
 
-
   /**
    *  This species thermo manager requires that all species have one
    *  of two parameterizations.
@@ -152,33 +151,22 @@ namespace Cantera {
 	
   public:
     //! Constructor
-    SpeciesThermoDuo() {}
+    SpeciesThermoDuo();
 
     //! Destructor
-    virtual ~SpeciesThermoDuo(){}
+    virtual ~SpeciesThermoDuo();
 
     //! copy constructor
     /*!
      * @param right Object to be copied
      */
-    SpeciesThermoDuo(const SpeciesThermoDuo &right) {
-      *this = operator=(right);
-    }
+    SpeciesThermoDuo(const SpeciesThermoDuo &right);
 
     //! Assignment operator
     /*!
      * @param right Object to be copied
      */
-    SpeciesThermoDuo& operator=(const SpeciesThermoDuo &right) {
-      if (&right == this) return *this;
-
-      m_thermo1 = right.m_thermo1;
-      m_thermo2 = right.m_thermo2;
-      m_p0 = m_p0;
-      speciesToType = right.speciesToType;
-
-      return *this;
-    }
+    SpeciesThermoDuo& operator=(const SpeciesThermoDuo &right);
 
     //! Duplication routine for objects which inherit from 
     //! %SpeciesThermo
@@ -189,10 +177,7 @@ namespace Cantera {
      *  ->commented out because we first need to add copy constructors
      *   and assignment operators to all of the derived classes.
      */
-    virtual SpeciesThermo *duplMyselfAsSpeciesThermo() const {
-      SpeciesThermoDuo<T1,T2> *nt = new SpeciesThermoDuo<T1,T2>(*this);
-      return (SpeciesThermo *) nt;
-    }
+    virtual SpeciesThermo *duplMyselfAsSpeciesThermo() const;
 
     /**
      * install a new species thermodynamic property
@@ -217,22 +202,8 @@ namespace Cantera {
      */
     virtual void install(std::string name, int sp, int type,
 			 const doublereal* c,
-			 doublereal minTemp,
-			 doublereal maxTemp, 
-			 doublereal refPressure) {
-      m_p0 = refPressure;
-      if (type == m_thermo1.ID) {
-	m_thermo1.install(name, sp, 0, c, minTemp, maxTemp,
-			  refPressure);
-	speciesToType[sp] = m_thermo1.ID;
-      } else if (type == m_thermo2.ID) {
-	m_thermo2.install(name, sp, 0, c, minTemp, maxTemp,
-			  refPressure);
-	speciesToType[sp] = m_thermo2.ID;
-      } else {
-	throw UnknownSpeciesThermo("SpeciesThermoDuo:install",type);
-      }
-    }
+			 doublereal minTemp, doublereal maxTemp, 
+			 doublereal refPressure);
 
     //! Install a new species thermodynamic property
     //! parameterization for one species.
@@ -240,9 +211,7 @@ namespace Cantera {
      * @param stit_ptr Pointer to the SpeciesThermoInterpType object
      *          This will set up the thermo for one species
      */
-    virtual void install_STIT(SpeciesThermoInterpType *stit_ptr) {
-      throw CanteraError("install_STIT", "not implemented");
-    }
+    virtual void install_STIT(SpeciesThermoInterpType *stit_ptr);
 
     //! Compute the reference-state properties for all species.
     /*!
@@ -260,10 +229,7 @@ namespace Cantera {
      *                (length m_kk).
      */
     virtual void update(doublereal t, doublereal* cp_R,
-			doublereal* h_RT, doublereal* s_R) const {
-      m_thermo1.update(t, cp_R, h_RT, s_R);
-      m_thermo2.update(t, cp_R, h_RT, s_R);
-    }
+			doublereal* h_RT, doublereal* s_R) const;
 
     //! Minimum temperature.
     /*!
@@ -275,11 +241,7 @@ namespace Cantera {
      *
      * @param k    Species index
      */ 
-    virtual doublereal minTemp(int k = -1) const {
-      doublereal tm1 = m_thermo1.minTemp();
-      doublereal tm2 = m_thermo2.minTemp();
-      return (tm1 < tm2 ? tm2 : tm1);
-    }
+    virtual doublereal minTemp(int k = -1) const;
 
     //! Maximum temperature.
     /*!
@@ -291,11 +253,7 @@ namespace Cantera {
      *
      * @param k index for parameterization k
      */
-    virtual doublereal maxTemp(int k = -1) const {
-      doublereal tm1 = m_thermo1.maxTemp();
-      doublereal tm2 = m_thermo2.maxTemp();
-      return (tm1 < tm2 ? tm1 : tm2);
-    }               
+    virtual doublereal maxTemp(int k = -1) const;
          
     /**
      * The reference-state pressure for species k.
@@ -310,9 +268,7 @@ namespace Cantera {
      *
      * @param k index for parameterization k
      */
-    virtual doublereal refPressure(int k = -1) const {
-      return m_p0;
-    }
+    virtual doublereal refPressure(int k = -1) const;
 
     //! This utility function reports the type of parameterization
     //! used for the species with index number index.
@@ -320,14 +276,7 @@ namespace Cantera {
      *
      * @param k  Species index
      */
-    virtual int reportType(int k) const {
-      std::map<int, int>::const_iterator p = speciesToType.find(k);
-      if (p != speciesToType.end()) {
-	const int type = p->second;
-	return type;
-      } 
-      return -1;
-    }
+    virtual int reportType(int k) const;
 
     /*!
      * This utility function reports back the type of 
@@ -347,18 +296,7 @@ namespace Cantera {
 			      doublereal * const c, 
 			      doublereal &minTemp, 
 			      doublereal &maxTemp, 
-			      doublereal &refPressure) const {
-      int ctype = reportType(index);
-      if (ctype == m_thermo1.ID) {
-	m_thermo1.reportParams(index, type, c, minTemp, maxTemp, 
-			       refPressure);
-      } else if (ctype == m_thermo2.ID) {
-	m_thermo2.reportParams(index, type, c, minTemp, maxTemp, 
-			       refPressure);
-      } else {
-	throw CanteraError("  ", "confused");
-      }
-    }
+			      doublereal &refPressure) const;
 
     //! Modify parameters for the standard state
     /*!
@@ -366,17 +304,7 @@ namespace Cantera {
      * @param c     Vector of coefficients used to set the
      *              parameters for the standard state.
      */
-    virtual void modifyParams(int index, doublereal *c) {
-      int ctype = reportType(index);
-      if (ctype == m_thermo1.ID) {
-	m_thermo1.modifyParams(index, c);
-      } else if (ctype == m_thermo2.ID) {
-	m_thermo2.modifyParams(index,  c);
-      } else {
-	throw CanteraError("modifyParams", "confused");
-      }
-    }
-
+    virtual void modifyParams(int index, doublereal *c);
 
   private:
 
@@ -415,33 +343,21 @@ namespace Cantera {
 	
   public:
     //! base constructor
-    SpeciesThermo1() : m_pref(0.0) {}
+    SpeciesThermo1();
     //! destructor
-    virtual ~SpeciesThermo1(){}
+    virtual ~SpeciesThermo1();
 
     //! Copy Constructor
     /*!
      * @param right Object to be copied
      */
-    SpeciesThermo1(const SpeciesThermo1 &right) :
-      m_pref(0.0)
-    {
-      *this = operator=(right);
-    }
-
+    SpeciesThermo1(const SpeciesThermo1 &right);
 
     //! Asignment Operator
     /*!
      * @param right Object to be copied
      */
-    SpeciesThermo1 & operator=(const SpeciesThermo1 &right) {
-      if (&right == this) return *this;
-
-      m_thermo = right.m_thermo;
-      m_pref   = right.m_pref;
-
-      return *this;
-    }
+    SpeciesThermo1 & operator=(const SpeciesThermo1 &right);
 
     //! Duplication routine for objects which inherit from 
     //! %SpeciesThermo
@@ -452,10 +368,7 @@ namespace Cantera {
      *  ->commented out because we first need to add copy constructors
      *   and assignment operators to all of the derived classes.
      */
-    virtual SpeciesThermo *duplMyselfAsSpeciesThermo() const {
-      SpeciesThermo1<SPM> *nt = new SpeciesThermo1<SPM>(*this);
-      return (SpeciesThermo *) nt;
-    }
+    virtual SpeciesThermo *duplMyselfAsSpeciesThermo() const;
     
     //! Install one species into this Species Thermo Manager
     /*!
@@ -464,16 +377,8 @@ namespace Cantera {
      * @param type       species type in terms of an int
      * @param c          Parameters for the species thermo
      */
-    virtual void install(std::string name, int sp, int type, const vector_fp& c) {
-      m_thermo.push_back(SPM(sp, c));
-      if (m_pref) {
-	if (m_thermo.begin()->refPressure() != m_pref) {
-	  throw RefPressureMismatch("SpeciesThermo1:install",
-				    refPressure(), m_pref);
-	}
-      }
-      else  m_pref = m_thermo.begin()->refPressure();
-    }
+    virtual void install(std::string name, int sp, int type,
+			 const vector_fp& c);
 
     //! update the object, because the temperature changed
     /*!
@@ -483,10 +388,7 @@ namespace Cantera {
      * @param s_R        vector of dimensionless entropy
      */
     virtual void update(doublereal t, vector_fp& cp_R, 
-			vector_fp& h_RT, vector_fp& s_R) const {
-      _updateAll(m_thermo.begin(),m_thermo.end(), 
-		 t, cp_R, h_RT, s_R);
-    }
+			vector_fp& h_RT, vector_fp& s_R) const;
 
     //! update the object for one species, because the temperature changed
     /*!
@@ -497,39 +399,25 @@ namespace Cantera {
      * @param s_R        vector of dimensionless entropy
      */
     virtual void update_one(int k, doublereal t, vector_fp& cp_R, 
-			    vector_fp& h_RT, vector_fp& s_R) const {
-      m_thermo[k]->update(t, cp_R, h_RT, s_R);
-    }
+			    vector_fp& h_RT, vector_fp& s_R) const;
 
-    //! returns the minimum temperature
+    //! Returns the minimum temperature
     /*!
      * @param k species index. Defaults to -1.
      */
-    virtual doublereal minTemp(int k = -1) const {
-      if (k < 0)
-	return _minTemp(m_thermo.begin(), m_thermo.end());
-      else
-	return m_thermo[k].minTemp();
-    }
+    virtual doublereal minTemp(int k = -1) const;
 
-    //! returns the maximum temperature
+    //! Returns the maximum temperature
     /*!
      * @param k species index. Defaults to -1.
      */
-    virtual doublereal maxTemp(int k = -1) const {
-      if (k < 0)
-	return _maxTemp(m_thermo.begin(), m_thermo.end());
-      else
-	return m_thermo[k].maxTemp();
-    }   
+    virtual doublereal maxTemp(int k = -1) const;
                     
     //! returns the reference pressure
     /*!
      * @param k species index. Defaults to -1.
      */
-    virtual doublereal refPressure(int k = -1) const {
-      return m_pref;
-    }
+    virtual doublereal refPressure(int k = -1) const;
 
     //! This utility function reports the type of parameterization
     //! used for the species with index number index.
@@ -538,9 +426,7 @@ namespace Cantera {
      *
      * @param k  Species index
      */
-    virtual int reportType(int k) const {
-      return m_thermo[k]->reportType(-1);	  
-    }
+    virtual int reportType(int k) const;
 
     /*!
      * This utility function reports back the type of 
@@ -559,9 +445,7 @@ namespace Cantera {
 			      doublereal * const c, 
 			      doublereal &minTemp, 
 			      doublereal &maxTemp, 
-			      doublereal &refPressure) const {
-      m_thermo[index]->reportParameters(index, type, c, minTemp, maxTemp, refPressure);
-    }
+			      doublereal &refPressure) const;
 
     //! Modify parameters for the standard state
     /*!
@@ -569,18 +453,265 @@ namespace Cantera {
      * @param c     Vector of coefficients used to set the
      *              parameters for the standard state.
      */
-    virtual void modifyParams(int index, doublereal *c) {
-      m_thermo[index]->modifyParameters(index, c);
-    }
+    virtual void modifyParams(int index, doublereal *c);
 
   private:
     //! Vector of SPM objects. There are m_kk of them
     std::vector<SPM> m_thermo;
+
     //! Reference pressure (Pa)
     doublereal m_pref;
   };
-  //#endif
+ 
+  // ------------------------- cpp part of file -------------------------------------
 
+  // Definitions for the SpeciesThermoDuo<T1,T2> templated class
+
+  template<class T1, class T2>
+  SpeciesThermoDuo<T1, T2>::SpeciesThermoDuo() 
+  {
+  }
+ 
+  template<class T1, class T2>
+  SpeciesThermoDuo<T1, T2>::~SpeciesThermoDuo()
+  {
+  }
+
+  template<class T1, class T2>
+  SpeciesThermoDuo<T1, T2>::SpeciesThermoDuo(const SpeciesThermoDuo &right) {
+    *this = operator=(right);
+  }
+
+  template<class T1, class T2>
+  SpeciesThermoDuo<T1, T2> & 
+  SpeciesThermoDuo<T1, T2>::operator=(const SpeciesThermoDuo &right) {
+    if (&right == this) return *this;
+    
+    m_thermo1 = right.m_thermo1;
+    m_thermo2 = right.m_thermo2;
+    m_p0 = m_p0;
+    speciesToType = right.speciesToType;
+    
+    return *this;
+  }
+
+  template<class T1, class T2>
+  SpeciesThermo *
+  SpeciesThermoDuo<T1, T2>::duplMyselfAsSpeciesThermo() const {
+    SpeciesThermoDuo<T1,T2> *nt = new SpeciesThermoDuo<T1,T2>(*this);
+    return (SpeciesThermo *) nt;
+  }
+
+  template<class T1, class T2>
+  void 
+  SpeciesThermoDuo<T1, T2>::install(std::string name, int sp, int type,
+				    const doublereal* c,
+				    doublereal minTemp,
+				    doublereal maxTemp, 
+				    doublereal refPressure) {
+    m_p0 = refPressure;
+    if (type == m_thermo1.ID) {
+      m_thermo1.install(name, sp, 0, c, minTemp, maxTemp,
+			refPressure);
+      speciesToType[sp] = m_thermo1.ID;
+    } else if (type == m_thermo2.ID) {
+      m_thermo2.install(name, sp, 0, c, minTemp, maxTemp,
+			refPressure);
+      speciesToType[sp] = m_thermo2.ID;
+    } else {
+      throw UnknownSpeciesThermo("SpeciesThermoDuo:install",type);
+    }
+  }
+
+  template<class T1, class T2>
+  void 
+  SpeciesThermoDuo<T1, T2>::install_STIT(SpeciesThermoInterpType *stit_ptr) {
+    throw CanteraError("install_STIT", "not implemented");
+  }
+
+  template<class T1, class T2>
+  void 
+  SpeciesThermoDuo<T1, T2>::update(doublereal t, doublereal* cp_R,
+				   doublereal* h_RT, doublereal* s_R) const {
+    m_thermo1.update(t, cp_R, h_RT, s_R);
+    m_thermo2.update(t, cp_R, h_RT, s_R);
+  }
+
+  template<class T1, class T2>
+  doublereal 
+  SpeciesThermoDuo<T1, T2>::minTemp(int k) const {
+    doublereal tm1 = m_thermo1.minTemp();
+    doublereal tm2 = m_thermo2.minTemp();
+    return (tm1 < tm2 ? tm2 : tm1);
+  }
+  
+  template<class T1, class T2>
+  doublereal
+  SpeciesThermoDuo<T1, T2>::maxTemp(int k) const {
+    doublereal tm1 = m_thermo1.maxTemp();
+    doublereal tm2 = m_thermo2.maxTemp();
+    return (tm1 < tm2 ? tm1 : tm2);
+  }
+  
+  template<class T1, class T2>
+  doublereal
+  SpeciesThermoDuo<T1, T2>::refPressure(int k) const {
+    return m_p0;
+  }
+  
+  template<class T1, class T2>
+  int 
+  SpeciesThermoDuo<T1, T2>::reportType(int k) const {
+    std::map<int, int>::const_iterator p = speciesToType.find(k);
+    if (p != speciesToType.end()) {
+      const int type = p->second;
+      return type;
+    } 
+    return -1;
+  }
+ 
+  template<class T1, class T2>
+  void 
+  SpeciesThermoDuo<T1, T2>::reportParams(int index, int &type, 
+					 doublereal * const c, 
+					 doublereal &minTemp, 
+					 doublereal &maxTemp, 
+					 doublereal &refPressure) const {
+    int ctype = reportType(index);
+    if (ctype == m_thermo1.ID) {
+      m_thermo1.reportParams(index, type, c, minTemp, maxTemp, 
+			     refPressure);
+    } else if (ctype == m_thermo2.ID) {
+      m_thermo2.reportParams(index, type, c, minTemp, maxTemp, 
+			     refPressure);
+    } else {
+      throw CanteraError("  ", "confused");
+    }
+  }
+
+  template<class T1, class T2>
+  void 
+  SpeciesThermoDuo<T1, T2>::modifyParams(int index, doublereal *c) {
+    int ctype = reportType(index);
+    if (ctype == m_thermo1.ID) {
+      m_thermo1.modifyParams(index, c);
+    } else if (ctype == m_thermo2.ID) {
+      m_thermo2.modifyParams(index,  c);
+    } else {
+      throw CanteraError("modifyParams", "confused");
+    }
+  }
+
+  // Definitions for the SpeciesTherm1 templated class
+
+  template<class SPM>
+  SpeciesThermo1<SPM>::SpeciesThermo1() : 
+    m_pref(0.0) 
+  {
+  }
+
+  template<class SPM>
+  SpeciesThermo1<SPM>::~SpeciesThermo1()
+  {
+  }
+
+  template<class SPM>
+  SpeciesThermo1<SPM>::SpeciesThermo1(const SpeciesThermo1 &right) :
+    m_pref(0.0)
+  {
+    *this = operator=(right);
+  }
+
+  template<class SPM>
+  SpeciesThermo1<SPM> & 
+  SpeciesThermo1<SPM>::operator=(const SpeciesThermo1 &right)
+  {
+    if (&right == this) return *this;  
+    m_thermo = right.m_thermo;
+    m_pref   = right.m_pref;
+    return *this;
+  }
+
+  template<class SPM>
+  SpeciesThermo *
+  SpeciesThermo1<SPM>::duplMyselfAsSpeciesThermo() const {
+    SpeciesThermo1<SPM> *nt = new SpeciesThermo1<SPM>(*this);
+    return (SpeciesThermo *) nt;
+  }
+  
+  template<class SPM>
+  void 
+  SpeciesThermo1<SPM>::install(std::string name, int sp, int type, const vector_fp& c)
+  {
+    m_thermo.push_back(SPM(sp, c));
+    if (m_pref) {
+      if (m_thermo.begin()->refPressure() != m_pref) {
+	throw RefPressureMismatch("SpeciesThermo1:install",
+				  refPressure(), m_pref);
+      }
+    }
+    else  m_pref = m_thermo.begin()->refPressure();
+  }
+
+  template<class SPM>
+  inline void
+  SpeciesThermo1<SPM>::update(doublereal t, vector_fp& cp_R, 
+			      vector_fp& h_RT, vector_fp& s_R) const {
+    _updateAll(m_thermo.begin(), m_thermo.end(), t, cp_R, h_RT, s_R);
+  }
+  
+  template<class SPM>
+  void 
+  SpeciesThermo1<SPM>::update_one(int k, doublereal t, vector_fp& cp_R, 
+				  vector_fp& h_RT, vector_fp& s_R) const {
+    m_thermo[k]->update(t, cp_R, h_RT, s_R);
+  }
+  
+  template<class SPM>
+  doublereal 
+  SpeciesThermo1<SPM>::minTemp(int k) const {
+    if (k < 0)
+      return _minTemp(m_thermo.begin(), m_thermo.end());
+    else
+      return m_thermo[k].minTemp();
+  }
+
+  template<class SPM>
+  doublereal 
+  SpeciesThermo1<SPM>::maxTemp(int k) const {
+    if (k < 0)
+      return _maxTemp(m_thermo.begin(), m_thermo.end());
+    else
+      return m_thermo[k].maxTemp();
+  }
+
+  template<class SPM>
+  doublereal 
+  SpeciesThermo1<SPM>::refPressure(int k) const {
+    return m_pref;
+  }
+
+  template<class SPM>
+  int 
+  SpeciesThermo1<SPM>::reportType(int k) const {
+    return m_thermo[k]->reportType(-1);	  
+  }
+
+  template<class SPM>
+  void 
+  SpeciesThermo1<SPM>::reportParams(int index, int &type, 
+				    doublereal * const c, 
+				    doublereal &minTemp, 
+				    doublereal &maxTemp, 
+				    doublereal &refPressure) const {
+    m_thermo[index]->reportParameters(index, type, c, minTemp, maxTemp, refPressure);
+  }
+
+  template<class SPM>
+  void
+  SpeciesThermo1<SPM>::modifyParams(int index, doublereal *c) {
+    m_thermo[index]->modifyParameters(index, c);
+  }
 }
 
 #endif
