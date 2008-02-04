@@ -24,6 +24,7 @@
 #include "ct_defs.h"
 #include "mix_defs.h"
 #include "clockWC.h"
+#include "ThermoPhase.h"
 #include "speciesThermoTypes.h"
 #ifdef WITH_IDEAL_SOLUTIONS
 #include "IdealSolidSolnPhase.h"
@@ -643,7 +644,7 @@ namespace VCSnonideal {
    int kGlob = 0;
    for (int ip = 0; ip < m_vprob->NPhase; ip++) {
      double phaseMole = 0.0;
-     ThermoPhase &tref = m_mix->phase(ip);
+     Cantera::ThermoPhase &tref = m_mix->phase(ip);
      int nspPhase = tref.nSpecies();
      for (int k = 0; k < nspPhase; k++, kGlob++) {
        phaseMole += m_vprob->w[kGlob];
@@ -756,7 +757,7 @@ namespace VCSnonideal {
     vol = 0.0;
     for (int iphase = 0; iphase < nphase; iphase++) {
       istart =    m_mix->speciesIndex(0, iphase);
-      ThermoPhase &tref = m_mix->phase(iphase);
+      Cantera::ThermoPhase &tref = m_mix->phase(iphase);
       nSpecies = tref.nSpecies();
       VolPM.resize(nSpecies, 0.0);
       tref.getPartialMolarVolumes(VCS_DATA_PTR(VolPM));
@@ -781,8 +782,8 @@ namespace VCSnonideal {
 
     for (int iphase = 0; iphase < nphase; iphase++) {
       istart =    m_mix->speciesIndex(0, iphase);
-      ThermoPhase &tref = m_mix->phase(iphase);
-      ThermoPhase *tp = &tref;
+      Cantera::ThermoPhase &tref = m_mix->phase(iphase);
+      Cantera::ThermoPhase *tp = &tref;
       string phaseName = tref.name();
       vcs_VolPhase *volP = m_vprob->VPhaseList[iphase];
       double TMolesPhase = volP->TotalMoles();
@@ -888,7 +889,7 @@ namespace VCSnonideal {
    *  This function decides whether a phase has charged species
    *  or not.
    */
-  static bool hasChargedSpecies(ThermoPhase *tPhase) {
+  static bool hasChargedSpecies(Cantera::ThermoPhase *tPhase) {
     int nSpPhase = tPhase->nSpecies();
     for (int k = 0; k < nSpPhase; k++) {
       if (tPhase->charge(k) != 0.0) {
@@ -907,7 +908,7 @@ namespace VCSnonideal {
    *  phase. It does this by searching for charged species. If it 
    *  finds one, and if the phase needs one, then it returns true.
    */
-  static bool chargeNeutralityElement(ThermoPhase *tPhase) {
+  static bool chargeNeutralityElement(Cantera::ThermoPhase *tPhase) {
     int hasCharge = hasChargedSpecies(tPhase);
     if (tPhase->chargeNeutralityNecessary()) {
       if (hasCharge) {
@@ -922,7 +923,7 @@ namespace VCSnonideal {
    *
    *
    */
-  static int setUpElements(vcs_VolPhase *VolPhase, ThermoPhase *tPhase) {
+  static int setUpElements(vcs_VolPhase *VolPhase, Cantera::ThermoPhase *tPhase) {
     int e, k, eT;
     string ename; 
     int eFound = -2;
@@ -1095,7 +1096,7 @@ namespace VCSnonideal {
     vprob->Vol       = mphase->volume();
     vprob->Title     = "MultiPhase Object";
 
-    ThermoPhase *tPhase = 0;
+    Cantera::ThermoPhase *tPhase = 0;
 
     int iSurPhase = -1;
     int gasPhase;
@@ -1473,7 +1474,7 @@ namespace VCSnonideal {
     vprob->T         = mphase->temperature();
     vprob->Pres      = mphase->pressure();
     vprob->Vol       = mphase->volume();
-    ThermoPhase *tPhase = 0;
+    Cantera::ThermoPhase *tPhase = 0;
 
     for (int iphase = 0; iphase < totNumPhases; iphase++) {
       tPhase = &(mphase->phase(iphase));
