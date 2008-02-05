@@ -1,10 +1,9 @@
-""" This module implements class ThermoPhase, a class representing
-thermodynamic phases.  """
-
+"""
+ This module implements class ThermoPhase, a class representing
+ thermodynamic phases.
+"""
 from Cantera.num import zeros
-
 from Cantera.Phase import Phase
-
 
 import _cantera
 import types
@@ -13,7 +12,8 @@ def thermoIndex(id):
     return _cantera.thermo_thermoIndex(id)
 
 class ThermoPhase(Phase):
-    """ A phase with an equation of state.
+    """
+    A phase with an equation of state.
 
     Class ThermoPhase may be used to represent the intensive
     thermodynamic state of a phase of matter, which might be a gas,
@@ -23,10 +23,10 @@ class ThermoPhase(Phase):
     Class ThermoPhase is not usually instantiated directly. It is used
     as base class for classes Solution and Interface.
 
-    See: Solution, Interface
+    @see Solution, Interface
     """
 
-    #used in the 'equilibrate' method
+    # used in the 'equilibrate' method
     _equilmap = {'TP':104,'TV':100,'HP':101,'SP':102,'SV':107,'UV':105,
                   'PT':104,'VT':100,'PH':101,'PS':102,'VS':107,'VU':105}
 
@@ -46,8 +46,8 @@ class ThermoPhase(Phase):
         self.idtag = ""
 
         if index >= 0:
-            # create a Python wrapper for an existing kernel
-            # ThermoPhase instance 
+             # create a Python wrapper for an existing kernel
+             # ThermoPhase instance 
             self._phase_id = index
                                  
         elif xml_phase:
@@ -67,9 +67,14 @@ class ThermoPhase(Phase):
             _cantera.thermo_delete(self._phase_id)
 
     def name(self):
+        """The name assigned to the phase. The default value is the name
+        attribute from the CTI file. But method setName can be used to
+        set the name to anything desired, e.g. 'gas at inlet' or 'exhaust'
+        """
         return self.idtag
 
     def setName(self, name):
+        """ Set the name attribute. This can be any string"""
         self.idtag = name
         
     def refPressure(self):
@@ -157,14 +162,14 @@ class ThermoPhase(Phase):
         return self.selectElements(lamb, elements)
     
     def enthalpies_RT(self, species = []):
-        """Pure species non-dimensional enthalpies.
+        """Pure species non-dimensional reference state enthalpies.
         
         This method returns an array containing the pure-species
         standard-state enthalpies divided by RT. For gaseous species,
         these values are ideal gas enthalpies."""
         hrt = _cantera.thermo_getarray(self._phase_id,23)
         return self.selectSpecies(hrt, species)
-    
+
     def entropies_R(self, species = []):
         """Pure species non-dimensional entropies.
         
@@ -278,40 +283,39 @@ class ThermoPhase(Phase):
         
     def equilibrate(self, XY, solver = -1, rtol = 1.0e-9,
                     maxsteps = 1000, maxiter = 100, loglevel = 0):
-        """Set to a state of chemical equilibrium holding property pair
-        'XY' constant.
-
-        XY -- A two-letter string, which must be one of the set
-        ['TP','TV','HP','SP','SV','UV','PT','VT','PH','PS','VS','VU'].
-        If H, U, S, or V is specified, the value must be the specific
-        value (per unit mass).
-
-        solver -- specifies the equilibrium solver to use. If solver =
-        0, a fast solver using the element potential method will be
-        used. If solver > 0, a slower but more robust Gibbs
-        minimization solver will be used. If solver < 0 or
-        unspecified, the fast solver will be tried first, then if it
-        fails the other will be tried.
-
-        rtol -- the relative error tolerance.
-
-        maxsteps -- maximum number of steps in composition to take to
-        find a converged solution.
-
-        maxiter -- for the Gibbs minimization solver only, this
-        specifies the number of 'outer' iterations on T or P when some
-        property pair other than TP is specified.
-
-        loglevel -- set to a value > 0 to write diagnostic output to a
-        file in HTML format. Larger values generate more detailed
-        information. The file will be named 'equilibrate_log.html.'
-        Subsequent files will be named 'equillibrate_log1.html', etc.,
-        so that log files are not overwritten.
-        
-        """
+        """  Set to a state of chemical equilibrium holding property pair
+            'XY' constant.
+            
+            XY ---   A two-letter string, which must be one of the set
+            ['TP','TV','HP','SP','SV','UV','PT','VT','PH','PS','VS','VU'].
+            If H, U, S, or V is specified, the value must be the specific
+            value (per unit mass)
+            
+            solver --- Specifies the equilibrium solver to use. If solver =
+            0, a fast solver using the element potential method will be
+            used. If solver > 0, a slower but more robust Gibbs
+            minimization solver will be used. If solver < 0 or
+            unspecified, the fast solver will be tried first, then if it
+            fails the other will be tried.
+    
+            rtol -- the relative error tolerance.
+    
+            maxsteps -- maximum number of steps in composition to take to
+            find a converged solution.
+    
+            maxiter -- for the Gibbs minimization solver only, this
+            specifies the number of 'outer' iterations on T or P when some
+            property pair other than TP is specified.
+    
+            loglevel -- set to a value > 0 to write diagnostic output to a
+            file in HTML format. Larger values generate more detailed
+            information. The file will be named 'equilibrate_log.html.'
+            Subsequent files will be named 'equillibrate_log1.html', etc.,
+            so that log files are not overwritten.
+    
+            """
         _cantera.thermo_equil(self._phase_id, XY, solver,
                               rtol, maxsteps, maxiter, loglevel)
-        
 
     def saveState(self):
         """Return an array with state information that can later be

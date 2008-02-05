@@ -139,6 +139,11 @@ class Transport:
         return _cantera.tran_binaryDiffCoeffs(self.__tr_id,
                                              self.trnsp)
 
+    def diffusionCoeffs(self):
+        """Species diffusion coefficients. (m^2/s)."""
+        return self.mixDiffCoeffs()
+
+    
     def mixDiffCoeffs(self):
         """Mixture-averaged diffusion coefficients."""
         return _cantera.tran_mixDiffCoeffs(self.__tr_id,

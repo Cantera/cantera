@@ -5,6 +5,7 @@
 
 import types
 import _cantera
+from num import *
 from constants import *
 from exceptions import *
 from gases import *

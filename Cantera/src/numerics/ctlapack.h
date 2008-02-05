@@ -63,9 +63,6 @@ const CBLAS_ORDER cblasOrder[2] = { CblasRowMajor, CblasColMajor };
 const CBLAS_TRANSPOSE cblasTrans[2] = { CblasNoTrans, CblasTrans };
 #endif
 
-//#ifdef DARWIN
-//#include <Accelerate.h>
-//#else
 
 // C interfaces for Fortran Lapack routines 
 extern "C" {

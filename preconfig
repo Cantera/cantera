@@ -75,7 +75,7 @@ PYTHON_CMD=${PYTHON_CMD:="default"}
 # The Cantera Python interface can be built with either the numarray
 # or Numeric packages. Set this to "y" to use Numeric, or anything
 # else to use numarray. Using numarray is preferred.
-USE_NUMERIC=${USE_NUMERIC:="default"}
+USE_NUMERIC=${USE_NUMERIC:="n"}
 
 # If numarray was installed using the --home option, set this to the
 # home directory for numarray.

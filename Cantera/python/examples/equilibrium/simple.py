@@ -1,4 +1,4 @@
-# homogeneous equilibrium of a gas
+# homogeneous equilibrium of a gas.
 
 from Cantera import *
 

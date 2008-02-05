@@ -180,7 +180,7 @@ util.o:		fio.h
 wref.o:		fio.h
 wref.o:		fmt.h
 wref.o:		fp.h
-wrtfmt.o:	fio.h
+ wrtfmt.o:	fio.h
 wrtfmt.o:	fmt.h
 wsfe.o:		fio.h
 wsfe.o:		fmt.h

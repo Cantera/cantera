@@ -3,6 +3,7 @@ PROJECT (Cantera)
 #----------------------------
 #     user-configurable settings
 #----------------------------
+
 INCLUDE (config.cmake)
 
 
@@ -25,6 +26,7 @@ CONFIGURE_FILE (
     ${PROJECT_BINARY_DIR}/config.h )
 
 INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR})
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/build/include/cantera)
 
 SET (LIBRARY_OUTPUT_PATH 
   ${PROJECT_BINARY_DIR}/build/lib/${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_SYSTEM_VERSION} CACHE PATH "Single directory for all libraries"
@@ -39,6 +41,10 @@ MARK_AS_ADVANCED (
     EXECUTABLE_OUTPUT_PATH
    )
 
+ADD_SUBDIRECTORY (ext)
 ADD_SUBDIRECTORY (Cantera)
 
+SET ( CANTERA_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/Cantera/cxx/include )
 
+SET(CMAKE_INSTALL_PREFIX /Applications/Cantera/include )
+INSTALL_FILES (  /cantera  .h  ${CANTERA_CXX_HEADERS} )

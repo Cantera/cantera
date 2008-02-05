@@ -19,7 +19,7 @@ class Func1:
     A Functor is an object that behaves like a function. Class 'Func1'
     is the base class from which several functor classes derive. These
     classes are designed to allow specifying functions of time from Python
-    that can be used by the C++ kernel.
+    that can be used by the C++ kernel. 
 
     Functors can be added, multiplied, and divided to yield new functors.
     >>> f1 = Polynomial([1.0, 0.0, 3.0])  # 3*t*t + 1
@@ -147,7 +147,7 @@ class Func1:
 
     def write(self, arg = 'x', length = 1000):
         return _cantera.func_write(self._func_id, length, arg)
-
+    
     
 class Sin(Func1):
     def __init__(self,omega=1.0):
@@ -249,6 +249,15 @@ class Fourier(Func1):
         Func1.__init__(self, 1, n-1, ravel(transpose(cc)))
 
 
+##Sum of modified Arrhenius terms. Instances of class 'Arrhenius' evaluate
+#    \f[
+#    f(T) = \sum_{n=1}^N A_n T^{b_n}\exp(-E_n/T)
+#    \f]
+#    
+#    Example:
+#
+#    >>> f = Arrhenius([(a0, b0, e0), (a1, b1, e1)])
+#    
 class Arrhenius(Func1):
     """Sum of modified Arrhenius terms. Instances of class 'Arrhenius' evaluate
     \f[
@@ -306,6 +315,11 @@ class PeriodicFunction(Func1):
 # functions that combine two functions
 
 class ComboFunc1(Func1):
+    """
+    Combines two functions.
+    This class is the base class for functors that combine two
+    other functors in a binary operation.
+    """
     
     def __init__(self, typ, f1, f2):
         self._own = 1
@@ -407,19 +421,21 @@ class RatioFunction(ComboFunc1):
         """                
         ComboFunc1.__init__(self, 40, f1, f2)
 
+##  Function of a function.
+#    Instances of class CompositeFunction evaluate f(g(t)) for two supplied
+#    functors f and g. It  is not necessary to explicitly create an instance
+#    of 'CompositeFunction', since the () operator of the base class is
+#    overloaded to return a CompositeFunction when called with a functor
+#    argument.
+# @example
+#    >>> f1 = Polynomial([2.0, 1.0])
+#    >>> f2 = Polynomial([3.0, -5.0])
+#    >>> f3 = f1(f2)     # functor to evaluate 2(3t - 5) + 1
+#    In this example, object 'f3' is a functor of class'CompositeFunction'
+#    that calls f1 and f2 and returns f1(f2(t)).
+
 class CompositeFunction(ComboFunc1):
-    """Function of a function.
-    Instances of class CompositeFunction evaluate f(g(t)) for two supplied
-    functors f and g. It  is not necessary to explicitly create an instance
-    of 'CompositeFunction', since the () operator of the base class is
-    overloaded to return a CompositeFunction when called with a functor
-    argument.
-    >>> f1 = Polynomial([2.0, 1.0])
-    >>> f2 = Polynomial([3.0, -5.0])
-    >>> f3 = f1(f2)     # functor to evaluate 2(3t - 5) + 1
-    In this example, object 'f3' is a functor of class'CompositeFunction'
-    that calls f1 and f2 and returns f1(f2(t)).
-    """        
+
     def __init__(self, f1, f2):
         """
         f1 - first functor.
@@ -427,6 +443,7 @@ class CompositeFunction(ComboFunc1):
         f2 - second functor.
         """                
         ComboFunc1.__init__(self, 60, f1, f2)    
+
         
 class DerivativeFunction(Func1):
     def __init__(self, f):
@@ -435,9 +452,11 @@ class DerivativeFunction(Func1):
         self._own = 1
         self._func_id = _cantera.func_derivative(f.func_id())
 
+##
+# The derivative of f
+#
 def derivative(f):
     return DerivativeFunction(f)
 
 
     
-

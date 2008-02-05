@@ -557,7 +557,7 @@ extern "C" {
             thermo_t* thrm = th(n);
             int nsp = thrm->nSpecies();
             if (lenm >= nsp) {
-                thrm->getEnthalpy_RT(h_rt);
+                thrm->getEnthalpy_RT_ref(h_rt);
                 return 0;
             }
             else
@@ -571,7 +571,7 @@ extern "C" {
             thermo_t* thrm = th(n);
             int nsp = thrm->nSpecies();
             if (lenm >= nsp) {
-                thrm->getEntropy_R(s_r);
+                thrm->getEntropy_R_ref(s_r);
                 return 0;
             }
             else
@@ -585,10 +585,10 @@ extern "C" {
             thermo_t* thrm = th(n);
             int nsp = thrm->nSpecies();
             if (lenm >= nsp) {
-                thrm->getCp_R(cp_r);
+                thrm->getCp_R_ref(cp_r);
                 return 0;
             }
-            else
+            else 
                 return -10;
         }
         catch (CanteraError) {return -1;}

@@ -28,13 +28,11 @@ class Kinetics:
                     the specification of the parameters.
         """
         np = len(phases)
-        #self._np = np
         self._sp = []
         self._phnum = {}
 
         # p0 through p4 are the integer indices of the phase objects
         # corresponding to the input sequence of phases
-        
         self._end = [0]
         p0 = phases[0].thermophase()
         p1 = -1

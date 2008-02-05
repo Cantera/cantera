@@ -6,7 +6,8 @@ SET (THERMO_SRCS State.cpp Elements.cpp Constituents.cpp Phase.cpp
              ThermoFactory.cpp phasereport.cpp  SemiconductorPhase.cpp 
              StoichSubstance.cpp PureFluidPhase.cpp LatticeSolidPhase.cpp 
              LatticePhase.cpp)
-SET(CMAKE_CXX_FLAGS -I/${PROJECT_SOURCE_DIR}/Cantera/src/base)
+
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/base)
 
 SET (LIBRARY_OUTPUT_PATH 
   ${PROJECT_BINARY_DIR}/build/lib/${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_SYSTEM_VERSION} CACHE PATH "Single directory for all libraries"

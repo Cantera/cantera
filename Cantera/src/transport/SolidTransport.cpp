@@ -8,7 +8,7 @@
  * $Date$
  */
 
-// copyright 2003 California Institute of Technology
+// copyright 2008 California Institute of Technology
 
 
 // turn off warnings under Windows
@@ -27,16 +27,14 @@ using namespace std;
 
 namespace Cantera {
 
-    //////////////////// class SolidTransport methods //////////////
-
     SolidTransport::SolidTransport() {}
 
     void SolidTransport::setParameters(int n, int k, double* p) {
         switch (n) {
-
+            
+        case 0:
             // set the Arrhenius parameters for the diffusion coefficient
             // of species k.
-        case 0:
             m_sp.push_back(k);
             m_Adiff.push_back(p[0]);
             m_Ndiff.push_back(p[1]);
@@ -44,21 +42,17 @@ namespace Cantera {
             m_nmobile = m_sp.size();
             break;
 
-            // set the thermal conductivity.
         case 1:
-            m_lam = p[0];
+            // set the thermal conductivity Arrhenius parameters.
+            m_Alam = p[0];
+            m_Nlam = p[2];            
+            m_Elam = p[2];            
             break;
+
         default:
             ;
         }
     }
-
-
-    /*********************************************************
-     *
-     *                Public methods
-     *
-     *********************************************************/
 
 
     /**
@@ -76,9 +70,14 @@ namespace Cantera {
         }
     } 
         
-
+    /**
+     * Thermal Conductivity.
+     * \f[
+     * \lambda = A T^n \exp(-E/RT)
+     */
     doublereal SolidTransport::thermalConductivity() {
-        return m_lam;
+        doublereal t = m_thermo->temperature();
+        return m_Alam *pow(t, m_Nlam) * exp(-m_Elam/t);
     }
 
 

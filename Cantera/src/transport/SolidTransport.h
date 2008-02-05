@@ -68,7 +68,9 @@ namespace Cantera {
         vector_fp m_Ndiff;
         vector_fp m_Ediff;
         vector_int m_sp;
-        doublereal m_lam;
+        doublereal m_Alam;
+        doublereal m_Nlam;
+        doublereal m_Elam;
     };
 }
 #endif

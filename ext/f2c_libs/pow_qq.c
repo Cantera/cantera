@@ -1,13 +1,13 @@
 #include "f2c.h"
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+    //#endif
 
-#ifdef KR_headers
-longint pow_qq(ap, bp) longint *ap, *bp;
-#else
+    //#ifdef KR_headers
+    //longint pow_qq(ap, bp) longint *ap, *bp;
+    //#else
 longint pow_qq(longint *ap, longint *bp)
-#endif
+    //#endif
 {
 	longint pow, x, n;
 	unsigned long long u;	/* system-dependent */
@@ -34,6 +34,6 @@ longint pow_qq(longint *ap, longint *bp)
 		}
 	return(pow);
 	}
-#ifdef __cplusplus
-}
-#endif
+    //#ifdef __cplusplus
+//}
+//#endif
