@@ -11,6 +11,8 @@
 #include <cantera/zerodim.h>
 #include <cantera/IdealGasMix.h>
 
+using namespace CanteraZeroD;
+
 void runexample() {
 
     // use reaction mechanism GRI-Mech 3.0

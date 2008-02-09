@@ -8,7 +8,7 @@
 #include "kernel/FlowReactor.h"
 #include "kernel/ConstPressureReactor.h"
 
-//using namespace CanteraZeroD;
+using namespace CanteraZeroD;
 
 #endif
 

@@ -7,4 +7,5 @@ add_subdirectory(equil)
 add_subdirectory(spectra)
 
 add_subdirectory(oneD)
+add_subdirectory(zeroD)
 

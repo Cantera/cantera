@@ -30,6 +30,7 @@ ENDIF(NOT CMAKE_INSTALL_COMPONENT)
 IF(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   INCLUDE("/Users/dgg/dv/sf/cantera/Cantera/src/cmake_install.cmake")
+  INCLUDE("/Users/dgg/dv/sf/cantera/Cantera/cxx/cmake_install.cmake")
   INCLUDE("/Users/dgg/dv/sf/cantera/Cantera/clib/cmake_install.cmake")
 
 ENDIF(NOT CMAKE_INSTALL_LOCAL_ONLY)

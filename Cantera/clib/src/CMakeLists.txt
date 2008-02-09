@@ -10,16 +10,19 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/transport)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/converters)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/zeroD)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/oneD)
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/build/include/cantera)
 
-SET (LIBRARY_OUTPUT_PATH 
-  ${PROJECT_BINARY_DIR}/build/lib/${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_SYSTEM_VERSION} CACHE PATH "Single directory for all libraries"
-  )
+#SET (LIBRARY_OUTPUT_PATH 
+#  ${PROJECT_BINARY_DIR}/build/lib/${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_SYSTEM
+#  VERSION} CACHE PATH "Single directory for all libraries"
+# )
 
-ADD_LIBRARY(clib ${CLIB_SRCS})
+ADD_LIBRARY ( clib ${CLIB_SRCS} )
+
+TARGET_LINK_LIBRARIES (clib oneD zeroD equil kinetics thermo ctbase)
 
 SET (CLIB_H  ct.h Storage.h ctsurf.h ctrpath.h ctreactor.h
                         ctfunc.h ctxml.h ctonedim.h ctmultiphase.h )
 
-TARGET_LINK_LIBRARIES (clib oneD zeroD equil kinetics thermo ctbase)
 
-#             @phase_header_files@)
+
