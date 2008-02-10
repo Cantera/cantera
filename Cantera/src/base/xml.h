@@ -61,13 +61,13 @@ namespace Cantera {
     class XML_Node {
     public:
 
-        XML_Node(std::string nm = "--", XML_Node* p = 0, int n = 0);
+      XML_Node(std::string nm = "--", XML_Node* p = 0, int n = 0);
    
       XML_Node(const XML_Node &right);
       XML_Node& operator=(const XML_Node &right);
 
    
-        virtual ~XML_Node();
+      virtual ~XML_Node();
         void addComment(std::string comment);
         XML_Node& addChild(XML_Node& node);
         XML_Node& addChild(std::string name);
@@ -142,11 +142,15 @@ namespace Cantera {
        * The name is the XML node is the XML node name
        */
       std::string name() const { return m_name; }
-        std::string id() const {
-            if (hasAttrib("id")) return attrib("id");
-            else return "";
-        }
-        int number() const { return m_n; }
+
+      //! Return the id attribute, if present
+      /*!
+       * Returns the id attribute if present. If not
+       * it return the empty string
+       */
+      std::string id() const;
+
+      int number() const { return m_n; }
 
         XML_Node& child(int n) const { return *m_children[n]; }
         std::vector<XML_Node*>& children()  { return m_children; }
@@ -175,6 +179,7 @@ namespace Cantera {
 
         XML_Node* findID(const std::string& id, int depth=100) const;
         XML_Node* findByAttr(const std::string& attr, const std::string& val);
+        const XML_Node* findByName(const std::string& nm) const;
         XML_Node* findByName(const std::string& nm);
         void getChildren(std::string name, std::vector<XML_Node*>& children) const;
         XML_Node& child(std::string loc) const;

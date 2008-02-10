@@ -380,6 +380,11 @@ namespace Cantera {
         m_childindex.erase(node->name());
     }
 
+    std::string XML_Node::id() const {
+      if (hasAttrib("id")) return attrib("id");
+      return std::string("");
+    }
+
     /**
      * This routine carries out a search for an XML node based
      * on both the xml element name and the attribute ID.
@@ -459,6 +464,19 @@ namespace Cantera {
             return this;
         }
         XML_Node* r = 0;
+        int n = nChildren();
+        for (int i = 0; i < n; i++) {
+            r = m_children[i]->findByName(nm);
+            if (r != 0) return r;
+        }
+        return 0;
+    }
+
+    const XML_Node* XML_Node::findByName(const string& nm) const {
+        if (name() == nm) {
+            return this;
+        }
+        const XML_Node* r = 0;
         int n = nChildren();
         for (int i = 0; i < n; i++) {
             r = m_children[i]->findByName(nm);
