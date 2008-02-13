@@ -1672,10 +1672,8 @@ AC_OUTPUT(Makefile \
 	  Cantera/clib/src/Makefile \
 	  Cantera/fortran/src/Makefile \
 	  Cantera/fortran/f77demos/f77demos.mak \
-	  Cantera/fortran/f77demos/isentropic.dsp \
 	  Cantera/matlab/Makefile \
           Cantera/matlab/setup_matlab.py \
-          Cantera/matlab/setup_winmatlab.py \
 	  Cantera/python/Makefile \
           Cantera/python/setup.py \
 	  Cantera/cxx/Makefile \
