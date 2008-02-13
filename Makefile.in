@@ -1,3 +1,4 @@
+
 export_dir = $(HOME)/sfdist
 version = @ctversion@
 ct = $(export_dir)/cantera-$(version)

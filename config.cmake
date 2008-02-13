@@ -1,7 +1,7 @@
 
 OPTION(CANTERA_BUILD_FULL_PYTHON "Include support for using Cantera from Python?" ON)
 
-OPTION(CANTERA_BUILD_WITH_F2C "Use f2c versions of 3rd party numerical routines" ON)
+OPTION(CANTERA_BUILD_WITH_F2C "Use f2c versions of 3rd party numerical routines" OFF)
 
 OPTION (CANTERA_BUILD_LAPACK  0)
 OPTION (CANTERA_HAVE_SUNDIALS 1)

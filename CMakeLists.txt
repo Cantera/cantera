@@ -9,14 +9,14 @@ INCLUDE (config.cmake)
 #operating system
 SET(os ${CMAKE_SYSTEM_NAME})
 if (os STREQUAL "Darwin")
-    SET(DARWIN 1)
+      SET(DARWIN 1)
 endif (os STREQUAL "Darwin")
 
 if (PYTHON_CMD STREQUAL "default")
-   INCLUDE( FindPythonInterp )
-   SET( PYTHON_EXE ${PYTHON_EXECUTABLE} )
+     INCLUDE( FindPythonInterp )
+     SET( PYTHON_EXE ${PYTHON_EXECUTABLE} )
 else (PYTHON_CMD STREQUAL "default")
-  SET( PYTHON_EXE ${PYTHON_CMD} )
+    SET( PYTHON_EXE ${PYTHON_CMD} )
 endif (PYTHON_CMD STREQUAL "default")
 
 # configuration
