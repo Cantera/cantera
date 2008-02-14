@@ -7,7 +7,7 @@
 #include "kernel/EdgeKinetics.h"
 #include "kernel/importKinetics.h"
 
-namespace Cantera {
+namespace Cantera_CXX {
 
     class Edge : 
         public EdgePhase, public EdgeKinetics

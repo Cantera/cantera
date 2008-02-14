@@ -11,15 +11,14 @@
  * libctxx.a
  */
 
-namespace Cantera {
-   ThermoPhase* importPhase(std::string infile, std::string id="");
+namespace Cantera_CXX {
+    ThermoPhase* importPhase(std::string infile, std::string id="");
 
-   // -> this is a duplicate of a src/thermo/phasereport function
-   //     We'll leave it here so that these are available externally
-   std::string report(const ThermoPhase& th, bool show_thermo);
+    // -> this is a duplicate of a src/thermo/phasereport function
+    //     We'll leave it here so that these are available externally
+    std::string report(const Cantera::ThermoPhase& th, bool show_thermo);
 
-
-   std::string formatCompList(const Phase& mix, int xyc);
+    std::string formatCompList(const Cantera::Phase& mix, int xyc);
 }
 
 

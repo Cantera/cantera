@@ -8,27 +8,32 @@
 #include "kernel/importKinetics.h"
 #include "kernel/stringUtils.h"
 
-namespace Cantera {
+namespace Cantera_CXX {
 
     class IdealGasMix : 
-        public IdealGasPhase, public GasKinetics
+        public Cantera::IdealGasPhase, 
+        public Cantera::GasKinetics
     {
     public:
 
         IdealGasMix() : m_ok(false), m_r(0) {}
 
-        IdealGasMix(std::string infile, std::string id="") : m_ok(false), m_r(0) {
+        IdealGasMix(std::string infile, std::string id="") : 
+            m_ok(false), m_r(0) {
             
-        m_r = get_XML_File(infile); 
-        if (id == "-") id = "";
-        m_ok = buildSolutionFromXML(*m_r, id, "phase", this, this);
-        if (!m_ok) throw CanteraError("IdealGasMix",
-            "buildSolutionFromXML returned false");
+            m_r = Cantera::get_XML_File(infile); 
+            if (id == "-") id = "";
+            m_ok = Cantera::buildSolutionFromXML(*m_r, 
+                id, "phase", this, this);
+            if (!m_ok) throw Cantera::CanteraError("IdealGasMix",
+                "Cantera::buildSolutionFromXML returned false");
         }
 
 
-        IdealGasMix(XML_Node& root, std::string id) : m_ok(false), m_r(0) {
-            m_ok = buildSolutionFromXML(root, id, "phase", this, this);
+        IdealGasMix(Cantera::XML_Node& root, 
+            std::string id) : m_ok(false), m_r(0) {
+            m_ok = Cantera::buildSolutionFromXML(root, id, 
+                "phase", this, this);
         }
         
         virtual ~IdealGasMix() {}
@@ -43,7 +48,7 @@ namespace Cantera {
 
     protected:
         bool m_ok;
-        XML_Node* m_r;
+        Cantera::XML_Node* m_r;
 
     private:
     };

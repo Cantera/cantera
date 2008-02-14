@@ -20,11 +20,13 @@
 #include <cantera/transport.h>      // transport properties
 
 
-// All Cantera names are in namespace Cantera. You can either
+// All Cantera kernel names are in namespace Cantera. You can either
 // reference everything as Cantera::<name>, or include the following
 // 'using namespace' line.
 using namespace Cantera;
 
+using namespace Cantera_CXX;
+// All Cantera C++ interface names are in namespace Cantera_CXX
 
 // The program is put into a function so that error handling code can
 // be conveniently put around the whole thing. See main() below.

@@ -8,10 +8,10 @@
 #include "ThermoFactory.h"
 //#include "../include/importPhase.h"
 
-namespace Cantera {
+namespace Cantera_CXX {
 
-    ThermoPhase* importPhase(std::string infile, std::string id) {
-        ThermoPhase* p = newPhase(infile, id);
+    Cantera::ThermoPhase* importPhase(std::string infile, std::string id) {
+        Cantera::ThermoPhase* p = Cantera::newPhase(infile, id);
         return p;
     }
 }

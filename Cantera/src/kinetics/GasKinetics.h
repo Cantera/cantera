@@ -221,11 +221,12 @@ namespace Cantera {
          */
         virtual void getNetProductionRates(doublereal* net) {
             updateROP();
-#ifdef HWMECH
-            get_wdot(&m_kdata->m_ropnet[0], net);
-#else
-            m_rxnstoich->getNetProductionRates(m_kk, &m_kdata->m_ropnet[0], net);
-#endif
+            //#ifdef HWMECH
+                //get_wdot(&m_kdata->m_ropnet[0], net);
+            //#else
+            m_rxnstoich->getNetProductionRates(m_kk, 
+                &m_kdata->m_ropnet[0], net);
+            //#endif
         }
 
 	/**

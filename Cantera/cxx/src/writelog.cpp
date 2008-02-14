@@ -10,9 +10,9 @@
 
 #include <string>
 #include <iostream>
-using namespace std;
+//using namespace std;
 
-namespace Cantera {
+namespace Cantera_CXX {
     /**
      *
      * writelog():
@@ -38,14 +38,14 @@ namespace Cantera {
      * own versions of writelog.
      */
     void writelog(const string& s) {
-        cout << s;
+        std::cout << s;
     }
 
     /**
      * Write an error message and quit.
      */
-    void error(const string& msg) {
-        cerr << msg << endl;
+    void error(const std::string& msg) {
+        std::cerr << msg << endl;
         exit(-1);
     }
 

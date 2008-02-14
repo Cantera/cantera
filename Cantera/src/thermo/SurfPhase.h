@@ -24,18 +24,17 @@
 
 namespace Cantera {
 
-
     
   //!  A simple thermoydnamics model for a surface phase, 
   //!  assuming an ideal solution model.
   /*!
-   * The surface consists of a grid of equivalent sites. Surface species may be defined to
+   * The surface consists of a grid of equivalent sites. 
+   * Surface species may be defined to
    * occupy one or more sites. The surface species are assumed to be
    * independent, and thus the species form an ideal solution.
    *
-   * The density of surface sites is given by the variable \f$ n_0 \f$, which has MKS units
-   * of kmol m-2. 
-   *
+   * The density of surface sites is given by the variable \f$ n_0 \f$, 
+   * which has SI units of kmol m-2. 
    *
    * <b> Specification of Species Standard State Properties </b>
    * 
