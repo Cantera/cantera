@@ -1,0 +1,6 @@
+SET ( CXX_SRCS importPhase.cpp )
+
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/build/include/cantera)
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/build/include)
+
+ADD_LIBRARY (ctcxx ${CXX_SRCS})
