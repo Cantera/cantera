@@ -12,7 +12,7 @@
  */
 
 namespace Cantera_CXX {
-    ThermoPhase* importPhase(std::string infile, std::string id="");
+    Cantera::ThermoPhase* importPhase(std::string infile, std::string id="");
 
     // -> this is a duplicate of a src/thermo/phasereport function
     //     We'll leave it here so that these are available externally
