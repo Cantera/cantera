@@ -28,10 +28,10 @@ namespace Cantera_CXX {
     {
     public:
         GRI30() : m_ok(false), m_r(0) {
-            m_r = get_XML_File("gri30.xml");
+            m_r = Cantera::get_XML_File("gri30.xml");
             m_ok = Cantera::buildSolutionFromXML(*m_r, "gri30", 
                 "phase", this, this);
-            if (!m_ok) throw CanteraError("GRI30",
+            if (!m_ok) throw Cantera::CanteraError("GRI30",
                 "buildSolutionFromXML returned false");
         }
 
