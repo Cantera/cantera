@@ -23,6 +23,8 @@
 
 #include <cantera/IdealGasMix.h>
 
+using namespace Cantera;
+using namespace Cantera_CXX;
 //-------------------------------------------------------------------
 
 // utility functions for plotting

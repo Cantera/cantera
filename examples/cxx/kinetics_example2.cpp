@@ -22,6 +22,8 @@
 #include <time.h>
 #include "example_utils.h"
 
+using namespace Cantera;
+using namespace Cantera_CXX;
 /**
  * Same as kinetics_example1, except that it uses class GRI30 instead
  * of class IdealGasMix.

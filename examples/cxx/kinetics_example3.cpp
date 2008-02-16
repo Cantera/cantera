@@ -22,6 +22,9 @@
 #include <time.h>
 #include "example_utils.h"
 
+using namespace Cantera;
+using namespace Cantera_CXX;
+
 // Kinetics example. This is written as a function so that one 
 // driver program can run multiple examples.
 // The action taken depends on input parameter job:

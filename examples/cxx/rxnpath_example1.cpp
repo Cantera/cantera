@@ -25,6 +25,8 @@
 
 // #include <iostream>
 // using namespace std;
+using namespace Cantera;
+using namespace Cantera_CXX;
 
 void writeRxnPathDiagram(double time, ReactionPathBuilder& b, 
     IdealGasMix& gas, ostream& logfile, ostream& outfile) { 

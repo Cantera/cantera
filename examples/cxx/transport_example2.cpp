@@ -23,6 +23,9 @@
 #include <cantera/equilibrium.h>
 #include <cantera/IdealGasMix.h>
 
+using namespace Cantera;
+using namespace Cantera_CXX;
+
 template<class G, class V>
 void makeTransportDataLabels(const G& gas, V& names) {
     int nsp = gas.nSpecies();
