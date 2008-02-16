@@ -20,6 +20,8 @@
 
 using namespace std;
 using namespace Cantera;
+using namespace Cantera_CXX;
+
 int main(int argc, char **argv) {
 #ifdef DEBUG_CHEMEQUIL
   ChemEquil_print_lvl = 0;
