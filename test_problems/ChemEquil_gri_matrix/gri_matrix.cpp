@@ -13,6 +13,7 @@
 
 using namespace std;
 using namespace Cantera;
+using namespace Cantera_CXX;
 
 int main(int argc, char **argv) {
   int numSucc = 0;
