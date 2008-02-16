@@ -7,12 +7,7 @@ SET (THERMO_SRCS State.cpp Elements.cpp Constituents.cpp Phase.cpp
              StoichSubstance.cpp PureFluidPhase.cpp LatticeSolidPhase.cpp 
              LatticePhase.cpp)
 
-INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/build/include/cantera)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/base)
-
-SET (LIBRARY_OUTPUT_PATH 
-  ${PROJECT_BINARY_DIR}/build/lib/${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_SYSTEM_VERSION} CACHE PATH "Single directory for all libraries"
-  )
 
 ADD_LIBRARY(thermo ${THERMO_SRCS})
 
@@ -30,3 +25,5 @@ SET(THERMO_H   State.h Elements.h Constituents.h Phase.h mix_defs.h
              speciesThermoTypes.h SpeciesThermo.h SurfPhase.h 
              EdgePhase.h )
 #             @phase_header_files@)
+
+INSTALL_FILES(/include/cantera/kernel FILES ${THERMO_H})
