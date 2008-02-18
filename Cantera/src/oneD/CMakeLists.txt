@@ -1,6 +1,7 @@
 SET (ONED_SRCS  MultiJac.cpp MultiNewton.cpp newton_utils.cpp OneDim.cpp
           StFlow.cpp boundaries1D.cpp refine.cpp Sim1D.cpp Domain1D.cpp )
 
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR})
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/base)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/thermo)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/numerics)

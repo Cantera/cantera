@@ -12,7 +12,7 @@ IF(NOT CMAKE_INSTALL_CONFIG_NAME)
     STRING(REGEX REPLACE "^[^A-Za-z0-9_]+" ""
            CMAKE_INSTALL_CONFIG_NAME "${BUILD_TYPE}")
   ELSE(BUILD_TYPE)
-    SET(CMAKE_INSTALL_CONFIG_NAME "")
+    SET(CMAKE_INSTALL_CONFIG_NAME "Debug")
   ENDIF(BUILD_TYPE)
   MESSAGE(STATUS "Install configuration: \"${CMAKE_INSTALL_CONFIG_NAME}\"")
 ENDIF(NOT CMAKE_INSTALL_CONFIG_NAME)
@@ -29,6 +29,7 @@ ENDIF(NOT CMAKE_INSTALL_COMPONENT)
 
 IF(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
+  INCLUDE("/Users/dgg/dv/sf/cantera/Cantera/cxx/include/cmake_install.cmake")
   INCLUDE("/Users/dgg/dv/sf/cantera/Cantera/cxx/src/cmake_install.cmake")
   INCLUDE("/Users/dgg/dv/sf/cantera/Cantera/cxx/demos/cmake_install.cmake")
 

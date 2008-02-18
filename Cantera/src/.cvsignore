@@ -5,4 +5,6 @@ ctdir.h
 config.h
 *.d
 SunWS_cache
+CMakeFiles
+cmake_install.cmake
 

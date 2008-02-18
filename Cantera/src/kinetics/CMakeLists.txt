@@ -3,6 +3,7 @@ SET (KINETICS_SRCS importKinetics.cpp GRI_30_Kinetics.cpp KineticsFactory.cpp
             solveSP.cpp InterfaceKinetics.cpp ImplicitSurfChem.cpp Group.cpp 
             ReactionPath.cpp)
 
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR})
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/base)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/thermo)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/numerics)
@@ -18,4 +19,4 @@ SET(KINETICS_H  importKinetics.h GRI_30_Kinetics.h KineticsFactory.h
              RxnRates.h Enhanced3BConc.h StoichManager.h solveSP.h InterfaceKinetics.h
              ImplicitSurfChem.h EdgeKinetics.h Group.h ReactionPath.h)
 
-INSTALL_FILES(/include/cantera/kernel FILES ${KINETICS_H})
+INSTALL_FILES(/cantera/kernel FILES ${KINETICS_H})

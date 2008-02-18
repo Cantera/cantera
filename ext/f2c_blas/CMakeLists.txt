@@ -5,6 +5,7 @@ dswap.c  dsymm.c  dsymv.c  dsyr.c  dsyr2.c  dsyr2k.c  dsyrk.c  dtbmv.c
 dtbsv.c  dtpmv.c  dtpsv.c  dtrmm.c  dtrmv.c  dtrsm.c  dtrsv.c  
 dzasum.c  dznrm2.c  idamax.c  lsame.c  xerbla.c )
 
+INCLUDE_DIRECTORIES ( ${PROJECT_SOURCE_DIR}/ext/f2c_libs )
 ADD_LIBRARY(ctblas ${F2C_BLAS_SRCS})
 
 

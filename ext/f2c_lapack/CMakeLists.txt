@@ -1,5 +1,5 @@
 
-SET (F2C_LAPACK_SRCS  dgbtrf.c  dgbtrs.c  dgbsv.c  
+SET (F2C_LAPACK_SRCS  dgbtrf.c  dgbtrs.c  dgbtf2.c dgbsv.c  
    dgebd2.c   dgebrd.c   dgelq2.c   dgelqf.c   dgelss.c   dgeqr2.c   dgeqrf.c   dgetf2.c  
    dgetrf.c   dgetri.c   dgetrs.c   dlabad.c   dlabrd.c   dlacpy.c   dlamch.c  dlange.c  
    dlapy2.c  dlarf.c  dlarfb.c  dlarfg.c  dlarft.c  dlartg.c  dlas2.c  dlascl.c  dlaset.c  

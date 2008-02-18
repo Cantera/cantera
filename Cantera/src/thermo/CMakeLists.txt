@@ -7,6 +7,7 @@ SET (THERMO_SRCS State.cpp Elements.cpp Constituents.cpp Phase.cpp
              StoichSubstance.cpp PureFluidPhase.cpp LatticeSolidPhase.cpp 
              LatticePhase.cpp)
 
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR})
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/base)
 
 ADD_LIBRARY(thermo ${THERMO_SRCS})

@@ -16,6 +16,7 @@
 #include <cantera/transport.h>
 
 using namespace Cantera;
+using namespace Cantera_CXX;
 
 int flamespeed(int np, void* p) {
     try {

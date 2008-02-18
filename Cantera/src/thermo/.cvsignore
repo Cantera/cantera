@@ -7,3 +7,5 @@ PDSS_Refactor.txt
 WaterEps.cpp
 WaterEps.h
 .*swp
+CMakeFiles
+cmake_install.cmake

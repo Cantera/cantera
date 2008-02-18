@@ -1,6 +1,7 @@
 SET (TRANSPORT_SRCS  TransportFactory.cpp MultiTransport.cpp MixTransport.cpp
                                       MMCollisionInt.cpp SolidTransport.cpp DustyGasTransport.cpp)
 
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR})
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/base)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/thermo)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/numerics)

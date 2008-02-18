@@ -1,6 +1,7 @@
 SET (EQUIL_SRCS BasisOptimize.cpp ChemEquil.cpp MultiPhase.cpp MultiPhaseEquil.cpp
        equilibrate.cpp )
 
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR})
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/base)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/thermo)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/numerics)

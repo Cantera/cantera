@@ -1,6 +1,7 @@
 #include "ct_defs.h"
 #include "Integrator.h"
 
+#define NO_SUNDIALS
 #ifdef NO_SUNDIALS
 #undef HAS_SUNDIALS
 #endif

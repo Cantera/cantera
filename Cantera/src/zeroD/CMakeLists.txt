@@ -1,6 +1,7 @@
 SET (ZEROD_SRCS Reactor.cpp ReactorBase.cpp FlowDevice.cpp Wall.cpp ReactorNet.cpp
       FlowReactor.cpp ConstPressureReactor.cpp ReactorFactory.cpp )
 
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR})
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/base)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/thermo)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/numerics)

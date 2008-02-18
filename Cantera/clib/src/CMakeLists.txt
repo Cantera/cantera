@@ -1,6 +1,7 @@
 SET (CLIB_SRCS ct.cpp Storage.cpp ctsurf.cpp ctrpath.cpp ctreactor.cpp
                         ctfunc.cpp ctxml.cpp ctonedim.cpp ctmultiphase.cpp )
 
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR})
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/base)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/thermo)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/equil)
@@ -10,12 +11,8 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/transport)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/converters)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/zeroD)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/Cantera/src/oneD)
-INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/build/include/cantera)
 
-#SET (LIBRARY_OUTPUT_PATH 
-#  ${PROJECT_BINARY_DIR}/build/lib/${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_SYSTEM
-#  VERSION} CACHE PATH "Single directory for all libraries"
-# )
+# INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/build/include/cantera)
 
 ADD_LIBRARY ( clib ${CLIB_SRCS} )
 

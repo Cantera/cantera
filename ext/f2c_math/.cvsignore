@@ -1,3 +1,5 @@
 Makefile
 .depends
 *.d
+CMakeFiles
+cmake_install.cmake

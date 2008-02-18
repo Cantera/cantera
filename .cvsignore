@@ -14,3 +14,6 @@ linux.my.32
 .DS_Store
 win32
 prepreconfig*
+CMakeCache.txt
+CMakeFiles
+mt.mod

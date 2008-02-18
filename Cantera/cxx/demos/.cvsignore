@@ -10,3 +10,5 @@ demos
 *.d
 .depends
 liquidvapor.xml
+CMakeFiles
+cmake_install.cmake
