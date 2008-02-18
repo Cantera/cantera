@@ -95,7 +95,7 @@ class Solution(Cantera.ThermoPhase.ThermoPhase, Cantera.Kinetics.Kinetics, Cante
  |      the element potentials for this equilibrium state.
  |  
  |  enthalpies_RT(self, species=[])
- |      Pure species non-dimensional enthalpies.
+ |      Pure species non-dimensional reference state enthalpies.
  |      
  |      This method returns an array containing the pure-species
  |      standard-state enthalpies divided by RT. For gaseous species,
@@ -124,12 +124,12 @@ class Solution(Cantera.ThermoPhase.ThermoPhase, Cantera.Kinetics.Kinetics, Cante
  |      Set to a state of chemical equilibrium holding property pair
  |      'XY' constant.
  |      
- |      XY -- A two-letter string, which must be one of the set
+ |      XY ---   A two-letter string, which must be one of the set
  |      ['TP','TV','HP','SP','SV','UV','PT','VT','PH','PS','VS','VU'].
  |      If H, U, S, or V is specified, the value must be the specific
- |      value (per unit mass).
+ |      value (per unit mass)
  |      
- |      solver -- specifies the equilibrium solver to use. If solver =
+ |      solver --- Specifies the equilibrium solver to use. If solver =
  |      0, a fast solver using the element potential method will be
  |      used. If solver > 0, a slower but more robust Gibbs
  |      minimization solver will be used. If solver < 0 or
@@ -202,6 +202,7 @@ class Solution(Cantera.ThermoPhase.ThermoPhase, Cantera.Kinetics.Kinetics, Cante
  |      Set the electric potential.
  |  
  |  setName(self, name)
+ |      Set the name attribute. This can be any string
  |  
  |  setPressure(self, p)
  |      Set the pressure [Pa].
@@ -541,6 +542,9 @@ class Solution(Cantera.ThermoPhase.ThermoPhase, Cantera.Kinetics.Kinetics, Cante
  |  
  |  desc(self)
  |      A short description of the active model.
+ |  
+ |  diffusionCoeffs(self)
+ |      Species diffusion coefficients. (m^2/s).
  |  
  |  mixDiffCoeffs(self)
  |      Mixture-averaged diffusion coefficients.
