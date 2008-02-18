@@ -159,15 +159,15 @@ namespace Cantera {
 
     /** Generate polynomial fits to viscosity, conductivity, and
      *  binary diffusion coefficients */
-    void fitProperties(TransportParams& tr, std::ostream& logfile=std::cout);
+    void fitProperties(TransportParams& tr, std::ostream & logfile);
 
     /// Generate polynomial fits to collision integrals
-    void fitCollisionIntegrals(std::ostream& logfile, 
+    void fitCollisionIntegrals(std::ostream & logfile, 
 			       TransportParams& tr);
 
    
 
-    void setupMM(std::ostream& flog,  const XML_Node* transport_database, 
+    void setupMM(std::ostream &flog,  const XML_Node* transport_database, 
 		 thermo_t* thermo, int mode, int log_level, 
 		 TransportParams& tr);
 

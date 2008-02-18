@@ -17,7 +17,16 @@ do_ranlib = @DO_RANLIB@
 
 PIC_FLAG=@PIC@
 
-CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
+debug_mode = @CANTERA_DEBUG_MODE@
+ifeq ($(debug_mode), 1)
+   DEBUG_FLAG=-DDEBUG_MODE
+else
+   DEBUG_FLAG=
+endif
+
+
+
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
 
 # Transport Object Files
 OBJS    = TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.o \

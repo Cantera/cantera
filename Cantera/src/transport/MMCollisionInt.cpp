@@ -227,15 +227,22 @@ namespace Cantera {
 
     void MMCollisionInt::init(XML_Writer* xml,  
         doublereal tsmin, doublereal tsmax, int log_level) {
-
+#ifdef DEBUG_MODE
         ostream& logfile = xml->output();
         m_xml = xml;
+#else
+        m_xml = 0;
+#endif
         m_loglevel = log_level;
-        if (m_loglevel > 0) 
+#ifdef DEBUG_MODE
+        if (m_loglevel > 0) {
             m_xml->XML_comment(logfile, "Collision Integral Polynomial Fits");
+	}
+	char p[200];
+#endif
         m_nmin = -1;
         m_nmax = -1;
-        char p[200];
+ 
         for (int n = 0; n < 37; n++) {
             if (tsmin > tstar[n+1]) m_nmin = n;
             if (tsmax > tstar[n+1]) m_nmax = n+1;
@@ -244,13 +251,16 @@ namespace Cantera {
             m_nmin = 0;
             m_nmax = 36;
         }
+#ifdef DEBUG_MODE
         if (m_loglevel > 0)  {
             m_xml->XML_item(logfile, "Tstar_min", tstar[m_nmin + 1]);
             m_xml->XML_item(logfile, "Tstar_max", tstar[m_nmax + 1]);
         }
+#endif
         m_logTemp.resize(37);
         doublereal rmserr, e22 = 0.0, ea = 0.0, eb = 0.0, ec = 0.0;
 
+#ifdef DEBUG_MODE
         if (m_loglevel > 0)  {
             m_xml->XML_open(logfile, "dstar_fits");
             m_xml->XML_comment(logfile, "Collision integral fits at each "
@@ -263,6 +273,7 @@ namespace Cantera {
                     "polynomial coefficients not printed (log_level < 4)"); 
             }
         }
+#endif
 
         string indent = "    ";
         for (int i = 0; i < 37; i++) 
@@ -271,6 +282,7 @@ namespace Cantera {
             vector_fp c(DeltaDegree+1);
 
             rmserr = fitDelta(0, i, DeltaDegree, DATA_PTR(c)); 
+#ifdef DEBUG_MODE
             if (log_level > 3) {
                 sprintf(p, " Tstar=\"%12.6g\"", tstar[i+1]); 
                 m_xml->XML_open(logfile, "dstar_fit", p);
@@ -278,33 +290,42 @@ namespace Cantera {
                 m_xml->XML_writeVector(logfile, indent, "omega22", 
                     c.size(), DATA_PTR(c));
             }
+#endif
             m_o22poly.push_back(c);
             if (rmserr > e22) e22 = rmserr;
 
             rmserr = fitDelta(1, i, DeltaDegree, DATA_PTR(c));
             m_apoly.push_back(c);
+#ifdef DEBUG_MODE
             if (log_level > 3)
                 m_xml->XML_writeVector(logfile, indent, "astar", 
                     c.size(), DATA_PTR(c));
+#endif
             if (rmserr > ea) ea = rmserr;
 
             rmserr = fitDelta(2, i, DeltaDegree, DATA_PTR(c));
             m_bpoly.push_back(c);
+#ifdef DEBUG_MODE
             if (log_level > 3)
                 m_xml->XML_writeVector(logfile, indent, "bstar", 
                     c.size(), DATA_PTR(c));
+#endif
             if (rmserr > eb) eb = rmserr;
 
             rmserr = fitDelta(3, i, DeltaDegree, DATA_PTR(c));
             m_cpoly.push_back(c);
-            if (log_level > 3)
+#ifdef DEBUG_MODE
+            if (log_level > 3) {
                 m_xml->XML_writeVector(logfile, indent, "cstar", 
                     c.size(), DATA_PTR(c));
+	    }
+#endif
             if (rmserr > ec) ec = rmserr;
 
-            if (log_level > 3)
+#ifdef DEBUG_MODE
+            if (log_level > 3) {
                 m_xml->XML_close(logfile, "dstar_fit");
-        
+	    }
 
             if (log_level > 0) {
                 sprintf(p,
@@ -316,6 +337,7 @@ namespace Cantera {
                 m_xml->XML_comment(logfile, p);
                 m_xml->XML_close(logfile, "dstar_fits");
             }
+#endif
         }
     }
 
@@ -444,11 +466,14 @@ namespace Cantera {
         w[0]= -1.0;
         rmserr = polyfit(n, logT, DATA_PTR(values), 
             DATA_PTR(w), degree, ndeg, 0.0, o22);
+#ifdef DEBUG_MODE
         if (m_loglevel > 0 && rmserr > 0.01) {
             char p[100];
-            sprintf(p, "Warning: RMS error = %12.6g in omega_22 fit with delta* = %12.6g\n", rmserr, deltastar);
+            sprintf(p, "Warning: RMS error = %12.6g in omega_22 fit"
+		    "with delta* = %12.6g\n", rmserr, deltastar);
             m_xml->XML_comment(logfile, p);
         }
+#endif
     }
 
     void MMCollisionInt::fit(ostream& logfile, int degree, 
@@ -485,7 +510,7 @@ namespace Cantera {
         w[0]= -1.0;
         rmserr = polyfit(n, logT, DATA_PTR(values), 
             DATA_PTR(w), degree, ndeg, 0.0, c);
-
+#ifdef DEBUG_MODE
         if (m_loglevel > 2) {
             char p[100];
             sprintf(p, " dstar=\"%12.6g\"", deltastar); 
@@ -511,6 +536,7 @@ namespace Cantera {
             }
             m_xml->XML_close(logfile, "tstar_fit");
         }
+#endif
     }
 
 } // namespace
