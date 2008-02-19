@@ -9108,10 +9108,6 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 override_f77_libs=0;
 
-if test -n $build_with_f2c_libs; then
-  FFLAGS=
-fi
-
 #case $ac_sys_system in
 #  Darwin*)  FLIBS='-lSystem'; override_f77_libs=1; SHARED_CTLIB=0;;
 #esac
