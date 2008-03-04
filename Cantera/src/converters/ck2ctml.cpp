@@ -24,7 +24,7 @@ using namespace std;
 #include "xml.h"
 #include "ck2ctml.h"
 
-//using namespace Cantera;
+using namespace Cantera;
 
 namespace ctml {
 
@@ -43,11 +43,11 @@ namespace ctml {
         XML_Node& f = node.addChild("NASA");
         if (minx != -999.0) f.addAttribute("Tmin",minx);
         if (midx != -999.0) f.addAttribute("Tmax",midx);
-        addFloatArray(f,"coeffs",low.size(),low.begin());
+        addFloatArray(f,"coeffs",low.size(),&low[0]);
         XML_Node& fh = node.addChild("NASA");
         if (midx != -999.0) fh.addAttribute("Tmin",midx);
         if (maxx != -999.0) fh.addAttribute("Tmax",maxx);
-        addFloatArray(fh,"coeffs",high.size(),high.begin());
+        addFloatArray(fh,"coeffs",high.size(),&high[0]);
     }
 
     /*

@@ -29,7 +29,7 @@ using namespace std;
 
 namespace VCSnonideal {
 
-  int VCSnonideal::vcs_timing_print_lvl = 1;
+  int vcs_timing_print_lvl = 1;
 
   VCS_SOLVE::VCS_SOLVE() :
     NSPECIES0(0),

@@ -19,6 +19,8 @@
 #include "ThermoFactory.h"
 #include <cmath>
 
+using namespace std;
+
 namespace Cantera {
   /**
    * Basic list of constructors and duplicators

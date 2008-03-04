@@ -15,6 +15,8 @@
 
 #include "vcs_internal.h" 
 
+using namespace std;
+
 namespace VCSnonideal {
 
   /***************************************************************************/

@@ -21,6 +21,8 @@
 #include "ctexceptions.h"
 #include "Nasa9PolyMultiTempRegion.h"
 
+using namespace std;
+
 namespace Cantera {
  
   // The NASA 9 polynomial parameterization for a single species

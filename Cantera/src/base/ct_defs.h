@@ -119,7 +119,7 @@ namespace Cantera {
     const doublereal permeability_0 = 4.0e-7*Pi; // N/A^2
 
     /// Speed of Light (m/s).
-    const doublereal lightSpeed = 1.0/sqrt(epsilon_0 * permeability_0);
+    const doublereal lightSpeed = 1.0/std::sqrt(epsilon_0 * permeability_0);
 
     //@}
  //@}

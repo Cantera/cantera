@@ -111,7 +111,7 @@ namespace Cantera {
 
 #else
 
-No sundials! 
+#error No sundials! 
 
 #endif
 

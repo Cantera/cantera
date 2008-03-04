@@ -25,7 +25,7 @@ namespace CanteraSpectra {
         int nProtons() { return m_np; }
         int mNeutrons() { return m_nn; }
         doublereal spin() { return m_spin; }
-        int multiplicity() { return 2*m_spin + 1; }
+        int multiplicity() { return (int)(2*m_spin) + 1; }
         int atomicNumber() { return m_np; }
         std::string symbol() { return m_sym; }
         
@@ -38,7 +38,7 @@ namespace CanteraSpectra {
             return !(*this == b);
         }
 
-        bool isBoson() { return (m_spin - floor(m_spin) < 0.001); }
+        bool isBoson() { return (m_spin - std::floor(m_spin) < 0.001); }
 
 
     protected:

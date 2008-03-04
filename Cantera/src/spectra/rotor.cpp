@@ -10,6 +10,8 @@
 #include "ct_defs.h"
 #include "rotor.h"
 
+using namespace std;
+
 namespace CanteraSpectra {
 
     /**
@@ -65,7 +67,7 @@ namespace CanteraSpectra {
         if (T_Trot > 100.0) 
             return T_Trot;
         else {
-            if (cutoff < 0) cutoff = 3.0*sqrt(T/m_Bv);
+            if (cutoff < 0) cutoff = (int) (3.0*sqrt(T/m_Bv));
             doublereal dsum = 0.0, sum = 0.0;
             for (j = 0; j < cutoff; j++) {
                 dsum = degeneracy(j)*exp(-wnum_to_J(energy_w(j))/(Boltzmann * T));

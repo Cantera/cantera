@@ -1,6 +1,8 @@
 
 #include "SemiconductorPhase.h"
 
+using namespace std;
+
 namespace Cantera {
 
     const doublereal JD_const1 = 1.0/sqrt(8.0);

@@ -1,4 +1,5 @@
 #include "ct_defs.h"
+#include <math.h>
 #include "LineBroadener.h"
 
 using namespace std;

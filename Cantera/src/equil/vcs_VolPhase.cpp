@@ -233,11 +233,11 @@ void vcs_VolPhase::resize(int phaseNum, int nspecies, const char *phaseName,
 			  double molesInert) {
   if (nspecies <= 0) {
     plogf("nspecies Error\n");
-    exit(-1);
+    std::exit(-1);
   }
   if (phaseNum < 0) {
     plogf("phaseNum should be greater than 0\n");
-    exit(-1);
+    std::exit(-1);
   }
 
   TMolesInert = molesInert;
@@ -252,7 +252,7 @@ void vcs_VolPhase::resize(int phaseNum, int nspecies, const char *phaseName,
     if (strcmp(PhaseName.c_str(), phaseName)) {
       plogf("Strings are different: %s %s :unknown situation\n",
 	     PhaseName.c_str(), phaseName);
-      exit(-1);
+      std::exit(-1);
     }
   } else {
     VP_ID = phaseNum;
@@ -335,7 +335,7 @@ void vcs_VolPhase::evaluateActCoeff() const {
       break;
     default:
       plogf("%sERROR: unknown model\n", yo);
-      exit(-1);
+      std::exit(-1);
     }
   }
   m_UpToDate_AC = true;
@@ -516,7 +516,7 @@ void vcs_VolPhase::setMoleFractions(const double * const xmol) {
       Xmol[k] = xmol[k];
       sum+= xmol[k];
   }
-  if (fabs(sum) > 1.0E-13) {
+  if (std::fabs(sum) > 1.0E-13) {
     for (int k = 0; k < NVolSpecies; k++) {
       Xmol[k] /= sum;
     }
@@ -571,7 +571,7 @@ void vcs_VolPhase::setMolesFromVCSCheck(const double * const molesSpeciesVCS,
     } else {
       plogf("We have a consistency problem: %21.16g %21.16g\n",
 	     Tcheck, TMoles);
-      exit(-1);
+      std::exit(-1);
     }
   }
 }

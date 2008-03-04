@@ -26,6 +26,8 @@
 #pragma warning(disable:4996)
 #endif
 
+using namespace std;
+
 namespace VCSnonideal {
 
 
