@@ -948,7 +948,8 @@ namespace VCSnonideal {
 	 *         This should keep the amount of material constant. 
 	 */
 #ifdef DEBUG_MODE
-	if (ds[kspec] != dx) {
+	if (fabs(ds[kspec] -dx) > 1.0E-14*(fabs(ds[kspec]) + fabs(dx) + 1.0E-32)) {
+	  plogf(" ds[kspec] = %20.16g dx = %20.16g , kspec = %d\n", ds[kspec], dx, kspec);
 	  plogf("we have a problem!\n");
 	  exit(-1);
 	}
