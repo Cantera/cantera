@@ -390,12 +390,12 @@ void WaterPropsIAPWSphi::intCheck(double tau, double delta) {
   double res_dt = phiR_dt();
   double nau_dt = phi0_dt();
 
-  printf("nau    = %20.13e\t\tres    = %20.13e\n", nau,    res);
-  printf("nau_d  = %20.13e\t\tres_d  = %20.13e\n", nau_d,  res_d);
-  printf("nau_dd = %20.13e\t\tres_dd = %20.13e\n", nau_dd, res_dd);
-  printf("nau_t  = %20.12e\t\tres_t  = %20.13e\n", nau_t,  res_t);
-  printf("nau_tt = %20.13e\t\tres_tt = %20.13e\n", nau_tt, res_tt);
-  printf("nau_dt = %20.13e\t\tres_dt = %20.13e\n", nau_dt, res_dt);
+  printf("nau    = %20.12e\t\tres    = %20.12e\n", nau,    res);
+  printf("nau_d  = %20.12e\t\tres_d  = %20.12e\n", nau_d,  res_d);
+  printf("nau_dd = %20.12e\t\tres_dd = %20.12e\n", nau_dd, res_dd);
+  printf("nau_t  = %20.12e\t\tres_t  = %20.12e\n", nau_t,  res_t);
+  printf("nau_tt = %20.12e\t\tres_tt = %20.12e\n", nau_tt, res_tt);
+  printf("nau_dt = %20.12e\t\tres_dt = %20.12e\n", nau_dt, res_dt);
 }
 
 void WaterPropsIAPWSphi::check1() {
