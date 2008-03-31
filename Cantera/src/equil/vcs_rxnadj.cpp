@@ -52,7 +52,9 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
    * attribute of the regular vcs algorithm. We don't want to violate this
    ***************************************************************************/
 {  
-  int irxn, j, k, kspec, soldel = 0;
+  int irxn, j;
+  int k = 0;
+  int kspec, soldel = 0;
   double s, xx, dss;
   double *dnPhase_irxn;
 #ifdef DEBUG_MODE

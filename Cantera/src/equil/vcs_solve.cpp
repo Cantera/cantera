@@ -897,8 +897,8 @@ namespace VCSnonideal {
    *              equilibrium calculation transfered to it. 
    */
   int VCS_SOLVE::vcs_prob_update(VCS_PROB *pub) {
-    int i, j, k1, l;
-
+    int i, j, l;
+    int k1 = 0;
 
     vcs_tmoles();
     Vol = vcs_VolTotal(T, Pres, VCS_DATA_PTR(soln), VCS_DATA_PTR(VolPM));
@@ -917,12 +917,12 @@ namespace VCSnonideal {
        * - Switch the species data back from K1 into I
        */
       if (pub->SpeciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	pub->w[i]  =    soln[k1];
+	pub->w[i] = soln[k1];
       } else {
 	pub->w[i] = 0.0;
 	plogf("voltage species = %g\n", soln[k1]);
       }
-      pub->mf[i] =    wt[k1];
+      pub->mf[i] = wt[k1];
       pub->m_gibbsSpecies[i] = m_gibbsSpecies[k1];
       pub->VolPM[i] = VolPM[k1];
     } 

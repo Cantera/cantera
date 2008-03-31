@@ -2746,8 +2746,9 @@ namespace VCSnonideal {
    *              2 : Same as one but, the zeroed species is a component. 
    */
   int VCS_SOLVE::vcs_RxnStepSizes() {  
-    int  j, k, irxn, kspec, soldel = 0, iph;
+    int  j, irxn, kspec, soldel = 0, iph;
     double s, xx, dss;
+    int k = 0;
     vcs_VolPhase *Vphase = 0;
     double *dnPhase_irxn;
 #ifdef DEBUG_MODE

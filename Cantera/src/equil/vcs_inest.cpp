@@ -44,7 +44,9 @@ namespace VCSnonideal {
      ***************************************************************************/
   {
     int conv, k,  lt, ikl, kspec, iph, irxn;
-    double s, s1,  xl, par;
+    double s;
+    double s1 = 0.0;
+    double xl, par;
     int finished;
     int     nspecies   = m_numSpeciesTot;
     int     nrxn       = m_numRxnTot;

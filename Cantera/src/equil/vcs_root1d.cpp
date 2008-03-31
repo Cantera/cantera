@@ -128,14 +128,17 @@ static void print_funcEval(FILE *fp, double xval, double fval, int its)
    int converged = FALSE, err = FALSE;
 #ifdef DEBUG_MODE
    char fileName[80];
-   FILE *fp;
+   FILE *fp = 0;
 #endif
    double x1, x2, xnew, f1, f2, fnew, slope;
-   int its = 0, posStraddle, retn = VCS_SUCCESS;
+   int its = 0;
+   int posStraddle = 0;
+   int retn = VCS_SUCCESS;
    int foundPosF = FALSE;
    int foundNegF = FALSE;
    int foundStraddle = FALSE;
-   double xPosF, xNegF;
+   double xPosF = 0.0;
+   double xNegF = 0.0;
    double fnorm;   /* A valid norm for the making the function value
 		    * dimensionless */
    double c[9], f[3], xn1, xn2, x0 = 0.0, f0 = 0.0, root, theta, xquad;

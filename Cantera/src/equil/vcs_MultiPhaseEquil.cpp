@@ -104,7 +104,7 @@ namespace VCSnonideal {
 			 "Wrong XY flag:" + int2str(XY));
     }
     int maxiter = 100;
-    int iSuccess;
+    int iSuccess = 0;
     int innerXY;
     double Pnow;
     if (XY == TV) {
@@ -112,7 +112,10 @@ namespace VCSnonideal {
     }
     double Pnew;
     bool strt = estimateEquil;
-    double P1, V1, V2, P2;
+    double P1 = 0.0;
+    double V1 = 0.0;
+    double V2 = 0.0;
+    double P2 = 0.0;
     doublereal Tlow = 0.5 * m_mix->minTemp();;
     doublereal Thigh = 2.0 * m_mix->maxTemp();
     doublereal Vnow, Verr;
