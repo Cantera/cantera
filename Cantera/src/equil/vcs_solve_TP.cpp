@@ -302,15 +302,16 @@ namespace VCSnonideal {
 	} else {
 	  plogf("       Unknown");
 	}
-	plogf(" \n");
+	plogendl();
       }
     }
 
     for (i = 0; i < m_numSpeciesTot; ++i) {
       if (soln[i] < 0.0) {
 	plogf("On Input species %-12s has a "
-	      "negative MF, setting it small\n",
-	      SpName[i].c_str());
+	      "negative MF, setting it small",
+	      SpName[i].c_str());	
+	plogendl();
 	soln[i] = VCS_DELETE_SPECIES_CUTOFF;
       }
     }
@@ -366,7 +367,8 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 2) {
 	  plogf("   --- Minor species changed to major: ");
-	  plogf("%-12s\n", SpName[kspec].c_str());
+	  plogf("%-12s", SpName[kspec].c_str());
+	  plogendl();
 	}
 #endif
       }
@@ -379,7 +381,8 @@ namespace VCSnonideal {
     if (! vcs_elabcheck(0)) {
 #ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
-	plogf("   --- Element Abundance check failed\n"); 
+	plogf("   --- Element Abundance check failed");
+ 	plogendl();
       }
 #endif
       vcs_elcorr(VCS_DATA_PTR(sm), VCS_DATA_PTR(wx));
@@ -388,7 +391,8 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE	
     else {
       if (vcs_debug_print_lvl >= 2) {
-	plogf("   --- Element Abundance check passed\n");
+	plogf("   --- Element Abundance check passed");	
+	plogendl();
       }
     }
 #endif
@@ -652,9 +656,10 @@ namespace VCSnonideal {
 	  sprintf(ANOTE,"minor species not considered");
 	  if (vcs_debug_print_lvl >= 2) {
 	    plogf("   --- "); plogf("%-12s", SpName[kspec].c_str());
-	    plogf("%3d%11.4E%11.4E%11.4E | %s\n", 
+	    plogf("%3d%11.4E%11.4E%11.4E | %s", 
 		  spStatus[irxn], soln[kspec], wt[kspec],
 		  ds[kspec], ANOTE);
+	    plogendl();
 	  }
 #endif
 	  continue;
@@ -686,8 +691,9 @@ namespace VCSnonideal {
 	  /*******************************************************************/
 #ifdef DEBUG_MODE
 	  if (vcs_debug_print_lvl >= 2) {
-	    plogf("   --- Delete minor species in multispec phase: %-12s\n",
+	    plogf("   --- Delete minor species in multispec phase: %-12s",
 		  SpName[kspec].c_str());
+	    plogendl();
 	  }
 #endif
 	  ds[kspec] = 0.0;
@@ -734,9 +740,10 @@ namespace VCSnonideal {
 	  sprintf(ANOTE, "major species is converged");
 	  if (vcs_debug_print_lvl >= 2) {
 	    plogf("   --- "); plogf("%-12s", SpName[kspec].c_str());
-	    plogf("%3d%11.4E%11.4E%11.4E | %s\n", 
+	    plogf("%3d%11.4E%11.4E%11.4E | %s", 
 		  spStatus[irxn], soln[kspec], wt[kspec],
 		  ds[kspec], ANOTE);
+	    plogendl();
 	  }
 #endif
 	  continue;
@@ -810,7 +817,8 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 		if (vcs_debug_print_lvl >= 2) {
 		  plogf("   --- Major species changed to minor: ");
-		  plogf("%-12s\n", SpName[kspec].c_str());
+		  plogf("%-12s", SpName[kspec].c_str());
+		  plogendl();
 		}
 #endif
 		spStatus[irxn] = VCS_SPECIES_MINOR;
@@ -904,7 +912,8 @@ namespace VCSnonideal {
 	      if (vcs_debug_print_lvl >= 2) {
 		if (spStatus[irxn] >= 0) {
 		  plogf("   --- SS species changed to zeroedss: ");
-		  plogf("%-12s\n", SpName[kspec].c_str());
+		  plogf("%-12s", SpName[kspec].c_str());
+		  plogendl();
 		}
 	      }
 #endif
@@ -950,7 +959,8 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	if (fabs(ds[kspec] -dx) > 1.0E-14*(fabs(ds[kspec]) + fabs(dx) + 1.0E-32)) {
 	  plogf(" ds[kspec] = %20.16g dx = %20.16g , kspec = %d\n", ds[kspec], dx, kspec);
-	  plogf("we have a problem!\n");
+	  plogf("we have a problem!");	
+	  plogendl();
 	  exit(-1);
 	}
 #endif
@@ -980,9 +990,10 @@ namespace VCSnonideal {
       if (vcs_debug_print_lvl >= 2) {
 	wt[kspec] = soln[kspec] + ds[kspec];
 	plogf("   --- "); plogf("%-12.12s", SpName[kspec].c_str());
-	plogf("%3d%11.4E%11.4E%11.4E | %s\n", 
+	plogf("%3d%11.4E%11.4E%11.4E | %s", 
 	      spStatus[irxn], soln[kspec], wt[kspec],
 	      ds[kspec], ANOTE);
+	plogendl();
       }
     L_MAIN_LOOP_END_NO_PRINT: ;
 #endif
@@ -992,11 +1003,13 @@ namespace VCSnonideal {
     if (vcs_debug_print_lvl >= 2) {
       for (k = 0; k < m_numComponents; k++) {
 	plogf("   --- ");  plogf("%-12.12s", SpName[k].c_str());
-	plogf("  c%11.4E%11.4E%11.4E |\n",
+	plogf("  c%11.4E%11.4E%11.4E |",
 	      soln[k], soln[k]+ds[k], ds[k]);
       }
+      plogendl();
       plogf("   "); vcs_print_line("-", 80);
-      plogf("   --- Finished Main Loop\n");
+      plogf("   --- Finished Main Loop");
+      plogendl();
     }
 #endif
     /*************************************************************************/
@@ -1036,7 +1049,8 @@ namespace VCSnonideal {
       if (vcs_debug_print_lvl >= 2) {
 	plogf("   --- Reduction in step size due to component ");
 	plogf("%s", SpName[ll].c_str());
-	plogf(" going negative = %11.3E\n", par);
+	plogf(" going negative = %11.3E", par); 
+	plogendl();
       }
 #endif
       for (i = 0; i < m_numSpeciesTot; ++i) {
@@ -1061,8 +1075,9 @@ namespace VCSnonideal {
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
       wt[kspec] = soln[kspec] + ds[kspec];
       if (wt[kspec] < 0.0 && (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
-	plogf("vcs_solve_TP: ERROR on step change wt[%d:%s]: %g < 0.0\n",
+	plogf("vcs_solve_TP: ERROR on step change wt[%d:%s]: %g < 0.0",
 	      kspec, SpName[kspec].c_str(), wt[kspec]);
+	plogendl();
 	exit(-1);
       }
     }
@@ -1141,9 +1156,10 @@ namespace VCSnonideal {
 	      dgl[l1], dg[l1]);
       }
       plogf("   ---"); print_space(56);
-      plogf("Norms of Delta G():%14.6E%14.6E\n",
+      plogf("Norms of Delta G():%14.6E%14.6E",
 	    l2normdg(VCS_DATA_PTR(dgl)),
 	    l2normdg(VCS_DATA_PTR(dg)));
+      plogendl();
       
       plogf("   ---           Phase_Name     Moles(after update)\n");
       plogf("   ---   "); vcs_print_line("-", 50);
@@ -1152,11 +1168,13 @@ namespace VCSnonideal {
 	plogf("   ---   %18s = %15.7E\n", Vphase->PhaseName.c_str(), TPhMoles1[iph]);
       }
       plogf("   "); vcs_print_line("-", 103);
-      plogf("   --- Total Dimensionless Gibbs Free Energy = %15.7E\n", 
+      plogf("   --- Total Dimensionless Gibbs Free Energy = %15.7E", 
 	    vcs_Total_Gibbs(VCS_DATA_PTR(wt), VCS_DATA_PTR(m_gibbsSpecies), 
 			    VCS_DATA_PTR(TPhMoles1)));
+      plogendl();
       if (m_VCount->Its > 150) {
-	plogf("   --- Troublesome solve\n"); 
+	plogf("   --- Troublesome solve"); 
+	plogendl();
       }
 #ifdef DEBUG_MODE
 #ifdef DEBUG_NOT
@@ -1227,7 +1245,8 @@ namespace VCSnonideal {
       plogf("   Total Dimensionless Gibbs Free Energy = %15.7E\n", 
 	    vcs_Total_Gibbs(VCS_DATA_PTR(soln), VCS_DATA_PTR(m_gibbsSpecies),
 			    VCS_DATA_PTR(TPhMoles)));
-      plogf(" -----------------------------------------------------\n");
+      plogf(" -----------------------------------------------------");
+      plogendl();
     }
     /*************************************************************************/
     /******************* RESET VALUES AT END OF ITERATION ********************/
@@ -1300,7 +1319,8 @@ namespace VCSnonideal {
 	  if (soldel) {
 #ifdef DEBUG_MODE
 	    if (vcs_debug_print_lvl >= 1) {
-	      plogf("   --- Setting microscopic phase %d to zero\n", iph);
+	      plogf("   --- Setting microscopic phase %d to zero", iph);
+	      plogendl();
 	    }
 #endif
 	    justDeletedMultiPhase = TRUE;
@@ -1332,7 +1352,8 @@ namespace VCSnonideal {
 	 */	    
 	plogf(" DELETION OF MULTISPECIES PHASE. ");
 	plogf("Convergence to number of positive n(i) less than C.\n");
-	plogf("Check results to follow carefully.   \n\n");
+	plogf("Check results to follow carefully.   \n");
+	plogendl();
 	goto L_RETURN_BLOCK;
       }
     }
@@ -1348,7 +1369,8 @@ namespace VCSnonideal {
     if (! vcs_elabcheck(0)) {
 #ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
-	plogf(" - failed -> redoing element abundances.\n");
+	plogf(" - failed -> redoing element abundances.");
+	plogendl();
       }
 #endif
       vcs_elcorr(VCS_DATA_PTR(sm), VCS_DATA_PTR(wx));
@@ -1359,7 +1381,8 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
     else {
       if (vcs_debug_print_lvl >= 2) {
-	plogf(" - passed\n");
+	plogf(" - passed");
+	plogendl();
       }
     }
 #endif
@@ -1395,8 +1418,9 @@ namespace VCSnonideal {
 	      if (vcs_debug_print_lvl >= 2) {
 		plogf("   --- Get a new basis because %s", SpName[l].c_str());
 		plogf(" is larger than comp %s", SpName[j].c_str());
-		plogf(" and share nonzero stoic: %-9.1f\n", 
+		plogf(" and share nonzero stoic: %-9.1f", 
 		      sc[i][j]);
+		plogendl();
 	      }
 #endif		     
 	      goto L_COMPONENT_CALC;
@@ -1413,8 +1437,9 @@ namespace VCSnonideal {
 		  if (vcs_debug_print_lvl >= 2) {
 		    plogf("   --- Get a new basis because %s", SpName[l].c_str());
 		    plogf(" has dg < 0.0 and comp %s has zero mole num", SpName[j].c_str());
-		    plogf(" and share nonzero stoic: %-9.1f\n", 
+		    plogf(" and share nonzero stoic: %-9.1f", 
 			  sc[i][j]);
+		    plogendl();
 		  }
 #endif		     
 		  goto L_COMPONENT_CALC;
@@ -1437,8 +1462,9 @@ namespace VCSnonideal {
 		plogf("%s", SpName[l].c_str());
 		plogf(" is larger than comp ");
 		plogf("%s", SpName[j].c_str());
-		plogf(" and share nonzero stoic: %-9.1f\n", 
+		plogf(" and share nonzero stoic: %-9.1f", 
 		      sc[i][j]);
+		plogendl();
 	      }
 #endif			     
 	      goto L_COMPONENT_CALC;
@@ -1453,8 +1479,9 @@ namespace VCSnonideal {
 		  if (vcs_debug_print_lvl >= 2) {
 		    plogf("   --- Get a new basis because %s", SpName[l].c_str());
 		    plogf(" has dg < 0.0 and comp %s has zero mole num", SpName[j].c_str());
-		    plogf(" and share nonzero stoic: %-9.1f\n", 
+		    plogf(" and share nonzero stoic: %-9.1f", 
 			  sc[i][j]);
+		    plogendl();
 		  }
 #endif		     
 		  goto L_COMPONENT_CALC;
@@ -1468,7 +1495,8 @@ namespace VCSnonideal {
     }
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
-      plogf("   --- Check for an optimum basis passed\n");
+      plogf("   --- Check for an optimum basis passed");
+      plogendl();
     }
 #endif
     /*************************************************************************/
@@ -1588,7 +1616,8 @@ namespace VCSnonideal {
       }
 #ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
-	plogf(" MAJOR SPECIES CONVERGENCE achieved\n");
+	plogf(" MAJOR SPECIES CONVERGENCE achieved");
+	plogendl();
       }
 #endif
     }
@@ -1596,7 +1625,8 @@ namespace VCSnonideal {
     else {
       if (vcs_debug_print_lvl >= 2) {
 	plogf(" MAJOR SPECIES CONVERGENCE achieved "
-	      "(because there are no major species)\n");
+	      "(because there are no major species)");
+	plogendl();
       }
     }
 #endif
@@ -1772,7 +1802,8 @@ namespace VCSnonideal {
 	      plogf(" ---  vcs_solve_tp: RANGE SPACE ERROR ENCOUNTERED\n");
 	      plogf(" ---  vcs_solve_tp: - Giving up on NE Element Abundance satisfaction \n");
 	      plogf(" ---  vcs_solve_tp: - However, NC Element Abundance criteria is satisfied \n");
-	      plogf(" ---  vcs_solve_tp: - Returning the calculated equilibrium condition \n");
+	      plogf(" ---  vcs_solve_tp: - Returning the calculated equilibrium condition ");
+	      plogendl();
 	    }
 #endif
 	    rangeErrorFound = 1;

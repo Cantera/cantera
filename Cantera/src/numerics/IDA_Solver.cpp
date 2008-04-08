@@ -210,7 +210,7 @@ namespace Cantera {
 
 
         // pass a pointer to func in m_data 
-        m_fdata = new FuncData(&func, func.nparams());
+        m_fdata = new ResidData(&func, func.nparams());
 
         flag = IDASetRdata(m_ida_mem, (void*)m_fdata);
         if (flag != IDA_SUCCESS) 

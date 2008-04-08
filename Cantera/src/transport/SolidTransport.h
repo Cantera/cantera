@@ -44,8 +44,7 @@ namespace Cantera {
     class SolidTransport : public Transport {
 
     public:
-
-        virtual ~SolidTransport() {}
+virtual ~SolidTransport() {}
 
         virtual int model() { return cSolidTransport; }
 

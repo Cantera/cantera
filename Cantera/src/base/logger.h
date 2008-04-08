@@ -59,6 +59,15 @@ namespace Cantera {
 	std::cout << msg;
       }
 
+      //! Write an end of line character and flush output.
+      /*!
+       *  Some systems treat endl and \n differently. The endl
+       *  statement causes a flushing of stdout to the screen.
+       */
+      virtual void writeendl() {
+        std::cout << std::endl;
+      }
+
       //! Write an error message and quit. 
       /*! 
        *  The default behavior is

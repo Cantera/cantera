@@ -28,7 +28,7 @@ namespace Cantera {
      */
     class IDA_Err : public CanteraError {
     public:
-		IDA_Err(std::string msg) : CanteraError("IDA_Solver", msg){}
+        IDA_Err(std::string msg) : CanteraError("IDA_Solver", msg){}
     };
 
 
@@ -60,7 +60,6 @@ namespace Cantera {
         virtual void setBandedLinearSolver(int m_upper, int m_lower);
 
         virtual void setMaxTime(doublereal tmax);
-        virtual void setMaxStepSize(doublereal dtmax);
 
         virtual void setMaxOrder(int n);
 

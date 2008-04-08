@@ -257,7 +257,7 @@ namespace Cantera {
        *
        * @ingroup errorhandling
        */
-      void logErrors() ;
+      void logErrors();
       
       //!  Write a message to the screen.
       /*!
@@ -268,7 +268,10 @@ namespace Cantera {
        * @param msg  c++ string to be written to the screen
        * @ingroup textlogs
        */
-      void writelog(const std::string& msg) ;
+      void writelog(const std::string& msg);
+
+      //! Write an end of line and flush output
+      void writelogendl();
 
       //!  Write a message to the screen.
       /*!
@@ -696,6 +699,13 @@ namespace Cantera {
      * @ingroup textlogs
      */
     void writelog(const std::string& msg) { pMessenger->writelog(msg); }
+
+
+    //! Write an endl to the screen and flush output
+    /*!
+     * @ingroup textlogs
+     */
+    void writelogendl() { pMessenger->writelogendl(); }
 
     //!  Write a message to the screen.
     /*!
@@ -1513,7 +1523,12 @@ protected:
   void Application::Messages::writelog(const char* pszmsg) {
     logwriter->write( pszmsg ) ;
   }
-    
+
+  // Write an endl to the screen and flush output
+  void Application::Messages::writelogendl() {
+    logwriter->writeendl();
+  }
+ 
   // Write a message to the screen using printf format
   void writelogf(const char* fmt,...) {
     enum { BUFSIZE = 2048 } ;
@@ -1532,6 +1547,10 @@ protected:
     writelog( sbuf ) ;
        
     va_end(args) ;
+  }
+
+  void writelogendl() {
+    app()->writelogendl();
   }
 
   // Write an error message and terminate execution. test.

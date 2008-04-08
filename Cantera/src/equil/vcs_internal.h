@@ -31,6 +31,7 @@ namespace VCSnonideal {
    * We can replace this with printf easily
    */
 #define plogf  Cantera::writelogf
+#define plogendl() Cantera::writelogendl()
 
   //! Global hook for turning on and off time printing.
   /*!

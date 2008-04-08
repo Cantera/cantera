@@ -300,6 +300,13 @@ namespace Cantera {
    */
   void writelogf(const char* fmt,...);
 
+  //! Write an end of line character to the screen and flush output
+  /*!
+   * Some implementations differentiate between \n and endl in
+   * terms of when the output is flushed.
+   */
+  void writelogendl();
+
   //! Write an error message and terminate execution.
   /*!
    *  @param msg Error message to be written to the screen.

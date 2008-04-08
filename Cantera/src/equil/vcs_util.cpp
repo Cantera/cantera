@@ -390,7 +390,7 @@ namespace VCSnonideal {
     if (string) {
       for (int j = 0; j < num; j++) plogf("%s", string);
     }
-    plogf("\n");
+    plogendl();
   }
 
   /***************************************************************************/

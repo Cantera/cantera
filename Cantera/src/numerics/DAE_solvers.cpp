@@ -2,6 +2,7 @@
 #include "ct_defs.h"
 #include "DAE_Solver.h"
 
+// DAE_DEVEL is turned off at the current time
 #ifdef DAE_DEVEL
 
 #ifdef HAS_SUNDIALS
