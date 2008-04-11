@@ -1003,10 +1003,9 @@ namespace VCSnonideal {
     if (vcs_debug_print_lvl >= 2) {
       for (k = 0; k < m_numComponents; k++) {
 	plogf("   --- ");  plogf("%-12.12s", SpName[k].c_str());
-	plogf("  c%11.4E%11.4E%11.4E |",
+	plogf("  c%11.4E%11.4E%11.4E |\n",
 	      soln[k], soln[k]+ds[k], ds[k]);
       }
-      plogendl();
       plogf("   "); vcs_print_line("-", 80);
       plogf("   --- Finished Main Loop");
       plogendl();
@@ -1105,7 +1104,7 @@ namespace VCSnonideal {
     /*
      *         Print Intermediate results
      */  
-    // HKM Actually always need to calculate this 
+    // Actually always need to calculate this 
     // or else nonprintouts get different results and sometimes
     // fail in the line search algorithm -> Why is this?
     vcs_dfe(VCS_DATA_PTR(wt), 1, 1, 0, m_numSpeciesRdc);
@@ -1168,7 +1167,10 @@ namespace VCSnonideal {
 	plogf("   ---   %18s = %15.7E\n", Vphase->PhaseName.c_str(), TPhMoles1[iph]);
       }
       plogf("   "); vcs_print_line("-", 103);
-      plogf("   --- Total Dimensionless Gibbs Free Energy = %15.7E", 
+      plogf("   --- Total Old Dimensionless Gibbs Free Energy = %20.13E\n", 
+	    vcs_Total_Gibbs(VCS_DATA_PTR(soln), VCS_DATA_PTR(fel), 
+			    VCS_DATA_PTR(TPhMoles)));
+      plogf("   --- Total New Dimensionless Gibbs Free Energy = %20.13E", 
 	    vcs_Total_Gibbs(VCS_DATA_PTR(wt), VCS_DATA_PTR(m_gibbsSpecies), 
 			    VCS_DATA_PTR(TPhMoles1)));
       plogendl();
@@ -1187,50 +1189,28 @@ namespace VCSnonideal {
     /* *************************************************************** */
     /* **** CONVERGENCE FORCER SECTION ******************************* */
     /* *************************************************************** */
-    /*  
-     *       Save the previous delta G in the old vector for 
-     *       printout purposes 
-     */
-    if (printDetails) {
-      vcs_dcopy(VCS_DATA_PTR(dgl), VCS_DATA_PTR(dg), m_numRxnRdc);
-    }
-    forced = FALSE;
-    // if (! im && ! MajorSpeciesHaveConverged) {
-    forced = force(iti);
-    //}
+
+    forced = globStepDamp(iti);
+
     /*
      *       Print out the changes to the solution that FORCER produced 
      */
     if (printDetails && forced) {
       
-      if (iti != 0) {
-#ifdef DEBUG_MODE
-	if (vcs_debug_print_lvl >= 3) {
-	  plogf("   *** vcs_dfe for printout only:");
-	}   
-#endif
-	vcs_updateVP(0);
-	vcs_dfe(VCS_DATA_PTR(soln), 0, 1, 0, m_numSpeciesRdc);
-#ifdef DEBUG_MODE
-	if (vcs_debug_print_lvl >= 3) {
-	  plogf("   *** vcs_deltag call for printouts only;");
-	}
-#endif
-	vcs_deltag(1, false);
-      }
       plogf(" -----------------------------------------------------\n");
       plogf("   --- FORCER SUBROUTINE changed the solution:\n");
-      plogf("   --- SPECIES Status TENT MOLES");
-      plogf("  FINAL MOLES     TENT_DEL_G/RT  FINAL_DELTA_G/RT\n");
+      plogf("   --- SPECIES Status INIT MOLES TENT_MOLES");
+      plogf("  FINAL MOLES   INIT_DEL_G/RT  TENT_DEL_G/RT  FINAL_DELTA_G/RT\n");
       for (i = 0; i < m_numComponents; ++i) {
 	plogf("  --- %-12.12s", SpName[i].c_str());
-	plogf("    %14.6E%14.6E\n", wt[i], soln[i]);
+	plogf("    %14.6E %14.6E %14.6E\n",  soln[i], soln[i] + ds[i], wt[i]);
       }
       for (kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
 	irxn = kspec - m_numComponents;
 	plogf("  --- %-12.12s", SpName[kspec].c_str());
-	plogf(" %2d %14.6E%14.6E%14.6E%14.6E\n", spStatus[irxn],
-	      wt[kspec], soln[kspec], dgl[irxn], dg[irxn]);
+	plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n", spStatus[irxn],
+	      soln[kspec], soln[kspec]+ds[kspec], wt[kspec], dgl[irxn], 
+	      m_deltaGRxn_tmp[irxn], dg[irxn]);
       }
       print_space(26); 
       plogf("Norms of Delta G():%14.6E%14.6E\n",
@@ -1242,9 +1222,9 @@ namespace VCSnonideal {
       } else {
 	plogf("   Total moles of liquid = %15.7E\n", 0.0);
       }
-      plogf("   Total Dimensionless Gibbs Free Energy = %15.7E\n", 
-	    vcs_Total_Gibbs(VCS_DATA_PTR(soln), VCS_DATA_PTR(m_gibbsSpecies),
-			    VCS_DATA_PTR(TPhMoles)));
+      plogf("   Total New Dimensionless Gibbs Free Energy = %20.13E\n", 
+	    vcs_Total_Gibbs(VCS_DATA_PTR(wt), VCS_DATA_PTR(m_gibbsSpecies),
+			    VCS_DATA_PTR(TPhMoles1)));
       plogf(" -----------------------------------------------------");
       plogendl();
     }
@@ -1263,10 +1243,11 @@ namespace VCSnonideal {
      *                we have already done this inside the FORCED 
      *                loop. 
      */
-    if (! forced) {
-      vcs_dcopy(VCS_DATA_PTR(TPhMoles), VCS_DATA_PTR(TPhMoles1), NPhase);
-      vcs_dcopy(VCS_DATA_PTR(soln), VCS_DATA_PTR(wt), m_numSpeciesRdc);
-    }
+    vcs_dcopy(VCS_DATA_PTR(TPhMoles), VCS_DATA_PTR(TPhMoles1), NPhase);
+    vcs_dcopy(VCS_DATA_PTR(soln), VCS_DATA_PTR(wt), m_numSpeciesRdc);
+    vcs_dcopy(VCS_DATA_PTR(dgl), VCS_DATA_PTR(dg), m_numRxnRdc);
+    vcs_dcopy(VCS_DATA_PTR(fel),     VCS_DATA_PTR(m_gibbsSpecies), m_numSpeciesRdc);
+      
     vcs_updateVP(0);
     /*
      *       Increment the iteration counters
@@ -1275,8 +1256,9 @@ namespace VCSnonideal {
     ++it1;
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
-      plogf("   --- Increment counter increased, step is accepted: %4d\n",
+      plogf("   --- Increment counter increased, step is accepted: %4d",
 	    m_VCount->Its);
+      plogendl();
     }
 #endif
     /*************************************************************************/
@@ -2096,7 +2078,7 @@ namespace VCSnonideal {
   /*****************************************************************************/
   /*****************************************************************************/
 
-  int VCS_SOLVE::delta_species(int kspec, double *delta_ptr) 
+  int VCS_SOLVE::delta_species(int kspec, double *delta_ptr)
 
     /************************************************************************
      *
@@ -2620,92 +2602,87 @@ namespace VCSnonideal {
     vcs_deltag(0, true);
   }
 
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
-
-  int VCS_SOLVE::force(int iti)
-   
-    /**************************************************************************
-     *
-     * force:
-     *
-     *  Convergence Forcer:
-     *
-     *  This routine optimizes the minimization of the total gibbs free
-     *  energy:
-     *                 Gibbs = sum_k( fe_k * w_k )
-     *  along the current direction ds[], by choosing a value, al: (0<al<1)
-     *  such that the a parabola approximation to Gibbs(al) fit to the 
-     *  end points al = 0 and al = 1 is minimizied.
-     *      s1 = slope of Gibbs function at al = 0, which is the previous
-     *           solution = d(Gibbs)/d(al).
-     *      s2 = slope of Gibbs function at al = 1, which is the current
-     *           solution = d(Gibbs)/d(al).
-     *  Only if there has been an inflection point (i.e., s1 < 0 and s2 > 0),
-     *  does this code section kick in. It finds the point on the parabola
-     *  where the slope is equal to zero.
-     *
-     *  NOTE: The algorithm used to find the slope is not quite accurate.
-     *        The term, sum_k( (fe_k_n - fe_k_n-1)  * w_k_n-1 )
-     *        is dropped from s1, and, the term,
-     *        sum_k( (fe_k_n - fe_k_n-1)  * w_k_n ), is dropped from s2
-     *************************************************************************/
-  {
+  /* globalStepDamp
+   *
+   *  Convergence Forcer:
+   *
+   *  This routine optimizes the minimization of the total gibbs free
+   *  energy by making sure the slope of the following functional stays
+   *  negative:
+   *
+   *                 d_Gibbs/ds = sum_k( m_deltaGRxn * ds[k] )
+   *
+   *  along the current direction ds[], by choosing a value, al: (0<al<1)
+   *  such that the a parabola approximation to Gibbs(al) fit to the 
+   *  end points al = 0 and al = 1 is minimizied.
+   *      s1 = slope of Gibbs function at al = 0, which is the previous
+   *           solution = d(Gibbs)/d(al).
+   *      s2 = slope of Gibbs function at al = 1, which is the current
+   *           solution = d(Gibbs)/d(al).
+   *  Only if there has been an inflection point (i.e., s1 < 0 and s2 > 0),
+   *  does this code section kick in. It finds the point on the parabola
+   *  where the slope is equal to zero.
+   *
+   */
+  int VCS_SOLVE::globStepDamp(int iti) {
     double s1, s2, al;
-    int i, iph;
-    double *dptr = VCS_DATA_PTR(m_gibbsSpecies);
-    //int numSpeciesRdc = m_numSpeciesRdc;
+    int irxn, kspec, iph;
+    double *dptr = VCS_DATA_PTR(dg);
       
     /* *************************************************** */
     /* **** CALCULATE SLOPE AT END OF THE STEP  ********** */
     /* *************************************************** */
     s2 = 0.0;
-    for (i = 0; i < m_numSpeciesRdc; ++i) {
-      s2 += dptr[i] * ds[i];
+    for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
+      kspec = irxn + m_numComponents;
+      s2 += dptr[irxn] * ds[kspec];
     }
-#ifdef DEBUG_NOT
-    if (s2 <= 0.0) {
-#ifdef DEBUG_NOT
-      if (vcs_debug_print_lvl >= 2) {
-	plogf("   --- subroutine FORCE produced no adjustments,");
-	plogf(" failed s2 test\n");
-      }
-#endif     
-      return FALSE;
-    }
-#endif
-#ifdef DEBUG_MODE
-    if (vcs_debug_print_lvl >= 2) {
-      plogf("   --- subroutine FORCE: End Slope = %g\n", s2);
-    }
-#endif
+
+
     /* *************************************************** */
     /* **** CALCULATE ORIGINAL SLOPE ********************* */
     /* ************************************************** */
     s1 = 0.0;
-    dptr = VCS_DATA_PTR(fel);
-    for (i = 0; i < m_numSpeciesRdc; ++i) {
-      s1 += dptr[i] * ds[i];
+    dptr = VCS_DATA_PTR(dgl);
+    for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
+      kspec = irxn + m_numComponents;
+      s1 += dptr[irxn] * ds[kspec];
     }
-#ifdef DEBUG_NOT
-    if (s1 >= 0.0) {
+
+#ifdef DEBUG_MODE
+    if (vcs_debug_print_lvl >= 2) {
+      plogf("   --- subroutine FORCE: Beginning Slope = %g\n", s1);
+      plogf("   --- subroutine FORCE: End Slope       = %g\n", s2);
+    }
+#endif
+
+    if (s1 > 0.0) {
 #ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	plogf("   --- subroutine FORCE produced no adjustments,");
-	plogf(" failed s1 test -PROBLEM!!\n");
+	if (s1 < 1.0E-40) {
+	  plogf(" s1 positive but really small");
+	} else {
+	  plogf(" failed s1 test");
+	}
+	plogendl();
       }
 #endif
       return FALSE;
     }
-#endif
+
+    if (s2 <= 0.0) {
 #ifdef DEBUG_MODE
-    if (vcs_debug_print_lvl >= 2) {
-      plogf("   --- subroutine FORCE: Beginning Slope = %g\n", s1);
+      if (vcs_debug_print_lvl >= 2) {
+	plogf("   --- subroutine FORCE produced no adjustments, s2 < 0");
+	plogendl();
+      }
+#endif     
+      return FALSE;
     }
-#endif
+
     /* *************************************************** */
-    /* **** FIT PARABOLA ********************************* */
+    /* **** FIT PCJ2822ARABOLA ********************************* */
     /* *************************************************** */
     al = 1.0;
     if (fabs(s1 -s2) > 1.0E-200) {
@@ -2724,17 +2701,25 @@ namespace VCSnonideal {
       plogf("   --- subroutine FORCE produced a damping factor = %g\n", al);
     }
 #endif
+
     /* *************************************************** */
     /* **** ADJUST MOLE NUMBERS, CHEM. POT *************** */
     /* *************************************************** */
-    dptr = VCS_DATA_PTR(soln);
-    for (i = 0; i < m_numSpeciesRdc; ++i) {
-      dptr[i] += al * ds[i];
+#ifdef DEBUG_MODE
+    if (vcs_debug_print_lvl >= 2) {
+      vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_tmp), VCS_DATA_PTR(dg),  
+		m_numRxnRdc);
+    }
+#endif
+   
+    dptr = VCS_DATA_PTR(wt);
+    for (kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
+      wt[kspec] = soln[kspec] + al * ds[kspec];
     }
     for (iph = 0; iph < NPhase; iph++) {
-      TPhMoles[iph] += al * DelTPhMoles[iph];
+      TPhMoles1[iph] = TPhMoles[iph] + al * DelTPhMoles[iph];
     }
-    vcs_updateVP(0);
+    vcs_updateVP(1);
    
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
@@ -2748,17 +2733,34 @@ namespace VCSnonideal {
      *           only step is being carried out, then we don't need to
      *           update the minor noncomponents. 
      */
-    vcs_dfe(dptr, 0, iti, 0, m_numSpeciesRdc);
+    // vcs_dfe(dptr, 1, iti, 0, m_numSpeciesRdc);
+    vcs_dfe(dptr, 1, 0, 0, m_numSpeciesRdc);
     /*
      *           Evaluate DeltaG for all components if ITI=0, and for 
      *           major components only if ITI NE 0 
      */
-    vcs_deltag(iti, false);
+    // vcs_deltag(iti, false);
+    vcs_deltag(0, false);
+
+    dptr = VCS_DATA_PTR(dg);
+    s2 = 0.0;
+    for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
+      kspec = irxn + m_numComponents;
+      s2 += dptr[irxn] * ds[kspec];
+    }
+
+
+#ifdef DEBUG_MODE
+    if (vcs_debug_print_lvl >= 2) {
+      plogf("   --- subroutine FORCE: Adj End Slope   = %g", s2);
+      plogendl();
+    }
+#endif
     return TRUE;
-  } /* force() *****************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/ 
+  }
+  
+
+
   /*
    * vcs_RxnStepSizes():
    *

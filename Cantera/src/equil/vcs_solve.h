@@ -294,6 +294,7 @@ private:
 			);
 
   int force(int iti);
+  int globStepDamp(int iti);
   void vcs_switch2D(double * const * const Jac, int k1, int k2);
   double l2normdg(double dg[]);
 #ifdef DEBUG_MODE
@@ -398,7 +399,15 @@ public:
    *               handled by the alt_min treatment or 
    *               should be handled as a major species. 
    */
-  std::vector<double> scSize;  
+  std::vector<double> scSize;
+
+  //!  Standard state chemical potentials for species K at the current
+  //!  temperature and  pressure.
+  /*!
+   *  The first NC entries are for  components. The following NR entries are
+   *  for the current non-component species in the mechanism.
+   */
+  std::vector<double> ff;  
 
   //! Dimensionless/Dimensional free energy for all the species in the mechanism at the 
   //! current T, P, and mole numbers. 
@@ -409,13 +418,11 @@ public:
    */
   std::vector<double> m_gibbsSpecies;
 
-  //!  Standard state chemical potentials for species K at the current
-  //!  temperature and  pressure.
+  //! Old free energy vector from the previous iteration
   /*!
-   *  The first NC entries are for  components. The following NR entries are
-   *  for the current non-component species in the mechanism.
+   *  fe[] is copied into fel[] 
    */
-  std::vector<double> ff;  
+  std::vector<double> fel;
 
   //! Dimensionless trial free energy for all the species in the mechanism 
   //! at the  current T, P, and mole numbers. 
@@ -430,7 +437,7 @@ public:
    *  Initial estimate: 0 user estimate
    *                   -1 machine estimate
    */
-  int      iest;
+  int iest;
 
   //! Total moles of the species
   /*!
@@ -469,7 +476,7 @@ public:
   //! electric potential of the iph phase
   std::vector<double> phasePhi;
 
-  //! Tentative value of the mole number  vector. It's also used to store the
+  //! Tentative value of the mole number vector. It's also used to store the
   //!     mole fraction vector.
   std::vector<double> wt;
 
@@ -487,7 +494,9 @@ public:
   std::vector<double> dg;   
 
   //!  Last deltag[irxn] from the previous step 
-  std::vector<double> dgl;  
+  std::vector<double> dgl;
+
+  std::vector<double> m_deltaGRxn_tmp;
 
   //! Reaction Adjustments for each species
   /*!
@@ -495,8 +504,7 @@ public:
    */
   std::vector<double> ds;   
 
-  std::vector<double> fel; /* fel[k]     = Old Free Energy vector from the previous 
-			    *              iteration. fe[] is copied into fel[] */
+
   std::vector<double> ga;  /* ga[j]      = Element abundances for jth element from 
 			    *              estimate
 			    *           -> this is calculated from the current mole 

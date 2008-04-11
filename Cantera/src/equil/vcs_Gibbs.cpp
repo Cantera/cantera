@@ -23,7 +23,8 @@ namespace VCSnonideal {
 /*****************************************************************************/
 /*****************************************************************************/
 
-double VCS_SOLVE::vcs_Total_Gibbs(double *w, double *fe, double *tPhMoles)
+double VCS_SOLVE::vcs_Total_Gibbs(double *molesSp, double *chemPot,
+				  double *tPhMoles)
    
     /*************************************************************************
      *
@@ -37,9 +38,8 @@ double VCS_SOLVE::vcs_Total_Gibbs(double *w, double *fe, double *tPhMoles)
      *************************************************************************/
 {
     double g = 0.0;
-    int kspec;
-    int iph;
-    for (iph = 0; iph < NPhase; iph++) {
+  
+    for (int iph = 0; iph < NPhase; iph++) {
       vcs_VolPhase *Vphase = VPhaseList[iph];
       if ((TPhInertMoles[iph] > 0.0) && (tPhMoles[iph] > 0.0)) {
 	g += TPhInertMoles[iph] *
@@ -49,8 +49,9 @@ double VCS_SOLVE::vcs_Total_Gibbs(double *w, double *fe, double *tPhMoles)
 	}
       }
     }
-    for (kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
-      g += w[kspec] * fe[kspec];
+
+    for (int kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
+      g += molesSp[kspec] * chemPot[kspec];
     }
   
     return g;

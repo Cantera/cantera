@@ -72,7 +72,7 @@ namespace Cantera {
    *      @ingroup equil
    */
   int equilibrate(thermo_t& s, const char* XY,
-		  int solver = -1, doublereal rtol = 1.0e-9, int maxsteps = 1000, 
+		  int solver = -1, doublereal rtol = 1.0e-9, int maxsteps = 5000, 
 		  int maxiter = 100, int loglevel = -99);
 
   //! Equilibrate a MultiPhase object
@@ -101,7 +101,7 @@ namespace Cantera {
    *      @ingroup equil
    */
   doublereal equilibrate(MultiPhase& s, const char* XY,
-			 doublereal rtol = 1.0e-9, int maxsteps = 1000, int maxiter = 100,
+			 doublereal rtol = 1.0e-9, int maxsteps = 5000, int maxiter = 100,
 			 int loglevel = -99);
   
 }
