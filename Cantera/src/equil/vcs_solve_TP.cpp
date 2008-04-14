@@ -1384,7 +1384,7 @@ namespace VCSnonideal {
      */
     dofast = (m_numComponents != 1);
     for (i = 1; i < m_numComponents; ++i) {
-      if (soln[i - 1] < soln[i]) {
+      if ((soln[i - 1] * m_spSize[i-1]) < (soln[i] * m_spSize[i])) {
 	dofast = FALSE;
 	break;
       }
@@ -1394,7 +1394,7 @@ namespace VCSnonideal {
       for (i = 0; i < m_numRxnRdc; ++i) {
 	l = ir[i];
 	for (j = m_numComponents - 1; j >= 0; j--) {
-	  if (soln[l] > soln[j]) {
+	  if ((soln[l] * m_spSize[l]) > (soln[j]* m_spSize[j] * 1.01)) {
 	    if (sc[i][j] != 0.0) {
 #ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 2) {
@@ -1436,7 +1436,7 @@ namespace VCSnonideal {
       for (i = 0; i < m_numRxnRdc; ++i) {
 	l = ir[i];
 	for (j = 0; j < m_numComponents; ++j) {
-	  if (soln[l] > soln[j]) {
+	  if ((soln[l] * m_spSize[l]) > (soln[j] * m_spSize[j] * 1.01)) {
 	    if (sc[i][j] != 0.0) {
 #ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 2) {
@@ -3333,7 +3333,7 @@ namespace VCSnonideal {
 	plogf("   ---     Species | ");
 	for (j = 0; j < m_numElemConstraints; j++) {
 	  plogf(" ");
-	  vcs_print_stringTrunc(ElName[j].c_str(), 4, 1);
+	  vcs_print_stringTrunc(ElName[j].c_str(), 8, 1);
 	}
 	plogf("\n");
 	for (k = 0; k < m_numSpeciesTot; k++) {
@@ -3341,11 +3341,11 @@ namespace VCSnonideal {
 	  vcs_print_stringTrunc(SpName[k].c_str(), 11, 1);
 	  plogf(" | ");
 	  for (j = 0; j < m_numElemConstraints; j++) {
-	    plogf("%5.1g", FormulaMatrix[j][k]);
+	    plogf(" %8.2g", FormulaMatrix[j][k]);
 	  }
 	  plogf("\n");
 	}
-	plogf("\n");
+	plogendl();
       }
     }
 #endif
@@ -3388,7 +3388,7 @@ namespace VCSnonideal {
 	 *    The first search criteria is always the largest positive
 	 *    magnitude of the mole number.
 	 */
-	k = vcs_amax(aw, jr, m_numSpeciesTot);
+	k = vcs_optMax(aw, VCS_DATA_PTR(m_spSize), jr, m_numSpeciesTot);
 	/*
 	 * The fun really starts when you have run out of species that have a significant
 	 * concentration. It becomes extremely important to make a good choice of which
@@ -4593,6 +4593,7 @@ namespace VCSnonideal {
     SWAP(SpeciesUnknownType[k1], SpeciesUnknownType[k2], j);
     SWAP(wt[k1], wt[k2], t1);
     SWAP(ff[k1], ff[k2], t1);
+    SWAP(m_spSize[k1], m_spSize[k2], t1);
     SWAP(m_gibbsSpecies[k1], m_gibbsSpecies[k2], t1);
     SWAP(ds[k1], ds[k2], t1);
     SWAP(fel[k1], fel[k2], t1);
@@ -4624,7 +4625,7 @@ namespace VCSnonideal {
    
     if (ifunc) {
       /*
-       * Find the noncomponent indecises for the two species
+       * Find the Rxn indecises corresponding to the two species
        */
       i1 = k1 - m_numComponents;
       i2 = k2 - m_numComponents;
@@ -4646,6 +4647,7 @@ namespace VCSnonideal {
       }
       SWAP(dg[i1],  dg[i2],  t1);
       SWAP(dgl[i1], dgl[i2], t1);
+      SWAP(m_deltaGRxn_tmp[i1], m_deltaGRxn_tmp[i2], t1);
       SWAP(spStatus[i1],  spStatus[i2],  j);
 
       /*
@@ -4656,9 +4658,7 @@ namespace VCSnonideal {
        */
     }
   } /* vcs_switch_pos() ********************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
+
   static void print_space(int num)
   {
     int j;

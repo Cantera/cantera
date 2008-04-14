@@ -162,40 +162,44 @@ namespace VCSnonideal {
     std::copy(vec_from.begin(), vec_from.begin() + length, vec_to.begin());
   }
 #endif
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
 
-  int vcs_amax(const double *x, int j, int n)
-   
-    /**************************************************************************
-     *
-     *  vcs_amax:
-     *
-     * Finds the location of the maximum component in a double vector 
-     * INPUT 
-     *    x(*) - Vector to search 
-     *    j <= i < n     : i is the range of indecises to search in X(*) 
-     * 
-     * RETURN
-     *    return index of the greatest value on X(*) searched 
-     ***************************************************************************/
-  {
+  /*
+   *
+   * Finds the location of the maximum component in a double vector 
+   * INPUT 
+   *    x(*) - Vector to search
+   *    xSize(*) if nonnull, this is the multiplier vector to be
+   *             multiplied into x(*) before making the decision. 
+   *    j <= i < n     : i is the range of indecises to search in X(*) 
+   * 
+   * RETURN
+   *    return index of the greatest value on X(*) searched 
+   */
+  int vcs_optMax(const double *x, const double * xSize, int j, int n) {
     int i;
     int largest = j;
     double big = x[j];
-    for (i = j + 1; i < n; ++i) {
-      if (x[i] > big) {
-	largest = i;
-	big = x[i];
+    if (xSize) {
+      assert(xSize[j] > 0.0);
+      big *= xSize[j];
+      for (i = j + 1; i < n; ++i) {
+	assert(xSize[i] > 0.0);
+	if ((x[i]*xSize[i]) > big) {
+	  largest = i;
+	  big = x[i]*xSize[i];
+	}
+      } 
+    } else {
+      for (i = j + 1; i < n; ++i) {
+	if (x[i] > big) {
+	  largest = i;
+	  big = x[i];
+	}
       }
     }
     return largest;
-  } /* vcs_amax() **************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
-
+  } 
+  
   int vcs_max_int(const int *vector, int length)
    
     /**************************************************************************

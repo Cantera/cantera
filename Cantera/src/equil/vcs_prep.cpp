@@ -20,6 +20,7 @@
 #include "vcs_internal.h"
 #include "vcs_prob.h"
 #include "vcs_VolPhase.h"
+#include "vcs_SpeciesProperties.h"
 
 namespace VCSnonideal { 
 
@@ -144,6 +145,23 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
     ir[i] = m_numElemConstraints + i;
   }
   
+  for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
+    int pID = PhaseID[kspec];
+    int spPhIndex = indPhSp[kspec];
+    vcs_VolPhase *vPhase =  VPhaseList[pID];
+    vcs_SpeciesProperties *spProp = vPhase->ListSpeciesPtr[spPhIndex];
+    double sz = 0.0;
+    int eSize =  spProp->FormulaMatrixCol.size();
+    for (int e = 0; e < eSize; e++) {
+      sz += fabs(spProp->FormulaMatrixCol[e]);
+    }
+    if (sz > 0.0) {
+      m_spSize[kspec] = sz;
+    } else {
+      m_spSize[kspec] = 1.0;
+    }
+  }
+
   /* ***************************************************** */
   /* **** DETERMINE THE NUMBER OF COMPONENTS ************* */
   /* ***************************************************** */

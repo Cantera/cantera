@@ -429,12 +429,14 @@ namespace VCSnonideal {
   //! Finds the location of the maximum component in a double vector
   /*!
    * @param x pointer to a vector of doubles
+   * @param xSize pointer to a vector of doubles used as a multiplier
+   *              to x[]
    * @param j lowest index to search from 
    * @param n highest index to search from 
    * @return  Return index of the greatest value on X(i) searched
    *             j <= i < n
    */
-  int vcs_amax(const double *x, int j, int n);
+  int vcs_optMax(const double *x, const double *xSize, int j, int n);
 
   //! Returns the maximum integer in a list
   /*!

@@ -401,6 +401,13 @@ public:
    */
   std::vector<double> scSize;
 
+  //! total size of the species
+  /*!
+   *  This is used as a multiplier to the mole number in figuring out which
+   *  species should be components.
+   */
+  std::vector<double> m_spSize;
+
   //!  Standard state chemical potentials for species K at the current
   //!  temperature and  pressure.
   /*!

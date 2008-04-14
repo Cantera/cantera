@@ -70,7 +70,7 @@ int VCS_SOLVE::vcs_report(int iconv)
    *       the magnitude of the mole fraction vector. 
    */
    for (l = m_numComponents; l < m_numSpeciesRdc; ++l) {
-      k = vcs_amax(VCS_DATA_PTR(xy), l, m_numSpeciesRdc);
+      k = vcs_optMax(VCS_DATA_PTR(xy), 0, l, m_numSpeciesRdc);
       if (k != l) {
 	 vcsUtil_dsw(VCS_DATA_PTR(xy), k, l);
 	 vcsUtil_isw(VCS_DATA_PTR(sortindex), k, l);

@@ -107,6 +107,7 @@ namespace VCSnonideal {
     sc.resize(nspecies0, nelements, 0.0);
 
     scSize.resize(nspecies0, 0.0);
+    m_spSize.resize(nspecies0, 1.0);
 
     m_gibbsSpecies.resize(nspecies0, 0.0);
     ff.resize(nspecies0, 0.0);
