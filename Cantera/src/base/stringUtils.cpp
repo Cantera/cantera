@@ -227,7 +227,14 @@ namespace Cantera {
         return file;
     }
 
+  
+  int intValue(std::string val) {
+    return std::atoi(stripws(val).c_str());
+  }
 
+  doublereal fpValue(std::string val) {
+    return std::atof(stripws(val).c_str());
+  }
     /**
      *  Generate a logfile name based on an input file name
      */
