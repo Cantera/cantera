@@ -108,8 +108,9 @@ namespace VCSnonideal {
 	plogf(" %15.5g  %12.3g\n", molNum[kspec], -ff[kspec]);			     
       }
       plogf("%s Element Abundance Agreement returned from linear "
-	     "programming (vcs_inest initial guess):\n",
+	     "programming (vcs_inest initial guess):",
 	     pprefix);
+      plogendl();
       plogf("%s     Element           Goal         Actual\n", pprefix);
       int jj = 0;
       for (int j = 0; j < m_numElemConstraints; j++) {
@@ -123,6 +124,7 @@ namespace VCSnonideal {
 	  jj++;
 	}
       }
+      plogendl();
     }
 #endif
    
@@ -272,7 +274,7 @@ namespace VCSnonideal {
 	      plogf(" (ssPhase doesn't exist -> stability not checked)");
 	    }
 	  }
-	  plogf("\n");
+          plogendl();
 	}
       }
     }
@@ -372,7 +374,8 @@ namespace VCSnonideal {
       plogf("%s     SPECIES      MOLE_NUMBER\n", pprefix);
       for (kspec = 0; kspec < nspecies; ++kspec) {
 	plogf("%s     ", pprefix); plogf("%-12.12s", SpName[kspec].c_str());
-	plogf(" %g\n", molNum[kspec]);			     
+	plogf(" %g", molNum[kspec]);			     
+        plogendl();
       }
     }
 #endif
@@ -421,8 +424,9 @@ namespace VCSnonideal {
      */
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
-      plogf("%sGo find an initial estimate for the equilibrium problem\n",
+      plogf("%sGo find an initial estimate for the equilibrium problem",
 	     pprefix);
+      plogendl();
     }
 #endif
     inest(VCS_DATA_PTR(aw), VCS_DATA_PTR(sa), VCS_DATA_PTR(sm),
@@ -446,7 +450,8 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	plogf("%sInitial guess failed element abundances\n", pprefix);  
-	plogf("%sCall vcs_elcorr to attempt fix\n", pprefix);
+	plogf("%sCall vcs_elcorr to attempt fix", pprefix);
+        plogendl();
       }
 #endif
       vcs_elcorr(VCS_DATA_PTR(sm), VCS_DATA_PTR(aw));
@@ -455,18 +460,21 @@ namespace VCSnonideal {
 	plogf("%sInitial guess still fails element abundance equations\n",
 	       pprefix);
 	plogf("%s - Inability to ever satisfy element abundance "
-	       "constraints is probable\n", pprefix);
+	       "constraints is probable", pprefix);
+        plogendl();
 	retn = -1;
       } else {
 #ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 2) {
 	  if (rangeCheck) {
-	    plogf("%sInitial guess now satisfies element abundances\n", pprefix);
+	    plogf("%sInitial guess now satisfies element abundances", pprefix);
+            plogendl();
 	  } else {
 	    plogf("%sElement Abundances RANGE ERROR\n", pprefix);
 	    plogf("%s - Initial guess satisfies NC=%d element abundances, "
-		   "BUT not NE=%d element abundances\n", pprefix,
+		   "BUT not NE=%d element abundances", pprefix,
 		   m_numComponents, m_numElemConstraints);
+            plogendl();
 	  }
 	}
 #endif 
@@ -476,12 +484,14 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	if (rangeCheck) {
-	  plogf("%sInitial guess satisfies element abundances\n", pprefix);
+	  plogf("%sInitial guess satisfies element abundances", pprefix);
+          plogendl();
 	} else {
 	  plogf("%sElement Abundances RANGE ERROR\n", pprefix);
 	  plogf("%s - Initial guess satisfies NC=%d element abundances, "
-		 "BUT not NE=%d element abundances\n", pprefix, 
+		 "BUT not NE=%d element abundances", pprefix, 
 		 m_numComponents, m_numElemConstraints);
+          plogendl();
 	}
       }
 #endif
@@ -489,9 +499,10 @@ namespace VCSnonideal {
       
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
-      plogf("%sTotal Dimensionless Gibbs Free Energy = %15.7E\n", pprefix,
+      plogf("%sTotal Dimensionless Gibbs Free Energy = %15.7E", pprefix,
 	     vcs_Total_Gibbs(VCS_DATA_PTR(soln), VCS_DATA_PTR(m_gibbsSpecies), 
 			     VCS_DATA_PTR(TPhMoles)));   
+      plogendl();
     }
 #endif
 

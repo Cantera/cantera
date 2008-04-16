@@ -598,9 +598,9 @@ namespace VCSnonideal {
 
    // Set the estimation technique
    if (estimateEquil) {
-     m_vprob->iest = 0;
-   } else {
      m_vprob->iest = -1;
+   } else {
+     m_vprob->iest = 0;
    }
 
    // Check obvious bounds on the temperature and pressure
@@ -1097,7 +1097,7 @@ namespace VCSnonideal {
     vprob->m_VCS_UnitsFormat      = VCS_UNITS_MKS;
     // Set the initial estimate to a machine generated estimate for now
     // We will work out the details later.
-    vprob->iest      = 0;
+    vprob->iest      = -1;
     vprob->T         = mphase->temperature();
     vprob->Pres      = mphase->pressure();
     vprob->Vol       = mphase->volume();
@@ -1477,7 +1477,7 @@ namespace VCSnonideal {
     vprob->prob_type = 0;
     // Whether we have an estimate or not gets overwritten on
     // the call to the equilibrium solver.
-    vprob->iest      = 0;
+    vprob->iest      = -1;
     vprob->T         = mphase->temperature();
     vprob->Pres      = mphase->pressure();
     vprob->Vol       = mphase->volume();
