@@ -262,8 +262,12 @@ namespace VCSnonideal {
 	pmoles[0] = m_mix->phaseMoles(0);
 	double Tmoles = pmoles[0];
 	double HperMole = Hnow/Tmoles;
-	plogf("T = %g, Hnow = %g ,Tmoles = %g,  HperMole = %g\n",
-	       Tnow, Hnow, Tmoles, HperMole);
+	if (printLvl > 0) {
+	  plogf("T = %g, Hnow = %g ,Tmoles = %g,  HperMole = %g",
+		Tnow, Hnow, Tmoles, HperMole);
+	  plogendl();
+	}
+
 	// the equilibrium enthalpy monotonically increases with T; 
 	// if the current value is below the target, then we know the
 	// current temperature is too low. Set the lower bounds.

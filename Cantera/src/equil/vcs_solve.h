@@ -28,6 +28,7 @@
 #include <vector>
 #include <string>
 
+#include "ct_defs.h"
 #include "vcs_defs.h"
 #include "vcs_DoubleStarStar.h"
 #include "vcs_IntStarStar.h"
