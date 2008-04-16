@@ -119,7 +119,11 @@ namespace Cantera {
 
 	retn = vcs_equilibrate(*m, XY, estimateEquil, printLvl, solver,
 			       rtol, maxsteps, maxiter, loglevel);
-	addLogEntry("MultiPhaseEquil solver succeeded.");
+	if (retn == 1) {
+	  addLogEntry("MultiPhaseEquil solver succeeded.");
+	} else {
+	  addLogEntry("MultiPhaseEquil solver returned an error code: ", retn);
+	}
 	delete m;
       }
       catch (CanteraError &err) {
@@ -302,9 +306,11 @@ namespace Cantera {
 	int err = eqsolve->equilibrate(ixy, estimateEquil, printLvlSub,
 				       tol, maxsteps, maxiter);
 	if (err != 0) {
-	  retn = 0;
+	  retn = -1;
+	  addLogEntry("vcs_equilibrate Error   - ", err);
+	} else {
+	  addLogEntry("vcs_equilibrate Success - ", err);
 	}
-	addLogEntry("Success. Error", err);
 	endLogGroup("equilibrate");
 	// hard code a csv output file.
 	if (printLvl > 0) {
@@ -318,6 +324,7 @@ namespace Cantera {
 	delete eqsolve;
       }
       catch (CanteraError &e) {
+	retn = -1;
 	addLogEntry("Failure.", lastErrorMessage());
 	endLogGroup("equilibrate");
 	throw e;

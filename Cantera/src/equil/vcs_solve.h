@@ -103,6 +103,13 @@ public:
   void vcs_reinsert_deleted(int kspec);
   int vcs_basopt(int ifirst, double aw[], double sa[], double sm[], 
 		 double ss[], double test, int *usedZeroedSpecies);
+
+  //!  Choose a species for the next component
+  /*!
+   *   
+   */
+  int vcs_basisOptMax(const double *const x, const int j, const int n);
+
   int vcs_species_type(int kspec);
   void vcs_chemPotPhase(int iph, const double *const molNum, 
 			double * const ac, double * const mu_i,
@@ -631,7 +638,7 @@ public:
   //!  Mapping from the species number to the phase number 
   std::vector<int> PhaseID;
 
-  //!  Boolean indicating whether a species  to single species phase
+  //!  Boolean indicating whether a species belongs to a single-species phase
   std::vector<int> SSPhase;
 
 

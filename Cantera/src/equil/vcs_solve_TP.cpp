@@ -1093,37 +1093,82 @@ namespace VCSnonideal {
      *         we have only updated a subset of the W(). 
      */
     vcs_updateVP(1);
-    vcs_dfe(VCS_DATA_PTR(wt), 1, iti, 0, m_numSpeciesTot);
+    //vcs_dfe(VCS_DATA_PTR(wt), 1, iti, 0, m_numSpeciesTot);
+    vcs_dfe(VCS_DATA_PTR(wt), 1, 0, 0, m_numSpeciesTot);
     /*
      *         Evaluate DeltaG for all components if ITI=0, and for 
      *         major components only if ITI NE 0 
      */
-    if (iti == 0) vcs_deltag(0, false);
-    else          vcs_deltag(-1, false);
-   
-    /*
-     *         Print Intermediate results
-     */  
+    // if (iti == 0) vcs_deltag(0, false);
+    //else          vcs_deltag(-1, false);
+    vcs_deltag(0, false);
+ 
     // Actually always need to calculate this 
     // or else nonprintouts get different results and sometimes
     // fail in the line search algorithm -> Why is this?
-    vcs_dfe(VCS_DATA_PTR(wt), 1, 1, 0, m_numSpeciesRdc);
+    //vcs_dfe(VCS_DATA_PTR(wt), 1, 1, 0, m_numSpeciesRdc);
+    //if (iti != 0) {
+    // vcs_deltag(1, false);
+    //}
+
+
+    /* *************************************************************** */
+    /* **** CONVERGENCE FORCER SECTION ******************************* */
+    /* *************************************************************** */
     if (printDetails) {
-      if (iti != 0) {
-#ifdef DEBUG_MODE
-	if (vcs_debug_print_lvl >= 2) {
-	  plogf("   *** vcs_dfe for printout only:");	
-	}
-#endif
-	vcs_dfe(VCS_DATA_PTR(wt), 1, 1, 0, m_numSpeciesRdc);
-#ifdef DEBUG_MODE
-	if (vcs_debug_print_lvl >= 2) {
-	  plogf("   *** vcs_deltag for printout only:");    
-	}   
-#endif
-	vcs_deltag(1, false);
-      }
+      plogf("   --- Total Old       Dimensionless Gibbs Free Energy = %20.13E\n", 
+	    vcs_Total_Gibbs(VCS_DATA_PTR(soln), VCS_DATA_PTR(fel), 
+			    VCS_DATA_PTR(TPhMoles)));
+      plogf("   --- Total tentative Dimensionless Gibbs Free Energy = %20.13E", 
+	    vcs_Total_Gibbs(VCS_DATA_PTR(wt), VCS_DATA_PTR(m_gibbsSpecies), 
+			    VCS_DATA_PTR(TPhMoles1)));
+      plogendl();
+    }
+
+    forced = globStepDamp(iti);
+
+    /*
+     *       Print out the changes to the solution that FORCER produced 
+     */
+    if (printDetails && forced) {
       
+      plogf(" -----------------------------------------------------\n");
+      plogf("   --- FORCER SUBROUTINE changed the solution:\n");
+      plogf("   --- SPECIES Status INIT MOLES TENT_MOLES");
+      plogf("  FINAL MOLES   INIT_DEL_G/RT  TENT_DEL_G/RT  FINAL_DELTA_G/RT\n");
+      for (i = 0; i < m_numComponents; ++i) {
+	plogf("  --- %-12.12s", SpName[i].c_str());
+	plogf("    %14.6E %14.6E %14.6E\n",  soln[i], soln[i] + ds[i], wt[i]);
+      }
+      for (kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
+	irxn = kspec - m_numComponents;
+	plogf("  --- %-12.12s", SpName[kspec].c_str());
+	plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n", spStatus[irxn],
+	      soln[kspec], soln[kspec]+ds[kspec], wt[kspec], dgl[irxn], 
+	      m_deltaGRxn_tmp[irxn], dg[irxn]);
+      }
+      print_space(26); 
+      plogf("Norms of Delta G():%14.6E%14.6E\n",
+	    l2normdg(VCS_DATA_PTR(dgl)),
+	    l2normdg(VCS_DATA_PTR(dg)));
+      plogf("   Total moles of gas    = %15.7E\n", TPhMoles[0]);
+      if ((NPhase > 1) && (! (VPhaseList[1])->SingleSpecies)) { 
+	plogf("   Total moles of liquid = %15.7E\n", TPhMoles[1]); 
+      } else {
+	plogf("   Total moles of liquid = %15.7E\n", 0.0);
+      }
+      plogf("   Total New Dimensionless Gibbs Free Energy = %20.13E\n", 
+	    vcs_Total_Gibbs(VCS_DATA_PTR(wt), VCS_DATA_PTR(m_gibbsSpecies),
+			    VCS_DATA_PTR(TPhMoles1)));
+      plogf(" -----------------------------------------------------");
+      plogendl();
+    }
+
+    /* *************************************************************** */
+    /* **** ITERATION SUMMARY PRINTOUT SECTION *********************** */
+    /* *************************************************************** */
+
+    if (printDetails) {
       plogf("   "); vcs_print_line("-", 103); 
       plogf("   --- Summary of the Update ");
       if (iti == 0) {
@@ -1174,60 +1219,13 @@ namespace VCSnonideal {
 	    vcs_Total_Gibbs(VCS_DATA_PTR(wt), VCS_DATA_PTR(m_gibbsSpecies), 
 			    VCS_DATA_PTR(TPhMoles1)));
       plogendl();
-      if (m_VCount->Its > 150) {
+      if (m_VCount->Its > 550) {
 	plogf("   --- Troublesome solve"); 
 	plogendl();
       }
-#ifdef DEBUG_MODE
-#ifdef DEBUG_NOT
-      if (vcs_debug_print_lvl >= 3) {
-	prneav();
-      }
-#endif
-#endif
-    }
-    /* *************************************************************** */
-    /* **** CONVERGENCE FORCER SECTION ******************************* */
-    /* *************************************************************** */
 
-    forced = globStepDamp(iti);
-
-    /*
-     *       Print out the changes to the solution that FORCER produced 
-     */
-    if (printDetails && forced) {
-      
-      plogf(" -----------------------------------------------------\n");
-      plogf("   --- FORCER SUBROUTINE changed the solution:\n");
-      plogf("   --- SPECIES Status INIT MOLES TENT_MOLES");
-      plogf("  FINAL MOLES   INIT_DEL_G/RT  TENT_DEL_G/RT  FINAL_DELTA_G/RT\n");
-      for (i = 0; i < m_numComponents; ++i) {
-	plogf("  --- %-12.12s", SpName[i].c_str());
-	plogf("    %14.6E %14.6E %14.6E\n",  soln[i], soln[i] + ds[i], wt[i]);
-      }
-      for (kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
-	irxn = kspec - m_numComponents;
-	plogf("  --- %-12.12s", SpName[kspec].c_str());
-	plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n", spStatus[irxn],
-	      soln[kspec], soln[kspec]+ds[kspec], wt[kspec], dgl[irxn], 
-	      m_deltaGRxn_tmp[irxn], dg[irxn]);
-      }
-      print_space(26); 
-      plogf("Norms of Delta G():%14.6E%14.6E\n",
-	    l2normdg(VCS_DATA_PTR(dgl)),
-	    l2normdg(VCS_DATA_PTR(dg)));
-      plogf("   Total moles of gas    = %15.7E\n", TPhMoles[0]);
-      if ((NPhase > 1) && (! (VPhaseList[1])->SingleSpecies)) { 
-	plogf("   Total moles of liquid = %15.7E\n", TPhMoles[1]); 
-      } else {
-	plogf("   Total moles of liquid = %15.7E\n", 0.0);
-      }
-      plogf("   Total New Dimensionless Gibbs Free Energy = %20.13E\n", 
-	    vcs_Total_Gibbs(VCS_DATA_PTR(wt), VCS_DATA_PTR(m_gibbsSpecies),
-			    VCS_DATA_PTR(TPhMoles1)));
-      plogf(" -----------------------------------------------------");
-      plogendl();
     }
+
     /*************************************************************************/
     /******************* RESET VALUES AT END OF ITERATION ********************/
     /******************* UPDATE MOLE NUMBERS *********************************/
@@ -1394,12 +1392,30 @@ namespace VCSnonideal {
       for (i = 0; i < m_numRxnRdc; ++i) {
 	l = ir[i];
 	for (j = m_numComponents - 1; j >= 0; j--) {
-	  if ((soln[l] * m_spSize[l]) > (soln[j]* m_spSize[j] * 1.01)) {
+	  bool doSwap = false;
+	  if (SSPhase[j]) {
+	    doSwap = (soln[l] * m_spSize[l]) > (soln[j] * m_spSize[j] * 1.01);
+	    if (!SSPhase[i]) {
+	      if (doSwap) {
+		doSwap = (soln[l]) > (soln[j] * 1.01);
+	      }
+	    }
+	  } else {
+	    if (SSPhase[i]) {
+	      doSwap = (soln[l] * m_spSize[l]) > (soln[j] * m_spSize[j] * 1.01);
+	      if (!doSwap) {
+		doSwap = (soln[l]) > (soln[j] * 1.01);
+	      }
+	    } else {
+	      doSwap = (soln[l] * m_spSize[l]) > (soln[j] * m_spSize[j] * 1.01);
+	    }
+	  }
+	  if (doSwap) {
 	    if (sc[i][j] != 0.0) {
 #ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 2) {
 		plogf("   --- Get a new basis because %s", SpName[l].c_str());
-		plogf(" is larger than comp %s", SpName[j].c_str());
+		plogf(" is better than comp %s", SpName[j].c_str());
 		plogf(" and share nonzero stoic: %-9.1f", 
 		      sc[i][j]);
 		plogendl();
@@ -1436,13 +1452,31 @@ namespace VCSnonideal {
       for (i = 0; i < m_numRxnRdc; ++i) {
 	l = ir[i];
 	for (j = 0; j < m_numComponents; ++j) {
-	  if ((soln[l] * m_spSize[l]) > (soln[j] * m_spSize[j] * 1.01)) {
+	  bool doSwap = false;
+	  if (SSPhase[j]) {
+	    doSwap = (soln[l] * m_spSize[l]) > (soln[j] * m_spSize[j] * 1.01);
+	    if (!SSPhase[l]) {
+	      if (doSwap) {
+		doSwap = (soln[l]) > (soln[j] * 1.01);
+	      }
+	    }
+	  } else {
+	    if (SSPhase[l]) {
+	      doSwap = (soln[l] * m_spSize[l]) > (soln[j] * m_spSize[j] * 1.01);
+	      if (!doSwap) {
+		doSwap = (soln[l]) > (soln[j] * 1.01);
+	      }
+	    } else {
+	      doSwap = (soln[l] * m_spSize[l]) > (soln[j] * m_spSize[j] * 1.01);
+	    }
+	  }
+	  if (doSwap) {
 	    if (sc[i][j] != 0.0) {
 #ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 2) {
 		plogf("   --- Get a new basis because ");
 		plogf("%s", SpName[l].c_str());
-		plogf(" is larger than comp ");
+		plogf(" is better than comp ");
 		plogf("%s", SpName[j].c_str());
 		plogf(" and share nonzero stoic: %-9.1f", 
 		      sc[i][j]);
@@ -3388,7 +3422,9 @@ namespace VCSnonideal {
 	 *    The first search criteria is always the largest positive
 	 *    magnitude of the mole number.
 	 */
-	k = vcs_optMax(aw, VCS_DATA_PTR(m_spSize), jr, m_numSpeciesTot);
+	//	k = vcs_optMax(aw, VCS_DATA_PTR(m_spSize), jr, m_numSpeciesTot);
+	k = vcs_basisOptMax(aw, jr, m_numSpeciesTot);
+
 	/*
 	 * The fun really starts when you have run out of species that have a significant
 	 * concentration. It becomes extremely important to make a good choice of which
@@ -3793,9 +3829,50 @@ namespace VCSnonideal {
     (m_VCount->Basis_Opts)++;
     return VCS_SUCCESS;
   } /* vcs_basopt() ************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
+
+
+  int 
+  VCS_SOLVE::vcs_basisOptMax(const double * const x, const int j, const int n) {
+    int i;
+    int largest = j;
+    double big = x[j];
+
+    assert(m_spSize[j] > 0.0);
+    big *= m_spSize[j];
+ 
+    for (i = j + 1; i < n; ++i) {
+      assert(m_spSize[i] > 0.0);
+
+      bool doSwap = false;
+      if (SSPhase[j]) {
+	doSwap = (x[i] * m_spSize[i]) > (big);
+	if (!SSPhase[i]) {
+	  if (doSwap) {
+	    doSwap = (x[i]) > (x[largest]);
+	  }
+	}
+      } else {
+	if (SSPhase[i]) {
+	  doSwap = (x[i] * m_spSize[i]) > (big);
+	  if (!doSwap) {
+	    doSwap = (x[i]) > (x[largest]);
+	  }
+	} else {
+	  doSwap = (x[i] * m_spSize[i]) > (big);
+	}
+      }
+
+      if (doSwap) {
+	largest = i;
+	big = x[i] * m_spSize[i];
+      }
+    } 
+    
+    return largest;
+
+  }
+
+
 
   int VCS_SOLVE::vcs_species_type(int kspec)
    
@@ -4119,7 +4196,7 @@ namespace VCSnonideal {
      * Input 
      * -------- 
      *     ll =  0: Calculate for all species 
-     *          -1: calculate for components and for major non-components 
+     *        <  0: calculate for components and for major non-components 
      *           1: calculate for components and for minor non-components 
      *     lbot   : restricts the calculation of the chemical potential 
      *     ltop     to the species between LBOT <= i < LTOP. Usually 

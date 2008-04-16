@@ -75,7 +75,7 @@ namespace Cantera {
   int vcs_equilibrate(thermo_t& s, const char* XY,
 		      bool estimateEquil = false, int printLvl = 0,
 		      int solver = -1, doublereal rtol = 1.0e-9, 
-		      int maxsteps = 1000,
+		      int maxsteps = 5000,
 		      int maxiter = 100, int loglevel = -99);
 
 
@@ -130,7 +130,7 @@ namespace Cantera {
   int vcs_equilibrate(MultiPhase& s, const char* XY, 
 		      bool estimateEquil = false, int printLvl = 0,
 		      int solver = 2,
-		      doublereal rtol = 1.0e-9, int maxsteps = 1000, 
+		      doublereal rtol = 1.0e-9, int maxsteps = 5000, 
 		      int maxiter = 100, int loglevel = -99);
 
   //!  Set a multi-phase chemical solution to chemical equilibrium.
@@ -184,7 +184,7 @@ namespace Cantera {
   int vcs_equilibrate_1(MultiPhase& s, int ixy, 
 			bool estimateEquil = false, int printLvl = 0,
 			int solver = 2,
-			doublereal rtol = 1.0e-9, int maxsteps = 1000, 
+			doublereal rtol = 1.0e-9, int maxsteps = 5000, 
 			int maxiter = 100, int loglevel = -99);
 
 }
@@ -331,7 +331,7 @@ namespace VCSnonideal {
      */
     int equilibrate(int XY,  bool estimateEquil = false,
 		    int printLvl= 0, doublereal err = 1.0e-6, 
-		    int maxsteps = 1000, int loglevel=-99);
+		    int maxsteps = 5000, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances
     //! storred in the MultiPhase object using constant T and P
@@ -355,7 +355,7 @@ namespace VCSnonideal {
      */
     int equilibrate_TP(bool estimateEquil = false,
 		       int printLvl= 0, doublereal err = 1.0e-6, 
-		       int maxsteps = 1000, int loglevel=-99);
+		       int maxsteps = 5000, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances
     //! storred in the MultiPhase object using either constant H and P
@@ -403,7 +403,7 @@ namespace VCSnonideal {
     int equilibrate_HP(doublereal Htarget, int XY, double Tlow, double Thigh,
 		       bool estimateEquil = false,
 		       int printLvl = 0, doublereal err = 1.0E-6, 
-		       int maxsteps = 1000, int loglevel=-99);
+		       int maxsteps = 5000, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances
     //! storred in the MultiPhase object using constant S and P.
@@ -448,7 +448,7 @@ namespace VCSnonideal {
     int equilibrate_SP(doublereal Starget, double Tlow, double Thigh,
 		       bool estimateEquil = false,
 		       int printLvl = 0, doublereal err = 1.0E-6, 
-		       int maxsteps = 1000, int loglevel=-99);
+		       int maxsteps = 5000, int loglevel=-99);
 
 
     //! Equilibrate the solution using the current element abundances
@@ -491,7 +491,7 @@ namespace VCSnonideal {
     int equilibrate_TV(int XY, doublereal xtarget,
 		       bool estimateEquil = false,
 		       int printLvl = 0, doublereal err = 1.0E-6, 
-		       int maxsteps = 1000, int loglevel = -99);
+		       int maxsteps = 5000, int loglevel = -99);
 
     //! Report the equilibrium answer in a comma separated table format
     /*!
