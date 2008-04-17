@@ -98,7 +98,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
 
 #ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
-    printProgress(SpName, soln, ff);
+    printProgress(SpName, soln, m_SSfeSpecies);
   }
 #endif
   
@@ -144,11 +144,11 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
 	   
       // dg_rt is the Delta_G / RT value for the reaction
       ik = m_numComponents + irxn;
-      dg_rt = ff[ik];
+      dg_rt = m_SSfeSpecies[ik];
       dxi_min = 1.0e10;
       const double *sc_irxn = sc[irxn];
       for (jcomp = 0; jcomp < m_numElemConstraints; jcomp++) {
-	dg_rt += ff[jcomp] * sc_irxn[jcomp];
+	dg_rt += m_SSfeSpecies[jcomp] * sc_irxn[jcomp];
       }
       // fwd or rev direction. 
       //  idir > 0 implies increasing the current species
@@ -208,14 +208,14 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
     // vcs_updateVP(0);
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
-      printProgress(SpName, soln, ff);
+      printProgress(SpName, soln, m_SSfeSpecies);
     }
 #endif
   }
 
 #ifdef DEBUG_MODE
   if (vcs_debug_print_lvl == 1) {
-    printProgress(SpName, soln, ff);
+    printProgress(SpName, soln, m_SSfeSpecies);
     plogf("   --- setInitialMoles end\n"); 
   }
 #endif

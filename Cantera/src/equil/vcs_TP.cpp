@@ -155,12 +155,12 @@ int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
   for (int iph = 0; iph < NPhase; iph++) {
     vcs_VolPhase* vph = VPhaseList[iph];
     vph->setState_TP(T, Pres);
-    vph->sendToVCSGStar(VCS_DATA_PTR(ff));
+    vph->sendToVCSGStar(VCS_DATA_PTR(m_SSfeSpecies));
   }
    
   if (m_VCS_UnitsFormat == VCS_UNITS_UNITLESS) {
     for (int i = 0; i < m_numSpeciesTot; ++i) {
-      ff[i]  /= Temp;
+      m_SSfeSpecies[i]  /= Temp;
     }
   }
   return VCS_SUCCESS;
@@ -185,7 +185,7 @@ void  VCS_SOLVE::vcs_fePrep_TP(void)
      *        potential. This value doesn't change during the calculation
      */
     if (SSPhase[i]) {
-      m_gibbsSpecies[i] = ff[i];
+      m_gibbsSpecies[i] = m_SSfeSpecies[i];
     }
   }    
 } /* vcs_fePrep_TP() ********************************************************/

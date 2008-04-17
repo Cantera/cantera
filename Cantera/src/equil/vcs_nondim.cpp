@@ -102,7 +102,7 @@ void VCS_SOLVE::vcs_nondim_TP(void) {
 	 *        FF(I),  to make it dimensionless, i.e.,  mu / RT.
 	 *        Thus, we may divide it by the temperature.
 	 */  
-	ff[i] *= tf;
+	m_SSfeSpecies[i] *= tf;
 	m_gibbsSpecies[i] *= tf;
 	dg[i] *= tf;
 	dgl[i] *= tf;
@@ -142,7 +142,7 @@ void VCS_SOLVE::vcs_redim_TP(void)
 	 *        Modify the standard state and total chemical potential data,
 	 *        FF(I),  to make it have units, i.e. mu = RT * mu_star
 	 */  
-	ff[i] *= tf;
+	m_SSfeSpecies[i] *= tf;
 	m_gibbsSpecies[i] *= tf;
 	dg[i] *= tf;
 	dgl[i] *= tf;

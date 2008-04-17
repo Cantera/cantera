@@ -313,7 +313,7 @@ int VCS_SOLVE::vcs_report(int iconv)
       int pid = PhaseID[l];
       plogf(" %-12.12s", SpName[l].c_str());
       plogf(" %14.7E ", soln[l]);
-      plogf("%14.7E  ", ff[l]);
+      plogf("%14.7E  ", m_SSfeSpecies[l]);
       plogf("%14.7E  ", log(ActCoeff[l]));
       double tpmoles = TPhMoles[pid];
       double phi = phasePhi[pid];
@@ -325,12 +325,12 @@ int VCS_SOLVE::vcs_report(int iconv)
 	if (tpmoles > 0.0 && soln[l] > 0.0) {
 	  lx = log(soln[l]) - log(tpmoles);
 	} else {
-	  lx = m_gibbsSpecies[l] - ff[l] - log(ActCoeff[l]) + SpecLnMnaught[l];
+	  lx = m_gibbsSpecies[l] - m_SSfeSpecies[l] - log(ActCoeff[l]) + SpecLnMnaught[l];
 	}
       }
       plogf("%14.7E  |", lx);
       plogf("%14.7E | ", eContrib);
-      double tmp = ff[l] + log(ActCoeff[l]) + lx - SpecLnMnaught[l] + eContrib;
+      double tmp = m_SSfeSpecies[l] + log(ActCoeff[l]) + lx - SpecLnMnaught[l] + eContrib;
       if (fabs(m_gibbsSpecies[l] - tmp) > 1.0E-8) {
 	plogf("\n\t\twe have a problem - doesn't add up\n");
 	exit(-1);

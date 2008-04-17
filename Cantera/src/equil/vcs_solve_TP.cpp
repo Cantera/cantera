@@ -294,7 +294,7 @@ namespace VCSnonideal {
 	  plogf("  0");
 	}
 	print_space(47-m_numElemConstraints*3);
-	plogf("%12.5E  %12.5E", RT * ff[i], soln[i]);
+	plogf("%12.5E  %12.5E", RT * m_SSfeSpecies[i], soln[i]);
 	if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
 	  plogf("       Mol_Num");
 	} else if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -2525,7 +2525,7 @@ namespace VCSnonideal {
      * for formation reactions
      */
     for (kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
-      m_gibbsSpecies[kspec] = ff[kspec];
+      m_gibbsSpecies[kspec] = m_SSfeSpecies[kspec];
     }
     /*
      *      Recalculate the DeltaG's of the formation reactions for the
@@ -2613,7 +2613,7 @@ namespace VCSnonideal {
      *           ~ infinite dilution.
      */
     for (kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
-      m_gibbsSpecies[kspec] = ff[kspec];
+      m_gibbsSpecies[kspec] = m_SSfeSpecies[kspec];
     }
     /*
      *      Recalculate the DeltaG's of the formation reactions for the
@@ -3494,7 +3494,7 @@ namespace VCSnonideal {
 		      kfound = kspec;
 		    } else {
 		      // ok we are sitting pretty equal here decide on the raw ss Gibbs energy
-		      if (ff[kspec] <= ff[kfound]) {
+		      if (m_SSfeSpecies[kspec] <= m_SSfeSpecies[kfound]) {
 			kfound = kspec;
 		      }
 		    }
@@ -4106,15 +4106,15 @@ namespace VCSnonideal {
 	  exit(-1);
 	}
 #endif
-	mu_i[kspec] = ff[kspec] + Charge[kspec] * Faraday_phi;
+	mu_i[kspec] = m_SSfeSpecies[kspec] + Charge[kspec] * Faraday_phi;
       } else {
 	if (SSPhase[kspec]) { 
-	  mu_i[kspec] = ff[kspec] + Charge[kspec] * Faraday_phi;
+	  mu_i[kspec] = m_SSfeSpecies[kspec] + Charge[kspec] * Faraday_phi;
 	} else if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
-	  mu_i[kspec] = ff[kspec] + log(ac[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
+	  mu_i[kspec] = m_SSfeSpecies[kspec] + log(ac[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
 	    - tlogMoles - SpecLnMnaught[kspec] + Charge[kspec] * Faraday_phi;
 	} else {
-	  mu_i[kspec] = ff[kspec] + log(ac[kspec] * molNum[kspec])
+	  mu_i[kspec] = m_SSfeSpecies[kspec] + log(ac[kspec] * molNum[kspec])
 	    - tlogMoles - SpecLnMnaught[kspec] + Charge[kspec] * Faraday_phi;
 	}
       }
@@ -4328,23 +4328,24 @@ namespace VCSnonideal {
 	  exit(-1);
 	}
 #endif
-	m_gibbsSpecies[kspec] = ff[kspec] + Charge[kspec] * Faraday_dim * phasePhi[iphase];
+	m_gibbsSpecies[kspec] =
+	  m_SSfeSpecies[kspec] + Charge[kspec] * Faraday_dim * phasePhi[iphase];
       } else {
 	if (SSPhase[kspec]) {
-	  m_gibbsSpecies[kspec] = ff[kspec];
+	  m_gibbsSpecies[kspec] = m_SSfeSpecies[kspec];
 	} else {
 	  if (z[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
 	    iph = PhaseID[kspec];
 	    if (tPhMoles_ptr[iph] > 0.0) { 
-	      m_gibbsSpecies[kspec] = ff[kspec] 
+	      m_gibbsSpecies[kspec] = m_SSfeSpecies[kspec] 
 		+ log(ActCoeff[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
 		- tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec] 
 		+ Charge[kspec] * Faraday_dim * phasePhi[iphase];
 	    } else {
-	      m_gibbsSpecies[kspec] = ff[kspec];
+	      m_gibbsSpecies[kspec] = m_SSfeSpecies[kspec];
 	    }
 	  } else {
-	    m_gibbsSpecies[kspec] = ff[kspec] + log(ActCoeff[kspec] * z[kspec])
+	    m_gibbsSpecies[kspec] = m_SSfeSpecies[kspec] + log(ActCoeff[kspec] * z[kspec])
 	      - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec] 
 	      + Charge[kspec] * Faraday_dim * phasePhi[iphase]; 
 	  }
@@ -4370,23 +4371,24 @@ namespace VCSnonideal {
 	      exit(-1);
 	    }
 #endif
-	    m_gibbsSpecies[kspec] = ff[kspec] + Charge[kspec] * Faraday_dim * phasePhi[iphase];   
+	    m_gibbsSpecies[kspec] = 
+	      m_SSfeSpecies[kspec] + Charge[kspec] * Faraday_dim * phasePhi[iphase];   
 	  } else {
 	    if (SSPhase[kspec]) {
-	      m_gibbsSpecies[kspec] = ff[kspec];
+	      m_gibbsSpecies[kspec] = m_SSfeSpecies[kspec];
 	    } else {
 	      if (z[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
 		iph = PhaseID[kspec];
 		if (tPhMoles_ptr[iph] > 0.0) { 
-		  m_gibbsSpecies[kspec] = ff[kspec] 
+		  m_gibbsSpecies[kspec] = m_SSfeSpecies[kspec] 
 		    + log(ActCoeff[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
 		    - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec]
 		    + Charge[kspec] * Faraday_dim * phasePhi[iphase]; ;
 		} else {
-		  m_gibbsSpecies[kspec] = ff[kspec];
+		  m_gibbsSpecies[kspec] = m_SSfeSpecies[kspec];
 		}
 	      } else {
-		m_gibbsSpecies[kspec] = ff[kspec] + log(ActCoeff[kspec] * z[kspec]) 
+		m_gibbsSpecies[kspec] = m_SSfeSpecies[kspec] + log(ActCoeff[kspec] * z[kspec]) 
 		  - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec] 
 		  + Charge[kspec] * Faraday_dim * phasePhi[iphase]; 
 	      }
@@ -4413,23 +4415,24 @@ namespace VCSnonideal {
 	      exit(-1);
 	    }
 #endif
-	    m_gibbsSpecies[kspec] = ff[kspec] + Charge[kspec] * Faraday_dim * phasePhi[iphase]; ;
+	    m_gibbsSpecies[kspec] = 
+	      m_SSfeSpecies[kspec] + Charge[kspec] * Faraday_dim * phasePhi[iphase]; ;
 	  } else {
 	    if (SSPhase[kspec]) {
-	      m_gibbsSpecies[kspec] = ff[kspec];
+	      m_gibbsSpecies[kspec] = m_SSfeSpecies[kspec];
 	    } else {
 	      if (z[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
 		iph = PhaseID[kspec];
 		if (tPhMoles_ptr[iph] > 0.0) { 
-		  m_gibbsSpecies[kspec] = ff[kspec] 
+		  m_gibbsSpecies[kspec] = m_SSfeSpecies[kspec]
 		    + log(ActCoeff[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
 		    - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec];
 		} else {
-		  m_gibbsSpecies[kspec] = ff[kspec];
+		  m_gibbsSpecies[kspec] = m_SSfeSpecies[kspec];
 		}
 	      } else {
 		st_ptr = SpeciesThermo[kspec];
-		m_gibbsSpecies[kspec] = ff[kspec] + log(ActCoeff[kspec] * z[kspec]) 
+		m_gibbsSpecies[kspec] = m_SSfeSpecies[kspec] + log(ActCoeff[kspec] * z[kspec]) 
 		  - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec]; 
 	      }
 	    }
@@ -4669,7 +4672,7 @@ namespace VCSnonideal {
     SWAP(soln[k1], soln[k2], t1);
     SWAP(SpeciesUnknownType[k1], SpeciesUnknownType[k2], j);
     SWAP(wt[k1], wt[k2], t1);
-    SWAP(ff[k1], ff[k2], t1);
+    SWAP(m_SSfeSpecies[k1], m_SSfeSpecies[k2], t1);
     SWAP(m_spSize[k1], m_spSize[k2], t1);
     SWAP(m_gibbsSpecies[k1], m_gibbsSpecies[k2], t1);
     SWAP(ds[k1], ds[k2], t1);

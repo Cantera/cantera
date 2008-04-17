@@ -417,12 +417,12 @@ public:
   std::vector<double> m_spSize;
 
   //!  Standard state chemical potentials for species K at the current
-  //!  temperature and  pressure.
+  //!  temperature and pressure.
   /*!
-   *  The first NC entries are for  components. The following NR entries are
+   *  The first NC entries are for components. The following NR entries are
    *  for the current non-component species in the mechanism.
    */
-  std::vector<double> ff;  
+  std::vector<double> m_SSfeSpecies;
 
   //! Dimensionless/Dimensional free energy for all the species in the mechanism at the 
   //! current T, P, and mole numbers. 
@@ -801,7 +801,8 @@ public:
   //! printing level of timing information
   /*!
    *  1 allowing printing of timing
-   *  0 do not allow printing of timing -> everything is a zero.
+   *  0 do not allow printing of timing -> everything is printed
+   *    as a NA.
    */
   int m_timing_print_lvl;
 

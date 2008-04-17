@@ -105,7 +105,7 @@ namespace VCSnonideal {
       plogf("%s     SPECIES          MOLE_NUMBER      -SS_ChemPotential\n", pprefix);
       for (kspec = 0; kspec < nspecies; ++kspec) {
 	plogf("%s     ", pprefix); plogf("%-12.12s", SpName[kspec].c_str());
-	plogf(" %15.5g  %12.3g\n", molNum[kspec], -ff[kspec]);			     
+	plogf(" %15.5g  %12.3g\n", molNum[kspec], -m_SSfeSpecies[kspec]);
       }
       plogf("%s Element Abundance Agreement returned from linear "
 	     "programming (vcs_inest initial guess):",
@@ -195,7 +195,8 @@ namespace VCSnonideal {
 	wt[kspec] = 0.0;
       }
     }
-    vcs_dcopy(VCS_DATA_PTR(m_gibbsSpecies), VCS_DATA_PTR(ff), nspecies);
+    vcs_dcopy(VCS_DATA_PTR(m_gibbsSpecies), VCS_DATA_PTR(m_SSfeSpecies),
+	      nspecies);
  
     for (kspec = 0; kspec < m_numComponents; ++kspec) {
       if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
@@ -213,10 +214,11 @@ namespace VCSnonideal {
       for (kspec = 0; kspec < nspecies; ++kspec) {
 	plogf("%s", pprefix); plogf("%-12.12s", SpName[kspec].c_str());
 	if (kspec < m_numComponents)
-	  plogf("fe* = %15.5g ff = %15.5g\n", m_gibbsSpecies[kspec], ff[kspec]);
+	  plogf("fe* = %15.5g ff = %15.5g\n", m_gibbsSpecies[kspec], 
+		m_SSfeSpecies[kspec]);
 	else
 	  plogf("fe* = %15.5g ff = %15.5g dg* = %15.5g\n", 
-		 m_gibbsSpecies[kspec], ff[kspec], dg[kspec-m_numComponents]);
+		 m_gibbsSpecies[kspec], m_SSfeSpecies[kspec], dg[kspec-m_numComponents]);
       }
     }
 #endif

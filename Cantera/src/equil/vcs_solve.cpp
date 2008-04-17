@@ -110,7 +110,7 @@ namespace VCSnonideal {
     m_spSize.resize(nspecies0, 1.0);
 
     m_gibbsSpecies.resize(nspecies0, 0.0);
-    ff.resize(nspecies0, 0.0);
+    m_SSfeSpecies.resize(nspecies0, 0.0);
     feTrial.resize(nspecies0, 0.0);
     soln.resize(nspecies0, 0.0);
 
@@ -300,7 +300,7 @@ namespace VCSnonideal {
     
     int  iprintTime = MAX(ipr, ip1);
     if (m_timing_print_lvl < iprintTime) {
-      iprintTime =  m_timing_print_lvl ;
+      iprintTime = m_timing_print_lvl ;
     }
     
     if (ifunc < 0 || ifunc > 2) {

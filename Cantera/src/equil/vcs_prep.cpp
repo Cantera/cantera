@@ -196,7 +196,7 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
       retn = vcs_evalSS_TP(0, 0, T, pres);
       for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
 	if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
-	  soln[kspec] = - ff[kspec];
+	  soln[kspec] = - m_SSfeSpecies[kspec];
 	} else {
 	  soln[kspec] = 0.0;
 	}
