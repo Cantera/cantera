@@ -106,7 +106,7 @@ void VCS_SOLVE::vcs_nondim_TP(void) {
 	m_gibbsSpecies[i] *= tf;
 	dg[i] *= tf;
 	dgl[i] *= tf;
-	fel[i] *= tf;
+	m_feSpecies_old[i] *= tf;
       }
 
       Faraday_dim =  vcs_nondim_Farad(m_VCS_UnitsFormat, T);
@@ -146,7 +146,7 @@ void VCS_SOLVE::vcs_redim_TP(void)
 	m_gibbsSpecies[i] *= tf;
 	dg[i] *= tf;
 	dgl[i] *= tf;
-	fel[i] *= tf;
+	m_feSpecies_old[i] *= tf;
       } 
       Faraday_dim *= tf;
     }

@@ -442,7 +442,7 @@ namespace VCSnonideal {
       }
     }
 
-    vcs_dcopy(VCS_DATA_PTR(fel),     VCS_DATA_PTR(m_gibbsSpecies), m_numSpeciesRdc);
+    vcs_dcopy(VCS_DATA_PTR(m_feSpecies_old), VCS_DATA_PTR(m_gibbsSpecies), m_numSpeciesRdc);
     vcs_dcopy(VCS_DATA_PTR(feTrial), VCS_DATA_PTR(m_gibbsSpecies), m_numSpeciesRdc);
     vcs_dcopy(VCS_DATA_PTR(ActCoeff0), VCS_DATA_PTR(ActCoeff), m_numSpeciesRdc);
     vcs_dcopy(VCS_DATA_PTR(dgl), VCS_DATA_PTR(dg), m_numRxnRdc);
@@ -903,7 +903,7 @@ namespace VCSnonideal {
 	       *       which have yet to be processed in the main loop
 	       */
 	      for (ll = kspec+1; ll < m_numSpeciesRdc; ++ll) {
-		fel[ll] = m_gibbsSpecies[ll];
+		m_feSpecies_old[ll] = m_gibbsSpecies[ll];
 	      }
 	      for (ll = irxn+1; ll < m_numRxnRdc; ++ll) {
 		dgl[ll] = dg[ll];
@@ -1117,7 +1117,7 @@ namespace VCSnonideal {
     /* *************************************************************** */
     if (printDetails) {
       plogf("   --- Total Old       Dimensionless Gibbs Free Energy = %20.13E\n", 
-	    vcs_Total_Gibbs(VCS_DATA_PTR(soln), VCS_DATA_PTR(fel), 
+	    vcs_Total_Gibbs(VCS_DATA_PTR(soln), VCS_DATA_PTR(m_feSpecies_old), 
 			    VCS_DATA_PTR(TPhMoles)));
       plogf("   --- Total tentative Dimensionless Gibbs Free Energy = %20.13E", 
 	    vcs_Total_Gibbs(VCS_DATA_PTR(wt), VCS_DATA_PTR(m_gibbsSpecies), 
@@ -1181,14 +1181,14 @@ namespace VCSnonideal {
       for (i = 0; i < m_numComponents; ++i) {
 	plogf("   ---   %-12.12s", SpName[i].c_str()); plogf("    "); 
 	plogf("%14.6E%14.6E%14.6E%14.6E\n", soln[i],
-	      wt[i], fel[i], m_gibbsSpecies[i]);
+	      wt[i], m_feSpecies_old[i], m_gibbsSpecies[i]);
       }
       for (i = m_numComponents; i < m_numSpeciesRdc; ++i) {
 	l1 = i - m_numComponents;
 	plogf("   ---   %-12.12s", SpName[i].c_str());
 	plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n",
 	      spStatus[l1], soln[i],
-	      wt[i], fel[i], m_gibbsSpecies[i],
+	      wt[i], m_feSpecies_old[i], m_gibbsSpecies[i],
 	      dgl[l1], dg[l1]);
       }
       for (kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
@@ -1196,7 +1196,7 @@ namespace VCSnonideal {
 	plogf("   ---   %-12.12s", SpName[kspec].c_str());
 	plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n",
 	      spStatus[l1], soln[kspec],
-	      wt[kspec], fel[kspec], m_gibbsSpecies[kspec],
+	      wt[kspec], m_feSpecies_old[kspec], m_gibbsSpecies[kspec],
 	      dgl[l1], dg[l1]);
       }
       plogf("   ---"); print_space(56);
@@ -1213,7 +1213,7 @@ namespace VCSnonideal {
       }
       plogf("   "); vcs_print_line("-", 103);
       plogf("   --- Total Old Dimensionless Gibbs Free Energy = %20.13E\n", 
-	    vcs_Total_Gibbs(VCS_DATA_PTR(soln), VCS_DATA_PTR(fel), 
+	    vcs_Total_Gibbs(VCS_DATA_PTR(soln), VCS_DATA_PTR(m_feSpecies_old), 
 			    VCS_DATA_PTR(TPhMoles)));
       plogf("   --- Total New Dimensionless Gibbs Free Energy = %20.13E", 
 	    vcs_Total_Gibbs(VCS_DATA_PTR(wt), VCS_DATA_PTR(m_gibbsSpecies), 
@@ -1244,7 +1244,7 @@ namespace VCSnonideal {
     vcs_dcopy(VCS_DATA_PTR(TPhMoles), VCS_DATA_PTR(TPhMoles1), NPhase);
     vcs_dcopy(VCS_DATA_PTR(soln), VCS_DATA_PTR(wt), m_numSpeciesRdc);
     vcs_dcopy(VCS_DATA_PTR(dgl), VCS_DATA_PTR(dg), m_numRxnRdc);
-    vcs_dcopy(VCS_DATA_PTR(fel),     VCS_DATA_PTR(m_gibbsSpecies), m_numSpeciesRdc);
+    vcs_dcopy(VCS_DATA_PTR(m_feSpecies_old), VCS_DATA_PTR(m_gibbsSpecies), m_numSpeciesRdc);
       
     vcs_updateVP(0);
     /*
@@ -2261,7 +2261,7 @@ namespace VCSnonideal {
     dg[irxn] = 0.0;
     dgl[irxn] = 0.0;
     m_gibbsSpecies[kspec] = 0.0;
-    fel[kspec] = 0.0;
+    m_feSpecies_old[kspec] = 0.0;
     wt[kspec] = 0.0;
     /*
      *    Rearrange the data if the current species isn't the last active
@@ -4676,7 +4676,7 @@ namespace VCSnonideal {
     SWAP(m_spSize[k1], m_spSize[k2], t1);
     SWAP(m_gibbsSpecies[k1], m_gibbsSpecies[k2], t1);
     SWAP(ds[k1], ds[k2], t1);
-    SWAP(fel[k1], fel[k2], t1);
+    SWAP(m_feSpecies_old[k1], m_feSpecies_old[k2], t1);
     SWAP(feTrial[k1], feTrial[k2], t1);
     SWAP(SSPhase[k1], SSPhase[k2], j);
     SWAP(PhaseID[k1], PhaseID[k2], j);

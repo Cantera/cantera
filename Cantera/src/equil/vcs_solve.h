@@ -433,11 +433,12 @@ public:
    */
   std::vector<double> m_gibbsSpecies;
 
-  //! Old free energy vector from the previous iteration
+  //! Free energy vector from the start of the current iteration
   /*!
-   *  fe[] is copied into fel[] 
+   *  The free energies are saved at the start of the current iteration.
+   *  Length = number of species  
    */
-  std::vector<double> fel;
+  std::vector<double> m_feSpecies_old;
 
   //! Dimensionless trial free energy for all the species in the mechanism 
   //! at the  current T, P, and mole numbers. 

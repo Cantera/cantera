@@ -418,7 +418,8 @@ double VCS_SOLVE::vcs_line_search(int irxn, double dx_orig)
   /*
    * Calculate the deltaG value at the dx = 0.0 point
    */
-  double deltaGOrig = deltaG_Recalc_Rxn(irxn, molNumBase, acBase, VCS_DATA_PTR(fel));
+  double deltaGOrig = deltaG_Recalc_Rxn(irxn, molNumBase, acBase, 
+					VCS_DATA_PTR(m_feSpecies_old));
   double forig = fabs(deltaGOrig) + 1.0E-15;
   if (deltaGOrig > 0.0) {
     if (dx_orig > 0.0) {
