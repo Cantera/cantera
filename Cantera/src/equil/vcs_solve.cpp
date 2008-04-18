@@ -111,7 +111,7 @@ namespace VCSnonideal {
 
     m_gibbsSpecies.resize(nspecies0, 0.0);
     m_SSfeSpecies.resize(nspecies0, 0.0);
-    feTrial.resize(nspecies0, 0.0);
+    m_feSpecies_new.resize(nspecies0, 0.0);
     soln.resize(nspecies0, 0.0);
 
     SpeciesUnknownType.resize(nspecies0, VCS_SPECIES_TYPE_MOLNUM);

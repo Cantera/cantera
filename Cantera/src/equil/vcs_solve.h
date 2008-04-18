@@ -440,13 +440,14 @@ public:
    */
   std::vector<double> m_feSpecies_old;
 
-  //! Dimensionless trial free energy for all the species in the mechanism 
-  //! at the  current T, P, and mole numbers. 
+  //! Dimensionless new free energy for all the species in the mechanism 
+  //! at the new tentatite T, P, and mole numbers. 
   /*!
    *   The first NC entries are for components. The following
    *   NR entries are for the current  non-component species in the mechanism. 
+   *  Length = number of species  
    */
-  std::vector<double> feTrial; 
+  std::vector<double> m_feSpecies_new; 
 
   //! Setting for the initial estimate
   /*!

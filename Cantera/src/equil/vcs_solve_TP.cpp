@@ -443,7 +443,7 @@ namespace VCSnonideal {
     }
 
     vcs_dcopy(VCS_DATA_PTR(m_feSpecies_old), VCS_DATA_PTR(m_gibbsSpecies), m_numSpeciesRdc);
-    vcs_dcopy(VCS_DATA_PTR(feTrial), VCS_DATA_PTR(m_gibbsSpecies), m_numSpeciesRdc);
+    vcs_dcopy(VCS_DATA_PTR(m_feSpecies_new), VCS_DATA_PTR(m_gibbsSpecies), m_numSpeciesRdc);
     vcs_dcopy(VCS_DATA_PTR(ActCoeff0), VCS_DATA_PTR(ActCoeff), m_numSpeciesRdc);
     vcs_dcopy(VCS_DATA_PTR(dgl), VCS_DATA_PTR(dg), m_numRxnRdc);
  
@@ -4677,7 +4677,7 @@ namespace VCSnonideal {
     SWAP(m_gibbsSpecies[k1], m_gibbsSpecies[k2], t1);
     SWAP(ds[k1], ds[k2], t1);
     SWAP(m_feSpecies_old[k1], m_feSpecies_old[k2], t1);
-    SWAP(feTrial[k1], feTrial[k2], t1);
+    SWAP(m_feSpecies_new[k1], m_feSpecies_new[k2], t1);
     SWAP(SSPhase[k1], SSPhase[k2], j);
     SWAP(PhaseID[k1], PhaseID[k2], j);
     SWAP(ind[k1], ind[k2], j); 

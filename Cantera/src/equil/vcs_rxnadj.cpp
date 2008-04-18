@@ -456,7 +456,7 @@ double VCS_SOLVE::vcs_line_search(int irxn, double dx_orig)
     molSum +=  molNumBase[k];
   }
 
-  double deltaG1 = deltaG_Recalc_Rxn(irxn, molNum, ac, VCS_DATA_PTR(feTrial));
+  double deltaG1 = deltaG_Recalc_Rxn(irxn, molNum, ac, VCS_DATA_PTR(m_feSpecies_new));
     
   /*
    * If deltaG hasn't switched signs when going the full distance
@@ -493,7 +493,7 @@ double VCS_SOLVE::vcs_line_search(int irxn, double dx_orig)
     for (k = 0; k < m_numComponents; k++) {
       molNum[k] = molNumBase[k] + sc_irxn[k] * dx;
     }
-    double deltaG = deltaG_Recalc_Rxn(irxn, molNum, ac, VCS_DATA_PTR(feTrial));
+    double deltaG = deltaG_Recalc_Rxn(irxn, molNum, ac, VCS_DATA_PTR(m_feSpecies_new));
     /*
      * If deltaG hasn't switched signs when going the full distance
      * then we are heading in the appropriate direction, and
