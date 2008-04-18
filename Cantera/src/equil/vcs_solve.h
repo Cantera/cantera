@@ -430,8 +430,9 @@ public:
    *   The first NC entries are for components. The following
    *   NR entries are for the current  non-component species in the mechanism.
    *  The dimension of this vector is specified by the m_VCS_UnitsFormat variable.
+   *  Length = number of species
    */
-  std::vector<double> m_gibbsSpecies;
+  std::vector<double> m_feSpecies_curr;
 
   //! Free energy vector from the start of the current iteration
   /*!

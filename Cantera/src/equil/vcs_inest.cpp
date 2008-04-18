@@ -195,14 +195,14 @@ namespace VCSnonideal {
 	wt[kspec] = 0.0;
       }
     }
-    vcs_dcopy(VCS_DATA_PTR(m_gibbsSpecies), VCS_DATA_PTR(m_SSfeSpecies),
+    vcs_dcopy(VCS_DATA_PTR(m_feSpecies_curr), VCS_DATA_PTR(m_SSfeSpecies),
 	      nspecies);
  
     for (kspec = 0; kspec < m_numComponents; ++kspec) {
       if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
 	if (! SSPhase[kspec]) {
 	  iph = PhaseID[kspec];
-	  m_gibbsSpecies[kspec] += log(wt[kspec] / TPhMoles[iph]);
+	  m_feSpecies_curr[kspec] += log(wt[kspec] / TPhMoles[iph]);
 	}
       } else {
 	wt[kspec] = 0.0;
@@ -214,11 +214,11 @@ namespace VCSnonideal {
       for (kspec = 0; kspec < nspecies; ++kspec) {
 	plogf("%s", pprefix); plogf("%-12.12s", SpName[kspec].c_str());
 	if (kspec < m_numComponents)
-	  plogf("fe* = %15.5g ff = %15.5g\n", m_gibbsSpecies[kspec], 
+	  plogf("fe* = %15.5g ff = %15.5g\n", m_feSpecies_curr[kspec], 
 		m_SSfeSpecies[kspec]);
 	else
 	  plogf("fe* = %15.5g ff = %15.5g dg* = %15.5g\n", 
-		 m_gibbsSpecies[kspec], m_SSfeSpecies[kspec], dg[kspec-m_numComponents]);
+		 m_feSpecies_curr[kspec], m_SSfeSpecies[kspec], dg[kspec-m_numComponents]);
       }
     }
 #endif
@@ -324,7 +324,7 @@ namespace VCSnonideal {
       /* ******************************************* */
       vcs_dfe(molNum, 0, 0, 0, nspecies);
       for (kspec = 0, s = 0.0; kspec < nspecies; ++kspec) {
-	s += ds[kspec] * m_gibbsSpecies[kspec];
+	s += ds[kspec] * m_feSpecies_curr[kspec];
       }
       if (s == 0.0) {
 	finished = TRUE; continue;
@@ -502,7 +502,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("%sTotal Dimensionless Gibbs Free Energy = %15.7E", pprefix,
-	     vcs_Total_Gibbs(VCS_DATA_PTR(soln), VCS_DATA_PTR(m_gibbsSpecies), 
+	     vcs_Total_Gibbs(VCS_DATA_PTR(soln), VCS_DATA_PTR(m_feSpecies_curr), 
 			     VCS_DATA_PTR(TPhMoles)));   
       plogendl();
     }

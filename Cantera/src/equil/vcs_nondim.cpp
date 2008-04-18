@@ -103,7 +103,7 @@ void VCS_SOLVE::vcs_nondim_TP(void) {
 	 *        Thus, we may divide it by the temperature.
 	 */  
 	m_SSfeSpecies[i] *= tf;
-	m_gibbsSpecies[i] *= tf;
+	m_feSpecies_curr[i] *= tf;
 	dg[i] *= tf;
 	dgl[i] *= tf;
 	m_feSpecies_old[i] *= tf;
@@ -143,7 +143,7 @@ void VCS_SOLVE::vcs_redim_TP(void)
 	 *        FF(I),  to make it have units, i.e. mu = RT * mu_star
 	 */  
 	m_SSfeSpecies[i] *= tf;
-	m_gibbsSpecies[i] *= tf;
+	m_feSpecies_curr[i] *= tf;
 	dg[i] *= tf;
 	dgl[i] *= tf;
 	m_feSpecies_old[i] *= tf;

@@ -122,7 +122,7 @@ int VCS_SOLVE::vcs_report(int iconv)
    for (i = 0; i < m_numComponents; ++i) {
       plogf(" %-12.12s", SpName[i].c_str());
       print_space(13);
-      plogf("%14.7E     %14.7E    %12.4E", soln[i], wt[i], m_gibbsSpecies[i]);
+      plogf("%14.7E     %14.7E    %12.4E", soln[i], wt[i], m_feSpecies_curr[i]);
       plogf("   %3d", SpeciesUnknownType[i]);
       plogf("\n");
    }
@@ -132,10 +132,10 @@ int VCS_SOLVE::vcs_report(int iconv)
       print_space(13);
      
       if (SpeciesUnknownType[l] == VCS_SPECIES_TYPE_MOLNUM) {
-	plogf("%14.7E     %14.7E    %12.4E", soln[l], wt[l], m_gibbsSpecies[l]);
+	plogf("%14.7E     %14.7E    %12.4E", soln[l], wt[l], m_feSpecies_curr[l]);
 	plogf("   MolNum ");
       } else if (SpeciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	plogf("        NA         %14.7E    %12.4E", 1.0, m_gibbsSpecies[l]);
+	plogf("        NA         %14.7E    %12.4E", 1.0, m_feSpecies_curr[l]);
 	plogf("   Voltage = %14.7E", soln[l]);
       } else {
 	plogf("we have a problem\n");
@@ -256,7 +256,7 @@ int VCS_SOLVE::vcs_report(int iconv)
        gaTPhase[j] += gaPhase[j];
      }
      gibbsPhase = vcs_GibbsPhase(iphase, VCS_DATA_PTR(soln), 
-				 VCS_DATA_PTR(m_gibbsSpecies));
+				 VCS_DATA_PTR(m_feSpecies_curr));
      gibbsTotal += gibbsPhase;
      plogf(" | %18.11E |\n", gibbsPhase);
    }
@@ -280,7 +280,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     *        energy of zero
     */
 	  
-   g = vcs_Total_Gibbs(VCS_DATA_PTR(soln), VCS_DATA_PTR(m_gibbsSpecies), 
+   g = vcs_Total_Gibbs(VCS_DATA_PTR(soln), VCS_DATA_PTR(m_feSpecies_curr), 
 		       VCS_DATA_PTR(TPhMoles));
    plogf("\n\tTotal Dimensionless Gibbs Free Energy = G/RT = %15.7E\n", g);
    if (inertYes) 
@@ -325,17 +325,17 @@ int VCS_SOLVE::vcs_report(int iconv)
 	if (tpmoles > 0.0 && soln[l] > 0.0) {
 	  lx = log(soln[l]) - log(tpmoles);
 	} else {
-	  lx = m_gibbsSpecies[l] - m_SSfeSpecies[l] - log(ActCoeff[l]) + SpecLnMnaught[l];
+	  lx = m_feSpecies_curr[l] - m_SSfeSpecies[l] - log(ActCoeff[l]) + SpecLnMnaught[l];
 	}
       }
       plogf("%14.7E  |", lx);
       plogf("%14.7E | ", eContrib);
       double tmp = m_SSfeSpecies[l] + log(ActCoeff[l]) + lx - SpecLnMnaught[l] + eContrib;
-      if (fabs(m_gibbsSpecies[l] - tmp) > 1.0E-8) {
+      if (fabs(m_feSpecies_curr[l] - tmp) > 1.0E-8) {
 	plogf("\n\t\twe have a problem - doesn't add up\n");
 	exit(-1);
       } 
-      plogf(" %12.4E |", m_gibbsSpecies[l]);
+      plogf(" %12.4E |", m_feSpecies_curr[l]);
       if (SpecLnMnaught[l] != 0.0) {
 	plogf(" (%14.7E)", - SpecLnMnaught[l]);
       }

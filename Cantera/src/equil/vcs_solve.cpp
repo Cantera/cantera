@@ -109,7 +109,7 @@ namespace VCSnonideal {
     scSize.resize(nspecies0, 0.0);
     m_spSize.resize(nspecies0, 1.0);
 
-    m_gibbsSpecies.resize(nspecies0, 0.0);
+    m_feSpecies_curr.resize(nspecies0, 0.0);
     m_SSfeSpecies.resize(nspecies0, 0.0);
     m_feSpecies_new.resize(nspecies0, 0.0);
     soln.resize(nspecies0, 0.0);
@@ -789,7 +789,7 @@ namespace VCSnonideal {
       k = ind[kspec];
       soln[kspec] = pub->w[k];
       wt[kspec]   = pub->mf[k];
-      m_gibbsSpecies[kspec]   = pub->m_gibbsSpecies[k];
+      m_feSpecies_curr[kspec]   = pub->m_gibbsSpecies[k];
     }
 
     /*
@@ -925,7 +925,7 @@ namespace VCSnonideal {
 	plogf("voltage species = %g\n", soln[k1]);
       }
       pub->mf[i] = wt[k1];
-      pub->m_gibbsSpecies[i] = m_gibbsSpecies[k1];
+      pub->m_gibbsSpecies[i] = m_feSpecies_curr[k1];
       pub->VolPM[i] = VolPM[k1];
     } 
    
