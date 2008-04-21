@@ -112,7 +112,7 @@ namespace VCSnonideal {
     m_feSpecies_curr.resize(nspecies0, 0.0);
     m_SSfeSpecies.resize(nspecies0, 0.0);
     m_feSpecies_new.resize(nspecies0, 0.0);
-    soln.resize(nspecies0, 0.0);
+    m_molNumSpecies_old.resize(nspecies0, 0.0);
 
     SpeciesUnknownType.resize(nspecies0, VCS_SPECIES_TYPE_MOLNUM);
 
@@ -543,10 +543,10 @@ namespace VCSnonideal {
      * w[] -> Copy the equilibrium mole number estimate if it exists.
      */
     if (pub->w.size() != 0) {
-      vcs_vdcopy(soln, pub->w, nspecies);
+      vcs_vdcopy(m_molNumSpecies_old, pub->w, nspecies);
     } else {
       iest = -1;
-      vcs_dzero(VCS_DATA_PTR(soln), nspecies);
+      vcs_dzero(VCS_DATA_PTR(m_molNumSpecies_old), nspecies);
     }
 
     /*
@@ -560,7 +560,7 @@ namespace VCSnonideal {
 	  gai[j] = 0.0;
 	  for (kspec = 0; kspec < nspecies; kspec++) {
 	    if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	      gai[j] += FormulaMatrix[j][kspec] * soln[kspec];
+	      gai[j] += FormulaMatrix[j][kspec] * m_molNumSpecies_old[kspec];
 	    }
 	  }
 	}
@@ -787,7 +787,7 @@ namespace VCSnonideal {
 
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
       k = ind[kspec];
-      soln[kspec] = pub->w[k];
+      m_molNumSpecies_old[kspec] = pub->w[k];
       m_molNumSpecies_new[kspec] = pub->mf[k];
       m_feSpecies_curr[kspec] = pub->m_gibbsSpecies[k];
     }
@@ -903,7 +903,7 @@ namespace VCSnonideal {
     int k1 = 0;
 
     vcs_tmoles();
-    Vol = vcs_VolTotal(T, Pres, VCS_DATA_PTR(soln), VCS_DATA_PTR(VolPM));
+    Vol = vcs_VolTotal(T, Pres, VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(VolPM));
 
     for (i = 0; i < m_numSpeciesTot; ++i) {
       /*
@@ -919,10 +919,10 @@ namespace VCSnonideal {
        * - Switch the species data back from K1 into I
        */
       if (pub->SpeciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	pub->w[i] = soln[k1];
+	pub->w[i] = m_molNumSpecies_old[k1];
       } else {
 	pub->w[i] = 0.0;
-	plogf("voltage species = %g\n", soln[k1]);
+	plogf("voltage species = %g\n", m_molNumSpecies_old[k1]);
       }
       pub->mf[i] = m_molNumSpecies_new[k1];
       pub->m_gibbsSpecies[i] = m_feSpecies_curr[k1];
@@ -956,7 +956,7 @@ namespace VCSnonideal {
 
 	if (pubPhase->m_phiVarIndex == k) {
 	  k1 = vPhase->IndSpecies[k];
-	  double tmp = soln[k1];
+	  double tmp = m_molNumSpecies_old[k1];
 	  if (! vcs_doubleEqual( 	pubPhase->electricPotential() , tmp)) { 
 	    plogf("We have an inconsistency in voltage, %g, %g\n",
 		   pubPhase->electricPotential(), tmp);

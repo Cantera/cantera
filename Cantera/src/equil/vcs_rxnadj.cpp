@@ -78,7 +78,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
     kspec = ir[irxn];
     dnPhase_irxn = DnPhase[irxn];
       
-    if (soln[kspec] == 0.0 && (! SSPhase[kspec])) {
+    if (m_molNumSpecies_old[kspec] == 0.0 && (! SSPhase[kspec])) {
       /* *******************************************************************/
       /* **** MULTISPECIES PHASE WITH total moles equal to zero ************/
       /* *******************************************************************/
@@ -114,7 +114,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 #ifdef DEBUG_MODE
 	sprintf(ANOTE,"Skipped: converged DG = %11.3E\n", dg[irxn]);
 	plogf("   --- "); plogf("%-12.12s", SpName[kspec].c_str());
-	plogf("  %12.4E %12.4E | %s\n",  soln[kspec], ds[kspec], ANOTE);
+	plogf("  %12.4E %12.4E | %s\n",  m_molNumSpecies_old[kspec], ds[kspec], ANOTE);
 #endif		    
 	continue;
       }
@@ -127,7 +127,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 	sprintf(ANOTE,"Skipped: IC = %3d and DG >0: %11.3E\n", 
 		spStatus[irxn], dg[irxn]);
 	plogf("   --- "); plogf("%-12.12s", SpName[kspec].c_str());
-	plogf("  %12.4E %12.4E | %s\n", soln[kspec], ds[kspec], ANOTE);
+	plogf("  %12.4E %12.4E | %s\n", m_molNumSpecies_old[kspec], ds[kspec], ANOTE);
 #endif		    
 	continue;
       }
@@ -135,9 +135,9 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
        *     Start of the regular processing
        */
       if (SSPhase[kspec]) s = 0.0;
-      else                s = 1.0 / soln[kspec];
+      else                s = 1.0 / m_molNumSpecies_old[kspec];
       for (j = 0; j < m_numComponents; ++j) {
-	if (! SSPhase[j])  s += SQUARE(sc[irxn][j]) / soln[j];
+	if (! SSPhase[j])  s += SQUARE(sc[irxn][j]) / m_molNumSpecies_old[j];
       }
       for (j = 0; j < NPhase; j++) {
 	if (! (VPhaseList[j])->SingleSpecies) {
@@ -160,11 +160,11 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 	 *     will zero out first. 
 	 */
 	if (dg[irxn] > 0.0) {
-	  dss = soln[kspec];
+	  dss = m_molNumSpecies_old[kspec];
 	  k = kspec;
 	  for (j = 0; j < m_numComponents; ++j) {
 	    if (sc[irxn][j] > 0.0) {
-	      xx = soln[j] / sc[irxn][j];
+	      xx = m_molNumSpecies_old[j] / sc[irxn][j];
 	      if (xx < dss) {
 		dss = xx;
 		k = j;
@@ -176,7 +176,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 	  dss = 1.0e10;
 	  for (j = 0; j < m_numComponents; ++j) {
 	    if (sc[irxn][j] < 0.0) {
-	      xx = -soln[j] / sc[irxn][j];
+	      xx = -m_molNumSpecies_old[j] / sc[irxn][j];
 	      if (xx < dss) {
 		dss = xx;
 		k = j;
@@ -193,13 +193,13 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 	 *          added back into the component species. 
 	 */
 	if (dss != 0.0) {
-	  soln[kspec] += dss;
+	  m_molNumSpecies_old[kspec] += dss;
 	  TPhMoles[PhaseID[kspec]] +=  dss;
 	  for (j = 0; j < m_numComponents; ++j) {
-	    soln[j] += dss * sc[irxn][j];
+	    m_molNumSpecies_old[j] += dss * sc[irxn][j];
 	    TPhMoles[PhaseID[j]] +=  dss * sc[irxn][j];
 	  }
-	  soln[k] = 0.0;
+	  m_molNumSpecies_old[k] = 0.0;
 	  TPhMoles[PhaseID[k]] = 0.0; 
 #ifdef DEBUG_MODE
 	  plogf("   --- vcs_st2 Special section to delete ");
@@ -219,7 +219,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
     } /* End of regular processing */
 #ifdef DEBUG_MODE
     plogf("   --- "); plogf("%-12.12s", SpName[kspec].c_str());
-    plogf("  %12.4E %12.4E | %s\n", soln[kspec], ds[kspec], ANOTE);
+    plogf("  %12.4E %12.4E | %s\n", m_molNumSpecies_old[kspec], ds[kspec], ANOTE);
 #endif	
   } /* End of loop over non-component stoichiometric formation reactions */
    
@@ -409,7 +409,7 @@ double VCS_SOLVE::vcs_line_search(int irxn, double dx_orig)
   const int MAXITS = 10;
   double dx = dx_orig;
   double *sc_irxn = sc[irxn];
-  double *molNumBase = VCS_DATA_PTR(soln);
+  double *molNumBase = VCS_DATA_PTR(m_molNumSpecies_old);
   double *acBase = VCS_DATA_PTR(ActCoeff0);
   double *ac = VCS_DATA_PTR(ActCoeff);
   double molSum = 0.0;

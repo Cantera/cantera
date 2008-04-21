@@ -92,13 +92,13 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
 
   for (ik = 0; ik <  m_numSpeciesTot; ik++) {
     if (SpeciesUnknownType[ik] !=  VCS_SPECIES_INTERFACIALVOLTAGE) {
-      soln[ik] = MAX(0.0, soln[ik]);
+      m_molNumSpecies_old[ik] = MAX(0.0, m_molNumSpecies_old[ik]);
     }
   }
 
 #ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
-    printProgress(SpName, soln, m_SSfeSpecies);
+    printProgress(SpName, m_molNumSpecies_old, m_SSfeSpecies);
   }
 #endif
   
@@ -122,7 +122,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
     }
     /*
      *  Now find the optimized basis that spans the stoichiometric
-     *  coefficient matrix, based on the current composition, soln[]
+     *  coefficient matrix, based on the current composition, m_molNumSpecies_old[]
      *  We also calculate sc[][], the reaction matrix.
      */
     retn = vcs_basopt(FALSE, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa),
@@ -155,7 +155,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
       //  idir < 0  implies decreasing the current species
       idir = (dg_rt < 0.0 ? 1 : -1);
       if (idir < 0) {
-	dxi_min = soln[ik];
+	dxi_min = m_molNumSpecies_old[ik];
       }
 	    
       for (jcomp = 0; jcomp < m_numComponents; jcomp++) {
@@ -164,11 +164,11 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
 	// set max change in progress variable by
 	// non-negativity requirement
 	if (nu*idir < 0) {
-	  delta_xi = fabs(soln[jcomp]/nu);
+	  delta_xi = fabs(m_molNumSpecies_old[jcomp]/nu);
 	  // if a component has nearly zero moles, redo
 	  // with a new set of components
 	  if (!redo) {
-	    if (delta_xi < 1.0e-10 && (soln[ik] >= 1.0E-10)) {
+	    if (delta_xi < 1.0e-10 && (m_molNumSpecies_old[ik] >= 1.0E-10)) {
 #ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 2) {
 		plogf("   --- Component too small: %s\n", SpName[jcomp].c_str()); 
@@ -185,17 +185,17 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
       // we are zeroing components and species on every step.
       // Redo the iteration, if a component went from positive to zero on this step.
       double dsLocal = idir*dxi_min;
-      soln[ik] += dsLocal;
-      soln[ik] = MAX(0.0,  soln[ik]);
+      m_molNumSpecies_old[ik] += dsLocal;
+      m_molNumSpecies_old[ik] = MAX(0.0,  m_molNumSpecies_old[ik]);
       for (jcomp = 0; jcomp < m_numComponents; jcomp++) {
 	bool full = false;
-	if (soln[jcomp] > 1.0E-15) {
+	if (m_molNumSpecies_old[jcomp] > 1.0E-15) {
 	  full = true;
 	}
-	soln[jcomp] += sc_irxn[jcomp] * dsLocal;
-	soln[jcomp] = MAX(0.0, soln[jcomp]);
+	m_molNumSpecies_old[jcomp] += sc_irxn[jcomp] * dsLocal;
+	m_molNumSpecies_old[jcomp] = MAX(0.0, m_molNumSpecies_old[jcomp]);
 	if (full) {
-	  if (soln[jcomp] < 1.0E-60) {
+	  if (m_molNumSpecies_old[jcomp] < 1.0E-60) {
 	    redo = true;
 	  }
 	}
@@ -204,18 +204,18 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
 
     // set the moles of the phase objects to match
     //  updateMixMoles();
-    // Update the phase objects with the contents of the soln vector
+    // Update the phase objects with the contents of the m_molNumSpecies_old vector
     // vcs_updateVP(0);
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
-      printProgress(SpName, soln, m_SSfeSpecies);
+      printProgress(SpName, m_molNumSpecies_old, m_SSfeSpecies);
     }
 #endif
   }
 
 #ifdef DEBUG_MODE
   if (vcs_debug_print_lvl == 1) {
-    printProgress(SpName, soln, m_SSfeSpecies);
+    printProgress(SpName, m_molNumSpecies_old, m_SSfeSpecies);
     plogf("   --- setInitialMoles end\n"); 
   }
 #endif

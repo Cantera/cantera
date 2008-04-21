@@ -446,7 +446,7 @@ double VCS_SOLVE::vcs_Gxs_calc(int iphase)
 	if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  ts_ptr = SpeciesThermo[kspec];
 	  ac = ts_ptr->eval_ac(kspec);
-	  Gxs += soln[kspec]/totmol * log(ac);
+	  Gxs += m_molNumSpecies_old[kspec]/totmol * log(ac);
 	} else {
 	  plogf("FILL IN\n");
 	  exit(-1);

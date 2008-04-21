@@ -113,7 +113,7 @@ void VCS_SOLVE::vcs_nondim_TP(void) {
       if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
 	for (i = 0; i < m_numSpeciesTot; ++i) {
 	  if (SpeciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	    soln[i] *= 1.0E3;
+	    m_molNumSpecies_old[i] *= 1.0E3;
 	  }
 	}
 	for (i = 0; i < m_numElemConstraints; ++i) {
@@ -153,7 +153,7 @@ void VCS_SOLVE::vcs_redim_TP(void)
     if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
 	for (i = 0; i < m_numSpeciesTot; ++i) {
 	  if (SpeciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	    soln[i] /= 1.0E3;
+	    m_molNumSpecies_old[i] /= 1.0E3;
 	  }
 	}
 	for (i = 0; i < m_numElemConstraints; ++i) {

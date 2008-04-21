@@ -186,7 +186,7 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
     double sum  = 0.0;
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
       if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
-	sum += fabs(soln[kspec]);
+	sum += fabs(m_molNumSpecies_old[kspec]);
       }
     }
     if (fabs(sum) < 1.0E-6) {
@@ -196,9 +196,9 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
       retn = vcs_evalSS_TP(0, 0, T, pres);
       for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
 	if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
-	  soln[kspec] = - m_SSfeSpecies[kspec];
+	  m_molNumSpecies_old[kspec] = - m_SSfeSpecies[kspec];
 	} else {
-	  soln[kspec] = 0.0;
+	  m_molNumSpecies_old[kspec] = 0.0;
 	}
       }
     }
@@ -256,7 +256,7 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
   // zero to start with, set them back to zero here
   if (modifiedSoln) {
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
-      soln[kspec] = 0.0;
+      m_molNumSpecies_old[kspec] = 0.0;
     }
   }
   return VCS_SUCCESS;  

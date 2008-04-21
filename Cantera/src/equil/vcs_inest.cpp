@@ -52,7 +52,7 @@ namespace VCSnonideal {
     int     nrxn       = m_numRxnTot;
     vcs_VolPhase *Vphase = 0;
  
-    double *molNum   = VCS_DATA_PTR(soln);
+    double *molNum   = VCS_DATA_PTR(m_molNumSpecies_old);
     double TMolesMultiphase;
     double *xtphMax = VCS_DATA_PTR(TmpPhase);
     double *xtphMin = VCS_DATA_PTR(TmpPhase2);
@@ -504,7 +504,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("%sTotal Dimensionless Gibbs Free Energy = %15.7E", pprefix,
-	     vcs_Total_Gibbs(VCS_DATA_PTR(soln), VCS_DATA_PTR(m_feSpecies_curr), 
+	     vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_curr), 
 			     VCS_DATA_PTR(TPhMoles)));   
       plogendl();
     }

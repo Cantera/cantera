@@ -62,7 +62,7 @@ int VCS_SOLVE::vcs_report(int iconv)
 
    for (i = 0; i < nspecies; ++i) {
       sortindex[i] = i;
-      xy[i] = soln[i];
+      xy[i] = m_molNumSpecies_old[i];
    }
    /* 
    *       Sort the XY vector, the mole fraction vector, 
@@ -105,7 +105,7 @@ int VCS_SOLVE::vcs_report(int iconv)
    *   Calculate some quantities that may need updating
    */
    vcs_tmoles();
-   Vol = vcs_VolTotal(T, Pres, VCS_DATA_PTR(soln), VCS_DATA_PTR(VolPM));
+   Vol = vcs_VolTotal(T, Pres, VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(VolPM));
    
    plogf("\t\tTemperature = %15.2g Kelvin\n", T);
    plogf("\t\tPressure    = %15.5g Atmos\n", Pres);
@@ -122,7 +122,7 @@ int VCS_SOLVE::vcs_report(int iconv)
    for (i = 0; i < m_numComponents; ++i) {
       plogf(" %-12.12s", SpName[i].c_str());
       print_space(13);
-      plogf("%14.7E     %14.7E    %12.4E", soln[i], m_molNumSpecies_new[i], m_feSpecies_curr[i]);
+      plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[i], m_molNumSpecies_new[i], m_feSpecies_curr[i]);
       plogf("   %3d", SpeciesUnknownType[i]);
       plogf("\n");
    }
@@ -132,11 +132,11 @@ int VCS_SOLVE::vcs_report(int iconv)
       print_space(13);
      
       if (SpeciesUnknownType[l] == VCS_SPECIES_TYPE_MOLNUM) {
-	plogf("%14.7E     %14.7E    %12.4E", soln[l], m_molNumSpecies_new[l], m_feSpecies_curr[l]);
+	plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[l], m_molNumSpecies_new[l], m_feSpecies_curr[l]);
 	plogf("   MolNum ");
       } else if (SpeciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	plogf("        NA         %14.7E    %12.4E", 1.0, m_feSpecies_curr[l]);
-	plogf("   Voltage = %14.7E", soln[l]);
+	plogf("   Voltage = %14.7E", m_molNumSpecies_old[l]);
       } else {
 	plogf("we have a problem\n");
 	exit(-1);
@@ -161,7 +161,7 @@ int VCS_SOLVE::vcs_report(int iconv)
       for (kspec = m_numSpeciesRdc; kspec < nspecies; ++kspec) {
 	 plogf(" %-12.12s", SpName[kspec].c_str());
 	 plogf("             %14.7E     %14.7E    %12.4E",
-		soln[kspec], m_molNumSpecies_new[kspec], dg[kspec]);
+		m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec], dg[kspec]);
 	 if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
 	   plogf("   Mol_Num");
 	 } else if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -193,7 +193,7 @@ int VCS_SOLVE::vcs_report(int iconv)
    plogf(" |           |\n");
    plogf(" NonComponent  |   Moles   |");
    for (j = 0; j < m_numComponents; j++) {
-     plogf(" %10.3g", soln[j]);
+     plogf(" %10.3g", m_molNumSpecies_old[j]);
    }
    plogf(" | DG/RT Rxn |\n");
    print_line("-", m_numComponents*10 + 45);
@@ -201,7 +201,7 @@ int VCS_SOLVE::vcs_report(int iconv)
      int irxn = ir[i];
      plogf(" %3d ", irxn);
      plogf("%-10.10s", SpName[irxn].c_str());
-	plogf("|%10.3g |", soln[irxn]);
+	plogf("|%10.3g |", m_molNumSpecies_old[irxn]);
 	for (j = 0; j < m_numComponents; j++) {
 	  plogf("     %6.2f", sc[i][j]);
 	}
@@ -255,7 +255,7 @@ int VCS_SOLVE::vcs_report(int iconv)
        plogf(" %10.3g", gaPhase[j]);
        gaTPhase[j] += gaPhase[j];
      }
-     gibbsPhase = vcs_GibbsPhase(iphase, VCS_DATA_PTR(soln), 
+     gibbsPhase = vcs_GibbsPhase(iphase, VCS_DATA_PTR(m_molNumSpecies_old), 
 				 VCS_DATA_PTR(m_feSpecies_curr));
      gibbsTotal += gibbsPhase;
      plogf(" | %18.11E |\n", gibbsPhase);
@@ -280,7 +280,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     *        energy of zero
     */
 	  
-   g = vcs_Total_Gibbs(VCS_DATA_PTR(soln), VCS_DATA_PTR(m_feSpecies_curr), 
+   g = vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_curr), 
 		       VCS_DATA_PTR(TPhMoles));
    plogf("\n\tTotal Dimensionless Gibbs Free Energy = G/RT = %15.7E\n", g);
    if (inertYes) 
@@ -312,7 +312,7 @@ int VCS_SOLVE::vcs_report(int iconv)
       l = sortindex[i];
       int pid = PhaseID[l];
       plogf(" %-12.12s", SpName[l].c_str());
-      plogf(" %14.7E ", soln[l]);
+      plogf(" %14.7E ", m_molNumSpecies_old[l]);
       plogf("%14.7E  ", m_SSfeSpecies[l]);
       plogf("%14.7E  ", log(ActCoeff[l]));
       double tpmoles = TPhMoles[pid];
@@ -322,8 +322,8 @@ int VCS_SOLVE::vcs_report(int iconv)
       if (SpeciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	lx = 0.0;
       } else {
-	if (tpmoles > 0.0 && soln[l] > 0.0) {
-	  lx = log(soln[l]) - log(tpmoles);
+	if (tpmoles > 0.0 && m_molNumSpecies_old[l] > 0.0) {
+	  lx = log(m_molNumSpecies_old[l]) - log(tpmoles);
 	} else {
 	  lx = m_feSpecies_curr[l] - m_SSfeSpecies[l] - log(ActCoeff[l]) + SpecLnMnaught[l];
 	}

@@ -29,7 +29,7 @@ void VCS_SOLVE::vcs_elab(void)
     ga[j] = 0.0;
     for (int i = 0; i < m_numSpeciesTot; ++i) {
       if (SpeciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	ga[j] += FormulaMatrix[j][i] * soln[i];
+	ga[j] += FormulaMatrix[j][i] * m_molNumSpecies_old[i];
       }
     }
   }
@@ -102,7 +102,7 @@ int VCS_SOLVE::vcs_elabcheck(int ibound) {
 	    multisign = true;
 	  }
 	  if (eval != 0.0) {
-	    scale = MAX(scale, fabs(eval * soln[kspec]));
+	    scale = MAX(scale, fabs(eval * m_molNumSpecies_old[kspec]));
 	    numNonZero++;
 	  }
 	}
@@ -144,7 +144,7 @@ void VCS_SOLVE::vcs_elabPhase(int iphase, double * const elemAbundPhase)
    *  Computes the elemental abundances vector for a single phase,
    *  elemAbundPhase[], and returns it through the argument list.
    *  The mole numbers of species are taken from the current value
-   *  in soln[].
+   *  in m_molNumSpecies_old[].
    *************************************************************************/
 {
   int i, j;
@@ -153,7 +153,7 @@ void VCS_SOLVE::vcs_elabPhase(int iphase, double * const elemAbundPhase)
     for (i = 0; i < m_numSpeciesTot; ++i) {
       if (SpeciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	if (PhaseID[i] == iphase) {
-	  elemAbundPhase[j] += FormulaMatrix[j][i] * soln[i];
+	  elemAbundPhase[j] += FormulaMatrix[j][i] * m_molNumSpecies_old[i];
 	}
       }
     }
@@ -194,7 +194,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
    *
    *  ga    Current element abundances
    *  gai   Required elemental abundances
-   *  soln     Current mole number of species.
+   *  m_molNumSpecies_old     Current mole number of species.
    *  FormulaMatrix[][]  Formular matrix of the species
    *  ne    Number of elements
    *  nc    Number of components.
@@ -261,7 +261,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 	  if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	    double eval = FormulaMatrix[i][kspec];
 	    if (eval > 0.0) {
-	      soln[kspec] = gai[i] / eval;
+	      m_molNumSpecies_old[kspec] = gai[i] / eval;
 	      changed = true;
 	    }
 	  }
@@ -283,9 +283,9 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 	  for (kspec = m_numComponents; kspec < m_numSpeciesTot; kspec++) {
 	    if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	      double eval = FormulaMatrix[i][kspec];
-	      diff -= eval * soln[kspec];
+	      diff -= eval * m_molNumSpecies_old[kspec];
 	    }
-	    soln[compID] = MAX(0.0,diff/FormulaMatrix[i][compID]);
+	    m_molNumSpecies_old[compID] = MAX(0.0,diff/FormulaMatrix[i][compID]);
 	    changed = true;
 	  }
 	}
@@ -314,18 +314,18 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 	  double atomComp = FormulaMatrix[i][kspec];
 	  if (atomComp > 0.0) {
 	    double maxPermissible = gai[i] / atomComp;
-	    if (soln[kspec] > maxPermissible) {
+	    if (m_molNumSpecies_old[kspec] > maxPermissible) {
 	      
 #ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 3) {
 		plogf("  ---  vcs_elcorr: Reduced species %s from %g to %g due to %s max bounds constraint\n",
-		       SpName[kspec].c_str(), soln[kspec], maxPermissible, ElName[i].c_str());
+		       SpName[kspec].c_str(), m_molNumSpecies_old[kspec], maxPermissible, ElName[i].c_str());
 	      }
 #endif
-	      soln[kspec] = maxPermissible;
+	      m_molNumSpecies_old[kspec] = maxPermissible;
 	      changed = true;
-	      if (soln[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF) {
-		soln[kspec] = 0.0;
+	      if (m_molNumSpecies_old[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF) {
+		m_molNumSpecies_old[kspec] = 0.0;
 		if (SSPhase[kspec]) {
 		  spStatus[kspec] =  VCS_SPECIES_ZEROEDSS;
 		} else {
@@ -372,8 +372,8 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
    */
   par = 0.5;
   for (i = 0; i < m_numComponents; ++i) {
-    if (soln[i] > 0.0) {
-      xx = -x[i] / soln[i];
+    if (m_molNumSpecies_old[i] > 0.0) {
+      xx = -x[i] / m_molNumSpecies_old[i];
       if (par < xx) par = xx;
     }
   }
@@ -385,27 +385,27 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
     retn = 2;
     par *= 0.9999;
     for (i = 0; i < m_numComponents; ++i) {
-      double tmp = soln[i] + par * x[i];
+      double tmp = m_molNumSpecies_old[i] + par * x[i];
       if (tmp > 0.0) {
-	soln[i] = tmp;
+	m_molNumSpecies_old[i] = tmp;
       } else {
 	if (SSPhase[i]) {
-	  soln[i] =  0.0;
+	  m_molNumSpecies_old[i] =  0.0;
 	}  else {
-	  soln[i] = soln[i] * 0.0001;
+	  m_molNumSpecies_old[i] = m_molNumSpecies_old[i] * 0.0001;
 	}
       }
     }
   } else {
     for (i = 0; i < m_numComponents; ++i) {
-      double tmp = soln[i] + x[i];
+      double tmp = m_molNumSpecies_old[i] + x[i];
       if (tmp > 0.0) {
-	soln[i] = tmp;
+	m_molNumSpecies_old[i] = tmp;
       } else { 
 	if (SSPhase[i]) {
-	  soln[i] =  0.0;
+	  m_molNumSpecies_old[i] =  0.0;
 	}  else {
-	  soln[i] = soln[i] * 0.0001;
+	  m_molNumSpecies_old[i] = m_molNumSpecies_old[i] * 0.0001;
 	}
       }
     }
@@ -466,15 +466,15 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 	  }
 	}
 	if (its > 0) xx /= its;
-	soln[kspec] += xx;
-	soln[kspec] = MAX(soln[kspec], 1.0E-10);
+	m_molNumSpecies_old[kspec] += xx;
+	m_molNumSpecies_old[kspec] = MAX(m_molNumSpecies_old[kspec], 1.0E-10);
 	/*
 	 *   If we are dealing with a deleted species, then
 	 *   we need to reinsert it into the active list.
 	 */
 	if (kspec >= m_numSpeciesRdc) {
 	  vcs_reinsert_deleted(kspec);	
-	  soln[m_numSpeciesRdc - 1] = xx;
+	  m_molNumSpecies_old[m_numSpeciesRdc - 1] = xx;
 	  vcs_elab();
 	  goto L_CLEANUP;
 	}
@@ -493,9 +493,9 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
       for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
 	if (ga[i] > 0.0) {
 	  if (FormulaMatrix[i][kspec] < 0.0) {
-	    soln[kspec] -= ga[i] / FormulaMatrix[i][kspec] ;
-	    if (soln[kspec] < 0.0) {
-	      soln[kspec] = 0.0;
+	    m_molNumSpecies_old[kspec] -= ga[i] / FormulaMatrix[i][kspec] ;
+	    if (m_molNumSpecies_old[kspec] < 0.0) {
+	      m_molNumSpecies_old[kspec] = 0.0;
 	    }
 	    vcs_elab();
 	    break;
@@ -503,9 +503,9 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 	}
 	if (ga[i] < 0.0) {
 	  if (FormulaMatrix[i][kspec] > 0.0) {
-	    soln[kspec] -= ga[i] / FormulaMatrix[i][kspec];
-	    if (soln[kspec] < 0.0) {
-	      soln[kspec] = 0.0;
+	    m_molNumSpecies_old[kspec] -= ga[i] / FormulaMatrix[i][kspec];
+	    if (m_molNumSpecies_old[kspec] < 0.0) {
+	      m_molNumSpecies_old[kspec] = 0.0;
 	    }
 	    vcs_elab();
 	    break;
@@ -531,26 +531,26 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
      for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
        if (dev < 0.0) {
 	 if (FormulaMatrix[i][kspec] < 0.0) {
-	   if (soln[kspec] > 0.0) {
+	   if (m_molNumSpecies_old[kspec] > 0.0) {
 	     useZeroed = false;
 	   }
 	 }
        } else {
 	 if (FormulaMatrix[i][kspec] > 0.0) {
-	   if (soln[kspec] > 0.0) {
+	   if (m_molNumSpecies_old[kspec] > 0.0) {
 	     useZeroed = false;
 	   }
 	 }
        }
      }
      for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
-	if (soln[kspec] > 0.0 || useZeroed) {
+	if (m_molNumSpecies_old[kspec] > 0.0 || useZeroed) {
 	  if (dev < 0.0) {
 	    if (FormulaMatrix[i][kspec] < 0.0) {
 	      double delta = dev / FormulaMatrix[i][kspec] ;
-	      soln[kspec] += delta;
-	      if (soln[kspec] < 0.0) {
-		soln[kspec] = 0.0;
+	      m_molNumSpecies_old[kspec] += delta;
+	      if (m_molNumSpecies_old[kspec] < 0.0) {
+		m_molNumSpecies_old[kspec] = 0.0;
 	      }
 	      vcs_elab();
 	      break;
@@ -559,9 +559,9 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 	  if (dev > 0.0) {
 	    if (FormulaMatrix[i][kspec] > 0.0) {
 	      double delta = dev / FormulaMatrix[i][kspec] ;
-	      soln[kspec] += delta;
-	      if (soln[kspec] < 0.0) {
-		soln[kspec] = 0.0;
+	      m_molNumSpecies_old[kspec] += delta;
+	      if (m_molNumSpecies_old[kspec] < 0.0) {
+		m_molNumSpecies_old[kspec] = 0.0;
 	      }
 	      vcs_elab();
 	      break;

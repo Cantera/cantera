@@ -459,10 +459,10 @@ public:
 
   //! Total moles of the species
   /*!
-   *   soln[k] = Total number of moles of the kth species. 
+   *    Total number of moles of the kth species. 
    *    Length = Total number of species = m 
    */
-  std::vector<double> soln;
+  std::vector<double> m_molNumSpecies_old;
 
   //! Specifies the species unknown type
   /*!
