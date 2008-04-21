@@ -412,7 +412,6 @@ double VCS_SOLVE::vcs_line_search(int irxn, double dx_orig)
   double *molNumBase = VCS_DATA_PTR(soln);
   double *acBase = VCS_DATA_PTR(ActCoeff0);
   double *ac = VCS_DATA_PTR(ActCoeff);
-  double *molNum = VCS_DATA_PTR(wt);
   double molSum = 0.0;
   double slope;
   /*
@@ -448,15 +447,16 @@ double VCS_SOLVE::vcs_line_search(int irxn, double dx_orig)
   }
   if (dx_orig == 0.0) return 0.0;
 
-  vcs_dcopy(molNum, molNumBase, m_numSpeciesRdc);
+  vcs_dcopy(VCS_DATA_PTR(m_molNumSpecies_new), molNumBase, m_numSpeciesRdc);
   molSum =  molNumBase[kspec];
-  molNum[kspec] = molNumBase[kspec] + dx_orig;
+  m_molNumSpecies_new[kspec] = molNumBase[kspec] + dx_orig;
   for (k = 0; k < m_numComponents; k++) {
-    molNum[k] = molNumBase[k] + sc_irxn[k] * dx_orig;
+    m_molNumSpecies_new[k] = molNumBase[k] + sc_irxn[k] * dx_orig;
     molSum +=  molNumBase[k];
   }
 
-  double deltaG1 = deltaG_Recalc_Rxn(irxn, molNum, ac, VCS_DATA_PTR(m_feSpecies_new));
+  double deltaG1 = deltaG_Recalc_Rxn(irxn, VCS_DATA_PTR(m_molNumSpecies_new),
+				     ac, VCS_DATA_PTR(m_feSpecies_new));
     
   /*
    * If deltaG hasn't switched signs when going the full distance
@@ -489,11 +489,12 @@ double VCS_SOLVE::vcs_line_search(int irxn, double dx_orig)
      * the dx  *= 0.5 point
      */
     dx *= 0.5;
-    molNum[kspec] = molNumBase[kspec] + dx;
+    m_molNumSpecies_new[kspec] = molNumBase[kspec] + dx;
     for (k = 0; k < m_numComponents; k++) {
-      molNum[k] = molNumBase[k] + sc_irxn[k] * dx;
+      m_molNumSpecies_new[k] = molNumBase[k] + sc_irxn[k] * dx;
     }
-    double deltaG = deltaG_Recalc_Rxn(irxn, molNum, ac, VCS_DATA_PTR(m_feSpecies_new));
+    double deltaG = deltaG_Recalc_Rxn(irxn, VCS_DATA_PTR(m_molNumSpecies_new),
+				      ac, VCS_DATA_PTR(m_feSpecies_new));
     /*
      * If deltaG hasn't switched signs when going the full distance
      * then we are heading in the appropriate direction, and

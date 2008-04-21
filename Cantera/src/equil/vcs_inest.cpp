@@ -189,10 +189,10 @@ namespace VCSnonideal {
 	TMolesMultiphase += TPhMoles1[iph];
       }
     }     
-    vcs_dcopy(VCS_DATA_PTR(wt), molNum,  nspecies);
+    vcs_dcopy(VCS_DATA_PTR(m_molNumSpecies_new), molNum,  nspecies);
     for (kspec = 0; kspec < m_numComponents; ++kspec) {
       if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_MOLNUM) {
-	wt[kspec] = 0.0;
+	m_molNumSpecies_new[kspec] = 0.0;
       }
     }
     vcs_dcopy(VCS_DATA_PTR(m_feSpecies_curr), VCS_DATA_PTR(m_SSfeSpecies),
@@ -202,10 +202,10 @@ namespace VCSnonideal {
       if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
 	if (! SSPhase[kspec]) {
 	  iph = PhaseID[kspec];
-	  m_feSpecies_curr[kspec] += log(wt[kspec] / TPhMoles[iph]);
+	  m_feSpecies_curr[kspec] += log(m_molNumSpecies_new[kspec] / TPhMoles[iph]);
 	}
       } else {
-	wt[kspec] = 0.0;
+	m_molNumSpecies_new[kspec] = 0.0;
       }
     }
     vcs_deltag(0, true);
@@ -287,7 +287,9 @@ namespace VCSnonideal {
     par = 0.5;
     for (kspec = 0; kspec < m_numComponents; ++kspec) {
       if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	if (par < -ds[kspec] / wt[kspec]) par = -ds[kspec] / wt[kspec];
+	if (par < -ds[kspec] / m_molNumSpecies_new[kspec]) {
+	  par = -ds[kspec] / m_molNumSpecies_new[kspec];
+	}
       }
     }
     par = 1. / par;
@@ -303,7 +305,7 @@ namespace VCSnonideal {
     do {
       for (kspec = 0; kspec < m_numComponents; ++kspec) {
 	if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	  molNum[kspec] = wt[kspec] + par * ds[kspec];
+	  molNum[kspec] = m_molNumSpecies_new[kspec] + par * ds[kspec];
 	} else {
 	  ds[kspec] = 0.0;
 	}

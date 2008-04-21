@@ -120,7 +120,7 @@ namespace VCSnonideal {
     PhaseParticipation.resize(nspecies0, nphase0, 0);
     phasePhi.resize(nphase0, 0.0);
 
-    wt.resize(nspecies0, 0.0);
+    m_molNumSpecies_new.resize(nspecies0, 0.0);
 
     dg.resize(nspecies0, 0.0);
     dgl.resize(nspecies0, 0.0);
@@ -788,8 +788,8 @@ namespace VCSnonideal {
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
       k = ind[kspec];
       soln[kspec] = pub->w[k];
-      wt[kspec]   = pub->mf[k];
-      m_feSpecies_curr[kspec]   = pub->m_gibbsSpecies[k];
+      m_molNumSpecies_new[kspec] = pub->mf[k];
+      m_feSpecies_curr[kspec] = pub->m_gibbsSpecies[k];
     }
 
     /*
@@ -924,7 +924,7 @@ namespace VCSnonideal {
 	pub->w[i] = 0.0;
 	plogf("voltage species = %g\n", soln[k1]);
       }
-      pub->mf[i] = wt[k1];
+      pub->mf[i] = m_molNumSpecies_new[k1];
       pub->m_gibbsSpecies[i] = m_feSpecies_curr[k1];
       pub->VolPM[i] = VolPM[k1];
     } 
