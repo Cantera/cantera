@@ -218,7 +218,7 @@ namespace VCSnonideal {
 		m_SSfeSpecies[kspec]);
 	else
 	  plogf("fe* = %15.5g ff = %15.5g dg* = %15.5g\n", 
-		 m_feSpecies_curr[kspec], m_SSfeSpecies[kspec], dg[kspec-m_numComponents]);
+		 m_feSpecies_curr[kspec], m_SSfeSpecies[kspec], m_deltaGRxn_new[kspec-m_numComponents]);
       }
     }
 #endif
@@ -240,8 +240,8 @@ namespace VCSnonideal {
        */
       if (! SSPhase[kspec]) {
 	iph = PhaseID[kspec];
-	if (dg[irxn] > xtphMax[iph]) dg[irxn] = 0.8 * xtphMax[iph];
-	if (dg[irxn] < xtphMin[iph]) dg[irxn] = 0.8 * xtphMin[iph];
+	if (m_deltaGRxn_new[irxn] > xtphMax[iph]) m_deltaGRxn_new[irxn] = 0.8 * xtphMax[iph];
+	if (m_deltaGRxn_new[irxn] < xtphMin[iph]) m_deltaGRxn_new[irxn] = 0.8 * xtphMin[iph];
 	/*
 	 *   HKM -> The TMolesMultiphase is a change of mine.
 	 *          It more evenly distributes the initial moles amongst
@@ -252,7 +252,7 @@ namespace VCSnonideal {
 	 *            It cut diamond4.vin iterations down from 62 to 14.
 	 */
 	ds[kspec] = 0.5 * (TPhMoles1[iph] + TMolesMultiphase) 
-	  * exp(-dg[irxn]);
+	  * exp(-m_deltaGRxn_new[irxn]);
 	 
 	for (k = 0; k < m_numComponents; ++k) {
 	  ds[k] += sc[irxn][k] * ds[kspec];

@@ -510,10 +510,10 @@ public:
    *              the first  current noncomponent species 
    *              in the mechanism. 
    */
-  std::vector<double> dg;   
+  std::vector<double> m_deltaGRxn_new;   
 
   //!  Last deltag[irxn] from the previous step 
-  std::vector<double> dgl;
+  std::vector<double> m_deltaGRxn_old;
 
   std::vector<double> m_deltaGRxn_tmp;
 

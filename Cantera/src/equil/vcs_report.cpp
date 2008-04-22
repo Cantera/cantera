@@ -161,7 +161,7 @@ int VCS_SOLVE::vcs_report(int iconv)
       for (kspec = m_numSpeciesRdc; kspec < nspecies; ++kspec) {
 	 plogf(" %-12.12s", SpName[kspec].c_str());
 	 plogf("             %14.7E     %14.7E    %12.4E",
-		m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec], dg[kspec]);
+		m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec], m_deltaGRxn_new[kspec]);
 	 if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
 	   plogf("   Mol_Num");
 	 } else if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -205,7 +205,7 @@ int VCS_SOLVE::vcs_report(int iconv)
 	for (j = 0; j < m_numComponents; j++) {
 	  plogf("     %6.2f", sc[i][j]);
 	}
-	plogf(" |%10.3g |", dg[irxn]);
+	plogf(" |%10.3g |", m_deltaGRxn_new[irxn]);
 	plogf("\n");
    }
    print_line("-", m_numComponents*10 + 45);

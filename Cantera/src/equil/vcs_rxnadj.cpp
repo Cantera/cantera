@@ -83,19 +83,19 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
       /* **** MULTISPECIES PHASE WITH total moles equal to zero ************/
       /* *******************************************************************/
       /*
-       *       HKM -> the statment below presupposes units in dg[]. It probably
+       *       HKM -> the statment below presupposes units in m_deltaGRxn_new[]. It probably
        *              should be replaced with something more relativistic
        */
-      if (dg[irxn] < -1.0e-4) {
+      if (m_deltaGRxn_new[irxn] < -1.0e-4) {
 #ifdef DEBUG_MODE
-	(void) sprintf(ANOTE, "MultSpec: come alive DG = %11.3E", dg[irxn]);       
+	(void) sprintf(ANOTE, "MultSpec: come alive DG = %11.3E", m_deltaGRxn_new[irxn]);       
 #endif
 	ds[kspec] = 1.0e-10;
 	spStatus[irxn] = VCS_SPECIES_MAJOR;
 	--(m_numRxnMinorZeroed);
       } else {
 #ifdef DEBUG_MODE
-	(void) sprintf(ANOTE, "MultSpec: still dead DG = %11.3E", dg[irxn]);       
+	(void) sprintf(ANOTE, "MultSpec: still dead DG = %11.3E", m_deltaGRxn_new[irxn]);       
 #endif
 	ds[kspec] = 0.0;
       }
@@ -110,9 +110,9 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
        *     Don't bother if superconvergence has already been achieved 
        *     in this mode.
        */
-      if (fabs(dg[irxn]) <= tolmaj2) {
+      if (fabs(m_deltaGRxn_new[irxn]) <= tolmaj2) {
 #ifdef DEBUG_MODE
-	sprintf(ANOTE,"Skipped: converged DG = %11.3E\n", dg[irxn]);
+	sprintf(ANOTE,"Skipped: converged DG = %11.3E\n", m_deltaGRxn_new[irxn]);
 	plogf("   --- "); plogf("%-12.12s", SpName[kspec].c_str());
 	plogf("  %12.4E %12.4E | %s\n",  m_molNumSpecies_old[kspec], ds[kspec], ANOTE);
 #endif		    
@@ -122,10 +122,10 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
        *     Don't calculate for minor or nonexistent species if      
        *     their values are to be decreasing anyway.                
        */
-      if (spStatus[irxn] <= VCS_SPECIES_MINOR && dg[irxn] >= 0.0) {
+      if (spStatus[irxn] <= VCS_SPECIES_MINOR && m_deltaGRxn_new[irxn] >= 0.0) {
 #ifdef DEBUG_MODE
 	sprintf(ANOTE,"Skipped: IC = %3d and DG >0: %11.3E\n", 
-		spStatus[irxn], dg[irxn]);
+		spStatus[irxn], m_deltaGRxn_new[irxn]);
 	plogf("   --- "); plogf("%-12.12s", SpName[kspec].c_str());
 	plogf("  %12.4E %12.4E | %s\n", m_molNumSpecies_old[kspec], ds[kspec], ANOTE);
 #endif		    
@@ -146,7 +146,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 	}
       }
       if (s != 0.0) {
-	ds[kspec] = -dg[irxn] / s;
+	ds[kspec] = -m_deltaGRxn_new[irxn] / s;
       } else {
 	/* ************************************************************ */
 	/* **** REACTION IS ENTIRELY AMONGST SINGLE SPECIES PHASES **** */
@@ -159,7 +159,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 	 *     Then, we need to follow the reaction to see which species 
 	 *     will zero out first. 
 	 */
-	if (dg[irxn] > 0.0) {
+	if (m_deltaGRxn_new[irxn] > 0.0) {
 	  dss = m_molNumSpecies_old[kspec];
 	  k = kspec;
 	  for (j = 0; j < m_numComponents; ++j) {
@@ -398,7 +398,7 @@ double VCS_SOLVE::vcs_line_search(int irxn, double dx_orig)
   /*************************************************************************
    *
    *  In this routine we carry out a rough line search algorithm 
-   *  to make sure that the dG doesn't switch signs prematurely.
+   *  to make sure that the m_deltaGRxn_new doesn't switch signs prematurely.
    *
    *
    *************************************************************************/

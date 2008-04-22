@@ -104,8 +104,8 @@ void VCS_SOLVE::vcs_nondim_TP(void) {
 	 */  
 	m_SSfeSpecies[i] *= tf;
 	m_feSpecies_curr[i] *= tf;
-	dg[i] *= tf;
-	dgl[i] *= tf;
+	m_deltaGRxn_new[i] *= tf;
+	m_deltaGRxn_old[i] *= tf;
 	m_feSpecies_old[i] *= tf;
       }
 
@@ -144,8 +144,8 @@ void VCS_SOLVE::vcs_redim_TP(void)
 	 */  
 	m_SSfeSpecies[i] *= tf;
 	m_feSpecies_curr[i] *= tf;
-	dg[i] *= tf;
-	dgl[i] *= tf;
+	m_deltaGRxn_new[i] *= tf;
+	m_deltaGRxn_old[i] *= tf;
 	m_feSpecies_old[i] *= tf;
       } 
       Faraday_dim *= tf;

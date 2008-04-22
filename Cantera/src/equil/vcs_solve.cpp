@@ -122,8 +122,8 @@ namespace VCSnonideal {
 
     m_molNumSpecies_new.resize(nspecies0, 0.0);
 
-    dg.resize(nspecies0, 0.0);
-    dgl.resize(nspecies0, 0.0);
+    m_deltaGRxn_new.resize(nspecies0, 0.0);
+    m_deltaGRxn_old.resize(nspecies0, 0.0);
     m_deltaGRxn_tmp.resize(nspecies0, 0.0);
     ds.resize(nspecies0, 0.0);
 
