@@ -397,7 +397,8 @@ public:
    *
    *   length = [nspecies0][nelements0]
    */
-  DoubleStarStar sc;
+  //DoubleStarStar sc;
+  DoubleStarStar m_stoichCoeffRxnMatrix;
 
   //! Absolute size of the stoichiometric coefficients
   /*!

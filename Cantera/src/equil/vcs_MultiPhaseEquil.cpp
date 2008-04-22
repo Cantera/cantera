@@ -1591,7 +1591,7 @@ namespace VCSnonideal {
     }
     int nc = numComponents();
     // scMatrix [nrxn][ncomp]
-    const DoubleStarStar &scMatrix = m_vsolvePtr->sc;
+    const DoubleStarStar &scMatrix = m_vsolvePtr->m_stoichCoeffRxnMatrix;
     const  std::vector<int> indSpecies =  m_vsolvePtr->ind;
     if ((int) rxn > nsp - nc) return;
     int j = indSpecies[rxn + nc];

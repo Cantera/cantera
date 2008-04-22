@@ -533,7 +533,7 @@ namespace VCSnonideal {
    
     for (irxn = 0; irxn < m_numRxnRdc; irxn++) {
       kspec = ir[irxn];
-      sc_irxn = sc[irxn];
+      sc_irxn = m_stoichCoeffRxnMatrix[irxn];
       iph = PhaseID[kspec];
       Vphase = VPhaseList[iph];
 #ifdef DEBUG_MODE
@@ -1288,7 +1288,7 @@ namespace VCSnonideal {
 		}
 	      } else {
 		for (k = 0; k < m_numComponents; k++) {
-		  if (sc[irxn][k] != 0.0) {
+		  if (m_stoichCoeffRxnMatrix[irxn][k] != 0.0) {
 		    if (m_molNumSpecies_old[kspec]/m_molNumSpecies_old[k] > VCS_DELETE_PHASE_CUTOFF) {
 		      soldel = 0;
 		      break;
@@ -1413,13 +1413,13 @@ namespace VCSnonideal {
 	    }
 	  }
 	  if (doSwap) {
-	    if (sc[i][j] != 0.0) {
+	    if (m_stoichCoeffRxnMatrix[i][j] != 0.0) {
 #ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 2) {
 		plogf("   --- Get a new basis because %s", SpName[l].c_str());
 		plogf(" is better than comp %s", SpName[j].c_str());
 		plogf(" and share nonzero stoic: %-9.1f", 
-		      sc[i][j]);
+		      m_stoichCoeffRxnMatrix[i][j]);
 		plogendl();
 	      }
 #endif		     
@@ -1431,14 +1431,14 @@ namespace VCSnonideal {
 #ifdef DEBUG_NOT
 	  if (spStatus[i] == VCS_SPECIES_ZEROEDMS) {
 	    if (m_molNumSpecies_old[j] == 0.0) {
-	      if (sc[i][j] != 0.0) {
+	      if (m_stoichCoeffRxnMatrix[i][j] != 0.0) {
 		if (dg[i] < 0.0) {
 #ifdef DEBUG_MODE
 		  if (vcs_debug_print_lvl >= 2) {
 		    plogf("   --- Get a new basis because %s", SpName[l].c_str());
 		    plogf(" has dg < 0.0 and comp %s has zero mole num", SpName[j].c_str());
 		    plogf(" and share nonzero stoic: %-9.1f", 
-			  sc[i][j]);
+			  m_stoichCoeffRxnMatrix[i][j]);
 		    plogendl();
 		  }
 #endif		     
@@ -1473,7 +1473,7 @@ namespace VCSnonideal {
 	    }
 	  }
 	  if (doSwap) {
-	    if (sc[i][j] != 0.0) {
+	    if (m_stoichCoeffRxnMatrix[i][j] != 0.0) {
 #ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 2) {
 		plogf("   --- Get a new basis because ");
@@ -1481,7 +1481,7 @@ namespace VCSnonideal {
 		plogf(" is better than comp ");
 		plogf("%s", SpName[j].c_str());
 		plogf(" and share nonzero stoic: %-9.1f", 
-		      sc[i][j]);
+		      m_stoichCoeffRxnMatrix[i][j]);
 		plogendl();
 	      }
 #endif			     
@@ -1491,14 +1491,14 @@ namespace VCSnonideal {
 #ifdef DEBUG_NOT
 	  if (spStatus[i] == VCS_SPECIES_ZEROEDMS) {
 	    if (m_molNumSpecies_old[j] == 0.0) {
-	      if (sc[i][j] != 0.0) {
+	      if (m_stoichCoeffRxnMatrix[i][j] != 0.0) {
 		if (dg[i] < 0.0) {
 #ifdef DEBUG_MODE
 		  if (vcs_debug_print_lvl >= 2) {
 		    plogf("   --- Get a new basis because %s", SpName[l].c_str());
 		    plogf(" has dg < 0.0 and comp %s has zero mole num", SpName[j].c_str());
 		    plogf(" and share nonzero stoic: %-9.1f", 
-			  sc[i][j]);
+			  m_stoichCoeffRxnMatrix[i][j]);
 		    plogendl();
 		  }
 #endif		     
@@ -2140,7 +2140,7 @@ namespace VCSnonideal {
        * one would work,
        */
       double dx = delta;
-      double *sc_irxn = sc[irxn];
+      double *sc_irxn = m_stoichCoeffRxnMatrix[irxn];
       for (j = 0; j < m_numComponents; ++j) {
 	if (m_molNumSpecies_old[j] > 0.0) {
 	  tmp = sc_irxn[j] * dx;
@@ -2454,7 +2454,7 @@ namespace VCSnonideal {
 	   *  HKM -> note, this will cause a loss of moles!
 	   */
 	  for (j = 0; j < m_numComponents; ++j) {
-	    m_molNumSpecies_old[j] += sc[irxn][j] * dx;
+	    m_molNumSpecies_old[j] += m_stoichCoeffRxnMatrix[irxn][j] * dx;
 	    if (m_molNumSpecies_old[j] < 0.0) {
 	      m_molNumSpecies_old[j] = 0.0;
 	    }
@@ -2939,7 +2939,7 @@ namespace VCSnonideal {
 	  for (j = 0; j < m_numComponents; ++j) {
 	    if (!SSPhase[j]) {
 	      if (m_molNumSpecies_old[j] > 0.0) {
-		s += SQUARE(sc[irxn][j]) /  m_molNumSpecies_old[j];
+		s += SQUARE(m_stoichCoeffRxnMatrix[irxn][j]) /  m_molNumSpecies_old[j];
 	      }
 	    }
 	  }
@@ -2973,7 +2973,7 @@ namespace VCSnonideal {
 	     * 
 	     */
 	    for (j = 0; j < m_numComponents; ++j) {
-	      double stoicC = sc[irxn][j];
+	      double stoicC = m_stoichCoeffRxnMatrix[irxn][j];
 	      if (stoicC != 0.0) {
 		double negChangeComp = - stoicC * m_deltaMolNumSpecies[kspec];
 		if (negChangeComp > m_molNumSpecies_old[j]) {
@@ -3022,8 +3022,8 @@ namespace VCSnonideal {
 	      dss = m_molNumSpecies_old[kspec];
 	      k = kspec;
 	      for (j = 0; j < m_numComponents; ++j) {
-		if (sc[irxn][j] > 0.0) {
-		  xx = m_molNumSpecies_old[j] / sc[irxn][j];
+		if (m_stoichCoeffRxnMatrix[irxn][j] > 0.0) {
+		  xx = m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
 		  if (xx < dss) {
 		    dss = xx;
 		    k = j;
@@ -3034,8 +3034,8 @@ namespace VCSnonideal {
 	    } else {
 	      dss = 1.0e10;
 	      for (j = 0; j < m_numComponents; ++j) {
-		if (sc[irxn][j] < 0.0) {
-		  xx = -m_molNumSpecies_old[j] / sc[irxn][j];
+		if (m_stoichCoeffRxnMatrix[irxn][j] < 0.0) {
+		  xx = -m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
 		  if (xx < dss) {
 		    dss = xx;
 		    k = j;
@@ -3055,8 +3055,8 @@ namespace VCSnonideal {
 	      m_molNumSpecies_old[kspec] += dss;
 	      TPhMoles[PhaseID[kspec]] +=  dss;
 	      for (j = 0; j < m_numComponents; ++j) {
-		m_molNumSpecies_old[j] += dss * sc[irxn][j];
-		TPhMoles[PhaseID[j]] +=  dss * sc[irxn][j];
+		m_molNumSpecies_old[j] += dss * m_stoichCoeffRxnMatrix[irxn][j];
+		TPhMoles[PhaseID[j]] +=  dss * m_stoichCoeffRxnMatrix[irxn][j];
 	      }
 	      m_molNumSpecies_old[k] = 0.0;
 	      iph = PhaseID[k];
@@ -3107,7 +3107,7 @@ namespace VCSnonideal {
    * This subroutine calculates reaction free energy changes for 
    * all noncomponent formation reactions. Formation reactions are 
    * reactions which create each noncomponent species from the component 
-   * species. SC(J,I) are the stoichiometric coefficients for these 
+   * species. M_STOICHCOEFFRXNMATRIX(J,I) are the stoichiometric coefficients for these 
    * reactions. A stoichiometric coefficient of one is assumed for 
    * species I in this reaction. 
    *
@@ -3157,7 +3157,7 @@ namespace VCSnonideal {
 	if (spStatus[irxn] != VCS_SPECIES_MINOR) {
 	  icase = 0;
 	  m_deltaGRxn_new[irxn] = m_feSpecies_curr[ir[irxn]];
-	  dtmp_ptr = sc[irxn];
+	  dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
 	  for (kspec = 0; kspec < m_numComponents; ++kspec) {
 	    m_deltaGRxn_new[irxn] += dtmp_ptr[kspec] * m_feSpecies_curr[kspec];
 	    if (m_molNumSpecies_old[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF && dtmp_ptr[kspec] < 0.0) {
@@ -3176,7 +3176,7 @@ namespace VCSnonideal {
       for (irxn = 0; irxn < irxnl; ++irxn) {
 	icase = 0;
 	m_deltaGRxn_new[irxn] = m_feSpecies_curr[ir[irxn]];
-	dtmp_ptr = sc[irxn];
+	dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
 	for (kspec = 0; kspec < m_numComponents; ++kspec) {
 	  m_deltaGRxn_new[irxn] += dtmp_ptr[kspec] * m_feSpecies_curr[kspec];
 	  if (m_molNumSpecies_old[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF && dtmp_ptr[kspec] < 0.0) {
@@ -3195,7 +3195,7 @@ namespace VCSnonideal {
 	if (spStatus[irxn] <= VCS_SPECIES_MINOR) {
 	  icase = 0;
 	  m_deltaGRxn_new[irxn] = m_feSpecies_curr[ir[irxn]];
-	  dtmp_ptr = sc[irxn];
+	  dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
 	  for (kspec = 0; kspec < m_numComponents; ++kspec) {
 	    m_deltaGRxn_new[irxn] += dtmp_ptr[kspec] * m_feSpecies_curr[kspec];
 	    if (m_molNumSpecies_old[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF && dtmp_ptr[kspec] < 0.0) {
@@ -3316,7 +3316,7 @@ namespace VCSnonideal {
      * Rearranges the solution data to put the component data at the 
      * front of the species list. 
      *
-     * Then, calculates SC(J,I) the formation reactions for all noncomponent 
+     * Then, calculates M_STOICHCOEFFRXNMATRIX(J,I) the formation reactions for all noncomponent 
      *
      * species in the mechanism. 
      * Also calculates DNG(I) and DNL(I), the net mole change for each 
@@ -3325,7 +3325,7 @@ namespace VCSnonideal {
      *
      * Input 
      * --------- 
-     * IFIRST = If true, the SC, DNG, and DNL are not calculated. 
+     * IFIRST = If true, the M_STOICHCOEFFRXNMATRIX, DNG, and DNL are not calculated. 
      * TEST   = This is a small negative number dependent upon whether 
      *          an estimate is supplied or not. 
      * W(I)   = Mole fractions which will be used to construct an 
@@ -3677,14 +3677,14 @@ namespace VCSnonideal {
     for (i = 0; i < m_numRxnTot; ++i) {
       k = ir[i];
       for (j = 0; j < ncTrial; ++j) {
-	sc[i][j] = FormulaMatrix[j][k];
+	m_stoichCoeffRxnMatrix[i][j] = FormulaMatrix[j][k];
       }
     }
     /*
      *     Use Gauss-Jordon block elimination to calculate
-     *     the reaction matrix, sc[][].
+     *     the reaction matrix, m_stoichCoeffRxnMatrix[][].
      */
-    j = vcsUtil_mlequ(sm, m_numElemConstraints, ncTrial, sc[0], m_numRxnTot);
+    j = vcsUtil_mlequ(sm, m_numElemConstraints, ncTrial, m_stoichCoeffRxnMatrix[0], m_numRxnTot);
     if (j == 1) {
       plogf("vcs_solve_TP ERROR: mlequ returned an error condition\n");
       return  VCS_FAILED_CONVERGENCE;
@@ -3740,7 +3740,7 @@ namespace VCSnonideal {
 	} 
 	i = k - ncTrial;
 	for (j = 0; j < ncTrial; j++) {
-	  sc[i][j] = aw[j];
+	  m_stoichCoeffRxnMatrix[i][j] = aw[j];
 	}
       }
     }
@@ -3752,7 +3752,7 @@ namespace VCSnonideal {
     for (i = 0; i < m_numRxnTot; i++) {
       double szTmp = 0.0;
       for (j = 0; j < ncTrial; j++) {
-	szTmp += fabs(sc[i][j]);
+	szTmp += fabs(m_stoichCoeffRxnMatrix[i][j]);
       }
       scSize[i] = szTmp;
     }
@@ -3779,7 +3779,7 @@ namespace VCSnonideal {
 	plogf("%-10.10s", SpName[ir[i]].c_str());
 	plogf("|%10.3g|", m_molNumSpecies_old[ir[i]]);
 	for (j = 0; j < ncTrial; j++) {
-	  plogf("     %6.2f", sc[i][j]);
+	  plogf("     %6.2f", m_stoichCoeffRxnMatrix[i][j]);
 	}
 	//plogf(" |  %6.2f", scSize[i]);
 	plogf("\n");
@@ -3806,7 +3806,7 @@ namespace VCSnonideal {
      *  and the phase participation array, PhaseParticipation[irxn][iphase]
      */
     for (irxn = 0; irxn < m_numRxnTot; ++irxn) {
-      scrxn_ptr = sc[irxn];
+      scrxn_ptr = m_stoichCoeffRxnMatrix[irxn];
       dptr = DnPhase[irxn];
       kspec = ir[irxn];
       int iph = PhaseID[kspec];
@@ -3917,7 +3917,7 @@ namespace VCSnonideal {
        *        existence.
        */
       for (int j = 0; j < m_numComponents; ++j) {
-	double stoicC = sc[irxn][j];
+	double stoicC = m_stoichCoeffRxnMatrix[irxn][j];
 	if (stoicC != 0.0) {
 	  double negChangeComp = - stoicC;
 	  if (negChangeComp > 0.0) {
@@ -3985,7 +3985,7 @@ namespace VCSnonideal {
     double szAdj = scSize[irxn] * std::sqrt((double)m_numRxnTot);
     for (k = 0; k < m_numComponents; ++k) {
       if (!(SSPhase[k])) {
-	if (sc[irxn][k] != 0.0) {
+	if (m_stoichCoeffRxnMatrix[irxn][k] != 0.0) {
 	  if (m_molNumSpecies_old[kspec] * szAdj >= m_molNumSpecies_old[k] * 0.01) {
 	    return VCS_SPECIES_MAJOR;
 	  }
@@ -4718,7 +4718,7 @@ namespace VCSnonideal {
       }
 #endif
       for (j = 0; j < m_numComponents; ++j) {
-	SWAP(sc[i1][j], sc[i2][j], t1);
+	SWAP(m_stoichCoeffRxnMatrix[i1][j], m_stoichCoeffRxnMatrix[i2][j], t1);
       }
       SWAP(scSize[i1], scSize[i2], t1);
       for (iph = 0; iph < NPhase; iph++) {
@@ -4785,7 +4785,7 @@ namespace VCSnonideal {
       if (kspec >= m_numComponents) {
 	irxn = kspec - m_numComponents;
 	m_deltaGRxn_new[irxn] = m_feSpecies_curr[kspec];
-	dtmp_ptr = sc[irxn];
+	dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
 	for (kcomp = 0; kcomp < m_numComponents; ++kcomp) {
 	  m_deltaGRxn_new[irxn] += dtmp_ptr[kcomp] * m_feSpecies_curr[kcomp];
 	}
@@ -4804,7 +4804,7 @@ namespace VCSnonideal {
 	  if (iph == iphase ) {
 	    if (m_molNumSpecies_old[kspec] > 0.0) zeroedPhase = FALSE;
 	    m_deltaGRxn_new[irxn] = m_feSpecies_curr[kspec];
-	    dtmp_ptr = sc[irxn];
+	    dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
 	    for (kcomp = 0; kcomp < m_numComponents; ++kcomp) {
 	      m_deltaGRxn_new[irxn] += dtmp_ptr[kcomp] * m_feSpecies_curr[kcomp];
 	    }
@@ -4933,7 +4933,7 @@ namespace VCSnonideal {
      * back from this routine. This evaluation should
      * be respected.
      */ 
-    double *sc_irxn = sc[irxn];
+    double *sc_irxn = m_stoichCoeffRxnMatrix[irxn];
     for (int j = 0; j < m_numComponents; ++j) {
       // Only loop over element contraints that involve positive def. constraints
       if (SpeciesUnknownType[j] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {

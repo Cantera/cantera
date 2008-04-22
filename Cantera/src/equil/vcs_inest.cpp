@@ -255,7 +255,7 @@ namespace VCSnonideal {
 	  * exp(-m_deltaGRxn_new[irxn]);
 	 
 	for (k = 0; k < m_numComponents; ++k) {
-	  m_deltaMolNumSpecies[k] += sc[irxn][k] * m_deltaMolNumSpecies[kspec];
+	  m_deltaMolNumSpecies[k] += m_stoichCoeffRxnMatrix[irxn][k] * m_deltaMolNumSpecies[kspec];
 	}
 	
 	for (iph = 0; iph < NPhase; iph++) {

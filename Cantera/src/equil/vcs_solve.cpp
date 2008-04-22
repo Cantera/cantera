@@ -104,7 +104,7 @@ namespace VCSnonideal {
      * We will initialize sc[] to note the fact that it needs to be
      * filled with meaningful information.
      */
-    sc.resize(nspecies0, nelements, 0.0);
+    m_stoichCoeffRxnMatrix.resize(nspecies0, nelements, 0.0);
 
     scSize.resize(nspecies0, 0.0);
     m_spSize.resize(nspecies0, 1.0);

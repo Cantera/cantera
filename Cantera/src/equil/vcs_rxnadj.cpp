@@ -138,7 +138,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
       if (SSPhase[kspec]) s = 0.0;
       else                s = 1.0 / m_molNumSpecies_old[kspec];
       for (j = 0; j < m_numComponents; ++j) {
-	if (! SSPhase[j])  s += SQUARE(sc[irxn][j]) / m_molNumSpecies_old[j];
+	if (! SSPhase[j])  s += SQUARE(m_stoichCoeffRxnMatrix[irxn][j]) / m_molNumSpecies_old[j];
       }
       for (j = 0; j < NPhase; j++) {
 	if (! (VPhaseList[j])->SingleSpecies) {
@@ -164,8 +164,8 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 	  dss = m_molNumSpecies_old[kspec];
 	  k = kspec;
 	  for (j = 0; j < m_numComponents; ++j) {
-	    if (sc[irxn][j] > 0.0) {
-	      xx = m_molNumSpecies_old[j] / sc[irxn][j];
+	    if (m_stoichCoeffRxnMatrix[irxn][j] > 0.0) {
+	      xx = m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
 	      if (xx < dss) {
 		dss = xx;
 		k = j;
@@ -176,8 +176,8 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 	} else {
 	  dss = 1.0e10;
 	  for (j = 0; j < m_numComponents; ++j) {
-	    if (sc[irxn][j] < 0.0) {
-	      xx = -m_molNumSpecies_old[j] / sc[irxn][j];
+	    if (m_stoichCoeffRxnMatrix[irxn][j] < 0.0) {
+	      xx = -m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
 	      if (xx < dss) {
 		dss = xx;
 		k = j;
@@ -197,8 +197,8 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 	  m_molNumSpecies_old[kspec] += dss;
 	  TPhMoles[PhaseID[kspec]] +=  dss;
 	  for (j = 0; j < m_numComponents; ++j) {
-	    m_molNumSpecies_old[j] += dss * sc[irxn][j];
-	    TPhMoles[PhaseID[j]] +=  dss * sc[irxn][j];
+	    m_molNumSpecies_old[j] += dss * m_stoichCoeffRxnMatrix[irxn][j];
+	    TPhMoles[PhaseID[j]] +=  dss * m_stoichCoeffRxnMatrix[irxn][j];
 	  }
 	  m_molNumSpecies_old[k] = 0.0;
 	  TPhMoles[PhaseID[k]] = 0.0; 
@@ -298,7 +298,7 @@ double VCS_SOLVE::vcs_Hessian_actCoeff_diag(int irxn)
   double *sc_irxn;
   kspec = ir[irxn];
   kph = PhaseID[kspec];  
-  sc_irxn = sc[irxn];
+  sc_irxn = m_stoichCoeffRxnMatrix[irxn];
   /*
    *   First the diagonal term of the Jacobian
    */
@@ -382,7 +382,7 @@ double VCS_SOLVE::deltaG_Recalc_Rxn(int irxn, const double *const molNum,
     }
   }
   double deltaG = mu_i[kspec];
-  double *sc_irxn = sc[irxn];
+  double *sc_irxn = m_stoichCoeffRxnMatrix[irxn];
   for (int k = 0; k < m_numComponents; k++) {
     deltaG += sc_irxn[k] * mu_i[k];
   }
@@ -410,7 +410,7 @@ double VCS_SOLVE::vcs_line_search(int irxn, double dx_orig)
   int kspec = ir[irxn];
   const int MAXITS = 10;
   double dx = dx_orig;
-  double *sc_irxn = sc[irxn];
+  double *sc_irxn = m_stoichCoeffRxnMatrix[irxn];
   double *molNumBase = VCS_DATA_PTR(m_molNumSpecies_old);
   double *acBase = VCS_DATA_PTR(ActCoeff0);
   double *ac = VCS_DATA_PTR(ActCoeff);

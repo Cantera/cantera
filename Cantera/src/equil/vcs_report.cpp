@@ -203,7 +203,7 @@ int VCS_SOLVE::vcs_report(int iconv)
      plogf("%-10.10s", SpName[irxn].c_str());
 	plogf("|%10.3g |", m_molNumSpecies_old[irxn]);
 	for (j = 0; j < m_numComponents; j++) {
-	  plogf("     %6.2f", sc[i][j]);
+	  plogf("     %6.2f", m_stoichCoeffRxnMatrix[i][j]);
 	}
 	plogf(" |%10.3g |", m_deltaGRxn_new[irxn]);
 	plogf("\n");
