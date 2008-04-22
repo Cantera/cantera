@@ -90,14 +90,14 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 #ifdef DEBUG_MODE
 	(void) sprintf(ANOTE, "MultSpec: come alive DG = %11.3E", m_deltaGRxn_new[irxn]);       
 #endif
-	ds[kspec] = 1.0e-10;
+	m_deltaMolNumSpecies[kspec] = 1.0e-10;
 	spStatus[irxn] = VCS_SPECIES_MAJOR;
 	--(m_numRxnMinorZeroed);
       } else {
 #ifdef DEBUG_MODE
 	(void) sprintf(ANOTE, "MultSpec: still dead DG = %11.3E", m_deltaGRxn_new[irxn]);       
 #endif
-	ds[kspec] = 0.0;
+	m_deltaMolNumSpecies[kspec] = 0.0;
       }
     } else {
       /* ********************************************** */
@@ -114,7 +114,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 #ifdef DEBUG_MODE
 	sprintf(ANOTE,"Skipped: converged DG = %11.3E\n", m_deltaGRxn_new[irxn]);
 	plogf("   --- "); plogf("%-12.12s", SpName[kspec].c_str());
-	plogf("  %12.4E %12.4E | %s\n",  m_molNumSpecies_old[kspec], ds[kspec], ANOTE);
+	plogf("  %12.4E %12.4E | %s\n",  m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec], ANOTE);
 #endif		    
 	continue;
       }
@@ -127,7 +127,8 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 	sprintf(ANOTE,"Skipped: IC = %3d and DG >0: %11.3E\n", 
 		spStatus[irxn], m_deltaGRxn_new[irxn]);
 	plogf("   --- "); plogf("%-12.12s", SpName[kspec].c_str());
-	plogf("  %12.4E %12.4E | %s\n", m_molNumSpecies_old[kspec], ds[kspec], ANOTE);
+	plogf("  %12.4E %12.4E | %s\n", m_molNumSpecies_old[kspec], 
+	      m_deltaMolNumSpecies[kspec], ANOTE);
 #endif		    
 	continue;
       }
@@ -146,7 +147,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 	}
       }
       if (s != 0.0) {
-	ds[kspec] = -m_deltaGRxn_new[irxn] / s;
+	m_deltaMolNumSpecies[kspec] = -m_deltaGRxn_new[irxn] / s;
       } else {
 	/* ************************************************************ */
 	/* **** REACTION IS ENTIRELY AMONGST SINGLE SPECIES PHASES **** */
@@ -219,7 +220,8 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
     } /* End of regular processing */
 #ifdef DEBUG_MODE
     plogf("   --- "); plogf("%-12.12s", SpName[kspec].c_str());
-    plogf("  %12.4E %12.4E | %s\n", m_molNumSpecies_old[kspec], ds[kspec], ANOTE);
+    plogf("  %12.4E %12.4E | %s\n", m_molNumSpecies_old[kspec], 
+	  m_deltaMolNumSpecies[kspec], ANOTE);
 #endif	
   } /* End of loop over non-component stoichiometric formation reactions */
    
@@ -313,7 +315,7 @@ double VCS_SOLVE::vcs_Hessian_actCoeff_diag(int irxn)
 	}
       }
       if (kph == PhaseID[l]) { 
-	s += sc_irxn[l] * (dLnActCoeffdMolNum[kspec][l] + dLnActCoeffdMolNum[l][kspec]);	
+	s += sc_irxn[l] * (dLnActCoeffdMolNum[kspec][l] + dLnActCoeffdMolNum[l][kspec]);
       }
     }
   }

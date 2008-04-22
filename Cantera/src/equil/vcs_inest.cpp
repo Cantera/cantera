@@ -133,7 +133,7 @@ namespace VCSnonideal {
      *     Make sure all species have positive definite mole numbers
      *     Set voltages to zero for now, until we figure out what to do
      */
-    vcs_dzero(VCS_DATA_PTR(ds), nspecies);
+    vcs_dzero(VCS_DATA_PTR(m_deltaMolNumSpecies), nspecies);
     for (kspec = 0; kspec < nspecies; ++kspec) {
       iph = PhaseID[kspec];
       Vphase = VPhaseList[iph];
@@ -251,15 +251,15 @@ namespace VCSnonideal {
 	 *          phase.
 	 *            It cut diamond4.vin iterations down from 62 to 14.
 	 */
-	ds[kspec] = 0.5 * (TPhMoles1[iph] + TMolesMultiphase) 
+	m_deltaMolNumSpecies[kspec] = 0.5 * (TPhMoles1[iph] + TMolesMultiphase) 
 	  * exp(-m_deltaGRxn_new[irxn]);
 	 
 	for (k = 0; k < m_numComponents; ++k) {
-	  ds[k] += sc[irxn][k] * ds[kspec];
+	  m_deltaMolNumSpecies[k] += sc[irxn][k] * m_deltaMolNumSpecies[kspec];
 	}
 	
 	for (iph = 0; iph < NPhase; iph++) {
-	  DelTPhMoles[iph] += DnPhase[irxn][iph] * ds[kspec];
+	  DelTPhMoles[iph] += DnPhase[irxn][iph] * m_deltaMolNumSpecies[kspec];
 	}
       }
     }
@@ -268,7 +268,7 @@ namespace VCSnonideal {
       for (kspec = 0; kspec < nspecies; ++kspec) {
 	if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  plogf("%sdirection (", pprefix); plogf("%-12.12s", SpName[kspec].c_str());
-	  plogf(") = %g", ds[kspec]);
+	  plogf(") = %g", m_deltaMolNumSpecies[kspec]);
 	  if (SSPhase[kspec]) {
 	    if (molNum[kspec] > 0.0) {
 	      plogf(" (ssPhase exists at w = %g moles)", molNum[kspec]);
@@ -287,8 +287,8 @@ namespace VCSnonideal {
     par = 0.5;
     for (kspec = 0; kspec < m_numComponents; ++kspec) {
       if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	if (par < -ds[kspec] / m_molNumSpecies_new[kspec]) {
-	  par = -ds[kspec] / m_molNumSpecies_new[kspec];
+	if (par < -m_deltaMolNumSpecies[kspec] / m_molNumSpecies_new[kspec]) {
+	  par = -m_deltaMolNumSpecies[kspec] / m_molNumSpecies_new[kspec];
 	}
       }
     }
@@ -305,14 +305,14 @@ namespace VCSnonideal {
     do {
       for (kspec = 0; kspec < m_numComponents; ++kspec) {
 	if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	  molNum[kspec] = m_molNumSpecies_new[kspec] + par * ds[kspec];
+	  molNum[kspec] = m_molNumSpecies_new[kspec] + par * m_deltaMolNumSpecies[kspec];
 	} else {
-	  ds[kspec] = 0.0;
+	  m_deltaMolNumSpecies[kspec] = 0.0;
 	}
       }
       for (kspec = m_numComponents; kspec < nspecies; ++kspec) {
 	if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	  if (ds[kspec] != 0.0) molNum[kspec] = ds[kspec] * par;
+	  if (m_deltaMolNumSpecies[kspec] != 0.0) molNum[kspec] = m_deltaMolNumSpecies[kspec] * par;
 	}
       }
       /*
@@ -326,7 +326,7 @@ namespace VCSnonideal {
       /* ******************************************* */
       vcs_dfe(molNum, 0, 0, 0, nspecies);
       for (kspec = 0, s = 0.0; kspec < nspecies; ++kspec) {
-	s += ds[kspec] * m_feSpecies_curr[kspec];
+	s += m_deltaMolNumSpecies[kspec] * m_feSpecies_curr[kspec];
       }
       if (s == 0.0) {
 	finished = TRUE; continue;

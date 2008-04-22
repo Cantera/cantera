@@ -517,11 +517,12 @@ public:
 
   std::vector<double> m_deltaGRxn_tmp;
 
-  //! Reaction Adjustments for each species
+  //! Reaction Adjustments for each species during the current step
   /*!
+   *  delta Moles for each species during the current step.
    *  Length = number of species
    */
-  std::vector<double> ds;   
+  std::vector<double> m_deltaMolNumSpecies;
 
 
   std::vector<double> ga;  /* ga[j]      = Element abundances for jth element from 
