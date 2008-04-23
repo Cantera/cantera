@@ -153,7 +153,7 @@ int VCS_SOLVE::vcs_report(int iconv)
 		   (VPhaseList[i])->PhaseName.c_str());
 	 }
 	 plogf("%14.7E     %14.7E    %12.4E\n", TPhInertMoles[i], 
-		TPhInertMoles[i] /  TPhMoles[i], 0.0); 
+		TPhInertMoles[i] /  m_tPhaseMoles_old[i], 0.0); 
       }
    }
    if (m_numSpeciesRdc != nspecies) {
@@ -242,10 +242,10 @@ int VCS_SOLVE::vcs_report(int iconv)
      plogf(" %3d ", iphase);
      vcs_VolPhase *VPhase = VPhaseList[iphase];
      plogf("%-12.12s |",VPhase->PhaseName.c_str());
-     plogf("%10.3e |", TPhMoles[iphase]);
-     totalMoles +=  TPhMoles[iphase];
-     if (TPhMoles[iphase] != VPhase->TotalMoles()) {
-       if (! vcs_doubleEqual(TPhMoles[iphase], VPhase->TotalMoles())) {
+     plogf("%10.3e |", m_tPhaseMoles_old[iphase]);
+     totalMoles +=  m_tPhaseMoles_old[iphase];
+     if (m_tPhaseMoles_old[iphase] != VPhase->TotalMoles()) {
+       if (! vcs_doubleEqual(m_tPhaseMoles_old[iphase], VPhase->TotalMoles())) {
 	 plogf("We have a problem\n");
 	 exit(-1);
        }
@@ -281,7 +281,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     */
 	  
    g = vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_curr), 
-		       VCS_DATA_PTR(TPhMoles));
+		       VCS_DATA_PTR(m_tPhaseMoles_old));
    plogf("\n\tTotal Dimensionless Gibbs Free Energy = G/RT = %15.7E\n", g);
    if (inertYes) 
       plogf("\t\t(Inert species have standard free energy of zero)\n");
@@ -315,7 +315,7 @@ int VCS_SOLVE::vcs_report(int iconv)
       plogf(" %14.7E ", m_molNumSpecies_old[l]);
       plogf("%14.7E  ", m_SSfeSpecies[l]);
       plogf("%14.7E  ", log(ActCoeff[l]));
-      double tpmoles = TPhMoles[pid];
+      double tpmoles = m_tPhaseMoles_old[pid];
       double phi = phasePhi[pid];
       double eContrib = phi * Charge[l] * Faraday_dim;
       double lx = 0.0;

@@ -1,6 +1,6 @@
 /**
  * @file vcs_inest.cpp
- *   Methods for obtaining a good initial guess
+ *   Implementation methods for obtaining a good initial guess
  */
 /*  $Author$
  *  $Date$
@@ -13,36 +13,35 @@
  * U.S. Government retains certain rights in this software.
  */
   
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
 #include "vcs_solve.h"
 #include "vcs_internal.h" 
 #include "vcs_VolPhase.h"
 
 #include "clockWC.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
 namespace VCSnonideal {
 
   static char pprefix[20] = "   --- vcs_inest: ";
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
-
-  void VCS_SOLVE::inest(double *aw, double *sa, double *sm, 
-			double *ss, double test)
-   
-    /**************************************************************************
-     *
-     * inest:
-     *
-     *    Estimates equilibrium compositions.
-     * Algorithm covered in a section of Smith and Missen's Book.
-     *
-     * Linear programming module is based on using dbolm.
-     ***************************************************************************/
-  {
+ 
+  // Estimate equilibrium compositions
+  /*
+   *  Estimates equilibrium compositions.
+   *  Algorithm covered in a section of Smith and Missen's Book.
+   *
+   *  Linear programming module is based on using dbolm.
+   *
+   *  @param aw   aw[i[  Mole fraction work space        (ne in length)
+   *  @param sa   sa[j] = Gramm-Schmidt orthog work space (ne in length)
+   *  @param sm   sm[i+j*ne] = QR matrix work space (ne*ne in length)
+   *  @param ss   ss[j] = Gramm-Schmidt orthog work space (ne in length)
+   *  @param test This is a small negative number.
+   */
+  void VCS_SOLVE::inest(double * const aw, double * const sa, double * const sm, 
+			double * const ss, double test) {
     int conv, k,  lt, ikl, kspec, iph, irxn;
     double s;
     double s1 = 0.0;
@@ -169,24 +168,24 @@ namespace VCSnonideal {
     /* **** CHEMICAL POTENTIALS OF BASIS              ****************** */
     /* ***************************************************************** */
     /*
-     * Calculate TMoles and TPhMoles[]
+     * Calculate TMoles and m_tPhaseMoles_old[]
      */
     vcs_tmoles();
     /*
-     * TPhMoles1[] will consist of just the component moles
+     * m_tPhaseMoles_new[] will consist of just the component moles
      */
     for (iph = 0; iph < NPhase; iph++) {
-      TPhMoles1[iph] = TPhInertMoles[iph] + 1.0E-20;
+      m_tPhaseMoles_new[iph] = TPhInertMoles[iph] + 1.0E-20;
     }
     for (kspec = 0; kspec < m_numComponents; ++kspec) {
       if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
-	TPhMoles1[PhaseID[kspec]] += molNum[kspec];
+	m_tPhaseMoles_new[PhaseID[kspec]] += molNum[kspec];
       }
     }
     TMolesMultiphase = 0.0;
     for (iph = 0; iph < NPhase; iph++) {
       if (! VPhaseList[iph]->SingleSpecies) {
-	TMolesMultiphase += TPhMoles1[iph];
+	TMolesMultiphase += m_tPhaseMoles_new[iph];
       }
     }     
     vcs_dcopy(VCS_DATA_PTR(m_molNumSpecies_new), molNum,  nspecies);
@@ -202,7 +201,7 @@ namespace VCSnonideal {
       if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
 	if (! SSPhase[kspec]) {
 	  iph = PhaseID[kspec];
-	  m_feSpecies_curr[kspec] += log(m_molNumSpecies_new[kspec] / TPhMoles[iph]);
+	  m_feSpecies_curr[kspec] += log(m_molNumSpecies_new[kspec] / m_tPhaseMoles_old[iph]);
 	}
       } else {
 	m_molNumSpecies_new[kspec] = 0.0;
@@ -227,8 +226,8 @@ namespace VCSnonideal {
     /* ********************************************************** */
     vcs_dzero(VCS_DATA_PTR(DelTPhMoles), NPhase);
     for (iph = 0; iph < NPhase; iph++) {
-      xtphMax[iph] = log(TPhMoles1[iph] * 1.0E32);
-      xtphMin[iph] = log(TPhMoles1[iph] * 1.0E-32);
+      xtphMax[iph] = log(m_tPhaseMoles_new[iph] * 1.0E32);
+      xtphMin[iph] = log(m_tPhaseMoles_new[iph] * 1.0E-32);
     }
     for (irxn = 0; irxn < nrxn; ++irxn) {
       kspec = ir[irxn];
@@ -251,7 +250,7 @@ namespace VCSnonideal {
 	 *          phase.
 	 *            It cut diamond4.vin iterations down from 62 to 14.
 	 */
-	m_deltaMolNumSpecies[kspec] = 0.5 * (TPhMoles1[iph] + TMolesMultiphase) 
+	m_deltaMolNumSpecies[kspec] = 0.5 * (m_tPhaseMoles_new[iph] + TMolesMultiphase) 
 	  * exp(-m_deltaGRxn_new[irxn]);
 	 
 	for (k = 0; k < m_numComponents; ++k) {
@@ -317,7 +316,7 @@ namespace VCSnonideal {
       }
       /*
        * We have a new w[] estimate, go get the 
-       * TMoles and TPhMoles[] values
+       * TMoles and m_tPhaseMoles_old[] values
        */
       vcs_tmoles();
       if (lt > 0)  goto finished;
@@ -505,7 +504,7 @@ namespace VCSnonideal {
     if (vcs_debug_print_lvl >= 2) {
       plogf("%sTotal Dimensionless Gibbs Free Energy = %15.7E", pprefix,
 	     vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_curr), 
-			     VCS_DATA_PTR(TPhMoles)));   
+			     VCS_DATA_PTR(m_tPhaseMoles_old)));   
       plogendl();
     }
 #endif
@@ -517,7 +516,7 @@ namespace VCSnonideal {
     m_VCount->T_Time_inest += tsecond;
     (m_VCount->T_Calls_Inest)++;
     return retn;
-  }/**** vcs_inest() ***********************************************************/
+  }
 
 }
 

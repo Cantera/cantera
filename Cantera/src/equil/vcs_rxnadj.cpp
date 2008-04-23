@@ -142,8 +142,8 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
       }
       for (j = 0; j < NPhase; j++) {
 	if (! (VPhaseList[j])->SingleSpecies) {
-	  if (TPhMoles[j] > 0.0) 
-	    s -= SQUARE(dnPhase_irxn[j]) / TPhMoles[j];
+	  if (m_tPhaseMoles_old[j] > 0.0) 
+	    s -= SQUARE(dnPhase_irxn[j]) / m_tPhaseMoles_old[j];
 	}
       }
       if (s != 0.0) {
@@ -195,13 +195,13 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 	 */
 	if (dss != 0.0) {
 	  m_molNumSpecies_old[kspec] += dss;
-	  TPhMoles[PhaseID[kspec]] +=  dss;
+	  m_tPhaseMoles_old[PhaseID[kspec]] +=  dss;
 	  for (j = 0; j < m_numComponents; ++j) {
 	    m_molNumSpecies_old[j] += dss * m_stoichCoeffRxnMatrix[irxn][j];
-	    TPhMoles[PhaseID[j]] +=  dss * m_stoichCoeffRxnMatrix[irxn][j];
+	    m_tPhaseMoles_old[PhaseID[j]] +=  dss * m_stoichCoeffRxnMatrix[irxn][j];
 	  }
 	  m_molNumSpecies_old[k] = 0.0;
-	  TPhMoles[PhaseID[k]] = 0.0; 
+	  m_tPhaseMoles_old[PhaseID[k]] = 0.0; 
 #ifdef DEBUG_MODE
 	  plogf("   --- vcs_st2 Special section to delete ");
 	  plogf("%-12.12s", SpName[k].c_str());

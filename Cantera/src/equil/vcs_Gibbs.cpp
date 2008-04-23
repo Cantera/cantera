@@ -19,12 +19,12 @@
 
 namespace VCSnonideal {
 
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+  /*****************************************************************************/
+  /*****************************************************************************/
+  /*****************************************************************************/
 
-double VCS_SOLVE::vcs_Total_Gibbs(double *molesSp, double *chemPot,
-				  double *tPhMoles)
+  double VCS_SOLVE::vcs_Total_Gibbs(double *molesSp, double *chemPot,
+				    double *tPhMoles)
    
     /*************************************************************************
      *
@@ -36,14 +36,14 @@ double VCS_SOLVE::vcs_Total_Gibbs(double *molesSp, double *chemPot,
      *    Note, for this algorithm this function should be MONOTONICALLY
      *    DECREASING.
      *************************************************************************/
-{
+  {
     double g = 0.0;
   
     for (int iph = 0; iph < NPhase; iph++) {
       vcs_VolPhase *Vphase = VPhaseList[iph];
       if ((TPhInertMoles[iph] > 0.0) && (tPhMoles[iph] > 0.0)) {
 	g += TPhInertMoles[iph] *
-	    log(TPhInertMoles[iph] / tPhMoles[iph]);
+	  log(TPhInertMoles[iph] / tPhMoles[iph]);
 	if (Vphase->GasPhase) {
 	  g += TPhInertMoles[iph] * log(Pres);
 	}
@@ -55,48 +55,40 @@ double VCS_SOLVE::vcs_Total_Gibbs(double *molesSp, double *chemPot,
     }
   
     return g;
-}
+  }
 
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-
-double VCS_SOLVE::vcs_GibbsPhase(int iphase, double *w, double *fe)
-   
-    /*************************************************************************
-     *
-     * vcs_Total_Gibbs:
-     *
-     *    Calculate the total dimensionless Gibbs free energy
-     *     -> Inert species are handled as if they had a standard free
-     *        energy of zero.
-     *    Note, for this algorithm this function should be MONOTONICALLY
-     *    DECREASING.
-     *************************************************************************/
-{
+  // Calculate the total dimensionless Gibbs free energy of a single phase
+  /*
+   *     -> Inert species are handled as if they had a standard free
+   *        energy of zero and if they obeyed ideal solution/gas theory
+   *
+   * @param iphase   ID of the phase
+   * @param w        Species mole number vector
+   * @param fe       vector of partial molar free energies of the species.
+   */
+  double VCS_SOLVE::vcs_GibbsPhase(int iphase, const double * const w,
+				   const double * const fe) {
     double g = 0.0;
- 
-    vcs_VolPhase *Vphase = VPhaseList[iphase];
-    if ((TPhInertMoles[iphase] > 0.0) && (TPhMoles[iphase] > 0.0)) {
-      g += TPhInertMoles[iphase] *
-	  log(TPhInertMoles[iphase] / TPhMoles[iphase]);
+    double phaseMols = 0.0;
+    for (int kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
+      if (PhaseID[kspec] == iphase) {
+	g += w[kspec] * fe[kspec];
+	phaseMols += w[kspec];
+      }
+    }
+
+    if (TPhInertMoles[iphase] > 0.0) {
+      phaseMols += TPhInertMoles[iphase];
+      g += TPhInertMoles[iphase] * log(TPhInertMoles[iphase] / phaseMols);
+      vcs_VolPhase *Vphase = VPhaseList[iphase];
       if (Vphase->GasPhase == iphase) {
 	g += TPhInertMoles[iphase] * log(Pres);
       }
     }
-    
-    for (int kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
-      if (PhaseID[kspec] == iphase) {
-	g += w[kspec] * fe[kspec];
-      }
-    }
-  
-    return g;
-}
 
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+    return g;
+  }
+
 }
 
 

@@ -290,7 +290,7 @@ int VCS_SOLVE::vcs_prep(void) {
   vcs_dzero(&(DnPhase[0][0]), m_numSpeciesTot*NPhase);
   vcs_izero(&(PhaseParticipation[0][0]), m_numSpeciesTot*NPhase);
   vcs_dzero(VCS_DATA_PTR(DelTPhMoles), NPhase);
-  vcs_dzero(VCS_DATA_PTR(TPhMoles1), NPhase);
+  vcs_dzero(VCS_DATA_PTR(m_tPhaseMoles_new), NPhase);
   /*
    *   Calculate the total number of moles in all phases.
    */

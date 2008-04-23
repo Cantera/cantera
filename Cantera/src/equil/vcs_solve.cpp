@@ -131,8 +131,8 @@ namespace VCSnonideal {
     m_elemAbundances.resize(nelements, 0.0);
     m_elemAbundancesGoal.resize(nelements, 0.0);
 
-    TPhMoles.resize(nphase0, 0.0);
-    TPhMoles1.resize(nphase0, 0.0);
+    m_tPhaseMoles_old.resize(nphase0, 0.0);
+    m_tPhaseMoles_new.resize(nphase0, 0.0);
     DelTPhMoles.resize(nphase0, 0.0);
     TmpPhase.resize(nphase0, 0.0);
     TmpPhase2.resize(nphase0, 0.0);

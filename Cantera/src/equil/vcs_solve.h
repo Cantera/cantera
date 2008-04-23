@@ -270,7 +270,13 @@ public:
   void   vcs_redim_TP(void);
   void   vcs_printChemPotUnits(int unitsFormat);
 
-  void vcs_elab(void);
+  //! Computes the current elemental abundances vector
+  /*!
+   *   Computes the elemental abundances vector, m_elemAbundances[], and stores it
+   *   back into the global structure
+   */
+  void vcs_elab();
+
   int vcs_elabcheck(int ibound);
   void vcs_elabPhase(int iphase, double * const elemAbundPhase);
   int vcs_elcorr(double aa[], double x[]);
@@ -294,7 +300,19 @@ public:
 #endif
 
   double vcs_Total_Gibbs(double *w, double *fe, double *tPhMoles);
-  double vcs_GibbsPhase(int iphase, double *w, double *fe);
+
+  //! Calculate the total dimensionless Gibbs free energy of a single phase
+  /*!
+   *     -> Inert species are handled as if they had a standard free
+   *        energy of zero and if they obeyed ideal solution/gas theory
+   *
+   * @param iphase   ID of the phase
+   * @param w        Species mole number vector for all species
+   * @param fe       vector of partial molar free energies of all of the
+   *                 species
+   */
+  double vcs_GibbsPhase(int iphase, const double * const w,
+			const double * const fe);
 
   double vcs_Gxs_phase_calc(vcs_VolPhase *Vphase, double *mf_PO);
   double vcs_Gxs_calc(int iphase);
@@ -358,8 +376,25 @@ private:
   void prneav(void);
   void checkDelta1(double * const ds, double * const delTPhMoles, int kspec);
 #endif
-  void inest(double *aw, double *sa, double *sm, 
-	     double *ss, double test);
+
+  //! Estimate equilibrium compositions
+  /*!
+   *  Estimates equilibrium compositions.
+   *  Algorithm covered in a section of Smith and Missen's Book.
+   *
+   *  Linear programming module is based on using dbolm.
+   *
+   *  @param aw   aw[i[  Mole fraction work space        (ne in length)
+   *  @param sa   sa[j] = Gramm-Schmidt orthog work space (ne in length)
+   *  @param sm   sm[i+j*ne] = QR matrix work space (ne*ne in length)
+   *  @param ss   ss[j] = Gramm-Schmidt orthog work space (ne in length)
+   *  @param test This is a small negative number.
+   */
+  void inest(double * const aw, double * const sa, double * const sm, 
+	     double * const ss, double test);
+
+
+
   void vcs_SSPhase(void); 
   double deltaG_Recalc_Rxn(int irxn, const double *const molNum,
 			   double * const ac, double * const mu_i);
@@ -612,7 +647,7 @@ public:
    *
    *  Length = number of phases
    */
-  std::vector<double> TPhMoles;
+  std::vector<double> m_tPhaseMoles_old;
 
   //! total gmols of species in each phase in the tentative soln vector
   /*!
@@ -621,7 +656,7 @@ public:
    *
    *  Length = number of phases
    */
-  std::vector<double> TPhMoles1;
+  std::vector<double> m_tPhaseMoles_new;
 
   //! Temporary vector of length NPhase 
   std::vector<double> TmpPhase;

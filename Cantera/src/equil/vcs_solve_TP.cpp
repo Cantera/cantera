@@ -814,7 +814,7 @@ namespace VCSnonideal {
 	     */
 	    if (m_molNumSpecies_new[kspec] < 0.005 * TMoles) {
 	      iph = PhaseID[kspec];
-	      if (m_molNumSpecies_new[kspec] < (TPhMoles[iph] * 0.01)) {
+	      if (m_molNumSpecies_new[kspec] < (m_tPhaseMoles_old[iph] * 0.01)) {
 #ifdef DEBUG_MODE
 		if (vcs_debug_print_lvl >= 2) {
 		  plogf("   --- Major species changed to minor: ");
@@ -887,9 +887,9 @@ namespace VCSnonideal {
 	       */
 	      dnPhase_irxn = DnPhase[irxn];
 	      for (int iphase = 0; iphase < NPhase; iphase++) {
-		TPhMoles[iphase] += dnPhase_irxn[iphase] * dx;
+		m_tPhaseMoles_old[iphase] += dnPhase_irxn[iphase] * dx;
 	      }
-	      TPhMoles[iph] = 0.0;
+	      m_tPhaseMoles_old[iph] = 0.0;
 	      vcs_updateVP(0);
 	      /*
 	       *       Recalcuate the chemical potentials, FE(), and the 
@@ -1086,7 +1086,7 @@ namespace VCSnonideal {
      *        Calculate the tentative total mole numbers for each phase
      */
     for (iph = 0; iph < NPhase; iph++) {
-      TPhMoles1[iph] = TPhMoles[iph] + DelTPhMoles[iph];
+      m_tPhaseMoles_new[iph] = m_tPhaseMoles_old[iph] + DelTPhMoles[iph];
     }
     /*
      *         Calculate the new chemical potentials using the tentative 
@@ -1119,10 +1119,10 @@ namespace VCSnonideal {
     if (printDetails) {
       plogf("   --- Total Old       Dimensionless Gibbs Free Energy = %20.13E\n", 
 	    vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_old), 
-			    VCS_DATA_PTR(TPhMoles)));
+			    VCS_DATA_PTR(m_tPhaseMoles_old)));
       plogf("   --- Total tentative Dimensionless Gibbs Free Energy = %20.13E", 
 	    vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_feSpecies_curr), 
-			    VCS_DATA_PTR(TPhMoles1)));
+			    VCS_DATA_PTR(m_tPhaseMoles_new)));
       plogendl();
     }
 
@@ -1153,15 +1153,15 @@ namespace VCSnonideal {
       plogf("Norms of Delta G():%14.6E%14.6E\n",
 	    l2normdg(VCS_DATA_PTR(m_deltaGRxn_old)),
 	    l2normdg(VCS_DATA_PTR(m_deltaGRxn_new)));
-      plogf("   Total moles of gas    = %15.7E\n", TPhMoles[0]);
+      plogf("   Total moles of gas    = %15.7E\n", m_tPhaseMoles_old[0]);
       if ((NPhase > 1) && (! (VPhaseList[1])->SingleSpecies)) { 
-	plogf("   Total moles of liquid = %15.7E\n", TPhMoles[1]); 
+	plogf("   Total moles of liquid = %15.7E\n", m_tPhaseMoles_old[1]); 
       } else {
 	plogf("   Total moles of liquid = %15.7E\n", 0.0);
       }
       plogf("   Total New Dimensionless Gibbs Free Energy = %20.13E\n", 
 	    vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_feSpecies_curr),
-			    VCS_DATA_PTR(TPhMoles1)));
+			    VCS_DATA_PTR(m_tPhaseMoles_new)));
       plogf(" -----------------------------------------------------");
       plogendl();
     }
@@ -1211,15 +1211,15 @@ namespace VCSnonideal {
       plogf("   ---   "); vcs_print_line("-", 50);
       for (iph = 0; iph < NPhase; iph++) {
 	Vphase = VPhaseList[iph];
-	plogf("   ---   %18s = %15.7E\n", Vphase->PhaseName.c_str(), TPhMoles1[iph]);
+	plogf("   ---   %18s = %15.7E\n", Vphase->PhaseName.c_str(), m_tPhaseMoles_new[iph]);
       }
       plogf("   "); vcs_print_line("-", 103);
       plogf("   --- Total Old Dimensionless Gibbs Free Energy = %20.13E\n", 
 	    vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_old), 
-			    VCS_DATA_PTR(TPhMoles)));
+			    VCS_DATA_PTR(m_tPhaseMoles_old)));
       plogf("   --- Total New Dimensionless Gibbs Free Energy = %20.13E", 
 	    vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_feSpecies_curr), 
-			    VCS_DATA_PTR(TPhMoles1)));
+			    VCS_DATA_PTR(m_tPhaseMoles_new)));
       plogendl();
       if (m_VCount->Its > 550) {
 	plogf("   --- Troublesome solve"); 
@@ -1243,7 +1243,7 @@ namespace VCSnonideal {
      *                we have already done this inside the FORCED 
      *                loop. 
      */
-    vcs_dcopy(VCS_DATA_PTR(TPhMoles), VCS_DATA_PTR(TPhMoles1), NPhase);
+    vcs_dcopy(VCS_DATA_PTR(m_tPhaseMoles_old), VCS_DATA_PTR(m_tPhaseMoles_new), NPhase);
     vcs_dcopy(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_molNumSpecies_new), m_numSpeciesRdc);
     vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_old), VCS_DATA_PTR(m_deltaGRxn_new), m_numRxnRdc);
     vcs_dcopy(VCS_DATA_PTR(m_feSpecies_old), VCS_DATA_PTR(m_feSpecies_curr), m_numSpeciesRdc);
@@ -1275,8 +1275,8 @@ namespace VCSnonideal {
     for (iph = 0; iph < NPhase; iph++) {
       Vphase = VPhaseList[iph];
       if (!(Vphase->SingleSpecies)) {
-	if (TPhMoles[iph] != 0.0 &&
-	    TPhMoles[iph]/TMoles <= VCS_DELETE_PHASE_CUTOFF) {
+	if (m_tPhaseMoles_old[iph] != 0.0 &&
+	    m_tPhaseMoles_old[iph]/TMoles <= VCS_DELETE_PHASE_CUTOFF) {
 	  soldel = 1;
 	  for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
 	    if (PhaseID[kspec] == iph && m_molNumSpecies_old[kspec] > 0.0) {
@@ -1922,8 +1922,8 @@ namespace VCSnonideal {
 	m_molNumSpecies_new[kspec] = 1.0;
       } else {
 	iph = PhaseID[kspec];
-	if (TPhMoles[iph] != 0.0) {
-	  m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] / TPhMoles[iph];
+	if (m_tPhaseMoles_old[iph] != 0.0) {
+	  m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] / m_tPhaseMoles_old[iph];
 	} else {
 	  /*
 	   * For MultiSpecies phases that are zeroed out,
@@ -2166,12 +2166,12 @@ namespace VCSnonideal {
       *delta_ptr = dx;
       m_molNumSpecies_old[kspec] += dx;
       int iph = PhaseID[kspec];
-      TPhMoles[iph] += dx;
+      m_tPhaseMoles_old[iph] += dx;
       for (j = 0; j < m_numComponents; ++j) {
 	iph = PhaseID[j];
 	tmp = sc_irxn[j] * dx;
 	m_molNumSpecies_old[j] += tmp;
-	TPhMoles[iph] += tmp;
+	m_tPhaseMoles_old[iph] += tmp;
 	if (m_molNumSpecies_old[j] < 0.0) {
 	  m_molNumSpecies_old[j] = 0.0;
 	}
@@ -2193,7 +2193,7 @@ namespace VCSnonideal {
      *  Zero out the concentration of a species. Make sure to conserve
      *  elements and keep track of the total moles in all phases.
      *       w[]
-     *       TPhMoles[]
+     *       m_tPhaseMoles_old[]
      *
      *  return:
      *      1: succeeded
@@ -2247,7 +2247,7 @@ namespace VCSnonideal {
     int irxn = kspec - m_numComponents;     /* This is the noncomponent rxn index */
     /*
      * Zero the concentration of the species.
-     *     -> This zeroes w[kspec] and modifies TPhMoles[]
+     *     -> This zeroes w[kspec] and modifies m_tPhaseMoles_old[]
      */
     int retn = zero_species(kspec);
     if (! retn) {
@@ -2275,7 +2275,7 @@ namespace VCSnonideal {
     /*  
      *       Adjust the total moles in a phase downwards. 
      */
-    Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(TPhMoles));
+    Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_tPhaseMoles_old));
   
     /* 
      *    Adjust the current number of active species and reactions counters 
@@ -2340,7 +2340,7 @@ namespace VCSnonideal {
 #endif
     /*
      * Set the species back to minor species status
-     *  this adjusts m_molNumSpecies_old[] and TPhMoles[]
+     *  this adjusts m_molNumSpecies_old[] and m_tPhaseMoles_old[]
      * HKM -> make this a relative mole number!
      */
     dx = VCS_DELETE_SPECIES_CUTOFF * 10.;
@@ -2353,7 +2353,7 @@ namespace VCSnonideal {
     }
     int iph = PhaseID[kspec];
     vcs_VolPhase *Vphase = VPhaseList[iph];
-    Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(TPhMoles));
+    Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_tPhaseMoles_old));
     /*
      *   We may have popped a multispecies phase back 
      *   into existence. If we did, we have to check 
@@ -2421,8 +2421,8 @@ namespace VCSnonideal {
     /*
      * Zero out the total moles counters for the phase
      */
-    TPhMoles[iph]    = 0.0;
-    TPhMoles1[iph]   = 0.0;
+    m_tPhaseMoles_old[iph]    = 0.0;
+    m_tPhaseMoles_new[iph]   = 0.0;
     DelTPhMoles[iph] = 0.0;
    
     /*
@@ -2499,7 +2499,7 @@ namespace VCSnonideal {
     /*
      * Upload the state to the VP object
      */
-    Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(TPhMoles), iph);
+    Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_tPhaseMoles_old), iph);
 
   } /* delete_multiphase() *****************************************************/
    
@@ -2536,8 +2536,8 @@ namespace VCSnonideal {
     vcs_deltag(0, true);
    
     for (iph = 0; iph < NPhase; iph++) {
-      if (TPhMoles[iph] > 0.0)  
-	xtcutoff[iph] = log (TPhMoles[iph] / VCS_DELETE_SPECIES_CUTOFF);
+      if (m_tPhaseMoles_old[iph] > 0.0)  
+	xtcutoff[iph] = log (m_tPhaseMoles_old[iph] / VCS_DELETE_SPECIES_CUTOFF);
       else
 	xtcutoff[iph] = 0.0;
     }
@@ -2546,7 +2546,7 @@ namespace VCSnonideal {
      *   We are checking the equation:
      *
      *         sum_u = sum_j_comp [ sigma_i_j * u_j ] 
-     *               = u_i_O + log((AC_i * W_i)/TPhMoles) 
+     *               = u_i_O + log((AC_i * W_i)/m_tPhaseMoles_old) 
      *
      *   by first evaluating: 
      *
@@ -2571,14 +2571,14 @@ namespace VCSnonideal {
     for (irxn = m_numRxnRdc; irxn < m_numRxnTot; ++irxn) {
       kspec = ir[irxn];
       iph = PhaseID[kspec];
-      if (TPhMoles[iph] == 0.0) {
+      if (m_tPhaseMoles_old[iph] == 0.0) {
 	if (m_deltaGRxn_new[irxn] < 0.0) {
 	  vcs_reinsert_deleted(kspec);
 	  npb++;
 	} else {
 	  m_molNumSpecies_old[kspec] = 0.0;
 	}
-      } else if (TPhMoles[iph] > 0.0) {
+      } else if (m_tPhaseMoles_old[iph] > 0.0) {
 	if (m_deltaGRxn_new[irxn] < xtcutoff[iph]) {
 	  vcs_reinsert_deleted(kspec);
 	  npb++;
@@ -2624,9 +2624,9 @@ namespace VCSnonideal {
     for (int irxn = m_numRxnRdc; irxn < m_numRxnTot; ++irxn) {
       kspec = ir[irxn];
       iph = PhaseID[kspec];
-      if (TPhMoles[iph] > 0.0) {
+      if (m_tPhaseMoles_old[iph] > 0.0) {
 	double maxDG = MIN(m_deltaGRxn_new[irxn], 300);
-	double dx = TPhMoles[iph] * exp(- maxDG);
+	double dx = m_tPhaseMoles_old[iph] * exp(- maxDG);
 	retn = delta_species(kspec, &dx);
       }
     }
@@ -2750,7 +2750,7 @@ namespace VCSnonideal {
       m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + al * m_deltaMolNumSpecies[kspec];
     }
     for (iph = 0; iph < NPhase; iph++) {
-      TPhMoles1[iph] = TPhMoles[iph] + al * DelTPhMoles[iph];
+      m_tPhaseMoles_new[iph] = m_tPhaseMoles_old[iph] + al * DelTPhMoles[iph];
     }
     vcs_updateVP(1);
    
@@ -2865,7 +2865,7 @@ namespace VCSnonideal {
 	     * is nontrivial in size.
 	     */
 	    iph = PhaseID[kspec];
-	    double tphmoles = TPhMoles[iph];
+	    double tphmoles = m_tPhaseMoles_old[iph];
 	    double trphmoles = tphmoles / TMoles;
 	    if (trphmoles > VCS_DELETE_PHASE_CUTOFF) {
 	      m_deltaMolNumSpecies[kspec] = TMoles * VCS_SMALL_MULTIPHASE_SPECIES;
@@ -2946,8 +2946,8 @@ namespace VCSnonideal {
 	  for (j = 0; j < NPhase; j++) {
 	    Vphase = VPhaseList[j];
 	    if (! Vphase->SingleSpecies) {
-	      if (TPhMoles[j] > 0.0) 
-		s -= SQUARE(dnPhase_irxn[j]) / TPhMoles[j];
+	      if (m_tPhaseMoles_old[j] > 0.0) 
+		s -= SQUARE(dnPhase_irxn[j]) / m_tPhaseMoles_old[j];
 	    }
 	  }
 	  if (s != 0.0) {
@@ -3053,16 +3053,16 @@ namespace VCSnonideal {
 	     */
 	    if (dss != 0.0) {
 	      m_molNumSpecies_old[kspec] += dss;
-	      TPhMoles[PhaseID[kspec]] +=  dss;
+	      m_tPhaseMoles_old[PhaseID[kspec]] +=  dss;
 	      for (j = 0; j < m_numComponents; ++j) {
 		m_molNumSpecies_old[j] += dss * m_stoichCoeffRxnMatrix[irxn][j];
-		TPhMoles[PhaseID[j]] +=  dss * m_stoichCoeffRxnMatrix[irxn][j];
+		m_tPhaseMoles_old[PhaseID[j]] +=  dss * m_stoichCoeffRxnMatrix[irxn][j];
 	      }
 	      m_molNumSpecies_old[k] = 0.0;
 	      iph = PhaseID[k];
 	      Vphase = VPhaseList[iph];
 	      Vphase->Existence = 0;
-	      TPhMoles[iph] = 0.0;
+	      m_tPhaseMoles_old[iph] = 0.0;
 #ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 2) {
 		plogf("   --- vcs_RxnStepSizes Special section to delete %s\n",
@@ -3901,7 +3901,7 @@ namespace VCSnonideal {
 	if (SSPhase[kspec]) {
 	  return VCS_SPECIES_ZEROEDSS;
 	} else {
-	  if (TPhMoles[iph] == 0.0) return VCS_SPECIES_ZEROEDPHASE;
+	  if (m_tPhaseMoles_old[iph] == 0.0) return VCS_SPECIES_ZEROEDPHASE;
 	  else                         return VCS_SPECIES_ZEROEDMS;
 	}
       }
@@ -3973,7 +3973,7 @@ namespace VCSnonideal {
      *   Check to see whether the current species is a major component
      *   of its phase. If it is, it is a major component
      */
-    if (m_molNumSpecies_old[kspec] > (TPhMoles[iph] * 0.1)) return VCS_SPECIES_MAJOR;
+    if (m_molNumSpecies_old[kspec] > (m_tPhaseMoles_old[iph] * 0.1)) return VCS_SPECIES_MAJOR;
     /*
      *   Main check in the loop:
      *      Check to see if there is a component with a mole number that is
@@ -4243,9 +4243,9 @@ namespace VCSnonideal {
     }
 #endif
     if (kk <= 0) {
-      tPhMoles_ptr = VCS_DATA_PTR(TPhMoles);
+      tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_old);
     } else {
-      tPhMoles_ptr = VCS_DATA_PTR(TPhMoles1);
+      tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_new);
     }
     tlogMoles = VCS_DATA_PTR(TmpPhase);
     /*
@@ -4535,20 +4535,20 @@ namespace VCSnonideal {
     double sum;
     vcs_VolPhase *Vphase;
     for (i = 0; i < NPhase; i++) {
-      TPhMoles[i] = TPhInertMoles[i];
+      m_tPhaseMoles_old[i] = TPhInertMoles[i];
     }
     for (i = 0; i < m_numSpeciesTot; i++) {
       if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
-	TPhMoles[PhaseID[i]] += m_molNumSpecies_old[i];
+	m_tPhaseMoles_old[PhaseID[i]] += m_molNumSpecies_old[i];
       }
     }
     sum = 0.0;
     for (i = 0; i < NPhase; i++) {
-      sum += TPhMoles[i];
+      sum += m_tPhaseMoles_old[i];
       Vphase = VPhaseList[i];
       // Took out because we aren't updating mole fractions in Vphase
-      // Vphase->TMoles = TPhMoles[i];
-      if (TPhMoles[i] == 0.0) {
+      // Vphase->TMoles = m_tPhaseMoles_old[i];
+      if (m_tPhaseMoles_old[i] == 0.0) {
 	Vphase->Existence = 0;
       } else {
 	if (TPhInertMoles[i] > 0.0) {
@@ -4581,10 +4581,10 @@ namespace VCSnonideal {
       Vphase = VPhaseList[i];
       if (place == 0) {
 	Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old), 
-				     VCS_DATA_PTR(TPhMoles), i);
+				     VCS_DATA_PTR(m_tPhaseMoles_old), i);
       } else if (place == 1) {
 	Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_new),
-				     VCS_DATA_PTR(TPhMoles1), i);
+				     VCS_DATA_PTR(m_tPhaseMoles_new), i);
       } else {
 	plogf("we shouldn't be here\n");
 	exit(-1);

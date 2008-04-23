@@ -1,16 +1,17 @@
+/**
+ * @file vcs_species_thermo.cpp
+ *   Implementation for the VCS_SPECIES_THERMO object.
+ */
 /*
  * $Id$
  */
-
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+
 
 #include "vcs_solve.h"
 #include "vcs_species_thermo.h"
@@ -20,14 +21,14 @@
 #include "vcs_Exception.h"
 #include "vcs_internal.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
 using namespace std;
 
 namespace VCSnonideal {
 
-/*****************************************************************************
- *
- * constructor():
- */
 
 VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(int indexPhase, 
 				       int indexSpeciesPhase) :
@@ -436,7 +437,7 @@ double VCS_SOLVE::vcs_Gxs_calc(int iphase)
 {
   int kspec;
   double Gxs = 0.0, ac;
-  double totmol = TPhMoles[iphase];
+  double totmol = m_tPhaseMoles_old[iphase];
   vcs_VolPhase *Vphase = VPhaseList[iphase];
   VCS_SPECIES_THERMO *ts_ptr;
 
