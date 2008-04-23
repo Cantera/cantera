@@ -117,7 +117,7 @@ void VCS_SOLVE::vcs_nondim_TP(void) {
 	  }
 	}
 	for (i = 0; i < m_numElemConstraints; ++i) {
-	  gai[i] *= 1.0E3;
+	  m_elemAbundancesGoal[i] *= 1.0E3;
 	}
       }
     }
@@ -157,7 +157,7 @@ void VCS_SOLVE::vcs_redim_TP(void)
 	  }
 	}
 	for (i = 0; i < m_numElemConstraints; ++i) {
-	  gai[i] /= 1.0E3;
+	  m_elemAbundancesGoal[i] /= 1.0E3;
 	}
     }
 

@@ -197,7 +197,55 @@ public:
  
   bool vcs_wellPosed(VCS_PROB *vprob);
 
-  int vcs_elem_rearrange(double *aw, double *sa, double *sm, double *ss);
+  //! Rearrange the constraint equations represented by the Formula
+  //! Matrix so that the operational ones are in the front
+  /*!
+   *
+   *       This subroutine handles the rearrangement of the constraint
+   *    equations represented by the Formula Matrix. Rearrangement is only
+   *    necessary when the number of components is less than the number of
+   *    elements. For this case, some constraints can never be satisfied 
+   *    exactly, because the range space represented by the Formula
+   *    Matrix of the components can't span the extra space. These 
+   *    constraints, which are out of the range space of the component
+   *    Formula matrix entries, are migrated to the back of the Formula
+   *    matrix.
+   *
+   *       A prototypical example is an extra element column in 
+   *    FormulaMatrix[], 
+   *    which is identically zero. For example, let's say that argon is
+   *    has an element column in FormulaMatrix[], but no species in the 
+   *     mechanism
+   *    actually contains argon. Then, nc < ne. Also, without perturbation
+   *    of FormulaMatrix[] vcs_basopt[] would produce a zero pivot 
+   *    because the matrix
+   *    would be singular (unless the argon element column was already the
+   *    last column of  FormulaMatrix[]. 
+   *       This routine borrows heavily from vcs_basopt's algorithm. It 
+   *    finds nc constraints which span the range space of the Component
+   *    Formula matrix, and assigns them as the first nc components in the
+   *    formular matrix. This guarrantees that vcs_basopt[] has a
+   *    nonsingular matrix to invert.
+   *
+   * Other Variables 
+   *  @param aw   aw[i[  Mole fraction work space        (ne in length)
+   *  @param sa   sa[j] = Gramm-Schmidt orthog work space (ne in length)
+   *  @param sm   sm[i+j*ne] = QR matrix work space (ne*ne in length)
+   *  @param ss   ss[j] = Gramm-Schmidt orthog work space (ne in length)
+   *
+   */
+  int vcs_elem_rearrange(double *const aw, double * const sa,
+			 double * const sm, double * const ss);
+
+  //!  Swaps the indecises for all of the global data for two elements, ipos
+  //!  and jpos.
+  /*!
+   *  This function knows all of the element information with VCS_SOLVE, and
+   *  can therefore switch element positions
+   *
+   *  @param ipos  first global element index
+   *  @param jpos  second global element index
+   */
   void vcs_switch_elem_pos(int ipos, int jpos);
 
   int    vcs_rxn_adj_cg(void);
@@ -211,6 +259,7 @@ public:
 #endif
 
   int vcs_report(int);
+
 
   int vcs_rearrange(void);
 
@@ -516,6 +565,10 @@ public:
   //!  Last deltag[irxn] from the previous step 
   std::vector<double> m_deltaGRxn_old;
 
+  //! Temporary vector of Rxn DeltaG's
+  /*!
+   *  This is used from time to time, for printing purposes
+   */
   std::vector<double> m_deltaGRxn_tmp;
 
   //! Reaction Adjustments for each species during the current step
@@ -525,18 +578,29 @@ public:
    */
   std::vector<double> m_deltaMolNumSpecies;
 
+  //!  Element abundances vector
+  /*!
+   *  Vector of moles of each element actually in the solution
+   *  vector. Except for certain parts of the algorithm,
+   *  this is a constant.
+   *  Note other constraint conditions are added to this vector.
+   *  This is input from the input file and 
+   *  is considered a constant from thereon.
+   *   units = gmoles
+   */
+  std::vector<double> m_elemAbundances;
 
-  std::vector<double> ga;  /* ga[j]      = Element abundances for jth element from 
-			    *              estimate
-			    *           -> this is calculated from the current mole 
-			    *              fraction vector and BM, the formula 
-			    *              vector. 
-			    *              units = gmoles  */
-  std::vector<double> gai; /* gai[j]     = Element abundances for jth element 
-			    *              -> corrected
-			    *              -> this is input from the input file and 
-			    *                 is considered a constant from thereon.
-			    *              units = gmoles  */
+  //! Element abundances vector Goals
+  /*!
+   *  Vector of moles of each element that are the goals of the 
+   *  simulation. This is a constant in the problem.
+   *  Note other constraint conditions are added to this vector.
+   *  This is input from the input file and 
+   *  is considered a constant from thereon.
+   *   units = gmoles 
+   */
+  std::vector<double> m_elemAbundancesGoal; 
+
   double  TMoles;   /* TMoles      = Total number of moles in all phases
 		     *               This number includes the inerts.
 		     *            -> Don't use this except for scaling

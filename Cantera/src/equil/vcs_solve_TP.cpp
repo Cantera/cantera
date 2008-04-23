@@ -250,7 +250,7 @@ namespace VCSnonideal {
       plogf("          FROM ESTIMATE           Type\n\n");
       for (i = 0; i < m_numElemConstraints; ++i) { 
 	print_space(26); plogf("%-2.2s", (ElName[i]).c_str());
-	plogf("%20.12E%20.12E     %3d\n", gai[i], ga[i], m_elType[i]);
+	plogf("%20.12E%20.12E     %3d\n", m_elemAbundancesGoal[i], m_elemAbundances[i], m_elType[i]);
       }
       if (iest < 0) {
 	plogf("\n MODIFIED LINEAR PROGRAMMING ESTIMATE OF EQUILIBRIUM\n");
@@ -596,7 +596,7 @@ namespace VCSnonideal {
 	    if (elType == VCS_ELEM_TYPE_ABSPOS) {
 	      double atomComp = FormulaMatrix[j][kspec];
 	      if (atomComp > 0.0) {
-		double maxPermissible = gai[j] / atomComp;
+		double maxPermissible = m_elemAbundancesGoal[j] / atomComp;
 		if (maxPermissible < VCS_DELETE_MINORSPECIES_CUTOFF) {
 #ifdef DEBUG_MODE
 		  sprintf(ANOTE, "Species stays zeroed even though dG neg, because of %s elemAbund",
@@ -3484,7 +3484,7 @@ namespace VCSnonideal {
 		      double nu = FormulaMatrix[j][kspec];
 		      if (nu != 0.0) {
 			nonZeroesKspec++;
-			maxConcPossKspec = MIN(gai[j] / nu, maxConcPossKspec);
+			maxConcPossKspec = MIN(m_elemAbundancesGoal[j] / nu, maxConcPossKspec);
 		      }
 		    }
 		  }
@@ -3657,7 +3657,7 @@ namespace VCSnonideal {
      * Then, the first row in sm[], below will be indentically
      * zero. bleh. 
      *    What needs to be done is to perform a rearrangement
-     * of the ELEMENTS -> i.e. rearrange, FormulaMatrix, sp, and gai, such
+     * of the ELEMENTS -> i.e. rearrange, FormulaMatrix, sp, and m_elemAbundancesGoal, such
      * that the first nc elements form in combination with the
      * nc components create an invertible sm[]. not a small
      * project, but very doable.
@@ -3944,7 +3944,7 @@ namespace VCSnonideal {
 	if (elType == VCS_ELEM_TYPE_ABSPOS) {
 	  double atomComp = FormulaMatrix[j][kspec];
 	  if (atomComp > 0.0) {
-	    double maxPermissible = gai[j] / atomComp;
+	    double maxPermissible = m_elemAbundancesGoal[j] / atomComp;
 	    if (maxPermissible < VCS_DELETE_MINORSPECIES_CUTOFF) {
 #ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 2) {
@@ -4474,9 +4474,9 @@ namespace VCSnonideal {
     for (j = 0; j < m_numElemConstraints; ++j) {
       plogf("  ");  plogf("%-2.2s", (ElName[j]).c_str());
       plogf(" = %15.6E     %15.6E     %15.6E  %3d\n",
-	    eav[j], gai[j], eav[j] - gai[j], m_elType[j]);
-      if (gai[j] != 0.) {
-	if (fabs(eav[j] - gai[j]) > gai[j] * 5.0e-9)
+	    eav[j], m_elemAbundancesGoal[j], eav[j] - m_elemAbundancesGoal[j], m_elType[j]);
+      if (m_elemAbundancesGoal[j] != 0.) {
+	if (fabs(eav[j] - m_elemAbundancesGoal[j]) > m_elemAbundancesGoal[j] * 5.0e-9)
 	  kerr = TRUE;
       } else {
 	if (fabs(eav[j]) > 1.0e-10) kerr = TRUE;

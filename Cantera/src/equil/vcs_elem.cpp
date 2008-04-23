@@ -21,15 +21,15 @@ void VCS_SOLVE::vcs_elab(void)
    *
    * vcs_elab:
    *
-   *  Computes the elemental abundances vector, ga[], and stores it
+   *  Computes the elemental abundances vector, m_elemAbundances[], and stores it
    *  back into the global structure
    *************************************************************************/
 {
   for (int j = 0; j < m_numElemConstraints; ++j) {
-    ga[j] = 0.0;
+    m_elemAbundances[j] = 0.0;
     for (int i = 0; i < m_numSpeciesTot; ++i) {
       if (SpeciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	ga[j] += FormulaMatrix[j][i] * m_molNumSpecies_old[i];
+	m_elemAbundances[j] += FormulaMatrix[j][i] * m_molNumSpecies_old[i];
       }
     }
   }
@@ -79,14 +79,14 @@ int VCS_SOLVE::vcs_elabcheck(int ibound) {
    * Require 12 digits of accuracy on non-zero constraints.
    */
   for (i = 0; i < top; ++i) {
-    if (fabs(ga[i] - gai[i]) > (fabs(gai[i]) * 1.0e-12)) {
+    if (fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > (fabs(m_elemAbundancesGoal[i]) * 1.0e-12)) {
       /*
        * This logic is for charge neutrality condition
        */
       if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY) {
-	AssertThrowVCS(gai[i] == 0.0, "vcs_elabcheck");
+	AssertThrowVCS(m_elemAbundancesGoal[i] == 0.0, "vcs_elabcheck");
       }
-      if (gai[i] == 0.0 || (m_elType[i] == VCS_ELEM_TYPE_ELECTRONCHARGE)) {
+      if (m_elemAbundancesGoal[i] == 0.0 || (m_elType[i] == VCS_ELEM_TYPE_ELECTRONCHARGE)) {
 	scale = VCS_DELETE_MINORSPECIES_CUTOFF;
 	/*
 	 * Find out if the constraint is a multisign constraint.
@@ -107,11 +107,11 @@ int VCS_SOLVE::vcs_elabcheck(int ibound) {
 	  }
 	}
 	if (multisign) {
-	  if (fabs(ga[i] - gai[i]) > 1e-11 * scale) {
+	  if (fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > 1e-11 * scale) {
 	    return FALSE;
 	  }
 	} else {
-	  if (fabs(ga[i] - gai[i]) > VCS_DELETE_MINORSPECIES_CUTOFF) {
+	  if (fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > VCS_DELETE_MINORSPECIES_CUTOFF) {
 	    return FALSE;
 	  }
 	}
@@ -193,7 +193,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
    *  Internal data to be worked on::
    *
    *  ga    Current element abundances
-   *  gai   Required elemental abundances
+   *  m_elemAbundancesGoal   Required elemental abundances
    *  m_molNumSpecies_old     Current mole number of species.
    *  FormulaMatrix[][]  Formular matrix of the species
    *  ne    Number of elements
@@ -213,7 +213,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 #ifdef DEBUG_MODE
   double l2before = 0.0, l2after = 0.0;
   std::vector<double> ga_save(m_numElemConstraints, 0.0);
-  vcs_dcopy(VCS_DATA_PTR(ga_save), VCS_DATA_PTR(ga), m_numElemConstraints);
+  vcs_dcopy(VCS_DATA_PTR(ga_save), VCS_DATA_PTR(m_elemAbundances), m_numElemConstraints);
   if (vcs_debug_print_lvl >= 2) {
     plogf("   --- vcsc_elcorr: Element abundances correction routine");
     if (m_numElemConstraints != m_numComponents) {
@@ -223,7 +223,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
   }
 
   for (i = 0; i < m_numElemConstraints; ++i) {
-    x[i] = ga[i] - gai[i];
+    x[i] = m_elemAbundances[i] - m_elemAbundancesGoal[i];
   }
   l2before = 0.0;
   for (i = 0; i < m_numElemConstraints; ++i) {
@@ -261,7 +261,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 	  if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	    double eval = FormulaMatrix[i][kspec];
 	    if (eval > 0.0) {
-	      m_molNumSpecies_old[kspec] = gai[i] / eval;
+	      m_molNumSpecies_old[kspec] = m_elemAbundancesGoal[i] / eval;
 	      changed = true;
 	    }
 	  }
@@ -279,7 +279,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 	  }
 	}
 	if (numCompNonZero == 1) {
-	  double diff = gai[i];
+	  double diff = m_elemAbundancesGoal[i];
 	  for (kspec = m_numComponents; kspec < m_numSpeciesTot; kspec++) {
 	    if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	      double eval = FormulaMatrix[i][kspec];
@@ -313,7 +313,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 	if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  double atomComp = FormulaMatrix[i][kspec];
 	  if (atomComp > 0.0) {
-	    double maxPermissible = gai[i] / atomComp;
+	    double maxPermissible = m_elemAbundancesGoal[i] / atomComp;
 	    if (m_molNumSpecies_old[kspec] > maxPermissible) {
 	      
 #ifdef DEBUG_MODE
@@ -356,7 +356,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
    * nc .ne. ne.
    */
   for (i = 0; i < m_numComponents; ++i) {
-    x[i] = ga[i] - gai[i];
+    x[i] = m_elemAbundances[i] - m_elemAbundancesGoal[i];
     if (fabs(x[i]) > 1.0E-13) retn = 1;
     for (j = 0; j < m_numComponents; ++j) {
       aa[j + i*m_numElemConstraints] = FormulaMatrix[j][i];
@@ -435,7 +435,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
       saveDir = 0.0;
       goodSpec = TRUE;
       for (i = 0; i < m_numComponents; ++i) {
-	dir = FormulaMatrix[i][kspec] *  (gai[i] - ga[i]);
+	dir = FormulaMatrix[i][kspec] *  (m_elemAbundancesGoal[i] - m_elemAbundances[i]);
 	if (fabs(dir) > 1.0E-10) {
 	  if (dir > 0.0) {
 	    if (saveDir < 0.0) {
@@ -461,7 +461,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 	xx = 0.0;
 	for (i = 0; i < m_numComponents; ++i) {
 	  if (FormulaMatrix[i][kspec] != 0.0) {
-	    xx += (gai[i] - ga[i]) / FormulaMatrix[i][kspec];
+	    xx += (m_elemAbundancesGoal[i] - m_elemAbundances[i]) / FormulaMatrix[i][kspec];
 	    its++;
 	  }
 	}
@@ -489,11 +489,11 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
   
   for (i = 0; i < m_numElemConstraints; ++i) {
     if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY ||
-	(m_elType[i] == VCS_ELEM_TYPE_ABSPOS && gai[i] == 0.0)) { 
+	(m_elType[i] == VCS_ELEM_TYPE_ABSPOS && m_elemAbundancesGoal[i] == 0.0)) { 
       for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
-	if (ga[i] > 0.0) {
+	if (m_elemAbundances[i] > 0.0) {
 	  if (FormulaMatrix[i][kspec] < 0.0) {
-	    m_molNumSpecies_old[kspec] -= ga[i] / FormulaMatrix[i][kspec] ;
+	    m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / FormulaMatrix[i][kspec] ;
 	    if (m_molNumSpecies_old[kspec] < 0.0) {
 	      m_molNumSpecies_old[kspec] = 0.0;
 	    }
@@ -501,9 +501,9 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 	    break;
 	  }
 	}
-	if (ga[i] < 0.0) {
+	if (m_elemAbundances[i] < 0.0) {
 	  if (FormulaMatrix[i][kspec] > 0.0) {
-	    m_molNumSpecies_old[kspec] -= ga[i] / FormulaMatrix[i][kspec];
+	    m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / FormulaMatrix[i][kspec];
 	    if (m_molNumSpecies_old[kspec] < 0.0) {
 	      m_molNumSpecies_old[kspec] = 0.0;
 	    }
@@ -525,7 +525,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
    *  electron charge exactly.
    */
  for (i = 0; i < m_numElemConstraints; ++i) {
-   double dev = gai[i] - ga[i];
+   double dev = m_elemAbundancesGoal[i] - m_elemAbundances[i];
    if (m_elType[i] == VCS_ELEM_TYPE_ELECTRONCHARGE && (fabs(dev) > 1.0E-300)) {
      bool useZeroed = true;
      for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
@@ -581,7 +581,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 #ifdef DEBUG_MODE
   l2after = 0.0;
   for (i = 0; i < m_numElemConstraints; ++i) {
-    l2after += SQUARE(ga[i] - gai[i]);
+    l2after += SQUARE(m_elemAbundances[i] - m_elemAbundancesGoal[i]);
   }
   l2after = sqrt(l2after/m_numElemConstraints);
   if (vcs_debug_print_lvl >= 2) {
@@ -589,7 +589,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 	   "              Final\n");
     for (i = 0; i < m_numElemConstraints; ++i) {
       plogf("   ---       "); plogf("%-2.2s", ElName[i].c_str());
-      plogf(" %20.12E %20.12E %20.12E\n", gai[i], ga_save[i], ga[i]);
+      plogf(" %20.12E %20.12E %20.12E\n", m_elemAbundancesGoal[i], ga_save[i], m_elemAbundances[i]);
     }
     plogf("   ---            Diff_Norm:         %20.12E %20.12E\n",
 	   l2before, l2after);

@@ -128,9 +128,8 @@ namespace VCSnonideal {
     m_deltaMolNumSpecies.resize(nspecies0, 0.0);
 
     m_feSpecies_old.resize(nspecies0, 0.0);
-    ga.resize(nelements, 0.0);
-    gai.resize(nelements, 0.0);
-   
+    m_elemAbundances.resize(nelements, 0.0);
+    m_elemAbundancesGoal.resize(nelements, 0.0);
 
     TPhMoles.resize(nphase0, 0.0);
     TPhMoles1.resize(nphase0, 0.0);
@@ -550,22 +549,22 @@ namespace VCSnonideal {
     }
 
     /*
-     * Formulate the Goal Element Abundance Vector, gai[]
+     * Formulate the Goal Element Abundance Vector
      */
     if (pub->gai.size() != 0) {
-      for (i = 0; i < nelements; i++) gai[i] = pub->gai[i];
+      for (i = 0; i < nelements; i++) m_elemAbundancesGoal[i] = pub->gai[i];
     } else {
       if (iest == 0) {
 	for (j = 0; j < nelements; j++) {
-	  gai[j] = 0.0;
+	  m_elemAbundancesGoal[j] = 0.0;
 	  for (kspec = 0; kspec < nspecies; kspec++) {
 	    if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	      gai[j] += FormulaMatrix[j][kspec] * m_molNumSpecies_old[kspec];
+	      m_elemAbundancesGoal[j] += FormulaMatrix[j][kspec] * m_molNumSpecies_old[kspec];
 	    }
 	  }
 	}
       } else {
-	plogf("%sElement Abundances, gai[], not specified\n", ser);
+	plogf("%sElement Abundances, m_elemAbundancesGoal[], not specified\n", ser);
 	return VCS_PUB_BAD;
       }
     }
@@ -797,7 +796,7 @@ namespace VCSnonideal {
      */
     for (i = 0; i < m_numElemConstraints; i++) {
       j = IndEl[i];
-      gai[i] = pub->gai[j];
+      m_elemAbundancesGoal[i] = pub->gai[j];
     }
 
     /*

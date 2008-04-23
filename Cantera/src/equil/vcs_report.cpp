@@ -234,7 +234,7 @@ int VCS_SOLVE::vcs_report(int iconv)
    plogf(" |                     |\n");
    plogf("    PhaseName     | MolTarget |");
    for (j = 0; j < m_numElemConstraints; j++) {
-     plogf(" %10.3g", gai[j]);
+     plogf(" %10.3g", m_elemAbundancesGoal[j]);
    }
    plogf(" |     Gibbs Total     |\n");
    print_line("-", m_numElemConstraints*10 + 58);
@@ -290,7 +290,7 @@ int VCS_SOLVE::vcs_report(int iconv)
    plogf("         Actual                    Target         Type      ElActive\n");
    for (i = 0; i < m_numElemConstraints; ++i) {
       print_space(26); plogf("%-2.2s", (ElName[i]).c_str());
-      plogf("%20.12E  %20.12E", ga[i], gai[i]);
+      plogf("%20.12E  %20.12E", m_elemAbundances[i], m_elemAbundancesGoal[i]);
       plogf("   %3d     %3d\n", m_elType[i], ElActive[i]);
    }
    plogf("\n");

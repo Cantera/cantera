@@ -120,7 +120,7 @@ namespace VCSnonideal {
 	    tmp +=  FormulaMatrix[j][kspec] * molNum[kspec];
 	  }
 	  plogf("%s     ", pprefix); plogf("   %-9.9s", (ElName[j]).c_str());
-	  plogf(" %12.3g %12.3g\n", gai[j], tmp);
+	  plogf(" %12.3g %12.3g\n", m_elemAbundancesGoal[j], tmp);
 	  jj++;
 	}
       }
