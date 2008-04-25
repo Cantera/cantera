@@ -135,7 +135,7 @@ VCS CALCULATION METHOD
    13 SPECIES      11 ELEMENTS               7 COMPONENTS
     5 PHASE1 SPECIES         7 PHASE2 SPECIES       1 SINGLE SPECIES PHASES
 
- PRESSURE            101325.000 ATM
+ PRESSURE                101325 Pa 
  TEMPERATURE            298.150 K
  PHASE1 INERTS            0.000
  PHASE2 INERTS            0.000
@@ -183,7 +183,7 @@ VCS CALCULATION METHOD
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 		Temperature =           3e+02 Kelvin
-		Pressure    =      1.0132e+05 Atmos
+		Pressure    =      1.0132e+05 Pa 
 		Volume      =      1.0041e+05 cm**3
 
 
