@@ -105,11 +105,15 @@ int VCS_SOLVE::vcs_report(int iconv)
    *   Calculate some quantities that may need updating
    */
    vcs_tmoles();
-   Vol = vcs_VolTotal(m_temperature, Pres, 
+   Vol = vcs_VolTotal(m_temperature, m_pressure, 
 		      VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(VolPM));
    
    plogf("\t\tTemperature = %15.2g Kelvin\n", m_temperature);
-   plogf("\t\tPressure    = %15.5g Atmos\n", Pres);
+   std::string punits = "Atm";
+   if (m_VCS_UnitsFormat == 3) {
+     punits = "Pa ";
+   }
+   plogf("\t\tPressure    = %15.5g %3s\n", m_pressure, punits.c_str()); 
    plogf("\t\tVolume      = %15.5g cm**3\n", Vol);
    
    /* 

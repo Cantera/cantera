@@ -236,9 +236,13 @@ namespace VCSnonideal {
 	    ((VPhaseList[0])->NVolSpecies));
       plogf("%10d PHASE2 SPECIES%8d SINGLE SPECIES PHASES\n\n", 
 	    numSpecliquid, 
-	    m_numSpeciesTot - (VPhaseList[0])->NVolSpecies - numSpecliquid);      
-      plogf(" PRESSURE%22.3f ATM\n TEMPERATURE%19.3f K\n", 
-	    Pres, m_temperature);
+	    m_numSpeciesTot - (VPhaseList[0])->NVolSpecies - numSpecliquid);  
+      string punits = "atm";
+      if (m_VCS_UnitsFormat == 3) {
+	punits = "Pa ";
+      }
+      plogf(" PRESSURE%22.8g %3s\n", m_pressure, punits.c_str()); 
+      plogf(" TEMPERATURE%19.3f K\n", m_temperature);
       Vphase = VPhaseList[0];
       if (Vphase->NVolSpecies > 0) {
 	plogf(" PHASE1 INERTS%17.3f\n", TPhInertMoles[0]);

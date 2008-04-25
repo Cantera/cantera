@@ -673,8 +673,16 @@ public:
   //! Temperature (Kelvin)
   double   m_temperature;
 
-  //! Pressure (units are Pascals)
-  double   Pres;
+  //! Pressure (units are determined by m_VCS_UnitsFormat
+  /*!
+   *             Values units
+   *               -1:  atm
+   *                0:  atm
+   *                1:  atm
+   *                2:  atm
+   *                3:  Pa
+   */
+  double   m_pressure;
 
   //!  Total kmoles of inert to add to each phase 
   /*!

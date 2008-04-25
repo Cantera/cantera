@@ -55,7 +55,7 @@ namespace VCSnonideal {
      *        Store the temperature and pressure in the private global variables
      */
     m_temperature = T_arg;
-    Pres = pres_arg;
+    m_pressure = pres_arg;
     /*
      *        Evaluate the standard state free energies
      *        at the current temperatures and pressures.
@@ -154,7 +154,7 @@ namespace VCSnonideal {
 
     for (int iph = 0; iph < NPhase; iph++) {
       vcs_VolPhase* vph = VPhaseList[iph];
-      vph->setState_TP(m_temperature, Pres);
+      vph->setState_TP(m_temperature, m_pressure);
       vph->sendToVCSGStar(VCS_DATA_PTR(m_SSfeSpecies));
     }
    

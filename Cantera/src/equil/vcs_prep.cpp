@@ -191,8 +191,8 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
     }
     if (fabs(sum) < 1.0E-6) {
       modifiedSoln = true;
-      if (Pres <= 0.0)    pres = 1.0;
-      else                pres = Pres;
+      if (m_pressure <= 0.0)    pres = 1.0;
+      else                      pres = m_pressure;
       retn = vcs_evalSS_TP(0, 0, m_temperature, pres);
       for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
 	if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
