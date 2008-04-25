@@ -105,9 +105,10 @@ int VCS_SOLVE::vcs_report(int iconv)
    *   Calculate some quantities that may need updating
    */
    vcs_tmoles();
-   Vol = vcs_VolTotal(T, Pres, VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(VolPM));
+   Vol = vcs_VolTotal(m_temperature, Pres, 
+		      VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(VolPM));
    
-   plogf("\t\tTemperature = %15.2g Kelvin\n", T);
+   plogf("\t\tTemperature = %15.2g Kelvin\n", m_temperature);
    plogf("\t\tPressure    = %15.5g Atmos\n", Pres);
    plogf("\t\tVolume      = %15.5g cm**3\n", Vol);
    
@@ -301,7 +302,7 @@ int VCS_SOLVE::vcs_report(int iconv)
    plogf("\n"); print_line("-", 93);
    plogf("Chemical Potentials of the Species: (dimensionless)\n");
 
-   double rt = vcs_nondimMult_TP(m_VCS_UnitsFormat, T);
+   double rt = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
    plogf("\t\t(RT = %g ", rt);
    vcs_printChemPotUnits(m_VCS_UnitsFormat);
    plogf(")\n");

@@ -668,10 +668,10 @@ public:
   /*!
    *  Length number of phases.
    */
-  std::vector<double> DelTPhMoles;
+  std::vector<double> m_deltaPhaseMoles;
 
   //! Temperature (Kelvin)
-  double   T;
+  double   m_temperature;
 
   //! Pressure (units are Pascals)
   double   Pres;

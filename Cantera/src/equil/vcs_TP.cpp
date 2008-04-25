@@ -54,13 +54,13 @@ namespace VCSnonideal {
     /*
      *        Store the temperature and pressure in the private global variables
      */
-    T    = T_arg;
+    m_temperature = T_arg;
     Pres = pres_arg;
     /*
      *        Evaluate the standard state free energies
      *        at the current temperatures and pressures.
      */
-    iconv = vcs_evalSS_TP(ipr, ip1, T, pres_arg);
+    iconv = vcs_evalSS_TP(ipr, ip1, m_temperature, pres_arg);
    
     /*
      *        Prepare the problem data:
@@ -154,7 +154,7 @@ namespace VCSnonideal {
 
     for (int iph = 0; iph < NPhase; iph++) {
       vcs_VolPhase* vph = VPhaseList[iph];
-      vph->setState_TP(T, Pres);
+      vph->setState_TP(m_temperature, Pres);
       vph->sendToVCSGStar(VCS_DATA_PTR(m_SSfeSpecies));
     }
    

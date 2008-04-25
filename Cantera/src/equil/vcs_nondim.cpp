@@ -95,7 +95,7 @@ void VCS_SOLVE::vcs_nondim_TP(void) {
     double tf;
     if (UnitsState == VCS_DIMENSIONAL_G) {
       UnitsState = VCS_NONDIMENSIONAL_G;
-      tf = 1.0 / vcs_nondimMult_TP(m_VCS_UnitsFormat, T);
+      tf = 1.0 / vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
       for (i = 0; i < m_numSpeciesTot; ++i) {
 	/* 
 	 *        Modify the standard state and total chemical potential data,
@@ -109,7 +109,7 @@ void VCS_SOLVE::vcs_nondim_TP(void) {
 	m_feSpecies_old[i] *= tf;
       }
 
-      Faraday_dim =  vcs_nondim_Farad(m_VCS_UnitsFormat, T);
+      Faraday_dim =  vcs_nondim_Farad(m_VCS_UnitsFormat, m_temperature);
       if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
 	for (i = 0; i < m_numSpeciesTot; ++i) {
 	  if (SpeciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -136,7 +136,7 @@ void VCS_SOLVE::vcs_redim_TP(void)
     double tf;
     if (UnitsState != VCS_DIMENSIONAL_G) {
       UnitsState = VCS_DIMENSIONAL_G;
-      tf = vcs_nondimMult_TP(m_VCS_UnitsFormat, T);
+      tf = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
       for (i = 0; i < m_numSpeciesTot; ++i) {
 	/* 
 	 *        Modify the standard state and total chemical potential data,

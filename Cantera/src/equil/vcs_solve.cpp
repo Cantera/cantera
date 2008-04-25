@@ -43,7 +43,7 @@ namespace VCSnonideal {
     NPhase(0),
     iest(0),
     TMoles(0.0),
-    T(0.0),
+    m_temperature(0.0),
     Pres(0.0),
     tolmaj(0.0),
     tolmin(0.0),
@@ -133,7 +133,7 @@ namespace VCSnonideal {
 
     m_tPhaseMoles_old.resize(nphase0, 0.0);
     m_tPhaseMoles_new.resize(nphase0, 0.0);
-    DelTPhMoles.resize(nphase0, 0.0);
+    m_deltaPhaseMoles.resize(nphase0, 0.0);
     TmpPhase.resize(nphase0, 0.0);
     TmpPhase2.resize(nphase0, 0.0);
   
@@ -580,8 +580,8 @@ namespace VCSnonideal {
      *
      * T, Pres, copy over here
      */
-    if (pub->T  > 0.0)  T    = pub->T;
-    else                T    = 293.15;
+    if (pub->T  > 0.0)  m_temperature = pub->T;
+    else                m_temperature = 293.15;
     if (pub->Pres > 0.0) Pres = pub->Pres;
     else                 Pres = 1.0;
     /*
@@ -772,7 +772,7 @@ namespace VCSnonideal {
     int retn = VCS_SUCCESS;
     bool status_change = false;
 
-    T = pub->T;
+    m_temperature = pub->T;
     Pres = pub->Pres;
     m_VCS_UnitsFormat = pub->m_VCS_UnitsFormat;
     iest = pub->iest;
@@ -902,7 +902,8 @@ namespace VCSnonideal {
     int k1 = 0;
 
     vcs_tmoles();
-    Vol = vcs_VolTotal(T, Pres, VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(VolPM));
+    Vol = vcs_VolTotal(m_temperature, Pres, 
+		       VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(VolPM));
 
     for (i = 0; i < m_numSpeciesTot; ++i) {
       /*
@@ -928,7 +929,7 @@ namespace VCSnonideal {
       pub->VolPM[i] = VolPM[k1];
     } 
    
-    pub->T    = T;
+    pub->T    = m_temperature;
     pub->Pres = Pres;
     pub->Vol  = Vol;
     int kT = 0;

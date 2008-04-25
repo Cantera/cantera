@@ -193,7 +193,7 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
       modifiedSoln = true;
       if (Pres <= 0.0)    pres = 1.0;
       else                pres = Pres;
-      retn = vcs_evalSS_TP(0, 0, T, pres);
+      retn = vcs_evalSS_TP(0, 0, m_temperature, pres);
       for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
 	if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
 	  m_molNumSpecies_old[kspec] = - m_SSfeSpecies[kspec];
@@ -289,7 +289,7 @@ int VCS_SOLVE::vcs_prep(void) {
   vcs_vdzero(m_molNumSpecies_new, m_numSpeciesTot);
   vcs_dzero(&(DnPhase[0][0]), m_numSpeciesTot*NPhase);
   vcs_izero(&(PhaseParticipation[0][0]), m_numSpeciesTot*NPhase);
-  vcs_dzero(VCS_DATA_PTR(DelTPhMoles), NPhase);
+  vcs_dzero(VCS_DATA_PTR(m_deltaPhaseMoles), NPhase);
   vcs_dzero(VCS_DATA_PTR(m_tPhaseMoles_new), NPhase);
   /*
    *   Calculate the total number of moles in all phases.

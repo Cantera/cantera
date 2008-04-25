@@ -238,7 +238,7 @@ namespace VCSnonideal {
 	    numSpecliquid, 
 	    m_numSpeciesTot - (VPhaseList[0])->NVolSpecies - numSpecliquid);      
       plogf(" PRESSURE%22.3f ATM\n TEMPERATURE%19.3f K\n", 
-	    Pres, T);
+	    Pres, m_temperature);
       Vphase = VPhaseList[0];
       if (Vphase->NVolSpecies > 0) {
 	plogf(" PHASE1 INERTS%17.3f\n", TPhInertMoles[0]);
@@ -250,7 +250,8 @@ namespace VCSnonideal {
       plogf("          FROM ESTIMATE           Type\n\n");
       for (i = 0; i < m_numElemConstraints; ++i) { 
 	print_space(26); plogf("%-2.2s", (ElName[i]).c_str());
-	plogf("%20.12E%20.12E     %3d\n", m_elemAbundancesGoal[i], m_elemAbundances[i], m_elType[i]);
+	plogf("%20.12E%20.12E     %3d\n", m_elemAbundancesGoal[i], m_elemAbundances[i], 
+	      m_elType[i]);
       }
       if (iest < 0) {
 	plogf("\n MODIFIED LINEAR PROGRAMMING ESTIMATE OF EQUILIBRIUM\n");
@@ -279,7 +280,7 @@ namespace VCSnonideal {
       print_space(14);
       for (i = 0; i < m_numElemConstraints; ++i) plogf(" %-2.2s", ElName[i].c_str());
       plogf(" SI(I)\n");
-      RT = vcs_nondimMult_TP(m_VCS_UnitsFormat, T);
+      RT = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
       for (i = 0; i < m_numSpeciesTot; ++i) {
 	plogf(" %-12s", SpName[i].c_str());
 	for (j = 0; j < m_numElemConstraints; ++j) {
@@ -499,7 +500,7 @@ namespace VCSnonideal {
     /*
      *    Zero out the net change in moles of multispecies phases 
      */
-    vcs_dzero(VCS_DATA_PTR(DelTPhMoles), NPhase);
+    vcs_dzero(VCS_DATA_PTR(m_deltaPhaseMoles), NPhase);
     /* **************************************************************** */
     /* ***************** MAIN LOOP IN CALCULATION ********************  */
     /* **************************************************************** */
@@ -975,11 +976,11 @@ namespace VCSnonideal {
 
 	dnPhase_irxn = DnPhase[irxn];
 	for (iph = 0; iph < NPhase; iph++) {
-	  DelTPhMoles[iph] += dx * dnPhase_irxn[iph];
+	  m_deltaPhaseMoles[iph] += dx * dnPhase_irxn[iph];
 	}
       }
 #ifdef DEBUG_MODE
-      checkDelta1(VCS_DATA_PTR(m_deltaMolNumSpecies), VCS_DATA_PTR(DelTPhMoles), kspec+1);
+      checkDelta1(VCS_DATA_PTR(m_deltaMolNumSpecies), VCS_DATA_PTR(m_deltaPhaseMoles), kspec+1);
 #endif
       /*
        *          Branch point for returning -
@@ -1036,7 +1037,7 @@ namespace VCSnonideal {
 	   * conservation.
 	   */
 	  iph = PhaseID[k];
-	  DelTPhMoles[iph] -= m_deltaMolNumSpecies[k];
+	  m_deltaPhaseMoles[iph] -= m_deltaMolNumSpecies[k];
 	  m_deltaMolNumSpecies[k] = 0.0;
 	}
       }
@@ -1057,13 +1058,14 @@ namespace VCSnonideal {
 	m_deltaMolNumSpecies[i] *= par;
       }
       for (iph = 0; iph < NPhase; iph++) {
-	DelTPhMoles[iph] *= par;	 
+	m_deltaPhaseMoles[iph] *= par;	 
       }
     } else {
       par = 1.0;
     }
 #ifdef DEBUG_MODE
-    checkDelta1(VCS_DATA_PTR(m_deltaMolNumSpecies), VCS_DATA_PTR(DelTPhMoles), m_numSpeciesTot);
+    checkDelta1(VCS_DATA_PTR(m_deltaMolNumSpecies), 
+		VCS_DATA_PTR(m_deltaPhaseMoles), m_numSpeciesTot);
 #endif
    
     /*
@@ -1074,7 +1076,8 @@ namespace VCSnonideal {
      */
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
       m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + m_deltaMolNumSpecies[kspec];
-      if (m_molNumSpecies_new[kspec] < 0.0 && (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
+      if (m_molNumSpecies_new[kspec] < 0.0 && (SpeciesUnknownType[kspec] 
+					       != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
 	plogf("vcs_solve_TP: ERROR on step change wt[%d:%s]: %g < 0.0",
 	      kspec, SpName[kspec].c_str(), m_molNumSpecies_new[kspec]);
 	plogendl();
@@ -1086,7 +1089,7 @@ namespace VCSnonideal {
      *        Calculate the tentative total mole numbers for each phase
      */
     for (iph = 0; iph < NPhase; iph++) {
-      m_tPhaseMoles_new[iph] = m_tPhaseMoles_old[iph] + DelTPhMoles[iph];
+      m_tPhaseMoles_new[iph] = m_tPhaseMoles_old[iph] + m_deltaPhaseMoles[iph];
     }
     /*
      *         Calculate the new chemical potentials using the tentative 
@@ -2421,9 +2424,9 @@ namespace VCSnonideal {
     /*
      * Zero out the total moles counters for the phase
      */
-    m_tPhaseMoles_old[iph]    = 0.0;
-    m_tPhaseMoles_new[iph]   = 0.0;
-    DelTPhMoles[iph] = 0.0;
+    m_tPhaseMoles_old[iph] = 0.0;
+    m_tPhaseMoles_new[iph] = 0.0;
+    m_deltaPhaseMoles[iph] = 0.0;
    
     /*
      * Loop over all of the active species in the phase.
@@ -2750,7 +2753,7 @@ namespace VCSnonideal {
       m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + al * m_deltaMolNumSpecies[kspec];
     }
     for (iph = 0; iph < NPhase; iph++) {
-      m_tPhaseMoles_new[iph] = m_tPhaseMoles_old[iph] + al * DelTPhMoles[iph];
+      m_tPhaseMoles_new[iph] = m_tPhaseMoles_old[iph] + al * m_deltaPhaseMoles[iph];
     }
     vcs_updateVP(1);
    

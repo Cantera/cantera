@@ -224,7 +224,7 @@ namespace VCSnonideal {
     /* ********************************************************** */
     /* **** ESTIMATE REACTION ADJUSTMENTS *********************** */
     /* ********************************************************** */
-    vcs_dzero(VCS_DATA_PTR(DelTPhMoles), NPhase);
+    vcs_dzero(VCS_DATA_PTR(m_deltaPhaseMoles), NPhase);
     for (iph = 0; iph < NPhase; iph++) {
       xtphMax[iph] = log(m_tPhaseMoles_new[iph] * 1.0E32);
       xtphMin[iph] = log(m_tPhaseMoles_new[iph] * 1.0E-32);
@@ -258,7 +258,7 @@ namespace VCSnonideal {
 	}
 	
 	for (iph = 0; iph < NPhase; iph++) {
-	  DelTPhMoles[iph] += DnPhase[irxn][iph] * m_deltaMolNumSpecies[kspec];
+	  m_deltaPhaseMoles[iph] += DnPhase[irxn][iph] * m_deltaMolNumSpecies[kspec];
 	}
       }
     }
