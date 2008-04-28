@@ -40,6 +40,7 @@ vcs_VolPhase::vcs_VolPhase() :
   ElGlobalIndex(0),
   NVolSpecies(0),
   TMolesInert(0.0),
+  m_molarVolInert(1000.),
   ActivityConvention(0),
   Existence(0),
   IndexSpecialSpecies(-1),
@@ -402,7 +403,7 @@ double vcs_VolPhase::G0_calc_one(int kspec, double tkelvin) {
  * The results are held internally within the object.
  *
  * @param TKelvin Current temperature
- * @param pres    Current pressure
+ * @param pres    Current pressure (pascal)
  */
 void vcs_VolPhase::GStar_calc(double tkelvin, double pres) {
   setState_TP(tkelvin, pres);
@@ -431,8 +432,8 @@ void vcs_VolPhase::GStar_calc(double tkelvin, double pres) {
  * The kth species standard state G is returned
  *
  * @param kspec   Species number (within the phase)
- * @param TKelvin Current temperature
- * @param pres    Current pressure
+ * @param TKelvin Current temperature (kelvin)
+ * @param pres    Current pressure (pascal)
  *
  * @return Gstar[kspec] returns the gibbs free energy for the
  *         standard state of the kth species.
@@ -694,7 +695,9 @@ void vcs_VolPhase::setState_TP(double temp, double pres)
  * The results are held internally within the object.
  *
  * @param TKelvin Current temperature
- * @param pres    Current pressure
+ * @param pres    Current pressure (pascal)
+ *
+ *  Calculations are in m**3/kmol
  */
 void vcs_VolPhase::VolStar_calc(double tkelvin, double pres) {
   setState_TP(tkelvin, pres);
@@ -722,7 +725,7 @@ void vcs_VolPhase::VolStar_calc(double tkelvin, double pres) {
  *
  * @param kspec Species number (within the phase)
  * @param TKelvin Current temperature
- * @param pres    Current pressure
+ * @param pres    Current pressure (pascal)
  *
  * @return molar volume of the kspec species's standard
  *         state
@@ -747,8 +750,7 @@ double vcs_VolPhase::VolPM_calc() const {
 	kglob = IndSpecies[k];
 	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
 	VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
-	StarMolarVol[k] =
-	  (sTherm->VolStar_calc(kglob, Temp, Pres));
+	StarMolarVol[k] = (sTherm->VolStar_calc(kglob, Temp, Pres));
       }
       for (k = 0; k < NVolSpecies; k++) {
 	PartialMolarVol[k] = StarMolarVol[k];
@@ -760,6 +762,16 @@ double vcs_VolPhase::VolPM_calc() const {
       Vol += PartialMolarVol[k] * Xmol[k];
     }
     Vol *= TMoles;
+
+    if (TMolesInert > 0.0) {
+      if (GasPhase) {
+	double volI = TMolesInert * 8314.47215 * Temp / Pres;
+	Vol += volI;
+      } else {
+	printf("unknown situation\n");
+	exit(-1);
+      }
+    }
   }
   m_UpToDate_VolPM = true;
   return Vol;

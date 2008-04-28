@@ -105,23 +105,19 @@ int VCS_SOLVE::vcs_report(int iconv)
    *   Calculate some quantities that may need updating
    */
    vcs_tmoles();
-   Vol = vcs_VolTotal(m_temperature, m_pressure, 
+   Vol = vcs_VolTotal(m_temperature, m_pressurePA, 
 		      VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(VolPM));
    
    plogf("\t\tTemperature = %15.2g Kelvin\n", m_temperature);
-   std::string punits = "Atm";
-   if (m_VCS_UnitsFormat == 3) {
-     punits = "Pa ";
-   }
-   plogf("\t\tPressure    = %15.5g %3s\n", m_pressure, punits.c_str()); 
-   plogf("\t\tVolume      = %15.5g cm**3\n", Vol);
+   plogf("\t\tPressure    = %15.5g Pa \n", m_pressurePA); 
+   plogf("\t\tVolume      = %15.5g m**3\n", Vol);
    
    /* 
     * -------- TABLE OF SPECIES IN DECREASING MOLE NUMBERS --------------
     */
    plogf("\n\n");
    print_line("-", 80);
-   plogf(" Species                 Equilibrium moles    ");
+   plogf(" Species                 Equilibrium kmoles   ");
    plogf("Mole Fraction    ChemPot/RT    SpecUnkType\n");
    print_line("-", 80);
    for (i = 0; i < m_numComponents; ++i) {
@@ -138,7 +134,7 @@ int VCS_SOLVE::vcs_report(int iconv)
      
       if (SpeciesUnknownType[l] == VCS_SPECIES_TYPE_MOLNUM) {
 	plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[l], m_molNumSpecies_new[l], m_feSpecies_curr[l]);
-	plogf("   MolNum ");
+	plogf("  KMolNum ");
       } else if (SpeciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	plogf("        NA         %14.7E    %12.4E", 1.0, m_feSpecies_curr[l]);
 	plogf("   Voltage = %14.7E", m_molNumSpecies_old[l]);
@@ -162,13 +158,13 @@ int VCS_SOLVE::vcs_report(int iconv)
       }
    }
    if (m_numSpeciesRdc != nspecies) {
-      plogf("\n SPECIES WITH LESS THAN 1.0E-32 MOLES:\n\n");
+      plogf("\n SPECIES WITH LESS THAN 1.0E-32 KMOLES:\n\n");
       for (kspec = m_numSpeciesRdc; kspec < nspecies; ++kspec) {
 	 plogf(" %-12.12s", SpName[kspec].c_str());
 	 plogf("             %14.7E     %14.7E    %12.4E",
 		m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec], m_deltaGRxn_new[kspec]);
 	 if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
-	   plogf("   Mol_Num");
+	   plogf("  KMol_Num");
 	 } else if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	   plogf("   Voltage");
 	 } else {
@@ -237,7 +233,7 @@ int VCS_SOLVE::vcs_report(int iconv)
      plogf(" %10.10s", (ElName[j]).c_str());
    }
    plogf(" |                     |\n");
-   plogf("    PhaseName     | MolTarget |");
+   plogf("    PhaseName     |KMolTarget |");
    for (j = 0; j < m_numElemConstraints; j++) {
      plogf(" %10.3g", m_elemAbundancesGoal[j]);
    }
@@ -291,7 +287,7 @@ int VCS_SOLVE::vcs_report(int iconv)
    if (inertYes) 
       plogf("\t\t(Inert species have standard free energy of zero)\n");
    
-   plogf("\nElemental Abundances:     ");
+   plogf("\nElemental Abundances (kmol): ");
    plogf("         Actual                    Target         Type      ElActive\n");
    for (i = 0; i < m_numElemConstraints; ++i) {
       print_space(26); plogf("%-2.2s", (ElName[i]).c_str());
@@ -310,7 +306,7 @@ int VCS_SOLVE::vcs_report(int iconv)
    plogf("\t\t(RT = %g ", rt);
    vcs_printChemPotUnits(m_VCS_UnitsFormat);
    plogf(")\n");
-   plogf("    Name         TMoles     StandStateChemPot   "
+   plogf("    Name        TKMoles     StandStateChemPot   "
 	  "   ln(AC)       ln(X_i)      |   F z_i phi   |    ChemPot    | (-lnMnaught)\n");
    print_line("-", 115);
    for (i = 0; i < nspecies; ++i) {

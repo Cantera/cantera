@@ -621,7 +621,7 @@ public:
    *  Note other constraint conditions are added to this vector.
    *  This is input from the input file and 
    *  is considered a constant from thereon.
-   *   units = gmoles
+   *   units = kmoles
    */
   std::vector<double> m_elemAbundances;
 
@@ -632,7 +632,7 @@ public:
    *  Note other constraint conditions are added to this vector.
    *  This is input from the input file and 
    *  is considered a constant from thereon.
-   *   units = gmoles 
+   *   units = kmoles 
    */
   std::vector<double> m_elemAbundancesGoal; 
 
@@ -641,7 +641,7 @@ public:
 		     *            -> Don't use this except for scaling
 		     *               purposes only                          */
 
-  //! total gmols of species in each phase
+  //! total kmols of species in each phase
   /*!
    *  This contains the total number of moles of species in each phase
    *
@@ -649,7 +649,7 @@ public:
    */
   std::vector<double> m_tPhaseMoles_old;
 
-  //! total gmols of species in each phase in the tentative soln vector
+  //! total kmols of species in each phase in the tentative soln vector
   /*!
    *  This contains the total number of moles of species in each phase
    *  in the tentative solution vector
@@ -681,12 +681,13 @@ public:
    *                1:  atm
    *                2:  atm
    *                3:  Pa
+   *   Units being changed to Pa
    */
-  double   m_pressure;
+  double   m_pressurePA;
 
   //!  Total kmoles of inert to add to each phase 
   /*!
-   *  TPhInertMoles[iph] = Total gmoles of  inert to add to each phase
+   *  TPhInertMoles[iph] = Total kmoles of  inert to add to each phase
    *  length = number of phases
    */
   std::vector<double> TPhInertMoles; 
@@ -864,7 +865,7 @@ public:
 
   //! Molecular weight of each species
   /*!
-   *  units = gm/gmol
+   *  units = kg/kmol
    *  length = number of species
    */
   std::vector<double> WtSpecies;
@@ -891,7 +892,7 @@ public:
    */
   int UseActCoeffJac;
 
-  double   Vol;     /* Vol        = Volume (cm^3) */
+  double   Vol;     /* Vol        = Volume (m^3) */
   
   //! Partialm molar volumes of the species
   /*!
@@ -928,10 +929,10 @@ public:
    *                           2:  Kelvin 
    *                           3:  J / kmol 
    *                    and pressure data:
-   *                          -1:  atm
-   *                           0:  atm
-   *                           1:  atm
-   *                           2:  atm
+   *                          -1:  Pa
+   *                           0:  Pa
+   *                           1:  Pa
+   *                           2:  pa
    *                           3:  Pa
    */
   int m_VCS_UnitsFormat;

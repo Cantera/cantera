@@ -43,7 +43,7 @@ VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(int indexPhase,
   SS0_H0(0.0),
   SS0_S0(0.0),
   SS0_Cp0(0.0),
-  SS0_Pref(1.0),
+  SS0_Pref(1.01325E5),
   SS0_Params(0),
   SSStar_Model(VCS_SSSTAR_CONSTANT),
   SSStar_Params(0),
@@ -55,15 +55,7 @@ VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(int indexPhase,
   UseCanteraCalls(false),
   m_VCS_UnitsFormat(VCS_UNITS_UNITLESS)
 {
-  /*
-   * Set up the numerical value for P_reference, based on the current
-   * global units choice.
-   */
-  if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-    SS0_Pref = 1.0133E5;
-  } else {
-    SS0_Pref = 1.0;
-  }
+  SS0_Pref = 1.01325E5;
 }
 
 
@@ -224,11 +216,11 @@ double VCS_SPECIES_THERMO::GStar_R_calc(int kglob, double TKelvin,
  *  Input
  *
  * Output
- *    return value = standard state volume in    cm**3 per mol.
- *                   (VCS_UNITS_MKS)              m**3 / kmol
+ *    return value = standard state volume in    m**3 per kmol.
+ *                   (VCS_UNITS_MKS)  
  */
 double VCS_SPECIES_THERMO::
-VolStar_calc(int kglob, double TKelvin, double pres)
+VolStar_calc(int kglob, double TKelvin, double presPA)
 {
   char yo[] = "VCS_SPECIES_THERMO::VStar_calc ";
   double vol, T;
@@ -237,18 +229,15 @@ VolStar_calc(int kglob, double TKelvin, double pres)
   if (UseCanteraCalls) {
     AssertThrowVCS(m_VCS_UnitsFormat == VCS_UNITS_MKS, "Possible inconsistency");
     int kspec = IndexSpeciesPhase;
-    vol = OwningPhase->VolStar_calc_one(kspec, TKelvin, pres);
+    vol = OwningPhase->VolStar_calc_one(kspec, TKelvin, presPA);
   } else {
     switch(SSStar_Vol_Model) {
     case VCS_SSVOL_CONSTANT:
       vol = SSStar_Vol0;
       break;
     case VCS_SSVOL_IDEALGAS:
-      if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-	vol = 8.31451E3 * T / pres;
-      } else {
-	vol= 83.14510 / 1.01325 * T / pres;	 
-      }
+      // R J/kmol/K (2006 CODATA value)
+      vol= 8314.47215  * T / presPA;
       break;
     default:     
       plogf("%sERROR: unknown SSVol model\n", yo);

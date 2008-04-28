@@ -668,12 +668,7 @@ namespace VCSnonideal {
      }
      plogf("\n");
      plogf("Temperature = %g Kelvin\n",  m_vprob->T);
-     plogf("Pressure    = %g ", m_vprob->Pres);
-     if (m_vprob->m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-       plogf("Pa\n");
-     } else  {
-       plogf("atm\n");
-     }
+     plogf("Pressure    = %g Pa\n", m_vprob->PresPA);
      plogf("\n");
      plogf("----------------------------------------"
 	    "---------------------\n");
@@ -1099,7 +1094,7 @@ namespace VCSnonideal {
     // We will work out the details later.
     vprob->iest      = -1;
     vprob->T         = mphase->temperature();
-    vprob->Pres      = mphase->pressure();
+    vprob->PresPA    = mphase->pressure();
     vprob->Vol       = mphase->volume();
     vprob->Title     = "MultiPhase Object";
 
@@ -1225,7 +1220,7 @@ namespace VCSnonideal {
        */
       vprob->addPhaseElements(VolPhase);
 
-      VolPhase->setState_TP(vprob->T, vprob->Pres);
+      VolPhase->setState_TP(vprob->T, vprob->PresPA);
       vector<double> muPhase(tPhase->nSpecies(),0.0);
       tPhase->getChemPotentials(&muPhase[0]);
       double tMoles = 0.0;
@@ -1426,14 +1421,14 @@ namespace VCSnonideal {
       print_char('=', 80); plogf("\n");
       plogf("             Phase IDs of species\n");
       plogf("            species     phaseID        phaseName   ");
-      plogf(" Initial_Estimated_gMols\n");
+      plogf(" Initial_Estimated_kMols\n");
       for (int i = 0; i < vprob->nspecies; i++) {
 	int iphase = vprob->PhaseID[i];
 
 	vcs_VolPhase *VolPhase = vprob->VPhaseList[iphase];
 	plogf("%16s      %5d   %16s", vprob->SpName[i].c_str(), iphase,
 	       VolPhase->PhaseName.c_str());
-	plogf("             %-10.5g\n",  1.0E3 * vprob->w[i]);
+	plogf("             %-10.5g\n",  vprob->w[i]);
       }
       
       /*
@@ -1442,7 +1437,7 @@ namespace VCSnonideal {
       plogf("\n"); print_char('-', 80); plogf("\n");
       plogf("             Information about phases\n");
       plogf("  PhaseName    PhaseNum SingSpec GasPhase EqnState NumSpec");
-      plogf("  TMolesInert       Tmoles(gmol)\n");
+      plogf("  TMolesInert       Tmoles(kmol)\n");
    
       for (int iphase = 0; iphase < vprob->NPhase; iphase++) {
 	vcs_VolPhase *VolPhase = vprob->VPhaseList[iphase];
@@ -1450,8 +1445,8 @@ namespace VCSnonideal {
 	plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
 	       VolPhase->VP_ID,       VolPhase->SingleSpecies,
 	       VolPhase->GasPhase,    sEOS.c_str(),
-	       VolPhase->NVolSpecies, VolPhase->TMolesInert * 1.0E3);
-	plogf("%16e\n",  VolPhase->TotalMoles() * 1.0E3);
+	       VolPhase->NVolSpecies, VolPhase->TMolesInert );
+	plogf("%16e\n",  VolPhase->TotalMoles());
       }
    
       plogf("\n"); print_char('=', 80); plogf("\n");
@@ -1479,7 +1474,7 @@ namespace VCSnonideal {
     // the call to the equilibrium solver.
     vprob->iest      = -1;
     vprob->T         = mphase->temperature();
-    vprob->Pres      = mphase->pressure();
+    vprob->PresPA    = mphase->pressure();
     vprob->Vol       = mphase->volume();
     Cantera::ThermoPhase *tPhase = 0;
 
@@ -1492,7 +1487,7 @@ namespace VCSnonideal {
        */
       volPhase->setElectricPotential(tPhase->electricPotential());
 
-      volPhase->setState_TP(vprob->T, vprob->Pres);
+      volPhase->setState_TP(vprob->T, vprob->PresPA);
       vector<double> muPhase(tPhase->nSpecies(),0.0);
       tPhase->getChemPotentials(&muPhase[0]);
       /*
@@ -1544,14 +1539,14 @@ namespace VCSnonideal {
       print_char('=', 80); plogf("\n\n");
       plogf("             Phase IDs of species\n");
       plogf("            species     phaseID        phaseName   ");
-      plogf(" Initial_Estimated_gMols\n");
+      plogf(" Initial_Estimated_kMols\n");
       for (int i = 0; i < vprob->nspecies; i++) {
 	int iphase = vprob->PhaseID[i];
 
 	vcs_VolPhase *VolPhase = vprob->VPhaseList[iphase];
 	plogf("%16s      %5d   %16s", vprob->SpName[i].c_str(), iphase,
 	       VolPhase->PhaseName.c_str());
-	plogf("             %-10.5g\n",  1.0E3 * vprob->w[i]);
+	plogf("             %-10.5g\n",  vprob->w[i]);
       }
       
       /*
@@ -1560,7 +1555,7 @@ namespace VCSnonideal {
       plogf("\n"); print_char('-', 80); plogf("\n");
       plogf("             Information about phases\n");
       plogf("  PhaseName    PhaseNum SingSpec GasPhase EqnState NumSpec");
-      plogf("  TMolesInert       Tmoles(gmol)\n");
+      plogf("  TMolesInert       Tmoles(kmol)\n");
    
       for (int iphase = 0; iphase < vprob->NPhase; iphase++) {
 	vcs_VolPhase *VolPhase = vprob->VPhaseList[iphase];
@@ -1568,8 +1563,8 @@ namespace VCSnonideal {
 	plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
 	       VolPhase->VP_ID,       VolPhase->SingleSpecies,
 	       VolPhase->GasPhase,    sEOS.c_str(),
-	       VolPhase->NVolSpecies, VolPhase->TMolesInert * 1.0E3);
-	plogf("%16e\n",  VolPhase->TotalMoles() * 1.0E3); 
+	       VolPhase->NVolSpecies, VolPhase->TMolesInert );
+	plogf("%16e\n",  VolPhase->TotalMoles() ); 
       }
    
       plogf("\n"); print_char('=', 80); plogf("\n");

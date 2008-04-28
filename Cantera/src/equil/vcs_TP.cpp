@@ -36,7 +36,7 @@ namespace VCSnonideal {
      *     ip1 = 1 -> Print intermediate results. 
      *     maxit -> Maximum number of iterations for the algorithm 
      *      T = Temperature (Kelvin)
-     *    pres = Pressure (units given by if__ variable)
+     *    pres = Pressure (pascal)
      *
      * Return Codes
      * ------------------
@@ -55,7 +55,7 @@ namespace VCSnonideal {
      *        Store the temperature and pressure in the private global variables
      */
     m_temperature = T_arg;
-    m_pressure = pres_arg;
+    m_pressurePA = pres_arg;
     /*
      *        Evaluate the standard state free energies
      *        at the current temperatures and pressures.
@@ -113,7 +113,7 @@ namespace VCSnonideal {
      *           0 -> don't report on anything 
      *     IP1 = 1 -> Print intermediate results. 
      *      T = Temperature (Kelvin)
-     *    Pres = Pressure (units of if__ variable)
+     *    Pres = Pressure (Pascal)
      *
      *    Evaluate the standard state free energies at the current temperature
      *    and pressure. Ideal gas pressure contribution is added in here.
@@ -154,7 +154,7 @@ namespace VCSnonideal {
 
     for (int iph = 0; iph < NPhase; iph++) {
       vcs_VolPhase* vph = VPhaseList[iph];
-      vph->setState_TP(m_temperature, m_pressure);
+      vph->setState_TP(m_temperature, m_pressurePA);
       vph->sendToVCSGStar(VCS_DATA_PTR(m_SSfeSpecies));
     }
    

@@ -112,6 +112,7 @@ public:
 
   /**
    * Value of the pressure for the reference state.
+   *  defaults to 1.01325E5 = 1 atm
    */
   double SS0_Pref;
   /**

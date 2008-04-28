@@ -45,11 +45,7 @@ namespace VCSnonideal {
 	g += TPhInertMoles[iph] *
 	  log(TPhInertMoles[iph] / tPhMoles[iph]);
 	if (Vphase->GasPhase) {
-	  if (m_VCS_UnitsFormat == 3) {
-	    g += TPhInertMoles[iph] * log(m_pressure/(Cantera::OneAtm));
-	  } else {
-	    g += TPhInertMoles[iph] * log(m_pressure);
-	  }
+	  g += TPhInertMoles[iph] * log(m_pressurePA/(1.01325E5));
 	}
       }
     }
@@ -86,11 +82,7 @@ namespace VCSnonideal {
       g += TPhInertMoles[iphase] * log(TPhInertMoles[iphase] / phaseMols);
       vcs_VolPhase *Vphase = VPhaseList[iphase];
       if (Vphase->GasPhase == iphase) {
-	if (m_VCS_UnitsFormat == 3) {
-	  g += TPhInertMoles[iphase] * log(m_pressure/(Cantera::OneAtm));
-	} else {
-	  g += TPhInertMoles[iphase] * log(m_pressure);
-	}
+	g += TPhInertMoles[iphase] * log(m_pressurePA/1.01325E5);
       }
     }
 

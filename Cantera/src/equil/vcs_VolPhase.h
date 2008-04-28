@@ -215,6 +215,12 @@ public:
   //!  Total moles of inert in the phase 
   double TMolesInert;
 
+  //! molar volume of the inert species if present
+  /*!
+   *  units m**3 / kg
+   */
+  double m_molarVolInert;
+
   //! Convention for the activity formulation
   /*!
    *  0 = molar based activities (default)
@@ -285,10 +291,10 @@ public:
    *
    *                           Chem_Pot                 Pres      vol   moles
    * ----------------------------------------------------------------------
-   * -1  VCS_UNITS_KCALMOL  = kcal/mol                  atm   cm**3   gmol
-   *  0  VCS_UNITS_UNITLESS = MU / RT -> no units       atm   cm**3   gmol
-   *  1  VCS_UNITS_KJMOL    = kJ / mol                  atm   cm**3   gmol
-   *  2  VCS_UNITS_KELVIN   = KELVIN -> MU / R          atm   cm**3   gmol
+   * -1  VCS_UNITS_KCALMOL  = kcal/gmol                 Pa     m**3   kmol
+   *  0  VCS_UNITS_UNITLESS = MU / RT -> no units       Pa     m**3   kmol
+   *  1  VCS_UNITS_KJMOL    = kJ / gmol                 Pa     m**3   kmol
+   *  2  VCS_UNITS_KELVIN   = KELVIN -> MU / R          Pa     m**3   kmol
    *  3  VCS_UNITS_MKS      = Joules / Kmol (Cantera)   Pa     m**3   kmol
    * ----------------------------------------------------------------------
    *
@@ -358,15 +364,13 @@ public:
  
   //! Vector of the Star molar Volumes of the species.
   /*!
-   * units depends on VCS_UnitsFormat variable
-   *             Cantera -> m3 / kmol
+   * units  m3 / kmol
    */
   mutable std::vector<double> StarMolarVol;
 
   //! Vector of the Partial molar Volumes of the species.
   /*!
-   * units depends on VCS_UnitsFormat variable
-   *             Cantera -> m3 / kmol
+   * units  m3 / kmol
    */
   mutable std::vector<double> PartialMolarVol;
 
@@ -591,6 +595,8 @@ public:
    *
    * @param TKelvin Current temperature
    * @param pres    Current pressure
+   *
+   *  Units are in m**3/kmol
    */
   void VolStar_calc(double TKelvin, double pres);
 
@@ -605,7 +611,7 @@ public:
    * @param pres    Current pressure
    *
    * @return molar volume of the kspec species's standard
-   *         state
+   *         state (m**3/kmol)
    */
   double VolStar_calc_one(int kglob, double TKelvin, double pres);
 

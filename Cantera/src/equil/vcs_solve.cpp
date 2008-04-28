@@ -44,7 +44,7 @@ namespace VCSnonideal {
     iest(0),
     TMoles(0.0),
     m_temperature(0.0),
-    m_pressure(0.0),
+    m_pressurePA(0.0),
     tolmaj(0.0),
     tolmin(0.0),
     tolmaj2(0.0),
@@ -389,7 +389,7 @@ namespace VCSnonideal {
        *    calculate the residual and Jacobian)
        */
     
-      iconv = vcs_TP(ipr, ip1, maxit, vprob->T, vprob->Pres);
+      iconv = vcs_TP(ipr, ip1, maxit, vprob->T, vprob->PresPA);
 
 	     
       /*
@@ -582,8 +582,8 @@ namespace VCSnonideal {
      */
     if (pub->T  > 0.0)  m_temperature = pub->T;
     else                m_temperature = 293.15;
-    if (pub->Pres > 0.0) m_pressure = pub->Pres;
-    else                 m_pressure = 1.0;
+    if (pub->PresPA > 0.0) m_pressurePA = pub->PresPA;
+    else                   m_pressurePA = Cantera::OneAtm;
     /*
      *   TPhInertMoles[] -> must be copied over here
      */
@@ -773,7 +773,7 @@ namespace VCSnonideal {
     bool status_change = false;
 
     m_temperature = pub->T;
-    m_pressure = pub->Pres;
+    m_pressurePA = pub->PresPA;
     m_VCS_UnitsFormat = pub->m_VCS_UnitsFormat;
     iest = pub->iest;
 
@@ -902,7 +902,7 @@ namespace VCSnonideal {
     int k1 = 0;
 
     vcs_tmoles();
-    Vol = vcs_VolTotal(m_temperature, m_pressure, 
+    Vol = vcs_VolTotal(m_temperature, m_pressurePA, 
 		       VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(VolPM));
 
     for (i = 0; i < m_numSpeciesTot; ++i) {
@@ -930,7 +930,7 @@ namespace VCSnonideal {
     } 
    
     pub->T    = m_temperature;
-    pub->Pres = m_pressure;
+    pub->PresPA = m_pressurePA;
     pub->Vol  = Vol;
     int kT = 0;
     for (int iph = 0; iph < pub->NPhase; iph++) {

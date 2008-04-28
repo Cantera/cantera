@@ -42,7 +42,7 @@ VCS_PROB::VCS_PROB(int nsp, int nel, int nph) :
     NPhase(nph),
     NPHASE0(0),
     T(298.15),
-    Pres(1.0),
+    PresPA(1.0),
     Vol(0.0),
     m_VCS_UnitsFormat(VCS_UNITS_UNITLESS),  
     /* Set the units for the chemical potential data to be
@@ -243,10 +243,8 @@ void VCS_PROB::prob_report(int print_lvl) {
     if (prob_type == 0) {
       plogf("\tSolve a constant T, P problem:\n");
       plogf("\t\tT    = %g K\n", T);
-      double pres_atm = Pres;
-      if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-	pres_atm = Pres / 1.0133E5;
-      }
+      double pres_atm = PresPA / 1.01325E5;
+      
       plogf("\t\tPres = %g atm\n", pres_atm);
     } else {
       plogf("\tUnknown problem type\n");
@@ -279,7 +277,7 @@ void VCS_PROB::prob_report(int print_lvl) {
     plogf("             Information about phases\n");
     plogf("  PhaseName    PhaseNum SingSpec  GasPhase   "
 	   " EqnState    NumSpec");
-    plogf("  TMolesInert       Tmoles\n");
+    plogf("  TMolesInert      TKmoles\n");
    
     for (iphase = 0; iphase < NPhase; iphase++) {
       Vphase = VPhaseList[iphase];
@@ -293,10 +291,11 @@ void VCS_PROB::prob_report(int print_lvl) {
     }
 
     plogf("\nElemental Abundances:    ");
-    plogf("         Target_gmol    ElemType ElActive\n");
+    plogf("         Target_kmol    ElemType ElActive\n");
     double fac = 1.0;
     if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-      fac = 1.0E3;
+      //fac = 1.0E3;
+      fac = 1.0;
     }
     for (i = 0; i < ne; ++i) {
       print_space(26); plogf("%-2.2s", ElName[i].c_str());
@@ -322,7 +321,7 @@ void VCS_PROB::prob_report(int print_lvl) {
     for (iphase = 0; iphase < NPhase; iphase++) {
       Vphase = VPhaseList[iphase];
       Vphase->G0_calc(T);
-      Vphase->GStar_calc(T, Pres);
+      Vphase->GStar_calc(T, PresPA);
       for (int kindex = 0; kindex < Vphase->NVolSpecies; kindex++) {
 	int kglob = Vphase->IndSpecies[kindex];
 	plogf("%16s ", SpName[kglob].c_str());
@@ -475,7 +474,6 @@ void VCS_PROB::reportCSV(const std::string &reportFile) {
     exit(-1);
   }
   double Temp = T;
-  double pres = Pres;
 
   std::vector<double> volPM(nspecies, 0.0);
   std::vector<double> activity(nspecies, 0.0);;
@@ -508,7 +506,7 @@ void VCS_PROB::reportCSV(const std::string &reportFile) {
   fprintf(FP,"--------------------- VCS_MULTIPHASE_EQUIL FINAL REPORT"
 	  " -----------------------------\n");
   fprintf(FP,"Temperature  = %11.5g kelvin\n", Temp);
-  fprintf(FP,"Pressure     = %11.5g Pascal\n", pres);
+  fprintf(FP,"Pressure     = %11.5g Pascal\n", PresPA);
   fprintf(FP,"Total Volume = %11.5g m**3\n", vol);
   fprintf(FP,"Number Basis optimizations = %d\n", m_NumBasisOptimizations);
   fprintf(FP,"Number VCS iterations = %d\n", m_Iterations);

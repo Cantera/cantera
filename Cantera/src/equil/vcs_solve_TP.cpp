@@ -237,11 +237,11 @@ namespace VCSnonideal {
       plogf("%10d PHASE2 SPECIES%8d SINGLE SPECIES PHASES\n\n", 
 	    numSpecliquid, 
 	    m_numSpeciesTot - (VPhaseList[0])->NVolSpecies - numSpecliquid);  
-      string punits = "atm";
-      if (m_VCS_UnitsFormat == 3) {
-	punits = "Pa ";
-      }
-      plogf(" PRESSURE%22.8g %3s\n", m_pressure, punits.c_str()); 
+      //string punits = "atm";
+      //if (m_VCS_UnitsFormat == 3) {
+      //	punits = "Pa ";
+      //}
+      plogf(" PRESSURE%22.8g %3s\n", m_pressurePA, "Pa "); 
       plogf(" TEMPERATURE%19.3f K\n", m_temperature);
       Vphase = VPhaseList[0];
       if (Vphase->NVolSpecies > 0) {
@@ -532,7 +532,7 @@ namespace VCSnonideal {
       if (iti == 0) plogf("- Full Calculation:\n");
       else          plogf("- Major Components Calculation:\n");
       plogf("   --- Species     IC    ");
-      plogf(" Moles   Tent_Moles  Rxn_Adj   |    Comment \n");
+      plogf(" KMoles  Tent_KMoles Rxn_Adj   |    Comment \n");
     }
 #endif
    
@@ -785,7 +785,7 @@ namespace VCSnonideal {
 	 */
 	if (m_molNumSpecies_new[kspec] <= 0.0) {
 #ifdef DEBUG_MODE
-	  sprintf(ANOTE, "initial nonpos moles= %11.3E",
+	  sprintf(ANOTE, "initial nonpos kmoles= %11.3E",
 		  m_molNumSpecies_new[kspec]);
 #endif
 	  /* ************************************************* */
@@ -801,7 +801,7 @@ namespace VCSnonideal {
 	  if (! (SSPhase[kspec])) {
 	    /* 
 	     *   Section for multispecies phases:
-	     *     - Cut reaction adjustment for positive moles of 
+	     *     - Cut reaction adjustment for positive kmoles of 
 	     *       major species in multispecies phases.
 	     *       Decrease its concentration by a factor of 10.
 	     */
@@ -811,7 +811,7 @@ namespace VCSnonideal {
 	    /*
 	     *        Change major to minor if the current species
 	     *        has a mole number that is less than 1/100 of the
-	     *        total moles in the problem.
+	     *        total kmoles in the problem.
 	     *        However, it also has to be a small species within its
 	     *        own phase as well.
 	     *        we can't call vcs_species_type() because the phase moles
@@ -954,7 +954,7 @@ namespace VCSnonideal {
 
       } /* End of Loop on ic[irxn] -> the type of species */
       /***********************************************************************/
-      /****** CALCULATE MOLE NUMBER CHANGE FOR THE COMPONENT BASIS ***********/
+      /****** CALCULATE KMOLE NUMBER CHANGE FOR THE COMPONENT BASIS **********/
       /***********************************************************************/
       if (dx != 0.0 && (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
 	/*
@@ -1143,7 +1143,7 @@ namespace VCSnonideal {
       plogf(" -----------------------------------------------------\n");
       plogf("   --- FORCER SUBROUTINE changed the solution:\n");
       plogf("   --- SPECIES Status INIT MOLES TENT_MOLES");
-      plogf("  FINAL MOLES   INIT_DEL_G/RT  TENT_DEL_G/RT  FINAL_DELTA_G/RT\n");
+      plogf("  FINAL KMOLES  INIT_DEL_G/RT  TENT_DEL_G/RT  FINAL_DELTA_G/RT\n");
       for (i = 0; i < m_numComponents; ++i) {
 	plogf("  --- %-12.12s", SpName[i].c_str());
 	plogf("    %14.6E %14.6E %14.6E\n",  m_molNumSpecies_old[i], m_molNumSpecies_old[i] + m_deltaMolNumSpecies[i], m_molNumSpecies_new[i]);
@@ -1160,11 +1160,11 @@ namespace VCSnonideal {
       plogf("Norms of Delta G():%14.6E%14.6E\n",
 	    l2normdg(VCS_DATA_PTR(m_deltaGRxn_old)),
 	    l2normdg(VCS_DATA_PTR(m_deltaGRxn_new)));
-      plogf("   Total moles of gas    = %15.7E\n", m_tPhaseMoles_old[0]);
+      plogf("   Total kmoles of gas    = %15.7E\n", m_tPhaseMoles_old[0]);
       if ((NPhase > 1) && (! (VPhaseList[1])->SingleSpecies)) { 
-	plogf("   Total moles of liquid = %15.7E\n", m_tPhaseMoles_old[1]); 
+	plogf("   Total kmoles of liquid = %15.7E\n", m_tPhaseMoles_old[1]); 
       } else {
-	plogf("   Total moles of liquid = %15.7E\n", 0.0);
+	plogf("   Total kmoles of liquid = %15.7E\n", 0.0);
       }
       plogf("   Total New Dimensionless Gibbs Free Energy = %20.13E\n", 
 	    vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_feSpecies_curr),
@@ -1185,7 +1185,7 @@ namespace VCSnonideal {
       } else {
 	plogf(" (only major species):\n");
       }
-      plogf("   ---      Species Status Initial_Moles  Final_Moles  Initial_Mu/RT");
+      plogf("   ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT");
       plogf("     Mu/RT     Init_Del_G/RT   Delta_G/RT\n");
       for (i = 0; i < m_numComponents; ++i) {
 	plogf("   ---   %-12.12s", SpName[i].c_str()); plogf("    "); 
@@ -1214,7 +1214,7 @@ namespace VCSnonideal {
 	    l2normdg(VCS_DATA_PTR(m_deltaGRxn_new)));
       plogendl();
       
-      plogf("   ---           Phase_Name     Moles(after update)\n");
+      plogf("   ---           Phase_Name    KMoles(after update)\n");
       plogf("   ---   "); vcs_print_line("-", 50);
       for (iph = 0; iph < NPhase; iph++) {
 	Vphase = VPhaseList[iph];
@@ -2129,7 +2129,7 @@ namespace VCSnonideal {
      *
      *  Change the concentration of a species by delta moles. 
      *  Make sure to conserve
-     *  elements and keep track of the total moles in all phases.
+     *  elements and keep track of the total kmoles in all phases.
      *
      *  return:
      *      1: succeeded
@@ -2831,7 +2831,7 @@ namespace VCSnonideal {
       plogf("   "); for (j = 0; j < 82; j++) plogf("-"); plogf("\n");
       plogf("   --- Subroutine vcs_RxnStepSizes called - Details:\n");
       plogf("   "); for (j = 0; j < 82; j++) plogf("-"); plogf("\n");
-      plogf("   --- Species         Moles     Rxn_Adjustment    DeltaG"
+      plogf("   --- Species        KMoles     Rxn_Adjustment    DeltaG"
 	    "   | Comment\n");
     }
 #endif

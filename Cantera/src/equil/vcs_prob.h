@@ -136,8 +136,9 @@ namespace VCSnonideal {
     //! Pressure
     /*!
      * units given by m_VCS_UnitsFormat
+     * -> are now PA 
      */
-    double Pres;
+    double PresPA;
 
     //! Volume of the entire system
     /*!
