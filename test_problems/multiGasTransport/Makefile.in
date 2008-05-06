@@ -49,16 +49,7 @@ CANTERA_LIBDIR=@buildlib@
 CANTERA_LIBS = @LOCAL_LIBS@ -lctcxx 
 
 # Cantera library Dependencies
-CANTERA_LIB_DEPS = $(CANTERA_LIBDIR)/liboneD.a \
-                   $(CANTERA_LIBDIR)/libzeroD.a \
-                   $(CANTERA_LIBDIR)/libkinetics.a \
-                   $(CANTERA_LIBDIR)/libtransport.a \
-		   $(CANTERA_LIBDIR)/libthermo.a \
-                   $(CANTERA_LIBDIR)/libctnumerics.a \
-                   $(CANTERA_LIBDIR)/libctbase.a \
-                   $(CANTERA_LIBDIR)/libctmath.a \
-                   $(CANTERA_LIBDIR)/libtpx.a \
-                   $(CANTERA_LIBDIR)/libconverters.a 
+CANTERA_LIBS_DEP = @LOCAL_LIBS_DEP@ $(CANTERA_LIBDIR)/libctcxx.a
 
 ifeq (@build_lapack@, 1)
 CANTERA_LAPACK_DEPS = $(CANTERA_LIBDIR)/libctblas.a \
