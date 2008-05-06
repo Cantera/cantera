@@ -460,7 +460,7 @@ namespace Cantera {
    *   ThermoPhase object. The properties must be already contained
    *   within the current thermodynamic state of the system.
    */
-  int ChemEquil::equilibrate(thermo_t& s, const char* XY, 
+  int ChemEquil::equilibrate(thermo_t& s, const char* XY,
 			     bool useThermoPhaseElementPotentials, int loglevel) {
     vector_fp elMolesGoal(s.nElements());
     initialize(s);

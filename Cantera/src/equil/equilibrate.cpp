@@ -198,7 +198,9 @@ namespace Cantera {
 	  e->options.maxIterations = maxsteps;
 	  e->options.relTolerance = rtol;
 	  nAttempts++;
-	  retnSub = e->equilibrate(s,XY,loglevel-1);
+          bool useThermoPhaseElementPotentials = true;
+	  retnSub = e->equilibrate(s,XY,
+                                   useThermoPhaseElementPotentials, loglevel-1);
 	  if (retnSub < 0) {
 	    if (loglevel > 0) 
 	      addLogEntry("ChemEquil solver failed.");
