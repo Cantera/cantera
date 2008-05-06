@@ -12,6 +12,7 @@
  */
 #include <cstdlib>
 #include <cmath>
+#include <cassert>
 
 #include "vcs_internal.h" 
 

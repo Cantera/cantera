@@ -14,6 +14,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
+#include <cassert>
 
 #include "vcs_solve.h"
 #include "vcs_internal.h" 

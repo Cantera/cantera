@@ -79,12 +79,12 @@ namespace VCSnonideal {
     for (j = 0; j < m_numElemConstraints; j++) {
       if (ElActive[j]) {
 	neActive++;
-	bb[jj] = gai[j];
+	bb[jj] = m_elemAbundancesGoal[j];
 	jj++;
       }
     }
     for (kspec = 0; kspec < nspecies; ++kspec) {
-      cc[kspec] = -ff[kspec];
+      cc[kspec] = -m_SSfeSpecies[kspec];
       jj = 0;
       for (j = 0; j < m_numElemConstraints; ++j) {
 	if (ElActive[j]) {

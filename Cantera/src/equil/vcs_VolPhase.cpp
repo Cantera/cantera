@@ -769,7 +769,7 @@ double vcs_VolPhase::VolPM_calc() const {
 	Vol += volI;
       } else {
 	printf("unknown situation\n");
-	exit(-1);
+	std::exit(-1);
       }
     }
   }
