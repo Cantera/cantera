@@ -91,7 +91,7 @@ namespace VCSnonideal {
   }
 
   int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
-					  bool estimateEquil,
+					  int estimateEquil,
 					  int printLvl, doublereal err, 
 					  int maxsteps, int loglevel) {
 
@@ -111,7 +111,7 @@ namespace VCSnonideal {
       m_mix->setTemperature(xtarget);
     }
     double Pnew;
-    bool strt = estimateEquil;
+    int strt = estimateEquil;
     double P1 = 0.0;
     double V1 = 0.0;
     double V2 = 0.0;
@@ -212,7 +212,7 @@ namespace VCSnonideal {
 
   int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget, 
 					  int XY, double Tlow, double Thigh,
-					  bool estimateEquil,
+					  int estimateEquil,
 					  int printLvl, doublereal err, 
 					  int maxsteps, int loglevel) {
     int maxiter = 100;
@@ -221,7 +221,7 @@ namespace VCSnonideal {
       throw CanteraError("vcs_MultiPhaseEquil::equilibrate_HP",
 			 "Wrong XP" + XY);
     }
-    bool strt = estimateEquil;
+    int strt = estimateEquil;
   
     // Lower bound on T. This will change as we progress in the calculation
     if (Tlow <= 0.0) {
@@ -252,7 +252,7 @@ namespace VCSnonideal {
       try {
 	Tnow = m_mix->temperature();
 	iSuccess = equilibrate_TP(strt, printLvlSub, err, maxsteps, loglevel); 
-	strt = false;
+	strt = 0;
 	if (XY == UP) {
 	  Hnow = m_mix->IntEnergy();
 	} else {
@@ -339,7 +339,7 @@ namespace VCSnonideal {
 	if (!estimateEquil) {
 	  addLogEntry("no convergence",
 		      "try estimating composition at the start");
-	  strt = true;
+	  strt = -1;
 	}
 	else {
 	  Tnew = 0.5*(Tnow + Thigh);
@@ -362,12 +362,12 @@ namespace VCSnonideal {
 
   int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget, 
 					  double Tlow, double Thigh,
-					  bool estimateEquil,
+					  int estimateEquil,
 					  int printLvl, doublereal err, 
 					  int maxsteps, int loglevel) {
     int maxiter = 100;
     int iSuccess;
-    bool strt = estimateEquil;
+    int strt = estimateEquil;
  
     // Lower bound on T. This will change as we progress in the calculation
     if (Tlow <= 0.0) {
@@ -403,7 +403,7 @@ namespace VCSnonideal {
       try {
 	Tnow = m_mix->temperature();
 	iSuccess = equilibrate_TP(strt, printLvlSub, err, maxsteps, loglevel); 
-	strt = false;
+	strt = 0;
 	Snow = m_mix->entropy();
 	double pmoles[10];
 	pmoles[0] = m_mix->phaseMoles(0);
@@ -495,7 +495,7 @@ namespace VCSnonideal {
 	if (!estimateEquil) {
 	  addLogEntry("no convergence",
 		      "try estimating composition at the start");
-	  strt = true;
+	  strt = -1;
 	}
 	else {
 	  Tnew = 0.5*(Tnow + Thigh);
@@ -520,7 +520,7 @@ namespace VCSnonideal {
   /*
    * Equilibrate the solution using the current element abundances
    */
-  int vcs_MultiPhaseEquil::equilibrate(int XY, bool estimateEquil, 
+  int vcs_MultiPhaseEquil::equilibrate(int XY, int estimateEquil, 
 				       int printLvl, doublereal err, 
 				       int maxsteps, int loglevel) {
     int iSuccess;
@@ -570,7 +570,7 @@ namespace VCSnonideal {
   /*
    * Equilibrate the solution using the current element abundances
    */
-  int vcs_MultiPhaseEquil::equilibrate_TP(bool estimateEquil, 
+  int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil, 
 					  int printLvl, doublereal err, 
 					  int maxsteps, int loglevel) {
    // Debugging level
@@ -598,7 +598,7 @@ namespace VCSnonideal {
 
    // Set the estimation technique
    if (estimateEquil) {
-     m_vprob->iest = -1;
+     m_vprob->iest = estimateEquil;
    } else {
      m_vprob->iest = 0;
    }

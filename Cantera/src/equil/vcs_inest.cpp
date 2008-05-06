@@ -382,32 +382,48 @@ namespace VCSnonideal {
       }
     }
 #endif
-  } /* inest() *****************************************************************/
+  }
+  /***************************************************************************/
 
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
-
-  int VCS_SOLVE::vcs_inest_TP(void)
-   
-    /**************************************************************************
-     *
-     * vcs_inest_TP:
-     *
-     *   Create an initial estimate of the solution to the thermodynamic 
-     *   equilibrium problem. 
-     *
-     *    Return value:
-     *
-     *      0: successful initial guess
-     *     -1: Unsuccessful initial guess, the elemental abundances aren't 
-     *         satisfied.
-     ***************************************************************************/
-  {
+  //   Create an initial estimate of the solution to the thermodynamic
+  //   equilibrium problem.
+  /* 
+   *    @return  Return value indicates success:
+   *      -    0: successful initial guess
+   *      -   -1: Unsuccessful initial guess; the elemental abundances aren't
+   *              satisfied.
+   */
+  int VCS_SOLVE::vcs_inest_TP() {
     int retn = 0;
     double    test;
     Cantera::clockWC tickTock;
     test = -1.0E20;
+
+    if (m_doEstimateEquil > 0) {
+      /*
+       *  Calculate the elemental abundances
+       */
+      vcs_elab();
+      if (vcs_elabcheck(0)) {
+#ifdef DEBUG_MODE
+	if (vcs_debug_print_lvl >= 2) {
+	  plogf("%s Initial guess passed element abundances on input\n", pprefix);  
+	  plogf("%s m_doEstimateEquil = 1 so will use the input mole numbers as estimates", pprefix);
+	  plogendl();
+	}
+#endif
+	return retn;
+#ifdef DEBUG_MODE
+      } else {
+	if (vcs_debug_print_lvl >= 2) {
+	  plogf("%s Initial guess failed element abundances on input\n", pprefix);  
+	  plogf("%s m_doEstimateEquil = 1 so will discard input mole numbers and find our own estimate", pprefix);
+	  plogendl();
+	}
+#endif
+      }
+    }
+  
     /*
      *  Malloc temporary space for usage in this routine and in
      *  subroutines
@@ -416,8 +432,6 @@ namespace VCSnonideal {
      *        sa[ne]
      *        aw[m]
      */
-
-  
     std::vector<double> sm(m_numElemConstraints*m_numElemConstraints, 0.0);
     std::vector<double> ss(m_numElemConstraints, 0.0);
     std::vector<double> sa(m_numElemConstraints, 0.0);
@@ -428,22 +442,23 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("%sGo find an initial estimate for the equilibrium problem",
-	     pprefix);
+	    pprefix);
       plogendl();
     }
 #endif
     inest(VCS_DATA_PTR(aw), VCS_DATA_PTR(sa), VCS_DATA_PTR(sm),
 	  VCS_DATA_PTR(ss), test);
     /*
-     *      Calculate the elemental abundances
+     *  Calculate the elemental abundances
      */
     vcs_elab();
+
     /*
      *      If we still fail to achieve the correct elemental abundances, 
      *      try to fix the problem again by calling the main elemental abundances
-     *      fixer routine, used in the main program. What this does, is that it
+     *      fixer routine, used in the main program. This
      *      attempts to tweak the mole numbers of the component species to
-     *      satisfy the element abundance constraints. 
+     *      satisfy the element abundance constraints.
      *
      *       Note: We won't do this unless we have to since it involves inverting
      *             a matrix.
@@ -461,9 +476,9 @@ namespace VCSnonideal {
       rangeCheck  = vcs_elabcheck(1);
       if (!vcs_elabcheck(0)) {
 	plogf("%sInitial guess still fails element abundance equations\n",
-	       pprefix);
+	      pprefix);
 	plogf("%s - Inability to ever satisfy element abundance "
-	       "constraints is probable", pprefix);
+	      "constraints is probable", pprefix);
         plogendl();
 	retn = -1;
       } else {
@@ -475,8 +490,8 @@ namespace VCSnonideal {
 	  } else {
 	    plogf("%sElement Abundances RANGE ERROR\n", pprefix);
 	    plogf("%s - Initial guess satisfies NC=%d element abundances, "
-		   "BUT not NE=%d element abundances", pprefix,
-		   m_numComponents, m_numElemConstraints);
+		  "BUT not NE=%d element abundances", pprefix,
+		  m_numComponents, m_numElemConstraints);
             plogendl();
 	  }
 	}
@@ -492,8 +507,8 @@ namespace VCSnonideal {
 	} else {
 	  plogf("%sElement Abundances RANGE ERROR\n", pprefix);
 	  plogf("%s - Initial guess satisfies NC=%d element abundances, "
-		 "BUT not NE=%d element abundances", pprefix, 
-		 m_numComponents, m_numElemConstraints);
+		"BUT not NE=%d element abundances", pprefix, 
+		m_numComponents, m_numElemConstraints);
           plogendl();
 	}
       }
@@ -503,14 +518,14 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("%sTotal Dimensionless Gibbs Free Energy = %15.7E", pprefix,
-	     vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_curr), 
-			     VCS_DATA_PTR(m_tPhaseMoles_old)));   
+	    vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_curr), 
+			    VCS_DATA_PTR(m_tPhaseMoles_old)));   
       plogendl();
     }
 #endif
 
     /*
-     *      Free malloced memory
+     * Record time
      */
     double tsecond = tickTock.secondsWC();
     m_VCount->T_Time_inest += tsecond;
@@ -519,4 +534,3 @@ namespace VCSnonideal {
   }
 
 }
-

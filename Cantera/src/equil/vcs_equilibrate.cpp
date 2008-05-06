@@ -50,11 +50,17 @@ namespace Cantera {
    *  @param XY An integer specifying the two properties to be held
    *            constant.
    *
-   *  @param estimateEquil Boolean indicating whether the solver
+   *  @param estimateEquil integer indicating whether the solver
    *                   should estimate its own initial condition.
-   *                   If false, the initial mole fraction vector
+   *                   If 0, the initial mole fraction vector
    *                   in the %ThermoPhase object is used as the 
    *                   initial condition.
+   *                   If 1, the initial mole fraction vector
+   *                   is used if the element abundances are
+   *                   satisfied.
+   *                   if -1, the initial mole fraction vector
+   *                   is thrown out, and an estimate is
+   *                   formulated.
    *
    *  @param printLvl Determines the amount of printing that
    *                  gets sent to stdout from the vcs package
@@ -84,7 +90,7 @@ namespace Cantera {
    *                  in a web browser. @see HTML_logs
    */
   int vcs_equilibrate(thermo_t& s, const char* XY, 
-		      bool estimateEquil,  int printLvl,
+		      int estimateEquil,  int printLvl,
 		      int solver,
 		      doublereal rtol, int maxsteps, int maxiter, 
 		      int loglevel) {
@@ -203,11 +209,17 @@ namespace Cantera {
    *  @param XY A character string specifying the two properties to
    *            be held constant
    *
-   *  @param estimateEquil Boolean indicating whether the solver
+   *  @param estimateEquil integer indicating whether the solver
    *                   should estimate its own initial condition.
-   *                   If false, the initial mole fraction vector
-   *                   in the %ThermoPhase object is used as the
+   *                   If 0, the initial mole fraction vector
+   *                   in the %ThermoPhase object is used as the 
    *                   initial condition.
+   *                   If 1, the initial mole fraction vector
+   *                   is used if the element abundances are
+   *                   satisfied.
+   *                   if -1, the initial mole fraction vector
+   *                   is thrown out, and an estimate is
+   *                   formulated.
    *
    *  @param printLvl Determines the amount of printing that
    *                  gets sent to stdout from the vcs package
@@ -231,7 +243,7 @@ namespace Cantera {
    *  @ingroup equilfunctions
    */
   int vcs_equilibrate(MultiPhase& s, const char* XY,
-                      bool estimateEquil, int printLvl, int solver,
+                      int estimateEquil, int printLvl, int solver,
                       doublereal tol, int maxsteps, int maxiter,
                       int loglevel) {
     int ixy = _equilflag(XY);
@@ -255,11 +267,17 @@ namespace Cantera {
    *  @param XY An integer specifying the two properties to be held
    *            constant.
    *
-   *  @param estimateEquil Boolean indicating whether the solver
+   *  @param estimateEquil integer indicating whether the solver
    *                   should estimate its own initial condition.
-   *                   If false, the initial mole fraction vector
-   *                   in the %ThermoPhase object is used as the
+   *                   If 0, the initial mole fraction vector
+   *                   in the %ThermoPhase object is used as the 
    *                   initial condition.
+   *                   If 1, the initial mole fraction vector
+   *                   is used if the element abundances are
+   *                   satisfied.
+   *                   if -1, the initial mole fraction vector
+   *                   is thrown out, and an estimate is
+   *                   formulated.
    *
    *  @param printLvl Determines the amount of printing that
    *                  gets sent to stdout from the vcs package
@@ -283,7 +301,7 @@ namespace Cantera {
    *  @ingroup equilfunctions
    */
   int vcs_equilibrate_1(MultiPhase& s, int ixy, 
-			bool estimateEquil, int printLvl, int solver,
+			int estimateEquil, int printLvl, int solver,
 			doublereal tol, int maxsteps, int maxiter, int loglevel) {
     static int counter = 0;
     int retn = 1;

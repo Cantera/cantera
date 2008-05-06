@@ -76,7 +76,7 @@ namespace VCSnonideal {
      *      Decide whether we need an initial estimate of the solution
      *      If so, go get one. If not, then
      */
-    if (iest == -1) {
+    if (m_doEstimateEquil) {
       retn = vcs_inest_TP();
       if (retn != VCS_SUCCESS) {
 	plogf("vcs_inest_TP returned a failure flag\n");	 

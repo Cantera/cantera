@@ -177,6 +177,7 @@ namespace VCSnonideal {
     //! Specification of the initial estimate method
     /*!
      *  iest       = Initial estimate: 0 user estimate
+     *                                 1 user estimate if satisifies elements
      *                                -1 machine estimate 
      */
     int iest;

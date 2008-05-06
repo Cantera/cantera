@@ -127,7 +127,7 @@ namespace Cantera {
       if (solver >= 2) {
 #ifdef WITH_VCSNONIDEAL
 	int printLvlSub = 0;
-	bool estimateEquil = false;
+	int estimateEquil = 0;
 	m = new MultiPhase;
 	try { 
 	  m->addPhase(&s, 1.0);

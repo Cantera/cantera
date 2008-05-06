@@ -176,9 +176,43 @@ public:
   void  vcs_fePrep_TP(void);
   double vcs_VolTotal(double, double, double [], double []);
 
+  
+  //!  This routine is mostly concerned with changing the private data  
+  //!  to be consistent with what's needed for solution. It is called one 
+  //!  time for each new problem structure definition.
+  /*!
+   *  This routine is always followed by vcs_prep(). Therefore, tasks
+   *  that need to be done for every call to vcsc() should be placed in
+   *  vcs_prep() and not in this routine.
+   *
+   *  The problem structure refers to:
+   *
+   *     the number and identity of the species.
+   *     the formula matrix and thus the number of components.
+   *     the number and identity of the phases.
+   *     the equation of state
+   *     the method and parameters for determining the standard state
+   *     The method and parameters for determining the activity coefficients.
+   *
+   * Tasks:
+   *    0) Fill in the SSPhase[] array.
+   *    1) Check to see if any multispecies phases actually have only one
+   *       species in that phase. If true, reassign that phase and species
+   *       to be a single-species phase.
+   *    2) Determine the number of components in the problem if not already
+   *       done so. During this process the order of the species is changed
+   *       in the private data structure. All references to the species
+   *       properties must employ the ind[] index vector. 
+   *
+   *  @param printLvl Print level of the routine
+   *
+   *  @return the return code
+   *        VCS_SUCCESS = everything went OK
+   *
+   */
   int vcs_prep_oneTime(int printLvl);
 
-  //! Prepare the object for resolution
+  //! Prepare the object for solution
   /*!
    *  This routine is mostly concerned with changing the private data  
    *  to be consistent with that needed for solution. It is called for
@@ -193,8 +227,23 @@ public:
    *                   public data structure from when the problem was
    *                   initially set up.
    */
-  int vcs_prep(void);
+  int vcs_prep();
  
+  //!  In this routine, we check for things that will cause the algorithm
+  //!  to fail.
+  /*!
+   *  We check to see if the problem is well posed. If it is not, we return
+   *  false and print out error conditions.
+   *
+   *  Current there is one condition. If all the element abundances are
+   *  zero, the algorithm will fail.
+   *
+   * @param vprob   VCS_PROB pointer to the definition of the equilibrium
+   *                problem
+   *
+   * @return  If true, the problem is well-posed. If false, the problem
+   *          is not well posed.
+   */
   bool vcs_wellPosed(VCS_PROB *vprob);
 
   //! Rearrange the constraint equations represented by the Formula
@@ -258,7 +307,16 @@ public:
   double vcs_line_search(int irxn, double dx_orig);
 #endif
 
-  int vcs_report(int);
+
+  //!   Print out a report on the state of the equilibrium problem to
+  //!   standard output.
+  /*!
+   *  @param iconv Indicator of convergence, to be printed out in the report:
+   *    -   0 converged
+   *    -   1 range space error
+   *    -  -1 not converged
+   */
+  int vcs_report(int iconv);
 
 
   int vcs_rearrange(void);
@@ -281,7 +339,16 @@ public:
   void vcs_elabPhase(int iphase, double * const elemAbundPhase);
   int vcs_elcorr(double aa[], double x[]);
 
-  int vcs_inest_TP(void);
+  
+  //!  Create an initial estimate of the solution to the thermodynamic
+  //!  equilibrium problem.
+  /*!
+   *    @return  Return value indicates success:
+   *      -    0: successful initial guess
+   *      -   -1: Unsuccessful initial guess; the elemental abundances aren't
+   *              satisfied.
+   */
+  int vcs_inest_TP();
 
 #ifdef ALTLINPROG
   //! Extimate the initial mole numbers by constrained linear programming
@@ -535,12 +602,15 @@ public:
    */
   std::vector<double> m_feSpecies_new; 
 
-  //! Setting for the initial estimate
+  //! Setting for whether to do an initial estimate
   /*!
-   *  Initial estimate: 0 user estimate
-   *                   -1 machine estimate
+   *  Initial estimate: 0 Do not estimate the solution at all. Use the supplied 
+   *                      mole numbers as is.
+   *                    1 Only do an estimate if the element abundances aren't satisfied.
+   *                   -1 Force an estimate of the soln. Throw out the input
+   *                      mole numbers.
    */
-  int iest;
+  int m_doEstimateEquil;
 
   //! Total moles of the species
   /*!
@@ -573,7 +643,7 @@ public:
   DoubleStarStar DnPhase; 
 
   //!  This is 1 if the phase, iphase,  participates in the formation reaction
-  //!   irxn, and zero otherwise.  PhaseParticipation[irxn][iphase]
+  //!  irxn, and zero otherwise.  PhaseParticipation[irxn][iphase]
   IntStarStar PhaseParticipation; 
  
   //! electric potential of the iph phase

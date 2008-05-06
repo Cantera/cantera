@@ -41,7 +41,7 @@ namespace VCSnonideal {
     m_numSpeciesRdc(0),
     m_numRxnMinorZeroed(0),
     NPhase(0),
-    iest(0),
+    m_doEstimateEquil(0),
     TMoles(0.0),
     m_temperature(0.0),
     m_pressurePA(0.0),
@@ -536,7 +536,7 @@ namespace VCSnonideal {
     /*
      *  iest => Do we have an initial estimate of the species mole numbers ?
      */
-    iest = pub->iest;
+    m_doEstimateEquil = pub->iest;
 
     /*
      * w[] -> Copy the equilibrium mole number estimate if it exists.
@@ -544,7 +544,7 @@ namespace VCSnonideal {
     if (pub->w.size() != 0) {
       vcs_vdcopy(m_molNumSpecies_old, pub->w, nspecies);
     } else {
-      iest = -1;
+      m_doEstimateEquil = -1;
       vcs_dzero(VCS_DATA_PTR(m_molNumSpecies_old), nspecies);
     }
 
@@ -554,7 +554,7 @@ namespace VCSnonideal {
     if (pub->gai.size() != 0) {
       for (i = 0; i < nelements; i++) m_elemAbundancesGoal[i] = pub->gai[i];
     } else {
-      if (iest == 0) {
+      if (m_doEstimateEquil == 0) {
 	for (j = 0; j < nelements; j++) {
 	  m_elemAbundancesGoal[j] = 0.0;
 	  for (kspec = 0; kspec < nspecies; kspec++) {
@@ -775,7 +775,7 @@ namespace VCSnonideal {
     m_temperature = pub->T;
     m_pressurePA = pub->PresPA;
     m_VCS_UnitsFormat = pub->m_VCS_UnitsFormat;
-    iest = pub->iest;
+    m_doEstimateEquil = pub->iest;
 
     Vol = pub->Vol;
 

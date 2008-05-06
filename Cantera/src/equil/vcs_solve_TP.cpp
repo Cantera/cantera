@@ -257,10 +257,12 @@ namespace VCSnonideal {
 	plogf("%20.12E%20.12E     %3d\n", m_elemAbundancesGoal[i], m_elemAbundances[i], 
 	      m_elType[i]);
       }
-      if (iest < 0) {
-	plogf("\n MODIFIED LINEAR PROGRAMMING ESTIMATE OF EQUILIBRIUM\n");
+      if (m_doEstimateEquil < 0) {
+	plogf("\n MODIFIED LINEAR PROGRAMMING ESTIMATE OF EQUILIBRIUM - forced\n");
+      } else if (m_doEstimateEquil > 0) {
+	plogf("\n MODIFIED LINEAR PROGRAMMING ESTIMATE OF EQUILIBRIUM - where necessary\n");
       }
-      if (iest >= 0) {
+      if (m_doEstimateEquil == 0) {
 	plogf("\n USER ESTIMATE OF EQUILIBRIUM\n");
       }
       if (m_VCS_UnitsFormat == VCS_UNITS_KCALMOL) {

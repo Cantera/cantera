@@ -34,11 +34,17 @@ namespace Cantera {
    *  @param XY An integer specifying the two properties to be held
    *            constant.
    *
-   *  @param estimateEquil Boolean indicating whether the solver
+   *  @param estimateEquil integer indicating whether the solver
    *                   should estimate its own initial condition.
-   *                   If false, the initial mole fraction vector
+   *                   If 0, the initial mole fraction vector
    *                   in the %ThermoPhase object is used as the 
    *                   initial condition.
+   *                   If 1, the initial mole fraction vector
+   *                   is used if the element abundances are
+   *                   satisfied.
+   *                   if -1, the initial mole fraction vector
+   *                   is thrown out, and an estimate is
+   *                   formulated.
    *
    *  @param printLvl Determines the amount of printing that
    *                  gets sent to stdout from the vcs package
@@ -73,7 +79,7 @@ namespace Cantera {
    *  @ingroup equilfunctions
    */
   int vcs_equilibrate(thermo_t& s, const char* XY,
-		      bool estimateEquil = false, int printLvl = 0,
+		      int estimateEquil = 0, int printLvl = 0,
 		      int solver = -1, doublereal rtol = 1.0e-9, 
 		      int maxsteps = 5000,
 		      int maxiter = 100, int loglevel = -99);
@@ -93,11 +99,17 @@ namespace Cantera {
    *  @param XY A character string representing the unknowns
    *              to be held constant
    *
-   *  @param estimateEquil Boolean indicating whether the solver
+   *  @param estimateEquil integer indicating whether the solver
    *                   should estimate its own initial condition.
-   *                   If false, the initial mole fraction vector
+   *                   If 0, the initial mole fraction vector
    *                   in the %ThermoPhase object is used as the 
    *                   initial condition.
+   *                   If 1, the initial mole fraction vector
+   *                   is used if the element abundances are
+   *                   satisfied.
+   *                   if -1, the initial mole fraction vector
+   *                   is thrown out, and an estimate is
+   *                   formulated.
    *
    *  @param printLvl Determines the amount of printing that
    *                  gets sent to stdout from the vcs package
@@ -128,7 +140,7 @@ namespace Cantera {
    *  @ingroup equilfunctions
    */
   int vcs_equilibrate(MultiPhase& s, const char* XY, 
-		      bool estimateEquil = false, int printLvl = 0,
+		      int estimateEquil = 0, int printLvl = 0,
 		      int solver = 2,
 		      doublereal rtol = 1.0e-9, int maxsteps = 5000, 
 		      int maxiter = 100, int loglevel = -99);
@@ -147,11 +159,17 @@ namespace Cantera {
    *  @param ixy An integer specifying the two properties to be held
    *             constant.
    *
-   *  @param estimateEquil Boolean indicating whether the solver
+   *  @param estimateEquil integer indicating whether the solver
    *                   should estimate its own initial condition.
-   *                   If false, the initial mole fraction vector
+   *                   If 0, the initial mole fraction vector
    *                   in the %ThermoPhase object is used as the 
    *                   initial condition.
+   *                   If 1, the initial mole fraction vector
+   *                   is used if the element abundances are
+   *                   satisfied.
+   *                   if -1, the initial mole fraction vector
+   *                   is thrown out, and an estimate is
+   *                   formulated.
    *
    *  @param printLvl Determines the amount of printing that
    *                  gets sent to stdout from the vcs package
@@ -182,7 +200,7 @@ namespace Cantera {
    *  @ingroup equilfunctions
    */
   int vcs_equilibrate_1(MultiPhase& s, int ixy, 
-			bool estimateEquil = false, int printLvl = 0,
+			int estimateEquil = 0, int printLvl = 0,
 			int solver = 2,
 			doublereal rtol = 1.0e-9, int maxsteps = 5000, 
 			int maxiter = 100, int loglevel = -99);
@@ -315,11 +333,17 @@ namespace VCSnonideal {
      *  @param XY  Integer representing what two thermo quantities
      *             are held constant during the equilibration
      *
-     *  @param estimateEquil Boolean indicating whether the solver
+     *  @param estimateEquil integer indicating whether the solver
      *                   should estimate its own initial condition.
-     *                   If false, the initial mole fraction vector
+     *                   If 0, the initial mole fraction vector
      *                   in the %ThermoPhase object is used as the 
      *                   initial condition.
+     *                   If 1, the initial mole fraction vector
+     *                   is used if the element abundances are
+     *                   satisfied.
+     *                   if -1, the initial mole fraction vector
+     *                   is thrown out, and an estimate is
+     *                   formulated.
      *
      *  @param printLvl  Determines the amount of printing that
      *                  gets sent to stdout from the vcs package
@@ -329,7 +353,7 @@ namespace VCSnonideal {
      *  @param maxsteps max steps allowed.
      *  @param  loglevel for 
      */
-    int equilibrate(int XY,  bool estimateEquil = false,
+    int equilibrate(int XY,  int estimateEquil = 0,
 		    int printLvl= 0, doublereal err = 1.0e-6, 
 		    int maxsteps = 5000, int loglevel=-99);
 
@@ -339,11 +363,17 @@ namespace VCSnonideal {
      *  Use the vcs algorithm to equilibrate the current multiphase
      *  mixture.
      *
-     *  @param estimateEquil Boolean indicating whether the solver
+     *  @param estimateEquil integer indicating whether the solver
      *                   should estimate its own initial condition.
-     *                   If false, the initial mole fraction vector
+     *                   If 0, the initial mole fraction vector
      *                   in the %ThermoPhase object is used as the 
      *                   initial condition.
+     *                   If 1, the initial mole fraction vector
+     *                   is used if the element abundances are
+     *                   satisfied.
+     *                   if -1, the initial mole fraction vector
+     *                   is thrown out, and an estimate is
+     *                   formulated.
      *
      *  @param printLvl  Determines the amount of printing that
      *                  gets sent to stdout from the vcs package
@@ -353,7 +383,7 @@ namespace VCSnonideal {
      *  @param maxsteps max steps allowed.
      *  @param  loglevel for 
      */
-    int equilibrate_TP(bool estimateEquil = false,
+    int equilibrate_TP(int estimateEquil = 0,
 		       int printLvl= 0, doublereal err = 1.0e-6, 
 		       int maxsteps = 5000, int loglevel=-99);
 
@@ -381,11 +411,17 @@ namespace VCSnonideal {
      *                 error condition if the temperature goes
      *                 higher than Thigh.
      *
-     *  @param estimateEquil Boolean indicating whether the solver
+     *  @param estimateEquil integer indicating whether the solver
      *                   should estimate its own initial condition.
-     *                   If false, the initial mole fraction vector
+     *                   If 0, the initial mole fraction vector
      *                   in the %ThermoPhase object is used as the 
      *                   initial condition.
+     *                   If 1, the initial mole fraction vector
+     *                   is used if the element abundances are
+     *                   satisfied.
+     *                   if -1, the initial mole fraction vector
+     *                   is thrown out, and an estimate is
+     *                   formulated.
      *
      *  @param printLvl  Determines the amount of printing that
      *                  gets sent to stdout from the vcs package
@@ -401,7 +437,7 @@ namespace VCSnonideal {
      *                  output file.
      */
     int equilibrate_HP(doublereal Htarget, int XY, double Tlow, double Thigh,
-		       bool estimateEquil = false,
+		       int estimateEquil = 0,
 		       int printLvl = 0, doublereal err = 1.0E-6, 
 		       int maxsteps = 5000, int loglevel=-99);
 
@@ -426,11 +462,17 @@ namespace VCSnonideal {
      *                 error condition if the temperature goes
      *                 higher than Thigh.
      *
-     *  @param estimateEquil Boolean indicating whether the solver
+     *  @param estimateEquil integer indicating whether the solver
      *                   should estimate its own initial condition.
-     *                   If false, the initial mole fraction vector
+     *                   If 0, the initial mole fraction vector
      *                   in the %ThermoPhase object is used as the 
      *                   initial condition.
+     *                   If 1, the initial mole fraction vector
+     *                   is used if the element abundances are
+     *                   satisfied.
+     *                   if -1, the initial mole fraction vector
+     *                   is thrown out, and an estimate is
+     *                   formulated.
      *
      *  @param printLvl  Determines the amount of printing that
      *                  gets sent to stdout from the vcs package
@@ -446,7 +488,7 @@ namespace VCSnonideal {
      *                  output file.
      */
     int equilibrate_SP(doublereal Starget, double Tlow, double Thigh,
-		       bool estimateEquil = false,
+		       int estimateEquil = 0,
 		       int printLvl = 0, doublereal err = 1.0E-6, 
 		       int maxsteps = 5000, int loglevel=-99);
 
@@ -468,12 +510,17 @@ namespace VCSnonideal {
      *                 Note, except for T, this must be an extensive
      *                 quantity.  units = Joules/K or Joules
      *
-     *
-     *  @param estimateEquil Boolean indicating whether the solver
+     *  @param estimateEquil integer indicating whether the solver
      *                   should estimate its own initial condition.
-     *                   If false, the initial mole fraction vector
+     *                   If 0, the initial mole fraction vector
      *                   in the %ThermoPhase object is used as the 
      *                   initial condition.
+     *                   If 1, the initial mole fraction vector
+     *                   is used if the element abundances are
+     *                   satisfied.
+     *                   if -1, the initial mole fraction vector
+     *                   is thrown out, and an estimate is
+     *                   formulated.
      *
      *  @param printLvl  Determines the amount of printing that
      *                  gets sent to stdout from the vcs package
@@ -489,7 +536,7 @@ namespace VCSnonideal {
      *                  output file.
      */
     int equilibrate_TV(int XY, doublereal xtarget,
-		       bool estimateEquil = false,
+		       int  estimateEquil = 0,
 		       int printLvl = 0, doublereal err = 1.0E-6, 
 		       int maxsteps = 5000, int loglevel = -99);
 
