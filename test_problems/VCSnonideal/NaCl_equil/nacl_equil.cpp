@@ -90,6 +90,7 @@ int main(int argc, char **argv) {
 
   try {
     int retnSub;
+    int estimateEquil = -1;
     double T = 298.15;
     double pres = OneAtm;
 
@@ -127,7 +128,7 @@ int main(int argc, char **argv) {
 
  
     try {
-      retnSub = vcs_equilibrate(*mp, "TP", true, printLvl);
+      retnSub = vcs_equilibrate(*mp, "TP", estimateEquil, printLvl);
       
       cout << *mp;
       if (retnSub != 1) {
