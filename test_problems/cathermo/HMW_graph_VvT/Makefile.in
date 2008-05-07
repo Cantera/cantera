@@ -48,6 +48,9 @@ CANTERA_LIBDIR=@buildlib@
 # required Cantera libraries
 CANTERA_LIBS = @LOCAL_LIBS@ -lctcxx
 
+# Dependencies for CANTERA_LIBS
+CANTERA_LIBS_DEP = @LOCAL_LIBS_DEP@ $(CANTERA_LIBDIR)/libctcxx.a
+
 # the directory where Cantera include files may be found.
 CANTERA_INCDIR=@ctroot@/build/include/cantera
 INCLUDES=-I$(CANTERA_INCDIR) -I$(CANTERA_INCDIR)/kernel
@@ -71,8 +74,7 @@ PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
 all: $(PROGRAM) .depends V_standalone
 
-$(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libctbase.a \
-	     $(CANTERA_LIBDIR)/libthermo.a
+$(PROGRAM): $(OBJS) $(CANTERA_LIBS_DEP)
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(LINK_OPTIONS) \
                   $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
