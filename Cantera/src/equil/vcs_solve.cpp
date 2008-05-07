@@ -42,7 +42,7 @@ namespace VCSnonideal {
     m_numRxnMinorZeroed(0),
     NPhase(0),
     m_doEstimateEquil(0),
-    TMoles(0.0),
+    m_totalMolNum(0.0),
     m_temperature(0.0),
     m_pressurePA(0.0),
     tolmaj(0.0),

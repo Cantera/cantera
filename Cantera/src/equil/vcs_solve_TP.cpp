@@ -65,7 +65,7 @@ namespace VCSnonideal {
       }
     }
     for (int iphase = 0; iphase < NPhase; iphase++) {
-      double denom = MAX(TMoles, 1.0E-4);
+      double denom = MAX(m_totalMolNum, 1.0E-4);
       if (!vcs_doubleEqual(dchange[iphase]/denom, delTPhMoles[iphase]/denom)) {
 	plogf("checkDelta1: we have found a problem\n");
 	exit(-1);
@@ -637,7 +637,7 @@ namespace VCSnonideal {
 	  
 	    m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + dx;
 	  } else {
-	    m_molNumSpecies_new[kspec] = TMoles * VCS_DELETE_PHASE_CUTOFF * 10.;
+	    m_molNumSpecies_new[kspec] = m_totalMolNum * VCS_DELETE_PHASE_CUTOFF * 10.;
 	    dx = m_molNumSpecies_new[kspec] - m_molNumSpecies_old[kspec];
 	  }
 	  m_deltaMolNumSpecies[kspec] = dx;
@@ -820,7 +820,7 @@ namespace VCSnonideal {
 	     *        we can't call vcs_species_type() because the phase moles
 	     *        would be wrong.
 	     */
-	    if (m_molNumSpecies_new[kspec] < 0.005 * TMoles) {
+	    if (m_molNumSpecies_new[kspec] < 0.005 * m_totalMolNum) {
 	      iph = PhaseID[kspec];
 	      if (m_molNumSpecies_new[kspec] < (m_tPhaseMoles_old[iph] * 0.01)) {
 #ifdef DEBUG_MODE
@@ -1286,7 +1286,7 @@ namespace VCSnonideal {
       Vphase = VPhaseList[iph];
       if (!(Vphase->SingleSpecies)) {
 	if (m_tPhaseMoles_old[iph] != 0.0 &&
-	    m_tPhaseMoles_old[iph]/TMoles <= VCS_DELETE_PHASE_CUTOFF) {
+	    m_tPhaseMoles_old[iph]/m_totalMolNum <= VCS_DELETE_PHASE_CUTOFF) {
 	  soldel = 1;
 	  for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
 	    if (PhaseID[kspec] == iph && m_molNumSpecies_old[kspec] > 0.0) {
@@ -2876,9 +2876,9 @@ namespace VCSnonideal {
 	     */
 	    iph = PhaseID[kspec];
 	    double tphmoles = m_tPhaseMoles_old[iph];
-	    double trphmoles = tphmoles / TMoles;
+	    double trphmoles = tphmoles / m_totalMolNum;
 	    if (trphmoles > VCS_DELETE_PHASE_CUTOFF) {
-	      m_deltaMolNumSpecies[kspec] = TMoles * VCS_SMALL_MULTIPHASE_SPECIES;
+	      m_deltaMolNumSpecies[kspec] = m_totalMolNum * VCS_SMALL_MULTIPHASE_SPECIES;
 #ifdef DEBUG_MODE
 	      sprintf(ANOTE,
 		      "MultSpec: small species born again DG = %11.3E", 
@@ -2891,7 +2891,7 @@ namespace VCSnonideal {
 #endif
 	      Vphase = VPhaseList[iph];
 	      int numSpPhase = Vphase->NVolSpecies;
-	      m_deltaMolNumSpecies[kspec] = TMoles * 10.0 * VCS_DELETE_PHASE_CUTOFF / numSpPhase;
+	      m_deltaMolNumSpecies[kspec] = m_totalMolNum * 10.0 * VCS_DELETE_PHASE_CUTOFF / numSpPhase;
 	    }
 	    --(m_numRxnMinorZeroed);
 	  } else {
@@ -4131,102 +4131,133 @@ namespace VCSnonideal {
       }
     }
   }
+ 
   /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
-
-  void VCS_SOLVE::vcs_dfe(double *z, int kk, int ll, int lbot, int ltop)
-   
-    /**************************************************************************
-     *
-     * vcs_dfe:
-     *
-     * We calculate the dimensionless chemical potentials of all species 
-     * or certain groups of species here, at a fixed temperature and pressure,
-     * for the input mole vector z[] in the parameter list.
-     * Nondimensionalization is achieved by division by RT.
-     *
-     * Note, for multispecies phases which are currently zeroed out,
-     * the chemical potential is filled out with the standard chemical
-     * potential.
-     *
-     * For species in multispecies phases whose concentration is zero,
-     * we need to set the mole fraction to a very low value.
-     * It's chemical potential
-     * is then calculated using the VCS_DELETE_MINORSPECIES_CUTOFF concentration
-     * to keep numbers positive.
-     *
-     *
-     * Formula: 
-     * --------------- 
-     *
-     *     Ideal Mixtures:
-     *
-     *          fe(I) = ff(I) + ln(z(I)) - ln(tPhMoles_ptr[iph])
-     *
-     *              ( This is equivalent to the adding the log of the 
-     *                mole fraction onto the standard chemical 
-     *                potential. ) 
-     *
-     *     Non-Ideal Mixtures:
-     *        ActivityConvention = 0:
-     *           fe(I) = ff(I) + ln(ActCoeff[i]z(I)) - ln(tPhMoles_ptr[iph])
-     *  
-     *              ( This is equivalent to the adding the log of the 
-     *                mole fraction multiplied by the activity coefficient
-     *                onto the standard chemical potential. ) 
-     *
-     *        ActivityConvention = 1: -> molality activity formulation
-     *           fe(I) = ff(I) + ln(ActCoeff[i]z(I)) - ln(tPhMoles_ptr[iph])
-     *                     - ln(Mnaught * m_units)
-     *
-     *     note:   z(I)/tPhMoles_ptr[iph] = Xmol[i] is the mole fraction
-     *                                     of i in the phase.
-     *
-     *  NOTE:
-     *  As per the discussion above, for small species where the mole
-     *  fraction 
-     *           z(i) < VCS_DELETE_MINORSPECIES_CUTOFF
-     *   The chemical potential is calculated as:
-     *         fe(I) = ff(I) + ln(ActCoeff[i](VCS_DELETE_MINORSPECIES_CUTOFF))
-     *
-     *  VCS_SPECIES_TYPE_INTERFACIALVOLTAGE
-     *
-     *      These chemical potentials refer to electrons in
-     *      metal electrodes. They have the following formula
-     *
-     *           fe(I) = ff(I) - F V / RT
-     *
-     *      F is Faraday's constant.
-     *      R = gas constant
-     *      T = temperature
-     *      V = potential of the interface = phi_electrode - phi_solution
-     *
-     *      For these species, the solution vector is V in volts.    
-     *
-     * Input 
-     * -------- 
-     *     ll =  0: Calculate for all species 
-     *        <  0: calculate for components and for major non-components 
-     *           1: calculate for components and for minor non-components 
-     *     lbot   : restricts the calculation of the chemical potential 
-     *     ltop     to the species between LBOT <= i < LTOP. Usually 
-     *              LBOT and LTOP will be equal to 0 and MR, respectively. 
-     *     z(i)   : Number of moles of species i 
-     *              -> This can either be the current solution vector WT() 
-     *                 or the actual solution vector W() 
-     *     kk    1: Use the tentative values for the total number of 
-     *              moles in the phases, i.e., use TG1 instead of TG etc. 
-     *           0: Use the base values of the total number of 
-     *              moles in each system. 
-     *     ff     : standard state chemical potentials. These are the
-     *              chemical potentials of the standard states at
-     *              the same T and P as the solution.
-     *     tg     : Total Number of moles in the phase.
-     *
-     *
-     *************************************************************************/
-  {
+ 
+  // Calculalte the dimensionless chemical potentials of all species or
+  // of certain groups of species, at a fixed temperature and pressure.
+  /*
+   * We calculate the dimensionless chemical potentials of all species 
+   * or certain groups of species here, at a fixed temperature and pressure,
+   * for the input mole vector z[] in the parameter list.
+   * Nondimensionalization is achieved by division by RT.
+   *
+   * Note, for multispecies phases which are currently zeroed out,
+   * the chemical potential is filled out with the standard chemical
+   * potential.
+   *
+   * For species in multispecies phases whose concentration is zero,
+   * we need to set the mole fraction to a very low value.
+   * It's chemical potential
+   * is then calculated using the VCS_DELETE_MINORSPECIES_CUTOFF concentration
+   * to keep numbers positive.
+   *
+   *
+   * Formula: 
+   * --------------- 
+   *
+   *     Ideal Mixtures:
+   *
+   *          m_feSpecies(I) = m_SSfeSpecies(I) + ln(z(I)) - ln(m_tPhaseMoles[iph])
+   *                            + Charge[I] * Faraday_dim * phasePhi[iphase]; 
+   *
+   *              ( This is equivalent to the adding the log of the 
+   *                mole fraction onto the standard chemical 
+   *                potential. ) 
+   *
+   *     Non-Ideal Mixtures:  -> molar activity formulation
+   *        ActivityConvention = 0:
+   *
+   *          m_feSpecies(I) = m_SSfeSpecies(I)
+   *                           + ln(ActCoeff[I] * z(I)) - ln(m_tPhaseMoles[iph])
+   *                            + Charge[I] * Faraday_dim * phasePhi[iphase]; 
+   *  
+   *              ( This is equivalent to the adding the log of the 
+   *                mole fraction multiplied by the activity coefficient
+   *                onto the standard chemical potential. ) 
+   *
+   *                 note:   z(I)/tPhMoles_ptr[iph] = Xmol[i] is the mole fraction
+   *                                                  of i in the phase.
+   *
+   *        ActivityConvention = 1: -> molality activity formulation
+   *
+   *          m_feSpecies(I) = m_SSfeSpecies(I)
+   *                           + ln(ActCoeff[I] * z(I)) - ln(m_tPhaseMoles[iph])
+   *                           - ln(Mnaught * m_units)
+   *                            + Charge[I] * Faraday_dim * phasePhi[iphase]; 
+   *
+   *                  note:   m_SSfeSpecies(I) is the molality based standard state.
+   *                          However, ActCoeff[I] is the molar based activity coefficient
+   *                          We have used the formulas;
+   *
+   *                                ActCoeff_M[I] =  ActCoeff[I] / Xmol[N]
+   *                                      where Xmol[N] is the mole fraction of the solvent 
+   *                                            ActCoeff_M[I] is the molality based act coeff.
+   *
+   *                                m_feSpecies(I) = m_SSfeSpecies(I)
+   *                                                   + ln(ActCoeff_M[I] * m(I))
+   *                                                   + Charge[I] * Faraday_dim * phasePhi[iphase]; 
+   *                                       where m[I] is the molality of the ith solute
+   * 
+   *                                m[I] = Xmol[I] / ( Xmol[N] * Mnaught * m_units)
+   * 
+   *
+   *  Handling of Small Species:
+   * ------------------------------
+   *  As per the discussion above, for small species where the mole
+   *  fraction 
+   *
+   *           z(i) < VCS_DELETE_MINORSPECIES_CUTOFF
+   *
+   *   The chemical potential is calculated as:
+   *
+   *         m_feSpecies(I)(I) = m_SSfeSpecies(I) + ln(ActCoeff[i](VCS_DELETE_MINORSPECIES_CUTOFF))
+   *
+   *   Handling of "Species" Representing Interfacial Voltages
+   *  ---------------------------------------------------------
+   *
+   *      These species have species types of  VCS_SPECIES_TYPE_INTERFACIALVOLTAGE
+   *      The chemical potentials for these "species" refer to electrons in
+   *      metal electrodes. They have the following formula
+   *
+   *          m_feSpecies(I) = m_SSfeSpecies(I) - F z[I] / RT
+   *
+   *      F is Faraday's constant.
+   *      R = gas constant
+   *      T = temperature
+   *      V = potential of the interface = phi_electrode - phi_solution
+   *
+   *      For these species, the solution vector unknown, z[I], is V, the phase voltage, in volts.    
+   *
+   * Input 
+   * -------- 
+   * @param ll     Determine which group of species gets updated
+   *     ll =  0: Calculate for all species 
+   *        <  0: calculate for components and for major non-components 
+   *           1: calculate for components and for minor non-components 
+   *
+   * @param lbot    Restricts the calculation of the chemical potential 
+   *                to the species between LBOT <= i < LTOP. Usually 
+   *                 LBOT and LTOP will be equal to 0 and MR, respectively.
+   * @param ltop    Top value of the loops
+   *  
+   * @param z   z[i]   : Number of moles of species i 
+   *                   -> This can either be the current solution vector WT() 
+   *                      or the actual solution vector W() 
+   *
+   * @param kk   Determines whether z is old or new or tentative:
+   *             1: Use the tentative values for the total number of 
+   *                moles in the phases, i.e., use TG1 instead of TG etc. 
+   *             0: Use the base values of the total number of 
+   *                moles in each system. 
+   *
+   *  Also needed:
+   *     ff     : standard state chemical potentials. These are the
+   *              chemical potentials of the standard states at
+   *              the same T and P as the solution.
+   *     tg     : Total Number of moles in the phase.
+   */
+  void VCS_SOLVE::vcs_dfe(double const * const z, int kk, int ll, int lbot, int ltop) {
     int l1, l2, iph, kspec, irxn;
     int iphase;
     double *tPhMoles_ptr;
@@ -4456,22 +4487,18 @@ namespace VCSnonideal {
       checkFinite(fe[kspec]);
     } 
 #endif
-  } /* vcs_dfe() ***************************************************************/
- 
+  }
+
+  /*****************************************************************************/
+
 #ifdef DEBUG_MODE
-  void VCS_SOLVE::prneav(void)
-   
-    /*************************************************************************
-     *		    		
-     * Print out and check the elemental abundance vector 
-     *
-     *************************************************************************/
-  {
-    int kerr, i, j;
+  //! Print out and check the elemental abundance vector
+  void VCS_SOLVE::prneav() const {
+    int kerr, j;
     std::vector<double> eav(m_numElemConstraints, 0.0);
 
     for (j = 0; j < m_numElemConstraints; ++j) {
-      for (i = 0; i < m_numSpeciesTot; ++i) {
+      for (int i = 0; i < m_numSpeciesTot; ++i) {
 	if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  eav[j] += FormulaMatrix[j][i] * m_molNumSpecies_old[i];
 	}
@@ -4495,24 +4522,20 @@ namespace VCSnonideal {
     if (kerr) {
       plogf("Element abundance check failure\n");
     }
-    plogf("--------------------------------------------------\n");
+    plogf("--------------------------------------------------");
+    plogendl();
   } 
 #endif
 
   /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
 
-  double VCS_SOLVE::l2normdg(double dgLocal[])
-   
-    /*************************************************************************
-     *
-     * l2normdg:
-     *
-     * Calculate the norm of the DG vector. 
-     * Positive DG for species which don't exist are ignored. 
-     ************************************************************************/
-  {
+  // Calculate the norm of a deltaGibbs free energy vector
+  /*
+   *   Positive DG for species which don't exist are ignored. 
+   *
+   * @param dgLocal  Vector of local delta G's.
+   */
+  double VCS_SOLVE::l2normdg(double dgLocal[]) const {
     double tmp;
     int irxn;
     if (m_numRxnRdc <= 0) return 0.0;
@@ -4524,23 +4547,17 @@ namespace VCSnonideal {
 	}
       }
     }
-    return (sqrt(tmp / m_numRxnRdc));
+    return (std::sqrt(tmp / m_numRxnRdc));
   }
-  /*****************************************************************************/
-  /*****************************************************************************/
+
   /*****************************************************************************/
 
-  void VCS_SOLVE::vcs_tmoles(void)
-   
-    /**************************************************************************
-     *
-     * vcs_tmoles:
-     *
-     *  Calculates the total number of moles of species in all phases.
-     *  Calculates the total number of moles in all phases.
-     *  Reconciles Phase existence flags with total moles in each phase.
-     *************************************************************************/
-  {
+  //  Calculates the total number of moles of species in all phases.
+  /*
+   *  Calculates the total number of moles in all phases.
+   *  Reconciles Phase existence flags with total moles in each phase.
+   */
+  void VCS_SOLVE::vcs_tmoles() {
     int i;
     double sum;
     vcs_VolPhase *Vphase;
@@ -4568,10 +4585,9 @@ namespace VCSnonideal {
 	}
       }
     }  
-    TMoles = sum;
-  } /* vcs_tmoles() ************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
+    m_totalMolNum = sum;
+  } 
+
   /*****************************************************************************/
 
   void VCS_SOLVE::vcs_updateVP (int place) 
