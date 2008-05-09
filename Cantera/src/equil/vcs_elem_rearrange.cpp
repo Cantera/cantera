@@ -235,7 +235,7 @@ namespace VCSnonideal {
      * Change the element Global Index list in each phase object
      * to reflect the switch in the element positions.
      */
-    for (int iph = 0; iph < NPhase; iph++) {
+    for (int iph = 0; iph < m_numPhases; iph++) {
       volPhase = VPhaseList[iph];
       for (int e = 0; e < volPhase->nElemConstraints; e++) {
 	if (volPhase->ElGlobalIndex[e] == ipos) {

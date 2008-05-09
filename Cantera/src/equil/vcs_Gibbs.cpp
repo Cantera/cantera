@@ -39,7 +39,7 @@ namespace VCSnonideal {
   {
     double g = 0.0;
   
-    for (int iph = 0; iph < NPhase; iph++) {
+    for (int iph = 0; iph < m_numPhases; iph++) {
       vcs_VolPhase *Vphase = VPhaseList[iph];
       if ((TPhInertMoles[iph] > 0.0) && (tPhMoles[iph] > 0.0)) {
 	g += TPhInertMoles[iph] *

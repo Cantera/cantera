@@ -40,7 +40,7 @@ namespace VCSnonideal {
     int kspec, iph;
     vcs_VolPhase *Vphase;
 
-    std::vector<int> numPhSpecies(NPhase, 0);
+    std::vector<int> numPhSpecies(m_numPhases, 0);
 
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
       numPhSpecies[PhaseID[kspec]]++;
@@ -50,7 +50,7 @@ namespace VCSnonideal {
      *           has been earmarked as a multispecies phase.
      *           Treat that species as a single-species phase
      */
-    for (iph = 0; iph < NPhase; iph++) {
+    for (iph = 0; iph < m_numPhases; iph++) {
       Vphase = VPhaseList[iph];
       Vphase->SingleSpecies = false;
       if (TPhInertMoles[iph] > 0.0) {
@@ -282,10 +282,10 @@ namespace VCSnonideal {
     vcs_dzero(VCS_DATA_PTR(m_feSpecies_curr), m_numSpeciesTot);
     vcs_vdzero(m_feSpecies_old, m_numSpeciesTot);
     vcs_vdzero(m_molNumSpecies_new, m_numSpeciesTot);
-    vcs_dzero(&(DnPhase[0][0]), m_numSpeciesTot*NPhase);
-    vcs_izero(&(PhaseParticipation[0][0]), m_numSpeciesTot*NPhase);
-    vcs_dzero(VCS_DATA_PTR(m_deltaPhaseMoles), NPhase);
-    vcs_dzero(VCS_DATA_PTR(m_tPhaseMoles_new), NPhase);
+    vcs_dzero(&(DnPhase[0][0]), m_numSpeciesTot * m_numPhases);
+    vcs_izero(&(PhaseParticipation[0][0]), m_numSpeciesTot * m_numPhases);
+    vcs_dzero(VCS_DATA_PTR(m_deltaPhaseMoles), m_numPhases);
+    vcs_dzero(VCS_DATA_PTR(m_tPhaseMoles_new), m_numPhases);
     /*
      *   Calculate the total number of moles in all phases.
      */

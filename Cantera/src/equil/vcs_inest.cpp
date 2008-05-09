@@ -174,7 +174,7 @@ namespace VCSnonideal {
     /*
      * m_tPhaseMoles_new[] will consist of just the component moles
      */
-    for (iph = 0; iph < NPhase; iph++) {
+    for (iph = 0; iph < m_numPhases; iph++) {
       m_tPhaseMoles_new[iph] = TPhInertMoles[iph] + 1.0E-20;
     }
     for (kspec = 0; kspec < m_numComponents; ++kspec) {
@@ -183,7 +183,7 @@ namespace VCSnonideal {
       }
     }
     TMolesMultiphase = 0.0;
-    for (iph = 0; iph < NPhase; iph++) {
+    for (iph = 0; iph < m_numPhases; iph++) {
       if (! VPhaseList[iph]->SingleSpecies) {
 	TMolesMultiphase += m_tPhaseMoles_new[iph];
       }
@@ -224,8 +224,8 @@ namespace VCSnonideal {
     /* ********************************************************** */
     /* **** ESTIMATE REACTION ADJUSTMENTS *********************** */
     /* ********************************************************** */
-    vcs_dzero(VCS_DATA_PTR(m_deltaPhaseMoles), NPhase);
-    for (iph = 0; iph < NPhase; iph++) {
+    vcs_dzero(VCS_DATA_PTR(m_deltaPhaseMoles), m_numPhases);
+    for (iph = 0; iph < m_numPhases; iph++) {
       xtphMax[iph] = log(m_tPhaseMoles_new[iph] * 1.0E32);
       xtphMin[iph] = log(m_tPhaseMoles_new[iph] * 1.0E-32);
     }
@@ -257,7 +257,7 @@ namespace VCSnonideal {
 	  m_deltaMolNumSpecies[k] += m_stoichCoeffRxnMatrix[irxn][k] * m_deltaMolNumSpecies[kspec];
 	}
 	
-	for (iph = 0; iph < NPhase; iph++) {
+	for (iph = 0; iph < m_numPhases; iph++) {
 	  m_deltaPhaseMoles[iph] += DnPhase[irxn][iph] * m_deltaMolNumSpecies[kspec];
 	}
       }

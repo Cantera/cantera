@@ -144,7 +144,7 @@ int VCS_SOLVE::vcs_report(int iconv)
       }
       plogf("\n");
    }
-   for (i = 0; i < NPhase; i++) {
+   for (i = 0; i < m_numPhases; i++) {
       if (TPhInertMoles[i] > 0.0) {
 	 inertYes = TRUE;
 	 if (i == 0) {
@@ -239,7 +239,7 @@ int VCS_SOLVE::vcs_report(int iconv)
    }
    plogf(" |     Gibbs Total     |\n");
    print_line("-", m_numElemConstraints*10 + 58);
-   for (int iphase = 0; iphase < NPhase; iphase++) {
+   for (int iphase = 0; iphase < m_numPhases; iphase++) {
      plogf(" %3d ", iphase);
      vcs_VolPhase *VPhase = VPhaseList[iphase];
      plogf("%-12.12s |",VPhase->PhaseName.c_str());

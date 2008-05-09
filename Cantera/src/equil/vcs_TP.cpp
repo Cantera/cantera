@@ -152,7 +152,7 @@ namespace VCSnonideal {
     // ff[i] = R * spt->GStar_R_calc(i, Temp, pres);
     //}
 
-    for (int iph = 0; iph < NPhase; iph++) {
+    for (int iph = 0; iph < m_numPhases; iph++) {
       vcs_VolPhase* vph = VPhaseList[iph];
       vph->setState_TP(m_temperature, m_pressurePA);
       vph->sendToVCSGStar(VCS_DATA_PTR(m_SSfeSpecies));

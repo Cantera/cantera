@@ -40,7 +40,7 @@ namespace VCSnonideal {
     m_numRxnTot(0),
     m_numSpeciesRdc(0),
     m_numRxnMinorZeroed(0),
-    NPhase(0),
+    m_numPhases(0),
     m_doEstimateEquil(0),
     m_totalMolNum(0.0),
     m_temperature(0.0),
@@ -232,10 +232,10 @@ namespace VCSnonideal {
 
   void VCS_SOLVE::delete_memory(void) 
   {
-    int j, nph = NPhase;
+    int j;
     int nspecies = m_numSpeciesTot;
    
-    for (j = 0; j < nph; j++) {
+    for (j = 0; j < m_numPhases; j++) {
       delete VPhaseList[j];
       VPhaseList[j] = 0;
     }
@@ -486,7 +486,7 @@ namespace VCSnonideal {
     /*
      *  NPhase = number of phases
      */
-    NPhase = nph;
+    m_numPhases = nph;
 
 #ifdef DEBUG_MODE
     vcs_debug_print_lvl = pub->vcs_debug_print_lvl;
@@ -647,7 +647,7 @@ namespace VCSnonideal {
 	}
       }
     } else {
-      if (NPhase == 1) {
+      if (m_numPhases == 1) {
 	for (kspec = 0; kspec < nspecies; kspec++) {
 	  PhaseID[kspec] = 0;
 	  indPhSp[kspec] = kspec;
@@ -818,7 +818,7 @@ namespace VCSnonideal {
      *         condition.
      */
 
-    for (iph = 0; iph < NPhase; iph++) {
+    for (iph = 0; iph < m_numPhases; iph++) {
       vcs_VolPhase *vPhase = VPhaseList[iph];
       vcs_VolPhase *pub_phase_ptr = pub->VPhaseList[iph];
 
@@ -1040,7 +1040,7 @@ double VCS_SOLVE::vcs_VolTotal(double tkelvin, double pres, double w[],
                                double volPM[])
 {
    double volTot = 0.0;
-   for (int iphase = 0; iphase < NPhase; iphase++) {
+   for (int iphase = 0; iphase < m_numPhases; iphase++) {
      vcs_VolPhase *Vphase = VPhaseList[iphase];
      Vphase->setState_TP(tkelvin, pres);
      Vphase->setMolesFromVCS(w);

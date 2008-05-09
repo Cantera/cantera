@@ -455,12 +455,65 @@ public:
 
   int vcs_rearrange(void);
 
+  //! Returns the multiplier for electric charge terms
+  /*
+   *   This is basically equal to F/RT
+   *
+   * @param mu_units integer representing the dimensional units system
+   * @param TKelvin  double  Temperature in Kelvin
+   *
+   * @return Returns the value of F/RT
+   */
+  double vcs_nondim_Farad(int mu_units, double TKelvin) const;
 
-  double vcs_nondim_Farad(int mu_units, double TKelvin);
-  double vcs_nondimMult_TP(int mu_units, double TKelvin);
-  void   vcs_nondim_TP(void);
-  void   vcs_redim_TP(void);
-  void   vcs_printChemPotUnits(int unitsFormat);
+  //! Returns the multiplier for the nondimensionalization of the equations
+  /*!
+   *   This is basically equal to RT
+   *
+   * @param mu_units integer representing the dimensional units system
+   * @param TKelvin  double  Temperature in Kelvin
+   *
+   * @return Returns the value of RT
+   */
+  double vcs_nondimMult_TP(int mu_units, double TKelvin) const;
+
+  //! Nondimensionalize the problem data
+  /*!
+   *   Nondimensionalize the free energies using the divisor, R * T
+   *
+   *  Essentially the internal data can either be in dimensional form
+   *  or in nondimensional form. This routine switches the data from 
+   *  dimensional form into nondimensional form.
+   *
+   *  What we do is to divide by RT.
+   *
+   *  @todo Add a scale factor based on the total mole numbers.
+   *        The algorithm contains hard coded numbers based on the
+   *        total mole number. If we ever were faced with a problem
+   *        with significantly different total kmol numbers than one
+   *        the algorithm would have problems.
+   */
+  void   vcs_nondim_TP();
+
+  //! Redimensionalize the problem data
+  /*!
+   *   Reddimensionalize the free energies using the multiplier R * T
+   *
+   *  Essentially the internal data can either be in dimensional form
+   *  or in nondimensional form. This routine switches the data from 
+   *  nondimensional form into dimensional form.
+   *
+   *  What we do is to multiply by RT.
+   */
+  void   vcs_redim_TP();
+
+  //! Print the string representing the Chemical potential units
+  /*!
+   *  This gets printed using plogf()
+   *
+   * @param unitsFormat   Integer representing the units system
+   */
+  void   vcs_printChemPotUnits(int unitsFormat) const;
 
   //! Computes the current elemental abundances vector
   /*!
@@ -672,7 +725,7 @@ public:
   int m_numRxnMinorZeroed; 
 
   //! Number of Phases in the problem
-  int NPhase;
+  int m_numPhases;
 
   //! Formula matrix for the problem
   /*!

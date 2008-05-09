@@ -140,7 +140,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
       for (j = 0; j < m_numComponents; ++j) {
 	if (! SSPhase[j])  s += SQUARE(m_stoichCoeffRxnMatrix[irxn][j]) / m_molNumSpecies_old[j];
       }
-      for (j = 0; j < NPhase; j++) {
+      for (j = 0; j < m_numPhases; j++) {
 	if (! (VPhaseList[j])->SingleSpecies) {
 	  if (m_tPhaseMoles_old[j] > 0.0) 
 	    s -= SQUARE(dnPhase_irxn[j]) / m_tPhaseMoles_old[j];
@@ -338,7 +338,7 @@ void VCS_SOLVE::vcs_CalcLnActCoeffJac(const double * const moleSpeciesVCS)
   /*
    * Loop over all of the phases in the problem
    */
-  for (int iphase = 0; iphase < NPhase; iphase++) {
+  for (int iphase = 0; iphase < m_numPhases; iphase++) {
     vcs_VolPhase *Vphase = VPhaseList[iphase];
     /*
      * We don't need to call single species phases;
@@ -376,7 +376,7 @@ double VCS_SOLVE::deltaG_Recalc_Rxn(int irxn, const double *const molNum,
 {
   int kspec = irxn + m_numComponents;
   int *pp_ptr = PhaseParticipation[irxn];
-  for (int iphase = 0; iphase < NPhase; iphase++) {
+  for (int iphase = 0; iphase < m_numPhases; iphase++) {
     if (pp_ptr[iphase]) {
       vcs_chemPotPhase(iphase, molNum, ac, mu_i);
     }
