@@ -99,7 +99,35 @@ public:
    */
   int vcs(VCS_PROB *vprob, int ifunc, int ipr, int ip1, int maxit);
 
-  int vcs_solve_TP(int, int, int);
+  //! Main routine that solves for equilibrium at constant T and P
+  //! using a variant of the VCS method
+  /*!
+   * This is the main routine  taht solves for equilibrium at constant T and P
+   * using a variant of the VCS method. Nonideal phases can be accommodated
+   * as well.
+   *
+   * Any number of single-species phases and  multi-species phases 
+   * can be handled by the present version.
+   *
+   *     Input
+   * ------------
+   *   @param print_lvl     1 -> Print results to standard output 
+   *                        0 -> don't report on anything 
+   *
+   *   @param printDetails  1 -> Print intermediate results. 
+   *
+   *   @param maxit         Maximum number of iterations for the algorithm 
+   *
+   *   @return     0 = Equilibrium Achieved
+   *               1 = Range space error encountered. The element abundance criteria are
+   *                   only partially satisfied. Specifically, the first NC= (number of
+   *                   components) conditions are satisfied. However, the full NE 
+   *                   (number of elements) conditions are not satisfied. The equilibrirum
+   *                   condition is returned.
+   *              -1 = Maximum number of iterations is exceeded. Convergence was not
+   *                   found.
+   */
+  int vcs_solve_TP(int print_lvl, int printDetails, int maxit);
 
   void vcs_reinsert_deleted(int kspec);
   int vcs_basopt(int ifirst, double aw[], double sa[], double sm[], 

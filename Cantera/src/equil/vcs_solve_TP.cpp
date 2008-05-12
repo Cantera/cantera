@@ -74,93 +74,39 @@ namespace VCSnonideal {
   }
 #endif
   /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
 
-  int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
-   
-    /**************************************************************************
-     *
-     * NONIDEAL SYSTEM STOICHIOMETRIC EQUILBRIUM ALGORITHM USING VCS METHOD 
-     * ---------------------------------------------------------------------- 
-     *
-     * Any number of single-species phases and two multi-species phases 
-     * can be handled by the present version (the latter is readily 
-     * modified). Phase 1 is nominally a gas, since alog(P) is added to the 
-     * standard chemical potential data. This can be overridden by 
-     * setting p = 1. Phase 2 is nominally a liquid, or any phase for 
-     * which the standard chemical potential data is independent of P. 
-     * Multi-species phases is deemed to be absent if nt .lt. 1.0E-10. 
-     * If multi-species phase is absent at equilibrium, dgRT value refers 
-     * to 1 - sigma(x(I)), where x(I) are virtual mole fractions at the 
-     * current equilibrium. 
-     * A linear programming routine must be provided for the initial 
-     * estimate of the equilibrium composition 
-     *
-     * Input
-     *     print_lvl = 1 -> Print results to standard output 
-     *                 0 -> don't report on anything 
-     *     printDetails = 1 -> Print intermediate results. 
-     *     MAXIT -> Maximum number of iterations for the algorithm 
-     *
-     * Return Value
-     *
-     *     solveFail = TRUE -> Failure to solve the current problem
-     *                 FALSE -> Normal successful return.
-     *
-     * Some definitions of variables 
-     *
-     *  NL = Number of species in multiphase non-gaseous phases 
-     *  M  = Number of species 
-     *  NC = Number of components. 
-     *  NE = Number of elements 
-     *
-     *  E(J) = Char*2 name for the Jth element in the mechanism 
-     *
-     *  IT   = Running count on the number of iterations of the algorithm. 
-     *  ITL = Controls whether the FORCER subroutine is called. TRUE means 
-     *        that FORCER is not called. 
-     *  MajorSpeciesHaveConverged = Indicates convergence amongst 
-     *  major species. 
-     *        -> Also controls whether a new reaction adjustment is requested.
-     *  IM  = IM is true if all noncomponent species are minor or nonexistent
-     * NRUNS = number of problems to run 
-     * M      = Number of species 
-     * NE     = Number of elements 
-     * NS1    = number of single-species phases 
-     * NL1    = Number of phase2 species 
-     * IF     = Type of chemical potential data: -1 kcal/mol 
-     *                                            0 MU/RT 
-     *                                            1 kJ/mol 
-     * IEST   = Initial estimate: 0 user estimate 
-     *                           -1 machine estimate 
-     * For each Species: 
-     * SP     = Species name 
-     * BM     = formula vector 
-     * SI     = Type of phase, 0 single-species 
-     *                         1 multi-species gas 
-     *                         2 multi-species liquid 
-     * FF     = Input standard chemical potential 
-     *
-     *  E(J) = Char*2 name for the Jth element in the mechanism 
-     *
-     * Return Codes
-     * ------------------
-     *   0 = Equilibrium Achieved
-     *   1 = Range space error encountered. The element abundance criteria are
-     *       only partially satisfied. Specifically, the first NC= (number of
-     *       components) conditions are satisfied. However, the full NE 
-     *       (number of elements) conditions are not satisfied. The equilibrirum
-     *       condition is returned.
-     * -1 = Maximum number of iterations is exceeded. Convergence was not
-     *      found.
-     *
-     *************************************************************************/
-  {
+  // Main routine that solves for equilibrium at constant T and P
+  // using a variant of the VCS method
+  /*
+   * This is the main routine  taht solves for equilibrium at constant T and P
+   * using a variant of the VCS method. Nonideal phases can be accommodated
+   * as well.
+   *
+   * Any number of single-species phases and  multi-species phases 
+   * can be handled by the present version.
+   *
+   *     Input
+   * ------------
+   *   @param print_lvl     1 -> Print results to standard output 
+   *                        0 -> don't report on anything 
+   *
+   *   @param printDetails  1 -> Print intermediate results. 
+   *
+   *   @param maxit         Maximum number of iterations for the algorithm 
+   *
+   *   @return     0 = Equilibrium Achieved
+   *               1 = Range space error encountered. The element abundance criteria are
+   *                   only partially satisfied. Specifically, the first NC= (number of
+   *                   components) conditions are satisfied. However, the full NE 
+   *                   (number of elements) conditions are not satisfied. The equilibrirum
+   *                   condition is returned.
+   *              -1 = Maximum number of iterations is exceeded. Convergence was not
+   *                   found.
+   */
+  int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit) {
     int conv = FALSE, retn = VCS_SUCCESS;
     double test, RT;
     int j, k, l, solveFail, l1, kspec, irxn, im, forced, iph;
-    //  double *ss, *sm, *sa, *aw, *wx, 
     double dx, xx, par;
     int liqphase = FALSE, numSpecliquid = 0;
     int dofast, soldel, ll, it1;
