@@ -59,7 +59,7 @@ namespace VCSnonideal {
 			      double * const delTPhMoles, int kspec) {
     std::vector<double> dchange(m_numPhases, 0.0);
     for (int k = 0; k < kspec; k++) {
-      if (SpeciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+      if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	int iph = PhaseID[k];
 	dchange[iph] += dsLocal[k];
       }
@@ -291,7 +291,7 @@ namespace VCSnonideal {
       for (i = 0; i < m_numSpeciesTot; ++i) {
 	plogf(" %-12s", SpName[i].c_str());
 	for (j = 0; j < m_numElemConstraints; ++j) {
-	  plogf("%3g", FormulaMatrix[j][i]);
+	  plogf("%3g", m_formulaMatrix[j][i]);
 	}
 	if  (PhaseID[i] == 0) {
 	  plogf("  1");
@@ -303,9 +303,9 @@ namespace VCSnonideal {
 	}
 	print_space(47-m_numElemConstraints*3);
 	plogf("%12.5E  %12.5E", RT * m_SSfeSpecies[i], m_molNumSpecies_old[i]);
-	if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
+	if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
 	  plogf("       Mol_Num");
-	} else if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	} else if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  plogf("       Voltage");
 	} else {
 	  plogf("       Unknown");
@@ -602,7 +602,7 @@ namespace VCSnonideal {
 	  for (int j = 0; j < m_numElemConstraints; ++j) {
 	    int elType = m_elType[j];
 	    if (elType == VCS_ELEM_TYPE_ABSPOS) {
-	      double atomComp = FormulaMatrix[j][kspec];
+	      double atomComp = m_formulaMatrix[j][kspec];
 	      if (atomComp > 0.0) {
 		double maxPermissible = m_elemAbundancesGoal[j] / atomComp;
 		if (maxPermissible < VCS_DELETE_MINORSPECIES_CUTOFF) {
@@ -945,7 +945,7 @@ namespace VCSnonideal {
 	 * Skip the line search if we are birthing a species
 	 */
 	if (dx != 0.0 && (m_molNumSpecies_old[kspec] > 0.0) &&
-	    (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
+	    (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
 	  double dx_old = dx;
 #ifdef DEBUG_MODE
 	  dx = vcs_line_search(irxn, dx_old, ANOTE);
@@ -959,7 +959,7 @@ namespace VCSnonideal {
       /***********************************************************************/
       /****** CALCULATE KMOLE NUMBER CHANGE FOR THE COMPONENT BASIS **********/
       /***********************************************************************/
-      if (dx != 0.0 && (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
+      if (dx != 0.0 && (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
 	/*
 	 *         Change the amount of the component compounds according 
 	 *         to the reaction delta that we just computed. 
@@ -1083,7 +1083,7 @@ namespace VCSnonideal {
      */
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
       m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + m_deltaMolNumSpecies[kspec];
-      if (m_molNumSpecies_new[kspec] < 0.0 && (SpeciesUnknownType[kspec] 
+      if (m_molNumSpecies_new[kspec] < 0.0 && (m_speciesUnknownType[kspec] 
 					       != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
 	plogf("vcs_solve_TP: ERROR on step change wt[%d:%s]: %g < 0.0",
 	      kspec, SpName[kspec].c_str(), m_molNumSpecies_new[kspec]);
@@ -2030,7 +2030,7 @@ namespace VCSnonideal {
     int iphase = PhaseID[kspec];
     vcs_VolPhase *Vphase = VPhaseList[iphase];
     *do_delete = FALSE;
-    if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+    if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
       if (w_kspec <= 0.0) {
 	w_kspec = VCS_DELETE_MINORSPECIES_CUTOFF;
       }
@@ -2144,7 +2144,7 @@ namespace VCSnonideal {
     int j;
     double tmp;
     double delta = *delta_ptr;
-    if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+    if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
       /*
        * Attempt the given dx. If it doesn't work, try to see if a smaller
        * one would work,
@@ -2214,7 +2214,7 @@ namespace VCSnonideal {
     /*
      * Calculate a delta that will eliminate the species.
      */
-    if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+    if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
       double dx = -(m_molNumSpecies_old[kspec]);
       if (dx != 0.0) {
 	retn = delta_species(kspec, &dx);
@@ -2301,7 +2301,7 @@ namespace VCSnonideal {
       if (Vphase->Existence != 2) {
 	Vphase->Existence = 0;
 	for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
-	  if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	  if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	    if (PhaseID[kspec] == iph) {
 	      if (m_molNumSpecies_old[kspec] > 0.0) {
 		Vphase->Existence = 1;
@@ -2440,7 +2440,7 @@ namespace VCSnonideal {
      */
     for (kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
       if (PhaseID[kspec] == iph) {
-	if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  irxn = kspec - m_numComponents;
 	  /*
 	   * calculate an extent of rxn, dx, that zeroes out the species.
@@ -2856,7 +2856,7 @@ namespace VCSnonideal {
 
       kspec = ir[irxn];
 
-      if (SpeciesUnknownType[kspec] !=  VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+      if (m_speciesUnknownType[kspec] !=  VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 
 	dnPhase_irxn = DnPhase[irxn];
       
@@ -3099,7 +3099,7 @@ namespace VCSnonideal {
 		m_deltaGRxn_new[irxn], ANOTE);
 	}
 #endif	
-      } /* End of loop over SpeciesUnknownType */
+      } /* End of loop over m_speciesUnknownType */
     } /* End of loop over non-component stoichiometric formation reactions */
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
@@ -3268,7 +3268,7 @@ namespace VCSnonideal {
 	double sum = 0.0;
 	for (k = 0; k < Vphase->NVolSpecies; k++) {
 	  kspec = Vphase->IndSpecies[k];
-	  if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	  if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	    sum += m_molNumSpecies_old[kspec];
 	  }
 	  if (sum > 0.0) break;
@@ -3386,7 +3386,7 @@ namespace VCSnonideal {
 	  vcs_print_stringTrunc(SpName[k].c_str(), 11, 1);
 	  plogf(" | ");
 	  for (j = 0; j < m_numElemConstraints; j++) {
-	    plogf(" %8.2g", FormulaMatrix[j][k]);
+	    plogf(" %8.2g", m_formulaMatrix[j][k]);
 	  }
 	  plogf("\n");
 	}
@@ -3412,7 +3412,7 @@ namespace VCSnonideal {
      * Take out the Voltage unknowns from consideration
      */
     for (k = 0; k < m_numSpeciesTot; k++) {
-      if (SpeciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+      if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	aw[k] = test;
       }
     }
@@ -3485,13 +3485,13 @@ namespace VCSnonideal {
 	  int nonZeroesKspec = 0;
 	  for (kspec = ncTrial; kspec < m_numSpeciesTot; kspec++) {
 	    if (aw[kspec] >= 0.0) {
-	      if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	      if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 		maxConcPossKspec = 1.0E10;
 		nonZeroesKspec = 0;
 		for (int j = 0; j < m_numElemConstraints; ++j) {
 		  if (ElActive[j]) {
 		    if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
-		      double nu = FormulaMatrix[j][kspec];
+		      double nu = m_formulaMatrix[j][kspec];
 		      if (nu != 0.0) {
 			nonZeroesKspec++;
 			maxConcPossKspec = MIN(m_elemAbundancesGoal[j] / nu, maxConcPossKspec);
@@ -3573,7 +3573,7 @@ namespace VCSnonideal {
 	 */
 	jl = jr;
 	for (j = 0; j < m_numElemConstraints; ++j) {
-	  sm[j + jr*m_numElemConstraints] = FormulaMatrix[j][k];
+	  sm[j + jr*m_numElemConstraints] = m_formulaMatrix[j][k];
 	}
 	if (jl > 0) {
 	  /*
@@ -3662,12 +3662,12 @@ namespace VCSnonideal {
      *    This algorithm makes the assumption that the
      * first nc rows of the formula matrix aren't rank deficient.
      * However, this might not be the case. For example, assume
-     * that the first element in FormulaMatrix[] is argon. Assume that
+     * that the first element in m_formulaMatrix[] is argon. Assume that
      * no species in the matrix problem actually includes argon.
      * Then, the first row in sm[], below will be indentically
      * zero. bleh. 
      *    What needs to be done is to perform a rearrangement
-     * of the ELEMENTS -> i.e. rearrange, FormulaMatrix, sp, and m_elemAbundancesGoal, such
+     * of the ELEMENTS -> i.e. rearrange, m_formulaMatrix, sp, and m_elemAbundancesGoal, such
      * that the first nc elements form in combination with the
      * nc components create an invertible sm[]. not a small
      * project, but very doable.
@@ -3681,13 +3681,13 @@ namespace VCSnonideal {
      */
     for (j = 0; j < ncTrial; ++j) {
       for (i = 0; i < ncTrial; ++i) {
-	sm[i + j*m_numElemConstraints] = FormulaMatrix[i][j];
+	sm[i + j*m_numElemConstraints] = m_formulaMatrix[i][j];
       }
     }
     for (i = 0; i < m_numRxnTot; ++i) {
       k = ir[i];
       for (j = 0; j < ncTrial; ++j) {
-	m_stoichCoeffRxnMatrix[i][j] = FormulaMatrix[j][k];
+	m_stoichCoeffRxnMatrix[i][j] = m_formulaMatrix[j][k];
       }
     }
     /*
@@ -3722,14 +3722,14 @@ namespace VCSnonideal {
       }
     }
     for (k = 0; k < m_numSpeciesTot; k++) {
-      if (SpeciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+      if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
       
 	for (j = 0; j < ncTrial; ++j) {
 	  for (i = 0; i < ncTrial; ++i) {
 	    if (i == jlose) {
-	      sm[i + j*m_numElemConstraints] = FormulaMatrix[juse][j];
+	      sm[i + j*m_numElemConstraints] = m_formulaMatrix[juse][j];
 	    } else {
-	      sm[i + j*m_numElemConstraints] = FormulaMatrix[i][j];
+	      sm[i + j*m_numElemConstraints] = m_formulaMatrix[i][j];
 	    }
 	  }
 	}
@@ -3737,9 +3737,9 @@ namespace VCSnonideal {
 	  k = ir[i];
 	  for (j = 0; j < ncTrial; ++j) {
 	    if (j == jlose) {
-	      aw[j] = FormulaMatrix[juse][k];
+	      aw[j] = m_formulaMatrix[juse][k];
 	    } else {
-	      aw[j] = FormulaMatrix[j][k];
+	      aw[j] = m_formulaMatrix[j][k];
 	    }
 	  }
 	}  
@@ -3764,7 +3764,7 @@ namespace VCSnonideal {
       for (j = 0; j < ncTrial; j++) {
 	szTmp += fabs(m_stoichCoeffRxnMatrix[i][j]);
       }
-      scSize[i] = szTmp;
+      m_scSize[i] = szTmp;
     }
 
 
@@ -3782,7 +3782,7 @@ namespace VCSnonideal {
       for (j = 0; j < ncTrial; j++) {
 	plogf("%-10.10s", SpName[j].c_str());
       }
-      //plogf("|    scSize");
+      //plogf("|    m_scSize");
       plogf("\n");
       for (i = 0; i < m_numRxnTot; i++) {
 	plogf("   --- %3d ", ir[i]);
@@ -3791,7 +3791,7 @@ namespace VCSnonideal {
 	for (j = 0; j < ncTrial; j++) {
 	  plogf("     %6.2f", m_stoichCoeffRxnMatrix[i][j]);
 	}
-	//plogf(" |  %6.2f", scSize[i]);
+	//plogf(" |  %6.2f", m_scSize[i]);
 	plogf("\n");
       }
       plogf("   "); for(i=0; i<77; i++) plogf("-"); plogf("\n");
@@ -3899,7 +3899,7 @@ namespace VCSnonideal {
     int iph, k;
    
     if (kspec < m_numComponents) return VCS_SPECIES_COMPONENT;
-    if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+    if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
       return  VCS_SPECIES_INTERFACIALVOLTAGE;
     }
     iph = PhaseID[kspec];
@@ -3952,7 +3952,7 @@ namespace VCSnonideal {
       for (int j = 0; j < m_numElemConstraints; ++j) {
 	int elType = m_elType[j];
 	if (elType == VCS_ELEM_TYPE_ABSPOS) {
-	  double atomComp = FormulaMatrix[j][kspec];
+	  double atomComp = m_formulaMatrix[j][kspec];
 	  if (atomComp > 0.0) {
 	    double maxPermissible = m_elemAbundancesGoal[j] / atomComp;
 	    if (maxPermissible < VCS_DELETE_MINORSPECIES_CUTOFF) {
@@ -3992,7 +3992,7 @@ namespace VCSnonideal {
      *      phase and shares a non-zero stoichiometric coefficient, then
      *      the current species is a major species.
      */
-    double szAdj = scSize[irxn] * std::sqrt((double)m_numRxnTot);
+    double szAdj = m_scSize[irxn] * std::sqrt((double)m_numRxnTot);
     for (k = 0; k < m_numComponents; ++k) {
       if (!(SSPhase[k])) {
 	if (m_stoichCoeffRxnMatrix[irxn][k] != 0.0) {
@@ -4106,7 +4106,7 @@ namespace VCSnonideal {
 	  continue;
 	}
       }
-      if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+      if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 #ifdef DEBUG_MODE
 	if (molNum[kspec] != phi) {
 	  plogf("We have an inconsistency!\n");
@@ -4159,7 +4159,7 @@ namespace VCSnonideal {
    *     Ideal Mixtures:
    *
    *          m_feSpecies(I) = m_SSfeSpecies(I) + ln(z(I)) - ln(m_tPhaseMoles[iph])
-   *                            + Charge[I] * Faraday_dim * phasePhi[iphase]; 
+   *                            + Charge[I] * Faraday_dim * m_phasePhi[iphase]; 
    *
    *              ( This is equivalent to the adding the log of the 
    *                mole fraction onto the standard chemical 
@@ -4170,7 +4170,7 @@ namespace VCSnonideal {
    *
    *          m_feSpecies(I) = m_SSfeSpecies(I)
    *                           + ln(ActCoeff[I] * z(I)) - ln(m_tPhaseMoles[iph])
-   *                            + Charge[I] * Faraday_dim * phasePhi[iphase]; 
+   *                            + Charge[I] * Faraday_dim * m_phasePhi[iphase]; 
    *  
    *              ( This is equivalent to the adding the log of the 
    *                mole fraction multiplied by the activity coefficient
@@ -4184,7 +4184,7 @@ namespace VCSnonideal {
    *          m_feSpecies(I) = m_SSfeSpecies(I)
    *                           + ln(ActCoeff[I] * z(I)) - ln(m_tPhaseMoles[iph])
    *                           - ln(Mnaught * m_units)
-   *                            + Charge[I] * Faraday_dim * phasePhi[iphase]; 
+   *                            + Charge[I] * Faraday_dim * m_phasePhi[iphase]; 
    *
    *                  note:   m_SSfeSpecies(I) is the molality based standard state.
    *                          However, ActCoeff[I] is the molar based activity coefficient
@@ -4196,7 +4196,7 @@ namespace VCSnonideal {
    *
    *                                m_feSpecies(I) = m_SSfeSpecies(I)
    *                                                   + ln(ActCoeff_M[I] * m(I))
-   *                                                   + Charge[I] * Faraday_dim * phasePhi[iphase]; 
+   *                                                   + Charge[I] * Faraday_dim * m_phasePhi[iphase]; 
    *                                       where m[I] is the molality of the ith solute
    * 
    *                                m[I] = Xmol[I] / ( Xmol[N] * Mnaught * m_units)
@@ -4299,7 +4299,7 @@ namespace VCSnonideal {
  
     }
     for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
-      if(SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+      if(m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	iph = PhaseID[kspec];
 	tlogMoles[iph] += z[kspec];
       }
@@ -4344,7 +4344,7 @@ namespace VCSnonideal {
 	  Vphase->setMolesFromVCS(z);
 	  Vphase->sendToVCSActCoeff(VCS_DATA_PTR(ActCoeff));
 	}
-	phasePhi[iphase] = Vphase->electricPotential();
+	m_phasePhi[iphase] = Vphase->electricPotential();
 	CurrPhAC[iphase] = 1;
       }
     }
@@ -4359,9 +4359,9 @@ namespace VCSnonideal {
      */
     for (kspec = l1; kspec < l2; ++kspec) {
       iphase = PhaseID[kspec];
-      if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+      if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 #ifdef DEBUG_MODE
-	if (z[kspec] != phasePhi[iphase]) {
+	if (z[kspec] != m_phasePhi[iphase]) {
 	  plogf("We have an inconsistency!\n");
 	  exit(-1);
 	}
@@ -4371,7 +4371,7 @@ namespace VCSnonideal {
 	}
 #endif
 	m_feSpecies_curr[kspec] =
-	  m_SSfeSpecies[kspec] + Charge[kspec] * Faraday_dim * phasePhi[iphase];
+	  m_SSfeSpecies[kspec] + Charge[kspec] * Faraday_dim * m_phasePhi[iphase];
       } else {
 	if (SSPhase[kspec]) {
 	  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
@@ -4382,14 +4382,14 @@ namespace VCSnonideal {
 	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
 		+ log(ActCoeff[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
 		- tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec] 
-		+ Charge[kspec] * Faraday_dim * phasePhi[iphase];
+		+ Charge[kspec] * Faraday_dim * m_phasePhi[iphase];
 	    } else {
 	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 	    }
 	  } else {
 	    m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] + log(ActCoeff[kspec] * z[kspec])
 	      - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec] 
-	      + Charge[kspec] * Faraday_dim * phasePhi[iphase]; 
+	      + Charge[kspec] * Faraday_dim * m_phasePhi[iphase]; 
 	  }
 	}
       }
@@ -4402,9 +4402,9 @@ namespace VCSnonideal {
 	if (spStatus[irxn] != VCS_SPECIES_MINOR) {
 	  kspec = ir[irxn];
 	  iphase = PhaseID[kspec];
-	  if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	  if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 #ifdef DEBUG_MODE
-	    if (z[kspec] != phasePhi[iphase]) {
+	    if (z[kspec] != m_phasePhi[iphase]) {
 	      plogf("We have an inconsistency!\n");
 	      exit(-1);
 	    }
@@ -4414,7 +4414,7 @@ namespace VCSnonideal {
 	    }
 #endif
 	    m_feSpecies_curr[kspec] = 
-	      m_SSfeSpecies[kspec] + Charge[kspec] * Faraday_dim * phasePhi[iphase];   
+	      m_SSfeSpecies[kspec] + Charge[kspec] * Faraday_dim * m_phasePhi[iphase];   
 	  } else {
 	    if (SSPhase[kspec]) {
 	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
@@ -4425,14 +4425,14 @@ namespace VCSnonideal {
 		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
 		    + log(ActCoeff[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
 		    - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec]
-		    + Charge[kspec] * Faraday_dim * phasePhi[iphase]; ;
+		    + Charge[kspec] * Faraday_dim * m_phasePhi[iphase]; ;
 		} else {
 		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 		}
 	      } else {
 		m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] + log(ActCoeff[kspec] * z[kspec]) 
 		  - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec] 
-		  + Charge[kspec] * Faraday_dim * phasePhi[iphase]; 
+		  + Charge[kspec] * Faraday_dim * m_phasePhi[iphase]; 
 	      }
 	    }
 	  }
@@ -4446,9 +4446,9 @@ namespace VCSnonideal {
 	if (spStatus[irxn] == VCS_SPECIES_MINOR) {
 	  kspec = ir[irxn];
 	  iphase = PhaseID[kspec];
-	  if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	  if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 #ifdef DEBUG_MODE
-	    if (z[kspec] != phasePhi[iphase]) {
+	    if (z[kspec] != m_phasePhi[iphase]) {
 	      plogf("We have an inconsistency!\n");
 	      exit(-1);
 	    }
@@ -4458,7 +4458,7 @@ namespace VCSnonideal {
 	    }
 #endif
 	    m_feSpecies_curr[kspec] = 
-	      m_SSfeSpecies[kspec] + Charge[kspec] * Faraday_dim * phasePhi[iphase]; ;
+	      m_SSfeSpecies[kspec] + Charge[kspec] * Faraday_dim * m_phasePhi[iphase]; ;
 	  } else {
 	    if (SSPhase[kspec]) {
 	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
@@ -4499,8 +4499,8 @@ namespace VCSnonideal {
 
     for (j = 0; j < m_numElemConstraints; ++j) {
       for (int i = 0; i < m_numSpeciesTot; ++i) {
-	if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	  eav[j] += FormulaMatrix[j][i] * m_molNumSpecies_old[i];
+	if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	  eav[j] += m_formulaMatrix[j][i] * m_molNumSpecies_old[i];
 	}
       }
     }
@@ -4565,7 +4565,7 @@ namespace VCSnonideal {
       m_tPhaseMoles_old[i] = TPhInertMoles[i];
     }
     for (i = 0; i < m_numSpeciesTot; i++) {
-      if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
+      if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
 	m_tPhaseMoles_old[PhaseID[i]] += m_molNumSpecies_old[i];
       }
     }
@@ -4697,7 +4697,7 @@ namespace VCSnonideal {
    
     vcsUtil_stsw(SpName,  k1, k2);
     SWAP(m_molNumSpecies_old[k1], m_molNumSpecies_old[k2], t1);
-    SWAP(SpeciesUnknownType[k1], SpeciesUnknownType[k2], j);
+    SWAP(m_speciesUnknownType[k1], m_speciesUnknownType[k2], j);
     SWAP(m_molNumSpecies_new[k1], m_molNumSpecies_new[k2], t1);
     SWAP(m_SSfeSpecies[k1], m_SSfeSpecies[k2], t1);
     SWAP(m_spSize[k1], m_spSize[k2], t1);
@@ -4719,7 +4719,7 @@ namespace VCSnonideal {
     SWAP(VolPM[k1], VolPM[k2], t1);
 
     for (j = 0; j < m_numElemConstraints; ++j) {
-      SWAP(FormulaMatrix[j][k1], FormulaMatrix[j][k2], t1);
+      SWAP(m_formulaMatrix[j][k1], m_formulaMatrix[j][k2], t1);
     }   
     if (UseActCoeffJac) {
       vcs_switch2D(dLnActCoeffdMolNum.baseDataAddr(), k1, k2);
@@ -4746,7 +4746,7 @@ namespace VCSnonideal {
       for (j = 0; j < m_numComponents; ++j) {
 	SWAP(m_stoichCoeffRxnMatrix[i1][j], m_stoichCoeffRxnMatrix[i2][j], t1);
       }
-      SWAP(scSize[i1], scSize[i2], t1);
+      SWAP(m_scSize[i1], m_scSize[i2], t1);
       for (iph = 0; iph < m_numPhases; iph++) {
 	SWAP(DnPhase[i1][iph], DnPhase[i2][iph], t1);
 	SWAP(PhaseParticipation[i1][iph], 
@@ -4825,7 +4825,7 @@ namespace VCSnonideal {
 
       for (irxn = 0; irxn < irxnl; ++irxn) {
 	kspec = ir[irxn];
-	if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  iph = PhaseID[kspec];
 	  if (iph == iphase ) {
 	    if (m_molNumSpecies_old[kspec] > 0.0) zeroedPhase = FALSE;
@@ -4917,7 +4917,7 @@ namespace VCSnonideal {
     int irxn = kspec - m_numComponents;
     int soldel = false;
     double dx = 0.0;
-    if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+    if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
       return dx;
     }
     double w_kspec = VCS_DELETE_SPECIES_CUTOFF;
@@ -4962,7 +4962,7 @@ namespace VCSnonideal {
     double *sc_irxn = m_stoichCoeffRxnMatrix[irxn];
     for (int j = 0; j < m_numComponents; ++j) {
       // Only loop over element contraints that involve positive def. constraints
-      if (SpeciesUnknownType[j] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+      if (m_speciesUnknownType[j] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	if (m_molNumSpecies_old[j] > 0.0) {
 	  double tmp = sc_irxn[j] * dx;
 	  if (3.0*(-tmp) > m_molNumSpecies_old[j]) {

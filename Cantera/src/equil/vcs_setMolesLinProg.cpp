@@ -91,7 +91,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
   std::vector<double> aw(m_numSpeciesTot, 0.0);
 
   for (ik = 0; ik <  m_numSpeciesTot; ik++) {
-    if (SpeciesUnknownType[ik] !=  VCS_SPECIES_INTERFACIALVOLTAGE) {
+    if (m_speciesUnknownType[ik] !=  VCS_SPECIES_INTERFACIALVOLTAGE) {
       m_molNumSpecies_old[ik] = MAX(0.0, m_molNumSpecies_old[ik]);
     }
   }

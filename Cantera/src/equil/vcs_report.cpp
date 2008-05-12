@@ -124,7 +124,7 @@ int VCS_SOLVE::vcs_report(int iconv)
       plogf(" %-12.12s", SpName[i].c_str());
       print_space(13);
       plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[i], m_molNumSpecies_new[i], m_feSpecies_curr[i]);
-      plogf("   %3d", SpeciesUnknownType[i]);
+      plogf("   %3d", m_speciesUnknownType[i]);
       plogf("\n");
    }
    for (i = m_numComponents; i < m_numSpeciesRdc; ++i) {
@@ -132,10 +132,10 @@ int VCS_SOLVE::vcs_report(int iconv)
       plogf(" %-12.12s", SpName[l].c_str());
       print_space(13);
      
-      if (SpeciesUnknownType[l] == VCS_SPECIES_TYPE_MOLNUM) {
+      if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_MOLNUM) {
 	plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[l], m_molNumSpecies_new[l], m_feSpecies_curr[l]);
 	plogf("  KMolNum ");
-      } else if (SpeciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+      } else if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	plogf("        NA         %14.7E    %12.4E", 1.0, m_feSpecies_curr[l]);
 	plogf("   Voltage = %14.7E", m_molNumSpecies_old[l]);
       } else {
@@ -163,9 +163,9 @@ int VCS_SOLVE::vcs_report(int iconv)
 	 plogf(" %-12.12s", SpName[kspec].c_str());
 	 plogf("             %14.7E     %14.7E    %12.4E",
 		m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec], m_deltaGRxn_new[kspec]);
-	 if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
+	 if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
 	   plogf("  KMol_Num");
-	 } else if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	 } else if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	   plogf("   Voltage");
 	 } else {
 	   plogf("   Unknown");
@@ -317,10 +317,10 @@ int VCS_SOLVE::vcs_report(int iconv)
       plogf("%14.7E  ", m_SSfeSpecies[l]);
       plogf("%14.7E  ", log(ActCoeff[l]));
       double tpmoles = m_tPhaseMoles_old[pid];
-      double phi = phasePhi[pid];
+      double phi = m_phasePhi[pid];
       double eContrib = phi * Charge[l] * Faraday_dim;
       double lx = 0.0;
-      if (SpeciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+      if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	lx = 0.0;
       } else {
 	if (tpmoles > 0.0 && m_molNumSpecies_old[l] > 0.0) {

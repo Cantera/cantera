@@ -125,7 +125,7 @@ namespace VCSnonideal {
       Faraday_dim =  vcs_nondim_Farad(m_VCS_UnitsFormat, m_temperature);
       if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
 	for (i = 0; i < m_numSpeciesTot; ++i) {
-	  if (SpeciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	  if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	    //m_molNumSpecies_old[i] *= 1.0E3;
 	    m_molNumSpecies_old[i] *= 1.0;
 	  }
@@ -170,7 +170,7 @@ namespace VCSnonideal {
     }
     if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
       for (i = 0; i < m_numSpeciesTot; ++i) {
-	if (SpeciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  //m_molNumSpecies_old[i] /= 1.0E3;
 	  m_molNumSpecies_old[i] /= 1.0;
 	}

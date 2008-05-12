@@ -24,8 +24,8 @@ namespace VCSnonideal {
     for (int j = 0; j < m_numElemConstraints; ++j) {
       m_elemAbundances[j] = 0.0;
       for (int i = 0; i < m_numSpeciesTot; ++i) {
-	if (SpeciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	  m_elemAbundances[j] += FormulaMatrix[j][i] * m_molNumSpecies_old[i];
+	if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	  m_elemAbundances[j] += m_formulaMatrix[j][i] * m_molNumSpecies_old[i];
 	}
       }
     }
@@ -92,7 +92,7 @@ namespace VCSnonideal {
 	  numNonZero = 0;
 	  multisign = false;
 	  for (int kspec = 0; kspec < m_numSpeciesTot; kspec++) {
-	    eval = FormulaMatrix[i][kspec];
+	    eval = m_formulaMatrix[i][kspec];
 	    if (eval < 0.0) {
 	      multisign = true;
 	    }
@@ -146,9 +146,9 @@ namespace VCSnonideal {
     for (j = 0; j < m_numElemConstraints; ++j) {
       elemAbundPhase[j] = 0.0;
       for (i = 0; i < m_numSpeciesTot; ++i) {
-	if (SpeciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  if (PhaseID[i] == iphase) {
-	    elemAbundPhase[j] += FormulaMatrix[j][i] * m_molNumSpecies_old[i];
+	    elemAbundPhase[j] += m_formulaMatrix[j][i] * m_molNumSpecies_old[i];
 	  }
 	}
       }
@@ -190,7 +190,7 @@ namespace VCSnonideal {
      *  ga    Current element abundances
      *  m_elemAbundancesGoal   Required elemental abundances
      *  m_molNumSpecies_old     Current mole number of species.
-     *  FormulaMatrix[][]  Formular matrix of the species
+     *  m_formulaMatrix[][]  Formular matrix of the species
      *  ne    Number of elements
      *  nc    Number of components.
      *
@@ -240,8 +240,8 @@ namespace VCSnonideal {
       numNonZero = 0;
       multisign = false;
       for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
-	if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	  double eval = FormulaMatrix[i][kspec];
+	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	  double eval = m_formulaMatrix[i][kspec];
 	  if (eval < 0.0) {
 	    multisign = true;
 	  }
@@ -253,8 +253,8 @@ namespace VCSnonideal {
       if (!multisign) {
 	if (numNonZero < 2) {
 	  for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
-	    if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	      double eval = FormulaMatrix[i][kspec];
+	    if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	      double eval = m_formulaMatrix[i][kspec];
 	      if (eval > 0.0) {
 		m_molNumSpecies_old[kspec] = m_elemAbundancesGoal[i] / eval;
 		changed = true;
@@ -265,8 +265,8 @@ namespace VCSnonideal {
 	  int numCompNonZero = 0;
 	  int compID = -1;
 	  for (kspec = 0; kspec < m_numComponents; kspec++) {
-	    if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	      double eval = FormulaMatrix[i][kspec];
+	    if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	      double eval = m_formulaMatrix[i][kspec];
 	      if (eval > 0.0) {
 		compID = kspec;
 		numCompNonZero++;
@@ -276,11 +276,11 @@ namespace VCSnonideal {
 	  if (numCompNonZero == 1) {
 	    double diff = m_elemAbundancesGoal[i];
 	    for (kspec = m_numComponents; kspec < m_numSpeciesTot; kspec++) {
-	      if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-		double eval = FormulaMatrix[i][kspec];
+	      if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+		double eval = m_formulaMatrix[i][kspec];
 		diff -= eval * m_molNumSpecies_old[kspec];
 	      }
-	      m_molNumSpecies_old[compID] = MAX(0.0,diff/FormulaMatrix[i][compID]);
+	      m_molNumSpecies_old[compID] = MAX(0.0,diff/m_formulaMatrix[i][compID]);
 	      changed = true;
 	    }
 	  }
@@ -305,8 +305,8 @@ namespace VCSnonideal {
       int elType = m_elType[i];
       if (elType == VCS_ELEM_TYPE_ABSPOS) {
 	for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
-	  if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	    double atomComp = FormulaMatrix[i][kspec];
+	  if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	    double atomComp = m_formulaMatrix[i][kspec];
 	    if (atomComp > 0.0) {
 	      double maxPermissible = m_elemAbundancesGoal[i] / atomComp;
 	      if (m_molNumSpecies_old[kspec] > maxPermissible) {
@@ -354,7 +354,7 @@ namespace VCSnonideal {
       x[i] = m_elemAbundances[i] - m_elemAbundancesGoal[i];
       if (fabs(x[i]) > 1.0E-13) retn = 1;
       for (j = 0; j < m_numComponents; ++j) {
-	aa[j + i*m_numElemConstraints] = FormulaMatrix[j][i];
+	aa[j + i*m_numElemConstraints] = m_formulaMatrix[j][i];
       }
     }
     i = vcsUtil_mlequ(aa, m_numElemConstraints, m_numComponents, x, 1);
@@ -424,13 +424,13 @@ namespace VCSnonideal {
        *       situation.
        */
       for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
-	if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  continue;
 	}
 	saveDir = 0.0;
 	goodSpec = TRUE;
 	for (i = 0; i < m_numComponents; ++i) {
-	  dir = FormulaMatrix[i][kspec] *  (m_elemAbundancesGoal[i] - m_elemAbundances[i]);
+	  dir = m_formulaMatrix[i][kspec] *  (m_elemAbundancesGoal[i] - m_elemAbundances[i]);
 	  if (fabs(dir) > 1.0E-10) {
 	    if (dir > 0.0) {
 	      if (saveDir < 0.0) {
@@ -445,7 +445,7 @@ namespace VCSnonideal {
 	    }
 	    saveDir = dir;
 	  } else {
-	    if (FormulaMatrix[i][kspec] != 0.) {
+	    if (m_formulaMatrix[i][kspec] != 0.) {
 	      goodSpec = FALSE;
 	      break;
 	    }
@@ -455,8 +455,8 @@ namespace VCSnonideal {
 	  its = 0;
 	  xx = 0.0;
 	  for (i = 0; i < m_numComponents; ++i) {
-	    if (FormulaMatrix[i][kspec] != 0.0) {
-	      xx += (m_elemAbundancesGoal[i] - m_elemAbundances[i]) / FormulaMatrix[i][kspec];
+	    if (m_formulaMatrix[i][kspec] != 0.0) {
+	      xx += (m_elemAbundancesGoal[i] - m_elemAbundances[i]) / m_formulaMatrix[i][kspec];
 	      its++;
 	    }
 	  }
@@ -487,8 +487,8 @@ namespace VCSnonideal {
 	  (m_elType[i] == VCS_ELEM_TYPE_ABSPOS && m_elemAbundancesGoal[i] == 0.0)) { 
 	for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
 	  if (m_elemAbundances[i] > 0.0) {
-	    if (FormulaMatrix[i][kspec] < 0.0) {
-	      m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / FormulaMatrix[i][kspec] ;
+	    if (m_formulaMatrix[i][kspec] < 0.0) {
+	      m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / m_formulaMatrix[i][kspec] ;
 	      if (m_molNumSpecies_old[kspec] < 0.0) {
 		m_molNumSpecies_old[kspec] = 0.0;
 	      }
@@ -497,8 +497,8 @@ namespace VCSnonideal {
 	    }
 	  }
 	  if (m_elemAbundances[i] < 0.0) {
-	    if (FormulaMatrix[i][kspec] > 0.0) {
-	      m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / FormulaMatrix[i][kspec];
+	    if (m_formulaMatrix[i][kspec] > 0.0) {
+	      m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / m_formulaMatrix[i][kspec];
 	      if (m_molNumSpecies_old[kspec] < 0.0) {
 		m_molNumSpecies_old[kspec] = 0.0;
 	      }
@@ -525,13 +525,13 @@ namespace VCSnonideal {
 	bool useZeroed = true;
 	for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
 	  if (dev < 0.0) {
-	    if (FormulaMatrix[i][kspec] < 0.0) {
+	    if (m_formulaMatrix[i][kspec] < 0.0) {
 	      if (m_molNumSpecies_old[kspec] > 0.0) {
 		useZeroed = false;
 	      }
 	    }
 	  } else {
-	    if (FormulaMatrix[i][kspec] > 0.0) {
+	    if (m_formulaMatrix[i][kspec] > 0.0) {
 	      if (m_molNumSpecies_old[kspec] > 0.0) {
 		useZeroed = false;
 	      }
@@ -541,8 +541,8 @@ namespace VCSnonideal {
 	for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
 	  if (m_molNumSpecies_old[kspec] > 0.0 || useZeroed) {
 	    if (dev < 0.0) {
-	      if (FormulaMatrix[i][kspec] < 0.0) {
-		double delta = dev / FormulaMatrix[i][kspec] ;
+	      if (m_formulaMatrix[i][kspec] < 0.0) {
+		double delta = dev / m_formulaMatrix[i][kspec] ;
 		m_molNumSpecies_old[kspec] += delta;
 		if (m_molNumSpecies_old[kspec] < 0.0) {
 		  m_molNumSpecies_old[kspec] = 0.0;
@@ -552,8 +552,8 @@ namespace VCSnonideal {
 	      }
 	    }
 	    if (dev > 0.0) {
-	      if (FormulaMatrix[i][kspec] > 0.0) {
-		double delta = dev / FormulaMatrix[i][kspec] ;
+	      if (m_formulaMatrix[i][kspec] > 0.0) {
+		double delta = dev / m_formulaMatrix[i][kspec] ;
 		m_molNumSpecies_old[kspec] += delta;
 		if (m_molNumSpecies_old[kspec] < 0.0) {
 		  m_molNumSpecies_old[kspec] = 0.0;

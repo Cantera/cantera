@@ -180,7 +180,7 @@ namespace VCSnonideal {
     if (m_doEstimateEquil < 0) {
       double sum  = 0.0;
       for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
-	if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
+	if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
 	  sum += fabs(m_molNumSpecies_old[kspec]);
 	}
       }
@@ -190,7 +190,7 @@ namespace VCSnonideal {
 	else                      pres = m_pressurePA;
 	retn = vcs_evalSS_TP(0, 0, m_temperature, pres);
 	for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
-	  if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
+	  if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
 	    m_molNumSpecies_old[kspec] = - m_SSfeSpecies[kspec];
 	  } else {
 	    m_molNumSpecies_old[kspec] = 0.0;

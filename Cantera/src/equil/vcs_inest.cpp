@@ -116,7 +116,7 @@ namespace VCSnonideal {
 	if (ElActive[j]) {
 	  double tmp = 0.0;
 	  for (kspec = 0; kspec < nspecies; ++kspec) {
-	    tmp +=  FormulaMatrix[j][kspec] * molNum[kspec];
+	    tmp +=  m_formulaMatrix[j][kspec] * molNum[kspec];
 	  }
 	  plogf("%s     ", pprefix); plogf("   %-9.9s", (ElName[j]).c_str());
 	  plogf(" %12.3g %12.3g\n", m_elemAbundancesGoal[j], tmp);
@@ -136,7 +136,7 @@ namespace VCSnonideal {
     for (kspec = 0; kspec < nspecies; ++kspec) {
       iph = PhaseID[kspec];
       Vphase = VPhaseList[iph];
-      if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+      if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	if (molNum[kspec] <= 0.0) {
 	  /*
 	   * HKM Should eventually include logic here for non SS phases
@@ -178,7 +178,7 @@ namespace VCSnonideal {
       m_tPhaseMoles_new[iph] = TPhInertMoles[iph] + 1.0E-20;
     }
     for (kspec = 0; kspec < m_numComponents; ++kspec) {
-      if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
+      if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
 	m_tPhaseMoles_new[PhaseID[kspec]] += molNum[kspec];
       }
     }
@@ -190,7 +190,7 @@ namespace VCSnonideal {
     }     
     vcs_dcopy(VCS_DATA_PTR(m_molNumSpecies_new), molNum,  nspecies);
     for (kspec = 0; kspec < m_numComponents; ++kspec) {
-      if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_MOLNUM) {
+      if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_MOLNUM) {
 	m_molNumSpecies_new[kspec] = 0.0;
       }
     }
@@ -198,7 +198,7 @@ namespace VCSnonideal {
 	      nspecies);
  
     for (kspec = 0; kspec < m_numComponents; ++kspec) {
-      if (SpeciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
+      if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
 	if (! SSPhase[kspec]) {
 	  iph = PhaseID[kspec];
 	  m_feSpecies_curr[kspec] += log(m_molNumSpecies_new[kspec] / m_tPhaseMoles_old[iph]);
@@ -265,7 +265,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       for (kspec = 0; kspec < nspecies; ++kspec) {
-	if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  plogf("%sdirection (", pprefix); plogf("%-12.12s", SpName[kspec].c_str());
 	  plogf(") = %g", m_deltaMolNumSpecies[kspec]);
 	  if (SSPhase[kspec]) {
@@ -285,7 +285,7 @@ namespace VCSnonideal {
     /* *********************************************************** */
     par = 0.5;
     for (kspec = 0; kspec < m_numComponents; ++kspec) {
-      if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+      if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	if (par < -m_deltaMolNumSpecies[kspec] / m_molNumSpecies_new[kspec]) {
 	  par = -m_deltaMolNumSpecies[kspec] / m_molNumSpecies_new[kspec];
 	}
@@ -303,14 +303,14 @@ namespace VCSnonideal {
     finished = FALSE;
     do {
       for (kspec = 0; kspec < m_numComponents; ++kspec) {
-	if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  molNum[kspec] = m_molNumSpecies_new[kspec] + par * m_deltaMolNumSpecies[kspec];
 	} else {
 	  m_deltaMolNumSpecies[kspec] = 0.0;
 	}
       }
       for (kspec = m_numComponents; kspec < nspecies; ++kspec) {
-	if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  if (m_deltaMolNumSpecies[kspec] != 0.0) molNum[kspec] = m_deltaMolNumSpecies[kspec] * par;
 	}
       }

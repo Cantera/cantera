@@ -141,7 +141,7 @@ namespace VCSnonideal {
 	 *   from the current component.
 	 */
 	for (j = 0; j < ncomponents; ++j) {
-	  sm[j + jr*ncomponents] = FormulaMatrix[k][j];
+	  sm[j + jr*ncomponents] = m_formulaMatrix[k][j];
 	} 
 	if (jl > 0) {
 	  /*
@@ -252,7 +252,7 @@ namespace VCSnonideal {
     vcsUtil_isw(VCS_DATA_PTR(m_elType),  ipos, jpos);
     vcsUtil_isw(VCS_DATA_PTR(ElActive),  ipos, jpos);
     for (j = 0; j < m_numSpeciesTot; ++j) {
-      SWAP(FormulaMatrix[ipos][j], FormulaMatrix[jpos][j], dtmp);
+      SWAP(m_formulaMatrix[ipos][j], m_formulaMatrix[jpos][j], dtmp);
     }
     vcsUtil_stsw(ElName, ipos, jpos);
   }

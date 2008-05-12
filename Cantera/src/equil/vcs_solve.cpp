@@ -106,7 +106,7 @@ namespace VCSnonideal {
      */
     m_stoichCoeffRxnMatrix.resize(nspecies0, nelements, 0.0);
 
-    scSize.resize(nspecies0, 0.0);
+    m_scSize.resize(nspecies0, 0.0);
     m_spSize.resize(nspecies0, 1.0);
 
     m_feSpecies_curr.resize(nspecies0, 0.0);
@@ -114,11 +114,11 @@ namespace VCSnonideal {
     m_feSpecies_new.resize(nspecies0, 0.0);
     m_molNumSpecies_old.resize(nspecies0, 0.0);
 
-    SpeciesUnknownType.resize(nspecies0, VCS_SPECIES_TYPE_MOLNUM);
+    m_speciesUnknownType.resize(nspecies0, VCS_SPECIES_TYPE_MOLNUM);
 
     DnPhase.resize(nspecies0, nphase0, 0.0);
     PhaseParticipation.resize(nspecies0, nphase0, 0);
-    phasePhi.resize(nphase0, 0.0);
+    m_phasePhi.resize(nphase0, 0.0);
 
     m_molNumSpecies_new.resize(nspecies0, 0.0);
 
@@ -137,7 +137,7 @@ namespace VCSnonideal {
     TmpPhase.resize(nphase0, 0.0);
     TmpPhase2.resize(nphase0, 0.0);
   
-    FormulaMatrix.resize(nelements, nspecies0);
+    m_formulaMatrix.resize(nelements, nspecies0);
 
     TPhInertMoles.resize(nphase0, 0.0);
 
@@ -497,7 +497,7 @@ namespace VCSnonideal {
      */
     for (i = 0; i < nspecies; i++) {
       for (j = 0; j < nelements; j++) {
-	FormulaMatrix[j][i] = pub->FormulaMatrix[j][i];
+	m_formulaMatrix[j][i] = pub->FormulaMatrix[j][i];
       }
     }
   
@@ -530,7 +530,7 @@ namespace VCSnonideal {
     /*
      * Copy the species unknown type
      */
-    vcs_icopy(VCS_DATA_PTR(SpeciesUnknownType), 
+    vcs_icopy(VCS_DATA_PTR(m_speciesUnknownType), 
 	      VCS_DATA_PTR(pub->SpeciesUnknownType), nspecies);
 
     /*
@@ -558,8 +558,8 @@ namespace VCSnonideal {
 	for (j = 0; j < nelements; j++) {
 	  m_elemAbundancesGoal[j] = 0.0;
 	  for (kspec = 0; kspec < nspecies; kspec++) {
-	    if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	      m_elemAbundancesGoal[j] += FormulaMatrix[j][kspec] * m_molNumSpecies_old[kspec];
+	    if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	      m_elemAbundancesGoal[j] += m_formulaMatrix[j][kspec] * m_molNumSpecies_old[kspec];
 	    }
 	  }
 	}

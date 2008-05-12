@@ -733,7 +733,7 @@ public:
    *
    *  Both element and species indecies are swapped.
    */
-  DoubleStarStar FormulaMatrix;
+  DoubleStarStar m_formulaMatrix;
 
   //! Stoichiometric coefficient matrix for the reaction mechanism 
   //! expressed in Reduced Canonical Form.
@@ -763,7 +763,7 @@ public:
    *               handled by the alt_min treatment or 
    *               should be handled as a major species. 
    */
-  std::vector<double> scSize;
+  std::vector<double> m_scSize;
 
   //! total size of the species
   /*!
@@ -837,7 +837,7 @@ public:
    *   set to zero in this initial treatment.
    *   Later we may have non-zero interfacial currents.
    */
-  std::vector<int> SpeciesUnknownType; 
+  std::vector<int> m_speciesUnknownType; 
 
   //!  Change in the number of moles of phase,   iphase, due to the noncomponent formation
   //!  reaction, irxn, for species, k:
@@ -851,7 +851,7 @@ public:
   IntStarStar PhaseParticipation; 
  
   //! electric potential of the iph phase
-  std::vector<double> phasePhi;
+  std::vector<double> m_phasePhi;
 
   //! Tentative value of the mole number vector. It's also used to store the
   //!     mole fraction vector.
