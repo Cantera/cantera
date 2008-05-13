@@ -45,10 +45,10 @@ namespace VCSnonideal {
     m_totalMolNum(0.0),
     m_temperature(0.0),
     m_pressurePA(0.0),
-    tolmaj(0.0),
-    tolmin(0.0),
-    tolmaj2(0.0),
-    tolmin2(0.0),
+    m_tolmaj(0.0),
+    m_tolmin(0.0),
+    m_tolmaj2(0.0),
+    m_tolmin2(0.0),
     UnitsState(VCS_DIMENSIONAL_G),
     UseActCoeffJac(0),
     Vol(0.0),
@@ -116,8 +116,8 @@ namespace VCSnonideal {
 
     m_speciesUnknownType.resize(nspecies0, VCS_SPECIES_TYPE_MOLNUM);
 
-    DnPhase.resize(nspecies0, nphase0, 0.0);
-    PhaseParticipation.resize(nspecies0, nphase0, 0);
+    m_deltaMolNumPhase.resize(nspecies0, nphase0, 0.0);
+    m_phaseParticipation.resize(nspecies0, nphase0, 0);
     m_phasePhi.resize(nphase0, 0.0);
 
     m_molNumSpecies_new.resize(nspecies0, 0.0);
@@ -145,7 +145,7 @@ namespace VCSnonideal {
      * ind[] is an index variable that keep track of solution vector
      * rotations.
      */
-    ind.resize(nspecies0, 0);
+    m_speciesIndexVector.resize(nspecies0, 0);
     indPhSp.resize(nspecies0, 0);
     /*
      *    IndEl[] is an index variable that keep track of element vector
@@ -169,7 +169,7 @@ namespace VCSnonideal {
     m_numElemConstraints  = nelements;
 
     ElName.resize(nelements, std::string(""));
-    SpName.resize(nspecies0, std::string(""));
+    m_speciesName.resize(nspecies0, std::string(""));
 
     m_elType.resize(nelements, VCS_ELEM_TYPE_ABSPOS);
 
@@ -600,15 +600,19 @@ namespace VCSnonideal {
     /*
      *      tolerance requirements -> copy them over here and later
      */
-    tolmaj = pub->tolmaj;
-    tolmin = pub->tolmin;
-    tolmaj2 = 0.01 * tolmaj;
-    tolmin2 = 0.01 * tolmin;
+    m_tolmaj = pub->tolmaj;
+    m_tolmin = pub->tolmin;
+    m_tolmaj2 = 0.01 * m_tolmaj;
+    m_tolmin2 = 0.01 * m_tolmin;
+
     /*
-     * ind[] is an index variable that keep track of solution vector
-     * rotations.
+     * m_speciesIndexVector[] is an index variable that keep track 
+     * of solution vector rotations.
      */
-    for (i = 0; i < nspecies; i++)   ind[i] = i;
+    for (i = 0; i < nspecies; i++) {
+      m_speciesIndexVector[i] = i;
+    }
+
     /*
      *   IndEl[] is an index variable that keep track of element vector
      *   rotations.
@@ -684,7 +688,7 @@ namespace VCSnonideal {
      *      Copy over the species names
      */
     for (i = 0; i < nspecies; i++) {
-      SpName[i] = pub->SpName[i];
+      m_speciesName[i] = pub->SpName[i];
     }
     /*
      *  Copy over all of the phase information
@@ -779,13 +783,13 @@ namespace VCSnonideal {
 
     Vol = pub->Vol;
 
-    tolmaj = pub->tolmaj;
-    tolmin = pub->tolmin;
-    tolmaj2 = 0.01 * tolmaj;
-    tolmin2 = 0.01 * tolmin;
+    m_tolmaj = pub->tolmaj;
+    m_tolmin = pub->tolmin;
+    m_tolmaj2 = 0.01 * m_tolmaj;
+    m_tolmin2 = 0.01 * m_tolmin;
 
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
-      k = ind[kspec];
+      k = m_speciesIndexVector[kspec];
       m_molNumSpecies_old[kspec] = pub->w[k];
       m_molNumSpecies_new[kspec] = pub->mf[k];
       m_feSpecies_curr[kspec] = pub->m_gibbsSpecies[k];
@@ -907,11 +911,11 @@ namespace VCSnonideal {
 
     for (i = 0; i < m_numSpeciesTot; ++i) {
       /*
-       *         Find the index of I in the index vector, ind[]. 
+       *         Find the index of I in the index vector, m_speciesIndexVector[]. 
        *         Call it K1 and continue. 
        */
       for (j = 0; j < m_numSpeciesTot; ++j) {
-	l = ind[j];
+	l = m_speciesIndexVector[j];
 	k1 = j;
 	if (l == i) break;
       }

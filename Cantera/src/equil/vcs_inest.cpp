@@ -103,7 +103,7 @@ namespace VCSnonideal {
 	     pprefix);
       plogf("%s     SPECIES          MOLE_NUMBER      -SS_ChemPotential\n", pprefix);
       for (kspec = 0; kspec < nspecies; ++kspec) {
-	plogf("%s     ", pprefix); plogf("%-12.12s", SpName[kspec].c_str());
+	plogf("%s     ", pprefix); plogf("%-12.12s", m_speciesName[kspec].c_str());
 	plogf(" %15.5g  %12.3g\n", molNum[kspec], -m_SSfeSpecies[kspec]);
       }
       plogf("%s Element Abundance Agreement returned from linear "
@@ -211,7 +211,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       for (kspec = 0; kspec < nspecies; ++kspec) {
-	plogf("%s", pprefix); plogf("%-12.12s", SpName[kspec].c_str());
+	plogf("%s", pprefix); plogf("%-12.12s", m_speciesName[kspec].c_str());
 	if (kspec < m_numComponents)
 	  plogf("fe* = %15.5g ff = %15.5g\n", m_feSpecies_curr[kspec], 
 		m_SSfeSpecies[kspec]);
@@ -258,7 +258,7 @@ namespace VCSnonideal {
 	}
 	
 	for (iph = 0; iph < m_numPhases; iph++) {
-	  m_deltaPhaseMoles[iph] += DnPhase[irxn][iph] * m_deltaMolNumSpecies[kspec];
+	  m_deltaPhaseMoles[iph] += m_deltaMolNumPhase[irxn][iph] * m_deltaMolNumSpecies[kspec];
 	}
       }
     }
@@ -266,7 +266,7 @@ namespace VCSnonideal {
     if (vcs_debug_print_lvl >= 2) {
       for (kspec = 0; kspec < nspecies; ++kspec) {
 	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	  plogf("%sdirection (", pprefix); plogf("%-12.12s", SpName[kspec].c_str());
+	  plogf("%sdirection (", pprefix); plogf("%-12.12s", m_speciesName[kspec].c_str());
 	  plogf(") = %g", m_deltaMolNumSpecies[kspec]);
 	  if (SSPhase[kspec]) {
 	    if (molNum[kspec] > 0.0) {
@@ -376,7 +376,7 @@ namespace VCSnonideal {
 	     pprefix);
       plogf("%s     SPECIES      MOLE_NUMBER\n", pprefix);
       for (kspec = 0; kspec < nspecies; ++kspec) {
-	plogf("%s     ", pprefix); plogf("%-12.12s", SpName[kspec].c_str());
+	plogf("%s     ", pprefix); plogf("%-12.12s", m_speciesName[kspec].c_str());
 	plogf(" %g", molNum[kspec]);			     
         plogendl();
       }

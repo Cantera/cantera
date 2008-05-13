@@ -98,7 +98,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
 
 #ifdef DEBUG_MODE
   if (vcs_debug_print_lvl >= 2) {
-    printProgress(SpName, m_molNumSpecies_old, m_SSfeSpecies);
+    printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
   }
 #endif
   
@@ -171,7 +171,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
 	    if (delta_xi < 1.0e-10 && (m_molNumSpecies_old[ik] >= 1.0E-10)) {
 #ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 2) {
-		plogf("   --- Component too small: %s\n", SpName[jcomp].c_str()); 
+		plogf("   --- Component too small: %s\n", m_speciesName[jcomp].c_str()); 
 	      }
 #endif
 	      redo = true;
@@ -208,14 +208,14 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
     // vcs_updateVP(0);
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
-      printProgress(SpName, m_molNumSpecies_old, m_SSfeSpecies);
+      printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
     }
 #endif
   }
 
 #ifdef DEBUG_MODE
   if (vcs_debug_print_lvl == 1) {
-    printProgress(SpName, m_molNumSpecies_old, m_SSfeSpecies);
+    printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
     plogf("   --- setInitialMoles end\n"); 
   }
 #endif

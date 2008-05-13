@@ -282,8 +282,8 @@ namespace VCSnonideal {
     vcs_dzero(VCS_DATA_PTR(m_feSpecies_curr), m_numSpeciesTot);
     vcs_vdzero(m_feSpecies_old, m_numSpeciesTot);
     vcs_vdzero(m_molNumSpecies_new, m_numSpeciesTot);
-    vcs_dzero(&(DnPhase[0][0]), m_numSpeciesTot * m_numPhases);
-    vcs_izero(&(PhaseParticipation[0][0]), m_numSpeciesTot * m_numPhases);
+    vcs_dzero(&(m_deltaMolNumPhase[0][0]), m_numSpeciesTot * m_numPhases);
+    vcs_izero(&(m_phaseParticipation[0][0]), m_numSpeciesTot * m_numPhases);
     vcs_dzero(VCS_DATA_PTR(m_deltaPhaseMoles), m_numPhases);
     vcs_dzero(VCS_DATA_PTR(m_tPhaseMoles_new), m_numPhases);
     /*

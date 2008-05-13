@@ -480,8 +480,11 @@ public:
    */
   int vcs_report(int iconv);
 
-
-  int vcs_rearrange(void);
+  //!  Switch all species data back to the original order.
+  /*!
+   *  This destroys the data based on reaction ordering.
+   */
+  int vcs_rearrange();
 
   //! Returns the multiplier for electric charge terms
   /*
@@ -870,13 +873,13 @@ public:
   //!  Change in the number of moles of phase,   iphase, due to the noncomponent formation
   //!  reaction, irxn, for species, k:
   /*!
-   *    DnPhase[irxn][iphase]       =  k = nc + irxn 
+   *    m_deltaMolNumPhase[irxn][iphase]       =  k = nc + irxn 
    */
-  DoubleStarStar DnPhase; 
+  DoubleStarStar m_deltaMolNumPhase; 
 
   //!  This is 1 if the phase, iphase,  participates in the formation reaction
   //!  irxn, and zero otherwise.  PhaseParticipation[irxn][iphase]
-  IntStarStar PhaseParticipation; 
+  IntStarStar m_phaseParticipation; 
  
   //! electric potential of the iph phase
   std::vector<double> m_phasePhi;
@@ -997,18 +1000,31 @@ public:
    */
   std::vector<double> TPhInertMoles; 
 
-  double   tolmaj;  /* tolmaj     = Tolerance requirement for major species */
-  double   tolmin;  /* tolmin     = Tolerance requirement for minor species */
-  double   tolmaj2; /* tolmaj2    = Below this, major species aren't refined
-		     *              any more */
-  double   tolmin2; /* tolmin2    = Below this, minor species aren't refined 
-		     *              any more */
-  std::vector<int> ind;    /* ind[k]     = Index vector that keeps track of the 
-			    *              rearrangement
-			    *              of the species vector within the problem.
-			    *            -> At the end of each run, the species 
-			    *              vector and associated data gets put back
-			    *              in the original order. */
+  //! Tolerance requirement for major species
+  double m_tolmaj;
+
+  //! Tolerance requirements for minor species
+  double m_tolmin;
+
+  //! Below this, major species aren't refined  any more
+  double m_tolmaj2;
+
+  //! Below this, minor species aren't refined any more
+  double m_tolmin2;
+
+  //!  Index vector that keeps track of the species vector rearrangement
+  /*!
+   *  At the end of each run, the species  vector and associated data gets put back
+   *  in the original order.
+   *
+   * Example
+   *
+   *           k = m_speciesIndexVector[kspec]
+   *
+   *           kspec = current order in the vcs_solve object
+   *           k     = original order in the vcs_prob object and in the MultiPhase object
+   */
+  std::vector<int> m_speciesIndexVector;
 
   //! Index that keeps track of the index of the species according
   //!  to the phase
@@ -1066,7 +1082,7 @@ public:
   /*!
    *  SpName[k] = Species string name for the kth species
    */
-  std::vector<std::string> SpName; 
+  std::vector<std::string> m_speciesName; 
 
   //! Vector of strings containing the element names
   /*!

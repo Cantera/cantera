@@ -235,7 +235,7 @@ namespace VCSnonideal {
       plogf(" SI(I)\n");
       RT = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
       for (i = 0; i < m_numSpeciesTot; ++i) {
-	plogf(" %-12s", SpName[i].c_str());
+	plogf(" %-12s", m_speciesName[i].c_str());
 	for (j = 0; j < m_numElemConstraints; ++j) {
 	  plogf("%3g", m_formulaMatrix[j][i]);
 	}
@@ -264,7 +264,7 @@ namespace VCSnonideal {
       if (m_molNumSpecies_old[i] < 0.0) {
 	plogf("On Input species %-12s has a "
 	      "negative MF, setting it small",
-	      SpName[i].c_str());	
+	      m_speciesName[i].c_str());	
 	plogendl();
 	m_molNumSpecies_old[i] = VCS_DELETE_SPECIES_CUTOFF;
       }
@@ -321,7 +321,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 2) {
 	  plogf("   --- Minor species changed to major: ");
-	  plogf("%-12s", SpName[kspec].c_str());
+	  plogf("%-12s", m_speciesName[kspec].c_str());
 	  plogendl();
 	}
 #endif
@@ -513,7 +513,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 3) {
 	  plogf("   --- %s currently zeroed (SpStatus=%-2d):", 
-		SpName[kspec].c_str(), spStatus[irxn]);
+		m_speciesName[kspec].c_str(), spStatus[irxn]);
 	  plogf("%3d DG = %11.4E WT = %11.4E W = %11.4E DS = %11.4E\n",
 		irxn, m_deltaGRxn_new[irxn], m_molNumSpecies_new[kspec],
 		m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec]);
@@ -538,7 +538,7 @@ namespace VCSnonideal {
 		    m_deltaGRxn_new[irxn]);
 	  }
 	  //if (vcs_debug_print_lvl >= 2) {
-	  //plogf("   --- "); plogf("%-12s", SpName[kspec]);
+	  //plogf("   --- "); plogf("%-12s", m_speciesName[kspec]);
 	  //plogf("%3d%11.4E%11.4E%11.4E | %s\n", 
 	  // spStatus[irxn], w[kspec], wt[kspec],
 	  // ds[kspec], ANOTE);
@@ -572,7 +572,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	  if (vcs_debug_print_lvl >= 2) {
 	    plogf("   --- Zeroed species changed to major: ");
-	    plogf("%-12s\n", SpName[kspec].c_str());
+	    plogf("%-12s\n", m_speciesName[kspec].c_str());
 	  }
 #endif
 	  spStatus[irxn] = VCS_SPECIES_MAJOR;
@@ -610,7 +610,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	  sprintf(ANOTE,"minor species not considered");
 	  if (vcs_debug_print_lvl >= 2) {
-	    plogf("   --- "); plogf("%-12s", SpName[kspec].c_str());
+	    plogf("   --- "); plogf("%-12s", m_speciesName[kspec].c_str());
 	    plogf("%3d%11.4E%11.4E%11.4E | %s", 
 		  spStatus[irxn], m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec],
 		  m_deltaMolNumSpecies[kspec], ANOTE);
@@ -647,7 +647,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	  if (vcs_debug_print_lvl >= 2) {
 	    plogf("   --- Delete minor species in multispec phase: %-12s",
-		  SpName[kspec].c_str());
+		  m_speciesName[kspec].c_str());
 	    plogendl();
 	  }
 #endif
@@ -687,14 +687,14 @@ namespace VCSnonideal {
 	 * nothing if it is superconverged. Skip to the end of the
 	 * irxn loop if it is superconverged.
 	 */
-	if (fabs(m_deltaGRxn_new[irxn]) <= tolmaj2) {
+	if (fabs(m_deltaGRxn_new[irxn]) <= m_tolmaj2) {
 	  m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec];
 	  m_deltaMolNumSpecies[kspec] = 0.0;
 	  dx = 0.0;
 #ifdef DEBUG_MODE
 	  sprintf(ANOTE, "major species is converged");
 	  if (vcs_debug_print_lvl >= 2) {
-	    plogf("   --- "); plogf("%-12s", SpName[kspec].c_str());
+	    plogf("   --- "); plogf("%-12s", m_speciesName[kspec].c_str());
 	    plogf("%3d%11.4E%11.4E%11.4E | %s", 
 		  spStatus[irxn], m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec],
 		  m_deltaMolNumSpecies[kspec], ANOTE);
@@ -772,7 +772,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 		if (vcs_debug_print_lvl >= 2) {
 		  plogf("   --- Major species changed to minor: ");
-		  plogf("%-12s", SpName[kspec].c_str());
+		  plogf("%-12s", m_speciesName[kspec].c_str());
 		  plogendl();
 		}
 #endif
@@ -839,7 +839,7 @@ namespace VCSnonideal {
 	       *     phase. Make sure the moles in the current ss phase is
 	       *     identically zero.
 	       */
-	      dnPhase_irxn = DnPhase[irxn];
+	      dnPhase_irxn = m_deltaMolNumPhase[irxn];
 	      for (int iphase = 0; iphase < m_numPhases; iphase++) {
 		m_tPhaseMoles_old[iphase] += dnPhase_irxn[iphase] * dx;
 	      }
@@ -867,7 +867,7 @@ namespace VCSnonideal {
 	      if (vcs_debug_print_lvl >= 2) {
 		if (spStatus[irxn] >= 0) {
 		  plogf("   --- SS species changed to zeroedss: ");
-		  plogf("%-12s", SpName[kspec].c_str());
+		  plogf("%-12s", m_speciesName[kspec].c_str());
 		  plogendl();
 		}
 	      }
@@ -927,7 +927,7 @@ namespace VCSnonideal {
 	 *         moles in all of the phases 
 	 */
 
-	dnPhase_irxn = DnPhase[irxn];
+	dnPhase_irxn = m_deltaMolNumPhase[irxn];
 	for (iph = 0; iph < m_numPhases; iph++) {
 	  m_deltaPhaseMoles[iph] += dx * dnPhase_irxn[iph];
 	}
@@ -944,7 +944,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + m_deltaMolNumSpecies[kspec];
-	plogf("   --- "); plogf("%-12.12s", SpName[kspec].c_str());
+	plogf("   --- "); plogf("%-12.12s", m_speciesName[kspec].c_str());
 	plogf("%3d%11.4E%11.4E%11.4E | %s", 
 	      spStatus[irxn], m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec],
 	      m_deltaMolNumSpecies[kspec], ANOTE);
@@ -957,7 +957,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       for (k = 0; k < m_numComponents; k++) {
-	plogf("   --- ");  plogf("%-12.12s", SpName[k].c_str());
+	plogf("   --- ");  plogf("%-12.12s", m_speciesName[k].c_str());
 	plogf("  c%11.4E%11.4E%11.4E |\n",
 	      m_molNumSpecies_old[k], m_molNumSpecies_old[k]+m_deltaMolNumSpecies[k], m_deltaMolNumSpecies[k]);
       }
@@ -1002,7 +1002,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
       if (vcs_debug_print_lvl >= 2) {
 	plogf("   --- Reduction in step size due to component ");
-	plogf("%s", SpName[ll].c_str());
+	plogf("%s", m_speciesName[ll].c_str());
 	plogf(" going negative = %11.3E", par); 
 	plogendl();
       }
@@ -1032,7 +1032,7 @@ namespace VCSnonideal {
       if (m_molNumSpecies_new[kspec] < 0.0 && (m_speciesUnknownType[kspec] 
 					       != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
 	plogf("vcs_solve_TP: ERROR on step change wt[%d:%s]: %g < 0.0",
-	      kspec, SpName[kspec].c_str(), m_molNumSpecies_new[kspec]);
+	      kspec, m_speciesName[kspec].c_str(), m_molNumSpecies_new[kspec]);
 	plogendl();
 	exit(-1);
       }
@@ -1094,12 +1094,12 @@ namespace VCSnonideal {
       plogf("   --- SPECIES Status INIT MOLES TENT_MOLES");
       plogf("  FINAL KMOLES  INIT_DEL_G/RT  TENT_DEL_G/RT  FINAL_DELTA_G/RT\n");
       for (i = 0; i < m_numComponents; ++i) {
-	plogf("  --- %-12.12s", SpName[i].c_str());
+	plogf("  --- %-12.12s", m_speciesName[i].c_str());
 	plogf("    %14.6E %14.6E %14.6E\n",  m_molNumSpecies_old[i], m_molNumSpecies_old[i] + m_deltaMolNumSpecies[i], m_molNumSpecies_new[i]);
       }
       for (kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
 	irxn = kspec - m_numComponents;
-	plogf("  --- %-12.12s", SpName[kspec].c_str());
+	plogf("  --- %-12.12s", m_speciesName[kspec].c_str());
 	plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n", spStatus[irxn],
 	      m_molNumSpecies_old[kspec], m_molNumSpecies_old[kspec]+m_deltaMolNumSpecies[kspec], 
 	      m_molNumSpecies_new[kspec], m_deltaGRxn_old[irxn], 
@@ -1137,13 +1137,13 @@ namespace VCSnonideal {
       plogf("   ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT");
       plogf("     Mu/RT     Init_Del_G/RT   Delta_G/RT\n");
       for (i = 0; i < m_numComponents; ++i) {
-	plogf("   ---   %-12.12s", SpName[i].c_str()); plogf("    "); 
+	plogf("   ---   %-12.12s", m_speciesName[i].c_str()); plogf("    "); 
 	plogf("%14.6E%14.6E%14.6E%14.6E\n", m_molNumSpecies_old[i],
 	      m_molNumSpecies_new[i], m_feSpecies_old[i], m_feSpecies_curr[i]);
       }
       for (i = m_numComponents; i < m_numSpeciesRdc; ++i) {
 	l1 = i - m_numComponents;
-	plogf("   ---   %-12.12s", SpName[i].c_str());
+	plogf("   ---   %-12.12s", m_speciesName[i].c_str());
 	plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n",
 	      spStatus[l1], m_molNumSpecies_old[i],
 	      m_molNumSpecies_new[i], m_feSpecies_old[i], m_feSpecies_curr[i],
@@ -1151,7 +1151,7 @@ namespace VCSnonideal {
       }
       for (kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
 	l1 = kspec - m_numComponents;
-	plogf("   ---   %-12.12s", SpName[kspec].c_str());
+	plogf("   ---   %-12.12s", m_speciesName[kspec].c_str());
 	plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n",
 	      spStatus[l1], m_molNumSpecies_old[kspec],
 	      m_molNumSpecies_new[kspec], m_feSpecies_old[kspec], m_feSpecies_curr[kspec],
@@ -1372,8 +1372,8 @@ namespace VCSnonideal {
 	    if (m_stoichCoeffRxnMatrix[i][j] != 0.0) {
 #ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 2) {
-		plogf("   --- Get a new basis because %s", SpName[l].c_str());
-		plogf(" is better than comp %s", SpName[j].c_str());
+		plogf("   --- Get a new basis because %s", m_speciesName[l].c_str());
+		plogf(" is better than comp %s", m_speciesName[j].c_str());
 		plogf(" and share nonzero stoic: %-9.1f", 
 		      m_stoichCoeffRxnMatrix[i][j]);
 		plogendl();
@@ -1391,8 +1391,8 @@ namespace VCSnonideal {
 		if (dg[i] < 0.0) {
 #ifdef DEBUG_MODE
 		  if (vcs_debug_print_lvl >= 2) {
-		    plogf("   --- Get a new basis because %s", SpName[l].c_str());
-		    plogf(" has dg < 0.0 and comp %s has zero mole num", SpName[j].c_str());
+		    plogf("   --- Get a new basis because %s", m_speciesName[l].c_str());
+		    plogf(" has dg < 0.0 and comp %s has zero mole num", m_speciesName[j].c_str());
 		    plogf(" and share nonzero stoic: %-9.1f", 
 			  m_stoichCoeffRxnMatrix[i][j]);
 		    plogendl();
@@ -1433,9 +1433,9 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 2) {
 		plogf("   --- Get a new basis because ");
-		plogf("%s", SpName[l].c_str());
+		plogf("%s", m_speciesName[l].c_str());
 		plogf(" is better than comp ");
-		plogf("%s", SpName[j].c_str());
+		plogf("%s", m_speciesName[j].c_str());
 		plogf(" and share nonzero stoic: %-9.1f", 
 		      m_stoichCoeffRxnMatrix[i][j]);
 		plogendl();
@@ -1451,8 +1451,8 @@ namespace VCSnonideal {
 		if (dg[i] < 0.0) {
 #ifdef DEBUG_MODE
 		  if (vcs_debug_print_lvl >= 2) {
-		    plogf("   --- Get a new basis because %s", SpName[l].c_str());
-		    plogf(" has dg < 0.0 and comp %s has zero mole num", SpName[j].c_str());
+		    plogf("   --- Get a new basis because %s", m_speciesName[l].c_str());
+		    plogf(" has dg < 0.0 and comp %s has zero mole num", m_speciesName[j].c_str());
 		    plogf(" and share nonzero stoic: %-9.1f", 
 			  m_stoichCoeffRxnMatrix[i][j]);
 		    plogendl();
@@ -1496,7 +1496,7 @@ namespace VCSnonideal {
 	  if (vcs_debug_print_lvl >= 2) {
 	    if (spStatus[irxn]  >= VCS_SPECIES_MINOR) {
 	      plogf("   ---    major/minor species is now zeroed out: %s\n", 
-		    SpName[kspec].c_str());
+		    m_speciesName[kspec].c_str());
 	    }
 	  }
 #endif	    
@@ -1513,7 +1513,7 @@ namespace VCSnonideal {
 		plogf("   ---   Zeroed Species turned into a "
 		      "minor species: ");       
 	      }
-	      plogf("%s\n", SpName[kspec].c_str());
+	      plogf("%s\n", m_speciesName[kspec].c_str());
 	    }
 	  }
 #endif
@@ -1529,7 +1529,7 @@ namespace VCSnonideal {
 	      } else {
 		plogf("   ---   Noncomponent turned from zeroed to major: ");
 	      }
-	      plogf("%s\n", SpName[kspec].c_str());
+	      plogf("%s\n", m_speciesName[kspec].c_str());
 	    }
 #endif
 	    spStatus[irxn] = VCS_SPECIES_MAJOR;
@@ -1561,7 +1561,7 @@ namespace VCSnonideal {
       }
 #endif
       for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-	if (spStatus[irxn] == VCS_SPECIES_MAJOR && (fabs(m_deltaGRxn_new[irxn]) > tolmaj)) {
+	if (spStatus[irxn] == VCS_SPECIES_MAJOR && (fabs(m_deltaGRxn_new[irxn]) > m_tolmaj)) {
 	  if (m_VCount->Its >= maxit) {
 	    solveFail = -1;
 	    /* 
@@ -1572,7 +1572,7 @@ namespace VCSnonideal {
 	  } else {
 #ifdef DEBUG_MODE
 	    if (vcs_debug_print_lvl >= 2) {
-	      plogf("%s failed\n", SpName[ir[irxn]].c_str());
+	      plogf("%s failed\n", m_speciesName[ir[irxn]].c_str());
 	    }
 #endif
 	    /*
@@ -1628,7 +1628,7 @@ namespace VCSnonideal {
       }
 #endif
       for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-	if (spStatus[irxn] == VCS_SPECIES_MINOR && (fabs(m_deltaGRxn_new[irxn]) > tolmin)) {
+	if (spStatus[irxn] == VCS_SPECIES_MINOR && (fabs(m_deltaGRxn_new[irxn]) > m_tolmin)) {
 	  if (m_VCount->Its >= maxit) {
 	    solveFail = -1;
 	    /*
@@ -1639,7 +1639,7 @@ namespace VCSnonideal {
 	  }
 #ifdef DEBUG_MODE
 	  if (vcs_debug_print_lvl >= 2) {
-	    plogf("%s failed\n", SpName[ir[irxn]].c_str());
+	    plogf("%s failed\n", m_speciesName[ir[irxn]].c_str());
 	  }
 #endif
 	  /*
@@ -1992,7 +1992,7 @@ namespace VCSnonideal {
 	  goto L_ZERO_SPECIES;
 	}
       } else {
-	if (fabs(dg_irxn) <= tolmin2) {
+	if (fabs(dg_irxn) <= m_tolmin2) {
 	  (*wt_kspec) = w_kspec;
 	  (*ds_kspec) = 0.0;
 	  return 0.0;
@@ -2291,7 +2291,7 @@ namespace VCSnonideal {
     double dx;
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
-      plogf("   --- Add back a deleted species: %-12s\n", SpName[kspec].c_str());
+      plogf("   --- Add back a deleted species: %-12s\n", m_speciesName[kspec].c_str());
     }
 #endif
     /*
@@ -2439,7 +2439,7 @@ namespace VCSnonideal {
 	++(m_numSpeciesRdc);
 #ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 2) {
-	  plogf("   ---    Make %s", SpName[kspec].c_str()); 
+	  plogf("   ---    Make %s", m_speciesName[kspec].c_str()); 
 	  plogf(" an active but zeroed species because its phase "
 		"was zeroed\n");
 	}
@@ -2804,7 +2804,7 @@ namespace VCSnonideal {
 
       if (m_speciesUnknownType[kspec] !=  VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 
-	dnPhase_irxn = DnPhase[irxn];
+	dnPhase_irxn = m_deltaMolNumPhase[irxn];
       
 	if (m_molNumSpecies_old[kspec] == 0.0 && (! SSPhase[kspec])) {
 	  /********************************************************************/
@@ -2857,11 +2857,11 @@ namespace VCSnonideal {
 	   *     Don't bother if superconvergence has already been achieved 
 	   *     in this mode.
 	   */
-	  if (fabs(m_deltaGRxn_new[irxn]) <= tolmaj2) {
+	  if (fabs(m_deltaGRxn_new[irxn]) <= m_tolmaj2) {
 #ifdef DEBUG_MODE
 	    sprintf(ANOTE,"Skipped: superconverged DG = %11.3E", m_deltaGRxn_new[irxn]);
 	    if (vcs_debug_print_lvl >= 2) {
-	      plogf("   --- %-12.12s", SpName[kspec].c_str()); 
+	      plogf("   --- %-12.12s", m_speciesName[kspec].c_str()); 
 	      plogf("  %12.4E %12.4E %12.4E | %s\n",  
 		    m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec], m_deltaGRxn_new[irxn], ANOTE);
 	    }
@@ -2877,7 +2877,7 @@ namespace VCSnonideal {
 	    sprintf(ANOTE,"Skipped: IC = %3d and DG >0: %11.3E", 
 		    spStatus[irxn], m_deltaGRxn_new[irxn]);
 	    if (vcs_debug_print_lvl >= 2) {
-	      plogf("   --- %-12.12s", SpName[kspec].c_str());
+	      plogf("   --- %-12.12s", m_speciesName[kspec].c_str());
 	      plogf("  %12.4E %12.4E %12.4E | %s\n", 
 		    m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec], m_deltaGRxn_new[irxn], ANOTE);
 	    }
@@ -2937,14 +2937,14 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 		    sprintf(ANOTE, "Delta damped from %g "
 			    "to %g due to component %d (%10s) going neg", m_deltaMolNumSpecies[kspec],
-			    -m_molNumSpecies_old[j]/stoicC, j,  SpName[j].c_str());
+			    -m_molNumSpecies_old[j]/stoicC, j,  m_speciesName[j].c_str());
 #endif
 		    m_deltaMolNumSpecies[kspec] = - m_molNumSpecies_old[j] / stoicC; 
 		  } else {
 #ifdef DEBUG_MODE
 		    sprintf(ANOTE, "Delta damped from %g "
 			    "to %g due to component %d (%10s) zero", m_deltaMolNumSpecies[kspec],
-			    -m_molNumSpecies_old[j]/stoicC, j,  SpName[j].c_str());
+			    -m_molNumSpecies_old[j]/stoicC, j,  m_speciesName[j].c_str());
 #endif
 		    m_deltaMolNumSpecies[kspec] = 0.0;
 		  }
@@ -2956,7 +2956,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	      sprintf(ANOTE, "Delta damped from %g "
 		      "to %g due to %s going negative", m_deltaMolNumSpecies[kspec],
-		      -m_molNumSpecies_old[kspec],  SpName[kspec].c_str());
+		      -m_molNumSpecies_old[kspec],  m_speciesName[kspec].c_str());
 #endif
 	      m_deltaMolNumSpecies[kspec] = -m_molNumSpecies_old[kspec];
 	    }
@@ -3022,7 +3022,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 2) {
 		plogf("   --- vcs_RxnStepSizes Special section to delete %s\n",
-		      SpName[k].c_str());
+		      m_speciesName[k].c_str());
 		plogf("   ---   Immediate return - Restart iteration\n");
 	      }
 #endif
@@ -3039,7 +3039,7 @@ namespace VCSnonideal {
 	} /* End of regular processing */
 #ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 2) {
-	  plogf("   --- %-12.12s", SpName[kspec].c_str());
+	  plogf("   --- %-12.12s", m_speciesName[kspec].c_str());
 	  plogf("  %12.4E %12.4E %12.4E | %s\n", 
 		m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec],
 		m_deltaGRxn_new[irxn], ANOTE);
@@ -3329,7 +3329,7 @@ namespace VCSnonideal {
 	plogf("\n");
 	for (k = 0; k < m_numSpeciesTot; k++) {
 	  plogf("   --- ");
-	  vcs_print_stringTrunc(SpName[k].c_str(), 11, 1);
+	  vcs_print_stringTrunc(m_speciesName[k].c_str(), 11, 1);
 	  plogf(" | ");
 	  for (j = 0; j < m_numElemConstraints; j++) {
 	    plogf(" %8.2g", m_formulaMatrix[j][k]);
@@ -3565,8 +3565,8 @@ namespace VCSnonideal {
       if (jr != k) {
 #ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 2) {
-	  plogf("   ---   %-12.12s", (SpName[k]).c_str());
-	  plogf("(%9.2g) replaces %-12.12s", m_molNumSpecies_old[k], SpName[jr].c_str());
+	  plogf("   ---   %-12.12s", (m_speciesName[k]).c_str());
+	  plogf("(%9.2g) replaces %-12.12s", m_molNumSpecies_old[k], m_speciesName[jr].c_str());
 	  plogf("(%9.2g) as component %3d\n", m_molNumSpecies_old[jr], jr);
 	}
 #endif
@@ -3576,7 +3576,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
       else {
 	if (vcs_debug_print_lvl >= 2) {
-	  plogf("   ---   %-12.12s", SpName[k].c_str());
+	  plogf("   ---   %-12.12s", m_speciesName[k].c_str());
 	  plogf("(%9.2g) remains            ", m_molNumSpecies_old[k]);
 	  plogf("              as component %3d\n", jr);
 	}
@@ -3726,13 +3726,13 @@ namespace VCSnonideal {
       }
       plogf("\n   ---   NonComponent|   Moles  |       ");
       for (j = 0; j < ncTrial; j++) {
-	plogf("%-10.10s", SpName[j].c_str());
+	plogf("%-10.10s", m_speciesName[j].c_str());
       }
       //plogf("|    m_scSize");
       plogf("\n");
       for (i = 0; i < m_numRxnTot; i++) {
 	plogf("   --- %3d ", ir[i]);
-	plogf("%-10.10s", SpName[ir[i]].c_str());
+	plogf("%-10.10s", m_speciesName[ir[i]].c_str());
 	plogf("|%10.3g|", m_molNumSpecies_old[ir[i]]);
 	for (j = 0; j < ncTrial; j++) {
 	  plogf("     %6.2f", m_stoichCoeffRxnMatrix[i][j]);
@@ -3754,19 +3754,19 @@ namespace VCSnonideal {
     /*
      *  Zero out the change of Phase Moles array
      */
-    vcs_dzero(DnPhase[0], (NSPECIES0)*(NPHASE0));
-    vcs_izero(PhaseParticipation[0], (NSPECIES0)*(NPHASE0));
+    vcs_dzero(m_deltaMolNumPhase[0], (NSPECIES0)*(NPHASE0));
+    vcs_izero(m_phaseParticipation[0], (NSPECIES0)*(NPHASE0));
     /*
      *  Loop over each reaction, creating the change in Phase Moles
-     *  array, DnPhase[irxn][iphase],
+     *  array, m_deltaMolNumPhase[irxn][iphase],
      *  and the phase participation array, PhaseParticipation[irxn][iphase]
      */
     for (irxn = 0; irxn < m_numRxnTot; ++irxn) {
       scrxn_ptr = m_stoichCoeffRxnMatrix[irxn];
-      dptr = DnPhase[irxn];
+      dptr = m_deltaMolNumPhase[irxn];
       kspec = ir[irxn];
       int iph = PhaseID[kspec];
-      int *pp_ptr = PhaseParticipation[irxn];
+      int *pp_ptr = m_phaseParticipation[irxn];
       dptr[iph] = 1.0;
       pp_ptr[iph]++;
       for (j = 0; j < ncTrial; ++j) {
@@ -3882,7 +3882,7 @@ namespace VCSnonideal {
 	      if (vcs_debug_print_lvl >= 2) {
 		plogf("   ---   %s would have popped back into existance but"
 		      " needed component %s is zero\n",
-		      SpName[kspec].c_str(),  SpName[j].c_str());
+		      m_speciesName[kspec].c_str(),  m_speciesName[j].c_str());
 	      }
 #endif
 	      if (SSPhase[kspec]) {
@@ -3906,7 +3906,7 @@ namespace VCSnonideal {
 	      if (vcs_debug_print_lvl >= 2) {
 		plogf("   ---   %s would have popped back into existance but"
 		      " needed element %s is zero\n",
-		      SpName[kspec].c_str(),  (ElName[j]).c_str());
+		      m_speciesName[kspec].c_str(),  (ElName[j]).c_str());
 	      }
 #endif
 	      if (SSPhase[kspec]) {
@@ -4216,7 +4216,7 @@ namespace VCSnonideal {
       if (ll == 0) {
 	if (lbot != 0) {
 	  plogf("   --- Subroutine vcs_dfe called for one species: ");
-	  plogf("%-12.12s", SpName[lbot].c_str());
+	  plogf("%-12.12s", m_speciesName[lbot].c_str());
 	} else {
 	  plogf("   --- Subroutine vcs_dfe called for all species");
 	}
@@ -4641,7 +4641,7 @@ namespace VCSnonideal {
     pv1->IndSpecies[kp1] = k2;
     pv2->IndSpecies[kp2] = k1;
    
-    vcsUtil_stsw(SpName,  k1, k2);
+    vcsUtil_stsw(m_speciesName,  k1, k2);
     SWAP(m_molNumSpecies_old[k1], m_molNumSpecies_old[k2], t1);
     SWAP(m_speciesUnknownType[k1], m_speciesUnknownType[k2], j);
     SWAP(m_molNumSpecies_new[k1], m_molNumSpecies_new[k2], t1);
@@ -4653,7 +4653,7 @@ namespace VCSnonideal {
     SWAP(m_feSpecies_new[k1], m_feSpecies_new[k2], t1);
     SWAP(SSPhase[k1], SSPhase[k2], j);
     SWAP(PhaseID[k1], PhaseID[k2], j);
-    SWAP(ind[k1], ind[k2], j); 
+    SWAP(m_speciesIndexVector[k1], m_speciesIndexVector[k2], j); 
     SWAP(indPhSp[k1], indPhSp[k2], j);
     SWAP(SpecActConvention[k1], SpecActConvention[k2], j);
     SWAP(SpecLnMnaught[k1], SpecLnMnaught[k2], t1);
@@ -4694,9 +4694,9 @@ namespace VCSnonideal {
       }
       SWAP(m_scSize[i1], m_scSize[i2], t1);
       for (iph = 0; iph < m_numPhases; iph++) {
-	SWAP(DnPhase[i1][iph], DnPhase[i2][iph], t1);
-	SWAP(PhaseParticipation[i1][iph], 
-	     PhaseParticipation[i2][iph], j);
+	SWAP(m_deltaMolNumPhase[i1][iph], m_deltaMolNumPhase[i2][iph], t1);
+	SWAP(m_phaseParticipation[i1][iph], 
+	     m_phaseParticipation[i2][iph], j);
       }
       SWAP(m_deltaGRxn_new[i1],  m_deltaGRxn_new[i2],  t1);
       SWAP(m_deltaGRxn_old[i1], m_deltaGRxn_old[i2], t1);

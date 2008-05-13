@@ -314,7 +314,8 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 		if (vcs_debug_print_lvl >= 3) {
 		  plogf("  ---  vcs_elcorr: Reduced species %s from %g to %g due to %s max bounds constraint\n",
-			SpName[kspec].c_str(), m_molNumSpecies_old[kspec], maxPermissible, ElName[i].c_str());
+			m_speciesName[kspec].c_str(), m_molNumSpecies_old[kspec], 
+			maxPermissible, ElName[i].c_str());
 		}
 #endif
 		m_molNumSpecies_old[kspec] = maxPermissible;
@@ -329,7 +330,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 		  if (vcs_debug_print_lvl >= 2) {
 		    plogf("  ---  vcs_elcorr: Zeroed species %s and changed status to %d due to max bounds constraint\n",
-			  SpName[kspec].c_str(), spStatus[kspec]);
+			  m_speciesName[kspec].c_str(), spStatus[kspec]);
 		  }
 #endif
 		}

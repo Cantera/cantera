@@ -76,7 +76,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 #endif
      
     kspec = ir[irxn];
-    dnPhase_irxn = DnPhase[irxn];
+    dnPhase_irxn = m_deltaMolNumPhase[irxn];
       
     if (m_molNumSpecies_old[kspec] == 0.0 && (! SSPhase[kspec])) {
       /* *******************************************************************/
@@ -110,10 +110,10 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
        *     Don't bother if superconvergence has already been achieved 
        *     in this mode.
        */
-      if (fabs(m_deltaGRxn_new[irxn]) <= tolmaj2) {
+      if (fabs(m_deltaGRxn_new[irxn]) <= m_tolmaj2) {
 #ifdef DEBUG_MODE
 	sprintf(ANOTE,"Skipped: converged DG = %11.3E\n", m_deltaGRxn_new[irxn]);
-	plogf("   --- "); plogf("%-12.12s", SpName[kspec].c_str());
+	plogf("   --- "); plogf("%-12.12s", m_speciesName[kspec].c_str());
 	plogf("  %12.4E %12.4E | %s\n",  m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec], ANOTE);
 #endif		    
 	continue;
@@ -126,7 +126,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 #ifdef DEBUG_MODE
 	sprintf(ANOTE,"Skipped: IC = %3d and DG >0: %11.3E\n", 
 		spStatus[irxn], m_deltaGRxn_new[irxn]);
-	plogf("   --- "); plogf("%-12.12s", SpName[kspec].c_str());
+	plogf("   --- "); plogf("%-12.12s", m_speciesName[kspec].c_str());
 	plogf("  %12.4E %12.4E | %s\n", m_molNumSpecies_old[kspec], 
 	      m_deltaMolNumSpecies[kspec], ANOTE);
 #endif		    
@@ -204,7 +204,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
 	  m_tPhaseMoles_old[PhaseID[k]] = 0.0; 
 #ifdef DEBUG_MODE
 	  plogf("   --- vcs_st2 Special section to delete ");
-	  plogf("%-12.12s", SpName[k].c_str());
+	  plogf("%-12.12s", m_speciesName[k].c_str());
 	  plogf("\n   ---   Immediate return - Restart iteration\n");
 #endif
 	  /*
@@ -219,7 +219,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg(void)
       }
     } /* End of regular processing */
 #ifdef DEBUG_MODE
-    plogf("   --- "); plogf("%-12.12s", SpName[kspec].c_str());
+    plogf("   --- "); plogf("%-12.12s", m_speciesName[kspec].c_str());
     plogf("  %12.4E %12.4E | %s\n", m_molNumSpecies_old[kspec], 
 	  m_deltaMolNumSpecies[kspec], ANOTE);
 #endif	
@@ -375,7 +375,7 @@ double VCS_SOLVE::deltaG_Recalc_Rxn(int irxn, const double *const molNum,
    *************************************************************************/
 {
   int kspec = irxn + m_numComponents;
-  int *pp_ptr = PhaseParticipation[irxn];
+  int *pp_ptr = m_phaseParticipation[irxn];
   for (int iphase = 0; iphase < m_numPhases; iphase++) {
     if (pp_ptr[iphase]) {
       vcs_chemPotPhase(iphase, molNum, ac, mu_i);

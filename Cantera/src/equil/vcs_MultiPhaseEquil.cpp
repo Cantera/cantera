@@ -1587,7 +1587,7 @@ namespace VCSnonideal {
     int nc = numComponents();
     // scMatrix [nrxn][ncomp]
     const DoubleStarStar &scMatrix = m_vsolvePtr->m_stoichCoeffRxnMatrix;
-    const  std::vector<int> indSpecies =  m_vsolvePtr->ind;
+    const  std::vector<int> indSpecies = m_vsolvePtr->m_speciesIndexVector;
     if ((int) rxn > nsp - nc) return;
     int j = indSpecies[rxn + nc];
     nu[j] = 1.0;
@@ -1617,7 +1617,7 @@ namespace VCSnonideal {
 
   int vcs_MultiPhaseEquil::component(int m) const {
     int nc = numComponents();
-    if (m < nc) return m_vsolvePtr->ind[m]; 
+    if (m < nc) return m_vsolvePtr->m_speciesIndexVector[m]; 
     else return -1;
   }
 
