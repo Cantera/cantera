@@ -272,8 +272,7 @@ namespace VCSnonideal {
    *
    *  NOTE: currently this routine is not used
    */
-  double VCS_SOLVE::vcs_Hessian_actCoeff_diag(int irxn)
-  {
+  double VCS_SOLVE::vcs_Hessian_actCoeff_diag(int irxn) {
     int kspec, k, l, kph;
     double s;
     double *sc_irxn;
@@ -406,7 +405,7 @@ namespace VCSnonideal {
   double VCS_SOLVE::vcs_line_search(const int irxn, const double dx_orig, 
 				    char * const ANOTE)
 #else
-    double VCS_SOLVE::vcs_line_search(const int irxn, cost double dx_orig)
+    double VCS_SOLVE::vcs_line_search(const int irxn, const double dx_orig)
 #endif
   {
     int its = 0;
