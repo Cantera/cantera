@@ -291,7 +291,24 @@ public:
   void vcs_tmoles();
 
   void vcs_deltag(int l, bool doDeleted);
-  void vcs_switch_pos(int ifunc, int k1, int k2);
+
+  //!  Swaps the indecises for all of the global data for two species, k1
+  //!  and k2.
+  /*!
+   *
+   *  @param  ifunc:  If true, switch the species data and the noncomponent reaction
+   *                  data. This must be called for a non-component species only.
+   *                  If false, switch the species data only. Typically, we use this
+   *                  option when determining the component species and at the
+   *                  end of the calculation, when we want to return unscrambled 
+   *                  results. All rxn data will be out-of-date.
+   *
+   *  @param k1        First species index
+   *
+   *  @param k2        Second species index
+   */
+  void vcs_switch_pos(const int ifunc, const int k1, const int k2);
+
   void vcs_deltag_Phase(int iphase, bool doDeleted);
 
   //! birthGuess returns the number of moles of a species
@@ -1256,14 +1273,15 @@ public:
    *
    * Length = number of species
    */
-  std::vector<double> ActCoeff;
+  std::vector<double> m_actCoeffSpecies_new;
 
-  //!  Molar-based Activity Coefficients for Species
+  //!  Molar-based Activity Coefficients for Species based on old mole numbers
   /*!
+   *  These activity coefficients are based on the m_molNumSpecies_old values
    * Molar based activity coeffients.
    * Length = number of species
    */
-  std::vector<double> ActCoeff0; 
+  std::vector<double> m_actCoeffSpecies_old; 
 
   //! Change in activity coefficient with mole number
   /*!

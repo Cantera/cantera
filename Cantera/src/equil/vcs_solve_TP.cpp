@@ -400,7 +400,7 @@ namespace VCSnonideal {
 
     vcs_dcopy(VCS_DATA_PTR(m_feSpecies_old), VCS_DATA_PTR(m_feSpecies_curr), m_numSpeciesRdc);
     vcs_dcopy(VCS_DATA_PTR(m_feSpecies_new), VCS_DATA_PTR(m_feSpecies_curr), m_numSpeciesRdc);
-    vcs_dcopy(VCS_DATA_PTR(ActCoeff0), VCS_DATA_PTR(ActCoeff), m_numSpeciesRdc);
+    vcs_dcopy(VCS_DATA_PTR(m_actCoeffSpecies_old), VCS_DATA_PTR(m_actCoeffSpecies_new), m_numSpeciesRdc);
     vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_old), VCS_DATA_PTR(m_deltaGRxn_new), m_numRxnRdc);
  
     /*        Go find a new reaction adjustment -> 
@@ -2027,7 +2027,7 @@ namespace VCSnonideal {
 	  goto L_ZERO_SPECIES;
 	}
       } else {
-	double ac0 = ActCoeff[kspec];
+	double ac0 = m_actCoeffSpecies_new[kspec];
 	double ac  = ac0;
 	double w0 = w_kspec;
 	double dd = exp(-dg_irxn);
@@ -2035,8 +2035,8 @@ namespace VCSnonideal {
 	wTrial = w0 * ac0 / ac * dd;
 	*wt_kspec = wTrial;
 	Vphase->setMolesFromVCS(VCS_DATA_PTR(m_molNumSpecies_new));
-	Vphase->sendToVCSActCoeff(VCS_DATA_PTR(ActCoeff));
-	double ac1 = ActCoeff[kspec];
+	Vphase->sendToVCSActCoeff(VCS_DATA_PTR(m_actCoeffSpecies_new));
+	double ac1 = m_actCoeffSpecies_new[kspec];
 	double acprime = 0.0;
 	if (fabs(wTrial - w0) > 1.0E-8 * w0) {
 	  acprime = (ac1 - ac0) / (wTrial - w0);
@@ -3249,7 +3249,7 @@ namespace VCSnonideal {
 	  irxn = kspec - m_numComponents;
 	  if (m_deltaGRxn_new[irxn] >  50.0) m_deltaGRxn_new[irxn] =  50.0;
 	  if (m_deltaGRxn_new[irxn] < -50.0) m_deltaGRxn_new[irxn] = -50.0;
-	  poly += exp(-m_deltaGRxn_new[irxn])/ActCoeff[kspec];
+	  poly += exp(-m_deltaGRxn_new[irxn])/m_actCoeffSpecies_new[kspec];
 	}
 	/*
 	 *      Calculate m_deltaGRxn_new[] for each species in a zeroed multispecies phase.
@@ -4159,7 +4159,7 @@ namespace VCSnonideal {
    *
    *                                m_feSpecies(I) = m_SSfeSpecies(I)
    *                                                   + ln(ActCoeff_M[I] * m(I))
-   *                                                   + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]; 
+   *                                                   + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]
    *                                       where m[I] is the molality of the ith solute
    * 
    *                                m[I] = Xmol[I] / ( Xmol[N] * Mnaught * m_units)
@@ -4190,7 +4190,8 @@ namespace VCSnonideal {
    *      T = temperature
    *      V = potential of the interface = phi_electrode - phi_solution
    *
-   *      For these species, the solution vector unknown, z[I], is V, the phase voltage, in volts.    
+   *      For these species, the solution vector unknown, z[I], is V, the phase voltage,
+   *      in volts.    
    *
    * Input 
    * -------- 
@@ -4224,6 +4225,7 @@ namespace VCSnonideal {
     int l1, l2, iph, kspec, irxn;
     int iphase;
     double *tPhMoles_ptr;
+    double *actCoeff_ptr;
     double *tlogMoles;
     vcs_VolPhase *Vphase;
     VCS_SPECIES_THERMO *st_ptr;
@@ -4256,8 +4258,10 @@ namespace VCSnonideal {
 #endif
     if (kk <= VCS_STATECALC_OLD) {
       tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_old);
+      actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_old);
     } else {
       tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_new);
+      actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_new);
     }
     tlogMoles = VCS_DATA_PTR(TmpPhase);
     /*
@@ -4313,7 +4317,7 @@ namespace VCSnonideal {
 	Vphase = VPhaseList[iphase];
 	if (!Vphase->SingleSpecies) {
 	  Vphase->setMolesFromVCS(z);
-	  Vphase->sendToVCSActCoeff(VCS_DATA_PTR(ActCoeff));
+	  Vphase->sendToVCSActCoeff(VCS_DATA_PTR(actCoeff_ptr));
 	}
 	m_phasePhi[iphase] = Vphase->electricPotential();
 	CurrPhAC[iphase] = 1;
@@ -4351,14 +4355,14 @@ namespace VCSnonideal {
 	    iph = PhaseID[kspec];
 	    if (tPhMoles_ptr[iph] > 0.0) { 
 	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
-		+ log(ActCoeff[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
+		+ log(actCoeff_ptr[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
 		- tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec] 
 		+ m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase];
 	    } else {
 	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 	    }
 	  } else {
-	    m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] + log(ActCoeff[kspec] * z[kspec])
+	    m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] + log(actCoeff_ptr[kspec] * z[kspec])
 	      - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec] 
 	      + m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase]; 
 	  }
@@ -4394,14 +4398,14 @@ namespace VCSnonideal {
 		iph = PhaseID[kspec];
 		if (tPhMoles_ptr[iph] > 0.0) { 
 		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
-		    + log(ActCoeff[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
+		    + log(actCoeff_ptr[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
 		    - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec]
 		    + m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase]; ;
 		} else {
 		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 		}
 	      } else {
-		m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] + log(ActCoeff[kspec] * z[kspec]) 
+		m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] + log(actCoeff_ptr[kspec] * z[kspec]) 
 		  - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec] 
 		  + m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase]; 
 	      }
@@ -4438,14 +4442,14 @@ namespace VCSnonideal {
 		iph = PhaseID[kspec];
 		if (tPhMoles_ptr[iph] > 0.0) { 
 		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec]
-		    + log(ActCoeff[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
+		    + log(actCoeff_ptr[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
 		    - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec];
 		} else {
 		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 		}
 	      } else {
 		st_ptr = SpeciesThermo[kspec];
-		m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] + log(ActCoeff[kspec] * z[kspec]) 
+		m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] + log(actCoeff_ptr[kspec] * z[kspec]) 
 		  - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec]; 
 	      }
 	    }
@@ -4580,7 +4584,7 @@ namespace VCSnonideal {
       else {
 	plogf("we shouldn't be here");
 	plogendl();
-	exit(-1);
+	std::exit(-1);
       }
 #endif
     }
@@ -4608,27 +4612,22 @@ namespace VCSnonideal {
     }
   }
   /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
 
-  void VCS_SOLVE::vcs_switch_pos(int ifunc, int k1, int k2)
-   
-    /**************************************************************************
-     *
-     * vcs_switch_pos:
-     *
-     *  Swaps the indecises for all of the global data for two species, k1
-     *  and k2.
-     *
-     * ifunc: If true, switch the species data and the noncomponent reaction
-     *        data. This must be called for a non-component species only.
-     *
-     *        If false, switch the species data only. Typically, we use this
-     *        option when determining the component species and at the
-     *        end of the calculation, when we want to return unscrambled 
-     *        results.
-     *************************************************************************/
-  {
+  //  Swaps the indecises for all of the global data for two species, k1
+  //  and k2.
+  /*
+   *  @param  ifunc:  If true, switch the species data and the noncomponent reaction
+   *                  data. This must be called for a non-component species only.
+   *                  If false, switch the species data only. Typically, we use this
+   *                  option when determining the component species and at the
+   *                  end of the calculation, when we want to return unscrambled 
+   *                  results. All rxn data will be out-of-date.
+   *
+   *  @param k1        First species index
+   *
+   *  @param k2        Second species index
+   */
+  void VCS_SOLVE::vcs_switch_pos(const int ifunc, const int k1, const int k2) {
     register int j;
     register double t1 = 0.0;
     int i1, i2, iph, kp1, kp2;
@@ -4679,8 +4678,8 @@ namespace VCSnonideal {
     SWAP(indPhSp[k1], indPhSp[k2], j);
     SWAP(SpecActConvention[k1], SpecActConvention[k2], j);
     SWAP(SpecLnMnaught[k1], SpecLnMnaught[k2], t1);
-    SWAP(ActCoeff[k1], ActCoeff[k2], t1);
-    SWAP(ActCoeff0[k1], ActCoeff0[k2], t1);
+    SWAP(m_actCoeffSpecies_new[k1], m_actCoeffSpecies_new[k2], t1);
+    SWAP(m_actCoeffSpecies_old[k1], m_actCoeffSpecies_old[k2], t1);
     SWAP(m_wtSpecies[k1], m_wtSpecies[k2], t1);
     SWAP(m_chargeSpecies[k1], m_chargeSpecies[k2], t1);
     SWAP(SpeciesThermo[k1], SpeciesThermo[k2], st_tmp);
@@ -4854,7 +4853,7 @@ namespace VCSnonideal {
 	  if (iph == iphase) {
 	    if (m_deltaGRxn_new[irxn] >  50.0) m_deltaGRxn_new[irxn] =  50.0;
 	    if (m_deltaGRxn_new[irxn] < -50.0) m_deltaGRxn_new[irxn] = -50.0;
-	    phaseDG -= exp(-m_deltaGRxn_new[irxn])/ActCoeff[kspec];
+	    phaseDG -= exp(-m_deltaGRxn_new[irxn])/m_actCoeffSpecies_new[kspec];
 	  }
 	}
 	/*

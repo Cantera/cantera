@@ -416,8 +416,8 @@ namespace VCSnonideal {
     double dx = dx_orig;
     double *sc_irxn = m_stoichCoeffRxnMatrix[irxn];
     double *molNumBase = VCS_DATA_PTR(m_molNumSpecies_old);
-    double *acBase = VCS_DATA_PTR(ActCoeff0);
-    double *ac = VCS_DATA_PTR(ActCoeff);
+    double *acBase = VCS_DATA_PTR(m_actCoeffSpecies_old);
+    double *ac = VCS_DATA_PTR(m_actCoeffSpecies_new);
     double molSum = 0.0;
     double slope;
     /*

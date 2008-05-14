@@ -44,6 +44,7 @@ int VCS_SOLVE::vcs_report(int iconv)
    *     Print out a report on the state of the equilibrium problem to 
    *     standard output.
    *     This prints out the current contents of the VCS_SOLVE class, V.
+   *     The "old" solution vector is printed out.
    ***************************************************************************/
 {
    int i, j, l, k,  inertYes = FALSE, kspec;
@@ -315,7 +316,7 @@ int VCS_SOLVE::vcs_report(int iconv)
       plogf(" %-12.12s", m_speciesName[l].c_str());
       plogf(" %14.7E ", m_molNumSpecies_old[l]);
       plogf("%14.7E  ", m_SSfeSpecies[l]);
-      plogf("%14.7E  ", log(ActCoeff[l]));
+      plogf("%14.7E  ", log(m_actCoeffSpecies_old[l]));
       double tpmoles = m_tPhaseMoles_old[pid];
       double phi = m_phasePhi[pid];
       double eContrib = phi * m_chargeSpecies[l] * Faraday_dim;
@@ -326,12 +327,12 @@ int VCS_SOLVE::vcs_report(int iconv)
 	if (tpmoles > 0.0 && m_molNumSpecies_old[l] > 0.0) {
 	  lx = log(m_molNumSpecies_old[l]) - log(tpmoles);
 	} else {
-	  lx = m_feSpecies_curr[l] - m_SSfeSpecies[l] - log(ActCoeff[l]) + SpecLnMnaught[l];
+	  lx = m_feSpecies_curr[l] - m_SSfeSpecies[l] - log(m_actCoeffSpecies_old[l]) + SpecLnMnaught[l];
 	}
       }
       plogf("%14.7E  |", lx);
       plogf("%14.7E | ", eContrib);
-      double tmp = m_SSfeSpecies[l] + log(ActCoeff[l]) + lx - SpecLnMnaught[l] + eContrib;
+      double tmp = m_SSfeSpecies[l] + log(m_actCoeffSpecies_old[l]) + lx - SpecLnMnaught[l] + eContrib;
       if (fabs(m_feSpecies_curr[l] - tmp) > 1.0E-8) {
 	plogf("\n\t\twe have a problem - doesn't add up\n");
 	exit(-1);

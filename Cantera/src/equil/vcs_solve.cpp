@@ -181,8 +181,8 @@ namespace VCSnonideal {
     SpecActConvention.resize(nspecies0, 0);
     PhaseActConvention.resize(nphase0, 0);
     SpecLnMnaught.resize(nspecies0, 0.0);
-    ActCoeff.resize(nspecies0, 1.0);
-    ActCoeff0.resize(nspecies0, 1.0);
+    m_actCoeffSpecies_new.resize(nspecies0, 1.0);
+    m_actCoeffSpecies_old.resize(nspecies0, 1.0);
     CurrPhAC.resize(nphase0, 0);
     m_wtSpecies.resize(nspecies0, 0.0);
     m_chargeSpecies.resize(nspecies0, 0.0);
