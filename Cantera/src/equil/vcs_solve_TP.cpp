@@ -270,16 +270,17 @@ namespace VCSnonideal {
       }
     }
 
-    /* *********************************************** */
-    /* **** EVALUATE TOTAL MOLES, GAS AND LIQUID ***** */
-    /* *********************************************** */
-    /* - Evaluate the total moles of gas and liquid */
-    /* -   These quantities are storred in the global variables */
+   
+    /* 
+     *  Evaluate the total moles of species in the problem
+     */
     vcs_tmoles();
-    /* ******************************************* */
-    /* **** EVALUATE ALL CHEMICAL POTENTIALS ***** */
-    /* ******************************************* */
-    vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), 0, 0, 0, m_numSpeciesRdc);
+
+    /* ***************************************************************************** */
+    /* **** EVALUATE ALL CHEMICAL POTENTIALS AT THE OLD (CURRENT) MOLE NUMBERS ***** */
+    /* ***************************************************************************** */
+    vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
+
     /*
      *  HKM -> If there was a machine estimate, we used to branch
      *         to the code segment which determined whether we needed a
@@ -340,7 +341,7 @@ namespace VCSnonideal {
       }
 #endif
       vcs_elcorr(VCS_DATA_PTR(sm), VCS_DATA_PTR(wx));
-      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), 0, 0, 0, m_numSpeciesRdc);
+      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
     }
 #ifdef DEBUG_MODE	
     else {
@@ -355,6 +356,7 @@ namespace VCSnonideal {
     vcs_deltag(0, false);
     iti = 0;
     goto L_MAINLOOP_ALL_SPECIES;
+
     /* ********************************************************* */
     /* **** SET INITIAL VALUES FOR ITERATION ******************* */
     /* **** EVALUATE REACTION ADJUSTMENTS    ******************* */
@@ -376,7 +378,7 @@ namespace VCSnonideal {
        *          We have already evaluated the major non-components 
        */
       if (uptodate_minors == FALSE) {
-	vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), 0, 1, 0, m_numSpeciesRdc);
+	vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
 	vcs_deltag(1, false);
       }
       uptodate_minors = TRUE;
@@ -454,27 +456,39 @@ namespace VCSnonideal {
      *    Zero out the net change in moles of multispecies phases 
      */
     vcs_dzero(VCS_DATA_PTR(m_deltaPhaseMoles), m_numPhases);
-    /* **************************************************************** */
-    /* ***************** MAIN LOOP IN CALCULATION ********************  */
-    /* **************************************************************** */
+
+    /*
+     * Check on too many iterations. 
+     *         If we have too many iterations, Clean up and exit code even though we haven't 
+     *         converged. -> we have run out of iterations! 
+     */
+    if (m_VCount->Its > maxit) {
+      solveFail = -1;
+      goto L_RETURN_BLOCK;
+    }
+
+    /* ********************************************************************** */
+    /* ***************** MAIN LOOP IN CALCULATION *************************** */
+    /* ***************** LOOP OVER IRXN TO DETERMINE STEP SIZE ************** */
+    /* ********************************************************************** */
     /*
      *   Loop through all of the reactions, irxn, pertaining to the
      *   formation reaction for species kspec in canonical form.
      *
      *   At the end of this loop, we will have a new estimate for the
-     *   mole numbers wt[kspec] for all species consistent with an extent
-     *   of reaction, ds[kspec] for all noncomponent species formation
+     *   mole numbers for all species consistent with an extent
+     *   of reaction for all noncomponent species formation
      *   reactions. We will have also ensured that all predicted
      *   non-component mole numbers are greater than zero.
-     */
-    if (m_VCount->Its > maxit) {
-      solveFail = -1;
-      /*
-       *             Clean up and exit code even though we haven't 
-       *             converged. -> we have run out of iterations! 
-       */
-      goto L_RETURN_BLOCK;
-    } 
+     *
+     *         Old_Solution               New_Solution             Description
+     * -----------------------------------------------------------------------------
+     *  m_molNumSpecies_old[kspec]   m_molNumSpecies_new[kspec]   Species Mole Numbers
+     *                               m_deltaMolNumSpecies[kspec]  Delta in the Species Mole Numbers
+     *
+     *
+     *
+     */  
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       plogf("   --- Main Loop Treatment of each non-component species ");
@@ -493,10 +507,11 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
       ANOTE[0] = '\0';	 
 #endif
-      /********************************************************************/
-      /********************** VOLTAGE SPECIES **************************/
-      /********************************************************************/
+    
       if (spStatus[irxn] == VCS_SPECIES_INTERFACIALVOLTAGE) {
+	/********************************************************************/
+	/************************ VOLTAGE SPECIES ***************************/
+	/********************************************************************/
 #ifdef DEBUG_MODE	 
 	dx = minor_alt_calc(kspec, irxn, &soldel, ANOTE); 
 #else
@@ -505,7 +520,6 @@ namespace VCSnonideal {
 	m_deltaMolNumSpecies[kspec] = dx;
       }
       else if (spStatus[irxn] < VCS_SPECIES_MINOR) {
-      
 	/********************************************************************/
 	/********************** ZEROED OUT SPECIES **************************/
 	/********************************************************************/
@@ -726,6 +740,7 @@ namespace VCSnonideal {
 	 *      Form a tentative value of the new species moles 
 	 */
 	m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + dx;
+
 	/*
 	 *      Check for non-positive mole fraction of major species.
 	 *      If we find one, we branch to a section below. Then,
@@ -851,7 +866,7 @@ namespace VCSnonideal {
 	       *       set of reactions being considered. The set of reactions
 	       *       is determined by the value of iti.
 	       */
-	      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), 0, iti, 0, m_numSpeciesRdc);
+	      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, iti, 0, m_numSpeciesRdc);
 	      vcs_deltag(iti, false);
 	      /*
 	       *       Redefine the starting conditions for noncomponents
@@ -902,6 +917,7 @@ namespace VCSnonideal {
 	m_deltaMolNumSpecies[kspec] = dx;
 
       } /* End of Loop on ic[irxn] -> the type of species */
+
       /***********************************************************************/
       /****** CALCULATE KMOLE NUMBER CHANGE FOR THE COMPONENT BASIS **********/
       /***********************************************************************/
@@ -926,12 +942,12 @@ namespace VCSnonideal {
 	 *         Calculate the tentative change in the total number of 
 	 *         moles in all of the phases 
 	 */
-
 	dnPhase_irxn = m_deltaMolNumPhase[irxn];
 	for (iph = 0; iph < m_numPhases; iph++) {
 	  m_deltaPhaseMoles[iph] += dx * dnPhase_irxn[iph];
 	}
       }
+
 #ifdef DEBUG_MODE
       checkDelta1(VCS_DATA_PTR(m_deltaMolNumSpecies), VCS_DATA_PTR(m_deltaPhaseMoles), kspec+1);
 #endif
@@ -952,8 +968,9 @@ namespace VCSnonideal {
       }
     L_MAIN_LOOP_END_NO_PRINT: ;
 #endif
-      /**************** END OF MAIN LOOP OVER FORMATION REACTIONS ************/
-    }
+      
+    }  /**************** END OF MAIN LOOP OVER FORMATION REACTIONS ************/
+
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       for (k = 0; k < m_numComponents; k++) {
@@ -966,6 +983,7 @@ namespace VCSnonideal {
       plogendl();
     }
 #endif
+
     /*************************************************************************/
     /*********** LIMIT REDUCTION OF BASIS SPECIES TO 99% *********************/
     /*************************************************************************/
@@ -1050,8 +1068,8 @@ namespace VCSnonideal {
      *         we have only updated a subset of the W(). 
      */
     vcs_updateVP(1);
-    //vcs_dfe(VCS_DATA_PTR(wt), 1, iti, 0, m_numSpeciesTot);
-    vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_new), 1, 0, 0, m_numSpeciesTot);
+    //vcs_dfe(VCS_DATA_PTR(wt), VCS_STATECALC_NEW, iti, 0, m_numSpeciesTot);
+    vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_new), VCS_STATECALC_NEW, 0, 0, m_numSpeciesTot);
     /*
      *         Evaluate DeltaG for all components if ITI=0, and for 
      *         major components only if ITI NE 0 
@@ -1063,7 +1081,7 @@ namespace VCSnonideal {
     // Actually always need to calculate this 
     // or else nonprintouts get different results and sometimes
     // fail in the line search algorithm -> Why is this?
-    //vcs_dfe(VCS_DATA_PTR(wt), 1, 1, 0, m_numSpeciesRdc);
+    //vcs_dfe(VCS_DATA_PTR(wt), VCS_STATECALC_NEW, 1, 0, m_numSpeciesRdc);
     //if (iti != 0) {
     // vcs_deltag(1, false);
     //}
@@ -1279,7 +1297,7 @@ namespace VCSnonideal {
 			VCS_DATA_PTR(sm), VCS_DATA_PTR(ss), test, 
 			&usedZeroedSpecies);
       if (retn != VCS_SUCCESS) return retn;
-      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), 0, 0, 0, m_numSpeciesRdc);
+      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
       vcs_deltag(0, true);
       uptodate_minors = TRUE;
       if (conv) {
@@ -1312,7 +1330,7 @@ namespace VCSnonideal {
       }
 #endif
       vcs_elcorr(VCS_DATA_PTR(sm), VCS_DATA_PTR(wx));
-      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), 0, 0, 0, m_numSpeciesRdc);
+      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
       vcs_deltag(0, true);
       uptodate_minors = TRUE;
     }
@@ -1537,7 +1555,7 @@ namespace VCSnonideal {
 	     *   For this special case, we must reevaluate thermo functions
 	     */
 	    if (iti != 0) {
-	      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), 0, 0, kspec, kspec+1);
+	      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 0, kspec, kspec+1);
 	      vcs_deltag(0, false);
 	    }
 	  }
@@ -1618,7 +1636,7 @@ namespace VCSnonideal {
        *       for minor species, if needed.
        */
       if (iti != 0) {
-	vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), 0, 1, 0, m_numSpeciesRdc);
+	vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
 	vcs_deltag(1, false);
 	uptodate_minors = TRUE;
       }
@@ -1728,7 +1746,7 @@ namespace VCSnonideal {
       /*
        *      Go back to evaluate the total moles of gas and liquid. 
        */
-      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), 0, 0, 0, m_numSpeciesRdc);
+      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
       vcs_deltag(0, false);
       /*
        * 
@@ -1818,7 +1836,7 @@ namespace VCSnonideal {
      *        for minor species and go back to do a full iteration
      */
     MajorSpeciesHaveConverged = true;
-    vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), 0, 1, 0, m_numSpeciesRdc);
+    vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
     vcs_deltag(0, false);
     iti = 0;
     goto L_MAINLOOP_ALL_SPECIES;
@@ -1837,7 +1855,7 @@ namespace VCSnonideal {
        *        for minor species and go back to do a full iteration
        */
       MajorSpeciesHaveConverged = true;
-      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), 0, 1, 0, m_numSpeciesRdc);
+      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
       vcs_deltag(0, false);
       iti = 0;
       goto L_MAINLOOP_ALL_SPECIES;
@@ -2587,7 +2605,7 @@ namespace VCSnonideal {
       }
     }
 
-    vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), 0, 0, 0, m_numSpeciesTot);
+    vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 0, 0, m_numSpeciesTot);
     vcs_deltag(0, true);
   }
 
@@ -2722,8 +2740,8 @@ namespace VCSnonideal {
      *           only step is being carried out, then we don't need to
      *           update the minor noncomponents. 
      */
-    // vcs_dfe(dptr, 1, iti, 0, m_numSpeciesRdc);
-    vcs_dfe(dptr, 1, 0, 0, m_numSpeciesRdc);
+    // vcs_dfe(dptr, VCS_STATECALC_NEW, iti, 0, m_numSpeciesRdc);
+    vcs_dfe(dptr, VCS_STATECALC_NEW, 0, 0, m_numSpeciesRdc);
     /*
      *           Evaluate DeltaG for all components if ITI=0, and for 
      *           major components only if ITI NE 0 
@@ -4058,26 +4076,25 @@ namespace VCSnonideal {
 	  plogf("We have an inconsistency!\n");
 	  exit(-1);
 	}
-	if (Charge[kspec] != -1.0) {
+	if (m_chargeSpecies[kspec] != -1.0) {
 	  plogf("We have an unexpected situation!\n");
 	  exit(-1);
 	}
 #endif
-	mu_i[kspec] = m_SSfeSpecies[kspec] + Charge[kspec] * Faraday_phi;
+	mu_i[kspec] = m_SSfeSpecies[kspec] + m_chargeSpecies[kspec] * Faraday_phi;
       } else {
 	if (SSPhase[kspec]) { 
-	  mu_i[kspec] = m_SSfeSpecies[kspec] + Charge[kspec] * Faraday_phi;
+	  mu_i[kspec] = m_SSfeSpecies[kspec] + m_chargeSpecies[kspec] * Faraday_phi;
 	} else if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
 	  mu_i[kspec] = m_SSfeSpecies[kspec] + log(ac[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
-	    - tlogMoles - SpecLnMnaught[kspec] + Charge[kspec] * Faraday_phi;
+	    - tlogMoles - SpecLnMnaught[kspec] + m_chargeSpecies[kspec] * Faraday_phi;
 	} else {
 	  mu_i[kspec] = m_SSfeSpecies[kspec] + log(ac[kspec] * molNum[kspec])
-	    - tlogMoles - SpecLnMnaught[kspec] + Charge[kspec] * Faraday_phi;
+	    - tlogMoles - SpecLnMnaught[kspec] + m_chargeSpecies[kspec] * Faraday_phi;
 	}
       }
     }
   }
- 
   /*****************************************************************************/
  
   // Calculalte the dimensionless chemical potentials of all species or
@@ -4105,7 +4122,7 @@ namespace VCSnonideal {
    *     Ideal Mixtures:
    *
    *          m_feSpecies(I) = m_SSfeSpecies(I) + ln(z(I)) - ln(m_tPhaseMoles[iph])
-   *                            + Charge[I] * Faraday_dim * m_phasePhi[iphase]; 
+   *                            + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]; 
    *
    *              ( This is equivalent to the adding the log of the 
    *                mole fraction onto the standard chemical 
@@ -4116,7 +4133,7 @@ namespace VCSnonideal {
    *
    *          m_feSpecies(I) = m_SSfeSpecies(I)
    *                           + ln(ActCoeff[I] * z(I)) - ln(m_tPhaseMoles[iph])
-   *                            + Charge[I] * Faraday_dim * m_phasePhi[iphase]; 
+   *                            + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]; 
    *  
    *              ( This is equivalent to the adding the log of the 
    *                mole fraction multiplied by the activity coefficient
@@ -4130,7 +4147,7 @@ namespace VCSnonideal {
    *          m_feSpecies(I) = m_SSfeSpecies(I)
    *                           + ln(ActCoeff[I] * z(I)) - ln(m_tPhaseMoles[iph])
    *                           - ln(Mnaught * m_units)
-   *                            + Charge[I] * Faraday_dim * m_phasePhi[iphase]; 
+   *                            + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]; 
    *
    *                  note:   m_SSfeSpecies(I) is the molality based standard state.
    *                          However, ActCoeff[I] is the molar based activity coefficient
@@ -4142,7 +4159,7 @@ namespace VCSnonideal {
    *
    *                                m_feSpecies(I) = m_SSfeSpecies(I)
    *                                                   + ln(ActCoeff_M[I] * m(I))
-   *                                                   + Charge[I] * Faraday_dim * m_phasePhi[iphase]; 
+   *                                                   + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]; 
    *                                       where m[I] is the molality of the ith solute
    * 
    *                                m[I] = Xmol[I] / ( Xmol[N] * Mnaught * m_units)
@@ -4157,7 +4174,7 @@ namespace VCSnonideal {
    *
    *   The chemical potential is calculated as:
    *
-   *         m_feSpecies(I)(I) = m_SSfeSpecies(I) + ln(ActCoeff[i](VCS_DELETE_MINORSPECIES_CUTOFF))
+   *         m_feSpecies(I) = m_SSfeSpecies(I) + ln(ActCoeff[i](VCS_DELETE_MINORSPECIES_CUTOFF))
    *
    *   Handling of "Species" Representing Interfacial Voltages
    *  ---------------------------------------------------------
@@ -4191,11 +4208,11 @@ namespace VCSnonideal {
    *                   -> This can either be the current solution vector WT() 
    *                      or the actual solution vector W() 
    *
-   * @param kk   Determines whether z is old or new or tentative:
-   *             1: Use the tentative values for the total number of 
-   *                moles in the phases, i.e., use TG1 instead of TG etc. 
-   *             0: Use the base values of the total number of 
-   *                moles in each system. 
+   * @param kk   Determines whether z is old or new or tmp:
+   *            VCS_STATECALC_NEW: Use the tentative values for the total number of 
+   *                               moles in the phases, i.e., use TG1 instead of TG etc. 
+   *            VCS_STATECALC_OLD: Use the base values of the total number of 
+   *                               moles in each system. 
    *
    *  Also needed:
    *     ff     : standard state chemical potentials. These are the
@@ -4212,6 +4229,14 @@ namespace VCSnonideal {
     VCS_SPECIES_THERMO *st_ptr;
 
 #ifdef DEBUG_MODE
+    if (kk != VCS_STATECALC_OLD && kk != VCS_STATECALC_NEW) {
+      plogf("   --- Subroutine vcs_dfe called with bad kk value: %d", kk);
+      plogendl();
+      exit(-1);
+    }
+#endif
+
+#ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
       if (ll == 0) {
 	if (lbot != 0) {
@@ -4225,11 +4250,11 @@ namespace VCSnonideal {
       } else {
 	plogf("   --- Subroutine vcs_dfe called for components and majors");
       }
-      if (kk == 1)  plogf(" using tentative solution\n");
-      else plogf("\n");
+      if (kk == VCS_STATECALC_NEW)  plogf(" using tentative solution");
+      plogendl();
     }
 #endif
-    if (kk <= 0) {
+    if (kk <= VCS_STATECALC_OLD) {
       tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_old);
     } else {
       tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_new);
@@ -4311,13 +4336,13 @@ namespace VCSnonideal {
 	  plogf("We have an inconsistency!\n");
 	  exit(-1);
 	}
-	if (Charge[kspec] != -1.0) {
+	if (m_chargeSpecies[kspec] != -1.0) {
 	  plogf("We have an unexpected situation!\n");
 	  exit(-1);
 	}
 #endif
 	m_feSpecies_curr[kspec] =
-	  m_SSfeSpecies[kspec] + Charge[kspec] * Faraday_dim * m_phasePhi[iphase];
+	  m_SSfeSpecies[kspec] + m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase];
       } else {
 	if (SSPhase[kspec]) {
 	  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
@@ -4328,14 +4353,14 @@ namespace VCSnonideal {
 	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
 		+ log(ActCoeff[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
 		- tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec] 
-		+ Charge[kspec] * Faraday_dim * m_phasePhi[iphase];
+		+ m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase];
 	    } else {
 	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 	    }
 	  } else {
 	    m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] + log(ActCoeff[kspec] * z[kspec])
 	      - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec] 
-	      + Charge[kspec] * Faraday_dim * m_phasePhi[iphase]; 
+	      + m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase]; 
 	  }
 	}
       }
@@ -4354,13 +4379,13 @@ namespace VCSnonideal {
 	      plogf("We have an inconsistency!\n");
 	      exit(-1);
 	    }
-	    if (Charge[kspec] != -1.0) {
+	    if (m_chargeSpecies[kspec] != -1.0) {
 	      plogf("We have an unexpected situation!\n");
 	      exit(-1);
 	    }
 #endif
 	    m_feSpecies_curr[kspec] = 
-	      m_SSfeSpecies[kspec] + Charge[kspec] * Faraday_dim * m_phasePhi[iphase];   
+	      m_SSfeSpecies[kspec] + m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase];   
 	  } else {
 	    if (SSPhase[kspec]) {
 	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
@@ -4371,14 +4396,14 @@ namespace VCSnonideal {
 		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
 		    + log(ActCoeff[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
 		    - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec]
-		    + Charge[kspec] * Faraday_dim * m_phasePhi[iphase]; ;
+		    + m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase]; ;
 		} else {
 		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 		}
 	      } else {
 		m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] + log(ActCoeff[kspec] * z[kspec]) 
 		  - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec] 
-		  + Charge[kspec] * Faraday_dim * m_phasePhi[iphase]; 
+		  + m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase]; 
 	      }
 	    }
 	  }
@@ -4398,13 +4423,13 @@ namespace VCSnonideal {
 	      plogf("We have an inconsistency!\n");
 	      exit(-1);
 	    }
-	    if (Charge[kspec] != -1.0) {
+	    if (m_chargeSpecies[kspec] != -1.0) {
 	      plogf("We have an unexpected situation!\n");
 	      exit(-1);
 	    }
 #endif
 	    m_feSpecies_curr[kspec] = 
-	      m_SSfeSpecies[kspec] + Charge[kspec] * Faraday_dim * m_phasePhi[iphase]; ;
+	      m_SSfeSpecies[kspec] + m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase]; ;
 	  } else {
 	    if (SSPhase[kspec]) {
 	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
@@ -4434,7 +4459,6 @@ namespace VCSnonideal {
     } 
 #endif
   }
-
   /*****************************************************************************/
 
 #ifdef DEBUG_MODE
@@ -4472,7 +4496,6 @@ namespace VCSnonideal {
     plogendl();
   } 
 #endif
-
   /*****************************************************************************/
 
   // Calculate the norm of a deltaGibbs free energy vector
@@ -4495,7 +4518,6 @@ namespace VCSnonideal {
     }
     return (std::sqrt(tmp / m_numRxnRdc));
   }
-
   /*****************************************************************************/
 
   //  Calculates the total number of moles of species in all phases.
@@ -4532,35 +4554,35 @@ namespace VCSnonideal {
       }
     }  
     m_totalMolNum = sum;
-  } 
-
+  }
   /*****************************************************************************/
 
-  void VCS_SOLVE::vcs_updateVP (int place) 
-
-    /*************************************************************************
-     * vcs_updateVP()
-     * 
-     *  This routine uploads the state of the system into all of the 
-     *  VolumePhase objects in the current problem.
-     *  place
-     *   0 -> from m_molNumSpecies_old
-     *   1 -> from wt
-     *************************************************************************/
-  {
+  //  This routine uploads the state of the system into all of the 
+  //  vcs_VolPhase objects in the current problem.
+  /*
+   *  @param vcsState Determines where to get the mole numbers from.
+   *                -  VCS_STATECALC_OLD -> from m_molNumSpecies_old
+   *                -  VCS_STATECALC_NEW -> from m_molNumSpecies_new
+   *
+   */
+  void VCS_SOLVE::vcs_updateVP(const int vcsState) {
     vcs_VolPhase *Vphase;
     for (int i = 0; i < m_numPhases; i++) {
       Vphase = VPhaseList[i];
-      if (place == 0) {
-	Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old), 
+      if (vcsState == VCS_STATECALC_OLD) {
+	Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old),
 				     VCS_DATA_PTR(m_tPhaseMoles_old), i);
-      } else if (place == 1) {
+      } else if (vcsState == VCS_STATECALC_NEW) {
 	Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_new),
 				     VCS_DATA_PTR(m_tPhaseMoles_new), i);
-      } else {
-	plogf("we shouldn't be here\n");
+      }
+#ifdef DEBUG_MODE
+      else {
+	plogf("we shouldn't be here");
+	plogendl();
 	exit(-1);
       }
+#endif
     }
   }
 
@@ -4659,8 +4681,8 @@ namespace VCSnonideal {
     SWAP(SpecLnMnaught[k1], SpecLnMnaught[k2], t1);
     SWAP(ActCoeff[k1], ActCoeff[k2], t1);
     SWAP(ActCoeff0[k1], ActCoeff0[k2], t1);
-    SWAP(WtSpecies[k1], WtSpecies[k2], t1);
-    SWAP(Charge[k1], Charge[k2], t1);
+    SWAP(m_wtSpecies[k1], m_wtSpecies[k2], t1);
+    SWAP(m_chargeSpecies[k1], m_chargeSpecies[k2], t1);
     SWAP(SpeciesThermo[k1], SpeciesThermo[k2], st_tmp);
     SWAP(VolPM[k1], VolPM[k2], t1);
 

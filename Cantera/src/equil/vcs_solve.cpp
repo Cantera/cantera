@@ -184,8 +184,8 @@ namespace VCSnonideal {
     ActCoeff.resize(nspecies0, 1.0);
     ActCoeff0.resize(nspecies0, 1.0);
     CurrPhAC.resize(nphase0, 0);
-    WtSpecies.resize(nspecies0, 0.0);
-    Charge.resize(nspecies0, 0.0);
+    m_wtSpecies.resize(nspecies0, 0.0);
+    m_chargeSpecies.resize(nspecies0, 0.0);
     SpeciesThermo.resize(nspecies0, (VCS_SPECIES_THERMO *)0);
    
     /*
@@ -504,12 +504,12 @@ namespace VCSnonideal {
     /*
      *  Copy over the species molecular weights
      */
-    vcs_vdcopy(WtSpecies, pub->WtSpecies, nspecies);
+    vcs_vdcopy(m_wtSpecies, pub->WtSpecies, nspecies);
 
     /*
      * Copy over the charges
      */
-    vcs_vdcopy(Charge, pub->Charge, nspecies);
+    vcs_vdcopy(m_chargeSpecies, pub->Charge, nspecies);
 
     /*
      * Malloc and Copy the VCS_SPECIES_THERMO structures
@@ -726,7 +726,7 @@ namespace VCSnonideal {
 	 * loop below starts at 1, not 0.
 	 */
 	int iSolvent = Vphase->IndSpecies[0];
-	double mnaught = WtSpecies[iSolvent] / 1000.;
+	double mnaught = m_wtSpecies[iSolvent] / 1000.;
 	for (int k = 1; k < Vphase->NVolSpecies; k++) {
 	  int kspec = Vphase->IndSpecies[k];
 	  SpecActConvention[kspec] = Vphase->ActivityConvention;

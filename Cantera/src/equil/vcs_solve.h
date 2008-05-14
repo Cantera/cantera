@@ -270,7 +270,16 @@ public:
    */
   void vcs_dfe(double const * const z, int kk, int ll, int lbot, int ltop);
 
-  void vcs_updateVP(int place); 
+  //!  This routine uploads the state of the system into all of the 
+  //!  vcs_VolumePhase objects in the current problem.
+  /*!
+   *  @param vcsState Determines where to get the mole numbers from.
+   *                -  VCS_STATECALC_OLD -> from m_molNumSpecies_old
+   *                -  VCS_STATECALC_NEW -> from m_molNumSpecies_new
+   *
+   */
+  void vcs_updateVP(const int vcsState);
+ 
   int vcs_RxnStepSizes(void);
 
   //!  Calculates the total number of moles of species in all phases.
@@ -459,14 +468,74 @@ public:
    */
   void vcs_switch_elem_pos(int ipos, int jpos);
 
-  int    vcs_rxn_adj_cg(void);
-  double vcs_Hessian_diag_adj(int, double);
+  //!  Calculates reaction adjustments using a full Hessian approximation
+  /*!
+   *  Calculates reaction adjustments. This does what equation 6.4-16, p. 143
+   * in Smith and Missen is suppose to do. However, a full matrix is
+   * formed and then solved via a conjugate gradient algorithm. No
+   * preconditioning is done.
+   *
+   * If special branching is warranted, then the program bails out.
+   *
+   * Output
+   * -------
+   * DS(I) : reaction adjustment, where I refers to the Ith species
+   * Special branching occurs sometimes. This causes the component basis
+   * to be reevaluated
+   *     return = 0 : normal return
+   *              1 : A single species phase species has been zeroed out
+   *                  in this routine. The species is a noncomponent
+   *              2 : Same as one but, the zeroed species is a component.
+   *
+   * Special attention is taken to flag cases where the direction of the
+   * update is contrary to the steepest descent rule. This is an important
+   * attribute of the regular vcs algorithm. We don't want to violate this.
+   *
+   *  NOTE: currently this routine is not used.
+   */
+  int  vcs_rxn_adj_cg(void);
+
+  //!  Calculates the diagonal contribution to the Hessian due to 
+  //!  the dependence of the activity coefficients on the mole numbers.
+  /*!
+   *  (See framemaker notes, Eqn. 20 - VCS Equations document)
+   *
+   *  We allow the diagonal to be increased positively to any degree.
+   *  We allow the diagonal to be decreased to 1/3 of the ideal solution
+   *  value, but no more -> it must remain positive.
+   *
+   *  NOTE: currently this routine is not used
+   */
+  double vcs_Hessian_diag_adj(int irxn, double hessianDiag_Ideal);
+
+  //! Calculates the diagonal contribution to the Hessian due to 
+  //!  the dependence of the activity coefficients on the mole numbers.
+  /*!
+   *  (See framemaker notes, Eqn. 20 - VCS Equations document)
+   *
+   *  NOTE: currently this routine is not used
+   */
   double vcs_Hessian_actCoeff_diag(int irxn);
+
   void vcs_CalcLnActCoeffJac(const double * const moleSpeciesVCS);
+
 #ifdef DEBUG_MODE
-  double vcs_line_search(int irxn, double dx_orig, char *ANOTE);
+  //! A line search algorithm is carried out on one reaction
+  /*!
+   *    In this routine we carry out a rough line search algorithm 
+   *    to make sure that the m_deltaGRxn_new doesn't switch signs prematurely.
+   *
+   *  @param irxn     Reaction number
+   *  @param dx_orig  Original step length
+   * 
+   *  @param ANOTE    Output character string stating the conclusions of the
+   *                  line search
+   *
+   */
+  double vcs_line_search(const int irxn, const double dx_orig, 
+			 char * const ANOTE);
 #else
-  double vcs_line_search(int irxn, double dx_orig);
+  double vcs_line_search(const int irxn, const double dx_orig);
 #endif
 
 
@@ -698,7 +767,34 @@ private:
 
 
   void vcs_SSPhase(void); 
-  double deltaG_Recalc_Rxn(int irxn, const double *const molNum,
+
+  //! This function recalculates the deltaG for reaction, irxn
+  /*!
+   *   This function recalculates the deltaG for reaction irxn,
+   *   given the mole numbers in molNum. It uses the temporary
+   *   space mu_i, to hold the recalculated chemical potentials.
+   *   It only recalculates the chemical potentials for species in phases
+   *   which participate in the irxn reaction.
+   *
+   * Input
+   * ------------
+   * @param irxn   Reaction number
+   * @param molNum  Current mole numbers of species to be used as
+   *                input to the calculation (units = kmol) 
+   *                (length = totalNuMSpecies)
+   *
+   * Output
+   * ------------
+   * @param ac      output Activity coefficients   (length = totalNumSpecies)
+   *                 Note this is only partially formed. Only species in
+   *                 phases that participate in the reaction will be updated
+   * @param mu_i    diemsionless chemical potentials (length - totalNumSpecies
+   *                 Note this is only partially formed. Only species in
+   *                 phases that participate in the reaction will be updated
+   *
+   * @return Returns the dimensionless deltaG of the reaction
+   */
+  double deltaG_Recalc_Rxn(const int irxn, const double *const molNum,
 			   double * const ac, double * const mu_i);
   void delete_memory();
 
@@ -947,7 +1043,7 @@ public:
    *            -> Don't use this except for scaling
    *               purposes          
    */
-  double  m_totalMolNum; 
+  double m_totalMolNum; 
 
   //! Total kmols of species in each phase
   /*!
@@ -1155,16 +1251,16 @@ public:
    */
   std::vector<double> SpecLnMnaught;
 
-  //! Activity Coefficients for Species
+  //! Molar-based Activity Coefficients for Species
   /*!
    *
    * Length = number of species
    */
   std::vector<double> ActCoeff;
 
-  //! Activity Coefficients for Species
+  //!  Molar-based Activity Coefficients for Species
   /*!
-   *
+   * Molar based activity coeffients.
    * Length = number of species
    */
   std::vector<double> ActCoeff0; 
@@ -1188,14 +1284,16 @@ public:
   /*!
    *  units = kg/kmol
    *  length = number of species
+   *
+   * note: this is a candidate for removal. I don't think we use it.
    */
-  std::vector<double> WtSpecies;
+  std::vector<double> m_wtSpecies;
 
   //! Charge of each species
   /*!
    * Length = number of species
    */
-  std::vector<double> Charge;
+  std::vector<double> m_chargeSpecies;
 
   //! Vector of pointers to thermostructures which identify the model
   //! and parameters for evaluating the  thermodynamic functions for that 

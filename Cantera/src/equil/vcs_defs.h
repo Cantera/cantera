@@ -271,7 +271,23 @@ namespace VCSnonideal {
    * is ddefined by the interface voltage.
    */
 #define VCS_SPECIES_TYPE_INTERFACIALVOLTAGE -5
+  //@}
 
+  /*!
+   * @name  Types of State Calculations within VCS
+   *              These values determine where the
+   *              results are storred within the VCS_SOLVE
+   *              object.
+   * @{
+   */
+  //! State Calculation based on the old or base mole numbers
+#define VCS_STATECALC_OLD               0
+
+  //! State Calculation based on the new or tentative mole numbers
+#define VCS_STATECALC_NEW               1
+
+  //! State Calculation based on a temporary set of mole numbers
+#define VCS_STATECALC_TMP               2
   //@}
 
  

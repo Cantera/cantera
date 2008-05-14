@@ -318,7 +318,7 @@ int VCS_SOLVE::vcs_report(int iconv)
       plogf("%14.7E  ", log(ActCoeff[l]));
       double tpmoles = m_tPhaseMoles_old[pid];
       double phi = m_phasePhi[pid];
-      double eContrib = phi * Charge[l] * Faraday_dim;
+      double eContrib = phi * m_chargeSpecies[l] * Faraday_dim;
       double lx = 0.0;
       if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	lx = 0.0;
