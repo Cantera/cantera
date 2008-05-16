@@ -230,6 +230,11 @@ public:
    */
   int ActivityConvention;
 
+  //! Boolean indicating whether the phase is an ideal solution
+  //! and therefore it's molar-based activity coefficients are
+  //! uniformly equal to one.
+  bool m_isIdealSoln;
+
   //! Current state of existence:
   /*!
    *      0 : Doesn't exist currently
@@ -277,10 +282,6 @@ public:
    * The index into this vector is the species index within the phase.
    */
   std::vector<vcs_SpeciesProperties *> ListSpeciesPtr;
-    
-  //!  If this is true, then calculations are actually performed within
-  //!  Cantera
-  bool UseCanteraCalls;
 
   //! Units for the chemical potential data, pressure data, volume,
   //! and species amounts
@@ -305,8 +306,10 @@ public:
    */
   int m_VCS_UnitsFormat;
 
-
 private:
+  //!  If this is true, then calculations are actually performed within
+  //!  Cantera
+  bool m_useCanteraCalls;
   /**
    *  If we are using Cantera, this is the
    *	pointer to the ThermoPhase object. If not, this is null. 
@@ -732,6 +735,12 @@ public:
 
   //! Return a const reference to the mole fractions
   const std::vector<double> & moleFractions() const;
+
+  //! Returns whether the phase is an ideal solution phase
+  bool isIdealSoln() const;
+
+  //! Returns whether the object is using cantera calls.
+  bool usingCanteraCalls() const;
 
 private:
 

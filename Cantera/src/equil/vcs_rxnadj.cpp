@@ -306,9 +306,9 @@ namespace VCSnonideal {
   }
   /*****************************************************************************/
  
-  //! Recalculate all of the activity coefficients in all of the phases
-  //! based on input mole numbers
-  /*!
+  // Recalculate all of the activity coefficients in all of the phases
+  // based on input mole numbers
+  /*
    *  
    * @param moleSpeciesVCS kmol of species to be used in the update.
    *
@@ -323,7 +323,7 @@ namespace VCSnonideal {
       /*
        * We don't need to call single species phases;
        */
-      if (!Vphase->SingleSpecies) {
+      if (!Vphase->SingleSpecies && !Vphase->isIdealSoln()) {
 	/*
 	 * update the Ln Act Coeff jacobian entries with respect to the
 	 * mole number of species in the phase

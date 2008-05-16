@@ -1149,7 +1149,6 @@ namespace VCSnonideal {
       /*
        * Tell the vcs_VolPhase pointer about cantera
        */
-      VolPhase->UseCanteraCalls = true;
       VolPhase->m_VCS_UnitsFormat = vprob->m_VCS_UnitsFormat;
       VolPhase->setPtrThermoPhase(tPhase);
       VolPhase->setTotalMoles(0.0);
@@ -1198,7 +1197,7 @@ namespace VCSnonideal {
 	  plogf("Unknown Cantera EOS to VCSnonideal: %d\n", eos);
 	}
 	VolPhase->EqnState = VCS_EOS_UNK_CANTERA;
-	if (!VolPhase->UseCanteraCalls) {
+	if (!VolPhase->usingCanteraCalls()) {
 	  plogf("vcs functions asked for, but unimplemented\n");
 	  exit(-1);
 	}
@@ -1301,7 +1300,7 @@ namespace VCSnonideal {
 	 *  Transfer the thermo specification of the species
 	 *              vprob->SpeciesThermo[]
 	 */
-	ts_ptr->UseCanteraCalls = VolPhase->UseCanteraCalls;
+	ts_ptr->UseCanteraCalls = VolPhase->usingCanteraCalls();
 	ts_ptr->m_VCS_UnitsFormat = VolPhase->m_VCS_UnitsFormat;
 	/*
 	 * Add lookback connectivity into the thermo object first
