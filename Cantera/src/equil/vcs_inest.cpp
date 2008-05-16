@@ -230,7 +230,7 @@ namespace VCSnonideal {
       xtphMin[iph] = log(m_tPhaseMoles_new[iph] * 1.0E-32);
     }
     for (irxn = 0; irxn < nrxn; ++irxn) {
-      kspec = ir[irxn];
+      kspec = m_indexRxnToSpecies[irxn];
       /*
        * For single species phases, we will not estimate the
        * mole numbers. If the phase exists, it stays. If it

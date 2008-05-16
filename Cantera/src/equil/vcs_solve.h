@@ -1004,7 +1004,7 @@ public:
 
   //! Delta G(I) for the noncomponent species  in  the mechanism.
   /*!
-   *   Computed by the   subroutine  DELTAG. DG is the free
+   *   Computed by the  subroutine  DELTAG. DG is the free
    *    energy change for the reaction which
    *              forms species K from the
    *              component species. This vector has length 
@@ -1157,16 +1157,18 @@ public:
   //!  Mapping between the species index for noncomponent species and the
   //!  full species  index.
   /*!
-   * ir[irxn]   = Mapping between the species index for
-   *              noncomponent species and the full species 
+   * ir[irxn]   = Mapping between the reaction index for
+   *              noncomponent formation reaction of a species
+   *              and the full species 
    *              index.
    *            - Initially set to a value of K = NC + I
    *              This vector has length equal to number 
    *              of noncomponent species in the mechanism. 
    *              It starts with the first current 
    *              noncomponent species in the mechanism.
+   *    kspec = ir[irxn]
    */
-  std::vector<int> ir;
+  std::vector<int> m_indexRxnToSpecies;
 
   //! Major -Minor status vector for the formation reaction
   /*!

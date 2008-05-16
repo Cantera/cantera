@@ -70,7 +70,7 @@ namespace VCSnonideal {
       sprintf(ANOTE,"Normal Calc");
 #endif
      
-      kspec = ir[irxn];
+      kspec = m_indexRxnToSpecies[irxn];
       dnPhase_irxn = m_deltaMolNumPhase[irxn];
       
       if (m_molNumSpecies_old[kspec] == 0.0 && (! m_SSPhase[kspec])) {
@@ -279,7 +279,7 @@ namespace VCSnonideal {
     int kspec, k, l, kph;
     double s;
     double *sc_irxn;
-    kspec = ir[irxn];
+    kspec = m_indexRxnToSpecies[irxn];
     kph = m_phaseID[kspec];  
     sc_irxn = m_stoichCoeffRxnMatrix[irxn];
     /*
@@ -413,7 +413,7 @@ namespace VCSnonideal {
   {
     int its = 0;
     int k;
-    int kspec = ir[irxn];
+    int kspec = m_indexRxnToSpecies[irxn];
     const int MAXITS = 10;
     double dx = dx_orig;
     double *sc_irxn = m_stoichCoeffRxnMatrix[irxn];

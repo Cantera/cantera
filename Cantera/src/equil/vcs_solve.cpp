@@ -158,7 +158,7 @@ namespace VCSnonideal {
      *   mapping. We can't fill it in until we know the number of c
      *   components in the problem
      */
-    ir.resize(nspecies0, 0);
+    m_indexRxnToSpecies.resize(nspecies0, 0);
    
     /* Initialize all species to be major species */
     m_rxnStatus.resize(nspecies0, 1);

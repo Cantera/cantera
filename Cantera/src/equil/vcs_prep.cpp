@@ -137,7 +137,7 @@ namespace VCSnonideal {
     m_numRxnRdc = m_numRxnTot;
     m_numSpeciesRdc = m_numSpeciesTot;
     for (i = 0; i < m_numRxnRdc; ++i) {
-      ir[i] = m_numElemConstraints + i;
+      m_indexRxnToSpecies[i] = m_numElemConstraints + i;
     }
   
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
@@ -226,7 +226,7 @@ namespace VCSnonideal {
     if (m_numElemConstraints != m_numComponents) {
       m_numRxnTot = m_numRxnRdc = m_numSpeciesTot - m_numComponents;
       for (i = 0; i < m_numRxnRdc; ++i) {
-	ir[i] = m_numComponents + i;
+	m_indexRxnToSpecies[i] = m_numComponents + i;
       }
     }
     
