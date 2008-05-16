@@ -231,7 +231,7 @@ int VCS_SOLVE::vcs_report(int iconv)
    plogf(" |                     |\n");
    plogf("                  | Element   |");
    for (j = 0; j < m_numElemConstraints; j++) {
-     plogf(" %10.10s", (ElName[j]).c_str());
+     plogf(" %10.10s", (m_elementName[j]).c_str());
    }
    plogf(" |                     |\n");
    plogf("    PhaseName     |KMolTarget |");
@@ -291,9 +291,9 @@ int VCS_SOLVE::vcs_report(int iconv)
    plogf("\nElemental Abundances (kmol): ");
    plogf("         Actual                    Target         Type      ElActive\n");
    for (i = 0; i < m_numElemConstraints; ++i) {
-      print_space(26); plogf("%-2.2s", (ElName[i]).c_str());
+      print_space(26); plogf("%-2.2s", (m_elementName[i]).c_str());
       plogf("%20.12E  %20.12E", m_elemAbundances[i], m_elemAbundancesGoal[i]);
-      plogf("   %3d     %3d\n", m_elType[i], ElActive[i]);
+      plogf("   %3d     %3d\n", m_elType[i], m_elementActive[i]);
    }
    plogf("\n");
    
@@ -312,7 +312,7 @@ int VCS_SOLVE::vcs_report(int iconv)
    print_line("-", 115);
    for (i = 0; i < nspecies; ++i) {
       l = sortindex[i];
-      int pid = PhaseID[l];
+      int pid = m_phaseID[l];
       plogf(" %-12.12s", m_speciesName[l].c_str());
       plogf(" %14.7E ", m_molNumSpecies_old[l]);
       plogf("%14.7E  ", m_SSfeSpecies[l]);
@@ -327,12 +327,14 @@ int VCS_SOLVE::vcs_report(int iconv)
 	if (tpmoles > 0.0 && m_molNumSpecies_old[l] > 0.0) {
 	  lx = log(m_molNumSpecies_old[l]) - log(tpmoles);
 	} else {
-	  lx = m_feSpecies_curr[l] - m_SSfeSpecies[l] - log(m_actCoeffSpecies_old[l]) + SpecLnMnaught[l];
+	  lx = m_feSpecies_curr[l] - m_SSfeSpecies[l] 
+	    - log(m_actCoeffSpecies_old[l]) + SpecLnMnaught[l];
 	}
       }
       plogf("%14.7E  |", lx);
       plogf("%14.7E | ", eContrib);
-      double tmp = m_SSfeSpecies[l] + log(m_actCoeffSpecies_old[l]) + lx - SpecLnMnaught[l] + eContrib;
+      double tmp = m_SSfeSpecies[l] + log(m_actCoeffSpecies_old[l])
+	+ lx - SpecLnMnaught[l] + eContrib;
       if (fabs(m_feSpecies_curr[l] - tmp) > 1.0E-8) {
 	plogf("\n\t\twe have a problem - doesn't add up\n");
 	exit(-1);

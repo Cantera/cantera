@@ -73,7 +73,7 @@ namespace VCSnonideal {
       kspec = ir[irxn];
       dnPhase_irxn = m_deltaMolNumPhase[irxn];
       
-      if (m_molNumSpecies_old[kspec] == 0.0 && (! SSPhase[kspec])) {
+      if (m_molNumSpecies_old[kspec] == 0.0 && (! m_SSPhase[kspec])) {
 	/* *******************************************************************/
 	/* **** MULTISPECIES PHASE WITH total moles equal to zero ************/
 	/* *******************************************************************/
@@ -86,7 +86,7 @@ namespace VCSnonideal {
 	  (void) sprintf(ANOTE, "MultSpec: come alive DG = %11.3E", m_deltaGRxn_new[irxn]);       
 #endif
 	  m_deltaMolNumSpecies[kspec] = 1.0e-10;
-	  spStatus[irxn] = VCS_SPECIES_MAJOR;
+	  m_rxnStatus[irxn] = VCS_SPECIES_MAJOR;
 	  --(m_numRxnMinorZeroed);
 	} else {
 #ifdef DEBUG_MODE
@@ -109,7 +109,8 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	  sprintf(ANOTE,"Skipped: converged DG = %11.3E\n", m_deltaGRxn_new[irxn]);
 	  plogf("   --- "); plogf("%-12.12s", m_speciesName[kspec].c_str());
-	  plogf("  %12.4E %12.4E | %s\n",  m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec], ANOTE);
+	  plogf("  %12.4E %12.4E | %s\n",  m_molNumSpecies_old[kspec], 
+		m_deltaMolNumSpecies[kspec], ANOTE);
 #endif		    
 	  continue;
 	}
@@ -117,10 +118,10 @@ namespace VCSnonideal {
 	 *     Don't calculate for minor or nonexistent species if      
 	 *     their values are to be decreasing anyway.                
 	 */
-	if (spStatus[irxn] <= VCS_SPECIES_MINOR && m_deltaGRxn_new[irxn] >= 0.0) {
+	if (m_rxnStatus[irxn] <= VCS_SPECIES_MINOR && m_deltaGRxn_new[irxn] >= 0.0) {
 #ifdef DEBUG_MODE
 	  sprintf(ANOTE,"Skipped: IC = %3d and DG >0: %11.3E\n", 
-		  spStatus[irxn], m_deltaGRxn_new[irxn]);
+		  m_rxnStatus[irxn], m_deltaGRxn_new[irxn]);
 	  plogf("   --- "); plogf("%-12.12s", m_speciesName[kspec].c_str());
 	  plogf("  %12.4E %12.4E | %s\n", m_molNumSpecies_old[kspec], 
 		m_deltaMolNumSpecies[kspec], ANOTE);
@@ -130,10 +131,12 @@ namespace VCSnonideal {
 	/*
 	 *     Start of the regular processing
 	 */
-	if (SSPhase[kspec]) s = 0.0;
+	if (m_SSPhase[kspec]) s = 0.0;
 	else                s = 1.0 / m_molNumSpecies_old[kspec];
 	for (j = 0; j < m_numComponents; ++j) {
-	  if (! SSPhase[j])  s += SQUARE(m_stoichCoeffRxnMatrix[irxn][j]) / m_molNumSpecies_old[j];
+	  if (! m_SSPhase[j]) {
+	    s += SQUARE(m_stoichCoeffRxnMatrix[irxn][j]) / m_molNumSpecies_old[j];
+	  }
 	}
 	for (j = 0; j < m_numPhases; j++) {
 	  if (! (VPhaseList[j])->SingleSpecies) {
@@ -190,13 +193,13 @@ namespace VCSnonideal {
 	   */
 	  if (dss != 0.0) {
 	    m_molNumSpecies_old[kspec] += dss;
-	    m_tPhaseMoles_old[PhaseID[kspec]] +=  dss;
+	    m_tPhaseMoles_old[m_phaseID[kspec]] +=  dss;
 	    for (j = 0; j < m_numComponents; ++j) {
 	      m_molNumSpecies_old[j] += dss * m_stoichCoeffRxnMatrix[irxn][j];
-	      m_tPhaseMoles_old[PhaseID[j]] +=  dss * m_stoichCoeffRxnMatrix[irxn][j];
+	      m_tPhaseMoles_old[m_phaseID[j]] +=  dss * m_stoichCoeffRxnMatrix[irxn][j];
 	    }
 	    m_molNumSpecies_old[k] = 0.0;
-	    m_tPhaseMoles_old[PhaseID[k]] = 0.0; 
+	    m_tPhaseMoles_old[m_phaseID[k]] = 0.0; 
 #ifdef DEBUG_MODE
 	    plogf("   --- vcs_st2 Special section to delete ");
 	    plogf("%-12.12s", m_speciesName[k].c_str());
@@ -277,7 +280,7 @@ namespace VCSnonideal {
     double s;
     double *sc_irxn;
     kspec = ir[irxn];
-    kph = PhaseID[kspec];  
+    kph = m_phaseID[kspec];  
     sc_irxn = m_stoichCoeffRxnMatrix[irxn];
     /*
      *   First the diagonal term of the Jacobian
@@ -288,13 +291,13 @@ namespace VCSnonideal {
      *    So, it's not too expensive to calculate.
      */
     for (l = 0; l < m_numComponents; l++) {
-      if (!SSPhase[l]) {
+      if (!m_SSPhase[l]) {
 	for (k = 0; k < m_numComponents; ++k) { 
-	  if (PhaseID[k] == PhaseID[l]) { 
+	  if (m_phaseID[k] == m_phaseID[l]) { 
 	    s += sc_irxn[k] * sc_irxn[l] * dLnActCoeffdMolNum[k][l];
 	  }
 	}
-	if (kph == PhaseID[l]) { 
+	if (kph == m_phaseID[l]) { 
 	  s += sc_irxn[l] * (dLnActCoeffdMolNum[kspec][l] + dLnActCoeffdMolNum[l][kspec]);
 	}
       }

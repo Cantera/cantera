@@ -113,12 +113,12 @@ namespace VCSnonideal {
       plogf("%s     Element           Goal         Actual\n", pprefix);
       int jj = 0;
       for (int j = 0; j < m_numElemConstraints; j++) {
-	if (ElActive[j]) {
+	if (m_elementActive[j]) {
 	  double tmp = 0.0;
 	  for (kspec = 0; kspec < nspecies; ++kspec) {
 	    tmp +=  m_formulaMatrix[j][kspec] * molNum[kspec];
 	  }
-	  plogf("%s     ", pprefix); plogf("   %-9.9s", (ElName[j]).c_str());
+	  plogf("%s     ", pprefix); plogf("   %-9.9s", (m_elementName[j]).c_str());
 	  plogf(" %12.3g %12.3g\n", m_elemAbundancesGoal[j], tmp);
 	  jj++;
 	}
@@ -134,14 +134,14 @@ namespace VCSnonideal {
      */
     vcs_dzero(VCS_DATA_PTR(m_deltaMolNumSpecies), nspecies);
     for (kspec = 0; kspec < nspecies; ++kspec) {
-      iph = PhaseID[kspec];
+      iph = m_phaseID[kspec];
       Vphase = VPhaseList[iph];
       if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	if (molNum[kspec] <= 0.0) {
 	  /*
 	   * HKM Should eventually include logic here for non SS phases
 	   */
-	  if (!SSPhase[kspec]) {
+	  if (!m_SSPhase[kspec]) {
 	    molNum[kspec] = 1.0e-30;
 	  }
 	}
@@ -152,7 +152,7 @@ namespace VCSnonideal {
 	if (Vphase->Existence == 0) {
 	  Vphase->Existence = 1;
 	}
-      } else if (SSPhase[kspec]) {
+      } else if (m_SSPhase[kspec]) {
 	Vphase->Existence = 0;
       }
     }
@@ -179,7 +179,7 @@ namespace VCSnonideal {
     }
     for (kspec = 0; kspec < m_numComponents; ++kspec) {
       if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
-	m_tPhaseMoles_new[PhaseID[kspec]] += molNum[kspec];
+	m_tPhaseMoles_new[m_phaseID[kspec]] += molNum[kspec];
       }
     }
     TMolesMultiphase = 0.0;
@@ -199,8 +199,8 @@ namespace VCSnonideal {
  
     for (kspec = 0; kspec < m_numComponents; ++kspec) {
       if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
-	if (! SSPhase[kspec]) {
-	  iph = PhaseID[kspec];
+	if (! m_SSPhase[kspec]) {
+	  iph = m_phaseID[kspec];
 	  m_feSpecies_curr[kspec] += log(m_molNumSpecies_new[kspec] / m_tPhaseMoles_old[iph]);
 	}
       } else {
@@ -237,8 +237,8 @@ namespace VCSnonideal {
        * doesn't exist in the estimate, it doesn't come into
        * existence here.
        */
-      if (! SSPhase[kspec]) {
-	iph = PhaseID[kspec];
+      if (! m_SSPhase[kspec]) {
+	iph = m_phaseID[kspec];
 	if (m_deltaGRxn_new[irxn] > xtphMax[iph]) m_deltaGRxn_new[irxn] = 0.8 * xtphMax[iph];
 	if (m_deltaGRxn_new[irxn] < xtphMin[iph]) m_deltaGRxn_new[irxn] = 0.8 * xtphMin[iph];
 	/*
@@ -268,7 +268,7 @@ namespace VCSnonideal {
 	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  plogf("%sdirection (", pprefix); plogf("%-12.12s", m_speciesName[kspec].c_str());
 	  plogf(") = %g", m_deltaMolNumSpecies[kspec]);
-	  if (SSPhase[kspec]) {
+	  if (m_SSPhase[kspec]) {
 	    if (molNum[kspec] > 0.0) {
 	      plogf(" (ssPhase exists at w = %g moles)", molNum[kspec]);
 	    } else {

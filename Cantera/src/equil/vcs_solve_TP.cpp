@@ -60,7 +60,7 @@ namespace VCSnonideal {
     std::vector<double> dchange(m_numPhases, 0.0);
     for (int k = 0; k < kspec; k++) {
       if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	int iph = PhaseID[k];
+	int iph = m_phaseID[k];
 	dchange[iph] += dsLocal[k];
       }
     }
@@ -177,7 +177,7 @@ namespace VCSnonideal {
     }
     if (print_lvl != 0) {
       plogf("VCS CALCULATION METHOD\n\n ");
-      plogf("%s\n", Title.c_str());
+      plogf("%s\n", m_title.c_str());
       plogf("\n\n%5d SPECIES%8d ELEMENTS", m_numSpeciesTot, m_numElemConstraints);
       plogf("%16d COMPONENTS\n%5d PHASE1 SPECIES", m_numComponents,
 	    ((VPhaseList[0])->NVolSpecies));
@@ -200,7 +200,7 @@ namespace VCSnonideal {
       plogf("\n ELEMENTAL ABUNDANCES             CORRECT");
       plogf("          FROM ESTIMATE           Type\n\n");
       for (i = 0; i < m_numElemConstraints; ++i) { 
-	print_space(26); plogf("%-2.2s", (ElName[i]).c_str());
+	print_space(26); plogf("%-2.2s", (m_elementName[i]).c_str());
 	plogf("%20.12E%20.12E     %3d\n", m_elemAbundancesGoal[i], m_elemAbundances[i], 
 	      m_elType[i]);
       }
@@ -231,7 +231,7 @@ namespace VCSnonideal {
       print_space(29);
       plogf("   STAN_CHEM_POT   EQUILIBRIUM_EST.  Species_Type\n\n");
       print_space(14);
-      for (i = 0; i < m_numElemConstraints; ++i) plogf(" %-2.2s", ElName[i].c_str());
+      for (i = 0; i < m_numElemConstraints; ++i) plogf(" %-2.2s", m_elementName[i].c_str());
       plogf(" SI(I)\n");
       RT = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
       for (i = 0; i < m_numSpeciesTot; ++i) {
@@ -239,9 +239,9 @@ namespace VCSnonideal {
 	for (j = 0; j < m_numElemConstraints; ++j) {
 	  plogf("%3g", m_formulaMatrix[j][i]);
 	}
-	if  (PhaseID[i] == 0) {
+	if  (m_phaseID[i] == 0) {
 	  plogf("  1");
-	} else if (PhaseID[i] == 1) {
+	} else if (m_phaseID[i] == 1) {
 	  if (liqphase) plogf("  2");
 	  else          plogf("  0");
 	} else { 
@@ -316,9 +316,9 @@ namespace VCSnonideal {
     m_numRxnMinorZeroed = 0;
     for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
       kspec = ir[irxn];
-      spStatus[irxn] = vcs_species_type(kspec);
-      if (spStatus[irxn] == VCS_SPECIES_MINOR) {
-	spStatus[irxn] = VCS_SPECIES_MAJOR;
+      m_rxnStatus[irxn] = vcs_species_type(kspec);
+      if (m_rxnStatus[irxn] == VCS_SPECIES_MINOR) {
+	m_rxnStatus[irxn] = VCS_SPECIES_MAJOR;
 #ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 2) {
 	  plogf("   --- Minor species changed to major: ");
@@ -327,7 +327,7 @@ namespace VCSnonideal {
 	}
 #endif
       }
-      if (spStatus[irxn] != VCS_SPECIES_MAJOR) {
+      if (m_rxnStatus[irxn] != VCS_SPECIES_MAJOR) {
 	++m_numRxnMinorZeroed;
       }
     }
@@ -502,13 +502,13 @@ namespace VCSnonideal {
     for (irxn = 0; irxn < m_numRxnRdc; irxn++) {
       kspec = ir[irxn];
       sc_irxn = m_stoichCoeffRxnMatrix[irxn];
-      iph = PhaseID[kspec];
+      iph = m_phaseID[kspec];
       Vphase = VPhaseList[iph];
 #ifdef DEBUG_MODE
       ANOTE[0] = '\0';	 
 #endif
     
-      if (spStatus[irxn] == VCS_SPECIES_INTERFACIALVOLTAGE) {
+      if (m_rxnStatus[irxn] == VCS_SPECIES_INTERFACIALVOLTAGE) {
 	/********************************************************************/
 	/************************ VOLTAGE SPECIES ***************************/
 	/********************************************************************/
@@ -519,7 +519,7 @@ namespace VCSnonideal {
 #endif
 	m_deltaMolNumSpecies[kspec] = dx;
       }
-      else if (spStatus[irxn] < VCS_SPECIES_MINOR) {
+      else if (m_rxnStatus[irxn] < VCS_SPECIES_MINOR) {
 	/********************************************************************/
 	/********************** ZEROED OUT SPECIES **************************/
 	/********************************************************************/
@@ -527,7 +527,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 3) {
 	  plogf("   --- %s currently zeroed (SpStatus=%-2d):", 
-		m_speciesName[kspec].c_str(), spStatus[irxn]);
+		m_speciesName[kspec].c_str(), m_rxnStatus[irxn]);
 	  plogf("%3d DG = %11.4E WT = %11.4E W = %11.4E DS = %11.4E\n",
 		irxn, m_deltaGRxn_new[irxn], m_molNumSpecies_new[kspec],
 		m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec]);
@@ -554,7 +554,7 @@ namespace VCSnonideal {
 	  //if (vcs_debug_print_lvl >= 2) {
 	  //plogf("   --- "); plogf("%-12s", m_speciesName[kspec]);
 	  //plogf("%3d%11.4E%11.4E%11.4E | %s\n", 
-	  // spStatus[irxn], w[kspec], wt[kspec],
+	  // m_rxnStatus[irxn], w[kspec], wt[kspec],
 	  // ds[kspec], ANOTE);
 	  //}
 #endif
@@ -568,7 +568,7 @@ namespace VCSnonideal {
 		if (maxPermissible < VCS_DELETE_MINORSPECIES_CUTOFF) {
 #ifdef DEBUG_MODE
 		  sprintf(ANOTE, "Species stays zeroed even though dG neg, because of %s elemAbund",
-			  ElName[j].c_str());
+			  m_elementName[j].c_str());
 #endif
 		  resurrect = false;
 		  break;
@@ -589,7 +589,7 @@ namespace VCSnonideal {
 	    plogf("%-12s\n", m_speciesName[kspec].c_str());
 	  }
 #endif
-	  spStatus[irxn] = VCS_SPECIES_MAJOR;
+	  m_rxnStatus[irxn] = VCS_SPECIES_MAJOR;
 	  im = FALSE;
 	  MajorSpeciesHaveConverged = false;
 	  if (m_deltaMolNumSpecies[kspec] > 0.0) {
@@ -609,7 +609,7 @@ namespace VCSnonideal {
 	  m_deltaMolNumSpecies[kspec] = 0.0;
 	  dx = 0.0;
 	}
-      } else if (spStatus[irxn] == VCS_SPECIES_MINOR) {
+      } else if (m_rxnStatus[irxn] == VCS_SPECIES_MINOR) {
 	/********************************************************************/
 	/***************************** MINOR SPECIES ************************/
 	/********************************************************************/
@@ -626,7 +626,7 @@ namespace VCSnonideal {
 	  if (vcs_debug_print_lvl >= 2) {
 	    plogf("   --- "); plogf("%-12s", m_speciesName[kspec].c_str());
 	    plogf("%3d%11.4E%11.4E%11.4E | %s", 
-		  spStatus[irxn], m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec],
+		  m_rxnStatus[irxn], m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec],
 		  m_deltaMolNumSpecies[kspec], ANOTE);
 	    plogendl();
 	  }
@@ -710,7 +710,7 @@ namespace VCSnonideal {
 	  if (vcs_debug_print_lvl >= 2) {
 	    plogf("   --- "); plogf("%-12s", m_speciesName[kspec].c_str());
 	    plogf("%3d%11.4E%11.4E%11.4E | %s", 
-		  spStatus[irxn], m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec],
+		  m_rxnStatus[irxn], m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec],
 		  m_deltaMolNumSpecies[kspec], ANOTE);
 	    plogendl();
 	  }
@@ -762,7 +762,7 @@ namespace VCSnonideal {
 	   *          species is in a single species phase or in 
 	   *          a multispecies phase.
 	   */
-	  if (! (SSPhase[kspec])) {
+	  if (! (m_SSPhase[kspec])) {
 	    /* 
 	     *   Section for multispecies phases:
 	     *     - Cut reaction adjustment for positive kmoles of 
@@ -782,7 +782,7 @@ namespace VCSnonideal {
 	     *        would be wrong.
 	     */
 	    if (m_molNumSpecies_new[kspec] < 0.005 * m_totalMolNum) {
-	      iph = PhaseID[kspec];
+	      iph = m_phaseID[kspec];
 	      if (m_molNumSpecies_new[kspec] < (m_tPhaseMoles_old[iph] * 0.01)) {
 #ifdef DEBUG_MODE
 		if (vcs_debug_print_lvl >= 2) {
@@ -791,7 +791,7 @@ namespace VCSnonideal {
 		  plogendl();
 		}
 #endif
-		spStatus[irxn] = VCS_SPECIES_MINOR;
+		m_rxnStatus[irxn] = VCS_SPECIES_MINOR;
 		++m_numRxnMinorZeroed;
 		im = (m_numRxnMinorZeroed == m_numRxnRdc);
 	      }
@@ -832,7 +832,7 @@ namespace VCSnonideal {
 	       *     We are going to zero the single species phase.
 	       *     Set the existence flag
 	       */
-	      iph = PhaseID[kspec];
+	      iph = m_phaseID[kspec];
 	      Vphase = VPhaseList[iph];
 	      Vphase->Existence = 0;
 #ifdef DEBUG_MODE
@@ -880,14 +880,14 @@ namespace VCSnonideal {
 	      }
 #ifdef DEBUG_MODE
 	      if (vcs_debug_print_lvl >= 2) {
-		if (spStatus[irxn] >= 0) {
+		if (m_rxnStatus[irxn] >= 0) {
 		  plogf("   --- SS species changed to zeroedss: ");
 		  plogf("%-12s", m_speciesName[kspec].c_str());
 		  plogendl();
 		}
 	      }
 #endif
-	      spStatus[irxn] = VCS_SPECIES_ZEROEDSS;
+	      m_rxnStatus[irxn] = VCS_SPECIES_ZEROEDSS;
 	      ++m_numRxnMinorZeroed;
 	      im = (m_numRxnMinorZeroed == m_numRxnRdc);
 	      if (im && iti != 0) {
@@ -962,7 +962,7 @@ namespace VCSnonideal {
 	m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + m_deltaMolNumSpecies[kspec];
 	plogf("   --- "); plogf("%-12.12s", m_speciesName[kspec].c_str());
 	plogf("%3d%11.4E%11.4E%11.4E | %s", 
-	      spStatus[irxn], m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec],
+	      m_rxnStatus[irxn], m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec],
 	      m_deltaMolNumSpecies[kspec], ANOTE);
 	plogendl();
       }
@@ -1007,7 +1007,7 @@ namespace VCSnonideal {
 	   * If we are here, we then do a step which violates element
 	   * conservation.
 	   */
-	  iph = PhaseID[k];
+	  iph = m_phaseID[k];
 	  m_deltaPhaseMoles[iph] -= m_deltaMolNumSpecies[k];
 	  m_deltaMolNumSpecies[k] = 0.0;
 	}
@@ -1118,7 +1118,7 @@ namespace VCSnonideal {
       for (kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
 	irxn = kspec - m_numComponents;
 	plogf("  --- %-12.12s", m_speciesName[kspec].c_str());
-	plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n", spStatus[irxn],
+	plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n", m_rxnStatus[irxn],
 	      m_molNumSpecies_old[kspec], m_molNumSpecies_old[kspec]+m_deltaMolNumSpecies[kspec], 
 	      m_molNumSpecies_new[kspec], m_deltaGRxn_old[irxn], 
 	      m_deltaGRxn_tmp[irxn], m_deltaGRxn_new[irxn]);
@@ -1163,7 +1163,7 @@ namespace VCSnonideal {
 	l1 = i - m_numComponents;
 	plogf("   ---   %-12.12s", m_speciesName[i].c_str());
 	plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n",
-	      spStatus[l1], m_molNumSpecies_old[i],
+	      m_rxnStatus[l1], m_molNumSpecies_old[i],
 	      m_molNumSpecies_new[i], m_feSpecies_old[i], m_feSpecies_curr[i],
 	      m_deltaGRxn_old[l1], m_deltaGRxn_new[l1]);
       }
@@ -1171,7 +1171,7 @@ namespace VCSnonideal {
 	l1 = kspec - m_numComponents;
 	plogf("   ---   %-12.12s", m_speciesName[kspec].c_str());
 	plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n",
-	      spStatus[l1], m_molNumSpecies_old[kspec],
+	      m_rxnStatus[l1], m_molNumSpecies_old[kspec],
 	      m_molNumSpecies_new[kspec], m_feSpecies_old[kspec], m_feSpecies_curr[kspec],
 	      m_deltaGRxn_old[l1], m_deltaGRxn_new[l1]);
       }
@@ -1253,7 +1253,7 @@ namespace VCSnonideal {
 	    m_tPhaseMoles_old[iph]/m_totalMolNum <= VCS_DELETE_PHASE_CUTOFF) {
 	  soldel = 1;
 	  for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
-	    if (PhaseID[kspec] == iph && m_molNumSpecies_old[kspec] > 0.0) {
+	    if (m_phaseID[kspec] == iph && m_molNumSpecies_old[kspec] > 0.0) {
 	      irxn = kspec - m_numComponents;
 	      if (kspec < m_numComponents) {
 		if (m_molNumSpecies_old[kspec] > VCS_DELETE_SPECIES_CUTOFF) {
@@ -1369,15 +1369,15 @@ namespace VCSnonideal {
 	l = ir[i];
 	for (j = m_numComponents - 1; j >= 0; j--) {
 	  bool doSwap = false;
-	  if (SSPhase[j]) {
+	  if (m_SSPhase[j]) {
 	    doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) > (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
-	    if (!SSPhase[i]) {
+	    if (!m_SSPhase[i]) {
 	      if (doSwap) {
 		doSwap = (m_molNumSpecies_old[l]) > (m_molNumSpecies_old[j] * 1.01);
 	      }
 	    }
 	  } else {
-	    if (SSPhase[i]) {
+	    if (m_SSPhase[i]) {
 	      doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) > (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
 	      if (!doSwap) {
 		doSwap = (m_molNumSpecies_old[l]) > (m_molNumSpecies_old[j] * 1.01);
@@ -1403,7 +1403,7 @@ namespace VCSnonideal {
 	    break;
 	  }
 #ifdef DEBUG_NOT
-	  if (spStatus[i] == VCS_SPECIES_ZEROEDMS) {
+	  if (m_rxnStatus[i] == VCS_SPECIES_ZEROEDMS) {
 	    if (m_molNumSpecies_old[j] == 0.0) {
 	      if (m_stoichCoeffRxnMatrix[i][j] != 0.0) {
 		if (dg[i] < 0.0) {
@@ -1429,15 +1429,15 @@ namespace VCSnonideal {
 	l = ir[i];
 	for (j = 0; j < m_numComponents; ++j) {
 	  bool doSwap = false;
-	  if (SSPhase[j]) {
+	  if (m_SSPhase[j]) {
 	    doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) > (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
-	    if (!SSPhase[l]) {
+	    if (!m_SSPhase[l]) {
 	      if (doSwap) {
 		doSwap = (m_molNumSpecies_old[l]) > (m_molNumSpecies_old[j] * 1.01);
 	      }
 	    }
 	  } else {
-	    if (SSPhase[l]) {
+	    if (m_SSPhase[l]) {
 	      doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) > (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
 	      if (!doSwap) {
 		doSwap = (m_molNumSpecies_old[l]) > (m_molNumSpecies_old[j] * 1.01);
@@ -1463,7 +1463,7 @@ namespace VCSnonideal {
 	    }
 	  }
 #ifdef DEBUG_NOT
-	  if (spStatus[i] == VCS_SPECIES_ZEROEDMS) {
+	  if (m_rxnStatus[i] == VCS_SPECIES_ZEROEDMS) {
 	    if (m_molNumSpecies_old[j] == 0.0) {
 	      if (m_stoichCoeffRxnMatrix[i][j] != 0.0) {
 		if (dg[i] < 0.0) {
@@ -1512,7 +1512,7 @@ namespace VCSnonideal {
 	if (speciesType < VCS_SPECIES_MINOR) {
 #ifdef DEBUG_MODE
 	  if (vcs_debug_print_lvl >= 2) {
-	    if (spStatus[irxn]  >= VCS_SPECIES_MINOR) {
+	    if (m_rxnStatus[irxn]  >= VCS_SPECIES_MINOR) {
 	      plogf("   ---    major/minor species is now zeroed out: %s\n", 
 		    m_speciesName[kspec].c_str());
 	    }
@@ -1522,10 +1522,10 @@ namespace VCSnonideal {
 	} else if (speciesType == VCS_SPECIES_MINOR) {
 #ifdef DEBUG_MODE
 	  if (vcs_debug_print_lvl >= 2) {
-	    if (spStatus[irxn] != VCS_SPECIES_MINOR) {
-	      if (spStatus[irxn] == VCS_SPECIES_MAJOR) {
+	    if (m_rxnStatus[irxn] != VCS_SPECIES_MINOR) {
+	      if (m_rxnStatus[irxn] == VCS_SPECIES_MAJOR) {
 		plogf("   ---   Noncomponent turned from major to minor: ");
-	      } else if (spStatus[irxn] == VCS_SPECIES_COMPONENT) {
+	      } else if (m_rxnStatus[irxn] == VCS_SPECIES_COMPONENT) {
 		plogf("   ---   Component turned into a minor species: ");
 	      } else {
 		plogf("   ---   Zeroed Species turned into a "
@@ -1537,12 +1537,12 @@ namespace VCSnonideal {
 #endif
 	  ++m_numRxnMinorZeroed;
 	} else if (speciesType == VCS_SPECIES_MAJOR) {
-	  if (spStatus[irxn] != VCS_SPECIES_MAJOR) {
+	  if (m_rxnStatus[irxn] != VCS_SPECIES_MAJOR) {
 #ifdef DEBUG_MODE
 	    if (vcs_debug_print_lvl >= 2) {
-	      if (spStatus[irxn] ==  VCS_SPECIES_MINOR) {
+	      if (m_rxnStatus[irxn] ==  VCS_SPECIES_MINOR) {
 		plogf("   ---   Noncomponent turned from minor to major: ");
-	      } else if (spStatus[irxn] == VCS_SPECIES_COMPONENT) {
+	      } else if (m_rxnStatus[irxn] == VCS_SPECIES_COMPONENT) {
 		plogf("   ---   Component turned into a major: ");	       
 	      } else {
 		plogf("   ---   Noncomponent turned from zeroed to major: ");
@@ -1550,7 +1550,7 @@ namespace VCSnonideal {
 	      plogf("%s\n", m_speciesName[kspec].c_str());
 	    }
 #endif
-	    spStatus[irxn] = VCS_SPECIES_MAJOR;
+	    m_rxnStatus[irxn] = VCS_SPECIES_MAJOR;
 	    /*
 	     *   For this special case, we must reevaluate thermo functions
 	     */
@@ -1560,7 +1560,7 @@ namespace VCSnonideal {
 	    }
 	  }
 	}
-	spStatus[irxn] = speciesType;
+	m_rxnStatus[irxn] = speciesType;
       }
       /*
        *         This logical variable indicates whether all current 
@@ -1579,7 +1579,7 @@ namespace VCSnonideal {
       }
 #endif
       for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-	if (spStatus[irxn] == VCS_SPECIES_MAJOR && (fabs(m_deltaGRxn_new[irxn]) > m_tolmaj)) {
+	if (m_rxnStatus[irxn] == VCS_SPECIES_MAJOR && (fabs(m_deltaGRxn_new[irxn]) > m_tolmaj)) {
 	  if (m_VCount->Its >= maxit) {
 	    solveFail = -1;
 	    /* 
@@ -1646,7 +1646,7 @@ namespace VCSnonideal {
       }
 #endif
       for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-	if (spStatus[irxn] == VCS_SPECIES_MINOR && (fabs(m_deltaGRxn_new[irxn]) > m_tolmin)) {
+	if (m_rxnStatus[irxn] == VCS_SPECIES_MINOR && (fabs(m_deltaGRxn_new[irxn]) > m_tolmin)) {
 	  if (m_VCount->Its >= maxit) {
 	    solveFail = -1;
 	    /*
@@ -1892,10 +1892,10 @@ namespace VCSnonideal {
      */
     vcs_vdzero(m_molNumSpecies_new, m_numSpeciesTot);
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
-      if (SSPhase[kspec]) {
+      if (m_SSPhase[kspec]) {
 	m_molNumSpecies_new[kspec] = 1.0;
       } else {
-	iph = PhaseID[kspec];
+	iph = m_phaseID[kspec];
 	if (m_tPhaseMoles_old[iph] != 0.0) {
 	  m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] / m_tPhaseMoles_old[iph];
 	} else {
@@ -1991,7 +1991,7 @@ namespace VCSnonideal {
     double  wTrial;
     double *ds_kspec = VCS_DATA_PTR(m_deltaMolNumSpecies) + kspec;
     double  dg_irxn  = m_deltaGRxn_new[irxn];
-    int iphase = PhaseID[kspec];
+    int iphase = m_phaseID[kspec];
     vcs_VolPhase *Vphase = VPhaseList[iphase];
     *do_delete = FALSE;
     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -2139,10 +2139,10 @@ namespace VCSnonideal {
        */
       *delta_ptr = dx;
       m_molNumSpecies_old[kspec] += dx;
-      int iph = PhaseID[kspec];
+      int iph = m_phaseID[kspec];
       m_tPhaseMoles_old[iph] += dx;
       for (j = 0; j < m_numComponents; ++j) {
-	iph = PhaseID[j];
+	iph = m_phaseID[j];
 	tmp = sc_irxn[j] * dx;
 	m_molNumSpecies_old[j] += tmp;
 	m_tPhaseMoles_old[iph] += tmp;
@@ -2216,7 +2216,7 @@ namespace VCSnonideal {
      *************************************************************************/
   {
     int klast = m_numSpeciesRdc - 1;
-    int iph = PhaseID[kspec];
+    int iph = m_phaseID[kspec];
     vcs_VolPhase *Vphase = VPhaseList[iph];
     int irxn = kspec - m_numComponents;     /* This is the noncomponent rxn index */
     /*
@@ -2232,8 +2232,8 @@ namespace VCSnonideal {
      *    Decrement the minor species counter if the current species is
      *    a minor species
      */
-    if (spStatus[irxn] != VCS_SPECIES_MAJOR) --(m_numRxnMinorZeroed);
-    spStatus[irxn] = VCS_SPECIES_DELETED;
+    if (m_rxnStatus[irxn] != VCS_SPECIES_MAJOR) --(m_numRxnMinorZeroed);
+    m_rxnStatus[irxn] = VCS_SPECIES_DELETED;
     m_deltaGRxn_new[irxn] = 0.0;
     m_deltaGRxn_old[irxn] = 0.0;
     m_feSpecies_curr[kspec] = 0.0;
@@ -2261,12 +2261,12 @@ namespace VCSnonideal {
      *    Check to see whether we have just annihilated a multispecies phase.
      *    If it is extinct, call the delete_multiphase() function.
      */
-    if (! SSPhase[klast]) {
+    if (! m_SSPhase[klast]) {
       if (Vphase->Existence != 2) {
 	Vphase->Existence = 0;
 	for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
 	  if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	    if (PhaseID[kspec] == iph) {
+	    if (m_phaseID[kspec] == iph) {
 	      if (m_molNumSpecies_old[kspec] > 0.0) {
 		Vphase->Existence = 1;
 		break;
@@ -2305,7 +2305,7 @@ namespace VCSnonideal {
    */
   void VCS_SOLVE::vcs_reinsert_deleted(int kspec) { 
     int i, k, irxn = kspec - m_numComponents;
-    int *phaseID = VCS_DATA_PTR(PhaseID);
+    int *phaseID = VCS_DATA_PTR(m_phaseID);
     double dx;
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {
@@ -2319,32 +2319,32 @@ namespace VCSnonideal {
      */
     dx = VCS_DELETE_SPECIES_CUTOFF * 10.;
     delta_species(kspec, &dx);
-    spStatus[irxn] = VCS_SPECIES_MINOR;
+    m_rxnStatus[irxn] = VCS_SPECIES_MINOR;
 
-    if (SSPhase[kspec]) {
-      spStatus[irxn] = VCS_SPECIES_MAJOR;
+    if (m_SSPhase[kspec]) {
+      m_rxnStatus[irxn] = VCS_SPECIES_MAJOR;
       --(m_numRxnMinorZeroed);
     }
-    int iph = PhaseID[kspec];
+    int iph = m_phaseID[kspec];
     vcs_VolPhase *Vphase = VPhaseList[iph];
     Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_tPhaseMoles_old));
     /*
      *   We may have popped a multispecies phase back 
      *   into existence. If we did, we have to check 
      *   the other species in that phase.
-     *       Take care of the spStatus[] flag.
-     *       The value of spStatus[] must change from 
+     *       Take care of the m_rxnStatus[] flag.
+     *       The value of m_rxnStatus[] must change from 
      *       VCS_SPECIES_ZEROEDPHASE to VCS_SPECIES_ZEROEDMS
      *       for those other species.
      */
-    if (! SSPhase[kspec]) {
+    if (! m_SSPhase[kspec]) {
       if (Vphase->Existence == 0) {
 	Vphase->Existence = 1;
 	for (k = 0; k < m_numSpeciesTot; k++) {
 	  if (phaseID[k] == iph) {
 	    i = k - m_numComponents;
-	    if (spStatus[i] == VCS_SPECIES_ZEROEDPHASE) 
-	      spStatus[i] = VCS_SPECIES_ZEROEDMS;
+	    if (m_rxnStatus[i] == VCS_SPECIES_ZEROEDPHASE) 
+	      m_rxnStatus[i] = VCS_SPECIES_ZEROEDMS;
 	  }
 	}
       }
@@ -2403,7 +2403,7 @@ namespace VCSnonideal {
      * Loop over all of the active species in the phase.
      */
     for (kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
-      if (PhaseID[kspec] == iph) {
+      if (m_phaseID[kspec] == iph) {
 	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  irxn = kspec - m_numComponents;
 	  /*
@@ -2420,7 +2420,7 @@ namespace VCSnonideal {
 	   * Change the status flag of the species to that of an
 	   * zeroed phase
 	   */
-	  spStatus[irxn] = VCS_SPECIES_ZEROEDPHASE;
+	  m_rxnStatus[irxn] = VCS_SPECIES_ZEROEDPHASE;
 	  /*
 	   *  changed the component mole numbers to account for the
 	   *  final extent of reaction. Make sure to keep component
@@ -2446,12 +2446,12 @@ namespace VCSnonideal {
      *   loop.
      */
     for (kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
-      if (PhaseID[kspec] == iph) {
+      if (m_phaseID[kspec] == iph) {
 	irxn = kspec - m_numComponents;
 	m_molNumSpecies_old[kspec]  = 0.0;
 	m_molNumSpecies_new[kspec] = 0.0;
 	m_deltaMolNumSpecies[kspec] = 0.0;
-	spStatus[irxn] = VCS_SPECIES_ZEROEDPHASE;
+	m_rxnStatus[irxn] = VCS_SPECIES_ZEROEDPHASE;
 	 
 	++(m_numRxnRdc);
 	++(m_numSpeciesRdc);
@@ -2544,7 +2544,7 @@ namespace VCSnonideal {
     npb = 0;
     for (irxn = m_numRxnRdc; irxn < m_numRxnTot; ++irxn) {
       kspec = ir[irxn];
-      iph = PhaseID[kspec];
+      iph = m_phaseID[kspec];
       if (m_tPhaseMoles_old[iph] == 0.0) {
 	if (m_deltaGRxn_new[irxn] < 0.0) {
 	  vcs_reinsert_deleted(kspec);
@@ -2597,7 +2597,7 @@ namespace VCSnonideal {
 
     for (int irxn = m_numRxnRdc; irxn < m_numRxnTot; ++irxn) {
       kspec = ir[irxn];
-      iph = PhaseID[kspec];
+      iph = m_phaseID[kspec];
       if (m_tPhaseMoles_old[iph] > 0.0) {
 	double maxDG = MIN(m_deltaGRxn_new[irxn], 300);
 	double dx = m_tPhaseMoles_old[iph] * exp(- maxDG);
@@ -2824,7 +2824,7 @@ namespace VCSnonideal {
 
 	dnPhase_irxn = m_deltaMolNumPhase[irxn];
       
-	if (m_molNumSpecies_old[kspec] == 0.0 && (! SSPhase[kspec])) {
+	if (m_molNumSpecies_old[kspec] == 0.0 && (! m_SSPhase[kspec])) {
 	  /********************************************************************/
 	  /******* MULTISPECIES PHASE WITH total moles equal to zero *********/
 	  /*******************************************************************/
@@ -2838,7 +2838,7 @@ namespace VCSnonideal {
 	     * First decide if this species is part of a multiphase that
 	     * is nontrivial in size.
 	     */
-	    iph = PhaseID[kspec];
+	    iph = m_phaseID[kspec];
 	    double tphmoles = m_tPhaseMoles_old[iph];
 	    double trphmoles = tphmoles / m_totalMolNum;
 	    if (trphmoles > VCS_DELETE_PHASE_CUTOFF) {
@@ -2890,10 +2890,10 @@ namespace VCSnonideal {
 	   *     Don't calculate for minor or nonexistent species if      
 	   *     their values are to be decreasing anyway.                
 	   */
-	  if ((spStatus[irxn] != VCS_SPECIES_MAJOR) && (m_deltaGRxn_new[irxn] >= 0.0)) {
+	  if ((m_rxnStatus[irxn] != VCS_SPECIES_MAJOR) && (m_deltaGRxn_new[irxn] >= 0.0)) {
 #ifdef DEBUG_MODE
 	    sprintf(ANOTE,"Skipped: IC = %3d and DG >0: %11.3E", 
-		    spStatus[irxn], m_deltaGRxn_new[irxn]);
+		    m_rxnStatus[irxn], m_deltaGRxn_new[irxn]);
 	    if (vcs_debug_print_lvl >= 2) {
 	      plogf("   --- %-12.12s", m_speciesName[kspec].c_str());
 	      plogf("  %12.4E %12.4E %12.4E | %s\n", 
@@ -2905,13 +2905,13 @@ namespace VCSnonideal {
 	  /*
 	   *     Start of the regular processing
 	   */
-	  if (SSPhase[kspec]) {
+	  if (m_SSPhase[kspec]) {
 	    s = 0.0; 
 	  } else {
 	    s = 1.0 / m_molNumSpecies_old[kspec] ;
 	  }
 	  for (j = 0; j < m_numComponents; ++j) {
-	    if (!SSPhase[j]) {
+	    if (!m_SSPhase[j]) {
 	      if (m_molNumSpecies_old[j] > 0.0) {
 		s += SQUARE(m_stoichCoeffRxnMatrix[irxn][j]) /  m_molNumSpecies_old[j];
 	      }
@@ -3027,13 +3027,13 @@ namespace VCSnonideal {
 	     */
 	    if (dss != 0.0) {
 	      m_molNumSpecies_old[kspec] += dss;
-	      m_tPhaseMoles_old[PhaseID[kspec]] +=  dss;
+	      m_tPhaseMoles_old[m_phaseID[kspec]] +=  dss;
 	      for (j = 0; j < m_numComponents; ++j) {
 		m_molNumSpecies_old[j] += dss * m_stoichCoeffRxnMatrix[irxn][j];
-		m_tPhaseMoles_old[PhaseID[j]] +=  dss * m_stoichCoeffRxnMatrix[irxn][j];
+		m_tPhaseMoles_old[m_phaseID[j]] +=  dss * m_stoichCoeffRxnMatrix[irxn][j];
 	      }
 	      m_molNumSpecies_old[k] = 0.0;
-	      iph = PhaseID[k];
+	      iph = m_phaseID[k];
 	      Vphase = VPhaseList[iph];
 	      Vphase->Existence = 0;
 	      m_tPhaseMoles_old[iph] = 0.0;
@@ -3128,7 +3128,7 @@ namespace VCSnonideal {
     /* ************************************************* */
     if (l < 0) {
       for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-	if (spStatus[irxn] != VCS_SPECIES_MINOR) {
+	if (m_rxnStatus[irxn] != VCS_SPECIES_MINOR) {
 	  icase = 0;
 	  m_deltaGRxn_new[irxn] = m_feSpecies_curr[ir[irxn]];
 	  dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
@@ -3166,7 +3166,7 @@ namespace VCSnonideal {
       /* **** MINORS AND ZEROED SPECIES ****************** */
       /* ************************************************* */
       for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-	if (spStatus[irxn] <= VCS_SPECIES_MINOR) {
+	if (m_rxnStatus[irxn] <= VCS_SPECIES_MINOR) {
 	  icase = 0;
 	  m_deltaGRxn_new[irxn] = m_feSpecies_curr[ir[irxn]];
 	  dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
@@ -3336,13 +3336,13 @@ namespace VCSnonideal {
 	plogf("   ---       Formula Matrix used in BASOPT calculation\n");
 	plogf("   ---      Active |   ");
 	for (j = 0; j < m_numElemConstraints; j++) {
-	  plogf("  %1d  ", ElActive[j]);
+	  plogf("  %1d  ", m_elementActive[j]);
 	}
 	plogf("\n");
 	plogf("   ---     Species | ");
 	for (j = 0; j < m_numElemConstraints; j++) {
 	  plogf(" ");
-	  vcs_print_stringTrunc(ElName[j].c_str(), 8, 1);
+	  vcs_print_stringTrunc(m_elementName[j].c_str(), 8, 1);
 	}
 	plogf("\n");
 	for (k = 0; k < m_numSpeciesTot; k++) {
@@ -3453,7 +3453,7 @@ namespace VCSnonideal {
 		maxConcPossKspec = 1.0E10;
 		nonZeroesKspec = 0;
 		for (int j = 0; j < m_numElemConstraints; ++j) {
-		  if (ElActive[j]) {
+		  if (m_elementActive[j]) {
 		    if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
 		      double nu = m_formulaMatrix[j][kspec];
 		      if (nu != 0.0) {
@@ -3672,15 +3672,15 @@ namespace VCSnonideal {
     juse  = -1;
     jlose = -1;
     for (j = 0; j < m_numElemConstraints; j++) {
-      if (! (ElActive[j])) {
-	if (!strcmp((ElName[j]).c_str(), "E")) {
+      if (! (m_elementActive[j])) {
+	if (!strcmp((m_elementName[j]).c_str(), "E")) {
 	  juse = j;
 	}
       }
     }
     for (j = 0; j < m_numElemConstraints; j++) {
-      if (ElActive[j]) {
-	if (!strncmp((ElName[j]).c_str(), "cn_", 3)) {
+      if (m_elementActive[j]) {
+	if (!strncmp((m_elementName[j]).c_str(), "cn_", 3)) {
 	  jlose = j;
 	}
       }
@@ -3783,12 +3783,12 @@ namespace VCSnonideal {
       scrxn_ptr = m_stoichCoeffRxnMatrix[irxn];
       dptr = m_deltaMolNumPhase[irxn];
       kspec = ir[irxn];
-      int iph = PhaseID[kspec];
+      int iph = m_phaseID[kspec];
       int *pp_ptr = m_phaseParticipation[irxn];
       dptr[iph] = 1.0;
       pp_ptr[iph]++;
       for (j = 0; j < ncTrial; ++j) {
-	iph = PhaseID[j];
+	iph = m_phaseID[j];
 	if (fabs(scrxn_ptr[j]) <= 1.0e-6) {  
 	  scrxn_ptr[j] = 0.0;
 	} else {  
@@ -3819,15 +3819,15 @@ namespace VCSnonideal {
       assert(m_spSize[i] > 0.0);
 
       bool doSwap = false;
-      if (SSPhase[j]) {
+      if (m_SSPhase[j]) {
 	doSwap = (x[i] * m_spSize[i]) > (big);
-	if (!SSPhase[i]) {
+	if (!m_SSPhase[i]) {
 	  if (doSwap) {
 	    doSwap = (x[i]) > (x[largest]);
 	  }
 	}
       } else {
-	if (SSPhase[i]) {
+	if (m_SSPhase[i]) {
 	  doSwap = (x[i] * m_spSize[i]) > (big);
 	  if (!doSwap) {
 	    doSwap = (x[i]) > (x[largest]);
@@ -3866,13 +3866,13 @@ namespace VCSnonideal {
     if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
       return  VCS_SPECIES_INTERFACIALVOLTAGE;
     }
-    iph = PhaseID[kspec];
+    iph = m_phaseID[kspec];
     if (m_molNumSpecies_old[kspec] <= 0.0) {
       if (m_deltaGRxn_new[irxn] >= 0.0) {
 	/*
 	 *  We are here when the species is or should be zeroed out
 	 */
-	if (SSPhase[kspec]) {
+	if (m_SSPhase[kspec]) {
 	  return VCS_SPECIES_ZEROEDSS;
 	} else {
 	  if (m_tPhaseMoles_old[iph] == 0.0) return VCS_SPECIES_ZEROEDPHASE;
@@ -3903,7 +3903,7 @@ namespace VCSnonideal {
 		      m_speciesName[kspec].c_str(),  m_speciesName[j].c_str());
 	      }
 #endif
-	      if (SSPhase[kspec]) {
+	      if (m_SSPhase[kspec]) {
 		return VCS_SPECIES_ZEROEDSS;
 	      } else {
 		return VCS_SPECIES_ZEROEDMS;
@@ -3924,10 +3924,10 @@ namespace VCSnonideal {
 	      if (vcs_debug_print_lvl >= 2) {
 		plogf("   ---   %s would have popped back into existance but"
 		      " needed element %s is zero\n",
-		      m_speciesName[kspec].c_str(),  (ElName[j]).c_str());
+		      m_speciesName[kspec].c_str(),  (m_elementName[j]).c_str());
 	      }
 #endif
-	      if (SSPhase[kspec]) {
+	      if (m_SSPhase[kspec]) {
 		return VCS_SPECIES_ZEROEDSS;
 	      } else {
 		return VCS_SPECIES_ZEROEDMS;
@@ -3942,7 +3942,7 @@ namespace VCSnonideal {
     /*
      *   Always treat species in single species phases as majors
      */
-    if (SSPhase[kspec]) return VCS_SPECIES_MAJOR;
+    if (m_SSPhase[kspec]) return VCS_SPECIES_MAJOR;
     /*
      *   Check to see whether the current species is a major component
      *   of its phase. If it is, it is a major component
@@ -3958,7 +3958,7 @@ namespace VCSnonideal {
      */
     double szAdj = m_scSize[irxn] * std::sqrt((double)m_numRxnTot);
     for (k = 0; k < m_numComponents; ++k) {
-      if (!(SSPhase[k])) {
+      if (!(m_SSPhase[k])) {
 	if (m_stoichCoeffRxnMatrix[irxn][k] != 0.0) {
 	  if (m_molNumSpecies_old[kspec] * szAdj >= m_molNumSpecies_old[k] * 0.01) {
 	    return VCS_SPECIES_MAJOR;
@@ -4066,7 +4066,7 @@ namespace VCSnonideal {
       if (kspec >= m_numComponents) {
 	int irxn =  kspec - m_numComponents;
 	if (!do_deleted &&
-	    (spStatus[irxn] == VCS_SPECIES_DELETED)) {
+	    (m_rxnStatus[irxn] == VCS_SPECIES_DELETED)) {
 	  continue;
 	}
       }
@@ -4083,7 +4083,7 @@ namespace VCSnonideal {
 #endif
 	mu_i[kspec] = m_SSfeSpecies[kspec] + m_chargeSpecies[kspec] * Faraday_phi;
       } else {
-	if (SSPhase[kspec]) { 
+	if (m_SSPhase[kspec]) { 
 	  mu_i[kspec] = m_SSfeSpecies[kspec] + m_chargeSpecies[kspec] * Faraday_phi;
 	} else if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
 	  mu_i[kspec] = m_SSfeSpecies[kspec] + log(ac[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
@@ -4275,7 +4275,7 @@ namespace VCSnonideal {
     }
     for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
       if(m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	iph = PhaseID[kspec];
+	iph = m_phaseID[kspec];
 	tlogMoles[iph] += z[kspec];
       }
     }
@@ -4333,7 +4333,7 @@ namespace VCSnonideal {
      *     species or the minor noncomponent species.
      */
     for (kspec = l1; kspec < l2; ++kspec) {
-      iphase = PhaseID[kspec];
+      iphase = m_phaseID[kspec];
       if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 #ifdef DEBUG_MODE
 	if (z[kspec] != m_phasePhi[iphase]) {
@@ -4348,22 +4348,22 @@ namespace VCSnonideal {
 	m_feSpecies_curr[kspec] =
 	  m_SSfeSpecies[kspec] + m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase];
       } else {
-	if (SSPhase[kspec]) {
+	if (m_SSPhase[kspec]) {
 	  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 	} else {
 	  if (z[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
-	    iph = PhaseID[kspec];
+	    iph = m_phaseID[kspec];
 	    if (tPhMoles_ptr[iph] > 0.0) { 
 	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
 		+ log(actCoeff_ptr[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
-		- tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec] 
+		- tlogMoles[m_phaseID[kspec]] - SpecLnMnaught[kspec] 
 		+ m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase];
 	    } else {
 	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 	    }
 	  } else {
 	    m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] + log(actCoeff_ptr[kspec] * z[kspec])
-	      - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec] 
+	      - tlogMoles[m_phaseID[kspec]] - SpecLnMnaught[kspec] 
 	      + m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase]; 
 	  }
 	}
@@ -4374,9 +4374,9 @@ namespace VCSnonideal {
     /* ************************************************ */
     if (ll < 0) {
       for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-	if (spStatus[irxn] != VCS_SPECIES_MINOR) {
+	if (m_rxnStatus[irxn] != VCS_SPECIES_MINOR) {
 	  kspec = ir[irxn];
-	  iphase = PhaseID[kspec];
+	  iphase = m_phaseID[kspec];
 	  if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 #ifdef DEBUG_MODE
 	    if (z[kspec] != m_phasePhi[iphase]) {
@@ -4391,22 +4391,22 @@ namespace VCSnonideal {
 	    m_feSpecies_curr[kspec] = 
 	      m_SSfeSpecies[kspec] + m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase];   
 	  } else {
-	    if (SSPhase[kspec]) {
+	    if (m_SSPhase[kspec]) {
 	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 	    } else {
 	      if (z[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
-		iph = PhaseID[kspec];
+		iph = m_phaseID[kspec];
 		if (tPhMoles_ptr[iph] > 0.0) { 
 		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
 		    + log(actCoeff_ptr[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
-		    - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec]
+		    - tlogMoles[m_phaseID[kspec]] - SpecLnMnaught[kspec]
 		    + m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase]; ;
 		} else {
 		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 		}
 	      } else {
 		m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] + log(actCoeff_ptr[kspec] * z[kspec]) 
-		  - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec] 
+		  - tlogMoles[m_phaseID[kspec]] - SpecLnMnaught[kspec] 
 		  + m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase]; 
 	      }
 	    }
@@ -4418,9 +4418,9 @@ namespace VCSnonideal {
       /* ************************************************ */
     } else if (ll > 0) {
       for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-	if (spStatus[irxn] == VCS_SPECIES_MINOR) {
+	if (m_rxnStatus[irxn] == VCS_SPECIES_MINOR) {
 	  kspec = ir[irxn];
-	  iphase = PhaseID[kspec];
+	  iphase = m_phaseID[kspec];
 	  if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 #ifdef DEBUG_MODE
 	    if (z[kspec] != m_phasePhi[iphase]) {
@@ -4435,22 +4435,22 @@ namespace VCSnonideal {
 	    m_feSpecies_curr[kspec] = 
 	      m_SSfeSpecies[kspec] + m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iphase]; ;
 	  } else {
-	    if (SSPhase[kspec]) {
+	    if (m_SSPhase[kspec]) {
 	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 	    } else {
 	      if (z[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
-		iph = PhaseID[kspec];
+		iph = m_phaseID[kspec];
 		if (tPhMoles_ptr[iph] > 0.0) { 
 		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec]
 		    + log(actCoeff_ptr[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
-		    - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec];
+		    - tlogMoles[m_phaseID[kspec]] - SpecLnMnaught[kspec];
 		} else {
 		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 		}
 	      } else {
 		st_ptr = SpeciesThermo[kspec];
 		m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] + log(actCoeff_ptr[kspec] * z[kspec]) 
-		  - tlogMoles[PhaseID[kspec]] - SpecLnMnaught[kspec]; 
+		  - tlogMoles[m_phaseID[kspec]] - SpecLnMnaught[kspec]; 
 	      }
 	    }
 	  }
@@ -4483,7 +4483,7 @@ namespace VCSnonideal {
     plogf("ELEMENT ABUNDANCE VECTOR:\n");
     plogf(" Element   Now      Orignal      Deviation          Type\n");
     for (j = 0; j < m_numElemConstraints; ++j) {
-      plogf("  ");  plogf("%-2.2s", (ElName[j]).c_str());
+      plogf("  ");  plogf("%-2.2s", (m_elementName[j]).c_str());
       plogf(" = %15.6E     %15.6E     %15.6E  %3d\n",
 	    eav[j], m_elemAbundancesGoal[j], eav[j] - m_elemAbundancesGoal[j], m_elType[j]);
       if (m_elemAbundancesGoal[j] != 0.) {
@@ -4513,9 +4513,9 @@ namespace VCSnonideal {
     int irxn;
     if (m_numRxnRdc <= 0) return 0.0;
     for (irxn = 0, tmp = 0.0; irxn < m_numRxnRdc; ++irxn) {
-      if (spStatus[irxn] == VCS_SPECIES_MAJOR || spStatus[irxn] == VCS_SPECIES_MINOR ||
+      if (m_rxnStatus[irxn] == VCS_SPECIES_MAJOR || m_rxnStatus[irxn] == VCS_SPECIES_MINOR ||
 	  dgLocal[irxn] < 0.0) {
-	if (spStatus[irxn] != VCS_SPECIES_ZEROEDMS) {
+	if (m_rxnStatus[irxn] != VCS_SPECIES_ZEROEDMS) {
 	  tmp += dgLocal[irxn] * dgLocal[irxn];
 	}
       }
@@ -4538,7 +4538,7 @@ namespace VCSnonideal {
     }
     for (i = 0; i < m_numSpeciesTot; i++) {
       if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
-	m_tPhaseMoles_old[PhaseID[i]] += m_molNumSpecies_old[i];
+	m_tPhaseMoles_old[m_phaseID[i]] += m_molNumSpecies_old[i];
       }
     }
     sum = 0.0;
@@ -4644,8 +4644,8 @@ namespace VCSnonideal {
     /*
      *     Handle the index pointer in the phase structures first
      */
-    pv1 = VPhaseList[PhaseID[k1]];
-    pv2 = VPhaseList[PhaseID[k2]];
+    pv1 = VPhaseList[m_phaseID[k1]];
+    pv2 = VPhaseList[m_phaseID[k2]];
 
     kp1 = indPhSp[k1];
     kp2 = indPhSp[k2];
@@ -4672,8 +4672,8 @@ namespace VCSnonideal {
     SWAP(m_deltaMolNumSpecies[k1], m_deltaMolNumSpecies[k2], t1);
     SWAP(m_feSpecies_old[k1], m_feSpecies_old[k2], t1);
     SWAP(m_feSpecies_new[k1], m_feSpecies_new[k2], t1);
-    SWAP(SSPhase[k1], SSPhase[k2], j);
-    SWAP(PhaseID[k1], PhaseID[k2], j);
+    SWAP(m_SSPhase[k1], m_SSPhase[k2], j);
+    SWAP(m_phaseID[k1], m_phaseID[k2], j);
     SWAP(m_speciesIndexVector[k1], m_speciesIndexVector[k2], j); 
     SWAP(indPhSp[k1], indPhSp[k2], j);
     SWAP(SpecActConvention[k1], SpecActConvention[k2], j);
@@ -4722,7 +4722,7 @@ namespace VCSnonideal {
       SWAP(m_deltaGRxn_new[i1],  m_deltaGRxn_new[i2],  t1);
       SWAP(m_deltaGRxn_old[i1], m_deltaGRxn_old[i2], t1);
       SWAP(m_deltaGRxn_tmp[i1], m_deltaGRxn_tmp[i2], t1);
-      SWAP(spStatus[i1],  spStatus[i2],  j);
+      SWAP(m_rxnStatus[i1],  m_rxnStatus[i2],  j);
 
       /*
        *   We don't want to swap ir[], because the values of ir should 
@@ -4770,7 +4770,7 @@ namespace VCSnonideal {
     if (vPhase->SingleSpecies) {
       kspec = vPhase->IndSpecies[0];
 #ifdef DEBUG_MODE
-      if (iphase != PhaseID[kspec]) {
+      if (iphase != m_phaseID[kspec]) {
 	plogf("vcs_deltag_Phase index error\n");
 	exit(-1);
       }
@@ -4793,7 +4793,7 @@ namespace VCSnonideal {
       for (irxn = 0; irxn < irxnl; ++irxn) {
 	kspec = ir[irxn];
 	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	  iph = PhaseID[kspec];
+	  iph = m_phaseID[kspec];
 	  if (iph == iphase ) {
 	    if (m_molNumSpecies_old[kspec] > 0.0) zeroedPhase = FALSE;
 	    m_deltaGRxn_new[irxn] = m_feSpecies_curr[kspec];
@@ -4849,7 +4849,7 @@ namespace VCSnonideal {
 	double phaseDG = 1.0;
 	for (irxn = 0; irxn < irxnl; ++irxn) {
 	  kspec = ir[irxn];
-	  iph = PhaseID[kspec];
+	  iph = m_phaseID[kspec];
 	  if (iph == iphase) {
 	    if (m_deltaGRxn_new[irxn] >  50.0) m_deltaGRxn_new[irxn] =  50.0;
 	    if (m_deltaGRxn_new[irxn] < -50.0) m_deltaGRxn_new[irxn] = -50.0;
@@ -4861,7 +4861,7 @@ namespace VCSnonideal {
 	 */
 	for (irxn = 0; irxn < irxnl; ++irxn) {
 	  kspec = ir[irxn];
-	  iph = PhaseID[kspec];
+	  iph = m_phaseID[kspec];
 	  if (iph == iphase) {
 	    m_deltaGRxn_new[irxn] = 1.0 - phaseDG;
 	  }
@@ -4895,7 +4895,7 @@ namespace VCSnonideal {
       plogf("we shouldn't be here\n");
       exit(-1);
     }
-    int ss = SSPhase[kspec];
+    int ss = m_SSPhase[kspec];
     if (!ss) {
       /*
        * Logic to handle species in multiple species phases

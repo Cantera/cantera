@@ -184,7 +184,7 @@ namespace VCSnonideal {
        *        potential with the value of the standard state chemical
        *        potential. This value doesn't change during the calculation
        */
-      if (SSPhase[i]) {
+      if (m_SSPhase[i]) {
 	m_feSpecies_curr[i] = m_SSfeSpecies[i];
       }
     }    

@@ -147,7 +147,7 @@ namespace VCSnonideal {
       elemAbundPhase[j] = 0.0;
       for (i = 0; i < m_numSpeciesTot; ++i) {
 	if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	  if (PhaseID[i] == iphase) {
+	  if (m_phaseID[i] == iphase) {
 	    elemAbundPhase[j] += m_formulaMatrix[j][i] * m_molNumSpecies_old[i];
 	  }
 	}
@@ -305,6 +305,7 @@ namespace VCSnonideal {
       int elType = m_elType[i];
       if (elType == VCS_ELEM_TYPE_ABSPOS) {
 	for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+	  int irxn = kspec - m_numComponents;
 	  if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	    double atomComp = m_formulaMatrix[i][kspec];
 	    if (atomComp > 0.0) {
@@ -315,22 +316,22 @@ namespace VCSnonideal {
 		if (vcs_debug_print_lvl >= 3) {
 		  plogf("  ---  vcs_elcorr: Reduced species %s from %g to %g due to %s max bounds constraint\n",
 			m_speciesName[kspec].c_str(), m_molNumSpecies_old[kspec], 
-			maxPermissible, ElName[i].c_str());
+			maxPermissible, m_elementName[i].c_str());
 		}
 #endif
 		m_molNumSpecies_old[kspec] = maxPermissible;
 		changed = true;
 		if (m_molNumSpecies_old[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF) {
 		  m_molNumSpecies_old[kspec] = 0.0;
-		  if (SSPhase[kspec]) {
-		    spStatus[kspec] =  VCS_SPECIES_ZEROEDSS;
+		  if (m_SSPhase[kspec]) {
+		    m_rxnStatus[kspec] =  VCS_SPECIES_ZEROEDSS;
 		  } else {
-		    spStatus[kspec] =  VCS_SPECIES_ZEROEDMS;
+		    m_rxnStatus[kspec] =  VCS_SPECIES_ZEROEDMS;
 		  } 
 #ifdef DEBUG_MODE
 		  if (vcs_debug_print_lvl >= 2) {
 		    plogf("  ---  vcs_elcorr: Zeroed species %s and changed status to %d due to max bounds constraint\n",
-			  m_speciesName[kspec].c_str(), spStatus[kspec]);
+			  m_speciesName[kspec].c_str(), m_rxnStatus[irxn]);
 		  }
 #endif
 		}
@@ -385,7 +386,7 @@ namespace VCSnonideal {
 	if (tmp > 0.0) {
 	  m_molNumSpecies_old[i] = tmp;
 	} else {
-	  if (SSPhase[i]) {
+	  if (m_SSPhase[i]) {
 	    m_molNumSpecies_old[i] =  0.0;
 	  }  else {
 	    m_molNumSpecies_old[i] = m_molNumSpecies_old[i] * 0.0001;
@@ -398,7 +399,7 @@ namespace VCSnonideal {
 	if (tmp > 0.0) {
 	  m_molNumSpecies_old[i] = tmp;
 	} else { 
-	  if (SSPhase[i]) {
+	  if (m_SSPhase[i]) {
 	    m_molNumSpecies_old[i] =  0.0;
 	  }  else {
 	    m_molNumSpecies_old[i] = m_molNumSpecies_old[i] * 0.0001;
@@ -584,7 +585,7 @@ namespace VCSnonideal {
       plogf("   ---    Elem_Abund:  Correct             Initial  "
 	    "              Final\n");
       for (i = 0; i < m_numElemConstraints; ++i) {
-	plogf("   ---       "); plogf("%-2.2s", ElName[i].c_str());
+	plogf("   ---       "); plogf("%-2.2s", m_elementName[i].c_str());
 	plogf(" %20.12E %20.12E %20.12E\n", m_elemAbundancesGoal[i], ga_save[i], m_elemAbundances[i]);
       }
       plogf("   ---            Diff_Norm:         %20.12E %20.12E\n",

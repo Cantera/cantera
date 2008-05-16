@@ -1168,9 +1168,13 @@ public:
    */
   std::vector<int> ir;
 
-  //! Major - Minor status Vector for the noncomponent
+  //! Major -Minor status vector for the formation reaction
   /*!
-   *              species  irxn : 1 -> Major player  VCS_SPECIES_MAJOR
+   *  The index for this is rxn. The species that this is refereing
+   *  to is 
+   *          kspec = irxn + m_numComponents
+   *
+   *        formation rxn  irxn : 1 -> Major player  VCS_SPECIES_MAJOR
    *                              0 -> Minor player  VCS_SPECIES_MINOR
    *                             -1 -> Mole number is zero 
    *                                   in inactive phase VCS_SPECIES_ZEROEDPHASE
@@ -1180,15 +1184,15 @@ public:
    *                                   in a stoich phase - VCS_SPECIES_ZEREODSS
    *                             -4 -> Species is deleted
    *                                   - VCS_SPECIES_DELETED
-   *            -> Length equal to number of 
-   *               non-components*/
-  std::vector<int> spStatus;
+   *            -> Length equal to number of  non-components
+   */
+  std::vector<int> m_rxnStatus;
 
   //!  Mapping from the species number to the phase number 
-  std::vector<int> PhaseID;
+  std::vector<int> m_phaseID;
 
   //!  Boolean indicating whether a species belongs to a single-species phase
-  std::vector<int> SSPhase;
+  std::vector<int> m_SSPhase;
 
 
   //! Species string name for the kth species
@@ -1201,7 +1205,7 @@ public:
   /*!
    *   ElName[j]  = String containing element names      
    */
-  std::vector<std::string> ElName; 
+  std::vector<std::string> m_elementName; 
 
   //! Type of the element constraint
   /*!
@@ -1225,7 +1229,7 @@ public:
    * The default is true
    * Length = nelements
    */
-  std::vector<int> ElActive;
+  std::vector<int> m_elementActive;
 
   //! Array of Phase Structures
   /*!
@@ -1234,7 +1238,7 @@ public:
   std::vector<vcs_VolPhase *> VPhaseList;
 
   //! String containing the title of the run
-  std::string Title;
+  std::string m_title;
 
   //!   This specifies the current state of units for the Gibbs free energy
   //!   properties in the program.

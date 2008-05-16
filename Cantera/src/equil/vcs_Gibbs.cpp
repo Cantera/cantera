@@ -71,7 +71,7 @@ namespace VCSnonideal {
     double g = 0.0;
     double phaseMols = 0.0;
     for (int kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
-      if (PhaseID[kspec] == iphase) {
+      if (m_phaseID[kspec] == iphase) {
 	g += w[kspec] * fe[kspec];
 	phaseMols += w[kspec];
       }

@@ -107,7 +107,7 @@ namespace VCSnonideal {
 	 */
 	k = m_numElemConstraints;
 	for (ielem = jr; ielem < m_numElemConstraints; ielem++) {
-	  if (ElActive[ielem]) {
+	  if (m_elementActive[ielem]) {
 	    if (aw[ielem] != test) {
 	      k = ielem;
 	      break;
@@ -188,9 +188,9 @@ namespace VCSnonideal {
       if (jr != k) {
 #ifdef DEBUG_MODE
 	if (vcs_debug_print_lvl >= 2) {
-	  plogf("   ---   "); plogf("%-2.2s", (ElName[k]).c_str());
+	  plogf("   ---   "); plogf("%-2.2s", (m_elementName[k]).c_str());
 	  plogf("(%9.2g) replaces ", m_elemAbundancesGoal[k]);
-	  plogf("%-2.2s", (ElName[jr]).c_str());
+	  plogf("%-2.2s", (m_elementName[jr]).c_str());
 	  plogf("(%9.2g) as element %3d", m_elemAbundancesGoal[jr], jr);
 	  plogendl();
 	}
@@ -250,11 +250,11 @@ namespace VCSnonideal {
     vcsUtil_dsw(VCS_DATA_PTR(m_elemAbundances), ipos, jpos);
     vcsUtil_isw(VCS_DATA_PTR(IndEl),     ipos, jpos);
     vcsUtil_isw(VCS_DATA_PTR(m_elType),  ipos, jpos);
-    vcsUtil_isw(VCS_DATA_PTR(ElActive),  ipos, jpos);
+    vcsUtil_isw(VCS_DATA_PTR(m_elementActive),  ipos, jpos);
     for (j = 0; j < m_numSpeciesTot; ++j) {
       SWAP(m_formulaMatrix[ipos][j], m_formulaMatrix[jpos][j], dtmp);
     }
-    vcsUtil_stsw(ElName, ipos, jpos);
+    vcsUtil_stsw(m_elementName, ipos, jpos);
   }
 }
 

@@ -432,7 +432,7 @@ double VCS_SOLVE::vcs_Gxs_calc(int iphase)
 
   if (totmol != 0.0 && Vphase->Activity_Coeff_Model != VCS_AC_CONSTANT) {
     for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
-      if (PhaseID[kspec] == iphase) {
+      if (m_phaseID[kspec] == iphase) {
 	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  ts_ptr = SpeciesThermo[kspec];
 	  ac = ts_ptr->eval_ac(kspec);

@@ -161,19 +161,19 @@ namespace VCSnonideal {
     ir.resize(nspecies0, 0);
    
     /* Initialize all species to be major species */
-    spStatus.resize(nspecies0, 1);
+    m_rxnStatus.resize(nspecies0, 1);
    
-    SSPhase.resize(2*nspecies0, 0);
-    PhaseID.resize(nspecies0, 0);
+    m_SSPhase.resize(2*nspecies0, 0);
+    m_phaseID.resize(nspecies0, 0);
 
     m_numElemConstraints  = nelements;
 
-    ElName.resize(nelements, std::string(""));
+    m_elementName.resize(nelements, std::string(""));
     m_speciesName.resize(nspecies0, std::string(""));
 
     m_elType.resize(nelements, VCS_ELEM_TYPE_ABSPOS);
 
-    ElActive.resize(nelements,  1);
+    m_elementActive.resize(nelements,  1);
     /*
      *    Malloc space for activity coefficients for all species
      *    -> Set it equal to one.
@@ -622,7 +622,7 @@ namespace VCSnonideal {
      *  ir[] -> will be done below once nc is defined.
      *  ic[] -> Define all species to be major species, initially.
      */
-    for (i = 0; i < nspecies; i++) spStatus[i] = VCS_SPECIES_MAJOR;
+    for (i = 0; i < nspecies; i++) m_rxnStatus[i] = VCS_SPECIES_MAJOR;
     /*
      * PhaseID: Fill in the species to phase mapping
      *             -> Check for bad values at the same time.
@@ -638,7 +638,7 @@ namespace VCSnonideal {
 	  plogf("\tAllowed values: 0 to %d\n", nph - 1);
 	  return VCS_PUB_BAD;	    
 	}
-	PhaseID[kspec] = pub->PhaseID[kspec];
+	m_phaseID[kspec] = pub->PhaseID[kspec];
 	indPhSp[kspec] = numPhSp[iph];
 	numPhSp[iph]++;
       }
@@ -653,7 +653,7 @@ namespace VCSnonideal {
     } else {
       if (m_numPhases == 1) {
 	for (kspec = 0; kspec < nspecies; kspec++) {
-	  PhaseID[kspec] = 0;
+	  m_phaseID[kspec] = 0;
 	  indPhSp[kspec] = kspec;
 	}
       } else {
@@ -666,16 +666,16 @@ namespace VCSnonideal {
      *  Copy over the element types
      */
     m_elType.resize(nelements, VCS_ELEM_TYPE_ABSPOS);
-    ElActive.resize(nelements, 1);
+    m_elementActive.resize(nelements, 1);
   
     /*
      *      Copy over the element names
      */
     for (i = 0; i < nelements; i++) {
-      ElName[i] = pub->ElName[i];
+      m_elementName[i] = pub->ElName[i];
       m_elType[i] = pub->m_elType[i];
-      ElActive[i] = pub->ElActive[i];
-      if (!strncmp(ElName[i].c_str(), "cn_", 3)) {
+      m_elementActive[i] = pub->ElActive[i];
+      if (!strncmp(m_elementName[i].c_str(), "cn_", 3)) {
 	m_elType[i] = VCS_ELEM_TYPE_CHARGENEUTRALITY;
 	if (pub->m_elType[i] != VCS_ELEM_TYPE_CHARGENEUTRALITY) {
 	  plogf("we have an inconsistency!\n");
@@ -739,9 +739,9 @@ namespace VCSnonideal {
      *      Copy the title info
      */
     if (pub->Title.size() == 0) {
-      Title = "Unspecified Problem Title";
+      m_title = "Unspecified Problem Title";
     } else {
-      Title = pub->Title;
+      m_title = pub->Title;
     }
 
     /*
@@ -807,11 +807,11 @@ namespace VCSnonideal {
      *  Try to do the best job at guessing at the title
      */
     if (pub->Title.size() == 0) {
-      if (Title.size() == 0) {
-	Title = "Unspecified Problem Title";
+      if (m_title.size() == 0) {
+	m_title = "Unspecified Problem Title";
       }
     } else {
-      Title = pub->Title;
+      m_title = pub->Title;
     }
 
     /*

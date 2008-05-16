@@ -43,7 +43,7 @@ namespace VCSnonideal {
     std::vector<int> numPhSpecies(m_numPhases, 0);
 
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
-      numPhSpecies[PhaseID[kspec]]++;
+      numPhSpecies[m_phaseID[kspec]]++;
     }   
     /*
      *           Handle the special case of a single species in a phase that
@@ -71,10 +71,10 @@ namespace VCSnonideal {
      *                 single species phase or not.
      */
     for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
-      iph = PhaseID[kspec];
+      iph = m_phaseID[kspec];
       Vphase = VPhaseList[iph];
-      if (Vphase->SingleSpecies)  SSPhase[kspec] = TRUE;
-      else                        SSPhase[kspec] = FALSE;
+      if (Vphase->SingleSpecies)  m_SSPhase[kspec] = TRUE;
+      else                        m_SSPhase[kspec] = FALSE;
     }
   }
 
@@ -141,7 +141,7 @@ namespace VCSnonideal {
     }
   
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
-      int pID = PhaseID[kspec];
+      int pID = m_phaseID[kspec];
       int spPhIndex = indPhSp[kspec];
       vcs_VolPhase *vPhase =  VPhaseList[pID];
       vcs_SpeciesProperties *spProp = vPhase->ListSpeciesPtr[spPhIndex];
