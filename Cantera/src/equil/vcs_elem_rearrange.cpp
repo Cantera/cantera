@@ -236,7 +236,7 @@ namespace VCSnonideal {
      * to reflect the switch in the element positions.
      */
     for (int iph = 0; iph < m_numPhases; iph++) {
-      volPhase = VPhaseList[iph];
+      volPhase = m_VolPhaseList[iph];
       for (int e = 0; e < volPhase->nElemConstraints; e++) {
 	if (volPhase->ElGlobalIndex[e] == ipos) {
           volPhase->ElGlobalIndex[e] = jpos; 
@@ -248,7 +248,7 @@ namespace VCSnonideal {
     }
     vcsUtil_dsw(VCS_DATA_PTR(m_elemAbundancesGoal), ipos, jpos);
     vcsUtil_dsw(VCS_DATA_PTR(m_elemAbundances), ipos, jpos);
-    vcsUtil_isw(VCS_DATA_PTR(IndEl),     ipos, jpos);
+    vcsUtil_isw(VCS_DATA_PTR(m_elementMapIndex), ipos, jpos);
     vcsUtil_isw(VCS_DATA_PTR(m_elType),  ipos, jpos);
     vcsUtil_isw(VCS_DATA_PTR(m_elementActive),  ipos, jpos);
     for (j = 0; j < m_numSpeciesTot; ++j) {

@@ -40,7 +40,7 @@ namespace VCSnonideal {
     double g = 0.0;
   
     for (int iph = 0; iph < m_numPhases; iph++) {
-      vcs_VolPhase *Vphase = VPhaseList[iph];
+      vcs_VolPhase *Vphase = m_VolPhaseList[iph];
       if ((TPhInertMoles[iph] > 0.0) && (tPhMoles[iph] > 0.0)) {
 	g += TPhInertMoles[iph] *
 	  log(TPhInertMoles[iph] / tPhMoles[iph]);
@@ -80,7 +80,7 @@ namespace VCSnonideal {
     if (TPhInertMoles[iphase] > 0.0) {
       phaseMols += TPhInertMoles[iphase];
       g += TPhInertMoles[iphase] * log(TPhInertMoles[iphase] / phaseMols);
-      vcs_VolPhase *Vphase = VPhaseList[iphase];
+      vcs_VolPhase *Vphase = m_VolPhaseList[iphase];
       if (Vphase->GasPhase == iphase) {
 	g += TPhInertMoles[iphase] * log(m_pressurePA/1.01325E5);
       }

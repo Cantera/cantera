@@ -51,7 +51,7 @@ namespace VCSnonideal {
      *           Treat that species as a single-species phase
      */
     for (iph = 0; iph < m_numPhases; iph++) {
-      Vphase = VPhaseList[iph];
+      Vphase = m_VolPhaseList[iph];
       Vphase->SingleSpecies = false;
       if (TPhInertMoles[iph] > 0.0) {
 	Vphase->Existence = 2;
@@ -72,7 +72,7 @@ namespace VCSnonideal {
      */
     for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
       iph = m_phaseID[kspec];
-      Vphase = VPhaseList[iph];
+      Vphase = m_VolPhaseList[iph];
       if (Vphase->SingleSpecies)  m_SSPhase[kspec] = TRUE;
       else                        m_SSPhase[kspec] = FALSE;
     }
@@ -142,8 +142,8 @@ namespace VCSnonideal {
   
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
       int pID = m_phaseID[kspec];
-      int spPhIndex = indPhSp[kspec];
-      vcs_VolPhase *vPhase =  VPhaseList[pID];
+      int spPhIndex = m_speciesLocalPhaseIndex[kspec];
+      vcs_VolPhase *vPhase =  m_VolPhaseList[pID];
       vcs_SpeciesProperties *spProp = vPhase->ListSpeciesPtr[spPhIndex];
       double sz = 0.0;
       int eSize =  spProp->FormulaMatrixCol.size();

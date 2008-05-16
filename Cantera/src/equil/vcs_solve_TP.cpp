@@ -170,9 +170,9 @@ namespace VCSnonideal {
     /* **** Printout the initial conditions for problem ****** */
     /* ******************************************************* */
     if (m_numPhases > 1) {
-      if (! VPhaseList[1]->SingleSpecies) {
+      if (! m_VolPhaseList[1]->SingleSpecies) {
 	liqphase = TRUE;
-	numSpecliquid = VPhaseList[1]->NVolSpecies;
+	numSpecliquid = m_VolPhaseList[1]->NVolSpecies;
       }
     }
     if (print_lvl != 0) {
@@ -180,17 +180,17 @@ namespace VCSnonideal {
       plogf("%s\n", m_title.c_str());
       plogf("\n\n%5d SPECIES%8d ELEMENTS", m_numSpeciesTot, m_numElemConstraints);
       plogf("%16d COMPONENTS\n%5d PHASE1 SPECIES", m_numComponents,
-	    ((VPhaseList[0])->NVolSpecies));
+	    ((m_VolPhaseList[0])->NVolSpecies));
       plogf("%10d PHASE2 SPECIES%8d SINGLE SPECIES PHASES\n\n", 
 	    numSpecliquid, 
-	    m_numSpeciesTot - (VPhaseList[0])->NVolSpecies - numSpecliquid);  
+	    m_numSpeciesTot - (m_VolPhaseList[0])->NVolSpecies - numSpecliquid);  
       //string punits = "atm";
       //if (m_VCS_UnitsFormat == 3) {
       //	punits = "Pa ";
       //}
       plogf(" PRESSURE%22.8g %3s\n", m_pressurePA, "Pa "); 
       plogf(" TEMPERATURE%19.3f K\n", m_temperature);
-      Vphase = VPhaseList[0];
+      Vphase = m_VolPhaseList[0];
       if (Vphase->NVolSpecies > 0) {
 	plogf(" PHASE1 INERTS%17.3f\n", TPhInertMoles[0]);
       }
@@ -503,7 +503,7 @@ namespace VCSnonideal {
       kspec = m_indexRxnToSpecies[irxn];
       sc_irxn = m_stoichCoeffRxnMatrix[irxn];
       iph = m_phaseID[kspec];
-      Vphase = VPhaseList[iph];
+      Vphase = m_VolPhaseList[iph];
 #ifdef DEBUG_MODE
       ANOTE[0] = '\0';	 
 #endif
@@ -833,7 +833,7 @@ namespace VCSnonideal {
 	       *     Set the existence flag
 	       */
 	      iph = m_phaseID[kspec];
-	      Vphase = VPhaseList[iph];
+	      Vphase = m_VolPhaseList[iph];
 	      Vphase->Existence = 0;
 #ifdef DEBUG_MODE
 	      sprintf(ANOTE, "zero SS phase: moles went neg");
@@ -1128,7 +1128,7 @@ namespace VCSnonideal {
 	    l2normdg(VCS_DATA_PTR(m_deltaGRxn_old)),
 	    l2normdg(VCS_DATA_PTR(m_deltaGRxn_new)));
       plogf("   Total kmoles of gas    = %15.7E\n", m_tPhaseMoles_old[0]);
-      if ((m_numPhases > 1) && (! (VPhaseList[1])->SingleSpecies)) { 
+      if ((m_numPhases > 1) && (! (m_VolPhaseList[1])->SingleSpecies)) { 
 	plogf("   Total kmoles of liquid = %15.7E\n", m_tPhaseMoles_old[1]); 
       } else {
 	plogf("   Total kmoles of liquid = %15.7E\n", 0.0);
@@ -1184,7 +1184,7 @@ namespace VCSnonideal {
       plogf("   ---           Phase_Name    KMoles(after update)\n");
       plogf("   ---   "); vcs_print_line("-", 50);
       for (iph = 0; iph < m_numPhases; iph++) {
-	Vphase = VPhaseList[iph];
+	Vphase = m_VolPhaseList[iph];
 	plogf("   ---   %18s = %15.7E\n", Vphase->PhaseName.c_str(), m_tPhaseMoles_new[iph]);
       }
       plogf("   "); vcs_print_line("-", 103);
@@ -1247,7 +1247,7 @@ namespace VCSnonideal {
      */
     justDeletedMultiPhase = FALSE;
     for (iph = 0; iph < m_numPhases; iph++) {
-      Vphase = VPhaseList[iph];
+      Vphase = m_VolPhaseList[iph];
       if (!(Vphase->SingleSpecies)) {
 	if (m_tPhaseMoles_old[iph] != 0.0 &&
 	    m_tPhaseMoles_old[iph]/m_totalMolNum <= VCS_DELETE_PHASE_CUTOFF) {
@@ -1905,8 +1905,8 @@ namespace VCSnonideal {
 	   * This contains the mole fraction that would be true if
 	   * the phase just pops into existence.
 	   */
-	  i = indPhSp[kspec];
-	  Vphase = VPhaseList[iph];
+	  i = m_speciesLocalPhaseIndex[kspec];
+	  Vphase = m_VolPhaseList[iph];
 	  m_molNumSpecies_new[kspec] = Vphase->molefraction(i);
 	}
       }
@@ -1992,7 +1992,7 @@ namespace VCSnonideal {
     double *ds_kspec = VCS_DATA_PTR(m_deltaMolNumSpecies) + kspec;
     double  dg_irxn  = m_deltaGRxn_new[irxn];
     int iphase = m_phaseID[kspec];
-    vcs_VolPhase *Vphase = VPhaseList[iphase];
+    vcs_VolPhase *Vphase = m_VolPhaseList[iphase];
     *do_delete = FALSE;
     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
       if (w_kspec <= 0.0) {
@@ -2217,7 +2217,7 @@ namespace VCSnonideal {
   {
     int klast = m_numSpeciesRdc - 1;
     int iph = m_phaseID[kspec];
-    vcs_VolPhase *Vphase = VPhaseList[iph];
+    vcs_VolPhase *Vphase = m_VolPhaseList[iph];
     int irxn = kspec - m_numComponents;     /* This is the noncomponent rxn index */
     /*
      * Zero the concentration of the species.
@@ -2326,7 +2326,7 @@ namespace VCSnonideal {
       --(m_numRxnMinorZeroed);
     }
     int iph = m_phaseID[kspec];
-    vcs_VolPhase *Vphase = VPhaseList[iph];
+    vcs_VolPhase *Vphase = m_VolPhaseList[iph];
     Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_tPhaseMoles_old));
     /*
      *   We may have popped a multispecies phase back 
@@ -2382,7 +2382,7 @@ namespace VCSnonideal {
   void VCS_SOLVE::delete_multiphase(int iph) {
     int kspec, j, irxn;
     double dx;
-    vcs_VolPhase *Vphase = VPhaseList[iph];
+    vcs_VolPhase *Vphase = m_VolPhaseList[iph];
     /*
      * set the phase existence flag to dead
      */
@@ -2853,7 +2853,7 @@ namespace VCSnonideal {
 	      sprintf(ANOTE, "MultSpec: phase come alive DG = %11.3E", 
 		      m_deltaGRxn_new[irxn]);   
 #endif
-	      Vphase = VPhaseList[iph];
+	      Vphase = m_VolPhaseList[iph];
 	      int numSpPhase = Vphase->NVolSpecies;
 	      m_deltaMolNumSpecies[kspec] = m_totalMolNum * 10.0 * VCS_DELETE_PHASE_CUTOFF / numSpPhase;
 	    }
@@ -2918,7 +2918,7 @@ namespace VCSnonideal {
 	    }
 	  }
 	  for (j = 0; j < m_numPhases; j++) {
-	    Vphase = VPhaseList[j];
+	    Vphase = m_VolPhaseList[j];
 	    if (! Vphase->SingleSpecies) {
 	      if (m_tPhaseMoles_old[j] > 0.0) 
 		s -= SQUARE(dnPhase_irxn[j]) / m_tPhaseMoles_old[j];
@@ -3034,7 +3034,7 @@ namespace VCSnonideal {
 	      }
 	      m_molNumSpecies_old[k] = 0.0;
 	      iph = m_phaseID[k];
-	      Vphase = VPhaseList[iph];
+	      Vphase = m_VolPhaseList[iph];
 	      Vphase->Existence = 0;
 	      m_tPhaseMoles_old[iph] = 0.0;
 #ifdef DEBUG_MODE
@@ -3229,7 +3229,7 @@ namespace VCSnonideal {
     int k;
     for (iph = 0; iph < m_numPhases; iph++) {
       lneed = FALSE;
-      vcs_VolPhase *Vphase = VPhaseList[iph];
+      vcs_VolPhase *Vphase = m_VolPhaseList[iph];
       if (! Vphase->SingleSpecies) {
 	double sum = 0.0;
 	for (k = 0; k < Vphase->NVolSpecies; k++) {
@@ -4037,7 +4037,7 @@ namespace VCSnonideal {
      * 
      *************************************************************************/
   {
-    vcs_VolPhase *Vphase = VPhaseList[iph];
+    vcs_VolPhase *Vphase = m_VolPhaseList[iph];
     int nkk = Vphase->NVolSpecies;
     int k, kspec;
 
@@ -4316,7 +4316,7 @@ namespace VCSnonideal {
      */
     for (iphase = 0; iphase < m_numPhases; iphase++) {
       if (!CurrPhAC[iphase]) {
-	Vphase = VPhaseList[iphase];
+	Vphase = m_VolPhaseList[iphase];
 	if (!Vphase->SingleSpecies) {
 	  Vphase->setMolesFromVCS(z);
 	  Vphase->sendToVCSActCoeff(VCS_DATA_PTR(actCoeff_ptr));
@@ -4546,7 +4546,7 @@ namespace VCSnonideal {
     sum = 0.0;
     for (i = 0; i < m_numPhases; i++) {
       sum += m_tPhaseMoles_old[i];
-      Vphase = VPhaseList[i];
+      Vphase = m_VolPhaseList[i];
       // Took out because we aren't updating mole fractions in Vphase
       // Vphase->TMoles = m_tPhaseMoles_old[i];
       if (m_tPhaseMoles_old[i] == 0.0) {
@@ -4574,7 +4574,7 @@ namespace VCSnonideal {
   void VCS_SOLVE::vcs_updateVP(const int vcsState) {
     vcs_VolPhase *Vphase;
     for (int i = 0; i < m_numPhases; i++) {
-      Vphase = VPhaseList[i];
+      Vphase = m_VolPhaseList[i];
       if (vcsState == VCS_STATECALC_OLD) {
 	Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old),
 				     VCS_DATA_PTR(m_tPhaseMoles_old), i);
@@ -4646,11 +4646,11 @@ namespace VCSnonideal {
     /*
      *     Handle the index pointer in the phase structures first
      */
-    pv1 = VPhaseList[m_phaseID[k1]];
-    pv2 = VPhaseList[m_phaseID[k2]];
+    pv1 = m_VolPhaseList[m_phaseID[k1]];
+    pv2 = m_VolPhaseList[m_phaseID[k2]];
 
-    kp1 = indPhSp[k1];
-    kp2 = indPhSp[k2];
+    kp1 = m_speciesLocalPhaseIndex[k1];
+    kp2 = m_speciesLocalPhaseIndex[k2];
 #ifdef DEBUG_MODE
     if (pv1->IndSpecies[kp1] != k1) {
       plogf("Indexing error in program\n");
@@ -4676,8 +4676,8 @@ namespace VCSnonideal {
     SWAP(m_feSpecies_new[k1], m_feSpecies_new[k2], t1);
     SWAP(m_SSPhase[k1], m_SSPhase[k2], j);
     SWAP(m_phaseID[k1], m_phaseID[k2], j);
-    SWAP(m_speciesIndexVector[k1], m_speciesIndexVector[k2], j); 
-    SWAP(indPhSp[k1], indPhSp[k2], j);
+    SWAP(m_speciesMapIndex[k1], m_speciesMapIndex[k2], j); 
+    SWAP(m_speciesLocalPhaseIndex[k1], m_speciesLocalPhaseIndex[k2], j);
     SWAP(SpecActConvention[k1], SpecActConvention[k2], j);
     SWAP(SpecLnMnaught[k1], SpecLnMnaught[k2], t1);
     SWAP(m_actCoeffSpecies_new[k1], m_actCoeffSpecies_new[k2], t1);
@@ -4757,7 +4757,7 @@ namespace VCSnonideal {
     double *dtmp_ptr;
     int irxnl = m_numRxnRdc;
     if (doDeleted) irxnl = m_numRxnTot;
-    vcs_VolPhase *vPhase = VPhaseList[iphase];
+    vcs_VolPhase *vPhase = m_VolPhaseList[iphase];
 
 #ifdef DEBUG_MODE
     if (vcs_debug_print_lvl >= 2) {

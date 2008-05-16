@@ -152,7 +152,7 @@ namespace VCSnonideal {
 	  plogf(" Inert Gas Species        ");
 	} else {
 	  plogf(" Inert Species in phase %16s ", 
-		(VPhaseList[i])->PhaseName.c_str());
+		(m_VolPhaseList[i])->PhaseName.c_str());
 	}
 	plogf("%14.7E     %14.7E    %12.4E\n", TPhInertMoles[i], 
 	      TPhInertMoles[i] /  m_tPhaseMoles_old[i], 0.0); 
@@ -244,7 +244,7 @@ namespace VCSnonideal {
     print_line("-", m_numElemConstraints*10 + 58);
     for (int iphase = 0; iphase < m_numPhases; iphase++) {
       plogf(" %3d ", iphase);
-      vcs_VolPhase *VPhase = VPhaseList[iphase];
+      vcs_VolPhase *VPhase = m_VolPhaseList[iphase];
       plogf("%-12.12s |",VPhase->PhaseName.c_str());
       plogf("%10.3e |", m_tPhaseMoles_old[iphase]);
       totalMoles +=  m_tPhaseMoles_old[iphase];

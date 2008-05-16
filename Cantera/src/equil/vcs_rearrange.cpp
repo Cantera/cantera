@@ -36,7 +36,7 @@ namespace VCSnonideal {
        *         Call it k1 and continue.
        */
       for (j = 0; j < m_numSpeciesTot; ++j) {
-	l = m_speciesIndexVector[j];
+	l = m_speciesMapIndex[j];
 	k1 = j;
 	if (l == i) break;
       }

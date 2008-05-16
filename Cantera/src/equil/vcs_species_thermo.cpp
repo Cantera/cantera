@@ -427,7 +427,7 @@ double VCS_SOLVE::vcs_Gxs_calc(int iphase)
   int kspec;
   double Gxs = 0.0, ac;
   double totmol = m_tPhaseMoles_old[iphase];
-  vcs_VolPhase *Vphase = VPhaseList[iphase];
+  vcs_VolPhase *Vphase = m_VolPhaseList[iphase];
   VCS_SPECIES_THERMO *ts_ptr;
 
   if (totmol != 0.0 && Vphase->Activity_Coeff_Model != VCS_AC_CONSTANT) {

@@ -135,7 +135,7 @@ namespace VCSnonideal {
     vcs_dzero(VCS_DATA_PTR(m_deltaMolNumSpecies), nspecies);
     for (kspec = 0; kspec < nspecies; ++kspec) {
       iph = m_phaseID[kspec];
-      Vphase = VPhaseList[iph];
+      Vphase = m_VolPhaseList[iph];
       if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	if (molNum[kspec] <= 0.0) {
 	  /*
@@ -184,7 +184,7 @@ namespace VCSnonideal {
     }
     TMolesMultiphase = 0.0;
     for (iph = 0; iph < m_numPhases; iph++) {
-      if (! VPhaseList[iph]->SingleSpecies) {
+      if (! m_VolPhaseList[iph]->SingleSpecies) {
 	TMolesMultiphase += m_tPhaseMoles_new[iph];
       }
     }     

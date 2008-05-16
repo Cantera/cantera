@@ -145,13 +145,13 @@ namespace VCSnonideal {
      * ind[] is an index variable that keep track of solution vector
      * rotations.
      */
-    m_speciesIndexVector.resize(nspecies0, 0);
-    indPhSp.resize(nspecies0, 0);
+    m_speciesMapIndex.resize(nspecies0, 0);
+    m_speciesLocalPhaseIndex.resize(nspecies0, 0);
     /*
      *    IndEl[] is an index variable that keep track of element vector
      *    rotations.
      */
-    IndEl.resize(nelements, 0);
+    m_elementMapIndex.resize(nelements, 0);
 
     /*
      *   ir[] is an index vector that keeps track of the irxn to species
@@ -191,9 +191,9 @@ namespace VCSnonideal {
     /*
      *    Malloc Phase Info
      */
-    VPhaseList.resize(nphase0, 0);
+    m_VolPhaseList.resize(nphase0, 0);
     for (iph = 0; iph < nphase0; iph++) {
-      VPhaseList[iph] = new vcs_VolPhase();
+      m_VolPhaseList[iph] = new vcs_VolPhase();
     }   
    
     /*
@@ -236,8 +236,8 @@ namespace VCSnonideal {
     int nspecies = m_numSpeciesTot;
    
     for (j = 0; j < m_numPhases; j++) {
-      delete VPhaseList[j];
-      VPhaseList[j] = 0;
+      delete m_VolPhaseList[j];
+      m_VolPhaseList[j] = 0;
     }
 
     for (j = 0; j < nspecies; j++) {
@@ -610,14 +610,14 @@ namespace VCSnonideal {
      * of solution vector rotations.
      */
     for (i = 0; i < nspecies; i++) {
-      m_speciesIndexVector[i] = i;
+      m_speciesMapIndex[i] = i;
     }
 
     /*
      *   IndEl[] is an index variable that keep track of element vector
      *   rotations.
      */
-    for (i = 0; i < nelements; i++)   IndEl[i] = i;
+    for (i = 0; i < nelements; i++)   m_elementMapIndex[i] = i;
     /*
      *  ir[] -> will be done below once nc is defined.
      *  ic[] -> Define all species to be major species, initially.
@@ -639,7 +639,7 @@ namespace VCSnonideal {
 	  return VCS_PUB_BAD;	    
 	}
 	m_phaseID[kspec] = pub->PhaseID[kspec];
-	indPhSp[kspec] = numPhSp[iph];
+	m_speciesLocalPhaseIndex[kspec] = numPhSp[iph];
 	numPhSp[iph]++;
       }
       for (iph = 0; iph < nph; iph++) {
@@ -654,7 +654,7 @@ namespace VCSnonideal {
       if (m_numPhases == 1) {
 	for (kspec = 0; kspec < nspecies; kspec++) {
 	  m_phaseID[kspec] = 0;
-	  indPhSp[kspec] = kspec;
+	  m_speciesLocalPhaseIndex[kspec] = kspec;
 	}
       } else {
 	plogf("%sSpecies to Phase Mapping, PhaseID, is not defined\n", ser);
@@ -695,13 +695,13 @@ namespace VCSnonideal {
      *  Use the object's assignment operator
      */
     for (iph = 0; iph < nph; iph++) {
-      *(VPhaseList[iph]) = *(pub->VPhaseList[iph]);
+      *(m_VolPhaseList[iph]) = *(pub->VPhaseList[iph]);
       /*
        * Fix up the species thermo pointer in the vcs_SpeciesThermo object
        * It should point to the species thermo pointer in the private
        * data space.
        */
-      Vphase = VPhaseList[iph];
+      Vphase = m_VolPhaseList[iph];
       for (int k = 0; k < Vphase->NVolSpecies; k++) {
 	vcs_SpeciesProperties *sProp = Vphase->ListSpeciesPtr[k];
 	int kT = Vphase->IndSpecies[k];
@@ -713,7 +713,7 @@ namespace VCSnonideal {
      * Specify the Activity Convention information
      */
     for (iph = 0; iph < nph; iph++) {
-      Vphase = VPhaseList[iph];
+      Vphase = m_VolPhaseList[iph];
       PhaseActConvention[iph] = Vphase->ActivityConvention;
       if (Vphase->ActivityConvention != 0) {
 	/*
@@ -789,7 +789,7 @@ namespace VCSnonideal {
     m_tolmin2 = 0.01 * m_tolmin;
 
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
-      k = m_speciesIndexVector[kspec];
+      k = m_speciesMapIndex[kspec];
       m_molNumSpecies_old[kspec] = pub->w[k];
       m_molNumSpecies_new[kspec] = pub->mf[k];
       m_feSpecies_curr[kspec] = pub->m_gibbsSpecies[k];
@@ -799,7 +799,7 @@ namespace VCSnonideal {
      * Transfer the element abundance goals to the solve object
      */
     for (i = 0; i < m_numElemConstraints; i++) {
-      j = IndEl[i];
+      j = m_elementMapIndex[i];
       m_elemAbundancesGoal[i] = pub->gai[j];
     }
 
@@ -823,7 +823,7 @@ namespace VCSnonideal {
      */
 
     for (iph = 0; iph < m_numPhases; iph++) {
-      vcs_VolPhase *vPhase = VPhaseList[iph];
+      vcs_VolPhase *vPhase = m_VolPhaseList[iph];
       vcs_VolPhase *pub_phase_ptr = pub->VPhaseList[iph];
 
       if  (vPhase->VP_ID != pub_phase_ptr->VP_ID) {
@@ -915,7 +915,7 @@ namespace VCSnonideal {
        *         Call it K1 and continue. 
        */
       for (j = 0; j < m_numSpeciesTot; ++j) {
-	l = m_speciesIndexVector[j];
+	l = m_speciesMapIndex[j];
 	k1 = j;
 	if (l == i) break;
       }
@@ -939,7 +939,7 @@ namespace VCSnonideal {
     int kT = 0;
     for (int iph = 0; iph < pub->NPhase; iph++) {
       vcs_VolPhase *pubPhase = pub->VPhaseList[iph];
-      vcs_VolPhase *vPhase = VPhaseList[iph];
+      vcs_VolPhase *vPhase = m_VolPhaseList[iph];
       pubPhase->Existence = vPhase->Existence;
       // Note pubPhase is not the same as vPhase, since they contain
       // different indexing into the solution vector.
@@ -1045,7 +1045,7 @@ double VCS_SOLVE::vcs_VolTotal(double tkelvin, double pres, double w[],
 {
    double volTot = 0.0;
    for (int iphase = 0; iphase < m_numPhases; iphase++) {
-     vcs_VolPhase *Vphase = VPhaseList[iphase];
+     vcs_VolPhase *Vphase = m_VolPhaseList[iphase];
      Vphase->setState_TP(tkelvin, pres);
      Vphase->setMolesFromVCS(w);
      double volp = Vphase->VolPM_calc();

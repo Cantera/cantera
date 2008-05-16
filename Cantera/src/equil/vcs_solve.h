@@ -1127,32 +1127,45 @@ public:
 
   //!  Index vector that keeps track of the species vector rearrangement
   /*!
-   *  At the end of each run, the species  vector and associated data gets put back
+   *  At the end of each run, the species vector and associated data gets put back
    *  in the original order.
    *
    * Example
    *
-   *           k = m_speciesIndexVector[kspec]
+   *           k = m_speciesMapIndex[kspec]
    *
    *           kspec = current order in the vcs_solve object
    *           k     = original order in the vcs_prob object and in the MultiPhase object
    */
-  std::vector<int> m_speciesIndexVector;
+  std::vector<int> m_speciesMapIndex;
 
-  //! Index that keeps track of the index of the species according
-  //!  to the phase
+  //! Index that keeps track of the index of the species within the local
+  //! phase
   /*!
-   *   indPhSp[k] = Index that keeps track of the index of the species according
-   *   to the phase
+   *  This returns the local index of the species within the phase. It's argument
+   *  is the global species index within the VCS problem.
+   * 
+   *  k = m_speciesLocalPhaseIndex[kspec]
+   *
+   *  k varies between 0 and the nSpecies in the phase
+   *
    *  Length = number of species
    */
-  std::vector<int> indPhSp;
+  std::vector<int> m_speciesLocalPhaseIndex;
 
   //! Index vector that keeps track of the rearrangement of the elements 
   /*!
-   *  IndEl[j]
+   *  At the end of each run, the element vector and associated data gets put back
+   *  in the original order.
+   *
+   * Example
+   *
+   *           e = m_elementMapIndex[eNum]
+   *
+   *           eNum  = current order in the vcs_solve object
+   *           e     = original order in the vcs_prob object and in the MultiPhase object
    */
-  std::vector<int> IndEl;
+  std::vector<int> m_elementMapIndex;
 
   //!  Mapping between the species index for noncomponent species and the
   //!  full species  index.
@@ -1237,7 +1250,7 @@ public:
   /*!
    *  Length = number of phases
    */
-  std::vector<vcs_VolPhase *> VPhaseList;
+  std::vector<vcs_VolPhase *> m_VolPhaseList;
 
   //! String containing the title of the run
   std::string m_title;

@@ -139,7 +139,7 @@ namespace VCSnonideal {
 	  }
 	}
 	for (j = 0; j < m_numPhases; j++) {
-	  if (! (VPhaseList[j])->SingleSpecies) {
+	  if (! (m_VolPhaseList[j])->SingleSpecies) {
 	    if (m_tPhaseMoles_old[j] > 0.0) 
 	      s -= SQUARE(dnPhase_irxn[j]) / m_tPhaseMoles_old[j];
 	  }
@@ -319,7 +319,7 @@ namespace VCSnonideal {
      * Loop over all of the phases in the problem
      */
     for (int iphase = 0; iphase < m_numPhases; iphase++) {
-      vcs_VolPhase *Vphase = VPhaseList[iphase];
+      vcs_VolPhase *Vphase = m_VolPhaseList[iphase];
       /*
        * We don't need to call single species phases;
        */
