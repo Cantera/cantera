@@ -389,7 +389,7 @@ double VCS_SOLVE::vcs_Gxs_phase_calc(vcs_VolPhase *Vphase, double *mf_PO)
   if (Vphase->Activity_Coeff_Model != VCS_AC_CONSTANT) {
     for (kspec = 0; kspec < Vphase->NVolSpecies; kspec++) {
       kglob = Vphase->IndSpecies[kspec];
-      ts_ptr = SpeciesThermo[kglob];
+      ts_ptr = m_speciesThermoList[kglob];
       ac = ts_ptr->eval_ac(kspec);
       Gxs += mf_PO[kspec] * log(ac);
     }
@@ -434,7 +434,7 @@ double VCS_SOLVE::vcs_Gxs_calc(int iphase)
     for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
       if (m_phaseID[kspec] == iphase) {
 	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	  ts_ptr = SpeciesThermo[kspec];
+	  ts_ptr = m_speciesThermoList[kspec];
 	  ac = ts_ptr->eval_ac(kspec);
 	  Gxs += m_molNumSpecies_old[kspec]/totmol * log(ac);
 	} else {

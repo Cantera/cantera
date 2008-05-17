@@ -106,12 +106,12 @@ namespace VCSnonideal {
      *   Calculate some quantities that may need updating
      */
     vcs_tmoles();
-    Vol = vcs_VolTotal(m_temperature, m_pressurePA, 
-		       VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(VolPM));
+    m_totalVol = vcs_VolTotal(m_temperature, m_pressurePA, 
+			      VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_PMVolumeSpecies));
    
     plogf("\t\tTemperature = %15.2g Kelvin\n", m_temperature);
     plogf("\t\tPressure    = %15.5g Pa \n", m_pressurePA); 
-    plogf("\t\tVolume      = %15.5g m**3\n", Vol);
+    plogf("\t\tVolume      = %15.5g m**3\n", m_totalVol);
    
     /* 
      * -------- TABLE OF SPECIES IN DECREASING MOLE NUMBERS --------------

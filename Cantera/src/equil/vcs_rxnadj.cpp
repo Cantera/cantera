@@ -285,7 +285,7 @@ namespace VCSnonideal {
     /*
      *   First the diagonal term of the Jacobian
      */
-    s = dLnActCoeffdMolNum[kspec][kspec];
+    s = m_dLnActCoeffdMolNum[kspec][kspec];
     /*
      *    Next, the other terms. Note this only a loop over the components
      *    So, it's not too expensive to calculate.
@@ -294,11 +294,11 @@ namespace VCSnonideal {
       if (!m_SSPhase[l]) {
 	for (k = 0; k < m_numComponents; ++k) { 
 	  if (m_phaseID[k] == m_phaseID[l]) { 
-	    s += sc_irxn[k] * sc_irxn[l] * dLnActCoeffdMolNum[k][l];
+	    s += sc_irxn[k] * sc_irxn[l] * m_dLnActCoeffdMolNum[k][l];
 	  }
 	}
 	if (kph == m_phaseID[l]) { 
-	  s += sc_irxn[l] * (dLnActCoeffdMolNum[kspec][l] + dLnActCoeffdMolNum[l][kspec]);
+	  s += sc_irxn[l] * (m_dLnActCoeffdMolNum[kspec][l] + m_dLnActCoeffdMolNum[l][kspec]);
 	}
       }
     }
@@ -334,7 +334,7 @@ namespace VCSnonideal {
 	 * -> This scatter calculation is carried out in the 
 	 *    vcs_VolPhase object.
 	 */
-	Vphase->sendToVCSLnActCoeffJac(dLnActCoeffdMolNum.baseDataAddr());
+	Vphase->sendToVCSLnActCoeffJac(m_dLnActCoeffdMolNum.baseDataAddr());
       }
     }
   }

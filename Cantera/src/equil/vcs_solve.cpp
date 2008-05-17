@@ -50,8 +50,8 @@ namespace VCSnonideal {
     m_tolmaj2(0.0),
     m_tolmin2(0.0),
     UnitsState(VCS_DIMENSIONAL_G),
-    UseActCoeffJac(0),
-    Vol(0.0),
+    m_useActCoeffJac(0),
+    m_totalVol(0.0),
     Faraday_dim(1.602e-19 * 6.022136736e26),
     m_VCount(0),
     vcs_debug_print_lvl(0),
@@ -186,7 +186,7 @@ namespace VCSnonideal {
     CurrPhAC.resize(nphase0, 0);
     m_wtSpecies.resize(nspecies0, 0.0);
     m_chargeSpecies.resize(nspecies0, 0.0);
-    SpeciesThermo.resize(nspecies0, (VCS_SPECIES_THERMO *)0);
+    m_speciesThermoList.resize(nspecies0, (VCS_SPECIES_THERMO *)0);
    
     /*
      *    Malloc Phase Info
@@ -199,12 +199,12 @@ namespace VCSnonideal {
     /*
      *        For Future expansion
      */
-    UseActCoeffJac = true;
-    if (UseActCoeffJac ) {
-      dLnActCoeffdMolNum.resize(nspecies0, nspecies0, 0.0);
+    m_useActCoeffJac = true;
+    if (m_useActCoeffJac) {
+      m_dLnActCoeffdMolNum.resize(nspecies0, nspecies0, 0.0);
     }
    
-    VolPM.resize(nspecies0, 0.0);
+    m_PMVolumeSpecies.resize(nspecies0, 0.0);
    
     /*
      *        Malloc space for counters kept within vcs
@@ -241,8 +241,8 @@ namespace VCSnonideal {
     }
 
     for (j = 0; j < nspecies; j++) {
-      delete SpeciesThermo[j];
-      SpeciesThermo[j] = 0;
+      delete m_speciesThermoList[j];
+      m_speciesThermoList[j] = 0;
     } 
    
     delete m_VCount; m_VCount = 0;
@@ -516,12 +516,12 @@ namespace VCSnonideal {
      * 
      */
     for (kspec = 0; kspec < nspecies; kspec++) {
-      if (SpeciesThermo[kspec] != NULL) {
-	delete SpeciesThermo[kspec];
+      if (m_speciesThermoList[kspec] != NULL) {
+	delete m_speciesThermoList[kspec];
       }
       VCS_SPECIES_THERMO *spf = pub->SpeciesThermo[kspec];
-      SpeciesThermo[kspec] = spf->duplMyselfAsVCS_SPECIES_THERMO();
-      if (SpeciesThermo[kspec] == NULL) {
+      m_speciesThermoList[kspec] = spf->duplMyselfAsVCS_SPECIES_THERMO();
+      if (m_speciesThermoList[kspec] == NULL) {
 	plogf(" duplMyselfAsVCS_SPECIES_THERMO returned an error!\n");
 	return VCS_PUB_BAD;
       }
@@ -705,7 +705,7 @@ namespace VCSnonideal {
       for (int k = 0; k < Vphase->NVolSpecies; k++) {
 	vcs_SpeciesProperties *sProp = Vphase->ListSpeciesPtr[k];
 	int kT = Vphase->IndSpecies[k];
-	sProp->SpeciesThermo = SpeciesThermo[kT];
+	sProp->SpeciesThermo = m_speciesThermoList[kT];
       }
     }
 
@@ -747,9 +747,9 @@ namespace VCSnonideal {
     /*
      *  Copy the volume info
      */
-    Vol = pub->Vol; 
-    if (VolPM.size() != 0) {
-      vcs_dcopy(VCS_DATA_PTR(VolPM), VCS_DATA_PTR(pub->VolPM), nspecies);
+    m_totalVol = pub->Vol; 
+    if (m_PMVolumeSpecies.size() != 0) {
+      vcs_dcopy(VCS_DATA_PTR(m_PMVolumeSpecies), VCS_DATA_PTR(pub->VolPM), nspecies);
     }
    
     /*
@@ -767,7 +767,7 @@ namespace VCSnonideal {
    *
    *  It's assumed we are solving the same problem.
    *
-   *  @param pub  Pointer to VCS_PROB that will be used to
+   *  @param pub  Pointer to VCS_PROdB that will be used to
    *              initialize the current equilibrium problem
    */
   int VCS_SOLVE::vcs_prob_specify(const VCS_PROB *pub) {
@@ -781,7 +781,7 @@ namespace VCSnonideal {
     m_VCS_UnitsFormat = pub->m_VCS_UnitsFormat;
     m_doEstimateEquil = pub->iest;
 
-    Vol = pub->Vol;
+    m_totalVol = pub->Vol;
 
     m_tolmaj = pub->tolmaj;
     m_tolmin = pub->tolmin;
@@ -906,8 +906,8 @@ namespace VCSnonideal {
     int k1 = 0;
 
     vcs_tmoles();
-    Vol = vcs_VolTotal(m_temperature, m_pressurePA, 
-		       VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(VolPM));
+    m_totalVol = vcs_VolTotal(m_temperature, m_pressurePA, 
+			      VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_PMVolumeSpecies));
 
     for (i = 0; i < m_numSpeciesTot; ++i) {
       /*
@@ -930,12 +930,12 @@ namespace VCSnonideal {
       }
       pub->mf[i] = m_molNumSpecies_new[k1];
       pub->m_gibbsSpecies[i] = m_feSpecies_curr[k1];
-      pub->VolPM[i] = VolPM[k1];
+      pub->VolPM[i] = m_PMVolumeSpecies[k1];
     } 
    
     pub->T    = m_temperature;
     pub->PresPA = m_pressurePA;
-    pub->Vol  = Vol;
+    pub->Vol  = m_totalVol;
     int kT = 0;
     for (int iph = 0; iph < pub->NPhase; iph++) {
       vcs_VolPhase *pubPhase = pub->VPhaseList[iph];

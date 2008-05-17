@@ -724,7 +724,19 @@ private:
   int delete_species(int kspec);
   void delete_multiphase(int iph);
   int delta_species(int kspec, double *delta_ptr);
-  void add_deleted(void);
+
+  //!  Provide an estimate for the deleted species in phases that
+  //!  are not zeroed out
+  /*!
+   *  Try to add back in all deleted species. An estimate of the kmol numbers
+   *  are obtained and the species is added back into the equation system,
+   *  into the old state vector.
+   *
+   *  This routine is called at the end of the calculation, just before
+   *  returning to the user.
+   */
+  int vcs_add_all_deleted();
+
   int recheck_deleted(void);
 
   //! Alternative treatment for the update of a minor species
@@ -1311,10 +1323,10 @@ public:
    *                needed. It is not swapped wrt species 
    *  (unused atm)
    */
-  DoubleStarStar dLnActCoeffdMolNum;
+  DoubleStarStar m_dLnActCoeffdMolNum;
 
-  //! This boolean indicates whether the   activity coefficients for a phase
-  //!   are current.  
+  //!  This boolean indicates whether the activity coefficients for a phase
+  //!  are current.  
   std::vector<int> CurrPhAC;
 
   //! Molecular weight of each species
@@ -1338,7 +1350,7 @@ public:
   /*!
    * SpeciesThermo[k] pointer to the thermo information for the kth species
    */    
-  std::vector<VCS_SPECIES_THERMO *> SpeciesThermo;
+  std::vector<VCS_SPECIES_THERMO *> m_speciesThermoList;
 
   //! Choice of Hessians
   /*!
@@ -1346,16 +1358,20 @@ public:
    *  Hessian based on Jacobian of the  ln(ActCoeff) with respect to mole 
    *  numbers                            
    */
-  int UseActCoeffJac;
+  int m_useActCoeffJac;
 
-  double   Vol;     /* Vol        = Volume (m^3) */
+  //! Total volume of all phases
+  /*!
+   *  units are m^3
+   */
+  double m_totalVol;
   
-  //! Partialm molar volumes of the species
+  //! Partial molar volumes of the species
   /*!
    *  units = mks (m^3/kmol) -determined by m_VCS_UnitsFormat
    *  Length = number of species
    */
-  std::vector<double> VolPM;
+  std::vector<double> m_PMVolumeSpecies;
 
   //! dimensionless value of Faraday's constant 
   /*!

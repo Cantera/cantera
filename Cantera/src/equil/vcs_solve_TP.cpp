@@ -1867,7 +1867,19 @@ namespace VCSnonideal {
      *  Add back deleted species in non-zeroed phases. Estimate their
      *  mole numbers.
      */
-    add_deleted();
+    npb = vcs_add_all_deleted();
+    if (npb > 0) {
+      MajorSpeciesHaveConverged = true;
+      iti = 0;
+#ifdef DEBUG_MODE
+      if (vcs_debug_print_lvl >= 1) {
+	plogf("  --- add_all_deleted(): some rxns not converged. RETURNING TO LOOP!");
+	plogendl();
+      }
+#endif
+      goto L_MAINLOOP_ALL_SPECIES;
+    }
+
     /*
      * Make sure the volume phase objects hold the same state and 
      * information as the vcs object. This also update the Cantera objects
@@ -2083,9 +2095,6 @@ namespace VCSnonideal {
     }
     return dx;
   }
-
-  /*****************************************************************************/
-  /*****************************************************************************/
   /*****************************************************************************/
 
   int VCS_SOLVE::delta_species(int kspec, double *delta_ptr)
@@ -2284,9 +2293,10 @@ namespace VCSnonideal {
      *    have to signal the calling code 
      */
     return (m_numRxnRdc == 0);
-  } /* delete_species() ********************************************************/
+  } 
+  /***************************************************************************/
 
-  /****************************************************************************
+  /*
    *  
    *  reinsert_deleted():
    *
@@ -2560,33 +2570,32 @@ namespace VCSnonideal {
       }
     }
     return npb;
-  } /* recheck_deleted() *******************************************************/
+  }
+  /***********************************************************************************/
 
-
-  void VCS_SOLVE::add_deleted(void)
-
-    /*************************************************************************
-     *
-     *  Provide an estimate for the deleted species in phases that
-     *  are not zeroed out
-     *
-     *************************************************************************/
-  {
+  //  Provide an estimate for the deleted species in phases that
+  //  are not zeroed out
+  /*
+   *  Try to add back in all deleted species. An estimate of the kmol numbers
+   *  are obtained and the species is added back into the equation system,
+   *  into the old state vector.
+   */
+  int VCS_SOLVE::vcs_add_all_deleted() {
     int iph, kspec, retn;
-    if (m_numSpeciesRdc == m_numSpeciesTot) return;
+    if (m_numSpeciesRdc == m_numSpeciesTot) return 0;
     /*
      * Use the standard chemical potentials for the chemical potentials
      * of deleted species. Then, calculate Delta G for 
-     * for formation reactions
-     *
-     * HKM Note: We need to update this step for nonunity activity
-     *           coefficients.
-     *           The formula will be fe = ff + RT * ln(actCoeff)
-     *           where the activity coefficient is evaluated at
-     *           ~ infinite dilution.
+     * for formation reactions.
+     *     We are relying here on a old saved value of m_actCoeffSpecies_old[kspec]
+     *  being sufficiently good. Note, we will recalculate everything at the
+     *  end of the routine.
      */
     for (kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
-      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
+      iph = m_phaseID[kspec];
+      m_feSpecies_curr[kspec] = (m_SSfeSpecies[kspec] + log(m_actCoeffSpecies_old[kspec])
+				 - SpecLnMnaught[kspec] 
+				 + m_chargeSpecies[kspec] * Faraday_dim * m_phasePhi[iph]);
     }
     /*
      *      Recalculate the DeltaG's of the formation reactions for the
@@ -2594,20 +2603,73 @@ namespace VCSnonideal {
      */
     vcs_deltag(0, true);
   
-
     for (int irxn = m_numRxnRdc; irxn < m_numRxnTot; ++irxn) {
       kspec = m_indexRxnToSpecies[irxn];
       iph = m_phaseID[kspec];
       if (m_tPhaseMoles_old[iph] > 0.0) {
-	double maxDG = MIN(m_deltaGRxn_new[irxn], 300);
+	double maxDG = MIN(m_deltaGRxn_new[irxn], 300.0);
+
 	double dx = m_tPhaseMoles_old[iph] * exp(- maxDG);
 	retn = delta_species(kspec, &dx);
+	if (retn == 0) {
+#ifdef DEBUG_MODE
+	  if (vcs_debug_print_lvl) {
+	    plogf("  --- add_deleted(): delta_species() failed for species %s (%d) with mol number %g\n",
+		 m_speciesName[kspec].c_str(), kspec, dx);
+	  }
+#endif
+	  if (dx > 1.0E-50) {
+	    dx = 1.0E-50;
+	    retn = delta_species(kspec, &dx);
+#ifdef DEBUG_MODE
+	    if (retn == 0) {
+	      if (vcs_debug_print_lvl) {
+		plogf("  --- add_deleted(): delta_species() failed for species %s (%d) with mol number %g\n",
+		      m_speciesName[kspec].c_str(), kspec, dx);
+	      }
+	    }
+#endif
+	  }
+	}
+#ifdef DEBUG_MODE
+	if (vcs_debug_print_lvl >= 2) {
+	  if (retn != 0) {
+	    plogf("  --- add_deleted():  species %s added back in with mol number %g",
+		  m_speciesName[kspec].c_str(), dx);
+	    plogendl();
+	  } else {
+	    plogf("  --- add_deleted():  species %s failed to be added  back in");
+	    plogendl();
+	  }
+	}
+#endif
       }
     }
 
     vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 0, 0, m_numSpeciesTot);
     vcs_deltag(0, true);
+
+    retn = 0;
+    for (int irxn = m_numRxnRdc; irxn < m_numRxnTot; ++irxn) {
+      kspec = m_indexRxnToSpecies[irxn];
+      iph = m_phaseID[kspec];
+      if (m_tPhaseMoles_old[iph] > 0.0) {
+	if (fabs(m_deltaGRxn_old[irxn]) > m_tolmin) {
+	  retn++;
+#ifdef DEBUG_MODE
+	  if (vcs_debug_print_lvl >= 2) {	
+	    plogf("  --- add_deleted():  species %s with mol number %g not converged: DG = %g",
+		  m_speciesName[kspec].c_str(), m_molNumSpecies_old[kspec],
+		  m_deltaGRxn_old[irxn]);
+	    plogendl();
+	  }
+#endif
+	}
+      }
+    }
+    return retn;
   }
+  /***********************************************************************************/
 
   /* globalStepDamp
    *
@@ -2806,7 +2868,7 @@ namespace VCSnonideal {
      * We update the matrix dlnActCoeffdmolNumber[][] at the
      * top of the loop, when necessary
      */
-    if (UseActCoeffJac) {
+    if (m_useActCoeffJac) {
       vcs_CalcLnActCoeffJac(VCS_DATA_PTR(m_molNumSpecies_old));
     }
     /************************************************************************
@@ -2855,7 +2917,8 @@ namespace VCSnonideal {
 #endif
 	      Vphase = m_VolPhaseList[iph];
 	      int numSpPhase = Vphase->NVolSpecies;
-	      m_deltaMolNumSpecies[kspec] = m_totalMolNum * 10.0 * VCS_DELETE_PHASE_CUTOFF / numSpPhase;
+	      m_deltaMolNumSpecies[kspec] = 
+		m_totalMolNum * 10.0 * VCS_DELETE_PHASE_CUTOFF / numSpPhase;
 	    }
 	    --(m_numRxnMinorZeroed);
 	  } else {
@@ -2881,7 +2944,8 @@ namespace VCSnonideal {
 	    if (vcs_debug_print_lvl >= 2) {
 	      plogf("   --- %-12.12s", m_speciesName[kspec].c_str()); 
 	      plogf("  %12.4E %12.4E %12.4E | %s\n",  
-		    m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec], m_deltaGRxn_new[irxn], ANOTE);
+		    m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec],
+		    m_deltaGRxn_new[irxn], ANOTE);
 	    }
 #endif		    
 	    continue;
@@ -2897,7 +2961,8 @@ namespace VCSnonideal {
 	    if (vcs_debug_print_lvl >= 2) {
 	      plogf("   --- %-12.12s", m_speciesName[kspec].c_str());
 	      plogf("  %12.4E %12.4E %12.4E | %s\n", 
-		    m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec], m_deltaGRxn_new[irxn], ANOTE);
+		    m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec], 
+		    m_deltaGRxn_new[irxn], ANOTE);
 	    }
 #endif		    
 	    continue;
@@ -2913,7 +2978,7 @@ namespace VCSnonideal {
 	  for (j = 0; j < m_numComponents; ++j) {
 	    if (!m_SSPhase[j]) {
 	      if (m_molNumSpecies_old[j] > 0.0) {
-		s += SQUARE(m_stoichCoeffRxnMatrix[irxn][j]) /  m_molNumSpecies_old[j];
+		s += SQUARE(m_stoichCoeffRxnMatrix[irxn][j]) / m_molNumSpecies_old[j];
 	      }
 	    }
 	  }
@@ -2930,7 +2995,7 @@ namespace VCSnonideal {
 	     *  derivatives of the activity coefficients with respect to the
 	     *  mole numbers, even in our diagonal approximation.
 	     */
-	    if (UseActCoeffJac) {
+	    if (m_useActCoeffJac) {
 	      double s_old = s;
 	      s = vcs_Hessian_diag_adj(irxn, s_old);
 #ifdef DEBUG_MODE
@@ -3074,7 +3139,7 @@ namespace VCSnonideal {
   }
   /*****************************************************************************/
 
-  /**************************************************************************
+  /*
    *
    * vcs_deltag:
    *
@@ -3086,7 +3151,7 @@ namespace VCSnonideal {
    * species I in this reaction. 
    *
    *  INPUT 
-   *    L = < 0 :  Calculate reactions corresponding to 
+   *    L < 0   :  Calculate reactions corresponding to 
    *               major noncomponent and zeroed species only 
    *    L = 0   :  Do all noncomponent reactions, i, between 
    *               0 <= i < irxnl 
@@ -3185,7 +3250,7 @@ namespace VCSnonideal {
       }
     }
     /* ************************************************* */
-    /* **** MULTISPECIES PHASES WITH ZERO MOLES************ */
+    /* **** MULTISPECIES PHASES WITH ZERO MOLES ******** */
     /* ************************************************* */
     /*
      *    Massage the free energies for species with zero mole fractions 
@@ -3273,9 +3338,7 @@ namespace VCSnonideal {
       checkFinite(m_deltaGRxn_new[irxn]);
     }
 #endif
-  } /* vcs_deltag() ************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
+  }
   /*****************************************************************************/
 
   int VCS_SOLVE::vcs_basopt(int ifirst, double aw[], double sa[], double sm[], 
@@ -4450,7 +4513,7 @@ namespace VCSnonideal {
 		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 		}
 	      } else {
-		st_ptr = SpeciesThermo[kspec];
+		st_ptr = m_speciesThermoList[kspec];
 		m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] + log(actCoeff_ptr[kspec] * z[kspec]) 
 		  - tlogMoles[m_phaseID[kspec]] - SpecLnMnaught[kspec]; 
 	      }
@@ -4684,14 +4747,14 @@ namespace VCSnonideal {
     SWAP(m_actCoeffSpecies_old[k1], m_actCoeffSpecies_old[k2], t1);
     SWAP(m_wtSpecies[k1], m_wtSpecies[k2], t1);
     SWAP(m_chargeSpecies[k1], m_chargeSpecies[k2], t1);
-    SWAP(SpeciesThermo[k1], SpeciesThermo[k2], st_tmp);
-    SWAP(VolPM[k1], VolPM[k2], t1);
+    SWAP(m_speciesThermoList[k1], m_speciesThermoList[k2], st_tmp);
+    SWAP(m_PMVolumeSpecies[k1], m_PMVolumeSpecies[k2], t1);
 
     for (j = 0; j < m_numElemConstraints; ++j) {
       SWAP(m_formulaMatrix[j][k1], m_formulaMatrix[j][k2], t1);
     }   
-    if (UseActCoeffJac) {
-      vcs_switch2D(dLnActCoeffdMolNum.baseDataAddr(), k1, k2);
+    if (m_useActCoeffJac) {
+      vcs_switch2D(m_dLnActCoeffdMolNum.baseDataAddr(), k1, k2);
     }
    
     /*
