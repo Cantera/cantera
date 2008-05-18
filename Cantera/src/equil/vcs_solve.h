@@ -139,7 +139,16 @@ public:
    */
   int vcs_basisOptMax(const double *const x, const int j, const int n);
 
-  int vcs_species_type(int kspec);
+  //! Evaluate the species category for the indicated species
+  /*!
+   *  All evaluations are done using the "old" version of the solution.
+   *
+   *  @param kspec   Species to be evalulated
+   *
+   * @return Returns the calculated species type
+   */
+  int vcs_species_type(const int kspec) const;
+
   void vcs_chemPotPhase(int iph, const double *const molNum, 
 			double * const ac, double * const mu_i,
 			bool do_deleted = false);

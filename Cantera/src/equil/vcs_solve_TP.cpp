@@ -3911,47 +3911,54 @@ namespace VCSnonideal {
     return largest;
 
   }
+  /**********************************************************************************/
 
+  // Evaluate the species category for the indicated species
+  /*
+   *  All evaluations are done using the "old" version of the solution.
+   *
+   *  @param kspec   Species to be evalulated
+   *
+   *  @return Returns the calculated species type
+   */
+  int VCS_SOLVE::vcs_species_type(const int kspec) const {
 
+    // ---------- Treat special cases first ---------------------
 
-  int VCS_SOLVE::vcs_species_type(int kspec)
-   
-    /*************************************************************************
-     *
-     * vcs_species_type:
-     *
-     *     Evaluate the species category for the input species
-     *     return the type in the return variable
-     *************************************************************************/
-  {
-    int irxn = kspec - m_numComponents;
-    int iph, k;
-   
-    if (kspec < m_numComponents) return VCS_SPECIES_COMPONENT;
+    if (kspec < m_numComponents) {
+      return VCS_SPECIES_COMPONENT;
+    }
     if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
       return  VCS_SPECIES_INTERFACIALVOLTAGE;
     }
-    iph = m_phaseID[kspec];
+
+    int iph = m_phaseID[kspec];
+    int irxn = kspec - m_numComponents;
+
+    // ---------- Treat zeroed out species first ----------------
+
     if (m_molNumSpecies_old[kspec] <= 0.0) {
-      if (m_deltaGRxn_new[irxn] >= 0.0) {
+      if (m_deltaGRxn_old[irxn] >= 0.0) {
 	/*
 	 *  We are here when the species is or should be zeroed out
 	 */
 	if (m_SSPhase[kspec]) {
 	  return VCS_SPECIES_ZEROEDSS;
 	} else {
-	  if (m_tPhaseMoles_old[iph] == 0.0) return VCS_SPECIES_ZEROEDPHASE;
-	  else                         return VCS_SPECIES_ZEROEDMS;
+	  if (m_tPhaseMoles_old[iph] == 0.0) {
+	    return VCS_SPECIES_ZEROEDPHASE;
+	  }  else {
+	    return VCS_SPECIES_ZEROEDMS;
+	  }
 	}
       }
+
       /*
        *     The Gibbs free energy for this species is such that
        *     it will pop back into existence.
-       *     -> Set it to a major species in anticipation.
-       *     -> One exception to this is if a needed component
-       *        is also zeroed out. Then, don't pop the phase back into
-       *        existence.
-       *     -> Another exception to this is if a needed regular element
+       */
+      /*
+       *     -> An exception to this is if a needed regular element
        *        is also zeroed out. Then, don't pop the phase or the species back into
        *        existence.
        */
@@ -3977,7 +3984,17 @@ namespace VCSnonideal {
 	  }
 	}
       }
-
+      /*
+       *     The Gibbs free energy for this species is such that
+       *     it will pop back into existence.
+       *
+       *     -> Set it to a major species in anticipation.
+       *     -> An exception to this is if the species has an element
+       *        which is so low to cause problems. 
+       *
+       *        We need to have a PHASE_CUTOFF here. This algorithm is
+       *        insufficient.
+       */
       for (int j = 0; j < m_numElemConstraints; ++j) {
 	int elType = m_elType[j];
 	if (elType == VCS_ELEM_TYPE_ABSPOS) {
@@ -4001,18 +4018,47 @@ namespace VCSnonideal {
 	  }
 	}
       }
+      /*
+       * If the current phase already exists, set the emerging species to a 
+       * minor species.
+       */
+      if (m_tPhaseMoles_old[iph] > 0.0) {
+	return VCS_SPECIES_MINOR;
+      }
 
+      /*
+       *     The Gibbs free energy for this species is such that
+       *     it will pop back into existence.
+       *
+       *     -> Set it to a major species in anticipation.
+       *      -> note, if we had an estimate for the emerging mole
+       *         fraction of the species in the phase, we could do 
+       *         better here.
+       */
       return VCS_SPECIES_MAJOR;
-    } 
+    }
+
+    // ---------- Treat species with non-zero mole numbers next  ------------
+
     /*
-     *   Always treat species in single species phases as majors
+     *   Always treat species in single species phases as majors if the
+     *   phase exists.
      */
-    if (m_SSPhase[kspec]) return VCS_SPECIES_MAJOR;
+    if (m_SSPhase[kspec]) {
+      return VCS_SPECIES_MAJOR;
+    }
+
     /*
      *   Check to see whether the current species is a major component
-     *   of its phase. If it is, it is a major component
+     *   of its phase. If it is, it is a major component. This is consistent
+     *   with the above rule about single species phases. A major component
+     *   (i.e., a species with a high mole fraction) 
+     *   in any phase is always treated as a major species
      */
-    if (m_molNumSpecies_old[kspec] > (m_tPhaseMoles_old[iph] * 0.1)) return VCS_SPECIES_MAJOR;
+    if (m_molNumSpecies_old[kspec] > (m_tPhaseMoles_old[iph] * 0.001)) {
+      return VCS_SPECIES_MAJOR;
+    }
+
     /*
      *   Main check in the loop:
      *      Check to see if there is a component with a mole number that is
@@ -4022,7 +4068,7 @@ namespace VCSnonideal {
      *      the current species is a major species.
      */
     double szAdj = m_scSize[irxn] * std::sqrt((double)m_numRxnTot);
-    for (k = 0; k < m_numComponents; ++k) {
+    for (int k = 0; k < m_numComponents; ++k) {
       if (!(m_SSPhase[k])) {
 	if (m_stoichCoeffRxnMatrix[irxn][k] != 0.0) {
 	  if (m_molNumSpecies_old[kspec] * szAdj >= m_molNumSpecies_old[k] * 0.01) {
