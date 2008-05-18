@@ -66,7 +66,7 @@ namespace VCSnonideal {
     int ncomponents = m_numComponents;
     double test = -1.0E10;
 #ifdef DEBUG_MODE
-    if (vcs_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
       plogf("   "); for(i=0; i<77; i++) plogf("-"); plogf("\n");
       plogf("   --- Subroutine elem_rearrange() called to ");
       plogf("check stoich. coefficent matrix\n");
@@ -187,7 +187,7 @@ namespace VCSnonideal {
       /* ****************************************** */
       if (jr != k) {
 #ifdef DEBUG_MODE
-	if (vcs_debug_print_lvl >= 2) {
+	if (m_debug_print_lvl >= 2) {
 	  plogf("   ---   "); plogf("%-2.2s", (m_elementName[k]).c_str());
 	  plogf("(%9.2g) replaces ", m_elemAbundancesGoal[k]);
 	  plogf("%-2.2s", (m_elementName[jr]).c_str());

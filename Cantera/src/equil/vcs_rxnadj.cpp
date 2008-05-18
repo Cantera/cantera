@@ -432,7 +432,7 @@ namespace VCSnonideal {
       if (dx_orig > 0.0) {
 	dx = 0.0;
 #ifdef DEBUG_MODE
-	if (vcs_debug_print_lvl >= 2) {
+	if (m_debug_print_lvl >= 2) {
 	  //plogf("    --- %s :Warning possible error dx>0 dg > 0\n", SpName[kspec]);
 	}
 	sprintf(ANOTE,"Rxn reduced to zero step size in line search: dx>0 dg > 0");
@@ -443,7 +443,7 @@ namespace VCSnonideal {
       if (dx_orig < 0.0) {
 	dx = 0.0;
 #ifdef DEBUG_MODE
-	if (vcs_debug_print_lvl >= 2) {
+	if (m_debug_print_lvl >= 2) {
 	  //plogf("   --- %s :Warning possible error dx<0 dg < 0\n", SpName[kspec]);
 	}
 	sprintf(ANOTE,"Rxn reduced to zero step size in line search: dx<0 dg < 0");

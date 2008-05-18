@@ -62,7 +62,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
 
 #ifdef DEBUG_MODE
     std::string pprefix(" --- seMolesLinProg ");
-    if (vcs_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
       plogf("   --- call setInitialMoles\n"); 
     }
 #endif
@@ -97,7 +97,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
   }
 
 #ifdef DEBUG_MODE
-  if (vcs_debug_print_lvl >= 2) {
+  if (m_debug_print_lvl >= 2) {
     printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
   }
 #endif
@@ -106,7 +106,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
  
     if (!vcs_elabcheck(0)) {
 #ifdef DEBUG_MODE
-      if (vcs_debug_print_lvl >= 2) {
+      if (m_debug_print_lvl >= 2) {
 	plogf("%s Mole numbers failing element abundances\n", pprefix.c_str());  
 	plogf("%sCall vcs_elcorr to attempt fix\n",          pprefix.c_str());
       }
@@ -131,7 +131,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
     if (retn != VCS_SUCCESS) return retn;
 
 #ifdef DEBUG_MODE
-    if (vcs_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
       plogf("iteration %d\n", iter);  
     }
 #endif
@@ -170,7 +170,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
 	  if (!redo) {
 	    if (delta_xi < 1.0e-10 && (m_molNumSpecies_old[ik] >= 1.0E-10)) {
 #ifdef DEBUG_MODE
-	      if (vcs_debug_print_lvl >= 2) {
+	      if (m_debug_print_lvl >= 2) {
 		plogf("   --- Component too small: %s\n", m_speciesName[jcomp].c_str()); 
 	      }
 #endif
@@ -207,14 +207,14 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
     // Update the phase objects with the contents of the m_molNumSpecies_old vector
     // vcs_updateVP(0);
 #ifdef DEBUG_MODE
-    if (vcs_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
       printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
     }
 #endif
   }
 
 #ifdef DEBUG_MODE
-  if (vcs_debug_print_lvl == 1) {
+  if (m_debug_print_lvl == 1) {
     printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
     plogf("   --- setInitialMoles end\n"); 
   }

@@ -53,8 +53,8 @@ namespace VCSnonideal {
  
     double *molNum   = VCS_DATA_PTR(m_molNumSpecies_old);
     double TMolesMultiphase;
-    double *xtphMax = VCS_DATA_PTR(TmpPhase);
-    double *xtphMin = VCS_DATA_PTR(TmpPhase2);
+    double *xtphMax = VCS_DATA_PTR(m_TmpPhase);
+    double *xtphMin = VCS_DATA_PTR(m_TmpPhase2);
   
     ikl = 0;
     lt = 0;
@@ -98,7 +98,7 @@ namespace VCSnonideal {
 #endif
 
 #ifdef DEBUG_MODE
-    if (vcs_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
       plogf("%s Mole Numbers returned from linear programming (vcs_inest initial guess):\n",
 	     pprefix);
       plogf("%s     SPECIES          MOLE_NUMBER      -SS_ChemPotential\n", pprefix);
@@ -209,7 +209,7 @@ namespace VCSnonideal {
     }
     vcs_deltag(0, true);
 #ifdef DEBUG_MODE
-    if (vcs_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
       for (kspec = 0; kspec < nspecies; ++kspec) {
 	plogf("%s", pprefix); plogf("%-12.12s", m_speciesName[kspec].c_str());
 	if (kspec < m_numComponents)
@@ -263,7 +263,7 @@ namespace VCSnonideal {
       }
     }
 #ifdef DEBUG_MODE
-    if (vcs_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
       for (kspec = 0; kspec < nspecies; ++kspec) {
 	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  plogf("%sdirection (", pprefix); plogf("%-12.12s", m_speciesName[kspec].c_str());
@@ -371,7 +371,7 @@ namespace VCSnonideal {
   finished:
     ;
 #ifdef DEBUG_MODE
-    if (vcs_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
       plogf("%s     Final Mole Numbers produced by inest:\n",
 	     pprefix);
       plogf("%s     SPECIES      MOLE_NUMBER\n", pprefix);
@@ -406,18 +406,20 @@ namespace VCSnonideal {
       vcs_elab();
       if (vcs_elabcheck(0)) {
 #ifdef DEBUG_MODE
-	if (vcs_debug_print_lvl >= 2) {
+	if (m_debug_print_lvl >= 2) {
 	  plogf("%s Initial guess passed element abundances on input\n", pprefix);  
-	  plogf("%s m_doEstimateEquil = 1 so will use the input mole numbers as estimates", pprefix);
+	  plogf("%s m_doEstimateEquil = 1 so will use the input mole "
+		"numbers as estimates", pprefix);
 	  plogendl();
 	}
 #endif
 	return retn;
 #ifdef DEBUG_MODE
       } else {
-	if (vcs_debug_print_lvl >= 2) {
+	if (m_debug_print_lvl >= 2) {
 	  plogf("%s Initial guess failed element abundances on input\n", pprefix);  
-	  plogf("%s m_doEstimateEquil = 1 so will discard input mole numbers and find our own estimate", pprefix);
+	  plogf("%s m_doEstimateEquil = 1 so will discard input "
+		"mole numbers and find our own estimate", pprefix);
 	  plogendl();
 	}
 #endif
@@ -440,7 +442,7 @@ namespace VCSnonideal {
      *  Go get the estimate of the solution
      */
 #ifdef DEBUG_MODE
-    if (vcs_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
       plogf("%sGo find an initial estimate for the equilibrium problem",
 	    pprefix);
       plogendl();
@@ -466,7 +468,7 @@ namespace VCSnonideal {
     int rangeCheck  = vcs_elabcheck(1);
     if (!vcs_elabcheck(0)) {
 #ifdef DEBUG_MODE
-      if (vcs_debug_print_lvl >= 2) {
+      if (m_debug_print_lvl >= 2) {
 	plogf("%sInitial guess failed element abundances\n", pprefix);  
 	plogf("%sCall vcs_elcorr to attempt fix", pprefix);
         plogendl();
@@ -483,7 +485,7 @@ namespace VCSnonideal {
 	retn = -1;
       } else {
 #ifdef DEBUG_MODE
-	if (vcs_debug_print_lvl >= 2) {
+	if (m_debug_print_lvl >= 2) {
 	  if (rangeCheck) {
 	    plogf("%sInitial guess now satisfies element abundances", pprefix);
             plogendl();
@@ -500,7 +502,7 @@ namespace VCSnonideal {
     }
     else {
 #ifdef DEBUG_MODE
-      if (vcs_debug_print_lvl >= 2) {
+      if (m_debug_print_lvl >= 2) {
 	if (rangeCheck) {
 	  plogf("%sInitial guess satisfies element abundances", pprefix);
           plogendl();
@@ -516,7 +518,7 @@ namespace VCSnonideal {
     } 
       
 #ifdef DEBUG_MODE
-    if (vcs_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
       plogf("%sTotal Dimensionless Gibbs Free Energy = %15.7E", pprefix,
 	    vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_curr), 
 			    VCS_DATA_PTR(m_tPhaseMoles_old)));   

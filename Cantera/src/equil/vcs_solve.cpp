@@ -49,12 +49,12 @@ namespace VCSnonideal {
     m_tolmin(0.0),
     m_tolmaj2(0.0),
     m_tolmin2(0.0),
-    UnitsState(VCS_DIMENSIONAL_G),
+    m_unitsState(VCS_DIMENSIONAL_G),
     m_useActCoeffJac(0),
     m_totalVol(0.0),
-    Faraday_dim(1.602e-19 * 6.022136736e26),
+    m_Faraday_dim(1.602e-19 * 6.022136736e26),
     m_VCount(0),
-    vcs_debug_print_lvl(0),
+    m_debug_print_lvl(0),
     m_timing_print_lvl(1),
     m_VCS_UnitsFormat(VCS_UNITS_UNITLESS)
   {
@@ -134,8 +134,8 @@ namespace VCSnonideal {
     m_tPhaseMoles_old.resize(nphase0, 0.0);
     m_tPhaseMoles_new.resize(nphase0, 0.0);
     m_deltaPhaseMoles.resize(nphase0, 0.0);
-    TmpPhase.resize(nphase0, 0.0);
-    TmpPhase2.resize(nphase0, 0.0);
+    m_TmpPhase.resize(nphase0, 0.0);
+    m_TmpPhase2.resize(nphase0, 0.0);
   
     m_formulaMatrix.resize(nelements, nspecies0);
 
@@ -178,12 +178,12 @@ namespace VCSnonideal {
      *    Malloc space for activity coefficients for all species
      *    -> Set it equal to one.
      */
-    SpecActConvention.resize(nspecies0, 0);
-    PhaseActConvention.resize(nphase0, 0);
-    SpecLnMnaught.resize(nspecies0, 0.0);
+    m_actConventionSpecies.resize(nspecies0, 0);
+    m_phaseActConvention.resize(nphase0, 0);
+    m_lnMnaughtSpecies.resize(nspecies0, 0.0);
     m_actCoeffSpecies_new.resize(nspecies0, 1.0);
     m_actCoeffSpecies_old.resize(nspecies0, 1.0);
-    CurrPhAC.resize(nphase0, 0);
+    m_phaseACAreCurrent.resize(nphase0, 0);
     m_wtSpecies.resize(nspecies0, 0.0);
     m_chargeSpecies.resize(nspecies0, 0.0);
     m_speciesThermoList.resize(nspecies0, (VCS_SPECIES_THERMO *)0);
@@ -489,7 +489,9 @@ namespace VCSnonideal {
     m_numPhases = nph;
 
 #ifdef DEBUG_MODE
-    vcs_debug_print_lvl = pub->vcs_debug_print_lvl;
+    m_debug_print_lvl = pub->vcs_debug_print_lvl;
+#else
+    m_debug_print_lvl = MIN(2, pub->vcs_debug_print_lvl);
 #endif
 
     /*
@@ -714,7 +716,7 @@ namespace VCSnonideal {
      */
     for (iph = 0; iph < nph; iph++) {
       Vphase = m_VolPhaseList[iph];
-      PhaseActConvention[iph] = Vphase->ActivityConvention;
+      m_phaseActConvention[iph] = Vphase->ActivityConvention;
       if (Vphase->ActivityConvention != 0) {
 	/*
 	 * We assume here that species 0 is the solvent.
@@ -729,8 +731,8 @@ namespace VCSnonideal {
 	double mnaught = m_wtSpecies[iSolvent] / 1000.;
 	for (int k = 1; k < Vphase->NVolSpecies; k++) {
 	  int kspec = Vphase->IndSpecies[k];
-	  SpecActConvention[kspec] = Vphase->ActivityConvention;
-	  SpecLnMnaught[kspec] = log(mnaught);
+	  m_actConventionSpecies[kspec] = Vphase->ActivityConvention;
+	  m_lnMnaughtSpecies[kspec] = log(mnaught);
 	}
       }
     }  

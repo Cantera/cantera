@@ -51,7 +51,7 @@ namespace VCSnonideal {
     int nspecies = m_numSpeciesTot;
     double  g;
 
-    char originalUnitsState = UnitsState;
+    char originalUnitsState = m_unitsState;
    
 
     std::vector<int> sortindex(nspecies,0);
@@ -83,7 +83,7 @@ namespace VCSnonideal {
      *     -> For the printouts from this routine, we will use nondimensional
      *        representations. This may be expanded in the future.
      */
-    if (UnitsState == VCS_DIMENSIONAL_G) {
+    if (m_unitsState == VCS_DIMENSIONAL_G) {
       vcs_nondim_TP();  
     }
    
@@ -321,7 +321,7 @@ namespace VCSnonideal {
       plogf("%14.7E  ", log(m_actCoeffSpecies_old[l]));
       double tpmoles = m_tPhaseMoles_old[pid];
       double phi = m_phasePhi[pid];
-      double eContrib = phi * m_chargeSpecies[l] * Faraday_dim;
+      double eContrib = phi * m_chargeSpecies[l] * m_Faraday_dim;
       double lx = 0.0;
       if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	lx = 0.0;
@@ -330,20 +330,20 @@ namespace VCSnonideal {
 	  lx = log(m_molNumSpecies_old[l]) - log(tpmoles);
 	} else {
 	  lx = m_feSpecies_curr[l] - m_SSfeSpecies[l] 
-	    - log(m_actCoeffSpecies_old[l]) + SpecLnMnaught[l];
+	    - log(m_actCoeffSpecies_old[l]) + m_lnMnaughtSpecies[l];
 	}
       }
       plogf("%14.7E  |", lx);
       plogf("%14.7E | ", eContrib);
       double tmp = m_SSfeSpecies[l] + log(m_actCoeffSpecies_old[l])
-	+ lx - SpecLnMnaught[l] + eContrib;
+	+ lx - m_lnMnaughtSpecies[l] + eContrib;
       if (fabs(m_feSpecies_curr[l] - tmp) > 1.0E-8) {
 	plogf("\n\t\twe have a problem - doesn't add up\n");
 	exit(-1);
       } 
       plogf(" %12.4E |", m_feSpecies_curr[l]);
-      if (SpecLnMnaught[l] != 0.0) {
-	plogf(" (%14.7E)", - SpecLnMnaught[l]);
+      if (m_lnMnaughtSpecies[l] != 0.0) {
+	plogf(" (%14.7E)", - m_lnMnaughtSpecies[l]);
       }
       plogf("\n");
     }
@@ -372,7 +372,7 @@ namespace VCSnonideal {
      *   Set the Units state of the system back to where it was when we
      *   entered the program.
      */
-    if (originalUnitsState != UnitsState) {
+    if (originalUnitsState != m_unitsState) {
       if (originalUnitsState == VCS_DIMENSIONAL_G ) vcs_redim_TP();
       else                                          vcs_nondim_TP();
     }

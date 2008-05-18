@@ -106,8 +106,8 @@ namespace VCSnonideal {
   void VCS_SOLVE::vcs_nondim_TP() {
     int i;
     double tf;
-    if (UnitsState == VCS_DIMENSIONAL_G) {
-      UnitsState = VCS_NONDIMENSIONAL_G;
+    if (m_unitsState == VCS_DIMENSIONAL_G) {
+      m_unitsState = VCS_NONDIMENSIONAL_G;
       tf = 1.0 / vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
       for (i = 0; i < m_numSpeciesTot; ++i) {
 	/* 
@@ -122,7 +122,7 @@ namespace VCSnonideal {
 	m_feSpecies_old[i] *= tf;
       }
 
-      Faraday_dim =  vcs_nondim_Farad(m_VCS_UnitsFormat, m_temperature);
+      m_Faraday_dim =  vcs_nondim_Farad(m_VCS_UnitsFormat, m_temperature);
       if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
 	for (i = 0; i < m_numSpeciesTot; ++i) {
 	  if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -152,8 +152,8 @@ namespace VCSnonideal {
   {
     int i;
     double tf;
-    if (UnitsState != VCS_DIMENSIONAL_G) {
-      UnitsState = VCS_DIMENSIONAL_G;
+    if (m_unitsState != VCS_DIMENSIONAL_G) {
+      m_unitsState = VCS_DIMENSIONAL_G;
       tf = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
       for (i = 0; i < m_numSpeciesTot; ++i) {
 	/* 
@@ -166,7 +166,7 @@ namespace VCSnonideal {
 	m_deltaGRxn_old[i] *= tf;
 	m_feSpecies_old[i] *= tf;
       } 
-      Faraday_dim *= tf;
+      m_Faraday_dim *= tf;
     }
     if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
       for (i = 0; i < m_numSpeciesTot; ++i) {

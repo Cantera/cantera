@@ -1092,10 +1092,10 @@ public:
   std::vector<double> m_tPhaseMoles_new;
 
   //! Temporary vector of length NPhase 
-  std::vector<double> TmpPhase;
+  std::vector<double> m_TmpPhase;
 
   //! Temporary vector of length NPhase 
-  std::vector<double> TmpPhase2;
+  std::vector<double> m_TmpPhase2;
 
   //! Change in the total moles in each phase
   /*!
@@ -1272,7 +1272,7 @@ public:
   /*!
    *. The default is to have this unitless
    */
-  char  UnitsState; 
+  char  m_unitsState; 
  
   //! specifies the activity  convention of the phase containing the species
   /*!
@@ -1281,7 +1281,7 @@ public:
    *                 1 = molality based                  
    *               length = number of species            
    */
-  std::vector<int> SpecActConvention;
+  std::vector<int> m_actConventionSpecies;
 
   //! specifies the activity convention of the phase.
   /*!
@@ -1289,7 +1289,7 @@ public:
    *                 1 = molality based                  
    *               length = number of phases          
    */
-  std::vector<int> PhaseActConvention;
+  std::vector<int> m_phaseActConvention;
  
   //!  specifies the ln(Mnaught) used to   calculate the chemical potentials
   /*!
@@ -1297,7 +1297,7 @@ public:
    *  this will be equal to 0.0
    *   length = number of species            
    */
-  std::vector<double> SpecLnMnaught;
+  std::vector<double> m_lnMnaughtSpecies;
 
   //! Molar-based Activity Coefficients for Species
   /*!
@@ -1327,7 +1327,7 @@ public:
 
   //!  This boolean indicates whether the activity coefficients for a phase
   //!  are current.  
-  std::vector<int> CurrPhAC;
+  std::vector<int> m_phaseACAreCurrent;
 
   //! Molecular weight of each species
   /*!
@@ -1377,12 +1377,27 @@ public:
   /*!
    *       F / RT  (1/volt)
    */
-  double Faraday_dim;
+  double m_Faraday_dim;
 
-
+  //! Timing and iteration counters for the vcs object
   VCS_COUNTERS *m_VCount;
 
-  int vcs_debug_print_lvl;
+
+  //! Debug printing lvl
+  /*!
+   *  Levels correspond to the following guidlines
+   *     - 0          No printing at all
+   *     - 1          Serious warnings or fatal errors get one line
+   *     - 2          one line per eacdh successful vcs package call
+   *     - 3          one line per every successful solve_TP calculation
+   *     - 4          one line for every successful operation -> solve_TP gets a summary report
+   *     - 5          each iteration in solve_TP gets a report with one line per species
+   *     - 6          Each decision in solve_TP gets a line in addition to 4
+   *     - 10         Additionally Hessian matrix is printed out
+   *
+   *   Levels of printing above 4 are only accessible when DEBUG_MODE is turned on
+   */
+  int m_debug_print_lvl;
 
   //! printing level of timing information
   /*!

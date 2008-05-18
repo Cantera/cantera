@@ -209,7 +209,7 @@ namespace VCSnonideal {
     double l2before = 0.0, l2after = 0.0;
     std::vector<double> ga_save(m_numElemConstraints, 0.0);
     vcs_dcopy(VCS_DATA_PTR(ga_save), VCS_DATA_PTR(m_elemAbundances), m_numElemConstraints);
-    if (vcs_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
       plogf("   --- vcsc_elcorr: Element abundances correction routine");
       if (m_numElemConstraints != m_numComponents) {
 	plogf(" (m_numComponents != m_numElemConstraints)");
@@ -313,8 +313,9 @@ namespace VCSnonideal {
 	      if (m_molNumSpecies_old[kspec] > maxPermissible) {
 	      
 #ifdef DEBUG_MODE
-		if (vcs_debug_print_lvl >= 3) {
-		  plogf("  ---  vcs_elcorr: Reduced species %s from %g to %g due to %s max bounds constraint\n",
+		if (m_debug_print_lvl >= 3) {
+		  plogf("  ---  vcs_elcorr: Reduced species %s from %g to %g "
+			"due to %s max bounds constraint\n",
 			m_speciesName[kspec].c_str(), m_molNumSpecies_old[kspec], 
 			maxPermissible, m_elementName[i].c_str());
 		}
@@ -329,8 +330,9 @@ namespace VCSnonideal {
 		    m_rxnStatus[kspec] =  VCS_SPECIES_ZEROEDMS;
 		  } 
 #ifdef DEBUG_MODE
-		  if (vcs_debug_print_lvl >= 2) {
-		    plogf("  ---  vcs_elcorr: Zeroed species %s and changed status to %d due to max bounds constraint\n",
+		  if (m_debug_print_lvl >= 2) {
+		    plogf("  ---  vcs_elcorr: Zeroed species %s and changed "
+			  "status to %d due to max bounds constraint\n",
 			  m_speciesName[kspec].c_str(), m_rxnStatus[irxn]);
 		  }
 #endif
@@ -581,7 +583,7 @@ namespace VCSnonideal {
       l2after += SQUARE(m_elemAbundances[i] - m_elemAbundancesGoal[i]);
     }
     l2after = sqrt(l2after/m_numElemConstraints);
-    if (vcs_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
       plogf("   ---    Elem_Abund:  Correct             Initial  "
 	    "              Final\n");
       for (i = 0; i < m_numElemConstraints; ++i) {

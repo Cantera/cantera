@@ -119,9 +119,8 @@ namespace VCSnonideal {
     double *aw, *sa, *sm, *ss;
     bool modifiedSoln = false;
 
-#ifdef DEBUG_MODE
-    vcs_debug_print_lvl = printLvl;
-#endif
+    m_debug_print_lvl = printLvl;
+
 
     /*
      *  Calculate the Single Species status of phases
