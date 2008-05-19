@@ -808,30 +808,6 @@ namespace VCSnonideal {
 	    dx = -0.9 * m_molNumSpecies_old[kspec];
 	    m_deltaMolNumSpecies[kspec] = dx;
 	    m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + dx;
-	    /*
-	     *        Change major to minor if the current species
-	     *        has a mole number that is less than 1/100 of the
-	     *        total kmoles in the problem.
-	     *        However, it also has to be a small species within its
-	     *        own phase as well.
-	     *        we can't call vcs_species_type() because the phase moles
-	     *        would be wrong.
-	     */
-	    //  if (m_molNumSpecies_new[kspec] < 0.005 * m_totalMolNum) {
-	    //iph = m_phaseID[kspec];
-	    //if (m_molNumSpecies_new[kspec] < (m_tPhaseMoles_old[iph] * 0.01)) {
-#ifdef DEBUG_MODE
-	    //if (m_debug_print_lvl >= 2) {
-	    //  plogf("   --- Major species changed to minor: ");
-	    //  plogf("%-12s", m_speciesName[kspec].c_str());
-	    //  plogendl();
-	    //}
-#endif
-	    //m_rxnStatus[irxn] = VCS_SPECIES_MINOR;
-	    //++m_numRxnMinorZeroed;
-	    //im = (m_numRxnMinorZeroed == m_numRxnRdc);
-	    //}
-	    //}
 	  } else {
 	    /* 
 	     *   Section for single species phases:
