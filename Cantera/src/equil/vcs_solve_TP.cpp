@@ -314,23 +314,59 @@ namespace VCSnonideal {
     /************** EVALUATE INITIAL MAJOR-MINOR VECTOR **********************/
     /*************************************************************************/
     m_numRxnMinorZeroed = 0;
+#ifdef DEBUG_MODE
+    if (m_debug_print_lvl >= 2) {
+      plogf("  --- MAJOR-MINOR decision is reavaluated: All species are minor except for:\n");
+    } else if (m_debug_print_lvl >= 5) {
+      plogf("  --- MAJOR-MINOR decision is reavaluated");
+      plogendl();
+    }
+#endif
+
     for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
       kspec = m_indexRxnToSpecies[irxn];
       m_rxnStatus[irxn] = vcs_species_type(kspec);
-      if (m_rxnStatus[irxn] == VCS_SPECIES_MINOR) {
-	m_rxnStatus[irxn] = VCS_SPECIES_MAJOR;
-#ifdef DEBUG_MODE
-	if (m_debug_print_lvl >= 2) {
-	  plogf("   --- Minor species changed to major: ");
-	  plogf("%-12s", m_speciesName[kspec].c_str());
-	  plogendl();
+#ifdef DEBUG_MODE 
+      if (m_debug_print_lvl >= 2) {
+	if (m_rxnStatus[irxn] != VCS_SPECIES_MINOR) {
+	  switch (m_rxnStatus[irxn]) {
+	  case VCS_SPECIES_MAJOR:
+	    plogf("  ---      Major Species          : %-s\n", m_speciesName[kspec].c_str());
+	    break;
+	  case VCS_SPECIES_ZEROEDPHASE:
+	    plogf("  ---      Zeroed-Phase Species   : %-s\n", m_speciesName[kspec].c_str());
+	    break;
+	  case VCS_SPECIES_ZEROEDMS:
+	    plogf("  ---      Zeroed-MS Phase Species: %-s\n", m_speciesName[kspec].c_str());
+	    break;
+	  case VCS_SPECIES_ZEROEDSS:
+	    plogf("  ---      Zeroed-SS Phase Species: %-s\n", m_speciesName[kspec].c_str());
+	    break;
+	  case VCS_SPECIES_DELETED:
+	    plogf("  ---      Deleted-Small Species  : %-s\n", m_speciesName[kspec].c_str());
+	    break;
+	  case VCS_SPECIES_INTERFACIALVOLTAGE:
+	    plogf("  ---      InterfaceVoltage Species: %-s\n", m_speciesName[kspec].c_str());
+	    break;
+	  default:
+	    plogf("  --- Unknown type - ERROR %d\n", m_rxnStatus[irxn]);
+	    plogendl();
+	    std::exit(-1);
+	  }
 	}
-#endif
       }
+#endif
       if (m_rxnStatus[irxn] != VCS_SPECIES_MAJOR) {
 	++m_numRxnMinorZeroed;
       }
     }
+#ifdef DEBUG_MODE 
+      if (m_debug_print_lvl >= 2) {
+	plogf("  ---");
+	plogendl();
+      }
+#endif
+
     im = (m_numRxnMinorZeroed == m_numRxnRdc);
     lec = FALSE;
     if (! vcs_elabcheck(0)) {
@@ -781,21 +817,21 @@ namespace VCSnonideal {
 	     *        we can't call vcs_species_type() because the phase moles
 	     *        would be wrong.
 	     */
-	    if (m_molNumSpecies_new[kspec] < 0.005 * m_totalMolNum) {
-	      iph = m_phaseID[kspec];
-	      if (m_molNumSpecies_new[kspec] < (m_tPhaseMoles_old[iph] * 0.01)) {
+	    //  if (m_molNumSpecies_new[kspec] < 0.005 * m_totalMolNum) {
+	    //iph = m_phaseID[kspec];
+	    //if (m_molNumSpecies_new[kspec] < (m_tPhaseMoles_old[iph] * 0.01)) {
 #ifdef DEBUG_MODE
-		if (m_debug_print_lvl >= 2) {
-		  plogf("   --- Major species changed to minor: ");
-		  plogf("%-12s", m_speciesName[kspec].c_str());
-		  plogendl();
-		}
+	    //if (m_debug_print_lvl >= 2) {
+	    //  plogf("   --- Major species changed to minor: ");
+	    //  plogf("%-12s", m_speciesName[kspec].c_str());
+	    //  plogendl();
+	    //}
 #endif
-		m_rxnStatus[irxn] = VCS_SPECIES_MINOR;
-		++m_numRxnMinorZeroed;
-		im = (m_numRxnMinorZeroed == m_numRxnRdc);
-	      }
-	    }
+	    //m_rxnStatus[irxn] = VCS_SPECIES_MINOR;
+	    //++m_numRxnMinorZeroed;
+	    //im = (m_numRxnMinorZeroed == m_numRxnRdc);
+	    //}
+	    //}
 	  } else {
 	    /* 
 	     *   Section for single species phases:

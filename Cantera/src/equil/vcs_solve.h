@@ -799,8 +799,8 @@ private:
    *  @param ss   ss[j] = Gramm-Schmidt orthog work space (ne in length)
    *  @param test This is a small negative number.
    */
-  void inest(double * const aw, double * const sa, double * const sm, 
-	     double * const ss, double test);
+  void vcs_inest(double * const aw, double * const sa, double * const sm, 
+		 double * const ss, double test);
 
 
 
@@ -1401,7 +1401,7 @@ public:
    *     - 3          one line per every successful solve_TP calculation
    *     - 4          one line for every successful operation -> solve_TP gets a summary report
    *     - 5          each iteration in solve_TP gets a report with one line per species
-   *     - 6          Each decision in solve_TP gets a line in addition to 4
+   *     - 6          Each decision in solve_TP gets a line per species in addition to 4
    *     - 10         Additionally Hessian matrix is printed out
    *
    *   Levels of printing above 4 are only accessible when DEBUG_MODE is turned on

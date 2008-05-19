@@ -40,8 +40,8 @@ namespace VCSnonideal {
    *  @param ss   ss[j] = Gramm-Schmidt orthog work space (ne in length)
    *  @param test This is a small negative number.
    */
-  void VCS_SOLVE::inest(double * const aw, double * const sa, double * const sm, 
-			double * const ss, double test) {
+  void VCS_SOLVE::vcs_inest(double * const aw, double * const sa, double * const sm, 
+		            double * const ss, double test) {
     int conv, k,  lt, ikl, kspec, iph, irxn;
     double s;
     double s1 = 0.0;
@@ -448,8 +448,8 @@ namespace VCSnonideal {
       plogendl();
     }
 #endif
-    inest(VCS_DATA_PTR(aw), VCS_DATA_PTR(sa), VCS_DATA_PTR(sm),
-	  VCS_DATA_PTR(ss), test);
+    vcs_inest(VCS_DATA_PTR(aw), VCS_DATA_PTR(sa), VCS_DATA_PTR(sm),
+              VCS_DATA_PTR(ss), test);
     /*
      *  Calculate the elemental abundances
      */
