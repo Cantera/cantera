@@ -617,20 +617,34 @@ namespace VCSnonideal {
 	 * Resurrect the species
 	 */ 
 	if (resurrect) {
-	  if (Vphase->Existence == 0) Vphase->Existence = 1;
-	  --m_numRxnMinorZeroed;
-#ifdef DEBUG_MODE
-	  if (m_debug_print_lvl >= 2) {
-	    plogf("   --- Zeroed species changed to major: ");
-	    plogf("%-12s\n", m_speciesName[kspec].c_str());
+	  bool phaseResurrected = false;
+	  if (Vphase->Existence == 0) {
+	    Vphase->Existence = 1;
+	    phaseResurrected = true;
 	  }
+	  --m_numRxnMinorZeroed;
+
+	  if (phaseResurrected) {
+#ifdef DEBUG_MODE
+	    if (m_debug_print_lvl >= 2) {
+	      plogf("   --- Zeroed species changed to major: ");
+	      plogf("%-12s\n", m_speciesName[kspec].c_str());
+	    }
 #endif
-	  m_rxnStatus[irxn] = VCS_SPECIES_MAJOR;
-	  im = FALSE;
-	  MajorSpeciesHaveConverged = false;
+	    m_rxnStatus[irxn] = VCS_SPECIES_MAJOR;
+	    MajorSpeciesHaveConverged = false;
+	    im = FALSE;
+	  } else {
+#ifdef DEBUG_MODE
+	    if (m_debug_print_lvl >= 2) {
+	      plogf("   --- Zeroed species changed to minor: ");
+	      plogf("%-12s\n", m_speciesName[kspec].c_str());
+	    }
+#endif
+	    m_rxnStatus[irxn] = VCS_SPECIES_MINOR;
+	  }
 	  if (m_deltaMolNumSpecies[kspec] > 0.0) {
 	    dx = m_deltaMolNumSpecies[kspec] * 0.01;
-	  
 	    m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + dx;
 	  } else {
 	    m_molNumSpecies_new[kspec] = m_totalMolNum * VCS_DELETE_PHASE_CUTOFF * 10.;
