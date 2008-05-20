@@ -587,12 +587,6 @@ namespace VCSnonideal {
 	    sprintf(ANOTE, "Species stays zeroed even though dg neg:DG = %11.4E, ds zeroed ",
 		    m_deltaGRxn_new[irxn]);
 	  }
-	  //if (m_debug_print_lvl >= 2) {
-	  //plogf("   --- "); plogf("%-12s", m_speciesName[kspec]);
-	  //plogf("%3d%11.4E%11.4E%11.4E | %s\n", 
-	  // m_rxnStatus[irxn], w[kspec], wt[kspec],
-	  // ds[kspec], ANOTE);
-	  //}
 #endif
 	} else {
 	  for (int j = 0; j < m_numElemConstraints; ++j) {
@@ -1126,7 +1120,7 @@ namespace VCSnonideal {
       plogendl();
     }
 
-    forced = globStepDamp(iti);
+    forced = vcs_globStepDamp();
 
     /*
      *       Print out the changes to the solution that FORCER produced 
@@ -1145,7 +1139,8 @@ namespace VCSnonideal {
 	irxn = kspec - m_numComponents;
 	plogf("  --- %-12.12s", m_speciesName[kspec].c_str());
 	plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n", m_rxnStatus[irxn],
-	      m_molNumSpecies_old[kspec], m_molNumSpecies_old[kspec]+m_deltaMolNumSpecies[kspec], 
+	      m_molNumSpecies_old[kspec],
+	      m_molNumSpecies_old[kspec]+m_deltaMolNumSpecies[kspec], 
 	      m_molNumSpecies_new[kspec], m_deltaGRxn_old[irxn], 
 	      m_deltaGRxn_tmp[irxn], m_deltaGRxn_new[irxn]);
       }
@@ -2697,13 +2692,11 @@ namespace VCSnonideal {
   }
   /***********************************************************************************/
 
-  /* globalStepDamp
-   *
-   *  Convergence Forcer:
-   *
-   *  This routine optimizes the minimization of the total gibbs free
-   *  energy by making sure the slope of the following functional stays
-   *  negative:
+  //  This routine optimizes the minimization of the total gibbs free
+  //  energy by making sure the slope of the Gibbs free energy stays negative
+  /*
+   *  The slope of the following functional is equivalent to the slope of the total
+   *  Gibbs free energy of the system:
    *
    *                 d_Gibbs/ds = sum_k( m_deltaGRxn * m_deltaMolNumSpecies[k] )
    *
@@ -2719,7 +2712,7 @@ namespace VCSnonideal {
    *  where the slope is equal to zero.
    *
    */
-  int VCS_SOLVE::globStepDamp(int iti) {
+  int VCS_SOLVE::vcs_globStepDamp() {
     double s1, s2, al;
     int irxn, kspec, iph;
     double *dptr = VCS_DATA_PTR(m_deltaGRxn_new);
@@ -2809,7 +2802,8 @@ namespace VCSnonideal {
    
     dptr = VCS_DATA_PTR(m_molNumSpecies_new);
     for (kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
-      m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + al * m_deltaMolNumSpecies[kspec];
+      m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + 
+	al * m_deltaMolNumSpecies[kspec];
     }
     for (iph = 0; iph < m_numPhases; iph++) {
       m_tPhaseMoles_new[iph] = m_tPhaseMoles_old[iph] + al * m_deltaPhaseMoles[iph];
@@ -2828,13 +2822,12 @@ namespace VCSnonideal {
      *           only step is being carried out, then we don't need to
      *           update the minor noncomponents. 
      */
-    // vcs_dfe(dptr, VCS_STATECALC_NEW, iti, 0, m_numSpeciesRdc);
     vcs_dfe(dptr, VCS_STATECALC_NEW, 0, 0, m_numSpeciesRdc);
+
     /*
      *           Evaluate DeltaG for all components if ITI=0, and for 
      *           major components only if ITI NE 0 
      */
-    // vcs_deltag(iti, false);
     vcs_deltag(0, false);
 
     dptr = VCS_DATA_PTR(m_deltaGRxn_new);
@@ -2853,26 +2846,27 @@ namespace VCSnonideal {
 #endif
     return TRUE;
   }
-  
+  /****************************************************************************************/
 
-
+  // Calculates formation reaction step sizes.
   /*
-   * vcs_RxnStepSizes():
-   *
-   * Calculates formation reaction step sizes.
-   * This is equation 6.4-16, p. 143 in Smith and Missen. 
+   *     This is equation 6.4-16, p. 143 in Smith and Missen. 
    *
    * Output 
    * ------- 
-   * m_deltaMolNumSpecies(I) : reaction adjustments, where I refers to the Ith species
-   *         formation reaction. This is adjustment is for species
-   *         i + M, where M is the number of components.
+   * m_deltaMolNumSpecies(irxn) : reaction adjustments, where irxn refers 
+   *                              to the irxn'th species
+   *                              formation reaction. This  adjustment is for species
+   *                               irxn + M, where M is the number of components.
+   *
    * Special branching occurs sometimes. This causes the component basis 
    * to be reevaluated 
-   *     return = 0 : normal return
-   *              1 : A single species phase species has been zeroed out
-   *                  in this routine. The species is a noncomponent 
-   *              2 : Same as one but, the zeroed species is a component. 
+   *
+   * @return  Returns an int representing the status of the step
+   *            -  0 : normal return
+   *            -  1 : A single species phase species has been zeroed out
+   *                   in this routine. The species is a noncomponent 
+   *            -  2 : Same as one but, the zeroed species is a component. 
    */
   int VCS_SOLVE::vcs_RxnStepSizes() {  
     int  j, irxn, kspec, soldel = 0, iph;

@@ -289,7 +289,28 @@ public:
    */
   void vcs_updateVP(const int vcsState);
  
-  int vcs_RxnStepSizes(void);
+
+  //! Calculates formation reaction step sizes.
+  /*!
+   *     This is equation 6.4-16, p. 143 in Smith and Missen. 
+   *
+   * Output 
+   * ------- 
+   * m_deltaMolNumSpecies(irxn) : reaction adjustments, where irxn refers 
+   *                              to the irxn'th species
+   *                              formation reaction. This  adjustment is for species
+   *                               irxn + M, where M is the number of components.
+   *
+   * Special branching occurs sometimes. This causes the component basis 
+   * to be reevaluated 
+   *
+   * @return  Returns an int representing the status of the step
+   *            -  0 : normal return
+   *            -  1 : A single species phase species has been zeroed out
+   *                   in this routine. The species is a noncomponent 
+   *            -  2 : Same as one but, the zeroed species is a component. 
+   */
+  int vcs_RxnStepSizes();
 
   //!  Calculates the total number of moles of species in all phases.
   /*!
@@ -765,9 +786,29 @@ private:
 			, char *ANOTE  
 #endif
 			);
+  //!  This routine optimizes the minimization of the total gibbs free
+  //!  energy by making sure the slope of the following functional stays
+  //!  negative:
+  /*!
+   *  The slope of the following functional is equivalent to the slope of the total
+   *  Gibbs free energy of the system:
+   *
+   *                 d_Gibbs/ds = sum_k( m_deltaGRxn * m_deltaMolNumSpecies[k] )
+   *
+   *  along the current direction m_deltaMolNumSpecies[], by choosing a value, al: (0<al<1)
+   *  such that the a parabola approximation to Gibbs(al) fit to the 
+   *  end points al = 0 and al = 1 is minimizied.
+   *      s1 = slope of Gibbs function at al = 0, which is the previous
+   *           solution = d(Gibbs)/d(al).
+   *      s2 = slope of Gibbs function at al = 1, which is the current
+   *           solution = d(Gibbs)/d(al).
+   *  Only if there has been an inflection point (i.e., s1 < 0 and s2 > 0),
+   *  does this code section kick in. It finds the point on the parabola
+   *  where the slope is equal to zero.
+   *
+   */
+  int vcs_globStepDamp();
 
-  int force(int iti);
-  int globStepDamp(int iti);
   void vcs_switch2D(double * const * const Jac, int k1, int k2);
 
   //! Calculate the norm of a deltaGibbs free energy vector
@@ -1125,7 +1166,7 @@ public:
    *                3:  Pa
    *   Units being changed to Pa
    */
-  double   m_pressurePA;
+  double m_pressurePA;
 
   //!  Total kmoles of inert to add to each phase 
   /*!
