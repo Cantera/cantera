@@ -3361,49 +3361,78 @@ namespace VCSnonideal {
   }
   /*****************************************************************************/
 
-  int VCS_SOLVE::vcs_basopt(int ifirst, double aw[], double sa[], double sm[], 
-			    double ss[], double test, int *usedZeroedSpecies)
-   
-    /**************************************************************************
-     * Choose the optimum basis for the calculations. This is done by 
-     * choosing the species with the largest mole fraction 
-     * not currently a linear combination of the previous components. 
-     * Then, calculate the stoichiometric coefficient matrix for that 
-     * basis. 
-     *
-     * Calculates the identity of the component species in the mechanism. 
-     * Rearranges the solution data to put the component data at the 
-     * front of the species list. 
-     *
-     * Then, calculates M_STOICHCOEFFRXNMATRIX(J,I) the formation reactions for all noncomponent 
-     *
-     * species in the mechanism. 
-     * Also calculates DNG(I) and DNL(I), the net mole change for each 
-     * formation reaction. 
-     * Also, initializes IR(I) to the default state. 
-     *
-     * Input 
-     * --------- 
-     * IFIRST = If true, the M_STOICHCOEFFRXNMATRIX, DNG, and DNL are not calculated. 
-     * TEST   = This is a small negative number dependent upon whether 
-     *          an estimate is supplied or not. 
-     * W(I)   = Mole fractions which will be used to construct an 
-     *          optimal basis from. 
-     * 
-     * Output 
-     * --------- 
-     * usedZeroedSpecies = If true, then a species with a zero concentration
-     *                     was used as a component. The problem may be
-     *                     converged.
-     *
-     * Other Variables 
-     *  aw[i] = Mole fraction work space      (# species in length)
-     *  sa[j] = Gramm-Schmidt orthog work space (nc in length)
-     *  ss[j] = Gramm-Schmidt orthog work space (nc in length)
-     *  sm[i+j*ne] = QR matrix work space (nc*ne in length)
-     *
-     *************************************************************************/
-  {
+  //  Choose the optimum species basis for the calculations
+  /*
+   * Choose the optimum component species basis for the calculations.
+   *  This is done by choosing the species with the largest mole fraction 
+   * not currently a linear combination of the previous components. 
+   * Then, calculate the stoichiometric coefficient matrix for that 
+   * basis.
+   *
+   * Rearranges the solution data to put the component data at the 
+   * front of the species list. 
+   *
+   * Then, calculates M_STOICHCOEFFRXNMATRIX(J,I) the formation reactions
+   * for all noncomponent species in the mechanism. 
+   * Also calculates DNG(I) and DNL(I), the net mole change for each 
+   * formation reaction. 
+   * Also, initializes IR(I) to the default state. 
+   *
+   * Input 
+   * --------- 
+   * @param doJustCompoents   If true, the m_stoichCoeffRxnMatrix[][] and
+   *                          m_deltaMolNumPhase[]  are not calculated. 
+   *
+   * @param aw         Vector of mole fractions which will be used to construct an 
+   *                   optimal basis from.
+   *
+   * @param  sa        Gramm-Schmidt orthog work space (nc in length) sa[j]  
+   * @param  ss        Gramm-Schmidt orthog work space (nc in length) ss[j] 
+   * @param  sm        QR matrix work space (nc*ne in length)         sm[i+j*ne]
+   * @param test       This is a small negative number dependent upon whether 
+   *                   an estimate is supplied or not. 
+   * 
+   * Output 
+   * --------- 
+   * @param usedZeroedSpecies = If true, then a species with a zero concentration
+   *                            was used as a component. The problem may be
+   *                            converged. Or, the problem may have a range space
+   *                            error and may not have a proper solution.
+   *
+   *  Internal Variables calculated by this routine:
+   *  -----------------------------------------------
+   *
+   *      m_numComponents
+   *                 Number of component species
+   *
+   *      component species
+   *                 This routine calculates the m_numComponent species. It switches
+   *                 their positions in the species vector so that they occupy
+   *                 the first m_numComponent spots in the species vector.
+   *
+   *      m_stoichCoeffRxnMatrix[irxn][jcomp]
+   *                 Stoichiometric coefficient matrix for the reaction mechanism 
+   *                 expressed in Reduced Canonical Form.
+   *                 j refers to the component number, and irxn 
+   *                 refers to the irxn_th non-component species.
+   *
+   *      m_deltaMolNumPhase[irxn]
+   *                Change in the number of total number of moles of species in all phases
+   *                due to the noncomponent formation reaction, irxn.
+   *
+   *      m_deltaMolNumPhase[irxn][iphase]  
+   *                Change in the number of moles in phase, iphase, due to the 
+   *                noncomponent formation reaction, irxn.
+   *
+   *      m_phaseParticipation[irxn]
+   *                This is 1 if the phase, iphase,  participates in the 
+   *                formation reaction, irxn, and zero otherwise.
+   *
+   * @return        Returns VCS_SUCCESS if everything went ok. Returns
+   *                VCS_FAILED_CONVERGENCE if there is a problem.
+   */
+  int VCS_SOLVE::vcs_basopt(const int doJustComponents, double aw[], double sa[], double sm[], 
+			    double ss[], double test, int * const usedZeroedSpecies) {
     int  j, k, l, i, jl, ml, jr, lindep, irxn, kspec;
     int ncTrial;
     int juse  = -1;
@@ -3414,7 +3443,7 @@ namespace VCSnonideal {
     if (m_debug_print_lvl >= 2) {
       plogf("   "); for(i=0; i<77; i++) plogf("-"); plogf("\n");
       plogf("   --- Subroutine BASOPT called to ");
-      if (ifirst)   plogf("calculate the number of components\n");
+      if (doJustComponents)   plogf("calculate the number of components\n");
       else          plogf("reevaluate the components\n");
       if (m_debug_print_lvl >= 2) {
 	plogf("\n");
@@ -3482,7 +3511,6 @@ namespace VCSnonideal {
 	 *    The first search criteria is always the largest positive
 	 *    magnitude of the mole number.
 	 */
-	//	k = vcs_optMax(aw, VCS_DATA_PTR(m_spSize), jr, m_numSpeciesTot);
 	k = vcs_basisOptMax(aw, jr, m_numSpeciesTot);
 
 	/*
@@ -3669,7 +3697,8 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	if (m_debug_print_lvl >= 2) {
 	  plogf("   ---   %-12.12s", (m_speciesName[k]).c_str());
-	  plogf("(%9.2g) replaces %-12.12s", m_molNumSpecies_old[k], m_speciesName[jr].c_str());
+	  plogf("(%9.2g) replaces %-12.12s", m_molNumSpecies_old[k],
+		m_speciesName[jr].c_str());
 	  plogf("(%9.2g) as component %3d\n", m_molNumSpecies_old[jr], jr);
 	}
 #endif
@@ -3694,7 +3723,7 @@ namespace VCSnonideal {
        */
     } while (jr < (ncTrial-1));
    
-    if (ifirst) goto L_CLEANUP;
+    if (doJustComponents) goto L_CLEANUP;
     /* ****************************************************** */
     /* **** EVALUATE THE STOICHIOMETRY ********************** */
     /* ****************************************************** */
@@ -3716,7 +3745,8 @@ namespace VCSnonideal {
      * Then, the first row in sm[], below will be indentically
      * zero. bleh. 
      *    What needs to be done is to perform a rearrangement
-     * of the ELEMENTS -> i.e. rearrange, m_formulaMatrix, sp, and m_elemAbundancesGoal, such
+     * of the ELEMENTS -> i.e. rearrange, m_formulaMatrix, sp,
+     * and m_elemAbundancesGoal, such
      * that the first nc elements form in combination with the
      * nc components create an invertible sm[]. not a small
      * project, but very doable.
@@ -3888,7 +3918,8 @@ namespace VCSnonideal {
     m_VCount->Time_basopt += tsecond;
     (m_VCount->Basis_Opts)++;
     return VCS_SUCCESS;
-  } /* vcs_basopt() ************************************************************/
+  } 
+  /***************************************************************************************/
 
 
   int 

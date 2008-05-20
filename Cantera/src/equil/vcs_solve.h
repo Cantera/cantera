@@ -130,8 +130,79 @@ public:
   int vcs_solve_TP(int print_lvl, int printDetails, int maxit);
 
   void vcs_reinsert_deleted(int kspec);
-  int vcs_basopt(int ifirst, double aw[], double sa[], double sm[], 
-		 double ss[], double test, int *usedZeroedSpecies);
+
+  //!  Choose the optimum species basis for the calculations
+  /*!
+   * Choose the optimum component species basis for the calculations.
+   *  This is done by choosing the species with the largest mole fraction 
+   * not currently a linear combination of the previous components. 
+   * Then, calculate the stoichiometric coefficient matrix for that 
+   * basis.
+   *
+   * Rearranges the solution data to put the component data at the 
+   * front of the species list. 
+   *
+   * Then, calculates m_stoichCoeffRxnMatrix[irxn][jcomp] the formation reactions
+   * for all noncomponent species in the mechanism. 
+   * Also calculates DNG(I) and DNL(I), the net mole change for each 
+   * formation reaction. 
+   * Also, initializes IR(I) to the default state. 
+   *
+   * Input 
+   * --------- 
+   * @param doJustCompoents   If true, the m_stoichCoeffRxnMatrix[][] and
+   *                          m_deltaMolNumPhase[]  are not calculated. 
+   *
+   * @param aw         Vector of mole fractions which will be used to construct an 
+   *                   optimal basis from.
+   *
+   * @param  sa        Gramm-Schmidt orthog work space (nc in length) sa[j]  
+   * @param  ss        Gramm-Schmidt orthog work space (nc in length) ss[j] 
+   * @param  sm        QR matrix work space (nc*ne in length)         sm[i+j*ne]
+   * @param test       This is a small negative number dependent upon whether 
+   *                   an estimate is supplied or not. 
+   * 
+   * Output 
+   * --------- 
+   * @param usedZeroedSpecies = If true, then a species with a zero concentration
+   *                            was used as a component. The problem may be
+   *                            converged. Or, the problem may have a range space
+   *                            error and may not have a proper solution.
+   *
+   *  Internal Variables calculated by this routine:
+   *  -----------------------------------------------
+   *
+   *      m_numComponents
+   *                 Number of component species
+   *
+   *      component species
+   *                 This routine calculates the m_numComponent species. It switches
+   *                 their positions in the species vector so that they occupy
+   *                 the first m_numComponent spots in the species vector.
+   *
+   *      m_stoichCoeffRxnMatrix[irxn][jcomp]
+   *                 Stoichiometric coefficient matrix for the reaction mechanism 
+   *                 expressed in Reduced Canonical Form.
+   *                 j refers to the component number, and irxn 
+   *                 refers to the irxn_th non-component species.
+   *
+   *      m_deltaMolNumPhase[irxn]
+   *                Change in the number of total number of moles of species in all phases
+   *                due to the noncomponent formation reaction, irxn.
+   *
+   *      m_deltaMolNumPhase[irxn][iphase]  
+   *                Change in the number of moles in phase, iphase, due to the 
+   *                noncomponent formation reaction, irxn.
+   *
+   *      m_phaseParticipation[irxn]
+   *                This is 1 if the phase, iphase,  participates in the 
+   *                formation reaction, irxn, and zero otherwise.
+   *
+   * @return        Returns VCS_SUCCESS if everything went ok. Returns something else if
+   *                there is a problem.
+   */
+  int vcs_basopt(const int doJustComponents, double aw[], double sa[], double sm[], 
+		 double ss[], double test, int * const usedZeroedSpecies);
 
   //!  Choose a species for the next component
   /*!
@@ -152,7 +223,6 @@ public:
   void vcs_chemPotPhase(int iph, const double *const molNum, 
 			double * const ac, double * const mu_i,
 			bool do_deleted = false);
-
 
   //! Calculalte the dimensionless chemical potentials of all species or
   //! of certain groups of species, at a fixed temperature and pressure.
