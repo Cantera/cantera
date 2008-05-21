@@ -60,11 +60,28 @@ namespace VCSnonideal {
   {
   }
 
-  void VCS_SOLVE::InitSizes(int nspecies0, int nelements, int nphase0) 
-  {
+  //! Initialize the sizes within the VCS_SOLVE object
+  /*!
+   *    This resizes all of the internal arrays within the object. This routine
+   *    operates in two modes. If all of the parameters are the same as it
+   *    currently exists in the object, nothing is done by this routine; a quick
+   *    exit is carried out and all of the data in the object persists.
+   *
+   *    IF any of the parameters are different than currently exists in the
+   *    object, then all of the data in the object must be redone. It may not
+   *    be zeroed, but it must be redone.
+   *
+   *  @param nspecies0     Number of species within the object
+   *  @param nelements     Number of element constraints within the problem
+   *  @param nphase0       Number of phases defined within the problem.
+   *
+   */
+  void VCS_SOLVE::vcs_initSizes(const int nspecies0, const int nelements, 
+				const int nphase0) {
+
     if (NSPECIES0 != 0) {
       if ((nspecies0 != NSPECIES0) || (nelements != m_numElemConstraints) || (nphase0 != NPHASE0)){
-	delete_memory();
+	vcs_delete_memory();
       } else {
 	return;
       }
@@ -222,16 +239,21 @@ namespace VCSnonideal {
   }
 
 
-  /**
+  //! Destructor
+  /*!
    *
    */
   VCS_SOLVE::~VCS_SOLVE()
   {
-    delete_memory();
+    vcs_delete_memory();
   }
+  /****************************************************************************/
 
-  void VCS_SOLVE::delete_memory(void) 
-  {
+  // Delete memory that isn't just resizeable STL containers
+  /*
+   * This gets called by the destructor or by InitSizes().
+   */
+  void VCS_SOLVE::vcs_delete_memory() {
     int j;
     int nspecies = m_numSpeciesTot;
    
@@ -245,17 +267,16 @@ namespace VCSnonideal {
       m_speciesThermoList[j] = 0;
     } 
    
-    delete m_VCount; m_VCount = 0;
+    delete m_VCount; 
+    m_VCount = 0;
 
     NSPECIES0 = 0;
     NPHASE0 = 0;
     m_numElemConstraints = 0;
     m_numComponents = 0;
   }
+  /*****************************************************************************/
 
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
   // Solve an equilibrium problem
   /*
    *  This is the main interface routine to the equilibrium solver
@@ -304,7 +325,7 @@ namespace VCSnonideal {
     
     if (ifunc < 0 || ifunc > 2) {
       plogf("vcs: Unrecognized value of ifunc, %d: bailing!\n",
-	     ifunc);
+	    ifunc);
       return VCS_PUB_BAD;
     }
   
@@ -317,11 +338,11 @@ namespace VCSnonideal {
       nelements0 = vprob->ne;
       nphase0 = vprob->NPhase;
     
-      InitSizes(nspecies0, nelements0, nphase0);
+      vcs_initSizes(nspecies0, nelements0, nphase0);
      
       if (retn != 0) {
 	plogf("vcs_priv_alloc returned a bad status, %d: bailing!\n",
-	       retn);
+	      retn);
 	return retn;
       }
       /*
@@ -332,7 +353,7 @@ namespace VCSnonideal {
       retn = vcs_prob_specifyFully(vprob);
       if (retn != 0) {
 	plogf("vcs_pub_to_priv returned a bad status, %d: bailing!\n",
-	       retn);
+	      retn);
 	return retn;
       }
       /*
@@ -343,7 +364,7 @@ namespace VCSnonideal {
       retn = vcs_prep_oneTime(ip1);
       if (retn != 0) {
 	plogf("vcs_prep_oneTime returned a bad status, %d: bailing!\n",
-	       retn);
+	      retn);
 	return retn;
       }      
     }
@@ -355,7 +376,7 @@ namespace VCSnonideal {
       retn = vcs_prob_specify(vprob);
       if (retn != 0) {
 	plogf("vcs_prob_specify returned a bad status, %d: bailing!\n",
-	       retn);
+	      retn);
 	return retn;
       }
     }
@@ -425,8 +446,7 @@ namespace VCSnonideal {
     return iconv;
   }
   /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
+
   // Fully specify the problem to be solved using VCS_PROB
   /*
    *  Use the contents of the VCS_PROB to specify the contents of the
@@ -635,7 +655,7 @@ namespace VCSnonideal {
 	iph = pub->PhaseID[kspec];
 	if (iph < 0 || iph >= nph) {
 	  plogf("%sSpecies to Phase Mapping, PhaseID, has a bad value\n",
-		 ser);
+		ser);
 	  plogf("\tPhaseID[%d] = %d\n", kspec, iph);
 	  plogf("\tAllowed values: 0 to %d\n", nph - 1);
 	  return VCS_PUB_BAD;	    
@@ -648,7 +668,7 @@ namespace VCSnonideal {
 	Vphase = pub->VPhaseList[iph];
 	if (numPhSp[iph] != Vphase->NVolSpecies) {
 	  plogf("%sNumber of species in phase %d, %s, doesn't match\n",
-		 ser, iph, Vphase->PhaseName.c_str());
+		ser, iph, Vphase->PhaseName.c_str());
 	  return VCS_PUB_BAD;
 	}
       }
@@ -760,8 +780,7 @@ namespace VCSnonideal {
     return VCS_SUCCESS;
   }
   /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
+
   // Specify the problem to be solved using VCS_PROB, incrementally
   /*
    *  Use the contents of the VCS_PROB to specify the contents of the
@@ -830,21 +849,21 @@ namespace VCSnonideal {
 
       if  (vPhase->VP_ID != pub_phase_ptr->VP_ID) {
 	plogf("%sPhase numbers have changed:%d %d\n", yo.c_str(),
-	       vPhase->VP_ID, pub_phase_ptr->VP_ID);
+	      vPhase->VP_ID, pub_phase_ptr->VP_ID);
 	retn = VCS_PUB_BAD;
       }
 
       if  (vPhase->SingleSpecies != pub_phase_ptr->SingleSpecies) {
 	plogf("%sSingleSpecies value have changed:%d %d\n", yo.c_str(),
-	       vPhase->SingleSpecies,
-	       pub_phase_ptr->SingleSpecies);
+	      vPhase->SingleSpecies,
+	      pub_phase_ptr->SingleSpecies);
 	retn = VCS_PUB_BAD;
       }
 
       if  (vPhase->GasPhase != pub_phase_ptr->GasPhase) {
 	plogf("%sGasPhase value have changed:%d %d\n", yo.c_str(),
-	       vPhase->GasPhase,
-	       pub_phase_ptr->GasPhase);
+	      vPhase->GasPhase,
+	      pub_phase_ptr->GasPhase);
 	retn = VCS_PUB_BAD;
       }
 
@@ -852,15 +871,15 @@ namespace VCSnonideal {
 
       if  (vPhase->NVolSpecies != pub_phase_ptr->NVolSpecies) {
 	plogf("%sNVolSpecies value have changed:%d %d\n", yo.c_str(),
-	       vPhase->NVolSpecies,
-	       pub_phase_ptr->NVolSpecies);
+	      vPhase->NVolSpecies,
+	      pub_phase_ptr->NVolSpecies);
 	retn = VCS_PUB_BAD;
       }
 
       if (vPhase->PhaseName == pub_phase_ptr->PhaseName) {
 	plogf("%sPhaseName value have changed:%s %s\n", yo.c_str(),
-	       vPhase->PhaseName.c_str(),
-	       pub_phase_ptr->PhaseName.c_str());
+	      vPhase->PhaseName.c_str(),
+	      pub_phase_ptr->PhaseName.c_str());
 	retn = VCS_PUB_BAD;
       }
 
@@ -894,8 +913,7 @@ namespace VCSnonideal {
     return retn;
   }
   /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
+
   // Transfer the results of the equilibrium calculation back to VCS_PROB
   /*
    *   The VCS_PUB structure is  returned to the user.
@@ -965,7 +983,7 @@ namespace VCSnonideal {
 	  double tmp = m_molNumSpecies_old[k1];
 	  if (! vcs_doubleEqual( 	pubPhase->electricPotential() , tmp)) { 
 	    plogf("We have an inconsistency in voltage, %g, %g\n",
-		   pubPhase->electricPotential(), tmp);
+		  pubPhase->electricPotential(), tmp);
 	    exit(-1);
 	  }
 	}
@@ -973,7 +991,7 @@ namespace VCSnonideal {
 
 	if (! vcs_doubleEqual( pub->mf[kT], vPhase->molefraction(k))) {
 	  plogf("We have an inconsistency in mole fraction, %g, %g\n",
-		 pub->mf[kT], vPhase->molefraction(k));
+		pub->mf[kT], vPhase->molefraction(k));
 	  exit(-1);
 	}
 	if (pubPhase->SpeciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -982,7 +1000,7 @@ namespace VCSnonideal {
       }
       if (! vcs_doubleEqual(sumMoles, vPhase->TotalMoles())) {
       	plogf("We have an inconsistency in total moles, %g %g\n",
-	       sumMoles, pubPhase->TotalMoles());
+	      sumMoles, pubPhase->TotalMoles());
 	exit(-1);
       }
 
@@ -993,6 +1011,7 @@ namespace VCSnonideal {
    
     return VCS_SUCCESS;
   }
+  /*****************************************************************************/
 
   // Initialize the internal counters
   /*
@@ -1019,45 +1038,44 @@ namespace VCSnonideal {
       m_VCount->T_Time_vcs = 0.0;
     }
   }
+  /**************************************************************************/
 
- /**************************************************************************
-  *
-  * vcs_VolTotal
-  *
-  *  This function calculates the partial molar volume
-  *  for all species, kspec, in the thermo problem
-  *  at the temperature TKelvin and pressure, Pres, pres is in atm.
-  *  And, it calculates the total volume of the combined system.
-  *
-  * Input
-  *    iphase
-  *    TKelvin
-  *    pres
-  *    w[] => vector containing the current mole numbers.
-  *
-  * Output
-  *    VolPM[] => For species in all phase, the entries are the
-  *                partial molar volumes
-  *    return value = Total volume of the phase in L**3 / MOL_UNITS
-  *
-  *  (L and MOL_UNITS determined from global units value if__)
-  */
-double VCS_SOLVE::vcs_VolTotal(double tkelvin, double pres, double w[],
-                               double volPM[])
-{
-   double volTot = 0.0;
-   for (int iphase = 0; iphase < m_numPhases; iphase++) {
-     vcs_VolPhase *Vphase = m_VolPhaseList[iphase];
-     Vphase->setState_TP(tkelvin, pres);
-     Vphase->setMolesFromVCS(w);
-     double volp = Vphase->VolPM_calc();
-     (void) Vphase->sendToVCSVolPM(volPM);
-     volTot += volp;
-   }
-   return volTot;
+  //! Calculation of the total volume and the partial molar volumes
+  /*!
+   *  This function calculates the partial molar volume
+   *  for all species, kspec, in the thermo problem
+   *  at the temperature TKelvin and pressure, Pres, pres is in atm.
+   *  And, it calculates the total volume of the combined system.
+   *
+   * Input
+   * ---------------
+   *    @param tkelvin   Temperature in kelvin()
+   *    @param pres      Pressure in Pascal
+   *    @param w         w[] is thevector containing the current mole numbers
+   *                     in units of kmol.
+   *
+   * Output
+   * ----------------
+   *    @param volPM[]    For species in all phase, the entries are the
+   *                      partial molar volumes units of M**3 / kmol.
+   *
+   *    @return           The return value is the total volume of 
+   *                      the entire system in units of m**3.
+   */
+  double VCS_SOLVE::vcs_VolTotal(const double tkelvin, const double pres, 
+				 const double w[], double volPM[]) {
+    double VolTot = 0.0;
+    for (int iphase = 0; iphase < m_numPhases; iphase++) {
+      vcs_VolPhase *Vphase = m_VolPhaseList[iphase];
+      Vphase->setState_TP(tkelvin, pres);
+      Vphase->setMolesFromVCS(w);
+      double Volp = Vphase->VolPM_calc();
+      (void) Vphase->sendToVCSVolPM(volPM);
+      VolTot += Volp;
+    }
+    return VolTot;
+  }
+  /****************************************************************************/
+
+
 }
-
-
-
-}
-

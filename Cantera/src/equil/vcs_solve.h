@@ -60,7 +60,24 @@ public:
   //! Destructor
   ~VCS_SOLVE();
 
-  void InitSizes(int nspecies0, int nelements, int nphase0);
+
+  //! Initialize the sizes within the VCS_SOLVE object
+  /*!
+   *    This resizes all of the internal arrays within the object. This routine
+   *    operates in two modes. If all of the parameters are the same as it
+   *    currently exists in the object, nothing is done by this routine; a quick
+   *    exit is carried out and all of the data in the object persists.
+   *
+   *    IF any of the parameters are different than currently exists in the
+   *    object, then all of the data in the object must be redone. It may not
+   *    be zeroed, but it must be redone.
+   *
+   *  @param nspecies0     Number of species within the object
+   *  @param nelements     Number of element constraints within the problem
+   *  @param nphase0       Number of phases defined within the problem.
+   *
+   */
+  void vcs_initSizes(const int nspecies0, const int nelements, const int nphase0);
 
   //! Solve an equilibrium problem
   /*!
@@ -462,8 +479,32 @@ public:
 
   int vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres);
   void  vcs_fePrep_TP(void);
-  double vcs_VolTotal(double, double, double [], double []);
 
+
+  //! Calculation of the total volume and the partial molar volumes
+  /*!
+   *  This function calculates the partial molar volume
+   *  for all species, kspec, in the thermo problem
+   *  at the temperature TKelvin and pressure, Pres, pres is in atm.
+   *  And, it calculates the total volume of the combined system.
+   *
+   * Input
+   * ---------------
+   *    @param tkelvin   Temperature in kelvin()
+   *    @param pres      Pressure in Pascal
+   *    @param w         w[] is thevector containing the current mole numbers
+   *                     in units of kmol.
+   *
+   * Output
+   * ----------------
+   *    @param volPM[]    For species in all phase, the entries are the
+   *                      partial molar volumes units of M**3 / kmol.
+   *
+   *    @return           The return value is the total volume of 
+   *                      the entire system in units of m**3.
+   */
+  double VCS_SOLVE::vcs_VolTotal(const double tkelvin, const double pres, 
+				 const double w[], double volPM[]);
   
   //!  This routine is mostly concerned with changing the private data  
   //!  to be consistent with what's needed for solution. It is called one 
@@ -945,7 +986,12 @@ private:
    */
   double deltaG_Recalc_Rxn(const int irxn, const double *const molNum,
 			   double * const ac, double * const mu_i);
-  void delete_memory();
+
+  //! Delete memory that isn't just resizeable STL containers
+  /*!
+   * This gets called by the destructor or by InitSizes().
+   */
+  void vcs_delete_memory();
 
   //! Initialize the internal counters
   /*!
