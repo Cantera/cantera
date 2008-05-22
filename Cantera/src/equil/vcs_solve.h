@@ -352,7 +352,7 @@ public:
    *                   -> This can either be the current solution vector WT() 
    *                      or the actual solution vector W() 
    *
-   * @param kk   Determines whether z is old or new or tentative:
+   * @param stateCalc   Determines whether z is old or new or tentative:
    *             1: Use the tentative values for the total number of 
    *                moles in the phases, i.e., use TG1 instead of TG etc. 
    *             0: Use the base values of the total number of 
@@ -364,7 +364,7 @@ public:
    *              the same T and P as the solution.
    *     tg     : Total Number of moles in the phase.
    */
-  void vcs_dfe(double const * const z, int kk, int ll, int lbot, int ltop);
+  void vcs_dfe(double const * z, const int stateCalc, int ll, int lbot, int ltop);
 
   //!  This routine uploads the state of the system into all of the 
   //!  vcs_VolumePhase objects in the current problem.
@@ -426,7 +426,19 @@ public:
    */
   void vcs_switch_pos(const int ifunc, const int k1, const int k2);
 
-  void vcs_deltag_Phase(int iphase, bool doDeleted);
+
+  //!   Calculate deltag of formation for all species in a single phase.
+  /*!
+   *     Calculate deltag of formation for all species in a single
+   *     phase. It is assumed that the fe[] is up to date for all species.
+   *     Howevever, if the phase is currently zereoed out, a subproblem
+   *     is calculated to solve for AC[i] and pseudo-X[i] for that 
+   *     phase.
+   *
+   * @param iphase       phase index of the phase to be calculated
+   * @param doDeleted    boolean indicating whether to do deleted species or not
+   */
+  void vcs_deltag_Phase(const int iphase, const bool doDeleted);
 
   //! birthGuess returns the number of moles of a species
   //! that is coming back to life or whose concentration has

@@ -280,6 +280,8 @@ namespace VCSnonideal {
    *              object.
    * @{
    */
+  //! State Calculation is currently in an unknown state
+#define VCS_STATECALC_UNKNOWN          -1
   //! State Calculation based on the old or base mole numbers
 #define VCS_STATECALC_OLD               0
 

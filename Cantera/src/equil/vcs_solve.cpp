@@ -60,8 +60,8 @@ namespace VCSnonideal {
   {
   }
 
-  //! Initialize the sizes within the VCS_SOLVE object
-  /*!
+  //   Initialize the sizes within the VCS_SOLVE object
+  /*
    *    This resizes all of the internal arrays within the object. This routine
    *    operates in two modes. If all of the parameters are the same as it
    *    currently exists in the object, nothing is done by this routine; a quick
@@ -237,17 +237,17 @@ namespace VCSnonideal {
     return;
 
   }
+  /****************************************************************************/
 
-
-  //! Destructor
-  /*!
+  // Destructor
+  /*
    *
    */
   VCS_SOLVE::~VCS_SOLVE()
   {
     vcs_delete_memory();
   }
-  /****************************************************************************/
+  /*****************************************************************************/
 
   // Delete memory that isn't just resizeable STL containers
   /*
@@ -640,11 +640,12 @@ namespace VCSnonideal {
      *   rotations.
      */
     for (i = 0; i < nelements; i++)   m_elementMapIndex[i] = i;
+
     /*
-     *  ir[] -> will be done below once nc is defined.
-     *  ic[] -> Define all species to be major species, initially.
+     *  Define all species to be major species, initially.
      */
     for (i = 0; i < nspecies; i++) m_rxnStatus[i] = VCS_SPECIES_MAJOR;
+
     /*
      * PhaseID: Fill in the species to phase mapping
      *             -> Check for bad values at the same time.
@@ -781,7 +782,7 @@ namespace VCSnonideal {
   }
   /*****************************************************************************/
 
-  // Specify the problem to be solved using VCS_PROB, incrementally
+  //   Specify the problem to be solved using VCS_PROB, incrementally
   /*
    *  Use the contents of the VCS_PROB to specify the contents of the
    *  private data, VCS_SOLVE.
@@ -1040,8 +1041,8 @@ namespace VCSnonideal {
   }
   /**************************************************************************/
 
-  //! Calculation of the total volume and the partial molar volumes
-  /*!
+  //    Calculation of the total volume and the partial molar volumes
+  /*
    *  This function calculates the partial molar volume
    *  for all species, kspec, in the thermo problem
    *  at the temperature TKelvin and pressure, Pres, pres is in atm.

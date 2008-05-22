@@ -2221,11 +2221,8 @@ namespace VCSnonideal {
     }
     return retn;
   }
+  /*****************************************************************************/
 
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
-   
   int VCS_SOLVE::delete_species(int kspec)
    
     /************************************************************************
@@ -4367,23 +4364,25 @@ namespace VCSnonideal {
    *                 LBOT and LTOP will be equal to 0 and MR, respectively.
    * @param ltop    Top value of the loops
    *  
-   * @param z   z[i]   : Number of moles of species i 
-   *                   -> This can either be the current solution vector WT() 
-   *                      or the actual solution vector W() 
+   * @param molNum   molNum[i]   : Number of moles of species i 
+   *                   -> This can either be the old solution vector
+   *                      or the new solution vector depending upon the
+   *                      stateCalc value
    *
-   * @param kk   Determines whether z is old or new or tmp:
+   * @param stateCalc   Determines whether z is old or new or tmp:
    *            VCS_STATECALC_NEW: Use the tentative values for the total number of 
    *                               moles in the phases, i.e., use TG1 instead of TG etc. 
    *            VCS_STATECALC_OLD: Use the base values of the total number of 
    *                               moles in each system. 
    *
    *  Also needed:
-   *     ff     : standard state chemical potentials. These are the
-   *              chemical potentials of the standard states at
-   *              the same T and P as the solution.
+   *    m_SSfeSpecies[kspec] : standard state chemical potentials. These are the
+   *                           chemical potentials of the standard states at
+   *                           the same T and P as the solution.
    *     tg     : Total Number of moles in the phase.
    */
-  void VCS_SOLVE::vcs_dfe(double const * const z, int kk, int ll, int lbot, int ltop) {
+  void VCS_SOLVE::vcs_dfe(double const * molNum, const int stateCalc,
+			  int ll, int lbot, int ltop) {
     int l1, l2, iph, kspec, irxn;
     int iphase;
     double *tPhMoles_ptr;
@@ -4393,12 +4392,41 @@ namespace VCSnonideal {
     VCS_SPECIES_THERMO *st_ptr;
 
 #ifdef DEBUG_MODE
-    if (kk != VCS_STATECALC_OLD && kk != VCS_STATECALC_NEW) {
-      plogf("   --- Subroutine vcs_dfe called with bad kk value: %d", kk);
+    if (stateCalc != VCS_STATECALC_OLD && stateCalc != VCS_STATECALC_NEW) {
+      plogf("   --- Subroutine vcs_dfe called with bad stateCalc value: %d", stateCalc);
       plogendl();
       exit(-1);
     }
 #endif
+    if (stateCalc == VCS_STATECALC_OLD) {
+      if (molNum == 0) {
+	molNum = VCS_DATA_PTR(m_molNumSpecies_old);
+      } 
+#ifdef DEBUG_MODE
+      else {
+	if (molNum != VCS_DATA_PTR(m_molNumSpecies_old)) {
+	  plogf("   --- vcs_dfe ERROR: called with bad molNumSpecies_old ptr");
+	  plogendl();
+	  exit(-1);
+	}
+      }
+#endif
+    }
+    if (stateCalc == VCS_STATECALC_NEW) {
+      if (molNum == 0) {
+	molNum = VCS_DATA_PTR(m_molNumSpecies_new);
+      } 
+#ifdef DEBUG_MODE
+      else {
+	if (molNum != VCS_DATA_PTR(m_molNumSpecies_new)) {
+	  plogf("   --- vcs_dfe ERROR: called with bad molNumSpecies_new ptr");
+	  plogendl();
+	  exit(-1);
+	}
+      }
+#endif
+    }
+
 
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
@@ -4414,11 +4442,11 @@ namespace VCSnonideal {
       } else {
 	plogf("   --- Subroutine vcs_dfe called for components and majors");
       }
-      if (kk == VCS_STATECALC_NEW)  plogf(" using tentative solution");
+      if (stateCalc == VCS_STATECALC_NEW)  plogf(" using tentative solution");
       plogendl();
     }
 #endif
-    if (kk <= VCS_STATECALC_OLD) {
+    if (stateCalc <= VCS_STATECALC_OLD) {
       tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_old);
       actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_old);
     } else {
@@ -4438,7 +4466,7 @@ namespace VCSnonideal {
     for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
       if(m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	iph = m_phaseID[kspec];
-	tlogMoles[iph] += z[kspec];
+	tlogMoles[iph] += molNum[kspec];
       }
     }
 #ifdef DEBUG_MODE
@@ -4478,7 +4506,7 @@ namespace VCSnonideal {
       if (!m_phaseACAreCurrent[iphase]) {
 	Vphase = m_VolPhaseList[iphase];
 	if (!Vphase->SingleSpecies) {
-	  Vphase->setMolesFromVCS(z);
+	  Vphase->setMolesFromVCS(molNum);
 	  Vphase->sendToVCSActCoeff(VCS_DATA_PTR(actCoeff_ptr));
 	}
 	m_phasePhi[iphase] = Vphase->electricPotential();
@@ -4498,7 +4526,7 @@ namespace VCSnonideal {
       iphase = m_phaseID[kspec];
       if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 #ifdef DEBUG_MODE
-	if (z[kspec] != m_phasePhi[iphase]) {
+	if (molNum[kspec] != m_phasePhi[iphase]) {
 	  plogf("We have an inconsistency!\n");
 	  exit(-1);
 	}
@@ -4513,7 +4541,7 @@ namespace VCSnonideal {
 	if (m_SSPhase[kspec]) {
 	  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 	} else {
-	  if (z[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
+	  if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
 	    iph = m_phaseID[kspec];
 	    if (tPhMoles_ptr[iph] > 0.0) { 
 	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
@@ -4525,7 +4553,7 @@ namespace VCSnonideal {
 	    }
 	  } else {
 	    m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
-	      + log(actCoeff_ptr[kspec] * z[kspec])
+	      + log(actCoeff_ptr[kspec] * molNum[kspec])
 	      - tlogMoles[m_phaseID[kspec]] - m_lnMnaughtSpecies[kspec] 
 	      + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase]; 
 	  }
@@ -4542,7 +4570,7 @@ namespace VCSnonideal {
 	  iphase = m_phaseID[kspec];
 	  if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 #ifdef DEBUG_MODE
-	    if (z[kspec] != m_phasePhi[iphase]) {
+	    if (molNum[kspec] != m_phasePhi[iphase]) {
 	      plogf("We have an inconsistency!\n");
 	      exit(-1);
 	    }
@@ -4558,7 +4586,7 @@ namespace VCSnonideal {
 	    if (m_SSPhase[kspec]) {
 	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 	    } else {
-	      if (z[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
+	      if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
 		iph = m_phaseID[kspec];
 		if (tPhMoles_ptr[iph] > 0.0) { 
 		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
@@ -4569,7 +4597,8 @@ namespace VCSnonideal {
 		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 		}
 	      } else {
-		m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] + log(actCoeff_ptr[kspec] * z[kspec]) 
+		m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
+		  + log(actCoeff_ptr[kspec] * molNum[kspec]) 
 		  - tlogMoles[m_phaseID[kspec]] - m_lnMnaughtSpecies[kspec] 
 		  + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase]; 
 	      }
@@ -4587,7 +4616,7 @@ namespace VCSnonideal {
 	  iphase = m_phaseID[kspec];
 	  if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 #ifdef DEBUG_MODE
-	    if (z[kspec] != m_phasePhi[iphase]) {
+	    if (molNum[kspec] != m_phasePhi[iphase]) {
 	      plogf("We have an inconsistency!\n");
 	      exit(-1);
 	    }
@@ -4603,7 +4632,7 @@ namespace VCSnonideal {
 	    if (m_SSPhase[kspec]) {
 	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
 	    } else {
-	      if (z[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
+	      if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
 		iph = m_phaseID[kspec];
 		if (tPhMoles_ptr[iph] > 0.0) { 
 		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec]
@@ -4615,7 +4644,7 @@ namespace VCSnonideal {
 	      } else {
 		st_ptr = m_speciesThermoList[kspec];
 		m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
-		  + log(actCoeff_ptr[kspec] * z[kspec]) 
+		  + log(actCoeff_ptr[kspec] * molNum[kspec]) 
 		  - tlogMoles[m_phaseID[kspec]] - m_lnMnaughtSpecies[kspec]; 
 	      }
 	    }
@@ -4897,25 +4926,28 @@ namespace VCSnonideal {
        * vcs_isw(ir, i1, i2); 
        */
     }
-  } /* vcs_switch_pos() ********************************************************/
+  } 
+  /*******************************************************************************/
 
   static void print_space(int num)
   {
     int j;
     for (j = 0; j < num; j++) plogf(" ");
   }
+  /********************************************************************************/
 
-  /****************************************************************************
-   *
-   *  vcs_deltag_Phase():
-   *
+  //    Calculate deltag of formation for all species in a single phase.
+  /*
    *     Calculate deltag of formation for all species in a single
    *     phase. It is assumed that the fe[] is up to date for all species.
    *     Howevever, if the phase is currently zereoed out, a subproblem
    *     is calculated to solve for AC[i] and pseudo-X[i] for that 
-   *     phase. 
+   *     phase.
+   *
+   *   @param iphase       phase index of the phase to be calculated
+   *   @param doDeleted    boolean indicating whether to do deleted species or not
    */
-  void VCS_SOLVE::vcs_deltag_Phase(int iphase, bool doDeleted) {
+  void VCS_SOLVE::vcs_deltag_Phase(const int iphase, const bool doDeleted) {
     int iph;
     int  irxn, kspec, kcomp;
     double *dtmp_ptr;
@@ -4960,7 +4992,7 @@ namespace VCSnonideal {
 	kspec = m_indexRxnToSpecies[irxn];
 	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  iph = m_phaseID[kspec];
-	  if (iph == iphase ) {
+	  if (iph == iphase) {
 	    if (m_molNumSpecies_old[kspec] > 0.0) zeroedPhase = FALSE;
 	    m_deltaGRxn_new[irxn] = m_feSpecies_curr[kspec];
 	    dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
@@ -5034,10 +5066,10 @@ namespace VCSnonideal {
 	}
       }
     }
-
   }
+  /****************************************************************************/
 
-  /****************************************************************************
+  /*
    *
    *  vcs_birthGuess
    *
@@ -5111,6 +5143,6 @@ namespace VCSnonideal {
     }
     return dx;
   }
-  /*****************************************************************/
+  /*******************************************************************************/
 }
 
