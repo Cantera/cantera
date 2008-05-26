@@ -2501,20 +2501,30 @@ namespace VCSnonideal {
     /*
      * Upload the state to the VP object
      */
-    Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_tPhaseMoles_old), iph);
-
-  } /* delete_multiphase() *****************************************************/
+    Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old),
+				 VCS_DATA_PTR(m_tPhaseMoles_old), iph);
+  } 
+  /************************************************************************************/
    
-  /*****************************************************************************
+  // Recheck deleted species in multispecies phases.
+  /*
+   *   We are checking the equation:
    *
-   * recheck_deleted:
+   *         sum_u = sum_j_comp [ sigma_i_j * u_j ] 
+   *               = u_i_O + log((AC_i * W_i)/m_tPhaseMoles_old) 
    *
-   * Recheck deleted species in multispecies phases.
+   *   by first evaluating: 
    *
-   * HKM -> This algorithm needs to be updated for activity coefficients
+   *          DG_i_O = u_i_O - sum_u. 
+   *
+   *   Then, if TL is zero, the phase pops into existence if DG_i_O < 0.
+   *   Also, if the phase exists, then we check to see if the species
+   *   can have a mole number larger than  VCS_DELETE_SPECIES_CUTOFF 
+   *   (default value = 1.0E-32).
+   *
    */
-  int VCS_SOLVE::recheck_deleted(void)
-  {
+  int VCS_SOLVE::recheck_deleted() {
+
     int iph, kspec, irxn, npb;
     double *xtcutoff = VCS_DATA_PTR(m_TmpPhase);
 #ifdef DEBUG_MODE
@@ -2526,11 +2536,16 @@ namespace VCSnonideal {
     /*
      * Use the standard chemical potentials for the chemical potentials
      * of deleted species. Then, calculate Delta G for 
-     * for formation reactions
+     * for formation reactions.
+     * Note: fe[] here includes everything except for the ln(x[i]) term
      */
     for (kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
-      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
+      iph = m_phaseID[kspec];
+      m_feSpecies_curr[kspec] = (m_SSfeSpecies[kspec] + log(m_actCoeffSpecies_old[kspec])
+				 - m_lnMnaughtSpecies[kspec] 
+				 + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iph]);
     }
+
     /*
      *      Recalculate the DeltaG's of the formation reactions for the
      *      deleted species in the mechanism
@@ -2543,6 +2558,7 @@ namespace VCSnonideal {
       else
 	xtcutoff[iph] = 0.0;
     }
+
     /*
      *  
      *   We are checking the equation:
@@ -2552,7 +2568,7 @@ namespace VCSnonideal {
      *
      *   by first evaluating: 
      *
-     *          DG_i_O = u_i_O - sum_u. 
+     *          DG_i_O = u_i_O - sum_u.
      *
      *   Then, if TL is zero, the phase pops into existence if DG_i_O < 0.
      *   Also, if the phase exists, then we check to see if the species
@@ -2566,7 +2582,7 @@ namespace VCSnonideal {
      *
      *           sum_i_in_phase [ exp(-DG_i_O) ] >= 1.0
      *   
-     *   Thus, we need to amend th code. Also nonideal solutions will tend to 
+     *   Thus, we need to amend the code. Also nonideal solutions will tend to 
      *   complicate matters severely also.
      */
     npb = 0;
@@ -2632,7 +2648,8 @@ namespace VCSnonideal {
 	if (retn == 0) {
 #ifdef DEBUG_MODE
 	  if (m_debug_print_lvl) {
-	    plogf("  --- add_deleted(): delta_species() failed for species %s (%d) with mol number %g\n",
+	    plogf("  --- add_deleted(): delta_species() failed for "
+		  "species %s (%d) with mol number %g\n",
 		 m_speciesName[kspec].c_str(), kspec, dx);
 	  }
 #endif
@@ -2642,7 +2659,8 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	    if (retn == 0) {
 	      if (m_debug_print_lvl) {
-		plogf("  --- add_deleted(): delta_species() failed for species %s (%d) with mol number %g\n",
+		plogf("  --- add_deleted(): delta_species() failed for "
+		      "species %s (%d) with mol number %g\n",
 		      m_speciesName[kspec].c_str(), kspec, dx);
 	      }
 	    }
@@ -4127,73 +4145,107 @@ namespace VCSnonideal {
     }  
     return VCS_SPECIES_MINOR;
   }
-
-  /*****************************************************************************/
-  /*****************************************************************************/
   /*****************************************************************************/
 
-  void VCS_SOLVE::vcs_chemPotPhase(int iph, const double *const molNum, 
+  //! We calculate the dimensionless chemical potentials of all species 
+  //! in a single phase.
+  /*!
+   *
+   * We calculate the dimensionless chemical potentials of all species 
+   * in a single phase.
+   *
+   * Note, for multispecies phases which are currently zeroed out,
+   * the chemical potential is filled out with the standard chemical
+   * potential.
+   *
+   * For species in multispecies phases whose concentration is zero,
+   * we need to set the mole fraction to a very low value.
+   * It's chemical potential
+   * is then calculated using the VCS_DELETE_MINORSPECIES_CUTOFF concentration
+   * to keep numbers positive.
+   *
+   * Formula: 
+   * --------------- 
+   *
+   *     Ideal Mixtures:
+   *
+   *          m_feSpecies(I) = m_SSfeSpecies(I) + ln(z(I)) - ln(m_tPhaseMoles[iph])
+   *                         + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]; 
+   *
+   *
+   *              ( This is equivalent to the adding the log of the 
+   *                mole fraction onto the standard chemical 
+   *                potential. ) 
+   *
+   *     Non-Ideal Mixtures:
+   *        ActivityConvention = 0:
+   *
+   *          m_feSpecies(I) = m_SSfeSpecies(I)
+   *                         + ln(ActCoeff[I] * z(I)) - ln(m_tPhaseMoles[iph])
+   *                         + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]; 
+   *  
+   *              ( This is equivalent to the adding the log of the 
+   *                mole fraction multiplied by the activity coefficient
+   *                onto the standard chemical potential. ) 
+   *
+   *        ActivityConvention = 1: -> molality activity formulation
+   *
+   *          m_feSpecies(I) = m_SSfeSpecies(I)
+   *                           + ln(ActCoeff[I] * z(I)) - ln(m_tPhaseMoles[iph])
+   *                           - ln(Mnaught * m_units)
+   *                           + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]; 
+   *
+   *                  note:   m_SSfeSpecies(I) is the molality based standard state.
+   *                          However, ActCoeff[I] is the molar based activity coefficient
+   *                          We have used the formulas;
+   *
+   *                     ActCoeff_M[I] =  ActCoeff[I] / Xmol[N]
+   *                              where Xmol[N] is the mole fraction of the solvent 
+   *                               ActCoeff_M[I] is the molality based act coeff.
+   *
+   *                  note:  This is equivalent to the "normal" molality formulation:
+   *
+   *                       m_feSpecies(I) = m_SSfeSpecies(I)
+   *                                      + ln(ActCoeff_M[I] * m(I))
+   *                                      + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]
+   *                                       where m[I] is the molality of the ith solute
+   * 
+   *                                m[I] = Xmol[I] / ( Xmol[N] * Mnaught * m_units)
+   *
+   *
+   *     note:   z(I)/tPhMoles_ptr[iph] = Xmol[i] is the mole fraction
+   *                                     of i in the phase.
+   *
+   *  NOTE:
+   *  As per the discussion in vcs_dfe(), for small species where the mole
+   *  fraction is small:
+   *
+   *           z(i) < VCS_DELETE_MINORSPECIES_CUTOFF
+   *
+   *   The chemical potential is calculated as:
+   *
+   *          m_feSpecies(I) = m_SSfeSpecies(I)
+   *                         + ln(ActCoeff[i](VCS_DELETE_MINORSPECIES_CUTOFF))
+   *
+   * Input 
+   * -------- 
+   *   @param iph        Phase to be calculated
+   *   @param molNum     molNum[i] is the number of moles of species i 
+   *                            (VCS species order)
+   *   @param do_deleted  Do species that are deleted (default = false)
+   *
+   * Output
+   * -----------
+   *   @param ac        Activity coefficients for species in phase
+   *                     (VCS species order)
+   *   @param mu_i      Dimensionless chemical potentials for phase species
+   *                      (VCS species order)
+   * 
+   */
+  void VCS_SOLVE::vcs_chemPotPhase(const int iph, const double *const molNum, 
 				   double * const ac, double * const mu_i,
-				   bool do_deleted)
+				   const bool do_deleted) {
 
-    /**************************************************************************
-     *
-     * vcs_chemPotPhase:
-     *
-     * We calculate the dimensionless chemical potentials of all species 
-     * in a single phase.
-     *
-     * Formula: 
-     * --------------- 
-     *
-     *     Ideal Mixtures:
-     *
-     *          fe(I) = ff(I) + ln(z(I)) - ln(tPhMoles_ptr[iph])
-     *
-     *              ( This is equivalent to the adding the log of the 
-     *                mole fraction onto the standard chemical 
-     *                potential. ) 
-     *
-     *     Non-Ideal Mixtures:
-     *        ActivityConvention = 0:
-     *           fe(I) = ff(I) + ln(ActCoeff[i]z(I)) - ln(tPhMoles_ptr[iph])
-     *  
-     *              ( This is equivalent to the adding the log of the 
-     *                mole fraction multiplied by the activity coefficient
-     *                onto the standard chemical potential. ) 
-     *
-     *        ActivityConvention = 1: -> molality activity formulation
-     *           fe(I) = ff(I) + ln(ActCoeff[i]z(I)) - ln(tPhMoles_ptr[iph])
-     *                     - ln(Mnaught * m_units)
-     *
-     *     note:   z(I)/tPhMoles_ptr[iph] = Xmol[i] is the mole fraction
-     *                                     of i in the phase.
-     *
-     *  NOTE:
-     *  As per the discussion in vcs_dfe(), for small species where the mole
-     *  fraction 
-     *           z(i) < VCS_DELETE_MINORSPECIES_CUTOFF
-     *   The chemical potential is calculated as:
-     *         fe(I) = ff(I) + ln(ActCoeff[i](VCS_DELETE_MINORSPECIES_CUTOFF))
-     *
-     * Input 
-     * -------- 
-     *     iph    : Phase to be calculated
-     *     molNum(i)   : Number of moles of species i 
-     *               (VCS species order)
-     *     ff     : standard state chemical potentials. These are the
-     *              chemical potentials of the standard states at
-     *              the same T and P as the solution.
-     *                (VCS species order)
-     * Output
-     * -------
-     *     ac[]   : Activity coefficients for species in phase
-     *               (VCS species order)
-     *    mu_i[]  : Dimensionless chemical potentials for phase species
-     *              (VCS species order)
-     * 
-     *************************************************************************/
-  {
     vcs_VolPhase *Vphase = m_VolPhaseList[iph];
     int nkk = Vphase->NVolSpecies;
     int k, kspec;
@@ -4254,7 +4306,7 @@ namespace VCSnonideal {
       }
     }
   }
-  /*****************************************************************************/
+  /*********************************************************************************/
  
   // Calculalte the dimensionless chemical potentials of all species or
   // of certain groups of species, at a fixed temperature and pressure.
@@ -4316,11 +4368,14 @@ namespace VCSnonideal {
    *                                      where Xmol[N] is the mole fraction of the solvent 
    *                                            ActCoeff_M[I] is the molality based act coeff.
    *
-   *                                m_feSpecies(I) = m_SSfeSpecies(I)
-   *                                                   + ln(ActCoeff_M[I] * m(I))
-   *                                                   + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]
-   *                                       where m[I] is the molality of the ith solute
-   * 
+   *                  note:   This is equivalent to the "normal" molality formulation below:
+   *                  
+   *                              m_feSpecies(I) = m_SSfeSpecies(I)
+   *                                             + ln(ActCoeff_M[I] * m(I))
+   *                                             + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]
+   *                                       where m[I] is the molality of the ith solute 
+   *
+   *
    *                                m[I] = Xmol[I] / ( Xmol[N] * Mnaught * m_units)
    * 
    *

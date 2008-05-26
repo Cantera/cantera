@@ -987,6 +987,23 @@ private:
    */
   int vcs_add_all_deleted();
 
+  //! Recheck deleted species in multispecies phases.
+  /*!
+   *   We are checking the equation:
+   *
+   *         sum_u = sum_j_comp [ sigma_i_j * u_j ] 
+   *               = u_i_O + log((AC_i * W_i)/m_tPhaseMoles_old) 
+   *
+   *   by first evaluating: 
+   *
+   *          DG_i_O = u_i_O - sum_u. 
+   *
+   *   Then, if TL is zero, the phase pops into existence if DG_i_O < 0.
+   *   Also, if the phase exists, then we check to see if the species
+   *   can have a mole number larger than  VCS_DELETE_SPECIES_CUTOFF 
+   *   (default value = 1.0E-32).
+   *
+   */
   int recheck_deleted();
 
   //! Alternative treatment for the update of a minor species
