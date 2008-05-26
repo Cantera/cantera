@@ -237,9 +237,106 @@ public:
    */
   int vcs_species_type(const int kspec) const;
 
-  void vcs_chemPotPhase(int iph, const double *const molNum, 
+  //! We calculate the dimensionless chemical potentials of all species 
+  //! in a single phase.
+  /*!
+   * We calculate the dimensionless chemical potentials of all species 
+   * in a single phase.
+   *
+   * Note, for multispecies phases which are currently zeroed out,
+   * the chemical potential is filled out with the standard chemical
+   * potential.
+   *
+   * For species in multispecies phases whose concentration is zero,
+   * we need to set the mole fraction to a very low value.
+   * It's chemical potential
+   * is then calculated using the VCS_DELETE_MINORSPECIES_CUTOFF concentration
+   * to keep numbers positive.
+   *
+   * Formula: 
+   * --------------- 
+   *
+   *     Ideal Mixtures:
+   *
+   *          m_feSpecies(I) = m_SSfeSpecies(I) + ln(z(I)) - ln(m_tPhaseMoles[iph])
+   *                         + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]; 
+   *
+   *
+   *              ( This is equivalent to the adding the log of the 
+   *                mole fraction onto the standard chemical 
+   *                potential. ) 
+   *
+   *     Non-Ideal Mixtures:
+   *        ActivityConvention = 0:
+   *
+   *          m_feSpecies(I) = m_SSfeSpecies(I)
+   *                         + ln(ActCoeff[I] * z(I)) - ln(m_tPhaseMoles[iph])
+   *                         + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]; 
+   *  
+   *              ( This is equivalent to the adding the log of the 
+   *                mole fraction multiplied by the activity coefficient
+   *                onto the standard chemical potential. ) 
+   *
+   *        ActivityConvention = 1: -> molality activity formulation
+   *
+   *          m_feSpecies(I) = m_SSfeSpecies(I)
+   *                           + ln(ActCoeff[I] * z(I)) - ln(m_tPhaseMoles[iph])
+   *                           - ln(Mnaught * m_units)
+   *                           + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]; 
+   *
+   *                  note:   m_SSfeSpecies(I) is the molality based standard state.
+   *                          However, ActCoeff[I] is the molar based activity coefficient
+   *                          We have used the formulas;
+   *
+   *                     ActCoeff_M[I] =  ActCoeff[I] / Xmol[N]
+   *                              where Xmol[N] is the mole fraction of the solvent 
+   *                               ActCoeff_M[I] is the molality based act coeff.
+   *
+   *                  note:  This is equivalent to the "normal" molality formulation:
+   *
+   *                       m_feSpecies(I) = m_SSfeSpecies(I)
+   *                                      + ln(ActCoeff_M[I] * m(I))
+   *                                      + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]
+   *                                       where m[I] is the molality of the ith solute
+   * 
+   *                                m[I] = Xmol[I] / ( Xmol[N] * Mnaught * m_units)
+   *
+   *
+   *     note:   z(I)/tPhMoles_ptr[iph] = Xmol[i] is the mole fraction
+   *                                     of i in the phase.
+   *
+   *
+   *  NOTE:
+   *  As per the discussion in vcs_dfe(), for small species where the mole
+   *  fraction is small:
+   *
+   *           z(i) < VCS_DELETE_MINORSPECIES_CUTOFF
+   *
+   *   The chemical potential is calculated as:
+   *
+   *          m_feSpecies(I) = m_SSfeSpecies(I)
+   *                         + ln(ActCoeff[i](VCS_DELETE_MINORSPECIES_CUTOFF))
+   *
+   * Input 
+   * -------- 
+   *     iph    : Phase to be calculated
+   *     molNum(i)   : Number of moles of species i 
+   *               (VCS species order)
+   *     ff     : standard state chemical potentials. These are the
+   *              chemical potentials of the standard states at
+   *              the same T and P as the solution.
+   *                (VCS species order)
+   * Output
+   * -------
+   *     ac[]   : Activity coefficients for species in phase
+   *               (VCS species order)
+   *    mu_i[]  : Dimensionless chemical potentials for phase species
+   *              (VCS species order)
+   * 
+   */
+  void vcs_chemPotPhase(const int iph, const double *const molNum, 
 			double * const ac, double * const mu_i,
-			bool do_deleted = false);
+			const bool do_deleted = false);
 
   //! Calculalte the dimensionless chemical potentials of all species or
   //! of certain groups of species, at a fixed temperature and pressure.
@@ -890,7 +987,7 @@ private:
    */
   int vcs_add_all_deleted();
 
-  int recheck_deleted(void);
+  int recheck_deleted();
 
   //! Alternative treatment for the update of a minor species
   /*!
