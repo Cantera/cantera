@@ -1396,121 +1396,131 @@ namespace VCSnonideal {
     if (dofast) {
       for (i = 0; i < m_numRxnRdc; ++i) {
 	l = m_indexRxnToSpecies[i];
-	for (j = m_numComponents - 1; j >= 0; j--) {
-	  bool doSwap = false;
-	  if (m_SSPhase[j]) {
-	    doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) > (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
-	    if (!m_SSPhase[i]) {
-	      if (doSwap) {
-		doSwap = (m_molNumSpecies_old[l]) > (m_molNumSpecies_old[j] * 1.01);
-	      }
-	    }
-	  } else {
-	    if (m_SSPhase[i]) {
-	      doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) > (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
-	      if (!doSwap) {
-		doSwap = (m_molNumSpecies_old[l]) > (m_molNumSpecies_old[j] * 1.01);
+	if (m_speciesUnknownType[l] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	  for (j = m_numComponents - 1; j >= 0; j--) {
+	    bool doSwap = false;
+	    if (m_SSPhase[j]) {
+	      doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) > 
+		(m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
+	      if (!m_SSPhase[i]) {
+		if (doSwap) {
+		  doSwap = (m_molNumSpecies_old[l]) > (m_molNumSpecies_old[j] * 1.01);
+		}
 	      }
 	    } else {
-	      doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) > (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
-	    }
-	  }
-	  if (doSwap) {
-	    if (m_stoichCoeffRxnMatrix[i][j] != 0.0) {
-#ifdef DEBUG_MODE
-	      if (m_debug_print_lvl >= 2) {
-		plogf("   --- Get a new basis because %s", m_speciesName[l].c_str());
-		plogf(" is better than comp %s", m_speciesName[j].c_str());
-		plogf(" and share nonzero stoic: %-9.1f", 
-		      m_stoichCoeffRxnMatrix[i][j]);
-		plogendl();
+	      if (m_SSPhase[i]) {
+		doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) > 
+		  (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
+		if (!doSwap) {
+		  doSwap = (m_molNumSpecies_old[l]) > (m_molNumSpecies_old[j] * 1.01);
+		}
+	      } else {
+		doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) > 
+		  (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
 	      }
-#endif		     
-	      goto L_COMPONENT_CALC;
 	    }
-	  } else {
-	    break;
-	  }
-#ifdef DEBUG_NOT
-	  if (m_rxnStatus[i] == VCS_SPECIES_ZEROEDMS) {
-	    if (m_molNumSpecies_old[j] == 0.0) {
+	    if (doSwap) {
 	      if (m_stoichCoeffRxnMatrix[i][j] != 0.0) {
-		if (dg[i] < 0.0) {
 #ifdef DEBUG_MODE
-		  if (m_debug_print_lvl >= 2) {
-		    plogf("   --- Get a new basis because %s", m_speciesName[l].c_str());
-		    plogf(" has dg < 0.0 and comp %s has zero mole num", m_speciesName[j].c_str());
-		    plogf(" and share nonzero stoic: %-9.1f", 
-			  m_stoichCoeffRxnMatrix[i][j]);
-		    plogendl();
-		  }
+		if (m_debug_print_lvl >= 2) {
+		  plogf("   --- Get a new basis because %s", m_speciesName[l].c_str());
+		  plogf(" is better than comp %s", m_speciesName[j].c_str());
+		  plogf(" and share nonzero stoic: %-9.1f", 
+			m_stoichCoeffRxnMatrix[i][j]);
+		  plogendl();
+		}
 #endif		     
-		  goto L_COMPONENT_CALC;
+		goto L_COMPONENT_CALC;
+	      }
+	    } else {
+	      break;
+	    }
+#ifdef DEBUG_NOT
+	    if (m_rxnStatus[i] == VCS_SPECIES_ZEROEDMS) {
+	      if (m_molNumSpecies_old[j] == 0.0) {
+		if (m_stoichCoeffRxnMatrix[i][j] != 0.0) {
+		  if (dg[i] < 0.0) {
+#ifdef DEBUG_MODE
+		    if (m_debug_print_lvl >= 2) {
+		      plogf("   --- Get a new basis because %s", m_speciesName[l].c_str());
+		      plogf(" has dg < 0.0 and comp %s has zero mole num", m_speciesName[j].c_str());
+		      plogf(" and share nonzero stoic: %-9.1f", 
+			    m_stoichCoeffRxnMatrix[i][j]);
+		      plogendl();
+		    }
+#endif		     
+		    goto L_COMPONENT_CALC;
+		  }
 		}
 	      }
 	    }
-	  }
 #endif
+	  }
 	}
       }
     } else {
       for (i = 0; i < m_numRxnRdc; ++i) {
 	l = m_indexRxnToSpecies[i];
-	for (j = 0; j < m_numComponents; ++j) {
-	  bool doSwap = false;
-	  if (m_SSPhase[j]) {
-	    doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) > (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
-	    if (!m_SSPhase[l]) {
-	      if (doSwap) {
-		doSwap = (m_molNumSpecies_old[l]) > (m_molNumSpecies_old[j] * 1.01);
-	      }
-	    }
-	  } else {
-	    if (m_SSPhase[l]) {
-	      doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) > (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
-	      if (!doSwap) {
-		doSwap = (m_molNumSpecies_old[l]) > (m_molNumSpecies_old[j] * 1.01);
+	if (m_speciesUnknownType[l] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	  for (j = 0; j < m_numComponents; ++j) {
+	    bool doSwap = false;
+	    if (m_SSPhase[j]) {
+	      doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) > 
+		(m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
+	      if (!m_SSPhase[l]) {
+		if (doSwap) {
+		  doSwap = (m_molNumSpecies_old[l]) > (m_molNumSpecies_old[j] * 1.01);
+		}
 	      }
 	    } else {
-	      doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) > (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
-	    }
-	  }
-	  if (doSwap) {
-	    if (m_stoichCoeffRxnMatrix[i][j] != 0.0) {
-#ifdef DEBUG_MODE
-	      if (m_debug_print_lvl >= 2) {
-		plogf("   --- Get a new basis because ");
-		plogf("%s", m_speciesName[l].c_str());
-		plogf(" is better than comp ");
-		plogf("%s", m_speciesName[j].c_str());
-		plogf(" and share nonzero stoic: %-9.1f", 
-		      m_stoichCoeffRxnMatrix[i][j]);
-		plogendl();
+	      if (m_SSPhase[l]) {
+		doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) > 
+		  (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
+		if (!doSwap) {
+		  doSwap = (m_molNumSpecies_old[l]) > (m_molNumSpecies_old[j] * 1.01);
+		}
+	      } else {
+		doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) > 
+		  (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
 	      }
-#endif			     
-	      goto L_COMPONENT_CALC;
 	    }
-	  }
-#ifdef DEBUG_NOT
-	  if (m_rxnStatus[i] == VCS_SPECIES_ZEROEDMS) {
-	    if (m_molNumSpecies_old[j] == 0.0) {
+	    if (doSwap) {
 	      if (m_stoichCoeffRxnMatrix[i][j] != 0.0) {
-		if (dg[i] < 0.0) {
 #ifdef DEBUG_MODE
-		  if (m_debug_print_lvl >= 2) {
-		    plogf("   --- Get a new basis because %s", m_speciesName[l].c_str());
-		    plogf(" has dg < 0.0 and comp %s has zero mole num", m_speciesName[j].c_str());
-		    plogf(" and share nonzero stoic: %-9.1f", 
-			  m_stoichCoeffRxnMatrix[i][j]);
-		    plogendl();
-		  }
+		if (m_debug_print_lvl >= 2) {
+		  plogf("   --- Get a new basis because ");
+		  plogf("%s", m_speciesName[l].c_str());
+		  plogf(" is better than comp ");
+		  plogf("%s", m_speciesName[j].c_str());
+		  plogf(" and share nonzero stoic: %-9.1f", 
+			m_stoichCoeffRxnMatrix[i][j]);
+		  plogendl();
+		}
+#endif			     
+		goto L_COMPONENT_CALC;
+	      }
+	    }
+#ifdef DEBUG_NOT
+	    if (m_rxnStatus[i] == VCS_SPECIES_ZEROEDMS) {
+	      if (m_molNumSpecies_old[j] == 0.0) {
+		if (m_stoichCoeffRxnMatrix[i][j] != 0.0) {
+		  if (dg[i] < 0.0) {
+#ifdef DEBUG_MODE
+		    if (m_debug_print_lvl >= 2) {
+		      plogf("   --- Get a new basis because %s", m_speciesName[l].c_str());
+		      plogf(" has dg < 0.0 and comp %s has zero mole num", m_speciesName[j].c_str());
+		      plogf(" and share nonzero stoic: %-9.1f", 
+			    m_stoichCoeffRxnMatrix[i][j]);
+		      plogendl();
+		    }
 #endif		     
-		  goto L_COMPONENT_CALC;
+		    goto L_COMPONENT_CALC;
+		  }
 		}
 	      }
 	    }
-	  }
 #endif
+	  }
 	}
       }
     }
