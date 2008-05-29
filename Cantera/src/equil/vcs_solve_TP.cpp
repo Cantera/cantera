@@ -941,15 +941,18 @@ namespace VCSnonideal {
       /***********************************************************************/
       /****** CALCULATE KMOLE NUMBER CHANGE FOR THE COMPONENT BASIS **********/
       /***********************************************************************/
-      if (dx != 0.0 && (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
+      if (dx != 0.0 && (m_speciesUnknownType[kspec] != 
+			VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
 	/*
 	 *         Change the amount of the component compounds according 
 	 *         to the reaction delta that we just computed. 
 	 *         This should keep the amount of material constant. 
 	 */
 #ifdef DEBUG_MODE
-	if (fabs(m_deltaMolNumSpecies[kspec] -dx) > 1.0E-14*(fabs(m_deltaMolNumSpecies[kspec]) + fabs(dx) + 1.0E-32)) {
-	  plogf(" ds[kspec] = %20.16g dx = %20.16g , kspec = %d\n", m_deltaMolNumSpecies[kspec], dx, kspec);
+	if (fabs(m_deltaMolNumSpecies[kspec] -dx) > 
+	    1.0E-14*(fabs(m_deltaMolNumSpecies[kspec]) + fabs(dx) + 1.0E-32)) {
+	  plogf(" ds[kspec] = %20.16g dx = %20.16g , kspec = %d\n",
+		m_deltaMolNumSpecies[kspec], dx, kspec);
 	  plogf("we have a problem!");	
 	  plogendl();
 	  exit(-1);
@@ -969,7 +972,8 @@ namespace VCSnonideal {
       }
 
 #ifdef DEBUG_MODE
-      checkDelta1(VCS_DATA_PTR(m_deltaMolNumSpecies), VCS_DATA_PTR(m_deltaPhaseMoles), kspec+1);
+      checkDelta1(VCS_DATA_PTR(m_deltaMolNumSpecies), 
+		  VCS_DATA_PTR(m_deltaPhaseMoles), kspec+1);
 #endif
       /*
        *          Branch point for returning -
@@ -982,7 +986,8 @@ namespace VCSnonideal {
 	m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + m_deltaMolNumSpecies[kspec];
 	plogf("   --- "); plogf("%-12.12s", m_speciesName[kspec].c_str());
 	plogf("%3d%11.4E%11.4E%11.4E | %s", 
-	      m_rxnStatus[irxn], m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec],
+	      m_rxnStatus[irxn], m_molNumSpecies_old[kspec], 
+	      m_molNumSpecies_new[kspec],
 	      m_deltaMolNumSpecies[kspec], ANOTE);
 	plogendl();
       }
@@ -996,7 +1001,8 @@ namespace VCSnonideal {
       for (k = 0; k < m_numComponents; k++) {
 	plogf("   --- ");  plogf("%-12.12s", m_speciesName[k].c_str());
 	plogf("  c%11.4E%11.4E%11.4E |\n",
-	      m_molNumSpecies_old[k], m_molNumSpecies_old[k]+m_deltaMolNumSpecies[k], m_deltaMolNumSpecies[k]);
+	      m_molNumSpecies_old[k], 
+	      m_molNumSpecies_old[k]+m_deltaMolNumSpecies[k], m_deltaMolNumSpecies[k]);
       }
       plogf("   "); vcs_print_line("-", 80);
       plogf("   --- Finished Main Loop");
@@ -1239,7 +1245,8 @@ namespace VCSnonideal {
      *                loop. 
      */
     vcs_dcopy(VCS_DATA_PTR(m_tPhaseMoles_old), VCS_DATA_PTR(m_tPhaseMoles_new), m_numPhases);
-    vcs_dcopy(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_molNumSpecies_new), m_numSpeciesRdc);
+    vcs_dcopy(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_molNumSpecies_new),
+	      m_numSpeciesRdc);
     vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_old), VCS_DATA_PTR(m_deltaGRxn_new), m_numRxnRdc);
     vcs_dcopy(VCS_DATA_PTR(m_feSpecies_old), VCS_DATA_PTR(m_feSpecies_curr), m_numSpeciesRdc);
       
@@ -1284,7 +1291,8 @@ namespace VCSnonideal {
 	      } else {
 		for (k = 0; k < m_numComponents; k++) {
 		  if (m_stoichCoeffRxnMatrix[irxn][k] != 0.0) {
-		    if (m_molNumSpecies_old[kspec]/m_molNumSpecies_old[k] > VCS_DELETE_PHASE_CUTOFF) {
+		    if (m_molNumSpecies_old[kspec]/m_molNumSpecies_old[k] >
+			VCS_DELETE_PHASE_CUTOFF) {
 		      soldel = 0;
 		      break;
 		    }
@@ -1301,7 +1309,7 @@ namespace VCSnonideal {
 	    }
 #endif
 	    justDeletedMultiPhase = TRUE;
-	    delete_multiphase(iph);
+	    vcs_delete_multiphase(iph);
 	  }
 	} 
       }
@@ -2276,7 +2284,8 @@ namespace VCSnonideal {
     /*  
      *       Adjust the total moles in a phase downwards. 
      */
-    Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_tPhaseMoles_old));
+    Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old),
+				 VCS_DATA_PTR(m_tPhaseMoles_old));
   
     /* 
      *    Adjust the current number of active species and reactions counters 
@@ -2302,7 +2311,7 @@ namespace VCSnonideal {
 	  }
 	}
 	if (Vphase->Existence == 0) {
-	  delete_multiphase(iph);
+	  vcs_delete_multiphase(iph);
 	}
       }
     }
@@ -2355,7 +2364,8 @@ namespace VCSnonideal {
     }
     int iph = m_phaseID[kspec];
     vcs_VolPhase *Vphase = m_VolPhaseList[iph];
-    Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_tPhaseMoles_old));
+    Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old),
+				 VCS_DATA_PTR(m_tPhaseMoles_old));
     /*
      *   We may have popped a multispecies phase back 
      *   into existence. If we did, we have to check 
@@ -2390,24 +2400,24 @@ namespace VCSnonideal {
        */
       vcs_switch_pos(TRUE, (m_numSpeciesRdc - 1), kspec);
     }
-  } /* vcs_reinsert_deleted() */
+  } 
+  /****************************************************************************/
 
-  /****************************************************************************
-   *
-   * delete_multiphase():
-   *
-   *  This routine handles the bookkeepking involved with the
-   *  deletion of multiphase phases from the 
-   *  problem. When they are deleted, all of their species become active
-   *  species, even though their mole numbers are set to zero.
-   *  The routine does not make the decision to eliminate multiphases.
+  // This routine handles the bookkeepking involved with the
+  //  deletion of multiphase phases from the problem. 
+  /*
+   *   When they are deleted, all of their species become active
+   *   species, even though their mole numbers are set to zero.
+   *   The routine does not make the decision to eliminate multiphases.
    *
    *   Note, species in phases with zero mole numbers are still
    *   considered active. Whether the phase pops back into
    *   existence or not is checked as part of the main iteration
    *   loop.
+   *
+   * @param iph Phase to be deleted
    */
-  void VCS_SOLVE::delete_multiphase(int iph) {
+  void VCS_SOLVE::vcs_delete_multiphase(const int iph) {
     int kspec, j, irxn;
     double dx;
     vcs_VolPhase *Vphase = m_VolPhaseList[iph];
@@ -2450,15 +2460,17 @@ namespace VCSnonideal {
 	   */
 	  m_rxnStatus[irxn] = VCS_SPECIES_ZEROEDPHASE;
 	  /*
-	   *  changed the component mole numbers to account for the
+	   *  Changed the component mole numbers to account for the
 	   *  final extent of reaction. Make sure to keep component
-	   *  mole numbers constant.
-	   *  HKM -> note, this will cause a loss of moles!
+	   *  mole numbers above zero 
+	   * 
 	   */
 	  for (j = 0; j < m_numComponents; ++j) {
 	    m_molNumSpecies_old[j] += m_stoichCoeffRxnMatrix[irxn][j] * dx;
-	    if (m_molNumSpecies_old[j] < 0.0) {
-	      m_molNumSpecies_old[j] = 0.0;
+	    if (m_speciesUnknownType[j] == VCS_SPECIES_TYPE_MOLNUM) {
+	      if (m_molNumSpecies_old[j] < 0.0) {
+		m_molNumSpecies_old[j] = 0.0;
+	      }
 	    }
 	  }
 	}
@@ -2504,9 +2516,9 @@ namespace VCSnonideal {
     Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old),
 				 VCS_DATA_PTR(m_tPhaseMoles_old), iph);
   } 
-  /************************************************************************************/
+  /**********************************************************************************/
    
-  // Recheck deleted species in multispecies phases.
+  //    Recheck deleted species in multispecies phases.
   /*
    *   We are checking the equation:
    *
@@ -2606,6 +2618,79 @@ namespace VCSnonideal {
     return npb;
   }
   /***********************************************************************************/
+
+  // Recheck deletion condition for multispecies phases.
+  /*
+   *   We assume here that DG_i_0 has been calculated for deleted species correctly
+   *
+   *
+   *   m_feSpecies(I) = m_SSfeSpecies(I)
+   *                  + ln(ActCoeff[I])
+   *                  - ln(Mnaught * m_units)
+   *                  + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]; 
+   *
+   *         sum_u = sum_j_comp [ sigma_i_j * u_j ] 
+   *               = u_i_O + log((AC_i * W_i)/m_tPhaseMoles_old) 
+   *
+   *   DG_i_0 =  m_feSpecies(I) - sum_m{ a_i_m  DG_m }
+   *
+   *
+   *   by first evaluating: 
+   *
+   *          DG_i_O = u_i_O - sum_u. 
+   *
+   *   Then, the phase pops into existence iff
+   *
+   *      phaseDG = 1.0 - sum_i{exp(-DG_i_O)}  < 0.0
+   *
+   *  This formula works for both single species phases and for multispecies
+   *  phases. It's an overkill for single species phases.
+   *
+   *  @param iphase Phase index number
+   *
+   * @return   Returns true if the phase is currently deleted
+   *           but should be reinstated. Returns false otherwise.
+   *
+   *  NOTE: this routine is currently not used in the code, and 
+   *       contains some basic changes that are incompatible.
+   *
+   * assumptions: 
+   *       1) Vphase Existence is up to date
+   *       2) Vphase->IndSpecies is up to date
+   *       3) m_deltaGRxn_old[irxn] is up to date
+   */
+  bool VCS_SOLVE::recheck_deleted_phase(const int iphase) {
+  
+    // Check first to see if the phase is in fact deleted
+    const vcs_VolPhase *Vphase = m_VolPhaseList[iphase];
+    if (Vphase->Existence != 0) {
+      return false;
+    }
+    int irxn, kspec;
+    if (Vphase->SingleSpecies) {
+      kspec = Vphase->IndSpecies[0];
+      irxn = kspec + m_numComponents;
+      if(m_deltaGRxn_old[irxn] < 0.0) {
+	return true;
+      }
+      return false;
+    }
+  
+    double phaseDG = 1.0;
+    for (int kk = 0; kk <  Vphase->NVolSpecies; kk++) {
+      kspec = Vphase->IndSpecies[kk];
+      irxn = kspec + m_numComponents;
+      if (m_deltaGRxn_old[irxn] >  50.0) m_deltaGRxn_old[irxn] =  50.0;
+      if (m_deltaGRxn_old[irxn] < -50.0) m_deltaGRxn_old[irxn] = -50.0;
+      phaseDG -= exp(-m_deltaGRxn_old[irxn]);
+    }
+
+    if (phaseDG < 0.0) {
+      return true;
+    }
+    return false;
+  }
+  /*************************************************************************************/
 
   //  Provide an estimate for the deleted species in phases that
   //  are not zeroed out
@@ -3210,6 +3295,26 @@ namespace VCSnonideal {
     if (doDeleted) {
       irxnl = m_numRxnTot;
     }
+    int vcsState = VCS_STATECALC_NEW;
+ 
+    double * deltaGRxn;
+    double * feSpecies;
+    double * molNumSpecies;
+    double * actCoeffSpecies;
+    if (vcsState == VCS_STATECALC_NEW) {
+      deltaGRxn     = VCS_DATA_PTR(m_deltaGRxn_new);
+      feSpecies     = VCS_DATA_PTR(m_feSpecies_curr);
+      molNumSpecies = VCS_DATA_PTR(m_molNumSpecies_new);
+      actCoeffSpecies = VCS_DATA_PTR(m_actCoeffSpecies_new);
+    } else if (vcsState == VCS_STATECALC_NEW) {
+      deltaGRxn     = VCS_DATA_PTR(m_deltaGRxn_old);
+      feSpecies     = VCS_DATA_PTR(m_feSpecies_old);
+      molNumSpecies = VCS_DATA_PTR(m_molNumSpecies_old);
+      actCoeffSpecies = VCS_DATA_PTR(m_actCoeffSpecies_old);
+    } else {
+      printf("Error\n");
+      exit(-1);
+    }
 
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
@@ -3230,16 +3335,16 @@ namespace VCSnonideal {
       for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
 	if (m_rxnStatus[irxn] != VCS_SPECIES_MINOR) {
 	  icase = 0;
-	  m_deltaGRxn_new[irxn] = m_feSpecies_curr[m_indexRxnToSpecies[irxn]];
+	  deltaGRxn[irxn] = feSpecies[m_indexRxnToSpecies[irxn]];
 	  dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
 	  for (kspec = 0; kspec < m_numComponents; ++kspec) {
-	    m_deltaGRxn_new[irxn] += dtmp_ptr[kspec] * m_feSpecies_curr[kspec];
-	    if (m_molNumSpecies_old[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF && dtmp_ptr[kspec] < 0.0) {
+	    deltaGRxn[irxn] += dtmp_ptr[kspec] * feSpecies[kspec];
+	    if (molNumSpecies[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF && dtmp_ptr[kspec] < 0.0) {
 	      icase = 1;
 	    } 
 	  }
 	  if (icase) {
-	    m_deltaGRxn_new[irxn] = MAX(0.0, m_deltaGRxn_new[irxn]);
+	    deltaGRxn[irxn] = MAX(0.0, deltaGRxn[irxn]);
 	  }
 	}
       }
@@ -3249,17 +3354,17 @@ namespace VCSnonideal {
       /* ************************************************* */
       for (irxn = 0; irxn < irxnl; ++irxn) {
 	icase = 0;
-	m_deltaGRxn_new[irxn] = m_feSpecies_curr[m_indexRxnToSpecies[irxn]];
+	deltaGRxn[irxn] = feSpecies[m_indexRxnToSpecies[irxn]];
 	dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
 	for (kspec = 0; kspec < m_numComponents; ++kspec) {
-	  m_deltaGRxn_new[irxn] += dtmp_ptr[kspec] * m_feSpecies_curr[kspec];
-	  if (m_molNumSpecies_old[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF && 
+	  deltaGRxn[irxn] += dtmp_ptr[kspec] * feSpecies[kspec];
+	  if (molNumSpecies[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF && 
 	      dtmp_ptr[kspec] < 0.0) {
 	    icase = 1;
 	  }
 	}
 	if (icase) {
-	  m_deltaGRxn_new[irxn] = MAX(0.0, m_deltaGRxn_new[irxn]);
+	  deltaGRxn[irxn] = MAX(0.0, deltaGRxn[irxn]);
 	}
       }
     } else {
@@ -3269,17 +3374,17 @@ namespace VCSnonideal {
       for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
 	if (m_rxnStatus[irxn] <= VCS_SPECIES_MINOR) {
 	  icase = 0;
-	  m_deltaGRxn_new[irxn] = m_feSpecies_curr[m_indexRxnToSpecies[irxn]];
+	  deltaGRxn[irxn] = feSpecies[m_indexRxnToSpecies[irxn]];
 	  dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
 	  for (kspec = 0; kspec < m_numComponents; ++kspec) {
-	    m_deltaGRxn_new[irxn] += dtmp_ptr[kspec] * m_feSpecies_curr[kspec];
+	    deltaGRxn[irxn] += dtmp_ptr[kspec] * feSpecies[kspec];
 	    if (m_molNumSpecies_old[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF && 
 		dtmp_ptr[kspec] < 0.0) {
 	      icase = 1;
 	    } 
 	  }
 	  if (icase) {
-	    m_deltaGRxn_new[irxn] = MAX(0.0, m_deltaGRxn_new[irxn]);
+	    deltaGRxn[irxn] = MAX(0.0, deltaGRxn[irxn]);
 	  }
 	}
       }
@@ -3335,7 +3440,7 @@ namespace VCSnonideal {
 	for (k = 0; k < Vphase->NVolSpecies; k++) {
 	  kspec = Vphase->IndSpecies[k];
 	  if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	    sum += m_molNumSpecies_old[kspec];
+	    sum += molNumSpecies[kspec];
 	  }
 	  if (sum > 0.0) break;
 	}
@@ -3349,19 +3454,24 @@ namespace VCSnonideal {
 	for (k = 0; k < Vphase->NVolSpecies; k++) {
 	  kspec = Vphase->IndSpecies[k];
 	  irxn = kspec - m_numComponents;
-	  if (m_deltaGRxn_new[irxn] >  50.0) m_deltaGRxn_new[irxn] =  50.0;
-	  if (m_deltaGRxn_new[irxn] < -50.0) m_deltaGRxn_new[irxn] = -50.0;
-	  poly += exp(-m_deltaGRxn_new[irxn])/m_actCoeffSpecies_new[kspec];
+	  // We may need to look at deltaGRxn for components!
+	  if (irxn >= 0) {
+	    if (deltaGRxn[irxn] >  50.0) deltaGRxn[irxn] =  50.0;
+	    if (deltaGRxn[irxn] < -50.0) deltaGRxn[irxn] = -50.0;
+	    poly += exp(-deltaGRxn[irxn])/actCoeffSpecies[kspec];
+	  }
 	}
 	/*
-	 *      Calculate m_deltaGRxn_new[] for each species in a zeroed multispecies phase.
-	 *      All of the m_deltaGRxn_new[]'s will be equal. If m_deltaGRxn_new[] is negative, then
+	 *      Calculate deltaGRxn[] for each species in a zeroed multispecies phase.
+	 *      All of the m_deltaGRxn_new[]'s will be equal. If deltaGRxn[] is negative, then
 	 *      the phase will come back into existence.
 	 */
 	for (k = 0; k < Vphase->NVolSpecies; k++) {
 	  kspec = Vphase->IndSpecies[k];
 	  irxn = kspec - m_numComponents;
-	  m_deltaGRxn_new[irxn] = 1.0 - poly;
+	  if (irxn >= 0) {
+	    deltaGRxn[irxn] = 1.0 - poly;
+	  }
 	}
 
       }
@@ -3370,7 +3480,7 @@ namespace VCSnonideal {
 
 #ifdef DEBUG_NOT
     for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-      checkFinite(m_deltaGRxn_new[irxn]);
+      checkFinite(deltaGRxn[irxn]);
     }
 #endif
   }
@@ -4839,21 +4949,26 @@ namespace VCSnonideal {
 #endif
     }
   }
-
   /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
-
-  void VCS_SOLVE::vcs_switch2D(double * const * const Jac, int k1, int k2)
-   
-    /**************************************************************************
-     *  vcs_switch2D:
-     *
-     *        Switch rows and columns of a square matrix
-     *************************************************************************/
+ 
+  //    Switch rows and columns of a sqare matrix
+  /*
+   *  Switches the row and column of a matrix.
+   *  So that after
+   *
+   *     J[k1][j] = J_old[k2][j]  and J[j][k1] = J_old[j][k2]
+   *     J[k2][j] = J_old[k1][j]  and J[j][k2] = J_old[j][k1]
+   *
+   *  @param Jac         Double pointer to the jacobiam
+   *  @param k1          first row/column value to be switched
+   *  @param k2          second row/column value to be switched
+   */
+  void VCS_SOLVE::vcs_switch2D(double * const * const Jac, 
+			       const int k1, const int k2) const
   {
     int i;
     register double dtmp;
+    if (k1 == k2) return;
     for (i = 0; i < m_numSpeciesTot; i++) {
       SWAP(Jac[k1][i], Jac[k2][i], dtmp);  
     }
@@ -5124,16 +5239,30 @@ namespace VCSnonideal {
   }
   /****************************************************************************/
 
+  //     Birth guess returns the number of moles of a species 
+  //     that is coming back to life.
   /*
-   *
-   *  vcs_birthGuess
-   *
    *     Birth guess returns the number of moles of a species 
-   *     that is coming back to life. or -> whose concentration has
-   *     been forced to zero by a constraint for some reason, and needs
-   *     to be reinitialized.
+   *     that is coming back to life.
+   *     Note, this routine is not applicable if the whole phase is coming
+   *     back to life, not just one species in that phase.
+   *
+   *  Do a minor alt calculation. But, cap the mole numbers at
+   *  1.0E-15.
+   *  For SS phases use VCS_DELETE_SPECIES_CUTOFF * 100.
+   *
+   *  The routine makes sure the guess doesn't reduce the concentration
+   *  of a component by more than 1/3. Note this may mean that
+   *  the vlaue coming back from this routine is zero or a
+   *  very small number.
+   *
+   *
+   * @param kspec   Species number that is coming back to life
+   *
+   * @return      Returns the number of kmol that the species should
+   *              have.
    */
-  double VCS_SOLVE::vcs_birthGuess(int kspec) {
+  double VCS_SOLVE::vcs_birthGuess(const int kspec) {
     int irxn = kspec - m_numComponents;
     int soldel = false;
     double dx = 0.0;
@@ -5141,6 +5270,7 @@ namespace VCSnonideal {
       return dx;
     }
     double w_kspec = VCS_DELETE_SPECIES_CUTOFF;
+#ifdef DEBUG_MODE
     // Check to make sure that species is zero in the solution vector
     // If it isn't, we don't know what's happening
     if (m_molNumSpecies_old[kspec] != 0.0) {
@@ -5148,10 +5278,12 @@ namespace VCSnonideal {
       plogf("we shouldn't be here\n");
       exit(-1);
     }
+#endif
     int ss = m_SSPhase[kspec];
     if (!ss) {
       /*
        * Logic to handle species in multiple species phases
+       *    we cap the moles here at 1.0E-15 kmol.
        */
 #ifdef DEBUG_MODE	 
       char ANOTE[32];
@@ -5166,13 +5298,15 @@ namespace VCSnonideal {
     } else {
       /*
        * Logic to handle single species phases
+       *      There is no real way to estimate the moles. So
+       *      we set it to a small number.
        */
       dx = VCS_DELETE_SPECIES_CUTOFF * 100.;
     }
     
     /*
      * Check to see if the current value of the components 
-     * allow the dx.
+     * allow the dx just estimated.
      * If we are in danger of zeroing a component,
      * only go 1/3 the way to zeroing the component with
      * this dx. Note, this may mean that dx= 0 coming

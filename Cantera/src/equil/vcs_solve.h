@@ -537,24 +537,30 @@ public:
    */
   void vcs_deltag_Phase(const int iphase, const bool doDeleted);
 
-  //! birthGuess returns the number of moles of a species
-  //! that is coming back to life or whose concentration has
-  //! been forced to zero by a constraint for some reason, and needs
-  //! to be reinitialized.
+  //!     Birth guess returns the number of moles of a species 
+  //!     that is coming back to life.
   /*!
+   *     Birth guess returns the number of moles of a species 
+   *     that is coming back to life.
+   *     Note, this routine is not applicable if the whole phase is coming
+   *     back to life, not just one species in that phase.
+   *
    *  Do a minor alt calculation. But, cap the mole numbers at
    *  1.0E-15.
    *  For SS phases use VCS_DELETE_SPECIES_CUTOFF * 100.
    *
    *  The routine makes sure the guess doesn't reduce the concentration
    *  of a component by more than 1/3. Note this may mean that
-   *  the vlaue coming back from this routine is zero or a 
+   *  the vlaue coming back from this routine is zero or a
    *  very small number.
    *
-   *  @param kspec Species number that is coming back to life
-   *  @return number of moles of the species
+   *
+   * @param kspec   Species number that is coming back to life
+   *
+   * @return      Returns the number of kmol that the species should
+   *              have.
    */
-  double vcs_birthGuess(int kspec);
+  double vcs_birthGuess(const int kspec);
 
   //! Solve an equilibrium problem at a particular fixed temperature 
   //! and pressure
@@ -972,7 +978,22 @@ public:
 private:
   int zero_species(int kspec);
   int delete_species(int kspec);
-  void delete_multiphase(int iph);
+
+  //! This routine handles the bookkeepking involved with the
+  //!  deletion of multiphase phases from the problem. 
+  /*!
+   *   When they are deleted, all of their species become active
+   *   species, even though their mole numbers are set to zero.
+   *   The routine does not make the decision to eliminate multiphases.
+   *
+   *   Note, species in phases with zero mole numbers are still
+   *   considered active. Whether the phase pops back into
+   *   existence or not is checked as part of the main iteration
+   *   loop.
+   *
+   * @param iph Phase to be deleted
+   */
+  void vcs_delete_multiphase(const int iph);
   int delta_species(int kspec, double *delta_ptr);
 
   //!  Provide an estimate for the deleted species in phases that
@@ -1006,6 +1027,48 @@ private:
    */
   int recheck_deleted();
 
+  //! Recheck deletion condition for multispecies phases.
+  /*!
+   *   We assume here that DG_i_0 has been calculated for deleted species correctly
+   *
+   *
+   *   m_feSpecies(I) = m_SSfeSpecies(I)
+   *                  + ln(ActCoeff[I])
+   *                  - ln(Mnaught * m_units)
+   *                  + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]; 
+   *
+   *         sum_u = sum_j_comp [ sigma_i_j * u_j ] 
+   *               = u_i_O + log((AC_i * W_i)/m_tPhaseMoles_old) 
+   *
+   *   DG_i_0 =  m_feSpecies(I) - sum_m{ a_i_m  DG_m }
+   *
+   *
+   *   by first evaluating: 
+   *
+   *          DG_i_O = u_i_O - sum_u. 
+   *
+   *   Then, the phase pops into existence iff
+   *
+   *      phaseDG = 1.0 - sum_i{exp(-DG_i_O)}  < 0.0
+   *
+   *  This formula works for both single species phases and for multispecies
+   *  phases. It's an overkill for single species phases.
+   *
+   *  @param iphase Phase index number
+   *
+   * @return   Returns true if the phase is currently deleted
+   *           but should be reinstated. Returns false otherwise.
+   *
+   *  NOTE: this routine is currently not used in the code, and 
+   *       contains some basic changes that are incompatible.
+   *
+   * assumptions: 
+   *       1) Vphase Existence is up to date
+   *       2) Vphase->IndSpecies is up to date
+   *       3) m_deltaGRxn_old[irxn] is up to date
+   */
+  bool recheck_deleted_phase(const int iph);
+    
   //! Alternative treatment for the update of a minor species
   /*!
    * This calculation assumes that the component basis species mole
@@ -1046,7 +1109,20 @@ private:
    */
   int vcs_globStepDamp();
 
-  void vcs_switch2D(double * const * const Jac, int k1, int k2);
+  //! Switch rows and columns of a sqare matrix
+  /*!
+   *  Switches the row and column of a matrix.
+   *  So that after
+   *
+   *     J[k1][j] = J_old[k2][j]  and J[j][k1] = J_old[j][k2]
+   *     J[k2][j] = J_old[k1][j]  and J[j][k2] = J_old[j][k1]
+   *
+   *  @param Jac         Double pointer to the jacobiam
+   *  @param k1          first row/column value to be switched
+   *  @param k2          second row/column value to be switched
+   */
+  void vcs_switch2D(double * const * const Jac,
+                    const int k1, const int k2) const;
 
   //! Calculate the norm of a deltaGibbs free energy vector
   /*!
