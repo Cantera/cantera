@@ -51,7 +51,9 @@ namespace VCSnonideal {
     }
 
     for (int kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
-      g += molesSp[kspec] * chemPot[kspec];
+      if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	g += molesSp[kspec] * chemPot[kspec];
+      }
     }
   
     return g;
@@ -72,8 +74,10 @@ namespace VCSnonideal {
     double phaseMols = 0.0;
     for (int kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
       if (m_phaseID[kspec] == iphase) {
-	g += w[kspec] * fe[kspec];
-	phaseMols += w[kspec];
+	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	  g += w[kspec] * fe[kspec];
+	  phaseMols += w[kspec];
+	}
       }
     }
 

@@ -2115,7 +2115,7 @@ namespace VCSnonideal {
     else {
       /*
        * Voltage calculation 
-       *      HKM -> Need to check the sign
+       *   Need to check the sign -> This is good for electrons
        */
       dx = m_deltaGRxn_new[irxn]/ m_Faraday_dim;
 #ifdef DEBUG_MODE
@@ -2823,7 +2823,9 @@ namespace VCSnonideal {
     s2 = 0.0;
     for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
       kspec = irxn + m_numComponents;
-      s2 += dptr[irxn] * m_deltaMolNumSpecies[kspec];
+      if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	s2 += dptr[irxn] * m_deltaMolNumSpecies[kspec];
+      }
     }
 
 
@@ -2834,7 +2836,9 @@ namespace VCSnonideal {
     dptr = VCS_DATA_PTR(m_deltaGRxn_old);
     for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
       kspec = irxn + m_numComponents;
-      s1 += dptr[irxn] * m_deltaMolNumSpecies[kspec];
+      if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	s1 += dptr[irxn] * m_deltaMolNumSpecies[kspec];
+      }
     }
 
 #ifdef DEBUG_MODE
@@ -2934,7 +2938,9 @@ namespace VCSnonideal {
     s2 = 0.0;
     for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
       kspec = irxn + m_numComponents;
-      s2 += dptr[irxn] * m_deltaMolNumSpecies[kspec];
+      if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	s2 += dptr[irxn] * m_deltaMolNumSpecies[kspec];
+      }
     }
 
 
