@@ -56,7 +56,7 @@ namespace VCSnonideal {
 
     std::vector<int> sortindex(nspecies,0);
     std::vector<double> xy(nspecies,0.0);
-   
+
     /* ************************************************************** */
     /* **** SORT DEPENDENT SPECIES IN DECREASING ORDER OF MOLES ***** */
     /* ************************************************************** */
@@ -86,7 +86,7 @@ namespace VCSnonideal {
     if (m_unitsState == VCS_DIMENSIONAL_G) {
       vcs_nondim_TP();  
     }
-   
+    vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 0, 0, m_numSpeciesTot);  
     /* ******************************************************** */
     /* *** PRINT OUT RESULTS ********************************** */
     /* ******************************************************** */
@@ -124,7 +124,8 @@ namespace VCSnonideal {
     for (i = 0; i < m_numComponents; ++i) {
       plogf(" %-12.12s", m_speciesName[i].c_str());
       print_space(13);
-      plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[i], m_molNumSpecies_new[i], m_feSpecies_curr[i]);
+      plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[i], 
+	    m_molNumSpecies_new[i], m_feSpecies_old[i]);
       plogf("   %3d", m_speciesUnknownType[i]);
       plogf("\n");
     }
@@ -134,10 +135,11 @@ namespace VCSnonideal {
       print_space(13);
      
       if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_MOLNUM) {
-	plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[l], m_molNumSpecies_new[l], m_feSpecies_curr[l]);
+	plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[l], 
+	      m_molNumSpecies_new[l], m_feSpecies_old[l]);
 	plogf("  KMolNum ");
       } else if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	plogf("        NA         %14.7E    %12.4E", 1.0, m_feSpecies_curr[l]);
+	plogf("        NA         %14.7E    %12.4E", 1.0, m_feSpecies_old[l]);
 	plogf("   Voltage = %14.7E", m_molNumSpecies_old[l]);
       } else {
 	plogf("we have a problem\n");
@@ -260,7 +262,7 @@ namespace VCSnonideal {
 	gaTPhase[j] += gaPhase[j];
       }
       gibbsPhase = vcs_GibbsPhase(iphase, VCS_DATA_PTR(m_molNumSpecies_old), 
-				  VCS_DATA_PTR(m_feSpecies_curr));
+				  VCS_DATA_PTR(m_feSpecies_old));
       gibbsTotal += gibbsPhase;
       plogf(" | %18.11E |\n", gibbsPhase);
     }
@@ -284,7 +286,7 @@ namespace VCSnonideal {
      *        energy of zero
      */
 	  
-    g = vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_curr), 
+    g = vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_old), 
 			VCS_DATA_PTR(m_tPhaseMoles_old));
     plogf("\n\tTotal Dimensionless Gibbs Free Energy = G/RT = %15.7E\n", g);
     if (inertYes) 
@@ -329,7 +331,7 @@ namespace VCSnonideal {
 	if (tpmoles > 0.0 && m_molNumSpecies_old[l] > 0.0) {
 	  lx = log(m_molNumSpecies_old[l]) - log(tpmoles);
 	} else {
-	  lx = m_feSpecies_curr[l] - m_SSfeSpecies[l] 
+	  lx = m_feSpecies_old[l] - m_SSfeSpecies[l] 
 	    - log(m_actCoeffSpecies_old[l]) + m_lnMnaughtSpecies[l];
 	}
       }
@@ -337,11 +339,11 @@ namespace VCSnonideal {
       plogf("%14.7E | ", eContrib);
       double tmp = m_SSfeSpecies[l] + log(m_actCoeffSpecies_old[l])
 	+ lx - m_lnMnaughtSpecies[l] + eContrib;
-      if (fabs(m_feSpecies_curr[l] - tmp) > 1.0E-8) {
+      if (fabs(m_feSpecies_old[l] - tmp) > 1.0E-7) {
 	plogf("\n\t\twe have a problem - doesn't add up\n");
 	exit(-1);
       } 
-      plogf(" %12.4E |", m_feSpecies_curr[l]);
+      plogf(" %12.4E |", m_feSpecies_old[l]);
       if (m_lnMnaughtSpecies[l] != 0.0) {
 	plogf(" (%14.7E)", - m_lnMnaughtSpecies[l]);
       }
