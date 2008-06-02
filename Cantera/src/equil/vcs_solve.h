@@ -504,7 +504,37 @@ public:
    */
   void vcs_tmoles();
 
-  void vcs_deltag(int l, bool doDeleted);
+
+  //! This subroutine calculates reaction free energy changes for 
+  //! all noncomponent formation reactions.
+  /*!
+   *  Formation reactions are 
+   *  reactions which create each noncomponent species from the component 
+   *  species. m_stoichCoeffRxnMatrix[irxn][jcomp]  are the stoichiometric 
+   *  coefficients for these  reactions. A stoichiometric coefficient of 
+   *  one is assumed for species irxn in this reaction. 
+   *
+   *  INPUT
+   *  @param l 
+   *    L < 0   :  Calculate reactions corresponding to 
+   *               major noncomponent and zeroed species only 
+   *    L = 0   :  Do all noncomponent reactions, i, between 
+   *               0 <= i < irxnl 
+   *    L > 0   :  Calculate reactions corresponding to 
+   *               minor noncomponent and zeroed species only 
+   *
+   *    @param doDeleted   Do deleted species
+   *    @param stateCalc   Calculate deltaG corresponding to either old or new
+   *                       free energies
+   *
+   *    Note we special case one important issue.
+   *    If the component has zero moles, then we do not
+   *    allow deltaG < 0.0 for formation reactions which
+   *    would lead to the loss of more of that same component.
+   *    This dG < 0.0 condition feeds back into the algorithm in several
+   *    places, and leads to a infinite loop in at least one case. 
+   */
+  void vcs_deltag(const int l, const bool doDeleted, const int stateCalc);
 
   //!  Swaps the indecises for all of the global data for two species, k1
   //!  and k2.

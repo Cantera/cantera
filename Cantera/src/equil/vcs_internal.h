@@ -325,7 +325,7 @@ namespace VCSnonideal {
    * @param vec_to vector of doubles
    * @param length length of the vector to zero.
    */
-  inline void vcs_dzero(double *vec_to, int length) {
+  inline void vcs_dzero(double * const vec_to, const int length) {
     (void) memset((void *) vec_to, 0, length * sizeof(double));
   }
 
@@ -334,7 +334,7 @@ namespace VCSnonideal {
    * @param vec_to vector of ints
    * @param length length of the vector to zero.
    */
-  inline void vcs_izero(int *vec_to, int length) {
+  inline void vcs_izero(int * const vec_to, const int length) {
     (void) memset((void *) vec_to, 0, length * sizeof(int));
   }
 
@@ -345,7 +345,8 @@ namespace VCSnonideal {
    * @param vec_from  Vector to copy from
    * @param length    Number of doubles to copy.
    */
-  inline void vcs_dcopy(double *vec_to, const double *vec_from, int length) {
+  inline void vcs_dcopy(double * const vec_to, 
+                        const double * const vec_from, const int length) {
     (void) memcpy((void *) vec_to, (const void *) vec_from, 
 		  (length) * sizeof(double));
   }
@@ -358,7 +359,8 @@ namespace VCSnonideal {
    * @param vec_from  Vector to copy from
    * @param length    Number of int to copy.
    */
-  inline void vcs_icopy(int *vec_to, const int *vec_from, int length) {
+  inline void vcs_icopy(int * const vec_to, 
+                        const int * const vec_from, const int length) {
     (void) memcpy((void *) vec_to, (const void *) vec_from, 
 		  (length) * sizeof(int));
   }
@@ -368,7 +370,7 @@ namespace VCSnonideal {
    * @param vec_to vector of doubles
    * @param length length of the vector to zero.
    */
-  inline void vcs_vdzero(std::vector<double> &vec_to, int length) {
+  inline void vcs_vdzero(std::vector<double> &vec_to, const int length) {
     (void) memset((void *)VCS_DATA_PTR(vec_to), 0, (length) * sizeof(double));
   }
   
@@ -377,7 +379,7 @@ namespace VCSnonideal {
    * @param vec_to vector of ints
    * @param length length of the vector to zero.
    */
-  inline void vcs_vizero(std::vector<int> &vec_to, int length) {
+  inline void vcs_vizero(std::vector<int> &vec_to, const int length) {
     (void) memset((void *)VCS_DATA_PTR(vec_to), 0, (length) * sizeof(int));
   }
 
@@ -409,21 +411,21 @@ namespace VCSnonideal {
    * @param length  Number of integers to copy.
    */
   inline void vcs_vicopy(std::vector<int> & vec_to, 
-			 const std::vector<int> & vec_from, int length) {
+			 const std::vector<int> & vec_from, const int length) {
     (void) memcpy((void *)&(vec_to[0]), (const void *) &(vec_from[0]), 
 		  (length) * sizeof(int));
   }
 #else
-  extern void vcs_dzero(double *, int);
-  extern void vcs_izero(int *, int);
-  extern void vcs_dcopy(double *, double *, int);
-  extern void vcs_icopy(int *, int *, int);
-  extern void vcs_vdzero(std::vector<double> &vvv, int len = -1);
-  extern void vcs_vizero(std::vector<double> &vvv, int len = -1);
+  extern void vcs_dzero(double * const, const int);
+  extern void vcs_izero(int * const , const int);
+  extern void vcs_dcopy(double * const, const double * const, const int);
+  extern void vcs_icopy(int * const, const int * const, const int);
+  extern void vcs_vdzero(std::vector<double> &vvv, const int len = -1);
+  extern void vcs_vizero(std::vector<double> &vvv, const int len = -1);
   void vcs_vdcopy(std::vector<double> &vec_to, 
-		  const std::vector<double> vec_from, int len = -1);
+		  const std::vector<double> vec_from, const int len = -1);
   void vcs_vicopy(std::vector<int> &vec_to, 
-		  const std::vector<int> vec_from, int len = -1);
+		  const std::vector<int> vec_from, const int len = -1);
 #endif
 
   //! Finds the location of the maximum component in a double vector

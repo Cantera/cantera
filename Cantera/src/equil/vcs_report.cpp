@@ -329,7 +329,8 @@ namespace VCSnonideal {
 	lx = 0.0;
       } else {
 	if (tpmoles > 0.0 && m_molNumSpecies_old[l] > 0.0) {
-	  lx = log(m_molNumSpecies_old[l]) - log(tpmoles);
+	  double tmp = MAX(VCS_DELETE_MINORSPECIES_CUTOFF, m_molNumSpecies_old[l]);
+	  lx = log(tmp) - log(tpmoles);
 	} else {
 	  lx = m_feSpecies_old[l] - m_SSfeSpecies[l] 
 	    - log(m_actCoeffSpecies_old[l]) + m_lnMnaughtSpecies[l];

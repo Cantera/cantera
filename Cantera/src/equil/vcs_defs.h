@@ -82,11 +82,11 @@ namespace VCSnonideal {
    * @{
    */
 
-  //! Cutoff relative mole number value,
+  //! Cutoff relative mole fraction value,
   //! below which species are deleted from the equilibrium problem.
   
-#ifndef VCS_DELETE_SPECIES_CUTOFF
-#define VCS_DELETE_SPECIES_CUTOFF          1.0e-32
+#ifndef VCS_RELDELETE_SPECIES_CUTOFF
+#define VCS_RELDELETE_SPECIES_CUTOFF          1.0e-64
 #endif
 
   //! Cutoff relative mole number value,
