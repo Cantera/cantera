@@ -1341,16 +1341,6 @@ public:
    */
   std::vector<double> m_SSfeSpecies;
 
-  //! Dimensionless/Dimensional free energy for all the species in the mechanism at the 
-  //! current T, P, and mole numbers. 
-  /*!
-   *   The first NC entries are for components. The following
-   *   NR entries are for the current  non-component species in the mechanism.
-   *  The dimension of this vector is specified by the m_VCS_UnitsFormat variable.
-   *  Length = number of species
-   */
-  std::vector<double> m_feSpecies_curr;
-
   //! Free energy vector from the start of the current iteration
   /*!
    *  The free energies are saved at the start of the current iteration.

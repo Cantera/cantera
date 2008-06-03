@@ -116,7 +116,6 @@ namespace VCSnonideal {
 	 *        Thus, we may divide it by the temperature.
 	 */  
 	m_SSfeSpecies[i] *= tf;
-	m_feSpecies_curr[i] *= tf;
 	m_deltaGRxn_new[i] *= tf;
 	m_deltaGRxn_old[i] *= tf;
 	m_feSpecies_old[i] *= tf;
@@ -161,7 +160,6 @@ namespace VCSnonideal {
 	 *        FF(I),  to make it have units, i.e. mu = RT * mu_star
 	 */  
 	m_SSfeSpecies[i] *= tf;
-	m_feSpecies_curr[i] *= tf;
 	m_deltaGRxn_new[i] *= tf;
 	m_deltaGRxn_old[i] *= tf;
 	m_feSpecies_old[i] *= tf;

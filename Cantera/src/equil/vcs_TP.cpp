@@ -185,7 +185,8 @@ namespace VCSnonideal {
        *        potential. This value doesn't change during the calculation
        */
       if (m_SSPhase[i]) {
-	m_feSpecies_curr[i] = m_SSfeSpecies[i];
+	m_feSpecies_old[i] = m_SSfeSpecies[i];
+	m_feSpecies_new[i] = m_SSfeSpecies[i];
       }
     }    
   } /* vcs_fePrep_TP() ********************************************************/

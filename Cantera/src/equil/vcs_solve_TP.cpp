@@ -443,7 +443,6 @@ namespace VCSnonideal {
     /*
      *  Copy the old solution into the new solution as an initial guess
      */
-    vcs_dcopy(VCS_DATA_PTR(m_feSpecies_curr), VCS_DATA_PTR(m_feSpecies_old), m_numSpeciesRdc);
     vcs_dcopy(VCS_DATA_PTR(m_feSpecies_new), VCS_DATA_PTR(m_feSpecies_old), m_numSpeciesRdc);
     vcs_dcopy(VCS_DATA_PTR(m_actCoeffSpecies_new), VCS_DATA_PTR(m_actCoeffSpecies_old), m_numSpeciesRdc);
     vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_new), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
@@ -2275,7 +2274,7 @@ namespace VCSnonideal {
     m_rxnStatus[irxn] = VCS_SPECIES_DELETED;
     m_deltaGRxn_new[irxn] = 0.0;
     m_deltaGRxn_old[irxn] = 0.0;
-    m_feSpecies_curr[kspec] = 0.0;
+    m_feSpecies_new[kspec] = 0.0;
     m_feSpecies_old[kspec] = 0.0;
     m_molNumSpecies_new[kspec] = 0.0;
     /*
@@ -4587,17 +4586,35 @@ namespace VCSnonideal {
     vcs_VolPhase *Vphase;
     VCS_SPECIES_THERMO *st_ptr;
 
+    double *feSpecies;
+    if (stateCalc == VCS_STATECALC_OLD) {
+      feSpecies = VCS_DATA_PTR(m_feSpecies_old);
+      tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_old);
+      actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_old);
+    } else if (stateCalc == VCS_STATECALC_NEW) {
+      feSpecies = VCS_DATA_PTR(m_feSpecies_new);
+      tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_new);
+      actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_new);
+    }
+#ifdef DEBUG_MODE
+    else {
+      plogf("vcs_dfe: wrong stateCalc value");
+      plogendl();
+      std::exit(-1);
+    }
+#endif
+
 #ifdef DEBUG_MODE
     if (m_unitsState == VCS_DIMENSIONAL_G) {
       printf("vcs_dfe: called with wrong units state\n");
-      exit(-1);
+      std::exit(-1);
     }
 #endif
 #ifdef DEBUG_MODE
     if (stateCalc != VCS_STATECALC_OLD && stateCalc != VCS_STATECALC_NEW) {
       plogf("   --- Subroutine vcs_dfe called with bad stateCalc value: %d", stateCalc);
       plogendl();
-      exit(-1);
+      std::exit(-1);
     }
 #endif
     if (stateCalc == VCS_STATECALC_OLD) {
@@ -4609,7 +4626,7 @@ namespace VCSnonideal {
 	if (molNum != VCS_DATA_PTR(m_molNumSpecies_old)) {
 	  plogf("   --- vcs_dfe ERROR: called with bad molNumSpecies_old ptr");
 	  plogendl();
-	  exit(-1);
+	  std::exit(-1);
 	}
       }
 #endif
@@ -4623,7 +4640,7 @@ namespace VCSnonideal {
 	if (molNum != VCS_DATA_PTR(m_molNumSpecies_new)) {
 	  plogf("   --- vcs_dfe ERROR: called with bad molNumSpecies_new ptr");
 	  plogendl();
-	  exit(-1);
+	  std::exit(-1);
 	}
       }
 #endif
@@ -4648,13 +4665,7 @@ namespace VCSnonideal {
       plogendl();
     }
 #endif
-    if (stateCalc <= VCS_STATECALC_OLD) {
-      tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_old);
-      actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_old);
-    } else {
-      tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_new);
-      actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_new);
-    }
+ 
     tlogMoles = VCS_DATA_PTR(m_TmpPhase);
     /*
      * Might as well recalculate the phase mole vector
@@ -4737,24 +4748,24 @@ namespace VCSnonideal {
 	  exit(-1);
 	}
 #endif
-	m_feSpecies_curr[kspec] =
+	feSpecies[kspec] =
 	  m_SSfeSpecies[kspec] + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
       } else {
 	if (m_SSPhase[kspec]) {
-	  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
+	  feSpecies[kspec] = m_SSfeSpecies[kspec];
 	} else {
 	  if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
 	    iph = m_phaseID[kspec];
 	    if (tPhMoles_ptr[iph] > 0.0) { 
-	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
+	      feSpecies[kspec] = m_SSfeSpecies[kspec] 
 		+ log(actCoeff_ptr[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
 		- tlogMoles[m_phaseID[kspec]] - m_lnMnaughtSpecies[kspec] 
 		+ m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
 	    } else {
-	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
+	      feSpecies[kspec] = m_SSfeSpecies[kspec];
 	    }
 	  } else {
-	    m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
+	    feSpecies[kspec] = m_SSfeSpecies[kspec] 
 	      + log(actCoeff_ptr[kspec] * molNum[kspec])
 	      - tlogMoles[m_phaseID[kspec]] - m_lnMnaughtSpecies[kspec] 
 	      + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
@@ -4781,25 +4792,25 @@ namespace VCSnonideal {
 	      exit(-1);
 	    }
 #endif
-	    m_feSpecies_curr[kspec] = 
+	    feSpecies[kspec] = 
 	      m_SSfeSpecies[kspec] 
 	      + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];   
 	  } else {
 	    if (m_SSPhase[kspec]) {
-	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
+	      feSpecies[kspec] = m_SSfeSpecies[kspec];
 	    } else {
 	      if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
 		iph = m_phaseID[kspec];
 		if (tPhMoles_ptr[iph] > 0.0) { 
-		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
+		  feSpecies[kspec] = m_SSfeSpecies[kspec] 
 		    + log(actCoeff_ptr[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
 		    - tlogMoles[m_phaseID[kspec]] - m_lnMnaughtSpecies[kspec]
 		    + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase]; ;
 		} else {
-		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
+		  feSpecies[kspec] = m_SSfeSpecies[kspec];
 		}
 	      } else {
-		m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
+		feSpecies[kspec] = m_SSfeSpecies[kspec] 
 		  + log(actCoeff_ptr[kspec] * molNum[kspec]) 
 		  - tlogMoles[m_phaseID[kspec]] - m_lnMnaughtSpecies[kspec] 
 		  + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase]; 
@@ -4827,25 +4838,25 @@ namespace VCSnonideal {
 	      exit(-1);
 	    }
 #endif
-	    m_feSpecies_curr[kspec] = 
+	    feSpecies[kspec] = 
 	      m_SSfeSpecies[kspec] +
 	      m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase]; ;
 	  } else {
 	    if (m_SSPhase[kspec]) {
-	      m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
+	      feSpecies[kspec] = m_SSfeSpecies[kspec];
 	    } else {
 	      if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
 		iph = m_phaseID[kspec];
 		if (tPhMoles_ptr[iph] > 0.0) { 
-		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec]
+		  feSpecies[kspec] = m_SSfeSpecies[kspec]
 		    + log(actCoeff_ptr[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
 		    - tlogMoles[m_phaseID[kspec]] - m_lnMnaughtSpecies[kspec];
 		} else {
-		  m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec];
+		  feSpecies[kspec] = m_SSfeSpecies[kspec];
 		}
 	      } else {
 		st_ptr = m_speciesThermoList[kspec];
-		m_feSpecies_curr[kspec] = m_SSfeSpecies[kspec] 
+		feSpecies[kspec] = m_SSfeSpecies[kspec] 
 		  + log(actCoeff_ptr[kspec] * molNum[kspec]) 
 		  - tlogMoles[m_phaseID[kspec]] - m_lnMnaughtSpecies[kspec]; 
 	      }
@@ -4853,12 +4864,6 @@ namespace VCSnonideal {
 	  }
 	}
       }
-    }
-
-    if (stateCalc == VCS_STATECALC_OLD) { 
-      vcs_dcopy(VCS_DATA_PTR(m_feSpecies_old), VCS_DATA_PTR(m_feSpecies_curr), ltop);
-    } else {
-      vcs_dcopy(VCS_DATA_PTR(m_feSpecies_new), VCS_DATA_PTR(m_feSpecies_curr), ltop);
     }
 
   }
@@ -5072,7 +5077,6 @@ namespace VCSnonideal {
     SWAP(m_molNumSpecies_new[k1], m_molNumSpecies_new[k2], t1);
     SWAP(m_SSfeSpecies[k1], m_SSfeSpecies[k2], t1);
     SWAP(m_spSize[k1], m_spSize[k2], t1);
-    SWAP(m_feSpecies_curr[k1], m_feSpecies_curr[k2], t1);
     SWAP(m_deltaMolNumSpecies[k1], m_deltaMolNumSpecies[k2], t1);
     SWAP(m_feSpecies_old[k1], m_feSpecies_old[k2], t1);
     SWAP(m_feSpecies_new[k1], m_feSpecies_new[k2], t1);
