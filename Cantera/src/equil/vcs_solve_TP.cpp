@@ -1112,7 +1112,7 @@ namespace VCSnonideal {
 	    vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_old), 
 			    VCS_DATA_PTR(m_tPhaseMoles_old)));
       plogf("   --- Total tentative Dimensionless Gibbs Free Energy = %20.13E", 
-	    vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_feSpecies_curr), 
+	    vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_feSpecies_new), 
 			    VCS_DATA_PTR(m_tPhaseMoles_new)));
       plogendl();
     }
@@ -1153,7 +1153,7 @@ namespace VCSnonideal {
 	plogf("   Total kmoles of liquid = %15.7E\n", 0.0);
       }
       plogf("   Total New Dimensionless Gibbs Free Energy = %20.13E\n", 
-	    vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_feSpecies_curr),
+	    vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_feSpecies_new),
 			    VCS_DATA_PTR(m_tPhaseMoles_new)));
       plogf(" -----------------------------------------------------");
       plogendl();
@@ -1176,14 +1176,14 @@ namespace VCSnonideal {
       for (i = 0; i < m_numComponents; ++i) {
 	plogf("   ---   %-12.12s", m_speciesName[i].c_str()); plogf("    "); 
 	plogf("%14.6E%14.6E%14.6E%14.6E\n", m_molNumSpecies_old[i],
-	      m_molNumSpecies_new[i], m_feSpecies_old[i], m_feSpecies_curr[i]);
+	      m_molNumSpecies_new[i], m_feSpecies_old[i], m_feSpecies_new[i]);
       }
       for (i = m_numComponents; i < m_numSpeciesRdc; ++i) {
 	l1 = i - m_numComponents;
 	plogf("   ---   %-12.12s", m_speciesName[i].c_str());
 	plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n",
 	      m_rxnStatus[l1], m_molNumSpecies_old[i],
-	      m_molNumSpecies_new[i], m_feSpecies_old[i], m_feSpecies_curr[i],
+	      m_molNumSpecies_new[i], m_feSpecies_old[i], m_feSpecies_new[i],
 	      m_deltaGRxn_old[l1], m_deltaGRxn_new[l1]);
       }
       for (kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
@@ -1191,7 +1191,7 @@ namespace VCSnonideal {
 	plogf("   ---   %-12.12s", m_speciesName[kspec].c_str());
 	plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n",
 	      m_rxnStatus[l1], m_molNumSpecies_old[kspec],
-	      m_molNumSpecies_new[kspec], m_feSpecies_old[kspec], m_feSpecies_curr[kspec],
+	      m_molNumSpecies_new[kspec], m_feSpecies_old[kspec], m_feSpecies_new[kspec],
 	      m_deltaGRxn_old[l1], m_deltaGRxn_new[l1]);
       }
       plogf("   ---"); print_space(56);
@@ -1211,7 +1211,7 @@ namespace VCSnonideal {
 	    vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_old), 
 			    VCS_DATA_PTR(m_tPhaseMoles_old)));
       plogf("   --- Total New Dimensionless Gibbs Free Energy = %20.13E", 
-	    vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_feSpecies_curr), 
+	    vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_feSpecies_new), 
 			    VCS_DATA_PTR(m_tPhaseMoles_new)));
       plogendl();
       if (m_VCount->Its > 550) {
@@ -1242,7 +1242,7 @@ namespace VCSnonideal {
     vcs_dcopy(VCS_DATA_PTR(m_actCoeffSpecies_old), 
 	      VCS_DATA_PTR(m_actCoeffSpecies_new), m_numSpeciesRdc);
     vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_old), VCS_DATA_PTR(m_deltaGRxn_new), m_numRxnRdc);
-    vcs_dcopy(VCS_DATA_PTR(m_feSpecies_old), VCS_DATA_PTR(m_feSpecies_curr), m_numSpeciesRdc);
+    vcs_dcopy(VCS_DATA_PTR(m_feSpecies_old), VCS_DATA_PTR(m_feSpecies_new), m_numSpeciesRdc);
       
     vcs_updateVP(0);
     /*
@@ -5155,11 +5155,38 @@ namespace VCSnonideal {
    *
    *   @param iphase       phase index of the phase to be calculated
    *   @param doDeleted    boolean indicating whether to do deleted species or not
+   *   @param stateCalc    integer describing which set of free energies
+   *                       to use and where to stick the results.
+   *
+   *    NOTE: this is currently not used used anywhere. It may be in the future?
    */
-  void VCS_SOLVE::vcs_deltag_Phase(const int iphase, const bool doDeleted) {
+  void VCS_SOLVE::vcs_deltag_Phase(const int iphase, const bool doDeleted,
+				   const int stateCalc) {
     int iph;
     int  irxn, kspec, kcomp;
     double *dtmp_ptr;
+
+    double *feSpecies;
+    double *deltaGRxn;
+    double *actCoeffSpecies;
+    if (stateCalc == VCS_STATECALC_NEW) {
+      feSpecies = VCS_DATA_PTR(m_feSpecies_new);
+      deltaGRxn = VCS_DATA_PTR(m_deltaGRxn_new);
+      actCoeffSpecies = VCS_DATA_PTR(m_actCoeffSpecies_new);
+
+    } else if (stateCalc == VCS_STATECALC_OLD) {
+      feSpecies = VCS_DATA_PTR(m_feSpecies_old);
+      deltaGRxn = VCS_DATA_PTR(m_deltaGRxn_old);
+      actCoeffSpecies = VCS_DATA_PTR(m_actCoeffSpecies_old);
+    }
+#ifdef DEBUG_MODE 
+    else {
+      plogf("vcs_deltag_Phase: we shouldn't be here\n");
+      plogendl();
+      exit(-1);
+    }
+#endif
+
     int irxnl = m_numRxnRdc;
     if (doDeleted) irxnl = m_numRxnTot;
     vcs_VolPhase *vPhase = m_VolPhaseList[iphase];
@@ -5184,10 +5211,10 @@ namespace VCSnonideal {
 #endif
       if (kspec >= m_numComponents) {
 	irxn = kspec - m_numComponents;
-	m_deltaGRxn_new[irxn] = m_feSpecies_curr[kspec];
+	deltaGRxn[irxn] = feSpecies[kspec];
 	dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
 	for (kcomp = 0; kcomp < m_numComponents; ++kcomp) {
-	  m_deltaGRxn_new[irxn] += dtmp_ptr[kcomp] * m_feSpecies_curr[kcomp];
+	  deltaGRxn[irxn] += dtmp_ptr[kcomp] * feSpecies[kcomp];
 	}
       }
     } 
@@ -5203,10 +5230,10 @@ namespace VCSnonideal {
 	  iph = m_phaseID[kspec];
 	  if (iph == iphase) {
 	    if (m_molNumSpecies_old[kspec] > 0.0) zeroedPhase = FALSE;
-	    m_deltaGRxn_new[irxn] = m_feSpecies_curr[kspec];
+	    deltaGRxn[irxn] = feSpecies[kspec];
 	    dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
 	    for (kcomp = 0; kcomp < m_numComponents; ++kcomp) {
-	      m_deltaGRxn_new[irxn] += dtmp_ptr[kcomp] * m_feSpecies_curr[kcomp];
+	      deltaGRxn[irxn] += dtmp_ptr[kcomp] * feSpecies[kcomp];
 	    }
 	  }
 	}
@@ -5258,9 +5285,9 @@ namespace VCSnonideal {
 	  kspec = m_indexRxnToSpecies[irxn];
 	  iph = m_phaseID[kspec];
 	  if (iph == iphase) {
-	    if (m_deltaGRxn_new[irxn] >  50.0) m_deltaGRxn_new[irxn] =  50.0;
-	    if (m_deltaGRxn_new[irxn] < -50.0) m_deltaGRxn_new[irxn] = -50.0;
-	    phaseDG -= exp(-m_deltaGRxn_new[irxn])/m_actCoeffSpecies_new[kspec];
+	    if (deltaGRxn[irxn] >  50.0) deltaGRxn[irxn] =  50.0;
+	    if (deltaGRxn[irxn] < -50.0) deltaGRxn[irxn] = -50.0;
+	    phaseDG -= exp(-deltaGRxn[irxn])/actCoeffSpecies[kspec];
 	  }
 	}
 	/*
@@ -5270,7 +5297,7 @@ namespace VCSnonideal {
 	  kspec = m_indexRxnToSpecies[irxn];
 	  iph = m_phaseID[kspec];
 	  if (iph == iphase) {
-	    m_deltaGRxn_new[irxn] = 1.0 - phaseDG;
+	    deltaGRxn[irxn] = 1.0 - phaseDG;
 	  }
 	}
       }

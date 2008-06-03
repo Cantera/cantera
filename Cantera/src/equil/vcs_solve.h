@@ -563,9 +563,16 @@ public:
    *     phase.
    *
    * @param iphase       phase index of the phase to be calculated
-   * @param doDeleted    boolean indicating whether to do deleted species or not
+   * @param doDeleted    boolean indicating whether to do deleted 
+   *                     species or not
+   * @param stateCalc    integer describing which set of free energies
+   *                     to use and where to stick the results.
+   *
+   *    NOTE: this is currently not used used anywhere. 
+   *          It may be in the future?
    */
-  void vcs_deltag_Phase(const int iphase, const bool doDeleted);
+  void vcs_deltag_Phase(const int iphase, const bool doDeleted, 
+			const int stateCalc);
 
   //!     Birth guess returns the number of moles of a species 
   //!     that is coming back to life.
