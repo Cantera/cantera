@@ -1976,125 +1976,130 @@ namespace VCSnonideal {
      *          Return a Flag indicating whether convergence occurred
      */
     return solveFail;
-  } /* vcs_solve_TP() **********************************************************/
-
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
-
+  } 
+  /*********************************************************************************/
+ 
+  //  Minor species alternative calculation 
+  /*
+   *    This is based upon the following approximation: 
+   *    The mole fraction changes due to these reactions don't affect 
+   *    the mole numbers of the component species. Therefore the following 
+   *    approximation is valid for a small component of an ideal phase:
+   *
+   *       0 = m_deltaGrxn_old(I) + log(molNum_new(I)/molNum_old(I))
+   * 
+   *       m_deltaGrxn_old contains the contribution from
+   *
+   *        m_feSpecies_old(I) =
+   *              m_SSfeSpecies(I) +
+   *              log(ActCoeff[i] * molNum_old(I) / m_tPhaseMoles_old(iph)) 
+   *    Thus,
+   * 
+   *        molNum_new(I)= molNum_old(I) * EXP(-m_deltaGrxn_old(I))
+   * 
+   *    Most of this section is mainly restricting the update to reasonable 
+   *    values.
+   *    We restrict the update a factor of 1.0E10 up and 1.0E-10 down 
+   *    because we run into trouble with the addition operator due to roundoff
+   *    if we go larger than ~1.0E15. Roundoff will then sometimes produce
+   *    zero mole fractions.
+   *
+   *    Note: This routine was generalized to incorporate
+   *          nonideal phases and phases on the molality basis
+   *
+   *    Input:
+   *     ------
+   *     @param kspec   The current species and corresponding formation
+   *                    reaction number.
+   *     @param irxn    The current species and corresponding formation
+   *                    reaction number.
+   *
+   *    Output:
+   *    ---------
+   *     @param do_delete:  BOOLEAN which if true on return, then we branch 
+   *                        to the section that deletes a species from the
+   *                        current set of active species.
+   *
+   *     @param dx          The change in mole number
+   */
   double VCS_SOLVE::minor_alt_calc(int kspec, int irxn, int *do_delete
 #ifdef DEBUG_MODE
 				   , char *ANOTE  
 #endif
-				   )
-   
-    /**************************************************************************
-     *
-     * minor_alt_calc:
-     *
-     *        Minor species alternative calculation 
-     *       --------------------------------------- 
-     * 
-     *  This is based upon the following approximation: 
-     *    The mole fraction changes due to these reactions don't affect 
-     *    the mole numbers of the component species. Therefore the following 
-     *    approximation is valid for an ideal solution phase:
-     *       0 = M_DELTAGRXN_NEW(I) + log(WT(I)/W(I))
-     *
-     *          W(i) = Old mole number of species i in the phase
-     *          WT(i) = Trial new mole number of species i in the pahse
-     * 
-     *       (M_DELTAGRXN_NEW contains the contribution from
-     *         FF(I) + log(ActCoeff[i] * W(I)/Total_Moles) ) 
-     *    Thus, 
-     *        WT(I) = W(I) EXP(-M_DELTAGRXN_NEW(I)) 
-     * 
-     *    Most of this section is mainly restricting the update to reasonable 
-     *    values.
-     *
-     *
-     *    Note: This routine was generalized to incorporate
-     *          nonideal phases.
-     *
-     *    Input:
-     *     ------
-     *     kspec, irxn = the current species and corresponding formation
-     *                   reaction number.
-     *    Output:
-     *    ---------
-     *     return value: dx = the change in mole number
-     *     do_delete:  BOOLEAN which if true on return, then we branch 
-     *                      to the section that deletes a species from the
-     *                      current set of active species.
-     *************************************************************************/
-  {
-    double dx;
+				   ) {
+    double dx = 0.0;
     double  w_kspec  = m_molNumSpecies_old[kspec];
     double *wt_kspec = VCS_DATA_PTR(m_molNumSpecies_new) + kspec;
     double  wTrial;
     double *ds_kspec = VCS_DATA_PTR(m_deltaMolNumSpecies) + kspec;
     double  dg_irxn  = m_deltaGRxn_new[irxn];
-    int iphase = m_phaseID[kspec];
-    vcs_VolPhase *Vphase = m_VolPhaseList[iphase];
+    double ac0, ac, w0, dd, ac1, acprime, ;
+    int iph = m_phaseID[kspec];
+    vcs_VolPhase *Vphase = m_VolPhaseList[iph];
     *do_delete = FALSE;
     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
       if (w_kspec <= 0.0) {
 	w_kspec = VCS_DELETE_MINORSPECIES_CUTOFF;
       }
-      if (dg_irxn < -20.) {
-	dg_irxn = -20.;
+      if (dg_irxn < -23.) {
+	dg_irxn = -23.;
       }
 #ifdef DEBUG_MODE
       sprintf(ANOTE,"minor species alternative calc");
 #endif
-      if (dg_irxn >= 82.0) {
-	(*wt_kspec) = w_kspec * 1.0e-6;
+      if (dg_irxn >= 23.0) {
+	(*wt_kspec) = w_kspec * 1.0e-10;
 	if (w_kspec < VCS_DELETE_MINORSPECIES_CUTOFF) {
 	  goto L_ZERO_SPECIES;
 	}
+	dx = (*wt_kspec) - w_kspec;
+	(*ds_kspec) = dx;
+	return dx;
       } else {
 	if (fabs(dg_irxn) <= m_tolmin2) {
 	  (*wt_kspec) = w_kspec;
 	  (*ds_kspec) = 0.0;
 	  return 0.0;
 	}
-	//  c = log(ActCoeff[kspec] * w_kspec) - dg_irxn;
-    
-
-
       }
 
-      if (dg_irxn > 10.0) {
-	(*wt_kspec) = w_kspec * 1.0e-5;
-	if (w_kspec <  VCS_DELETE_MINORSPECIES_CUTOFF) {
-	  goto L_ZERO_SPECIES;
-	}
-      } else {
-	double ac0 = m_actCoeffSpecies_new[kspec];
-	double ac  = ac0;
-	double w0 = w_kspec;
-	double dd = exp(-dg_irxn);
+      ac0 = m_actCoeffSpecies_new[kspec];
+      ac  = ac0;
+      w0 = w_kspec;
+      dd = exp(-dg_irxn);
 
-	wTrial = w0 * ac0 / ac * dd;
-	*wt_kspec = wTrial;
-	Vphase->setMolesFromVCS(VCS_DATA_PTR(m_molNumSpecies_new));
-	Vphase->sendToVCSActCoeff(VCS_DATA_PTR(m_actCoeffSpecies_new));
-	double ac1 = m_actCoeffSpecies_new[kspec];
-	double acprime = 0.0;
-	if (fabs(wTrial - w0) > 1.0E-8 * w0) {
-	  acprime = (ac1 - ac0) / (wTrial - w0);
+      wTrial = w0 * ac0 / ac * dd;
+      *wt_kspec = wTrial;
+      Vphase->setMolesFromVCS(VCS_DATA_PTR(m_molNumSpecies_new));
+      Vphase->sendToVCSActCoeff(VCS_DATA_PTR(m_actCoeffSpecies_new));
+      ac1 = m_actCoeffSpecies_new[kspec];
+      acprime = 0.0;
+      if (fabs(wTrial - w0) > 1.0E-8 * w0) {
+	acprime = (ac1 - ac0) / (wTrial - w0);
+      }
+      double jac = acprime * wTrial + ac1;
+      double fTrial = ac1 * wTrial - ac0*w0*dd;
+      double w2 = wTrial - fTrial / jac;
+      if (w2 > 100. * w0) {
+	double molNumMax = 0.0001 * m_tPhaseMoles_old[iph];
+	if (molNumMax > 1.0E10 * w0) {
+	  molNumMax = 1.0E10 * w0;
 	}
-	double jac = acprime * wTrial + ac1;
-	double fTrial = ac1 * wTrial - ac0*w0*dd;
-	double w2 = wTrial - fTrial / jac;
-	if (w2 > 100.*w0) {
-	  *wt_kspec = 100.0 * w0;
-	} else if (100. * w2 < w0) {
-	  *wt_kspec = 0.01 * w0;
+	if (molNumMax < 100. * w0) {
+	  molNumMax =  100. * w0;
+	}
+	if (w2 > molNumMax) {
+	  *wt_kspec = molNumMax;
 	} else {
 	  *wt_kspec = w2;
 	}
+
+      } else if (1.0E10 * w2 < w0) {
+	*wt_kspec = 1.0E-10 * w0;
+      } else {
+	*wt_kspec = w2;
       }
+      
 
       if ((*wt_kspec) <  VCS_DELETE_MINORSPECIES_CUTOFF) {
 	goto L_ZERO_SPECIES;
@@ -2124,6 +2129,7 @@ namespace VCSnonideal {
       sprintf(ANOTE,"voltage species alternative calc");
 #endif
     }
+    (*ds_kspec) = dx;
     return dx;
   }
   /*****************************************************************************/
@@ -4075,8 +4081,8 @@ namespace VCSnonideal {
   } 
   /***************************************************************************************/
 
-  //!  Choose a species to test for the next component
-  /*!
+  //  Choose a species to test for the next component
+  /*
    *  We make the choice based on testing (molNum[i] * spSize[i]) for its maximum value.
    *  Preference for single species phases is also made.
    *   
@@ -5371,4 +5377,3 @@ namespace VCSnonideal {
   }
   /*******************************************************************************/
 }
-

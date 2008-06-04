@@ -1110,23 +1110,55 @@ private:
    */
   bool recheck_deleted_phase(const int iph);
     
-  //! Alternative treatment for the update of a minor species
+  //!  Minor species alternative calculation 
   /*!
-   * This calculation assumes that the component basis species mole
-   * numbers don't change as the minor species change. Then, it's a
-   * straightforward independent calculation to find the minor species
-   * concentrations. 
+   *    This is based upon the following approximation: 
+   *    The mole fraction changes due to these reactions don't affect 
+   *    the mole numbers of the component species. Therefore the following 
+   *    approximation is valid for a small component of an ideal phase:
    *
-   * @param kspec Species index of the minor species
-   * @param irxn  Rxn index of the same minor species
-   * @param do_delete  True, if the species is deleted from the mechanism
-   *                   because the mole numbers got too small.
+   *       0 = m_deltaGrxn_old(I) + log(molNum_new(I)/molNum_old(I))
+   * 
+   *       m_deltaGrxn_old contains the contribution from
+   *
+   *        m_feSpecies_old(I) =
+   *              m_SSfeSpecies(I) +
+   *              log(ActCoeff[i] * molNum_old(I) / m_tPhaseMoles_old(iph)) 
+   *    Thus,
+   * 
+   *        molNum_new(I)= molNum_old(I) * EXP(-m_deltaGrxn_old(I))
+   * 
+   *    Most of this section is mainly restricting the update to reasonable 
+   *    values.
+   *    We restrict the update a factor of 1.0E10 up and 1.0E-10 down 
+   *    because we run into trouble with the addition operator due to roundoff
+   *    if we go larger than ~1.0E15. Roundoff will then sometimes produce
+   *    zero mole fractions.
+   *
+   *    Note: This routine was generalized to incorporate
+   *          nonideal phases and phases on the molality basis
+   *
+   *    Input:
+   *     ------
+   *     @param kspec   The current species and corresponding formation
+   *                    reaction number.
+   *     @param irxn    The current species and corresponding formation
+   *                    reaction number.
+   *
+   *    Output:
+   *    ---------
+   *     @param do_delete:  BOOLEAN which if true on return, then we branch 
+   *                        to the section that deletes a species from the
+   *                        current set of active species.
+   *
+   *     @param dx          The change in mole number
    */
   double minor_alt_calc(int kspec, int irxn, int *do_delete
 #ifdef DEBUG_MODE
 			, char *ANOTE  
 #endif
 			);
+
   //!  This routine optimizes the minimization of the total gibbs free
   //!  energy by making sure the slope of the following functional stays
   //!  negative:
