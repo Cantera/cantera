@@ -86,7 +86,7 @@ namespace VCSnonideal {
     if (m_unitsState == VCS_DIMENSIONAL_G) {
       vcs_nondim_TP();  
     }
-    vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 0, 0, m_numSpeciesTot);  
+    vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesTot);  
     /* ******************************************************** */
     /* *** PRINT OUT RESULTS ********************************** */
     /* ******************************************************** */

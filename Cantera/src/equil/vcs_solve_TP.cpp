@@ -51,8 +51,7 @@ namespace VCSnonideal {
 #  endif 
 #endif
   /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
+
 
 #ifdef DEBUG_MODE
   void VCS_SOLVE::checkDelta1(double * const dsLocal, 
@@ -285,7 +284,7 @@ namespace VCSnonideal {
     /* ***************************************************************************** */
     /* **** EVALUATE ALL CHEMICAL POTENTIALS AT THE OLD (CURRENT) MOLE NUMBERS ***** */
     /* ***************************************************************************** */
-    vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
+    vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
 
     /*
      *  HKM -> If there was a machine estimate, we used to branch
@@ -383,7 +382,7 @@ namespace VCSnonideal {
       }
 #endif
       vcs_elcorr(VCS_DATA_PTR(sm), VCS_DATA_PTR(wx));
-      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
+      vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
     }
 #ifdef DEBUG_MODE	
     else {
@@ -394,7 +393,7 @@ namespace VCSnonideal {
     }
 #endif
     // Update the phase objects with the contents of the soln vector
-    vcs_updateVP(0);
+    vcs_updateVP(VCS_STATECALC_OLD);
     vcs_deltag(0, false, VCS_STATECALC_OLD);
     iti = 0;
     goto L_MAINLOOP_ALL_SPECIES;
@@ -420,7 +419,7 @@ namespace VCSnonideal {
        *          We have already evaluated the major non-components 
        */
       if (uptodate_minors == FALSE) {
-	vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
+	vcs_dfe(VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
 	vcs_deltag(1, false, VCS_STATECALC_NEW);
       }
       uptodate_minors = TRUE;
@@ -1094,8 +1093,8 @@ namespace VCSnonideal {
      *         solution values. We only calculate a subset of these, because 
      *         we have only updated a subset of the W(). 
      */
-    vcs_updateVP(1);
-    vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_new), VCS_STATECALC_NEW, 0, 0, m_numSpeciesTot);
+    vcs_updateVP(VCS_STATECALC_NEW);
+    vcs_dfe(VCS_STATECALC_NEW, 0, 0, m_numSpeciesTot);
 
     /*
      *         Evaluate DeltaG for all components if ITI=0, and for 
@@ -1243,7 +1242,7 @@ namespace VCSnonideal {
     vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_old), VCS_DATA_PTR(m_deltaGRxn_new), m_numRxnRdc);
     vcs_dcopy(VCS_DATA_PTR(m_feSpecies_old), VCS_DATA_PTR(m_feSpecies_new), m_numSpeciesRdc);
       
-    vcs_updateVP(0);
+    vcs_updateVP(VCS_STATECALC_OLD);
     /*
      *       Increment the iteration counters
      */
@@ -1319,7 +1318,7 @@ namespace VCSnonideal {
 			VCS_DATA_PTR(sm), VCS_DATA_PTR(ss), test, 
 			&usedZeroedSpecies);
       if (retn != VCS_SUCCESS) return retn;
-      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
+      vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
       vcs_deltag(0, true, VCS_STATECALC_OLD);
       uptodate_minors = TRUE;
       if (conv) {
@@ -1352,7 +1351,7 @@ namespace VCSnonideal {
       }
 #endif
       vcs_elcorr(VCS_DATA_PTR(sm), VCS_DATA_PTR(wx));
-      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
+      vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
       vcs_deltag(0, true,  VCS_STATECALC_OLD);
       uptodate_minors = TRUE;
     }
@@ -1587,7 +1586,7 @@ namespace VCSnonideal {
 	     *   For this special case, we must reevaluate thermo functions
 	     */
 	    if (iti != 0) {
-	      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 0, kspec, kspec+1);
+	      vcs_dfe(VCS_STATECALC_OLD, 0, kspec, kspec+1);
 	      vcs_deltag(0, false, VCS_STATECALC_OLD);
 	    }
 	  }
@@ -1668,7 +1667,7 @@ namespace VCSnonideal {
        *       for minor species, if needed.
        */
       if (iti != 0) {
-	vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
+	vcs_dfe(VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
 	vcs_deltag(1, false, VCS_STATECALC_OLD);
 	uptodate_minors = TRUE;
       }
@@ -1712,7 +1711,7 @@ namespace VCSnonideal {
     /*
      *    Recalculate the element abundance vector again
      */
-    vcs_updateVP(0);
+    vcs_updateVP(VCS_STATECALC_OLD);
     vcs_elab();
    
     /*        LEC is only true when we are near the end game */
@@ -1778,7 +1777,7 @@ namespace VCSnonideal {
       /*
        *      Go back to evaluate the total moles of gas and liquid. 
        */
-      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
+      vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
       vcs_deltag(0, false, VCS_STATECALC_OLD);
       /*
        * 
@@ -1868,7 +1867,7 @@ namespace VCSnonideal {
      *        for minor species and go back to do a full iteration
      */
     MajorSpeciesHaveConverged = true;
-    vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
+    vcs_dfe(VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
     vcs_deltag(0, false, VCS_STATECALC_OLD);
     iti = 0;
     goto L_MAINLOOP_ALL_SPECIES;
@@ -1887,7 +1886,7 @@ namespace VCSnonideal {
        *        for minor species and go back to do a full iteration
        */
       MajorSpeciesHaveConverged = true;
-      vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
+      vcs_dfe(VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
       vcs_deltag(0, false, VCS_STATECALC_OLD);
       iti = 0;
       goto L_MAINLOOP_ALL_SPECIES;
@@ -1917,7 +1916,7 @@ namespace VCSnonideal {
      * information as the vcs object. This also update the Cantera objects
      * with this information.
      */
-    vcs_updateVP(0);
+    vcs_updateVP(VCS_STATECALC_OLD);
     /*
      *    Store the final Delta G values for each non-component species
      *    in the species slot rather than the reaction slot
@@ -2770,7 +2769,7 @@ namespace VCSnonideal {
       }
     }
 
-    vcs_dfe(VCS_DATA_PTR(m_molNumSpecies_old), VCS_STATECALC_OLD, 0, 0, m_numSpeciesTot);
+    vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesTot);
     vcs_deltag(0, true, VCS_STATECALC_OLD);
 
     retn = 0;
@@ -2918,7 +2917,7 @@ namespace VCSnonideal {
     for (iph = 0; iph < m_numPhases; iph++) {
       m_tPhaseMoles_new[iph] = m_tPhaseMoles_old[iph] + al * m_deltaPhaseMoles[iph];
     }
-    vcs_updateVP(1);
+    vcs_updateVP(VCS_STATECALC_NEW);
    
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
@@ -2932,7 +2931,7 @@ namespace VCSnonideal {
      *           only step is being carried out, then we don't need to
      *           update the minor noncomponents. 
      */
-    vcs_dfe(dptr, VCS_STATECALC_NEW, 0, 0, m_numSpeciesRdc);
+    vcs_dfe(VCS_STATECALC_NEW, 0, 0, m_numSpeciesRdc);
 
     /*
      *           Evaluate DeltaG for all components if ITI=0, and for 
@@ -4076,46 +4075,48 @@ namespace VCSnonideal {
   } 
   /***************************************************************************************/
 
-
-  int 
-  VCS_SOLVE::vcs_basisOptMax(const double * const x, const int j, const int n) {
-    int i;
+  //!  Choose a species to test for the next component
+  /*!
+   *  We make the choice based on testing (molNum[i] * spSize[i]) for its maximum value.
+   *  Preference for single species phases is also made.
+   *   
+   * @param molNum  Mole number vector
+   * @param j       index into molNum[] that indicates where the search will start from
+   *                Previous successful components are swapped into the fronto of
+   *                molNum[].
+   * @param n       Length of molNum[]
+   */
+  int VCS_SOLVE::vcs_basisOptMax(const double * const molNum, const int j,
+				 const int n) {
     int largest = j;
-    double big = x[j];
-
-    assert(m_spSize[j] > 0.0);
-    big *= m_spSize[j];
- 
-    for (i = j + 1; i < n; ++i) {
-      assert(m_spSize[i] > 0.0);
-
+    double big = molNum[j] * m_spSize[j];
+    AssertThrowVCS(m_spSize[j] > 0.0, "spsize is nonpos");
+    for (int i = j + 1; i < n; ++i) {
+      AssertThrowVCS(m_spSize[i] > 0.0, "spsize is nonpos");
       bool doSwap = false;
       if (m_SSPhase[j]) {
-	doSwap = (x[i] * m_spSize[i]) > (big);
+	doSwap = (molNum[i] * m_spSize[i]) > (big);
 	if (!m_SSPhase[i]) {
 	  if (doSwap) {
-	    doSwap = (x[i]) > (x[largest]);
+	    doSwap = (molNum[i]) > (molNum[largest]);
 	  }
 	}
       } else {
 	if (m_SSPhase[i]) {
-	  doSwap = (x[i] * m_spSize[i]) > (big);
+	  doSwap = (molNum[i] * m_spSize[i]) > (big);
 	  if (!doSwap) {
-	    doSwap = (x[i]) > (x[largest]);
+	    doSwap = (molNum[i]) > (molNum[largest]);
 	  }
 	} else {
-	  doSwap = (x[i] * m_spSize[i]) > (big);
+	  doSwap = (molNum[i] * m_spSize[i]) > (big);
 	}
       }
-
       if (doSwap) {
 	largest = i;
-	big = x[i] * m_spSize[i];
+	big = molNum[i] * m_spSize[i];
       }
-    } 
-    
+    }
     return largest;
-
   }
   /**********************************************************************************/
 
@@ -4576,8 +4577,8 @@ namespace VCSnonideal {
    *                           the same T and P as the solution.
    *     tg     : Total Number of moles in the phase.
    */
-  void VCS_SOLVE::vcs_dfe(double const * molNum, const int stateCalc,
-			  int ll, int lbot, int ltop) {
+  void VCS_SOLVE::vcs_dfe(const int stateCalc,
+			  const int ll, const int lbot, const int ltop) {
     int l1, l2, iph, kspec, irxn;
     int iphase;
     double *tPhMoles_ptr;
@@ -4587,20 +4588,24 @@ namespace VCSnonideal {
     VCS_SPECIES_THERMO *st_ptr;
 
     double *feSpecies;
+    double * molNum;
     if (stateCalc == VCS_STATECALC_OLD) {
       feSpecies = VCS_DATA_PTR(m_feSpecies_old);
       tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_old);
       actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_old);
+      molNum = VCS_DATA_PTR(m_molNumSpecies_old);
     } else if (stateCalc == VCS_STATECALC_NEW) {
       feSpecies = VCS_DATA_PTR(m_feSpecies_new);
       tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_new);
       actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_new);
+      molNum = VCS_DATA_PTR(m_molNumSpecies_new);
     }
 #ifdef DEBUG_MODE
     else {
       plogf("vcs_dfe: wrong stateCalc value");
+      plogf("   --- Subroutine vcs_dfe called with bad stateCalc value: %d", stateCalc);
       plogendl();
-      std::exit(-1);
+      std::exit(-1); 
     }
 #endif
 
@@ -4610,42 +4615,6 @@ namespace VCSnonideal {
       std::exit(-1);
     }
 #endif
-#ifdef DEBUG_MODE
-    if (stateCalc != VCS_STATECALC_OLD && stateCalc != VCS_STATECALC_NEW) {
-      plogf("   --- Subroutine vcs_dfe called with bad stateCalc value: %d", stateCalc);
-      plogendl();
-      std::exit(-1);
-    }
-#endif
-    if (stateCalc == VCS_STATECALC_OLD) {
-      if (molNum == 0) {
-	molNum = VCS_DATA_PTR(m_molNumSpecies_old);
-      } 
-#ifdef DEBUG_MODE
-      else {
-	if (molNum != VCS_DATA_PTR(m_molNumSpecies_old)) {
-	  plogf("   --- vcs_dfe ERROR: called with bad molNumSpecies_old ptr");
-	  plogendl();
-	  std::exit(-1);
-	}
-      }
-#endif
-    }
-    if (stateCalc == VCS_STATECALC_NEW) {
-      if (molNum == 0) {
-	molNum = VCS_DATA_PTR(m_molNumSpecies_new);
-      } 
-#ifdef DEBUG_MODE
-      else {
-	if (molNum != VCS_DATA_PTR(m_molNumSpecies_new)) {
-	  plogf("   --- vcs_dfe ERROR: called with bad molNumSpecies_new ptr");
-	  plogendl();
-	  std::exit(-1);
-	}
-      }
-#endif
-    }
-
 
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
@@ -4971,7 +4940,6 @@ namespace VCSnonideal {
    *  @param vcsState Determines where to get the mole numbers from.
    *                -  VCS_STATECALC_OLD -> from m_molNumSpecies_old
    *                -  VCS_STATECALC_NEW -> from m_molNumSpecies_new
-   *
    */
   void VCS_SOLVE::vcs_updateVP(const int vcsState) {
     vcs_VolPhase *Vphase;
@@ -4986,7 +4954,7 @@ namespace VCSnonideal {
       }
 #ifdef DEBUG_MODE
       else {
-	plogf("we shouldn't be here");
+	plogf("vcs_updateVP ERROR: wrong stateCalc value: %d", vcsState);
 	plogendl();
 	std::exit(-1);
       }
@@ -5008,8 +4976,7 @@ namespace VCSnonideal {
    *  @param k2          second row/column value to be switched
    */
   void VCS_SOLVE::vcs_switch2D(double * const * const Jac, 
-			       const int k1, const int k2) const
-  {
+			       const int k1, const int k2) const {
     int i;
     register double dtmp;
     if (k1 == k2) return;

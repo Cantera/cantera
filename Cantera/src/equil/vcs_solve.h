@@ -221,11 +221,18 @@ public:
   int vcs_basopt(const int doJustComponents, double aw[], double sa[], double sm[], 
 		 double ss[], double test, int * const usedZeroedSpecies);
 
-  //!  Choose a species for the next component
+  //!  Choose a species to test for the next component
   /*!
+   *  We make the choice based on testing (molNum[i] * spSize[i]) for its maximum value.
+   *  Preference for single species phases is also made.
    *   
-   */
-  int vcs_basisOptMax(const double *const x, const int j, const int n);
+   *    @param molNum  Mole number vector
+   *    @param j       index into molNum[] that indicates where the search will start from
+   *                   Previous successful components are swapped into the fronto of
+   *                   molNum[].
+   *    @param n       Length of molNum[]
+   */ 
+  int vcs_basisOptMax(const double *const molNum, const int j, const int n);
 
   //! Evaluate the species category for the indicated species
   /*!
@@ -444,10 +451,7 @@ public:
    *                to the species between LBOT <= i < LTOP. Usually 
    *                 LBOT and LTOP will be equal to 0 and MR, respectively.
    * @param ltop    Top value of the loops
-   *  
-   * @param z   z[i]   : Number of moles of species i 
-   *                   -> This can either be the current solution vector WT() 
-   *                      or the actual solution vector W() 
+   *
    *
    * @param stateCalc   Determines whether z is old or new or tentative:
    *             1: Use the tentative values for the total number of 
@@ -461,7 +465,7 @@ public:
    *              the same T and P as the solution.
    *     tg     : Total Number of moles in the phase.
    */
-  void vcs_dfe(double const * z, const int stateCalc, int ll, int lbot, int ltop);
+  void vcs_dfe(const int stateCalc, const int ll, const int lbot, const int ltop);
 
   //!  This routine uploads the state of the system into all of the 
   //!  vcs_VolumePhase objects in the current problem.
@@ -471,7 +475,7 @@ public:
    *                -  VCS_STATECALC_NEW -> from m_molNumSpecies_new
    *
    */
-  void vcs_updateVP(const int vcsState);
+  void vcs_updateVP(const int stateCalc);
  
 
   //! Calculates formation reaction step sizes.
