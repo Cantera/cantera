@@ -706,6 +706,8 @@ namespace VCSnonideal {
 	dx = minor_alt_calc(kspec, irxn, &soldel);
 #endif
 	m_deltaMolNumSpecies[kspec] = dx;
+	m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + dx;
+
 	if (soldel) {
 	  /*******************************************************************/
 	  /*****  DELETE MINOR SPECIES LESS THAN  VCS_DELETE_SPECIES_CUTOFF  */
@@ -2026,16 +2028,13 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 				   , char *ANOTE  
 #endif
-				   ) {
+				   ) const {
     double dx = 0.0;
-    double  w_kspec  = m_molNumSpecies_old[kspec];
-    double *wt_kspec = VCS_DATA_PTR(m_molNumSpecies_new) + kspec;
-    double  wTrial;
-    double *ds_kspec = VCS_DATA_PTR(m_deltaMolNumSpecies) + kspec;
-    double  dg_irxn  = m_deltaGRxn_new[irxn];
-    double ac0, ac, w0, dd, ac1, acprime, ;
+    double w_kspec = m_molNumSpecies_old[kspec];
+    double molNum_kspec_new;
+    double wTrial;
+    double dg_irxn = m_deltaGRxn_old[irxn];
     int iph = m_phaseID[kspec];
-    vcs_VolPhase *Vphase = m_VolPhaseList[iph];
     *do_delete = FALSE;
     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
       if (w_kspec <= 0.0) {
@@ -2048,61 +2047,44 @@ namespace VCSnonideal {
       sprintf(ANOTE,"minor species alternative calc");
 #endif
       if (dg_irxn >= 23.0) {
-	(*wt_kspec) = w_kspec * 1.0e-10;
+        molNum_kspec_new = w_kspec * 1.0e-10;
 	if (w_kspec < VCS_DELETE_MINORSPECIES_CUTOFF) {
 	  goto L_ZERO_SPECIES;
 	}
-	dx = (*wt_kspec) - w_kspec;
-	(*ds_kspec) = dx;
+	dx = molNum_kspec_new - w_kspec;
 	return dx;
       } else {
 	if (fabs(dg_irxn) <= m_tolmin2) {
-	  (*wt_kspec) = w_kspec;
-	  (*ds_kspec) = 0.0;
+	  molNum_kspec_new = w_kspec;
 	  return 0.0;
 	}
       }
-
-      ac0 = m_actCoeffSpecies_new[kspec];
-      ac  = ac0;
-      w0 = w_kspec;
-      dd = exp(-dg_irxn);
-
-      wTrial = w0 * ac0 / ac * dd;
-      *wt_kspec = wTrial;
-      Vphase->setMolesFromVCS(VCS_DATA_PTR(m_molNumSpecies_new));
-      Vphase->sendToVCSActCoeff(VCS_DATA_PTR(m_actCoeffSpecies_new));
-      ac1 = m_actCoeffSpecies_new[kspec];
-      acprime = 0.0;
-      if (fabs(wTrial - w0) > 1.0E-8 * w0) {
-	acprime = (ac1 - ac0) / (wTrial - w0);
-      }
-      double jac = acprime * wTrial + ac1;
-      double fTrial = ac1 * wTrial - ac0*w0*dd;
-      double w2 = wTrial - fTrial / jac;
-      if (w2 > 100. * w0) {
+        
+      wTrial = w_kspec * exp(-dg_irxn);
+      molNum_kspec_new = wTrial;
+ 
+      if (wTrial > 100. * w_kspec) {
 	double molNumMax = 0.0001 * m_tPhaseMoles_old[iph];
-	if (molNumMax < 100. * w0) {
-	  molNumMax =  100. * w0;
+	if (molNumMax < 100. * w_kspec) {
+	  molNumMax =  100. * w_kspec;
 	}
-	if (w2 > molNumMax) {
-	  *wt_kspec = molNumMax;
+	if (wTrial > molNumMax) {
+	  molNum_kspec_new = molNumMax;
 	} else {
-	  *wt_kspec = w2;
+	  molNum_kspec_new = wTrial;
 	}
 
-      } else if (1.0E10 * w2 < w0) {
-	*wt_kspec = 1.0E-10 * w0;
+      } else if (1.0E10 * wTrial < w_kspec) {
+	molNum_kspec_new= 1.0E-10 * w_kspec;
       } else {
-	*wt_kspec = w2;
+	molNum_kspec_new = wTrial;
       }
       
 
-      if ((*wt_kspec) <  VCS_DELETE_MINORSPECIES_CUTOFF) {
+      if ((molNum_kspec_new) < VCS_DELETE_MINORSPECIES_CUTOFF) {
 	goto L_ZERO_SPECIES;
       }
-      dx = (*wt_kspec) - w_kspec;
-      (*ds_kspec) = dx;
+      dx = molNum_kspec_new - w_kspec;
       return dx;
       /*
        *
@@ -2113,7 +2095,6 @@ namespace VCSnonideal {
     L_ZERO_SPECIES: ;
       *do_delete = TRUE;
       dx = - w_kspec;
-      (*ds_kspec) = dx;
       return dx;
     } 
     else {
@@ -2121,12 +2102,11 @@ namespace VCSnonideal {
        * Voltage calculation 
        *   Need to check the sign -> This is good for electrons
        */
-      dx = m_deltaGRxn_new[irxn]/ m_Faraday_dim;
+      dx = m_deltaGRxn_old[irxn]/ m_Faraday_dim;
 #ifdef DEBUG_MODE
       sprintf(ANOTE,"voltage species alternative calc");
 #endif
     }
-    (*ds_kspec) = dx;
     return dx;
   }
   /*****************************************************************************/

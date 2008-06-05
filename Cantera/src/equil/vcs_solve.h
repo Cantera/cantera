@@ -1199,7 +1199,7 @@ private:
 #ifdef DEBUG_MODE
 			, char *ANOTE  
 #endif
-			);
+			) const;
 
   //!  This routine optimizes the minimization of the total gibbs free
   //!  energy by making sure the slope of the following functional stays
