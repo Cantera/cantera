@@ -1017,8 +1017,37 @@ public:
   int VCS_SOLVE::vcs_prob_specify(const VCS_PROB *pub);
   
 private:
-  int zero_species(int kspec);
-  int delete_species(int kspec);
+
+  //!  Zero out the concentration of a species.
+  /*!
+   *     Zero out the concentration of a species. Make sure to conserve
+   *  elements and keep track of the total moles in all phases.
+   *       w[]
+   *       m_tPhaseMoles_old[]
+   *
+   *  @param kspec  Species index
+   *
+   *  @return:
+   *      1: succeeded
+   *      0: failed.
+   */
+  int zero_species(const int kspec);
+
+  //! Change a single species from active to inactive status
+  /*!
+   * Rearrange data when species is added or removed. The Lth species is 
+   * moved to the back of the species vector. The back of the species 
+   * vector is indicated by the value of MR, the current number of 
+   * active species in the mechanism. 
+   *
+   * @param kspec   Species Index
+   * @return 
+   *     Returns 0 unless.
+   *     The return is 1 when the current number of 
+   *     noncomponent species is equal to zero. A recheck of deleted species 
+   *     is carried out in the main code.
+   */
+  int delete_species(const int kspec);
 
   //! This routine handles the bookkeepking involved with the
   //!  deletion of multiphase phases from the problem. 
@@ -1035,7 +1064,20 @@ private:
    * @param iph Phase to be deleted
    */
   void vcs_delete_multiphase(const int iph);
-  int delta_species(int kspec, double *delta_ptr);
+
+  //!  Change the concentration of a species by delta moles. 
+  /*!
+   *  Make sure to conserve elements and keep track of the total kmoles in all phases.
+   *
+   *  @param kspec The species index
+   *  @delta_ptr   pointer to the delta for the species. This may change during
+   *               the calculation
+   *
+   *  @return
+   *      1: succeeded without change of dx
+   *      0: Had to adjust dx, perhaps to zero, in order to do the delta.
+   */
+  int delta_species(const int kspec, double * const delta_ptr);
 
   //!  Provide an estimate for the deleted species in phases that
   //!  are not zeroed out

@@ -2041,8 +2041,8 @@ namespace VCSnonideal {
       if (w_kspec <= 0.0) {
 	w_kspec = VCS_DELETE_MINORSPECIES_CUTOFF;
       }
-      if (dg_irxn < -23.) {
-	dg_irxn = -23.;
+      if (dg_irxn < -200.) {
+	dg_irxn = -200.;
       }
 #ifdef DEBUG_MODE
       sprintf(ANOTE,"minor species alternative calc");
@@ -2082,9 +2082,6 @@ namespace VCSnonideal {
       double w2 = wTrial - fTrial / jac;
       if (w2 > 100. * w0) {
 	double molNumMax = 0.0001 * m_tPhaseMoles_old[iph];
-	if (molNumMax > 1.0E10 * w0) {
-	  molNumMax = 1.0E10 * w0;
-	}
 	if (molNumMax < 100. * w0) {
 	  molNumMax =  100. * w0;
 	}
@@ -2134,21 +2131,20 @@ namespace VCSnonideal {
   }
   /*****************************************************************************/
 
-  int VCS_SOLVE::delta_species(int kspec, double *delta_ptr)
-
-    /************************************************************************
-     *
-     * delta_species():
-     *
-     *  Change the concentration of a species by delta moles. 
-     *  Make sure to conserve
-     *  elements and keep track of the total kmoles in all phases.
-     *
-     *  return:
-     *      1: succeeded
-     *      0: failed.
-     ************************************************************************/
-  {
+  //!  Change the concentration of a species by delta moles. 
+  /*!
+   *  Make sure to conserve elements and keep track of the total kmoles in all phases.
+   *
+   *
+   *  @param kspec The species index
+   *  @delta_ptr   pointer to the delta for the species. This may change during
+   *               the calculation
+   *
+   *  @return
+   *      1: succeeded without change of dx
+   *      0: Had to adjust dx, perhaps to zero, in order to do the delta.
+   */
+  int VCS_SOLVE::delta_species(const int kspec, double * const delta_ptr) {
     int irxn = kspec - m_numComponents;
     int retn = 1;
     int j;
@@ -2199,27 +2195,22 @@ namespace VCSnonideal {
     }
     return retn;
   }
-
-  /*****************************************************************************/
-  /*****************************************************************************/
   /*****************************************************************************/
 
-  int VCS_SOLVE::zero_species(int kspec) 
-
-    /************************************************************************
-     *
-     * zero_species:
-     *
-     *  Zero out the concentration of a species. Make sure to conserve
-     *  elements and keep track of the total moles in all phases.
-     *       w[]
-     *       m_tPhaseMoles_old[]
-     *
-     *  return:
-     *      1: succeeded
-     *      0: failed.
-     ************************************************************************/
-  {
+  //  Zero out the concentration of a species.
+  /*
+   *     Zero out the concentration of a species. Make sure to conserve
+   *  elements and keep track of the total moles in all phases.
+   *       w[]
+   *       m_tPhaseMoles_old[]
+   *
+   *  @param kspec  Species index
+   *
+   *  @return:
+   *      1: succeeded
+   *      0: failed.
+   */
+  int VCS_SOLVE::zero_species(const int kspec) {
     int retn = 1;
     /*
      * Calculate a delta that will eliminate the species.
@@ -2228,49 +2219,53 @@ namespace VCSnonideal {
       double dx = -(m_molNumSpecies_old[kspec]);
       if (dx != 0.0) {
 	retn = delta_species(kspec, &dx);
+#ifdef DEBUG_MODE
 	if (!retn) {
-	  plogf("zero_species: Couldn't zero the species %d, "
-		"did delta of %g. orig conc of %g\n",
-		kspec, dx, m_molNumSpecies_old[kspec] + dx);
+	  if (m_debug_print_lvl >= 1) {
+	    plogf("zero_species: Couldn't zero the species %d, "
+		  "did delta of %g. orig conc of %g",
+		  kspec, dx, m_molNumSpecies_old[kspec] + dx);
+	    plogendl();
+	  }
 	}
+#endif
       }
     }
     return retn;
   }
-  /*****************************************************************************/
+  /**************************************************************************/
 
-  int VCS_SOLVE::delete_species(int kspec)
-   
-    /************************************************************************
-     *
-     * delete_species:
-     *
-     * Rearrange data when species is added or removed. The Lth species is 
-     * moved to the back of the species vector. The back of the species 
-     * vector is indicated by the value of MR, the current number of 
-     * active species in the mechanism. 
-     *
-     * Input 
-     *     kspec  = species number 
-     * Return value 
-     *     The return is true when the current number of 
-     * noncomponent species is equal to zero. A recheck of deleted species 
-     * is carried out in the main code. 
-     *************************************************************************/
-  {
-    int klast = m_numSpeciesRdc - 1;
-    int iph = m_phaseID[kspec];
-    vcs_VolPhase *Vphase = m_VolPhaseList[iph];
-    int irxn = kspec - m_numComponents;     /* This is the noncomponent rxn index */
+  // Change a single species from active to inactive status
+  /*
+   *   Rearrange data when species is added or removed. The kspec species is 
+   *   moved to the back of the active species vector. The back of the species 
+   *   vector is indicated by the value of  m_numSpeciesRdc, the current
+   *   number of active species in the mechanism.
+   *
+   * @param kspec   Species Index
+   * @return 
+   *     Returns 0 unless.
+   *     The return is 1 when the current number of 
+   *     noncomponent species is equal to zero. A recheck of deleted species 
+   *     is carried out in the main code.
+   */
+  int VCS_SOLVE::delete_species(const int kspec) {
+    const int klast = m_numSpeciesRdc - 1;
+    const int iph = m_phaseID[kspec];
+    vcs_VolPhase * const Vphase = m_VolPhaseList[iph];
+    const int irxn = kspec - m_numComponents;
     /*
      * Zero the concentration of the species.
      *     -> This zeroes w[kspec] and modifies m_tPhaseMoles_old[]
      */
-    int retn = zero_species(kspec);
+    const int retn = zero_species(kspec);
+#ifdef DEBUG_MODE
     if (! retn) {
-      plogf("Failed to delete a species!\n");
+      plogf("Failed to delete a species!");
+      plogendl();
       exit(-1);
     }
+#endif
     /*
      *    Decrement the minor species counter if the current species is
      *    a minor species
@@ -2281,7 +2276,7 @@ namespace VCSnonideal {
     m_deltaGRxn_old[irxn] = 0.0;
     m_feSpecies_new[kspec] = 0.0;
     m_feSpecies_old[kspec] = 0.0;
-    m_molNumSpecies_new[kspec] = 0.0;
+    m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec];
     /*
      *    Rearrange the data if the current species isn't the last active
      *    species.
@@ -2308,10 +2303,10 @@ namespace VCSnonideal {
     if (! m_SSPhase[klast]) {
       if (Vphase->Existence != 2) {
 	Vphase->Existence = 0;
-	for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
-	  if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	    if (m_phaseID[kspec] == iph) {
-	      if (m_molNumSpecies_old[kspec] > 0.0) {
+	for (int k = 0; k < m_numSpeciesRdc; k++) {
+	  if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	    if (m_phaseID[k] == iph) {
+	      if (m_molNumSpecies_old[k] > 0.0) {
 		Vphase->Existence = 1;
 		break;
 	      }
