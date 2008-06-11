@@ -209,7 +209,7 @@ namespace VCSnonideal {
      */
     m_VolPhaseList.resize(nphase0, 0);
     for (iph = 0; iph < nphase0; iph++) {
-      m_VolPhaseList[iph] = new vcs_VolPhase();
+      m_VolPhaseList[iph] = new vcs_VolPhase(this);
     }   
    
     /*
@@ -860,10 +860,10 @@ namespace VCSnonideal {
 	retn = VCS_PUB_BAD;
       }
 
-      if  (vPhase->GasPhase != pub_phase_ptr->GasPhase) {
+      if  (vPhase->m_gasPhase != pub_phase_ptr->m_gasPhase) {
 	plogf("%sGasPhase value have changed:%d %d\n", yo.c_str(),
-	      vPhase->GasPhase,
-	      pub_phase_ptr->GasPhase);
+	      vPhase->m_gasPhase,
+	      pub_phase_ptr->m_gasPhase);
 	retn = VCS_PUB_BAD;
       }
 
@@ -1068,9 +1068,8 @@ namespace VCSnonideal {
     for (int iphase = 0; iphase < m_numPhases; iphase++) {
       vcs_VolPhase *Vphase = m_VolPhaseList[iphase];
       Vphase->setState_TP(tkelvin, pres);
-      Vphase->setMolesFromVCS(w);
-      double Volp = Vphase->VolPM_calc();
-      (void) Vphase->sendToVCSVolPM(volPM);
+      Vphase->setMolesFromVCS(VCS_STATECALC_OLD, w);
+      double Volp = Vphase->sendToVCS_VolPM(volPM);
       VolTot += Volp;
     }
     return VolTot;

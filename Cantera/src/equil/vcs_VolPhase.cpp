@@ -13,6 +13,7 @@
 #include "vcs_internal.h"
 #include "vcs_SpeciesProperties.h"
 #include "vcs_species_thermo.h"
+#include "vcs_solve.h"
 
 #include "ThermoPhase.h"
 #include "mix_defs.h"
@@ -22,18 +23,18 @@
 
 namespace VCSnonideal {
 
-  /*****************************************************************************
+  /****************************************************************************
    * 
    *  vcs_VolPhase():
    *
    *    Constructor for the VolPhase object.
    */
-  vcs_VolPhase::vcs_VolPhase() :
+  vcs_VolPhase::vcs_VolPhase(VCS_SOLVE * owningSolverObject) :
+    m_owningSolverObject(0),
     VP_ID(-1),
     Domain_ID(-1),
     SingleSpecies(true),
-    GasPhase(false), 
-    LiqPhase(false), 
+    m_gasPhase(false),
     EqnState(VCS_EOS_CONSTANT),
     nElemConstraints(0),
     ChargeNeutralityElement(-1),
@@ -53,8 +54,10 @@ namespace VCSnonideal {
     m_useCanteraCalls(false),
     TP_ptr(0),
     TMoles(0.0),
-    Vol(0.0),
+    m_totalVol(0.0),
+    m_vcsStateStatus(VCS_STATECALC_OLD),
     m_phi(0.0),
+    m_UpToDate(false),
     m_UpToDate_AC(false),
     m_UpToDate_VolStar(false),
     m_UpToDate_VolPM(false),
@@ -63,6 +66,7 @@ namespace VCSnonideal {
     Pres(1.01325E5),
     RefPres(1.01325E5)
   {
+    m_owningSolverObject = owningSolverObject;
   }
 
   /*
@@ -88,11 +92,11 @@ namespace VCSnonideal {
    *  The assignment operator does most of the work.
    */
   vcs_VolPhase::vcs_VolPhase(const vcs_VolPhase& b) :
+    m_owningSolverObject(b.m_owningSolverObject),
     VP_ID(b.VP_ID),
     Domain_ID(b.Domain_ID),
     SingleSpecies(b.SingleSpecies),
-    GasPhase(b.GasPhase),
-    LiqPhase(b.LiqPhase),
+    m_gasPhase(b.m_gasPhase),
     EqnState(b.EqnState),
     nElemConstraints(b.nElemConstraints),
     ChargeNeutralityElement(b.ChargeNeutralityElement),
@@ -110,8 +114,10 @@ namespace VCSnonideal {
     TP_ptr(b.TP_ptr),
     TMoles(b.TMoles),
     m_phiVarIndex(-1),
-    Vol(b.Vol),
+    m_totalVol(b.m_totalVol),
+    m_vcsStateStatus(VCS_STATECALC_OLD),
     m_phi(b.m_phi),
+    m_UpToDate(false),
     m_UpToDate_AC(false),
     m_UpToDate_VolStar(false),
     m_UpToDate_VolPM(false),
@@ -137,11 +143,11 @@ namespace VCSnonideal {
     if (&b != this) {
       int old_num = NVolSpecies;
 
+      m_owningSolverObject = b.m_owningSolverObject;
       VP_ID               = b.VP_ID;
       Domain_ID           = b.Domain_ID;
       SingleSpecies       = b.SingleSpecies;
-      GasPhase            = b.GasPhase;
-      LiqPhase            = b.LiqPhase;
+      m_gasPhase            = b.m_gasPhase;
       EqnState            = b.EqnState;
  
       NVolSpecies         = b.NVolSpecies;
@@ -195,7 +201,7 @@ namespace VCSnonideal {
       }
     
       m_VCS_UnitsFormat   = b.m_VCS_UnitsFormat;
-      m_useCanteraCalls     = b.m_useCanteraCalls;
+      m_useCanteraCalls   = b.m_useCanteraCalls;
       /*
        * Do a shallow copy of the ThermoPhase object pointer.
        * We don't duplicate the object.
@@ -220,6 +226,8 @@ namespace VCSnonideal {
 
       dLnActCoeffdMolNumber = b.dLnActCoeffdMolNumber;
 
+      m_UpToDate            = false;
+      m_vcsStateStatus      = b.m_vcsStateStatus;
       m_UpToDate_AC         = false;
       m_UpToDate_VolStar    = false;
       m_UpToDate_VolPM      = false;
@@ -312,6 +320,8 @@ namespace VCSnonideal {
  
 
     SpeciesUnknownType.resize(nspecies, VCS_SPECIES_TYPE_MOLNUM);
+    m_UpToDate            = false;
+    m_vcsStateStatus      = VCS_STATECALC_OLD;
     m_UpToDate_AC         = false;
     m_UpToDate_VolStar    = false;
     m_UpToDate_VolPM      = false;
@@ -360,6 +370,7 @@ namespace VCSnonideal {
     return(ActCoeff[kspec]);
   }
 
+
   // Gibbs free energy calculation at a temperature for the reference state
   // of each species
   /*
@@ -389,6 +400,7 @@ namespace VCSnonideal {
       }
     }
   }
+  /***********************************************************************/
 
   // Gibbs free energy calculation at a temperature for the reference state
   // of a species, return a value for one species
@@ -402,6 +414,7 @@ namespace VCSnonideal {
     G0_calc(tkelvin);
     return SS0ChemicalPotential[kspec];
   }
+  /***********************************************************************/
 
   // Gibbs free energy calculation for standard states
   /*
@@ -411,8 +424,8 @@ namespace VCSnonideal {
    * @param TKelvin Current temperature
    * @param pres    Current pressure (pascal)
    */
-  void vcs_VolPhase::GStar_calc(double tkelvin, double pres) {
-    setState_TP(tkelvin, pres);
+  void vcs_VolPhase::GStar_calc() {
+    setState_TP(Temp, Pres);
     if (!m_UpToDate_GStar) {
       if (m_useCanteraCalls) {
 	TP_ptr->getStandardChemPotentials(VCS_DATA_PTR(StarChemicalPotential));
@@ -423,12 +436,13 @@ namespace VCSnonideal {
 	  vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
 	  VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
 	  StarChemicalPotential[k] =
-	    R * (sTherm->GStar_R_calc(kglob, tkelvin, pres));
+	    R * (sTherm->GStar_R_calc(kglob, Temp, Pres));
 	}
       }
       m_UpToDate_GStar = true;
     }
   }
+  /***********************************************************************/
 
   // Gibbs free energy calculation for standard state of one species
   /*
@@ -446,9 +460,11 @@ namespace VCSnonideal {
    */
   double vcs_VolPhase::GStar_calc_one(int kspec, double tkelvin,
 				      double pres) {
-    GStar_calc(tkelvin, pres);
+    setState_TP(tkelvin, pres);
+    GStar_calc();
     return StarChemicalPotential[kspec];
   }
+  /***********************************************************************/
 
   // Set the moles within the phase
   /*
@@ -457,15 +473,55 @@ namespace VCSnonideal {
    *  a gather routine.
    *
    *  
-   *  @param molesSpeciesVCS  array of mole numbers. Note, the indecises for species in 
+   *  @param molesSpeciesVCS  array of mole numbers. Note, the indecises 
+   *            for species in 
    *            this array may not be contiguous. IndSpecies[] is needed
    *            to gather the species into the local contiguous vector
    *            format. 
    */
-  void vcs_VolPhase::setMolesFromVCS(const double * const molesSpeciesVCS) {
+  void vcs_VolPhase::setMolesFromVCS(const int stateCalc, 
+				     const double * molesSpeciesVCS) {
     int kglob;
     double tmp;
     TMoles = TMolesInert;
+
+    if (molesSpeciesVCS == 0) {
+#ifdef DEBUG_MODE
+      if (m_owningSolverObject == 0) {
+	printf("shouldn't be here\n");
+	std::exit(-1);
+      }
+#endif
+      if (stateCalc == VCS_STATECALC_OLD) {
+	molesSpeciesVCS = VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_old);
+      } else if (stateCalc == VCS_STATECALC_NEW) {
+	molesSpeciesVCS = VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_new);
+      }
+#ifdef DEBUG_MODE
+      else {
+	printf("shouldn't be here\n");
+	std::exit(-1);
+      }
+#endif
+    }
+#ifdef DEBUG_MODE
+    else {
+      if (m_owningSolverObject) {
+        if (stateCalc == VCS_STATECALC_OLD) {
+  	  if (molesSpeciesVCS != VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_old)) {
+	    printf("shouldn't be here\n");
+	    std::exit(-1);
+          }
+        } else if (stateCalc == VCS_STATECALC_NEW) {
+          if (molesSpeciesVCS != VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_new)) {
+	    printf("shouldn't be here\n");
+	    std::exit(-1);
+          }
+        }
+      }
+    }
+#endif
+
     for (int k = 0; k < NVolSpecies; k++) {
       if (SpeciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	kglob = IndSpecies[k];
@@ -509,7 +565,14 @@ namespace VCSnonideal {
     if (TMolesInert > 0.0) {
       Existence = 2;
     }
+    /*
+     * Set flags indicating we are up to date with the VCS state vector.
+     */
+    m_UpToDate = true;
+    m_vcsStateStatus = stateCalc; 
+ 
   }
+  /***********************************************************************/
 
   // Set the mole fractions from a conventional mole fraction vector
   /*
@@ -529,7 +592,10 @@ namespace VCSnonideal {
       }
     }
     _updateMoleFractionDependencies();
+    m_UpToDate = false;
+    m_vcsStateStatus = VCS_STATECALC_TMP;
   }
+  /***********************************************************************/
 
   // Updates the mole fractions in subobjects
   /*
@@ -542,18 +608,22 @@ namespace VCSnonideal {
 	TP_ptr->setState_PX(Pres, VCS_DATA_PTR(Xmol));
       }
     }
-    m_UpToDate_AC    = false;
-    m_UpToDate_VolPM = false;
+    if (!m_isIdealSoln) {
+      m_UpToDate_AC = false;
+      m_UpToDate_VolStar = false;
+      m_UpToDate_VolPM = false;
+      m_UpToDate_GStar = false;
+    }
   }
 
   // Return a const reference to the mole fraction vector in the phase
   const std::vector<double> & vcs_VolPhase::moleFractions() const {
     return Xmol;
   }
+  /***********************************************************************/
 
-
-  //! Set the moles within the phase
-  /*!
+  // Set the moles within the phase
+  /*
    *  This function takes as input the mole numbers in vcs format, and
    *  then updates this object with their values. This is essentially
    *  a gather routine.
@@ -564,10 +634,11 @@ namespace VCSnonideal {
    *            to gather the species into the local contiguous vector
    *            format. 
    */
-  void vcs_VolPhase::setMolesFromVCSCheck(const double * const molesSpeciesVCS, 
+  void vcs_VolPhase::setMolesFromVCSCheck(const int stateCalc,
+					  const double * molesSpeciesVCS, 
 					  const double * const TPhMoles,
 					  int iphase) {
-    setMolesFromVCS(molesSpeciesVCS);
+    setMolesFromVCS(stateCalc, molesSpeciesVCS);
     /*
      * Check for consistency with TPhMoles[]
      */
@@ -576,14 +647,16 @@ namespace VCSnonideal {
       if (vcs_doubleEqual(Tcheck, TMoles)) {
 	Tcheck = TMoles;
       } else {
-	plogf("We have a consistency problem: %21.16g %21.16g\n",
+	plogf("vcs_VolPhase::setMolesFromVCSCheck: "
+	      "We have a consistency problem: %21.16g %21.16g\n",
 	      Tcheck, TMoles);
 	std::exit(-1);
       }
     }
   }
+  /***********************************************************************/
 
-  // Fill in an activity coefficients vector for VCS
+  // Fill in an activity coefficients vector within a VCS_SOLVE object
   /*
    *  This routine will calculate the activity coefficients for the
    *  current phase, and fill in the corresponding entries in the
@@ -593,7 +666,7 @@ namespace VCSnonideal {
    *            in all of the phases in a VCS problem. Only the
    *            entries for the current phase are filled in.
    */
-  void vcs_VolPhase::sendToVCSActCoeff(double * const AC) const {
+  void vcs_VolPhase::sendToVCS_ActCoeff(double * const AC) const {
     if (!m_UpToDate_AC) {
       evaluateActCoeff();
     }
@@ -603,6 +676,7 @@ namespace VCSnonideal {
       AC[kglob] = ActCoeff[k];
     }
   }
+  /***********************************************************************/
 
   // Fill in the partial molar volume vector for VCS
   /*
@@ -614,7 +688,7 @@ namespace VCSnonideal {
    *            in all of the phases in a VCS problem. Only the
    *            entries for the current phase are filled in.
    */
-  double vcs_VolPhase::sendToVCSVolPM(double * const VolPM) const {  
+  double vcs_VolPhase::sendToVCS_VolPM(double * const VolPM) const {  
     if (!m_UpToDate_VolPM) {
       (void) VolPM_calc();
     }
@@ -623,8 +697,9 @@ namespace VCSnonideal {
       kglob = IndSpecies[k];
       VolPM[kglob] = PartialMolarVol[k];
     }
-    return Vol;
+    return m_totalVol;
   }
+  /***********************************************************************/
 
   // Fill in the partial molar volume vector for VCS
   /*
@@ -636,9 +711,10 @@ namespace VCSnonideal {
    *            in all of the phases in a VCS problem. Only the
    *            entries for the current phase are filled in.
    */
-  void vcs_VolPhase::sendToVCSGStar(double * const gstar){  
+  void vcs_VolPhase::sendToVCS_GStar(double * const gstar){  
     if (!m_UpToDate_GStar) {
-      GStar_calc(Temp, Pres);
+      setState_TP(Temp, Pres);
+      GStar_calc();
     }
     int kglob;
     for (int k = 0; k < NVolSpecies; k++) {
@@ -646,7 +722,7 @@ namespace VCSnonideal {
       gstar[kglob] = StarChemicalPotential[k];
     }
   }
-
+ /***********************************************************************/
 
 
   void vcs_VolPhase::setElectricPotential(double phi) {
@@ -660,10 +736,12 @@ namespace VCSnonideal {
     m_UpToDate_VolPM = false;
     m_UpToDate_GStar = false;
   }
+  /***********************************************************************/
 
   double vcs_VolPhase::electricPotential() const {
     return m_phi;
   }
+  /***********************************************************************/
 
   // Sets the temperature and pressure in this object and
   //  underlying objects
@@ -693,7 +771,7 @@ namespace VCSnonideal {
     m_UpToDate_VolPM   = false;
     m_UpToDate_GStar   = false;
   }
-
+ /***********************************************************************/
 
   // Molar volume calculation for standard states
   /*
@@ -722,6 +800,30 @@ namespace VCSnonideal {
       m_UpToDate_VolStar = true;
     }
   }
+ /***********************************************************************/
+
+  // Update the moles within the phase, if necessary
+  /*
+   *  This function takes as input the stateCalc value, which 
+   *  determines where within VCS_SOLVE to fetch the mole numbers.
+   *  It then updates this object with their values. This is essentially
+   *  a gather routine.
+   *
+   *  @param stateCalc    State calc value either VCS_STATECALC_OLD 
+   *                      or  VCS_STATECALC_NEW. With any other value
+   *                      nothing is done.
+   *
+   */
+  void vcs_VolPhase::updateFromVCS_MoleNumbers(const int stateCalc) {
+    if (!m_UpToDate) {
+      if (stateCalc == VCS_STATECALC_OLD || stateCalc == VCS_STATECALC_NEW) {
+	if (m_owningSolverObject) {
+	  setMolesFromVCS(stateCalc);
+	}
+      }
+    }
+  }
+  /***********************************************************************/
 
   // Molar volume calculation for standard state of one species
   /*
@@ -729,20 +831,21 @@ namespace VCSnonideal {
    * The results are held internally within the object.
    * Return the molar volume for one species
    *
-   * @param kspec Species number (within the phase)
+   * @param kspec   Species number (within the phase)
    * @param TKelvin Current temperature
    * @param pres    Current pressure (pascal)
    *
    * @return molar volume of the kspec species's standard
    *         state
    */
-  double vcs_VolPhase::VolStar_calc_one(int kspec, double tkelvin, double pres) 
+  double vcs_VolPhase::VolStar_calc_one(int kspec, double tkelvin, 
+					double pres) 
   {
     VolStar_calc(tkelvin, pres);
     return StarMolarVol[kspec];
   }
 
-  /******************************************************************************
+  /****************************************************************************
    *
    * VolPM_calc
    */
@@ -763,16 +866,16 @@ namespace VCSnonideal {
 	}
       }
 
-      Vol = 0.0;
+      m_totalVol = 0.0;
       for (k = 0; k < NVolSpecies; k++) {
-	Vol += PartialMolarVol[k] * Xmol[k];
+	m_totalVol += PartialMolarVol[k] * Xmol[k];
       }
-      Vol *= TMoles;
+      m_totalVol *= TMoles;
 
       if (TMolesInert > 0.0) {
-	if (GasPhase) {
+	if (m_gasPhase) {
 	  double volI = TMolesInert * 8314.47215 * Temp / Pres;
-	  Vol += volI;
+	  m_totalVol += volI;
 	} else {
 	  printf("unknown situation\n");
 	  std::exit(-1);
@@ -780,7 +883,7 @@ namespace VCSnonideal {
       }
     }
     m_UpToDate_VolPM = true;
-    return Vol;
+    return m_totalVol;
   }
 
   /*
@@ -795,7 +898,7 @@ namespace VCSnonideal {
      * with the current values of the mole numbers.
      * -> This sets TMoles and Xmol[]
      */
-    setMolesFromVCS(moleNumbersVCS);
+    setMolesFromVCS(VCS_STATECALC_OLD, moleNumbersVCS);
 
     /*
      * Evaluate the current base activity coefficients.
@@ -871,7 +974,7 @@ namespace VCSnonideal {
    *      j = id of the species mole number
    *      k = id of the species activity coefficient
    */
-  void vcs_VolPhase::sendToVCSLnActCoeffJac(double * const * const LnACJac_VCS) const {
+  void vcs_VolPhase::sendToVCS_LnActCoeffJac(double * const * const LnACJac_VCS) const {
     int j, k, jglob, kglob;
     for (j = 0; j < NVolSpecies; j++) {
       jglob = IndSpecies[j];

@@ -155,7 +155,7 @@ namespace VCSnonideal {
     for (int iph = 0; iph < m_numPhases; iph++) {
       vcs_VolPhase* vph = m_VolPhaseList[iph];
       vph->setState_TP(m_temperature, m_pressurePA);
-      vph->sendToVCSGStar(VCS_DATA_PTR(m_SSfeSpecies));
+      vph->sendToVCS_GStar(VCS_DATA_PTR(m_SSfeSpecies));
     }
    
     if (m_VCS_UnitsFormat == VCS_UNITS_UNITLESS) {

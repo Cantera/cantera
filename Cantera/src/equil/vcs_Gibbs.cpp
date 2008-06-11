@@ -44,7 +44,7 @@ namespace VCSnonideal {
       if ((TPhInertMoles[iph] > 0.0) && (tPhMoles[iph] > 0.0)) {
 	g += TPhInertMoles[iph] *
 	  log(TPhInertMoles[iph] / tPhMoles[iph]);
-	if (Vphase->GasPhase) {
+	if (Vphase->m_gasPhase) {
 	  g += TPhInertMoles[iph] * log(m_pressurePA/(1.01325E5));
 	}
       }
@@ -85,7 +85,7 @@ namespace VCSnonideal {
       phaseMols += TPhInertMoles[iphase];
       g += TPhInertMoles[iphase] * log(TPhInertMoles[iphase] / phaseMols);
       vcs_VolPhase *Vphase = m_VolPhaseList[iphase];
-      if (Vphase->GasPhase == iphase) {
+      if (Vphase->m_gasPhase == iphase) {
 	g += TPhInertMoles[iphase] * log(m_pressurePA/1.01325E5);
       }
     }
@@ -94,5 +94,3 @@ namespace VCSnonideal {
   }
 
 }
-
-

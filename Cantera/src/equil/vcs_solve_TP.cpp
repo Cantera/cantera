@@ -442,8 +442,10 @@ namespace VCSnonideal {
     /*
      *  Copy the old solution into the new solution as an initial guess
      */
-    vcs_dcopy(VCS_DATA_PTR(m_feSpecies_new), VCS_DATA_PTR(m_feSpecies_old), m_numSpeciesRdc);
-    vcs_dcopy(VCS_DATA_PTR(m_actCoeffSpecies_new), VCS_DATA_PTR(m_actCoeffSpecies_old), m_numSpeciesRdc);
+    vcs_dcopy(VCS_DATA_PTR(m_feSpecies_new), 
+	      VCS_DATA_PTR(m_feSpecies_old), m_numSpeciesRdc);
+    vcs_dcopy(VCS_DATA_PTR(m_actCoeffSpecies_new), 
+	      VCS_DATA_PTR(m_actCoeffSpecies_old), m_numSpeciesRdc);
     vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_new), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
  
     /*        Go find a new reaction adjustment -> 
@@ -1016,8 +1018,10 @@ namespace VCSnonideal {
     /*********** LIMIT REDUCTION OF BASIS SPECIES TO 99% *********************/
     /*************************************************************************/
     /*
-     *        We have a tentative M_DELTAMOLNUMSPECIES(L=1,MR). Now apply other criteria 
-     *        to limit it's magnitude. 
+     *        We have a tentative m_deltaMolNumSpecies[]. Now apply other criteria 
+     *        to limit it's magnitude.
+     *
+     *  
      */
     par = 0.5;
     for (k = 0; k < m_numComponents; ++k) {
@@ -1057,7 +1061,7 @@ namespace VCSnonideal {
 	m_deltaMolNumSpecies[i] *= par;
       }
       for (iph = 0; iph < m_numPhases; iph++) {
-	m_deltaPhaseMoles[iph] *= par;	 
+	m_deltaPhaseMoles[iph] *= par;
       }
     } else {
       par = 1.0;
@@ -2111,8 +2115,8 @@ namespace VCSnonideal {
   }
   /*****************************************************************************/
 
-  //!  Change the concentration of a species by delta moles. 
-  /*!
+  //  Change the concentration of a species by delta moles. 
+  /*
    *  Make sure to conserve elements and keep track of the total kmoles in all phases.
    *
    *
@@ -2267,7 +2271,8 @@ namespace VCSnonideal {
     /*  
      *       Adjust the total moles in a phase downwards. 
      */
-    Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old),
+    Vphase->setMolesFromVCSCheck(VCS_STATECALC_OLD,
+				 VCS_DATA_PTR(m_molNumSpecies_old),
 				 VCS_DATA_PTR(m_tPhaseMoles_old));
   
     /* 
@@ -2347,7 +2352,8 @@ namespace VCSnonideal {
     }
 
     vcs_VolPhase *Vphase = m_VolPhaseList[iph];
-    Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old),
+    Vphase->setMolesFromVCSCheck(VCS_STATECALC_OLD,
+				 VCS_DATA_PTR(m_molNumSpecies_old),
 				 VCS_DATA_PTR(m_tPhaseMoles_old));
     /*
      *   We may have popped a multispecies phase back 
@@ -2496,7 +2502,8 @@ namespace VCSnonideal {
     /*
      * Upload the state to the VP object
      */
-    Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old),
+    Vphase->setMolesFromVCSCheck(VCS_STATECALC_OLD, 
+				 VCS_DATA_PTR(m_molNumSpecies_old),
 				 VCS_DATA_PTR(m_tPhaseMoles_old), iph);
   } 
   /**********************************************************************************/
@@ -4371,6 +4378,7 @@ namespace VCSnonideal {
     vcs_VolPhase *Vphase = m_VolPhaseList[iph];
     int nkk = Vphase->NVolSpecies;
     int k, kspec;
+    int stateCalc = VCS_STATECALC_OLD;
 
 #ifdef DEBUG_MODE
     //if (m_debug_print_lvl >= 2) {
@@ -4388,8 +4396,8 @@ namespace VCSnonideal {
       tlogMoles = log(tMoles);
     }
 
-    Vphase->setMolesFromVCS(molNum);
-    Vphase->sendToVCSActCoeff(ac);
+    Vphase->setMolesFromVCS(stateCalc, molNum);
+    Vphase->sendToVCS_ActCoeff(ac);
 
     double phi = Vphase->electricPotential();
     double Faraday_phi = m_Faraday_dim * phi;
@@ -4669,8 +4677,8 @@ namespace VCSnonideal {
       if (!m_phaseACAreCurrent[iphase]) {
 	Vphase = m_VolPhaseList[iphase];
 	if (!Vphase->SingleSpecies) {
-	  Vphase->setMolesFromVCS(molNum);
-	  Vphase->sendToVCSActCoeff(VCS_DATA_PTR(actCoeff_ptr));
+	  Vphase->setMolesFromVCS(stateCalc, molNum);
+	  Vphase->sendToVCS_ActCoeff(VCS_DATA_PTR(actCoeff_ptr));
 	}
 	m_phasePhi[iphase] = Vphase->electricPotential();
 	m_phaseACAreCurrent[iphase] = 1;
@@ -4927,10 +4935,12 @@ namespace VCSnonideal {
     for (int i = 0; i < m_numPhases; i++) {
       Vphase = m_VolPhaseList[i];
       if (vcsState == VCS_STATECALC_OLD) {
-	Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_old),
+	Vphase->setMolesFromVCSCheck(VCS_STATECALC_OLD, 
+				     VCS_DATA_PTR(m_molNumSpecies_old),
 				     VCS_DATA_PTR(m_tPhaseMoles_old), i);
       } else if (vcsState == VCS_STATECALC_NEW) {
-	Vphase->setMolesFromVCSCheck(VCS_DATA_PTR(m_molNumSpecies_new),
+	Vphase->setMolesFromVCSCheck(VCS_STATECALC_NEW,
+				     VCS_DATA_PTR(m_molNumSpecies_new),
 				     VCS_DATA_PTR(m_tPhaseMoles_new), i);
       }
 #ifdef DEBUG_MODE

@@ -283,7 +283,7 @@ void VCS_PROB::prob_report(int print_lvl) {
       Vphase = VPhaseList[iphase];
       std::string EOS_cstr = string16_EOSType(Vphase->EqnState);
       plogf("%16s %5d %5d %8d ", Vphase->PhaseName.c_str(),
-	     Vphase->VP_ID, Vphase->SingleSpecies, Vphase->GasPhase);
+	     Vphase->VP_ID, Vphase->SingleSpecies, Vphase->m_gasPhase);
       plogf("%16s %8d %16e ", EOS_cstr.c_str(),
 	     Vphase->NVolSpecies, Vphase->TMolesInert);
       if (iest >= 0) plogf("%16e\n",  Vphase->TotalMoles());
@@ -321,7 +321,8 @@ void VCS_PROB::prob_report(int print_lvl) {
     for (iphase = 0; iphase < NPhase; iphase++) {
       Vphase = VPhaseList[iphase];
       Vphase->G0_calc(T);
-      Vphase->GStar_calc(T, PresPA);
+      Vphase->setState_TP(T, PresPA);
+      Vphase->GStar_calc();
       for (int kindex = 0; kindex < Vphase->NVolSpecies; kindex++) {
 	int kglob = Vphase->IndSpecies[kindex];
 	plogf("%16s ", SpName[kglob].c_str());
@@ -491,7 +492,7 @@ void VCS_PROB::reportCSV(const std::string &reportFile) {
     //const Cantera::ThermoPhase *tptr = volP->ptrThermoPhase();
     int nSpeciesPhase = volP->NVolSpecies;
     volPM.resize(nSpeciesPhase, 0.0);
-    volP->sendToVCSVolPM(VCS_DATA_PTR(volPM));
+    volP->sendToVCS_VolPM(VCS_DATA_PTR(volPM));
   
     double TMolesPhase = volP->TotalMoles();
     double VolPhaseVolumes = 0.0;
@@ -519,7 +520,7 @@ void VCS_PROB::reportCSV(const std::string &reportFile) {
     const Cantera::ThermoPhase *tp = volP->ptrThermoPhase();
     string phaseName = volP->PhaseName;
     int nSpeciesPhase = volP->NVolSpecies;
-    volP->sendToVCSVolPM(VCS_DATA_PTR(volPM));
+    volP->sendToVCS_VolPM(VCS_DATA_PTR(volPM));
     double TMolesPhase = volP->TotalMoles();
     //AssertTrace(TMolesPhase == m_mix->phaseMoles(iphase));
     activity.resize(nSpeciesPhase, 0.0);

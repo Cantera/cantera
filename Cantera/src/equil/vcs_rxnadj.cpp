@@ -334,7 +334,7 @@ namespace VCSnonideal {
 	 * -> This scatter calculation is carried out in the 
 	 *    vcs_VolPhase object.
 	 */
-	Vphase->sendToVCSLnActCoeffJac(m_dLnActCoeffdMolNum.baseDataAddr());
+	Vphase->sendToVCS_LnActCoeffJac(m_dLnActCoeffdMolNum.baseDataAddr());
       }
     }
   }

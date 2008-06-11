@@ -1145,7 +1145,7 @@ namespace VCSnonideal {
 
       vcs_VolPhase *VolPhase = vprob->VPhaseList[iphase];
       VolPhase->resize(iphase, nSpPhase, phaseName.c_str(), 0.0);
-      VolPhase->GasPhase = gasPhase;
+      VolPhase->m_gasPhase = gasPhase;
       /*
        * Tell the vcs_VolPhase pointer about cantera
        */
@@ -1385,7 +1385,7 @@ namespace VCSnonideal {
 	}
       }
 
-      VolPhase->setMolesFromVCS(VCS_DATA_PTR(vprob->w));
+      VolPhase->setMolesFromVCS(VCS_STATECALC_OLD, VCS_DATA_PTR(vprob->w));
       /*
        * Now, calculate a sample naught gibbs free energy calculation
        * at the specified temperature.
@@ -1443,7 +1443,7 @@ namespace VCSnonideal {
 	std::string sEOS = string16_EOSType(VolPhase->EqnState);
 	plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
 	       VolPhase->VP_ID,       VolPhase->SingleSpecies,
-	       VolPhase->GasPhase,    sEOS.c_str(),
+	       VolPhase->m_gasPhase,    sEOS.c_str(),
 	       VolPhase->NVolSpecies, VolPhase->TMolesInert );
 	plogf("%16e\n",  VolPhase->TotalMoles());
       }
@@ -1511,7 +1511,7 @@ namespace VCSnonideal {
 	int kglob = volPhase->IndSpecies[volPhase->m_phiVarIndex];
 	vprob->w[kglob] = tPhase->electricPotential();
       }
-      volPhase->setMolesFromVCS(VCS_DATA_PTR(vprob->w));
+      volPhase->setMolesFromVCS(VCS_STATECALC_OLD, VCS_DATA_PTR(vprob->w));
       if (volPhase->TotalMoles() > 0.0) {
 	volPhase->Existence = 1;
       } else {
@@ -1561,7 +1561,7 @@ namespace VCSnonideal {
 	std::string sEOS = string16_EOSType(VolPhase->EqnState);
 	plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
 	       VolPhase->VP_ID,       VolPhase->SingleSpecies,
-	       VolPhase->GasPhase,    sEOS.c_str(),
+	       VolPhase->m_gasPhase,    sEOS.c_str(),
 	       VolPhase->NVolSpecies, VolPhase->TMolesInert );
 	plogf("%16e\n",  VolPhase->TotalMoles() ); 
       }
