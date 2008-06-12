@@ -1323,7 +1323,12 @@ private:
 
   void vcs_TCounters_report(int timing_print_lvl = 1);
 
-  void vcs_setMoleNumVolPhases(bool upToDate, int stateCalc);
+  void vcs_setFlagsVolPhases(const bool upToDate, const int stateCalc);
+
+  void vcs_setFlagsVolPhase(const int iph, const bool upToDate, const int stateCalc);
+
+  void vcs_forceMolUpdateVolPhase(const int stateCalc);
+
 
 public:
   //! value of the number of species  used to malloc data structures

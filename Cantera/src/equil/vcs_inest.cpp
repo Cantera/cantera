@@ -325,6 +325,7 @@ namespace VCSnonideal {
       /* ******************************************* */
       /* **** CONVERGENCE FORCING SECTION ********** */
       /* ******************************************* */
+      vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
       vcs_dfe(VCS_STATECALC_OLD, 0, 0, nspecies);
       for (kspec = 0, s = 0.0; kspec < nspecies; ++kspec) {
 	s += m_deltaMolNumSpecies[kspec] * m_feSpecies_old[kspec];

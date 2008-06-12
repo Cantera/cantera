@@ -467,6 +467,53 @@ namespace VCSnonideal {
   }
   /***********************************************************************/
 
+  // Set the mole fractions from a conventional mole fraction vector
+  /*
+   *
+   * @param xmol Value of the mole fractions for the species
+   *             in the phase. These are contiguous. 
+   */
+  void vcs_VolPhase::setMoleFractions(const double * const xmol) {
+    double sum = -1.0;
+    for (int k = 0; k < NVolSpecies; k++) {
+      Xmol[k] = xmol[k];
+      sum+= xmol[k];
+    }
+    if (std::fabs(sum) > 1.0E-13) {
+      for (int k = 0; k < NVolSpecies; k++) {
+	Xmol[k] /= sum;
+      }
+    }
+    _updateMoleFractionDependencies();
+    m_UpToDate = false;
+    m_vcsStateStatus = VCS_STATECALC_TMP;
+  }
+  /***********************************************************************/
+
+  // Updates the mole fractions in subobjects
+  /*
+   *  Whenever the mole fractions change, this routine
+   *  should be called.
+   */
+  void vcs_VolPhase::_updateMoleFractionDependencies() {
+    if (m_useCanteraCalls) {
+      if (TP_ptr) {
+	TP_ptr->setState_PX(Pres, VCS_DATA_PTR(Xmol));
+      }
+    }
+    if (!m_isIdealSoln) {
+      m_UpToDate_AC = false;
+      m_UpToDate_VolPM = false;
+    }
+  }
+  /************************************************************************/
+
+  // Return a const reference to the mole fraction vector in the phase
+  const std::vector<double> & vcs_VolPhase::moleFractions() const {
+    return Xmol;
+  }
+  /***********************************************************************/
+
   // Set the moles within the phase
   /*
    *  This function takes as input the mole numbers in vcs format, and
@@ -575,52 +622,6 @@ namespace VCSnonideal {
   }
   /***********************************************************************/
 
-  // Set the mole fractions from a conventional mole fraction vector
-  /*
-   *
-   * @param xmol Value of the mole fractions for the species
-   *             in the phase. These are contiguous. 
-   */
-  void vcs_VolPhase::setMoleFractions(const double * const xmol) {
-    double sum = -1.0;
-    for (int k = 0; k < NVolSpecies; k++) {
-      Xmol[k] = xmol[k];
-      sum+= xmol[k];
-    }
-    if (std::fabs(sum) > 1.0E-13) {
-      for (int k = 0; k < NVolSpecies; k++) {
-	Xmol[k] /= sum;
-      }
-    }
-    _updateMoleFractionDependencies();
-    m_UpToDate = false;
-    m_vcsStateStatus = VCS_STATECALC_TMP;
-  }
-  /***********************************************************************/
-
-  // Updates the mole fractions in subobjects
-  /*
-   *  Whenever the mole fractions change, this routine
-   *  should be called.
-   */
-  void vcs_VolPhase::_updateMoleFractionDependencies() {
-    if (m_useCanteraCalls) {
-      if (TP_ptr) {
-	TP_ptr->setState_PX(Pres, VCS_DATA_PTR(Xmol));
-      }
-    }
-    if (!m_isIdealSoln) {
-      m_UpToDate_AC = false;
-      m_UpToDate_VolPM = false;
-    }
-  }
-
-  // Return a const reference to the mole fraction vector in the phase
-  const std::vector<double> & vcs_VolPhase::moleFractions() const {
-    return Xmol;
-  }
-  /***********************************************************************/
-
   // Set the moles within the phase
   /*
    *  This function takes as input the mole numbers in vcs format, and
@@ -635,8 +636,7 @@ namespace VCSnonideal {
    */
   void vcs_VolPhase::setMolesFromVCSCheck(const int stateCalc,
 					  const double * molesSpeciesVCS, 
-					  const double * const TPhMoles,
-					  int iphase) {
+					  const double * const TPhMoles) {
     setMolesFromVCS(stateCalc, molesSpeciesVCS);
     /*
      * Check for consistency with TPhMoles[]
@@ -650,6 +650,29 @@ namespace VCSnonideal {
 	      "We have a consistency problem: %21.16g %21.16g\n",
 	      Tcheck, TMoles);
 	std::exit(-1);
+      }
+    }
+  }
+  /***********************************************************************/
+
+  // Update the moles within the phase, if necessary
+  /*
+   *  This function takes as input the stateCalc value, which 
+   *  determines where within VCS_SOLVE to fetch the mole numbers.
+   *  It then updates this object with their values. This is essentially
+   *  a gather routine.
+   *
+   *  @param stateCalc    State calc value either VCS_STATECALC_OLD 
+   *                      or  VCS_STATECALC_NEW. With any other value
+   *                      nothing is done.
+   *
+   */
+  void vcs_VolPhase::updateFromVCS_MoleNumbers(const int stateCalc) {
+    if (!m_UpToDate || (stateCalc != m_vcsStateStatus)) {
+      if (stateCalc == VCS_STATECALC_OLD || stateCalc == VCS_STATECALC_NEW) {
+	if (m_owningSolverObject) {
+	  setMolesFromVCS(stateCalc);
+	}
       }
     }
   }
@@ -799,28 +822,6 @@ namespace VCSnonideal {
   }
   /***********************************************************************/
 
-  // Update the moles within the phase, if necessary
-  /*
-   *  This function takes as input the stateCalc value, which 
-   *  determines where within VCS_SOLVE to fetch the mole numbers.
-   *  It then updates this object with their values. This is essentially
-   *  a gather routine.
-   *
-   *  @param stateCalc    State calc value either VCS_STATECALC_OLD 
-   *                      or  VCS_STATECALC_NEW. With any other value
-   *                      nothing is done.
-   *
-   */
-  void vcs_VolPhase::updateFromVCS_MoleNumbers(const int stateCalc) {
-    if (!m_UpToDate || (stateCalc != m_vcsStateStatus)) {
-      if (stateCalc == VCS_STATECALC_OLD || stateCalc == VCS_STATECALC_NEW) {
-	if (m_owningSolverObject) {
-	  setMolesFromVCS(stateCalc);
-	}
-      }
-    }
-  }
-  /***********************************************************************/
 
   // Molar volume calculation for standard state of one species
   /*
@@ -971,7 +972,16 @@ namespace VCSnonideal {
    *      j = id of the species mole number
    *      k = id of the species activity coefficient
    */
-  void vcs_VolPhase::sendToVCS_LnActCoeffJac(double * const * const LnACJac_VCS) const {
+  void vcs_VolPhase::sendToVCS_LnActCoeffJac(double * const * const LnACJac_VCS) {
+    /*
+     * update the Ln Act Coeff jacobian entries with respect to the
+     * mole number of species in the phase -> we always assume that
+     * they are out of date.
+     */
+    updateLnActCoeffJac();
+    /*
+     *  Now copy over the values
+     */
     int j, k, jglob, kglob;
     for (j = 0; j < NVolSpecies; j++) {
       jglob = IndSpecies[j];

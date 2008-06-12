@@ -86,6 +86,7 @@ namespace VCSnonideal {
     if (m_unitsState == VCS_DIMENSIONAL_G) {
       vcs_nondim_TP();  
     }
+    vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
     vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesTot);  
     /* ******************************************************** */
     /* *** PRINT OUT RESULTS ********************************** */

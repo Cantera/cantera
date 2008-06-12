@@ -284,6 +284,7 @@ namespace VCSnonideal {
     /* ***************************************************************************** */
     /* **** EVALUATE ALL CHEMICAL POTENTIALS AT THE OLD (CURRENT) MOLE NUMBERS ***** */
     /* ***************************************************************************** */
+    vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
     vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
 
     /*
@@ -382,6 +383,7 @@ namespace VCSnonideal {
       }
 #endif
       vcs_elcorr(VCS_DATA_PTR(sm), VCS_DATA_PTR(wx));
+      vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
       vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
     }
 #ifdef DEBUG_MODE	
@@ -419,6 +421,7 @@ namespace VCSnonideal {
        *          We have already evaluated the major non-components 
        */
       if (uptodate_minors == FALSE) {
+	vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
 	vcs_dfe(VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
 	vcs_deltag(1, false, VCS_STATECALC_NEW);
       }
@@ -608,7 +611,8 @@ namespace VCSnonideal {
 		double maxPermissible = m_elemAbundancesGoal[j] / atomComp;
 		if (maxPermissible < VCS_DELETE_MINORSPECIES_CUTOFF) {
 #ifdef DEBUG_MODE
-		  sprintf(ANOTE, "Species stays zeroed even though dG neg, because of %s elemAbund",
+		  sprintf(ANOTE, "Species stays zeroed even though dG "
+			  "neg, because of %s elemAbund",
 			  m_elementName[j].c_str());
 #endif
 		  resurrect = false;
@@ -1099,7 +1103,7 @@ namespace VCSnonideal {
      *         solution values. We only calculate a subset of these, because 
      *         we have only updated a subset of the W(). 
      */
-    vcs_setMoleNumVolPhases(false, VCS_STATECALC_NEW);
+    vcs_setFlagsVolPhases(false, VCS_STATECALC_NEW);
     vcs_updateVP(VCS_STATECALC_NEW);
     vcs_dfe(VCS_STATECALC_NEW, 0, 0, m_numSpeciesTot);
 
@@ -1241,6 +1245,7 @@ namespace VCSnonideal {
      *                we have already done this inside the FORCED 
      *                loop. 
      */
+    vcs_forceMolUpdateVolPhase(VCS_STATECALC_NEW);
     vcs_dcopy(VCS_DATA_PTR(m_tPhaseMoles_old), VCS_DATA_PTR(m_tPhaseMoles_new), m_numPhases);
     vcs_dcopy(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_molNumSpecies_new),
 	      m_numSpeciesRdc);
@@ -1249,7 +1254,8 @@ namespace VCSnonideal {
     vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_old), VCS_DATA_PTR(m_deltaGRxn_new), m_numRxnRdc);
     vcs_dcopy(VCS_DATA_PTR(m_feSpecies_old), VCS_DATA_PTR(m_feSpecies_new), m_numSpeciesRdc);
       
-    vcs_updateVP(VCS_STATECALC_OLD);
+    //vcs_updateVP(VCS_STATECALC_OLD);
+    vcs_setFlagsVolPhases(true, VCS_STATECALC_OLD);
     /*
      *       Increment the iteration counters
      */
@@ -1325,6 +1331,7 @@ namespace VCSnonideal {
 			VCS_DATA_PTR(sm), VCS_DATA_PTR(ss), test, 
 			&usedZeroedSpecies);
       if (retn != VCS_SUCCESS) return retn;
+      vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
       vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
       vcs_deltag(0, true, VCS_STATECALC_OLD);
       uptodate_minors = TRUE;
@@ -1358,6 +1365,7 @@ namespace VCSnonideal {
       }
 #endif
       vcs_elcorr(VCS_DATA_PTR(sm), VCS_DATA_PTR(wx));
+      vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
       vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
       vcs_deltag(0, true,  VCS_STATECALC_OLD);
       uptodate_minors = TRUE;
@@ -1507,7 +1515,8 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 		    if (m_debug_print_lvl >= 2) {
 		      plogf("   --- Get a new basis because %s", m_speciesName[l].c_str());
-		      plogf(" has dg < 0.0 and comp %s has zero mole num", m_speciesName[j].c_str());
+		      plogf(" has dg < 0.0 and comp %s has zero mole num", 
+			    m_speciesName[j].c_str());
 		      plogf(" and share nonzero stoic: %-9.1f", 
 			    m_stoichCoeffRxnMatrix[i][j]);
 		      plogendl();
@@ -1593,6 +1602,7 @@ namespace VCSnonideal {
 	     *   For this special case, we must reevaluate thermo functions
 	     */
 	    if (iti != 0) {
+	      vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
 	      vcs_dfe(VCS_STATECALC_OLD, 0, kspec, kspec+1);
 	      vcs_deltag(0, false, VCS_STATECALC_OLD);
 	    }
@@ -1674,6 +1684,7 @@ namespace VCSnonideal {
        *       for minor species, if needed.
        */
       if (iti != 0) {
+	vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
 	vcs_dfe(VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
 	vcs_deltag(1, false, VCS_STATECALC_OLD);
 	uptodate_minors = TRUE;
@@ -1784,6 +1795,7 @@ namespace VCSnonideal {
       /*
        *      Go back to evaluate the total moles of gas and liquid. 
        */
+      vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
       vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
       vcs_deltag(0, false, VCS_STATECALC_OLD);
       /*
@@ -1874,6 +1886,7 @@ namespace VCSnonideal {
      *        for minor species and go back to do a full iteration
      */
     MajorSpeciesHaveConverged = true;
+    vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
     vcs_dfe(VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
     vcs_deltag(0, false, VCS_STATECALC_OLD);
     iti = 0;
@@ -1893,6 +1906,7 @@ namespace VCSnonideal {
        *        for minor species and go back to do a full iteration
        */
       MajorSpeciesHaveConverged = true;
+      vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
       vcs_dfe(VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
       vcs_deltag(0, false, VCS_STATECALC_OLD);
       iti = 0;
@@ -2505,7 +2519,7 @@ namespace VCSnonideal {
      */
     Vphase->setMolesFromVCSCheck(VCS_STATECALC_OLD, 
 				 VCS_DATA_PTR(m_molNumSpecies_old),
-				 VCS_DATA_PTR(m_tPhaseMoles_old), iph);
+				 VCS_DATA_PTR(m_tPhaseMoles_old));
   } 
   /**********************************************************************************/
    
@@ -2757,7 +2771,7 @@ namespace VCSnonideal {
 #endif
       }
     }
-
+    vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
     vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesTot);
     vcs_deltag(0, true, VCS_STATECALC_OLD);
 
@@ -2767,12 +2781,14 @@ namespace VCSnonideal {
       iph = m_phaseID[kspec];
       if (m_tPhaseMoles_old[iph] > 0.0) {
 	if (fabs(m_deltaGRxn_old[irxn]) > m_tolmin) {
-	  if (((m_molNumSpecies_old[kspec] * exp(-m_deltaGRxn_old[irxn])) > VCS_DELETE_MINORSPECIES_CUTOFF) ||
+	  if (((m_molNumSpecies_old[kspec] * exp(-m_deltaGRxn_old[irxn])) > 
+	       VCS_DELETE_MINORSPECIES_CUTOFF) ||
 	      (m_molNumSpecies_old[kspec] > VCS_DELETE_MINORSPECIES_CUTOFF)) {
 	    retn++;
 #ifdef DEBUG_MODE
 	    if (m_debug_print_lvl >= 2) {	
-	      plogf("  --- add_deleted():  species %s with mol number %g not converged: DG = %g",
+	      plogf("  --- add_deleted():  species %s "
+		    "with mol number %g not converged: DG = %g",
 		    m_speciesName[kspec].c_str(), m_molNumSpecies_old[kspec],
 		    m_deltaGRxn_old[irxn]);
 	      plogendl();
@@ -2920,6 +2936,7 @@ namespace VCSnonideal {
      *           only step is being carried out, then we don't need to
      *           update the minor noncomponents. 
      */
+    vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
     vcs_dfe(VCS_STATECALC_NEW, 0, 0, m_numSpeciesRdc);
 
     /*
@@ -4937,11 +4954,11 @@ namespace VCSnonideal {
       if (vcsState == VCS_STATECALC_OLD) {
 	Vphase->setMolesFromVCSCheck(VCS_STATECALC_OLD, 
 				     VCS_DATA_PTR(m_molNumSpecies_old),
-				     VCS_DATA_PTR(m_tPhaseMoles_old), i);
+				     VCS_DATA_PTR(m_tPhaseMoles_old));
       } else if (vcsState == VCS_STATECALC_NEW) {
 	Vphase->setMolesFromVCSCheck(VCS_STATECALC_NEW,
 				     VCS_DATA_PTR(m_molNumSpecies_new),
-				     VCS_DATA_PTR(m_tPhaseMoles_new), i);
+				     VCS_DATA_PTR(m_tPhaseMoles_new));
       }
 #ifdef DEBUG_MODE
       else {
@@ -5362,8 +5379,7 @@ namespace VCSnonideal {
   }
   /*******************************************************************************/
 
-
-  void VCS_SOLVE::vcs_setMoleNumVolPhases(bool upToDate, int stateCalc) {
+  void VCS_SOLVE::vcs_setFlagsVolPhases(const bool upToDate, const int stateCalc) {
     int iph;
     vcs_VolPhase *Vphase;
     if (!upToDate) {
@@ -5379,6 +5395,29 @@ namespace VCSnonideal {
       } 
     }
   }
+  /*******************************************************************************/
 
+  void VCS_SOLVE::vcs_setFlagsVolPhase(const int iph, const bool upToDate,
+				       const int stateCalc) {
+    vcs_VolPhase *Vphase;
+    if (!upToDate) {
+      Vphase = m_VolPhaseList[iph];  
+      Vphase->m_UpToDate = false;
+    } else {
+      Vphase = m_VolPhaseList[iph];  
+      Vphase->m_UpToDate = true;
+      Vphase->m_vcsStateStatus = stateCalc;
+    }
+  }
+  /*******************************************************************************/
+
+  void VCS_SOLVE::vcs_forceMolUpdateVolPhase(const int stateCalc) {
+    int iph;
+    vcs_VolPhase *Vphase;
+    for (iph = 0; iph < m_numPhases; iph++) {
+      Vphase = m_VolPhaseList[iph];  
+      Vphase->updateFromVCS_MoleNumbers(stateCalc);
+    }
+  }
 
 }

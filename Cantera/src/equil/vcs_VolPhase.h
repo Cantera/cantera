@@ -175,7 +175,8 @@ namespace VCSnonideal {
      *            to gather the species into the local contiguous vector
      *            format. 
      */
-    void setMolesFromVCS(const int stateCalc, const double * const molesSpeciesVCS = 0);
+    void setMolesFromVCS(const int stateCalc, 
+			 const double * const molesSpeciesVCS = 0);
 
     //! Set the moles within the phase
     /*!
@@ -199,8 +200,21 @@ namespace VCSnonideal {
      */
     void setMolesFromVCSCheck(const int stateCalc,
 			      const double * molesSpeciesVCS,
-			      const double * const TPhMoles,
-			      int iphase = -1);
+			      const double * const TPhMoles);
+
+    //! Update the moles within the phase, if necessary
+    /*!
+     *  This function takes as input the stateCalc value, which 
+     *  determines where within VCS_SOLVE to fetch the mole numbers.
+     *  It then updates this object with their values. This is essentially
+     *  a gather routine.
+     *
+     *  @param stateCalc    State calc value either VCS_STATECALC_OLD 
+     *                      or  VCS_STATECALC_NEW. With any other value
+     *                      nothing is done.
+     *
+     */
+    void updateFromVCS_MoleNumbers(const int stateCalc);
 
     //! Fill in an activity coefficients vector within a VCS_SOLVE object
     /*!
@@ -271,20 +285,7 @@ namespace VCSnonideal {
      */
     double G0_calc_one(int kspec, double TKelvin);
 
-    //! Update the moles within the phase, if necessary
-    /*!
-     *  This function takes as input the stateCalc value, which 
-     *  determines where within VCS_SOLVE to fetch the mole numbers.
-     *  It then updates this object with their values. This is essentially
-     *  a gather routine.
-     *
-     *  @param stateCalc    State calc value either VCS_STATECALC_OLD 
-     *                      or  VCS_STATECALC_NEW. With any other value
-     *                      nothing is done.
-     *
-     */
-    void updateFromVCS_MoleNumbers(const int stateCalc);
-
+  
   private:
     //! Molar volume calculation for standard states
     /*!
@@ -361,6 +362,7 @@ namespace VCSnonideal {
      */
     void setState_TP(double temperature_Kelvin, double pressure_PA);
 
+  private:
     //! Evaluation of Activity Coefficient Jacobians
     /*!
      *  This is the derivative of the ln of the activity coefficient
@@ -376,6 +378,7 @@ namespace VCSnonideal {
      */
     void updateLnActCoeffJac();
  
+  public:
     // Downloads the ln ActCoeff jacobian into the VCS version of the
     // ln ActCoeff jacobian.
     /*
@@ -389,7 +392,7 @@ namespace VCSnonideal {
      *      j = id of the species mole number
      *      k = id of the species activity coefficient
      */
-    void sendToVCS_LnActCoeffJac(double * const * const LnACJac_VCS) const;
+    void sendToVCS_LnActCoeffJac(double * const * const LnACJac_VCS);
 
     //! Set the pointer for Cantera's ThermoPhase parameter
     /*!
@@ -735,7 +738,6 @@ namespace VCSnonideal {
      *  the bool m_UpToDate_AC.
      */
     mutable std::vector<double> ActCoeff;
-
 
     //! Vector of the derivatives of the ln activity coefficient wrt to the
     //! current mole number
