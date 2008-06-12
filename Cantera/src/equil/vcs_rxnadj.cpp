@@ -324,11 +324,16 @@ namespace VCSnonideal {
        * We don't need to call single species phases;
        */
       if (!Vphase->SingleSpecies && !Vphase->isIdealSoln()) {
+
+        /*
+         * update the mole numbers
+         */
+        Vphase->setMolesFromVCS(VCS_STATECALC_OLD, moleSpeciesVCS);
 	/*
 	 * update the Ln Act Coeff jacobian entries with respect to the
 	 * mole number of species in the phase
 	 */
-	Vphase->updateLnActCoeffJac(moleSpeciesVCS);
+	Vphase->updateLnActCoeffJac();
 	/*
 	 * Download the resulting calculation into the full vector
 	 * -> This scatter calculation is carried out in the 

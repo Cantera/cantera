@@ -187,7 +187,8 @@ double VCS_SPECIES_THERMO::GStar_R_calc(int kglob, double TKelvin,
   if (UseCanteraCalls) {
     AssertThrowVCS(m_VCS_UnitsFormat == VCS_UNITS_MKS, "Possible inconsistency");
     int kspec = IndexSpeciesPhase;
-    fe = OwningPhase->GStar_calc_one(kspec, TKelvin, pres);
+    OwningPhase->setState_TP(TKelvin, pres);
+    fe = OwningPhase->GStar_calc_one(kspec);
     double R = vcsUtil_gasConstant(m_VCS_UnitsFormat);
     fe /= R;
   } else {

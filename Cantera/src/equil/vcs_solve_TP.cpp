@@ -1099,6 +1099,7 @@ namespace VCSnonideal {
      *         solution values. We only calculate a subset of these, because 
      *         we have only updated a subset of the W(). 
      */
+    vcs_setMoleNumVolPhases(false, VCS_STATECALC_NEW);
     vcs_updateVP(VCS_STATECALC_NEW);
     vcs_dfe(VCS_STATECALC_NEW, 0, 0, m_numSpeciesTot);
 
@@ -3273,7 +3274,6 @@ namespace VCSnonideal {
   }
   /*****************************************************************************/
 
-
   // This subroutine calculates reaction free energy changes for 
   // all noncomponent formation reactions.
   /*
@@ -5361,4 +5361,24 @@ namespace VCSnonideal {
     return dx;
   }
   /*******************************************************************************/
+
+
+  void VCS_SOLVE::vcs_setMoleNumVolPhases(bool upToDate, int stateCalc) {
+    int iph;
+    vcs_VolPhase *Vphase;
+    if (!upToDate) {
+      for (iph = 0; iph < m_numPhases; iph++) {
+	Vphase = m_VolPhaseList[iph];  
+	Vphase->m_UpToDate = false;
+      }
+    } else {
+      for (iph = 0; iph < m_numPhases; iph++) {
+	Vphase = m_VolPhaseList[iph];  
+	Vphase->m_UpToDate = true;
+	Vphase->m_vcsStateStatus = stateCalc;
+      } 
+    }
+  }
+
+
 }

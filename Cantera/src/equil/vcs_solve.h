@@ -1323,6 +1323,8 @@ private:
 
   void vcs_TCounters_report(int timing_print_lvl = 1);
 
+  void vcs_setMoleNumVolPhases(bool upToDate, int stateCalc);
+
 public:
   //! value of the number of species  used to malloc data structures
   int NSPECIES0;

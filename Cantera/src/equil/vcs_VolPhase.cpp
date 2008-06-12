@@ -23,7 +23,7 @@
 
 namespace VCSnonideal {
 
-  /****************************************************************************
+  /*
    * 
    *  vcs_VolPhase():
    *
@@ -68,6 +68,7 @@ namespace VCSnonideal {
   {
     m_owningSolverObject = owningSolverObject;
   }
+  /************************************************************************************/
 
   /*
    * 
@@ -82,6 +83,7 @@ namespace VCSnonideal {
       sp = 0;
     }
   }
+  /************************************************************************************/
 
   /*
    * 
@@ -131,8 +133,9 @@ namespace VCSnonideal {
      */
     *this = b;
   }
-
-  /*****************************************************************************
+  /*****************************************************************************/
+  
+  /*
    * Assignment operator()
    *
    *   (note, this is used, so keep it current!)
@@ -239,7 +242,7 @@ namespace VCSnonideal {
     }
     return *this;
   }
-
+  /************************************************************************************/
 
   void vcs_VolPhase::resize(int phaseNum, int nspecies, const char *phaseName,
 			    double molesInert) {
@@ -327,7 +330,7 @@ namespace VCSnonideal {
     m_UpToDate_VolPM      = false;
     m_UpToDate_GStar      = false;
   }
-
+  /*******************************************************************************/
 
   //! Evaluate activity coefficients
   /*!
@@ -357,8 +360,9 @@ namespace VCSnonideal {
     }
     m_UpToDate_AC = true;
   }
+  /********************************************************************************/
 
-  /******************************************************************************
+  /*
    *
    * Evaluate one activity coefficients.
    *
@@ -369,7 +373,7 @@ namespace VCSnonideal {
     evaluateActCoeff();
     return(ActCoeff[kspec]);
   }
-
+  /************************************************************************************/
 
   // Gibbs free energy calculation at a temperature for the reference state
   // of each species
@@ -424,8 +428,7 @@ namespace VCSnonideal {
    * @param TKelvin Current temperature
    * @param pres    Current pressure (pascal)
    */
-  void vcs_VolPhase::GStar_calc() {
-    setState_TP(Temp, Pres);
+  void vcs_VolPhase::GStar_calc() const {
     if (!m_UpToDate_GStar) {
       if (m_useCanteraCalls) {
 	TP_ptr->getStandardChemPotentials(VCS_DATA_PTR(StarChemicalPotential));
@@ -452,16 +455,14 @@ namespace VCSnonideal {
    * The kth species standard state G is returned
    *
    * @param kspec   Species number (within the phase)
-   * @param TKelvin Current temperature (kelvin)
-   * @param pres    Current pressure (pascal)
    *
    * @return Gstar[kspec] returns the gibbs free energy for the
-   *         standard state of the kth species.
+   *         standard state of the kspec species.
    */
-  double vcs_VolPhase::GStar_calc_one(int kspec, double tkelvin,
-				      double pres) {
-    setState_TP(tkelvin, pres);
-    GStar_calc();
+  double vcs_VolPhase::GStar_calc_one(int kspec) {
+    if (!m_UpToDate_GStar) {
+      GStar_calc();
+    }
     return StarChemicalPotential[kspec];
   }
   /***********************************************************************/
@@ -610,9 +611,7 @@ namespace VCSnonideal {
     }
     if (!m_isIdealSoln) {
       m_UpToDate_AC = false;
-      m_UpToDate_VolStar = false;
       m_UpToDate_VolPM = false;
-      m_UpToDate_GStar = false;
     }
   }
 
@@ -713,7 +712,6 @@ namespace VCSnonideal {
    */
   void vcs_VolPhase::sendToVCS_GStar(double * const gstar){  
     if (!m_UpToDate_GStar) {
-      setState_TP(Temp, Pres);
       GStar_calc();
     }
     int kglob;
@@ -771,7 +769,7 @@ namespace VCSnonideal {
     m_UpToDate_VolPM   = false;
     m_UpToDate_GStar   = false;
   }
- /***********************************************************************/
+  /***********************************************************************/
 
   // Molar volume calculation for standard states
   /*
@@ -783,8 +781,7 @@ namespace VCSnonideal {
    *
    *  Calculations are in m**3/kmol
    */
-  void vcs_VolPhase::VolStar_calc(double tkelvin, double pres) {
-    setState_TP(tkelvin, pres);
+  void vcs_VolPhase::VolStar_calc() const {
     if (!m_UpToDate_VolStar) {     
       if (m_useCanteraCalls) {
 	TP_ptr->getStandardVolumes(VCS_DATA_PTR(StarMolarVol));
@@ -794,13 +791,13 @@ namespace VCSnonideal {
 	  vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
 	  VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
 	  StarMolarVol[k] =
-	    (sTherm->VolStar_calc(kglob, tkelvin, pres));
+	    (sTherm->VolStar_calc(kglob, Temp, Pres));
 	}
       }
       m_UpToDate_VolStar = true;
     }
   }
- /***********************************************************************/
+  /***********************************************************************/
 
   // Update the moles within the phase, if necessary
   /*
@@ -815,7 +812,7 @@ namespace VCSnonideal {
    *
    */
   void vcs_VolPhase::updateFromVCS_MoleNumbers(const int stateCalc) {
-    if (!m_UpToDate) {
+    if (!m_UpToDate || (stateCalc != m_vcsStateStatus)) {
       if (stateCalc == VCS_STATECALC_OLD || stateCalc == VCS_STATECALC_NEW) {
 	if (m_owningSolverObject) {
 	  setMolesFromVCS(stateCalc);
@@ -839,13 +836,16 @@ namespace VCSnonideal {
    *         state
    */
   double vcs_VolPhase::VolStar_calc_one(int kspec, double tkelvin, 
-					double pres) 
-  {
-    VolStar_calc(tkelvin, pres);
+					double pres) {
+    setState_TP(tkelvin, pres);
+    if (!m_UpToDate_VolStar) { 
+      VolStar_calc();
+    }
     return StarMolarVol[kspec];
   }
+  /****************************************************************************/
 
-  /****************************************************************************
+  /*
    *
    * VolPM_calc
    */
@@ -885,20 +885,16 @@ namespace VCSnonideal {
     m_UpToDate_VolPM = true;
     return m_totalVol;
   }
+  /************************************************************************************/
 
   /*
    * updateLnActCoeffJac():
    *
    */
-  void vcs_VolPhase::updateLnActCoeffJac(const double * const moleNumbersVCS) {
+  void vcs_VolPhase::updateLnActCoeffJac() {
     int k, j;
     double deltaMoles_j = 0.0;
-    /*
-     * Make sure the base state of this object is fully up to date.
-     * with the current values of the mole numbers.
-     * -> This sets TMoles and Xmol[]
-     */
-    setMolesFromVCS(VCS_STATECALC_OLD, moleNumbersVCS);
+  
 
     /*
      * Evaluate the current base activity coefficients.
@@ -961,6 +957,7 @@ namespace VCSnonideal {
     _updateMoleFractionDependencies();
     evaluateActCoeff();
   }
+  /************************************************************************************/
 
   // Downloads the ln ActCoeff jacobian into the VCS version of the
   // ln ActCoeff jacobian.
@@ -986,7 +983,7 @@ namespace VCSnonideal {
       }
     }
   }
-  /**********************************************************************/
+  /************************************************************************************/
 
   // Set the pointer for Cantera's ThermoPhase parameter
   /*
@@ -1043,6 +1040,7 @@ namespace VCSnonideal {
       m_useCanteraCalls = false;
     }
   }
+  /************************************************************************************/
 
   // Return a const ThermoPhase pointer corresponding to this phase
   /*
@@ -1051,18 +1049,22 @@ namespace VCSnonideal {
   const Cantera::ThermoPhase *vcs_VolPhase::ptrThermoPhase() const {
     return TP_ptr;
   }
+  /************************************************************************************/
 
   double vcs_VolPhase::TotalMoles() const {
     return TMoles;
   }
+  /************************************************************************************/
 
   double vcs_VolPhase::molefraction(int k) const {
     return Xmol[k];
   }
+  /************************************************************************************/
 
   void vcs_VolPhase::setTotalMoles(double tmols)  {
     TMoles = tmols;
   }
+  /************************************************************************************/
 
   // Return a string representing the equation of state
   /* 
