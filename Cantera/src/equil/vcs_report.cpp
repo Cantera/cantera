@@ -203,22 +203,21 @@ namespace VCSnonideal {
     }
     plogf(" | DG/RT Rxn |\n");
     print_line("-", m_numComponents*10 + 45);
-    for (i = 0; i < m_numRxnTot; i++) {
-      int kspec = m_indexRxnToSpecies[i];
+    for (int irxn = 0; irxn < m_numRxnTot; irxn++) {
+      int kspec = m_indexRxnToSpecies[irxn];
       plogf(" %3d ", kspec);
       plogf("%-10.10s", m_speciesName[kspec].c_str());
       plogf("|%10.3g |", m_molNumSpecies_old[kspec]);
       for (j = 0; j < m_numComponents; j++) {
-	plogf("     %6.2f", m_stoichCoeffRxnMatrix[i][j]);
+	plogf("     %6.2f", m_stoichCoeffRxnMatrix[irxn][j]);
       }
-      // Note m_deltaGRxn_new[] stores in kspec slot not irxn slot, after solve
-      plogf(" |%10.3g |", m_deltaGRxn_new[kspec]);
+      plogf(" |%10.3g |", m_deltaGRxn_new[irxn]);
       plogf("\n");
     }
     print_line("-", m_numComponents*10 + 45);
     plogf("\n");
 
-    /* 
+    /*
      * ------------------ TABLE OF PHASE INFORMATION ---------------------
      */
     std::vector<double> gaPhase(m_numElemConstraints, 0.0);
@@ -262,7 +261,7 @@ namespace VCSnonideal {
 	plogf(" %10.3g", gaPhase[j]);
 	gaTPhase[j] += gaPhase[j];
       }
-      gibbsPhase = vcs_GibbsPhase(iphase, VCS_DATA_PTR(m_molNumSpecies_old), 
+      gibbsPhase = vcs_GibbsPhase(iphase, VCS_DATA_PTR(m_molNumSpecies_old),
 				  VCS_DATA_PTR(m_feSpecies_old));
       gibbsTotal += gibbsPhase;
       plogf(" | %18.11E |\n", gibbsPhase);
@@ -313,8 +312,12 @@ namespace VCSnonideal {
     vcs_printChemPotUnits(m_VCS_UnitsFormat);
     plogf(")\n");
     plogf("    Name        TKMoles     StandStateChemPot   "
-	  "   ln(AC)       ln(X_i)      |   F z_i phi   |    ChemPot    | (-lnMnaught)\n");
-    print_line("-", 115);
+	  "   ln(AC)       ln(X_i)      |   F z_i phi   |    ChemPot    | (-lnMnaught)");
+#ifdef DEBUG_MODE
+    plogf("|  (MolNum ChemPot)|");
+#endif
+    plogf("\n");
+    print_line("-", 147);
     for (i = 0; i < nspecies; ++i) {
       l = sortindex[i];
       int pid = m_phaseID[l];
@@ -346,12 +349,22 @@ namespace VCSnonideal {
 	exit(-1);
       } 
       plogf(" %12.4E |", m_feSpecies_old[l]);
-      if (m_lnMnaughtSpecies[l] != 0.0) {
-	plogf(" (%14.7E)", - m_lnMnaughtSpecies[l]);
+      if( m_lnMnaughtSpecies[l] != 0.0) {
+	plogf("(%11.5E)", - m_lnMnaughtSpecies[l]);
+      } else {
+	plogf("             ");
       }
+      
+#ifdef DEBUG_MODE
+      plogf("| %20.13E |", m_feSpecies_old[l] * m_molNumSpecies_old[l]);
+#endif
       plogf("\n");
     }
-    print_line("-", 115);
+#ifdef DEBUG_MODE
+    for (i = 0; i < 125; i++) plogf(" ");
+    plogf("%20.13E\n", g);
+#endif
+    print_line("-", 147);
 
     /*
      * ------------- TABLE OF SOLUTION COUNTERS --------------------------

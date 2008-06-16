@@ -926,11 +926,28 @@ namespace VCSnonideal {
 	    (doPhaseDeleteIph == -1) && 
 	    (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
 	  double dx_old = dx;
+#ifdef DEBUG_HKM_NOT
+	  std::vector<double> feSpecies_tmp(m_numSpeciesTot);
+	  feSpecies_tmp = m_feSpecies_old;
+	  std::vector<double> molNumSpecies_tmp(m_numSpeciesTot);
+	  molNumSpecies_tmp = m_molNumSpecies_old;
+#endif
 #ifdef DEBUG_MODE
 	  dx = vcs_line_search(irxn, dx_old, ANOTE);
 #else
 	  dx = vcs_line_search(irxn, dx_old);
 #endif
+#ifdef DEBUG_HKM_NOT
+	  for (int kk = 0; kk < m_numSpeciesTot; kk++) {
+	    if (feSpecies_tmp[kk] !=  m_feSpecies_old[kk]) {
+	      printf("we are here\n");
+	    }
+	    if (molNumSpecies_tmp[kk] !=  m_molNumSpecies_old[kk]) {
+	      printf("we are here\n");
+	    }
+	  }
+#endif
+	  vcs_setFlagsVolPhases(false, VCS_STATECALC_NEW);
 	}
 	m_deltaMolNumSpecies[kspec] = dx;
 
@@ -1942,14 +1959,14 @@ namespace VCSnonideal {
      *    Store the final Delta G values for each non-component species
      *    in the species slot rather than the reaction slot
      */
-    kspec = m_numSpeciesTot;
-    i = m_numRxnTot;
-    for (irxn = 0; irxn < m_numRxnTot; ++irxn) {
-      --kspec;
-      --i;
-      m_deltaGRxn_new[kspec] = m_deltaGRxn_new[i];
-    }
-    vcs_dzero(VCS_DATA_PTR(m_deltaGRxn_new), m_numComponents);
+    // kspec = m_numSpeciesTot;
+    // i = m_numRxnTot;
+    //for (irxn = 0; irxn < m_numRxnTot; ++irxn) {
+    //   --kspec;
+    // --i;
+    //  m_deltaGRxn_new[kspec] = m_deltaGRxn_new[i];
+    //}
+    // vcs_dzero(VCS_DATA_PTR(m_deltaGRxn_new), m_numComponents);
     /* 
      *       Evaluate the final mole fractions
      *        storring them in wt[]
@@ -2182,13 +2199,18 @@ namespace VCSnonideal {
       m_molNumSpecies_old[kspec] += dx;
       int iph = m_phaseID[kspec];
       m_tPhaseMoles_old[iph] += dx;
+      vcs_setFlagsVolPhase(iph, false, VCS_STATECALC_OLD);
+      
       for (j = 0; j < m_numComponents; ++j) {
-	iph = m_phaseID[j];
 	tmp = sc_irxn[j] * dx;
-	m_molNumSpecies_old[j] += tmp;
-	m_tPhaseMoles_old[iph] += tmp;
-	if (m_molNumSpecies_old[j] < 0.0) {
-	  m_molNumSpecies_old[j] = 0.0;
+	if (tmp != 0.0) {
+	  iph = m_phaseID[j];
+	  m_molNumSpecies_old[j] += tmp;
+	  m_tPhaseMoles_old[iph] += tmp;
+	  vcs_setFlagsVolPhase(iph, false, VCS_STATECALC_OLD);
+	  if (m_molNumSpecies_old[j] < 0.0) {
+	    m_molNumSpecies_old[j] = 0.0;
+	  }
 	}
       }
     }
@@ -2936,7 +2958,7 @@ namespace VCSnonideal {
      *           only step is being carried out, then we don't need to
      *           update the minor noncomponents. 
      */
-    vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
+    vcs_setFlagsVolPhases(false, VCS_STATECALC_NEW);
     vcs_dfe(VCS_STATECALC_NEW, 0, 0, m_numSpeciesRdc);
 
     /*
@@ -4388,14 +4410,14 @@ namespace VCSnonideal {
    *                      (VCS species order)
    * 
    */
-  void VCS_SOLVE::vcs_chemPotPhase(const int iph, const double *const molNum, 
+  void VCS_SOLVE::vcs_chemPotPhase(const int stateCalc, 
+				   const int iph, const double *const molNum, 
 				   double * const ac, double * const mu_i,
 				   const bool do_deleted) {
 
     vcs_VolPhase *Vphase = m_VolPhaseList[iph];
     int nkk = Vphase->NVolSpecies;
     int k, kspec;
-    int stateCalc = VCS_STATECALC_OLD;
 
 #ifdef DEBUG_MODE
     //if (m_debug_print_lvl >= 2) {
@@ -4414,7 +4436,7 @@ namespace VCSnonideal {
     }
 
     Vphase->setMolesFromVCS(stateCalc, molNum);
-    Vphase->sendToVCS_ActCoeff(ac);
+    Vphase->sendToVCS_ActCoeff(stateCalc, ac);
 
     double phi = Vphase->electricPotential();
     double Faraday_phi = m_Faraday_dim * phi;
@@ -4695,7 +4717,7 @@ namespace VCSnonideal {
 	Vphase = m_VolPhaseList[iphase];
 	if (!Vphase->SingleSpecies) {
 	  Vphase->setMolesFromVCS(stateCalc, molNum);
-	  Vphase->sendToVCS_ActCoeff(VCS_DATA_PTR(actCoeff_ptr));
+	  Vphase->sendToVCS_ActCoeff(stateCalc, VCS_DATA_PTR(actCoeff_ptr));
 	}
 	m_phasePhi[iphase] = Vphase->electricPotential();
 	m_phaseACAreCurrent[iphase] = 1;

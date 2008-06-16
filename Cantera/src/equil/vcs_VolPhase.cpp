@@ -146,7 +146,11 @@ namespace VCSnonideal {
     if (&b != this) {
       int old_num = NVolSpecies;
 
-      m_owningSolverObject = b.m_owningSolverObject;
+      //  Note: we comment this out for the assignment operator
+      //        specifically, because it isn't true for the assignment
+      //        operator but is true for a copy constructor
+      // m_owningSolverObject = b.m_owningSolverObject;
+
       VP_ID               = b.VP_ID;
       Domain_ID           = b.Domain_ID;
       SingleSpecies       = b.SingleSpecies;
@@ -688,7 +692,9 @@ namespace VCSnonideal {
    *            in all of the phases in a VCS problem. Only the
    *            entries for the current phase are filled in.
    */
-  void vcs_VolPhase::sendToVCS_ActCoeff(double * const AC) const {
+  void vcs_VolPhase::sendToVCS_ActCoeff(const int stateCalc,
+					double * const AC) {
+    updateFromVCS_MoleNumbers(stateCalc);
     if (!m_UpToDate_AC) {
       evaluateActCoeff();
     }

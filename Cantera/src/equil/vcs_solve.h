@@ -341,7 +341,7 @@ public:
    *              (VCS species order)
    * 
    */
-  void vcs_chemPotPhase(const int iph, const double *const molNum, 
+  void vcs_chemPotPhase(const int stateCalc, const int iph, const double *const molNum, 
 			double * const ac, double * const mu_i,
 			const bool do_deleted = false);
 
@@ -1301,7 +1301,8 @@ private:
    *
    * @return Returns the dimensionless deltaG of the reaction
    */
-  double deltaG_Recalc_Rxn(const int irxn, const double *const molNum,
+  double deltaG_Recalc_Rxn(const int stateCalc, 
+			   const int irxn, const double *const molNum,
 			   double * const ac, double * const mu_i);
 
   //! Delete memory that isn't just resizeable STL containers
@@ -1494,16 +1495,13 @@ public:
   //std::vector<double> wt;
   std::vector<double> m_molNumSpecies_new;
 
-  //! Delta G(I) for the noncomponent species  in  the mechanism.
+  //! Delta G(irxn) for the noncomponent species in the mechanism.
   /*!
-   *   Computed by the  subroutine  DELTAG. DG is the free
-   *    energy change for the reaction which
-   *              forms species K from the
-   *              component species. This vector has length 
-   *              equal to the number of noncomponent
-   *              species in the mechanism. It starts with
-   *              the first  current noncomponent species 
-   *              in the mechanism. 
+   *    Computed by the  subroutine  deltaG. m_deltaGRxn is the free
+   *    energy change for the reaction which forms species K from the
+   *    component species. This vector has length equal to the number
+   *    of noncomponent species in the mechanism. It starts with
+   *    the first current noncomponent species in the mechanism. 
    */
   std::vector<double> m_deltaGRxn_new;   
 

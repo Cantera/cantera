@@ -226,7 +226,7 @@ namespace VCSnonideal {
      *            in all of the phases in a VCS problem. Only the
      *            entries for the current phase are filled in.
      */
-    void sendToVCS_ActCoeff(double * const AC) const;
+    void sendToVCS_ActCoeff(const int stateCalc, double * const AC);
 
     //! set the electric potential of the phase
     /*!

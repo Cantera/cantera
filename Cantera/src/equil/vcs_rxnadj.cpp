@@ -372,13 +372,14 @@ namespace VCSnonideal {
    * Note, this is a dangerous routine that leaves the underlying objects in
    * an unknown state.
    */
-  double VCS_SOLVE::deltaG_Recalc_Rxn(const int irxn, const double *const molNum,
+  double VCS_SOLVE::deltaG_Recalc_Rxn(const int stateCalc, 
+				      const int irxn, const double *const molNum,
 				      double * const ac, double * const mu_i) {
     int kspec = irxn + m_numComponents;
     int *pp_ptr = m_phaseParticipation[irxn];
     for (int iphase = 0; iphase < m_numPhases; iphase++) {
       if (pp_ptr[iphase]) {
-	vcs_chemPotPhase(iphase, molNum, ac, mu_i);
+	vcs_chemPotPhase(stateCalc, iphase, molNum, ac, mu_i);
       }
     }
     double deltaG = mu_i[kspec];
@@ -424,7 +425,9 @@ namespace VCSnonideal {
     /*
      * Calculate the deltaG value at the dx = 0.0 point
      */
-    double deltaGOrig = deltaG_Recalc_Rxn(irxn, molNumBase, acBase, 
+    vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
+    double deltaGOrig = deltaG_Recalc_Rxn(VCS_STATECALC_OLD, 
+					  irxn, molNumBase, acBase, 
 					  VCS_DATA_PTR(m_feSpecies_old));
     double forig = fabs(deltaGOrig) + 1.0E-15;
     if (deltaGOrig > 0.0) {
@@ -461,8 +464,10 @@ namespace VCSnonideal {
       m_molNumSpecies_new[k] = molNumBase[k] + sc_irxn[k] * dx_orig;
       molSum +=  molNumBase[k];
     }
+    vcs_setFlagsVolPhases(false, VCS_STATECALC_NEW);
 
-    double deltaG1 = deltaG_Recalc_Rxn(irxn, VCS_DATA_PTR(m_molNumSpecies_new),
+    double deltaG1 = deltaG_Recalc_Rxn(VCS_STATECALC_NEW, 
+				       irxn, VCS_DATA_PTR(m_molNumSpecies_new),
 				       ac, VCS_DATA_PTR(m_feSpecies_new));
     
     /*
@@ -500,7 +505,9 @@ namespace VCSnonideal {
       for (k = 0; k < m_numComponents; k++) {
 	m_molNumSpecies_new[k] = molNumBase[k] + sc_irxn[k] * dx;
       }
-      double deltaG = deltaG_Recalc_Rxn(irxn, VCS_DATA_PTR(m_molNumSpecies_new),
+      vcs_setFlagsVolPhases(false, VCS_STATECALC_NEW);
+      double deltaG = deltaG_Recalc_Rxn(VCS_STATECALC_NEW,
+					irxn, VCS_DATA_PTR(m_molNumSpecies_new),
 					ac, VCS_DATA_PTR(m_feSpecies_new));
       /*
        * If deltaG hasn't switched signs when going the full distance
@@ -524,6 +531,7 @@ namespace VCSnonideal {
     }
 
   finalize:
+    vcs_setFlagsVolPhases(false, VCS_STATECALC_NEW);
     if (its >= MAXITS) {
 #ifdef DEBUG_MODE
       sprintf(ANOTE,"Rxn reduced to zero step size from %g to %g (MAXITS)", 
