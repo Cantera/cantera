@@ -199,7 +199,6 @@ namespace VCSnonideal {
     m_lnMnaughtSpecies.resize(nspecies0, 0.0);
     m_actCoeffSpecies_new.resize(nspecies0, 1.0);
     m_actCoeffSpecies_old.resize(nspecies0, 1.0);
-    m_phaseACAreCurrent.resize(nphase0, 0);
     m_wtSpecies.resize(nspecies0, 0.0);
     m_chargeSpecies.resize(nspecies0, 0.0);
     m_speciesThermoList.resize(nspecies0, (VCS_SPECIES_THERMO *)0);

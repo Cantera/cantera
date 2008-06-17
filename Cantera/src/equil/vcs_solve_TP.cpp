@@ -4694,11 +4694,7 @@ namespace VCSnonideal {
 	tlogMoles[iph] = log(tPhMoles_ptr[iph]);
       }
     }
-    /*
-     *    Zero the indicator that that tells us the activity coefficients
-     *    are current
-     */
-    vcs_izero(VCS_DATA_PTR(m_phaseACAreCurrent), m_numPhases);
+ 
     
     if (ll != 0) {
       l1 = lbot;
@@ -4713,15 +4709,12 @@ namespace VCSnonideal {
      *  not current
      */
     for (iphase = 0; iphase < m_numPhases; iphase++) {
-      if (!m_phaseACAreCurrent[iphase]) {
-	Vphase = m_VolPhaseList[iphase];
-	if (!Vphase->SingleSpecies) {
-	  Vphase->setMolesFromVCS(stateCalc, molNum);
-	  Vphase->sendToVCS_ActCoeff(stateCalc, VCS_DATA_PTR(actCoeff_ptr));
-	}
-	m_phasePhi[iphase] = Vphase->electricPotential();
-	m_phaseACAreCurrent[iphase] = 1;
+      Vphase = m_VolPhaseList[iphase];
+      if (!Vphase->SingleSpecies) {
+	// Vphase->setMolesFromVCS(stateCalc, molNum);
+	Vphase->sendToVCS_ActCoeff(stateCalc, VCS_DATA_PTR(actCoeff_ptr));
       }
+      m_phasePhi[iphase] = Vphase->electricPotential();
     }
     /* ************************************************************** */
     /* **** ALL SPECIES, OR COMPONENTS ****************************** */

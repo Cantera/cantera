@@ -53,7 +53,7 @@ namespace VCSnonideal {
     m_VCS_UnitsFormat(VCS_UNITS_MKS),
     m_useCanteraCalls(false),
     TP_ptr(0),
-    TMoles(0.0),
+    v_totalMoles(0.0),
     m_totalVol(0.0),
     m_vcsStateStatus(VCS_STATECALC_OLD),
     m_phi(0.0),
@@ -114,7 +114,7 @@ namespace VCSnonideal {
     m_VCS_UnitsFormat(b.m_VCS_UnitsFormat),
     m_useCanteraCalls(b.m_useCanteraCalls),
     TP_ptr(b.TP_ptr),
-    TMoles(b.TMoles),
+    v_totalMoles(b.v_totalMoles),
     m_phiVarIndex(-1),
     m_totalVol(b.m_totalVol),
     m_vcsStateStatus(VCS_STATECALC_OLD),
@@ -217,7 +217,7 @@ namespace VCSnonideal {
        *  have to be looked into.
        */
       TP_ptr              = b.TP_ptr;
-      TMoles              = b.TMoles;
+      v_totalMoles              = b.v_totalMoles;
  
       Xmol = b.Xmol;
 
@@ -535,7 +535,7 @@ namespace VCSnonideal {
 				     const double * molesSpeciesVCS) {
     int kglob;
     double tmp;
-    TMoles = TMolesInert;
+    v_totalMoles = TMolesInert;
 
     if (molesSpeciesVCS == 0) {
 #ifdef DEBUG_MODE
@@ -579,12 +579,12 @@ namespace VCSnonideal {
 	kglob = IndSpecies[k];
 	tmp = MAX(0.0, molesSpeciesVCS[kglob]);
 	Xmol[k] = tmp;
-	TMoles += tmp;
+	v_totalMoles += tmp;
       }
     }
-    if (TMoles > 0.0) {
+    if (v_totalMoles > 0.0) {
       for (int k = 0; k < NVolSpecies; k++) {
-	Xmol[k] /= TMoles;
+	Xmol[k] /= v_totalMoles;
       }
       Existence = 1;
     } else {
@@ -646,13 +646,13 @@ namespace VCSnonideal {
      * Check for consistency with TPhMoles[]
      */
     double Tcheck = TPhMoles[VP_ID];
-    if (Tcheck != TMoles) {
-      if (vcs_doubleEqual(Tcheck, TMoles)) {
-	Tcheck = TMoles;
+    if (Tcheck != v_totalMoles) {
+      if (vcs_doubleEqual(Tcheck, v_totalMoles)) {
+	Tcheck = v_totalMoles;
       } else {
 	plogf("vcs_VolPhase::setMolesFromVCSCheck: "
 	      "We have a consistency problem: %21.16g %21.16g\n",
-	      Tcheck, TMoles);
+	      Tcheck, v_totalMoles);
 	std::exit(-1);
       }
     }
@@ -877,7 +877,7 @@ namespace VCSnonideal {
       for (k = 0; k < NVolSpecies; k++) {
 	m_totalVol += PartialMolarVol[k] * Xmol[k];
       }
-      m_totalVol *= TMoles;
+      m_totalVol *= v_totalMoles;
 
       if (TMolesInert > 0.0) {
 	if (m_gasPhase) {
@@ -911,7 +911,7 @@ namespace VCSnonideal {
     // Make copies of ActCoeff and Xmol for use in taking differences
     std::vector<double> ActCoeff_Base(ActCoeff);
     std::vector<double> Xmol_Base(Xmol);
-    double TMoles_base = TMoles;
+    double TMoles_base = v_totalMoles;
 
     /*
      *  Loop over the columns species to be deltad
@@ -922,17 +922,17 @@ namespace VCSnonideal {
        * -> NOte Xmol[] and Tmoles are always positive or zero
        *    quantities.
        */
-      double moles_j_base = TMoles * Xmol_Base[j];
-      deltaMoles_j = 1.0E-7 * moles_j_base + 1.0E-20 * TMoles + 1.0E-150;
+      double moles_j_base = v_totalMoles * Xmol_Base[j];
+      deltaMoles_j = 1.0E-7 * moles_j_base + 1.0E-20 * v_totalMoles + 1.0E-150;
       /*
        * Now, update the total moles in the phase and all of the
        * mole fractions based on this.
        */
-      TMoles = TMoles_base + deltaMoles_j;      
+      v_totalMoles = TMoles_base + deltaMoles_j;      
       for (k = 0; k < NVolSpecies; k++) {
-	Xmol[k] = Xmol_Base[k] * TMoles_base / TMoles;
+	Xmol[k] = Xmol_Base[k] * TMoles_base / v_totalMoles;
       }
-      Xmol[j] = (moles_j_base + deltaMoles_j) / TMoles;
+      Xmol[j] = (moles_j_base + deltaMoles_j) / v_totalMoles;
  
       /*
        * Go get new values for the activity coefficients.
@@ -949,9 +949,9 @@ namespace VCSnonideal {
 	  ((ActCoeff[k] + ActCoeff_Base[k]) * 0.5 * deltaMoles_j);
       }
       /*
-       * Revert to the base case Xmol, TMoles
+       * Revert to the base case Xmol, v_totalMoles
        */
-      TMoles = TMoles_base;
+      v_totalMoles = TMoles_base;
       vcs_vdcopy(Xmol, Xmol_Base, NVolSpecies);
     }
     /*
@@ -1068,7 +1068,7 @@ namespace VCSnonideal {
   /************************************************************************************/
 
   double vcs_VolPhase::TotalMoles() const {
-    return TMoles;
+    return v_totalMoles;
   }
   /************************************************************************************/
 
@@ -1078,7 +1078,7 @@ namespace VCSnonideal {
   /************************************************************************************/
 
   void vcs_VolPhase::setTotalMoles(double tmols)  {
-    TMoles = tmols;
+    v_totalMoles = tmols;
   }
   /************************************************************************************/
 

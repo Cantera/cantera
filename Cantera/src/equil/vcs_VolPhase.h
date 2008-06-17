@@ -677,7 +677,7 @@ namespace VCSnonideal {
     /*!
      *      units are kmol
      */
-    double TMoles;
+    double v_totalMoles;
 
     //! Vector of the current mole fractions for species 
     //! in the phase

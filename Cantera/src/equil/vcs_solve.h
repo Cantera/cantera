@@ -1803,10 +1803,6 @@ public:
    */
   DoubleStarStar m_dLnActCoeffdMolNum;
 
-  //!  This boolean indicates whether the activity coefficients for a phase
-  //!  are current.  
-  std::vector<int> m_phaseACAreCurrent;
-
   //! Molecular weight of each species
   /*!
    *  units = kg/kmol
