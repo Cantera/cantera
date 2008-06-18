@@ -915,6 +915,8 @@ namespace VCSnonideal {
 	    }
 	  }
 	}
+
+#ifdef VCS_LINE_SEARCH
 	/*********************************************************************/
 	/*** LINE SEARCH ALGORITHM FOR MAJOR SPECIES IN NON-IDEAL PHASES *****/
 	/*********************************************************************/
@@ -926,33 +928,18 @@ namespace VCSnonideal {
 	    (doPhaseDeleteIph == -1) && 
 	    (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
 	  double dx_old = dx;
-#ifdef DEBUG_HKM_NOT
-	  std::vector<double> feSpecies_tmp(m_numSpeciesTot);
-	  feSpecies_tmp = m_feSpecies_old;
-	  std::vector<double> molNumSpecies_tmp(m_numSpeciesTot);
-	  molNumSpecies_tmp = m_molNumSpecies_old;
-#endif
+
 #ifdef DEBUG_MODE
 	  dx = vcs_line_search(irxn, dx_old, ANOTE);
 #else
 	  dx = vcs_line_search(irxn, dx_old);
 #endif
-#ifdef DEBUG_HKM_NOT
-	  for (int kk = 0; kk < m_numSpeciesTot; kk++) {
-	    if (feSpecies_tmp[kk] !=  m_feSpecies_old[kk]) {
-	      printf("we are here\n");
-	    }
-	    if (molNumSpecies_tmp[kk] !=  m_molNumSpecies_old[kk]) {
-	      printf("we are here\n");
-	    }
-	  }
-#endif
 	  vcs_setFlagsVolPhases(false, VCS_STATECALC_NEW);
 	}
 	m_deltaMolNumSpecies[kspec] = dx;
+#endif
 
       } /* End of Loop on ic[irxn] -> the type of species */
-
       /***********************************************************************/
       /****** CALCULATE KMOLE NUMBER CHANGE FOR THE COMPONENT BASIS **********/
       /***********************************************************************/
