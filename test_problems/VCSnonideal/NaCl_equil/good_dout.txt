@@ -661,10 +661,10 @@ VCS CALCULATION METHOD
    --- H2O           0 2.2562E-30 2.2562E-30 0.0000E+00 | minor species not considered
    --- NaCl          0 4.0000E-04 4.0000E-04 0.0000E+00 | minor species not considered
    --- O2            0 5.8190E-32 5.8190E-32 0.0000E+00 | minor species not considered
-   --- NaCl(S)       1 5.0000E-02 2.5248E+00 2.4748E+00 | Line Search reduced step size from 4.9496 to 2.4748
+   --- NaCl(S)       1 5.0000E-02 4.9996E+00 4.9496E+00 | Normal Major Calc
    --- H2            1 1.8605E-15 1.8605E-16-1.6744E-15 | initial nonpos kmoles=   0.000E+00
-   --- Na+           c 4.9496E+00 2.4748E+00-2.4748E+00 |
-   --- Cl-           c 4.9496E+00 2.4748E+00-2.4748E+00 |
+   --- Na+           c 4.9496E+00 0.0000E+00-4.9496E+00 |
+   --- Cl-           c 4.9496E+00 0.0000E+00-4.9496E+00 |
    --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
    --- H2O(L)        c 1.9880E+00 1.9988E+00 1.0831E-02 |
    --- OH-           c 1.2035E-02 1.2035E-03-1.0831E-02 |
@@ -672,38 +672,64 @@ VCS CALCULATION METHOD
    --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
+   --- Reduction in step size due to component Na+ going negative =   9.900E-01
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
    --- Total Old       Dimensionless Gibbs Free Energy = -1.0101404441423E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.1714270977885E+03
-   --- subroutine FORCE: Beginning Slope = -177.309
-   --- subroutine FORCE: End Slope       = -100.647
-   --- subroutine FORCE produced no adjustments, s2 < 0
+   --- Total tentative Dimensionless Gibbs Free Energy = -1.2124268011438E+03
+   --- subroutine FORCE: Beginning Slope = -349.815
+   --- subroutine FORCE: End Slope       = 18.7329
+   --- subroutine FORCE produced a damping factor = 0.949171
+   --- subroutine FORCE adjusted the mole numbers, AL =      0.949
+   --- Subroutine vcs_dfe called for all species using tentative solution
+   --- Subroutine vcs_deltag called for all noncomponents
+   --- subroutine FORCE: Adj End Slope   = -6.16669
+ -----------------------------------------------------
+   --- FORCER SUBROUTINE changed the solution:
+   --- SPECIES Status INIT MOLES TENT_MOLES  FINAL KMOLES  INIT_DEL_G/RT  TENT_DEL_G/RT  FINAL_DELTA_G/RT
+  --- Na+               4.949600E+00   4.949600E-02   2.985626E-01
+  --- Cl-               4.949600E+00   4.949600E-02   2.985626E-01
+  --- N2                4.000000E+00   4.000000E+00   4.000000E+00
+  --- H2O(L)            1.987965E+00   1.998688E+00   1.998143E+00
+  --- OH-               1.203483E-02   1.311797E-03   1.856836E-03
+  --- OH                3.720999E-15   4.055889E-16   5.741074E-16
+  --- CO2               0.000000E+00   0.000000E+00   0.000000E+00
+  --- H+            1   1.203483E-02  1.311797E-03  1.856836E-03  1.171404E+02  2.505040E+01  2.848203E+01
+  --- H2O           0   2.256173E-30  2.256173E-30  2.256173E-30  9.533195E+00 -6.614788E+01 -6.575075E+01
+  --- NaCl          0   4.000000E-04  4.000000E-04  4.000000E-04 -6.636575E+00  6.837415E+01  6.330022E+01
+  --- O2            0   5.819043E-32  5.819043E-32  5.819043E-32  7.520803E+00  1.677486E+02  1.655644E+02
+  --- NaCl(S)       1   5.000000E-02  4.950104E+00  4.701037E+00 -7.113295E+01  3.877769E+00 -1.196154E+00
+  --- H2            1   1.860500E-15  2.027945E-16  2.870537E-16  9.567244E+01 -6.233892E+01 -6.050224E+01
+                          Norms of Delta G():  6.846711E+01  8.186863E+01
+   Total kmoles of gas    =   1.1911235E+01
+   Total kmoles of liquid =   4.0004000E+00
+   Total New Dimensionless Gibbs Free Energy = -1.2126519632201E+03
+ -----------------------------------------------------
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (only major species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   Na+               4.949600E+00  2.474800E+00 -6.651394E+01 -8.195274E+01
-   ---   Cl-               4.949600E+00  2.474800E+00 -3.686990E+01 -5.219880E+01
+   ---   Na+               4.949600E+00  2.985626E-01 -6.651394E+01 -1.015409E+02
+   ---   Cl-               4.949600E+00  2.985626E-01 -3.686990E+01 -7.177977E+01
    ---   N2                4.000000E+00  4.000000E+00 -2.304532E+01 -2.304532E+01
-   ---   H2O(L)            1.987965E+00  1.998797E+00 -1.994452E+02 -1.533335E+02
-   ---   OH-               1.203483E-02  1.203483E-03 -9.656442E+01 -9.615896E+01
-   ---   OH                3.720999E-15  3.720999E-16 -1.260982E+02 -1.284008E+02
+   ---   H2O(L)            1.987965E+00  1.998143E+00 -1.994452E+02 -1.241613E+02
+   ---   OH-               1.203483E-02  1.856836E-03 -9.656442E+01 -9.501463E+01
+   ---   OH                3.720999E-15  5.741074E-16 -1.260982E+02 -1.279672E+02
    ---   CO2               0.000000E+00  0.000000E+00 -5.082001E+02 -5.082001E+02
-   ---   H+            1   1.203483E-02  1.203483E-03  1.425959E+01  1.214346E+01  1.171404E+02  6.931801E+01
-   ---   H2O           0   2.256173E-30  2.256173E-30 -1.899120E+02 -1.899120E+02  9.533195E+00 -3.657852E+01
-   ---   NaCl          0   4.000000E-04  4.000000E-04 -1.100204E+02 -1.100204E+02 -6.636575E+00  2.413113E+01
-   ---   O2            0   5.819043E-32  5.819043E-32 -9.798165E+01 -9.798165E+01  7.520803E+00  1.089546E+02
-   ---   NaCl(S)       1   5.000000E-02  2.524800E+00 -1.745168E+02 -1.745168E+02 -7.113295E+01 -4.036525E+01
-   ---   H2            1   1.860500E-15  1.860500E-16 -5.102155E+01 -5.332413E+01  9.567244E+01 -3.458737E+00
-   ---                                                        Norms of Delta G():  6.846711E+01  5.807710E+01
+   ---   H+            1   1.203483E-02  1.856836E-03  1.425959E+01 -6.646137E-01  1.171404E+02  2.848203E+01
+   ---   H2O           0   2.256173E-30  2.256173E-30 -1.899120E+02 -1.899120E+02  9.533195E+00 -6.575075E+01
+   ---   NaCl          0   4.000000E-04  4.000000E-04 -1.100204E+02 -1.100204E+02 -6.636575E+00  6.330022E+01
+   ---   O2            0   5.819043E-32  5.819043E-32 -9.798165E+01 -9.798165E+01  7.520803E+00  1.655644E+02
+   ---   NaCl(S)       1   5.000000E-02  4.701037E+00 -1.745168E+02 -1.745168E+02 -7.113295E+01 -1.196154E+00
+   ---   H2            1   1.860500E-15  2.870537E-16 -5.102155E+01 -5.289048E+01  9.567244E+01 -6.050224E+01
+   ---                                                        Norms of Delta G():  6.846711E+01  8.186863E+01
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   6.9508035E+00
+   ---     NaCl_electrolyte =   2.5989820E+00
    ---                  air =   4.0004000E+00
-   ---              NaCl(S) =   2.5248000E+00
+   ---              NaCl(S) =   4.7010374E+00
    -------------------------------------------------------------------------------------------------------
    --- Total Old Dimensionless Gibbs Free Energy = -1.0101404441423E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.1714270977885E+03
+   --- Total New Dimensionless Gibbs Free Energy = -1.2126519632201E+03
    --- Increment counter increased, step is accepted:    2
    --- Normal element abundance check - passed
    --- Get a new basis because NaCl(S) is better than comp Na+ and share nonzero stoic: -1.0     
@@ -727,27 +753,27 @@ VCS CALCULATION METHOD
    ---     NaCl(S) |         0        0        0        0        1        1        0        0        0        0        0
    ---          H2 |         0        2        0        0        0        0        0        0        0        0        0
 
-   ---   N2          (        4) replaces Na+         (      2.5) as component   0
-   ---   NaCl(S)     (      2.5) replaces Cl-         (      2.5) as component   1
-   ---   Na+         (      2.5) remains                          as component   2
-   ---   H2O(L)      (        2) remains                          as component   3
-   ---   OH-         (   0.0012) remains                          as component   4
-   ---   OH          (  3.7e-16) remains                          as component   5
+   ---   NaCl(S)     (      4.7) replaces Na+         (      0.3) as component   0
+   ---   N2          (        4) replaces Cl-         (      0.3) as component   1
+   ---   H2O(L)      (        2) replaces Cl-         (      0.3) as component   2
+   ---   Cl-         (      0.3) remains                          as component   3
+   ---   OH-         (   0.0019) remains                          as component   4
+   ---   OH          (  5.7e-16) remains                          as component   5
    ---   CO2         (        0) remains                          as component   6
    ---   Total number of components found =   7 (ne = 11)
     ---                Components:       0         1         2         3         4         5         6  
-   ---          Components Moles:         4      2.52      2.47         2    0.0012  3.72e-16         0
-   ---   NonComponent|   Moles  |       N2        NaCl(S)   Na+       H2O(L)    OH-       OH        CO2       
-   ---   7 H+        |    0.0012|      -0.00      -0.00       0.00      -1.00       1.00      -0.00      -0.00
-   ---   8 H2O       |  2.26e-30|      -0.00      -0.00       0.00      -1.00      -0.00      -0.00      -0.00
-   ---   9 NaCl      |    0.0004|      -0.00      -1.00       0.00       0.00      -0.00      -0.00      -0.00
-   ---  10 O2        |  5.82e-32|      -0.00      -0.00       0.00       2.00      -0.00      -4.00      -0.00
-   ---  11 Cl-       |      2.47|      -0.00      -1.00       1.00       0.00      -0.00      -0.00      -0.00
-   ---  12 H2        |  1.86e-16|      -0.00      -0.00       0.00      -2.00      -0.00       2.00      -0.00
+   ---          Components Moles:       4.7         4         2     0.299   0.00186  5.74e-16         0
+   ---   NonComponent|   Moles  |       NaCl(S)   N2        H2O(L)    Cl-       OH-       OH        CO2       
+   ---   7 H+        |   0.00186|      -0.00      -0.00      -1.00      -0.00       1.00      -0.00       0.00
+   ---   8 H2O       |  2.26e-30|      -0.00      -0.00      -1.00      -0.00       0.00      -0.00       0.00
+   ---   9 NaCl      |    0.0004|      -1.00      -0.00       0.00      -0.00       0.00      -0.00       0.00
+   ---  10 O2        |  5.82e-32|      -0.00      -0.00       2.00      -0.00       0.00      -4.00       0.00
+   ---  11 Na+       |     0.299|      -1.00      -0.00       0.00       1.00       0.00      -0.00       0.00
+   ---  12 H2        |  2.87e-16|      -0.00      -0.00      -2.00      -0.00       0.00       2.00       0.00
    -----------------------------------------------------------------------------
   --- MAJOR-MINOR decision is reavaluated: All species are minor except for:
   ---      Major Species          : H+
-  ---      Major Species          : Cl-
+  ---      Major Species          : Na+
   ---      Major Species          : H2
   ---
    --- Element Abundance check passed
@@ -761,62 +787,62 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_RxnStepSizes called - Details:
    ----------------------------------------------------------------------------------
    --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              1.2035E-03  -1.2035E-03   6.9318E+01 | Delta damped from -0.0403055 to -0.00120348 due to component 4 (       OH-) going neg
-   --- H2O             2.2562E-30   8.2527E-29  -3.6579E+01 | Normal Calc
+   --- H+              1.8568E-03  -1.8568E-03   2.8482E+01 | Delta damped from -0.0263426 to -0.00185684 due to component 4 (       OH-) going neg
+   --- H2O             2.2562E-30   1.4835E-28  -6.5751E+01 | Normal Calc
    --- NaCl            4.0000E-04   0.0000E+00   6.4496E+01 | Skipped: IC =   0 and DG >0:   6.450E+01
-   --- O2              5.8190E-32   0.0000E+00   1.0895E+02 | Skipped: IC =   0 and DG >0:   1.090E+02
-   --- Cl-             2.4748E+00  -1.7109E+00   4.0365E+01 | Normal calc: diag adjusted from 0.232673 to 23.5929 due to act coeff
-   --- H2              1.8605E-16   2.1450E-16  -3.4587E+00 | Normal calc: diag adjusted from 1.61247e+16 to 1.61247e+16 due to act coeff
+   --- O2              5.8190E-32   0.0000E+00   1.6556E+02 | Skipped: IC =   0 and DG >0:   1.656E+02
+   --- Na+             2.9856E-01  -7.9584E-02   1.1962E+00 | Normal calc: diag adjusted from 5.1597 to 15.0301 due to act coeff
+   --- H2              2.8705E-16   5.7891E-15  -6.0502E+01 | Normal Calc
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Full Calculation:
    --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 1.2035E-03 1.2035E-04-1.0831E-03 | initial nonpos kmoles=   0.000E+00
-   --- H2O           0 2.2562E-30 1.7347E-14 1.7347E-14 | minor species alternative calc
+   --- H+            1 1.8568E-03 1.8568E-04-1.6712E-03 | initial nonpos kmoles=   0.000E+00
+   --- H2O           0 2.2562E-30 4.0004E-04 4.0004E-04 | minor species alternative calc
    --- NaCl          0 4.0000E-04 4.0000E-14-4.0000E-04 | minor species alternative calc
    --- O2            0 5.8190E-32 5.8190E-42-5.8190E-32 | minor species alternative calc
-   --- Cl-           1 2.4748E+00 7.6389E-01-1.7109E+00 | Normal Major Calc
-   --- H2            1 1.8605E-16 4.0055E-16 2.1450E-16 | Normal Major Calc
+   --- Na+           1 2.9856E-01 2.1898E-01-7.9584E-02 | Normal Major Calc
+   --- H2            1 2.8705E-16 6.0762E-15 5.7891E-15 | Normal Major Calc
+   --- NaCl(S)       c 4.7010E+00 4.7810E+00 7.9984E-02 |
    --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 2.5248E+00 4.2361E+00 1.7113E+00 |
-   --- Na+           c 2.4748E+00 7.6389E-01-1.7109E+00 |
-   --- H2O(L)        c 1.9988E+00 1.9999E+00 1.0831E-03 |
-   --- OH-           c 1.2035E-03 1.2035E-04-1.0831E-03 |
-   --- OH            c 3.7210E-16 8.0110E-16 4.2900E-16 |
+   --- H2O(L)        c 1.9981E+00 1.9994E+00 1.2711E-03 |
+   --- Cl-           c 2.9856E-01 2.1898E-01-7.9584E-02 |
+   --- OH-           c 1.8568E-03 1.8568E-04-1.6712E-03 |
+   --- OH            c 5.7411E-16 1.2152E-14 1.1578E-14 |
    --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.1714270977885E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2106126373154E+03
-   --- subroutine FORCE: Beginning Slope = -69.1622
-   --- subroutine FORCE: End Slope       = -13.5717
+   --- Total Old       Dimensionless Gibbs Free Energy = -1.2126519632201E+03
+   --- Total tentative Dimensionless Gibbs Free Energy = -1.2127698981255E+03
+   --- subroutine FORCE: Beginning Slope = -0.194894
+   --- subroutine FORCE: End Slope       = -0.0518668
    --- subroutine FORCE produced no adjustments, s2 < 0
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (all species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.304532E+01 -2.304522E+01
-   ---   NaCl(S)           2.524800E+00  4.236110E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.474800E+00  7.638904E-01 -8.195274E+01 -9.818712E+01
-   ---   H2O(L)            1.998797E+00  1.999880E+00 -1.533335E+02 -1.259446E+02
-   ---   OH-               1.203483E-03  1.203483E-04 -9.615896E+01 -9.745474E+01
-   ---   OH                3.720999E-16  8.010985E-16 -1.284008E+02 -1.276339E+02
-   ---   CO2               0.000000E+00  0.000000E+00 -5.082001E+02 -5.082000E+02
-   ---   H+            1   1.203483E-03  1.203483E-04  1.214346E+01  8.605827E-01  6.931801E+01  2.935049E+01
-   ---   H2O           0   2.256173E-30  1.734686E-14 -1.899120E+02 -1.533334E+02 -3.657852E+01 -2.738877E+01
-   ---   NaCl          0   4.000000E-04  4.000001E-14 -1.100204E+02 -1.330462E+02  6.449638E+01  4.147063E+01
-   ---   O2            0   5.819043E-32  5.819045E-42 -9.798165E+01 -1.210074E+02  1.089546E+02  1.376389E+02
-   ---   Cl-           1   2.474800E+00  7.638904E-01 -5.219880E+01 -6.842548E+01  4.036525E+01  7.904190E+00
-   ---   H2            1   1.860500E-16  4.005493E-16 -5.332413E+01 -5.255721E+01 -3.458737E+00 -5.593571E+01
-   ---                                                        Norms of Delta G():  6.300155E+01  6.515002E+01
+   ---   NaCl(S)           4.701037E+00  4.781021E+00 -1.745168E+02 -1.745168E+02
+   ---   N2                4.000000E+00  4.000000E+00 -2.304532E+01 -2.304532E+01
+   ---   H2O(L)            1.998143E+00  1.999414E+00 -1.241613E+02 -1.239963E+02
+   ---   Cl-               2.985626E-01  2.189785E-01 -7.177977E+01 -7.240997E+01
+   ---   OH-               1.856836E-03  1.856836E-04 -9.501463E+01 -9.735970E+01
+   ---   OH                5.741074E-16  1.215237E-14 -1.279672E+02 -1.249147E+02
+   ---   CO2               0.000000E+00  0.000000E+00 -5.082001E+02 -5.082001E+02
+   ---   H+            1   1.856836E-03  1.856836E-04 -6.646137E-01 -3.742466E+00  2.848203E+01  2.289408E+01
+   ---   H2O           0   2.256173E-30  4.000400E-04 -1.899120E+02 -1.294721E+02 -6.575075E+01 -5.475837E+00
+   ---   NaCl          0   4.000000E-04  4.000001E-14 -1.100204E+02 -1.330463E+02  6.449638E+01  4.147053E+01
+   ---   O2            0   5.819043E-32  5.819045E-42 -9.798165E+01 -1.210075E+02  1.655644E+02  1.306588E+02
+   ---   Na+           1   2.985626E-01  2.189785E-01 -1.015409E+02 -1.021718E+02  1.196154E+00 -6.498080E-02
+   ---   H2            1   2.870537E-16  6.076184E-15 -5.289048E+01 -4.983802E+01 -6.050224E+01 -5.167490E+01
+   ---                                                        Norms of Delta G():  8.202408E+01  6.057494E+01
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   3.5279012E+00
-   ---                  air =   4.0000000E+00
-   ---              NaCl(S) =   4.2361096E+00
+   ---     NaCl_electrolyte =   2.4377426E+00
+   ---                  air =   4.0004000E+00
+   ---              NaCl(S) =   4.7810215E+00
    -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.1714270977885E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2106126373154E+03
+   --- Total Old Dimensionless Gibbs Free Energy = -1.2126519632201E+03
+   --- Total New Dimensionless Gibbs Free Energy = -1.2127698981255E+03
    --- Increment counter increased, step is accepted:    3
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
@@ -829,62 +855,62 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_RxnStepSizes called - Details:
    ----------------------------------------------------------------------------------
    --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              1.2035E-04  -1.2035E-04   2.9350E+01 | Delta damped from -0.00176449 to -0.000120348 due to component 4 (       OH-) going neg
-   --- H2O             1.7347E-14   4.7511E-13  -2.7389E+01 | Normal calc: diag adjusted from 5.76473e+13 to 5.76473e+13 due to act coeff
+   --- H+              1.8568E-04  -1.8568E-04   2.2894E+01 | Delta damped from -0.0021253 to -0.000185684 due to component 4 (       OH-) going neg
+   --- H2O             4.0004E-04   2.1906E-03  -5.4758E+00 | Normal calc: diag adjusted from 2499.59 to 2499.7 due to act coeff
    --- NaCl            4.0000E-14   0.0000E+00   4.1471E+01 | Skipped: IC =   0 and DG >0:   4.147E+01
-   --- O2              5.8190E-42   0.0000E+00   1.3764E+02 | Skipped: IC =   0 and DG >0:   1.376E+02
-   --- Cl-             7.6389E-01  -5.3361E-01   7.9042E+00 | Normal calc: diag adjusted from 1.48436 to 14.8128 due to act coeff
-   --- H2              4.0055E-16   7.4683E-15  -5.5936E+01 | Normal calc: diag adjusted from 7.48972e+15 to 7.48972e+15 due to act coeff
+   --- O2              5.8190E-42   0.0000E+00   1.3066E+02 | Skipped: IC =   0 and DG >0:   1.307E+02
+   --- Na+             2.1898E-01   3.9724E-03  -6.4981E-02 | Normal calc: diag adjusted from 7.49245 to 16.3579 due to act coeff
+   --- H2              6.0762E-15   1.0466E-13  -5.1675E+01 | Normal calc: diag adjusted from 4.93731e+14 to 4.93731e+14 due to act coeff
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Major Components Calculation:
    --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 1.2035E-04 1.2035E-05-1.0831E-04 | initial nonpos kmoles=   0.000E+00
-   --- H2O           0 1.7347E-14 1.7347E-14 0.0000E+00 | minor species not considered
+   --- H+            1 1.8568E-04 1.8568E-05-1.6712E-04 | initial nonpos kmoles=   0.000E+00
+   --- H2O           0 4.0004E-04 4.0004E-04 0.0000E+00 | minor species not considered
    --- NaCl          0 4.0000E-14 4.0000E-14 0.0000E+00 | minor species not considered
    --- O2            0 5.8190E-42 5.8190E-42 0.0000E+00 | minor species not considered
-   --- Cl-           1 7.6389E-01 2.3029E-01-5.3361E-01 | Normal Major Calc
-   --- H2            1 4.0055E-16 7.8689E-15 7.4683E-15 | Normal Major Calc
+   --- Na+           1 2.1898E-01 2.2295E-01 3.9724E-03 | Normal Major Calc
+   --- H2            1 6.0762E-15 1.1074E-13 1.0466E-13 | Normal Major Calc
+   --- NaCl(S)       c 4.7810E+00 4.7770E+00-3.9724E-03 |
    --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.2361E+00 4.7697E+00 5.3361E-01 |
-   --- Na+           c 7.6389E-01 2.3029E-01-5.3361E-01 |
-   --- H2O(L)        c 1.9999E+00 2.0000E+00 1.0831E-04 |
-   --- OH-           c 1.2035E-04 1.2035E-05-1.0831E-04 |
-   --- OH            c 8.0110E-16 1.5738E-14 1.4937E-14 |
+   --- H2O(L)        c 1.9994E+00 1.9996E+00 1.6712E-04 |
+   --- Cl-           c 2.1898E-01 2.2295E-01 3.9724E-03 |
+   --- OH-           c 1.8568E-04 1.8568E-05-1.6712E-04 |
+   --- OH            c 1.2152E-14 2.2148E-13 2.0932E-13 |
    --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.2106126373154E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2127707282422E+03
-   --- subroutine FORCE: Beginning Slope = -4.2209
-   --- subroutine FORCE: End Slope       = -0.0635798
+   --- Total Old       Dimensionless Gibbs Free Energy = -1.2127698981255E+03
+   --- Total tentative Dimensionless Gibbs Free Energy = -1.2127736125993E+03
+   --- subroutine FORCE: Beginning Slope = -0.00408408
+   --- subroutine FORCE: End Slope       = -0.00307298
    --- subroutine FORCE produced no adjustments, s2 < 0
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (only major species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.304522E+01 -2.304522E+01
-   ---   NaCl(S)           4.236110E+00  4.769715E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               7.638904E-01  2.302853E-01 -9.818712E+01 -1.020815E+02
-   ---   H2O(L)            1.999880E+00  1.999988E+00 -1.259446E+02 -1.240164E+02
-   ---   OH-               1.203483E-04  1.203483E-05 -9.745474E+01 -1.000912E+02
-   ---   OH                8.010985E-16  1.573777E-14 -1.276339E+02 -1.246561E+02
-   ---   CO2               0.000000E+00  0.000000E+00 -5.082000E+02 -5.082000E+02
-   ---   H+            1   1.203483E-04  1.203483E-05  8.605827E-01 -6.369306E+00  2.935049E+01  1.755590E+01
-   ---   H2O           0   1.734686E-14  1.734686E-14 -1.533334E+02 -1.533334E+02 -2.738877E+01 -2.931704E+01
-   ---   NaCl          0   4.000001E-14  4.000001E-14 -1.330462E+02 -1.330462E+02  4.147063E+01  4.147063E+01
-   ---   O2            0   5.819045E-42  5.819045E-42 -1.210074E+02 -1.210074E+02  1.376389E+02  1.295841E+02
-   ---   Cl-           1   7.638904E-01  2.302853E-01 -6.842548E+01 -7.231967E+01  7.904190E+00  1.155879E-01
-   ---   H2            1   4.005493E-16  7.868885E-15 -5.255721E+01 -4.957938E+01 -5.593571E+01 -5.085875E+01
-   ---                                                        Norms of Delta G():  6.515002E+01  6.091821E+01
+   ---   NaCl(S)           4.781021E+00  4.777049E+00 -1.745168E+02 -1.745168E+02
+   ---   N2                4.000000E+00  4.000000E+00 -2.304532E+01 -2.304532E+01
+   ---   H2O(L)            1.999414E+00  1.999581E+00 -1.239963E+02 -1.240030E+02
+   ---   Cl-               2.189785E-01  2.229509E-01 -7.240997E+01 -7.237856E+01
+   ---   OH-               1.856836E-04  1.856836E-05 -9.735970E+01 -9.966051E+01
+   ---   OH                1.215237E-14  2.214765E-13 -1.249147E+02 -1.220119E+02
+   ---   CO2               0.000000E+00  0.000000E+00 -5.082001E+02 -5.082001E+02
+   ---   H+            1   1.856836E-04  1.856836E-05 -3.742466E+00 -6.006354E+00  2.289408E+01  1.833616E+01
+   ---   H2O           0   4.000400E-04  4.000400E-04 -1.294721E+02 -1.294721E+02 -5.475837E+00 -5.469064E+00
+   ---   NaCl          0   4.000001E-14  4.000001E-14 -1.330463E+02 -1.330463E+02  4.147053E+01  4.147053E+01
+   ---   O2            0   5.819045E-42  5.819045E-42 -1.210075E+02 -1.210075E+02  1.306588E+02  1.190340E+02
+   ---   Na+           1   2.189785E-01  2.229509E-01 -1.021718E+02 -1.021404E+02 -6.498080E-02 -2.197244E-03
+   ---   H2            1   6.076184E-15  1.107383E-13 -4.983802E+01 -4.693523E+01 -5.167490E+01 -4.295298E+01
+   ---                                                        Norms of Delta G():  6.057494E+01  5.492418E+01
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   2.4605826E+00
-   ---                  air =   4.0000000E+00
-   ---              NaCl(S) =   4.7697147E+00
+   ---     NaCl_electrolyte =   2.4455204E+00
+   ---                  air =   4.0004000E+00
+   ---              NaCl(S) =   4.7770491E+00
    -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.2106126373154E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2127707282422E+03
+   --- Total Old Dimensionless Gibbs Free Energy = -1.2127698981255E+03
+   --- Total New Dimensionless Gibbs Free Energy = -1.2127736125993E+03
    --- Increment counter increased, step is accepted:    4
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
@@ -896,62 +922,62 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_RxnStepSizes called - Details:
    ----------------------------------------------------------------------------------
    --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              1.2035E-05  -1.2035E-05   1.7556E+01 | Delta damped from -0.00010564 to -1.20348e-05 due to component 4 (       OH-) going neg
-   --- H2O             1.7347E-14   5.0856E-13  -2.9317E+01 | Normal calc: diag adjusted from 5.76473e+13 to 5.76473e+13 due to act coeff
+   --- H+              1.8568E-05  -1.8568E-05   1.8336E+01 | Delta damped from -0.000170234 to -1.85684e-05 due to component 4 (       OH-) going neg
+   --- H2O             4.0004E-04   2.1879E-03  -5.4691E+00 | Normal calc: diag adjusted from 2499.59 to 2499.7 due to act coeff
    --- NaCl            4.0000E-14   0.0000E+00   4.1471E+01 | Skipped: IC =   0 and DG >0:   4.147E+01
-   --- O2              5.8190E-42   0.0000E+00   1.2958E+02 | Skipped: IC =   0 and DG >0:   1.296E+02
-   --- Cl-             2.3029E-01  -7.1861E-03   1.1559E-01 | Normal calc: diag adjusted from 7.05925 to 16.0849 due to act coeff
-   --- H2              7.8689E-15   1.3340E-13  -5.0859E+01 | Normal calc: diag adjusted from 3.81248e+14 to 3.81248e+14 due to act coeff
+   --- O2              5.8190E-42   0.0000E+00   1.1903E+02 | Skipped: IC =   0 and DG >0:   1.190E+02
+   --- Na+             2.2295E-01   1.3515E-04  -2.1972E-03 | Normal calc: diag adjusted from 7.33494 to 16.2576 due to act coeff
+   --- H2              1.1074E-13   1.5855E-12  -4.2953E+01 | Normal calc: diag adjusted from 2.70909e+13 to 2.70909e+13 due to act coeff
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Major Components Calculation:
    --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 1.2035E-05 1.2035E-06-1.0831E-05 | initial nonpos kmoles=   0.000E+00
-   --- H2O           0 1.7347E-14 1.7347E-14 0.0000E+00 | minor species not considered
+   --- H+            1 1.8568E-05 1.8568E-06-1.6712E-05 | initial nonpos kmoles=   0.000E+00
+   --- H2O           0 4.0004E-04 4.0004E-04 0.0000E+00 | minor species not considered
    --- NaCl          0 4.0000E-14 4.0000E-14 0.0000E+00 | minor species not considered
    --- O2            0 5.8190E-42 5.8190E-42 0.0000E+00 | minor species not considered
-   --- Cl-           1 2.3029E-01 2.2314E-01-7.1495E-03 | Line Search reduced step size from -0.00718611 to -0.00714954
-   --- H2            1 7.8689E-15 1.4127E-13 1.3340E-13 | Normal Major Calc
+   --- Na+           1 2.2295E-01 2.2309E-01 1.3515E-04 | Normal Major Calc
+   --- H2            1 1.1074E-13 1.6963E-12 1.5855E-12 | Normal Major Calc
+   --- NaCl(S)       c 4.7770E+00 4.7769E+00-1.3515E-04 |
    --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7697E+00 4.7769E+00 7.1495E-03 |
-   --- Na+           c 2.3029E-01 2.2314E-01-7.1495E-03 |
-   --- H2O(L)        c 2.0000E+00 2.0000E+00 1.0831E-05 |
-   --- OH-           c 1.2035E-05 1.2035E-06-1.0831E-05 |
-   --- OH            c 1.5738E-14 2.8254E-13 2.6680E-13 |
+   --- H2O(L)        c 1.9996E+00 1.9996E+00 1.6712E-05 |
+   --- Cl-           c 2.2295E-01 2.2309E-01 1.3515E-04 |
+   --- OH-           c 1.8568E-05 1.8568E-06-1.6712E-05 |
+   --- OH            c 2.2148E-13 3.3925E-12 3.1710E-12 |
    --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.2127707282422E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2127713152646E+03
-   --- subroutine FORCE: Beginning Slope = -0.00101655
-   --- subroutine FORCE: End Slope       = -0.00013844
+   --- Total Old       Dimensionless Gibbs Free Energy = -1.2127736125993E+03
+   --- Total tentative Dimensionless Gibbs Free Energy = -1.2127738943279E+03
+   --- subroutine FORCE: Beginning Slope = -0.000306722
+   --- subroutine FORCE: End Slope       = -0.00022952
    --- subroutine FORCE produced no adjustments, s2 < 0
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (only major species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.304522E+01 -2.304522E+01
-   ---   NaCl(S)           4.769715E+00  4.776864E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.302853E-01  2.231357E-01 -1.020815E+02 -1.021394E+02
-   ---   H2O(L)            1.999988E+00  1.999999E+00 -1.240164E+02 -1.240032E+02
-   ---   OH-               1.203483E-05  1.203483E-06 -1.000912E+02 -1.023969E+02
-   ---   OH                1.573777E-14  2.825389E-13 -1.246561E+02 -1.217683E+02
-   ---   CO2               0.000000E+00  0.000000E+00 -5.082000E+02 -5.082000E+02
-   ---   H+            1   1.203483E-05  1.203483E-06 -6.369306E+00 -8.741424E+00  1.755590E+01  1.286494E+01
-   ---   H2O           0   1.734686E-14  1.734686E-14 -1.533334E+02 -1.533334E+02 -2.931704E+01 -2.933017E+01
-   ---   NaCl          0   4.000001E-14  4.000001E-14 -1.330462E+02 -1.330462E+02  4.147063E+01  4.147063E+01
-   ---   O2            0   5.819045E-42  5.819045E-42 -1.210074E+02 -1.210074E+02  1.295841E+02  1.180593E+02
-   ---   Cl-           1   2.302853E-01  2.231357E-01 -7.231967E+01 -7.237753E+01  1.155879E-01 -1.264886E-04
-   ---   H2            1   7.868885E-15  1.412694E-13 -4.957938E+01 -4.669163E+01 -5.085875E+01 -4.222175E+01
-   ---                                                        Norms of Delta G():  6.091821E+01  5.547711E+01
+   ---   NaCl(S)           4.777049E+00  4.776914E+00 -1.745168E+02 -1.745168E+02
+   ---   N2                4.000000E+00  4.000000E+00 -2.304532E+01 -2.304532E+01
+   ---   H2O(L)            1.999581E+00  1.999598E+00 -1.240030E+02 -1.240032E+02
+   ---   Cl-               2.229509E-01  2.230861E-01 -7.237856E+01 -7.237756E+01
+   ---   OH-               1.856836E-05  1.856836E-06 -9.966051E+01 -1.019630E+02
+   ---   OH                2.214765E-13  3.392502E-12 -1.220119E+02 -1.192829E+02
+   ---   CO2               0.000000E+00  0.000000E+00 -5.082001E+02 -5.082001E+02
+   ---   H+            1   1.856836E-05  1.856836E-06 -6.006354E+00 -8.307619E+00  1.833616E+01  1.373258E+01
+   ---   H2O           0   4.000400E-04  4.000400E-04 -1.294721E+02 -1.294721E+02 -5.469064E+00 -5.468858E+00
+   ---   NaCl          0   4.000001E-14  4.000001E-14 -1.330463E+02 -1.330463E+02  4.147053E+01  4.147053E+01
+   ---   O2            0   5.819045E-42  5.819045E-42 -1.210075E+02 -1.210075E+02  1.190340E+02  1.081176E+02
+   ---   Na+           1   2.229509E-01  2.230861E-01 -1.021404E+02 -1.021394E+02 -2.197244E-03 -2.001684E-04
+   ---   H2            1   1.107383E-13  1.696251E-12 -4.693523E+01 -4.420622E+01 -4.295298E+01 -3.476554E+01
+   ---                                                        Norms of Delta G():  5.492418E+01  4.972651E+01
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   2.4462727E+00
-   ---                  air =   4.0000000E+00
-   ---              NaCl(S) =   4.7768643E+00
+   ---     NaCl_electrolyte =   2.4457740E+00
+   ---                  air =   4.0004000E+00
+   ---              NaCl(S) =   4.7769139E+00
    -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.2127707282422E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2127713152646E+03
+   --- Total Old Dimensionless Gibbs Free Energy = -1.2127736125993E+03
+   --- Total New Dimensionless Gibbs Free Energy = -1.2127738943279E+03
    --- Increment counter increased, step is accepted:    5
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
@@ -965,66 +991,67 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_RxnStepSizes called - Details:
    ----------------------------------------------------------------------------------
    --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              1.2035E-06  -1.2035E-06   1.2865E+01 | Delta damped from -7.74136e-06 to -1.20348e-06 due to component 4 (       OH-) going neg
-   --- H2O             1.7347E-14   5.0879E-13  -2.9330E+01 | Normal calc: diag adjusted from 5.76473e+13 to 5.76473e+13 due to act coeff
+   --- H+              1.8568E-06  -1.8568E-06   1.3733E+01 | Delta damped from -1.27496e-05 to -1.85684e-06 due to component 4 (       OH-) going neg
+   --- H2O             4.0004E-04   2.1878E-03  -5.4689E+00 | Normal calc: diag adjusted from 2499.59 to 2499.7 due to act coeff
    --- NaCl            4.0000E-14   0.0000E+00   4.1471E+01 | Skipped: IC =   0 and DG >0:   4.147E+01
-   --- O2              5.8190E-42   0.0000E+00   1.1806E+02 | Skipped: IC =   0 and DG >0:   1.181E+02
-   --- Cl-             2.2314E-01   7.7835E-06  -1.2649E-04 | Normal calc: diag adjusted from 7.32801 to 16.2508 due to act coeff
-   --- H2              1.4127E-13   1.9882E-12  -4.2222E+01 | Normal calc: diag adjusted from 2.1236e+13 to 2.1236e+13 due to act coeff
+   --- O2              5.8190E-42   0.0000E+00   1.0812E+02 | Skipped: IC =   0 and DG >0:   1.081E+02
+   --- Na+             2.2309E-01   1.2315E-05  -2.0017E-04 | Normal calc: diag adjusted from 7.32967 to 16.2542 due to act coeff
+   --- H2              1.6963E-12   1.9657E-11  -3.4766E+01 | Normal calc: diag adjusted from 1.76861e+12 to 1.76861e+12 due to act coeff
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Full Calculation:
    --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 1.2035E-06 1.2035E-07-1.0831E-06 | initial nonpos kmoles=   0.000E+00
-   --- H2O           0 1.7347E-14 4.0000E-04 4.0000E-04 | minor species alternative calc
+   --- H+            1 1.8568E-06 1.8568E-07-1.6712E-06 | initial nonpos kmoles=   0.000E+00
+   --- H2O           0 4.0004E-04 4.0004E-02 3.9604E-02 | minor species alternative calc
    --- NaCl          0 4.0000E-14 4.0000E-24-4.0000E-14 | minor species alternative calc
    --- O2            0 5.8190E-42 5.8190E-52-5.8190E-42 | minor species alternative calc
-   --- Cl-           1 2.2314E-01 2.2314E-01 7.7835E-06 | Normal Major Calc
-   --- H2            1 1.4127E-13 2.1295E-12 1.9882E-12 | Normal Major Calc
+   --- Na+           1 2.2309E-01 2.2310E-01 1.2315E-05 | Normal Major Calc
+   --- H2            1 1.6963E-12 2.1353E-11 1.9657E-11 | Normal Major Calc
+   --- NaCl(S)       c 4.7769E+00 4.7769E+00-1.2315E-05 |
    --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7769E+00 4.7769E+00-7.7835E-06 |
-   --- Na+           c 2.2314E-01 2.2314E-01 7.7835E-06 |
-   --- H2O(L)        c 2.0000E+00 1.9996E+00-3.9892E-04 |
-   --- OH-           c 1.2035E-06 1.2035E-07-1.0831E-06 |
-   --- OH            c 2.8254E-13 4.2590E-12 3.9764E-12 |
+   --- H2O(L)        c 1.9996E+00 1.9600E+00-3.9602E-02 |
+   --- Cl-           c 2.2309E-01 2.2310E-01 1.2315E-05 |
+   --- OH-           c 1.8568E-06 1.8568E-07-1.6712E-06 |
+   --- OH            c 3.3925E-12 4.2707E-11 3.9314E-11 |
    --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.2127713152646E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2127739151271E+03
-   --- subroutine FORCE: Beginning Slope = -0.011746
-   --- subroutine FORCE: End Slope       = -0.00219649
+   --- Total Old       Dimensionless Gibbs Free Energy = -1.2127738943279E+03
+   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128459151035E+03
+   --- subroutine FORCE: Beginning Slope = -0.216611
+   --- subroutine FORCE: End Slope       = -0.0342834
    --- subroutine FORCE produced no adjustments, s2 < 0
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (all species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.304522E+01 -2.304532E+01
-   ---   NaCl(S)           4.776864E+00  4.776856E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.231357E-01  2.231435E-01 -1.021394E+02 -1.021390E+02
-   ---   H2O(L)            1.999999E+00  1.999600E+00 -1.240032E+02 -1.240033E+02
-   ---   OH-               1.203483E-06  1.203483E-07 -1.023969E+02 -1.046992E+02
-   ---   OH                2.825389E-13  4.258968E-12 -1.217683E+02 -1.190554E+02
-   ---   CO2               0.000000E+00  0.000000E+00 -5.082000E+02 -5.082001E+02
-   ---   H+            1   1.203483E-06  1.203483E-07 -8.741424E+00 -1.104330E+01  1.286494E+01  8.260791E+00
-   ---   H2O           0   1.734686E-14  4.000000E-04 -1.533334E+02 -1.294722E+02 -2.933017E+01 -5.468858E+00
-   ---   NaCl          0   4.000001E-14  4.000004E-24 -1.330462E+02 -1.560721E+02  4.147063E+01  1.844468E+01
-   ---   O2            0   5.819045E-42  5.819042E-52 -1.210074E+02 -1.440334E+02  1.180593E+02  8.418172E+01
-   ---   Cl-           1   2.231357E-01  2.231435E-01 -7.237753E+01 -7.237711E+01 -1.264886E-04  7.124068E-04
-   ---   H2            1   1.412694E-13  2.129484E-12 -4.669163E+01 -4.397876E+01 -4.222175E+01 -3.408297E+01
-   ---                                                        Norms of Delta G():  5.547711E+01  3.804945E+01
+   ---   NaCl(S)           4.776914E+00  4.776902E+00 -1.745168E+02 -1.745168E+02
+   ---   N2                4.000000E+00  4.000000E+00 -2.304532E+01 -2.305518E+01
+   ---   H2O(L)            1.999598E+00  1.959996E+00 -1.240032E+02 -1.240115E+02
+   ---   Cl-               2.230861E-01  2.230984E-01 -7.237756E+01 -7.234096E+01
+   ---   OH-               1.856836E-06  1.856836E-07 -1.019630E+02 -1.042436E+02
+   ---   OH                3.392502E-12  4.270656E-11 -1.192829E+02 -1.167600E+02
+   ---   CO2               0.000000E+00  0.000000E+00 -5.082001E+02 -5.082100E+02
+   ---   H+            1   1.856836E-06  1.856836E-07 -8.307619E+00 -1.054623E+01  1.373258E+01  9.221604E+00
+   ---   H2O           0   4.000400E-04  4.000400E-02 -1.294721E+02 -1.248768E+02 -5.468858E+00 -8.652905E-01
+   ---   NaCl          0   4.000001E-14  4.000004E-24 -1.330463E+02 -1.560820E+02  4.147053E+01  1.843483E+01
+   ---   O2            0   5.819045E-42  5.819042E-52 -1.210075E+02 -1.440432E+02  1.081176E+02  7.497368E+01
+   ---   Na+           1   2.230861E-01  2.230984E-01 -1.021394E+02 -1.021028E+02 -2.001684E-04  7.301010E-02
+   ---   H2            1   1.696251E-12  2.135328E-11 -4.420622E+01 -4.168329E+01 -3.476554E+01 -2.718025E+01
+   ---                                                        Norms of Delta G():  4.972651E+01  3.362899E+01
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   2.4458872E+00
-   ---                  air =   4.0004000E+00
-   ---              NaCl(S) =   4.7768565E+00
+   ---     NaCl_electrolyte =   2.4061930E+00
+   ---                  air =   4.0400040E+00
+   ---              NaCl(S) =   4.7769016E+00
    -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.2127713152646E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2127739151271E+03
+   --- Total Old Dimensionless Gibbs Free Energy = -1.2127738943279E+03
+   --- Total New Dimensionless Gibbs Free Energy = -1.2128459151035E+03
    --- Increment counter increased, step is accepted:    6
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
    --- Reevaluate major-minor status of noncomponents:
+   ---   Noncomponent turned from minor to major: H2O
    --- Equilibrium check for major species: H+ failed
 
 ==============================================================================================================
@@ -1033,62 +1060,62 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_RxnStepSizes called - Details:
    ----------------------------------------------------------------------------------
    --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              1.2035E-07  -1.2035E-07   8.2608E+00 | Delta damped from -4.97086e-07 to -1.20348e-07 due to component 4 (       OH-) going neg
-   --- H2O             4.0000E-04   2.1876E-03  -5.4689E+00 | Normal calc: diag adjusted from 2499.84 to 2499.95 due to act coeff
-   --- NaCl            4.0000E-24   0.0000E+00   1.8445E+01 | Skipped: IC =   0 and DG >0:   1.844E+01
-   --- O2              5.8190E-52   0.0000E+00   8.4182E+01 | Skipped: IC =   0 and DG >0:   8.418E+01
-   --- Cl-             2.2314E-01  -4.3833E-05   7.1241E-04 | Normal calc: diag adjusted from 7.32744 to 16.2528 due to act coeff
-   --- H2              2.1295E-12   2.4193E-11  -3.4083E+01 | Normal calc: diag adjusted from 1.40879e+12 to 1.40879e+12 due to act coeff
+   --- H+              1.8568E-07  -1.8568E-07   9.2216E+00 | Delta damped from -8.5615e-07 to -1.85684e-07 due to component 4 (       OH-) going neg
+   --- H2O             4.0004E-02   3.4662E-02  -8.6529E-01 | Normal calc: diag adjusted from 24.8446 to 24.9634 due to act coeff
+   --- NaCl            4.0000E-24   0.0000E+00   1.8435E+01 | Skipped: IC =   0 and DG >0:   1.843E+01
+   --- O2              5.8190E-52   0.0000E+00   7.4974E+01 | Skipped: IC =   0 and DG >0:   7.497E+01
+   --- Na+             2.2310E-01  -4.4319E-03   7.3010E-02 | Normal calc: diag adjusted from 7.30228 to 16.4739 due to act coeff
+   --- H2              2.1353E-11   1.9346E-10  -2.7180E+01 | Normal calc: diag adjusted from 1.40494e+11 to 1.40494e+11 due to act coeff
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Major Components Calculation:
    --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 1.2035E-07 1.2035E-08-1.0831E-07 | initial nonpos kmoles=   0.000E+00
-   --- H2O           0 4.0000E-04 4.0000E-04 0.0000E+00 | minor species not considered
+   --- H+            1 1.8568E-07 1.8568E-08-1.6712E-07 | initial nonpos kmoles=   0.000E+00
+   --- H2O           1 4.0004E-02 7.4666E-02 3.4662E-02 | Normal Major Calc
    --- NaCl          0 4.0000E-24 4.0000E-24 0.0000E+00 | minor species not considered
    --- O2            0 5.8190E-52 5.8190E-52 0.0000E+00 | minor species not considered
-   --- Cl-           1 2.2314E-01 2.2310E-01-4.3832E-05 | Line Search reduced step size from -4.3833e-05 to -4.38315e-05
-   --- H2            1 2.1295E-12 2.6323E-11 2.4193E-11 | Normal Major Calc
+   --- Na+           1 2.2310E-01 2.1867E-01-4.4319E-03 | Normal Major Calc
+   --- H2            1 2.1353E-11 2.1482E-10 1.9346E-10 | Normal Major Calc
+   --- NaCl(S)       c 4.7769E+00 4.7813E+00 4.4319E-03 |
    --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7769E+00 4.7769E+00 4.3832E-05 |
-   --- Na+           c 2.2314E-01 2.2310E-01-4.3832E-05 |
-   --- H2O(L)        c 1.9996E+00 1.9996E+00 1.0827E-07 |
-   --- OH-           c 1.2035E-07 1.2035E-08-1.0831E-07 |
-   --- OH            c 4.2590E-12 5.2645E-11 4.8386E-11 |
+   --- H2O(L)        c 1.9600E+00 1.9253E+00-3.4662E-02 |
+   --- Cl-           c 2.2310E-01 2.1867E-01-4.4319E-03 |
+   --- OH-           c 1.8568E-07 1.8568E-08-1.6712E-07 |
+   --- OH            c 4.2707E-11 4.2963E-10 3.8692E-10 |
    --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.2127739151271E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2127739158769E+03
-   --- subroutine FORCE: Beginning Slope = -9.26806e-07
-   --- subroutine FORCE: End Slope       = -3.96482e-07
+   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128459151035E+03
+   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128644460760E+03
+   --- subroutine FORCE: Beginning Slope = -0.0303181
+   --- subroutine FORCE: End Slope       = -0.00897844
    --- subroutine FORCE produced no adjustments, s2 < 0
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (only major species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.304532E+01 -2.304532E+01
-   ---   NaCl(S)           4.776856E+00  4.776900E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.231435E-01  2.230997E-01 -1.021390E+02 -1.021393E+02
-   ---   H2O(L)            1.999600E+00  1.999600E+00 -1.240033E+02 -1.240033E+02
-   ---   OH-               1.203483E-07  1.203483E-08 -1.046992E+02 -1.070018E+02
-   ---   OH                4.258968E-12  5.264505E-11 -1.190554E+02 -1.165409E+02
-   ---   CO2               0.000000E+00  0.000000E+00 -5.082001E+02 -5.082001E+02
-   ---   H+            1   1.203483E-07  1.203483E-08 -1.104330E+01 -1.334631E+01  8.260791E+00  3.655096E+00
-   ---   H2O           0   4.000000E-04  4.000000E-04 -1.294722E+02 -1.294722E+02 -5.468858E+00 -5.468938E+00
-   ---   NaCl          0   4.000004E-24  4.000004E-24 -1.560721E+02 -1.560721E+02  1.844468E+01  1.844468E+01
-   ---   O2            0   5.819042E-52  5.819042E-52 -1.440334E+02 -1.440334E+02  8.418172E+01  7.412370E+01
-   ---   Cl-           1   2.231435E-01  2.230997E-01 -7.237711E+01 -7.237747E+01  7.124068E-04 -1.295812E-06
-   ---   H2            1   2.129484E-12  2.632253E-11 -4.397876E+01 -4.146421E+01 -3.408297E+01 -2.653949E+01
-   ---                                                        Norms of Delta G():  3.804945E+01  3.312135E+01
+   ---   NaCl(S)           4.776902E+00  4.781333E+00 -1.745168E+02 -1.745168E+02
+   ---   N2                4.000000E+00  4.000000E+00 -2.305518E+01 -2.306372E+01
+   ---   H2O(L)            1.959996E+00  1.925334E+00 -1.240115E+02 -1.240106E+02
+   ---   Cl-               2.230984E-01  2.186665E-01 -7.234096E+01 -7.234504E+01
+   ---   OH-               1.856836E-07  1.856836E-08 -1.042436E+02 -1.065286E+02
+   ---   OH                4.270656E-11  4.296315E-10 -1.167600E+02 -1.144599E+02
+   ---   CO2               0.000000E+00  0.000000E+00 -5.082100E+02 -5.082185E+02
+   ---   H+            1   1.856836E-07  1.856836E-08 -1.054623E+01 -1.283589E+01  9.221604E+00  4.646055E+00
+   ---   H2O           1   4.000400E-02  7.466634E-02 -1.248768E+02 -1.242613E+02 -8.652905E-01 -2.507119E-01
+   ---   NaCl          0   4.000004E-24  4.000004E-24 -1.560820E+02 -1.560905E+02  1.843483E+01  1.842628E+01
+   ---   O2            0   5.819042E-52  5.819042E-52 -1.440432E+02 -1.440517E+02  7.497368E+01  6.576686E+01
+   ---   Na+           1   2.230984E-01  2.186665E-01 -1.021028E+02 -1.021069E+02  7.301010E-02  6.484793E-02
+   ---   H2            1   2.135328E-11  2.148157E-10 -4.168329E+01 -3.938325E+01 -2.718025E+01 -2.028201E+01
+   ---                                                        Norms of Delta G():  3.362899E+01  2.914853E+01
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   2.4457994E+00
-   ---                  air =   4.0004000E+00
-   ---              NaCl(S) =   4.7769003E+00
+   ---     NaCl_electrolyte =   2.3626667E+00
+   ---                  air =   4.0746663E+00
+   ---              NaCl(S) =   4.7813335E+00
    -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.2127739151271E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2127739158769E+03
+   --- Total Old Dimensionless Gibbs Free Energy = -1.2128459151035E+03
+   --- Total New Dimensionless Gibbs Free Energy = -1.2128644460760E+03
    --- Increment counter increased, step is accepted:    7
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
@@ -1100,62 +1127,62 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_RxnStepSizes called - Details:
    ----------------------------------------------------------------------------------
    --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              1.2035E-08  -1.2035E-08   3.6551E+00 | Delta damped from -2.19942e-08 to -1.20348e-08 due to component 4 (       OH-) going neg
-   --- H2O             4.0000E-04   2.1876E-03  -5.4689E+00 | Normal calc: diag adjusted from 2499.84 to 2499.95 due to act coeff
-   --- NaCl            4.0000E-24   0.0000E+00   1.8445E+01 | Skipped: IC =   0 and DG >0:   1.844E+01
-   --- O2              5.8190E-52   0.0000E+00   7.4124E+01 | Skipped: IC =   0 and DG >0:   7.412E+01
-   --- Cl-             2.2310E-01   7.9724E-08  -1.2958E-06 | Normal calc: diag adjusted from 7.32915 to 16.2538 due to act coeff
-   --- H2              2.6323E-11   2.3286E-10  -2.6539E+01 | Normal calc: diag adjusted from 1.13971e+11 to 1.13971e+11 due to act coeff
+   --- H+              1.8568E-08  -1.8568E-08   4.6461E+00 | Delta damped from -4.31348e-08 to -1.85684e-08 due to component 4 (       OH-) going neg
+   --- H2O             7.4666E-02   1.8760E-02  -2.5071E-01 | Normal calc: diag adjusted from 13.2436 to 13.364 due to act coeff
+   --- NaCl            4.0000E-24   0.0000E+00   1.8426E+01 | Skipped: IC =   0 and DG >0:   1.843E+01
+   --- O2              5.8190E-52   0.0000E+00   6.5767E+01 | Skipped: IC =   0 and DG >0:   6.577E+01
+   --- Na+             2.1867E-01  -3.8640E-03   6.4848E-02 | Normal calc: diag adjusted from 7.45334 to 16.7825 due to act coeff
+   --- H2              2.1482E-10   1.4523E-09  -2.0282E+01 | Normal calc: diag adjusted from 1.39655e+10 to 1.39655e+10 due to act coeff
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Major Components Calculation:
    --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 1.2035E-08 3.4381E-09-8.5968E-09 | Line Search reduced step size from -1.08314e-08 to -8.59678e-09
-   --- H2O           0 4.0000E-04 4.0000E-04 0.0000E+00 | minor species not considered
+   --- H+            1 1.8568E-08 1.8568E-09-1.6712E-08 | initial nonpos kmoles=   0.000E+00
+   --- H2O           1 7.4666E-02 9.3427E-02 1.8760E-02 | Normal Major Calc
    --- NaCl          0 4.0000E-24 4.0000E-24 0.0000E+00 | minor species not considered
    --- O2            0 5.8190E-52 5.8190E-52 0.0000E+00 | minor species not considered
-   --- Cl-           1 2.2310E-01 2.2310E-01 7.9724E-08 | Normal Major Calc
-   --- H2            1 2.6323E-11 2.5918E-10 2.3286E-10 | Normal Major Calc
+   --- Na+           1 2.1867E-01 2.1480E-01-3.8640E-03 | Normal Major Calc
+   --- H2            1 2.1482E-10 1.6671E-09 1.4523E-09 | Normal Major Calc
+   --- NaCl(S)       c 4.7813E+00 4.7852E+00 3.8640E-03 |
    --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7769E+00 4.7769E+00-7.9724E-08 |
-   --- Na+           c 2.2310E-01 2.2310E-01 7.9724E-08 |
-   --- H2O(L)        c 1.9996E+00 1.9996E+00 8.1311E-09 |
-   --- OH-           c 1.2035E-08 3.4381E-09-8.5968E-09 |
-   --- OH            c 5.2645E-11 5.1837E-10 4.6572E-10 |
+   --- H2O(L)        c 1.9253E+00 1.9066E+00-1.8760E-02 |
+   --- Cl-           c 2.1867E-01 2.1480E-01-3.8640E-03 |
+   --- OH-           c 1.8568E-08 1.8568E-09-1.6712E-08 |
+   --- OH            c 4.2963E-10 3.3342E-09 2.9046E-09 |
    --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.2127739158769E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2127739159049E+03
-   --- subroutine FORCE: Beginning Slope = -3.76022e-08
-   --- subroutine FORCE: End Slope       = -1.44626e-08
+   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128644460760E+03
+   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128672367815E+03
+   --- subroutine FORCE: Beginning Slope = -0.00495411
+   --- subroutine FORCE: End Slope       = -0.000783901
    --- subroutine FORCE produced no adjustments, s2 < 0
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (only major species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.304532E+01 -2.304532E+01
-   ---   NaCl(S)           4.776900E+00  4.776900E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.230997E-01  2.230998E-01 -1.021393E+02 -1.021393E+02
-   ---   H2O(L)            1.999600E+00  1.999600E+00 -1.240033E+02 -1.240033E+02
-   ---   OH-               1.203483E-08  3.438056E-09 -1.070018E+02 -1.082547E+02
-   ---   OH                5.264505E-11  5.183693E-10 -1.165409E+02 -1.142538E+02
-   ---   CO2               0.000000E+00  0.000000E+00 -5.082001E+02 -5.082001E+02
-   ---   H+            1   1.203483E-08  3.438056E-09 -1.334631E+01 -1.459921E+01  3.655096E+00  1.149299E+00
-   ---   H2O           0   4.000000E-04  4.000000E-04 -1.294722E+02 -1.294722E+02 -5.468938E+00 -5.468938E+00
-   ---   NaCl          0   4.000004E-24  4.000004E-24 -1.560721E+02 -1.560721E+02  1.844468E+01  1.844468E+01
-   ---   O2            0   5.819042E-52  5.819042E-52 -1.440334E+02 -1.440334E+02  7.412370E+01  6.497524E+01
-   ---   Cl-           1   2.230997E-01  2.230998E-01 -7.237747E+01 -7.237746E+01 -1.295812E-06 -1.020104E-07
-   ---   H2            1   2.632253E-11  2.591847E-10 -4.146421E+01 -3.917710E+01 -2.653949E+01 -1.967814E+01
-   ---                                                        Norms of Delta G():  3.312135E+01  2.881101E+01
+   ---   NaCl(S)           4.781333E+00  4.785197E+00 -1.745168E+02 -1.745168E+02
+   ---   N2                4.000000E+00  4.000000E+00 -2.306372E+01 -2.306831E+01
+   ---   H2O(L)            1.925334E+00  1.906573E+00 -1.240106E+02 -1.240072E+02
+   ---   Cl-               2.186665E-01  2.148025E-01 -7.234504E+01 -7.235975E+01
+   ---   OH-               1.856836E-08  1.856836E-09 -1.065286E+02 -1.088222E+02
+   ---   OH                4.296315E-10  3.334227E-09 -1.144599E+02 -1.124155E+02
+   ---   CO2               0.000000E+00  0.000000E+00 -5.082185E+02 -5.082231E+02
+   ---   H+            1   1.856836E-08  1.856836E-09 -1.283589E+01 -1.514637E+01  4.646055E+00  3.866207E-02
+   ---   H2O           1   7.466634E-02  9.342663E-02 -1.242613E+02 -1.240417E+02 -2.507119E-01 -3.448590E-02
+   ---   NaCl          0   4.000004E-24  4.000004E-24 -1.560905E+02 -1.560951E+02  1.842628E+01  1.842169E+01
+   ---   O2            0   5.819042E-52  5.819042E-52 -1.440517E+02 -1.440563E+02  6.576686E+01  5.759102E+01
+   ---   Na+           1   2.186665E-01  2.148025E-01 -1.021069E+02 -1.021216E+02  6.484793E-02  3.543310E-02
+   ---   H2            1   2.148157E-10  1.667114E-09 -3.938325E+01 -3.733878E+01 -2.028201E+01 -1.415524E+01
+   ---                                                        Norms of Delta G():  2.914853E+01  2.535238E+01
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   2.4457996E+00
-   ---                  air =   4.0004000E+00
-   ---              NaCl(S) =   4.7769002E+00
+   ---     NaCl_electrolyte =   2.3361784E+00
+   ---                  air =   4.0934266E+00
+   ---              NaCl(S) =   4.7851975E+00
    -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.2127739158769E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2127739159049E+03
+   --- Total Old Dimensionless Gibbs Free Energy = -1.2128644460760E+03
+   --- Total New Dimensionless Gibbs Free Energy = -1.2128672367815E+03
    --- Increment counter increased, step is accepted:    8
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
@@ -1167,62 +1194,62 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_RxnStepSizes called - Details:
    ----------------------------------------------------------------------------------
    --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              3.4381E-09  -1.9757E-09   1.1493E+00 | Normal calc: diag adjusted from 5.81724e+08 to 5.81724e+08 due to act coeff
-   --- H2O             4.0000E-04   2.1876E-03  -5.4689E+00 | Normal calc: diag adjusted from 2499.84 to 2499.95 due to act coeff
-   --- NaCl            4.0000E-24   0.0000E+00   1.8445E+01 | Skipped: IC =   0 and DG >0:   1.844E+01
-   --- O2              5.8190E-52   0.0000E+00   6.4975E+01 | Skipped: IC =   0 and DG >0:   6.498E+01
-   --- Cl-             2.2310E-01   6.2761E-09  -1.0201E-07 | Normal calc: diag adjusted from 7.32914 to 16.2538 due to act coeff
-   --- H2              2.5918E-10   1.7001E-09  -1.9678E+01 | Normal calc: diag adjusted from 1.15748e+10 to 1.15748e+10 due to act coeff
+   --- H+              1.8568E-09  -3.5895E-11   3.8662E-02 | Normal calc: diag adjusted from 1.0771e+09 to 1.0771e+09 due to act coeff
+   --- H2O             9.3427E-02   3.2305E-03  -3.4486E-02 | Normal calc: diag adjusted from 10.5557 to 10.675 due to act coeff
+   --- NaCl            4.0000E-24   0.0000E+00   1.8422E+01 | Skipped: IC =   0 and DG >0:   1.842E+01
+   --- O2              5.8190E-52   0.0000E+00   5.7591E+01 | Skipped: IC =   0 and DG >0:   5.759E+01
+   --- Na+             2.1480E-01  -2.0853E-03   3.5433E-02 | Normal calc: diag adjusted from 7.59868 to 16.9922 due to act coeff
+   --- H2              1.6671E-09   7.8661E-09  -1.4155E+01 | Normal calc: diag adjusted from 1.79952e+09 to 1.79952e+09 due to act coeff
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Major Components Calculation:
    --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 3.4381E-09 2.1099E-09-1.3281E-09 | Line Search reduced step size from -1.97568e-09 to -1.32811e-09
-   --- H2O           0 4.0000E-04 4.0000E-04 0.0000E+00 | minor species not considered
+   --- H+            1 1.8568E-09 1.8209E-09-3.5895E-11 | Normal Major Calc
+   --- H2O           1 9.3427E-02 9.6657E-02 3.2305E-03 | Normal Major Calc
    --- NaCl          0 4.0000E-24 4.0000E-24 0.0000E+00 | minor species not considered
    --- O2            0 5.8190E-52 5.8190E-52 0.0000E+00 | minor species not considered
-   --- Cl-           1 2.2310E-01 2.2310E-01 6.2761E-09 | Normal Major Calc
-   --- H2            1 2.5918E-10 1.9593E-09 1.7001E-09 | Normal Major Calc
+   --- Na+           1 2.1480E-01 2.1272E-01-2.0853E-03 | Normal Major Calc
+   --- H2            1 1.6671E-09 9.5332E-09 7.8661E-09 | Normal Major Calc
+   --- NaCl(S)       c 4.7852E+00 4.7873E+00 2.0853E-03 |
    --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7769E+00 4.7769E+00-6.2761E-09 |
-   --- Na+           c 2.2310E-01 2.2310E-01 6.2761E-09 |
-   --- H2O(L)        c 1.9996E+00 1.9996E+00-2.0721E-09 |
-   --- OH-           c 3.4381E-09 2.1099E-09-1.3281E-09 |
-   --- OH            c 5.1837E-10 3.9186E-09 3.4002E-09 |
+   --- H2O(L)        c 1.9066E+00 1.9033E+00-3.2306E-03 |
+   --- Cl-           c 2.1480E-01 2.1272E-01-2.0853E-03 |
+   --- OH-           c 1.8568E-09 1.8209E-09-3.5895E-11 |
+   --- OH            c 3.3342E-09 1.9066E-08 1.5732E-08 |
    --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.2127739159049E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2127739159325E+03
-   --- subroutine FORCE: Beginning Slope = -3.4981e-08
-   --- subroutine FORCE: End Slope       = -2.33674e-08
+   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128672367815E+03
+   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673429783E+03
+   --- subroutine FORCE: Beginning Slope = -0.000185407
+   --- subroutine FORCE: End Slope       = -2.75549e-05
    --- subroutine FORCE produced no adjustments, s2 < 0
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (only major species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.304532E+01 -2.304532E+01
-   ---   NaCl(S)           4.776900E+00  4.776900E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.230998E-01  2.230998E-01 -1.021393E+02 -1.021393E+02
-   ---   H2O(L)            1.999600E+00  1.999600E+00 -1.240033E+02 -1.240033E+02
-   ---   OH-               3.438056E-09  2.109948E-09 -1.082547E+02 -1.087430E+02
-   ---   OH                5.183693E-10  3.918551E-09 -1.142538E+02 -1.122310E+02
-   ---   CO2               0.000000E+00  0.000000E+00 -5.082001E+02 -5.082001E+02
-   ---   H+            1   3.438056E-09  2.109948E-09 -1.459921E+01 -1.508745E+01  1.149299E+00  1.728134E-01
-   ---   H2O           0   4.000000E-04  4.000000E-04 -1.294722E+02 -1.294722E+02 -5.468938E+00 -5.468938E+00
-   ---   NaCl          0   4.000004E-24  4.000004E-24 -1.560721E+02 -1.560721E+02  1.844468E+01  1.844468E+01
-   ---   O2            0   5.819042E-52  5.819042E-52 -1.440334E+02 -1.440334E+02  6.497524E+01  5.688408E+01
-   ---   Cl-           1   2.230998E-01  2.230998E-01 -7.237746E+01 -7.237746E+01 -1.020104E-07 -9.723792E-09
-   ---   H2            1   2.591847E-10  1.959275E-09 -3.917710E+01 -3.715431E+01 -1.967814E+01 -1.360977E+01
-   ---                                                        Norms of Delta G():  2.881101E+01  2.513686E+01
+   ---   NaCl(S)           4.785197E+00  4.787283E+00 -1.745168E+02 -1.745168E+02
+   ---   N2                4.000000E+00  4.000000E+00 -2.306831E+01 -2.306910E+01
+   ---   H2O(L)            1.906573E+00  1.903343E+00 -1.240072E+02 -1.240039E+02
+   ---   Cl-               2.148025E-01  2.127173E-01 -7.235975E+01 -7.237442E+01
+   ---   OH-               1.856836E-09  1.820942E-09 -1.088222E+02 -1.088408E+02
+   ---   OH                3.334227E-09  1.906649E-08 -1.124155E+02 -1.106726E+02
+   ---   CO2               0.000000E+00  0.000000E+00 -5.082231E+02 -5.082239E+02
+   ---   H+            1   1.856836E-09  1.820942E-09 -1.514637E+01 -1.518178E+01  3.866207E-02 -1.864560E-02
+   ---   H2O           1   9.342663E-02  9.665716E-02 -1.240417E+02 -1.240085E+02 -3.448590E-02 -4.572826E-03
+   ---   NaCl          0   4.000004E-24  4.000004E-24 -1.560951E+02 -1.560959E+02  1.842169E+01  1.842090E+01
+   ---   O2            0   5.819042E-52  5.819042E-52 -1.440563E+02 -1.440571E+02  5.759102E+01  5.062521E+01
+   ---   Na+           1   2.148025E-01  2.127173E-01 -1.021216E+02 -1.021363E+02  3.543310E-02  6.096108E-03
+   ---   H2            1   1.667114E-09  9.533243E-09 -3.733878E+01 -3.559588E+01 -1.415524E+01 -8.933113E+00
+   ---                                                        Norms of Delta G():  2.535238E+01  2.229365E+01
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   2.4457996E+00
-   ---                  air =   4.0004000E+00
-   ---              NaCl(S) =   4.7769002E+00
+   ---     NaCl_electrolyte =   2.3287773E+00
+   ---                  air =   4.0966572E+00
+   ---              NaCl(S) =   4.7872827E+00
    -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.2127739159049E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2127739159325E+03
+   --- Total Old Dimensionless Gibbs Free Energy = -1.2128672367815E+03
+   --- Total New Dimensionless Gibbs Free Energy = -1.2128673429783E+03
    --- Increment counter increased, step is accepted:    9
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
@@ -1236,67 +1263,66 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_RxnStepSizes called - Details:
    ----------------------------------------------------------------------------------
    --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              2.1099E-09  -1.8231E-10   1.7281E-01 | Normal calc: diag adjusted from 9.47891e+08 to 9.47891e+08 due to act coeff
-   --- H2O             4.0000E-04   2.1876E-03  -5.4689E+00 | Normal calc: diag adjusted from 2499.84 to 2499.95 due to act coeff
-   --- NaCl            4.0000E-24   0.0000E+00   1.8445E+01 | Skipped: IC =   0 and DG >0:   1.844E+01
-   --- O2              5.8190E-52   0.0000E+00   5.6884E+01 | Skipped: IC =   0 and DG >0:   5.688E+01
-   --- Cl-             2.2310E-01   5.9825E-10  -9.7238E-09 | Normal calc: diag adjusted from 7.32914 to 16.2538 due to act coeff
-   --- H2              1.9593E-09   8.8884E-09  -1.3610E+01 | Normal calc: diag adjusted from 1.53118e+09 to 1.53118e+09 due to act coeff
+   --- H+              1.8209E-09   1.6976E-11  -1.8646E-02 | Normal calc: diag adjusted from 1.09833e+09 to 1.09833e+09 due to act coeff
+   --- H2O             9.6657E-02   4.4332E-04  -4.5728E-03 | Normal calc: diag adjusted from 10.1977 to 10.3149 due to act coeff
+   --- NaCl            4.0000E-24   0.0000E+00   1.8421E+01 | Skipped: IC =   0 and DG >0:   1.842E+01
+   --- O2              5.8190E-52   0.0000E+00   5.0625E+01 | Skipped: IC =   0 and DG >0:   5.063E+01
+   --- Na+             2.1272E-01  -3.5720E-04   6.0961E-03 | Normal calc: diag adjusted from 7.68451 to 17.0663 due to act coeff
+   --- H2              9.5332E-09   2.8387E-08  -8.9331E+00 | Normal calc: diag adjusted from 3.14688e+08 to 3.14688e+08 due to act coeff
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Full Calculation:
    --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 2.1099E-09 1.9356E-09-1.7432E-10 | Line Search reduced step size from -1.82314e-10 to -1.74319e-10
-   --- H2O           0 4.0000E-04 4.0000E-02 3.9600E-02 | minor species alternative calc
-   --- NaCl          0 4.0000E-24 3.9052E-32-4.0000E-24 | minor species alternative calc
+   --- H+            1 1.8209E-09 1.8379E-09 1.6976E-11 | Normal Major Calc
+   --- H2O           1 9.6657E-02 9.7100E-02 4.4332E-04 | Normal Major Calc
+   --- NaCl          0 4.0000E-24 3.9991E-32-4.0000E-24 | minor species alternative calc
    --- O2            0 5.8190E-52 5.8190E-62-5.8190E-52 | minor species alternative calc
-   --- Cl-           1 2.2310E-01 2.2310E-01 5.9825E-10 | Normal Major Calc
-   --- H2            1 1.9593E-09 1.0848E-08 8.8884E-09 | Normal Major Calc
+   --- Na+           1 2.1272E-01 2.1236E-01-3.5720E-04 | Normal Major Calc
+   --- H2            1 9.5332E-09 3.7920E-08 2.8387E-08 | Normal Major Calc
+   --- NaCl(S)       c 4.7873E+00 4.7876E+00 3.5720E-04 |
    --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7769E+00 4.7769E+00-5.9825E-10 |
-   --- Na+           c 2.2310E-01 2.2310E-01 5.9825E-10 |
-   --- H2O(L)        c 1.9996E+00 1.9600E+00-3.9600E-02 |
-   --- OH-           c 2.1099E-09 1.9356E-09-1.7432E-10 |
-   --- OH            c 3.9186E-09 2.1695E-08 1.7777E-08 |
+   --- H2O(L)        c 1.9033E+00 1.9029E+00-4.4338E-04 |
+   --- Cl-           c 2.1272E-01 2.1236E-01-3.5720E-04 |
+   --- OH-           c 1.8209E-09 1.8379E-09 1.6976E-11 |
+   --- OH            c 1.9066E-08 7.5841E-08 5.6774E-08 |
    --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.2127739159325E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128459130107E+03
-   --- subroutine FORCE: Beginning Slope = -0.21657
-   --- subroutine FORCE: End Slope       = -0.0342694
+   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128673429783E+03
+   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673455656E+03
+   --- subroutine FORCE: Beginning Slope = -4.45836e-06
+   --- subroutine FORCE: End Slope       = -7.43853e-07
    --- subroutine FORCE produced no adjustments, s2 < 0
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (all species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.304532E+01 -2.305517E+01
-   ---   NaCl(S)           4.776900E+00  4.776900E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.230998E-01  2.230998E-01 -1.021393E+02 -1.021028E+02
-   ---   H2O(L)            1.999600E+00  1.960000E+00 -1.240033E+02 -1.240115E+02
-   ---   OH-               2.109948E-09  1.935630E-09 -1.087430E+02 -1.088073E+02
-   ---   OH                3.918551E-09  2.169542E-08 -1.122310E+02 -1.105295E+02
-   ---   CO2               0.000000E+00  0.000000E+00 -5.082001E+02 -5.082100E+02
-   ---   H+            1   2.109948E-09  1.935630E-09 -1.508745E+01 -1.510984E+01  1.728134E-01  9.438799E-02
-   ---   H2O           0   4.000000E-04  4.000000E-02 -1.294722E+02 -1.248769E+02 -5.468938E+00 -8.653882E-01
-   ---   NaCl          0   4.000004E-24  3.905164E-32 -1.560721E+02 -1.745266E+02  1.844468E+01 -9.850335E-03
-   ---   O2            0   5.819042E-52  5.819040E-62 -1.440334E+02 -1.670691E+02  5.688408E+01  2.702580E+01
-   ---   Cl-           1   2.230998E-01  2.230998E-01 -7.237746E+01 -7.234095E+01 -9.723792E-09  7.302295E-02
-   ---   H2            1   1.959275E-09  1.084771E-08 -3.715431E+01 -3.545278E+01 -1.360977E+01 -8.488729E+00
-   ---                                                        Norms of Delta G():  2.513686E+01  1.157019E+01
+   ---   NaCl(S)           4.787283E+00  4.787640E+00 -1.745168E+02 -1.745168E+02
+   ---   N2                4.000000E+00  4.000000E+00 -2.306910E+01 -2.306921E+01
+   ---   H2O(L)            1.903343E+00  1.902899E+00 -1.240039E+02 -1.240033E+02
+   ---   Cl-               2.127173E-01  2.123601E-01 -7.237442E+01 -7.237704E+01
+   ---   OH-               1.820942E-09  1.837918E-09 -1.088408E+02 -1.088314E+02
+   ---   OH                1.906649E-08  7.584084E-08 -1.106726E+02 -1.092920E+02
+   ---   CO2               0.000000E+00  0.000000E+00 -5.082239E+02 -5.082240E+02
+   ---   H+            1   1.820942E-09  1.837918E-09 -1.518178E+01 -1.517541E+01 -1.864560E-02 -3.488999E-03
+   ---   H2O           1   9.665716E-02  9.710048E-02 -1.240085E+02 -1.240040E+02 -4.572826E-03 -6.916418E-04
+   ---   NaCl          0   4.000004E-24  3.999130E-32 -1.560959E+02 -1.745169E+02  1.842090E+01 -1.082215E-04
+   ---   O2            0   5.819042E-52  5.819040E-62 -1.440571E+02 -1.670831E+02  5.062521E+01  2.207804E+01
+   ---   Na+           1   2.127173E-01  2.123601E-01 -1.021363E+02 -1.021389E+02  6.096108E-03  8.431848E-04
+   ---   H2            1   9.533243E-09  3.792042E-08 -3.559588E+01 -3.421528E+01 -8.933113E+00 -4.792497E+00
+   ---                                                        Norms of Delta G():  2.229365E+01  9.223229E+00
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   2.4061995E+00
-   ---                  air =   4.0400000E+00
-   ---              NaCl(S) =   4.7769002E+00
+   ---     NaCl_electrolyte =   2.3276196E+00
+   ---                  air =   4.0971006E+00
+   ---              NaCl(S) =   4.7876399E+00
    -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.2127739159325E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2128459130107E+03
+   --- Total Old Dimensionless Gibbs Free Energy = -1.2128673429783E+03
+   --- Total New Dimensionless Gibbs Free Energy = -1.2128673455656E+03
    --- Increment counter increased, step is accepted:   10
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
    --- Reevaluate major-minor status of noncomponents:
-   ---   Noncomponent turned from minor to major: H2O
    --- Equilibrium check for major species: H+ failed
 
 ==============================================================================================================
@@ -1305,62 +1331,62 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_RxnStepSizes called - Details:
    ----------------------------------------------------------------------------------
    --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              1.9356E-09  -9.1350E-11   9.4388E-02 | Normal calc: diag adjusted from 1.03326e+09 to 1.03326e+09 due to act coeff
-   --- H2O             4.0000E-02   3.4663E-02  -8.6539E-01 | Normal calc: diag adjusted from 24.8471 to 24.9659 due to act coeff
-   --- NaCl            3.9052E-32   3.8467E-34  -9.8503E-03 | Normal Calc
-   --- O2              5.8190E-62   0.0000E+00   2.7026E+01 | Skipped: IC =   0 and DG >0:   2.703E+01
-   --- Cl-             2.2310E-01  -4.4327E-03   7.3023E-02 | Normal calc: diag adjusted from 7.30223 to 16.4738 due to act coeff
-   --- H2              1.0848E-08   3.0694E-08  -8.4887E+00 | Normal calc: diag adjusted from 2.76556e+08 to 2.76556e+08 due to act coeff
+   --- H+              1.8379E-09   3.2062E-12  -3.4890E-03 | Normal calc: diag adjusted from 1.08819e+09 to 1.08819e+09 due to act coeff
+   --- H2O             9.7100E-02   6.7364E-05  -6.9164E-04 | Normal calc: diag adjusted from 10.1504 to 10.2672 due to act coeff
+   --- NaCl            3.9991E-32   4.3279E-36  -1.0822E-04 | Normal Calc
+   --- O2              5.8190E-62   0.0000E+00   2.2078E+01 | Skipped: IC =   0 and DG >0:   2.208E+01
+   --- Na+             2.1236E-01  -4.9371E-05   8.4318E-04 | Normal calc: diag adjusted from 7.69947 to 17.0785 due to act coeff
+   --- H2              3.7920E-08   6.0578E-08  -4.7925E+00 | Normal calc: diag adjusted from 7.9113e+07 to 7.9113e+07 due to act coeff
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Major Components Calculation:
    --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 1.9356E-09 1.8465E-09-8.9177E-11 | Line Search reduced step size from -9.13501e-11 to -8.91771e-11
-   --- H2O           1 4.0000E-02 7.4663E-02 3.4663E-02 | Normal Major Calc
-   --- NaCl          0 3.9052E-32 3.9052E-32 0.0000E+00 | minor species not considered
+   --- H+            1 1.8379E-09 1.8411E-09 3.2062E-12 | Normal Major Calc
+   --- H2O           1 9.7100E-02 9.7168E-02 6.7364E-05 | Normal Major Calc
+   --- NaCl          0 3.9991E-32 3.9991E-32 0.0000E+00 | minor species not considered
    --- O2            0 5.8190E-62 5.8190E-62 0.0000E+00 | minor species not considered
-   --- Cl-           1 2.2310E-01 2.1868E-01-4.4182E-03 | Line Search reduced step size from -0.00443267 to -0.00441821
-   --- H2            1 1.0848E-08 4.1542E-08 3.0694E-08 | Normal Major Calc
+   --- Na+           1 2.1236E-01 2.1231E-01-4.9371E-05 | Normal Major Calc
+   --- H2            1 3.7920E-08 9.8498E-08 6.0578E-08 | Normal Major Calc
+   --- NaCl(S)       c 4.7876E+00 4.7877E+00 4.9371E-05 |
    --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7769E+00 4.7813E+00 4.4182E-03 |
-   --- Na+           c 2.2310E-01 2.1868E-01-4.4182E-03 |
-   --- H2O(L)        c 1.9600E+00 1.9253E+00-3.4663E-02 |
-   --- OH-           c 1.9356E-09 1.8465E-09-8.9177E-11 |
-   --- OH            c 2.1695E-08 8.3084E-08 6.1389E-08 |
+   --- H2O(L)        c 1.9029E+00 1.9028E+00-6.7485E-05 |
+   --- Cl-           c 2.1236E-01 2.1231E-01-4.9371E-05 |
+   --- OH-           c 1.8379E-09 1.8411E-09 3.2062E-12 |
+   --- OH            c 7.5841E-08 1.9700E-07 1.2116E-07 |
    --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128459130107E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128644445665E+03
-   --- subroutine FORCE: Beginning Slope = -0.0303197
-   --- subroutine FORCE: End Slope       = -0.00897876
+   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128673455656E+03
+   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673458061E+03
+   --- subroutine FORCE: Beginning Slope = -3.7854e-07
+   --- subroutine FORCE: End Slope       = -1.29562e-07
    --- subroutine FORCE produced no adjustments, s2 < 0
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (only major species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.305517E+01 -2.306372E+01
-   ---   NaCl(S)           4.776900E+00  4.781318E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.230998E-01  2.186816E-01 -1.021028E+02 -1.021068E+02
-   ---   H2O(L)            1.960000E+00  1.925337E+00 -1.240115E+02 -1.240106E+02
-   ---   OH-               1.935630E-09  1.846453E-09 -1.088073E+02 -1.088368E+02
-   ---   OH                2.169542E-08  8.308425E-08 -1.105295E+02 -1.091952E+02
-   ---   CO2               0.000000E+00  0.000000E+00 -5.082100E+02 -5.082185E+02
-   ---   H+            1   1.935630E-09  1.846453E-09 -1.510984E+01 -1.514393E+01  9.438799E-02  2.984791E-02
-   ---   H2O           1   4.000000E-02  7.466279E-02 -1.248769E+02 -1.242613E+02 -8.653882E-01 -2.507309E-01
-   ---   NaCl          0   3.905164E-32  3.905164E-32 -1.745266E+02 -1.745352E+02 -9.850335E-03 -1.839366E-02
-   ---   O2            0   5.819040E-62  5.819040E-62 -1.670691E+02 -1.670776E+02  2.702580E+01  2.168222E+01
-   ---   Cl-           1   2.230998E-01  2.186816E-01 -7.234095E+01 -7.234492E+01  7.302295E-02  6.509339E-02
-   ---   H2            1   1.084771E-08  4.154213E-08 -3.545278E+01 -3.411857E+01 -8.488729E+00 -4.487900E+00
-   ---                                                        Norms of Delta G():  1.157019E+01  9.039988E+00
+   ---   NaCl(S)           4.787640E+00  4.787689E+00 -1.745168E+02 -1.745168E+02
+   ---   N2                4.000000E+00  4.000000E+00 -2.306921E+01 -2.306923E+01
+   ---   H2O(L)            1.902899E+00  1.902832E+00 -1.240033E+02 -1.240033E+02
+   ---   Cl-               2.123601E-01  2.123107E-01 -7.237704E+01 -7.237740E+01
+   ---   OH-               1.837918E-09  1.841124E-09 -1.088314E+02 -1.088297E+02
+   ---   OH                7.584084E-08  1.969965E-07 -1.092920E+02 -1.083374E+02
+   ---   CO2               0.000000E+00  0.000000E+00 -5.082240E+02 -5.082240E+02
+   ---   H+            1   1.837918E-09  1.841124E-09 -1.517541E+01 -1.517406E+01 -3.488999E-03 -4.581683E-04
+   ---   H2O           1   9.710048E-02  9.716785E-02 -1.240040E+02 -1.240034E+02 -6.916418E-04 -9.435442E-05
+   ---   NaCl          0   3.999130E-32  3.999130E-32 -1.745169E+02 -1.745169E+02 -1.082215E-04 -1.247076E-04
+   ---   O2            0   5.819040E-62  5.819040E-62 -1.670831E+02 -1.670831E+02  2.207804E+01  1.826005E+01
+   ---   Na+           1   2.123601E-01  2.123107E-01 -1.021389E+02 -1.021393E+02  8.431848E-04  1.285731E-04
+   ---   H2            1   3.792042E-08  9.849825E-08 -3.421528E+01 -3.326075E+01 -4.792497E+00 -1.929058E+00
+   ---                                                        Norms of Delta G():  9.223229E+00  7.496117E+00
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   2.3627003E+00
-   ---                  air =   4.0746629E+00
-   ---              NaCl(S) =   4.7813184E+00
+   ---     NaCl_electrolyte =   2.3274533E+00
+   ---                  air =   4.0971681E+00
+   ---              NaCl(S) =   4.7876893E+00
    -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.2128459130107E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2128644445665E+03
+   --- Total Old Dimensionless Gibbs Free Energy = -1.2128673455656E+03
+   --- Total New Dimensionless Gibbs Free Energy = -1.2128673458061E+03
    --- Increment counter increased, step is accepted:   11
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
@@ -1372,62 +1398,62 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_RxnStepSizes called - Details:
    ----------------------------------------------------------------------------------
    --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              1.8465E-09  -2.7556E-11   2.9848E-02 | Normal calc: diag adjusted from 1.08316e+09 to 1.08316e+09 due to act coeff
-   --- H2O             7.4663E-02   1.8761E-02  -2.5073E-01 | Normal calc: diag adjusted from 13.2443 to 13.3646 due to act coeff
-   --- NaCl            3.9052E-32   7.1830E-34  -1.8394E-02 | Normal Calc
-   --- O2              5.8190E-62   0.0000E+00   2.1682E+01 | Skipped: IC =   0 and DG >0:   2.168E+01
-   --- Cl-             2.1868E-01  -3.8787E-03   6.5093E-02 | Normal calc: diag adjusted from 7.45274 to 16.7821 due to act coeff
-   --- H2              4.1542E-08   6.2146E-08  -4.4879E+00 | Normal calc: diag adjusted from 7.22158e+07 to 7.22159e+07 due to act coeff
+   --- H+              1.8411E-09   4.2177E-13  -4.5817E-04 | Normal calc: diag adjusted from 1.08629e+09 to 1.08629e+09 due to act coeff
+   --- H2O             9.7168E-02   9.1963E-06  -9.4354E-05 | Normal calc: diag adjusted from 10.1433 to 10.26 due to act coeff
+   --- NaCl            3.9991E-32   4.9872E-36  -1.2471E-04 | Normal Calc
+   --- O2              5.8190E-62   0.0000E+00   1.8260E+01 | Skipped: IC =   0 and DG >0:   1.826E+01
+   --- Na+             2.1231E-01  -7.5276E-06   1.2857E-04 | Normal calc: diag adjusted from 7.70154 to 17.0802 due to act coeff
+   --- H2              9.8498E-08   6.3336E-08  -1.9291E+00 | Normal calc: diag adjusted from 3.04574e+07 to 3.04574e+07 due to act coeff
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Major Components Calculation:
    --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 1.8465E-09 1.8191E-09-2.7350E-11 | Line Search reduced step size from -2.75564e-11 to -2.73502e-11
-   --- H2O           1 7.4663E-02 9.3424E-02 1.8761E-02 | Normal Major Calc
-   --- NaCl          0 3.9052E-32 3.9052E-32 0.0000E+00 | minor species not considered
+   --- H+            1 1.8411E-09 1.8415E-09 4.2177E-13 | Normal Major Calc
+   --- H2O           1 9.7168E-02 9.7177E-02 9.1963E-06 | Normal Major Calc
+   --- NaCl          0 3.9991E-32 3.9991E-32 0.0000E+00 | minor species not considered
    --- O2            0 5.8190E-62 5.8190E-62 0.0000E+00 | minor species not considered
-   --- Cl-           1 2.1868E-01 2.1481E-01-3.8674E-03 | Line Search reduced step size from -0.00387873 to -0.00386742
-   --- H2            1 4.1542E-08 1.0369E-07 6.2146E-08 | Normal Major Calc
+   --- Na+           1 2.1231E-01 2.1230E-01-7.5276E-06 | Normal Major Calc
+   --- H2            1 9.8498E-08 1.6183E-07 6.3336E-08 | Normal Major Calc
+   --- NaCl(S)       c 4.7877E+00 4.7877E+00 7.5276E-06 |
    --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7813E+00 4.7852E+00 3.8674E-03 |
-   --- Na+           c 2.1868E-01 2.1481E-01-3.8674E-03 |
-   --- H2O(L)        c 1.9253E+00 1.9066E+00-1.8761E-02 |
-   --- OH-           c 1.8465E-09 1.8191E-09-2.7350E-11 |
-   --- OH            c 8.3084E-08 2.0738E-07 1.2429E-07 |
+   --- H2O(L)        c 1.9028E+00 1.9028E+00-9.3230E-06 |
+   --- Cl-           c 2.1231E-01 2.1230E-01-7.5276E-06 |
+   --- OH-           c 1.8411E-09 1.8415E-09 4.2177E-13 |
+   --- OH            c 1.9700E-07 3.2367E-07 1.2667E-07 |
    --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128644445665E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128672367281E+03
-   --- subroutine FORCE: Beginning Slope = -0.00495593
-   --- subroutine FORCE: End Slope       = -0.000785067
+   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128673458061E+03
+   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673458783E+03
+   --- subroutine FORCE: Beginning Slope = -1.24015e-07
+   --- subroutine FORCE: End Slope       = -2.81011e-08
    --- subroutine FORCE produced no adjustments, s2 < 0
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (only major species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.306372E+01 -2.306831E+01
-   ---   NaCl(S)           4.781318E+00  4.785186E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.186816E-01  2.148141E-01 -1.021068E+02 -1.021215E+02
-   ---   H2O(L)            1.925337E+00  1.906576E+00 -1.240106E+02 -1.240072E+02
-   ---   OH-               1.846453E-09  1.819102E-09 -1.088368E+02 -1.088427E+02
-   ---   OH                8.308425E-08  2.073755E-07 -1.091952E+02 -1.082852E+02
-   ---   CO2               0.000000E+00  0.000000E+00 -5.082185E+02 -5.082231E+02
-   ---   H+            1   1.846453E-09  1.819102E-09 -1.514393E+01 -1.516678E+01  2.984791E-02 -2.260815E-03
-   ---   H2O           1   7.466279E-02  9.342356E-02 -1.242613E+02 -1.240417E+02 -2.507309E-01 -3.449644E-02
-   ---   NaCl          0   3.905164E-32  3.905164E-32 -1.745352E+02 -1.745398E+02 -1.839366E-02 -2.298739E-02
-   ---   O2            0   5.819040E-62  5.819040E-62 -1.670776E+02 -1.670822E+02  2.168222E+01  1.804396E+01
-   ---   Cl-           1   2.186816E-01  2.148141E-01 -7.234492E+01 -7.235965E+01  6.509339E-02  3.562514E-02
-   ---   H2            1   4.154213E-08  1.036878E-07 -3.411857E+01 -3.320849E+01 -4.487900E+00 -1.764320E+00
-   ---                                                        Norms of Delta G():  9.039988E+00  7.401582E+00
+   ---   NaCl(S)           4.787689E+00  4.787697E+00 -1.745168E+02 -1.745168E+02
+   ---   N2                4.000000E+00  4.000000E+00 -2.306923E+01 -2.306923E+01
+   ---   H2O(L)            1.902832E+00  1.902823E+00 -1.240033E+02 -1.240033E+02
+   ---   Cl-               2.123107E-01  2.123032E-01 -7.237740E+01 -7.237746E+01
+   ---   OH-               1.841124E-09  1.841546E-09 -1.088297E+02 -1.088294E+02
+   ---   OH                1.969965E-07  3.236691E-07 -1.083374E+02 -1.078409E+02
+   ---   CO2               0.000000E+00  0.000000E+00 -5.082240E+02 -5.082240E+02
+   ---   H+            1   1.841124E-09  1.841546E-09 -1.517406E+01 -1.517389E+01 -4.581683E-04 -7.181866E-05
+   ---   H2O           1   9.716785E-02  9.717704E-02 -1.240034E+02 -1.240033E+02 -9.435442E-05 -1.436954E-05
+   ---   NaCl          0   3.999130E-32  3.999130E-32 -1.745169E+02 -1.745169E+02 -1.247076E-04 -1.269986E-04
+   ---   O2            0   5.819040E-62  5.819040E-62 -1.670831E+02 -1.670831E+02  1.826005E+01  1.627394E+01
+   ---   Na+           1   2.123107E-01  2.123032E-01 -1.021393E+02 -1.021393E+02  1.285731E-04  1.776610E-05
+   ---   H2            1   9.849825E-08  1.618346E-07 -3.326075E+01 -3.276421E+01 -1.929058E+00 -4.394829E-01
+   ---                                                        Norms of Delta G():  7.496117E+00  6.646229E+00
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   2.3362045E+00
-   ---                  air =   4.0934239E+00
-   ---              NaCl(S) =   4.7851859E+00
+   ---     NaCl_electrolyte =   2.3274289E+00
+   ---                  air =   4.0971775E+00
+   ---              NaCl(S) =   4.7876968E+00
    -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.2128644445665E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2128672367281E+03
+   --- Total Old Dimensionless Gibbs Free Energy = -1.2128673458061E+03
+   --- Total New Dimensionless Gibbs Free Energy = -1.2128673458783E+03
    --- Increment counter increased, step is accepted:   12
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
@@ -1439,62 +1465,62 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_RxnStepSizes called - Details:
    ----------------------------------------------------------------------------------
    --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              1.8191E-09   2.0563E-12  -2.2608E-03 | Normal calc: diag adjusted from 1.09944e+09 to 1.09944e+09 due to act coeff
-   --- H2O             9.3424E-02   3.2314E-03  -3.4496E-02 | Normal calc: diag adjusted from 10.5561 to 10.6753 due to act coeff
-   --- NaCl            3.9052E-32   8.9770E-34  -2.2987E-02 | Normal Calc
-   --- O2              5.8190E-62   0.0000E+00   1.8044E+01 | Skipped: IC =   0 and DG >0:   1.804E+01
-   --- Cl-             2.1481E-01  -2.0966E-03   3.5625E-02 | Normal calc: diag adjusted from 7.5982 to 16.9918 due to act coeff
-   --- H2              1.0369E-07   6.0979E-08  -1.7643E+00 | Normal calc: diag adjusted from 2.8933e+07 to 2.8933e+07 due to act coeff
+   --- H+              1.8415E-09   6.6129E-14  -7.1819E-05 | Normal calc: diag adjusted from 1.08604e+09 to 1.08604e+09 due to act coeff
+   --- H2O             9.7177E-02   1.4007E-06  -1.4370E-05 | Normal calc: diag adjusted from 10.1423 to 10.2591 due to act coeff
+   --- NaCl            3.9991E-32   5.0788E-36  -1.2700E-04 | Normal Calc
+   --- O2              5.8190E-62   0.0000E+00   1.6274E+01 | Skipped: IC =   0 and DG >0:   1.627E+01
+   --- Na+             2.1230E-01  -1.0401E-06   1.7766E-05 | Normal calc: diag adjusted from 7.70186 to 17.0805 due to act coeff
+   --- H2              1.6183E-07   2.3708E-08  -4.3948E-01 | Normal calc: diag adjusted from 1.85374e+07 to 1.85374e+07 due to act coeff
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Major Components Calculation:
    --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 1.8191E-09 1.8212E-09 2.0563E-12 | Normal Major Calc
-   --- H2O           1 9.3424E-02 9.6655E-02 3.2314E-03 | Normal Major Calc
-   --- NaCl          0 3.9052E-32 3.9052E-32 0.0000E+00 | minor species not considered
+   --- H+            1 1.8415E-09 1.8416E-09 6.6129E-14 | Normal Major Calc
+   --- H2O           1 9.7177E-02 9.7178E-02 1.4007E-06 | Normal Major Calc
+   --- NaCl          0 3.9991E-32 3.9991E-32 0.0000E+00 | minor species not considered
    --- O2            0 5.8190E-62 5.8190E-62 0.0000E+00 | minor species not considered
-   --- Cl-           1 2.1481E-01 2.1272E-01-2.0932E-03 | Line Search reduced step size from -0.0020966 to -0.00209322
-   --- H2            1 1.0369E-07 1.6467E-07 6.0979E-08 | Normal Major Calc
+   --- Na+           1 2.1230E-01 2.1230E-01-1.0401E-06 | Normal Major Calc
+   --- H2            1 1.6183E-07 1.8554E-07 2.3708E-08 | Normal Major Calc
+   --- NaCl(S)       c 4.7877E+00 4.7877E+00 1.0401E-06 |
    --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7852E+00 4.7873E+00 2.0932E-03 |
-   --- Na+           c 2.1481E-01 2.1272E-01-2.0932E-03 |
-   --- H2O(L)        c 1.9066E+00 1.9033E+00-3.2315E-03 |
-   --- OH-           c 1.8191E-09 1.8212E-09 2.0563E-12 |
-   --- OH            c 2.0738E-07 3.2933E-07 1.2196E-07 |
+   --- H2O(L)        c 1.9028E+00 1.9028E+00-1.4481E-06 |
+   --- Cl-           c 2.1230E-01 2.1230E-01-1.0401E-06 |
+   --- OH-           c 1.8415E-09 1.8416E-09 6.6129E-14 |
+   --- OH            c 3.2367E-07 3.7108E-07 4.7416E-08 |
    --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128672367281E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673433895E+03
-   --- subroutine FORCE: Beginning Slope = -0.000186151
-   --- subroutine FORCE: End Slope       = -2.77347e-05
+   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128673458783E+03
+   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673458837E+03
+   --- subroutine FORCE: Beginning Slope = -1.04578e-08
+   --- subroutine FORCE: End Slope       = -7.01737e-10
    --- subroutine FORCE produced no adjustments, s2 < 0
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (only major species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.306831E+01 -2.306910E+01
-   ---   NaCl(S)           4.785186E+00  4.787279E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.148141E-01  2.127209E-01 -1.021215E+02 -1.021362E+02
-   ---   H2O(L)            1.906576E+00  1.903345E+00 -1.240072E+02 -1.240039E+02
-   ---   OH-               1.819102E-09  1.821159E-09 -1.088427E+02 -1.088407E+02
-   ---   OH                2.073755E-07  3.293344E-07 -1.082852E+02 -1.078234E+02
-   ---   CO2               0.000000E+00  0.000000E+00 -5.082231E+02 -5.082239E+02
-   ---   H+            1   1.819102E-09  1.821159E-09 -1.516678E+01 -1.518162E+01 -2.260815E-03 -1.836595E-02
-   ---   H2O           1   9.342356E-02  9.665497E-02 -1.240417E+02 -1.240085E+02 -3.449644E-02 -4.588517E-03
-   ---   NaCl          0   3.905164E-32  3.905164E-32 -1.745398E+02 -1.745406E+02 -2.298739E-02 -2.377653E-02
-   ---   O2            0   5.819040E-62  5.819040E-62 -1.670822E+02 -1.670830E+02  1.804396E+01  1.620278E+01
-   ---   Cl-           1   2.148141E-01  2.127209E-01 -7.235965E+01 -7.237439E+01  3.562514E-02  6.155026E-03
-   ---   H2            1   1.036878E-07  1.646672E-07 -3.320849E+01 -3.274673E+01 -1.764320E+00 -3.856738E-01
-   ---                                                        Norms of Delta G():  7.401582E+00  6.616641E+00
+   ---   NaCl(S)           4.787697E+00  4.787698E+00 -1.745168E+02 -1.745168E+02
+   ---   N2                4.000000E+00  4.000000E+00 -2.306923E+01 -2.306923E+01
+   ---   H2O(L)            1.902823E+00  1.902821E+00 -1.240033E+02 -1.240033E+02
+   ---   Cl-               2.123032E-01  2.123021E-01 -7.237746E+01 -7.237746E+01
+   ---   OH-               1.841546E-09  1.841612E-09 -1.088294E+02 -1.088294E+02
+   ---   OH                3.236691E-07  3.710848E-07 -1.078409E+02 -1.077042E+02
+   ---   CO2               0.000000E+00  0.000000E+00 -5.082240E+02 -5.082240E+02
+   ---   H+            1   1.841546E-09  1.841612E-09 -1.517389E+01 -1.517386E+01 -7.181866E-05 -9.525465E-06
+   ---   H2O           1   9.717704E-02  9.717845E-02 -1.240033E+02 -1.240033E+02 -1.436954E-05 -1.989593E-06
+   ---   NaCl          0   3.999130E-32  3.999130E-32 -1.745169E+02 -1.745169E+02 -1.269986E-04 -1.273578E-04
+   ---   O2            0   5.819040E-62  5.819040E-62 -1.670831E+02 -1.670831E+02  1.627394E+01  1.572711E+01
+   ---   Na+           1   2.123032E-01  2.123021E-01 -1.021393E+02 -1.021393E+02  1.776610E-05  2.759614E-06
+   ---   H2            1   1.618346E-07  1.855424E-07 -3.276421E+01 -3.262751E+01 -4.394829E-01 -2.936074E-02
+   ---                                                        Norms of Delta G():  6.646229E+00  6.420575E+00
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   2.3287865E+00
-   ---                  air =   4.0966555E+00
-   ---              NaCl(S) =   4.7872791E+00
+   ---     NaCl_electrolyte =   2.3274254E+00
+   ---                  air =   4.0971790E+00
+   ---              NaCl(S) =   4.7876979E+00
    -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.2128672367281E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2128673433895E+03
+   --- Total Old Dimensionless Gibbs Free Energy = -1.2128673458783E+03
+   --- Total New Dimensionless Gibbs Free Energy = -1.2128673458837E+03
    --- Increment counter increased, step is accepted:   13
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
@@ -1508,62 +1534,62 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_RxnStepSizes called - Details:
    ----------------------------------------------------------------------------------
    --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              1.8212E-09   1.6724E-11  -1.8366E-02 | Normal calc: diag adjusted from 1.0982e+09 to 1.0982e+09 due to act coeff
-   --- H2O             9.6655E-02   4.4483E-04  -4.5885E-03 | Normal calc: diag adjusted from 10.198 to 10.3151 due to act coeff
-   --- NaCl            3.9052E-32   9.2851E-34  -2.3777E-02 | Normal Calc
-   --- O2              5.8190E-62   0.0000E+00   1.6203E+01 | Skipped: IC =   0 and DG >0:   1.620E+01
-   --- Cl-             2.1272E-01  -3.6066E-04   6.1550E-03 | Normal calc: diag adjusted from 7.68436 to 17.0662 due to act coeff
-   --- H2              1.6467E-07   2.1169E-08  -3.8567E-01 | Normal calc: diag adjusted from 1.82186e+07 to 1.82186e+07 due to act coeff
+   --- H+              1.8416E-09   8.7711E-15  -9.5255E-06 | Normal calc: diag adjusted from 1.086e+09 to 1.086e+09 due to act coeff
+   --- H2O             9.7178E-02   1.9394E-07  -1.9896E-06 | Normal calc: diag adjusted from 10.1422 to 10.2589 due to act coeff
+   --- NaCl            3.9991E-32   5.0932E-36  -1.2736E-04 | Normal Calc
+   --- O2              5.8190E-62   0.0000E+00   1.5727E+01 | Skipped: IC =   0 and DG >0:   1.573E+01
+   --- Na+             2.1230E-01  -1.6157E-07   2.7596E-06 | Normal calc: diag adjusted from 7.7019 to 17.0805 due to act coeff
+   --- H2              1.8554E-07   1.8159E-09  -2.9361E-02 | Normal calc: diag adjusted from 1.61688e+07 to 1.61688e+07 due to act coeff
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Full Calculation:
    --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 1.8212E-09 1.8379E-09 1.6724E-11 | Normal Major Calc
-   --- H2O           1 9.6655E-02 9.7100E-02 4.4483E-04 | Normal Major Calc
-   --- NaCl          0 3.9052E-32 3.9991E-32 9.3964E-34 | minor species alternative calc
-   --- O2            0 5.8190E-62 5.3466E-69-5.8190E-62 | minor species alternative calc
-   --- Cl-           1 2.1272E-01 2.1236E-01-3.6055E-04 | Line Search reduced step size from -0.000360656 to -0.000360555
-   --- H2            1 1.6467E-07 1.8584E-07 2.1169E-08 | Normal Major Calc
+   --- H+            1 1.8416E-09 1.8416E-09 8.7711E-15 | Normal Major Calc
+   --- H2O           1 9.7178E-02 9.7179E-02 1.9394E-07 | Normal Major Calc
+   --- NaCl          0 3.9991E-32 3.9996E-32 5.0935E-36 | minor species alternative calc
+   --- O2            0 5.8190E-62 8.6031E-69-5.8190E-62 | minor species alternative calc
+   --- Na+           1 2.1230E-01 2.1230E-01-1.6157E-07 | Normal Major Calc
+   --- H2            1 1.8554E-07 1.8736E-07 1.8159E-09 | Normal Major Calc
+   --- NaCl(S)       c 4.7877E+00 4.7877E+00 1.6157E-07 |
    --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7873E+00 4.7876E+00 3.6055E-04 |
-   --- Na+           c 2.1272E-01 2.1236E-01-3.6055E-04 |
-   --- H2O(L)        c 1.9033E+00 1.9029E+00-4.4488E-04 |
-   --- OH-           c 1.8212E-09 1.8379E-09 1.6724E-11 |
-   --- OH            c 3.2933E-07 3.7167E-07 4.2339E-08 |
+   --- H2O(L)        c 1.9028E+00 1.9028E+00-1.9757E-07 |
+   --- Cl-           c 2.1230E-01 2.1230E-01-1.6157E-07 |
+   --- OH-           c 1.8416E-09 1.8416E-09 8.7711E-15 |
+   --- OH            c 3.7108E-07 3.7472E-07 3.6318E-09 |
    --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128673433895E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673458315E+03
-   --- subroutine FORCE: Beginning Slope = -4.26851e-06
-   --- subroutine FORCE: End Slope       = -6.16713e-07
+   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128673458837E+03
+   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673458838E+03
+   --- subroutine FORCE: Beginning Slope = -5.41475e-11
+   --- subroutine FORCE: End Slope       = -3.81088e-13
    --- subroutine FORCE produced no adjustments, s2 < 0
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (all species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.306910E+01 -2.306921E+01
-   ---   NaCl(S)           4.787279E+00  4.787640E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.127209E-01  2.123604E-01 -1.021362E+02 -1.021389E+02
-   ---   H2O(L)            1.903345E+00  1.902900E+00 -1.240039E+02 -1.240033E+02
-   ---   OH-               1.821159E-09  1.837882E-09 -1.088407E+02 -1.088314E+02
-   ---   OH                3.293344E-07  3.716730E-07 -1.078234E+02 -1.077026E+02
-   ---   CO2               0.000000E+00  0.000000E+00 -5.082239E+02 -5.082240E+02
-   ---   H+            1   1.821159E-09  1.837882E-09 -1.518162E+01 -1.517543E+01 -1.836595E-02 -3.524920E-03
-   ---   H2O           1   9.665497E-02  9.709980E-02 -1.240085E+02 -1.240040E+02 -4.588517E-03 -6.981099E-04
-   ---   NaCl          0   3.905164E-32  3.999128E-32 -1.745406E+02 -1.745169E+02 -2.377653E-02 -1.085940E-04
-   ---   O2            0   5.819040E-62  5.346571E-69 -1.670830E+02 -1.832859E+02  1.620278E+01 -4.822514E-01
-   ---   Cl-           1   2.127209E-01  2.123604E-01 -7.237439E+01 -7.237704E+01  6.155026E-03  8.477354E-04
-   ---   H2            1   1.646672E-07  1.858365E-07 -3.274673E+01 -3.262590E+01 -3.856738E-01 -2.436303E-02
-   ---                                                        Norms of Delta G():  6.616641E+00  1.971352E-01
+   ---   NaCl(S)           4.787698E+00  4.787698E+00 -1.745168E+02 -1.745168E+02
+   ---   N2                4.000000E+00  4.000000E+00 -2.306923E+01 -2.306923E+01
+   ---   H2O(L)            1.902821E+00  1.902821E+00 -1.240033E+02 -1.240033E+02
+   ---   Cl-               2.123021E-01  2.123020E-01 -7.237746E+01 -7.237746E+01
+   ---   OH-               1.841612E-09  1.841621E-09 -1.088294E+02 -1.088294E+02
+   ---   OH                3.710848E-07  3.747166E-07 -1.077042E+02 -1.076944E+02
+   ---   CO2               0.000000E+00  0.000000E+00 -5.082240E+02 -5.082240E+02
+   ---   H+            1   1.841612E-09  1.841621E-09 -1.517386E+01 -1.517386E+01 -9.525465E-06 -1.546553E-06
+   ---   H2O           1   9.717845E-02  9.717864E-02 -1.240033E+02 -1.240033E+02 -1.989593E-06 -3.084558E-07
+   ---   NaCl          0   3.999130E-32  3.999639E-32 -1.745169E+02 -1.745168E+02 -1.273578E-04 -4.866419E-08
+   ---   O2            0   5.819040E-62  8.603122E-69 -1.670831E+02 -1.828102E+02  1.572711E+01 -3.895666E-02
+   ---   Na+           1   2.123021E-01  2.123020E-01 -1.021393E+02 -1.021393E+02  2.759614E-06  3.765106E-07
+   ---   H2            1   1.855424E-07  1.873583E-07 -3.262751E+01 -3.261777E+01 -2.936074E-02 -1.434203E-04
+   ---                                                        Norms of Delta G():  6.420575E+00  1.590410E-02
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   2.3276206E+00
-   ---                  air =   4.0971004E+00
-   ---              NaCl(S) =   4.7876396E+00
+   ---     NaCl_electrolyte =   2.3274249E+00
+   ---                  air =   4.0971792E+00
+   ---              NaCl(S) =   4.7876980E+00
    -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.2128673433895E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2128673458315E+03
+   --- Total Old Dimensionless Gibbs Free Energy = -1.2128673458837E+03
+   --- Total New Dimensionless Gibbs Free Energy = -1.2128673458838E+03
    --- Increment counter increased, step is accepted:   14
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
@@ -1576,62 +1602,62 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_RxnStepSizes called - Details:
    ----------------------------------------------------------------------------------
    --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              1.8379E-09   3.2392E-12  -3.5249E-03 | Normal calc: diag adjusted from 1.08821e+09 to 1.08821e+09 due to act coeff
-   --- H2O             9.7100E-02   6.7993E-05  -6.9811E-04 | Normal calc: diag adjusted from 10.1505 to 10.2673 due to act coeff
-   --- NaCl            3.9991E-32   4.3428E-36  -1.0859E-04 | Normal Calc
-   --- O2              5.3466E-69   2.5784E-69  -4.8225E-01 | Normal Calc
-   --- Cl-             2.1236E-01  -4.9638E-05   8.4774E-04 | Normal calc: diag adjusted from 7.69946 to 17.0785 due to act coeff
-   --- H2              1.8584E-07   1.5092E-09  -2.4363E-02 | Normal calc: diag adjusted from 1.61432e+07 to 1.61432e+07 due to act coeff
+   --- H+              1.8416E-09   1.4241E-15  -1.5466E-06 | Normal calc: diag adjusted from 1.086e+09 to 1.086e+09 due to act coeff
+   --- H2O             9.7179E-02   3.0067E-08  -3.0846E-07 | Normal calc: diag adjusted from 10.1421 to 10.2589 due to act coeff
+   --- NaCl            3.9996E-32   1.9464E-39  -4.8664E-08 | Normal Calc
+   --- O2              8.6031E-69   3.3515E-70  -3.8957E-02 | Normal Calc
+   --- Na+             2.1230E-01  -2.2043E-08   3.7651E-07 | Normal calc: diag adjusted from 7.70191 to 17.0805 due to act coeff
+   --- H2              1.8736E-07   8.9570E-12  -1.4342E-04 | Normal calc: diag adjusted from 1.60121e+07 to 1.60121e+07 due to act coeff
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Major Components Calculation:
    --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 1.8379E-09 1.8411E-09 3.2392E-12 | Normal Major Calc
-   --- H2O           1 9.7100E-02 9.7168E-02 6.7993E-05 | Normal Major Calc
-   --- NaCl          0 3.9991E-32 3.9991E-32 0.0000E+00 | minor species not considered
-   --- O2            0 5.3466E-69 5.3466E-69 0.0000E+00 | minor species not considered
-   --- Cl-           1 2.1236E-01 2.1231E-01-4.9636E-05 | Line Search reduced step size from -4.96377e-05 to -4.96358e-05
-   --- H2            1 1.8584E-07 1.8735E-07 1.5092E-09 | Normal Major Calc
+   --- H+            1 1.8416E-09 1.8416E-09 1.4241E-15 | Normal Major Calc
+   --- H2O           1 9.7179E-02 9.7179E-02 3.0067E-08 | Normal Major Calc
+   --- NaCl          0 3.9996E-32 3.9996E-32 0.0000E+00 | minor species not considered
+   --- O2            0 8.6031E-69 8.6031E-69 0.0000E+00 | minor species not considered
+   --- Na+           1 2.1230E-01 2.1230E-01-2.2043E-08 | Normal Major Calc
+   --- H2            1 1.8736E-07 1.8737E-07 8.9570E-12 | Normal Major Calc
+   --- NaCl(S)       c 4.7877E+00 4.7877E+00 2.2043E-08 |
    --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7876E+00 4.7877E+00 4.9636E-05 |
-   --- Na+           c 2.1236E-01 2.1231E-01-4.9636E-05 |
-   --- H2O(L)        c 1.9029E+00 1.9028E+00-6.7997E-05 |
-   --- OH-           c 1.8379E-09 1.8411E-09 3.2392E-12 |
-   --- OH            c 3.7167E-07 3.7469E-07 3.0184E-09 |
+   --- H2O(L)        c 1.9028E+00 1.9028E+00-3.0085E-08 |
+   --- Cl-           c 2.1230E-01 2.1230E-01-2.2043E-08 |
+   --- OH-           c 1.8416E-09 1.8416E-09 1.4241E-15 |
+   --- OH            c 3.7472E-07 3.7473E-07 1.7914E-11 |
    --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128673458315E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673458827E+03
-   --- subroutine FORCE: Beginning Slope = -8.95817e-08
-   --- subroutine FORCE: End Slope       = -1.28811e-08
+   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128673458838E+03
+   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673458838E+03
+   --- subroutine FORCE: Beginning Slope = -1.88586e-14
+   --- subroutine FORCE: End Slope       = -2.52784e-15
    --- subroutine FORCE produced no adjustments, s2 < 0
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (only major species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.306921E+01 -2.306923E+01
-   ---   NaCl(S)           4.787640E+00  4.787689E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.123604E-01  2.123107E-01 -1.021389E+02 -1.021393E+02
-   ---   H2O(L)            1.902900E+00  1.902832E+00 -1.240033E+02 -1.240033E+02
-   ---   OH-               1.837882E-09  1.841122E-09 -1.088314E+02 -1.088297E+02
-   ---   OH                3.716730E-07  3.746914E-07 -1.077026E+02 -1.076945E+02
+   ---   NaCl(S)           4.787698E+00  4.787698E+00 -1.745168E+02 -1.745168E+02
+   ---   N2                4.000000E+00  4.000000E+00 -2.306923E+01 -2.306923E+01
+   ---   H2O(L)            1.902821E+00  1.902821E+00 -1.240033E+02 -1.240033E+02
+   ---   Cl-               2.123020E-01  2.123019E-01 -7.237746E+01 -7.237746E+01
+   ---   OH-               1.841621E-09  1.841622E-09 -1.088294E+02 -1.088294E+02
+   ---   OH                3.747166E-07  3.747345E-07 -1.076944E+02 -1.076944E+02
    ---   CO2               0.000000E+00  0.000000E+00 -5.082240E+02 -5.082240E+02
-   ---   H+            1   1.837882E-09  1.841122E-09 -1.517543E+01 -1.517406E+01 -3.524920E-03 -4.603026E-04
-   ---   H2O           1   9.709980E-02  9.716780E-02 -1.240040E+02 -1.240034E+02 -6.981099E-04 -9.484509E-05
-   ---   NaCl          0   3.999128E-32  3.999128E-32 -1.745169E+02 -1.745169E+02 -1.085940E-04 -1.251905E-04
-   ---   O2            0   5.346571E-69  5.346571E-69 -1.832859E+02 -1.832859E+02 -4.822514E-01 -5.143942E-01
-   ---   Cl-           1   2.123604E-01  2.123107E-01 -7.237704E+01 -7.237740E+01  8.477354E-04  1.295801E-04
-   ---   H2            1   1.858365E-07  1.873457E-07 -3.262590E+01 -3.261783E+01 -2.436303E-02 -3.084553E-04
-   ---                                                        Norms of Delta G():  1.971352E-01  2.100007E-01
+   ---   H+            1   1.841621E-09  1.841622E-09 -1.517386E+01 -1.517386E+01 -1.546553E-06 -2.033237E-07
+   ---   H2O           1   9.717864E-02  9.717867E-02 -1.240033E+02 -1.240033E+02 -3.084558E-07 -4.201091E-08
+   ---   NaCl          0   3.999639E-32  3.999639E-32 -1.745168E+02 -1.745168E+02 -4.866419E-08 -5.600927E-08
+   ---   O2            0   8.603122E-69  8.603122E-69 -1.828102E+02 -1.828102E+02 -3.895666E-02 -3.914779E-02
+   ---   Na+           1   2.123020E-01  2.123019E-01 -1.021393E+02 -1.021393E+02  3.765106E-07  5.733348E-08
+   ---   H2            1   1.873583E-07  1.873672E-07 -3.261777E+01 -3.261772E+01 -1.434203E-04 -9.667386E-08
+   ---                                                        Norms of Delta G():  1.590410E-02  1.598202E-02
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   2.3274533E+00
-   ---                  air =   4.0971684E+00
-   ---              NaCl(S) =   4.7876893E+00
+   ---     NaCl_electrolyte =   2.3274248E+00
+   ---                  air =   4.0971792E+00
+   ---              NaCl(S) =   4.7876981E+00
    -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.2128673458315E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2128673458827E+03
+   --- Total Old Dimensionless Gibbs Free Energy = -1.2128673458838E+03
+   --- Total New Dimensionless Gibbs Free Energy = -1.2128673458838E+03
    --- Increment counter increased, step is accepted:   15
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
@@ -1643,62 +1669,62 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_RxnStepSizes called - Details:
    ----------------------------------------------------------------------------------
    --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              1.8411E-09   4.2374E-13  -4.6030E-04 | Normal calc: diag adjusted from 1.08629e+09 to 1.08629e+09 due to act coeff
-   --- H2O             9.7168E-02   9.2441E-06  -9.4845E-05 | Normal calc: diag adjusted from 10.1433 to 10.26 due to act coeff
-   --- NaCl            3.9991E-32   5.0065E-36  -1.2519E-04 | Normal Calc
-   --- O2              5.3466E-69   2.7502E-69  -5.1439E-01 | Normal Calc
-   --- Cl-             2.1231E-01  -7.5866E-06   1.2958E-04 | Normal calc: diag adjusted from 7.70154 to 17.0802 due to act coeff
-   --- H2              1.8735E-07   1.9263E-11  -3.0846E-04 | Normal calc: diag adjusted from 1.60132e+07 to 1.60132e+07 due to act coeff
+   --- H+              1.8416E-09   1.8722E-16  -2.0332E-07 | Normal calc: diag adjusted from 1.086e+09 to 1.086e+09 due to act coeff
+   --- H2O             9.7179E-02   4.0951E-09  -4.2011E-08 | Normal calc: diag adjusted from 10.1421 to 10.2589 due to act coeff
+   --- NaCl            3.9996E-32   2.2402E-39  -5.6009E-08 | Normal Calc
+   --- O2              8.6031E-69   3.3679E-70  -3.9148E-02 | Normal Calc
+   --- Na+             2.1230E-01  -3.3567E-09   5.7333E-08 | Normal calc: diag adjusted from 7.70191 to 17.0805 due to act coeff
+   --- H2              1.8737E-07   6.0378E-15  -9.6674E-08 | Normal calc: diag adjusted from 1.60113e+07 to 1.60113e+07 due to act coeff
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Major Components Calculation:
    --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 1.8411E-09 1.8415E-09 4.2374E-13 | Normal Major Calc
-   --- H2O           1 9.7168E-02 9.7177E-02 9.2441E-06 | Normal Major Calc
-   --- NaCl          0 3.9991E-32 3.9991E-32 0.0000E+00 | minor species not considered
-   --- O2            0 5.3466E-69 5.3466E-69 0.0000E+00 | minor species not considered
-   --- Cl-           1 2.1231E-01 2.1230E-01-7.5865E-06 | Line Search reduced step size from -7.58657e-06 to -7.58652e-06
-   --- H2            1 1.8735E-07 1.8736E-07 1.9263E-11 | Normal Major Calc
+   --- H+            1 1.8416E-09 1.8416E-09 1.8722E-16 | Normal Major Calc
+   --- H2O           1 9.7179E-02 9.7179E-02 4.0951E-09 | Normal Major Calc
+   --- NaCl          0 3.9996E-32 3.9996E-32 0.0000E+00 | minor species not considered
+   --- O2            0 8.6031E-69 8.6031E-69 0.0000E+00 | minor species not considered
+   --- Na+           1 2.1230E-01 2.1230E-01-3.3567E-09 | Normal Major Calc
+   --- H2            1 1.8737E-07 1.8737E-07 6.0378E-15 | Normal Major Calc
+   --- NaCl(S)       c 4.7877E+00 4.7877E+00 3.3567E-09 |
    --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7877E+00 4.7877E+00 7.5865E-06 |
-   --- Na+           c 2.1231E-01 2.1230E-01-7.5865E-06 |
-   --- H2O(L)        c 1.9028E+00 1.9028E+00-9.2442E-06 |
-   --- OH-           c 1.8411E-09 1.8415E-09 4.2374E-13 |
-   --- OH            c 3.7469E-07 3.7473E-07 3.8525E-11 |
+   --- H2O(L)        c 1.9028E+00 1.9028E+00-4.0951E-09 |
+   --- Cl-           c 2.1230E-01 2.1230E-01-3.3567E-09 |
+   --- OH-           c 1.8416E-09 1.8416E-09 1.8722E-16 |
+   --- OH            c 3.7473E-07 3.7473E-07 1.2076E-14 |
    --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128673458827E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673458837E+03
-   --- subroutine FORCE: Beginning Slope = -1.85983e-09
-   --- subroutine FORCE: End Slope       = -2.67342e-10
+   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128673458838E+03
+   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673458838E+03
+   --- subroutine FORCE: Beginning Slope = -3.64488e-16
+   --- subroutine FORCE: End Slope       = -5.23911e-17
    --- subroutine FORCE produced no adjustments, s2 < 0
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (only major species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
+   ---   NaCl(S)           4.787698E+00  4.787698E+00 -1.745168E+02 -1.745168E+02
    ---   N2                4.000000E+00  4.000000E+00 -2.306923E+01 -2.306923E+01
-   ---   NaCl(S)           4.787689E+00  4.787697E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.123107E-01  2.123031E-01 -1.021393E+02 -1.021393E+02
-   ---   H2O(L)            1.902832E+00  1.902823E+00 -1.240033E+02 -1.240033E+02
-   ---   OH-               1.841122E-09  1.841545E-09 -1.088297E+02 -1.088294E+02
-   ---   OH                3.746914E-07  3.747299E-07 -1.076945E+02 -1.076944E+02
+   ---   H2O(L)            1.902821E+00  1.902821E+00 -1.240033E+02 -1.240033E+02
+   ---   Cl-               2.123019E-01  2.123019E-01 -7.237746E+01 -7.237746E+01
+   ---   OH-               1.841622E-09  1.841623E-09 -1.088294E+02 -1.088294E+02
+   ---   OH                3.747345E-07  3.747345E-07 -1.076944E+02 -1.076944E+02
    ---   CO2               0.000000E+00  0.000000E+00 -5.082240E+02 -5.082240E+02
-   ---   H+            1   1.841122E-09  1.841545E-09 -1.517406E+01 -1.517389E+01 -4.603026E-04 -7.275328E-05
-   ---   H2O           1   9.716780E-02  9.717704E-02 -1.240034E+02 -1.240033E+02 -9.484509E-05 -1.446242E-05
-   ---   NaCl          0   3.999128E-32  3.999128E-32 -1.745169E+02 -1.745169E+02 -1.251905E-04 -1.274467E-04
-   ---   O2            0   5.346571E-69  5.346571E-69 -1.832859E+02 -1.832859E+02 -5.143942E-01 -5.147737E-01
-   ---   Cl-           1   2.123107E-01  2.123031E-01 -7.237740E+01 -7.237746E+01  1.295801E-04  1.761666E-05
-   ---   H2            1   1.873457E-07  1.873649E-07 -3.261783E+01 -3.261773E+01 -3.084553E-04 -3.176905E-05
-   ---                                                        Norms of Delta G():  2.100007E-01  2.101555E-01
+   ---   H+            1   1.841622E-09  1.841623E-09 -1.517386E+01 -1.517386E+01 -2.033237E-07 -3.215412E-08
+   ---   H2O           1   9.717867E-02  9.717867E-02 -1.240033E+02 -1.240033E+02 -4.201091E-08 -6.396817E-09
+   ---   NaCl          0   3.999639E-32  3.999639E-32 -1.745168E+02 -1.745168E+02 -5.600927E-08 -5.700875E-08
+   ---   O2            0   8.603122E-69  8.603122E-69 -1.828102E+02 -1.828102E+02 -3.914779E-02 -3.914790E-02
+   ---   Na+           1   2.123019E-01  2.123019E-01 -1.021393E+02 -1.021393E+02  5.733348E-08  7.804047E-09
+   ---   H2            1   1.873672E-07  1.873672E-07 -3.261772E+01 -3.261772E+01 -9.667386E-08 -1.405067E-08
+   ---                                                        Norms of Delta G():  1.598202E-02  1.598206E-02
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   2.3274289E+00
-   ---                  air =   4.0971776E+00
-   ---              NaCl(S) =   4.7876969E+00
+   ---     NaCl_electrolyte =   2.3274248E+00
+   ---                  air =   4.0971792E+00
+   ---              NaCl(S) =   4.7876981E+00
    -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.2128673458827E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2128673458837E+03
+   --- Total Old Dimensionless Gibbs Free Energy = -1.2128673458838E+03
+   --- Total New Dimensionless Gibbs Free Energy = -1.2128673458838E+03
    --- Increment counter increased, step is accepted:   16
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
@@ -1710,164 +1736,27 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_RxnStepSizes called - Details:
    ----------------------------------------------------------------------------------
    --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              1.8415E-09   6.6989E-14  -7.2753E-05 | Normal calc: diag adjusted from 1.08604e+09 to 1.08604e+09 due to act coeff
-   --- H2O             9.7177E-02   1.4097E-06  -1.4462E-05 | Normal calc: diag adjusted from 10.1423 to 10.2591 due to act coeff
-   --- NaCl            3.9991E-32   5.0968E-36  -1.2745E-04 | Normal Calc
-   --- O2              5.3466E-69   2.7523E-69  -5.1477E-01 | Normal Calc
-   --- Cl-             2.1230E-01  -1.0314E-06   1.7617E-05 | Normal calc: diag adjusted from 7.70186 to 17.0805 due to act coeff
-   --- H2              1.8736E-07   1.9841E-12  -3.1769E-05 | Normal calc: diag adjusted from 1.60115e+07 to 1.60115e+07 due to act coeff
+   --- H+              1.8416E-09   2.9608E-17  -3.2154E-08 | Normal calc: diag adjusted from 1.086e+09 to 1.086e+09 due to act coeff
+   --- H2O             9.7179E-02   6.2354E-10  -6.3968E-09 | Normal calc: diag adjusted from 10.1421 to 10.2589 due to act coeff
+   --- NaCl            3.9996E-32   2.2801E-39  -5.7009E-08 | Normal Calc
+   --- O2              8.6031E-69   3.3679E-70  -3.9148E-02 | Normal Calc
+   --- Na+             2.1230E-01  -4.5690E-10   7.8040E-09 | Normal calc: diag adjusted from 7.70191 to 17.0805 due to act coeff
+   --- H2              1.8737E-07   8.7755E-16  -1.4051E-08 | Normal calc: diag adjusted from 1.60113e+07 to 1.60113e+07 due to act coeff
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Major Components Calculation:
    --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 1.8415E-09 1.8416E-09 6.6989E-14 | Normal Major Calc
-   --- H2O           1 9.7177E-02 9.7178E-02 1.4097E-06 | Normal Major Calc
-   --- NaCl          0 3.9991E-32 3.9991E-32 0.0000E+00 | minor species not considered
-   --- O2            0 5.3466E-69 5.3466E-69 0.0000E+00 | minor species not considered
-   --- Cl-           1 2.1230E-01 2.1230E-01-1.0314E-06 | Line Search reduced step size from -1.03139e-06 to -1.03139e-06
-   --- H2            1 1.8736E-07 1.8737E-07 1.9841E-12 | Normal Major Calc
-   --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7877E+00 4.7877E+00 1.0314E-06 |
-   --- Na+           c 2.1230E-01 2.1230E-01-1.0314E-06 |
-   --- H2O(L)        c 1.9028E+00 1.9028E+00-1.4097E-06 |
-   --- OH-           c 1.8415E-09 1.8416E-09 6.6989E-14 |
-   --- OH            c 3.7473E-07 3.7473E-07 3.9683E-12 |
-   --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
-   --------------------------------------------------------------------------------
-   --- Finished Main Loop
-   --- Subroutine vcs_dfe called for all species using tentative solution
-   --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128673458837E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- subroutine FORCE: Beginning Slope = -3.85578e-11
-   --- subroutine FORCE: End Slope       = -5.54189e-12
-   --- subroutine FORCE produced no adjustments, s2 < 0
-   -------------------------------------------------------------------------------------------------------
-   --- Summary of the Update  (only major species):
-   ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.306923E+01 -2.306923E+01
-   ---   NaCl(S)           4.787697E+00  4.787698E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.123031E-01  2.123021E-01 -1.021393E+02 -1.021393E+02
-   ---   H2O(L)            1.902823E+00  1.902821E+00 -1.240033E+02 -1.240033E+02
-   ---   OH-               1.841545E-09  1.841612E-09 -1.088294E+02 -1.088294E+02
-   ---   OH                3.747299E-07  3.747339E-07 -1.076944E+02 -1.076944E+02
-   ---   CO2               0.000000E+00  0.000000E+00 -5.082240E+02 -5.082240E+02
-   ---   H+            1   1.841545E-09  1.841612E-09 -1.517389E+01 -1.517386E+01 -7.275328E-05 -9.509607E-06
-   ---   H2O           1   9.717704E-02  9.717845E-02 -1.240033E+02 -1.240033E+02 -1.446242E-05 -1.965642E-06
-   ---   NaCl          0   3.999128E-32  3.999128E-32 -1.745169E+02 -1.745169E+02 -1.274467E-04 -1.277908E-04
-   ---   O2            0   5.346571E-69  5.346571E-69 -1.832859E+02 -1.832859E+02 -5.147737E-01 -5.148117E-01
-   ---   Cl-           1   2.123031E-01  2.123021E-01 -7.237746E+01 -7.237746E+01  1.761666E-05  2.686530E-06
-   ---   H2            1   1.873649E-07  1.873669E-07 -3.261773E+01 -3.261772E+01 -3.176905E-05 -4.363969E-06
-   ---                                                        Norms of Delta G():  2.101555E-01  2.101710E-01
-   ---           Phase_Name    KMoles(after update)
-   ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   2.3274254E+00
-   ---                  air =   4.0971790E+00
-   ---              NaCl(S) =   4.7876979E+00
-   -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.2128673458837E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- Increment counter increased, step is accepted:   17
-   --- Normal element abundance check - passed
-   --- Check for an optimum basis passed
-   --- Equilibrium check for major species: H+ failed
-   --- Subroutine vcs_dfe called for components and minors
-   --- Subroutine vcs_deltag called for minor noncomponents
-
-==============================================================================================================
- Iteration =  17, Iterations since last evaluation of optimal basis =  15 (all species)
-   ----------------------------------------------------------------------------------
-   --- Subroutine vcs_RxnStepSizes called - Details:
-   ----------------------------------------------------------------------------------
-   --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              1.8416E-09   8.7565E-15  -9.5096E-06 | Normal calc: diag adjusted from 1.086e+09 to 1.086e+09 due to act coeff
-   --- H2O             9.7178E-02   1.9160E-07  -1.9656E-06 | Normal calc: diag adjusted from 10.1422 to 10.2589 due to act coeff
-   --- NaCl            3.9991E-32   5.1105E-36  -1.2779E-04 | Normal Calc
-   --- O2              5.3466E-69   2.7525E-69  -5.1481E-01 | Normal Calc
-   --- Cl-             2.1230E-01  -1.5729E-07   2.6865E-06 | Normal calc: diag adjusted from 7.7019 to 17.0805 due to act coeff
-   --- H2              1.8737E-07   2.7255E-13  -4.3640E-06 | Normal calc: diag adjusted from 1.60114e+07 to 1.60114e+07 due to act coeff
-   ----------------------------------------------------------------------------------
-   --- Main Loop Treatment of each non-component species - Full Calculation:
-   --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 1.8416E-09 1.8416E-09 8.7565E-15 | Normal Major Calc
-   --- H2O           1 9.7178E-02 9.7179E-02 1.9160E-07 | Normal Major Calc
-   --- NaCl          0 3.9991E-32 3.9996E-32 5.1108E-36 | minor species alternative calc
-   --- O2            0 5.3466E-69 8.9465E-69 3.6000E-69 | minor species alternative calc
-   --- Cl-           1 2.1230E-01 2.1230E-01-1.5729E-07 | Line Search reduced step size from -1.57286e-07 to -1.57286e-07
-   --- H2            1 1.8737E-07 1.8737E-07 2.7255E-13 | Normal Major Calc
-   --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7877E+00 4.7877E+00 1.5729E-07 |
-   --- Na+           c 2.1230E-01 2.1230E-01-1.5729E-07 |
-   --- H2O(L)        c 1.9028E+00 1.9028E+00-1.9160E-07 |
-   --- OH-           c 1.8416E-09 1.8416E-09 8.7565E-15 |
-   --- OH            c 3.7473E-07 3.7473E-07 5.4511E-13 |
-   --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
-   --------------------------------------------------------------------------------
-   --- Finished Main Loop
-   --- Subroutine vcs_dfe called for all species using tentative solution
-   --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- subroutine FORCE: Beginning Slope = -7.9918e-13
-   --- subroutine FORCE: End Slope       = -1.14864e-13
-   --- subroutine FORCE produced no adjustments, s2 < 0
-   -------------------------------------------------------------------------------------------------------
-   --- Summary of the Update  (all species):
-   ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.306923E+01 -2.306923E+01
-   ---   NaCl(S)           4.787698E+00  4.787698E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.123021E-01  2.123020E-01 -1.021393E+02 -1.021393E+02
-   ---   H2O(L)            1.902821E+00  1.902821E+00 -1.240033E+02 -1.240033E+02
-   ---   OH-               1.841612E-09  1.841621E-09 -1.088294E+02 -1.088294E+02
-   ---   OH                3.747339E-07  3.747344E-07 -1.076944E+02 -1.076944E+02
-   ---   CO2               0.000000E+00  0.000000E+00 -5.082240E+02 -5.082240E+02
-   ---   H+            1   1.841612E-09  1.841621E-09 -1.517386E+01 -1.517386E+01 -9.509607E-06 -1.507395E-06
-   ---   H2O           1   9.717845E-02  9.717864E-02 -1.240033E+02 -1.240033E+02 -1.965642E-06 -2.997442E-07
-   ---   NaCl          0   3.999128E-32  3.999639E-32 -1.745169E+02 -1.745168E+02 -1.277908E-04 -4.676497E-08
-   ---   O2            0   5.346571E-69  8.946542E-69 -1.832859E+02 -1.827711E+02 -5.148117E-01 -5.160322E-06
-   ---   Cl-           1   2.123021E-01  2.123020E-01 -7.237746E+01 -7.237746E+01  2.686530E-06  3.651417E-07
-   ---   H2            1   1.873669E-07  1.873672E-07 -3.261772E+01 -3.261772E+01 -4.363969E-06 -6.583027E-07
-   ---                                                        Norms of Delta G():  2.101710E-01  2.219605E-06
-   ---           Phase_Name    KMoles(after update)
-   ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   2.3274249E+00
-   ---                  air =   4.0971792E+00
-   ---              NaCl(S) =   4.7876980E+00
-   -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- Increment counter increased, step is accepted:   18
-   --- Normal element abundance check - passed
-   --- Check for an optimum basis passed
-   --- Reevaluate major-minor status of noncomponents:
-   --- Equilibrium check for major species: H+ failed
-
-==============================================================================================================
- Iteration =  18, Iterations since last evaluation of optimal basis =  16 (only major species)
-   ----------------------------------------------------------------------------------
-   --- Subroutine vcs_RxnStepSizes called - Details:
-   ----------------------------------------------------------------------------------
-   --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              1.8416E-09   1.3880E-15  -1.5074E-06 | Normal calc: diag adjusted from 1.086e+09 to 1.086e+09 due to act coeff
-   --- H2O             9.7179E-02   2.9218E-08  -2.9974E-07 | Normal calc: diag adjusted from 10.1421 to 10.2589 due to act coeff
-   --- NaCl            3.9996E-32   1.8704E-39  -4.6765E-08 | Normal Calc
-   --- O2              8.9465E-69   4.6167E-74  -5.1603E-06 | Normal Calc
-   --- Cl-             2.1230E-01  -2.1378E-08   3.6514E-07 | Normal calc: diag adjusted from 7.70191 to 17.0805 due to act coeff
-   --- H2              1.8737E-07   4.1115E-14  -6.5830E-07 | Normal calc: diag adjusted from 1.60113e+07 to 1.60113e+07 due to act coeff
-   ----------------------------------------------------------------------------------
-   --- Main Loop Treatment of each non-component species - Major Components Calculation:
-   --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 1.8416E-09 1.8416E-09 1.3880E-15 | Normal Major Calc
-   --- H2O           1 9.7179E-02 9.7179E-02 2.9218E-08 | Normal Major Calc
+   --- H+            1 1.8416E-09 1.8416E-09 2.9608E-17 | Normal Major Calc
+   --- H2O           1 9.7179E-02 9.7179E-02 6.2354E-10 | Normal Major Calc
    --- NaCl          0 3.9996E-32 3.9996E-32 0.0000E+00 | minor species not considered
-   --- O2            0 8.9465E-69 8.9465E-69 0.0000E+00 | minor species not considered
-   --- Cl-           1 2.1230E-01 2.1230E-01-2.1378E-08 | Line Search reduced step size from -2.13777e-08 to -2.13777e-08
-   --- H2            1 1.8737E-07 1.8737E-07 4.1115E-14 | Normal Major Calc
+   --- O2            0 8.6031E-69 8.6031E-69 0.0000E+00 | minor species not considered
+   --- Na+           1 2.1230E-01 2.1230E-01-4.5690E-10 | Normal Major Calc
+   --- H2            1 1.8737E-07 1.8737E-07 8.7755E-16 | Normal Major Calc
+   --- NaCl(S)       c 4.7877E+00 4.7877E+00 4.5690E-10 |
    --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7877E+00 4.7877E+00 2.1378E-08 |
-   --- Na+           c 2.1230E-01 2.1230E-01-2.1378E-08 |
-   --- H2O(L)        c 1.9028E+00 1.9028E+00-2.9218E-08 |
-   --- OH-           c 1.8416E-09 1.8416E-09 1.3880E-15 |
-   --- OH            c 3.7473E-07 3.7473E-07 8.2230E-14 |
+   --- H2O(L)        c 1.9028E+00 1.9028E+00-6.2354E-10 |
+   --- Cl-           c 2.1230E-01 2.1230E-01-4.5690E-10 |
+   --- OH-           c 1.8416E-09 1.8416E-09 2.9608E-17 |
+   --- OH            c 3.7473E-07 3.7473E-07 1.7551E-15 |
    --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
@@ -1875,160 +1764,26 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_deltag called for all noncomponents
    --- Total Old       Dimensionless Gibbs Free Energy = -1.2128673458838E+03
    --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- subroutine FORCE: Beginning Slope = -1.65639e-14
-   --- subroutine FORCE: End Slope       = -2.38067e-15
+   --- subroutine FORCE: Beginning Slope = -7.55434e-18
+   --- subroutine FORCE: End Slope       = -1.08587e-18
    --- subroutine FORCE produced no adjustments, s2 < 0
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (only major species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.306923E+01 -2.306923E+01
    ---   NaCl(S)           4.787698E+00  4.787698E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.123020E-01  2.123019E-01 -1.021393E+02 -1.021393E+02
-   ---   H2O(L)            1.902821E+00  1.902821E+00 -1.240033E+02 -1.240033E+02
-   ---   OH-               1.841621E-09  1.841622E-09 -1.088294E+02 -1.088294E+02
-   ---   OH                3.747344E-07  3.747345E-07 -1.076944E+02 -1.076944E+02
-   ---   CO2               0.000000E+00  0.000000E+00 -5.082240E+02 -5.082240E+02
-   ---   H+            1   1.841621E-09  1.841622E-09 -1.517386E+01 -1.517386E+01 -1.507395E-06 -1.970826E-07
-   ---   H2O           1   9.717864E-02  9.717867E-02 -1.240033E+02 -1.240033E+02 -2.997442E-07 -4.073974E-08
-   ---   NaCl          0   3.999639E-32  3.999639E-32 -1.745168E+02 -1.745168E+02 -4.676497E-08 -5.389626E-08
-   ---   O2            0   8.946542E-69  8.946542E-69 -1.827711E+02 -1.827711E+02 -5.160322E-06 -5.947611E-06
-   ---   Cl-           1   2.123020E-01  2.123019E-01 -7.237746E+01 -7.237746E+01  3.651417E-07  5.568121E-08
-   ---   H2            1   1.873672E-07  1.873672E-07 -3.261772E+01 -3.261772E+01 -6.583027E-07 -9.044825E-08
-   ---                                                        Norms of Delta G():  2.219605E-06  2.429978E-06
-   ---           Phase_Name    KMoles(after update)
-   ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   2.3274248E+00
-   ---                  air =   4.0971792E+00
-   ---              NaCl(S) =   4.7876981E+00
-   -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- Increment counter increased, step is accepted:   19
-   --- Normal element abundance check - passed
-   --- Check for an optimum basis passed
-   --- Equilibrium check for major species: H+ failed
-
-==============================================================================================================
- Iteration =  19, Iterations since last evaluation of optimal basis =  17 (only major species)
-   ----------------------------------------------------------------------------------
-   --- Subroutine vcs_RxnStepSizes called - Details:
-   ----------------------------------------------------------------------------------
-   --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              1.8416E-09   1.8148E-16  -1.9708E-07 | Normal calc: diag adjusted from 1.086e+09 to 1.086e+09 due to act coeff
-   --- H2O             9.7179E-02   3.9712E-09  -4.0740E-08 | Normal calc: diag adjusted from 10.1421 to 10.2589 due to act coeff
-   --- NaCl            3.9996E-32   2.1557E-39  -5.3896E-08 | Normal Calc
-   --- O2              8.9465E-69   5.3211E-74  -5.9476E-06 | Normal Calc
-   --- Cl-             2.1230E-01  -3.2599E-09   5.5681E-08 | Normal calc: diag adjusted from 7.70191 to 17.0805 due to act coeff
-   --- H2              1.8737E-07   5.6490E-15  -9.0448E-08 | Normal calc: diag adjusted from 1.60113e+07 to 1.60113e+07 due to act coeff
-   ----------------------------------------------------------------------------------
-   --- Main Loop Treatment of each non-component species - Major Components Calculation:
-   --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 1.8416E-09 1.8416E-09 1.8148E-16 | Normal Major Calc
-   --- H2O           1 9.7179E-02 9.7179E-02 3.9712E-09 | Normal Major Calc
-   --- NaCl          0 3.9996E-32 3.9996E-32 0.0000E+00 | minor species not considered
-   --- O2            0 8.9465E-69 8.9465E-69 0.0000E+00 | minor species not considered
-   --- Cl-           1 2.1230E-01 2.1230E-01-3.2599E-09 | Normal Major Calc
-   --- H2            1 1.8737E-07 1.8737E-07 5.6490E-15 | Normal Major Calc
-   --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7877E+00 4.7877E+00 3.2599E-09 |
-   --- Na+           c 2.1230E-01 2.1230E-01-3.2599E-09 |
-   --- H2O(L)        c 1.9028E+00 1.9028E+00-3.9712E-09 |
-   --- OH-           c 1.8416E-09 1.8416E-09 1.8148E-16 |
-   --- OH            c 3.7473E-07 3.7473E-07 1.1298E-14 |
-   --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
-   --------------------------------------------------------------------------------
-   --- Finished Main Loop
-   --- Subroutine vcs_dfe called for all species using tentative solution
-   --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- subroutine FORCE: Beginning Slope = -3.43302e-16
-   --- subroutine FORCE: End Slope       = -4.93417e-17
-   --- subroutine FORCE produced no adjustments, s2 < 0
-   -------------------------------------------------------------------------------------------------------
-   --- Summary of the Update  (only major species):
-   ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
    ---   N2                4.000000E+00  4.000000E+00 -2.306923E+01 -2.306923E+01
-   ---   NaCl(S)           4.787698E+00  4.787698E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.123019E-01  2.123019E-01 -1.021393E+02 -1.021393E+02
    ---   H2O(L)            1.902821E+00  1.902821E+00 -1.240033E+02 -1.240033E+02
-   ---   OH-               1.841622E-09  1.841623E-09 -1.088294E+02 -1.088294E+02
-   ---   OH                3.747345E-07  3.747345E-07 -1.076944E+02 -1.076944E+02
-   ---   CO2               0.000000E+00  0.000000E+00 -5.082240E+02 -5.082240E+02
-   ---   H+            1   1.841622E-09  1.841623E-09 -1.517386E+01 -1.517386E+01 -1.970826E-07 -3.124197E-08
-   ---   H2O           1   9.717867E-02  9.717867E-02 -1.240033E+02 -1.240033E+02 -4.073974E-08 -6.212474E-09
-   ---   NaCl          0   3.999639E-32  3.999639E-32 -1.745168E+02 -1.745168E+02 -5.389626E-08 -5.486550E-08
-   ---   O2            0   8.946542E-69  8.946542E-69 -1.827711E+02 -1.827711E+02 -5.947611E-06 -6.054564E-06
-   ---   Cl-           1   2.123019E-01  2.123019E-01 -7.237746E+01 -7.237746E+01  5.568121E-08  7.567920E-09
-   ---   H2            1   1.873672E-07  1.873672E-07 -3.261772E+01 -3.261772E+01 -9.044825E-08 -1.364396E-08
-   ---                                                        Norms of Delta G():  2.429978E-06  2.471909E-06
-   ---           Phase_Name    KMoles(after update)
-   ---   --------------------------------------------------
-   ---     NaCl_electrolyte =   2.3274248E+00
-   ---                  air =   4.0971792E+00
-   ---              NaCl(S) =   4.7876981E+00
-   -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- Total New Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- Increment counter increased, step is accepted:   20
-   --- Normal element abundance check - passed
-   --- Check for an optimum basis passed
-   --- Equilibrium check for major species: H+ failed
-
-==============================================================================================================
- Iteration =  20, Iterations since last evaluation of optimal basis =  18 (only major species)
-   ----------------------------------------------------------------------------------
-   --- Subroutine vcs_RxnStepSizes called - Details:
-   ----------------------------------------------------------------------------------
-   --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- H+              1.8416E-09   2.8768E-17  -3.1242E-08 | Normal calc: diag adjusted from 1.086e+09 to 1.086e+09 due to act coeff
-   --- H2O             9.7179E-02   6.0557E-10  -6.2125E-09 | Normal calc: diag adjusted from 10.1421 to 10.2589 due to act coeff
-   --- NaCl            3.9996E-32   2.1944E-39  -5.4865E-08 | Normal Calc
-   --- O2              8.9465E-69   5.4167E-74  -6.0546E-06 | Normal Calc
-   --- Cl-             2.1230E-01  -4.4307E-10   7.5679E-09 | Normal calc: diag adjusted from 7.70191 to 17.0805 due to act coeff
-   --- H2              1.8737E-07   8.5214E-16  -1.3644E-08 | Normal calc: diag adjusted from 1.60113e+07 to 1.60113e+07 due to act coeff
-   ----------------------------------------------------------------------------------
-   --- Main Loop Treatment of each non-component species - Major Components Calculation:
-   --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- H+            1 1.8416E-09 1.8416E-09 2.8768E-17 | Normal Major Calc
-   --- H2O           1 9.7179E-02 9.7179E-02 6.0557E-10 | Line Search reduced step size from 6.05571e-10 to 6.05569e-10
-   --- NaCl          0 3.9996E-32 3.9996E-32 0.0000E+00 | minor species not considered
-   --- O2            0 8.9465E-69 8.9465E-69 0.0000E+00 | minor species not considered
-   --- Cl-           1 2.1230E-01 2.1230E-01-4.4307E-10 | Normal Major Calc
-   --- H2            1 1.8737E-07 1.8737E-07 8.5214E-16 | Normal Major Calc
-   --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7877E+00 4.7877E+00 4.4307E-10 |
-   --- Na+           c 2.1230E-01 2.1230E-01-4.4307E-10 |
-   --- H2O(L)        c 1.9028E+00 1.9028E+00-6.0557E-10 |
-   --- OH-           c 1.8416E-09 1.8416E-09 2.8768E-17 |
-   --- OH            c 3.7473E-07 3.7473E-07 1.7043E-15 |
-   --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
-   --------------------------------------------------------------------------------
-   --- Finished Main Loop
-   --- Subroutine vcs_dfe called for all species using tentative solution
-   --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- subroutine FORCE: Beginning Slope = -7.11524e-18
-   --- subroutine FORCE: End Slope       = -1.02266e-18
-   --- subroutine FORCE produced no adjustments, s2 < 0
-   -------------------------------------------------------------------------------------------------------
-   --- Summary of the Update  (only major species):
-   ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.306923E+01 -2.306923E+01
-   ---   NaCl(S)           4.787698E+00  4.787698E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.123019E-01  2.123019E-01 -1.021393E+02 -1.021393E+02
-   ---   H2O(L)            1.902821E+00  1.902821E+00 -1.240033E+02 -1.240033E+02
+   ---   Cl-               2.123019E-01  2.123019E-01 -7.237746E+01 -7.237746E+01
    ---   OH-               1.841623E-09  1.841623E-09 -1.088294E+02 -1.088294E+02
    ---   OH                3.747345E-07  3.747345E-07 -1.076944E+02 -1.076944E+02
    ---   CO2               0.000000E+00  0.000000E+00 -5.082240E+02 -5.082240E+02
-   ---   H+            1   1.841623E-09  1.841623E-09 -1.517386E+01 -1.517386E+01 -3.124197E-08 -4.084725E-09
-   ---   H2O           1   9.717867E-02  9.717867E-02 -1.240033E+02 -1.240033E+02 -6.212474E-09 -8.443806E-10
-   ---   NaCl          0   3.999639E-32  3.999639E-32 -1.745168E+02 -1.745168E+02 -5.486550E-08 -5.501332E-08
-   ---   O2            0   8.946542E-69  8.946542E-69 -1.827711E+02 -1.827711E+02 -6.054564E-06 -6.070882E-06
-   ---   Cl-           1   2.123019E-01  2.123019E-01 -7.237746E+01 -7.237746E+01  7.567920E-09  1.154049E-09
-   ---   H2            1   1.873672E-07  1.873672E-07 -3.261772E+01 -3.261772E+01 -1.364396E-08 -1.874611E-09
-   ---                                                        Norms of Delta G():  2.471909E-06  2.478530E-06
+   ---   H+            1   1.841623E-09  1.841623E-09 -1.517386E+01 -1.517386E+01 -3.215412E-08 -4.214456E-09
+   ---   H2O           1   9.717867E-02  9.717867E-02 -1.240033E+02 -1.240033E+02 -6.396817E-09 -8.707275E-10
+   ---   NaCl          0   3.999639E-32  3.999639E-32 -1.745168E+02 -1.745168E+02 -5.700875E-08 -5.716095E-08
+   ---   O2            0   8.603122E-69  8.603122E-69 -1.828102E+02 -1.828102E+02 -3.914790E-02 -3.914792E-02
+   ---   Na+           1   2.123019E-01  2.123019E-01 -1.021393E+02 -1.021393E+02  7.804047E-09  1.188297E-09
+   ---   H2            1   1.873672E-07  1.873672E-07 -3.261772E+01 -3.261772E+01 -1.405067E-08 -1.932875E-09
+   ---                                                        Norms of Delta G():  1.598206E-02  1.598207E-02
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
    ---     NaCl_electrolyte =   2.3274248E+00
@@ -2037,7 +1792,7 @@ VCS CALCULATION METHOD
    -------------------------------------------------------------------------------------------------------
    --- Total Old Dimensionless Gibbs Free Energy = -1.2128673458838E+03
    --- Total New Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- Increment counter increased, step is accepted:   21
+   --- Increment counter increased, step is accepted:   17
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
    --- Equilibrium check for major species:  MAJOR SPECIES CONVERGENCE achieved
@@ -2046,22 +1801,22 @@ VCS CALCULATION METHOD
    --- Equilibrium check for minor species: O2 failed
 
 ==============================================================================================================
- Iteration =  21, Iterations since last evaluation of optimal basis =  19 (all species)
+ Iteration =  17, Iterations since last evaluation of optimal basis =  15 (all species)
    --- vcs_RxnStepSizes not called because all majors have converged
    --- Main Loop Treatment of each non-component species - Full Calculation:
    --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
    --- H+            1 1.8416E-09 1.8416E-09 0.0000E+00 | Normal Major Calc
    --- H2O           1 9.7179E-02 9.7179E-02 0.0000E+00 | Normal Major Calc
-   --- NaCl          0 3.9996E-32 3.9996E-32 2.2003E-39 | minor species alternative calc
-   --- O2            0 8.9465E-69 8.9466E-69 5.4314E-74 | minor species alternative calc
-   --- Cl-           1 2.1230E-01 2.1230E-01 0.0000E+00 | Normal Major Calc
+   --- NaCl          0 3.9996E-32 3.9996E-32 2.2862E-39 | minor species alternative calc
+   --- O2            0 8.6031E-69 8.9466E-69 3.4347E-70 | minor species alternative calc
+   --- Na+           1 2.1230E-01 2.1230E-01 0.0000E+00 | Normal Major Calc
    --- H2            1 1.8737E-07 1.8737E-07 0.0000E+00 | Normal Major Calc
+   --- NaCl(S)       c 4.7877E+00 4.7877E+00-2.2862E-39 |
    --- N2            c 4.0000E+00 4.0000E+00 0.0000E+00 |
-   --- NaCl(S)       c 4.7877E+00 4.7877E+00-2.2003E-39 |
-   --- Na+           c 2.1230E-01 2.1230E-01 0.0000E+00 |
-   --- H2O(L)        c 1.9028E+00 1.9028E+00 1.0863E-73 |
+   --- H2O(L)        c 1.9028E+00 1.9028E+00 6.8695E-70 |
+   --- Cl-           c 2.1230E-01 2.1230E-01 0.0000E+00 |
    --- OH-           c 1.8416E-09 1.8416E-09 0.0000E+00 |
-   --- OH            c 3.7473E-07 3.7473E-07-2.1725E-73 |
+   --- OH            c 3.7473E-07 3.7473E-07-1.3739E-69 |
    --- CO2           c 0.0000E+00 0.0000E+00 0.0000E+00 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
@@ -2069,26 +1824,26 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_deltag called for all noncomponents
    --- Total Old       Dimensionless Gibbs Free Energy = -1.2128673458838E+03
    --- Total tentative Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- subroutine FORCE: Beginning Slope = -1.21048e-46
-   --- subroutine FORCE: End Slope       = 6.25373e-53
-   --- subroutine FORCE produced no adjustments (al = 0.999999)
+   --- subroutine FORCE: Beginning Slope = -1.30683e-46
+   --- subroutine FORCE: End Slope       = 0
+   --- subroutine FORCE produced no adjustments, s2 < 0
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (all species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   N2                4.000000E+00  4.000000E+00 -2.306923E+01 -2.306923E+01
    ---   NaCl(S)           4.787698E+00  4.787698E+00 -1.745168E+02 -1.745168E+02
-   ---   Na+               2.123019E-01  2.123019E-01 -1.021393E+02 -1.021393E+02
+   ---   N2                4.000000E+00  4.000000E+00 -2.306923E+01 -2.306923E+01
    ---   H2O(L)            1.902821E+00  1.902821E+00 -1.240033E+02 -1.240033E+02
+   ---   Cl-               2.123019E-01  2.123019E-01 -7.237746E+01 -7.237746E+01
    ---   OH-               1.841623E-09  1.841623E-09 -1.088294E+02 -1.088294E+02
    ---   OH                3.747345E-07  3.747345E-07 -1.076944E+02 -1.076944E+02
    ---   CO2               0.000000E+00  0.000000E+00 -5.082240E+02 -5.082240E+02
-   ---   H+            1   1.841623E-09  1.841623E-09 -1.517386E+01 -1.517386E+01 -4.084725E-09 -4.084725E-09
-   ---   H2O           1   9.717867E-02  9.717867E-02 -1.240033E+02 -1.240033E+02 -8.443806E-10 -8.443806E-10
-   ---   NaCl          0   3.999639E-32  3.999640E-32 -1.745168E+02 -1.745168E+02 -5.501332E-08  2.842171E-14
-   ---   O2            0   8.946542E-69  8.946596E-69 -1.827711E+02 -1.827711E+02 -6.070882E-06  0.000000E+00
-   ---   Cl-           1   2.123019E-01  2.123019E-01 -7.237746E+01 -7.237746E+01  1.154049E-09  1.154049E-09
-   ---   H2            1   1.873672E-07  1.873672E-07 -3.261772E+01 -3.261772E+01 -1.874611E-09 -1.874611E-09
-   ---                                                        Norms of Delta G():  2.478530E-06  1.925442E-09
+   ---   H+            1   1.841623E-09  1.841623E-09 -1.517386E+01 -1.517386E+01 -4.214456E-09 -4.214456E-09
+   ---   H2O           1   9.717867E-02  9.717867E-02 -1.240033E+02 -1.240033E+02 -8.707275E-10 -8.707275E-10
+   ---   NaCl          0   3.999639E-32  3.999640E-32 -1.745168E+02 -1.745168E+02 -5.716095E-08  0.000000E+00
+   ---   O2            0   8.603122E-69  8.946596E-69 -1.828102E+02 -1.827711E+02 -3.914792E-02  0.000000E+00
+   ---   Na+           1   2.123019E-01  2.123019E-01 -1.021393E+02 -1.021393E+02  1.188297E-09  1.188297E-09
+   ---   H2            1   1.873672E-07  1.873672E-07 -3.261772E+01 -3.261772E+01 -1.932875E-09 -1.932875E-09
+   ---                                                        Norms of Delta G():  1.598207E-02  1.986113E-09
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
    ---     NaCl_electrolyte =   2.3274248E+00
@@ -2097,7 +1852,7 @@ VCS CALCULATION METHOD
    -------------------------------------------------------------------------------------------------------
    --- Total Old Dimensionless Gibbs Free Energy = -1.2128673458838E+03
    --- Total New Dimensionless Gibbs Free Energy = -1.2128673458838E+03
-   --- Increment counter increased, step is accepted:   22
+   --- Increment counter increased, step is accepted:   18
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
    --- Reevaluate major-minor status of noncomponents:
@@ -2126,14 +1881,14 @@ VCS CALCULATION METHOD
 --------------------------------------------------------------------------------
  Species                 Equilibrium kmoles   Mole Fraction    ChemPot/RT    SpecUnkType
 --------------------------------------------------------------------------------
- N2                        4.0000000E+00      9.7628143E-01     -2.3069E+01     0
  NaCl(S)                   4.7876981E+00      1.0000000E+00     -1.7452E+02     0
- Na+                       2.1230193E-01      9.1217525E-02     -1.0214E+02     0
+ N2                        4.0000000E+00      9.7628143E-01     -2.3069E+01     0
  H2O(L)                    1.9028209E+00      8.1756495E-01     -1.2400E+02     0
+ Cl-                       2.1230193E-01      9.1217525E-02     -7.2377E+01     0
  OH-                       1.8416226E-09      7.9127051E-10     -1.0883E+02     0
  OH                        3.7473450E-07      9.1461582E-08     -1.0769E+02     0
  CO2                       0.0000000E+00      0.0000000E+00     -5.0822E+02     0
- Cl-                       2.1230193E-01      9.1217525E-02     -7.2377E+01  KMolNum 
+ Na+                       2.1230193E-01      9.1217525E-02     -1.0214E+02  KMolNum 
  H2O                       9.7178674E-02      2.3718434E-02     -1.2400E+02  KMolNum 
  H2                        1.8736725E-07      4.5730791E-08     -3.2618E+01  KMolNum 
  H+                        1.8416226E-09      7.9127051E-10     -1.5174E+01  KMolNum 
@@ -2144,15 +1899,15 @@ VCS CALCULATION METHOD
 
 -------------------------------------------------------------------------------------------------------------------
                |ComponentID|          0          1          2          3          4          5          6 |           |
-               | Components|         N2    NaCl(S)        Na+     H2O(L)        OH-         OH        CO2 |           |
- NonComponent  |   Moles   |          4       4.79      0.212        1.9   1.84e-09   3.75e-07          0 | DG/RT Rxn |
+               | Components|    NaCl(S)         N2     H2O(L)        Cl-        OH-         OH        CO2 |           |
+ NonComponent  |   Moles   |       4.79          4        1.9      0.212   1.84e-09   3.75e-07          0 | DG/RT Rxn |
 -------------------------------------------------------------------------------------------------------------------
-   7 H+        |  1.84e-09 |       0.00       0.00       0.00      -1.00       1.00       0.00       0.00 | -4.08e-09 |
-   8 H2O       |    0.0972 |       0.00       0.00       0.00      -1.00       0.00       0.00       0.00 | -8.44e-10 |
-   9 NaCl      |     4e-32 |       0.00      -1.00       0.00       0.00       0.00       0.00       0.00 |  2.84e-14 |
-  10 O2        |  8.95e-69 |       0.00       0.00       0.00       2.00       0.00      -4.00       0.00 |         0 |
-  11 Cl-       |     0.212 |       0.00      -1.00       1.00       0.00       0.00       0.00       0.00 |  1.15e-09 |
-  12 H2        |  1.87e-07 |       0.00       0.00       0.00      -2.00       0.00       2.00       0.00 | -1.87e-09 |
+   7 H+        |  1.84e-09 |       0.00       0.00      -1.00       0.00       1.00       0.00       0.00 | -4.21e-09 |
+   8 H2O       |    0.0972 |       0.00       0.00      -1.00       0.00       0.00       0.00       0.00 | -8.71e-10 |
+   9 NaCl      |     4e-32 |      -1.00       0.00       0.00       0.00       0.00       0.00       0.00 |         0 |
+  10 O2        |  8.95e-69 |       0.00       0.00       2.00       0.00       0.00      -4.00       0.00 |         0 |
+  11 Na+       |     0.212 |      -1.00       0.00       0.00       1.00       0.00       0.00       0.00 |  1.19e-09 |
+  12 H2        |  1.87e-07 |       0.00       0.00      -2.00       0.00       0.00       2.00       0.00 | -1.93e-09 |
 -------------------------------------------------------------------------------------------------------------------
 
 
@@ -2163,9 +1918,9 @@ VCS CALCULATION METHOD
                   | Element   |          O          H          C          N         Na         Cl cn_NaCl_el         Fe          E         Si         Ca |                     |
     PhaseName     |KMolTarget |          2          4          0          8          5          5          0          0          0          0          0 |     Gibbs Total     |
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-   0 NaCl_electro | 2.327e+00 |        1.9       3.81          0          0      0.212      0.212          0          0          0          0          0 | -2.73006234970E+02 |
+   0 NaCl_electro | 2.327e+00 |        1.9       3.81          0          0      0.212      0.212          0          0          0          0          0 | -2.73006234971E+02 |
    1 air          | 4.097e+00 |     0.0972      0.194          0          8      4e-32      4e-32          0          0          0          0          0 | -1.04327434116E+02 |
-   2 NaCl(S)      | 4.788e+00 |          0          0          0          0       4.79       4.79          0          0          0          0          0 | -8.35533676798E+02 |
+   2 NaCl(S)      | 4.788e+00 |          0          0          0          0       4.79       4.79          0          0          0          0          0 | -8.35533676797E+02 |
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     TOTAL         | 1.121e+01 |          2          4          0          8          5          5          0          0          0          0          0 | -1.21286734588E+03 |
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2190,33 +1945,34 @@ Elemental Abundances (kmol):          Actual                    Target         T
 ---------------------------------------------------------------------------------------------
 Chemical Potentials of the Species: (dimensionless)
 		(RT = 2.47896e+06 J/kmol)
-    Name        TKMoles     StandStateChemPot      ln(AC)       ln(X_i)      |   F z_i phi   |    ChemPot    | (-lnMnaught)
--------------------------------------------------------------------------------------------------------------------
- N2            4.0000000E+00 -2.3045225E+01   0.0000000E+00  -2.4004385E-02  | 0.0000000E+00 |   -2.3069E+01 |
- NaCl(S)       4.7876981E+00 -1.7451679E+02   0.0000000E+00   0.0000000E+00  | 0.0000000E+00 |   -1.7452E+02 |
- Na+           2.1230193E-01 -1.0397591E+02   2.1455966E-01  -2.3945082E+00  | 0.0000000E+00 |   -1.0214E+02 | ( 4.0165350E+00)
- H2O(L)        1.9028209E+00 -1.2371551E+02  -8.6317426E-02  -2.0142493E-01  | 0.0000000E+00 |   -1.2400E+02 |
- OH-           1.8416226E-09 -9.1483483E+01  -4.0506365E-01  -2.0957381E+01  |-0.0000000E+00 |   -1.0883E+02 | ( 4.0165350E+00)
- OH            3.7473450E-07 -9.1487045E+01   0.0000000E+00  -1.6207347E+01  | 0.0000000E+00 |   -1.0769E+02 |
- CO2           0.0000000E+00 -1.8445182E+02   0.0000000E+00  -3.2377221E+02  | 0.0000000E+00 |   -5.0822E+02 |
- Cl-           2.1230193E-01 -7.4214051E+01   2.1455966E-01  -2.3945082E+00  |-0.0000000E+00 |   -7.2377E+01 | ( 4.0165350E+00)
- H2O           9.7178674E-02 -1.2026175E+02   0.0000000E+00  -3.7415027E+00  | 0.0000000E+00 |   -1.2400E+02 |
- H2            1.8736725E-07 -1.5717224E+01   0.0000000E+00  -1.6900494E+01  | 0.0000000E+00 |   -3.2618E+01 |
- H+            1.8416226E-09  0.0000000E+00   1.7669883E+00  -2.0957381E+01  | 0.0000000E+00 |   -1.5174E+01 | ( 4.0165350E+00)
- NaCl          3.9996395E-32 -1.0080997E+02   0.0000000E+00  -7.3706817E+01  | 0.0000000E+00 |   -1.7452E+02 |
- O2            8.9465959E-69 -2.4673669E+01   0.0000000E+00  -1.5809740E+02  | 0.0000000E+00 |   -1.8277E+02 |
--------------------------------------------------------------------------------------------------------------------
+    Name        TKMoles     StandStateChemPot      ln(AC)       ln(X_i)      |   F z_i phi   |    ChemPot    | (-lnMnaught)|  (MolNum ChemPot)|
+---------------------------------------------------------------------------------------------------------------------------------------------------
+ NaCl(S)       4.7876981E+00 -1.7451679E+02   0.0000000E+00   0.0000000E+00  | 0.0000000E+00 |   -1.7452E+02 |             | -8.3553367679712E+02 |
+ N2            4.0000000E+00 -2.3045225E+01   0.0000000E+00  -2.4004385E-02  | 0.0000000E+00 |   -2.3069E+01 |             | -9.2276916077694E+01 |
+ H2O(L)        1.9028209E+00 -1.2371551E+02  -8.6317426E-02  -2.0142493E-01  | 0.0000000E+00 |   -1.2400E+02 |             | -2.3595598432311E+02 |
+ Cl-           2.1230193E-01 -7.4214051E+01   2.1455966E-01  -2.3945082E+00  |-0.0000000E+00 |   -7.2377E+01 |(4.01653E+00)| -1.5365875462993E+01 |
+ OH-           1.8416226E-09 -9.1483483E+01  -4.0506365E-01  -2.0957381E+01  |-0.0000000E+00 |   -1.0883E+02 |(4.01653E+00)| -2.0042267117387E-07 |
+ OH            3.7473450E-07 -9.1487045E+01   0.0000000E+00  -1.6207347E+01  | 0.0000000E+00 |   -1.0769E+02 |             | -4.0356803749912E-05 |
+ CO2           0.0000000E+00 -1.8445182E+02   0.0000000E+00  -3.2377221E+02  | 0.0000000E+00 |   -5.0822E+02 |             | -0.0000000000000E+00 |
+ Na+           2.1230193E-01 -1.0397591E+02   2.1455966E-01  -2.3945082E+00  | 0.0000000E+00 |   -1.0214E+02 |(4.01653E+00)| -2.1684374956300E+01 |
+ H2O           9.7178674E-02 -1.2026175E+02   0.0000000E+00  -3.7415027E+00  | 0.0000000E+00 |   -1.2400E+02 |             | -1.2050471569882E+01 |
+ H2            1.8736725E-07 -1.5717224E+01   0.0000000E+00  -1.6900494E+01  | 0.0000000E+00 |   -3.2618E+01 |             | -6.1114920649788E-06 |
+ H+            1.8416226E-09  0.0000000E+00   1.7669883E+00  -2.0957381E+01  | 0.0000000E+00 |   -1.5174E+01 |(4.01653E+00)| -2.7944519905566E-08 |
+ NaCl          3.9996395E-32 -1.0080997E+02   0.0000000E+00  -7.3706817E+01  | 0.0000000E+00 |   -1.7452E+02 |             | -6.9800423137612E-30 |
+ O2            8.9465959E-69 -2.4673669E+01   0.0000000E+00  -1.5809740E+02  | 0.0000000E+00 |   -1.8277E+02 |             | -1.6351788747850E-66 |
+                                                                                                                             -1.2128673458838E+03
+---------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 Counters:         Iterations          Time (seconds)
     vcs_basopt:       2                 NA     
-    vcs_TP:          22                 NA     
+    vcs_TP:          18                 NA     
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
 TCounters:   Num_Calls   Total_Its       Total_Time (seconds)
     vcs_basopt:       2          2             NA     
-    vcs_TP:           1         22             NA     
+    vcs_TP:           1         18             NA     
     vcs_inest:        1                        NA     
     vcs_TotalTime:                             NA     
 
