@@ -146,15 +146,6 @@ namespace VCSnonideal {
     void resize(int phaseNum, int numSpecies, const char *phaseName,
 		double molesInert = 0.0);
 
-  private:
-    //! Evaluate activity coefficients
-    /*!
-     *   We carry out a calculation whenever UpTODate_AC is false. Specifically
-     *   whenever a phase goes zero, we do not carry out calculations on it.
-     */
-    void evaluateActCoeff() const;
-
-  public:
     //! Evaluate activity coefficients and return the kspec coefficient
     /*!
      *   We carry out a calculation whenever UpTODate_AC is false. Specifically
@@ -239,19 +230,7 @@ namespace VCSnonideal {
      *  Units are potential
      */
     double electricPotential() const;
-  
-  private:
-    //! Gibbs free energy calculation for standard states
-    /*!
-     * Calculate the Gibbs free energies for the standard states
-     * The results are held internally within the object.
-     *
-     * @param TKelvin Current temperature
-     * @param pres    Current pressure
-     */
-    void GStar_calc() const;
 
-  public:
     //! Gibbs free energy calculation for standard state of one species
     /*!
      * Calculate the Gibbs free energies for the standard state
@@ -285,21 +264,6 @@ namespace VCSnonideal {
      */
     double G0_calc_one(int kspec, double TKelvin);
 
-  
-  private:
-    //! Molar volume calculation for standard states
-    /*!
-     * Calculate the molar volume for the standard states
-     * The results are held internally within the object.
-     *
-     * @param TKelvin Current temperature
-     * @param pres    Current pressure
-     *
-     *  Units are in m**3/kmol
-     */
-    void VolStar_calc() const;
-
-  public:
     //! Molar volume calculation for standard state of one species
     /*!
      * Calculate the molar volume for the standard states
@@ -313,19 +277,8 @@ namespace VCSnonideal {
      * @return molar volume of the kspec species's standard
      *         state (m**3/kmol)
      */
-    double VolStar_calc_one(int kglob, double TKelvin, double pres);
+    double VolStar_calc_one(int kglob) const;
 
-  private:
-    //! Calculate the partial molar volumes of all species and return the
-    //! total volume
-    /*!
-     *  Calculates these quantitites internally
-     *
-     * @return total volume
-     */
-    double VolPM_calc() const;
-
-  public:
     //! Fill in the partial molar volume vector for VCS
     /*!
      *  This routine will calculate the partial molar volumes for the
@@ -362,23 +315,6 @@ namespace VCSnonideal {
      */
     void setState_TP(double temperature_Kelvin, double pressure_PA);
 
-  private:
-    //! Evaluation of Activity Coefficient Jacobians
-    /*!
-     *  This is the derivative of the ln of the activity coefficient
-     *  with respect to mole number of jth species.
-     *  (temp, pressure, and other mole numbers held constant)
-     *
-     *  We employ a finite difference derivative approach here.
-     *  Because we have to change the mole numbers, this is not
-     *  a const function, even though the paradigm would say that
-     *  it should be.
-     *
-     *  @param moleNumbers Mole numbers are input.
-     */
-    void updateLnActCoeffJac();
- 
-  public:
     // Downloads the ln ActCoeff jacobian into the VCS version of the
     // ln ActCoeff jacobian.
     /*
@@ -438,7 +374,7 @@ namespace VCSnonideal {
      * @param xmol Value of the mole fractions for the species
      *             in the phase. These are contiguous. 
      */
-    void setMoleFractions (const double * const xmol);
+    void setMoleFractions(const double * const xmol);
 
     //! Return a const reference to the mole fractions
     const std::vector<double> & moleFractions() const;
@@ -450,6 +386,59 @@ namespace VCSnonideal {
     bool usingCanteraCalls() const;
 
   private:
+
+    //! Evaluate the activity coefficients at the current conditions
+    /*!
+     *   We carry out a calculation whenever UpTODate_AC is false. Specifically
+     *   whenever a phase goes zero, we do not carry out calculations on it.
+     */
+    void _updateActCoeff() const;
+
+    //! Gibbs free energy calculation for standard states
+    /*!
+     * Calculate the Gibbs free energies for the standard states
+     * The results are held internally within the object.
+     *
+     * @param TKelvin Current temperature
+     * @param pres    Current pressure
+     */
+    void _updateGStar() const;
+
+    //! Molar volume calculation for standard states
+    /*!
+     * Calculate the molar volume for the standard states
+     * The results are held internally within the object.
+     *
+     * @param TKelvin Current temperature
+     * @param pres    Current pressure
+     *
+     *  Units are in m**3/kmol
+     */
+    void _updateVolStar() const;
+
+    //! Calculate the partial molar volumes of all species and return the
+    //! total volume
+    /*!
+     *  Calculates these quantitites internally
+     *
+     * @return total volume
+     */
+    double _updateVolPM() const;
+
+    //! Evaluation of Activity Coefficient Jacobians
+    /*!
+     *  This is the derivative of the ln of the activity coefficient
+     *  with respect to mole number of jth species.
+     *  (temp, pressure, and other mole numbers held constant)
+     *
+     *  We employ a finite difference derivative approach here.
+     *  Because we have to change the mole numbers, this is not
+     *  a const function, even though the paradigm would say that
+     *  it should be.
+     *
+     *  @param moleNumbers Mole numbers are input.
+     */
+    void _updateLnActCoeffJac();
 
     //! Updates the mole fraction depenpencies
     /*!
@@ -501,7 +490,7 @@ namespace VCSnonideal {
     /*!
      *  The known types are listed at the top of this file.
      */
-    int EqnState;
+    int m_eqnState;
 
     //! Number of element constraints within the problem
     /*!

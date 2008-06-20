@@ -866,7 +866,7 @@ namespace VCSnonideal {
 	retn = VCS_PUB_BAD;
       }
 
-      vPhase->EqnState = pub_phase_ptr->EqnState;
+      vPhase->m_eqnState = pub_phase_ptr->m_eqnState;
 
       if  (vPhase->NVolSpecies != pub_phase_ptr->NVolSpecies) {
 	plogf("%sNVolSpecies value have changed:%d %d\n", yo.c_str(),

@@ -230,7 +230,8 @@ VolStar_calc(int kglob, double TKelvin, double presPA)
   if (UseCanteraCalls) {
     AssertThrowVCS(m_VCS_UnitsFormat == VCS_UNITS_MKS, "Possible inconsistency");
     int kspec = IndexSpeciesPhase;
-    vol = OwningPhase->VolStar_calc_one(kspec, TKelvin, presPA);
+    OwningPhase->setState_TP(TKelvin, presPA);
+    vol = OwningPhase->VolStar_calc_one(kspec);
   } else {
     switch(SSStar_Vol_Model) {
     case VCS_SSVOL_CONSTANT:

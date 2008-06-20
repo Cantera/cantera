@@ -1168,16 +1168,16 @@ namespace VCSnonideal {
        */
       switch (eos) {
       case cIdealGas:
-	VolPhase->EqnState = VCS_EOS_IDEAL_GAS;
+	VolPhase->m_eqnState = VCS_EOS_IDEAL_GAS;
 	break;
       case cIncompressible:
-	VolPhase->EqnState = VCS_EOS_CONSTANT;
+	VolPhase->m_eqnState = VCS_EOS_CONSTANT;
 	break;
       case cSurf:
 	plogf("cSurf not handled yet\n");
 	exit(-1);
       case cStoichSubstance:
-	VolPhase->EqnState = VCS_EOS_STOICH_SUB;
+	VolPhase->m_eqnState = VCS_EOS_STOICH_SUB;
 	break;
       case  cPureFluid:
 	if (printLvl > 1) {
@@ -1190,13 +1190,13 @@ namespace VCSnonideal {
       case cIdealSolidSolnPhase0:
       case cIdealSolidSolnPhase1:
       case cIdealSolidSolnPhase2:
-	VolPhase->EqnState = VCS_EOS_IDEAL_SOLN;
+	VolPhase->m_eqnState = VCS_EOS_IDEAL_SOLN;
 	break;
       default:
 	if (printLvl > 1) {
 	  plogf("Unknown Cantera EOS to VCSnonideal: %d\n", eos);
 	}
-	VolPhase->EqnState = VCS_EOS_UNK_CANTERA;
+	VolPhase->m_eqnState = VCS_EOS_UNK_CANTERA;
 	if (!VolPhase->usingCanteraCalls()) {
 	  plogf("vcs functions asked for, but unimplemented\n");
 	  exit(-1);
@@ -1440,7 +1440,7 @@ namespace VCSnonideal {
    
       for (int iphase = 0; iphase < vprob->NPhase; iphase++) {
 	vcs_VolPhase *VolPhase = vprob->VPhaseList[iphase];
-	std::string sEOS = string16_EOSType(VolPhase->EqnState);
+	std::string sEOS = string16_EOSType(VolPhase->m_eqnState);
 	plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
 	       VolPhase->VP_ID,       VolPhase->SingleSpecies,
 	       VolPhase->m_gasPhase,    sEOS.c_str(),
@@ -1558,7 +1558,7 @@ namespace VCSnonideal {
    
       for (int iphase = 0; iphase < vprob->NPhase; iphase++) {
 	vcs_VolPhase *VolPhase = vprob->VPhaseList[iphase];
-	std::string sEOS = string16_EOSType(VolPhase->EqnState);
+	std::string sEOS = string16_EOSType(VolPhase->m_eqnState);
 	plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
 	       VolPhase->VP_ID,       VolPhase->SingleSpecies,
 	       VolPhase->m_gasPhase,    sEOS.c_str(),

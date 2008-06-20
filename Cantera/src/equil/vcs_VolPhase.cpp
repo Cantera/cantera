@@ -35,7 +35,7 @@ namespace VCSnonideal {
     Domain_ID(-1),
     SingleSpecies(true),
     m_gasPhase(false),
-    EqnState(VCS_EOS_CONSTANT),
+    m_eqnState(VCS_EOS_CONSTANT),
     nElemConstraints(0),
     ChargeNeutralityElement(-1),
     ElGlobalIndex(0),
@@ -99,7 +99,7 @@ namespace VCSnonideal {
     Domain_ID(b.Domain_ID),
     SingleSpecies(b.SingleSpecies),
     m_gasPhase(b.m_gasPhase),
-    EqnState(b.EqnState),
+    m_eqnState(b.m_eqnState),
     nElemConstraints(b.nElemConstraints),
     ChargeNeutralityElement(b.ChargeNeutralityElement),
     NVolSpecies(b.NVolSpecies),
@@ -133,15 +133,14 @@ namespace VCSnonideal {
      */
     *this = b;
   }
-  /*****************************************************************************/
+  /***********************************************************************************/
   
   /*
    * Assignment operator()
    *
    *   (note, this is used, so keep it current!)
    */
-  vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
-  {
+  vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b) {
     int k;
     if (&b != this) {
       int old_num = NVolSpecies;
@@ -155,7 +154,7 @@ namespace VCSnonideal {
       Domain_ID           = b.Domain_ID;
       SingleSpecies       = b.SingleSpecies;
       m_gasPhase            = b.m_gasPhase;
-      EqnState            = b.EqnState;
+      m_eqnState            = b.m_eqnState;
  
       NVolSpecies         = b.NVolSpecies;
       nElemConstraints    = b.nElemConstraints;
@@ -334,15 +333,14 @@ namespace VCSnonideal {
     m_UpToDate_VolPM      = false;
     m_UpToDate_GStar      = false;
   }
-  /*******************************************************************************/
+  /************************************************************************************/
 
   //! Evaluate activity coefficients
   /*!
    *   We carry out a calculation whenever UpTODate_AC is false. Specifically
    *   whenever a phase goes zero, we do not carry out calculations on it.
    */
-  void vcs_VolPhase::evaluateActCoeff() const {
-    if (m_UpToDate_AC == true) return;
+  void vcs_VolPhase::_updateActCoeff() const {
     if (m_isIdealSoln) {
       m_UpToDate_AC = true;
       return;
@@ -364,7 +362,7 @@ namespace VCSnonideal {
     }
     m_UpToDate_AC = true;
   }
-  /********************************************************************************/
+  /***********************************************************************************/
 
   /*
    *
@@ -374,7 +372,9 @@ namespace VCSnonideal {
    *   one.
    */
   double vcs_VolPhase::AC_calc_one(int kspec) const {
-    evaluateActCoeff();
+    if (! m_UpToDate_AC) { 
+      _updateActCoeff();
+    }
     return(ActCoeff[kspec]);
   }
   /************************************************************************************/
@@ -408,7 +408,7 @@ namespace VCSnonideal {
       }
     }
   }
-  /***********************************************************************/
+  /*******************************************************************************/
 
   // Gibbs free energy calculation at a temperature for the reference state
   // of a species, return a value for one species
@@ -422,7 +422,7 @@ namespace VCSnonideal {
     G0_calc(tkelvin);
     return SS0ChemicalPotential[kspec];
   }
-  /***********************************************************************/
+  /*******************************************************************************/
 
   // Gibbs free energy calculation for standard states
   /*
@@ -432,24 +432,22 @@ namespace VCSnonideal {
    * @param TKelvin Current temperature
    * @param pres    Current pressure (pascal)
    */
-  void vcs_VolPhase::GStar_calc() const {
-    if (!m_UpToDate_GStar) {
-      if (m_useCanteraCalls) {
-	TP_ptr->getStandardChemPotentials(VCS_DATA_PTR(StarChemicalPotential));
-      } else {
-	double R = vcsUtil_gasConstant(m_VCS_UnitsFormat);
-	for (int k = 0; k < NVolSpecies; k++) {
-	  int kglob = IndSpecies[k];
-	  vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
-	  VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
-	  StarChemicalPotential[k] =
-	    R * (sTherm->GStar_R_calc(kglob, Temp, Pres));
-	}
+  void vcs_VolPhase::_updateGStar() const {
+    if (m_useCanteraCalls) {
+      TP_ptr->getStandardChemPotentials(VCS_DATA_PTR(StarChemicalPotential));
+    } else {
+      double R = vcsUtil_gasConstant(m_VCS_UnitsFormat);
+      for (int k = 0; k < NVolSpecies; k++) {
+	int kglob = IndSpecies[k];
+	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
+	VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
+	StarChemicalPotential[k] =
+	  R * (sTherm->GStar_R_calc(kglob, Temp, Pres));
       }
-      m_UpToDate_GStar = true;
     }
+    m_UpToDate_GStar = true;
   }
-  /***********************************************************************/
+  /*****************************************************************************/
 
   // Gibbs free energy calculation for standard state of one species
   /*
@@ -465,11 +463,11 @@ namespace VCSnonideal {
    */
   double vcs_VolPhase::GStar_calc_one(int kspec) {
     if (!m_UpToDate_GStar) {
-      GStar_calc();
+      _updateGStar();
     }
     return StarChemicalPotential[kspec];
   }
-  /***********************************************************************/
+  /*****************************************************************************/
 
   // Set the mole fractions from a conventional mole fraction vector
   /*
@@ -540,7 +538,7 @@ namespace VCSnonideal {
     if (molesSpeciesVCS == 0) {
 #ifdef DEBUG_MODE
       if (m_owningSolverObject == 0) {
-	printf("shouldn't be here\n");
+	printf("vcs_VolPhase::setMolesFromVCS  shouldn't be here\n");
 	std::exit(-1);
       }
 #endif
@@ -551,7 +549,7 @@ namespace VCSnonideal {
       }
 #ifdef DEBUG_MODE
       else {
-	printf("shouldn't be here\n");
+	printf("vcs_VolPhase::setMolesFromVCS shouldn't be here\n");
 	std::exit(-1);
       }
 #endif
@@ -561,12 +559,12 @@ namespace VCSnonideal {
       if (m_owningSolverObject) {
         if (stateCalc == VCS_STATECALC_OLD) {
   	  if (molesSpeciesVCS != VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_old)) {
-	    printf("shouldn't be here\n");
+	    printf("vcs_VolPhase::setMolesFromVCS shouldn't be here\n");
 	    std::exit(-1);
           }
         } else if (stateCalc == VCS_STATECALC_NEW) {
           if (molesSpeciesVCS != VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_new)) {
-	    printf("shouldn't be here\n");
+	    printf("vcs_VolPhase::setMolesFromVCS shouldn't be here\n");
 	    std::exit(-1);
           }
         }
@@ -577,14 +575,16 @@ namespace VCSnonideal {
     for (int k = 0; k < NVolSpecies; k++) {
       if (SpeciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	kglob = IndSpecies[k];
-	tmp = MAX(0.0, molesSpeciesVCS[kglob]);
-	Xmol[k] = tmp;
-	v_totalMoles += tmp;
+	v_totalMoles += MAX(0.0, molesSpeciesVCS[kglob]);
       }
     }
     if (v_totalMoles > 0.0) {
       for (int k = 0; k < NVolSpecies; k++) {
-	Xmol[k] /= v_totalMoles;
+	if (SpeciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	  kglob = IndSpecies[k];
+	  tmp = MAX(0.0, molesSpeciesVCS[kglob]);
+	  Xmol[k] = tmp / v_totalMoles;
+	}
       }
       Existence = 1;
     } else {
@@ -624,7 +624,7 @@ namespace VCSnonideal {
     m_vcsStateStatus = stateCalc; 
  
   }
-  /***********************************************************************/
+  /**************************************************************************/
 
   // Set the moles within the phase
   /*
@@ -657,7 +657,7 @@ namespace VCSnonideal {
       }
     }
   }
-  /***********************************************************************/
+  /**************************************************************************/
 
   // Update the moles within the phase, if necessary
   /*
@@ -680,7 +680,7 @@ namespace VCSnonideal {
       }
     }
   }
-  /***********************************************************************/
+  /**************************************************************************/
 
   // Fill in an activity coefficients vector within a VCS_SOLVE object
   /*
@@ -696,7 +696,7 @@ namespace VCSnonideal {
 					double * const AC) {
     updateFromVCS_MoleNumbers(stateCalc);
     if (!m_UpToDate_AC) {
-      evaluateActCoeff();
+      _updateActCoeff();
     }
     int kglob;
     for (int k = 0; k < NVolSpecies; k++) {
@@ -704,7 +704,7 @@ namespace VCSnonideal {
       AC[kglob] = ActCoeff[k];
     }
   }
-  /***********************************************************************/
+  /****************************************************************************/
 
   // Fill in the partial molar volume vector for VCS
   /*
@@ -718,7 +718,7 @@ namespace VCSnonideal {
    */
   double vcs_VolPhase::sendToVCS_VolPM(double * const VolPM) const {  
     if (!m_UpToDate_VolPM) {
-      (void) VolPM_calc();
+      (void) _updateVolPM();
     }
     int kglob;
     for (int k = 0; k < NVolSpecies; k++) {
@@ -727,7 +727,7 @@ namespace VCSnonideal {
     }
     return m_totalVol;
   }
-  /***********************************************************************/
+  /****************************************************************************/
 
   // Fill in the partial molar volume vector for VCS
   /*
@@ -741,7 +741,7 @@ namespace VCSnonideal {
    */
   void vcs_VolPhase::sendToVCS_GStar(double * const gstar){  
     if (!m_UpToDate_GStar) {
-      GStar_calc();
+      _updateGStar();
     }
     int kglob;
     for (int k = 0; k < NVolSpecies; k++) {
@@ -749,7 +749,7 @@ namespace VCSnonideal {
       gstar[kglob] = StarChemicalPotential[k];
     }
   }
- /***********************************************************************/
+  /****************************************************************************/
 
 
   void vcs_VolPhase::setElectricPotential(double phi) {
@@ -763,12 +763,12 @@ namespace VCSnonideal {
     m_UpToDate_VolPM = false;
     m_UpToDate_GStar = false;
   }
-  /***********************************************************************/
+  /*****************************************************************************/
 
   double vcs_VolPhase::electricPotential() const {
     return m_phi;
   }
-  /***********************************************************************/
+  /****************************************************************************/
 
   // Sets the temperature and pressure in this object and
   //  underlying objects
@@ -798,7 +798,7 @@ namespace VCSnonideal {
     m_UpToDate_VolPM   = false;
     m_UpToDate_GStar   = false;
   }
-  /***********************************************************************/
+  /**************************************************************************/
 
   // Molar volume calculation for standard states
   /*
@@ -808,26 +808,22 @@ namespace VCSnonideal {
    * @param TKelvin Current temperature
    * @param pres    Current pressure (pascal)
    *
-   *  Calculations are in m**3/kmol
+   *  Calculations are in m**3 / kmol
    */
-  void vcs_VolPhase::VolStar_calc() const {
-    if (!m_UpToDate_VolStar) {     
-      if (m_useCanteraCalls) {
-	TP_ptr->getStandardVolumes(VCS_DATA_PTR(StarMolarVol));
-      } else {
-	for (int k = 0; k < NVolSpecies; k++) {
-	  int kglob = IndSpecies[k];
-	  vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
-	  VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
-	  StarMolarVol[k] =
-	    (sTherm->VolStar_calc(kglob, Temp, Pres));
-	}
+  void vcs_VolPhase::_updateVolStar() const {
+    if (m_useCanteraCalls) {
+      TP_ptr->getStandardVolumes(VCS_DATA_PTR(StarMolarVol));
+    } else {
+      for (int k = 0; k < NVolSpecies; k++) {
+	int kglob = IndSpecies[k];
+	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
+	VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
+	StarMolarVol[k] = (sTherm->VolStar_calc(kglob, Temp, Pres));
       }
-      m_UpToDate_VolStar = true;
     }
+    m_UpToDate_VolStar = true;
   }
-  /***********************************************************************/
-
+  /*****************************************************************************/
 
   // Molar volume calculation for standard state of one species
   /*
@@ -842,51 +838,51 @@ namespace VCSnonideal {
    * @return molar volume of the kspec species's standard
    *         state
    */
-  double vcs_VolPhase::VolStar_calc_one(int kspec, double tkelvin, 
-					double pres) {
-    setState_TP(tkelvin, pres);
+  double vcs_VolPhase::VolStar_calc_one(int kspec) const {
     if (!m_UpToDate_VolStar) { 
-      VolStar_calc();
+      _updateVolStar();
     }
     return StarMolarVol[kspec];
   }
   /****************************************************************************/
 
+  // Calculate the partial molar volumes of all species and return the
+  // total volume
   /*
+   *  Calculates these quantitites internally and then stores them
    *
-   * VolPM_calc
+   * @return total volume  (m**3)
    */
-  double vcs_VolPhase::VolPM_calc() const {
+  double vcs_VolPhase::_updateVolPM() const {
     int k, kglob;
-    if (!m_UpToDate_VolPM) {
-      if (m_useCanteraCalls) {
-	TP_ptr->getPartialMolarVolumes(VCS_DATA_PTR(PartialMolarVol));
-      } else {
-	for (k = 0; k < NVolSpecies; k++) {
-	  kglob = IndSpecies[k];
-	  vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
-	  VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
-	  StarMolarVol[k] = (sTherm->VolStar_calc(kglob, Temp, Pres));
-	}
-	for (k = 0; k < NVolSpecies; k++) {
-	  PartialMolarVol[k] = StarMolarVol[k];
-	}
-      }
 
-      m_totalVol = 0.0;
+    if (m_useCanteraCalls) {
+      TP_ptr->getPartialMolarVolumes(VCS_DATA_PTR(PartialMolarVol));
+    } else {
       for (k = 0; k < NVolSpecies; k++) {
-	m_totalVol += PartialMolarVol[k] * Xmol[k];
+	kglob = IndSpecies[k];
+	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
+	VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
+	StarMolarVol[k] = (sTherm->VolStar_calc(kglob, Temp, Pres));
       }
-      m_totalVol *= v_totalMoles;
+      for (k = 0; k < NVolSpecies; k++) {
+	PartialMolarVol[k] = StarMolarVol[k];
+      }
+    }
 
-      if (TMolesInert > 0.0) {
-	if (m_gasPhase) {
-	  double volI = TMolesInert * 8314.47215 * Temp / Pres;
-	  m_totalVol += volI;
-	} else {
-	  printf("unknown situation\n");
-	  std::exit(-1);
-	}
+    m_totalVol = 0.0;
+    for (k = 0; k < NVolSpecies; k++) {
+      m_totalVol += PartialMolarVol[k] * Xmol[k];
+    }
+    m_totalVol *= v_totalMoles;
+
+    if (TMolesInert > 0.0) {
+      if (m_gasPhase) {
+	double volI = TMolesInert * 8314.47215 * Temp / Pres;
+	m_totalVol += volI;
+      } else {
+	printf("unknown situation\n");
+	std::exit(-1);
       }
     }
     m_UpToDate_VolPM = true;
@@ -895,18 +891,19 @@ namespace VCSnonideal {
   /************************************************************************************/
 
   /*
-   * updateLnActCoeffJac():
+   * _updateLnActCoeffJac():
    *
    */
-  void vcs_VolPhase::updateLnActCoeffJac() {
+  void vcs_VolPhase::_updateLnActCoeffJac() {
     int k, j;
     double deltaMoles_j = 0.0;
-  
-
+ 
     /*
-     * Evaluate the current base activity coefficients.
-     */  
-    evaluateActCoeff();
+     * Evaluate the current base activity coefficients if necessary
+     */ 
+    if (!m_UpToDate_AC) { 
+      _updateActCoeff();
+    }
 
     // Make copies of ActCoeff and Xmol for use in taking differences
     std::vector<double> ActCoeff_Base(ActCoeff);
@@ -939,7 +936,7 @@ namespace VCSnonideal {
        * -> Note this calls setState_PX();
        */
       _updateMoleFractionDependencies();
-      evaluateActCoeff();
+      _updateActCoeff();
       /*
        * Calculate the column of the matrix
        */
@@ -962,7 +959,7 @@ namespace VCSnonideal {
      */
     setMoleFractions(VCS_DATA_PTR(Xmol_Base));
     _updateMoleFractionDependencies();
-    evaluateActCoeff();
+    _updateActCoeff();
   }
   /************************************************************************************/
 
@@ -984,7 +981,8 @@ namespace VCSnonideal {
      * mole number of species in the phase -> we always assume that
      * they are out of date.
      */
-    updateLnActCoeffJac();
+    _updateLnActCoeffJac();
+
     /*
      *  Now copy over the values
      */

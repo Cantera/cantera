@@ -281,7 +281,7 @@ namespace VCSnonideal {
    
       for (iphase = 0; iphase < NPhase; iphase++) {
 	Vphase = VPhaseList[iphase];
-	std::string EOS_cstr = string16_EOSType(Vphase->EqnState);
+	std::string EOS_cstr = string16_EOSType(Vphase->m_eqnState);
 	plogf("%16s %5d %5d %8d ", Vphase->PhaseName.c_str(),
 	      Vphase->VP_ID, Vphase->SingleSpecies, Vphase->m_gasPhase);
 	plogf("%16s %8d %16e ", EOS_cstr.c_str(),
