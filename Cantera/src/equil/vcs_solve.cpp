@@ -735,8 +735,8 @@ namespace VCSnonideal {
      */
     for (iph = 0; iph < nph; iph++) {
       Vphase = m_VolPhaseList[iph];
-      m_phaseActConvention[iph] = Vphase->ActivityConvention;
-      if (Vphase->ActivityConvention != 0) {
+      m_phaseActConvention[iph] = Vphase->m_activityConvention;
+      if (Vphase->m_activityConvention != 0) {
 	/*
 	 * We assume here that species 0 is the solvent.
 	 * The solvent isn't on a unity activity basis
@@ -750,7 +750,7 @@ namespace VCSnonideal {
 	double mnaught = m_wtSpecies[iSolvent] / 1000.;
 	for (int k = 1; k < Vphase->NVolSpecies; k++) {
 	  int kspec = Vphase->IndSpecies[k];
-	  m_actConventionSpecies[kspec] = Vphase->ActivityConvention;
+	  m_actConventionSpecies[kspec] = Vphase->m_activityConvention;
 	  m_lnMnaughtSpecies[kspec] = log(mnaught);
 	}
       }
@@ -985,13 +985,12 @@ namespace VCSnonideal {
 	  }
 	}
 
-
 	if (! vcs_doubleEqual( pub->mf[kT], vPhase->molefraction(k))) {
 	  plogf("We have an inconsistency in mole fraction, %g, %g\n",
 		pub->mf[kT], vPhase->molefraction(k));
 	  exit(-1);
 	}
-	if (pubPhase->SpeciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	if (pubPhase->m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  sumMoles +=  pub->w[kT];
 	}
       }

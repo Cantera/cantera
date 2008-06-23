@@ -733,7 +733,7 @@ namespace VCSnonideal {
 	   *       branch to the code where we reevaluate the deletion 
 	   *       of all species.
 	   */
-	  lnospec = delete_species(kspec);
+	  lnospec = vcs_delete_species(kspec);
 	  if (lnospec) goto L_RECHECK_DELETED;
 	  /*
 	   *       Go back to consider the next species in the list.
@@ -2218,7 +2218,7 @@ namespace VCSnonideal {
    *      1: succeeded
    *      0: failed.
    */
-  int VCS_SOLVE::zero_species(const int kspec) {
+  int VCS_SOLVE::vcs_zero_species(const int kspec) {
     int retn = 1;
     /*
      * Calculate a delta that will eliminate the species.
@@ -2230,7 +2230,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	if (!retn) {
 	  if (m_debug_print_lvl >= 1) {
-	    plogf("zero_species: Couldn't zero the species %d, "
+	    plogf("vcs_zero_species: Couldn't zero the species %d, "
 		  "did delta of %g. orig conc of %g",
 		  kspec, dx, m_molNumSpecies_old[kspec] + dx);
 	    plogendl();
@@ -2257,7 +2257,7 @@ namespace VCSnonideal {
    *     noncomponent species is equal to zero. A recheck of deleted species 
    *     is carried out in the main code.
    */
-  int VCS_SOLVE::delete_species(const int kspec) {
+  int VCS_SOLVE::vcs_delete_species(const int kspec) {
     const int klast = m_numSpeciesRdc - 1;
     const int iph = m_phaseID[kspec];
     vcs_VolPhase * const Vphase = m_VolPhaseList[iph];
@@ -2266,7 +2266,7 @@ namespace VCSnonideal {
      * Zero the concentration of the species.
      *     -> This zeroes w[kspec] and modifies m_tPhaseMoles_old[]
      */
-    const int retn = zero_species(kspec);
+    const int retn = vcs_zero_species(kspec);
 #ifdef DEBUG_MODE
     if (! retn) {
       plogf("Failed to delete a species!");
@@ -4693,12 +4693,12 @@ namespace VCSnonideal {
 
     /*
      *  Calculate activity coefficients for all phases that are
-     *  not current
+     *  not current. Here we also trigger an update check for each
+     *  VolPhase to see if its mole numbers are current with vcs
      */
     for (iphase = 0; iphase < m_numPhases; iphase++) {
       Vphase = m_VolPhaseList[iphase];
       if (!Vphase->SingleSpecies) {
-	// Vphase->setMolesFromVCS(stateCalc, molNum);
 	Vphase->sendToVCS_ActCoeff(stateCalc, VCS_DATA_PTR(actCoeff_ptr));
       }
       m_phasePhi[iphase] = Vphase->electricPotential();
@@ -5386,14 +5386,13 @@ namespace VCSnonideal {
     vcs_VolPhase *Vphase;
     if (!upToDate) {
       for (iph = 0; iph < m_numPhases; iph++) {
-	Vphase = m_VolPhaseList[iph];  
-	Vphase->m_UpToDate = false;
+	Vphase = m_VolPhaseList[iph];
+	Vphase->setMolesOutOfDate(stateCalc);
       }
     } else {
       for (iph = 0; iph < m_numPhases; iph++) {
-	Vphase = m_VolPhaseList[iph];  
-	Vphase->m_UpToDate = true;
-	Vphase->m_vcsStateStatus = stateCalc;
+	Vphase = m_VolPhaseList[iph]; 
+	Vphase->setMolesCurrent(stateCalc);
       } 
     }
   }
@@ -5401,14 +5400,11 @@ namespace VCSnonideal {
 
   void VCS_SOLVE::vcs_setFlagsVolPhase(const int iph, const bool upToDate,
 				       const int stateCalc) {
-    vcs_VolPhase *Vphase;
+    vcs_VolPhase *Vphase = m_VolPhaseList[iph];
     if (!upToDate) {
-      Vphase = m_VolPhaseList[iph];  
-      Vphase->m_UpToDate = false;
+      Vphase->setMolesOutOfDate(stateCalc);
     } else {
-      Vphase = m_VolPhaseList[iph];  
-      Vphase->m_UpToDate = true;
-      Vphase->m_vcsStateStatus = stateCalc;
+      Vphase->setMolesCurrent(stateCalc);
     }
   }
   /*******************************************************************************/
@@ -5421,5 +5417,6 @@ namespace VCSnonideal {
       Vphase->updateFromVCS_MoleNumbers(stateCalc);
     }
   }
+  /*******************************************************************************/
 
 }

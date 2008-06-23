@@ -1005,7 +1005,7 @@ namespace VCSnonideal {
 
     VolPhase->FormulaMatrix.resize(ne, ns, 0.0);
 
-    VolPhase->SpeciesUnknownType.resize(ns, VCS_SPECIES_TYPE_MOLNUM);
+    VolPhase->m_speciesUnknownType.resize(ns, VCS_SPECIES_TYPE_MOLNUM);
 
     VolPhase->ElGlobalIndex.resize(ne, -1);
 
@@ -1055,7 +1055,7 @@ namespace VCSnonideal {
      */
     if (ns == 1) {
       if (tPhase->charge(0) != 0.0) {
-	VolPhase->SpeciesUnknownType[0] = VCS_SPECIES_TYPE_INTERFACIALVOLTAGE;
+	VolPhase->m_speciesUnknownType[0] = VCS_SPECIES_TYPE_INTERFACIALVOLTAGE;
         VolPhase->m_phiVarIndex = 0;
       }
     }
@@ -1161,7 +1161,7 @@ namespace VCSnonideal {
        * Query the ThermoPhase object to find out what convention
        * it uses for the specification of activity and Standard State.
        */
-      VolPhase->ActivityConvention = tPhase->activityConvention();
+      VolPhase->m_activityConvention = tPhase->activityConvention();
       /*
        * Assign the value of eqn of state 
        *  -> Handle conflicts here.
@@ -1266,7 +1266,7 @@ namespace VCSnonideal {
 	/*
 	 * Transfer the type of unknown
 	 */
-	vprob->SpeciesUnknownType[kT] = VolPhase->SpeciesUnknownType[k];
+	vprob->SpeciesUnknownType[kT] = VolPhase->m_speciesUnknownType[k];
 	/*
 	 * Transfer the species information from the 
 	 * volPhase structure to the VPROB structure

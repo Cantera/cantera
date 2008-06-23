@@ -42,12 +42,12 @@ namespace VCSnonideal {
     NVolSpecies(0),
     TMolesInert(0.0),
     m_molarVolInert(1000.),
-    ActivityConvention(0),
+    m_activityConvention(0),
     m_isIdealSoln(false),
     Existence(0),
+    m_MFStartIndex(0),
     IndexSpecialSpecies(-1),
     Activity_Coeff_Model(VCS_AC_CONSTANT),
-    Activity_Coeff_Params(0),
     IndSpecies(0),
     IndSpeciesContig(true),
     m_VCS_UnitsFormat(VCS_UNITS_MKS),
@@ -104,12 +104,12 @@ namespace VCSnonideal {
     ChargeNeutralityElement(b.ChargeNeutralityElement),
     NVolSpecies(b.NVolSpecies),
     TMolesInert(b.TMolesInert),
-    ActivityConvention(b.ActivityConvention),
+    m_activityConvention(b.m_activityConvention),
     m_isIdealSoln(b.m_isIdealSoln),
     Existence(b.Existence),
+    m_MFStartIndex(b.m_MFStartIndex),
     IndexSpecialSpecies(b.IndexSpecialSpecies),
     Activity_Coeff_Model(b.Activity_Coeff_Model),
-    Activity_Coeff_Params(b.Activity_Coeff_Params),
     IndSpeciesContig(b.IndSpeciesContig),
     m_VCS_UnitsFormat(b.m_VCS_UnitsFormat),
     m_useCanteraCalls(b.m_useCanteraCalls),
@@ -176,21 +176,21 @@ namespace VCSnonideal {
 	}
       }
 
-      SpeciesUnknownType = b.SpeciesUnknownType;
+      m_speciesUnknownType = b.m_speciesUnknownType;
       ElGlobalIndex = b.ElGlobalIndex;
       NVolSpecies         = b.NVolSpecies;
       PhaseName           = b.PhaseName;
       TMolesInert         = b.TMolesInert;
-      ActivityConvention  = b.ActivityConvention;
+      m_activityConvention  = b.m_activityConvention;
       m_isIdealSoln       = b.m_isIdealSoln;
       Existence           = b.Existence;
+      m_MFStartIndex      = b.m_MFStartIndex;
       IndexSpecialSpecies = b.IndexSpecialSpecies;
       Activity_Coeff_Model = b.Activity_Coeff_Model;
 
       /*
        * Do a shallow copy because we haven' figured this out.
        */
-      Activity_Coeff_Params = b.Activity_Coeff_Params;
       IndSpecies = b.IndSpecies;
       IndSpeciesContig = b.IndSpeciesContig;
 
@@ -325,7 +325,7 @@ namespace VCSnonideal {
     dLnActCoeffdMolNumber.resize(nspecies, nspecies, 0.0);
  
 
-    SpeciesUnknownType.resize(nspecies, VCS_SPECIES_TYPE_MOLNUM);
+    m_speciesUnknownType.resize(nspecies, VCS_SPECIES_TYPE_MOLNUM);
     m_UpToDate            = false;
     m_vcsStateStatus      = VCS_STATECALC_OLD;
     m_UpToDate_AC         = false;
@@ -339,6 +339,8 @@ namespace VCSnonideal {
   /*!
    *   We carry out a calculation whenever UpTODate_AC is false. Specifically
    *   whenever a phase goes zero, we do not carry out calculations on it.
+   * 
+   * (private)
    */
   void vcs_VolPhase::_updateActCoeff() const {
     if (m_isIdealSoln) {
@@ -372,7 +374,7 @@ namespace VCSnonideal {
    *   one.
    */
   double vcs_VolPhase::AC_calc_one(int kspec) const {
-    if (! m_UpToDate_AC) { 
+    if (! m_UpToDate_AC) {
       _updateActCoeff();
     }
     return(ActCoeff[kspec]);
@@ -490,7 +492,7 @@ namespace VCSnonideal {
     m_UpToDate = false;
     m_vcsStateStatus = VCS_STATECALC_TMP;
   }
-  /***********************************************************************/
+  /****************************************************************************/
 
   // Updates the mole fractions in subobjects
   /*
@@ -500,7 +502,7 @@ namespace VCSnonideal {
   void vcs_VolPhase::_updateMoleFractionDependencies() {
     if (m_useCanteraCalls) {
       if (TP_ptr) {
-	TP_ptr->setState_PX(Pres, VCS_DATA_PTR(Xmol));
+	TP_ptr->setState_PX(Pres, &(Xmol[m_MFStartIndex]));
       }
     }
     if (!m_isIdealSoln) {
@@ -508,13 +510,13 @@ namespace VCSnonideal {
       m_UpToDate_VolPM = false;
     }
   }
-  /************************************************************************/
+  /****************************************************************************/
 
   // Return a const reference to the mole fraction vector in the phase
   const std::vector<double> & vcs_VolPhase::moleFractions() const {
     return Xmol;
   }
-  /***********************************************************************/
+  /****************************************************************************/
 
   // Set the moles within the phase
   /*
@@ -573,14 +575,14 @@ namespace VCSnonideal {
 #endif
 
     for (int k = 0; k < NVolSpecies; k++) {
-      if (SpeciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+      if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	kglob = IndSpecies[k];
 	v_totalMoles += MAX(0.0, molesSpeciesVCS[kglob]);
       }
     }
     if (v_totalMoles > 0.0) {
       for (int k = 0; k < NVolSpecies; k++) {
-	if (SpeciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  kglob = IndSpecies[k];
 	  tmp = MAX(0.0, molesSpeciesVCS[kglob]);
 	  Xmol[k] = tmp / v_totalMoles;
@@ -624,7 +626,7 @@ namespace VCSnonideal {
     m_vcsStateStatus = stateCalc; 
  
   }
-  /**************************************************************************/
+  /******************************************************************************/
 
   // Set the moles within the phase
   /*
@@ -657,7 +659,7 @@ namespace VCSnonideal {
       }
     }
   }
-  /**************************************************************************/
+  /******************************************************************************/
 
   // Update the moles within the phase, if necessary
   /*
@@ -716,7 +718,7 @@ namespace VCSnonideal {
    *            in all of the phases in a VCS problem. Only the
    *            entries for the current phase are filled in.
    */
-  double vcs_VolPhase::sendToVCS_VolPM(double * const VolPM) const {  
+  double vcs_VolPhase::sendToVCS_VolPM(double * const VolPM) const {
     if (!m_UpToDate_VolPM) {
       (void) _updateVolPM();
     }
@@ -752,7 +754,7 @@ namespace VCSnonideal {
   /****************************************************************************/
 
 
-  void vcs_VolPhase::setElectricPotential(double phi) {
+  void vcs_VolPhase::setElectricPotential(const double phi) {
     m_phi = phi;
     if (m_useCanteraCalls) {
       TP_ptr->setElectricPotential(m_phi);
@@ -1079,6 +1081,30 @@ namespace VCSnonideal {
     v_totalMoles = tmols;
   }
   /************************************************************************************/
+
+  // Sets the mole flag within the object to out of date
+  /*
+   *  This will trigger the object to go get the current mole numbers
+   *  when it needs it.
+   */
+  void vcs_VolPhase::setMolesOutOfDate(int stateCalc) {
+    m_UpToDate = false;
+    if (stateCalc != -1) {
+      m_vcsStateStatus = stateCalc;
+    }
+  }
+  /************************************************************************************/
+
+  // Sets the mole flag within the object to be current
+  /*
+   * 
+   */
+  void vcs_VolPhase::setMolesCurrent(int stateCalc) {
+    m_UpToDate = true;
+    m_vcsStateStatus = stateCalc;
+  }
+  /************************************************************************************/
+
 
   // Return a string representing the equation of state
   /* 

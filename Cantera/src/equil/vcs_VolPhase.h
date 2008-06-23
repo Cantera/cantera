@@ -223,7 +223,7 @@ namespace VCSnonideal {
     /*!
      * @param phi electric potential (volts)
      */
-    void setElectricPotential(double phi);
+    void setElectricPotential(const double phi);
 
     //! Returns the electric field of the phase
     /*!
@@ -367,6 +367,19 @@ namespace VCSnonideal {
      *  @param totalMols   Total moles in the phase (kmol)
      */
     void setTotalMoles(double totalMols);
+
+    //! Sets the mole flag within the object to out of date
+    /*!
+     *  This will trigger the object to go get the current mole numbers
+     *  when it needs it.
+     */
+    void setMolesOutOfDate(int stateCalc = -1);
+
+    //! Sets the mole flag within the object to be current
+    /*!
+     * 
+     */
+    void setMolesCurrent(int stateCalc);
 
     //! Set the mole fractions from a conventional mole fraction vector
     /*!
@@ -546,7 +559,7 @@ namespace VCSnonideal {
      *            metal electron -> VCS_SPECIES_INTERFACIALVOLTAGE
      *                 ( unknown is the interfacial voltage (volts) 
      */
-    std::vector<int> SpeciesUnknownType;
+    std::vector<int> m_speciesUnknownType;
 
     //! Index of the element number in the global list of elements
     //!  storred in VCS_PROB or VCS_SOLVE       
@@ -574,7 +587,7 @@ namespace VCSnonideal {
      *          mu = mu_0 + ln a_molality
      *          standard state is based on unity molality
      */
-    int ActivityConvention;
+    int m_activityConvention;
 
     //! Boolean indicating whether the phase is an ideal solution
     //! and therefore it's molar-based activity coefficients are
@@ -589,8 +602,20 @@ namespace VCSnonideal {
      *          inerts which can't exist in any other
      *          phase  
      */
-    int Existence; 
+    int Existence;
 
+  private:
+    // Index of the first MF species in the list of unknowns for this phase
+    /*!
+     *  This is always equal to zero.
+     *  Am anticipating the case where the phase potential is species # 0,
+     *  for multiphase phases. Right now we have the phase potential equal
+     *  to 0 for single species phases, where we set by hand the mole fraction
+     *  of species 0 to one.
+     */
+    int m_MFStartIndex;
+
+  public:
     //! Index of the species which is special in 
     //! with respect to the thermo treatment. 
     /*!
@@ -606,11 +631,6 @@ namespace VCSnonideal {
      */
     int Activity_Coeff_Model;
 
-    //! General pointer for hanging stuff off of
-    /*!
-     *  Currently, not implemented very well
-     */
-    void *Activity_Coeff_Params;
 
     //! Index into the species vectors
     /*!
@@ -728,6 +748,7 @@ namespace VCSnonideal {
      */
     mutable std::vector<double> ActCoeff;
 
+  private:
     //! Vector of the derivatives of the ln activity coefficient wrt to the
     //! current mole number
     /*!
@@ -737,7 +758,6 @@ namespace VCSnonideal {
      */
     mutable DoubleStarStar dLnActCoeffdMolNumber;
 
-
     //! Status 
     /*!
      *  valid values are 
@@ -746,17 +766,14 @@ namespace VCSnonideal {
      */
     int  m_vcsStateStatus;
 
-  private:
 
     //! Value of the potential for the phase (Volts)
     double m_phi;
 
-  public:
     //! Boolean indicating whether the object has an uptodate mole number vector
     //! and potential with respect to the current vcs state calc status
     bool m_UpToDate;
 
-  private:
     //! Boolean indicating whether activity coefficients are uptodate.
     /*!
      * Activity coefficients and volume calculations are lagged. They are only

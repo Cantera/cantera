@@ -1031,7 +1031,7 @@ private:
    *      1: succeeded
    *      0: failed.
    */
-  int zero_species(const int kspec);
+  int vcs_zero_species(const int kspec);
 
   //! Change a single species from active to inactive status
   /*!
@@ -1047,7 +1047,7 @@ private:
    *     noncomponent species is equal to zero. A recheck of deleted species 
    *     is carried out in the main code.
    */
-  int delete_species(const int kspec);
+  int vcs_delete_species(const int kspec);
 
   //! This routine handles the bookkeepking involved with the
   //!  deletion of multiphase phases from the problem. 
