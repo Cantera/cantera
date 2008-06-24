@@ -245,14 +245,9 @@ namespace VCSnonideal {
      * @return Gstar[kspec] returns the gibbs free energy for the
      *         standard state of the kth species.
      */
-    double GStar_calc_one(int kspec);
+    double GStar_calc_one(int kspec) const;
 
-    //! Gibbs free energy calculation at a temperature for the reference state
-    //! of each species
-    /*!
-     *  @param TKelvin temperature
-     */
-    void G0_calc(double TKelvin);
+   
 
     //! Gibbs free energy calculation at a temperature for the reference state
     //! of a species, return a value for one species
@@ -262,7 +257,7 @@ namespace VCSnonideal {
      *
      *  @return return value of the gibbs free energy
      */
-    double G0_calc_one(int kspec, double TKelvin);
+    double G0_calc_one(int kspec) const;
 
     //! Molar volume calculation for standard state of one species
     /*!
@@ -301,7 +296,7 @@ namespace VCSnonideal {
      *            in all of the phases in a VCS problem. Only the
      *            entries for the current phase are filled in.
      */
-    void sendToVCS_GStar(double * const gstar);
+    void sendToVCS_GStar(double * const gstar) const;
 
     //! Sets the temperature and pressure in this object and
     //! underlying objects
@@ -313,7 +308,18 @@ namespace VCSnonideal {
      *  @param temperature_Kelvin    (Kelvin)
      *  @param pressure_PA  Pressure (MKS units - Pascal)
      */
-    void setState_TP(double temperature_Kelvin, double pressure_PA);
+    void setState_TP(const double temperature_Kelvin, const double pressure_PA);
+
+    //! Sets the temperature in this object and
+    //! underlying objects
+    /*!
+     *  Sets the temperature and pressure in this object and
+     *  underlying objects. The underlying objects refers to the
+     *  Cantera's ThermoPhase object for this phase.
+     *
+     *  @param temperature_Kelvin    (Kelvin)
+     */
+    void setState_T(const double temperature_Kelvin);
 
     // Downloads the ln ActCoeff jacobian into the VCS version of the
     // ln ActCoeff jacobian.
@@ -416,6 +422,13 @@ namespace VCSnonideal {
      * @param pres    Current pressure
      */
     void _updateGStar() const;
+
+    //! Gibbs free energy calculation at a temperature for the reference state
+    //! of each species
+    /*!
+     * 
+     */
+    void _updateG0() const;
 
     //! Molar volume calculation for standard states
     /*!
@@ -703,7 +716,8 @@ namespace VCSnonideal {
      *  units are m**3
      */
     mutable double m_totalVol;
-  
+
+  private:
     //! Vector of calculated SS0 chemical potentials for the
     //! current Temperature. 
     /*!
@@ -716,7 +730,6 @@ namespace VCSnonideal {
      */
     mutable std::vector<double> SS0ChemicalPotential;
 
-  private:
     //! Vector of calculated Star chemical potentials for the
     //! current Temperature and pressure.
     /*!
@@ -805,6 +818,13 @@ namespace VCSnonideal {
      * GStar is sensitive to the temperature and the pressure, only
      */
     mutable bool m_UpToDate_GStar;
+
+
+    //! Boolean indicating whether G0 is uptodate.
+    /*!
+     * G0 is sensitive to the temperature and the pressure, only
+     */
+    mutable bool m_UpToDate_G0;
 
     //! Current value of the temperature for this object, and underlying objects
     double Temp;

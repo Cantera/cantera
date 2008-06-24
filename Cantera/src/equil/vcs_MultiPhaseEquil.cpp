@@ -1390,12 +1390,11 @@ namespace VCSnonideal {
        * Now, calculate a sample naught gibbs free energy calculation
        * at the specified temperature.
        */
-      VolPhase->G0_calc(vprob->T);
       double R = vcsUtil_gasConstant(vprob->m_VCS_UnitsFormat);
       for (k = 0; k < nSpPhase; k++) {
 	vcs_SpeciesProperties *sProp = VolPhase->ListSpeciesPtr[k];
 	ts_ptr = sProp->SpeciesThermo;
-	ts_ptr->SS0_feSave = VolPhase->SS0ChemicalPotential[k] / R;
+	ts_ptr->SS0_feSave = VolPhase->G0_calc_one(k)/ R;
 	ts_ptr->SS0_TSave = vprob->T;
       }
      

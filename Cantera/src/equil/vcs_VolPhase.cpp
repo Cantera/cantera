@@ -62,6 +62,7 @@ namespace VCSnonideal {
     m_UpToDate_VolStar(false),
     m_UpToDate_VolPM(false),
     m_UpToDate_GStar(false),
+    m_UpToDate_G0(false),
     Temp(273.15),
     Pres(1.01325E5),
     RefPres(1.01325E5)
@@ -124,6 +125,7 @@ namespace VCSnonideal {
     m_UpToDate_VolStar(false),
     m_UpToDate_VolPM(false),
     m_UpToDate_GStar(false),
+    m_UpToDate_G0(false),
     Temp(b.Temp),
     Pres(b.Pres)
   {
@@ -238,6 +240,7 @@ namespace VCSnonideal {
       m_UpToDate_VolStar    = false;
       m_UpToDate_VolPM      = false;
       m_UpToDate_GStar      = false;
+      m_UpToDate_G0         = false;
       Temp                = b.Temp;
       Pres                = b.Pres;
       setState_TP(Temp, Pres);
@@ -299,7 +302,7 @@ namespace VCSnonideal {
 
     IndSpecies.resize(nspecies,-1);
 
-    if ((int) ListSpeciesPtr.size() >=  NVolSpecies) {
+    if ((int) ListSpeciesPtr.size() >= NVolSpecies) {
       for (int i = 0; i < NVolSpecies; i++) {
 	if (ListSpeciesPtr[i]) {
 	  delete ListSpeciesPtr[i]; 
@@ -332,6 +335,7 @@ namespace VCSnonideal {
     m_UpToDate_VolStar    = false;
     m_UpToDate_VolPM      = false;
     m_UpToDate_GStar      = false;
+    m_UpToDate_G0         = false;
   }
   /************************************************************************************/
 
@@ -384,31 +388,21 @@ namespace VCSnonideal {
   // Gibbs free energy calculation at a temperature for the reference state
   // of each species
   /*
-   *  @param TKelvin temperature
    */
-  void vcs_VolPhase::G0_calc(double tkelvin) {
-    bool lsame = false;
-    if (Temp == tkelvin) {
-      lsame = true;
-    }
-
-    bool doit = !lsame;
-    setState_TP(tkelvin, Pres);
-    if (SS0ChemicalPotential[0] == -1) doit = true;
-    if (doit) {
-      if (m_useCanteraCalls) {
-	TP_ptr->getGibbs_ref(VCS_DATA_PTR(SS0ChemicalPotential));
-      } else {
-	double R = vcsUtil_gasConstant(m_VCS_UnitsFormat);
-	for (int k = 0; k < NVolSpecies; k++) {
-	  int kglob = IndSpecies[k];
-	  vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
-	  VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
-	  SS0ChemicalPotential[k] =
-	    R * (sTherm->G0_R_calc(kglob, tkelvin));
-	}
+  void vcs_VolPhase::_updateG0() const {
+    if (m_useCanteraCalls) {
+      TP_ptr->getGibbs_ref(VCS_DATA_PTR(SS0ChemicalPotential));
+    } else {
+      double R = vcsUtil_gasConstant(m_VCS_UnitsFormat);
+      for (int k = 0; k < NVolSpecies; k++) {
+	int kglob = IndSpecies[k];
+	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
+	VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
+	SS0ChemicalPotential[k] =
+	  R * (sTherm->G0_R_calc(kglob, Temp));
       }
     }
+    m_UpToDate_G0 = true;
   }
   /*******************************************************************************/
 
@@ -420,8 +414,10 @@ namespace VCSnonideal {
    *
    *  @return return value of the gibbs free energy
    */
-  double vcs_VolPhase::G0_calc_one(int kspec, double tkelvin) {
-    G0_calc(tkelvin);
+  double vcs_VolPhase::G0_calc_one(int kspec) const {
+    if (!m_UpToDate_G0) {
+      _updateG0();
+    }
     return SS0ChemicalPotential[kspec];
   }
   /*******************************************************************************/
@@ -463,7 +459,7 @@ namespace VCSnonideal {
    * @return Gstar[kspec] returns the gibbs free energy for the
    *         standard state of the kspec species.
    */
-  double vcs_VolPhase::GStar_calc_one(int kspec) {
+  double vcs_VolPhase::GStar_calc_one(int kspec) const {
     if (!m_UpToDate_GStar) {
       _updateGStar();
     }
@@ -741,7 +737,7 @@ namespace VCSnonideal {
    *            in all of the phases in a VCS problem. Only the
    *            entries for the current phase are filled in.
    */
-  void vcs_VolPhase::sendToVCS_GStar(double * const gstar){  
+  void vcs_VolPhase::sendToVCS_GStar(double * const gstar) const {  
     if (!m_UpToDate_GStar) {
       _updateGStar();
     }
@@ -782,7 +778,7 @@ namespace VCSnonideal {
    *  @param temperature_Kelvin    (Kelvin)
    *  @param pressure_PA  Pressure (MKS units - Pascal)
    */
-  void vcs_VolPhase::setState_TP(double temp, double pres)
+  void vcs_VolPhase::setState_TP(const double temp, const double pres)
   {
     if (Temp == temp) {
       if (Pres == pres) {
@@ -799,6 +795,21 @@ namespace VCSnonideal {
     m_UpToDate_VolStar = false;
     m_UpToDate_VolPM   = false;
     m_UpToDate_GStar   = false;
+    m_UpToDate_G0      = false;
+  }
+  /****************************************************************************/
+
+  // Sets the temperature in this object and
+  // underlying objects
+  /*
+   *  Sets the temperature and pressure in this object and
+   *  underlying objects. The underlying objects refers to the
+   *  Cantera's ThermoPhase object for this phase.
+   *
+   *  @param temperature_Kelvin    (Kelvin)
+   */
+  void vcs_VolPhase::setState_T(const double temp) {
+    setState_TP(temp, Pres);
   }
   /**************************************************************************/
 
@@ -841,7 +852,7 @@ namespace VCSnonideal {
    *         state
    */
   double vcs_VolPhase::VolStar_calc_one(int kspec) const {
-    if (!m_UpToDate_VolStar) { 
+    if (!m_UpToDate_VolStar) {
       _updateVolStar();
     }
     return StarMolarVol[kspec];

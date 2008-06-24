@@ -320,7 +320,6 @@ namespace VCSnonideal {
 	    "    SS0ChemPot       StarChemPot\n");
       for (iphase = 0; iphase < NPhase; iphase++) {
 	Vphase = VPhaseList[iphase];
-	Vphase->G0_calc(T);
 	Vphase->setState_TP(T, PresPA);
 	for (int kindex = 0; kindex < Vphase->NVolSpecies; kindex++) {
 	  int kglob = Vphase->IndSpecies[kindex];
@@ -331,8 +330,7 @@ namespace VCSnonideal {
 	    plogf("                ");
 	  }
 
-	  plogf("%16g   %16g\n",
-		Vphase->SS0ChemicalPotential[kindex],
+	  plogf("%16g   %16g\n", Vphase->G0_calc_one(kindex),
 		Vphase->GStar_calc_one(kindex));
 	}
       }

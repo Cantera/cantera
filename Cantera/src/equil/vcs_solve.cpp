@@ -970,7 +970,7 @@ namespace VCSnonideal {
       pubPhase->setMoleFractions(VCS_DATA_PTR(vPhase->moleFractions()));
       for (int k = 0; k < pubPhase->NVolSpecies; k++) {
 	kT = pubPhase->IndSpecies[k];
-	pubPhase->SS0ChemicalPotential[k] = vPhase->SS0ChemicalPotential[k];
+	//pubPhase->SS0ChemicalPotential[k] = vPhase->SS0ChemicalPotential[k];
 	pubPhase->StarMolarVol[k] = vPhase->StarMolarVol[k];
 	pubPhase->PartialMolarVol[k] = vPhase->PartialMolarVol[k];
 	pubPhase->ActCoeff[k] = vPhase->ActCoeff[k];
