@@ -105,9 +105,10 @@ namespace VCSnonideal {
   int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit) {
     int conv = FALSE, retn = VCS_SUCCESS;
     double test, RT;
-    int j, k, l, solveFail, l1, kspec, irxn, im, forced, iph;
+    int j, k, l, solveFail, l1, kspec, irxn; 
+    bool allMinorZeroedSpecies = false;
+    int forced, iph;
     double dx, xx, par;
-    int liqphase = FALSE, numSpecliquid = 0;
     int dofast, soldel, ll, it1;
     int lec, npb, iti, i, lnospec;
     int rangeErrorFound = 0;
@@ -159,7 +160,7 @@ namespace VCSnonideal {
     std::vector<double> wx(m_numElemConstraints, 0.0);
    
     solveFail = FALSE;
-    im = FALSE;
+
    
     /* ****************************************************** */
     /* **** Evaluate the elemental composition         ****** */
@@ -169,32 +170,21 @@ namespace VCSnonideal {
     /* ******************************************************* */
     /* **** Printout the initial conditions for problem ****** */
     /* ******************************************************* */
-    if (m_numPhases > 1) {
-      if (! m_VolPhaseList[1]->SingleSpecies) {
-	liqphase = TRUE;
-	numSpecliquid = m_VolPhaseList[1]->NVolSpecies;
-      }
-    }
+  
     if (print_lvl != 0) {
       plogf("VCS CALCULATION METHOD\n\n ");
       plogf("%s\n", m_title.c_str());
-      plogf("\n\n%5d SPECIES%8d ELEMENTS", m_numSpeciesTot, m_numElemConstraints);
-      plogf("%16d COMPONENTS\n%5d PHASE1 SPECIES", m_numComponents,
-	    ((m_VolPhaseList[0])->NVolSpecies));
-      plogf("%10d PHASE2 SPECIES%8d SINGLE SPECIES PHASES\n\n", 
-	    numSpecliquid, 
-	    m_numSpeciesTot - (m_VolPhaseList[0])->NVolSpecies - numSpecliquid);  
-      //string punits = "atm";
-      //if (m_VCS_UnitsFormat == 3) {
-      //	punits = "Pa ";
-      //}
+      plogf("\n\n%5d SPECIES\n%5d ELEMENTS\n", m_numSpeciesTot, m_numElemConstraints);
+      plogf("%5d COMPONENTS\n%", m_numComponents);
+      plogf("%5d PHASES\n", m_numPhases);
+     
       plogf(" PRESSURE%22.8g %3s\n", m_pressurePA, "Pa "); 
       plogf(" TEMPERATURE%19.3f K\n", m_temperature);
       Vphase = m_VolPhaseList[0];
       if (Vphase->NVolSpecies > 0) {
 	plogf(" PHASE1 INERTS%17.3f\n", TPhInertMoles[0]);
       }
-      if (liqphase) {
+      if (m_numPhases > 0) {
 	plogf(" PHASE2 INERTS%17.3f\n", TPhInertMoles[1]);
       }
       plogf("\n ELEMENTAL ABUNDANCES             CORRECT");
@@ -239,14 +229,7 @@ namespace VCSnonideal {
 	for (j = 0; j < m_numElemConstraints; ++j) {
 	  plogf("%3g", m_formulaMatrix[j][i]);
 	}
-	if  (m_phaseID[i] == 0) {
-	  plogf("  1");
-	} else if (m_phaseID[i] == 1) {
-	  if (liqphase) plogf("  2");
-	  else          plogf("  0");
-	} else { 
-	  plogf("  0");
-	}
+	plogf("%3d", m_phaseID[i]);
 	print_space(47-m_numElemConstraints*3);
 	plogf("%12.5E  %12.5E", RT * m_SSfeSpecies[i], m_molNumSpecies_old[i]);
 	if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
@@ -274,30 +257,19 @@ namespace VCSnonideal {
 	m_molNumSpecies_old[i] = tmp;
       }
     }
-
    
     /* 
      *  Evaluate the total moles of species in the problem
      */
     vcs_tmoles();
 
-    /* ***************************************************************************** */
-    /* **** EVALUATE ALL CHEMICAL POTENTIALS AT THE OLD (CURRENT) MOLE NUMBERS ***** */
-    /* ***************************************************************************** */
+    /*
+     * Evaluate all chemical potentials at the old mole numbers at the
+     * outset of the calculation.
+     */
     vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
     vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
 
-    /*
-     *  HKM -> If there was a machine estimate, we used to branch
-     *         to the code segment which determined whether we needed a
-     *         new component basis. If we did, we would go to L429.
-     *         If we didn't, we would go to a point below basopt() below.
-     *         I have taken this section out of the code for simplicity's
-     *         sake. It's not need for speed, since in any recursive
-     *         call to this subroutine we would have an initial estimate
-     *         of the solution. And, we don't need to optimize the
-     *         startup of nonrecursive calls to this subroutine.
-     */
     /* *********************************************************** */
     /* **** DETERMINE BASIS SPECIES, EVALUATE STOICHIOMETRY ****** */
     /* *********************************************************** */
@@ -316,6 +288,7 @@ namespace VCSnonideal {
     }
     it1 = 1;
     MajorSpeciesHaveConverged = false;
+
     /*************************************************************************/
     /************** EVALUATE INITIAL MAJOR-MINOR VECTOR **********************/
     /*************************************************************************/
@@ -328,7 +301,6 @@ namespace VCSnonideal {
       plogendl();
     }
 #endif
-
     for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
       kspec = m_indexRxnToSpecies[irxn];
       m_rxnStatus[irxn] = vcs_species_type(kspec);
@@ -373,7 +345,7 @@ namespace VCSnonideal {
       }
 #endif
 
-    im = (m_numRxnMinorZeroed == m_numRxnRdc);
+    allMinorZeroedSpecies = (m_numRxnMinorZeroed == m_numRxnRdc);
     lec = FALSE;
     if (! vcs_elabcheck(0)) {
 #ifdef DEBUG_MODE
@@ -465,7 +437,7 @@ namespace VCSnonideal {
      *    -> We won't if all species are minors (im), OR
      *       all major species have already converged 
      */
-    if (!(MajorSpeciesHaveConverged) && ! im) {
+    if (!(MajorSpeciesHaveConverged) && ! allMinorZeroedSpecies) {
       soldel = vcs_RxnStepSizes();
       /* -         If SOLDEL is true then we encountered a reaction between */
       /* -         single-species-phase species, only, and have adjusted */
@@ -488,7 +460,7 @@ namespace VCSnonideal {
     } else {
 #ifdef DEBUG_MODE
       if (m_debug_print_lvl >= 2) {
-	if (im) {
+	if (allMinorZeroedSpecies) {
 	  plogf("   --- vcs_RxnStepSizes not called because all"
 		"species are minors\n");
 	} else {
@@ -642,7 +614,7 @@ namespace VCSnonideal {
 #endif
 	    m_rxnStatus[irxn] = VCS_SPECIES_MAJOR;
 	    MajorSpeciesHaveConverged = false;
-	    im = FALSE;
+	    allMinorZeroedSpecies = false;
 	  } else {
 #ifdef DEBUG_MODE
 	    if (m_debug_print_lvl >= 2) {
@@ -896,7 +868,7 @@ namespace VCSnonideal {
 #endif
 	      m_rxnStatus[irxn] = VCS_SPECIES_ZEROEDSS;
 	      ++m_numRxnMinorZeroed;
-	      im = (m_numRxnMinorZeroed == m_numRxnRdc);
+	      allMinorZeroedSpecies = (m_numRxnMinorZeroed == m_numRxnRdc);
 
 	      for (int kk = 0; kk < m_numSpeciesTot; kk++) {
 		m_deltaMolNumSpecies[kk] = 0.0;
@@ -1102,13 +1074,18 @@ namespace VCSnonideal {
     for (iph = 0; iph < m_numPhases; iph++) {
       m_tPhaseMoles_new[iph] = m_tPhaseMoles_old[iph] + m_deltaPhaseMoles[iph];
     }
+
+    /*
+     *        Set the flags indicating the mole numbers in the vcs_VolPhase
+     *        objects are out of date.
+     */
+   vcs_setFlagsVolPhases(false, VCS_STATECALC_NEW);
+
     /*
      *         Calculate the new chemical potentials using the tentative 
      *         solution values. We only calculate a subset of these, because 
      *         we have only updated a subset of the W(). 
      */
-    vcs_setFlagsVolPhases(false, VCS_STATECALC_NEW);
-    vcs_updateVP(VCS_STATECALC_NEW);
     vcs_dfe(VCS_STATECALC_NEW, 0, 0, m_numSpeciesTot);
 
     /*
@@ -1249,7 +1226,7 @@ namespace VCSnonideal {
      *                we have already done this inside the FORCED 
      *                loop. 
      */
-    vcs_forceMolUpdateVolPhase(VCS_STATECALC_NEW);
+    vcs_updateMolNumVolPhases(VCS_STATECALC_NEW);
     vcs_dcopy(VCS_DATA_PTR(m_tPhaseMoles_old), VCS_DATA_PTR(m_tPhaseMoles_new), m_numPhases);
     vcs_dcopy(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_molNumSpecies_new),
 	      m_numSpeciesRdc);
@@ -1258,7 +1235,6 @@ namespace VCSnonideal {
     vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_old), VCS_DATA_PTR(m_deltaGRxn_new), m_numRxnRdc);
     vcs_dcopy(VCS_DATA_PTR(m_feSpecies_old), VCS_DATA_PTR(m_feSpecies_new), m_numSpeciesRdc);
       
-    //vcs_updateVP(VCS_STATECALC_OLD);
     vcs_setFlagsVolPhases(true, VCS_STATECALC_OLD);
     /*
      *       Increment the iteration counters
@@ -1618,13 +1594,13 @@ namespace VCSnonideal {
        *         This logical variable indicates whether all current 
        *         non-component species are minor or nonexistent 
        */
-      im = (m_numRxnMinorZeroed == m_numRxnRdc);
+      allMinorZeroedSpecies = (m_numRxnMinorZeroed == m_numRxnRdc);
     }
     /*************************************************************************/
     /***************** EQUILIBRIUM CHECK FOR MAJOR SPECIES *******************/
     /*************************************************************************/
   L_EQUILIB_CHECK: ;
-    if (! im) {
+    if (! allMinorZeroedSpecies) {
 #ifdef DEBUG_MODE
       if (m_debug_print_lvl >= 2) {
 	plogf("   --- Equilibrium check for major species: ");
@@ -4697,7 +4673,8 @@ namespace VCSnonideal {
      *  VolPhase to see if its mole numbers are current with vcs
      */
     for (iphase = 0; iphase < m_numPhases; iphase++) {
-      Vphase = m_VolPhaseList[iphase];
+      Vphase = m_VolPhaseList[iphase]; 
+      Vphase->updateFromVCS_MoleNumbers(stateCalc);
       if (!Vphase->SingleSpecies) {
 	Vphase->sendToVCS_ActCoeff(stateCalc, VCS_DATA_PTR(actCoeff_ptr));
       }
@@ -5409,7 +5386,15 @@ namespace VCSnonideal {
   }
   /*******************************************************************************/
 
-  void VCS_SOLVE::vcs_forceMolUpdateVolPhase(const int stateCalc) {
+  // Update all underlying vcs_VolPhase objects
+  /*
+   *  Update the mole numbers and the phase voltages of all phases in the
+   *  vcs problem
+   *
+   *  @param stateCalc Location of the update (either VCS_STATECALC_NEW or 
+   *         VCS_STATECALC_OLD).
+   */
+  void VCS_SOLVE::vcs_updateMolNumVolPhases(const int stateCalc) {
     int iph;
     vcs_VolPhase *Vphase;
     for (iph = 0; iph < m_numPhases; iph++) {

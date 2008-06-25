@@ -1328,7 +1328,15 @@ private:
 
   void vcs_setFlagsVolPhase(const int iph, const bool upToDate, const int stateCalc);
 
-  void vcs_forceMolUpdateVolPhase(const int stateCalc);
+  //! Update all underlying vcs_VolPhase objects
+  /*!
+   *  Update the mole numbers and the phase voltages of all phases in the
+   *  vcs problem
+   *
+   *  @param stateCalc Location of the update (either VCS_STATECALC_NEW or 
+   *         VCS_STATECALC_OLD).
+   */
+  void vcs_updateMolNumVolPhases(const int stateCalc);
 
 
 public:
