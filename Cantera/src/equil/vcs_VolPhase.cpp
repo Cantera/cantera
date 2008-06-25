@@ -46,10 +46,9 @@ namespace VCSnonideal {
     m_isIdealSoln(false),
     Existence(0),
     m_MFStartIndex(0),
-    IndexSpecialSpecies(-1),
     Activity_Coeff_Model(VCS_AC_CONSTANT),
     IndSpecies(0),
-    IndSpeciesContig(true),
+    //IndSpeciesContig(true),
     m_VCS_UnitsFormat(VCS_UNITS_MKS),
     m_useCanteraCalls(false),
     TP_ptr(0),
@@ -109,9 +108,8 @@ namespace VCSnonideal {
     m_isIdealSoln(b.m_isIdealSoln),
     Existence(b.Existence),
     m_MFStartIndex(b.m_MFStartIndex),
-    IndexSpecialSpecies(b.IndexSpecialSpecies),
     Activity_Coeff_Model(b.Activity_Coeff_Model),
-    IndSpeciesContig(b.IndSpeciesContig),
+    //IndSpeciesContig(b.IndSpeciesContig),
     m_VCS_UnitsFormat(b.m_VCS_UnitsFormat),
     m_useCanteraCalls(b.m_useCanteraCalls),
     TP_ptr(b.TP_ptr),
@@ -187,14 +185,13 @@ namespace VCSnonideal {
       m_isIdealSoln       = b.m_isIdealSoln;
       Existence           = b.Existence;
       m_MFStartIndex      = b.m_MFStartIndex;
-      IndexSpecialSpecies = b.IndexSpecialSpecies;
       Activity_Coeff_Model = b.Activity_Coeff_Model;
 
       /*
        * Do a shallow copy because we haven' figured this out.
        */
       IndSpecies = b.IndSpecies;
-      IndSpeciesContig = b.IndSpeciesContig;
+      //IndSpeciesContig = b.IndSpeciesContig;
 
       for (k = 0; k < old_num; k++) {
 	if ( ListSpeciesPtr[k]) {
@@ -1170,6 +1167,17 @@ namespace VCSnonideal {
     return m_useCanteraCalls;
   }
   /**********************************************************************/
+
+  int vcs_VolPhase::phiVarIndex() const {
+    return m_phiVarIndex;
+  }
+ /**********************************************************************/
+
+
+  void vcs_VolPhase::setPhiVarIndex(int phiVarIndex) {
+    m_phiVarIndex = phiVarIndex;
+  }
+ /**********************************************************************/
 
 }
 

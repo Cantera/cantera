@@ -1056,7 +1056,7 @@ namespace VCSnonideal {
     if (ns == 1) {
       if (tPhase->charge(0) != 0.0) {
 	VolPhase->m_speciesUnknownType[0] = VCS_SPECIES_TYPE_INTERFACIALVOLTAGE;
-        VolPhase->m_phiVarIndex = 0;
+        VolPhase->setPhiVarIndex(0);
       }
     }
 
@@ -1506,8 +1506,8 @@ namespace VCSnonideal {
 
 	kT++;
       }
-      if (volPhase->m_phiVarIndex >= 0) {
-	int kglob = volPhase->IndSpecies[volPhase->m_phiVarIndex];
+      if (volPhase->phiVarIndex() >= 0) {
+	int kglob = volPhase->IndSpecies[volPhase->phiVarIndex()];
 	vprob->w[kglob] = tPhase->electricPotential();
       }
       volPhase->setMolesFromVCS(VCS_STATECALC_OLD, VCS_DATA_PTR(vprob->w));

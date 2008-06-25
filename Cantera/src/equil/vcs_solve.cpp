@@ -971,11 +971,11 @@ namespace VCSnonideal {
       for (int k = 0; k < pubPhase->NVolSpecies; k++) {
 	kT = pubPhase->IndSpecies[k];
 	//pubPhase->SS0ChemicalPotential[k] = vPhase->SS0ChemicalPotential[k];
-	pubPhase->StarMolarVol[k] = vPhase->StarMolarVol[k];
-	pubPhase->PartialMolarVol[k] = vPhase->PartialMolarVol[k];
-	pubPhase->ActCoeff[k] = vPhase->ActCoeff[k];
+	//pubPhase->StarMolarVol[k] = vPhase->StarMolarVol[k];
+	//pubPhase->PartialMolarVol[k] = vPhase->PartialMolarVol[k];
+	//pubPhase->ActCoeff[k] = vPhase->ActCoeff[k];
 
-	if (pubPhase->m_phiVarIndex == k) {
+	if (pubPhase->phiVarIndex() == k) {
 	  k1 = vPhase->IndSpecies[k];
 	  double tmp = m_molNumSpecies_old[k1];
 	  if (! vcs_doubleEqual( 	pubPhase->electricPotential() , tmp)) { 

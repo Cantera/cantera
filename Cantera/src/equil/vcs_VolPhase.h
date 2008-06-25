@@ -247,8 +247,6 @@ namespace VCSnonideal {
      */
     double GStar_calc_one(int kspec) const;
 
-   
-
     //! Gibbs free energy calculation at a temperature for the reference state
     //! of a species, return a value for one species
     /*!
@@ -404,6 +402,10 @@ namespace VCSnonideal {
     //! Returns whether the object is using cantera calls.
     bool usingCanteraCalls() const;
 
+    int phiVarIndex() const;
+
+    void setPhiVarIndex(int phiVarIndex);
+
   private:
 
     //! Evaluate the activity coefficients at the current conditions
@@ -538,7 +540,7 @@ namespace VCSnonideal {
      */
     std::vector<std::string> ElName;
 
-    //! boolean indicating whether element  constraint is active
+    //! boolean indicating whether an element constraint is active
     //! for the current  problem
     std::vector<int> ElActive;
 
@@ -629,21 +631,11 @@ namespace VCSnonideal {
     int m_MFStartIndex;
 
   public:
-    //! Index of the species which is special in 
-    //! with respect to the thermo treatment. 
-    /*!
-     * For water models this index will point to 
-     * the index for water.
-     *   defaults to 0
-     */
-    int IndexSpecialSpecies;
-
     //! Integer representing the activity coefficient model
     /*!
      *  The known models are listed at the top of this page
      */
     int Activity_Coeff_Model;
-
 
     //! Index into the species vectors
     /*!
@@ -652,9 +644,6 @@ namespace VCSnonideal {
      *  vector is changed during the algorithm      
      */
     std::vector<int> IndSpecies;
- 
-    //!  Boolean indicating whether IndSpecies is contiguous 
-    bool IndSpeciesContig;  
 
     //! Vector of Species structures for the species belonging to this phase
     /*!
@@ -704,8 +693,6 @@ namespace VCSnonideal {
     //! Vector of the current mole fractions for species 
     //! in the phase
     std::vector<double> Xmol;
-
-  public:
   
     //! If the potential is a solution variable in VCS, it acts as a species.
     //!  This is the species index in the phase for the potential
@@ -717,7 +704,6 @@ namespace VCSnonideal {
      */
     mutable double m_totalVol;
 
-  private:
     //! Vector of calculated SS0 chemical potentials for the
     //! current Temperature. 
     /*!
@@ -741,7 +727,6 @@ namespace VCSnonideal {
      */
     mutable std::vector<double> StarChemicalPotential;
 
-  public:
     //! Vector of the Star molar Volumes of the species.
     /*!
      * units  m3 / kmol
@@ -761,7 +746,6 @@ namespace VCSnonideal {
      */
     mutable std::vector<double> ActCoeff;
 
-  private:
     //! Vector of the derivatives of the ln activity coefficient wrt to the
     //! current mole number
     /*!
@@ -832,7 +816,6 @@ namespace VCSnonideal {
     //! Current value of the pressure for this object, and underlying objects
     double Pres;
 
-  public:
     //! Reference pressure for the phase
     double RefPres;
 
