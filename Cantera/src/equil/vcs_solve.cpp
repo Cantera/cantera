@@ -724,7 +724,7 @@ namespace VCSnonideal {
        */
       Vphase = m_VolPhaseList[iph];
       for (int k = 0; k < Vphase->NVolSpecies; k++) {
-	vcs_SpeciesProperties *sProp = Vphase->ListSpeciesPtr[k];
+	vcs_SpeciesProperties *sProp = Vphase->speciesProperty(k);
 	int kT = Vphase->IndSpecies[k];
 	sProp->SpeciesThermo = m_speciesThermoList[kT];
       }
@@ -891,7 +891,7 @@ namespace VCSnonideal {
       TPhInertMoles[iph] = pub_phase_ptr->TMolesInert;
       vPhase->TMolesInert = pub_phase_ptr->TMolesInert;
       if (TPhInertMoles[iph] > 0.0) {
-	vPhase->Existence = 2;
+	vPhase->setExistence(2);
 	vPhase->SingleSpecies = FALSE;
       }
 
@@ -959,7 +959,7 @@ namespace VCSnonideal {
     for (int iph = 0; iph < pub->NPhase; iph++) {
       vcs_VolPhase *pubPhase = pub->VPhaseList[iph];
       vcs_VolPhase *vPhase = m_VolPhaseList[iph];
-      pubPhase->Existence = vPhase->Existence;
+      //pubPhase->setExistence(vPhase->exists());
       // Note pubPhase is not the same as vPhase, since they contain
       // different indexing into the solution vector.
       // pubPhase->TMoles = vPhase->TMoles;

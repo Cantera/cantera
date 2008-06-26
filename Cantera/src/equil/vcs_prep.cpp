@@ -24,9 +24,6 @@
 
 namespace VCSnonideal { 
 
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
 
   void VCS_SOLVE::vcs_SSPhase(void) 
     /**************************************************************************
@@ -54,7 +51,7 @@ namespace VCSnonideal {
       Vphase = m_VolPhaseList[iph];
       Vphase->SingleSpecies = false;
       if (TPhInertMoles[iph] > 0.0) {
-	Vphase->Existence = 2;
+	Vphase->setExistence(2);
       }
       if (numPhSpecies[iph] <= 1) {
 	if (TPhInertMoles[iph] == 0.0) {
@@ -77,7 +74,6 @@ namespace VCSnonideal {
       else                        m_SSPhase[kspec] = FALSE;
     }
   }
-
   /*****************************************************************************/
 
   //  This routine is mostly concerned with changing the private data  
@@ -143,7 +139,7 @@ namespace VCSnonideal {
       int pID = m_phaseID[kspec];
       int spPhIndex = m_speciesLocalPhaseIndex[kspec];
       vcs_VolPhase *vPhase =  m_VolPhaseList[pID];
-      vcs_SpeciesProperties *spProp = vPhase->ListSpeciesPtr[spPhIndex];
+      vcs_SpeciesProperties *spProp = vPhase->speciesProperty(spPhIndex);
       double sz = 0.0;
       int eSize =  spProp->FormulaMatrixCol.size();
       for (int e = 0; e < eSize; e++) {

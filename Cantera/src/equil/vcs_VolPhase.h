@@ -368,9 +368,12 @@ namespace VCSnonideal {
 
     //! Sets the total moles in the phase
     /*!
+     * We don't have to flag the internal state as changing here
+     * because we have just changed the total moles.
+     *
      *  @param totalMols   Total moles in the phase (kmol)
      */
-    void setTotalMoles(double totalMols);
+    void setTotalMoles(const double totalMols);
 
     //! Sets the mole flag within the object to out of date
     /*!
@@ -405,6 +408,28 @@ namespace VCSnonideal {
     int phiVarIndex() const;
 
     void setPhiVarIndex(int phiVarIndex);
+
+    //! Retrieve the kth Species structure for the species belonging to this phase
+    /*!
+     * The index into this vector is the species index within the phase.
+     *
+     * @param kindex kth species index.
+     */
+    vcs_SpeciesProperties * speciesProperty(int kindex);
+
+    //! int indicating whether the phase exists or not
+    int exists() const;
+
+    //! Set the existence flag in the object
+    /*!
+     *  Note the total moles of the phase must have been set appropriately
+     *  before calling this routine.
+     *
+     * @param existence Phase existence flag
+     *
+     *  @note try to eliminate this routine
+     */
+    void setExistence(const int existence);
 
   private:
 
@@ -609,6 +634,7 @@ namespace VCSnonideal {
     //! uniformly equal to one.
     bool m_isIdealSoln;
 
+  private:
     //! Current state of existence:
     /*!
      *      0 : Doesn't exist currently
@@ -617,9 +643,9 @@ namespace VCSnonideal {
      *          inerts which can't exist in any other
      *          phase  
      */
-    int Existence;
+    int m_existence;
 
-  private:
+
     // Index of the first MF species in the list of unknowns for this phase
     /*!
      *  This is always equal to zero.
@@ -645,12 +671,14 @@ namespace VCSnonideal {
      */
     std::vector<int> IndSpecies;
 
+  private:
     //! Vector of Species structures for the species belonging to this phase
     /*!
      * The index into this vector is the species index within the phase.
      */
     std::vector<vcs_SpeciesProperties *> ListSpeciesPtr;
 
+  public:
     //! Units for the chemical potential data, pressure data, volume,
     //! and species amounts
     /*!

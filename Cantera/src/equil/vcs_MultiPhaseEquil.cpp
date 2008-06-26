@@ -1283,7 +1283,7 @@ namespace VCSnonideal {
 	/*
 	 * Fill in the vcs_SpeciesProperty structure
 	 */
-	vcs_SpeciesProperties *sProp = VolPhase->ListSpeciesPtr[k];
+	vcs_SpeciesProperties *sProp = VolPhase->speciesProperty(k);
 	sProp->NumElements = vprob->ne;
 	sProp->SpName = vprob->SpName[kT];
 	sProp->SpeciesThermo = ts_ptr;
@@ -1392,7 +1392,7 @@ namespace VCSnonideal {
        */
       double R = vcsUtil_gasConstant(vprob->m_VCS_UnitsFormat);
       for (k = 0; k < nSpPhase; k++) {
-	vcs_SpeciesProperties *sProp = VolPhase->ListSpeciesPtr[k];
+	vcs_SpeciesProperties *sProp = VolPhase->speciesProperty(k);
 	ts_ptr = sProp->SpeciesThermo;
 	ts_ptr->SS0_feSave = VolPhase->G0_calc_one(k)/ R;
 	ts_ptr->SS0_TSave = vprob->T;
@@ -1512,9 +1512,9 @@ namespace VCSnonideal {
       }
       volPhase->setMolesFromVCS(VCS_STATECALC_OLD, VCS_DATA_PTR(vprob->w));
       if (volPhase->TotalMoles() > 0.0) {
-	volPhase->Existence = 1;
+	volPhase->setExistence(1);
       } else {
-	volPhase->Existence = 0;
+	volPhase->setExistence(0);
       }
     }
     /*

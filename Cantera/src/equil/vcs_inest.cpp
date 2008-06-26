@@ -148,13 +148,6 @@ namespace VCSnonideal {
       } else {
 	m_molNumSpecies_old[kspec] = 0.0;
       }
-      if (m_molNumSpecies_old[kspec] > 0.0) {
-	if (Vphase->Existence == 0) {
-	  Vphase->Existence = 1;
-	}
-      } else if (m_SSPhase[kspec]) {
-	Vphase->Existence = 0;
-      }
     }
    
     /*
@@ -164,7 +157,7 @@ namespace VCSnonideal {
     (void) vcs_basopt(FALSE, aw, sa, sm, ss, test, &conv);
 
     /* ***************************************************************** */
-    /* **** CALCULATE TOTAL GASEOUS AND LIQUID MOLES, ****************** */
+    /* **** CALCULATE TOTAL MOLES,                    ****************** */
     /* **** CHEMICAL POTENTIALS OF BASIS              ****************** */
     /* ***************************************************************** */
     /*

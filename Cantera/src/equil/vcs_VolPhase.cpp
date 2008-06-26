@@ -44,7 +44,7 @@ namespace VCSnonideal {
     m_molarVolInert(1000.),
     m_activityConvention(0),
     m_isIdealSoln(false),
-    Existence(0),
+    m_existence(0),
     m_MFStartIndex(0),
     Activity_Coeff_Model(VCS_AC_CONSTANT),
     IndSpecies(0),
@@ -68,7 +68,7 @@ namespace VCSnonideal {
   {
     m_owningSolverObject = owningSolverObject;
   }
-  /************************************************************************************/
+  /***************************************************************************/
 
   /*
    * 
@@ -106,7 +106,7 @@ namespace VCSnonideal {
     TMolesInert(b.TMolesInert),
     m_activityConvention(b.m_activityConvention),
     m_isIdealSoln(b.m_isIdealSoln),
-    Existence(b.Existence),
+    m_existence(b.m_existence),
     m_MFStartIndex(b.m_MFStartIndex),
     Activity_Coeff_Model(b.Activity_Coeff_Model),
     //IndSpeciesContig(b.IndSpeciesContig),
@@ -133,7 +133,7 @@ namespace VCSnonideal {
      */
     *this = b;
   }
-  /***********************************************************************************/
+  /***************************************************************************/
   
   /*
    * Assignment operator()
@@ -183,7 +183,7 @@ namespace VCSnonideal {
       TMolesInert         = b.TMolesInert;
       m_activityConvention  = b.m_activityConvention;
       m_isIdealSoln       = b.m_isIdealSoln;
-      Existence           = b.Existence;
+      m_existence         = b.m_existence;
       m_MFStartIndex      = b.m_MFStartIndex;
       Activity_Coeff_Model = b.Activity_Coeff_Model;
 
@@ -245,7 +245,7 @@ namespace VCSnonideal {
     }
     return *this;
   }
-  /************************************************************************************/
+  /***************************************************************************/
 
   void vcs_VolPhase::resize(int phaseNum, int nspecies, const char *phaseName,
 			    double molesInert) {
@@ -260,7 +260,7 @@ namespace VCSnonideal {
 
     TMolesInert = molesInert;
     if (TMolesInert > 0.0) {
-      Existence = 2;
+      m_existence = 2;
     } 
 
     m_phi = 0.0;
@@ -334,7 +334,7 @@ namespace VCSnonideal {
     m_UpToDate_GStar      = false;
     m_UpToDate_G0         = false;
   }
-  /************************************************************************************/
+  /***************************************************************************/
 
   //! Evaluate activity coefficients
   /*!
@@ -365,7 +365,7 @@ namespace VCSnonideal {
     }
     m_UpToDate_AC = true;
   }
-  /***********************************************************************************/
+  /***************************************************************************/
 
   /*
    *
@@ -380,7 +380,7 @@ namespace VCSnonideal {
     }
     return(ActCoeff[kspec]);
   }
-  /************************************************************************************/
+  /***************************************************************************/
 
   // Gibbs free energy calculation at a temperature for the reference state
   // of each species
@@ -401,7 +401,7 @@ namespace VCSnonideal {
     }
     m_UpToDate_G0 = true;
   }
-  /*******************************************************************************/
+  /***************************************************************************/
 
   // Gibbs free energy calculation at a temperature for the reference state
   // of a species, return a value for one species
@@ -417,7 +417,7 @@ namespace VCSnonideal {
     }
     return SS0ChemicalPotential[kspec];
   }
-  /*******************************************************************************/
+  /***************************************************************************/
 
   // Gibbs free energy calculation for standard states
   /*
@@ -442,7 +442,7 @@ namespace VCSnonideal {
     }
     m_UpToDate_GStar = true;
   }
-  /*****************************************************************************/
+  /***************************************************************************/
 
   // Gibbs free energy calculation for standard state of one species
   /*
@@ -462,7 +462,7 @@ namespace VCSnonideal {
     }
     return StarChemicalPotential[kspec];
   }
-  /*****************************************************************************/
+  /***************************************************************************/
 
   // Set the mole fractions from a conventional mole fraction vector
   /*
@@ -485,7 +485,7 @@ namespace VCSnonideal {
     m_UpToDate = false;
     m_vcsStateStatus = VCS_STATECALC_TMP;
   }
-  /****************************************************************************/
+  /***************************************************************************/
 
   // Updates the mole fractions in subobjects
   /*
@@ -503,13 +503,13 @@ namespace VCSnonideal {
       m_UpToDate_VolPM = false;
     }
   }
-  /****************************************************************************/
+  /***************************************************************************/
 
   // Return a const reference to the mole fraction vector in the phase
   const std::vector<double> & vcs_VolPhase::moleFractions() const {
     return Xmol;
   }
-  /****************************************************************************/
+  /***************************************************************************/
 
   // Set the moles within the phase
   /*
@@ -581,7 +581,7 @@ namespace VCSnonideal {
 	  Xmol[k] = tmp / v_totalMoles;
 	}
       }
-      Existence = 1;
+      m_existence = 1;
     } else {
       // This is where we will start to store a better approximation 
       // for the mole fractions, when the phase doesn't exist.
@@ -589,7 +589,7 @@ namespace VCSnonideal {
       for (int k = 0; k < NVolSpecies; k++) {
 	Xmol[k] = 1.0 / NVolSpecies;
       }
-      Existence = 0;
+      m_existence = 0;
     }
     /*
      * Update the electric potential if it is a solution variable
@@ -605,12 +605,12 @@ namespace VCSnonideal {
       double phi = molesSpeciesVCS[kglob];
       setElectricPotential(phi);
       if (NVolSpecies == 1) {
-	Existence = 1;
+	m_existence = 1;
       }
     }
     _updateMoleFractionDependencies();
     if (TMolesInert > 0.0) {
-      Existence = 2;
+      m_existence = 2;
     }
     /*
      * Set flags indicating we are up to date with the VCS state vector.
@@ -619,7 +619,7 @@ namespace VCSnonideal {
     m_vcsStateStatus = stateCalc; 
  
   }
-  /******************************************************************************/
+  /***************************************************************************/
 
   // Set the moles within the phase
   /*
@@ -628,7 +628,8 @@ namespace VCSnonideal {
    *  a gather routine.
    *
    *  
-   *  @param molesSpeciesVCS  array of mole numbers. Note, the indecises for species in 
+   *  @param molesSpeciesVCS  array of mole numbers. Note, 
+   *                          the indecises for species in 
    *            this array may not be contiguous. IndSpecies[] is needed
    *            to gather the species into the local contiguous vector
    *            format. 
@@ -652,7 +653,7 @@ namespace VCSnonideal {
       }
     }
   }
-  /******************************************************************************/
+  /***************************************************************************/
 
   // Update the moles within the phase, if necessary
   /*
@@ -699,7 +700,7 @@ namespace VCSnonideal {
       AC[kglob] = ActCoeff[k];
     }
   }
-  /****************************************************************************/
+  /***************************************************************************/
 
   // Fill in the partial molar volume vector for VCS
   /*
@@ -722,7 +723,7 @@ namespace VCSnonideal {
     }
     return m_totalVol;
   }
-  /****************************************************************************/
+  /***************************************************************************/
 
   // Fill in the partial molar volume vector for VCS
   /*
@@ -744,7 +745,7 @@ namespace VCSnonideal {
       gstar[kglob] = StarChemicalPotential[k];
     }
   }
-  /****************************************************************************/
+  /***************************************************************************/
 
 
   void vcs_VolPhase::setElectricPotential(const double phi) {
@@ -758,12 +759,12 @@ namespace VCSnonideal {
     m_UpToDate_VolPM = false;
     m_UpToDate_GStar = false;
   }
-  /*****************************************************************************/
+  /***************************************************************************/
 
   double vcs_VolPhase::electricPotential() const {
     return m_phi;
   }
-  /****************************************************************************/
+  /***************************************************************************/
 
   // Sets the temperature and pressure in this object and
   //  underlying objects
@@ -794,7 +795,7 @@ namespace VCSnonideal {
     m_UpToDate_GStar   = false;
     m_UpToDate_G0      = false;
   }
-  /****************************************************************************/
+  /***************************************************************************/
 
   // Sets the temperature in this object and
   // underlying objects
@@ -808,7 +809,7 @@ namespace VCSnonideal {
   void vcs_VolPhase::setState_T(const double temp) {
     setState_TP(temp, Pres);
   }
-  /**************************************************************************/
+  /***************************************************************************/
 
   // Molar volume calculation for standard states
   /*
@@ -833,7 +834,7 @@ namespace VCSnonideal {
     }
     m_UpToDate_VolStar = true;
   }
-  /*****************************************************************************/
+  /***************************************************************************/
 
   // Molar volume calculation for standard state of one species
   /*
@@ -854,7 +855,7 @@ namespace VCSnonideal {
     }
     return StarMolarVol[kspec];
   }
-  /****************************************************************************/
+  /***************************************************************************/
 
   // Calculate the partial molar volumes of all species and return the
   // total volume
@@ -898,7 +899,7 @@ namespace VCSnonideal {
     m_UpToDate_VolPM = true;
     return m_totalVol;
   }
-  /************************************************************************************/
+  /***************************************************************************/
 
   /*
    * _updateLnActCoeffJac():
@@ -971,7 +972,7 @@ namespace VCSnonideal {
     _updateMoleFractionDependencies();
     _updateActCoeff();
   }
-  /************************************************************************************/
+  /***************************************************************************/
 
   // Downloads the ln ActCoeff jacobian into the VCS version of the
   // ln ActCoeff jacobian.
@@ -985,7 +986,8 @@ namespace VCSnonideal {
    *      j = id of the species mole number
    *      k = id of the species activity coefficient
    */
-  void vcs_VolPhase::sendToVCS_LnActCoeffJac(double * const * const LnACJac_VCS) {
+  void 
+  vcs_VolPhase::sendToVCS_LnActCoeffJac(double * const * const LnACJac_VCS) {
     /*
      * update the Ln Act Coeff jacobian entries with respect to the
      * mole number of species in the phase -> we always assume that
@@ -1007,7 +1009,7 @@ namespace VCSnonideal {
       }
     }
   }
-  /************************************************************************************/
+  /***************************************************************************/
 
   // Set the pointer for Cantera's ThermoPhase parameter
   /*
@@ -1064,7 +1066,7 @@ namespace VCSnonideal {
       m_useCanteraCalls = false;
     }
   }
-  /************************************************************************************/
+  /***************************************************************************/
 
   // Return a const ThermoPhase pointer corresponding to this phase
   /*
@@ -1073,22 +1075,38 @@ namespace VCSnonideal {
   const Cantera::ThermoPhase *vcs_VolPhase::ptrThermoPhase() const {
     return TP_ptr;
   }
-  /************************************************************************************/
+  /***************************************************************************/
 
   double vcs_VolPhase::TotalMoles() const {
     return v_totalMoles;
   }
-  /************************************************************************************/
+  /***************************************************************************/
 
   double vcs_VolPhase::molefraction(int k) const {
     return Xmol[k];
   }
-  /************************************************************************************/
+  /***************************************************************************/
 
-  void vcs_VolPhase::setTotalMoles(double tmols)  {
-    v_totalMoles = tmols;
+  // Sets the total moles in the phase
+  /*   
+   * We don't have to flag the internal state as changing here
+   * because we have just changed the total moles.
+   *
+   *  @param totalMols   Total moles in the phase (kmol)
+   */
+  void vcs_VolPhase::setTotalMoles(const double totalMols)  {
+    v_totalMoles = totalMols;
+    if (TMolesInert > 0.0) {
+      m_existence = 2;
+    } else {
+      if (totalMols > 0.0) {
+	m_existence = 1;
+      } else {
+	m_existence = 0;
+      }
+    }
   }
-  /************************************************************************************/
+  /***************************************************************************/
 
   // Sets the mole flag within the object to out of date
   /*
@@ -1101,7 +1119,7 @@ namespace VCSnonideal {
       m_vcsStateStatus = stateCalc;
     }
   }
-  /************************************************************************************/
+  /***************************************************************************/
 
   // Sets the mole flag within the object to be current
   /*
@@ -1111,7 +1129,7 @@ namespace VCSnonideal {
     m_UpToDate = true;
     m_vcsStateStatus = stateCalc;
   }
-  /************************************************************************************/
+  /***************************************************************************/
 
 
   // Return a string representing the equation of state
@@ -1154,30 +1172,73 @@ namespace VCSnonideal {
     std::string sss=st;
     return sss;
   }
-  /**********************************************************************/
+  /***************************************************************************/
 
   // Returns whether the phase is an ideal solution phase
   bool vcs_VolPhase::isIdealSoln() const {
     return m_isIdealSoln;
   }
-  /**********************************************************************/
+  /***************************************************************************/
 
   // Returns whether the phase uses Cantera calls
   bool vcs_VolPhase::usingCanteraCalls() const {
     return m_useCanteraCalls;
   }
-  /**********************************************************************/
+  /***************************************************************************/
 
   int vcs_VolPhase::phiVarIndex() const {
     return m_phiVarIndex;
   }
- /**********************************************************************/
+  /***************************************************************************/
 
 
   void vcs_VolPhase::setPhiVarIndex(int phiVarIndex) {
     m_phiVarIndex = phiVarIndex;
   }
+  /***************************************************************************/
+
+  // Retrieve the kth Species structure for the species belonging to this phase
+  /*
+   * The index into this vector is the species index within the phase.
+   *
+   * @param kindex kth species index.
+   */
+  vcs_SpeciesProperties * vcs_VolPhase::speciesProperty(const int kindex) {
+    return  ListSpeciesPtr[kindex];
+  }
+  /***************************************************************************/
+
+  // Boolean indicating whether the phase exists or not
+  int vcs_VolPhase::exists() const {
+    return m_existence;
+  }
  /**********************************************************************/
 
+  // Set the existence flag in the object
+  void vcs_VolPhase::setExistence(const int existence) {
+    if (existence == 0) {
+      if (v_totalMoles != 0.0) {
+#ifdef DEBUG_MODE
+	plogf("vcs_VolPhase::setExistence setting false existence for phase with moles");
+	plogendl();
+	exit(-1);
+#endif
+	v_totalMoles = 0.0;
+      }
+    }
+#ifdef DEBUG_MODE
+    else { 
+      if (TMolesInert == 0.0) {
+	if (v_totalMoles == 0.0) {
+	  plogf("vcs_VolPhase::setExistence setting true existence for phase with no moles");
+	  plogendl();
+	  exit(-1);
+	}
+      }
+    }
+#endif
+    m_existence = existence;
+  }
+ /**********************************************************************/
 }
 

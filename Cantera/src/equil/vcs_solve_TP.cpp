@@ -599,8 +599,8 @@ namespace VCSnonideal {
 	 */ 
 	if (resurrect) {
 	  bool phaseResurrected = false;
-	  if (Vphase->Existence == 0) {
-	    Vphase->Existence = 1;
+	  if (Vphase->exists() == 0) {
+	    //Vphase->setExistence(1);
 	    phaseResurrected = true;
 	  }
 	  --m_numRxnMinorZeroed;
@@ -843,7 +843,7 @@ namespace VCSnonideal {
 	       */
 	      iph = m_phaseID[kspec];
 	      Vphase = m_VolPhaseList[iph];
-	      Vphase->Existence = 0;
+	      //Vphase->setExistence(0);
 #ifdef DEBUG_MODE
 	      sprintf(ANOTE, "zeroing out SS phase: ");
 #endif
@@ -2286,19 +2286,19 @@ namespace VCSnonideal {
      *    If it is extinct, call the delete_multiphase() function.
      */
     if (! m_SSPhase[klast]) {
-      if (Vphase->Existence != 2) {
-	Vphase->Existence = 0;
+      if (Vphase->exists() != 2) {
+	bool stillExists = false;
 	for (int k = 0; k < m_numSpeciesRdc; k++) {
 	  if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	    if (m_phaseID[k] == iph) {
 	      if (m_molNumSpecies_old[k] > 0.0) {
-		Vphase->Existence = 1;
+		stillExists = true;
 		break;
 	      }
 	    }
 	  }
 	}
-	if (Vphase->Existence == 0) {
+	if (!stillExists) {
 	  vcs_delete_multiphase(iph);
 	}
       }
@@ -2365,8 +2365,8 @@ namespace VCSnonideal {
      *       for those other species.
      */
     if (! m_SSPhase[kspec]) {
-      if (Vphase->Existence == 0) {
-	Vphase->Existence = 1;
+      if (Vphase->exists() == 0) {
+	Vphase->setExistence(1);
 	for (k = 0; k < m_numSpeciesTot; k++) {
 	  if (m_phaseID[k] == iph) {
 	    i = k - m_numComponents;
@@ -2376,7 +2376,7 @@ namespace VCSnonideal {
 	}
       }
     } else {
-      Vphase->Existence = 1;
+      Vphase->setExistence(1);
     }
    
     ++(m_numRxnRdc);
@@ -2413,7 +2413,7 @@ namespace VCSnonideal {
     /*
      * set the phase existence flag to dead
      */
-    Vphase->Existence = 0;
+    Vphase->setTotalMoles(0.0);
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
       plogf("   --- delete_multiphase %d, %s\n", iph, Vphase->PhaseName.c_str());
@@ -2653,7 +2653,7 @@ namespace VCSnonideal {
   
     // Check first to see if the phase is in fact deleted
     const vcs_VolPhase *Vphase = m_VolPhaseList[iphase];
-    if (Vphase->Existence != 0) {
+    if (Vphase->exists() != 0) {
       return false;
     }
     int irxn, kspec;
@@ -3221,9 +3221,9 @@ namespace VCSnonideal {
 	      }
 	      m_molNumSpecies_old[k] = 0.0;
 	      iph = m_phaseID[k];
-	      Vphase = m_VolPhaseList[iph];
-	      Vphase->Existence = 0;
 	      m_tPhaseMoles_old[iph] = 0.0;
+	      Vphase = m_VolPhaseList[iph];
+	      Vphase->setTotalMoles(0.0);
 	      if (k == kspec) {
 		m_rxnStatus[irxn] = VCS_SPECIES_ZEROEDSS;
 		if (m_SSPhase[kspec] != 1) {
@@ -4906,13 +4906,9 @@ namespace VCSnonideal {
       // Took out because we aren't updating mole fractions in Vphase
       // Vphase->TMoles = m_tPhaseMoles_old[i];
       if (m_tPhaseMoles_old[i] == 0.0) {
-	Vphase->Existence = 0;
+	Vphase->setTotalMoles(0.0);
       } else {
-	if (TPhInertMoles[i] > 0.0) {
-	  Vphase->Existence = 2;
-	} else {
-	  Vphase->Existence = 1;
-	}
+	Vphase->setTotalMoles(m_tPhaseMoles_old[i]);
       }
     }  
     m_totalMolNum = sum;
