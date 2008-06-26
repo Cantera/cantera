@@ -659,8 +659,8 @@ public:
    *    @return           The return value is the total volume of 
    *                      the entire system in units of m**3.
    */
-  double VCS_SOLVE::vcs_VolTotal(const double tkelvin, const double pres, 
-				 const double w[], double volPM[]);
+  double vcs_VolTotal(const double tkelvin, const double pres, 
+	  	      const double w[], double volPM[]);
   
   //!  This routine is mostly concerned with changing the private data  
   //!  to be consistent with what's needed for solution. It is called one 
@@ -1014,7 +1014,7 @@ public:
    *  @param pub  Pointer to VCS_PROB that will be used to
    *              initialize the current equilibrium problem
    */
-  int VCS_SOLVE::vcs_prob_specify(const VCS_PROB *pub);
+  int vcs_prob_specify(const VCS_PROB *pub);
   
 private:
 
