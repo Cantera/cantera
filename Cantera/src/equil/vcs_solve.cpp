@@ -725,7 +725,7 @@ namespace VCSnonideal {
       Vphase = m_VolPhaseList[iph];
       for (int k = 0; k < Vphase->NVolSpecies; k++) {
 	vcs_SpeciesProperties *sProp = Vphase->speciesProperty(k);
-	int kT = Vphase->IndSpecies[k];
+	int kT = Vphase->spGlobalIndexVCS(k);
 	sProp->SpeciesThermo = m_speciesThermoList[kT];
       }
     }
@@ -746,10 +746,10 @@ namespace VCSnonideal {
 	 * So SpecLnMnaught[iSolvent] = 0.0, and the
 	 * loop below starts at 1, not 0.
 	 */
-	int iSolvent = Vphase->IndSpecies[0];
+	int iSolvent = Vphase->spGlobalIndexVCS(0);
 	double mnaught = m_wtSpecies[iSolvent] / 1000.;
 	for (int k = 1; k < Vphase->NVolSpecies; k++) {
-	  int kspec = Vphase->IndSpecies[k];
+	  int kspec = Vphase->spGlobalIndexVCS(k);
 	  m_actConventionSpecies[kspec] = Vphase->m_activityConvention;
 	  m_lnMnaughtSpecies[kspec] = log(mnaught);
 	}
@@ -959,24 +959,16 @@ namespace VCSnonideal {
     for (int iph = 0; iph < pub->NPhase; iph++) {
       vcs_VolPhase *pubPhase = pub->VPhaseList[iph];
       vcs_VolPhase *vPhase = m_VolPhaseList[iph];
-      //pubPhase->setExistence(vPhase->exists());
-      // Note pubPhase is not the same as vPhase, since they contain
-      // different indexing into the solution vector.
-      // pubPhase->TMoles = vPhase->TMoles;
       pubPhase->TMolesInert = vPhase->TMolesInert;
       pubPhase->setTotalMoles(vPhase->TotalMoles());
       pubPhase->setElectricPotential(vPhase->electricPotential());
       double sumMoles = pubPhase->TMolesInert;
       pubPhase->setMoleFractions(VCS_DATA_PTR(vPhase->moleFractions()));
       for (int k = 0; k < pubPhase->NVolSpecies; k++) {
-	kT = pubPhase->IndSpecies[k];
-	//pubPhase->SS0ChemicalPotential[k] = vPhase->SS0ChemicalPotential[k];
-	//pubPhase->StarMolarVol[k] = vPhase->StarMolarVol[k];
-	//pubPhase->PartialMolarVol[k] = vPhase->PartialMolarVol[k];
-	//pubPhase->ActCoeff[k] = vPhase->ActCoeff[k];
+	kT = pubPhase->spGlobalIndexVCS(k);
 
 	if (pubPhase->phiVarIndex() == k) {
-	  k1 = vPhase->IndSpecies[k];
+	  k1 = vPhase->spGlobalIndexVCS(k);
 	  double tmp = m_molNumSpecies_old[k1];
 	  if (! vcs_doubleEqual( 	pubPhase->electricPotential() , tmp)) { 
 	    plogf("We have an inconsistency in voltage, %g, %g\n",

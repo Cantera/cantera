@@ -322,7 +322,7 @@ namespace VCSnonideal {
 	Vphase = VPhaseList[iphase];
 	Vphase->setState_TP(T, PresPA);
 	for (int kindex = 0; kindex < Vphase->NVolSpecies; kindex++) {
-	  int kglob = Vphase->IndSpecies[kindex];
+	  int kglob = Vphase->spGlobalIndexVCS(kindex);
 	  plogf("%16s ", SpName[kglob].c_str());
 	  if (kindex == 0) {
 	    plogf("%16s", Vphase->PhaseName.c_str());
@@ -454,7 +454,7 @@ namespace VCSnonideal {
      * Tell the phase object about the current position of the
      * species within the global species vector
      */
-    volPhase->IndSpecies[k] = kT;
+    volPhase->setSpGlobalIndexVCS(k, kT);
     return kT;
   }
 

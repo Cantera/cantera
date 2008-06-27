@@ -431,6 +431,27 @@ namespace VCSnonideal {
      */
     void setExistence(const int existence);
 
+    //! Return the Global VCS index of the kth species in the phase
+    /*!
+     *  @param spIndex local species index (0 to the number of species
+     *                 in the phase)
+     *
+     * @return Returns the VCS_SOLVE species index of the that species
+     *         This changes as rearrangements are carried out. 
+     */
+    int spGlobalIndexVCS(const int spIndex) const;
+
+
+    //! set the Global VCS index of the kth species in the phase
+    /*!
+     *  @param spIndex local species index (0 to the number of species
+     *                 in the phase)
+     *
+     * @return Returns the VCS_SOLVE species index of the that species
+     *         This changes as rearrangements are carried out. 
+     */
+    void setSpGlobalIndexVCS(const int spIndex, const int spGlobalIndex);
+
   private:
 
     //! Evaluate the activity coefficients at the current conditions
@@ -663,6 +684,7 @@ namespace VCSnonideal {
      */
     int Activity_Coeff_Model;
 
+  private:
     //! Index into the species vectors
     /*!
      *  Maps the phase species number into the global species number. 
@@ -671,7 +693,6 @@ namespace VCSnonideal {
      */
     std::vector<int> IndSpecies;
 
-  private:
     //! Vector of Species structures for the species belonging to this phase
     /*!
      * The index into this vector is the species index within the phase.

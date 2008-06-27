@@ -2658,7 +2658,7 @@ namespace VCSnonideal {
     }
     int irxn, kspec;
     if (Vphase->SingleSpecies) {
-      kspec = Vphase->IndSpecies[0];
+      kspec = Vphase->spGlobalIndexVCS(0);
       irxn = kspec + m_numComponents;
       if(m_deltaGRxn_old[irxn] < 0.0) {
 	return true;
@@ -2668,7 +2668,7 @@ namespace VCSnonideal {
   
     double phaseDG = 1.0;
     for (int kk = 0; kk <  Vphase->NVolSpecies; kk++) {
-      kspec = Vphase->IndSpecies[kk];
+      kspec = Vphase->spGlobalIndexVCS(kk);
       irxn = kspec + m_numComponents;
       if (m_deltaGRxn_old[irxn] >  50.0) m_deltaGRxn_old[irxn] =  50.0;
       if (m_deltaGRxn_old[irxn] < -50.0) m_deltaGRxn_old[irxn] = -50.0;
@@ -3457,7 +3457,7 @@ namespace VCSnonideal {
       if (! Vphase->SingleSpecies) {
 	double sum = 0.0;
 	for (k = 0; k < Vphase->NVolSpecies; k++) {
-	  kspec = Vphase->IndSpecies[k];
+	  kspec = Vphase->spGlobalIndexVCS(k);
 	  if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	    sum += molNumSpecies[kspec];
 	  }
@@ -3471,7 +3471,7 @@ namespace VCSnonideal {
       if (lneed) {
 	double poly = 0.0;
 	for (k = 0; k < Vphase->NVolSpecies; k++) {
-	  kspec = Vphase->IndSpecies[k];
+	  kspec = Vphase->spGlobalIndexVCS(k);
 	  irxn = kspec - m_numComponents;
 	  // We may need to look at deltaGRxn for components!
 	  if (irxn >= 0) {
@@ -3486,7 +3486,7 @@ namespace VCSnonideal {
 	 *      the phase will come back into existence.
 	 */
 	for (k = 0; k < Vphase->NVolSpecies; k++) {
-	  kspec = Vphase->IndSpecies[k];
+	  kspec = Vphase->spGlobalIndexVCS(k);
 	  irxn = kspec - m_numComponents;
 	  if (irxn >= 0) {
 	    deltaGRxn[irxn] = 1.0 - poly;
@@ -4390,7 +4390,7 @@ namespace VCSnonideal {
 #endif
     double tMoles = TPhInertMoles[iph]; 
     for (k = 0; k < nkk; k++) {
-      kspec = Vphase->IndSpecies[k];
+      kspec = Vphase->spGlobalIndexVCS(k);
       tMoles += molNum[kspec];
     }
     double tlogMoles = 0.0;
@@ -4405,7 +4405,7 @@ namespace VCSnonideal {
     double Faraday_phi = m_Faraday_dim * phi;
 
     for (k = 0; k < nkk; k++) {
-      kspec = Vphase->IndSpecies[k];
+      kspec = Vphase->spGlobalIndexVCS(k);
       if (kspec >= m_numComponents) {
 	int irxn =  kspec - m_numComponents;
 	if (!do_deleted &&
@@ -5009,17 +5009,19 @@ namespace VCSnonideal {
     kp1 = m_speciesLocalPhaseIndex[k1];
     kp2 = m_speciesLocalPhaseIndex[k2];
 #ifdef DEBUG_MODE
-    if (pv1->IndSpecies[kp1] != k1) {
+    if (pv1->spGlobalIndexVCS(kp1) != k1) {
       plogf("Indexing error in program\n");
       exit(-1);
     }
-    if (pv2->IndSpecies[kp2] != k2) {
+    if (pv2->spGlobalIndexVCS(kp2) != k2) {
       plogf("Indexing error in program\n");
       exit(-1);
     }
 #endif
-    pv1->IndSpecies[kp1] = k2;
-    pv2->IndSpecies[kp2] = k1;
+    pv1->setSpGlobalIndexVCS(kp1, k2);
+    pv2->setSpGlobalIndexVCS(kp2, k1);
+    //pv1->IndSpecies[kp1] = k2;
+    //pv2->IndSpecies[kp2] = k1;
    
     vcsUtil_stsw(m_speciesName,  k1, k2);
     SWAP(m_molNumSpecies_old[k1], m_molNumSpecies_old[k2], t1);
@@ -5156,7 +5158,7 @@ namespace VCSnonideal {
      * Single species Phase
      */
     if (vPhase->SingleSpecies) {
-      kspec = vPhase->IndSpecies[0];
+      kspec = vPhase->spGlobalIndexVCS(0);
 #ifdef DEBUG_MODE
       if (iphase != m_phaseID[kspec]) {
 	plogf("vcs_deltag_Phase index error\n");

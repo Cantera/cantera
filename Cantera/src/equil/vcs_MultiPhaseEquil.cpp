@@ -1371,7 +1371,7 @@ namespace VCSnonideal {
        */
       if (tMoles > 0.0) {
 	for (k = 0; k < nSpPhase; k++) {
-	  int kTa = VolPhase->IndSpecies[k];
+	  int kTa = VolPhase->spGlobalIndexVCS(k);
 	  vprob->mf[kTa] = vprob->w[kTa] / tMoles;
 	}
       } else {
@@ -1380,7 +1380,7 @@ namespace VCSnonideal {
 	 * But, will start with this.
 	 */
 	for (k = 0; k < nSpPhase; k++) {
-	  int kTa = VolPhase->IndSpecies[k];
+	  int kTa = VolPhase->spGlobalIndexVCS(k);
 	  vprob->mf[kTa]= 1.0 / (double) nSpPhase;
 	}
       }
@@ -1507,7 +1507,8 @@ namespace VCSnonideal {
 	kT++;
       }
       if (volPhase->phiVarIndex() >= 0) {
-	int kglob = volPhase->IndSpecies[volPhase->phiVarIndex()];
+	int kphi = volPhase->phiVarIndex();
+	int kglob = volPhase->spGlobalIndexVCS(kphi);
 	vprob->w[kglob] = tPhase->electricPotential();
       }
       volPhase->setMolesFromVCS(VCS_STATECALC_OLD, VCS_DATA_PTR(vprob->w));

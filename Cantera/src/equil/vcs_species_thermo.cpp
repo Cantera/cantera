@@ -391,7 +391,7 @@ double VCS_SOLVE::vcs_Gxs_phase_calc(vcs_VolPhase *Vphase, double *mf_PO)
   VCS_SPECIES_THERMO *ts_ptr;
   if (Vphase->Activity_Coeff_Model != VCS_AC_CONSTANT) {
     for (kspec = 0; kspec < Vphase->NVolSpecies; kspec++) {
-      kglob = Vphase->IndSpecies[kspec];
+      kglob = Vphase->spGlobalIndexVCS(kspec);
       ts_ptr = m_speciesThermoList[kglob];
       ac = ts_ptr->eval_ac(kspec);
       Gxs += mf_PO[kspec] * log(ac);

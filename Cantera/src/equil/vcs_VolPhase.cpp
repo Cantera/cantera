@@ -1239,6 +1239,33 @@ namespace VCSnonideal {
 #endif
     m_existence = existence;
   }
- /**********************************************************************/
+  /**********************************************************************/
+  
+  // Return the Global VCS index of the kth species in the phase
+  /*
+   *  @param spIndex local species index (0 to the number of species
+   *                 in the phase)
+   *
+   * @return Returns the VCS_SOLVE species index of the that species
+   *         This changes as rearrangements are carried out. 
+   */
+  int vcs_VolPhase::spGlobalIndexVCS(const int spIndex) const {
+    return IndSpecies[spIndex];
+  }
+  /**********************************************************************/
+
+  //! set the Global VCS index of the kth species in the phase
+  /*!
+   *  @param spIndex local species index (0 to the number of species
+   *                 in the phase)
+   *
+   * @return Returns the VCS_SOLVE species index of the that species
+   *         This changes as rearrangements are carried out. 
+   */
+  void vcs_VolPhase::setSpGlobalIndexVCS(const int spIndex, 
+					 const int spGlobalIndex) {
+    IndSpecies[spIndex] = spGlobalIndex;
+  }
+  /**********************************************************************/
 }
 
