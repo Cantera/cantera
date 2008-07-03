@@ -852,10 +852,10 @@ namespace VCSnonideal {
 	retn = VCS_PUB_BAD;
       }
 
-      if  (vPhase->SingleSpecies != pub_phase_ptr->SingleSpecies) {
+      if  (vPhase->m_singleSpecies != pub_phase_ptr->m_singleSpecies) {
 	plogf("%sSingleSpecies value have changed:%d %d\n", yo.c_str(),
-	      vPhase->SingleSpecies,
-	      pub_phase_ptr->SingleSpecies);
+	      vPhase->m_singleSpecies,
+	      pub_phase_ptr->m_singleSpecies);
 	retn = VCS_PUB_BAD;
       }
 
@@ -892,7 +892,7 @@ namespace VCSnonideal {
       vPhase->TMolesInert = pub_phase_ptr->TMolesInert;
       if (TPhInertMoles[iph] > 0.0) {
 	vPhase->setExistence(2);
-	vPhase->SingleSpecies = FALSE;
+	vPhase->m_singleSpecies = FALSE;
       }
 
       /*

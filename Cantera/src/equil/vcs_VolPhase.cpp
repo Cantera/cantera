@@ -33,7 +33,7 @@ namespace VCSnonideal {
     m_owningSolverObject(0),
     VP_ID(-1),
     Domain_ID(-1),
-    SingleSpecies(true),
+    m_singleSpecies(true),
     m_gasPhase(false),
     m_eqnState(VCS_EOS_CONSTANT),
     nElemConstraints(0),
@@ -46,7 +46,6 @@ namespace VCSnonideal {
     m_isIdealSoln(false),
     m_existence(0),
     m_MFStartIndex(0),
-    Activity_Coeff_Model(VCS_AC_CONSTANT),
     IndSpecies(0),
     //IndSpeciesContig(true),
     m_VCS_UnitsFormat(VCS_UNITS_MKS),
@@ -97,7 +96,7 @@ namespace VCSnonideal {
     m_owningSolverObject(b.m_owningSolverObject),
     VP_ID(b.VP_ID),
     Domain_ID(b.Domain_ID),
-    SingleSpecies(b.SingleSpecies),
+    m_singleSpecies(b.m_singleSpecies),
     m_gasPhase(b.m_gasPhase),
     m_eqnState(b.m_eqnState),
     nElemConstraints(b.nElemConstraints),
@@ -108,8 +107,6 @@ namespace VCSnonideal {
     m_isIdealSoln(b.m_isIdealSoln),
     m_existence(b.m_existence),
     m_MFStartIndex(b.m_MFStartIndex),
-    Activity_Coeff_Model(b.Activity_Coeff_Model),
-    //IndSpeciesContig(b.IndSpeciesContig),
     m_VCS_UnitsFormat(b.m_VCS_UnitsFormat),
     m_useCanteraCalls(b.m_useCanteraCalls),
     TP_ptr(b.TP_ptr),
@@ -152,7 +149,7 @@ namespace VCSnonideal {
 
       VP_ID               = b.VP_ID;
       Domain_ID           = b.Domain_ID;
-      SingleSpecies       = b.SingleSpecies;
+      m_singleSpecies     = b.m_singleSpecies;
       m_gasPhase            = b.m_gasPhase;
       m_eqnState            = b.m_eqnState;
  
@@ -185,7 +182,6 @@ namespace VCSnonideal {
       m_isIdealSoln       = b.m_isIdealSoln;
       m_existence         = b.m_existence;
       m_MFStartIndex      = b.m_MFStartIndex;
-      Activity_Coeff_Model = b.Activity_Coeff_Model;
 
       /*
        * Do a shallow copy because we haven' figured this out.
@@ -283,9 +279,9 @@ namespace VCSnonideal {
       }
     }
     if (nspecies > 1) {
-      SingleSpecies = false;
+      m_singleSpecies = false;
     } else {
-      SingleSpecies = true;
+      m_singleSpecies = true;
     }
 
     if (NVolSpecies == nspecies) {
@@ -294,7 +290,7 @@ namespace VCSnonideal {
  
     NVolSpecies = nspecies;
     if (nspecies > 1) {
-      SingleSpecies = false;
+      m_singleSpecies = false;
     }
 
     IndSpecies.resize(nspecies,-1);
@@ -350,18 +346,6 @@ namespace VCSnonideal {
     }
     if (m_useCanteraCalls) {
       TP_ptr->getActivityCoefficients(VCS_DATA_PTR(ActCoeff));
-    } else {
-      switch (Activity_Coeff_Model) {
-      case VCS_AC_CONSTANT:
-	/*
-	 * Don't need to do anything since ActCoeff[] is initialized to
-	 * the value of one, and never changed for this model.
-	 */
-	break;
-      default:
-	plogf("%sERROR: unknown model\n");
-	std::exit(-1);
-      }
     }
     m_UpToDate_AC = true;
   }

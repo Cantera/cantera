@@ -551,7 +551,7 @@ namespace VCSnonideal {
     int Domain_ID; 
 
     //! If true, this phase consists of a single species
-    int SingleSpecies;
+    bool m_singleSpecies;
 
     //! If true, this phase is a gas-phase like phase
     /*!
@@ -677,14 +677,6 @@ namespace VCSnonideal {
      */
     int m_MFStartIndex;
 
-  public:
-    //! Integer representing the activity coefficient model
-    /*!
-     *  The known models are listed at the top of this page
-     */
-    int Activity_Coeff_Model;
-
-  private:
     //! Index into the species vectors
     /*!
      *  Maps the phase species number into the global species number. 

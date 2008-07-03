@@ -1137,7 +1137,7 @@ namespace VCSnonideal {
 	    l2normdg(VCS_DATA_PTR(m_deltaGRxn_old)),
 	    l2normdg(VCS_DATA_PTR(m_deltaGRxn_new)));
       plogf("   Total kmoles of gas    = %15.7E\n", m_tPhaseMoles_old[0]);
-      if ((m_numPhases > 1) && (! (m_VolPhaseList[1])->SingleSpecies)) { 
+      if ((m_numPhases > 1) && (! (m_VolPhaseList[1])->m_singleSpecies)) { 
 	plogf("   Total kmoles of liquid = %15.7E\n", m_tPhaseMoles_old[1]); 
       } else {
 	plogf("   Total kmoles of liquid = %15.7E\n", 0.0);
@@ -1261,7 +1261,7 @@ namespace VCSnonideal {
     justDeletedMultiPhase = FALSE;
     for (iph = 0; iph < m_numPhases; iph++) {
       Vphase = m_VolPhaseList[iph];
-      if (!(Vphase->SingleSpecies)) {
+      if (!(Vphase->m_singleSpecies)) {
 	if (m_tPhaseMoles_old[iph] != 0.0 &&
 	    m_tPhaseMoles_old[iph]/m_totalMolNum <= VCS_DELETE_PHASE_CUTOFF) {
 	  soldel = 1;
@@ -2657,7 +2657,7 @@ namespace VCSnonideal {
       return false;
     }
     int irxn, kspec;
-    if (Vphase->SingleSpecies) {
+    if (Vphase->m_singleSpecies) {
       kspec = Vphase->spGlobalIndexVCS(0);
       irxn = kspec + m_numComponents;
       if(m_deltaGRxn_old[irxn] < 0.0) {
@@ -3106,7 +3106,7 @@ namespace VCSnonideal {
 	  }
 	  for (j = 0; j < m_numPhases; j++) {
 	    Vphase = m_VolPhaseList[j];
-	    if (! Vphase->SingleSpecies) {
+	    if (! Vphase->m_singleSpecies) {
 	      if (m_tPhaseMoles_old[j] > 0.0) 
 		s -= SQUARE(dnPhase_irxn[j]) / m_tPhaseMoles_old[j];
 	    }
@@ -3454,7 +3454,7 @@ namespace VCSnonideal {
     for (iph = 0; iph < m_numPhases; iph++) {
       lneed = FALSE;
       vcs_VolPhase *Vphase = m_VolPhaseList[iph];
-      if (! Vphase->SingleSpecies) {
+      if (! Vphase->m_singleSpecies) {
 	double sum = 0.0;
 	for (k = 0; k < Vphase->NVolSpecies; k++) {
 	  kspec = Vphase->spGlobalIndexVCS(k);
@@ -4675,7 +4675,7 @@ namespace VCSnonideal {
     for (iphase = 0; iphase < m_numPhases; iphase++) {
       Vphase = m_VolPhaseList[iphase]; 
       Vphase->updateFromVCS_MoleNumbers(stateCalc);
-      if (!Vphase->SingleSpecies) {
+      if (!Vphase->m_singleSpecies) {
 	Vphase->sendToVCS_ActCoeff(stateCalc, VCS_DATA_PTR(actCoeff_ptr));
       }
       m_phasePhi[iphase] = Vphase->electricPotential();
@@ -5157,7 +5157,7 @@ namespace VCSnonideal {
     /*
      * Single species Phase
      */
-    if (vPhase->SingleSpecies) {
+    if (vPhase->m_singleSpecies) {
       kspec = vPhase->spGlobalIndexVCS(0);
 #ifdef DEBUG_MODE
       if (iphase != m_phaseID[kspec]) {

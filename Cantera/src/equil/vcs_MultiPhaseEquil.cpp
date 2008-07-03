@@ -1441,7 +1441,7 @@ namespace VCSnonideal {
 	vcs_VolPhase *VolPhase = vprob->VPhaseList[iphase];
 	std::string sEOS = string16_EOSType(VolPhase->m_eqnState);
 	plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
-	       VolPhase->VP_ID,       VolPhase->SingleSpecies,
+	       VolPhase->VP_ID,       VolPhase->m_singleSpecies,
 	       VolPhase->m_gasPhase,    sEOS.c_str(),
 	       VolPhase->NVolSpecies, VolPhase->TMolesInert );
 	plogf("%16e\n",  VolPhase->TotalMoles());
@@ -1560,7 +1560,7 @@ namespace VCSnonideal {
 	vcs_VolPhase *VolPhase = vprob->VPhaseList[iphase];
 	std::string sEOS = string16_EOSType(VolPhase->m_eqnState);
 	plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
-	       VolPhase->VP_ID,       VolPhase->SingleSpecies,
+	       VolPhase->VP_ID,       VolPhase->m_singleSpecies,
 	       VolPhase->m_gasPhase,    sEOS.c_str(),
 	       VolPhase->NVolSpecies, VolPhase->TMolesInert );
 	plogf("%16e\n",  VolPhase->TotalMoles() ); 

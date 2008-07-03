@@ -982,9 +982,6 @@ public:
   double vcs_GibbsPhase(int iphase, const double * const w,
 			const double * const fe);
 
-  double vcs_Gxs_phase_calc(vcs_VolPhase *Vphase, double *mf_PO);
-  double vcs_Gxs_calc(int iphase);
-
   //! Transfer the results of the equilibrium calculation back to VCS_PROB
   /*!
    *   The VCS_PUB structure is returned to the user.

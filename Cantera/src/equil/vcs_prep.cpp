@@ -49,13 +49,13 @@ namespace VCSnonideal {
      */
     for (iph = 0; iph < m_numPhases; iph++) {
       Vphase = m_VolPhaseList[iph];
-      Vphase->SingleSpecies = false;
+      Vphase->m_singleSpecies = false;
       if (TPhInertMoles[iph] > 0.0) {
 	Vphase->setExistence(2);
       }
       if (numPhSpecies[iph] <= 1) {
 	if (TPhInertMoles[iph] == 0.0) {
-	  Vphase->SingleSpecies = true;
+	  Vphase->m_singleSpecies = true;
 	}
       } 
       Vphase->NVolSpecies = numPhSpecies[iph];
@@ -70,7 +70,7 @@ namespace VCSnonideal {
     for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
       iph = m_phaseID[kspec];
       Vphase = m_VolPhaseList[iph];
-      if (Vphase->SingleSpecies)  m_SSPhase[kspec] = TRUE;
+      if (Vphase->m_singleSpecies)  m_SSPhase[kspec] = TRUE;
       else                        m_SSPhase[kspec] = FALSE;
     }
   }

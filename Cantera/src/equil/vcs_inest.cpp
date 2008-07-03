@@ -177,7 +177,7 @@ namespace VCSnonideal {
     }
     TMolesMultiphase = 0.0;
     for (iph = 0; iph < m_numPhases; iph++) {
-      if (! m_VolPhaseList[iph]->SingleSpecies) {
+      if (! m_VolPhaseList[iph]->m_singleSpecies) {
 	TMolesMultiphase += m_tPhaseMoles_new[iph];
       }
     }     

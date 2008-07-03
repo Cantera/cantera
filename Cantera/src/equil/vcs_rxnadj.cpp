@@ -139,7 +139,7 @@ namespace VCSnonideal {
 	  }
 	}
 	for (j = 0; j < m_numPhases; j++) {
-	  if (! (m_VolPhaseList[j])->SingleSpecies) {
+	  if (! (m_VolPhaseList[j])->m_singleSpecies) {
 	    if (m_tPhaseMoles_old[j] > 0.0) 
 	      s -= SQUARE(dnPhase_irxn[j]) / m_tPhaseMoles_old[j];
 	  }
@@ -323,7 +323,7 @@ namespace VCSnonideal {
       /*
        * We don't need to call single species phases;
        */
-      if (!Vphase->SingleSpecies && !Vphase->isIdealSoln()) {
+      if (!Vphase->m_singleSpecies && !Vphase->isIdealSoln()) {
         /*
          * update the mole numbers
          */
