@@ -232,17 +232,17 @@ namespace VCSnonideal {
     }
 #endif  
     /*
-     * Change the element Global Index list in each phase object
+     * Change the element Global Index list in each vcs_VolPhase object
      * to reflect the switch in the element positions.
      */
     for (int iph = 0; iph < m_numPhases; iph++) {
       volPhase = m_VolPhaseList[iph];
       for (int e = 0; e < volPhase->nElemConstraints; e++) {
-	if (volPhase->ElGlobalIndex[e] == ipos) {
-          volPhase->ElGlobalIndex[e] = jpos; 
+	if (volPhase->elemGlobalIndex(e) == ipos) {
+	  volPhase->setElemGlobalIndex(e, jpos);
 	}
-	if (volPhase->ElGlobalIndex[e] == jpos) {
-          volPhase->ElGlobalIndex[e] =ipos; 
+	if (volPhase->elemGlobalIndex(e) == jpos) {
+	  volPhase->setElemGlobalIndex(e, ipos);
 	}
       } 
     }

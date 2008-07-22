@@ -38,10 +38,9 @@ namespace VCSnonideal {
     m_eqnState(VCS_EOS_CONSTANT),
     nElemConstraints(0),
     ChargeNeutralityElement(-1),
-    ElGlobalIndex(0),
+    m_elemGlobalIndex(0),
     NVolSpecies(0),
     m_totalMolesInert(0.0),
-    m_molarVolInert(1000.),
     m_activityConvention(0),
     m_isIdealSoln(false),
     m_existence(0),
@@ -174,7 +173,7 @@ namespace VCSnonideal {
       }
 
       m_speciesUnknownType = b.m_speciesUnknownType;
-      ElGlobalIndex = b.ElGlobalIndex;
+      m_elemGlobalIndex    = b.m_elemGlobalIndex;
       NVolSpecies         = b.NVolSpecies;
       PhaseName           = b.PhaseName;
       m_totalMolesInert   = b.m_totalMolesInert;
@@ -243,7 +242,7 @@ namespace VCSnonideal {
   }
   /***************************************************************************/
 
-  void vcs_VolPhase::resize(int phaseNum, int nspecies, const char *phaseName,
+  void vcs_VolPhase::resize(int phaseNum, int nspecies, int numElem, const char *phaseName,
 			    double molesInert) {
     if (nspecies <= 0) {
       plogf("nspecies Error\n");
@@ -280,7 +279,7 @@ namespace VCSnonideal {
       m_singleSpecies = true;
     }
 
-    if (NVolSpecies == nspecies) {
+    if (NVolSpecies == nspecies && numElem == nElemConstraints) {
       return;
     }
  
@@ -288,6 +287,7 @@ namespace VCSnonideal {
     if (nspecies > 1) {
       m_singleSpecies = false;
     }
+
 
     IndSpecies.resize(nspecies,-1);
 
@@ -325,6 +325,29 @@ namespace VCSnonideal {
     m_UpToDate_VolPM      = false;
     m_UpToDate_GStar      = false;
     m_UpToDate_G0         = false;
+
+
+    elemResize(numElem);
+
+  }
+  /***************************************************************************/
+
+  void vcs_VolPhase::elemResize(const int numElemConstraints) {
+
+    ElName.resize(numElemConstraints);
+
+    ElActive.resize(numElemConstraints, 1);
+    m_elType.resize(numElemConstraints, VCS_ELEM_TYPE_ABSPOS);
+
+
+    FormulaMatrix.resize(numElemConstraints, NVolSpecies, 0.0);
+
+
+    m_elemGlobalIndex.resize(numElemConstraints, -1);
+
+    
+
+    nElemConstraints = numElemConstraints;
   }
   /***************************************************************************/
 
@@ -1009,11 +1032,12 @@ namespace VCSnonideal {
       m_VCS_UnitsFormat = VCS_UNITS_MKS;
       m_phi = TP_ptr->electricPotential();
       int nsp = TP_ptr->nSpecies();
+      int nelem = TP_ptr->nElements();
       if (nsp !=  NVolSpecies) {
 	if (NVolSpecies != 0) {
 	  plogf("Warning Nsp != NVolSpeces: %d %d \n", nsp, NVolSpecies);
 	}
-	resize(VP_ID, nsp, PhaseName.c_str());
+	resize(VP_ID, nsp, nelem, PhaseName.c_str());
       }
       TP_ptr->getMoleFractions(VCS_DATA_PTR(Xmol));
       _updateMoleFractionDependencies();
@@ -1289,5 +1313,19 @@ namespace VCSnonideal {
     return m_totalMolesInert;
   }
   /**********************************************************************/
+
+   //! Returns the global index of the local element index for the phase
+  int vcs_VolPhase::elemGlobalIndex(const int e) const {
+    DebugAssertThrowVCS(e >= 0, " vcs_VolPhase::elemGlobalIndex") ;
+    DebugAssertThrowVCS(e < nElemConstraints, " vcs_VolPhase::elemGlobalIndex") ;
+    return m_elemGlobalIndex[e];
+  }
+
+   //! Returns the global index of the local element index for the phase
+  void vcs_VolPhase::setElemGlobalIndex(const int eLocal, const int eGlobal) {
+    DebugAssertThrowVCS(eLocal >= 0, "vcs_VolPhase::setElemGlobalIndex");
+    DebugAssertThrowVCS(eLocal < nElemConstraints, "vcs_VolPhase::setElemGlobalIndex");
+    m_elemGlobalIndex[eLocal] = eGlobal;
+  }
 }
 

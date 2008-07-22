@@ -1007,7 +1007,8 @@ namespace VCSnonideal {
 
     VolPhase->m_speciesUnknownType.resize(ns, VCS_SPECIES_TYPE_MOLNUM);
 
-    VolPhase->ElGlobalIndex.resize(ne, -1);
+    VolPhase->elemResize(ne);
+    //ElGlobalIndex.resize(ne, -1);
 
     
     e = 0;
@@ -1115,6 +1116,7 @@ namespace VCSnonideal {
        */
       iSurPhase = -1;
       tPhase = &(mphase->phase(iphase));
+      int nelem = tPhase->nElements();
     
       /*
        * Query Cantera for the equation of state type of the
@@ -1144,7 +1146,7 @@ namespace VCSnonideal {
        */
 
       vcs_VolPhase *VolPhase = vprob->VPhaseList[iphase];
-      VolPhase->resize(iphase, nSpPhase, phaseName.c_str(), 0.0);
+      VolPhase->resize(iphase, nSpPhase, nelem, phaseName.c_str(), 0.0);
       VolPhase->m_gasPhase = gasPhase;
       /*
        * Tell the vcs_VolPhase pointer about cantera

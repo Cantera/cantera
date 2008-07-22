@@ -143,8 +143,10 @@ namespace VCSnonideal {
      *  @param phaseName   String name for the phase
      *  @param molesInert  kmoles of inert in the phase (defaults to zero)
      */
-    void resize(int phaseNum, int numSpecies, const char *phaseName,
+    void resize(int phaseNum, int numSpecies, int numElem, const char *phaseName,
 		double molesInert = 0.0);
+
+    void elemResize(const int numElemConstraints);
 
     //! Evaluate activity coefficients and return the kspec coefficient
     /*!
@@ -465,6 +467,16 @@ namespace VCSnonideal {
      */
     double totalMolesInert() const;
 
+    //! Returns the global index of the local element index for the phase
+    int elemGlobalIndex(const int e) const;
+
+    //! sets a local phase element to a global index value
+    /*!
+     * @param eLocal Local phase element index
+     * @param eGlobal Global phase element index
+     */
+    void setElemGlobalIndex(const int eLocal, const int eGlobal);
+
   private:
 
     //! Evaluate the activity coefficients at the current conditions
@@ -635,10 +647,12 @@ namespace VCSnonideal {
      */
     std::vector<int> m_speciesUnknownType;
 
+  private:
     //! Index of the element number in the global list of elements
     //!  storred in VCS_PROB or VCS_SOLVE       
-    std::vector<int> ElGlobalIndex;
+    std::vector<int> m_elemGlobalIndex;
 
+  public:
     //! Number of species in the phase       
     int NVolSpecies;
 
@@ -648,13 +662,8 @@ namespace VCSnonideal {
   private:
     //!  Total moles of inert in the phase 
     double m_totalMolesInert;
-  public:
-    //! molar volume of the inert species if present
-    /*!
-     *  units m**3 / kg
-     */
-    double m_molarVolInert;
 
+  public:
     //! Convention for the activity formulation
     /*!
      *  0 = molar based activities (default)

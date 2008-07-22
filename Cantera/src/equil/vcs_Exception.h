@@ -38,7 +38,13 @@ protected:
  *              where the assertion failed
  * @ingroup errorhandling
  */
-#define AssertThrowVCS(expr, proc)  ((expr) ? (void) 0 : throw vcsError(proc, std::string("failed assert: ") + #expr,-1))
+#define AssertThrowVCS(expr, proc)  ((expr) ? (void) 0 : throw vcsError(proc, std::string("failed Assert: ") + #expr,-1))
+
+#ifdef DEBUG_HKM
+#define DebugAssertThrowVCS(expr, proc)  ((expr) ? (void) 0 : throw vcsError(proc, std::string("failed debugAssert: ") + #expr,-1))
+#else
+#define DebugAssertThrowVCS(expr, proc)  
+#endif
 
 }
 

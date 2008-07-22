@@ -378,7 +378,7 @@ namespace VCSnonideal {
       for (e = 0; e < ne; e++) {
 	en = ElName[e];
 	if (!strcmp(enVP.c_str(), en.c_str())) {
-	  volPhase->ElGlobalIndex[eVP] = e;
+	  volPhase->setElemGlobalIndex(eVP, e);
 	  foundPos = e;
 	}
       }
@@ -386,7 +386,7 @@ namespace VCSnonideal {
 	int elType = volPhase->m_elType[eVP];
 	int elactive = volPhase->ElActive[eVP];
 	e = addElement(enVP.c_str(), elType, elactive);
-	volPhase->ElGlobalIndex[eVP] = e;
+	volPhase->setElemGlobalIndex(eVP, e);
       }
     }
   }
@@ -444,10 +444,12 @@ namespace VCSnonideal {
     }
     double *const *const fm = volPhase->FormulaMatrix.baseDataAddr();
     for (eVP = 0; eVP < volPhase->nElemConstraints; eVP++) {
-      e = volPhase->ElGlobalIndex[eVP];
+      e = volPhase->elemGlobalIndex(eVP);
+#ifdef DEBUG_MODE
       if (e < 0) {
-	exit(-1);
+	std::exit(-1);
       }
+#endif
       FormulaMatrix[e][kT] = fm[eVP][k];
     }
     /*
