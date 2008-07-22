@@ -946,17 +946,11 @@ namespace VCSnonideal {
       ne++;
     }
 
-
-
     /*
      * Assign and malloc structures
      */
-    VolPhase->nElemConstraints = ne;
+    VolPhase->elemResize(ne);
 
-    VolPhase->ElName.resize(ne);
-
-    VolPhase->ElActive.resize(ne+1, 1);
-    VolPhase->m_elType.resize(ne, VCS_ELEM_TYPE_ABSPOS);
 
     if (VolPhase->ChargeNeutralityElement >= 0) {
       VolPhase->m_elType[VolPhase->ChargeNeutralityElement] =
@@ -998,7 +992,7 @@ namespace VCSnonideal {
 	string ename = "E";
 	VolPhase->ElName[ne] = ename;
 	ne++;
-	VolPhase->nElemConstraints = ne;
+	VolPhase->elemResize(ne);
       }
 
     }

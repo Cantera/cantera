@@ -143,8 +143,9 @@ namespace VCSnonideal {
      *  @param phaseName   String name for the phase
      *  @param molesInert  kmoles of inert in the phase (defaults to zero)
      */
-    void resize(int phaseNum, int numSpecies, int numElem, const char *phaseName,
-		double molesInert = 0.0);
+    void resize(const int phaseNum, const int numSpecies, 
+		const int numElem, const char * constphaseName,
+		const double molesInert = 0.0);
 
     void elemResize(const int numElemConstraints);
 
@@ -477,6 +478,8 @@ namespace VCSnonideal {
      */
     void setElemGlobalIndex(const int eLocal, const int eGlobal);
 
+    int nElemConstraints() const;
+
   private:
 
     //! Evaluate the activity coefficients at the current conditions
@@ -591,12 +594,14 @@ namespace VCSnonideal {
      */
     int m_eqnState;
 
+  private:
     //! Number of element constraints within the problem
     /*!
      *  This is usually equal to the number of elements.
      */
-    int nElemConstraints;
+    int m_numElemConstraints;
 
+  public:
     //!  This is the element number for the  charge neutrality 
     //!  condition of the phase
     /*!

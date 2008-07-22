@@ -361,7 +361,7 @@ namespace VCSnonideal {
   void VCS_PROB::addPhaseElements(vcs_VolPhase *volPhase) {
     int e, eVP;
     int foundPos = -1;
-    int neVP = volPhase->nElemConstraints;
+    int neVP = volPhase->nElemConstraints();
     std::string en;
     std::string enVP;
     /*
@@ -443,7 +443,7 @@ namespace VCSnonideal {
       exit(-1);
     }
     double *const *const fm = volPhase->FormulaMatrix.baseDataAddr();
-    for (eVP = 0; eVP < volPhase->nElemConstraints; eVP++) {
+    for (eVP = 0; eVP < volPhase->nElemConstraints(); eVP++) {
       e = volPhase->elemGlobalIndex(eVP);
 #ifdef DEBUG_MODE
       if (e < 0) {

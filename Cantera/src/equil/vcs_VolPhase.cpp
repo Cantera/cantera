@@ -36,7 +36,7 @@ namespace VCSnonideal {
     m_singleSpecies(true),
     m_gasPhase(false),
     m_eqnState(VCS_EOS_CONSTANT),
-    nElemConstraints(0),
+    m_numElemConstraints(0),
     ChargeNeutralityElement(-1),
     m_elemGlobalIndex(0),
     NVolSpecies(0),
@@ -98,7 +98,7 @@ namespace VCSnonideal {
     m_singleSpecies(b.m_singleSpecies),
     m_gasPhase(b.m_gasPhase),
     m_eqnState(b.m_eqnState),
-    nElemConstraints(b.nElemConstraints),
+    m_numElemConstraints(b.m_numElemConstraints),
     ChargeNeutralityElement(b.ChargeNeutralityElement),
     NVolSpecies(b.NVolSpecies),
     m_totalMolesInert(b.m_totalMolesInert),
@@ -153,20 +153,20 @@ namespace VCSnonideal {
       m_eqnState            = b.m_eqnState;
  
       NVolSpecies         = b.NVolSpecies;
-      nElemConstraints    = b.nElemConstraints;
+      m_numElemConstraints    = b.m_numElemConstraints;
       ChargeNeutralityElement = b.ChargeNeutralityElement;
 
 
-      ElName.resize(b.nElemConstraints);
-      for (int e = 0; e < b.nElemConstraints; e++) {
+      ElName.resize(b.m_numElemConstraints);
+      for (int e = 0; e < b.m_numElemConstraints; e++) {
 	ElName[e] = b.ElName[e];
       }
  
       ElActive = b.ElActive;
       m_elType = b.m_elType;
   
-      FormulaMatrix.resize(nElemConstraints, NVolSpecies, 0.0);
-      for (int e = 0; e < nElemConstraints; e++) {
+      FormulaMatrix.resize(m_numElemConstraints, NVolSpecies, 0.0);
+      for (int e = 0; e < m_numElemConstraints; e++) {
 	for (int k = 0; k < NVolSpecies; k++) {
 	  FormulaMatrix[e][k] = b.FormulaMatrix[e][k];
 	}
@@ -242,8 +242,10 @@ namespace VCSnonideal {
   }
   /***************************************************************************/
 
-  void vcs_VolPhase::resize(int phaseNum, int nspecies, int numElem, const char *phaseName,
-			    double molesInert) {
+  void vcs_VolPhase::resize(const int phaseNum, const int nspecies, 
+			    const int numElem, const char * const phaseName,
+			    const double molesInert) {
+#ifdef DEBUG_MODE
     if (nspecies <= 0) {
       plogf("nspecies Error\n");
       std::exit(-1);
@@ -252,7 +254,7 @@ namespace VCSnonideal {
       plogf("phaseNum should be greater than 0\n");
       std::exit(-1);
     }
-
+#endif
     setTotalMolesInert(molesInert);
     m_phi = 0.0;
     m_phiVarIndex = -1;
@@ -279,7 +281,7 @@ namespace VCSnonideal {
       m_singleSpecies = true;
     }
 
-    if (NVolSpecies == nspecies && numElem == nElemConstraints) {
+    if (NVolSpecies == nspecies && numElem == m_numElemConstraints) {
       return;
     }
  
@@ -289,7 +291,7 @@ namespace VCSnonideal {
     }
 
 
-    IndSpecies.resize(nspecies,-1);
+    IndSpecies.resize(nspecies, -1);
 
     if ((int) ListSpeciesPtr.size() >= NVolSpecies) {
       for (int i = 0; i < NVolSpecies; i++) {
@@ -336,18 +338,14 @@ namespace VCSnonideal {
 
     ElName.resize(numElemConstraints);
 
-    ElActive.resize(numElemConstraints, 1);
+    ElActive.resize(numElemConstraints+1, 1);
     m_elType.resize(numElemConstraints, VCS_ELEM_TYPE_ABSPOS);
-
-
     FormulaMatrix.resize(numElemConstraints, NVolSpecies, 0.0);
 
-
+    ElName.resize(numElemConstraints, "");
     m_elemGlobalIndex.resize(numElemConstraints, -1);
 
-    
-
-    nElemConstraints = numElemConstraints;
+    m_numElemConstraints = numElemConstraints;
   }
   /***************************************************************************/
 
@@ -1317,15 +1315,20 @@ namespace VCSnonideal {
    //! Returns the global index of the local element index for the phase
   int vcs_VolPhase::elemGlobalIndex(const int e) const {
     DebugAssertThrowVCS(e >= 0, " vcs_VolPhase::elemGlobalIndex") ;
-    DebugAssertThrowVCS(e < nElemConstraints, " vcs_VolPhase::elemGlobalIndex") ;
+    DebugAssertThrowVCS(e < m_numElemConstraints, " vcs_VolPhase::elemGlobalIndex") ;
     return m_elemGlobalIndex[e];
   }
 
    //! Returns the global index of the local element index for the phase
   void vcs_VolPhase::setElemGlobalIndex(const int eLocal, const int eGlobal) {
     DebugAssertThrowVCS(eLocal >= 0, "vcs_VolPhase::setElemGlobalIndex");
-    DebugAssertThrowVCS(eLocal < nElemConstraints, "vcs_VolPhase::setElemGlobalIndex");
+    DebugAssertThrowVCS(eLocal < m_numElemConstraints, "vcs_VolPhase::setElemGlobalIndex");
     m_elemGlobalIndex[eLocal] = eGlobal;
   }
+
+  int vcs_VolPhase::nElemConstraints() const {
+    return m_numElemConstraints;
+  }
+
 }
 
