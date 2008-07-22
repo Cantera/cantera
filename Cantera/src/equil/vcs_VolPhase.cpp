@@ -40,7 +40,7 @@ namespace VCSnonideal {
     ChargeNeutralityElement(-1),
     ElGlobalIndex(0),
     NVolSpecies(0),
-    TMolesInert(0.0),
+    m_totalMolesInert(0.0),
     m_molarVolInert(1000.),
     m_activityConvention(0),
     m_isIdealSoln(false),
@@ -102,7 +102,7 @@ namespace VCSnonideal {
     nElemConstraints(b.nElemConstraints),
     ChargeNeutralityElement(b.ChargeNeutralityElement),
     NVolSpecies(b.NVolSpecies),
-    TMolesInert(b.TMolesInert),
+    m_totalMolesInert(b.m_totalMolesInert),
     m_activityConvention(b.m_activityConvention),
     m_isIdealSoln(b.m_isIdealSoln),
     m_existence(b.m_existence),
@@ -177,7 +177,7 @@ namespace VCSnonideal {
       ElGlobalIndex = b.ElGlobalIndex;
       NVolSpecies         = b.NVolSpecies;
       PhaseName           = b.PhaseName;
-      TMolesInert         = b.TMolesInert;
+      m_totalMolesInert   = b.m_totalMolesInert;
       m_activityConvention  = b.m_activityConvention;
       m_isIdealSoln       = b.m_isIdealSoln;
       m_existence         = b.m_existence;
@@ -254,11 +254,7 @@ namespace VCSnonideal {
       std::exit(-1);
     }
 
-    TMolesInert = molesInert;
-    if (TMolesInert > 0.0) {
-      m_existence = 2;
-    } 
-
+    setTotalMolesInert(molesInert);
     m_phi = 0.0;
     m_phiVarIndex = -1;
 
@@ -512,7 +508,7 @@ namespace VCSnonideal {
 				     const double * molesSpeciesVCS) {
     int kglob;
     double tmp;
-    v_totalMoles = TMolesInert;
+    v_totalMoles = m_totalMolesInert;
 
     if (molesSpeciesVCS == 0) {
 #ifdef DEBUG_MODE
@@ -593,7 +589,7 @@ namespace VCSnonideal {
       }
     }
     _updateMoleFractionDependencies();
-    if (TMolesInert > 0.0) {
+    if (m_totalMolesInert > 0.0) {
       m_existence = 2;
     }
     /*
@@ -871,9 +867,9 @@ namespace VCSnonideal {
     }
     m_totalVol *= v_totalMoles;
 
-    if (TMolesInert > 0.0) {
+    if (m_totalMolesInert > 0.0) {
       if (m_gasPhase) {
-	double volI = TMolesInert * 8314.47215 * Temp / Pres;
+	double volI = m_totalMolesInert * 8314.47215 * Temp / Pres;
 	m_totalVol += volI;
       } else {
 	printf("unknown situation\n");
@@ -1080,8 +1076,16 @@ namespace VCSnonideal {
    */
   void vcs_VolPhase::setTotalMoles(const double totalMols)  {
     v_totalMoles = totalMols;
-    if (TMolesInert > 0.0) {
+    if (m_totalMolesInert > 0.0) {
       m_existence = 2;
+#ifdef DEBUG_MODE
+      if (totalMols < m_totalMolesInert) {
+      	printf(" vcs_VolPhase::setTotalMoles:: ERROR totalMoles "
+	       "less than inert moles: %g %g\n", 
+	       totalMols, m_totalMolesInert);
+	std::exit(-1);
+      }
+#endif
     } else {
       if (totalMols > 0.0) {
 	m_existence = 1;
@@ -1212,7 +1216,7 @@ namespace VCSnonideal {
     }
 #ifdef DEBUG_MODE
     else { 
-      if (TMolesInert == 0.0) {
+      if (m_totalMolesInert == 0.0) {
 	if (v_totalMoles == 0.0) {
 	  plogf("vcs_VolPhase::setExistence setting true existence for phase with no moles");
 	  plogendl();
@@ -1249,6 +1253,40 @@ namespace VCSnonideal {
   void vcs_VolPhase::setSpGlobalIndexVCS(const int spIndex, 
 					 const int spGlobalIndex) {
     IndSpecies[spIndex] = spGlobalIndex;
+  }
+  /**********************************************************************/
+
+  // Sets the total moles of inert in the phase
+  /*
+   * @param tMolesInert Value of the total kmols of inert species in the
+   *        phase.
+   */
+  void vcs_VolPhase::setTotalMolesInert(const double tMolesInert) {
+    if (m_totalMolesInert != tMolesInert) {
+      m_UpToDate = false;
+      m_UpToDate_AC = false;
+      m_UpToDate_VolStar = false;
+      m_UpToDate_VolPM = false;
+      m_UpToDate_GStar = false;
+      m_UpToDate_G0 = false;
+      v_totalMoles += (tMolesInert - m_totalMolesInert);
+      m_totalMolesInert = tMolesInert;
+    }
+    if (m_totalMolesInert > 0.0) {
+      m_existence = 2;
+    } else {
+      if (v_totalMoles > 0.0) {
+	m_existence = 1;
+      } else {
+	m_existence = 0;
+      }
+    }
+  }
+  /**********************************************************************/
+
+  // returns the value of the total kmol of inert in the phase
+  double vcs_VolPhase::totalMolesInert() const {
+    return m_totalMolesInert;
   }
   /**********************************************************************/
 }

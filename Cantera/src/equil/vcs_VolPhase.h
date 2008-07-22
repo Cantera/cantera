@@ -452,6 +452,19 @@ namespace VCSnonideal {
      */
     void setSpGlobalIndexVCS(const int spIndex, const int spGlobalIndex);
 
+    //! Sets the total moles of inert in the phase
+    /*!
+     * @param tMolesInert Value of the total kmols of inert species in the
+     *        phase.
+     */
+    void setTotalMolesInert(const double tMolesInert);
+
+    //! returns the value of the total kmol of inert in the phase
+    /*!
+     * @return Returns the total value of the kmol of inert in the phase
+     */
+    double totalMolesInert() const;
+
   private:
 
     //! Evaluate the activity coefficients at the current conditions
@@ -632,9 +645,10 @@ namespace VCSnonideal {
     //! String name for the phase
     std::string PhaseName;
 
+  private:
     //!  Total moles of inert in the phase 
-    double TMolesInert;
-
+    double m_totalMolesInert;
+  public:
     //! molar volume of the inert species if present
     /*!
      *  units m**3 / kg

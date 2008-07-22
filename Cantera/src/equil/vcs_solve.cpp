@@ -609,7 +609,7 @@ namespace VCSnonideal {
      */
     for (iph = 0; iph < nph; iph++) {
       Vphase = pub->VPhaseList[iph];
-      TPhInertMoles[iph] = Vphase->TMolesInert;
+      TPhInertMoles[iph] = Vphase->totalMolesInert();
     }
 
     /*
@@ -882,14 +882,14 @@ namespace VCSnonideal {
 	retn = VCS_PUB_BAD;
       }
 
-      if (vPhase->TMolesInert != pub_phase_ptr->TMolesInert) {
+      if (vPhase->totalMolesInert() != pub_phase_ptr->totalMolesInert()) {
 	status_change = true;
       }
       /*
        * Copy over the number of inert moles if it has changed.
        */
-      TPhInertMoles[iph] = pub_phase_ptr->TMolesInert;
-      vPhase->TMolesInert = pub_phase_ptr->TMolesInert;
+      TPhInertMoles[iph] = pub_phase_ptr->totalMolesInert();
+      vPhase->setTotalMolesInert(pub_phase_ptr->totalMolesInert());
       if (TPhInertMoles[iph] > 0.0) {
 	vPhase->setExistence(2);
 	vPhase->m_singleSpecies = FALSE;
@@ -959,10 +959,10 @@ namespace VCSnonideal {
     for (int iph = 0; iph < pub->NPhase; iph++) {
       vcs_VolPhase *pubPhase = pub->VPhaseList[iph];
       vcs_VolPhase *vPhase = m_VolPhaseList[iph];
-      pubPhase->TMolesInert = vPhase->TMolesInert;
+      pubPhase->setTotalMolesInert(vPhase->totalMolesInert());
       pubPhase->setTotalMoles(vPhase->TotalMoles());
       pubPhase->setElectricPotential(vPhase->electricPotential());
-      double sumMoles = pubPhase->TMolesInert;
+      double sumMoles = pubPhase->totalMolesInert();
       pubPhase->setMoleFractions(VCS_DATA_PTR(vPhase->moleFractions()));
       for (int k = 0; k < pubPhase->NVolSpecies; k++) {
 	kT = pubPhase->spGlobalIndexVCS(k);

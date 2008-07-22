@@ -1443,7 +1443,7 @@ namespace VCSnonideal {
 	plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
 	       VolPhase->VP_ID,       VolPhase->m_singleSpecies,
 	       VolPhase->m_gasPhase,    sEOS.c_str(),
-	       VolPhase->NVolSpecies, VolPhase->TMolesInert );
+	       VolPhase->NVolSpecies, VolPhase->totalMolesInert() );
 	plogf("%16e\n",  VolPhase->TotalMoles());
       }
    
@@ -1562,7 +1562,7 @@ namespace VCSnonideal {
 	plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
 	       VolPhase->VP_ID,       VolPhase->m_singleSpecies,
 	       VolPhase->m_gasPhase,    sEOS.c_str(),
-	       VolPhase->NVolSpecies, VolPhase->TMolesInert );
+	       VolPhase->NVolSpecies, VolPhase->totalMolesInert() );
 	plogf("%16e\n",  VolPhase->TotalMoles() ); 
       }
    

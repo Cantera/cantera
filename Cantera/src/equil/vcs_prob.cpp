@@ -285,7 +285,7 @@ namespace VCSnonideal {
 	plogf("%16s %5d %5d %8d ", Vphase->PhaseName.c_str(),
 	      Vphase->VP_ID, Vphase->m_singleSpecies, Vphase->m_gasPhase);
 	plogf("%16s %8d %16e ", EOS_cstr.c_str(),
-	      Vphase->NVolSpecies, Vphase->TMolesInert);
+	      Vphase->NVolSpecies, Vphase->totalMolesInert());
 	if (iest >= 0) plogf("%16e\n",  Vphase->TotalMoles());
 	else           plogf("   N/A\n");	 
       }
