@@ -18,6 +18,7 @@
 #include "ThermoPhase.h"
 #include "mix_defs.h"
 
+#include <string>
 #include <cstdio>
 #include <cstdlib>
 
@@ -1322,7 +1323,8 @@ namespace VCSnonideal {
    //! Returns the global index of the local element index for the phase
   void vcs_VolPhase::setElemGlobalIndex(const int eLocal, const int eGlobal) {
     DebugAssertThrowVCS(eLocal >= 0, "vcs_VolPhase::setElemGlobalIndex");
-    DebugAssertThrowVCS(eLocal < m_numElemConstraints, "vcs_VolPhase::setElemGlobalIndex");
+    DebugAssertThrowVCS(eLocal < m_numElemConstraints,
+			"vcs_VolPhase::setElemGlobalIndex");
     m_elemGlobalIndex[eLocal] = eGlobal;
   }
 
@@ -1330,5 +1332,173 @@ namespace VCSnonideal {
     return m_numElemConstraints;
   }
 
+  std::string vcs_VolPhase::elementName(const int e) const {
+    return ElName[e];
+  }
+
+  /*!
+   *  This function decides whether a phase has charged species
+   *  or not.
+   */
+  static bool hasChargedSpecies(const Cantera::ThermoPhase * const tPhase) {
+    int nSpPhase = tPhase->nSpecies();
+    for (int k = 0; k < nSpPhase; k++) {
+      if (tPhase->charge(k) != 0.0) {
+	return true;
+      }
+    }
+    return false;
+  }
+  /**********************************************************************
+   *
+   * chargeNeutralityElement():
+   *
+   *  This utility routine decides whether a Cantera ThermoPhase needs
+   *  a constraint equation representing the charge neutrality of the
+   *  phase. It does this by searching for charged species. If it 
+   *  finds one, and if the phase needs one, then it returns true.
+   */
+  static bool chargeNeutralityElement(const Cantera::ThermoPhase * const tPhase) {
+    int hasCharge = hasChargedSpecies(tPhase);
+    if (tPhase->chargeNeutralityNecessary()) {
+      if (hasCharge) {
+	return true;
+      }
+    }
+    return false;
+  }
+
+  int vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase * const tPhase) {
+    int e, k, eT;
+    std::string ename; 
+    int eFound = -2;
+    /*
+     *
+     */
+    int nebase = tPhase->nElements();
+    int ne  = nebase;
+    int ns = tPhase->nSpecies();
+
+    /*
+     * Decide whether we need an extra element constraint for charge
+     * neutrality of the phase
+     */
+    bool cne = chargeNeutralityElement(tPhase);
+    if (cne) {
+      ChargeNeutralityElement = ne;
+      ne++;
+    }
+
+    /*
+     * Assign and malloc structures
+     */
+    elemResize(ne);
+
+
+    if (ChargeNeutralityElement >= 0) {
+      m_elType[ChargeNeutralityElement] =
+	VCS_ELEM_TYPE_CHARGENEUTRALITY;
+    }
+
+    if (hasChargedSpecies(tPhase)) {
+      if (cne) {
+	/*
+	 * We need a charge neutrality constraint.
+	 * We also have an Electron Element. These are
+	 * duplicates of each other. To avoid trouble with
+	 * possible range error conflicts, sometimes we eliminate
+	 * the Electron condition. Flag that condition for elimination
+	 * by toggling the ElActive variable. If we find we need it
+	 * later, we will retoggle ElActive to true.
+	 */
+	for (eT = 0; eT < nebase; eT++) {
+	  ename = tPhase->elementName(eT);
+	  if (ename == "E") {
+	    eFound = eT;
+	    ElActive[eT] = 0;
+	    m_elType[eT] = VCS_ELEM_TYPE_ELECTRONCHARGE;
+	  }
+	}
+      } else {
+	for (eT = 0; eT < nebase; eT++) {
+	  ename = tPhase->elementName(eT);
+	  if (ename == "E") {
+	    eFound = eT;
+	    m_elType[eT] = VCS_ELEM_TYPE_ELECTRONCHARGE;
+	  }
+	}
+      }
+      if (eFound == -2) {
+	eFound = ne;
+	m_elType[ne] = VCS_ELEM_TYPE_ELECTRONCHARGE;
+	ElActive[ne] = 0;
+	std::string ename = "E";
+	ElName[ne] = ename;
+	ne++;
+	elemResize(ne);
+      }
+
+    }
+
+    FormulaMatrix.resize(ne, ns, 0.0);
+    
+    m_speciesUnknownType.resize(ns, VCS_SPECIES_TYPE_MOLNUM);
+    
+    elemResize(ne);
+    //ElGlobalIndex.resize(ne, -1);
+    
+    
+    e = 0;
+    for (eT = 0; eT < nebase; eT++) {
+      ename = tPhase->elementName(eT);
+      ElName[e] = ename;
+      e++;
+    }
+
+    if (cne) {
+      std::string pname = tPhase->id();
+      if (pname == "") {
+	char sss[50];
+	sprintf(sss, "phase%d", VP_ID);
+	pname = sss;
+      }
+      ename = "cn_" + pname;
+      e = ChargeNeutralityElement;
+      ElName[e] = ename;
+    }
+ 
+    double * const * const fm = FormulaMatrix.baseDataAddr();
+    for (k = 0; k < ns; k++) {
+      e = 0;
+      for (eT = 0; eT < nebase; eT++) {
+	fm[e][k] = tPhase->nAtoms(k, eT);
+	e++;
+      }
+      if (eFound >= 0) {
+	fm[eFound][k] = - tPhase->charge(k);
+      }
+    }
+
+    if (cne) {
+      for (k = 0; k < ns; k++) {
+	fm[ChargeNeutralityElement][k] = tPhase->charge(k);
+      }
+    }
+
+ 
+    /*
+     * Here, we figure out what is the species types are
+     * The logic isn't set in stone, and is just for a particular type
+     * of problem that I'm solving first.
+     */
+    if (ns == 1) {
+      if (tPhase->charge(0) != 0.0) {
+	m_speciesUnknownType[0] = VCS_SPECIES_TYPE_INTERFACIALVOLTAGE;
+	setPhiVarIndex(0);
+      }
+    }
+
+    return ne;
+  }
 }
 

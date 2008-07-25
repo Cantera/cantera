@@ -480,6 +480,22 @@ namespace VCSnonideal {
 
     int nElemConstraints() const;
 
+    std::string elementName(const int e) const;
+
+
+    
+    //! Transfer all of the element information from the
+    //! ThermoPhase object to the vcs_VolPhase object.
+    /*!
+     * Also decide whether we need a new charge neutrality
+     * element in the phase to enforce a charge neutrality
+     * constraint.
+     *
+     * @param tPhase Pointer to the thermophase object
+     */
+    int transferElementsFM(const Cantera::ThermoPhase * const tPhase);
+
+
   private:
 
     //! Evaluate the activity coefficients at the current conditions
@@ -549,11 +565,12 @@ namespace VCSnonideal {
      */
     void _updateMoleFractionDependencies();
 
+  
     /*************************************************************************
      *         MEMBER  DATA                                                  *
      ************************************************************************/
 
-  public:
+  private:
     //! Backtrack value of VCS_SOLVE *
     /*!
      *  Note the default for this is 0. That's a valid value too, since
@@ -561,6 +578,7 @@ namespace VCSnonideal {
      */
     VCS_SOLVE *m_owningSolverObject;
 
+  public:
     //! Original ID of the phase in the problem. 
     /*!
      * If a non-ideal phase splits into two due to a
@@ -610,12 +628,13 @@ namespace VCSnonideal {
      */
     int ChargeNeutralityElement;
 
+  private:
     //! vector of strings containing the element names
     /*!
      * Length =  nElemConstraints
      */
     std::vector<std::string> ElName;
-
+  public:
     //! boolean indicating whether an element constraint is active
     //! for the current  problem
     std::vector<int> ElActive;

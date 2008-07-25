@@ -369,7 +369,7 @@ namespace VCSnonideal {
      */
     for (eVP = 0; eVP < neVP; eVP++) {
       foundPos = -1;
-      enVP = volPhase->ElName[eVP];
+      enVP = volPhase->elementName(eVP);
       /*
        * Search for matches with the existing elements.
        * If found, then fill in the entry in the global

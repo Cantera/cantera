@@ -433,8 +433,12 @@ namespace Cantera {
             }
             m_moles[ip] = phasemoles;
             if (nsp > 1) {
+	      if (phasemoles > 0.0) {
                 p->setState_TPX(m_temp, m_press, n + loc);
                 p->getMoleFractions(DATA_PTR(m_moleFractions) + loc);
+	      } else {
+		p->getMoleFractions(DATA_PTR(m_moleFractions) + loc);
+	      }
             }
             else {
                 m_moleFractions[loc] = 1.0;

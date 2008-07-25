@@ -1059,8 +1059,10 @@ private:
    *   loop.
    *
    * @param iph Phase to be deleted
+   *
+   * @return Returns whether the operation was successful or not
    */
-  void vcs_delete_multiphase(const int iph);
+  bool vcs_delete_multiphase(const int iph);
 
   //!  Change the concentration of a species by delta moles. 
   /*!

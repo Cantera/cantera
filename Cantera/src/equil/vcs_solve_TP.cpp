@@ -2116,8 +2116,8 @@ namespace VCSnonideal {
    *
    *
    *  @param kspec The species index
-   *  @delta_ptr   pointer to the delta for the species. This may change during
-   *               the calculation
+   *  @param delta_ptr   pointer to the delta for the species. This may change during
+   *                     the calculation
    *
    *  @return
    *      1: succeeded without change of dx
@@ -2129,6 +2129,13 @@ namespace VCSnonideal {
     int j;
     double tmp;
     double delta = *delta_ptr;
+#ifdef DEBUG_MODE
+    if (irxn < 0) {
+	plogf("  --- delete_species() ERROR: called for a component %d", kspec);
+	plogendl();
+	std::exit(-1);
+    }
+#endif
     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
       /*
        * Attempt the given dx. If it doesn't work, try to see if a smaller
@@ -2406,10 +2413,11 @@ namespace VCSnonideal {
    *
    * @param iph Phase to be deleted
    */
-  void VCS_SOLVE::vcs_delete_multiphase(const int iph) {
-    int kspec, j, irxn;
+  bool VCS_SOLVE::vcs_delete_multiphase(const int iph) {
+    int kspec, irxn;
     double dx;
     vcs_VolPhase *Vphase = m_VolPhaseList[iph];
+    bool successful = true;
     /*
      * set the phase existence flag to dead
      */
@@ -2426,6 +2434,8 @@ namespace VCSnonideal {
     m_tPhaseMoles_new[iph] = 0.0;
     m_deltaPhaseMoles[iph] = 0.0;
    
+
+
     /*
      * Loop over all of the active species in the phase.
      */
@@ -2433,33 +2443,71 @@ namespace VCSnonideal {
       if (m_phaseID[kspec] == iph) {
 	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  irxn = kspec - m_numComponents;
-	  /*
-	   * calculate an extent of rxn, dx, that zeroes out the species.
-	   */
-	  dx = - (m_molNumSpecies_old[kspec]);
-	  /*
-	   * Set the mole numbers of that species to zero.
-	   */
-	  m_molNumSpecies_old[kspec]  = 0.0;
-	  m_molNumSpecies_new[kspec] = 0.0;
-	  m_deltaMolNumSpecies[kspec] = 0.0;
-	  /*
-	   * Change the status flag of the species to that of an
-	   * zeroed phase
-	   */
-	  m_rxnStatus[irxn] = VCS_SPECIES_ZEROEDPHASE;
-	  /*
-	   *  Changed the component mole numbers to account for the
-	   *  final extent of reaction. Make sure to keep component
-	   *  mole numbers above zero 
-	   * 
-	   */
-	  for (j = 0; j < m_numComponents; ++j) {
-	    m_molNumSpecies_old[j] += m_stoichCoeffRxnMatrix[irxn][j] * dx;
-	    if (m_speciesUnknownType[j] == VCS_SPECIES_TYPE_MOLNUM) {
-	      if (m_molNumSpecies_old[j] < 0.0) {
-		m_molNumSpecies_old[j] = 0.0;
+	  if (irxn >= 0) {
+	    /*
+	     * calculate an extent of rxn, dx, that zeroes out the species.
+	     */
+	    dx = - (m_molNumSpecies_old[kspec]);
+	    double dxTent = dx;
+
+	    int retn = delta_species(kspec, &dxTent);
+	    if (retn != 1) {
+	      successful = false;
+#ifdef DEBUG_MODE
+	      if (m_debug_print_lvl >= 2) {
+		plogf("   --- delete_multiphase %d, %s ERROR problems deleting species %s\n",
+		      iph, Vphase->PhaseName.c_str(), m_speciesName[kspec].c_str() );
+		plogf("   ---     delta  attempted: %g  achieved: %g   "
+		      "  Zeroing it manually\n", dx, dxTent);
 	      }
+#endif
+	      m_molNumSpecies_old[kspec]  = 0.0;
+	      m_molNumSpecies_new[kspec]  = 0.0;
+	      m_deltaMolNumSpecies[kspec] = 0.0;
+	      // recover the total phase moles. 
+	      vcs_tmoles();
+	    } else {
+	      /*
+	       * Set the mole number of that species to zero.
+	       */
+	      m_molNumSpecies_old[kspec]  = 0.0;
+	      m_molNumSpecies_new[kspec] = 0.0;
+	      m_deltaMolNumSpecies[kspec] = 0.0;
+	    }
+	    /*
+	     * Change the status flag of the species to that of an
+	     * zeroed phase
+	     */
+	    m_rxnStatus[irxn] = VCS_SPECIES_ZEROEDPHASE;
+	    /*
+	     *  Changed the component mole numbers to account for the
+	     *  final extent of reaction. Make sure to keep component
+	     *  mole numbers above zero 
+	     * 
+	     */
+	    // for (j = 0; j < m_numComponents; ++j) {
+	    // m_molNumSpecies_old[j] += m_stoichCoeffRxnMatrix[irxn][j] * dx;
+	    //if (m_speciesUnknownType[j] == VCS_SPECIES_TYPE_MOLNUM) {
+	    //if (m_molNumSpecies_old[j] < 0.0) {
+	    //  m_molNumSpecies_old[j] = 0.0;
+	    //}
+	    //}
+	    //}
+	  } 
+	  else {
+#ifdef DEBUG_MODE
+	    if (m_debug_print_lvl >= 2) {
+	      plogf("   --- delete_multiphase   One of the species is a component %d - %s with mole number %g\n",
+		    kspec, m_speciesName[kspec].c_str(),   m_molNumSpecies_old[kspec]);
+	    }
+#endif
+	    if (m_molNumSpecies_old[kspec] > VCS_RELDELETE_SPECIES_CUTOFF * VCS_DELETE_PHASE_CUTOFF ) {
+	      plogf("   --- delete_multiphase   unknown situation error exit");
+	      plogendl();
+	      std::exit(-1);
+	    } else {
+	      m_molNumSpecies_old[kspec] = 0.0;
+	      m_molNumSpecies_new[kspec] = 0.0;
 	    }
 	  }
 	}
@@ -2505,6 +2553,7 @@ namespace VCSnonideal {
     Vphase->setMolesFromVCSCheck(VCS_STATECALC_OLD, 
 				 VCS_DATA_PTR(m_molNumSpecies_old),
 				 VCS_DATA_PTR(m_tPhaseMoles_old));
+    return successful;
   } 
   /**********************************************************************************/
    
@@ -4647,7 +4696,7 @@ namespace VCSnonideal {
       if (! vcs_doubleEqual(tlogMoles[iph], tPhMoles_ptr[iph])) {
 	plogf("phase Moles may be off, iph = %d, %20.14g %20.14g \n",
 	      iph, tlogMoles[iph], tPhMoles_ptr[iph]);
-	exit(0);
+	std::exit(0);
       }
     }
 #endif
