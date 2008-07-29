@@ -506,7 +506,7 @@ public:
    *  the variable m_totalMolNum.
    *  Reconciles Phase existence flags with total moles in each phase.
    */
-  void vcs_tmoles();
+  double vcs_tmoles();
 
 
   //! This subroutine calculates reaction free energy changes for 
@@ -1758,6 +1758,15 @@ public:
    *. The default is to have this unitless
    */
   char  m_unitsState; 
+
+  //! Multiplier for the mole numbers within the nondimensionless formulation
+  /*!
+   *   All numbers within the main routine are on an absolute basis. This
+   *   presents some problems wrt very large and very small mole numbers.
+   *   We get around this by using a multiplier coming into and coming
+   *   out of the equilibrium routines
+   */
+  double m_totalMoleScale;
  
   //! specifies the activity  convention of the phase containing the species
   /*!

@@ -50,6 +50,7 @@ namespace VCSnonideal {
     m_tolmaj2(0.0),
     m_tolmin2(0.0),
     m_unitsState(VCS_DIMENSIONAL_G),
+    m_totalMoleScale(1.0),
     m_useActCoeffJac(0),
     m_totalVol(0.0),
     m_Faraday_dim(1.602e-19 * 6.022136736e26),

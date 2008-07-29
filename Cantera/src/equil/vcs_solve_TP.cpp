@@ -1157,10 +1157,14 @@ namespace VCSnonideal {
       plogf("   "); vcs_print_line("-", 103); 
       plogf("   --- Summary of the Update ");
       if (iti == 0) {
-	plogf(" (all species):\n");
+	plogf(" (all species):");
       } else {
-	plogf(" (only major species):\n");
+	plogf(" (only major species):");
       }
+      if (m_totalMoleScale != 1.0) {
+	plogf(" (Total Mole Scale = %g)", m_totalMoleScale);
+      }
+      plogf("\n");
       plogf("   ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT");
       plogf("     Mu/RT     Init_Del_G/RT   Delta_G/RT\n");
       for (i = 0; i < m_numComponents; ++i) {
@@ -4936,7 +4940,7 @@ namespace VCSnonideal {
    *  Calculates the total number of moles in all phases.
    *  Reconciles Phase existence flags with total moles in each phase.
    */
-  void VCS_SOLVE::vcs_tmoles() {
+  double VCS_SOLVE::vcs_tmoles() {
     int i;
     double sum;
     vcs_VolPhase *Vphase;
@@ -4961,6 +4965,7 @@ namespace VCSnonideal {
       }
     }  
     m_totalMolNum = sum;
+    return m_totalMolNum;
   }
   /*****************************************************************************/
 

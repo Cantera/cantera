@@ -32,21 +32,18 @@ namespace VCSnonideal {
   }
 
   /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
-
-  int VCS_SOLVE::vcs_report(int iconv)
-   
-    /**************************************************************************
-     *
-     *  vcs_report:
-     *
-     *     Print out a report on the state of the equilibrium problem to 
-     *     standard output.
-     *     This prints out the current contents of the VCS_SOLVE class, V.
-     *     The "old" solution vector is printed out.
-     ***************************************************************************/
-  {
+ 
+  /**************************************************************************
+   *
+   *  vcs_report:
+   *
+   *     Print out a report on the state of the equilibrium problem to 
+   *     standard output.
+   *     This prints out the current contents of the VCS_SOLVE class, V.
+   *     The "old" solution vector is printed out.
+   ***************************************************************************/
+  int VCS_SOLVE::vcs_report(int iconv) {
+    bool printActualMoles = true;
     int i, j, l, k,  inertYes = FALSE, kspec;
     int nspecies = m_numSpeciesTot;
     double  g;
@@ -86,6 +83,11 @@ namespace VCSnonideal {
     if (m_unitsState == VCS_DIMENSIONAL_G) {
       vcs_nondim_TP();  
     }
+    double molScale = 1.0;
+    if (printActualMoles) {
+      molScale = m_totalMoleScale;
+    }
+
     vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
     vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesTot);  
     /* ******************************************************** */
@@ -110,9 +112,13 @@ namespace VCSnonideal {
     m_totalVol = vcs_VolTotal(m_temperature, m_pressurePA, 
 			      VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_PMVolumeSpecies));
    
-    plogf("\t\tTemperature = %15.2g Kelvin\n", m_temperature);
-    plogf("\t\tPressure    = %15.5g Pa \n", m_pressurePA); 
-    plogf("\t\tVolume      = %15.5g m**3\n", m_totalVol);
+    plogf("\t\tTemperature  = %15.2g Kelvin\n", m_temperature);
+    plogf("\t\tPressure     = %15.5g Pa \n", m_pressurePA); 
+    plogf("\t\ttotal Volume = %15.5g m**3\n", m_totalVol * molScale);
+    if (!printActualMoles) {
+      plogf("\t\tMole Scale = %15.5g kmol (all mole numbers and volumes are scaled by this value)\n", 
+	    molScale);
+    }
    
     /* 
      * -------- TABLE OF SPECIES IN DECREASING MOLE NUMBERS --------------
@@ -125,8 +131,8 @@ namespace VCSnonideal {
     for (i = 0; i < m_numComponents; ++i) {
       plogf(" %-12.12s", m_speciesName[i].c_str());
       print_space(13);
-      plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[i], 
-	    m_molNumSpecies_new[i], m_feSpecies_old[i]);
+      plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[i] * molScale, 
+	    m_molNumSpecies_new[i] * molScale, m_feSpecies_old[i]);
       plogf("   %3d", m_speciesUnknownType[i]);
       plogf("\n");
     }
@@ -136,15 +142,15 @@ namespace VCSnonideal {
       print_space(13);
      
       if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_MOLNUM) {
-	plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[l], 
-	      m_molNumSpecies_new[l], m_feSpecies_old[l]);
+	plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[l] * molScale, 
+	      m_molNumSpecies_new[l] * molScale, m_feSpecies_old[l]);
 	plogf("  KMolNum ");
       } else if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	plogf("        NA         %14.7E    %12.4E", 1.0, m_feSpecies_old[l]);
-	plogf("   Voltage = %14.7E", m_molNumSpecies_old[l]);
+	plogf("   Voltage = %14.7E", m_molNumSpecies_old[l] * molScale);
       } else {
 	plogf("we have a problem\n");
-	exit(-1);
+	std::exit(-1);
       }
       plogf("\n");
     }
@@ -157,7 +163,7 @@ namespace VCSnonideal {
 	  plogf(" Inert Species in phase %16s ", 
 		(m_VolPhaseList[i])->PhaseName.c_str());
 	}
-	plogf("%14.7E     %14.7E    %12.4E\n", TPhInertMoles[i], 
+	plogf("%14.7E     %14.7E    %12.4E\n", TPhInertMoles[i] * molScale, 
 	      TPhInertMoles[i] /  m_tPhaseMoles_old[i], 0.0); 
       }
     }
@@ -167,7 +173,8 @@ namespace VCSnonideal {
 	plogf(" %-12.12s", m_speciesName[kspec].c_str());
 	// Note m_deltaGRxn_new[] stores in kspec slot not irxn slot, after solve
 	plogf("             %14.7E     %14.7E    %12.4E",
-	      m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec], m_deltaGRxn_new[kspec]);
+	      m_molNumSpecies_old[kspec]*molScale, 
+	      m_molNumSpecies_new[kspec]*molScale, m_deltaGRxn_new[kspec]);
 	if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
 	  plogf("  KMol_Num");
 	} else if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -199,7 +206,7 @@ namespace VCSnonideal {
     plogf(" |           |\n");
     plogf(" NonComponent  |   Moles   |");
     for (j = 0; j < m_numComponents; j++) {
-      plogf(" %10.3g", m_molNumSpecies_old[j]);
+      plogf(" %10.3g", m_molNumSpecies_old[j] * molScale);
     }
     plogf(" | DG/RT Rxn |\n");
     print_line("-", m_numComponents*10 + 45);
@@ -207,7 +214,7 @@ namespace VCSnonideal {
       int kspec = m_indexRxnToSpecies[irxn];
       plogf(" %3d ", kspec);
       plogf("%-10.10s", m_speciesName[kspec].c_str());
-      plogf("|%10.3g |", m_molNumSpecies_old[kspec]);
+      plogf("|%10.3g |", m_molNumSpecies_old[kspec]*molScale);
       for (j = 0; j < m_numComponents; j++) {
 	plogf("     %6.2f", m_stoichCoeffRxnMatrix[irxn][j]);
       }
@@ -248,7 +255,7 @@ namespace VCSnonideal {
       plogf(" %3d ", iphase);
       vcs_VolPhase *VPhase = m_VolPhaseList[iphase];
       plogf("%-12.12s |",VPhase->PhaseName.c_str());
-      plogf("%10.3e |", m_tPhaseMoles_old[iphase]);
+      plogf("%10.3e |", m_tPhaseMoles_old[iphase]*molScale);
       totalMoles +=  m_tPhaseMoles_old[iphase];
       if (m_tPhaseMoles_old[iphase] != VPhase->TotalMoles()) {
 	if (! vcs_doubleEqual(m_tPhaseMoles_old[iphase], VPhase->TotalMoles())) {
@@ -296,7 +303,7 @@ namespace VCSnonideal {
     plogf("         Actual                    Target         Type      ElActive\n");
     for (i = 0; i < m_numElemConstraints; ++i) {
       print_space(26); plogf("%-2.2s", (m_elementName[i]).c_str());
-      plogf("%20.12E  %20.12E", m_elemAbundances[i], m_elemAbundancesGoal[i]);
+      plogf("%20.12E  %20.12E", m_elemAbundances[i]*molScale, m_elemAbundancesGoal[i]*molScale);
       plogf("   %3d     %3d\n", m_elType[i], m_elementActive[i]);
     }
     plogf("\n");
@@ -322,7 +329,7 @@ namespace VCSnonideal {
       l = sortindex[i];
       int pid = m_phaseID[l];
       plogf(" %-12.12s", m_speciesName[l].c_str());
-      plogf(" %14.7E ", m_molNumSpecies_old[l]);
+      plogf(" %14.7E ", m_molNumSpecies_old[l]*molScale);
       plogf("%14.7E  ", m_SSfeSpecies[l]);
       plogf("%14.7E  ", log(m_actCoeffSpecies_old[l]));
       double tpmoles = m_tPhaseMoles_old[pid];
@@ -356,7 +363,7 @@ namespace VCSnonideal {
       }
       
 #ifdef DEBUG_MODE
-      plogf("| %20.13E |", m_feSpecies_old[l] * m_molNumSpecies_old[l]);
+      plogf("| %20.13E |", m_feSpecies_old[l] * m_molNumSpecies_old[l] * molScale);
 #endif
       plogf("\n");
     }
