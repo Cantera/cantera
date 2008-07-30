@@ -9304,8 +9304,13 @@ math_libs='-lcvode -lctmath'
 
 
 if test "$LAPACK_FTN_TRAILING_UNDERSCORE" = "y"
-then cat >>confdefs.h <<\_ACEOF
+then
+  cat >>confdefs.h <<\_ACEOF
 #define LAPACK_FTN_TRAILING_UNDERSCORE 1
+_ACEOF
+
+  cat >>confdefs.h <<\_ACEOF
+#define FTN_TRAILING_UNDERSCORE 1
 _ACEOF
 
 fi

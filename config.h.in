@@ -38,7 +38,7 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 
 // Define this if Fortran adds a trailing underscore to names in object files.
 // For linux and most unix systems, this is the case.
-#define FTN_TRAILING_UNDERSCORE
+#undef FTN_TRAILING_UNDERSCORE
 
 
 #undef HAS_SUNDIALS
@@ -47,9 +47,9 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 
 //-------- LAPACK / BLAS ---------
 
-#define LAPACK_FTN_STRING_LEN_AT_END
-#define LAPACK_NAMES_LOWERCASE
-#define LAPACK_FTN_TRAILING_UNDERSCORE
+#undef LAPACK_FTN_STRING_LEN_AT_END
+#undef LAPACK_NAMES_LOWERCASE
+#undef LAPACK_FTN_TRAILING_UNDERSCORE
 
 
 //--------- operating system --------------------------------------
