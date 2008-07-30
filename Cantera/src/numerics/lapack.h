@@ -27,35 +27,16 @@
 extern "C" 
 {
 
-  //  /* Subroutine */ int dgelss_(integer *m, integer *n, integer *nrhs, 
-  //	doublereal *a, integer *lda, doublereal *b, integer *ldb, doublereal *
-  //	s, doublereal *rcond, integer *rank, doublereal *work, integer *lwork,
-  //	 integer *info);
+  void dcopy_(const integer *n, const doublereal *dx, const integer *incx, doublereal *dy, const integer *incy); 
 
-  ///* Subroutine */ int dgetrs_(char *trans, integer *n, integer *nrhs, 
-//	doublereal *a, integer *lda, integer *ipiv, doublereal *b, integer *
-//	ldb, integer *info, int len);
+  doublereal ddot_(integer *n, doublereal *dx, integer *incx, doublereal *dy, integer *incy); 
 
-///* Subroutine */ int dgetrf_(integer *m, integer *n, doublereal *a, integer *
-//	lda, integer *ipiv, integer *info);
+  void daxpy_(integer* n, doublereal* a, doublereal* x, integer* incx, 
+	      doublereal* y, integer* incy);
 
-///* Subroutine */ int dgetri_(integer *n, doublereal *a, integer *
-//	lda, integer *ipiv, doublereal *work, integer *lwork, integer *info);
+  void dscal_(integer *n, doublereal *da, doublereal *dx, integer *incx);
 
-//  /* Subroutine */ int dgemv_(char *trans, integer *m, integer *n, doublereal *
-//  	alpha, doublereal *a, integer *lda, doublereal *x, integer *incx, 
-//  	doublereal *beta, doublereal *y, integer *incy, int len);
-
-void dcopy_(const integer *n, const doublereal *dx, const integer *incx, doublereal *dy, const integer *incy); 
-  //doublereal ddot_(integer *n, doublereal *dx, integer *incx, doublereal *dy, integer *incy); 
-
-doublereal ddot_(integer *n, doublereal *dx, integer *incx, doublereal *dy, integer *incy); 
-
-void daxpy_(integer* n, doublereal* a, doublereal* x, integer* incx, 
-					 doublereal* y, integer* incy);
-void dscal_(integer *n, doublereal *da, doublereal *dx, integer *incx);
-integer idamax_(integer* n, doublereal* a, integer* incx);
-  
+  integer idamax_(integer* n, doublereal* a, integer* incx);  
 }
 
 
