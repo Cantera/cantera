@@ -975,7 +975,7 @@ namespace VCSnonideal {
       /*
        * Tell the vcs_VolPhase pointer about cantera
        */
-      VolPhase->m_VCS_UnitsFormat = vprob->m_VCS_UnitsFormat;
+      VolPhase->p_VCS_UnitsFormat = vprob->m_VCS_UnitsFormat;
       VolPhase->setPtrThermoPhase(tPhase);
       VolPhase->setTotalMoles(0.0);
       /*
@@ -1127,7 +1127,7 @@ namespace VCSnonideal {
 	 *              vprob->SpeciesThermo[]
 	 */
 	ts_ptr->UseCanteraCalls = VolPhase->usingCanteraCalls();
-	ts_ptr->m_VCS_UnitsFormat = VolPhase->m_VCS_UnitsFormat;
+	ts_ptr->m_VCS_UnitsFormat = VolPhase->p_VCS_UnitsFormat;
 	/*
 	 * Add lookback connectivity into the thermo object first
 	 */

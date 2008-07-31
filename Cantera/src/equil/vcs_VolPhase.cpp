@@ -48,7 +48,7 @@ namespace VCSnonideal {
     m_MFStartIndex(0),
     IndSpecies(0),
     //IndSpeciesContig(true),
-    m_VCS_UnitsFormat(VCS_UNITS_MKS),
+    p_VCS_UnitsFormat(VCS_UNITS_MKS),
     m_useCanteraCalls(false),
     TP_ptr(0),
     v_totalMoles(0.0),
@@ -107,7 +107,7 @@ namespace VCSnonideal {
     m_isIdealSoln(b.m_isIdealSoln),
     m_existence(b.m_existence),
     m_MFStartIndex(b.m_MFStartIndex),
-    m_VCS_UnitsFormat(b.m_VCS_UnitsFormat),
+    p_VCS_UnitsFormat(b.p_VCS_UnitsFormat),
     m_useCanteraCalls(b.m_useCanteraCalls),
     TP_ptr(b.TP_ptr),
     v_totalMoles(b.v_totalMoles),
@@ -158,13 +158,13 @@ namespace VCSnonideal {
       ChargeNeutralityElement = b.ChargeNeutralityElement;
 
 
-      ElName.resize(b.m_numElemConstraints);
+      m_elementNames.resize(b.m_numElemConstraints);
       for (int e = 0; e < b.m_numElemConstraints; e++) {
-	ElName[e] = b.ElName[e];
+	m_elementNames[e] = b.m_elementNames[e];
       }
  
       ElActive = b.ElActive;
-      m_elType = b.m_elType;
+      m_elementType = b.m_elementType;
   
       FormulaMatrix.resize(m_numElemConstraints, NVolSpecies, 0.0);
       for (int e = 0; e < m_numElemConstraints; e++) {
@@ -201,7 +201,7 @@ namespace VCSnonideal {
 	  new vcs_SpeciesProperties(*(b.ListSpeciesPtr[k]));
       }
     
-      m_VCS_UnitsFormat   = b.m_VCS_UnitsFormat;
+      p_VCS_UnitsFormat   = b.p_VCS_UnitsFormat;
       m_useCanteraCalls   = b.m_useCanteraCalls;
       /*
        * Do a shallow copy of the ThermoPhase object pointer.
@@ -337,13 +337,13 @@ namespace VCSnonideal {
 
   void vcs_VolPhase::elemResize(const int numElemConstraints) {
 
-    ElName.resize(numElemConstraints);
+    m_elementNames.resize(numElemConstraints);
 
     ElActive.resize(numElemConstraints+1, 1);
-    m_elType.resize(numElemConstraints, VCS_ELEM_TYPE_ABSPOS);
+    m_elementType.resize(numElemConstraints, VCS_ELEM_TYPE_ABSPOS);
     FormulaMatrix.resize(numElemConstraints, NVolSpecies, 0.0);
 
-    ElName.resize(numElemConstraints, "");
+    m_elementNames.resize(numElemConstraints, "");
     m_elemGlobalIndex.resize(numElemConstraints, -1);
 
     m_numElemConstraints = numElemConstraints;
@@ -392,7 +392,7 @@ namespace VCSnonideal {
     if (m_useCanteraCalls) {
       TP_ptr->getGibbs_ref(VCS_DATA_PTR(SS0ChemicalPotential));
     } else {
-      double R = vcsUtil_gasConstant(m_VCS_UnitsFormat);
+      double R = vcsUtil_gasConstant(p_VCS_UnitsFormat);
       for (int k = 0; k < NVolSpecies; k++) {
 	int kglob = IndSpecies[k];
 	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
@@ -433,7 +433,7 @@ namespace VCSnonideal {
     if (m_useCanteraCalls) {
       TP_ptr->getStandardChemPotentials(VCS_DATA_PTR(StarChemicalPotential));
     } else {
-      double R = vcsUtil_gasConstant(m_VCS_UnitsFormat);
+      double R = vcsUtil_gasConstant(p_VCS_UnitsFormat);
       for (int k = 0; k < NVolSpecies; k++) {
 	int kglob = IndSpecies[k];
 	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
@@ -1028,7 +1028,7 @@ namespace VCSnonideal {
       Temp = TP_ptr->temperature();
       Pres = TP_ptr->pressure();
       setState_TP(Temp, Pres);
-      m_VCS_UnitsFormat = VCS_UNITS_MKS;
+      p_VCS_UnitsFormat = VCS_UNITS_MKS;
       m_phi = TP_ptr->electricPotential();
       int nsp = TP_ptr->nSpecies();
       int nelem = TP_ptr->nElements();
@@ -1333,7 +1333,7 @@ namespace VCSnonideal {
   }
 
   std::string vcs_VolPhase::elementName(const int e) const {
-    return ElName[e];
+    return m_elementNames[e];
   }
 
   /*!
@@ -1396,8 +1396,7 @@ namespace VCSnonideal {
 
 
     if (ChargeNeutralityElement >= 0) {
-      m_elType[ChargeNeutralityElement] =
-	VCS_ELEM_TYPE_CHARGENEUTRALITY;
+      m_elementType[ChargeNeutralityElement] = VCS_ELEM_TYPE_CHARGENEUTRALITY;
     }
 
     if (hasChargedSpecies(tPhase)) {
@@ -1416,7 +1415,7 @@ namespace VCSnonideal {
 	  if (ename == "E") {
 	    eFound = eT;
 	    ElActive[eT] = 0;
-	    m_elType[eT] = VCS_ELEM_TYPE_ELECTRONCHARGE;
+	    m_elementType[eT] = VCS_ELEM_TYPE_ELECTRONCHARGE;
 	  }
 	}
       } else {
@@ -1424,16 +1423,16 @@ namespace VCSnonideal {
 	  ename = tPhase->elementName(eT);
 	  if (ename == "E") {
 	    eFound = eT;
-	    m_elType[eT] = VCS_ELEM_TYPE_ELECTRONCHARGE;
+	    m_elementType[eT] = VCS_ELEM_TYPE_ELECTRONCHARGE;
 	  }
 	}
       }
       if (eFound == -2) {
 	eFound = ne;
-	m_elType[ne] = VCS_ELEM_TYPE_ELECTRONCHARGE;
+	m_elementType[ne] = VCS_ELEM_TYPE_ELECTRONCHARGE;
 	ElActive[ne] = 0;
 	std::string ename = "E";
-	ElName[ne] = ename;
+	m_elementNames[ne] = ename;
 	ne++;
 	elemResize(ne);
       }
@@ -1451,7 +1450,7 @@ namespace VCSnonideal {
     e = 0;
     for (eT = 0; eT < nebase; eT++) {
       ename = tPhase->elementName(eT);
-      ElName[e] = ename;
+      m_elementNames[e] = ename;
       e++;
     }
 
@@ -1464,7 +1463,7 @@ namespace VCSnonideal {
       }
       ename = "cn_" + pname;
       e = ChargeNeutralityElement;
-      ElName[e] = ename;
+      m_elementNames[e] = ename;
     }
  
     double * const * const fm = FormulaMatrix.baseDataAddr();
@@ -1499,6 +1498,23 @@ namespace VCSnonideal {
     }
 
     return ne;
+  }
+
+  // Type of the element constraint with index \c e.
+  /*
+   * @param e Element index.
+   */
+  int vcs_VolPhase::elementType(const int e) const {
+    return m_elementType[e];
+  }
+
+  // Set the element Type of the element constraint with index \c e.
+  /*
+   * @param e Element index
+   * @param eType  type of the element.
+   */
+  void vcs_VolPhase::setElementType(const int e, const int eType) {
+    m_elementType[e] = eType;
   }
 }
 

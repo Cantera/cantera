@@ -383,7 +383,7 @@ namespace VCSnonideal {
 	}
       }
       if (foundPos == -1) {
-	int elType = volPhase->m_elType[eVP];
+	int elType = volPhase->elementType(eVP);
 	int elactive = volPhase->ElActive[eVP];
 	e = addElement(enVP.c_str(), elType, elactive);
 	volPhase->setElemGlobalIndex(eVP, e);

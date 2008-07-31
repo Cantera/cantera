@@ -478,12 +478,28 @@ namespace VCSnonideal {
      */
     void setElemGlobalIndex(const int eLocal, const int eGlobal);
 
+    //! Returns the number of element constraints
     int nElemConstraints() const;
 
+    //! Name of the element constraint with index \c e.
+    /*!
+     * @param e Element index.
+     */
     std::string elementName(const int e) const;
 
+    //! Type of the element constraint with index \c e.
+    /*!
+     * @param e Element index.
+     */
+    int elementType(const int e) const;
 
-    
+    //! Set the element Type of the element constraint with index \c e.
+    /*!
+     * @param e Element index
+     * @param eType  type of the element.
+     */
+    void setElementType(const int e, const int eType);
+
     //! Transfer all of the element information from the
     //! ThermoPhase object to the vcs_VolPhase object.
     /*!
@@ -494,7 +510,6 @@ namespace VCSnonideal {
      * @param tPhase Pointer to the thermophase object
      */
     int transferElementsFM(const Cantera::ThermoPhase * const tPhase);
-
 
   private:
 
@@ -620,7 +635,7 @@ namespace VCSnonideal {
     int m_numElemConstraints;
 
   public:
-    //!  This is the element number for the  charge neutrality 
+    //!  This is the element number for the charge neutrality 
     //!  condition of the phase
     /*!
      *  If it has one.  If it does not have a charge neutrality 
@@ -629,17 +644,19 @@ namespace VCSnonideal {
     int ChargeNeutralityElement;
 
   private:
-    //! vector of strings containing the element names
+    //! vector of strings containing the element constraint names
     /*!
      * Length =  nElemConstraints
      */
-    std::vector<std::string> ElName;
+    std::vector<std::string> m_elementNames;
+
   public:
     //! boolean indicating whether an element constraint is active
     //! for the current  problem
     std::vector<int> ElActive;
 
-    //! Type of the element
+  private:
+    //! Type of the element constraint
     /*!
      * m_elType[j] = type of the element
      *             0  VCS_ELEM_TYPE_ABSPOS Normal element that is positive
@@ -650,8 +667,9 @@ namespace VCSnonideal {
      *                              mean that a species has neg 0 or pos value 
      *                              of that constraint (other than charge)
      */
-    std::vector<int> m_elType;
+    std::vector<int> m_elementType;
 
+  public:
     //! Formula Matrix for the phase
     /*!
      *  FormulaMatrix[j][kspec]
@@ -713,7 +731,6 @@ namespace VCSnonideal {
      */
     int m_existence;
 
-
     // Index of the first MF species in the list of unknowns for this phase
     /*!
      *  This is always equal to zero.
@@ -759,8 +776,11 @@ namespace VCSnonideal {
      *
      *  Currently, this value should be the same as the owning VCS_PROB or
      *  VCS_SOLVE object. There is no code for handling anything else atm.
+     *
+     *  (This variable is needed for the vcsc code, where it is not equal
+     *  to VCS_UNITS_MKS).
      */
-    int m_VCS_UnitsFormat;
+    int p_VCS_UnitsFormat;
 
   private:
     //!  If this is true, then calculations are actually performed within
