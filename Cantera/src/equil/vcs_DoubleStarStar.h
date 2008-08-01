@@ -94,6 +94,14 @@ public:
    */
   double * const * const baseDataAddr();
 
+  //! Returns a const double ** pointer to the base address
+  /*!
+   *  This is the second way to get to the data
+   *  This returns a double ** which can later be used in
+   *  Dmatrix[icol][irow] notation to get to the data
+   */
+  double const * const * const constBaseDataAddr() const;
+
   //! Number of rows
   int nRows() const;
 

@@ -384,7 +384,7 @@ namespace VCSnonideal {
       }
       if (foundPos == -1) {
 	int elType = volPhase->elementType(eVP);
-	int elactive = volPhase->ElActive[eVP];
+	int elactive = volPhase->elementActive(eVP);
 	e = addElement(enVP.c_str(), elType, elactive);
 	volPhase->setElemGlobalIndex(eVP, e);
       }
@@ -442,7 +442,7 @@ namespace VCSnonideal {
       plogf("Shouldn't be here\n");
       exit(-1);
     }
-    double *const *const fm = volPhase->FormulaMatrix.baseDataAddr();
+    double const *const *const fm = volPhase->getFormulaMatrix();
     for (eVP = 0; eVP < volPhase->nElemConstraints(); eVP++) {
       e = volPhase->elemGlobalIndex(eVP);
 #ifdef DEBUG_MODE

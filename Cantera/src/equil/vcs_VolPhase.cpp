@@ -37,18 +37,17 @@ namespace VCSnonideal {
     m_singleSpecies(true),
     m_gasPhase(false),
     m_eqnState(VCS_EOS_CONSTANT),
-    m_numElemConstraints(0),
     ChargeNeutralityElement(-1),
+    p_VCS_UnitsFormat(VCS_UNITS_MKS),
+    p_activityConvention(0),
+    m_numElemConstraints(0),
     m_elemGlobalIndex(0),
     NVolSpecies(0),
     m_totalMolesInert(0.0),
-    m_activityConvention(0),
     m_isIdealSoln(false),
     m_existence(0),
     m_MFStartIndex(0),
     IndSpecies(0),
-    //IndSpeciesContig(true),
-    p_VCS_UnitsFormat(VCS_UNITS_MKS),
     m_useCanteraCalls(false),
     TP_ptr(0),
     v_totalMoles(0.0),
@@ -99,15 +98,15 @@ namespace VCSnonideal {
     m_singleSpecies(b.m_singleSpecies),
     m_gasPhase(b.m_gasPhase),
     m_eqnState(b.m_eqnState),
-    m_numElemConstraints(b.m_numElemConstraints),
     ChargeNeutralityElement(b.ChargeNeutralityElement),
+    p_VCS_UnitsFormat(b.p_VCS_UnitsFormat),
+    p_activityConvention(b.p_activityConvention),
+    m_numElemConstraints(b.m_numElemConstraints),
     NVolSpecies(b.NVolSpecies),
     m_totalMolesInert(b.m_totalMolesInert),
-    m_activityConvention(b.m_activityConvention),
     m_isIdealSoln(b.m_isIdealSoln),
     m_existence(b.m_existence),
     m_MFStartIndex(b.m_MFStartIndex),
-    p_VCS_UnitsFormat(b.p_VCS_UnitsFormat),
     m_useCanteraCalls(b.m_useCanteraCalls),
     TP_ptr(b.TP_ptr),
     v_totalMoles(b.v_totalMoles),
@@ -163,13 +162,13 @@ namespace VCSnonideal {
 	m_elementNames[e] = b.m_elementNames[e];
       }
  
-      ElActive = b.ElActive;
+      m_elementActive = b.m_elementActive;
       m_elementType = b.m_elementType;
   
-      FormulaMatrix.resize(m_numElemConstraints, NVolSpecies, 0.0);
+      m_formulaMatrix.resize(m_numElemConstraints, NVolSpecies, 0.0);
       for (int e = 0; e < m_numElemConstraints; e++) {
 	for (int k = 0; k < NVolSpecies; k++) {
-	  FormulaMatrix[e][k] = b.FormulaMatrix[e][k];
+	  m_formulaMatrix[e][k] = b.m_formulaMatrix[e][k];
 	}
       }
 
@@ -178,7 +177,7 @@ namespace VCSnonideal {
       NVolSpecies         = b.NVolSpecies;
       PhaseName           = b.PhaseName;
       m_totalMolesInert   = b.m_totalMolesInert;
-      m_activityConvention  = b.m_activityConvention;
+      p_activityConvention= b.p_activityConvention;
       m_isIdealSoln       = b.m_isIdealSoln;
       m_existence         = b.m_existence;
       m_MFStartIndex      = b.m_MFStartIndex;
@@ -339,9 +338,9 @@ namespace VCSnonideal {
 
     m_elementNames.resize(numElemConstraints);
 
-    ElActive.resize(numElemConstraints+1, 1);
+    m_elementActive.resize(numElemConstraints+1, 1);
     m_elementType.resize(numElemConstraints, VCS_ELEM_TYPE_ABSPOS);
-    FormulaMatrix.resize(numElemConstraints, NVolSpecies, 0.0);
+    m_formulaMatrix.resize(numElemConstraints, NVolSpecies, 0.0);
 
     m_elementNames.resize(numElemConstraints, "");
     m_elemGlobalIndex.resize(numElemConstraints, -1);
@@ -1414,7 +1413,7 @@ namespace VCSnonideal {
 	  ename = tPhase->elementName(eT);
 	  if (ename == "E") {
 	    eFound = eT;
-	    ElActive[eT] = 0;
+	    m_elementActive[eT] = 0;
 	    m_elementType[eT] = VCS_ELEM_TYPE_ELECTRONCHARGE;
 	  }
 	}
@@ -1430,7 +1429,7 @@ namespace VCSnonideal {
       if (eFound == -2) {
 	eFound = ne;
 	m_elementType[ne] = VCS_ELEM_TYPE_ELECTRONCHARGE;
-	ElActive[ne] = 0;
+	m_elementActive[ne] = 0;
 	std::string ename = "E";
 	m_elementNames[ne] = ename;
 	ne++;
@@ -1439,7 +1438,7 @@ namespace VCSnonideal {
 
     }
 
-    FormulaMatrix.resize(ne, ns, 0.0);
+    m_formulaMatrix.resize(ne, ns, 0.0);
     
     m_speciesUnknownType.resize(ns, VCS_SPECIES_TYPE_MOLNUM);
     
@@ -1466,7 +1465,7 @@ namespace VCSnonideal {
       m_elementNames[e] = ename;
     }
  
-    double * const * const fm = FormulaMatrix.baseDataAddr();
+    double * const * const fm = m_formulaMatrix.baseDataAddr();
     for (k = 0; k < ns; k++) {
       e = 0;
       for (eT = 0; eT < nebase; eT++) {
@@ -1515,6 +1514,19 @@ namespace VCSnonideal {
    */
   void vcs_VolPhase::setElementType(const int e, const int eType) {
     m_elementType[e] = eType;
+  }
+
+  double const * const * const vcs_VolPhase::getFormulaMatrix() const {
+    double const * const * const fm = m_formulaMatrix.constBaseDataAddr();
+    return fm;
+  }
+
+  int vcs_VolPhase::speciesUnknownType(const int k) const {
+    return m_speciesUnknownType[k];
+  }
+
+  int vcs_VolPhase::elementActive(const int e) const {
+    return m_elementActive[e];
   }
 }
 

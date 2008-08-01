@@ -511,6 +511,29 @@ namespace VCSnonideal {
      */
     int transferElementsFM(const Cantera::ThermoPhase * const tPhase);
 
+    //! Get a constant form of the Species Formula Matrix
+    /*!
+     *   Returns a double ** pointer such that
+     *
+     *   fm[e][f] is the formula matrix entry for element e for species k
+     */
+    double const * const * const getFormulaMatrix() const;
+
+    //! Returns the type of the species unknown
+    /*!
+     * @param k species index
+     *
+     * returns the SpeciesUnknownType[k] = type of species 
+     *            Normal -> VCS_SPECIES_TYPE_MOLUNK
+     *                 ( unknown is the mole number in the phase)
+     *            metal electron -> VCS_SPECIES_INTERFACIALVOLTAGE
+     *                 ( unknown is the interfacial voltage (volts) 
+     */
+    int speciesUnknownType(const int k) const;
+
+
+    int elementActive(const int e) const;
+
   private:
 
     //! Evaluate the activity coefficients at the current conditions
@@ -580,6 +603,7 @@ namespace VCSnonideal {
      */
     void _updateMoleFractionDependencies();
 
+ 
   
     /*************************************************************************
      *         MEMBER  DATA                                                  *
@@ -627,14 +651,6 @@ namespace VCSnonideal {
      */
     int m_eqnState;
 
-  private:
-    //! Number of element constraints within the problem
-    /*!
-     *  This is usually equal to the number of elements.
-     */
-    int m_numElemConstraints;
-
-  public:
     //!  This is the element number for the charge neutrality 
     //!  condition of the phase
     /*!
@@ -643,19 +659,58 @@ namespace VCSnonideal {
      */
     int ChargeNeutralityElement;
 
+    //! Units for the chemical potential data, pressure data, volume,
+    //! and species amounts
+    /*!
+     *  All internally storred quantities will have these units. Also, printed
+     *  quantitities will display in these units. Input quantities are expected
+     *  in these units.
+     *
+     *                           Chem_Pot                 Pres      vol   moles
+     * ----------------------------------------------------------------------
+     * -1  VCS_UNITS_KCALMOL  = kcal/gmol                 Pa     m**3   kmol
+     *  0  VCS_UNITS_UNITLESS = MU / RT -> no units       Pa     m**3   kmol
+     *  1  VCS_UNITS_KJMOL    = kJ / gmol                 Pa     m**3   kmol
+     *  2  VCS_UNITS_KELVIN   = KELVIN -> MU / R          Pa     m**3   kmol
+     *  3  VCS_UNITS_MKS      = Joules / Kmol (Cantera)   Pa     m**3   kmol
+     * ----------------------------------------------------------------------
+     *
+     *  see vcs_defs.h for more information.
+     *
+     *  Currently, this value should be the same as the owning VCS_PROB or
+     *  VCS_SOLVE object. There is no code for handling anything else atm.
+     *
+     *  (This variable is needed for the vcsc code, where it is not equal
+     *  to VCS_UNITS_MKS).
+     */
+    int p_VCS_UnitsFormat;
+
+    //! Convention for the activity formulation
+    /*!
+     *  0 = molar based activities (default)
+     *  1 = Molality based activities
+     *          mu = mu_0 + ln a_molality
+     *          standard state is based on unity molality
+     */
+    int p_activityConvention;
+
   private:
+    //! Number of element constraints within the problem
+    /*!
+     *  This is usually equal to the number of elements.
+     */
+    int m_numElemConstraints;
+
     //! vector of strings containing the element constraint names
     /*!
      * Length =  nElemConstraints
      */
     std::vector<std::string> m_elementNames;
 
-  public:
     //! boolean indicating whether an element constraint is active
     //! for the current  problem
-    std::vector<int> ElActive;
+    std::vector<int> m_elementActive;
 
-  private:
     //! Type of the element constraint
     /*!
      * m_elType[j] = type of the element
@@ -669,7 +724,6 @@ namespace VCSnonideal {
      */
     std::vector<int> m_elementType;
 
-  public:
     //! Formula Matrix for the phase
     /*!
      *  FormulaMatrix[j][kspec]
@@ -677,7 +731,7 @@ namespace VCSnonideal {
      *              Number of elements, j,
      *              in the kspec  species  
      */
-    DoubleStarStar FormulaMatrix;  
+    DoubleStarStar m_formulaMatrix;
 
     //! Type of the species unknown
     /*!
@@ -689,8 +743,7 @@ namespace VCSnonideal {
      */
     std::vector<int> m_speciesUnknownType;
 
-  private:
-    //! Index of the element number in the global list of elements
+    //!  Index of the element number in the global list of elements
     //!  storred in VCS_PROB or VCS_SOLVE       
     std::vector<int> m_elemGlobalIndex;
 
@@ -705,22 +758,11 @@ namespace VCSnonideal {
     //!  Total moles of inert in the phase 
     double m_totalMolesInert;
 
-  public:
-    //! Convention for the activity formulation
-    /*!
-     *  0 = molar based activities (default)
-     *  1 = Molality based activities
-     *          mu = mu_0 + ln a_molality
-     *          standard state is based on unity molality
-     */
-    int m_activityConvention;
-
     //! Boolean indicating whether the phase is an ideal solution
     //! and therefore it's molar-based activity coefficients are
     //! uniformly equal to one.
     bool m_isIdealSoln;
 
-  private:
     //! Current state of existence:
     /*!
      *      0 : Doesn't exist currently
@@ -755,34 +797,6 @@ namespace VCSnonideal {
      */
     std::vector<vcs_SpeciesProperties *> ListSpeciesPtr;
 
-  public:
-    //! Units for the chemical potential data, pressure data, volume,
-    //! and species amounts
-    /*!
-     *  All internally storred quantities will have these units. Also, printed
-     *  quantitities will display in these units. Input quantities are expected
-     *  in these units.
-     *
-     *                           Chem_Pot                 Pres      vol   moles
-     * ----------------------------------------------------------------------
-     * -1  VCS_UNITS_KCALMOL  = kcal/gmol                 Pa     m**3   kmol
-     *  0  VCS_UNITS_UNITLESS = MU / RT -> no units       Pa     m**3   kmol
-     *  1  VCS_UNITS_KJMOL    = kJ / gmol                 Pa     m**3   kmol
-     *  2  VCS_UNITS_KELVIN   = KELVIN -> MU / R          Pa     m**3   kmol
-     *  3  VCS_UNITS_MKS      = Joules / Kmol (Cantera)   Pa     m**3   kmol
-     * ----------------------------------------------------------------------
-     *
-     *  see vcs_defs.h for more information.
-     *
-     *  Currently, this value should be the same as the owning VCS_PROB or
-     *  VCS_SOLVE object. There is no code for handling anything else atm.
-     *
-     *  (This variable is needed for the vcsc code, where it is not equal
-     *  to VCS_UNITS_MKS).
-     */
-    int p_VCS_UnitsFormat;
-
-  private:
     //!  If this is true, then calculations are actually performed within
     //!  Cantera
     bool m_useCanteraCalls;

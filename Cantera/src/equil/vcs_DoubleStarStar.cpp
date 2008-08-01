@@ -126,6 +126,10 @@ double * const * const DoubleStarStar::baseDataAddr() {
   return (double * const * const) &(m_colAddr[0]);
 }
 
+double const * const * const DoubleStarStar::constBaseDataAddr() const {
+  return (double const * const * const) &(m_colAddr[0]);
+}
+
 // Number of rows
 int DoubleStarStar::nRows() const { 
   return m_nrows; 

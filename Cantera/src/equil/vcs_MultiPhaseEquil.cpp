@@ -987,7 +987,7 @@ namespace VCSnonideal {
        * Query the ThermoPhase object to find out what convention
        * it uses for the specification of activity and Standard State.
        */
-      VolPhase->m_activityConvention = tPhase->activityConvention();
+      VolPhase->p_activityConvention = tPhase->activityConvention();
       /*
        * Assign the value of eqn of state 
        *  -> Handle conflicts here.
@@ -1092,7 +1092,7 @@ namespace VCSnonideal {
 	/*
 	 * Transfer the type of unknown
 	 */
-	vprob->SpeciesUnknownType[kT] = VolPhase->m_speciesUnknownType[k];
+	vprob->SpeciesUnknownType[kT] = VolPhase->speciesUnknownType(k);
 	/*
 	 * Transfer the species information from the 
 	 * volPhase structure to the VPROB structure
