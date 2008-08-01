@@ -1049,6 +1049,9 @@ public:
 
       x = get_XML_NameID(nm, string("#")+id, &root);
       //            x = get_XML_Node(string("#")+id, &root); 
+      if (!x) {
+        return false;
+      }
 
       /*
        * Fill in the ThermoPhase object by querying the
