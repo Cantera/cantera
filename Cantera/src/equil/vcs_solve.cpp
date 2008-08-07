@@ -666,7 +666,7 @@ namespace VCSnonideal {
       }
       for (iph = 0; iph < nph; iph++) {
 	Vphase = pub->VPhaseList[iph];
-	if (numPhSp[iph] != Vphase->NVolSpecies) {
+	if (numPhSp[iph] != Vphase->nSpecies()) {
 	  plogf("%sNumber of species in phase %d, %s, doesn't match\n",
 		ser, iph, Vphase->PhaseName.c_str());
 	  return VCS_PUB_BAD;
@@ -724,7 +724,7 @@ namespace VCSnonideal {
        * data space.
        */
       Vphase = m_VolPhaseList[iph];
-      for (int k = 0; k < Vphase->NVolSpecies; k++) {
+      for (int k = 0; k < Vphase->nSpecies(); k++) {
 	vcs_SpeciesProperties *sProp = Vphase->speciesProperty(k);
 	int kT = Vphase->spGlobalIndexVCS(k);
 	sProp->SpeciesThermo = m_speciesThermoList[kT];
@@ -749,7 +749,7 @@ namespace VCSnonideal {
 	 */
 	int iSolvent = Vphase->spGlobalIndexVCS(0);
 	double mnaught = m_wtSpecies[iSolvent] / 1000.;
-	for (int k = 1; k < Vphase->NVolSpecies; k++) {
+	for (int k = 1; k < Vphase->nSpecies(); k++) {
 	  int kspec = Vphase->spGlobalIndexVCS(k);
 	  m_actConventionSpecies[kspec] = Vphase->p_activityConvention;
 	  m_lnMnaughtSpecies[kspec] = log(mnaught);
@@ -869,10 +869,10 @@ namespace VCSnonideal {
 
       vPhase->m_eqnState = pub_phase_ptr->m_eqnState;
 
-      if  (vPhase->NVolSpecies != pub_phase_ptr->NVolSpecies) {
+      if  (vPhase->nSpecies() != pub_phase_ptr->nSpecies()) {
 	plogf("%sNVolSpecies value have changed:%d %d\n", yo.c_str(),
-	      vPhase->NVolSpecies,
-	      pub_phase_ptr->NVolSpecies);
+	      vPhase->nSpecies(),
+	      pub_phase_ptr->nSpecies());
 	retn = VCS_PUB_BAD;
       }
 
@@ -965,7 +965,7 @@ namespace VCSnonideal {
       pubPhase->setElectricPotential(vPhase->electricPotential());
       double sumMoles = pubPhase->totalMolesInert();
       pubPhase->setMoleFractions(VCS_DATA_PTR(vPhase->moleFractions()));
-      for (int k = 0; k < pubPhase->NVolSpecies; k++) {
+      for (int k = 0; k < pubPhase->nSpecies(); k++) {
 	kT = pubPhase->spGlobalIndexVCS(k);
 
 	if (pubPhase->phiVarIndex() == k) {

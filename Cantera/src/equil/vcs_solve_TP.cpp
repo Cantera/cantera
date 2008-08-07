@@ -181,7 +181,7 @@ namespace VCSnonideal {
       plogf(" PRESSURE%22.8g %3s\n", m_pressurePA, "Pa "); 
       plogf(" TEMPERATURE%19.3f K\n", m_temperature);
       Vphase = m_VolPhaseList[0];
-      if (Vphase->NVolSpecies > 0) {
+      if (Vphase->nSpecies() > 0) {
 	plogf(" PHASE1 INERTS%17.3f\n", TPhInertMoles[0]);
       }
       if (m_numPhases > 0) {
@@ -2720,7 +2720,7 @@ namespace VCSnonideal {
     }
   
     double phaseDG = 1.0;
-    for (int kk = 0; kk <  Vphase->NVolSpecies; kk++) {
+    for (int kk = 0; kk <  Vphase->nSpecies(); kk++) {
       kspec = Vphase->spGlobalIndexVCS(kk);
       irxn = kspec + m_numComponents;
       if (m_deltaGRxn_old[irxn] >  50.0) m_deltaGRxn_old[irxn] =  50.0;
@@ -3091,7 +3091,7 @@ namespace VCSnonideal {
 		      m_deltaGRxn_new[irxn]);   
 #endif
 	      Vphase = m_VolPhaseList[iph];
-	      int numSpPhase = Vphase->NVolSpecies;
+	      int numSpPhase = Vphase->nSpecies();
 	      m_deltaMolNumSpecies[kspec] = 
 		m_totalMolNum * 10.0 * VCS_DELETE_PHASE_CUTOFF / numSpPhase;
 	    }
@@ -3509,7 +3509,7 @@ namespace VCSnonideal {
       vcs_VolPhase *Vphase = m_VolPhaseList[iph];
       if (! Vphase->m_singleSpecies) {
 	double sum = 0.0;
-	for (k = 0; k < Vphase->NVolSpecies; k++) {
+	for (k = 0; k < Vphase->nSpecies(); k++) {
 	  kspec = Vphase->spGlobalIndexVCS(k);
 	  if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	    sum += molNumSpecies[kspec];
@@ -3523,7 +3523,7 @@ namespace VCSnonideal {
       
       if (lneed) {
 	double poly = 0.0;
-	for (k = 0; k < Vphase->NVolSpecies; k++) {
+	for (k = 0; k < Vphase->nSpecies(); k++) {
 	  kspec = Vphase->spGlobalIndexVCS(k);
 	  irxn = kspec - m_numComponents;
 	  // We may need to look at deltaGRxn for components!
@@ -3538,7 +3538,7 @@ namespace VCSnonideal {
 	 *      All of the m_deltaGRxn_new[]'s will be equal. If deltaGRxn[] is negative, then
 	 *      the phase will come back into existence.
 	 */
-	for (k = 0; k < Vphase->NVolSpecies; k++) {
+	for (k = 0; k < Vphase->nSpecies(); k++) {
 	  kspec = Vphase->spGlobalIndexVCS(k);
 	  irxn = kspec - m_numComponents;
 	  if (irxn >= 0) {
@@ -4432,7 +4432,7 @@ namespace VCSnonideal {
 				   const bool do_deleted) {
 
     vcs_VolPhase *Vphase = m_VolPhaseList[iph];
-    int nkk = Vphase->NVolSpecies;
+    int nkk = Vphase->nSpecies();
     int k, kspec;
 
 #ifdef DEBUG_MODE

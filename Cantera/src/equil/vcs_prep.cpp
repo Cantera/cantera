@@ -24,16 +24,9 @@
 
 namespace VCSnonideal { 
 
-
-  void VCS_SOLVE::vcs_SSPhase(void) 
-    /**************************************************************************
-     *
-     *  vcs_SSPhase:
-     *
-     *    Calculate the status of single species phases.
-     *
-     *************************************************************************/
-  {
+  
+  //  Calculate the status of single species phases.
+  void VCS_SOLVE::vcs_SSPhase() {
     int kspec, iph;
     vcs_VolPhase *Vphase;
 
@@ -57,8 +50,7 @@ namespace VCSnonideal {
 	if (TPhInertMoles[iph] == 0.0) {
 	  Vphase->m_singleSpecies = true;
 	}
-      } 
-      Vphase->NVolSpecies = numPhSpecies[iph];
+      }
     }  
 
     /*

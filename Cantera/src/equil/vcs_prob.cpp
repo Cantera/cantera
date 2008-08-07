@@ -285,7 +285,7 @@ namespace VCSnonideal {
 	plogf("%16s %5d %5d %8d ", Vphase->PhaseName.c_str(),
 	      Vphase->VP_ID, Vphase->m_singleSpecies, Vphase->m_gasPhase);
 	plogf("%16s %8d %16e ", EOS_cstr.c_str(),
-	      Vphase->NVolSpecies, Vphase->totalMolesInert());
+	      Vphase->nSpecies(), Vphase->totalMolesInert());
 	if (iest >= 0) plogf("%16e\n",  Vphase->TotalMoles());
 	else           plogf("   N/A\n");	 
       }
@@ -321,7 +321,7 @@ namespace VCSnonideal {
       for (iphase = 0; iphase < NPhase; iphase++) {
 	Vphase = VPhaseList[iphase];
 	Vphase->setState_TP(T, PresPA);
-	for (int kindex = 0; kindex < Vphase->NVolSpecies; kindex++) {
+	for (int kindex = 0; kindex < Vphase->nSpecies(); kindex++) {
 	  int kglob = Vphase->spGlobalIndexVCS(kindex);
 	  plogf("%16s ", SpName[kglob].c_str());
 	  if (kindex == 0) {
@@ -489,7 +489,7 @@ namespace VCSnonideal {
       istart = iK;
       vcs_VolPhase *volP = VPhaseList[iphase];
       //const Cantera::ThermoPhase *tptr = volP->ptrThermoPhase();
-      int nSpeciesPhase = volP->NVolSpecies;
+      int nSpeciesPhase = volP->nSpecies();
       volPM.resize(nSpeciesPhase, 0.0);
       volP->sendToVCS_VolPM(VCS_DATA_PTR(volPM));
   
@@ -518,7 +518,7 @@ namespace VCSnonideal {
       vcs_VolPhase *volP = VPhaseList[iphase];
       const Cantera::ThermoPhase *tp = volP->ptrThermoPhase();
       string phaseName = volP->PhaseName;
-      int nSpeciesPhase = volP->NVolSpecies;
+      int nSpeciesPhase = volP->nSpecies();
       volP->sendToVCS_VolPM(VCS_DATA_PTR(volPM));
       double TMolesPhase = volP->TotalMoles();
       //AssertTrace(TMolesPhase == m_mix->phaseMoles(iphase));

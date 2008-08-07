@@ -1271,7 +1271,7 @@ private:
 		 double * const ss, double test);
 
 
-
+  //!  Calculate the status of single species phases.
   void vcs_SSPhase(void); 
 
   //! This function recalculates the deltaG for reaction, irxn

@@ -701,7 +701,7 @@ namespace VCSnonideal {
        if (m_vprob->w[i] <= 0.0) {
 	 int iph = m_vprob->PhaseID[i];
 	 vcs_VolPhase *VPhase = m_vprob->VPhaseList[iph];
-	 if (VPhase->NVolSpecies > 1) {
+	 if (VPhase->nSpecies() > 1) {
 	   plogf("     -1.000e+300\n");
 	 } else {
 	   plogf("%15.3e\n", m_vprob->m_gibbsSpecies[i]);
@@ -1269,7 +1269,7 @@ namespace VCSnonideal {
 	plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
 	       VolPhase->VP_ID,       VolPhase->m_singleSpecies,
 	       VolPhase->m_gasPhase,    sEOS.c_str(),
-	       VolPhase->NVolSpecies, VolPhase->totalMolesInert() );
+	       VolPhase->nSpecies(), VolPhase->totalMolesInert() );
 	plogf("%16e\n",  VolPhase->TotalMoles());
       }
    
@@ -1388,7 +1388,7 @@ namespace VCSnonideal {
 	plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
 	       VolPhase->VP_ID,       VolPhase->m_singleSpecies,
 	       VolPhase->m_gasPhase,    sEOS.c_str(),
-	       VolPhase->NVolSpecies, VolPhase->totalMolesInert() );
+	       VolPhase->nSpecies(), VolPhase->totalMolesInert() );
 	plogf("%16e\n",  VolPhase->TotalMoles() ); 
       }
    

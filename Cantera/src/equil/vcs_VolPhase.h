@@ -534,6 +534,10 @@ namespace VCSnonideal {
 
     int elementActive(const int e) const;
 
+
+    //! Return the number of species in the phase
+    int nSpecies() const;
+
   private:
 
     //! Evaluate the activity coefficients at the current conditions
@@ -603,7 +607,6 @@ namespace VCSnonideal {
      */
     void _updateMoleFractionDependencies();
 
- 
   
     /*************************************************************************
      *         MEMBER  DATA                                                  *
@@ -747,10 +750,10 @@ namespace VCSnonideal {
     //!  storred in VCS_PROB or VCS_SOLVE       
     std::vector<int> m_elemGlobalIndex;
 
-  public:
     //! Number of species in the phase       
-    int NVolSpecies;
+    int m_numSpecies;
 
+  public:
     //! String name for the phase
     std::string PhaseName;
 
