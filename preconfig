@@ -116,7 +116,7 @@ PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"}
 #
 # Note that you may need to run 'mex -setup' within MATLAB to
 # configure it for your C++ compiler before running this script.
-BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="default"}
+BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="no"}
 MATLAB_CMD=${MATLAB_CMD:="default"}
                              
 #----------- Fortran 90/95 --------------------------------------------------
@@ -131,7 +131,7 @@ MATLAB_CMD=${MATLAB_CMD:="default"}
 #      "n"          Do not build the Fortran 90/95 interface, even if a 
 #                   Fortran 90/95 compiler is installed.
 
-BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="default"}
+BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="no"}
 
 # The Fortran 90/95 compiler. If set to "default", the script will
 # look for a Fortran 90/95 compiler on your system by the name of
