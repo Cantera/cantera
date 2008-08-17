@@ -528,8 +528,10 @@ public:
    *               minor noncomponent and zeroed species only 
    *
    *    @param doDeleted   Do deleted species
-   *    @param stateCalc   Calculate deltaG corresponding to either old or new
+   *    @param vcsState    Calculate deltaG corresponding to either old or new
    *                       free energies
+   *    @param alterZeroedPhases boolean indicating whether we should 
+   *                             add in a special section for zeroed phases.
    *
    *    Note we special case one important issue.
    *    If the component has zero moles, then we do not
@@ -538,7 +540,30 @@ public:
    *    This dG < 0.0 condition feeds back into the algorithm in several
    *    places, and leads to a infinite loop in at least one case. 
    */
-  void vcs_deltag(const int l, const bool doDeleted, const int stateCalc);
+  void vcs_deltag(const int l, const bool doDeleted, const int vcsState,
+		  const bool alterZeroedPhases = true);
+
+  //!   Calculate deltag of formation for all species in a single phase.
+  /*!
+   *     Calculate deltag of formation for all species in a single
+   *     phase. It is assumed that the fe[] is up to date for all species.
+   *     Howevever, if the phase is currently zereoed out, a subproblem
+   *     is calculated to solve for AC[i] and pseudo-X[i] for that 
+   *     phase.
+   *
+   * @param iphase       phase index of the phase to be calculated
+   * @param doDeleted    boolean indicating whether to do deleted 
+   *                     species or not
+   * @param stateCalc    integer describing which set of free energies
+   *                     to use and where to stick the results.
+   * @param alterZeroedPhases boolean indicating whether we should 
+   *                          add in a special section for zeroed phases.
+   *
+   *    NOTE: this is currently not used used anywhere. 
+   *          It may be in the future?
+   */
+  void vcs_deltag_Phase(const int iphase, const bool doDeleted, 
+			const int stateCalc, const bool alterZeroedPhases = true);
 
   //!  Swaps the indecises for all of the global data for two species, k1
   //!  and k2.
@@ -557,26 +582,6 @@ public:
    */
   void vcs_switch_pos(const int ifunc, const int k1, const int k2);
 
-
-  //!   Calculate deltag of formation for all species in a single phase.
-  /*!
-   *     Calculate deltag of formation for all species in a single
-   *     phase. It is assumed that the fe[] is up to date for all species.
-   *     Howevever, if the phase is currently zereoed out, a subproblem
-   *     is calculated to solve for AC[i] and pseudo-X[i] for that 
-   *     phase.
-   *
-   * @param iphase       phase index of the phase to be calculated
-   * @param doDeleted    boolean indicating whether to do deleted 
-   *                     species or not
-   * @param stateCalc    integer describing which set of free energies
-   *                     to use and where to stick the results.
-   *
-   *    NOTE: this is currently not used used anywhere. 
-   *          It may be in the future?
-   */
-  void vcs_deltag_Phase(const int iphase, const bool doDeleted, 
-			const int stateCalc);
 
   //!     Birth guess returns the number of moles of a species 
   //!     that is coming back to life.
@@ -602,6 +607,10 @@ public:
    *              have.
    */
   double vcs_birthGuess(const int kspec);
+
+
+  
+  int vcs_phaseStabilityTest(const int iph);
 
   //! Solve an equilibrium problem at a particular fixed temperature 
   //! and pressure

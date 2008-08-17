@@ -110,6 +110,19 @@ namespace VCSnonideal {
   }
 #endif
 
+  double vcs_l2norm(const std::vector<double> vec) {
+     int len = vec.size();
+     if (len == 0) {
+       return 0.0;
+     }
+     double sum = 0.0;
+     std::vector<double>::const_iterator pos;
+     for (pos = vec.begin(); pos != vec.end(); ++pos) {
+       sum += (*pos) * (*pos);
+     }
+    return std::sqrt(sum/len);
+  }
+
   /*****************************************************************************/
   /*****************************************************************************/
   /*****************************************************************************/

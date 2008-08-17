@@ -143,19 +143,18 @@ namespace VCSnonideal {
    */
 #define VCS_SPECIES_MINOR          0
 
-  //! Species lies in a multicomponent phase that is zeroed atm
+  //! Species lies in a multicomponent phase, with a small phase concentration
   /*!
-   * The species lies in a multicomponent phase that is currently
-   * deleted. 
+   *  The species lies in a multicomponent phase that exists.
+   *  It concentration is currently very low, necessitating a
+   *  different method of calculation.
    */
-#define VCS_SPECIES_ZEROEDPHASE   -1
+#define VCS_SPECIES_SMALLMS      -1
 
   //! Species lies in a multicomponent phase, with concentration zero
   /*!
-   *  The species lies in a multicomponent phase that exists.
-   *  It concentration is currently zero, even though it may
-   *  or may not actually have a low mole fraction in the phase
-   *  this situation occurs when phases pop back into life.
+   *  The species lies in a multicomponent phase which currently doesn't exist.
+   *  It concentration is currently zero.
    */
 #define VCS_SPECIES_ZEROEDMS      -2
 
@@ -166,11 +165,12 @@ namespace VCSnonideal {
    */
 #define VCS_SPECIES_ZEROEDSS      -3
 
-  //! Species has such a small mole fraction it is deleted.
+  //! Species has such a small mole fraction it is deleted even though its
+  //! phase may possibly exist.
   /*!
    *  The species is believed to have such a small mole fraction
    *  that it best to throw the calculation of it out.
-   *  It will be aded back in at the end of the calculation.
+   *  It will be added back in at the end of the calculation.
    */
 #define VCS_SPECIES_DELETED       -4
 
@@ -182,8 +182,54 @@ namespace VCSnonideal {
    */
 #define VCS_SPECIES_INTERFACIALVOLTAGE  -5
 
+  //! Species lies in a multicomponent phase that is zeroed atm
+  /*!
+   * The species lies in a multicomponent phase that is currently
+   * deleted and will stay deleted due to a choice from a higher level.
+   * These species will formally always have zero mole numbers in the
+   * solution vector.
+   */
+#define VCS_SPECIES_ZEROEDPHASE   -6
+
+  //! Species lies in a multicomponent phase that is active, but its concentration is zero
+  /*!
+   *  The species lies in a multicomponent phase which currently does exist.
+   *  It concentration is currently zero, though the phase exists. Note, this
+   *  is a temporary condition that exists at the start of an equilibrium problem. 
+   *  The species is soon "birthed" or "deleted".
+   */
+#define VCS_SPECIES_ACTIVEBUTZERO      -7
+
   //@}
  
+ //! @name  Phase Categories used during the iteration 
+  /*!
+   * These defines are valid values for the phase existence flag
+   */
+  //@{
+  //! Always exists because it contains inerts which can't exist in any other phase
+#define VCS_PHASE_EXIST_ALWAYS     3
+
+  //! Phase is a normal phase that currently exists
+#define VCS_PHASE_EXIST_YES        2
+
+  //! Phase is a normal phase that exists in a small concentration
+  /*!
+   * Concentration is so small that it must be calculated using an alternate
+   * method
+   */
+#define VCS_PHASE_EXIST_MINORCONC  1
+
+  //! Phase doesn't currently exist in the mixture
+#define VCS_PHASE_EXIST_NO         0
+
+  //! Phase currently is zeroed due to a programmatic issue
+  /*!
+   * We zero phases because we want to follow phase stability boundaries.
+   */
+#define VCS_PHASE_EXIST_ZEROEDPHASE  -6
+
+  //@}
 
   /*!
    * @name  Units for the chemical potential data and pressure variables

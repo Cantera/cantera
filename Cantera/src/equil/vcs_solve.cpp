@@ -948,7 +948,7 @@ namespace VCSnonideal {
 	pub->w[i] = 0.0;
 	plogf("voltage species = %g\n", m_molNumSpecies_old[k1]);
       }
-      pub->mf[i] = m_molNumSpecies_new[k1];
+      //pub->mf[i] = m_molNumSpecies_new[k1];
       pub->m_gibbsSpecies[i] = m_feSpecies_old[k1];
       pub->VolPM[i] = m_PMVolumeSpecies[k1];
     } 
@@ -964,10 +964,13 @@ namespace VCSnonideal {
       pubPhase->setTotalMoles(vPhase->TotalMoles());
       pubPhase->setElectricPotential(vPhase->electricPotential());
       double sumMoles = pubPhase->totalMolesInert();
-      pubPhase->setMoleFractions(VCS_DATA_PTR(vPhase->moleFractions()));
+      pubPhase->setMoleFractionsState(vPhase->TotalMoles(),
+				      VCS_DATA_PTR(vPhase->moleFractions()),
+				      VCS_STATECALC_TMP);
+      const std::vector<double> & mfVector = pubPhase->moleFractions();
       for (int k = 0; k < pubPhase->nSpecies(); k++) {
 	kT = pubPhase->spGlobalIndexVCS(k);
-
+	pub->mf[kT] = mfVector[k];
 	if (pubPhase->phiVarIndex() == k) {
 	  k1 = vPhase->spGlobalIndexVCS(k);
 	  double tmp = m_molNumSpecies_old[k1];

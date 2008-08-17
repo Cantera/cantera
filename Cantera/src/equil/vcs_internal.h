@@ -428,6 +428,8 @@ namespace VCSnonideal {
 		  const std::vector<int> vec_from, const int len = -1);
 #endif
 
+  double vcs_l2norm(const std::vector<double> vec);
+
   //! Finds the location of the maximum component in a double vector
   /*!
    * @param x pointer to a vector of doubles

@@ -45,7 +45,7 @@ namespace VCSnonideal {
     m_numSpecies(0),
     m_totalMolesInert(0.0),
     m_isIdealSoln(false),
-    m_existence(0),
+    m_existence(VCS_PHASE_EXIST_NO),
     m_MFStartIndex(0),
     IndSpecies(0),
     m_useCanteraCalls(false),
@@ -512,6 +512,54 @@ namespace VCSnonideal {
   }
   /***************************************************************************/
 
+  // Set the moles and/or mole fractions within the phase
+  /*
+   *
+   *
+   */
+  void vcs_VolPhase::setMoleFractionsState(double totalMoles,
+					   const double * moleFractions,
+					   const int vcsStateStatus) {
+
+
+    if (totalMoles != 0.0) {
+      if (vcsStateStatus !=  VCS_STATECALC_TMP) {
+	printf("vcs_VolPhase::setMolesFractionsState: inappropriate usage\n");
+	std::exit(-1);
+      }
+      m_UpToDate = false;
+      m_vcsStateStatus = VCS_STATECALC_TMP;
+      if (m_existence == -VCS_PHASE_EXIST_ZEROEDPHASE ) {
+	printf("vcs_VolPhase::setMolesFractionsState: inappropriate usage\n");
+	std::exit(-1);
+      }
+      m_existence = VCS_PHASE_EXIST_YES;
+    } else {
+      m_UpToDate = true;
+      m_vcsStateStatus = vcsStateStatus;
+      if (m_existence > VCS_PHASE_EXIST_NO ) {
+	m_existence = VCS_PHASE_EXIST_NO;
+      }
+    }
+    double sum = 0.0;
+    for (int k = 0; k < m_numSpecies; k++) {
+      Xmol[k] = moleFractions[k];
+      sum += moleFractions[k];
+    }
+    if (sum == 0.0) {
+      printf("vcs_VolPhase::setMolesFractionsState: inappropriate usage\n");
+      std::exit(-1);
+    }
+    if (sum  != 1.0) {
+      for (int k = 0; k < m_numSpecies; k++) {
+	Xmol[k] /= sum;
+      }
+    }
+    _updateMoleFractionDependencies();
+ 
+  }
+  /***************************************************************************/
+
   // Set the moles within the phase
   /*
    *  This function takes as input the mole numbers in vcs format, and
@@ -582,7 +630,7 @@ namespace VCSnonideal {
 	  Xmol[k] = tmp / v_totalMoles;
 	}
       }
-      m_existence = 1;
+      m_existence = VCS_PHASE_EXIST_YES;
     } else {
       // This is where we will start to store a better approximation 
       // for the mole fractions, when the phase doesn't exist.
@@ -590,7 +638,7 @@ namespace VCSnonideal {
       for (int k = 0; k < m_numSpecies; k++) {
 	Xmol[k] = 1.0 / m_numSpecies;
       }
-      m_existence = 0;
+      m_existence = VCS_PHASE_EXIST_NO;
     }
     /*
      * Update the electric potential if it is a solution variable
@@ -606,12 +654,12 @@ namespace VCSnonideal {
       double phi = molesSpeciesVCS[kglob];
       setElectricPotential(phi);
       if (m_numSpecies == 1) {
-	m_existence = 1;
+	m_existence = VCS_PHASE_EXIST_YES;
       }
     }
     _updateMoleFractionDependencies();
     if (m_totalMolesInert > 0.0) {
-      m_existence = 2;
+      m_existence = VCS_PHASE_EXIST_ALWAYS;
     }
     /*
      * Set flags indicating we are up to date with the VCS state vector.
@@ -1099,7 +1147,7 @@ namespace VCSnonideal {
   void vcs_VolPhase::setTotalMoles(const double totalMols)  {
     v_totalMoles = totalMols;
     if (m_totalMolesInert > 0.0) {
-      m_existence = 2;
+      m_existence = VCS_PHASE_EXIST_ALWAYS;
 #ifdef DEBUG_MODE
       if (totalMols < m_totalMolesInert) {
       	printf(" vcs_VolPhase::setTotalMoles:: ERROR totalMoles "
@@ -1110,9 +1158,9 @@ namespace VCSnonideal {
 #endif
     } else {
       if (totalMols > 0.0) {
-	m_existence = 1;
+	m_existence = VCS_PHASE_EXIST_YES;
       } else {
-	m_existence = 0;
+	m_existence = VCS_PHASE_EXIST_NO;
       }
     }
   }
@@ -1226,7 +1274,7 @@ namespace VCSnonideal {
 
   // Set the existence flag in the object
   void vcs_VolPhase::setExistence(const int existence) {
-    if (existence == 0) {
+    if (existence == VCS_PHASE_EXIST_NO || existence == VCS_PHASE_EXIST_ZEROEDPHASE) {
       if (v_totalMoles != 0.0) {
 #ifdef DEBUG_MODE
 	plogf("vcs_VolPhase::setExistence setting false existence for phase with moles");
@@ -1295,12 +1343,12 @@ namespace VCSnonideal {
       m_totalMolesInert = tMolesInert;
     }
     if (m_totalMolesInert > 0.0) {
-      m_existence = 2;
+      m_existence = VCS_PHASE_EXIST_ALWAYS;
     } else {
       if (v_totalMoles > 0.0) {
-	m_existence = 1;
+	m_existence = VCS_PHASE_EXIST_YES;
       } else {
-	m_existence = 0;
+	m_existence = VCS_PHASE_EXIST_NO;
       }
     }
   }

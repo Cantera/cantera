@@ -157,6 +157,9 @@ namespace VCSnonideal {
      * @param kspec species number
      */
     double AC_calc_one(int kspec) const;
+
+    void setMoleFractionsState(const double molNum, const double * const moleFracVec, 
+			       const int vcsStateStatus);
   
     //! Set the moles within the phase
     /*!
@@ -391,6 +394,7 @@ namespace VCSnonideal {
      */
     void setMolesCurrent(int stateCalc);
 
+  private:
     //! Set the mole fractions from a conventional mole fraction vector
     /*!
      *
@@ -399,6 +403,7 @@ namespace VCSnonideal {
      */
     void setMoleFractions(const double * const xmol);
 
+  public:
     //! Return a const reference to the mole fractions
     const std::vector<double> & moleFractions() const;
 
@@ -768,9 +773,13 @@ namespace VCSnonideal {
 
     //! Current state of existence:
     /*!
-     *      0 : Doesn't exist currently
-     *      1 : Does    exist currently
-     *      2 : Always exists because it contains
+     *     VCS_PHASE_EXIST_ZEROEDPHASE = -6: Set to not exist by fiat from a higher level.
+     *          This is used in phase stability boundary calculations
+     *     VCS_PHASE_EXIST_NO = 0:   Doesn't exist currently
+     *     VCS_PHASE_EXIST_MINORCONC = 1:  Exists, but the concentration is so low that an alternate
+     *          method is used to calculate the total phase concentrations.
+     *     VCS_PHASE_EXIST_YES = 2 : Does exist currently
+     *     VCS_PHASE_EXIST_ALWAYS = 3: Always exists because it contains
      *          inerts which can't exist in any other
      *          phase  
      */
@@ -885,6 +894,7 @@ namespace VCSnonideal {
      *  valid values are 
      *       VCS_STATECALC_OLD
      *       VCS_STATECALC_NEW
+     *       VCS_STATECALC_TMP
      */
     int  m_vcsStateStatus;
 
