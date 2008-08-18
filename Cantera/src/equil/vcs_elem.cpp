@@ -74,51 +74,53 @@ namespace VCSnonideal {
      * Require 12 digits of accuracy on non-zero constraints.
      */
     for (i = 0; i < top; ++i) {
-      if (fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > (fabs(m_elemAbundancesGoal[i]) * 1.0e-12)) {
-	/*
-	 * This logic is for charge neutrality condition
-	 */
-	if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY) {
-	  AssertThrowVCS(m_elemAbundancesGoal[i] == 0.0, "vcs_elabcheck");
-	}
-	if (m_elemAbundancesGoal[i] == 0.0 || (m_elType[i] == VCS_ELEM_TYPE_ELECTRONCHARGE)) {
-	  scale = VCS_DELETE_MINORSPECIES_CUTOFF;
+      if (m_elementActive[i]) {
+	if (fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > (fabs(m_elemAbundancesGoal[i]) * 1.0e-12)) {
 	  /*
-	   * Find out if the constraint is a multisign constraint.
-	   * If it is, then we have to worry about roundoff error
-	   * in the addition of terms. We are limited to 13
-	   * digits of finite arithmetic accuracy.
+	   * This logic is for charge neutrality condition
 	   */
-	  numNonZero = 0;
-	  multisign = false;
-	  for (int kspec = 0; kspec < m_numSpeciesTot; kspec++) {
-	    eval = m_formulaMatrix[i][kspec];
-	    if (eval < 0.0) {
-	      multisign = true;
-	    }
-	    if (eval != 0.0) {
-	      scale = MAX(scale, fabs(eval * m_molNumSpecies_old[kspec]));
-	      numNonZero++;
-	    }
+	  if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY) {
+	    AssertThrowVCS(m_elemAbundancesGoal[i] == 0.0, "vcs_elabcheck");
 	  }
-	  if (multisign) {
-	    if (fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > 1e-11 * scale) {
-	      return FALSE;
+	  if (m_elemAbundancesGoal[i] == 0.0 || (m_elType[i] == VCS_ELEM_TYPE_ELECTRONCHARGE)) {
+	    scale = VCS_DELETE_MINORSPECIES_CUTOFF;
+	    /*
+	     * Find out if the constraint is a multisign constraint.
+	     * If it is, then we have to worry about roundoff error
+	     * in the addition of terms. We are limited to 13
+	     * digits of finite arithmetic accuracy.
+	     */
+	    numNonZero = 0;
+	    multisign = false;
+	    for (int kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+	      eval = m_formulaMatrix[i][kspec];
+	      if (eval < 0.0) {
+		multisign = true;
+	      }
+	      if (eval != 0.0) {
+		scale = MAX(scale, fabs(eval * m_molNumSpecies_old[kspec]));
+		numNonZero++;
+	      }
+	    }
+	    if (multisign) {
+	      if (fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > 1e-11 * scale) {
+		return FALSE;
+	      }
+	    } else {
+	      if (fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > VCS_DELETE_MINORSPECIES_CUTOFF) {
+		return FALSE;
+	      }
 	    }
 	  } else {
-	    if (fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > VCS_DELETE_MINORSPECIES_CUTOFF) {
+	    /*
+	     * For normal element balances, we require absolute compliance
+	     * even for rediculously small numbers.
+	     */
+	    if (m_elType[i] == VCS_ELEM_TYPE_ABSPOS) {
+	      return FALSE;
+	    } else {
 	      return FALSE;
 	    }
-	  }
-	} else {
-	  /*
-	   * For normal element balances, we require absolute compliance
-	   * even for rediculously small numbers.
-	   */
-	  if (m_elType[i] == VCS_ELEM_TYPE_ABSPOS) {
-	    return FALSE;
-	  } else {
-	    return FALSE;
 	  }
 	}
       }

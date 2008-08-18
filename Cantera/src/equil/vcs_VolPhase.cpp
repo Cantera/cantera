@@ -635,9 +635,9 @@ namespace VCSnonideal {
       // This is where we will start to store a better approximation 
       // for the mole fractions, when the phase doesn't exist.
       // This is currently unimplemented.
-      for (int k = 0; k < m_numSpecies; k++) {
-	Xmol[k] = 1.0 / m_numSpecies;
-      }
+      //for (int k = 0; k < m_numSpecies; k++) {
+      //	Xmol[k] = 1.0 / m_numSpecies;
+      //}
       m_existence = VCS_PHASE_EXIST_NO;
     }
     /*

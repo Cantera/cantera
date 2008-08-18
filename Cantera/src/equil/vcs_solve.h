@@ -507,7 +507,9 @@ public:
    *  Reconciles Phase existence flags with total moles in each phase.
    */
   double vcs_tmoles();
-
+#ifdef DEBUG_MODE
+  void check_tmoles() const;
+#endif
 
   //! This subroutine calculates reaction free energy changes for 
   //! all noncomponent formation reactions.
@@ -1415,7 +1417,6 @@ public:
    *
    *   length = [nspecies0][nelements0]
    */
-  //DoubleStarStar sc;
   DoubleStarStar m_stoichCoeffRxnMatrix;
 
   //! Absolute size of the stoichiometric coefficients
@@ -1718,7 +1719,7 @@ public:
 
   //! Species string name for the kth species
   /*!
-   *  SpName[k] = Species string name for the kth species
+   *   Species string name for the kth species
    */
   std::vector<std::string> m_speciesName; 
 

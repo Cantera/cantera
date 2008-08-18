@@ -303,8 +303,8 @@ namespace VCSnonideal {
 	      if (k == kspec) {
 		m_rxnStatus[irxn] = VCS_SPECIES_ZEROEDSS;
 		if (m_SSPhase[kspec] != 1) {
-		  printf("we shouldn't be here!\n");
-		  exit(-1);
+		  printf("vcs_RxnStepSizes:: we shouldn't be here!\n");
+		  std::exit(-1);
 		}
 	      }
 #ifdef DEBUG_MODE
@@ -586,7 +586,7 @@ namespace VCSnonideal {
     double diag = hessianDiag_Ideal;
     double hessActCoef = vcs_Hessian_actCoeff_diag(irxn);
     if (hessianDiag_Ideal <= 0.0) {
-      plogf("We shouldn't be here\n");
+      plogf("vcs_Hessian_diag_adj::We shouldn't be here\n");
       exit(-1);
     }
     if (hessActCoef >= 0.0) {

@@ -62,6 +62,7 @@ namespace VCSnonideal {
   }
 
   //   Initialize the sizes within the VCS_SOLVE object
+
   /*
    *    This resizes all of the internal arrays within the object. This routine
    *    operates in two modes. If all of the parameters are the same as it
@@ -691,7 +692,7 @@ namespace VCSnonideal {
     m_elementActive.resize(nelements, 1);
   
     /*
-     *      Copy over the element names
+     *      Copy over the element names and types
      */
     for (i = 0; i < nelements; i++) {
       m_elementName[i] = pub->ElName[i];
@@ -702,6 +703,23 @@ namespace VCSnonideal {
 	if (pub->m_elType[i] != VCS_ELEM_TYPE_CHARGENEUTRALITY) {
 	  plogf("we have an inconsistency!\n");
 	  exit(-1);
+	}
+      }
+    }
+
+    for (i = 0; i < nelements; i++) {
+      if (m_elType[i] ==  VCS_ELEM_TYPE_CHARGENEUTRALITY) {
+	if (m_elemAbundancesGoal[i] != 0.0) {
+	  if (fabs(m_elemAbundancesGoal[i]) > 1.0E-9) {
+	    plogf("Charge neutrality condition %s is signicantly nonzero, %g. Giving up\n",
+		  m_elementName[i].c_str(), m_elemAbundancesGoal[i]);
+	    std::exit(-1);
+	  } else {
+	    plogf("Charge neutrality condition %s not zero, %g. Setting it zero\n",
+		  m_elementName[i].c_str(), m_elemAbundancesGoal[i]);
+	    m_elemAbundancesGoal[i] = 0.0;
+	  }
+	  
 	}
       }
     }
