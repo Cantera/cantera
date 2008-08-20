@@ -317,10 +317,7 @@ namespace Cantera {
     /*!
      * @param T   value of the temperature (Kelvin)
      */
-    void setTemperature(doublereal T) {
-      m_temp = T;
-      updatePhases();
-    }
+    void setTemperature(const doublereal T);
 
     /// Pressure [Pa].
     doublereal pressure() const {

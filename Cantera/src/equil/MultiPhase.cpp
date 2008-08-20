@@ -729,66 +729,6 @@ namespace Cantera {
             throw CanteraError("MultiPhase::equilibrate",
                 "No convergence for T");
         }
-
-//         else if (XY == SP) {
-//             if (loglevel > 0) {
-//                 addLogEntry("problem type","fixed S,P");
-//             }
-//             doublereal dt = 1.0e3;
-//             doublereal s0 = entropy();
-//             int n;
-//             bool start = true;
-//             doublereal ferr, snow, serr, tnew;
-//             for (n = 0; n < maxiter; n++) {
-//                 e = new MultiPhaseEquil(this, start);
-//                 ferr = 0.1;
-//                 start = false;
-//                 if (fabs(dt) < 1.0) ferr = err;
-//                 if (loglevel > 1) {
-//                     beginLogGroup("iteration "+int2str(n));
-//                 }
-//                 try {
-//                     error = e->equilibrate(TP, ferr, maxsteps, loglevel-1);
-//                     snow = entropy();
-//                     tnew = exp(0.5*(s0 - snow)/cp())*temperature();
-//                     serr = fabs((s0 - snow)/s0);
-//                     if (loglevel > 1) {
-//                         addLogEntry("T",fp2str(temperature()));
-//                         addLogEntry("S rel error",fp2str(serr));
-//                         endLogGroup();
-//                     }
-//                     if (serr < err) {
-//                         if (loglevel > 0) {
-//                             addLogEntry("T iterations",int2str(n));
-//                             addLogEntry("Final T",fp2str(temperature()));
-//                             addLogEntry("S rel error",fp2str(serr));
-//                         }
-//                         goto done;
-//                     }
-//                     setTemperature(tnew);
-//                 }
-//                 catch (CanteraError err) {
-//                     delete e;
-//                     if (!strt) {
-//                         if (loglevel > 0) 
-//                             addLogEntry("no convergence",
-//                                 "setting strt to True");
-//                         strt = true;
-//                     }
-//                     else {
-//                         tnew = 0.5*(m_temp + Thigh);
-//                         setTemperature(tnew);
-//                         if (loglevel > 0) 
-//                             addLogEntry("no convergence",
-//                                 "trying T = "+fp2str(m_temp));   
-//                     }
-//                 }
-//                 endLogGroup();
-//             }
-//             if (loglevel > 0) write_logfile("equil_err.html");
-//             throw CanteraError("MultiPhase::equilibrate",
-//                 "No convergence for T");
-//         }
         else if (XY == TV) {
             addLogEntry("problem type","fixed T, V");
             //            doublereal dt = 1.0e3;
@@ -862,6 +802,12 @@ done:
         }
     }
 #endif
+
+  void MultiPhase::setTemperature(const doublereal T) {
+    if (!m_init) init();
+    m_temp = T;
+    updatePhases();
+  }
 
   // Name of element \a m.
   std::string MultiPhase::elementName(int m) const {
