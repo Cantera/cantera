@@ -7,10 +7,11 @@
 #include "kernel/EdgeKinetics.h"
 #include "kernel/importKinetics.h"
 
+using namespace Cantera;
 namespace Cantera_CXX {
 
     class Edge : 
-        public EdgePhase, public EdgeKinetics
+        public Cantera::EdgePhase, public Cantera::EdgeKinetics
     {
     public:
         Edge(std::string infile, std::string id, std::vector<ThermoPhase*> phases) 
