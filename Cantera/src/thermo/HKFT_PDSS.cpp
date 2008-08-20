@@ -380,6 +380,35 @@ namespace Cantera {
     return  bg_coeff[1] + bg_coeff[2] * 2.0 * temp;
   }
 
+  double HKFT_PDSS::f(const double temp, const double pres, const int ifunc) {
+    
+    static double af_coeff[3] = { 3.666666E1, -0.1504956E-9, 0.5107997E-13};
+    double TC = temp - 273.15;
+    double presBar = pres / 1.0E5;
+
+    if (TC < 155.0) return 0.0;
+    if (TC > 355.0) TC = 355.0;
+    if (presBar > 1000.) return 0.0;
+    
+
+    double T1 = (TC-155.0)/300.;
+    double fac1;
+
+    double p2 = presBar * presBar;
+    double p3 = presBar * p2;
+    double p4 = p2 * p2;
+    double fac2 = af_coeff[1] * p3 +   af_coeff[2] * p4;
+    if (ifunc == 0) {
+      fac1 = pow(T1,4.8) + af_coeff[0] * pow(T1, 16.0);
+      return fac1 * fac2;
+    } else if (ifunc == 1) {
+      fac1 =  (4.8 * pow(T1,3.8) + 16.0 * af_coeff[0] * pow(T1, 16.0)) / 300.;
+      return fac1 * fac2;
+    } else {
+      throw CanteraError("HKFT_PDSS::gg", "unimplemented");
+    }
+    return 0.0;
+  }
 
   double HKFT_PDSS::g(const double temp, const double pres, const int ifunc) {
     double afunc = ag(temp, 0);
@@ -393,11 +422,13 @@ namespace Cantera {
 	return 0.0;
       }
       
-      double g = afunc * pow((1.0-dens), bfunc);
-      return g;
+      double gval = afunc * pow((1.0-dens), bfunc);
+      double fval = f(temp, pres, ifunc);
+      return gval - fval;
     } else {
       throw CanteraError("HKFT_PDSS::gg", "unimplemented");
     }
     return 0.0;
   }
+
 }

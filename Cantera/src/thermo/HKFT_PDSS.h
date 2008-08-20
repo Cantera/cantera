@@ -143,6 +143,7 @@ namespace Cantera {
     double ag(const double temp, const int ifunc = 0) const;
     double bg(const double temp, const int ifunc = 0) const;
     double g(const double temp, const double pres, const int ifunc = 0);
+    double f(const double temp, const double pres, const int ifunc = 0);
 
   protected:
 
