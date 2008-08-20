@@ -5,6 +5,7 @@
 #include "xml.h"
 #include "ctml.h"
 #include "HKFT_PDSS.h"
+#include "WaterPDSS.h"
 
 #include "ThermoPhase.h"
 
@@ -346,11 +347,57 @@ namespace Cantera {
   }
    
   //! Internal formula for the calculation of a_g()
-  double HKFT_PDSS::ag(const double temp) const {
+  /*
+   * The output of this is in units of Angstroms
+   */
+  double HKFT_PDSS::ag(const double temp, const int ifunc) const {
     static double ag_coeff[3] = { -2.037662,  5.747000E-3,  -6.557892E-6};
-    double t2 = temp * temp;
-    double val = ag_coeff[0] + ag_coeff[1] * temp * ag_coeff[2] * t2;
-    return val;
+    if (ifunc == 0) {
+      double t2 = temp * temp;
+      double val = ag_coeff[0] + ag_coeff[1] * temp + ag_coeff[2] * t2;
+      return val;
+    }
+    if (ifunc != 1) {
+      throw CanteraError("HKFT_PDSS::ag", "unimplemented");
+    }
+    return  ag_coeff[1] + ag_coeff[2] * 2.0 * temp;
   }
 
+  //! Internal formula for the calculation of b_g()
+  /*
+   * the output of this is unitless
+   */
+  double HKFT_PDSS::bg(const double temp, const int ifunc) const {
+    static double bg_coeff[3] = { 6.107361, -1.074377E-2,  1.268348E-5};
+    if (ifunc == 0) {
+      double t2 = temp * temp;
+      double val = bg_coeff[0] + bg_coeff[1] * temp + bg_coeff[2] * t2;
+      return val;
+    }
+    if (ifunc != 1) {
+      throw CanteraError("HKFT_PDSS::bg", "unimplemented");
+    }
+    return  bg_coeff[1] + bg_coeff[2] * 2.0 * temp;
+  }
+
+
+  double HKFT_PDSS::g(const double temp, const double pres, const int ifunc) {
+    double afunc = ag(temp, 0);
+    double bfunc = bg(temp, 0);
+    m_waterSS->setState_TP(temp, pres);
+    m_densWaterSS = m_waterSS->density();
+    // density in gm cm-3
+    double dens = m_densWaterSS * 1.0E-3;
+    if (ifunc == 0) {
+      if (dens >= 1.0) {
+	return 0.0;
+      }
+      
+      double g = afunc * pow((1.0-dens), bfunc);
+      return g;
+    } else {
+      throw CanteraError("HKFT_PDSS::gg", "unimplemented");
+    }
+    return 0.0;
+  }
 }

@@ -22,8 +22,13 @@ class ThermoPhase;
 class WaterPropsIAPWS;
 #include "PDSS.h"
 
+
+
 namespace Cantera {
 
+
+  class WaterProps;
+  class WaterPDSS;
 
   /**
    * Class for pressure dependent standard states corresponding to 
@@ -135,9 +140,30 @@ namespace Cantera {
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
   private:
-    double ag(const double temp) const;
+    double ag(const double temp, const int ifunc = 0) const;
+    double bg(const double temp, const int ifunc = 0) const;
+    double g(const double temp, const double pres, const int ifunc = 0);
 
   protected:
+
+  private:
+    //!  Water standard state calculator
+    /*!
+     *  derived from the equation of state for water.
+     */
+    WaterPDSS *m_waterSS;
+
+    //! density of standard-state water
+    /*!
+     * internal temporary variable
+     */
+    double m_densWaterSS;
+
+    /**
+     *  Pointer to the water property calculator
+     */
+    WaterProps *m_waterProps;
+
 
 
   };
