@@ -134,6 +134,9 @@ namespace Cantera {
     virtual void initThermo();
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
+  private:
+    double ag(const double temp) const;
+
   protected:
 
 

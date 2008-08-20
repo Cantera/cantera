@@ -17,6 +17,8 @@ namespace Cantera {
 
 
 
+
+
   HKFT_PDSS::HKFT_PDSS(ThermoPhase *tp, int spindex) :
     PDSS(tp, spindex)
   {
@@ -342,6 +344,13 @@ namespace Cantera {
     throw CanteraError("HKFT_PDSS::satPressure()", "unimplemented");
     return (0.0);
   }
-    
+   
+  //! Internal formula for the calculation of a_g()
+  double HKFT_PDSS::ag(const double temp) const {
+    static double ag_coeff[3] = { -2.037662,  5.747000E-3,  -6.557892E-6};
+    double t2 = temp * temp;
+    double val = ag_coeff[0] + ag_coeff[1] * temp * ag_coeff[2] * t2;
+    return val;
+  }
 
 }
