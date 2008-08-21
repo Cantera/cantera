@@ -135,7 +135,7 @@ namespace Cantera {
      *   value at 25C and 1 atm, relEps = 78.38
      * 
      */
-    static double relEpsilon(double T, double P_pascal,  int ifunc = 0);
+    double relEpsilon(double T, double P_pascal,  int ifunc = 0);
 
     
     //! ADebye calculates the value of A_Debye as a function

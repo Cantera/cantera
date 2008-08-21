@@ -139,6 +139,9 @@ namespace Cantera {
     virtual void initThermo();
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
+    double deltaG();
+    double electrostatic_radii_calc();
+
   private:
     double ag(const double temp, const int ifunc = 0) const;
     double bg(const double temp, const int ifunc = 0) const;
@@ -155,6 +158,9 @@ namespace Cantera {
      */
     WaterPDSS *m_waterSS;
 
+    //! Current value of the pressure for this object
+    doublereal m_pres;
+
     //! density of standard-state water
     /*!
      * internal temporary variable
@@ -167,6 +173,60 @@ namespace Cantera {
     WaterProps *m_waterProps;
 
 
+    //! Born coefficient for the current ion or species
+
+    doublereal m_born_coeff_j;
+
+    //! Electrostatic radii
+    doublereal r_e_j;
+
+
+    //! Value of deltaG at Tr and Pr    (cal gmol-1)
+    /*!
+     *  Tr = 298.15   Pr = 1 atm
+     */
+    doublereal m_deltaG_tr_pr;
+
+    //! Value of S_j at Tr and Pr    (cal gmol-1 K-1)
+    /*!
+     *  Tr = 298.15   Pr = 1 atm
+     */
+    doublereal m_Entrop_tr_pr;
+
+    //! a1 coefficient (cal gmol-1 bar-1)
+    doublereal m_a1;
+
+    //! a2 coefficient (cal gmol-1)
+    doublereal m_a2;
+
+    //! c1 coefficient (cal gmol-1 K-1)
+    doublereal m_c1;
+    
+    //! c2 coefficient (cal K gmol-1)
+    doublereal m_c2;
+
+    //! a3 coefficient (cal K gmol-1 bar-1)
+    doublereal m_a3;
+
+    //! a4 coefficient (cal K gmol-1)
+    doublereal m_a4;
+
+    //! omega_pr_tr coefficient(cal gmol-1)
+    doublereal m_omega_pr_tr;
+
+    //! y = dZdT = 1/(esp*esp) desp/dT
+    double m_Y_pr_tr;
+    //double m_Y_pr_tr = -5.799E-5;
+    double m_Z_pr_tr;
+    //double m_Z_pr_tr = -0.0127803;
+    //! Reference pressure is 1 atm in units of bar= 1.0132
+    doublereal m_presR_bar;
+
+
+    //! Charge of the ion
+    doublereal m_charge_j;
+
+    WaterProps *m_wprops;
 
   };
 

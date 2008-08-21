@@ -6,6 +6,7 @@
 #include "ctml.h"
 #include "HKFT_PDSS.h"
 #include "WaterPDSS.h"
+#include "WaterProps.h"
 
 #include "ThermoPhase.h"
 
@@ -145,6 +146,21 @@ namespace Cantera {
   }
 
   void HKFT_PDSS::initThermo() {
+    
+    /*
+     *  Section to initialize  m_Z_pr_tr and   m_Y_pr_tr
+     */
+    double temp = 273.15 + 25.;
+    double pres = OneAtm;
+    double relepsilon = m_wprops->relEpsilon(temp, pres, 0);
+ 
+    m_Z_pr_tr = -1.0 / relepsilon;
+    //double m_Z_pr_tr = -0.0127803;
+    //printf("m_Z_pr_tr = %20.10g\n",  m_Z_pr_tr ); 
+    double drelepsilondT = m_wprops->relEpsilon(temp, pres, 1);
+    //double m_Y_pr_tr = -5.799E-5;
+    m_Y_pr_tr = drelepsilondT / (relepsilon * relepsilon);
+    //printf("m_Y_pr_tr = %20.10g\n",  m_Y_pr_tr ); 
   }
 
   void HKFT_PDSS::
@@ -345,7 +361,60 @@ namespace Cantera {
     throw CanteraError("HKFT_PDSS::satPressure()", "unimplemented");
     return (0.0);
   }
+
+
+  double HKFT_PDSS::deltaG() {
+    
+    double pbar = m_pres * 1.0E-5;
+    double m_presR_bar = OneAtm * 1.0E-5;
+
+    double sterm = -  m_Entrop_tr_pr * (m_temp - 298.15);
+
+    double c1term = -m_c1*(m_temp * log(m_temp/298.15) - (m_temp - 298.15));
+    double a1term = m_a1 * (pbar - m_presR_bar);
+
+    double a2term = m_a2 * log((2600. + pbar)/(2600. + m_presR_bar));
+
+    double c2term = -m_c2 * (( 1.0/(m_temp - 228.) - 1.0/(298.15 - 228.) ) * (228 - m_temp)/228.
+			     - m_temp / (228.*228.) * log( (298.15*(m_temp-228.)) / (m_temp*(298.15-228.)) ));
+    
+    double a3term = m_a3 / (m_temp - 228.) * (pbar - m_presR_bar);
+
+    double a4term = m_a4 / (m_temp - 228.) * log((2600. + pbar)/(2600. + m_presR_bar));
+
+    double nu = 166027;
+    double r_e_j_pr_tr = m_charge_j * m_charge_j / (m_omega_pr_tr/nu + m_charge_j/3.082);
+  
+    double gval = gstar(m_temp, m_pres, 0);
+
+    double r_e_j = r_e_j_pr_tr + fabs(m_charge_j) * gval;
+
+    double omega_j = nu * (m_charge_j * m_charge_j / r_e_j - m_charge_j / (3.082 + gval)  );
+
+    double relepsilon = m_wprops->relEpsilon(m_temp, m_pres, 0);
+
+    //double Y_pr_tr = -5.799E-5;
+    //double Z_pr_tr = -0.0127803;
+
+    double Z = -1.0 / relepsilon;
+
+    double wterm = - omega_j * (Z + 1.0);
+
+    double wrterm = m_omega_pr_tr * (m_Z_pr_tr + 1.0);
+
+    double yterm = m_omega_pr_tr * m_Y_pr_tr * (m_temp - 298.15);
+
+    double deltaG_calgmol = m_deltaG_tr_pr + sterm + c1term + a1term + a2term + c2term + a3term + a4term + wterm + wrterm + yterm;
+
+    // Convert to Joules / kg
+    double deltaG = deltaG_calgmol * 1.0E3 * 4.184;
+    return deltaG;
+  }
    
+  double HKFT_PDSS::electrostatic_radii_calc() {
+    return 0.0;
+  }
+
   //! Internal formula for the calculation of a_g()
   /*
    * The output of this is in units of Angstroms
