@@ -499,8 +499,21 @@ namespace Cantera {
     }
     setDensity(dd);
   }
+  
+  // Return the volumetric thermal expansion coefficient. Units: 1/K.
+  /*
+   * The thermal expansion coefficient is defined as
+   * \f[
+   * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
+   * \f]
+   */
+  doublereal WaterSSTP::thermalExpansionCoeff() const {
+    doublereal pres = pressure();
+    double T = temperature();
+    doublereal val = m_sub->coeffThermExp(T, pres);
+    return val;
+  }
  
-
   // critical temperature 
   doublereal WaterSSTP::critTemperature() const { return m_sub->Tcrit(); }
         

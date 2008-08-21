@@ -356,11 +356,13 @@ namespace Cantera {
       double t2 = temp * temp;
       double val = ag_coeff[0] + ag_coeff[1] * temp + ag_coeff[2] * t2;
       return val;
+    } else if (ifunc == 1) {
+      return  ag_coeff[1] + ag_coeff[2] * 2.0 * temp;
     }
-    if (ifunc != 1) {
-      throw CanteraError("HKFT_PDSS::ag", "unimplemented");
+    if (ifunc != 2) {
+      return 0.0;
     }
-    return  ag_coeff[1] + ag_coeff[2] * 2.0 * temp;
+    return ag_coeff[2] * 2.0;;
   }
 
   //! Internal formula for the calculation of b_g()
@@ -373,11 +375,13 @@ namespace Cantera {
       double t2 = temp * temp;
       double val = bg_coeff[0] + bg_coeff[1] * temp + bg_coeff[2] * t2;
       return val;
+    }   else if (ifunc == 1) {
+      return bg_coeff[1] + bg_coeff[2] * 2.0 * temp;
     }
-    if (ifunc != 1) {
-      throw CanteraError("HKFT_PDSS::bg", "unimplemented");
+    if (ifunc != 2) {
+      return 0.0;
     }
-    return  bg_coeff[1] + bg_coeff[2] * 2.0 * temp;
+    return bg_coeff[2] * 2.0;
   }
 
   double HKFT_PDSS::f(const double temp, const double pres, const int ifunc) {
@@ -402,7 +406,14 @@ namespace Cantera {
       fac1 = pow(T1,4.8) + af_coeff[0] * pow(T1, 16.0);
       return fac1 * fac2;
     } else if (ifunc == 1) {
-      fac1 =  (4.8 * pow(T1,3.8) + 16.0 * af_coeff[0] * pow(T1, 16.0)) / 300.;
+      fac1 =  (4.8 * pow(T1,3.8) + 16.0 * af_coeff[0] * pow(T1, 15.0)) / 300.;
+      return fac1 * fac2;
+    } else if (ifunc == 2) {
+      fac1 =  (4.8 * 3.8 * pow(T1,2.8) + 16.0 * 15.0 * af_coeff[0] * pow(T1, 14.0)) / (300. * 300.);
+      return fac1 * fac2;
+    } else if (ifunc == 3) {
+      fac1 = pow(T1,4.8) + af_coeff[0] * pow(T1, 16.0);
+      fac2 = (3.0 * af_coeff[1] * p2 +   4.0 * af_coeff[2] * p3 )/ 1.0E5;
       return fac1 * fac2;
     } else {
       throw CanteraError("HKFT_PDSS::gg", "unimplemented");
@@ -417,18 +428,58 @@ namespace Cantera {
     m_densWaterSS = m_waterSS->density();
     // density in gm cm-3
     double dens = m_densWaterSS * 1.0E-3;
-    if (ifunc == 0) {
-      if (dens >= 1.0) {
-	return 0.0;
+    double gval = afunc * pow((1.0-dens), bfunc);
+    if (dens >= 1.0) {
+      return 0.0;
+    }
+    if (ifunc == 0) {  
+      return gval;
+
+    } else if (ifunc == 1 || ifunc == 2) {
+      double afuncdT = ag(temp, 1);
+      double bfuncdT = bg(temp, 1);
+      double alpha   = m_waterSS->thermalExpansionCoeff();
+
+      double fac1 = afuncdT * gval / afunc;
+      double fac2 = bfuncdT * gval * log(1.0 - dens);
+      double fac3 = gval * alpha * bfunc * dens / (1.0 - dens);
+
+      double dgdt = fac1 + fac2 + fac3;
+      if (ifunc == 1) {
+	return dgdt;
       }
+
+      double afuncdT2 = ag(temp, 2);
+      double bfuncdT2 = bg(temp, 2);
+
+      double dfac1dT = dgdt * afuncdT / afunc + afuncdT2 * gval / afunc 
+	-  afuncdT * afuncdT * gval / (afunc * afunc);
+
+      double ddensdT = - alpha * dens;
+      double dfac2dT =  bfuncdT2 * gval * log(1.0 - dens) 
+	+ bfuncdT * dgdt * log(1.0 - dens) 
+	- bfuncdT * gval /(1.0 - dens) * ddensdT;
+
+      double dalphadT = m_waterSS->dthermalExpansionCoeffdT();
       
-      double gval = afunc * pow((1.0-dens), bfunc);
-      double fval = f(temp, pres, ifunc);
-      return gval - fval;
+      double dfac3dT = dgdt * alpha * bfunc * dens / (1.0 - dens)
+	+ gval * dalphadT * bfunc * dens / (1.0 - dens)
+	+ gval * alpha * bfuncdT * dens / (1.0 - dens)
+	+ gval * alpha * bfunc * ddensdT / (1.0 - dens)
+	- gval * alpha * bfunc * dens / ((1.0 - dens) * (1.0 - dens)) * ddensdT;
+
+      return dfac1dT + dfac2dT + dfac3dT;
+
     } else {
       throw CanteraError("HKFT_PDSS::gg", "unimplemented");
     }
     return 0.0;
+  }
+
+  double HKFT_PDSS::gstar(const double temp, const double pres, const int ifunc) {
+    double gval = g(temp, pres, ifunc);
+    double fval = f(temp, pres, ifunc);
+    return gval - fval;
   }
 
 }

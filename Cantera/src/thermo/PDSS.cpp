@@ -397,7 +397,18 @@ namespace Cantera {
     throw CanteraError("PDSS::pressure()", "unimplemented");
   }
  
-
+  // Return the volumetric thermal expansion coefficient. Units: 1/K.
+  /*
+   * The thermal expansion coefficient is defined as
+   * \f[
+   * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
+   * \f]
+   */
+  doublereal PDSS::thermalExpansionCoeff() const {
+    throw CanteraError("PDSS::thermalExpansionCoeff()", "unimplemented");
+    return (0.0);
+  }
+  
   /// critical temperature 
   doublereal PDSS::critTemperature() const { 
     throw CanteraError("PDSS::critTemperature()", "unimplemented");
