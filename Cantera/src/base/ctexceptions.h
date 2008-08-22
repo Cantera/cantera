@@ -80,11 +80,11 @@ namespace Cantera {
          * constructor, a call to the Application class is made to store
          * the strings associated with the generated error condition.
          *
-         * @param proc String name for the function within which the error was
+         * @param procedure String name for the function within which the error was
          *             generated.
          * @param msg  Descriptive string describing the type of error message.
          */
-        CanteraError(std::string proc, std::string msg);
+        CanteraError(std::string procedure, std::string msg);
 
         //! Destructor for base class does nothing
         virtual ~CanteraError(){}
@@ -111,12 +111,12 @@ namespace Cantera {
          * The length needed is supplied by the argument, reqd, and the
          * length supplied is given by the argument sz.
          *
-         * @param proc String name for the function within which the error was
+         * @param procedure String name for the function within which the error was
          *             generated.
          * @param sz   This is the length supplied to Cantera.
          * @param reqd This is the required length needed by Cantera
          */
-        ArraySizeError(std::string proc, int sz, int reqd);
+        ArraySizeError(std::string procedure, int sz, int reqd);
     };
 
     //! An element index is out of range.
@@ -177,9 +177,9 @@ namespace Cantera {
 #define STR_TRACE   (std::string(__FILE__) +  ":" + XSTR_TRACE_LINE(__LINE__))
 
 #ifdef NDEBUG
-#  define AssertTrace(expr)                   ((void) (0))
-#  define AssertThrow(expr, proc)             ((void) (0))
-#  define AssertThrowMsg(expr,proc, message)  ((void) (0))
+#  define AssertTrace(expr)                        ((void) (0))
+#  define AssertThrow(expr, procedure)             ((void) (0))
+#  define AssertThrowMsg(expr,procedure, message)  ((void) (0))
 #else
 
     //! Assertion must be true or an error is thrown
@@ -200,10 +200,10 @@ namespace Cantera {
      * occured is added to the thrown object.
      *
      * @param expr  Boolean expression that must be true
-     * @param proc  Character string or std:string expression indicating the procedure where the assertion failed
+     * @param procedure  Character string or std:string expression indicating the procedure where the assertion failed
      * @ingroup errorhandling
      */
-#  define AssertThrow(expr, proc)   ((expr) ? (void) 0 : throw Cantera::CanteraError(proc, std::string("failed assert: ") + #expr))
+#  define AssertThrow(expr, procedure)   ((expr) ? (void) 0 : throw Cantera::CanteraError(procedure, std::string("failed assert: ") + #expr))
 
     //!  Assertion must be true or an error is thrown
     /*!
@@ -212,14 +212,14 @@ namespace Cantera {
      * to the thrown object.
      *
      * @param expr  Boolean expression that must be true
-     * @param proc  Character string or std:string expression indicating 
-     * the procedure where the assertion failed
+     * @param procedure  Character string or std:string expression indicating 
+     *                   the procedure where the assertion failed
      * @param message  Character string or std:string expression contaiing 
      *    a descriptive message is added to the thrown error condition.
      *
      * @ingroup errorhandling
      */
-#  define AssertThrowMsg(expr, proc, message)  ((expr) ? (void) 0 : throw Cantera::CanteraError(proc + std::string(": at failed assert: \"") + std::string(#expr) + std::string("\""), message))
+#  define AssertThrowMsg(expr, procedure, message)  ((expr) ? (void) 0 : throw Cantera::CanteraError(procedure + std::string(": at failed assert: \"") + std::string(#expr) + std::string("\""), message))
 #endif
  
 }
