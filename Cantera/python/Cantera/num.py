@@ -1,5 +1,5 @@
 import _cantera
-nummodule = numo=py
+nummodule = None
 
 try:
     if _cantera.nummod == 'numpy':
