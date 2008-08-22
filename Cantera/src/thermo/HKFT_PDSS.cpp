@@ -201,10 +201,9 @@ namespace Cantera {
    * Calculate the Gibbs free energy in mks units of
    * J kmol-1 K-1.
    */
-  doublereal HKFT_PDSS::
-  gibbs_mole() const {
-    throw CanteraError("HKFT_PDSS::gibbs_mole()", "unimplemented");
-    return (0.0);
+  doublereal HKFT_PDSS::gibbs_mole() const {
+    double val = deltaG();
+    return (m_Mu0_tr_pr + val);
   }
 
   /**
@@ -363,19 +362,19 @@ namespace Cantera {
   }
 
 
-  double HKFT_PDSS::deltaG() {
+  double HKFT_PDSS::deltaG() const {
     
     double pbar = m_pres * 1.0E-5;
     double m_presR_bar = OneAtm * 1.0E-5;
 
     double sterm = -  m_Entrop_tr_pr * (m_temp - 298.15);
 
-    double c1term = -m_c1*(m_temp * log(m_temp/298.15) - (m_temp - 298.15));
+    double c1term = -m_c1 * (m_temp * log(m_temp/298.15) - (m_temp - 298.15));
     double a1term = m_a1 * (pbar - m_presR_bar);
 
     double a2term = m_a2 * log((2600. + pbar)/(2600. + m_presR_bar));
 
-    double c2term = -m_c2 * (( 1.0/(m_temp - 228.) - 1.0/(298.15 - 228.) ) * (228 - m_temp)/228.
+    double c2term = -m_c2 * (( 1.0/(m_temp - 228.) - 1.0/(298.15 - 228.) ) * (228. - m_temp)/228.
 			     - m_temp / (228.*228.) * log( (298.15*(m_temp-228.)) / (m_temp*(298.15-228.)) ));
     
     double a3term = m_a3 / (m_temp - 228.) * (pbar - m_presR_bar);
@@ -393,9 +392,6 @@ namespace Cantera {
 
     double relepsilon = m_wprops->relEpsilon(m_temp, m_pres, 0);
 
-    //double Y_pr_tr = -5.799E-5;
-    //double Z_pr_tr = -0.0127803;
-
     double Z = -1.0 / relepsilon;
 
     double wterm = - omega_j * (Z + 1.0);
@@ -404,9 +400,9 @@ namespace Cantera {
 
     double yterm = m_omega_pr_tr * m_Y_pr_tr * (m_temp - 298.15);
 
-    double deltaG_calgmol = m_deltaG_tr_pr + sterm + c1term + a1term + a2term + c2term + a3term + a4term + wterm + wrterm + yterm;
+    double deltaG_calgmol = sterm + c1term + a1term + a2term + c2term + a3term + a4term + wterm + wrterm + yterm;
 
-    // Convert to Joules / kg
+    // Convert to Joules / kmol
     double deltaG = deltaG_calgmol * 1.0E3 * 4.184;
     return deltaG;
   }
@@ -453,7 +449,7 @@ namespace Cantera {
     return bg_coeff[2] * 2.0;
   }
 
-  double HKFT_PDSS::f(const double temp, const double pres, const int ifunc) {
+  double HKFT_PDSS::f(const double temp, const double pres, const int ifunc) const {
     
     static double af_coeff[3] = { 3.666666E1, -0.1504956E-9, 0.5107997E-13};
     double TC = temp - 273.15;
@@ -490,7 +486,7 @@ namespace Cantera {
     return 0.0;
   }
 
-  double HKFT_PDSS::g(const double temp, const double pres, const int ifunc) {
+  double HKFT_PDSS::g(const double temp, const double pres, const int ifunc) const {
     double afunc = ag(temp, 0);
     double bfunc = bg(temp, 0);
     m_waterSS->setState_TP(temp, pres);
@@ -545,10 +541,106 @@ namespace Cantera {
     return 0.0;
   }
 
-  double HKFT_PDSS::gstar(const double temp, const double pres, const int ifunc) {
+  double HKFT_PDSS::gstar(const double temp, const double pres, const int ifunc) const {
     double gval = g(temp, pres, ifunc);
     double fval = f(temp, pres, ifunc);
     return gval - fval;
+  }
+
+  /* awData structure */
+  /**
+   * Database for atomic molecular weights
+   *
+   *  Values are taken from the 1989 Standard Atomic Weights, CRC
+   *
+   *  awTable[] is a static function with scope limited to this file.
+   *  It can only be referenced via the static Elements class function,
+   *  LookupWtElements().
+   *
+   *  units = kg / kg-mol (or equivalently gm / gm-mol)
+   *
+   * (note: this structure was picked because it's simple, compact,
+   *          and extensible).
+   *
+   */
+  struct GeData {
+    char name[4];     ///< Null Terminated name, First letter capitalized
+    double GeValue;   /// < Gibbs free energies of elements J kmol-1
+  };
+  
+
+  //! Values of G_elements(T=298.15,1atm) 
+  /*!
+   *  all units are Joules kmol-1
+   */
+  static struct GeData geDataTable[] = {
+    {"H",   -19.48112E6}, // NIST Webbook - Cox, Wagman 1984
+    {"Na",  -15.29509E6}, // NIST Webbook - Cox, Wagman 1984
+    {"O",   -30.58303E6}, // NIST Webbook - Cox, Wagman 1984
+    {"Cl",  -33.25580E6}, // NIST Webbook - Cox, Wagman 1984
+    {"Si",   -5.61118E6}, // Janaf
+    {"C",    -1.71138E6}, // barin, Knack, NBS Bulletin 1971
+    {"S",    -9.55690E6}, // Yellow - webbook
+    {"Al",   -8.42870E6}, // Webbook polynomial
+    {"K",   -19.26943E6}  // Webbook
+  };
+
+  //!  Static function to look up Element Free Energies
+  /*!
+   *
+   *   This static function looks up the argument string in the
+   *   database above and returns the associated Gibbs Free energies.
+   
+   *
+   *  @param  ElemName  String. Only the first 3 characters are significant
+   *
+   *  @return
+   *    Return value contains the Gibbs free energy for that element
+   *
+   *  @exception CanteraError
+   *    If a match is not found, a CanteraError is thrown as well
+   */
+  double HKFT_PDSS::LookupGe(const std::string& s) {
+    int num = sizeof(geDataTable) / sizeof(struct GeData);
+    string s3 = s.substr(0,3);
+    for (int i = 0; i < num; i++) {
+      //if (!std::strncmp(s.c_str(), aWTable[i].name, 3)) {
+      if (s3 == geDataTable[i].name) {
+        return (geDataTable[i].GeValue);
+      }
+    }
+    throw CanteraError("LookupGe", "element not found");
+    return -1.0;
+  }
+
+  void HKFT_PDSS::convertDGFormation() {
+    /*
+     * Ok let's get the element compositions and conversion factors.
+     */
+    int ne = m_tp->nElements();
+    double na;
+    double ge;
+    string ename;
+
+    double totalSum = 0.0;
+    for (int m = 0; m < ne; m++) {
+      na = m_tp->nAtoms(m_spindex, m);
+      if (na > 0.0) {
+	ename = m_tp->elementName(m);
+	ge = LookupGe(ename);
+	totalSum += na * ge;
+      }
+    }
+    // Add in the charge
+    if (m_charge_j != 0.0) {
+      ename = "H";
+      ge = LookupGe(ename);
+      totalSum -= m_charge_j * ge;
+    }
+    // Ok, now do the calculation. Convert to joules kmol-1
+    double dg = m_deltaG_formation_tr_pr * 4.184 * 1.0E3;
+    //! Store the result into an internal variable.
+    m_Mu0_tr_pr = dg + totalSum;
   }
 
 }

@@ -234,8 +234,7 @@ namespace Cantera {
   void PDSS::initThermo() {
   }
 
-  void PDSS::
-  setParametersFromXML(const XML_Node& eosdata) {
+  void PDSS::setParametersFromXML(const XML_Node& eosdata) {
   }
 
   // Return the molar enthalpy in units of J kmol-1
