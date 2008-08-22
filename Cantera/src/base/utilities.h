@@ -194,7 +194,7 @@ namespace Cantera {
   template<class InputIter, class OutputIter, class S>
   inline void scale(InputIter begin, InputIter end, 
 		    OutputIter out, S scale_factor) {
-      transform(begin, end, out, timesConstant<S>(scale_factor));
+      std::transform(begin, end, out, timesConstant<S>(scale_factor));
   }
   
   /*!
