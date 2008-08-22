@@ -294,10 +294,10 @@ namespace Cantera {
     //////////////////////////  XML_Node  /////////////////////////////////
 
 
-    XML_Node::XML_Node(string nm, XML_Node* p, int n) 
+    XML_Node::XML_Node(string nm, XML_Node* p) 
         : m_name(nm), m_value(""), m_parent(p),
           m_locked(false), m_nchildren(0), 
-          m_n(n), m_iscomment(false) {
+          m_iscomment(false) {
         if (!p) m_root = this;
         else m_root = &p->root();
     }
@@ -308,7 +308,6 @@ namespace Cantera {
      m_parent(0),
      m_locked(false),
      m_nchildren(0), 
-     m_n(0),
      m_iscomment(false) 
   {
     right.copy(this);
@@ -363,8 +362,7 @@ namespace Cantera {
     }
 
     XML_Node& XML_Node::addChild(string name) { 
-        int n = static_cast<int>(m_children.size());
-	XML_Node *xxx = new XML_Node(name, this, n);
+	XML_Node *xxx = new XML_Node(name, this);
         m_children.push_back(xxx);
         m_nchildren = static_cast<int>(m_children.size());
         m_childindex[name] = m_children.back();

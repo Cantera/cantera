@@ -1,6 +1,5 @@
 /**
  * @file xml.h
- *
  * Classes providing support for XML data files. These classes
  * implement only those aspects of XML required to read, write, and
  * manipulate CTML data files.
@@ -33,27 +32,27 @@
 namespace Cantera {
 
 
-    /**
-     * Class XML_Reader is designed for internal use.
-     */
-    class XML_Reader {
-    public:
-        XML_Reader(std::istream& input) : m_s(input), m_line(0) {}
+  /**
+   * Class XML_Reader is designed for internal use.
+   */
+  class XML_Reader {
+  public:
+    XML_Reader(std::istream& input) : m_s(input), m_line(0) {}
 
-        std::istream& m_s;
-        int m_line;
+    std::istream& m_s;
+    int m_line;
 
-        void getchr(char& ch);
-        std::string strip(const std::string& aline);
-        std::string inquotes(const std::string& aline);
+    void getchr(char& ch);
+    std::string strip(const std::string& aline);
+    std::string inquotes(const std::string& aline);
 
-	int findQuotedString(const std::string& aline, std::string &rstring);
+    int findQuotedString(const std::string& aline, std::string &rstring);
 
-        void parseTag(std::string line, std::string& name, 
-            std::map<std::string, std::string>& attribs);
-        std::string readTag(std::map<std::string, std::string>& attribs);
-        std::string readValue();
-    };
+    void parseTag(std::string line, std::string& name, 
+		  std::map<std::string, std::string>& attribs);
+    std::string readTag(std::map<std::string, std::string>& attribs);
+    std::string readValue();
+  };
 
 
     //////////////////////////  XML_Node  /////////////////////////////////
@@ -61,14 +60,19 @@ namespace Cantera {
     class XML_Node {
     public:
 
-      XML_Node(std::string nm = "--", XML_Node* p = 0, int n = 0);
+      XML_Node(std::string nm = "--", XML_Node* p = 0);
    
       XML_Node(const XML_Node &right);
+
+      //! Assignment operator for XML trees
+      /*!
+       *  @param right    XML tree to copy
+       */
       XML_Node& operator=(const XML_Node &right);
 
    
       virtual ~XML_Node();
-        void addComment(std::string comment);
+      void addComment(std::string comment);
         XML_Node& addChild(XML_Node& node);
         XML_Node& addChild(std::string name);
         XML_Node& addChild(std::string name, std::string value);
@@ -92,15 +96,21 @@ namespace Cantera {
         std::string operator()() const { return m_value; }
         std::string operator()(std::string loc) const { return value(loc); }
 
-	/**
-	 * The operator[] is overloaded to provide a lookup capability
-	 * on attributes for the current XML element.
-	 *
+	
+	//! The operator[] is overloaded to provide a lookup capability
+	//!  on attributes for the current XML element.
+        /*!
 	 * For example
 	 *     xmlNode["id"] 
 	 * will return the value of the attribute "id" for the current
 	 * XML element. It will return the blank std::string if there isn't
 	 * an attribute with that name.
+         *
+         * @param attr  attribute string to look up
+         * 
+         * @return  Returns a string representing the value of the attribute
+         *          within the XML node. If there is no attribute
+         *          with the given name, it returns the null string.
 	 */
         std::string operator[](std::string attr) const {
             return attrib(attr);
@@ -150,7 +160,6 @@ namespace Cantera {
        */
       std::string id() const;
 
-      int number() const { return m_n; }
 
         XML_Node& child(int n) const { return *m_children[n]; }
         std::vector<XML_Node*>& children()  { return m_children; }
@@ -201,9 +210,22 @@ namespace Cantera {
        *  For example, if we were in the XML_Node where
        *       <phase dim="3" id="gas">
        *       </phase>
-       *  Then, this string would be equal to "phase"
+       *  Then, this string would be equal to "phase". "dim" and "id"
+       *  are attributes of the XML_Node.
        */
       std::string m_name;
+
+      //! Value of the xml node
+      /*!
+       *  This is the string contents of the XML node. For
+       *  example. The xml node named eps:
+       *
+       *      <eps>
+       *         valueString
+       *      </eps>
+       *
+       *  has a m_value string containing "valueString".
+       */
         std::string m_value;
         std::map<std::string, XML_Node*> m_childindex;
         std::map<std::string, std::string> m_attribs;
@@ -211,8 +233,9 @@ namespace Cantera {
         XML_Node* m_root;
         bool m_locked;
         std::vector<XML_Node*> m_children;
-        int m_nchildren;
-        int m_n;
+
+      //! Number of children of this node
+      int m_nchildren;
         bool m_iscomment;
         int m_linenum;
     };
