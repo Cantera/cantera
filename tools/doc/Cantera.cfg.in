@@ -124,6 +124,19 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          StoichSubstanceSSTP.h   StoichSubstanceSSTP.cpp \
                          DebyeHuckel.h           DebyeHuckel.cpp  \
                          HMWSoln.h HMWSoln.cpp HMWSoln_input.cpp \
+                         VPSSMgr.h VPSSMgr.cpp VPSSMgr_types.h \
+                         VPSSMgr_ConstVol.h VPSSMgr_ConstVol.cpp \
+                         VPSSMgr_IdealGas.h VPSSMgr_IdealGas.cpp \
+                         VPSSMgr_Water_ConstVol.h VPSSMgr_Water_ConstVol.cpp \
+                         VPSSMgr_Water_HKFT.h VPSSMgr_Water_HKFT.cpp \
+                         VPSSMgr_General.h VPSSMgr_General.cpp \
+                         VPSSMgrFactory.h VPSSMgrFactory.cpp \
+                         PDSS.h PDSS.cpp \
+                         PDSS_ConstVol.h PDSS_ConstVol.cpp \
+                         PDSS_IdealGas.h  PDSS_IdealGas.cpp \
+                         PDSS_Water.h PDSS_Water.cpp \
+                         PDSS_HKFT.h PDSS_HKFT.cpp \
+                         IdealSolnGasVPSS.h IdealSolnGasVPSS.cpp \
                          ConstDensityThermo.h ConstDensityThermo.cpp \
                          WaterPropsIAPWSphi.h  WaterPropsIAPWSphi.cpp \
                          WaterPropsIAPWS.h  WaterPropsIAPWS.cpp \
