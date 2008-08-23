@@ -61,7 +61,7 @@ do_issp = 1
 ELECTRO_OBJ = MolalityVPSSTP.o  VPStandardStateTP.o \
               IdealMolalSoln.o \
               WaterPropsIAPWSphi.o WaterPropsIAPWS.o WaterProps.o \
-              PDSS.o PDSS_Water.o PDSS_HKFT.o WaterPDSS.o \
+              PDSS.o PDSS_Water.o PDSS_HKFT.o  \
 	      HMWSoln.o HMWSoln_input.o DebyeHuckel.o \
               WaterSSTP.o \
               VPSSMgr_Water_ConstVol.o VPSSMgr_Water_HKFT.o
@@ -70,7 +70,7 @@ ELECTRO_H   = MolalityVPSSTP.h  VPStandardStateTP.h \
               IdealMolalSoln.h \
               WaterPropsIAPWSphi.h WaterPropsIAPWS.h WaterProps.h \
               PDSS.h PDSS_Water.h PDSS_HKFT.h \
-              HMWSoln.h electrolytes.h WaterPDSS.h \
+              HMWSoln.h electrolytes.h  \
 	      DebyeHuckel.h WaterSSTP.h VPSSMgr_Water_HKFT.h \
               VPSSMgr_Water_ConstVol.h
 endif
