@@ -1767,7 +1767,9 @@ AC_OUTPUT(Makefile \
           test_problems/cathermo/DH_graph_Pitzer/Makefile \
           test_problems/cathermo/DH_graph_bdotak/Makefile \
           test_problems/cathermo/HMW_dupl_test/Makefile \
+          test_problems/cathermo/VPissp/Makefile \
           test_problems/VCSnonideal/Makefile \
+          test_problems/VPsilane_test/Makefile \
           test_problems/VCSnonideal/NaCl_equil/Makefile \
           bin/install_tsc \
           )
