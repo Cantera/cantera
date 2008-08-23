@@ -255,6 +255,7 @@ int main(int argc, char **argv)
       /*
        * Calculate the molar volume of solution
        */
+      HMW->calcDensity();
       double dsoln = HMW->density();
       meanMW = HMW->meanMolecularWeight();
       double molarV = meanMW / dsoln; 

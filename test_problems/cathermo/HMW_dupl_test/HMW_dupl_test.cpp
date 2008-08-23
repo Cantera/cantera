@@ -133,6 +133,7 @@ int main(int argc, char **argv)
     ThermoPhase *hmwtb = (ThermoPhase *)HMW;
     
     ThermoPhase *hmwtbDupl = hmwtb->duplMyselfAsThermoPhase();
+    //ThermoPhase *hmwtbDupl = 0;
     HMWSoln *HMW1 = HMW;
     HMWSoln *HMW2 = dynamic_cast<HMWSoln *>(hmwtbDupl);
 

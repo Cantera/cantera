@@ -14,6 +14,8 @@ all:
 	cd cxx_ex;       @MAKE@ all
 	cd surfkin;      @MAKE@ all
 	cd fracCoeff;    @MAKE@ all
+	cd silane_equil; @MAKE@ all
+	cd VPsilane_test; @MAKE@ all
 	cd negATest;     @MAKE@ all
 	cd diamondSurf;  @MAKE@ all
 	cd diamondSurf_dupl;  @MAKE@ all
@@ -50,6 +52,8 @@ test:
 	@ cd cxx_ex;               @MAKE@ -s test
 	@ cd surfkin;              @MAKE@ -s test
 	@ cd fracCoeff;            @MAKE@ -s test
+	@ cd silane_equil;         @MAKE@ -s test
+	@ cd VPsilane_test;        @MAKE@ -s test
 	@ cd negATest;             @MAKE@ -s test
 	@ cd diamondSurf;          @MAKE@ -s test
 	@ cd diamondSurf_dupl;     @MAKE@ -s test
@@ -89,6 +93,8 @@ clean:
 	cd cxx_ex;                $(RM) .depends ; @MAKE@ clean
 	cd surfkin;               $(RM) .depends ; @MAKE@ clean
 	cd fracCoeff;             $(RM) .depends ; @MAKE@ clean
+	cd silane_equil;          $(RM) .depends ; @MAKE@ clean
+	cd VPsilane_test;         $(RM) .depends ; @MAKE@ clean
 	cd negATest;              $(RM) .depends ; @MAKE@ clean
 	cd diamondSurf;           $(RM) .depends ; @MAKE@ clean
 	cd diamondSurf_dupl;      $(RM) .depends ; @MAKE@ clean
@@ -114,6 +120,8 @@ depends:
 	cd cxx_ex;               @MAKE@ depends
 	cd surfkin;              @MAKE@ depends
 	cd fracCoeff;            @MAKE@ depends
+	cd silane_equil;         @MAKE@ depends
+	cd VPsilane_test;        @MAKE@ depends
 	cd negATest;             @MAKE@ depends
 	cd diamondSurf;          @MAKE@ depends
 	cd diamondSurf_dupl;     @MAKE@ depends

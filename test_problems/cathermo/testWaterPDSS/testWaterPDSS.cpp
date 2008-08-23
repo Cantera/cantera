@@ -7,8 +7,9 @@
 #include "global.h"
 #include "xml.h"
 #include "ctml.h"
-#include "WaterPDSS.h"
+#include "PDSS_Water.h"
 #include "ThermoPhase.h"
+#include "VPStandardStateTP.h"
 #include <new>
 using namespace std;
 using namespace Cantera;
@@ -25,8 +26,8 @@ int main () {
 
     double pres;
     try {
-      Cantera::ThermoPhase *nnn = 0;
-      Cantera::WaterPDSS *w = new Cantera::WaterPDSS(nnn, 0);
+      Cantera::VPStandardStateTP *nnn = 0;
+      Cantera::PDSS_Water *w = new Cantera::PDSS_Water(nnn, 0);
 
       /* 
        * Print out the triple point conditions
