@@ -38,7 +38,6 @@ namespace Cantera {
     MolalityVPSSTP(),
     m_formGC(2)
   {
-    m_useTmpRefStateStorage = true;
   }
 
   /**
@@ -81,7 +80,6 @@ namespace Cantera {
     MolalityVPSSTP(),
     m_formGC(2)
   {
-    m_useTmpRefStateStorage = true;
     constructPhaseFile(inputFile, id);
   }
 
@@ -89,7 +87,6 @@ namespace Cantera {
     MolalityVPSSTP(),
     m_formGC(2)
   {
-    m_useTmpRefStateStorage = true;
     constructPhaseXML(root, id);
   }
 
@@ -216,14 +213,7 @@ namespace Cantera {
   // ------- Mechanical Equation of State Properties ------------------------
   //
 
-  /*
-   * Pressure. Units: Pa.
-   * For this incompressible system, we return the internally storred
-   * independent value of the pressure.
-   */
-  doublereal IdealMolalSoln::pressure() const {
-    return m_Pcurrent;
-  }
+
 
   /*
    * Set the pressure at constant temperature. Units: Pa.
@@ -244,7 +234,7 @@ namespace Cantera {
      * update the standard state thermo
      * -> This involves calling the water function and setting the pressure
      */
-    _updateStandardStateThermo();
+    updateStandardStateThermo();
 
     /*
      * Calculate all of the other standard volumes
@@ -608,8 +598,7 @@ namespace Cantera {
    * property manager. They are polynomial functions of temperature.
    * @see SpeciesThermo
    */
-  void IdealMolalSoln::
-  getPartialMolarEntropies(doublereal* sbar) const {
+  void IdealMolalSoln::getPartialMolarEntropies(doublereal* sbar) const {
     getEntropy_R(sbar);
     doublereal R = GasConstant;
     doublereal mm;
@@ -670,190 +659,7 @@ namespace Cantera {
    *           in the Solution ------------------
    */
 
-  /*
-   *  Get the standard state chemical potentials of the species.
-   *  This is the array of chemical potentials at unit activity 
-   *  (Mole fraction scale)
-   *  \f$ \mu^0_k(T,P) \f$.
-   *  We define these here as the chemical potentials of the pure
-   *  species at the temperature and pressure of the solution.
-   *  This function is used in the evaluation of the 
-   *  equilibrium constant Kc. Therefore, Kc will also depend
-   *  on T and P. This is the norm for liquid and solid systems.
-   *
-   *  units = J / kmol
-   */
-  void IdealMolalSoln::getStandardChemPotentials(doublereal* mu) const {
-    _updateStandardStateThermo();
-    getGibbs_ref(mu);
-    doublereal pref;
-    doublereal delta_p;
-    for (int k = 0; k < m_kk; k++) {
-      pref = m_spthermo->refPressure(k);
-      delta_p = m_Pcurrent - pref;
-      mu[k] += delta_p * m_speciesMolarVolume[k];
-    }
-  }
-    
-  /*
-   * Get the nondimensional gibbs function for the species
-   * standard states at the current T and P of the solution.
-   *
-   *  \f[
-   *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
-   * \f]
-   * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-   * \f$ \mu^{ref}_k(T)\f$ is the chemical potential of pure
-   * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
-   *
-   * @param grt Vector of length m_kk, which on return sr[k]
-   *           will contain the nondimensional 
-   *           standard state gibbs function for species k. 
-   */
-  void IdealMolalSoln::getGibbs_RT(doublereal* grt) const {
-    getPureGibbs(grt);
-    doublereal invRT = 1.0 / _RT();
-    for (int k = 0; k < m_kk; k++) {
-      grt[k] *= invRT;
-    }
-  }
-    
-  /*
-   * Get the Gibbs functions for the pure species
-   * at the current <I>T</I> and <I>P</I> of the solution.
-   * We assume an incompressible constant partial molar
-   * volume here:
-   * \f[
-   *  \mu^0_k(T,p) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
-   * \f]
-   * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-   * \f$ u^{ref}_k(T)\f$ is the chemical potential of pure
-   * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
-   *
-   * Units: J/kmol
-   */
-  void IdealMolalSoln::getPureGibbs(doublereal* gpure) const {
-    _updateStandardStateThermo();
-    getGibbs_ref(gpure);
-    doublereal pref;
-    doublereal delta_p;
-    for (int k = 0; k < m_kk; k++) {
-      pref = m_spthermo->refPressure(k);
-      delta_p = m_Pcurrent - pref;
-      gpure[k] += delta_p * m_speciesMolarVolume[k];
-    }
-  }
 
-  /*
-   * Get the array of nondimensional Enthalpy functions for the ss
-   * species at the current <I>T</I> and <I>P</I> of the solution.
-   * We assume an incompressible constant partial molar
-   * volume here:
-   * \f[
-   *  h^0_k(T,P) = h^{ref}_k(T) + (P - P_{ref}) * V_k
-   * \f]
-   * where \f$V_k\f$ is the molar volume of SS species <I>k</I>.
-   * \f$ h^{ref}_k(T)\f$ is the enthalpy of the SS
-   * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
-   *
-   * Units: dimensionless.
-   */
-  void IdealMolalSoln::
-  getEnthalpy_RT(doublereal* hrt) const {
-    _updateStandardStateThermo();
-    getEnthalpy_RT_ref(hrt);
-    doublereal pref;
-    doublereal delta_p;
-    double RT = _RT();
-    for (int k = 0; k < m_kk; k++) {
-      pref = m_spthermo->refPressure(k);
-      delta_p = m_Pcurrent - pref;
-      hrt[k] += delta_p/ RT * m_speciesMolarVolume[k];
-    }
-  }
-    
-  /*
-   * Get the nondimensional Entropies for the species
-   * standard states: Units: J/kmol/K
-   *
-   * Note, this is equal to the reference state entropies
-   * due to the zero volume expansivity.
-   * i.e., (dS/dp)_T = (dV/dT)_P = 0.0
-   *
-   * \f[
-   *  S^0_k(T,P) = S^{ref}_k(T)
-   * \f]
-   *
-   * Units: dimensionless
-   *
-   * @param sr Vector of length m_kk, which on return sr[k]
-   *           will contain the nondimensional
-   *           standard state entropy of species k.
-   */
-  void IdealMolalSoln::
-  getEntropy_R(doublereal* sr) const {
-    _updateStandardStateThermo();
-    getEntropy_R_ref(sr);
-  }
-
-  /*
-   * Get the nondimensional heat capacity at constant pressure
-   * function for the species
-   * standard states: Units J/kmol/K
-   * \f[</I>
-   *  Cp^0_k(T,P) = Cp^{ref}_k(T)
-   * \f]
-   * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-   * \f$ Cp^{ref}_k(T)\f$ is the constant pressure heat capacity
-   * of species <I>k</I> at the reference pressure, \f$p_{ref}\f$.
-   *
-   * @param cpr Vector of length m_kk, which on return cpr[k]
-   *           will contain the nondimensional 
-   *           constant pressure heat capacity for species k. 
-   */
-  void IdealMolalSoln::getCp_R(doublereal* cpr) const {
-    _updateStandardStateThermo();
-    getCp_R_ref(cpr); 
-  }
-    
-  /*
-   * Get the molar volumes of each species in their standard
-   * states at the current
-   * <I>T</I> and <I>P</I> of the solution.
-   *
-   * \f[
-   *  V^0_k(T,P) = V^{ref}_k()
-   * \f]
-
-   * Units = m^3 / kmol
-   */
-  void IdealMolalSoln::getStandardVolumes(doublereal *vol) const {
-    _updateStandardStateThermo();
-    std::copy(m_speciesMolarVolume.begin(),
-	      m_speciesMolarVolume.end(), vol);
-  }
-
-  /*
-   * Updates the standard state thermodynamic functions at the current T and P of the solution.
-   *
-   * @internal
-   *
-   * This function gets called for every call to functions in this
-   * class. It checks to see whether the temperature or pressure has changed and
-   * thus the ss thermodynamics functions for all of the species
-   * must be recalculated.
-   */                    
-  void IdealMolalSoln::_updateStandardStateThermo(doublereal pnow) const {
-    _updateRefStateThermo();
-    doublereal tnow = temperature();
-    if (pnow == -1.0) {
-      pnow = m_Pcurrent;
-    }
-    if (m_tlast != tnow || m_plast != pnow) {
-      m_tlast = tnow;
-      m_plast = pnow;
-    }
-  } 
 
   /*
    * ------ Thermodynamic Values for the Species Reference States ---
@@ -1094,6 +900,7 @@ namespace Cantera {
       m_speciesMolarVolume[k] = getFloat(*ss, "molarVolume", "-");
     }
 
+    MolalityVPSSTP::initThermoXML(phaseNode, id);
     /*
      * Set the state
      */

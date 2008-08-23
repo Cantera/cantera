@@ -46,7 +46,7 @@ namespace Cantera {
   //@}
 
   class WaterProps;
-  class WaterPDSS;
+  class PDSS_Water;
 
   /**
    * @ingroup thermoprops
@@ -1084,194 +1084,6 @@ namespace Cantera {
 
     //@}
 
-    /// @name  Properties of the Standard State of the Species
-    //          in the Solution --
-    //@{
-
-     
-
-    //! Get the array of chemical potentials at unit activity for the species
-    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
-    /*!
-     * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
-     * \f$. The values are evaluated at the current
-     * temperature and pressure of the solution
-     *
-     *  Get the standard state chemical potentials of the species.
-     *  This is the array of chemical potentials at unit activity 
-     *  \f$ \mu^0_k(T,P) \f$.
-     *  Activity is molality based in this object.
-     *  We define these here as the chemical potentials of the pure
-     *  species at the temperature and pressure of the solution.
-     *  This function is used in the evaluation of the 
-     *  equilibrium constant Kc. Therefore, Kc will also depend
-     *  on T and P. This is the norm for liquid and solid systems.
-     *
-     * @param mu      Output vector of chemical potentials. 
-     *                Length: m_kk.
-     */
-    virtual void getStandardChemPotentials(doublereal* mu) const;
-
-    //! Get the nondimensional Gibbs functions for the species
-    //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
-    /*!
-     *  The standard states are on the unit molality basis.
-     *  \f[
-     *  \mu^{\triangle}_k(T,P) = \mu^{\triangle,ref}_k(T) + (P - P_{ref}) * V_k
-     * \f]
-     *
-     *  where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-     * \f$ \mu^{\triangle,ref}_k(T)\f$ is the chemical potential of pure
-     * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
-     *
-     * @param grt  Output vector of nondimensional standard state gibbs free energies
-     *             Length: m_kk.
-     */
-    virtual void getGibbs_RT(doublereal* grt) const;
-
-    //! Get the Gibbs functions for the standard
-    //! state of the species at the current <I>T</I> and <I>P</I> of the solution
-    /*!
-     *  The standard states are on the unit molality basis.
-     * Units are Joules/kmol
-     * @param gpure  Output vector of  standard state gibbs free energies
-     *               Length: m_kk.
-     */
-    virtual void getPureGibbs(doublereal* gpure) const;
-
-    //! Get the nondimensional Enthalpy functions for the species
-    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
-    /*!
-     *  The standard states are on the unit molality basis.
-     * We assume an incompressible constant partial molar
-     * volume for the solutes.
-     *
-     *  \f[
-     *      h^{\triangle}_k(T,P) = h^{\triangle,ref}_k(T) + (P - P_{ref}) * V_k
-     *  \f]
-     *
-     * where \f$V_k\f$ is the molar volume of SS species <I>k</I>.
-     * \f$ h^{ref}_k(T)\f$ is the enthalpy of the SS
-     * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
-     *
-     * The solvent water enthalpy is obtained from a pure water
-     * equation of state model.
-     *
-     * @param hrt      Output vector of nondimensional standard state enthalpies.
-     *                 Length: m_kk.
-     */
-    virtual void getEnthalpy_RT(doublereal* hrt) const;
-
-    //! Get the array of nondimensional Entropy functions for the
-    //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
-    /*!
-     *
-     *  The standard states are on the unit molality basis.
-     *
-     *  \f[
-     *      s^{\triangle}_k(T,P) = s^{\triangle,ref}_k(T) 
-     *  \f]
-     *
-     * Note, this is equal to the reference state entropies
-     * due to the zero volume expansivity:
-     * i.e., (dS/dp)_T = (dV/dT)_P = 0.0
-     *
-     * The solvent water entropy is obtained from a pure water
-     * equation of state model.
-     *
-     * @param sr   Output vector of  nondimensional standard state entropies.
-     *             Length: m_kk. The solvent water is species 0, always.
-     */
-    virtual void getEntropy_R(doublereal* sr) const;
-
-    //! Get the nondimensional Heat Capacities at constant
-    //! pressure for the species standard states
-    //! at the current <I>T</I> and <I>P</I> of the solution
-    /*!
-     *  The standard states are on the unit molality basis.
-     * For the solutes:
-     * \f[
-     *  Cp^\triangle_k(T,P) = Cp^{\triangle,ref}_k(T)
-     * \f]
-     *
-     * \f$ Cp^{ref}_k(T)\f$ is the constant pressure heat capacity
-     * of species <I>k</I> at the reference pressure, \f$p_{ref}\f$.
-     *
-     * The solute heat capacity is obtained from a pure water
-     * equation of state model, so it depends on T and P.
-     *
-     * @param cpr Vector of length m_kk, which on return cpr[k]
-     *           will contain the nondimensional 
-     *           constant pressure heat capacity for species k.
-     */
-    virtual void getCp_R(doublereal* cpr) const;
-
-    //!  Get the molar volumes of the species standard states at the current
-    //!  <I>T</I> and <I>P</I> of the solution.
-    /*!
-     * The current model assumes that an incompressible molar volume for
-     * all solutes. The molar volume for the water solvent, however,
-     * is obtained from a pure water equation of state, waterSS.
-     * Therefore, the water standard state varies with both T and P.
-     * It is an error to request the water molar volume at a T and P
-     * where the water phase is not stable phase.
-     *
-     * units = m^3 / kmol
-     *
-     * @param vol     Output vector containing the standard state volumes.
-     *                Length: m_kk. The solvent water is species 0, always.
-     */
-    virtual void getStandardVolumes(doublereal *vol) const;
-
-    //!  Returns the vector of nondimensional
-    //!  Gibbs Free Energies of the reference state at the current temperature
-    //!  of the solution and the reference pressure for the species.
-    /*!
-     * @param grt     Output vector containing the nondimensional reference state
-     *                Gibbs Free energies.  Length: m_kk.
-     */
-    virtual void getGibbs_RT_ref(doublereal *grt) const;
-
-   //!  Returns the vector of nondimensional
-    //!  enthalpies of the reference state at the current temperature
-    //!  of the solution and the reference pressure for the species.
-    /*!
-     * @param hrt     Output vector containing the nondimensional reference state enthalpies
-     *                Length: m_kk.
-     */
-    virtual void getEnthalpy_RT_ref(doublereal *hrt) const;
-
-    /*!
-     *  Returns the vector of nondimensional
-     *  entropies of the reference state at the current temperature
-     *  of the solution and the reference pressure for each species.
-     *
-     * @param er      Output vector containing the nondimensional reference state
-     *                entropies.  Length: m_kk.
-       */
-    virtual void getEntropy_R_ref(doublereal *er) const;
-
-    /*!
-     *  Returns the vector of nondimensional
-     *  constant pressure heat capacities of the reference state
-     *  at the current temperature of the solution
-     *  and reference pressure for each species.
-     *
-     * @param cprt   Output vector of nondimensional reference state
-     *               heat capacities at constant pressure for the species.
-     *               Length: m_kk
-     */
-    virtual void getCp_R_ref(doublereal *cprt) const;
-
-    //!  Get the molar volumes of the species reference states at the current
-    //!  <I>T</I> and <I>P_ref</I> of the solution.
-    /*!
-     * units = m^3 / kmol
-     *
-     * @param vol     Output vector containing the standard state volumes.
-     *                Length: m_kk.
-     */
-    virtual void getStandardVolumes_ref(doublereal *vol) const;
 
   protected:
 
@@ -1286,7 +1098,7 @@ namespace Cantera {
      * @param pres  Pressure at which to evaluate the standard states.
      *              The default, indicated by a -1.0, is to use the current pressure
      */                    
-    virtual void _updateStandardStateThermo(doublereal pres = -1.0) const;
+    //virtual void _updateStandardStateThermo() const;
 
     //@}
     /// @name Thermodynamic Values for the Species Reference States ---
@@ -1865,7 +1677,7 @@ namespace Cantera {
     /*!
      *  derived from the equation of state for water.
      */
-    WaterPDSS *m_waterSS;
+    PDSS_Water *m_waterSS;
 
     //! Storage for the density of water's standard state
     /*!

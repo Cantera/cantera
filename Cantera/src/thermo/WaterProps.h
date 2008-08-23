@@ -21,15 +21,74 @@
 #include "ct_defs.h"
 class WaterPropsIAPWS;
 namespace Cantera {
-  class WaterPDSS;
+  class PDSS_Water;
  
   /**
    * @defgroup relatedProps Electric Properties of Phases
    *
    *
-   * These classes are used to compute the electrical and electrothermochemical properties of
+   * <H3>
+   *    Treatment of the %Phase Potential and the electrochemical potential of a species
+   * </H3>
+   *
+   *
+   *  The electrochemical potential of species <I>k</I> in a phase <I>p</I>, \f$ \zeta_k \f$,
+   *  is related to the chemical potential via
+   *  the following equation,
+   *
+   *       \f[
+   *            \zeta_{k}(T,P) = \mu_{k}(T,P) + z_k \phi_p
+   *       \f]
+   *
+   *   where  \f$ \nu_k \f$ is the charge of species <I>k</I>, and \f$ \phi_p \f$ is
+   *   the electric potential of phase <I>p</I>.
+   *
+   *  The potential  \f$ \phi_p \f$ is tracked and internally storred within
+   *  the base %ThermoPhase object. It constitutes a specification of the
+   *  internal state of the phase; it's the third state variable, the first
+   *  two being temperature and density (or, pressure, for incompressible
+   *  equations of state). It may be set with the function,
+   *  ThermoPhase::setElectricPotential(),
+   *  and may be queried with the function ThermoPhase::electricPotential().
+   *
+   *  Note, the overall electrochemical potential of a phase may not be
+   *  changed by the potential because many phases enforce charge
+   *  neutrality:
+   *
+   *       \f[
+   *            0 = \sum_k z_k X_k
+   *       \f]
+   *
+   *  Whether charge neutrality is necessary for a phase is also specified
+   *  within the ThermoPhase object, by the function call
+   *  ThermoPhase::chargeNeutralityNecessary(). Note, that it is not
+   *  necessary for the IdealGas phase, currently. However, it is
+   *  necessary for liquid phases such as Cantera::DebyeHuckel and
+   *  Cantera::HMWSoln for the proper specification of the chemical potentials.
+   *
+   *
+   *  This equation, when applied to the \f$ \zeta_k \f$ equation described
+   *  above, results in a zero net change in the effective Gibbs free
+   *  energy of the phase. However, specific charged species in the phase
+   *  may increase or decrease their electochemical potentials, which will
+   *  have an effect on interfacial reactions involving charged species,
+   *  when there is a potential drop between phases. This effect is used
+   *  within the Cantera::InterfaceKinetics and Cantera::EdgeKinetics kinetics
+   *  objects classes.
+   *
+   *
+   * <H3>
+   *   Electrothermochemical Properties of Phases of Matter.
+   * </H3>
+   *
+   * The following classes are used to compute the electrical and electrothermochemical properties of
    * phases of matter. The main property currently is the dielectric
    * constant, which is an important parameter for electolyte solutions.
+   * The class WaterProps calculate the dielectric constant of water as a function of
+   * temperature and pressure.
+   *
+   * WaterProps also calculate the constant A_debye used in the Debye Huckel
+   * and Pitzer activity coefficient calculations. 
    *
    * 
    * @ingroup phases
@@ -60,7 +119,7 @@ namespace Cantera {
     /*!
      * @param wptr Pointer to water standard state object
      */
-    WaterProps(WaterPDSS *wptr);
+    WaterProps(PDSS_Water *wptr);
 
     //! Copy Constructor
     /*!

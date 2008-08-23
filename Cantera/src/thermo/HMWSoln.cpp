@@ -28,7 +28,7 @@
 #include "HMWSoln.h"
 #include "ThermoFactory.h"
 #include "WaterProps.h"
-#include "WaterPDSS.h"
+#include "PDSS_Water.h"
 #include <math.h>
 
 namespace Cantera {
@@ -164,21 +164,23 @@ namespace Cantera {
       m_IionicMolalityStoich= b.m_IionicMolalityStoich;
       m_form_A_Debye        = b.m_form_A_Debye;
       m_A_Debye             = b.m_A_Debye;
-      if (m_waterSS) {
-	delete m_waterSS;
-	m_waterSS = 0;
+    
+      // This is an internal shallow copy of the PDSS_Water pointer
+      m_waterSS = dynamic_cast<PDSS_Water *>(providePDSS(0)) ;
+      if (!m_waterSS) {
+	throw CanteraError("HMWSoln::operator=()", "Dynamic cast to PDSS_Water failed");
       }
-      if (b.m_waterSS) {
-	m_waterSS = new WaterPDSS(*(b.m_waterSS));
-      }
+    
       m_densWaterSS         = b.m_densWaterSS;
+
       if (m_waterProps) {
 	delete m_waterProps;
 	m_waterProps = 0;
       }
       if (b.m_waterProps) {
-	m_waterProps = new WaterProps(*(b.m_waterProps));
+	m_waterProps = new WaterProps(m_waterSS);
       }
+
       m_expg0_RT            = b.m_expg0_RT;
       m_pe                  = b.m_pe;
       m_pp                  = b.m_pp;
@@ -396,9 +398,6 @@ namespace Cantera {
     if (m_waterProps) {
       delete m_waterProps; m_waterProps = 0;
     }
-    if (m_waterSS) {
-      delete m_waterSS; m_waterSS = 0;
-    } 
   }
 
   /**
@@ -586,7 +585,7 @@ namespace Cantera {
      * update the standard state thermo
      * -> This involves calling the water function and setting the pressure
      */
-    _updateStandardStateThermo();
+    updateStandardStateThermo();
   
     /*
      * Store the internal density of the water SS.
@@ -598,34 +597,19 @@ namespace Cantera {
      * Calculate all of the other standard volumes
      * -> note these are constant for now
      */
-    /*
-     * Get the partial molar volumes of all of the
-     * species. -> note this is a lookup for 
-     * water, here since it was done above.
-     */
+    calcDensity();
+  }
+
+  void HMWSoln::calcDensity() {
     double *vbar = &m_pp[0];
     getPartialMolarVolumes(vbar);
-
-    /*
-     * Get mole fractions of all species.
-     */
     double *x = &m_tmpV[0];
     getMoleFractions(x);
-	
-    /*
-     * Calculate the solution molar volume and the 
-     * solution density.
-     */
     doublereal vtotal = 0.0;
     for (int i = 0; i < m_kk; i++) {
       vtotal += vbar[i] * x[i];
     }
     doublereal dd = meanMolecularWeight() / vtotal;
-
-    /*
-     * Now, update the State class with the results. This
-     * store the denisty.
-     */
     State::setDensity(dd);
   }
 
@@ -661,7 +645,12 @@ namespace Cantera {
 		       "unimplemented");
     return 0.0;
   }
-    
+   
+  double HMWSoln::density() const{
+    //    calcDensity();
+    return State::density();
+  }
+
   /**
    * Overwritten setDensity() function is necessary because the
    * density is not an indendent variable.
@@ -711,8 +700,10 @@ namespace Cantera {
    * the value propagates to underlying objects.
    */
   void HMWSoln::setTemperature(doublereal temp) {
-    m_waterSS->setTemperature(temp);
     State::setTemperature(temp);
+    //m_waterSS->setTemperature(temp);
+    updateStandardStateThermo();
+    calcDensity();
   }
 
   //
@@ -813,7 +804,7 @@ namespace Cantera {
    *
    */
   void HMWSoln::getActivities(doublereal* ac) const {
-    _updateStandardStateThermo();
+    updateStandardStateThermo();
     /*
      * Update the molality array, m_molalities()
      *   This requires an update due to mole fractions
@@ -845,7 +836,7 @@ namespace Cantera {
    */
   void HMWSoln::
   getMolalityActivityCoefficients(doublereal* acMolality) const {
-    _updateStandardStateThermo();
+    updateStandardStateThermo();
     A_Debye_TP(-1.0, -1.0);
     s_update_lnMolalityActCoeff();
     std::copy(m_lnActCoeffMolal.begin(), m_lnActCoeffMolal.end(), acMolality);
@@ -1102,286 +1093,6 @@ namespace Cantera {
     }
   }
 
-  /*
-   * -------- Properties of the Standard State of the Species
-   *           in the Solution ------------------
-   */
-
-  /*
-   *  getStandardChemPotentials()      (virtual, const)
-   *
-   *
-   *  Get the standard state chemical potentials of the species.
-   *  This is the array of chemical potentials at unit activity 
-   *  (Mole fraction scale)
-   *  \f$ \mu^0_k(T,P) \f$.
-   *  We define these here as the chemical potentials of the pure
-   *  species at the temperature and pressure of the solution.
-   *  This function is used in the evaluation of the 
-   *  equilibrium constant Kc. Therefore, Kc will also depend
-   *  on T and P. This is the norm for liquid and solid systems.
-   *
-   *  units = J / kmol
-   */
-  void HMWSoln::getStandardChemPotentials(doublereal* mu) const {
-    _updateStandardStateThermo();
-    getGibbs_ref(mu);
-    doublereal pref;
-    doublereal delta_p;
-    for (int k = 1; k < m_kk; k++) {
-      pref = m_spthermo->refPressure(k);
-      delta_p = m_Pcurrent - pref;
-      mu[k] += delta_p * m_speciesSize[k];
-    }
-    mu[0] = m_waterSS->gibbs_mole();
-  }
-    
-  /*
-   * Get the nondimensional gibbs function for the species
-   * standard states at the current T and P of the solution.
-   *
-   *  \f[
-   *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
-   * \f]
-   * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-   * \f$ \mu^{ref}_k(T)\f$ is the chemical potential of pure
-   * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
-   *
-   * @param grt Vector of length m_kk, which on return sr[k]
-   *           will contain the nondimensional 
-   *           standard state gibbs function for species k. 
-   */
-  void HMWSoln::getGibbs_RT(doublereal* grt) const {
-    getStandardChemPotentials(grt);
-    doublereal invRT = 1.0 / _RT();
-    for (int k = 0; k < m_kk; k++) {
-      grt[k] *= invRT;
-    }
-  }
-    
-  /*
-   * Get the Gibbs functions for the pure species
-   * at the current <I>T</I> and <I>P</I> of the solution.
-   * We assume an incompressible constant partial molar
-   * volume here:
-   * \f[
-   *  \mu^0_k(T,p) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
-   * \f]
-   * where \f$V_k\f$ is the molar volume of pure species <I>k<\I>.
-   * \f$ u^{ref}_k(T)\f$ is the chemical potential of pure
-   * species <I>k<\I> at the reference pressure, \f$P_{ref}\f$.
-   */
-  void HMWSoln::getPureGibbs(doublereal* gpure) const {
-    getStandardChemPotentials(gpure);
-  }
-
-  /*
-   * getEnthalpy_RT()        (virtual, const)
-   *
-   * Get the array of nondimensional Enthalpy functions for the ss
-   * species at the current <I>T</I> and <I>P</I> of the solution.
-   * We assume an incompressible constant partial molar
-   * volume here:
-   * \f[
-   *  h^0_k(T,P) = h^{ref}_k(T) + (P - P_{ref}) * V_k
-   * \f]
-   * where \f$V_k\f$ is the molar volume of SS species <I>k<\I>.
-   * \f$ h^{ref}_k(T)\f$ is the enthalpy of the SS
-   * species <I>k<\I> at the reference pressure, \f$P_{ref}\f$.
-   */
-  void HMWSoln::
-  getEnthalpy_RT(doublereal* hrt) const {
-    /*
-     * Call the function that makes sure the local copy of
-     * the species reference thermo functions are up to date
-     * for the current temperature.
-     */
-    _updateStandardStateThermo();
-    /*
-     * Copy the gibbs function into return vector.
-     */
-    std::copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
-    // We don't call the reference state functions, because there may 
-    // not be a solution at 1 atm for the water equation.
-    //   getEnthalpy_RT_ref(hrt);
-    doublereal pref;
-    doublereal delta_p;
-    double RT = _RT();
-    for (int k = 1; k < m_kk; k++) {
-      pref = m_spthermo->refPressure(k);
-      delta_p = m_Pcurrent - pref;
-      hrt[k] += delta_p/ RT * m_speciesSize[k];
-    }
-    hrt[0] = m_waterSS->enthalpy_mole();
-    hrt[0] /= RT;
-  }
-    
-  /*
-   *  getEntropy_R()         (virtual, const)
-   * 
-   * Get the nondimensional Entropies for the species
-   * standard states at the current T and P of the solution.
-   *
-   * Note, this is equal to the reference state entropies
-   * due to the zero volume expansivity:
-   * i.e., (dS/dp)_T = (dV/dT)_P = 0.0
-   *
-   * @param sr Vector of length m_kk, which on return sr[k]
-   *           will contain the nondimensional
-   *           standard state entropy of species k.
-   */
-  void HMWSoln::
-  getEntropy_R(doublereal* sr) const {
-    _updateStandardStateThermo();
-    /*
-     * Copy the gibbs function into return vector.
-     */
-    std::copy(m_s0_R.begin(), m_s0_R.end(), sr);
-   // We don't call the reference state functions, because there may 
-    // not be a solution at 1 atm for the water equation.
-    //getEntropy_R_ref(sr);
-    sr[0] = m_waterSS->entropy_mole();
-    sr[0] /= GasConstant;
-  }
-
-  /*
-   * Get the nondimensional heat capacity at constant pressure
-   * function for the species
-   * standard states at the current T and P of the solution.
-   * \f[
-   *  Cp^0_k(T,P) = Cp^{ref}_k(T)
-   * \f]
-   * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-   * \f$ Cp^{ref}_k(T)\f$ is the constant pressure heat capacity
-   * of species <I>k</I> at the reference pressure, \f$p_{ref}\f$.
-   *
-   * @param cpr Vector of length m_kk, which on return cpr[k]
-   *           will contain the nondimensional 
-   *           constant pressure heat capacity for species k. 
-   */
-  void HMWSoln::getCp_R(doublereal* cpr) const {
-    _updateStandardStateThermo();
-    std::copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
-    //getCp_R_ref(cpr); 
-    cpr[0] = m_waterSS->cp_mole();
-    cpr[0] /= GasConstant;
-  }
-    
-  /*
-   * Get the molar volumes of each species in their standard
-   * states at the current
-   * <I>T</I> and <I>P</I> of the solution.
-   * units = m^3 / kmol
-   *
-   * The water calculation is done separately.
-   */
-  void HMWSoln::getStandardVolumes(doublereal *vol) const {
-    _updateStandardStateThermo();
-    std::copy(m_speciesSize.begin(), m_speciesSize.end(), vol);
-    double dd = m_waterSS->density();
-    vol[0] = molecularWeight(0)/dd;
-  }
-
-
-
-  void HMWSoln::getGibbs_RT_ref(doublereal *grt) const {
-    /*
-     * Call the function that makes sure the local copy of
-     * the species reference thermo functions are up to date
-     * for the current temperature.
-     */
-    _updateRefStateThermo();
-    /*
-     * Copy the gibbs function into return vector.
-     */
-    std::copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
-  
-    double pnow = m_Pcurrent;
-    double tnow = temperature();
-    m_waterSS->setTempPressure(tnow, m_p0);
-    double mu0 = m_waterSS->gibbs_mole();
-    m_waterSS->setTempPressure(tnow, pnow);
-    double rt = _RT();
-    grt[0] = mu0 / rt;
-  }
-
-  void HMWSoln::getEnthalpy_RT_ref(doublereal *hrt) const {
-    /*
-     * Call the function that makes sure the local copy of
-     * the species reference thermo functions are up to date
-     * for the current temperature.
-     */
-    _updateRefStateThermo();
-    /*
-     * Copy the gibbs function into return vector.
-     */
-    std::copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
-
-    double pnow = m_Pcurrent;
-    double tnow = temperature();
-    m_waterSS->setTempPressure(tnow, m_p0);
-    double h0 = m_waterSS->enthalpy_mole();
-    m_waterSS->setTempPressure(tnow, pnow);
-    double rt = _RT();
-    hrt[0] = h0 / rt;
-  }
-
-
-  void HMWSoln::getEntropy_R_ref(doublereal *sr) const {
-    /*
-     * Call the function that makes sure the local copy of
-     * the species reference thermo functions are up to date
-     * for the current temperature.
-     */
-    _updateRefStateThermo();
-    /*
-     * Copy the gibbs function into return vector.
-     */
-    std::copy(m_s0_R.begin(), m_s0_R.end(), sr);
-   
-    double pnow = m_Pcurrent;
-    double tnow = temperature();
-    m_waterSS->setTempPressure(tnow, m_p0);
-    double s0 = m_waterSS->entropy_mole();
-    m_waterSS->setTempPressure(tnow, pnow);
-    sr[0] = s0 / GasConstant;
-  }
-
-
-  void HMWSoln::getCp_R_ref(doublereal *cpr) const {
-    /*
-     * Call the function that makes sure the local copy of
-     * the species reference thermo functions are up to date
-     * for the current temperature.
-     */
-    _updateRefStateThermo();
-    std::copy(m_cp0_R.begin(), m_cp0_R.end(), cpr); 
-    double pnow = m_Pcurrent;
-    double tnow = temperature();
-    m_waterSS->setTempPressure(tnow, m_p0);
-    double cp0 = m_waterSS->cp_mole();
-    m_waterSS->setTempPressure(tnow, pnow);
-    cpr[0] = cp0 / GasConstant;
-  }
-
-  /*
-   * Get the molar volumes of each species in their reference
-   * states at the current
-   * <I>T</I> and <I>P</I> of the solution.
-   * units = m^3 / kmol
-   */
-  void HMWSoln::getStandardVolumes_ref(doublereal *vol) const {
-    double psave = m_Pcurrent;
-    _updateStandardStateThermo(m_p0);
-    std::copy(m_speciesSize.begin(),
-	      m_speciesSize.end(), vol);
-    if (m_waterSS) {
-      double dd = m_waterSS->density();
-      vol[0] = molecularWeight(0)/dd;
-    }
-    _updateStandardStateThermo(psave);
-  }
-
 
   /*
    * Updates the standard state thermodynamic functions at the current T and 
@@ -1394,20 +1105,15 @@ namespace Cantera {
    * thus the ss thermodynamics functions for all of the species
    * must be recalculated.
    */                    
-  void HMWSoln::_updateStandardStateThermo(doublereal pnow) const {
-    _updateRefStateThermo();
-    doublereal tnow = temperature();
-    if (pnow == -1.0) {
-      pnow = m_Pcurrent;
-    }
-    if (m_tlast != tnow || m_plast != pnow) {
-      if (m_waterSS) {
-	m_waterSS->setTempPressure(tnow, pnow);
-      }
-      m_tlast = tnow;
-      m_plast = pnow;
-    }
-  }
+  //  void HMWSoln::_updateStandardStateThermo() const {
+  //doublereal tnow = temperature();
+  // doublereal pnow = m_Pcurrent;
+  // if (m_waterSS) {
+  //   m_waterSS->setTempPressure(tnow, pnow);
+  // }
+  // m_VPSS_ptr->setState_TP(tnow, pnow);
+    // VPStandardStateTP::updateStandardStateThermo();
+  //}
 
   /*
    * ------ Thermodynamic Values for the Species Reference States ---
@@ -1730,6 +1436,7 @@ namespace Cantera {
   }
 
 
+
   /**
    * initLengths():
    *
@@ -1739,7 +1446,6 @@ namespace Cantera {
    */
   void HMWSoln::initLengths() {
     m_kk = nSpecies();
-    MolalityVPSSTP::initThermo();
  
     /*
      * Resize lengths equal to the number of species in

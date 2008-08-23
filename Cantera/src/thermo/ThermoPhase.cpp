@@ -41,7 +41,8 @@ namespace Cantera {
     m_index(-1), 
     m_phi(0.0), 
     m_hasElementPotentials(false),
-    m_chargeNeutralityNecessary(false)
+    m_chargeNeutralityNecessary(false),
+    m_ssConvention(cSS_CONVENTION_TEMPERATURE)
   {
   }
 
@@ -62,7 +63,8 @@ namespace Cantera {
     m_index(-1),
     m_phi(0.0), 
     m_hasElementPotentials(false),
-    m_chargeNeutralityNecessary(false)
+    m_chargeNeutralityNecessary(false),
+    m_ssConvention(cSS_CONVENTION_TEMPERATURE)
   {
     /*
      * Call the assignment operator
@@ -104,7 +106,7 @@ namespace Cantera {
     m_lambdaRRT = right.m_lambdaRRT;
     m_hasElementPotentials = right.m_hasElementPotentials;
     m_chargeNeutralityNecessary = right.m_chargeNeutralityNecessary;
-
+    m_ssConvention = right.m_ssConvention;
     return *this;
   }
 
@@ -126,6 +128,14 @@ namespace Cantera {
 
   int ThermoPhase::activityConvention() const {
     return cAC_CONVENTION_MOLAR;
+  }
+
+  int ThermoPhase::standardStateConvention() const {
+    return m_ssConvention;
+  }
+
+  doublereal ThermoPhase::logStandardConc(int k) const {
+    return log(standardConcentration(k));
   }
 
   void ThermoPhase::getActivities(doublereal* a) const {
@@ -839,11 +849,7 @@ namespace Cantera {
    *             with the correct id. 
    */
   void ThermoPhase::initThermoXML(XML_Node& phaseNode, std::string id) {
-    /*
-     * The default implementation just calls initThermo(), which
-     * inheriting classes may override.
-     */
-    initThermo();
+ 
     /*
      * and sets the state
      */

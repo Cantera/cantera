@@ -441,24 +441,24 @@ namespace Cantera {
     // new methods defined here -------------------------------
 
 
-    void IdealGasPhase::initThermo() {
+  void IdealGasPhase::initThermo() {
  
-        m_mm = nElements();
-        doublereal tmin = m_spthermo->minTemp();
-        doublereal tmax = m_spthermo->maxTemp();
-        if (tmin > 0.0) m_tmin = tmin;
-        if (tmax > 0.0) m_tmax = tmax;
-        m_p0 = refPressure();
+    m_mm = nElements();
+    doublereal tmin = m_spthermo->minTemp();
+    doublereal tmax = m_spthermo->maxTemp();
+    if (tmin > 0.0) m_tmin = tmin;
+    if (tmax > 0.0) m_tmax = tmax;
+    m_p0 = refPressure();
 
-        int leng = m_kk;
-        m_h0_RT.resize(leng);
-        m_g0_RT.resize(leng);
-        m_expg0_RT.resize(leng);
-        m_cp0_R.resize(leng);
-        m_s0_R.resize(leng);
-        m_pe.resize(leng, 0.0);
-        m_pp.resize(leng);
-    }
+    int leng = m_kk;
+    m_h0_RT.resize(leng);
+    m_g0_RT.resize(leng);
+    m_expg0_RT.resize(leng);
+    m_cp0_R.resize(leng);
+    m_s0_R.resize(leng);
+    m_pe.resize(leng, 0.0);
+    m_pp.resize(leng);
+  }
 
   /* 
    * Set mixture to an equilibrium state consistent with specified

@@ -32,6 +32,8 @@ using namespace std;
 
 #include "SpeciesThermoMgr.h"
 #include "speciesThermoTypes.h"
+#include "VPSSMgr.h"
+#include "VPStandardStateTP.h"
 
 #include "xml.h"
 #include "ctml.h"
@@ -117,17 +119,17 @@ namespace Cantera {
     int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
     for (int j = 0; j < n; j++) {
       try {
-    getSpeciesThermoTypes(spData_nodes[j], inasa, ishomate, isimple, iother);
+	getSpeciesThermoTypes(spData_nodes[j], inasa, ishomate, isimple, iother);
       } catch (UnknownSpeciesThermoModel) {
-    iother = 1;
-    popError();
+	iother = 1;
+	popError();
       }
     }
     if (iother) {
       return new GeneralSpeciesThermo();
     }
     return newSpeciesThermo(NASA*inasa
-                + SHOMATE*ishomate + SIMPLE*isimple);
+			    + SHOMATE*ishomate + SIMPLE*isimple);
   }
 
 
@@ -307,7 +309,7 @@ namespace Cantera {
      * parameterization for species k into a SpeciesThermo instance.
      */
     static void installNasa96ThermoFromXML(std::string speciesName,
-        SpeciesThermo& sp, int k, 
+					   SpeciesThermo& sp, int k, 
         const XML_Node* f0ptr, const XML_Node* f1ptr) {
         doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
 
@@ -367,7 +369,7 @@ namespace Cantera {
      * parameterization for species k.
      */
     static void installShomateThermoFromXML(std::string speciesName, 
-        SpeciesThermo& sp, int k, 
+					    SpeciesThermo& sp, int k, 
         const XML_Node* f0ptr, const XML_Node* f1ptr) {
         doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
 
@@ -422,7 +424,7 @@ namespace Cantera {
      * parameterization for species k.
      */
     static void installSimpleThermoFromXML(std::string speciesName, 
-        SpeciesThermo& sp, int k, 
+					   SpeciesThermo& sp, int k, 
         const XML_Node& f) {
         doublereal tmin, tmax;
         tmin = fpValue(f["Tmin"]);
@@ -572,7 +574,7 @@ namespace Cantera {
       }
 #ifdef WITH_ADSORBATE
       else if (f->name() == "adsorbate") {
-          installAdsorbateThermoFromXML(s["name"], spthermo, k, *f);
+	installAdsorbateThermoFromXML(s["name"], spthermo, k, *f);
       }
 #endif
       else {
@@ -606,9 +608,22 @@ namespace Cantera {
 					"multiple");
       }
     } else {
-	throw UnknownSpeciesThermoModel("installThermoForSpecies", s["name"], 
-					"multiple");
-      }
+      throw UnknownSpeciesThermoModel("installThermoForSpecies", s["name"], 
+				      "multiple");
+    }
   }
+
+
+  void SpeciesThermoFactory::
+  installVPThermoForSpecies(int k, const XML_Node& speciesNode, 
+			    VPStandardStateTP *vp_ptr,
+			    VPSSMgr *vpssmgr_ptr,
+			    SpeciesThermo *spthermo_ptr,
+			    const XML_Node *phaseNode_ptr) {
+    
+    vp_ptr->createInstallPDSS(k, speciesNode,  phaseNode_ptr);
+  }
+
+
 
 }

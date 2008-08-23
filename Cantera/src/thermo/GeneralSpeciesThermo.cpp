@@ -186,6 +186,10 @@ namespace Cantera {
      * Resize the arrays if necessary, filling the empty
      * slots with the zero pointer.
      */
+    if (!stit_ptr) {
+      throw CanteraError("GeneralSpeciesThermo::install_STIT",
+			 "zero pointer");
+    }
     int index = stit_ptr->speciesIndex();
     if (index > m_kk - 1) {
       m_sp.resize(index+1, 0);
@@ -208,68 +212,76 @@ namespace Cantera {
     m_thigh_min = min(maxTemp, m_thigh_min);
   }
   
-    /**
-     *  Update the properties for one species.
-     */
-    void GeneralSpeciesThermo::
-    update_one(int k, doublereal t, doublereal* cp_R, 
-	       doublereal* h_RT, doublereal* s_R) const {
-	SpeciesThermoInterpType * sp_ptr = m_sp[k];
-	sp_ptr->updatePropertiesTemp(t, cp_R, h_RT, s_R);
+  /**
+   *  Update the properties for one species.
+   */
+  void GeneralSpeciesThermo::
+  update_one(int k, doublereal t, doublereal* cp_R, 
+	     doublereal* h_RT, doublereal* s_R) const {
+    SpeciesThermoInterpType * sp_ptr = m_sp[k];
+    if (sp_ptr) {
+      sp_ptr->updatePropertiesTemp(t, cp_R, h_RT, s_R);
     }
+  }
 
     
-    /**
-     *  Update the properties for all species.
-     */
-    void GeneralSpeciesThermo::
-    update(doublereal t, doublereal* cp_R, 
-	   doublereal* h_RT, doublereal* s_R) const {
-	vector<SpeciesThermoInterpType *>::const_iterator _begin, _end;
-	_begin  = m_sp.begin();
-	_end    = m_sp.end();
-	SpeciesThermoInterpType * sp_ptr = 0;
-	for (; _begin != _end; ++_begin) {
-	  sp_ptr = *(_begin);
-          if (sp_ptr) {
-
-              sp_ptr->updatePropertiesTemp(t, cp_R, h_RT, s_R);
-          }
-          else {
-              writelog("General::update: sp_ptr is NULL!");
-          }
-	}
+  /**
+   *  Update the properties for all species.
+   */
+  void GeneralSpeciesThermo::
+  update(doublereal t, doublereal* cp_R, 
+	 doublereal* h_RT, doublereal* s_R) const {
+    vector<SpeciesThermoInterpType *>::const_iterator _begin, _end;
+    _begin  = m_sp.begin();
+    _end    = m_sp.end();
+    SpeciesThermoInterpType * sp_ptr = 0;
+    for (; _begin != _end; ++_begin) {
+      sp_ptr = *(_begin);
+      if (sp_ptr) {
+	sp_ptr->updatePropertiesTemp(t, cp_R, h_RT, s_R);
+      }
+      // else {
+      //	writelog("General::update: sp_ptr is NULL!\n");
+      //}
     }
+  }
 
-    /**
-     * This utility function reports the type of parameterization
-     * used for the species, index.
-     */
-    int GeneralSpeciesThermo::reportType(int index) const {
-	SpeciesThermoInterpType *sp = m_sp[index];
-	return sp->reportType();
+  /**
+   * This utility function reports the type of parameterization
+   * used for the species, index.
+   */
+  int GeneralSpeciesThermo::reportType(int index) const {
+    SpeciesThermoInterpType *sp = m_sp[index];
+    if (sp) {
+      return sp->reportType();
     }
+    return -1;
+  }
 
-    /**
-     * This utility function reports back the type of 
-     * parameterization and all of the parameters for the 
-     * species, index.
-     *  For the NASA object, there are 15 coefficients.
-     */
-    void GeneralSpeciesThermo::
-    reportParams(int index, int &type, 
-		 doublereal * const c, 
-		 doublereal &minTemp, 
-		 doublereal &maxTemp, 
-		 doublereal &refPressure) const {
-	SpeciesThermoInterpType *sp = m_sp[index];
-	int n;
-	sp->reportParameters(n, type, minTemp, maxTemp, 
-			     refPressure, c);      
-	if (n != index) {
-	  throw CanteraError("  ", "confused");
-	}
+  /**
+   * This utility function reports back the type of 
+   * parameterization and all of the parameters for the 
+   * species, index.
+   *  For the NASA object, there are 15 coefficients.
+   */
+  void GeneralSpeciesThermo::
+  reportParams(int index, int &type, 
+	       doublereal * const c, 
+	       doublereal &minTemp, 
+	       doublereal &maxTemp, 
+	       doublereal &refPressure) const {
+    SpeciesThermoInterpType *sp = m_sp[index];
+    int n;
+    if (sp) {
+      sp->reportParameters(n, type, minTemp, maxTemp, 
+			   refPressure, c);      
+      if (n != index) {
+	throw CanteraError("  ", "confused");
+      }
+    } else {
+      type = -1;
     }
+  }
 
   //! Modify parameters for the standard state
   /*!
@@ -280,43 +292,54 @@ namespace Cantera {
   void GeneralSpeciesThermo::
   modifyParams(int index, doublereal *c) {
     SpeciesThermoInterpType *sp = m_sp[index];
-    sp->modifyParameters(c);
+    if (sp) {
+      sp->modifyParameters(c);
+    }
   }
 
 
-    /**
-     * Return the lowest temperature at which the thermodynamic
-     * parameterization is valid.  If no argument is supplied, the
-     * value is the one for which all species parameterizations
-     * are valid. Otherwise, if an integer argument is given, the
-     * value applies only to the species with that index.
-     */
-    doublereal GeneralSpeciesThermo::minTemp(int k) const {
-	if (k < 0)
-	    return m_tlow_max;
-	else {
-	  SpeciesThermoInterpType *sp = m_sp[k];
-	  return sp->minTemp();	      
-	}
+  /**
+   * Return the lowest temperature at which the thermodynamic
+   * parameterization is valid.  If no argument is supplied, the
+   * value is the one for which all species parameterizations
+   * are valid. Otherwise, if an integer argument is given, the
+   * value applies only to the species with that index.
+   */
+  doublereal GeneralSpeciesThermo::minTemp(int k) const {
+    if (k < 0)
+      return m_tlow_max;
+    else {
+      SpeciesThermoInterpType *sp = m_sp[k];
+      if (sp) {
+	return sp->minTemp();
+      }	      
     }
+    return m_tlow_max;
+  }
 
-    doublereal GeneralSpeciesThermo::maxTemp(int k) const {
-	if (k < 0) {
-	  return m_thigh_min;
-	} else {
-	  SpeciesThermoInterpType *sp = m_sp[k];
-	  return sp->maxTemp();
-	}
+  doublereal GeneralSpeciesThermo::maxTemp(int k) const {
+    if (k < 0) {
+      return m_thigh_min;
+    } else {
+      SpeciesThermoInterpType *sp = m_sp[k];
+      if (sp) {
+	return sp->maxTemp();
+      }
     }
+    return m_thigh_min;
+  }
 
-    doublereal GeneralSpeciesThermo::refPressure(int k) const {
-	if (k < 0) {
-	  return m_p0;
-	} else {
-	  SpeciesThermoInterpType *sp = m_sp[k];
-	  return sp->refPressure();
-	}
+  doublereal GeneralSpeciesThermo::refPressure(int k) const {
+    if (k < 0) {
+      return m_p0;
+    } else {
+      SpeciesThermoInterpType *sp = m_sp[k];
+      if (sp) {
+	return sp->refPressure();
+      } 
     }
+    return m_p0;
+  }
     
 
 }

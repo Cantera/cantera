@@ -243,12 +243,6 @@ namespace Cantera {
      */
 
 
-    /*!
-     * Pressure. Units: Pa.
-     * For this incompressible system, we return the internally storred
-     * independent value of the pressure.
-     */ 
-    virtual doublereal pressure() const;
 
     /**
      * Set the pressure at constant temperature. Units: Pa.
@@ -615,146 +609,9 @@ namespace Cantera {
     //          in the Solution --
     //@{
      
-    //!  Get the standard state chemical potentials of the species.
-    /*!
-     *  This is the array of chemical potentials at unit activity 
-     *  \f$ \mu^0_k(T,P) \f$.
-     *  We define these here as the chemical potentials of the pure
-     *  species at the temperature and pressure of the solution.
-     *  This function is used in the evaluation of the 
-     *  equilibrium constant Kc. Therefore, Kc will also depend
-     *  on T and P. This is the norm for liquid and solid systems.
-     *
-     *  units = J / kmol
-     *
-     * @param mu Output vector of standard state chemical potentials.
-     *           Length: m_kk.
-     */
-    virtual void getStandardChemPotentials(doublereal* mu) const;
+ 
 
-    /*!
-     * Get the nondimensional gibbs function for the species
-     * standard states at the current T and P of the solution.
-     *
-     *  \f[
-     *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
-     * \f]
-     * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-     * \f$ \mu^{ref}_k(T)\f$ is the chemical potential of pure
-     * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
-     *
-     * @param grt Vector of length m_kk, which on return sr[k]
-     *           will contain the nondimensional 
-     *           standard state gibbs function for species k. 
-     */
-    virtual void getGibbs_RT(doublereal* grt) const;
-
-   
-    //! Get the Gibbs functions for the standard state species
-    //! at the current <I>T</I> and <I>P</I> of the solution.
-    /*!
-     * We assume an incompressible constant partial molar
-     * volume here:
-     * \f[
-     *  \mu^0_k(T,p) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
-     * \f]
-     * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-     * \f$ u^{ref}_k(T)\f$ is the chemical potential of pure
-     * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
-     *
-     * Units: J/kmol
-     *
-     * @param gpure Output vector of standard state gibbs free energies.
-     *              Length: m_kk.
-     */
-    virtual void getPureGibbs(doublereal* gpure) const;
-
-    //! Get the array of nondimensional Enthalpy functions for the ss
-    //! species at the current <I>T</I> and <I>P</I> of the solution.
-    /*!
-     * We assume an incompressible constant partial molar volume here:
-     *
-     * \f[
-     *  h^0_k(T,P) = h^{ref}_k(T) + (P - P_{ref}) * V_k
-     * \f]
-     *
-     * where \f$V_k\f$ is the molar volume of SS species <I>k</I>.
-     * \f$ h^{ref}_k(T)\f$ is the enthalpy of the SS
-     * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
-     *
-     * @param hrt Output vector of nondimensional standard state
-     *            enthalpies. Length: m_kk.
-     */
-    virtual void getEnthalpy_RT(doublereal* hrt) const;
-
-    
-    //! Get the nondimensional Entropies for the species
-    //! standard states at the current T and P of the solution.
-    /*!
-     *
-     * Note, this is equal to the reference state entropies
-     * due to the zero volume expansivity:
-     *
-     * i.e., (dS/dp)_T = (dV/dT)_P = 0.0
-     *
-     *   \f[
-     *    S^0_k(T,P) = S^{ref}_k(T)
-     *    \f]
-     *
-     * @param sr Vector of length m_kk, which on return sr[k]
-     *           will contain the nondimensional
-     *           standard state entropy of species k.
-     */
-    virtual void getEntropy_R(doublereal* sr) const;
-
-    
-    //! Get the nondimensional heat capacity at constant pressure
-    //! function for the species standard states at the current <I>T</I> and P of the solution.
-    /*!
-     * \f[
-     *  Cp^0_k(T,P) = Cp^{ref}_k(T)
-     * \f]
-     * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-     * \f$ Cp^{ref}_k(T)\f$ is the constant pressure heat capacity
-     * of species <I>k</I> at the reference pressure, \f$p_{ref}\f$.
-     *
-     * @param cpr Vector of length m_kk, which on return cpr[k]
-     *           will contain the nondimensional 
-     *           constant pressure heat capacity for species k. 
-     */
-    virtual void getCp_R(doublereal* cpr) const;
-
-    //! Get the molar volumes of each species in their standard
-    //! states at the current <I>T</I> and <I>P</I> of the solution.
-    /*!
-     *
-     * \f[
-     *  V^0_k(T,P) = V^{ref}_k()
-     * \f]
-     * units = m^3 / kmol
-     *
-     * @param vol  Output vector of standard state volumes.
-     *             Length: m_kk.
-     */
-    virtual void getStandardVolumes(doublereal *vol) const;
-
-    //! Updates the standard state thermodynamic functions at the current T and P of the solution.
-    /*!
-     * @internal
-     *
-     * This function gets called for every call to functions in this
-     * class. It checks to see whether the temperature or pressure has changed and
-     * thus the ss thermodynamics functions for all of the species
-     * must be recalculated.
-     *
-     * Note, this function doesn't really do anything. I just left it in as a template
-     * for other situations which need a calculation at this level.
-     *
-     * @param pres  Pressure at which to evaluate the standard states.
-     *              The default, indicated by a -1.0, is to use the current pressure
-     */                    
-    virtual void _updateStandardStateThermo(doublereal pres = -1.0) const;
-
+ 
     //@}
     /// @name Thermodynamic Values for the Species Reference States ---
     //@{

@@ -25,6 +25,8 @@
 namespace Cantera {
 
   class XML_Node;
+  class VPStandardStateTP;
+  class VPSSMgr;
 
   /**
    * Throw a named error for an unknown or missing species thermo model. 
@@ -52,6 +54,20 @@ namespace Cantera {
   //! Factory to build instances of classes that manage the
   //! standard-state thermodynamic properties of a set of species.
   /*!
+   *  This class is responsible for making the decision concerning
+   *  which derivative of SpeciesThermo object to use.
+   *  The SpeciesThermo object is used to calculate 
+   *  thermodynamic functions for the reference state.
+   *  It queries the database of species to understand what
+   *  the requirements are for the submodels for all of the
+   *  species in the phase. Then, it picks the SpeciesThermo
+   *  object to use, and passies it back to the calling routine.
+   *  It doesn't load any of the data into the derived
+   *  SpeciesThermo object. 
+   *
+   *  Making the choice of SpeciesThermo types is the only
+   *  thing this class does.
+   *
    * This class is implemented as a singleton -- one in which
    * only one instance is needed.  The recommended way to access
    * the factory is to call this static method, which
@@ -154,19 +170,45 @@ namespace Cantera {
     SpeciesThermo* newSpeciesThermoOpt(std::vector<XML_Node*> spData_nodes);
 
     //! Install a species thermodynamic property parameterization
-    //! for one species into a species thermo manager.
+    //! for the reference state for one species into a species thermo manager.
     /*!
      * @param k species number
-     * @param s  Reference to the XML node specifying the species standard
+     * @param speciesNode  Reference to the XML node specifying the species standard
      *           state information
      * @param spthermo Species reference state thermo manager
      * @param phaseNode_ptr Optional Pointer to the XML phase
      *                      information for the phase in which the species
      *                      resides
      */
-    void installThermoForSpecies(int k, const XML_Node& s, 
+    void installThermoForSpecies(int k, const XML_Node& speciesNode, 
 				 SpeciesThermo& spthermo,
 				 const XML_Node *phaseNode_ptr = 0);
+
+    //! Install a species thermodynamic property parameterization
+    //! for the standard state for one species into a species thermo manager, VPSSMgr
+    /*!
+     * This is a wrapper around the createInstallVPSS() function in the 
+     * VPStandardStateTP object.
+     *
+     * This serves to install the species into vpss_ptr, create a PDSS file. We also
+     * read the xml database to extract the constants for these steps.
+     *
+     * @param k             species number
+     * @param speciesNode   Reference to the XML node specifying the species standard
+     *                      state information
+     * @param vp_ptr        variable pressure ThermoPhase object 
+     * @param vpss_ptr      Pointer to the Manager for calculating variable pressure
+     *                      substances.
+     * @param spthermo_ptr  Species reference state thermo manager
+     * @param phaseNode_ptr Optional Pointer to the XML phase
+     *                      information for the phase in which the species
+     *                      resides
+     */
+    void installVPThermoForSpecies(int k, const XML_Node& speciesNode, 
+				   VPStandardStateTP *vp_ptr,
+				   VPSSMgr *vpss_ptr,
+				   SpeciesThermo *spthermo_ptr,
+				   const XML_Node *phaseNode_ptr);
 
   private:
 

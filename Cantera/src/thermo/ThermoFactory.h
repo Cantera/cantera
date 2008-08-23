@@ -29,6 +29,7 @@
 namespace Cantera {
 
   class SpeciesThermoFactory;
+  class VPSSMgr;
 
   /*!
    *  @addtogroup thermoprops
@@ -269,7 +270,7 @@ namespace Cantera {
    * @param k     Species Index in the phase
    * @param s     XML_Node containing the species data for this species.          
    * @param p     Reference to the ThermoPhase object.
-   * @param spthermo Reference to the SpeciesThermo object, where
+   * @param spthermo_ptr Reference to the SpeciesThermo object, where
    *              the standard state thermo properties for this
    *              species will be installed.
    * @param rule  Parameter that handles what to do with species
@@ -280,6 +281,8 @@ namespace Cantera {
    *              otherwise, throw an exception
    * @param phaseNode_ptr Pointer to the XML_Node for this phase
    *              (defaults to 0)
+   * @param vpss_ptr pointer to the Manager that calculates standard
+   *                state thermo properties
    * @param factory Pointer to the SpeciesThermoFactory .
    *              (defaults to 0)
    *
@@ -287,8 +290,9 @@ namespace Cantera {
    *  Returns true if everything is ok, false otherwise.
    */
   bool installSpecies(int k, const XML_Node& s, thermo_t& p, 
-		      SpeciesThermo& spthermo, int rule, 
-                       XML_Node *phaseNode_ptr = 0,
+		      SpeciesThermo* spthermo_ptr, int rule, 
+		      XML_Node *phaseNode_ptr = 0,
+                      VPSSMgr *vpss_ptr = 0,
 		      SpeciesThermoFactory* factory = 0);
 
   //!Search an XML tree for species data.

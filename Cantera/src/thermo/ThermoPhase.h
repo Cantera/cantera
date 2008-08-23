@@ -33,6 +33,18 @@ namespace Cantera {
   //! Standard state uses the molality convention
   const int    cAC_CONVENTION_MOLALITY = 1;
   //@}
+
+  /*!
+   * @name CONSTANTS - Specification of the SS conventention
+   */
+  //@{
+  //! Standard state uses the molar convention
+  const int    cSS_CONVENTION_TEMPERATURE = 0;
+  //! Standard state uses the molality convention
+  const int    cSS_CONVENTION_VPSS = 1;
+  //@}
+
+
   class XML_Node;
 
   /**
@@ -45,14 +57,13 @@ namespace Cantera {
    * is a large class that describes the interface within %Cantera to Thermodynamic
    * functions for a phase. 
    *
-   *
    * The calculation of thermodynamic functions within %ThermoPhase is 
    * broken down roughly into two or more steps. First, the standard state 
    * properties
    * of all of the species are calculated at the current temperature and at
    * either
    * the current pressure or at a reference pressure. If the calculation is
-   * carried out at a refereence pressure instead of at the current pressure
+   * carried out at a reference pressure instead of at the current pressure
    * the calculation is called a "reference state properties" calculation,
    * just to make the distinction (even though it may be considered to be
    * a fixed-pressure standard-state calculation). The next step is to 
@@ -77,9 +88,256 @@ namespace Cantera {
    * and 5 functions multiplied together makes 25 possible functions. That's 
    * why %ThermoPhase is such a large class.
    *
+   *   <H3>
+   *      Categorizing the Different %ThermoPhase Objects
+   *   </H3>
+   *
+   *   ThermoPhase objects may be catelogged into four general bins.
+   *
+   *   The first type are those whose underlying species have a reference state associated
+   *   with them. The reference state describes the thermodynamic functions for a
+   *   species at a single reference pressure, \f$p_0\f$. The thermodynamic functions
+   *   are specified via derived objects of the SpeciesThermoInterpType object class, and usually
+   *   consist of polynomials in temperature such as the NASA polynomial or the SHOMATE
+   *   polynomial.  Calculators for these
+   *   reference states, which manage the calculation for all of the species
+   *   in a phase, are all derived from the virtual base class SimpleThermo. Calculators
+   *   are needed because the actual calculation of the reference state thermodynamics
+   *   has been shown to be relatively expensive. A great deal of work has gone
+   *   into devising efficient schemes for calculating the thermodynamic polynomials
+   *   of a set of species in a phase, in particular gas species in ideal gas phases
+   *   whose reference state thermodynamics is specified by NASA polynomials.
+   * 
+   *   The reference state thermodynamics combined with the mixing rules and
+   *   an assumption about the pressure dependence yields the thermodynamic functions for
+   *   the phase. 
+   *   Expressions involving the specification of the fugacities of species would fall into 
+   *   this category of %ThermoPhase objects. Note, however, that at this time, we do not
+   *   have any nontrivial examples of these types of phases.
+   *   In general, the independent variables that completely describe the state of the
+   *   system  for this class are temperature, the
+   *   phase density, and \f$ N - 1 \f$ species mole or mass fractions. 
+   *   Additionally, if the
+   *   phase involves charged species, the phase electric potential is an added independent variable.
+   *   Examples of the first class of %ThermoPhase functions, which includes the
+   *   IdealGasPhase object, the most commonly used object with %Cantera, are given below.
+   *
+   *    - IdealGasPhase       in IdealGasPhase.h
+   *    - StoichSubstance     in StoichSubstance.h
+   *    - SurfPhase           in SurfPhase.h
+   *    - EdgePhase           in EdgePhase.h
+   *    - LatticePhase        in LatticePhase.h
+   *    - LatticeSolidPhase   in LatticeSolidPhase.h
+   *    - ConstDensityThermo  in ConstDensityThermo.h
+   *    - PureFluidPhase      in PureFluidPhase.h
+   *    - IdealSolidSolnPhase in IdealSolidSolnPhase.h
+   *    - VPStandardStateTP   in VPStandardStateTP.h
+   *
+   *   The second class of objects are actually all derivatives of the VPStandardState
+   *   class listed above. These classes assume that there exists a standard state
+   *   for each species in the phase, where the Thermodynamic functions are specified
+   *   as a function of temperature and pressure.  Standard state objects for each
+   *   species are all derived from the PDSS virtual base class. Calculators for these
+   *   standard state, which coordinate the calculation for all of the species
+   *   in a phase, are all derived from the virtual base class VPSSMgr.
+   *   In turn, these standard states may employ reference state calculation to
+   *   aid in their calculations. And the VPSSMgr calculators may also employ
+   *   SimpleThermo calculators to help in calculating the properties for all of the
+   *   species in a phase. However, there are some PDSS objects which do not employ
+   *   reference state calculations. An example of this is real equation of state for
+   *   liquid water used within the calculation of brine thermodynamcis. 
+   *   In general, the independent variables that completely describe the state of the
+   *   system  for this class are temperature, the
+   *   phase pressure, and N - 1 species mole or mass fractions or molalities. 
+   *    The standard state thermodynamics combined with the mixing rules yields
+   *   the thermodynamic functions for the phase. Mixing rules are given in terms
+   *   of specifying the molar-base activity coefficients or activities.
+   *   Lists of phases which belong to this group are given below
+   *
+   *    - IdealSolnGasVPSS  in IdealSolnGasVPSS.h 
+   *    - MolalityVPSSTP    in MolalityVPSSTP.h 
+   *
+   *   Note, the ideal gas and ideal solution approximations are lumped together
+   *   in the class IdealSolnGasVPSS, because at this level they look alike having
+   *   the same mixing rules with respect to the specification of the excess 
+   *   thermodynamic properties.
+   *   The third class of objects are actually all derivatives of the MolalityVPSSTP
+   *   object. They assume that the standard states are temperature and 
+   *   pressure dependent. But, they also assume that the standard states are 
+   *   molality-based. In other words they assume that the standard state of the solute
+   *   species are in a pseudo state of 1 molality but at infinite dilution.
+   *   A solvent must be specified in these calculations. The solvent is assumed
+   *   to be species zero, and its standard state is the pure solvent state.
+   *   Lists of phases which belong to this group are:
+   *
+   *   - DebyeHuckel     in DebyeHuckel.h
+   *   - IdealMolalSoln  in IdealMolalSoln.h  
+   *   - HMWSoln         in HMWSoln.h
+   *  
+   *   The fourth class of %ThermoPhase objects are stoichiometric phases.
+   *   Stoichiometric phases are phases which consist of one and only one
+   *   species. The class  SingleSpeciesTP is the base class for these
+   *   substances. Within the class, the general %ThermoPhase interface is
+   *   dumbed down so that phases consisting of one species may be
+   *   succinctly described.
+   *   These phases may have PDSS classes or SimpleThermo calculators associated
+   *   with them.
+   *   In general, the independent variables that completely describe the state of the
+   *   system  for this class are temperature and either the
+   *   phase density or the phase pressure.
+   *   Lists of classes in this group are given below.
+   *
+   *   - StoichSubstanceSSTP  in StoichSubstanceSSTP.h
+   *   - WaterSSTP            in WaterSSTP.h
+   *
+   *   The reader may note that there are duplications in functionality in the
+   *   above lists. This is true. And, it's used for the internal verification of
+   *   capabilities within %Cantera's unit tests.
+   *
+   *
+   * <H3>
+   * Setting the %State of the phase
+   * </H3>
+   *
+   *   Typically, the way the ThermoPhase object works is that there are a set 
+   *   of functions that set the state of the phase via setting the internal 
+   *   independent variables. Then, there are another set of functions that
+   *   query the thermodynamic functions evalulated at the current %State of the
+   *   phase. Internally, most of the intermediate work generally occurs at the
+   *   point where the internal state of the system is set and not at the time
+   *   when individual thermodynamic functions are queried (though the actual
+   *   breakdown in work is dependent on the individual derived ThermoPhase object).
+   *   Therefore, for efficiency, the user should lump together queries of thermodynamic functions
+   *   after setting the state. Moreover, in setting the state, if the
+   *   density is the independent variable, the following order should be
+   *   used:
+   *
+   *      - Set the temperature
+   *      - Set the mole or mass fractions or set the molalities
+   *      - set the pressure. 
+   *
+   *   For classes which inherit from VPStandardStateTP, the above order may
+   *   be used, or the following order may be used. It's not important.
+   *
+   *      - Set the temperature
+   *      - Set the pressure
+   *      - Set the mole or mass fractions or set the molalities
+   *
+   *   The following functions are used to set the state:
+   *
+   *     <TABLE>
+   *      <TR>
+   *        <TD> \link ThermoPhase::setState_TPX() setState_TPX()\endlink </TD>
+   *        <TD>    Sets the temperature, mole fractions and then the pressure
+   *                of the phase. </TD>
+   *      </TR>
+   *      <TR>
+   *        <TD> \link ThermoPhase::setState_TPY() setState_TPY()\endlink    </TD>
+   *        <TD>    Set the temperature, mass fractions and then the pressure
+   *                of the phase. </TD>
+   *      </TR>
+   *      <TR>
+   *        <TD> \link MolalityVPSSTP::setState_TPM() setState_TPM()\endlink     </TD>
+   *        <TD>    Set the temperature, solute molalities, and then the
+   *                pressure of the phase. Only from %ThermoPhase objects which
+   *                inherit from MolalityVPSSTP
+   *        </TD>
+   *      </TR>
+   *      <TR>
+   *        <TD> \link ThermoPhase::setState_TP() setState_TP()\endlink     </TD>
+   *        <TD>    Set the temperature, and then the pressure
+   *                of the phase. The mole fractions are assumed fixed. 
+   *        </TD>
+   *      </TR>
+   *      <TR>
+   *        <TD> \link ThermoPhase::setState_PX() setState_PX()\endlink     </TD>
+   *        <TD>    Set the mole fractions and then the pressure
+   *                         of the phase. The temperature is assumed fixed.
+   *        </TD>
+   *      </TR>
+   *      <TR>
+   *        <TD> \link ThermoPhase::setState_PY() setState_PY()\endlink     </TD>
+   *        <TD>  Set the mass fractions and then the pressure
+   *                         of the phase. The temperature is assumed fixed.
+   *        </TD>
+   *      </TR>
+   *      <TR>
+   *        <TD> \link ThermoPhase::setState_HP() setState_HP()\endlink     </TD>
+   *        <TD> Set the total specific enthalpy and the pressure
+   *                         of the phase using an iterative process.
+   *                         The mole fractions are assumed fixed
+   *        </TD>
+   *      </TR>
+   *      <TR>
+   *        <TD> \link ThermoPhase::setState_UV() setState_UV()\endlink     </TD>
+   *        <TD>  Set the total specific internal energy and the pressure
+   *                         of the phase using an iterative process.
+   *                         The mole fractions are assumed fixed.
+   *        </TD>
+   *      </TR>
+   *      <TR>
+   *        <TD> \link ThermoPhase::setState_SP() setState_SP()\endlink     </TD>
+   *        <TD>  Set the total specific internal energy and the pressure
+   *                         of the phase using an iterative process.
+   *                         The mole fractions are assumed fixed.
+   *        </TD>
+   *      </TR>
+   *      <TR>
+   *        <TD> \link ThermoPhase::setState_SV() setState_SV()\endlink     </TD>
+   *        <TD> Set the total specific entropy and the total specific
+   *                         molar volume of the phase using an iterative process.
+   *                         The mole fractions are assumed fixed.
+   *        </TD>
+   *      </TR>
+   *      <TR>
+   *        <TD> \link State::setConcentrations() setConcentrations()\endlink     </TD>
+   *        <TD> Set the concentrations of all the species in the
+   *                         phase. Note this implicitly specifies the pressure and
+   *                         density of the phase. The temperature is assumed fixed.
+   *        </TD>
+   *      </TR>
+   *      <TR>
+   *        <TD> \link State::setDensity() setDensity()\endlink     </TD>
+   *        <TD>  Set the total density of the phase. The temperature and
+   *                         mole fractions are assumed fixed. Note this implicity
+   *                         sets the pressure of the phase.
+   *        </TD>
+   *      </TR>
+   *      <TR>
+   *        <TD> \link State::setTemperature() setTemperature()\endlink     </TD>
+   *        <TD> Set the temperature of the phase. The density and
+   *                         the mole fractions of the phase are fixed.
+   *        </TD>
+   *      </TR>
+   *      <TR>
+   *        <TD> \link ThermoPhase::setToEquilState() setToEquilState()\endlink     </TD>
+   *        <TD>  Sets the mole fractions of the phase to their 
+   *                         equilibrium values assuming fixed temperature and
+   *                         total density.
+   *        </TD>
+   *      </TR>
+   *    </TABLE>
+   *
+   *
+   * 
+   *  Some of the functions, like setState_TPX() have multiple forms depending upon
+   *  the format for how the species compositions are set. 
+   * 
+   *
+   *  Molar Basis vs. Molality Basis
+   *
    * <H3>
    * Mechanical properties
    * </H3>
+   *
+   *  The %ThermoPhase object specifies the mechanical equation of state of the
+   *  phase. Functions which are defined at the %ThermoPhase level to give the
+   *  user more information about the mechanical properties are:
+   *
+   *       - ThermoPhase::pressure()
+   *       - ThermoPhase::isothermalCompressibility()
+   *       - ThermoPhase::thermalExpansionCoeff()
+   *       .
    *
    * <H3>
    * Treatment of the %Phase Potential and the electrochemical potential of a species
@@ -135,42 +393,244 @@ namespace Cantera {
    *  chemical potential to create an effective chemical potential, 
    *  may be added at a later time.
    *
-   * <H3>
-   * Setting the %State of the phase
-   * </H3>
+   *  <H3>
+   *   Specification of Activities and Activity Conventions
+   *  </H3>
+   * 
    *
-   * Instantiation of %ThermoPhase properties occurs via the following path.
+   * The activity \f$a_k\f$ and activity coefficient \f$ \gamma_k \f$ of a 
+   * species in solution is related to the chemical potential by 
    *
-   * Molar Basis vs. Molality Basis
+   * \f[ 
+   *    \mu_k = \mu_k^0(T,P) + \hat R T \log a_k.= \mu_k^0(T,P) + \hat R T \log x_k \gamma_k
+   * \f] 
    *
-   * The following Objects inherit from %ThermoPhase. These are known to the
-   * internal factory methods
+   * The quantity \f$\mu_k^0(T,P)\f$ is
+   * the standard chemical potential at unit activity, 
+   * which depends on the temperature and pressure, 
+   * but not on the composition. The
+   * activity is dimensionless. Within liquid electrolytes its common to use a 
+   * molality convention, where solute species employ the molality-based
+   * activity coefficients:
    *
-   *    - IdealGasPhase       in IdealGasPhase.h
-   *    - StoichSubstance     in StoichSubstance.h
-   *    - SurfPhase           in SurfPhase.h
-   *    - EdgePhase           in EdgePhase.h
-   *    - LatticePhase        in LatticePhase.h
-   *    - LatticeSolidPhase   in LatticeSolidPhase.h
-   *    - ConstDensityThermo  in ConstDensityThermo.h
-   *    - PureFluidPhase      in PureFluidPhase.h
-   *    .
+   * \f[
+   *  \mu_k =  \mu_k^\triangle(T,P) + R T ln(a_k^{\triangle}) = 
+   *            \mu_k^\triangle(T,P) + R T ln(\gamma_k^{\triangle} \frac{m_k}{m^\triangle}) 
+   * \f]
    *
-   * The following additional objects inherit from %ThermoPhase. Most of these
-   * are associated with an electrochemistry capability that is under 
-   * construction.
+   * And, the solvent employs the following convention
+   * \f[
+   *    \mu_o = \mu^o_o(T,P) + RT ln(a_o) 
+   * \f]
    *
-   *     - DebyeHuckel          in thermo/DebyeHuckel.h
-   *     - SingleSpeciesTP      in thermo/SingleSpeciesTP.h
-   *     - StoichSubstanceSSTP  in thermo/StoichSubstanceSSTP.h
-   *     - VPStandardStateTP    in thermo/VPStandardStateTP.h
-   *     - IdealMolalSoln       in thermo/IdealMolalSoln.h
-   *     - IdealSolidSolnPhase  in thermo/IdealSolidSolnPhase.h
-   *     - IdealGasPDSS         in thermo/IdealGasPDSS.h
-   *     - MolalityVPSSTP       in thermo/MolalityVPSSTP.h
-   *     - HMWSoln              in thermo/HMWSoln.h
-   *     - WaterSSTP            in thermo/WaterSSTP.h
-   *     .
+   * where \f$ a_o \f$ is often redefined in terms of the osmotic coefficient \f$ \phi \f$.
+   *
+   *   \f[
+   *       \phi = \frac{- ln(a_o)}{\tilde{M}_o \sum_{i \ne o} m_i}
+   *   \f]
+   *
+   *  %ThermoPhase classes which employ the molality based convention are all derived
+   *  from the MolalityVPSSTP class. See the class description for further information
+   *  on its capabilities. 
+   *
+   *  The activity convention used by a %ThermoPhase object 
+   *  may be queried via the ThermoPhase::activityConvention() function. A zero means molar based,
+   *  while a one means molality based.
+   *
+   *  The function ThermoPhase::getActivities() returns a vector of activities. Whether these are
+   *  molar-based or molality-based depends on the value of activityConvention().
+   *
+   *  The function getActivityCoefficients() always returns molar-based activity
+   *  coefficients regardless of the activity convention used. The function
+   *  MolalityVPSSTP::getMolalityActivityCoefficients() returns molality
+   *  based activity coefficients for those ThermoPhase objects derived
+   *  from the MolalityVPSSTP class. The function MolalityVPSSTP::osmoticCoefficient()
+   *  returns the osmotic coefficient.
+   *
+   *  <H3>
+   *   Activity Concentrations: Relationship of %ThermoPhase to %Kinetics Expressions
+   *  </H3>
+   *
+   *   %Cantera can handle both thermodynamics and kinetics mechanisms. Reversible
+   *   kinetics
+   *   mechanisms within %Cantera must be compatible with thermodynamics in the
+   *   sense that at equilibrium, or at infinite times, the concentrations
+   *   of species must conform to thermodynamics. This means that for every
+   *   valid reversible kinetics reaction in a mechanism, it must be reducible to 
+   *   an expression involving the ratio of the product activity to
+   *   the reactant activities being equal to the exponential of the
+   *   dimensionless standard state gibbs free energies of reaction.
+   *   Irreversible kinetics reactions do not have this requirement; however,
+   *   their usage can yield unexpected and inconsistent results in many
+   *   situations.
+   *   The actual units used in a kinetics expression depend
+   *   on the context or the relative field of study. For example, in 
+   *   gas phase kinetics, species in kinetics expressions are expressed in
+   *   terms of concentrations, i.e., gmol cm-3. In solid phase studies,
+   *   however, kinetics is usually expressed in terms of unitless activities,
+   *   which most often equate to solid phase mole fractions. In order to 
+   *   accomodate variability here, %Cantera has come up with the idea
+   *   of activity concentrations, \f$ C^a_k \f$. Activity concentrations are the expressions
+   *   used directly in kinetics expressions.    
+   *   These activity (or generalized) concentrations are used
+   *   by kinetics manager classes to compute the forward and
+   *   reverse rates of elementary reactions. Note that they may
+   *   or may not have units of concentration --- they might be
+   *   partial pressures, mole fractions, or surface coverages,
+   *   The activity concentrations for species <I>k</I>, \f$ C^a_k \f$, are 
+   *   related to the activity for species, k, \f$ a_k \f$,
+   *   via the following expression:
+   *
+   *   \f[
+   *       a_k = C^a_k / C^0_k
+   *   \f]
+   *
+   *  \f$ C^0_k \f$ are called standard concentrations. They serve as multiplicative factors
+   *  bewteen the activities and the generalized concentrations. Standard concentrations
+   *  may be different for each species. They may depend on both the temperature
+   *  and the pressure. However, they may not depend
+   *  on the composition of the phase. For example, for the IdealGasPhase object
+   *  the standard concentration is defined as
+   *
+   *  \f[
+   *     C^0_k = P/ R T 
+   *  \f]
+   *  
+   *  In many solid phase kinetics problems,
+   *
+   *   \f[
+   *     C^0_k = 1.0 ,
+   *  \f]
+   *
+   *  is employed making the units for activity concentrations in solids unitless.
+   *  
+   *  %ThermoPhase member functions dealing with this concept include 
+   *  ThermoPhase::getActivityConcentrations() , which provides a vector of the current
+   *  activity concentrations. The function, ThermoPhase::standardConcentration(int k=0) returns
+   *  the standard concentration of the kth species. The function,
+   *  ThermoPhase::logStandardConc(int k=0), returns the natural log of the kth standard
+   *  concentration. The function  ThermoPhase::getUnitsStandardConc() returns a vector of 
+   *  doubles, specifying the MKS units of the standard concentration of the
+   *  kth species.
+   *
+   *
+   *  <H3>
+   *  Initialization of %ThermoPhase Objects within %Cantera
+   *  </H3>
+   *
+   *  Instantiation of %ThermoPhase properties occurs by reading and
+   *  processing the XML data contained within an ctxml data file.
+   *  First a call to  newPhase(std::string file, std::string id) or
+   *  newPhase(XML_Node &phase)
+   *  is made. The arguments serve to specify the
+   *  XML data structure containing the phase information.
+   *
+   *  Within newPhase() a determination of what type of %ThermoPhase object should be 
+   *  used is made. This is done within the routine ThermoFactory::newThermoPhase(std::string model)
+   *  or related routines.
+   *  Once the correct %ThermoPhase derived object is selected and instantiated with a 
+   *  bare constructor, the
+   *  function Cantera::importPhase() is called with the  %ThermoPhase derived object as
+   *  one of its arguments.
+   *
+   *  Within importPhase(), a decision is made as to what type of
+   *  standard state, i.e.,
+   *  either a reference state (just T dependent)  or a standard state
+   *  (both P and T dependent), is to be used to calculate the
+   *  standard state properties of the species within the phase.
+   *  If only a reference state is needed 
+   *  then a call to 
+   *  \link #newSpeciesThermoMgr(std::vector<XML_Node*> spData_nodes, SpeciesThermoFactory* f=0, bool opt=false) newSpeciesThermoMgr()\endlink
+   *  is made in order
+   *  pick a manager, i.e., a derivative of the SpeciesThermo 
+   *  object, to use.
+   *
+   *  If a temperature and pressure dependent standard state is needed 
+   *  then a call to VPSSMgrFactory::newVPSSMgr()
+   *  is made in order
+   *  pick a manager, i.e., a derivative of the VPSSMgr 
+   *  object, to use. Along with the VPSSMgr designation comes a 
+   *  determination of whether there is an accompanying  SpeciesThermo 
+   *  and what type of SpeciesThermo object to use in the
+   *  VPSSMgr calculations.
+   *  
+   *  Once these determinations are made, the %ThermoPhase object is
+   *  ready to start reading in the species information, which includes
+   *  all of the available standard state information about the
+   *  species. this is done within the routine installSpecies().
+   *  
+   *  Within installSpecies(), most of the common steps for adding a
+   *  species are carried out. The element stoichiometry is read
+   *  and elements are added as needed to the list of elements
+   *  kept with the ThermoPhase object. The charge of the species
+   *  is read in. The species is added into the list
+   *  of species kept within the ThermoPhase object. Lastly, the
+   *  standard state thermodynamics for the species is read in.
+   *  For reference states, the routine, SpeciesThermoFactory::installThermoForSpecies(),
+   *  is used to read in the data. Essentially, this routine is a
+   *  factory routine for picking the correct subroutine to 
+   *  call to read the XML data from the input file and install the
+   *  correct  SpeciesThermoInterpType object into the SpeciesThermo object. 
+   *
+   *  Within installSpecies(), for standard states, the routine, 
+   *  SpeciesThermoFactory::installVPThermoForSpecies() is
+   *  called. However, this is just a shell routine for calling
+   *  the VPSSMgr's derived VPSSMgr::createInstallPDSS() routine.
+   *  Within the  VPSSMgr::createInstallPDSS() routine of the derived VPSSMgr's
+   *  object, the XML data from the input file is read and the
+   *  calculations for the species standard state is installed.
+   *  Additionally, the  derived PDSS object is created and installed
+   *  into the VPStandardStateTP list containing all of the PDSS objects
+   *  for that phase.
+   *
+   *  Now that all of the species standard states are read in and
+   *  installed into the ThermoPhase object, control once again
+   *  is returned to the importPhase() function.  Two derived functions
+   *  are then called. The first one, ThermoPhase::initThermo(), is called. In this
+   *  routine, all internal arrays within the %ThermoPhase object are
+   *  dimensioned according to the number of elements and species.
+   *  Then, the function ThermoPhase::initThermoXML() is called.
+   *  This function is tasked with reading in all of the thermodynamic
+   *  function information specific to the calculation of the
+   *  phase information. This includes all of the information about
+   *  the activity coefficient calculation.
+   *
+   *  After the ThermoPhase::initThermoXML() is finished, the
+   *  ThermoPhase routine is ready to receive requests for 
+   *  thermodynamic property information.
+   *  
+   *
+   *  There is an alternative way to instantiate %ThermoPhase objects that
+   *  is applicable to a significant proportion of %ThermoPhase classes.
+   *  The phase may be instantiated via a constructor that invokes the
+   *  XML data structure wherein the phase information is to be read directly.
+   *  In this case, the call to newPhase() and the call to 
+   *  ThermoFactory::newThermoPhase(std::string model)
+   *  is not made. However, soon after that, the call to importPhase() is
+   *  made and thereafter instantiation follows the initialization course described
+   *  previously in order to avoid as much duplicate code as possible.
+   *  This alternative way to  instantiate %ThermoPhase objects has the 
+   *  advantage of working well with hard-coded situations. And, it
+   *  works well also with situations where new %ThermoPhase classes 
+   *  are being developed and haven't yet made their way into the
+   *  factory routines.
+   *
+   *  <H3>
+   *  Adding Additional Thermodynamics Models
+   *  </H3>
+   *
+   *  In general, factory routines throw specific errors when encountering
+   *  unknown thermodynamics models in XML files. All of the error classes
+   *  derive from the class, CanteraError.
+   *  The newVPSSMgr() routines throws the UnknownVPSSMgr class error when
+   *  they encounter an unknown string in the XML input file specifying the
+   *  VPSSMgr class to use.
+   *
+   *  Many of the important member functions in factory routines are
+   *  virtual classes. This means that a user may write their own
+   *  factory classes which inherit from the base %Cantera factory classes
+   *  to provide additional %ThermoPhase classes.
+   * 
    *
    * @see newPhase(std::string file, std::string id) Description for how to
    *               read ThermoPhases from XML files.
@@ -303,7 +763,8 @@ namespace Cantera {
     }
 
         
-    //! Minimum temperature for which the thermodynamic data for the species or phase are valid.
+    //! Minimum temperature for which the thermodynamic data for the species 
+    //! or phase are valid.
     /*!
      * If no argument is supplied, the
      * value returned will be the lowest temperature at which the
@@ -498,6 +959,19 @@ namespace Cantera {
      */
     virtual int activityConvention() const;
     
+    //! This method returns the convention used in specification
+    //! of the standard state, of which there are currently two,
+    //! temperature based, and variable pressure based.
+    /*!
+     * Currently, there are two standard state conventions:
+     *  - Temperature-based activities
+     *   cSS_CONVENTION_TEMPERATURE 0
+     *      - default
+     *
+     *  -  Variable Pressure and Temperature -based activities
+     *   cSS_CONVENTION_VPSS 1
+     */
+    virtual int standardStateConvention() const;
         
     //! This method returns an array of generalized concentrations
     /*!
@@ -533,9 +1007,10 @@ namespace Cantera {
      * optional parameter indicating the species.
      *
      * @param k Optional parameter indicating the species. The default
-     *         is to assume this refers to species 0.
+     *          is to assume this refers to species 0.
      * @return 
-     *   Returns the standard Concentration in units of m3 kmol-1.
+     *   Returns the standard Concentration. The units are by definition
+     *   dependent on the ThermoPhase and kinetics manager representation.
      */
     virtual doublereal standardConcentration(int k=0) const {
       err("standardConcentration");
@@ -546,10 +1021,7 @@ namespace Cantera {
     /*!
      * @param k    index of the species (defaults to zero)
      */
-    virtual doublereal logStandardConc(int k=0) const {
-      err("logStandardConc");
-      return -1.0;
-    }
+    virtual doublereal logStandardConc(int k=0) const;
          
     //! Returns the units of the standard and generalized concentrations.
     /*!
@@ -1542,6 +2014,7 @@ namespace Cantera {
     /// Vector of element potentials.
     ///    -> length equal to number of elements
     vector_fp m_lambdaRRT;
+
     //! Boolean indicating whether there is a valid set of saved element potentials for this phase
     bool m_hasElementPotentials;
 
@@ -1554,6 +2027,9 @@ namespace Cantera {
      * thermodynamics to be valid.
      */ 
     bool m_chargeNeutralityNecessary;
+
+    //! Contains the standard state convention
+    int m_ssConvention;
 
   private:
 

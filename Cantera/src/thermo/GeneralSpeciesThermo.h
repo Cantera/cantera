@@ -209,8 +209,12 @@ namespace Cantera {
      * a list of pointers to type SpeciesThermoInterpType.
      * Note, this object owns the objects, so they are deleted
      * in the destructor of this object.
+     *   Note, that in some instances, m_sp[k] = 0, e.g., no
+     * SpeciesThermoInterpType is installed for one or more
+     * species. These cases must be handled by the calling
+     * routine.
      */
-    std::vector<SpeciesThermoInterpType *>  m_sp;
+    std::vector<SpeciesThermoInterpType *> m_sp;
 
     //! Maximum value of the lowest temperature
     doublereal                         m_tlow_max;

@@ -19,7 +19,7 @@
 #include "HMWSoln.h"
 #include "ThermoFactory.h"
 #include "WaterProps.h"
-#include "WaterPDSS.h"
+#include "PDSS_Water.h"
 #include <cstring>
 
 using namespace std;
@@ -947,10 +947,14 @@ namespace Cantera {
 	if (modelString == "wateriapws" || modelString == "real_water" ||
 	    modelString == "waterpdss") {
 	  /*
-	   * Initialize the water standard state model
+	   * Store a local pointer to the water standard state model.
+	   *   -> We've hardcoded it to a PDSS_Water model, so this is ok.
 	   */
-	  if (m_waterSS) delete m_waterSS;
-	  m_waterSS = new WaterPDSS(this, 0);
+	  m_waterSS = dynamic_cast<PDSS_Water *>(providePDSS(0)) ;
+	  if (!m_waterSS) {
+	    throw CanteraError("HMWSoln::initThermoXML",
+			       "Dynamic cast to PDSS_Water failed");
+	  }
 	  /*
 	   * Fill in the molar volume of water (m3/kmol)
 	   * at standard conditions to fill in the m_speciesSize entry
@@ -988,6 +992,7 @@ namespace Cantera {
      * the internal eos water calculator.
      */
     m_waterProps = new WaterProps(m_waterSS);
+
 
     /*
      * Go get all of the coefficients and factors in the
@@ -1223,13 +1228,14 @@ namespace Cantera {
       }
     }
 
+    VPStandardStateTP::initThermoXML(phaseNode, id);
     /*
      * Lastly set the state
      */
-    if (phaseNode.hasChild("state")) {
-      XML_Node& stateNode = phaseNode.child("state");
-      setStateFromXML(stateNode);
-    }
+    //    if (phaseNode.hasChild("state")) {
+    // XML_Node& stateNode = phaseNode.child("state");
+    // setStateFromXML(stateNode);
+    //}
 
   }
 }

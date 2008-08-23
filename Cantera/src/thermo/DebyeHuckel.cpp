@@ -24,7 +24,7 @@
 //#include "importCTML.h"
 #include "ThermoFactory.h"
 #include "WaterProps.h"
-#include "WaterPDSS.h"
+#include "PDSS_Water.h"
 #include <cstring>
 
 using namespace std;
@@ -49,8 +49,7 @@ namespace Cantera {
     m_densWaterSS(1000.),
     m_waterProps(0)
   {
-    m_useTmpRefStateStorage = true;
-    m_useTmpStandardStateStorage = false;
+ 
     m_npActCoeff.resize(3);
     m_npActCoeff[0] = 0.1127;
     m_npActCoeff[1] = -0.01049;
@@ -80,8 +79,6 @@ namespace Cantera {
     m_densWaterSS(1000.),
     m_waterProps(0)
   {
-    m_useTmpRefStateStorage = true;
-    m_useTmpStandardStateStorage = false;
     m_npActCoeff.resize(3);
     m_npActCoeff[0] = 0.1127;
     m_npActCoeff[1] = -0.01049;
@@ -104,8 +101,6 @@ namespace Cantera {
     m_densWaterSS(1000.),
     m_waterProps(0)
   {
-    m_useTmpRefStateStorage = true;
-    m_useTmpStandardStateStorage = false;
     m_npActCoeff.resize(3);
     m_npActCoeff[0] = 0.1127;
     m_npActCoeff[1] = -0.01049;
@@ -164,21 +159,23 @@ namespace Cantera {
       m_B_Debye             = b.m_B_Debye;
       m_B_Dot               = b.m_B_Dot;
       m_npActCoeff          = b.m_npActCoeff;
-      if (m_waterSS) {
-	delete m_waterSS;
-	m_waterSS = 0;
+    
+      // This is an internal shallow copy of the PDSS_Water pointer
+      m_waterSS = dynamic_cast<PDSS_Water *>(providePDSS(0)) ;
+      if (!m_waterSS) {
+	throw CanteraError("DebyHuckel::operator=()", "Dynamic cast to waterPDSS failed");
       }
-      if (b.m_waterSS) {
-	m_waterSS = new WaterPDSS(*(b.m_waterSS));
-      }
+   
       m_densWaterSS         = b.m_densWaterSS;
+
       if (m_waterProps) {
 	delete m_waterProps;
 	m_waterProps = 0;
       }
       if (b.m_waterProps) {
-	m_waterProps = new WaterProps(*(b.m_waterProps));
+	m_waterProps = new WaterProps(m_waterSS);
       }
+
       m_expg0_RT            = b.m_expg0_RT;
       m_pe                  = b.m_pe;
       m_pp                  = b.m_pp;
@@ -202,9 +199,6 @@ namespace Cantera {
     if (m_waterProps) {
       delete m_waterProps; m_waterProps = 0;
     }
-    if (m_waterSS) {
-      delete m_waterSS; m_waterSS = 0;
-    } 
   }
 
   /*
@@ -855,295 +849,8 @@ namespace Cantera {
     }
   }
 
-  /*
-   * -------- Properties of the Standard State of the Species
-   *           in the Solution ------------------
-   */
 
-  /*
-   *  getStandardChemPotentials()      (virtual, const)
-   *
-   *
-   *  Get the standard state chemical potentials of the species.
-   *  This is the array of chemical potentials at unit activity 
-   *  (Mole fraction scale)
-   *  \f$ \mu^0_k(T,P) \f$.
-   *  We define these here as the chemical potentials of the pure
-   *  species at the temperature and pressure of the solution.
-   *  This function is used in the evaluation of the 
-   *  equilibrium constant Kc. Therefore, Kc will also depend
-   *  on T and P. This is the norm for liquid and solid systems.
-   *
-   *  units = J / kmol
-   */
-  void DebyeHuckel::getStandardChemPotentials(doublereal* mu) const {
-    _updateStandardStateThermo();
-    getGibbs_ref(mu);
-    doublereal pref;
-    doublereal delta_p;
-    for (int k = 0; k < m_kk; k++) {
-      pref = m_spthermo->refPressure(k);
-      delta_p = m_Pcurrent - pref;
-      mu[k] += delta_p * m_speciesSize[k];
-    }
-    if (m_waterSS) {
-      mu[0] = m_waterSS->gibbs_mole();
-    }
-  }
-    
-  /*
-   * Get the nondimensional gibbs function for the species
-   * standard states at the current T and P of the solution.
-   *
-   *  \f[
-   *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
-   * \f]
-   * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-   * \f$ \mu^{ref}_k(T)\f$ is the chemical potential of pure
-   * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
-   *
-   * @param grt Vector of length m_kk, which on return sr[k]
-   *           will contain the nondimensional 
-   *           standard state gibbs function for species k. 
-   */
-  void DebyeHuckel::getGibbs_RT(doublereal* grt) const {
-    _updateStandardStateThermo();
-    getPureGibbs(grt);
-    doublereal invRT = 1.0 / _RT();
-    for (int k = 0; k < m_kk; k++) {
-      grt[k] *= invRT;
-    }
-  }
-    
-  /*
-   *
-   * getPureGibbs()
-   *
-   * Get the Gibbs functions for the pure species
-   * at the current <I>T</I> and <I>P</I> of the solution.
-   * We assume an incompressible constant partial molar
-   * volume here:
-   * \f[
-   *  \mu^0_k(T,p) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
-   * \f]
-   * where \f$V_k\f$ is the molar volume of pure species <I>k<\I>.
-   * \f$ u^{ref}_k(T)\f$ is the chemical potential of pure
-   * species <I>k<\I> at the reference pressure, \f$P_{ref}\f$.
-   */
-  void DebyeHuckel::getPureGibbs(doublereal* gpure) const {
-    getStandardChemPotentials(gpure);
-  }
-
-  /*
-   * Get the array of nondimensional Enthalpy functions for the ss
-   * species at the current <I>T</I> and <I>P</I> of the solution.
-   * We assume an incompressible constant partial molar
-   * volume here:
-   * \f[
-   *  h^0_k(T,P) = h^{ref}_k(T) + (P - P_{ref}) * V_k
-   * \f]
-   * where \f$V_k\f$ is the molar volume of SS species <I>k<\I>.
-   * \f$ h^{ref}_k(T)\f$ is the enthalpy of the SS
-   * species <I>k<\I> at the reference pressure, \f$P_{ref}\f$.
-   */
-  void DebyeHuckel::
-  getEnthalpy_RT(doublereal* hrt) const {
-    _updateStandardStateThermo();
-    getEnthalpy_RT_ref(hrt);
-    doublereal pref;
-    doublereal delta_p;
-    double RT = _RT();
-    for (int k = 0; k < m_kk; k++) {
-      pref = m_spthermo->refPressure(k);
-      delta_p = m_Pcurrent - pref;
-      hrt[k] += delta_p/ RT * m_speciesSize[k];
-    }
-    if (m_waterSS) {
-      hrt[0] = m_waterSS->enthalpy_mole();
-      hrt[0] /= RT;
-    }
-  }
-    
-  /*
-   * Get the nondimensional Entropies for the species
-   * standard states at the current T and P of the solution.
-   *
-   * Note, this is equal to the reference state entropies
-   * due to the zero volume expansivity:
-   * i.e., (dS/dp)_T = (dV/dT)_P = 0.0
-   *
-   * The solvent water entropy is obtained from a pure water
-   * equation of state model.
-   *
-   * @param sr Vector of length m_kk, which on return sr[k]
-   *           will contain the nondimensional
-   *           standard state entropy of species k.
-   */
-  void DebyeHuckel::
-  getEntropy_R(doublereal* sr) const {
-    _updateStandardStateThermo();
-    getEntropy_R_ref(sr);
-    if (m_waterSS) {
-      sr[0] = m_waterSS->entropy_mole();
-      sr[0] /= GasConstant;
-    }
-  }
-
-  /*
-   * Get the nondimensional heat capacity at constant pressure
-   * function for the species
-   * standard states at the current T and P of the solution.
-   * \f[
-   *  Cp^0_k(T,P) = Cp^{ref}_k(T)
-   * \f]
-   * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-   * \f$ Cp^{ref}_k(T)\f$ is the constant pressure heat capacity
-   * of species <I>k</I> at the reference pressure, \f$p_{ref}\f$.
-   *
-   * The solvent water heat capacity is obtained from a pure water
-   * equation of state model.
-   *
-   * @param cpr Vector of length m_kk, which on return cpr[k]
-   *           will contain the nondimensional 
-   *           constant pressure heat capacity for species k. 
-   */
-  void DebyeHuckel::getCp_R(doublereal* cpr) const {
-    _updateStandardStateThermo();
-    getCp_R_ref(cpr);
-    if (m_waterSS) {
-      cpr[0] = m_waterSS->cp_mole();
-      cpr[0] /= GasConstant;
-    }
-  }
-    
-  /*
-   * Get the molar volumes of each species in their standard
-   * states at the current
-   * <I>T</I> and <I>P</I> of the solution.
-   * units = m^3 / kmol
-   */
-  void DebyeHuckel::getStandardVolumes(doublereal *vol) const {
-    _updateStandardStateThermo();
-    copy(m_speciesSize.begin(),
-	 m_speciesSize.end(), vol);
-    if (m_waterSS) {
-      double dd = m_waterSS->density();
-      vol[0] = molecularWeight(0)/dd;
-    }
-  }
   
-
-
-  void DebyeHuckel::getGibbs_RT_ref(doublereal *grt) const {
-    /*
-     * Call the function that makes sure the local copy of
-     * the species reference thermo functions are up to date
-     * for the current temperature.
-     */
-    _updateRefStateThermo();
-    /*
-     * Copy the gibbs function into return vector.
-     */
-    copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
-   
-    if (m_waterSS) {
-      double pnow = m_Pcurrent;
-      double tnow = temperature();
-      m_waterSS->setTempPressure(tnow, m_p0);
-      double mu0 = m_waterSS->gibbs_mole();
-      m_waterSS->setTempPressure(tnow, pnow);
-      double rt = _RT();
-      grt[0] = mu0 / rt;
-    }
-    
-  }
-
-  void DebyeHuckel::getEnthalpy_RT_ref(doublereal *hrt) const {
-    /*
-     * Call the function that makes sure the local copy of
-     * the species reference thermo functions are up to date
-     * for the current temperature.
-     */
-    _updateRefStateThermo();
-    /*
-     * Copy the gibbs function into return vector.
-     */
-    copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
-   
-    if (m_waterSS) {
-      double pnow = m_Pcurrent;
-      double tnow = temperature();
-      m_waterSS->setTempPressure(tnow, m_p0);
-      double h0 = m_waterSS->enthalpy_mole();
-      m_waterSS->setTempPressure(tnow, pnow);
-      double rt = _RT();
-      hrt[0] = h0 / rt;
-    }
-  }
-
-  void DebyeHuckel::getEntropy_R_ref(doublereal *sr) const {
-    /*
-     * Call the function that makes sure the local copy of
-     * the species reference thermo functions are up to date
-     * for the current temperature.
-     */
-    _updateRefStateThermo();
-    /*
-     * Copy the gibbs function into return vector.
-     */
-    copy(m_s0_R.begin(), m_s0_R.end(), sr);
-   
-    if (m_waterSS) {
-      double pnow = m_Pcurrent;
-      double tnow = temperature();
-      m_waterSS->setTempPressure(tnow, m_p0);
-      double s0 = m_waterSS->entropy_mole();
-      m_waterSS->setTempPressure(tnow, pnow);
-      sr[0] = s0 / GasConstant;
-    }
-  }
-
-  void DebyeHuckel::getCp_R_ref(doublereal *cpr) const {
-    /*
-     * Call the function that makes sure the local copy of
-     * the species reference thermo functions are up to date
-     * for the current temperature.
-     */
-    _updateRefStateThermo();
-    copy(m_cp0_R.begin(), m_cp0_R.end(), cpr); 
-    if (m_waterSS) {
-      double pnow = m_Pcurrent;
-      double tnow = temperature();
-      m_waterSS->setTempPressure(tnow, m_p0);
-      double cp0 = m_waterSS->cp_mole();
-      m_waterSS->setTempPressure(tnow, pnow);
-      cpr[0] = cp0 / GasConstant;
-    }
-  }
-
-  /*
-   * Get the molar volumes of each species in their reference
-   * states at the current
-   * <I>T</I> and <I>P</I> of the solution.
-   * units = m^3 / kmol
-   */
-  void DebyeHuckel::getStandardVolumes_ref(doublereal *vol) const {
-    double psave = m_Pcurrent;
-    _updateStandardStateThermo(m_p0);
-    copy(m_speciesSize.begin(),
-	 m_speciesSize.end(), vol);
-    if (m_waterSS) {
-      double dd = m_waterSS->density();
-      vol[0] = molecularWeight(0)/dd;
-    }
-    _updateStandardStateThermo(psave);
-  }
-
-  /*
-   * ------ Thermodynamic Values for the Species Reference States ---
-   */
-
-  // -> This is handled by VPStandardStatesTP
 
   /*
    *  -------------- Utilities -------------------------------
@@ -1535,8 +1242,11 @@ namespace Cantera {
 	  /*
 	   * Initialize the water standard state model
 	   */
-	  if (m_waterSS) delete m_waterSS;
-	  m_waterSS = new WaterPDSS(this, 0);
+	  m_waterSS = dynamic_cast<PDSS_Water *>(providePDSS(0)) ;
+	  if (!m_waterSS) {
+	    throw CanteraError("HMWSoln::installThermoXML", 
+                               "Dynamic cast to PDSS_Water failed");
+	  }
 	  /*
 	   * Fill in the molar volume of water (m3/kmol)
 	   * at standard conditions to fill in the m_speciesSize entry
@@ -1889,10 +1599,7 @@ namespace Cantera {
     }
 
     
-    if (m_waterSS) {
-      m_useTmpRefStateStorage = false;
-    }
-
+  
     /*
      * Lastly set the state
      */
@@ -2904,19 +2611,15 @@ namespace Cantera {
    * thus the ss thermodynamics functions for all of the species
    * must be recalculated.
    */                    
-  void DebyeHuckel::_updateStandardStateThermo(doublereal pnow) const {
-    _updateRefStateThermo();
-    doublereal tnow = temperature();
-    if (pnow == -1.0) {
-      pnow = m_Pcurrent;
-    }
-    if (m_tlast != tnow || m_plast != pnow) {
-      if (m_waterSS) {
-	m_waterSS->setTempPressure(tnow, pnow);
-      }
-      m_tlast = tnow;
-      m_plast = pnow;
-    }
-  }
+  //  void DebyeHuckel::_updateStandardStateThermo() const {
+  // doublereal tnow = temperature();
+  // doublereal pnow = m_Pcurrent;
+  // if (m_waterSS) {
+  //   m_waterSS->setTempPressure(tnow, pnow);
+  // }
+  // m_VPSS_ptr->setState_TP(tnow, pnow);
+    // VPStandardStateTP::updateStandardStateThermo();
+
+  //}
  
 }

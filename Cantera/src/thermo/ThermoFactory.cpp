@@ -24,6 +24,8 @@
 #include "speciesThermoTypes.h"
 #include "SpeciesThermoFactory.h"
 #include "IdealGasPhase.h"
+#include "VPSSMgr.h"
+#include "VPSSMgrFactory.h"
 
 #ifdef WITH_IDEAL_SOLUTIONS
 #include "IdealSolidSolnPhase.h"
@@ -67,6 +69,8 @@
 #include "IdealMolalSoln.h"
 #endif
 
+#include "IdealSolnGasVPSS.h"
+
 using namespace std;
 
 namespace Cantera {
@@ -76,19 +80,19 @@ namespace Cantera {
     boost::mutex ThermoFactory::thermo_mutex;
 #endif
 
-    static int ntypes = 13;
+    static int ntypes = 14;
     static string _types[] = {"IdealGas", "Incompressible", 
                               "Surface", "Edge", "Metal", "StoichSubstance",
                               "PureFluid", "LatticeSolid", "Lattice",
                               "HMW", "IdealSolidSolution", "DebyeHuckel", 
-                              "IdealMolalSolution"
+                              "IdealMolalSolution", "IdealGasVPSS"
     };
 
     static int _itypes[]   = {cIdealGas, cIncompressible, 
                               cSurf, cEdge, cMetal, cStoichSubstance,
                               cPureFluid, cLatticeSolid, cLattice,
                               cHMW, cIdealSolidSolnPhase, cDebyeHuckel,
-                              cIdealMolalSoln
+                              cIdealMolalSoln, cVPSS_IdealGas
     };
 
     /*
@@ -171,6 +175,10 @@ namespace Cantera {
             th = new IdealMolalSoln;
             break;
 #endif
+
+	case cVPSS_IdealGas:
+	  th = new IdealSolnGasVPSS;
+	  break;
 
         default: 
    	    throw UnknownThermoPhaseModel("ThermoFactory::newThermoPhase",
@@ -256,10 +264,6 @@ namespace Cantera {
       throw CanteraError("importPhase",
 			 "Current const XML_Node is not a phase element.");
 
-    // if no species thermo factory was supplied,
-    // use the default one. 
-    if (!spfactory) 
-      spfactory = SpeciesThermoFactory::factory();
 
     // set the id attribute of the phase to the 'id' attribute 
     // in the XML tree.
@@ -274,10 +278,9 @@ namespace Cantera {
 			   "unphysical number of dimensions: "+phase["dim"]);
       th->setNDim(idim);
     }
-    else
+    else {
       th->setNDim(3);     // default
-
-
+    }
 	
     // Set equation of state parameters. The parameters are
     // specific to each subclass of ThermoPhase, so this is done
@@ -287,6 +290,21 @@ namespace Cantera {
       th->setParametersFromXML(eos);
     }
 
+    VPStandardStateTP *vpss_ptr = 0;
+    int ssConvention = th->standardStateConvention();
+    if (ssConvention == cSS_CONVENTION_VPSS) {
+      vpss_ptr = dynamic_cast <VPStandardStateTP *>(th);
+      if (vpss_ptr == 0) {
+	throw CanteraError("importPhase",
+			   "phase was VPSS, but dynamic cast failed");
+      }
+    } 
+
+    // if no species thermo factory was supplied,
+    // use the default one. 
+    if (!spfactory) {
+      spfactory = SpeciesThermoFactory::factory();
+    }
 
     /***************************************************************
      * Add the elements.
@@ -348,16 +366,27 @@ namespace Cantera {
     // delete it since we are adding new species.
     delete &th->speciesThermo();
 
-    // create a new species thermo manager.  Function
+    // Decide whether the the phase has a variable pressure ss or not
+    SpeciesThermo* spth = 0;
+    VPSSMgr* vp_spth = 0;
+    if (ssConvention == cSS_CONVENTION_TEMPERATURE) {
+    // Create a new species thermo manager.  Function
     // 'newSpeciesThermoMgr' looks at the species in the database
     // to see what thermodynamic property parameterizations are
     // used, and selects a class that can handle the
     // parameterizations found.
-    SpeciesThermo* spth = newSpeciesThermoMgr(dbases);
+      spth = newSpeciesThermoMgr(dbases);
 
     // install it in the phase object
-    th->setSpeciesThermo(spth);
-    SpeciesThermo& spthermo = th->speciesThermo();
+      th->setSpeciesThermo(spth);
+      // SpeciesThermo& spthermo = th->speciesThermo();
+    } else {
+      vp_spth = newVPSSMgr(vpss_ptr, &phase, dbases);
+      vpss_ptr->setVPSSMgr(vp_spth);
+      spth = vp_spth->SpeciesThermoMgr();
+      th->setSpeciesThermo(spth);
+    }
+
 
     // used to check that each species is declared only once
     map<string,bool> declared;
@@ -419,8 +448,8 @@ namespace Cantera {
 	  // Find the species in the database by name.
 	  XML_Node* s = db->findByAttr("name",spnames[i]);
 	  if (s) {
-	    if (installSpecies(k, *s, *th, spthermo, sprule[jsp], 
-                               &phase, spfactory)) 
+	    if (installSpecies(k, *s, *th, spth, sprule[jsp], 
+                               &phase, vp_spth, spfactory)) 
 	      ++k;
 	  }
 	  else {
@@ -437,6 +466,7 @@ namespace Cantera {
     th->saveSpeciesData(db);
 
     // Perform any required subclass-specific initialization.
+    th->initThermo();
     string id = "";
     th->initThermoXML(phase, id);
 
@@ -484,8 +514,9 @@ namespace Cantera {
    *  Returns true if everything is ok, false otherwise.
    */
   bool installSpecies(int k, const XML_Node& s, thermo_t& p, 
-		      SpeciesThermo& spthermo, int rule, 
+		      SpeciesThermo *spthermo_ptr, int rule, 
 		      XML_Node *phaseNode_ptr,
+		      VPSSMgr *vpss_ptr,
 		      SpeciesThermoFactory* factory) {
 
     std::string xname = s.name();
@@ -540,10 +571,17 @@ namespace Cantera {
     // add the species to phase p.
     p.addUniqueSpecies(s["name"], &ecomp[0], chrg, sz);
 
-    // install the thermo parameterization for this species into
-    // the species thermo manager for phase p.
-    factory->installThermoForSpecies(k, s, spthermo, phaseNode_ptr);
-        
+    if (vpss_ptr) {
+      VPStandardStateTP *vp_ptr = dynamic_cast<VPStandardStateTP *>(&p);
+      factory->installVPThermoForSpecies(k, s, vp_ptr, vpss_ptr, spthermo_ptr,
+					 phaseNode_ptr);
+    } else {
+      // install the thermo parameterization for this species into
+      // the species thermo manager for phase p.
+      factory->installThermoForSpecies(k, s, *spthermo_ptr, phaseNode_ptr);
+    }
+    
+    
     return true;
   }
 

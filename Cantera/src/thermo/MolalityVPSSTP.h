@@ -641,6 +641,7 @@ namespace Cantera {
      *                  element potentials.
      */
     virtual void setToEquilState(const doublereal* lambda_RT) {
+      updateStandardStateThermo();
       err("setToEquilState");
     }
 

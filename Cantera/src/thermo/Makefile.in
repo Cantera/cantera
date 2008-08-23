@@ -34,7 +34,10 @@ THERMO_OBJ = State.o Elements.o Constituents.o Phase.o \
              ThermoPhase.o IdealGasPhase.o ConstDensityThermo.o \
              SpeciesThermoFactory.o ConstCpPoly.o Nasa9Poly1.o Nasa9PolyMultiTempRegion.o \
              Mu0Poly.o GeneralSpeciesThermo.o SurfPhase.o \
-             ThermoFactory.o phasereport.o @phase_object_files@
+             ThermoFactory.o phasereport.o \
+             VPSSMgr.o  VPSSMgrFactory.o  VPSSMgr_General.o IdealSolnGasVPSS.o \
+             VPSSMgr_IdealGas.o VPSSMgr_ConstVol.o PDSS_ConstVol.o PDSS_IdealGas.o \
+             @phase_object_files@
 
 THERMO_H   = State.h Elements.h Constituents.h Phase.h mix_defs.h \
              ThermoPhase.h IdealGasPhase.h ConstDensityThermo.h \
@@ -46,6 +49,8 @@ THERMO_H   = State.h Elements.h Constituents.h Phase.h mix_defs.h \
              GeneralSpeciesThermo.h Mu0Poly.h \
              speciesThermoTypes.h SpeciesThermo.h SurfPhase.h \
              EdgePhase.h \
+             VPSSMgr.h  VPSSMgrFactory.h  VPSSMgr_General.h IdealSolnGasVPSS.h \
+             VPSSMgr_IdealGas.h VPSSMgr_ConstVol.h PDSS_ConstVol.h PDSS_IdealGas.h \
              @phase_header_files@
 
 
@@ -56,15 +61,18 @@ do_issp = 1
 ELECTRO_OBJ = MolalityVPSSTP.o  VPStandardStateTP.o \
               IdealMolalSoln.o \
               WaterPropsIAPWSphi.o WaterPropsIAPWS.o WaterProps.o \
-              PDSS.o WaterPDSS.o \
+              PDSS.o PDSS_Water.o PDSS_HKFT.o WaterPDSS.o \
 	      HMWSoln.o HMWSoln_input.o DebyeHuckel.o \
-              IdealGasPDSS.o WaterSSTP.o HKFT_PDSS.o
+              WaterSSTP.o \
+              VPSSMgr_Water_ConstVol.o VPSSMgr_Water_HKFT.o
 
-ELECTRO_H = MolalityVPSSTP.h  VPStandardStateTP.h \
-               IdealMolalSoln.h \
-               WaterPropsIAPWSphi.h WaterPropsIAPWS.h WaterProps.h \
-               PDSS.h WaterPDSS.h HMWSoln.h electrolytes.h \
-	       DebyeHuckel.h IdealGasPDSS.h WaterSSTP.h HKFT_PDSS.h
+ELECTRO_H   = MolalityVPSSTP.h  VPStandardStateTP.h \
+              IdealMolalSoln.h \
+              WaterPropsIAPWSphi.h WaterPropsIAPWS.h WaterProps.h \
+              PDSS.h PDSS_Water.h PDSS_HKFT.h \
+              HMWSoln.h electrolytes.h WaterPDSS.h \
+	      DebyeHuckel.h WaterSSTP.h VPSSMgr_Water_HKFT.h \
+              VPSSMgr_Water_ConstVol.h
 endif
 ifeq ($(do_issp),1)
 ISSP_OBJ = IdealSolidSolnPhase.o  StoichSubstanceSSTP.o SingleSpeciesTP.o 

@@ -23,6 +23,8 @@
 #endif
 
 #include "VPStandardStateTP.h"
+#include "VPSSMgr.h"
+#include "PDSS.h"
 
 using namespace std;
 
@@ -34,12 +36,10 @@ namespace Cantera {
   VPStandardStateTP::VPStandardStateTP() :
     ThermoPhase(),
     m_Pcurrent(OneAtm),
-    m_tlast(-1.0),
-    m_tlast_ref(-1.0),
-    m_plast(-1.0),
-    m_p0(OneAtm),
-    m_useTmpRefStateStorage(false),
-    m_useTmpStandardStateStorage(false)
+    m_Tlast_ss(-1.0),
+    m_Plast_ss(-1.0),
+    m_P0(OneAtm),
+    m_VPSS_ptr(0)
   {
   }
 
@@ -55,12 +55,10 @@ namespace Cantera {
   VPStandardStateTP::VPStandardStateTP(const VPStandardStateTP &b) :
     ThermoPhase(),
     m_Pcurrent(OneAtm),
-    m_tlast(-1.0),
-    m_tlast_ref(-1.0),
-    m_plast(-1.0),
-    m_p0(OneAtm),
-    m_useTmpRefStateStorage(false),
-    m_useTmpStandardStateStorage(false)
+    m_Tlast_ss(-1.0),
+    m_Plast_ss(-1.0),
+    m_P0(OneAtm),
+    m_VPSS_ptr(0)
   {
     *this = b;
   }
@@ -71,8 +69,8 @@ namespace Cantera {
    *  Note this stuff will not work until the underlying phase
    *  has a working assignment operator
    */
-  VPStandardStateTP& VPStandardStateTP::
-  operator=(const VPStandardStateTP &b) {
+  VPStandardStateTP& 
+  VPStandardStateTP::operator=(const VPStandardStateTP &b) {
     if (&b != this) {
       /*
        * Mostly, this is a passthrough to the underlying
@@ -82,22 +80,36 @@ namespace Cantera {
       /*
        * However, we have to handle data that we own.
        */
-      m_Pcurrent  = b.m_Pcurrent;
-      m_tlast     = b.m_tlast;
-      m_tlast_ref = b.m_tlast_ref;
-      m_plast     = b.m_plast;
-      m_p0        = b.m_p0;
-      m_useTmpRefStateStorage = b.m_useTmpRefStateStorage;
-      m_h0_RT     = b.m_h0_RT;
-      m_cp0_R     = b.m_cp0_R;
-      m_g0_RT     = b.m_g0_RT;
-      m_s0_R      = b.m_s0_R;
-      m_useTmpStandardStateStorage = b.m_useTmpStandardStateStorage;
-      m_hss_RT     = b.m_hss_RT;
-      m_cpss_R     = b.m_cpss_R;
-      m_gss_RT     = b.m_gss_RT;
-      m_sss_R      = b.m_sss_R;
-      m_Vss        = b.m_Vss;
+      m_Pcurrent     = b.m_Pcurrent;
+      m_Tlast_ss     = b.m_Tlast_ss;
+      m_Plast_ss     = b.m_Plast_ss;
+      m_P0        = b.m_P0;
+
+   
+
+      // copy the pdss objects
+      if (m_PDSS_storage.size() > 0) {
+	for (int k = 0; k < (int) m_PDSS_storage.size(); k++) {
+	  delete(m_PDSS_storage[k]);
+	}
+      }
+      m_PDSS_storage.resize(m_kk);
+      for (int k = 0; k < m_kk; k++) {
+	PDSS *ptmp = b.m_PDSS_storage[k];
+	m_PDSS_storage[k] = ptmp->duplMyselfAsPDSS();
+      }
+
+      if (m_VPSS_ptr) {
+	delete m_VPSS_ptr; 
+	m_VPSS_ptr = 0;
+      }
+      m_VPSS_ptr = (b.m_VPSS_ptr)->duplMyselfAsVPSSMgr();
+      m_VPSS_ptr->initAllPtrs(this, m_spthermo);
+
+      for (int k = 0; k < m_kk; k++) {
+	PDSS *ptmp = b.m_PDSS_storage[k];
+	ptmp->initAllPtrs(this, m_VPSS_ptr, m_spthermo);
+      }
     }
     return *this;
   }
@@ -105,10 +117,12 @@ namespace Cantera {
   /*
    * ~VPStandardStateTP():   (virtual)
    *
-   * This destructor does nothing. All of the owned objects
-   * handle themselves.
    */
   VPStandardStateTP::~VPStandardStateTP() {
+    for (int k = 0; k < (int) m_PDSS_storage.size(); k++) {
+      delete(m_PDSS_storage[k]);
+    }
+    delete m_VPSS_ptr;
   }
 
   /*
@@ -119,8 +133,24 @@ namespace Cantera {
     VPStandardStateTP* vptp = new VPStandardStateTP(*this);
     return (ThermoPhase *) vptp;
   }
- 
-  
+
+  // This method returns the convention used in specification
+  // of the standard state, of which there are currently two,
+  // temperature based, and variable pressure based.
+  /*
+   * Currently, there are two standard state conventions:
+   *  - Temperature-based activities
+   *   cSS_CONVENTION_TEMPERATURE 0
+   *      - default
+   *
+   *  -  Variable Pressure and Temperature -based activities
+   *   cSS_CONVENTION_VPSS 1
+   */
+  int VPStandardStateTP::standardStateConvention() const {
+    return cSS_CONVENTION_VPSS;
+  }
+
+
   /*
    * ------------Molar Thermodynamic Properties -------------------------
    */
@@ -164,77 +194,42 @@ namespace Cantera {
     }
   } 
   
+  inline
   void VPStandardStateTP::getEnthalpy_RT(doublereal* hrt) const {
-    if (m_useTmpStandardStateStorage) {
-      _updateStandardStateThermo();
-      copy(m_hss_RT.begin(), m_hss_RT.end(), hrt);
-    } else {
-      err("getEnthalpy_RT ERROR: Must be overwritten in child classes");
-      _updateStandardStateThermo();
-    }
+    updateStandardStateThermo();
+    m_VPSS_ptr->getEnthalpy_RT(hrt);
   }
 
   void VPStandardStateTP::getEntropy_R(doublereal* srt) const {
-    if (m_useTmpStandardStateStorage) {
-      _updateStandardStateThermo();
-      copy(m_sss_R.begin(), m_sss_R.end(), srt);
-    } else {
-      err("getEntropy_R ERROR: Must be overwritten in child classes");
-      _updateStandardStateThermo();
-    }
+    updateStandardStateThermo();
+    m_VPSS_ptr->getEntropy_R(srt);
   }
   
+  inline
   void VPStandardStateTP::getGibbs_RT(doublereal* grt) const {
-    if (m_useTmpStandardStateStorage) {
-      _updateStandardStateThermo();
-      copy(m_gss_RT.begin(), m_gss_RT.end(), grt);
-    } else {
-      err("getGibbs_RT ERROR: Must be overwritten in child classes");
-      _updateStandardStateThermo();
-    }
+    updateStandardStateThermo();
+    m_VPSS_ptr->getGibbs_RT(grt);
   }
   
+  inline
   void VPStandardStateTP::getPureGibbs(doublereal* g) const {
-    getGibbs_RT(g);
-    doublereal RT = _RT();
-    for (int k = 0; k < m_kk; k++) {
-      g[k] *= RT;
-    }
+    updateStandardStateThermo();
+    m_VPSS_ptr->getStandardChemPotentials(g);
   }
 
   void VPStandardStateTP::getIntEnergy_RT(doublereal* urt) const {
-    if (m_useTmpStandardStateStorage) {
-      _updateStandardStateThermo();
-      copy(m_hss_RT.begin(), m_hss_RT.end(), urt);
-      doublereal RT = _RT();
-      doublereal tmp = pressure() / RT;
-      for (int k = 0; k < m_kk; k++) {
-	urt[k] -= tmp * m_Vss[k];
-      }
-    } else {
-      err("getIntEnergy_RT ERROR: Must be overwritten in child classes");
-      _updateStandardStateThermo();
-    }
+    updateStandardStateThermo();
+    m_VPSS_ptr->getIntEnergy_RT(urt);
   }
 
   void VPStandardStateTP::getCp_R(doublereal* cpr) const {
-    if (m_useTmpStandardStateStorage) {
-      _updateStandardStateThermo();
-      copy(m_cpss_R.begin(), m_cpss_R.end(), cpr);
-    } else {
-      err("getCp_R ERROR: Must be overwritten in child classes");
-      _updateStandardStateThermo();
-    }
+    updateStandardStateThermo();
+    m_VPSS_ptr->getCp_R(cpr);
   }
 
   void VPStandardStateTP::getStandardVolumes(doublereal *vol) const {
-   if (m_useTmpStandardStateStorage) {
-     _updateStandardStateThermo();
-     copy(m_Vss.begin(), m_Vss.end(), vol);
-   } else {
-     err("getStandardVolumes ERROR: Must be overwritten in child classes");
-     _updateStandardStateThermo();
-   }
+    updateStandardStateThermo();
+    m_VPSS_ptr->getStandardVolumes(vol);
   }
 
   /*
@@ -247,23 +242,8 @@ namespace Cantera {
    *  the reference pressure for the species.
    */
   void VPStandardStateTP::getEnthalpy_RT_ref(doublereal *hrt) const {
-    if (m_useTmpRefStateStorage) {
-      /*
-       * Call the function that makes sure the local copy of the
-       * species reference thermo functions are up to date for the
-       * current temperature.
-       */
-      _updateRefStateThermo();
-      /*
-       * Copy the enthalpy function into return vector.
-       */
-      copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
-    } else if (m_useTmpStandardStateStorage) {
-      _updateStandardStateThermo(m_p0);
-      copy(m_hss_RT.begin(), m_hss_RT.end(), hrt);
-    } else {
-      err("getEnthalpy_RT_ref() ERROR: not handled");
-    }
+    updateStandardStateThermo();
+    m_VPSS_ptr->getEnthalpy_RT_ref(hrt);
   }
     
   /*
@@ -272,24 +252,9 @@ namespace Cantera {
    *  of the solution and the reference pressure for the species.
    */
   void VPStandardStateTP::getGibbs_RT_ref(doublereal *grt) const {
-    if (m_useTmpRefStateStorage) {
-      /*
-       * Call the function that makes sure the local copy of 
-       * the species reference thermo functions are up to date
-       * for the current temperature.
-       */
-      _updateRefStateThermo();
-      /*
-       * Copy the gibbs function into return vector.
-       */
-      copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
-    } else if (m_useTmpStandardStateStorage) {
-      _updateStandardStateThermo(m_p0);
-      copy(m_gss_RT.begin(), m_gss_RT.end(), grt);
-    } else {
-      err("getGibbs_RT_ref() ERROR: not handled");
-    }
-  }    
+    updateStandardStateThermo();
+    m_VPSS_ptr->getGibbs_RT_ref(grt);
+  }
         
   /*
    *  Returns the vector of the
@@ -301,11 +266,13 @@ namespace Cantera {
    *  take care of it.
    */
   void VPStandardStateTP::getGibbs_ref(doublereal *g) const {
-    getGibbs_RT_ref(g);
-    double RT = _RT();
-    for (int k = 0; k < m_kk; k++) {
-      g[k] *= RT;
-    }
+    updateStandardStateThermo();
+    m_VPSS_ptr->getGibbs_ref(g);
+  }
+
+  const vector_fp & VPStandardStateTP::Gibbs_RT_ref() const {
+    updateStandardStateThermo();
+    return m_VPSS_ptr->Gibbs_RT_ref();
   }
 
   /*
@@ -314,23 +281,8 @@ namespace Cantera {
    *  of the solution and the reference pressure for the species.
    */
   void VPStandardStateTP::getEntropy_R_ref(doublereal *er) const {
-    if (m_useTmpRefStateStorage) {
-      /*
-       * Call the function that makes sure the local copy of 
-       * the species reference thermo functions are up to date
-       * for the current temperature.
-       */
-      _updateRefStateThermo();
-      /*
-       * Copy the gibbs function into return vector.
-       */
-      copy(m_s0_R.begin(), m_s0_R.end(), er);
-    } else if (m_useTmpStandardStateStorage) {
-      _updateStandardStateThermo(m_p0);
-      copy(m_sss_R.begin(), m_sss_R.end(), er);
-    } else {
-      err("getEntropy_R_ref() ERROR: not handled");
-    }
+    updateStandardStateThermo();
+    m_VPSS_ptr->getEntropy_R_ref(er);
   }
      
   /*
@@ -340,23 +292,8 @@ namespace Cantera {
    *  and reference pressure for the species.
    */
   void VPStandardStateTP::getCp_R_ref(doublereal *cpr) const {
-    if (m_useTmpRefStateStorage) {
-      /*
-       * Call the function that makes sure the local copy of 
-       * the species reference thermo functions are up to date
-       * for the current temperature.
-       */
-      _updateRefStateThermo();
-      /*
-       * Copy the gibbs function into return vector.
-       */
-      copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
-    } else if (m_useTmpStandardStateStorage) {
-      _updateStandardStateThermo(m_p0);
-      copy(m_cpss_R.begin(), m_cpss_R.end(), cpr);
-    } else {
-      err("getCp_R_ref() ERROR: not handled");
-    }
+    updateStandardStateThermo();
+    m_VPSS_ptr->getCp_R_ref(cpr);
   }
   
   /*
@@ -365,14 +302,10 @@ namespace Cantera {
    *
    * units = m^3 / kmol
    */
- void VPStandardStateTP::getStandardVolumes_ref(doublereal *vol) const {
-   if (m_useTmpStandardStateStorage) {
-     _updateStandardStateThermo(m_p0);
-     copy(m_Vss.begin(), m_Vss.end(), vol);
-   } else {
-     err("getStandardVolumes_ref() ERROR: not handled");
-   }
- }
+  void VPStandardStateTP::getStandardVolumes_ref(doublereal *vol) const {
+    updateStandardStateThermo();
+    m_VPSS_ptr->getStandardVolumes_ref(vol);
+  }
 
   /*
    * Perform initializations after all species have been
@@ -381,34 +314,81 @@ namespace Cantera {
   void VPStandardStateTP::initThermo() {
     initLengths();
     ThermoPhase::initThermo();
+    m_VPSS_ptr->initThermo();
+    for (int k = 0; k < m_kk; k++) {
+      PDSS *kPDSS = m_PDSS_storage[k];
+      if (kPDSS) {
+	kPDSS->initThermo();
+      }
+    }
   }
   
+  void VPStandardStateTP::setVPSSMgr(VPSSMgr *vp_ptr) {
+    m_VPSS_ptr = vp_ptr;
+  }
+
   /*
    * Initialize the internal lengths.
    *       (this is not a virtual function)
    */
   void VPStandardStateTP::initLengths() {
     m_kk = nSpecies();
-    int leng = m_kk;
+
+  }
+
+
+  void VPStandardStateTP::setTemperature(doublereal t) {
+    State::setTemperature(t);
+    //updateStandardStateThermo();
+  }
+
+
+  void VPStandardStateTP::setState_TP(doublereal t, doublereal pres) {
     /*
-     * malloc the storage for this even if
-     * m_useTmpRefStateStorage is set to false.
-     * So many functions need that temporary storage anyway.
-     * However, that variable is still used to see if the
-     * storage is used to supply the complete picture.
+     *  A pretty tricky algorithm is needed here, due to problems involving
+     *  standard states of real fluids. For those cases you need 
+     *  to combine the T and P specification for the standard state, or else
+     *  you may venture into the forbidden zone, especially when nearing the
+     *  triple point.
+     *     Therefore, we need to do the standard state thermo calc with the
+     *  (t, pres) combo.
      */
-    m_h0_RT.resize(leng);
-    m_g0_RT.resize(leng);
-    m_cp0_R.resize(leng);
-    m_s0_R.resize(leng);
-    
-    if (m_useTmpStandardStateStorage) {
-      m_hss_RT.resize(leng);
-      m_gss_RT.resize(leng);
-      m_cpss_R.resize(leng);
-      m_sss_R.resize(leng);
-      m_Vss.resize(leng);
+    State::setTemperature(t);
+    m_Pcurrent = pres;
+    updateStandardStateThermo();
+    /*
+     * Now, we still need to do the calculations for general ThermoPhase objects.
+     * So, we switch back to a virtual function call, setTemperature, and 
+     * setPressure to recalculate stuff at the higher level. At this point,
+     * we haven't touched m_tlast or m_plast, so some calculations may still
+     * need to be done at the ThermoPhase object level.
+     */
+    setTemperature(t);
+    setPressure(pres);
+  }
+
+
+
+  void 
+  VPStandardStateTP::createInstallPDSS(int k,  const XML_Node& s,
+				       const XML_Node * phaseNode_ptr) {
+    if ((int) m_PDSS_storage.size() < k+1) {
+      m_PDSS_storage.resize(k+1,0);
     }
+    if (m_PDSS_storage[k] != 0) {
+      delete m_PDSS_storage[k] ;
+    }
+    m_PDSS_storage[k] =  m_VPSS_ptr->createInstallPDSS(k, s, phaseNode_ptr);
+  }
+
+  PDSS *
+  VPStandardStateTP::providePDSS(int k) {
+    return m_PDSS_storage[k];
+  }
+
+  const PDSS *
+  VPStandardStateTP::providePDSS(int k) const {
+    return m_PDSS_storage[k];
   }
 
   /*
@@ -430,44 +410,23 @@ namespace Cantera {
    */
   void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, std::string id) {
     VPStandardStateTP::initLengths();
-    ThermoPhase::initThermoXML(phaseNode, id);
-  }
-  
-  /*
-   * void _updateRefStateThermo()            (protected, virtual, const)
-   *
-   * This function checks to see whether the temperature has changed and
-   * thus the reference thermodynamics functions for all of the species
-   * must be recalculated.
-   * It must be called for every reference state function evaluation,
-   * if m_useTmpRefStateStorage is set to true.
-   * If the temperature has changed, the species thermo manager is called
-   * to recalculate the following internal arrays at the current temperature and at
-   * the reference pressure:
-   *
-   *  - m_h0_RT
-   *  - m_g0_RT
-   *  - m_s0_R
-   *  - m_cp0_R
-   *
-   * This function may be reimplemented in child objects. However, it doesn't
-   * necessarily have to be, if the species thermo manager can carry
-   * out the full calculation.
-   */                    
-  void VPStandardStateTP::_updateRefStateThermo() const {
-    if (m_spthermo) {
-      doublereal tnow = temperature();
-      if (m_tlast_ref != tnow) {
-	m_spthermo->update(tnow, DATA_PTR(m_cp0_R), DATA_PTR(m_h0_RT),
-			   DATA_PTR(m_s0_R));
-	m_tlast_ref = tnow;
-	for (int k = 0; k < m_kk; k++) {
-	  m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
-	}
+   
+    m_VPSS_ptr->initThermo();
+    for (int k = 0; k < m_kk; k++) {
+      PDSS *kPDSS = m_PDSS_storage[k];
+      if (kPDSS) {
+	kPDSS->initThermo();
       }
     }
+    m_VPSS_ptr->initThermoXML(phaseNode, id);
+    ThermoPhase::initThermoXML(phaseNode, id);
   }
-  
+
+
+  VPSSMgr *VPStandardStateTP::provideVPSSMgr() {
+    return m_VPSS_ptr;
+  }
+ 
   /*
    * void _updateStandardStateThermo()            (protected, virtual, const)
    *
@@ -482,22 +441,17 @@ namespace Cantera {
    *
    * This 
    */                    
-  void VPStandardStateTP::_updateStandardStateThermo(doublereal pnow) const {
-    _updateRefStateThermo();
-    doublereal tnow = temperature();
-    if (pnow == -1.0) {
-      pnow = pressure();
-    }
-    if (m_tlast != tnow || m_plast != pnow) {
-      err("_updateStandardStateThermo ERROR: Must be overwritten in child classes");
-      /*
-       * Redo objects that need reevaluation.
-       */
-      for (int k = 0; k < m_kk; k++) {
-	m_g0_RT[k] = m_g0_RT[k];
-      }
-      m_tlast = tnow;
-      m_plast = pnow;
+  void VPStandardStateTP::_updateStandardStateThermo() const {
+    double Tnow = temperature();
+    m_Plast_ss = m_Pcurrent;
+    m_Tlast_ss = Tnow;
+    m_VPSS_ptr->setState_TP(Tnow, m_Pcurrent);
+  }
+
+  void VPStandardStateTP::updateStandardStateThermo() const {
+    double Tnow = temperature();
+    if (Tnow != m_Tlast_ss || m_Pcurrent != m_Plast_ss) {
+      _updateStandardStateThermo();
     }
   }
 }

@@ -18,7 +18,7 @@
 
 #include "WaterProps.h"
 #include "ctml.h"
-#include "WaterPDSS.h"
+#include "PDSS_Water.h"
 #include "WaterPropsIAPWS.h"
 #include <math.h>
 
@@ -40,7 +40,7 @@ namespace Cantera {
    * constructor -> object in slave mode, It doesn't own its
    *      own water evaluator.
    */
-  WaterProps::WaterProps(WaterPDSS *wptr)  :
+  WaterProps::WaterProps(PDSS_Water *wptr)  :
     m_waterIAPWS(0),
     m_own_sub(false)
   {

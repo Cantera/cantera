@@ -298,11 +298,11 @@ namespace Cantera {
       doublereal temperature() const { return m_temp; }
 
       /// Density (kg/m^3).
-      doublereal density() const { return m_dens; }
+      virtual doublereal density() const { return m_dens; }
 
       /// Molar density (kmol/m^3).
       doublereal molarDensity() const { 
-	return m_dens/meanMolecularWeight(); 
+	return density()/meanMolecularWeight(); 
       }
 
       //! Set the internally storred density (kg/m^3) of the phase
@@ -328,10 +328,8 @@ namespace Cantera {
        * This function sets the internally storred temperature of the phase.
        *
        * @param temp Temperature in kelvin
-       *
-       * @todo Make State::setTemperature a virtual function
        */
-      void setTemperature(doublereal temp) {
+      virtual void setTemperature(doublereal temp) {
 	m_temp = temp;
       }
       //@}

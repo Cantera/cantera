@@ -518,8 +518,7 @@ namespace Cantera {
   void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, 
 				    const doublereal * const molalities) {
     setMolalities(molalities);
-    setTemperature(t);
-    setPressure(p);
+    setState_TP(t, p);
   }
 
   /*
@@ -527,8 +526,7 @@ namespace Cantera {
    */
   void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, compositionMap& m) {
     setMolalitiesByName(m);
-    setTemperature(t);
-    setPressure(p);
+    setState_TP(t, p);
   }
 
   /*
@@ -536,8 +534,7 @@ namespace Cantera {
    */
   void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, const std::string& m) {
     setMolalitiesByName(m);
-    setTemperature(t);
-    setPressure(p);
+    setState_TP(t, p);
   }
 
 
