@@ -32,12 +32,14 @@ ifeq ($(test_electrolytes),1)
 	cd DH_graph_NM; @MAKE@ all
 	cd DH_graph_Pitzer; @MAKE@ all
 	cd HMW_dupl_test; @MAKE@ all
+	cd VPissp; @MAKE@ all
 endif
 
 test:
 ifeq ($(test_issp),1)
 	cd issp;  @MAKE@ -s test
 	cd stoichSubSSTP; @MAKE@ -s test
+	cd VPissp; @MAKE@ -s test
 endif
 ifeq ($(test_electrolytes),1)
 	cd ims; @MAKE@ -s test
@@ -88,6 +90,7 @@ clean:
 	cd DH_graph_NM;       $(RM) .depends ; @MAKE@ clean
 	cd DH_graph_Pitzer;   $(RM) .depends ; @MAKE@ clean 
 	cd HMW_dupl_test;     $(RM) .depends ; @MAKE@ clean
+	cd VPissp;            $(RM) .depends ; @MAKE@ clean
 
 depends:
 ifeq ($(test_issp),1)
@@ -113,5 +116,7 @@ ifeq ($(test_electrolytes),1)
 	cd DH_graph_bdotak;  @MAKE@ depends
 	cd DH_graph_NM;      @MAKE@ depends
 	cd DH_graph_Pitzer;  @MAKE@ depends
-	cd  HMW_dupl_test;   @MAKE@ depends
+	cd HMW_dupl_test;   @MAKE@ depends
+	cd VPissp;          @MAKE@ depends
+
 endif
