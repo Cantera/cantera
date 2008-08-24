@@ -416,6 +416,14 @@ namespace Cantera {
      */
     double deltaG() const;
 
+    //! Main routine that actually calculates the entropy difference 
+    //! between the reference state at Tr, Pr and T,P
+    /*!
+     *  This is eEqn. 61 in Johnson et al. (1992). Actually, there appears to
+     *  be an error in the latter. This is a correction.
+     */
+    double deltaS() const;
+
 
     double electrostatic_radii_calc();
 
@@ -437,7 +445,7 @@ namespace Cantera {
     PDSS_Water *m_waterSS;
 
     //! Current value of the pressure for this object
-    doublereal m_pres;
+    mutable doublereal m_pres;
 
     //! density of standard-state water
     /*!
