@@ -24,6 +24,8 @@ class WaterPropsIAPWS;
 namespace Cantera {
   class XML_Node;
   class VPStandardState;
+  class PDSS_Water;
+  class WaterProps;
 
  
   //! Class for pressure dependent standard states corresponding to 
@@ -403,8 +405,126 @@ namespace Cantera {
 
     //@}
 
-  protected:
+ 
+  private:
 
+    //! Main routine that actually calculates the gibbs free energy difference 
+    //! between the reference state at Tr, Pr and T,P
+    /*!
+     *  This is eEqn. 59 in Johnson et al. (1992).
+     *
+     */
+    double deltaG() const;
+
+
+    double electrostatic_radii_calc();
+
+ 
+    double ag(const double temp, const int ifunc = 0) const;
+    double bg(const double temp, const int ifunc = 0) const;
+    double g(const double temp, const double pres, const int ifunc = 0) const;
+    double f(const double temp, const double pres, const int ifunc = 0) const;
+    double gstar(const double temp, const double pres, const int ifunc = 0) const;
+
+    double LookupGe(const std::string& s);
+    void convertDGFormation();
+
+  private:
+    //!  Water standard state calculator
+    /*!
+     *  derived from the equation of state for water.
+     */
+    PDSS_Water *m_waterSS;
+
+    //! Current value of the pressure for this object
+    doublereal m_pres;
+
+    //! density of standard-state water
+    /*!
+     * internal temporary variable
+     */
+    mutable double m_densWaterSS;
+
+    /**
+     *  Pointer to the water property calculator
+     */
+    WaterProps *m_waterProps;
+
+
+    //! Born coefficient for the current ion or species
+
+    doublereal m_born_coeff_j;
+
+    //! Electrostatic radii
+    doublereal m_r_e_j;
+
+
+    //! Value of deltaG of Formation at Tr and Pr    (cal gmol-1)
+    /*!
+     *  Tr = 298.15   Pr = 1 atm
+     *
+     *  This is the delta G for the formation reaction of the
+     *  ion from elements in their stable state at Tr, Pr.
+     */
+    doublereal m_deltaG_formation_tr_pr;
+
+    //! Value of deltaH of Formation at Tr and Pr    (cal gmol-1)
+    /*!
+     *  Tr = 298.15   Pr = 1 atm
+     *
+     *  This is the delta H for the formation reaction of the
+     *  ion from elements in their stable state at Tr, Pr.
+     */
+    doublereal m_deltaH_formation_tr_pr;
+
+    //! Value of the Absolute Gibbs Free Energy NIST scale at tr and pr
+    /*!
+     *  this is the NIST scale value of Gibbs free energy at T_r = 298.15
+     *  and P_r = 1 atm.
+     *
+     *  J kmol-1
+     */
+    doublereal m_Mu0_tr_pr;
+
+    //! Value of S_j at Tr and Pr    (cal gmol-1 K-1)
+    /*!
+     *  Tr = 298.15   Pr = 1 atm
+     */
+    doublereal m_Entrop_tr_pr;
+
+    //! a1 coefficient (cal gmol-1 bar-1)
+    doublereal m_a1;
+
+    //! a2 coefficient (cal gmol-1)
+    doublereal m_a2;
+
+    //! a3 coefficient (cal K gmol-1 bar-1)
+    doublereal m_a3;
+
+    //! a4 coefficient (cal K gmol-1)
+    doublereal m_a4;
+
+    //! c1 coefficient (cal gmol-1 K-1)
+    doublereal m_c1;
+    
+    //! c2 coefficient (cal K gmol-1)
+    doublereal m_c2;
+
+    //! omega_pr_tr coefficient(cal gmol-1)
+    doublereal m_omega_pr_tr;
+
+    //! y = dZdT = 1/(esp*esp) desp/dT
+    double m_Y_pr_tr;
+
+    //double m_Y_pr_tr = -5.799E-5;
+
+    double m_Z_pr_tr;
+    //double m_Z_pr_tr = -0.0127803;
+    //! Reference pressure is 1 atm in units of bar= 1.0132
+    doublereal m_presR_bar;
+
+    //! Charge of the ion
+    doublereal m_charge_j;
 
   };
 

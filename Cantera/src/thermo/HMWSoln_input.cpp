@@ -974,16 +974,19 @@ namespace Cantera {
 			     "\" is not allowed");
 	}
       } else {
-	if (modelString != "constant_incompressible") {
+	if (modelString != "constant_incompressible" && modelString != "hkft") {
 	  throw CanteraError("HMWSoln::initThermoXML",
 			     "Solute SS Model \"" + modelStringa + 
 			     "\" is not known");
 	}
-	m_speciesSize[k] = getFloat(*ss, "molarVolume", "-");
+	if (modelString ==  "constant_incompressible" ) {
+	  m_speciesSize[k] = getFloat(*ss, "molarVolume", "-");
 #ifdef DEBUG_HKM_NOT
-	cout << "species " << sss[k] << " has volume " <<  
-   	  m_speciesSize[k] << endl;
+	  cout << "species " << sss[k] << " has volume " <<  
+	    m_speciesSize[k] << endl;
 #endif
+	}
+	// HKM Note, have to fill up m_speciesSize[] for HKFT species
       }
     }
 

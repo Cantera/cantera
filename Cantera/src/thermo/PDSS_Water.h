@@ -317,6 +317,24 @@ namespace Cantera {
      */
     doublereal density() const;
 
+    //! Return the volumetric thermal expansion coefficient. Units: 1/K.
+    /*!
+     * The thermal expansion coefficient is defined as
+     * \f[
+     * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
+     * \f]
+     */
+    virtual doublereal thermalExpansionCoeff() const;
+      
+    //! Return the derivative of the volumetric thermal expansion coefficient. Units: 1/K2.
+    /*!
+     * The thermal expansion coefficient is defined as
+     * \f[
+     * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
+     * \f]
+     */
+    virtual doublereal dthermalExpansionCoeffdT() const;
+
     /**
      * @}
      *  @name  Miscellaneous properties of the standard state

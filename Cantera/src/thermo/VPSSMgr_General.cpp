@@ -30,6 +30,7 @@
 #include "PDSS_IdealGas.h"
 #include "PDSS_Water.h"
 #include "PDSS_ConstVol.h"
+#include "PDSS_HKFT.h"
 
 using namespace std;
 
@@ -133,6 +134,9 @@ namespace Cantera {
     } else if (model == "waterIAPWS" || model == "waterPDSS") {
       doST = false;
       kPDSS = new PDSS_Water();
+    } else if (model == "HKFT") {
+      doST = false;
+      kPDSS = new PDSS_HKFT(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
     } else {
       throw CanteraError("VPSSMgr_General::returnPDSS_ptr",
 			 "unknown");

@@ -84,29 +84,62 @@ namespace Cantera {
     sparray.getChildren("species",sp);
     size_t n, ns = sp.size();
     for (n = 0; n < ns; n++) {
+      bool ifound = false;
       XML_Node* spNode = sp[n];
       if (spNode->hasChild("standardState")) {
 	const XML_Node& ssN = sp[n]->child("standardState");
 	string mm = ssN["model"];
 	if (mm == "waterIAPWS" || mm == "waterPDSS") {
 	  has_water++;
+	  ifound = true;
 	}
-      } else {
-
+	if (mm == "HKFT") {
+	  has_hptx++;
+	  ifound = true;
+	}
+      } 
+      if (!ifound) {
 	if (spNode->hasChild("thermo")) {
 	  const XML_Node& th = sp[n]->child("thermo");
-	  if (th.hasChild("NASA")) has_nasa = 1;
-	  if (th.hasChild("Shomate")) has_shomate = 1;
-	  if (th.hasChild("const_cp")) has_simple = 1;
-	  if (th.hasChild("poly")) {
-	    if (th.child("poly")["order"] == "1") has_simple = 1;
-	    else throw CanteraError("newSpeciesThermo",
-				    "poly with order > 1 not yet supported");
+	  if (th.hasChild("NASA")) {
+	    has_nasa++;
+	    ifound = true;
 	  }
-	  if (th.hasChild("Mu0")) has_other = 1;
-	  if (th.hasChild("NASA9")) has_other = 1;
-	  if (th.hasChild("NASA9MULTITEMP")) has_other = 1;
-	  if (th.hasChild("adsorbate")) has_other = 1;
+	  if (th.hasChild("Shomate")) {
+	    has_shomate++;
+	    ifound = true;
+	  }
+	  if (th.hasChild("const_cp")){
+	    has_simple = 1;
+	    ifound = true;
+	  }
+	  if (th.hasChild("poly")) {
+	    if (th.child("poly")["order"] == "1") {
+	      has_simple = 1;
+	      ifound = true;
+	    } else throw CanteraError("newSpeciesThermo",
+				      "poly with order > 1 not yet supported");
+	  }
+	  if (th.hasChild("Mu0")) {
+	    has_other++;
+	    ifound = true;
+	  }
+	  if (th.hasChild("NASA9")) {
+	    has_other++;
+	    ifound = true;
+	  }
+	  if (th.hasChild("NASA9MULTITEMP")) {
+	    has_other++;
+	    ifound = true;
+	  }
+	  if (th.hasChild("adsorbate")) {
+	    has_other++;
+	    ifound = true;
+	  }
+	  if (th.hasChild("HKFT")) {
+	    has_hptx++;
+	    ifound = true;
+	  }
 	} else {
 	  throw UnknownVPSSMgrModel("getVPSSMgrTypes:",
 				    spNode->attrib("name"));

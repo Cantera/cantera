@@ -28,6 +28,7 @@
 #include "xml.h"
 #include "VPStandardStateTP.h"
 #include "PDSS_Water.h"
+#include "PDSS_HKFT.h"
 
 using namespace std;
 
@@ -46,7 +47,7 @@ namespace Cantera {
 
   VPSSMgr_Water_HKFT::~VPSSMgr_Water_HKFT() 
   {
-    delete m_waterSS;
+    //  m_waterSS is owned by VPStandardState
   }
 
   VPSSMgr_Water_HKFT::VPSSMgr_Water_HKFT(const VPSSMgr_Water_HKFT &right) :
@@ -167,14 +168,6 @@ namespace Cantera {
   void VPSSMgr_Water_HKFT::_updateStandardStateThermo() {
     doublereal RT = GasConstant * m_tlast;
     doublereal del_pRT = (m_plast - m_p0) / (RT);
- 
-    for (int k = 1; k < m_kk; k++) {
-      m_hss_RT[k]  = m_h0_RT[k] + del_pRT * m_Vss[k];
-      m_cpss_R[k]  = m_cp0_R[k];
-      m_sss_R[k]   = m_s0_R[k];
-      m_gss_RT[k]  = m_hss_RT[k] - m_sss_R[k];
-      // m_Vss[k] constant
-    }
     // Do the water
     m_waterSS->setState_TP(m_tlast, m_plast);
     m_hss_RT[0] = (m_waterSS->enthalpy_mole())/ RT;
@@ -182,6 +175,18 @@ namespace Cantera {
     m_cpss_R[0] = (m_waterSS->cp_mole())      / GasConstant;
     m_gss_RT[0] = (m_hss_RT[0] - m_sss_R[0]);
     m_Vss[0]    = (m_waterSS->density())      / m_vptp_ptr->molecularWeight(0);
+
+    for (int k = 1; k < m_kk; k++) {
+      PDSS_HKFT *ps = (PDSS_HKFT *) m_vptp_ptr->providePDSS(k);
+      ps->setState_TP(m_tlast, m_plast);
+      m_hss_RT[k]  = m_h0_RT[k] + del_pRT * m_Vss[k];
+      m_cpss_R[k]  = m_cp0_R[k];
+      m_sss_R[k]   = m_s0_R[k];
+
+      m_gss_RT[k] = ps->gibbs_mole() / RT;
+
+    }
+ 
   }
 
   void VPSSMgr_Water_HKFT::initThermo() {
@@ -214,20 +219,25 @@ namespace Cantera {
 	throw CanteraError("VPSSMgr_Water_HKFT::initThermoXML",
 			   "no standardState Node for species " + s->name());
       }
-      std::string model = (*ss)["model"];
-      if (model != "constant_incompressible") {
+      std::string model = lowercase((*ss)["model"]);
+      if (model != "hkft") {
 	throw CanteraError("VPSSMgr_Water_HKFT::initThermoXML",
-			   "standardState model for species isn't constant_incompressible: " + s->name());
+			   "standardState model for species isn't hkft: " + s->name());
       }
-      m_Vss[k] = getFloat(*ss, "molarVolume", "-");
+      // m_Vss[k] = getFloat(*ss, "molarVolume", "-");
     }   
   }
 
   PDSS *
   VPSSMgr_Water_HKFT::createInstallPDSS(int k, const XML_Node& speciesNode,  
 					const XML_Node *phaseNode_ptr) {
-    VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
+   PDSS *kPDSS = 0;
 
+    const XML_Node *ss = speciesNode.findByName("standardState");
+    if (!ss) {
+      throw CanteraError("VPSSMgr_Water_HKFT::installSpecies",
+			 "no standardState Node for species " + speciesNode.name());
+    }
     // Will have to do something for water 
     // -> make sure it's species 0
     // -> make sure it's designated as a real water EOS
@@ -237,33 +247,28 @@ namespace Cantera {
 	throw CanteraError("VPSSMgr_Water_HKFT::installSpecies",
 			   "h2o wrong name: " + xn);
       }
-      const XML_Node *ss = speciesNode.findByName("standardState");
+ 
       std::string model = (*ss)["model"];
-      if (model != "waterIAPSS" && model != "waterPDSS") {
+      if (model != "waterIAPWS" && model != "waterPDSS") {
 	throw CanteraError("VPSSMgr_Water_HKFT::installSpecies",
 			   "wrong SS mode: " + model);
       }
+      VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
       if (m_waterSS) delete m_waterSS;
       m_waterSS = new PDSS_Water(m_vptp_ptr, 0);
+      kPDSS = m_waterSS;
     } else {
-
-      const XML_Node *ss = speciesNode.findByName("standardState");
-      if (!ss) {
-	throw CanteraError("VPSSMgr_Water_HKFT::installSpecies",
-			   "no standardState Node for species " + speciesNode.name());
-      }
       std::string model = (*ss)["model"];
-      if (model != "constant_incompressible") {
+      if (model != "HKFT") {
 	throw CanteraError("VPSSMgr_Water_HKFT::initThermoXML",
 			   "standardState model for species isn't "
-			   "constant_incompressible: " + speciesNode.name());
+			   "HKFT: " + speciesNode.name());
       }
-      if ((int) m_Vss.size() < k+1) {
-	m_Vss.resize(k+1, 0.0);
-      }
-      m_Vss[k] = getFloat(*ss, "molarVolume", "-");
+
+      kPDSS = new PDSS_HKFT(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
+
     }
-    return 0;
+    return kPDSS;
   }
 
   PDSS_enumType VPSSMgr_Water_HKFT::reportPDSSType(int k) const {
