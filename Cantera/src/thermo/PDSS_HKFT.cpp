@@ -836,6 +836,12 @@ namespace Cantera {
 
       return dfac1dT + dfac2dT + dfac3dT;
 
+    } else if (ifunc == 3) {
+      double beta   = m_waterSS->isothermalCompressibility();
+
+      double dgdp = - bfunc * gval * dens * beta / (1.0 - dens); 
+      
+      return dgdp;
     } else {
       throw CanteraError("HKFT_PDSS::gg", "unimplemented");
     }

@@ -431,6 +431,20 @@ namespace Cantera {
     double ag(const double temp, const int ifunc = 0) const;
     double bg(const double temp, const int ifunc = 0) const;
     double g(const double temp, const double pres, const int ifunc = 0) const;
+
+    //! Difference function f appearing in the formulation
+    /*!
+     * Function f appearing in the Johnson et al formulation of omega_j
+     *   Eqn. 33 ref
+     * 
+     * @param temp      Temperature kelvin
+     * @param pres      Pressure (pascal)
+     * @param ifunc     parameters specifying the desired information
+     *                 - 0 function value
+     *                 - 1 derivative wrt temperature
+     *                 - 2 2nd derivative wrt temperature
+     *                 - 3 derivative wrt pressure
+     */
     double f(const double temp, const double pres, const int ifunc = 0) const;
     double gstar(const double temp, const double pres, const int ifunc = 0) const;
 

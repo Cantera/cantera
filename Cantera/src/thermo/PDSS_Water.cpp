@@ -449,7 +449,12 @@ namespace Cantera {
     doublereal val = (val2 - vald) / 0.04;
     return val; 
   }
-  
+   
+  doublereal PDSS_Water::isothermalCompressibility() const {
+    doublereal pres = pressure();
+    doublereal val = m_sub->isothermalCompressibility(m_temp, pres);
+    return val; 
+  }
 
   /// critical temperature 
   doublereal PDSS_Water::critTemperature() const { return m_sub->Tcrit(); }
@@ -480,7 +485,7 @@ namespace Cantera {
     setPressure(pres);
   }
 
-  /// saturation pressure
+  // saturation pressure
   doublereal PDSS_Water::satPressure(doublereal t){
     doublereal pp = m_sub->psat(t);
     doublereal dens = m_dens;

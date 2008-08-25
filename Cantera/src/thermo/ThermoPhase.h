@@ -873,6 +873,10 @@ namespace Cantera {
      * \f[
      * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
      * \f]
+     *  or
+     * \f[
+     * \kappa_T = \frac{1}{\rho}\left(\frac{\partial \rho}{\partial P}\right)_T
+     * \f]
      */
     virtual doublereal isothermalCompressibility() const {
       err("isothermalCompressibility"); return -1.0;

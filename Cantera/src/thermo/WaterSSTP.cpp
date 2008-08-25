@@ -513,7 +513,18 @@ namespace Cantera {
     doublereal val = m_sub->coeffThermExp(T, pres);
     return val;
   }
- 
+
+  doublereal WaterSSTP::dthermalExpansionCoeffdT() const {
+    doublereal pres = pressure();
+    double T = temperature();
+    double tt = T - 0.04;
+    doublereal vald = m_sub->coeffThermExp(tt, pres);
+    doublereal val2 = m_sub->coeffThermExp(T, pres);
+    doublereal val = (val2 - vald) / 0.04;
+    return val;
+  }
+
+
   // critical temperature 
   doublereal WaterSSTP::critTemperature() const { return m_sub->Tcrit(); }
         
