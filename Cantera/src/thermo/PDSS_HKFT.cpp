@@ -429,13 +429,26 @@ namespace Cantera {
     m_Y_pr_tr = drelepsilondT / (relepsilon * relepsilon);
     //printf("m_Y_pr_tr = %20.10g\n",  m_Y_pr_tr );
 
+    m_waterProps = new WaterProps(m_waterSS);
+
     m_presR_bar = OneAtm / 1.0E5;
     m_charge_j = m_tp->charge(m_spindex);
     convertDGFormation();
 
-    m_waterProps = new WaterProps(m_waterSS);
+    //! Ok, we have mu. Let's check it against the input value
+    // of DH_F to see that we have some internal consistency
 
+    double Hcalc = m_Mu0_tr_pr + 298.15 * (m_Entrop_tr_pr * 1.0E3 * 4.184);
 
+    double DHjmol = m_deltaH_formation_tr_pr * 1.0E3 * 4.184;
+
+    // If the discrepency is greater than 100 cal gmol-1, print
+    // an error and exit.
+    if (fabs(Hcalc -DHjmol) > 100.* 1.0E3 * 4.184) {
+      throw CanteraError(" PDSS_HKFT::initThermo()",
+			 "DHjmol is not consistent with G and S" + fp2str(Hcalc) + " vs " + fp2str(DHjmol));
+    }
+    
   }
 
 
@@ -588,11 +601,6 @@ namespace Cantera {
     constructPDSSXML(tp, spindex, *s, *fxml_phase, true);
     delete fxml;
   }
-
-
-
-
-
 
 
 
