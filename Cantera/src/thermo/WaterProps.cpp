@@ -44,8 +44,13 @@ namespace Cantera {
     m_waterIAPWS(0),
     m_own_sub(false)
   {
-    m_waterIAPWS = wptr->getWater();
-    m_own_sub = false;
+    if (wptr) {
+      m_waterIAPWS = wptr->getWater();
+      m_own_sub = false;
+    } else {
+      m_waterIAPWS = new WaterPropsIAPWS();
+      m_own_sub = true;
+    }
   }
 
   /**
