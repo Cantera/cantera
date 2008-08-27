@@ -209,6 +209,16 @@ namespace Cantera {
      */
     virtual doublereal molarVolume() const;
 
+    //! Return the standard state density at standard state
+    /*!
+     * Returns the species standard state density at the
+     * current temperature and pressure
+     *
+     * @return returns the standard state density
+     *             units are kg m-3
+     */
+    virtual doublereal density() const;
+
     /**
      * @} 
      * @name Properties of the Reference State of the Species
@@ -285,9 +295,6 @@ namespace Cantera {
      * @param   pres   Pressure to be set (Pascal)
      */
     virtual void setPressure(doublereal pres);
-
-    //! Returns the density of the species
-    double density() const;
 
     //! Set the internal temperature
     /*!

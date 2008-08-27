@@ -274,6 +274,11 @@ namespace Cantera {
     return 0.0;
   }
 
+  doublereal PDSS::density() const {
+    err("density()");
+    return 0.0;
+  }
+
   // Return the molar const volume heat capacity in units of J kmol-1 K-1
   /*
    * Returns the species standard state Cv in J kmol-1 K-1 at the

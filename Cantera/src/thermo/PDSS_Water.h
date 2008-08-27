@@ -216,6 +216,16 @@ namespace Cantera {
      */
     virtual doublereal molarVolume() const;
 
+    //! Return the standard state density at standard state
+    /*!
+     * Returns the species standard state density at the
+     * current temperature and pressure
+     *
+     * @return returns the standard state density
+     *             units are kg m-3
+     */
+    virtual doublereal density() const;
+
     /**
      * @} 
      * @name Properties of the Reference State of the Species
@@ -310,12 +320,6 @@ namespace Cantera {
      */
     void setDensity(doublereal dens);
 
-    //! Report the current density of the water
-    /*!
-     *  This is a non-virtual function because it specific
-     *  to this object.
-     */
-    doublereal density() const;
 
     //! Return the volumetric thermal expansion coefficient. Units: 1/K.
     /*!

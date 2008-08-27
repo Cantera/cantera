@@ -233,6 +233,12 @@ namespace Cantera {
     return (GasConstant * m_temp / m_pres);
   }
 
+
+  doublereal 
+  PDSS_IdealGas::density() const {
+    return (m_pres * m_mw / (GasConstant * m_temp));
+  }
+
   /**
    * Calculate the constant volume heat capacity
    * in mks units of J kmol-1 K-1

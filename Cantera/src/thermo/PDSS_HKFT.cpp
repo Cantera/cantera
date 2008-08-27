@@ -314,6 +314,12 @@ namespace Cantera {
   }
 
   doublereal 
+  PDSS_HKFT::density() const {
+    double val = molarVolume();
+    return (m_mw/val);
+  }
+
+  doublereal 
   PDSS_HKFT::gibbs_RT_ref() const {
     double m_psave = m_pres;
     m_pres = OneAtm;

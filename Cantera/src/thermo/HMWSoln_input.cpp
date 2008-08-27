@@ -969,9 +969,14 @@ namespace Cantera {
 	    m_speciesSize[k] << endl;
 #endif
 	} else {
-	  throw CanteraError("HMWSoln::initThermoXML",
-			     "Solvent SS Model \"" + modelStringa + 
-			     "\" is not allowed");
+	  //  throw CanteraError("HMWSoln::initThermoXML",
+	  //	     "Solvent SS Model \"" + modelStringa + 
+	  //	     "\" is not allowed, name = " + sss[0]);
+	  m_waterSS = providePDSS(0);
+	  m_waterSS->setState_TP(300., OneAtm);
+	  double dens = m_waterSS->density();
+	  double mw = m_waterSS->molecularWeight();
+	  m_speciesSize[0] = mw / dens;
 	}
       } else {
 	if (modelString != "constant_incompressible" && modelString != "hkft") {
@@ -994,7 +999,7 @@ namespace Cantera {
      * Initialize the water property calculator. It will share
      * the internal eos water calculator.
      */
-    m_waterProps = new WaterProps(m_waterSS);
+    m_waterProps = new WaterProps(dynamic_cast<PDSS_Water*>(m_waterSS));
 
 
     /*

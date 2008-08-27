@@ -166,7 +166,7 @@ namespace Cantera {
       m_A_Debye             = b.m_A_Debye;
     
       // This is an internal shallow copy of the PDSS_Water pointer
-      m_waterSS = dynamic_cast<PDSS_Water *>(providePDSS(0)) ;
+      m_waterSS = providePDSS(0);
       if (!m_waterSS) {
 	throw CanteraError("HMWSoln::operator=()", "Dynamic cast to PDSS_Water failed");
       }
@@ -178,7 +178,7 @@ namespace Cantera {
 	m_waterProps = 0;
       }
       if (b.m_waterProps) {
-	m_waterProps = new WaterProps(m_waterSS);
+	m_waterProps = new WaterProps(dynamic_cast<PDSS_Water*>(m_waterSS));
       }
 
       m_expg0_RT            = b.m_expg0_RT;

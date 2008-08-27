@@ -240,6 +240,16 @@ namespace Cantera {
      *             units are m**3 kmol-1.
      */
     virtual doublereal molarVolume() const;
+
+    //! Return the standard state density at standard state
+    /*!
+     * Returns the species standard state density at the
+     * current temperature and pressure
+     *
+     * @return returns the standard state density
+     *             units are kg m-3
+     */
+    virtual doublereal density() const;
  
     //! Get the difference in the standard state enthalpy
     //! between the current pressure and the reference pressure, p0.

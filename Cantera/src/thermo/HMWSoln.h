@@ -2342,7 +2342,8 @@ namespace Cantera {
     /*!
      *  derived from the equation of state for water. 
      */
-    PDSS_Water *m_waterSS;
+    PDSS *m_waterSS;
+    //PDSS *m_waterSS;
 
     //! density of standard-state water
     /*!

@@ -267,6 +267,12 @@ namespace Cantera {
     return (val);
   }
 
+  doublereal 
+  PDSS_ConstVol::density() const {
+    double val = m_Vss_ptr[m_spindex];
+    return (m_mw/val);
+  }
+
   doublereal
   PDSS_ConstVol::gibbs_RT_ref() const {
     double val = m_g0_RT_ptr[m_spindex];
@@ -343,8 +349,7 @@ namespace Cantera {
 
   /// saturation pressure
   doublereal PDSS_ConstVol::satPressure(doublereal t){
-    throw CanteraError("PDSS_ConstVol::satPressure()", "unimplemented");
-    return (0.0);
+    return (1.0E-200);
   }
  
 }
