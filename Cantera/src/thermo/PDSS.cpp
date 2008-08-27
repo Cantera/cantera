@@ -202,8 +202,8 @@ namespace Cantera {
   }
   
   doublereal PDSS::enthalpy_RT() const {
-    err("enthalpy_RT()");
-    return (0.0);
+    double RT = GasConstant * m_temp;
+    return (enthalpy_mole()/RT);
   }
 
   // Return the molar internal Energy in units of J kmol-1
@@ -231,8 +231,7 @@ namespace Cantera {
   }
 
   doublereal PDSS::entropy_R() const {
-    err("entropy_R()");
-    return (0.0);
+    return(entropy_mole()/GasConstant);
   }
 
   // Return the molar gibbs free energy in units of J kmol-1
@@ -248,8 +247,8 @@ namespace Cantera {
   }
 
   doublereal PDSS::gibbs_RT() const {
-    err("gibbs_RT()");
-    return (0.0);
+    double RT = GasConstant * m_temp;
+    return (gibbs_mole()/RT);
   }
 
   // Return the molar const pressure heat capacity in units of J kmol-1 K-1
@@ -265,8 +264,7 @@ namespace Cantera {
   }
 
   doublereal PDSS::cp_R() const {
-    err("cp_R()");
-    return (0.0);
+    return (cp_mole()/GasConstant);
   }
 
   doublereal PDSS::molarVolume() const {

@@ -163,11 +163,20 @@ namespace Cantera {
     m_g0_RT[0] = (m_hss_RT[0] - m_sss_R[0]);
     m_V0[0]    = (m_waterSS->density())      / m_vptp_ptr->molecularWeight(0);
     m_waterSS->setState_TP(m_tlast, m_plast);
+
+    for (int k = 1; k < m_kk; k++) {
+      PDSS_HKFT *ps = (PDSS_HKFT *) m_vptp_ptr->providePDSS(k);
+      ps->setState_TP(m_tlast, m_p0);
+      m_cpss_R[k]  = ps->cp_R();
+      m_sss_R[k]   = ps->entropy_mole();
+      m_gss_RT[k]  = ps->gibbs_RT();;
+      m_hss_RT[k]  = m_gss_RT[k] + m_sss_R[k];
+      m_Vss[k]     = ps->molarVolume();
+    }
   }
 
   void VPSSMgr_Water_HKFT::_updateStandardStateThermo() {
     doublereal RT = GasConstant * m_tlast;
-    doublereal del_pRT = (m_plast - m_p0) / (RT);
     // Do the water
     m_waterSS->setState_TP(m_tlast, m_plast);
     m_hss_RT[0] = (m_waterSS->enthalpy_mole())/ RT;
@@ -179,12 +188,11 @@ namespace Cantera {
     for (int k = 1; k < m_kk; k++) {
       PDSS_HKFT *ps = (PDSS_HKFT *) m_vptp_ptr->providePDSS(k);
       ps->setState_TP(m_tlast, m_plast);
-      m_hss_RT[k]  = m_h0_RT[k] + del_pRT * m_Vss[k];
-      m_cpss_R[k]  = m_cp0_R[k];
-      m_sss_R[k]   = m_s0_R[k];
-
-      m_gss_RT[k] = ps->gibbs_mole() / RT;
-
+      m_cpss_R[k]  = ps->cp_R();
+      m_sss_R[k]   = ps->entropy_R();
+      m_gss_RT[k]  = ps->gibbs_RT();;
+      m_hss_RT[k]  = m_gss_RT[k] + m_sss_R[k];
+      m_Vss[k]     = ps->molarVolume();
     }
  
   }
