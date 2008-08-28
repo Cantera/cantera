@@ -41,6 +41,7 @@ namespace Cantera {
     m_Y_pr_tr(0.0),
     m_Z_pr_tr(0.0),
     m_presR_bar(0.0),
+    m_domega_jdT_prtr(0.0),
     m_charge_j(0.0)
   {
     m_pdssType = cPDSS_MOLAL_HKFT;
@@ -69,6 +70,7 @@ namespace Cantera {
     m_Y_pr_tr(0.0),
     m_Z_pr_tr(0.0),
     m_presR_bar(0.0),
+    m_domega_jdT_prtr(0.0),
     m_charge_j(0.0)
   {
     m_pdssType = cPDSS_MOLAL_HKFT;
@@ -98,6 +100,7 @@ namespace Cantera {
     m_Y_pr_tr(0.0),
     m_Z_pr_tr(0.0),
     m_presR_bar(0.0),
+    m_domega_jdT_prtr(0.0),
     m_charge_j(0.0)
   {
     m_pdssType = cPDSS_MOLAL_HKFT;
@@ -421,16 +424,16 @@ namespace Cantera {
     /*
      *  Section to initialize  m_Z_pr_tr and   m_Y_pr_tr
      */
-    double temp = 273.15 + 25.;
-    double pres = OneAtm;
-    double relepsilon = m_waterProps->relEpsilon(temp, pres, 0);
+    m_temp = 273.15 + 25.;
+    m_pres = OneAtm;
+    double relepsilon = m_waterProps->relEpsilon(m_temp, m_pres, 0);
 
-    m_waterSS->setState_TP(temp, pres);
+    m_waterSS->setState_TP(m_temp, m_pres);
     m_densWaterSS = m_waterSS->density();
     m_Z_pr_tr = -1.0 / relepsilon;
     //double m_Z_pr_tr = -0.0127803;
     //printf("m_Z_pr_tr = %20.10g\n",  m_Z_pr_tr ); 
-    double drelepsilondT = m_waterProps->relEpsilon(temp, pres, 1);
+    double drelepsilondT = m_waterProps->relEpsilon(m_temp, m_pres, 1);
     //double m_Y_pr_tr = -5.799E-5;
     m_Y_pr_tr = drelepsilondT / (relepsilon * relepsilon);
     //printf("m_Y_pr_tr = %20.10g\n",  m_Y_pr_tr );
@@ -452,9 +455,24 @@ namespace Cantera {
     // an error and exit.
     if (fabs(Hcalc -DHjmol) > 100.* 1.0E3 * 4.184) {
       throw CanteraError(" PDSS_HKFT::initThermo()",
-			 "DHjmol is not consistent with G and S" + fp2str(Hcalc) + " vs " + fp2str(DHjmol));
+			 "DHjmol is not consistent with G and S" + 
+			 fp2str(Hcalc) + " vs " + fp2str(DHjmol));
     }
-    
+    double nu = 166027;
+    double r_e_j_pr_tr = m_charge_j * m_charge_j / (m_omega_pr_tr/nu + m_charge_j/3.082);
+
+    double gval = gstar(m_temp, m_pres, 0);
+
+    double dgvaldT = gstar(m_temp, m_pres, 1);
+
+    double r_e_j = r_e_j_pr_tr + fabs(m_charge_j) * gval;
+    double dr_e_jdT = fabs(m_charge_j) * dgvaldT;
+
+ 
+     m_domega_jdT_prtr =  -  nu * (m_charge_j * m_charge_j / (r_e_j * r_e_j) * dr_e_jdT)
+      + nu * m_charge_j / (3.082 + gval) / (3.082 + gval) * dgvaldT;
+
+   
   }
 
 
@@ -698,9 +716,7 @@ namespace Cantera {
 
     double otterm = domega_jdT * (Z + 1.0);
 
-    double domega_jdT_prtr = 0.0;
-    double otrterm = - domega_jdT_prtr * m_Z_pr_tr + 1.0;
-
+    double otrterm = - m_domega_jdT_prtr * (m_Z_pr_tr + 1.0);
    
     double deltaS_calgmol = c1term + c2term + a3term + a4term + wterm + wrterm  + otterm + otrterm;
 

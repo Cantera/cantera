@@ -548,12 +548,14 @@ namespace Cantera {
     //! y = dZdT = 1/(esp*esp) desp/dT
     double m_Y_pr_tr;
 
-    //double m_Y_pr_tr = -5.799E-5;
-
+  
     double m_Z_pr_tr;
-    //double m_Z_pr_tr = -0.0127803;
+ 
     //! Reference pressure is 1 atm in units of bar= 1.0132
     doublereal m_presR_bar;
+
+    //! small value that is not quite zero
+    doublereal m_domega_jdT_prtr;
 
     //! Charge of the ion
     doublereal m_charge_j;
