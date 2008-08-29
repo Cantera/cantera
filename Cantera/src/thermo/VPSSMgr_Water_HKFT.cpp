@@ -183,7 +183,7 @@ namespace Cantera {
     m_sss_R[0]  = (m_waterSS->entropy_mole()) / GasConstant;
     m_cpss_R[0] = (m_waterSS->cp_mole())      / GasConstant;
     m_gss_RT[0] = (m_hss_RT[0] - m_sss_R[0]);
-    m_Vss[0]    = (m_waterSS->density())      / m_vptp_ptr->molecularWeight(0);
+    m_Vss[0]    = (m_vptp_ptr->molecularWeight(0)) / (m_waterSS->density());
 
     for (int k = 1; k < m_kk; k++) {
       PDSS_HKFT *ps = (PDSS_HKFT *) m_vptp_ptr->providePDSS(k);
