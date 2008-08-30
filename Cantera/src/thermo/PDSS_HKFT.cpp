@@ -200,7 +200,6 @@ namespace Cantera {
   doublereal 
   PDSS_HKFT::cp_mole() const {
 
-
     double pbar = m_pres * 1.0E-5;
     double m_presR_bar = OneAtm * 1.0E-5;
 
@@ -274,18 +273,21 @@ namespace Cantera {
   doublereal 
   PDSS_HKFT::molarVolume() const {
    
-    double a1term = m_a1;
+    double pbar = m_pres * 1.0E-5;
+    double m_presR_bar = OneAtm * 1.0E-5;
+
+    double a1term = m_a1 * 1.0E-5;
 
     double a2term = m_a2 / (2600.E5 + m_pres);
 
-    double a3term = m_a3 / (m_temp - 228.);
+    double a3term = m_a3 * 1.0E-5/ (m_temp - 228.);
 
     double a4term = m_a4 / (m_temp - 228.) / (2600.E5 + m_pres);
 
-    double nu = 166027;
+    double nu = 166027.;
     double r_e_j_pr_tr = m_charge_j * m_charge_j / (m_omega_pr_tr/nu + m_charge_j/3.082);
   
-    double gval = gstar(m_temp, m_pres, 0);
+    double gval    = gstar(m_temp, m_pres, 0);
     double dgvaldP = gstar(m_temp, m_pres, 3);
 
     double r_e_j = r_e_j_pr_tr + fabs(m_charge_j) * gval;
@@ -309,10 +311,10 @@ namespace Cantera {
 
     double qterm = - omega_j * Q;
 
-    double molVol_calgmolbar = a1term + a2term +  a3term + a4term + wterm + qterm;
+    double molVol_calgmolPascal = a1term + a2term +  a3term + a4term + wterm + qterm;
 
     // Convert to m**3 / kmol
-    double molVol = molVol_calgmolbar * 4.184 / 100.;
+    double molVol = molVol_calgmolPascal * 4.184 * 1.0E3;
     return molVol;
   }
 
@@ -785,10 +787,10 @@ namespace Cantera {
     double T1 = (TC-155.0)/300.;
     double fac1;
 
-    double p2 = presBar * presBar;
-    double p3 = presBar * p2;
+    double p2 = (1000. - presBar) * (1000. - presBar);
+    double p3 = (1000. - presBar) * p2;
     double p4 = p2 * p2;
-    double fac2 = af_coeff[1] * p3 +   af_coeff[2] * p4;
+    double fac2 = af_coeff[1] * p3 + af_coeff[2] * p4;
     if (ifunc == 0) {
       fac1 = pow(T1,4.8) + af_coeff[0] * pow(T1, 16.0);
       return fac1 * fac2;
@@ -800,7 +802,7 @@ namespace Cantera {
       return fac1 * fac2;
     } else if (ifunc == 3) {
       fac1 = pow(T1,4.8) + af_coeff[0] * pow(T1, 16.0);
-      fac2 = (3.0 * af_coeff[1] * p2 +   4.0 * af_coeff[2] * p3 )/ 1.0E5;
+      fac2 = - (3.0 * af_coeff[1] * p2 + 4.0 * af_coeff[2] * p3 )/ 1.0E5;
       return fac1 * fac2;
     } else {
       throw CanteraError("HKFT_PDSS::gg", "unimplemented");
@@ -865,7 +867,7 @@ namespace Cantera {
       
       return dgdp;
     } else {
-      throw CanteraError("HKFT_PDSS::gg", "unimplemented");
+      throw CanteraError("HKFT_PDSS::g", "unimplemented");
     }
     return 0.0;
   }

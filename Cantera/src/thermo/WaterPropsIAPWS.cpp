@@ -295,28 +295,36 @@ isothermalCompressibility(double temperature, double pressure) {
    * Difference amount is large, because we are solving for 
    * density underneath
    */
-  double deltaP = -0.001 * pressure;
+  double deltaP;
   double psat_at=0.0;
   double rhoguess = -1;
   int phase = -1;
   if (temperature > T_c) {
     rhoguess = pressure * M_water / (Rgas * temperature);
-    deltaP = +0.0001 * pressure;
     phase = WATER_SUPERCRIT;
   } else {
     psat_at = psat(temperature);
     if (pressure >= psat_at) {
       phase = WATER_LIQUID;
-      deltaP = +0.0001 * pressure;
-    } else
+    } else {
       phase = WATER_GAS;
-    deltaP = -0.0001 * pressure;
+    }
   }
   double dens_base = density(temperature, pressure, phase, rhoguess);
   if (dens_base == -1.0) {
     printf("problems\n");
     exit(-1);
   }
+
+  if (iState == WATER_GAS) {
+    deltaP = -0.0001 * pressure;
+  } else if (iState == WATER_LIQUID) {
+    deltaP = +0.0001 * pressure;
+  } else {
+    deltaP = +0.0001 * pressure;
+  }
+
+
   double pres_del = pressure + deltaP;
   double dens_del = density(temperature, pres_del, phase, dens_base);
   double Vavg = 0.5 * (1./dens_del + 1./dens_base); 
@@ -419,6 +427,10 @@ double WaterPropsIAPWS::psat(double temperature) {
     }
   }
   return p;
+}
+
+int WaterPropsIAPWS::phaseState() const {
+  return iState;
 }
 
 /**

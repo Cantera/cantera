@@ -349,6 +349,15 @@ public:
    */
   double psat(double temperature);
 
+  //! Returns the Phase State flag for the current state of the object
+  /*!
+   *  There are three values:
+   *     WATER_GAS   below the critical temperature but below the critical density
+   *     WATER_LIQUID  below the critical temperature but above the critical density
+   *     WATER_CRIT   above the critical temperature
+   */
+  int phaseState() const ;
+
   //! Returns the critical temperature of water (Kelvin)
   /*!
    *  This is hard coded to the value 647.096 Kelvin
