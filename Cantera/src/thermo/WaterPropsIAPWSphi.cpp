@@ -646,7 +646,7 @@ double WaterPropsIAPWSphi::pressureM_rhoRT(double tau, double delta) {
 }
 
 /*
- * Calculate d_phiR_d(delta), the second derivative of phiR
+ * Calculate d2_phiR_dd(delta), the second derivative of phiR
  * wrt delta
  *
  *  tau = dimensionless temperature
@@ -752,7 +752,7 @@ double WaterPropsIAPWSphi::phiR_dd() const {
 }
 
 /*
- * Calculate d_phi0_d(delta), the first derivative of phi0
+ * Calculate d2_phi0_dd(delta), the second derivative of phi0
  * wrt delta
  *
  *  tau = dimensionless temperature
@@ -764,7 +764,7 @@ double WaterPropsIAPWSphi::phi0_dd() const {
 }
 
 /*
- * Calculate the dPhidDelta function, which is basically the derivative
+ * Calculate the d2_PhidDelta2 function, which is the second derivative
  * of helmholtz free energy wrt delta
  * Eqn. (6.4)
  */
@@ -775,6 +775,16 @@ double WaterPropsIAPWSphi::phi_dd(double tau, double delta) {
   double retn = nau + res;
   return retn;
 }
+
+double WaterPropsIAPWSphi::dimdpdrho(double tau, double delta) {
+  tdpolycalc(tau, delta);
+  double res1 = phiR_d();
+  double res2 = phiR_dd();
+  double retn = 1.0 + delta * (2.0*res1 + delta*res2);
+  return retn;
+}
+
+
 
 /*
  * Calculate d_phi0/d(tau)

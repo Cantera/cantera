@@ -15,7 +15,6 @@
 #include "ctml.h"
 #include "PDSS_Water.h"
 #include "WaterPropsIAPWS.h"
-//#include "importCTML.h"
 #include "ThermoFactory.h"
 #include <math.h>
 
@@ -451,8 +450,7 @@ namespace Cantera {
   }
    
   doublereal PDSS_Water::isothermalCompressibility() const {
-    doublereal pres = pressure();
-    doublereal val = m_sub->isothermalCompressibility(m_temp, pres);
+    doublereal val = m_sub->isothermalCompressibility();
     return val; 
   }
 

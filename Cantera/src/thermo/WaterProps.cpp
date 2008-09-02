@@ -417,7 +417,7 @@ namespace Cantera {
       double depsRelWaterdP = relEpsilon(T, P, 3);
       dAdP -=  A_Debye * (1.5 * depsRelWaterdP / epsRelWater);
 	  
-      double kappa = isothermalCompressibility_IAPWS(T, P);
+      double kappa = isothermalCompressibility_IAPWS(T,P);
 
       //double ddwdP = density_T_new(T, P, 3);
       dAdP += A_Debye * (0.5 * kappa);
@@ -449,9 +449,8 @@ namespace Cantera {
   }
 
   double WaterProps::isothermalCompressibility_IAPWS(double temp, double press) {
-
-    double kappa;
-    kappa = m_waterIAPWS->isothermalCompressibility(temp, press);
+    m_waterIAPWS->density(temp, press, WATER_LIQUID);
+    double kappa = m_waterIAPWS->isothermalCompressibility();
     return kappa;
   }
 

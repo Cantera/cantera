@@ -169,7 +169,6 @@ public:
   //! using the last temperature and density
   double helmholtzFE() const;
   
-  
   //! Calculate the Gibbs free energy in mks units of J kmol-1 K-1.
   /*!
    * @param temperature   temperature (kelvin)
@@ -312,20 +311,17 @@ public:
    */
   double coeffThermExp(double temperature, double pressure);
 
- 
-  //! Returns the coefficient of isothermal compressibility as a function
-  //! of temperature and pressure.
+  //! Returns the coefficient of isothermal compressibility for the 
+  //! state of the object
   /*!
    *     kappa = - d (ln V) / dP at constant T.
    *
    *  units - 1/Pascal
    *
-   * @param temperature Input temperature (Kelvin)
-   * @param pressure    Input pressure (Pa)
    * @return 
    *    returns the isothermal compressibility
    */
-  double isothermalCompressibility(double temperature, double pressure);
+  double isothermalCompressibility() const;
    
   //! This function returns an estimated value for the saturation pressure. 
   /*!

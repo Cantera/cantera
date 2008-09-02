@@ -98,6 +98,16 @@ public:
    */
   double pressureM_rhoRT(double tau, double delta);
 
+  //! Dimensionless derivative of p wrt rho at constant T
+  /*!
+   *  dp/drho * 1/RT = (2. delta phi_d() + delta**2 phi_dd())
+   *                   (1.0 + 2. delta phiR_d() + delta**2 phiR_dd())
+   *
+   * @param tau     Dimensionless temperature = T_c/T
+   * @param delta   Dimensionless density =  delta = rho / Rho_c
+   */
+  double dimdpdrho(double tau, double delta);
+
   /**
    * This program computes the reduced density, given the reduced pressure
    * and the reduced temperature, tau. It takes an initial guess, deltaGuess.

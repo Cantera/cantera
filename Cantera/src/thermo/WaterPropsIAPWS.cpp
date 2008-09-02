@@ -117,7 +117,14 @@ double  WaterPropsIAPWS::pressure(double temperature, double rho) {
   double retn = m_phi->pressureM_rhoRT(tau, delta);
   return (retn * rho * Rgas * temperature/M_water);
 }
-double  WaterPropsIAPWS::pressure() const{
+
+/*
+ * Calculate the pressure (Pascals), using the 
+ * current internally storred temperature and density
+ *  Temperature: kelvin
+ *  rho: density in kg m-3 
+ */
+double  WaterPropsIAPWS::pressure() const {
   double retn = m_phi->pressureM_rhoRT(tau, delta);
   double rho = delta * Rho_c;
   double temperature = T_c / tau;
@@ -286,65 +293,26 @@ double WaterPropsIAPWS::coeffThermExp(double temperature, double pressure) {
  * of temperature and pressure.
  *          kappa = - d (ln V) / dP at constant T.
  *
- * Currently this function is calculated using an inaccurate 
- * one-sided differencing scheme.
  */
-double WaterPropsIAPWS::
-isothermalCompressibility(double temperature, double pressure) {
-  /*
-   * Difference amount is large, because we are solving for 
-   * density underneath
-   */
-  double deltaP;
-  double psat_at=0.0;
-  double rhoguess = -1;
-  int phase = -1;
-  if (temperature > T_c) {
-    rhoguess = pressure * M_water / (Rgas * temperature);
-    phase = WATER_SUPERCRIT;
-  } else {
-    psat_at = psat(temperature);
-    if (pressure >= psat_at) {
-      phase = WATER_LIQUID;
-    } else {
-      phase = WATER_GAS;
-    }
-  }
-  double dens_base = density(temperature, pressure, phase, rhoguess);
-  if (dens_base == -1.0) {
-    printf("problems\n");
-    exit(-1);
-  }
-
-  if (iState == WATER_GAS) {
-    deltaP = -0.0001 * pressure;
-  } else if (iState == WATER_LIQUID) {
-    deltaP = +0.0001 * pressure;
-  } else {
-    deltaP = +0.0001 * pressure;
-  }
-
-
-  double pres_del = pressure + deltaP;
-  double dens_del = density(temperature, pres_del, phase, dens_base);
-  double Vavg = 0.5 * (1./dens_del + 1./dens_base); 
-  double retn = -1.0 / Vavg * (1./dens_del - 1.0/dens_base)/deltaP;
-  return retn;
+double WaterPropsIAPWS::isothermalCompressibility() const {
+  double retn = m_phi->dimdpdrho(tau, delta);
+  double temperature = T_c/tau;
+  double dpdrho = retn * Rgas * temperature / M_water;
+  double dens = delta * Rho_c;
+  return (1.0 / (dens * dpdrho));
 }
-
 
 /*
  * Calculate the Gibbs free energy in mks units of
  * J kmol-1 K-1.
  */
-double WaterPropsIAPWS::
-Gibbs(double temperature, double rho) {
+double WaterPropsIAPWS::Gibbs(double temperature, double rho) {
   setState(temperature, rho);
   double gRT = m_phi->gibbs_RT();
   return (gRT * Rgas * temperature);
 }
-double WaterPropsIAPWS::
-Gibbs() const {
+
+double WaterPropsIAPWS::Gibbs() const {
   double gRT = m_phi->gibbs_RT();
   double temperature = T_c/tau;
   return (gRT * Rgas * temperature);
@@ -437,12 +405,10 @@ int WaterPropsIAPWS::phaseState() const {
  * Sets the internal state of the object to the
  * specified temperature and density.
  */
-void WaterPropsIAPWS::
-setState(double temperature, double rho) {
+void WaterPropsIAPWS::setState(double temperature, double rho) {
   calcDim(temperature, rho);
   m_phi->tdpolycalc(tau, delta);
 }
-
 
 
 /*
@@ -495,24 +461,20 @@ entropy(double temperature, double rho) {
  * Calculate the enthalpy in mks units of
  * J kmol-1 K-1.
  */
-double WaterPropsIAPWS::
-entropy() const {
+double WaterPropsIAPWS::entropy() const {
   double sR = m_phi->entropy_R();
   return (sR * Rgas);
 }
-
 
 /*
  * Calculate heat capacity at constant volume
  * J kmol-1 K-1.
  */
-double WaterPropsIAPWS::
-cv(double temperature, double rho) {
+double WaterPropsIAPWS::cv(double temperature, double rho) {
   setState(temperature, rho);
   double cvR = m_phi->cv_R();
   return (cvR * Rgas);
 }
-
 
 /*
  * Calculate heat capacity at constant pressure
