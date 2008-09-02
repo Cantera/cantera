@@ -60,8 +60,26 @@ int main () {
     dens = water->density(T, pres, WATER_LIQUID);
     printf("dens (liquid) = %g kg m-3\n", dens);
 
+    double kappa = water->isothermalCompressibility();
+    printf("kappa (liquid) = %20.13g kg m-3 \n", kappa); 
+
+    double pres2 = pres * 1.001;
+    dens = water->density(T, pres2, WATER_LIQUID);
+    kappa = water->isothermalCompressibility();
+    printf("kappa (liquid) = %20.13g kg m-3 \n", kappa); 
+
     dens = water->density(T, pres, WATER_GAS);
     printf("dens (gas)    = %g kg m-3\n", dens);
+
+    kappa = water->isothermalCompressibility();
+    printf("kappa (gas) = %20.13g kg m-3 \n", kappa); 
+
+    pres2 = pres * (0.999);
+    dens = water->density(T, pres2, WATER_GAS);
+    printf("dens (gas)    = %g kg m-3\n", dens);
+
+    kappa = water->isothermalCompressibility();
+    printf("kappa (gas) = %20.13g kg m-3 \n", kappa); 
 
     /*
      * Calculate a few test points for the estimated
