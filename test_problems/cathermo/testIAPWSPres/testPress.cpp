@@ -5,6 +5,18 @@
 #include <new>
 using namespace std;
 
+
+double numdpdt(WaterPropsIAPWS *water, double T, double pres) {
+  double rho = water->density(T, pres);
+  water->setState_TR(T, rho);
+  double presB = water->pressure();
+  double Td = T + 0.001;
+  water->setState_TR(Td, rho);
+  double presd = water->pressure();
+  double dpdt = (presd - presB) / 0.001;
+  return dpdt;
+}
+
 int main () {
 
     double dens, u, s, h;
@@ -106,10 +118,62 @@ int main () {
     printf("psat_est(%g) = %g\n", T, pres);
 
 
+    T = 300;
+    pres = 10.;
+    rho = water->density(T, pres, WATER_GAS);
+    water->setState_TR(T, rho);
+    double beta = water->coeffPresExp();
+
+    printf("beta    = %20.13g\n", beta);
 
 
+    double dpdt = numdpdt(water, T, pres);
+
+    rho = water->density(T,pres);
+    double betaNum = dpdt * 18.015268 /( 8.314371E3 * rho);
+    printf("betaNum = %20.13g\n", betaNum);
+
+    double alpha = water->coeffThermExp();
+    printf("alpha = %20.13g\n", alpha);
 
 
+    T = 300;
+    pres = 10.E6;
+    rho = water->density(T, pres, WATER_GAS);
+    water->setState_TR(T, rho);
+    beta = water->coeffPresExp();
+
+    printf("beta    = %20.13g\n", beta);
+
+
+    dpdt = numdpdt(water, T, pres);
+
+    rho = water->density(T,pres);
+    betaNum = dpdt * 18.015268 /( 8.314371E3 * rho);
+    
+    printf("betaNum = %20.13g\n", betaNum);
+
+    alpha = water->coeffThermExp();
+    printf("alpha = %20.13g\n", alpha);
+
+    T = 700;
+    pres = 10.E6;
+    rho = water->density(T, pres, WATER_GAS);
+    water->setState_TR(T, rho);
+    beta = water->coeffPresExp();
+
+    printf("beta    = %20.13g\n", beta);
+
+
+    dpdt = numdpdt(water, T, pres);
+
+    rho = water->density(T,pres);
+    betaNum = dpdt * 18.015268 /( 8.314371E3 * rho);
+    
+    printf("betaNum = %20.13g\n", betaNum);
+
+    alpha = water->coeffThermExp();
+    printf("alpha = %20.13g\n", alpha);
 
     delete water;
     return 0;
