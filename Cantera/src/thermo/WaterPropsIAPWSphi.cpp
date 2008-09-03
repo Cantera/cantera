@@ -784,7 +784,13 @@ double WaterPropsIAPWSphi::dimdpdrho(double tau, double delta) {
   return retn;
 }
 
-
+double WaterPropsIAPWSphi::dimdpdT(double tau, double delta) {
+  tdpolycalc(tau, delta);
+  double res1 = phiR_d();
+  double res2 = phiR_dt();
+  double retn = (1.0 + delta * res1) - tau * delta * (res2);
+  return retn;
+}
 
 /*
  * Calculate d_phi0/d(tau)

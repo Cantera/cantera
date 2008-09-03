@@ -346,7 +346,7 @@ namespace Cantera {
     doublereal T = m_temp;
     doublereal dens0 = m_sub->density(T, m_p0);
     doublereal h = m_sub->enthalpy(T, dens0);
-    m_sub->setState(m_temp, m_dens);
+    m_sub->setState_TR(m_temp, m_dens);
     return ((h + EW_Offset - SW_Offset*T)/(T * GasConstant));
   }
 
@@ -356,7 +356,7 @@ namespace Cantera {
     doublereal T = m_temp;
     doublereal dens0 = m_sub->density(T, m_p0);
     doublereal h = m_sub->enthalpy(T, dens0);
-    m_sub->setState(m_temp, m_dens);
+    m_sub->setState_TR(m_temp, m_dens);
     return ((h + EW_Offset)/(T * GasConstant));
   }
 
@@ -365,7 +365,7 @@ namespace Cantera {
     doublereal T = m_temp;
     doublereal dens0 = m_sub->density(T, m_p0);
     doublereal s = m_sub->entropy(T, dens0);
-    m_sub->setState(m_temp, m_dens);
+    m_sub->setState_TR(m_temp, m_dens);
     return ((s + SW_Offset)/GasConstant); 
   }
 
@@ -374,7 +374,7 @@ namespace Cantera {
     doublereal T = m_temp;
     doublereal dens0 = m_sub->density(T, m_p0);
     doublereal cp = m_sub->cp(T, dens0);
-    m_sub->setState(m_temp, m_dens);
+    m_sub->setState_TR(m_temp, m_dens);
     return (cp/GasConstant); 
   }
 
@@ -383,7 +383,7 @@ namespace Cantera {
     doublereal T = m_temp;
     doublereal dens0 = m_sub->density(T, m_p0);
     doublereal mv = m_sub->molarVolume(T, dens0);
-    m_sub->setState(m_temp, m_dens);
+    m_sub->setState_TR(m_temp, m_dens);
     return (mv); 
   }
 
@@ -465,7 +465,7 @@ namespace Cantera {
         
   void PDSS_Water::setDensity(doublereal dens) {
     m_dens = dens;
-    m_sub->setState(m_temp, m_dens);
+    m_sub->setState_TR(m_temp, m_dens);
   }
 
   doublereal PDSS_Water::density() const {
@@ -475,7 +475,7 @@ namespace Cantera {
   void PDSS_Water::setTemperature(doublereal temp) {
     m_temp = temp;
     doublereal dd = m_dens;
-    m_sub->setState(temp, dd);
+    m_sub->setState_TR(temp, dd);
   }
 
   void PDSS_Water::setState_TP(doublereal temp, doublereal pres) {

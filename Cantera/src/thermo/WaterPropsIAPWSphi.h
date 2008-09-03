@@ -73,13 +73,6 @@ public:
    */
   double phi_tt(double tau, double delta);
 
-  //! Second derivative of phi wrt tau, then delta
-  /*!
-   * @param tau     Dimensionless temperature = T_c/T
-   * @param delta   Dimensionless density =  delta = rho / Rho_c
-   */
-  double phi_dt(double tau, double delta);
-
   //! Internal check # 1
   void   check1();
 
@@ -107,6 +100,16 @@ public:
    * @param delta   Dimensionless density =  delta = rho / Rho_c
    */
   double dimdpdrho(double tau, double delta);
+
+  //! Dimensionless derivative of p wrt T at constant rho
+  /*!
+   *  dp/dT * M/(Rho R) = (1.0 + delta phiR_d() 
+   *                   -  tau delta (phiR_dt())
+   *
+   * @param tau     Dimensionless temperature = T_c/T
+   * @param delta   Dimensionless density =  delta = rho / Rho_c
+   */
+  double dimdpdT(double tau, double delta);
 
   /**
    * This program computes the reduced density, given the reduced pressure

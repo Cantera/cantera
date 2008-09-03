@@ -22,12 +22,20 @@
  *  @name Names for the phase regions
  *
  *  These constants are defined and used in the interface
- *  to describe desired phases.
+ *  to describe the location of where we are in (T,rho) space.
+ *  
+ *   WATER_UNSTABLELIQUID indicates that we are in the unstable region, inside the
+ *   spinodal curve where dpdrho < 0.0 amonst other properties. The difference
+ *   between WATER_UNSTABLELIQUID and WATER_UNSTABLEGAS  is that 
+ *     for WATER_UNSTABLELIQUID  d2pdrho2 > 0   and dpdrho < 0.0
+ *     for WATER_UNSTABLEGAS     d2pdrho2 < 0   and dpdrho < 0.0
  */ 
 //@{
 #define WATER_GAS       0
 #define WATER_LIQUID    1
 #define WATER_SUPERCRIT 2
+#define WATER_UNSTABLELIQUID  3
+#define WATER_UNSTABLEGAS  4
 //@}
 
 //! Class for calculating the equation of state of water. 
@@ -155,7 +163,7 @@ public:
    * @param temperature   temperature (kelvin)
    * @param rho           density  (kg m-3)
    */
-  void setState(double temperature, double rho);
+  void setState_TR(double temperature, double rho);
   
   
   //! Calculate the Helmholtz free energy in mks units of J kmol-1 K-1.
@@ -180,7 +188,6 @@ public:
   //! using the last temperature and density
   double Gibbs() const;
 
-  
   //!  Calculate the enthalpy in mks units of  J kmol-1 
   /*!
    * @param temperature   temperature (kelvin)
@@ -310,6 +317,18 @@ public:
    *    Returns the coefficient of thermal expansion
    */
   double coeffThermExp(double temperature, double pressure);
+
+  //! Returns the isochoric pressure-temperature coefficient
+  /*!
+   *
+   *     beta = M / (rho * Rgas) (d (pressure) / dT) at constant rho
+   *
+   *  Note for ideal gases this is equal to one.
+   *
+   *    beta = delta (phi0_d() + phiR_d())
+   *            - tau delta (phi0_dt() + phiR_dt())
+   */
+  double coeffPresExp() const;
 
   //! Returns the coefficient of isothermal compressibility for the 
   //! state of the object

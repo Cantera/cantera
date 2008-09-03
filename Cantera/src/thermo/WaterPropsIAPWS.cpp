@@ -14,6 +14,8 @@
  */
 
 #include "WaterPropsIAPWS.h"
+#include "ctexceptions.h"
+#include "stringUtils.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -95,7 +97,7 @@ void WaterPropsIAPWS::calcDim(double temperature, double rho) {
  * J kmol-1 K-1.
  */
 double  WaterPropsIAPWS::helmholtzFE(double temperature, double rho) {
-  setState(temperature, rho);
+  setState_TR(temperature, rho);
   double retn = m_phi->phi(tau, delta);
   double RT = Rgas * temperature;
   return (retn * RT);
@@ -155,14 +157,20 @@ density(double temperature, double pressure, int phase, double rhoguess) {
       if (temperature > T_c) {
 	rhoguess = pressure * M_water / (Rgas * temperature);
       } else {
-	if (phase != WATER_LIQUID) {
+	if (phase == WATER_GAS || phase == WATER_SUPERCRIT) {
 	  rhoguess = pressure * M_water / (Rgas * temperature);
-	} else {
+	} else if (phase == WATER_LIQUID) {
 	  /*
 	   * Provide a guess about the liquid density that is 
 	   * relatively high -> convergnce from above seems robust.
 	   */
 	  rhoguess = 1000.;
+	} else if (phase == WATER_UNSTABLELIQUID || phase == WATER_UNSTABLEGAS) {
+	  throw Cantera::CanteraError("WaterPropsIAPWS::density", 
+				      "Unstable Branch finder is untested");
+	} else {
+	  throw Cantera::CanteraError("WaterPropsIAPWS::density", 
+				      "unknown state: " + Cantera::int2str(phase));
 	}
       }
     } else {
@@ -176,7 +184,7 @@ density(double temperature, double pressure, int phase, double rhoguess) {
   }
   double p_red = pressure * M_water / (Rgas * temperature * Rho_c);
   deltaGuess = rhoguess / Rho_c;
-  setState(temperature, rhoguess);
+  setState_TR(temperature, rhoguess);
   double delta_retn = m_phi->dfind(p_red, tau, deltaGuess);
   double density_retn;
   if (delta_retn >0.0) {
@@ -190,7 +198,7 @@ density(double temperature, double pressure, int phase, double rhoguess) {
      * Set the internal state -> this may be
      * a duplication. However, let's just be sure.
      */
-    setState(temperature, density_retn);
+    setState_TR(temperature, density_retn);
     
 
   } else {
@@ -302,12 +310,17 @@ double WaterPropsIAPWS::isothermalCompressibility() const {
   return (1.0 / (dens * dpdrho));
 }
 
+double WaterPropsIAPWS:: coeffPresExp() const {
+  double retn = m_phi->dimdpdT(tau, delta);
+  return (retn);
+}
+
 /*
  * Calculate the Gibbs free energy in mks units of
  * J kmol-1 K-1.
  */
 double WaterPropsIAPWS::Gibbs(double temperature, double rho) {
-  setState(temperature, rho);
+  setState_TR(temperature, rho);
   double gRT = m_phi->gibbs_RT();
   return (gRT * Rgas * temperature);
 }
@@ -331,7 +344,7 @@ corr(double temperature, double pressure, double &densLiq,
     printf("error liq\n");
     exit(-1);
   }
-  setState(temperature, densLiq);
+  setState_TR(temperature, densLiq);
   double gibbsLiqRT =  m_phi->gibbs_RT();
 
   densGas = density(temperature, pressure, WATER_GAS, densGas);
@@ -339,7 +352,7 @@ corr(double temperature, double pressure, double &densLiq,
     printf("error gas\n");
     exit(-1);
   }
-  setState(temperature, densGas);
+  setState_TR(temperature, densGas);
   double gibbsGasRT = m_phi->gibbs_RT();
     
   delGRT = gibbsLiqRT - gibbsGasRT;
@@ -350,11 +363,11 @@ corr1(double temperature, double pressure, double &densLiq,
       double &densGas, double &pcorr) {
     
   densLiq = density(temperature, pressure, WATER_LIQUID, densLiq);
-  setState(temperature, densLiq);
+  setState_TR(temperature, densLiq);
   double prL = m_phi->phiR();
 
   densGas = density(temperature, pressure, WATER_GAS, densGas);
-  setState(temperature, densGas);
+  setState_TR(temperature, densGas);
   double prG = m_phi->phiR();
     
   double rhs = (prL - prG) + log(densLiq/densGas);
@@ -405,7 +418,7 @@ int WaterPropsIAPWS::phaseState() const {
  * Sets the internal state of the object to the
  * specified temperature and density.
  */
-void WaterPropsIAPWS::setState(double temperature, double rho) {
+void WaterPropsIAPWS::setState_TR(double temperature, double rho) {
   calcDim(temperature, rho);
   m_phi->tdpolycalc(tau, delta);
 }
@@ -417,7 +430,7 @@ void WaterPropsIAPWS::setState(double temperature, double rho) {
  */
 double WaterPropsIAPWS::
 enthalpy(double temperature, double rho) {
-  setState(temperature, rho);
+  setState_TR(temperature, rho);
   double hRT =  m_phi->enthalpy_RT();
   return (hRT * Rgas * temperature);
 }
@@ -435,7 +448,7 @@ enthalpy() const {
  */
 double WaterPropsIAPWS::
 intEnergy(double temperature, double rho) {
-  setState(temperature, rho);
+  setState_TR(temperature, rho);
   double uRT = m_phi->intEnergy_RT();
   return (uRT * Rgas * temperature);
 }
@@ -452,7 +465,7 @@ intEnergy() const{
  */
 double WaterPropsIAPWS::
 entropy(double temperature, double rho) {
-  setState(temperature, rho);
+  setState_TR(temperature, rho);
   double sR = m_phi->entropy_R();
   return (sR * Rgas);
 }
@@ -471,7 +484,7 @@ double WaterPropsIAPWS::entropy() const {
  * J kmol-1 K-1.
  */
 double WaterPropsIAPWS::cv(double temperature, double rho) {
-  setState(temperature, rho);
+  setState_TR(temperature, rho);
   double cvR = m_phi->cv_R();
   return (cvR * Rgas);
 }
@@ -480,27 +493,23 @@ double WaterPropsIAPWS::cv(double temperature, double rho) {
  * Calculate heat capacity at constant pressure
  * J kmol-1 K-1.
  */
-double WaterPropsIAPWS::
-cp(double temperature, double rho) {
-  setState(temperature, rho);
+double WaterPropsIAPWS::cp(double temperature, double rho) {
+  setState_TR(temperature, rho);
   double cpR = m_phi->cp_R();
   return (cpR * Rgas);
 }
 
-double  WaterPropsIAPWS::
-cp() const {
+double  WaterPropsIAPWS::cp() const {
   double cpR = m_phi->cp_R();
   return (cpR * Rgas);
 }
 
-double WaterPropsIAPWS::
-molarVolume(double temperature, double rho) {
-  setState(temperature, rho);
+double WaterPropsIAPWS::molarVolume(double temperature, double rho) {
+  setState_TR(temperature, rho);
   return (M_water / rho);
 }
 
-double WaterPropsIAPWS::
-molarVolume() const {
+double WaterPropsIAPWS::molarVolume() const {
   double rho = delta * Rho_c;
   return (M_water / rho);
 }

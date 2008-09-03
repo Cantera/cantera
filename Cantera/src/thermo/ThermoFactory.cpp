@@ -440,7 +440,7 @@ namespace Cantera {
 	    skip = true;
 	  else
 	    throw CanteraError("importPhase",
-			       "duplicate species: "+name);
+			       "duplicate species: \"" + name + "\"");
 	}
 	if (!skip) {
 	  declared[name] = true;
@@ -453,8 +453,8 @@ namespace Cantera {
 	      ++k;
 	  }
 	  else {
-	    throw CanteraError("importPhase","no data for species "
-			       +name);
+	    throw CanteraError("importPhase","no data for species, \""
+			       + name + "\"");
 	  }
 	}
       }

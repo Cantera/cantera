@@ -398,7 +398,7 @@ namespace Cantera {
     if (dd <= 0.0) {
       throw CanteraError("setPressure", "error");
     }
-    m_sub->setState(T, dd);
+    m_sub->setState_TR(T, dd);
     doublereal g = m_sub->Gibbs(T, dd);
     *grt = (g + EW_Offset - SW_Offset*T)/ (GasConstant * T);
     dd = m_sub->density(T, p, waterState, dens);
@@ -427,7 +427,7 @@ namespace Cantera {
     if (dd <= 0.0) {
       throw CanteraError("setPressure", "error");
     }
-    m_sub->setState(T, dd);
+    m_sub->setState_TR(T, dd);
 
     doublereal s = m_sub->entropy(T, dd);
     *sr = (s + SW_Offset)/ (GasConstant);
@@ -445,7 +445,7 @@ namespace Cantera {
       waterState = WATER_LIQUID;
     }
     doublereal dd = m_sub->density(T, OneAtm, waterState, dens);
-    m_sub->setState(T, dd);
+    m_sub->setState_TR(T, dd);
     if (dd <= 0.0) {
       throw CanteraError("setPressure", "error");
     }
@@ -539,7 +539,7 @@ namespace Cantera {
   void WaterSSTP::setTemperature(double temp) {
     State::setTemperature(temp);
     doublereal dd = density();
-    m_sub->setState(temp, dd);
+    m_sub->setState_TR(temp, dd);
   }
 
      
@@ -549,7 +549,7 @@ namespace Cantera {
     doublereal tsave = temperature();
     doublereal dsave = density();
     doublereal pp = m_sub->psat(t);
-    m_sub->setState(tsave, dsave);
+    m_sub->setState_TR(tsave, dsave);
     return pp;
   }
 
