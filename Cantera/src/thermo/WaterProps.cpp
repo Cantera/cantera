@@ -442,14 +442,21 @@ namespace Cantera {
   }
 
   double WaterProps::coeffThermalExp_IAPWS(double temp, double press) {
-
-    double cte;
-    cte = m_waterIAPWS->coeffThermExp(temp, press);
+    double dens = m_waterIAPWS->density(temp, press, WATER_LIQUID);
+    if (dens < 0.0) {
+      throw CanteraError("WaterProps::coeffThermalExp_IAPWS", 
+			 "Unable to solve for density at T = " + fp2str(temp) + " and P = " + fp2str(press));
+    }
+    double cte = m_waterIAPWS->coeffThermExp();
     return cte;
   }
 
   double WaterProps::isothermalCompressibility_IAPWS(double temp, double press) {
-    m_waterIAPWS->density(temp, press, WATER_LIQUID);
+    double dens = m_waterIAPWS->density(temp, press, WATER_LIQUID);
+    if (dens < 0.0) {
+      throw CanteraError("WaterProps::isothermalCompressibility_IAPWS", 
+			 "Unable to solve for density at T = " + fp2str(temp) + " and P = " + fp2str(press));
+    }
     double kappa = m_waterIAPWS->isothermalCompressibility();
     return kappa;
   }

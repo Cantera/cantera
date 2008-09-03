@@ -307,7 +307,7 @@ public:
    */
   double density() const;
 
-  //! Returns the coefficient of thermal expansion as a function of temperature and pressure.
+  //! Returns the coefficient of thermal expansion.
   /*!
    *           alpha = d (ln V) / dT at constant P.
    *
@@ -316,7 +316,7 @@ public:
    * @return
    *    Returns the coefficient of thermal expansion
    */
-  double coeffThermExp(double temperature, double pressure);
+  double coeffThermExp() const;
 
   //! Returns the isochoric pressure-temperature coefficient
   /*!

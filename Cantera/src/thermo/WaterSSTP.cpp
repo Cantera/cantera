@@ -508,18 +508,23 @@ namespace Cantera {
    * \f]
    */
   doublereal WaterSSTP::thermalExpansionCoeff() const {
-    doublereal pres = pressure();
-    double T = temperature();
-    doublereal val = m_sub->coeffThermExp(T, pres);
+    doublereal val = m_sub->coeffThermExp();
     return val;
   }
 
   doublereal WaterSSTP::dthermalExpansionCoeffdT() const {
     doublereal pres = pressure();
+    doublereal dens_save = density();
     double T = temperature();
     double tt = T - 0.04;
-    doublereal vald = m_sub->coeffThermExp(tt, pres);
-    doublereal val2 = m_sub->coeffThermExp(T, pres);
+    doublereal dd = m_sub->density(tt, pres, WATER_LIQUID, dens_save);
+    if (dd < 0.0) {
+      throw CanteraError("WaterSSTP::dthermalExpansionCoeffdT", 
+			 "Unable to solve for the density at T = " + fp2str(tt) + ", P = " + fp2str(pres));
+    }
+    doublereal vald = m_sub->coeffThermExp();
+    m_sub->setState_TR(T, dens_save);
+    doublereal val2 = m_sub->coeffThermExp();
     doublereal val = (val2 - vald) / 0.04;
     return val;
   }

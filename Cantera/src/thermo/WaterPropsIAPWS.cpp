@@ -258,45 +258,6 @@ double WaterPropsIAPWS::psat_est(double temperature) {
 }
 
 /*
- * Returns the coefficient of thermal expansion as a function
- * of temperature and pressure.
- *           alpha = d (ln V) / dT at constant P.
- *
- * Currently this function is calculated using a differencing scheme. 
- */
-double WaterPropsIAPWS::coeffThermExp(double temperature, double pressure) {
-
-  double deltaT = 0.01;
-  double psat_at=0.0;
-  double rhoguess = -1;
-  int phase = -1;
-  if (temperature > T_c) {
-    rhoguess = pressure * M_water / (Rgas * temperature);
-  } else {
-    psat_at = psat(temperature);
-    if (pressure >= psat_at) {
-      phase = WATER_LIQUID;
-      deltaT = -0.01;
-    } else
-      phase = WATER_GAS;
-  }
-
-  double dens_base = density(temperature, pressure, phase, rhoguess);
-
-  if (dens_base == -1.0) {
-    printf("problems\n");
-    exit(-1);
-  }
-  double temp_del = temperature + deltaT;
-
-  double dens_del = density(temp_del, pressure, phase, dens_base);
-
-  double Vavg = 0.5 * (1./dens_del + 1./dens_base); 
-  double retn = 1.0 / Vavg * (1./dens_del - 1.0/dens_base)/deltaT;
-  return retn;
-}
-
-/*
  * Returns the coefficient of isothermal compressibility
  * of temperature and pressure.
  *          kappa = - d (ln V) / dP at constant T.
@@ -313,6 +274,13 @@ double WaterPropsIAPWS::isothermalCompressibility() const {
 double WaterPropsIAPWS:: coeffPresExp() const {
   double retn = m_phi->dimdpdT(tau, delta);
   return (retn);
+}
+
+double WaterPropsIAPWS:: coeffThermExp() const {
+  double kappa = isothermalCompressibility();
+  double beta = coeffPresExp();
+  double dens = delta * Rho_c;
+  return (kappa * dens * Rgas * beta / M_water);
 }
 
 /*
