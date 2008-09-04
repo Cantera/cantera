@@ -247,9 +247,7 @@ namespace Cantera {
 
   };
 
-#ifdef DEBUG_MODE
   extern int ChemEquil_print_lvl;
-#endif
 
 }
 

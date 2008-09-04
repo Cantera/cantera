@@ -32,11 +32,9 @@ using namespace std;
 #include "stringUtils.h"
 #include "MultiPhase.h"
 
-#ifdef DEBUG_MODE
 #include "stdio.h"
 int Cantera::ChemEquil_print_lvl = 0;
 //static char sbuf[1024];
-#endif
 #ifndef MIN
 #define MIN(x,y) (( (x) < (y) ) ? (x) : (y))
 #endif
