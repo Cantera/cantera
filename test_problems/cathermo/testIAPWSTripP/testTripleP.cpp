@@ -22,21 +22,21 @@ int main () {
     dens = water->density(T, pres, WATER_LIQUID);
     printf("dens (liquid) = %g kg m-3\n", dens);
 
-    u = water->intEnergy(T, dens);
+    u = water->intEnergy();
     if (fabs(u) < 5.0E-7) {
       printf("intEng (liquid) = ~0.0 J/kmol (fabs(u) < 5.0E-7)\n");
     } else {
       printf("intEng (liquid) = %g J/kmol\n", u);
     }
 
-    s = water->entropy(T, dens);
+    s = water->entropy();
     if (fabs(s) < 5.0E-9) {
       printf("S (liquid) = ~0.0 J/kmolK (fabs(s) < 5.0E-9)\n");
     } else {
       printf("S (liquid) = %g J/kmolK\n", s);
     }
 
-    h = water->enthalpy(T, dens);
+    h = water->enthalpy();
     printf("h (liquid) = %g J/kmol\n", h);
     printf("h (liquid) = %g J/kg\n", (h)/18.015268);
 
@@ -55,13 +55,13 @@ int main () {
     printf("dens (gas)    = %g kg m-3\n", dens);
 
   
-    u = water->intEnergy(T, dens);
+    u = water->intEnergy();
     printf("intEng (gas) = %g J/kmol\n", u);
 
-    s = water->entropy(T, dens);
+    s = water->entropy();
     printf("S (gas) = %g J/kmolK\n", s);
 
-    h = water->enthalpy(T, dens);
+    h = water->enthalpy();
     printf("h (gas) = %g J/kmol\n", h);
     printf("h (gas) = %g J/kg\n", (h)/18.015268);
 
