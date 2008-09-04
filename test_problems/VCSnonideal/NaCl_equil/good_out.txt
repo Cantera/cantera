@@ -324,7 +324,7 @@ Moles: 2.32742
                        -----------      ------------
           enthalpy    -1.35106e+07        -2.71e+08     J
    internal energy    -1.35107e+07        -2.71e+08     J
-           entropy         3304.61        6.629e+04     J/K
+           entropy          3304.6        6.629e+04     J/K
     Gibbs function    -1.44958e+07       -2.908e+08     J
  heat capacity c_p         3053.16        6.125e+04     J/K
  heat capacity c_v    <not implemented>       
