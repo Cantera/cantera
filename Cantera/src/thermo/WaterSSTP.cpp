@@ -233,13 +233,14 @@ namespace Cantera {
      * Set the baseline 
      */
     doublereal T = 298.15;
+    State::setDensity(7.0E-8);
+    State::setTemperature(T);
 
     doublereal presLow = 1.0E-2;
     doublereal oneBar = 1.0E5;
-    doublereal dens = density();
-    doublereal dd = m_sub->density(T, presLow, WATER_GAS, dens);
-    setTemperature(T);
+    doublereal dd = m_sub->density(T, presLow, WATER_GAS, 7.0E-8);
     setDensity(dd);
+    setTemperature(T);
     SW_Offset = 0.0;
     doublereal s = entropy_mole();
     s -=  GasConstant * log(oneBar/presLow);
@@ -291,8 +292,7 @@ namespace Cantera {
    */
   void WaterSSTP::getEnthalpy_RT(doublereal* hrt) const {
     double T = temperature();
-    double dens = density();
-    doublereal h = m_sub->enthalpy(T, dens);
+    doublereal h = m_sub->enthalpy();
     *hrt = (h + EW_Offset)/(GasConstant*T);
   }
 
@@ -301,9 +301,7 @@ namespace Cantera {
    * J kmol-1 
    */
   void WaterSSTP::getIntEnergy_RT(doublereal *ubar) const {
-    double T = temperature();
-    double dens = density();
-    doublereal u = m_sub->intEnergy(T, dens);
+    doublereal u = m_sub->intEnergy();
     *ubar = (u + EW_Offset)/GasConstant;            
   }
 
@@ -311,9 +309,7 @@ namespace Cantera {
    * Calculate the dimensionless entropy
    */
   void WaterSSTP::getEntropy_R(doublereal* sr) const {
-    double T = temperature();
-    double dens = density();
-    doublereal s = m_sub->entropy(T, dens);
+    doublereal s = m_sub->entropy();
     sr[0] = (s + SW_Offset) / GasConstant;
   }
 
@@ -380,7 +376,7 @@ namespace Cantera {
     if (dd <= 0.0) {
       throw CanteraError("setPressure", "error");
     }
-    doublereal h = m_sub->enthalpy(T, dd);
+    doublereal h = m_sub->enthalpy();
     *hrt = (h + EW_Offset) / (GasConstant * T);
     dd = m_sub->density(T, p, waterState, dens);
   }
@@ -429,7 +425,7 @@ namespace Cantera {
     }
     m_sub->setState_TR(T, dd);
 
-    doublereal s = m_sub->entropy(T, dd);
+    doublereal s = m_sub->entropy();
     *sr = (s + SW_Offset)/ (GasConstant);
     dd = m_sub->density(T, p, waterState, dens); 
  
@@ -539,7 +535,6 @@ namespace Cantera {
   // critical density
   doublereal WaterSSTP::critDensity() const { return m_sub->Rhocrit(); }
         
-        
 
   void WaterSSTP::setTemperature(double temp) {
     State::setTemperature(temp);
@@ -547,7 +542,11 @@ namespace Cantera {
     m_sub->setState_TR(temp, dd);
   }
 
-     
+  void WaterSSTP::setDensity(double dens) {
+    State::setDensity(dens);
+    doublereal temp = temperature();
+    m_sub->setState_TR(temp, dens);
+  }
 
   // saturation pressure
   doublereal WaterSSTP::satPressure(doublereal t) const {

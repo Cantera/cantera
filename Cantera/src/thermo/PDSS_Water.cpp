@@ -242,9 +242,8 @@ namespace Cantera {
     doublereal presLow = 1.0E-2;
     doublereal oneBar = 1.0E5;
     doublereal dens = 1.0E-9;
-    doublereal dd = m_sub->density(T, presLow, WATER_GAS, dens);
-    setTemperature(T);
-    m_dens = dd;
+    m_dens = m_sub->density(T, presLow, WATER_GAS, dens);
+    m_pres = presLow;
     SW_Offset = 0.0;
     doublereal s = entropy_mole();
     s -=  GasConstant * log(oneBar/presLow);
@@ -260,17 +259,15 @@ namespace Cantera {
       EW_Offset = -241.826E6 - h;
     }
     h = enthalpy_mole();
-
     //printf("h = %g\n", h);
-
 
     /*
      * Set the initial state of the system to 298.15 K and 
      * 1 bar.
      */
     setTemperature(298.15);
-    doublereal rho0 = m_sub->density(298.15, OneAtm, WATER_LIQUID);
-    m_dens = rho0;
+    m_dens = m_sub->density(298.15, OneAtm, WATER_LIQUID);
+    m_pres = OneAtm;
   }
 
   void PDSS_Water::initThermo() {
@@ -282,27 +279,20 @@ namespace Cantera {
     PDSS::initThermoXML(phaseNode, id);
   }
 
-  doublereal PDSS_Water::
-  enthalpy_mole() const {
-    doublereal T = m_temp;
-    doublereal dens = m_dens;
-    doublereal h = m_sub->enthalpy(T, dens);
+  doublereal PDSS_Water::enthalpy_mole() const {
+    doublereal h = m_sub->enthalpy();
     return (h + EW_Offset);
   }
 
   doublereal PDSS_Water::
   intEnergy_mole() const {
-    doublereal T = m_dens;
-    doublereal dens = m_temp;
-    doublereal u = m_sub->intEnergy(T, dens);
+    doublereal u = m_sub->intEnergy();
     return (u + EW_Offset);            
   }
 
   doublereal PDSS_Water::
   entropy_mole() const {
-    doublereal T = m_temp;
-    doublereal dens = m_dens;
-    doublereal s = m_sub->entropy(T, dens);
+    doublereal s = m_sub->entropy();
     return (s + SW_Offset); 
   }
 
@@ -344,8 +334,8 @@ namespace Cantera {
   doublereal
   PDSS_Water::gibbs_RT_ref() const {
     doublereal T = m_temp;
-    doublereal dens0 = m_sub->density(T, m_p0);
-    doublereal h = m_sub->enthalpy(T, dens0);
+    m_sub->density(T, m_p0);
+    doublereal h = m_sub->enthalpy();
     m_sub->setState_TR(m_temp, m_dens);
     return ((h + EW_Offset - SW_Offset*T)/(T * GasConstant));
   }
@@ -354,8 +344,8 @@ namespace Cantera {
   doublereal
   PDSS_Water::enthalpy_RT_ref() const {
     doublereal T = m_temp;
-    doublereal dens0 = m_sub->density(T, m_p0);
-    doublereal h = m_sub->enthalpy(T, dens0);
+    m_sub->density(T, m_p0);
+    doublereal h = m_sub->enthalpy();
     m_sub->setState_TR(m_temp, m_dens);
     return ((h + EW_Offset)/(T * GasConstant));
   }
@@ -363,8 +353,8 @@ namespace Cantera {
   doublereal PDSS_Water::
   entropy_R_ref() const {
     doublereal T = m_temp;
-    doublereal dens0 = m_sub->density(T, m_p0);
-    doublereal s = m_sub->entropy(T, dens0);
+    m_sub->density(T, m_p0);
+    doublereal s = m_sub->entropy();
     m_sub->setState_TR(m_temp, m_dens);
     return ((s + SW_Offset)/GasConstant); 
   }

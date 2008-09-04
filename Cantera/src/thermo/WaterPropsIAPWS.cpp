@@ -396,14 +396,7 @@ void WaterPropsIAPWS::setState_TR(double temperature, double rho) {
  * Calculate the enthalpy in mks units of
  * J kmol-1 K-1.
  */
-double WaterPropsIAPWS::
-enthalpy(double temperature, double rho) {
-  setState_TR(temperature, rho);
-  double hRT =  m_phi->enthalpy_RT();
-  return (hRT * Rgas * temperature);
-}
-double WaterPropsIAPWS::
-enthalpy() const {
+double WaterPropsIAPWS::enthalpy() const {
   double temperature = T_c/tau;
   double hRT =  m_phi->enthalpy_RT();
   return (hRT * Rgas * temperature);
@@ -414,28 +407,10 @@ enthalpy() const {
  * Calculate the internal Energy in mks units of
  * J kmol-1 K-1.
  */
-double WaterPropsIAPWS::
-intEnergy(double temperature, double rho) {
-  setState_TR(temperature, rho);
-  double uRT = m_phi->intEnergy_RT();
-  return (uRT * Rgas * temperature);
-}
-double WaterPropsIAPWS::
-intEnergy() const{
+double WaterPropsIAPWS::intEnergy() const{
   double temperature = T_c / tau;
   double uRT = m_phi->intEnergy_RT();
   return (uRT * Rgas * temperature);
-}
-
-/*
- * Calculate the enthalpy in mks units of
- * J kmol-1 K-1.
- */
-double WaterPropsIAPWS::
-entropy(double temperature, double rho) {
-  setState_TR(temperature, rho);
-  double sR = m_phi->entropy_R();
-  return (sR * Rgas);
 }
 
 /*

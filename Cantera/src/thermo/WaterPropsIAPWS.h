@@ -189,39 +189,15 @@ public:
   double Gibbs() const;
 
   //!  Calculate the enthalpy in mks units of  J kmol-1 
-  /*!
-   * @param temperature   temperature (kelvin)
-   * @param rho           density  (kg m-3)
-   */
-  double enthalpy(double temperature, double rho);
-
-  //!  Calculate the enthalpy in mks units of  J kmol-1 
   //!  using the last temperature and density
   double enthalpy() const;
  
   //! Calculate the internal energy in mks units of J kmol-1 
-  /*!
-   * @param temperature   temperature (kelvin)
-   * @param rho           density  (kg m-3)
-   */
-  double intEnergy(double temperature, double rho);
-
-  //! Calculate the internal energy in mks units of J kmol-1 
-  //! at the last internal energy
   double intEnergy() const;
-  
-  //! Calculate the entropy in mks units of  J kmol-1 K-1
-  /*!
-   * @param temperature   temperature (kelvin)
-   * @param rho           density  (kg m-3)
-   */
-  double entropy(double temperature, double rho);
 
   //! Calculate the entropy in mks units of  J kmol-1 K-1
-  //! at the last temperature and density
   double entropy() const;
-   
-  
+    
   //! Calculate the constant volume heat capacity in mks units of J kmol-1 K-1
   /*!
    * @param temperature   temperature (kelvin)
