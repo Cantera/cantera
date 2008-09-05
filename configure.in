@@ -1770,6 +1770,7 @@ AC_OUTPUT(Makefile \
           test_problems/cathermo/VPissp/Makefile \
           test_problems/VCSnonideal/Makefile \
           test_problems/VPsilane_test/Makefile \
+          test_problems/VPsilane_test/runtest \
           test_problems/VCSnonideal/NaCl_equil/Makefile \
           bin/install_tsc \
           )
@@ -1785,6 +1786,9 @@ if test -f "test_problems/ck2cti_test/runtest"; then
 fi
 if test -f "test_problems/nasa9_reader/runtest"; then
   chmod +x test_problems/nasa9_reader/runtest
+fi
+if test -f "test_problems/VPsilane_test/runtest"; then
+  chmod +x test_problems/VPsilane_test/runtest
 fi
 if test -f "bin/install_tsc"; then
   chmod +x bin/install_tsc
