@@ -320,9 +320,7 @@ namespace VCSnonideal {
     plogf(")\n");
     plogf("    Name        TKMoles     StandStateChemPot   "
 	  "   ln(AC)       ln(X_i)      |   F z_i phi   |    ChemPot    | (-lnMnaught)");
-#ifdef DEBUG_MODE
     plogf("|  (MolNum ChemPot)|");
-#endif
     plogf("\n");
     print_line("-", 147);
     for (i = 0; i < nspecies; ++i) {
@@ -362,15 +360,11 @@ namespace VCSnonideal {
 	plogf("             ");
       }
       
-#ifdef DEBUG_MODE
       plogf("| %20.13E |", m_feSpecies_old[l] * m_molNumSpecies_old[l] * molScale);
-#endif
       plogf("\n");
     }
-#ifdef DEBUG_MODE
     for (i = 0; i < 125; i++) plogf(" ");
     plogf("%20.13E\n", g);
-#endif
     print_line("-", 147);
 
     /*
