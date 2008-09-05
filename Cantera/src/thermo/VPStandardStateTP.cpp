@@ -445,6 +445,8 @@ namespace Cantera {
     double Tnow = temperature();
     m_Plast_ss = m_Pcurrent;
     m_Tlast_ss = Tnow;
+    AssertThrowMsg(m_VPSS_ptr != 0, "VPStandardStateTP::_updateStandardStateThermo()",
+                   "Probably indicates that ThermoPhase object wasn't initialized correctly");
     m_VPSS_ptr->setState_TP(Tnow, m_Pcurrent);
   }
 
