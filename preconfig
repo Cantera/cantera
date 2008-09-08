@@ -447,8 +447,12 @@ GRAPHVIZDIR=${GRAPHVIZDIR:=" "}
 CXX_EXT=${CXX_EXT:=cpp}
 F77_EXT=${F77_EXT:=f}
 F90_EXT=${F90_EXT:=f90}
+#
+# Default extension for executable binaries. The default for unix systems
+# is the empty field. For windows systesms and cygwin, you should put
+# ".exe" .
+#
 EXE_EXT=${EXE_EXT:=}
-
 
 
 CT_SHARED_LIB=${CT_SHARED_LIB:=clib}
