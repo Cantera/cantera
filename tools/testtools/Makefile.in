@@ -3,6 +3,7 @@
 LIBDIR = @buildlib@
 INCDIR = @ctroot@/build/include/cantera
 BINDIR = @ctroot@/bin
+BBINDIR = @buildbin@
 build_ck = @BUILD_CK@
 
 LCXX_FLAGS = -L$(LIBDIR)  @LOCAL_LIB_DIRS@ @CXXFLAGS@
@@ -28,9 +29,10 @@ all: $(BINDIR)/csvdiff
 $(BINDIR)/csvdiff: mdp_allo.o csvdiff.o tok_input_util.o
 	@CXX@ -o $(BINDIR)/csvdiff  mdp_allo.o csvdiff.o tok_input_util.o \
 	 $(LCXX_FLAGS) $(LCXX_END_LIBS) 
+	cp -f $(BINDIR)/csvdiff $(BBINDIR)
 
 clean:
-	$(RM) *.o *.*~ csvdiff $(BINDIR)/csvdiff
+	$(RM) *.o *.*~ csvdiff $(BINDIR)/csvdiff $(BBINDIR)/csvdiff
 
 %.d:
 	@CXX_DEPENDS@ -MM -I$(INCDIR) $(CXX_FLAGS) $*.cpp > $*.d

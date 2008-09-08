@@ -19,6 +19,7 @@ ifeq ($(build_ck),1)
 	@INSTALL@ -c @buildbin@/ck2cti @ct_bindir@
 endif
 	@INSTALL@ -c @buildbin@/cti2ctml @ct_bindir@
+	@INSTALL@ -c @buildbin@/csvdiff @ct_bindir@
 
 man-install:
 	@INSTALL@ -d @ct_mandir@/man1
