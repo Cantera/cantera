@@ -41,7 +41,6 @@ namespace Cantera {
   {
     m_useTmpRefStateStorage      = true;
     m_useTmpStandardStateStorage = true;
-    m_waterSS = new PDSS_Water();
   }
 
 
@@ -51,11 +50,11 @@ namespace Cantera {
   }
 
   VPSSMgr_Water_HKFT::VPSSMgr_Water_HKFT(const VPSSMgr_Water_HKFT &right) :
-    VPSSMgr(right.m_vptp_ptr, right.m_spthermo)
+    VPSSMgr(right.m_vptp_ptr, right.m_spthermo),
+    m_waterSS(0)
   {
     m_useTmpRefStateStorage = true;
     m_useTmpStandardStateStorage = true;
-    m_waterSS = new PDSS_Water();
     *this = right;
   }
 
@@ -65,8 +64,7 @@ namespace Cantera {
   {
     if (&b == this) return *this;
     VPSSMgr::operator=(b);
-    if (m_waterSS) delete m_waterSS;
-    m_waterSS = new PDSS_Water(*(b.m_waterSS));
+    m_waterSS = (PDSS_Water *) m_vptp_ptr->providePDSS(0);
     return *this;
   }
 
@@ -75,7 +73,6 @@ namespace Cantera {
     VPSSMgr_Water_HKFT *vpm = new VPSSMgr_Water_HKFT(*this);
     return (VPSSMgr *) vpm;
   }
-
 
   void
   VPSSMgr_Water_HKFT::getEnthalpy_RT_ref(doublereal *hrt) const{
@@ -211,8 +208,6 @@ namespace Cantera {
 					 &phaseNode.root());
     const vector<string>&sss = m_vptp_ptr->speciesNames();
 
-    if (m_waterSS) delete m_waterSS;
-    m_waterSS = new PDSS_Water(m_vptp_ptr, 0);
     m_waterSS->setState_TP(300., OneAtm);
     m_Vss[0] =  (m_waterSS->density())      / m_vptp_ptr->molecularWeight(0);
 
@@ -232,7 +227,6 @@ namespace Cantera {
 	throw CanteraError("VPSSMgr_Water_HKFT::initThermoXML",
 			   "standardState model for species isn't hkft: " + s->name());
       }
-      // m_Vss[k] = getFloat(*ss, "molarVolume", "-");
     }   
   }
 

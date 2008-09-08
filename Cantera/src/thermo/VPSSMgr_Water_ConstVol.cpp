@@ -62,7 +62,6 @@ namespace Cantera {
   {
     if (&b == this) return *this;
     VPSSMgr::operator=(b);
-    //if (m_waterSS) delete m_waterSS;
     return *this;
   }
 
@@ -208,7 +207,6 @@ namespace Cantera {
     const vector<string>&sss = m_vptp_ptr->speciesNames();
 
 
-    m_waterSS = dynamic_cast<PDSS_Water *>(m_vptp_ptr->providePDSS(0));
     if (!m_waterSS) {
       throw CanteraError("VPSSMgr_Water_ConstVol::initThermoXML",
                          "bad dynamic cast");

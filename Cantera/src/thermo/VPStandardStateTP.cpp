@@ -378,7 +378,7 @@ namespace Cantera {
     if (m_PDSS_storage[k] != 0) {
       delete m_PDSS_storage[k] ;
     }
-    m_PDSS_storage[k] =  m_VPSS_ptr->createInstallPDSS(k, s, phaseNode_ptr);
+    m_PDSS_storage[k] = m_VPSS_ptr->createInstallPDSS(k, s, phaseNode_ptr);
   }
 
   PDSS *

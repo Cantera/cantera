@@ -321,7 +321,7 @@ namespace Cantera {
  
     //@}
 
-   protected:
+   private:
 
     //! Shallow pointer to the water object
     PDSS_Water *m_waterSS;

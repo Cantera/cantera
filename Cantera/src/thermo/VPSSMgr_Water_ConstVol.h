@@ -293,8 +293,7 @@ namespace Cantera {
      */
     virtual void initAllPtrs(VPStandardStateTP *vp_ptr, SpeciesThermo *sp_ptr);
 
-   protected:
-
+   private:
 
     //! Pointer to the Water PDSS object.
     /*!
