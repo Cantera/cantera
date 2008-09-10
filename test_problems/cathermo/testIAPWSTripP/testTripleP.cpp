@@ -40,14 +40,14 @@ int main () {
     printf("h (liquid) = %g J/kmol\n", h);
     printf("h (liquid) = %g J/kg\n", (h)/18.015268);
 
-    double g_liq = water->Gibbs(T, dens);
+    double g_liq = water->Gibbs();
     printf("g (liquid) = %g J/kmol\n", g_liq);
 
 
-    cv = water->cv(T, dens);
+    cv = water->cv();
     printf("cv (liquid) = %g J/kmolK\n", cv);
 
-    cp = water->cp(T, dens);
+    cp = water->cp();
     printf("cp (liquid) = %g J/kmolK\n", cp);
 
 
@@ -65,14 +65,14 @@ int main () {
     printf("h (gas) = %g J/kmol\n", h);
     printf("h (gas) = %g J/kg\n", (h)/18.015268);
 
-    double g_gas = water->Gibbs(T, dens);
+    double g_gas = water->Gibbs();
     printf("g (gas) = %g J/kmol\n", g_gas);
 
 
-    cv = water->cv(T, dens);
+    cv = water->cv();
     printf("cv (gas) = %g J/kmolK\n", cv);
 
-    cp = water->cp(T, dens);
+    cp = water->cp();
     printf("cp (gas) = %g J/kmolK\n", cp);
 
     printf("\n");

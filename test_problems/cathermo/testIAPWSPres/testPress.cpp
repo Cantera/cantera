@@ -25,7 +25,8 @@ int main () {
     double T = 273.15 + 100.;
     double rho = 10125. * 18.01 / (8.314472E3 * T);
 
-    double pres = water->pressure(T, rho);
+    water->setState_TR(T, rho);
+    double pres = water->pressure();
     printf("pres = %g\n", pres);
 
     /* 
