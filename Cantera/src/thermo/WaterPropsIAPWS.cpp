@@ -92,32 +92,11 @@ void WaterPropsIAPWS::calcDim(double temperature, double rho) {
   }
 }
 
-/*
- * Calculate the Helmholtz free energy in mks units of
- * J kmol-1 K-1.
- */
-double  WaterPropsIAPWS::helmholtzFE(double temperature, double rho) {
-  setState_TR(temperature, rho);
-  double retn = m_phi->phi(tau, delta);
-  double RT = Rgas * temperature;
-  return (retn * RT);
-}
-double  WaterPropsIAPWS::helmholtzFE() const{
+double  WaterPropsIAPWS::helmholtzFE() const {
   double retn = m_phi->phi(tau, delta);
   double temperature = T_c/tau;
   double RT = Rgas * temperature;
   return (retn * RT);
-}
-
-/*
- * Calculate the pressure (Pascals), given the temperature and density
- *  Temperature: kelvin
- *  rho: density in kg m-3 
- */
-double  WaterPropsIAPWS::pressure(double temperature, double rho) {
-  calcDim(temperature, rho);
-  double retn = m_phi->pressureM_rhoRT(tau, delta);
-  return (retn * rho * Rgas * temperature/M_water);
 }
 
 /*
@@ -283,16 +262,6 @@ double WaterPropsIAPWS:: coeffThermExp() const {
   return (kappa * dens * Rgas * beta / M_water);
 }
 
-/*
- * Calculate the Gibbs free energy in mks units of
- * J kmol-1 K-1.
- */
-double WaterPropsIAPWS::Gibbs(double temperature, double rho) {
-  setState_TR(temperature, rho);
-  double gRT = m_phi->gibbs_RT();
-  return (gRT * Rgas * temperature);
-}
-
 double WaterPropsIAPWS::Gibbs() const {
   double gRT = m_phi->gibbs_RT();
   double temperature = T_c/tau;
@@ -414,7 +383,7 @@ double WaterPropsIAPWS::intEnergy() const{
 }
 
 /*
- * Calculate the enthalpy in mks units of
+ * Calculate the enthalpy in mks units of356
  * J kmol-1 K-1.
  */
 double WaterPropsIAPWS::entropy() const {
@@ -426,30 +395,14 @@ double WaterPropsIAPWS::entropy() const {
  * Calculate heat capacity at constant volume
  * J kmol-1 K-1.
  */
-double WaterPropsIAPWS::cv(double temperature, double rho) {
-  setState_TR(temperature, rho);
+double WaterPropsIAPWS::cv() const {
   double cvR = m_phi->cv_R();
   return (cvR * Rgas);
-}
-
-/*
- * Calculate heat capacity at constant pressure
- * J kmol-1 K-1.
- */
-double WaterPropsIAPWS::cp(double temperature, double rho) {
-  setState_TR(temperature, rho);
-  double cpR = m_phi->cp_R();
-  return (cpR * Rgas);
 }
 
 double  WaterPropsIAPWS::cp() const {
   double cpR = m_phi->cp_R();
   return (cpR * Rgas);
-}
-
-double WaterPropsIAPWS::molarVolume(double temperature, double rho) {
-  setState_TR(temperature, rho);
-  return (M_water / rho);
 }
 
 double WaterPropsIAPWS::molarVolume() const {

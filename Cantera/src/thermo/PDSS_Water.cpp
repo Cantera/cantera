@@ -274,8 +274,7 @@ namespace Cantera {
     PDSS::initThermo();
   }
 
-  void PDSS_Water::
-  initThermoXML(const XML_Node& phaseNode, std::string id) {
+  void PDSS_Water::initThermoXML(const XML_Node& phaseNode, std::string id) {
     PDSS::initThermoXML(phaseNode, id);
   }
 
@@ -284,55 +283,37 @@ namespace Cantera {
     return (h + EW_Offset);
   }
 
-  doublereal PDSS_Water::
-  intEnergy_mole() const {
+  doublereal PDSS_Water::intEnergy_mole() const {
     doublereal u = m_sub->intEnergy();
     return (u + EW_Offset);            
   }
 
-  doublereal PDSS_Water::
-  entropy_mole() const {
+  doublereal PDSS_Water::entropy_mole() const {
     doublereal s = m_sub->entropy();
     return (s + SW_Offset); 
   }
 
-
-  doublereal PDSS_Water::
-  gibbs_mole() const {
-    doublereal T = m_temp;
-    doublereal dens = m_dens;
-    doublereal g = m_sub->Gibbs(T, dens);
-    return (g + EW_Offset - SW_Offset*T);
+  doublereal PDSS_Water::gibbs_mole() const {
+    doublereal g = m_sub->Gibbs();
+    return (g + EW_Offset - SW_Offset*m_temp);
   }
 
-
-  doublereal PDSS_Water::
-  cp_mole() const {
-    doublereal T = m_temp;
-    doublereal dens = m_dens;
-    doublereal cp = m_sub->cp(T, dens);
-    return cp;            
+  doublereal PDSS_Water::cp_mole() const {
+    doublereal cp = m_sub->cp();
+    return cp; 
   }
 
- 
-  doublereal PDSS_Water::
-  cv_mole() const {
-    doublereal T = m_temp;
-    doublereal dens = m_dens;
-    doublereal cv = m_sub->cv(T, dens);
+  doublereal PDSS_Water::cv_mole() const {
+    doublereal cv = m_sub->cv();
     return cv;
   }
 
-  doublereal 
-  PDSS_Water::molarVolume() const {
-    doublereal T = m_temp;
-    doublereal dens = m_dens;
-    doublereal mv = m_sub->molarVolume(T, dens);
+  doublereal  PDSS_Water::molarVolume() const {
+    doublereal mv = m_sub->molarVolume();
     return (mv);
   }
 
-  doublereal
-  PDSS_Water::gibbs_RT_ref() const {
+  doublereal PDSS_Water::gibbs_RT_ref() const {
     doublereal T = m_temp;
     m_sub->density(T, m_p0);
     doublereal h = m_sub->enthalpy();
@@ -340,9 +321,7 @@ namespace Cantera {
     return ((h + EW_Offset - SW_Offset*T)/(T * GasConstant));
   }
 
-
-  doublereal
-  PDSS_Water::enthalpy_RT_ref() const {
+  doublereal PDSS_Water::enthalpy_RT_ref() const {
     doublereal T = m_temp;
     m_sub->density(T, m_p0);
     doublereal h = m_sub->enthalpy();
@@ -350,8 +329,7 @@ namespace Cantera {
     return ((h + EW_Offset)/(T * GasConstant));
   }
 
-  doublereal PDSS_Water::
-  entropy_R_ref() const {
+  doublereal PDSS_Water::entropy_R_ref() const {
     doublereal T = m_temp;
     m_sub->density(T, m_p0);
     doublereal s = m_sub->entropy();
@@ -359,20 +337,18 @@ namespace Cantera {
     return ((s + SW_Offset)/GasConstant); 
   }
 
-  doublereal PDSS_Water::
-  cp_R_ref() const {
+  doublereal PDSS_Water::cp_R_ref() const {
     doublereal T = m_temp;
-    doublereal dens0 = m_sub->density(T, m_p0);
-    doublereal cp = m_sub->cp(T, dens0);
+    m_sub->density(T, m_p0);
+    doublereal cp = m_sub->cp();
     m_sub->setState_TR(m_temp, m_dens);
     return (cp/GasConstant); 
   }
 
-  doublereal PDSS_Water::
-  molarVolume_ref() const {
+  doublereal PDSS_Water::molarVolume_ref() const {
     doublereal T = m_temp;
-    doublereal dens0 = m_sub->density(T, m_p0);
-    doublereal mv = m_sub->molarVolume(T, dens0);
+    m_sub->density(T, m_p0);
+    doublereal mv = m_sub->molarVolume();
     m_sub->setState_TR(m_temp, m_dens);
     return (mv); 
   }
@@ -383,11 +359,8 @@ namespace Cantera {
    *  Temperature: kelvin
    *  rho: density in kg m-3
    */
-  doublereal PDSS_Water::
-  pressure() const {
-    doublereal T = m_temp;
-    doublereal dens = m_dens;
-    doublereal p = m_sub->pressure(T, dens);
+  doublereal PDSS_Water::pressure() const {
+    doublereal p = m_sub->pressure();
     m_pres = p;
     return p;
   }

@@ -165,25 +165,10 @@ public:
    */
   void setState_TR(double temperature, double rho);
   
-  
-  //! Calculate the Helmholtz free energy in mks units of J kmol-1 K-1.
-  /*!
-   * @param temperature   temperature (kelvin)
-   * @param rho           density  (kg m-3)
-   */
-  double helmholtzFE(double temperature, double rho);
-
   //! Calculate the Helmholtz free energy in mks units of J kmol-1 K-1, 
   //! using the last temperature and density
   double helmholtzFE() const;
   
-  //! Calculate the Gibbs free energy in mks units of J kmol-1 K-1.
-  /*!
-   * @param temperature   temperature (kelvin)
-   * @param rho           density  (kg m-3)
-   */
-  double Gibbs(double temperature, double rho);
-
   //! Calculate the Gibbs free energy in mks units of J kmol-1 K-1.
   //! using the last temperature and density
   double Gibbs() const;
@@ -199,52 +184,24 @@ public:
   double entropy() const;
     
   //! Calculate the constant volume heat capacity in mks units of J kmol-1 K-1
-  /*!
-   * @param temperature   temperature (kelvin)
-   * @param rho           density  (kg m-3)
-   */
-  double cv(double temperature, double rho);
-
-  //! Calculate the constant volume heat capacity in mks units of J kmol-1 K-1
   //! at the last temperature and density
   double cv() const;
-
-  //! Calculate the constant pressure heat capacity in mks units of J kmol-1 K-1
-  /*!
-   * @param temperature   temperature (kelvin)
-   * @param rho           density  (kg m-3)
-   */
-  double cp(double temperature, double rho);
 
   //! Calculate the constant pressure heat capacity in mks units of J kmol-1 K-1
   //! at the last temperature and density
   double cp() const;
 
-  //! Calculate the molar volume (kmol m-3)
-  /*!
-   * @param temperature   temperature (kelvin)
-   * @param rho           density  (kg m-3)
-   */
-  double molarVolume(double temperature, double rho);
-
   //! Calculate the molar volume (kmol m-3) 
   //! at the last temperature and density
   double molarVolume() const;
  
-  //! Calculate the pressure (Pascals), given the temperature and density
-  /*!
-   *  @param temperature  input temperature kelvin
-   *  @param rho          density in kg m-3
-   *
-   *  @return
-   *    returns the pressure (Pascal)
-   */
-  double pressure(double temperature, double rho);
-
   //! Calculates the pressure (Pascals), given the current value of the
   //! temperature and density.
   /*!
    * The density is an independent variable in the underlying equation of state
+   *
+   *  @return
+   *    returns the pressure (Pascal)
    */
   double pressure() const;
 

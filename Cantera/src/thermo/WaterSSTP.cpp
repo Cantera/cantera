@@ -319,8 +319,7 @@ namespace Cantera {
    */
   void WaterSSTP::getGibbs_RT(doublereal *grt) const {
     double T = temperature();
-    double dens = density();
-    doublereal g = m_sub->Gibbs(T, dens);
+    doublereal g = m_sub->Gibbs();
     *grt = (g + EW_Offset - SW_Offset*T) / (GasConstant * T);
     if (!m_ready) {
       throw CanteraError("waterSSTP::", "Phase not ready");
@@ -333,8 +332,7 @@ namespace Cantera {
    */
   void WaterSSTP::getStandardChemPotentials(doublereal *gss) const {
     double T = temperature();
-    double dens = density();
-    doublereal g = m_sub->Gibbs(T, dens);
+    doublereal g = m_sub->Gibbs();
     *gss = (g + EW_Offset - SW_Offset*T);
     if (!m_ready) {
       throw CanteraError("waterSSTP::", "Phase not ready");
@@ -342,9 +340,7 @@ namespace Cantera {
   }
   
   void WaterSSTP::getCp_R(doublereal* cpr) const {
-    double T = temperature();
-    double dens = density();
-    doublereal cp = m_sub->cp(T, dens);
+    doublereal cp = m_sub->cp();
     cpr[0] = cp / GasConstant;
   }
 
@@ -352,11 +348,8 @@ namespace Cantera {
    * Calculate the constant volume heat capacity
    * in mks units of J kmol-1 K-1
    */
-  doublereal WaterSSTP::
-  cv_mole() const {
-    double T = temperature();
-    double dens = density();
-    doublereal cv = m_sub->cv(T, dens);
+  doublereal WaterSSTP::cv_mole() const {
+    doublereal cv = m_sub->cv();
     return cv;
   }
 
@@ -395,7 +388,7 @@ namespace Cantera {
       throw CanteraError("setPressure", "error");
     }
     m_sub->setState_TR(T, dd);
-    doublereal g = m_sub->Gibbs(T, dd);
+    doublereal g = m_sub->Gibbs();
     *grt = (g + EW_Offset - SW_Offset*T)/ (GasConstant * T);
     dd = m_sub->density(T, p, waterState, dens);
  
@@ -445,7 +438,7 @@ namespace Cantera {
     if (dd <= 0.0) {
       throw CanteraError("setPressure", "error");
     }
-    doublereal cp = m_sub->cp(T, dd);
+    doublereal cp = m_sub->cp();
     *cpr = cp / (GasConstant);
     dd = m_sub->density(T, p, waterState, dens); 
   }
@@ -472,11 +465,8 @@ namespace Cantera {
    *  Temperature: kelvin
    *  rho: density in kg m-3
    */
-  doublereal WaterSSTP::
-  pressure() const {
-    double T = temperature();
-    double dens = density();
-    doublereal p = m_sub->pressure(T, dens);
+  doublereal WaterSSTP::pressure() const {
+    doublereal p = m_sub->pressure();
     return p;
   }
         
