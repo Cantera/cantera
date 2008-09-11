@@ -63,7 +63,7 @@ CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
 #    default   try to do a full installation, but fall back to a minimal
 #              one in case of errors
 
-PYTHON_PACKAGE=${PYTHON_PACKAGE:="full"}
+PYTHON_PACKAGE=${PYTHON_PACKAGE:="minimal"}
 
 # Cantera needs to know where to find the Python interpreter.  If
 # PYTHON_CMD is set to "default", then the configuration process will
@@ -136,7 +136,7 @@ BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="no"}
 # The Fortran 90/95 compiler. If set to "default", the script will
 # look for a Fortran 90/95 compiler on your system by the name of
 # "f95", "gfortran", or "g95".
-F90=${F90:="default"}
+F90=${F90:="n"}
 
 # Compiler option flags for the Fortran 90/95 compiler. If you are
 # using the Absoft or the NAG compiler, additional options specific to
