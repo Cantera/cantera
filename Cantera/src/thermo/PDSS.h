@@ -373,6 +373,13 @@ namespace Cantera {
      */
     virtual void setState_TP(doublereal temp, doublereal pres);
 
+    //! Set the internal temperature and density
+    /*! 
+     * @param  temp     Temperature (Kelvin)
+     * @param  rho      Density (kg m-3)
+     */
+    virtual void setState_TR(doublereal temp, doublereal rho);
+  
     /**
      * @}
      *  @name  Miscellaneous properties of the standard state

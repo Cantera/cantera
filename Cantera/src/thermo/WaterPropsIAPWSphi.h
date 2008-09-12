@@ -17,6 +17,8 @@
 #ifndef WATERPROPSIAPWSPHI_H
 #define WATERPROPSIAPWSPHI_H
 
+#include "config.h"
+
 /*!
  * the WaterPropsIAPSWSphi class support low level calls for
  * the real description of water.

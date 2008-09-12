@@ -366,15 +366,19 @@ namespace Cantera {
   }
 
 
-  void PDSS_Water::
-  setPressure(doublereal p) {
+  // In this routine we must be sure to only find the water branch of the
+  // curve and not the gas branch
+  void PDSS_Water::setPressure(doublereal p) {
     doublereal T = m_temp;
     doublereal dens = m_dens;
-    int waterState = WATER_GAS;
-    doublereal rc = m_sub->Rhocrit();
-    if (dens > rc) {
-      waterState = WATER_LIQUID;
+    int waterState = WATER_LIQUID;
+    if (T > m_sub->Tcrit()) {
+      waterState = WATER_SUPERCRIT;
     }
+    if (p < 1.0) {
+      waterState = WATER_GAS;
+    }
+
 #ifdef DEBUG_HKM
     //printf("waterPDSS: set pres = %g t = %g, waterState = %d\n",
     //      p, T, waterState);
@@ -388,6 +392,9 @@ namespace Cantera {
     }
     m_dens = dd;
     m_pres = p;
+
+    m_iState = m_sub->phaseState(true);
+    
   }
  
   // Return the volumetric thermal expansion coefficient. Units: 1/K.
@@ -405,7 +412,7 @@ namespace Cantera {
   doublereal PDSS_Water::dthermalExpansionCoeffdT() const {
     doublereal pres = pressure();
     doublereal dens_save = m_dens;
-    double tt = m_temp - 0.04;
+    doublereal tt = m_temp - 0.04;
     doublereal dd = m_sub->density(tt, pres, m_iState, m_dens);
     if (dd < 0.0) {
       throw CanteraError("PDSS_Water::dthermalExpansionCoeffdT", 
@@ -450,6 +457,12 @@ namespace Cantera {
   void PDSS_Water::setState_TP(doublereal temp, doublereal pres) {
     m_temp = temp;
     setPressure(pres);
+  }
+
+  void PDSS_Water::setState_TR(doublereal temp, doublereal dens) {
+    m_temp = temp;
+    m_dens = dens;
+    m_sub->setState_TR(m_temp, m_dens);
   }
 
   // saturation pressure

@@ -17,7 +17,7 @@
 #define WATERPROPSIAPWS_H
 
 #include "WaterPropsIAPWSphi.h"
-
+#include "config.h"
 /**
  *  @name Names for the phase regions
  *
@@ -163,37 +163,37 @@ public:
    * @param temperature   temperature (kelvin)
    * @param rho           density  (kg m-3)
    */
-  void setState_TR(double temperature, double rho);
+  void setState_TR(doublereal temperature, doublereal rho);
   
   //! Calculate the Helmholtz free energy in mks units of J kmol-1 K-1, 
   //! using the last temperature and density
-  double helmholtzFE() const;
+  doublereal helmholtzFE() const;
   
   //! Calculate the Gibbs free energy in mks units of J kmol-1 K-1.
   //! using the last temperature and density
-  double Gibbs() const;
+  doublereal Gibbs() const;
 
   //!  Calculate the enthalpy in mks units of  J kmol-1 
   //!  using the last temperature and density
-  double enthalpy() const;
+  doublereal enthalpy() const;
  
   //! Calculate the internal energy in mks units of J kmol-1 
-  double intEnergy() const;
+  doublereal intEnergy() const;
 
   //! Calculate the entropy in mks units of  J kmol-1 K-1
-  double entropy() const;
+  doublereal entropy() const;
     
   //! Calculate the constant volume heat capacity in mks units of J kmol-1 K-1
   //! at the last temperature and density
-  double cv() const;
+  doublereal cv() const;
 
   //! Calculate the constant pressure heat capacity in mks units of J kmol-1 K-1
   //! at the last temperature and density
-  double cp() const;
+  doublereal cp() const;
 
   //! Calculate the molar volume (kmol m-3) 
   //! at the last temperature and density
-  double molarVolume() const;
+  doublereal molarVolume() const;
  
   //! Calculates the pressure (Pascals), given the current value of the
   //! temperature and density.
@@ -203,7 +203,7 @@ public:
    *  @return
    *    returns the pressure (Pascal)
    */
-  double pressure() const;
+  doublereal pressure() const;
 
   //! Calculates the density given the temperature and the pressure,
   //! and a guess at the density. Sets the internal state. 
@@ -231,14 +231,41 @@ public:
    *     Returns the density. If an error is encountered in the calculation
    *     the value of -1.0 is returned.
    */
-  double density(double temperature, double pressure, 
-		 int phase = -1, double rhoguess = -1.0);
+  doublereal density(doublereal temperature, doublereal pressure, 
+		     int phase = -1, doublereal rhoguess = -1.0);
+
+  //! Calculates the density given the temperature and the pressure,
+  //! and a guess at the density, while not changing the internal state
+  /*!
+   *  Note, below T_c, this is a multivalued function. 
+   *
+   * The #density() function calculates the density that is consistent with
+   * a particular value of the temperature and pressure. It may therefore be 
+   * multivalued or potentially there may be no answer from this function. It therefore
+   * takes a phase guess and a density guess as optional parameters. If no guesses are
+   * supplied to density(), a gas phase guess is assumed. This may or may not be what
+   * is wanted. Therefore, density() should usually at leat be supplied with a phase
+   * guess so that it may manufacture an appropriate density guess. 
+   * #density() manufactures the initial density guess, nondimensionalizes everything,
+   * and then calls #WaterPropsIAPWSphi::dfind(), which does the iterative calculation
+   * to find the density condition that matches the desired input pressure.
+   *
+   *  @param  pressure   : Pressure in Pascals (Newton/m**2)
+   *  @param  phase      : guessed phase of water 
+   *                     : -1: no guessed phase
+   *  @param rhoguess    : guessed density of the water
+   *                     : -1.0 no guessed density
+   *  @return
+   *     Returns the density. If an error is encountered in the calculation
+   *     the value of -1.0 is returned.
+   */
+  doublereal density_const(doublereal pressure, int phase = -1, doublereal rhoguess = -1.0) const;
 
   //! Returns the density (kg m-3)
   /*!
    * The density is an independent variable in the underlying equation of state
    */
-  double density() const;
+  doublereal density() const;
 
   //! Returns the coefficient of thermal expansion.
   /*!
@@ -249,7 +276,7 @@ public:
    * @return
    *    Returns the coefficient of thermal expansion
    */
-  double coeffThermExp() const;
+  doublereal coeffThermExp() const;
 
   //! Returns the isochoric pressure-temperature coefficient
   /*!
@@ -261,7 +288,7 @@ public:
    *    beta = delta (phi0_d() + phiR_d())
    *            - tau delta (phi0_dt() + phiR_dt())
    */
-  double coeffPresExp() const;
+  doublereal coeffPresExp() const;
 
   //! Returns the coefficient of isothermal compressibility for the 
   //! state of the object
@@ -273,7 +300,17 @@ public:
    * @return 
    *    returns the isothermal compressibility
    */
-  double isothermalCompressibility() const;
+  doublereal isothermalCompressibility() const;
+
+  //! Returns the value of dp / drho at constant T for the
+  //! state of the object
+  /*!
+   *  units - Joules / kg
+   *
+   * @return 
+   *    returns dpdrho
+   */
+  doublereal dpdrho() const;
    
   //! This function returns an estimated value for the saturation pressure. 
   /*!
@@ -285,7 +322,7 @@ public:
    * @return
    *   Returns the estimated saturation pressure
    */
-  double psat_est(double temperature);
+  doublereal psat_est(doublereal temperature) const;
 
   //!  This function returns the saturation pressure given the
   //! temperature as an input parameter.
@@ -295,34 +332,43 @@ public:
    * Returns the saturation pressure
    *                units = Pascal
    */
-  double psat(double temperature);
+  doublereal psat(doublereal temperature);
+
+  //! Return the value of the density at the water spinodal point
+  //! for the current temperature.
+  /*!
+   *
+   */
+  doublereal densSpinodalWater() const;
+
+  doublereal densSpinodalSteam() const;
 
   //! Returns the Phase State flag for the current state of the object
   /*!
    *  There are three values:
    *     WATER_GAS   below the critical temperature but below the critical density
    *     WATER_LIQUID  below the critical temperature but above the critical density
-   *     WATER_CRIT   above the critical temperature
+   *     WATER_SUPERCRIT   above the critical temperature
    */
-  int phaseState() const ;
+  int phaseState(bool checkState = false) const ;
 
   //! Returns the critical temperature of water (Kelvin)
   /*!
    *  This is hard coded to the value 647.096 Kelvin
    */
-  double Tcrit() { return 647.096;}
+  doublereal Tcrit() { return 647.096;}
 
   //! Returns the critical pressure of water (22.064E6 Pa)
   /*!
    *  This is hard coded to the value of 22.064E6 pascals
    */
-  double Pcrit() { return 22.064E6;}
+  doublereal Pcrit() { return 22.064E6;}
 
   //! Return the critical density of water (kg m-3)
   /*!
    * This is equal to 322 kg m-3.
    */
-  double Rhocrit() { return 322.;}
+  doublereal Rhocrit() { return 322.;}
 
 private:
   /**
@@ -331,7 +377,7 @@ private:
    * @param temperature   input temperature (kelvin)
    *  @param rho          density in kg m-3
    */
-  void calcDim(double temperature, double rho);
+  void calcDim(doublereal temperature, doublereal rho);
 
   //! Utility routine in the calculation of the saturation pressure
   /*!
@@ -341,8 +387,8 @@ private:
    * @param densGas        output Density of gas
    * @param delGRT         output delGRT
    */
-  void corr(double temperature, double pressure, double &densLiq, 
-	      double &densGas, double &delGRT);
+  void corr(doublereal temperature, doublereal pressure, doublereal &densLiq, 
+	      doublereal &densGas, doublereal &delGRT);
 
   //! Utility routine in the calculation of the saturation pressure
   /*!
@@ -352,8 +398,8 @@ private:
    * @param densGas        output Density of gas
    * @param pcorr          output corrected pressure
    */ 
-  void corr1(double temperature, double pressure, double &densLiq, 
-	       double &densGas, double &pcorr);
+  void corr1(doublereal temperature, doublereal pressure, doublereal &densLiq, 
+	       doublereal &densGas, doublereal &pcorr);
 
 private:
 
@@ -364,15 +410,15 @@ private:
   /*!
    *   tau = T_C / T
    */
-  double tau;
+  doublereal tau;
 
   //! Dimensionless density
   /*!
    *  delta = rho / rho_c
    */
-  double delta;
+  mutable doublereal delta;
 
   //! Current state of the system
-  int iState;
+  mutable int iState;
 };
 #endif

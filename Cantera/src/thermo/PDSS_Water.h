@@ -311,6 +311,14 @@ namespace Cantera {
      */
     virtual void setState_TP(doublereal temp, doublereal pres);
 
+
+    //! Set the temperature and density in the object
+    /*!
+     *  @param temp   Temperature (Kelvin)
+     *  @param rho    Density (kg/m3) 
+     */
+    virtual void setState_TR(doublereal temp, doublereal rho);
+
     //! Set the density of the water phase
     /*!
      *  This is a non-virtual function because it specific
@@ -493,9 +501,11 @@ namespace Cantera {
 
     //! state of the fluid 
     /*!
-     *    0  gas
-     *    1  liquid
-     *    2  supercrit
+     *    0  WATER_GAS       0
+     *    1  WATER_LIQUID    1
+     *    2  WATER_SUPERCRIT 2
+     *    3  WATER_UNSTABLELIQUID  3
+     *    4  WATER_UNSTABLEGAS  
      */
     int m_iState;
 

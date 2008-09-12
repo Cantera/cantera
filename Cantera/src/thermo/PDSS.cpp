@@ -431,6 +431,10 @@ namespace Cantera {
     err("setState_TP()");
   }
 
+  void PDSS::setState_TR(doublereal temp, doublereal rho) {
+    err("setState_TR()");
+  }
+
   /// saturation pressure
   doublereal PDSS::satPressure(doublereal t){
     err("satPressure()");

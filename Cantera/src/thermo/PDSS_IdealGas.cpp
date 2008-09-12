@@ -340,6 +340,11 @@ namespace Cantera {
     setTemperature(temp);
   }
 
+  void  PDSS_IdealGas::setState_TR(double temp, double rho) {
+    m_pres = GasConstant * temp * rho / m_mw;
+    setTemperature(temp);
+  }
+
   /// saturation pressure
   doublereal PDSS_IdealGas::satPressure(doublereal t){
     throw CanteraError("PDSS_IdealGas::satPressure()", "unimplemented");

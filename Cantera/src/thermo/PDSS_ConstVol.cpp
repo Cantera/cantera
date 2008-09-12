@@ -326,7 +326,7 @@ namespace Cantera {
     m_gss_RT_ptr[m_spindex] = m_hss_RT_ptr[m_spindex] - m_sss_R_ptr[m_spindex];
   }
  
-  void PDSS_ConstVol::setTemperature(double temp) {
+  void PDSS_ConstVol::setTemperature(doublereal temp) {
     m_temp = temp;
     m_spthermo->update_one(m_spindex, temp,
                            m_cp0_R_ptr, m_h0_RT_ptr, m_s0_R_ptr);
@@ -342,9 +342,19 @@ namespace Cantera {
   }
 
 
-  void PDSS_ConstVol::setState_TP(double temp, double pres) {
+  void PDSS_ConstVol::setState_TP(doublereal temp, doublereal pres) {
     setTemperature(temp);
     setPressure(pres);
+  }
+
+
+  void PDSS_ConstVol::setState_TR(doublereal temp, doublereal rho) {
+    doublereal rhoStored = m_mw / m_constMolarVolume;
+    if (fabs(rhoStored - rho) / (rhoStored + rho) > 1.0E-4) {
+      throw CanteraError("PDSS_ConstVol::setState_TR",
+			 "Inconsistent supplied rho");
+    }
+    setTemperature(temp);
   }
 
   /// saturation pressure

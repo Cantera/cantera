@@ -298,6 +298,14 @@ namespace Cantera {
      */
     virtual void setState_TP(double temp, double pres);
 
+
+    //! Set the internal temperature and density
+    /*!
+     * @param  temp     Temperature (Kelvin)
+     * @param  rho      Density (kg m-3)
+     */
+    virtual void setState_TR(double temp, double rho);
+
     /**
      * @}
      *  @name  Miscellaneous properties of the standard state
@@ -406,6 +414,9 @@ namespace Cantera {
   private:
 
     //! Value of the constant molar volume for the species
+    /*!
+     *    m3 / kmol
+     */
     doublereal m_constMolarVolume;
 
   };

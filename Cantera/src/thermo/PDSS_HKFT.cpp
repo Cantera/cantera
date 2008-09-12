@@ -273,8 +273,8 @@ namespace Cantera {
   doublereal 
   PDSS_HKFT::molarVolume() const {
    
-    double pbar = m_pres * 1.0E-5;
-    double m_presR_bar = OneAtm * 1.0E-5;
+    // double pbar = m_pres * 1.0E-5;
+    //double m_presR_bar = OneAtm * 1.0E-5;
 
     double a1term = m_a1 * 1.0E-5;
 

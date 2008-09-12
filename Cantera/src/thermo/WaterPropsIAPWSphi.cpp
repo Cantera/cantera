@@ -1111,7 +1111,7 @@ double WaterPropsIAPWSphi::dfind(double p_red, double tau, double deltaGuess) {
   bool conv = false;
   double deldd = dd;
   double pcheck = 1.0E-30 + 1.0E-8 * p_red;
-  for (int n = 0; n < 100; n++) {
+  for (int n = 0; n < 200; n++) {
     /*
      * Calculate the internal polynomials, and then calculate the
      * phi deriv functions needed by this routine.
@@ -1155,7 +1155,7 @@ double WaterPropsIAPWSphi::dfind(double p_red, double tau, double deltaGuess) {
     if (n < 10) {
       dpdx = dpddelta * 1.1;
     }
-    if (dpdx < 0.1) dpdx = 0.1;
+    if (dpdx < 0.001) dpdx = 0.001;
       
     /*
      * Formulate the update to reduced density using 

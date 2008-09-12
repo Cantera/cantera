@@ -300,17 +300,24 @@ namespace Cantera {
     /*!
      * @param temp Temperature (Kelvin)
      */
-    virtual void setTemperature(double temp);
+    virtual void setTemperature(doublereal temp);
 
     //! Return the current storred temperature
-    double temperature() const;
+    doublereal temperature() const;
 
     //! Set the internal temperature and pressure
     /*!
      * @param  temp     Temperature (Kelvin)
      * @param  pres     pressure (Pascals)
      */
-    virtual void setState_TP(double temp, double pres);
+    virtual void setState_TP(doublereal temp, doublereal pres);
+
+    //! Set the internal temperature and density
+    /*!
+     * @param  temp     Temperature (Kelvin)
+     * @param  rho      Density (Pascals)
+     */
+    virtual void setState_TR(doublereal temp, doublereal rho);
     
     /**
      * @}
