@@ -10,19 +10,10 @@
  */
 #include <stdio.h>
 
-#ifdef SRCDIRTREE
-#include "ct_defs.h"
-#include "logger.h"
-#include "TemperatureTable.h"
-#include "ThermoPhase.h"
-#include "HMWSoln.h"
-#include "importCTML.h"
-#else
 #include "Cantera.h"
 #include "thermo.h"
 #include "kernel/HMWSoln.h"
 #include "TemperatureTable.h"
-#endif
 
 using namespace std;
 using namespace Cantera;
