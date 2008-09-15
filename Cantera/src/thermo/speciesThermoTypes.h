@@ -69,6 +69,8 @@
 //! This is implemented in the class Adsorbate.
 #define ADSORBATE 1024
 
+#define PDSS_TYPE 37
+
 #include "ct_defs.h"
 
 #include "stringUtils.h"

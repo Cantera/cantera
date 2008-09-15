@@ -211,6 +211,14 @@ namespace Cantera {
     m_tlow_max = max(minTemp, m_tlow_max);
     m_thigh_min = min(maxTemp, m_thigh_min);
   }
+
+
+  
+  void GeneralSpeciesThermo::installPDSShandler(int k, PDSS *PDSS_ptr, 
+						VPSSMgr *vpssmgr_ptr) {
+    STITbyPDSS *stit_ptr = new STITbyPDSS(k, vpssmgr_ptr, PDSS_ptr);
+    install_STIT(stit_ptr);
+  }
   
   /**
    *  Update the properties for one species.
@@ -265,18 +273,16 @@ namespace Cantera {
    *  For the NASA object, there are 15 coefficients.
    */
   void GeneralSpeciesThermo::
-  reportParams(int index, int &type, 
-	       doublereal * const c, 
-	       doublereal &minTemp, 
-	       doublereal &maxTemp, 
-	       doublereal &refPressure) const {
+  reportParams(int index, int &type, doublereal * const c, 
+	       doublereal &minTemp, doublereal &maxTemp, doublereal &refPressure) const {
     SpeciesThermoInterpType *sp = m_sp[index];
     int n;
     if (sp) {
       sp->reportParameters(n, type, minTemp, maxTemp, 
 			   refPressure, c);      
       if (n != index) {
-	throw CanteraError("  ", "confused");
+	throw CanteraError("GeneralSpeciesThermo::reportParams", 
+			   "Internal error encountered");
       }
     } else {
       type = -1;
@@ -341,5 +347,9 @@ namespace Cantera {
     return m_p0;
   }
     
+
+  SpeciesThermoInterpType * GeneralSpeciesThermo::provideSTIT(int k) {
+    return (m_sp[k]);
+  }
 
 }

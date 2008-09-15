@@ -27,6 +27,7 @@
 #include "VPStandardStateTP.h"
 #include "SpeciesThermoFactory.h"
 #include "PDSS.h"
+#include "GeneralSpeciesThermo.h"
 
 using namespace std;
 
@@ -125,6 +126,22 @@ namespace Cantera {
 			    SpeciesThermo *sp_ptr) {
     m_vptp_ptr = vp_ptr;
     m_spthermo = sp_ptr;
+
+    // Take care of STITTbyPDSS objects
+
+    // Go see if the SpeciesThermo type is a GeneralSpeciesThermo
+    GeneralSpeciesThermo * gst = dynamic_cast<GeneralSpeciesThermo *>(sp_ptr);
+    if (gst) {
+      for (int k = 0; k < m_kk; k++) {
+	SpeciesThermoInterpType *st = gst->provideSTIT(k);
+	STITbyPDSS * stpd = dynamic_cast<STITbyPDSS *>(st);
+	if (stpd) {
+	  PDSS * PDSS_ptr = vp_ptr->providePDSS(k);
+	  stpd->initAllPtrs(k, this, PDSS_ptr);
+	}
+      }
+    }
+  
   }
 
   /*****************************************************************/

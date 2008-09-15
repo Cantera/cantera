@@ -21,11 +21,10 @@
 #include "NasaPoly1.h"
 #include "Nasa9Poly1.h"
 #include "speciesThermoTypes.h"
-//#include "polyfit.h"
+
 
 namespace Cantera {
 
-  
   //! A species thermodynamic property manager for a phase.
   /*!
    * This is a general manager that can handle a wide variety
@@ -44,12 +43,18 @@ namespace Cantera {
     GeneralSpeciesThermo();
 
     //! Copy constructor
-    GeneralSpeciesThermo(const GeneralSpeciesThermo &);
+    /*!
+     * @param b   Object to be copied
+     */
+    GeneralSpeciesThermo(const GeneralSpeciesThermo &b);
 
     //! Assignment operator
-    GeneralSpeciesThermo & operator=(const GeneralSpeciesThermo &);
+    /*!
+     * @param b   Object to be copied
+     */
+    GeneralSpeciesThermo & operator=(const GeneralSpeciesThermo &b);
 
-    //! destructor
+    //! Destructor
     virtual ~GeneralSpeciesThermo();
 
     //! Duplicator
@@ -96,6 +101,17 @@ namespace Cantera {
      *          This will set up the thermo for one species
      */
     virtual void install_STIT(SpeciesThermoInterpType *stit_ptr);
+
+    //! Install a PDSS object to handle the reference state thermodynamics
+    //! calculation
+    /*!
+     * @param k           species index
+     * @param PDSS_ptr    Pressure dependent standard state (PDSS) object
+     *                    that will handle the reference state calc
+     * @param vpssmgr_ptr Pointer to the variable pressure standard state
+     *                    manager that handles the PDSS object.
+     */
+    void installPDSShandler(int k, PDSS *PDSS_ptr, VPSSMgr *vpssmgr_ptr);
 
     //! Like update(), but only updates the single species k.
     /*!
@@ -202,6 +218,18 @@ namespace Cantera {
      */
     virtual void modifyParams(int index, doublereal *c);
 
+  private:
+    //! Provide the SpeciesthermoInterpType object
+    /*!
+     *  provide access to the SpeciesThermoInterpType object.
+     *  This 
+     *
+     *  @param k  integer parameter
+     *
+     * @return pointer to the SpeciesThermoInterpType object.
+     */
+    SpeciesThermoInterpType * provideSTIT(int k);
+
   protected:
 
     /**
@@ -231,8 +259,10 @@ namespace Cantera {
      */
     int m_kk;
 
-  private:
 
+    //! Make the class VPSSMgr a friend because we need to access
+    //! the function provideSTIT()
+    friend class VPSSMgr;
   
 
   };

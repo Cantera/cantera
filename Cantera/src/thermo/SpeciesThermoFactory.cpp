@@ -624,6 +624,14 @@ namespace Cantera {
 			    SpeciesThermo *spthermo_ptr,
 			    const XML_Node *phaseNode_ptr) {
     
+    // Call the VPStandardStateTP object to install the pressure dependent species
+    // standard state into the object.
+    //
+    // We don't need to pass spthermo_ptr down, because it's already installed
+    // into vp_ptr.
+    //
+    // We don't need to pass vpssmgr_ptr down, because it's already installed
+    // into vp_ptr.
     vp_ptr->createInstallPDSS(k, speciesNode,  phaseNode_ptr);
   }
 

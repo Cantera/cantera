@@ -29,6 +29,7 @@
 #include "VPStandardStateTP.h"
 #include "PDSS_Water.h"
 #include "PDSS_ConstVol.h"
+#include "GeneralSpeciesThermo.h"
 
 using namespace std;
 
@@ -257,6 +258,12 @@ namespace Cantera {
       }
       if (m_waterSS) delete m_waterSS;
       m_waterSS = new PDSS_Water(m_vptp_ptr, 0);
+      GeneralSpeciesThermo *genSpthermo = dynamic_cast<GeneralSpeciesThermo *>(m_spthermo);
+      if (!genSpthermo) {
+	throw CanteraError("VPSSMgr_Water_ConstVol::installSpecies",
+			   "failed dynamic cast");
+      }
+      genSpthermo->installPDSShandler(k, m_waterSS, this);
       kPDSS = m_waterSS;
     } else {
 

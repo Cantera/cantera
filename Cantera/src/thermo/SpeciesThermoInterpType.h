@@ -18,6 +18,9 @@
 
 namespace Cantera {
 
+  class PDSS;
+  class VPSSMgr;
+
   //!  Pure Virtual Base class for the thermoydnamic manager for 
   //!  an individual species' reference state
   /*!
@@ -49,10 +52,10 @@ namespace Cantera {
   public:
     
     //! Constructor
-    SpeciesThermoInterpType() {};
+    SpeciesThermoInterpType();
 
     //! Destructor
-    virtual ~SpeciesThermoInterpType() {};
+    virtual ~SpeciesThermoInterpType();
 
     //! duplicator
     virtual SpeciesThermoInterpType * 
@@ -97,10 +100,7 @@ namespace Cantera {
      */
     virtual void updateProperties(const doublereal* tempPoly, 
 				  doublereal* cp_R, doublereal* h_RT,
-        doublereal* s_R) const {
-        double T = tempPoly[0];
-        updatePropertiesTemp(T, cp_R, h_RT, s_R);
-    }
+				  doublereal* s_R) const;
 
     //! Compute the reference-state property of one species
     /*!
@@ -149,6 +149,130 @@ namespace Cantera {
      */
     virtual void modifyParameters(doublereal* coeffs) {}
 
+  };
+
+
+  class STITbyPDSS : public SpeciesThermoInterpType {
+
+  public:
+
+    //! Constructor
+    STITbyPDSS();
+
+
+    //! Constructor
+    
+    STITbyPDSS(int k, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr);
+
+
+    //! copy constructor
+    /*!
+     *  @param b Object to be copied
+     */
+    STITbyPDSS(const STITbyPDSS& b);
+
+    //! Destructor
+    virtual ~STITbyPDSS();
+
+    //! duplicator
+    virtual SpeciesThermoInterpType *duplMyselfAsSpeciesThermoInterpType() const;
+       
+    void initAllPtrs(int k, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr);
+
+    //! Returns the minimum temperature that the thermo
+    //! parameterization is valid
+    virtual doublereal minTemp() const;
+
+    //! Returns the maximum temperature that the thermo
+    //! parameterization is valid
+    virtual doublereal maxTemp() const;
+
+    //! Returns the reference pressure (Pa)
+    virtual doublereal refPressure() const;
+
+    //! Returns an integer representing the type of parameterization
+    virtual int reportType() const;
+
+    //! Returns an integer representing the species index
+    virtual int speciesIndex() const;
+  
+    //! Update the properties for this species, given a temperature
+    //! polynomial
+    /*!
+     * This method is called with a pointer to an array containing the functions of
+     * temperature needed by this  parameterization, and three pointers to arrays where the
+     * computed property values should be written. This method updates only one value in
+     * each array.
+     *
+     * The form and length of the Temperature Polynomial may vary depending on the
+     * parameterization.
+     *
+     * @param tempPoly  vector of temperature polynomials
+     * @param cp_R    Vector of Dimensionless heat capacities.
+     *                (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies.
+     *                (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies.
+     *                (length m_kk).
+     */
+    virtual void updateProperties(const doublereal* tempPoly, 
+				  doublereal* cp_R, doublereal* h_RT,
+				  doublereal* s_R) const;
+
+    //! Compute the reference-state property of one species
+    /*!
+     * Given temperature T in K, this method updates the values of
+     * the non-dimensional heat capacity at constant pressure,
+     * enthalpy, and entropy, at the reference pressure, Pref
+     * of one of the species. The species index is used
+     * to reference into the cp_R, h_RT, and s_R arrays.
+     *
+     * @param temp    Temperature (Kelvin)
+     * @param cp_R    Vector of Dimensionless heat capacities.
+     *                (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies.
+     *                (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies.
+     *                (length m_kk).
+     */
+    virtual void updatePropertiesTemp(const doublereal temp, 
+				      doublereal* cp_R,
+				      doublereal* h_RT,
+				      doublereal* s_R) const;
+    
+    //!This utility function reports back the type of 
+    //! parameterization and all of the parameters for the 
+    //! species, index.
+    /*!
+     * All parameters are output variables
+     *
+     * @param index     Species index
+     * @param type      Integer type of the standard type
+     * @param minTemp   output - Minimum temperature
+     * @param maxTemp   output - Maximum temperature
+     * @param refPressure output - reference pressure (Pa).
+     * @param coeffs    Vector of coefficients used to set the
+     *                  parameters for the standard state.
+     */
+    virtual void reportParameters(int &index, int &type,
+				  doublereal &minTemp, doublereal &maxTemp,
+				  doublereal &refPressure,
+				  doublereal* const coeffs) const;
+
+    //! Modify parameters for the standard state
+    /*!
+     *  This is a stub routine, without functionality
+     * 
+     * @param coeffs   Vector of coefficients used to set the
+     *                 parameters for the standard state.
+     */
+    virtual void modifyParameters(doublereal* coeffs);
+
+  private:
+
+    VPSSMgr *m_vpssmgr_ptr;
+    PDSS *m_PDSS_ptr;
+    int m_speciesIndex;
   };
 
 }
