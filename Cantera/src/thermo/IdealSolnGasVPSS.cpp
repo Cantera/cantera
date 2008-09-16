@@ -244,13 +244,10 @@ namespace Cantera {
       switch (m_formGC) {
       case 0:
 	return 1.0;
-	break;
       case 1:
 	return 1.0 / vss[k];
-	break;
       case 2:
 	return 1.0/ vss[0];
-	break;
       }
       return 0.0;
       
