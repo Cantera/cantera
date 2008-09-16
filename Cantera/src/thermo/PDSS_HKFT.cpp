@@ -200,11 +200,9 @@ namespace Cantera {
    * Calculate the constant pressure heat capacity
    * in mks units of J kmol-1 K-1
    */
-  doublereal 
-  PDSS_HKFT::cp_mole() const {
+  doublereal PDSS_HKFT::cp_mole() const {
 
     double pbar = m_pres * 1.0E-5;
-
     double c1term = m_c1;
 
     double c2term = m_c2 / (m_temp - 228.) / (m_temp - 228.);
@@ -256,10 +254,8 @@ namespace Cantera {
     double Cp_calgmol = c1term + c2term + a3term + a4term + yterm + xterm + otterm;
 
     // Convert to Joules / kmol
-    double Cp = Cp_calgmol * 1.0E3 * 4.184;
-    return Cp;
-
-   
+    doublereal Cp = Cp_calgmol * 1.0E3 * 4.184;
+    return Cp;   
   }
 
   /**

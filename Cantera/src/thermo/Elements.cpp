@@ -526,52 +526,56 @@ namespace Cantera {
     }
 
 
-    void Elements::addElementsFromXML(const XML_Node& phase) {
+  void Elements::addElementsFromXML(const XML_Node& phase) {
 
-        // get the declared element names
-        XML_Node& elements = phase.child("elementArray");
-        vector<string> enames;
-        getStringArray(elements, enames);
-        
-        // // element database defaults to elements.xml
-        string element_database = "elements.xml";
-        if (elements.hasAttrib("datasrc")) 
-            element_database = elements["datasrc"];
-
-        XML_Node* doc = get_XML_File(element_database);
-        XML_Node* dbe = &doc->child("ctml/elementData");
-
-        XML_Node& root = phase.root();
-        XML_Node* local_db = 0;
-	if (root.hasChild("ctml")) {
-	  if (root.child("ctml").hasChild("elementData")) {
-            local_db = &root.child("ctml/elementData");
-	  }
-	}
-
-        int nel = static_cast<int>(enames.size());
-        int i;
-        string enm;
-        XML_Node* e = 0;
-        for (i = 0; i < nel; i++) {
-            e = 0;
-            if (local_db) {
-                //writelog("looking in local database.");
-                e = local_db->findByAttr("name",enames[i]);
-                //if (!e) writelog(enames[i]+" not found.");
-            }
-            if (!e)
-                e = dbe->findByAttr("name",enames[i]);
-            if (e) {
-                addUniqueElement(*e);
-            }
-            else {
-                throw CanteraError("addElementsFromXML","no data for element "
-                    +enames[i]);
-            }
-        }
-
+    // get the declared element names
+    if (! phase.hasChild("elementArray")) {
+      throw CanteraError("Elements::addElementsFromXML",
+			 "phase xml node doesn't have \"elementArray\" XML Node");
     }
+    XML_Node& elements = phase.child("elementArray");
+    vector<string> enames;
+    getStringArray(elements, enames);
+        
+    // // element database defaults to elements.xml
+    string element_database = "elements.xml";
+    if (elements.hasAttrib("datasrc")) 
+      element_database = elements["datasrc"];
+
+    XML_Node* doc = get_XML_File(element_database);
+    XML_Node* dbe = &doc->child("ctml/elementData");
+
+    XML_Node& root = phase.root();
+    XML_Node* local_db = 0;
+    if (root.hasChild("ctml")) {
+      if (root.child("ctml").hasChild("elementData")) {
+	local_db = &root.child("ctml/elementData");
+      }
+    }
+
+    int nel = static_cast<int>(enames.size());
+    int i;
+    string enm;
+    XML_Node* e = 0;
+    for (i = 0; i < nel; i++) {
+      e = 0;
+      if (local_db) {
+	//writelog("looking in local database.");
+	e = local_db->findByAttr("name",enames[i]);
+	//if (!e) writelog(enames[i]+" not found.");
+      }
+      if (!e)
+	e = dbe->findByAttr("name",enames[i]);
+      if (e) {
+	addUniqueElement(*e);
+      }
+      else {
+	throw CanteraError("addElementsFromXML","no data for element "
+			   +enames[i]);
+      }
+    }
+
+	}
 
     /*
      *  subscribe(), unsubscribe(), and reportSubscriptions():

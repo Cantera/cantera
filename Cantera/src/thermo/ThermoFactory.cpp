@@ -260,10 +260,10 @@ namespace Cantera {
 
     // Check the the supplied XML node in fact represents a 
     // phase.
-    if (phase.name() != "phase") 
+    if (phase.name() != "phase") {
       throw CanteraError("importPhase",
-			 "Current const XML_Node is not a phase element.");
-
+			 "Current const XML_Node named, " + phase.name() + ", is not a phase element.");
+    }
 
     // set the id attribute of the phase to the 'id' attribute 
     // in the XML tree.
@@ -275,7 +275,7 @@ namespace Cantera {
       int idim = intValue(phase["dim"]);
       if (idim < 1 || idim > 3)
 	throw CanteraError("importPhase",
-			   "unphysical number of dimensions: "+phase["dim"]);
+			   "phase, " + th->id() + ", has unphysical number of dimensions: " + phase["dim"]);
       th->setNDim(idim);
     }
     else {
@@ -288,6 +288,9 @@ namespace Cantera {
     if (phase.hasChild("thermo")) {
       const XML_Node& eos = phase.child("thermo");
       th->setParametersFromXML(eos);
+    } else {
+      throw CanteraError("importPhase", 
+			 " phase, " + th->id() + ", XML_Node does not have a \"thermo\" XML_Node");
     }
 
     VPStandardStateTP *vpss_ptr = 0;
@@ -296,7 +299,7 @@ namespace Cantera {
       vpss_ptr = dynamic_cast <VPStandardStateTP *>(th);
       if (vpss_ptr == 0) {
 	throw CanteraError("importPhase",
-			   "phase was VPSS, but dynamic cast failed");
+			   "phase, " + th->id() + ", was VPSS, but dynamic cast failed");
       }
     } 
 
@@ -311,7 +314,6 @@ namespace Cantera {
      ***************************************************************/
     th->addElementsFromXML(phase);
 
-
     /***************************************************************
      * Add the species. 
      *
@@ -323,6 +325,11 @@ namespace Cantera {
     vector<XML_Node*> sparrays;
     phase.getChildren("speciesArray", sparrays);
     int jsp, nspa = static_cast<int>(sparrays.size());
+    if (nspa == 0) {
+      throw CanteraError("importPhase",
+			 "phase, " + th->id() + ", has zero \"speciesArray\" XML nodes.\n"
+			 + " There must be at least one speciesArray nodes with one or more species");
+    }
     vector<XML_Node*> dbases;
     vector_int sprule(nspa,0);
 
