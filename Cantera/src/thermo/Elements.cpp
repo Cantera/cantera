@@ -186,7 +186,7 @@ namespace Cantera {
    *  @exception CanteraError 
    *    If a match is not found, a CanteraError is thrown as well  
    */
-  double Elements::LookupWtElements(const std::string& s) {
+  doublereal Elements::LookupWtElements(const std::string& s) {
     int num = sizeof(aWTable) / sizeof(struct awData);
     string s3 = s.substr(0,3);
     for (int i = 0; i < num; i++) {

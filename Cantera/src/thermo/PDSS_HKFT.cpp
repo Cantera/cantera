@@ -45,6 +45,7 @@ namespace Cantera {
     m_charge_j(0.0)
   {
     m_pdssType = cPDSS_MOLAL_HKFT;
+    m_presR_bar = OneAtm * 1.0E-5;
   }
 
 
@@ -74,6 +75,7 @@ namespace Cantera {
     m_charge_j(0.0)
   {
     m_pdssType = cPDSS_MOLAL_HKFT;
+    m_presR_bar = OneAtm * 1.0E-5;
     constructPDSSFile(tp, spindex, inputFile, id);
   }
 
@@ -104,6 +106,7 @@ namespace Cantera {
     m_charge_j(0.0)
   {
     m_pdssType = cPDSS_MOLAL_HKFT;
+    m_presR_bar = OneAtm * 1.0E-5;
     // We have to read the info from here
     constructPDSSXML(tp, spindex, speciesNode, phaseRoot, spInstalled); 
   }
@@ -201,7 +204,6 @@ namespace Cantera {
   PDSS_HKFT::cp_mole() const {
 
     double pbar = m_pres * 1.0E-5;
-    double m_presR_bar = OneAtm * 1.0E-5;
 
     double c1term = m_c1;
 
@@ -274,7 +276,6 @@ namespace Cantera {
   PDSS_HKFT::molarVolume() const {
    
     // double pbar = m_pres * 1.0E-5;
-    //double m_presR_bar = OneAtm * 1.0E-5;
 
     double a1term = m_a1 * 1.0E-5;
 
@@ -478,7 +479,7 @@ namespace Cantera {
   }
 
 
-  void PDSS_HKFT::initThermoXML(const XML_Node& phaseNode, std::string id) {
+  void PDSS_HKFT::initThermoXML(const XML_Node& phaseNode, std::string& id) {
     PDSS::initThermoXML(phaseNode, id);
   }
 
@@ -633,7 +634,7 @@ namespace Cantera {
   double PDSS_HKFT::deltaG() const {
     
     double pbar = m_pres * 1.0E-5;
-    double m_presR_bar = OneAtm * 1.0E-5;
+    //double m_presR_bar = OneAtm * 1.0E-5;
 
     double sterm = -  m_Entrop_tr_pr * (m_temp - 298.15);
 
@@ -679,7 +680,6 @@ namespace Cantera {
   double PDSS_HKFT::deltaS() const {
     
     double pbar = m_pres * 1.0E-5;
-    double m_presR_bar = OneAtm * 1.0E-5;
 
     double c1term = m_c1 * log(m_temp/298.15);
 

@@ -206,7 +206,7 @@ namespace Cantera {
     virtual void getStandardVolumes_ref(doublereal *vol) const ;
 
 
-    void updateRefStateThermo();
+    void updateRefStateThermo() const;
   
     //! @name Initialization Methods - For Internal use (VPStandardState)
     /*!

@@ -180,7 +180,7 @@ namespace Cantera {
         }
 
         /// index of component with name \a name.
-        int componentIndex(std::string name) {
+        int componentIndex(std::string name) const {
             int nc = nComponents();
             for (int n = 0; n < nc; n++) {
                 if (name == componentName(n)) return n;

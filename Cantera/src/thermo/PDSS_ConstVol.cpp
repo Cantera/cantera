@@ -179,7 +179,7 @@ namespace Cantera {
     delete fxml;
   }
 
-  void PDSS_ConstVol::initThermoXML(const XML_Node& phaseNode, std::string id) {
+  void PDSS_ConstVol::initThermoXML(const XML_Node& phaseNode, std::string& id) {
     PDSS::initThermoXML(phaseNode, id);
   }
 

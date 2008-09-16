@@ -161,7 +161,7 @@ namespace Cantera {
   }
 
 
-  void VPSSMgr_Water_ConstVol::updateRefStateThermo() {
+  void VPSSMgr_Water_ConstVol::updateRefStateThermo() const {
     // Fix up the water
     doublereal RT = GasConstant * m_tlast;
     m_waterSS->setState_TP(m_tlast, m_p0);

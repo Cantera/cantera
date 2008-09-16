@@ -413,8 +413,8 @@ namespace Cantera {
 	  unstablePhaseNew = true;
 	  Tunstable = Tnew;
 	} else {
-	  break;
 	  unstablePhaseNew = false;
+	  break;
 	}
 	if (unstablePhase == false) {
 	  if (unstablePhaseNew == true) {
@@ -673,8 +673,8 @@ namespace Cantera {
 	  unstablePhaseNew = true;
 	  Tunstable = Tnew;
 	} else {
-	  break;
 	  unstablePhaseNew = false;
+	  break;
 	}
 	if (unstablePhase == false) {
 	  if (unstablePhaseNew == true) {

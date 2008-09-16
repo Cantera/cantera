@@ -348,6 +348,7 @@ namespace Cantera {
   /// saturation pressure
   doublereal PDSS_IdealGas::satPressure(doublereal t){
     throw CanteraError("PDSS_IdealGas::satPressure()", "unimplemented");
+    /*NOTREACHED*/
     return (0.0);
   }
    

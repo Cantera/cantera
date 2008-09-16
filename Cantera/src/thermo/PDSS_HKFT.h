@@ -411,7 +411,7 @@ namespace Cantera {
      *                   phase. If none is given, the first XML
      *                   phase element will be used.
      */
-    virtual void initThermoXML(const XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(const XML_Node& phaseNode, std::string& id);
 
     //@}
 

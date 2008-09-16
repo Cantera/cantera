@@ -274,7 +274,7 @@ namespace Cantera {
     PDSS::initThermo();
   }
 
-  void PDSS_Water::initThermoXML(const XML_Node& phaseNode, std::string id) {
+  void PDSS_Water::initThermoXML(const XML_Node& phaseNode, std::string& id) {
     PDSS::initThermoXML(phaseNode, id);
   }
 

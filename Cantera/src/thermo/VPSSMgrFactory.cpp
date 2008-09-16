@@ -230,9 +230,9 @@ namespace Cantera {
   
     if (iwater == 1) {
       if (ihptx == 0) {
-	vpss == new VPSSMgr_Water_ConstVol(vp_ptr, spth);
+	vpss = new VPSSMgr_Water_ConstVol(vp_ptr, spth);
       } else {
-	vpss == new VPSSMgr_Water_HKFT(vp_ptr, spth);
+	vpss = new VPSSMgr_Water_HKFT(vp_ptr, spth);
       }
     }
     // The default here is to fall back to use the completely
@@ -329,7 +329,6 @@ namespace Cantera {
     case cVPSSMGR_PUREFLUID:
       throw CanteraError("VPSSMgrFactory::newVPSSMgr",
 			 "unimplemented");
-      break;
     case cVPSSMGR_WATER_CONSTVOL:
       return new VPSSMgr_Water_ConstVol(vp_ptr, &spthermoRef);
       break;
