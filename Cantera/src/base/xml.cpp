@@ -18,6 +18,8 @@ using namespace std;
 
 #include "xml.h"
 
+#include <ctype.h>
+
 #define XML_INDENT 4
 
 namespace Cantera {
@@ -85,213 +87,229 @@ namespace Cantera {
     //////////////////// XML_Reader methods ///////////////////////
 
 
-    /// Get a single character from the input stream. If the character
-    /// is a new-line character, then increment the line count.
-    void XML_Reader::getchr(char& ch) {
-        m_s.get(ch);
-        if (ch == '\n') m_line++;
+  XML_Reader::XML_Reader(std::istream& input) : 
+    m_s(input), 
+    m_line(0) 
+  {
+  }
+  
+  //! Get a single character from the input stream.
+  /*! 
+   *  If the character
+   *  is a new-line character, then increment the line count.
+   */
+  void XML_Reader::getchr(char& ch) {
+    m_s.get(ch);
+    if (ch == '\n') {
+      m_line++;
+    } 
+  }
+
+
+  // Returns string 'aline' stripped of leading and trailing white
+  // space.
+  // @todo why is this a class method?
+  string XML_Reader::strip(const string& aline) {
+    int len = static_cast<int>(aline.size());
+    int i, j, ll;
+    for (i = len-1; i >= 0; i--) {
+      ll = aline[i];
+      if (! isspace(ll)) break;
     }
-
-
-    /// Returns string 'aline' stripped of leading and trailing white
-    /// space.
-    /// @todo why is this a class method?
-    string XML_Reader::strip(const string& aline) {
-        int len = static_cast<int>(aline.size());
-        int i, j;
-        for (i = len-1; i >= 0; i--) 
-            if (aline[i] != ' ' && aline[i] != '\n') break;
-        for (j = 0;  j < i; j++)
-            if (aline[j] != ' ' && aline[j] != '\n') break;
-        return aline.substr(j, i - j + 1);
+    for (j = 0;  j < i; j++) {
+      ll = aline[j];
+      if (! isspace(ll)) break;
     }
+    //  if (aline[j] != ' ' && aline[j] != '\n') break;
+    return aline.substr(j, i - j + 1);
+  }
 
 
-    /// Looks for a substring within 'aline' enclosed in double
-    /// quotes, and returns this substring (without the quotes) if
-    /// found.  If not, an empty string is returned.
-    /// @todo why is this a class method?
-    string XML_Reader::inquotes(const string& aline) {
-        int len = static_cast<int>(aline.size());
-        int i, j;
-        for (i = len-1; i >= 0; i--) 
-            if (aline[i] == '"') break;
-        for (j = 0;  j < i; j++) 
-            if (aline[j] == '"') break;
-        if (j == i) return "";
-        else return aline.substr(j+1, i - j - 1);
+  /// Looks for a substring within 'aline' enclosed in double
+  /// quotes, and returns this substring (without the quotes) if
+  /// found.  If not, an empty string is returned.
+  /// @todo why is this a class method?
+  string XML_Reader::inquotes(const string& aline) {
+    int len = static_cast<int>(aline.size());
+    int i, j;
+    for (i = len-1; i >= 0; i--) 
+      if (aline[i] == '"') break;
+    for (j = 0;  j < i; j++) 
+      if (aline[j] == '"') break;
+    if (j == i) return "";
+    else return aline.substr(j+1, i - j - 1);
+  }
+
+  /**
+   * Find the first position of a character, q, in string s,
+   * which is not immediately preceded by the backslash character
+   * '\'
+   */
+  static string::size_type findUnbackslashed(string s, const char q,
+					     string::size_type istart = 0) {
+    string::size_type iloc, icurrent, len;
+    icurrent = istart;
+    len = s.size();
+    while (1) {
+      iloc = s.find(q, icurrent);
+      if (iloc == string::npos || iloc == 0) {
+	return iloc;
+      }
+      char cm1 = s[iloc-1];
+      if (cm1 == '\\') {
+	if (iloc >= (len -1)) return string::npos;
+	icurrent = iloc + 1;
+      } else {
+	return iloc;
+      }
     }
+  }
 
-    /**
-     * Find the first position of a character, q, in string s,
-     * which is not immediately preceded by the backslash character
-     * '\'
+  /**
+   *  Searches a string for the first occurrence of a valid
+   *  quoted string. Quotes can start with either a single
+   *  quote or a double quote, but must also end with the same
+   *  type. Quotes may be commented out by preceding with a
+   *  backslash character, '\\'. 
+   */
+  int XML_Reader::findQuotedString(const string& s, string &rstring) {
+    const char q1 = '\'';
+    const char q2 = '"';
+    rstring = "";
+    char qtype = ' ';
+    string::size_type iloc1, iloc2, ilocStart = 0;
+    iloc1 = findUnbackslashed(s, q1);
+    iloc2 = findUnbackslashed(s, q2);
+    if (iloc2 != string::npos) {
+      ilocStart = iloc2;
+      qtype = q2;
+    }
+    if (iloc1 != string::npos) {
+      if (iloc1 < ilocStart) {
+	ilocStart = iloc1;
+	qtype = q1;
+      }
+    }
+    if (qtype == ' ') return 0;
+
+    iloc1 = findUnbackslashed(s, qtype, ilocStart+1);
+
+    if (iloc1 == string::npos) {
+      return 0;
+    }
+    /*
+     * Define the return string by the two endpoints.
+     * Strip the surrounding quotes as well
      */
-    static string::size_type findUnbackslashed(string s, const char q,
-					       string::size_type istart = 0) {
-	string::size_type iloc, icurrent, len;
-	icurrent = istart;
-	len = s.size();
-	while (1) {
-	  iloc = s.find(q, icurrent);
-	  if (iloc == string::npos || iloc == 0) {
-	    return iloc;
-	  }
-	  char cm1 = s[iloc-1];
-	  if (cm1 == '\\') {
-	    if (iloc >= (len -1)) return string::npos;
-	    icurrent = iloc + 1;
-	  } else {
-	    return iloc;
-	  }
-	}
-    }
-
-    /**
-     *  Searches a string for the first occurrence of a valid
-     *  quoted string. Quotes can start with either a single
-     *  quote or a double quote, but must also end with the same
-     *  type. Quotes may be commented out by preceding with a
-     *  backslash character, '\\'. 
+    rstring = s.substr(ilocStart + 1, iloc1 - 1);
+    /*
+     * Return the first character position past the quotes
      */
-    int XML_Reader::findQuotedString(const string& s, string &rstring) {
-	const char q1 = '\'';
-	const char q2 = '"';
-	rstring = "";
-	char qtype = ' ';
-	string::size_type iloc1, iloc2, ilocStart = 0;
-	iloc1 = findUnbackslashed(s, q1);
-	iloc2 = findUnbackslashed(s, q2);
-	if (iloc2 != string::npos) {
-	  ilocStart = iloc2;
-	  qtype = q2;
-	}
-	if (iloc1 != string::npos) {
-	  if (iloc1 < ilocStart) {
-	    ilocStart = iloc1;
-	    qtype = q1;
-	  }
-	}
-	if (qtype == ' ') return 0;
-
-	iloc1 = findUnbackslashed(s, qtype, ilocStart+1);
-
-	if (iloc1 == string::npos) {
-	  return 0;
-	}
-	/*
-	 * Define the return string by the two endpoints.
-	 * Strip the surrounding quotes as well
-	 */
-	rstring = s.substr(ilocStart + 1, iloc1 - 1);
-	/*
-	 * Return the first character position past the quotes
-	 */
-	return static_cast<int>(iloc1)+1;	
-    }
+    return static_cast<int>(iloc1)+1;	
+  }
     
-    /**
-     * parseTag parses XML tags, i.e., the XML elements that are
-     * inbetween angle brackets.
-     */
-    void XML_Reader::parseTag(string tag, string& name, 
-			      map<string, string>& attribs) {
-        string::size_type iloc;
-        string attr, val;
-        string s = strip(tag);
-        iloc = s.find(' ');
-        if (iloc != string::npos) {
-	    name = s.substr(0, iloc);
-            s = strip(s.substr(iloc+1,s.size()));
-            if (s[s.size()-1] == '/') {
-	      name += "/";
-	    }
+  /**
+   * parseTag parses XML tags, i.e., the XML elements that are
+   * inbetween angle brackets.
+   */
+  void XML_Reader::parseTag(string tag, string& name, 
+			    map<string, string>& attribs) {
+    string::size_type iloc;
+    string attr, val;
+    string s = strip(tag);
+    iloc = s.find(' ');
+    if (iloc != string::npos) {
+      name = s.substr(0, iloc);
+      s = strip(s.substr(iloc+1,s.size()));
+      if (s[s.size()-1] == '/') {
+	name += "/";
+      }
 
-            // get attributes
-            while (1) {
-                iloc = s.find('=');
-                if (iloc == string::npos) break; 
-                attr = strip(s.substr(0,iloc));
-                if (attr == "") break;
-                s = strip(s.substr(iloc+1,s.size()));
-                       iloc = findQuotedString(s, val);
-                attribs[attr] = val;
-		if (iloc != string::npos) {
-		  if (iloc < s.size()) 
-		      s = strip(s.substr(iloc,s.size()));
-		  else
-		      break;
-		}
-            }
-        }
-        else {
-            name = s;
-        }
+      // get attributes
+      while (1) {
+	iloc = s.find('=');
+	if (iloc == string::npos) break; 
+	attr = strip(s.substr(0,iloc));
+	if (attr == "") break;
+	s = strip(s.substr(iloc+1,s.size()));
+	iloc = findQuotedString(s, val);
+	attribs[attr] = val;
+	if (iloc != string::npos) {
+	  if (iloc < s.size()) 
+	    s = strip(s.substr(iloc,s.size()));
+	  else
+	    break;
+	}
+      }
     }
+    else {
+      name = s;
+    }
+  }
     
-    string XML_Reader::readTag(map<string, string>& attribs) {
-        string name, tag = "";
-        bool incomment = false;
-        char ch  = '-';
-        while (1) {
-            if (m_s.eof() || (getchr(ch), ch == '<')) break;
-        }
-        char ch1 = ' ', ch2 = ' ';
-        while (1) {
-            if (m_s.eof()) { tag = "EOF"; break;}
-            ch2 = ch1;
-            ch1 = ch;
-            getchr(ch);
-            if (ch == '-') {
-                if (ch1 == '-' && ch2 == '!') {
-                    incomment = true;
-                    tag = "-";
-                }
-            }
-            else if (ch == '>') {
-                if (incomment) {
-                    if (ch1 == '-' && ch2 == '-') break;
-                }
-                else
-                    break;
-            }
-            if (isprint(ch)) tag += ch;
-        }
-        if (incomment) {
-            attribs.clear();
-            return tag;
-        }
-        else {
-            parseTag(tag, name, attribs);
-            return name;
-        }
+  string XML_Reader::readTag(map<string, string>& attribs) {
+    string name, tag = "";
+    bool incomment = false;
+    char ch  = '-';
+    while (1) {
+      if (m_s.eof() || (getchr(ch), ch == '<')) break;
     }
-
-    string XML_Reader::readValue() {
-        string tag = "";
-        char ch, lastch;
-        ch = '\n';
-        bool front = true;
-        while (1) {
-            if (m_s.eof()) break;
-            lastch = ch;
-            getchr(ch);
-            if (ch == '\n') 
-                front = true;
-            else if (ch != ' ') 
-                front = false;
-            if (ch == '<') {
-                m_s.putback(ch); 
-                break;
-            }
-            if (front && lastch == ' ' && ch == ' ') ;
-            else tag += ch;
-        }
-        return strip(tag);
+    char ch1 = ' ', ch2 = ' ';
+    while (1) {
+      if (m_s.eof()) { tag = "EOF"; break;}
+      ch2 = ch1;
+      ch1 = ch;
+      getchr(ch);
+      if (ch == '-') {
+	if (ch1 == '-' && ch2 == '!') {
+	  incomment = true;
+	  tag = "-";
+	}
+      }
+      else if (ch == '>') {
+	if (incomment) {
+	  if (ch1 == '-' && ch2 == '-') break;
+	}
+	else
+	  break;
+      }
+      if (isprint(ch)) tag += ch;
     }
+    if (incomment) {
+      attribs.clear();
+      return tag;
+    }
+    else {
+      parseTag(tag, name, attribs);
+      return name;
+    }
+  }
+
+  string XML_Reader::readValue() {
+    string tag = "";
+    char ch, lastch;
+    ch = '\n';
+    bool front = true;
+    while (1) {
+      if (m_s.eof()) break;
+      lastch = ch;
+      getchr(ch);
+      if (ch == '\n') 
+	front = true;
+      else if (ch != ' ') 
+	front = false;
+      if (ch == '<') {
+	m_s.putback(ch); 
+	break;
+      }
+      if (front && lastch == ' ' && ch == ' ') ;
+      else tag += ch;
+    }
+    return strip(tag);
+  }
 
 
-    //////////////////////////  XML_Node  /////////////////////////////////
+  //////////////////////////  XML_Node  /////////////////////////////////
 
 
     XML_Node::XML_Node(string nm, XML_Node* p) 
