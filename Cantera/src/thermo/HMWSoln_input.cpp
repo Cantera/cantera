@@ -1001,6 +1001,16 @@ namespace Cantera {
      */
     m_waterProps = new WaterProps(dynamic_cast<PDSS_Water*>(m_waterSS));
 
+    /*
+     * Fill in parameters for the calculation of the 
+     * stoichiometric Ionic Strength
+     *
+     * The default is that stoich charge is the same as the
+     * regular charge.
+     */
+    for (k = 0; k < m_kk; k++) {
+      m_speciesCharge_Stoich[k] = m_speciesCharge[k];
+    }
 
     /*
      * Go get all of the coefficients and factors in the
@@ -1067,18 +1077,6 @@ namespace Cantera {
 
       }
 
-
-      /*
-       * Fill in parameters for the calculation of the 
-       * stoichiometric Ionic Strength
-       *
-       * The default is that stoich charge is the same as the
-       * regular charge.
-       */
-      m_speciesCharge_Stoich.resize(m_kk, 0.0);
-      for (k = 0; k < m_kk; k++) {
-	m_speciesCharge_Stoich[k] = m_speciesCharge[k];
-      }
       /*
        * First look at the species database.
        *  -> Look for the subelement "stoichIsMods"

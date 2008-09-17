@@ -1454,6 +1454,7 @@ namespace Cantera {
     int leng = m_kk;
     m_electrolyteSpeciesType.resize(m_kk, cEST_polarNeutral);
     m_speciesSize.resize(leng);
+    m_speciesCharge_Stoich.resize(leng, 0.0);
     m_Aionic.resize(leng, 0.0);
 
     m_expg0_RT.resize(leng, 0.0);
