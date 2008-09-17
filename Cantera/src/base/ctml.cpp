@@ -23,6 +23,8 @@
 
 #define CTML_VERSION_1_4_1
 
+#include <ctype.h>
+
 using namespace std;
 using namespace Cantera;
 
@@ -576,6 +578,37 @@ namespace ctml {
 
     }
 
+  static string::size_type findFirstWS(const string& val) {
+    string::size_type ibegin = string::npos;
+    int j = 0;
+    std::string::const_iterator i = val.begin();
+    for ( ; i != val.end(); i++) {
+      char ch = *i;
+      int ll = (int) ch;
+      if (isspace(ll)) {
+	ibegin = (string::size_type) j;
+	break;
+      }
+      j++;
+    }
+    return ibegin;  
+  }
+
+  static string::size_type findFirstNotOfWS(const string& val) {
+    string::size_type ibegin = string::npos;
+    int j = 0;
+    std::string::const_iterator i = val.begin();
+    for ( ; i != val.end(); i++) {
+      char ch = *i;
+      int ll = (int) ch;
+      if (!isspace(ll)) {
+	ibegin = (string::size_type) j;
+	break;
+      }
+      j++;
+    }
+    return ibegin;  
+  }
 
     /**
      * This function interprets the value portion of an XML element
@@ -584,37 +617,41 @@ namespace ctml {
      * The separate tokens are returned in the string vector,
      * v.
      */
-    void getStringArray(const XML_Node& node, vector<string>& v) {
-	string::size_type ibegin, iend;
-        v.clear();
-        string val = node.value();
-        while (1 > 0) {
-            ibegin = val.find_first_not_of(" \n\t");
-            if (ibegin != string::npos) {
-                val = val.substr(ibegin,val.size());
-                iend = val.find_first_of(" \n\t");
-                if (iend == string::npos) {
-                   v.push_back(val);
-                   break;
-                } else {
-                   v.push_back(val.substr(0,iend));
-                   val = val.substr(iend+1,val.size());
-                }
-            }
-            else {
-              break;
-            }
-        }
+  void getStringArray(const XML_Node& node, vector<string>& v) {
+    string::size_type ibegin, iend;
+    v.clear();
+    string val = node.value();
+    while (1 > 0) {
+      ibegin = findFirstNotOfWS(val);
+      //val.find_first_not_of(" \n\t");
+      if (ibegin != string::npos) {
+	val = val.substr(ibegin,val.size());
+	//iend = val.find_first_of(" \n\t");
+	iend = findFirstWS(val);
+	if (iend == string::npos) {
+	  v.push_back(val);
+	  break;
+	} else {
+	  v.push_back(val.substr(0,iend));
+	  val = val.substr(iend+1,val.size());
+	}
+      }
+      else {
+	break;
+      }
     }
 
-    void getFunction(const XML_Node& node, string& type, doublereal& xmin,
-        doublereal& xmax, vector_fp& coeffs) {
-        const XML_Node& c = node.child("floatArray");
-        coeffs.clear();
-        getFloatArray(c,coeffs);
-        xmin = Undef;
-        if (node["min"] != "") xmin = fpValue(node["min"]);
-        if (node["max"] != "") xmax = fpValue(node["max"]);
-        type = node["type"];
-    }
+  }
+
+
+  void getFunction(const XML_Node& node, string& type, doublereal& xmin,
+		   doublereal& xmax, vector_fp& coeffs) {
+    const XML_Node& c = node.child("floatArray");
+    coeffs.clear();
+    getFloatArray(c,coeffs);
+    xmin = Undef;
+    if (node["min"] != "") xmin = fpValue(node["min"]);
+    if (node["max"] != "") xmax = fpValue(node["max"]);
+    type = node["type"];
+  }
 }
