@@ -28,9 +28,8 @@ namespace Cantera {
   PDSS_Water::PDSS_Water() :
     PDSS(),
     m_sub(0),
-    m_temp(0.0),
     m_dens(1000.0),
-    m_iState(-3000),
+    m_iState(WATER_LIQUID),
     EW_Offset(0.0),
     SW_Offset(0.0),
     m_verbose(0),
@@ -40,14 +39,15 @@ namespace Cantera {
     m_sub = new WaterPropsIAPWS();  
     m_spthermo = 0;
     constructSet();
+    m_minTemp = 200.;
+    m_maxTemp = 10000.;
   }
 
   PDSS_Water::PDSS_Water(VPStandardStateTP *tp, int spindex) :
     PDSS(tp, spindex),
     m_sub(0),
-    m_temp(0.0),
     m_dens(1000.0),
-    m_iState(-3000),
+    m_iState(WATER_LIQUID),
     EW_Offset(0.0),
     SW_Offset(0.0),
     m_verbose(0),
@@ -57,6 +57,8 @@ namespace Cantera {
     m_sub = new WaterPropsIAPWS();
     m_spthermo = 0;
     constructSet();
+    m_minTemp = 200.;
+    m_maxTemp = 10000.;
   }
 
 
@@ -64,9 +66,8 @@ namespace Cantera {
 		       std::string inputFile, std::string id) :
     PDSS(tp, spindex),
     m_sub(0),
-    m_temp(0.0),
     m_dens(1000.0),
-    m_iState(-3000),
+    m_iState(WATER_LIQUID),
     EW_Offset(0.0),
     SW_Offset(0.0),
     m_verbose(0),
@@ -76,6 +77,8 @@ namespace Cantera {
     m_sub = new WaterPropsIAPWS();  
     constructPDSSFile(tp, spindex, inputFile, id);
     m_spthermo = 0;
+    m_minTemp = 200.;
+    m_maxTemp = 10000.;
   }
 
   PDSS_Water::PDSS_Water(VPStandardStateTP *tp, int spindex,
@@ -83,9 +86,8 @@ namespace Cantera {
 			 const XML_Node& phaseRoot, bool spInstalled) :
     PDSS(tp, spindex),
     m_sub(0),
-    m_temp(0.0),
     m_dens(1000.0),
-    m_iState(-3000),
+    m_iState(WATER_LIQUID),
     EW_Offset(0.0),
     SW_Offset(0.0),
     m_verbose(0),
@@ -97,6 +99,8 @@ namespace Cantera {
     constructPDSSXML(tp, spindex, phaseRoot, id) ;
     initThermo();
     m_spthermo = 0;
+    m_minTemp = 200.;
+    m_maxTemp = 10000.;
   }
 
 
@@ -104,9 +108,8 @@ namespace Cantera {
   PDSS_Water::PDSS_Water(const PDSS_Water &b) :
     PDSS(),
     m_sub(0),
-    m_temp(0.0),
     m_dens(1000.0),
-    m_iState(-3000),
+    m_iState(WATER_LIQUID),
     EW_Offset(b.EW_Offset),
     SW_Offset(b.SW_Offset),
     m_verbose(b.m_verbose),
@@ -131,7 +134,6 @@ namespace Cantera {
     PDSS::operator=(b);
 
     m_sub->operator=(*(b.m_sub));
-    m_temp          = b.m_temp;
     m_dens          = b.m_dens;
     m_iState        = b.m_iState;
     EW_Offset       = b.EW_Offset;
@@ -375,9 +377,7 @@ namespace Cantera {
     if (T > m_sub->Tcrit()) {
       waterState = WATER_SUPERCRIT;
     }
-    if (p < 1.0) {
-      waterState = WATER_GAS;
-    }
+ 
 
 #ifdef DEBUG_HKM
     //printf("waterPDSS: set pres = %g t = %g, waterState = %d\n",
@@ -393,8 +393,14 @@ namespace Cantera {
     m_dens = dd;
     m_pres = p;
 
+    // We are only putting the phase check here because of speed considerations.
     m_iState = m_sub->phaseState(true);
-    
+    if (! m_allowGasPhase) {
+      if (m_iState != WATER_SUPERCRIT && m_iState != WATER_LIQUID && m_iState != WATER_UNSTABLELIQUID) {
+	throw CanteraError("PDSS_Water::setPressure",
+			   "Water State isn't liquid or crit");
+      }
+    }
   }
  
   // Return the volumetric thermal expansion coefficient. Units: 1/K.
@@ -467,13 +473,10 @@ namespace Cantera {
 
   // saturation pressure
   doublereal PDSS_Water::satPressure(doublereal t){
-    doublereal pp = m_sub->psat(t);
-    doublereal dens = m_dens;
+    doublereal pp = m_sub->psat(t, WATER_LIQUID);
+    m_dens = m_sub->density();
     m_temp = t;
-    m_dens = dens;
     return pp;
   }
-        
-
-
+  
 }

@@ -150,18 +150,19 @@ namespace Cantera {
 
   VPSSMgr_enumType
   VPSSMgrFactory::VPSSMgr_StringConversion(std::string ssModel) const {
+    std::string lssModel = lowercase(ssModel); 
     VPSSMgr_enumType type;
-    if (ssModel == "IdealGas") {
+    if (lssModel == "idealgas") {
       type = cVPSSMGR_IDEALGAS;
-    } else if (ssModel == "ConstVol") {
+    } else if (lssModel == "constvol") {
       type = cVPSSMGR_CONSTVOL;
-    } else if (ssModel == "PureFuild") {
+    } else if (lssModel == "purefuild") {
       type = cVPSSMGR_PUREFLUID;
-    } else if (ssModel == "Water_ConstVol") {
+    } else if (lssModel == "water_constvol") {
       type = cVPSSMGR_WATER_CONSTVOL;
-    } else if (ssModel == "Water_HKFT") {
+    } else if (lssModel == "water_hkft") {
       type = cVPSSMGR_WATER_HKFT;
-    } else if (ssModel == "General") {
+    } else if (lssModel == "general") {
       type = cVPSSMGR_GENERAL;
     } else {
       type = cVPSSMGR_UNDEF;
@@ -169,108 +170,65 @@ namespace Cantera {
     return type;
   }
 
-  // Stub out of new capabilities.
-    
+  // Chose the variable pressure standard state manager 
+  // and the reference standard state manager
   VPSSMgr* 
   VPSSMgrFactory::newVPSSMgr(VPStandardStateTP *vp_ptr, 
 			     XML_Node* phaseNode_ptr,
 			     XML_Node* spData_node) {
-    std::string ssModel="";
-    VPSSMgr *vpss = 0;
-    // First look for any explicit instructions within the XML Data
-    if (phaseNode_ptr) {
-      if (phaseNode_ptr->hasChild("thermo")) {
-	const XML_Node& thermoNode = phaseNode_ptr->child("thermo");
-	if (thermoNode.hasChild("standardState")) {
-	  const XML_Node& ssNode = thermoNode.child("standardState");
-	  ssModel = ssNode["model"];
-	}
-      }
-    }
-  
-
-    // first get the reference state handler
-    SpeciesThermo *spth = newSpeciesThermoMgr(spData_node);
-    vp_ptr->setSpeciesThermo(spth);
-
-    if (ssModel != "") {
-      VPSSMgr_enumType type = VPSSMgr_StringConversion(ssModel);
-      vpss = newVPSSMgr(type, vp_ptr);
-      return vpss;
-    }
-
-    // If it comes back as general, then there may be some unknown 
-    // parameterizations to the SpeciesThermo factory routine.
-    bool haveSomeUnknowns = true;
-    GeneralSpeciesThermo *ttmp = dynamic_cast<GeneralSpeciesThermo *>(spth);
-    if (ttmp == 0) {
-      haveSomeUnknowns = false;
-    }
-
-  
-    if (vp_ptr->eosType() == cVPSS_IdealGas) {
-      vpss = new VPSSMgr_IdealGas(vp_ptr, spth);
-
-    }
-
-    if (vp_ptr->eosType() == cVPSS_ConstVol) {
-      vpss = new VPSSMgr_ConstVol(vp_ptr, spth);
-    }
-
-    int inasa = 0, ishomate = 0, isimple = 0, iwater = 0, itpx = 0, iother = 0;
-    int ihptx = 0;
-  
-    try {
-      getVPSSMgrTypes(spData_node, inasa, ishomate, isimple, iwater, 
-		      itpx, ihptx, iother);
-    } catch (UnknownSpeciesThermoModel) {
-      iother = 1;
-      popError();
-    }
-  
-    if (iwater == 1) {
-      if (ihptx == 0) {
-	vpss = new VPSSMgr_Water_ConstVol(vp_ptr, spth);
-      } else {
-	vpss = new VPSSMgr_Water_HKFT(vp_ptr, spth);
-      }
-    }
-    // The default here is to fall back to use the completely
-    // general representation.
-    if (vpss == 0) {
-      vpss = new VPSSMgr_General(vp_ptr, spth);
-    }
-    return vpss;
+    std::vector<XML_Node*> spData_nodes;
+    spData_nodes.push_back(spData_node);
+    VPSSMgr *vv = newVPSSMgr(vp_ptr, phaseNode_ptr, spData_nodes);
+    return vv;
   }
-
+  
+  // Chose the variable pressure standard state manager 
+  // and the reference standard state manager
   VPSSMgr* 
   VPSSMgrFactory::newVPSSMgr(VPStandardStateTP *vp_ptr, 
 			     XML_Node* phaseNode_ptr,
 			     std::vector<XML_Node*> spData_nodes) {
 
-    std::string ssModel="";
+    std::string ssManager="";
+    std::string vpssManager="";
     VPSSMgr *vpss = 0;
-    // First look for any explicit instructions within the XML Data
+
+    // First look for any explicit instructions within the XML Database
+    // for the standard state manager and the variable pressure 
+    // standard state manager
     if (phaseNode_ptr) {
       if (phaseNode_ptr->hasChild("thermo")) {
 	const XML_Node& thermoNode = phaseNode_ptr->child("thermo");
-	if (thermoNode.hasChild("standardState")) {
-	  const XML_Node& ssNode = thermoNode.child("standardState");
-	  ssModel = ssNode["model"];
+	if (thermoNode.hasChild("standardStateManager")) {
+	  const XML_Node& ssNode = thermoNode.child("standardStateManager");
+	  ssManager = ssNode["model"];
+	}
+	if (thermoNode.hasChild("variablePressureStandardStateManager")) {
+	  const XML_Node& vpssNode = thermoNode.child("variablePressureStandardStateManager");
+	  vpssManager = vpssNode["model"];
 	}
       }
     }
 
-    // first get the reference state handler
-    SpeciesThermo *spth = newSpeciesThermoMgr(spData_nodes);
+    // first get the reference state handler. If we have explicit instructions,
+    // use them to spawn the object.
+    SpeciesThermo *spth = 0;
+    if (ssManager != "") {
+      spth = newSpeciesThermoMgr(ssManager);
+    } else {
+      spth = newSpeciesThermoMgr(spData_nodes);
+    }
     vp_ptr->setSpeciesThermo(spth);
 
-    if (ssModel != "") {
-      VPSSMgr_enumType type = VPSSMgr_StringConversion(ssModel);
+    // Next, if we have specific directions, use them to get the VPSSSMgr object
+    // and return immediately
+    if (vpssManager != "") {
+      VPSSMgr_enumType type = VPSSMgr_StringConversion(vpssManager);
       vpss = newVPSSMgr(type, vp_ptr);
       return vpss;
     }
 
+ 
     // If it comes back as general, then there may be some unknown 
     // parameterizations to the SpeciesThermo factory routine.
     bool haveSomeUnknowns = true;
@@ -278,14 +236,16 @@ namespace Cantera {
     if (ttmp == 0) {
       haveSomeUnknowns = false;
     }
-
-    if (vp_ptr->eosType() == cIdealSolnGasVPSS) {
+ 
+    // Handle special cases based on the VPStandardState types
+    if (vp_ptr->eosType() == cVPSS_IdealGas) {
       vpss = new VPSSMgr_IdealGas(vp_ptr, spth);
+      return vpss;
+    } else if (vp_ptr->eosType() == cVPSS_ConstVol) {
+      vpss = new VPSSMgr_ConstVol(vp_ptr, spth);
+      return vpss;
     }
 
-    if (vp_ptr->eosType() == cIdealSolnGasVPSS_iscv) {
-      vpss = new VPSSMgr_ConstVol(vp_ptr, spth);
-    }
 
     int n = static_cast<int>(spData_nodes.size());
     int inasa = 0, ishomate = 0, isimple = 0, iwater = 0, itpx = 0, iother = 0;

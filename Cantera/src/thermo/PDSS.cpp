@@ -32,6 +32,8 @@ namespace Cantera {
     m_temp(-1.0),
     m_pres(-1.0),
     m_p0(-1.0),
+    m_minTemp(-1.0),
+    m_maxTemp(10000.0),
     m_tp(0),
     m_vpssmgr_ptr(0),
     m_mw(0.0),
@@ -55,6 +57,8 @@ namespace Cantera {
     m_temp(-1.0),
     m_pres(-1.0),
     m_p0(-1.0),
+    m_minTemp(-1.0),
+    m_maxTemp(10000.0),
     m_tp(tp),
     m_vpssmgr_ptr(0),
     m_mw(0.0),
@@ -87,6 +91,8 @@ namespace Cantera {
     m_temp(-1.0),
     m_pres(-1.0),
     m_p0(-1.0),
+    m_minTemp(-1.0),
+    m_maxTemp(10000.0),
     m_tp(0),
     m_vpssmgr_ptr(0),
     m_mw(b.m_mw),
@@ -121,6 +127,8 @@ namespace Cantera {
     m_temp         = b.m_temp;
     m_pres         = b.m_pres;
     m_p0           = b.m_p0;
+    m_minTemp      = b.m_minTemp;
+    m_maxTemp      = b.m_maxTemp;
     m_tp           = b.m_tp;
     m_vpssmgr_ptr  = b.m_vpssmgr_ptr;
     m_mw           = b.m_mw;
@@ -158,10 +166,12 @@ namespace Cantera {
    
 
   void PDSS::initThermoXML(const XML_Node& phaseNode, std::string& id) {
+    AssertThrow(m_tp != 0, "PDSS::initThermoXML()");
     m_vpssmgr_ptr = m_tp->provideVPSSMgr();
   }
 
   void PDSS::initThermo() {
+    AssertThrow(m_tp != 0, "PDSS::initThermo()");
     m_vpssmgr_ptr = m_tp->provideVPSSMgr();
     initPtrs();
   }
@@ -361,7 +371,6 @@ namespace Cantera {
     return(cp_mole() - GasConstant * tmp);
   }
   
-
   /**
    * Calculate the pressure (Pascals), given the temperature and density
    *  Temperature: kelvin

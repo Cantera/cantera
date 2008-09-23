@@ -377,14 +377,14 @@ namespace Cantera {
     SpeciesThermo* spth = 0;
     VPSSMgr* vp_spth = 0;
     if (ssConvention == cSS_CONVENTION_TEMPERATURE) {
-    // Create a new species thermo manager.  Function
-    // 'newSpeciesThermoMgr' looks at the species in the database
-    // to see what thermodynamic property parameterizations are
-    // used, and selects a class that can handle the
-    // parameterizations found.
+      // Create a new species thermo manager.  Function
+      // 'newSpeciesThermoMgr' looks at the species in the database
+      // to see what thermodynamic property parameterizations are
+      // used, and selects a class that can handle the
+      // parameterizations found.
       spth = newSpeciesThermoMgr(dbases);
-
-    // install it in the phase object
+      
+      // install it in the phase object
       th->setSpeciesThermo(spth);
       // SpeciesThermo& spthermo = th->speciesThermo();
     } else {

@@ -43,7 +43,7 @@ namespace Cantera {
     m_plast(-1.0),
     m_p0(-1.0),
     m_minTemp(-1.0),
-    m_maxTemp(-1.0),
+    m_maxTemp(1.0E8),
     m_useTmpRefStateStorage(false),
     m_useTmpStandardStateStorage(false)
   {
@@ -67,7 +67,7 @@ namespace Cantera {
     m_plast(-1.0),
     m_p0(-1.0),
     m_minTemp(-1.0),
-    m_maxTemp(-1.0),
+    m_maxTemp(1.0E8),
     m_useTmpRefStateStorage(false),
     m_useTmpStandardStateStorage(false)
   {
@@ -399,9 +399,7 @@ namespace Cantera {
 
   PDSS * VPSSMgr::createInstallPDSS(int k, const XML_Node& s,  
 				    const XML_Node *phaseNode_ptr) {
-    // VPSSMgr_enumType tt = reportVPSSMgrType();
-    //string ttt = "createInstallPDSS: " + int2str(int(tt));
-    err( "createInstallPDSS: ");
+    err("VPSSMgr::createInstallPDSS");
     return (PDSS *) 0;
   }
   

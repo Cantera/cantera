@@ -332,7 +332,7 @@ public:
    * Returns the saturation pressure
    *                units = Pascal
    */
-  doublereal psat(doublereal temperature);
+  doublereal psat(doublereal temperature, int waterState = WATER_LIQUID);
 
   //! Return the value of the density at the water spinodal point
   //! for the current temperature.

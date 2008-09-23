@@ -130,6 +130,16 @@ namespace Cantera {
      */ 
     SpeciesThermo* newSpeciesThermo(int type);
 
+
+    //! Create a new species thermo property manager given a string
+    /*!
+     * Create a new species thermo property manager, given a 
+     * string.
+     *
+     * @param stype  String name for the species thermo type
+     */
+    SpeciesThermo* newSpeciesThermoManager(std::string &stype);
+
     //! Create a new species property manager.
     /*!
      * This routine will look through species nodes. It will discover what
@@ -254,6 +264,29 @@ namespace Cantera {
       f = SpeciesThermoFactory::factory();
     }
     SpeciesThermo* sptherm = f->newSpeciesThermo(type);
+    return sptherm;
+  }
+
+ //! Create a new species thermo manager instance, by specifying
+  //!the type and (optionally) a pointer to the factory to use to create it.
+  /*!
+   * This utility program is a basic factory operation for spawning a
+   * new species reference-state thermo mananger
+   *
+   *  These functions allows for using a different factory class that
+   *  derives from SpeciesThermoFactory. However, no applications of this
+   *  have been done yet.
+   *
+   * @param type         Species thermo type.
+   * @param f            Pointer to a SpeciesThermoFactory. optional parameter. 
+   *                    Defautls to NULL.
+   */
+  inline SpeciesThermo* newSpeciesThermoMgr(std::string &stype, 
+					    SpeciesThermoFactory* f=0) {
+    if (f == 0) {
+      f = SpeciesThermoFactory::factory();
+    }
+    SpeciesThermo* sptherm = f->newSpeciesThermoManager(stype);
     return sptherm;
   }
 

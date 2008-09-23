@@ -486,11 +486,6 @@ namespace Cantera {
      */
     mutable WaterPropsIAPWS *m_sub;
 
-    /**
-     * state of the system (temperature and density);
-     */
-    doublereal m_temp;
-
     //! State of the system - density
     /*!
      * Density is the independent variable here, but it's hidden behind the
@@ -525,6 +520,7 @@ namespace Cantera {
     //! Verbose flag - used?
     bool m_verbose;
 
+  public:
     /**
      *  Since this phase represents a liquid phase, it's an error to 
      *  return a gas-phase answer. However, if the below is true, then
@@ -537,6 +533,3 @@ namespace Cantera {
 }
 
 #endif
-
-
-

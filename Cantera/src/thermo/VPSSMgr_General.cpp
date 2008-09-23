@@ -31,6 +31,7 @@
 #include "PDSS_Water.h"
 #include "PDSS_ConstVol.h"
 #include "PDSS_HKFT.h"
+#include "GeneralSpeciesThermo.h"
 
 using namespace std;
 
@@ -75,20 +76,20 @@ namespace Cantera {
   }
 
 
- 
   void VPSSMgr_General::_updateRefStateThermo() const
   {
-    for (int k = 0; k < m_kk; k++) {
-      PDSS *kPDSS = m_PDSS_ptrs[k];
-      kPDSS->setState_TP(m_tlast, m_plast);
-      m_h0_RT[k] = kPDSS->enthalpy_RT_ref();
-      m_s0_R[k]  = kPDSS->entropy_R_ref();
-      m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
-      m_cp0_R[k] = kPDSS->cp_R_ref();
-      m_V0[k]    = kPDSS->molarVolume_ref();
+    if (m_useTmpRefStateStorage) {
+      for (int k = 0; k < m_kk; k++) {
+	PDSS *kPDSS = m_PDSS_ptrs[k];
+	kPDSS->setState_TP(m_tlast, m_plast);
+	m_h0_RT[k] = kPDSS->enthalpy_RT_ref();
+	m_s0_R[k]  = kPDSS->entropy_R_ref();
+	m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
+	m_cp0_R[k] = kPDSS->cp_R_ref();
+	m_V0[k]    = kPDSS->molarVolume_ref();
+      }
     }
   }
-  
 
   void VPSSMgr_General::_updateStandardStateThermo()
   {
@@ -120,7 +121,9 @@ namespace Cantera {
 				  const XML_Node *phaseNode_ptr, bool &doST) {
     PDSS *kPDSS = 0;
     doST = true;
-    
+    GeneralSpeciesThermo *genSpthermo = dynamic_cast<GeneralSpeciesThermo *>(m_spthermo);
+  
+
     const XML_Node * const ss = speciesNode.findByName("standardState");
     if (!ss) {
       VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
@@ -131,12 +134,23 @@ namespace Cantera {
     if (model == "constant_incompressible") {
       VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
       kPDSS = new PDSS_ConstVol(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
-    } else if (model == "waterIAPWS" || model == "waterPDSS") {
-      doST = false;
-      kPDSS = new PDSS_Water();
+    } else if (model == "waterIAPWS" || model == "waterPDSS") { 
+      // VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
+      kPDSS = new PDSS_Water(m_vptp_ptr, 0);
+      if (!genSpthermo) {
+	throw CanteraError("VPSSMgr_General::returnPDSS_ptr",
+			   "failed dynamic cast");
+      }
+      genSpthermo->installPDSShandler(k, kPDSS, this);
+      m_useTmpRefStateStorage = false;
     } else if (model == "HKFT") {
       doST = false;
       kPDSS = new PDSS_HKFT(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
+      if (!genSpthermo) {
+	throw CanteraError("VPSSMgr_General::returnPDSS_ptr",
+			   "failed dynamic cast");
+      }
+      genSpthermo->installPDSShandler(k, kPDSS, this);
     } else {
       throw CanteraError("VPSSMgr_General::returnPDSS_ptr",
 			 "unknown");
@@ -153,8 +167,26 @@ namespace Cantera {
     if ((int) m_PDSS_ptrs.size() < k+1) {
       m_PDSS_ptrs.resize(k+1, 0);
     }
-    
     m_PDSS_ptrs[k] = kPDSS;
+    if ((k+1) >= m_kk) {
+      m_kk = k+1;
+    }
+
+    doublereal minTemp = kPDSS->minTemp();
+    if (minTemp > m_minTemp) {
+      m_minTemp = minTemp;
+    }
+
+    doublereal maxTemp = kPDSS->maxTemp();
+    if (maxTemp < m_maxTemp) {
+      m_maxTemp = maxTemp;
+    }
+
+    doublereal p0 = kPDSS->refPressure();
+    if (k == 0) {
+      m_p0 = p0;
+    }
+
     return kPDSS;
   }
 

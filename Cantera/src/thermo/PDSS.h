@@ -279,6 +279,17 @@ namespace Cantera {
       return m_p0;
     }
 
+    //! return the minimum temperature 
+    doublereal minTemp() const {
+      return m_minTemp;
+    }
+
+
+    //! return the minimum temperature 
+    doublereal maxTemp() const {
+      return m_maxTemp;
+    }
+
     //! Return the molar gibbs free energy divided by RT at reference pressure
     /*!
      * Returns the species reference state gibbs free energy divided by RT at the
@@ -485,6 +496,12 @@ namespace Cantera {
 
     //! reference state pressure of the species.
     doublereal m_p0;
+
+    //! minimum temperature
+    doublereal m_minTemp;
+
+    //! maximum temperature
+    doublereal m_maxTemp;
 
     //! Thermophase which this species belongs to. 
     /*!

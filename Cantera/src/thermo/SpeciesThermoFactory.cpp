@@ -155,10 +155,7 @@ namespace Cantera {
 			    + SHOMATE*ishomate + SIMPLE*isimple);
   }
 
-
-    
   SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(int type) {
-        
     switch (type) {
     case NASA:
       return new NasaThermo;
@@ -173,12 +170,36 @@ namespace Cantera {
     case SHOMATE + SIMPLE:
       return new SpeciesThermoDuo<ShomateThermo, SimpleThermo>;
     default:
-      throw UnknownSpeciesThermo(
-				 "SpeciesThermoFactory::newSpeciesThermo",type);
+      throw UnknownSpeciesThermo("SpeciesThermoFactory::newSpeciesThermo",
+				 type);
       return 0; 
     }
   }
 
+  SpeciesThermo* SpeciesThermoFactory::newSpeciesThermoManager(std::string &stype) {
+    std::string ltype = lowercase(stype);
+    if (ltype == "nasa") {
+      return new NasaThermo;
+    } else if (ltype == "shomate") {
+      return new ShomateThermo;
+    } else if (ltype ==  "simple" || ltype == "constant_cp") {
+      return new SimpleThermo;
+    } else if (ltype ==  "nasa_shomate_duo") {
+      return new SpeciesThermoDuo<NasaThermo, ShomateThermo>;
+    } else if (ltype ==  "nasa_simple_duo") {
+      return new SpeciesThermoDuo<NasaThermo, SimpleThermo>;
+    } else if (ltype ==  "shomate_simple_duo") {
+      return new SpeciesThermoDuo<ShomateThermo, SimpleThermo>;
+    } else if (ltype ==   "general") {
+      return new GeneralSpeciesThermo();
+    } else if (ltype ==  "") {
+      return (SpeciesThermo*) 0;
+    } else {
+      throw UnknownSpeciesThermo("SpeciesThermoFactory::newSpeciesThermoManager",
+				 stype);
+    }
+    return (SpeciesThermo*) 0;
+  }
 
   /*
    * Check the continuity of properties at the midpoint
@@ -186,7 +207,6 @@ namespace Cantera {
    */
   void NasaThermo::checkContinuity(std::string name, double tmid, const doublereal* clow,
 				   doublereal* chigh) {
-
     // heat capacity
     doublereal cplow = poly4(tmid, clow);
     doublereal cphigh = poly4(tmid, chigh);

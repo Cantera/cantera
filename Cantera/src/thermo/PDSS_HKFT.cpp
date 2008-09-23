@@ -155,7 +155,7 @@ namespace Cantera {
     // Ok we may change this evaluation method in the future.
     double GG = gibbs_mole();
     double SS = entropy_mole();
-    double h = GG - m_temp * SS;
+    double h = GG + m_temp * SS;
     return h;
   }
 
@@ -483,8 +483,8 @@ namespace Cantera {
 				   const XML_Node& speciesNode, 
 				   const XML_Node& phaseNode, bool spInstalled) {
     PDSS::initThermo();
-    SpeciesThermo &sp = m_tp->speciesThermo();
-    m_p0 = sp.refPressure(m_spindex);
+    
+    // m_p0 = OneAtm;
 
     if (!spInstalled) {
       throw CanteraError("PDSS_HKFT::constructPDSSXML", "spInstalled false not handled");
@@ -505,6 +505,23 @@ namespace Cantera {
     if (!hh) {
       throw CanteraError("PDSS_HKFT::constructPDSSXML",
 			 "no Thermo::HKFT Node for species " + speciesNode.name());
+    }
+
+    // go get the attributes
+    m_p0 = OneAtm;
+    std::string p0string = (*hh)["Pref"];
+    if (p0string != "") {
+      m_p0 = strSItoDbl(p0string);
+    }
+
+    std::string minTstring = (*hh)["Tmin"];
+    if (minTstring != "") {
+      m_minTemp = atofCheck(minTstring.c_str());
+    }
+
+    std::string maxTstring = (*hh)["Tmax"];
+    if (maxTstring != "") {
+      m_maxTemp = atofCheck(maxTstring.c_str());
     }
 
     if (hh->hasChild("DG0_f_Pr_Tr")) {

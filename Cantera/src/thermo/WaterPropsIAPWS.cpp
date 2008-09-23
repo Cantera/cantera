@@ -406,9 +406,15 @@ corr1(doublereal temperature, doublereal pressure, doublereal &densLiq,
  * p : Pascals : Newtons/m**2
  */
 static int method = 1;
-doublereal WaterPropsIAPWS::psat(doublereal temperature) {
+
+doublereal WaterPropsIAPWS::psat(doublereal temperature, int waterState) {
   doublereal densLiq = -1.0, densGas = -1.0, delGRT = 0.0;
   doublereal dp, pcorr;
+  if (temperature >= T_c) {
+    densGas = density(temperature, P_c, WATER_SUPERCRIT);
+    setState_TR(temperature, densGas);
+    return P_c;
+  }
   doublereal p = psat_est(temperature);
   bool conv = false;
   for (int i = 0; i < 30; i++) {
@@ -431,6 +437,15 @@ doublereal WaterPropsIAPWS::psat(doublereal temperature) {
 	break;
       }
     }
+  }
+  // Put the fluid in the desired end condition
+  if (waterState == WATER_LIQUID) {
+    setState_TR(temperature, densLiq);
+  } else if (waterState == WATER_GAS) {
+    setState_TR(temperature, densGas);
+  } else {
+    throw Cantera::CanteraError("WaterPropsIAPWS::psat",
+                                "unknown water state input: " + Cantera::int2str(waterState));
   }
   return p;
 }

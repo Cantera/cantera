@@ -72,15 +72,13 @@ namespace Cantera {
   //! Returns the minimum temperature that the thermo
   //! parameterization is valid
   doublereal  STITbyPDSS::minTemp() const {
-    // This concept needs to be put into PDSS
-    return 0.0;
+    return m_PDSS_ptr->minTemp();
   }
 
   //! Returns the maximum temperature that the thermo
   //! parameterization is valid
   doublereal  STITbyPDSS::maxTemp() const {
-    // This concept needs to be put into PDSS
-    return 0.0;
+    return m_PDSS_ptr->maxTemp();
   }
 
   //! Returns the reference pressure (Pa)

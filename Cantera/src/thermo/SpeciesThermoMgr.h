@@ -133,6 +133,10 @@ namespace Cantera {
     UnknownSpeciesThermo(std::string proc, int type) :
       CanteraError(proc, "Specified species parameterization type (" + int2str(type) 
 		   + ") does not match any known type.") {}
+
+    UnknownSpeciesThermo(std::string proc, std::string stype) :
+      CanteraError(proc, "Specified species parameterization type (" + stype 
+		   + ") does not match any known type.") {}
     //! destructor
     virtual ~UnknownSpeciesThermo() {}
   };
