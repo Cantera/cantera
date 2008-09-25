@@ -98,6 +98,11 @@ namespace Cantera {
       return m_Elements->atomicWeight(m);
     }
 
+  
+  doublereal Constituents::entropyElement298(int m) const {
+    return m_Elements->entropyElement298(m);
+  }
+
     /**
      *  returns a reference to the vector of atomic weights pertinent
      *  to this constituents object

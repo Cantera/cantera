@@ -149,6 +149,9 @@ namespace Cantera {
     PDSS::initThermo();
     SpeciesThermo &sp = m_tp->speciesThermo();
     m_p0 = sp.refPressure(m_spindex);
+    m_minTemp = m_spthermo->minTemp(m_spindex);
+    m_maxTemp = m_spthermo->maxTemp(m_spindex); 
+    m_mw = m_tp->molecularWeight(m_spindex);
   }
 
   /**

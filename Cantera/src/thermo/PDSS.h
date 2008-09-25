@@ -617,6 +617,3 @@ namespace Cantera {
 }
 
 #endif
-
-
-

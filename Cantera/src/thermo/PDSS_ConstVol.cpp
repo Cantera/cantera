@@ -181,6 +181,10 @@ namespace Cantera {
 
   void PDSS_ConstVol::initThermoXML(const XML_Node& phaseNode, std::string& id) {
     PDSS::initThermoXML(phaseNode, id);
+    m_minTemp = m_spthermo->minTemp(m_spindex);
+    m_maxTemp = m_spthermo->maxTemp(m_spindex);
+    m_p0 = m_spthermo->refPressure(m_spindex);
+    m_mw = m_tp->molecularWeight(m_spindex);
   }
 
   void PDSS_ConstVol::initThermo() {

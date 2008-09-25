@@ -301,9 +301,19 @@ namespace Cantera {
       if (m >= 0 && m < nElements())  
 	  return m_elementNames[m];
       else
-	  throw ElementRangeError("Elements::elementName",m,nElements());
+	  throw ElementRangeError("Elements::elementName", m, nElements());
     }
- 
+
+
+
+  doublereal Elements::entropyElement298(int m) const {
+    AssertThrowMsg(m_entropy298[m] != ENTROPY298_UNKNOWN,
+		   "Elements::entropy298",
+		   "Entropy at 298 K of element is unknown");
+    AssertTrace(m >= 0 && m < m_mm);
+    return (m_entropy298[m]);
+  }
+  
     /*
      *
      * Add an element to the current set of elements in the current object.
@@ -345,93 +355,96 @@ namespace Cantera {
 	addElement(symbol, weight);
     }
 
-    /*
-     *  addUniqueElement():
-     *
-     * Add a unique element to the set. This routine will not allow 
-     * duplicate elements to be input.
-     *
-     * @param symbol  symbol string
-     * @param weight  atomic weight in kg/kmol.
-     *
-     *
-     *  The default weight is a special value, which will cause the
-     *  routine to look up the actual weight via a string lookup.
-     */
+  /*
+   *  addUniqueElement():
+   *
+   * Add a unique element to the set. This routine will not allow 
+   * duplicate elements to be input.
+   *
+   * @param symbol  symbol string
+   * @param weight  atomic weight in kg/kmol.
+   *
+   *
+   *  The default weight is a special value, which will cause the
+   *  routine to look up the actual weight via a string lookup.
+   */
 #ifdef USE_DGG_CODE
-    void Elements::
-    addUniqueElement(const std::string& symbol, doublereal weight, int atomicNumber) 
-    {
-        if (m_elementsFrozen) 
-            throw ElementsFrozen("addElement");
+  void Elements::
+  addUniqueElement(const std::string& symbol, doublereal weight, int atomicNumber,
+		   doublereal entropy298) 
+  {
+    if (m_elementsFrozen) 
+      throw ElementsFrozen("addElement");
 
-        if (weight == -12345.0) {
-            weight =  LookupWtElements(symbol);
-        }
-
-        /*
-         * First decide if this element has been previously added.
-         * If it unique, add it to the list.
-         */
-     
-        int i = m_definedElements[symbol] - 1;
-        if (i < 0) {
-            m_atomicWeights.push_back(weight);
-            m_elementNames.push_back(symbol);
-            m_atomicNumbers.push_back(atomicNumber);
-            m_mm++;
-        } 
-        else {
-            if (m_atomicWeights[i] != weight) {
-                throw CanteraError("AddUniqueElement", 
-                    "Duplicate Elements (" + symbol +
-                    ") have different weights");
-            }
-        }
+    if (weight == -12345.0) {
+      weight =  LookupWtElements(symbol);
     }
+
+    /*
+     * First decide if this element has been previously added.
+     * If it unique, add it to the list.
+     */
+     
+    int i = m_definedElements[symbol] - 1;
+    if (i < 0) {
+      m_atomicWeights.push_back(weight);
+      m_elementNames.push_back(symbol);
+      m_atomicNumbers.push_back(atomicNumber);
+      m_entropy298.push_back(entropy298);
+      m_mm++;
+    } 
+    else {
+      if (m_atomicWeights[i] != weight) {
+	throw CanteraError("AddUniqueElement", 
+			   "Duplicate Elements (" + symbol +
+			   ") have different weights");
+      }
+    }
+  }
 
 #else
-    void Elements::
-    addUniqueElement(const std::string& symbol, 
-        doublereal weight, int atomicNumber) 
-    {
-     if (weight == -12345.0) {
-	weight =  LookupWtElements(symbol);
-	if (weight < 0.0) {
-	  throw ElementsFrozen("addElement");
-	}
-      }
-      /*
-       * First decide if this element has been previously added
-       * by conducting a string search. If it unique, add it to
-       * the list.
-       */
-      int ifound = 0;
-      int i = 0;
-      for (vector<string>::const_iterator it = m_elementNames.begin();
-	   it < m_elementNames.end(); ++it, ++i) {
-	if (*it == symbol) {
-	  ifound = 1;
-	  break;
-	}
-      }
-      if (!ifound) {
-	if (m_elementsFrozen) {
-	  throw ElementsFrozen("addElement");
-	  return;
-	}
-	m_atomicWeights.push_back(weight);
-	m_elementNames.push_back(symbol);
-        m_atomicNumbers.push_back(atomicNumber);
-	m_mm++;
-      } else {
-	if (m_atomicWeights[i] != weight) {
-	  throw CanteraError("AddUniqueElement", 
-			     "Duplicate Elements (" + symbol +
-			     ") have different weights");
-	}
+  void Elements::
+  addUniqueElement(const std::string& symbol, 
+		   doublereal weight, int atomicNumber, doublereal entropy298) 
+  {
+    if (weight == -12345.0) {
+      weight =  LookupWtElements(symbol);
+      if (weight < 0.0) {
+	throw ElementsFrozen("addElement");
       }
     }
+    /*
+     * First decide if this element has been previously added
+     * by conducting a string search. If it unique, add it to
+     * the list.
+     */
+    int ifound = 0;
+    int i = 0;
+    for (vector<string>::const_iterator it = m_elementNames.begin();
+	 it < m_elementNames.end(); ++it, ++i) {
+      if (*it == symbol) {
+	ifound = 1;
+	break;
+      }
+    }
+    if (!ifound) {
+      if (m_elementsFrozen) {
+	throw ElementsFrozen("addElement");
+	return;
+      }
+      m_atomicWeights.push_back(weight);
+      m_elementNames.push_back(symbol);
+      m_atomicNumbers.push_back(atomicNumber);
+      m_entropy298.push_back(entropy298);
+      m_mm++;
+    } else {
+      if (m_atomicWeights[i] != weight) {
+	throw CanteraError("AddUniqueElement", 
+			   "Duplicate Elements (" + symbol +
+			   ") have different weights");
+      }
+    }
+  }
 #endif
 
 
@@ -448,11 +461,19 @@ namespace Cantera {
     if (e.hasAttrib("atomicNumber")) 
       anum = atoi(stripws(e["atomicNumber"]).c_str());
     string symbol = e["name"];
-    if (weight != 0.0)
-      addUniqueElement(symbol, weight, anum);
-    else
+    doublereal entropy298 = ENTROPY298_UNKNOWN;
+    if (e.hasChild("entropy298")) {
+      XML_Node& e298Node = e.child("entropy298");
+      if (e298Node.hasAttrib("value")) {
+	entropy298 = atofCheck(stripws(e298Node["value"]).c_str());
+      }
+    }
+    if (weight != 0.0) {
+      addUniqueElement(symbol, weight, anum, entropy298);
+    } else {
       addUniqueElement(symbol);
     }
+  }
  
     /*
      * clear()

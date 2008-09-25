@@ -19,14 +19,18 @@
 #undef USE_DGG_CODE
 
 #include "ct_defs.h"
-//#include "ctexceptions.h"
+
 
 namespace Cantera {
 
     class XML_Node;
     class ElementRangeError;
 
-    
+  //! Positive number indicating we don't know the gibbs free energy 
+  //! of the element in its most stable state at 298.15 K and 1 bar.
+  //#define GIBSSFE298_UNKNOWN 123456789.
+#define ENTROPY298_UNKNOWN -123456789.
+
   //! Object containing the elements that make up species in a phase.
   /*!
    * Class %Elements manages the elements that are part of a
@@ -68,6 +72,14 @@ namespace Cantera {
        *  @param m element index
        */
       int atomicNumber(int m) const { return m_atomicNumbers[m]; }
+
+
+      //! Entropy at 298.15 K and 1 bar of stable state
+      //! of the element
+      /*!
+       *   units J kmol-1 K-1
+       */
+      doublereal entropyElement298(int m) const;
 
       /// vector of element atomic weights
       const vector_fp& atomicWeights() const { return m_atomicWeights; }
@@ -142,7 +154,8 @@ namespace Cantera {
        * @param atomicNumber defaults to 0
        */
       void addUniqueElement(const std::string& symbol, 
-			    doublereal weight = -12345.0, int atomicNumber = 0);
+			    doublereal weight = -12345.0, int atomicNumber = 0,
+			    doublereal entropy298 = ENTROPY298_UNKNOWN);
 
       //! Add an element to the current set of elements in the current object.
       /*!
@@ -241,7 +254,13 @@ namespace Cantera {
 	 */
         std::vector<std::string>                 m_elementNames;
 
-	/**
+        //! Entropy at 298.15 K and 1 bar of stable state
+        /*!
+         *   units J kmol-1
+         */
+        vector_fp m_entropy298;
+
+ 	/**
 	 * Number of Constituents Objects that use this object
 	 *
 	 * Number of Constituents Objects that require this Elements object

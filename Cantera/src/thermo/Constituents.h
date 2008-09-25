@@ -130,6 +130,12 @@ namespace Cantera {
        */
       doublereal atomicWeight(int m) const;
 
+      /// Entropy of the element in its standard state at 298 K and 1 bar
+      /*!
+       * @param m  Element index
+       */
+      doublereal entropyElement298(int m) const;
+
       /// Atomic number of element m.
       /*!
        *  @param m Element index

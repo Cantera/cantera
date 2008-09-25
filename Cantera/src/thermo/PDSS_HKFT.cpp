@@ -7,6 +7,7 @@
 #include "PDSS_HKFT.h"
 #include "WaterProps.h"
 #include "PDSS_Water.h"
+#include "Elements.h"
 
 #include "VPStandardStateTP.h"
 
@@ -893,7 +894,7 @@ namespace Cantera {
   }
 
 
-
+#ifdef OLDWAY
 
   /* awData structure */
   /**
@@ -920,6 +921,7 @@ namespace Cantera {
   /*!
    *  all units are Joules kmol-1
    */
+
   static struct GeData geDataTable[] = {
     {"H",   -19.48112E6}, // NIST Webbook - Cox, Wagman 1984
     {"Na",  -15.29509E6}, // NIST Webbook - Cox, Wagman 1984
@@ -930,9 +932,10 @@ namespace Cantera {
     {"S",    -9.55690E6}, // Yellow - webbook
     {"Al",   -8.42870E6}, // Webbook polynomial
     {"K",   -19.26943E6}, // Webbook
+    {"Fe",   -8.142476E6}, // Nist  Webbook - Cox, Wagman 1984
     {"E",    0.0}         // Don't overcount
   };
-
+#endif
   //!  Static function to look up Element Free Energies
   /*!
    *
@@ -949,6 +952,7 @@ namespace Cantera {
    *    If a match is not found, a CanteraError is thrown as well
    */
   double PDSS_HKFT::LookupGe(const std::string& s) {
+#ifdef OLDWAY
     int num = sizeof(geDataTable) / sizeof(struct GeData);
     string s3 = s.substr(0,3);
     for (int i = 0; i < num; i++) {
@@ -959,6 +963,19 @@ namespace Cantera {
     }
     throw CanteraError("LookupGe", "element " + s + " not found");
     return -1.0;
+#else
+    int iE = m_tp->elementIndex(s);
+    if (iE < 0) {
+      throw CanteraError("PDSS_HKFT::LookupGe", "element " + s + " not found");
+    }
+    doublereal geValue = m_tp->entropyElement298(iE);
+    if (geValue == ENTROPY298_UNKNOWN) {
+      throw CanteraError("PDSS_HKFT::LookupGe", 
+			 "element " + s + " doesn not have a supplied entropy298");
+    }
+    geValue *= (-298.15);
+    return geValue;
+#endif
   }
 
  void PDSS_HKFT::convertDGFormation() {
