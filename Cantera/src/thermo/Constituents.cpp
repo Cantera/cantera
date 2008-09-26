@@ -156,9 +156,10 @@ namespace Cantera {
      * -> Passthrough to the Element lvl.
      */
     void Constituents::
-    addUniqueElement(const std::string& symbol, doublereal weight)
+    addUniqueElement(const std::string& symbol, doublereal weight,
+		     int atomicNumber, doublereal entropy298)
     {
-      m_Elements->addUniqueElement(symbol, weight);
+      m_Elements->addUniqueElement(symbol, weight, atomicNumber, entropy298);
     }
 
     void Constituents::
@@ -290,12 +291,13 @@ namespace Cantera {
      *            and it need not be supplied on the command line.
      */
     void Constituents::
-    addSpecies(const std::string& name, const doublereal* comp,
+    addSpecies(const std::string& name, doublereal* comp,
 	       doublereal charge, doublereal size) {  
       m_Elements->freezeElements();
       m_speciesNames.push_back(name);
       m_speciesCharge.push_back(charge);
       m_speciesSize.push_back(size);
+      vector_fp compNew;;
       double wt = 0.0;
       int m_mm = m_Elements->nElements();
       const vector_fp &aw = m_Elements->atomicWeights();
@@ -304,12 +306,40 @@ namespace Cantera {
         if (eindex >= 0) {
           doublereal ecomp = comp[eindex];
           if (fabs (charge + ecomp) > 0.001) {
-            throw CanteraError("Constituents::addSpecies",
-                              "Input charge and element E compositions differ for species " + name);
+	    if (ecomp != 0.0) {
+	      throw CanteraError("Constituents::addSpecies",
+				 "Input charge and element E compositions differ for species " + name);
+	    } else {
+	      // Just fix up the element E composition based on the input species charge
+	      comp[eindex] = -charge;
+	    }
           }
         } else {
-          throw CanteraError("Constituents::addSpecies",
-                             "Input charge and element E compositions differ for species " + name);
+	  m_Elements->m_elementsFrozen = false;
+	  addUniqueElement("E", 0.000545, 0, 0.0);
+	  m_Elements->m_elementsFrozen = true;
+	  m_mm = m_Elements->nElements();
+	  if (m_kk > 0) {
+	    vector_fp old(m_speciesComp);
+	    m_speciesComp.resize(m_kk*m_mm, 0.0);
+	    for (int k = 0; k < m_kk; k++) {
+	      int m_old = m_mm - 1;
+	      for (int m = 0; m < m_old; m++) {
+		m_speciesComp[k * m_mm + m] =  old[k * (m_old) + m];
+	      }
+	      m_speciesComp[k * (m_mm) + (m_mm-1)] = 0.0; 
+	    }
+	  }
+	  eindex = m_Elements->elementIndex("E");
+	  compNew.resize(m_mm);
+	  for (int m = 0; m < m_mm-1; m++) {
+	    compNew[m] = comp[m];
+	  }
+	  compNew[m_mm-1] = - charge;
+	  comp = DATA_PTR(compNew);
+	  //comp[eindex] = -charge;
+	  // throw CanteraError("Constituents::addSpecies",
+	  //                 "Element List doesn't include E, yet this species has charge:" + name);
         }
       }
       for (int m = 0; m < m_mm; m++) {
@@ -330,7 +360,7 @@ namespace Cantera {
      *   existing species in the phase.
      */
     void Constituents::
-    addUniqueSpecies(const std::string& name, const doublereal* comp, 
+    addUniqueSpecies(const std::string& name, doublereal* comp, 
 		     doublereal charge, doublereal size) {
       vector<string>::const_iterator it = m_speciesNames.begin();
       for (int k = 0; k < m_kk; k++) {

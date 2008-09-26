@@ -278,6 +278,7 @@ namespace Cantera {
 	 */
 	static std::vector<Elements *> Global_Elements_List;
 
+      friend class Constituents;
     };  
     
 }  // namespace

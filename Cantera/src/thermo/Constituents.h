@@ -18,12 +18,12 @@
 
 
 #include "ct_defs.h"
-//using namespace std;
 
 #include "SpeciesThermo.h"
 #include "ctexceptions.h"
 #include "stringUtils.h"
 #include "xml.h"
+#include "Elements.h"
 
 namespace Cantera {
 
@@ -187,7 +187,9 @@ namespace Cantera {
        * @param symbol  String symbol of the element
        * @param weight  Atomic weight of the element (kg kmol-1).
        */
-      void addUniqueElement(const std::string& symbol, doublereal weight);
+      void addUniqueElement(const std::string& symbol, doublereal weight,
+			    int atomicNumber = 0,
+			    doublereal entropy298 = ENTROPY298_UNKNOWN);
 
       //! Adde an element, checking for uniqueness
       /*!
@@ -256,7 +258,7 @@ namespace Cantera {
        * They are not usually called by user programs.
        */
       //@{
-      void addSpecies(const std::string& name, const doublereal* comp,
+      void addSpecies(const std::string& name, doublereal* comp,
 		      doublereal charge = 0.0, doublereal size = 1.0);
 
       //! Add a species to the phase, checking for uniqueness of the name
@@ -270,7 +272,7 @@ namespace Cantera {
        * @param charge  Charge of the species. Defaults to zero.
        * @param size    Size of the species (meters). Defaults to 1 meter.
        */
-      void addUniqueSpecies(const std::string& name, const doublereal* comp,
+      void addUniqueSpecies(const std::string& name, doublereal* comp,
 			    doublereal charge = 0.0, 
 			    doublereal size = 1.0);
       
