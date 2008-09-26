@@ -19,7 +19,7 @@
            </entropy298>
         </element>
 	<element name="Tr" atomicWt = "3.016327" atomicNumber = "1" >
-           <entropy298 value = "">
+           <entropy298>
              <source>
 		    There is no reference state thermodynamic data tabulated 
 		    for this element.
@@ -198,7 +198,7 @@
            </entropy298>
         </element>
 	<element name="Sc" atomicWt = "44.95591" atomicNumber = "21" >
-           <entropy298 value = "">
+           <entropy298>
              <source>
 		    No reference state data for this element in the NIST-JANAF 
 		    Handbook (Chase 1998), Journal of Physical and 
@@ -363,7 +363,7 @@
            </entropy298>
         </element>
 	<element name="Y" atomicWt = "88.90585" atomicNumber = "39" > 
-           <entropy298 value = "">
+           <entropy298>
              <source>
 		     No reference state data found for Y.
              </source>
@@ -581,7 +581,7 @@
            </entropy298>
         </element>
 	<element name="Pm" atomicWt = "144.9127" atomicNumber = "61" >
-           <entropy298 value = "">
+           <entropy298>
              <source>
 		     There is no handbook standard state thermodynamic data for 
 		     this element.  There are estimates for stability constants
@@ -825,14 +825,14 @@
            </entropy298>
         </element>
 	<element name="Po" atomicWt = "208.9824" atomicNumber = "84" >
-           <entropy298 value = "">
+           <entropy298>
              <source>
 		     No standard state thermodynamic data for this element.
              </source>
            </entropy298>
         </element>
 	<element name="At" atomicWt = "209.9871" atomicNumber = "85" >
-           <entropy298 value = "">
+           <entropy298>
              <source>
 		     No standard state thermodynamic data for this element.
              </source>
@@ -848,21 +848,21 @@
            </entropy298>
         </element>
 	<element name="Fr" atomicWt = "223.0197" atomicNumber = "87" >
-           <entropy298 value = "">
+           <entropy298>
              <source>
 		     No standard state thermodynamic data for this element.
              </source>
            </entropy298>
         </element>
 	<element name="Ra" atomicWt = "226.0254" atomicNumber = "88" >
-           <entropy298 value = "">
+           <entropy298>
              <source>
 		     No standard state thermodynamic data for this element.
              </source>
            </entropy298>
         </element>
 	<element name="Ac" atomicWt = "227.0279" atomicNumber = "89" >
-           <entropy298 value = "">
+           <entropy298>
              <source>
 		     No standard state thermodynamic data for this element.
              </source>
@@ -880,7 +880,7 @@
            </entropy298>
         </element>
 	<element name="Pa" atomicWt = "231.03588" atomicNumber = "91" >
-           <entropy298 value = "">
+           <entropy298>
              <source>
 		     No standard state thermodynamic data for this element.
              </source>
