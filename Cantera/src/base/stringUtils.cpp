@@ -21,6 +21,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
+#include "ctml.h"
 
 namespace Cantera {
 
@@ -72,7 +74,7 @@ namespace Cantera {
       return std::string(" ");
     }
 
-    std::string lowercase(std::string s) {
+    std::string lowercase(const std::string &s) {
         int n = static_cast<int>(s.size());
         std::string lc(s);
         for (int i = 0; i < n; i++) lc[i] = tolower(s[i]);
@@ -394,4 +396,19 @@ namespace Cantera {
 	return rval;
     }
 
+
+  doublereal strSItoDbl(const std::string& strSI) {
+    std::vector<std::string> v;
+    ctml::getStringArray(strSI, v);
+    doublereal fp = 1.0;
+    int n = v.size();
+    if (n > 2 || n < 1) {
+       throw CanteraError("strSItoDbl",
+			  "number of tokens is too high");
+    } else if (n == 2) {
+      fp = toSI(v[1]);
+    }
+    doublereal val = atofCheck(v[0].c_str());
+    return (val * fp);
+  }
 }

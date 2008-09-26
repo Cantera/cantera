@@ -618,9 +618,21 @@ namespace ctml {
      * v.
      */
   void getStringArray(const XML_Node& node, vector<string>& v) {
+    string val = node.value();
+    getStringArray(val, v);
+  }
+
+    /**
+     * This function interprets the value portion of an XML element
+     * as a string. It then separates the string up into tokens
+     * according to the location of white space.
+     * The separate tokens are returned in the string vector,
+     * v.
+     */
+  void getStringArray(const std::string& oval, vector<string>& v) {
+    std::string val(oval);
     string::size_type ibegin, iend;
     v.clear();
-    string val = node.value();
     while (1 > 0) {
       ibegin = findFirstNotOfWS(val);
       //val.find_first_not_of(" \n\t");
@@ -640,9 +652,7 @@ namespace ctml {
 	break;
       }
     }
-
   }
-
 
   void getFunction(const XML_Node& node, string& type, doublereal& xmin,
 		   doublereal& xmax, vector_fp& coeffs) {

@@ -31,7 +31,7 @@ namespace Cantera {
   std::string int2str(int n);
   std::string stripws(std::string s);
   std::string stripnonprint(std::string s);
-  std::string lowercase(std::string s);
+  std::string lowercase(const std::string &s);
   void parseCompString(const std::string ss, compositionMap& x);
   void split(const std::string ss, std::vector<std::string>& w);
   int fillArrayFromString(const std::string& str, doublereal* a, char delim = ' ');
@@ -66,6 +66,7 @@ namespace Cantera {
 
   int stripLTWScstring(char str[]);
   double atofCheck(const char *dptr);
+  doublereal strSItoDbl(const std::string& strSI); 
 
 }
 

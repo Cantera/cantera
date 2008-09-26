@@ -74,6 +74,7 @@ namespace ctml {
         std::string nodeName = "floatArray");
 
     void getStringArray(const Cantera::XML_Node& node, std::vector<std::string>& v);
+    void getStringArray(const std::string& val, std::vector<std::string>& v);
     void getMap(const Cantera::XML_Node& node, std::map<std::string, std::string>& m);
     void getPairs(const Cantera::XML_Node& node, std::vector<std::string>& key, 
         std::vector<std::string>& val);
