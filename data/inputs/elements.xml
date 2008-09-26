@@ -9,7 +9,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="D" atomicWt = "2.014102" atomicNumber = "1" />
+	<element name="D" atomicWt = "2.014102" atomicNumber = "1" >
            <entropy298 value = "72.480E3">
              <source>
 		    The standard entropy (1/2 D2 gas) was taken from the NIST-JANAF 
@@ -18,7 +18,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Tr" atomicWt = "3.016327" atomicNumber = "1" />
+	<element name="Tr" atomicWt = "3.016327" atomicNumber = "1" >
            <entropy298 value = "">
              <source>
 		    There is no reference state thermodynamic data tabulated 
@@ -26,7 +26,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="He" atomicWt = "4.00260" atomicNumber = "2" />
+	<element name="He" atomicWt = "4.00260" atomicNumber = "2" >
            <entropy298 value = "126.152E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -35,7 +35,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Li" atomicWt = "6.941" atomicNumber = "3" />
+	<element name="Li" atomicWt = "6.941" atomicNumber = "3" >
            <entropy298 value = "29.085E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -44,7 +44,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Be" atomicWt = "9.012182" atomicNumber = "4" />
+	<element name="Be" atomicWt = "9.012182" atomicNumber = "4" >
            <entropy298 value = "9.440E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -53,7 +53,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="B" atomicWt = "10.811" atomicNumber = "5" />
+	<element name="B" atomicWt = "10.811" atomicNumber = "5" >
            <entropy298 value = "5.834E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -71,7 +71,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="N" atomicWt = "14.00674" atomicNumber = "7" />
+	<element name="N" atomicWt = "14.00674" atomicNumber = "7" >
            <entropy298 value = "95.8045E3">
              <source>
 		    The standard entropy (1/2 N2 gas) was taken from the NIST-JANAF 
@@ -89,7 +89,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="F" atomicWt = "18.9984032" atomicNumber = "9" />
+	<element name="F" atomicWt = "18.9984032" atomicNumber = "9" >
            <entropy298 value = "101.3945E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -98,7 +98,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Ne" atomicWt = "20.1797" atomicNumber = "10" />
+	<element name="Ne" atomicWt = "20.1797" atomicNumber = "10" >
            <entropy298 value = "146.327E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -116,7 +116,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Mg" atomicWt = "24.3050" atomicNumber = "12" />
+	<element name="Mg" atomicWt = "24.3050" atomicNumber = "12" >
            <entropy298 value = "32.671E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -143,7 +143,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="P" atomicWt = "30.97376" atomicNumber = "15" />
+	<element name="P" atomicWt = "30.97376" atomicNumber = "15" >
            <entropy298 value = "41.077E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -170,7 +170,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Ar" atomicWt = "39.948" atomicNumber = "18" />
+	<element name="Ar" atomicWt = "39.948" atomicNumber = "18" >
            <entropy298 value = "154.845E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -188,7 +188,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Ca" atomicWt = "40.078" atomicNumber = "20" />
+	<element name="Ca" atomicWt = "40.078" atomicNumber = "20" >
            <entropy298 value = "41.588E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -197,7 +197,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Sc" atomicWt = "44.95591" atomicNumber = "21" />
+	<element name="Sc" atomicWt = "44.95591" atomicNumber = "21" >
            <entropy298 value = "">
              <source>
 		    No reference state data for this element in the NIST-JANAF 
@@ -206,7 +206,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Ti" atomicWt = "47.88" atomicNumber = "22" />
+	<element name="Ti" atomicWt = "47.88" atomicNumber = "22" >
            <entropy298 value = "30.759E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -215,7 +215,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="V" atomicWt = "50.9415" atomicNumber = "23" />
+	<element name="V" atomicWt = "50.9415" atomicNumber = "23" >
            <entropy298 value = "28.936E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -224,7 +224,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Cr" atomicWt = "51.9961" atomicNumber = "24" />
+	<element name="Cr" atomicWt = "51.9961" atomicNumber = "24" >
            <entropy298 value = "23.618E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -233,7 +233,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Mn" atomicWt = "54.9381" atomicNumber = "25" />
+	<element name="Mn" atomicWt = "54.9381" atomicNumber = "25" >
            <entropy298 value = "32.010E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -251,7 +251,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Co" atomicWt = "58.9332" atomicNumber = "27" />
+	<element name="Co" atomicWt = "58.9332" atomicNumber = "27" >
            <entropy298 value = "30.067E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -260,7 +260,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Ni" atomicWt = "58.69" atomicNumber = "28" />
+	<element name="Ni" atomicWt = "58.69" atomicNumber = "28" >
            <entropy298 value = "29.870E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -269,7 +269,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Cu" atomicWt = "63.546" atomicNumber = "29" />
+	<element name="Cu" atomicWt = "63.546" atomicNumber = "29" >
            <entropy298 value = "33.164E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -278,7 +278,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Zn" atomicWt = "65.38" atomicNumber = "30" />
+	<element name="Zn" atomicWt = "65.38" atomicNumber = "30" >
            <entropy298 value = "41.717E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -287,7 +287,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Ga" atomicWt = "69.723" atomicNumber = "31" />
+	<element name="Ga" atomicWt = "69.723" atomicNumber = "31" >
            <entropy298 value = "40.838E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -296,7 +296,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Ge" atomicWt = "72.61" atomicNumber = "32" />
+	<element name="Ge" atomicWt = "72.61" atomicNumber = "32" >
            <entropy298 value = "31.09E3">
              <source>
 		     The standard entropy was taken from Robie and
@@ -306,7 +306,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="As" atomicWt = "74.92159" atomicNumber = "33" />
+	<element name="As" atomicWt = "74.92159" atomicNumber = "33" >
            <entropy298 value = "35.69E3">
              <source>
 		     The standard entropy was taken from Robie and
@@ -316,7 +316,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Se" atomicWt = "78.96" atomicNumber = "34" />
+	<element name="Se" atomicWt = "78.96" atomicNumber = "34" >
            <entropy298 value = "42.27E3">
              <source>
 		     The standard entropy was taken from Robie and
@@ -326,7 +326,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Br" atomicWt = "79.904" atomicNumber = "35" />
+	<element name="Br" atomicWt = "79.904" atomicNumber = "35" >
            <entropy298 value = "76.103E3">
              <source>
 		     The standard entropy (1/2 Br2 gas) was taken from the NIST-JANAF 
@@ -335,7 +335,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Kr" atomicWt = "83.80" atomicNumber = "36" />
+	<element name="Kr" atomicWt = "83.80" atomicNumber = "36" >
            <entropy298 value = "164.084E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -344,7 +344,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Rb" atomicWt = "85.4678" atomicNumber = "37" />
+	<element name="Rb" atomicWt = "85.4678" atomicNumber = "37" >
            <entropy298 value = "76.778E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -353,7 +353,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Sr" atomicWt = "87.62" atomicNumber = "38" />
+	<element name="Sr" atomicWt = "87.62" atomicNumber = "38" >
            <entropy298 value = "55.694E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -362,14 +362,14 @@
              </source>
            </entropy298>
         </element>
-	<element name="Y" atomicWt = "88.90585" atomicNumber = "39" /> 
+	<element name="Y" atomicWt = "88.90585" atomicNumber = "39" > 
            <entropy298 value = "">
              <source>
 		     No reference state data found for Y.
              </source>
            </entropy298>
         </element>
-	<element name="Zr" atomicWt = "91.224" atomicNumber = "40" />
+	<element name="Zr" atomicWt = "91.224" atomicNumber = "40" >
            <entropy298 value = "38.869E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -378,7 +378,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Nb" atomicWt = "92.90638" atomicNumber = "41" />
+	<element name="Nb" atomicWt = "92.90638" atomicNumber = "41" >
            <entropy298 value = "36.464E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -387,7 +387,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Mo" atomicWt = "95.94 " atomicNumber = "42" />
+	<element name="Mo" atomicWt = "95.94 " atomicNumber = "42" >
            <entropy298 value = "28.605E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -396,7 +396,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Tc" atomicWt = "97.9072" atomicNumber = "43" />
+	<element name="Tc" atomicWt = "97.9072" atomicNumber = "43" >
            <entropy298 value = "32.506E3">
              <source>
 		     The standard entropy was taken from the OECD-NEA
@@ -407,7 +407,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Ru" atomicWt = "101.07" atomicNumber = "44" />
+	<element name="Ru" atomicWt = "101.07" atomicNumber = "44" >
            <entropy298 value = "28.53E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -418,7 +418,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Rh" atomicWt = "102.9055" atomicNumber = "45" />
+	<element name="Rh" atomicWt = "102.9055" atomicNumber = "45" >
            <entropy298 value = "31.54E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -429,7 +429,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Pd" atomicWt = "106.42" atomicNumber = "46" />
+	<element name="Pd" atomicWt = "106.42" atomicNumber = "46" >
            <entropy298 value = "37.82E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -440,7 +440,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Ag" atomicWt = "107.8682" atomicNumber = "47" />
+	<element name="Ag" atomicWt = "107.8682" atomicNumber = "47" >
            <entropy298 value = "42.55E3">
              <source>
 		     The standard entropy was taken from Robie and
@@ -450,7 +450,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Cd" atomicWt = "112.411" atomicNumber = "48" />
+	<element name="Cd" atomicWt = "112.411" atomicNumber = "48" >
            <entropy298 value = "51.80E3">
              <source>
 		     The standard entropy was taken from Robie and
@@ -460,7 +460,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="In" atomicWt = "114.82" atomicNumber = "49" />
+	<element name="In" atomicWt = "114.82" atomicNumber = "49" >
            <entropy298 value = "57.84E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -471,7 +471,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Sn" atomicWt = "118.710" atomicNumber = "50" />
+	<element name="Sn" atomicWt = "118.710" atomicNumber = "50" >
            <entropy298 value = "51.18E3">
              <source>
 		     The standard entropy was taken from Robie and
@@ -481,7 +481,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Sb" atomicWt = "121.75" atomicNumber = "51" />
+	<element name="Sb" atomicWt = "121.75" atomicNumber = "51" >
            <entropy298 value = "45.52E3">
              <source>
 		     The standard entropy was taken from Robie and
@@ -491,7 +491,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Te" atomicWt = "127.6" atomicNumber = "52" />
+	<element name="Te" atomicWt = "127.6" atomicNumber = "52" >
            <entropy298 value = "49.71E3">
              <source>
 		     The standard entropy was taken from Robie and
@@ -501,7 +501,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="I" atomicWt = " 126.90447" atomicNumber = "53" />
+	<element name="I" atomicWt = " 126.90447" atomicNumber = "53" >
            <entropy298 value = "58.071E3">
              <source>
 		     The standard entropy (1/2 I2) was taken from the NIST-JANAF 
@@ -510,7 +510,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Xe" atomicWt = "131.29" atomicNumber = "54" />
+	<element name="Xe" atomicWt = "131.29" atomicNumber = "54" >
            <entropy298 value = "169.684E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -519,7 +519,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Cs" atomicWt = "132.90543" atomicNumber = "55" />
+	<element name="Cs" atomicWt = "132.90543" atomicNumber = "55" >
            <entropy298 value = "85.147E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -528,7 +528,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Ba" atomicWt = "137.327" atomicNumber = "56" />
+	<element name="Ba" atomicWt = "137.327" atomicNumber = "56" >
            <entropy298 value = "62.475E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -537,7 +537,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="La" atomicWt = "138.9055" atomicNumber = "57" />
+	<element name="La" atomicWt = "138.9055" atomicNumber = "57" >
            <entropy298 value = "56.90E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -548,7 +548,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Ce" atomicWt = "140.115" atomicNumber = "58" />
+	<element name="Ce" atomicWt = "140.115" atomicNumber = "58" >
            <entropy298 value = "72.00E3">
              <source>
 		     The standard entropy was taken from Robie and
@@ -558,7 +558,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Pr" atomicWt = "140.90765" atomicNumber = "59" />
+	<element name="Pr" atomicWt = "140.90765" atomicNumber = "59" >
            <entropy298 value = "73.93E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -569,7 +569,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Nd" atomicWt = "144.24" atomicNumber = "60" />
+	<element name="Nd" atomicWt = "144.24" atomicNumber = "60" >
            <entropy298 value = "71.09E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -580,7 +580,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Pm" atomicWt = "144.9127" atomicNumber = "61" />
+	<element name="Pm" atomicWt = "144.9127" atomicNumber = "61" >
            <entropy298 value = "">
              <source>
 		     There is no handbook standard state thermodynamic data for 
@@ -597,7 +597,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Sm" atomicWt = "150.36 " atomicNumber = "62" />
+	<element name="Sm" atomicWt = "150.36 " atomicNumber = "62" >
            <entropy298 value = "69.50E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -608,7 +608,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Eu" atomicWt = "151.965" atomicNumber = "63" />
+	<element name="Eu" atomicWt = "151.965" atomicNumber = "63" >
            <entropy298 value = "80.79E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -619,7 +619,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Gd" atomicWt = "157.25" atomicNumber = "64" />
+	<element name="Gd" atomicWt = "157.25" atomicNumber = "64" >
            <entropy298 value = "40.83E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -630,7 +630,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Tb" atomicWt = "158.92534" atomicNumber = "65" />
+	<element name="Tb" atomicWt = "158.92534" atomicNumber = "65" >
            <entropy298 value = "73.30E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -641,7 +641,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Dy" atomicWt = "162.50" atomicNumber = "66" />
+	<element name="Dy" atomicWt = "162.50" atomicNumber = "66" >
            <entropy298 value = "74.89E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -652,7 +652,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Ho" atomicWt = "164.93032" atomicNumber = "67" />
+	<element name="Ho" atomicWt = "164.93032" atomicNumber = "67" >
            <entropy298 value = "75.02E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -663,7 +663,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Er" atomicWt = "167.26" atomicNumber = "68" />
+	<element name="Er" atomicWt = "167.26" atomicNumber = "68" >
            <entropy298 value = "73.18E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -674,7 +674,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Tm" atomicWt = "168.93421" atomicNumber = "69" />
+	<element name="Tm" atomicWt = "168.93421" atomicNumber = "69" >
            <entropy298 value = "74.01E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -685,7 +685,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Yb" atomicWt = "173.04" atomicNumber = "70" />
+	<element name="Yb" atomicWt = "173.04" atomicNumber = "70" >
            <entropy298 value = "59.83E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -696,7 +696,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Lu" atomicWt = "174.967" atomicNumber = "71" />
+	<element name="Lu" atomicWt = "174.967" atomicNumber = "71" >
            <entropy298 value = "50.96E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -707,7 +707,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Hf" atomicWt = "178.49" atomicNumber = "72" />
+	<element name="Hf" atomicWt = "178.49" atomicNumber = "72" >
            <entropy298 value = "43.560E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -716,7 +716,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Ta" atomicWt = "180.9479" atomicNumber = "73" />
+	<element name="Ta" atomicWt = "180.9479" atomicNumber = "73" >
            <entropy298 value = "41.471E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -725,7 +725,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="W" atomicWt = "183.85" atomicNumber = "74" />
+	<element name="W" atomicWt = "183.85" atomicNumber = "74" >
            <entropy298 value = "32.660E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -734,7 +734,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Re" atomicWt = "186.207" atomicNumber = "75" />
+	<element name="Re" atomicWt = "186.207" atomicNumber = "75" >
            <entropy298 value = "36.53E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -745,7 +745,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Os" atomicWt = "190.2" atomicNumber = "76" />
+	<element name="Os" atomicWt = "190.2" atomicNumber = "76" >
            <entropy298 value = "32.64E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -756,7 +756,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Ir" atomicWt = "192.22" atomicNumber = "77" />
+	<element name="Ir" atomicWt = "192.22" atomicNumber = "77" >
            <entropy298 value = "35.48E3">
              <source>
                      The standard entropy was taken from Robie and
@@ -767,7 +767,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Pt" atomicWt = "195.08" atomicNumber = "78" />
+	<element name="Pt" atomicWt = "195.08" atomicNumber = "78" >
            <entropy298 value = "41.63E3">
              <source>
 		     The standard entropy was taken from Robie and
@@ -777,7 +777,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Au" atomicWt = "196.96654" atomicNumber = "79" />
+	<element name="Au" atomicWt = "196.96654" atomicNumber = "79" >
            <entropy298 value = "47.49E3">
              <source>
 		     The standard entropy was taken from Robie and
@@ -787,7 +787,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Hg" atomicWt = "200.59" atomicNumber = "80" />
+	<element name="Hg" atomicWt = "200.59" atomicNumber = "80" >
            <entropy298 value = "76.028E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -796,7 +796,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Ti" atomicWt = "204.3833" atomicNumber = "81" />
+	<element name="Ti" atomicWt = "204.3833" atomicNumber = "81" >
            <entropy298 value = "30.759E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -805,7 +805,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Pb" atomicWt = "207.2" atomicNumber = "82" />
+	<element name="Pb" atomicWt = "207.2" atomicNumber = "82" >
            <entropy298 value = "64.785E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -814,7 +814,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Bi" atomicWt = "208.98037" atomicNumber = "83" />
+	<element name="Bi" atomicWt = "208.98037" atomicNumber = "83" >
            <entropy298 value = "56.74E3">
              <source>
 		     The standard entropy was taken from Robie and
@@ -824,21 +824,21 @@
              </source>
            </entropy298>
         </element>
-	<element name="Po" atomicWt = "208.9824" atomicNumber = "84" />
+	<element name="Po" atomicWt = "208.9824" atomicNumber = "84" >
            <entropy298 value = "">
              <source>
 		     No standard state thermodynamic data for this element.
              </source>
            </entropy298>
         </element>
-	<element name="At" atomicWt = "209.9871" atomicNumber = "85" />
+	<element name="At" atomicWt = "209.9871" atomicNumber = "85" >
            <entropy298 value = "">
              <source>
 		     No standard state thermodynamic data for this element.
              </source>
            </entropy298>
         </element>
-	<element name="Rn" atomicWt = "222.0176" atomicNumber = "86" />
+	<element name="Rn" atomicWt = "222.0176" atomicNumber = "86" >
            <entropy298 value = "176.235E3">
              <source>
 		    The standard entropy was taken from the NIST-JANAF 
@@ -847,28 +847,28 @@
              </source>
            </entropy298>
         </element>
-	<element name="Fr" atomicWt = "223.0197" atomicNumber = "87" />
+	<element name="Fr" atomicWt = "223.0197" atomicNumber = "87" >
            <entropy298 value = "">
              <source>
 		     No standard state thermodynamic data for this element.
              </source>
            </entropy298>
         </element>
-	<element name="Ra" atomicWt = "226.0254" atomicNumber = "88" />
+	<element name="Ra" atomicWt = "226.0254" atomicNumber = "88" >
            <entropy298 value = "">
              <source>
 		     No standard state thermodynamic data for this element.
              </source>
            </entropy298>
         </element>
-	<element name="Ac" atomicWt = "227.0279" atomicNumber = "89" />
+	<element name="Ac" atomicWt = "227.0279" atomicNumber = "89" >
            <entropy298 value = "">
              <source>
 		     No standard state thermodynamic data for this element.
              </source>
            </entropy298>
         </element>
-	<element name="Th" atomicWt = "232.0381" atomicNumber = "90" />
+	<element name="Th" atomicWt = "232.0381" atomicNumber = "90" >
            <entropy298 value = "51.080E3">
              <source>
 		     The standard entropy was taken from the OECD-NEA
@@ -879,14 +879,14 @@
              </source>
            </entropy298>
         </element>
-	<element name="Pa" atomicWt = "231.03588" atomicNumber = "91" />
+	<element name="Pa" atomicWt = "231.03588" atomicNumber = "91" >
            <entropy298 value = "">
              <source>
 		     No standard state thermodynamic data for this element.
              </source>
            </entropy298>
         </element>
-	<element name="U" atomicWt = "238.0508" atomicNumber = "92" />
+	<element name="U" atomicWt = "238.0508" atomicNumber = "92" >
            <entropy298 value = "50.20E3">
              <source>
 		     The standard entropy was taken from the OECD-NEA
@@ -897,7 +897,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Np" atomicWt = "237.0482" atomicNumber = "93" />
+	<element name="Np" atomicWt = "237.0482" atomicNumber = "93" >
            <entropy298 value = "50.460E3">
              <source>
 		     The standard entropy was taken from the OECD-NEA
@@ -908,7 +908,7 @@
              </source>
            </entropy298>
         </element>
-	<element name="Pu" atomicWt = "244.0482" atomicNumber = "94" />
+	<element name="Pu" atomicWt = "244.0482" atomicNumber = "94" >
            <entropy298 value = "54.460E3">
              <source>
 		     The standard entropy was taken from the OECD-NEA
