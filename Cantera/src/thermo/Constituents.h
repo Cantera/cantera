@@ -179,13 +179,19 @@ namespace Cantera {
        */
       void addElement(const XML_Node& e);
 
-      //! Adde an element, checking for uniqueness
+      //! Add an element, checking for uniqueness
       /*!
        * The uniqueness is checked by comparing the string symbol. If
        * not unique, nothing is done.
        *
        * @param symbol  String symbol of the element
        * @param weight  Atomic weight of the element (kg kmol-1).
+       * @param atomicNumber Atomic number of the element (unitless)
+       * @param entropy298 Entropy of the element at 298 K and 1 bar
+       *                   in its most stable form. The default is
+       *                   the value ENTROPY298_UNKNOWN, which is 
+       *                   interpreted as an unknown, and if used
+       *                   will cause Cantera to throw an error.
        */
       void addUniqueElement(const std::string& symbol, doublereal weight,
 			    int atomicNumber = 0,

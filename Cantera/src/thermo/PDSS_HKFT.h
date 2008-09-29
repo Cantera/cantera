@@ -424,7 +424,7 @@ namespace Cantera {
      *  This is eEqn. 59 in Johnson et al. (1992).
      *
      */
-    double deltaG() const;
+    doublereal deltaG() const;
 
     //! Main routine that actually calculates the entropy difference 
     //! between the reference state at Tr, Pr and T,P
@@ -432,15 +432,49 @@ namespace Cantera {
      *  This is eEqn. 61 in Johnson et al. (1992). Actually, there appears to
      *  be an error in the latter. This is a correction.
      */
-    double deltaS() const;
+    doublereal deltaS() const;
 
+    //! Internal formula for the calculation of a_g()
+    /*!
+     * The output of this is in units of Angstroms
+     *
+     * @param temp Temperature (K)
+     *
+     * @param ifunc     parameters specifying the desired information
+     *                 - 0 function value
+     *                 - 1 derivative wrt temperature
+     *                 - 2 2nd derivative wrt temperature
+     *                 - 3 derivative wrt pressure
+     */
+    doublereal ag(const doublereal temp, const int ifunc = 0) const;
 
-    double electrostatic_radii_calc();
+    //! Internal formula for the calculation of b_g()
+    /*!
+     * the output of this is unitless
+     *
+     * @param temp Temperature (K)
+     *
+     * @param ifunc     parameters specifying the desired information
+     *                 - 0 function value
+     *                 - 1 derivative wrt temperature
+     *                 - 2 2nd derivative wrt temperature
+     *                 - 3 derivative wrt pressure
+     */
+    doublereal bg(const doublereal temp, const int ifunc = 0) const;
 
- 
-    double ag(const double temp, const int ifunc = 0) const;
-    double bg(const double temp, const int ifunc = 0) const;
-    double g(const double temp, const double pres, const int ifunc = 0) const;
+    //!  function g appearing in the formulation
+    /*!
+     * Function g appearing in the Johnson et al formulation
+     * 
+     * @param temp      Temperature kelvin
+     * @param pres      Pressure (pascal)
+     * @param ifunc     parameters specifying the desired information
+     *                 - 0 function value
+     *                 - 1 derivative wrt temperature
+     *                 - 2 2nd derivative wrt temperature
+     *                 - 3 derivative wrt pressure
+     */
+    doublereal g(const doublereal temp, const doublereal pres, const int ifunc = 0) const;
 
     //! Difference function f appearing in the formulation
     /*!
@@ -455,10 +489,44 @@ namespace Cantera {
      *                 - 2 2nd derivative wrt temperature
      *                 - 3 derivative wrt pressure
      */
-    double f(const double temp, const double pres, const int ifunc = 0) const;
-    double gstar(const double temp, const double pres, const int ifunc = 0) const;
+    doublereal f(const doublereal temp, const doublereal pres, const int ifunc = 0) const;
 
-    double LookupGe(const std::string& s);
+    //! Evaluate the Gstar value appearing in the HKFT formulation
+    /*!
+     * 
+     * @param temp      Temperature kelvin
+     * @param pres      Pressure (pascal)
+     * @param ifunc     parameters specifying the desired information
+     *                 - 0 function value
+     *                 - 1 derivative wrt temperature
+     *                 - 2 2nd derivative wrt temperature
+     *                 - 3 derivative wrt pressure
+     */
+    doublereal gstar(const doublereal temp, const doublereal pres, const int ifunc = 0) const;
+
+
+    //!  Function to look up Element Free Energies
+    /*!
+     *
+     *   This static function looks up the argument string in the
+     *   element database  and returns the associated 298 K Gibbs Free energy
+     *   of the element in its stable state
+     *
+     *  @param  elemName  String. Only the first 3 characters are significant
+     *
+     *  @return
+     *    Return value contains the Gibbs free energy for that element
+     *
+     *  @exception CanteraError
+     *    If a match is not found, a CanteraError is thrown as well
+     */
+    doublereal LookupGe(const std::string& elemName);
+
+    //! Translate a Gibbs free energy of formation value to a NIST-based Chemical potential
+    /*!
+     *  Internally, this function is used to translate the input value,  m_deltaG_formation_tr_pr,
+     *  to the internally storred value,  m_Mu0_tr_pr.
+     */
     void convertDGFormation();
 
   private:
@@ -475,7 +543,7 @@ namespace Cantera {
     /*!
      * internal temporary variable
      */
-    mutable double m_densWaterSS;
+    mutable doublereal m_densWaterSS;
 
     /**
      *  Pointer to the water property calculator
@@ -545,11 +613,11 @@ namespace Cantera {
     //! omega_pr_tr coefficient(cal gmol-1)
     doublereal m_omega_pr_tr;
 
-    //! y = dZdT = 1/(esp*esp) desp/dT
-    double m_Y_pr_tr;
+    //! y = dZdT = 1/(esp*esp) desp/dT at 298.15 and 1 bar
+    doublereal m_Y_pr_tr;
 
-  
-    double m_Z_pr_tr;
+    //! Z = -1 / relEpsilon at 298.15 and 1 bar
+    doublereal m_Z_pr_tr;
  
     //! Reference pressure is 1 atm in units of bar= 1.0132
     doublereal m_presR_bar;

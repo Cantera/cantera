@@ -151,7 +151,20 @@ namespace Cantera {
 
   };
 
-
+  //!  Class for the thermoydnamic manager for an individual species' reference state
+  //!  which usess the PDSS base class to satisfy the requests.
+  /*!
+   * 
+   *  This class is a pass-through class for handling thermodynamics calls
+   *  for reference state thermo to an pressure dependent standard state (PDSS)
+   *  class. For some situations, it makes no sense to have a reference state
+   *  at all. One example of this is the real water standard state. 
+   *
+   *  What this class does is just to pass through the calls for thermo at (T , p0)
+   *  to the PDSS class, which evaluates the calls at (T, p0).
+   *
+   * @ingroup spthermo
+   */    
   class STITbyPDSS : public SpeciesThermoInterpType {
 
   public:
@@ -159,11 +172,18 @@ namespace Cantera {
     //! Constructor
     STITbyPDSS();
 
-
-    //! Constructor
-    
-    STITbyPDSS(int k, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr);
-
+    //! Main Constructor
+    /*!
+     * 
+     *  @param speciesIndex species index for this object. Note, this must 
+     *         agree with what was internally set before.
+     *
+     *  @param vpssmgr_ptr  Pointer to the Variable pressure standard state manager 
+     *                      that owns the PDSS object that will handle calls for this object
+     *
+     *  @param PDSS_ptr     Pointer to the PDSS object that handles calls for this object
+     */
+    STITbyPDSS(int speciesIndex, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr);
 
     //! copy constructor
     /*!
@@ -176,8 +196,23 @@ namespace Cantera {
 
     //! duplicator
     virtual SpeciesThermoInterpType *duplMyselfAsSpeciesThermoInterpType() const;
-       
-    void initAllPtrs(int k, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr);
+
+    //! Initialize and/or Reinitialize all the pointers for this object
+    /*!
+     *  This routine is needed because the STITbyPDSS object doesn't own the
+     *  underlying objects. Therefore, shallow copies during duplication operations
+     *  may fail.
+     *
+     *  @param speciesIndex species index for this object. Note, this must 
+     *         agree with what was internally set before.
+     *
+     *  @param vpssmgr_ptr  Pointer to the Variable pressure standard state manager 
+     *                      that owns the PDSS object that will handle calls for this object
+     *
+     *  @param PDSS_ptr     Pointer to the PDSS object that handles calls for this object
+     *
+     */
+    void initAllPtrs(int speciesIndex, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr);
 
     //! Returns the minimum temperature that the thermo
     //! parameterization is valid
@@ -270,8 +305,17 @@ namespace Cantera {
 
   private:
 
+    //! Pointer to the Variable pressure standard state manager 
+    //! that owns the PDSS object that will handle calls for this object
     VPSSMgr *m_vpssmgr_ptr;
+
+    //! Pointer to the PDSS object that handles calls for this object
+    /*!
+     * This object is not owned by the current one.
+     */
     PDSS *m_PDSS_ptr;
+
+    //! Species index within the phase
     int m_speciesIndex;
   };
 

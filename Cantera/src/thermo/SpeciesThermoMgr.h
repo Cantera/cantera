@@ -125,6 +125,7 @@ namespace Cantera {
    */
   class UnknownSpeciesThermo : public CanteraError {
   public:
+
     //! constructor
     /*!
      * @param proc   name of the procecdure
@@ -134,6 +135,11 @@ namespace Cantera {
       CanteraError(proc, "Specified species parameterization type (" + int2str(type) 
 		   + ") does not match any known type.") {}
 
+    //! Alternate constructor
+    /*!
+     * @param proc   name of the procecdure
+     * @param stype   String name for the unknown type
+     */
     UnknownSpeciesThermo(std::string proc, std::string stype) :
       CanteraError(proc, "Specified species parameterization type (" + stype 
 		   + ") does not match any known type.") {}
