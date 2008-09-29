@@ -69,6 +69,9 @@
 //! This is implemented in the class Adsorbate.
 #define ADSORBATE 1024
 
+//! Type of reference state thermo which is a wrapper around a pressure dependent
+//! standard state object. Basically, the reference state pressure isn't special.
+//! A general object is called with the pressure set at the reference state.
 #define PDSS_TYPE 37
 
 #include "ct_defs.h"

@@ -159,14 +159,14 @@ namespace Cantera {
    */
   doublereal 
   PDSS_IdealGas::enthalpy_mole() const {
-    double val = enthalpy_RT();
-    double RT = GasConstant * m_temp;
+    doublereal val = enthalpy_RT();
+    doublereal RT = GasConstant * m_temp;
     return (val * RT);
   }
 
   doublereal 
   PDSS_IdealGas::enthalpy_RT() const {
-    double val = m_h0_RT_ptr[m_spindex];
+    doublereal val = m_h0_RT_ptr[m_spindex];
     return (val);
   }
 
@@ -177,8 +177,8 @@ namespace Cantera {
    */
   doublereal 
   PDSS_IdealGas::intEnergy_mole() const {
-    double val = m_h0_RT_ptr[m_spindex] - 1.0;
-    double RT = GasConstant * m_temp;
+    doublereal val = m_h0_RT_ptr[m_spindex] - 1.0;
+    doublereal RT = GasConstant * m_temp;
     return (val * RT);
   }
 
@@ -188,13 +188,13 @@ namespace Cantera {
    */
   doublereal
   PDSS_IdealGas::entropy_mole() const {
-    double val = entropy_R();
+    doublereal val = entropy_R();
     return (val * GasConstant);
   }
 
   doublereal
   PDSS_IdealGas::entropy_R() const {
-    double val = m_s0_R_ptr[m_spindex] - log(m_pres/m_p0);
+    doublereal val = m_s0_R_ptr[m_spindex] - log(m_pres/m_p0);
     return (val);
   }
 
@@ -204,14 +204,14 @@ namespace Cantera {
    */
   doublereal
   PDSS_IdealGas::gibbs_mole() const {
-    double val = gibbs_RT();
-    double RT = GasConstant * m_temp;
+    doublereal val = gibbs_RT();
+    doublereal RT = GasConstant * m_temp;
     return (val * RT);
   }
 
   doublereal
   PDSS_IdealGas::gibbs_RT() const {
-    double val = m_g0_RT_ptr[m_spindex] + log(m_pres/m_p0);
+    doublereal val = m_g0_RT_ptr[m_spindex] + log(m_pres/m_p0);
     return (val);
   }
 
@@ -221,13 +221,13 @@ namespace Cantera {
    */
   doublereal 
   PDSS_IdealGas::cp_mole() const {
-    double val = cp_R();
+    doublereal val = cp_R();
     return (val * GasConstant);
   }
 
   doublereal 
   PDSS_IdealGas::cp_R() const {
-    double val = m_cp0_R_ptr[m_spindex];
+    doublereal val = m_cp0_R_ptr[m_spindex];
     return (val);
   }
 
@@ -254,17 +254,17 @@ namespace Cantera {
 
   doublereal
   PDSS_IdealGas::gibbs_RT_ref() const {
-    double val = m_g0_RT_ptr[m_spindex];
+    doublereal val = m_g0_RT_ptr[m_spindex];
     return (val);
   }
 
   doublereal PDSS_IdealGas::enthalpy_RT_ref() const {
-    double val = m_h0_RT_ptr[m_spindex];
+    doublereal val = m_h0_RT_ptr[m_spindex];
     return (val);
   }
 
   doublereal PDSS_IdealGas::entropy_R_ref() const {
-    double val = m_s0_R_ptr[m_spindex];
+    doublereal val = m_s0_R_ptr[m_spindex];
     return (val);
   }
 
@@ -318,12 +318,12 @@ namespace Cantera {
    * Obtain the temperature from the owning VPStandardStateTP object
    * if you can. 
    */
-  double PDSS_IdealGas::temperature() const {
+  doublereal PDSS_IdealGas::temperature() const {
     m_temp = m_vpssmgr_ptr->temperature();
     return m_temp;
   }
  
-  void PDSS_IdealGas::setTemperature(double temp) {
+  void PDSS_IdealGas::setTemperature(doublereal temp) {
     m_temp = temp;
     m_spthermo->update_one(m_spindex, temp,
                            m_cp0_R_ptr, m_h0_RT_ptr, m_s0_R_ptr);
@@ -338,12 +338,12 @@ namespace Cantera {
   }
 
 
-  void PDSS_IdealGas::setState_TP(double temp, double pres) {
+  void PDSS_IdealGas::setState_TP(doublereal temp, doublereal pres) {
     m_pres = pres;
     setTemperature(temp);
   }
 
-  void  PDSS_IdealGas::setState_TR(double temp, double rho) {
+  void  PDSS_IdealGas::setState_TR(doublereal temp, doublereal rho) {
     m_pres = GasConstant * temp * rho / m_mw;
     setTemperature(temp);
   }

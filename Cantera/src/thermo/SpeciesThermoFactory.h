@@ -267,7 +267,7 @@ namespace Cantera {
     return sptherm;
   }
 
- //! Create a new species thermo manager instance, by specifying
+  //! Create a new species thermo manager instance, by specifying
   //!the type and (optionally) a pointer to the factory to use to create it.
   /*!
    * This utility program is a basic factory operation for spawning a
@@ -277,8 +277,8 @@ namespace Cantera {
    *  derives from SpeciesThermoFactory. However, no applications of this
    *  have been done yet.
    *
-   * @param type         Species thermo type.
-   * @param f            Pointer to a SpeciesThermoFactory. optional parameter. 
+   * @param stype       String specifying the species thermo type
+   * @param f           Pointer to a SpeciesThermoFactory. optional parameter. 
    *                    Defautls to NULL.
    */
   inline SpeciesThermo* newSpeciesThermoMgr(std::string &stype, 

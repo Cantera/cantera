@@ -73,11 +73,12 @@ namespace Cantera {
        */
       int atomicNumber(int m) const { return m_atomicNumbers[m]; }
 
-
       //! Entropy at 298.15 K and 1 bar of stable state
       //! of the element
       /*!
        *   units J kmol-1 K-1
+       *
+       *  @param m  Element index
        */
       doublereal entropyElement298(int m) const;
 
@@ -152,6 +153,11 @@ namespace Cantera {
        * @param weight Atomic weight of the element. If no argument
        *               is provided, a lookup is attempted.
        * @param atomicNumber defaults to 0
+       * @param entropy298  Value of the entropy at 298 and 1 bar of the
+       *                    element in its most stable form.
+       *                    The default is to specify an ENTROPY298_UNKNOWN value,
+       *                    which will cause a throw error if its ever
+       *                    needed.
        */
       void addUniqueElement(const std::string& symbol, 
 			    doublereal weight = -12345.0, int atomicNumber = 0,

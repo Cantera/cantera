@@ -39,7 +39,7 @@ static const doublereal M_water = 18.015268;
  */
 //static const doublereal Rgas = 8.314472E3;   // Joules kmol-1 K-1
 static const doublereal Rgas = 8.314371E3;   // Joules kmol-1 K-1
-
+//@{
 #ifndef MAX
 # define MAX(x,y) (( (x) > (y) ) ? (x) : (y))
 #endif
@@ -47,7 +47,7 @@ static const doublereal Rgas = 8.314371E3;   // Joules kmol-1 K-1
 #ifndef MIN
 # define MIN(x,y) (( (x) < (y) ) ? (x) : (y))
 #endif
-
+//@}
 
 WaterPropsIAPWS:: WaterPropsIAPWS() :
   m_phi(0),

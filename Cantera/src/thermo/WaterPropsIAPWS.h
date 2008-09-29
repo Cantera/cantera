@@ -271,8 +271,6 @@ public:
   /*!
    *           alpha = d (ln V) / dT at constant P.
    *
-   * @param temperature Input temperature (Kelvin)
-   * @param pressure    Input pressure (Pa)
    * @return
    *    Returns the coefficient of thermal expansion
    */
@@ -328,23 +326,33 @@ public:
   //! temperature as an input parameter.
   /*!
    * @param temperature   input temperature (kelvin)
+   * @param waterState    integer specifying the water state
+   *
    * @return 
    * Returns the saturation pressure
    *                units = Pascal
    */
   doublereal psat(doublereal temperature, int waterState = WATER_LIQUID);
 
-  //! Return the value of the density at the water spinodal point
+  //! Return the value of the density at the water spinodal point (on the liquid side)
   //! for the current temperature.
   /*!
-   *
+   * @return returns the density with units of kg m-3
    */
   doublereal densSpinodalWater() const;
 
+  //! Return the value of the density at the water spinodal point (on the gas side)
+  //! for the current temperature.
+  /*!
+   * @return returns the density with units of kg m-3
+   */
   doublereal densSpinodalSteam() const;
 
   //! Returns the Phase State flag for the current state of the object
   /*!
+   * @param checkState If true, this function does a complete check to see where
+   *        in paramters space we are
+   *
    *  There are three values:
    *     WATER_GAS   below the critical temperature but below the critical density
    *     WATER_LIQUID  below the critical temperature but above the critical density
