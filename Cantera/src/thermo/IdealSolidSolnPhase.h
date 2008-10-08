@@ -207,12 +207,12 @@ namespace Cantera {
      * For an ideal, constant partial molar volume solution mixture with
      * pure species phases which exhibit zero volume expansivity:
      * \f[
-     * \hat s(T, P, X_k) = \sum_k X_k \hat s^0_k(T)  - \hat R  \sum_k X_k log(X_k)
+     * \hat s(T, P, X_k) = \sum_k X_k \hat s^0_k(T)  - \hat R \sum_k X_k log(X_k)
      * \f]
      * The reference-state pure-species entropies 
      * \f$ \hat s^0_k(T,p_{ref}) \f$ are computed by the species thermodynamic 
      * property manager. The pure species entropies are independent of 
-     * temperature since the volume expansivities are equal to zero.
+     * pressure since the volume expansivities are equal to zero.
      * @see SpeciesThermo
      */
     virtual doublereal entropy_mole() const;

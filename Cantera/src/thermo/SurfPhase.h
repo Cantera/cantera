@@ -1,6 +1,6 @@
 /**
  *  @file SurfPhase.h
- *  Header for a simple thermoydnamics model of a surface phase
+ *  Header for a simple thermodynamics model of a surface phase
  *  derived from ThermoPhase, 
  *  assuming an ideal solution model
  *  (see \ref thermoprops and class \link Cantera::SurfPhase SurfPhase\endlink).

@@ -1416,6 +1416,7 @@ namespace Cantera {
      */
     virtual void setPressure(doublereal p);
 
+  private:
     /**
      * Calculate the density of the mixture using the partial 
      * molar volumes and mole fractions as input
@@ -1441,9 +1442,14 @@ namespace Cantera {
      */
     void calcDensity();
 
+  public:
+    //! Returns the current value of the density
+    /*!
+     *  @return value of the density. Units: kg/m^3
+     */
     virtual doublereal density() const;
 
-    //! Set the internally storred density (gm/m^3) of the phase.
+    //! Set the internally storred density (kg/m^3) of the phase.
     /*!
      * Overwritten setDensity() function is necessary because of
      * the underlying water model.
@@ -1458,7 +1464,6 @@ namespace Cantera {
      * @param rho Input density (kg/m^3).
      */
     void setDensity(doublereal rho);
-
 
     //! Set the internally storred molar density (kmol/m^3) for the phase.
     /**
@@ -1623,7 +1628,6 @@ namespace Cantera {
      */
     virtual void getActivities(doublereal* ac) const;
 
-   
     //! Get the array of non-dimensional molality-based 
     //! activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.

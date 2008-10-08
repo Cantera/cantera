@@ -1372,15 +1372,14 @@ namespace Cantera {
       err("getStandardVolumes_ref");
     }
 
-    ///////////////////////////////////////////////////////
+   
     //
     //  The methods below are not virtual, and should not
     //  be overloaded.
     //
-    //////////////////////////////////////////////////////
-    
+   
+    //@}
     /**
-     * @}
      * @name Specific Properties
      * @{
      */
@@ -1702,12 +1701,12 @@ namespace Cantera {
     }                
         
     //@}
-        
-    //! @name Saturation properties.
-    /*!
+
+    /** @name Saturation Properties.
+     *
      * These methods are only implemented by subclasses that 
      * implement full liquid-vapor equations of state. They may be
-     * moved out of ThermoPhase at a later date.
+     * moved out of %ThermoPhase at a later date.
      */
     //@{
 

@@ -79,17 +79,17 @@ namespace Cantera {
     return (ThermoPhase *) igp;
   }
   
-    doublereal LatticeSolidPhase::
-    enthalpy_mole() const {
-        _updateThermo();
-        doublereal ndens, sum = 0.0;
-        int n;
-        for (n = 0; n < m_nlattice; n++) {
-            ndens = m_lattice[n]->molarDensity();
-            sum += ndens * m_lattice[n]->enthalpy_mole();
-        }
-        return sum/molarDensity();
+  doublereal LatticeSolidPhase::
+  enthalpy_mole() const {
+    _updateThermo();
+    doublereal ndens, sum = 0.0;
+    int n;
+    for (n = 0; n < m_nlattice; n++) {
+      ndens = m_lattice[n]->molarDensity();
+      sum += ndens * m_lattice[n]->enthalpy_mole();
     }
+    return sum/molarDensity();
+  }
 
     doublereal LatticeSolidPhase::intEnergy_mole() const {
         _updateThermo();

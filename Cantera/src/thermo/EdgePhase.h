@@ -93,6 +93,3 @@ namespace Cantera {
 #endif
 
 
-
-
-

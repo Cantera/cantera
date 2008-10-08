@@ -834,16 +834,13 @@ namespace Cantera {
     /*!
      * @internal Initialize.
      *
-     * This method is provided to allow
-     * subclasses to perform any initialization required after all
-     * species have been added. For example, it might be used to
+     * This method performs any initialization required after all
+     * species have been added. For example, it is used to
      * resize internal work arrays that must have an entry for
-     * each species.  The base class implementation does nothing,
-     * and subclasses that do not require initialization do not
-     * need to overload this method.  When importing a CTML phase
-     * description, this method is called from ThermoPhase::initThermoXML(),
+     * each species. 
+     * This method is called from ThermoPhase::initThermoXML(),
      * which is called from importPhase(),
-     * just prior to returning from function importPhase().
+     * just prior to returning from the function, importPhase().
      *
      * @see importCTML.cpp
      */
