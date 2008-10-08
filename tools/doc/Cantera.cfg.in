@@ -109,6 +109,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          ThermoFactory.h ThermoFactory.cpp \
                          IdealGasPhase.h IdealGasPhase.cpp \
                          SurfPhase.h EdgePhase.h SurfPhase.cpp \
+                         LatticePhase.h  LatticePhase.cpp \
                          SpeciesThermoFactory.h SpeciesThermoFactory.cpp \
                          speciesThermoTypes.h SpeciesThermoMgr.h SpeciesThermo.h SpeciesThermoInterpType.h \
                          NasaThermo.h NasaPoly1.h NasaPoly2.h \
@@ -266,7 +267,8 @@ INCLUDE_PATH           =
 INCLUDE_FILE_PATTERNS  = 
 PREDEFINED             = WITH_HTML_LOGS \
                          WITH_PURE_FLUIDS \
-                         THREAD_SAFE_CANTERA
+                         THREAD_SAFE_CANTERA \
+                         WITH_LATTICE_SOLID
 EXPAND_AS_DEFINED      = YES
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
