@@ -40,7 +40,7 @@ int main () {
       double oneBar = 1.0E5;
 
       printf("Comparisons to NIST: (see http://webbook.nist.gov):\n\n");
-
+      w->m_allowGasPhase = true;
       w->setDensity(1.0E-8);
       w->setState_TP(temp, presLow);
       double h = w->enthalpy_mole();
@@ -111,7 +111,7 @@ int main () {
 	}
 	w->setState_TP(temp, press);
 	h = w->enthalpy_mole();
-	delh0 = tvalue(h - h298l, 1.0E-6);
+	delh0 = tvalue(h - h298l, 1.0E-4);
 	g = w->gibbs_mole();
 	delg0 = (g - h298l)/temp;
 	Cp0 = w->cp_mole();
