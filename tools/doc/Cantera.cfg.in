@@ -111,7 +111,9 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          SurfPhase.h EdgePhase.h SurfPhase.cpp \
                          LatticePhase.h  LatticePhase.cpp \
                          SpeciesThermoFactory.h SpeciesThermoFactory.cpp \
-                         speciesThermoTypes.h SpeciesThermoMgr.h SpeciesThermo.h SpeciesThermoInterpType.h \
+                         speciesThermoTypes.h SpeciesThermoMgr.h SpeciesThermoInterpType.h \
+                         PDSS.h PDSS.cpp \
+                         SpeciesThermo.h \
                          NasaThermo.h NasaPoly1.h NasaPoly2.h \
                          ShomateThermo.h ShomatePoly.h SimpleThermo.h \
                          GeneralSpeciesThermo.h GeneralSpeciesThermo.cpp \
@@ -132,7 +134,6 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          VPSSMgr_Water_HKFT.h VPSSMgr_Water_HKFT.cpp \
                          VPSSMgr_General.h VPSSMgr_General.cpp \
                          VPSSMgrFactory.h VPSSMgrFactory.cpp \
-                         PDSS.h PDSS.cpp \
                          PDSS_ConstVol.h PDSS_ConstVol.cpp \
                          PDSS_IdealGas.h  PDSS_IdealGas.cpp \
                          PDSS_Water.h PDSS_Water.cpp \
