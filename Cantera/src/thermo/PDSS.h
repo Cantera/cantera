@@ -2,7 +2,7 @@
  *  @file PDSS.h
  *    Declarations for the virtual base class PDSS (pressure dependent standard state)
  *    which handles calculations for a single species in a phase
- *    (see class \link Cantera::PDSS PDSS\endlink).
+ *    (see \ref pdssthermo and class \link Cantera::PDSS PDSS\endlink).
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of
@@ -22,7 +22,143 @@ class WaterPropsIAPWS;
 
 
 namespace Cantera {
- 
+
+  /**
+   * @defgroup pdssthermo Species Standard-State Thermodynamic Properties 
+   *
+   *   In this module we describe %Cantera's treatment of 
+   *   pressure dependent standard states
+   *   (PDSS) objects. These are objects that calculate the standard
+   *   state of a single species that depends on both temperature
+   *   and pressure.
+   *
+   *   To compute the thermodynamic properties of multicomponent
+   *   solutions, it is necessary to know something about the
+   *   thermodynamic properties of the individual species present in
+   *   the solution. Exactly what sort of species properties are
+   *   required depends on the thermodynamic model for the
+   *   solution. For a gaseous solution (i.e., a gas mixture), the
+   *   species properties required are usually ideal gas properties at
+   *   the mixture temperature and at a reference pressure (almost always at
+   *   1 bar). For other types of solutions, however, it may
+   *   not be possible to isolate the species in a "pure" state. For
+   *   example, the thermodynamic properties of, say, Na+ and Cl- in
+   *   saltwater are not easily determined from data on the properties
+   *   of solid NaCl, or solid Na metal, or chlorine gas. In this
+   *   case, the solvation in water is fundamental to the identity of
+   *   the species, and some other reference state must be used. One
+   *   common convention for liquid solutions is to use thermodynamic
+   *   data for the solutes in the limit of infinite dilution within the
+   *   pure solvent; another convention is to reference all properties
+   *   to unit molality.
+   *
+   *   In defining these standard states for species in a phase, we make
+   *   the following definition. A reference state is a standard state
+   *   of a species in a phase limited to one particular pressure, the reference
+   *   pressure. The reference state specifies the dependence of all
+   *   thermodynamic functions as a function of the temperature, in
+   *   between a minimum temperature and a maximum temperature. The
+   *   reference state also specifies the molar volume of the species
+   *   as a function of temperature. The molar volume is a thermodynamic
+   *   function.
+   *   A full standard state does the same thing as a reference state,
+   *   but specifies the thermodynamics functions at all pressures.
+   *
+   *   Class PDSS is the base class
+   *   for a family of classes that compute properties of all
+   *   species in a phase in their standard states, for a range of temperatures
+   *   and pressures.
+   *   
+   *   Phases which use the %VPSSMGr class must have their respective
+   *   %ThermoPhase objects actually be derivatives of the VPStandardState
+   *   class. These classes assume that there exists a standard state
+   *   for each species in the phase, where the Thermodynamic functions are specified
+   *   as a function of temperature and pressure.  Standard state objects for each
+   *   species in the phase are all derived from the PDSS virtual base class. 
+   *
+   *
+   *
+   *  The following classes inherit from PDSS. Each of these classes
+   *  handles just one species.
+   *
+   *
+   *   - PDSS_IdealGas
+   *      - standardState model = "IdealGas"
+   *      - This model assumes that the species in the phase obeys the
+   *        ideal gas law for their pressure dependence. The manager
+   *        uses a SimpleThermo object to handle the calculation of the
+   *        reference state. This object adds the pressure dependencies
+   *        to the thermo functions.
+   *      .
+   *
+   *   - PDSS_ConstVol
+   *      - standardState model = "ConstVol"
+   *      - This model assumes that the species in the phase obeys the
+   *        constant partial molar volume pressure dependence.
+   *        The manager uses a SimpleThermo object to handle the 
+   *        calculation of the reference state. This object adds the
+   *        pressure dependencies to these thermo functions.
+   *      .
+   *
+   *   - PDSS_Water_
+   *      - standardState model = "Water"
+   *      - This model assumes that
+   *        Species 0 is assumed to be water, and a real equation
+   *        of state is used to model the T, P behavior.
+   *        Note, the model asssumes that the species is liquid water,
+   *        and not steam. 
+   *      .
+   *
+   *   - PDSS_HKFT
+   *      - standardState model = "HKFT"
+   *      - This model assumes that the species follows the
+   *        HKFT pressure dependent equation of state
+   *      .
+   *   .
+   *
+   *  The choice of which VPSSMGr object to be used is either implicitly made by
+   *  Cantera by querying the XML data file for compatibility or it may
+   *  be explicitly requested in the XML file. 
+   *
+   *  Normally the PDSS object is not called directly. Instead the VPSSMgr 
+   *  object manages the calls to the PDSS object for the entire set of
+   *  species that comprise a phase. Additionally, sometimes the VPSSMgr
+   *  object will not call the PDSS object at all to calculate 
+   *  thermodynamic properties, instead relying on its own
+   *  determination/knowledge for how to calculate thermo quantities
+   *  quickly given what it knows about the PDSS objects under
+   *  its control.
+   *
+   *  The PDSS objects may or may not utilize the SpeciesThermo 
+   *  reference state manager class to calculate the reference
+   *  state thermodynamics functions in its own calculation. There
+   *  are some classes, such as PDSS_IdealGas and PDSS+_ConstVol,
+   *  which utilize the SpeciesThermo object because the
+   *  calculation is very similar to the reference state 
+   *  calculation, while there are other classes, PDSS_Water and
+   *  PDSS_HKFT, which don't utilize the reference state calculation
+   *  at all, because it wouldn't make sense to. For example,
+   *  using the PDSS_Water module, there isn't anything special
+   *  about the reference pressure of 1 bar, so the reference state
+   *  calculation would represent a duplication of work.
+   *  Additionally, when evaluating thermodynamic properties 
+   *  at higher pressures and temperatures, near the critical point,
+   *  evaluation of the thermodynamics at a pressure of 1 bar may
+   *  lead to situations where the liquid is unstable, i.e., beyond
+   *  the spinodal curve leading to potentially wrong evalulation 
+   *  results. 
+   *
+   *  For cases where the PDSS object doesn't use the SpeciesThermo
+   *  object, a dummy SpeciesThermoInterpType object is actually
+   *  installed into the SpeciesThermo object for that species.
+   *  This dummy SpeciesThermoInterpType object is called a
+   *  STITbyPDSS object. This object satisfies calls to 
+   *  SpeciesThermo member functions by actually calling the
+   *  PDSS object at the reference pressure.
+   *  
+   * @ingroup thermoprops
+   */
+
   class XML_Node;
   class SpeciesThermo;
   class VPStandardStateTP;
@@ -62,6 +198,8 @@ namespace Cantera {
    *
    *   However, in many other respects they can be thread safe. They use
    *   separate memory and hold intermediate data. 
+   *
+   * @ingroup pdssthermo
    */
   class PDSS {
 
