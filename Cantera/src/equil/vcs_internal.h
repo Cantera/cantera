@@ -31,6 +31,12 @@ namespace VCSnonideal {
    * We can replace this with printf easily
    */
 #define plogf  Cantera::writelogf
+
+  //! define this Cantera function to replace cout << endl;
+  /*!
+   * We use this to place an endl in the log file, and
+   * ensure that the IO buffers are flushed.
+   */
 #define plogendl() Cantera::writelogendl()
 
   //! Global hook for turning on and off time printing.
