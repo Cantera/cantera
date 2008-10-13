@@ -193,7 +193,7 @@ namespace Cantera {
 				    std::string inputFile, std::string id) {
 
     if (inputFile.size() == 0) {
-      throw CanteraError("aterTp::initThermo",
+      throw CanteraError("PDSS_Water::constructPDSSFile",
 			 "input file is null");
     }
     std::string path = findInputFile(inputFile);

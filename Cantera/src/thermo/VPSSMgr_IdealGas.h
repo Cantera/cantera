@@ -3,7 +3,7 @@
  * Declaration file for a derived class that handles the calculation
  * of standard state thermo properties for
  *  a set of species which have an Ideal Gas dependence 
- * (see \ref thermoprops and
+ * (see \ref mgrpdssthermocalc and
  * class \link Cantera::VPSSMgr_IdealGas VPSSMgr_IdealGas\endlink).
  */
 /*
@@ -41,6 +41,8 @@ namespace Cantera {
    * species in their reference state at a range of temperatures.
    * Note, the pressure dependence of the reference state is not
    * handled by this particular species standard state model.
+   *
+   * @ingroup mgrpdssthermocalc
    */
   class VPSSMgr_IdealGas : public VPSSMgr {
     

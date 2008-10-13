@@ -2,7 +2,7 @@
  * @file NasaThermo.h
  *   Header for the 2 regime 7 coefficient Nasa thermodynamic
  *   polynomials for multiple species in a phase, derived from the
- *   \link Cantera::SpeciesThermo SpeciesThermo\endlink base class (see \ref spthermo and
+ *   \link Cantera::SpeciesThermo SpeciesThermo\endlink base class (see \ref mgrsrefcalc and
  *   \link Cantera::NasaThermo NasaThermo\endlink).
  */
 
@@ -50,7 +50,7 @@ namespace Cantera {
    * coefficients of this parameterization.
    * @see importCTML
    *
-   * @ingroup spthermo
+   * @ingroup mgrsrefcalc
    */
   class NasaThermo : public SpeciesThermo {
     

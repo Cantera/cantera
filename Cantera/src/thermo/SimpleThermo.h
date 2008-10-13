@@ -45,7 +45,7 @@ namespace Cantera {
    *
    * @see ConstCpPoly
    *
-   * @ingroup spthermo
+   * @ingroup mgrsrefcalc
    */
   class SimpleThermo : public SpeciesThermo {
     

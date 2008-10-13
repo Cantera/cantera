@@ -3,7 +3,7 @@
  * Declaration file for a virtual base class that manages
  * the calculation of standard state properties for all of the
  * species in a single phase, assuming a variable P and T standard state 
- * (see \ref thermoprops and
+ * (see \ref mgrpdssthermocalc and
  * class \link Cantera::VPSSMgr VPSSMgr\endlink).
  */
 
@@ -32,7 +32,7 @@ namespace Cantera {
   class SpeciesThermo;
   class PDSS;
   /**
-   * @defgroup vpssmgrthermo Species Standard-State Thermodynamic Properties
+   * @defgroup mgrpdssthermocalc Managers for Calculating Standard-State Thermodynamics
    *
    * To compute the thermodynamic properties of multicomponent
    * solutions, it is necessary to know something about the
@@ -54,58 +54,81 @@ namespace Cantera {
    * pure solvent; another convention is to reference all properties
    * to unit molality.
    *
-   * In defining these standard states for species in a phase, we make
-   * the following definition. A reference state is a standard state
-   * of a species in a phase limited to one particular pressure, the reference
-   * pressure. The reference state specifies the dependence of all
-   * thermodynamic functions as a function of the temperature, in
-   * between a minimum temperature and a maximum temperature. The
-   * reference state also specifies the molar volume of the species
-   * as a function of temperature. The molar volume is a thermodynamic
-   * function.
-   * A full standard state does the same thing as a reference state,
-   * but specifies the thermodynamics functions at all pressures.
+   *  In defining these standard states for species in a phase, we make
+   *  the following definition. A reference state is a standard state
+   *  of a species in a phase limited to one particular pressure, the reference
+   *  pressure. The reference state specifies the dependence of all
+   *  thermodynamic functions as a function of the temperature, in
+   *  between a minimum temperature and a maximum temperature. The
+   *  reference state also specifies the molar volume of the species
+   *  as a function of temperature. The molar volume is a thermodynamic
+   *  function.
+   *  A full standard state does the same thing as a reference state,
+   *  but specifies the thermodynamics functions at all pressures.
    *
-   * Class VPSSMgr is the base class
-   * for a family of classes that compute properties of all
-   * species in a phase in their standard states, for a range of temperatures
-   * and pressures.
+   *  Class VPSSMgr is the base class
+   *  for a family of classes that compute properties of all
+   *  species in a phase in their standard states, for a range of temperatures
+   *  and pressures.
    *   
-   *  Phases which use the VPSSMGr class must have their respective
-   *  ThermoPhase objects actually be derivatives of the VPStandardState
-   *  class. These classes assume that there exists a standard state
+   *   Phases which use the VPSSMGr class must have their respective
+   *   ThermoPhase objects actually be derivatives of the VPStandardState
+   *   class. These classes assume that there exists a standard state
    *   for each species in the phase, where the Thermodynamic functions are specified
-   *   as a function of temperature and pressure.  Standard state objects for each
+   *   as a function of temperature and pressure.  Standard state thermo objects for each
    *   species in the phase are all derived from the PDSS virtual base class. 
    *   Calculators for these
-   *   standard state, which coordinate the calculation for all of the species
+   *   standard state thermo , which coordinate the calculation for all of the species
    *   in a phase, are all derived from VPSSMgr.
    *   In turn, these standard states may employ reference state calculation to
    *   aid in their calculations. And the VPSSMgr calculators may also employ
    *   SimpleThermo calculators to help in calculating the properties for all of the
    *   species in a phase. However, there are some PDSS objects which do not employ
-   *   reference state calculations. An example of this is real equation of state for
-   *   liquid water used within the calculation of brine thermodynamcis. 
-   *   In general, the independent variables that completely describe the state of the
-   *   system  for this class are temperature, the
-   *   phase pressure, and N - 1 species mole or mass fractions or molalities. 
-   *    The standard state thermodynamics combined with the mixing rules yields
-   *   the thermodynamic functions for the phase. Mixing rules are given in terms
-   *   of specifying the molar-base activity coefficients or activities.
-   *   Lists of phases which belong to this group are given below
+   *   reference state calculations. An example of this is a real equation of state for
+   *   liquid water used within the calculation of brine thermodynamcis.
    *
+   *   Typically calls to calculate standard state thermo properties are virtual calls
+   *   at the ThermoPhase level. It is left to the child classes of ThermoPhase to 
+   *   specify how these are carried out. Usually, this will involve calling the 
+   *   m_spthermo pointer to a SpeciesThermo object to calculate the reference state
+   *   thermodynamic properties. Then, the pressure dependence is added in within the
+   *   child ThermoPhase object to complete the specification of the standard state.
+   *   The VPStandardStateTP class, however, redefines the calls to the calculation of 
+   *   standard state properties to use VPSSMgr class calls.  A listing of 
+   *   these classes and important pointers are supplied below.
+   *   
    *
-   *  The following classes inherit from VPSSMgr. Each of these classes
-   *  handle multiple species and by definition all of the species in a phase.
-   *  It is a requirement that a VPSSMgr object handles all of the
-   *  species in a phase.
- 
+   *     - ThermoPhase
+   *          - \link Cantera::ThermoPhase::m_spthermo m_spthermo\endlink  
+   *                 This is a pointer to a %SpeciesThermo manager class that
+   *                 handles the reference %state Thermodynamic calculations.
+   *          .
+   *     - VPStandardStateTP (inherits from %ThermoPhase)
+   *          - \link Cantera::ThermoPhase::m_spthermo m_spthermo\endlink  
+   *                 %SpeciesThermo manager handling reference %state Thermodynamic calculations.
+   *                  may or may not be used by the VPSSMgr class. For species
+   *                  which don't have a reference state class defined, a default
+   *                  class, called STITbyPDSS which is installed into the SpeciesThermo
+   *                  class, actually calculates reference state
+   *                  thermo by calling a PDSS object.
+   *          - \link Cantera::VPStandardStateTP::m_VPSS_ptr m_VPSS_ptr\endlink 
+   *                  This is a pointer to a %VPSSMgr class which handles the 
+   *                  standard %state thermo calculations. It may
+   *                  or may not use the pointer, m_spthermo, in its calculations.
+   *          .
+   *     .
+   *
+   *   The following classes inherit from VPSSMgr. Each of these classes
+   *   handle multiple species and by definition all of the species in a phase.
+   *   It is a requirement that a VPSSMgr object handles all of the
+   *   species in a phase.
+   *
    *
    *   - VPSSMgr_IdealGas
    *      - standardState model = "IdealGas"
    *      - This model assumes that all species in the phase obey the
    *        ideal gas law for their pressure dependence. The manager
-   *        uses a SimpleThermo object to handle the calculation of the
+   *        uses a SpeciesThermo object to handle the calculation of the
    *        reference state.
    *      .
    *
@@ -113,7 +136,7 @@ namespace Cantera {
    *      - standardState model = "ConstVol"
    *      - This model assumes that all species in the phase obey the
    *        constant partial molar volume pressure dependence.
-   *        The manager uses a SimpleThermo object to handle the 
+   *        The manager uses a SpeciesThermo object to handle the 
    *        calculation of the reference state.
    *      .
    *
@@ -121,13 +144,13 @@ namespace Cantera {
    *      - standardState model = "Water_ConstVol"
    *      - This model assumes that all species but one in the phase obey the
    *        constant partial molar volume pressure dependence.
-   *        The manager uses a SimpleThermo object to handle the 
+   *        The manager uses a SpeciesThermo object to handle the 
    *        calculation of the reference state for those species.
    *        Species 0 is assumed to be water, and a real equation
    *        of state is used to model the T, P behavior.
    *      .
    *
-   *   - VPSSMgr_Water_HKFT.
+   *   - VPSSMgr_Water_HKFT
    *      - standardState model = "Water_HKFT"
    *      - This model assumes that all species but one in the phase obey the
    *        HKFT equation of state.
@@ -140,22 +163,56 @@ namespace Cantera {
    *      - This model is completely general. Nothing is assumed at this
    *        level. Calls consist of loops to PDSS property evalulations.
    *      .
-   *
-   *  The choice of which VPSSMGr object to be used is implicitly made by
-   *  Cantera by querying the XML data file for compatibility. 
+   *   .
+   * 
+   *  The choice of which VPSSMgr object to be used is implicitly made by
+   *  %Cantera by querying the XML data file for compatibility. 
    *  However, each of these VPSSMgr objects may be explicitly requested in the XML file
-   *  by adding in the following XML nodes into the thermo section of the
-   *  phase XML Node. For example, this explicitly requests that the VPSSMgr_IdealGas
-   *  object be used to handle the standard state calculations.
+   *  by adding in the following XML node into the thermo section of the
+   *  phase XML Node. For example, the code example listed below
+   *  explicitly requests that the VPSSMgr_IdealGas
+   *  object be used to handle the standard state thermodynamics calculations.
    *
    *  @verbatim
+        <phase id="Silane_Pyrolysis" dim="3">
+           . . .
            <thermo model="VPIdealGas"> 
               <standardState model="IdealGas"\>
            <\thermo>
+           . . .
+        <\phase>
    @endverbatim
    *
+   *  If it turns out that the VPSSMgr_IdealGas class can not handle the standard
+   *  state calculation, then %Cantera will fail during the instantiation phase
+   *  printing out an informative error message.
    *
-   * @ingroup phases   
+   *  In the source code listing above, the thermo model, VPIdealGas ,was requested. The
+   *  thermo model specifies the type of ThermoPhase object to use. In this case
+   *  the object IdealSolnGasVPSS (with the ideal gas suboption) is used. %IdealSolnGasVPSS
+   *  inherits from VPStandardStateTP, so that it actually has a VPSSMgr pointer
+   *  to be specified. Note, in addition to the IdealGas entry to the model
+   *  parameter in standardState node, we could have also specified the "General"
+   *  option. The general option will always work. An example of this
+   *  usage is listed below.
+   *
+   *  @verbatim
+        <phase id="Silane_Pyrolysis" dim="3">
+           . . .
+           <thermo model="VPIdealGas"> 
+              <standardState model="General"\>
+           <\thermo>
+           . . .
+        <\phase>
+   @endverbatim
+   *
+   *  The "General" option will cause the VPSSMgr_General %VPSSMgr class to be used.
+   *  In this manager, the calculations are all handled at the PDSS object
+   *  level. This is completely general, but, may be significantly
+   *  slower.
+   *
+   *
+   * @ingroup thermoprops
    */
 
   //! Virtual base class for the classes that manage the calculation

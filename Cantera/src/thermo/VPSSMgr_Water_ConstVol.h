@@ -4,7 +4,7 @@
  * of standard state thermo properties for real water and 
  *  a set of species which have a constant molar volume pressure
  * dependence 
- * (see \ref thermoprops and
+ * (see \ref mgrpdssthermocalc and
  * class \link Cantera::VPSSMgr_ConstVol VPSSMgr_ConstVol\endlink).
  */
 
@@ -42,6 +42,8 @@ namespace Cantera {
    * species in their reference state at a range of temperatures.
    * Note, the pressure dependence of the reference state is not
    * handled by this particular species standard state model.
+   *
+   * @ingroup mgrpdssthermocalc
    */
   class VPSSMgr_Water_ConstVol : public VPSSMgr {
     

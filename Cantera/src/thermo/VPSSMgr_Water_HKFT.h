@@ -3,7 +3,7 @@
  * Declaration file for a derived class that handles the calculation
  * of standard state thermo properties for real water and 
  *  a set of species which have the HKFT equation of state
- * (see \ref thermoprops and
+ * (see \ref mgrpdssthermocalc and
  * class \link Cantera::VPSSMgr_Water_HKFT VPSSMgr_Water_HKFT\endlink).
  */
 /*
@@ -40,6 +40,8 @@ namespace Cantera {
    * species in their reference state at a range of temperatures.
    * Note, the pressure dependence of the reference state is not
    * handled by this particular species standard state model.
+   *
+   * @ingroup mgrpdssthermocalc
    */
   class VPSSMgr_Water_HKFT : public VPSSMgr {
     

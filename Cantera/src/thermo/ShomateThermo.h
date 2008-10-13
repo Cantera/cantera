@@ -2,7 +2,7 @@
  * @file ShomateThermo.h
  *   Header for the 2 regions Shomate polynomial
  *   for multiple species in a phase, derived from the
- *   \link Cantera::SpeciesThermo SpeciesThermo\endlink base class (see \ref spthermo and
+ *   \link Cantera::SpeciesThermo SpeciesThermo\endlink base class (see \ref mgrsrefcalc and
  *   \link Cantera::ShomateThermo ShomateThermo\endlink).
  */
 /*
@@ -59,7 +59,7 @@ namespace Cantera {
    *  the implicit integration of (t = T 1000), which provides a 
    *  multiplier of 1000 to the Enthalpy equation.
    *
-   * @ingroup spthermo
+   * @ingroup mgrsrefcalc
    */
   class ShomateThermo : public SpeciesThermo {
     

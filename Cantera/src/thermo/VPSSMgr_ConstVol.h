@@ -32,6 +32,8 @@ namespace Cantera {
    *  The calculation of multiple-species thermodynamic
    *  property managers for variable temperature and pressure standard
    *  states assuming a constant partial molar volume assumption.
+   *
+   *  @ingroup mgrpdssthermocalc
    */
   class VPSSMgr_ConstVol : public VPSSMgr {
     

@@ -3,7 +3,7 @@
  * Definition file for a virtual base class that manages
  * the calculation of standard state properties for all of the
  * species in a single phase, assuming a variable P and T standard state 
- * (see \ref thermoprops and
+ * (see \ref mgrpdssthermocalc and
  * class \link Cantera::VPSSMgr VPSSMgr\endlink).
  */
 /*

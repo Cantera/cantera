@@ -2,7 +2,7 @@
  *  @file PDSS_Water.h
  * Implementation of a pressure dependent standard state 
  * virtual function for a Pure Water Phase
- * (see class \link Cantera::PDSS_Water PDSS_Water\endlink).
+ * (see \ref pdssthermo and class \link Cantera::PDSS_Water PDSS_Water\endlink).
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of
@@ -53,6 +53,7 @@ namespace Cantera {
    *   They assume u_liq(TP) = 0.0, s_liq(TP) = 0.0, where TP is the
    *   triple point conditions.
    *
+   * @ingroup pdssthermo
    */
   class PDSS_Water : public PDSS {
 

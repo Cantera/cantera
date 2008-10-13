@@ -2,7 +2,7 @@
  *  @file PDSS_IdealGas.h
  *   Declarations for the class PDSS_IdealGas (pressure dependent standard state)
  *    which handles calculations for a single ideal gas species in a phase
- *    (see class \link Cantera::PDSS_IdealGas PDSS_IdealGas\endlink).
+ *    (see \ref pdssthermo and class \link Cantera::PDSS_IdealGas PDSS_IdealGas\endlink).
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of
@@ -23,10 +23,12 @@ namespace Cantera {
   class XML_Node;
   class VPStandardStateTP;
 
-  /**
-   * Derived class for pressure dependent standard states.
+  
+  //! Derived class for pressure dependent standard states of an ideal gas species
+  /*!
    * This class is for a single Ideal Gas species.
    *
+   * @ingroup pdssthermo
    */
   class PDSS_IdealGas : public PDSS {
 

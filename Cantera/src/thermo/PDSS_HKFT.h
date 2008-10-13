@@ -3,7 +3,7 @@
  *    Declarations for the class PDSS_HKFT (pressure dependent standard state)
  *    which handles calculations for a single species in a phase using the
  *    HKFT standard state
- *    (see class \link Cantera::PDSS_HKFT PDSS_HKFT\endlink).
+ *    (see \ref pdssthermo and class \link Cantera::PDSS_HKFT PDSS_HKFT\endlink).
  */
 /*  $Author$
  *  $Date$
@@ -52,6 +52,7 @@ namespace Cantera {
    * It only recalculates the standard state when the setState functions
    * for temperature and pressure are called
    *
+   * @ingroup pdssthermo
    */
   class PDSS_HKFT : public PDSS {
 

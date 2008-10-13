@@ -2,7 +2,7 @@
  *  @file PDSS_ConstVol.h
  *    Declarations for the class PDSS_ConstVol (pressure dependent standard state)
  *    which handles calculations for a single species with a constant molar volume in a phase
- *    (see class \link Cantera::PDSS_ConstVol PDSS_ConstVol\endlink).
+ *    (see class \ref pdssthermo and \link Cantera::PDSS_ConstVol PDSS_ConstVol\endlink).
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of
@@ -22,10 +22,12 @@ namespace Cantera {
   class XML_Node;
   class VPStandardStateTP;
 
-  /**
-   * Class for pressure dependent standard states.
-   * This class is for a single Ideal Gas species.
+  //! Class for pressure dependent standard states that use a constant volume model
+  /*!
+   * Class for pressure dependent standard states that use a constant volume model.
    *
+   *
+   * @ingroup pdssthermo
    */
   class PDSS_ConstVol : public PDSS {
 

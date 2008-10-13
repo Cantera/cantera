@@ -3,7 +3,7 @@
  *  Declaration file for a derived class that handles the calculation
  * of standard state thermo properties for
  * a set of species belonging to a single phase in a completely general
- * but slow way (see \ref thermoprops and
+ * but slow way (see \ref mgrpdssthermocalc and
  * class \link Cantera::VPSSMgr_General VPSSMgr_General\endlink).
  */
 /*
@@ -40,6 +40,8 @@ namespace Cantera {
    *   but slow way. 
    *   The way this does this is to call the underlying PDSS routines one at a
    *   time for every species.
+   *
+   * @ingroup mgrpdssthermocalc
    */
   class VPSSMgr_General : public VPSSMgr {
     

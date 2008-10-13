@@ -161,6 +161,7 @@ namespace Cantera {
    *   in the class IdealSolnGasVPSS, because at this level they look alike having
    *   the same mixing rules with respect to the specification of the excess 
    *   thermodynamic properties.
+   *
    *   The third class of objects are actually all derivatives of the MolalityVPSSTP
    *   object. They assume that the standard states are temperature and 
    *   pressure dependent. But, they also assume that the standard states are 
@@ -1803,10 +1804,15 @@ namespace Cantera {
     void setSpeciesThermo(SpeciesThermo* spthermo) 
     { m_spthermo = spthermo; }
     
-    /**
-     * @internal Return a changeable reference to the species thermodynamic property
-     * manager.  @todo This method will fail if no species thermo
-     * manager has been installed.
+    
+    //! Return a changeable reference to the calculation manager
+    //! for species reference-state thermodynamic properties
+    /*!
+     *
+     *  @todo This method will fail if no species thermo
+     *        manager has been installed.
+     *
+     * @internal
      */
     SpeciesThermo& speciesThermo() { return *m_spthermo; }
 
@@ -1989,7 +1995,12 @@ namespace Cantera {
             
   protected:
 
-    //! Pointer to the species thermodynamic property manager
+    //! Pointer to the calculation manager for species
+    //! reference-state thermodynamic properties
+    /*!
+     *   This class is called when the reference-state thermodynamic properties
+     *   of all the species in the phase needs to be evaluated.
+     */
     SpeciesThermo* m_spthermo;
 
     /// Pointer to  the XML tree containing the species

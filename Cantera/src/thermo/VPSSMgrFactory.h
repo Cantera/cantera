@@ -2,7 +2,7 @@
  *  @file VPSSMgrFactory.h
  *    Header for factory to build instances of classes that manage the
  *    standard-state thermodynamic properties of a set of species 
- *    (see \ref spthermo and class \link Cantera::VPSSMgrFactory VPSSMgrFactory\endlink);
+ *    (see \ref mgrpdssthermocalc and class \link Cantera::VPSSMgrFactory VPSSMgrFactory\endlink);
  */
 
 /*
@@ -33,7 +33,7 @@ namespace Cantera {
   //! Throw a named error for an unknown or missing vpss species thermo model.
   /*!
    *
-   * @ingroup thermoprops
+   * @ingroup mgrpdssthermocalc
    */
   class UnknownVPSSMgrModel: public CanteraError {
   public:
@@ -75,7 +75,7 @@ namespace Cantera {
    * otherwise simply returns the pointer to the existing
    * instance.
    *
-   * @ingroup thermoprops
+   * @ingroup mgrpdssthermocalc
    */
   class VPSSMgrFactory : public FactoryBase {
 

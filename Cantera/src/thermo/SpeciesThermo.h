@@ -1,7 +1,7 @@
 /**
  *  @file SpeciesThermo.h
  *  Virtual base class for the calculation of multiple-species thermodynamic
- *  reference-state property managers and text for the spthermo module (see \ref spthermo 
+ *  reference-state property managers and text for the mgrsrefcalc module (see \ref mgrsrefcalc 
  *  and class \link Cantera::SpeciesThermo SpeciesThermo\endlink).
  */
 
@@ -24,7 +24,14 @@ namespace Cantera {
   class SpeciesThermoInterpType;
 
   /**
-   * @defgroup spthermo Species Reference-State Thermodynamic Properties
+   * @defgroup mgrsrefcalc Managers for Calculating Reference-State Thermodynamics
+   *
+   *  The ThermoPhase object relies on a set of manager classes to calculate 
+   *  the thermodynamic properties of the reference state for all
+   *  of the species in the phase. This may be a computationally
+   *  significant cost, so efficiency is important. 
+   *  This group describes how this is done efficiently within Cantera.
+   *  
    *
    * To compute the thermodynamic properties of multicomponent
    * solutions, it is necessary to know something about the
@@ -34,17 +41,8 @@ namespace Cantera {
    * solution. For a gaseous solution (i.e., a gas mixture), the
    * species properties required are usually ideal gas properties at
    * the mixture temperature and at a reference pressure (almost always at
-   * 1 bar). For other types of solutions, however, it may
-   * not be possible to isolate the species in a "pure" state. For
-   * example, the thermodynamic properties of, say, Na+ and Cl- in
-   * saltwater are not easily determined from data on the properties
-   * of solid NaCl, or solid Na metal, or chlorine gas. In this
-   * case, the solvation in water is fundamental to the identity of
-   * the species, and some other reference state must be used. One
-   * common convention for liquid solutions is to use thermodynamic
-   * data for the solutes in the limit of infinite dilution within the
-   * pure solvent; another convention is to reference all properties
-   * to unit molality.
+   * 1 bar).
+   *
    *
    * In defining these standard states for species in a phase, we make
    * the following definition. A reference state is a standard state
@@ -54,22 +52,46 @@ namespace Cantera {
    * between a minimum temperature and a maximum temperature. The
    * reference state also specifies the molar volume of the species
    * as a function of temperature. The molar volume is a thermodynamic
-   * function.
-   * A full standard state does the same thing as a reference state,
-   * but specifies the thermodynamics functions at all pressures.
+   * function. By constrast, a full standard state does the same thing
+   * as a reference state, but specifies the thermodynamics functions
+   * at all pressures.
    *
-   * Whatever the conventions used by a particular solution model,
-   * means need to be provided to compute the species properties in 
-   * the reference state. Class SpeciesThermo is the base class
-   * for a family of classes that compute properties of all
-   * species in a phase in their reference states, for a range of temperatures.
-   * Note, the pressure dependence of the species thermodynamic functions is not
-   * handled by this particular species thermodynamic model. %SpeciesThermo
-   * calculates the reference-state thermodynamic values of all species in a single
-   * phase during each call.
+   *  Whatever the conventions used by a particular solution model,
+   *  means need to be provided to compute the species properties in 
+   *  the reference state. Class SpeciesThermo is the base class
+   *  for a family of classes that compute properties of all
+   *  species in a phase in their reference states, for a range of temperatures.
+   *  Note, the pressure dependence of the species thermodynamic functions is not
+   *  handled by this particular species thermodynamic model. %SpeciesThermo
+   *  calculates the reference-state thermodynamic values of all species in a single
+   *  phase during each call. The vector nature of the operation leads to
+   *  a lower operation count and better efficiency, especially if the
+   *  individual reference state classes are known to the reference-state
+   *  manager class so that common operations may be grouped together.
    *
-   *  The following classes inherit from SpeciesThermo. Each of these classes
-   *  handle multiple species, usually all of the species in a phas. However,
+   *  The most important member function for the %SpeciesThermo class
+   *  is the member function \link SpeciesThermo::update() update()\endlink.
+   *  The function calculates the values of Cp, H, and S for all of the
+   *  species at once at the specified temperature.
+   *
+   *  Usually, all of the species in a phase are installed into a %SpeciesThermo
+   *  class. However, there is no requirement that a %SpeciesThermo 
+   *  object handles all of the species in a phase. There are
+   *  two member functions that are called to install each species into
+   *  the %SpeciesThermo.
+   *  One routine is called \link SpeciesThermo::install() install()\endlink.
+   *  It is called with the index of the species in the phase,
+   *  an integer type delineating
+   *  the SpeciesThermoInterpType object, and a listing of the 
+   *  parameters for that parameterization. A factory routine is called based
+   *  on the integer type.  The other routine is called 
+   *  \link SpeciesThermo::install_STIT() install_STIT()\endlink.
+   *  It accepts as an argument a pointer to an already formed
+   *  SpeciesThermoInterpType object.
+   *
+   *
+   *  The following classes inherit from %SpeciesThermo. Each of these classes
+   *  handle multiple species, usually all of the species in a phase. However,
    *  there is no requirement that a %SpeciesThermo object handles all of the
    *  species in a phase.
    *
@@ -143,11 +165,9 @@ namespace Cantera {
    *    calculations at all and therefore is the slowest but
    *    most general implementation.
    *
-   * @ingroup phases   
+   * @ingroup thermoprops   
    */
   //@{
-
-  //////////////////////// class SpeciesThermo ////////////////////
 
   
   //! Pure Virtual base class for the species thermo manager classes.
@@ -222,8 +242,7 @@ namespace Cantera {
      */
     virtual void install(std::string name, int index, int type, 
 			 const doublereal* c, 
-			 doublereal minTemp,
-			 doublereal maxTemp,
+			 doublereal minTemp, doublereal maxTemp,
 			 doublereal refPressure)=0;
 
     //! Install a new species thermodynamic property
@@ -250,14 +269,16 @@ namespace Cantera {
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update(doublereal T, 
-			doublereal* cp_R, 
-			doublereal* h_RT, 
-			doublereal* s_R) const=0;
+    virtual void update(doublereal T, doublereal* cp_R, 
+			doublereal* h_RT, doublereal* s_R) const=0;
 
     
     //! Like update(), but only updates the single species k.
     /*!
+     *  The default treatment is to just call update() which
+     *  means that potentially the operation takes a m_kk*m_kk
+     *  hit. 
+     * 
      * @param k       species index
      * @param T       Temperature (Kelvin)
      * @param cp_R    Vector of Dimensionless heat capacities.
@@ -266,7 +287,6 @@ namespace Cantera {
      *                (length m_kk).
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
-     *
      */
     virtual void update_one(int k, doublereal T, 
 			    doublereal* cp_R, 

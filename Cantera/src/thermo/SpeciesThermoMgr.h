@@ -3,7 +3,7 @@
  *  This file contains descriptions of templated subclasses of 
  *  the virtual base class, SpeciesThermo, which 
  *  include  SpeciesThermoDuo and SpeciesThermo1
- *  (see \ref spthermo and classes 
+ *  (see \ref mgrsrefcalc and classes 
  *   \link Cantera::SpeciesThermoDuo SpeciesThermoDuo\endlink and
  *  \link Cantera::SpeciesThermo1 SpeciesThermo1\endlink)
  *
@@ -42,7 +42,7 @@ namespace Cantera {
    * @param s_R     Vector of Dimensionless entropies.
    *                (length m_kk).
    *
-   * @ingroup spthermo
+   * @ingroup mgrsrefcalc
    */
   template<class InputIter>
   inline void _updateAll(InputIter begin, 
@@ -66,7 +66,7 @@ namespace Cantera {
    * @param begin Beginning iterator
    * @param end   end iterator
    *
-   * @ingroup spthermo
+   * @ingroup mgrsrefcalc
    */
   template<class InputIter>
   doublereal _minTemp(InputIter begin, InputIter end) {
@@ -86,7 +86,7 @@ namespace Cantera {
    * @param begin Beginning iterator
    * @param end   end iterator
    *
-   * @ingroup spthermo
+   * @ingroup mgrsrefcalc
    */
   template<class _InputIter>
   doublereal _maxTemp(_InputIter begin, _InputIter end) {
@@ -100,7 +100,7 @@ namespace Cantera {
 
   //! Exception thrown if species reference pressures don't match.
   /*!
-   * @ingroup spthermo
+   * @ingroup mgrsrefcalc
    */
   class RefPressureMismatch : public CanteraError {
   public:
@@ -121,7 +121,7 @@ namespace Cantera {
 
   //! Unknown species thermo manager string error
   /*!
-   * @ingroup spthermo
+   * @ingroup mgrsrefcalc
    */
   class UnknownSpeciesThermo : public CanteraError {
   public:
@@ -154,7 +154,7 @@ namespace Cantera {
    *
    * Note this seems to be a slow way to do things, and it may be on its way out.
    *
-   * @ingroup spthermo
+   * @ingroup mgrsrefcalc
    */
   template<class T1, class T2>
   class SpeciesThermoDuo : public SpeciesThermo {
@@ -346,7 +346,7 @@ namespace Cantera {
    *
    * @deprecated Note this is currently unused and it may be on its way out.
    *
-   * @ingroup spthermo
+   * @ingroup mgrsrefcalc
    */
   template<class SPM>
   class SpeciesThermo1 : public SpeciesThermo {
