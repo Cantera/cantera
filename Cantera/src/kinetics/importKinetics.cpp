@@ -424,28 +424,72 @@ public:
         }
     }
 
-    /**
-     * Get falloff parameters for a reaction.
-     */
-    static void getFalloff(const node_t& f, ReactionData& rdata) {
-        string type = f["type"];
-        vector<string> p;
-        getStringArray(f,p);
-        vector_fp c;
-        int np = static_cast<int>(p.size());
-        for (int n = 0; n < np; n++) {
-            c.push_back(fpValue(p[n]));
-        }
-        if (type == "Troe") {
-            if (np == 4) rdata.falloffType = TROE4_FALLOFF;
-            else rdata.falloffType = TROE3_FALLOFF;
-        }
-        else if (type == "SRI") {
-            if (np == 5) rdata.falloffType = SRI5_FALLOFF;
-            else rdata.falloffType = SRI3_FALLOFF;
-        }
-        rdata.falloffParameters = c;
+  
+  //! Get falloff parameters for a reaction.
+  /*!
+   *  This routine reads the falloff XML node and extracts parameters into a
+   *  vector of doubles
+   *
+   *
+   * @verbatim
+    <falloff type="Troe"> 0.5 73.2 5000. 9999. </falloff>
+     @endverbatim
+   */
+  static void getFalloff(const node_t& f, ReactionData& rdata) {
+    string type = f["type"];
+    vector<string> p;
+    getStringArray(f,p);
+    vector_fp c;
+    int np = static_cast<int>(p.size());
+    for (int n = 0; n < np; n++) {
+      c.push_back(fpValue(p[n]));
     }
+    if (type == "Troe") {
+      if (np == 4) {
+	rdata.falloffType = TROE4_FALLOFF;
+	if (c[1] < 0.0) {
+	  throw CanteraError("getFalloff()", "Troe4 T3 parameter is less than zero: " + fp2str(c[1]));
+	}
+	if (c[2] < 0.0) {
+	  throw CanteraError("getFalloff()", "Troe4 T1 parameter is less than zero: " + fp2str(c[2]));
+	}
+	if (c[3] < 0.0) {
+	  throw CanteraError("getFalloff()", "Troe4 T2 parameter is less than zero: " + fp2str(c[3]));
+	}
+      } else if (np == 3) {
+	rdata.falloffType = TROE3_FALLOFF;
+	if (c[1] < 0.0) {
+	  throw CanteraError("getFalloff()", "Troe3 T3 parameter is less than zero: " + fp2str(c[1]));
+	}
+	if (c[2] < 0.0) {
+	  throw CanteraError("getFalloff()", "Troe3 T1 parameter is less than zero: " + fp2str(c[2]));
+	}
+      }
+      else {
+	throw CanteraError("getFalloff()", "Troe parameterization is specified by number of pararameters, "
+		     + int2str(np) + ", is not equal to 3 or 4");
+      }
+    } else if (type == "SRI") {
+      if (np == 5) {
+	rdata.falloffType = SRI5_FALLOFF;
+	if (c[2] < 0.0) {
+	  throw CanteraError("getFalloff()", "SRI5 m_c parameter is less than zero: " + fp2str(c[2]));
+	}
+	if (c[3] < 0.0) {
+	  throw CanteraError("getFalloff()", "SRI5 m_d parameter is less than zero: " + fp2str(c[3]));
+	}
+      } else if (np == 3) {
+	rdata.falloffType = SRI3_FALLOFF;
+	if (c[2] < 0.0) {
+	  throw CanteraError("getFalloff()", "SRI3 m_c parameter is less than zero: " + fp2str(c[2]));
+	}
+      } else {
+	throw CanteraError("getFalloff()", "SRI parameterization is specified by number of pararameters, "
+		     + int2str(np) + ", is not equal to 3 or 5");
+      }
+    }
+    rdata.falloffParameters = c;
+  }
 
   /**
    * Get the enhanced collision efficiencies. It is assumed that the
