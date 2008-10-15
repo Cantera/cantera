@@ -24,11 +24,13 @@ CONFIGDEFS=@DEFS@
 .cpp.o:
 	@CXX@ -c $< -I$(INCDIR) @CXXFLAGS@ -O0
 
-all: $(BINDIR)/csvdiff
+all: $(BINDIR)/csvdiff $(BBINDIR)/csvdiff
 
 $(BINDIR)/csvdiff: mdp_allo.o csvdiff.o tok_input_util.o
 	@CXX@ -o $(BINDIR)/csvdiff  mdp_allo.o csvdiff.o tok_input_util.o \
 	 $(LCXX_FLAGS) $(LCXX_END_LIBS) 
+
+$(BBINDIR)/csvdiff: $(BINDIR)/csvdiff
 	cp -f $(BINDIR)/csvdiff $(BBINDIR)
 
 clean:
