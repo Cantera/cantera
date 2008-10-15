@@ -144,7 +144,7 @@ namespace VCSnonideal {
      *  @param molesInert  kmoles of inert in the phase (defaults to zero)
      */
     void resize(const int phaseNum, const int numSpecies, 
-		const int numElem, const char * constphaseName,
+		const int numElem, const char * const phaseName,
 		const double molesInert = 0.0);
 
     void elemResize(const int numElemConstraints);
@@ -173,7 +173,7 @@ namespace VCSnonideal {
      *            format. 
      */
     void setMolesFromVCS(const int stateCalc, 
-			 const double * const molesSpeciesVCS = 0);
+			 const double * molesSpeciesVCS = 0);
 
     //! Set the moles within the phase
     /*!
@@ -423,7 +423,7 @@ namespace VCSnonideal {
      *
      * @param kindex kth species index.
      */
-    vcs_SpeciesProperties * speciesProperty(int kindex);
+    vcs_SpeciesProperties * speciesProperty(const int kindex);
 
     //! int indicating whether the phase exists or not
     int exists() const;

@@ -517,10 +517,9 @@ namespace VCSnonideal {
    *
    *
    */
-  void vcs_VolPhase::setMoleFractionsState(double totalMoles,
-					   const double * moleFractions,
+  void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
+					   const double * const moleFractions,
 					   const int vcsStateStatus) {
-
 
     if (totalMoles != 0.0) {
       if (vcsStateStatus !=  VCS_STATECALC_TMP) {
