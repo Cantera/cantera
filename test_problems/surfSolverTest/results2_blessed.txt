@@ -32,13 +32,13 @@ Surface Phase:  soot_interface (11)
 Surface Temperature = 1.4e+03
 Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
-   0                  Csoot-*        0.0184677    -8.195044e-20
-   1                  Csoot-H         0.981532    -8.195044e-20
+   0                  Csoot-*        0.0184677     0.000000e+00
+   1                  Csoot-H         0.981532     0.000000e+00
 Sum of coverages = 1
 Surface Phase:  soot_interface (11)
 Surface Temperature = 1.4e+03
 Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
-   0                  Csoot-*        0.0184677    -8.195044e-20
-   1                  Csoot-H         0.981532    -8.195044e-20
+   0                  Csoot-*        0.0184677     0.000000e+00
+   1                  Csoot-H         0.981532     0.000000e+00
 Sum of coverages = 1

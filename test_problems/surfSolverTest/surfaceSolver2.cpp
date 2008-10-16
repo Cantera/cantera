@@ -145,9 +145,13 @@ void printSurf(ostream &oooo, ThermoPhase *surfPhaseTP,
   int nspSurf = surfPhaseTP->nSpecies();
   for (int k = 0; k < nspSurf; k++) {
     kstart = iKin_ptr->kineticsSpeciesIndex(0, 2);
+    double srcK = src[kstart];
+    if (fabs(srcK) < 1.0E-8) {
+      srcK = 0.0;
+    }
     sprintf(buf, "%4d %24s   %14g   %14e\n", 
 	   k, surfPhaseTP->speciesName(k).c_str(),
-	   x[k], src[kstart]);
+	   x[k], srcK);
     oooo << buf;
     sum += x[k];
   }
