@@ -1,7 +1,6 @@
 #!/bin/sh
 #
 #
-
 temp_success="1"
 /bin/rm  -f output.txt outputa.txt diamond.xml diamonda.xml
 
@@ -45,5 +44,4 @@ else
   echo "FAILED" > csvCode.txt
   temp_success="0"
 fi
-
 
