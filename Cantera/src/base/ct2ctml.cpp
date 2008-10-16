@@ -38,6 +38,17 @@ namespace ctml {
     /*!
      * Use the environment variable PYTHON_CMD if it is set. If not, return
      * the string 'python'.
+     * 
+     * Note, there are hidden problems here that really direct us to use
+     * a full pathname for the location of python. Basically the system
+     * call will use the shell /bin/sh, in order to launch python.
+     * This default shell may not be the shell that the user is employing.
+     * Therefore, the default path to python may be different during 
+     * a system call than during the default user shell environment.
+     * This is quite a headache. The answer is to always set the 
+     * PYTHON_CMD environmental variable in the user environment to 
+     * an absolute path to locate the python executable. Then this 
+     * issue goes away. 
      */
     static string pypath() {
         string s = "python";
