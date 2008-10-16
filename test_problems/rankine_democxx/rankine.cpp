@@ -87,7 +87,6 @@ int openRankine(int np, void* p) {
 
 #ifndef CXX_DEMO
 int main() {
-
     try {
         return openRankine(0, 0);
     }
