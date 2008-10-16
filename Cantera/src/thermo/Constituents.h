@@ -264,7 +264,7 @@ namespace Cantera {
        * They are not usually called by user programs.
        */
       //@{
-      void addSpecies(const std::string& name, doublereal* comp,
+      void addSpecies(const std::string& name, const doublereal* comp,
 		      doublereal charge = 0.0, doublereal size = 1.0);
 
       //! Add a species to the phase, checking for uniqueness of the name
@@ -278,7 +278,7 @@ namespace Cantera {
        * @param charge  Charge of the species. Defaults to zero.
        * @param size    Size of the species (meters). Defaults to 1 meter.
        */
-      void addUniqueSpecies(const std::string& name, doublereal* comp,
+      void addUniqueSpecies(const std::string& name, const doublereal* comp,
 			    doublereal charge = 0.0, 
 			    doublereal size = 1.0);
       
