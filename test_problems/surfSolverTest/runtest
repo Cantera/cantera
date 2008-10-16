@@ -3,7 +3,7 @@
 #
 
 temp_success="1"
-/bin/rm  -f output.txt  diff_test.txt
+/bin/rm  -f output.txt  diff_test.txt results.txt diff_csv.txt
 tname="surfaceSolver"
 
 #################################################################
@@ -19,16 +19,31 @@ then
   temp_success="0"
   echo "surfaceSolver ($tname test) returned with bad status, $retnStat, check output"
 fi
+diff  results.txt results_blessed.txt  > diff_csv.txt
+retnStat_csv=$?
 
-diff -w output.txt surfaceSolver_blessed.out > diff_test.txt
-retnStat=$?
-if [ $retnStat = "0" ]
+diff -w output.txt surfaceSolver_blessed.out > diff_out.txt
+retnStat_txt=$?
+
+if test $retnStat_csv = "0"
 then
-  echo "successful diff comparison on $tname test"
+  echo "Successful test comparison on "`pwd`
+  if [ $retnStat_txt != "0" ]
+  then
+     echo "   But, text output files have differences. See diff_out.txt"
+  fi
 else
-  echo "unsuccessful diff comparison on $tname test"
-  echo "FAILED" > csvCode.txt
-  temp_success="0"
+  echo "Unsuccessful test comparison on "`pwd` " test"
+  if test $retnStat_csv != "0"
+  then
+     echo "      results files are different - see diff_csv.txt"
+  fi
+  if test $retnStat_txt != "0"
+  then
+     echo "      And, text output files have differences. See diff_out.txt"
+  fi
 fi
+
+
 
 

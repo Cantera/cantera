@@ -24,8 +24,8 @@ Number of reactions = 8
 	     6 4.7372e+00 4.7359e+00            5.8161e-01 2.9647e-01 Csoot-*         
 	     7                                  6.1771e-08 3.1736e-08                
 	FIN  7                                  6.1771e-08 2.1591e-11                 -- success
-Gas Temperature = 1400
-Gas Pressure    = 101325
+Gas Temperature = 1.4e+03
+Gas Pressure    = 1.01e+05
 Gas Phase:  gas   (0)
                        Name           Conc              MoleF       SrcRate 
                                     (kmol/m^3)                   (kmol/m^2/s) 
@@ -42,28 +42,28 @@ Gas Phase:  gas   (0)
 Sum of gas mole fractions= 1
 
 Bulk Phase:  soot   (10)
-Bulk Temperature = 1400
-Bulk Pressure    = 101325
+Bulk Temperature = 1.4e+03
+Bulk Pressure    = 1.01e+05
                        Name           Conc              MoleF       SrcRate 
                                     (kmol/m^3)                   (kmol/m^2/s) 
    0                   CB-CB3          293.065              1    1.631252e-04
-Bulk Weight Growth Rate = 0.0019593 kg/m^2/s
-Bulk Growth Rate = 5.56619e-07 m/s
-Bulk Growth Rate = 2003.83 microns / hour
-Density of bulk phase = 3520 kg / m^3 
+Bulk Weight Growth Rate = 0.00196 kg/m^2/s
+Bulk Growth Rate = 5.57e-07 m/s
+Bulk Growth Rate = 2e+03 microns / hour
+Density of bulk phase = 3.52e+03 kg / m^3 
                       = 3.52 gm / cm^3 
 Sum of bulk mole fractions= 1
 
 Surface Phase:  soot_interface (11)
-Surface Temperature = 1400
-Surface Pressure    = 101325
+Surface Temperature = 1.4e+03
+Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
    0                  Csoot-*        0.0184677    -8.195044e-20
    1                  Csoot-H         0.981532    -8.195044e-20
 Sum of coverages = 1
 Surface Phase:  soot_interface (11)
-Surface Temperature = 1400
-Surface Pressure    = 101325
+Surface Temperature = 1.4e+03
+Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
    0                  Csoot-*        0.0184677    -8.195044e-20
    1                  Csoot-H         0.981532    -8.195044e-20
@@ -83,8 +83,8 @@ Sum of coverages = 1
 	     1                                  5.3218e+03 2.7005e+03                
 	     2                                  8.9325e-06 4.0777e-06                
 	FIN  2                                  8.9325e-06 6.2499e-12                 -- success
-Gas Temperature = 1400
-Gas Pressure    = 101325
+Gas Temperature = 1.4e+03
+Gas Pressure    = 1.01e+05
 Gas Phase:  gas   (0)
                        Name           Conc              MoleF       SrcRate 
                                     (kmol/m^3)                   (kmol/m^2/s) 
@@ -101,28 +101,28 @@ Gas Phase:  gas   (0)
 Sum of gas mole fractions= 1
 
 Bulk Phase:  soot   (10)
-Bulk Temperature = 1400
-Bulk Pressure    = 101325
+Bulk Temperature = 1.4e+03
+Bulk Pressure    = 1.01e+05
                        Name           Conc              MoleF       SrcRate 
                                     (kmol/m^3)                   (kmol/m^2/s) 
    0                   CB-CB3          293.065              1    1.646335e-04
-Bulk Weight Growth Rate = 0.00197741 kg/m^2/s
-Bulk Growth Rate = 5.61765e-07 m/s
-Bulk Growth Rate = 2022.35 microns / hour
-Density of bulk phase = 3520 kg / m^3 
+Bulk Weight Growth Rate = 0.00198 kg/m^2/s
+Bulk Growth Rate = 5.62e-07 m/s
+Bulk Growth Rate = 2.02e+03 microns / hour
+Density of bulk phase = 3.52e+03 kg / m^3 
                       = 3.52 gm / cm^3 
 Sum of bulk mole fractions= 1
 
 Surface Phase:  soot_interface (11)
-Surface Temperature = 1400
-Surface Pressure    = 101325
+Surface Temperature = 1.4e+03
+Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
    0                  Csoot-*        0.0186067    -3.028143e-20
    1                  Csoot-H         0.981393    -3.028143e-20
 Sum of coverages = 1
 Surface Phase:  soot_interface (11)
-Surface Temperature = 1400
-Surface Pressure    = 101325
+Surface Temperature = 1.4e+03
+Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
    0                  Csoot-*        0.0186067    -3.028143e-20
    1                  Csoot-H         0.981393    -3.028143e-20
@@ -142,8 +142,8 @@ Sum of coverages = 1
 	     1                                  2.1569e+05 9.5571e+04                
 	     2                                  1.7622e-04 2.0108e-04                
 	FIN  2                                  1.7622e-04 2.0335e-10                 -- success
-Gas Temperature = 1495
-Gas Pressure    = 101325
+Gas Temperature = 1.5e+03
+Gas Pressure    = 1.01e+05
 Gas Phase:  gas   (0)
                        Name           Conc              MoleF       SrcRate 
                                     (kmol/m^3)                   (kmol/m^2/s) 
@@ -160,28 +160,28 @@ Gas Phase:  gas   (0)
 Sum of gas mole fractions= 1
 
 Bulk Phase:  soot   (10)
-Bulk Temperature = 1495
-Bulk Pressure    = 101325
+Bulk Temperature = 1.5e+03
+Bulk Pressure    = 1.01e+05
                        Name           Conc              MoleF       SrcRate 
                                     (kmol/m^3)                   (kmol/m^2/s) 
    0                   CB-CB3          293.065              1    2.619849e-04
-Bulk Weight Growth Rate = 0.0031467 kg/m^2/s
-Bulk Growth Rate = 8.93949e-07 m/s
-Bulk Growth Rate = 3218.22 microns / hour
-Density of bulk phase = 3520 kg / m^3 
+Bulk Weight Growth Rate = 0.00315 kg/m^2/s
+Bulk Growth Rate = 8.94e-07 m/s
+Bulk Growth Rate = 3.22e+03 microns / hour
+Density of bulk phase = 3.52e+03 kg / m^3 
                       = 3.52 gm / cm^3 
 Sum of bulk mole fractions= 1
 
 Surface Phase:  soot_interface (11)
-Surface Temperature = 1495
-Surface Pressure    = 101325
+Surface Temperature = 1.5e+03
+Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
    0                  Csoot-*        0.0242812    -8.654559e-19
    1                  Csoot-H         0.975719    -8.654559e-19
 Sum of coverages = 1
 Surface Phase:  soot_interface (11)
-Surface Temperature = 1495
-Surface Pressure    = 101325
+Surface Temperature = 1.5e+03
+Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
    0                  Csoot-*        0.0242812    -8.654559e-19
    1                  Csoot-H         0.975719    -8.654559e-19
@@ -200,8 +200,8 @@ Sum of coverages = 1
 	 -----------------------------------------------------------------------------------
 	     1                                  2.8875e-10 1.4792e-10                
 	FIN  1                                  2.8875e-10 1.2324e-10                 -- success
-Gas Temperature = 1495
-Gas Pressure    = 101325
+Gas Temperature = 1.5e+03
+Gas Pressure    = 1.01e+05
 Gas Phase:  gas   (0)
                        Name           Conc              MoleF       SrcRate 
                                     (kmol/m^3)                   (kmol/m^2/s) 
@@ -218,28 +218,28 @@ Gas Phase:  gas   (0)
 Sum of gas mole fractions= 1
 
 Bulk Phase:  soot   (10)
-Bulk Temperature = 1495
-Bulk Pressure    = 101325
+Bulk Temperature = 1.5e+03
+Bulk Pressure    = 1.01e+05
                        Name           Conc              MoleF       SrcRate 
                                     (kmol/m^3)                   (kmol/m^2/s) 
    0                   CB-CB3          293.065              1    2.619849e-04
-Bulk Weight Growth Rate = 0.0031467 kg/m^2/s
-Bulk Growth Rate = 8.93949e-07 m/s
-Bulk Growth Rate = 3218.22 microns / hour
-Density of bulk phase = 3520 kg / m^3 
+Bulk Weight Growth Rate = 0.00315 kg/m^2/s
+Bulk Growth Rate = 8.94e-07 m/s
+Bulk Growth Rate = 3.22e+03 microns / hour
+Density of bulk phase = 3.52e+03 kg / m^3 
                       = 3.52 gm / cm^3 
 Sum of bulk mole fractions= 1
 
 Surface Phase:  soot_interface (11)
-Surface Temperature = 1495
-Surface Pressure    = 101325
+Surface Temperature = 1.5e+03
+Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
    0                  Csoot-*        0.0242812     2.964615e-20
    1                  Csoot-H         0.975719     2.964615e-20
 Sum of coverages = 1
 Surface Phase:  soot_interface (11)
-Surface Temperature = 1495
-Surface Pressure    = 101325
+Surface Temperature = 1.5e+03
+Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
    0                  Csoot-*        0.0242812     2.964615e-20
    1                  Csoot-H         0.975719     2.964615e-20
