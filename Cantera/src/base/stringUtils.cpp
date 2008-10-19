@@ -387,7 +387,7 @@ namespace Cantera {
 	  } else {
 	    std::string hh(dptr);
 	    free(eptr);
-	    throw CanteraError("aotofCheck",
+	    throw CanteraError("atofCheck",
 			       "Trouble processing string, " + hh);
 	  }
 	}
