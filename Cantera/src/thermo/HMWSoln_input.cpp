@@ -257,6 +257,11 @@ namespace Cantera {
 	stemp = xmlChild.value();
 	m_Alpha1MX_ij[counter] = atofCheck(stemp.c_str());
       }
+
+      if (nodeName == "alpha2") {
+	stemp = xmlChild.value();
+	m_Alpha2MX_ij[counter] = atofCheck(stemp.c_str());
+      }
     }
   }
 
@@ -267,32 +272,34 @@ namespace Cantera {
    */
   void HMWSoln::readXMLThetaAnion(XML_Node &BinSalt) {
     string xname = BinSalt.name();
+    vector_fp vParams;
+    int nParamsFound = 0;
     if (xname != "thetaAnion") {
       throw CanteraError("HMWSoln::readXMLThetaAnion",
 			 "Incorrect name for processing this routine: " + xname);
     }
     double *charge = DATA_PTR(m_speciesCharge);
     string stemp;
-    string iName = BinSalt.attrib("anion1");
-    if (iName == "") {
+    string ispName = BinSalt.attrib("anion1");
+    if (ispName == "") {
       throw CanteraError("HMWSoln::readXMLThetaAnion", "no anion1 attrib");
     }
-    string jName = BinSalt.attrib("anion2");
-    if (jName == "") {
+    string jspName = BinSalt.attrib("anion2");
+    if (jspName == "") {
       throw CanteraError("HMWSoln::readXMLThetaAnion", "no anion2 attrib");
     }
     /*
      * Find the index of the species in the current phase. It's not
      * an error to not find the species
      */
-    int iSpecies = speciesIndex(iName);
+    int iSpecies = speciesIndex(ispName);
     if (iSpecies < 0) {
       return;
     }
     if (charge[iSpecies] >= 0) {
       throw CanteraError("HMWSoln::readXMLThetaAnion", "anion1 charge problem");
     }
-    int jSpecies = speciesIndex(jName);
+    int jSpecies = speciesIndex(jspName);
     if (jSpecies < 0) {
       return;
     }
@@ -308,13 +315,38 @@ namespace Cantera {
       stemp = xmlChild.name();
       string nodeName = lowercase(stemp);
       if (nodeName == "theta") {
-	stemp = xmlChild.value();
-	double old = m_Theta_ij[counter];
-	m_Theta_ij[counter] = atofCheck(stemp.c_str());
-	if (old != 0.0) {
-	  if (old != m_Theta_ij[counter]) {
-	    throw CanteraError("HMWSoln::readXMLThetaAnion", "conflicting values");
+	getFloatArray(xmlChild, vParams, false, "", "Theta");
+	nParamsFound = vParams.size();
+	if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
+	  if (nParamsFound != 1) {
+	    throw CanteraError("HMWSoln::readXMLThetaAnion::Theta for " + ispName 
+			       + "::" + jspName,
+			       "wrong number of params found");
 	  }
+	  m_Theta_ij_coeff(0,counter) = vParams[0];
+	  m_Theta_ij[counter] = vParams[0];
+	} else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+	  if (nParamsFound != 2) {
+	    throw CanteraError("HMWSoln::readXMLThetaAnion::Theta for " + ispName
+			       + "::" + jspName,
+			       "wrong number of params found");
+	  }
+	  m_Theta_ij_coeff(0,counter) = vParams[0];
+	  m_Theta_ij_coeff(1,counter) = vParams[1];
+	  m_Theta_ij[counter] = vParams[0];
+	} else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+	  if (nParamsFound == 1) {
+	    vParams.resize(5, 0.0);
+	    nParamsFound = 5;
+	  } else if (nParamsFound != 5) {
+	    throw CanteraError("HMWSoln::readXMLThetaAnion::Theta for " + ispName
+			       + "::" + jspName,
+			       "wrong number of params found");
+	  }
+	  for (i = 0; i < nParamsFound; i++) {
+	    m_Theta_ij_coeff(i, counter) = vParams[i];
+	  }
+	  m_Theta_ij[counter] = vParams[0];
 	}
       }
     }
@@ -327,32 +359,34 @@ namespace Cantera {
    */
   void HMWSoln::readXMLThetaCation(XML_Node &BinSalt) {
     string xname = BinSalt.name();
+    vector_fp vParams;
+    int nParamsFound = 0;
     if (xname != "thetaCation") {
       throw CanteraError("HMWSoln::readXMLThetaCation",
 			 "Incorrect name for processing this routine: " + xname);
     }
     double *charge = DATA_PTR(m_speciesCharge);
     string stemp;
-    string iName = BinSalt.attrib("cation1");
-    if (iName == "") {
+    string ispName = BinSalt.attrib("cation1");
+    if (ispName == "") {
       throw CanteraError("HMWSoln::readXMLThetaCation", "no cation1 attrib");
     }
-    string jName = BinSalt.attrib("cation2");
-    if (jName == "") {
+    string jspName = BinSalt.attrib("cation2");
+    if (jspName == "") {
       throw CanteraError("HMWSoln::readXMLThetaCation", "no cation2 attrib");
     }
     /*
      * Find the index of the species in the current phase. It's not
      * an error to not find the species
      */
-    int iSpecies = speciesIndex(iName);
+    int iSpecies = speciesIndex(ispName);
     if (iSpecies < 0) {
       return;
     }
     if (charge[iSpecies] <= 0) {
       throw CanteraError("HMWSoln::readXMLThetaCation", "cation1 charge problem");
     }
-    int jSpecies = speciesIndex(jName);
+    int jSpecies = speciesIndex(jspName);
     if (jSpecies < 0) {
       return;
     }
@@ -368,13 +402,38 @@ namespace Cantera {
       stemp = xmlChild.name();
       string nodeName = lowercase(stemp);
       if (nodeName == "theta") {
-	stemp = xmlChild.value();
-	double old = m_Theta_ij[counter];
-	m_Theta_ij[counter] = atofCheck(stemp.c_str());
-	if (old != 0.0) {
-	  if (old != m_Theta_ij[counter]) {
-	    throw CanteraError("HMWSoln::readXMLThetaCation", "conflicting values");
+	getFloatArray(xmlChild, vParams, false, "", "Theta");
+	nParamsFound = vParams.size();
+	if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
+	  if (nParamsFound != 1) {
+	    throw CanteraError("HMWSoln::readXMLThetaCation::Theta for " + ispName 
+			       + "::" + jspName,
+			       "wrong number of params found");
 	  }
+	  m_Theta_ij_coeff(0,counter) = vParams[0];
+	  m_Theta_ij[counter] = vParams[0];
+	} else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+	  if (nParamsFound != 2) {
+	    throw CanteraError("HMWSoln::readXMLThetaCation::Theta for " + ispName
+			       + "::" + jspName,
+			       "wrong number of params found");
+	  }
+	  m_Theta_ij_coeff(0,counter) = vParams[0];
+	  m_Theta_ij_coeff(1,counter) = vParams[1];
+	  m_Theta_ij[counter] = vParams[0];
+	} else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+	  if (nParamsFound == 1) {
+	    vParams.resize(5, 0.0);
+	    nParamsFound = 5;
+	  } else if (nParamsFound != 5) {
+	    throw CanteraError("HMWSoln::readXMLThetaCation::Theta for " + ispName
+			       + "::" + jspName,
+			       "wrong number of params found");
+	  }
+	  for (i = 0; i < nParamsFound; i++) {
+	    m_Theta_ij_coeff(i, counter) = vParams[i];
+	  }
+	  m_Theta_ij[counter] = vParams[0];
 	}
       }
     }

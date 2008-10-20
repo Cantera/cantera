@@ -655,7 +655,7 @@ namespace Cantera {
    *  \f$\alpha^{(2)}_{MX} \f$.
    *  \f$ C_{MX}\f$ is calculated from \f$C^{\phi}_{MX} \f$
    *  from the formula above.
-   *  All of the underlying coefficients are specified in the
+   *  All of the underlying coeficients are specified in the
    *  XML element block <TT> binarySaltParameters </TT>, which
    *  has the attribute <TT> cation </TT> and <TT> anion </TT>
    *  to identify the interaction. XML elements named
@@ -673,6 +673,22 @@ namespace Cantera {
         <beta0> q0, q1, q2, q3, q4  </beta0>
       <\binarySaltParameters>
    * @endcode
+   *
+   *  The parameters for \f$ \beta^{(0)}\f$ fit the following equation:
+   *
+   *  \f[
+   *        \beta^{(0)} = q_0^{\beta0} + q_1^{\beta0} \left( T - T_r \right) 
+   *               + q_2^{\beta0} \left( T^2 - T_r^2 \right)  
+   *               + q_3^{\beta0} \left( \frac{1}{T} - \frac{1}{T_r} \right)
+   *               + q_4^{\beta0} \ln \left( \frac{T}{T_r} \right)
+   *  \f]
+   *
+   *  This same COMPLEX1 </TT> temperature
+   *  dependence given above is used for the following parameters:
+   *  \f$\beta^{(0)}_{MX} \f$, \f$\beta^{(1)}_{MX} \f$, 
+   *  \f$\beta^{(2)}_{MX} \f$,  \f$\Theta_{cc'} \f$,  \f$\Theta_{aa'},
+   *  \f$ \Psi_{c{c'}a}\f$ and \f$ \Psi_{ca{a'}} \f$.
+   *
    *
    *  <H3> Like-Charged Binary Ion Parameters and the Mixing Parameters </H3>
    *
@@ -817,8 +833,8 @@ namespace Cantera {
                   <beta0> 0.0765, 0.008946, -3.3158E-6,
                           -777.03, -4.4706
                   </beta0>
-                  <beta1> 0.2664, 6.1608E-5, 1.0715E-6 </beta1>
-                  <beta2> 0.0    </beta2>
+                  <beta1> 0.2664, 6.1608E-5, 1.0715E-6, 0.0, 0.0 </beta1>
+                  <beta2> 0.0,   0.0, 0.0, 0.0, 0.0  </beta2>
                   <Cphi> 0.00127, -4.655E-5, 0.0,
                          33.317, 0.09421
                   </Cphi>
@@ -826,36 +842,36 @@ namespace Cantera {
                 </binarySaltParameters>
 
                 <binarySaltParameters cation="H+" anion="Cl-">
-                  <beta0> 0.1775, 0.0, 0.0, 0.0, 0.0</beta0>
-                  <beta1> 0.2945, 0.0, 0.0 </beta1>
-                  <beta2> 0.0    </beta2>
+                  <beta0> 0.1775, 0.0, 0.0, 0.0, 0.0 </beta0>
+                  <beta1> 0.2945, 0.0, 0.0, 0.0, 0.0 </beta1>
+                  <beta2> 0.0,    0.0, 0.0, 0.0, 0.0 </beta2>
                   <Cphi> 0.0008, 0.0, 0.0, 0.0, 0.0 </Cphi>
                   <Alpha1> 2.0 </Alpha1>
                 </binarySaltParameters>
 
                 <binarySaltParameters cation="Na+" anion="OH-">
                   <beta0> 0.0864, 0.0, 0.0, 0.0, 0.0 </beta0>
-                  <beta1> 0.253, 0.0, 0.0 </beta1>
-                  <beta2> 0.0    </beta2>
-                  <Cphi> 0.0044, 0.0, 0.0, 0.0, 0.0 </Cphi>
+                  <beta1> 0.253,  0.0, 0.0  0.0, 0.0 </beta1>
+                  <beta2> 0.0     0.0, 0.0, 0.0, 0.0 </beta2>
+                  <Cphi> 0.0044,  0.0, 0.0, 0.0, 0.0 </Cphi>
                   <Alpha1> 2.0 </Alpha1>
                 </binarySaltParameters>
 
                 <thetaAnion anion1="Cl-" anion2="OH-">
-                  <Theta> -0.05 </Theta>
+                  <Theta> -0.05,  0.0, 0.0, 0.0, 0.0 </Theta>
                 </thetaAnion>
 
                 <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
-                  <Theta> -0.05 </Theta>
+                  <Theta> -0.05,  0.0, 0.0, 0.0, 0.0 </Theta>
                   <Psi> -0.006 </Psi>
                 </psiCommonCation>
 
                 <thetaCation cation1="Na+" cation2="H+">
-                  <Theta> 0.036 </Theta>
+                  <Theta> 0.036,  0.0, 0.0, 0.0, 0.0 </Theta>
                 </thetaCation>
 
                 <psiCommonAnion anion="Cl-" cation1="Na+" cation2="H+">
-                  <Theta> 0.036 </Theta>
+                  <Theta> 0.036,  0.0, 0.0, 0.0, 0.0 </Theta>
                   <Psi> -0.004 </Psi>
                 </psiCommonAnion>
 
@@ -1582,7 +1598,6 @@ namespace Cantera {
      */
     virtual doublereal logStandardConc(int k=0) const;
 
-   
     //! Returns the units of the standard and generalized concentrations.
     /*!
      * Note they have the same units, as their
@@ -2513,13 +2528,24 @@ namespace Cantera {
      *  Array of 2D data used in the Pitzer/HMW formulation.
      *  Alpha1MX_ij[i][j] is the value of the alpha1 coefficient
      *  for the ij interaction. It will be nonzero iff i and j are
-     *  both charged and have opposite sign, and i and j
-     *  both have charges of 2 or more. The array is also
-     *  symmetric.
+     *  both charged and have opposite sign.
+     *  It is symmetric wrt i, j.
      *  counterIJ where counterIJ = m_counterIJ[i][j]
      *  is used to access this array.
      */
     vector_fp m_Alpha1MX_ij;
+
+   /**
+     *  Array of 2D data used in the Pitzer/HMW formulation.
+     *  Alpha2MX_ij[i][j] is the value of the alpha2 coefficient
+     *  for the ij interaction. It will be nonzero iff i and j are
+     *  both charged and have opposite sign, and i and j
+     *  both have charges of 2 or more, usually.
+     *  It is symmetric wrt i, j.
+     *  counterIJ, where counterIJ = m_counterIJ[i][j],
+     *  is used to access this array.
+     */
+    vector_fp m_Alpha2MX_ij;
 
     /**
      *  Array of 2D data used in the Pitzer/HMW formulation.
@@ -2551,15 +2577,17 @@ namespace Cantera {
      */
     mutable vector_fp m_CphiMX_ij_P;
 
-    //! Array of coefficients for Beta1, a variable in Pitzer's papers
+    //! Array of coefficients for CphiMX, a parameter in the activity
+    //! coefficient formulation
     /*!
-     *  column index is counterIJ
+     *  Column index is counterIJ
      *  m_CphiMX_ij_coeff.ptrColumn(counterIJ) is a double* containing
      *  the vector of coefficients for the counterIJ interaction.
      */
-    mutable Array2D   m_CphiMX_ij_coeff;
+    mutable Array2D m_CphiMX_ij_coeff;
 
-    /**
+    //! Array of 2D data for Theta_ij[i][j] in the Pitzer/HMW formulation.
+    /*!
      *  Array of 2D data used in the Pitzer/HMW formulation.
      *  Theta_ij[i][j] is the value of the theta coefficient
      *  for the ij interaction. It will be nonzero for charged
@@ -2570,28 +2598,42 @@ namespace Cantera {
      *  HKM Recent Pitzer papers have used a functional form
      *      for Theta_ij, which depends on the ionic strength.
      */
-    vector_fp m_Theta_ij;
+    mutable vector_fp m_Theta_ij;
 
     //! Derivative of Theta_ij[i][j] wrt T
     /*!
      *  vector index is counterIJ
      */
-    vector_fp m_Theta_ij_L;
+    mutable vector_fp m_Theta_ij_L;
 
     //! Derivative of Theta_ij[i][j] wrt TT
     /*!
      *  vector index is counterIJ
      */
-    vector_fp m_Theta_ij_LL;
+    mutable vector_fp m_Theta_ij_LL;
 
     //! Derivative of Theta_ij[i][j] wrt P
     /*!
      *  vector index is counterIJ
      */
-    vector_fp m_Theta_ij_P;
+    mutable vector_fp m_Theta_ij_P;
 
-    /**
-     * Array of 3D data sed in the Pitzer/HMW formulation.
+    //! Array of coefficients for Theta_ij[i][j] in the Pitzer/HMW formulation.
+    /*!
+     *  Theta_ij[i][j] is the value of the theta coefficient
+     *  for the ij interaction. It will be nonzero for charged
+     *  ions with the same sign. It is symmetric.
+     *  Column index is counterIJ.
+     *  counterIJ where counterIJ = m_counterIJ[i][j]
+     *  is used to access this array.
+     *
+     *  m_Theta_ij_coeff.ptrColumn(counterIJ) is a double* containing
+     *  the vector of coefficients for the counterIJ interaction.
+     */
+    Array2D m_Theta_ij_coeff;
+
+    //! Array of 3D data used in the Pitzer/HMW formulation.
+    /*!
      * Psi_ijk[n] is the value of the psi coefficient for the
      * ijk interaction where
      *
@@ -2715,12 +2757,25 @@ namespace Cantera {
      */
     mutable vector_fp m_gfunc_IJ;
 
+    //! This is the value of g2(x2) in Pitzer's papers
+    /*!
+     *  vector index is counterIJ
+     */
+    mutable vector_fp m_g2func_IJ;
+
     //! hfunc, was called gprime in Pitzer's paper. However,
     //! it's not the derivative of gfunc(x), so I renamed it.
     /*!
      *  vector index is counterIJ
      */
     mutable vector_fp m_hfunc_IJ;
+
+    //! hfunc2, was called gprime in Pitzer's paper. However,
+    //! it's not the derivative of gfunc(x), so I renamed it.
+    /*!
+     *  vector index is counterIJ
+     */
+    mutable vector_fp m_h2func_IJ;
 
     //! Intermediate variable called BMX in Pitzer's paper
     //! This is the basic cation - anion interaction

@@ -202,6 +202,7 @@ namespace Cantera {
       m_Beta2MX_ij_P        = b.m_Beta2MX_ij_P;
       m_Beta2MX_ij_coeff    = b.m_Beta2MX_ij_coeff;
       m_Alpha1MX_ij         = b.m_Alpha1MX_ij;
+      m_Alpha2MX_ij         = b.m_Alpha2MX_ij;
       m_CphiMX_ij           = b.m_CphiMX_ij;
       m_CphiMX_ij_L         = b.m_CphiMX_ij_L;
       m_CphiMX_ij_LL        = b.m_CphiMX_ij_LL;
@@ -211,6 +212,7 @@ namespace Cantera {
       m_Theta_ij_L          = b.m_Theta_ij_L;
       m_Theta_ij_LL         = b.m_Theta_ij_LL;
       m_Theta_ij_P          = b.m_Theta_ij_P;
+      m_Theta_ij_coeff      = b.m_Theta_ij_coeff;
       m_Psi_ijk             = b.m_Psi_ijk;
       m_Psi_ijk_L           = b.m_Psi_ijk_L;
       m_Psi_ijk_LL          = b.m_Psi_ijk_LL;
@@ -225,7 +227,9 @@ namespace Cantera {
       m_dlnActCoeffMolaldP  = b.m_dlnActCoeffMolaldP;
 
       m_gfunc_IJ            = b.m_gfunc_IJ;
+      m_g2func_IJ           = b.m_g2func_IJ;
       m_hfunc_IJ            = b.m_hfunc_IJ;
+      m_h2func_IJ           = b.m_h2func_IJ;
       m_BMX_IJ              = b.m_BMX_IJ;
       m_BMX_IJ_L            = b.m_BMX_IJ_L;
       m_BMX_IJ_LL           = b.m_BMX_IJ_LL;
@@ -1500,11 +1504,13 @@ namespace Cantera {
     m_CphiMX_ij_P.resize(maxCounterIJlen, 0.0);
     m_CphiMX_ij_coeff.resize(TCoeffLength, maxCounterIJlen, 0.0);
 
-    m_Alpha1MX_ij.resize(maxCounterIJlen, 0.0);
+    m_Alpha1MX_ij.resize(maxCounterIJlen, 2.0);
+    m_Alpha2MX_ij.resize(maxCounterIJlen, 12.0);
     m_Theta_ij.resize(maxCounterIJlen, 0.0);
     m_Theta_ij_L.resize(maxCounterIJlen, 0.0);
     m_Theta_ij_LL.resize(maxCounterIJlen, 0.0);
     m_Theta_ij_P.resize(maxCounterIJlen, 0.0);
+    m_Theta_ij_coeff.resize(TCoeffLength, maxCounterIJlen, 0.0);
 
     m_Psi_ijk.resize(m_kk*m_kk*m_kk, 0.0);
     m_Psi_ijk_L.resize(m_kk*m_kk*m_kk, 0.0);
@@ -1524,7 +1530,9 @@ namespace Cantera {
     m_CounterIJ.resize(m_kk*m_kk, 0);
 
     m_gfunc_IJ.resize(maxCounterIJlen, 0.0);
+    m_g2func_IJ.resize(maxCounterIJlen, 0.0);
     m_hfunc_IJ.resize(maxCounterIJlen, 0.0);
+    m_h2func_IJ.resize(maxCounterIJlen, 0.0);
     m_BMX_IJ.resize(maxCounterIJlen, 0.0);
     m_BMX_IJ_L.resize(maxCounterIJlen, 0.0);
     m_BMX_IJ_LL.resize(maxCounterIJlen, 0.0);
@@ -1783,6 +1791,7 @@ namespace Cantera {
     const double *beta1MX_coeff;
     const double *beta2MX_coeff;
     const double *CphiMX_coeff;
+    const double *Theta_coeff;
     double T = temperature();
     double Tr = m_TempPitzerRef;
     double tinv = 0.0, tln = 0.0, tlin = 0.0, tquad = 0.0;
@@ -1798,7 +1807,6 @@ namespace Cantera {
     for (i = 1; i < (m_kk - 1); i++) {
       for (j = (i+1); j < m_kk; j++) {
 
-	    
 	/*
 	 * Find the counterIJ for the symmetric binary interaction
 	 */
@@ -1809,27 +1817,37 @@ namespace Cantera {
 	beta1MX_coeff = m_Beta1MX_ij_coeff.ptrColumn(counterIJ);
 	beta2MX_coeff = m_Beta2MX_ij_coeff.ptrColumn(counterIJ);
 	CphiMX_coeff = m_CphiMX_ij_coeff.ptrColumn(counterIJ);
+	Theta_coeff = m_Theta_ij_coeff.ptrColumn(counterIJ);
 
 	switch (m_formPitzerTemp) {
 	case PITZER_TEMP_CONSTANT:
 	  break;
 	case PITZER_TEMP_LINEAR:
+
 	  m_Beta0MX_ij[counterIJ] = beta0MX_coeff[0] 
 	    + beta0MX_coeff[1]*tlin;
 	  m_Beta0MX_ij_L[counterIJ] = beta0MX_coeff[1];
 	  m_Beta0MX_ij_LL[counterIJ] = 0.0;
+
 	  m_Beta1MX_ij[counterIJ]   = beta1MX_coeff[0]
 	    + beta1MX_coeff[1]*tlin;
 	  m_Beta1MX_ij_L[counterIJ] = beta1MX_coeff[1];
 	  m_Beta1MX_ij_LL[counterIJ] = 0.0;
-	  m_Beta2MX_ij[counterIJ]   = beta2MX_coeff[0]
+
+	  m_Beta2MX_ij[counterIJ]    = beta2MX_coeff[0]
 	    + beta2MX_coeff[1]*tlin;
-	  m_Beta2MX_ij_L[counterIJ] = beta2MX_coeff[1];
+	  m_Beta2MX_ij_L[counterIJ]  = beta2MX_coeff[1];
 	  m_Beta2MX_ij_LL[counterIJ] = 0.0;
-	  m_CphiMX_ij [counterIJ]   = CphiMX_coeff[0]
+
+	  m_CphiMX_ij[counterIJ]     = CphiMX_coeff[0]
 	    + CphiMX_coeff[1]*tlin;
-	  m_CphiMX_ij_L[counterIJ]  = CphiMX_coeff[1];
-	  m_CphiMX_ij_LL[counterIJ] = 0.0;
+	  m_CphiMX_ij_L[counterIJ]   = CphiMX_coeff[1];
+	  m_CphiMX_ij_LL[counterIJ]  = 0.0;
+
+	  m_Theta_ij[counterIJ]      = Theta_coeff[0] + Theta_coeff[1]*tlin;
+	  m_Theta_ij_L[counterIJ]    = Theta_coeff[1];
+	  m_Theta_ij_LL[counterIJ]   = 0.0;
+
 	  break;
 
 	case PITZER_TEMP_COMPLEX1:
@@ -1857,6 +1875,12 @@ namespace Cantera {
 	    + CphiMX_coeff[3]*tinv
 	    + CphiMX_coeff[4]*tln;
 
+	  m_Theta_ij[counterIJ] = Theta_coeff[0] 
+	    + Theta_coeff[1]*tlin
+	    + Theta_coeff[2]*tquad
+	    + Theta_coeff[3]*tinv
+	    + Theta_coeff[4]*tln;
+
 	  m_Beta0MX_ij_L[counterIJ] =  beta0MX_coeff[1]
 	    + beta0MX_coeff[2]*2.0*T
 	    - beta0MX_coeff[3]/(T*T)
@@ -1876,6 +1900,11 @@ namespace Cantera {
 	    + CphiMX_coeff[2]*2.0*T
 	    - CphiMX_coeff[3]/(T*T)
 	    + CphiMX_coeff[4]/T;
+
+	  m_Theta_ij_L[counterIJ] =   Theta_coeff[1]
+	    + Theta_coeff[2]*2.0*T
+	    - Theta_coeff[3]/(T*T)
+	    + Theta_coeff[4]/T;
 	
 	  doDerivs = 2;
 	  if (doDerivs > 1) {
@@ -1898,6 +1927,11 @@ namespace Cantera {
 	      + CphiMX_coeff[2]*2.0
 	      + 2.0*CphiMX_coeff[3]/(T*T*T)
 	      - CphiMX_coeff[4]/(T*T);
+
+	    m_Theta_ij_LL[counterIJ] = 
+	      + Theta_coeff[2]*2.0
+	      + 2.0*Theta_coeff[3]/(T*T*T)
+	      - Theta_coeff[4]/(T*T);
 	  }
 
 #ifdef DEBUG_HKM
@@ -1964,7 +1998,8 @@ namespace Cantera {
     const double *beta2MX =  DATA_PTR(m_Beta2MX_ij);
     const double *CphiMX  =  DATA_PTR(m_CphiMX_ij);
     const double *thetaij =  DATA_PTR(m_Theta_ij);
-    const double *alphaMX =  DATA_PTR(m_Alpha1MX_ij);
+    const double *alpha1MX =  DATA_PTR(m_Alpha1MX_ij);
+    const double *alpha2MX =  DATA_PTR(m_Alpha2MX_ij);
 
     const double *psi_ijk =  DATA_PTR(m_Psi_ijk);
     //n = k + j * m_kk + i * m_kk * m_kk;
@@ -1991,7 +2026,9 @@ namespace Cantera {
     double molalitysum = 0.0;
 
     double *gfunc    =  DATA_PTR(m_gfunc_IJ);
+    double *g2func   =  DATA_PTR(m_g2func_IJ);
     double *hfunc    =  DATA_PTR(m_hfunc_IJ);
+    double *h2func   =  DATA_PTR(m_h2func_IJ);
     double *BMX      =  DATA_PTR(m_BMX_IJ);
     double *BprimeMX =  DATA_PTR(m_BprimeMX_IJ);
     double *BphiMX   =  DATA_PTR(m_BphiMX_IJ);
@@ -2001,7 +2038,7 @@ namespace Cantera {
     double *CMX      =  DATA_PTR(m_CMX_IJ);
 
 
-    double x, g12rooti, gprime12rooti;
+    double x1, x2;
     double Aphi, F, zsqF;
     double sum1, sum2, sum3, sum4, sum5, term1;
     double sum_m_phi_minus_1, osmotic_coef, lnwateract;
@@ -2096,6 +2133,7 @@ namespace Cantera {
 	 */
 	n = m_kk*i + j;
 	counterIJ = m_CounterIJ[n];
+
 	/*
 	 * Only loop over oppositely charge species
 	 */
@@ -2103,19 +2141,31 @@ namespace Cantera {
 	  /*
 	   * x is a reduced function variable
 	   */
-	  x = sqrtIs * alphaMX[counterIJ];
-	  if (x > 1.0E-100) {
-	    gfunc[counterIJ]     =  2.0*(1.0-(1.0 + x) * exp(-x)) / (x*x);
-	    hfunc[counterIJ] = -2.0*
-	      (1.0-(1.0 + x + 0.5*x*x) * exp(-x)) / (x*x);
+	  x1 = sqrtIs * alpha1MX[counterIJ];
+	  if (x1 > 1.0E-100) {
+	    gfunc[counterIJ] =  2.0*(1.0-(1.0 + x1) * exp(-x1)) / (x1 * x1);
+	    hfunc[counterIJ] = -2.0 *
+	      (1.0-(1.0 + x1 + 0.5 * x1 * x1) * exp(-x1)) / (x1 * x1);
 	  }
 	  else {
-	    gfunc[counterIJ]     = 0.0;
+	    gfunc[counterIJ] = 0.0;
 	    hfunc[counterIJ] = 0.0;
+	  }
+	  
+	  if (beta2MX[counterIJ] != 0.0) {
+	    x2 = sqrtIs * alpha2MX[counterIJ];
+	    if (x2 > 1.0E-100) {
+	      g2func[counterIJ] =  2.0*(1.0-(1.0 + x2) * exp(-x2)) / (x2 * x2);
+	      h2func[counterIJ] = -2.0 *
+		(1.0-(1.0 + x2 + 0.5 * x2 * x2) * exp(-x2)) / (x2 * x2);
+	    } else {
+	      g2func[counterIJ] = 0.0;
+	      h2func[counterIJ] = 0.0;
+	    }
 	  }
 	} 
 	else {
-	  gfunc[counterIJ]     = 0.0;
+	  gfunc[counterIJ] = 0.0;
 	  hfunc[counterIJ] = 0.0;
 	}
 #ifdef DEBUG_MODE
@@ -2140,14 +2190,6 @@ namespace Cantera {
 	     "BprimeMX    BphiMX   \n");
     }
 #endif
-    x = 12.0 * sqrtIs; 
-    if (x > 1.0E-100) {
-      g12rooti      =  2.0*(1.0-(1.0 + x) * exp(-x)) / (x*x);
-      gprime12rooti = -2.0*(1.0-(1.0 + x + 0.5*x*x) * exp(-x)) / (x*x);
-    } else {
-      g12rooti = 0.0;
-      gprime12rooti = 0.0;
-    }
 
     for (i = 1; i < m_kk - 1; i++) {
       for (j = i+1; j < m_kk; j++) {
@@ -2175,7 +2217,7 @@ namespace Cantera {
 	if (charge[i]*charge[j] < 0.0) {	
 	  BMX[counterIJ]  = beta0MX[counterIJ]
 	    + beta1MX[counterIJ] * gfunc[counterIJ]
-	    + beta2MX[counterIJ] * g12rooti;
+	    + beta2MX[counterIJ] * g2func[counterIJ];
 #ifdef DEBUG_MODE
 	  if (m_debugCalc) {
 	    printf("%d %g: %g %g %g %g\n",
@@ -2185,7 +2227,7 @@ namespace Cantera {
 #endif
 	  if (Is > 1.0E-150) {
 	    BprimeMX[counterIJ] = (beta1MX[counterIJ] * hfunc[counterIJ]/Is +
-				   beta2MX[counterIJ] * gprime12rooti/Is);
+				   beta2MX[counterIJ] * h2func[counterIJ]/Is);
 	  } else {
 	    BprimeMX[counterIJ] = 0.0;
 	  }
@@ -2779,7 +2821,8 @@ namespace Cantera {
     const double *beta2MX_L =  DATA_PTR(m_Beta2MX_ij_L);
     const double *CphiMX_L  =  DATA_PTR(m_CphiMX_ij_L);
     const double *thetaij_L =  DATA_PTR(m_Theta_ij_L);
-    const double *alphaMX   =  DATA_PTR(m_Alpha1MX_ij);
+    const double *alpha1MX   =  DATA_PTR(m_Alpha1MX_ij);
+    const double *alpha2MX   =  DATA_PTR(m_Alpha2MX_ij);
     const double *psi_ijk_L =  DATA_PTR(m_Psi_ijk_L);
     double *gamma           =  DATA_PTR(m_gamma);
     /*
@@ -2802,7 +2845,9 @@ namespace Cantera {
     double molalitysum = 0.0;
 
     double *gfunc    =  DATA_PTR(m_gfunc_IJ);
+    double *g2func   =  DATA_PTR(m_g2func_IJ);
     double *hfunc    =  DATA_PTR(m_hfunc_IJ);
+    double *h2func   =  DATA_PTR(m_h2func_IJ);
     double *BMX_L    =  DATA_PTR(m_BMX_IJ_L);
     double *BprimeMX_L= DATA_PTR(m_BprimeMX_IJ_L);
     double *BphiMX_L =  DATA_PTR(m_BphiMX_IJ_L);
@@ -2811,7 +2856,7 @@ namespace Cantera {
     double *Phiphi_L =  DATA_PTR(m_PhiPhi_IJ_L);
     double *CMX_L    =  DATA_PTR(m_CMX_IJ_L);
 
-    double x, g12rooti, gprime12rooti;
+    double x1, x2;
     double Aphi, dFdT, zsqdFdT;
     double sum1, sum2, sum3, sum4, sum5, term1;
     double sum_m_phi_minus_1, d_osmotic_coef_dT, d_lnwateract_dT;
@@ -2914,19 +2959,31 @@ namespace Cantera {
 	  /*
 	   * x is a reduced function variable
 	   */
-	  x = sqrtIs * alphaMX[counterIJ];
-	  if (x > 1.0E-100) {
-	    gfunc[counterIJ]     =  2.0*(1.0-(1.0 + x) * exp(-x)) / (x*x);
-	    hfunc[counterIJ] = -2.0*
-	      (1.0-(1.0 + x + 0.5*x*x) * exp(-x)) / (x*x);
+	  x1 = sqrtIs * alpha1MX[counterIJ];
+	  if (x1 > 1.0E-100) {
+	    gfunc[counterIJ]     =  2.0*(1.0-(1.0 + x1) * exp(-x1)) / (x1 * x1);
+	    hfunc[counterIJ] = -2.0 *
+	      (1.0-(1.0 + x1 + 0.5 * x1 *x1) * exp(-x1)) / (x1 * x1);
 	  }
 	  else {
-	    gfunc[counterIJ]     = 0.0;
+	    gfunc[counterIJ] = 0.0;
 	    hfunc[counterIJ] = 0.0;
+	  }
+	  
+	  if (beta2MX_L[counterIJ] != 0.0) {
+	    x2 = sqrtIs * alpha2MX[counterIJ];
+	    if (x2 > 1.0E-100) {
+	      g2func[counterIJ] =  2.0*(1.0-(1.0 + x2) * exp(-x2)) / (x2 * x2);
+	      h2func[counterIJ] = -2.0 *
+		(1.0-(1.0 + x2 + 0.5 * x2 * x2) * exp(-x2)) / (x2 * x2);
+	    } else {
+	      g2func[counterIJ] = 0.0;
+	      h2func[counterIJ] = 0.0;
+	    }
 	  }
 	} 
 	else {
-	  gfunc[counterIJ]     = 0.0;
+	  gfunc[counterIJ] = 0.0;
 	  hfunc[counterIJ] = 0.0;
 	}
 #ifdef DEBUG_MODE
@@ -2952,14 +3009,6 @@ namespace Cantera {
 	     "BprimeMX    BphiMX   \n");
     }
 #endif
-    x = 12.0 * sqrtIs; 
-    if (x > 1.0E-100) {
-      g12rooti      =  2.0*(1.0-(1.0 + x) * exp(-x)) / (x*x);
-      gprime12rooti = -2.0*(1.0-(1.0 + x + 0.5*x*x) * exp(-x)) / (x*x);
-    } else {
-      g12rooti = 0.0;
-      gprime12rooti = 0.0;
-    }
 
     for (i = 1; i < m_kk - 1; i++) {
       for (j = i+1; j < m_kk; j++) {
@@ -2975,7 +3024,7 @@ namespace Cantera {
 	if (charge[i]*charge[j] < 0.0) {	
 	  BMX_L[counterIJ]  = beta0MX_L[counterIJ]
 	    + beta1MX_L[counterIJ] * gfunc[counterIJ]
-	    + beta2MX_L[counterIJ] * g12rooti;
+	    + beta2MX_L[counterIJ] * gfunc[counterIJ];
 #ifdef DEBUG_MODE
 	  if (m_debugCalc) {
 	    printf("%d %g: %g %g %g %g\n",
@@ -2985,7 +3034,7 @@ namespace Cantera {
 #endif
 	  if (Is > 1.0E-150) {
 	    BprimeMX_L[counterIJ] = (beta1MX_L[counterIJ] * hfunc[counterIJ]/Is +
-				     beta2MX_L[counterIJ] * gprime12rooti/Is);
+				     beta2MX_L[counterIJ] * h2func[counterIJ]/Is);
 	  } else {
 	    BprimeMX_L[counterIJ] = 0.0;
 	  }
@@ -3515,7 +3564,6 @@ namespace Cantera {
 
   /*************************************************************************************/
 
-
   /*
    * s_update_d2lnMolalityActCoeff_dT2()         (private, const )
    *
@@ -3558,7 +3606,8 @@ namespace Cantera {
     const double *beta2MX_LL=  DATA_PTR(m_Beta2MX_ij_LL);
     const double *CphiMX_LL =  DATA_PTR(m_CphiMX_ij_LL);
     const double *thetaij_LL=  DATA_PTR(m_Theta_ij_LL);
-    const double *alphaMX   =  DATA_PTR(m_Alpha1MX_ij);
+    const double *alpha1MX  =  DATA_PTR(m_Alpha1MX_ij);
+    const double *alpha2MX  =  DATA_PTR(m_Alpha2MX_ij);
     const double *psi_ijk_LL=  DATA_PTR(m_Psi_ijk_LL);
 
     /*
@@ -3581,7 +3630,9 @@ namespace Cantera {
     double molalitysum = 0.0;
 
     double *gfunc    =  DATA_PTR(m_gfunc_IJ);
+    double *g2func   =  DATA_PTR(m_g2func_IJ);
     double *hfunc    =  DATA_PTR(m_hfunc_IJ);
+    double *h2func   =  DATA_PTR(m_h2func_IJ);
     double *BMX_LL   =  DATA_PTR(m_BMX_IJ_LL);
     double *BprimeMX_LL=DATA_PTR(m_BprimeMX_IJ_LL);
     double *BphiMX_LL=  DATA_PTR(m_BphiMX_IJ_LL);
@@ -3591,7 +3642,7 @@ namespace Cantera {
     double *CMX_LL   =  DATA_PTR(m_CMX_IJ_LL);
 
 
-    double x, g12rooti, gprime12rooti;
+    double x1, x2;
     double d2FdT2, zsqd2FdT2;
     double sum1, sum2, sum3, sum4, sum5, term1;
     double sum_m_phi_minus_1, d2_osmotic_coef_dT2, d2_lnwateract_dT2;
@@ -3695,15 +3746,27 @@ namespace Cantera {
 	  /*
 	   * x is a reduced function variable
 	   */
-	  x = sqrtIs * alphaMX[counterIJ];
-	  if (x > 1.0E-100) {
-	    gfunc[counterIJ] =  2.0*(1.0-(1.0 + x) * exp(-x)) / (x*x);
+	  x1 = sqrtIs * alpha1MX[counterIJ];
+	  if (x1 > 1.0E-100) {
+	    gfunc[counterIJ] =  2.0*(1.0-(1.0 + x1) * exp(-x1)) / (x1 *x1);
 	    hfunc[counterIJ] = -2.0*
-	      (1.0-(1.0 + x + 0.5*x*x) * exp(-x)) / (x*x);
+	      (1.0-(1.0 + x1 + 0.5*x1 * x1) * exp(-x1)) / (x1 * x1);
 	  }
 	  else {
 	    gfunc[counterIJ] = 0.0;
 	    hfunc[counterIJ] = 0.0;
+	  }
+	  
+	  if (beta2MX_LL[counterIJ] != 0.0) {
+	    x2 = sqrtIs * alpha2MX[counterIJ];
+	    if (x2 > 1.0E-100) {
+	      g2func[counterIJ] =  2.0*(1.0-(1.0 + x2) * exp(-x2)) / (x2 * x2);
+	      h2func[counterIJ] = -2.0 *
+		(1.0-(1.0 + x2 + 0.5 * x2 * x2) * exp(-x2)) / (x2 * x2);
+	    } else {
+	      g2func[counterIJ] = 0.0;
+	      h2func[counterIJ] = 0.0;
+	    }
 	  }
 	} 
 	else {
@@ -3732,15 +3795,7 @@ namespace Cantera {
 	     "BprimeMX    BphiMX   \n");
     }
 #endif
-    x = 12.0 * sqrtIs; 
-    if (x > 1.0E-100) {
-      g12rooti      =  2.0*(1.0-(1.0 + x) * exp(-x)) / (x*x);
-      gprime12rooti = -2.0*(1.0-(1.0 + x + 0.5*x*x) * exp(-x)) / (x*x);
-    } else {
-      g12rooti = 0.0;
-      gprime12rooti = 0.0;
-    }
-
+  
     for (i = 1; i < m_kk - 1; i++) {
       for (j = i+1; j < m_kk; j++) {
 	/*
@@ -3755,7 +3810,7 @@ namespace Cantera {
 	if (charge[i]*charge[j] < 0.0) {
 	  BMX_LL[counterIJ]  = beta0MX_LL[counterIJ]
 	    + beta1MX_LL[counterIJ] * gfunc[counterIJ]
-	    + beta2MX_LL[counterIJ] * g12rooti;
+	    + beta2MX_LL[counterIJ] * g2func[counterIJ];
 #ifdef DEBUG_MODE
 	  if (m_debugCalc) {
 	    printf("%d %g: %g %g %g %g\n",
@@ -3765,7 +3820,7 @@ namespace Cantera {
 #endif
 	  if (Is > 1.0E-150) {
 	    BprimeMX_LL[counterIJ] = (beta1MX_LL[counterIJ] * hfunc[counterIJ]/Is +
-				      beta2MX_LL[counterIJ] * gprime12rooti/Is);
+				      beta2MX_LL[counterIJ] * h2func[counterIJ]/Is);
 	  } else {
 	    BprimeMX_LL[counterIJ] = 0.0;
 	  }
@@ -4365,7 +4420,8 @@ namespace Cantera {
     const double *beta2MX_P =  DATA_PTR(m_Beta2MX_ij_P);
     const double *CphiMX_P  =  DATA_PTR(m_CphiMX_ij_P);
     const double *thetaij_P =  DATA_PTR(m_Theta_ij_P);
-    const double *alphaMX   =  DATA_PTR(m_Alpha1MX_ij);
+    const double *alpha1MX  =  DATA_PTR(m_Alpha1MX_ij);
+    const double *alpha2MX  =  DATA_PTR(m_Alpha2MX_ij);
     const double *psi_ijk_P =  DATA_PTR(m_Psi_ijk_P);
 
     /*
@@ -4387,8 +4443,10 @@ namespace Cantera {
      */
     double molalitysum = 0.0;
 
-    double *gfunc        =  DATA_PTR(m_gfunc_IJ);
+    double *gfunc    =  DATA_PTR(m_gfunc_IJ);
+    double *g2func   =  DATA_PTR(m_g2func_IJ);
     double *hfunc    =  DATA_PTR(m_hfunc_IJ);
+    double *h2func   =  DATA_PTR(m_h2func_IJ);
     double *BMX_P    =  DATA_PTR(m_BMX_IJ_P);
     double *BprimeMX_P= DATA_PTR(m_BprimeMX_IJ_P);
     double *BphiMX_P =  DATA_PTR(m_BphiMX_IJ_P);
@@ -4397,7 +4455,7 @@ namespace Cantera {
     double *Phiphi_P =  DATA_PTR(m_PhiPhi_IJ_P);
     double *CMX_P    =  DATA_PTR(m_CMX_IJ_P);
 
-    double x, g12rooti, gprime12rooti;
+    double x1, x2;
     double Aphi, dFdP, zsqdFdP;
     double sum1, sum2, sum3, sum4, sum5, term1;
     double sum_m_phi_minus_1, d_osmotic_coef_dP, d_lnwateract_dP;
@@ -4505,19 +4563,31 @@ namespace Cantera {
 	  /*
 	   * x is a reduced function variable
 	   */
-	  x = sqrtIs * alphaMX[counterIJ];
-	  if (x > 1.0E-100) {
-	    gfunc[counterIJ]     =  2.0*(1.0-(1.0 + x) * exp(-x)) / (x*x);
+	  x1 = sqrtIs * alpha1MX[counterIJ];
+	  if (x1 > 1.0E-100) {
+	    gfunc[counterIJ] =  2.0*(1.0-(1.0 + x1) * exp(-x1)) / (x1 * x1);
 	    hfunc[counterIJ] = -2.0*
-	      (1.0-(1.0 + x + 0.5*x*x) * exp(-x)) / (x*x);
+	      (1.0-(1.0 + x1 + 0.5 * x1 * x1) * exp(-x1)) / (x1 * x1);
 	  }
 	  else {
-	    gfunc[counterIJ]     = 0.0;
+	    gfunc[counterIJ] = 0.0;
 	    hfunc[counterIJ] = 0.0;
+	  }
+	  
+	  if (beta2MX_P[counterIJ] != 0.0) {
+	    x2 = sqrtIs * alpha2MX[counterIJ];
+	    if (x2 > 1.0E-100) {
+	      g2func[counterIJ] =  2.0*(1.0-(1.0 + x2) * exp(-x2)) / (x2 * x2);
+	      h2func[counterIJ] = -2.0 *
+		(1.0-(1.0 + x2 + 0.5 * x2 * x2) * exp(-x2)) / (x2 * x2);
+	    } else {
+	      g2func[counterIJ] = 0.0;
+	      h2func[counterIJ] = 0.0;
+	    }
 	  }
 	} 
 	else {
-	  gfunc[counterIJ]     = 0.0;
+	  gfunc[counterIJ] = 0.0;
 	  hfunc[counterIJ] = 0.0;
 	}
 #ifdef DEBUG_MODE
@@ -4531,7 +4601,6 @@ namespace Cantera {
       }
     }
 
-
     /*
      * ------- SUBSECTION TO CALCULATE BMX_L, BprimeMX_L, BphiMX_L ----------
      * ------- These are now temperature derivatives of the
@@ -4544,14 +4613,6 @@ namespace Cantera {
 	     "BprimeMX    BphiMX   \n");
     }
 #endif
-    x = 12.0 * sqrtIs; 
-    if (x > 1.0E-100) {
-      g12rooti      =  2.0*(1.0-(1.0 + x) * exp(-x)) / (x*x);
-      gprime12rooti = -2.0*(1.0-(1.0 + x + 0.5*x*x) * exp(-x)) / (x*x);
-    } else {
-      g12rooti = 0.0;
-      gprime12rooti = 0.0;
-    }
 
     for (i = 1; i < m_kk - 1; i++) {
       for (j = i+1; j < m_kk; j++) {
@@ -4567,7 +4628,7 @@ namespace Cantera {
 	if (charge[i]*charge[j] < 0.0) {	
 	  BMX_P[counterIJ]  = beta0MX_P[counterIJ]
 	    + beta1MX_P[counterIJ] * gfunc[counterIJ]
-	    + beta2MX_P[counterIJ] * g12rooti;
+	    + beta2MX_P[counterIJ] * g2func[counterIJ];
 #ifdef DEBUG_MODE
 	  if (m_debugCalc) {
 	    printf("%d %g: %g %g %g %g\n",
@@ -4577,7 +4638,7 @@ namespace Cantera {
 #endif
 	  if (Is > 1.0E-150) {
 	    BprimeMX_P[counterIJ] = (beta1MX_P[counterIJ] * hfunc[counterIJ]/Is +
-				     beta2MX_P[counterIJ] * gprime12rooti/Is);
+				     beta2MX_P[counterIJ] * h2func[counterIJ]/Is);
 	  } else {
 	    BprimeMX_P[counterIJ] = 0.0;
 	  }
@@ -4598,8 +4659,7 @@ namespace Cantera {
 	}
 #endif
       }
-    }	
-
+    }
 
     /*
      * --------- SUBSECTION TO CALCULATE CMX_L ----------
