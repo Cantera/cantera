@@ -39,11 +39,7 @@ namespace VCSnonideal {
   static void print_space(int num);
 
 
-#ifdef DEBUG_MODE 
-  //static double minor_alt_calc(int, int, int *, char *); 
-#else
-  //static double minor_alt_calc(int, int, int *);
-#endif
+
 #ifdef DEBUG_MODE
 #  ifdef DEBUG_NOT
   static void prneav(void);
@@ -553,9 +549,9 @@ namespace VCSnonideal {
 	/************************ VOLTAGE SPECIES ***************************/
 	/********************************************************************/
 #ifdef DEBUG_MODE	 
-	dx = minor_alt_calc(kspec, irxn, &soldel, ANOTE); 
+	dx = vcs_minor_alt_calc(kspec, irxn, &soldel, ANOTE); 
 #else
-	dx = minor_alt_calc(kspec, irxn, &soldel);
+	dx = vcs_minor_alt_calc(kspec, irxn, &soldel);
 #endif
 	m_deltaMolNumSpecies[kspec] = dx;
       }
@@ -697,9 +693,9 @@ namespace VCSnonideal {
 	 *    that deletes a species from the current set of active species.
 	 */
 #ifdef DEBUG_MODE	 
-	dx = minor_alt_calc(kspec, irxn, &soldel, ANOTE); 
+	dx = vcs_minor_alt_calc(kspec, irxn, &soldel, ANOTE); 
 #else
-	dx = minor_alt_calc(kspec, irxn, &soldel);
+	dx = vcs_minor_alt_calc(kspec, irxn, &soldel);
 #endif
 	m_deltaMolNumSpecies[kspec] = dx;
 	m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + dx;
@@ -1879,7 +1875,7 @@ namespace VCSnonideal {
      *         for one reason or another.
      */
   L_RECHECK_DELETED: ;
-    npb = recheck_deleted();
+    npb = vcs_recheck_deleted();
     /*
      *        If we haven't found any species that needed adding we are done.
      */
@@ -1901,7 +1897,7 @@ namespace VCSnonideal {
     /*************************************************************************/
   L_RETURN_BLOCK: ;
     
-    npb = recheck_deleted();
+    npb = vcs_recheck_deleted();
     /*
      *        If we haven't found any species that needed adding we are done.
      */
@@ -2048,11 +2044,11 @@ namespace VCSnonideal {
    *
    *     @param dx          The change in mole number
    */
-  double VCS_SOLVE::minor_alt_calc(int kspec, int irxn, int *do_delete
+  double VCS_SOLVE::vcs_minor_alt_calc(int kspec, int irxn, int *do_delete
 #ifdef DEBUG_MODE
-				   , char *ANOTE  
+				       , char *ANOTE  
 #endif
-				   ) const {
+				       ) const {
     double dx = 0.0;
     double w_kspec = m_molNumSpecies_old[kspec];
     double molNum_kspec_new;
@@ -2626,7 +2622,7 @@ namespace VCSnonideal {
    *   (default value = 1.0E-32).
    *
    */
-  int VCS_SOLVE::recheck_deleted() {
+  int VCS_SOLVE::vcs_recheck_deleted() {
 
     int iph, kspec, irxn, npb;
     double *xtcutoff = VCS_DATA_PTR(m_TmpPhase);
@@ -5129,9 +5125,9 @@ namespace VCSnonideal {
        */
 #ifdef DEBUG_MODE	 
       char ANOTE[32];
-      double dxm = minor_alt_calc(kspec, irxn, &soldel, ANOTE); 
+      double dxm = vcs_minor_alt_calc(kspec, irxn, &soldel, ANOTE); 
 #else
-      double dxm = minor_alt_calc(kspec, irxn, &soldel);
+      double dxm = vcs_minor_alt_calc(kspec, irxn, &soldel);
 #endif
       dx = w_kspec + dxm;
       if (dx > 1.0E-15) {

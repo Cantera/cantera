@@ -1118,7 +1118,7 @@ private:
    *   (default value = 1.0E-32).
    *
    */
-  int recheck_deleted();
+  int vcs_recheck_deleted();
 
   //! Recheck deletion condition for multispecies phases.
   /*!
@@ -1205,11 +1205,11 @@ private:
    *
    *     @param dx          The change in mole number
    */
-  double minor_alt_calc(int kspec, int irxn, int *do_delete
+  double vcs_minor_alt_calc(int kspec, int irxn, int *do_delete
 #ifdef DEBUG_MODE
-			, char *ANOTE  
+			    , char *ANOTE  
 #endif
-			) const;
+			    ) const;
 
   //!  This routine optimizes the minimization of the total gibbs free
   //!  energy by making sure the slope of the following functional stays
@@ -1332,6 +1332,11 @@ private:
    */
   void vcs_counters_init(int ifunc);
 
+  //! Create a report on the plog file containing timing and its information
+  /*!
+   *   @param timing_print_lvl If 0, just report the iteration count.
+   *                If larger than zero, report the timing information 
+   */
   void vcs_TCounters_report(int timing_print_lvl = 1);
 
   void vcs_setFlagsVolPhases(const bool upToDate, const int stateCalc);
