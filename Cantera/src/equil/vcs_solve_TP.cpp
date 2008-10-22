@@ -184,7 +184,7 @@ namespace VCSnonideal {
       if (Vphase->nSpecies() > 0) {
 	plogf(" PHASE1 INERTS%17.3f\n", TPhInertMoles[0]);
       }
-      if (m_numPhases > 0) {
+      if (m_numPhases > 1) {
 	plogf(" PHASE2 INERTS%17.3f\n", TPhInertMoles[1]);
       }
       plogf("\n ELEMENTAL ABUNDANCES             CORRECT");
