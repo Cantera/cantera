@@ -435,7 +435,7 @@ namespace VCSnonideal {
     vcs_dcopy(VCS_DATA_PTR(m_actCoeffSpecies_new), 
 	      VCS_DATA_PTR(m_actCoeffSpecies_old), m_numSpeciesRdc);
     vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_new), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
-    
+    vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_Deficient), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
  
     /*        Go find a new reaction adjustment -> 
      *         i.e., change in extent of reaction for each reaction. 
@@ -445,6 +445,7 @@ namespace VCSnonideal {
      *     information is left from previous iterations.
      */
     vcs_dzero(VCS_DATA_PTR(m_deltaMolNumSpecies), m_numSpeciesTot);
+
     /*
      * Figure out whether we will calculate new reaction step sizes
      * for the major species.

@@ -1558,6 +1558,10 @@ public:
   //!  Last deltag[irxn] from the previous step 
   std::vector<double> m_deltaGRxn_old;
 
+  //! Last deltag[irxn] from the previous step with additions for
+  //! possible births of zeroed phases.
+  std::vector<double> m_deltaGRxn_Deficient;
+
   //! Temporary vector of Rxn DeltaG's
   /*!
    *  This is used from time to time, for printing purposes
