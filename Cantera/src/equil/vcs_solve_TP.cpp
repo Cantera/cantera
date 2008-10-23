@@ -2453,51 +2453,47 @@ namespace VCSnonideal {
     }
 #endif
   
-   
-
-
     /*
-     * Loop over all of the active noncomponent species in the phase.
+     * Loop over all of the species in the phase.
      */
     for (kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
       if (m_phaseID[kspec] == iph) {
 	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	  irxn = kspec - m_numComponents;
-	    /*
-	     * calculate an extent of rxn, dx, that zeroes out the species.
-	     */
-	    dx = - (m_molNumSpecies_old[kspec]);
-	    double dxTent = dx;
+	  /*
+	   * calculate an extent of rxn, dx, that zeroes out the species.
+	   */
+	  dx = - (m_molNumSpecies_old[kspec]);
+	  double dxTent = dx;
 
-	    int retn = delta_species(kspec, &dxTent);
-	    if (retn != 1) {
-	      successful = false;
+	  int retn = delta_species(kspec, &dxTent);
+	  if (retn != 1) {
+	    successful = false;
 #ifdef DEBUG_MODE
-	      if (m_debug_print_lvl >= 2) {
-		plogf("   --- delete_multiphase %d, %s ERROR problems deleting species %s\n",
-		      iph, Vphase->PhaseName.c_str(), m_speciesName[kspec].c_str() );
-		plogf("   ---     delta  attempted: %g  achieved: %g   "
-		      "  Zeroing it manually\n", dx, dxTent);
-	      }
-#endif
-	      m_molNumSpecies_old[kspec]  = 0.0;
-	      m_molNumSpecies_new[kspec]  = 0.0;
-	      m_deltaMolNumSpecies[kspec] = 0.0;
-	      // recover the total phase moles. 
-	      vcs_tmoles();
-	    } else {
-	      /*
-	       * Set the mole number of that species to zero.
-	       */
-	      m_molNumSpecies_old[kspec]  = 0.0;
-	      m_molNumSpecies_new[kspec] = 0.0;
-	      m_deltaMolNumSpecies[kspec] = 0.0;
+	    if (m_debug_print_lvl >= 2) {
+	      plogf("   --- delete_multiphase %d, %s ERROR problems deleting species %s\n",
+		    iph, Vphase->PhaseName.c_str(), m_speciesName[kspec].c_str() );
+	      plogf("   ---     delta  attempted: %g  achieved: %g   "
+		    "  Zeroing it manually\n", dx, dxTent);
 	    }
+#endif
+	    m_molNumSpecies_old[kspec]  = 0.0;
+	    m_molNumSpecies_new[kspec]  = 0.0;
+	    m_deltaMolNumSpecies[kspec] = 0.0;
+	    // recover the total phase moles. 
+	    vcs_tmoles();
+	  } else {
 	    /*
-	     * Change the status flag of the species to that of an
-	     * zeroed phase
+	     * Set the mole number of that species to zero.
 	     */
-	    m_speciesStatus[kspec] = VCS_SPECIES_ZEROEDMS;
+	    m_molNumSpecies_old[kspec]  = 0.0;
+	    m_molNumSpecies_new[kspec]  = 0.0;
+	    m_deltaMolNumSpecies[kspec] = 0.0;
+	  }
+	  /*
+	   * Change the status flag of the species to that of an
+	   * zeroed phase
+	   */
+	  m_speciesStatus[kspec] = VCS_SPECIES_ZEROEDMS;
 	}
       }
     }
@@ -2554,6 +2550,7 @@ namespace VCSnonideal {
 #endif
 	  m_molNumSpecies_old[kcomp] = 0.0;
 	}
+	m_speciesStatus[kcomp] = VCS_SPECIES_ZEROEDMS;
       }
     }
   

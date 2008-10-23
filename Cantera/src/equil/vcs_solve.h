@@ -1531,7 +1531,7 @@ public:
   /*!
    *    m_deltaMolNumPhase[irxn][iphase]       =  k = nc + irxn 
    */
-  DoubleStarStar m_deltaMolNumPhase; 
+  DoubleStarStar m_deltaMolNumPhase;
 
   //!  This is 1 if the phase, iphase,  participates in the formation reaction
   //!  irxn, and zero otherwise.  PhaseParticipation[irxn][iphase]
