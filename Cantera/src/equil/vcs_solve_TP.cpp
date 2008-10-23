@@ -4255,7 +4255,7 @@ namespace VCSnonideal {
 	  m_SSfeSpecies[kspec] + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
       } else {
 	if (m_SSPhase[kspec]) {
-	  feSpecies[kspec] = m_SSfeSpecies[kspec];
+	  feSpecies[kspec] = m_SSfeSpecies[kspec] + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
 	} else {
 	  if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
 	    iph = m_phaseID[kspec];
@@ -4296,12 +4296,11 @@ namespace VCSnonideal {
 	      std::exit(-1);
 	    }
 #endif
-	    feSpecies[kspec] = 
-	      m_SSfeSpecies[kspec] 
+	    feSpecies[kspec] = m_SSfeSpecies[kspec] 
 	      + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];   
 	  } else {
 	    if (m_SSPhase[kspec]) {
-	      feSpecies[kspec] = m_SSfeSpecies[kspec];
+	      feSpecies[kspec] = m_SSfeSpecies[kspec]+ m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
 	    } else {
 	      if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
 		iph = m_phaseID[kspec];
@@ -4348,7 +4347,7 @@ namespace VCSnonideal {
 	      m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase]; ;
 	  } else {
 	    if (m_SSPhase[kspec]) {
-	      feSpecies[kspec] = m_SSfeSpecies[kspec];
+	      feSpecies[kspec] = m_SSfeSpecies[kspec]+ m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
 	    } else {
 	      if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
 		iph = m_phaseID[kspec];
