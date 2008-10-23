@@ -213,6 +213,7 @@ namespace VCSnonideal {
       v_totalMoles              = b.v_totalMoles;
  
       Xmol = b.Xmol;
+      fractionCreationDelta_ = b.fractionCreationDelta_;
 
       m_phi               = b.m_phi;
       m_phiVarIndex       = b.m_phiVarIndex;
@@ -307,8 +308,10 @@ namespace VCSnonideal {
     }
 
     Xmol.resize(nspecies, 0.0);
+    fractionCreationDelta_.resize(nspecies, 0.0);
     for (int i = 0; i < nspecies; i++) {
       Xmol[i] = 1.0/nspecies;
+      fractionCreationDelta_[i] = 1.0/nspecies;
     }
 
     SS0ChemicalPotential.resize(nspecies, -1.0);
@@ -663,6 +666,18 @@ namespace VCSnonideal {
     if (m_totalMolesInert > 0.0) {
       m_existence = VCS_PHASE_EXIST_ALWAYS;
     }
+
+    /*
+     * If stateCalc is old and the total moles is positive,
+     * then we have a valid state. If the phase went away, it would
+     * be a valid starting point for F_k's. So, save the state.
+     */
+    if (stateCalc == VCS_STATECALC_OLD) {
+      if (v_totalMoles > 0.0) {
+	fractionCreationDelta_ = Xmol;
+      }
+    }
+
     /*
      * Set flags indicating we are up to date with the VCS state vector.
      */
@@ -1142,6 +1157,18 @@ namespace VCSnonideal {
   }
   /***************************************************************************/
 
+  void vcs_VolPhase::setFractionCreationDeltas(const double * const F_k) {
+    for (int k = 0; k < m_numSpecies; k++) {
+      fractionCreationDelta_[k] = F_k[k];
+    }
+  }
+  /***************************************************************************/
+
+  const std::vector<double> & vcs_VolPhase::fractionCreationDeltas() const {
+    return fractionCreationDelta_;
+  }
+  /***************************************************************************/
+
   // Sets the total moles in the phase
   /*   
    * We don't have to flag the internal state as changing here
@@ -1365,28 +1392,32 @@ namespace VCSnonideal {
   }
   /**********************************************************************/
 
-   //! Returns the global index of the local element index for the phase
+  // Returns the global index of the local element index for the phase
   int vcs_VolPhase::elemGlobalIndex(const int e) const {
     DebugAssertThrowVCS(e >= 0, " vcs_VolPhase::elemGlobalIndex") ;
     DebugAssertThrowVCS(e < m_numElemConstraints, " vcs_VolPhase::elemGlobalIndex") ;
     return m_elemGlobalIndex[e];
   }
+  /**********************************************************************/
 
-   //! Returns the global index of the local element index for the phase
+  // Returns the global index of the local element index for the phase
   void vcs_VolPhase::setElemGlobalIndex(const int eLocal, const int eGlobal) {
     DebugAssertThrowVCS(eLocal >= 0, "vcs_VolPhase::setElemGlobalIndex");
     DebugAssertThrowVCS(eLocal < m_numElemConstraints,
 			"vcs_VolPhase::setElemGlobalIndex");
     m_elemGlobalIndex[eLocal] = eGlobal;
   }
-
+  /**********************************************************************/
+  
   int vcs_VolPhase::nElemConstraints() const {
     return m_numElemConstraints;
   }
-
+  /**********************************************************************/
+ 
   std::string vcs_VolPhase::elementName(const int e) const {
     return m_elementNames[e];
   }
+  /**********************************************************************/
 
   /*!
    *  This function decides whether a phase has charged species
@@ -1496,8 +1527,6 @@ namespace VCSnonideal {
     m_speciesUnknownType.resize(ns, VCS_SPECIES_TYPE_MOLNUM);
     
     elemResize(ne);
-    //ElGlobalIndex.resize(ne, -1);
-    
     
     e = 0;
     for (eT = 0; eT < nebase; eT++) {
@@ -1551,6 +1580,7 @@ namespace VCSnonideal {
 
     return ne;
   }
+  /***************************************************************************/
 
   // Type of the element constraint with index \c e.
   /*
@@ -1559,6 +1589,7 @@ namespace VCSnonideal {
   int vcs_VolPhase::elementType(const int e) const {
     return m_elementType[e];
   }
+  /***************************************************************************/
 
   // Set the element Type of the element constraint with index \c e.
   /*
@@ -1568,24 +1599,29 @@ namespace VCSnonideal {
   void vcs_VolPhase::setElementType(const int e, const int eType) {
     m_elementType[e] = eType;
   }
+  /***************************************************************************/
 
   double const * const * const vcs_VolPhase::getFormulaMatrix() const {
     double const * const * const fm = m_formulaMatrix.constBaseDataAddr();
     return fm;
   }
+  /***************************************************************************/
 
   int vcs_VolPhase::speciesUnknownType(const int k) const {
     return m_speciesUnknownType[k];
   }
+  /***************************************************************************/
 
   int vcs_VolPhase::elementActive(const int e) const {
     return m_elementActive[e];
   }
+  /***************************************************************************/
 
   //! Return the number of species in the phase
   int vcs_VolPhase::nSpecies() const {
     return m_numSpecies;
   }
-  
+  /***************************************************************************/
+
 }
 

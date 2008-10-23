@@ -418,6 +418,16 @@ namespace VCSnonideal {
     //! object.
     const std::vector<double> & moleFractions() const;
 
+    //! Sets the fractionCreationDelta's within the phase object
+    /*!
+     * @param F_k Pointer to a vector of F_k's
+     */
+    void setFractionCreationDeltas( const double * const F_k);
+
+    //! Return a const reference to the fractionCreationDeltas storred in the
+    //! object.
+    const std::vector<double> & fractionCreationDeltas() const;
+
     //! Returns whether the phase is an ideal solution phase
     bool isIdealSoln() const;
 
@@ -838,6 +848,13 @@ namespace VCSnonideal {
     //! Vector of the current mole fractions for species 
     //! in the phase
     std::vector<double> Xmol;
+
+    //! Vector of current fractionalCreationDeltas
+    /*!
+     *  These are the actual unknowns in the problem
+     */
+    std::vector<double> fractionCreationDelta_;
+
   
     //! If the potential is a solution variable in VCS, it acts as a species.
     //!  This is the species index in the phase for the potential
