@@ -522,13 +522,15 @@ namespace VCSnonideal {
 					   const int vcsStateStatus) {
 
     if (totalMoles != 0.0) {
-      if (vcsStateStatus !=  VCS_STATECALC_TMP) {
+      // There are other ways to set the mole fractions when VCS_STATECALC
+      // is set to a normal settting.
+      if (vcsStateStatus != VCS_STATECALC_TMP) {
 	printf("vcs_VolPhase::setMolesFractionsState: inappropriate usage\n");
 	std::exit(-1);
       }
       m_UpToDate = false;
       m_vcsStateStatus = VCS_STATECALC_TMP;
-      if (m_existence == -VCS_PHASE_EXIST_ZEROEDPHASE ) {
+      if (m_existence == VCS_PHASE_EXIST_ZEROEDPHASE ) {
 	printf("vcs_VolPhase::setMolesFractionsState: inappropriate usage\n");
 	std::exit(-1);
       }
@@ -540,6 +542,7 @@ namespace VCSnonideal {
 	m_existence = VCS_PHASE_EXIST_NO;
       }
     }
+    v_totalMoles = totalMoles;
     double sum = 0.0;
     for (int k = 0; k < m_numSpecies; k++) {
       Xmol[k] = moleFractions[k];
@@ -675,17 +678,20 @@ namespace VCSnonideal {
    *  then updates this object with their values. This is essentially
    *  a gather routine.
    *
-   *  
+   *     @param vcsStateStatus  State calc value either VCS_STATECALC_OLD 
+   *                         or  VCS_STATECALC_NEW. With any other value
+   *                         nothing is done.
+   *
    *  @param molesSpeciesVCS  array of mole numbers. Note, 
    *                          the indecises for species in 
    *            this array may not be contiguous. IndSpecies[] is needed
    *            to gather the species into the local contiguous vector
    *            format. 
    */
-  void vcs_VolPhase::setMolesFromVCSCheck(const int stateCalc,
+  void vcs_VolPhase::setMolesFromVCSCheck(const int vcsStateStatus,
 					  const double * molesSpeciesVCS, 
 					  const double * const TPhMoles) {
-    setMolesFromVCS(stateCalc, molesSpeciesVCS);
+    setMolesFromVCS(vcsStateStatus, molesSpeciesVCS);
     /*
      * Check for consistency with TPhMoles[]
      */
@@ -710,16 +716,16 @@ namespace VCSnonideal {
    *  It then updates this object with their values. This is essentially
    *  a gather routine.
    *
-   *  @param stateCalc    State calc value either VCS_STATECALC_OLD 
-   *                      or  VCS_STATECALC_NEW. With any other value
-   *                      nothing is done.
+   *  @param vcsStateStatus  State calc value either VCS_STATECALC_OLD 
+   *                         or  VCS_STATECALC_NEW. With any other value
+   *                         nothing is done.
    *
    */
-  void vcs_VolPhase::updateFromVCS_MoleNumbers(const int stateCalc) {
-    if (!m_UpToDate || (stateCalc != m_vcsStateStatus)) {
-      if (stateCalc == VCS_STATECALC_OLD || stateCalc == VCS_STATECALC_NEW) {
+  void vcs_VolPhase::updateFromVCS_MoleNumbers(const int vcsStateStatus) {
+    if (!m_UpToDate || (vcsStateStatus != m_vcsStateStatus)) {
+      if (vcsStateStatus == VCS_STATECALC_OLD || vcsStateStatus == VCS_STATECALC_NEW) {
 	if (m_owningSolverObject) {
-	  setMolesFromVCS(stateCalc);
+	  setMolesFromVCS(vcsStateStatus);
 	}
       }
     }
@@ -736,9 +742,9 @@ namespace VCSnonideal {
    *            in all of the phases in a VCS problem. Only the
    *            entries for the current phase are filled in.
    */
-  void vcs_VolPhase::sendToVCS_ActCoeff(const int stateCalc,
+  void vcs_VolPhase::sendToVCS_ActCoeff(const int vcsStateStatus,
 					double * const AC) {
-    updateFromVCS_MoleNumbers(stateCalc);
+    updateFromVCS_MoleNumbers(vcsStateStatus);
     if (!m_UpToDate_AC) {
       _updateActCoeff();
     }
@@ -1126,7 +1132,7 @@ namespace VCSnonideal {
   }
   /***************************************************************************/
 
-  double vcs_VolPhase::TotalMoles() const {
+  double vcs_VolPhase::totalMoles() const {
     return v_totalMoles;
   }
   /***************************************************************************/

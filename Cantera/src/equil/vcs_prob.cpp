@@ -286,7 +286,7 @@ namespace VCSnonideal {
 	      Vphase->VP_ID, Vphase->m_singleSpecies, Vphase->m_gasPhase);
 	plogf("%16s %8d %16e ", EOS_cstr.c_str(),
 	      Vphase->nSpecies(), Vphase->totalMolesInert());
-	if (iest >= 0) plogf("%16e\n",  Vphase->TotalMoles());
+	if (iest >= 0) plogf("%16e\n",  Vphase->totalMoles());
 	else           plogf("   N/A\n");	 
       }
 
@@ -493,7 +493,7 @@ namespace VCSnonideal {
       volPM.resize(nSpeciesPhase, 0.0);
       volP->sendToVCS_VolPM(VCS_DATA_PTR(volPM));
   
-      double TMolesPhase = volP->TotalMoles();
+      double TMolesPhase = volP->totalMoles();
       double VolPhaseVolumes = 0.0;
       for (k = 0; k < nSpeciesPhase; k++) {
 	iK++;
@@ -520,7 +520,7 @@ namespace VCSnonideal {
       string phaseName = volP->PhaseName;
       int nSpeciesPhase = volP->nSpecies();
       volP->sendToVCS_VolPM(VCS_DATA_PTR(volPM));
-      double TMolesPhase = volP->TotalMoles();
+      double TMolesPhase = volP->totalMoles();
       //AssertTrace(TMolesPhase == m_mix->phaseMoles(iphase));
       activity.resize(nSpeciesPhase, 0.0);
       ac.resize(nSpeciesPhase, 0.0);

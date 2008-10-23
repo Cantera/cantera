@@ -982,10 +982,10 @@ namespace VCSnonideal {
       vcs_VolPhase *pubPhase = pub->VPhaseList[iph];
       vcs_VolPhase *vPhase = m_VolPhaseList[iph];
       pubPhase->setTotalMolesInert(vPhase->totalMolesInert());
-      pubPhase->setTotalMoles(vPhase->TotalMoles());
+      pubPhase->setTotalMoles(vPhase->totalMoles());
       pubPhase->setElectricPotential(vPhase->electricPotential());
       double sumMoles = pubPhase->totalMolesInert();
-      pubPhase->setMoleFractionsState(vPhase->TotalMoles(),
+      pubPhase->setMoleFractionsState(vPhase->totalMoles(),
 				      VCS_DATA_PTR(vPhase->moleFractions()),
 				      VCS_STATECALC_TMP);
       const std::vector<double> & mfVector = pubPhase->moleFractions();
@@ -998,23 +998,23 @@ namespace VCSnonideal {
 	  if (! vcs_doubleEqual( 	pubPhase->electricPotential() , tmp)) { 
 	    plogf("We have an inconsistency in voltage, %g, %g\n",
 		  pubPhase->electricPotential(), tmp);
-	    exit(-1);
+	    std::exit(-1);
 	  }
 	}
 
 	if (! vcs_doubleEqual( pub->mf[kT], vPhase->molefraction(k))) {
 	  plogf("We have an inconsistency in mole fraction, %g, %g\n",
 		pub->mf[kT], vPhase->molefraction(k));
-	  exit(-1);
+	  std::exit(-1);
 	}
 	if (pubPhase->speciesUnknownType(k) != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  sumMoles +=  pub->w[kT];
 	}
       }
-      if (! vcs_doubleEqual(sumMoles, vPhase->TotalMoles())) {
+      if (! vcs_doubleEqual(sumMoles, vPhase->totalMoles())) {
       	plogf("We have an inconsistency in total moles, %g %g\n",
-	      sumMoles, pubPhase->TotalMoles());
-	exit(-1);
+	      sumMoles, pubPhase->totalMoles());
+	std::exit(-1);
       }
 
     }

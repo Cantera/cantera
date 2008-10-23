@@ -257,8 +257,8 @@ namespace VCSnonideal {
       plogf("%-12.12s |",VPhase->PhaseName.c_str());
       plogf("%10.3e |", m_tPhaseMoles_old[iphase]*molScale);
       totalMoles +=  m_tPhaseMoles_old[iphase];
-      if (m_tPhaseMoles_old[iphase] != VPhase->TotalMoles()) {
-	if (! vcs_doubleEqual(m_tPhaseMoles_old[iphase], VPhase->TotalMoles())) {
+      if (m_tPhaseMoles_old[iphase] != VPhase->totalMoles()) {
+	if (! vcs_doubleEqual(m_tPhaseMoles_old[iphase], VPhase->totalMoles())) {
 	  plogf("We have a problem\n");
 	  exit(-1);
 	}

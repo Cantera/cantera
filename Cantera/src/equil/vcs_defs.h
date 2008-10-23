@@ -334,8 +334,13 @@ namespace VCSnonideal {
   //! State Calculation based on the new or tentative mole numbers
 #define VCS_STATECALC_NEW               1
 
+  //! State Calculation based on tentative mole numbers
+  //!  for a phase which is currently zeroed, but is being
+  //!  evaluated for whether it should pop back into existence
+#define VCS_STATECALC_PHASESTABILITY    2
+
   //! State Calculation based on a temporary set of mole numbers
-#define VCS_STATECALC_TMP               2
+#define VCS_STATECALC_TMP               3
   //@}
 
  

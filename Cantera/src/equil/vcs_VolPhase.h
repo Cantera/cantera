@@ -158,6 +158,15 @@ namespace VCSnonideal {
      */
     double AC_calc_one(int kspec) const;
 
+
+    //! Set the moles and/or mole fractions within the phase
+    /*!
+     * Sets the mole fraction and total moles within the phase
+     *
+     *  @param molNum           total moles in the phase
+     *  @param moleFracVec      Vector of input mole fractions
+     *  @param vcsStateStatus   Status flag for this update
+     */
     void setMoleFractionsState(const double molNum, const double * const moleFracVec, 
 			       const int vcsStateStatus);
   
@@ -362,7 +371,7 @@ namespace VCSnonideal {
      *  Units -> depends on VCS_UnitsFormat variable
      *             Cantera -> J/kmol
      */
-    double TotalMoles() const;
+    double totalMoles() const;
 
     //! Returns the mole fraction of the kspec species
     /*!
@@ -390,9 +399,9 @@ namespace VCSnonideal {
 
     //! Sets the mole flag within the object to be current
     /*!
-     * 
+     *  
      */
-    void setMolesCurrent(int stateCalc);
+    void setMolesCurrent(int vcsStateStatus);
 
   private:
     //! Set the mole fractions from a conventional mole fraction vector
@@ -404,7 +413,9 @@ namespace VCSnonideal {
     void setMoleFractions(const double * const xmol);
 
   public:
-    //! Return a const reference to the mole fractions
+
+    //! Return a const reference to the mole fractions storred in the
+    //! object.
     const std::vector<double> & moleFractions() const;
 
     //! Returns whether the phase is an ideal solution phase

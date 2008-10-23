@@ -765,7 +765,7 @@ namespace VCSnonideal {
       tref.getPartialMolarVolumes(VCS_DATA_PTR(VolPM));
       vcs_VolPhase *volP = m_vprob->VPhaseList[iphase];
   
-      double TMolesPhase = volP->TotalMoles();
+      double TMolesPhase = volP->totalMoles();
       double VolPhaseVolumes = 0.0;
       for (k = 0; k < nSpecies; k++) {
 	VolPhaseVolumes += VolPM[k] * mf[istart + k];
@@ -788,7 +788,7 @@ namespace VCSnonideal {
       Cantera::ThermoPhase *tp = &tref;
       string phaseName = tref.name();
       vcs_VolPhase *volP = m_vprob->VPhaseList[iphase];
-      double TMolesPhase = volP->TotalMoles();
+      double TMolesPhase = volP->totalMoles();
       //AssertTrace(TMolesPhase == m_mix->phaseMoles(iphase));
       nSpecies = tref.nSpecies();
       activity.resize(nSpecies, 0.0);
@@ -1270,7 +1270,7 @@ namespace VCSnonideal {
 	       VolPhase->VP_ID,       VolPhase->m_singleSpecies,
 	       VolPhase->m_gasPhase,    sEOS.c_str(),
 	       VolPhase->nSpecies(), VolPhase->totalMolesInert() );
-	plogf("%16e\n",  VolPhase->TotalMoles());
+	plogf("%16e\n",  VolPhase->totalMoles());
       }
    
       plogf("\n"); print_char('=', 80); plogf("\n");
@@ -1338,7 +1338,7 @@ namespace VCSnonideal {
 	vprob->w[kglob] = tPhase->electricPotential();
       }
       volPhase->setMolesFromVCS(VCS_STATECALC_OLD, VCS_DATA_PTR(vprob->w));
-      if (volPhase->TotalMoles() > 0.0) {
+      if (volPhase->totalMoles() > 0.0) {
 	volPhase->setExistence(1);
       } else {
 	volPhase->setExistence(0);
@@ -1389,7 +1389,7 @@ namespace VCSnonideal {
 	       VolPhase->VP_ID,       VolPhase->m_singleSpecies,
 	       VolPhase->m_gasPhase,    sEOS.c_str(),
 	       VolPhase->nSpecies(), VolPhase->totalMolesInert() );
-	plogf("%16e\n",  VolPhase->TotalMoles() ); 
+	plogf("%16e\n",  VolPhase->totalMoles() ); 
       }
    
       plogf("\n"); print_char('=', 80); plogf("\n");
