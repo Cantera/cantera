@@ -4125,7 +4125,6 @@ namespace VCSnonideal {
     double *actCoeff_ptr;
     double *tlogMoles;
     vcs_VolPhase *Vphase;
-    VCS_SPECIES_THERMO *st_ptr;
 
     double *feSpecies;
     double * molNum;
@@ -4244,18 +4243,23 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	if (molNum[kspec] != m_phasePhi[iphase]) {
 	  plogf("We have an inconsistency!\n");
-	  exit(-1);
+	  std::exit(-1);
 	}
 	if (m_chargeSpecies[kspec] != -1.0) {
 	  plogf("We have an unexpected situation!\n");
-	  exit(-1);
+	  std::exit(-1);
 	}
 #endif
-	feSpecies[kspec] =
-	  m_SSfeSpecies[kspec] + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
+	feSpecies[kspec] = m_SSfeSpecies[kspec] 
+	  + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
       } else {
 	if (m_SSPhase[kspec]) {
-	  feSpecies[kspec] = m_SSfeSpecies[kspec] + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
+	  feSpecies[kspec] = m_SSfeSpecies[kspec] 
+	    + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
+	} else if ((m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDMS) ||
+		   (m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDPHASE) ){
+	  feSpecies[kspec] = m_SSfeSpecies[kspec] - m_lnMnaughtSpecies[kspec]
+	    + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
 	} else {
 	  if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
 	    iph = m_phaseID[kspec];
@@ -4300,7 +4304,12 @@ namespace VCSnonideal {
 	      + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];   
 	  } else {
 	    if (m_SSPhase[kspec]) {
-	      feSpecies[kspec] = m_SSfeSpecies[kspec]+ m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
+	      feSpecies[kspec] = m_SSfeSpecies[kspec]
+		+ m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
+	    } else if ((m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDMS) ||
+		       (m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDPHASE) ){
+	      feSpecies[kspec] = m_SSfeSpecies[kspec] - m_lnMnaughtSpecies[kspec]
+		+ m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
 	    } else {
 	      if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
 		iph = m_phaseID[kspec];
@@ -4342,12 +4351,16 @@ namespace VCSnonideal {
 	      std::exit(-1);
 	    }
 #endif
-	    feSpecies[kspec] = 
-	      m_SSfeSpecies[kspec] +
-	      m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase]; ;
+	    feSpecies[kspec] = m_SSfeSpecies[kspec] 
+	      + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase]; ;
 	  } else {
 	    if (m_SSPhase[kspec]) {
-	      feSpecies[kspec] = m_SSfeSpecies[kspec]+ m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
+	      feSpecies[kspec] = m_SSfeSpecies[kspec]
+		+ m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
+	    } else if ((m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDMS) ||
+		       (m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDPHASE) ){
+	      feSpecies[kspec] = m_SSfeSpecies[kspec] - m_lnMnaughtSpecies[kspec]
+		+ m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
 	    } else {
 	      if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
 		iph = m_phaseID[kspec];
@@ -4361,7 +4374,6 @@ namespace VCSnonideal {
 		    + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase]; 
 		}
 	      } else {
-		st_ptr = m_speciesThermoList[kspec];
 		feSpecies[kspec] = m_SSfeSpecies[kspec] 
 		  + log(actCoeff_ptr[kspec] * molNum[kspec]) 
 		  - tlogMoles[m_phaseID[kspec]] - m_lnMnaughtSpecies[kspec] 
