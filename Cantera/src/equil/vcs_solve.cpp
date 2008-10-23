@@ -179,7 +179,8 @@ namespace VCSnonideal {
     m_indexRxnToSpecies.resize(nspecies0, 0);
    
     /* Initialize all species to be major species */
-    m_rxnStatus.resize(nspecies0, 1);
+    //m_rxnStatus.resize(nspecies0, 1);
+    m_speciesStatus.resize(nspecies0, 1);
    
     m_SSPhase.resize(2*nspecies0, 0);
     m_phaseID.resize(nspecies0, 0);
@@ -644,8 +645,10 @@ namespace VCSnonideal {
     /*
      *  Define all species to be major species, initially.
      */
-    for (i = 0; i < nspecies; i++) m_rxnStatus[i] = VCS_SPECIES_MAJOR;
-
+    for (i = 0; i < nspecies; i++) {
+      // m_rxnStatus[i] = VCS_SPECIES_MAJOR;
+      m_speciesStatus[i] = VCS_SPECIES_MAJOR;
+    }
     /*
      * PhaseID: Fill in the species to phase mapping
      *             -> Check for bad values at the same time.

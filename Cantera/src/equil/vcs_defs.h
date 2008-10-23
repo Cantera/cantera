@@ -151,7 +151,7 @@ namespace VCSnonideal {
    */
 #define VCS_SPECIES_SMALLMS      -1
 
-  //! Species lies in a multicomponent phase, with concentration zero
+  //! Species lies in a multicomponent phase with concentration zero
   /*!
    *  The species lies in a multicomponent phase which currently doesn't exist.
    *  It concentration is currently zero.
@@ -191,10 +191,10 @@ namespace VCSnonideal {
    */
 #define VCS_SPECIES_ZEROEDPHASE   -6
 
-  //! Species lies in a multicomponent phase that is active, but its concentration is zero
+  //! Species lies in a multicomponent phase that is active, but species concentration is zero
   /*!
    *  The species lies in a multicomponent phase which currently does exist.
-   *  It concentration is currently zero, though the phase exists. Note, this
+   *  It concentration is currently identically zero, though the phase exists. Note, this
    *  is a temporary condition that exists at the start of an equilibrium problem. 
    *  The species is soon "birthed" or "deleted".
    */

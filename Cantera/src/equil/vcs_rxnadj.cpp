@@ -75,7 +75,7 @@ namespace VCSnonideal {
 
       kspec = m_indexRxnToSpecies[irxn];
 
-      if (m_rxnStatus[irxn] == VCS_SPECIES_ZEROEDPHASE) {
+      if (m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDPHASE) {
 	m_deltaMolNumSpecies[kspec] = 0.0;
 #ifdef DEBUG_MODE
 	sprintf(ANOTE, "ZeroedPhase: Phase is artificially zeroed"); 
@@ -152,10 +152,10 @@ namespace VCSnonideal {
 	   *     Don't calculate for minor or nonexistent species if      
 	   *     their values are to be decreasing anyway.                
 	   */
-	  if ((m_rxnStatus[irxn] != VCS_SPECIES_MAJOR) && (m_deltaGRxn_new[irxn] >= 0.0)) {
+	  if ((m_speciesStatus[kspec] != VCS_SPECIES_MAJOR) && (m_deltaGRxn_new[irxn] >= 0.0)) {
 #ifdef DEBUG_MODE
 	    sprintf(ANOTE,"Skipped: IC = %3d and DG >0: %11.3E", 
-		    m_rxnStatus[irxn], m_deltaGRxn_new[irxn]);
+		    m_speciesStatus[kspec], m_deltaGRxn_new[irxn]);
 	    if (m_debug_print_lvl >= 2) {
 	      plogf("   --- %-12.12s", m_speciesName[kspec].c_str());
 	      plogf("  %12.4E %12.4E %12.4E | %s\n", 
@@ -301,7 +301,7 @@ namespace VCSnonideal {
 	      Vphase = m_VolPhaseList[iph];
 	      Vphase->setTotalMoles(0.0);
 	      if (k == kspec) {
-		m_rxnStatus[irxn] = VCS_SPECIES_ZEROEDSS;
+		m_speciesStatus[kspec] = VCS_SPECIES_ZEROEDSS;
 		if (m_SSPhase[kspec] != 1) {
 		  printf("vcs_RxnStepSizes:: we shouldn't be here!\n");
 		  std::exit(-1);
@@ -418,7 +418,7 @@ namespace VCSnonideal {
 	  (void) sprintf(ANOTE, "MultSpec: come alive DG = %11.3E", m_deltaGRxn_new[irxn]);       
 #endif
 	  m_deltaMolNumSpecies[kspec] = 1.0e-10;
-	  m_rxnStatus[irxn] = VCS_SPECIES_MAJOR;
+	  m_speciesStatus[kspec] = VCS_SPECIES_MAJOR;
 	  --(m_numRxnMinorZeroed);
 	} else {
 #ifdef DEBUG_MODE
@@ -450,10 +450,10 @@ namespace VCSnonideal {
 	 *     Don't calculate for minor or nonexistent species if      
 	 *     their values are to be decreasing anyway.                
 	 */
-	if (m_rxnStatus[irxn] <= VCS_SPECIES_MINOR && m_deltaGRxn_new[irxn] >= 0.0) {
+	if (m_speciesStatus[kspec] <= VCS_SPECIES_MINOR && m_deltaGRxn_new[irxn] >= 0.0) {
 #ifdef DEBUG_MODE
 	  sprintf(ANOTE,"Skipped: IC = %3d and DG >0: %11.3E\n", 
-		  m_rxnStatus[irxn], m_deltaGRxn_new[irxn]);
+		  m_speciesStatus[kspec], m_deltaGRxn_new[irxn]);
 	  plogf("   --- "); plogf("%-12.12s", m_speciesName[kspec].c_str());
 	  plogf("  %12.4E %12.4E | %s\n", m_molNumSpecies_old[kspec], 
 		m_deltaMolNumSpecies[kspec], ANOTE);

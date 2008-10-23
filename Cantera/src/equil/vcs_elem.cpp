@@ -307,7 +307,7 @@ namespace VCSnonideal {
       int elType = m_elType[i];
       if (elType == VCS_ELEM_TYPE_ABSPOS) {
 	for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
-	  int irxn = kspec - m_numComponents;
+	  // int irxn = kspec - m_numComponents;
 	  if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	    double atomComp = m_formulaMatrix[i][kspec];
 	    if (atomComp > 0.0) {
@@ -327,15 +327,18 @@ namespace VCSnonideal {
 		if (m_molNumSpecies_old[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF) {
 		  m_molNumSpecies_old[kspec] = 0.0;
 		  if (m_SSPhase[kspec]) {
-		    m_rxnStatus[kspec] =  VCS_SPECIES_ZEROEDSS;
+		    // m_rxnStatus[kspec] =  VCS_SPECIES_ZEROEDSS;
+		    m_speciesStatus[kspec] =  VCS_SPECIES_ZEROEDSS;
 		  } else {
-		    m_rxnStatus[kspec] =  VCS_SPECIES_ZEROEDMS;
+		    // m_rxnStatus[kspec] =  VCS_SPECIES_ZEROEDMS;
+		    m_speciesStatus[kspec] =  VCS_SPECIES_ZEROEDMS;
 		  } 
 #ifdef DEBUG_MODE
 		  if (m_debug_print_lvl >= 2) {
 		    plogf("  ---  vcs_elcorr: Zeroed species %s and changed "
 			  "status to %d due to max bounds constraint\n",
-			  m_speciesName[kspec].c_str(), m_rxnStatus[irxn]);
+			  //  m_speciesName[kspec].c_str(), m_rxnStatus[irxn]);
+			  m_speciesName[kspec].c_str(), m_speciesStatus[kspec]);
 		  }
 #endif
 		}

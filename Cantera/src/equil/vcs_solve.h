@@ -424,6 +424,28 @@ public:
    *
    *         m_feSpecies(I)(I) = m_SSfeSpecies(I) + ln(ActCoeff[i](VCS_DELETE_MINORSPECIES_CUTOFF))
    *
+   *   Species in the following categories are treated as "small species"
+   *
+   *    - VCS_SPECIES_DELETED 
+   *    - VCS_SPECIES_ACTIVEBUTZERO 
+   *    .
+   *
+   *   Handling of Small Species:
+   * ------------------------------
+   *    For species in multispecies phases which are currently not active, the
+   *    treatment is different. These species are in the following species categories:
+   *
+   *        -  VCS_SPECIES_ZEROEDMS 
+   *        -  VCS_SPECIES_ZEROEDPHASE 
+   *        .
+   *
+   *    For these species, the ln( ActCoeff[I] X[I]) term is
+   *    dropped altogether. The following equation is used.
+   *     
+   *         m_feSpecies(I) = m_SSfeSpecies(I)
+   *                        + Charge[I] * Faraday_dim * phasePhi[iphase]; 
+   * 
+   *
    *   Handling of "Species" Representing Interfacial Voltages
    *  ---------------------------------------------------------
    *
@@ -645,8 +667,14 @@ public:
   int vcs_TP(int ipr, int ip1, int maxit, double T, double pres);
 
   int vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres);
-  void  vcs_fePrep_TP(void);
 
+  //! Initialize the chemical potential of single species phases 
+  /*!
+   *        For single species phases, initialize the chemical
+   *        potential with the value of the standard state chemical
+   *        potential. This value doesn't change during the calculation
+   */
+  void vcs_fePrep_TP();
 
   //! Calculation of the total volume and the partial molar volumes
   /*!
@@ -1695,14 +1723,14 @@ public:
    */
   std::vector<int> m_indexRxnToSpecies;
 
-  //! Major -Minor status vector for the formation reaction
+  //! Major -Minor status vector for the species in the problem
   /*!
-   *  The index for this is rxn. The species that this is refereing
+   *  The index for this is species. The reaction that this is referring
    *  to is 
    *          kspec = irxn + m_numComponents
    *
-   *        formation rxn  irxn : 1 -> Major player  VCS_SPECIES_MAJOR
-   *                              0 -> Minor player  VCS_SPECIES_MINOR
+   *         kspec              : 1 -> Major species  VCS_SPECIES_MAJOR
+   *                              0 -> Minor species  VCS_SPECIES_MINOR
    *                             -1 -> Mole number is zero 
    *                                   in inactive phase VCS_SPECIES_ZEROEDPHASE
    *                             -2 -> Deleted species in an
@@ -1711,9 +1739,9 @@ public:
    *                                   in a stoich phase - VCS_SPECIES_ZEREODSS
    *                             -4 -> Species is deleted
    *                                   - VCS_SPECIES_DELETED
-   *            -> Length equal to number of  non-components
+   *            -> Length equal to number of species
    */
-  std::vector<int> m_rxnStatus;
+  std::vector<int> m_speciesStatus;
 
   //!  Mapping from the species number to the phase number 
   std::vector<int> m_phaseID;
