@@ -101,6 +101,14 @@ namespace Cantera {
 
   //////////////////////////  XML_Node  /////////////////////////////////
 
+  //! Class XML_Node is a tree-based representation of the contents of an XML file
+  /*!
+   *   Class XML_Node is a tree-based representation of the contents of an XML file.
+   *
+   *
+   *
+   *
+   */
   class XML_Node {
   public:
 
@@ -163,11 +171,64 @@ namespace Cantera {
      */
     XML_Node& addChild(const std::string sname);
 
-    XML_Node& addChild(std::string name, std::string value);
-    XML_Node& addChild(std::string name, double value, std::string fmt="%g");
-    void removeChild(XML_Node* node);
-    void addValue(std::string val);
-    void addValue(doublereal val, std::string fmt="%g");
+    //!    Add a child node to the current xml node, and at the
+    //!    same time add a value to the child
+    /*!
+     *    Resulting XML string:
+     *      <name>value</name>
+     *
+     *   @param   name       Name of the child XML_Node object
+     *   @param   value      Value of the XML_Node - string
+     *   @return  Returns a reference to the created child XML_Node object
+     */
+    XML_Node& addChild(const std::string name, const std::string value);
+
+    //!    Add a child node to the current xml node, and at the
+    //!    same time add a formatted value to the child
+    /*!
+     *  This version supplies a formatting string (printf format)
+     *  to the output of the value.
+     *
+     *    Resulting XML string:
+     *      <name>value</name>
+     *
+     *   @param   name       Name of the child XML_Node object
+     *   @param   value      Value of the XML_Node - double.
+     *   @param   fmt        Format of the output for value
+     *
+     *   @return  Returns a reference to the created child XML_Node object
+     */
+    XML_Node& addChild(const std::string name, const doublereal value, 
+		       const std::string fmt="%g");
+
+    //! Remove a child from this node's list of children
+    /*!
+     *  This function removes an XML_Node from the children of this node.
+     *
+     * @param  node  Pointer to the node to be removed. Note, this node
+     *               isn't modified in any way.
+     */
+    void removeChild(const XML_Node * const node);
+
+    //! Modify the value for the current node
+    /*!
+     * This functions fills in the m_value field of the current node
+     *
+     * @param val  string Value that the node will be assigned
+     */
+    void addValue(const std::string val);
+
+    //! Modify the value for the current node
+    /*!
+     * This functions fills in the m_value field of the current node
+     * with a formatted double value
+     *
+     * @param val  double Value that the node will be assigned
+     * @param fmt  Format of the printf string conversion of the double.
+     *             Default is "%g". Must be less than 63 chars
+     */
+    void addValue(const doublereal val, const std::string fmt="%g");
+
     void addAttribute(std::string attrib, std::string value);
     void addAttribute(std::string attrib, double value, std::string fmt="%g");
     void writeHeader(std::ostream& s);
@@ -215,7 +276,7 @@ namespace Cantera {
      *                  is returned as a string. If no match is found, the empty string
      *                  is returned.
      */
-    std::string attrib(std::string attr) const;
+    std::string attrib(const std::string attr) const;
 
     std::map<std::string,std::string>& attribs() { return m_attribs; }
     XML_Node* parent() const { return m_parent; }

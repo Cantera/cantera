@@ -446,7 +446,52 @@ namespace Cantera {
     return *m_children.back();
   }
 
-  void XML_Node::removeChild(XML_Node* node) {
+  //    Add a child node to the current xml node, and at the
+  //    same time add a value to the child
+  /*
+   *    Resulting XML string:
+   *      <name>value</name>
+   *
+   *   @param   name       Name of the child XML_Node object
+   *   @param   value      Value of the XML_Node - string
+   *   @return  Returns a reference to the created child XML_Node object
+   */
+  XML_Node& XML_Node::addChild(const std::string name, const std::string value) {
+    XML_Node& c = addChild(name);
+    c.addValue(value);
+    return c;
+  }
+
+  //     Add a child node to the current xml node, and at the
+  //     same time add a formatted value to the child
+  /*
+   *  This version supplies a formatting string (printf format)
+   *  to the output of the value.
+   *
+   *    Resulting XML string:
+   *      <name>value</name>
+   *
+   *   @param   name       Name of the child XML_Node object
+   *   @param   value      Value of the XML_Node - double
+   *   @param   fmt        Format of the output for value
+   *
+   *   @return  Returns a reference to the created child XML_Node object
+   */
+  XML_Node& XML_Node::addChild(const std::string name, const doublereal value,
+			       const std::string fmt) {
+    XML_Node& c = addChild(name);
+    c.addValue(value, fmt);
+    return c;
+  }
+
+  //  Remove a child from this node's list of children
+  /*
+   *  This function removes an XML_Node from the children of this node.
+   *
+   * @param  node  Pointer to the node to be removed. Note, this node
+   *               isn't modified in any way.
+   */
+  void XML_Node::removeChild(const XML_Node * const node) {
     vector<XML_Node*>::iterator i;
     i = find(m_children.begin(), m_children.end(), node);
     m_children.erase(i);
@@ -458,8 +503,33 @@ namespace Cantera {
     if (hasAttrib("id")) return attrib("id");
     return std::string("");
   }
-  
-	
+
+  // Modify the value for the current node
+  /*
+   * This functions fills in the m_value field of the current node
+   *
+   * @param val  string Value that the node will be assigned
+   */
+  void XML_Node::addValue(const std::string val) { 
+    m_value = val;
+    if (m_name == "comment") m_iscomment = true;
+  }
+
+  //    Modify the value for the current node
+  /*
+   * This functions fills in the m_value field of the current node
+   * with a formatted double value
+   *
+   * @param val  double Value that the node will be assigned
+   * @param fmt  Format of the printf string conversion of the double.
+   *             Default is "%g" Must be less than 63 chars
+   */
+  void XML_Node::addValue(const doublereal val, const std::string fmt) {
+    char buf[64];
+    sprintf(buf, fmt.c_str(), val);
+    m_value = stripws(buf);
+  }	
+
   // The operator[] is overloaded to provide a lookup capability
   //  on attributes for the current XML element.
   /*
@@ -492,13 +562,13 @@ namespace Cantera {
    *                  is returned as a string. If no match is found, the empty string
    *                  is returned.
    */
-  std::string XML_Node::attrib(std::string attr) const { 
+  std::string XML_Node::attrib(const std::string attr) const { 
     std::map<std::string,std::string>::const_iterator i = m_attribs.find(attr);
     if (i != m_attribs.end()) return i->second;
     return ""; 
   }
 
-  /**
+  /*
    * This routine carries out a search for an XML node based
    * on both the xml element name and the attribute ID.
    * If exact matches are found for both fields, the pointer
@@ -598,40 +668,9 @@ namespace Cantera {
     return 0;
   }
 
-  /**
-   *  addChild(string name, string value):
-   *    
-   *    Add a child node to the current xml node, and at the
-   *    same time add a value to the child
-   *
-   *    Resulting XML string:
-   *      <name>value</name>
-   *
-   *    Return
-   *    -------
-   *     Returns a reference to the created child XML_Node object
-   */
-  XML_Node& XML_Node::addChild(string name, string value) {
-    XML_Node& c = addChild(name);
-    c.addValue(value);
-    return c;
-  }
+ 
     
-  XML_Node& XML_Node::addChild(string name, double value, string fmt) {
-    XML_Node& c = addChild(name);
-    c.addValue(value,fmt);
-    return c;
-  }
-    
-  void XML_Node::addValue(string val) { 
-    m_value = val;
-    if (m_name == "comment") m_iscomment = true;
-  }
-  void XML_Node::addValue(doublereal val, string fmt) {
-    char buf[30];
-    sprintf(buf,fmt.c_str(),val);
-    m_value = stripws(buf);
-  }
+
     
   void XML_Node::addAttribute(string attrib, string value) {
     m_attribs[attrib] = value;
